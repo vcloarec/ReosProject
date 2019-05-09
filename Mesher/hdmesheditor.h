@@ -54,8 +54,6 @@ public:
     double tolerance() const;
     void setTolerance(double tolerance);
 
-    bool meshRecentlyChanged();
-
 private:
     HdMeshGenerator *mCurrentMeshGenerator=nullptr;
 
@@ -66,8 +64,6 @@ private:
     std::vector<Face> &mMeshFaces;
 
     double mTolerance=0.000001;
-
-    bool meshChanged=false;
 
 };
 

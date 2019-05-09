@@ -74,13 +74,6 @@ public slots:
     void message(QString message) const;
     void order(QString message) const;
 
-    void enableAction(bool b)
-    {
-        for (auto a:groupAction->actions())
-            a->setEnabled(b);
-    }
-
-
 protected:
     QActionGroup *groupAction=nullptr;
     QToolBar *toolBar=nullptr;

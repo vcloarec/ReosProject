@@ -53,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent) :
     map->refreshMap();
 
 
-    editor=new HdTINEditorUI(map->getMapCanvas(),this);
+    editor=new HdTINEditorUI(gisManager,this);
 
 
 

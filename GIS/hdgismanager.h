@@ -125,6 +125,12 @@ public:
 
     void clear();
 
+    bool addLayer(QgsMapLayer *layer);
+
+signals:
+    void currentLayerChanged(QgsMapLayer *layer);
+
+
 
 public slots:
     void openProjectSIG();
@@ -182,6 +188,7 @@ private slots:
     // ReosModule interface
 public:
     QWidget *getWidget() const override;
+
 
 };
 

@@ -2,7 +2,7 @@ include(gtest_dependency.pri)
 
 win32 {
     include(../../../../QGIS_3_MSVC.pri);
-    include(../../../GDAL_OSGEO.pri);
+    include(../../../../GDAL_OSGEO.pri);
     include(../../../QWT613_MSVC2017_x64.pri);
 }
 

@@ -85,6 +85,7 @@ HdManagerSIG::HdManagerSIG(HdMap *map, ReosModule *parent): ReosModule(parent),m
     connect(actionCRSSelectionWithText,&QAction::triggered,this,&HdManagerSIG::CRSSelection);
     connect(actionLayerProperties,&QAction::triggered,this,&HdManagerSIG::layerProperties);
     connect(treeLayerView_,&QAbstractItemView::doubleClicked,this,&HdManagerSIG::layerPropertiesByIndex);
+    connect(treeLayerView_,&QgsLayerTreeView::currentLayerChanged,this,&HdManagerSIG::currentLayerChanged);
 
     connect(QgsProject::instance(),&QgsProject::crsChanged,map_,&HdMap::crsChanged);
 
@@ -176,6 +177,22 @@ void HdManagerSIG::newProjectSIG()
 
 }
 
+bool HdManagerSIG::addLayer(QgsMapLayer *layer)
+{
+    if (layer)
+    {
+        if (layer->isValid())
+        {
+            controlLayerCRS(layer);
+            QgsProject::instance()->addMapLayer(layer,true,true);
+            bridgeTreeMap_->mapCanvas()->refresh();
+            return true;
+        }
+    }
+
+    return false;
+}
+
 
 
 void HdManagerSIG::loadVectorielLayer()
@@ -196,20 +213,8 @@ void HdManagerSIG::loadVectorielLayer()
 
     QgsVectorLayer *layer=new QgsVectorLayer(myLayerPath, myLayerBaseName, myProviderName);
 
-    bool loadingOK=false;
 
-    if (layer)
-    {
-        if (layer->isValid())
-        {
-            controlLayerCRS(layer);
-            QgsProject::instance()->addMapLayer(layer,true,true);
-            bridgeTreeMap_->mapCanvas()->refresh();
-            loadingOK=true;
-        }
-    }
-
-    if (!loadingOK)
+    if (!addLayer(layer))
     {
         QMessageBox::warning(controlPannel,tr("Erreur de chargement du fichier"),tr("Fichier de couche vectoriel non valide !"));
     }
@@ -229,20 +234,8 @@ void HdManagerSIG::loadRasterLayer()
     settings.setValue(QStringLiteral("/Path/SIGLayer"),fileInfo.path());
 
     QgsRasterLayer *layer=new QgsRasterLayer(fileInfo.filePath(),fileInfo.fileName());
-    bool loadingOK=false;
 
-    if (layer)
-    {
-        if (layer->isValid())
-        {
-            controlLayerCRS(layer);
-            QgsProject::instance()->addMapLayer(layer,true,true);
-            bridgeTreeMap_->mapCanvas()->refresh();
-            loadingOK=true;
-        }
-    }
-
-    if (!loadingOK)
+    if (!addLayer(layer))
     {
         QMessageBox::warning(controlPannel,tr("Erreur de chargement du fichier"),tr("Fichier de couche raster non valide !"));
     }

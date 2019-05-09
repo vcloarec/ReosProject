@@ -134,8 +134,6 @@ bool TINEditor::generateMesh()
     if (!mCurrentMeshGenerator)
         return false;
 
-    meshChanged=true;
-
     mCurrentMeshGenerator->clear();
     bool result=mCurrentMeshGenerator->triangulateTIN(mVertices,mSegments,mMeshFaces);
 
@@ -160,13 +158,3 @@ void TINEditor::setTolerance(double tolerance)
     mTolerance = tolerance;
 }
 
-bool TINEditor::meshRecentlyChanged()
-{
-    if(meshChanged)
-    {
-        meshChanged=false;
-        return true;
-    }
-
-    return false;
-}

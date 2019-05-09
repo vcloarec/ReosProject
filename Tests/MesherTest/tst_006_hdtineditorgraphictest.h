@@ -18,6 +18,7 @@ public:
     QgsMapCanvas *mapCanvas;
     HdTINEditorUI *uiEditor;
     QgsMeshLayer *meshLayer;
+    TINProvider *provider;
 
 
     bool testUiEditorActionEnable()
@@ -40,6 +41,7 @@ protected:
         mapCanvas=new QgsMapCanvas();
         uiEditor=new HdTINEditorUI(mapCanvas);
         meshLayer=new QgsMeshLayer("-","Mesh editable","TIN");
+        provider=static_cast<TINProvider*>(meshLayer->dataProvider());
     }
 
     void TearDown() override
@@ -69,6 +71,24 @@ TEST_F(UIMeshEditorTesting,actionsAreDisableAgain)
     uiEditor->setMeshLayer(nullptr);
 
     ASSERT_THAT(testUiEditorActionEnable(),Eq(false));
+}
+
+TEST_F(UIMeshEditorTesting,addVertex)
+{
+    uiEditor->setMeshLayer(meshLayer);
+
+    uiEditor->newVertex(QPointF(5,5));
+
+    ASSERT_THAT(provider->vertexCount(),Eq(1));
+}
+
+TEST_F(UIMeshEditorTesting,addVertexToVoidEditor)
+{
+    uiEditor->setMeshLayer(nullptr);
+
+    uiEditor->newVertex(QPointF(5,5));
+
+    ASSERT_THAT(provider->vertexCount(),Eq(0));
 }
 
 

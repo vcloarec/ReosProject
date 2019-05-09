@@ -149,6 +149,9 @@
         <file>toolbar/HlgOpenRainfall.png</file>
         <file>toolbar/HlgSaveRainfall.png</file>
         <file>toolbar/exportTab.png</file>
+        <file>toolbar/MeshNewTIN.png</file>
+        <file>toolbar/MeshTINNewVertex.png</file>
+        <file>toolbar/MeshTINTriangulation.png</file>
     </qresource>
     <qresource prefix="/Qgis">
         <file>Qgis/labels.png</file>
