@@ -182,10 +182,10 @@ private slots:
     void triangulateTIN()
     {
         editor->generateMesh();
-//        if (mMeshLayer)
-//            mMeshLayer->reload();
-        QgsProject::instance()->reloadAllLayers();
-        mCanvas->refresh();
+        if (mMeshLayer)
+            mMeshLayer->reload();
+
+        mCanvas->refreshAllLayers();
     }
 
     void enableEditAction(bool enable)

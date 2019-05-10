@@ -42,24 +42,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     QgsProviderRegistry::instance()->registerProvider(new HdMeshEditorProviderMetaData());
-    auto layer=new QgsMeshLayer("-","Mesh editable","TIN");
-
-    TINProvider *provider=static_cast<TINProvider*>(layer->dataProvider());
-
-
-    QgsProject::instance()->addMapLayer(layer,true,true);
-
-    map->setMapExtent(provider->extent().toRectF());
-    map->refreshMap();
 
 
     editor=new HdTINEditorUI(gisManager,this);
-
-
-
     QToolBar *toolBar=addToolBar("TIN Editor");
-
     toolBar->addActions(editor->getActions());
+
 }
 
 MainWindow::~MainWindow()
