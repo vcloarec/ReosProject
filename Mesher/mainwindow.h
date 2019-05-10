@@ -44,7 +44,7 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    HdTINEditorUI *editor;
+    HdTinEditorUI *editor;
 };
 
 #endif // MAINWINDOW_H

@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QgsProviderRegistry::instance()->registerProvider(new HdMeshEditorProviderMetaData());
 
 
-    editor=new HdTINEditorUI(gisManager,this);
+    editor=new HdTinEditorUI(gisManager,this);
     QToolBar *toolBar=addToolBar("TIN Editor");
     toolBar->addActions(editor->getActions());
 

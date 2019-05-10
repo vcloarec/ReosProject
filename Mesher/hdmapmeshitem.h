@@ -34,42 +34,25 @@ public:
 class HdMeshVertex: public HdMapMeshItem
 {
 public:
-    HdMeshVertex(const QPointF &mapPosition,QgsMapCanvas *canvas):HdMapMeshItem(canvas)
-    {
-        setPosition(mapPosition);
-    }
+    HdMeshVertex(const QPointF &mapPosition,QgsMapCanvas *canvas);
 
-    void setPosition(const QPointF &pt)
-    {
-        mapPosition=pt;
-        setPos(toCanvasCoordinates(pt));
-    }
+    void setPosition(const QPointF &pt);
     // QgsMapCanvasItem interface
 protected:
-    void paint(QPainter *painter) override
-    {
-        painter->save();
-        painter->setBrush(QBrush(Qt::red));
-        painter->drawEllipse(-3,-3,6,6);
-    }
+    void paint(QPainter *painter) override;
 
 private:
     QPointF mapPosition;
 
     // QgsMapCanvasItem interface
 public:
-    void updatePosition() override
-    {
-        prepareGeometryChange();
-        setPos(toCanvasCoordinates(mapPosition));
-    }
+    void updatePosition() override;
 };
 
 class HdMeshSegment: public HdMapMeshItem
 {
 public:
-    HdMeshSegment(HdMeshVertex *n0,HdMeshVertex *n1,QgsMapCanvas *canvas):HdMapMeshItem (canvas),n0(n0),n1(n1)
-    {}
+    HdMeshSegment(HdMeshVertex *n0,HdMeshVertex *n1,QgsMapCanvas *canvas);
 
 private:
     HdMeshVertex *n0=nullptr;
@@ -77,10 +60,7 @@ private:
 
     // QgsMapCanvasItem interface
 protected:
-    void paint(QPainter *painter) override
-    {
-        painter->drawLine(n0->pos(),n1->pos());
-    }
+    void paint(QPainter *painter) override;
 };
 
 class HdMapMeshEditorItemDomain: public QGraphicsItemGroup{
@@ -95,16 +75,7 @@ public:
 
     HdMeshVertex *vertex(int n) const;
 
-    void setTINEditor(TINEditor *tinEditor)
-    {
-        if(tinEditor==mMeshEditor)
-            return;
-
-        mMeshEditor=tinEditor;
-        clearDomain();
-        populateDomain();
-
-    }
+    void setTINEditor(TINEditor *tinEditor);
 
 private:
     TINEditor *mMeshEditor=nullptr;

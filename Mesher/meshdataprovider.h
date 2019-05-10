@@ -35,9 +35,7 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 class HdEditableMeshLayer: public QgsMeshLayer
 {
 public:
-    HdEditableMeshLayer():QgsMeshLayer("-","Editable mesh layer","TIN")
-    {
-    }
+    HdEditableMeshLayer();
 };
 
 class TINProvider: public QgsMeshDataProvider
@@ -146,23 +144,7 @@ public:
     int faceCount() const override {
         return int(mFaces.size());
     }
-    void populateMesh(QgsMesh *mesh) const override
-    {
-
-        for (auto v:mVerticies)
-        {
-            mesh->vertices.append(QgsMeshVertex(v.x(),v.y()));
-        }
-
-        for (auto f:mFaces)
-        {
-            QgsMeshFace mf;
-            for (auto i:f)
-                mf.append(i);
-            mesh->faces.append(mf);
-        }
-
-    }
+    void populateMesh(QgsMesh *mesh) const override;
 
     // QgsDataProvider interface
 public:

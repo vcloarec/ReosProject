@@ -28,7 +28,7 @@ HdMap::HdMap(QObject *parent):ReosModule(parent),
     cursorPosition(new HdCursorPosition(canvas_)),
     mapToolNeutral(new HdMapToolNeutral(this))
 {
-
+    canvas_->setExtent(QgsRectangle(0,0,200,200));
 }
 
 HdMap::~HdMap()

@@ -21,9 +21,36 @@ TINProvider::TINProvider(const QgsDataProvider::ProviderOptions &providerOption)
     tinEditor.setCurrentMeshGenerator("TriangleFile");
 }
 
+void TINProvider::populateMesh(QgsMesh *mesh) const
+{
+    if (!mesh)
+        return;
+
+    mesh->vertices.clear();
+    mesh->faces.clear();
+
+    for (auto v:mVerticies)
+    {
+        mesh->vertices.append(QgsMeshVertex(v.x(),v.y()));
+    }
+
+    for (auto f:mFaces)
+    {
+        QgsMeshFace mf;
+        for (auto i:f)
+            mf.append(i);
+        mesh->faces.append(mf);
+    }
+
+}
+
 
 QgsDataProvider *createMeshEditorProvider(const QString &source, const QgsDataProvider::ProviderOptions &option)
 {
     Q_UNUSED(source);
     return new TINProvider(option);
+}
+
+HdEditableMeshLayer::HdEditableMeshLayer():QgsMeshLayer("-","Editable mesh layer","TIN")
+{
 }

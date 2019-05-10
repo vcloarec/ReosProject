@@ -68,6 +68,17 @@ HdMeshVertex *HdMapMeshEditorItemDomain::vertex(int n) const
     return static_cast<HdMeshVertex*>(verticesGroup->childItems().at(n));
 }
 
+void HdMapMeshEditorItemDomain::setTINEditor(TINEditor *tinEditor)
+{
+    if(tinEditor==mMeshEditor)
+        return;
+
+    mMeshEditor=tinEditor;
+    clearDomain();
+    populateDomain();
+
+}
+
 void HdMapMeshEditorItemDomain::addVertexToGroup(const QPointF &p)
 {
     verticesGroup->addToGroup(new HdMeshVertex(p,mCanvas));
@@ -99,4 +110,36 @@ void HdMapMeshEditorItemDomain::clearDomain()
     while (segmentCount()) {
         delete segmentsGroup->childItems().at(0);
     }
+}
+
+HdMeshVertex::HdMeshVertex(const QPointF &mapPosition, QgsMapCanvas *canvas):HdMapMeshItem(canvas)
+{
+    setPosition(mapPosition);
+}
+
+void HdMeshVertex::setPosition(const QPointF &pt)
+{
+    mapPosition=pt;
+    setPos(toCanvasCoordinates(pt));
+}
+
+void HdMeshVertex::paint(QPainter *painter)
+{
+    painter->save();
+    painter->setBrush(QBrush(Qt::red));
+    painter->drawEllipse(-3,-3,6,6);
+}
+
+void HdMeshVertex::updatePosition()
+{
+    prepareGeometryChange();
+    setPos(toCanvasCoordinates(mapPosition));
+}
+
+HdMeshSegment::HdMeshSegment(HdMeshVertex *n0, HdMeshVertex *n1, QgsMapCanvas *canvas):HdMapMeshItem (canvas),n0(n0),n1(n1)
+{}
+
+void HdMeshSegment::paint(QPainter *painter)
+{
+    painter->drawLine(n0->pos(),n1->pos());
 }
