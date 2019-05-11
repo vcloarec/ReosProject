@@ -126,10 +126,14 @@ QMenu *HdManagerSIG::getContextMenu()
 
     if (treeLayerView_->selectedLayers().count()==1)
     {
-        if (treeLayerView_->currentLayer()->type()==QgsMapLayerType::RasterLayer)
+        if (treeLayerView_->currentLayer()->type()==RASTER_LAYER_TYPE)
             return getMenuForOneRasterLayer();
 
+#if VERSION_INT<=69999
+        if (treeLayerView_->currentLayer()->type()==QgsMapLayer::VectorLayer)
+#else
         if (treeLayerView_->currentLayer()->type()==QgsMapLayerType::VectorLayer)
+#endif
             return getMenuForOneVectorLayer();
 
         return nullptr;
@@ -540,7 +544,7 @@ QList<QgsRasterLayer *> HdManagerSIG::getAllRasterLayers()
 
     for (auto layer:list)
     {
-        if (layer->type()==QgsMapLayerType::RasterLayer)
+        if (layer->type()==RASTER_LAYER_TYPE)
             listRasterLayers.append(static_cast<QgsRasterLayer*>(layer));
     }
 
@@ -591,22 +595,23 @@ void HdManagerSIG::callPropertiesLayer(QgsMapLayer *layer)
 
 
     switch (layer->type()) {
-    case QgsMapLayerType::VectorLayer:
+    case VECTOR_LAYER_TYPE:
         vl=qobject_cast<QgsVectorLayer*>(layer);
         if (vl)
             dial =new HdVectorLayerPropertiesDialog(vl,map_->getMapCanvas());
         break;
-    case QgsMapLayerType::RasterLayer:
+    case RASTER_LAYER_TYPE
+    :
         rl=qobject_cast<QgsRasterLayer*>(layer);
         if (rl)
             dial =new QgsRasterLayerProperties(rl,map_->getMapCanvas());
         break;
-    case QgsMapLayerType::PluginLayer:
-        break;
-    case QgsMapLayerType::MeshLayer:
+    case MESH_LAYER_TYPE:
         ml=qobject_cast<QgsMeshLayer*>(layer);
         if (ml)
             dial= new QgsMeshLayerProperties(ml,map_->getMapCanvas());
+        break;
+    default:
         break;
     }
 
@@ -675,18 +680,18 @@ bool HdTreeLayerModel::dropMimeData(const QMimeData *data, Qt::DropAction action
             stream>>source;
             QgsMapLayer *layer=nullptr;
 
-            QgsMapLayerType layerType=static_cast<QgsMapLayerType>(type);
+            LAYER_TYPE layerType=static_cast<LAYER_TYPE>(type);
             switch (layerType) {
-            case QgsMapLayerType::VectorLayer:
+            case VECTOR_LAYER_TYPE:
                 layer=new QgsVectorLayer(source,name);
                 break;
-            case QgsMapLayerType::RasterLayer:
+            case RASTER_LAYER_TYPE:
                 layer=new  QgsRasterLayer(source,name);
                 break;
-            case QgsMapLayerType::PluginLayer:
-                break;
-            case QgsMapLayerType::MeshLayer:
+            case MESH_LAYER_TYPE:
                 layer=new  QgsMeshLayer(source,name);
+                break;
+            default:
                 break;
 
             }
