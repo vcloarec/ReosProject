@@ -86,6 +86,25 @@ public:
     QStringList mimeTypes() const override;
 
     bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
+
+    QVariant data(const QModelIndex &index, int role) const override
+    {
+        QgsLayerTreeNode *node = index2node( index );
+
+        if ( role == Qt::DecorationRole && index.column() == 0 )
+        {
+            if (QgsLayerTree::isLayer(node))
+            {
+                QgsMapLayer *layer=QgsLayerTree::toLayer(node)->layer();
+                if (layer->dataProvider()->name()=="TIN")
+                    return QPixmap("://toolbar/MeshTinIcon.png");
+            }
+        }
+
+        return QgsLayerTreeModel::data(index,role);
+
+    }
+
 };
 
 

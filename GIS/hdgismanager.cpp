@@ -309,7 +309,7 @@ void HdManagerSIG::zoomExtentToLayer()
 
 void HdManagerSIG::CRSSelection()
 {
-    HDCRSDialogSelection dial;
+    HdCRSDialogSelection dial;
 
     if (crs.isValid())
         dial.setCrs(crs);

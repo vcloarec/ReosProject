@@ -26,9 +26,8 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #include "../GIS/hdmap.h"
 #include "../Reos/reosmodule.h"
 
-#include "../Mesher/meshdataprovider.h"
-
-#include "hdtineditorgraphic.h"
+#include "provider/meshdataprovider.h"
+#include "tinEditorUi/hdtineditorgraphic.h"
 
 namespace Ui {
 class MainWindow;
@@ -42,9 +41,22 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+private slots:
+    void showTinEditor()
+    {
+        tinEditor->showWidget();
+    }
+
+    void tinEditorClosed()
+    {
+        actionTinEditor->setChecked(false);
+    }
+
 private:
     Ui::MainWindow *ui;
-    HdTinEditorUI *editor;
+    HdTinEditorUi *tinEditor;
+
+    QAction* actionTinEditor;
 };
 
 #endif // MAINWINDOW_H

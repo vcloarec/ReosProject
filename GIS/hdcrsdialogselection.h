@@ -24,13 +24,13 @@ namespace Ui {
 class HDCRSDialogSelection;
 }
 
-class HDCRSDialogSelection : public QDialog
+class HdCRSDialogSelection : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit HDCRSDialogSelection(QWidget *parent = nullptr);
-    ~HDCRSDialogSelection();
+    explicit HdCRSDialogSelection(QWidget *parent = nullptr);
+    ~HdCRSDialogSelection();
 
     void setCrs(const QgsCoordinateReferenceSystem &crs);
     QgsCoordinateReferenceSystem getCrs();

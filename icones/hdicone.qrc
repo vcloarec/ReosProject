@@ -152,6 +152,8 @@
         <file>toolbar/MeshNewTIN.png</file>
         <file>toolbar/MeshTINNewVertex.png</file>
         <file>toolbar/MeshTINTriangulation.png</file>
+        <file>toolbar/MeshTinIcon.png</file>
+        <file>toolbar/MeshTinEditor.png</file>
     </qresource>
     <qresource prefix="/Qgis">
         <file>Qgis/labels.png</file>

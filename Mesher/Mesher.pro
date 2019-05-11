@@ -54,12 +54,14 @@ SOURCES += \
     ../Reos/reosencodedelement.cpp \
     ../Reos/reossettings.cpp \
     ../Reos/reosdialogbox.cpp \
-    meshdataprovider.cpp \
-    hdmeshgenerator.cpp \
-    hdmesheditor.cpp \
-    hdmapmeshitem.cpp \
-    hdtineditorgraphic.cpp \
-    ../UtilsGeometry/utilsgeometry2d.cpp
+    ../UtilsGeometry/utilsgeometry2d.cpp \
+    provider/meshdataprovider.cpp \
+    provider/hdmeshgenerator.cpp \
+    provider/hdmesheditor.cpp \
+    tinEditorUi/hdmapmeshitem.cpp \
+    tinEditorUi/hdtineditorgraphic.cpp \
+    tinEditorUi/hdtineditoruidialog.cpp \
+    tinEditorUi/hdtineditornewdialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -72,21 +74,24 @@ HEADERS += \
     ../Reos/reosmodule.h \
     ../Reos/reossettings.h \
     ../Reos/reosmessagebox.h \
-    meshdataprovider.h \
-    hdmeshgenerator.h \
-    meshdataprovider.h \
-    hdmesheditor.h \
-    hdmapmeshitem.h \
-    hdtineditorgraphic.h \
     ../Reos/reosdialogbox.h \
-    ../UtilsGeometry/utilsgeometry2d.h
+    ../UtilsGeometry/utilsgeometry2d.h \
+    provider/meshdataprovider.h \
+    provider/hdmeshgenerator.h \
+    proider/hdmesheditor.h \
+    tinEditorUi/hdmapmeshitem.h \
+    tinEditorUi/hdtineditorgraphic.h \
+    tinEditorUi/hdtineditoruidialog.h \
+    tinEditorUi/hdtineditornewdialog.h
 
 FORMS += \
         mainwindow.ui \
     ../GIS/hdcrsdialogselection.ui \
     ../GIS/hdrasterlayerpropertiesdialog.ui \
     ../GIS/hdvectorlayerpropertiesdialog.ui \
-    ../Reos/reosmessagebox.ui
+    ../Reos/reosmessagebox.ui \
+    tinEditorUi/hdtineditoruidialog.ui \
+    tinEditorUi/hdtineditornewdialog.ui
 
 
 

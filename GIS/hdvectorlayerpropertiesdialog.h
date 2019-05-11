@@ -30,7 +30,7 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include <qgsapplication.h>
 
 
-#include <../ReosProject/Reos/reossettings.h>
+#include "../Reos/reossettings.h"
 
 
 namespace Ui {

@@ -21,7 +21,7 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #include <qgsmapcanvas.h>
 #include <qgsmapcanvasitem.h>
 
-#include "hdmesheditor.h"
+#include "../provider/hdmesheditor.h"
 
 class HdMapMeshItem : public QgsMapCanvasItem
 {

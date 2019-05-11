@@ -18,12 +18,16 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 
 int main(int argc, char *argv[])
 {
-    //QApplication a(argc, argv);
+
     QgsApplication a(argc, argv,true);
+
+    QCoreApplication::setOrganizationName(QStringLiteral("ReosProject"));
+    QCoreApplication::setApplicationName(QStringLiteral("Mesher"));
+    QSettings::setDefaultFormat(QSettings::IniFormat);
 
 
     MainWindow w;
-    w.show();
+    w.showMaximized();
 
     return a.exec();
 }

@@ -1,5 +1,5 @@
 /***************************************************************************
-                      reosdilaogbox.h
+                      hdtineditornewdialog.h
                      --------------------------------------
 Date                 : 10-05-2019
 Copyright            : (C) 2018 by Vincent Cloarec
@@ -13,23 +13,41 @@ email                : vcloarec at gmail dot com / projetreos at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
-#ifndef REOSDIALOGBOX_H
-#define REOSDIALOGBOX_H
+#ifndef HDTINEDITORNEWDIALOG_H
+#define HDTINEDITORNEWDIALOG_H
 
 #include <QDialog>
-#include <QDialogButtonBox>
-#include <QVBoxLayout>
+#include <QFileDialog>
 
+#include <qgsproject.h>
+#include <qgsprojectionselectionwidget.h>
+#include <qgscoordinatereferencesystem.h>
 
-class ReosDialogBox:public QDialog
+#include "../../Reos/reossettings.h"
+
+namespace Ui {
+class HdTinEditorNewDialog;
+}
+
+class HdTinEditorNewDialog : public QDialog
 {
+    Q_OBJECT
+
 public:
-    ReosDialogBox(QWidget* w,QWidget *parent=nullptr);
+    explicit HdTinEditorNewDialog(QWidget *parent = nullptr);
+    ~HdTinEditorNewDialog();
+
+    QString fileName() const;
+    QString name() const;
+    QgsCoordinateReferenceSystem crs() const;
+
+
+private slots:
+    void fileDialog();
 
 private:
-
-    QVBoxLayout *mLayout;
-
+    Ui::HdTinEditorNewDialog *ui;
+    QgsProjectionSelectionWidget *mCrsWidget;
 };
 
-#endif // REOSDIALOGBOX_H
+#endif // HDTINEDITORNEWDIALOG_H

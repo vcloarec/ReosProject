@@ -18,11 +18,10 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    actionTinEditor(new QAction(QPixmap("://toolbar/MeshTinEditor.png"),tr("Edition MNT à maille flexible"),this))
 {
     ui->setupUi(this);
-    ui->setupUi(this);
-
 
     setDockNestingEnabled(true);
 
@@ -40,13 +39,23 @@ MainWindow::MainWindow(QWidget *parent) :
     dockSIG->setObjectName(QStringLiteral("Dock GIS"));
     addDockWidget(Qt::LeftDockWidgetArea,dockSIG);
 
-
     QgsProviderRegistry::instance()->registerProvider(new HdMeshEditorProviderMetaData());
 
+    QMenu *fileMenu=new QMenu(tr("Fichier"));
+    menuBar()->addMenu(fileMenu);
 
-    editor=new HdTinEditorUI(gisManager,this);
-    QToolBar *toolBar=addToolBar("TIN Editor");
-    toolBar->addActions(editor->getActions());
+    ui->mainToolBar->addAction(actionTinEditor);
+    actionTinEditor->setCheckable(true);
+    tinEditor=new HdTinEditorUi(gisManager,this);
+    QMenu *tinMenu=new QMenu(tr("MNT à maille flexible"));
+    tinMenu->addActions(tinEditor->getActions());
+    menuBar()->addMenu(tinMenu);
+    connect(actionTinEditor,&QAction::triggered,this,&MainWindow::showTinEditor);
+    connect(tinEditor,&ReosModule::widgetVisibility,actionTinEditor,&QAction::setChecked);
+
+    //Active Tin editor
+    tinEditor->showWidget();
+    actionTinEditor->setChecked(true);
 
 }
 

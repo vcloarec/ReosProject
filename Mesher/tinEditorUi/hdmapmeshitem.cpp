@@ -128,6 +128,7 @@ void HdMeshVertex::paint(QPainter *painter)
     painter->save();
     painter->setBrush(QBrush(Qt::red));
     painter->drawEllipse(-3,-3,6,6);
+    painter->restore();
 }
 
 void HdMeshVertex::updatePosition()

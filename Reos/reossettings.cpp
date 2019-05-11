@@ -17,7 +17,6 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 
 
 ReosSettings::ReosSettings()
-    //:settings("settings.ini",QSettings::IniFormat)
 {
 
 }

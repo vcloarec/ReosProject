@@ -42,41 +42,16 @@ double HdTINEditorZEntryWidget::getZValue()
     return ZLineEdit->text().toDouble();
 }
 
+HdTinMapToolNewVertex::HdTinMapToolNewVertex(QgsMapCanvas *canvas):QgsMapTool(canvas){}
+
 void HdTinMapToolNewVertex::canvasPressEvent(QgsMapMouseEvent *e)
 {
     emit newVertex(e->mapPoint().toQPointF());
 }
 
-HdTinEditorUI::HdTinEditorUI(HdManagerSIG *gismanager, QObject *parent):ReosModule(parent),
-    domain(new HdMapMeshEditorItemDomain(gismanager->getMap()->getMapCanvas())),
-    gisManager(gismanager),
-    mCanvas(gismanager->getMap()->getMapCanvas()),
-    actionNewTinLayer(new QAction(QPixmap("://toolbar/MeshNewTIN.png"),tr("Nouveau TIN"),this)),
-    actionNewVertex(new QAction(QPixmap("://toolbar/MeshTINNewVertex.png"),tr("Nouveau point"),this)),
-    mapToolNewVertex(new HdTinMapToolNewVertex(gismanager->getMap()->getMapCanvas())),
-    actionTriangulateTIN(new QAction(QPixmap("://toolbar/MeshTINTriangulation.png"),tr("Triangulation"),this)),
-    zEntryWidget(new HdTINEditorZEntryWidget(gismanager->getMap()->getMapCanvas()))
-{
-    mapToolNewVertex->setAction(actionNewVertex);
 
-    groupAction->addAction(actionNewTinLayer);
-    groupAction->addAction(actionNewVertex);
-    groupAction->addAction(actionTriangulateTIN);
-    actionEditList.append(actionNewVertex);
-    actionEditList.append(actionTriangulateTIN);
-    enableEditAction(false);
 
-    connect(actionNewTinLayer,&QAction::triggered,this,&HdTinEditorUI::newTinLayer);
-
-    connect(actionNewVertex,&QAction::triggered,this,&HdTinEditorUI::startNewVertex);
-    connect(mapToolNewVertex,&HdTinMapToolNewVertex::newVertex,this,&HdTinEditorUI::newVertex);
-    connect(actionTriangulateTIN,&QAction::triggered,this,&HdTinEditorUI::triangulateTIN);
-    connect(zEntryWidget,&QDialog::accepted,this,&HdTinEditorUI::setZValue);
-
-    connect(gismanager,&HdManagerSIG::currentLayerChanged,this,&HdTinEditorUI::currentLayerChanged);
-}
-
-void HdTinEditorUI::setMeshLayer(QgsMeshLayer *meshLayer)
+void HdTinEditorUi::setMeshLayer(QgsMeshLayer *meshLayer)
 {
     if (meshLayer==mMeshLayer)
         return;
@@ -84,33 +59,34 @@ void HdTinEditorUI::setMeshLayer(QgsMeshLayer *meshLayer)
     mMeshLayer=meshLayer;
 
     if(mMeshLayer==nullptr)
-        editor=nullptr;
-    else {
+        mEditor=nullptr;
+    else
+    {
         if(mMeshLayer->dataProvider()->name()==QStringLiteral("TIN"))
         {
-            editor=static_cast<TINProvider*>(mMeshLayer->dataProvider())->editor();
+            mEditor=static_cast<TINProvider*>(mMeshLayer->dataProvider())->editor();
         }
         else {
-            editor=nullptr;
+            mEditor=nullptr;
         }
     }
-    enableEditAction(editor != nullptr);
+    enableEditAction(mEditor != nullptr);
 
-    domain->setTINEditor(editor);
+    mDomain->setTINEditor(mEditor);
 
 }
 
-void HdTinEditorUI::newVertex(const QPointF &p)
+void HdTinEditorUi::newVertex(const QPointF &p)
 {
     if (zEntryWidget->isVisible())
         setZValue();
 
-    domain->addVertex(p);
+    mDomain->addVertex(p);
     if (zEntryWidget->isHidden())
         zEntryWidget->show();
 }
 
-void HdTinEditorUI::currentLayerChanged(QgsMapLayer *layer)
+void HdTinEditorUi::currentLayerChanged(QgsMapLayer *layer)
 {
     if (!layer)
         return;
@@ -121,34 +97,41 @@ void HdTinEditorUI::currentLayerChanged(QgsMapLayer *layer)
         setMeshLayer(nullptr);
 }
 
-void HdTinEditorUI::startNewVertex()
+void HdTinEditorUi::startNewVertex()
 {
     mCanvas->setMapTool(mapToolNewVertex);
 }
 
-void HdTinEditorUI::setZValue()
+void HdTinEditorUi::setZValue()
 {
-    if( editor->verticesCount()==0)
+    if( mEditor->verticesCount()==0)
         return;
-    editor->setZValue(editor->verticesCount()-1,zEntryWidget->getZValue());
+    mEditor->setZValue(mEditor->verticesCount()-1,zEntryWidget->getZValue());
 }
 
-void HdTinEditorUI::triangulateTIN()
+void HdTinEditorUi::triangulateTIN()
 {
-    editor->generateMesh();
+    mEditor->generateMesh();
     if (mMeshLayer)
         mMeshLayer->reload();
 
     mCanvas->refresh();
 }
 
-void HdTinEditorUI::enableEditAction(bool enable)
+void HdTinEditorUi::enableEditAction(bool enable)
 {
     for (auto a:actionEditList)
         a->setEnabled(enable);
 }
 
-void HdTinEditorUI::newTinLayer()
+void HdTinEditorUi::newTinLayer()
 {
-    gisManager->addLayer(new QgsMeshLayer("-","TIN","TIN"));
+    auto dial=new HdTinEditorNewDialog(mCanvas);
+    if (dial->exec())
+    {
+        auto layer=new QgsMeshLayer(dial->fileName(),dial->name(),"TIN");
+        layer->setCrs(dial->crs());
+        mGisManager->addLayer(new QgsMeshLayer(dial->fileName(),dial->name(),"TIN"));
+    }
+
 }
