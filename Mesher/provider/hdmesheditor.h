@@ -23,33 +23,27 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 class TINEditor
 {
 public:
-    TINEditor(std::vector<Vertex> &inputVertices, std::vector<Segment> &segments, std::vector<Face> &mMeshFaces);
+    TINEditor(HdMesh &mesh,std::vector<Segment> &segments);
 
     void addMeshGenerator(HdMeshGenerator* generator);
     bool containMeshGenerator(std::string key);
     void setCurrentMeshGenerator(std::string key);
     HdMeshGenerator* currentMeshGenerator() const;
 
-    int addVertex(const Vertex &vert);
+    VertexPointer addVertex(const Vertex &vert);
+    VertexPointer addVertex(double x, double y);
     int vertexIndex(const Vertex& vert) const;
-    int ivertexCount()const;
+
 
     bool addSegment(int n0,int n1);
-
     int findSegmentWithVertex(int n0, int n1);
 
+    VertexPointer vertex(int i) const;
 
     bool generateMesh();
     int facesCount() const;
     int verticesCount() const;
     int segmentsCount() const;
-
-    const std::vector<Vertex>& vertices() const {return mVertices;}
-    const std::vector<Segment>& segments() const {return mSegments;}
-
-    const std::vector<Face>& meshFaces() const {return mMeshFaces;}
-
-    void setZValue(int vertIndex, double ZValue);
 
     double tolerance() const;
     void setTolerance(double tolerance);
@@ -59,11 +53,10 @@ private:
 
     std::map<std::string,HdMeshGenerator*> mapGenerator;
 
-    std::vector<Vertex> &mVertices;
+    HdMesh &mMesh;
     std::vector<Segment> &mSegments;
-    std::vector<Face> &mMeshFaces;
 
-    double mTolerance=0.000001;
+    double mTolerance=0.01;
 
 };
 

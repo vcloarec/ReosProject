@@ -75,10 +75,9 @@ public:
 
     HdMeshVertex *vertex(int n) const;
 
-    void setTINEditor(TINEditor *tinEditor);
+    void clear();
 
 private:
-    TINEditor *mMeshEditor=nullptr;
     QgsMapCanvas *mCanvas=nullptr;
     QGraphicsItemGroup *verticesGroup=nullptr;
     QGraphicsItemGroup *segmentsGroup=nullptr;
@@ -86,10 +85,6 @@ private:
 
     void addVertexToGroup(const QPointF &p);
     void addSegmentToGroup(int n0, int n1);
-
-    void populateDomain();
-
-    void clearDomain();
 };
 
 

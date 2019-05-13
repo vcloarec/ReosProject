@@ -129,11 +129,8 @@ QMenu *HdManagerSIG::getContextMenu()
         if (treeLayerView_->currentLayer()->type()==RASTER_LAYER_TYPE)
             return getMenuForOneRasterLayer();
 
-#if VERSION_INT<=69999
-        if (treeLayerView_->currentLayer()->type()==QgsMapLayer::VectorLayer)
-#else
-        if (treeLayerView_->currentLayer()->type()==QgsMapLayerType::VectorLayer)
-#endif
+
+        if (treeLayerView_->currentLayer()->type()==VECTOR_LAYER_TYPE)
             return getMenuForOneVectorLayer();
 
         return nullptr;

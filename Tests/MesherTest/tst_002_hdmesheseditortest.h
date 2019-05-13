@@ -7,7 +7,7 @@
 #include <gmock/gmock-matchers.h>
 
 
-#include "../../Mesher/meshdataprovider.h"
+#include "../../Mesher/provider/meshdataprovider.h"
 
 
 using namespace testing;
@@ -15,11 +15,10 @@ using namespace testing;
 class MeshEditorTesting:public Test{
 public:
 
-    std::vector<Vertex> inputVertices;
+    HdMesh mesh;
     std::vector<Segment> inputSegments;
-    std::vector<Face> meshFaces;
 
-    TINEditor meshEditor=TINEditor(inputVertices,inputSegments,meshFaces);
+    TINEditor meshEditor=TINEditor(mesh,inputSegments);
 
     void initializeMeshEditor()
     {

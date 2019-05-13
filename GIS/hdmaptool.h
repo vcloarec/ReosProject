@@ -50,10 +50,11 @@ public slots:
 
 
 protected:
-    bool inProgress_=false;
-
-    virtual void keyPressEvent( QKeyEvent* e ) override;
     HdMapTool(HdMap *map);
+
+    bool inProgress_=false;
+    virtual void keyPressEvent( QKeyEvent* e ) override;
+
 
 private:
     HdMap *map_;

@@ -23,21 +23,20 @@ void HdMeshGeneratorTriangleFile::clear()
 
 
 
-bool HdMeshGeneratorTriangleFile::triangulateMesh(const std::vector<Vertex> &inputVertices, std::vector<Vertex> &outputVertices, std::vector<Face> &outputFaces)
+bool HdMeshGeneratorTriangleFile::triangulateMesh(const HdMesh& inputMesh, HdMesh &outpuMesh)
 {
-    if (inputVertices.size()<3)
+    if (inputMesh.verticesCount()<3)
     {
         setError("NOT_ENOUGHT_DATA");
         return false;
     }
 
-    outputName=triangleCallNodeInput("",inputVertices);
+    outputName=triangleCallNodeInput("",inputMesh);
 
     if (outputName!="")
     {
         outputName=incFileName(outputName);
-        getVertices(outputVertices);
-        getFaces(outputFaces);
+        getMesh(outpuMesh);
         std::remove((outputName+".node").c_str());
         std::remove((outputName+".ele").c_str());
         std::remove((outputName+".poly").c_str());
@@ -48,19 +47,19 @@ bool HdMeshGeneratorTriangleFile::triangulateMesh(const std::vector<Vertex> &inp
     }
 }
 
-bool HdMeshGeneratorTriangleFile::triangulateTIN(const std::vector<Vertex> &inputVertices, const std::vector<Segment> &inputSegments,  std::vector<Face> &outputFaces)
+bool HdMeshGeneratorTriangleFile::triangulateTIN(HdMesh &mesh, const std::vector<Segment> &inputSegments)
 {
-    if (inputVertices.size()<3)
+    if (mesh.verticesCount()<3)
     {
         setError("NOT_ENOUGHT_DATA");
         return false;
     }
 
-    outputName=triangleCallNodePolyInput("pc",inputVertices,inputSegments);
+    outputName=triangleCallNodePolyInput("pc",mesh,inputSegments);
 
     if (outputName!=""){
         outputName=incFileName(outputName);
-        getFaces(outputFaces);
+        getFaces(mesh);
         removeFile(outputName);
         return true;
     }
@@ -100,10 +99,10 @@ std::string HdMeshGeneratorTriangleFile::incFileName(std::string fileName)
     return fileName;
 }
 
-std::string HdMeshGeneratorTriangleFile::triangleCallNodeInput(std::string argument, const std::vector<Vertex> &nodes)
+std::string HdMeshGeneratorTriangleFile::triangleCallNodeInput(std::string argument, const HdMesh& mesh)
 {
     std::string inputName=TRIANGLE_FILENAME;
-    std::string inputFileName=populateNodeFile(inputName,nodes);
+    std::string inputFileName=populateNodeFile(inputName,mesh);
 
     if(triangleCall(argument,inputFileName))
     {
@@ -120,11 +119,11 @@ std::string HdMeshGeneratorTriangleFile::triangleCallNodeInput(std::string argum
 
 
 
-std::string HdMeshGeneratorTriangleFile::triangleCallNodePolyInput(std::string argument, const std::vector<Vertex> &nodes, const std::vector<Segment> &segments)
+std::string HdMeshGeneratorTriangleFile::triangleCallNodePolyInput(std::string argument, const HdMesh &mesh, const std::vector<Segment> &segments)
 {
     std::string inputName=TRIANGLE_FILENAME;
-    populateNodeFile(inputName,nodes);
-    std::string inputFileName=populatePolyFile(inputName,segments);
+    populateNodeFile(inputName,mesh);
+    std::string inputFileName=populatePolyFile(inputName,mesh,segments);
 
     if(triangleCall(argument,inputFileName))
     {
@@ -138,7 +137,7 @@ std::string HdMeshGeneratorTriangleFile::triangleCallNodePolyInput(std::string a
     }
 }
 
-std::string HdMeshGeneratorTriangleFile::populateNodeFile(std::string name, const std::vector<Vertex> &points)
+std::string HdMeshGeneratorTriangleFile::populateNodeFile(std::string name, const HdMesh &mesh)
 {
     std::string nodeFileName(name.append(".node"));
     std::ofstream nodeFile(nodeFileName);
@@ -147,19 +146,22 @@ std::string HdMeshGeneratorTriangleFile::populateNodeFile(std::string name, cons
     {
         generatorError();
     }
-    nodeFile<<points.size()<<" "<<"2"<<std::endl;
 
-    int i=0;
-    for (auto vert:points)
+    int count=mesh.verticesCount();
+
+    nodeFile<<mesh.verticesCount()<<" "<<"2"<<std::endl;
+
+    for (int i=0;i<count;++i)
     {
-        nodeFile<<i++<<" "<<vert.x()<<" "<<vert.y()<<std::endl;
+        VertexPointer vert=mesh.vertex(i);
+        nodeFile<<i<<" "<<vert->x()<<" "<<vert->y()<<std::endl;
     }
     nodeFile.close();
 
     return nodeFileName;
 }
 
-std::string HdMeshGeneratorTriangleFile::populatePolyFile(std::string name, const std::vector<Segment> &segments)
+std::string HdMeshGeneratorTriangleFile::populatePolyFile(std::string name, const HdMesh& mesh,const std::vector<Segment> &segments)
 {
     std::string polyFileName(name.append(".poly"));
     std::ofstream polyFile(polyFileName);
@@ -175,7 +177,7 @@ std::string HdMeshGeneratorTriangleFile::populatePolyFile(std::string name, cons
     int i=0;
     for (auto seg:segments)
     {
-        polyFile<<i++<<" "<<seg.first<<" "<<seg.second<<std::endl;
+        polyFile<<i++<<" "<<mesh.index(seg.first())<<" "<<mesh.index(seg.second())<<std::endl;
     }
 
     //hole
@@ -234,9 +236,9 @@ void HdMeshGeneratorTriangleFile::removeFile(std::string name)
     std::remove((name+".poly").c_str());
 }
 
-void HdMeshGeneratorTriangleFile::getVertices(std::vector<Vertex> &verticies)
+void HdMeshGeneratorTriangleFile::getVertices(HdMesh &mesh)
 {
-    verticies.clear();
+    mesh.clear();
 
     std::string fileName=outputName+".node";
 
@@ -266,17 +268,17 @@ void HdMeshGeneratorTriangleFile::getVertices(std::vector<Vertex> &verticies)
         auto splitVerticesLine=splitString(line,' ');
         if(splitVerticesLine.size()>2)
         {
-            Vertex pt(std::stod(splitVerticesLine.at(1)),std::stod(splitVerticesLine.at(2)));
-            verticies.push_back(pt);
+            mesh.addVertex(Vertex::makeVertex(std::stod(splitVerticesLine.at(1)),
+                                              std::stod(splitVerticesLine.at(2))));
         }
     }
 
 
 }
 
-void HdMeshGeneratorTriangleFile::getFaces(std::vector<Face> &faces)
+void HdMeshGeneratorTriangleFile::getFaces(HdMesh &mesh)
 {
-    faces.clear();
+    mesh.clearFaces();
 
     std::string fileName=outputName+".ele";
 
@@ -309,11 +311,17 @@ void HdMeshGeneratorTriangleFile::getFaces(std::vector<Face> &faces)
             std::vector<int> f({std::stoi(splitVerticesLine.at(1)),
                                 std::stoi(splitVerticesLine.at(2)),
                                 std::stoi(splitVerticesLine.at(3))});
-            faces.push_back(f);
+            mesh.addFace(f);
         }
     }
 
 
+}
+
+void HdMeshGeneratorTriangleFile::getMesh(HdMesh &mesh)
+{
+    getVertices(mesh);
+    getFaces(mesh);
 }
 
 void HdMeshGenerator::setError(const std::string &value)
@@ -335,3 +343,84 @@ std::vector<std::string> splitString(std::string str, char sep)
 
     return split;
 }
+
+int HdMesh::index(VertexPointer v) const
+{
+    bool found=false;
+    size_t index=0;
+    size_t count=mVertices.size();
+
+    while( !found && index< count )
+    {
+        found = mVertices[index]==v;
+        if( ! found )
+            index++;
+    }
+
+    if (found)
+        return int(index);
+    else {
+        return -1;
+    }
+}
+
+int HdMesh::vertexIndex(double x, double y, double tolerance) const
+{
+    bool found=0;
+    int i=0;
+    while ( i<verticesCount() && !found )
+    {
+        VertexPointer vert=vertex(i);
+        found=fabs(x-vert->x())<=tolerance && fabs(y-vert->y())<=tolerance;
+        if (!found)
+            ++i;
+    }
+    if (found)
+        return int(i);
+
+    return -1;
+}
+
+
+int HdMesh::index(FacePointer f) const
+{
+    bool found=false;
+    size_t index=0;
+    size_t count=mFaces.size();
+
+    while( !found && index< count )
+    {
+        found = mFaces[index]==f;
+        if( ! found )
+            index++;
+    }
+
+    if (found)
+        return int(index);
+    else {
+        return -1;
+    }
+}
+
+int HdMesh::verticesCount() const {return int(mVertices.size());}
+
+int HdMesh::facesCount() const {return int(mFaces.size());}
+
+VertexPointer HdMesh::vertex(int index) const
+{
+    if ( index>=0 && index<verticesCount())
+        return mVertices[size_t(index)];
+    else {
+        return VertexPointer();
+    }
+}
+
+FacePointer HdMesh::face(int index) const
+{
+    if ( index>= 0 && index<facesCount())
+        return mFaces[size_t(index)];
+    else {
+        return FacePointer();
+    }
+}
+

@@ -39,7 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
     dockSIG->setObjectName(QStringLiteral("Dock GIS"));
     addDockWidget(Qt::LeftDockWidgetArea,dockSIG);
 
-    QgsProviderRegistry::instance()->registerProvider(new HdMeshEditorProviderMetaData());
+    QgsProviderRegistry::instance()->registerProvider(new HdTinEditorProviderMetaData());
 
     QMenu *fileMenu=new QMenu(tr("Fichier"));
     menuBar()->addMenu(fileMenu);

@@ -16,33 +16,7 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #include "hdtineditorgraphic.h"
 
 
-HdTINEditorZEntryWidget::HdTINEditorZEntryWidget(QWidget *parent):QDialog(parent)
-{
-    QVBoxLayout *lay=new QVBoxLayout;
-    setLayout(lay);
-
-    QHBoxLayout *hLay=new QHBoxLayout;
-    ZLineEdit=new QLineEdit;
-    hLay->addWidget(new QLabel("Z :"));
-    hLay->addWidget(ZLineEdit);
-
-    lay->addLayout(hLay);
-    QDialogButtonBox *buttonBox=new QDialogButtonBox(QDialogButtonBox::Ok);
-    lay->addWidget(buttonBox);
-
-    ZLineEdit->setFocus();
-    ZLineEdit->setText("0");
-    setModal(false);
-
-    connect(buttonBox,&QDialogButtonBox::accepted,this,&QDialog::accept);
-}
-
-double HdTINEditorZEntryWidget::getZValue()
-{
-    return ZLineEdit->text().toDouble();
-}
-
-HdTinMapToolNewVertex::HdTinMapToolNewVertex(QgsMapCanvas *canvas):QgsMapTool(canvas){}
+HdTinMapToolNewVertex::HdTinMapToolNewVertex(HdMap *map):HdMapTool(map){}
 
 void HdTinMapToolNewVertex::canvasPressEvent(QgsMapMouseEvent *e)
 {
@@ -50,6 +24,38 @@ void HdTinMapToolNewVertex::canvasPressEvent(QgsMapMouseEvent *e)
 }
 
 
+
+HdTinEditorUi::HdTinEditorUi(HdManagerSIG *gismanager, QObject *parent):ReosModule(parent),
+    mDomain(new HdMapMeshEditorItemDomain(gismanager->getMap()->getMapCanvas())),
+    mGisManager(gismanager),
+    mMap(gismanager->getMap()),
+    actionNewTinLayer(new QAction(QPixmap("://toolbar/MeshNewTIN.png"),tr("Nouveau TIN"),this)),
+    actionNewVertex(new QAction(QPixmap("://toolbar/MeshTINNewVertex.png"),tr("Nouveau point"),this)),
+    mapToolNewVertex(new HdTinMapToolNewVertex(gismanager->getMap())),
+    actionTriangulateTIN(new QAction(QPixmap("://toolbar/MeshTINTriangulation.png"),tr("Triangulation"),this))
+{
+    actionNewVertex->setCheckable(true);
+    mapToolNewVertex->setAction(actionNewVertex);
+
+    groupAction->addAction(actionNewTinLayer);
+    groupAction->addAction(actionNewVertex);
+    groupAction->addAction(actionTriangulateTIN);
+    actionEditList.append(actionNewVertex);
+    actionEditList.append(actionTriangulateTIN);
+    enableEditAction(false);
+
+    uiDialog=new HdTinEditorUiDialog(mMap->getMapCanvas());
+    uiDialog->setActions(getActions());
+
+    connect(actionNewTinLayer,&QAction::triggered,this,&HdTinEditorUi::newTinLayer);
+
+    connect(actionNewVertex,&QAction::triggered,this,&HdTinEditorUi::startNewVertex);
+    connect(mapToolNewVertex,&HdTinMapToolNewVertex::newVertex,this,&HdTinEditorUi::newVertex);
+    connect(mapToolNewVertex,&HdTinMapToolNewVertex::arret,this,&HdTinEditorUi::stopNewVertex);
+    connect(actionTriangulateTIN,&QAction::triggered,this,&HdTinEditorUi::triangulateTIN);
+    connect(gismanager,&HdManagerSIG::currentLayerChanged,this,&HdTinEditorUi::currentLayerChanged);
+    connect(uiDialog,&HdTinEditorUiDialog::closed,this,&HdTinEditorUi::widgetClosed);
+}
 
 void HdTinEditorUi::setMeshLayer(QgsMeshLayer *meshLayer)
 {
@@ -72,18 +78,43 @@ void HdTinEditorUi::setMeshLayer(QgsMeshLayer *meshLayer)
     }
     enableEditAction(mEditor != nullptr);
 
-    mDomain->setTINEditor(mEditor);
+    populateDomain();
 
 }
 
-void HdTinEditorUi::newVertex(const QPointF &p)
+VertexPointer HdTinEditorUi::newVertex(const QPointF &p)
 {
-    if (zEntryWidget->isVisible())
-        setZValue();
+    uiDialog->setLineEditFocus();
+    if (mEditor)
+    {
+        VertexPointer vert=mEditor->addVertex(p.x(),p.y());
 
-    mDomain->addVertex(p);
-    if (zEntryWidget->isHidden())
-        zEntryWidget->show();
+        if (mEditor->verticesCount()>mDomain->verticesCount())
+        {
+            addVertexToDomain(p);
+            vert->setZValue(zValue(p));
+        }
+
+        return vert;
+    }
+
+    return VertexPointer();
+}
+
+void HdTinEditorUi::populateDomain()
+{
+    mDomain->clear();
+    if (mEditor)
+    {
+        int verticesCount=mEditor->verticesCount();
+        for (int i=0;i<verticesCount;++i)
+        {
+            VertexPointer vert=mEditor->vertex(i);
+            if (vert)
+                mDomain->addVertex(QPointF(vert->x(),vert->y()));
+        }
+    }
+
 }
 
 void HdTinEditorUi::currentLayerChanged(QgsMapLayer *layer)
@@ -99,15 +130,12 @@ void HdTinEditorUi::currentLayerChanged(QgsMapLayer *layer)
 
 void HdTinEditorUi::startNewVertex()
 {
-    mCanvas->setMapTool(mapToolNewVertex);
+    mMap->setMapTool(mapToolNewVertex);
+    setLevelMode();
+    uiDialog->setLineEditFocus();
+
 }
 
-void HdTinEditorUi::setZValue()
-{
-    if( mEditor->verticesCount()==0)
-        return;
-    mEditor->setZValue(mEditor->verticesCount()-1,zEntryWidget->getZValue());
-}
 
 void HdTinEditorUi::triangulateTIN()
 {
@@ -115,7 +143,7 @@ void HdTinEditorUi::triangulateTIN()
     if (mMeshLayer)
         mMeshLayer->reload();
 
-    mCanvas->refresh();
+    mMap->refreshMap();
 }
 
 void HdTinEditorUi::enableEditAction(bool enable)
@@ -126,7 +154,7 @@ void HdTinEditorUi::enableEditAction(bool enable)
 
 void HdTinEditorUi::newTinLayer()
 {
-    auto dial=new HdTinEditorNewDialog(mCanvas);
+    auto dial=new HdTinEditorNewDialog(mMap->getMapCanvas());
     if (dial->exec())
     {
         auto layer=new QgsMeshLayer(dial->fileName(),dial->name(),"TIN");

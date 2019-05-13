@@ -6,7 +6,7 @@
 
 #include <qgsproviderregistry.h>
 
-#include "../../Mesher/meshdataprovider.h"
+#include "../../Mesher/provider/meshdataprovider.h"
 
 
 using namespace testing;
@@ -14,15 +14,13 @@ using namespace testing;
 class EditableMeshLayerTesting: public Test{
 public:
     QgsProviderRegistry *providerRegistery=QgsProviderRegistry::instance();
-    HdEditableMeshLayer *layer=nullptr;
+    QgsMeshLayer *layer=nullptr;
 
     void initializeLayerWithOneVertex()
     {
-        layer=new HdEditableMeshLayer();
-
+        layer=new QgsMeshLayer("path to mesh","nom","TIN");
         TINProvider *provider=static_cast<TINProvider*>(layer->dataProvider());
-
-        provider->tinEditor.addVertex(Vertex(0,0));
+        provider->editor()->addVertex(Vertex(0,0));
     }
 
     void initializeLayerWithSeveralVertices()
@@ -30,11 +28,11 @@ public:
         layer=new HdEditableMeshLayer();
         TINProvider *provider=static_cast<TINProvider*>(layer->dataProvider());
 
-        provider->tinEditor.addVertex(Vertex(0,0));
-        provider->tinEditor.addVertex(Vertex(0,5));
-        provider->tinEditor.addVertex(Vertex(5,5));
-        provider->tinEditor.addVertex(Vertex(5,0));
-        provider->tinEditor.addVertex(Vertex(10,5));
+        provider->editor()->addVertex(Vertex(0,0));
+        provider->editor()->addVertex(Vertex(0,5));
+        provider->editor()->addVertex(Vertex(5,5));
+        provider->editor()->addVertex(Vertex(5,0));
+        provider->editor()->addVertex(Vertex(10,5));
     }
 
     bool generateMesh()
@@ -44,13 +42,22 @@ public:
 
         TINProvider *provider=static_cast<TINProvider*>(layer->dataProvider());
 
-        return provider->tinEditor.generateMesh();
+        return provider->editor()->generateMesh();
 
     }
 
     void registerProvider()
     {
-        providerRegistery->registerProvider(new HdMeshEditorProviderMetaData());
+        providerRegistery->registerProvider(new HdTinEditorProviderMetaData());
+    }
+
+
+
+    // Test interface
+protected:
+    void SetUp() override
+    {
+        providerRegistery->registerProvider(new HdTinEditorProviderMetaData());
     }
 };
 

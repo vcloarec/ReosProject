@@ -41,157 +41,65 @@ public:
 class TINProvider: public QgsMeshDataProvider
 {
 public:
-    TINProvider(const QgsDataProvider::ProviderOptions &providerOption=QgsDataProvider::ProviderOptions());
+    TINProvider(const QgsDataProvider::ProviderOptions &providerOption=QgsDataProvider::ProviderOptions()):
+        QgsMeshDataProvider ("",providerOption),tinEditor(mMesh,mHardLines)
+    {
+
+        tinEditor.addMeshGenerator(new HdMeshGeneratorTriangleFile());
+        tinEditor.setCurrentMeshGenerator("TriangleFile");
+    }
 
     TINEditor *editor()
     {
         return &tinEditor;
     }
 
-    TINEditor tinEditor=TINEditor(mVerticies,mHardLine,mFaces);
+
 
 private:
-    std::vector<Vertex> mVerticies;
-    std::vector<Segment> mHardLine;
-    std::vector<Face> mFaces;
+    HdMesh mMesh;
+    std::vector<Segment> mHardLines;
+
+    TINEditor tinEditor;
 
     // QgsMeshDatasetSourceInterface interface
 public:
-    bool addDataset(const QString &uri) override {return false;}
+    bool addDataset(const QString &uri) override {Q_UNUSED(uri);return false;}
     QStringList extraDatasets() const override {return QStringList();}
     int datasetGroupCount() const override {return 1;}
-    int datasetCount(int groupIndex) const override {return 1;}
-
-    QgsMeshDatasetGroupMetadata datasetGroupMetadata(int groupIndex) const override
-    {
-        if (groupIndex!=0)
-            return QgsMeshDatasetGroupMetadata();
-
-        QMap<QString,QString> extraOptions;
-
-        extraOptions["By"]="vcloarec";
-        return QgsMeshDatasetGroupMetadata(tr("Altitude terrain"),true,true,-5,20,extraOptions);
-    }
-    QgsMeshDatasetMetadata datasetMetadata(QgsMeshDatasetIndex index) const override
-    {
-        if (index.group()==0 && index.dataset()==0)
-        {
-            return QgsMeshDatasetMetadata(0,true,0,5);
-        }
-
-        return QgsMeshDatasetMetadata();
-    }
-    QgsMeshDatasetValue datasetValue(QgsMeshDatasetIndex index, int valueIndex) const override {return QgsMeshDatasetValue();}
-    QgsMeshDataBlock datasetValues(QgsMeshDatasetIndex index, int valueIndex, int count) const override {
-
-        if (index.group()==0 && index.dataset()==0)
-        {
-            QgsMeshDataBlock dataBlock(QgsMeshDataBlock::ScalarDouble,count);
-
-            double *values=static_cast<double*>(dataBlock.buffer());
-
-            for (size_t i=0;i<mVerticies.size();++i)
-            {
-                values[i]=mVerticies.at(i).z();
-            }
-
-            return dataBlock;
-        }
-        else {
-            return QgsMeshDataBlock();
-        }
-
-
-    }
-    bool isFaceActive(QgsMeshDatasetIndex index, int faceIndex) const override {
-        if (index.group()==0 && index.dataset()==0)
-        {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-    QgsMeshDataBlock areFacesActive(QgsMeshDatasetIndex index, int faceIndex, int count) const override
-    {
-        if (index.group()==0 && index.dataset()==0)
-        {
-            QgsMeshDataBlock dataBlock(QgsMeshDataBlock::ActiveFlagInteger,count);
-
-            int *values=static_cast<int*>(dataBlock.buffer());
-
-            for (size_t i=0;i<mFaces.size();++i)
-            {
-                values[i]=1;
-            }
-
-            return dataBlock;
-        }
-        else {
-            return QgsMeshDataBlock();
-        }
-    }
-
-    bool persistDatasetGroup(const QString &path, const QgsMeshDatasetGroupMetadata &meta, const QVector<QgsMeshDataBlock> &datasetValues, const QVector<QgsMeshDataBlock> &datasetActive, const QVector<double> &times) override {return false;}
+    int datasetCount(int groupIndex) const override {Q_UNUSED(groupIndex);return 1;}
+    QgsMeshDatasetGroupMetadata datasetGroupMetadata(int groupIndex) const override;
+    QgsMeshDatasetMetadata datasetMetadata(QgsMeshDatasetIndex index) const override;
+    QgsMeshDatasetValue datasetValue(QgsMeshDatasetIndex index, int valueIndex) const override;
+    QgsMeshDataBlock datasetValues(QgsMeshDatasetIndex index, int valueIndex, int count) const override;
+    bool isFaceActive(QgsMeshDatasetIndex index, int faceIndex) const override;
+    QgsMeshDataBlock areFacesActive(QgsMeshDatasetIndex index, int faceIndex, int count) const override;
+    bool persistDatasetGroup(const QString &path, const QgsMeshDatasetGroupMetadata &meta, const QVector<QgsMeshDataBlock> &datasetValues, const QVector<QgsMeshDataBlock> &datasetActive, const QVector<double> &times) override;
 
     // QgsMeshDataSourceInterface interface
 public:
-    int vertexCount() const override
-    {
-        return int(mVerticies.size());
-    }
-    int faceCount() const override {
-        return int(mFaces.size());
-    }
+    int vertexCount() const override;
+    int faceCount() const override;
     void populateMesh(QgsMesh *mesh) const override;
 
     // QgsDataProvider interface
 public:
     QgsCoordinateReferenceSystem crs() const override {return QgsCoordinateReferenceSystem();}
-    QgsRectangle extent() const override {
-        if (faceCount()==0)
-            return QgsRectangle();
-
-        double xmin=1e99;
-        double ymin=1e99;
-        double xmax=-1e99;
-        double ymax=-1e99;
-
-        for (auto v:mVerticies)
-        {
-            if (v.x()>=xmax)
-                xmax=v.x();
-            if (v.y()>=ymax)
-                ymax=v.y();
-            if (v.x()<=xmin)
-                xmin=v.x();
-            if (v.y()<=ymin)
-                ymin=v.y();
-        }
-
-        return QgsRectangle(xmin,ymin,xmax,ymax);
-    }
+    QgsRectangle extent() const override;
     bool isValid() const override {return true;}
     QString name() const override {return QStringLiteral("TIN");}
     QString description() const override {return QString();}
 
-    // QgsMeshDataSourceInterface interface
-public:
-//    bool nativeMeshChanged() override
-//    {
-//        return tinEditor.meshRecentlyChanged();
-//    }
 
 };
 
 
-QgsDataProvider *createMeshEditorProvider(const QString &source,const QgsDataProvider::ProviderOptions &option);
+QgsDataProvider *createTinEditorProvider(const QString &source,const QgsDataProvider::ProviderOptions &option);
 
-class HdMeshEditorProviderMetaData: public QgsProviderMetadata
+class HdTinEditorProviderMetaData: public QgsProviderMetadata
 {
 public:
-    HdMeshEditorProviderMetaData():QgsProviderMetadata("TIN","For editable mesh",createMeshEditorProvider) {}
+    HdTinEditorProviderMetaData():QgsProviderMetadata("TIN","For editable mesh",createTinEditorProvider) {}
 
 };
 

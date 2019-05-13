@@ -42,28 +42,15 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 
 
 
-class HdTINEditorZEntryWidget: public QDialog
-{
-public :
-    HdTINEditorZEntryWidget(QWidget *parent);
-
-    double getZValue();
-
-private:
-    QLineEdit *ZLineEdit;
-};
-
-
-class HdTinMapToolNewVertex:public QgsMapTool
+class HdTinMapToolNewVertex:public HdMapTool
 {
     Q_OBJECT
 public:
-    HdTinMapToolNewVertex(QgsMapCanvas* canvas);
+    HdTinMapToolNewVertex(HdMap *map);
 
 signals:
-
     void newVertex(const QPointF &p);
-    // QgsMapTool interface
+
 public:
     void canvasPressEvent(QgsMapMouseEvent *e) override;
 };
@@ -72,53 +59,39 @@ class HdTinEditorUi : public ReosModule
 {
     Q_OBJECT
 public:
-    explicit HdTinEditorUi(HdManagerSIG *gismanager,QObject *parent = nullptr):ReosModule(parent),
-        mDomain(new HdMapMeshEditorItemDomain(gismanager->getMap()->getMapCanvas())),
-        mGisManager(gismanager),
-        mCanvas(gismanager->getMap()->getMapCanvas()),
-        actionNewTinLayer(new QAction(QPixmap("://toolbar/MeshNewTIN.png"),tr("Nouveau TIN"),this)),
-        actionNewVertex(new QAction(QPixmap("://toolbar/MeshTINNewVertex.png"),tr("Nouveau point"),this)),
-        mapToolNewVertex(new HdTinMapToolNewVertex(gismanager->getMap()->getMapCanvas())),
-        actionTriangulateTIN(new QAction(QPixmap("://toolbar/MeshTINTriangulation.png"),tr("Triangulation"),this)),
-        zEntryWidget(new HdTINEditorZEntryWidget(gismanager->getMap()->getMapCanvas()))
-    {
-        mapToolNewVertex->setAction(actionNewVertex);
 
-        groupAction->addAction(actionNewTinLayer);
-        groupAction->addAction(actionNewVertex);
-        groupAction->addAction(actionTriangulateTIN);
-        actionEditList.append(actionNewVertex);
-        actionEditList.append(actionTriangulateTIN);
-        enableEditAction(false);
-
-        uiDialog=new HdTinEditorUiDialog(mCanvas);
-        uiDialog->setActions(getActions());
-
-        connect(actionNewTinLayer,&QAction::triggered,this,&HdTinEditorUi::newTinLayer);
-
-        connect(actionNewVertex,&QAction::triggered,this,&HdTinEditorUi::startNewVertex);
-        connect(mapToolNewVertex,&HdTinMapToolNewVertex::newVertex,this,&HdTinEditorUi::newVertex);
-        connect(actionTriangulateTIN,&QAction::triggered,this,&HdTinEditorUi::triangulateTIN);
-        connect(zEntryWidget,&QDialog::accepted,this,&HdTinEditorUi::setZValue);
-
-        connect(gismanager,&HdManagerSIG::currentLayerChanged,this,&HdTinEditorUi::currentLayerChanged);
-
-        connect(uiDialog,&HdTinEditorUiDialog::closed,this,&HdTinEditorUi::widgetClosed);
-    }
+    explicit HdTinEditorUi(HdManagerSIG *gismanager,QObject *parent = nullptr);
 
     void setMeshLayer(QgsMeshLayer *meshLayer);
+    HdMapMeshEditorItemDomain *domain() const {return mDomain;}
 
 public slots:
     void showWidget() override
     {
         uiDialog->show();
     }
-    void newVertex(const QPointF &p);
-
-private slots:
-    void currentLayerChanged(QgsMapLayer *layer);
     void startNewVertex();
-    void setZValue();
+    VertexPointer newVertex(const QPointF &p);
+    void stopNewVertex()
+    {
+        setNoneMode();
+    }
+
+    void populateDomain();
+
+private:
+    void currentLayerChanged(QgsMapLayer *layer);
+    double zValue(const QPointF &p)
+    {
+        Q_UNUSED(p);
+
+        if (zValueMode==HdTinEditorUiDialog::level)
+        {
+            return uiDialog->lineEditText().toDouble();
+        }
+
+        return 0;
+    }
     void triangulateTIN();
     void enableEditAction(bool enable);
     void newTinLayer();
@@ -128,11 +101,31 @@ private slots:
         emit widgetVisibility(false);
     }
 
+    void addVertexToDomain(const QPointF& p)
+    {
+        mDomain->addVertex(p);
+    }
+
+    void setLevelMode()
+    {
+        zValueMode=HdTinEditorUiDialog::level;
+        uiDialog->setZValueMode(zValueMode);
+    }
+
+    void setNoneMode()
+    {
+        zValueMode=HdTinEditorUiDialog::none;
+        uiDialog->setZValueMode(zValueMode);
+    }
+
+
+
 private:
     HdMapMeshEditorItemDomain *mDomain;
     HdManagerSIG *mGisManager;
-    QgsMapCanvas *mCanvas;
+    HdMap *mMap;
     HdTinEditorUiDialog *uiDialog;
+    HdTinEditorUiDialog::ZValueMode zValueMode=HdTinEditorUiDialog::none;
 
     QgsMeshLayer *mMeshLayer=nullptr;
     TINEditor *mEditor=nullptr;
@@ -144,9 +137,6 @@ private:
     HdTinMapToolNewVertex *mapToolNewVertex;
 
     QAction *actionTriangulateTIN;
-
-    HdTINEditorZEntryWidget* zEntryWidget;
-
 
 };
 

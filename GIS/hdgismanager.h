@@ -64,14 +64,14 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "../Reos/reosmodule.h"
 
 
-#if VERSION_INT<=69999
+#if VERSION_INT<=30699
         #define LAYER_TYPE QgsMapLayer::LayerType
         #define RASTER_LAYER_TYPE QgsMapLayer::RasterLayer
         #define VECTOR_LAYER_TYPE QgsMapLayer::VectorLayer
         #define MESH_LAYER_TYPE QgsMapLayer::MeshLayer
 #else
         #define LAYER_TYPE QgsMapLayerType
-        #define RASTER_LAYER_TYPE QgsMapLayerType::RasterLayer;
+        #define RASTER_LAYER_TYPE QgsMapLayerType::RasterLayer
         #define VECTOR_LAYER_TYPE QgsMapLayerType::VectorLayer
         #define MESH_LAYER_TYPE QgsMapLayerType::MeshLayer
 #endif

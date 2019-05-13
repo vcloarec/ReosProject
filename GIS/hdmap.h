@@ -43,7 +43,7 @@ public:
     ~HdMap() override;
 
     QgsMapCanvas *getMapCanvas() const;
-//    QgsMapTool *makeTool(HdFactoryMapTool *factory) const;
+
     void setMapTool(HdMapTool *tool);
     QgsMapTool *getMaptool() const;
 

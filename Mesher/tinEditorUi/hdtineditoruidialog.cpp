@@ -49,6 +49,41 @@ void HdTinEditorUiDialog::setEntrySuffix(const QString &suffix)
     ui->entrySuffix->setText(suffix);
 }
 
+void HdTinEditorUiDialog::setZValueMode(HdTinEditorUiDialog::ZValueMode mode)
+{
+    switch (mode) {
+    case HdTinEditorUiDialog::none:
+        ui->entryPrefix->setText("");
+        ui->lineEdit->setText("");
+        ui->lineEdit->setEnabled(false);
+        ui->entrySuffix->setText("");
+        break;
+    case HdTinEditorUiDialog::level:
+        ui->entryPrefix->setText("Z : ");
+        ui->lineEdit->setText("0");
+        ui->lineEdit->setEnabled(true);
+        ui->entrySuffix->setText("");
+        break;
+    case HdTinEditorUiDialog::slope:
+        ui->entryPrefix->setText("Slope : ");
+        ui->lineEdit->setText("0");
+        ui->lineEdit->setEnabled(true);
+        ui->entrySuffix->setText(" %");
+        break;
+    }
+}
+
+void HdTinEditorUiDialog::setLineEditFocus()
+{
+    ui->lineEdit->setFocus(Qt::OtherFocusReason);
+    ui->lineEdit->setSelection(0,100);
+    activateWindow();
+}
+
+QString HdTinEditorUiDialog::lineEditText() const {
+    return ui->lineEdit->text();
+}
+
 void HdTinEditorUiDialog::updateSettings()
 {
     ReosSettings settings;

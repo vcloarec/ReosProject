@@ -22,42 +22,16 @@ HdMapMeshEditorItemDomain::HdMapMeshEditorItemDomain(QgsMapCanvas *canvas):
     verticesGroup(new QGraphicsItemGroup(this)),
     segmentsGroup(new QGraphicsItemGroup(this))
 {
-
     mCanvas->scene()->addItem(this);
-//    for (auto vert:editor.vertices())
-//    {
-//        QPointF position(vert.x(),vert.y());
-//        addVertexToGroup(position);
-//    }
-
 }
 
 int HdMapMeshEditorItemDomain::addVertex(const QPointF &p)
 {
-    if (!mMeshEditor)
-        return -1;
-
-    int index=mMeshEditor->addVertex(Vertex(p.x(),p.y()));
-    if (index>=verticesGroup->childItems().count())
-        addVertexToGroup(p);
-
-    return index;
+    addVertexToGroup(p);
+    return verticesCount()-1;
 }
 
-int HdMapMeshEditorItemDomain::addSegmentHardLine(int n0, const QPointF &p)
-{
-    if (!mMeshEditor)
-        return -1;
 
-    int n1=addVertex(p);
-    if (n0>=0)
-    {
-        if (mMeshEditor->addSegment(n0,n1))
-            addSegmentToGroup(n0,n1);
-    }
-    return n1;
-
-}
 
 int HdMapMeshEditorItemDomain::verticesCount() const {return verticesGroup->childItems().count();}
 
@@ -68,16 +42,6 @@ HdMeshVertex *HdMapMeshEditorItemDomain::vertex(int n) const
     return static_cast<HdMeshVertex*>(verticesGroup->childItems().at(n));
 }
 
-void HdMapMeshEditorItemDomain::setTINEditor(TINEditor *tinEditor)
-{
-    if(tinEditor==mMeshEditor)
-        return;
-
-    mMeshEditor=tinEditor;
-    clearDomain();
-    populateDomain();
-
-}
 
 void HdMapMeshEditorItemDomain::addVertexToGroup(const QPointF &p)
 {
@@ -89,19 +53,8 @@ void HdMapMeshEditorItemDomain::addSegmentToGroup(int n0, int n1)
     segmentsGroup->addToGroup(new HdMeshSegment(vertex(n0),vertex(n1),mCanvas));
 }
 
-void HdMapMeshEditorItemDomain::populateDomain()
-{
-    if(!mMeshEditor)
-        return;
 
-    for (const auto& v:mMeshEditor->vertices())
-        addVertexToGroup(QPointF(v.x(),v.y()));
-
-    for (const auto& s:mMeshEditor->segments())
-        addSegmentToGroup(s.first,s.second);
-}
-
-void HdMapMeshEditorItemDomain::clearDomain()
+void HdMapMeshEditorItemDomain::clear()
 {
     while (verticesCount()) {
         delete verticesGroup->childItems().at(0);
