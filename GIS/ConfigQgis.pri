@@ -1,8 +1,4 @@
 INCLUDEPATH += $${QGIS_INCLUDE_PATH}/include
-#INCLUDEPATH += $${QGIS_INCLUDE_PATH}/../Qt5/include
-#INCLUDEPATH += $${QGIS_INCLUDE_PATH}/../Qt5/include/QtCrypto
-#INCLUDEPATH += $${QGIS_INCLUDE_PATH}/../Qt5/include/qt5keychain
-
 
 INCLUDEPATH += $${QGIS_SRC_PATH}/app
 INCLUDEPATH += $${QGIS_SRC_PATH}/app/mesh
@@ -27,11 +23,11 @@ FORMS += \
 
 CONFIG(debug, debug|release) {
     message(debug mode)
-  LIBS +=-L$${QGIS_LIB_DEBUG_PATH}/lib -lqgis_core -lqgis_gui -lqgis_app
+  LIBS +=-L$${QGIS_LIB_DEBUG_PATH} -lqgis_core -lqgis_gui -lqgis_app
 }
 else {
     message(release mode)
-  LIBS +=-L$${QGIS_LIB_RELEASE_PATH}/lib -lqgis_core -lqgis_gui -lqgis_app
+  LIBS +=-L$${QGIS_LIB_RELEASE_PATH} -lqgis_core -lqgis_gui -lqgis_app
 }
 
 

@@ -3,41 +3,23 @@
 # Project created by QtCreator 2019-03-05T14:59:33
 #
 #-------------------------------------------------
-win32 {
-    include(../../../QGIS_3_MSVC.pri);
-    include(../../../GDAL_OSGEO.pri);
-    include(../../QWT613_MSVC2017_x64.pri)
-}
 
-linux {
-    include(../../../QGIS_LINUX.pri);
-    include(../../../GDAL_LINUX.pri);
-    include(../../QWT_LINUX.pri);
-}
+include(../config.pri)
 
-QT       += xml
+######################### QGIG
+INCLUDEPATH +=../GIS/QGis_app/
+include(../GIS/ConfigQgis.pri); #comment to generate the linguist file
 
-QT       += core gui
-QT += network
-QT += sql
+######################### GDAL
+include(../GIS/ConfigGDAL.pri);
 
+QT += core gui widgets network xml sql
 CONFIG += crypto
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = Mesher
 TEMPLATE = app
 
-# The following define makes your compiler emit warnings if you use
-# any feature of Qt which has been marked as deprecated (the exact warnings
-# depend on your compiler). Please consult the documentation of the
-# deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
-
-# You can also make your code fail to compile if you use deprecated APIs.
-# In order to do so, uncomment the following line.
-# You can also select to disable deprecated APIs only up to a certain version of Qt.
-#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 CONFIG += c++11
 
@@ -78,7 +60,7 @@ HEADERS += \
     ../UtilsGeometry/utilsgeometry2d.h \
     provider/meshdataprovider.h \
     provider/hdmeshgenerator.h \
-    proider/hdmesheditor.h \
+    provider/hdmesheditor.h \
     tinEditorUi/hdmapmeshitem.h \
     tinEditorUi/hdtineditorgraphic.h \
     tinEditorUi/hdtineditoruidialog.h \
@@ -94,10 +76,8 @@ FORMS += \
     tinEditorUi/hdtineditornewdialog.ui
 
 
-
-
-TRANSLATIONS +=../cmn/hydro_en.ts
-TRANSLATIONS +=../cmn/hydro_fr.ts
+TRANSLATIONS +=../i18n/hydro_en.ts
+TRANSLATIONS +=../i18n/hydro_fr.ts
 
 
 RESOURCES += \
@@ -112,10 +92,5 @@ SOURCES_FILES +=../cmn/icone/toolbar/*.*
 SOURCES_FILES +=../cmn/icone/cursor/*.*
 SOURCES_FILES +=../cmn/icone/Qgis/*.*
 
-#uncomment to copy the source file
-#include(../PRI/exportSource.pri)
 
-INCLUDEPATH +=../GIS/QGis_app/
-#comment to generate the linguist file
-include(../GIS/ConfigQgis.pri);
 

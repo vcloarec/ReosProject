@@ -1,19 +1,15 @@
+include(../../config.pri)
 include(gtest_dependency.pri)
 
-win32 {
-    include(../../../../QGIS_3_MSVC.pri);
-    include(../../../../GDAL_OSGEO.pri);
-    include(../../../QWT613_MSVC2017_x64.pri);
-}
+######################### QGIG
+INCLUDEPATH +=../../GIS/QGis_app/
+include(../../GIS/ConfigQgis.pri); #comment to generate the linguist file
 
-linux {
-    include(../../../QGIS_LINUX.pri);
-    include(../../../GDAL_LINUX.pri);
-    include(../../../QWT_LINUX.pri);
-}
+######################### GDAL
+include(../../GIS/ConfigGDAL.pri);
 
-QT += xml
-QT += widgets
+QT += core gui widgets network xml sql
+CONFIG += crypto
 
 TEMPLATE = app
 CONFIG += console
@@ -66,11 +62,6 @@ SOURCES += \
     ../../GIS/hdvectorlayerpropertiesdialog.cpp \
     ../../UtilsGeometry/utilsgeometry2d.cpp
 
-DEFINES +=ANSI_DECLARATORS
-DEFINES +=REAL=double
-
-include(../../GIS/ConfigQgis.pri);
-INCLUDEPATH +=../../GIS/QGis_app/
 
 FORMS += \
     ../../Mesher/tinEditorUi/hdtineditornewdialog.ui \
