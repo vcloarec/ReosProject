@@ -10,8 +10,9 @@ include(../config.pri)
 INCLUDEPATH +=../GIS/QGis_app/
 include(../GIS/ConfigQgis.pri); #comment to generate the linguist file
 
+
 ######################### GDAL
-include(../GIS/ConfigGDAL.pri);
+include(../GIS/configGDAL.pri);
 
 QT += core gui widgets network xml sql
 CONFIG += crypto

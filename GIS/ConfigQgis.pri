@@ -1,4 +1,4 @@
-INCLUDEPATH += $${QGIS_INCLUDE_PATH}/include
+INCLUDEPATH += $${QGIS_INCLUDE_PATH}
 
 INCLUDEPATH += $${QGIS_SRC_PATH}/app
 INCLUDEPATH += $${QGIS_SRC_PATH}/app/mesh
@@ -6,6 +6,7 @@ INCLUDEPATH += $${QGIS_SRC_PATH}/gui
 INCLUDEPATH += $${QGIS_SRC_PATH}/core
 INCLUDEPATH += $${QGIS_SRC_PATH}/core/symbology
 INCLUDEPATH += $${QGIS_SRC_PATH}/core/raster
+INCLUDEPATH += $${QGIS_SRC_PATH}/../external
 
 RESOURCES += $${QGIS_SRC_PATH}/../images/images.qrc
 
@@ -32,3 +33,4 @@ else {
 
 
 QT +=xml
+
