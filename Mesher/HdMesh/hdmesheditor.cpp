@@ -15,36 +15,67 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 
 #include "hdmesheditor.h"
 
-TINEditor::TINEditor(HdMesh &mesh, std::vector<Segment> &segments):
-    mMesh(mesh),mSegments(segments)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+HdMeshEditor::HdMeshEditor(HdMeshBasic &mesh, std::vector<Segment> &segments):mMesh(mesh),mSegments(segments)
 {
+
 }
 
-VertexPointer TINEditor::addVertex(const Vertex &vert)
+void HdMeshEditor::addMeshGenerator(HdMeshGenerator *generator)
+{
+    mapGenerator[generator->getKey()]=generator;
+}
+
+bool HdMeshEditor::containMeshGenerator(std::string key)
+{
+    return (mapGenerator.find(key)!=mapGenerator.end());
+}
+
+void HdMeshEditor::setCurrentMeshGenerator(std::string key)
+{
+    if (containMeshGenerator(key))
+        mCurrentMeshGenerator=mapGenerator[key];
+    else {
+        mCurrentMeshGenerator=nullptr;
+    }
+}
+
+HdMeshGenerator *HdMeshEditor::currentMeshGenerator() const {
+    return mCurrentMeshGenerator;
+}
+
+VertexPointer HdMeshEditor::addVertex(const VertexBasic &vert)
 {
     return addVertex(vert.x(),vert.y());
 }
 
-VertexPointer TINEditor::addVertex(double x, double y)
+VertexPointer HdMeshEditor::addVertex(double x, double y)
 {
-    int index=mMesh.vertexIndex(x,y,tolerance());
-    if (index==-1)
+    VertexPointer vert=mMesh.vertex(x,y,tolerance());
+    if (vert)
     {
-        VertexPointer vert=Vertex::makeVertex(x,y);
-        mMesh.addVertex(vert);
         return vert;
     }
     else {
-        return mMesh.vertex(index);
+        return mMesh.addVertex(x,y);
     }
 }
 
-int TINEditor::vertexIndex(const Vertex &vert) const
-{
-    return mMesh.vertexIndex(vert.x(),vert.y(),tolerance());
-}
-
-bool TINEditor::addSegment(int n0, int n1)
+bool HdMeshEditor::addSegment(int n0, int n1)
 {
     if (n0 >= verticesCount() || n1 >= verticesCount() || n0==n1)
         return false;
@@ -59,7 +90,7 @@ bool TINEditor::addSegment(int n0, int n1)
     return true;
 }
 
-int TINEditor::findSegmentWithVertex(int n0, int n1)
+int HdMeshEditor::findSegmentWithVertex(int n0, int n1)
 {
     if (n0 >= verticesCount() || n1 >= verticesCount() || n0==n1)
         return -1;
@@ -79,44 +110,12 @@ int TINEditor::findSegmentWithVertex(int n0, int n1)
         return -1;
 }
 
-VertexPointer TINEditor::vertex(int i) const {return mMesh.vertex(i);}
-
-
-
-int TINEditor::verticesCount() const {
-    return mMesh.verticesCount();
-}
-
-int TINEditor::segmentsCount() const
+VertexPointer HdMeshEditor::vertex(double x, double y) const
 {
-    return int(mSegments.size());
+    return mMesh.vertex(x,y,tolerance());
 }
 
-
-void TINEditor::addMeshGenerator(HdMeshGenerator *generator)
-{
-    mapGenerator[generator->getKey()]=generator;
-}
-
-bool TINEditor::containMeshGenerator(std::string key)
-{
-    return (mapGenerator.find(key)!=mapGenerator.end());
-}
-
-void TINEditor::setCurrentMeshGenerator(std::string key)
-{
-    if (containMeshGenerator(key))
-        mCurrentMeshGenerator=mapGenerator[key];
-    else {
-        mCurrentMeshGenerator=nullptr;
-    }
-}
-
-HdMeshGenerator *TINEditor::currentMeshGenerator() const {
-    return mCurrentMeshGenerator;
-}
-
-bool TINEditor::generateMesh()
+bool HdMeshEditor::generateMesh()
 {
     if (!mCurrentMeshGenerator)
         return false;
@@ -128,20 +127,35 @@ bool TINEditor::generateMesh()
 
 }
 
-int TINEditor::facesCount() const
+int HdMeshEditor::facesCount() const
 {
     return mMesh.facesCount();
 }
 
+int HdMeshEditor::verticesCount() const {
+    return mMesh.verticesCount();
+}
 
+int HdMeshEditor::segmentsCount() const
+{
+    return int(mSegments.size());
+}
 
-double TINEditor::tolerance() const
+double HdMeshEditor::tolerance() const
 {
     return mTolerance;
 }
 
-void TINEditor::setTolerance(double tolerance)
+void HdMeshEditor::setTolerance(double tolerance)
 {
     mTolerance = tolerance;
 }
+
+
+
+
+
+
+
+
 

@@ -104,6 +104,8 @@ TEST_F(MeshItemTesting, associateMeshAfterPopulateToEditor)
     uiEditor->setMeshLayer(meshLayer);
     populateEditorWithVertex();
 
+    ASSERT_THAT(uiEditor->domain()->verticesCount(),Eq(5));
+
     uiEditor->setMeshLayer(nullptr);
 
     uiEditor->setMeshLayer(meshLayer);

@@ -18,42 +18,49 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 
 
 #include "hdmeshgenerator.h"
+#include "../HdTin/hdtin.h"
 
 
-class TINEditor
+
+
+class HdMeshEditor
 {
 public:
-    TINEditor(HdMesh &mesh,std::vector<Segment> &segments);
+    HdMeshEditor(HdMeshBasic &mesh,std::vector<Segment> &segments);
 
     void addMeshGenerator(HdMeshGenerator* generator);
     bool containMeshGenerator(std::string key);
     void setCurrentMeshGenerator(std::string key);
     HdMeshGenerator* currentMeshGenerator() const;
 
-    VertexPointer addVertex(const Vertex &vert);
+    VertexPointer addVertex(const VertexBasic &vert);
+
     VertexPointer addVertex(double x, double y);
-    int vertexIndex(const Vertex& vert) const;
 
+    bool addSegment(int n0, int n1);
 
-    bool addSegment(int n0,int n1);
     int findSegmentWithVertex(int n0, int n1);
 
-    VertexPointer vertex(int i) const;
+    VertexPointer vertex(int i) const {return mMesh.vertex(i);}
+    VertexPointer vertex(double x, double y) const;
 
     bool generateMesh();
+
     int facesCount() const;
+
     int verticesCount() const;
+
     int segmentsCount() const;
 
     double tolerance() const;
-    void setTolerance(double tolerance);
 
+    void setTolerance(double tolerance);
 private:
     HdMeshGenerator *mCurrentMeshGenerator=nullptr;
 
     std::map<std::string,HdMeshGenerator*> mapGenerator;
 
-    HdMesh &mMesh;
+    HdMeshBasic &mMesh;
     std::vector<Segment> &mSegments;
 
     double mTolerance=0.01;

@@ -6,7 +6,9 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock-matchers.h>
 
-#include "../../Mesher/provider/hdmeshgenerator.h"
+#include "../../Mesher/HdMesh/hdmeshgenerator.h"
+#include "../../Mesher/HdTin/hdtin.h"
+
 
 using namespace testing;
 
@@ -17,11 +19,11 @@ public:
 
     void populateWithVertex()
     {
-        inputMesh.addVertex(Vertex::makeVertex(5,15));
-        inputMesh.addVertex(Vertex::makeVertex(10,15));
-        inputMesh.addVertex(Vertex::makeVertex(5,10));
-        inputMesh.addVertex(Vertex::makeVertex(10,10));
-        inputMesh.addVertex(Vertex::makeVertex(10,5));
+        inputMesh.addVertex(5,15);
+        inputMesh.addVertex(10,15);
+        inputMesh.addVertex(5,10);
+        inputMesh.addVertex(10,10);
+        inputMesh.addVertex(10,5);
     }
 
     void populateSegment()
@@ -36,23 +38,23 @@ public:
        meshGeneratorTriangleFile.triangulateMesh(inputMesh,outputMesh);
     }
 
-    void triangulateWithSegment(std::vector<Vertex> &oVert,std::vector<Face> &oFaces)
+    void triangulateWithSegment(std::vector<VertexBasic> &oVert,std::vector<Face> &oFaces)
     {
         populateSegment();
         ///TODO
        // meshGeneratorTriangleFile.triangulateTIN(verticesList,segmentList,oFaces);
     }
 
-    HdMesh inputMesh;
+    HdMeshBasic inputMesh;
     std::vector<Segment> segmentList;
 
-    HdMesh outputMesh;
+    HdMeshBasic outputMesh;
     std::vector<Segment> outputSegments;
 };
 
 TEST_F(MeshGeneratorTesting, triangulateFailNotEnoughtPoint)
 {
-    inputMesh.addVertex(Vertex::makeVertex(0,1));
+    inputMesh.addVertex(0,1);
 
     ASSERT_FALSE(meshGeneratorTriangleFile.triangulateMesh(inputMesh,outputMesh));
     ASSERT_THAT(meshGeneratorTriangleFile.getError(),Eq("NOT_ENOUGHT_DATA"));
@@ -98,29 +100,70 @@ TEST_F(MeshGeneratorTesting, VertexCount)
 }
 
 
-TEST_F(MeshGeneratorTesting, getFaces)
+
+class MeshGeneratorCGALTesting:public Test{
+public:
+    HdTin cgalMESH;
+
+
+};
+
+TEST_F(MeshGeneratorCGALTesting, meshCreation)
 {
-    triangulateWithVertex();
-
-    std::vector<std::vector<int>> facesToObtain;
-    facesToObtain.push_back({0,2,3});
-    facesToObtain.push_back({4,3,2});
-    facesToObtain.push_back({3,1,0});
-
-
-    //ASSERT_THAT(outputFaces,Eq(facesToObtain));
+    ASSERT_THAT(cgalMESH.verticesCount(),Eq(0));
 }
 
-TEST_F(MeshGeneratorTesting, getFacesWithTriangulateWithSegment)
+TEST_F(MeshGeneratorCGALTesting, addOneVertex)
 {
-    //triangulateWithSegment(outputVertices,outputFaces);
+    cgalMESH.addVertex(5,5);
 
-    std::vector<std::vector<int>> facesToObtain;
-    facesToObtain.push_back({2,4,0});
-    facesToObtain.push_back({3,0,4});
-    facesToObtain.push_back({3,1,0});
+    ASSERT_THAT(cgalMESH.verticesCount(),Eq(1));
+}
 
-    //ASSERT_THAT(outputFaces,Eq(facesToObtain));
+TEST_F(MeshGeneratorCGALTesting, addVerticesToHaveAFace)
+{
+    cgalMESH.addVertex(5,5);
+    cgalMESH.addVertex(10,5);
+    cgalMESH.addVertex(5,10);
+
+    ASSERT_THAT(cgalMESH.verticesCount(),Eq(3));
+    ASSERT_THAT(cgalMESH.facesCount(),Eq(1));
+}
+
+TEST_F(MeshGeneratorCGALTesting, addVerticesToHaveTwoFace)
+{
+    cgalMESH.addVertex(5,5);
+    cgalMESH.addVertex(6,5);
+    cgalMESH.addVertex(7,10);
+    cgalMESH.addVertex(10,10);
+
+    ASSERT_THAT(cgalMESH.verticesCount(),Eq(4));
+    ASSERT_THAT(cgalMESH.facesCount(),Eq(2));
+}
+
+
+TEST_F(MeshGeneratorCGALTesting, addDupplicatesVertices)
+{
+    cgalMESH.addVertex(5,5);
+    cgalMESH.addVertex(5,5);
+    cgalMESH.addVertex(7,10);
+    cgalMESH.addVertex(10,10);
+
+    ASSERT_THAT(cgalMESH.verticesCount(),Eq(3));
+    ASSERT_THAT(cgalMESH.facesCount(),Eq(1));
+}
+
+TEST_F(MeshGeneratorCGALTesting, locateVertex)
+{
+    VertexPointer vert1=cgalMESH.addVertex(5,5);
+
+    cgalMESH.addVertex(7,10);
+    //cgalMESH.addVertex(10,10);
+
+    VertexPointer vert2=cgalMESH.vertex(4.999,5.001,0.01);
+
+    ASSERT_TRUE(vert2==vert1);
+
 }
 
 

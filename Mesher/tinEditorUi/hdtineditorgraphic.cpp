@@ -106,12 +106,12 @@ void HdTinEditorUi::populateDomain()
     mDomain->clear();
     if (mEditor)
     {
-        int verticesCount=mEditor->verticesCount();
-        for (int i=0;i<verticesCount;++i)
+        auto tinReader=mEditor->getTinReader();
+        while (!tinReader->allVerticesReaden())
         {
-            VertexPointer vert=mEditor->vertex(i);
-            if (vert)
-                mDomain->addVertex(QPointF(vert->x(),vert->y()));
+            double vert[3];
+            tinReader->readOnlyVertex(vert);
+            mDomain->addVertex(QPointF(vert[0],vert[1]));
         }
     }
 
@@ -139,7 +139,6 @@ void HdTinEditorUi::startNewVertex()
 
 void HdTinEditorUi::triangulateTIN()
 {
-    mEditor->generateMesh();
     if (mMeshLayer)
         mMeshLayer->reload();
 

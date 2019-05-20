@@ -11,7 +11,7 @@
 
 using namespace testing;
 
-class EditableMeshLayerTesting: public Test{
+class TinLayerTesting: public Test{
 public:
     QgsProviderRegistry *providerRegistery=QgsProviderRegistry::instance();
     QgsMeshLayer *layer=nullptr;
@@ -20,30 +20,19 @@ public:
     {
         layer=new QgsMeshLayer("path to mesh","nom","TIN");
         TINProvider *provider=static_cast<TINProvider*>(layer->dataProvider());
-        provider->editor()->addVertex(Vertex(0,0));
+        provider->editor()->addVertex(0,0);
     }
 
     void initializeLayerWithSeveralVertices()
     {
-        layer=new HdEditableMeshLayer();
+        layer=new HdTinLayer();
         TINProvider *provider=static_cast<TINProvider*>(layer->dataProvider());
 
-        provider->editor()->addVertex(Vertex(0,0));
-        provider->editor()->addVertex(Vertex(0,5));
-        provider->editor()->addVertex(Vertex(5,5));
-        provider->editor()->addVertex(Vertex(5,0));
-        provider->editor()->addVertex(Vertex(10,5));
-    }
-
-    bool generateMesh()
-    {
-        if (!layer)
-            return false;
-
-        TINProvider *provider=static_cast<TINProvider*>(layer->dataProvider());
-
-        return provider->editor()->generateMesh();
-
+        provider->editor()->addVertex(0,0);
+        provider->editor()->addVertex(0,5);
+        provider->editor()->addVertex(5,5);
+        provider->editor()->addVertex(5,0);
+        provider->editor()->addVertex(0,5);
     }
 
     void registerProvider()
@@ -61,83 +50,57 @@ protected:
     }
 };
 
-TEST_F(EditableMeshLayerTesting,registerProvider)
+TEST_F(TinLayerTesting,registerProvider)
 {
     registerProvider();
     ASSERT_TRUE(providerRegistery->providerList().contains("TIN"));
 }
 
-TEST_F(EditableMeshLayerTesting,createProvider)
+TEST_F(TinLayerTesting,createProvider)
 {
     registerProvider();
     QgsDataProvider *provider=providerRegistery->createProvider("TIN","");
     ASSERT_TRUE(provider->isValid());
 }
 
-TEST_F(EditableMeshLayerTesting, layerHasProvider)
+TEST_F(TinLayerTesting, layerHasProvider)
 {
     registerProvider();
-    HdEditableMeshLayer *layer=new HdEditableMeshLayer();
+    HdTinLayer *layer=new HdTinLayer();
 
     ASSERT_TRUE(layer->dataProvider()!=nullptr);
 }
 
-TEST_F(EditableMeshLayerTesting, layerIsValid)
+TEST_F(TinLayerTesting, layerIsValid)
 {
     registerProvider();
-    HdEditableMeshLayer *layer=new HdEditableMeshLayer();
+    HdTinLayer *layer=new HdTinLayer();
 
     ASSERT_TRUE(layer->isValid());
 }
 
-TEST_F(EditableMeshLayerTesting, generateFailWithNotEnoughtData)
-{
-    registerProvider();
-    initializeLayerWithOneVertex();
 
-    ASSERT_FALSE(generateMesh());
 
-}
-
-TEST_F(EditableMeshLayerTesting, generateSucces)
+TEST_F(TinLayerTesting, verticesCount)
 {
     registerProvider();
     initializeLayerWithSeveralVertices();
 
 
-    ASSERT_TRUE(generateMesh());
+    ASSERT_THAT(layer->dataProvider()->vertexCount(),Eq(4));
 }
 
 
-TEST_F(EditableMeshLayerTesting, verticesAfterGenerate)
+TEST_F(TinLayerTesting, facesCount)
 {
     registerProvider();
     initializeLayerWithSeveralVertices();
 
-    generateMesh();
-
-    ASSERT_THAT(layer->dataProvider()->vertexCount(),Eq(5));
+    ASSERT_THAT(layer->dataProvider()->faceCount(),Eq(2));
 }
 
-TEST_F(EditableMeshLayerTesting, facesBeforeGenerate)
-{
-    registerProvider();
-    initializeLayerWithSeveralVertices();
 
-    ASSERT_THAT(layer->dataProvider()->faceCount(),Eq(0));
-}
-
-TEST_F(EditableMeshLayerTesting, facesAfterGenerate)
-{
-    registerProvider();
-    initializeLayerWithSeveralVertices();
-
-    generateMesh();
-
-    ASSERT_THAT(layer->dataProvider()->faceCount(),Eq(3));
-}
-
-TEST_F(EditableMeshLayerTesting, populateMeshBeforeGenerate)
+TEST_F(TinLayerTesting, populateMesh)
 {
     registerProvider();
     initializeLayerWithSeveralVertices();
@@ -146,31 +109,15 @@ TEST_F(EditableMeshLayerTesting, populateMeshBeforeGenerate)
 
     layer->dataProvider()->populateMesh(&mesh);
 
-    ASSERT_THAT(mesh.faceCount(),Eq(0));
-}
-
-TEST_F(EditableMeshLayerTesting, populateMeshAfterGenerate)
-{
-    registerProvider();
-    initializeLayerWithSeveralVertices();
-
-    QgsMesh mesh;
-
-    generateMesh();
-
-    layer->dataProvider()->populateMesh(&mesh);
-
-    ASSERT_THAT(mesh.faceCount(),Eq(3));
-    ASSERT_THAT(mesh.vertexCount(),Eq(5));
+    ASSERT_THAT(mesh.faceCount(),Eq(2));
+    ASSERT_THAT(mesh.vertexCount(),Eq(4));
 }
 
 
-TEST_F(EditableMeshLayerTesting, extentMesh)
+TEST_F(TinLayerTesting, extentMesh)
 {
     registerProvider();
     initializeLayerWithSeveralVertices();
-
-    generateMesh();
 
 
     qDebug()<<layer->dataProvider()->extent().xMinimum();

@@ -46,12 +46,19 @@ QgsMeshDataBlock TINProvider::datasetValues(QgsMeshDatasetIndex index, int value
     if (index.group()==0 && index.dataset()==0)
     {
         QgsMeshDataBlock dataBlock(QgsMeshDataBlock::ScalarDouble,count);
-
         double *values=static_cast<double*>(dataBlock.buffer());
-
-        for (int i=0;i<mMesh.verticesCount();++i)
+        auto reader=mTin.getReader();
+        int i=0;
+        while (!reader->allVerticesReaden())
         {
-            values[i]=mMesh.vertex(i)->z();
+            double vert[3];
+            reader->readOnlyVertex(vert);
+            if(i>=valueIndex && i<valueIndex+count)
+            {
+                values[i-valueIndex]=vert[2];
+            }
+
+            ++i;
         }
 
         return dataBlock;
@@ -83,7 +90,7 @@ QgsMeshDataBlock TINProvider::areFacesActive(QgsMeshDatasetIndex index, int face
 
         int *values=static_cast<int*>(dataBlock.buffer());
 
-        for (int i=0;i<mMesh.facesCount();++i)
+        for (int i=0;i<mTin.facesCount();++i)
         {
             values[i]=1;
         }
@@ -107,11 +114,11 @@ bool TINProvider::persistDatasetGroup(const QString &path, const QgsMeshDatasetG
 
 int TINProvider::vertexCount() const
 {
-    return mMesh.verticesCount();
+    return mTin.verticesCount();
 }
 
 int TINProvider::faceCount() const {
-    return mMesh.facesCount();
+    return mTin.facesCount();
 }
 
 void TINProvider::populateMesh(QgsMesh *mesh) const
@@ -122,26 +129,27 @@ void TINProvider::populateMesh(QgsMesh *mesh) const
     mesh->vertices.clear();
     mesh->faces.clear();
 
-    for (int i=0;i<mMesh.verticesCount();++i)
+    std::unique_ptr<MeshIO> reader=mTin.getReader();
+    int coordCount=reader->vertexCoordCount();
+
+    if (coordCount!=3)
+        return;
+
+    while(!reader->allVerticesReaden())
     {
-        auto v=mMesh.vertex(i);
-        if (v)
-            mesh->vertices.append(QgsMeshVertex(v->x(),v->y()));
+        QVector<double> vert(3);
+        reader->readVertex(vert.data());
+        mesh->vertices.append(QgsMeshVertex(vert[0],vert[1],vert[2]));
     }
 
-    for (int i=0;i<mMesh.facesCount();++i)
+    while(!reader->allFacesReaden())
     {
-        QgsMeshFace mf;
-        FacePointer f=mMesh.face(i);
-        if (f)
-        {
-            for (int j=0;j<f->verticesCount();++j)
-            {
-                mf.append(mMesh.index(f->vertex(j)));
-            }
-            mesh->faces.append(mf);
-        }
+        int verticesCount=reader->currentFaceVerticesCount();
+        QVector<int> vert(verticesCount);
+        reader->readFace(vert.data());
+        mesh->faces.append(vert);
     }
+
 
 }
 
@@ -154,17 +162,20 @@ QgsRectangle TINProvider::extent() const {
     double xmax=-1e99;
     double ymax=-1e99;
 
-    for (int i=0;i<mMesh.verticesCount();++i)
+    std::unique_ptr<MeshIO> reader=mTin.getReader();
+
+    while(reader->allVerticesReaden())
     {
-        auto v=mMesh.vertex(i);
-        if (v->x()>=xmax)
-            xmax=v->x();
-        if (v->y()>=ymax)
-            ymax=v->y();
-        if (v->x()<=xmin)
-            xmin=v->x();
-        if (v->y()<=ymin)
-            ymin=v->y();
+        double vert[3];
+        reader->readOnlyVertex(vert);
+        if (vert[0]>=xmax)
+            xmax=vert[0];
+        if (vert[1]>=ymax)
+            ymax=vert[1];
+        if (vert[0]<=xmin)
+            xmin=vert[0];
+        if (vert[1]<=ymin)
+            ymin=vert[1];
     }
 
     return QgsRectangle(xmin,ymin,xmax,ymax);
@@ -177,6 +188,6 @@ QgsDataProvider *createTinEditorProvider(const QString &source, const QgsDataPro
     return new TINProvider(option);
 }
 
-HdEditableMeshLayer::HdEditableMeshLayer():QgsMeshLayer("-","Editable mesh layer","TIN")
+HdTinLayer::HdTinLayer():QgsMeshLayer("-","Editable mesh layer","TIN")
 {
 }

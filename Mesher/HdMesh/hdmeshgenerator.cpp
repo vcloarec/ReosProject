@@ -23,7 +23,7 @@ void HdMeshGeneratorTriangleFile::clear()
 
 
 
-bool HdMeshGeneratorTriangleFile::triangulateMesh(const HdMesh& inputMesh, HdMesh &outpuMesh)
+bool HdMeshGeneratorTriangleFile::triangulateMesh(const HdMeshBasic& inputMesh, HdMeshBasic &outpuMesh)
 {
     if (inputMesh.verticesCount()<3)
     {
@@ -47,7 +47,7 @@ bool HdMeshGeneratorTriangleFile::triangulateMesh(const HdMesh& inputMesh, HdMes
     }
 }
 
-bool HdMeshGeneratorTriangleFile::triangulateTIN(HdMesh &mesh, const std::vector<Segment> &inputSegments)
+bool HdMeshGeneratorTriangleFile::triangulateTIN(HdMeshBasic &mesh, const std::vector<Segment> &inputSegments)
 {
     if (mesh.verticesCount()<3)
     {
@@ -99,7 +99,7 @@ std::string HdMeshGeneratorTriangleFile::incFileName(std::string fileName)
     return fileName;
 }
 
-std::string HdMeshGeneratorTriangleFile::triangleCallNodeInput(std::string argument, const HdMesh& mesh)
+std::string HdMeshGeneratorTriangleFile::triangleCallNodeInput(std::string argument, const HdMeshBasic& mesh)
 {
     std::string inputName=TRIANGLE_FILENAME;
     std::string inputFileName=populateNodeFile(inputName,mesh);
@@ -119,7 +119,7 @@ std::string HdMeshGeneratorTriangleFile::triangleCallNodeInput(std::string argum
 
 
 
-std::string HdMeshGeneratorTriangleFile::triangleCallNodePolyInput(std::string argument, const HdMesh &mesh, const std::vector<Segment> &segments)
+std::string HdMeshGeneratorTriangleFile::triangleCallNodePolyInput(std::string argument, const HdMeshBasic &mesh, const std::vector<Segment> &segments)
 {
     std::string inputName=TRIANGLE_FILENAME;
     populateNodeFile(inputName,mesh);
@@ -137,7 +137,7 @@ std::string HdMeshGeneratorTriangleFile::triangleCallNodePolyInput(std::string a
     }
 }
 
-std::string HdMeshGeneratorTriangleFile::populateNodeFile(std::string name, const HdMesh &mesh)
+std::string HdMeshGeneratorTriangleFile::populateNodeFile(std::string name, const HdMeshBasic &mesh)
 {
     std::string nodeFileName(name.append(".node"));
     std::ofstream nodeFile(nodeFileName);
@@ -161,7 +161,7 @@ std::string HdMeshGeneratorTriangleFile::populateNodeFile(std::string name, cons
     return nodeFileName;
 }
 
-std::string HdMeshGeneratorTriangleFile::populatePolyFile(std::string name, const HdMesh& mesh,const std::vector<Segment> &segments)
+std::string HdMeshGeneratorTriangleFile::populatePolyFile(std::string name, const HdMeshBasic& mesh,const std::vector<Segment> &segments)
 {
     std::string polyFileName(name.append(".poly"));
     std::ofstream polyFile(polyFileName);
@@ -190,9 +190,7 @@ std::string HdMeshGeneratorTriangleFile::populatePolyFile(std::string name, cons
 
 bool HdMeshGeneratorTriangleFile::triangleCall(std::string argument, std::string inputFile)
 {
-    QFileInfo triangleFileInfo("triangle.exe");
-
-
+    QFileInfo triangleFileInfo(triangleExecutable.c_str());
     if (!triangleFileInfo.exists())
     {
         generatorError();
@@ -203,7 +201,7 @@ bool HdMeshGeneratorTriangleFile::triangleCall(std::string argument, std::string
     if (argument!="")
         argument.insert(0,"-");
 
-    std::string triangleCall="triangle.exe "+argument+" "+inputFile;
+    std::string triangleCall=triangleExecutableCall+" "+argument+" "+inputFile;
     system(triangleCall.c_str());
 
     return true;
@@ -236,7 +234,7 @@ void HdMeshGeneratorTriangleFile::removeFile(std::string name)
     std::remove((name+".poly").c_str());
 }
 
-void HdMeshGeneratorTriangleFile::getVertices(HdMesh &mesh)
+void HdMeshGeneratorTriangleFile::getVertices(HdMeshBasic &mesh)
 {
     mesh.clear();
 
@@ -268,15 +266,15 @@ void HdMeshGeneratorTriangleFile::getVertices(HdMesh &mesh)
         auto splitVerticesLine=splitString(line,' ');
         if(splitVerticesLine.size()>2)
         {
-            mesh.addVertex(Vertex::makeVertex(std::stod(splitVerticesLine.at(1)),
-                                              std::stod(splitVerticesLine.at(2))));
+            mesh.addVertex(std::stod(splitVerticesLine.at(1)),
+                           std::stod(splitVerticesLine.at(2)));
         }
     }
 
 
 }
 
-void HdMeshGeneratorTriangleFile::getFaces(HdMesh &mesh)
+void HdMeshGeneratorTriangleFile::getFaces(HdMeshBasic &mesh)
 {
     mesh.clearFaces();
 
@@ -318,7 +316,7 @@ void HdMeshGeneratorTriangleFile::getFaces(HdMesh &mesh)
 
 }
 
-void HdMeshGeneratorTriangleFile::getMesh(HdMesh &mesh)
+void HdMeshGeneratorTriangleFile::getMesh(HdMeshBasic &mesh)
 {
     getVertices(mesh);
     getFaces(mesh);
@@ -344,7 +342,7 @@ std::vector<std::string> splitString(std::string str, char sep)
     return split;
 }
 
-int HdMesh::index(VertexPointer v) const
+int HdMeshBasic::index(VertexPointer v) const
 {
     bool found=false;
     size_t index=0;
@@ -364,25 +362,9 @@ int HdMesh::index(VertexPointer v) const
     }
 }
 
-int HdMesh::vertexIndex(double x, double y, double tolerance) const
-{
-    bool found=0;
-    int i=0;
-    while ( i<verticesCount() && !found )
-    {
-        VertexPointer vert=vertex(i);
-        found=fabs(x-vert->x())<=tolerance && fabs(y-vert->y())<=tolerance;
-        if (!found)
-            ++i;
-    }
-    if (found)
-        return int(i);
-
-    return -1;
-}
 
 
-int HdMesh::index(FacePointer f) const
+int HdMeshBasic::index(FacePointer f) const
 {
     bool found=false;
     size_t index=0;
@@ -402,11 +384,11 @@ int HdMesh::index(FacePointer f) const
     }
 }
 
-int HdMesh::verticesCount() const {return int(mVertices.size());}
+int HdMeshBasic::verticesCount() const {return int(mVertices.size());}
 
-int HdMesh::facesCount() const {return int(mFaces.size());}
+int HdMeshBasic::facesCount() const {return int(mFaces.size());}
 
-VertexPointer HdMesh::vertex(int index) const
+VertexPointer HdMeshBasic::vertex(int index) const
 {
     if ( index>=0 && index<verticesCount())
         return mVertices[size_t(index)];
@@ -415,7 +397,25 @@ VertexPointer HdMesh::vertex(int index) const
     }
 }
 
-FacePointer HdMesh::face(int index) const
+VertexPointer HdMeshBasic::vertex(double x, double y, double tolerance) const
+{
+    bool found=false;
+    int i=0;
+    VertexPointer vert=VertexPointer();
+    while ( i<verticesCount() && !found )
+    {
+        vert=vertex(i);
+        found=fabs(x-vert->x())<=tolerance && fabs(y-vert->y())<=tolerance;
+        if (!found)
+            ++i;
+    }
+    if (found)
+        return vert;
+
+    return VertexPointer();
+}
+
+FacePointer HdMeshBasic::face(int index) const
 {
     if ( index>= 0 && index<facesCount())
         return mFaces[size_t(index)];
@@ -423,4 +423,9 @@ FacePointer HdMesh::face(int index) const
         return FacePointer();
     }
 }
+
+
+VertexBasic::VertexBasic(double x, double y):x_(x),y_(y) {}
+
+VertexBasic::~VertexBasic() {}
 

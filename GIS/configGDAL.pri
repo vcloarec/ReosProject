@@ -1,2 +1,2 @@
 INCLUDEPATH += $${GDAL_INCLUDE_PATH}/
-LIBS += -lgdal -L$${GDAL_LIB_PATH}/lib
+LIBS += -L$${GDAL_LIB_PATH} -lgdal

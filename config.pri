@@ -15,7 +15,16 @@ GDAL_LIB_PATH= #Path to folder containing GDAL release shared libraries
 #######################
 #    Google Test      #
 #######################
-GOOGLETEST_DIR = #Path to google test folder
+GOOGLETEST_DIR =#Path to google test folder
 
+
+#######################
+#        CGAL         #
+#######################
+CGAL_INCLUDE_PATH= #Path to CGAL include folder
+CGAL_LIB_DEBUG= #Path to folder containing CGAL debug shared libraries (for debug building)
+CGAL_LIB_RELEASE_MSVC= #Path to folder containing CGAL release shared files libraries for MSVC (for release building)
+CGAL_LIB_RELEASE_PATH= #Path to folder containing CGAL release shared libraries (for release building)
+BOOST_ROOT_PATH= #Path to Boost
 
 #  'git update-index --assume-unchanged config.pri' after cloning and fill the path corresponding of your environment

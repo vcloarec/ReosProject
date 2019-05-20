@@ -15,10 +15,10 @@ using namespace testing;
 class MeshEditorTesting:public Test{
 public:
 
-    HdMesh mesh;
+    HdMeshBasic mesh;
     std::vector<Segment> inputSegments;
 
-    TINEditor meshEditor=TINEditor(mesh,inputSegments);
+    HdMeshEditor meshEditor=HdMeshEditor(mesh,inputSegments);
 
     void initializeMeshEditor()
     {
@@ -28,21 +28,18 @@ public:
 
     void populateMeshEditorWithVertices()
     {
-        meshEditor.addVertex(Vertex(5,15));
-        meshEditor.addVertex(Vertex(10,15));
-        meshEditor.addVertex(Vertex(5,10));
-        meshEditor.addVertex(Vertex(10,10));
-        meshEditor.addVertex(Vertex(10,5));
+        meshEditor.addVertex(5,15);
+        meshEditor.addVertex(10,15);
+        meshEditor.addVertex(5,10);
+        meshEditor.addVertex(10,10);
+        meshEditor.addVertex(10,5);
     }
-
-
-
 
 };
 
 TEST_F(MeshEditorTesting, inputVertexCount){
 
-    meshEditor.addVertex(Vertex(1,1));
+    meshEditor.addVertex(1,1);
     ASSERT_THAT(meshEditor.verticesCount(),Eq(1));
 
 }
@@ -72,7 +69,7 @@ TEST_F(MeshEditorTesting, setCurrentMeshGeneratorSuccess)
 TEST_F(MeshEditorTesting, generateMeshFail)
 {
     initializeMeshEditor();
-    meshEditor.addVertex(Vertex(1,1));
+    meshEditor.addVertex(VertexBasic(1,1));
 
     ASSERT_FALSE(meshEditor.generateMesh());
 }
@@ -86,16 +83,16 @@ TEST_F(MeshEditorTesting, generateMeshSucess)
 }
 
 
-TEST_F(MeshEditorTesting, vertexIndex)
+TEST_F(MeshEditorTesting, searchVertex)
 {
     initializeMeshEditor();
     meshEditor.setTolerance(0.01);
 
-    meshEditor.addVertex(Vertex(10,15));
+    VertexPointer vert=meshEditor.addVertex(VertexBasic(10,15));
 
-    Vertex other(10.0001,14.99999);
+    bool found=meshEditor.vertex(10.0001,14.99999)==vert;
 
-    ASSERT_THAT(meshEditor.vertexIndex(other),Eq(0));
+    ASSERT_THAT(found,Eq(true));
 }
 
 TEST_F(MeshEditorTesting, addDupplicatePoint)
@@ -103,11 +100,11 @@ TEST_F(MeshEditorTesting, addDupplicatePoint)
     initializeMeshEditor();
     meshEditor.setTolerance(0.01);
 
-    meshEditor.addVertex(Vertex(10,15));
-    meshEditor.addVertex(Vertex(5,10));
-    meshEditor.addVertex(Vertex(10,10));
+    meshEditor.addVertex(VertexBasic(10,15));
+    meshEditor.addVertex(VertexBasic(5,10));
+    meshEditor.addVertex(VertexBasic(10,10));
 
-    meshEditor.addVertex(Vertex(10.0001,14.99999));
+    meshEditor.addVertex(VertexBasic(10.0001,14.99999));
 
     ASSERT_THAT(meshEditor.verticesCount(),Eq(3));
 

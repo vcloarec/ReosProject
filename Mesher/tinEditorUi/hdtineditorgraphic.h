@@ -119,7 +119,6 @@ private:
     }
 
 
-
 private:
     HdMapMeshEditorItemDomain *mDomain;
     HdManagerSIG *mGisManager;

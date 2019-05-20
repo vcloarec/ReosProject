@@ -28,25 +28,22 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #include <qgsprovidermetadata.h>
 #include <qgsmeshlayer.h>
 
+#include "../HdTin/hdtineditor.h"
+#include "../HdMesh/hdmesheditor.h"
 
-#include "hdmesheditor.h"
 
-
-class HdEditableMeshLayer: public QgsMeshLayer
+class HdTinLayer: public QgsMeshLayer
 {
 public:
-    HdEditableMeshLayer();
+    HdTinLayer();
 };
 
 class TINProvider: public QgsMeshDataProvider
 {
 public:
     TINProvider(const QgsDataProvider::ProviderOptions &providerOption=QgsDataProvider::ProviderOptions()):
-        QgsMeshDataProvider ("",providerOption),tinEditor(mMesh,mHardLines)
+        QgsMeshDataProvider ("",providerOption),tinEditor(mTin,mHardLines)
     {
-
-        tinEditor.addMeshGenerator(new HdMeshGeneratorTriangleFile());
-        tinEditor.setCurrentMeshGenerator("TriangleFile");
     }
 
     TINEditor *editor()
@@ -57,7 +54,7 @@ public:
 
 
 private:
-    HdMesh mMesh;
+    HdTin mTin;
     std::vector<Segment> mHardLines;
 
     TINEditor tinEditor;

@@ -14,6 +14,10 @@ include(../GIS/ConfigQgis.pri); #comment to generate the linguist file
 ######################### GDAL
 include(../GIS/configGDAL.pri);
 
+######################### CGAL
+include(configCGAL.pri);
+
+
 QT += core gui widgets network xml sql
 CONFIG += crypto
 
@@ -22,11 +26,21 @@ TEMPLATE = app
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
-CONFIG += c++11
+CONFIG += c++14
 
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
+    provider/meshdataprovider.cpp \
+    HdMesh/hdmesh.cpp \
+    HdMesh/hdmesheditor.cpp \
+    HdMesh/hdmeshgenerator.cpp \
+    HdTin/hdtin.cpp \
+    HdTin/hdtineditor.cpp \
+    tinEditorUi/hdmapmeshitem.cpp \
+    tinEditorUi/hdtineditorgraphic.cpp \
+    tinEditorUi/hdtineditoruidialog.cpp \
+    tinEditorUi/hdtineditornewdialog.cpp \
     ../GIS/hdcrsdialogselection.cpp \
     ../GIS/hdgismanager.cpp \
     ../GIS/hdmap.cpp \
@@ -37,17 +51,22 @@ SOURCES += \
     ../Reos/reosencodedelement.cpp \
     ../Reos/reossettings.cpp \
     ../Reos/reosdialogbox.cpp \
-    ../UtilsGeometry/utilsgeometry2d.cpp \
-    provider/meshdataprovider.cpp \
-    provider/hdmeshgenerator.cpp \
-    provider/hdmesheditor.cpp \
-    tinEditorUi/hdmapmeshitem.cpp \
-    tinEditorUi/hdtineditorgraphic.cpp \
-    tinEditorUi/hdtineditoruidialog.cpp \
-    tinEditorUi/hdtineditornewdialog.cpp
+    ../UtilsGeometry/utilsgeometry2d.cpp
+
+
 
 HEADERS += \
         mainwindow.h \
+    provider/meshdataprovider.h \
+    tinEditorUi/hdmapmeshitem.h \
+    tinEditorUi/hdtineditorgraphic.h \
+    tinEditorUi/hdtineditoruidialog.h \
+    tinEditorUi/hdtineditornewdialog.h \
+    HdTin/hdtin.h \
+    HdTin/hdtineditor.h \
+    HdMesh/hdmesh.h \
+    HdMesh/hdmesheditor.h \
+    HdMesh/hdmeshgenerator.h \
     ../GIS/hdcrsdialogselection.h \
     ../GIS/hdgismanager.h \
     ../GIS/hdmap.h \
@@ -58,14 +77,8 @@ HEADERS += \
     ../Reos/reossettings.h \
     ../Reos/reosmessagebox.h \
     ../Reos/reosdialogbox.h \
-    ../UtilsGeometry/utilsgeometry2d.h \
-    provider/meshdataprovider.h \
-    provider/hdmeshgenerator.h \
-    provider/hdmesheditor.h \
-    tinEditorUi/hdmapmeshitem.h \
-    tinEditorUi/hdtineditorgraphic.h \
-    tinEditorUi/hdtineditoruidialog.h \
-    tinEditorUi/hdtineditornewdialog.h
+    ../UtilsGeometry/utilsgeometry2d.h
+
 
 FORMS += \
         mainwindow.ui \
