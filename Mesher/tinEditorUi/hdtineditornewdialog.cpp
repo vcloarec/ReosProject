@@ -54,7 +54,7 @@ void HdTinEditorNewDialog::fileDialog()
     ReosSettings settings;
     QString path=settings.value(QStringLiteral("/Path/TIN")).toString();
 
-    QString fileName=QFileDialog::getSaveFileName(this,tr("Fichier pour MNT à maille flexible"),path,"*.tin");
+    QString fileName=QFileDialog::getSaveFileName(this,tr("File for the TIN"),path,"*.tin");
 
     if (fileName!="")
         ui->lineEditFile->setText(fileName);

@@ -17,17 +17,18 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QUndoGroup>
 
 #include <qgsmeshdataprovider.h>
 
 
 #include "../GIS/hdgismanager.h"
 
-#include "../GIS/hdmap.h"
+#include "../GIS/reosmap.h"
 #include "../Reos/reosmodule.h"
 
 #include "provider/meshdataprovider.h"
-#include "tinEditorUi/hdtineditorgraphic.h"
+#include "tinEditorUi/reostineditorgraphic.h"
 
 namespace Ui {
 class MainWindow;
@@ -42,9 +43,12 @@ public:
     ~MainWindow();
 
 private slots:
-    void showTinEditor()
+    void showTinEditor(bool b)
     {
-        tinEditor->showWidget();
+        if(b)
+            tinEditor->showWidget();
+        else
+            tinEditor->hideWidget();
     }
 
     void tinEditorClosed()
@@ -52,9 +56,19 @@ private slots:
         actionTinEditor->setChecked(false);
     }
 
+    void activeUndoStack(QUndoStack *undoStack)
+    {
+        if (!mUndoGroup->stacks().contains(undoStack))
+        {
+            mUndoGroup->addStack(undoStack);
+        }
+        mUndoGroup->setActiveStack(undoStack);
+    }
+
 private:
     Ui::MainWindow *ui;
-    HdTinEditorUi *tinEditor;
+    ReosTinEditorUi *tinEditor;
+    QUndoGroup* mUndoGroup;
 
     QAction* actionTinEditor;
 };

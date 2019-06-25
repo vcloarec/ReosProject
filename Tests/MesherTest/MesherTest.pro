@@ -3,9 +3,6 @@ include(../../config.pri)
 ######################### Google Test
 include(gtest_dependency.pri)
 
-######################### QGIG
-INCLUDEPATH +=../../GIS/QGis_app/
-include(../../GIS/ConfigQgis.pri); #comment to generate the linguist file
 
 ######################### CGAL
 include(../../Mesher/configCGAL.pri);
@@ -22,28 +19,19 @@ TEMPLATE = app
 CONFIG += console
 CONFIG -= app_bundle
 CONFIG += thread
-CONFIG +=C++11
+CONFIG +=C++14
 #CONFIG -= qt
 
 HEADERS += \
-    ../../Mesher/provider/meshdataprovider.h \
-    ../../Mesher/HdMesh/hdmeshgenerator.h \
-    ../../Mesher/HdMesh/hdmesheditor.h \
-    ../../Mesher/HdMesh/hdmesh.h \
-    ../../Mesher/HdTin/hdtin.h \
-    ../../Mesher/HdTin/hdtineditor.h \
-    ../../Mesher/tinEditorUi/hdmapmeshitem.h \
-    ../../Mesher/tinEditorUi/hdtineditorgraphic.h \
-    ../../Mesher/tinEditorUi/hdtineditornewdialog.h \
-    ../../Mesher/tinEditorUi/hdtineditoruidialog.h \
+    ../../GIS/reosmapitem.h \
+    ../../GIS/reosmap.h \
     ../../Reos/reosmodule.h \
     ../../Reos/reosdialogbox.h \
     ../../Reos/reosencodedelement.h \
     ../../Reos/reossettings.h \
     ../../GIS/hdgismanager.h \
-    ../../GIS/hdmap.h \
     ../../GIS/hdcrsdialogselection.h \
-    ../../GIS/hdmaptool.h \
+    ../../GIS/reosmaptool.h \
     ../../GIS/hdvectorlayerpropertiesdialog.h \
     ../../UtilsGeometry/utilsgeometry2d.h \
     tst_001_hdmeshgenerator.h \
@@ -51,31 +39,43 @@ HEADERS += \
     tst_003_meshergeneratorprovidertest.h \
     tst_004_hdeditablemeshlayertest.h \
     tst_005_hdtineditorgraphictest.h \
-    tst_006_hdmapmeshitemtest.h
+    tst_006_hdmapmeshitemtest.h \
+    ../../Mesher/HdTin/test.h \
+    ../../Mesher/HdMesh/reosmesh.h \
+    ../../Mesher/HdTin/reostin.h \
+    ../../Mesher/HdTin/reostineditor.h \
+    ../../Mesher/HdMesh/reosmeshgenerator.h \
+    ../../Mesher/HdMesh/reosmesheditor.h \
+    ../../Mesher/provider/meshdataprovider.h \
+    ../../Mesher/tinEditorUi/reosmapmeshitem.h \
+    ../../Mesher/tinEditorUi/reostineditorgraphic.h \
+    ../../Mesher/tinEditorUi/hdtineditornewdialog.h \
+    ../../Mesher/tinEditorUi/hdtineditoruidialog.h
 
 
 SOURCES += \
+    ../../GIS/reosmapitem.cpp \
+    ../../GIS/reosmap.cpp \
         main.cpp \
     ../../Mesher/provider/meshdataprovider.cpp \
-    ../../Mesher/HdMesh/hdmeshgenerator.cpp \
-    ../../Mesher/HdMesh/hdmesheditor.cpp \
     ../../Mesher/tinEditorUi/hdtineditornewdialog.cpp \
     ../../Mesher/tinEditorUi/hdtineditoruidialog.cpp \
-    ../../Mesher/HdMesh/hdmesh.cpp \
-    ../../Mesher/HdTin/hdtin.cpp \
-    ../../Mesher/HdTin/hdtineditor.cpp \
-    ../../Mesher/tinEditorUi/hdmapmeshitem.cpp \
-    ../../Mesher/tinEditorUi/hdtineditorgraphic.cpp \
+    ../../Mesher/tinEditorUi/reosmapmeshitem.cpp \
+    ../../Mesher/tinEditorUi/reostineditorgraphic.cpp \
     ../../Reos/reosmodule.cpp \
     ../../Reos/reossettings.cpp \
     ../../Reos/reosdialogbox.cpp \
     ../../Reos/reosencodedelement.cpp \
     ../../GIS/hdgismanager.cpp \
-    ../../GIS/hdmap.cpp \
     ../../GIS/hdcrsdialogselection.cpp \
-    ../../GIS/hdmaptool.cpp \
+    ../../GIS/reosmaptool.cpp \
     ../../GIS/hdvectorlayerpropertiesdialog.cpp \
-    ../../UtilsGeometry/utilsgeometry2d.cpp
+    ../../UtilsGeometry/utilsgeometry2d.cpp \
+    ../../Mesher/HdMesh/reosmesh.cpp \
+    ../../Mesher/HdMesh/reosmeshgenerator.cpp \
+    ../../Mesher/HdMesh/reosmesheditor.cpp \
+    ../../Mesher/HdTin/reostin.cpp \
+    ../../Mesher/HdTin/reostineditor.cpp
 
 
 FORMS += \
@@ -85,4 +85,6 @@ FORMS += \
     ../../GIS/hdvectorlayerpropertiesdialog.ui
 
 
-
+######################### QGIG
+INCLUDEPATH +=../../GIS/QGis_app/
+include(../../GIS/ConfigQgis.pri); #comment to generate the linguist file

@@ -61,13 +61,33 @@ public:
 
 signals:
     void newCommandToUndoStack(QUndoCommand *command);
+    void activeUndoStack(QUndoStack *undoStack);
     void widgetVisibility(bool);
     void messageEmited(QString &message,ReosMessageBox::Type type) const;
 
 public slots:
     virtual void showWidget();
     void hideWidget();
-    void newCommand(QUndoCommand *command);
+
+    void undo()
+    {
+        if (mUndoStack)
+            mUndoStack->undo();
+    }
+
+    void redo()
+    {
+        if (mUndoStack)
+            mUndoStack->redo();
+    }
+
+    ////////////////////////////////////////////
+    /// \brief newCommand
+    /// \param command
+    /// Handle QUndoCommand, by default : if undoStack is present (mUndoStack !=nullptr, push the command to the undoStack.
+    /// If not send to the parent the command if the parent is not null, if it is null, emit newCommandToUndoStack.
+    ///
+    virtual void newCommand(QUndoCommand *command);
 
     void warning(QString message) const;
     void error(QString message) const;
@@ -78,14 +98,9 @@ protected:
     QActionGroup *groupAction=nullptr;
     QToolBar *toolBar=nullptr;
     QMenu *menu=nullptr;
+    QUndoStack *mUndoStack=nullptr;
 
-    void sendMessage(QString mes,ReosMessageBox::Type type) const
-    {
-        if (reosParent)
-            reosParent->sendMessage(mes,type);
-        else
-            emit messageEmited(mes,type);
-    }
+    void sendMessage(QString mes,ReosMessageBox::Type type) const;
 
 
 

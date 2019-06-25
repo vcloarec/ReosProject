@@ -6,11 +6,6 @@
 
 include(../config.pri)
 
-######################### QGIG
-INCLUDEPATH +=../GIS/QGis_app/
-include(../GIS/ConfigQgis.pri); #comment to generate the linguist file
-
-
 ######################### GDAL
 include(../GIS/configGDAL.pri);
 
@@ -32,52 +27,55 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     provider/meshdataprovider.cpp \
-    HdMesh/hdmesh.cpp \
-    HdMesh/hdmesheditor.cpp \
-    HdMesh/hdmeshgenerator.cpp \
-    HdTin/hdtin.cpp \
-    HdTin/hdtineditor.cpp \
-    tinEditorUi/hdmapmeshitem.cpp \
-    tinEditorUi/hdtineditorgraphic.cpp \
+    HdMesh/reosmesh.cpp \
+    HdMesh/reosmesheditor.cpp \
+    HdMesh/reosmeshgenerator.cpp \
+    tinEditorUi/reosmapmeshitem.cpp \
+    HdTin/reostin.cpp \
+    HdTin/reostineditor.cpp \
     tinEditorUi/hdtineditoruidialog.cpp \
     tinEditorUi/hdtineditornewdialog.cpp \
     ../GIS/hdcrsdialogselection.cpp \
     ../GIS/hdgismanager.cpp \
-    ../GIS/hdmap.cpp \
-    ../GIS/hdmaptool.cpp \
+    ../GIS/reosmaptool.cpp \
+    ../GIS/reosmap.cpp \
+    ../GIS/reosmapitem.cpp \
     ../GIS/hdvectorlayerpropertiesdialog.cpp \
     ../Reos/reosmessagebox.cpp \
     ../Reos/reosmodule.cpp \
     ../Reos/reosencodedelement.cpp \
     ../Reos/reossettings.cpp \
     ../Reos/reosdialogbox.cpp \
-    ../UtilsGeometry/utilsgeometry2d.cpp
+    ../UtilsGeometry/utilsgeometry2d.cpp \
+    tinEditorUi/reostineditorgraphic.cpp
 
 
 
 HEADERS += \
         mainwindow.h \
     provider/meshdataprovider.h \
-    tinEditorUi/hdmapmeshitem.h \
-    tinEditorUi/hdtineditorgraphic.h \
     tinEditorUi/hdtineditoruidialog.h \
     tinEditorUi/hdtineditornewdialog.h \
-    HdTin/hdtin.h \
-    HdTin/hdtineditor.h \
-    HdMesh/hdmesh.h \
-    HdMesh/hdmesheditor.h \
-    HdMesh/hdmeshgenerator.h \
+    HdTin/reostin.h \
+    HdTin/reostineditor.h \
+    HdMesh/reosmesh.h \
+    HdMesh/reosmesheditor.h \
+    HdMesh/reosmeshgenerator.h \
+    tinEditorUi/reosmapmeshitem.h\
+    ../GIS/reosmapitem.h \
     ../GIS/hdcrsdialogselection.h \
     ../GIS/hdgismanager.h \
-    ../GIS/hdmap.h \
-    ../GIS/hdmaptool.h \
+    ../GIS/reosmap.h \
+    ../GIS/reosmaptool.h \
     ../GIS/hdvectorlayerpropertiesdialog.h \
     ../Reos/reosencodedelement.h \
     ../Reos/reosmodule.h \
     ../Reos/reossettings.h \
     ../Reos/reosmessagebox.h \
     ../Reos/reosdialogbox.h \
-    ../UtilsGeometry/utilsgeometry2d.h
+    ../UtilsGeometry/utilsgeometry2d.h \
+    tinEditorUi/reostineditorgraphic.h \
+    HdTin/test.h
 
 
 FORMS += \
@@ -95,16 +93,16 @@ TRANSLATIONS +=../i18n/hydro_fr.ts
 
 
 RESOURCES += \
+    ../icones/cursor/curseur.qrc \
     ../icones/hdicone.qrc
+
+######################### QGIG
+INCLUDEPATH +=../GIS/QGis_app/
+include(../GIS/ConfigQgis.pri); #comment to generate the linguist file
 
 #RC_FILE = ../cmn/icone/mesher.rc
 
 
-SOURCES_DIR=$$PWD
-SOURCES_FILES +=Lekan.pro
-SOURCES_FILES +=../cmn/icone/toolbar/*.*
-SOURCES_FILES +=../cmn/icone/cursor/*.*
-SOURCES_FILES +=../cmn/icone/Qgis/*.*
 
 
 

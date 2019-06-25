@@ -154,6 +154,9 @@
         <file>toolbar/MeshTINTriangulation.png</file>
         <file>toolbar/MeshTinIcon.png</file>
         <file>toolbar/MeshTinEditor.png</file>
+        <file>toolbar/MeshTINNewSegment.png</file>
+        <file>toolbar/MeshTINRemoveSegment.png</file>
+        <file>toolbar/MeshTINRemoveVertex.png</file>
     </qresource>
     <qresource prefix="/Qgis">
         <file>Qgis/labels.png</file>

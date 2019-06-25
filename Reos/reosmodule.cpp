@@ -43,6 +43,12 @@ ReosModule::~ReosModule()
 
 void ReosModule::newCommand(QUndoCommand *command)
 {
+    if (mUndoStack)
+    {
+        mUndoStack->push(command);
+        return;
+    }
+
     if (reosParent)
     {
         reosParent->newCommand(command);
@@ -71,6 +77,14 @@ void ReosModule::message(QString message) const
 void ReosModule::order(QString message) const
 {
     sendMessage(message,ReosMessageBox::order);
+}
+
+void ReosModule::sendMessage(QString mes, ReosMessageBox::Type type) const
+{
+    if (reosParent)
+        reosParent->sendMessage(mes,type);
+    else
+        emit messageEmited(mes,type);
 }
 
 QList<QAction *> ReosModule::getActions() const {return groupAction->actions();}

@@ -16,7 +16,6 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #include "meshdataprovider.h"
 
 
-
 QgsMeshDatasetGroupMetadata TINProvider::datasetGroupMetadata(int groupIndex) const
 {
     if (groupIndex!=0)

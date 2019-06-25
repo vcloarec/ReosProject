@@ -1,5 +1,5 @@
 /***************************************************************************
-                      hdmesheditor.h
+                      reosmesheditor.h
                      --------------------------------------
 Date                 : 01-04-2019
 Copyright            : (C) 2018 by Vincent Cloarec
@@ -17,8 +17,8 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #define HDMESHEDITOR_H
 
 
-#include "hdmeshgenerator.h"
-#include "../HdTin/hdtin.h"
+#include "reosmeshgenerator.h"
+#include "../HdTin/reostin.h"
 
 
 

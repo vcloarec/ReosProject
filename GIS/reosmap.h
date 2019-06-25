@@ -1,5 +1,5 @@
 /***************************************************************************
-                      hdmap.h
+                      reosmap.h
                      --------------------------------------
 Date                 : 18-11-2018
 Copyright            : (C) 2018 by Vincent Cloarec
@@ -13,90 +13,63 @@ email                : vcloarec@gmail.com projetreos@gmail.com
  *                                                                         *
  ***************************************************************************/
 
-#ifndef HDMAP_H
-#define HDMAP_H
+#ifndef REOSMAP_H
+#define REOSMAP_H
 
 #include <qgsproject.h>
 
 #include "../Reos/reosmodule.h"
 #include "../Reos/reosencodedelement.h"
 
-#include "hdmaptool.h"
+#include "reosmaptool.h"
 
-class MyMapCanvas:public QgsMapCanvas
-{
-public:
-    MyMapCanvas():QgsMapCanvas() {}
-    virtual ~MyMapCanvas()
-    {
-    }
-};
 
 
 class HdCursorPosition;
 
-class HdMap: public ReosModule
+class ReosMap: public ReosModule
 {
     Q_OBJECT
 public:
-    HdMap(QObject *parent=nullptr);
-    ~HdMap() override;
+    ReosMap(QObject *parent=nullptr);
+    ~ReosMap() override;
 
     QgsMapCanvas *getMapCanvas() const;
 
-    void setMapTool(HdMapTool *tool);
-    QgsMapTool *getMaptool() const;
+    void setMapTool(ReosMapTool *tool);
+    ReosMapTool *getMaptool() const;
 
     QgsCoordinateReferenceSystem getCoordinateReferenceSystem();
 
     QWidget* getCursorPosition();
 
     QRectF getMapExtent() const {return canvas_->extent().toRectF();}
-    void setMapExtent(QRectF extent) {
-        canvas_->setExtent(QgsRectangle(extent));
-    }
+    void setMapExtent(QRectF extent);
 
-    void setMapSavedExtent(QRectF extent) {
-        savedExtent=extent;
-    }
-
-    QByteArray encode() const
-    {
-        ReosEncodedElement encodedMap(QStringLiteral("Map"));
-        //encodedMap.addData(QStringLiteral("Current extent"),canvas_->extent().toRectF());
-        return encodedMap.encode();
-    }
-
-    void decode(QByteArray &byteArray)
-    {
-        ReosEncodedElement encodedMap(byteArray);
-        QRectF extent;
-        if (encodedMap.getData(QStringLiteral("Current extent"),extent))
-        {
-            if (extent!=QRectF())
-            {
-                savedExtent=QgsRectangle(extent);
-                canvas_->setExtent(extent);
-            }
-        }
-
-    }
-
-    void setToSaveExtent()
-    {
-        canvas_->setExtent(savedExtent);
-    }
-
-    void saveMapExtent()
-    {
-        savedExtent=canvas_->extent();
-    }
+    QByteArray encode() const;
+    void decode(QByteArray &byteArray);
+    void setToSaveExtent();
+    void saveMapExtent();
+    void setMapSavedExtent(QRectF extent);
 
 
 
 public slots:
-    void unsetMapTool(HdMapTool *tool);
+    void unsetMapTool(ReosMapTool *tool);
     void unsetMapTool();
+    void stopMapTool()
+    {
+        if (currentMapTool)
+        {
+            if (currentMapTool->isInProgress())
+                currentMapTool->reset();
+            else {
+                currentMapTool->reset();
+                unsetMapTool();
+            }
+        }
+
+    }
     void askUnsetMapTool();
     void refreshMap();
     void crsChanged();
@@ -105,7 +78,7 @@ private:
     QgsMapCanvas *canvas_;
     HdCursorPosition* cursorPosition;
     HdMapToolNeutral *mapToolNeutral;
-    HdMapTool* currentMapTool=nullptr;
+    ReosMapTool* currentMapTool=nullptr;
     QgsRectangle savedExtent;
 
 public:
@@ -135,4 +108,4 @@ public slots:
 
 
 
-#endif // HDMAP_H
+#endif // REOSMAP_H

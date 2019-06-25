@@ -7,11 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>399</width>
-    <height>103</height>
+    <height>110</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Nouveau MNT à maille flexible</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -19,7 +22,7 @@
      <item row="1" column="0">
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Fichier:</string>
+        <string>File:</string>
        </property>
       </widget>
      </item>
@@ -35,8 +38,11 @@
      </item>
      <item row="0" column="0">
       <widget class="QLabel" name="label">
+       <property name="locale">
+        <locale language="English" country="UnitedStates"/>
+       </property>
        <property name="text">
-        <string>Nom:</string>
+        <string>Name</string>
        </property>
       </widget>
      </item>

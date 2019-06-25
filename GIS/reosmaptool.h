@@ -1,5 +1,5 @@
 /***************************************************************************
-                      hdmaptool.h
+                      reosmaptool.h
                      --------------------------------------
 Date                 : 18-11-2018
 Copyright            : (C) 2018 by Vincent Cloarec
@@ -13,8 +13,8 @@ email                : vcloarec@gmail.com projetreos@gmail.com
  *                                                                         *
  ***************************************************************************/
 
-#ifndef HDMAPTOOL_H
-#define HDMAPTOOL_H
+#ifndef REOSMAPTOOL_H
+#define REOSMAPTOOL_H
 
 #include <QObject>
 #include <QLabel>
@@ -30,46 +30,47 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 
 
 
-class HdMap;
+class ReosMap;
 
-class HdMapTool:public QgsMapTool
+class ReosMapTool:public QgsMapTool
 {
     Q_OBJECT
 public:
 
-    virtual ~ HdMapTool() override;
+    virtual ~ ReosMapTool() override;
     void deactivate() override;
 
+    virtual bool isInProgress() const {return false;}
 
 signals:
     void undoCommandCreated(QUndoCommand* comm);
-    void arret();
+    void stop();
 
 public slots:
     virtual void reset() {}
 
 
 protected:
-    HdMapTool(HdMap *map);
+    ReosMapTool(ReosMap *map);
 
     bool inProgress_=false;
     virtual void keyPressEvent( QKeyEvent* e ) override;
 
 
 private:
-    HdMap *map_;
+    ReosMap *map_;
 
 
 
 };
 
 
-class HdMapToolNeutral:public HdMapTool
+class HdMapToolNeutral:public ReosMapTool
 {
 public:
-    HdMapToolNeutral(HdMap *map);
+    HdMapToolNeutral(ReosMap *map);
 
-    static HdMapToolNeutral* makeMapToolNeutral(HdMap* map);
+    static HdMapToolNeutral* makeMapToolNeutral(ReosMap* map);
 };
 
 //class HdFactoryMapTool
@@ -80,11 +81,11 @@ public:
 //};
 
 
-class HdMapToolClickPoint: public HdMapTool
+class ReosMapToolClickPoint: public ReosMapTool
 {
     Q_OBJECT
 public:
-    HdMapToolClickPoint(HdMap *map):HdMapTool(map){}
+    ReosMapToolClickPoint(ReosMap *map):ReosMapTool(map){}
 
 signals:
     void clickDone(const QPointF &pt);
@@ -93,11 +94,36 @@ public:
     void canvasPressEvent(QgsMapMouseEvent *e) override;
 };
 
-class HdMapToolRectangularSelection:public HdMapTool
+class ReosMapToolSelection: public ReosMapTool
 {
     Q_OBJECT
 public:
-    HdMapToolRectangularSelection(HdMap *map);
+    ReosMapToolSelection(ReosMap* map):ReosMapTool(map)
+    {
+
+    }
+
+signals:
+    void zonalCanvasRect(const QRectF &rect);
+
+protected:
+    void canvasPressEvent(QgsMapMouseEvent *e)
+    {
+        QPointF canvasPoint=toCanvasCoordinates(e->mapPoint());
+        QRectF zone(canvasPoint,zoneSize);
+
+        emit zonalCanvasRect(zone);
+    }
+
+private:
+    QSizeF zoneSize=QSizeF(8,8);
+};
+
+class HdMapToolRectangularSelection:public ReosMapTool
+{
+    Q_OBJECT
+public:
+    HdMapToolRectangularSelection(ReosMap *map);
 
 public slots:
     void reset() override;
@@ -135,11 +161,11 @@ public:
 //    QgsMapTool *makeTool(QgsMapCanvas *canvas) override;
 //};
 
-class HdMapToolLinearDrawing: public HdMapTool
+class HdMapToolLinearDrawing: public ReosMapTool
 {
     Q_OBJECT
 public:
-    HdMapToolLinearDrawing(HdMap *map,QgsWkbTypes::GeometryType geometryType);
+    HdMapToolLinearDrawing(ReosMap *map,QgsWkbTypes::GeometryType geometryType);
 
     virtual ~HdMapToolLinearDrawing() override
     {
@@ -171,10 +197,6 @@ private:
     QgsWkbTypes::GeometryType geometryType;
 
 
-
-
-
-
     // QgsMapTool interface
 public:
     void canvasMoveEvent(QgsMapMouseEvent *e) override;
@@ -187,11 +209,11 @@ public slots:
     void reset() override;
 };
 
-class HdMapToolLinearSelection:public HdMapTool
+class HdMapToolLinearSelection:public ReosMapTool
 {
     Q_OBJECT
 public:
-    HdMapToolLinearSelection(HdMap *map);
+    HdMapToolLinearSelection(ReosMap *map);
 
     void setColor(QColor color);
 
@@ -224,11 +246,11 @@ public:
 //    QgsMapTool *makeTool(QgsMapCanvas *canvas) override;
 //};
 
-class HdMapToolItemSelection:public HdMapTool
+class HdMapToolItemSelection:public ReosMapTool
 {
     Q_OBJECT
 public:
-    HdMapToolItemSelection(HdMap *map,int itemType);
+    HdMapToolItemSelection(ReosMap *map,int itemType);
 
 signals:
     void foundItem(QGraphicsItem *item);
@@ -242,4 +264,4 @@ public:
 
 
 
-#endif // HDMAPTOOL_H
+#endif // REOSMAPTOOL_H

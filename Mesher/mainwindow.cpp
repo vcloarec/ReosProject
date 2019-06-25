@@ -19,21 +19,21 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    actionTinEditor(new QAction(QPixmap("://toolbar/MeshTinEditor.png"),tr("Edition MNT à maille flexible"),this))
+    actionTinEditor(new QAction(QPixmap("://toolbar/MeshTinEditor.png"),tr("Edit TIN"),this))
 {
     ui->setupUi(this);
 
     setDockNestingEnabled(true);
 
 
-    HdMap *map=new HdMap(this);
+    ReosMap *map=new ReosMap(this);
     centralWidget()->setLayout(new QVBoxLayout);
     centralWidget()->layout()->addWidget(map->getMapCanvas());
     statusBar()->addPermanentWidget(map->getCursorPosition());
 
 
     HdManagerSIG *gisManager=new HdManagerSIG(map);
-    QDockWidget* dockSIG=new QDockWidget(tr("Panneau de contrôle SIG"));
+    QDockWidget* dockSIG=new QDockWidget(tr("GIS control pannel"));
     dockSIG->setWidget(gisManager->getWidget());
     statusBar()->addPermanentWidget(gisManager->createCRSDisplay(this));
     dockSIG->setObjectName(QStringLiteral("Dock GIS"));
@@ -41,17 +41,24 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QgsProviderRegistry::instance()->registerProvider(new HdTinEditorProviderMetaData());
 
-    QMenu *fileMenu=new QMenu(tr("Fichier"));
+    QMenu *fileMenu=new QMenu(tr("Files"));
     menuBar()->addMenu(fileMenu);
 
     ui->mainToolBar->addAction(actionTinEditor);
     actionTinEditor->setCheckable(true);
-    tinEditor=new HdTinEditorUi(gisManager,this);
-    QMenu *tinMenu=new QMenu(tr("MNT à maille flexible"));
+    tinEditor=new ReosTinEditorUi(gisManager,this);
+    QMenu *tinMenu=new QMenu(tr("Triangulated Irregular Network DEM"));
     tinMenu->addActions(tinEditor->getActions());
     menuBar()->addMenu(tinMenu);
     connect(actionTinEditor,&QAction::triggered,this,&MainWindow::showTinEditor);
     connect(tinEditor,&ReosModule::widgetVisibility,actionTinEditor,&QAction::setChecked);
+    connect(tinEditor,&ReosModule::activeUndoStack,this,&MainWindow::activeUndoStack);
+
+
+    mUndoGroup=new QUndoGroup(this);
+    ui->mainToolBar->addAction(mUndoGroup->createUndoAction(this));
+    ui->mainToolBar->addAction(mUndoGroup->createRedoAction(this));
+
 
     //Active Tin editor
     tinEditor->showWidget();

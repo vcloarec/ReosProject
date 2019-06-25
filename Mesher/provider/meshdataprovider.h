@@ -28,8 +28,8 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #include <qgsprovidermetadata.h>
 #include <qgsmeshlayer.h>
 
-#include "../HdTin/hdtineditor.h"
-#include "../HdMesh/hdmesheditor.h"
+#include "../HdTin/reostineditor.h"
+#include "../HdMesh/reosmesheditor.h"
 
 
 class HdTinLayer: public QgsMeshLayer
@@ -54,7 +54,7 @@ public:
 
 
 private:
-    HdTin mTin;
+    ReosTin mTin;
     std::vector<Segment> mHardLines;
 
     TINEditor tinEditor;

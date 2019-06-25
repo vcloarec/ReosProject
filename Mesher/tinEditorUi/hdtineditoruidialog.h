@@ -22,7 +22,7 @@ email                : vcloarec at gmail dot com / projetreos at gmail dot com
 
 #include "../../Reos/reossettings.h"
 
-class HdTinEditorUi;
+class ReosTinEditorUi;
 
 namespace Ui {
 class HdTinEditorUiDialog;
@@ -49,9 +49,12 @@ public:
 
     QString lineEditText() const;
 
+    bool autoUpdate() const;
+
 
 signals :
     void closed();
+    void escapePressed();
 
 public slots:
     void show()
@@ -66,7 +69,17 @@ public slots:
     }
 
 protected:
-
+    void keyPressEvent(QKeyEvent *event) override
+    {
+        if (event->key()==Qt::Key_Escape)
+        {
+            event->ignore();
+            emit escapePressed();
+        }
+        else {
+            QDialog::keyPressEvent(event);
+        }
+    }
 
 private slots:
     void updateSettings();

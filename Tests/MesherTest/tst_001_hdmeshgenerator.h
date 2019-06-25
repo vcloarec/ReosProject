@@ -6,8 +6,8 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock-matchers.h>
 
-#include "../../Mesher/HdMesh/hdmeshgenerator.h"
-#include "../../Mesher/HdTin/hdtin.h"
+#include "../../Mesher/HdMesh/reosmeshgenerator.h"
+#include "../../Mesher/HdTin/reostin.h"
 
 
 using namespace testing;
@@ -100,71 +100,6 @@ TEST_F(MeshGeneratorTesting, VertexCount)
 }
 
 
-
-class MeshGeneratorCGALTesting:public Test{
-public:
-    HdTin cgalMESH;
-
-
-};
-
-TEST_F(MeshGeneratorCGALTesting, meshCreation)
-{
-    ASSERT_THAT(cgalMESH.verticesCount(),Eq(0));
-}
-
-TEST_F(MeshGeneratorCGALTesting, addOneVertex)
-{
-    cgalMESH.addVertex(5,5);
-
-    ASSERT_THAT(cgalMESH.verticesCount(),Eq(1));
-}
-
-TEST_F(MeshGeneratorCGALTesting, addVerticesToHaveAFace)
-{
-    cgalMESH.addVertex(5,5);
-    cgalMESH.addVertex(10,5);
-    cgalMESH.addVertex(5,10);
-
-    ASSERT_THAT(cgalMESH.verticesCount(),Eq(3));
-    ASSERT_THAT(cgalMESH.facesCount(),Eq(1));
-}
-
-TEST_F(MeshGeneratorCGALTesting, addVerticesToHaveTwoFace)
-{
-    cgalMESH.addVertex(5,5);
-    cgalMESH.addVertex(6,5);
-    cgalMESH.addVertex(7,10);
-    cgalMESH.addVertex(10,10);
-
-    ASSERT_THAT(cgalMESH.verticesCount(),Eq(4));
-    ASSERT_THAT(cgalMESH.facesCount(),Eq(2));
-}
-
-
-TEST_F(MeshGeneratorCGALTesting, addDupplicatesVertices)
-{
-    cgalMESH.addVertex(5,5);
-    cgalMESH.addVertex(5,5);
-    cgalMESH.addVertex(7,10);
-    cgalMESH.addVertex(10,10);
-
-    ASSERT_THAT(cgalMESH.verticesCount(),Eq(3));
-    ASSERT_THAT(cgalMESH.facesCount(),Eq(1));
-}
-
-TEST_F(MeshGeneratorCGALTesting, locateVertex)
-{
-    VertexPointer vert1=cgalMESH.addVertex(5,5);
-
-    cgalMESH.addVertex(7,10);
-    //cgalMESH.addVertex(10,10);
-
-    VertexPointer vert2=cgalMESH.vertex(4.999,5.001,0.01);
-
-    ASSERT_TRUE(vert2==vert1);
-
-}
 
 
 #endif // TST_001_HDMESHGENERATOR_H

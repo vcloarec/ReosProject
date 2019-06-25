@@ -13,49 +13,43 @@ email                : vcloarec@gmail.com projetreos@gmail.com
  *                                                                         *
  ***************************************************************************/
 
-#include "hdmap.h"
+#include "reosmap.h"
 
-class mQgsMapCanvas:public QgsMapCanvas
-{
-public:
-    mQgsMapCanvas(QWidget *parent=nullptr):QgsMapCanvas(parent) {}
-    ~mQgsMapCanvas() {}
 
-};
-
-HdMap::HdMap(QObject *parent):ReosModule(parent),
+ReosMap::ReosMap(QObject *parent):ReosModule(parent),
     canvas_(new QgsMapCanvas()),
     cursorPosition(new HdCursorPosition(canvas_)),
     mapToolNeutral(new HdMapToolNeutral(this))
 {
     canvas_->setExtent(QgsRectangle(0,0,200,200));
+    canvas_->setObjectName("map canvas");
 }
 
-HdMap::~HdMap()
+ReosMap::~ReosMap()
 {
 
 }
 
-QgsMapCanvas *HdMap::getMapCanvas() const {return canvas_;}
+QgsMapCanvas *ReosMap::getMapCanvas() const {return canvas_;}
 
 
 
-void HdMap::setMapTool(HdMapTool *tool)
+void ReosMap::setMapTool(ReosMapTool *tool)
 {
     if (currentMapTool)
-        disconnect(currentMapTool,&HdMapTool::arret,this,&HdMap::askUnsetMapTool);
+        disconnect(currentMapTool,&ReosMapTool::stop,this,&ReosMap::askUnsetMapTool);
     currentMapTool=tool;
     canvas_->setMapTool(tool);
-    connect(currentMapTool,&HdMapTool::arret,this,&HdMap::askUnsetMapTool);
+    connect(currentMapTool,&ReosMapTool::stop,this,&ReosMap::askUnsetMapTool);
 
 }
 
-QgsMapTool *HdMap::getMaptool() const
+ReosMapTool *ReosMap::getMaptool() const
 {
-    return canvas_->mapTool();
+    return currentMapTool;
 }
 
-QgsCoordinateReferenceSystem HdMap::getCoordinateReferenceSystem()
+QgsCoordinateReferenceSystem ReosMap::getCoordinateReferenceSystem()
 {
     if (canvas_)
         return canvas_->mapSettings().destinationCrs();
@@ -63,39 +57,79 @@ QgsCoordinateReferenceSystem HdMap::getCoordinateReferenceSystem()
         return QgsCoordinateReferenceSystem();
 }
 
-QWidget *HdMap::getCursorPosition() {return cursorPosition;}
+QWidget *ReosMap::getCursorPosition() {return cursorPosition;}
+
+void ReosMap::setMapExtent(QRectF extent) {
+    canvas_->setExtent(QgsRectangle(extent));
+}
+
+void ReosMap::setMapSavedExtent(QRectF extent) {
+    savedExtent=extent;
+}
+
+QByteArray ReosMap::encode() const
+{
+    ReosEncodedElement encodedMap(QStringLiteral("Map"));
+    encodedMap.addData(QStringLiteral("Current extent"),canvas_->extent().toRectF());
+    return encodedMap.encode();
+}
+
+void ReosMap::decode(QByteArray &byteArray)
+{
+    ReosEncodedElement encodedMap(byteArray);
+    QRectF extent;
+    if (encodedMap.getData(QStringLiteral("Current extent"),extent))
+    {
+        if (extent!=QRectF())
+        {
+            savedExtent=QgsRectangle(extent);
+            canvas_->setExtent(extent);
+        }
+    }
+
+}
+
+void ReosMap::setToSaveExtent()
+{
+    canvas_->setExtent(savedExtent);
+}
+
+void ReosMap::saveMapExtent()
+{
+    savedExtent=canvas_->extent();
+}
 
 
-void HdMap::unsetMapTool(HdMapTool *tool)
+void ReosMap::unsetMapTool(ReosMapTool *tool)
 {
     if (currentMapTool==tool)
     {
-        disconnect(currentMapTool,&HdMapTool::arret,this,&HdMap::askUnsetMapTool);
+        disconnect(currentMapTool,&ReosMapTool::stop,this,&ReosMap::askUnsetMapTool);
         currentMapTool=nullptr;
     }
 }
 
-void HdMap::unsetMapTool()
+void ReosMap::unsetMapTool()
 {
     if (currentMapTool)
-        disconnect(currentMapTool,&HdMapTool::arret,this,&HdMap::askUnsetMapTool);
+        disconnect(currentMapTool,&ReosMapTool::stop,this,&ReosMap::askUnsetMapTool);
     currentMapTool=mapToolNeutral;
     canvas_->setMapTool(mapToolNeutral);
 }
 
-void HdMap::askUnsetMapTool()
+void ReosMap::askUnsetMapTool()
 {
     unsetMapTool();
 }
 
-void HdMap::refreshMap() {canvas_->refresh();}
+void ReosMap::refreshMap() {canvas_->refresh();}
 
-void HdMap::crsChanged()
+void ReosMap::crsChanged()
 {
     canvas_->setDestinationCrs(QgsProject::instance()->crs());
 }
 
-QWidget *HdMap::getWidget() const
+QWidget *ReosMap::getWidget() const
 {
     return canvas_;
 }

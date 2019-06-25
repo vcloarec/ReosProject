@@ -1,8 +1,8 @@
 /***************************************************************************
-                      hdmeshgenerator.cpp
+                      reosmeshgenerator.cpp
                      --------------------------------------
 Date                 : 01-04-2019
-Copyright            : (C) 2018 by Vincent Cloarec
+Copyright            : (C) 2019 by Vincent Cloarec
 email                : vcloarec at gmail dot com   /  projetreos at gmail dot com
  ***************************************************************************
  *                                                                         *
@@ -13,7 +13,7 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
  *                                                                         *
  ***************************************************************************/
 
-#include "hdmeshgenerator.h"
+#include "reosmeshgenerator.h"
 
 void HdMeshGeneratorTriangleFile::clear()
 {

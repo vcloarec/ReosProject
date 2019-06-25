@@ -55,7 +55,7 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 
 
 #include "QGis_app/qgis_app.h"
-#include "hdmap.h"
+#include "reosmap.h"
 #include "hdcrsdialogselection.h"
 #include "hdvectorlayerpropertiesdialog.h"
 #include "../Reos/reosdialogbox.h"
@@ -100,23 +100,7 @@ public:
 
     bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
 
-    QVariant data(const QModelIndex &index, int role) const override
-    {
-        QgsLayerTreeNode *node = index2node( index );
-
-        if ( role == Qt::DecorationRole && index.column() == 0 )
-        {
-            if (QgsLayerTree::isLayer(node))
-            {
-                QgsMapLayer *layer=QgsLayerTree::toLayer(node)->layer();
-                if (layer->dataProvider()->name()=="TIN")
-                    return QPixmap("://toolbar/MeshTinIcon.png");
-            }
-        }
-
-        return QgsLayerTreeModel::data(index,role);
-
-    }
+    QVariant data(const QModelIndex &index, int role) const override;
 
 };
 
@@ -125,7 +109,7 @@ class HdManagerSIG:public ReosModule
 {
     Q_OBJECT
 public:
-    HdManagerSIG(HdMap* map, ReosModule *parent=nullptr);
+    HdManagerSIG(ReosMap* map, ReosModule *parent=nullptr);
     ~HdManagerSIG() override {}
 
     QgsRasterLayer *getRasterLayer();
@@ -143,7 +127,7 @@ public:
     void transformTo(QgsAbstractGeometry *sourceGeometry,const QgsCoordinateReferenceSystem crsDest);
     void transformFrom(QgsAbstractGeometry *sourceGeometry,const QgsCoordinateReferenceSystem crsDest);
 
-    HdMap *getMap() const;
+    ReosMap *getMap() const;
 
     QgsCoordinateReferenceSystem getLayerCRS(QString name,QString URI="");
     QgsMapLayer *getLayer(QString name,QString URI="");
@@ -161,8 +145,8 @@ public:
 
 signals:
     void currentLayerChanged(QgsMapLayer *layer);
-
-
+    void layerHasToBeRemoved(QgsMapLayer *layer);
+    void layerHasToBeUpdated(QgsMapLayer *layer);
 
 public slots:
     void openProjectSIG();
@@ -177,7 +161,7 @@ public slots:
     void setExtentAfterLoading();
 
 private:
-    HdMap *map_;
+    ReosMap *map_;
     QgsCoordinateReferenceSystem crs;
     QgsCoordinateReferenceSystem deFaultCrs;
     HdTreeLayerSIGView *treeLayerView_;

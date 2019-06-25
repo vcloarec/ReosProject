@@ -8,8 +8,8 @@
 #include <qgsapplication.h>
 #include <qgsmapcanvas.h>
 
-#include "../../Mesher/tinEditorUi/hdtineditorgraphic.h"
-#include "../../Mesher/tinEditorUi/hdmapmeshitem.h"
+#include "../../Mesher/tinEditorUi/reostineditorgraphic.h"
+#include "../../Mesher/tinEditorUi/reosmapmeshitem.h"
 #include "../../Mesher/provider/meshdataprovider.h"
 
 
@@ -18,9 +18,9 @@ using namespace testing;
 class MeshItemTesting : public Test{
 public:
 
-    HdMap * map;
+    ReosMap * map;
     QgsMapCanvas *mapCanvas;
-    HdTinEditorUi *uiEditor;
+    ReosTinEditorUi *uiEditor;
     QgsMeshLayer *meshLayer;
     TINProvider *provider;
     HdManagerSIG *gismanager;
@@ -54,10 +54,10 @@ protected:
     void SetUp() override
     {
         QgsProviderRegistry::instance()->registerProvider(new HdTinEditorProviderMetaData());
-        map=new HdMap(nullptr);
+        map=new ReosMap(nullptr);
         mapCanvas=map->getMapCanvas();
         gismanager=new HdManagerSIG(map);
-        uiEditor=new HdTinEditorUi(gismanager);
+        uiEditor=new ReosTinEditorUi(gismanager);
         meshLayer=new QgsMeshLayer("-","Mesh editable","TIN");
         provider=static_cast<TINProvider*>(meshLayer->dataProvider());
     }
@@ -69,9 +69,9 @@ protected:
 };
 
 
-TEST_F(MeshItemTesting, creation)
+TEST_F(MeshItemTesting, domainContruction)
 {
-    HdMapMeshEditorItemDomain domain(mapCanvas);
+    ReosMapMeshEditorItemDomain domain(uiEditor,mapCanvas);
 
     ASSERT_THAT(domain.verticesCount(),Eq(0));
     ASSERT_THAT(domain.verticesCount(),Eq(provider->vertexCount()));
@@ -82,7 +82,7 @@ TEST_F(MeshItemTesting, associateMeshToEditor)
     uiEditor->setMeshLayer(meshLayer);
     populateEditorWithVertex();
 
-    HdMapMeshEditorItemDomain* domain=uiEditor->domain();;
+    ReosMapMeshEditorItemDomain* domain=uiEditor->domain();;
 
 
     ASSERT_THAT(domain->verticesCount(),Eq(5));
@@ -99,7 +99,7 @@ TEST_F(MeshItemTesting, associateNullMeshToEditor)
     ASSERT_THAT(uiEditor->domain()->verticesCount(),Eq(0));
 }
 
-TEST_F(MeshItemTesting, associateMeshAfterPopulateToEditor)
+TEST_F(MeshItemTesting, associateNewMeshAfterPopulateToEditor)
 {
     uiEditor->setMeshLayer(meshLayer);
     populateEditorWithVertex();
@@ -107,6 +107,8 @@ TEST_F(MeshItemTesting, associateMeshAfterPopulateToEditor)
     ASSERT_THAT(uiEditor->domain()->verticesCount(),Eq(5));
 
     uiEditor->setMeshLayer(nullptr);
+
+    ASSERT_THAT(uiEditor->domain()->verticesCount(),Eq(0));
 
     uiEditor->setMeshLayer(meshLayer);
 

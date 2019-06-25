@@ -1,5 +1,5 @@
 /***************************************************************************
-                      hdmeshgenerator.h
+                      reosmeshgenerator.h
                      --------------------------------------
 Date                 : 01-04-2019
 Copyright            : (C) 2018 by Vincent Cloarec
@@ -13,8 +13,8 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
  *                                                                         *
  ***************************************************************************/
 
-#ifndef HDMESHGENERATOR_H
-#define HDMESHGENERATOR_H
+#ifndef REOSMESHGENERATOR_H
+#define REOSMESHGENERATOR_H
 
 
 
@@ -26,7 +26,7 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 
 #include <qgspoint.h>
 
-#include "hdmesh.h"
+#include "reosmesh.h"
 
 #define TRIANGLE_FILENAME "tinTriangle"
 
@@ -53,7 +53,16 @@ private:
 
 };
 
+class FaceBasic:public Face
+{
 
+
+    // Face interface
+public:
+    void addVertex(VertexPointer vert) override {if (vert){}}
+    VertexPointer vertexPointer(int i) const override {if (i){};return nullptr;}
+    int verticesCount() const override {return 0;}
+};
 
 
 class HdMeshBasic:public HdMesh
@@ -97,7 +106,7 @@ public:
 
     void addFace(const std::vector<int> &faceInt)
     {
-        auto face=new Face();
+        auto face=new FaceBasic();
         for (auto i:faceInt)
             face->addVertex(vertex(i));
         mFaces.push_back(face);
@@ -111,6 +120,15 @@ private:
     // HdMesh interface
 public:
     std::unique_ptr<MeshIO> getReader() const override {return  std::unique_ptr<MeshIO>();}
+
+    std::list<VertexPointer> addHardLine(VertexPointer v1, VertexPointer v2) override {return std::list<VertexPointer>();}
+    std::list<VertexPointer> hardNeighbours(VertexPointer vertex) const override{return std::list<VertexPointer>();}
+    std::list<VertexPointer> removeHardLine(VertexPointer v1, VertexPointer v2) override {return std::list<VertexPointer>();}
+    std::list<VertexPointer> neighboursVertices(VertexPointer vertex) const override {return std::list<VertexPointer>();}
+
+    // HdMesh interface
+public:
+    FacePointer face(double x, double y) const override {if(x>y){};return nullptr;}
 };
 
 

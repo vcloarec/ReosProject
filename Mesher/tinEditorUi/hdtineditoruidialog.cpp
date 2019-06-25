@@ -16,7 +16,7 @@ email                : vcloarec at gmail dot com / projetreos at gmail dot com
 #include "hdtineditoruidialog.h"
 #include "ui_hdtineditoruidialog.h"
 
-#include "hdtineditorgraphic.h"
+#include "reostineditorgraphic.h"
 
 HdTinEditorUiDialog::HdTinEditorUiDialog(QWidget *parent) :
     QDialog(parent),
@@ -82,6 +82,11 @@ void HdTinEditorUiDialog::setLineEditFocus()
 
 QString HdTinEditorUiDialog::lineEditText() const {
     return ui->lineEdit->text();
+}
+
+bool HdTinEditorUiDialog::autoUpdate() const
+{
+    return ui->checkBoxAutoUpdate->isChecked();
 }
 
 void HdTinEditorUiDialog::updateSettings()

@@ -16,7 +16,7 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "hdgismanager.h"
 
 
-HdManagerSIG::HdManagerSIG(HdMap *map, ReosModule *parent): ReosModule(parent),map_(map),
+HdManagerSIG::HdManagerSIG(ReosMap *map, ReosModule *parent): ReosModule(parent),map_(map),
     treeLayerView_(new HdTreeLayerSIGView()),
 #ifdef _DEBUG
     pluginPath("pluginsQGISDebug"),
@@ -87,7 +87,7 @@ HdManagerSIG::HdManagerSIG(HdMap *map, ReosModule *parent): ReosModule(parent),m
     connect(treeLayerView_,&QAbstractItemView::doubleClicked,this,&HdManagerSIG::layerPropertiesByIndex);
     connect(treeLayerView_,&QgsLayerTreeView::currentLayerChanged,this,&HdManagerSIG::currentLayerChanged);
 
-    connect(QgsProject::instance(),&QgsProject::crsChanged,map_,&HdMap::crsChanged);
+    connect(QgsProject::instance(),&QgsProject::crsChanged,map_,&ReosMap::crsChanged);
 
     setTextActionCRS();
 
@@ -294,6 +294,11 @@ void HdManagerSIG::removeSelectedLayers()
 
             map_->getMapCanvas()->refresh();
         }
+
+        QgsMapLayer* currentLayer=nullptr;
+        if (treeLayerView_->selectedLayers().count()>0)
+            currentLayer=treeLayerView_->selectedLayers().at(0);
+        emit currentLayerChanged(currentLayer);
 
     }
 }
@@ -503,7 +508,7 @@ void HdManagerSIG::transformFrom(QgsAbstractGeometry *sourceGeometry, const QgsC
 
 }
 
-HdMap *HdManagerSIG::getMap() const {return map_;}
+ReosMap *HdManagerSIG::getMap() const {return map_;}
 
 QgsCoordinateReferenceSystem HdManagerSIG::getLayerCRS(QString name, QString URI)
 {
@@ -597,8 +602,7 @@ void HdManagerSIG::callPropertiesLayer(QgsMapLayer *layer)
         if (vl)
             dial =new HdVectorLayerPropertiesDialog(vl,map_->getMapCanvas());
         break;
-    case RASTER_LAYER_TYPE
-    :
+    case RASTER_LAYER_TYPE:
         rl=qobject_cast<QgsRasterLayer*>(layer);
         if (rl)
             dial =new QgsRasterLayerProperties(rl,map_->getMapCanvas());
@@ -614,6 +618,8 @@ void HdManagerSIG::callPropertiesLayer(QgsMapLayer *layer)
 
     if (dial)
         dial->exec();
+
+    emit layerHasToBeUpdated(layer);
 }
 
 void HdManagerSIG::layerProperties()
@@ -702,6 +708,24 @@ bool HdTreeLayerModel::dropMimeData(const QMimeData *data, Qt::DropAction action
     }
 
     return QgsLayerTreeModel::dropMimeData(data,action,row,column,parent);
+}
+
+QVariant HdTreeLayerModel::data(const QModelIndex &index, int role) const
+{
+    QgsLayerTreeNode *node = index2node( index );
+
+    if ( role == Qt::DecorationRole && index.column() == 0 )
+    {
+        if (QgsLayerTree::isLayer(node))
+        {
+            QgsMapLayer *layer=QgsLayerTree::toLayer(node)->layer();
+            if (layer->dataProvider()->name()=="TIN")
+                return QPixmap("://toolbar/MeshTinIcon.png");
+        }
+    }
+
+    return QgsLayerTreeModel::data(index,role);
+
 }
 
 QMenu *HdSigTreeViewContextMenuProvider::createContextMenu()

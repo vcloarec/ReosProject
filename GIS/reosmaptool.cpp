@@ -13,16 +13,16 @@ email                : vcloarec@gmail.com projetreos@gmail.com
  *                                                                         *
  ***************************************************************************/
 
-#include "hdmaptool.h"
-#include "hdmap.h"
+#include "reosmaptool.h"
+#include "reosmap.h"
 #include <chrono>
 
-HdMapTool::~HdMapTool()
+ReosMapTool::~ReosMapTool()
 {
     map_->unsetMapTool(this);
 }
 
-void HdMapTool::keyPressEvent(QKeyEvent *e)
+void ReosMapTool::keyPressEvent(QKeyEvent *e)
 {
     if (e->key()==Qt::Key_Escape)
     {
@@ -33,7 +33,7 @@ void HdMapTool::keyPressEvent(QKeyEvent *e)
         }
         else
         {
-            emit arret();
+            emit stop();
         }
 
         e->accept();
@@ -43,7 +43,7 @@ void HdMapTool::keyPressEvent(QKeyEvent *e)
    e->ignore();
 }
 
-HdMapToolRectangularSelection::HdMapToolRectangularSelection(HdMap *map): HdMapTool(map),
+HdMapToolRectangularSelection::HdMapToolRectangularSelection(ReosMap *map): ReosMapTool(map),
     rubberBand_(new QgsRubberBand(map->getMapCanvas(),QgsWkbTypes::LineGeometry))
 {
     rubberBand_->setColor(Qt::red);
@@ -102,16 +102,16 @@ void HdMapToolRectangularSelection::canvasPressEvent(QgsMapMouseEvent *e)
 }
 
 
-HdMapTool::HdMapTool(HdMap *map):QgsMapTool(map->getMapCanvas()),inProgress_(false),map_(map)
+ReosMapTool::ReosMapTool(ReosMap *map):QgsMapTool(map->getMapCanvas()),inProgress_(false),map_(map)
 {}
 
-void HdMapTool::deactivate()
+void ReosMapTool::deactivate()
 {
     reset();
     QgsMapTool::deactivate();
 }
 
-HdMapToolLinearSelection::HdMapToolLinearSelection(HdMap *map):HdMapTool(map),
+HdMapToolLinearSelection::HdMapToolLinearSelection(ReosMap *map):ReosMapTool(map),
     rubberBand_(new QgsRubberBand(map->getMapCanvas(),QgsWkbTypes::LineGeometry))
 {
     rubberBand_->setColor(Qt::darkGreen);
@@ -191,12 +191,12 @@ void HdMapToolLinearSelection::canvasPressEvent(QgsMapMouseEvent *e)
 //    return mapTool;
 //}
 
-HdMapToolNeutral::HdMapToolNeutral(HdMap *map):HdMapTool(map)
+HdMapToolNeutral::HdMapToolNeutral(ReosMap *map):ReosMapTool(map)
 {
     setCursor(Qt::ArrowCursor);
 }
 
-HdMapToolNeutral *HdMapToolNeutral::makeMapToolNeutral(HdMap *map)
+HdMapToolNeutral *HdMapToolNeutral::makeMapToolNeutral(ReosMap *map)
 {
     HdMapToolNeutral *tool=new HdMapToolNeutral(map);
     return tool;
@@ -213,7 +213,7 @@ HdMapToolNeutral *HdMapToolNeutral::makeMapToolNeutral(HdMap *map)
 //    return mapTool;
 //}
 
-HdMapToolItemSelection::HdMapToolItemSelection(HdMap *map, int itemType):HdMapTool(map),itemType(itemType)
+HdMapToolItemSelection::HdMapToolItemSelection(ReosMap *map, int itemType):ReosMapTool(map),itemType(itemType)
 {
 
 }
@@ -256,8 +256,8 @@ void HdMapToolItemSelection::canvasPressEvent(QgsMapMouseEvent *e)
 
 
 
-HdMapToolLinearDrawing::HdMapToolLinearDrawing(HdMap *map, QgsWkbTypes::GeometryType geometryType):
-    HdMapTool (map),
+HdMapToolLinearDrawing::HdMapToolLinearDrawing(ReosMap *map, QgsWkbTypes::GeometryType geometryType):
+    ReosMapTool (map),
     rubberBand(new QgsRubberBand(map->getMapCanvas(),geometryType)),
     geometryType(geometryType)
 {
@@ -406,7 +406,7 @@ void HdMapToolLinearDrawing::keyPressEvent(QKeyEvent *e)
         else
         {
             reset();
-            emit arret();
+            emit stop();
         }
         e->accept();
         return;
@@ -428,7 +428,7 @@ void HdMapToolLinearDrawing::keyPressEvent(QKeyEvent *e)
         return;
     }
 
-    HdMapTool::keyPressEvent(e);
+    ReosMapTool::keyPressEvent(e);
 }
 
 void HdMapToolLinearDrawing::reset()
@@ -438,7 +438,7 @@ void HdMapToolLinearDrawing::reset()
     inProgress_=false;
 }
 
-void HdMapToolClickPoint::canvasPressEvent(QgsMapMouseEvent *e)
+void ReosMapToolClickPoint::canvasPressEvent(QgsMapMouseEvent *e)
 {
     emit clickDone(e->mapPoint().toQPointF());
 }
