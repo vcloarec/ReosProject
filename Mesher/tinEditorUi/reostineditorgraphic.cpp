@@ -28,18 +28,27 @@ ReosTinEditorUi::ReosTinEditorUi(HdManagerSIG *gismanager, QObject *parent):Reos
     mapToolHardLineSegment(new ReosTinMapToolHardLineSegement(gismanager->getMap(),this)),
     actionRemoveSegment(new QAction(QPixmap("://toolbar/MeshTINRemoveSegment.png"),tr("Remove hard line"),this)),
     mapToolRemoveSegment(new ReosMapToolSelection(gismanager->getMap())),
+    actionFlipFaces(new QAction(tr("Flip faces"),this)),
+    mapToolFlipFaces(new ReosTinMapToolFlipFaces(gismanager->getMap(),this)),
     actionTriangulateTIN(new QAction(QPixmap("://toolbar/MeshTINTriangulation.png"),tr("update mesh"),this))
 {
     actionNewVertex->setCheckable(true);
     mapToolNewVertex->setAction(actionNewVertex);
+
     mapToolHardLineSegment->setAction(actionNewHardLineSegment);
     actionNewHardLineSegment->setCheckable(true);
+
     mapToolRemoveVertex->setCursor(QCursor(QPixmap("://supprimeElement.png"),0,0));
     mapToolRemoveVertex->setAction(actionRemoveVertex);
     actionRemoveVertex->setCheckable(true);
+
     mapToolRemoveSegment->setCursor(QCursor(QPixmap("://supprimeElement.png"),0,0));
     mapToolRemoveSegment->setAction(actionRemoveSegment);
     actionRemoveSegment->setCheckable(true);
+
+    mapToolFlipFaces->setAction(actionFlipFaces);
+    actionFlipFaces->setCheckable(true);
+
 
 
     groupAction->addAction(actionNewTinLayer);
@@ -47,12 +56,15 @@ ReosTinEditorUi::ReosTinEditorUi(HdManagerSIG *gismanager, QObject *parent):Reos
     groupAction->addAction(actionRemoveVertex);
     groupAction->addAction(actionNewHardLineSegment);
     groupAction->addAction(actionRemoveSegment);
+    groupAction->addAction(actionFlipFaces);
     groupAction->addAction(actionTriangulateTIN);
+
     actionEditList.append(actionNewVertex);
     actionEditList.append(actionNewHardLineSegment);
     actionEditList.append(actionRemoveVertex);
     actionEditList.append(actionTriangulateTIN);
     actionEditList.append(actionRemoveSegment);
+    actionEditList.append(actionFlipFaces);
     enableEditAction(false);
 
     uiDialog=new HdTinEditorUiDialog(mMap->getMapCanvas());
@@ -73,6 +85,8 @@ ReosTinEditorUi::ReosTinEditorUi(HdManagerSIG *gismanager, QObject *parent):Reos
 
     connect(actionRemoveSegment,&QAction::triggered,this,&ReosTinEditorUi::startRemoveSegment);
     connect(mapToolRemoveSegment,&ReosMapToolSelection::zonalCanvasRect,this,&ReosTinEditorUi::removeSegmentFromRect);
+
+    connect(actionFlipFaces,&QAction::triggered,this,&ReosTinEditorUi::startFlipFaces);
 
     connect(gismanager,&HdManagerSIG::currentLayerChanged,this,&ReosTinEditorUi::currentLayerChanged);
     connect(gismanager,&HdManagerSIG::layerHasToBeUpdated,this,&ReosTinEditorUi::layerHasToBeUpdated);
@@ -112,6 +126,37 @@ VertexPointer ReosTinEditorUi::realWorldVertex(const QPointF &mapPoint) const
 
     QPointF meshPoint=meshCoordinates(mapPoint);
     return mEditor->vertex(meshPoint.x(),meshPoint.y());
+}
+
+QList<QPointF> ReosTinEditorUi::mapFace(const QPointF &mapPoint) const
+{
+    QList<QPointF> vertices;
+    FacePointer face=realWorldFace(mapPoint);
+    if (!face)
+        return vertices;
+
+    for (int i=0;i<face->verticesCount();++i)
+    {
+        VertexPointer v=face->vertexPointer(i);
+        QPointF mp=mapCoordinates(QPointF(v->x(),v->y()));
+        vertices.append(mp);
+    }
+
+    return vertices;
+}
+
+FacePointer ReosTinEditorUi::realWorldFace(const QPointF &mapPoint) const
+{
+    if (!mEditor)
+        return nullptr;
+
+    QPointF meshPoint=meshCoordinates(mapPoint);
+    return mEditor->face(meshPoint.x(),meshPoint.y());
+}
+
+bool ReosTinEditorUi::isFlipable(FacePointer f1, FacePointer f2) const
+{
+    return mEditor->isFlipable(f1,f2);
 }
 
 VertexPointer ReosTinEditorUi::addRealWorldVertex(const QPointF &mapPoint, double z)
@@ -280,6 +325,24 @@ void ReosTinEditorUi::doCommand(ReosTinUndoCommandRemoveHardLine *command)
 
     for (auto v:verticesList)
         updateGraphics(v);
+}
+
+void ReosTinEditorUi::doCommand(ReosTinUndoCommandFlipFaces *command)
+{
+    auto face_1=realWorldFace(command->mFaceCentroidToFlip_1);
+    auto face_2=realWorldFace(command->mFaceCentroidToFlip_2);
+
+    auto newFaces=mEditor->flipFaces(face_1,face_2);
+    command->setFacesCentroid(newFaces[0],newFaces[1]);
+}
+
+void ReosTinEditorUi::undoCommand(ReosTinUndoCommandFlipFaces *command)
+{
+    auto face_1=realWorldFace(command->mFaceCentroidToFlip_1);
+    auto face_2=realWorldFace(command->mFaceCentroidToFlip_2);
+
+    auto newFaces=mEditor->flipFaces(face_1,face_2);
+    command->setFacesCentroid(newFaces[0],newFaces[1]);
 };
 
 
@@ -372,6 +435,17 @@ void ReosTinEditorUi::removeSegmentFromRect(const QRectF &selectionZone)
         auto command= new ReosTinUndoCommandRemoveHardLine(this,mapPoint1,mapPoint2);
         newCommand(command);
     }
+}
+
+void ReosTinEditorUi::startFlipFaces()
+{
+    mMap->setMapTool(mapToolFlipFaces);
+}
+
+void ReosTinEditorUi::flipFaces(FacePointer f1, FacePointer f2)
+{
+    auto command=new ReosTinUndoCommandFlipFaces(f1,f2,this);
+    newCommand(command);
 }
 
 void ReosTinEditorUi::startNewHardLineSegment()
@@ -805,4 +879,88 @@ void ReosTinMapToolHardLineSegement::canvasPressEvent(QgsMapMouseEvent *e)
         firstPoint=secondPoint;
         firstVertex=mUiEditor->mapVertex(firstPoint);
     }
+}
+
+
+void ReosTinMapToolFlipFaces::canvasPressEvent(QgsMapMouseEvent *e)
+{
+    if (currentFaceItem)
+        delete currentFaceItem;
+    currentFaceItem=nullptr;
+
+    FacePointer face=mUiEditor->realWorldFace(e->mapPoint().toQPointF());
+
+    if (!face)
+        return;
+
+    if(!firstFace)
+    {
+        firstFace=face;
+        QList<QPointF> facePoints=selectedFace(e->mapPoint().toQPointF());
+        firstFaceItem=new ReosMeshItemFace(facePoints,canvas());
+        firstFaceItem->setBrushColor(firstFaceColor);
+    }
+    else
+    {
+        FacePointer secondFace=mUiEditor->realWorldFace(e->mapPoint().toQPointF());
+        if (faceCoupleIsValid(firstFace,secondFace))
+        {
+            mUiEditor->flipFaces(firstFace,secondFace);
+            reset();
+        }
+
+    }
+
+
+
+
+}
+
+void ReosTinMapToolFlipFaces::canvasMoveEvent(QgsMapMouseEvent *e)
+{
+    if (currentFaceItem)
+        delete currentFaceItem;
+
+    QList<QPointF> face=selectedFace(e->mapPoint().toQPointF());
+    if (face.count()==0)
+    {
+        currentFaceItem=nullptr;
+        return;
+    }
+
+    currentFaceItem=new ReosMeshItemFace(face,canvas());
+    if (!firstFace)
+    {
+        currentFaceItem->setBrushColor(currentFaceColor);
+    }
+    else
+    {
+        auto secondFace=mUiEditor->realWorldFace(e->mapPoint().toQPointF());
+
+        if(mUiEditor->isFlipable(firstFace,secondFace))
+        {
+            currentFaceItem->setBrushColor(currentFaceColor);
+        }
+        else
+        {
+            currentFaceItem->setBrushColor(wrongFaceColor);
+        }
+    }
+
+}
+
+QList<QPointF> ReosTinMapToolFlipFaces::selectedFace(QPointF mapPoint)
+{
+    return mUiEditor->mapFace(mapPoint);
+}
+
+bool ReosTinMapToolFlipFaces::faceCoupleIsValid(FacePointer f1, FacePointer f2)
+{
+    if (!(f1&&f2))
+        return false;
+
+    if (!mUiEditor->isFlipable(f1,f2))
+        return false;
+
+    return true;
 }

@@ -12,6 +12,7 @@ It will be a part of the Reos project, a free and open sources solution dedicate
 ![](mesher.gif)
 
 ## TODO list
+- [X] add flip faces functionality
 - [ ] Save/open a TIN : using MDAL for the vertices and faces and another file for the editor data (hardline or other specificities). Using MDAL would permit to open and display the TIN with QGIS.
 - [ ] add possibility to modify the Z value of vertices.
 - [ ] add tool to set automaticaly the Z value for the vertices.

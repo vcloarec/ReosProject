@@ -92,12 +92,74 @@ public:
     }
 
 
-
 private:
 
+};
 
+class ReosMeshItemFace: public ReosMapItem
+{
+public:
+    ReosMeshItemFace(const QList<QPointF> &points,QgsMapCanvas *canvas):ReosMapItem(canvas),mMapPoints(points)
+    {
+        mPen=QPen(QColor(Qt::red));
+        mBrush=QBrush(QColor(255,0,0,150),Qt::SolidPattern);
+        updatePosition();
+    }
+    virtual ~ReosMeshItemFace() override;
+
+    QRectF boundingRect() const override
+    {
+        double xmin=DBL_MAX;
+        double ymin=DBL_MAX;
+        double xmax=-DBL_MAX;
+        double ymax=-DBL_MAX;
+
+        for (auto p:mViewPoints)
+        {
+            if (p.x()<xmin)
+                xmin=p.x();
+            if (p.x()>xmax)
+                xmax=p.x();
+            if (p.y()<ymin)
+                ymin=p.y();
+            if (p.y()>ymax)
+                ymax=p.y();
+        }
+
+        return QRectF(QPointF(xmin,ymin),QPointF(xmax,ymax));
+    }
+
+    void updatePosition() override
+    {
+        mViewPoints.clear();
+        for (auto p:mMapPoints)
+        {
+            mViewPoints.append(toCanvasCoordinates(QgsPointXY(p)));
+        }
+    }
+
+    void setBrushColor(const QColor &c){
+        mBrush.setColor(c);
+    }
+
+protected:
+    void paint(QPainter *painter) override{
+        painter->save();
+        painter->setPen(mPen);
+        painter->setBrush(mBrush);
+        painter->drawPolygon(mViewPoints.data(),mViewPoints.count());
+        painter->restore();
+    }
+
+private:
+    QList<QPointF> mMapPoints;
+    QVector<QPointF> mViewPoints;
+
+    QPen mPen;
+    QBrush mBrush;
 
 };
+
 
 
 

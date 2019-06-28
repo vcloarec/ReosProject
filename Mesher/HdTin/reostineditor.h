@@ -26,6 +26,10 @@ public:
 
     VertexPointer addVertex(double x, double y);
     VertexPointer vertex(double x, double y) const;
+    FacePointer face(double x, double y) const
+    {
+        return mTin.face(x,y);
+    }
 
 
     void removeVertex(VertexPointer vert)
@@ -53,6 +57,16 @@ public:
     std::unique_ptr<MeshIO> getTinReader() const;
 
     bool isDirty() const {return mDirty;}
+
+    std::vector<FacePointer> flipFaces(FacePointer f1, FacePointer f2)
+    {
+        return mTin.flipFaces(f1,f2);
+    }
+
+    bool isFlipable(FacePointer f1, FacePointer f2) const
+    {
+        return mTin.isFlipable(f1,f2);
+    }
 
 
 

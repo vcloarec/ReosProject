@@ -33,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     HdManagerSIG *gisManager=new HdManagerSIG(map);
-    QDockWidget* dockSIG=new QDockWidget(tr("GIS control pannel"));
+    QDockWidget* dockSIG=new QDockWidget(tr("GIS panel"));
     dockSIG->setWidget(gisManager->getWidget());
     statusBar()->addPermanentWidget(gisManager->createCRSDisplay(this));
     dockSIG->setObjectName(QStringLiteral("Dock GIS"));

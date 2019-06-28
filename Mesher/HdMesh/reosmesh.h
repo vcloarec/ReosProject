@@ -82,19 +82,9 @@ public:
     virtual void addVertex(VertexPointer vert)=0;
     virtual VertexPointer vertexPointer(int i) const=0;
     virtual int verticesCount() const=0;
-    virtual bool isVertexContained(VertexPointer vertex) const
-    {
-        bool found=false;
-        int i=0;
-        while( !found && i<verticesCount())
-        {
-            found= vertex == vertexPointer(i);
-            if (!found)
-                ++i;
-        }
+    virtual bool isVertexContained(VertexPointer vertex) const;
 
-        return found;
-    }
+    std::vector<double> faceCentroid();
 };
 
 
@@ -143,8 +133,10 @@ public:
     virtual std::list<VertexPointer> removeHardLine(VertexPointer v1, VertexPointer v2)=0;
 
     virtual std::unique_ptr<MeshIO> getReader() const =0;
-
     virtual std::list<VertexPointer> neighboursVertices(VertexPointer vertex) const =0;
+
+
+
 
 
 };

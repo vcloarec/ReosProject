@@ -462,7 +462,6 @@ TEST_F(TinEditorTesting, flipFaces)
 
     ASSERT_THAT(face3->isVertexContained(vert4),Eq(true));
     ASSERT_THAT(face4->isVertexContained(vert2),Eq(true));
-
 }
 
 

@@ -142,7 +142,7 @@ public:
         return (node==mNode2 || node==mNode1);
     }
 
-    // QGraphicsItem interface
+
     QRectF boundingRect() const override
     {
         QRectF bounding=QRectF(mNode1->pos(),mNode2->pos());
@@ -238,6 +238,11 @@ public:
     bool isVertexSelected(int i) const;
     const QList<int> & selectedVertices() const;
 
+    QRectF boundingRect() const override
+    {
+        return mViewPolyline.boundingRect();
+    }
+
 private:
     QPolygonF mMapPolyline;
     QPolygonF mViewPolyline;
@@ -245,6 +250,7 @@ private:
     QPen mPen;
 
     QList<int> mSelectedVertex;
+
 
 };
 

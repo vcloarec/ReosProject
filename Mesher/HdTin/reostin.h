@@ -24,6 +24,8 @@ email                : vcloarec at gmail dot com / projetreos at gmail dot com
 
 #include "../HdMesh/reosmesh.h"
 
+template<typename T>
+class TD;
 
 
 template < class Gt, class Vb = CGAL::Triangulation_vertex_base_2<Gt> >
@@ -228,6 +230,10 @@ public:
     FacePointer face(double x,double y) const override
     {
         auto faceHandle=triangulation.locate(CgalPoint(x,y));
+
+        if (triangulation.is_infinite(faceHandle))
+            return nullptr;
+
         return &(*faceHandle);
     }
 
@@ -249,23 +255,23 @@ public:
 
     virtual std::list<VertexPointer> neighboursVertices(VertexPointer vertex) const override;
 
-    bool flipFaces(FacePointer f1, FacePointer f2)
-    {
-        auto face_1=faceHandle(static_cast<TinTriangulation::Face*>(f1));
-        auto face_2=faceHandle(static_cast<TinTriangulation::Face*>(f2));
+    bool isFlipable(FacePointer f1, FacePointer f2) const;
 
-        int index=face_1->index(face_2);
+    /////////////////////////////////////////////////////////////
+    /// \brief flipFaces
+    /// \param f1 first face to flip
+    /// \param f2 second face to flip
+    /// \return return the two new faces
+    ///
+    std::vector<FacePointer> flipFaces(FacePointer f1, FacePointer f2);
 
-        triangulation.flip(face_1,index);
 
-        return true;
-    }
 
 
 private:
     TinTriangulation triangulation;
 
-    FaceHandle faceHandle(TinTriangulation::Face* f)
+    FaceHandle faceHandle(TinTriangulation::Face* f) const
     {
         if (!f)
             return nullptr;

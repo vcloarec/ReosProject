@@ -31,3 +31,33 @@ VertexPointer Segment::first() const {return mVertex1;}
 VertexPointer Segment::second() const {return mVertex2;}
 
 
+
+bool Face::isVertexContained(VertexPointer vertex) const
+{
+    bool found=false;
+    int i=0;
+    while( !found && i<verticesCount())
+    {
+        found= vertex == vertexPointer(i);
+        if (!found)
+            ++i;
+    }
+
+    return found;
+}
+
+std::vector<double> Face::faceCentroid()
+{
+    double x=0;
+    double y=0;
+    int n=verticesCount();
+    for (int i=0;i<n;++i)
+    {
+        x+=vertexPointer(i)->x();
+        y+=vertexPointer(i)->y();
+    }
+
+    std::vector<double> centroid{x/n,y/n};
+
+    return centroid;
+}

@@ -262,6 +262,68 @@ std::list<VertexPointer> ReosTin::neighboursVertices(VertexPointer vertex) const
 
 }
 
+bool ReosTin::isFlipable(FacePointer f1, FacePointer f2) const
+{
+    auto face_1=faceHandle(static_cast<TinTriangulation::Face*>(f1));
+    auto face_2=faceHandle(static_cast<TinTriangulation::Face*>(f2));
+
+
+    if (!face_1->has_neighbor(face_2))
+        return false;
+
+
+
+    //test if the  face are convex;
+    int i1=face_1->index(face_2);
+    int i2=face_2->index(face_1);
+
+    CGAL::Segment_2<K> oppositeSegement(face_1->vertex(i1)->point(),face_2->vertex(i2)->point());
+    CGAL::Segment_2<K> commonSegment(face_1->vertex((i1+1)%3)->point(),face_1->vertex((i1+2)%3)->point());
+
+    auto intersect=CGAL::intersection(oppositeSegement,commonSegment);
+
+    if (intersect)
+        return true;
+    else
+        return false;
+
+}
+
+std::vector<FacePointer> ReosTin::flipFaces(FacePointer f1, FacePointer f2)
+{
+    auto face_1=faceHandle(static_cast<TinTriangulation::Face*>(f1));
+    auto face_2=faceHandle(static_cast<TinTriangulation::Face*>(f2));
+
+    int index_1=face_1->index(face_2);
+    auto v1=face_1->vertex(index_1);
+
+    int index_2=face_2->index(face_1);
+    auto v2=face_2->vertex(index_2);
+
+    triangulation.flip(face_1,index_1);
+
+    auto e=v1->incident_edges();
+    auto ie=e;
+
+    bool found=false;
+    do
+    {
+        found= oppositeVertex(v1->handle(),(*e))==v2;
+        if (!found)
+            e++;
+    }while (ie!=e && !found);
+
+
+    auto otherEdge=triangulation.mirror_edge((*e));
+
+    std::vector<FacePointer> newFaces;
+
+    newFaces.push_back(&(*(e->first)));
+    newFaces.push_back(&(*otherEdge.first));
+
+    return newFaces;
+}
+
 
 std::list<VertexPointer> ReosTin::addHardLine(VertexPointer v1, VertexPointer v2)
 {

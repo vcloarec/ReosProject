@@ -143,3 +143,5 @@ ReosMeshItemSegment::~ReosMeshItemSegment() {}
 ReosMapMeshItem::ReosMapMeshItem(QgsMapCanvas *canvas): ReosMapItem (canvas){}
 
 ReosMapMeshItem::~ReosMapMeshItem(){}
+
+ReosMeshItemFace::~ReosMeshItemFace() {}

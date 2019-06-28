@@ -46,6 +46,7 @@ class ReosTinUndoCommandNewSegmentWithNewSecondVertex;
 class ReosTinUndoCommandNewSegmentWithExistingSecondVertex;
 class ReosTinUndoCommandRemoveVertex;
 class ReosTinUndoCommandRemoveHardLine;
+class ReosTinUndoCommandFlipFaces;
 
 
 struct ReosMeshItemVertexAndNeighbours
@@ -112,6 +113,46 @@ private:
     QgsRubberBand *rubberBand;
 };
 
+class ReosTinMapToolFlipFaces:public ReosMapTool
+{
+    Q_OBJECT
+public:
+    ReosTinMapToolFlipFaces(ReosMap *map, ReosTinEditorUi* uiEditor):ReosMapTool(map),
+        mUiEditor(uiEditor)
+    {}
+    virtual ~ReosTinMapToolFlipFaces() override {}
+
+protected:
+    void canvasPressEvent(QgsMapMouseEvent *e) override;
+    void canvasMoveEvent(QgsMapMouseEvent *e) override;
+
+private:
+    ReosTinEditorUi *mUiEditor;
+    FacePointer firstFace=nullptr;
+    ReosMeshItemFace *currentFaceItem=nullptr;
+    ReosMeshItemFace *firstFaceItem=nullptr;
+    QList<QPointF> selectedFace(QPointF mapPoint);
+
+    const QColor firstFaceColor=QColor(150,150,0,150);
+    const QColor currentFaceColor=QColor(0,150,0,150);
+    const QColor wrongFaceColor=QColor(150,0,0,150);
+
+    bool faceCoupleIsValid(FacePointer f1, FacePointer f2);
+
+    // ReosMapTool interface
+public slots:
+    void reset() override
+    {
+        firstFace=nullptr;
+        if (currentFaceItem)
+            delete currentFaceItem;
+        currentFaceItem=nullptr;
+        if(firstFaceItem)
+            delete firstFaceItem;
+        firstFaceItem=nullptr;
+    }
+};
+
 
 
 class ReosTinEditorUi : public ReosModule
@@ -126,6 +167,11 @@ public:
     ReosMeshItemVertex *mapVertex(const QPointF &mapPoint) const;
     VertexPointer realWorldVertex(const QPointF &mapPoint) const;
 
+    QList<QPointF> mapFace(const QPointF &mapPoint) const;
+    FacePointer realWorldFace(const QPointF &mapPoint) const;
+
+    bool isFlipable(FacePointer f1,FacePointer f2) const;
+
 
     void doCommand(ReosTinUndoCommandNewVertex *command);
     void undoCommand(ReosTinUndoCommandNewVertex *command);
@@ -139,6 +185,10 @@ public:
 
     void doCommand(ReosTinUndoCommandRemoveHardLine *command);
     void undoCommand(ReosTinUndoCommandRemoveHardLine *command){}
+
+    void doCommand(ReosTinUndoCommandFlipFaces *command);
+    void undoCommand(ReosTinUndoCommandFlipFaces *command);
+
 
 public slots:
     void startNewVertex();
@@ -156,6 +206,9 @@ public slots:
     void startRemoveSegment();
     void removeSegmentFromRect(const QRectF &selectionZone);
 
+    void startFlipFaces();
+    void flipFaces(FacePointer f1,FacePointer f2);
+
     void populateDomain();
 
 private slots :
@@ -163,7 +216,6 @@ private slots :
     void currentLayerChanged(QgsMapLayer *layer);
     void layerHasToBeUpdated(QgsMapLayer *layer);
     void layerHasToBeRemoved(QgsMapLayer *layer);
-
 
 private:
 
@@ -235,6 +287,9 @@ private:
     ReosTinMapToolHardLineSegement *mapToolHardLineSegment;
     QAction* actionRemoveSegment;
     ReosMapToolSelection *mapToolRemoveSegment;
+
+    QAction* actionFlipFaces;
+    ReosTinMapToolFlipFaces *mapToolFlipFaces;
 
     QAction *actionTriangulateTIN;
 
@@ -373,6 +428,40 @@ private:
     ReosTinEditorUi *mEditor;
     QPointF mMapPointForVertex1;
     QPointF mMapPointForVertex2;
+
+    friend class ReosTinEditorUi;
+
+};
+
+
+class ReosTinUndoCommandFlipFaces: public QUndoCommand
+{
+public:
+    void undo() override{
+        mEditor->undoCommand(this);
+    }
+    void redo() override{
+        mEditor->doCommand(this);
+    }
+
+private:
+    ReosTinUndoCommandFlipFaces(FacePointer face1, FacePointer face2, ReosTinEditorUi *editor):mEditor(editor)
+    {
+        setFacesCentroid(face1,face2);
+    }
+    ReosTinEditorUi *mEditor;
+    QPointF mFaceCentroidToFlip_1;
+    QPointF mFaceCentroidToFlip_2;
+
+    void setFacesCentroid(FacePointer face1,FacePointer face2)
+    {
+        auto xy1=face1->faceCentroid();
+        auto xy2=face2->faceCentroid();
+
+        mFaceCentroidToFlip_1=QPointF(xy1[0],xy1[1]);
+        mFaceCentroidToFlip_2=QPointF(xy2[0],xy2[1]);
+    }
+
 
     friend class ReosTinEditorUi;
 
