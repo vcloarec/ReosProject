@@ -12,11 +12,11 @@ It will be a part of the Reos project, a free and open sources solution dedicate
 ![](mesher.gif)
 
 ## TODO list
-- [X] add flip faces functionality
-- [ ] Save/open a TIN : using MDAL for the vertices and faces and another file for the editor data (hardline or other specificities). Using MDAL would permit to open and display the TIN with QGIS.
+- [x] add flip faces functionality
+- [ ] Save/open TIN
 - [ ] add possibility to modify the Z value of vertices.
 - [ ] add tool to set automaticaly the Z value for the vertices.
-- [ ] Import point and lines forme vector files or layers.
+- [ ] Import points and lines from vector files or layers.
 - [ ] Try to open a QGIS 3D map view and display the TIN when editing it in the 2D map view
 
 

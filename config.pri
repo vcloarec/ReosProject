@@ -10,12 +10,12 @@ QGIS_LIB_RELEASE_PATH=#Path to folder containing QGIS release shared (for releas
 #    Path to GDAL     #
 #######################
 GDAL_INCLUDE_PATH=#Path to GDAL include folder
-GDAL_LIB_FILE#GDAL lib file
+GDAL_LIB_FILE=#GDAL lib file
 
 #######################
 #    Google Test      #
 #######################
-GOOGLETEST_DIR #Path to google test folder
+GOOGLETEST_DIR=#Path to google test folder
 
 
 #######################
@@ -23,7 +23,8 @@ GOOGLETEST_DIR #Path to google test folder
 #######################
 CGAL_INCLUDE_PATH=#Path to CGAL header folder (Header only mode)
 
-GMP_INCLUDE_PATH=#Path to CGAL include folder
+GMP_INCLUDE_PATH=#Path to GMP include folder
+
 GMP_LIB_FILE=#gmp lib file
 
 BOOST_ROOT_PATH=#Path to Boost+

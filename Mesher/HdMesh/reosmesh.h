@@ -80,7 +80,7 @@ class Face
 public:
     virtual ~Face() {}
     virtual void addVertex(VertexPointer vert)=0;
-    virtual VertexPointer vertexPointer(int i) const=0;
+    virtual VertexPointer vertexPointer(int i) const =0;
     virtual int verticesCount() const=0;
     virtual bool isVertexContained(VertexPointer vertex) const;
 

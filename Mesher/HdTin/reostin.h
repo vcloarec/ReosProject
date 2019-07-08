@@ -57,7 +57,7 @@ private:
     double z_;
 };
 
-template < class Gt, class Fb = CGAL::Constrained_triangulation_face_base_2<Gt> >
+template < class Gt, typename Fb = CGAL::Constrained_triangulation_face_base_2<Gt> >
 class TinCGALFace:public Fb, public Face
 {
     typedef Fb Base;
@@ -71,25 +71,40 @@ public:
         typedef  TinCGALFace<Gt,Fb2> Other;
     };
 
-    TinCGALFace() : Base() {}
+    TinCGALFace() : Base()
+    {
+
+    }
     TinCGALFace(Vertex_handle v0,Vertex_handle v1,Vertex_handle v2)
-      : Base(v0,v1,v2) {}
+      : Base(v0,v1,v2)
+    {
+
+    }
     TinCGALFace(Vertex_handle v0,Vertex_handle v1,Vertex_handle v2,Face_handle n0,Face_handle n1,Face_handle n2)
-      : Base(v0,v1,v2,n0,n1,n2) {}
+      : Base(v0,v1,v2,n0,n1,n2)
+    {
+    }
+
+
+    VertexPointer vertexPointer(int i) const override;
 
 private:
     void addVertex(VertexPointer vert) override {if(vert==nullptr){};}
-    VertexPointer vertexPointer(int i) const override
-    {
-        i=i%3;
-        return &(*this->vertex(i));
-    }
+
+
+
     int verticesCount() const override
     {
         return 3;
     }
 
+    const void* self() const//Trick to acces to the methods of the Triangulation_ds_face_base_2 class (this classe is derived from). Necessary with MSVC not with GCC
+    {
+        return this;
+    }
+
 };
+
 
 
 
@@ -101,6 +116,7 @@ typedef TinCGALVertex<K> FakeTinVertex;
 typedef TinCGALFace<K> FakeTinFace;
 ////////////////////////////////////
 ////////////// Tin TDS bound Tin vertex, we have to use now Triangulation::Vertex to define the personnal type
+#define TIN_TDS
 typedef CGAL::Triangulation_data_structure_2<FakeTinVertex,FakeTinFace> Tds;
 
 ////////////////////////////////////
@@ -124,6 +140,14 @@ typedef TinTriangulation::Face_iterator FaceIterator;
 typedef  TinTriangulation::Subconstraint_iterator SegmentIterator;
 
 typedef TinTriangulation::Point CgalPoint;
+
+
+template<class Gt, typename Fb>
+VertexPointer TinCGALFace<Gt,Fb>::vertexPointer(int i) const
+{
+    auto f=static_cast<const TinTriangulation::Face*>(self());
+    return &(*f->vertex(i));
+}
 
 
 VertexHandle oppositeVertex(VertexHandle vertex, const TinTriangulation::Edge &edge);
@@ -230,6 +254,8 @@ public:
     FacePointer face(double x,double y) const override
     {
         auto faceHandle=triangulation.locate(CgalPoint(x,y));
+
+        std::cout<<"X : "<<x<<"   Y : "<<y<<std::endl;
 
         if (triangulation.is_infinite(faceHandle))
             return nullptr;

@@ -28,7 +28,7 @@ ReosTinEditorUi::ReosTinEditorUi(HdManagerSIG *gismanager, QObject *parent):Reos
     mapToolHardLineSegment(new ReosTinMapToolHardLineSegement(gismanager->getMap(),this)),
     actionRemoveSegment(new QAction(QPixmap("://toolbar/MeshTINRemoveSegment.png"),tr("Remove hard line"),this)),
     mapToolRemoveSegment(new ReosMapToolSelection(gismanager->getMap())),
-    actionFlipFaces(new QAction(tr("Flip faces"),this)),
+    actionFlipFaces(new QAction(QPixmap("://toolbar/MeshFlipFaces.png"),tr("Flip faces"),this)),
     mapToolFlipFaces(new ReosTinMapToolFlipFaces(gismanager->getMap(),this)),
     actionTriangulateTIN(new QAction(QPixmap("://toolbar/MeshTINTriangulation.png"),tr("update mesh"),this))
 {
@@ -132,6 +132,7 @@ QList<QPointF> ReosTinEditorUi::mapFace(const QPointF &mapPoint) const
 {
     QList<QPointF> vertices;
     FacePointer face=realWorldFace(mapPoint);
+
     if (!face)
         return vertices;
 

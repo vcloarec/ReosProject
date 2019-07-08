@@ -34,12 +34,6 @@ HEADERS += \
     ../../GIS/reosmaptool.h \
     ../../GIS/hdvectorlayerpropertiesdialog.h \
     ../../UtilsGeometry/utilsgeometry2d.h \
-    tst_001_hdmeshgenerator.h \
-    tst_002_hdmesheseditortest.h \
-    tst_003_meshergeneratorprovidertest.h \
-    tst_004_hdeditablemeshlayertest.h \
-    tst_005_hdtineditorgraphictest.h \
-    tst_006_hdmapmeshitemtest.h \
     ../../Mesher/HdTin/test.h \
     ../../Mesher/HdMesh/reosmesh.h \
     ../../Mesher/HdTin/reostin.h \
@@ -50,7 +44,13 @@ HEADERS += \
     ../../Mesher/tinEditorUi/reosmapmeshitem.h \
     ../../Mesher/tinEditorUi/reostineditorgraphic.h \
     ../../Mesher/tinEditorUi/hdtineditornewdialog.h \
-    ../../Mesher/tinEditorUi/hdtineditoruidialog.h
+    ../../Mesher/tinEditorUi/hdtineditoruidialog.h\
+    tst_001_hdmeshgenerator.h \
+    tst_002_hdmesheseditortest.h \
+    tst_003_meshergeneratorprovidertest.h \
+    tst_004_hdeditablemeshlayertest.h \
+    tst_005_hdtineditorgraphictest.h \
+    tst_006_hdmapmeshitemtest.h
 
 
 SOURCES += \
