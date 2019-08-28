@@ -144,7 +144,7 @@ void TINProvider::populateMesh(QgsMesh *mesh) const
     while(!reader->allFacesReaden())
     {
         int verticesCount=reader->currentFaceVerticesCount();
-        QVector<int> vert(verticesCount);
+        QVector<int> vert(verticesCount,0);
         reader->readFace(vert.data());
         mesh->faces.append(vert);
     }
@@ -163,7 +163,7 @@ QgsRectangle TINProvider::extent() const {
 
     std::unique_ptr<MeshIO> reader=mTin.getReader();
 
-    while(reader->allVerticesReaden())
+    while(!reader->allVerticesReaden())
     {
         double vert[3];
         reader->readOnlyVertex(vert);
@@ -184,9 +184,9 @@ QgsRectangle TINProvider::extent() const {
 QgsDataProvider *createTinEditorProvider(const QString &source, const QgsDataProvider::ProviderOptions &option)
 {
     Q_UNUSED(source);
-    return new TINProvider(option);
+    return new TINProvider(source,option);
 }
 
-HdTinLayer::HdTinLayer():QgsMeshLayer("-","Editable mesh layer","TIN")
+HdTinLayer::HdTinLayer(QString path):QgsMeshLayer(path,"Editable mesh layer","TIN")
 {
 }

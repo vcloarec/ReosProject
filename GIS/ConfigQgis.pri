@@ -35,4 +35,5 @@ else {
 
 
 QT +=xml
+QT +=svg
 

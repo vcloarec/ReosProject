@@ -12,6 +12,9 @@ include(../GIS/configGDAL.pri);
 ######################### CGAL
 include(configCGAL.pri);
 
+######################### NetCDF
+include(../Mesher/configNetCDF.pri);
+
 
 QT += core gui widgets network xml sql
 CONFIG += crypto
@@ -27,12 +30,11 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     provider/meshdataprovider.cpp \
-    HdMesh/reosmesh.cpp \
-    HdMesh/reosmesheditor.cpp \
-    HdMesh/reosmeshgenerator.cpp \
+    ReosMesh/reosmesh.cpp \
+    ReosMesh/reosmesheditor.cpp \
+    ReosMesh/reosmeshgenerator.cpp \
     tinEditorUi/reosmapmeshitem.cpp \
-    HdTin/reostin.cpp \
-    HdTin/reostineditor.cpp \
+    ReosTin/reostin.cpp \
     tinEditorUi/hdtineditoruidialog.cpp \
     tinEditorUi/hdtineditornewdialog.cpp \
     ../GIS/hdcrsdialogselection.cpp \
@@ -46,6 +48,7 @@ SOURCES += \
     ../Reos/reosencodedelement.cpp \
     ../Reos/reossettings.cpp \
     ../Reos/reosdialogbox.cpp \
+    ../Reos/reosutils.cpp \
     ../UtilsGeometry/utilsgeometry2d.cpp \
     tinEditorUi/reostineditorgraphic.cpp
 
@@ -56,11 +59,10 @@ HEADERS += \
     provider/meshdataprovider.h \
     tinEditorUi/hdtineditoruidialog.h \
     tinEditorUi/hdtineditornewdialog.h \
-    HdTin/reostin.h \
-    HdTin/reostineditor.h \
-    HdMesh/reosmesh.h \
-    HdMesh/reosmesheditor.h \
-    HdMesh/reosmeshgenerator.h \
+    ReosTin/reostin.h \
+    ReosMesh/reosmesh.h \
+    ReosMesh/reosmesheditor.h \
+    ReosMesh/reosmeshgenerator.h \
     tinEditorUi/reosmapmeshitem.h\
     ../GIS/reosmapitem.h \
     ../GIS/hdcrsdialogselection.h \
@@ -73,6 +75,7 @@ HEADERS += \
     ../Reos/reossettings.h \
     ../Reos/reosmessagebox.h \
     ../Reos/reosdialogbox.h \
+    ../Reos/reosutils.h \
     ../UtilsGeometry/utilsgeometry2d.h \
     tinEditorUi/reostineditorgraphic.h \
     HdTin/test.h

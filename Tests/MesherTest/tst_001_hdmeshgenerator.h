@@ -6,8 +6,8 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock-matchers.h>
 
-#include "../../Mesher/HdMesh/reosmeshgenerator.h"
-#include "../../Mesher/HdTin/reostin.h"
+#include "../../Mesher/ReosMesh/reosmeshgenerator.h"
+#include "../../Mesher/ReosTin/reostin.h"
 
 
 using namespace testing;
@@ -38,12 +38,13 @@ public:
        meshGeneratorTriangleFile.triangulateMesh(inputMesh,outputMesh);
     }
 
-    void triangulateWithSegment(std::vector<VertexBasic> &oVert,std::vector<Face> &oFaces)
-    {
-        populateSegment();
-        ///TODO
-       // meshGeneratorTriangleFile.triangulateTIN(verticesList,segmentList,oFaces);
-    }
+     ///TODO
+//    void triangulateWithSegment(std::vector<VertexBasic> &oVert,std::vector<Face> &oFaces)
+//    {
+//        populateSegment();
+
+//       // meshGeneratorTriangleFile.triangulateTIN(verticesList,segmentList,oFaces);
+//    }
 
     HdMeshBasic inputMesh;
     std::vector<Segment> segmentList;

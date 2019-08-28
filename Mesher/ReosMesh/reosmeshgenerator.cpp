@@ -327,20 +327,6 @@ void HdMeshGenerator::setError(const std::string &value)
     error = value;
 }
 
-std::vector<std::string> splitString(std::string str, char sep)
-{
-    std::istringstream is(str);
-    std::vector<std::string> split;
-    std::string s;
-    while (std::getline(is,s,sep))
-    {
-        if (!s.empty())
-            split.push_back(s);
-    }
-
-
-    return split;
-}
 
 int HdMeshBasic::index(VertexPointer v) const
 {

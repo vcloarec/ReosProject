@@ -28,36 +28,43 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #include <qgsprovidermetadata.h>
 #include <qgsmeshlayer.h>
 
-#include "../HdTin/reostineditor.h"
-#include "../HdMesh/reosmesheditor.h"
+#include "../ReosTin/reostin.h"
+#include "../ReosMesh/reosmesheditor.h"
 
 
 class HdTinLayer: public QgsMeshLayer
 {
 public:
-    HdTinLayer();
+    HdTinLayer(QString path);
 };
 
 class TINProvider: public QgsMeshDataProvider
 {
 public:
-    TINProvider(const QgsDataProvider::ProviderOptions &providerOption=QgsDataProvider::ProviderOptions()):
-        QgsMeshDataProvider ("",providerOption),tinEditor(mTin,mHardLines)
+    TINProvider(const QString &path, const QgsDataProvider::ProviderOptions &providerOption=QgsDataProvider::ProviderOptions()):
+        QgsMeshDataProvider (path,providerOption)
     {
+        QFileInfo fileInfo(path);
+
+        if (fileInfo.exists())
+        {
+            mTin.readUGRIDFormat(path.toStdString());
+        }
+        else {
+            mTin.writeUGRIDFormat(path.toStdString());
+        }
+
     }
 
-    TINEditor *editor()
+    ReosTin *tin()
     {
-        return &tinEditor;
+        return &mTin;
     }
 
 
 
 private:
     ReosTin mTin;
-    std::vector<Segment> mHardLines;
-
-    TINEditor tinEditor;
 
     // QgsMeshDatasetSourceInterface interface
 public:

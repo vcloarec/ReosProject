@@ -11,7 +11,7 @@ using namespace testing;
 class MesherTesting : public Test
 {
 public:
-    MesherTesting():meshProvider(providerOption)
+    MesherTesting():meshProvider("",providerOption)
     {
 
     }

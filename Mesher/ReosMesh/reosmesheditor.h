@@ -18,7 +18,7 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 
 
 #include "reosmeshgenerator.h"
-#include "../HdTin/reostin.h"
+#include "../ReosTin/reostin.h"
 
 
 

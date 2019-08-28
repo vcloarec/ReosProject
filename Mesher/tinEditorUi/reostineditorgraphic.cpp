@@ -20,6 +20,8 @@ ReosTinEditorUi::ReosTinEditorUi(HdManagerSIG *gismanager, QObject *parent):Reos
     mGisManager(gismanager),
     mMap(gismanager->getMap()),
     actionNewTinLayer(new QAction(QPixmap("://toolbar/MeshNewTIN.png"),tr("New TIN"),this)),
+    actionOpenTinLayer(new QAction(tr("Open"),this)),
+    actionSaveTinLayer(new QAction(tr("Save"),this)),
     actionNewVertex(new QAction(QPixmap("://toolbar/MeshTINNewVertex.png"),tr("Draw vertex"),this)),
     mapToolNewVertex(new ReosMapToolClickPoint(gismanager->getMap())),
     actionRemoveVertex(new QAction(QPixmap("://toolbar/MeshTINRemoveVertex.png"),tr("Remove vertex"),this)),
@@ -52,6 +54,8 @@ ReosTinEditorUi::ReosTinEditorUi(HdManagerSIG *gismanager, QObject *parent):Reos
 
 
     groupAction->addAction(actionNewTinLayer);
+    groupAction->addAction(actionOpenTinLayer);
+    groupAction->addAction(actionSaveTinLayer);
     groupAction->addAction(actionNewVertex);
     groupAction->addAction(actionRemoveVertex);
     groupAction->addAction(actionNewHardLineSegment);
@@ -71,6 +75,8 @@ ReosTinEditorUi::ReosTinEditorUi(HdManagerSIG *gismanager, QObject *parent):Reos
     uiDialog->setActions(getActions());
 
     connect(actionNewTinLayer,&QAction::triggered,this,&ReosTinEditorUi::newTinLayer);
+    connect(actionOpenTinLayer,&QAction::triggered,this,&ReosTinEditorUi::openTin);
+    connect(actionSaveTinLayer,&QAction::triggered,this,&ReosTinEditorUi::saveTin);
 
     connect(actionNewVertex,&QAction::triggered,this,&ReosTinEditorUi::startNewVertex);
     connect(mapToolNewVertex,&ReosMapToolClickPoint::clickDone,this,&ReosTinEditorUi::newVertex);
@@ -102,12 +108,9 @@ void ReosTinEditorUi::setMeshLayer(QgsMeshLayer *meshLayer)
         return;
 
     mMeshLayer=meshLayer;
-
     updateMeshLayer();
-
-    enableEditAction(mEditor != nullptr);
+    enableEditAction(mTIN != nullptr);
     populateDomain();
-
 }
 
 ReosMeshItemVertex *ReosTinEditorUi::mapVertex(const QPointF &mapPoint) const {
@@ -121,11 +124,11 @@ ReosMeshItemVertex *ReosTinEditorUi::mapVertex(const QPointF &mapPoint) const {
 
 VertexPointer ReosTinEditorUi::realWorldVertex(const QPointF &mapPoint) const
 {
-    if (!mEditor)
+    if (!mTIN)
         return nullptr;
 
     QPointF meshPoint=meshCoordinates(mapPoint);
-    return mEditor->vertex(meshPoint.x(),meshPoint.y());
+    return mTIN->vertex(meshPoint.x(),meshPoint.y());
 }
 
 QList<QPointF> ReosTinEditorUi::mapFace(const QPointF &mapPoint) const
@@ -148,26 +151,26 @@ QList<QPointF> ReosTinEditorUi::mapFace(const QPointF &mapPoint) const
 
 FacePointer ReosTinEditorUi::realWorldFace(const QPointF &mapPoint) const
 {
-    if (!mEditor)
+    if (!mTIN)
         return nullptr;
 
     QPointF meshPoint=meshCoordinates(mapPoint);
-    return mEditor->face(meshPoint.x(),meshPoint.y());
+    return mTIN->face(meshPoint.x(),meshPoint.y());
 }
 
 bool ReosTinEditorUi::isFlipable(FacePointer f1, FacePointer f2) const
 {
-    return mEditor->isFlipable(f1,f2);
+    return mTIN->isFlipable(f1,f2);
 }
 
 VertexPointer ReosTinEditorUi::addRealWorldVertex(const QPointF &mapPoint, double z)
 {
     VertexPointer vert=nullptr;
 
-    if (mEditor)
+    if (mTIN)
     {
         QPointF p=meshCoordinates(mapPoint);
-        vert=mEditor->addVertex(p.x(),p.y());
+        vert=mTIN->addVertex(p.x(),p.y());
         vert->setZValue(z);
         vert->setZUserDefined();
         addMapVertex(mapPoint,vert);
@@ -183,21 +186,21 @@ VertexPointer ReosTinEditorUi::addRealWorldVertex(const QPointF &mapPoint)
 }
 
 
-void ReosTinEditorUi::removeVertex(VertexPointer vertex)
+void ReosTinEditorUi::removeVertex(VertexPointer vert)
 {
-    if (!vertex)
+    if (!vert)
         return;
-    auto neighbours=mEditor->hardNeighbours(vertex);
-    mEditor->removeVertex(vertex);
-    domain()->removeVertex(static_cast<ReosMeshItemVertex*>(vertex->graphicPointer()));
-
+    auto neighbours=mTIN->hardNeighbours(vert);
+    mTIN->removeVertex(vert);
+    domain()->removeVertex(static_cast<ReosMeshItemVertex*>(vert->graphicPointer()));
+    vert->setGraphicPointer(nullptr);
+    qDebug()<<"************************************** Vertex count 1 : "<<domain()->verticesCount();
     for (auto n:neighbours)
     {
         updateGraphics(n);
     }
+    qDebug()<<"************************************** Vertex count 2 : "<<domain()->verticesCount();
 }
-
-
 
 
 void ReosTinEditorUi::doCommand(ReosTinUndoCommandNewVertex *command)
@@ -231,16 +234,16 @@ void ReosTinEditorUi::doCommand(ReosTinUndoCommandNewSegmentWithNewSecondVertex 
 void ReosTinEditorUi::undoCommand(ReosTinUndoCommandNewSegmentWithNewSecondVertex *command)
 {
 
-    VertexPointer finalVertex=realWorldVertex(command->mMapPointSecond);
+//    VertexPointer finalVertex=realWorldVertex(command->mMapPointSecond);
 
-    //remove the segments
-    QList<PointAndNeighbours> &verticesPositions=command->mVerticesPositionAndStructureMemory;
-    for (int i=0;i<verticesPositions.count()-1;++i)
-    {
-        VertexPointer v1=realWorldVertex(verticesPositions.at(i).point);
-        VertexPointer v2=realWorldVertex(verticesPositions.at(i+1).point);
+//    //remove the segments
+//    QList<PointAndNeighbours> &verticesPositions=command->mVerticesPositionAndStructureMemory;
+//    for (int i=0;i<verticesPositions.count()-1;++i)
+//    {
+//        VertexPointer v1=realWorldVertex(verticesPositions.at(i).point);
+//        VertexPointer v2=realWorldVertex(verticesPositions.at(i+1).point);
 
-    }
+//    }
 
 //    if(command->intersectionVertex.count()>0)
 //    {
@@ -285,15 +288,15 @@ void ReosTinEditorUi::doCommand(ReosTinUndoCommandNewSegmentWithExistingSecondVe
 
 }
 
-void ReosTinEditorUi::undoCommand(ReosTinUndoCommandNewSegmentWithExistingSecondVertex *command)
+void ReosTinEditorUi::undoCommand(ReosTinUndoCommandNewSegmentWithExistingSecondVertex*)
 {
     //remove the segments
-    QList<PointAndNeighbours> &verticesPositions=command->mVerticesPositionAndStructureMemory;
-    for (int i=0;i<verticesPositions.count()-1;++i)
-    {
-        VertexPointer v1=realWorldVertex(verticesPositions.at(i).point);
-        VertexPointer v2=realWorldVertex(verticesPositions.at(i+1).point);
-    }
+//    QList<PointAndNeighbours> &verticesPositions=command->mVerticesPositionAndStructureMemory;
+//    for (int i=0;i<verticesPositions.count()-1;++i)
+//    {
+//        VertexPointer v1=realWorldVertex(verticesPositions.at(i).point);
+//        VertexPointer v2=realWorldVertex(verticesPositions.at(i+1).point);
+//    }
 }
 
 void ReosTinEditorUi::doCommand(ReosTinUndoCommandRemoveVertex *command)
@@ -302,9 +305,9 @@ void ReosTinEditorUi::doCommand(ReosTinUndoCommandRemoveVertex *command)
 
     if (vertex)
     {
-        auto neighboursVertices=mEditor->hardNeighbours(vertex);
+        auto neighboursVertices=mTIN->hardNeighbours(vertex);
         auto graphicVertex=static_cast<ReosMeshItemVertex*>(vertex->graphicPointer());
-        mEditor->removeVertex(vertex);
+        mTIN->removeVertex(vertex);
         mDomain->removeVertex(graphicVertex);
         for (auto n:neighboursVertices)
             updateGraphics(n);
@@ -312,7 +315,7 @@ void ReosTinEditorUi::doCommand(ReosTinUndoCommandRemoveVertex *command)
 
 }
 
-void ReosTinEditorUi::undoCommand(ReosTinUndoCommandRemoveVertex *command)
+void ReosTinEditorUi::undoCommand(ReosTinUndoCommandRemoveVertex *)
 {
 
 }
@@ -322,10 +325,7 @@ void ReosTinEditorUi::doCommand(ReosTinUndoCommandRemoveHardLine *command)
     VertexPointer vertex1=realWorldVertex(command->mMapPointForVertex1);
     VertexPointer vertex2=realWorldVertex(command->mMapPointForVertex2);
 
-    auto verticesList=mEditor->removeHardLine(vertex1,vertex2);
-
-    for (auto v:verticesList)
-        updateGraphics(v);
+    removeHardLine(vertex1,vertex2);
 }
 
 void ReosTinEditorUi::doCommand(ReosTinUndoCommandFlipFaces *command)
@@ -333,7 +333,7 @@ void ReosTinEditorUi::doCommand(ReosTinUndoCommandFlipFaces *command)
     auto face_1=realWorldFace(command->mFaceCentroidToFlip_1);
     auto face_2=realWorldFace(command->mFaceCentroidToFlip_2);
 
-    auto newFaces=mEditor->flipFaces(face_1,face_2);
+    auto newFaces=mTIN->flipFaces(face_1,face_2);
     command->setFacesCentroid(newFaces[0],newFaces[1]);
 }
 
@@ -342,7 +342,7 @@ void ReosTinEditorUi::undoCommand(ReosTinUndoCommandFlipFaces *command)
     auto face_1=realWorldFace(command->mFaceCentroidToFlip_1);
     auto face_2=realWorldFace(command->mFaceCentroidToFlip_2);
 
-    auto newFaces=mEditor->flipFaces(face_1,face_2);
+    auto newFaces=mTIN->flipFaces(face_1,face_2);
     command->setFacesCentroid(newFaces[0],newFaces[1]);
 };
 
@@ -351,25 +351,25 @@ void ReosTinEditorUi::updateMeshLayer()
 {
     mTransform.reset(nullptr);
     if(mMeshLayer==nullptr)
-        mEditor=nullptr;
+        mTIN=nullptr;
     else
     {
         if(mMeshLayer->dataProvider()->name()==QStringLiteral("TIN"))
         {
-            mEditor=static_cast<TINProvider*>(mMeshLayer->dataProvider())->editor();
+            mTIN=static_cast<TINProvider*>(mMeshLayer->dataProvider())->tin();
             mTransform.reset(new QgsCoordinateTransform(mMeshLayer->crs(),mMap->getCoordinateReferenceSystem(),QgsProject::instance()));
-            mUndoStack=mUndoStacks.value(mEditor,nullptr);
+            mUndoStack=mUndoStacks.value(mTIN,nullptr);
 
             if (mUndoStack==nullptr)
             {
                 mUndoStack=new QUndoStack(this);
-                mUndoStacks[mEditor]=mUndoStack;
+                mUndoStacks[mTIN]=mUndoStack;
             }
 
             emit activeUndoStack(mUndoStack);
         }
         else {
-            mEditor=nullptr;
+            mTIN=nullptr;
         }
     }
 }
@@ -381,7 +381,7 @@ void ReosTinEditorUi::newVertex(const QPointF &mapPoint)
     uiDialog->setLineEditFocus();
 
 
-    if (!mEditor || realWorldVertex(mapPoint))
+    if (!mTIN || realWorldVertex(mapPoint))
         return;
 
     double z=zValue(mapPoint);
@@ -408,7 +408,7 @@ void ReosTinEditorUi::removeVertexFromRect(const QRectF &selectionZone)
     VertexPointer realWorldVertex=vert->realWorldVertex();
     if (realWorldVertex)
     {
-        if(mEditor->isVertexOnHarLine(realWorldVertex))
+        if(mTIN->isOnHardLine(realWorldVertex))
         {
             QMessageBox::warning(uiDialog,tr("Suppression d'un sommet surune ligne d'arrête"),tr("Il est nécessaire de supprimer d'abord la ou les lignes d'arrêtes"));
         }
@@ -458,7 +458,7 @@ void ReosTinEditorUi::startNewHardLineSegment()
 
 void ReosTinEditorUi::newSegment(ReosMeshItemVertex *firstVertex, const QPointF &secondMapPoint)
 {
-    if (!mEditor)
+    if (!mTIN)
         return;
 
     QPointF mapPointFirst=mapCoordinates(QPointF(firstVertex->realWorldVertex()->x(),firstVertex->realWorldVertex()->y()));
@@ -468,7 +468,7 @@ void ReosTinEditorUi::newSegment(ReosMeshItemVertex *firstVertex, const QPointF 
 
 void ReosTinEditorUi::newSegment(ReosMeshItemVertex *firstVertex, ReosMeshItemVertex *secondVertex)
 {
-    if (!mEditor)
+    if (!mTIN)
         return;
 
     if (firstVertex==secondVertex)
@@ -533,7 +533,7 @@ void ReosTinEditorUi::startRemoveSegment()
 ReosMeshItemVertex *ReosTinEditorUi::addMapVertex_2(VertexPointer realWorldVertex)
 {
     QPointF realWordlPoint(realWorldVertex->x(),realWorldVertex->y());
-    QPointF mapPoint=mapCoordinates(realWordlPoint);
+    //QPointF mapPoint=mapCoordinates(realWordlPoint);
 
     return addMapVertex(realWorldVertex);
 //    ReosMeshItemVertex *mapVertex=mDomain->addVertex(mapPoint);
@@ -547,7 +547,7 @@ ReosMeshItemVertex *ReosTinEditorUi::addMapVertex_2(VertexPointer realWorldVerte
 void ReosTinEditorUi::addSegment(VertexPointer v1, VertexPointer v2, QList<PointAndNeighbours> &oldNeigboursStructure)
 {
     //add real world segment
-    std::list<VertexPointer> hardLineVertices=mEditor->addSegment(v1,v2);
+    std::list<VertexPointer> hardLineVertices=mTIN->addHardLine(v1,v2);
 
     //set Z value for next
     for (auto vert:hardLineVertices)
@@ -566,7 +566,7 @@ void ReosTinEditorUi::addSegment(VertexPointer v1, VertexPointer v2, QList<Point
     {
         PointAndNeighbours currentStructure;
         currentStructure.point=QPointF(vert->x(),vert->y());
-        auto realWorldNeighbours=mEditor->hardNeighbours(vert);
+        auto realWorldNeighbours=mTIN->hardNeighbours(vert);
         for (auto rwn:realWorldNeighbours)
         {
             ReosMeshItemVertex *graphicVertex=static_cast<ReosMeshItemVertex*>(rwn->graphicPointer());
@@ -586,18 +586,26 @@ void ReosTinEditorUi::addSegment(VertexPointer v1, VertexPointer v2, QList<Point
     }
     for (auto vert:hardLineVertices)
     {
-        auto neighbours=mEditor->hardNeighbours(vert);
+        auto neighbours=mTIN->hardNeighbours(vert);
         for (auto nv:neighbours)
             updateGraphics(nv);
     }
 }
 
+void ReosTinEditorUi::removeHardLine(VertexPointer v1, VertexPointer v2)
+{
+    auto verticesList=mTIN->removeHardLine(v1,v2);
+
+    for (auto v:verticesList)
+        updateGraphics(v);
+}
+
 void ReosTinEditorUi::populateDomain()
 {
     mDomain->clear();
-    if (mEditor)
+    if (mTIN)
     {
-        auto tinReader=mEditor->getTinReader();
+        auto tinReader=mTIN->getReader();
         while (!tinReader->allVerticesReaden())
         {
             VertexPointer vert=tinReader->readVertexPointer();
@@ -644,9 +652,9 @@ void ReosTinEditorUi::layerHasToBeRemoved(QgsMapLayer *layer)
     QgsMeshLayer *meshLayer=static_cast<QgsMeshLayer*>(layer);
     if(meshLayer->dataProvider()->name()==QStringLiteral("TIN"))
     {
-        TINEditor* layerEditor=static_cast<TINProvider*>(mMeshLayer->dataProvider())->editor();
+        ReosTin* tin=static_cast<TINProvider*>(mMeshLayer->dataProvider())->tin();
 
-        if (layerEditor->isDirty())
+        if (tin->isDirty())
         {
             if (QMessageBox::warning(uiDialog,tr("Sauvegarde du maillage"),
                                      tr("Le maillage %1 a été modifé. Voulez-vous le sauvegarder ?").arg(meshLayer->name())
@@ -657,10 +665,10 @@ void ReosTinEditorUi::layerHasToBeRemoved(QgsMapLayer *layer)
         }
 
 
-        QUndoStack *us=mUndoStacks.value(layerEditor,nullptr);
+        QUndoStack *us=mUndoStacks.value(tin,nullptr);
         if (us)
             us->deleteLater();
-        mUndoStacks.remove(layerEditor);
+        mUndoStacks.remove(tin);
 
     }
 }
@@ -705,12 +713,42 @@ void ReosTinEditorUi::newTinLayer()
     auto dial=new HdTinEditorNewDialog(mMap->getMapCanvas());
     if (dial->exec())
     {
+        QFileInfo fileInfo(dial->fileName());
+        if (fileInfo.exists())
+            QFile::remove(dial->fileName());
+
         auto layer=new QgsMeshLayer(dial->fileName(),dial->name(),"TIN");
+
         layer->setCrs(dial->crs());
-        mGisManager->addLayer(new QgsMeshLayer(dial->fileName(),dial->name(),"TIN"));
+        if (layer->isValid())
+        {
+            mGisManager->addLayer(layer);
+            setMeshLayer(layer);
+        }
     }
 
 }
+
+bool ReosTinEditorUi::openTin()
+{
+    QString fileName=QFileDialog::getOpenFileName();
+    return openTinWithFileName(fileName);
+}
+
+bool ReosTinEditorUi::openTinWithFileName(QString fileName)
+{
+    if (fileName!="")
+    {
+        auto layer=new QgsMeshLayer(fileName,fileName,"TIN");
+        mGisManager->addLayer(layer);
+        setMeshLayer(layer);
+        return true;
+    }
+
+    return false;
+}
+
+
 
 void ReosTinEditorUi::widgetClosed()
 {
@@ -770,7 +808,7 @@ QPointF ReosTinEditorUi::meshCoordinates(const QPointF &mapCoordinate) const
 
 ReosMeshItemVertexAndNeighbours ReosTinEditorUi::saveStructure(ReosMeshItemVertex *vert) const
 {
-    auto neighboursRealWorldVertex=mEditor->hardNeighbours(vert->realWorldVertex());
+    auto neighboursRealWorldVertex=mTIN->hardNeighbours(vert->realWorldVertex());
 
     ReosMeshItemVertexAndNeighbours returnMemory;
     returnMemory.vertex=vert;
@@ -786,7 +824,7 @@ ReosMeshItemVertexAndNeighbours ReosTinEditorUi::saveStructure(ReosMeshItemVerte
     return returnMemory;
 }
 
-void ReosTinEditorUi::restoreStructure(VertexPointer realWorldVertex, const PointAndNeighbours &structure) const
+void ReosTinEditorUi::restoreStructure(VertexPointer, const PointAndNeighbours) const
 {
 
 }
@@ -799,7 +837,7 @@ void ReosTinEditorUi::updateGraphics(VertexPointer realWorldVertex)
     if (realWorldVertex->graphicPointer()==nullptr)
         addMapVertex(realWorldVertex);
 
-    auto neighboursVertex=mEditor->hardNeighbours(realWorldVertex);
+    auto neighboursVertex=mTIN->hardNeighbours(realWorldVertex);
     auto currentGraphicVertex=static_cast<ReosMeshItemVertex*>(realWorldVertex->graphicPointer());
     if (!currentGraphicVertex)
         return;

@@ -22,7 +22,7 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #include <qgsmapcanvasitem.h>
 
 #include <../../GIS/reosmapitem.h>
-#include "../HdMesh/reosmesheditor.h"
+#include "../ReosMesh/reosmesheditor.h"
 
 
 class ReosMeshItemSegment;

@@ -7,9 +7,9 @@
 #include <gmock/gmock-matchers.h>
 
 
-#include "../../Mesher/HdMesh/reosmesheditor.h"
-#include "../../Mesher/HdTin/reostineditor.h"
-#include "../../Mesher/HdTin/test.h"
+#include "../../Mesher/ReosMesh/reosmesheditor.h"
+#include "../../Mesher/ReosTin/reostin.h"
+#include "../../Mesher/ReosTin/test.h"
 
 
 using namespace testing;
@@ -339,7 +339,7 @@ TEST_F(TinEditorTesting, removeVertex)
     auto vert1=tin.addVertex(0,5);
     auto vert2=tin.addVertex(5,0);
     auto vert3=tin.addVertex(0,0);
-    auto vert4=tin.addVertex(5,5);
+    tin.addVertex(5,5);
 
     std::list<VertexPointer> newVertices_1=tin.addHardLine(vert1,vert2);
 
@@ -443,7 +443,7 @@ TEST_F(TinEditorTesting, flipFaces)
 {
     auto vert1=tin.addVertex(0,0);
     auto vert2=tin.addVertex(2,2);
-    auto vert3=tin.addVertex(3,0);
+    tin.addVertex(3,0);
     auto vert4=tin.addVertex(5,2);
 
     auto face1=tin.face(1,0.3);
@@ -462,6 +462,329 @@ TEST_F(TinEditorTesting, flipFaces)
 
     ASSERT_THAT(face3->isVertexContained(vert4),Eq(true));
     ASSERT_THAT(face4->isVertexContained(vert2),Eq(true));
+}
+
+TEST_F(TinEditorTesting, writeUGRIDEmptyFile)
+{
+
+    ASSERT_THAT(tin.verticesCount(),Eq(0));
+    ASSERT_THAT(tin.facesCount(),Eq(0));
+
+    ASSERT_THAT(tin.writeUGRIDFormat("netCDFEmptyTest"),Eq(NC_NOERR));
+}
+
+
+TEST_F(TinEditorTesting, readUGRIDEmptyFile)
+{
+    ASSERT_THAT(tin.readUGRIDFormat("netCDFEmptyTest"),Eq(NC_NOERR));
+
+    ASSERT_THAT(tin.verticesCount(),Eq(0));
+    ASSERT_THAT(tin.facesCount(),Eq(0));
+}
+
+
+TEST_F(TinEditorTesting, readUGRIDEmptyFile_andAddVertex)
+{
+    ASSERT_THAT(tin.readUGRIDFormat("netCDFEmptyTest"),Eq(NC_NOERR));
+
+    ASSERT_THAT(tin.verticesCount(),Eq(0));
+    ASSERT_THAT(tin.facesCount(),Eq(0));
+
+    tin.addVertex(1,0.5);
+    tin.addVertex(1,0.5); //dupplicated vertex
+
+    ASSERT_THAT(tin.verticesCount(),Eq(1));
+    ASSERT_THAT(tin.facesCount(),Eq(0));
+}
+
+TEST_F(TinEditorTesting, writeUGRIDOneVertexFile)
+{
+    tin.addVertex(1,0.5);
+
+    ASSERT_THAT(tin.verticesCount(),Eq(1));
+    ASSERT_THAT(tin.facesCount(),Eq(0));
+
+    ASSERT_THAT(tin.writeUGRIDFormat("netCDFOneVertTest"),Eq(NC_NOERR));
+}
+
+TEST_F(TinEditorTesting, readUGRIDOneVertexFile_andAddVertex)
+{
+    ASSERT_THAT(tin.readUGRIDFormat("netCDFOneVertTest"),Eq(NC_NOERR));
+
+    ASSERT_THAT(tin.verticesCount(),Eq(1));
+    ASSERT_THAT(tin.facesCount(),Eq(0));
+
+    tin.addVertex(0,0);
+    tin.addVertex(1,0.5); //dupplicated vertex
+
+    ASSERT_THAT(tin.verticesCount(),Eq(2));
+    ASSERT_THAT(tin.facesCount(),Eq(0));
+}
+
+TEST_F(TinEditorTesting, writeUGRIDTwoVertexFile)
+{
+    tin.addVertex(1,0.5);
+    tin.addVertex(0,0);
+
+    ASSERT_THAT(tin.verticesCount(),Eq(2));
+    ASSERT_THAT(tin.facesCount(),Eq(0));
+
+    ASSERT_THAT(tin.writeUGRIDFormat("netCDFTwoVertTest"),Eq(NC_NOERR));
+}
+
+TEST_F(TinEditorTesting, readUGRIDTwoVertexFile_andAddVertex)
+{
+    ASSERT_THAT(tin.readUGRIDFormat("netCDFTwoVertTest"),Eq(NC_NOERR));
+
+    ASSERT_THAT(tin.verticesCount(),Eq(2));
+    ASSERT_THAT(tin.facesCount(),Eq(0));
+
+    tin.addVertex(1,0);
+    tin.addVertex(1,0.5);//dupplicated vertex
+
+    ASSERT_THAT(tin.verticesCount(),Eq(3));
+    ASSERT_THAT(tin.facesCount(),Eq(1));
+}
+
+TEST_F(TinEditorTesting, writeUGRIDSmallFile)
+{
+    tin.addVertex(0,0);
+    tin.addVertex(2,2);
+    tin.addVertex(3,0);
+    tin.addVertex(5,2);
+
+    ASSERT_THAT(tin.verticesCount(),Eq(4));
+    ASSERT_THAT(tin.facesCount(),Eq(2));
+
+    ASSERT_THAT(tin.writeUGRIDFormat("netCDFTest"),Eq(NC_NOERR));
+}
+
+
+TEST_F(TinEditorTesting, readUGRIDSmallFile)
+{
+    ReosTin tinToRead;
+
+    ASSERT_THAT(tinToRead.readUGRIDFormat("netCDFTest"),Eq(NC_NOERR));
+
+    ASSERT_THAT(tinToRead.verticesCount(),Eq(4));
+    ASSERT_THAT(tinToRead.facesCount(),Eq(2));
+}
+
+TEST_F(TinEditorTesting, writeUGRIDBigFile)
+{
+    int size=100;
+   for (int i=0;i<size;++i)
+   {
+       for (int j=0;j<size;++j)
+       {
+           if (j%2==0)
+            tin.addVertex(i,j);
+           else {
+               tin.addVertex(i+0.5,j);
+           }
+       }
+   }
+
+   ASSERT_THAT(tin.verticesCount(),Eq(10000));
+   ASSERT_THAT(tin.facesCount(),Eq(19700));
+
+   ASSERT_THAT(tin.writeUGRIDFormat("TINfile.tin"),Eq(NC_NOERR));
+}
+
+TEST_F(TinEditorTesting, readUGRIDBigFile)
+{
+    ReosTin tinToRead;
+
+    ASSERT_THAT(tinToRead.readUGRIDFormat("TINfile.tin"),Eq(NC_NOERR));
+
+    ASSERT_THAT(tinToRead.verticesCount(),Eq(10000));
+    ASSERT_THAT(tinToRead.facesCount(),Eq(19700));
+
+    auto reader=tinToRead.getReader();
+
+    while (!reader->allVerticesReaden())
+    {
+        auto vert=reader->readVertexPointer();
+        ASSERT_FALSE(vert==nullptr);
+    }
+
+    while (!reader->allFacesReaden())
+    {
+        int f[3];
+        reader->readFace(f);
+    }
+}
+
+TEST_F(TinEditorTesting, readUGRIDSmallFile_andAddVertex)
+{
+    ReosTin tinToRead;
+
+    ASSERT_THAT(tinToRead.readUGRIDFormat("netCDFTest"),Eq(NC_NOERR));
+
+    tinToRead.addVertex(1,0.5);
+
+    ASSERT_THAT(tinToRead.verticesCount(),Eq(5));
+    ASSERT_THAT(tinToRead.facesCount(),Eq(4));
+}
+
+TEST_F(TinEditorTesting, readUGRIDSmallFile_andRemoveVertex)
+{
+    ReosTin tinToRead;
+
+    ASSERT_THAT(tinToRead.readUGRIDFormat("netCDFTest"),Eq(NC_NOERR));
+
+    auto vert=tinToRead.vertex(2,2,0.01);
+
+    tinToRead.removeVertex(vert);
+
+
+    ASSERT_THAT(tinToRead.verticesCount(),Eq(3));
+    ASSERT_THAT(tinToRead.facesCount(),Eq(1));
+}
+
+TEST_F(TinEditorTesting, readUGRIDSmallFile_andFlipFace)
+{
+    ReosTin tinToRead;
+
+    ASSERT_THAT(tinToRead.readUGRIDFormat("netCDFTest"),Eq(NC_NOERR));
+
+
+    auto vert2=tinToRead.vertex(2,2,0.01);
+    auto vert4=tinToRead.vertex(5,2,0.01);
+
+    auto face1=tinToRead.face(1,0.3);
+    auto face2=tinToRead.face(3,1.9);
+
+
+    ASSERT_THAT(face1->isVertexContained(vert2),Eq(true));
+    ASSERT_THAT(face2->isVertexContained(vert4),Eq(true));
+
+    tinToRead.flipFaces(face1,face2);
+
+    auto face3=tinToRead.face(1,0.3);
+    auto face4=tinToRead.face(3,1.9);
+
+
+    ASSERT_THAT(face3->isVertexContained(vert4),Eq(true));
+    ASSERT_THAT(face4->isVertexContained(vert2),Eq(true));
+
+
+    ASSERT_THAT(tinToRead.verticesCount(),Eq(4));
+    ASSERT_THAT(tinToRead.facesCount(),Eq(2));
+}
+
+
+TEST_F(TinEditorTesting, writeUGRIDSmallFile_WithHardLine)
+{
+    auto vert1=tin.addVertex(0,0);
+    auto vert2=tin.addVertex(2,2);
+    auto vert3=tin.addVertex(3,0);
+    auto vert4=tin.addVertex(5,2);
+
+    tin.addHardLine(vert1,vert4);
+    tin.addHardLine(vert2,vert3);
+
+    ASSERT_THAT(tin.verticesCount(),Eq(5));
+    ASSERT_THAT(tin.facesCount(),Eq(4));
+
+    ASSERT_THAT(tin.writeUGRIDFormat("netCDFTestHL"),Eq(NC_NOERR));
+}
+
+TEST_F(TinEditorTesting, readUGRIDSmallFile_WithHardLine)
+{
+    ReosTin tinToRead;
+
+    ASSERT_THAT(tinToRead.readUGRIDFormat("netCDFTestHL"),Eq(NC_NOERR));
+
+    ASSERT_THAT(tinToRead.verticesCount(),Eq(5));
+    ASSERT_THAT(tinToRead.facesCount(),Eq(4));
+
+    ASSERT_TRUE(tinToRead.isOnHardLine(tinToRead.vertex(0,0,0.01)));
+    ASSERT_TRUE(tinToRead.isOnHardLine(tinToRead.vertex(2,2,0.01)));
+    ASSERT_TRUE(tinToRead.isOnHardLine(tinToRead.vertex(3,0,0.01)));
+    ASSERT_TRUE(tinToRead.isOnHardLine(tinToRead.vertex(5,2,0.01)));
+    ASSERT_TRUE(tinToRead.isOnHardLine(tinToRead.vertex(2.5,1,0.01)));
+}
+
+
+TEST_F(TinEditorTesting, flipFacesPersistentAfterSaving)
+{
+    tin.addVertex(0,0);
+    auto vert2=tin.addVertex(2,2);
+    tin.addVertex(3,0);
+    auto vert4=tin.addVertex(5,2);
+
+    auto face1=tin.face(1,0.3);
+    auto face2=tin.face(3,1.9);
+
+    ASSERT_THAT(face1->isVertexContained(vert2),Eq(true));
+    ASSERT_THAT(face2->isVertexContained(vert4),Eq(true));
+
+    tin.flipFaces(face1,face2);
+
+    auto face3=tin.face(1,0.3);
+    auto face4=tin.face(3,1.9);
+
+
+    ASSERT_THAT(face3->isVertexContained(vert4),Eq(true));
+    ASSERT_THAT(face4->isVertexContained(vert2),Eq(true));
+
+    //save tin
+    tin.writeUGRIDFormat("persistentFlipFaces");
+
+    ReosTin tinToRead;
+    tinToRead.readUGRIDFormat("persistentFlipFaces");
+
+    face3=tinToRead.face(1,0.3);
+    face4=tinToRead.face(3,1.9);
+
+    auto newVert2=tinToRead.vertex(2,2,0.01);
+    auto newVert4=tinToRead.vertex(5,2,0.01);
+
+    ASSERT_THAT(face3->isVertexContained(newVert4),Eq(true));
+    ASSERT_THAT(face4->isVertexContained(newVert2),Eq(true));
+
+}
+
+TEST_F(TinEditorTesting, flipFacesPersistentAfterSavingWithHardline)
+{
+    auto vert1=tin.addVertex(0,0);
+    auto vert2=tin.addVertex(2,2);
+    tin.addVertex(3,0);
+    auto vert4=tin.addVertex(5,2);
+
+    auto face1=tin.face(1,0.3);
+    auto face2=tin.face(3,1.9);
+
+    tin.addHardLine(vert1,vert2);
+
+    ASSERT_THAT(face1->isVertexContained(vert2),Eq(true));
+    ASSERT_THAT(face2->isVertexContained(vert4),Eq(true));
+
+    tin.flipFaces(face1,face2);
+
+    auto face3=tin.face(1,0.3);
+    auto face4=tin.face(3,1.9);
+
+
+    ASSERT_THAT(face3->isVertexContained(vert4),Eq(true));
+    ASSERT_THAT(face4->isVertexContained(vert2),Eq(true));
+
+    //save tin
+    tin.writeUGRIDFormat("persistentFlipFaces");
+
+    ReosTin tinToRead;
+    tinToRead.readUGRIDFormat("persistentFlipFaces");
+
+    face3=tinToRead.face(1,0.3);
+    face4=tinToRead.face(3,1.9);
+
+    auto newVert2=tinToRead.vertex(2,2,0.01);
+    auto newVert4=tinToRead.vertex(5,2,0.01);
+
+    ASSERT_THAT(face3->isVertexContained(newVert4),Eq(true));
+    ASSERT_THAT(face4->isVertexContained(newVert2),Eq(true));
+
 }
 
 

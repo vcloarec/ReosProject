@@ -17,12 +17,10 @@ email                : vcloarec at gmail dot com / projetreos at gmail dot com
 #define REOSTIN_H
 
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
-#include <CGAL/Triangulation_2.h>
 #include <CGAL/Constrained_Delaunay_triangulation_2.h>
 #include <CGAL/Constrained_triangulation_plus_2.h>
 
-
-#include "../HdMesh/reosmesh.h"
+#include "../ReosMesh/reosmesh.h"
 
 template<typename T>
 class TD;
@@ -116,30 +114,40 @@ typedef TinCGALVertex<K> FakeTinVertex;
 typedef TinCGALFace<K> FakeTinFace;
 ////////////////////////////////////
 ////////////// Tin TDS bound Tin vertex, we have to use now Triangulation::Vertex to define the personnal type
-#define TIN_TDS
 typedef CGAL::Triangulation_data_structure_2<FakeTinVertex,FakeTinFace> Tds;
 
 ////////////////////////////////////
 ////////////// Personal TDS
 typedef CGAL::Exact_predicates_tag Itag;
-
 typedef CGAL::Constrained_Delaunay_triangulation_2<K, Tds,Itag> ConstrainTriangulation;
-
 typedef CGAL::Constrained_triangulation_plus_2<ConstrainTriangulation> CgalTriangulation;
 
 
 /////////////////////////////////////////////////
 /// Choice of the CGAL triangulation type
 ///
-typedef CgalTriangulation TinTriangulation;
+//typedef CgalTriangulation TinTriangulation;
+class TinTriangulation:public CgalTriangulation
+{
+public:
+    //Necessary to reconstruct the hard lines when reading UGRID file
+    //because the insert_subconstraint(Vertex_handle, Vertex_handle) is protected in CgalTriangulation
+    void insertSubconstraint(Vertex_handle v1, Vertex_handle v2)
+    {
+        insert_subconstraint(v1,v2);
+    }
+};
+
 
 typedef TinTriangulation::Vertex_handle VertexHandle;
 typedef TinTriangulation::Face_handle FaceHandle;
 typedef TinTriangulation::Vertex_iterator VertexIterator;
 typedef TinTriangulation::Face_iterator FaceIterator;
 typedef  TinTriangulation::Subconstraint_iterator SegmentIterator;
+typedef  TinTriangulation::Constraint_iterator ConstraintIterator;
 
 typedef TinTriangulation::Point CgalPoint;
+
 
 
 template<class Gt, typename Fb>
@@ -158,91 +166,53 @@ class TinReader:public MeshIO
 public:
     TinReader(const TinTriangulation *triangulation);
 
-    int vertexCoordCount() const override
-    {
-        return 3;
-    }
+    int vertexCoordCount() const override;
+    int verticesCount() const override;
+    void readVertex(double *vert)  override;
+    void readOnlyVertex(double* vert) override;
+    VertexPointer readVertexPointer() override;
+    bool allVerticesReaden() const override;
 
-    int verticesCount() const override
-    {
-        return int(mTriangulation->number_of_vertices());
-    }
+    void readNodePerFace(int &count) override;
+    int currentFaceVerticesCount() const override;
+    void readFace(int *face) override;
+    bool allFacesReaden() const override;
 
+    void readSegment(int *sc) override;
+    bool allSegmentsReaden() const override;
 
-    int currentFaceVerticesCount() const override
-    {
-        return 3;
-    }
+    void readNeighbor(int *n) override;
 
-    void readVertex(double *vert)  override
-    {
-        vert[0]=vIt->x();
-        vert[1]=vIt->y();
-        vert[2]=vIt->z();
-        verticesIndex[vIt->handle()]=currentVertexIndex;
-        vIt++;
-        currentVertexIndex++;
-    }
+    int hardlinesCount() const override;
+    int hardlinesVerticesCount() const override;
+    int currentHardlineVerticesCount() const override;
+    void readHardlineVertices(int *) override;
+    bool allHardLineReaden() const override;
 
-    void readOnlyVertex(double* vert) override
-    {
-        vert[0]=vIt->x();
-        vert[1]=vIt->y();
-        vert[2]=vIt->z();
-        vIt++;
-    }
+    int boundariesCount() const override;
+    void readBoundaryEdge(int *be) override;
+    bool allBoundaryEdgesReaden() const override;
 
-    VertexPointer readVertexPointer() override
-    {
-        VertexPointer vert=static_cast<TinTriangulation::Vertex*>(&(*vIt));
-        verticesIndex[vIt->handle()]=currentVertexIndex;
-        vIt++;
-        currentVertexIndex++;
-        return vert;
-    }
-
-    void readFace(int *face) override
-    {
-        for (int i=0;i<3;++i)
-        {
-            face[i]=verticesIndex[fIt->vertex(i)];
-        }
-        fIt++;
-    }
-
-    bool allVerticesReaden() const override
-    {
-        return vIt==mTriangulation->finite_vertices_end();
-    }
-
-    bool allFacesReaden() const override
-    {
-        return fIt==mTriangulation->finite_faces_end();
-    }
-
-    void readSegment(int *sc) override
-    {
-        sc[0]=verticesIndex[sIt->first.first->handle()];
-        sc[1]=verticesIndex[sIt->first.second->handle()];
-        sIt++;
-    }
-
-    bool allSegmentsReaden() const override
-    {
-        return sIt==mTriangulation->subconstraints_end();
-    }
+    bool allNeighborReaden() const override;
 
 private:
     FaceIterator fIt;
     VertexIterator vIt;
     SegmentIterator sIt;
+    FaceIterator fItN;
+    ConstraintIterator cIt;
+    std::list<std::vector<int>>::iterator boundaryIterator;
     std::map<VertexHandle, int> verticesIndex;
+    std::map<FaceHandle,int> facesIndex;
+    std::list<std::vector<int>> boundariesList;
     const TinTriangulation *mTriangulation;
     int currentVertexIndex=0;
+    int currentFaceIndex=0;
+
 };
 
 
-class ReosTin: public HdMesh
+class ReosTin: public ReosMesh
 {
 public:
     ReosTin(){}
@@ -251,22 +221,18 @@ public:
     int facesCount() const override;
 
     VertexPointer vertex(double x, double y, double tolerance) const override;
-    FacePointer face(double x,double y) const override
-    {
-        auto faceHandle=triangulation.locate(CgalPoint(x,y));
+    VertexPointer vertex(double x, double y) const override;
+    FacePointer face(double x,double y) const override;
 
-        std::cout<<"X : "<<x<<"   Y : "<<y<<std::endl;
-
-        if (triangulation.is_infinite(faceHandle))
-            return nullptr;
-
-        return &(*faceHandle);
-    }
-
-    void clear() override {}
+    void initialize(int verticesCount); //to override
+    void clear() override;
     void clearFaces() override {}
 
+    VertexPointer createVertex(double x,double y); //override;
     VertexPointer addVertex(double x, double y) override;
+    int maxNodesPerFaces() const override {return 3;}
+
+
     void removeVertex(VertexPointer vertex);
     std::list<VertexPointer> removeVertexOnHardLine(VertexPointer vertex);
 
@@ -291,27 +257,13 @@ public:
     ///
     std::vector<FacePointer> flipFaces(FacePointer f1, FacePointer f2);
 
-
-
+    int readUGRIDFormat(std::string fileName) override;
+    int writeUGRIDFormat(std::string fileName) override;
 
 private:
     TinTriangulation triangulation;
 
-    FaceHandle faceHandle(TinTriangulation::Face* f) const
-    {
-        if (!f)
-            return nullptr;
-
-        auto vert=f->vertex(0);
-        auto cir=triangulation.incident_faces(vert);
-
-        while (&(*cir)!=f)
-        {
-            cir++;
-        }
-
-        return cir;
-    }
+    FaceHandle faceHandle(TinTriangulation::Face* f) const;
 
 };
 

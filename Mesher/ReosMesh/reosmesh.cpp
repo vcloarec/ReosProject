@@ -18,8 +18,20 @@ email          : vcloarec at gmail dot com   /  projetreos at gmail dot com
 
 Vertex::~Vertex() {}
 
+void *Vertex::graphicPointer() const {
+    return mGraphic;
+}
 
-HdMesh::~HdMesh() {}
+
+ReosMesh::~ReosMesh() {}
+
+VertexPointer ReosMesh::vertex(double x, double y) const{
+    return vertex(x,y,mTolerance);
+}
+
+bool ReosMesh::isDirty() const {return mDirty;}
+
+
 
 MeshIO::~MeshIO() {}
 
@@ -60,4 +72,19 @@ std::vector<double> Face::faceCentroid()
     std::vector<double> centroid{x/n,y/n};
 
     return centroid;
+}
+
+void Vertex::setGraphicPointer(void *pointer)
+{
+    mGraphic=pointer;
+}
+
+void Vertex::setZUserDefined()
+{
+    mZUserDefined_=true;
+}
+
+bool Vertex::isZUserDefined() const
+{
+    return mZUserDefined_;
 }

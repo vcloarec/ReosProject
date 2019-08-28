@@ -18,21 +18,21 @@ public:
 
     void initializeLayerWithOneVertex()
     {
-        layer=new QgsMeshLayer("path to mesh","nom","TIN");
+        layer=new QgsMeshLayer("oneVertexTIN","nom","TIN");
         TINProvider *provider=static_cast<TINProvider*>(layer->dataProvider());
-        provider->editor()->addVertex(0,0);
+        provider->tin()->addVertex(0,0);
     }
 
     void initializeLayerWithSeveralVertices()
     {
-        layer=new HdTinLayer();
+        layer=new HdTinLayer("SeveralVerticesTIN");
         TINProvider *provider=static_cast<TINProvider*>(layer->dataProvider());
 
-        provider->editor()->addVertex(0,0);
-        provider->editor()->addVertex(0,5);
-        provider->editor()->addVertex(5,5);
-        provider->editor()->addVertex(5,0);
-        provider->editor()->addVertex(0,5);
+        provider->tin()->addVertex(0,0);
+        provider->tin()->addVertex(0,5);
+        provider->tin()->addVertex(5,5);
+        provider->tin()->addVertex(5,0);
+        provider->tin()->addVertex(0,5);
     }
 
     void registerProvider()
@@ -66,7 +66,7 @@ TEST_F(TinLayerTesting,createProvider)
 TEST_F(TinLayerTesting, layerHasProvider)
 {
     registerProvider();
-    HdTinLayer *layer=new HdTinLayer();
+    HdTinLayer *layer=new HdTinLayer("-");
 
     ASSERT_TRUE(layer->dataProvider()!=nullptr);
 }
@@ -74,7 +74,7 @@ TEST_F(TinLayerTesting, layerHasProvider)
 TEST_F(TinLayerTesting, layerIsValid)
 {
     registerProvider();
-    HdTinLayer *layer=new HdTinLayer();
+    HdTinLayer *layer=new HdTinLayer("-");
 
     ASSERT_TRUE(layer->isValid());
 }
@@ -85,7 +85,6 @@ TEST_F(TinLayerTesting, verticesCount)
 {
     registerProvider();
     initializeLayerWithSeveralVertices();
-
 
     ASSERT_THAT(layer->dataProvider()->vertexCount(),Eq(4));
 }
@@ -125,8 +124,32 @@ TEST_F(TinLayerTesting, extentMesh)
     qDebug()<<layer->dataProvider()->extent().xMaximum();
     qDebug()<<layer->dataProvider()->extent().yMaximum();
 
-    ASSERT_TRUE(layer->dataProvider()->extent().contains(QgsRectangle(0,0,10,5)));
+    QgsRectangle extent=layer->dataProvider()->extent();
 
+    ASSERT_TRUE(extent==QgsRectangle(0,0,5,5));
+
+}
+
+TEST_F(TinLayerTesting, save)
+{
+    registerProvider();
+    initializeLayerWithSeveralVertices();
+
+
+    ReosTin *tin=static_cast<TINProvider*>(layer->dataProvider())->tin();
+    ASSERT_THAT(tin->writeUGRIDFormat("tinTestEditor.tin"),Eq(0));
+
+}
+
+TEST_F(TinLayerTesting, open)
+{
+    registerProvider();
+
+    QgsMeshLayer* layerToRead=new QgsMeshLayer("tinTestEditor.tin","nom","TIN");
+
+    ASSERT_TRUE(layerToRead->isValid());
+    ASSERT_THAT(layerToRead->dataProvider()->vertexCount(),Eq(4));
+    ASSERT_THAT(layerToRead->dataProvider()->faceCount(),Eq(2));
 }
 
 

@@ -7,9 +7,11 @@ include(gtest_dependency.pri)
 ######################### CGAL
 include(../../Mesher/configCGAL.pri);
 
-
 ######################### GDAL
 include(../../GIS/configGDAL.pri);
+
+######################### NetCDF
+include(../../Mesher/configNetCDF.pri);
 
 
 QT += core gui widgets network xml sql
@@ -29,17 +31,17 @@ HEADERS += \
     ../../Reos/reosdialogbox.h \
     ../../Reos/reosencodedelement.h \
     ../../Reos/reossettings.h \
+    ../../Reos/reosutils.h \
     ../../GIS/hdgismanager.h \
     ../../GIS/hdcrsdialogselection.h \
     ../../GIS/reosmaptool.h \
     ../../GIS/hdvectorlayerpropertiesdialog.h \
     ../../UtilsGeometry/utilsgeometry2d.h \
-    ../../Mesher/HdTin/test.h \
-    ../../Mesher/HdMesh/reosmesh.h \
-    ../../Mesher/HdTin/reostin.h \
-    ../../Mesher/HdTin/reostineditor.h \
-    ../../Mesher/HdMesh/reosmeshgenerator.h \
-    ../../Mesher/HdMesh/reosmesheditor.h \
+    ../../Mesher/ReosTin/test.h \
+    ../../Mesher/ReosMesh/reosmesh.h \
+    ../../Mesher/ReosTin/reostin.h \
+    ../../Mesher/ReosMesh/reosmeshgenerator.h \
+    ../../Mesher/ReosMesh/reosmesheditor.h \
     ../../Mesher/provider/meshdataprovider.h \
     ../../Mesher/tinEditorUi/reosmapmeshitem.h \
     ../../Mesher/tinEditorUi/reostineditorgraphic.h \
@@ -53,9 +55,11 @@ HEADERS += \
     tst_006_hdmapmeshitemtest.h
 
 
+
 SOURCES += \
     ../../GIS/reosmapitem.cpp \
     ../../GIS/reosmap.cpp \
+    ../../Reos/reosutils.cpp \
         main.cpp \
     ../../Mesher/provider/meshdataprovider.cpp \
     ../../Mesher/tinEditorUi/hdtineditornewdialog.cpp \
@@ -71,11 +75,10 @@ SOURCES += \
     ../../GIS/reosmaptool.cpp \
     ../../GIS/hdvectorlayerpropertiesdialog.cpp \
     ../../UtilsGeometry/utilsgeometry2d.cpp \
-    ../../Mesher/HdMesh/reosmesh.cpp \
-    ../../Mesher/HdMesh/reosmeshgenerator.cpp \
-    ../../Mesher/HdMesh/reosmesheditor.cpp \
-    ../../Mesher/HdTin/reostin.cpp \
-    ../../Mesher/HdTin/reostineditor.cpp
+    ../../Mesher/ReosMesh/reosmesh.cpp \
+    ../../Mesher/ReosMesh/reosmeshgenerator.cpp \
+    ../../Mesher/ReosMesh/reosmesheditor.cpp \
+    ../../Mesher/ReosTin/reostin.cpp \
 
 
 FORMS += \

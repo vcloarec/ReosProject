@@ -20,7 +20,13 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #include <memory>
 #include <vector>
 #include <list>
+#include <fstream>
+#include <iostream>
+#include <cstring>
 
+#include <netcdf.h>
+
+#include "../../Reos/reosutils.h"
 
 
 class Vertex
@@ -35,27 +41,15 @@ public:
 
     virtual void setZValue(double ZValue)=0;
 
-    void setGraphicPointer(void* pointer)
-    {
-        mGraphic=pointer;
-    }
-    void* graphicPointer() const {
-        return mGraphic;
-    }
+    void setGraphicPointer(void* pointer);
+    void *graphicPointer() const;
 
-    void setZUserDefined()
-    {
-        zUserDefined_=true;
-    }
-
-    bool isZUserDefined() const
-    {
-        return zUserDefined_;
-    }
+    void setZUserDefined();
+    bool isZUserDefined() const;
 
 private:
     void* mGraphic=nullptr;
-    bool zUserDefined_=false;
+    bool mZUserDefined_=false;
 
 };
 
@@ -102,26 +96,39 @@ public:
 
     virtual int currentFaceVerticesCount() const =0;
     virtual void readFace(int *)=0;
+    virtual void readNodePerFace(int &count)=0;
     virtual void readSegment(int *)=0;
+    virtual void readNeighbor(int *)=0;
+    virtual int boundariesCount() const =0;
+    virtual void readBoundaryEdge(int *)=0;
+
+    virtual int hardlinesCount() const=0;
+    virtual int hardlinesVerticesCount() const=0;
+    virtual int currentHardlineVerticesCount() const =0;
+    virtual void readHardlineVertices(int *)=0;
 
     virtual bool allVerticesReaden() const =0;
     virtual bool allFacesReaden() const =0;
     virtual bool allSegmentsReaden() const =0;
-
+    virtual bool allNeighborReaden() const =0;
+    virtual bool allBoundaryEdgesReaden() const =0;
+    virtual bool allHardLineReaden() const =0;
 
 
 
 };
 
 
-class HdMesh
+class ReosMesh
 {
 public:
-    virtual ~HdMesh();
+    virtual ~ReosMesh();
     virtual int verticesCount() const=0;
     virtual int facesCount() const=0;
 
+    virtual VertexPointer vertex(int) const {return nullptr;}
     virtual VertexPointer vertex(double x, double y, double tolerance) const=0;
+    virtual VertexPointer vertex(double x, double y) const;
     virtual FacePointer face(double x,double y) const=0;
 
     virtual void clear()=0;
@@ -134,9 +141,19 @@ public:
 
     virtual std::unique_ptr<MeshIO> getReader() const =0;
     virtual std::list<VertexPointer> neighboursVertices(VertexPointer vertex) const =0;
+    virtual int maxNodesPerFaces() const=0;
 
+    virtual int writeUGRIDFormat(std::string fileName)=0;
 
+    virtual int readUGRIDFormat(std::string fileName)=0;
 
+    bool isDirty() const;
+protected:
+    double mTolerance=0.01;
+
+private:
+
+    bool mDirty=false;
 
 
 };

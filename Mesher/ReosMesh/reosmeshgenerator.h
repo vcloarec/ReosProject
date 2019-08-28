@@ -66,7 +66,7 @@ public:
 };
 
 
-class HdMeshBasic:public HdMesh
+class HdMeshBasic:public ReosMesh
 {
 public:
     ~ HdMeshBasic() override
@@ -83,7 +83,7 @@ public:
     int index(VertexPointer v) const;
     int index(FacePointer f) const;
 
-    VertexPointer vertex(int index) const;
+    VertexPointer vertex(int) const override;
     VertexPointer vertex(double x, double y, double tolerance) const override;
     FacePointer face(int index) const;
 
@@ -113,6 +113,12 @@ public:
         mFaces.push_back(face);
     }
 
+    int maxNodesPerFaces() const override {return 3;}
+
+    int writeUGRIDFormat(std::string) override {return 0;}
+
+    int readUGRIDFormat(std::string) override {return 0;}
+
 private:
     std::vector<VertexPointer> mVertices;
     std::vector<FacePointer> mFaces;
@@ -122,22 +128,17 @@ private:
 public:
     std::unique_ptr<MeshIO> getReader() const override {return  std::unique_ptr<MeshIO>();}
 
-    std::list<VertexPointer> addHardLine(VertexPointer v1, VertexPointer v2) override {return std::list<VertexPointer>();}
-    std::list<VertexPointer> hardNeighbours(VertexPointer vertex) const override{return std::list<VertexPointer>();}
-    std::list<VertexPointer> removeHardLine(VertexPointer v1, VertexPointer v2) override {return std::list<VertexPointer>();}
-    std::list<VertexPointer> neighboursVertices(VertexPointer vertex) const override {return std::list<VertexPointer>();}
+    std::list<VertexPointer> addHardLine(VertexPointer, VertexPointer) override {return std::list<VertexPointer>();}
+    std::list<VertexPointer> hardNeighbours(VertexPointer) const override{return std::list<VertexPointer>();}
+    std::list<VertexPointer> removeHardLine(VertexPointer, VertexPointer) override {return std::list<VertexPointer>();}
+    std::list<VertexPointer> neighboursVertices(VertexPointer) const override {return std::list<VertexPointer>();}
 
     // HdMesh interface
 public:
     FacePointer face(double x, double y) const override {if(x>y){};return nullptr;}
+
+
 };
-
-
-
-
-
-
-std::vector<std::string> splitString(std::string str,char sep);
 
 
 class HdMeshGenerator{

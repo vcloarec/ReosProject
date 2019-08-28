@@ -39,6 +39,8 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #include "hdtineditoruidialog.h"
 #include "hdtineditornewdialog.h"
 
+#include "../ReosTin/reostin.h"
+
 
 class ReosTinEditorUi;
 class ReosTinUndoCommandNewVertex;
@@ -153,7 +155,7 @@ public slots:
     }
 };
 
-
+class UIMeshEditorTesting;
 
 class ReosTinEditorUi : public ReosModule
 {
@@ -178,13 +180,13 @@ public:
     void doCommand(ReosTinUndoCommandNewSegmentWithNewSecondVertex *command);
     void undoCommand(ReosTinUndoCommandNewSegmentWithNewSecondVertex *command);
     void doCommand(ReosTinUndoCommandNewSegmentWithExistingSecondVertex *command);
-    void undoCommand(ReosTinUndoCommandNewSegmentWithExistingSecondVertex *command);
+    void undoCommand(ReosTinUndoCommandNewSegmentWithExistingSecondVertex *);
 
     void doCommand(ReosTinUndoCommandRemoveVertex *command);
-    void undoCommand(ReosTinUndoCommandRemoveVertex *command);
+    void undoCommand(ReosTinUndoCommandRemoveVertex*);
 
     void doCommand(ReosTinUndoCommandRemoveHardLine *command);
-    void undoCommand(ReosTinUndoCommandRemoveHardLine *command){}
+    void undoCommand(ReosTinUndoCommandRemoveHardLine*){}
 
     void doCommand(ReosTinUndoCommandFlipFaces *command);
     void undoCommand(ReosTinUndoCommandFlipFaces *command);
@@ -211,13 +213,27 @@ public slots:
 
     void populateDomain();
 
+    bool saveTin()
+    {
+        if (mMeshLayer)
+            return writeToFile(mMeshLayer->source())==0;
+        else {
+            return false;
+        }
+    }
+
+    bool openTin();
+    bool openTinWithFileName(QString fileName);
+
+
+
 private slots :
 
     void currentLayerChanged(QgsMapLayer *layer);
     void layerHasToBeUpdated(QgsMapLayer *layer);
     void layerHasToBeRemoved(QgsMapLayer *layer);
 
-private:
+private: //method
 
     QWidget *getWidget() const override {return uiDialog;}
 
@@ -239,6 +255,8 @@ private:
     ReosMeshItemVertex* addMapVertex(VertexPointer vert);
     ReosMeshItemVertex* addMapVertex(const QPointF &mapPoint,VertexPointer vert);
 
+    void removeVertex(VertexPointer vert);
+
     void setLevelMode();
     void setNoneMode();
 
@@ -250,20 +268,36 @@ private:
     ReosMeshItemVertex* addMapVertex_2(VertexPointer realWorldVertex);
 
     void addSegment(VertexPointer v1, VertexPointer v2, QList<PointAndNeighbours> &oldNeigboursStructure);
+    void removeHardLine(VertexPointer v1, VertexPointer v2);
 
-    void removeVertex(VertexPointer mapVertex);
 
     ReosMeshItemVertexAndNeighbours saveStructure(ReosMeshItemVertex *vert) const;
 
-    void restoreStructure(VertexPointer realWorldVertex, const PointAndNeighbours &structure) const;
+    void restoreStructure(VertexPointer, const PointAndNeighbours) const;
 
     void updateGraphics(VertexPointer realWorldVertex);
 
     void updateMeshLayer();
 
+    bool writeToFile(QString fileName)
+    {
+        if (mTIN)
+            return mTIN->writeUGRIDFormat(fileName.toStdString());
+        else
+            return false;
+    }
+
+    void newCommand(QUndoCommand *command) override
+    {
+        //override for disable the sending of this command to the undo stck because, undo not works because of potential CGAL issue
+        command->redo();
+
+        if (uiDialog->autoUpdate())
+            updateMesh();
+    }
 
 
-private:
+private: //attributes
     ReosMapMeshEditorItemDomain *mDomain;
     HdManagerSIG *mGisManager;
     ReosMap *mMap;
@@ -273,10 +307,14 @@ private:
     std::unique_ptr<QgsCoordinateTransform> mTransform;
 
     QgsMeshLayer *mMeshLayer=nullptr;
-    TINEditor *mEditor=nullptr;
-    QHash<TINEditor*,QUndoStack*> mUndoStacks;
+    //TINEditor *mTIN=nullptr;
+    ReosTin* mTIN=nullptr;
+
+    QHash<ReosTin*,QUndoStack*> mUndoStacks;
 
     QAction *actionNewTinLayer;
+    QAction *actionOpenTinLayer;
+    QAction *actionSaveTinLayer;
 
     QList<QAction*> actionEditList;
     QAction *actionNewVertex;
@@ -293,14 +331,9 @@ private:
 
     QAction *actionTriangulateTIN;
 
-    void newCommand(QUndoCommand *command) override
-    {
-        //override for disable the sending of this command to the undo stck because, undo not works because of potential CGAL issue
-        command->redo();
 
-        if (uiDialog->autoUpdate())
-            updateMesh();
-    }
+
+    friend class UIMeshEditorTesting;
 
 };
 

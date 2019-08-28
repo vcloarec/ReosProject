@@ -1,0 +1,4 @@
+INCLUDEPATH+=$${NETCDF_INCLUDE}
+
+LIBS += -L$${netCDF_LIB_PATH} -lnetcdf
+

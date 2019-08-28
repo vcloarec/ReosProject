@@ -54,7 +54,7 @@ protected:
     void SetUp() override
     {
         QgsProviderRegistry::instance()->registerProvider(new HdTinEditorProviderMetaData());
-        map=new ReosMap(nullptr);
+        map=new ReosMap();
         mapCanvas=map->getMapCanvas();
         gismanager=new HdManagerSIG(map);
         uiEditor=new ReosTinEditorUi(gismanager);
