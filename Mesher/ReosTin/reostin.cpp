@@ -532,7 +532,7 @@ int ReosTin::readUGRIDFormat(std::string fileName)
 
     //read faces
     int ncFacesVariableId;
-    error=nc_inq_varid(ncId,"face_node_connectivity",&ncFacesVariableId);
+    error=nc_inq_varid(ncId,"TIN_face_node_connectivity",&ncFacesVariableId);
     if (error!=NC_NOERR)
     {
         nc_close(ncId);
@@ -794,6 +794,7 @@ int ReosTin::writeUGRIDFormat(std::string fileName)
     std::string meshNodeXVariableName("TIN_node_x");
     std::string meshNodeYVariableName("TIN_node_y");
     std::string meshNodeZVariableName("TIN_altitude");
+    std::string meshFaceNodeConnectivity("TIN_face_node_connectivity");
 
     //***********************************
     //define dimensions
@@ -869,8 +870,18 @@ int ReosTin::writeUGRIDFormat(std::string fileName)
     }
 
     //node Coordinate Location
-    const char* nodeCoordinatesLocation=(meshNodeXVariableName+" "+meshNodeYVariableName).c_str();
+    std::string ncl=meshNodeXVariableName+" "+meshNodeYVariableName;
+    const char* nodeCoordinatesLocation=ncl.c_str();
     error=nc_put_att_text(ncId,ncIdMesh,"node_coordinates",std::strlen(nodeCoordinatesLocation),nodeCoordinatesLocation);
+    if (error!=NC_NOERR)
+    {
+        nc_close(ncId);
+        return error;
+    }
+
+    //face node connectivity
+    const char* faceNodeConnectivityLocation=meshFaceNodeConnectivity.c_str();
+    error=nc_put_att_text(ncId,ncIdMesh,"face_node_connectivity",std::strlen(faceNodeConnectivityLocation),faceNodeConnectivityLocation);
     if (error!=NC_NOERR)
     {
         nc_close(ncId);
@@ -904,7 +915,7 @@ int ReosTin::writeUGRIDFormat(std::string fileName)
     }
     //fill the Z value variable attribute to be UGRID compliant
     const char* alt="altitude";
-    error=nc_put_att_text(ncId,ncNodeZVariableId,"standart_name",std::strlen(alt),alt);
+    error=nc_put_att_text(ncId,ncNodeZVariableId,"standard_name",std::strlen(alt),alt);
     const char* meshName="TIN";
     error=nc_put_att_text(ncId,ncNodeZVariableId,"mesh",std::strlen(meshName),meshName);
     const char* loc="node";
@@ -962,7 +973,16 @@ int ReosTin::writeUGRIDFormat(std::string fileName)
     facesDimension[0]=ncIdDimensionMeshFace;
     facesDimension[1]=ncIdDimensionMaxNodesPerFaces;
 
-    error=nc_def_var(ncId,"face_node_connectivity",NC_INT,2,facesDimension,&ncFacesVariableId);
+    error=nc_def_var(ncId,meshFaceNodeConnectivity.c_str(),NC_INT,2,facesDimension,&ncFacesVariableId);
+    if (error!=NC_NOERR)
+    {
+        nc_close(ncId);
+        return error;
+    }
+
+    //start index
+    int startIndex=0;
+    error=nc_put_att_int(ncId,ncFacesVariableId,"start_index",NC_INT,1,&startIndex);
     if (error!=NC_NOERR)
     {
         nc_close(ncId);

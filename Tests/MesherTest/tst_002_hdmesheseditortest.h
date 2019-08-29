@@ -681,6 +681,11 @@ TEST_F(TinEditorTesting, writeUGRIDSmallFile_WithHardLine)
     auto vert3=tin.addVertex(3,0);
     auto vert4=tin.addVertex(5,2);
 
+    vert1->setZValue(7);
+    vert2->setZValue(7);
+    vert3->setZValue(7);
+    vert4->setZValue(7);
+
     tin.addHardLine(vert1,vert4);
     tin.addHardLine(vert2,vert3);
 

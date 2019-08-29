@@ -51,9 +51,9 @@ public:
             mTin.readUGRIDFormat(path.toStdString());
         }
         else {
-            mTin.writeUGRIDFormat(path.toStdString());
+            if (path!="")
+                mTin.writeUGRIDFormat(path.toStdString());
         }
-
     }
 
     ReosTin *tin()
