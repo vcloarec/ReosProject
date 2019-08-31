@@ -18,6 +18,7 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #define REOSMESH_H
 
 #include <memory>
+#include <math.h>
 #include <vector>
 #include <list>
 #include <fstream>
@@ -27,6 +28,8 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #include <netcdf.h>
 
 #include "../../Reos/reosutils.h"
+
+
 
 
 class Vertex
@@ -46,6 +49,11 @@ public:
 
     void setZUserDefined();
     bool isZUserDefined() const;
+
+    double distanceFrom(const Vertex &other) const
+    {
+        return sqrt(pow(x()-other.x(),2)+pow(y()-other.y(),2));
+    }
 
 private:
     void* mGraphic=nullptr;
@@ -156,6 +164,48 @@ private:
     bool mDirty=false;
 
 
+};
+
+
+class VertexZSpecifier
+{
+public:
+    VertexZSpecifier(const VertexPointer associatedVertex):
+        mAssociatedVertex(associatedVertex)
+    {
+
+    }
+    virtual ~VertexZSpecifier();
+    virtual double getZValue() const =0;
+
+protected:
+    const VertexPointer mAssociatedVertex;
+};
+
+class VertexZSpecifierSimple : public VertexZSpecifier
+{
+public:
+    VertexZSpecifierSimple(const VertexPointer associatedVertex):
+        VertexZSpecifier(associatedVertex){}
+    VertexZSpecifierSimple(const VertexPointer associatedVertex,double z);
+
+    double getZValue() const override;
+private:
+    double mZValue=0;
+
+};
+
+
+class VertexZSpecifierOtherVertexAndSlope : public VertexZSpecifier
+{
+public:
+    VertexZSpecifierOtherVertexAndSlope(VertexPointer associatedVertex,VertexPointer otherVertex,double slope);
+
+    double getZValue() const override;
+
+private:
+    VertexPointer mOtherVertex=nullptr;
+    double mSlope;
 };
 
 

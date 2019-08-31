@@ -1,6 +1,3 @@
-#ifndef TST_HDMESHESEDITORTEST_H
-#define TST_HDMESHESEDITORTEST_H
-
 #pragma once
 
 #include <gtest/gtest.h>
@@ -135,26 +132,26 @@ TEST_F(MeshEditorTesting, addDupplicateSegmentHardline)
 }
 
 
-class TinEditorTesting:public Test{
+class TinEditingTesting:public Test{
 public:
     ReosTin tin;
 
 
 };
 
-TEST_F(TinEditorTesting, tinCreation)
+TEST_F(TinEditingTesting, tinCreation)
 {
     ASSERT_THAT(tin.verticesCount(),Eq(0));
 }
 
-TEST_F(TinEditorTesting, addOneVertex)
+TEST_F(TinEditingTesting, addOneVertex)
 {
     tin.addVertex(5,5);
 
     ASSERT_THAT(tin.verticesCount(),Eq(1));
 }
 
-TEST_F(TinEditorTesting, addVerticesToHaveAFace)
+TEST_F(TinEditingTesting, addVerticesToHaveAFace)
 {
     tin.addVertex(5,5);
     tin.addVertex(10,5);
@@ -164,7 +161,7 @@ TEST_F(TinEditorTesting, addVerticesToHaveAFace)
     ASSERT_THAT(tin.facesCount(),Eq(1));
 }
 
-TEST_F(TinEditorTesting, addVerticesToHaveTwoFace)
+TEST_F(TinEditingTesting, addVerticesToHaveTwoFace)
 {
     tin.addVertex(5,5);
     tin.addVertex(6,5);
@@ -176,7 +173,7 @@ TEST_F(TinEditorTesting, addVerticesToHaveTwoFace)
 }
 
 
-TEST_F(TinEditorTesting, addDupplicatesVertices)
+TEST_F(TinEditingTesting, addDupplicatesVertices)
 {
     tin.addVertex(5,5);
     tin.addVertex(5,5);
@@ -187,7 +184,7 @@ TEST_F(TinEditorTesting, addDupplicatesVertices)
     ASSERT_THAT(tin.facesCount(),Eq(1));
 }
 
-TEST_F(TinEditorTesting, locateVertex)
+TEST_F(TinEditingTesting, locateVertex)
 {
     VertexPointer vert1=tin.addVertex(5,5);
 
@@ -199,7 +196,7 @@ TEST_F(TinEditorTesting, locateVertex)
     ASSERT_TRUE(vert2==vert1);
 }
 
-TEST_F(TinEditorTesting, addHardLine)
+TEST_F(TinEditingTesting, addHardLine)
 {
     auto vert1=tin.addVertex(0,5);
     auto vert2=tin.addVertex(5,0);
@@ -225,7 +222,7 @@ TEST_F(TinEditorTesting, addHardLine)
     ASSERT_THAT(newVertices_3.size(),Eq(4));
 }
 
-TEST_F(TinEditorTesting, hasHardNeighbours)
+TEST_F(TinEditingTesting, hasHardNeighbours)
 {
     auto vert1=tin.addVertex(0,5);
     auto vert2=tin.addVertex(5,0);
@@ -242,7 +239,7 @@ TEST_F(TinEditorTesting, hasHardNeighbours)
     ASSERT_THAT(neighbours.size(),Eq(4));
 }
 
-TEST_F(TinEditorTesting, isSegmentOnHardline)
+TEST_F(TinEditingTesting, isSegmentOnHardline)
 {
     auto vert1=tin.addVertex(0,5);
     auto vert2=tin.addVertex(5,0);
@@ -262,7 +259,7 @@ TEST_F(TinEditorTesting, isSegmentOnHardline)
 }
 
 
-TEST_F(TinEditorTesting, removeFirstHardLineFromSegment)
+TEST_F(TinEditingTesting, removeFirstHardLineFromSegment)
 {
     auto vert1=tin.addVertex(0,5);
     auto vert2=tin.addVertex(5,0);
@@ -293,7 +290,7 @@ TEST_F(TinEditorTesting, removeFirstHardLineFromSegment)
 
 }
 
-TEST_F(TinEditorTesting, removeFirstHardLineFromExtremities)
+TEST_F(TinEditingTesting, removeFirstHardLineFromExtremities)
 {
     /////////////////////////////////////////////////////////
     /// \brief Remove constraint from vertices wich are not neighbour is not permit, so, as vert1 and vert 2
@@ -333,7 +330,7 @@ TEST_F(TinEditorTesting, removeFirstHardLineFromExtremities)
 }
 
 
-TEST_F(TinEditorTesting, removeVertex)
+TEST_F(TinEditingTesting, removeVertex)
 {
 
     auto vert1=tin.addVertex(0,5);
@@ -351,7 +348,7 @@ TEST_F(TinEditorTesting, removeVertex)
 
 }
 
-TEST_F(TinEditorTesting, removeVertexOnHardLineWithRemoveVertex)
+TEST_F(TinEditingTesting, removeVertexOnHardLineWithRemoveVertex)
 {
     /////////////////////////////////////////////////////////
     /// \brief Remove vertices on hardline is not permit It is necessary to use removeVertexOnConstraint
@@ -379,7 +376,7 @@ TEST_F(TinEditorTesting, removeVertexOnHardLineWithRemoveVertex)
 
 }
 
-TEST_F(TinEditorTesting, removeVertexOnHardLineWithRemoveVertexOnHardline)
+TEST_F(TinEditingTesting, removeVertexOnHardLineWithRemoveVertexOnHardline)
 {
 //    auto vert1=tin.addVertex(0,5);
 //    auto vert2=tin.addVertex(5,0);
@@ -406,7 +403,7 @@ TEST_F(TinEditorTesting, removeVertexOnHardLineWithRemoveVertexOnHardline)
 //    ASSERT_THAT(tin.hardNeighbours(vert4).size(),Eq(1));
 }
 
-TEST_F(TinEditorTesting, removeVertexOnHardLineWithRemoveVertexOnHardline_2)
+TEST_F(TinEditingTesting, removeVertexOnHardLineWithRemoveVertexOnHardline_2)
 {
 //    auto vert1=tin.addVertex(0,0);
 //    auto vert2=tin.addVertex(0,5);
@@ -431,7 +428,7 @@ TEST_F(TinEditorTesting, removeVertexOnHardLineWithRemoveVertexOnHardline_2)
 }
 
 
-TEST_F(TinEditorTesting, addRemoveHardLines)
+TEST_F(TinEditingTesting, addRemoveHardLines)
 {
 
     ASSERT_TRUE(testCDTP_4());
@@ -439,7 +436,7 @@ TEST_F(TinEditorTesting, addRemoveHardLines)
 
 
 
-TEST_F(TinEditorTesting, flipFaces)
+TEST_F(TinEditingTesting, flipFaces)
 {
     auto vert1=tin.addVertex(0,0);
     auto vert2=tin.addVertex(2,2);
@@ -464,7 +461,7 @@ TEST_F(TinEditorTesting, flipFaces)
     ASSERT_THAT(face4->isVertexContained(vert2),Eq(true));
 }
 
-TEST_F(TinEditorTesting, writeUGRIDEmptyFile)
+TEST_F(TinEditingTesting, writeUGRIDEmptyFile)
 {
 
     ASSERT_THAT(tin.verticesCount(),Eq(0));
@@ -474,7 +471,7 @@ TEST_F(TinEditorTesting, writeUGRIDEmptyFile)
 }
 
 
-TEST_F(TinEditorTesting, readUGRIDEmptyFile)
+TEST_F(TinEditingTesting, readUGRIDEmptyFile)
 {
     ASSERT_THAT(tin.readUGRIDFormat("netCDFEmptyTest"),Eq(NC_NOERR));
 
@@ -483,7 +480,7 @@ TEST_F(TinEditorTesting, readUGRIDEmptyFile)
 }
 
 
-TEST_F(TinEditorTesting, readUGRIDEmptyFile_andAddVertex)
+TEST_F(TinEditingTesting, readUGRIDEmptyFile_andAddVertex)
 {
     ASSERT_THAT(tin.readUGRIDFormat("netCDFEmptyTest"),Eq(NC_NOERR));
 
@@ -497,7 +494,7 @@ TEST_F(TinEditorTesting, readUGRIDEmptyFile_andAddVertex)
     ASSERT_THAT(tin.facesCount(),Eq(0));
 }
 
-TEST_F(TinEditorTesting, writeUGRIDOneVertexFile)
+TEST_F(TinEditingTesting, writeUGRIDOneVertexFile)
 {
     tin.addVertex(1,0.5);
 
@@ -507,7 +504,7 @@ TEST_F(TinEditorTesting, writeUGRIDOneVertexFile)
     ASSERT_THAT(tin.writeUGRIDFormat("netCDFOneVertTest"),Eq(NC_NOERR));
 }
 
-TEST_F(TinEditorTesting, readUGRIDOneVertexFile_andAddVertex)
+TEST_F(TinEditingTesting, readUGRIDOneVertexFile_andAddVertex)
 {
     ASSERT_THAT(tin.readUGRIDFormat("netCDFOneVertTest"),Eq(NC_NOERR));
 
@@ -521,7 +518,7 @@ TEST_F(TinEditorTesting, readUGRIDOneVertexFile_andAddVertex)
     ASSERT_THAT(tin.facesCount(),Eq(0));
 }
 
-TEST_F(TinEditorTesting, writeUGRIDTwoVertexFile)
+TEST_F(TinEditingTesting, writeUGRIDTwoVertexFile)
 {
     tin.addVertex(1,0.5);
     tin.addVertex(0,0);
@@ -532,7 +529,7 @@ TEST_F(TinEditorTesting, writeUGRIDTwoVertexFile)
     ASSERT_THAT(tin.writeUGRIDFormat("netCDFTwoVertTest"),Eq(NC_NOERR));
 }
 
-TEST_F(TinEditorTesting, readUGRIDTwoVertexFile_andAddVertex)
+TEST_F(TinEditingTesting, readUGRIDTwoVertexFile_andAddVertex)
 {
     ASSERT_THAT(tin.readUGRIDFormat("netCDFTwoVertTest"),Eq(NC_NOERR));
 
@@ -546,7 +543,7 @@ TEST_F(TinEditorTesting, readUGRIDTwoVertexFile_andAddVertex)
     ASSERT_THAT(tin.facesCount(),Eq(1));
 }
 
-TEST_F(TinEditorTesting, writeUGRIDSmallFile)
+TEST_F(TinEditingTesting, writeUGRIDSmallFile)
 {
     tin.addVertex(0,0);
     tin.addVertex(2,2);
@@ -560,7 +557,7 @@ TEST_F(TinEditorTesting, writeUGRIDSmallFile)
 }
 
 
-TEST_F(TinEditorTesting, readUGRIDSmallFile)
+TEST_F(TinEditingTesting, readUGRIDSmallFile)
 {
     ReosTin tinToRead;
 
@@ -570,7 +567,7 @@ TEST_F(TinEditorTesting, readUGRIDSmallFile)
     ASSERT_THAT(tinToRead.facesCount(),Eq(2));
 }
 
-TEST_F(TinEditorTesting, writeUGRIDBigFile)
+TEST_F(TinEditingTesting, writeUGRIDBigFile)
 {
     int size=100;
    for (int i=0;i<size;++i)
@@ -591,7 +588,7 @@ TEST_F(TinEditorTesting, writeUGRIDBigFile)
    ASSERT_THAT(tin.writeUGRIDFormat("TINfile.tin"),Eq(NC_NOERR));
 }
 
-TEST_F(TinEditorTesting, readUGRIDBigFile)
+TEST_F(TinEditingTesting, readUGRIDBigFile)
 {
     ReosTin tinToRead;
 
@@ -615,7 +612,7 @@ TEST_F(TinEditorTesting, readUGRIDBigFile)
     }
 }
 
-TEST_F(TinEditorTesting, readUGRIDSmallFile_andAddVertex)
+TEST_F(TinEditingTesting, readUGRIDSmallFile_andAddVertex)
 {
     ReosTin tinToRead;
 
@@ -627,7 +624,7 @@ TEST_F(TinEditorTesting, readUGRIDSmallFile_andAddVertex)
     ASSERT_THAT(tinToRead.facesCount(),Eq(4));
 }
 
-TEST_F(TinEditorTesting, readUGRIDSmallFile_andRemoveVertex)
+TEST_F(TinEditingTesting, readUGRIDSmallFile_andRemoveVertex)
 {
     ReosTin tinToRead;
 
@@ -642,7 +639,7 @@ TEST_F(TinEditorTesting, readUGRIDSmallFile_andRemoveVertex)
     ASSERT_THAT(tinToRead.facesCount(),Eq(1));
 }
 
-TEST_F(TinEditorTesting, readUGRIDSmallFile_andFlipFace)
+TEST_F(TinEditingTesting, readUGRIDSmallFile_andFlipFace)
 {
     ReosTin tinToRead;
 
@@ -674,7 +671,7 @@ TEST_F(TinEditorTesting, readUGRIDSmallFile_andFlipFace)
 }
 
 
-TEST_F(TinEditorTesting, writeUGRIDSmallFile_WithHardLine)
+TEST_F(TinEditingTesting, writeUGRIDSmallFile_WithHardLine)
 {
     auto vert1=tin.addVertex(0,0);
     auto vert2=tin.addVertex(2,2);
@@ -695,7 +692,7 @@ TEST_F(TinEditorTesting, writeUGRIDSmallFile_WithHardLine)
     ASSERT_THAT(tin.writeUGRIDFormat("netCDFTestHL"),Eq(NC_NOERR));
 }
 
-TEST_F(TinEditorTesting, readUGRIDSmallFile_WithHardLine)
+TEST_F(TinEditingTesting, readUGRIDSmallFile_WithHardLine)
 {
     ReosTin tinToRead;
 
@@ -712,7 +709,7 @@ TEST_F(TinEditorTesting, readUGRIDSmallFile_WithHardLine)
 }
 
 
-TEST_F(TinEditorTesting, flipFacesPersistentAfterSaving)
+TEST_F(TinEditingTesting, flipFacesPersistentAfterSaving)
 {
     tin.addVertex(0,0);
     auto vert2=tin.addVertex(2,2);
@@ -751,7 +748,7 @@ TEST_F(TinEditorTesting, flipFacesPersistentAfterSaving)
 
 }
 
-TEST_F(TinEditorTesting, flipFacesPersistentAfterSavingWithHardline)
+TEST_F(TinEditingTesting, flipFacesPersistentAfterSavingWithHardline)
 {
     auto vert1=tin.addVertex(0,0);
     auto vert2=tin.addVertex(2,2);
@@ -791,7 +788,3 @@ TEST_F(TinEditorTesting, flipFacesPersistentAfterSavingWithHardline)
     ASSERT_THAT(face4->isVertexContained(newVert2),Eq(true));
 
 }
-
-
-
-#endif // TST_HDMESHESEDITORTEST_H

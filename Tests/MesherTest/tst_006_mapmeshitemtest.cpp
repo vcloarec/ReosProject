@@ -1,7 +1,3 @@
-#ifndef TST_005_HDMAPMESHITEMTEST_H
-#define TST_005_HDMAPMESHITEMTEST_H
-
-
 #include <gtest/gtest.h>
 #include <gmock/gmock-matchers.h>
 
@@ -190,6 +186,3 @@ TEST_F(MeshItemTesting, associateNewMeshAfterPopulateToEditor)
 
 //}
 
-
-
-#endif // TST_005_HDMAPMESHITEMTEST_H

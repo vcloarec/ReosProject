@@ -1,7 +1,3 @@
-#ifndef TST_006_HDTINEDITORGRAPHICTEST_H
-#define TST_006_HDTINEDITORGRAPHICTEST_H
-
-
 #include <gtest/gtest.h>
 #include <gmock/gmock-matchers.h>
 
@@ -523,7 +519,3 @@ TEST_F(UIMeshEditorTesting, removeSegment)
         ASSERT_THAT(uiEditor->domain()->segmentCount(),Eq(count));
     }
 }
-
-
-
-#endif // TST_006_HDTINEDITORGRAPHICTEST_H

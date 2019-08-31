@@ -1,6 +1,3 @@
-#ifndef TST_001_HDMESHGENERATOR_H
-#define TST_001_HDMESHGENERATOR_H
-
 #pragma once
 
 #include <gtest/gtest.h>
@@ -100,7 +97,3 @@ TEST_F(MeshGeneratorTesting, VertexCount)
     ASSERT_THAT(outputMesh.verticesCount(),Eq(5));
 }
 
-
-
-
-#endif // TST_001_HDMESHGENERATOR_H

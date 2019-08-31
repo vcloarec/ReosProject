@@ -88,3 +88,30 @@ bool Vertex::isZUserDefined() const
 {
     return mZUserDefined_;
 }
+
+VertexZSpecifierSimple::VertexZSpecifierSimple(const VertexPointer associatedVertex,double z):VertexZSpecifier(associatedVertex),mZValue(z)
+{
+
+}
+
+double VertexZSpecifierSimple::getZValue() const
+{
+    return mZValue;
+}
+
+VertexZSpecifier::~VertexZSpecifier(){}
+
+VertexZSpecifierOtherVertexAndSlope::VertexZSpecifierOtherVertexAndSlope(VertexPointer associatedVertex, VertexPointer otherVertex, double slope):
+    VertexZSpecifier(associatedVertex),mOtherVertex(otherVertex),mSlope(slope)
+{
+
+}
+
+double VertexZSpecifierOtherVertexAndSlope::getZValue() const
+{
+    if(mOtherVertex)
+        return mOtherVertex->z()-mSlope*mOtherVertex->distanceFrom(*mAssociatedVertex);
+    else
+        return 0;
+
+}

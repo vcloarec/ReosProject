@@ -1,5 +1,3 @@
-#ifndef TST_HDEDITABLEMESHLAYERTEST_H
-#define TST_HDEDITABLEMESHLAYERTEST_H
 
 #include <gtest/gtest.h>
 #include <gmock/gmock-matchers.h>
@@ -152,5 +150,3 @@ TEST_F(TinLayerTesting, open)
     ASSERT_THAT(layerToRead->dataProvider()->faceCount(),Eq(2));
 }
 
-
-#endif // TST_HDEDITABLEMESHLAYERTEST_H

@@ -1,9 +1,9 @@
-#include "tst_001_hdmeshgenerator.h"
-#include "tst_002_hdmesheseditortest.h"
-#include "tst_003_meshergeneratorprovidertest.h"
-#include "tst_004_hdeditablemeshlayertest.h"
-#include "tst_005_hdtineditorgraphictest.h"
-#include "tst_006_hdmapmeshitemtest.h"
+#include "tst_001_meshgenerator.cpp"
+#include "tst_002_00_mesheseditortest.cpp"
+#include "tst_003_meshergeneratorprovidertest.cpp"
+#include "tst_004_editablemeshlayertest.cpp"
+#include "tst_005_tineditorgraphictest.cpp"
+#include "tst_006_mapmeshitemtest.cpp"
 
 #include <gtest/gtest.h>
 
