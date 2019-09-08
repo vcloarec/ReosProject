@@ -29,20 +29,25 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 
 #include "../../Reos/reosutils.h"
 
+#define INVALID_VALUE -999999;
 
-
+class VertexZSpecifier;
+class VertexZSPecifierFactory;
 
 class Vertex
 {
 public:
+    Vertex();
+
+
+    Vertex(const Vertex &other);
 
     virtual ~Vertex();
 
     virtual double x() const =0;
     virtual double y() const =0;
-    virtual double z() const=0;
+    double z();
 
-    virtual void setZValue(double ZValue)=0;
 
     void setGraphicPointer(void* pointer);
     void *graphicPointer() const;
@@ -55,9 +60,15 @@ public:
         return sqrt(pow(x()-other.x(),2)+pow(y()-other.y(),2));
     }
 
+    void setZSpecifier(const VertexZSPecifierFactory &zSpecifierFactory);
+    void setZValue(double z);
+
+    VertexZSpecifier* zSpecifier() const;
+
 private:
     void* mGraphic=nullptr;
-    bool mZUserDefined_=false;
+    bool mZUserDefined=false;
+    std::unique_ptr<VertexZSpecifier> mZSpecifier;
 
 };
 
@@ -176,7 +187,13 @@ public:
 
     }
     virtual ~VertexZSpecifier();
-    virtual double getZValue() const =0;
+
+    virtual VertexZSpecifier *clone(VertexPointer associatedVertex) const
+    {
+        return new VertexZSpecifier(associatedVertex);
+    }
+
+    virtual double getZValue() const {return 0;}
 
 protected:
     const VertexPointer mAssociatedVertex;
@@ -185,29 +202,160 @@ protected:
 class VertexZSpecifierSimple : public VertexZSpecifier
 {
 public:
-    VertexZSpecifierSimple(const VertexPointer associatedVertex):
-        VertexZSpecifier(associatedVertex){}
+    VertexZSpecifierSimple(const VertexPointer associatedVertex);
     VertexZSpecifierSimple(const VertexPointer associatedVertex,double z);
+
+    VertexZSpecifier *clone(VertexPointer associatedVertex) const override;
 
     double getZValue() const override;
 private:
     double mZValue=0;
 
+
+
 };
 
 
-class VertexZSpecifierOtherVertexAndSlope : public VertexZSpecifier
+class VertexZSpecifierDependOnOtherVertex : public VertexZSpecifier
+{
+public:
+    VertexZSpecifierDependOnOtherVertex(VertexPointer associatedVertex,VertexPointer otherVertex):
+        VertexZSpecifier (associatedVertex),mOtherVertex(otherVertex)
+    {
+
+    }
+
+
+protected:
+    VertexPointer mOtherVertex=nullptr;
+
+};
+
+class VertexZSpecifierOtherVertexAndSlope : public VertexZSpecifierDependOnOtherVertex
 {
 public:
     VertexZSpecifierOtherVertexAndSlope(VertexPointer associatedVertex,VertexPointer otherVertex,double slope);
+    VertexZSpecifier *clone(VertexPointer associatedVertex) const override;
 
     double getZValue() const override;
 
 private:
-    VertexPointer mOtherVertex=nullptr;
     double mSlope;
+
+
 };
 
+class VertexZSpecifierOtherVertexAndGap : public VertexZSpecifierDependOnOtherVertex
+{
+public:
+    VertexZSpecifierOtherVertexAndGap(VertexPointer associatedVertex,VertexPointer otherVertex,double gap);
+    VertexZSpecifier *clone(VertexPointer associatedVertex) const override;
+
+    double getZValue() const override;
+
+private:
+    double mGap;
+};
+
+
+
+
+class VertexZSPecifierFactory
+{
+public:
+    virtual ~VertexZSPecifierFactory() {}
+private:
+    virtual   VertexZSpecifier* createZSpecifier(const VertexPointer associatedVertex) const =0;
+
+    friend class Vertex;
+};
+
+class VertexZSpecifierSimpleFactory:public VertexZSPecifierFactory
+{
+public:
+    VertexZSpecifierSimpleFactory(){}
+    VertexZSpecifierSimpleFactory(double zValue):VertexZSPecifierFactory(),mZValue(zValue)
+    {
+
+    }
+
+    void setZValue(double z){mZValue=z;}
+
+private:
+    double mZValue=0;
+
+    VertexZSpecifier *createZSpecifier(const VertexPointer associatedVertex) const override
+    {
+        return new VertexZSpecifierSimple(associatedVertex,mZValue);
+    }
+};
+
+class VertexZSpecifierDependOnOtherVertexFactory:public VertexZSPecifierFactory
+{
+public:
+    VertexZSpecifierDependOnOtherVertexFactory(){}
+    VertexZSpecifierDependOnOtherVertexFactory(VertexPointer otherVertex):VertexZSPecifierFactory(),mOtherVertex(otherVertex)
+    {
+
+    }
+    virtual ~VertexZSpecifierDependOnOtherVertexFactory() {}
+
+    void setOtherVertex(VertexPointer otherVertex)
+    {
+        mOtherVertex=otherVertex;
+    }
+
+protected:
+    VertexPointer mOtherVertex=nullptr;
+
+
+};
+
+class VertexZSpecifierOtherVertexAndSlopeFactory:public VertexZSpecifierDependOnOtherVertexFactory
+{
+public:
+    VertexZSpecifierOtherVertexAndSlopeFactory(){}
+    VertexZSpecifierOtherVertexAndSlopeFactory(VertexPointer otherVertex, double slope):
+        VertexZSpecifierDependOnOtherVertexFactory(otherVertex),mSlope(slope)
+    {}
+
+    VertexZSpecifier *createZSpecifier(const VertexPointer associatedVertex) const override
+    {
+        return new VertexZSpecifierOtherVertexAndSlope(associatedVertex,mOtherVertex,mSlope);
+    }
+
+    void setSlope(double slope)
+    {
+        mSlope=slope;
+    }
+
+private:
+    double mSlope=0;
+
+};
+
+class VertexZSpecifierOtherVertexAndGapFactory:public VertexZSpecifierDependOnOtherVertexFactory
+{
+public:
+    VertexZSpecifierOtherVertexAndGapFactory(){}
+    VertexZSpecifierOtherVertexAndGapFactory(VertexPointer otherVertex, double gap):
+        VertexZSpecifierDependOnOtherVertexFactory(otherVertex),mGap(gap)
+    {}
+
+    VertexZSpecifier *createZSpecifier(const VertexPointer associatedVertex) const override
+    {
+        return new VertexZSpecifierOtherVertexAndGap(associatedVertex,mOtherVertex,mGap);
+    }
+
+    void setGap(double slope)
+    {
+        mGap=slope;
+    }
+
+private:
+    double mGap=0;
+
+};
 
 
 

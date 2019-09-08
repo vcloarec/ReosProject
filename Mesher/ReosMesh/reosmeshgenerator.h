@@ -39,18 +39,12 @@ public:
 
     double x() const {return x_;}
     double y() const {return y_;}
-    double z() const {return z_;}
 
-    void setZValue(double ZValue)
-    {
-        z_=ZValue;
-    }
 
 
 private:
     double x_=0;
     double y_=0;
-    double z_=0;
 
 };
 

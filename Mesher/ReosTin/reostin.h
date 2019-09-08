@@ -48,11 +48,8 @@ public:
 
     virtual double x() const override {return Vb::point().x();}
     virtual double y() const override {return Vb::point().y();}
-    double z() const override {return z_;}
-    void setZValue(double ZValue) override {z_=ZValue;}
 
-private:
-    double z_;
+
 };
 
 template < class Gt, typename Fb = CGAL::Constrained_triangulation_face_base_2<Gt> >

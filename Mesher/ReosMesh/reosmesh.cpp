@@ -16,7 +16,30 @@ email          : vcloarec at gmail dot com   /  projetreos at gmail dot com
 #include "reosmesh.h"
 
 
+Vertex::Vertex()
+{
+    mZSpecifier=std::make_unique<VertexZSpecifierSimple>(this);
+}
+
+Vertex::Vertex(const Vertex &other)
+{
+    mGraphic=nullptr;
+    mZUserDefined=other.mZUserDefined;
+    if (mZSpecifier)
+        mZSpecifier=std::unique_ptr<VertexZSpecifier>(mZSpecifier->clone(this));
+    else
+        mZSpecifier=std::unique_ptr<VertexZSpecifier>(nullptr);
+}
+
 Vertex::~Vertex() {}
+
+double Vertex::z() {
+    if (mZSpecifier)
+        return mZSpecifier->getZValue();
+    else {
+        return INVALID_VALUE;
+    }
+}
 
 void *Vertex::graphicPointer() const {
     return mGraphic;
@@ -81,17 +104,38 @@ void Vertex::setGraphicPointer(void *pointer)
 
 void Vertex::setZUserDefined()
 {
-    mZUserDefined_=true;
+    mZUserDefined=true;
 }
 
 bool Vertex::isZUserDefined() const
 {
-    return mZUserDefined_;
+    return mZUserDefined;
 }
+
+void Vertex::setZSpecifier(const VertexZSPecifierFactory &zSpecifierFactory)
+{
+    mZSpecifier=std::unique_ptr<VertexZSpecifier>(zSpecifierFactory.createZSpecifier(this));
+}
+
+void Vertex::setZValue(double z)
+{
+    mZSpecifier=std::make_unique<VertexZSpecifierSimple>(this,z);
+}
+
+
+VertexZSpecifier *Vertex::zSpecifier() const {return mZSpecifier.get();}
+
+VertexZSpecifierSimple::VertexZSpecifierSimple(const VertexPointer associatedVertex):
+    VertexZSpecifier(associatedVertex){}
 
 VertexZSpecifierSimple::VertexZSpecifierSimple(const VertexPointer associatedVertex,double z):VertexZSpecifier(associatedVertex),mZValue(z)
 {
 
+}
+
+VertexZSpecifier *VertexZSpecifierSimple::clone(VertexPointer associatedVertex) const
+{
+    return new VertexZSpecifierSimple(associatedVertex,mZValue);
 }
 
 double VertexZSpecifierSimple::getZValue() const
@@ -102,16 +146,41 @@ double VertexZSpecifierSimple::getZValue() const
 VertexZSpecifier::~VertexZSpecifier(){}
 
 VertexZSpecifierOtherVertexAndSlope::VertexZSpecifierOtherVertexAndSlope(VertexPointer associatedVertex, VertexPointer otherVertex, double slope):
-    VertexZSpecifier(associatedVertex),mOtherVertex(otherVertex),mSlope(slope)
+    VertexZSpecifierDependOnOtherVertex(associatedVertex,otherVertex),mSlope(slope)
 {
 
+}
+
+VertexZSpecifier *VertexZSpecifierOtherVertexAndSlope::clone(VertexPointer associatedVertex) const
+{
+    return new VertexZSpecifierOtherVertexAndSlope(associatedVertex,mOtherVertex,mSlope);
 }
 
 double VertexZSpecifierOtherVertexAndSlope::getZValue() const
 {
     if(mOtherVertex)
-        return mOtherVertex->z()-mSlope*mOtherVertex->distanceFrom(*mAssociatedVertex);
+        return mOtherVertex->z()+mSlope*mOtherVertex->distanceFrom(*mAssociatedVertex);
     else
-        return 0;
+        return INVALID_VALUE;
+
+}
+
+VertexZSpecifierOtherVertexAndGap::VertexZSpecifierOtherVertexAndGap(VertexPointer associatedVertex, VertexPointer otherVertex, double gap):
+    VertexZSpecifierDependOnOtherVertex(associatedVertex,otherVertex),mGap(gap)
+{
+
+}
+
+VertexZSpecifier *VertexZSpecifierOtherVertexAndGap::clone(VertexPointer associatedVertex) const
+{
+    return new VertexZSpecifierOtherVertexAndGap(associatedVertex,mOtherVertex,mGap);
+}
+
+double VertexZSpecifierOtherVertexAndGap::getZValue() const
+{
+    if(mOtherVertex)
+        return mOtherVertex->z()+mGap;
+    else
+        return INVALID_VALUE;
 
 }

@@ -13,6 +13,10 @@ using namespace testing;
 class VertexZValueEditingTesting:public Test{
 public:
 
+    VertexZSpecifierSimpleFactory simpleZSpecifierFactory;
+    VertexZSpecifierOtherVertexAndSlopeFactory slopeZSpecifierFactory;
+    VertexZSpecifierOtherVertexAndGapFactory gapZSpecifierFactory;
+
 };
 
 
@@ -27,25 +31,45 @@ TEST_F(VertexZValueEditingTesting, verticesDistance){
 TEST_F(VertexZValueEditingTesting, createSimpleSpecifierDefault){
 
     auto vert1=VertexBasic(0,0);
-    auto zSpecifier=std::make_unique<VertexZSpecifierSimple>(&vert1);
+    vert1.setZSpecifier(simpleZSpecifierFactory);
 
-    ASSERT_THAT(zSpecifier->getZValue(),Eq(0));
+    ASSERT_THAT(vert1.z(),Eq(0));
 }
 
 TEST_F(VertexZValueEditingTesting, createSimpleSpecifierWithValue){
 
     auto vert1=VertexBasic(0,0);
-    auto zSpecifier=std::make_unique<VertexZSpecifierSimple>(&vert1,5);
+    simpleZSpecifierFactory.setZValue(5);
+    vert1.setZSpecifier(simpleZSpecifierFactory);
 
-    ASSERT_THAT(zSpecifier->getZValue(),Eq(5));
+    ASSERT_THAT(vert1.z(),Eq(5));
 }
 
 TEST_F(VertexZValueEditingTesting, createVertexSlopeSpecifier){
 
     auto vert1=VertexBasic(0,0);
     auto vert2=VertexBasic(5,0);
-    auto zSpecifier=std::make_unique<VertexZSpecifierOtherVertexAndSlope>(&vert1,&vert2,-0.05);
 
-    ASSERT_THAT(abs(zSpecifier->getZValue()-0.25),Lt(std::numeric_limits<double>::min()));
+    simpleZSpecifierFactory.setZValue(5);
+    vert1.setZSpecifier(simpleZSpecifierFactory);
+
+    slopeZSpecifierFactory.setSlope(0.05);
+    slopeZSpecifierFactory.setOtherVertex(&vert1);
+    vert2.setZSpecifier(slopeZSpecifierFactory);
+
+    ASSERT_THAT(abs(vert2.z()-5.25),Lt(std::numeric_limits<double>::min()));
+}
+
+
+
+TEST_F(VertexZValueEditingTesting, createVertexGapSpecifier){
+
+    auto vert1=VertexBasic(0,0);
+    auto vert2=VertexBasic(5,0);
+    gapZSpecifierFactory.setGap(0.05);
+    gapZSpecifierFactory.setOtherVertex(&vert1);
+    vert2.setZSpecifier(gapZSpecifierFactory);
+
+    ASSERT_THAT(abs(vert2.z()-0.05),Lt(std::numeric_limits<double>::min()));
 }
 
