@@ -35,7 +35,7 @@ Vertex::~Vertex() {}
 
 double Vertex::z() {
     if (mZSpecifier)
-        return mZSpecifier->getZValue();
+        return mZSpecifier->zValue();
     else {
         return INVALID_VALUE;
     }
@@ -112,25 +112,39 @@ bool Vertex::isZUserDefined() const
     return mZUserDefined;
 }
 
-void Vertex::setZSpecifier(const VertexZSPecifierFactory &zSpecifierFactory)
+void Vertex::setZSpecifier(const VertexZSpecifierFactory &zSpecifierFactory)
 {
     mZSpecifier=std::unique_ptr<VertexZSpecifier>(zSpecifierFactory.createZSpecifier(this));
+    setDirty();
 }
 
 void Vertex::setZValue(double z)
 {
     mZSpecifier=std::make_unique<VertexZSpecifierSimple>(this,z);
+    setDirty();
 }
 
 
 VertexZSpecifier *Vertex::zSpecifier() const {return mZSpecifier.get();}
 
-VertexZSpecifierSimple::VertexZSpecifierSimple(const VertexPointer associatedVertex):
-    VertexZSpecifier(associatedVertex){}
-
-VertexZSpecifierSimple::VertexZSpecifierSimple(const VertexPointer associatedVertex,double z):VertexZSpecifier(associatedVertex),mZValue(z)
+void Vertex::setDirty()
 {
+    mZSpecifier->setDirty(true);
+    for (auto dv:mDependentVertices)
+        dv->setDirty();
+}
 
+VertexZSpecifierSimple::VertexZSpecifierSimple(const VertexPointer associatedVertex):
+    VertexZSpecifier(associatedVertex)
+{
+    mZValue=0;
+    mDirty=false;
+}
+
+VertexZSpecifierSimple::VertexZSpecifierSimple(const VertexPointer associatedVertex,double z):VertexZSpecifier(associatedVertex)
+{
+    mZValue=z;
+    mDirty=false;
 }
 
 VertexZSpecifier *VertexZSpecifierSimple::clone(VertexPointer associatedVertex) const
@@ -138,12 +152,40 @@ VertexZSpecifier *VertexZSpecifierSimple::clone(VertexPointer associatedVertex) 
     return new VertexZSpecifierSimple(associatedVertex,mZValue);
 }
 
-double VertexZSpecifierSimple::getZValue() const
+double VertexZSpecifierSimple::calculateZValue() const
 {
     return mZValue;
 }
 
+
+VertexZSpecifier::VertexZSpecifier(const VertexPointer associatedVertex):
+    mAssociatedVertex(associatedVertex)
+{
+
+}
+
 VertexZSpecifier::~VertexZSpecifier(){}
+
+VertexZSpecifier *VertexZSpecifier::clone(VertexPointer associatedVertex) const
+{
+    return new VertexZSpecifier(associatedVertex);
+}
+
+double VertexZSpecifier::zValue() const
+{
+    std::lock_guard<std::mutex> g(mMutex);
+    if (mDirty)
+        mZValue=calculateZValue();
+    mDirty=false;
+    return mZValue;
+}
+
+void VertexZSpecifier::setDirty(bool b)
+{
+    std::lock_guard<std::mutex> g(mMutex);
+    mDirty=b;
+}
+
 
 VertexZSpecifierOtherVertexAndSlope::VertexZSpecifierOtherVertexAndSlope(VertexPointer associatedVertex, VertexPointer otherVertex, double slope):
     VertexZSpecifierDependOnOtherVertex(associatedVertex,otherVertex),mSlope(slope)
@@ -156,14 +198,14 @@ VertexZSpecifier *VertexZSpecifierOtherVertexAndSlope::clone(VertexPointer assoc
     return new VertexZSpecifierOtherVertexAndSlope(associatedVertex,mOtherVertex,mSlope);
 }
 
-double VertexZSpecifierOtherVertexAndSlope::getZValue() const
+double VertexZSpecifierOtherVertexAndSlope::calculateZValue() const
 {
     if(mOtherVertex)
         return mOtherVertex->z()+mSlope*mOtherVertex->distanceFrom(*mAssociatedVertex);
     else
         return INVALID_VALUE;
-
 }
+
 
 VertexZSpecifierOtherVertexAndGap::VertexZSpecifierOtherVertexAndGap(VertexPointer associatedVertex, VertexPointer otherVertex, double gap):
     VertexZSpecifierDependOnOtherVertex(associatedVertex,otherVertex),mGap(gap)
@@ -176,11 +218,20 @@ VertexZSpecifier *VertexZSpecifierOtherVertexAndGap::clone(VertexPointer associa
     return new VertexZSpecifierOtherVertexAndGap(associatedVertex,mOtherVertex,mGap);
 }
 
-double VertexZSpecifierOtherVertexAndGap::getZValue() const
-{
-    if(mOtherVertex)
-        return mOtherVertex->z()+mGap;
-    else
-        return INVALID_VALUE;
 
+VertexZSpecifierDependOnOtherVertex::VertexZSpecifierDependOnOtherVertex(VertexPointer associatedVertex, VertexPointer otherVertex):
+    VertexZSpecifier (associatedVertex),mOtherVertex(otherVertex)
+{
+    if (otherVertex && associatedVertex)
+        otherVertex->addDependentVertex(associatedVertex);
+}
+
+VertexZSpecifierSimpleFactory::VertexZSpecifierSimpleFactory(double zValue):VertexZSpecifierFactory(),mZValue(zValue)
+{
+
+}
+
+VertexZSpecifier *VertexZSpecifierSimpleFactory::createZSpecifier(const VertexPointer associatedVertex) const
+{
+    return new VertexZSpecifierSimple(associatedVertex,mZValue);
 }

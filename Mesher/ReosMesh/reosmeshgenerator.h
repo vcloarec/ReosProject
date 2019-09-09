@@ -40,6 +40,12 @@ public:
     double x() const {return x_;}
     double y() const {return y_;}
 
+    void setPosition(double x, double y)
+    {
+        x_=x;
+        y_=y;
+        setDirty();
+    }
 
 
 private:

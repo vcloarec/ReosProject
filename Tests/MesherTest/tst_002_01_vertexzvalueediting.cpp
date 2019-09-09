@@ -10,66 +10,112 @@
 
 using namespace testing;
 
-class VertexZValueEditingTesting:public Test{
+class VertexZSpecifierTesting:public Test{
 public:
+
+
+    VertexBasic vert1=VertexBasic(0,0);
+    VertexBasic vert2=VertexBasic(5,0);
 
     VertexZSpecifierSimpleFactory simpleZSpecifierFactory;
     VertexZSpecifierOtherVertexAndSlopeFactory slopeZSpecifierFactory;
     VertexZSpecifierOtherVertexAndGapFactory gapZSpecifierFactory;
 
+    // Test interface
+protected:
+    void SetUp() override
+    {
+        simpleZSpecifierFactory.setZValue(5);
+        vert1.setZSpecifier(simpleZSpecifierFactory);
+    }
+
+    void TEST_createVertexSlopeSpecifier()
+    {
+        slopeZSpecifierFactory.setSlope(0.05);
+        slopeZSpecifierFactory.setOtherVertex(&vert1);
+        vert2.setZSpecifier(slopeZSpecifierFactory);
+
+        ASSERT_THAT(abs(vert2.z()-5.25),Lt(std::numeric_limits<double>::min()));
+    }
+
+    void TEST_createVertexGapSpecifier()
+    {
+        gapZSpecifierFactory.setGap(0.05);
+        gapZSpecifierFactory.setOtherVertex(&vert1);
+        vert2.setZSpecifier(gapZSpecifierFactory);
+
+        ASSERT_THAT(abs(vert2.z()-5.05),Lt(std::numeric_limits<double>::min()));
+    }
+
 };
 
 
-TEST_F(VertexZValueEditingTesting, verticesDistance){
+TEST_F(VertexZSpecifierTesting, verticesDistance){
 
-    auto vert1=VertexBasic(0,0);
-    auto vert2=VertexBasic(3,4);
+    auto vertA=VertexBasic(0,0);
+    auto vertB=VertexBasic(3,4);
 
-    ASSERT_THAT(abs(vert1.distanceFrom(vert2)-5),Lt(std::numeric_limits<double>::min()));
+    ASSERT_THAT(abs(vertA.distanceFrom(vertB)-5),Lt(std::numeric_limits<double>::min()));
 }
 
-TEST_F(VertexZValueEditingTesting, createSimpleSpecifierDefault){
+TEST_F(VertexZSpecifierTesting, createSimpleSpecifierDefault){
 
-    auto vert1=VertexBasic(0,0);
     vert1.setZSpecifier(simpleZSpecifierFactory);
 
-    ASSERT_THAT(vert1.z(),Eq(0));
+    ASSERT_THAT(vert1.z(),Eq(5));
 }
 
-TEST_F(VertexZValueEditingTesting, createSimpleSpecifierWithValue){
+TEST_F(VertexZSpecifierTesting, createSimpleSpecifierWithValue){
 
-    auto vert1=VertexBasic(0,0);
+
     simpleZSpecifierFactory.setZValue(5);
     vert1.setZSpecifier(simpleZSpecifierFactory);
 
     ASSERT_THAT(vert1.z(),Eq(5));
 }
 
-TEST_F(VertexZValueEditingTesting, createVertexSlopeSpecifier){
+TEST_F(VertexZSpecifierTesting, createVertexSlopeSpecifier){
 
-    auto vert1=VertexBasic(0,0);
-    auto vert2=VertexBasic(5,0);
+    TEST_createVertexSlopeSpecifier();
 
-    simpleZSpecifierFactory.setZValue(5);
+}
+
+TEST_F(VertexZSpecifierTesting, slopeSpecifier_changeOtherVertexZValue){
+
+    TEST_createVertexSlopeSpecifier();
+
+    simpleZSpecifierFactory.setZValue(10);
     vert1.setZSpecifier(simpleZSpecifierFactory);
 
-    slopeZSpecifierFactory.setSlope(0.05);
-    slopeZSpecifierFactory.setOtherVertex(&vert1);
-    vert2.setZSpecifier(slopeZSpecifierFactory);
+    ASSERT_THAT(abs(vert2.z()-10.25),Lt(std::numeric_limits<double>::min()));
 
-    ASSERT_THAT(abs(vert2.z()-5.25),Lt(std::numeric_limits<double>::min()));
+}
+
+TEST_F(VertexZSpecifierTesting, slopeSpecifier_changeOtherVertexPosition){
+
+    TEST_createVertexSlopeSpecifier();
+
+    vert1.setPosition(4,0);
+
+    ASSERT_THAT(abs(vert2.z()-5.05),Lt(std::numeric_limits<double>::min()));
+
+}
+
+TEST_F(VertexZSpecifierTesting, createVertexGapSpecifier){
+
+    TEST_createVertexGapSpecifier();
 }
 
 
 
-TEST_F(VertexZValueEditingTesting, createVertexGapSpecifier){
+TEST_F(VertexZSpecifierTesting, createVertexGapSpecifier_changeOtherVertexZValue){
 
-    auto vert1=VertexBasic(0,0);
-    auto vert2=VertexBasic(5,0);
-    gapZSpecifierFactory.setGap(0.05);
-    gapZSpecifierFactory.setOtherVertex(&vert1);
-    vert2.setZSpecifier(gapZSpecifierFactory);
+    TEST_createVertexGapSpecifier();
 
-    ASSERT_THAT(abs(vert2.z()-0.05),Lt(std::numeric_limits<double>::min()));
+    simpleZSpecifierFactory.setZValue(10);
+    vert1.setZSpecifier(simpleZSpecifierFactory);
+
+    ASSERT_THAT(abs(vert2.z()-10.05),Lt(std::numeric_limits<double>::min()));
 }
+
 
