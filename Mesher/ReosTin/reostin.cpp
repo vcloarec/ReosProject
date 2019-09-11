@@ -45,7 +45,7 @@ VertexPointer ReosTin::vertex(double x, double y, double tolerance) const
             it++;
         }
         if (distMin<tolerance)
-            return &(*nearerVert);
+            return nearerVert->tinVertex();//&(*nearerVert);
         else
             return nullptr;
     }
@@ -70,7 +70,7 @@ VertexPointer ReosTin::vertex(double x, double y, double tolerance) const
         }
 
         if (std::sqrt(distMin)<tolerance)
-            return &(*nearerVert);
+            return nearerVert->tinVertex();//&(*nearerVert);
 
     }
     return nullptr;
@@ -121,13 +121,25 @@ VertexPointer ReosTin::createVertex(double x, double y)
     auto v=triangulation.tds().create_vertex();
     v->set_point(CgalPoint(x,y));
 
-    return &(*v);
+    return new TINVertex(v);
+}
+
+VertexPointer ReosTin::insertVertex(double x, double y)
+{
+    CgalPoint pt(x,y);
+    auto v=triangulation.insert(pt);
+
+    return new TINVertex(v);
 }
 
 VertexPointer ReosTin::addVertex(double x, double y)
 {
+    auto vertFound=vertex(x,y);
+    if (vertFound)
+        return vertFound;
+
     auto vert= triangulation.insert(CgalPoint(x,y));
-    return &(*vert);
+    return new TINVertex(vert);//&(*vert);
 }
 
 void ReosTin::removeVertex(VertexPointer vertex)
@@ -135,17 +147,19 @@ void ReosTin::removeVertex(VertexPointer vertex)
     if (isOnHardLine(vertex))
         return;
 
-    TinTriangulation::Vertex* vt=static_cast<TinTriangulation::Vertex*>(vertex);
+    //TinTriangulation::Vertex* vt=static_cast<TinTriangulation::Vertex*>(vertex);
+    auto vert=static_cast<TINVertex*>(vertex);
+    //triangulation.remove(vt->handle());
+    triangulation.remove(vert->handle());
 
-    triangulation.remove(vt->handle());
 }
 
 std::list<VertexPointer> ReosTin::removeVertexOnHardLine(VertexPointer vertex)
 {
     std::cout<<"***************************** sub Constraint remaining "<<triangulation.number_of_subconstraints()<<std::endl;
 
-    TinTriangulation::Vertex* vt=static_cast<TinTriangulation::Vertex*>(vertex);
-
+    //TinTriangulation::Vertex* vt=static_cast<TinTriangulation::Vertex*>(vertex);
+    auto vt=static_cast<TINVertex*>(vertex);
     bool notConstrainedAnymore=false;
 
     std::list<VertexPointer> list;
@@ -212,15 +226,15 @@ std::list<VertexPointer> ReosTin::removeHardLine(VertexPointer v1, VertexPointer
     if (!isOnHardLine(v1,v2))
         return verticesList;
 
-    auto vt1=static_cast<TinTriangulation::Vertex*>(v1);
-    auto vt2=static_cast<TinTriangulation::Vertex*>(v2);
+    auto vt1=static_cast<TINVertex*>(v1);
+    auto vt2=static_cast<TINVertex*>(v2);
     auto itContext=triangulation.contexts_begin(vt1->handle(),vt2->handle());
 
     auto vcstBegin=triangulation.vertices_in_constraint_begin(itContext->id());
     auto vcstEnd=triangulation.vertices_in_constraint_end(itContext->id());
 
     for (auto v=vcstBegin;v!=vcstEnd;v++)
-        verticesList.push_back(&(*(*v)->handle()));
+        verticesList.push_back((*v)->handle()->tinVertex());
 
     triangulation.remove_constraint(itContext->id());
 
@@ -240,8 +254,8 @@ bool ReosTin::isOnHardLine(VertexPointer v1, VertexPointer v2) const
         return false;
     }
 
-    auto vertexHandle_1=static_cast<TinTriangulation::Vertex*>(v1)->handle();
-    auto vertexHandle_2=static_cast<TinTriangulation::Vertex*>(v2)->handle();
+    auto vertexHandle_1=static_cast<TINVertex*>(v1)->handle();
+    auto vertexHandle_2=static_cast<TINVertex*>(v2)->handle();
 
     auto incidentEdgesOnVertex_1=vertexHandle_1->incident_edges();
     auto initEdge=incidentEdgesOnVertex_1;
@@ -269,7 +283,7 @@ bool ReosTin::isOnHardLine(VertexPointer v1) const
         return false;
     }
 
-    auto vertexHandle_1=static_cast<TinTriangulation::Vertex*>(v1)->handle();
+    auto vertexHandle_1=static_cast<TINVertex*>(v1)->handle();
 
     auto incidentVertex=vertexHandle_1->incident_edges();
     auto initEdge=incidentVertex;
@@ -293,7 +307,7 @@ std::list<VertexPointer> ReosTin::neighboursVertices(VertexPointer vertex) const
     if (!vertex)
         return neighbours;
 
-    auto vertexHandle=static_cast<TinTriangulation::Vertex*>(vertex)->handle();
+    auto vertexHandle=static_cast<TINVertex*>(vertex)->handle();
 
     auto ce=triangulation.incident_edges(vertexHandle);
     auto initCe=ce;
@@ -302,7 +316,7 @@ std::list<VertexPointer> ReosTin::neighboursVertices(VertexPointer vertex) const
     {
         VertexHandle n=oppositeVertex(vertexHandle,(*ce));
         if (!triangulation.is_infinite(n))
-            neighbours.push_back(&(*n));
+            neighbours.push_back((*n).tinVertex());
         ce++;
     }while (ce!=initCe);
 
@@ -478,7 +492,7 @@ int ReosTin::readUGRIDFormat(std::string fileName)
     std::vector<double> nodeY(bufferSize);
     std::vector<double> nodeZ(bufferSize);
 
-    std::vector<VertexHandle> nodes(nodeCount);
+    std::vector<VertexPointer> nodes(nodeCount);
     std::vector<FaceHandle> faces(faceCount);
 
     size_t i=0;
@@ -510,21 +524,25 @@ int ReosTin::readUGRIDFormat(std::string fileName)
 
         for (size_t k=0;k<j;++k)
         {
-            CgalTriangulation::Vertex_handle v;
-            CgalPoint pt(nodeX[k],nodeY[k]);
+            //CgalTriangulation::Vertex_handle v;
+            VertexPointer vt;
             if(nodeCount<3)
             {
                 //insert point to handle with the infinite faces when there are less than 3 points;
-                v=triangulation.insert(pt);
+                //v=triangulation.insert(pt);
+                vt=insertVertex(nodeX[k],nodeY[k]);
             }
             else
             {
-                //create point to note create face for eache vertex, that will be done after
-                v=triangulation.tds().create_vertex();
-                v->set_point(pt);
+                //create point to not create face for eache vertex, that will be done after
+//                v=triangulation.tds().create_vertex();
+//                v->set_point(pt);
+                vt=createVertex(nodeX[k],nodeY[k]);
             }
-            v->setZValue(nodeZ[k]);
-            nodes[i+k]=v;
+
+
+            vt->setZValue(nodeZ[k]);
+            nodes[i+k]=vt;
         }
 
         i+=j;
@@ -567,11 +585,11 @@ int ReosTin::readUGRIDFormat(std::string fileName)
             auto f=triangulation.tds().create_face();
             for (size_t l=0;l<3;++l)
             {
-                auto v=nodes[static_cast<size_t>(faceBuffer[k*3+l])];
+                auto v=static_cast<TINVertex*>(nodes[static_cast<size_t>(faceBuffer[k*3+l])]);
                 if (v!=nullptr)
                 {
-                    f->set_vertex(int(l),v);
-                    v->set_face(f);
+                    f->set_vertex(int(l),v->handle());
+                    v->handle()->set_face(f);
                 }
             }
             faces[i+k]=f;
@@ -746,22 +764,22 @@ int ReosTin::readUGRIDFormat(std::string fileName)
 //        triangulation.insert_constraint(points.begin(),points.end());
 
 
-        // Need this implementation
+        // Need this implementation with a lot af static_cast but TINVertex* has to be replaced by VertexPointer in a futur factorization
         if (valueCount>1)
         {
-            auto v1=nodes[static_cast<size_t>(indexes[0])];
-            auto v2=nodes[static_cast<size_t>(indexes[1])];
-            auto ca=triangulation.hierarchy_ref().insert_constraint(v1,v2);
-            triangulation.insertSubconstraint(v1,v2);
+            auto v1=static_cast<TINVertex*>(nodes[static_cast<size_t>(indexes[0])]);
+            auto v2=static_cast<TINVertex*>(nodes[static_cast<size_t>(indexes[1])]);
+            auto ca=triangulation.hierarchy_ref().insert_constraint(v1->handle(),v2->handle());
+            triangulation.insertSubconstraint(v1->handle(),v2->handle());
 
             if (valueCount>2)
             {
                 for(size_t k=1;k<valueCount-1;++k)
                 {
-                    v1=nodes[static_cast<size_t>(indexes[k])];
-                    v2=nodes[static_cast<size_t>(indexes[k+1])];
-                    triangulation.hierarchy_ref().append_constraint(ca,v1,v2);
-                    triangulation.insertSubconstraint(v1,v2);
+                    v1=static_cast<TINVertex*>(nodes[static_cast<size_t>(indexes[k])]);
+                    v2=static_cast<TINVertex*>(nodes[static_cast<size_t>(indexes[k+1])]);
+                    triangulation.hierarchy_ref().append_constraint(ca,v1->handle(),v2->handle());
+                    triangulation.insertSubconstraint(v1->handle(),v2->handle());
                 }
 
             }
@@ -1133,8 +1151,10 @@ FaceHandle ReosTin::faceHandle(TinTriangulation::Face *f) const
 
 std::list<VertexPointer> ReosTin::addHardLine(VertexPointer v1, VertexPointer v2)
 {
-    auto handle_1=static_cast<TinTriangulation::Vertex*>(v1)->handle();
-    auto handle_2=static_cast<TinTriangulation::Vertex*>(v2)->handle();
+    //auto handle_1=static_cast<TinTriangulation::Vertex*>(v1)->handle();
+    //auto handle_2=static_cast<TinTriangulation::Vertex*>(v2)->handle();
+    auto handle_1=static_cast<TINVertex*>(v1)->handle();
+    auto handle_2=static_cast<TINVertex*>(v2)->handle();
 
     TinTriangulation::Constraint_id cid=triangulation.insert_constraint(handle_1,handle_2);
 
@@ -1153,14 +1173,18 @@ std::list<VertexPointer> ReosTin::addHardLine(VertexPointer v1, VertexPointer v2
          it++)
     {
         VertexHandle handle=*it;
-        constraintVertices.push_back(&(*handle));
+        //constraintVertices.push_back(&(*handle));
+        if (handle->tinVertex())
+            constraintVertices.push_back(handle->tinVertex());
+        else
+            constraintVertices.push_back(new TINVertex(handle));
     }
     return constraintVertices;
 }
 
 std::list<VertexPointer> ReosTin::hardNeighbours(VertexPointer vertex) const
 {
-    auto vertexHandle=static_cast<TinTriangulation::Vertex*>(vertex)->handle();
+    auto vertexHandle=static_cast<TINVertex*>(vertex)->handle();
 
     std::list<VertexPointer> hardNeighbours;
 
@@ -1177,7 +1201,7 @@ std::list<VertexPointer> ReosTin::hardNeighbours(VertexPointer vertex) const
         if(triangulation.is_constrained(*incidentEdges))
         {
             auto opposVertex=oppositeVertex(vertexHandle,*incidentEdges);
-            hardNeighbours.push_back(&(*opposVertex));
+            hardNeighbours.push_back(opposVertex->tinVertex());
         }
 
         incidentEdges++;
@@ -1213,9 +1237,9 @@ int TinReader::currentFaceVerticesCount() const
 
 void TinReader::readVertex(double *vert)
 {
-    vert[0]=vIt->x();
-    vert[1]=vIt->y();
-    vert[2]=vIt->z();
+    vert[0]=vIt->tinVertex()->x();
+    vert[1]=vIt->tinVertex()->y();
+    vert[2]=vIt->tinVertex()->z();
     verticesIndex[vIt->handle()]=currentVertexIndex;
     vIt++;
     currentVertexIndex++;
@@ -1223,15 +1247,15 @@ void TinReader::readVertex(double *vert)
 
 void TinReader::readOnlyVertex(double *vert)
 {
-    vert[0]=vIt->x();
-    vert[1]=vIt->y();
-    vert[2]=vIt->z();
+    vert[0]=vIt->tinVertex()->x();
+    vert[1]=vIt->tinVertex()->y();
+    vert[2]=vIt->tinVertex()->z();
     vIt++;
 }
 
 VertexPointer TinReader::readVertexPointer()
 {
-    VertexPointer vert=static_cast<TinTriangulation::Vertex*>(&(*vIt));
+    VertexPointer vert=vIt->tinVertex();
     verticesIndex[vIt->handle()]=currentVertexIndex;
     vIt++;
     currentVertexIndex++;

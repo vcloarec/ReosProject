@@ -80,6 +80,8 @@ public:
     int verticesCount() const override;
     int facesCount() const override;
 
+    void initialize(int verticesCount) override {verticesCount=1;}
+
     int index(VertexPointer v) const;
     int index(FacePointer f) const;
 
@@ -138,6 +140,11 @@ public:
     FacePointer face(double x, double y) const override {if(x>y){};return nullptr;}
 
 
+
+    // ReosMesh interface
+protected:
+    VertexPointer createVertex(double x, double y) override {x=y;return nullptr;}
+    VertexPointer insertVertex(double x, double y) override {x=y;return nullptr;}
 };
 
 
