@@ -191,15 +191,16 @@ void ReosTinEditorUi::removeVertex(VertexPointer vert)
     if (!vert)
         return;
     auto neighbours=mTIN->hardNeighbours(vert);
-    mTIN->removeVertex(vert);
+
     domain()->removeVertex(static_cast<ReosMeshItemVertex*>(vert->graphicPointer()));
     vert->setGraphicPointer(nullptr);
-    qDebug()<<"************************************** Vertex count 1 : "<<domain()->verticesCount();
+    mTIN->removeVertex(vert);
+
     for (auto n:neighbours)
     {
         updateGraphics(n);
     }
-    qDebug()<<"************************************** Vertex count 2 : "<<domain()->verticesCount();
+
 }
 
 

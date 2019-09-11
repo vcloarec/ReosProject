@@ -25,9 +25,10 @@ email                : vcloarec at gmail dot com / projetreos at gmail dot com
 template<typename T>
 class TD;
 
+class TINVertex;
 
 template < class Gt, class Vb = CGAL::Triangulation_vertex_base_2<Gt> >
-class TinCGALVertex:public Vb, public Vertex
+class TinCGALVertex:public Vb//, public Vertex
 {
     typedef Vb Base;
 public:
@@ -46,9 +47,30 @@ public:
     TinCGALVertex(const Point & p, Face_handle f) : Base(f,p) {}
     TinCGALVertex(Face_handle f) : Base(f) {}
 
-    virtual double x() const override {return Vb::point().x();}
-    virtual double y() const override {return Vb::point().y();}
+    ~TinCGALVertex()
+    {
+        if (mTINVertex)
+        {
+            delete mTINVertex;
+        }
+    }
+    //virtual double x() const override {return Vb::point().x();}
+    //virtual double y() const override {return Vb::point().y();}
 
+    VertexPointer tinVertex() const
+    {
+        return mTINVertex;
+    }
+
+    void setTinVertex(VertexPointer *vert)
+    {
+        mTINVertex=vert;
+    }
+
+private:
+    TINVertex *mTINVertex=nullptr;
+
+    friend class TINVertex;
 
 };
 
@@ -67,26 +89,19 @@ public:
     };
 
     TinCGALFace() : Base()
-    {
-
-    }
+    {}
     TinCGALFace(Vertex_handle v0,Vertex_handle v1,Vertex_handle v2)
       : Base(v0,v1,v2)
-    {
-
-    }
+    {}
     TinCGALFace(Vertex_handle v0,Vertex_handle v1,Vertex_handle v2,Face_handle n0,Face_handle n1,Face_handle n2)
       : Base(v0,v1,v2,n0,n1,n2)
-    {
-    }
+    {}
 
 
     VertexPointer vertexPointer(int i) const override;
 
 private:
     void addVertex(VertexPointer vert) override {if(vert==nullptr){};}
-
-
 
     int verticesCount() const override
     {
@@ -151,11 +166,38 @@ template<class Gt, typename Fb>
 VertexPointer TinCGALFace<Gt,Fb>::vertexPointer(int i) const
 {
     auto f=static_cast<const TinTriangulation::Face*>(self());
-    return &(*f->vertex(i));
+    return f->vertex(i)->tinVertex();
 }
 
 
 VertexHandle oppositeVertex(VertexHandle vertex, const TinTriangulation::Edge &edge);
+
+
+class TINVertex:public Vertex
+{
+public:
+    TINVertex(VertexHandle cgalVert):mCgalVertex(cgalVert)
+    {
+        cgalVert->mTINVertex=this;
+    }
+
+    // Vertex interface
+    double x() const override
+    {
+        return mCgalVertex->point().x();
+    }
+    double y() const override
+    {
+        return mCgalVertex->point().y();
+    }
+
+    VertexHandle handle() const {return mCgalVertex;}
+
+private:
+    VertexHandle mCgalVertex;
+
+};
+
 
 class TinReader:public MeshIO
 {
@@ -221,13 +263,16 @@ public:
     VertexPointer vertex(double x, double y) const override;
     FacePointer face(double x,double y) const override;
 
-    void initialize(int verticesCount); //to override
+    void initialize(int verticesCount) override ;
     void clear() override;
     void clearFaces() override {}
 
-    VertexPointer createVertex(double x,double y); //override;
+    VertexPointer createVertex(double x,double y) override;
+    VertexPointer insertVertex(double x,double y) override ;
     VertexPointer addVertex(double x, double y) override;
     int maxNodesPerFaces() const override {return 3;}
+
+
 
 
     void removeVertex(VertexPointer vertex);

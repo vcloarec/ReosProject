@@ -234,7 +234,7 @@ TEST_F(TinEditingTesting, hasHardNeighbours)
 
     auto vert=newVertices_2.begin();
     vert++;
-    std::list<VertexPointer> neighbours=tin.hardNeighbours((*vert));
+    std::list<VertexPointer> neighbours=tin.hardNeighbours(*vert);
 
     ASSERT_THAT(neighbours.size(),Eq(4));
 }

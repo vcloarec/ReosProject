@@ -158,13 +158,23 @@ public:
     virtual int verticesCount() const=0;
     virtual int facesCount() const=0;
 
+
+
     virtual VertexPointer vertex(int) const {return nullptr;}
     virtual VertexPointer vertex(double x, double y, double tolerance) const=0;
     virtual VertexPointer vertex(double x, double y) const;
     virtual FacePointer face(double x,double y) const=0;
 
+    //////////////////////////////////////////////////////
+    /// \brief clear
+    /// clear faces and vertices ni the mesh
     virtual void clear()=0;
+
+    ///////////////////////////////////////////////////////
+    /// \brief clearFaces
+    /// clear only the faces
     virtual void clearFaces()=0;
+
 
     virtual VertexPointer addVertex(double x, double y)=0;
     virtual std::list<VertexPointer> addHardLine(VertexPointer v1, VertexPointer v2)=0;
@@ -180,8 +190,36 @@ public:
     virtual int readUGRIDFormat(std::string fileName)=0;
 
     bool isDirty() const;
+
 protected:
     double mTolerance=0.01;
+
+    ///////////////////////////////////////////////
+    /// \brief initialize
+    /// Initialize the Mesh before reading from a file
+    /// \param verticesCount
+    /// The veritices count
+    ///
+    virtual void initialize(int verticesCount) =0;
+
+    //////////////////////////////////////////////////////
+    /// \brief createVertex
+    /// Create a new vertex without creating new faces. Method used when reading a file
+    /// \param x
+    /// \param y
+    /// \return
+    ///
+    virtual VertexPointer createVertex(double x,double y)=0;
+
+    //////////////////////////////////////////////////////////////
+    /// \brief insertVertex
+    /// Create a new vertex with faces. Used internally to add a vertex without control if a vertex is present at the position (x,y).
+    /// Normally, it wuold better to use the addVertex(x,y) method
+    /// \param x
+    /// \param y
+    /// \return
+    ///
+    virtual VertexPointer insertVertex(double x,double y)=0;
 
 private:
 
