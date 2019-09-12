@@ -1,5 +1,5 @@
 /***************************************************************************
-                      hdarea.cpp
+                      reosarea.cpp
                      --------------------------------------
 Date                 : 18-11-2018
 Copyright            : (C) 2018 by Vincent Cloarec
@@ -16,30 +16,30 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reosarea.h"
 
 
-HdArea::HdArea(double value, Unit unit):unit_(unit)
+ReosArea::ReosArea(double value, Unit unit):unit_(unit)
 {
 
     switch (unit_) {
-    case HdArea::m2:
+    case ReosArea::m2:
         valueM2_=value;
         break;
-    case HdArea::a:
+    case ReosArea::a:
         valueM2_=value*100;
         break;
-    case HdArea::ha:
+    case ReosArea::ha:
         valueM2_=value*10000;
         break;
-    case HdArea::km2:
+    case ReosArea::km2:
         valueM2_=value*1000000;
         break;
-    case HdArea::autoUnit:
+    case ReosArea::autoUnit:
         valueM2_=value;
         setUnitAuto();
         break;
     }
 }
 
-HdArea::HdArea(QPolygonF polygon, HdArea::Unit unit):unit_(unit)
+ReosArea::ReosArea(QPolygonF polygon, ReosArea::Unit unit):unit_(unit)
 {
     double cumul=0;
     int pointCount=polygon.count();
@@ -61,7 +61,7 @@ HdArea::HdArea(QPolygonF polygon, HdArea::Unit unit):unit_(unit)
     valueM2_=fabs(cumul/2);
 }
 
-HdArea::HdArea(const ReosEncodedElement &encodedElem)
+ReosArea::ReosArea(const ReosEncodedElement &encodedElem)
 {
     encodedElem.getData(QStringLiteral("value m2"),valueM2_);
     int u;
@@ -69,111 +69,111 @@ HdArea::HdArea(const ReosEncodedElement &encodedElem)
     unit_=static_cast<Unit>(u);
 }
 
-HdArea HdArea::operator+(const HdArea &other) const
+ReosArea ReosArea::operator+(const ReosArea &other) const
 {
-    HdArea returnValue(0,unit_);
+    ReosArea returnValue(0,unit_);
     returnValue.valueM2_=valueM2_+other.valueM2_;
 
     return returnValue;
 }
 
-HdArea HdArea::operator-(const HdArea &other) const
+ReosArea ReosArea::operator-(const ReosArea &other) const
 {
-    HdArea returnValue(0,unit_);
+    ReosArea returnValue(0,unit_);
     returnValue.valueM2_=valueM2_-other.valueM2_;
 
     return returnValue;
 }
 
-HdArea HdArea::operator*(double k) const
+ReosArea ReosArea::operator*(double k) const
 {
-    HdArea returnValue(0,unit_);
+    ReosArea returnValue(0,unit_);
     returnValue.valueM2_=valueM2_*k;
 
     return returnValue;
 }
 
-HdArea HdArea::operator*(int i) const
+ReosArea ReosArea::operator*(int i) const
 {
-    HdArea returnValue(0,unit_);
+    ReosArea returnValue(0,unit_);
     returnValue.valueM2_=valueM2_*i;
 
     return returnValue;
 }
 
-HdArea HdArea::operator/(double k) const
+ReosArea ReosArea::operator/(double k) const
 {
-    HdArea returnValue(0,unit_);
+    ReosArea returnValue(0,unit_);
     returnValue.valueM2_=valueM2_/k;
 
     return returnValue;
 }
 
-bool HdArea::operator>(const HdArea &other) const
+bool ReosArea::operator>(const ReosArea &other) const
 {
     return valueM2_>other.valueM2_;
 }
 
-bool HdArea::operator>=(const HdArea &other) const
+bool ReosArea::operator>=(const ReosArea &other) const
 {
     return this->valueM2_>=other.valueM2_;
 }
 
-bool HdArea::operator<(const HdArea &other) const
+bool ReosArea::operator<(const ReosArea &other) const
 {
     return valueM2_<other.valueM2_;
 }
 
-bool HdArea::operator<=(const HdArea &other) const
+bool ReosArea::operator<=(const ReosArea &other) const
 {
     return valueM2_<=other.valueM2_;
 }
 
-bool HdArea::operator==(const HdArea &other) const
+bool ReosArea::operator==(const ReosArea &other) const
 {
     return fabs(valueM2_-other.valueM2_)<std::numeric_limits<double>::epsilon()*fabs(valueM2_+other.valueM2_);
 }
 
-bool HdArea::operator!=(const HdArea &other) const
+bool ReosArea::operator!=(const ReosArea &other) const
 {
     return !(operator==(other));
 }
 
-double HdArea::getValeurM2() const
+double ReosArea::getValueM2() const
 {
     return valueM2_;
 }
 
-double HdArea::getValeurA() const
+double ReosArea::getValueA() const
 {
     return valueM2_/100;
 }
 
-double HdArea::getValeurHa() const
+double ReosArea::getValueHa() const
 {
     return valueM2_/10000;
 }
 
-double HdArea::getValeurKm2() const
+double ReosArea::getValuerKm2() const
 {
     return valueM2_/1000000;
 }
 
-double HdArea::getValeurInUnit(HdArea::Unit unit) const
+double ReosArea::getValueInUnit(ReosArea::Unit unit) const
 {
     double returnValue;
     switch (unit) {
-    case HdArea::m2:
-        returnValue=getValeurM2();
+    case ReosArea::m2:
+        returnValue=getValueM2();
         break;
-    case HdArea::a:
-        returnValue=getValeurA();
+    case ReosArea::a:
+        returnValue=getValueA();
         break;
-    case HdArea::ha:
-        returnValue=getValeurHa();
+    case ReosArea::ha:
+        returnValue=getValueHa();
         break;
-    case HdArea::km2:
-        returnValue=getValeurKm2();
+    case ReosArea::km2:
+        returnValue=getValuerKm2();
         break;
 
     }
@@ -181,17 +181,17 @@ double HdArea::getValeurInUnit(HdArea::Unit unit) const
     return returnValue;
 }
 
-double HdArea::getValeurInUnit() const
+double ReosArea::getValueInUnit() const
 {
-    return getValeurInUnit(unit_);
+    return getValueInUnit(unit_);
 }
 
-HdArea::Unit HdArea::getUnit() const
+ReosArea::Unit ReosArea::unit() const
 {
     return unit_;
 }
 
-QByteArray HdArea::encodage() const
+QByteArray ReosArea::encodage() const
 {
     QByteArray byteArray;
     QDataStream fluxLocal(&byteArray,QIODevice::WriteOnly);
@@ -209,7 +209,7 @@ QByteArray HdArea::encodage() const
     // 0 (qint8)
 }
 
-QByteArray HdArea::encode() const
+QByteArray ReosArea::encode() const
 {
     ReosEncodedElement encodedArea(QStringLiteral("Area"));
     encodedArea.addData(QStringLiteral("value m2"),valueM2_);
@@ -217,7 +217,7 @@ QByteArray HdArea::encode() const
     return encodedArea.encode();
 }
 
-void HdArea::setUnitAuto()
+void ReosArea::setUnitAuto()
 {
     if (valueM2_<100)
     {
@@ -241,7 +241,7 @@ void HdArea::setUnitAuto()
 
 }
 
-HdArea decodeArea(const QByteArray &byteArray)
+ReosArea decodeArea(const QByteArray &byteArray)
 {
     //******************************
     // "Area"
@@ -253,7 +253,7 @@ HdArea decodeArea(const QByteArray &byteArray)
     QString dataType;
     stream>>dataType;
     if (dataType!="Area")
-        return HdArea();
+        return ReosArea();
 
     qint8 un;
     stream>>un;
@@ -263,5 +263,5 @@ HdArea decodeArea(const QByteArray &byteArray)
     qint8 suite;
     stream>>suite;
 
-    return HdArea(val,static_cast<HdArea::Unit>(un));
+    return ReosArea(val,static_cast<ReosArea::Unit>(un));
 }

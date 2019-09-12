@@ -535,25 +535,25 @@ class ReosFormParameterSimpleArea:public ReosFormParameterSimpleUnitVariable
 {
     Q_OBJECT
 public:
-    ReosFormParameterSimpleArea(QString name, HdArea value,ReosForm* parent):ReosFormParameterSimpleUnitVariable(name,parent),
+    ReosFormParameterSimpleArea(QString name, ReosArea value,ReosForm* parent):ReosFormParameterSimpleUnitVariable(name,parent),
         value(value)
     {}
 
-    HdArea getValue() const;
-    void setValue(const HdArea &value);
+    ReosArea getValue() const;
+    void setValue(const ReosArea &value);
 
     virtual bool isDefined() const override
     {
-        return value.getValeurInUnit()>0;
+        return value.getValueInUnit()>0;
     }
 
     virtual void setUndefined() override
     {
-        value=HdArea(-1,value.getUnit());
+        value=ReosArea(-1,value.unit());
     }
 
 private:
-    HdArea value;
+    ReosArea value;
 
 
     // HdFormParameterSimpleUnitVariable interface
@@ -571,28 +571,28 @@ private:
 
     double getValueDouble() const override
     {
-        return value.getValeurInUnit();
+        return value.getValueInUnit();
     }
 
     virtual void setValueFromDouble(double d) override
     {
-        value=HdArea(d,value.getUnit());
+        value=ReosArea(d,value.unit());
     }
 
     int getCurrentUnit() const override
     {
-        return value.getUnit();
+        return value.unit();
     }
 
     virtual double getValueInUnit(int i) const override
     {
-        auto u=static_cast<HdArea::Unit>(i);
-        return value.getValeurInUnit(u);
+        auto u=static_cast<ReosArea::Unit>(i);
+        return value.getValueInUnit(u);
     }
 
     virtual void setUnit(int i) override
     {
-        value.setUnit(static_cast<HdArea::Unit>(i));
+        value.setUnit(static_cast<ReosArea::Unit>(i));
     }
 
 };

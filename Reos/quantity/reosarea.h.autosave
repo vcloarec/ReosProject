@@ -55,7 +55,7 @@ public:
 
     Unit unit() const;
 
-    QByteArray encodage() const;
+    [[deprecated]] QByteArray encodage() const;
 
     QByteArray encode() const;
 
@@ -74,6 +74,6 @@ private:
 
 
 
-ReosArea decodeArea(const QByteArray &byteArray);
+[[deprecated]] ReosArea decodeArea(const QByteArray &byteArray);
 
 #endif // REOSAREA_H

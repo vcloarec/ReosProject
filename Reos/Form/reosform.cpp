@@ -150,16 +150,16 @@ void ReosFormParameterSimpleBool::setValue(bool v)
     emit valueChanged(value);
 }
 
-HdArea ReosFormParameterSimpleArea::getValue() const
+ReosArea ReosFormParameterSimpleArea::getValue() const
 {
     return value;
 }
 
-void ReosFormParameterSimpleArea::setValue(const HdArea &v)
+void ReosFormParameterSimpleArea::setValue(const ReosArea &v)
 {
     value = v;
     emit valueChanged(getStringValue());
-    emit unitChange(value.getUnit());
+    emit unitChange(value.unit());
 
 }
 
