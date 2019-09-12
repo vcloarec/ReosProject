@@ -20,6 +20,7 @@ public:
     VertexZSpecifierSimpleFactory simpleZSpecifierFactory;
     VertexZSpecifierOtherVertexAndSlopeFactory slopeZSpecifierFactory;
     VertexZSpecifierOtherVertexAndGapFactory gapZSpecifierFactory;
+    VertexZSpecifierInterpolationFactory interpolationZSpecifierFactory;
 
     // Test interface
 protected:
@@ -45,6 +46,11 @@ protected:
         vert2.setZSpecifier(gapZSpecifierFactory);
 
         ASSERT_THAT(abs(vert2.z()-5.05),Lt(std::numeric_limits<double>::min()));
+    }
+
+    void TEST_createVertexInterpolationSpecifier()
+    {
+        interpolationZSpecifierFactory.setExtremitiesVertices(&vert1,&vert2);
     }
 
 };
@@ -105,7 +111,6 @@ TEST_F(VertexZSpecifierTesting, createVertexGapSpecifier){
 
     TEST_createVertexGapSpecifier();
 }
-
 
 
 TEST_F(VertexZSpecifierTesting, createVertexGapSpecifier_changeOtherVertexZValue){

@@ -114,7 +114,7 @@ bool Vertex::isZUserDefined() const
 
 void Vertex::setZSpecifier(const VertexZSpecifierFactory &zSpecifierFactory)
 {
-    mZSpecifier=std::unique_ptr<VertexZSpecifier>(zSpecifierFactory.createZSpecifier(this));
+    mZSpecifier=zSpecifierFactory.createZSpecifier(this);
     setDirty();
 }
 
@@ -231,7 +231,38 @@ VertexZSpecifierSimpleFactory::VertexZSpecifierSimpleFactory(double zValue):Vert
 
 }
 
-VertexZSpecifier *VertexZSpecifierSimpleFactory::createZSpecifier(const VertexPointer associatedVertex) const
+std::unique_ptr<VertexZSpecifier> VertexZSpecifierSimpleFactory::createZSpecifier(const VertexPointer associatedVertex) const
 {
-    return new VertexZSpecifierSimple(associatedVertex,mZValue);
+    return std::make_unique<VertexZSpecifierSimple>(associatedVertex,mZValue);
+}
+
+VertexZSpecifierInterpolationFactory::VertexZSpecifierInterpolationFactory() {}
+
+VertexZSpecifierInterpolationFactory::VertexZSpecifierInterpolationFactory(VertexPointer firstVertex, VertexPointer secondVertex, bool hvf, bool hvs):
+    VertexZSpecifierFactory(),mFirstVertex(firstVertex),mSecondVertex(secondVertex),mHardVertexFirst(hvf),mHardVertexSecond(hvs)
+{
+
+}
+
+void VertexZSpecifierInterpolationFactory::setExtremitiesVertices(VertexPointer firstVertex, VertexPointer secondVertex)
+{
+    mFirstVertex=firstVertex;
+    mSecondVertex=secondVertex;
+    mHardVertexFirst=true;
+    mHardVertexSecond=true;
+}
+
+void VertexZSpecifierInterpolationFactory::setHardVertexFirst(bool b)
+{
+    mHardVertexFirst=b;
+}
+
+void VertexZSpecifierInterpolationFactory::setHardVertexSecond(bool b)
+{
+    mHardVertexSecond=b;
+}
+
+std::unique_ptr<VertexZSpecifier> VertexZSpecifierInterpolationFactory::createZSpecifier(const VertexPointer associatedVertex) const
+{
+    return std::make_unique<VertexZSpecifierInterpolation>(associatedVertex,mFirstVertex,mSecondVertex,mHardVertexFirst,mHardVertexSecond);
 }
