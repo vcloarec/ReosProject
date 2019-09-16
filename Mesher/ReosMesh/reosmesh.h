@@ -191,6 +191,23 @@ public:
 
     bool isDirty() const;
 
+    //////////////////////////////////////////////////////
+    /// \brief crs
+    /// \return
+    ///
+    /// EPSG:code
+    std::string crs() const {return mCrs;}
+    void setCrs(int EPSG_code)
+    {
+        mCrs="EPSG:";
+        mCrs.append(std::to_string(EPSG_code));
+    }
+
+    void setCrs(std::string crsStr)
+    {
+        mCrs=crsStr;
+    }
+
 protected:
     double mTolerance=0.01;
 
@@ -224,7 +241,7 @@ protected:
 private:
 
     bool mDirty=false;
-
+    std::string mCrs;
 
 };
 

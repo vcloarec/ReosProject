@@ -152,6 +152,10 @@ void TINProvider::populateMesh(QgsMesh *mesh) const
 
 }
 
+QgsCoordinateReferenceSystem TINProvider::crs() const {
+    return QgsCoordinateReferenceSystem(mTin.crs().c_str());
+}
+
 QgsRectangle TINProvider::extent() const {
     if (faceCount()==0)
         return QgsRectangle();

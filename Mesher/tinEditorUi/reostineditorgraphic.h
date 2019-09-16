@@ -191,6 +191,8 @@ public:
     void doCommand(ReosTinUndoCommandFlipFaces *command);
     void undoCommand(ReosTinUndoCommandFlipFaces *command);
 
+    void newTin(const QString &fileName, const QString &name,const QgsCoordinateReferenceSystem &crs);
+
 
 public slots:
     void startNewVertex();
@@ -248,6 +250,7 @@ private: //method
     void updateMesh();
     void enableEditAction(bool enable);
     void newTinLayer();
+
 
     void widgetClosed();
 

@@ -100,6 +100,8 @@ ReosTinEditorUi::ReosTinEditorUi(HdManagerSIG *gismanager, QObject *parent):Reos
 
     connect(uiDialog,&HdTinEditorUiDialog::closed,this,&ReosTinEditorUi::widgetClosed);
     connect(uiDialog,&HdTinEditorUiDialog::escapePressed,mMap,&ReosMap::stopMapTool);
+
+    gismanager->setCRS(QgsCoordinateReferenceSystem());
 }
 
 void ReosTinEditorUi::setMeshLayer(QgsMeshLayer *meshLayer)
@@ -714,20 +716,26 @@ void ReosTinEditorUi::newTinLayer()
     auto dial=new HdTinEditorNewDialog(mMap->getMapCanvas());
     if (dial->exec())
     {
-        QFileInfo fileInfo(dial->fileName());
-        if (fileInfo.exists())
-            QFile::remove(dial->fileName());
-
-        auto layer=new QgsMeshLayer(dial->fileName(),dial->name(),"TIN");
-
-        layer->setCrs(dial->crs());
-        if (layer->isValid())
-        {
-            mGisManager->addLayer(layer);
-            setMeshLayer(layer);
-        }
+        newTin(dial->fileName(),dial->name(),dial->crs());
     }
 
+}
+
+void ReosTinEditorUi::newTin(const QString &fileName, const QString &name,const QgsCoordinateReferenceSystem &crs)
+{
+    QFileInfo fileInfo(fileName);
+    if (fileInfo.exists())
+        QFile::remove(fileName);
+
+    TINProvider::createEmptyTIN(fileName,crs);
+
+    auto layer=new QgsMeshLayer(fileName,name,"TIN");
+
+    if (layer->isValid())
+    {
+        mGisManager->addLayer(layer);
+        setMeshLayer(layer);
+    }
 }
 
 bool ReosTinEditorUi::openTin()

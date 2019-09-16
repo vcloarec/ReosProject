@@ -57,7 +57,7 @@ public:
     //virtual double x() const override {return Vb::point().x();}
     //virtual double y() const override {return Vb::point().y();}
 
-    VertexPointer tinVertex() const
+    TINVertex * tinVertex()
     {
         return mTINVertex;
     }
@@ -73,6 +73,8 @@ private:
     friend class TINVertex;
 
 };
+
+
 
 template < class Gt, typename Fb = CGAL::Constrained_triangulation_face_base_2<Gt> >
 class TinCGALFace:public Fb, public Face
@@ -114,8 +116,6 @@ private:
     }
 
 };
-
-
 
 
 /////////////////////////////////
@@ -161,25 +161,12 @@ typedef  TinTriangulation::Constraint_iterator ConstraintIterator;
 typedef TinTriangulation::Point CgalPoint;
 
 
-
-template<class Gt, typename Fb>
-VertexPointer TinCGALFace<Gt,Fb>::vertexPointer(int i) const
-{
-    auto f=static_cast<const TinTriangulation::Face*>(self());
-    return f->vertex(i)->tinVertex();
-}
-
-
 VertexHandle oppositeVertex(VertexHandle vertex, const TinTriangulation::Edge &edge);
-
 
 class TINVertex:public Vertex
 {
 public:
-    TINVertex(VertexHandle cgalVert):mCgalVertex(cgalVert)
-    {
-        cgalVert->mTINVertex=this;
-    }
+    TINVertex(VertexHandle cgalVert);
 
     // Vertex interface
     double x() const override
@@ -197,6 +184,14 @@ private:
     VertexHandle mCgalVertex;
 
 };
+
+template<class Gt, typename Fb>
+VertexPointer TinCGALFace<Gt,Fb>::vertexPointer(int i) const
+{
+    auto f=static_cast<const TinTriangulation::Face*>(self());
+    return f->vertex(i)->tinVertex();
+}
+
 
 
 class TinReader:public MeshIO

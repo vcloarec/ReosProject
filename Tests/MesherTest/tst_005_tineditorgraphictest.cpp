@@ -52,6 +52,11 @@ public:
         return uiEditor->mTIN->facesCount();
     }
 
+    QgsDataProvider *getProvider()
+    {
+        return uiEditor->mMeshLayer->dataProvider();
+    }
+
     bool reloadMeshLayer()
     {
         try
@@ -63,6 +68,25 @@ public:
         {
             return false;
         }
+    }
+
+    void TEST_NEW_TIN(QString fileName)
+    {
+
+        QFileInfo fileInfo(fileName);
+
+        if (fileInfo.exists())
+        {
+            QFile file(fileName);
+            file.remove();
+        }
+
+        QgsCoordinateReferenceSystem crs("EPSG:32620");
+        ASSERT_TRUE(crs.isValid());
+
+        uiEditor->newTin(fileName,"tin",crs);
+
+        ASSERT_THAT(uiEditor->domain()->verticesCount(),0);
     }
 
     // Test interface
@@ -88,17 +112,17 @@ protected:
 };
 
 
+TEST_F(UIMeshEditorTesting, newTIN)
+{
+    TEST_NEW_TIN("TinUi.tin");
+}
+
+
 TEST_F(UIMeshEditorTesting, saveTIN)
 {
-    QFileInfo fileInfo("TinUi.tin");
 
-    if (fileInfo.exists())
-    {
-        QFile file("TinUi.tin");
-        file.remove();
-    }
+    TEST_NEW_TIN("TinUi.tin");
 
-    uiEditor->setMeshLayer(new QgsMeshLayer("TinUi.tin","Mesh editable","TIN"));
 
     uiEditor->newVertex(QPointF(2,10));
     uiEditor->newVertex(QPointF(4,10));
@@ -132,6 +156,8 @@ TEST_F(UIMeshEditorTesting, openTIN)
     ASSERT_THAT(editorFaceCount(),Eq(2));
 
     ASSERT_TRUE(reloadMeshLayer());
+
+    ASSERT_THAT(getProvider()->crs(),Eq(QgsCoordinateReferenceSystem("EPSG:32620")));
 
 }
 

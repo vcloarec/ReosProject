@@ -28,8 +28,10 @@ intersect2D::intersect2D(QPointF S1p1, QPointF S1p2, QPointF S2p1, QPointF S2p2)
         r=(numerateur_r/denominateur);
         s=(numerateur_s/denominateur);
     }
-
-
+    else {
+        r=1e99;
+        s=1e99;
+    }
 }
 
 bool intersect2D::isIntersectSegmentExist(){

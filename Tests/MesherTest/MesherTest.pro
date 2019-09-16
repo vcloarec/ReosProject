@@ -22,7 +22,6 @@ CONFIG += console
 CONFIG -= app_bundle
 CONFIG += thread
 CONFIG +=C++14
-#CONFIG -= qt
 
 HEADERS += \
     ../../GIS/reosmapitem.h \

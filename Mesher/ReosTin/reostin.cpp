@@ -458,6 +458,31 @@ int ReosTin::readUGRIDFormat(std::string fileName)
 
     initialize(int(nodeCount));
 
+    //read coordinate system
+    std::string coordinateSystemVariableName("Coordinate system");
+    int ncCRSVariableId;
+    error=nc_inq_varid(ncId,coordinateSystemVariableName.c_str(),&ncCRSVariableId);
+    if (error!=NC_NOERR)
+    {
+        nc_close(ncId);
+        return error;
+    }
+
+    size_t len;
+    error=nc_inq_attlen( ncId, ncCRSVariableId,"wkt", &len ) ;
+    if (error)
+    {
+        nc_close(ncId);
+        return error;
+    }
+
+    char *strCRS=static_cast<char *>( malloc( len + 1 ) );
+
+    error=nc_get_att(ncId,ncCRSVariableId,"wkt",strCRS);
+    strCRS[len]='\0';
+
+    setCrs(std::string(strCRS));
+
     //read nodes
     std::string meshNodeXVariableName("TIN_node_x");
     std::string meshNodeYVariableName("TIN_node_y");
@@ -803,6 +828,9 @@ int ReosTin::writeUGRIDFormat(std::string fileName)
     int ncId;
     int error;
 
+    if (fileName.empty())
+        return 1;
+
     error=nc_create(fileName.c_str(),NC_CLOBBER|NC_NETCDF4,&ncId);
     if (error!=NC_NOERR)
         return error;
@@ -813,6 +841,7 @@ int ReosTin::writeUGRIDFormat(std::string fileName)
     std::string meshNodeYVariableName("TIN_node_y");
     std::string meshNodeZVariableName("TIN_altitude");
     std::string meshFaceNodeConnectivity("TIN_face_node_connectivity");
+    std::string coordinateSystemVariableName("Coordinate system");
 
     //***********************************
     //define dimensions
@@ -857,6 +886,22 @@ int ReosTin::writeUGRIDFormat(std::string fileName)
         return error;
     }
 
+    //define variable for coordinate system
+    int ncIdCRSVariable;
+    error=nc_def_var(ncId,coordinateSystemVariableName.c_str(),NC_BYTE,0,nullptr,&ncIdCRSVariable);
+    if (error!=NC_NOERR)
+    {
+        nc_close(ncId);
+        return error;
+    }
+
+    const char* crsChar=crs().c_str();
+    error=nc_put_att_text(ncId,ncIdCRSVariable,"wkt",std::strlen(crsChar),crsChar);
+    if (error!=NC_NOERR)
+    {
+        nc_close(ncId);
+        return error;
+    }
 
     //define the dummy variable
     int ncIdMesh;
@@ -916,8 +961,22 @@ int ReosTin::writeUGRIDFormat(std::string fileName)
         return error;
     }
 
+    error=nc_put_att_text(ncId,ncNodeXVariableId,"grid_mapping",coordinateSystemVariableName.size(),coordinateSystemVariableName.c_str());
+    if (error!=NC_NOERR)
+    {
+        nc_close(ncId);
+        return error;
+    }
+
     int ncNodeYVariableId;
     error=nc_def_var(ncId,meshNodeYVariableName.c_str(),NC_DOUBLE,1,&ncIdDimensionMeshNode,&ncNodeYVariableId);
+    if (error!=NC_NOERR)
+    {
+        nc_close(ncId);
+        return error;
+    }
+
+    error=nc_put_att_text(ncId,ncNodeYVariableId,"grid_mapping",coordinateSystemVariableName.size(),coordinateSystemVariableName.c_str());
     if (error!=NC_NOERR)
     {
         nc_close(ncId);
@@ -1434,4 +1493,9 @@ VertexHandle oppositeVertex(VertexHandle vertex, const TinTriangulation::Edge &e
     }
 
     return oppositeVertexHandle;
+}
+
+TINVertex::TINVertex(VertexHandle cgalVert):mCgalVertex(cgalVert)
+{
+    cgalVert->mTINVertex=this;
 }

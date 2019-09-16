@@ -50,10 +50,6 @@ public:
         {
             mTin.readUGRIDFormat(path.toStdString());
         }
-        else {
-            if (path!="")
-                mTin.writeUGRIDFormat(path.toStdString());
-        }
     }
 
     ReosTin *tin()
@@ -61,7 +57,18 @@ public:
         return &mTin;
     }
 
+    void setCrs(QgsCoordinateReferenceSystem crs)
+    {
+        QString strCrs=crs.toWkt();
+        mTin.setCrs(strCrs.toStdString());
+    }
 
+    static void createEmptyTIN(QString filePath,QgsCoordinateReferenceSystem crs)
+    {
+        ReosTin tin;
+        tin.setCrs(crs.authid().toStdString());
+        tin.writeUGRIDFormat(filePath.toStdString());
+    }
 
 private:
     ReosTin mTin;
@@ -88,7 +95,7 @@ public:
 
     // QgsDataProvider interface
 public:
-    QgsCoordinateReferenceSystem crs() const override {return QgsCoordinateReferenceSystem();}
+    QgsCoordinateReferenceSystem crs() const override;
     QgsRectangle extent() const override;
     bool isValid() const override {return true;}
     QString name() const override {return QStringLiteral("TIN");}

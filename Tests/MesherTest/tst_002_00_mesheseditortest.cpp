@@ -550,6 +550,8 @@ TEST_F(TinEditingTesting, writeUGRIDSmallFile)
     tin.addVertex(3,0);
     tin.addVertex(5,2);
 
+    tin.setCrs("EPSG:32620");
+
     ASSERT_THAT(tin.verticesCount(),Eq(4));
     ASSERT_THAT(tin.facesCount(),Eq(2));
 
@@ -563,8 +565,10 @@ TEST_F(TinEditingTesting, readUGRIDSmallFile)
 
     ASSERT_THAT(tinToRead.readUGRIDFormat("netCDFTest"),Eq(NC_NOERR));
 
-    ASSERT_THAT(tinToRead.verticesCount(),Eq(4));
-    ASSERT_THAT(tinToRead.facesCount(),Eq(2));
+    EXPECT_THAT(tinToRead.verticesCount(),Eq(4));
+    EXPECT_THAT(tinToRead.facesCount(),Eq(2));
+
+    EXPECT_THAT(tinToRead.crs(),Eq("EPSG:32620"));
 }
 
 TEST_F(TinEditingTesting, writeUGRIDBigFile)

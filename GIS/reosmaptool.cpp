@@ -309,6 +309,7 @@ void HdMapToolLinearDrawing::setSecondaryStrokeColor(QColor col)
 bool HdMapToolLinearDrawing::control()
 {
     QgsPolylineXY poly;
+    int segmentToTst=0;
     if (rubberBand->asGeometry().type()==QgsWkbTypes::PolygonGeometry)
     {
         poly=rubberBand->asGeometry().asPolygon().at(0);
@@ -316,26 +317,36 @@ bool HdMapToolLinearDrawing::control()
             poly.removeLast();
         if (!poly.isEmpty())
             poly.removeLast();
+
+        if (poly.count()<3)
+        {
+            setInvalid(true);
+            return false;
+        }
+        segmentToTst=poly.count();
     }
 
     if (rubberBand->asGeometry().type()==QgsWkbTypes::LineGeometry)
     {
         poly=rubberBand->asGeometry().asPolyline();
-    }
+        if (!poly.isEmpty())
+            poly.removeLast();
 
-    if (poly.count()<3)
-    {
-        setInvalid(true);
-        return false;
-    }
+        if (poly.count()<2)
+        {
+            setInvalid(true);
+            return false;
+        }
 
+        segmentToTst=poly.count()-1;
+    }
 
     bool intersect=false;
     int i=0;
-    while ((!intersect)&&(i<poly.count()))
+    while ((!intersect)&&(i<segmentToTst-1))
     {
-        int j=0;
-        while ((!intersect)&&(j<poly.count()))
+        int j=i+1;
+        while ((!intersect)&&(j<segmentToTst))
         {
             int pt1_1=i;
             int pt1_2=(i+1)%poly.count();
@@ -345,6 +356,7 @@ bool HdMapToolLinearDrawing::control()
             {
                 intersect2D intersection(poly.at(pt1_1).toQPointF(),poly.at(pt1_2).toQPointF(),
                                          poly.at(pt2_1).toQPointF(),poly.at(pt2_2).toQPointF());
+
                 intersect=intersection.isIntersectSegmentExist();
             }
             ++j;

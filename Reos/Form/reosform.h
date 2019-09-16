@@ -26,8 +26,8 @@ email                :   projetreos@gmail.com
 #include <QAction>
 #include <QToolButton>
 
-#include "../Quantity/reosarea.h"
-#include "../Quantity/reosduration.h"
+#include "../quantity/reosarea.h"
+#include "../quantity/reosduration.h"
 
 class ReosForm;
 class ReosFormParameterSimpleBool;
