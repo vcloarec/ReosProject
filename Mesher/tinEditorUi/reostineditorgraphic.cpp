@@ -15,7 +15,7 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 
 #include "reostineditorgraphic.h"
 
-ReosTinEditorUi::ReosTinEditorUi(HdManagerSIG *gismanager, QObject *parent):ReosModule(parent),
+ReosTinEditorUi::ReosTinEditorUi(ReosGisManager *gismanager, QObject *parent):ReosModule(parent),
     mDomain(new ReosMapMeshEditorItemDomain(this,gismanager->getMap()->getMapCanvas())),
     mGisManager(gismanager),
     mMap(gismanager->getMap()),
@@ -74,6 +74,8 @@ ReosTinEditorUi::ReosTinEditorUi(HdManagerSIG *gismanager, QObject *parent):Reos
     uiDialog=new HdTinEditorUiDialog(mMap->getMapCanvas());
     uiDialog->setActions(getActions());
 
+    connect(mGisManager,&ReosGisManager::mapCrsChanged,this,&ReosTinEditorUi::mapCrsChanged);
+
     connect(actionNewTinLayer,&QAction::triggered,this,&ReosTinEditorUi::newTinLayer);
     connect(actionOpenTinLayer,&QAction::triggered,this,&ReosTinEditorUi::openTin);
     connect(actionSaveTinLayer,&QAction::triggered,this,&ReosTinEditorUi::saveTin);
@@ -94,9 +96,9 @@ ReosTinEditorUi::ReosTinEditorUi(HdManagerSIG *gismanager, QObject *parent):Reos
 
     connect(actionFlipFaces,&QAction::triggered,this,&ReosTinEditorUi::startFlipFaces);
 
-    connect(gismanager,&HdManagerSIG::currentLayerChanged,this,&ReosTinEditorUi::currentLayerChanged);
-    connect(gismanager,&HdManagerSIG::layerHasToBeUpdated,this,&ReosTinEditorUi::layerHasToBeUpdated);
-    connect(gismanager,&HdManagerSIG::layerHasToBeRemoved,this,&ReosTinEditorUi::layerHasToBeRemoved);
+    connect(gismanager,&ReosGisManager::currentLayerChanged,this,&ReosTinEditorUi::currentLayerChanged);
+    connect(gismanager,&ReosGisManager::layerHasToBeUpdated,this,&ReosTinEditorUi::layerHasToBeUpdated);
+    connect(gismanager,&ReosGisManager::layerHasToBeRemoved,this,&ReosTinEditorUi::layerHasToBeRemoved);
 
     connect(uiDialog,&HdTinEditorUiDialog::closed,this,&ReosTinEditorUi::widgetClosed);
     connect(uiDialog,&HdTinEditorUiDialog::escapePressed,mMap,&ReosMap::stopMapTool);
@@ -129,7 +131,10 @@ VertexPointer ReosTinEditorUi::realWorldVertex(const QPointF &mapPoint) const
     if (!mTIN)
         return nullptr;
 
-    QPointF meshPoint=meshCoordinates(mapPoint);
+    bool ok;
+    QPointF meshPoint=meshCoordinates(mapPoint,ok);
+    if (!ok)
+        return nullptr;
     return mTIN->vertex(meshPoint.x(),meshPoint.y());
 }
 
@@ -144,8 +149,10 @@ QList<QPointF> ReosTinEditorUi::mapFace(const QPointF &mapPoint) const
     for (int i=0;i<face->verticesCount();++i)
     {
         VertexPointer v=face->vertexPointer(i);
-        QPointF mp=mapCoordinates(QPointF(v->x(),v->y()));
-        vertices.append(mp);
+        bool ok;
+        QPointF mp=mapCoordinates(QPointF(v->x(),v->y()),ok);
+        if (ok)
+            vertices.append(mp);
     }
 
     return vertices;
@@ -156,7 +163,10 @@ FacePointer ReosTinEditorUi::realWorldFace(const QPointF &mapPoint) const
     if (!mTIN)
         return nullptr;
 
-    QPointF meshPoint=meshCoordinates(mapPoint);
+    bool ok;
+    QPointF meshPoint=meshCoordinates(mapPoint,ok);
+    if (!ok)
+        return nullptr;
     return mTIN->face(meshPoint.x(),meshPoint.y());
 }
 
@@ -171,7 +181,10 @@ VertexPointer ReosTinEditorUi::addRealWorldVertex(const QPointF &mapPoint, doubl
 
     if (mTIN)
     {
-        QPointF p=meshCoordinates(mapPoint);
+        bool ok;
+        QPointF p=meshCoordinates(mapPoint,ok);
+        if (!ok)
+            return nullptr;
         vert=mTIN->addVertex(p.x(),p.y());
         vert->setZValue(z);
         vert->setZUserDefined();
@@ -383,7 +396,6 @@ void ReosTinEditorUi::newVertex(const QPointF &mapPoint)
 {
     uiDialog->setLineEditFocus();
 
-
     if (!mTIN || realWorldVertex(mapPoint))
         return;
 
@@ -417,7 +429,10 @@ void ReosTinEditorUi::removeVertexFromRect(const QRectF &selectionZone)
         }
         else
         {
-            QPointF mapPoint=mapCoordinates(QPointF(realWorldVertex->x(),realWorldVertex->y()));
+            bool ok;
+            QPointF mapPoint=mapCoordinates(QPointF(realWorldVertex->x(),realWorldVertex->y()),ok);
+            if (!ok)
+                return;
             ReosTinUndoCommandRemoveVertex* command=new ReosTinUndoCommandRemoveVertex(this,mapPoint);
             newCommand(command);
         }
@@ -433,8 +448,12 @@ void ReosTinEditorUi::removeSegmentFromRect(const QRectF &selectionZone)
         VertexPointer v1=seg->vertex1()->realWorldVertex();
         VertexPointer v2=seg->vertex2()->realWorldVertex();
 
-        QPointF mapPoint1=mapCoordinates(QPointF(v1->x(),v1->y()));
-        QPointF mapPoint2=mapCoordinates(QPointF(v2->x(),v2->y()));
+        bool ok1,ok2;
+        QPointF mapPoint1=mapCoordinates(QPointF(v1->x(),v1->y()),ok1);
+        QPointF mapPoint2=mapCoordinates(QPointF(v2->x(),v2->y()),ok2);
+
+        if (!ok1 || !ok2)
+            return;
 
         auto command= new ReosTinUndoCommandRemoveHardLine(this,mapPoint1,mapPoint2);
         newCommand(command);
@@ -464,7 +483,10 @@ void ReosTinEditorUi::newSegment(ReosMeshItemVertex *firstVertex, const QPointF 
     if (!mTIN)
         return;
 
-    QPointF mapPointFirst=mapCoordinates(QPointF(firstVertex->realWorldVertex()->x(),firstVertex->realWorldVertex()->y()));
+    bool ok;
+    QPointF mapPointFirst=mapCoordinates(QPointF(firstVertex->realWorldVertex()->x(),firstVertex->realWorldVertex()->y()),ok);
+    if (!ok)
+        return;
     auto command=new ReosTinUndoCommandNewSegmentWithNewSecondVertex(this,mapPointFirst,secondMapPoint,zValue(secondMapPoint));
     newCommand(command);
 }
@@ -557,7 +579,10 @@ void ReosTinEditorUi::addSegment(VertexPointer v1, VertexPointer v2, QList<Point
     {
         if(vert->graphicPointer()==nullptr)
         {
-            QPointF mapPoint=mapCoordinates(QPointF(vert->x(),vert->y()));
+            bool ok;
+            QPointF mapPoint=mapCoordinates(QPointF(vert->x(),vert->y()),ok);
+            if (!ok)
+                return;
             vert->setZValue(zValue(mapPoint));
         }
     }
@@ -674,6 +699,12 @@ void ReosTinEditorUi::layerHasToBeRemoved(QgsMapLayer *layer)
         mUndoStacks.remove(tin);
 
     }
+}
+
+void ReosTinEditorUi::mapCrsChanged(const QgsCoordinateReferenceSystem &crs)
+{
+    if (mMeshLayer)
+        mTransform.reset(new QgsCoordinateTransform(mMeshLayer->dataProvider()->crs(),crs,QgsProject::instance()));
 }
 
 double ReosTinEditorUi::zValue(const QPointF &p)
@@ -799,18 +830,42 @@ void ReosTinEditorUi::setNoneMode()
     uiDialog->setZValueMode(zValueMode);
 }
 
-QPointF ReosTinEditorUi::mapCoordinates(const QPointF &meshCoordinate) const
+QPointF ReosTinEditorUi::mapCoordinates(const QPointF &meshCoordinate, bool &ok) const
 {
+    ok=true;
     if (mTransform)
-        return mTransform->transform(meshCoordinate.x(),meshCoordinate.y(),QgsCoordinateTransform::ForwardTransform).toQPointF();
+    {
+        try {
+            return mTransform->transform(meshCoordinate.x(),meshCoordinate.y(),QgsCoordinateTransform::ForwardTransform).toQPointF();
+        } catch (QgsCsException &except) {
+            QString message=tr("Error when transforming coordinate");
+            message.append("/n");
+            message.append(except.what());
+            QMessageBox::critical(mGisManager->getMap()->getMapCanvas(),tr("Coordinate transform"),tr("Error when transforming coordinate"));
+            ok=false;
+            return QPointF();
+        }
+    }
     else
         return meshCoordinate;
 }
 
-QPointF ReosTinEditorUi::meshCoordinates(const QPointF &mapCoordinate) const
+QPointF ReosTinEditorUi::meshCoordinates(const QPointF &mapCoordinate, bool &ok) const
 {
+    ok=true;
     if (mTransform)
-        return mTransform->transform(mapCoordinate.x(),mapCoordinate.y(),QgsCoordinateTransform::ReverseTransform).toQPointF();
+    {
+         try {
+             return mTransform->transform(mapCoordinate.x(),mapCoordinate.y(),QgsCoordinateTransform::ReverseTransform).toQPointF();
+        } catch (QgsCsException &except) {
+            QString message=tr("Error when transforming coordinate");
+            message.append("/n");
+            message.append(except.what());
+            QMessageBox::critical(mGisManager->getMap()->getMapCanvas(),tr("Coordinate transform"),tr("Error when transforming coordinate"));
+            ok=false;
+            return QPointF();
+        }
+    }
     else
         return mapCoordinate;
 }

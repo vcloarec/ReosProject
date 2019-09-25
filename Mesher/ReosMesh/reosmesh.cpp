@@ -127,6 +127,11 @@ void Vertex::setZValue(double z)
 
 VertexZSpecifier *Vertex::zSpecifier() const {return mZSpecifier.get();}
 
+VertexZSpecifier *Vertex::releaseZSpecifier()
+{
+    return mZSpecifier.release();
+}
+
 void Vertex::setDirty()
 {
     mZSpecifier->setDirty(true);
@@ -152,11 +157,6 @@ VertexZSpecifier *VertexZSpecifierSimple::clone(VertexPointer associatedVertex) 
     return new VertexZSpecifierSimple(associatedVertex,mZValue);
 }
 
-double VertexZSpecifierSimple::calculateZValue() const
-{
-    return mZValue;
-}
-
 
 VertexZSpecifier::VertexZSpecifier(const VertexPointer associatedVertex):
     mAssociatedVertex(associatedVertex)
@@ -175,7 +175,7 @@ double VertexZSpecifier::zValue() const
 {
     std::lock_guard<std::mutex> g(mMutex);
     if (mDirty)
-        mZValue=calculateZValue();
+        calculateZValue();
     mDirty=false;
     return mZValue;
 }
@@ -198,12 +198,12 @@ VertexZSpecifier *VertexZSpecifierOtherVertexAndSlope::clone(VertexPointer assoc
     return new VertexZSpecifierOtherVertexAndSlope(associatedVertex,mOtherVertex,mSlope);
 }
 
-double VertexZSpecifierOtherVertexAndSlope::calculateZValue() const
+void VertexZSpecifierOtherVertexAndSlope::calculateZValue() const
 {
     if(mOtherVertex)
-        return mOtherVertex->z()+mSlope*mOtherVertex->distanceFrom(*mAssociatedVertex);
+        mZValue=mOtherVertex->z()+mSlope*mOtherVertex->distanceFrom(*mAssociatedVertex);
     else
-        return INVALID_VALUE;
+        mZValue=INVALID_VALUE;
 }
 
 
@@ -264,5 +264,10 @@ void VertexZSpecifierInterpolationFactory::setHardVertexSecond(bool b)
 
 std::unique_ptr<VertexZSpecifier> VertexZSpecifierInterpolationFactory::createZSpecifier(const VertexPointer associatedVertex) const
 {
+    if (associatedVertex==mFirstVertex || associatedVertex==mSecondVertex)
+    {
+        return std::unique_ptr<VertexZSpecifier>(associatedVertex->releaseZSpecifier());
+    }
+
     return std::make_unique<VertexZSpecifierInterpolation>(associatedVertex,mFirstVertex,mSecondVertex,mHardVertexFirst,mHardVertexSecond);
 }

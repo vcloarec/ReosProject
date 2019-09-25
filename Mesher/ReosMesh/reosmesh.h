@@ -63,6 +63,7 @@ public:
     void setZValue(double z);
 
     VertexZSpecifier* zSpecifier() const;
+    VertexZSpecifier* releaseZSpecifier();
 
     void addDependentVertex(Vertex* otherVertex)
     {
@@ -258,12 +259,12 @@ public:
 
 protected:
     const VertexPointer mAssociatedVertex;
-    mutable double mZValue;
+    mutable double mZValue=0;
     mutable bool mDirty=true;
     mutable std::mutex mMutex;
 
 private:
-    virtual double calculateZValue() const {return 0;}
+    virtual void calculateZValue() const {}
 
 };
 
@@ -287,8 +288,6 @@ public:
 
     VertexZSpecifier *clone(VertexPointer associatedVertex) const override;
 
-private:
-    double calculateZValue() const override;
 };
 
 class VertexZSpecifierSimpleFactory:public VertexZSpecifierFactory
@@ -356,7 +355,7 @@ private:
 
     // VertexZSpecifier interface
 private:
-    double calculateZValue() const override;
+    void calculateZValue()  const override;
 };
 
 
@@ -396,12 +395,12 @@ private:
 
     // VertexZSpecifier interface
 private:
-    double calculateZValue() const override
+    void calculateZValue() const override
     {
         if(mOtherVertex)
-            return mOtherVertex->z()+mGap;
+            mZValue=mOtherVertex->z()+mGap;
         else
-            return INVALID_VALUE;
+            mZValue=INVALID_VALUE;
     }
 };
 
@@ -434,7 +433,10 @@ private:
 class VertexZSpecifierInterpolation:public VertexZSpecifier
 {
 public:
-    VertexZSpecifierInterpolation(const VertexPointer associatedVertex,VertexPointer firstVertex, VertexPointer secondVertex,bool hvf=true, bool hvs=true):VertexZSpecifier(associatedVertex) {}
+    VertexZSpecifierInterpolation(const VertexPointer associatedVertex,VertexPointer firstVertex, VertexPointer secondVertex,bool hvf=true, bool hvs=true):
+        VertexZSpecifier(associatedVertex),
+        mFirstVertex(firstVertex),mSecondVertex(secondVertex),mHardVertexFirst(hvf),mHardVertexSecond(hvs)
+    {}
 
 private:
     VertexPointer mFirstVertex;
@@ -451,10 +453,80 @@ public:
     }
 
 private:
-    double calculateZValue() const override
+    void calculateZValue() const override
     {
-        return 0;
+        std::list<VertexPointer> vertices=verticesList();
+
+        double distance=0;
+        auto pv=vertices.begin();
+        auto p=pv;
+        p++;
+        while(p!=vertices.end())
+        {
+            distance+=(*pv)->distanceFrom(*(*p));
+            pv=p;
+            p++;
+        }
+
+
+        double firstZValue=vertices.front()->z();
+        double gap=firstZValue-vertices.back()->z();
+        double slope=gap/distance;
+
+        pv=vertices.begin();
+        p=pv;
+        p++;
+        auto lp=vertices.end();
+        lp--;
+        double cumul=0;
+        while(p!=lp)
+        {
+            auto currentSpecifier=static_cast<VertexZSpecifierInterpolation*>((*p)->zSpecifier());
+            if ((*p)!=mAssociatedVertex)
+                std::lock_guard<std::mutex> g(currentSpecifier->mMutex);
+            currentSpecifier->mDirty=false;
+            cumul+=(*pv)->distanceFrom(*(*p));
+            currentSpecifier->mZValue=firstZValue-cumul*slope;
+            pv=p;
+            p++;
+        }
+
     }
+
+    std::list<VertexPointer> verticesList() const
+    {
+        std::list<VertexPointer> vertices;
+        vertices.push_back(mAssociatedVertex);
+        vertices.push_front(mFirstVertex);
+        vertices.push_back(mSecondVertex);
+
+
+        bool continuePreviously= (!mHardVertexFirst);
+        bool continueNext= (!mHardVertexSecond);
+
+        VertexZSpecifierInterpolation *currentSpecifier=nullptr;
+        while(continuePreviously)
+        {
+           currentSpecifier=dynamic_cast<VertexZSpecifierInterpolation*>(vertices.front()->zSpecifier());
+           if (!currentSpecifier)
+               break;
+           vertices.push_front(currentSpecifier->mFirstVertex);
+           continuePreviously= (!currentSpecifier->mHardVertexFirst);
+        }
+
+        while(continueNext)
+        {
+            currentSpecifier=dynamic_cast<VertexZSpecifierInterpolation*>(vertices.back()->zSpecifier());
+            if (!currentSpecifier)
+                break;
+            vertices.push_back((currentSpecifier->mSecondVertex));
+            continueNext= (!currentSpecifier->mHardVertexSecond);
+        }
+
+        return vertices;
+    }
+
+
 };
 
 

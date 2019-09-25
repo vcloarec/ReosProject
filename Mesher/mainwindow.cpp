@@ -32,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
     statusBar()->addPermanentWidget(map->getCursorPosition());
 
 
-    HdManagerSIG *gisManager=new HdManagerSIG(map);
+    ReosGisManager *gisManager=new ReosGisManager(map);
     QDockWidget* dockSIG=new QDockWidget(tr("GIS panel"));
     dockSIG->setWidget(gisManager->getWidget());
     statusBar()->addPermanentWidget(gisManager->createCRSDisplay(this));

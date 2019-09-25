@@ -16,6 +16,8 @@ public:
 
     VertexBasic vert1=VertexBasic(0,0);
     VertexBasic vert2=VertexBasic(5,0);
+    VertexBasic vert3=VertexBasic(0,5);
+
 
     VertexZSpecifierSimpleFactory simpleZSpecifierFactory;
     VertexZSpecifierOtherVertexAndSlopeFactory slopeZSpecifierFactory;
@@ -50,7 +52,18 @@ protected:
 
     void TEST_createVertexInterpolationSpecifier()
     {
-        interpolationZSpecifierFactory.setExtremitiesVertices(&vert1,&vert2);
+        simpleZSpecifierFactory.setZValue(4);
+        vert3.setZSpecifier(simpleZSpecifierFactory);
+
+        simpleZSpecifierFactory.setZValue(18);
+        vert2.setZSpecifier(simpleZSpecifierFactory);
+
+        interpolationZSpecifierFactory.setExtremitiesVertices(&vert3,&vert2);
+        vert1.setZSpecifier(interpolationZSpecifierFactory);
+
+
+        ASSERT_THAT(abs(vert1.z()-11),Lt(std::numeric_limits<double>::min()));
+
     }
 
 };
@@ -122,5 +135,71 @@ TEST_F(VertexZSpecifierTesting, createVertexGapSpecifier_changeOtherVertexZValue
 
     ASSERT_THAT(abs(vert2.z()-10.05),Lt(std::numeric_limits<double>::min()));
 }
+
+TEST_F(VertexZSpecifierTesting, createInterpolatorSpecifier){
+
+    TEST_createVertexInterpolationSpecifier();
+}
+
+
+TEST_F(VertexZSpecifierTesting, selfInterpolateVertex){
+
+    simpleZSpecifierFactory.setZValue(18);
+    vert2.setZSpecifier(simpleZSpecifierFactory);
+
+    simpleZSpecifierFactory.setZValue(10);
+    vert1.setZSpecifier(simpleZSpecifierFactory);
+
+    interpolationZSpecifierFactory.setExtremitiesVertices(&vert1,&vert2);
+    vert1.setZSpecifier(interpolationZSpecifierFactory);
+
+
+    ASSERT_THAT(abs(vert1.z()-10),Lt(std::numeric_limits<double>::min()));
+
+}
+
+TEST_F(VertexZSpecifierTesting, manyInterpolateVertices){
+
+    simpleZSpecifierFactory.setZValue(4);
+    vert1.setZSpecifier(simpleZSpecifierFactory);
+
+    simpleZSpecifierFactory.setZValue(18);
+    vert3.setZSpecifier(simpleZSpecifierFactory);
+
+
+    std::vector<VertexBasic> verticesInterpolated;
+    size_t count=9;
+
+    for (size_t i=0;i<count;++i)
+    {
+        verticesInterpolated.push_back(VertexBasic(0,(i+1)*0.5));
+    }
+
+    interpolationZSpecifierFactory.setExtremitiesVertices(&vert1,&verticesInterpolated[1]);
+    interpolationZSpecifierFactory.setHardVertexFirst(true);
+    interpolationZSpecifierFactory.setHardVertexSecond(false);
+    verticesInterpolated[0].setZSpecifier(interpolationZSpecifierFactory);
+
+    for (size_t i=1;i<count-1;++i)
+    {
+        interpolationZSpecifierFactory.setExtremitiesVertices(&verticesInterpolated[i-1],&verticesInterpolated[i+1]);
+        interpolationZSpecifierFactory.setHardVertexFirst(false);
+        interpolationZSpecifierFactory.setHardVertexSecond(false);
+        verticesInterpolated[i].setZSpecifier(interpolationZSpecifierFactory);
+    }
+
+    interpolationZSpecifierFactory.setExtremitiesVertices(&verticesInterpolated[count-2],&vert3);
+    interpolationZSpecifierFactory.setHardVertexFirst(false);
+    interpolationZSpecifierFactory.setHardVertexSecond(true);
+    verticesInterpolated[count-1].setZSpecifier(interpolationZSpecifierFactory);
+
+    for (size_t i=0;i<count;++i)
+    {
+        ASSERT_THAT(abs(verticesInterpolated[i].z()-(4+(i+1)*1.4)),Lt(std::numeric_limits<double>::min()));
+    }
+
+
+}
+
 
 

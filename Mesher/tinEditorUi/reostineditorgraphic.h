@@ -161,7 +161,7 @@ class ReosTinEditorUi : public ReosModule
 {
     Q_OBJECT
 public:
-    explicit ReosTinEditorUi(HdManagerSIG *gismanager,QObject *parent = nullptr);
+    explicit ReosTinEditorUi(ReosGisManager *gismanager,QObject *parent = nullptr);
 
     ReosMapMeshEditorItemDomain *domain() const {return mDomain;}
     void setMeshLayer(QgsMeshLayer *meshLayer);
@@ -234,6 +234,7 @@ private slots :
     void currentLayerChanged(QgsMapLayer *layer);
     void layerHasToBeUpdated(QgsMapLayer *layer);
     void layerHasToBeRemoved(QgsMapLayer *layer);
+    void mapCrsChanged(const QgsCoordinateReferenceSystem &crs);
 
 private: //method
 
@@ -263,8 +264,8 @@ private: //method
     void setLevelMode();
     void setNoneMode();
 
-    QPointF mapCoordinates(const QPointF &meshCoordinate) const;
-    QPointF meshCoordinates(const QPointF &mapCordinate) const;
+    QPointF mapCoordinates(const QPointF &meshCoordinate, bool &ok) const;
+    QPointF meshCoordinates(const QPointF &mapCordinate, bool &ok) const;
 
     VertexPointer addRealWorldVertex(const QPointF &mapPoint, double z);
     VertexPointer addRealWorldVertex(const QPointF &mapPoint);
@@ -302,7 +303,7 @@ private: //method
 
 private: //attributes
     ReosMapMeshEditorItemDomain *mDomain;
-    HdManagerSIG *mGisManager;
+    ReosGisManager *mGisManager;
     ReosMap *mMap;
     HdTinEditorUiDialog *uiDialog;
     HdTinEditorUiDialog::ZValueMode zValueMode=HdTinEditorUiDialog::none;

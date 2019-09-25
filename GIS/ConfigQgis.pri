@@ -26,11 +26,11 @@ FORMS += \
 
 CONFIG(debug, debug|release) {
     message(debug mode)
-    LIBS +=-L$${QGIS_LIB_DEBUG_PATH} -lqgis_core -lqgis_gui -lqgis_app
+    LIBS +=-L$${QGIS_LIB_DEBUG_PATH} -lqgis_core -lqgis_gui -lqgis_app -lqgis_analysis
 }
 else {
     message(release mode)
-    LIBS +=-L$${QGIS_LIB_RELEASE_PATH} -lqgis_core -lqgis_gui -lqgis_app
+    LIBS +=-L$${QGIS_LIB_RELEASE_PATH} -lqgis_core -lqgis_gui -lqgis_app -lqgis_analysis
 }
 
 

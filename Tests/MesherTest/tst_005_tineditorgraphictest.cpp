@@ -16,7 +16,7 @@ public:
     ReosTinEditorUi *uiEditor;
     QgsMeshLayer *meshLayer;
     TINProvider *provider;
-    HdManagerSIG *gismanager;
+    ReosGisManager *gismanager;
 
 
     bool testUiEditorActionEnable()
@@ -96,7 +96,7 @@ protected:
         QgsProviderRegistry::instance()->registerProvider(new HdTinEditorProviderMetaData());
         map=new ReosMap(nullptr);
         mapCanvas=map->getMapCanvas();
-        gismanager=new HdManagerSIG(map);
+        gismanager=new ReosGisManager(map);
         uiEditor=new ReosTinEditorUi(gismanager);
         meshLayer=new QgsMeshLayer("-","Mesh editable","TIN");
         provider=static_cast<TINProvider*>(meshLayer->dataProvider());

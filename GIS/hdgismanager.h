@@ -105,12 +105,12 @@ public:
 };
 
 
-class HdManagerSIG:public ReosModule
+class ReosGisManager:public ReosModule
 {
     Q_OBJECT
 public:
-    HdManagerSIG(ReosMap* map, ReosModule *parent=nullptr);
-    ~HdManagerSIG() override {}
+    ReosGisManager(ReosMap* map, ReosModule *parent=nullptr);
+    ~ReosGisManager() override {}
 
     QgsRasterLayer *getRasterLayer();
     QWidget* createCRSDisplay(QWidget *parent);
@@ -147,6 +147,7 @@ signals:
     void currentLayerChanged(QgsMapLayer *layer);
     void layerHasToBeRemoved(QgsMapLayer *layer);
     void layerHasToBeUpdated(QgsMapLayer *layer);
+    void mapCrsChanged(const QgsCoordinateReferenceSystem &mCrs);
 
 public slots:
     void openProjectSIG();
@@ -161,8 +162,8 @@ public slots:
     void setExtentAfterLoading();
 
 private:
-    ReosMap *map_;
-    QgsCoordinateReferenceSystem crs;
+    ReosMap *mMap;
+    QgsCoordinateReferenceSystem mCrs;
     QgsCoordinateReferenceSystem deFaultCrs;
     HdTreeLayerSIGView *treeLayerView_;
     QgsLayerTreeMapCanvasBridge* bridgeTreeMap_;
@@ -213,14 +214,14 @@ public:
 class HdSigTreeViewContextMenuProvider: public QgsLayerTreeViewMenuProvider
 {
 public:
-    HdSigTreeViewContextMenuProvider(HdManagerSIG *manager):manager(manager){}
+    HdSigTreeViewContextMenuProvider(ReosGisManager *manager):manager(manager){}
   
     // QgsLayerTreeViewMenuProvider interface
 public:
     QMenu *createContextMenu() override;
 
 private:
-    HdManagerSIG *manager;
+    ReosGisManager *manager;
 };
 
 #endif // HDGISMANAGER_H
