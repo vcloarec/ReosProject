@@ -4,8 +4,9 @@
 #include <gmock/gmock-matchers.h>
 
 
-#include "../../Mesher/ReosMesh/reosmesh.h"
+#include "../../Mesher/ReosMesh/reosvertexzspecifier.h"
 #include "../../Mesher/ReosMesh/reosmeshgenerator.h"
+
 
 
 using namespace testing;
@@ -19,10 +20,10 @@ public:
     VertexBasic vert3=VertexBasic(0,5);
 
 
-    VertexZSpecifierSimpleFactory simpleZSpecifierFactory;
-    VertexZSpecifierOtherVertexAndSlopeFactory slopeZSpecifierFactory;
-    VertexZSpecifierOtherVertexAndGapFactory gapZSpecifierFactory;
-    VertexZSpecifierInterpolationFactory interpolationZSpecifierFactory;
+    ReosVertexZSpecifierSimpleFactory simpleZSpecifierFactory;
+    ReosVertexZSpecifierOtherVertexAndSlopeFactory slopeZSpecifierFactory;
+    ReosVertexZSpecifierOtherVertexAndGapFactory gapZSpecifierFactory;
+    ReosVertexZSpecifierInterpolationFactory interpolationZSpecifierFactory;
 
     // Test interface
 protected:
@@ -160,46 +161,85 @@ TEST_F(VertexZSpecifierTesting, selfInterpolateVertex){
 
 TEST_F(VertexZSpecifierTesting, manyInterpolateVertices){
 
-    simpleZSpecifierFactory.setZValue(4);
+    double z1=4;
+    simpleZSpecifierFactory.setZValue(z1);
     vert1.setZSpecifier(simpleZSpecifierFactory);
 
-    simpleZSpecifierFactory.setZValue(18);
+    double z2=18;
+    simpleZSpecifierFactory.setZValue(z2);
     vert3.setZSpecifier(simpleZSpecifierFactory);
 
+    double distance=vert1.distanceFrom(vert2);
 
-    std::vector<VertexBasic> verticesInterpolated;
+
+    std::vector<std::unique_ptr<VertexBasic>> verticesInterpolated;
     size_t count=9;
+    double step=distance/(count+1);
+    double gapPerStep=(z2-z1)/(count+1);
+
+    interpolationZSpecifierFactory.setExtremitiesVertices(&vert1,&vert3);
 
     for (size_t i=0;i<count;++i)
     {
-        verticesInterpolated.push_back(VertexBasic(0,(i+1)*0.5));
+        verticesInterpolated.push_back(std::make_unique<VertexBasic>(0,(i+1)*step));
+        verticesInterpolated[i]->setZSpecifier(interpolationZSpecifierFactory);
     }
 
-    interpolationZSpecifierFactory.setExtremitiesVertices(&vert1,&verticesInterpolated[1]);
-    interpolationZSpecifierFactory.setHardVertexFirst(true);
-    interpolationZSpecifierFactory.setHardVertexSecond(false);
-    verticesInterpolated[0].setZSpecifier(interpolationZSpecifierFactory);
-
-    for (size_t i=1;i<count-1;++i)
-    {
-        interpolationZSpecifierFactory.setExtremitiesVertices(&verticesInterpolated[i-1],&verticesInterpolated[i+1]);
-        interpolationZSpecifierFactory.setHardVertexFirst(false);
-        interpolationZSpecifierFactory.setHardVertexSecond(false);
-        verticesInterpolated[i].setZSpecifier(interpolationZSpecifierFactory);
-    }
-
-    interpolationZSpecifierFactory.setExtremitiesVertices(&verticesInterpolated[count-2],&vert3);
-    interpolationZSpecifierFactory.setHardVertexFirst(false);
-    interpolationZSpecifierFactory.setHardVertexSecond(true);
-    verticesInterpolated[count-1].setZSpecifier(interpolationZSpecifierFactory);
+    //add a gap specifier from interpolated point
+    auto vert4=VertexBasic(1,1);
+    gapZSpecifierFactory.setGap(-1.1);
+    gapZSpecifierFactory.setOtherVertex(verticesInterpolated[5].get());
+    vert4.setZSpecifier(gapZSpecifierFactory);
+    EXPECT_TRUE(equality(vert4.z(),11.3));
 
     for (size_t i=0;i<count;++i)
     {
-        ASSERT_THAT(abs(verticesInterpolated[i].z()-(4+(i+1)*1.4)),Lt(std::numeric_limits<double>::min()));
+        EXPECT_TRUE(equality(verticesInterpolated[i]->z(),(z1+(i+1)*gapPerStep)));
     }
 
+    //move one of the point which interpolation is base on
+    vert1.setPosition(0,-5);
+
+    double totalGap=vert3.z()-vert1.z();
+    distance=vert1.distanceFrom(vert3);
+    for (size_t i=0;i<count;++i)
+    {
+        double di=vert1.distanceFrom((*verticesInterpolated[i].get()));
+        double zi=di/distance*totalGap+vert1.z();
+        EXPECT_TRUE(equality(verticesInterpolated[i]->z(),zi));
+    }
+
+    //replace the point which interpolation is base on
+    vert1.setPosition(0,0);
+
+    EXPECT_TRUE(equality(vert4.z(),11.3));
+
+    //change the specifier of one interpolated point
+    simpleZSpecifierFactory.setZValue(-8);
+    verticesInterpolated[5]->setZSpecifier(simpleZSpecifierFactory);
+
+    EXPECT_TRUE(equality(verticesInterpolated[2]->z(),-2));
+    EXPECT_TRUE(equality(verticesInterpolated[8]->z(),11.5));
+
+    //change the z value if extremity
+    simpleZSpecifierFactory.setZValue(10);
+    vert1.setZSpecifier(simpleZSpecifierFactory);
+    simpleZSpecifierFactory.setZValue(24);
+    vert3.setZSpecifier(simpleZSpecifierFactory);
+
+    EXPECT_TRUE(equality(verticesInterpolated[2]->z(),1));
+    EXPECT_TRUE(equality(verticesInterpolated[8]->z(),16));
+
+    //remove one extremity
+    vert1.hasToBeRemoved();
+    simpleZSpecifierFactory.setZValue(7);
+    vert3.setZSpecifier(simpleZSpecifierFactory);
+    verticesInterpolated[5]->setZSpecifier(simpleZSpecifierFactory);
+
+    EXPECT_TRUE(equality(verticesInterpolated[2]->z(),7));
 
 }
+
 
 
 

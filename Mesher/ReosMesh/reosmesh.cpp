@@ -14,11 +14,11 @@ email          : vcloarec at gmail dot com   /  projetreos at gmail dot com
  ***************************************************************************/
 
 #include "reosmesh.h"
-
+#include "reosvertexzspecifier.h"
 
 Vertex::Vertex()
 {
-    mZSpecifier=std::make_unique<VertexZSpecifierSimple>(this);
+    mZSpecifier=std::make_unique<ReosVertexZSpecifierSimple>(this);
 }
 
 Vertex::Vertex(const Vertex &other)
@@ -26,9 +26,9 @@ Vertex::Vertex(const Vertex &other)
     mGraphic=nullptr;
     mZUserDefined=other.mZUserDefined;
     if (mZSpecifier)
-        mZSpecifier=std::unique_ptr<VertexZSpecifier>(mZSpecifier->clone(this));
+        mZSpecifier=std::unique_ptr<ReosVertexZSpecifier>(other.mZSpecifier->clone(this));
     else
-        mZSpecifier=std::unique_ptr<VertexZSpecifier>(nullptr);
+        mZSpecifier=std::unique_ptr<ReosVertexZSpecifier>(nullptr);
 }
 
 Vertex::~Vertex() {}
@@ -112,162 +112,66 @@ bool Vertex::isZUserDefined() const
     return mZUserDefined;
 }
 
-void Vertex::setZSpecifier(const VertexZSpecifierFactory &zSpecifierFactory)
+double Vertex::distanceFrom(const Vertex &other) const
 {
+    return sqrt(pow(x()-other.x(),2)+pow(y()-other.y(),2));
+}
+
+void Vertex::setZSpecifier(const ReosVertexZSpecifierFactory &zSpecifierFactory)
+{
+    mZSpecifier->hasToBeRemove();
     mZSpecifier=zSpecifierFactory.createZSpecifier(this);
     setDirty();
 }
 
 void Vertex::setZValue(double z)
 {
-    mZSpecifier=std::make_unique<VertexZSpecifierSimple>(this,z);
+    mZSpecifier=std::make_unique<ReosVertexZSpecifierSimple>(this,z);
     setDirty();
 }
 
 
-VertexZSpecifier *Vertex::zSpecifier() const {return mZSpecifier.get();}
+ReosVertexZSpecifier *Vertex::zSpecifier() const {return mZSpecifier.get();}
 
-VertexZSpecifier *Vertex::releaseZSpecifier()
+ReosVertexZSpecifier *Vertex::releaseZSpecifier()
 {
     return mZSpecifier.release();
 }
 
+void Vertex::addDependentVertex(VertexPointer otherVertex)
+{
+    mDependentVertices.insert(otherVertex);
+}
+
+void Vertex::removeDependentVertex(VertexPointer otherVertex)
+{
+    mDependentVertices.erase(otherVertex);
+}
+
+void Vertex::setDependentVerticesDirty()
+{
+    for (auto v:mDependentVertices)
+        v->setDirty();
+}
+
+void Vertex::hasToBeRemoved()
+{
+    mZSpecifier->hasToBeRemove();
+    for (auto v:mDependentVertices)
+        v->linkedVertexWillBeRemoved(this);
+}
+
+void Vertex::linkedVertexWillBeRemoved(VertexPointer vert)
+{
+    if (mZSpecifier)
+        mZSpecifier=mZSpecifier->surrogateZSpecifier(vert);
+}
+
 void Vertex::setDirty()
 {
-    mZSpecifier->setDirty(true);
+    mZSpecifier->setDirty();
     for (auto dv:mDependentVertices)
         dv->setDirty();
 }
 
-VertexZSpecifierSimple::VertexZSpecifierSimple(const VertexPointer associatedVertex):
-    VertexZSpecifier(associatedVertex)
-{
-    mZValue=0;
-    mDirty=false;
-}
 
-VertexZSpecifierSimple::VertexZSpecifierSimple(const VertexPointer associatedVertex,double z):VertexZSpecifier(associatedVertex)
-{
-    mZValue=z;
-    mDirty=false;
-}
-
-VertexZSpecifier *VertexZSpecifierSimple::clone(VertexPointer associatedVertex) const
-{
-    return new VertexZSpecifierSimple(associatedVertex,mZValue);
-}
-
-
-VertexZSpecifier::VertexZSpecifier(const VertexPointer associatedVertex):
-    mAssociatedVertex(associatedVertex)
-{
-
-}
-
-VertexZSpecifier::~VertexZSpecifier(){}
-
-VertexZSpecifier *VertexZSpecifier::clone(VertexPointer associatedVertex) const
-{
-    return new VertexZSpecifier(associatedVertex);
-}
-
-double VertexZSpecifier::zValue() const
-{
-    std::lock_guard<std::mutex> g(mMutex);
-    if (mDirty)
-        calculateZValue();
-    mDirty=false;
-    return mZValue;
-}
-
-void VertexZSpecifier::setDirty(bool b)
-{
-    std::lock_guard<std::mutex> g(mMutex);
-    mDirty=b;
-}
-
-
-VertexZSpecifierOtherVertexAndSlope::VertexZSpecifierOtherVertexAndSlope(VertexPointer associatedVertex, VertexPointer otherVertex, double slope):
-    VertexZSpecifierDependOnOtherVertex(associatedVertex,otherVertex),mSlope(slope)
-{
-
-}
-
-VertexZSpecifier *VertexZSpecifierOtherVertexAndSlope::clone(VertexPointer associatedVertex) const
-{
-    return new VertexZSpecifierOtherVertexAndSlope(associatedVertex,mOtherVertex,mSlope);
-}
-
-void VertexZSpecifierOtherVertexAndSlope::calculateZValue() const
-{
-    if(mOtherVertex)
-        mZValue=mOtherVertex->z()+mSlope*mOtherVertex->distanceFrom(*mAssociatedVertex);
-    else
-        mZValue=INVALID_VALUE;
-}
-
-
-VertexZSpecifierOtherVertexAndGap::VertexZSpecifierOtherVertexAndGap(VertexPointer associatedVertex, VertexPointer otherVertex, double gap):
-    VertexZSpecifierDependOnOtherVertex(associatedVertex,otherVertex),mGap(gap)
-{
-
-}
-
-VertexZSpecifier *VertexZSpecifierOtherVertexAndGap::clone(VertexPointer associatedVertex) const
-{
-    return new VertexZSpecifierOtherVertexAndGap(associatedVertex,mOtherVertex,mGap);
-}
-
-
-VertexZSpecifierDependOnOtherVertex::VertexZSpecifierDependOnOtherVertex(VertexPointer associatedVertex, VertexPointer otherVertex):
-    VertexZSpecifier (associatedVertex),mOtherVertex(otherVertex)
-{
-    if (otherVertex && associatedVertex)
-        otherVertex->addDependentVertex(associatedVertex);
-}
-
-VertexZSpecifierSimpleFactory::VertexZSpecifierSimpleFactory(double zValue):VertexZSpecifierFactory(),mZValue(zValue)
-{
-
-}
-
-std::unique_ptr<VertexZSpecifier> VertexZSpecifierSimpleFactory::createZSpecifier(const VertexPointer associatedVertex) const
-{
-    return std::make_unique<VertexZSpecifierSimple>(associatedVertex,mZValue);
-}
-
-VertexZSpecifierInterpolationFactory::VertexZSpecifierInterpolationFactory() {}
-
-VertexZSpecifierInterpolationFactory::VertexZSpecifierInterpolationFactory(VertexPointer firstVertex, VertexPointer secondVertex, bool hvf, bool hvs):
-    VertexZSpecifierFactory(),mFirstVertex(firstVertex),mSecondVertex(secondVertex),mHardVertexFirst(hvf),mHardVertexSecond(hvs)
-{
-
-}
-
-void VertexZSpecifierInterpolationFactory::setExtremitiesVertices(VertexPointer firstVertex, VertexPointer secondVertex)
-{
-    mFirstVertex=firstVertex;
-    mSecondVertex=secondVertex;
-    mHardVertexFirst=true;
-    mHardVertexSecond=true;
-}
-
-void VertexZSpecifierInterpolationFactory::setHardVertexFirst(bool b)
-{
-    mHardVertexFirst=b;
-}
-
-void VertexZSpecifierInterpolationFactory::setHardVertexSecond(bool b)
-{
-    mHardVertexSecond=b;
-}
-
-std::unique_ptr<VertexZSpecifier> VertexZSpecifierInterpolationFactory::createZSpecifier(const VertexPointer associatedVertex) const
-{
-    if (associatedVertex==mFirstVertex || associatedVertex==mSecondVertex)
-    {
-        return std::unique_ptr<VertexZSpecifier>(associatedVertex->releaseZSpecifier());
-    }
-
-    return std::make_unique<VertexZSpecifierInterpolation>(associatedVertex,mFirstVertex,mSecondVertex,mHardVertexFirst,mHardVertexSecond);
-}

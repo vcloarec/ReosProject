@@ -45,7 +45,8 @@ HEADERS += \
     ../../Mesher/tinEditorUi/reosmapmeshitem.h \
     ../../Mesher/tinEditorUi/reostineditorgraphic.h \
     ../../Mesher/tinEditorUi/hdtineditornewdialog.h \
-    ../../Mesher/tinEditorUi/hdtineditoruidialog.h
+    ../../Mesher/tinEditorUi/hdtineditoruidialog.h \
+    ../../Mesher/ReosMesh/reosvertexzspecifier.h
 
 
 
@@ -78,7 +79,8 @@ SOURCES += \
     tst_001_meshgenerator.cpp \
     tst_004_editablemeshlayertest.cpp \
     tst_005_tineditorgraphictest.cpp \
-    tst_006_mapmeshitemtest.cpp
+    tst_006_mapmeshitemtest.cpp \
+    ../../Mesher/ReosMesh/reosvertexzspecifier.cpp
 
 
 FORMS += \

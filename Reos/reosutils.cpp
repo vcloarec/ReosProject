@@ -30,3 +30,13 @@ std::vector<std::string> splitString(const std::string &input, const char &delim
     return returnList;
 
 }
+
+bool equality(double d1, double d2, double epsilon)
+{
+    return fabs(d1-d2)<=fabs(std::max(d1,d2)*epsilon);
+}
+
+bool equality(double d1, double d2)
+{
+    return equality(d1,d2,std::numeric_limits<double>::epsilon());
+}
