@@ -39,6 +39,11 @@ MainWindow::MainWindow(QWidget *parent) :
     dockSIG->setObjectName(QStringLiteral("Dock GIS"));
     addDockWidget(Qt::LeftDockWidgetArea,dockSIG);
 
+    ReosMessageBox *messageBox=new ReosMessageBox;
+    QDockWidget* dockMessage=new QDockWidget(tr("Message box"));
+    dockMessage->setWidget(messageBox);
+    addDockWidget(Qt::LeftDockWidgetArea,dockMessage);
+
     QgsProviderRegistry::instance()->registerProvider(new HdTinEditorProviderMetaData());
 
     QMenu *fileMenu=new QMenu(tr("Files"));

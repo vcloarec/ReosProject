@@ -792,3 +792,71 @@ TEST_F(TinEditingTesting, flipFacesPersistentAfterSavingWithHardline)
     ASSERT_THAT(face4->isVertexContained(newVert2),Eq(true));
 
 }
+
+TEST_F(TinEditingTesting, writeUGRIDSmallFileWithZSpecifier)
+{
+    auto vert1=tin.addVertex(2,2);
+    auto vert2=tin.addVertex(2,0);
+    auto vert3=tin.addVertex(4,0);
+    auto vert4=tin.addVertex(6,0);
+    auto vert5=tin.addVertex(8,0);
+    auto vert6=tin.addVertex(8,2);
+
+
+    tin.setCrs("EPSG:32620");
+
+    ReosVertexZSpecifierOtherVertexAndGapFactory gapFactory;
+    ReosVertexZSpecifierOtherVertexAndSlopeFactory slopeFactory;
+    ReosVertexZSpecifierInterpolationFactory interpolationFactory;
+
+    vert1->setZValue(5);
+    gapFactory.setOtherVertex(vert1);
+    gapFactory.setGap(-2);
+    vert2->setZSpecifier(gapFactory);
+
+    vert6->setZValue(6);
+    slopeFactory.setSlope(-1);
+    slopeFactory.setOtherVertex(vert6);
+    vert5->setZSpecifier(slopeFactory);
+
+    interpolationFactory.setExtremitiesVertices(vert2,vert5);
+    vert3->setZSpecifier(interpolationFactory);
+    vert4->setZSpecifier(interpolationFactory);
+
+    ASSERT_THAT(tin.writeUGRIDFormat("netCDFTest"),Eq(NC_NOERR));
+}
+
+TEST_F(TinEditingTesting, readUGRIDSmallFileWithZSpecifier)
+{
+    ReosTin tinToRead;
+
+    ASSERT_THAT(tinToRead.readUGRIDFormat("netCDFTest"),Eq(NC_NOERR));
+
+    EXPECT_THAT(tinToRead.verticesCount(),Eq(6));
+
+    EXPECT_THAT(tinToRead.crs(),Eq("EPSG:32620"));
+
+    auto vert1=tinToRead.vertex(2,2);
+    auto vert2=tinToRead.vertex(2,0);
+    auto vert3=tinToRead.vertex(4,0);
+    auto vert4=tinToRead.vertex(6,0);
+    auto vert5=tinToRead.vertex(8,0);
+    auto vert6=tinToRead.vertex(8,2);
+
+    EXPECT_THAT(vert1->z(),Eq(5));
+    EXPECT_THAT(vert2->z(),Eq(3));
+    EXPECT_TRUE(equality(vert3->z(),3.333,0.01));
+    EXPECT_TRUE(equality(vert4->z(),3.666,0.01));
+    EXPECT_THAT(vert5->z(),Eq(4));
+    EXPECT_THAT(vert6->z(),Eq(6));
+
+    vert1->setZValue(7);
+    vert6->setZValue(8);
+
+    EXPECT_THAT(vert2->z(),Eq(5));
+    EXPECT_TRUE(equality(vert3->z(),5.333,0.01));
+    EXPECT_TRUE(equality(vert4->z(),5.666,0.01));
+    EXPECT_THAT(vert5->z(),Eq(6));
+
+
+}

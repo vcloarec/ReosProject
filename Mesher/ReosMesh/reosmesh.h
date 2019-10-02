@@ -3,15 +3,15 @@
                      --------------------------------------
 Date                 : 01-04-2019
 Copyright            : (C) 2018 by Vincent Cloarec
-email                : vcloarec at gmail dot com   /  projetreos at gmail dot com
- ***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+email                : vcloarec at gmail dot com / projetreos at gmail dot com
+ ******************************************************************************
+ *                                                                            *
+ *   This program is free software; you can redistribute it and/or modify     *
+ *   it under the terms of the GNU General Public License as published by     *
+ *   the Free Software Foundation; either version 2 of the License, or        *
+ *   (at your option) any later version.                                      *
+ *                                                                            *
+ *****************************************************************************/
 
 
 #ifndef REOSMESH_H
@@ -29,96 +29,10 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 
 #include <netcdf.h>
 
+#include "vertex.h"
+#include "reosvertexzspecifier.h"
 #include "../../Reos/reosutils.h"
 
-#define INVALID_VALUE -999999;
-
-class ReosVertexZSpecifier;
-class ReosVertexZSpecifierFactory;
-class Vertex;
-
-typedef Vertex* VertexPointer;
-
-class Vertex
-{
-public:
-    Vertex();
-    Vertex(const Vertex &other);
-
-    virtual ~Vertex();
-
-    virtual double x() const =0;
-    virtual double y() const =0;
-    double z();
-
-
-    void setGraphicPointer(void* pointer);
-    void *graphicPointer() const;
-
-    void setZUserDefined();
-    bool isZUserDefined() const;
-
-    double distanceFrom(const Vertex &other) const;
-
-    //Methods to deal with Z vlaue
-    void setZSpecifier(const ReosVertexZSpecifierFactory &zSpecifierFactory);
-    void setZValue(double z);
-
-    ReosVertexZSpecifier* zSpecifier() const;
-    ReosVertexZSpecifier* releaseZSpecifier();
-
-
-    //Methods to deal with dependent vertex
-    void addDependentVertex(VertexPointer otherVertex);
-    void removeDependentVertex(VertexPointer otherVertex);
-    void setDependentVerticesDirty();
-
-    void hasToBeRemoved();
-
-    virtual void linkedVertexWillBeRemoved(VertexPointer vert);
-
-protected: //methode
-    void setDirty();
-
-private: //attribute
-    void* mGraphic=nullptr;
-    bool mZUserDefined=false;
-    std::unique_ptr<ReosVertexZSpecifier> mZSpecifier;
-
-    std::set<Vertex*> mDependentVertices;
-
-};
-
-
-
-
-class Segment
-{
-public:
-    Segment(VertexPointer v1, VertexPointer v2);
-
-    VertexPointer first() const;
-    VertexPointer second() const;
-
-private:
-    VertexPointer mVertex1;
-    VertexPointer mVertex2;
-};
-
-class Face
-{
-public:
-    virtual ~Face() {}
-    virtual void addVertex(VertexPointer vert)=0;
-    virtual VertexPointer vertexPointer(int i) const =0;
-    virtual int verticesCount() const=0;
-    virtual bool isVertexContained(VertexPointer vertex) const;
-
-    std::vector<double> faceCentroid();
-};
-
-
-typedef Face* FacePointer;
 
 class MeshIO
 {
@@ -138,10 +52,15 @@ public:
     virtual int boundariesCount() const =0;
     virtual void readBoundaryEdge(int *)=0;
 
+
     virtual int hardlinesCount() const=0;
     virtual int hardlinesVerticesCount() const=0;
     virtual int currentHardlineVerticesCount() const =0;
     virtual void readHardlineVertices(int *)=0;
+
+    virtual int zSpecifierCount() const=0;
+    virtual void readSpecifier(ReosVertexZSpecifier::Data &zSpecifierData)=0;
+    virtual bool allZSpecifierReaden() const =0;
 
     virtual bool allVerticesReaden() const =0;
     virtual bool allFacesReaden() const =0;
@@ -189,7 +108,7 @@ public:
     virtual std::list<VertexPointer> neighboursVertices(VertexPointer vertex) const =0;
     virtual int maxNodesPerFaces() const=0;
 
-    virtual int writeUGRIDFormat(std::string fileName)=0;
+    virtual int writeUGRIDFormat(std::string fileName);
 
     virtual int readUGRIDFormat(std::string fileName)=0;
 

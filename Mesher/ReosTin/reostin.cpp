@@ -85,8 +85,6 @@ FacePointer ReosTin::face(double x, double y) const
 {
     auto faceHandle=triangulation.locate(CgalPoint(x,y));
 
-    std::cout<<"X : "<<x<<"   Y : "<<y<<std::endl;
-
     if (triangulation.is_infinite(faceHandle))
         return nullptr;
 
@@ -140,6 +138,21 @@ VertexPointer ReosTin::addVertex(double x, double y)
 
     auto vert= triangulation.insert(CgalPoint(x,y));
     return new TINVertex(vert);//&(*vert);
+}
+
+FacePointer ReosTin::createFace(const std::vector<VertexPointer> &vertices)
+{
+    auto f=triangulation.tds().create_face();
+    for (size_t l=0;l<3;++l)
+    {
+        auto v=static_cast<TINVertex*>(vertices[l]);
+        if (v!=nullptr)
+        {
+            f->set_vertex(int(l),v->handle());
+            v->handle()->set_face(f);
+        }
+    }
+    return static_cast<FacePointer>(&(*f));
 }
 
 void ReosTin::removeVertex(VertexPointer vertex)
@@ -211,8 +224,6 @@ std::list<VertexPointer> ReosTin::removeVertexOnHardLine(VertexPointer vertex)
 
         notConstrainedAnymore= fie==ie && !done;
     }
-
-    std::cout<<"******************************** Subconstraint remaining "<<triangulation.number_of_subconstraints()<<std::endl;
 
     removeVertex(vertex);
 
@@ -396,6 +407,9 @@ int ReosTin::readUGRIDFormat(std::string fileName)
     size_t faceCount;
     size_t maxNodesPerFace;
     size_t hardlinesVerticesCount;
+    size_t zSpecifierCount;
+    size_t zSpecifierMaxIndexesCount;
+    size_t zSpecifierMaxDoubleDataCount;
     int error=0;
 
     //read dimensions
@@ -455,6 +469,52 @@ int ReosTin::readUGRIDFormat(std::string fileName)
         nc_close(ncId);
         return error;
     }
+
+    int ncIdDimensionZSpecifier;
+    error=nc_inq_dimid(ncId,"ZSpecifier",&ncIdDimensionZSpecifier);
+    if (error!=NC_NOERR)
+    {
+        nc_close(ncId);
+        return error;
+    }
+
+    error=nc_inq_dimlen(ncId,ncIdDimensionZSpecifier,&zSpecifierCount);
+    if (error!=NC_NOERR)
+    {
+        nc_close(ncId);
+        return error;
+    }
+
+    int ncIdDimensionZSpecifierMaxIndexes;
+    error=nc_inq_dimid(ncId,"ZSpecifierMaxIndexesCount",&ncIdDimensionZSpecifierMaxIndexes);
+    if (error!=NC_NOERR)
+    {
+        nc_close(ncId);
+        return error;
+    }
+
+    error=nc_inq_dimlen(ncId,ncIdDimensionZSpecifierMaxIndexes,&zSpecifierMaxIndexesCount);
+    if (error!=NC_NOERR)
+    {
+        nc_close(ncId);
+        return error;
+    }
+
+    int ncIdDimensionZSpecifierMaxDouble;
+    error=nc_inq_dimid(ncId,"ZSpecifierMaxDoubleCount",&ncIdDimensionZSpecifierMaxDouble);
+    if (error!=NC_NOERR)
+    {
+        nc_close(ncId);
+        return error;
+    }
+
+    error=nc_inq_dimlen(ncId,ncIdDimensionZSpecifierMaxDouble,&zSpecifierMaxDoubleDataCount);
+    if (error!=NC_NOERR)
+    {
+        nc_close(ncId);
+        return error;
+    }
+
 
     initialize(int(nodeCount));
 
@@ -519,6 +579,7 @@ int ReosTin::readUGRIDFormat(std::string fileName)
 
     std::vector<VertexPointer> nodes(nodeCount);
     std::vector<FaceHandle> faces(faceCount);
+    std::vector<FacePointer> faces_(faceCount);
 
     size_t i=0;
 
@@ -553,15 +614,10 @@ int ReosTin::readUGRIDFormat(std::string fileName)
             VertexPointer vt;
             if(nodeCount<3)
             {
-                //insert point to handle with the infinite faces when there are less than 3 points;
-                //v=triangulation.insert(pt);
                 vt=insertVertex(nodeX[k],nodeY[k]);
             }
             else
             {
-                //create point to not create face for eache vertex, that will be done after
-//                v=triangulation.tds().create_vertex();
-//                v->set_point(pt);
                 vt=createVertex(nodeX[k],nodeY[k]);
             }
 
@@ -607,17 +663,12 @@ int ReosTin::readUGRIDFormat(std::string fileName)
 
         for (size_t k=0;k<j;k++)
         {
-            auto f=triangulation.tds().create_face();
+            std::vector<VertexPointer> vp(3,nullptr);
             for (size_t l=0;l<3;++l)
-            {
-                auto v=static_cast<TINVertex*>(nodes[static_cast<size_t>(faceBuffer[k*3+l])]);
-                if (v!=nullptr)
-                {
-                    f->set_vertex(int(l),v->handle());
-                    v->handle()->set_face(f);
-                }
-            }
-            faces[i+k]=f;
+                vp[l]=nodes[static_cast<size_t>(faceBuffer[k*3+l])];
+            FacePointer fp=createFace(vp);
+            faces[i+k]=faceHandle(static_cast<TinTriangulation::Face*>(fp));
+            faces_[i+k]=fp;
         }
         i+=j;
     }
@@ -813,383 +864,101 @@ int ReosTin::readUGRIDFormat(std::string fileName)
 
         ////////////////////
 
-
         i+=valueCount;
         allHardlinesReaden= i>=hardlinesVerticesCount;
 
     }
 
+
+    ////////////////////////
+    // read the z specifier
+    int ncZSpecifierTypeVariableId;
+    error=nc_inq_varid(ncId,"ZSpecifier type",&ncZSpecifierTypeVariableId);
+    if (error!=NC_NOERR)
+    {
+        nc_close(ncId);
+        return error;
+    }
+
+    int ncIndexesZSpecifierIndexesVariableId;
+    error=nc_inq_varid(ncId,"ZSpecifier indexes",&ncIndexesZSpecifierIndexesVariableId);
+    if (error!=NC_NOERR)
+    {
+        nc_close(ncId);
+        return error;
+    }
+
+    int ncZSpecifierDoubleDataVariableId;
+    error=nc_inq_varid(ncId,"ZSpecifier double",&ncZSpecifierDoubleDataVariableId);
+    if (error!=NC_NOERR)
+    {
+        nc_close(ncId);
+        return error;
+    }
+
+
+    i=0;
+    bool allZSpecifierReaden= 0==zSpecifierCount;
+    valueStart[1]=0;
+    bufferSize=1;
+    valueCount[0]=bufferSize;
+    ReosVertexZSpecifierGeneralFactory zSpecifierFactory;
+    while(!allZSpecifierReaden)
+    {
+        valueStart[0]=i;
+        ReosVertexZSpecifier::Data data;
+        char* str;
+        error=nc_get_vara_string(ncId,ncZSpecifierTypeVariableId,&i,&bufferSize,&str);
+        if (error!=NC_NOERR)
+        {
+            nc_close(ncId);
+            return error;
+        }
+        data.type=str;
+
+
+        data.verticesIndexes.resize(zSpecifierMaxIndexesCount);
+        valueCount[1]=zSpecifierMaxIndexesCount;
+        error=nc_get_vara_int(ncId,ncIndexesZSpecifierIndexesVariableId,valueStart,valueCount,&data.verticesIndexes[0]);
+        if (error!=NC_NOERR)
+        {
+            nc_close(ncId);
+            return error;
+        }
+
+        data.otherVertices.resize(zSpecifierMaxIndexesCount-1);
+        VertexPointer associateVertex=nodes[static_cast<size_t>(data.verticesIndexes[0])];
+        for (size_t ind=1;ind<data.verticesIndexes.size();++ind)
+        {
+            if (data.verticesIndexes[ind]<0)
+                data.otherVertices[ind-1]=nullptr;
+            else
+                data.otherVertices[ind-1]=nodes[static_cast<size_t>(data.verticesIndexes[ind])];
+        }
+
+        data.doubleData.resize(zSpecifierMaxDoubleDataCount);
+        valueCount[1]=zSpecifierMaxDoubleDataCount;
+        error=nc_get_vara_double(ncId,ncZSpecifierDoubleDataVariableId,valueStart,valueCount,&data.doubleData[0]);
+        if (error!=NC_NOERR)
+        {
+            nc_close(ncId);
+            return error;
+        }
+
+        zSpecifierFactory.setData(data);
+        associateVertex->setZSpecifier(zSpecifierFactory);
+
+
+        i+=bufferSize;
+        allZSpecifierReaden= i>=zSpecifierCount;
+    }
+
+
+
     nc_close(ncId);
     return error;
 }
 
-int ReosTin::writeUGRIDFormat(std::string fileName)
-{
-    int ncId;
-    int error;
-
-    if (fileName.empty())
-        return 1;
-
-    error=nc_create(fileName.c_str(),NC_CLOBBER|NC_NETCDF4,&ncId);
-    if (error!=NC_NOERR)
-        return error;
-
-    std::unique_ptr<MeshIO> reader=getReader();
-
-    std::string meshNodeXVariableName("TIN_node_x");
-    std::string meshNodeYVariableName("TIN_node_y");
-    std::string meshNodeZVariableName("TIN_altitude");
-    std::string meshFaceNodeConnectivity("TIN_face_node_connectivity");
-    std::string coordinateSystemVariableName("Coordinate system");
-
-    //***********************************
-    //define dimensions
-
-    //node dimension
-    int ncIdDimensionMeshNode;
-    error=nc_def_dim(ncId,"TIN_Node",static_cast<size_t>(verticesCount()),&ncIdDimensionMeshNode);
-    if (error!=NC_NOERR)
-    {
-        nc_close(ncId);
-        return error;
-    }
-
-    //face dimension
-    int ncIdDimensionMeshFace;
-    error=nc_def_dim(ncId,"TIN_Face",static_cast<size_t>(facesCount()),&ncIdDimensionMeshFace);
-    if (error!=NC_NOERR)
-    {
-        nc_close(ncId);
-        return error;
-    }
-
-
-    //max node per faces dimension
-    int ncIdDimensionMaxNodesPerFaces;
-    size_t maxNode=static_cast<size_t>(maxNodesPerFaces());
-    error=nc_def_dim(ncId,"Max_Node_Per_Faces",maxNode,&ncIdDimensionMaxNodesPerFaces);
-    if (error!=NC_NOERR)
-    {
-        nc_close(ncId);
-        return error;
-    }
-
-    //hardline dimension
-    size_t hardLineVerticesCount=static_cast<size_t>(reader->hardlinesVerticesCount());
-    size_t hardLineCount=static_cast<size_t>(reader->hardlinesCount());
-    int ncIdDimensionHardLines;
-    error=nc_def_dim(ncId,"HardLines_dimension",hardLineVerticesCount+hardLineCount,&ncIdDimensionHardLines);
-    if (error!=NC_NOERR)
-    {
-        nc_close(ncId);
-        return error;
-    }
-
-    //define variable for coordinate system
-    int ncIdCRSVariable;
-    error=nc_def_var(ncId,coordinateSystemVariableName.c_str(),NC_BYTE,0,nullptr,&ncIdCRSVariable);
-    if (error!=NC_NOERR)
-    {
-        nc_close(ncId);
-        return error;
-    }
-
-    const char* crsChar=crs().c_str();
-    error=nc_put_att_text(ncId,ncIdCRSVariable,"wkt",std::strlen(crsChar),crsChar);
-    if (error!=NC_NOERR)
-    {
-        nc_close(ncId);
-        return error;
-    }
-
-    //define the dummy variable
-    int ncIdMesh;
-    error=nc_def_var(ncId,"TIN",NC_BYTE,0,nullptr,&ncIdMesh);
-    if (error!=NC_NOERR)
-    {
-        nc_close(ncId);
-        return error;
-    }
-
-    ////////////////////////////////
-    // fill the attributes
-    //cf role
-    const char* cfRole="mesh_topology";
-    error=nc_put_att_text(ncId,ncIdMesh,"cf_role",std::strlen(cfRole),cfRole);
-    if (error!=NC_NOERR)
-    {
-        nc_close(ncId);
-        return error;
-    }
-
-    //topology dimension
-    int topology_dimension=2;
-    error=nc_put_att_int(ncId,ncIdMesh,"topology_dimension",NC_INT,1,&topology_dimension);
-    if (error!=NC_NOERR)
-    {
-        nc_close(ncId);
-        return error;
-    }
-
-    //node Coordinate Location
-    std::string ncl=meshNodeXVariableName+" "+meshNodeYVariableName;
-    const char* nodeCoordinatesLocation=ncl.c_str();
-    error=nc_put_att_text(ncId,ncIdMesh,"node_coordinates",std::strlen(nodeCoordinatesLocation),nodeCoordinatesLocation);
-    if (error!=NC_NOERR)
-    {
-        nc_close(ncId);
-        return error;
-    }
-
-    //face node connectivity
-    const char* faceNodeConnectivityLocation=meshFaceNodeConnectivity.c_str();
-    error=nc_put_att_text(ncId,ncIdMesh,"face_node_connectivity",std::strlen(faceNodeConnectivityLocation),faceNodeConnectivityLocation);
-    if (error!=NC_NOERR)
-    {
-        nc_close(ncId);
-        return error;
-    }
-
-    //////////////////////
-    // defines and fills node coordinate variable
-    int ncNodeXVariableId;
-    error=nc_def_var(ncId,meshNodeXVariableName.c_str(),NC_DOUBLE,1,&ncIdDimensionMeshNode,&ncNodeXVariableId);
-    if (error!=NC_NOERR)
-    {
-        nc_close(ncId);
-        return error;
-    }
-
-    error=nc_put_att_text(ncId,ncNodeXVariableId,"grid_mapping",coordinateSystemVariableName.size(),coordinateSystemVariableName.c_str());
-    if (error!=NC_NOERR)
-    {
-        nc_close(ncId);
-        return error;
-    }
-
-    int ncNodeYVariableId;
-    error=nc_def_var(ncId,meshNodeYVariableName.c_str(),NC_DOUBLE,1,&ncIdDimensionMeshNode,&ncNodeYVariableId);
-    if (error!=NC_NOERR)
-    {
-        nc_close(ncId);
-        return error;
-    }
-
-    error=nc_put_att_text(ncId,ncNodeYVariableId,"grid_mapping",coordinateSystemVariableName.size(),coordinateSystemVariableName.c_str());
-    if (error!=NC_NOERR)
-    {
-        nc_close(ncId);
-        return error;
-    }
-
-    int ncNodeZVariableId;
-    error=nc_def_var(ncId,meshNodeZVariableName.c_str(),NC_DOUBLE,1,&ncIdDimensionMeshNode,&ncNodeZVariableId);
-    if (error!=NC_NOERR)
-    {
-        nc_close(ncId);
-        return error;
-    }
-    //fill the Z value variable attribute to be UGRID compliant
-    const char* alt="altitude";
-    error=nc_put_att_text(ncId,ncNodeZVariableId,"standard_name",std::strlen(alt),alt);
-    const char* meshName="TIN";
-    error=nc_put_att_text(ncId,ncNodeZVariableId,"mesh",std::strlen(meshName),meshName);
-    const char* loc="node";
-    error=nc_put_att_text(ncId,ncNodeZVariableId,"location",std::strlen(loc),loc);
-
-    size_t bufferSize=100;
-    std::vector<double> nodeX(bufferSize);
-    std::vector<double> nodeY(bufferSize);
-    std::vector<double> nodeZ(bufferSize);
-
-    size_t i=0;
-    while (!reader->allVerticesReaden())
-    {
-
-        size_t j=0;
-        while (!reader->allVerticesReaden() && j<bufferSize)
-        {
-            double vert[3];
-            reader->readVertex(vert);
-            nodeX[j]=vert[0];
-            nodeY[j]=vert[1];
-            nodeZ[j]=vert[2];
-            ++j;
-        }
-        error=nc_put_vara(ncId,ncNodeXVariableId,&i,&j,nodeX.data());
-        if (error!=NC_NOERR)
-        {
-            nc_close(ncId);
-            return error;
-        }
-
-        error=nc_put_vara(ncId,ncNodeYVariableId,&i,&j,nodeY.data());
-        if (error!=NC_NOERR)
-        {
-            nc_close(ncId);
-            return error;
-        }
-
-        error=nc_put_vara(ncId,ncNodeZVariableId,&i,&j,nodeZ.data());
-        if (error!=NC_NOERR)
-        {
-            nc_close(ncId);
-            return error;
-        }
-
-        i+=j;
-    }
-
-
-    //////////////////////
-    // defines and fills faces variable
-    int ncFacesVariableId;
-
-    int facesDimension[2];
-    facesDimension[0]=ncIdDimensionMeshFace;
-    facesDimension[1]=ncIdDimensionMaxNodesPerFaces;
-
-    error=nc_def_var(ncId,meshFaceNodeConnectivity.c_str(),NC_INT,2,facesDimension,&ncFacesVariableId);
-    if (error!=NC_NOERR)
-    {
-        nc_close(ncId);
-        return error;
-    }
-
-    //start index
-    int startIndex=0;
-    error=nc_put_att_int(ncId,ncFacesVariableId,"start_index",NC_INT,1,&startIndex);
-    if (error!=NC_NOERR)
-    {
-        nc_close(ncId);
-        return error;
-    }
-
-    int fillValue=-1;
-    error=nc_put_att_int(ncId,ncFacesVariableId,"_FillValue",NC_INT,1,&fillValue);
-    std::vector<int> facesBuffer(bufferSize*maxNode);
-    size_t valueCount[2];
-    valueCount[1]=maxNode;
-    size_t valueStart[2];
-    valueStart[1]=0;
-    i=0;
-    while (!reader->allFacesReaden())
-    {
-        size_t j=0;
-        while (!reader->allFacesReaden() && j<bufferSize)
-        {
-            int nodeCount;
-            reader->readNodePerFace(nodeCount);
-            std::vector<int> indexes(static_cast<size_t>(nodeCount));
-            reader->readFace(indexes.data());
-            size_t k=0;
-            for (;k<indexes.size();k++)
-            {
-                facesBuffer[j*maxNode+k]=indexes[k];
-            }
-
-            for (;k<maxNode;++k)
-            {
-                facesBuffer[j*maxNode+k]=fillValue;
-            }
-            j++;
-        }
-        valueCount[0]=j;
-        valueStart[0]=i;
-        error=nc_put_vara_int(ncId,ncFacesVariableId,valueStart,valueCount,facesBuffer.data());
-        if (error!=NC_NOERR)
-        {
-            nc_close(ncId);
-            return error;
-        }
-        i+=j;
-    }
-
-
-    //////////////////////
-    // defines and fills neighbors variable
-    int ncNeighborVariableId;
-
-    error=nc_def_var(ncId,"face_neighbors",NC_INT,2,facesDimension,&ncNeighborVariableId);
-    if (error!=NC_NOERR)
-    {
-        nc_close(ncId);
-        return error;
-    }
-
-    error=nc_put_att_int(ncId,ncNeighborVariableId,"_FillValue",NC_INT,1,&fillValue);
-    int neighborCount;
-    reader->readNodePerFace(neighborCount);
-    std::vector<int> indexes(static_cast<size_t>(neighborCount));
-    std::vector<int> neighborsBuffer(bufferSize*static_cast<size_t>(neighborCount));
-    i=0;
-    while (!reader->allNeighborReaden())
-    {
-        size_t j=0;
-        while (!reader->allNeighborReaden() && j<bufferSize)
-        {
-            reader->readNeighbor(indexes.data());
-            size_t k=0;
-            for (;k<indexes.size();k++)
-            {
-                if (indexes[k]!=-1)
-                    neighborsBuffer[j*maxNode+k]=indexes[k];
-                else {
-                    neighborsBuffer[j*maxNode+k]=fillValue;
-                }
-            }
-
-            for (;k<maxNode;++k)
-            {
-                neighborsBuffer[j*maxNode+k]=fillValue;
-            }
-
-            j++;
-        }
-
-        valueCount[0]=j;
-        valueStart[0]=i;
-        error=nc_put_vara_int(ncId,ncNeighborVariableId,valueStart,valueCount,neighborsBuffer.data());
-        if (error!=NC_NOERR)
-        {
-            nc_close(ncId);
-            return error;
-        }
-        i+=j;
-    }
-
-    //////////////////////
-    // defines and fills hardlines variable
-    int ncHardlinesVariableId;
-
-    error=nc_def_var(ncId,"hardlines",NC_INT,1,&ncIdDimensionHardLines,&ncHardlinesVariableId);
-    if (error!=NC_NOERR)
-    {
-        nc_close(ncId);
-        return error;
-    }
-
-    i=0;
-    while (!reader->allHardLineReaden())
-    {
-        size_t verticesCount=static_cast<size_t>(reader->currentHardlineVerticesCount());
-        size_t valueCount=verticesCount+1;
-        std::vector<int> indexes(valueCount);
-        indexes[0]=int(verticesCount);
-        reader->readHardlineVertices(&(indexes[1]));
-        error=nc_put_vara_int(ncId,ncHardlinesVariableId,&i,&valueCount,indexes.data());
-        if (error!=NC_NOERR)
-        {
-            nc_close(ncId);
-            return error;
-        }
-        i+=valueCount;
-    }
-
-    return nc_close(ncId);
-
-}
 
 FaceHandle ReosTin::faceHandle(TinTriangulation::Face *f) const
 {
@@ -1277,6 +1046,13 @@ TinReader::TinReader(const TinTriangulation *triangulation):mTriangulation(trian
     sIt=mTriangulation->subconstraints_begin();
     boundaryIterator=boundariesList.begin();
     cIt=mTriangulation->constraints_begin();
+
+    vItForZSpecifier=mTriangulation->finite_vertices_begin();
+    while(vItForZSpecifier!=mTriangulation->finite_vertices_end()
+          && vItForZSpecifier->tinVertex()->zSpecifier()->type()==ReosVertexZSpecifier::Type::Simple)
+    {
+        vItForZSpecifier++;
+    }
 }
 
 int TinReader::vertexCoordCount() const
@@ -1299,6 +1075,10 @@ void TinReader::readVertex(double *vert)
     vert[0]=vIt->tinVertex()->x();
     vert[1]=vIt->tinVertex()->y();
     vert[2]=vIt->tinVertex()->z();
+
+    if (vIt->tinVertex()->zSpecifier()->type()!=ReosVertexZSpecifier::Type::Simple)
+        mZSpecifierCount++;
+
     verticesIndex[vIt->handle()]=currentVertexIndex;
     vIt++;
     currentVertexIndex++;
@@ -1470,6 +1250,11 @@ bool TinReader::allBoundaryEdgesReaden() const
     return boundaryIterator==boundariesList.end();
 }
 
+int TinReader::zSpecifierCount() const
+{
+    return mZSpecifierCount;
+}
+
 bool TinReader::allSegmentsReaden() const
 {
     return sIt==mTriangulation->subconstraints_end();
@@ -1499,3 +1284,5 @@ TINVertex::TINVertex(VertexHandle cgalVert):mCgalVertex(cgalVert)
 {
     cgalVert->mTINVertex=this;
 }
+
+

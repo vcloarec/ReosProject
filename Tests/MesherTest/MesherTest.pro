@@ -46,7 +46,12 @@ HEADERS += \
     ../../Mesher/tinEditorUi/reostineditorgraphic.h \
     ../../Mesher/tinEditorUi/hdtineditornewdialog.h \
     ../../Mesher/tinEditorUi/hdtineditoruidialog.h \
-    ../../Mesher/ReosMesh/reosvertexzspecifier.h
+    ../../Mesher/ReosMesh/reosvertexzspecifier.h \
+    ../../Reos/Form/reosform.h \
+    ../../Reos/quantity/reosarea.h \
+    ../../Reos/quantity/reosduration.h \
+    ../../Reos/quantity/reostime.h \
+    ../../Mesher/ReosMesh/vertex.h
 
 
 
@@ -80,7 +85,12 @@ SOURCES += \
     tst_004_editablemeshlayertest.cpp \
     tst_005_tineditorgraphictest.cpp \
     tst_006_mapmeshitemtest.cpp \
-    ../../Mesher/ReosMesh/reosvertexzspecifier.cpp
+    ../../Mesher/ReosMesh/reosvertexzspecifier.cpp \
+    ../../Reos/Form/reosform.cpp \
+    ../../Reos/quantity/reosarea.cpp \
+    ../../Reos/quantity/reosduration.cpp \
+    ../../Reos/quantity/reostime.cpp \
+    ../../Mesher/ReosMesh/vertex.cpp
 
 
 FORMS += \

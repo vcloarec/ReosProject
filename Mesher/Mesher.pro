@@ -30,8 +30,6 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     provider/meshdataprovider.cpp \
-    ReosMesh/reosmesh.cpp \
-    ReosMesh/reosmesheditor.cpp \
     ReosMesh/reosmeshgenerator.cpp \
     tinEditorUi/reosmapmeshitem.cpp \
     ReosTin/reostin.cpp \
@@ -50,7 +48,15 @@ SOURCES += \
     ../Reos/reosdialogbox.cpp \
     ../Reos/reosutils.cpp \
     ../UtilsGeometry/utilsgeometry2d.cpp \
-    tinEditorUi/reostineditorgraphic.cpp
+    tinEditorUi/reostineditorgraphic.cpp \
+    ../Reos/Form/reosform.cpp \
+    ReosMesh/reosmesh.cpp \
+    ReosMesh/reosmesheditor.cpp \
+    ReosMesh/reosvertexzspecifier.cpp \
+    ReosMesh/vertex.cpp \
+    ../Reos/quantity/reosarea.cpp \
+    ../Reos/quantity/reosduration.cpp \
+    ../Reos/quantity/reostime.cpp
 
 
 
@@ -60,9 +66,6 @@ HEADERS += \
     tinEditorUi/hdtineditoruidialog.h \
     tinEditorUi/hdtineditornewdialog.h \
     ReosTin/reostin.h \
-    ReosMesh/reosmesh.h \
-    ReosMesh/reosmesheditor.h \
-    ReosMesh/reosmeshgenerator.h \
     tinEditorUi/reosmapmeshitem.h\
     ../GIS/reosmapitem.h \
     ../GIS/hdcrsdialogselection.h \
@@ -78,7 +81,16 @@ HEADERS += \
     ../Reos/reosutils.h \
     ../UtilsGeometry/utilsgeometry2d.h \
     tinEditorUi/reostineditorgraphic.h \
-    HdTin/test.h
+    HdTin/test.h \
+    ../Reos/Form/reosform.h\
+    ReosMesh/reosmesh.h \
+    ReosMesh/reosmesheditor.h \
+    ReosMesh/reosmeshgenerator.h \
+    ReosMesh/reosvertexzspecifier.h \
+    ReosMesh/vertex.h \
+    ../Reos/quantity/reosarea.h \
+    ../Reos/quantity/reosduration.h \
+    ../Reos/quantity/reostime.h
 
 
 FORMS += \

@@ -102,6 +102,7 @@ public:
 
     VertexPointer vertexPointer(int i) const override;
 
+
 private:
     void addVertex(VertexPointer vert) override {if(vert==nullptr){};}
 
@@ -194,6 +195,7 @@ VertexPointer TinCGALFace<Gt,Fb>::vertexPointer(int i) const
 
 
 
+
 class TinReader:public MeshIO
 {
 
@@ -227,6 +229,33 @@ public:
     void readBoundaryEdge(int *be) override;
     bool allBoundaryEdgesReaden() const override;
 
+    int zSpecifierCount() const override;
+    void readSpecifier(ReosVertexZSpecifier::Data &zSpecifierData) override
+    {
+        zSpecifierData=vItForZSpecifier->tinVertex()->zSpecifier()->data();
+
+        zSpecifierData.verticesIndexes.push_back(verticesIndex[vItForZSpecifier->handle()]);
+        for (auto v:zSpecifierData.otherVertices)
+        {
+            if (v)
+                zSpecifierData.verticesIndexes.push_back(verticesIndex[static_cast<TINVertex*>(v)->handle()]);
+            else
+                zSpecifierData.verticesIndexes.push_back(-1);
+        }
+
+        vItForZSpecifier++;
+        while(vItForZSpecifier!=mTriangulation->finite_vertices_end()
+              && vItForZSpecifier->tinVertex()->zSpecifier()->type()==ReosVertexZSpecifier::Type::Simple)
+        {
+            vItForZSpecifier++;
+        }
+    }
+    bool allZSpecifierReaden() const override
+    {
+        return vItForZSpecifier==mTriangulation->finite_vertices_end();
+    }
+
+
     bool allNeighborReaden() const override;
 
 private:
@@ -242,6 +271,9 @@ private:
     const TinTriangulation *mTriangulation;
     int currentVertexIndex=0;
     int currentFaceIndex=0;
+    int mZSpecifierCount=0;
+    VertexIterator vItForZSpecifier;
+
 
 };
 
@@ -267,6 +299,7 @@ public:
     VertexPointer addVertex(double x, double y) override;
     int maxNodesPerFaces() const override {return 3;}
 
+    FacePointer createFace(const std::vector<VertexPointer> &vertices);
 
 
 
@@ -295,7 +328,6 @@ public:
     std::vector<FacePointer> flipFaces(FacePointer f1, FacePointer f2);
 
     int readUGRIDFormat(std::string fileName) override;
-    int writeUGRIDFormat(std::string fileName) override;
 
 private:
     TinTriangulation triangulation;
