@@ -21,7 +21,7 @@
     <layout class="QHBoxLayout" name="layoutAction"/>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="horizontalZpecifier">
      <item>
       <widget class="QLabel" name="entryPrefix">
        <property name="text">
@@ -66,6 +66,9 @@
       </spacer>
      </item>
     </layout>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="zSpecifierLayout"/>
    </item>
    <item>
     <widget class="QCheckBox" name="checkBoxAutoUpdate">

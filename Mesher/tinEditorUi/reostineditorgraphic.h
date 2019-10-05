@@ -38,6 +38,7 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #include "reosmapmeshitem.h"
 #include "hdtineditoruidialog.h"
 #include "hdtineditornewdialog.h"
+#include "reosvertexzspecifierwidget.h"
 
 #include "../ReosTin/reostin.h"
 
@@ -307,6 +308,7 @@ private: //attributes
     ReosMap *mMap;
     HdTinEditorUiDialog *uiDialog;
     HdTinEditorUiDialog::ZValueMode zValueMode=HdTinEditorUiDialog::none;
+    ReosVertexZSpecifierWidget *mZSpecifierWidget;
 
     std::unique_ptr<QgsCoordinateTransform> mTransform;
 

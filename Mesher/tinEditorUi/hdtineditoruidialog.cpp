@@ -73,6 +73,11 @@ void HdTinEditorUiDialog::setZValueMode(HdTinEditorUiDialog::ZValueMode mode)
     }
 }
 
+void HdTinEditorUiDialog::setZSpecifierWidet(QWidget *widget)
+{
+    ui->zSpecifierLayout->addWidget(widget);
+}
+
 void HdTinEditorUiDialog::setLineEditFocus()
 {
     ui->lineEdit->setFocus(Qt::OtherFocusReason);

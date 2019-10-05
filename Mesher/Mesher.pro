@@ -56,7 +56,8 @@ SOURCES += \
     ReosMesh/vertex.cpp \
     ../Reos/quantity/reosarea.cpp \
     ../Reos/quantity/reosduration.cpp \
-    ../Reos/quantity/reostime.cpp
+    ../Reos/quantity/reostime.cpp \
+    tinEditorUi/reosvertexzspecifierwidget.cpp
 
 
 
@@ -90,7 +91,8 @@ HEADERS += \
     ReosMesh/vertex.h \
     ../Reos/quantity/reosarea.h \
     ../Reos/quantity/reosduration.h \
-    ../Reos/quantity/reostime.h
+    ../Reos/quantity/reostime.h \
+    tinEditorUi/reosvertexzspecifierwidget.h
 
 
 FORMS += \
@@ -100,7 +102,8 @@ FORMS += \
     ../GIS/hdvectorlayerpropertiesdialog.ui \
     ../Reos/reosmessagebox.ui \
     tinEditorUi/hdtineditoruidialog.ui \
-    tinEditorUi/hdtineditornewdialog.ui
+    tinEditorUi/hdtineditornewdialog.ui \
+    tinEditorUi/reosvertexzspecifierwidget.ui
 
 
 TRANSLATIONS +=../i18n/hydro_en.ts

@@ -73,6 +73,8 @@ ReosTinEditorUi::ReosTinEditorUi(ReosGisManager *gismanager, QObject *parent):Re
 
     uiDialog=new HdTinEditorUiDialog(mMap->getMapCanvas());
     uiDialog->setActions(getActions());
+    mZSpecifierWidget= new ReosVertexZSpecifierWidget(uiDialog);
+    uiDialog->setZSpecifierWidet(mZSpecifierWidget);
 
     connect(mGisManager,&ReosGisManager::mapCrsChanged,this,&ReosTinEditorUi::mapCrsChanged);
 

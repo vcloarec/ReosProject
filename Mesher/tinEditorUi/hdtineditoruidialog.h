@@ -44,6 +44,7 @@ public:
     void setEntrySuffix(const QString &suffix);
 
     void setZValueMode(ZValueMode mode);
+    void setZSpecifierWidet(QWidget *widget);
 
     void setLineEditFocus();
 

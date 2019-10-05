@@ -158,6 +158,7 @@
         <file>toolbar/MeshTINRemoveSegment.png</file>
         <file>toolbar/MeshTINRemoveVertex.png</file>
         <file>toolbar/MeshFlipFaces.png</file>
+        <file>toolbar/ZSpecifierSimpleValue.png</file>
     </qresource>
     <qresource prefix="/Qgis">
         <file>Qgis/labels.png</file>

@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
                       reosform.h
                      --------------------------------------
 Date                 : 31-03-2019
@@ -40,13 +40,7 @@ class ReosFormParameterEditor: public QWidget
 {
     Q_OBJECT
 public:
-    ReosFormParameterEditor():QWidget(),
-        toolButtonAskForCalculate(new QToolButton(this))
-    {
-        toolButtonAskForCalculate->setVisible(false);
-        toolButtonAskForCalculate->setIcon(QPixmap("://toolbar/calculatrice.png"));
-        connect(toolButtonAskForCalculate,&QAbstractButton::clicked,this,&ReosFormParameterEditor::askForCalculateClicked);
-    }
+    ReosFormParameterEditor();
     virtual ~ReosFormParameterEditor(){}
 
 
@@ -57,27 +51,11 @@ signals:
 protected:
     QToolButton *toolButtonAskForCalculate;
 
-    QString setToSystemLocale(QString str)
-    {
-        const QLocale &cLocale=QLocale::c();
-        const QLocale &systemLocale=QLocale::system();
-        str.replace(cLocale.decimalPoint(),systemLocale.decimalPoint());
-        return str;
-    }
-    QString setToCLocale(QString str)
-    {
-        const QLocale &cLocale=QLocale::c();
-        const QLocale &systemLocale=QLocale::system();
-        str.replace(systemLocale.decimalPoint(),cLocale.decimalPoint());
-
-        return str;
-    }
+    QString setToSystemLocale(QString str);
+    QString setToCLocale(QString str);
 
 private slots:
-    void askForCalculateClicked()
-    {
-        emit askForCalculate();
-    }
+    void askForCalculateClicked();
 
 };
 
@@ -85,10 +63,7 @@ private slots:
 class ReosFormObject:public QObject
 {
 public:
-    ReosFormObject(QObject *parent):QObject(parent)
-    {
-
-    }
+    ReosFormObject(QObject *parent);
 
     virtual QWidget *getWidget()=0;
 };
@@ -107,10 +82,7 @@ signals:
     void valueEdited();
 
 protected slots:
-    void valueAsked()
-    {
-        emit askForValue();
-    }
+    void valueAsked();
     virtual ReosFormParameterEditor *makeEdit()=0;
 
 
@@ -125,77 +97,32 @@ class ReosFormParameterEditorSimple:public ReosFormParameterEditor
 {
     Q_OBJECT
 public:
-    ReosFormParameterEditorSimple(QString nameField, QString value):ReosFormParameterEditor()
-    {
-        lay=new QHBoxLayout;
-        setLayout(lay);
-        lay->setMargin(0);
-        valueEdit=new QLineEdit(setToSystemLocale(value),this);
-        lay->addWidget(new QLabel(nameField));
-        lay->addStretch();
-        lay->addWidget(valueEdit);
-
-        connect(valueEdit,&QLineEdit::editingFinished,this,&ReosFormParameterEditorSimple::valueHasBeenEdited);
-
-    }
+    ReosFormParameterEditorSimple(QString nameField, QString value);
 
 
-    ReosFormParameterEditorSimple(QString nameField, QString value, QString unit):ReosFormParameterEditorSimple(nameField,value)
-    {
-        layout()->addWidget(new QLabel(unit));
-    }
+    ReosFormParameterEditorSimple(QString nameField, QString value, QString unit);
 
-    virtual ~ReosFormParameterEditorSimple() {}
+    virtual ~ReosFormParameterEditorSimple();
 
 
-    void setAlignment(Qt::Alignment a)
-    {
-        valueEdit->setAlignment(a);
-    }
+    void setAlignment(Qt::Alignment a);
 
-    void enableCalculateButton()
-    {
-        toolButtonAskForCalculate->setVisible(true);
-        lay->addWidget(toolButtonAskForCalculate);
-    }
+    void enableCalculateButton();
 
 public slots:
-    void updateValue(QString val)
-    {
-        QObject::blockSignals(true);
-        setValueEditText(val);
-        QObject::blockSignals(false);
-    }
-
-    void enableEditor(bool b)
-    {
-        valueEdit->setEnabled(b);
-    }
-
-    void disableEditor(bool b)
-    {
-        valueEdit->setEnabled(!b);
-    }
-
-    void setEditable(bool b)
-    {
-        valueEdit->setReadOnly(!b);
-    }
+    void updateValue(QString val);
+    void enableEditor(bool b);
+    void disableEditor(bool b);
+    void setEditable(bool b);
 
 signals:
     void changed(QString value);
 
 protected:
-    void setValueEditText(QString str)
-    {
-        valueEdit->setText(setToSystemLocale(str));
-    }
+    void setValueEditText(QString str);
 
 private slots:
-    void valueHasBeenEdited()
-    {
-        emit changed(setToCLocale(valueEdit->text()));
-    }
+    void valueHasBeenEdited();
 
 private:
     QHBoxLayout *lay;
@@ -207,9 +134,7 @@ class ReosFormParameterSimple: public ReosFormParameter
 {
     Q_OBJECT
 public:
-    ReosFormParameterSimple(QString name, ReosForm* parent=nullptr):ReosFormParameter(parent),
-        name(name)
-    {}
+    ReosFormParameterSimple(QString name, ReosForm* parent=nullptr);
     virtual ~ReosFormParameterSimple() override {}
 
     QString getName() const;
@@ -218,10 +143,7 @@ public:
     virtual bool isDefined() const =0;
     virtual void setUndefined() =0;
 
-    void enableCalculateButton()
-    {
-        calculateButton=true;
-    }
+    void enableCalculateButton();
 
     void linkEditableWithBool(ReosFormParameterSimpleBool *boolParameter,bool editableIfTrue);
     void linkEnableWithBool(ReosFormParameterSimpleBool *boolParameter,bool enableIfTrue);
@@ -233,28 +155,10 @@ signals:
 
 
 public slots:
-    void enableEditor(bool b)
-    {
-        disable=!b;
-        emit enable(b);
-    }
-    void disableEditor(bool b)
-    {
-        disable=b;
-        emit enable(!b);
-    }
-
-    void setEditable(bool b)
-    {
-        editable=b;
-        emit editableEditor(b);
-    }
-
-    void setUneditable(bool b)
-    {
-        editable=!b;
-        emit editableEditor(editable);
-    }
+    void enableEditor(bool b);
+    void disableEditor(bool b);
+    void setEditable(bool b);
+    void setUneditable(bool b);
 
 protected:
     bool calculateButton=false;
@@ -270,19 +174,7 @@ private:
     virtual QString getStringValue()=0;
 
 protected slots:
-    virtual ReosFormParameterEditor *makeEdit() override
-    {
-        ReosFormParameterEditorSimple* editor=instantiateEditor();
-        connect(this,&ReosFormParameterSimple::valueChanged,editor,&ReosFormParameterEditorSimple::updateValue);
-        connect(editor,&ReosFormParameterEditorSimple::changed,this,&ReosFormParameterSimple::valueChangeByEditor);
-        connect(this,&ReosFormParameterSimple::enable,editor,&ReosFormParameterEditorSimple::enableEditor);
-        connect(this,&ReosFormParameterSimple::editableEditor,editor,&ReosFormParameterEditorSimple::setEditable);
-        editor->enableEditor(!disable);
-        editor->setEditable(editable);
-        if (calculateButton)
-            editor->enableCalculateButton();
-        return editor;
-    }
+    virtual ReosFormParameterEditor *makeEdit() override;
 
     virtual void valueChangeByEditor(QString v)=0;
 
@@ -292,17 +184,9 @@ class ReosFormParameterEditorSimpleWithVariableUnit: public ReosFormParameterEdi
 {
     Q_OBJECT
 public:
-    ReosFormParameterEditorSimpleWithVariableUnit(QString nameField, QString value, QStringList units,int unitPos):
-        ReosFormParameterEditorSimple(nameField,value)
-    {
-        QComboBox *comboBoxUnit=new QComboBox;
-        layout()->addWidget(comboBoxUnit);
-        comboBoxUnit->addItems(units);
-        comboBoxUnit->setCurrentIndex(unitPos);
-        connect(comboBoxUnit,QOverload<int>::of(&QComboBox::currentIndexChanged),this,&ReosFormParameterEditorSimpleWithVariableUnit::unitChanged);
-    }
+    ReosFormParameterEditorSimpleWithVariableUnit(QString nameField, QString value, QStringList units,int unitPos);
 
-    virtual ~ReosFormParameterEditorSimpleWithVariableUnit() override {}
+    virtual ~ReosFormParameterEditorSimpleWithVariableUnit() override;
 
 signals:
     void changeUnit(int i);
@@ -310,10 +194,7 @@ signals:
 
 private slots:
 
-    void unitChanged(int i)
-    {
-        emit changeUnit(i);
-    }
+    void unitChanged(int i);
 
 };
 
@@ -325,9 +206,7 @@ class ReosFormParameterSimpleDouble:public ReosFormParameterSimple
 {
     Q_OBJECT
 public:
-    ReosFormParameterSimpleDouble(QString name, double value, ReosForm* parent,QString unit=""):ReosFormParameterSimple(name,parent),
-        value(value),unit(unit)
-    {}
+    ReosFormParameterSimpleDouble(QString name, double value, ReosForm* parent,QString unit="");
 
     double getValue() const;
     void setValue(double value);
@@ -335,20 +214,11 @@ public:
     QString getUnit() const;
     void setUnit(const QString &value);
 
-    void setPrecision(int p)
-    {
-        precision=p;
-    }
+    void setPrecision(int p);
 
-    virtual bool isDefined() const override
-    {
-        return !(fabs(noData-value)<(fabs(noData)>fabs(value) ? fabs(noData) : fabs(value))*std::numeric_limits<double>::epsilon());
-    }
+    virtual bool isDefined() const override;
 
-    virtual void setUndefined() override
-    {
-        value=noData;
-    }
+    virtual void setUndefined() override;
 
     double getNoData() const;
     void setNoData(double value);
@@ -360,40 +230,14 @@ private:
 
     // HdFormParameterSimple interface
 private:
-    ReosFormParameterEditorSimple *instantiateEditor() override
-    {
-        QString valueString=getStringValue();
-        ReosFormParameterEditorSimple* editor;
-        if (getUnit()=="")
-            editor= new ReosFormParameterEditorSimple(getName(),valueString);
-        else {
-            editor= new ReosFormParameterEditorSimple(getName(),valueString,getUnit());
-        }
-
-        editor->setAlignment(Qt::AlignRight);
-        return editor;
-    }
+    ReosFormParameterEditorSimple *instantiateEditor() override;
 
     int precision=6;
 
-    QString getStringValue() override
-    {
-        if (isDefined())
-        {
-            return QString::number(value);
-        }
-        else {
-             return QString("-");
-        }
-    }
+    QString getStringValue() override;
 
 protected slots:
-    void valueChangeByEditor(QString v) override
-    {
-        value=v.toDouble();
-        emit valueEdited();
-        emit valueChanged(getStringValue());
-    }
+    void valueChangeByEditor(QString v) override;
 
 };
 
@@ -403,47 +247,28 @@ class ReosFormParameterSimpleString:public ReosFormParameterSimple
 {
     Q_OBJECT
 public:
-    ReosFormParameterSimpleString(QString name, QString value,ReosForm* parent):ReosFormParameterSimple(name,parent),
-        value(value)
-    {}
+    ReosFormParameterSimpleString(QString name, QString value,ReosForm* parent);
     virtual ~ReosFormParameterSimpleString() override {}
 
 
     QString getValue() const;
     void setValue(const QString &v);
 
-    virtual bool isDefined() const override
-    {
-        return value!="";
-    }
+    virtual bool isDefined() const override;
 
-    virtual void setUndefined() override
-    {
-        value="";
-    }
+    virtual void setUndefined() override;
 
 private:
     QString value;
 
     // HdFormParameterSimple interface
 private:
-    ReosFormParameterEditorSimple *instantiateEditor() override
-    {
-        return new ReosFormParameterEditorSimple(getName(),value);
-    }
+    ReosFormParameterEditorSimple *instantiateEditor() override;
 
-    QString getStringValue() override
-    {
-        return value;
-    }
+    QString getStringValue() override;
 
 protected slots:
-    void valueChangeByEditor(QString v) override
-    {
-        value=v;
-        emit valueEdited();
-        emit valueChanged(v);
-    }
+    void valueChangeByEditor(QString v) override;
 };
 
 //********************************Variable unit parameters*********************************************
@@ -452,77 +277,29 @@ class ReosFormParameterSimpleUnitVariable:public ReosFormParameterSimple
 {
     Q_OBJECT
 public:
-    ReosFormParameterSimpleUnitVariable(QString name,ReosForm* parent):ReosFormParameterSimple(name,parent)
-    {
+    ReosFormParameterSimpleUnitVariable(QString name,ReosForm* parent);
 
-    }
-
-    QString getStringUnit() const {
-        return getUnits().at(getCurrentUnit());
-    }
+    QString getStringUnit() const;
 
 
 signals:
     void unitChange(int i);
 
 protected slots:
-    virtual ReosFormParameterEditor *makeEdit() override
-    {
-        ReosFormParameterEditorSimpleWithVariableUnit* editor=instantiateEditor();
-        connect(this,&ReosFormParameterSimple::valueChanged,editor,&ReosFormParameterEditorSimpleWithVariableUnit::updateValue);
-        connect(editor,&ReosFormParameterEditorSimple::changed,this,&ReosFormParameterSimpleUnitVariable::valueChangeByEditor);
-        connect(this,&ReosFormParameterSimpleUnitVariable::enable,editor,&ReosFormParameterEditorSimpleWithVariableUnit::enableEditor);
-        connect(this,&ReosFormParameterSimpleUnitVariable::editableEditor,editor,&ReosFormParameterEditorSimpleWithVariableUnit::setEditable);
-        connect(editor,&ReosFormParameterEditorSimpleWithVariableUnit::changeUnit,this,&ReosFormParameterSimpleUnitVariable::unitChangeByEditor);
-        editor->setEditable(editable);
-        editor->enableEditor(!disable);
-        if (calculateButton)
-            editor->enableCalculateButton();
-        return editor;
-    }
+    virtual ReosFormParameterEditor *makeEdit() override;
 
-    void valueChangeByEditor(QString v) override
-    {
-        setValueFromDouble(v.toDouble());
-        emit valueEdited();
-        emit valueChanged(getStringValue());
-        emit unitChange(getCurrentUnit());
+    void valueChangeByEditor(QString v) override;
 
-    }
+    void unitChangeByEditor(int i);
 
-    void unitChangeByEditor(int i)
-    {
-        setUnit(i);
-        emit valueChanged(getStringValue());
-        emit unitChange(getCurrentUnit());
-    }
-
-    QString getStringValue() override
-    {
-        if (isDefined())
-        {
-            return QString::number(getValueDouble(),'f',2);
-        }
-        else {
-            return QString("-");
-        }
-    }
+    QString getStringValue() override;
 
     virtual QStringList getUnits() const =0;
 
 
 private:
 
-    ReosFormParameterEditorSimpleWithVariableUnit *instantiateEditor() override
-    {
-        int posUnit=getCurrentUnit();
-        QString string=getStringValue();
-        ReosFormParameterEditorSimpleWithVariableUnit *editor=new ReosFormParameterEditorSimpleWithVariableUnit(getName(),string,getUnits(),posUnit);
-        editor->setAlignment(Qt::AlignRight);
-        return editor;
-    }
-
-
+    ReosFormParameterEditorSimpleWithVariableUnit *instantiateEditor() override;
 
     virtual double getValueDouble() const =0;
     virtual void setValueFromDouble(double d) =0;
@@ -542,15 +319,9 @@ public:
     ReosArea getValue() const;
     void setValue(const ReosArea &value);
 
-    virtual bool isDefined() const override
-    {
-        return value.getValueInUnit()>0;
-    }
+    virtual bool isDefined() const override;
 
-    virtual void setUndefined() override
-    {
-        value=ReosArea(-1,value.unit());
-    }
+    virtual void setUndefined() override;
 
 private:
     ReosArea value;
@@ -558,42 +329,17 @@ private:
 
     // HdFormParameterSimpleUnitVariable interface
 private:
-    QStringList getUnits() const override
-    {
-        QStringList units;
-        units<<(QString("m").append(QChar(0x00B2)));
-        units<<tr("a");
-        units<<tr("ha");
-        units<<QString("km").append(QChar(0x00B2));
+    QStringList getUnits() const override;
 
-        return units;
-    }
+    double getValueDouble() const override;
 
-    double getValueDouble() const override
-    {
-        return value.getValueInUnit();
-    }
+    virtual void setValueFromDouble(double d) override;
 
-    virtual void setValueFromDouble(double d) override
-    {
-        value=ReosArea(d,value.unit());
-    }
+    int getCurrentUnit() const override;
 
-    int getCurrentUnit() const override
-    {
-        return value.unit();
-    }
+    virtual double getValueInUnit(int i) const override;
 
-    virtual double getValueInUnit(int i) const override
-    {
-        auto u=static_cast<ReosArea::Unit>(i);
-        return value.getValueInUnit(u);
-    }
-
-    virtual void setUnit(int i) override
-    {
-        value.setUnit(static_cast<ReosArea::Unit>(i));
-    }
+    virtual void setUnit(int i) override;
 
 };
 
@@ -601,36 +347,17 @@ class ReosFormParameterSimpleDuration:public ReosFormParameterSimpleUnitVariable
 {
     Q_OBJECT
 public:
-    ReosFormParameterSimpleDuration(QString name, ReosDuration value,ReosForm* parent):ReosFormParameterSimpleUnitVariable(name,parent),
-        value(value)
-    {}
+    ReosFormParameterSimpleDuration(QString name, ReosDuration value,ReosForm* parent);
 
     ReosDuration getValue() const;
     void setValue(const ReosDuration &v);
 
 
-    virtual bool isDefined() const override
-    {
-        return value.getValueUnit()>=0;
-    }
+    virtual bool isDefined() const override;
 
-    virtual void setUndefined() override
-    {
-        value=ReosDuration(-1,value.unit());
-    }
+    virtual void setUndefined() override;
 
-    QStringList getUnits() const override
-    {
-        QStringList units;
-        units<<tr("s");
-        units<<tr("mn");
-        units<<tr("h");
-        units<<tr("j");
-        units<<tr("semaines");
-        units<<tr("mois");
-        units<<tr("années");
-        return units;
-    }
+    QStringList getUnits() const override;
 
 private:
     ReosDuration value;
@@ -639,31 +366,15 @@ private:
     // HdFormParameterSimpleUnitVariable interface
 
 
-    double getValueDouble() const override
-    {
-        return value.getValueUnit();
-    }
+    double getValueDouble() const override;
 
-    virtual void setValueFromDouble(double d) override
-    {
-        value=ReosDuration(d,value.unit());
-    }
+    virtual void setValueFromDouble(double d) override;
 
-    int getCurrentUnit() const override
-    {
-        return value.unit();
-    }
+    int getCurrentUnit() const override;
 
-    virtual double getValueInUnit(int i) const override
-    {
-        auto u=static_cast<ReosDuration::Unit>(i);
-        return value.getValueUnit(u);
-    }
+    virtual double getValueInUnit(int i) const override;
 
-    virtual void setUnit(int i) override
-    {
-        value.setUnit(static_cast<ReosDuration::Unit>(i));
-    }
+    virtual void setUnit(int i) override;
 
 
 };
@@ -675,26 +386,10 @@ class ReosFormParameterEditorCheckBox:public ReosFormParameterEditor
 {
     Q_OBJECT
 public:
-    ReosFormParameterEditorCheckBox(QString nameField, bool value):ReosFormParameterEditor()
-    {
-        QHBoxLayout *lay=new QHBoxLayout;
-        setLayout(lay);
-        lay->setMargin(0);
-        checkBox=new QCheckBox(nameField,this);
-        updateValue(value);
-        lay->addWidget(checkBox);
-
-
-        connect(checkBox,&QCheckBox::clicked,this,&ReosFormParameterEditorCheckBox::valueHasBeenEdited);
-    }
+    ReosFormParameterEditorCheckBox(QString nameField, bool value);
 
 public slots:
-    void updateValue(bool val)
-    {
-        QObject::blockSignals(true);
-        checkBox->setChecked(val);
-        QObject::blockSignals(false);
-    }
+    void updateValue(bool val);
 
 
 signals:
@@ -705,10 +400,7 @@ private:
 
 
 private slots:
-    void valueHasBeenEdited()
-    {
-        emit changed(checkBox->isChecked());
-    }
+    void valueHasBeenEdited();
 
 };
 
@@ -716,11 +408,7 @@ class ReosFormParameterSimpleBool:public ReosFormParameter
 {
     Q_OBJECT
 public:
-    ReosFormParameterSimpleBool(QString name, bool value, ReosForm* parent):ReosFormParameter(parent),
-        name(name),value(value)
-    {
-
-    }
+    ReosFormParameterSimpleBool(QString name, bool value, ReosForm* parent);
 
     bool getValue() const;
     void setValue(bool value);
@@ -734,21 +422,33 @@ private:
 
 
 protected slots:
-    void valueChangeByEditor(bool v)
-    {
-        value=v;
-        emit valueEdited();
-        emit valueChanged(v);
-    }
+    void valueChangeByEditor(bool v);
 
     // HdFormParameter interface
 protected slots:
-    ReosFormParameterEditor *makeEdit() override
+    ReosFormParameterEditor *makeEdit() override;
+};
+
+//*********************************************************************************************
+//********************************     Action     *********************************************
+//*********************************************************************************************
+class ReosFormAction: public ReosFormObject
+{
+public:
+    ReosFormAction(ReosForm *parent, QString text);
+
+private:
+    QAction *mAction;
+
+    // ReosFormObject interface
+public:
+    QWidget *getWidget() override
     {
-        ReosFormParameterEditorCheckBox* editor=new ReosFormParameterEditorCheckBox(name,value);
-        connect(this,&ReosFormParameterSimpleBool::valueChanged,editor,&ReosFormParameterEditorCheckBox::updateValue);
-        connect(editor,&ReosFormParameterEditorCheckBox::changed,this,&ReosFormParameterSimpleBool::valueChangeByEditor);
-        return editor;
+        QToolButton *toolButton=new QToolButton;
+        toolButton->setDefaultAction(mAction);
+
+        return toolButton;
+
     }
 };
 
@@ -766,8 +466,12 @@ public:
 
     void addForm(ReosForm* childForm);
     void addParamater(ReosFormParameter *param);
+    void addForm(ReosFormObject* formObject);
     void addSeparator();
-    bool isSperatorPresent(int i) const;
+    bool isSeparatorPresent(int i) const;
+
+    void setOrientation(Qt::Orientation orientation);
+    Qt::Orientation orientation() const;
 
 public slots:
     virtual void parameterEdit();
@@ -777,10 +481,8 @@ signals:
 
 private:
     QList<ReosFormObject*> attachedFormObjects;
-//    QList<HdFormParameter* > parameterList;
     QList<int> separatorsPosition;
-
-
+    Qt::Orientation mOrientation=Qt::Vertical;
 
     // HdFormObject interface
 public:
@@ -791,66 +493,14 @@ class ReosFormWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ReosFormWidget(ReosForm* form=nullptr,QWidget *parent = nullptr):QWidget(parent)
-    {
-        QVBoxLayout* lay=new QVBoxLayout;
-        setLayout(lay);
-        lay->setSpacing(3);
-
-        if (form)
-        {
-            const QList<ReosFormObject* > &list=form->getFormObjectList();
-            for (auto param:list)
-            {
-                if (form->isSperatorPresent(list.indexOf(param)))
-                {
-                    lay->addLayout(addSeparator());
-                }
-                layout()->addWidget(param->getWidget());
-            }
-
-            if (form->isSperatorPresent(list.count()))
-            {
-                lay->addLayout(addSeparator());
-            }
-        }
-        else {
-            layout()->addWidget(new QLabel(tr("Formulaire vide")));
-        }
-        lay->addStretch();
-    }
+    explicit ReosFormWidget(ReosForm* form=nullptr,QWidget *parent = nullptr,Qt::Orientation orientation=Qt::Vertical);
 
 signals:
 
 public slots:
 
-
 private:
-    QLayout* addSeparator()
-    {
-        if (layout())
-        {
-            QHBoxLayout* layoutLine = new QHBoxLayout;
-            layoutLine->setSpacing(0);
-            layoutLine->setMargin(4);
-            layoutLine->addStretch();
-
-            QVBoxLayout* vbox = new QVBoxLayout;
-            QFrame *lineFrame=new QFrame;
-            lineFrame->setMinimumSize(20,4);
-            lineFrame->setMaximumSize(500,4);
-            lineFrame->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Minimum);
-            lineFrame->setFrameShape(QFrame::Box);
-            lineFrame->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-            vbox->addWidget(lineFrame);
-            layoutLine->addLayout(vbox);
-            layoutLine->addStretch();
-
-            return layoutLine;
-        }
-
-        return nullptr;
-    }
+    QLayout* addSeparator(Qt::Orientation orientation=Qt::Horizontal);
 };
 
 
