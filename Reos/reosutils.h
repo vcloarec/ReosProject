@@ -16,12 +16,14 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #define REOSUTILS_H
 
 
+
 #include <vector>
 #include <sstream>
 #include <iostream>
 #include <string>
 #include <cmath>
 #include <limits>
+#include <algorithm>
 
 
 std::vector<std::string> splitString(const std::string &input, const char &delimiter , bool returnEmpty=false);

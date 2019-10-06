@@ -61,12 +61,10 @@ public slots:
     {
         if (currentMapTool)
         {
-            if (currentMapTool->isInProgress())
-                currentMapTool->reset();
-            else {
-                currentMapTool->reset();
+            bool inProgress=currentMapTool->isInProgress();
+            currentMapTool->askForEscape();
+            if(!inProgress)
                 unsetMapTool();
-            }
         }
 
     }

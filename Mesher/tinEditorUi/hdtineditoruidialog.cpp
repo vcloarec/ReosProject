@@ -27,7 +27,7 @@ HdTinEditorUiDialog::HdTinEditorUiDialog(QWidget *parent) :
     ui->layoutAction->addWidget(toolbar);
 
     ReosSettings settings;
-    restoreGeometry(settings.value(QStringLiteral("DelineateAutomaticDialog/geometry")).toByteArray());
+    restoreGeometry(settings.value(QStringLiteral("TinEditorDialog/geometry")).toByteArray());
 
     connect(this,&QDialog::rejected,this,&HdTinEditorUiDialog::closed);
     connect(this,&QDialog::rejected,this,&HdTinEditorUiDialog::updateSettings);
@@ -39,55 +39,19 @@ HdTinEditorUiDialog::~HdTinEditorUiDialog()
     delete ui;
 }
 
-void HdTinEditorUiDialog::setEntryPrefix(const QString &prefix)
-{
-    ui->entryPrefix->setText(prefix);
-}
-
-void HdTinEditorUiDialog::setEntrySuffix(const QString &suffix)
-{
-    ui->entrySuffix->setText(suffix);
-}
-
-void HdTinEditorUiDialog::setZValueMode(HdTinEditorUiDialog::ZValueMode mode)
-{
-    switch (mode) {
-    case HdTinEditorUiDialog::none:
-        ui->entryPrefix->setText("");
-        ui->lineEdit->setText("");
-        ui->lineEdit->setEnabled(false);
-        ui->entrySuffix->setText("");
-        break;
-    case HdTinEditorUiDialog::level:
-        ui->entryPrefix->setText("Z : ");
-        ui->lineEdit->setText("0");
-        ui->lineEdit->setEnabled(true);
-        ui->entrySuffix->setText("");
-        break;
-    case HdTinEditorUiDialog::slope:
-        ui->entryPrefix->setText("Slope : ");
-        ui->lineEdit->setText("0");
-        ui->lineEdit->setEnabled(true);
-        ui->entrySuffix->setText(" %");
-        break;
-    }
-}
 
 void HdTinEditorUiDialog::setZSpecifierWidet(QWidget *widget)
 {
     ui->zSpecifierLayout->addWidget(widget);
 }
 
-void HdTinEditorUiDialog::setLineEditFocus()
+void HdTinEditorUiDialog::setFocus()
 {
-    ui->lineEdit->setFocus(Qt::OtherFocusReason);
-    ui->lineEdit->setSelection(0,100);
-    activateWindow();
+//    ui->lineEdit->setFocus(Qt::OtherFocusReason);
+//    ui->lineEdit->setSelection(0,100);
+//    activateWindow();
 }
 
-QString HdTinEditorUiDialog::lineEditText() const {
-    return ui->lineEdit->text();
-}
 
 bool HdTinEditorUiDialog::autoUpdate() const
 {
@@ -97,7 +61,7 @@ bool HdTinEditorUiDialog::autoUpdate() const
 void HdTinEditorUiDialog::updateSettings()
 {
     ReosSettings settings;
-    settings.setValue(QStringLiteral("DelineateAutomaticDialog/geometry"),saveGeometry());
+    settings.setValue(QStringLiteral("TinEditorDialog/geometry"),saveGeometry());
 }
 
 void HdTinEditorUiDialog::setActions(const QList<QAction *> &actions)

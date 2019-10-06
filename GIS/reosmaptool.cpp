@@ -26,16 +26,7 @@ void ReosMapTool::keyPressEvent(QKeyEvent *e)
 {
     if (e->key()==Qt::Key_Escape)
     {
-        reset();
-        if (inProgress_)
-        {
-            inProgress_=false;
-        }
-        else
-        {
-            emit stop();
-        }
-
+        askForEscape();
         e->accept();
         return;
     }
@@ -109,6 +100,15 @@ void ReosMapTool::deactivate()
 {
     reset();
     QgsMapTool::deactivate();
+}
+
+void ReosMapTool::askForEscape()
+{
+    if (!inProgress_)
+    {
+        emit stop();
+    }
+    reset();
 }
 
 HdMapToolLinearSelection::HdMapToolLinearSelection(ReosMap *map):ReosMapTool(map),

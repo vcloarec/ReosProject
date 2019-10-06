@@ -40,7 +40,7 @@ public:
     virtual ~ ReosMapTool() override;
     void deactivate() override;
 
-    virtual bool isInProgress() const {return false;}
+    virtual bool isInProgress() const {return inProgress_;}
 
 signals:
     void undoCommandCreated(QUndoCommand* comm);
@@ -48,6 +48,7 @@ signals:
 
 public slots:
     virtual void reset() {}
+    virtual void askForEscape();
 
 
 protected:

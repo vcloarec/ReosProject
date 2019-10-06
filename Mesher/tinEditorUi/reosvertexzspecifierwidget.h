@@ -4,8 +4,8 @@
 #include <QWidget>
 #include <QLineEdit>
 
-#include "../Mesher/ReosMesh/reosvertexzspecifier.h"
-#include "../Reos/Form/reosform.h"
+#include "../ReosMesh/reosvertexzspecifier.h"
+#include "../../Reos/Form/reosform.h"
 
 class ReosVertexZSpecifierEntryWidgetModel;
 
@@ -19,10 +19,16 @@ class ReosVertexZSpecifierEntryWidget: public QWidget
 public:
     ReosVertexZSpecifierEntryWidget(QWidget *parent);
     virtual ~ReosVertexZSpecifierEntryWidget();
+
+    virtual QIcon icon() const=0;
+
+    virtual ReosVertexZSpecifierFactory& factory() =0;
+
 };
 
 class ReosVertexZSpecifierSimpleValueWidget: public ReosVertexZSpecifierEntryWidget
 {
+    Q_OBJECT
 public:
     ReosVertexZSpecifierSimpleValueWidget(QWidget *parent):ReosVertexZSpecifierEntryWidget(parent)
     {
@@ -31,11 +37,26 @@ public:
         valueForm->addParamater(zValueParameterForm);
         setLayout(new QHBoxLayout);
         layout()->addWidget(valueForm->getWidget());
+
+        connect(zValueParameterForm,&ReosFormParameterSimpleDouble::valueEdited,this,&ReosVertexZSpecifierSimpleValueWidget::ZValueHasBeenEditedChanged);
+    }
+
+    QIcon icon() const
+    {
+        return QIcon(QPixmap("://toolbar/ZSpecifierSimpleValue.png"));
+    }
+
+    ReosVertexZSpecifierFactory& factory() {return mFactory;}
+
+private slots:
+    void ZValueHasBeenEditedChanged()
+    {
+        mFactory.setZValue(zValueParameterForm->getValue());
     }
 private:
     ReosVertexZSpecifierSimpleFactory mFactory;
     ReosForm *valueForm;
-    ReosFormParameter *zValueParameterForm;
+    ReosFormParameterSimpleDouble *zValueParameterForm;
 };
 
 class ReosVertexZSpecifierSlopeWidget: public ReosVertexZSpecifierEntryWidget
@@ -52,6 +73,13 @@ public:
         setLayout(new QHBoxLayout);
         layout()->addWidget(valueForm->getWidget());
     }
+
+    QIcon icon() const
+    {
+        return QIcon(QPixmap("://toolbar/ZSpecifierVertexAndSlope.png"));
+    }
+
+    ReosVertexZSpecifierFactory& factory() {return mFactory;}
 private:
     ReosVertexZSpecifierSimpleFactory mFactory;
     ReosForm *valueForm;
@@ -67,6 +95,12 @@ class ReosVertexZSpecifierWidget : public QWidget
 public:
     explicit ReosVertexZSpecifierWidget(QWidget *parent = nullptr);
     ~ReosVertexZSpecifierWidget();
+
+    void assignZSpecifier(VertexPointer vert)
+    {
+        if(mCurrentEntryWidget)
+            vert->setZSpecifier(mCurrentEntryWidget->factory());
+    }
 
 private slots:
     void listViewClicked(QModelIndex index);
@@ -106,7 +140,7 @@ public:
     QVariant data(const QModelIndex &index, int role) const override
     {
         if (role==Qt::DecorationRole)
-            return QIcon(QPixmap("://toolbar/ZSpecifierSimpleValue.png"));
+            return mEntriesList.at(index.row())->icon();
 
         return QVariant();
     }

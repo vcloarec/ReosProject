@@ -89,10 +89,6 @@ public:
         rubberBand->setWidth(3);
     }
 
-    bool isInProgress() const override
-    {
-         return (firstVertex!=nullptr);
-    }
 
 public slots:
     void reset() override
@@ -100,6 +96,7 @@ public slots:
         rubberBand->reset();
         firstVertex=nullptr;
         firstPoint=QPointF();
+        inProgress_=false;
     }
 
 protected:
@@ -241,29 +238,21 @@ private: //method
 
     QWidget *getWidget() const override {return uiDialog;}
 
-    //////////////////////////////////////////////////////////
-    /// \brief zValue
-    /// \param p
-    /// \return return the value calculated with the map position p
-    ///
-    double zValue(const QPointF &p);
-
 
     void updateMesh();
     void enableEditAction(bool enable);
     void newTinLayer();
 
-
     void widgetClosed();
+
+    void startVertexEntry();
+    void stopVertexEntry();
 
 
     ReosMeshItemVertex* addMapVertex(VertexPointer vert);
     ReosMeshItemVertex* addMapVertex(const QPointF &mapPoint,VertexPointer vert);
 
     void removeVertex(VertexPointer vert);
-
-    void setLevelMode();
-    void setNoneMode();
 
     QPointF mapCoordinates(const QPointF &meshCoordinate, bool &ok) const;
     QPointF meshCoordinates(const QPointF &mapCordinate, bool &ok) const;
@@ -284,22 +273,9 @@ private: //method
 
     void updateMeshLayer();
 
-    bool writeToFile(QString fileName)
-    {
-        if (mTIN)
-            return mTIN->writeUGRIDFormat(fileName.toStdString());
-        else
-            return false;
-    }
+    bool writeToFile(QString fileName);
 
-    void newCommand(QUndoCommand *command) override
-    {
-        //override for disable the sending of this command to the undo stck because, undo not works because of potential CGAL issue
-        command->redo();
-
-        if (uiDialog->autoUpdate())
-            updateMesh();
-    }
+    void newCommand(QUndoCommand *command) override;
 
 
 private: //attributes
@@ -307,7 +283,6 @@ private: //attributes
     ReosGisManager *mGisManager;
     ReosMap *mMap;
     HdTinEditorUiDialog *uiDialog;
-    HdTinEditorUiDialog::ZValueMode zValueMode=HdTinEditorUiDialog::none;
     ReosVertexZSpecifierWidget *mZSpecifierWidget;
 
     std::unique_ptr<QgsCoordinateTransform> mTransform;
@@ -357,14 +332,13 @@ public:
     }
 
 private:
-    ReosTinUndoCommandNewVertex(ReosTinEditorUi* editor,QPointF mapPoint, double ZValue):mEditor(editor),mMapPoint(mapPoint),mZValue(ZValue)
+    ReosTinUndoCommandNewVertex(ReosTinEditorUi* editor,QPointF mapPoint):mEditor(editor),mMapPoint(mapPoint)
     {
-        setText(QObject::tr("Nouveau point"));
+        setText(QObject::tr("New Vertex"));
     }
 
     ReosTinEditorUi *mEditor;
     QPointF mMapPoint;
-    double mZValue;
     friend class ReosTinEditorUi;
 };
 
@@ -383,9 +357,8 @@ public:
 private:
     ReosTinUndoCommandNewSegmentWithNewSecondVertex(ReosTinEditorUi* editor,
                                                     QPointF mapPointFirstVertex,
-                                                    QPointF mapPointSecondVertex,
-                                                    double ZValueSecondVertex):
-        mEditor(editor),mMapPointFirst(mapPointFirstVertex),mMapPointSecond(mapPointSecondVertex),mZValueSecond(ZValueSecondVertex)
+                                                    QPointF mapPointSecondVertex):
+        mEditor(editor),mMapPointFirst(mapPointFirstVertex),mMapPointSecond(mapPointSecondVertex)
     {
 
         setText(QObject::tr("Nouveaux point et segment"));
@@ -394,7 +367,6 @@ private:
     ReosTinEditorUi *mEditor;
     QPointF mMapPointFirst;
     QPointF mMapPointSecond;
-    double mZValueSecond;
     QList<PointAndNeighbours> mVerticesPositionAndStructureMemory; //store the extremity's position and the position of new intersection vertices but also the old structure of their neighbours
 
     friend class ReosTinEditorUi;

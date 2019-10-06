@@ -33,22 +33,15 @@ class HdTinEditorUiDialog : public QDialog
     Q_OBJECT
 
 public:
-    enum ZValueMode{none,level,slope};
 
     explicit HdTinEditorUiDialog(QWidget *parent = nullptr);
     ~HdTinEditorUiDialog() override;
 
     void setActions(const QList<QAction*> &actions);
 
-    void setEntryPrefix(const QString &prefix);
-    void setEntrySuffix(const QString &suffix);
-
-    void setZValueMode(ZValueMode mode);
     void setZSpecifierWidet(QWidget *widget);
 
-    void setLineEditFocus();
-
-    QString lineEditText() const;
+    void setFocus();
 
     bool autoUpdate() const;
 

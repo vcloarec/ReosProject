@@ -75,6 +75,7 @@ ReosTinEditorUi::ReosTinEditorUi(ReosGisManager *gismanager, QObject *parent):Re
     uiDialog->setActions(getActions());
     mZSpecifierWidget= new ReosVertexZSpecifierWidget(uiDialog);
     uiDialog->setZSpecifierWidet(mZSpecifierWidget);
+    mZSpecifierWidget->hide();
 
     connect(mGisManager,&ReosGisManager::mapCrsChanged,this,&ReosTinEditorUi::mapCrsChanged);
 
@@ -199,7 +200,23 @@ VertexPointer ReosTinEditorUi::addRealWorldVertex(const QPointF &mapPoint, doubl
 
 VertexPointer ReosTinEditorUi::addRealWorldVertex(const QPointF &mapPoint)
 {
-    return addRealWorldVertex(mapPoint,zValue(mapPoint));
+    VertexPointer vert=nullptr;
+
+    if (mTIN)
+    {
+        bool ok;
+        QPointF p=meshCoordinates(mapPoint,ok);
+        if (!ok)
+            return nullptr;
+        vert=mTIN->addVertex(p.x(),p.y());
+        mZSpecifierWidget->assignZSpecifier(vert);
+        vert->setZUserDefined();
+        addMapVertex(mapPoint,vert);
+
+    }
+
+    return vert;
+
 }
 
 
@@ -223,7 +240,7 @@ void ReosTinEditorUi::removeVertex(VertexPointer vert)
 
 void ReosTinEditorUi::doCommand(ReosTinUndoCommandNewVertex *command)
 {
-    VertexPointer realWordlVertex=addRealWorldVertex(command->mMapPoint,command->mZValue);
+    VertexPointer realWordlVertex=addRealWorldVertex(command->mMapPoint);
     if (realWordlVertex)
     {
         realWordlVertex->setZUserDefined();
@@ -392,24 +409,39 @@ void ReosTinEditorUi::updateMeshLayer()
     }
 }
 
+bool ReosTinEditorUi::writeToFile(QString fileName)
+{
+    if (mTIN)
+        return mTIN->writeUGRIDFormat(fileName.toStdString());
+    else
+        return false;
+}
+
+void ReosTinEditorUi::newCommand(QUndoCommand *command)
+{
+    //override for disable the sending of this command to the undo stck because, undo not works because of potential CGAL issue
+    command->redo();
+
+    if (uiDialog->autoUpdate())
+        updateMesh();
+}
+
 
 
 void ReosTinEditorUi::newVertex(const QPointF &mapPoint)
 {
-    uiDialog->setLineEditFocus();
+    uiDialog->setFocus();
 
     if (!mTIN || realWorldVertex(mapPoint))
         return;
 
-    double z=zValue(mapPoint);
-
-    auto command=new ReosTinUndoCommandNewVertex(this,mapPoint,z);
+    auto command=new ReosTinUndoCommandNewVertex(this,mapPoint);
     newCommand(command);
 }
 
 void ReosTinEditorUi::stopNewVertex()
 {
-    setNoneMode();
+    stopVertexEntry();
 }
 
 void ReosTinEditorUi::startRemoveVertex()
@@ -476,8 +508,7 @@ void ReosTinEditorUi::flipFaces(FacePointer f1, FacePointer f2)
 void ReosTinEditorUi::startNewHardLineSegment()
 {
     mMap->setMapTool(mapToolHardLineSegment);
-    setLevelMode();
-    uiDialog->setLineEditFocus();
+    startVertexEntry();
 }
 
 void ReosTinEditorUi::newSegment(ReosMeshItemVertex *firstVertex, const QPointF &secondMapPoint)
@@ -489,7 +520,7 @@ void ReosTinEditorUi::newSegment(ReosMeshItemVertex *firstVertex, const QPointF 
     QPointF mapPointFirst=mapCoordinates(QPointF(firstVertex->realWorldVertex()->x(),firstVertex->realWorldVertex()->y()),ok);
     if (!ok)
         return;
-    auto command=new ReosTinUndoCommandNewSegmentWithNewSecondVertex(this,mapPointFirst,secondMapPoint,zValue(secondMapPoint));
+    auto command=new ReosTinUndoCommandNewSegmentWithNewSecondVertex(this,mapPointFirst,secondMapPoint);
     newCommand(command);
 }
 
@@ -507,7 +538,7 @@ void ReosTinEditorUi::newSegment(ReosMeshItemVertex *firstVertex, ReosMeshItemVe
 
 void ReosTinEditorUi::stopNewHardLineSegment()
 {
-    setNoneMode();
+    stopVertexEntry();
 }
 
 void ReosTinEditorUi::startRemoveSegment()
@@ -581,11 +612,7 @@ void ReosTinEditorUi::addSegment(VertexPointer v1, VertexPointer v2, QList<Point
     {
         if(vert->graphicPointer()==nullptr)
         {
-            bool ok;
-            QPointF mapPoint=mapCoordinates(QPointF(vert->x(),vert->y()),ok);
-            if (!ok)
-                return;
-            vert->setZValue(zValue(mapPoint));
+            mZSpecifierWidget->assignZSpecifier(vert);
         }
     }
 
@@ -709,24 +736,11 @@ void ReosTinEditorUi::mapCrsChanged(const QgsCoordinateReferenceSystem &crs)
         mTransform.reset(new QgsCoordinateTransform(mMeshLayer->dataProvider()->crs(),crs,QgsProject::instance()));
 }
 
-double ReosTinEditorUi::zValue(const QPointF &p)
-{
-    Q_UNUSED(p);
-
-    if (zValueMode==HdTinEditorUiDialog::level)
-    {
-        return uiDialog->lineEditText().toDouble();
-    }
-
-    return 0;
-}
 
 void ReosTinEditorUi::startNewVertex()
 {
     mMap->setMapTool(mapToolNewVertex);
-    setLevelMode();
-    uiDialog->setLineEditFocus();
-
+    startVertexEntry();
 }
 
 
@@ -797,6 +811,17 @@ void ReosTinEditorUi::widgetClosed()
     emit widgetVisibility(false);
 }
 
+void ReosTinEditorUi::startVertexEntry()
+{
+    uiDialog->setFocus();
+    mZSpecifierWidget->show();
+}
+
+void ReosTinEditorUi::stopVertexEntry()
+{
+    mZSpecifierWidget->hide();
+}
+
 ReosMeshItemVertex *ReosTinEditorUi::addMapVertex(VertexPointer vert)
 {
     QPointF mapPoint;
@@ -820,17 +845,6 @@ ReosMeshItemVertex *ReosTinEditorUi::addMapVertex(const QPointF &mapPoint, Verte
     return vertexGraphic;
 }
 
-void ReosTinEditorUi::setLevelMode()
-{
-    zValueMode=HdTinEditorUiDialog::level;
-    uiDialog->setZValueMode(zValueMode);
-}
-
-void ReosTinEditorUi::setNoneMode()
-{
-    zValueMode=HdTinEditorUiDialog::none;
-    uiDialog->setZValueMode(zValueMode);
-}
 
 QPointF ReosTinEditorUi::mapCoordinates(const QPointF &meshCoordinate, bool &ok) const
 {
@@ -954,6 +968,17 @@ void ReosTinEditorUi::updateGraphics(VertexPointer realWorldVertex)
 
 void ReosTinMapToolHardLineSegement::canvasPressEvent(QgsMapMouseEvent *e)
 {
+    if (e->button()==Qt::RightButton)
+    {
+        reset();
+        return;
+    }
+
+    if (e->button()!=Qt::LeftButton)
+    {
+        return;
+    }
+
     if (firstVertex==nullptr && firstPoint==QPointF())
     {
         rubberBand->reset();
@@ -967,6 +992,7 @@ void ReosTinMapToolHardLineSegement::canvasPressEvent(QgsMapMouseEvent *e)
         }
 
         rubberBand->addPoint(e->mapPoint());
+        inProgress_=true;
     }
     else{
         QPointF secondPoint=e->mapPoint().toQPointF();

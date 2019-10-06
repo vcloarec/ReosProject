@@ -82,7 +82,7 @@ public:
         }
 
         QgsCoordinateReferenceSystem crs("EPSG:32620");
-        ASSERT_TRUE(crs.isValid());
+        EXPECT_TRUE(crs.isValid());
 
         uiEditor->newTin(fileName,"tin",crs);
 
