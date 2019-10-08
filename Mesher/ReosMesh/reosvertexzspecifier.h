@@ -146,6 +146,11 @@ public:
     void setOtherVertex(VertexPointer otherVertex);
     bool IsCompatibleZSpecifier(const VertexPointer associatedVertex) const override;
 
+    VertexPointer otherVertex() const
+    {
+        return mOtherVertex;
+    }
+
 protected:
     VertexPointer mOtherVertex=nullptr;
 

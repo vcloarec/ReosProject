@@ -2,7 +2,7 @@
                       hdtineditorgraphic.cpp
                      --------------------------------------
 Date                 : 01-04-2019
-Copyright            : (C) 2018 by Vincent Cloarec
+Copyright            : (C) 2019 by Vincent Cloarec
 email                : vcloarec at gmail dot com   /  projetreos at gmail dot com
  ***************************************************************************
  *                                                                         *
@@ -73,7 +73,7 @@ ReosTinEditorUi::ReosTinEditorUi(ReosGisManager *gismanager, QObject *parent):Re
 
     uiDialog=new HdTinEditorUiDialog(mMap->getMapCanvas());
     uiDialog->setActions(getActions());
-    mZSpecifierWidget= new ReosVertexZSpecifierWidget(uiDialog);
+    mZSpecifierWidget= new ReosVertexZSpecifierWidget(mMap,mDomain,uiDialog);
     uiDialog->setZSpecifierWidet(mZSpecifierWidget);
     mZSpecifierWidget->hide();
 
@@ -190,7 +190,6 @@ VertexPointer ReosTinEditorUi::addRealWorldVertex(const QPointF &mapPoint, doubl
             return nullptr;
         vert=mTIN->addVertex(p.x(),p.y());
         vert->setZValue(z);
-        vert->setZUserDefined();
         addMapVertex(mapPoint,vert);
 
     }
@@ -210,7 +209,6 @@ VertexPointer ReosTinEditorUi::addRealWorldVertex(const QPointF &mapPoint)
             return nullptr;
         vert=mTIN->addVertex(p.x(),p.y());
         mZSpecifierWidget->assignZSpecifier(vert);
-        vert->setZUserDefined();
         addMapVertex(mapPoint,vert);
 
     }
@@ -240,13 +238,8 @@ void ReosTinEditorUi::removeVertex(VertexPointer vert)
 
 void ReosTinEditorUi::doCommand(ReosTinUndoCommandNewVertex *command)
 {
-    VertexPointer realWordlVertex=addRealWorldVertex(command->mMapPoint);
-    if (realWordlVertex)
-    {
-        realWordlVertex->setZUserDefined();
-    }
+    addRealWorldVertex(command->mMapPoint);
 }
-
 void ReosTinEditorUi::undoCommand(ReosTinUndoCommandNewVertex *command)
 {
     VertexPointer rwv=realWorldVertex(command->mMapPoint);
@@ -459,7 +452,7 @@ void ReosTinEditorUi::removeVertexFromRect(const QRectF &selectionZone)
     {
         if(mTIN->isOnHardLine(realWorldVertex))
         {
-            QMessageBox::warning(uiDialog,tr("Suppression d'un sommet surune ligne d'arrête"),tr("Il est nécessaire de supprimer d'abord la ou les lignes d'arrêtes"));
+            QMessageBox::warning(uiDialog,tr("Suppression d'un sommet sur une ligne d'arrête"),tr("Il est nécessaire de supprimer d'abord la ou les lignes d'arrêtes"));
         }
         else
         {
@@ -814,12 +807,12 @@ void ReosTinEditorUi::widgetClosed()
 void ReosTinEditorUi::startVertexEntry()
 {
     uiDialog->setFocus();
-    mZSpecifierWidget->show();
+    mZSpecifierWidget->start();
 }
 
 void ReosTinEditorUi::stopVertexEntry()
 {
-    mZSpecifierWidget->hide();
+    mZSpecifierWidget->stop();
 }
 
 ReosMeshItemVertex *ReosTinEditorUi::addMapVertex(VertexPointer vert)
@@ -837,10 +830,6 @@ ReosMeshItemVertex *ReosTinEditorUi::addMapVertex(const QPointF &mapPoint, Verte
 {
     ReosMeshItemVertex *vertexGraphic=mDomain->addVertex(mapPoint);
     vertexGraphic->setRealWorldVertex(vert);
-    if (vert->isZUserDefined())
-        vertexGraphic->setStatus(ReosMeshItemVertex::none);
-    else
-        (vertexGraphic->setStatus(ReosMeshItemVertex::ZToDefined));
     vert->setGraphicPointer(vertexGraphic);
     return vertexGraphic;
 }
@@ -966,6 +955,19 @@ void ReosTinEditorUi::updateGraphics(VertexPointer realWorldVertex)
 
 };
 
+void ReosTinMapToolHardLineSegement::suspend()
+{
+    rubberBand->hide();
+    ReosMapTool::suspend();
+    showWhenMoving=false;
+}
+
+void ReosTinMapToolHardLineSegement::unsuspend()
+{
+    ReosMapTool::unsuspend();
+    showWhenMoving=true;
+}
+
 void ReosTinMapToolHardLineSegement::canvasPressEvent(QgsMapMouseEvent *e)
 {
     if (e->button()==Qt::RightButton)
@@ -1010,6 +1012,16 @@ void ReosTinMapToolHardLineSegement::canvasPressEvent(QgsMapMouseEvent *e)
         firstPoint=secondPoint;
         firstVertex=mUiEditor->mapVertex(firstPoint);
     }
+}
+
+void ReosTinMapToolHardLineSegement::canvasMoveEvent(QgsMapMouseEvent *e)
+{
+    if(showWhenMoving)
+    {
+        rubberBand->show();
+        showWhenMoving=false;
+    }
+    rubberBand->movePoint(e->mapPoint());
 }
 
 

@@ -119,7 +119,7 @@ public:
     /// \return
     ///
     /// EPSG:code
-    std::string crs() const {return mCrs;}
+    std::string crs() const;
     void setCrs(int EPSG_code)
     {
         mCrs="EPSG:";

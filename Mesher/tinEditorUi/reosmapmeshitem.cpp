@@ -70,7 +70,8 @@ ReosMeshItemVertex *ReosMapMeshEditorItemDomain::vertex(const QRectF &rect) cons
 
 ReosMeshItemVertex::ReosMeshItemVertex(const QPointF &mapPosition, QgsMapCanvas *canvas):ReosMapItemNode(mapPosition,canvas)
 {
-    setStatus(none);
+
+    setBrush(QBrush(Qt::green));
     setSize(6);
 }
 
@@ -79,31 +80,12 @@ ReosMeshItemVertex::~ReosMeshItemVertex(){}
 void ReosMeshItemVertex::setRealWorldVertex(VertexPointer vertex) {
 
     mRealWorldVertex=vertex;
-    if (vertex->isZUserDefined())
-        setStatus(ReosMeshItemVertex::none);
-    else
-        setStatus(ReosMeshItemVertex::ZToDefined);
 }
 
 VertexPointer ReosMeshItemVertex::realWorldVertex() const {
     return mRealWorldVertex;
 }
 
-void ReosMeshItemVertex::setStatus(ReosMeshItemVertex::Status st){
-    mStatus=st;
-    switch (mStatus) {
-    case ReosMeshItemVertex::none:
-        setBrush(QBrush(Qt::green));
-        break;
-    case ReosMeshItemVertex::ZToDefined:
-        setBrush(QBrush(Qt::red));
-        break;
-    }
-}
-
-ReosMeshItemVertex::Status ReosMeshItemVertex::status() const {
-    return mStatus;
-}
 
 void ReosMeshItemVertex::addSegment(ReosMeshItemSegment *seg)
 {

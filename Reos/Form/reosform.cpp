@@ -221,7 +221,7 @@ ReosFormParameterEditorSimple *ReosFormParameterSimpleDouble::instantiateEditor(
         editor= new ReosFormParameterEditorSimple(getName(),valueString,getUnit());
     }
 
-    editor->setAlignment(Qt::AlignRight);
+    editor->setAlignment(alignment);
     return editor;
 }
 
@@ -735,10 +735,25 @@ QLayout *ReosFormWidget::addSeparator(Qt::Orientation orientation)
     return nullptr;
 }
 
-ReosFormAction::ReosFormAction(ReosForm *parent, QString text): ReosFormObject(parent)
+ReosFormAction::ReosFormAction(ReosForm *parent, const QIcon &icon,const QString &text): ReosFormObject(parent)
 {
     if (parent)
         parent->addForm(this);
-    mAction=new QAction(this);
+    mAction=new QAction(icon,text,this);
     mAction->setText(text);
+}
+
+QAction *ReosFormAction::action() const {return mAction;}
+
+ReosFormText::ReosFormText(ReosForm *parent, const QString &text):
+    ReosFormObject(parent),mText(text)
+{
+    if (parent)
+        parent->addForm(this);
+}
+
+void ReosFormText::setText(const QString &text)
+{
+    mText=text;
+    emit textChanged(mText);
 }

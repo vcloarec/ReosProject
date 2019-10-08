@@ -2,7 +2,7 @@
                       hdtineditoruidialog.cpp
                      --------------------------------------
 Date                 : 10-05-2019
-Copyright            : (C) 2018 by Vincent Cloarec
+Copyright            : (C) 2019 by Vincent Cloarec
 email                : vcloarec at gmail dot com / projetreos at gmail dot com
  ***************************************************************************
  *                                                                         *

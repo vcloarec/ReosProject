@@ -12,5 +12,8 @@
         <file>selectionnne.png</file>
         <file>supprimeSelection.png</file>
         <file>retablitSelection.png</file>
+        <file>selectedDependingVertex.png</file>
+        <file>selectingDependingVertex.png</file>
+        <file>unselectableDependingVertex.png</file>
     </qresource>
 </RCC>

@@ -98,9 +98,16 @@ ReosMapTool::ReosMapTool(ReosMap *map):QgsMapTool(map->getMapCanvas()),inProgres
 
 void ReosMapTool::deactivate()
 {
-    reset();
+    if (!suspended_)
+        reset();
     QgsMapTool::deactivate();
 }
+
+void ReosMapTool::suspend()
+{ suspended_=true;}
+
+void ReosMapTool::unsuspend()
+{suspended_=false;}
 
 void ReosMapTool::askForEscape()
 {

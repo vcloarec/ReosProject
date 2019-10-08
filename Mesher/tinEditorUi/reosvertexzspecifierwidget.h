@@ -1,3 +1,18 @@
+/***************************************************************************
+                      reosvertexzspecifierwidget.h
+                     --------------------------------------
+Date                 : 01-10-2019
+Copyright            : (C) 2019 by Vincent Cloarec
+email                : vcloarec at gmail dot com   /  projetreos at gmail dot com
+ ***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
 #ifndef REOSVERTEXZSPECIFIERWIDGET_H
 #define REOSVERTEXZSPECIFIERWIDGET_H
 
@@ -6,6 +21,10 @@
 
 #include "../ReosMesh/reosvertexzspecifier.h"
 #include "../../Reos/Form/reosform.h"
+#include "../../GIS/reosmaptool.h"
+#include "../ReosMesh/reosmeshgenerator.h"
+#include "reosmapmeshitem.h"
+#include "../../GIS/reosmap.h"
 
 class ReosVertexZSpecifierEntryWidgetModel;
 
@@ -24,66 +43,130 @@ public:
 
     virtual ReosVertexZSpecifierFactory& factory() =0;
 
+    virtual void start();
+    virtual void stop();
+
+
 };
 
 class ReosVertexZSpecifierSimpleValueWidget: public ReosVertexZSpecifierEntryWidget
 {
     Q_OBJECT
 public:
-    ReosVertexZSpecifierSimpleValueWidget(QWidget *parent):ReosVertexZSpecifierEntryWidget(parent)
-    {
-        valueForm=new ReosForm(this);
-        zValueParameterForm=new ReosFormParameterSimpleDouble(tr("Z value : "),0,nullptr," m");
-        valueForm->addParamater(zValueParameterForm);
-        setLayout(new QHBoxLayout);
-        layout()->addWidget(valueForm->getWidget());
+    ReosVertexZSpecifierSimpleValueWidget(QWidget *parent);
 
-        connect(zValueParameterForm,&ReosFormParameterSimpleDouble::valueEdited,this,&ReosVertexZSpecifierSimpleValueWidget::ZValueHasBeenEditedChanged);
-    }
+    QIcon icon() const;
 
-    QIcon icon() const
-    {
-        return QIcon(QPixmap("://toolbar/ZSpecifierSimpleValue.png"));
-    }
-
-    ReosVertexZSpecifierFactory& factory() {return mFactory;}
+    ReosVertexZSpecifierFactory& factory();
 
 private slots:
-    void ZValueHasBeenEditedChanged()
-    {
-        mFactory.setZValue(zValueParameterForm->getValue());
-    }
+    void ZValueHasBeenEdited();
 private:
     ReosVertexZSpecifierSimpleFactory mFactory;
     ReosForm *valueForm;
     ReosFormParameterSimpleDouble *zValueParameterForm;
 };
 
-class ReosVertexZSpecifierSlopeWidget: public ReosVertexZSpecifierEntryWidget
+class ReosVertexZSpecifierSelectReferenceMapTool:public ReosMapToolSelection
 {
+    Q_OBJECT
 public:
-    ReosVertexZSpecifierSlopeWidget(QWidget *parent):ReosVertexZSpecifierEntryWidget(parent)
-    {
-        valueForm=new ReosForm(this);
-    valueForm->setOrientation(Qt::Horizontal);
-        slopeParameterForm=new ReosFormParameterSimpleDouble(tr("Slope : "),0,nullptr," %");
-        new ReosFormAction(valueForm,"Coucou");
-        valueForm->addSeparator();
-        valueForm->addParamater(slopeParameterForm);
-        setLayout(new QHBoxLayout);
-        layout()->addWidget(valueForm->getWidget());
-    }
+    ReosVertexZSpecifierSelectReferenceMapTool(ReosMap *map,ReosMapMeshEditorItemDomain *domain);
 
-    QIcon icon() const
-    {
-        return QIcon(QPixmap("://toolbar/ZSpecifierVertexAndSlope.png"));
-    }
+    void start();
 
-    ReosVertexZSpecifierFactory& factory() {return mFactory;}
+    void returnToPreviousMapTool();
+
+    // QgsMapTool interface
+public:
+    void canvasMoveEvent(QgsMapMouseEvent *e) override;
+
 private:
-    ReosVertexZSpecifierSimpleFactory mFactory;
-    ReosForm *valueForm;
-    ReosFormParameterSimpleDouble *slopeParameterForm;
+    ReosMapMeshEditorItemDomain *mDomain;
+    ReosMapTool *mPreviousCurrentMapTool=nullptr;
+
+    // ReosMapTool interface
+public slots:
+    void askForEscape() override;
+};
+
+class ReosVertexZSpecifierDependentOtherVertexWidget: public ReosVertexZSpecifierEntryWidget
+{
+    Q_OBJECT
+public:
+    ReosVertexZSpecifierDependentOtherVertexWidget(ReosMap* map,ReosMapMeshEditorItemDomain *domain,QWidget *parent);
+
+    void init();
+
+    ReosVertexZSpecifierFactory& factory();
+
+    void start();
+
+    void stop();
+
+private slots:
+    void startSelectReference();
+
+    void updateReferenceText();
+
+    void zoneHasBeenSelected(const QRectF &rect);
+
+    virtual void valueHasBeenEdited();
+
+private:
+
+    virtual void setValueInFactory(double value)=0;
+    virtual ReosFormParameterSimpleDouble* makeValueParameterForm(ReosForm *parentForm)=0;
+
+    virtual ReosVertexZSpecifierDependOnOtherVertexFactory & dependentVertexFactory()=0;
+    ReosForm *mValueForm;
+    ReosFormAction* mSelectReferenceAction;
+    ReosFormText* mReferenceText;
+    ReosFormParameterSimpleDouble *mValueParameterForm;
+    ReosFormParameterSimpleBool *mTakeNewVertexAsReference;
+
+    ReosMap *mMap;
+    ReosMapMeshEditorItemDomain *mDomain;
+
+    ReosVertexZSpecifierSelectReferenceMapTool* selectReferenceMapTool=nullptr;
+
+
+};
+
+class ReosVertexZSpecifierSlopeWidget: public ReosVertexZSpecifierDependentOtherVertexWidget
+{
+
+public:
+    ReosVertexZSpecifierSlopeWidget(ReosMap* map,ReosMapMeshEditorItemDomain *domain,QWidget *parent);
+
+    QIcon icon() const override;
+
+private:
+
+    ReosVertexZSpecifierDependOnOtherVertexFactory & dependentVertexFactory() override {return mFactory;}
+    virtual ReosFormParameterSimpleDouble* makeValueParameterForm(ReosForm *parentForm) override;
+    virtual void setValueInFactory(double value) override;
+
+    ReosVertexZSpecifierOtherVertexAndSlopeFactory mFactory;
+
+};
+
+class ReosVertexZSpecifierGapWidget: public ReosVertexZSpecifierDependentOtherVertexWidget
+{
+
+public:
+    ReosVertexZSpecifierGapWidget(ReosMap* map,ReosMapMeshEditorItemDomain *domain,QWidget *parent);
+
+    QIcon icon() const override;
+
+private:
+
+    ReosVertexZSpecifierDependOnOtherVertexFactory & dependentVertexFactory() override;
+    virtual ReosFormParameterSimpleDouble* makeValueParameterForm(ReosForm *parentForm) override;
+    virtual void setValueInFactory(double value) override;
+
+    ReosVertexZSpecifierOtherVertexAndGapFactory mFactory;
+
 };
 
 
@@ -93,14 +176,14 @@ class ReosVertexZSpecifierWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ReosVertexZSpecifierWidget(QWidget *parent = nullptr);
+    explicit ReosVertexZSpecifierWidget(ReosMap *map,ReosMapMeshEditorItemDomain* domain,QWidget *parent = nullptr);
     ~ReosVertexZSpecifierWidget();
 
-    void assignZSpecifier(VertexPointer vert)
-    {
-        if(mCurrentEntryWidget)
-            vert->setZSpecifier(mCurrentEntryWidget->factory());
-    }
+    void assignZSpecifier(VertexPointer vert);
+
+    void start();
+
+    void stop();
 
 private slots:
     void listViewClicked(QModelIndex index);
@@ -118,32 +201,15 @@ private:
 
 
 
-
-
 class ReosVertexZSpecifierEntryWidgetModel:public QAbstractListModel
 {
 public:
-    ReosVertexZSpecifierEntryWidgetModel(QList<ReosVertexZSpecifierEntryWidget*> &entriesList, QObject *parent=nullptr):QAbstractListModel(parent),
-      mEntriesList(entriesList)
-    {
-
-    }
+    ReosVertexZSpecifierEntryWidgetModel(QList<ReosVertexZSpecifierEntryWidget*> &entriesList, QObject *parent=nullptr);
 
     // QAbstractItemModel interface
 public:
-    int rowCount(const QModelIndex &parent) const override
-    {
-        Q_UNUSED(parent);
-        return mEntriesList.count();
-
-    }
-    QVariant data(const QModelIndex &index, int role) const override
-    {
-        if (role==Qt::DecorationRole)
-            return mEntriesList.at(index.row())->icon();
-
-        return QVariant();
-    }
+    int rowCount(const QModelIndex &parent) const override;
+    QVariant data(const QModelIndex &index, int role) const override;
 
 private:
     QList<ReosVertexZSpecifierEntryWidget*> &mEntriesList;

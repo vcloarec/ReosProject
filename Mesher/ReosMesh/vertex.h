@@ -42,9 +42,6 @@ public:
     void setGraphicPointer(void* pointer);
     void *graphicPointer() const;
 
-    void setZUserDefined();
-    bool isZUserDefined() const;
-
     double distanceFrom(const Vertex &other) const;
 
     //Methods to deal with Z vlaue
@@ -69,7 +66,6 @@ protected: //methode
 
 private: //attribute
     void* mGraphic=nullptr;
-    bool mZUserDefined=false;
     std::unique_ptr<ReosVertexZSpecifier> mZSpecifier;
 
     std::set<Vertex*> mDependentVertices;

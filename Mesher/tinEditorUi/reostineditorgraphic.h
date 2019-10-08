@@ -1,8 +1,8 @@
 /***************************************************************************
-                      reostineditorgraphic.cpp
+                      reostineditorgraphic.h
                      --------------------------------------
 Date                 : 01-04-2019
-Copyright            : (C) 2018 by Vincent Cloarec
+Copyright            : (C) 2019 by Vincent Cloarec
 email                : vcloarec at gmail dot com   /  projetreos at gmail dot com
  ***************************************************************************
  *                                                                         *
@@ -90,9 +90,14 @@ public:
     }
 
 
+    void suspend() override;
+
+    void unsuspend() override;
+
 public slots:
     void reset() override
     {
+        unsuspend();
         rubberBand->reset();
         firstVertex=nullptr;
         firstPoint=QPointF();
@@ -101,16 +106,14 @@ public slots:
 
 protected:
     void canvasPressEvent(QgsMapMouseEvent *e) override;
-    void canvasMoveEvent(QgsMapMouseEvent *e) override
-    {
-        rubberBand->movePoint(e->mapPoint());
-    }
+    void canvasMoveEvent(QgsMapMouseEvent *e) override;
 
 private:
     ReosMeshItemVertex *firstVertex=nullptr;
     QPointF firstPoint;
     ReosTinEditorUi *mUiEditor;
     QgsRubberBand *rubberBand;
+    bool showWhenMoving=false;
 };
 
 class ReosTinMapToolFlipFaces:public ReosMapTool

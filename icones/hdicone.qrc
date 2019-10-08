@@ -161,6 +161,7 @@
         <file>toolbar/ZSpecifierSimpleValue.png</file>
         <file>toolbar/ZSpecifierVertexAndGap.png</file>
         <file>toolbar/ZSpecifierVertexAndSlope.png</file>
+        <file>toolbar/ZSpecifierSelectDependingVertex.png</file>
     </qresource>
     <qresource prefix="/Qgis">
         <file>Qgis/labels.png</file>

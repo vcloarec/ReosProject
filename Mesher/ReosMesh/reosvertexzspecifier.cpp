@@ -498,6 +498,9 @@ void ReosVertexZSpecifierDependOnOtherVertexFactory::setOtherVertex(VertexPointe
 
 bool ReosVertexZSpecifierDependOnOtherVertexFactory::IsCompatibleZSpecifier(const VertexPointer associatedVertex) const
 {
+    if (!mOtherVertex)
+        return false;
+
     if (mOtherVertex->zSpecifier()->type()==ReosVertexZSpecifier::Type::VertexAndGap||
             mOtherVertex->zSpecifier()->type()==ReosVertexZSpecifier::Type::VertexAndSlope)
     {

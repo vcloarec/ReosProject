@@ -42,6 +42,11 @@ public:
 
     virtual bool isInProgress() const {return inProgress_;}
 
+    ReosMap *map() const {return map_;}
+
+    virtual void suspend();
+    virtual void unsuspend();
+
 signals:
     void undoCommandCreated(QUndoCommand* comm);
     void stop();
@@ -60,6 +65,7 @@ protected:
 
 private:
     ReosMap *map_;
+    bool suspended_=false;
 
 
 
@@ -104,6 +110,8 @@ public:
 
     }
 
+
+
 signals:
     void zonalCanvasRect(const QRectF &rect);
 
@@ -111,9 +119,12 @@ protected:
     void canvasPressEvent(QgsMapMouseEvent *e)
     {
         QPointF canvasPoint=toCanvasCoordinates(e->mapPoint());
-        QRectF zone(canvasPoint,zoneSize);
+        emit zonalCanvasRect(selectedZone(canvasPoint));
+    }
 
-        emit zonalCanvasRect(zone);
+    QRectF selectedZone(QPointF selectedPoint) const
+    {
+        return  QRectF(selectedPoint,zoneSize);
     }
 
 private:

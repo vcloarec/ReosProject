@@ -93,7 +93,8 @@ int ReosMesh::writeUGRIDFormat(std::string fileName)
         return error;
     }
 
-    const char* crsChar=crs().c_str();
+    std::string CRS=crs();
+    const char* crsChar=CRS.c_str();
     error=nc_put_att_text(ncId,ncIdCRSVariable,"wkt",std::strlen(crsChar),crsChar);
     if (error!=NC_NOERR)
     {
@@ -528,6 +529,11 @@ int ReosMesh::writeUGRIDFormat(std::string fileName)
 }
 
 bool ReosMesh::isDirty() const {return mDirty;}
+
+std::string ReosMesh::crs() const
+{
+    return mCrs;
+}
 
 
 

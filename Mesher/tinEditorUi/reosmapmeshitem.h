@@ -2,7 +2,7 @@
                       hdmapmeshitem.h
                      --------------------------------------
 Date                 : 01-04-2019
-Copyright            : (C) 2018 by Vincent Cloarec
+Copyright            : (C) 2019 by Vincent Cloarec
 email                : vcloarec at gmail dot com   /  projetreos at gmail dot com
  ***************************************************************************
  *                                                                         *
@@ -38,16 +38,11 @@ public:
 class ReosMeshItemVertex: public ReosMapItemNode
 {
 public:
-    enum Status{none,ZToDefined};
-
     ReosMeshItemVertex(const QPointF &mapPosition,QgsMapCanvas *canvas);
     virtual ~ReosMeshItemVertex();
 
     void setRealWorldVertex(VertexPointer vertex);
     VertexPointer realWorldVertex() const;
-
-    void setStatus(Status st);
-    Status status() const;
 
     void addSegment(ReosMeshItemSegment* seg);
 
@@ -63,7 +58,6 @@ private:
     ///This solution is prefered to a hash or a map to provide a faster acces from the graphic vertex
     VertexPointer mRealWorldVertex=nullptr;
 
-    Status mStatus=none;
 
 
 };

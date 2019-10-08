@@ -223,10 +223,16 @@ public:
     double getNoData() const;
     void setNoData(double value);
 
+    void setAlignment(Qt::Alignment a)
+    {
+        alignment=a;
+    }
+
 private:
     double value;
     double noData=-99999;
     QString unit;
+    Qt::Alignment alignment=Qt::AlignRight;
 
     // HdFormParameterSimple interface
 private:
@@ -435,7 +441,19 @@ protected slots:
 class ReosFormAction: public ReosFormObject
 {
 public:
-    ReosFormAction(ReosForm *parent, QString text);
+    ReosFormAction(ReosForm *parent, const QIcon &icon,const QString &text);
+
+    void setChecked(bool b)
+    {
+        mAction->setChecked(b);
+    }
+
+    void setCheckable(bool b)
+    {
+        mAction->setCheckable(b);
+    }
+
+    QAction *action() const;
 
 private:
     QAction *mAction;
@@ -448,6 +466,34 @@ public:
         toolButton->setDefaultAction(mAction);
 
         return toolButton;
+
+    }
+};
+
+//*********************************************************************************************
+//********************************     Text     *********************************************
+//*********************************************************************************************
+class ReosFormText: public ReosFormObject
+{
+    Q_OBJECT
+public:
+    ReosFormText(ReosForm *parent, const QString &text);
+    void setText(const QString &text);
+
+signals:
+    void textChanged(const QString &text);
+
+private:
+    QString mText;
+
+    // ReosFormObject interface
+public:
+    QWidget *getWidget() override
+    {
+        QLabel *label=new QLabel(mText);
+        connect(this,&ReosFormText::textChanged,label,&QLabel::setText);
+
+        return label;
 
     }
 };

@@ -26,7 +26,6 @@ Vertex::Vertex()
 Vertex::Vertex(const Vertex &other)
 {
     mGraphic=nullptr;
-    mZUserDefined=other.mZUserDefined;
     if (mZSpecifier)
         mZSpecifier=std::unique_ptr<ReosVertexZSpecifier>(other.mZSpecifier->clone(this));
     else
@@ -92,15 +91,6 @@ void Vertex::setGraphicPointer(void *pointer)
     mGraphic=pointer;
 }
 
-void Vertex::setZUserDefined()
-{
-    mZUserDefined=true;
-}
-
-bool Vertex::isZUserDefined() const
-{
-    return mZUserDefined;
-}
 
 double Vertex::distanceFrom(const Vertex &other) const
 {
