@@ -27,30 +27,30 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 
 class ReosArea
 {
-public:
-    enum Unit {m2,a,ha,km2,autoUnit};
+  public:
+    enum Unit {m2, a, ha, km2, autoUnit};
 
-    ReosArea(double value=0,Unit unit=m2);
-    ReosArea(QPolygonF polygon,Unit unit=m2);
-    ReosArea(const ReosEncodedElement &encodedElem);
+    ReosArea( double value = 0, Unit unit = m2 );
+    ReosArea( QPolygonF polygon, Unit unit = m2 );
+    ReosArea( const ReosEncodedElement &encodedElem );
 
-    ReosArea operator+(const ReosArea&) const;
-    ReosArea operator-(const ReosArea&) const;
-    ReosArea operator*(double k) const;
-    ReosArea operator*(int i) const;
-    ReosArea operator/(double k) const;
-    bool operator>(const ReosArea&) const;
-    bool operator>=(const ReosArea&) const;
-    bool operator<(const ReosArea&) const;
-    bool operator<=(const ReosArea&) const;
-    bool operator==(const ReosArea&) const;
-    bool operator!=(const ReosArea&) const;
+    ReosArea operator+( const ReosArea & ) const;
+    ReosArea operator-( const ReosArea & ) const;
+    ReosArea operator*( double k ) const;
+    ReosArea operator*( int i ) const;
+    ReosArea operator/( double k ) const;
+    bool operator>( const ReosArea & ) const;
+    bool operator>=( const ReosArea & ) const;
+    bool operator<( const ReosArea & ) const;
+    bool operator<=( const ReosArea & ) const;
+    bool operator==( const ReosArea & ) const;
+    bool operator!=( const ReosArea & ) const;
 
     double getValueM2() const;
     double getValueA() const;
     double getValueHa() const;
     double getValuerKm2() const;
-    double getValueInUnit(Unit unit) const;
+    double getValueInUnit( Unit unit ) const;
     double getValueInUnit() const;
 
     Unit unit() const;
@@ -60,12 +60,12 @@ public:
     QByteArray encode() const;
 
     void setUnitAuto();
-    void setUnit(ReosArea::Unit u)
+    void setUnit( ReosArea::Unit u )
     {
-        unit_=u;
+      unit_ = u;
     }
 
-private:
+  private:
     double valueM2_;
     Unit unit_;
 
@@ -74,6 +74,6 @@ private:
 
 
 
-[[deprecated]] ReosArea decodeArea(const QByteArray &byteArray);
+[[deprecated]] ReosArea decodeArea( const QByteArray &byteArray );
 
 #endif // REOSAREA_H

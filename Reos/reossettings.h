@@ -20,20 +20,20 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 
 class ReosSettings
 {
-public:
+  public:
     ReosSettings();
 
-    static void setPath(QString path);
+    static void setPath( QString path );
 
-    void setValue(const QString &key, const QVariant &value);
+    void setValue( const QString &key, const QVariant &value );
 
-    QVariant value(const QString &key, const QVariant &defaultValue = QVariant()) const;
+    QVariant value( const QString &key, const QVariant &defaultValue = QVariant() ) const;
 
     QString fileName() const;
 
-    bool contains(const QString& key) const;
+    bool contains( const QString &key ) const;
 
-private:
+  private:
     QSettings settings;
 
     static bool pathSet;

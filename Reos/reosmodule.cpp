@@ -15,95 +15,95 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 
 #include "reosmodule.h"
 
-ReosModule::ReosModule(QObject *parent, ReosInformationSender *messenger):
-    QObject(parent),ReosInformationSender (messenger),groupAction(new QActionGroup(this))
+ReosModule::ReosModule( QObject *parent, ReosInformationSender *messenger ):
+  QObject( parent ), ReosInformationSender( messenger ), groupAction( new QActionGroup( this ) )
 {
 
 }
 
-ReosModule::ReosModule(ReosModule *parent):ReosModule(static_cast<QObject*>(parent))
+ReosModule::ReosModule( ReosModule *parent ): ReosModule( static_cast<QObject *>( parent ) )
 {
 
-    reosParent=parent;
-    reosChildren.append(this);
+  reosParent = parent;
+  reosChildren.append( this );
 }
 
 ReosModule::~ReosModule()
 {
-    if (getWidget())
-    {
-        if ((!getWidget()->parentWidget())&&(!getWidget()->parent()))
-            delete getWidget();
-    }
-    if (reosParent)
-        reosParent->reosChildren.removeOne(this);
+  if ( getWidget() )
+  {
+    if ( ( !getWidget()->parentWidget() ) && ( !getWidget()->parent() ) )
+      delete getWidget();
+  }
+  if ( reosParent )
+    reosParent->reosChildren.removeOne( this );
 }
 
 
 
-void ReosModule::newCommand(QUndoCommand *command)
+void ReosModule::newCommand( QUndoCommand *command )
 {
-    if (mUndoStack)
-    {
-        mUndoStack->push(command);
-        return;
-    }
+  if ( mUndoStack )
+  {
+    mUndoStack->push( command );
+    return;
+  }
 
-    if (reosParent)
-    {
-        reosParent->newCommand(command);
-    }
-    else
-    {
-        emit newCommandToUndoStack(command);
-    }
+  if ( reosParent )
+  {
+    reosParent->newCommand( command );
+  }
+  else
+  {
+    emit newCommandToUndoStack( command );
+  }
 }
 
-void ReosModule::warning(QString message) const
+void ReosModule::warning( QString message ) const
 {
-    sendMessage(message,ReosMessageBox::warning);
+  sendMessage( message, ReosMessageBox::warning );
 }
 
-void ReosModule::error(QString message) const
+void ReosModule::error( QString message ) const
 {
-    sendMessage(message,ReosMessageBox::error);
+  sendMessage( message, ReosMessageBox::error );
 }
 
-void ReosModule::message(QString message) const
+void ReosModule::message( QString message ) const
 {
-    sendMessage(message,ReosMessageBox::message);
+  sendMessage( message, ReosMessageBox::message );
 }
 
-void ReosModule::order(QString message) const
+void ReosModule::order( QString message ) const
 {
-    sendMessage(message,ReosMessageBox::order);
+  sendMessage( message, ReosMessageBox::order );
 }
 
-void ReosModule::sendMessage(QString mes, ReosMessageBox::Type type) const
+void ReosModule::sendMessage( QString mes, ReosMessageBox::Type type ) const
 {
-    if (reosParent)
-        reosParent->sendMessage(mes,type);
-    else
-        emit messageEmited(mes,type);
+  if ( reosParent )
+    reosParent->sendMessage( mes, type );
+  else
+    emit messageEmited( mes, type );
 }
 
 QList<QAction *> ReosModule::getActions() const {return groupAction->actions();}
 
 void ReosModule::showWidget()
 {
-    if (getWidget())
-        getWidget()->show();
+  if ( getWidget() )
+    getWidget()->show();
 }
 
 void ReosModule::hideWidget()
 {
-    if (getWidget())
-    {
-        getWidget()->hide();
-    }
-    emit widgetVisibility(false);
+  if ( getWidget() )
+  {
+    getWidget()->hide();
+  }
+  emit widgetVisibility( false );
 }
 
-ReosInformationSender::ReosInformationSender(ReosInformationSender *parent):parent(parent) {}
+ReosInformationSender::ReosInformationSender( ReosInformationSender *parent ): parent( parent ) {}
 
 ReosInformationSender::~ReosInformationSender() {}

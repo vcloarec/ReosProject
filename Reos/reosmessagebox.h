@@ -19,27 +19,28 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #include <QWidget>
 #include <QTime>
 
-namespace Ui {
-class ReosMessageBox;
+namespace Ui
+{
+  class ReosMessageBox;
 }
 
 class ReosMessageBox : public QWidget
 {
     Q_OBJECT
 
-public:
+  public:
 
-    enum Type {error,warning,message,order};
+    enum Type {error, warning, message, order};
 
-    explicit ReosMessageBox(QWidget *parent = nullptr);
+    explicit ReosMessageBox( QWidget *parent = nullptr );
 
-     ~ReosMessageBox();
+    ~ReosMessageBox();
 
-public slots:
-    void receiveMessage(const QString &mes,Type type=message);
+  public slots:
+    void receiveMessage( const QString &mes, Type type = message );
     void clean();
 
-private:
+  private:
     Ui::ReosMessageBox *ui;
 };
 

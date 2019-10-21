@@ -25,24 +25,24 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 
 class HdMeshEditor
 {
-public:
-    HdMeshEditor(HdMeshBasic &mesh,std::vector<Segment> &segments);
+  public:
+    HdMeshEditor( HdMeshBasic &mesh, std::vector<Segment> &segments );
 
-    void addMeshGenerator(HdMeshGenerator* generator);
-    bool containMeshGenerator(std::string key);
-    void setCurrentMeshGenerator(std::string key);
-    HdMeshGenerator* currentMeshGenerator() const;
+    void addMeshGenerator( HdMeshGenerator *generator );
+    bool containMeshGenerator( std::string key );
+    void setCurrentMeshGenerator( std::string key );
+    HdMeshGenerator *currentMeshGenerator() const;
 
-    VertexPointer addVertex(const VertexBasic &vert);
+    VertexPointer addVertex( const VertexBasic &vert );
 
-    VertexPointer addVertex(double x, double y);
+    VertexPointer addVertex( double x, double y );
 
-    bool addSegment(int n0, int n1);
+    bool addSegment( int n0, int n1 );
 
-    int findSegmentWithVertex(int n0, int n1);
+    int findSegmentWithVertex( int n0, int n1 );
 
-    VertexPointer vertex(int i) const {return mMesh.vertex(i);}
-    VertexPointer vertex(double x, double y) const;
+    VertexPointer vertex( int i ) const {return mMesh.vertex( i );}
+    VertexPointer vertex( double x, double y ) const;
 
     bool generateMesh();
 
@@ -54,16 +54,16 @@ public:
 
     double tolerance() const;
 
-    void setTolerance(double tolerance);
-private:
-    HdMeshGenerator *mCurrentMeshGenerator=nullptr;
+    void setTolerance( double tolerance );
+  private:
+    HdMeshGenerator *mCurrentMeshGenerator = nullptr;
 
-    std::map<std::string,HdMeshGenerator*> mapGenerator;
+    std::map<std::string, HdMeshGenerator *> mapGenerator;
 
     HdMeshBasic &mMesh;
     std::vector<Segment> &mSegments;
 
-    double mTolerance=0.01;
+    double mTolerance = 0.01;
 
 };
 

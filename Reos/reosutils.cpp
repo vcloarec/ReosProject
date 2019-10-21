@@ -15,28 +15,28 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 
 #include "reosutils.h"
 
-std::vector<std::string> splitString(const std::string &input, const char &delimiter, bool returnEmpty)
+std::vector<std::string> splitString( const std::string &input, const char &delimiter, bool returnEmpty )
 {
-    //https://stackoverflow.com/questions/5167625/splitting-a-c-stdstring-using-tokens-e-g
-    std::vector<std::string> returnList;
-    std::istringstream f(input.c_str());
-    std::string str;
-    while (std::getline(f,str,delimiter))
-    {
-        if (returnEmpty || str!="" )
-            returnList.push_back(str);
-    }
+  //https://stackoverflow.com/questions/5167625/splitting-a-c-stdstring-using-tokens-e-g
+  std::vector<std::string> returnList;
+  std::istringstream f( input.c_str() );
+  std::string str;
+  while ( std::getline( f, str, delimiter ) )
+  {
+    if ( returnEmpty || str != "" )
+      returnList.push_back( str );
+  }
 
-    return returnList;
+  return returnList;
 
 }
 
-bool equality(double d1, double d2, double epsilon)
+bool equality( double d1, double d2, double epsilon )
 {
-    return fabs(d1-d2)<=fabs(std::max(d1,d2)*epsilon);
+  return fabs( d1 - d2 ) <= fabs( std::max( d1, d2 ) * epsilon );
 }
 
-bool equality(double d1, double d2)
+bool equality( double d1, double d2 )
 {
-    return equality(d1,d2,std::numeric_limits<double>::epsilon());
+  return equality( d1, d2, std::numeric_limits<double>::epsilon() );
 }

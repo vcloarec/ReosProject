@@ -28,13 +28,13 @@ email                : vcloarec at gmail dot com / projetreos at gmail dot com
 //***********************************************************************************
 class ReosVertexZSpecifier
 {
-public:
-    enum class Type {Simple,VertexAndSlope,VertexAndGap,Interpolator};
+  public:
+    enum class Type {Simple, VertexAndSlope, VertexAndGap, Interpolator};
 
-    ReosVertexZSpecifier(const VertexPointer associatedVertex);
+    ReosVertexZSpecifier( const VertexPointer associatedVertex );
     virtual ~ReosVertexZSpecifier();
 
-    virtual ReosVertexZSpecifier *clone(VertexPointer associatedVertex) const=0;
+    virtual ReosVertexZSpecifier *clone( VertexPointer associatedVertex ) const = 0;
     double zValue() const;
     virtual void setDirty();
     virtual void hasToBeRemove();
@@ -44,38 +44,38 @@ public:
     /// To use when a linked vertex will be removed to have a surrogate specifier not linked wih the removed vertex
     /// \return a new Z specifier which id associated with mAssociatedVertex. This method supposes that this current specifier will be deleted.
     ///
-    virtual std::unique_ptr<ReosVertexZSpecifier> surrogateZSpecifier(VertexPointer=nullptr);
+    virtual std::unique_ptr<ReosVertexZSpecifier> surrogateZSpecifier( VertexPointer = nullptr );
 
-    virtual Type type() const=0;
+    virtual Type type() const = 0;
 
     struct Data
     {
-        std::string type;
-        std::vector <double> doubleData;
-        std::vector<VertexPointer> otherVertices;
-        std::vector<int> verticesIndexes;
+      std::string type;
+      std::vector <double> doubleData;
+      std::vector<VertexPointer> otherVertices;
+      std::vector<int> verticesIndexes;
     };
 
     virtual Data data() const;
 
 
-protected:
+  protected:
     const VertexPointer mAssociatedVertex;
-    mutable double mZValue=0;
-    mutable bool mDirty=true;
+    mutable double mZValue = 0;
+    mutable bool mDirty = true;
     mutable std::mutex mMutex;
 
-private:
+  private:
     virtual void calculateZValue() const;
 
 };
 
 class ReosVertexZSpecifierFactory
 {
-public:
+  public:
     virtual ~ReosVertexZSpecifierFactory();
-    virtual   std::unique_ptr<ReosVertexZSpecifier> createZSpecifier(const VertexPointer associatedVertex) const =0;
-    virtual bool IsCompatibleZSpecifier(const VertexPointer associatedVertex) const =0;
+    virtual   std::unique_ptr<ReosVertexZSpecifier> createZSpecifier( const VertexPointer associatedVertex ) const = 0;
+    virtual bool IsCompatibleZSpecifier( const VertexPointer associatedVertex ) const = 0;
 
     friend class Vertex;
 };
@@ -84,34 +84,34 @@ public:
 
 class ReosVertexZSpecifierSimple : public ReosVertexZSpecifier
 {
-public:
-    ReosVertexZSpecifierSimple(const VertexPointer associatedVertex);
-    ReosVertexZSpecifierSimple(const VertexPointer associatedVertex,double z);
+  public:
+    ReosVertexZSpecifierSimple( const VertexPointer associatedVertex );
+    ReosVertexZSpecifierSimple( const VertexPointer associatedVertex, double z );
 
-    ReosVertexZSpecifier *clone(VertexPointer associatedVertex) const override;
+    ReosVertexZSpecifier *clone( VertexPointer associatedVertex ) const override;
 
 
     // ReosVertexZSpecifier interface
-public:
+  public:
     Type type() const override {return Type::Simple;}
 
     Data data() const override;
 
 };
 
-class ReosVertexZSpecifierSimpleFactory:public ReosVertexZSpecifierFactory
+class ReosVertexZSpecifierSimpleFactory: public ReosVertexZSpecifierFactory
 {
-public:
-    ReosVertexZSpecifierSimpleFactory(){}
-    ReosVertexZSpecifierSimpleFactory(double zValue);
+  public:
+    ReosVertexZSpecifierSimpleFactory() {}
+    ReosVertexZSpecifierSimpleFactory( double zValue );
 
-    void setZValue(double z){mZValue=z;}
+    void setZValue( double z ) {mZValue = z;}
 
-    std::unique_ptr<ReosVertexZSpecifier> createZSpecifier(const VertexPointer associatedVertex) const override;
-    virtual bool IsCompatibleZSpecifier(const VertexPointer associatedVertex) const override;
+    std::unique_ptr<ReosVertexZSpecifier> createZSpecifier( const VertexPointer associatedVertex ) const override;
+    virtual bool IsCompatibleZSpecifier( const VertexPointer associatedVertex ) const override;
 
-private:
-    double mZValue=0;
+  private:
+    double mZValue = 0;
 
 };
 
@@ -119,43 +119,43 @@ private:
 
 class ReosVertexZSpecifierDependOnOtherVertex : public ReosVertexZSpecifier
 {
-public:
-    ReosVertexZSpecifierDependOnOtherVertex(VertexPointer associatedVertex,VertexPointer otherVertex);
+  public:
+    ReosVertexZSpecifierDependOnOtherVertex( VertexPointer associatedVertex, VertexPointer otherVertex );
     virtual ~ReosVertexZSpecifierDependOnOtherVertex() override;
 
     VertexPointer otherVertex() const {return mOtherVertex;}
 
-protected:
-    VertexPointer mOtherVertex=nullptr;
+  protected:
+    VertexPointer mOtherVertex = nullptr;
 
 
     // VertexZSpecifier interface
-public:
-    std::unique_ptr<ReosVertexZSpecifier> surrogateZSpecifier(VertexPointer vertexRemoved) override;
+  public:
+    std::unique_ptr<ReosVertexZSpecifier> surrogateZSpecifier( VertexPointer vertexRemoved ) override;
     void hasToBeRemove() override;
 };
 
 
-class ReosVertexZSpecifierDependOnOtherVertexFactory:public ReosVertexZSpecifierFactory
+class ReosVertexZSpecifierDependOnOtherVertexFactory: public ReosVertexZSpecifierFactory
 {
-public:
+  public:
     ReosVertexZSpecifierDependOnOtherVertexFactory();
-    ReosVertexZSpecifierDependOnOtherVertexFactory(VertexPointer otherVertex);
+    ReosVertexZSpecifierDependOnOtherVertexFactory( VertexPointer otherVertex );
     virtual ~ReosVertexZSpecifierDependOnOtherVertexFactory() override;
 
-    void setOtherVertex(VertexPointer otherVertex);
-    bool IsCompatibleZSpecifier(const VertexPointer associatedVertex) const override;
+    void setOtherVertex( VertexPointer otherVertex );
+    bool IsCompatibleZSpecifier( const VertexPointer associatedVertex ) const override;
 
     VertexPointer otherVertex() const
     {
-        return mOtherVertex;
+      return mOtherVertex;
     }
 
-protected:
-    VertexPointer mOtherVertex=nullptr;
+  protected:
+    VertexPointer mOtherVertex = nullptr;
 
 
-private:
+  private:
 
 };
 
@@ -163,34 +163,34 @@ private:
 
 class ReosVertexZSpecifierOtherVertexAndSlope : public ReosVertexZSpecifierDependOnOtherVertex
 {
-public:
-    ReosVertexZSpecifierOtherVertexAndSlope(VertexPointer associatedVertex,VertexPointer otherVertex,double slope);
-    ReosVertexZSpecifier *clone(VertexPointer associatedVertex) const override;
+  public:
+    ReosVertexZSpecifierOtherVertexAndSlope( VertexPointer associatedVertex, VertexPointer otherVertex, double slope );
+    ReosVertexZSpecifier *clone( VertexPointer associatedVertex ) const override;
 
-private:
+  private:
     double mSlope;
 
     // ReosVertexZSpecifier interface
-public:
+  public:
     Type type() const override {return Type::VertexAndSlope;}
     Data data() const override;
 
-private:
+  private:
     void calculateZValue()  const override;
 };
 
 
-class ReosVertexZSpecifierOtherVertexAndSlopeFactory:public ReosVertexZSpecifierDependOnOtherVertexFactory
+class ReosVertexZSpecifierOtherVertexAndSlopeFactory: public ReosVertexZSpecifierDependOnOtherVertexFactory
 {
-public:
+  public:
     ReosVertexZSpecifierOtherVertexAndSlopeFactory();
-    ReosVertexZSpecifierOtherVertexAndSlopeFactory(VertexPointer otherVertex, double slope);
+    ReosVertexZSpecifierOtherVertexAndSlopeFactory( VertexPointer otherVertex, double slope );
 
-    void setSlope(double slope);
+    void setSlope( double slope );
 
-    std::unique_ptr<ReosVertexZSpecifier> createZSpecifier(const VertexPointer associatedVertex) const override;
-private:
-    double mSlope=0;
+    std::unique_ptr<ReosVertexZSpecifier> createZSpecifier( const VertexPointer associatedVertex ) const override;
+  private:
+    double mSlope = 0;
 
 };
 
@@ -198,15 +198,15 @@ private:
 
 class ReosVertexZSpecifierOtherVertexAndGap : public ReosVertexZSpecifierDependOnOtherVertex
 {
-public:
-    ReosVertexZSpecifierOtherVertexAndGap(VertexPointer associatedVertex,VertexPointer otherVertex,double gap);
-    ReosVertexZSpecifier *clone(VertexPointer associatedVertex) const override;
+  public:
+    ReosVertexZSpecifierOtherVertexAndGap( VertexPointer associatedVertex, VertexPointer otherVertex, double gap );
+    ReosVertexZSpecifier *clone( VertexPointer associatedVertex ) const override;
 
-private:
+  private:
     double mGap;
 
     // ReosVertexZSpecifier interface
-public:
+  public:
     Type type() const override {return Type::VertexAndGap;}
     Data data() const override;
 
@@ -214,29 +214,29 @@ public:
 };
 
 
-class ReosVertexZSpecifierOtherVertexAndGapFactory:public ReosVertexZSpecifierDependOnOtherVertexFactory
+class ReosVertexZSpecifierOtherVertexAndGapFactory: public ReosVertexZSpecifierDependOnOtherVertexFactory
 {
-public:
+  public:
     ReosVertexZSpecifierOtherVertexAndGapFactory();
-    ReosVertexZSpecifierOtherVertexAndGapFactory(VertexPointer otherVertex, double gap);
+    ReosVertexZSpecifierOtherVertexAndGapFactory( VertexPointer otherVertex, double gap );
 
-    void setGap(double gap);
+    void setGap( double gap );
 
-    std::unique_ptr<ReosVertexZSpecifier> createZSpecifier(const VertexPointer associatedVertex) const override;
+    std::unique_ptr<ReosVertexZSpecifier> createZSpecifier( const VertexPointer associatedVertex ) const override;
 
-private:
-    double mGap=0;
+  private:
+    double mGap = 0;
 
 };
 
 //***********************************************************************************
 
-class ReosVertexZSpecifierInterpolation:public ReosVertexZSpecifier
+class ReosVertexZSpecifierInterpolation: public ReosVertexZSpecifier
 {
-public:
-    ReosVertexZSpecifierInterpolation(const VertexPointer associatedVertex,
-                                  VertexPointer firstVertex, VertexPointer secondVertex,
-                                  VertexPointer previous, VertexPointer next, bool withAssociation=true);
+  public:
+    ReosVertexZSpecifierInterpolation( const VertexPointer associatedVertex,
+                                       VertexPointer firstVertex, VertexPointer secondVertex,
+                                       VertexPointer previous, VertexPointer next, bool withAssociation = true );
 
     ~ReosVertexZSpecifierInterpolation() override;
 
@@ -250,61 +250,61 @@ public:
     /// \brief replace the first extrermity and the extremity of all the next VertexZSpecifierInterpolation
     /// \param vertexExtremity
     ///
-    void changeFirstExtremity(VertexPointer vertexExtremity);
+    void changeFirstExtremity( VertexPointer vertexExtremity );
     //////////////////////////////////////////////
     /// \brief replace the second extrermity and the extremity of all the previous VertexZSpecifierInterpolation
     /// \param vertexExtremity
     ///
-    void changeSecondExtremity(VertexPointer vertexExtremity);
+    void changeSecondExtremity( VertexPointer vertexExtremity );
 
     ///////////////////////////////////////////////////////////////////////////////
     /// \brief replace the first extrermity of only this VertexZSpecifierInterpolation
     /// \param vertexExtremety
     ///
-    void setFirstExtremity(VertexPointer vertexExtremity);
+    void setFirstExtremity( VertexPointer vertexExtremity );
 
     ///////////////////////////////////////////////////////////////////////////////
     /// \brief replace the second extrermity of only this VertexZSpecifierInterpolation
     /// \param vertexExtremety
     ///
-    void setSecondExtremity(VertexPointer vertexExtremety);
-private:
-    VertexPointer mFirstExtremity=nullptr;
-    VertexPointer mSecondExtremity=nullptr;
-    VertexPointer mPreviousVertexInterpolation=nullptr;
-    VertexPointer mNextVertexInterpolation=nullptr;
+    void setSecondExtremity( VertexPointer vertexExtremety );
+  private:
+    VertexPointer mFirstExtremity = nullptr;
+    VertexPointer mSecondExtremity = nullptr;
+    VertexPointer mPreviousVertexInterpolation = nullptr;
+    VertexPointer mNextVertexInterpolation = nullptr;
 
     // ReosVertexZSpecifier interface
-public:
+  public:
     Type type() const override {return Type::Interpolator;}
     Data data() const override;
-    ReosVertexZSpecifier *clone(VertexPointer associatedVertex) const override;
+    ReosVertexZSpecifier *clone( VertexPointer associatedVertex ) const override;
     void hasToBeRemove() override;
 
-private:
+  private:
     void calculateZValue() const override;
     std::list<VertexPointer> verticesList() const;
 
 
 
     // VertexZSpecifier interface
-public:
-    std::unique_ptr<ReosVertexZSpecifier> surrogateZSpecifier(VertexPointer vertexRemoved) override;
+  public:
+    std::unique_ptr<ReosVertexZSpecifier> surrogateZSpecifier( VertexPointer vertexRemoved ) override;
 };
 
 
-class ReosVertexZSpecifierInterpolationFactory:public ReosVertexZSpecifierFactory
+class ReosVertexZSpecifierInterpolationFactory: public ReosVertexZSpecifierFactory
 {
-public:
+  public:
     ReosVertexZSpecifierInterpolationFactory();
-    ReosVertexZSpecifierInterpolationFactory(VertexPointer firstVertex, VertexPointer secondVertex);
+    ReosVertexZSpecifierInterpolationFactory( VertexPointer firstVertex, VertexPointer secondVertex );
 
-    void setExtremitiesVertices(VertexPointer firstVertex, VertexPointer secondVertex);
+    void setExtremitiesVertices( VertexPointer firstVertex, VertexPointer secondVertex );
 
-    bool IsCompatibleZSpecifier(const VertexPointer associatedVertex) const override;
-    std::unique_ptr<ReosVertexZSpecifier> createZSpecifier(const VertexPointer associatedVertex) const override;
+    bool IsCompatibleZSpecifier( const VertexPointer associatedVertex ) const override;
+    std::unique_ptr<ReosVertexZSpecifier> createZSpecifier( const VertexPointer associatedVertex ) const override;
 
-protected:
+  protected:
 
     VertexPointer mFirstExtremity;
     VertexPointer mSecondExtremity;
@@ -312,23 +312,23 @@ protected:
     mutable std::list<VertexPointer> mAddedVertex;
 };
 
-class ReosVertexZSpecifierGeneralFactory:public ReosVertexZSpecifierFactory
+class ReosVertexZSpecifierGeneralFactory: public ReosVertexZSpecifierFactory
 {
-public:
-    void setData(const ReosVertexZSpecifier::Data &data);
+  public:
+    void setData( const ReosVertexZSpecifier::Data &data );
 
-private:
+  private:
 
 
-    class ReosVertexZSpecifierRawInterpolatorFactory:public ReosVertexZSpecifierInterpolationFactory
+    class ReosVertexZSpecifierRawInterpolatorFactory: public ReosVertexZSpecifierInterpolationFactory
     {
-    public:
-        void setNeighbor(VertexPointer firstExtremityVertex, VertexPointer secondExtremityVertex,
-                VertexPointer previousInterpolator, VertexPointer nextInterpolator);
+      public:
+        void setNeighbor( VertexPointer firstExtremityVertex, VertexPointer secondExtremityVertex,
+                          VertexPointer previousInterpolator, VertexPointer nextInterpolator );
 
-        std::unique_ptr<ReosVertexZSpecifier> createZSpecifier(const VertexPointer associatedVertex) const override;
+        std::unique_ptr<ReosVertexZSpecifier> createZSpecifier( const VertexPointer associatedVertex ) const override;
 
-    private:
+      private:
         VertexPointer mPreviousInterpolator;
         VertexPointer mNextInterpolator;
     };
@@ -338,12 +338,12 @@ private:
     ReosVertexZSpecifierOtherVertexAndGapFactory gapFactory;
     ReosVertexZSpecifierRawInterpolatorFactory interpolationFactory;
 
-    ReosVertexZSpecifierFactory *currentFactory=nullptr;
+    ReosVertexZSpecifierFactory *currentFactory = nullptr;
 
     // ReosVertexZSpecifierFactory interface
-public:
-    std::unique_ptr<ReosVertexZSpecifier> createZSpecifier(const VertexPointer associatedVertex) const override;
-    bool IsCompatibleZSpecifier(const VertexPointer associatedVertex) const override;
+  public:
+    std::unique_ptr<ReosVertexZSpecifier> createZSpecifier( const VertexPointer associatedVertex ) const override;
+    bool IsCompatibleZSpecifier( const VertexPointer associatedVertex ) const override;
 };
 
 

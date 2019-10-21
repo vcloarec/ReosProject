@@ -65,91 +65,91 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 
 
 #if VERSION_INT<=30699
-        #define LAYER_TYPE QgsMapLayer::LayerType
-        #define RASTER_LAYER_TYPE QgsMapLayer::RasterLayer
-        #define VECTOR_LAYER_TYPE QgsMapLayer::VectorLayer
-        #define MESH_LAYER_TYPE QgsMapLayer::MeshLayer
+#define LAYER_TYPE QgsMapLayer::LayerType
+#define RASTER_LAYER_TYPE QgsMapLayer::RasterLayer
+#define VECTOR_LAYER_TYPE QgsMapLayer::VectorLayer
+#define MESH_LAYER_TYPE QgsMapLayer::MeshLayer
 #else
-        #define LAYER_TYPE QgsMapLayerType
-        #define RASTER_LAYER_TYPE QgsMapLayerType::RasterLayer
-        #define VECTOR_LAYER_TYPE QgsMapLayerType::VectorLayer
-        #define MESH_LAYER_TYPE QgsMapLayerType::MeshLayer
+#define LAYER_TYPE QgsMapLayerType
+#define RASTER_LAYER_TYPE QgsMapLayerType::RasterLayer
+#define VECTOR_LAYER_TYPE QgsMapLayerType::VectorLayer
+#define MESH_LAYER_TYPE QgsMapLayerType::MeshLayer
 #endif
 
 
 
-class HdTreeLayerSIGView:public QgsLayerTreeView
+class HdTreeLayerSIGView: public QgsLayerTreeView
 {
     // QWidget interface
-protected:
-    void dragEnterEvent(QDragEnterEvent *event) override;
+  protected:
+    void dragEnterEvent( QDragEnterEvent *event ) override;
 
 };
 
-class HdTreeLayerModel:public QgsLayerTreeModel
+class HdTreeLayerModel: public QgsLayerTreeModel
 {
-public:
-    HdTreeLayerModel(QgsLayerTree *rootNode, QObject *parent = nullptr ):QgsLayerTreeModel(rootNode,parent) {}
+  public:
+    HdTreeLayerModel( QgsLayerTree *rootNode, QObject *parent = nullptr ): QgsLayerTreeModel( rootNode, parent ) {}
 
-protected:
+  protected:
 
 
     // QAbstractItemModel interface
-public:
+  public:
     QStringList mimeTypes() const override;
 
-    bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
+    bool dropMimeData( const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent ) override;
 
-    QVariant data(const QModelIndex &index, int role) const override;
+    QVariant data( const QModelIndex &index, int role ) const override;
 
 };
 
 
-class ReosGisManager:public ReosModule
+class ReosGisManager: public ReosModule
 {
     Q_OBJECT
-public:
-    ReosGisManager(ReosMap* map, ReosModule *parent=nullptr);
+  public:
+    ReosGisManager( ReosMap *map, ReosModule *parent = nullptr );
     ~ReosGisManager() override {}
 
     QgsRasterLayer *getRasterLayer();
-    QWidget* createCRSDisplay(QWidget *parent);
+    QWidget *createCRSDisplay( QWidget *parent );
 
     QMenu *getContextMenu();
 
     void loadGISProject();
     void saveGISProject();
 
-    QgsRectangle transformExtentFrom(const QgsRectangle &extent, const QgsCoordinateReferenceSystem crsSource);                                                                                                                                                                                                                            
-    QgsRectangle transformExtentTo(const QgsRectangle &extent, const QgsCoordinateReferenceSystem crsDest);
+    QgsRectangle transformExtentFrom( const QgsRectangle &extent, const QgsCoordinateReferenceSystem crsSource );
+    QgsRectangle transformExtentTo( const QgsRectangle &extent, const QgsCoordinateReferenceSystem crsDest );
 
 
-    void transformTo(QgsAbstractGeometry *sourceGeometry,const QgsCoordinateReferenceSystem crsDest);
-    void transformFrom(QgsAbstractGeometry *sourceGeometry,const QgsCoordinateReferenceSystem crsDest);
+    void transformTo( QgsAbstractGeometry *sourceGeometry, const QgsCoordinateReferenceSystem crsDest );
+    void transformFrom( QgsAbstractGeometry *sourceGeometry, const QgsCoordinateReferenceSystem crsDest );
 
     ReosMap *getMap() const;
 
-    QgsCoordinateReferenceSystem getLayerCRS(QString name,QString URI="");
-    QgsMapLayer *getLayer(QString name,QString URI="");
+    QgsCoordinateReferenceSystem getLayerCRS( QString name, QString URI = "" );
+    QgsMapLayer *getLayer( QString name, QString URI = "" );
 
     QString getGISFileName() const;
-    void setGISFileName(const QString &value);
+    void setGISFileName( const QString &value );
 
     QByteArray encode();
 
-    void decode(QByteArray &ba);
+    void decode( QByteArray &ba );
 
     void clear();
 
-    bool addLayer(QgsMapLayer *layer);
+    bool addLayer( QgsMapLayer *layer );
 
-signals:
-    void currentLayerChanged(QgsMapLayer *layer);
-    void layerHasToBeRemoved(QgsMapLayer *layer);
-    void layerHasToBeUpdated(QgsMapLayer *layer);
-    void mapCrsChanged(const QgsCoordinateReferenceSystem &mCrs);
+  signals:
+    void currentLayerChanged( QgsMapLayer *layer );
+    void layerHasToBeRemoved( QgsMapLayer *layer );
+    void layerHasToBeUpdated( QgsMapLayer *layer );
+    void mapCrsChanged( const QgsCoordinateReferenceSystem &mCrs );
 
-public slots:
+  public slots:
     void openProjectSIG();
     void newProjectSIG();
     void loadVectorielLayer();
@@ -158,15 +158,15 @@ public slots:
     void removeSelectedLayers(); /*!< remove all the selected layer*/
     void zoomExtentToLayer();
     void CRSSelection();
-    void setCRS(const QgsCoordinateReferenceSystem &newCrs);
+    void setCRS( const QgsCoordinateReferenceSystem &newCrs );
     void setExtentAfterLoading();
 
-private:
+  private:
     ReosMap *mMap;
     QgsCoordinateReferenceSystem mCrs;
     QgsCoordinateReferenceSystem deFaultCrs;
     HdTreeLayerSIGView *treeLayerView_;
-    QgsLayerTreeMapCanvasBridge* bridgeTreeMap_;
+    QgsLayerTreeMapCanvasBridge *bridgeTreeMap_;
     HdTreeLayerModel *treemodel_;
     QString pluginPath;
     QString GISFileName;
@@ -185,25 +185,25 @@ private:
     QAction *actionCRSSelectionWithText;
 
 
-    QMenu* getMenuForOneRasterLayer();
-    QMenu* getMenuForOneVectorLayer();
+    QMenu *getMenuForOneRasterLayer();
+    QMenu *getMenuForOneVectorLayer();
     QMenu *getMenuForSeveralLayers();
 
 
-    QList<QgsRasterLayer*> getAllRasterLayers();
+    QList<QgsRasterLayer *> getAllRasterLayers();
 
-    void controlLayerCRS(QgsMapLayer *layer);
+    void controlLayerCRS( QgsMapLayer *layer );
     void setTextActionCRS();
-    void callPropertiesLayer(QgsMapLayer *layer);
+    void callPropertiesLayer( QgsMapLayer *layer );
 
-private slots:
+  private slots:
     void layerProperties();
-    void layerPropertiesByIndex(QModelIndex index);
+    void layerPropertiesByIndex( QModelIndex index );
 
 
 
     // ReosModule interface
-public:
+  public:
     QWidget *getWidget() const override;
 
 
@@ -213,14 +213,14 @@ public:
 
 class HdSigTreeViewContextMenuProvider: public QgsLayerTreeViewMenuProvider
 {
-public:
-    HdSigTreeViewContextMenuProvider(ReosGisManager *manager):manager(manager){}
-  
+  public:
+    HdSigTreeViewContextMenuProvider( ReosGisManager *manager ): manager( manager ) {}
+
     // QgsLayerTreeViewMenuProvider interface
-public:
+  public:
     QMenu *createContextMenu() override;
 
-private:
+  private:
     ReosGisManager *manager;
 };
 

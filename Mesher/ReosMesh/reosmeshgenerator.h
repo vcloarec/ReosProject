@@ -31,153 +31,154 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #define TRIANGLE_FILENAME "tinTriangle"
 
 
-class VertexBasic:public Vertex
+class VertexBasic: public Vertex
 {
-public:
-    VertexBasic(double x, double y);
+  public:
+    VertexBasic( double x, double y );
     ~VertexBasic();
 
     double x() const {return x_;}
     double y() const {return y_;}
 
-    void setPosition(double x, double y)
+    void setPosition( double x, double y )
     {
-        x_=x;
-        y_=y;
-        setDirty();
+      x_ = x;
+      y_ = y;
+      setDirty();
     }
 
 
-private:
-    double x_=0;
-    double y_=0;
+  private:
+    double x_ = 0;
+    double y_ = 0;
 
 };
 
-class FaceBasic:public Face
+class FaceBasic: public Face
 {
 
 
     // Face interface
-public:
-    void addVertex(VertexPointer vert) override {if (vert){}}
-    VertexPointer vertexPointer(int i) const override {if (i){};return nullptr;}
+  public:
+    void addVertex( VertexPointer vert ) override {if ( vert ) {}}
+    VertexPointer vertexPointer( int i ) const override {if ( i ) {}; return nullptr;}
     int verticesCount() const override {return 0;}
 };
 
 
-class HdMeshBasic:public ReosMesh
+class HdMeshBasic: public ReosMesh
 {
-public:
+  public:
     ~ HdMeshBasic() override
     {
-        for (auto v:mVertices)
-            delete v;
-        for (auto f:mFaces)
-            delete f;
+      for ( auto v : mVertices )
+        delete v;
+      for ( auto f : mFaces )
+        delete f;
     }
 
     int verticesCount() const override;
     int facesCount() const override;
 
-    void initialize(int verticesCount) override {verticesCount=1;}
+    void initialize( int verticesCount ) override {verticesCount = 1;}
 
-    int index(VertexPointer v) const;
-    int index(FacePointer f) const;
+    int index( VertexPointer v ) const;
+    int index( FacePointer f ) const;
 
-    VertexPointer vertex(int) const override;
-    VertexPointer vertex(double x, double y, double tolerance) const override;
-    FacePointer face(int index) const;
+    VertexPointer vertex( int ) const override;
+    VertexPointer vertex( double x, double y, double tolerance ) const override;
+    FacePointer face( int index ) const;
 
     void clear() override
     {
-        mVertices.clear();
-        clearFaces();
+      mVertices.clear();
+      clearFaces();
     }
 
     void clearFaces() override
     {
-        mFaces.clear();
+      mFaces.clear();
     }
 
-    virtual VertexPointer addVertex(double x, double y) override
+    virtual VertexPointer addVertex( double x, double y ) override
     {
-        VertexPointer vert=new VertexBasic(x,y);
-        mVertices.push_back(vert);
-        return vert;
+      VertexPointer vert = new VertexBasic( x, y );
+      mVertices.push_back( vert );
+      return vert;
     }
 
-    void addFace(const std::vector<int> &faceInt)
+    void addFace( const std::vector<int> &faceInt )
     {
-        auto face=new FaceBasic();
-        for (auto i:faceInt)
-            face->addVertex(vertex(i));
-        mFaces.push_back(face);
+      auto face = new FaceBasic();
+      for ( auto i : faceInt )
+        face->addVertex( vertex( i ) );
+      mFaces.push_back( face );
     }
 
     int maxNodesPerFaces() const override {return 3;}
 
-    int writeUGRIDFormat(std::string) override {return 0;}
+    int writeUGRIDFormat( std::string ) override {return 0;}
 
-    int readUGRIDFormat(std::string) override {return 0;}
+    int readUGRIDFormat( std::string ) override {return 0;}
 
-private:
+  private:
     std::vector<VertexPointer> mVertices;
     std::vector<FacePointer> mFaces;
 
 
     // HdMesh interface
-public:
+  public:
     std::unique_ptr<MeshIO> getReader() const override {return  std::unique_ptr<MeshIO>();}
 
-    std::list<VertexPointer> addHardLine(VertexPointer, VertexPointer) override {return std::list<VertexPointer>();}
-    std::list<VertexPointer> hardNeighbours(VertexPointer) const override{return std::list<VertexPointer>();}
-    std::list<VertexPointer> removeHardLine(VertexPointer, VertexPointer) override {return std::list<VertexPointer>();}
-    std::list<VertexPointer> neighboursVertices(VertexPointer) const override {return std::list<VertexPointer>();}
+    std::list<VertexPointer> addHardLine( VertexPointer, VertexPointer ) override {return std::list<VertexPointer>();}
+    std::list<VertexPointer> hardNeighbours( VertexPointer ) const override {return std::list<VertexPointer>();}
+    std::list<VertexPointer> removeHardLine( VertexPointer, VertexPointer ) override {return std::list<VertexPointer>();}
+    std::list<VertexPointer> neighboursVertices( VertexPointer ) const override {return std::list<VertexPointer>();}
 
     // HdMesh interface
-public:
-    FacePointer face(double x, double y) const override {if(x>y){};return nullptr;}
+  public:
+    FacePointer face( double x, double y ) const override {if ( x > y ) {}; return nullptr;}
 
 
 
     // ReosMesh interface
-protected:
-    VertexPointer createVertex(double x, double y) override {x=y;return nullptr;}
-    VertexPointer insertVertex(double x, double y) override {x=y;return nullptr;}
+  protected:
+    VertexPointer createVertex( double x, double y ) override {x = y; return nullptr;}
+    VertexPointer insertVertex( double x, double y ) override {x = y; return nullptr;}
 };
 
 
-class HdMeshGenerator{
-public:
+class HdMeshGenerator
+{
+  public:
     virtual ~HdMeshGenerator() {}
 
-    virtual void clear()=0;
+    virtual void clear() = 0;
 
-    virtual bool triangulateMesh(const HdMeshBasic& inputMesh,  HdMeshBasic& outpuMesh)=0;
+    virtual bool triangulateMesh( const HdMeshBasic &inputMesh,  HdMeshBasic &outpuMesh ) = 0;
 
-    virtual bool triangulateTIN(HdMeshBasic& mesh,const std::vector<Segment> &inputSegments)=0;
+    virtual bool triangulateTIN( HdMeshBasic &mesh, const std::vector<Segment> &inputSegments ) = 0;
     std::string getError() const;
 
-    virtual std::string getKey() const =0;
+    virtual std::string getKey() const = 0;
 
-protected:
-    virtual void getVertices(HdMeshBasic &mesh)=0;
-    virtual void getFaces(HdMeshBasic &mesh)=0;
-    virtual void getMesh(HdMeshBasic &mesh)=0;
+  protected:
+    virtual void getVertices( HdMeshBasic &mesh ) = 0;
+    virtual void getFaces( HdMeshBasic &mesh ) = 0;
+    virtual void getMesh( HdMeshBasic &mesh ) = 0;
 
     bool generatorError()
     {
-        setError("GENERATOR_ERROR");
-        return false;
+      setError( "GENERATOR_ERROR" );
+      return false;
     }
 
-    void setError(const std::string &value);
+    void setError( const std::string &value );
 
     std::vector<VertexBasic> vertices;
 
 
-private:
+  private:
     std::vector<VertexBasic> resultVertexes;  //not necessary for the mesh generator with Triangle program because the data are stored in file
     std::vector<Face> resultfaces;
 
@@ -185,47 +186,49 @@ private:
 };
 
 #ifdef __linux
-static std::string triangleExecutable="triangle";
-static std::string triangleExecutableCall="./"+triangleExecutable;
+static std::string triangleExecutable = "triangle";
+static std::string triangleExecutableCall = "./" + triangleExecutable;
 #endif
 #ifdef _WIN64
-static std::string triangleExecutable="triangle.exe";
-static std::string triangleExecutableCall="triangle.exe";
+static std::string triangleExecutable = "triangle.exe";
+static std::string triangleExecutableCall = "triangle.exe";
 #endif
 
 
 
-class HdMeshGeneratorTriangleFile:public HdMeshGenerator{
-public:
+class HdMeshGeneratorTriangleFile: public HdMeshGenerator
+{
+  public:
     ~HdMeshGeneratorTriangleFile() override {}
 
     virtual void clear() override;
 
-    virtual bool triangulateMesh(const HdMeshBasic& inputMesh,
-                                 HdMeshBasic& outpuMesh) override;
+    virtual bool triangulateMesh( const HdMeshBasic &inputMesh,
+                                  HdMeshBasic &outpuMesh ) override;
 
-    virtual bool triangulateTIN(HdMeshBasic& mesh,const std::vector<Segment> &inputSegments) override;
+    virtual bool triangulateTIN( HdMeshBasic &mesh, const std::vector<Segment> &inputSegments ) override;
 
-    static std::string incFileName(std::string fileName);
+    static std::string incFileName( std::string fileName );
 
-    std::string getKey() const override{
-        return "TriangleFile";
+    std::string getKey() const override
+    {
+      return "TriangleFile";
     }
 
-private:
+  private:
 
-    virtual void getVertices(HdMeshBasic &mesh) override;
-    virtual void getFaces(HdMeshBasic &mesh) override;
-    virtual void getMesh(HdMeshBasic &mesh) override;
+    virtual void getVertices( HdMeshBasic &mesh ) override;
+    virtual void getFaces( HdMeshBasic &mesh ) override;
+    virtual void getMesh( HdMeshBasic &mesh ) override;
 
-    std::string triangleCallNodeInput(std::string argument, const HdMeshBasic &mesh);
-    std::string triangleCallNodePolyInput(std::string argument, const HdMeshBasic &mesh,const std::vector<Segment> &segments);
-    std::string populateNodeFile(std::string name,const HdMeshBasic& mesh);
-    std::string populatePolyFile(std::string name,const HdMeshBasic& mesh,const std::vector<Segment> &segments);
-    bool triangleCall(std::string argument,std::string inputFile);
-    int getCountInFile(std::string fileName) const;
+    std::string triangleCallNodeInput( std::string argument, const HdMeshBasic &mesh );
+    std::string triangleCallNodePolyInput( std::string argument, const HdMeshBasic &mesh, const std::vector<Segment> &segments );
+    std::string populateNodeFile( std::string name, const HdMeshBasic &mesh );
+    std::string populatePolyFile( std::string name, const HdMeshBasic &mesh, const std::vector<Segment> &segments );
+    bool triangleCall( std::string argument, std::string inputFile );
+    int getCountInFile( std::string fileName ) const;
 
-    void removeFile(std::string name);
+    void removeFile( std::string name );
 
     std::string outputName;
 };

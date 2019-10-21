@@ -24,51 +24,51 @@ class ReosVertexZSpecifier;
 class ReosVertexZSpecifierFactory;
 class Vertex;
 
-typedef Vertex* VertexPointer;
+typedef Vertex *VertexPointer;
 
 class Vertex
 {
-public:
+  public:
     Vertex();
-    Vertex(const Vertex &other);
+    Vertex( const Vertex &other );
 
     virtual ~Vertex();
 
-    virtual double x() const =0;
-    virtual double y() const =0;
+    virtual double x() const = 0;
+    virtual double y() const = 0;
     double z();
 
 
-    void setGraphicPointer(void* pointer);
+    void setGraphicPointer( void *pointer );
     void *graphicPointer() const;
 
-    double distanceFrom(const Vertex &other) const;
+    double distanceFrom( const Vertex &other ) const;
 
     //Methods to deal with Z vlaue
-    void setZSpecifier(const ReosVertexZSpecifierFactory &zSpecifierFactory);
-    void setZValue(double z);
-    ReosVertexZSpecifier* zSpecifier() const;
-    ReosVertexZSpecifier* releaseZSpecifier();
-    bool isSpecifierIsCompatible(const ReosVertexZSpecifierFactory &zSpecifierFactory);
+    void setZSpecifier( const ReosVertexZSpecifierFactory &zSpecifierFactory );
+    void setZValue( double z );
+    ReosVertexZSpecifier *zSpecifier() const;
+    ReosVertexZSpecifier *releaseZSpecifier();
+    bool isSpecifierIsCompatible( const ReosVertexZSpecifierFactory &zSpecifierFactory );
 
 
     //Methods to deal with dependent vertex
-    void addDependentVertex(VertexPointer otherVertex);
-    void removeDependentVertex(VertexPointer otherVertex);
+    void addDependentVertex( VertexPointer otherVertex );
+    void removeDependentVertex( VertexPointer otherVertex );
     void setDependentVerticesDirty();
 
     void hasToBeRemoved();
 
-    virtual void linkedVertexWillBeRemoved(VertexPointer vert);
+    virtual void linkedVertexWillBeRemoved( VertexPointer vert );
 
-protected: //methode
+  protected: //methode
     void setDirty();
 
-private: //attribute
-    void* mGraphic=nullptr;
+  private: //attribute
+    void *mGraphic = nullptr;
     std::unique_ptr<ReosVertexZSpecifier> mZSpecifier;
 
-    std::set<Vertex*> mDependentVertices;
+    std::set<Vertex *> mDependentVertices;
 
 };
 
@@ -77,32 +77,32 @@ private: //attribute
 
 class Segment
 {
-public:
-    Segment(VertexPointer v1, VertexPointer v2);
+  public:
+    Segment( VertexPointer v1, VertexPointer v2 );
 
     VertexPointer first() const;
     VertexPointer second() const;
 
-private:
+  private:
     VertexPointer mVertex1;
     VertexPointer mVertex2;
 };
 
 class Face
 {
-public:
+  public:
     virtual ~Face() {}
-    virtual void addVertex(VertexPointer vert)=0;
-    virtual VertexPointer vertexPointer(int i) const =0;
-    virtual int verticesCount() const=0;
-    virtual void setNeighbor(int side, Face*) {}
-    virtual bool isVertexContained(VertexPointer vertex) const;
+    virtual void addVertex( VertexPointer vert ) = 0;
+    virtual VertexPointer vertexPointer( int i ) const = 0;
+    virtual int verticesCount() const = 0;
+    virtual void setNeighbor( int side, Face * ) {}
+    virtual bool isVertexContained( VertexPointer vertex ) const;
 
     std::vector<double> faceCentroid();
 };
 
 
-typedef Face* FacePointer;
+typedef Face *FacePointer;
 
 
 #endif // VERTEX_H

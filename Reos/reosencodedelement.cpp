@@ -17,18 +17,18 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 
 
 
-ReosEncodedElement::ReosEncodedElement(const QByteArray &byteArray)
+ReosEncodedElement::ReosEncodedElement( const QByteArray &byteArray )
 {
-    QDataStream stream(byteArray);
-    stream>>description;
-    stream>>data;
+  QDataStream stream( byteArray );
+  stream >> description;
+  stream >> data;
 }
 
 QByteArray ReosEncodedElement::encode()
 {
-    QByteArray byteArray;
-    QDataStream stream(&byteArray,QIODevice::WriteOnly);
-    stream<<description;
-    stream<<data;
-    return byteArray;
+  QByteArray byteArray;
+  QDataStream stream( &byteArray, QIODevice::WriteOnly );
+  stream << description;
+  stream << data;
+  return byteArray;
 }

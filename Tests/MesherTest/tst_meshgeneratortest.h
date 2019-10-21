@@ -5,8 +5,8 @@
 
 using namespace testing;
 
-TEST(MeshGeneratorTest, MeshGeneratorCreation)
+TEST( MeshGeneratorTest, MeshGeneratorCreation )
 {
-    EXPECT_EQ(1, 1);
-    ASSERT_THAT(0, Eq(0));
+  EXPECT_EQ( 1, 1 );
+  ASSERT_THAT( 0, Eq( 0 ) );
 }

@@ -20,34 +20,37 @@ email                : vcloarec at gmail dot com / projetreos at gmail dot com
 
 Vertex::Vertex()
 {
-    mZSpecifier=std::make_unique<ReosVertexZSpecifierSimple>(this);
+  mZSpecifier = std::make_unique<ReosVertexZSpecifierSimple>( this );
 }
 
-Vertex::Vertex(const Vertex &other)
+Vertex::Vertex( const Vertex &other )
 {
-    mGraphic=nullptr;
-    if (mZSpecifier)
-        mZSpecifier=std::unique_ptr<ReosVertexZSpecifier>(other.mZSpecifier->clone(this));
-    else
-        mZSpecifier=std::unique_ptr<ReosVertexZSpecifier>(nullptr);
+  mGraphic = nullptr;
+  if ( mZSpecifier )
+    mZSpecifier = std::unique_ptr<ReosVertexZSpecifier>( other.mZSpecifier->clone( this ) );
+  else
+    mZSpecifier = std::unique_ptr<ReosVertexZSpecifier>( nullptr );
 }
 
 Vertex::~Vertex() {}
 
-double Vertex::z() {
-    if (mZSpecifier)
-        return mZSpecifier->zValue();
-    else {
-        return INVALID_VALUE;
-    }
+double Vertex::z()
+{
+  if ( mZSpecifier )
+    return mZSpecifier->zValue();
+  else
+  {
+    return INVALID_VALUE;
+  }
 }
 
-void *Vertex::graphicPointer() const {
-    return mGraphic;
+void *Vertex::graphicPointer() const
+{
+  return mGraphic;
 }
 
 
-Segment::Segment(VertexPointer v1, VertexPointer v2):mVertex1(v1),mVertex2(v2)
+Segment::Segment( VertexPointer v1, VertexPointer v2 ): mVertex1( v1 ), mVertex2( v2 )
 {}
 
 VertexPointer Segment::first() const {return mVertex1;}
@@ -56,60 +59,60 @@ VertexPointer Segment::second() const {return mVertex2;}
 
 
 
-bool Face::isVertexContained(VertexPointer vertex) const
+bool Face::isVertexContained( VertexPointer vertex ) const
 {
-    bool found=false;
-    int i=0;
-    while( !found && i<verticesCount())
-    {
-        found= vertex == vertexPointer(i);
-        if (!found)
-            ++i;
-    }
+  bool found = false;
+  int i = 0;
+  while ( !found && i < verticesCount() )
+  {
+    found = vertex == vertexPointer( i );
+    if ( !found )
+      ++i;
+  }
 
-    return found;
+  return found;
 }
 
 std::vector<double> Face::faceCentroid()
 {
-    double x=0;
-    double y=0;
-    int n=verticesCount();
-    for (int i=0;i<n;++i)
-    {
-        x+=vertexPointer(i)->x();
-        y+=vertexPointer(i)->y();
-    }
+  double x = 0;
+  double y = 0;
+  int n = verticesCount();
+  for ( int i = 0; i < n; ++i )
+  {
+    x += vertexPointer( i )->x();
+    y += vertexPointer( i )->y();
+  }
 
-    std::vector<double> centroid{x/n,y/n};
+  std::vector<double> centroid{x / n, y / n};
 
-    return centroid;
+  return centroid;
 }
 
-void Vertex::setGraphicPointer(void *pointer)
+void Vertex::setGraphicPointer( void *pointer )
 {
-    mGraphic=pointer;
+  mGraphic = pointer;
 }
 
 
-double Vertex::distanceFrom(const Vertex &other) const
+double Vertex::distanceFrom( const Vertex &other ) const
 {
-    return sqrt(pow(x()-other.x(),2)+pow(y()-other.y(),2));
+  return sqrt( pow( x() - other.x(), 2 ) + pow( y() - other.y(), 2 ) );
 }
 
-void Vertex::setZSpecifier(const ReosVertexZSpecifierFactory &zSpecifierFactory)
+void Vertex::setZSpecifier( const ReosVertexZSpecifierFactory &zSpecifierFactory )
 {
-    if ( ! zSpecifierFactory.IsCompatibleZSpecifier(this))
-        return;
-    mZSpecifier->hasToBeRemove();
-    mZSpecifier=zSpecifierFactory.createZSpecifier(this);
-    setDirty();
+  if ( ! zSpecifierFactory.IsCompatibleZSpecifier( this ) )
+    return;
+  mZSpecifier->hasToBeRemove();
+  mZSpecifier = zSpecifierFactory.createZSpecifier( this );
+  setDirty();
 }
 
-void Vertex::setZValue(double z)
+void Vertex::setZValue( double z )
 {
-    mZSpecifier=std::make_unique<ReosVertexZSpecifierSimple>(this,z);
-    setDirty();
+  mZSpecifier = std::make_unique<ReosVertexZSpecifierSimple>( this, z );
+  setDirty();
 }
 
 
@@ -117,55 +120,55 @@ ReosVertexZSpecifier *Vertex::zSpecifier() const {return mZSpecifier.get();}
 
 ReosVertexZSpecifier *Vertex::releaseZSpecifier()
 {
-    return mZSpecifier.release();
+  return mZSpecifier.release();
 }
 
-bool Vertex::isSpecifierIsCompatible(const ReosVertexZSpecifierFactory &zSpecifierFactory)
+bool Vertex::isSpecifierIsCompatible( const ReosVertexZSpecifierFactory &zSpecifierFactory )
 {
-    return zSpecifierFactory.IsCompatibleZSpecifier(this);
+  return zSpecifierFactory.IsCompatibleZSpecifier( this );
 }
 
-void Vertex::addDependentVertex(VertexPointer otherVertex)
+void Vertex::addDependentVertex( VertexPointer otherVertex )
 {
-    mDependentVertices.insert(otherVertex);
+  mDependentVertices.insert( otherVertex );
 }
 
-void Vertex::removeDependentVertex(VertexPointer otherVertex)
+void Vertex::removeDependentVertex( VertexPointer otherVertex )
 {
-    mDependentVertices.erase(otherVertex);
+  mDependentVertices.erase( otherVertex );
 }
 
 void Vertex::setDependentVerticesDirty()
 {
-    for (auto v:mDependentVertices)
-        v->setDirty();
+  for ( auto v : mDependentVertices )
+    v->setDirty();
 }
 
 void Vertex::hasToBeRemoved()
 {
-    mZSpecifier->hasToBeRemove();
-    auto v=mDependentVertices.begin();
-    while (v!=mDependentVertices.end())
-    {
-        size_t dependentCount=mDependentVertices.size();
-        (*v)->linkedVertexWillBeRemoved(this);
-        if (dependentCount!=mDependentVertices.size())
-            v=mDependentVertices.begin();
-        else
-            v++;
-    }
+  mZSpecifier->hasToBeRemove();
+  auto v = mDependentVertices.begin();
+  while ( v != mDependentVertices.end() )
+  {
+    size_t dependentCount = mDependentVertices.size();
+    ( *v )->linkedVertexWillBeRemoved( this );
+    if ( dependentCount != mDependentVertices.size() )
+      v = mDependentVertices.begin();
+    else
+      v++;
+  }
 }
 
-void Vertex::linkedVertexWillBeRemoved(VertexPointer vert)
+void Vertex::linkedVertexWillBeRemoved( VertexPointer vert )
 {
-    if (mZSpecifier)
-        mZSpecifier=mZSpecifier->surrogateZSpecifier(vert);
+  if ( mZSpecifier )
+    mZSpecifier = mZSpecifier->surrogateZSpecifier( vert );
 }
 
 void Vertex::setDirty()
 {
-    mZSpecifier->setDirty();
-    for (auto dv:mDependentVertices)
-        dv->setDirty();
+  mZSpecifier->setDirty();
+  for ( auto dv : mDependentVertices )
+    dv->setDirty();
 }
 

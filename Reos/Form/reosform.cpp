@@ -18,742 +18,749 @@ email                :   projetreos@gmail.com
 
 const QList<ReosFormObject *> &ReosForm::getFormObjectList() const
 {
-    return attachedFormObjects;
+  return attachedFormObjects;
 }
 
-void ReosForm::addForm(ReosForm *childForm)
+void ReosForm::addForm( ReosForm *childForm )
 {
-    attachedFormObjects.append(childForm);
+  attachedFormObjects.append( childForm );
 }
 
-void ReosForm::addParamater(ReosFormParameter *param)
+void ReosForm::addParamater( ReosFormParameter *param )
 {
-    connect(param,&ReosFormParameter::valueEdited,this,&ReosForm::parameterEdit);
-    attachedFormObjects.append(param);
+  connect( param, &ReosFormParameter::valueEdited, this, &ReosForm::parameterEdit );
+  attachedFormObjects.append( param );
 }
 
-void ReosForm::addForm(ReosFormObject *formObject)
+void ReosForm::addForm( ReosFormObject *formObject )
 {
-    attachedFormObjects.append(formObject);
+  attachedFormObjects.append( formObject );
 }
 
 void ReosForm::addSeparator()
 {
-    separatorsPosition.append(attachedFormObjects.count());
+  separatorsPosition.append( attachedFormObjects.count() );
 }
 
-bool ReosForm::isSeparatorPresent(int i) const
+bool ReosForm::isSeparatorPresent( int i ) const
 {
-    return  separatorsPosition.contains(i);
+  return  separatorsPosition.contains( i );
 }
 
-void ReosForm::setOrientation(Qt::Orientation orientation)
+void ReosForm::setOrientation( Qt::Orientation orientation )
 {
-    mOrientation=orientation;
+  mOrientation = orientation;
 }
 
 Qt::Orientation ReosForm::orientation() const {return mOrientation;}
 
 void ReosForm::parameterEdit()
 {
-    emit parameterEdited();
+  emit parameterEdited();
 }
 
 QWidget *ReosForm::getWidget()
 {
-    return new ReosFormWidget(this,nullptr,mOrientation);
+  return new ReosFormWidget( this, nullptr, mOrientation );
 }
 
-ReosFormParameter::ReosFormParameter(ReosForm *parent):ReosFormObject (parent)
+ReosFormParameter::ReosFormParameter( ReosForm *parent ): ReosFormObject( parent )
 {
-    if (parent)
-        parent->addParamater(this);
+  if ( parent )
+    parent->addParamater( this );
 }
 
 QWidget *ReosFormParameter::getWidget()
 {
-    ReosFormParameterEditor *editor=makeEdit();
-    connect(editor,&ReosFormParameterEditor::askForCalculate,this,&ReosFormParameter::valueAsked);
+  ReosFormParameterEditor *editor = makeEdit();
+  connect( editor, &ReosFormParameterEditor::askForCalculate, this, &ReosFormParameter::valueAsked );
 
-    return editor;
+  return editor;
 }
 
 void ReosFormParameter::valueAsked()
 {
-    emit askForValue();
+  emit askForValue();
 }
 
 
-ReosFormParameterSimple::ReosFormParameterSimple(QString name, ReosForm *parent):ReosFormParameter(parent),
-    name(name)
+ReosFormParameterSimple::ReosFormParameterSimple( QString name, ReosForm *parent ): ReosFormParameter( parent ),
+  name( name )
 {}
 
 QString ReosFormParameterSimple::getName() const
 {
-    return name;
+  return name;
 }
 
-void ReosFormParameterSimple::setName(const QString &value)
+void ReosFormParameterSimple::setName( const QString &value )
 {
-    name = value;
+  name = value;
 }
 
 void ReosFormParameterSimple::enableCalculateButton()
 {
-    calculateButton=true;
+  calculateButton = true;
 }
 
-void ReosFormParameterSimple::linkEditableWithBool(ReosFormParameterSimpleBool *boolParameter, bool editableIfTrue)
+void ReosFormParameterSimple::linkEditableWithBool( ReosFormParameterSimpleBool *boolParameter, bool editableIfTrue )
 {
-    if (editableIfTrue)
-        connect(boolParameter,&ReosFormParameterSimpleBool::valueChanged,this,&ReosFormParameterSimple::setEditable);
-    else {
-        connect(boolParameter,&ReosFormParameterSimpleBool::valueChanged,this,&ReosFormParameterSimple::setUneditable);
-    }
+  if ( editableIfTrue )
+    connect( boolParameter, &ReosFormParameterSimpleBool::valueChanged, this, &ReosFormParameterSimple::setEditable );
+  else
+  {
+    connect( boolParameter, &ReosFormParameterSimpleBool::valueChanged, this, &ReosFormParameterSimple::setUneditable );
+  }
 }
 
-void ReosFormParameterSimple::linkEnableWithBool(ReosFormParameterSimpleBool *boolParameter, bool enableIfTrue)
+void ReosFormParameterSimple::linkEnableWithBool( ReosFormParameterSimpleBool *boolParameter, bool enableIfTrue )
 {
-    if (enableIfTrue)
-        connect(boolParameter,&ReosFormParameterSimpleBool::valueChanged,this,&ReosFormParameterSimple::enableEditor);
-    else {
-        connect(boolParameter,&ReosFormParameterSimpleBool::valueChanged,this,&ReosFormParameterSimple::disableEditor);
-    }
+  if ( enableIfTrue )
+    connect( boolParameter, &ReosFormParameterSimpleBool::valueChanged, this, &ReosFormParameterSimple::enableEditor );
+  else
+  {
+    connect( boolParameter, &ReosFormParameterSimpleBool::valueChanged, this, &ReosFormParameterSimple::disableEditor );
+  }
 }
 
-void ReosFormParameterSimple::enableEditor(bool b)
+void ReosFormParameterSimple::enableEditor( bool b )
 {
-    disable=!b;
-    emit enable(b);
+  disable = !b;
+  emit enable( b );
 }
 
-void ReosFormParameterSimple::disableEditor(bool b)
+void ReosFormParameterSimple::disableEditor( bool b )
 {
-    disable=b;
-    emit enable(!b);
+  disable = b;
+  emit enable( !b );
 }
 
-void ReosFormParameterSimple::setEditable(bool b)
+void ReosFormParameterSimple::setEditable( bool b )
 {
-    editable=b;
-    emit editableEditor(b);
+  editable = b;
+  emit editableEditor( b );
 }
 
-void ReosFormParameterSimple::setUneditable(bool b)
+void ReosFormParameterSimple::setUneditable( bool b )
 {
-    editable=!b;
-    emit editableEditor(editable);
+  editable = !b;
+  emit editableEditor( editable );
 }
 
 ReosFormParameterEditor *ReosFormParameterSimple::makeEdit()
 {
-    ReosFormParameterEditorSimple* editor=instantiateEditor();
-    connect(this,&ReosFormParameterSimple::valueChanged,editor,&ReosFormParameterEditorSimple::updateValue);
-    connect(editor,&ReosFormParameterEditorSimple::changed,this,&ReosFormParameterSimple::valueChangeByEditor);
-    connect(this,&ReosFormParameterSimple::enable,editor,&ReosFormParameterEditorSimple::enableEditor);
-    connect(this,&ReosFormParameterSimple::editableEditor,editor,&ReosFormParameterEditorSimple::setEditable);
-    editor->enableEditor(!disable);
-    editor->setEditable(editable);
-    if (calculateButton)
-        editor->enableCalculateButton();
-    return editor;
+  ReosFormParameterEditorSimple *editor = instantiateEditor();
+  connect( this, &ReosFormParameterSimple::valueChanged, editor, &ReosFormParameterEditorSimple::updateValue );
+  connect( editor, &ReosFormParameterEditorSimple::changed, this, &ReosFormParameterSimple::valueChangeByEditor );
+  connect( this, &ReosFormParameterSimple::enable, editor, &ReosFormParameterEditorSimple::enableEditor );
+  connect( this, &ReosFormParameterSimple::editableEditor, editor, &ReosFormParameterEditorSimple::setEditable );
+  editor->enableEditor( !disable );
+  editor->setEditable( editable );
+  if ( calculateButton )
+    editor->enableCalculateButton();
+  return editor;
 }
 
 
-ReosFormParameterSimpleDouble::ReosFormParameterSimpleDouble(QString name, double value, ReosForm *parent, QString unit):ReosFormParameterSimple(name,parent),
-    value(value),unit(unit)
+ReosFormParameterSimpleDouble::ReosFormParameterSimpleDouble( QString name, double value, ReosForm *parent, QString unit ): ReosFormParameterSimple( name, parent ),
+  value( value ), unit( unit )
 {}
 
 double ReosFormParameterSimpleDouble::getValue() const
 {
-    return value;
+  return value;
 }
 
-void ReosFormParameterSimpleDouble::setValue(double v)
+void ReosFormParameterSimpleDouble::setValue( double v )
 {
-    value = v;
-    emit valueChanged(getStringValue());
+  value = v;
+  emit valueChanged( getStringValue() );
 
 }
 
 QString ReosFormParameterSimpleDouble::getUnit() const
 {
-    return unit;
+  return unit;
 }
 
-void ReosFormParameterSimpleDouble::setUnit(const QString &value)
+void ReosFormParameterSimpleDouble::setUnit( const QString &value )
 {
-    unit = value;
+  unit = value;
 }
 
-void ReosFormParameterSimpleDouble::setPrecision(int p)
+void ReosFormParameterSimpleDouble::setPrecision( int p )
 {
-    precision=p;
+  precision = p;
 }
 
 bool ReosFormParameterSimpleDouble::isDefined() const
 {
-    return !(fabs(noData-value)<(fabs(noData)>fabs(value) ? fabs(noData) : fabs(value))*std::numeric_limits<double>::epsilon());
+  return !( fabs( noData - value ) < ( fabs( noData ) > fabs( value ) ? fabs( noData ) : fabs( value ) ) * std::numeric_limits<double>::epsilon() );
 }
 
 void ReosFormParameterSimpleDouble::setUndefined()
 {
-    value=noData;
+  value = noData;
 }
 
 double ReosFormParameterSimpleDouble::getNoData() const
 {
-    return noData;
+  return noData;
 }
 
-void ReosFormParameterSimpleDouble::setNoData(double value)
+void ReosFormParameterSimpleDouble::setNoData( double value )
 {
-    noData = value;
+  noData = value;
 }
 
 ReosFormParameterEditorSimple *ReosFormParameterSimpleDouble::instantiateEditor()
 {
-    QString valueString=getStringValue();
-    ReosFormParameterEditorSimple* editor;
-    if (getUnit()=="")
-        editor= new ReosFormParameterEditorSimple(getName(),valueString);
-    else {
-        editor= new ReosFormParameterEditorSimple(getName(),valueString,getUnit());
-    }
+  QString valueString = getStringValue();
+  ReosFormParameterEditorSimple *editor;
+  if ( getUnit() == "" )
+    editor = new ReosFormParameterEditorSimple( getName(), valueString );
+  else
+  {
+    editor = new ReosFormParameterEditorSimple( getName(), valueString, getUnit() );
+  }
 
-    editor->setAlignment(alignment);
-    return editor;
+  editor->setAlignment( alignment );
+  return editor;
 }
 
 QString ReosFormParameterSimpleDouble::getStringValue()
 {
-    if (isDefined())
-    {
-        return QString::number(value);
-    }
-    else {
-        return QString("-");
-    }
+  if ( isDefined() )
+  {
+    return QString::number( value );
+  }
+  else
+  {
+    return QString( "-" );
+  }
 }
 
-void ReosFormParameterSimpleDouble::valueChangeByEditor(QString v)
+void ReosFormParameterSimpleDouble::valueChangeByEditor( QString v )
 {
-    value=v.toDouble();
-    emit valueEdited();
-    emit valueChanged(getStringValue());
+  value = v.toDouble();
+  emit valueEdited();
+  emit valueChanged( getStringValue() );
 }
 
-ReosFormParameterSimpleString::ReosFormParameterSimpleString(QString name, QString value, ReosForm *parent):ReosFormParameterSimple(name,parent),
-    value(value)
+ReosFormParameterSimpleString::ReosFormParameterSimpleString( QString name, QString value, ReosForm *parent ): ReosFormParameterSimple( name, parent ),
+  value( value )
 {}
 
 QString ReosFormParameterSimpleString::getValue() const
 {
-    return value;
+  return value;
 }
 
-void ReosFormParameterSimpleString::setValue(const QString &v)
+void ReosFormParameterSimpleString::setValue( const QString &v )
 {
-    value = v;
-    emit valueChanged(value);
+  value = v;
+  emit valueChanged( value );
 }
 
 bool ReosFormParameterSimpleString::isDefined() const
 {
-    return value!="";
+  return value != "";
 }
 
 void ReosFormParameterSimpleString::setUndefined()
 {
-    value="";
+  value = "";
 }
 
 ReosFormParameterEditorSimple *ReosFormParameterSimpleString::instantiateEditor()
 {
-    return new ReosFormParameterEditorSimple(getName(),value);
+  return new ReosFormParameterEditorSimple( getName(), value );
 }
 
 QString ReosFormParameterSimpleString::getStringValue()
 {
-    return value;
+  return value;
 }
 
-void ReosFormParameterSimpleString::valueChangeByEditor(QString v)
+void ReosFormParameterSimpleString::valueChangeByEditor( QString v )
 {
-    value=v;
-    emit valueEdited();
-    emit valueChanged(v);
+  value = v;
+  emit valueEdited();
+  emit valueChanged( v );
 }
 
-ReosFormParameterSimpleBool::ReosFormParameterSimpleBool(QString name, bool value, ReosForm *parent):ReosFormParameter(parent),
-    name(name),value(value)
+ReosFormParameterSimpleBool::ReosFormParameterSimpleBool( QString name, bool value, ReosForm *parent ): ReosFormParameter( parent ),
+  name( name ), value( value )
 {
 
 }
 
 bool ReosFormParameterSimpleBool::getValue() const
 {
-    return value;
+  return value;
 }
 
-void ReosFormParameterSimpleBool::setValue(bool v)
+void ReosFormParameterSimpleBool::setValue( bool v )
 {
-    value = v;
-    emit valueChanged(value);
+  value = v;
+  emit valueChanged( value );
 }
 
-void ReosFormParameterSimpleBool::valueChangeByEditor(bool v)
+void ReosFormParameterSimpleBool::valueChangeByEditor( bool v )
 {
-    value=v;
-    emit valueEdited();
-    emit valueChanged(v);
+  value = v;
+  emit valueEdited();
+  emit valueChanged( v );
 }
 
 ReosFormParameterEditor *ReosFormParameterSimpleBool::makeEdit()
 {
-    ReosFormParameterEditorCheckBox* editor=new ReosFormParameterEditorCheckBox(name,value);
-    connect(this,&ReosFormParameterSimpleBool::valueChanged,editor,&ReosFormParameterEditorCheckBox::updateValue);
-    connect(editor,&ReosFormParameterEditorCheckBox::changed,this,&ReosFormParameterSimpleBool::valueChangeByEditor);
-    return editor;
+  ReosFormParameterEditorCheckBox *editor = new ReosFormParameterEditorCheckBox( name, value );
+  connect( this, &ReosFormParameterSimpleBool::valueChanged, editor, &ReosFormParameterEditorCheckBox::updateValue );
+  connect( editor, &ReosFormParameterEditorCheckBox::changed, this, &ReosFormParameterSimpleBool::valueChangeByEditor );
+  return editor;
 }
 
 ReosArea ReosFormParameterSimpleArea::getValue() const
 {
-    return value;
+  return value;
 }
 
-void ReosFormParameterSimpleArea::setValue(const ReosArea &v)
+void ReosFormParameterSimpleArea::setValue( const ReosArea &v )
 {
-    value = v;
-    emit valueChanged(getStringValue());
-    emit unitChange(value.unit());
+  value = v;
+  emit valueChanged( getStringValue() );
+  emit unitChange( value.unit() );
 
 }
 
 bool ReosFormParameterSimpleArea::isDefined() const
 {
-    return value.getValueInUnit()>0;
+  return value.getValueInUnit() > 0;
 }
 
 void ReosFormParameterSimpleArea::setUndefined()
 {
-    value=ReosArea(-1,value.unit());
+  value = ReosArea( -1, value.unit() );
 }
 
 QStringList ReosFormParameterSimpleArea::getUnits() const
 {
-    QStringList units;
-    units<<(QString("m").append(QChar(0x00B2)));
-    units<<tr("a");
-    units<<tr("ha");
-    units<<QString("km").append(QChar(0x00B2));
+  QStringList units;
+  units << ( QString( "m" ).append( QChar( 0x00B2 ) ) );
+  units << tr( "a" );
+  units << tr( "ha" );
+  units << QString( "km" ).append( QChar( 0x00B2 ) );
 
-    return units;
+  return units;
 }
 
 double ReosFormParameterSimpleArea::getValueDouble() const
 {
-    return value.getValueInUnit();
+  return value.getValueInUnit();
 }
 
-void ReosFormParameterSimpleArea::setValueFromDouble(double d)
+void ReosFormParameterSimpleArea::setValueFromDouble( double d )
 {
-    value=ReosArea(d,value.unit());
+  value = ReosArea( d, value.unit() );
 }
 
 int ReosFormParameterSimpleArea::getCurrentUnit() const
 {
-    return value.unit();
+  return value.unit();
 }
 
-double ReosFormParameterSimpleArea::getValueInUnit(int i) const
+double ReosFormParameterSimpleArea::getValueInUnit( int i ) const
 {
-    auto u=static_cast<ReosArea::Unit>(i);
-    return value.getValueInUnit(u);
+  auto u = static_cast<ReosArea::Unit>( i );
+  return value.getValueInUnit( u );
 }
 
-void ReosFormParameterSimpleArea::setUnit(int i)
+void ReosFormParameterSimpleArea::setUnit( int i )
 {
-    value.setUnit(static_cast<ReosArea::Unit>(i));
+  value.setUnit( static_cast<ReosArea::Unit>( i ) );
 }
 
-ReosFormParameterSimpleDuration::ReosFormParameterSimpleDuration(QString name, ReosDuration value, ReosForm *parent):ReosFormParameterSimpleUnitVariable(name,parent),
-    value(value)
+ReosFormParameterSimpleDuration::ReosFormParameterSimpleDuration( QString name, ReosDuration value, ReosForm *parent ): ReosFormParameterSimpleUnitVariable( name, parent ),
+  value( value )
 {}
 
 ReosDuration ReosFormParameterSimpleDuration::getValue() const
 {
-    return value;
+  return value;
 }
 
-void ReosFormParameterSimpleDuration::setValue(const ReosDuration &v)
+void ReosFormParameterSimpleDuration::setValue( const ReosDuration &v )
 {
-    value=v;
-    emit valueChanged(getStringValue());
+  value = v;
+  emit valueChanged( getStringValue() );
 }
 
 bool ReosFormParameterSimpleDuration::isDefined() const
 {
-    return value.getValueUnit()>=0;
+  return value.getValueUnit() >= 0;
 }
 
 void ReosFormParameterSimpleDuration::setUndefined()
 {
-    value=ReosDuration(-1,value.unit());
+  value = ReosDuration( -1, value.unit() );
 }
 
 QStringList ReosFormParameterSimpleDuration::getUnits() const
 {
-    QStringList units;
-    units<<tr("s");
-    units<<tr("mn");
-    units<<tr("h");
-    units<<tr("j");
-    units<<tr("semaines");
-    units<<tr("mois");
-    units<<tr("années");
-    return units;
+  QStringList units;
+  units << tr( "s" );
+  units << tr( "mn" );
+  units << tr( "h" );
+  units << tr( "j" );
+  units << tr( "semaines" );
+  units << tr( "mois" );
+  units << tr( "années" );
+  return units;
 }
 
 double ReosFormParameterSimpleDuration::getValueDouble() const
 {
-    return value.getValueUnit();
+  return value.getValueUnit();
 }
 
-void ReosFormParameterSimpleDuration::setValueFromDouble(double d)
+void ReosFormParameterSimpleDuration::setValueFromDouble( double d )
 {
-    value=ReosDuration(d,value.unit());
+  value = ReosDuration( d, value.unit() );
 }
 
 int ReosFormParameterSimpleDuration::getCurrentUnit() const
 {
-    return value.unit();
+  return value.unit();
 }
 
-double ReosFormParameterSimpleDuration::getValueInUnit(int i) const
+double ReosFormParameterSimpleDuration::getValueInUnit( int i ) const
 {
-    auto u=static_cast<ReosDuration::Unit>(i);
-    return value.getValueUnit(u);
+  auto u = static_cast<ReosDuration::Unit>( i );
+  return value.getValueUnit( u );
 }
 
-void ReosFormParameterSimpleDuration::setUnit(int i)
+void ReosFormParameterSimpleDuration::setUnit( int i )
 {
-    value.setUnit(static_cast<ReosDuration::Unit>(i));
+  value.setUnit( static_cast<ReosDuration::Unit>( i ) );
 }
 
-ReosFormParameterEditor::ReosFormParameterEditor():QWidget(),
-    toolButtonAskForCalculate(new QToolButton(this))
+ReosFormParameterEditor::ReosFormParameterEditor(): QWidget(),
+  toolButtonAskForCalculate( new QToolButton( this ) )
 {
-    toolButtonAskForCalculate->setVisible(false);
-    toolButtonAskForCalculate->setIcon(QPixmap("://toolbar/calculatrice.png"));
-    connect(toolButtonAskForCalculate,&QAbstractButton::clicked,this,&ReosFormParameterEditor::askForCalculateClicked);
+  toolButtonAskForCalculate->setVisible( false );
+  toolButtonAskForCalculate->setIcon( QPixmap( "://toolbar/calculatrice.png" ) );
+  connect( toolButtonAskForCalculate, &QAbstractButton::clicked, this, &ReosFormParameterEditor::askForCalculateClicked );
 }
 
-QString ReosFormParameterEditor::setToSystemLocale(QString str)
+QString ReosFormParameterEditor::setToSystemLocale( QString str )
 {
-    const QLocale &cLocale=QLocale::c();
-    const QLocale &systemLocale=QLocale::system();
-    str.replace(cLocale.decimalPoint(),systemLocale.decimalPoint());
-    return str;
+  const QLocale &cLocale = QLocale::c();
+  const QLocale &systemLocale = QLocale::system();
+  str.replace( cLocale.decimalPoint(), systemLocale.decimalPoint() );
+  return str;
 }
 
-QString ReosFormParameterEditor::setToCLocale(QString str)
+QString ReosFormParameterEditor::setToCLocale( QString str )
 {
-    const QLocale &cLocale=QLocale::c();
-    const QLocale &systemLocale=QLocale::system();
-    str.replace(systemLocale.decimalPoint(),cLocale.decimalPoint());
+  const QLocale &cLocale = QLocale::c();
+  const QLocale &systemLocale = QLocale::system();
+  str.replace( systemLocale.decimalPoint(), cLocale.decimalPoint() );
 
-    return str;
+  return str;
 }
 
 void ReosFormParameterEditor::askForCalculateClicked()
 {
-    emit askForCalculate();
+  emit askForCalculate();
 }
 
-ReosFormObject::ReosFormObject(QObject *parent):QObject(parent)
+ReosFormObject::ReosFormObject( QObject *parent ): QObject( parent )
 {
 
 }
 
-ReosFormParameterEditorSimple::ReosFormParameterEditorSimple(QString nameField, QString value):ReosFormParameterEditor()
+ReosFormParameterEditorSimple::ReosFormParameterEditorSimple( QString nameField, QString value ): ReosFormParameterEditor()
 {
-    lay=new QHBoxLayout;
-    setLayout(lay);
-    lay->setMargin(0);
-    valueEdit=new QLineEdit(setToSystemLocale(value),this);
-    lay->addWidget(new QLabel(nameField));
-    lay->addStretch();
-    lay->addWidget(valueEdit);
+  lay = new QHBoxLayout;
+  setLayout( lay );
+  lay->setMargin( 0 );
+  valueEdit = new QLineEdit( setToSystemLocale( value ), this );
+  lay->addWidget( new QLabel( nameField ) );
+  lay->addStretch();
+  lay->addWidget( valueEdit );
 
-    connect(valueEdit,&QLineEdit::editingFinished,this,&ReosFormParameterEditorSimple::valueHasBeenEdited);
+  connect( valueEdit, &QLineEdit::editingFinished, this, &ReosFormParameterEditorSimple::valueHasBeenEdited );
 
 }
 
-ReosFormParameterEditorSimple::ReosFormParameterEditorSimple(QString nameField, QString value, QString unit):ReosFormParameterEditorSimple(nameField,value)
+ReosFormParameterEditorSimple::ReosFormParameterEditorSimple( QString nameField, QString value, QString unit ): ReosFormParameterEditorSimple( nameField, value )
 {
-    layout()->addWidget(new QLabel(unit));
+  layout()->addWidget( new QLabel( unit ) );
 }
 
 ReosFormParameterEditorSimple::~ReosFormParameterEditorSimple() {}
 
-void ReosFormParameterEditorSimple::setAlignment(Qt::Alignment a)
+void ReosFormParameterEditorSimple::setAlignment( Qt::Alignment a )
 {
-    valueEdit->setAlignment(a);
+  valueEdit->setAlignment( a );
 }
 
 void ReosFormParameterEditorSimple::enableCalculateButton()
 {
-    toolButtonAskForCalculate->setVisible(true);
-    lay->addWidget(toolButtonAskForCalculate);
+  toolButtonAskForCalculate->setVisible( true );
+  lay->addWidget( toolButtonAskForCalculate );
 }
 
-void ReosFormParameterEditorSimple::updateValue(QString val)
+void ReosFormParameterEditorSimple::updateValue( QString val )
 {
-    QObject::blockSignals(true);
-    setValueEditText(val);
-    QObject::blockSignals(false);
+  QObject::blockSignals( true );
+  setValueEditText( val );
+  QObject::blockSignals( false );
 }
 
-void ReosFormParameterEditorSimple::enableEditor(bool b)
+void ReosFormParameterEditorSimple::enableEditor( bool b )
 {
-    valueEdit->setEnabled(b);
+  valueEdit->setEnabled( b );
 }
 
-void ReosFormParameterEditorSimple::disableEditor(bool b)
+void ReosFormParameterEditorSimple::disableEditor( bool b )
 {
-    valueEdit->setEnabled(!b);
+  valueEdit->setEnabled( !b );
 }
 
-void ReosFormParameterEditorSimple::setEditable(bool b)
+void ReosFormParameterEditorSimple::setEditable( bool b )
 {
-    valueEdit->setReadOnly(!b);
+  valueEdit->setReadOnly( !b );
 }
 
-void ReosFormParameterEditorSimple::setValueEditText(QString str)
+void ReosFormParameterEditorSimple::setValueEditText( QString str )
 {
-    valueEdit->setText(setToSystemLocale(str));
+  valueEdit->setText( setToSystemLocale( str ) );
 }
 
 void ReosFormParameterEditorSimple::valueHasBeenEdited()
 {
-    emit changed(setToCLocale(valueEdit->text()));
+  emit changed( setToCLocale( valueEdit->text() ) );
 }
 
-ReosFormParameterEditorSimpleWithVariableUnit::ReosFormParameterEditorSimpleWithVariableUnit(QString nameField, QString value, QStringList units, int unitPos):
-    ReosFormParameterEditorSimple(nameField,value)
+ReosFormParameterEditorSimpleWithVariableUnit::ReosFormParameterEditorSimpleWithVariableUnit( QString nameField, QString value, QStringList units, int unitPos ):
+  ReosFormParameterEditorSimple( nameField, value )
 {
-    QComboBox *comboBoxUnit=new QComboBox;
-    layout()->addWidget(comboBoxUnit);
-    comboBoxUnit->addItems(units);
-    comboBoxUnit->setCurrentIndex(unitPos);
-    connect(comboBoxUnit,QOverload<int>::of(&QComboBox::currentIndexChanged),this,&ReosFormParameterEditorSimpleWithVariableUnit::unitChanged);
+  QComboBox *comboBoxUnit = new QComboBox;
+  layout()->addWidget( comboBoxUnit );
+  comboBoxUnit->addItems( units );
+  comboBoxUnit->setCurrentIndex( unitPos );
+  connect( comboBoxUnit, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosFormParameterEditorSimpleWithVariableUnit::unitChanged );
 }
 
 ReosFormParameterEditorSimpleWithVariableUnit::~ReosFormParameterEditorSimpleWithVariableUnit() {}
 
-void ReosFormParameterEditorSimpleWithVariableUnit::unitChanged(int i)
+void ReosFormParameterEditorSimpleWithVariableUnit::unitChanged( int i )
 {
-    emit changeUnit(i);
+  emit changeUnit( i );
 }
 
-ReosFormParameterSimpleUnitVariable::ReosFormParameterSimpleUnitVariable(QString name, ReosForm *parent):ReosFormParameterSimple(name,parent)
+ReosFormParameterSimpleUnitVariable::ReosFormParameterSimpleUnitVariable( QString name, ReosForm *parent ): ReosFormParameterSimple( name, parent )
 {
 
 }
 
-QString ReosFormParameterSimpleUnitVariable::getStringUnit() const {
-    return getUnits().at(getCurrentUnit());
+QString ReosFormParameterSimpleUnitVariable::getStringUnit() const
+{
+  return getUnits().at( getCurrentUnit() );
 }
 
 ReosFormParameterEditor *ReosFormParameterSimpleUnitVariable::makeEdit()
 {
-    ReosFormParameterEditorSimpleWithVariableUnit* editor=instantiateEditor();
-    connect(this,&ReosFormParameterSimple::valueChanged,editor,&ReosFormParameterEditorSimpleWithVariableUnit::updateValue);
-    connect(editor,&ReosFormParameterEditorSimple::changed,this,&ReosFormParameterSimpleUnitVariable::valueChangeByEditor);
-    connect(this,&ReosFormParameterSimpleUnitVariable::enable,editor,&ReosFormParameterEditorSimpleWithVariableUnit::enableEditor);
-    connect(this,&ReosFormParameterSimpleUnitVariable::editableEditor,editor,&ReosFormParameterEditorSimpleWithVariableUnit::setEditable);
-    connect(editor,&ReosFormParameterEditorSimpleWithVariableUnit::changeUnit,this,&ReosFormParameterSimpleUnitVariable::unitChangeByEditor);
-    editor->setEditable(editable);
-    editor->enableEditor(!disable);
-    if (calculateButton)
-        editor->enableCalculateButton();
-    return editor;
+  ReosFormParameterEditorSimpleWithVariableUnit *editor = instantiateEditor();
+  connect( this, &ReosFormParameterSimple::valueChanged, editor, &ReosFormParameterEditorSimpleWithVariableUnit::updateValue );
+  connect( editor, &ReosFormParameterEditorSimple::changed, this, &ReosFormParameterSimpleUnitVariable::valueChangeByEditor );
+  connect( this, &ReosFormParameterSimpleUnitVariable::enable, editor, &ReosFormParameterEditorSimpleWithVariableUnit::enableEditor );
+  connect( this, &ReosFormParameterSimpleUnitVariable::editableEditor, editor, &ReosFormParameterEditorSimpleWithVariableUnit::setEditable );
+  connect( editor, &ReosFormParameterEditorSimpleWithVariableUnit::changeUnit, this, &ReosFormParameterSimpleUnitVariable::unitChangeByEditor );
+  editor->setEditable( editable );
+  editor->enableEditor( !disable );
+  if ( calculateButton )
+    editor->enableCalculateButton();
+  return editor;
 }
 
-void ReosFormParameterSimpleUnitVariable::valueChangeByEditor(QString v)
+void ReosFormParameterSimpleUnitVariable::valueChangeByEditor( QString v )
 {
-    setValueFromDouble(v.toDouble());
-    emit valueEdited();
-    emit valueChanged(getStringValue());
-    emit unitChange(getCurrentUnit());
+  setValueFromDouble( v.toDouble() );
+  emit valueEdited();
+  emit valueChanged( getStringValue() );
+  emit unitChange( getCurrentUnit() );
 
 }
 
-void ReosFormParameterSimpleUnitVariable::unitChangeByEditor(int i)
+void ReosFormParameterSimpleUnitVariable::unitChangeByEditor( int i )
 {
-    setUnit(i);
-    emit valueChanged(getStringValue());
-    emit unitChange(getCurrentUnit());
+  setUnit( i );
+  emit valueChanged( getStringValue() );
+  emit unitChange( getCurrentUnit() );
 }
 
 QString ReosFormParameterSimpleUnitVariable::getStringValue()
 {
-    if (isDefined())
-    {
-        return QString::number(getValueDouble(),'f',2);
-    }
-    else {
-        return QString("-");
-    }
+  if ( isDefined() )
+  {
+    return QString::number( getValueDouble(), 'f', 2 );
+  }
+  else
+  {
+    return QString( "-" );
+  }
 }
 
 ReosFormParameterEditorSimpleWithVariableUnit *ReosFormParameterSimpleUnitVariable::instantiateEditor()
 {
-    int posUnit=getCurrentUnit();
-    QString string=getStringValue();
-    ReosFormParameterEditorSimpleWithVariableUnit *editor=new ReosFormParameterEditorSimpleWithVariableUnit(getName(),string,getUnits(),posUnit);
-    editor->setAlignment(Qt::AlignRight);
-    return editor;
+  int posUnit = getCurrentUnit();
+  QString string = getStringValue();
+  ReosFormParameterEditorSimpleWithVariableUnit *editor = new ReosFormParameterEditorSimpleWithVariableUnit( getName(), string, getUnits(), posUnit );
+  editor->setAlignment( Qt::AlignRight );
+  return editor;
 }
 
-ReosFormParameterEditorCheckBox::ReosFormParameterEditorCheckBox(QString nameField, bool value):ReosFormParameterEditor()
+ReosFormParameterEditorCheckBox::ReosFormParameterEditorCheckBox( QString nameField, bool value ): ReosFormParameterEditor()
 {
-    QHBoxLayout *lay=new QHBoxLayout;
-    setLayout(lay);
-    lay->setMargin(0);
-    checkBox=new QCheckBox(nameField,this);
-    updateValue(value);
-    lay->addWidget(checkBox);
+  QHBoxLayout *lay = new QHBoxLayout;
+  setLayout( lay );
+  lay->setMargin( 0 );
+  checkBox = new QCheckBox( nameField, this );
+  updateValue( value );
+  lay->addWidget( checkBox );
 
 
-    connect(checkBox,&QCheckBox::clicked,this,&ReosFormParameterEditorCheckBox::valueHasBeenEdited);
+  connect( checkBox, &QCheckBox::clicked, this, &ReosFormParameterEditorCheckBox::valueHasBeenEdited );
 }
 
-void ReosFormParameterEditorCheckBox::updateValue(bool val)
+void ReosFormParameterEditorCheckBox::updateValue( bool val )
 {
-    QObject::blockSignals(true);
-    checkBox->setChecked(val);
-    QObject::blockSignals(false);
+  QObject::blockSignals( true );
+  checkBox->setChecked( val );
+  QObject::blockSignals( false );
 }
 
 void ReosFormParameterEditorCheckBox::valueHasBeenEdited()
 {
-    emit changed(checkBox->isChecked());
+  emit changed( checkBox->isChecked() );
 }
 
-ReosFormWidget::ReosFormWidget(ReosForm *form, QWidget *parent, Qt::Orientation orientation):QWidget(parent)
+ReosFormWidget::ReosFormWidget( ReosForm *form, QWidget *parent, Qt::Orientation orientation ): QWidget( parent )
 {
-    QBoxLayout* lay;
-    if (orientation==Qt::Vertical)
-        lay=new QVBoxLayout;
-    else
-        lay=new QHBoxLayout;
+  QBoxLayout *lay;
+  if ( orientation == Qt::Vertical )
+    lay = new QVBoxLayout;
+  else
+    lay = new QHBoxLayout;
 
-    setLayout(lay);
-    lay->setSpacing(3);
+  setLayout( lay );
+  lay->setSpacing( 3 );
 
-    auto formOrientation=form->orientation();
-    Qt::Orientation separatorOrientation;
+  auto formOrientation = form->orientation();
+  Qt::Orientation separatorOrientation;
 
-    if (formOrientation==Qt::Vertical)
-        separatorOrientation=Qt::Horizontal;
-    else
-        separatorOrientation=Qt::Vertical;
+  if ( formOrientation == Qt::Vertical )
+    separatorOrientation = Qt::Horizontal;
+  else
+    separatorOrientation = Qt::Vertical;
 
 
-    if (form)
+  if ( form )
+  {
+    const QList<ReosFormObject * > &list = form->getFormObjectList();
+    for ( auto param : list )
     {
-        const QList<ReosFormObject* > &list=form->getFormObjectList();
-        for (auto param:list)
-        {
-            if (form->isSeparatorPresent(list.indexOf(param)))
-            {
-                lay->addLayout(addSeparator(separatorOrientation));
-            }
-            layout()->addWidget(param->getWidget());
-        }
-
-        if (form->isSeparatorPresent(list.count()))
-        {
-            lay->addLayout(addSeparator(separatorOrientation));
-        }
+      if ( form->isSeparatorPresent( list.indexOf( param ) ) )
+      {
+        lay->addLayout( addSeparator( separatorOrientation ) );
+      }
+      layout()->addWidget( param->getWidget() );
     }
-    else {
-        layout()->addWidget(new QLabel(tr("Formulaire vide")));
-    }
-    lay->addStretch();
-}
 
-QLayout *ReosFormWidget::addSeparator(Qt::Orientation orientation)
-{
-    if (layout())
+    if ( form->isSeparatorPresent( list.count() ) )
     {
-        if (orientation==Qt::Horizontal)
-        {
-            QHBoxLayout* layoutLine = new QHBoxLayout;
-            layoutLine->setSpacing(0);
-            layoutLine->setMargin(4);
-            layoutLine->addStretch();
-
-            QVBoxLayout* vbox = new QVBoxLayout;
-            QFrame *lineFrame=new QFrame;
-            lineFrame->setMinimumSize(20,4);
-            lineFrame->setMaximumSize(500,4);
-            lineFrame->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Minimum);
-            lineFrame->setFrameShape(QFrame::Box);
-            lineFrame->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-            vbox->addWidget(lineFrame);
-            layoutLine->addLayout(vbox);
-            layoutLine->addStretch();
-
-            return layoutLine;
-        }
-        else
-        {
-            QVBoxLayout* layoutLine = new QVBoxLayout;
-            layoutLine->setSpacing(0);
-            layoutLine->setMargin(4);
-            layoutLine->addStretch();
-
-            QHBoxLayout* hbox = new QHBoxLayout;
-            QFrame *lineFrame=new QFrame;
-            lineFrame->setMinimumSize(4,20);
-            lineFrame->setMaximumSize(4,500);
-            lineFrame->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Minimum);
-            lineFrame->setFrameShape(QFrame::Box);
-            lineFrame->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-            hbox->addWidget(lineFrame);
-            layoutLine->addLayout(hbox);
-            layoutLine->addStretch();
-
-            return layoutLine;
-        }
-
+      lay->addLayout( addSeparator( separatorOrientation ) );
     }
-
-    return nullptr;
+  }
+  else
+  {
+    layout()->addWidget( new QLabel( tr( "Formulaire vide" ) ) );
+  }
+  lay->addStretch();
 }
 
-ReosFormAction::ReosFormAction(ReosForm *parent, const QIcon &icon,const QString &text): ReosFormObject(parent)
+QLayout *ReosFormWidget::addSeparator( Qt::Orientation orientation )
 {
-    if (parent)
-        parent->addForm(this);
-    mAction=new QAction(icon,text,this);
-    mAction->setText(text);
+  if ( layout() )
+  {
+    if ( orientation == Qt::Horizontal )
+    {
+      QHBoxLayout *layoutLine = new QHBoxLayout;
+      layoutLine->setSpacing( 0 );
+      layoutLine->setMargin( 4 );
+      layoutLine->addStretch();
+
+      QVBoxLayout *vbox = new QVBoxLayout;
+      QFrame *lineFrame = new QFrame;
+      lineFrame->setMinimumSize( 20, 4 );
+      lineFrame->setMaximumSize( 500, 4 );
+      lineFrame->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum );
+      lineFrame->setFrameShape( QFrame::Box );
+      lineFrame->setFrameStyle( QFrame::Panel | QFrame::Sunken );
+      vbox->addWidget( lineFrame );
+      layoutLine->addLayout( vbox );
+      layoutLine->addStretch();
+
+      return layoutLine;
+    }
+    else
+    {
+      QVBoxLayout *layoutLine = new QVBoxLayout;
+      layoutLine->setSpacing( 0 );
+      layoutLine->setMargin( 4 );
+      layoutLine->addStretch();
+
+      QHBoxLayout *hbox = new QHBoxLayout;
+      QFrame *lineFrame = new QFrame;
+      lineFrame->setMinimumSize( 4, 20 );
+      lineFrame->setMaximumSize( 4, 500 );
+      lineFrame->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum );
+      lineFrame->setFrameShape( QFrame::Box );
+      lineFrame->setFrameStyle( QFrame::Panel | QFrame::Sunken );
+      hbox->addWidget( lineFrame );
+      layoutLine->addLayout( hbox );
+      layoutLine->addStretch();
+
+      return layoutLine;
+    }
+
+  }
+
+  return nullptr;
+}
+
+ReosFormAction::ReosFormAction( ReosForm *parent, const QIcon &icon, const QString &text ): ReosFormObject( parent )
+{
+  if ( parent )
+    parent->addForm( this );
+  mAction = new QAction( icon, text, this );
+  mAction->setText( text );
 }
 
 QAction *ReosFormAction::action() const {return mAction;}
 
-ReosFormText::ReosFormText(ReosForm *parent, const QString &text):
-    ReosFormObject(parent),mText(text)
+ReosFormText::ReosFormText( ReosForm *parent, const QString &text ):
+  ReosFormObject( parent ), mText( text )
 {
-    if (parent)
-        parent->addForm(this);
+  if ( parent )
+    parent->addForm( this );
 }
 
-void ReosFormText::setText(const QString &text)
+void ReosFormText::setText( const QString &text )
 {
-    mText=text;
-    emit textChanged(mText);
+  mText = text;
+  emit textChanged( mText );
 }

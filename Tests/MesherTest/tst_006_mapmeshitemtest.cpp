@@ -11,10 +11,11 @@
 
 using namespace testing;
 
-class MeshItemTesting : public Test{
-public:
+class MeshItemTesting : public Test
+{
+  public:
 
-    ReosMap * map;
+    ReosMap *map;
     QgsMapCanvas *mapCanvas;
     ReosTinEditorUi *uiEditor;
     QgsMeshLayer *meshLayer;
@@ -27,88 +28,88 @@ public:
 
     void populateEditorWithVertex()
     {
-        uiEditor->newVertex(QPointF(5,15));
-        uiEditor->newVertex(QPointF(10,15));
-        uiEditor->newVertex(QPointF(5,10));
-        uiEditor->newVertex(QPointF(10,10));
-        uiEditor->newVertex(QPointF(10,5));
+      uiEditor->newVertex( QPointF( 5, 15 ) );
+      uiEditor->newVertex( QPointF( 10, 15 ) );
+      uiEditor->newVertex( QPointF( 5, 10 ) );
+      uiEditor->newVertex( QPointF( 10, 10 ) );
+      uiEditor->newVertex( QPointF( 10, 5 ) );
     }
 
     void populateEditorWithVertexAndSegment()
     {
-        uiEditor->newVertex(QPointF(5,15));
-        uiEditor->newVertex(QPointF(10,15));
-        uiEditor->newVertex(QPointF(5,10));
-        uiEditor->newVertex(QPointF(10,10));
-        uiEditor->newVertex(QPointF(10,5));
+      uiEditor->newVertex( QPointF( 5, 15 ) );
+      uiEditor->newVertex( QPointF( 10, 15 ) );
+      uiEditor->newVertex( QPointF( 5, 10 ) );
+      uiEditor->newVertex( QPointF( 10, 10 ) );
+      uiEditor->newVertex( QPointF( 10, 5 ) );
 
-        //tinEditor.addSegment(0,4);
+      //tinEditor.addSegment(0,4);
     }
 
     // Test interface
-protected:
+  protected:
     void SetUp() override
     {
-        QgsProviderRegistry::instance()->registerProvider(new HdTinEditorProviderMetaData());
-        map=new ReosMap();
-        mapCanvas=map->getMapCanvas();
-        gismanager=new ReosGisManager(map);
-        uiEditor=new ReosTinEditorUi(gismanager);
-        meshLayer=new QgsMeshLayer("-","Mesh editable","TIN");
-        provider=static_cast<TINProvider*>(meshLayer->dataProvider());
+      QgsProviderRegistry::instance()->registerProvider( new HdTinEditorProviderMetaData() );
+      map = new ReosMap();
+      mapCanvas = map->getMapCanvas();
+      gismanager = new ReosGisManager( map );
+      uiEditor = new ReosTinEditorUi( gismanager );
+      meshLayer = new QgsMeshLayer( "-", "Mesh editable", "TIN" );
+      provider = static_cast<TINProvider *>( meshLayer->dataProvider() );
     }
 
     void TearDown() override
     {
-        delete mapCanvas;
+      delete mapCanvas;
     }
 };
 
 
-TEST_F(MeshItemTesting, domainContruction)
+TEST_F( MeshItemTesting, domainContruction )
 {
-    ReosMapMeshEditorItemDomain domain(uiEditor,mapCanvas);
+  ReosMapMeshEditorItemDomain domain( uiEditor, mapCanvas );
 
-    ASSERT_THAT(domain.verticesCount(),Eq(0));
-    ASSERT_THAT(domain.verticesCount(),Eq(provider->vertexCount()));
+  ASSERT_THAT( domain.verticesCount(), Eq( 0 ) );
+  ASSERT_THAT( domain.verticesCount(), Eq( provider->vertexCount() ) );
 }
 
-TEST_F(MeshItemTesting, associateMeshToEditor)
+TEST_F( MeshItemTesting, associateMeshToEditor )
 {
-    uiEditor->setMeshLayer(meshLayer);
-    populateEditorWithVertex();
+  uiEditor->setMeshLayer( meshLayer );
+  populateEditorWithVertex();
 
-    ReosMapMeshEditorItemDomain* domain=uiEditor->domain();;
+  ReosMapMeshEditorItemDomain *domain = uiEditor->domain();;
 
 
-    ASSERT_THAT(domain->verticesCount(),Eq(5));
+  ASSERT_THAT( domain->verticesCount(), Eq( 5 ) );
 }
 
-TEST_F(MeshItemTesting, associateNullMeshToEditor)
+TEST_F( MeshItemTesting, associateNullMeshToEditor )
 {
-    uiEditor->setMeshLayer(meshLayer);
-    populateEditorWithVertex();
+  uiEditor->setMeshLayer( meshLayer );
+  populateEditorWithVertex();
 
-    uiEditor->setMeshLayer(nullptr);
+  uiEditor->setMeshLayer( nullptr );
 
 
-    ASSERT_THAT(uiEditor->domain()->verticesCount(),Eq(0));
+  ASSERT_THAT( uiEditor->domain()->verticesCount(), Eq( 0 ) );
 }
 
-TEST_F(MeshItemTesting, associateNewMeshAfterPopulateToEditor)
+TEST_F( MeshItemTesting, associateNewMeshAfterPopulateToEditor )
 {
-    uiEditor->setMeshLayer(meshLayer);
-    populateEditorWithVertex();
+  uiEditor->setMeshLayer( meshLayer );
+  populateEditorWithVertex();
 
-    ASSERT_THAT(uiEditor->domain()->verticesCount(),Eq(5));
+  ASSERT_THAT( uiEditor->domain()->verticesCount(), Eq( 5 ) );
 
-    uiEditor->setMeshLayer(nullptr);
+  uiEditor->setMeshLayer( nullptr );
 
-    ASSERT_THAT(uiEditor->domain()->verticesCount(),Eq(0));
+  ASSERT_THAT( uiEditor->domain()->verticesCount(), Eq( 0 ) );
 
-    uiEditor->setMeshLayer(meshLayer);
+  uiEditor->setMeshLayer( meshLayer );
 
-    ASSERT_THAT(uiEditor->domain()->verticesCount(),Eq(5));
+  ASSERT_THAT( uiEditor->domain()->verticesCount(), Eq( 5 ) );
 }
 
 

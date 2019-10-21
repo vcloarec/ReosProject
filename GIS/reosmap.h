@@ -30,56 +30,56 @@ class HdCursorPosition;
 class ReosMap: public ReosModule
 {
     Q_OBJECT
-public:
-    ReosMap(QObject *parent=nullptr);
+  public:
+    ReosMap( QObject *parent = nullptr );
     ~ReosMap() override;
 
     QgsMapCanvas *getMapCanvas() const;
 
-    void setMapTool(ReosMapTool *tool);
+    void setMapTool( ReosMapTool *tool );
     ReosMapTool *getMaptool() const;
 
     QgsCoordinateReferenceSystem getCoordinateReferenceSystem();
 
-    QWidget* getCursorPosition();
+    QWidget *getCursorPosition();
 
     QRectF getMapExtent() const {return canvas_->extent().toRectF();}
-    void setMapExtent(QRectF extent);
+    void setMapExtent( QRectF extent );
 
     QByteArray encode() const;
-    void decode(QByteArray &byteArray);
+    void decode( QByteArray &byteArray );
     void setToSaveExtent();
     void saveMapExtent();
-    void setMapSavedExtent(QRectF extent);
+    void setMapSavedExtent( QRectF extent );
 
 
 
-public slots:
-    void unsetMapTool(ReosMapTool *tool);
+  public slots:
+    void unsetMapTool( ReosMapTool *tool );
     void unsetMapTool();
     void stopMapTool()
     {
-        if (currentMapTool)
-        {
-            bool inProgress=currentMapTool->isInProgress();
-            currentMapTool->askForEscape();
-            if(!inProgress)
-                unsetMapTool();
-        }
+      if ( currentMapTool )
+      {
+        bool inProgress = currentMapTool->isInProgress();
+        currentMapTool->askForEscape();
+        if ( !inProgress )
+          unsetMapTool();
+      }
 
     }
     void askUnsetMapTool();
     void refreshMap();
     void crsChanged();
 
-private:
+  private:
     QgsMapCanvas *canvas_;
-    HdCursorPosition* cursorPosition;
+    HdCursorPosition *cursorPosition;
     HdMapToolNeutral *mapToolNeutral;
-    ReosMapTool* currentMapTool=nullptr;
+    ReosMapTool *currentMapTool = nullptr;
     QgsRectangle savedExtent;
 
-public:
+  public:
 
     // ReosModule interface
     QWidget *getWidget() const override;
@@ -90,17 +90,17 @@ public:
 class HdCursorPosition : public QLabel
 {
     Q_OBJECT
-public:
-    HdCursorPosition(QgsMapCanvas* canvas);
+  public:
+    HdCursorPosition( QgsMapCanvas *canvas );
     ~HdCursorPosition()
     {
     }
 
-private:
+  private:
     QgsMapCanvas *canvas_;
 
-public slots:
-    void actualisePosition(QgsPointXY p);
+  public slots:
+    void actualisePosition( QgsPointXY p );
 
 };
 

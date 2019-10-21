@@ -33,38 +33,39 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "../Reos/reossettings.h"
 
 
-namespace Ui {
-class HdVectorLayerPropertiesDialog;
+namespace Ui
+{
+  class HdVectorLayerPropertiesDialog;
 }
 
 class HdVectorLayerPropertiesDialog : public QDialog
 {
     Q_OBJECT
 
-public:
-    explicit HdVectorLayerPropertiesDialog(QgsVectorLayer *layer,QgsMapCanvas *canvas);
+  public:
+    explicit HdVectorLayerPropertiesDialog( QgsVectorLayer *layer, QgsMapCanvas *canvas );
     ~HdVectorLayerPropertiesDialog();
 
 
 
-private slots:
+  private slots:
 
     void apply();
-private:
+  private:
     Ui::HdVectorLayerPropertiesDialog *ui;
     QgsVectorLayer *layer;
-    QgsRendererPropertiesDialog *renderDialog=nullptr;
+    QgsRendererPropertiesDialog *renderDialog = nullptr;
     QgsMapCanvas *canvas;
     QgsProjectionSelectionWidget *crsSelection;
 
-private slots:
+  private slots:
     void urlClicked( const QUrl &url );
 
     void updateSettings();
 
     // QWidget interface
-protected:
-    void closeEvent(QCloseEvent *event);
+  protected:
+    void closeEvent( QCloseEvent *event );
 
 };
 

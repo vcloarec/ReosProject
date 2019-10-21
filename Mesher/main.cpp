@@ -16,18 +16,18 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #include "mainwindow.h"
 #include <QApplication>
 
-int main(int argc, char *argv[])
+int main( int argc, char *argv[] )
 {
 
-    QgsApplication a(argc, argv,true);
+  QgsApplication a( argc, argv, true );
 
-    QCoreApplication::setOrganizationName(QStringLiteral("ReosProject"));
-    QCoreApplication::setApplicationName(QStringLiteral("Mesher"));
-    QSettings::setDefaultFormat(QSettings::IniFormat);
+  QCoreApplication::setOrganizationName( QStringLiteral( "ReosProject" ) );
+  QCoreApplication::setApplicationName( QStringLiteral( "Mesher" ) );
+  QSettings::setDefaultFormat( QSettings::IniFormat );
 
 
-    MainWindow w;
-    w.showMaximized();
+  MainWindow w;
+  w.showMaximized();
 
-    return a.exec();
+  return a.exec();
 }

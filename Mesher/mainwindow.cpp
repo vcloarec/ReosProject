@@ -16,62 +16,62 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    actionTinEditor(new QAction(QPixmap("://toolbar/MeshTinEditor.png"),tr("Edit TIN"),this))
+MainWindow::MainWindow( QWidget *parent ) :
+  QMainWindow( parent ),
+  ui( new Ui::MainWindow ),
+  actionTinEditor( new QAction( QPixmap( "://toolbar/MeshTinEditor.png" ), tr( "Edit TIN" ), this ) )
 {
-    ui->setupUi(this);
+  ui->setupUi( this );
 
-    setDockNestingEnabled(true);
-
-
-    ReosMap *map=new ReosMap(this);
-    centralWidget()->setLayout(new QVBoxLayout);
-    centralWidget()->layout()->addWidget(map->getMapCanvas());
-    statusBar()->addPermanentWidget(map->getCursorPosition());
+  setDockNestingEnabled( true );
 
 
-    ReosGisManager *gisManager=new ReosGisManager(map);
-    QDockWidget* dockSIG=new QDockWidget(tr("GIS panel"));
-    dockSIG->setWidget(gisManager->getWidget());
-    statusBar()->addPermanentWidget(gisManager->createCRSDisplay(this));
-    dockSIG->setObjectName(QStringLiteral("Dock GIS"));
-    addDockWidget(Qt::LeftDockWidgetArea,dockSIG);
-
-    ReosMessageBox *messageBox=new ReosMessageBox;
-    QDockWidget* dockMessage=new QDockWidget(tr("Message box"));
-    dockMessage->setWidget(messageBox);
-    addDockWidget(Qt::LeftDockWidgetArea,dockMessage);
-
-    QgsProviderRegistry::instance()->registerProvider(new HdTinEditorProviderMetaData());
-
-    QMenu *fileMenu=new QMenu(tr("Files"));
-    menuBar()->addMenu(fileMenu);
-
-    ui->mainToolBar->addAction(actionTinEditor);
-    actionTinEditor->setCheckable(true);
-    tinEditor=new ReosTinEditorUi(gisManager,this);
-    QMenu *tinMenu=new QMenu(tr("Triangulated Irregular Network DEM"));
-    tinMenu->addActions(tinEditor->getActions());
-    menuBar()->addMenu(tinMenu);
-    connect(actionTinEditor,&QAction::triggered,this,&MainWindow::showTinEditor);
-    connect(tinEditor,&ReosModule::widgetVisibility,actionTinEditor,&QAction::setChecked);
-    connect(tinEditor,&ReosModule::activeUndoStack,this,&MainWindow::activeUndoStack);
+  ReosMap *map = new ReosMap( this );
+  centralWidget()->setLayout( new QVBoxLayout );
+  centralWidget()->layout()->addWidget( map->getMapCanvas() );
+  statusBar()->addPermanentWidget( map->getCursorPosition() );
 
 
-    mUndoGroup=new QUndoGroup(this);
-    ui->mainToolBar->addAction(mUndoGroup->createUndoAction(this));
-    ui->mainToolBar->addAction(mUndoGroup->createRedoAction(this));
+  ReosGisManager *gisManager = new ReosGisManager( map );
+  QDockWidget *dockSIG = new QDockWidget( tr( "GIS panel" ) );
+  dockSIG->setWidget( gisManager->getWidget() );
+  statusBar()->addPermanentWidget( gisManager->createCRSDisplay( this ) );
+  dockSIG->setObjectName( QStringLiteral( "Dock GIS" ) );
+  addDockWidget( Qt::LeftDockWidgetArea, dockSIG );
+
+  ReosMessageBox *messageBox = new ReosMessageBox;
+  QDockWidget *dockMessage = new QDockWidget( tr( "Message box" ) );
+  dockMessage->setWidget( messageBox );
+  addDockWidget( Qt::LeftDockWidgetArea, dockMessage );
+
+  QgsProviderRegistry::instance()->registerProvider( new HdTinEditorProviderMetaData() );
+
+  QMenu *fileMenu = new QMenu( tr( "Files" ) );
+  menuBar()->addMenu( fileMenu );
+
+  ui->mainToolBar->addAction( actionTinEditor );
+  actionTinEditor->setCheckable( true );
+  tinEditor = new ReosTinEditorUi( gisManager, this );
+  QMenu *tinMenu = new QMenu( tr( "Triangulated Irregular Network DEM" ) );
+  tinMenu->addActions( tinEditor->getActions() );
+  menuBar()->addMenu( tinMenu );
+  connect( actionTinEditor, &QAction::triggered, this, &MainWindow::showTinEditor );
+  connect( tinEditor, &ReosModule::widgetVisibility, actionTinEditor, &QAction::setChecked );
+  connect( tinEditor, &ReosModule::activeUndoStack, this, &MainWindow::activeUndoStack );
 
 
-    //Active Tin editor
-    tinEditor->showWidget();
-    actionTinEditor->setChecked(true);
+  mUndoGroup = new QUndoGroup( this );
+  ui->mainToolBar->addAction( mUndoGroup->createUndoAction( this ) );
+  ui->mainToolBar->addAction( mUndoGroup->createRedoAction( this ) );
+
+
+  //Active Tin editor
+  tinEditor->showWidget();
+  actionTinEditor->setChecked( true );
 
 }
 
 MainWindow::~MainWindow()
 {
-    delete ui;
+  delete ui;
 }

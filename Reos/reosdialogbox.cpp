@@ -15,18 +15,18 @@ email                : vcloarec at gmail dot com / projetreos at gmail dot com
 
 #include "reosdialogbox.h"
 
-ReosDialogBox::ReosDialogBox(QWidget *w, QWidget *parent):QDialog(parent),mLayout(new QVBoxLayout())
+ReosDialogBox::ReosDialogBox( QWidget *w, QWidget *parent ): QDialog( parent ), mLayout( new QVBoxLayout() )
 {
-    setLayout(mLayout);
-    QDialogButtonBox *buttonBox=new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel,this);
-    if (w)
-        mLayout->addWidget(w);
+  setLayout( mLayout );
+  QDialogButtonBox *buttonBox = new QDialogButtonBox( QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this );
+  if ( w )
+    mLayout->addWidget( w );
 
 
-    mLayout->addWidget(buttonBox);
+  mLayout->addWidget( buttonBox );
 
-    setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
+  setSizePolicy( QSizePolicy::Maximum, QSizePolicy::Maximum );
 
-    connect(buttonBox,SIGNAL(accepted()),this,SLOT(accept()));
-    connect(buttonBox,SIGNAL(rejected()),this,SLOT(reject()));
+  connect( buttonBox, SIGNAL( accepted() ), this, SLOT( accept() ) );
+  connect( buttonBox, SIGNAL( rejected() ), this, SLOT( reject() ) );
 }

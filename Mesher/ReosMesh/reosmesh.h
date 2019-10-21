@@ -36,38 +36,38 @@ email                : vcloarec at gmail dot com / projetreos at gmail dot com
 
 class MeshIO
 {
-public:
+  public:
     virtual ~MeshIO();
-    virtual int vertexCoordCount() const =0;
-    virtual int verticesCount() const =0;
-    virtual void readVertex (double *)=0;
-    virtual void readOnlyVertex(double *) =0;
-    virtual VertexPointer readVertexPointer() =0;
+    virtual int vertexCoordCount() const = 0;
+    virtual int verticesCount() const = 0;
+    virtual void readVertex( double * ) = 0;
+    virtual void readOnlyVertex( double * ) = 0;
+    virtual VertexPointer readVertexPointer() = 0;
 
-    virtual int currentFaceVerticesCount() const =0;
-    virtual void readFace(int *)=0;
-    virtual void readNodePerFace(int &count)=0;
-    virtual void readSegment(int *)=0;
-    virtual void readNeighbor(int *)=0;
-    virtual int boundariesCount() const =0;
-    virtual void readBoundaryEdge(int *)=0;
+    virtual int currentFaceVerticesCount() const = 0;
+    virtual void readFace( int * ) = 0;
+    virtual void readNodePerFace( int &count ) = 0;
+    virtual void readSegment( int * ) = 0;
+    virtual void readNeighbor( int * ) = 0;
+    virtual int boundariesCount() const = 0;
+    virtual void readBoundaryEdge( int * ) = 0;
 
 
-    virtual int hardlinesCount() const=0;
-    virtual int hardlinesVerticesCount() const=0;
-    virtual int currentHardlineVerticesCount() const =0;
-    virtual void readHardlineVertices(int *)=0;
+    virtual int hardlinesCount() const = 0;
+    virtual int hardlinesVerticesCount() const = 0;
+    virtual int currentHardlineVerticesCount() const = 0;
+    virtual void readHardlineVertices( int * ) = 0;
 
-    virtual int zSpecifierCount() const=0;
-    virtual void readSpecifier(ReosVertexZSpecifier::Data &zSpecifierData)=0;
-    virtual bool allZSpecifierReaden() const =0;
+    virtual int zSpecifierCount() const = 0;
+    virtual void readSpecifier( ReosVertexZSpecifier::Data &zSpecifierData ) = 0;
+    virtual bool allZSpecifierReaden() const = 0;
 
-    virtual bool allVerticesReaden() const =0;
-    virtual bool allFacesReaden() const =0;
-    virtual bool allSegmentsReaden() const =0;
-    virtual bool allNeighborReaden() const =0;
-    virtual bool allBoundaryEdgesReaden() const =0;
-    virtual bool allHardLineReaden() const =0;
+    virtual bool allVerticesReaden() const = 0;
+    virtual bool allFacesReaden() const = 0;
+    virtual bool allSegmentsReaden() const = 0;
+    virtual bool allNeighborReaden() const = 0;
+    virtual bool allBoundaryEdgesReaden() const = 0;
+    virtual bool allHardLineReaden() const = 0;
 
 
 
@@ -76,41 +76,41 @@ public:
 
 class ReosMesh
 {
-public:
+  public:
     virtual ~ReosMesh();
-    virtual int verticesCount() const=0;
-    virtual int facesCount() const=0;
+    virtual int verticesCount() const = 0;
+    virtual int facesCount() const = 0;
 
 
 
-    virtual VertexPointer vertex(int) const {return nullptr;}
-    virtual VertexPointer vertex(double x, double y, double tolerance) const=0;
-    virtual VertexPointer vertex(double x, double y) const;
-    virtual FacePointer face(double x,double y) const=0;
+    virtual VertexPointer vertex( int ) const {return nullptr;}
+    virtual VertexPointer vertex( double x, double y, double tolerance ) const = 0;
+    virtual VertexPointer vertex( double x, double y ) const;
+    virtual FacePointer face( double x, double y ) const = 0;
 
     //////////////////////////////////////////////////////
     /// \brief clear
     /// clear faces and vertices ni the mesh
-    virtual void clear()=0;
+    virtual void clear() = 0;
 
     ///////////////////////////////////////////////////////
     /// \brief clearFaces
     /// clear only the faces
-    virtual void clearFaces()=0;
+    virtual void clearFaces() = 0;
 
 
-    virtual VertexPointer addVertex(double x, double y)=0;
-    virtual std::list<VertexPointer> addHardLine(VertexPointer v1, VertexPointer v2)=0;
-    virtual std::list<VertexPointer> hardNeighbours(VertexPointer vertex) const=0;
-    virtual std::list<VertexPointer> removeHardLine(VertexPointer v1, VertexPointer v2)=0;
+    virtual VertexPointer addVertex( double x, double y ) = 0;
+    virtual std::list<VertexPointer> addHardLine( VertexPointer v1, VertexPointer v2 ) = 0;
+    virtual std::list<VertexPointer> hardNeighbours( VertexPointer vertex ) const = 0;
+    virtual std::list<VertexPointer> removeHardLine( VertexPointer v1, VertexPointer v2 ) = 0;
 
-    virtual std::unique_ptr<MeshIO> getReader() const =0;
-    virtual std::list<VertexPointer> neighboursVertices(VertexPointer vertex) const =0;
-    virtual int maxNodesPerFaces() const=0;
+    virtual std::unique_ptr<MeshIO> getReader() const = 0;
+    virtual std::list<VertexPointer> neighboursVertices( VertexPointer vertex ) const = 0;
+    virtual int maxNodesPerFaces() const = 0;
 
-    virtual int writeUGRIDFormat(std::string fileName);
+    virtual int writeUGRIDFormat( std::string fileName );
 
-    virtual int readUGRIDFormat(std::string fileName)=0;
+    virtual int readUGRIDFormat( std::string fileName ) = 0;
 
     bool isDirty() const;
 
@@ -120,19 +120,19 @@ public:
     ///
     /// EPSG:code
     std::string crs() const;
-    void setCrs(int EPSG_code)
+    void setCrs( int EPSG_code )
     {
-        mCrs="EPSG:";
-        mCrs.append(std::to_string(EPSG_code));
+      mCrs = "EPSG:";
+      mCrs.append( std::to_string( EPSG_code ) );
     }
 
-    void setCrs(std::string crsStr)
+    void setCrs( std::string crsStr )
     {
-        mCrs=crsStr;
+      mCrs = crsStr;
     }
 
-protected:
-    double mTolerance=0.01;
+  protected:
+    double mTolerance = 0.01;
 
     ///////////////////////////////////////////////
     /// \brief initialize
@@ -140,7 +140,7 @@ protected:
     /// \param verticesCount
     /// The veritices count
     ///
-    virtual void initialize(int verticesCount) =0;
+    virtual void initialize( int verticesCount ) = 0;
 
     //////////////////////////////////////////////////////
     /// \brief createVertex
@@ -149,7 +149,7 @@ protected:
     /// \param y
     /// \return
     ///
-    virtual VertexPointer createVertex(double x,double y)=0;
+    virtual VertexPointer createVertex( double x, double y ) = 0;
 
     //////////////////////////////////////////////////////////////
     /// \brief insertVertex
@@ -159,11 +159,11 @@ protected:
     /// \param y
     /// \return
     ///
-    virtual VertexPointer insertVertex(double x,double y)=0;
+    virtual VertexPointer insertVertex( double x, double y ) = 0;
 
-private:
+  private:
 
-    bool mDirty=false;
+    bool mDirty = false;
     std::string mCrs;
 
 };

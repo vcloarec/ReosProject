@@ -18,10 +18,10 @@
 #else
 #  ifndef APP_EXPORT
 #    ifdef qgis_app_EXPORTS
-        /* We are building this library */
+/* We are building this library */
 #      define APP_EXPORT EXPORT_REOS
 #    else
-        /* We are using this library */
+/* We are using this library */
 #      define APP_EXPORT IMPORT_REOS
 #    endif
 #  endif

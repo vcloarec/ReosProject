@@ -23,41 +23,41 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 
 class ReosEncodedElement
 {
-public:
-    ReosEncodedElement(QString description):description(description)
+  public:
+    ReosEncodedElement( QString description ): description( description )
     {}
 
-    ReosEncodedElement(const QByteArray &byteArray);
+    ReosEncodedElement( const QByteArray &byteArray );
 
     const QString selfDescription() const {return description;}
 
 
     template<typename T>
-    void addData(QString key,T &&value)
+    void addData( QString key, T &&value )
     {
-        QByteArray byteArray;
-        QDataStream stream(&byteArray,QIODevice::WriteOnly);
-        stream<<value;
-        data[key]=byteArray;
+      QByteArray byteArray;
+      QDataStream stream( &byteArray, QIODevice::WriteOnly );
+      stream << value;
+      data[key] = byteArray;
     }
 
 
     template<typename T>
-    bool getData(QString key,T &value) const
+    bool getData( QString key, T &value ) const
     {
-        if (!data.contains(key))
-            return false;
+      if ( !data.contains( key ) )
+        return false;
 
-        QDataStream stream(data[key]);
-        stream>>value;
-        return true;
+      QDataStream stream( data[key] );
+      stream >> value;
+      return true;
     }
 
     QByteArray encode();
 
 
-private:
-    QMap<QString,QByteArray> data;
+  private:
+    QMap<QString, QByteArray> data;
     QString description;
 
 };

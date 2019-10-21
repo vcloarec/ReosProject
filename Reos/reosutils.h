@@ -26,11 +26,11 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include <algorithm>
 
 
-std::vector<std::string> splitString(const std::string &input, const char &delimiter , bool returnEmpty=false);
+std::vector<std::string> splitString( const std::string &input, const char &delimiter, bool returnEmpty = false );
 
 
-bool equality(double d1, double d2, double epsilon);
-bool equality(double d1, double d2);
+bool equality( double d1, double d2, double epsilon );
+bool equality( double d1, double d2 );
 
 
 #endif // REOSUTILS_H

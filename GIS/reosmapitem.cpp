@@ -16,320 +16,330 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reosmapitem.h"
 
 
-ReosMapItem::ReosMapItem(QgsMapCanvas *canvas):QgsMapCanvasItem(canvas),mCanvas(canvas)
+ReosMapItem::ReosMapItem( QgsMapCanvas *canvas ): QgsMapCanvasItem( canvas ), mCanvas( canvas )
 {}
 
 ReosMapItem::~ReosMapItem() {}
 
-ReosMapItemDomain::ReosMapItemDomain(QObject *parent,QgsMapCanvas* canvas):QObject(parent),mCanvas(canvas)
+ReosMapItemDomain::ReosMapItemDomain( QObject *parent, QgsMapCanvas *canvas ): QObject( parent ), mCanvas( canvas )
 {
 
 }
 
-ReosMapItemDomain::ReosMapItemDomain(ReosMapItemDomain *parent, QgsMapCanvas *canvas):QObject(parent),mSuperDomain(parent),mCanvas(canvas)
+ReosMapItemDomain::ReosMapItemDomain( ReosMapItemDomain *parent, QgsMapCanvas *canvas ): QObject( parent ), mSuperDomain( parent ), mCanvas( canvas )
 {
-    parent->addSubDomain(this);
+  parent->addSubDomain( this );
 }
 
-void ReosMapItemDomain::addItem(ReosMapItem *item)
+void ReosMapItemDomain::addItem( ReosMapItem *item )
 {
-    mItemsList.append(item);
-    item->setZValue(mZValue);
+  mItemsList.append( item );
+  item->setZValue( mZValue );
 }
 
-ReosMapItem *ReosMapItemDomain::item(int i) const
+ReosMapItem *ReosMapItemDomain::item( int i ) const
 {
-    return mItemsList.at(i);
+  return mItemsList.at( i );
 }
 
-ReosMapItem *ReosMapItemDomain::item(const QRectF &rect)
+ReosMapItem *ReosMapItemDomain::item( const QRectF &rect )
 {
-    QRect canvasRect=rect.toRect();
-    auto itemsInRect=canvas()->items(canvasRect);
+  QRect canvasRect = rect.toRect();
+  auto itemsInRect = canvas()->items( canvasRect );
 
-    return itemInDomain(itemsInRect);
+  return itemInDomain( itemsInRect );
 }
 
-ReosMapItem *ReosMapItemDomain::item(const QPointF &point)
+ReosMapItem *ReosMapItemDomain::item( const QPointF &point )
 {
-    auto items=canvas()->items(canvas()->mapFromScene(point));
+  auto items = canvas()->items( canvas()->mapFromScene( point ) );
 
-    return itemInDomain(items);
+  return itemInDomain( items );
 }
 
-void ReosMapItemDomain::removeItem(ReosMapItem *item)
+void ReosMapItemDomain::removeItem( ReosMapItem *item )
 {
-    mItemsList.removeOne(item);
+  mItemsList.removeOne( item );
 }
 
 int ReosMapItemDomain::itemsCount() const {return mItemsList.count();}
 
-ReosMapItem* ReosMapItemDomain::itemInDomain(const QList<QGraphicsItem*> &items)
+ReosMapItem *ReosMapItemDomain::itemInDomain( const QList<QGraphicsItem *> &items )
 {
-    bool found=false;
-    auto itemInDomain=mItemsList.begin();
-    while (itemInDomain!=mItemsList.end() && !found)
+  bool found = false;
+  auto itemInDomain = mItemsList.begin();
+  while ( itemInDomain != mItemsList.end() && !found )
+  {
+    auto itemInRect = items.begin();
+    while ( itemInRect != items.end() && !found )
     {
-        auto itemInRect=items.begin();
-        while(itemInRect!=items.end() && !found)
-        {
-            found=(static_cast<ReosMapItem*>(*itemInRect))==(*itemInDomain);
+      found = ( static_cast<ReosMapItem *>( *itemInRect ) ) == ( *itemInDomain );
 
-            if (!found)
-                itemInRect++;
-        }
-        if (!found)
-            itemInDomain++;
+      if ( !found )
+        itemInRect++;
     }
+    if ( !found )
+      itemInDomain++;
+  }
 
-    if (found)
-        return (*itemInDomain);
-    else {
-        return nullptr;
-    }
+  if ( found )
+    return ( *itemInDomain );
+  else
+  {
+    return nullptr;
+  }
 }
 
-void ReosMapItemDomain::setZValue(int z){
-    mZValue=z;
-    for (auto item:mItemsList)
-    {
-        item->setZValue(mZValue);
-    }
+void ReosMapItemDomain::setZValue( int z )
+{
+  mZValue = z;
+  for ( auto item : mItemsList )
+  {
+    item->setZValue( mZValue );
+  }
 }
 
 void ReosMapItemDomain::clear()
 {
-    while (!mItemsList.isEmpty()) {
-        delete mItemsList.at(0);
-        mItemsList.removeAt(0);
-    }
+  while ( !mItemsList.isEmpty() )
+  {
+    delete mItemsList.at( 0 );
+    mItemsList.removeAt( 0 );
+  }
 
-    for (auto sd:mSubDomains)
-        sd->clear();
+  for ( auto sd : mSubDomains )
+    sd->clear();
 }
 
-void ReosMapItemDomain::addSubDomain(ReosMapItemDomain *sub)
+void ReosMapItemDomain::addSubDomain( ReosMapItemDomain *sub )
 {
-    mSubDomains.append(sub);
+  mSubDomains.append( sub );
 }
 
-ReosMapItemPolyline::ReosMapItemPolyline(QgsMapCanvas *canvas, const QgsPolylineXY &polyline):ReosMapItem(canvas)
+ReosMapItemPolyline::ReosMapItemPolyline( QgsMapCanvas *canvas, const QgsPolylineXY &polyline ): ReosMapItem( canvas )
 {
-    setPolyline(polyline);
+  setPolyline( polyline );
 }
 
-ReosMapItemPolyline::ReosMapItemPolyline(QgsMapCanvas *canvas, const QPolygonF &polyline):ReosMapItem(canvas),mMapPolyline(polyline)
+ReosMapItemPolyline::ReosMapItemPolyline( QgsMapCanvas *canvas, const QPolygonF &polyline ): ReosMapItem( canvas ), mMapPolyline( polyline )
 {
 }
 
-void ReosMapItemPolyline::setPolyline(const QPolygonF &polyline)
+void ReosMapItemPolyline::setPolyline( const QPolygonF &polyline )
 {
-    mViewPolyline=polyline;
+  mMapPolyline = polyline;
+  updatePosition();
 }
 
-void ReosMapItemPolyline::setPolyline(const QgsPolylineXY &poly)
+void ReosMapItemPolyline::setPolyline( const QgsPolylineXY &poly )
 {
-    mMapPolyline.clear();
-    for (auto point:poly)
-    {
-        mMapPolyline.append(point.toQPointF());
-    }
-    updatePosition();
+  mMapPolyline.clear();
+  for ( auto point : poly )
+  {
+    mMapPolyline.append( point.toQPointF() );
+  }
+  updatePosition();
 }
 
 void ReosMapItemPolyline::updatePosition()
 {
-    prepareGeometryChange();
-    mViewPolyline.clear();
-    if (mMapPolyline.count()<1)
-        return;
-    QPointF pview0=toCanvasCoordinates(QgsPoint(mMapPolyline.at(0)));
+  prepareGeometryChange();
+  mViewPolyline.clear();
+  if ( mMapPolyline.count() < 1 )
+    return;
+  QPointF pview0 = toCanvasCoordinates( QgsPoint( mMapPolyline.at( 0 ) ) );
 
-    for (auto p:mMapPolyline)
-    {
-        QPointF pview=toCanvasCoordinates(QgsPoint(p));
-        mViewPolyline.append(QPointF(pview.x()-pview0.x(),pview.y()-pview0.y()));
-    }
-    setPos(pview0);
+  for ( auto p : mMapPolyline )
+  {
+    QPointF pview = toCanvasCoordinates( QgsPoint( p ) );
+    mViewPolyline.append( QPointF( pview.x() - pview0.x(), pview.y() - pview0.y() ) );
+  }
+  setPos( pview0 );
 }
 
-void ReosMapItemPolyline::setMapAndViewPoint(int i, const QPointF &mapPoint)
+void ReosMapItemPolyline::setMapAndViewPoint( int i, const QPointF &mapPoint )
 {
-    prepareGeometryChange();
-    mMapPolyline[i]=mapPoint;
-    QPointF pview=toCanvasCoordinates(QgsPoint(mapPoint));
-    pview=pview-pos();
-    mViewPolyline[i]=pview;
+  prepareGeometryChange();
+  mMapPolyline[i] = mapPoint;
+  QPointF pview = toCanvasCoordinates( QgsPoint( mapPoint ) );
+  pview = pview - pos();
+  mViewPolyline[i] = pview;
 }
 
-void ReosMapItemPolyline::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void ReosMapItemPolyline::paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget )
 {
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
+  Q_UNUSED( option );
+  Q_UNUSED( widget );
 
-    paint(painter);
+  paint( painter );
 }
 
-void ReosMapItemPolyline::paint(QPainter *painter)
+void ReosMapItemPolyline::paint( QPainter *painter )
 {
-    painter->save();
-    painter->setPen(mPen);
-    painter->drawPolyline(mViewPolyline);
-    painter->restore();
+  painter->save();
+  painter->setPen( mPen );
+  painter->drawPolyline( mViewPolyline );
+  painter->restore();
 }
 
-void ReosMapItemPolyline::selectVertex(const QgsRectangle &rect)
+void ReosMapItemPolyline::selectVertex( const QgsRectangle &rect )
 {
-    mSelectedVertex.clear();
-    QRectF rectF=rect.toRectF();
-    for (int i=0;i<mMapPolyline.count();++i)
-    {
-        if (rectF.contains(mMapPolyline.at(i)))
-            mSelectedVertex.append(i);
-    }
-    update();
+  mSelectedVertex.clear();
+  QRectF rectF = rect.toRectF();
+  for ( int i = 0; i < mMapPolyline.count(); ++i )
+  {
+    if ( rectF.contains( mMapPolyline.at( i ) ) )
+      mSelectedVertex.append( i );
+  }
+  update();
 }
 
 void ReosMapItemPolyline::deselectVertex()
 {
-    mSelectedVertex.clear();
-    update();
+  mSelectedVertex.clear();
+  update();
 }
 
-bool ReosMapItemPolyline::isVertexSelected(int i) const
+bool ReosMapItemPolyline::isVertexSelected( int i ) const
 {
-    return mSelectedVertex.contains(i);
+  return mSelectedVertex.contains( i );
 }
 
-const QList<int> &ReosMapItemPolyline::selectedVertices() const {
-    return mSelectedVertex;
+const QList<int> &ReosMapItemPolyline::selectedVertices() const
+{
+  return mSelectedVertex;
 }
 
-ReosMapRectangularItem::ReosMapRectangularItem(QgsMapCanvas *canvas, const QgsRectangle &rectMap):
-    ReosMapItem(canvas),rectMap(rectMap)
+ReosMapRectangularItem::ReosMapRectangularItem( QgsMapCanvas *canvas, const QgsRectangle &rectMap ):
+  ReosMapItem( canvas ), rectMap( rectMap )
 {
 
 }
 
 ReosMapRectangularItem::~ReosMapRectangularItem() {}
 
-void ReosMapRectangularItem::setPen(const QPen &pen)
+void ReosMapRectangularItem::setPen( const QPen &pen )
 {
-    pen_=pen;
+  pen_ = pen;
 }
 
 QgsRectangle ReosMapRectangularItem::getRectMap() const {return rectMap;}
 
 QRectF ReosMapRectangularItem::boundingRect() const
 {
-    qreal penWidth=pen_.widthF();
-    QRectF retour=rectView.adjusted(-penWidth,-penWidth,penWidth,penWidth);
-    return retour;
+  qreal penWidth = pen_.widthF();
+  QRectF retour = rectView.adjusted( -penWidth, -penWidth, penWidth, penWidth );
+  return retour;
 }
 
-void ReosMapRectangularItem::paint(QPainter *painter)
+void ReosMapRectangularItem::paint( QPainter *painter )
 {
-    painter->save();
-    painter->setPen(pen_);
-    painter->drawRect(rectView);
-    painter->restore();
+  painter->save();
+  painter->setPen( pen_ );
+  painter->drawRect( rectView );
+  painter->restore();
 }
 
-void ReosMapRectangularItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void ReosMapRectangularItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget )
 {
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
+  Q_UNUSED( option );
+  Q_UNUSED( widget );
 
-    paint(painter);
+  paint( painter );
 }
 
 void ReosMapRectangularItem::updatePosition()
 {
-    prepareGeometryChange();
-    QgsPointXY topLeftMap(rectMap.xMinimum(),rectMap.yMaximum());
-    QgsPointXY bottomRightMap(rectMap.xMaximum(),rectMap.yMinimum());
-    QPointF topleft=toCanvasCoordinates(topLeftMap);
-    QPointF bottomRight=toCanvasCoordinates(bottomRightMap);
-    rectView=QRectF(topleft,bottomRight);
+  prepareGeometryChange();
+  QgsPointXY topLeftMap( rectMap.xMinimum(), rectMap.yMaximum() );
+  QgsPointXY bottomRightMap( rectMap.xMaximum(), rectMap.yMinimum() );
+  QPointF topleft = toCanvasCoordinates( topLeftMap );
+  QPointF bottomRight = toCanvasCoordinates( bottomRightMap );
+  rectView = QRectF( topleft, bottomRight );
 }
 
-ReosMapItemNode::ReosMapItemNode(QgsPointXY center, QgsMapCanvas *canvas): ReosMapItem(canvas),mapPosition(center)
+ReosMapItemNode::ReosMapItemNode( QgsPointXY center, QgsMapCanvas *canvas ): ReosMapItem( canvas ), mapPosition( center )
 {
-    updatePosition();
+  updatePosition();
 }
 
 ReosMapItemNode::~ReosMapItemNode() {}
 
-void ReosMapItemNode::setPosition(const QPointF &pt)
+void ReosMapItemNode::setPosition( const QPointF &pt )
 {
-    mapPosition=pt;
-    setPos(toCanvasCoordinates(pt));
+  mapPosition = pt;
+  setPos( toCanvasCoordinates( pt ) );
 }
 
-void ReosMapItemNode::setPen(const QPen &pen){
-    mPen=pen;
-}
-
-QPen ReosMapItemNode::pen(){return mPen;}
-
-void ReosMapItemNode::setBrush(const QBrush &brush){
-    mBrush=brush;
-}
-
-void ReosMapItemNode::setSize(int size){
-    mSize=size;
-}
-
-void ReosMapItemNode::addSegment(ReosMapItemSegment *segment)
+void ReosMapItemNode::setPen( const QPen &pen )
 {
-    if (!mSegments.contains(segment))
-        mSegments.append(segment);
+  mPen = pen;
 }
 
-ReosMapItemSegment *ReosMapItemNode::segment(int i) const
+QPen ReosMapItemNode::pen() {return mPen;}
+
+void ReosMapItemNode::setBrush( const QBrush &brush )
 {
-    if (i<mSegments.count() && i>=0)
-        return mSegments.at(i);
-    else
-        return nullptr;
+  mBrush = brush;
 }
 
-ReosMapItemSegment *ReosMapItemNode::segment(ReosMapItemNode *otherNode) const
+void ReosMapItemNode::setSize( int size )
 {
-    bool found=false;
-    int i=0;
-    while (i<mSegments.count() && !found)
-    {
-        found=mSegments.at(i)->isNodeExtremity(otherNode);
-        if (!found)
-            i++;
-    }
-
-    return segment(i);
+  mSize = size;
 }
 
-void ReosMapItemNode::removeSegment(ReosMapItemSegment *seg)
+void ReosMapItemNode::addSegment( ReosMapItemSegment *segment )
 {
-    mSegments.removeOne(seg);
+  if ( !mSegments.contains( segment ) )
+    mSegments.append( segment );
 }
 
-void ReosMapItemNode::removeSegmentAt(int i)
+ReosMapItemSegment *ReosMapItemNode::segment( int i ) const
 {
-    mSegments.removeAt(i);
+  if ( i < mSegments.count() && i >= 0 )
+    return mSegments.at( i );
+  else
+    return nullptr;
 }
 
-void ReosMapItemNode::updatePosition(){
-    prepareGeometryChange();
-    setPos((toCanvasCoordinates(mapPosition)));
+ReosMapItemSegment *ReosMapItemNode::segment( ReosMapItemNode *otherNode ) const
+{
+  bool found = false;
+  int i = 0;
+  while ( i < mSegments.count() && !found )
+  {
+    found = mSegments.at( i )->isNodeExtremity( otherNode );
+    if ( !found )
+      i++;
+  }
+
+  return segment( i );
+}
+
+void ReosMapItemNode::removeSegment( ReosMapItemSegment *seg )
+{
+  mSegments.removeOne( seg );
+}
+
+void ReosMapItemNode::removeSegmentAt( int i )
+{
+  mSegments.removeAt( i );
+}
+
+void ReosMapItemNode::updatePosition()
+{
+  prepareGeometryChange();
+  setPos( ( toCanvasCoordinates( mapPosition ) ) );
 }
 
 int ReosMapItemNode::segmentsCount() const {return mSegments.count();}
 
-void ReosMapItemNode::paint(QPainter *painter)
+void ReosMapItemNode::paint( QPainter *painter )
 {
-    painter->save();
-    painter->setBrush(mBrush);
-    painter->setPen(mPen);
-    painter->drawEllipse(-mSize/2,-mSize/2,mSize,mSize);
-    painter->restore();
+  painter->save();
+  painter->setBrush( mBrush );
+  painter->setPen( mPen );
+  painter->drawEllipse( -mSize / 2, -mSize / 2, mSize, mSize );
+  painter->drawPixmap( QRect( -12, -12, 24, 24 ), QPixmap( "://toolbar/ZSpecifierSelectDependingVertex.png" ), QRect( 0, 0, 24, 24 ) );
+  painter->restore();
 }

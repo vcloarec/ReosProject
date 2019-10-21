@@ -27,58 +27,58 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 
 class ReosInformationSender
 {
-public:
-    ReosInformationSender(ReosInformationSender *parent);
+  public:
+    ReosInformationSender( ReosInformationSender *parent );
     virtual ~ReosInformationSender();
 
-protected:
-    virtual void receive(int mes)
+  protected:
+    virtual void receive( int mes )
     {
-        sendToParent(mes);
+      sendToParent( mes );
     }
-    void sendToParent(int mes)
+    void sendToParent( int mes )
     {
-        if (parent)
-           parent->receive(mes);
+      if ( parent )
+        parent->receive( mes );
     }
-private:
+  private:
     ReosInformationSender *parent;
 };
 
 class ReosModule : public QObject, public ReosInformationSender
 {
     Q_OBJECT
-public:
-    explicit ReosModule(QObject *parent = nullptr,ReosInformationSender *messenger=nullptr);
-    explicit ReosModule(ReosModule *parent);
+  public:
+    explicit ReosModule( QObject *parent = nullptr, ReosInformationSender *messenger = nullptr );
+    explicit ReosModule( ReosModule *parent );
     virtual ~ReosModule();
 
 
     virtual QWidget *getWidget() const {return nullptr;}
-    QList<QAction*> getActions() const;
-    QMenu* getMenu() const {return menu;}
+    QList<QAction *> getActions() const;
+    QMenu *getMenu() const {return menu;}
     QToolBar *getToolBar() const {return toolBar;}
 
-signals:
-    void newCommandToUndoStack(QUndoCommand *command);
-    void activeUndoStack(QUndoStack *undoStack);
-    void widgetVisibility(bool);
-    void messageEmited(QString &message,ReosMessageBox::Type type) const;
+  signals:
+    void newCommandToUndoStack( QUndoCommand *command );
+    void activeUndoStack( QUndoStack *undoStack );
+    void widgetVisibility( bool );
+    void messageEmited( QString &message, ReosMessageBox::Type type ) const;
 
-public slots:
+  public slots:
     virtual void showWidget();
     void hideWidget();
 
     void undo()
     {
-        if (mUndoStack)
-            mUndoStack->undo();
+      if ( mUndoStack )
+        mUndoStack->undo();
     }
 
     void redo()
     {
-        if (mUndoStack)
-            mUndoStack->redo();
+      if ( mUndoStack )
+        mUndoStack->redo();
     }
 
     ////////////////////////////////////////////
@@ -87,26 +87,26 @@ public slots:
     /// Handle QUndoCommand, by default : if undoStack is present (mUndoStack !=nullptr, push the command to the undoStack.
     /// If not send to the parent the command if the parent is not null, if it is null, emit newCommandToUndoStack.
     ///
-    virtual void newCommand(QUndoCommand *command);
+    virtual void newCommand( QUndoCommand *command );
 
-    void warning(QString message) const;
-    void error(QString message) const;
-    void message(QString message) const;
-    void order(QString message) const;
+    void warning( QString message ) const;
+    void error( QString message ) const;
+    void message( QString message ) const;
+    void order( QString message ) const;
 
-protected:
-    QActionGroup *groupAction=nullptr;
-    QToolBar *toolBar=nullptr;
-    QMenu *menu=nullptr;
-    QUndoStack *mUndoStack=nullptr;
+  protected:
+    QActionGroup *groupAction = nullptr;
+    QToolBar *toolBar = nullptr;
+    QMenu *menu = nullptr;
+    QUndoStack *mUndoStack = nullptr;
 
-    void sendMessage(QString mes,ReosMessageBox::Type type) const;
+    void sendMessage( QString mes, ReosMessageBox::Type type ) const;
 
 
 
-private:
-    ReosModule *reosParent=nullptr;
-    QList<ReosModule*> reosChildren;
+  private:
+    ReosModule *reosParent = nullptr;
+    QList<ReosModule *> reosChildren;
 };
 
 #endif // REOSMODULE_H

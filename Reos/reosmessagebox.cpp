@@ -16,54 +16,55 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #include "reosmessagebox.h"
 #include "ui_reosmessagebox.h"
 
-ReosMessageBox::ReosMessageBox(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::ReosMessageBox)
+ReosMessageBox::ReosMessageBox( QWidget *parent ) :
+  QWidget( parent ),
+  ui( new Ui::ReosMessageBox )
 {
-    ui->setupUi(this);
+  ui->setupUi( this );
 }
 
 ReosMessageBox::~ReosMessageBox()
 {
-    delete ui;
+  delete ui;
 }
 
 
 
-void ReosMessageBox::receiveMessage(const QString &mes,Type type)
+void ReosMessageBox::receiveMessage( const QString &mes, Type type )
 {
-    QString message;
+  QString message;
 
-    switch (type) {
+  switch ( type )
+  {
     case ReosMessageBox::error:
-        message.append(QTime::currentTime().toString());
-        message.append(" : ");
-        message.append(tr("Erreur : "));
-        ui->textBrowser->setTextColor(Qt::red);
-        break;
+      message.append( QTime::currentTime().toString() );
+      message.append( " : " );
+      message.append( tr( "Erreur : " ) );
+      ui->textBrowser->setTextColor( Qt::red );
+      break;
     case ReosMessageBox::warning:
-        message.append(QTime::currentTime().toString());
-        message.append(" : ");
-        message.append(tr("Attention : "));
-        ui->textBrowser->setTextColor(QColor(200,100,0));
-        break;
+      message.append( QTime::currentTime().toString() );
+      message.append( " : " );
+      message.append( tr( "Attention : " ) );
+      ui->textBrowser->setTextColor( QColor( 200, 100, 0 ) );
+      break;
     case ReosMessageBox::message:
-        message.append(QTime::currentTime().toString());
-        message.append(" : ");
-        ui->textBrowser->setTextColor(QColor(0,150,0));
-        break;
+      message.append( QTime::currentTime().toString() );
+      message.append( " : " );
+      ui->textBrowser->setTextColor( QColor( 0, 150, 0 ) );
+      break;
     case ReosMessageBox::order:
-        message.append("--> ");
-        ui->textBrowser->setTextColor(Qt::black);
-        break;
-    }
+      message.append( "--> " );
+      ui->textBrowser->setTextColor( Qt::black );
+      break;
+  }
 
-    message.append(mes);
+  message.append( mes );
 
-    ui->textBrowser->append(message);
+  ui->textBrowser->append( message );
 }
 
 void ReosMessageBox::clean()
 {
-    ui->textBrowser->clear();
+  ui->textBrowser->clear();
 }

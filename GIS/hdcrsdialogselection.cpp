@@ -16,27 +16,27 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "hdcrsdialogselection.h"
 #include "ui_hdcrsdialogselection.h"
 
-HdCRSDialogSelection::HdCRSDialogSelection(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::HDCRSDialogSelection),
-    crsWidget(new QgsProjectionSelectionTreeWidget(this))
+HdCRSDialogSelection::HdCRSDialogSelection( QWidget *parent ) :
+  QDialog( parent ),
+  ui( new Ui::HDCRSDialogSelection ),
+  crsWidget( new QgsProjectionSelectionTreeWidget( this ) )
 {
-    ui->setupUi(this);
-    ui->layout->addWidget(crsWidget);
+  ui->setupUi( this );
+  ui->layout->addWidget( crsWidget );
 
 }
 
 HdCRSDialogSelection::~HdCRSDialogSelection()
 {
-    delete ui;
+  delete ui;
 }
 
-void HdCRSDialogSelection::setCrs(const QgsCoordinateReferenceSystem &crs)
+void HdCRSDialogSelection::setCrs( const QgsCoordinateReferenceSystem &crs )
 {
-    crsWidget->setCrs(crs);
+  crsWidget->setCrs( crs );
 }
 
 QgsCoordinateReferenceSystem HdCRSDialogSelection::getCrs()
 {
-    return crsWidget->crs();
+  return crsWidget->crs();
 }

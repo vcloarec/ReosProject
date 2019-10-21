@@ -29,34 +29,34 @@ class ReosMeshItemSegment;
 
 class ReosMapMeshItem : public ReosMapItem
 {
-public:
-    ReosMapMeshItem(QgsMapCanvas *canvas);
+  public:
+    ReosMapMeshItem( QgsMapCanvas *canvas );
     virtual ~ReosMapMeshItem();
 };
 
 
 class ReosMeshItemVertex: public ReosMapItemNode
 {
-public:
-    ReosMeshItemVertex(const QPointF &mapPosition,QgsMapCanvas *canvas);
+  public:
+    ReosMeshItemVertex( const QPointF &mapPosition, QgsMapCanvas *canvas );
     virtual ~ReosMeshItemVertex();
 
-    void setRealWorldVertex(VertexPointer vertex);
+    void setRealWorldVertex( VertexPointer vertex );
     VertexPointer realWorldVertex() const;
 
-    void addSegment(ReosMeshItemSegment* seg);
+    void addSegment( ReosMeshItemSegment *seg );
 
-    ReosMeshItemSegment *segment(int i) const;
-    ReosMeshItemSegment *segment(ReosMeshItemVertex* otherVertex);
-    void removeSegment(ReosMeshItemSegment *seg);
+    ReosMeshItemSegment *segment( int i ) const;
+    ReosMeshItemSegment *segment( ReosMeshItemVertex *otherVertex );
+    void removeSegment( ReosMeshItemSegment *seg );
 
-private:
+  private:
 
     ///////////////////////////////////////////////
     /// \brief mRealWorldVertex
     ///To link the graphic vertex with the real world vertex.
     ///This solution is prefered to a hash or a map to provide a faster acces from the graphic vertex
-    VertexPointer mRealWorldVertex=nullptr;
+    VertexPointer mRealWorldVertex = nullptr;
 
 
 
@@ -67,85 +67,87 @@ private:
 
 class ReosMeshItemSegment: public ReosMapItemSegment
 {
-public:
-    ReosMeshItemSegment(ReosMeshItemVertex *n0,ReosMeshItemVertex *n1,QgsMapCanvas *canvas);
+  public:
+    ReosMeshItemSegment( ReosMeshItemVertex *n0, ReosMeshItemVertex *n1, QgsMapCanvas *canvas );
     virtual ~ReosMeshItemSegment();
 
-    ReosMeshItemVertex *otherVertex(ReosMeshItemVertex *vertex) const
+    ReosMeshItemVertex *otherVertex( ReosMeshItemVertex *vertex ) const
     {
-        return static_cast<ReosMeshItemVertex*>(ReosMapItemSegment::otherExtremity(vertex));
+      return static_cast<ReosMeshItemVertex *>( ReosMapItemSegment::otherExtremity( vertex ) );
     }
 
-    ReosMeshItemVertex *vertex1() {return static_cast<ReosMeshItemVertex*>(node1());}
-    ReosMeshItemVertex *vertex2() {return static_cast<ReosMeshItemVertex*>(node2());}
+    ReosMeshItemVertex *vertex1() {return static_cast<ReosMeshItemVertex *>( node1() );}
+    ReosMeshItemVertex *vertex2() {return static_cast<ReosMeshItemVertex *>( node2() );}
 
     void removeFromNode()
     {
-        vertex1()->removeSegment(this);
-        vertex2()->removeSegment(this);
+      vertex1()->removeSegment( this );
+      vertex2()->removeSegment( this );
     }
 
 
-private:
+  private:
 
 };
 
 class ReosMeshItemFace: public ReosMapItem
 {
-public:
-    ReosMeshItemFace(const QList<QPointF> &points,QgsMapCanvas *canvas):ReosMapItem(canvas),mMapPoints(points)
+  public:
+    ReosMeshItemFace( const QList<QPointF> &points, QgsMapCanvas *canvas ): ReosMapItem( canvas ), mMapPoints( points )
     {
-        mPen=QPen(QColor(Qt::red));
-        mBrush=QBrush(QColor(255,0,0,150),Qt::SolidPattern);
-        updatePosition();
+      mPen = QPen( QColor( Qt::red ) );
+      mBrush = QBrush( QColor( 255, 0, 0, 150 ), Qt::SolidPattern );
+      updatePosition();
     }
     virtual ~ReosMeshItemFace() override;
 
     QRectF boundingRect() const override
     {
-        double xmin=DBL_MAX;
-        double ymin=DBL_MAX;
-        double xmax=-DBL_MAX;
-        double ymax=-DBL_MAX;
+      double xmin = DBL_MAX;
+      double ymin = DBL_MAX;
+      double xmax = -DBL_MAX;
+      double ymax = -DBL_MAX;
 
-        for (auto p:mViewPoints)
-        {
-            if (p.x()<xmin)
-                xmin=p.x();
-            if (p.x()>xmax)
-                xmax=p.x();
-            if (p.y()<ymin)
-                ymin=p.y();
-            if (p.y()>ymax)
-                ymax=p.y();
-        }
+      for ( auto p : mViewPoints )
+      {
+        if ( p.x() < xmin )
+          xmin = p.x();
+        if ( p.x() > xmax )
+          xmax = p.x();
+        if ( p.y() < ymin )
+          ymin = p.y();
+        if ( p.y() > ymax )
+          ymax = p.y();
+      }
 
-        return QRectF(QPointF(xmin,ymin),QPointF(xmax,ymax));
+      return QRectF( QPointF( xmin, ymin ), QPointF( xmax, ymax ) );
     }
 
     void updatePosition() override
     {
-        mViewPoints.clear();
-        for (auto p:mMapPoints)
-        {
-            mViewPoints.append(toCanvasCoordinates(QgsPointXY(p)));
-        }
+      mViewPoints.clear();
+      for ( auto p : mMapPoints )
+      {
+        mViewPoints.append( toCanvasCoordinates( QgsPointXY( p ) ) );
+      }
     }
 
-    void setBrushColor(const QColor &c){
-        mBrush.setColor(c);
+    void setBrushColor( const QColor &c )
+    {
+      mBrush.setColor( c );
     }
 
-protected:
-    void paint(QPainter *painter) override{
-        painter->save();
-        painter->setPen(mPen);
-        painter->setBrush(mBrush);
-        painter->drawPolygon(mViewPoints.data(),mViewPoints.count());
-        painter->restore();
+  protected:
+    void paint( QPainter *painter ) override
+    {
+      painter->save();
+      painter->setPen( mPen );
+      painter->setBrush( mBrush );
+      painter->drawPolygon( mViewPoints.data(), mViewPoints.count() );
+      painter->restore();
     }
 
-private:
+  private:
     QList<QPointF> mMapPoints;
     QVector<QPointF> mViewPoints;
 
@@ -158,50 +160,51 @@ private:
 
 
 
-class ReosMapMeshEditorItemDomain: public ReosMapItemDomain{
-public:
-    ReosMapMeshEditorItemDomain(QObject *parent,QgsMapCanvas *canvas);
+class ReosMapMeshEditorItemDomain: public ReosMapItemDomain
+{
+  public:
+    ReosMapMeshEditorItemDomain( QObject *parent, QgsMapCanvas *canvas );
 
-    ReosMeshItemVertex* addVertex(const QPointF &p);
-    ReosMeshItemSegment* addSegmentHardLine(ReosMeshItemVertex *v1, ReosMeshItemVertex*v2);
+    ReosMeshItemVertex *addVertex( const QPointF &p );
+    ReosMeshItemSegment *addSegmentHardLine( ReosMeshItemVertex *v1, ReosMeshItemVertex *v2 );
 
-    ReosMeshItemVertex *vertex(int n) const;
-    ReosMeshItemVertex *vertex(const QRectF &rect) const;
+    ReosMeshItemVertex *vertex( int n ) const;
+    ReosMeshItemVertex *vertex( const QRectF &rect ) const;
 
-    ReosMeshItemSegment* segment(int i) const
+    ReosMeshItemSegment *segment( int i ) const
     {
-        return static_cast<ReosMeshItemSegment*>(segmentsDomain->item(i));
+      return static_cast<ReosMeshItemSegment *>( segmentsDomain->item( i ) );
     }
-    ReosMeshItemSegment* segment(const QRectF &rect) const
+    ReosMeshItemSegment *segment( const QRectF &rect ) const
     {
-        return static_cast<ReosMeshItemSegment*>(segmentsDomain->item(rect));
+      return static_cast<ReosMeshItemSegment *>( segmentsDomain->item( rect ) );
     }
 
     int verticesCount() const;
     int segmentCount() const;
 
-    void removeSegment(ReosMeshItemSegment *seg);
-    void removeVertex(ReosMeshItemVertex *vert)
+    void removeSegment( ReosMeshItemSegment *seg );
+    void removeVertex( ReosMeshItemVertex *vert )
     {
-        int i=0;
-        while(vert->segmentsCount()!=0)
-        {
+      int i = 0;
+      while ( vert->segmentsCount() != 0 )
+      {
 
-            ReosMeshItemSegment* seg=vert->segment(i);
-            seg->removeFromNode();
-            segmentsDomain->removeItem(seg);
-            delete seg;
-        }
+        ReosMeshItemSegment *seg = vert->segment( i );
+        seg->removeFromNode();
+        segmentsDomain->removeItem( seg );
+        delete seg;
+      }
 
-        verticesDomain->removeItem(vert);
-        delete vert;
+      verticesDomain->removeItem( vert );
+      delete vert;
     }
 
 
 
-private:
-    ReosMapItemDomain *verticesDomain=nullptr;
-    ReosMapItemDomain *segmentsDomain=nullptr;
+  private:
+    ReosMapItemDomain *verticesDomain = nullptr;
+    ReosMapItemDomain *segmentsDomain = nullptr;
 
 };
 

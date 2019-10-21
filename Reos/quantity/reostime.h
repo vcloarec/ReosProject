@@ -23,22 +23,22 @@ email                :   projetreos@gmail.com
 
 class ReosTime
 {
-public: 
+  public:
     ReosTime();
-    ReosTime(QDate date, QTime time);
-    ReosTime(QDateTime dateTime);
+    ReosTime( QDate date, QTime time );
+    ReosTime( QDateTime dateTime );
 
-    ReosTime(const ReosEncodedElement &encoded);
+    ReosTime( const ReosEncodedElement &encoded );
 
-    ReosTime operator+(const ReosDuration &duree) const;
-    ReosTime operator-(const ReosDuration &duree) const;
-    ReosDuration operator-(const ReosTime &other) const;
-    bool operator>(const ReosTime& other) const;
-    bool operator>=(const ReosTime& other) const;
-    bool operator<(const ReosTime& other) const;
-    bool operator<=(const ReosTime& other) const;
-    bool operator==(const ReosTime& other) const;
-    bool operator!=(const ReosTime& other) const;
+    ReosTime operator+( const ReosDuration &duree ) const;
+    ReosTime operator-( const ReosDuration &duree ) const;
+    ReosDuration operator-( const ReosTime &other ) const;
+    bool operator>( const ReosTime &other ) const;
+    bool operator>=( const ReosTime &other ) const;
+    bool operator<( const ReosTime &other ) const;
+    bool operator<=( const ReosTime &other ) const;
+    bool operator==( const ReosTime &other ) const;
+    bool operator!=( const ReosTime &other ) const;
 
     QString getString() const;
 
@@ -47,12 +47,12 @@ public:
     QByteArray encodage() const;
     QByteArray encode() const;
 
-private:
+  private:
     QDateTime dateTime_;
 
 };
 
 
-ReosTime decodeTemps(QByteArray &byteArray);
+ReosTime decodeTemps( QByteArray &byteArray );
 
 #endif //REOSTIME_H

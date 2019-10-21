@@ -25,16 +25,17 @@ email                : vcloarec at gmail dot com / projetreos at gmail dot com
 
 #include "../../Reos/reossettings.h"
 
-namespace Ui {
-class HdTinEditorNewDialog;
+namespace Ui
+{
+  class HdTinEditorNewDialog;
 }
 
 class HdTinEditorNewDialog : public QDialog
 {
     Q_OBJECT
 
-public:
-    explicit HdTinEditorNewDialog(QWidget *parent = nullptr);
+  public:
+    explicit HdTinEditorNewDialog( QWidget *parent = nullptr );
     ~HdTinEditorNewDialog();
 
     QString fileName() const;
@@ -42,10 +43,10 @@ public:
     QgsCoordinateReferenceSystem crs() const;
 
 
-private slots:
+  private slots:
     void fileDialog();
 
-private:
+  private:
     Ui::HdTinEditorNewDialog *ui;
     QgsProjectionSelectionWidget *mCrsWidget;
 };

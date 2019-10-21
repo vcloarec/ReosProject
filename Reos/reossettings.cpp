@@ -21,32 +21,32 @@ ReosSettings::ReosSettings()
 
 }
 
-void ReosSettings::setPath(QString path)
+void ReosSettings::setPath( QString path )
 {
-    if (!pathSet)
-    {
-        QSettings::setPath(QSettings::IniFormat,QSettings::UserScope,path);
-    }
+  if ( !pathSet )
+  {
+    QSettings::setPath( QSettings::IniFormat, QSettings::UserScope, path );
+  }
 }
 
-void ReosSettings::setValue(const QString &key, const QVariant &value)
+void ReosSettings::setValue( const QString &key, const QVariant &value )
 {
-    settings.setValue(key,value);
+  settings.setValue( key, value );
 }
 
-QVariant ReosSettings::value(const QString &key, const QVariant &defaultValue) const
+QVariant ReosSettings::value( const QString &key, const QVariant &defaultValue ) const
 {
-    return settings.value(key,defaultValue);
+  return settings.value( key, defaultValue );
 }
 
 QString ReosSettings::fileName() const
 {
-    return settings.fileName();
+  return settings.fileName();
 }
 
-bool ReosSettings::contains(const QString &key) const
+bool ReosSettings::contains( const QString &key ) const
 {
-    return settings.contains(key);
+  return settings.contains( key );
 }
 
-bool ReosSettings::pathSet=false;
+bool ReosSettings::pathSet = false;

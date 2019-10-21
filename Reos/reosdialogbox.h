@@ -21,12 +21,12 @@ email                : vcloarec at gmail dot com / projetreos at gmail dot com
 #include <QVBoxLayout>
 
 
-class ReosDialogBox:public QDialog
+class ReosDialogBox: public QDialog
 {
-public:
-    ReosDialogBox(QWidget* w,QWidget *parent=nullptr);
+  public:
+    ReosDialogBox( QWidget *w, QWidget *parent = nullptr );
 
-private:
+  private:
 
     QVBoxLayout *mLayout;
 

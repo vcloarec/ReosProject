@@ -16,125 +16,129 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #include "reosmesheditor.h"
 
 
-HdMeshEditor::HdMeshEditor(HdMeshBasic &mesh, std::vector<Segment> &segments):mMesh(mesh),mSegments(segments)
+HdMeshEditor::HdMeshEditor( HdMeshBasic &mesh, std::vector<Segment> &segments ): mMesh( mesh ), mSegments( segments )
 {
 
 }
 
-void HdMeshEditor::addMeshGenerator(HdMeshGenerator *generator)
+void HdMeshEditor::addMeshGenerator( HdMeshGenerator *generator )
 {
-    mapGenerator[generator->getKey()]=generator;
+  mapGenerator[generator->getKey()] = generator;
 }
 
-bool HdMeshEditor::containMeshGenerator(std::string key)
+bool HdMeshEditor::containMeshGenerator( std::string key )
 {
-    return (mapGenerator.find(key)!=mapGenerator.end());
+  return ( mapGenerator.find( key ) != mapGenerator.end() );
 }
 
-void HdMeshEditor::setCurrentMeshGenerator(std::string key)
+void HdMeshEditor::setCurrentMeshGenerator( std::string key )
 {
-    if (containMeshGenerator(key))
-        mCurrentMeshGenerator=mapGenerator[key];
-    else {
-        mCurrentMeshGenerator=nullptr;
-    }
+  if ( containMeshGenerator( key ) )
+    mCurrentMeshGenerator = mapGenerator[key];
+  else
+  {
+    mCurrentMeshGenerator = nullptr;
+  }
 }
 
-HdMeshGenerator *HdMeshEditor::currentMeshGenerator() const {
-    return mCurrentMeshGenerator;
+HdMeshGenerator *HdMeshEditor::currentMeshGenerator() const
+{
+  return mCurrentMeshGenerator;
 }
 
-VertexPointer HdMeshEditor::addVertex(const VertexBasic &vert)
+VertexPointer HdMeshEditor::addVertex( const VertexBasic &vert )
 {
-    return addVertex(vert.x(),vert.y());
+  return addVertex( vert.x(), vert.y() );
 }
 
-VertexPointer HdMeshEditor::addVertex(double x, double y)
+VertexPointer HdMeshEditor::addVertex( double x, double y )
 {
-    VertexPointer vert=mMesh.vertex(x,y,tolerance());
-    if (vert)
-    {
-        return vert;
-    }
-    else {
-        return mMesh.addVertex(x,y);
-    }
+  VertexPointer vert = mMesh.vertex( x, y, tolerance() );
+  if ( vert )
+  {
+    return vert;
+  }
+  else
+  {
+    return mMesh.addVertex( x, y );
+  }
 }
 
-bool HdMeshEditor::addSegment(int n0, int n1)
+bool HdMeshEditor::addSegment( int n0, int n1 )
 {
-    if (n0 >= verticesCount() || n1 >= verticesCount() || n0==n1)
-        return false;
+  if ( n0 >= verticesCount() || n1 >= verticesCount() || n0 == n1 )
+    return false;
 
-    int indexSegment=findSegmentWithVertex(n0,n1);
+  int indexSegment = findSegmentWithVertex( n0, n1 );
 
-    if(indexSegment>=0)
-        return false;
+  if ( indexSegment >= 0 )
+    return false;
 
-    mSegments.push_back({mMesh.vertex(n0),mMesh.vertex(n1)});
+  mSegments.push_back( {mMesh.vertex( n0 ), mMesh.vertex( n1 )} );
 
-    return true;
+  return true;
 }
 
-int HdMeshEditor::findSegmentWithVertex(int n0, int n1)
+int HdMeshEditor::findSegmentWithVertex( int n0, int n1 )
 {
-    if (n0 >= verticesCount() || n1 >= verticesCount() || n0==n1)
-        return -1;
+  if ( n0 >= verticesCount() || n1 >= verticesCount() || n0 == n1 )
+    return -1;
 
-    bool found=false;
-    size_t i=0;
-    while (!found && i<mSegments.size())
-    {
-        found=(mSegments.at(i).first()==mMesh.vertex(n0) && mSegments.at(i).second()==mMesh.vertex(n1))||
-                (mSegments.at(i).first()==mMesh.vertex(n1) && mSegments.at(i).second()==mMesh.vertex(n0));
-        if (!found)
-            ++i;
-    }
-    if (found)
-        return int(i);
-    else
-        return -1;
+  bool found = false;
+  size_t i = 0;
+  while ( !found && i < mSegments.size() )
+  {
+    found = ( mSegments.at( i ).first() == mMesh.vertex( n0 ) && mSegments.at( i ).second() == mMesh.vertex( n1 ) ) ||
+            ( mSegments.at( i ).first() == mMesh.vertex( n1 ) && mSegments.at( i ).second() == mMesh.vertex( n0 ) );
+    if ( !found )
+      ++i;
+  }
+  if ( found )
+    return int( i );
+  else
+    return -1;
 }
 
-VertexPointer HdMeshEditor::vertex(double x, double y) const
+VertexPointer HdMeshEditor::vertex( double x, double y ) const
 {
-    return mMesh.vertex(x,y,tolerance());
+  return mMesh.vertex( x, y, tolerance() );
 }
 
 bool HdMeshEditor::generateMesh()
 {
-    if (!mCurrentMeshGenerator)
-        return false;
+  if ( !mCurrentMeshGenerator )
+    return false;
 
-    mCurrentMeshGenerator->clear();
-    bool result=mCurrentMeshGenerator->triangulateTIN(mMesh,mSegments);
+  mCurrentMeshGenerator->clear();
+  bool result = mCurrentMeshGenerator->triangulateTIN( mMesh, mSegments );
 
-    return result;
+  return result;
 
 }
 
 int HdMeshEditor::facesCount() const
 {
-    return mMesh.facesCount();
+  return mMesh.facesCount();
 }
 
-int HdMeshEditor::verticesCount() const {
-    return mMesh.verticesCount();
+int HdMeshEditor::verticesCount() const
+{
+  return mMesh.verticesCount();
 }
 
 int HdMeshEditor::segmentsCount() const
 {
-    return int(mSegments.size());
+  return int( mSegments.size() );
 }
 
 double HdMeshEditor::tolerance() const
 {
-    return mTolerance;
+  return mTolerance;
 }
 
-void HdMeshEditor::setTolerance(double tolerance)
+void HdMeshEditor::setTolerance( double tolerance )
 {
-    mTolerance = tolerance;
+  mTolerance = tolerance;
 }
 
 

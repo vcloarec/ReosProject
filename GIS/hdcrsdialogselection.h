@@ -20,22 +20,23 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 
 #include <qgsprojectionselectiontreewidget.h>
 
-namespace Ui {
-class HDCRSDialogSelection;
+namespace Ui
+{
+  class HDCRSDialogSelection;
 }
 
 class HdCRSDialogSelection : public QDialog
 {
     Q_OBJECT
 
-public:
-    explicit HdCRSDialogSelection(QWidget *parent = nullptr);
+  public:
+    explicit HdCRSDialogSelection( QWidget *parent = nullptr );
     ~HdCRSDialogSelection();
 
-    void setCrs(const QgsCoordinateReferenceSystem &crs);
+    void setCrs( const QgsCoordinateReferenceSystem &crs );
     QgsCoordinateReferenceSystem getCrs();
 
-private:
+  private:
     Ui::HDCRSDialogSelection *ui;
     QgsProjectionSelectionTreeWidget *crsWidget;
 };

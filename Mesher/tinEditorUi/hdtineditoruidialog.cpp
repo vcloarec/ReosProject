@@ -18,31 +18,31 @@ email                : vcloarec at gmail dot com / projetreos at gmail dot com
 
 #include "reostineditorgraphic.h"
 
-HdTinEditorUiDialog::HdTinEditorUiDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::HdTinEditorUiDialog),
-    toolbar(new QToolBar)
+HdTinEditorUiDialog::HdTinEditorUiDialog( QWidget *parent ) :
+  QDialog( parent ),
+  ui( new Ui::HdTinEditorUiDialog ),
+  toolbar( new QToolBar )
 {
-    ui->setupUi(this);
-    ui->layoutAction->addWidget(toolbar);
+  ui->setupUi( this );
+  ui->layoutAction->addWidget( toolbar );
 
-    ReosSettings settings;
-    restoreGeometry(settings.value(QStringLiteral("TinEditorDialog/geometry")).toByteArray());
+  ReosSettings settings;
+  restoreGeometry( settings.value( QStringLiteral( "TinEditorDialog/geometry" ) ).toByteArray() );
 
-    connect(this,&QDialog::rejected,this,&HdTinEditorUiDialog::closed);
-    connect(this,&QDialog::rejected,this,&HdTinEditorUiDialog::updateSettings);
+  connect( this, &QDialog::rejected, this, &HdTinEditorUiDialog::closed );
+  connect( this, &QDialog::rejected, this, &HdTinEditorUiDialog::updateSettings );
 }
 
 HdTinEditorUiDialog::~HdTinEditorUiDialog()
 {
-    updateSettings();
-    delete ui;
+  updateSettings();
+  delete ui;
 }
 
 
-void HdTinEditorUiDialog::setZSpecifierWidet(QWidget *widget)
+void HdTinEditorUiDialog::setZSpecifierWidet( QWidget *widget )
 {
-    ui->zSpecifierLayout->addWidget(widget);
+  ui->zSpecifierLayout->addWidget( widget );
 }
 
 void HdTinEditorUiDialog::setFocus()
@@ -55,18 +55,18 @@ void HdTinEditorUiDialog::setFocus()
 
 bool HdTinEditorUiDialog::autoUpdate() const
 {
-    return ui->checkBoxAutoUpdate->isChecked();
+  return ui->checkBoxAutoUpdate->isChecked();
 }
 
 void HdTinEditorUiDialog::updateSettings()
 {
-    ReosSettings settings;
-    settings.setValue(QStringLiteral("TinEditorDialog/geometry"),saveGeometry());
+  ReosSettings settings;
+  settings.setValue( QStringLiteral( "TinEditorDialog/geometry" ), saveGeometry() );
 }
 
-void HdTinEditorUiDialog::setActions(const QList<QAction *> &actions)
+void HdTinEditorUiDialog::setActions( const QList<QAction *> &actions )
 {
-    for (auto a:actions)
-        toolbar->addAction(a);
+  for ( auto a : actions )
+    toolbar->addAction( a );
 }
 

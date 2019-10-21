@@ -30,47 +30,48 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #include "provider/meshdataprovider.h"
 #include "tinEditorUi/reostineditorgraphic.h"
 
-namespace Ui {
-class MainWindow;
+namespace Ui
+{
+  class MainWindow;
 }
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
-public:
-    explicit MainWindow(QWidget *parent = nullptr);
+  public:
+    explicit MainWindow( QWidget *parent = nullptr );
     ~MainWindow();
 
-private slots:
-    void showTinEditor(bool b)
+  private slots:
+    void showTinEditor( bool b )
     {
-        if(b)
-            tinEditor->showWidget();
-        else
-            tinEditor->hideWidget();
+      if ( b )
+        tinEditor->showWidget();
+      else
+        tinEditor->hideWidget();
     }
 
     void tinEditorClosed()
     {
-        actionTinEditor->setChecked(false);
+      actionTinEditor->setChecked( false );
     }
 
-    void activeUndoStack(QUndoStack *undoStack)
+    void activeUndoStack( QUndoStack *undoStack )
     {
-        if (!mUndoGroup->stacks().contains(undoStack))
-        {
-            mUndoGroup->addStack(undoStack);
-        }
-        mUndoGroup->setActiveStack(undoStack);
+      if ( !mUndoGroup->stacks().contains( undoStack ) )
+      {
+        mUndoGroup->addStack( undoStack );
+      }
+      mUndoGroup->setActiveStack( undoStack );
     }
 
-private:
+  private:
     Ui::MainWindow *ui;
     ReosTinEditorUi *tinEditor;
-    QUndoGroup* mUndoGroup;
+    QUndoGroup *mUndoGroup;
 
-    QAction* actionTinEditor;
+    QAction *actionTinEditor;
 };
 
 #endif // MAINWINDOW_H

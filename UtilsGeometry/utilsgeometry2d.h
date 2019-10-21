@@ -22,11 +22,11 @@ email                : vcloarec at gmail dot com / projetreos at gmail dot com
 
 class intersect2D
 {
-public:
+  public:
 
     //source: http://www.faqs.org/faqs/graphics/algorithms-faq/
 
-    intersect2D(QPointF S1p1, QPointF S1p2, QPointF S2p1, QPointF S2p2);
+    intersect2D( QPointF S1p1, QPointF S1p2, QPointF S2p1, QPointF S2p2 );
     bool isIntersectSegmentExist();
 
     bool isIntersectLineExist();
@@ -36,7 +36,7 @@ public:
     double placementSegment1();
     double placementSegment2();
 
-private:
+  private:
     double denominateur;
     double numerateur_r;
     double numerateur_s;

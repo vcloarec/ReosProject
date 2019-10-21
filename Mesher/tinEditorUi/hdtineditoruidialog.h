@@ -24,64 +24,66 @@ email                : vcloarec at gmail dot com / projetreos at gmail dot com
 
 class ReosTinEditorUi;
 
-namespace Ui {
-class HdTinEditorUiDialog;
+namespace Ui
+{
+  class HdTinEditorUiDialog;
 }
 
 class HdTinEditorUiDialog : public QDialog
 {
     Q_OBJECT
 
-public:
+  public:
 
-    explicit HdTinEditorUiDialog(QWidget *parent = nullptr);
+    explicit HdTinEditorUiDialog( QWidget *parent = nullptr );
     ~HdTinEditorUiDialog() override;
 
-    void setActions(const QList<QAction*> &actions);
+    void setActions( const QList<QAction *> &actions );
 
-    void setZSpecifierWidet(QWidget *widget);
+    void setZSpecifierWidet( QWidget *widget );
 
     void setFocus();
 
     bool autoUpdate() const;
 
 
-signals :
+  signals :
     void closed();
     void escapePressed();
 
-public slots:
+  public slots:
     void show()
     {
-        if (isVisible())
-            return;
+      if ( isVisible() )
+        return;
 
-        QDialog::show();
+      QDialog::show();
 
-        ReosSettings settings;
-        restoreGeometry(settings.value(QStringLiteral("DelineateAutomaticDialog/geometry")).toByteArray());
+      ReosSettings settings;
+      restoreGeometry( settings.value( QStringLiteral( "DelineateAutomaticDialog/geometry" ) ).toByteArray() );
     }
 
-protected:
-    void keyPressEvent(QKeyEvent *event) override
+  protected:
+    void keyPressEvent( QKeyEvent *event ) override
     {
-        if (event->key()==Qt::Key_Escape)
-        {
-            event->ignore();
-            emit escapePressed();
-        }
-        else {
-            QDialog::keyPressEvent(event);
-        }
+      if ( event->key() == Qt::Key_Escape )
+      {
+        event->ignore();
+        emit escapePressed();
+      }
+      else
+      {
+        QDialog::keyPressEvent( event );
+      }
     }
 
-private slots:
+  private slots:
     void updateSettings();
 
-private:
+  private:
     Ui::HdTinEditorUiDialog *ui;
-    QToolBar* toolbar;
-    bool isClosed=true;
+    QToolBar *toolbar;
+    bool isClosed = true;
 
 
 };

@@ -25,19 +25,20 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include <qgsrasterlayerproperties.h>
 #include <qgsmapcanvas.h>
 
-namespace Ui {
-class HdRasterLayerPropertiesDialog;
+namespace Ui
+{
+  class HdRasterLayerPropertiesDialog;
 }
 
 class HdRasterLayerPropertiesDialog : public QDialog
 {
     Q_OBJECT
 
-public:
-    explicit HdRasterLayerPropertiesDialog(QgsRasterLayer * layer, QgsMapCanvas *canvas = nullptr);
+  public:
+    explicit HdRasterLayerPropertiesDialog( QgsRasterLayer *layer, QgsMapCanvas *canvas = nullptr );
     ~HdRasterLayerPropertiesDialog();
 
-private:
+  private:
     Ui::HdRasterLayerPropertiesDialog *ui;
 };
 

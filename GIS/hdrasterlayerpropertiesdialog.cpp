@@ -16,19 +16,19 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "hdrasterlayerpropertiesdialog.h"
 #include "ui_hdrasterlayerpropertiesdialog.h"
 
-HdRasterLayerPropertiesDialog::HdRasterLayerPropertiesDialog(QgsRasterLayer *layer,QgsMapCanvas *canvas) :
-    QDialog(canvas),
-    ui(new Ui::HdRasterLayerPropertiesDialog)
+HdRasterLayerPropertiesDialog::HdRasterLayerPropertiesDialog( QgsRasterLayer *layer, QgsMapCanvas *canvas ) :
+  QDialog( canvas ),
+  ui( new Ui::HdRasterLayerPropertiesDialog )
 {
-    ui->setupUi(this);
+  ui->setupUi( this );
 
-    QgsRasterLayerProperties *es=new QgsRasterLayerProperties(layer,canvas);
-    es->exec();
+  QgsRasterLayerProperties *es = new QgsRasterLayerProperties( layer, canvas );
+  es->exec();
 
 
 }
 
 HdRasterLayerPropertiesDialog::~HdRasterLayerPropertiesDialog()
 {
-    delete ui;
+  delete ui;
 }
