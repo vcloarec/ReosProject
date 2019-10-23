@@ -92,7 +92,8 @@ HEADERS += \
     ../Reos/quantity/reosarea.h \
     ../Reos/quantity/reosduration.h \
     ../Reos/quantity/reostime.h \
-    tinEditorUi/reosvertexzspecifierwidget.h
+    tinEditorUi/reosvertexzspecifierwidget.h \
+    ../icones/curseur.h
 
 
 FORMS += \
@@ -112,13 +113,15 @@ TRANSLATIONS +=../i18n/hydro_fr.ts
 
 RESOURCES += \
     ../icones/cursor/curseur.qrc \
-    ../icones/hdicone.qrc
+    ../icones/hdicone.qrc \
+    ../icones/symbology/symbology.qrc
 
 ######################### QGIG
 INCLUDEPATH +=../GIS/QGis_app/
 include(../GIS/ConfigQgis.pri); #comment to generate the linguist file
 
 #RC_FILE = ../cmn/icone/mesher.rc
+
 
 
 

@@ -15,5 +15,6 @@
         <file>selectedDependingVertex.png</file>
         <file>selectingDependingVertex.png</file>
         <file>unselectableDependingVertex.png</file>
+        <file>selectedZValue.png</file>
     </qresource>
 </RCC>

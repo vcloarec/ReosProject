@@ -37,7 +37,9 @@ QgsMapCanvas *ReosMap::getMapCanvas() const {return canvas_;}
 void ReosMap::setMapTool( ReosMapTool *tool )
 {
   if ( currentMapTool )
+  {
     disconnect( currentMapTool, &ReosMapTool::stop, this, &ReosMap::askUnsetMapTool );
+  }
   currentMapTool = tool;
   canvas_->setMapTool( tool );
   connect( currentMapTool, &ReosMapTool::stop, this, &ReosMap::askUnsetMapTool );

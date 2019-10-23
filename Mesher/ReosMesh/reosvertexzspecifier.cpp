@@ -199,10 +199,14 @@ void ReosVertexZSpecifierInterpolationFactory::setExtremitiesVertices( VertexPoi
 {
   mFirstExtremity = firstVertex;
   mSecondExtremity = secondVertex;
+  mAddedVertex.clear();
 }
 
 bool ReosVertexZSpecifierInterpolationFactory::IsCompatibleZSpecifier( const VertexPointer associatedVertex ) const
 {
+  if ( !mFirstExtremity || !mSecondExtremity )
+    return false;
+
   if ( mFirstExtremity->zSpecifier()->type() == ReosVertexZSpecifier::Type::VertexAndGap ||
        mFirstExtremity->zSpecifier()->type() == ReosVertexZSpecifier::Type::VertexAndSlope )
   {
@@ -352,6 +356,7 @@ void ReosVertexZSpecifierInterpolation::hasToBeRemove()
 {
   if ( mPreviousVertexInterpolation )
   {
+    mPreviousVertexInterpolation->zSpecifier()->zValue();//necessary to fill the cache with the z value;
     auto spec = static_cast<ReosVertexZSpecifierInterpolation *>( mPreviousVertexInterpolation->zSpecifier() );
     spec->mNextVertexInterpolation = nullptr;
     spec->changeSecondExtremity( mAssociatedVertex );
@@ -359,6 +364,7 @@ void ReosVertexZSpecifierInterpolation::hasToBeRemove()
 
   if ( mNextVertexInterpolation )
   {
+    mNextVertexInterpolation->zSpecifier()->zValue();//necessary to fill the cache with the z value;
     auto spec = static_cast<ReosVertexZSpecifierInterpolation *>( mNextVertexInterpolation->zSpecifier() );
     spec->mPreviousVertexInterpolation = nullptr;
     spec->changeFirstExtremity( mAssociatedVertex );
@@ -440,6 +446,7 @@ std::list<VertexPointer> ReosVertexZSpecifierInterpolation::verticesList() const
 
 std::unique_ptr<ReosVertexZSpecifier> ReosVertexZSpecifierInterpolation::surrogateZSpecifier( VertexPointer vertexRemoved )
 {
+  //the removed vertex is an extremity and this interpolated vertex is the neighbor of this extremity
   if ( ( vertexRemoved == mFirstExtremity && nullptr == mPreviousVertexInterpolation )
        || ( vertexRemoved == mSecondExtremity && nullptr == mNextVertexInterpolation ) )
   {

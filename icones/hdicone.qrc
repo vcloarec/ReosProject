@@ -162,6 +162,7 @@
         <file>toolbar/ZSpecifierVertexAndGap.png</file>
         <file>toolbar/ZSpecifierVertexAndSlope.png</file>
         <file>toolbar/ZSpecifierSelectDependingVertex.png</file>
+        <file>toolbar/ZSpecifierInterpolator.png</file>
     </qresource>
     <qresource prefix="/Qgis">
         <file>Qgis/labels.png</file>

@@ -16,13 +16,13 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #include "reosmapmeshitem.h"
 
 
-
 ReosMapMeshEditorItemDomain::ReosMapMeshEditorItemDomain( QObject *parent, QgsMapCanvas *canvas ):
   ReosMapItemDomain( parent, canvas ),
   verticesDomain( new ReosMapItemDomain( this, canvas ) ),
   segmentsDomain( new ReosMapItemDomain( this, canvas ) )
 {
-  verticesDomain->setZValue( zValue() + 2 );
+  verticesDomain->setZValue( zValue() + 10 );
+  ReosMeshItemVertex::setReferenceSymbology( &symbologyReference );
   segmentsDomain->setZValue( zValue() + 1 );
 }
 
@@ -68,11 +68,10 @@ ReosMeshItemVertex *ReosMapMeshEditorItemDomain::vertex( const QRectF &rect ) co
   return static_cast<ReosMeshItemVertex *>( verticesDomain->item( rect ) );
 }
 
-
+QPixmap *ReosMeshItemVertex::symbologyReference = nullptr;
 
 ReosMeshItemVertex::ReosMeshItemVertex( const QPointF &mapPosition, QgsMapCanvas *canvas ): ReosMapItemNode( mapPosition, canvas )
 {
-
   setBrush( QBrush( Qt::green ) );
   setSize( 6 );
 }
@@ -111,6 +110,20 @@ void ReosMeshItemVertex::removeSegment( ReosMeshItemSegment *seg )
 {
   ReosMapItemNode::removeSegment( seg );
 
+}
+
+void ReosMeshItemVertex::setReferenceSymbology( QPixmap *pixmap )
+{
+  symbologyReference = pixmap;
+}
+
+
+void ReosMeshItemVertex::paint( QPainter *painter )
+{
+  ReosMapItemNode::paint( painter );
+
+  if ( symbologyReference && mIsReference )
+    painter->drawPixmap( QRectF( -12, -12, 24, 24 ), ( *symbologyReference ), QRectF( 0, 0, 24, 24 ) );
 }
 
 

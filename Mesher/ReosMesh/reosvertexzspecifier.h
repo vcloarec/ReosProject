@@ -41,7 +41,7 @@ class ReosVertexZSpecifier
 
     /////////////////////////////////////////////////////////
     /// \brief surrogateZSpecifier
-    /// To use when a linked vertex will be removed to have a surrogate specifier not linked wih the removed vertex
+    /// To use when a linked vertex will be removed. Generate a surrogate specifier not linked wih the removed vertex
     /// \return a new Z specifier which id associated with mAssociatedVertex. This method supposes that this current specifier will be deleted.
     ///
     virtual std::unique_ptr<ReosVertexZSpecifier> surrogateZSpecifier( VertexPointer = nullptr );
@@ -285,8 +285,6 @@ class ReosVertexZSpecifierInterpolation: public ReosVertexZSpecifier
     void calculateZValue() const override;
     std::list<VertexPointer> verticesList() const;
 
-
-
     // VertexZSpecifier interface
   public:
     std::unique_ptr<ReosVertexZSpecifier> surrogateZSpecifier( VertexPointer vertexRemoved ) override;
@@ -304,10 +302,15 @@ class ReosVertexZSpecifierInterpolationFactory: public ReosVertexZSpecifierFacto
     bool IsCompatibleZSpecifier( const VertexPointer associatedVertex ) const override;
     std::unique_ptr<ReosVertexZSpecifier> createZSpecifier( const VertexPointer associatedVertex ) const override;
 
+    VertexPointer firstExtremity() const {return mFirstExtremity;}
+    VertexPointer secondExtremity() const {return mSecondExtremity;}
+
+    const std::list<VertexPointer> &addedVertex() const {return mAddedVertex;}
+
   protected:
 
-    VertexPointer mFirstExtremity;
-    VertexPointer mSecondExtremity;
+    VertexPointer mFirstExtremity = nullptr;
+    VertexPointer mSecondExtremity = nullptr;
 
     mutable std::list<VertexPointer> mAddedVertex;
 };

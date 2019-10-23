@@ -209,8 +209,9 @@ VertexPointer ReosTinEditorUi::addRealWorldVertex( const QPointF &mapPoint )
     if ( !ok )
       return nullptr;
     vert = mTIN->addVertex( p.x(), p.y() );
-    mZSpecifierWidget->assignZSpecifier( vert );
     addMapVertex( mapPoint, vert );
+    mZSpecifierWidget->assignZSpecifier( vert );
+
 
   }
 
@@ -244,6 +245,7 @@ void ReosTinEditorUi::doCommand( ReosTinUndoCommandNewVertex *command )
 void ReosTinEditorUi::undoCommand( ReosTinUndoCommandNewVertex *command )
 {
   VertexPointer rwv = realWorldVertex( command->mMapPoint );
+  vertexHasToBeRemoved( rwv );
   removeVertex( rwv );
 }
 
@@ -300,7 +302,10 @@ void ReosTinEditorUi::undoCommand( ReosTinUndoCommandNewSegmentWithNewSecondVert
 //    }
 
   //remove the secondVertex
-  removeVertex( realWorldVertex( command->mMapPointSecond ) );
+  VertexPointer rwv = realWorldVertex( command->mMapPointSecond );
+  vertexHasToBeRemoved( rwv );
+  removeVertex( rwv );
+
 
 
 }
@@ -336,6 +341,7 @@ void ReosTinEditorUi::doCommand( ReosTinUndoCommandRemoveVertex *command )
   {
     auto neighboursVertices = mTIN->hardNeighbours( vertex );
     auto graphicVertex = static_cast<ReosMeshItemVertex *>( vertex->graphicPointer() );
+    vertexHasToBeRemoved( vertex );
     mTIN->removeVertex( vertex );
     mDomain->removeVertex( graphicVertex );
     for ( auto n : neighboursVertices )
@@ -442,6 +448,7 @@ void ReosTinEditorUi::stopNewVertex()
 void ReosTinEditorUi::startRemoveVertex()
 {
   mMap->setMapTool( mapToolRemoveVertex );
+  stopVertexEntry();
 }
 
 void ReosTinEditorUi::removeVertexFromRect( const QRectF &selectionZone )
@@ -539,6 +546,7 @@ void ReosTinEditorUi::stopNewHardLineSegment()
 void ReosTinEditorUi::startRemoveSegment()
 {
   mMap->setMapTool( mapToolRemoveSegment );
+  stopVertexEntry();
 }
 
 //QList<PointAndNeighbours> ReosTinEditorUi::addSegment(ReosMeshItemVertex *v1, ReosMeshItemVertex *v2)

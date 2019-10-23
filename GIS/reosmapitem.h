@@ -129,7 +129,6 @@ class ReosMapItemNode : public ReosMapItem
 
 class ReosMapItemSegment : public ReosMapItem
 {
-
   public:
 
     bool isOtherExtremity( ReosMapItemNode *current, ReosMapItemNode *other ) const
@@ -209,23 +208,41 @@ class ReosMapItemSegment : public ReosMapItem
 class ReosMapItemPolyline: public ReosMapItem
 {
   public:
+    //! Constructor with a QGis polyline
     ReosMapItemPolyline( QgsMapCanvas *canvas, const QgsPolylineXY &polyline );
 
+    //!Constructor with a Qt polyline
     ReosMapItemPolyline( QgsMapCanvas *canvas, const QPolygonF &polyline );
 
+    //! destructor
+    ~ReosMapItemPolyline() override {}
+
+    //!set the polyline with a Qt polyline
     void setPolyline( const QPolygonF &polyline );
+    //!set the polyline with a QGis polyline
     void setPolyline( const QgsPolylineXY &poly );
+    //!return the polyline in the view coordinate
     QPolygonF viewPolyline() const {return mViewPolyline;}
-
-    virtual void updatePosition() override;
-
+    //!return the polyline in the map coordinates
     QPolygonF polyline() const {return mMapPolyline;}
 
+    //! update the position of the polyline in the view coordinate
+    virtual void updatePosition() override;
+
+
+    //! set the pen of the polyline
     void setPen( const QPen &p ) {mPen = p;}
+    //! set the color of the pen
     void setColorPen( const QColor &c ) {mPen.setColor( c );}
 
+    //! return the (x,y) in map coordinats of the vertex at position i. Caller has the responsability to check if i less than the vertex count
     const QPointF &vertex( int i ) const {return mMapPolyline.at( i );}
+    //! return the vertices count in the polyline
     int vertexCount() const {return mMapPolyline.count();}
+    //! add a vertex at the end of the polyline
+    void addVertex( const QPointF &point );
+    //! insert a vertyex at the position i. if position is greater than the vertices count, the vertex is added at the end of the polyline
+    void insertVertex( const QPoint &point, int position );
 
     void setMapAndViewPoint( int i, const QPointF &mapPoint );
 
@@ -234,9 +251,16 @@ class ReosMapItemPolyline: public ReosMapItem
 
     //////////////////////////////////////////////////////
     /// method to handle selected vertex
-    void selectVertex( const QgsRectangle &rect );
-    void deselectVertex();
+
+    //! set selected all the vertices in the rect
+    void selectVertices( const QgsRectangle &rect );
+    //! deselected all the selected vertices
+    void deselectVertices();
+
+    //! return true if the vertex at position i is selected
     bool isVertexSelected( int i ) const;
+
+    //! return a list of the selected vertices
     const QList<int> &selectedVertices() const;
 
     QRectF boundingRect() const override

@@ -183,6 +183,39 @@ TEST_F( VertexZSpecifierTesting, selfInterpolateVertex )
 
 }
 
+TEST_F( VertexZSpecifierTesting, removeInterpolateVertices )
+{
+  double z1 = 7;
+  simpleZSpecifierFactory.setZValue( z1 );
+  vert1.setZSpecifier( simpleZSpecifierFactory );
+
+  double z3 = 7;
+  simpleZSpecifierFactory.setZValue( z3 );
+  vert3.setZSpecifier( simpleZSpecifierFactory );
+
+  std::vector<VertexBasic *> verticesInterpolated;
+  double distance = vert1.distanceFrom( vert3 );
+  size_t count = 3;
+  double step = distance / ( count + 1 );
+
+  interpolationZSpecifierFactory.setExtremitiesVertices( &vert1, &vert3 );
+
+  for ( size_t i = 0; i < count; ++i )
+  {
+    verticesInterpolated.push_back( new VertexBasic( 0, ( i + 1 )*step ) );
+    verticesInterpolated[i]->setZSpecifier( interpolationZSpecifierFactory );
+  }
+
+  EXPECT_TRUE( equality( verticesInterpolated[1]->z(), 7 ) );
+
+  verticesInterpolated[0]->hasToBeRemoved();
+  delete verticesInterpolated[0];
+
+  double z = verticesInterpolated[1]->z();
+  EXPECT_TRUE( equality( verticesInterpolated[1]->z(), 7 ) );
+}
+
+
 TEST_F( VertexZSpecifierTesting, manyInterpolateVertices )
 {
 
@@ -190,30 +223,39 @@ TEST_F( VertexZSpecifierTesting, manyInterpolateVertices )
   simpleZSpecifierFactory.setZValue( z1 );
   vert1.setZSpecifier( simpleZSpecifierFactory );
 
-  double z2 = 18;
-  simpleZSpecifierFactory.setZValue( z2 );
+  double z3 = 18;
+  simpleZSpecifierFactory.setZValue( z3 );
   vert3.setZSpecifier( simpleZSpecifierFactory );
 
   double distance = vert1.distanceFrom( vert3 );
 
 
-  std::vector<std::unique_ptr<VertexBasic>> verticesInterpolated;
+  std::vector<VertexBasic *> verticesInterpolated;
   size_t count = 9;
   double step = distance / ( count + 1 );
-  double gapPerStep = ( z2 - z1 ) / ( count + 1 );
+  double gapPerStep = ( z3 - z1 ) / ( count + 1 );
 
   interpolationZSpecifierFactory.setExtremitiesVertices( &vert1, &vert3 );
 
   for ( size_t i = 0; i < count; ++i )
   {
-    verticesInterpolated.push_back( std::make_unique<VertexBasic>( 0, ( i + 1 )*step ) );
+    verticesInterpolated.push_back( new VertexBasic( 0, ( i + 1 )*step ) );
     verticesInterpolated[i]->setZSpecifier( interpolationZSpecifierFactory );
   }
+
+
+  //******************************************
+  /*
+   *     Vert1  [0]    [1]    [2]    [3]    [4]    [5]    [6]    [7]    [8]    vert3
+   *Z      4     I      I      I      I      I      I      I      I      I       18
+   *Dist     0.5   0.5    0.5    0.5    0.5    0.5    0.5    0.5    0.5     0.5
+   *Zi          5.4    6.8    8.2    9.6    11     12.4   13.8   15.2   16.6
+   * */
 
   //add a gap specifier from interpolated point
   auto vert = VertexBasic( 1, 1 );
   gapZSpecifierFactory.setGap( -1.1 );
-  gapZSpecifierFactory.setOtherVertex( verticesInterpolated[5].get() );
+  gapZSpecifierFactory.setOtherVertex( verticesInterpolated[5] );
   vert.setZSpecifier( gapZSpecifierFactory );
   EXPECT_TRUE( equality( vert.z(), 11.3 ) );
 
@@ -225,23 +267,47 @@ TEST_F( VertexZSpecifierTesting, manyInterpolateVertices )
   //move one of the point which interpolation is base on
   vert1.setPosition( 0, -5 );
 
+  //******************************************
+  /*
+   *     Vert1  [0]    [1]    [2]    [3]    [4]    [5]    [6]    [7]    [8]    vert3
+   *Z      4     I      I      I      I      I      I      I      I      I       18
+   *Dist     5.5   0.5    0.5    0.5    0.5    0.5    0.5    0.5    0.5     0.5
+   *Zi
+   * */
+
   double totalGap = vert3.z() - vert1.z();
   distance = vert1.distanceFrom( vert3 );
   for ( size_t i = 0; i < count; ++i )
   {
-    double di = vert1.distanceFrom( ( *verticesInterpolated[i].get() ) );
+    double di = vert1.distanceFrom( ( *verticesInterpolated[i] ) );
     double zi = di / distance * totalGap + vert1.z();
     EXPECT_TRUE( equality( verticesInterpolated[i]->z(), zi ) );
   }
 
+
   //replace the point which interpolation is base on
   vert1.setPosition( 0, 0 );
+  //******************************************
+  /*
+   *     Vert1  [0]    [1]    [2]    [3]    [4]    [5]    [6]    [7]    [8]    vert3
+   *Z      4     I      I      I      I      I      I      I      I      I       18
+   *Dist     0.5   0.5    0.5    0.5    0.5    0.5    0.5    0.5    0.5     0.5
+   *Zi          5.4    6.8    8.2    9.6    11     12.4   13.8   15.2   16.6
+   * */
 
   EXPECT_TRUE( equality( vert.z(), 11.3 ) );
 
   //change the specifier of one interpolated point
   simpleZSpecifierFactory.setZValue( -8 );
   verticesInterpolated[5]->setZSpecifier( simpleZSpecifierFactory );
+
+  //******************************************
+  /*
+   *     Vert1  [0]    [1]    [2]    [3]    [4]    [5]    [6]    [7]    [8]    vert3
+   *Z      4     I      I      I      I      I     -8      I      I      I      18
+   *Dist     0.5   0.5    0.5    0.5    0.5    0.5    0.5    0.5    0.5     0.5
+   *Zi          2.0    0.0   -2.0   -4.0   -6.0          -1.5    5.0    11.5
+   * */
 
   EXPECT_TRUE( equality( verticesInterpolated[2]->z(), -2 ) );
   EXPECT_TRUE( equality( verticesInterpolated[8]->z(), 11.5 ) );
@@ -252,6 +318,15 @@ TEST_F( VertexZSpecifierTesting, manyInterpolateVertices )
   simpleZSpecifierFactory.setZValue( 24 );
   vert3.setZSpecifier( simpleZSpecifierFactory );
 
+  //******************************************
+  /*
+   *     Vert1  [0]    [1]    [2]    [3]    [4]    [5]    [6]    [7]    [8]    vert3
+   *Z      10    I      I      I      I      I     -8      I      I      I     24
+   *Dist     0.5   0.5    0.5    0.5    0.5    0.5    0.5    0.5    0.5     0.5
+   *Zi          7.0    4.0    1.0  -2.0    -5.0           0.0    8.0   16.0
+   * */
+
+
   EXPECT_TRUE( equality( verticesInterpolated[2]->z(), 1 ) );
   EXPECT_TRUE( equality( verticesInterpolated[8]->z(), 16 ) );
 
@@ -259,18 +334,56 @@ TEST_F( VertexZSpecifierTesting, manyInterpolateVertices )
   //remove one extremity
   vert1.hasToBeRemoved();
   simpleZSpecifierFactory.setZValue( 7 );
-  vert3.setZSpecifier( simpleZSpecifierFactory );
+  //vert3.setZSpecifier( simpleZSpecifierFactory );
   verticesInterpolated[5]->setZSpecifier( simpleZSpecifierFactory );
 
+  //******************************************
+  /*
+   *            [0]    [1]    [2]    [3]    [4]    [5]    [6]    [7]    [8]    vert3
+   *Z           7.0     I      I      I      I      7      I      I      I      24
+   *Dist           0.5    0.5    0.5    0.5    0.5    0.5    0.5    0.5     0.5
+   *Zi                 7.0    7.0    7.0    7.0          11.25  15.5   19.75
+   * */
+
+  EXPECT_TRUE( equality( verticesInterpolated[8]->z(), 19.75 ) ) ;
   EXPECT_TRUE( equality( verticesInterpolated[2]->z(), 7 ) );
 
   //compatibility with combinaison with new gapAndVertexZSpecifier
-  gapZSpecifierFactory.setOtherVertex( verticesInterpolated[2].get() );
+  gapZSpecifierFactory.setOtherVertex( verticesInterpolated[2] );
   EXPECT_FALSE( verticesInterpolated[3]->isSpecifierIsCompatible( gapZSpecifierFactory ) );
   EXPECT_FALSE( verticesInterpolated[4]->isSpecifierIsCompatible( gapZSpecifierFactory ) );
   EXPECT_FALSE( verticesInterpolated[5]->isSpecifierIsCompatible( gapZSpecifierFactory ) ); //is not a interpolated point anymore
-  EXPECT_TRUE( verticesInterpolated[6]->isSpecifierIsCompatible( gapZSpecifierFactory ) ); //a interpolaed point that doesn't depend from the sames vertices ast the [2]
+  EXPECT_TRUE( verticesInterpolated[6]->isSpecifierIsCompatible( gapZSpecifierFactory ) ); //a interpolated point that doesn't depend from the sames vertices ast the [2]
   EXPECT_TRUE( vert.isSpecifierIsCompatible( gapZSpecifierFactory ) );
+
+  //remove one interplated point
+  verticesInterpolated[7]->hasToBeRemoved();
+  delete verticesInterpolated[7];
+  simpleZSpecifierFactory.setZValue( 7 );
+  vert3.setZSpecifier( simpleZSpecifierFactory );
+  //******************************************
+  /*
+   *            [0]    [1]    [2]    [3]    [4]    [5]    [6]    [7]    [8]    vert3
+   *Z           7.0     I      I      I      I      7    11.25         19.75     7
+   *Dist           0.5    0.5    0.5    0.5    0.5    0.5    0.5    0.5     0.5
+   *Zi                 7.0    7.0    7.0    7.0            7             7
+   * */
+
+
+  EXPECT_TRUE( equality( verticesInterpolated[8]->z(), 19.75 ) );
+
+  verticesInterpolated[6]->hasToBeRemoved();
+  delete verticesInterpolated[6];
+  //******************************************
+  /*
+   *            [0]    [1]    [2]    [3]    [4]    [5]    [6]    [7]    [8]    vert3
+   *Z           7.0     I      I      I      I      7                  19.75     7
+   *Dist           0.5    0.5    0.5    0.5    0.5    0.5    0.5    0.5     0.5
+   *Zi                 7.0    7.0    7.0    7.0                          7
+   * */
+
+  EXPECT_TRUE( equality( verticesInterpolated[8]->z(), 19.75 ) );
+
 
 }
 

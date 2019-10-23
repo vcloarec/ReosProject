@@ -13,7 +13,7 @@ It will be a part of the Reos project, a free and open sources solution dedicate
 - [x] add flip faces functionality
 - [x] Save/open TIN using UGRID format
 - [ ] add possibility to modify the Z value of vertices.
-- [ ] add tool to set automaticaly the Z value for the vertices.
+- [x] add tool to set automaticaly the Z value for the vertices.
 - [ ] Import points and lines from vector files or layers.
 - [ ] Move vertices.
 - [ ] Try to open a QGIS 3D map view and display the TIN when editing it in the 2D map view

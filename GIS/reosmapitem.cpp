@@ -157,6 +157,19 @@ void ReosMapItemPolyline::updatePosition()
   setPos( pview0 );
 }
 
+void ReosMapItemPolyline::addVertex( const QPointF &point )
+{
+  mMapPolyline.append( point );
+  updatePosition();
+}
+
+void ReosMapItemPolyline::insertVertex( const QPoint &point, int position )
+{
+  if ( position > mMapPolyline.count() )
+    position = mMapPolyline.count();
+  mMapPolyline.insert( position, point );
+}
+
 void ReosMapItemPolyline::setMapAndViewPoint( int i, const QPointF &mapPoint )
 {
   prepareGeometryChange();
@@ -182,7 +195,7 @@ void ReosMapItemPolyline::paint( QPainter *painter )
   painter->restore();
 }
 
-void ReosMapItemPolyline::selectVertex( const QgsRectangle &rect )
+void ReosMapItemPolyline::selectVertices( const QgsRectangle &rect )
 {
   mSelectedVertex.clear();
   QRectF rectF = rect.toRectF();
@@ -194,7 +207,7 @@ void ReosMapItemPolyline::selectVertex( const QgsRectangle &rect )
   update();
 }
 
-void ReosMapItemPolyline::deselectVertex()
+void ReosMapItemPolyline::deselectVertices()
 {
   mSelectedVertex.clear();
   update();
@@ -340,6 +353,5 @@ void ReosMapItemNode::paint( QPainter *painter )
   painter->setBrush( mBrush );
   painter->setPen( mPen );
   painter->drawEllipse( -mSize / 2, -mSize / 2, mSize, mSize );
-  painter->drawPixmap( QRect( -12, -12, 24, 24 ), QPixmap( "://toolbar/ZSpecifierSelectDependingVertex.png" ), QRect( 0, 0, 24, 24 ) );
   painter->restore();
 }

@@ -161,9 +161,8 @@ void ReosTin::removeVertex( VertexPointer vertex )
   if ( isOnHardLine( vertex ) )
     return;
 
-  //TinTriangulation::Vertex* vt=static_cast<TinTriangulation::Vertex*>(vertex);
+  vertex->hasToBeRemoved();
   auto vert = static_cast<TINVertex *>( vertex );
-  //triangulation.remove(vt->handle());
   triangulation.remove( vert->handle() );
 
 }

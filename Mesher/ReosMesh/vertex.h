@@ -95,7 +95,7 @@ class Face
     virtual void addVertex( VertexPointer vert ) = 0;
     virtual VertexPointer vertexPointer( int i ) const = 0;
     virtual int verticesCount() const = 0;
-    virtual void setNeighbor( int side, Face * ) {}
+    virtual void setNeighbor( int side, Face * ) {( void )side;}
     virtual bool isVertexContained( VertexPointer vertex ) const;
 
     std::vector<double> faceCentroid();

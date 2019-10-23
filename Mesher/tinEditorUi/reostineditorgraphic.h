@@ -281,6 +281,11 @@ class ReosTinEditorUi : public ReosModule
 
     void newCommand( QUndoCommand *command ) override;
 
+    void vertexHasToBeRemoved( VertexPointer vert )
+    {
+      mZSpecifierWidget->vertexHasToBeRemoved( vert );
+    }
+
 
   private: //attributes
     ReosMapMeshEditorItemDomain *mDomain;

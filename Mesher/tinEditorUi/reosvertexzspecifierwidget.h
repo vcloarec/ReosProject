@@ -28,11 +28,13 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 
 class ReosVertexZSpecifierEntryWidgetModel;
 
+static void setVertexReferenceText( ReosFormText *formText, VertexPointer vert );
 
 namespace Ui
 {
   class ReosVertexZSpecifierWidget;
 }
+
 
 class ReosVertexZSpecifierEntryWidget: public QWidget
 {
@@ -41,13 +43,13 @@ class ReosVertexZSpecifierEntryWidget: public QWidget
     virtual ~ReosVertexZSpecifierEntryWidget();
 
     virtual QIcon icon() const = 0;
-
     virtual ReosVertexZSpecifierFactory &factory() = 0;
+    virtual void assignZSpecifier( VertexPointer vert );
 
     virtual void start();
     virtual void stop();
 
-
+    virtual void vertexHasToBeRemoved( VertexPointer vertex ) {( void )vertex;}
 };
 
 class ReosVertexZSpecifierSimpleValueWidget: public ReosVertexZSpecifierEntryWidget
@@ -75,7 +77,6 @@ class ReosVertexZSpecifierSelectReferenceMapTool: public ReosMapToolSelection
     ReosVertexZSpecifierSelectReferenceMapTool( ReosMap *map, ReosMapMeshEditorItemDomain *domain );
 
     void start();
-
     void returnToPreviousMapTool();
 
     // QgsMapTool interface
@@ -99,17 +100,22 @@ class ReosVertexZSpecifierDependentOtherVertexWidget: public ReosVertexZSpecifie
 
     void init();
 
-    ReosVertexZSpecifierFactory &factory();
+    ReosVertexZSpecifierFactory &factory() override;
 
-    void start();
+    void start() override;
+    void stop() override;
 
-    void stop();
+    virtual void vertexHasToBeRemoved( VertexPointer vertex ) override
+    {
+      if ( vertex == dependentVertexFactory().otherVertex() )
+      {
+        clearVertexReference();
+      }
+    }
 
   private slots:
     void startSelectReference();
-
     void updateReferenceText();
-
     void zoneHasBeenSelected( const QRectF &rect );
 
     virtual void valueHasBeenEdited();
@@ -118,6 +124,9 @@ class ReosVertexZSpecifierDependentOtherVertexWidget: public ReosVertexZSpecifie
 
     virtual void setValueInFactory( double value ) = 0;
     virtual ReosFormParameterSimpleDouble *makeValueParameterForm( ReosForm *parentForm ) = 0;
+    void setVertexReference( ReosMeshItemVertex *vert );
+    void clearVertexReference();
+    void hideVertexReference();
 
     virtual ReosVertexZSpecifierDependOnOtherVertexFactory &dependentVertexFactory() = 0;
     ReosForm *mValueForm;
@@ -132,6 +141,9 @@ class ReosVertexZSpecifierDependentOtherVertexWidget: public ReosVertexZSpecifie
     ReosVertexZSpecifierSelectReferenceMapTool *selectReferenceMapTool = nullptr;
 
 
+    // ReosVertexZSpecifierEntryWidget interface
+  public:
+    void assignZSpecifier( VertexPointer vert ) override;
 };
 
 class ReosVertexZSpecifierSlopeWidget: public ReosVertexZSpecifierDependentOtherVertexWidget
@@ -139,7 +151,6 @@ class ReosVertexZSpecifierSlopeWidget: public ReosVertexZSpecifierDependentOther
 
   public:
     ReosVertexZSpecifierSlopeWidget( ReosMap *map, ReosMapMeshEditorItemDomain *domain, QWidget *parent );
-
     QIcon icon() const override;
 
   private:
@@ -149,7 +160,6 @@ class ReosVertexZSpecifierSlopeWidget: public ReosVertexZSpecifierDependentOther
     virtual void setValueInFactory( double value ) override;
 
     ReosVertexZSpecifierOtherVertexAndSlopeFactory mFactory;
-
 };
 
 class ReosVertexZSpecifierGapWidget: public ReosVertexZSpecifierDependentOtherVertexWidget
@@ -157,7 +167,6 @@ class ReosVertexZSpecifierGapWidget: public ReosVertexZSpecifierDependentOtherVe
 
   public:
     ReosVertexZSpecifierGapWidget( ReosMap *map, ReosMapMeshEditorItemDomain *domain, QWidget *parent );
-
     QIcon icon() const override;
 
   private:
@@ -167,6 +176,81 @@ class ReosVertexZSpecifierGapWidget: public ReosVertexZSpecifierDependentOtherVe
     virtual void setValueInFactory( double value ) override;
 
     ReosVertexZSpecifierOtherVertexAndGapFactory mFactory;
+
+};
+
+class ReosVertexZSpecifierInterpolationWidget: public ReosVertexZSpecifierEntryWidget
+{
+    Q_OBJECT
+  public:
+    ReosVertexZSpecifierInterpolationWidget( ReosMap *map, ReosMapMeshEditorItemDomain *domain, QWidget *parent );
+    QIcon icon() const override;
+    ReosVertexZSpecifierFactory &factory() override;
+    void start() override;
+    void stop() override;
+
+    void assignZSpecifier( VertexPointer vert ) override;
+
+    virtual void vertexHasToBeRemoved( VertexPointer vertex ) override
+    {
+      if ( vertex == mFactory.firstExtremity() || vertex == mFactory.secondExtremity() )
+      {
+        clearExtremityReferences();
+      }
+    }
+
+  private slots:
+    void updateReferencesText();
+    void startSelectReferences()
+    {
+      clearExtremityReferences();
+      updateInterpolationLine();
+      mInterpolationLine->hide();
+      updateReferencesText();
+      selectReferenceMapTool->start();
+    }
+
+    void zoneHasBeenSelected( const QRectF &zone );
+
+  private:
+    void updateInterpolationLine();
+    void showExtremityReferences()
+    {
+      if ( mFactory.firstExtremity() )
+        static_cast<ReosMeshItemVertex *>( mFactory.firstExtremity()->graphicPointer() )->setReference( true );
+      if ( mFactory.secondExtremity() )
+        static_cast<ReosMeshItemVertex *>( mFactory.secondExtremity()->graphicPointer() )->setReference( true );
+    }
+    void clearExtremityReferences()
+    {
+      hideExtremityReferences();
+      mFactory.setExtremitiesVertices( nullptr, nullptr );
+    }
+
+    void hideExtremityReferences()
+    {
+      if ( mFactory.firstExtremity() )
+        static_cast<ReosMeshItemVertex *>( mFactory.firstExtremity()->graphicPointer() )->setReference( false );
+      if ( mFactory.secondExtremity() )
+        static_cast<ReosMeshItemVertex *>( mFactory.secondExtremity()->graphicPointer() )->setReference( false );
+    }
+
+    ReosForm *mForm;
+    ReosFormAction *mSelectReferenceAction;
+    ReosFormText *mFirstReferenceText;
+    ReosFormText *mSecondReferenceText;
+
+
+    ReosVertexZSpecifierInterpolationFactory mFactory;
+
+    //! line between the interpolated points
+    ReosMapItemPolyline *mInterpolationLine;
+
+    ReosMap *mMap;
+    ReosMapMeshEditorItemDomain *mDomain;
+
+    ReosVertexZSpecifierSelectReferenceMapTool *selectReferenceMapTool = nullptr;
+
 
 };
 
@@ -183,8 +267,14 @@ class ReosVertexZSpecifierWidget : public QWidget
     void assignZSpecifier( VertexPointer vert );
 
     void start();
-
     void stop();
+
+  public slots:
+    void vertexHasToBeRemoved( VertexPointer vert )
+    {
+      for ( auto e : mEntryWidgets )
+        e->vertexHasToBeRemoved( vert );
+    }
 
   private slots:
     void listViewClicked( QModelIndex index );

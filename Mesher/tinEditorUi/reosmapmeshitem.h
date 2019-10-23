@@ -39,7 +39,7 @@ class ReosMeshItemVertex: public ReosMapItemNode
 {
   public:
     ReosMeshItemVertex( const QPointF &mapPosition, QgsMapCanvas *canvas );
-    virtual ~ReosMeshItemVertex();
+    virtual ~ReosMeshItemVertex() override;
 
     void setRealWorldVertex( VertexPointer vertex );
     VertexPointer realWorldVertex() const;
@@ -50,6 +50,14 @@ class ReosMeshItemVertex: public ReosMapItemNode
     ReosMeshItemSegment *segment( ReosMeshItemVertex *otherVertex );
     void removeSegment( ReosMeshItemSegment *seg );
 
+    static void setReferenceSymbology( QPixmap *pixmap );
+
+    void setReference( bool b )
+    {
+      prepareGeometryChange();
+      mIsReference = b;
+    }
+
   private:
 
     ///////////////////////////////////////////////
@@ -58,8 +66,23 @@ class ReosMeshItemVertex: public ReosMapItemNode
     ///This solution is prefered to a hash or a map to provide a faster acces from the graphic vertex
     VertexPointer mRealWorldVertex = nullptr;
 
+    bool mIsReference = false;
 
+    static QPixmap *symbologyReference;
 
+    // QgsMapCanvasItem interface
+  protected:
+    void paint( QPainter *painter ) override;
+
+    // QGraphicsItem interface
+  public:
+    QRectF boundingRect() const override
+    {
+      if ( mIsReference )
+        return QRectF( -12, -12, 24, 24 );
+      else
+        return ReosMapItemNode::boundingRect();
+    }
 };
 
 
@@ -205,6 +228,8 @@ class ReosMapMeshEditorItemDomain: public ReosMapItemDomain
   private:
     ReosMapItemDomain *verticesDomain = nullptr;
     ReosMapItemDomain *segmentsDomain = nullptr;
+
+    QPixmap symbologyReference = QPixmap( "://referenceVertex.png" );
 
 };
 

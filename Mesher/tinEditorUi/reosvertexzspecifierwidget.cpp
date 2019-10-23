@@ -24,6 +24,7 @@ ReosVertexZSpecifierWidget::ReosVertexZSpecifierWidget( ReosMap *map, ReosMapMes
   addEntry( new ReosVertexZSpecifierSimpleValueWidget( this ) );
   addEntry( new ReosVertexZSpecifierSlopeWidget( map, domain, this ) );
   addEntry( new ReosVertexZSpecifierGapWidget( map, domain, this ) );
+  addEntry( new ReosVertexZSpecifierInterpolationWidget( map, domain, this ) );
 
   for ( auto entry : mEntryWidgets )
     entry->hide();
@@ -44,7 +45,7 @@ ReosVertexZSpecifierWidget::~ReosVertexZSpecifierWidget()
 void ReosVertexZSpecifierWidget::assignZSpecifier( VertexPointer vert )
 {
   if ( mCurrentEntryWidget )
-    vert->setZSpecifier( mCurrentEntryWidget->factory() );
+    mCurrentEntryWidget->assignZSpecifier( vert );
 }
 
 void ReosVertexZSpecifierWidget::start()
@@ -57,6 +58,8 @@ void ReosVertexZSpecifierWidget::start()
 void ReosVertexZSpecifierWidget::stop()
 {
   hide();
+  if ( mCurrentEntryWidget )
+    mCurrentEntryWidget->stop();
 }
 
 void ReosVertexZSpecifierWidget::listViewClicked( QModelIndex index )
@@ -88,6 +91,11 @@ ReosVertexZSpecifierEntryWidget::ReosVertexZSpecifierEntryWidget( QWidget *paren
 
 ReosVertexZSpecifierEntryWidget::~ReosVertexZSpecifierEntryWidget() {}
 
+void ReosVertexZSpecifierEntryWidget::assignZSpecifier( VertexPointer vert )
+{
+  vert->setZSpecifier( factory() );
+}
+
 void ReosVertexZSpecifierEntryWidget::start()
 {
   show();
@@ -116,6 +124,7 @@ void ReosVertexZSpecifierDependentOtherVertexWidget::init()
 
   mSelectReferenceAction = new ReosFormAction( referenceForm, QIcon( QPixmap( "://toolbar/ZSpecifierSelectDependingVertex.png" ) ), tr( "Select reference vertex" ) );
   mSelectReferenceAction->setCheckable( true );
+  new ReosFormText( referenceForm, tr( "Reference coordinates : " ) );
   mReferenceText = new ReosFormText( referenceForm, "" );
 
   mValueParameterForm = makeValueParameterForm( mValueForm );
@@ -144,9 +153,11 @@ void ReosVertexZSpecifierDependentOtherVertexWidget::start()
   updateReferenceText();
   show();
   if ( dependentVertexFactory().otherVertex() == nullptr )
-  {
     startSelectReference();
-  }
+  else
+    static_cast<ReosMeshItemVertex *>( dependentVertexFactory().otherVertex()->graphicPointer() )->setReference( true );
+
+
 }
 
 void ReosVertexZSpecifierDependentOtherVertexWidget::stop()
@@ -154,6 +165,7 @@ void ReosVertexZSpecifierDependentOtherVertexWidget::stop()
   hide();
   if ( mMap->getMaptool() == selectReferenceMapTool )
     selectReferenceMapTool->returnToPreviousMapTool();
+  hideVertexReference();
 }
 
 void ReosVertexZSpecifierDependentOtherVertexWidget::startSelectReference()
@@ -163,16 +175,7 @@ void ReosVertexZSpecifierDependentOtherVertexWidget::startSelectReference()
 
 void ReosVertexZSpecifierDependentOtherVertexWidget::updateReferenceText()
 {
-  if ( dependentVertexFactory().otherVertex() == nullptr )
-  {
-    mReferenceText->setText( tr( "no reference" ).prepend( "<b><font color=\"red\">" ).append( "</font></b>" ) );
-  }
-  else
-  {
-    mReferenceText->setText( tr( "Reference coordinates" ).append( QString( " : <font color=\"green\"><b>X= %1 , Y= %2</font></b>" ).
-                             arg( QString::number( dependentVertexFactory().otherVertex()->x(), 'f', 2 ) ).
-                             arg( QString::number( dependentVertexFactory().otherVertex()->y(), 'f', 2 ) ) ) );
-  }
+  setVertexReferenceText( mReferenceText, dependentVertexFactory().otherVertex() );
 }
 
 void ReosVertexZSpecifierDependentOtherVertexWidget::zoneHasBeenSelected( const QRectF &rect )
@@ -180,7 +183,7 @@ void ReosVertexZSpecifierDependentOtherVertexWidget::zoneHasBeenSelected( const 
   auto vert = mDomain->vertex( rect );
   if ( vert )
   {
-    dependentVertexFactory().setOtherVertex( vert->realWorldVertex() );
+    setVertexReference( vert );
     updateReferenceText();
     selectReferenceMapTool->returnToPreviousMapTool();
   }
@@ -189,6 +192,36 @@ void ReosVertexZSpecifierDependentOtherVertexWidget::zoneHasBeenSelected( const 
 void ReosVertexZSpecifierDependentOtherVertexWidget::valueHasBeenEdited()
 {
   setValueInFactory( mValueParameterForm->getValue() );
+}
+
+void ReosVertexZSpecifierDependentOtherVertexWidget::setVertexReference( ReosMeshItemVertex *vert )
+{
+  clearVertexReference();
+  dependentVertexFactory().setOtherVertex( vert->realWorldVertex() );
+  vert->setReference( true );
+}
+
+void ReosVertexZSpecifierDependentOtherVertexWidget::clearVertexReference()
+{
+  hideVertexReference();
+  dependentVertexFactory().setOtherVertex( nullptr );
+}
+
+void ReosVertexZSpecifierDependentOtherVertexWidget::hideVertexReference()
+{
+  if ( dependentVertexFactory().otherVertex() )
+    static_cast<ReosMeshItemVertex *>( dependentVertexFactory().otherVertex()->graphicPointer() )->setReference( false );
+}
+
+void ReosVertexZSpecifierDependentOtherVertexWidget::assignZSpecifier( VertexPointer vert )
+{
+  vert->setZSpecifier( factory() );
+  if ( mTakeNewVertexAsReference->getValue() )
+  {
+    if ( vert->graphicPointer() )
+      setVertexReference( static_cast<ReosMeshItemVertex *>( vert->graphicPointer() ) );
+  }
+
 }
 
 ReosVertexZSpecifierSimpleValueWidget::ReosVertexZSpecifierSimpleValueWidget( QWidget *parent ): ReosVertexZSpecifierEntryWidget( parent )
@@ -324,4 +357,144 @@ QVariant ReosVertexZSpecifierEntryWidgetModel::data( const QModelIndex &index, i
     return mEntriesList.at( index.row() )->icon();
 
   return QVariant();
+}
+
+
+
+ReosVertexZSpecifierInterpolationWidget::ReosVertexZSpecifierInterpolationWidget( ReosMap *map, ReosMapMeshEditorItemDomain *domain, QWidget *parent ):
+  ReosVertexZSpecifierEntryWidget( parent ), mMap( map ), mDomain( domain )
+{
+  mInterpolationLine = new ReosMapItemPolyline( map->getMapCanvas(), QPolygonF() );
+  mInterpolationLine->hide();
+
+  QPen interpolationLinePen( Qt::gray );
+  interpolationLinePen.setWidth( 3 );
+  interpolationLinePen.setStyle( Qt::DashDotLine );
+  mInterpolationLine->setPen( interpolationLinePen );
+  mInterpolationLine->setZValue( domain->zValue() + 5 );
+
+  mForm = new ReosForm( this );
+  mForm->setOrientation( Qt::Horizontal );
+
+  mSelectReferenceAction = new ReosFormAction( mForm,
+      QIcon( QPixmap( "://toolbar/ZSpecifierSelectDependingVertex.png" ) ),
+      tr( "Select extremity vertices" ) );
+  mSelectReferenceAction->setCheckable( true );
+  auto referencesForm = new ReosForm( mForm );
+  referencesForm->setOrientation( Qt::Vertical );
+
+  auto firstReferenceForm = new ReosForm( referencesForm );
+  firstReferenceForm->setOrientation( Qt::Horizontal );
+  new ReosFormText( firstReferenceForm, tr( "First extremity : " ) );
+  mFirstReferenceText = new ReosFormText( firstReferenceForm, "" );
+  referencesForm->addForm( firstReferenceForm );
+
+  auto secondReferenceForm = new ReosForm( referencesForm );
+  secondReferenceForm->setOrientation( Qt::Horizontal );
+  new ReosFormText( secondReferenceForm, tr( "Second extremity : " ) );
+  mSecondReferenceText = new ReosFormText( secondReferenceForm, "" );
+  referencesForm->addForm( secondReferenceForm );
+
+  mForm->addForm( referencesForm );
+
+  setLayout( new QHBoxLayout );
+  layout()->addWidget( mForm->getWidget() );
+
+  selectReferenceMapTool = new ReosVertexZSpecifierSelectReferenceMapTool( mMap, mDomain );
+  selectReferenceMapTool->setAction( mSelectReferenceAction->action() );
+
+  connect( mSelectReferenceAction->action(), &QAction::triggered, this, &ReosVertexZSpecifierInterpolationWidget::startSelectReferences );
+  connect( selectReferenceMapTool, &ReosMapToolSelection::zonalCanvasRect, this, &ReosVertexZSpecifierInterpolationWidget::zoneHasBeenSelected );
+}
+
+QIcon ReosVertexZSpecifierInterpolationWidget::icon() const
+{
+  return QIcon( QPixmap( "://toolbar/ZSpecifierInterpolator.png" ) );
+}
+
+ReosVertexZSpecifierFactory &ReosVertexZSpecifierInterpolationWidget::factory()
+{
+  return mFactory;
+}
+
+void ReosVertexZSpecifierInterpolationWidget::start()
+{
+  mInterpolationLine->show();
+  updateReferencesText();
+  show();
+  if ( !mFactory.firstExtremity() || !mFactory.secondExtremity() )
+    startSelectReferences();
+  showExtremityReferences();
+}
+
+void ReosVertexZSpecifierInterpolationWidget::stop()
+{
+  mInterpolationLine->hide();
+  hide();
+  if ( mMap->getMaptool() == selectReferenceMapTool )
+    selectReferenceMapTool->returnToPreviousMapTool();
+  hideExtremityReferences();
+}
+
+void ReosVertexZSpecifierInterpolationWidget::assignZSpecifier( VertexPointer vert )
+{
+  ReosVertexZSpecifierEntryWidget::assignZSpecifier( vert );
+  updateInterpolationLine();
+}
+
+void ReosVertexZSpecifierInterpolationWidget::updateReferencesText()
+{
+  setVertexReferenceText( mFirstReferenceText, mFactory.firstExtremity() );
+  setVertexReferenceText( mSecondReferenceText, mFactory.secondExtremity() );
+}
+
+void ReosVertexZSpecifierInterpolationWidget::zoneHasBeenSelected( const QRectF &zone )
+{
+  auto vert = mDomain->vertex( zone );
+  if ( vert )
+  {
+    if ( mFactory.firstExtremity() )
+    {
+      mFactory.setExtremitiesVertices( mFactory.firstExtremity(), vert->realWorldVertex() );
+      selectReferenceMapTool->returnToPreviousMapTool();
+      updateInterpolationLine();
+      mInterpolationLine->show();
+    }
+    else
+      mFactory.setExtremitiesVertices( vert->realWorldVertex(), nullptr );
+
+    updateReferencesText();
+    showExtremityReferences();
+  }
+}
+
+void ReosVertexZSpecifierInterpolationWidget::updateInterpolationLine()
+{
+  const std::list<VertexPointer> &addedVertex = mFactory.addedVertex();
+  QPolygonF points;
+  if ( mFactory.firstExtremity() && mFactory.secondExtremity() )
+  {
+    points.append( QPointF( mFactory.firstExtremity()->x(), mFactory.firstExtremity()->y() ) );
+    for ( auto v : addedVertex )
+    {
+      points.append( QPointF( v->x(), v->y() ) );
+    }
+    points.append( QPointF( mFactory.secondExtremity()->x(), mFactory.secondExtremity()->y() ) );
+  }
+
+  mInterpolationLine->setPolyline( points );
+}
+
+void setVertexReferenceText( ReosFormText *formText, VertexPointer vert )
+{
+  if ( vert == nullptr )
+  {
+    formText->setText( QObject::tr( "no reference" ).prepend( "<b><font color=\"red\">" ).append( "</font></b>" ) );
+  }
+  else
+  {
+    formText->setText( QString( "<font color=\"green\"><b>X= %1 , Y= %2</font></b>" ).
+                       arg( QString::number( vert->x(), 'f', 2 ) ).
+                       arg( QString::number( vert->y(), 'f', 2 ) ) ) ;
+  }
 }
