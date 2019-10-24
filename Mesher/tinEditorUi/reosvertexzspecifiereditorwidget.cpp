@@ -42,9 +42,15 @@ ReosVertexZSpecifierEditorWidget::~ReosVertexZSpecifierEditorWidget()
 
 void ReosVertexZSpecifierEditorWidget::setVertex( VertexPointer vertex )
 {
+  if ( mCurrentVertex )
+    static_cast<ReosMeshItemVertex *>( mCurrentVertex->graphicPointer() )->setCurrent( false );
+
+  mCurrentVertex = vertex;
+
   if ( !vertex )
     return;
-  mCurrentVertex = vertex;
+
+  static_cast<ReosMeshItemVertex *>( vertex->graphicPointer() )->setCurrent( true );
   ui->vertexReference->setText( vertexReferenceText( mCurrentVertex ) );
   setZSpecifierEditor( mCurrentVertex );
 }
@@ -54,9 +60,9 @@ void ReosVertexZSpecifierEditorWidget::currentEntryChanged( int index )
   for ( int i = 0; i < mEntryWidgets.count(); ++i )
   {
     if ( i == index )
-      mEntryWidgets.at( i )->show();
+      mEntryWidgets.at( i )->start();
     else
-      mEntryWidgets.at( i )->hide();
+      mEntryWidgets.at( i )->stop();
   }
 }
 

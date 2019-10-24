@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>referenceVertex.png</file>
+        <file>currentVertex.png</file>
     </qresource>
 </RCC>

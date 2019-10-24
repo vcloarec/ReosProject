@@ -51,11 +51,18 @@ class ReosMeshItemVertex: public ReosMapItemNode
     void removeSegment( ReosMeshItemSegment *seg );
 
     static void setReferenceSymbology( QPixmap *pixmap );
+    static void setCurrentSymbology( QPixmap *pixmap );
 
     void setReference( bool b )
     {
       prepareGeometryChange();
       mIsReference = b;
+    }
+
+    void setCurrent( bool b )
+    {
+      prepareGeometryChange();
+      mIsCurrent = b;
     }
 
   private:
@@ -67,8 +74,10 @@ class ReosMeshItemVertex: public ReosMapItemNode
     VertexPointer mRealWorldVertex = nullptr;
 
     bool mIsReference = false;
+    bool mIsCurrent = false;
 
     static QPixmap *symbologyReference;
+    static QPixmap *symbologyCurrent;
 
     // QgsMapCanvasItem interface
   protected:
@@ -80,6 +89,8 @@ class ReosMeshItemVertex: public ReosMapItemNode
     {
       if ( mIsReference )
         return QRectF( -12, -12, 24, 24 );
+      else if ( mIsCurrent )
+        return QRectF( -8, -8, 16, 16 );
       else
         return ReosMapItemNode::boundingRect();
     }
@@ -230,6 +241,7 @@ class ReosMapMeshEditorItemDomain: public ReosMapItemDomain
     ReosMapItemDomain *segmentsDomain = nullptr;
 
     QPixmap symbologyReference = QPixmap( "://referenceVertex.png" );
+    QPixmap symbologyCurrent = QPixmap( "://currentVertex.png" );
 
 };
 

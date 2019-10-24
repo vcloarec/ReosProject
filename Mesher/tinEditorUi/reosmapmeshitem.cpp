@@ -23,6 +23,7 @@ ReosMapMeshEditorItemDomain::ReosMapMeshEditorItemDomain( QObject *parent, QgsMa
 {
   verticesDomain->setZValue( zValue() + 10 );
   ReosMeshItemVertex::setReferenceSymbology( &symbologyReference );
+  ReosMeshItemVertex::setCurrentSymbology( &symbologyCurrent );
   segmentsDomain->setZValue( zValue() + 1 );
 }
 
@@ -69,6 +70,7 @@ ReosMeshItemVertex *ReosMapMeshEditorItemDomain::vertex( const QRectF &rect ) co
 }
 
 QPixmap *ReosMeshItemVertex::symbologyReference = nullptr;
+QPixmap *ReosMeshItemVertex::symbologyCurrent = nullptr;
 
 ReosMeshItemVertex::ReosMeshItemVertex( const QPointF &mapPosition, QgsMapCanvas *canvas ): ReosMapItemNode( mapPosition, canvas )
 {
@@ -117,6 +119,11 @@ void ReosMeshItemVertex::setReferenceSymbology( QPixmap *pixmap )
   symbologyReference = pixmap;
 }
 
+void ReosMeshItemVertex::setCurrentSymbology( QPixmap *pixmap )
+{
+  symbologyCurrent = pixmap;
+}
+
 
 void ReosMeshItemVertex::paint( QPainter *painter )
 {
@@ -124,6 +131,9 @@ void ReosMeshItemVertex::paint( QPainter *painter )
 
   if ( symbologyReference && mIsReference )
     painter->drawPixmap( QRectF( -12, -12, 24, 24 ), ( *symbologyReference ), QRectF( 0, 0, 24, 24 ) );
+
+  if ( symbologyCurrent && mIsCurrent )
+    painter->drawPixmap( QRectF( -8, -8, 16, 16 ), ( *symbologyCurrent ), QRectF( 0, 0, 16, 16 ) );
 }
 
 

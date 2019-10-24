@@ -21,6 +21,12 @@ class ReosVertexZSpecifierEditorWidget : public QDialog
   public slots:
     void setVertex( VertexPointer vertex );
 
+    void stop()
+    {
+      if ( mCurrentVertex )
+        static_cast<ReosMeshItemVertex *>( mCurrentVertex->graphicPointer() )->setCurrent( false );
+    }
+
   private slots:
     void currentEntryChanged( int index );
 
