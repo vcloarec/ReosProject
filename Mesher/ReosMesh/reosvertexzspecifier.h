@@ -39,6 +39,8 @@ class ReosVertexZSpecifier
     virtual void setDirty();
     virtual void hasToBeRemove();
 
+    VertexPointer associatedVertex() const {return mAssociatedVertex;}
+
     /////////////////////////////////////////////////////////
     /// \brief surrogateZSpecifier
     /// To use when a linked vertex will be removed. Generate a surrogate specifier not linked wih the removed vertex
@@ -167,6 +169,8 @@ class ReosVertexZSpecifierOtherVertexAndSlope : public ReosVertexZSpecifierDepen
     ReosVertexZSpecifierOtherVertexAndSlope( VertexPointer associatedVertex, VertexPointer otherVertex, double slope );
     ReosVertexZSpecifier *clone( VertexPointer associatedVertex ) const override;
 
+    double slope() const {return mSlope;}
+
   private:
     double mSlope;
 
@@ -201,6 +205,8 @@ class ReosVertexZSpecifierOtherVertexAndGap : public ReosVertexZSpecifierDependO
   public:
     ReosVertexZSpecifierOtherVertexAndGap( VertexPointer associatedVertex, VertexPointer otherVertex, double gap );
     ReosVertexZSpecifier *clone( VertexPointer associatedVertex ) const override;
+
+    double gap() const {return mGap;}
 
   private:
     double mGap;
@@ -268,6 +274,13 @@ class ReosVertexZSpecifierInterpolation: public ReosVertexZSpecifier
     /// \param vertexExtremety
     ///
     void setSecondExtremity( VertexPointer vertexExtremety );
+
+    ///////////////////////////////////////////////////////////////////////////////
+    /// \brief return the list of all the vertices in the interpolation with extremities
+    /// \param vertexExtremety
+    ///
+    std::list<VertexPointer> verticesList() const;
+
   private:
     VertexPointer mFirstExtremity = nullptr;
     VertexPointer mSecondExtremity = nullptr;
@@ -283,7 +296,6 @@ class ReosVertexZSpecifierInterpolation: public ReosVertexZSpecifier
 
   private:
     void calculateZValue() const override;
-    std::list<VertexPointer> verticesList() const;
 
     // VertexZSpecifier interface
   public:
@@ -299,20 +311,45 @@ class ReosVertexZSpecifierInterpolationFactory: public ReosVertexZSpecifierFacto
 
     void setExtremitiesVertices( VertexPointer firstVertex, VertexPointer secondVertex );
 
+    //* rebuild the factory elements to continue to interpolate with the existant vertex interpolation
+    // new interpolated vertexes will be positioned after vertex
+    void setInterpolatedVertex( VertexPointer vertex )
+    {
+      if ( !vertex && vertex->zSpecifier()->type() != ReosVertexZSpecifier::Type::Interpolator )
+        return;
+
+      auto spec = static_cast<ReosVertexZSpecifierInterpolation *>( vertex->zSpecifier() );
+      mInterpolatedVertices = spec->verticesList();
+      mFirstExtremity = mInterpolatedVertices.front();
+      mInterpolatedVertices.pop_front();
+      mSecondExtremity = mInterpolatedVertices.back();
+      mInterpolatedVertices.pop_back();
+
+      mInsertPosition = mInterpolatedVertices.begin();
+      while ( *mInsertPosition != vertex )
+        mInsertPosition++;
+
+      mInsertPosition++;
+
+      return;
+
+    }
     bool IsCompatibleZSpecifier( const VertexPointer associatedVertex ) const override;
     std::unique_ptr<ReosVertexZSpecifier> createZSpecifier( const VertexPointer associatedVertex ) const override;
 
     VertexPointer firstExtremity() const {return mFirstExtremity;}
     VertexPointer secondExtremity() const {return mSecondExtremity;}
 
-    const std::list<VertexPointer> &addedVertex() const {return mAddedVertex;}
+    const std::list<VertexPointer> &interpolatedVertices() const {return mInterpolatedVertices;}
+
 
   protected:
 
     VertexPointer mFirstExtremity = nullptr;
     VertexPointer mSecondExtremity = nullptr;
 
-    mutable std::list<VertexPointer> mAddedVertex;
+    mutable std::list<VertexPointer> mInterpolatedVertices;
+    std::list<VertexPointer>::iterator mInsertPosition;
 };
 
 class ReosVertexZSpecifierGeneralFactory: public ReosVertexZSpecifierFactory

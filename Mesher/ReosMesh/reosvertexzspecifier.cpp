@@ -197,9 +197,83 @@ ReosVertexZSpecifierInterpolationFactory::ReosVertexZSpecifierInterpolationFacto
 
 void ReosVertexZSpecifierInterpolationFactory::setExtremitiesVertices( VertexPointer firstVertex, VertexPointer secondVertex )
 {
+  mInterpolatedVertices.clear();
+  mInsertPosition = mInterpolatedVertices.begin();
+
+  if ( !firstVertex || !secondVertex )
+  {
+    mFirstExtremity = firstVertex;
+    mSecondExtremity = secondVertex;
+    return;
+  }
+
+  if ( firstVertex->zSpecifier()->type() == ReosVertexZSpecifier::Type::Interpolator &&
+       secondVertex->zSpecifier()->type() == ReosVertexZSpecifier::Type::Interpolator )
+  {
+    auto firstSpec = static_cast<ReosVertexZSpecifierInterpolation *>( firstVertex->zSpecifier() );
+    auto secondSpec = static_cast<ReosVertexZSpecifierInterpolation *>( secondVertex->zSpecifier() );
+
+    if ( firstSpec->nextVertexInInterpolation() == secondSpec->previousVertexInInterpolation() ||
+         secondSpec->nextVertexInInterpolation() == firstSpec->previousVertexInInterpolation() )
+      //the two extremity are folowing each other in the same interpolation
+      //--> the new interpolated Zspecifier will be part of the existant interpolation
+      //    the new specifier will be inserted after the first vertex in the list among firstvertex and secondVertex
+    {
+      //search wich vertex is the first
+      if ( firstSpec->previousVertexInInterpolation() == secondVertex )
+      {
+        firstVertex = secondVertex;
+        firstSpec = secondSpec;
+      }
+
+      //reconstruct the list of all interpolated vertices and extract the extremity
+      setInterpolatedVertex( firstVertex );
+
+      return;
+    }
+  }
+
+  if ( firstVertex->zSpecifier()->type() == ReosVertexZSpecifier::Type::Interpolator )
+  {
+    auto firstSpec = static_cast<ReosVertexZSpecifierInterpolation *>( firstVertex->zSpecifier() );
+
+    if ( firstSpec->firstExtremity() == secondVertex || firstSpec->secondExtremity() == secondVertex )
+      //the two extremity are folowing each other in the same interpolation and secondVertex is one of the extremity of the interpolation
+      //--> the new interpolated Zspecifier will be part of the existant interpolation
+      //    the new specifier will be inserted after or before the fisrtVertex depending on the direction of the interpolation
+    {
+      //reconstruct the list of all interpolated vertices and extract the extremity
+      setInterpolatedVertex( firstVertex );
+      if ( firstSpec->firstExtremity() == secondVertex )
+        mInsertPosition--;
+
+      return;
+    }
+  }
+
+  if ( secondVertex->zSpecifier()->type() == ReosVertexZSpecifier::Type::Interpolator )
+  {
+    auto secondSpec = static_cast<ReosVertexZSpecifierInterpolation *>( secondVertex->zSpecifier() );
+
+    if ( secondSpec->firstExtremity() == firstVertex || secondSpec->secondExtremity() == firstVertex )
+      //the two extremity are folowing each other in the same interpolation and fisrtVertex is one of the extremity of the interpolation
+      //--> the new interpolated Zspecifier will be part of the existant interpolation
+      //    the new specifier will be inserted after or before the fisrtVertex depending on the direction of the interpolation
+    {
+      //reconstruct the list of all interpolated vertices and extract the extremity
+
+      setInterpolatedVertex( secondVertex );
+      if ( secondSpec->firstExtremity() == firstVertex )
+        mInsertPosition--;
+
+      return;
+    }
+  }
+
+
   mFirstExtremity = firstVertex;
   mSecondExtremity = secondVertex;
-  mAddedVertex.clear();
+
 }
 
 bool ReosVertexZSpecifierInterpolationFactory::IsCompatibleZSpecifier( const VertexPointer associatedVertex ) const
@@ -235,13 +309,22 @@ std::unique_ptr<ReosVertexZSpecifier> ReosVertexZSpecifierInterpolationFactory::
   }
 
   VertexPointer previous = nullptr;
-  if ( ! mAddedVertex.empty() )
-    previous = mAddedVertex.back();
+  if ( mInsertPosition != mInterpolatedVertices.begin() )
+  {
+    auto it = mInsertPosition;
+    it--;
+    previous = *it;
+  }
 
+  VertexPointer next = nullptr;
+  if ( mInsertPosition != mInterpolatedVertices.end() )
+  {
+    next = ( *mInsertPosition );
+  }
 
-  auto spec = std::make_unique<ReosVertexZSpecifierInterpolation>( associatedVertex, mFirstExtremity, mSecondExtremity, previous, nullptr );
+  auto spec = std::make_unique<ReosVertexZSpecifierInterpolation>( associatedVertex, mFirstExtremity, mSecondExtremity, previous, next );
 
-  mAddedVertex.push_back( associatedVertex );
+  mInterpolatedVertices.insert( mInsertPosition, associatedVertex );
   return spec;
 }
 
@@ -264,7 +347,7 @@ ReosVertexZSpecifierInterpolation::ReosVertexZSpecifierInterpolation( const Vert
 
     if ( next )
     {
-      auto spec = static_cast<ReosVertexZSpecifierInterpolation *>( previous->zSpecifier() );
+      auto spec = static_cast<ReosVertexZSpecifierInterpolation *>( next->zSpecifier() );
       spec->mPreviousVertexInterpolation = mAssociatedVertex;
     }
   }

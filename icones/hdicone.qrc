@@ -163,6 +163,7 @@
         <file>toolbar/ZSpecifierVertexAndSlope.png</file>
         <file>toolbar/ZSpecifierSelectDependingVertex.png</file>
         <file>toolbar/ZSpecifierInterpolator.png</file>
+        <file>toolbar/MeshTINZValue.png</file>
     </qresource>
     <qresource prefix="/Qgis">
         <file>Qgis/labels.png</file>

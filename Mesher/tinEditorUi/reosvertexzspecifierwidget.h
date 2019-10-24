@@ -16,8 +16,11 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #ifndef REOSVERTEXZSPECIFIERWIDGET_H
 #define REOSVERTEXZSPECIFIERWIDGET_H
 
-#include <QWidget>
+
+#include <QDialog>
 #include <QLineEdit>
+#include <QWidget>
+
 
 #include "../ReosMesh/reosvertexzspecifier.h"
 #include "../../Reos/Form/reosform.h"
@@ -28,7 +31,7 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 
 class ReosVertexZSpecifierEntryWidgetModel;
 
-static void setVertexReferenceText( ReosFormText *formText, VertexPointer vert );
+
 
 namespace Ui
 {
@@ -43,11 +46,16 @@ class ReosVertexZSpecifierEntryWidget: public QWidget
     virtual ~ReosVertexZSpecifierEntryWidget();
 
     virtual QIcon icon() const = 0;
+    virtual QString description() const = 0;
+    virtual ReosVertexZSpecifier::Type type() const = 0;
     virtual ReosVertexZSpecifierFactory &factory() = 0;
     virtual void assignZSpecifier( VertexPointer vert );
 
+    virtual void setSpecifier( ReosVertexZSpecifier *specifier ) = 0;
+
     virtual void start();
     virtual void stop();
+    virtual void clear() = 0;
 
     virtual void vertexHasToBeRemoved( VertexPointer vertex ) {( void )vertex;}
 };
@@ -58,9 +66,26 @@ class ReosVertexZSpecifierSimpleValueWidget: public ReosVertexZSpecifierEntryWid
   public:
     ReosVertexZSpecifierSimpleValueWidget( QWidget *parent );
 
-    QIcon icon() const;
+    QIcon icon()  const override;
+    QString description() const override {return tr( "Value" );}
+    ReosVertexZSpecifier::Type type() const override {return ReosVertexZSpecifier::Type::Simple;}
+    virtual void clear() override
+    {
+      zValueParameterForm->setValue( 0 );
+      mFactory.setZValue( 0 );
+    }
 
-    ReosVertexZSpecifierFactory &factory();
+    ReosVertexZSpecifierFactory &factory() override;
+
+    virtual void setSpecifier( ReosVertexZSpecifier *specifier ) override
+    {
+      if ( specifier->type() != type() )
+        return;
+
+      auto simpleSpecifier = static_cast<ReosVertexZSpecifierSimple *>( specifier );
+
+      zValueParameterForm->setValue( simpleSpecifier->zValue() );
+    }
 
   private slots:
     void ZValueHasBeenEdited();
@@ -100,17 +125,35 @@ class ReosVertexZSpecifierDependentOtherVertexWidget: public ReosVertexZSpecifie
 
     void init();
 
+    void disableTakeLastVertex()
+    {
+      mTakeNewVertexAsReference->hideWidget();
+    }
+
     ReosVertexZSpecifierFactory &factory() override;
 
     void start() override;
     void stop() override;
 
-    virtual void vertexHasToBeRemoved( VertexPointer vertex ) override
+    virtual void clear() override
     {
-      if ( vertex == dependentVertexFactory().otherVertex() )
-      {
-        clearVertexReference();
-      }
+      clearVertexReference();
+      mValueParameterForm->setValue( 0 );
+    }
+
+    virtual void vertexHasToBeRemoved( VertexPointer vertex ) override;
+
+    void assignZSpecifier( VertexPointer vert ) override;
+
+    void setValue( double value )
+    {
+      mValueParameterForm->setValue( value );
+    }
+
+    void setOtherVertex( VertexPointer vertex )
+    {
+      setVertexReference( static_cast<ReosMeshItemVertex *>( vertex->graphicPointer() ) );
+      updateReferenceText();
     }
 
   private slots:
@@ -141,9 +184,6 @@ class ReosVertexZSpecifierDependentOtherVertexWidget: public ReosVertexZSpecifie
     ReosVertexZSpecifierSelectReferenceMapTool *selectReferenceMapTool = nullptr;
 
 
-    // ReosVertexZSpecifierEntryWidget interface
-  public:
-    void assignZSpecifier( VertexPointer vert ) override;
 };
 
 class ReosVertexZSpecifierSlopeWidget: public ReosVertexZSpecifierDependentOtherVertexWidget
@@ -152,7 +192,25 @@ class ReosVertexZSpecifierSlopeWidget: public ReosVertexZSpecifierDependentOther
   public:
     ReosVertexZSpecifierSlopeWidget( ReosMap *map, ReosMapMeshEditorItemDomain *domain, QWidget *parent );
     QIcon icon() const override;
+    QString description() const override {return tr( "Other vertex and slope" );}
+    ReosVertexZSpecifier::Type type() const override {return ReosVertexZSpecifier::Type::VertexAndSlope;}
+    virtual void clear() override
+    {
+      ReosVertexZSpecifierDependentOtherVertexWidget::clear();
+      mFactory.setSlope( 0 );
+    }
 
+    virtual void setSpecifier( ReosVertexZSpecifier *specifier ) override
+    {
+      if ( specifier->type() != type() )
+        return;
+
+      auto slopeSpecifier = static_cast<ReosVertexZSpecifierOtherVertexAndSlope *>( specifier );
+
+      mFactory.setSlope( slopeSpecifier->slope() );
+      setValue( slopeSpecifier->slope() * 100 );
+      setOtherVertex( slopeSpecifier->otherVertex() );
+    }
   private:
 
     ReosVertexZSpecifierDependOnOtherVertexFactory &dependentVertexFactory() override {return mFactory;}
@@ -168,6 +226,25 @@ class ReosVertexZSpecifierGapWidget: public ReosVertexZSpecifierDependentOtherVe
   public:
     ReosVertexZSpecifierGapWidget( ReosMap *map, ReosMapMeshEditorItemDomain *domain, QWidget *parent );
     QIcon icon() const override;
+    QString description() const override {return tr( "Other vertex and gap" );}
+    ReosVertexZSpecifier::Type type() const override {return ReosVertexZSpecifier::Type::VertexAndGap;}
+    virtual void clear() override
+    {
+      ReosVertexZSpecifierDependentOtherVertexWidget::clear();
+      mFactory.setGap( 0 );
+    }
+
+    virtual void setSpecifier( ReosVertexZSpecifier *specifier ) override
+    {
+      if ( specifier->type() != type() )
+        return;
+
+      auto gapSpecifier = static_cast<ReosVertexZSpecifierOtherVertexAndGap *>( specifier );
+
+      mFactory.setGap( gapSpecifier->gap() );
+      setValue( gapSpecifier->gap() );
+      setOtherVertex( gapSpecifier->otherVertex() );
+    }
 
   private:
 
@@ -185,6 +262,26 @@ class ReosVertexZSpecifierInterpolationWidget: public ReosVertexZSpecifierEntryW
   public:
     ReosVertexZSpecifierInterpolationWidget( ReosMap *map, ReosMapMeshEditorItemDomain *domain, QWidget *parent );
     QIcon icon() const override;
+    QString description() const override {return tr( "Interpolation" );}
+    ReosVertexZSpecifier::Type type() const override {return ReosVertexZSpecifier::Type::Interpolator;}
+
+    virtual void clear() override
+    {
+      clearExtremityReferences();
+    }
+
+    virtual void setSpecifier( ReosVertexZSpecifier *specifier ) override
+    {
+      if ( specifier->type() != type() )
+        return;
+
+      mFactory.setInterpolatedVertex( specifier->associatedVertex() );
+      updateInterpolationLine();
+      updateReferencesText();
+      showExtremityReferences();
+    }
+
+
     ReosVertexZSpecifierFactory &factory() override;
     void start() override;
     void stop() override;
@@ -214,32 +311,14 @@ class ReosVertexZSpecifierInterpolationWidget: public ReosVertexZSpecifierEntryW
 
   private:
     void updateInterpolationLine();
-    void showExtremityReferences()
-    {
-      if ( mFactory.firstExtremity() )
-        static_cast<ReosMeshItemVertex *>( mFactory.firstExtremity()->graphicPointer() )->setReference( true );
-      if ( mFactory.secondExtremity() )
-        static_cast<ReosMeshItemVertex *>( mFactory.secondExtremity()->graphicPointer() )->setReference( true );
-    }
-    void clearExtremityReferences()
-    {
-      hideExtremityReferences();
-      mFactory.setExtremitiesVertices( nullptr, nullptr );
-    }
-
-    void hideExtremityReferences()
-    {
-      if ( mFactory.firstExtremity() )
-        static_cast<ReosMeshItemVertex *>( mFactory.firstExtremity()->graphicPointer() )->setReference( false );
-      if ( mFactory.secondExtremity() )
-        static_cast<ReosMeshItemVertex *>( mFactory.secondExtremity()->graphicPointer() )->setReference( false );
-    }
+    void showExtremityReferences();
+    void clearExtremityReferences();
+    void hideExtremityReferences();
 
     ReosForm *mForm;
     ReosFormAction *mSelectReferenceAction;
     ReosFormText *mFirstReferenceText;
     ReosFormText *mSecondReferenceText;
-
 
     ReosVertexZSpecifierInterpolationFactory mFactory;
 
@@ -302,9 +381,19 @@ class ReosVertexZSpecifierEntryWidgetModel: public QAbstractListModel
     int rowCount( const QModelIndex &parent ) const override;
     QVariant data( const QModelIndex &index, int role ) const override;
 
+    void setTextDisplayed( bool b )
+    {
+      mTextDisplayed = b;
+    }
+
   private:
     QList<ReosVertexZSpecifierEntryWidget *> &mEntriesList;
 
+    bool mTextDisplayed = false;
+
 };
+
+QString vertexReferenceText( VertexPointer vert );
+
 
 #endif // REOSVERTEXZSPECIFIERWIDGET_H

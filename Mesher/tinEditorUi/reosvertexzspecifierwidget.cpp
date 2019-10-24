@@ -16,6 +16,23 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #include "reosvertexzspecifierwidget.h"
 #include "ui_reosvertexzspecifierwidget.h"
 
+QString vertexReferenceText( VertexPointer vert )
+{
+  QString str;
+  if ( vert == nullptr )
+  {
+    str = QObject::tr( "no reference" ).prepend( "<b><font color=\"red\">" ).append( "</font></b>" );
+  }
+  else
+  {
+    str = QString( "<font color=\"green\"><b>X= %1 , Y= %2</font></b>" ).
+          arg( QString::number( vert->x(), 'f', 2 ) ).
+          arg( QString::number( vert->y(), 'f', 2 ) ) ;
+  }
+
+  return str;
+}
+
 ReosVertexZSpecifierWidget::ReosVertexZSpecifierWidget( ReosMap *map, ReosMapMeshEditorItemDomain *domain, QWidget *parent ) :
   QWidget( parent ),
   ui( new Ui::ReosVertexZSpecifierWidget )
@@ -168,6 +185,14 @@ void ReosVertexZSpecifierDependentOtherVertexWidget::stop()
   hideVertexReference();
 }
 
+void ReosVertexZSpecifierDependentOtherVertexWidget::vertexHasToBeRemoved( VertexPointer vertex )
+{
+  if ( vertex == dependentVertexFactory().otherVertex() )
+  {
+    clearVertexReference();
+  }
+}
+
 void ReosVertexZSpecifierDependentOtherVertexWidget::startSelectReference()
 {
   selectReferenceMapTool->start();
@@ -175,7 +200,7 @@ void ReosVertexZSpecifierDependentOtherVertexWidget::startSelectReference()
 
 void ReosVertexZSpecifierDependentOtherVertexWidget::updateReferenceText()
 {
-  setVertexReferenceText( mReferenceText, dependentVertexFactory().otherVertex() );
+  mReferenceText->setText( vertexReferenceText( dependentVertexFactory().otherVertex() ) );
 }
 
 void ReosVertexZSpecifierDependentOtherVertexWidget::zoneHasBeenSelected( const QRectF &rect )
@@ -306,6 +331,8 @@ QIcon ReosVertexZSpecifierSlopeWidget::icon() const
   return QIcon( QPixmap( "://toolbar/ZSpecifierVertexAndSlope.png" ) );
 }
 
+
+
 ReosFormParameterSimpleDouble *ReosVertexZSpecifierSlopeWidget::makeValueParameterForm( ReosForm *parentForm )
 {
   return new ReosFormParameterSimpleDouble( tr( "Slope : " ), 0, parentForm, " %" );
@@ -355,6 +382,10 @@ QVariant ReosVertexZSpecifierEntryWidgetModel::data( const QModelIndex &index, i
 {
   if ( role == Qt::DecorationRole )
     return mEntriesList.at( index.row() )->icon();
+
+  if ( role == Qt::DisplayRole && mTextDisplayed )
+    return mEntriesList.at( index.row() )->description();
+
 
   return QVariant();
 }
@@ -444,8 +475,8 @@ void ReosVertexZSpecifierInterpolationWidget::assignZSpecifier( VertexPointer ve
 
 void ReosVertexZSpecifierInterpolationWidget::updateReferencesText()
 {
-  setVertexReferenceText( mFirstReferenceText, mFactory.firstExtremity() );
-  setVertexReferenceText( mSecondReferenceText, mFactory.secondExtremity() );
+  mFirstReferenceText->setText( vertexReferenceText( mFactory.firstExtremity() ) );
+  mSecondReferenceText->setText( vertexReferenceText( mFactory.secondExtremity() ) );
 }
 
 void ReosVertexZSpecifierInterpolationWidget::zoneHasBeenSelected( const QRectF &zone )
@@ -470,7 +501,7 @@ void ReosVertexZSpecifierInterpolationWidget::zoneHasBeenSelected( const QRectF 
 
 void ReosVertexZSpecifierInterpolationWidget::updateInterpolationLine()
 {
-  const std::list<VertexPointer> &addedVertex = mFactory.addedVertex();
+  const std::list<VertexPointer> &addedVertex = mFactory.interpolatedVertices();
   QPolygonF points;
   if ( mFactory.firstExtremity() && mFactory.secondExtremity() )
   {
@@ -485,16 +516,26 @@ void ReosVertexZSpecifierInterpolationWidget::updateInterpolationLine()
   mInterpolationLine->setPolyline( points );
 }
 
-void setVertexReferenceText( ReosFormText *formText, VertexPointer vert )
+void ReosVertexZSpecifierInterpolationWidget::showExtremityReferences()
 {
-  if ( vert == nullptr )
-  {
-    formText->setText( QObject::tr( "no reference" ).prepend( "<b><font color=\"red\">" ).append( "</font></b>" ) );
-  }
-  else
-  {
-    formText->setText( QString( "<font color=\"green\"><b>X= %1 , Y= %2</font></b>" ).
-                       arg( QString::number( vert->x(), 'f', 2 ) ).
-                       arg( QString::number( vert->y(), 'f', 2 ) ) ) ;
-  }
+  if ( mFactory.firstExtremity() )
+    static_cast<ReosMeshItemVertex *>( mFactory.firstExtremity()->graphicPointer() )->setReference( true );
+  if ( mFactory.secondExtremity() )
+    static_cast<ReosMeshItemVertex *>( mFactory.secondExtremity()->graphicPointer() )->setReference( true );
 }
+
+void ReosVertexZSpecifierInterpolationWidget::clearExtremityReferences()
+{
+  hideExtremityReferences();
+  mFactory.setExtremitiesVertices( nullptr, nullptr );
+}
+
+void ReosVertexZSpecifierInterpolationWidget::hideExtremityReferences()
+{
+  if ( mFactory.firstExtremity() )
+    static_cast<ReosMeshItemVertex *>( mFactory.firstExtremity()->graphicPointer() )->setReference( false );
+  if ( mFactory.secondExtremity() )
+    static_cast<ReosMeshItemVertex *>( mFactory.secondExtremity()->graphicPointer() )->setReference( false );
+}
+
+

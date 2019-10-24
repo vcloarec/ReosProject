@@ -39,6 +39,7 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #include "hdtineditoruidialog.h"
 #include "hdtineditornewdialog.h"
 #include "reosvertexzspecifierwidget.h"
+#include "reosvertexzspecifiereditorwidget.h"
 
 #include "../ReosTin/reostin.h"
 
@@ -211,20 +212,15 @@ class ReosTinEditorUi : public ReosModule
     void startRemoveSegment();
     void removeSegmentFromRect( const QRectF &selectionZone );
 
+    void startZSpecifierEditor();
+    void selectVertexForZSpecifierEditor( const QRectF &zone );
+
     void startFlipFaces();
     void flipFaces( FacePointer f1, FacePointer f2 );
 
     void populateDomain();
 
-    bool saveTin()
-    {
-      if ( mMeshLayer )
-        return writeToFile( mMeshLayer->source() ) == 0;
-      else
-      {
-        return false;
-      }
-    }
+    bool saveTin();
 
     bool openTin();
     bool openTinWithFileName( QString fileName );
@@ -281,10 +277,7 @@ class ReosTinEditorUi : public ReosModule
 
     void newCommand( QUndoCommand *command ) override;
 
-    void vertexHasToBeRemoved( VertexPointer vert )
-    {
-      mZSpecifierWidget->vertexHasToBeRemoved( vert );
-    }
+    void vertexHasToBeRemoved( VertexPointer vert );
 
 
   private: //attributes
@@ -293,7 +286,7 @@ class ReosTinEditorUi : public ReosModule
     ReosMap *mMap;
     HdTinEditorUiDialog *uiDialog;
     ReosVertexZSpecifierWidget *mZSpecifierWidget;
-
+    ReosVertexZSpecifierEditorWidget *mZSpecifierEditor;
     std::unique_ptr<QgsCoordinateTransform> mTransform;
 
     QgsMeshLayer *mMeshLayer = nullptr;
@@ -315,6 +308,9 @@ class ReosTinEditorUi : public ReosModule
     ReosTinMapToolHardLineSegement *mapToolHardLineSegment;
     QAction *actionRemoveSegment;
     ReosMapToolSelection *mapToolRemoveSegment;
+
+    QAction *actionZSpecifierEditor;
+    ReosMapToolSelection *mapToolZSpecifierEditor;
 
     QAction *actionFlipFaces;
     ReosTinMapToolFlipFaces *mapToolFlipFaces;

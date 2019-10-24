@@ -59,9 +59,9 @@ void ReosForm::parameterEdit()
   emit parameterEdited();
 }
 
-QWidget *ReosForm::getWidget()
+QWidget *ReosForm::getWidget( bool stretch )
 {
-  return new ReosFormWidget( this, nullptr, mOrientation );
+  return new ReosFormWidget( this, nullptr, mOrientation, stretch );
 }
 
 ReosFormParameter::ReosFormParameter( ReosForm *parent ): ReosFormObject( parent )
@@ -70,11 +70,12 @@ ReosFormParameter::ReosFormParameter( ReosForm *parent ): ReosFormObject( parent
     parent->addParamater( this );
 }
 
-QWidget *ReosFormParameter::getWidget()
+QWidget *ReosFormParameter::getWidget( bool stretch )
 {
+  Q_UNUSED( stretch );
   ReosFormParameterEditor *editor = makeEdit();
   connect( editor, &ReosFormParameterEditor::askForCalculate, this, &ReosFormParameter::valueAsked );
-
+  connect( this, &ReosFormParameter::askForHideWidget, editor, &ReosFormParameterEditor::hide );
   return editor;
 }
 
@@ -648,7 +649,7 @@ void ReosFormParameterEditorCheckBox::valueHasBeenEdited()
   emit changed( checkBox->isChecked() );
 }
 
-ReosFormWidget::ReosFormWidget( ReosForm *form, QWidget *parent, Qt::Orientation orientation ): QWidget( parent )
+ReosFormWidget::ReosFormWidget( ReosForm *form, QWidget *parent, Qt::Orientation orientation, bool stretch ): QWidget( parent )
 {
   QBoxLayout *lay;
   if ( orientation == Qt::Vertical )
@@ -689,7 +690,9 @@ ReosFormWidget::ReosFormWidget( ReosForm *form, QWidget *parent, Qt::Orientation
   {
     layout()->addWidget( new QLabel( tr( "Formulaire vide" ) ) );
   }
-  lay->addStretch();
+
+  if ( stretch )
+    lay->addStretch();
 }
 
 QLayout *ReosFormWidget::addSeparator( Qt::Orientation orientation )

@@ -57,7 +57,8 @@ SOURCES += \
     ../Reos/quantity/reosarea.cpp \
     ../Reos/quantity/reosduration.cpp \
     ../Reos/quantity/reostime.cpp \
-    tinEditorUi/reosvertexzspecifierwidget.cpp
+    tinEditorUi/reosvertexzspecifierwidget.cpp \
+    tinEditorUi/reosvertexzspecifiereditorwidget.cpp
 
 
 
@@ -93,7 +94,8 @@ HEADERS += \
     ../Reos/quantity/reosduration.h \
     ../Reos/quantity/reostime.h \
     tinEditorUi/reosvertexzspecifierwidget.h \
-    ../icones/curseur.h
+    ../icones/curseur.h \
+    tinEditorUi/reosvertexzspecifiereditorwidget.h
 
 
 FORMS += \
@@ -104,7 +106,8 @@ FORMS += \
     ../Reos/reosmessagebox.ui \
     tinEditorUi/hdtineditoruidialog.ui \
     tinEditorUi/hdtineditornewdialog.ui \
-    tinEditorUi/reosvertexzspecifierwidget.ui
+    tinEditorUi/reosvertexzspecifierwidget.ui \
+    tinEditorUi/reosvertexzspecifiereditorwidget.ui
 
 
 TRANSLATIONS +=../i18n/hydro_en.ts

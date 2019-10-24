@@ -30,6 +30,8 @@ ReosTinEditorUi::ReosTinEditorUi( ReosGisManager *gismanager, QObject *parent ):
   mapToolHardLineSegment( new ReosTinMapToolHardLineSegement( gismanager->getMap(), this ) ),
   actionRemoveSegment( new QAction( QPixmap( "://toolbar/MeshTINRemoveSegment.png" ), tr( "Remove hard line" ), this ) ),
   mapToolRemoveSegment( new ReosMapToolSelection( gismanager->getMap() ) ),
+  actionZSpecifierEditor( new QAction( QPixmap( "://toolbar/MeshTINZValue.png" ), tr( "Z value editor" ), this ) ),
+  mapToolZSpecifierEditor( new ReosMapToolSelection( gismanager->getMap() ) ),
   actionFlipFaces( new QAction( QPixmap( "://toolbar/MeshFlipFaces.png" ), tr( "Flip faces" ), this ) ),
   mapToolFlipFaces( new ReosTinMapToolFlipFaces( gismanager->getMap(), this ) ),
   actionTriangulateTIN( new QAction( QPixmap( "://toolbar/MeshTINTriangulation.png" ), tr( "update mesh" ), this ) )
@@ -48,6 +50,10 @@ ReosTinEditorUi::ReosTinEditorUi( ReosGisManager *gismanager, QObject *parent ):
   mapToolRemoveSegment->setAction( actionRemoveSegment );
   actionRemoveSegment->setCheckable( true );
 
+  mapToolZSpecifierEditor->setCursor( QCursor( QPixmap( "://selectedZValue.png" ), 0, 0 ) );
+  mapToolZSpecifierEditor->setAction( actionZSpecifierEditor );
+  actionZSpecifierEditor->setCheckable( true );
+
   mapToolFlipFaces->setAction( actionFlipFaces );
   actionFlipFaces->setCheckable( true );
 
@@ -60,6 +66,7 @@ ReosTinEditorUi::ReosTinEditorUi( ReosGisManager *gismanager, QObject *parent ):
   groupAction->addAction( actionRemoveVertex );
   groupAction->addAction( actionNewHardLineSegment );
   groupAction->addAction( actionRemoveSegment );
+  groupAction->addAction( actionZSpecifierEditor );
   groupAction->addAction( actionFlipFaces );
   groupAction->addAction( actionTriangulateTIN );
 
@@ -68,14 +75,20 @@ ReosTinEditorUi::ReosTinEditorUi( ReosGisManager *gismanager, QObject *parent ):
   actionEditList.append( actionRemoveVertex );
   actionEditList.append( actionTriangulateTIN );
   actionEditList.append( actionRemoveSegment );
+  actionEditList.append( actionZSpecifierEditor );
   actionEditList.append( actionFlipFaces );
   enableEditAction( false );
 
   uiDialog = new HdTinEditorUiDialog( mMap->getMapCanvas() );
   uiDialog->setActions( getActions() );
+
   mZSpecifierWidget = new ReosVertexZSpecifierWidget( mMap, mDomain, uiDialog );
   uiDialog->setZSpecifierWidet( mZSpecifierWidget );
   mZSpecifierWidget->hide();
+
+  mZSpecifierEditor = new ReosVertexZSpecifierEditorWidget( mMap, mDomain, uiDialog );
+  mZSpecifierEditor->hide();
+
 
   connect( mGisManager, &ReosGisManager::mapCrsChanged, this, &ReosTinEditorUi::mapCrsChanged );
 
@@ -96,6 +109,9 @@ ReosTinEditorUi::ReosTinEditorUi( ReosGisManager *gismanager, QObject *parent ):
 
   connect( actionRemoveSegment, &QAction::triggered, this, &ReosTinEditorUi::startRemoveSegment );
   connect( mapToolRemoveSegment, &ReosMapToolSelection::zonalCanvasRect, this, &ReosTinEditorUi::removeSegmentFromRect );
+
+  connect( actionZSpecifierEditor, &QAction::triggered, this, &ReosTinEditorUi::startZSpecifierEditor );
+  connect( mapToolZSpecifierEditor, &ReosMapToolSelection::zonalCanvasRect, this, &ReosTinEditorUi::selectVertexForZSpecifierEditor );
 
   connect( actionFlipFaces, &QAction::triggered, this, &ReosTinEditorUi::startFlipFaces );
 
@@ -211,8 +227,6 @@ VertexPointer ReosTinEditorUi::addRealWorldVertex( const QPointF &mapPoint )
     vert = mTIN->addVertex( p.x(), p.y() );
     addMapVertex( mapPoint, vert );
     mZSpecifierWidget->assignZSpecifier( vert );
-
-
   }
 
   return vert;
@@ -427,6 +441,11 @@ void ReosTinEditorUi::newCommand( QUndoCommand *command )
     updateMesh();
 }
 
+void ReosTinEditorUi::vertexHasToBeRemoved( VertexPointer vert )
+{
+  mZSpecifierWidget->vertexHasToBeRemoved( vert );
+}
+
 
 
 void ReosTinEditorUi::newVertex( const QPointF &mapPoint )
@@ -494,6 +513,24 @@ void ReosTinEditorUi::removeSegmentFromRect( const QRectF &selectionZone )
     auto command = new ReosTinUndoCommandRemoveHardLine( this, mapPoint1, mapPoint2 );
     newCommand( command );
   }
+}
+
+void ReosTinEditorUi::startZSpecifierEditor()
+{
+  stopVertexEntry();
+  mMap->setMapTool( mapToolZSpecifierEditor );
+}
+
+void ReosTinEditorUi::selectVertexForZSpecifierEditor( const QRectF &zone )
+{
+  auto vert = mDomain->vertex( zone );
+  if ( !vert )
+    return;
+
+  if ( !mZSpecifierEditor->isVisible() )
+    mZSpecifierEditor->show();
+
+  mZSpecifierEditor->setVertex( vert->realWorldVertex() );
 }
 
 void ReosTinEditorUi::startFlipFaces()
@@ -680,6 +717,16 @@ void ReosTinEditorUi::populateDomain()
     }
   }
 
+}
+
+bool ReosTinEditorUi::saveTin()
+{
+  if ( mMeshLayer )
+    return writeToFile( mMeshLayer->source() ) == 0;
+  else
+  {
+    return false;
+  }
 }
 
 void ReosTinEditorUi::currentLayerChanged( QgsMapLayer *layer )

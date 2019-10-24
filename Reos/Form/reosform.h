@@ -63,7 +63,7 @@ class ReosFormObject: public QObject
   public:
     ReosFormObject( QObject *parent );
 
-    virtual QWidget *getWidget() = 0;
+    virtual QWidget *getWidget( bool stretch = true ) = 0;
 };
 
 class ReosFormParameter: public ReosFormObject
@@ -72,12 +72,13 @@ class ReosFormParameter: public ReosFormObject
   public:
     ReosFormParameter( ReosForm *parent );
     virtual ~ReosFormParameter() {}
-    virtual QWidget *getWidget();
-
+    virtual QWidget *getWidget( bool stretch = true );
+    virtual void hideWidget() {emit askForHideWidget();}
 
   signals:
     void askForValue();
     void valueEdited();
+    void askForHideWidget();
 
   protected slots:
     void valueAsked();
@@ -458,8 +459,9 @@ class ReosFormAction: public ReosFormObject
 
     // ReosFormObject interface
   public:
-    QWidget *getWidget() override
+    QWidget *getWidget( bool stretch = true ) override
     {
+      Q_UNUSED( stretch );
       QToolButton *toolButton = new QToolButton;
       toolButton->setDefaultAction( mAction );
 
@@ -486,8 +488,9 @@ class ReosFormText: public ReosFormObject
 
     // ReosFormObject interface
   public:
-    QWidget *getWidget() override
+    QWidget *getWidget( bool stretch = true ) override
     {
+      Q_UNUSED( stretch );
       QLabel *label = new QLabel( mText );
       connect( this, &ReosFormText::textChanged, label, &QLabel::setText );
 
@@ -530,14 +533,14 @@ class ReosForm: public ReosFormObject
 
     // HdFormObject interface
   public:
-    QWidget *getWidget() override;
+    QWidget *getWidget( bool stretch = true ) override;
 };
 
 class ReosFormWidget : public QWidget
 {
     Q_OBJECT
   public:
-    explicit ReosFormWidget( ReosForm *form = nullptr, QWidget *parent = nullptr, Qt::Orientation orientation = Qt::Vertical );
+    explicit ReosFormWidget( ReosForm *form = nullptr, QWidget *parent = nullptr, Qt::Orientation orientation = Qt::Vertical, bool stretch = true );
 
   signals:
 

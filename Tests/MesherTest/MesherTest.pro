@@ -52,7 +52,9 @@ HEADERS += \
     ../../Reos/quantity/reosduration.h \
     ../../Reos/quantity/reostime.h \
     ../../Mesher/ReosMesh/vertex.h \
-    ../../Mesher/tinEditorUi/reosvertexzspecifierwidget.h
+    ../../Mesher/tinEditorUi/reosvertexzspecifierwidget.h \
+    ../../icones/curseur.h \
+    ../../Mesher/tinEditorUi/reosvertexzspecifiereditorwidget.h
 
 
 
@@ -92,7 +94,8 @@ SOURCES += \
     ../../Reos/quantity/reosduration.cpp \
     ../../Reos/quantity/reostime.cpp \
     ../../Mesher/ReosMesh/vertex.cpp \
-    ../../Mesher/tinEditorUi/reosvertexzspecifierwidget.cpp
+    ../../Mesher/tinEditorUi/reosvertexzspecifierwidget.cpp \
+    ../../Mesher/tinEditorUi/reosvertexzspecifiereditorwidget.cpp
 
 
 FORMS += \
@@ -100,7 +103,8 @@ FORMS += \
     ../../Mesher/tinEditorUi/hdtineditoruidialog.ui \
     ../../GIS/hdcrsdialogselection.ui \
     ../../GIS/hdvectorlayerpropertiesdialog.ui \
-    ../../Mesher/tinEditorUi/reosvertexzspecifierwidget.ui
+    ../../Mesher/tinEditorUi/reosvertexzspecifierwidget.ui \
+    ../../Mesher/tinEditorUi/reosvertexzspecifiereditorwidget.ui
 
 
 ######################### QGIG
