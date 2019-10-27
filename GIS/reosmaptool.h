@@ -110,8 +110,6 @@ class ReosMapToolSelection: public ReosMapTool
 
     }
 
-
-
   signals:
     void zonalCanvasRect( const QRectF &rect );
 

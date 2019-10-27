@@ -118,6 +118,7 @@ void ReosVertexZSpecifierEntryWidget::start()
   show();
 }
 
+
 void ReosVertexZSpecifierEntryWidget::stop()
 {
   hide();
@@ -331,6 +332,24 @@ QIcon ReosVertexZSpecifierSlopeWidget::icon() const
   return QIcon( QPixmap( "://toolbar/ZSpecifierVertexAndSlope.png" ) );
 }
 
+void ReosVertexZSpecifierSlopeWidget::clear()
+{
+  ReosVertexZSpecifierDependentOtherVertexWidget::clear();
+  mFactory.setSlope( 0 );
+}
+
+void ReosVertexZSpecifierSlopeWidget::setSpecifier( ReosVertexZSpecifier *specifier )
+{
+  if ( specifier->type() != type() )
+    return;
+
+  auto slopeSpecifier = static_cast<ReosVertexZSpecifierOtherVertexAndSlope *>( specifier );
+
+  mFactory.setSlope( slopeSpecifier->slope() );
+  setValue( slopeSpecifier->slope() * 100 );
+  setOtherVertex( slopeSpecifier->otherVertex() );
+}
+
 
 
 ReosFormParameterSimpleDouble *ReosVertexZSpecifierSlopeWidget::makeValueParameterForm( ReosForm *parentForm )
@@ -351,6 +370,24 @@ ReosVertexZSpecifierGapWidget::ReosVertexZSpecifierGapWidget( ReosMap *map, Reos
 QIcon ReosVertexZSpecifierGapWidget::icon() const
 {
   return QIcon( QPixmap( "://toolbar/ZSpecifierVertexAndGap.png" ) );
+}
+
+void ReosVertexZSpecifierGapWidget::clear()
+{
+  ReosVertexZSpecifierDependentOtherVertexWidget::clear();
+  mFactory.setGap( 0 );
+}
+
+void ReosVertexZSpecifierGapWidget::setSpecifier( ReosVertexZSpecifier *specifier )
+{
+  if ( specifier->type() != type() )
+    return;
+
+  auto gapSpecifier = static_cast<ReosVertexZSpecifierOtherVertexAndGap *>( specifier );
+
+  mFactory.setGap( gapSpecifier->gap() );
+  setValue( gapSpecifier->gap() );
+  setOtherVertex( gapSpecifier->otherVertex() );
 }
 
 ReosVertexZSpecifierDependOnOtherVertexFactory &ReosVertexZSpecifierGapWidget::dependentVertexFactory() {return mFactory;}
@@ -443,6 +480,25 @@ QIcon ReosVertexZSpecifierInterpolationWidget::icon() const
   return QIcon( QPixmap( "://toolbar/ZSpecifierInterpolator.png" ) );
 }
 
+void ReosVertexZSpecifierInterpolationWidget::clear()
+{
+  clearExtremityReferences();
+}
+
+void ReosVertexZSpecifierInterpolationWidget::setSpecifier( ReosVertexZSpecifier *specifier )
+{
+  mFactory.setIntendedVertex( specifier->associatedVertex() );
+
+  if ( specifier->type() != type() )
+    return;
+
+  mFactory.setInterpolatedVertex( specifier->associatedVertex() );
+
+  updateInterpolationLine();
+  updateReferencesText();
+  showExtremityReferences();
+}
+
 ReosVertexZSpecifierFactory &ReosVertexZSpecifierInterpolationWidget::factory()
 {
   return mFactory;
@@ -473,10 +529,27 @@ void ReosVertexZSpecifierInterpolationWidget::assignZSpecifier( VertexPointer ve
   updateInterpolationLine();
 }
 
+void ReosVertexZSpecifierInterpolationWidget::vertexHasToBeRemoved( VertexPointer vertex )
+{
+  if ( vertex == mFactory.firstExtremity() || vertex == mFactory.secondExtremity() )
+  {
+    clearExtremityReferences();
+  }
+}
+
 void ReosVertexZSpecifierInterpolationWidget::updateReferencesText()
 {
   mFirstReferenceText->setText( vertexReferenceText( mFactory.firstExtremity() ) );
   mSecondReferenceText->setText( vertexReferenceText( mFactory.secondExtremity() ) );
+}
+
+void ReosVertexZSpecifierInterpolationWidget::startSelectReferences()
+{
+  clearExtremityReferences();
+  updateInterpolationLine();
+  mInterpolationLine->hide();
+  updateReferencesText();
+  selectReferenceMapTool->start();
 }
 
 void ReosVertexZSpecifierInterpolationWidget::zoneHasBeenSelected( const QRectF &zone )
@@ -484,6 +557,8 @@ void ReosVertexZSpecifierInterpolationWidget::zoneHasBeenSelected( const QRectF 
   auto vert = mDomain->vertex( zone );
   if ( vert )
   {
+    hideExtremityReferences();
+
     if ( mFactory.firstExtremity() )
     {
       mFactory.setExtremitiesVertices( mFactory.firstExtremity(), vert->realWorldVertex() );

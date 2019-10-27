@@ -2,6 +2,8 @@
 #define REOSVERTEXZSPECIFIEREDITORWIDGET_H
 
 #include <QDialog>
+#include <QPushButton>
+#include <QMessageBox>
 
 #include "reosvertexzspecifierwidget.h"
 
@@ -20,15 +22,15 @@ class ReosVertexZSpecifierEditorWidget : public QDialog
 
   public slots:
     void setVertex( VertexPointer vertex );
+    void stop();
+    void vertexHasToBeRemoved( VertexPointer vert );
 
-    void stop()
-    {
-      if ( mCurrentVertex )
-        static_cast<ReosMeshItemVertex *>( mCurrentVertex->graphicPointer() )->setCurrent( false );
-    }
+  signals:
+    void specifierHasChanged();
 
   private slots:
     void currentEntryChanged( int index );
+    void apply();
 
   private:
     Ui::ReosVertexZSpecifierEditorWidget *ui;
@@ -43,6 +45,15 @@ class ReosVertexZSpecifierEditorWidget : public QDialog
     VertexPointer mCurrentVertex = nullptr;
 
     void setZSpecifierEditor( VertexPointer vertex );
+    void updateCurrentVertex();
+
+    //! check if the current z specifier and reference vertices are compatible with the current vertex
+    //! If not, dispaly a warning message box and disable the apply button
+    bool checkUncompatibility();
+
+    //! check if the current z specifier and reference vertices are compatible with the current vertex
+    //! If yes, enable the apply button
+    bool checkCompatibility();
 
 };
 

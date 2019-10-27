@@ -313,35 +313,30 @@ class ReosVertexZSpecifierInterpolationFactory: public ReosVertexZSpecifierFacto
 
     //* rebuild the factory elements to continue to interpolate with the existant vertex interpolation
     // new interpolated vertexes will be positioned after vertex
-    void setInterpolatedVertex( VertexPointer vertex )
-    {
-      if ( !vertex && vertex->zSpecifier()->type() != ReosVertexZSpecifier::Type::Interpolator )
-        return;
+    void setInterpolatedVertex( VertexPointer vertex );
 
-      auto spec = static_cast<ReosVertexZSpecifierInterpolation *>( vertex->zSpecifier() );
-      mInterpolatedVertices = spec->verticesList();
-      mFirstExtremity = mInterpolatedVertices.front();
-      mInterpolatedVertices.pop_front();
-      mSecondExtremity = mInterpolatedVertices.back();
-      mInterpolatedVertices.pop_back();
-
-      mInsertPosition = mInterpolatedVertices.begin();
-      while ( *mInsertPosition != vertex )
-        mInsertPosition++;
-
-      mInsertPosition++;
-
-      return;
-
-    }
     bool IsCompatibleZSpecifier( const VertexPointer associatedVertex ) const override;
     std::unique_ptr<ReosVertexZSpecifier> createZSpecifier( const VertexPointer associatedVertex ) const override;
 
     VertexPointer firstExtremity() const {return mFirstExtremity;}
     VertexPointer secondExtremity() const {return mSecondExtremity;}
 
-    const std::list<VertexPointer> &interpolatedVertices() const {return mInterpolatedVertices;}
+    const std::list<VertexPointer> &interpolatedVertices()
+    {
+      setIntendedVertex( mIntendedVertex ); //for updating thelist if there is a intended veretx, does nothing if mIntendedVertex=nullptr
+      return mInterpolatedVertices;
+    }
 
+    void setIntendedVertex( VertexPointer intendedVertex )
+    {
+      if ( mIntendedVertex )
+        mInterpolatedVertices.remove( mIntendedVertex );
+
+      mIntendedVertex = intendedVertex;
+
+      if ( mIntendedVertex )
+        mInterpolatedVertices.insert( mInsertPosition, mIntendedVertex );
+    }
 
   protected:
 
@@ -350,6 +345,9 @@ class ReosVertexZSpecifierInterpolationFactory: public ReosVertexZSpecifierFacto
 
     mutable std::list<VertexPointer> mInterpolatedVertices;
     std::list<VertexPointer>::iterator mInsertPosition;
+
+  private:
+    VertexPointer mIntendedVertex = nullptr;
 };
 
 class ReosVertexZSpecifierGeneralFactory: public ReosVertexZSpecifierFactory

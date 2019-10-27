@@ -92,8 +92,13 @@ class ReosTinMapToolHardLineSegement: public ReosMapTool
 
 
     void suspend() override;
-
     void unsuspend() override;
+
+    void vertexHasToBeRemoved( ReosMeshItemVertex *vert )
+    {
+      if ( firstVertex == vert )
+        reset();
+    }
 
   public slots:
     void reset() override
@@ -225,7 +230,11 @@ class ReosTinEditorUi : public ReosModule
     bool openTin();
     bool openTinWithFileName( QString fileName );
 
-
+    void meshHasBeenChanged()
+    {
+      if ( uiDialog->autoUpdate() )
+        updateMesh();
+    }
 
   private slots :
 
@@ -233,6 +242,7 @@ class ReosTinEditorUi : public ReosModule
     void layerHasToBeUpdated( QgsMapLayer *layer );
     void layerHasToBeRemoved( QgsMapLayer *layer );
     void mapCrsChanged( const QgsCoordinateReferenceSystem &crs );
+    void stopZSpecifierEditor();
 
   private: //method
 
@@ -247,6 +257,7 @@ class ReosTinEditorUi : public ReosModule
 
     void startVertexEntry();
     void stopVertexEntry();
+
 
 
     ReosMeshItemVertex *addMapVertex( VertexPointer vert );

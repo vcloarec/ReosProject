@@ -32,7 +32,7 @@ ReosVertexZSpecifierEditorWidget::ReosVertexZSpecifierEditorWidget( ReosMap *map
 
 
   connect( mComboBoxZSpecifierType, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosVertexZSpecifierEditorWidget::currentEntryChanged );
-
+  connect( ui->buttonBox->button( QDialogButtonBox::Apply ), &QPushButton::pressed, this, &ReosVertexZSpecifierEditorWidget::apply );
 }
 
 ReosVertexZSpecifierEditorWidget::~ReosVertexZSpecifierEditorWidget()
@@ -47,44 +47,109 @@ void ReosVertexZSpecifierEditorWidget::setVertex( VertexPointer vertex )
 
   mCurrentVertex = vertex;
 
-  if ( !vertex )
-    return;
+  updateCurrentVertex();
 
-  static_cast<ReosMeshItemVertex *>( vertex->graphicPointer() )->setCurrent( true );
-  ui->vertexReference->setText( vertexReferenceText( mCurrentVertex ) );
-  setZSpecifierEditor( mCurrentVertex );
+}
+
+void ReosVertexZSpecifierEditorWidget::stop()
+{
+  if ( mCurrentVertex )
+    static_cast<ReosMeshItemVertex *>( mCurrentVertex->graphicPointer() )->setCurrent( false );
+
+  if ( mCurrentEntryWidget )
+    mCurrentEntryWidget->stop();
+  hide();
+}
+
+void ReosVertexZSpecifierEditorWidget::vertexHasToBeRemoved(VertexPointer vert)
+{
+    for ( auto e : mEntryWidgets )
+        e->vertexHasToBeRemoved( vert );
+    if ( mCurrentVertex == vert )
+        mCurrentVertex = nullptr;
 }
 
 void ReosVertexZSpecifierEditorWidget::currentEntryChanged( int index )
 {
-  for ( int i = 0; i < mEntryWidgets.count(); ++i )
-  {
-    if ( i == index )
-      mEntryWidgets.at( i )->start();
+    mCurrentEntryWidget = nullptr;
+    for ( int i = 0; i < mEntryWidgets.count(); ++i )
+    {
+        if ( i == index )
+        {
+            mCurrentEntryWidget = mEntryWidgets.at( i );
+      mCurrentEntryWidget->start();
+    }
     else
       mEntryWidgets.at( i )->stop();
   }
+  checkCompatibility();
+}
+
+void ReosVertexZSpecifierEditorWidget::apply()
+{
+    if ( !checkUncompatibility() )
+        return;
+    mCurrentEntryWidget->assignZSpecifier( mCurrentVertex );
+    updateCurrentVertex();
+    emit specifierHasChanged();
 }
 
 void ReosVertexZSpecifierEditorWidget::setZSpecifierEditor( VertexPointer vertex )
 {
-  ReosVertexZSpecifier *spec = vertex->zSpecifier();
-
-  int index = -1;
-  for ( auto entry : mEntryWidgets )
-  {
-    if ( entry->type() == spec->type() )
+    ReosVertexZSpecifier *spec = vertex->zSpecifier();
+    mCurrentEntryWidget = nullptr;
+    int index = -1;
+    for ( auto entry : mEntryWidgets )
+    {
+        if ( entry->type() == spec->type() )
     {
       entry->clear();
       index = mEntryWidgets.indexOf( entry );
-      entry->setSpecifier( vertex->zSpecifier() );
+      mCurrentEntryWidget = entry;
     }
     else
     {
       entry->clear();
     }
+    entry->setSpecifier( vertex->zSpecifier() );
   }
 
-  mComboBoxZSpecifierType->setCurrentIndex( index );
+  if ( index == mComboBoxZSpecifierType->currentIndex() )
+    currentEntryChanged( index );
+  else
+    mComboBoxZSpecifierType->setCurrentIndex( index );
+}
 
+void ReosVertexZSpecifierEditorWidget::updateCurrentVertex()
+{
+  if ( !mCurrentVertex )
+    return;
+
+  static_cast<ReosMeshItemVertex *>( mCurrentVertex->graphicPointer() )->setCurrent( true );
+  ui->vertexReference->setText( vertexReferenceText( mCurrentVertex ) );
+  setZSpecifierEditor( mCurrentVertex );
+  checkCompatibility();
+}
+
+bool ReosVertexZSpecifierEditorWidget::checkUncompatibility()
+{
+  if ( !( mCurrentVertex && mCurrentEntryWidget->factory().IsCompatibleZSpecifier( mCurrentVertex ) ) )
+  {
+    ui->buttonBox->button( QDialogButtonBox::Apply )->setEnabled( false );
+    QMessageBox::warning( this, tr( "Z value specifier" ), tr( "Uncompatible type and reference with the associated vertex" ) );
+    return false;
+  }
+
+  return true;
+}
+
+bool ReosVertexZSpecifierEditorWidget::checkCompatibility()
+{
+  if ( mCurrentVertex && mCurrentEntryWidget->factory().IsCompatibleZSpecifier( mCurrentVertex ) )
+  {
+    ui->buttonBox->button( QDialogButtonBox::Apply )->setEnabled( true );
+    return true;
+  }
+
+  return false;
 }

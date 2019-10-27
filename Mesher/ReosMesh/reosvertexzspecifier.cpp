@@ -213,8 +213,8 @@ void ReosVertexZSpecifierInterpolationFactory::setExtremitiesVertices( VertexPoi
     auto firstSpec = static_cast<ReosVertexZSpecifierInterpolation *>( firstVertex->zSpecifier() );
     auto secondSpec = static_cast<ReosVertexZSpecifierInterpolation *>( secondVertex->zSpecifier() );
 
-    if ( firstSpec->nextVertexInInterpolation() == secondSpec->previousVertexInInterpolation() ||
-         secondSpec->nextVertexInInterpolation() == firstSpec->previousVertexInInterpolation() )
+    if ( firstSpec->nextVertexInInterpolation() == secondVertex ||
+         secondSpec->nextVertexInInterpolation() == firstVertex )
       //the two extremity are folowing each other in the same interpolation
       //--> the new interpolated Zspecifier will be part of the existant interpolation
       //    the new specifier will be inserted after the first vertex in the list among firstvertex and secondVertex
@@ -273,6 +273,28 @@ void ReosVertexZSpecifierInterpolationFactory::setExtremitiesVertices( VertexPoi
 
   mFirstExtremity = firstVertex;
   mSecondExtremity = secondVertex;
+
+}
+
+void ReosVertexZSpecifierInterpolationFactory::setInterpolatedVertex( VertexPointer vertex )
+{
+  if ( !vertex && vertex->zSpecifier()->type() != ReosVertexZSpecifier::Type::Interpolator )
+    return;
+
+  auto spec = static_cast<ReosVertexZSpecifierInterpolation *>( vertex->zSpecifier() );
+  mInterpolatedVertices = spec->verticesList();
+  mFirstExtremity = mInterpolatedVertices.front();
+  mInterpolatedVertices.pop_front();
+  mSecondExtremity = mInterpolatedVertices.back();
+  mInterpolatedVertices.pop_back();
+
+  mInsertPosition = mInterpolatedVertices.begin();
+  while ( *mInsertPosition != vertex )
+    mInsertPosition++;
+
+  mInsertPosition++;
+
+  return;
 
 }
 

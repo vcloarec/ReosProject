@@ -12,7 +12,7 @@ It will be a part of the Reos project, a free and open sources solution dedicate
 ## TODO list
 - [x] add flip faces functionality
 - [x] Save/open TIN using UGRID format
-- [ ] add possibility to modify the Z value of vertices.
+- [x] add possibility to modify the Z value of vertices.
 - [x] add tool to set automaticaly the Z value for the vertices.
 - [ ] Import points and lines from vector files or layers.
 - [ ] Move vertices.

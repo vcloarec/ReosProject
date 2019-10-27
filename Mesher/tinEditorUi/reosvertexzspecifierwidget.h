@@ -51,6 +51,7 @@ class ReosVertexZSpecifierEntryWidget: public QWidget
     virtual ReosVertexZSpecifierFactory &factory() = 0;
     virtual void assignZSpecifier( VertexPointer vert );
 
+    //* with a existant Z Specifier, set the parameters of the widget
     virtual void setSpecifier( ReosVertexZSpecifier *specifier ) = 0;
 
     virtual void start();
@@ -83,7 +84,6 @@ class ReosVertexZSpecifierSimpleValueWidget: public ReosVertexZSpecifierEntryWid
         return;
 
       auto simpleSpecifier = static_cast<ReosVertexZSpecifierSimple *>( specifier );
-
       zValueParameterForm->setValue( simpleSpecifier->zValue() );
     }
 
@@ -194,23 +194,9 @@ class ReosVertexZSpecifierSlopeWidget: public ReosVertexZSpecifierDependentOther
     QIcon icon() const override;
     QString description() const override {return tr( "Other vertex and slope" );}
     ReosVertexZSpecifier::Type type() const override {return ReosVertexZSpecifier::Type::VertexAndSlope;}
-    virtual void clear() override
-    {
-      ReosVertexZSpecifierDependentOtherVertexWidget::clear();
-      mFactory.setSlope( 0 );
-    }
+    virtual void clear() override;
 
-    virtual void setSpecifier( ReosVertexZSpecifier *specifier ) override
-    {
-      if ( specifier->type() != type() )
-        return;
-
-      auto slopeSpecifier = static_cast<ReosVertexZSpecifierOtherVertexAndSlope *>( specifier );
-
-      mFactory.setSlope( slopeSpecifier->slope() );
-      setValue( slopeSpecifier->slope() * 100 );
-      setOtherVertex( slopeSpecifier->otherVertex() );
-    }
+    virtual void setSpecifier( ReosVertexZSpecifier *specifier ) override;
   private:
 
     ReosVertexZSpecifierDependOnOtherVertexFactory &dependentVertexFactory() override {return mFactory;}
@@ -228,23 +214,9 @@ class ReosVertexZSpecifierGapWidget: public ReosVertexZSpecifierDependentOtherVe
     QIcon icon() const override;
     QString description() const override {return tr( "Other vertex and gap" );}
     ReosVertexZSpecifier::Type type() const override {return ReosVertexZSpecifier::Type::VertexAndGap;}
-    virtual void clear() override
-    {
-      ReosVertexZSpecifierDependentOtherVertexWidget::clear();
-      mFactory.setGap( 0 );
-    }
+    virtual void clear() override;
 
-    virtual void setSpecifier( ReosVertexZSpecifier *specifier ) override
-    {
-      if ( specifier->type() != type() )
-        return;
-
-      auto gapSpecifier = static_cast<ReosVertexZSpecifierOtherVertexAndGap *>( specifier );
-
-      mFactory.setGap( gapSpecifier->gap() );
-      setValue( gapSpecifier->gap() );
-      setOtherVertex( gapSpecifier->otherVertex() );
-    }
+    virtual void setSpecifier( ReosVertexZSpecifier *specifier ) override;
 
   private:
 
@@ -265,22 +237,9 @@ class ReosVertexZSpecifierInterpolationWidget: public ReosVertexZSpecifierEntryW
     QString description() const override {return tr( "Interpolation" );}
     ReosVertexZSpecifier::Type type() const override {return ReosVertexZSpecifier::Type::Interpolator;}
 
-    virtual void clear() override
-    {
-      clearExtremityReferences();
-    }
+    virtual void clear() override;
 
-    virtual void setSpecifier( ReosVertexZSpecifier *specifier ) override
-    {
-      if ( specifier->type() != type() )
-        return;
-
-      mFactory.setInterpolatedVertex( specifier->associatedVertex() );
-      updateInterpolationLine();
-      updateReferencesText();
-      showExtremityReferences();
-    }
-
+    virtual void setSpecifier( ReosVertexZSpecifier *specifier ) override;
 
     ReosVertexZSpecifierFactory &factory() override;
     void start() override;
@@ -288,24 +247,11 @@ class ReosVertexZSpecifierInterpolationWidget: public ReosVertexZSpecifierEntryW
 
     void assignZSpecifier( VertexPointer vert ) override;
 
-    virtual void vertexHasToBeRemoved( VertexPointer vertex ) override
-    {
-      if ( vertex == mFactory.firstExtremity() || vertex == mFactory.secondExtremity() )
-      {
-        clearExtremityReferences();
-      }
-    }
+    virtual void vertexHasToBeRemoved( VertexPointer vertex ) override;
 
   private slots:
     void updateReferencesText();
-    void startSelectReferences()
-    {
-      clearExtremityReferences();
-      updateInterpolationLine();
-      mInterpolationLine->hide();
-      updateReferencesText();
-      selectReferenceMapTool->start();
-    }
+    void startSelectReferences();
 
     void zoneHasBeenSelected( const QRectF &zone );
 
