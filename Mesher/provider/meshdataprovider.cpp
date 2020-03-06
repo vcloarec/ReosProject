@@ -24,14 +24,14 @@ QgsMeshDatasetGroupMetadata TINProvider::datasetGroupMetadata( int groupIndex ) 
   QMap<QString, QString> extraOptions;
 
   extraOptions["By"] = "vcloarec";
-  return QgsMeshDatasetGroupMetadata( tr( "Altitude terrain" ), true, true, -5, 20, extraOptions );
+  return QgsMeshDatasetGroupMetadata( tr( "Altitude terrain" ), true, QgsMeshDatasetGroupMetadata::DataOnVertices, -5, 20, 1, QDateTime(), extraOptions );
 }
 
 QgsMeshDatasetMetadata TINProvider::datasetMetadata( QgsMeshDatasetIndex index ) const
 {
   if ( index.group() == 0 && index.dataset() == 0 )
   {
-    return QgsMeshDatasetMetadata( 0, true, 0, 5 );
+    return QgsMeshDatasetMetadata( 0, true, 0, 5, 0 );
   }
 
   return QgsMeshDatasetMetadata();
@@ -46,7 +46,7 @@ QgsMeshDataBlock TINProvider::datasetValues( QgsMeshDatasetIndex index, int valu
   if ( index.group() == 0 && index.dataset() == 0 )
   {
     QgsMeshDataBlock dataBlock( QgsMeshDataBlock::ScalarDouble, count );
-    double *values = static_cast<double *>( dataBlock.buffer() );
+    QVector<double> values( count );
     auto reader = mTin.getReader();
     int i = 0;
     while ( !reader->allVerticesReaden() )
@@ -86,24 +86,13 @@ bool TINProvider::isFaceActive( QgsMeshDatasetIndex index, int faceIndex ) const
 
 QgsMeshDataBlock TINProvider::areFacesActive( QgsMeshDatasetIndex index, int faceIndex, int count ) const
 {
+  Q_UNUSED( index );
   Q_UNUSED( faceIndex );
-  if ( index.group() == 0 && index.dataset() == 0 )
-  {
-    QgsMeshDataBlock dataBlock( QgsMeshDataBlock::ActiveFlagInteger, count );
+  Q_UNUSED( count );
 
-    int *values = static_cast<int *>( dataBlock.buffer() );
 
-    for ( int i = 0; i < mTin.facesCount(); ++i )
-    {
-      values[i] = 1;
-    }
+  return QgsMeshDataBlock();
 
-    return dataBlock;
-  }
-  else
-  {
-    return QgsMeshDataBlock();
-  }
 }
 
 bool TINProvider::persistDatasetGroup( const QString &path, const QgsMeshDatasetGroupMetadata &meta, const QVector<QgsMeshDataBlock> &datasetValues, const QVector<QgsMeshDataBlock> &datasetActive, const QVector<double> &times )
@@ -114,6 +103,15 @@ bool TINProvider::persistDatasetGroup( const QString &path, const QgsMeshDataset
   Q_UNUSED( datasetActive );
   Q_UNUSED( times );
   return false;
+}
+
+QgsMesh3dDataBlock TINProvider::dataset3dValues( QgsMeshDatasetIndex index, int faceIndex, int count ) const
+{
+  Q_UNUSED( index );
+  Q_UNUSED( faceIndex );
+  Q_UNUSED( count );
+
+  return QgsMesh3dDataBlock();
 }
 
 int TINProvider::vertexCount() const

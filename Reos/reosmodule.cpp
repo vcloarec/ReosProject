@@ -16,7 +16,7 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #include "reosmodule.h"
 
 ReosModule::ReosModule( QObject *parent, ReosInformationSender *messenger ):
-  QObject( parent ), ReosInformationSender( messenger ), groupAction( new QActionGroup( this ) )
+  QObject( parent ), ReosInformationSender( messenger ), mGroupAction( new QActionGroup( this ) )
 {
 
 }
@@ -24,8 +24,8 @@ ReosModule::ReosModule( QObject *parent, ReosInformationSender *messenger ):
 ReosModule::ReosModule( ReosModule *parent ): ReosModule( static_cast<QObject *>( parent ) )
 {
 
-  reosParent = parent;
-  reosChildren.append( this );
+  mReosParent = parent;
+  mReosChildren.append( this );
 }
 
 ReosModule::~ReosModule()
@@ -35,8 +35,8 @@ ReosModule::~ReosModule()
     if ( ( !getWidget()->parentWidget() ) && ( !getWidget()->parent() ) )
       delete getWidget();
   }
-  if ( reosParent )
-    reosParent->reosChildren.removeOne( this );
+  if ( mReosParent )
+    mReosParent->mReosChildren.removeOne( this );
 }
 
 
@@ -49,9 +49,9 @@ void ReosModule::newCommand( QUndoCommand *command )
     return;
   }
 
-  if ( reosParent )
+  if ( mReosParent )
   {
-    reosParent->newCommand( command );
+    mReosParent->newCommand( command );
   }
   else
   {
@@ -81,13 +81,13 @@ void ReosModule::order( QString message ) const
 
 void ReosModule::sendMessage( QString mes, ReosMessageBox::Type type ) const
 {
-  if ( reosParent )
-    reosParent->sendMessage( mes, type );
+  if ( mReosParent )
+    mReosParent->sendMessage( mes, type );
   else
     emit messageEmited( mes, type );
 }
 
-QList<QAction *> ReosModule::getActions() const {return groupAction->actions();}
+QList<QAction *> ReosModule::getActions() const {return mGroupAction->actions();}
 
 void ReosModule::showWidget()
 {
@@ -107,3 +107,14 @@ void ReosModule::hideWidget()
 ReosInformationSender::ReosInformationSender( ReosInformationSender *parent ): parent( parent ) {}
 
 ReosInformationSender::~ReosInformationSender() {}
+
+void ReosInformationSender::receive( int mes )
+{
+  sendToParent( mes );
+}
+
+void ReosInformationSender::sendToParent( int mes )
+{
+  if ( parent )
+    parent->receive( mes );
+}

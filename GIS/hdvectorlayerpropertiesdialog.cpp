@@ -16,9 +16,9 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "hdvectorlayerpropertiesdialog.h"
 #include "ui_hdvectorlayerpropertiesdialog.h"
 
-HdVectorLayerPropertiesDialog::HdVectorLayerPropertiesDialog( QgsVectorLayer *layer, QgsMapCanvas *canvas ) :
+ReosVectorLayerPropertiesDialog::ReosVectorLayerPropertiesDialog( QgsVectorLayer *layer, QgsMapCanvas *canvas ) :
   QDialog( canvas ),
-  ui( new Ui::HdVectorLayerPropertiesDialog ), layer( layer ),
+  ui( new Ui::ReosVectorLayerPropertiesDialog ), layer( layer ),
   canvas( canvas )
 {
   ui->setupUi( this );
@@ -38,7 +38,7 @@ HdVectorLayerPropertiesDialog::HdVectorLayerPropertiesDialog( QgsVectorLayer *la
   ui->textBrowser->document()->setDefaultStyleSheet( myStyle );
   ui->textBrowser->setOpenLinks( false );
   ui->textBrowser->setText( layer->htmlMetadata() );
-  connect( ui->textBrowser, &QTextBrowser::anchorClicked, this, &HdVectorLayerPropertiesDialog::urlClicked );
+  connect( ui->textBrowser, &QTextBrowser::anchorClicked, this, &ReosVectorLayerPropertiesDialog::urlClicked );
 
   //install the symbologie
   ui->symbologyContent->setLayout( new QHBoxLayout );
@@ -48,8 +48,8 @@ HdVectorLayerPropertiesDialog::HdVectorLayerPropertiesDialog( QgsVectorLayer *la
   renderDialog->setMapCanvas( canvas );
 
   QPushButton  *applyButton = ui->buttonBox->button( QDialogButtonBox::Apply );
-  connect( applyButton, &QPushButton::clicked, this, &HdVectorLayerPropertiesDialog::apply );
-  connect( ui->buttonBox->button( QDialogButtonBox::Ok ), &QPushButton::clicked, this, &HdVectorLayerPropertiesDialog::updateSettings );
+  connect( applyButton, &QPushButton::clicked, this, &ReosVectorLayerPropertiesDialog::apply );
+  connect( ui->buttonBox->button( QDialogButtonBox::Ok ), &QPushButton::clicked, this, &ReosVectorLayerPropertiesDialog::updateSettings );
 
   ReosSettings settings;
   if ( !settings.contains( QStringLiteral( "Windows/VectorLayerProperties/tab" ) ) )
@@ -61,12 +61,12 @@ HdVectorLayerPropertiesDialog::HdVectorLayerPropertiesDialog( QgsVectorLayer *la
 
 }
 
-HdVectorLayerPropertiesDialog::~HdVectorLayerPropertiesDialog()
+ReosVectorLayerPropertiesDialog::~ReosVectorLayerPropertiesDialog()
 {
   delete ui;
 }
 
-void HdVectorLayerPropertiesDialog::apply()
+void ReosVectorLayerPropertiesDialog::apply()
 {
   renderDialog->apply();
   layer->setCrs( crsSelection->crs(), true );
@@ -74,7 +74,7 @@ void HdVectorLayerPropertiesDialog::apply()
 
 }
 
-void HdVectorLayerPropertiesDialog::urlClicked( const QUrl &url )
+void ReosVectorLayerPropertiesDialog::urlClicked( const QUrl &url )
 {
   QFileInfo file( url.toLocalFile() );
   if ( file.exists() && !file.isDir() )
@@ -83,13 +83,13 @@ void HdVectorLayerPropertiesDialog::urlClicked( const QUrl &url )
     QDesktopServices::openUrl( url );
 }
 
-void HdVectorLayerPropertiesDialog::updateSettings()
+void ReosVectorLayerPropertiesDialog::updateSettings()
 {
   ReosSettings settings;
   settings.setValue( QStringLiteral( "Windows/VectorLayerProperties/tab" ), ui->tabWidget->currentIndex() );
 }
 
-void HdVectorLayerPropertiesDialog::closeEvent( QCloseEvent *event )
+void ReosVectorLayerPropertiesDialog::closeEvent( QCloseEvent *event )
 {
   updateSettings();
   QDialog::closeEvent( event );

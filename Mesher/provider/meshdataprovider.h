@@ -86,7 +86,7 @@ class TINProvider: public QgsMeshDataProvider
     bool isFaceActive( QgsMeshDatasetIndex index, int faceIndex ) const override;
     QgsMeshDataBlock areFacesActive( QgsMeshDatasetIndex index, int faceIndex, int count ) const override;
     bool persistDatasetGroup( const QString &path, const QgsMeshDatasetGroupMetadata &meta, const QVector<QgsMeshDataBlock> &datasetValues, const QVector<QgsMeshDataBlock> &datasetActive, const QVector<double> &times ) override;
-
+    QgsMesh3dDataBlock dataset3dValues( QgsMeshDatasetIndex index, int faceIndex, int count ) const;
     // QgsMeshDataSourceInterface interface
   public:
     int vertexCount() const override;
@@ -100,7 +100,6 @@ class TINProvider: public QgsMeshDataProvider
     bool isValid() const override {return true;}
     QString name() const override {return QStringLiteral( "TIN" );}
     QString description() const override {return QString();}
-
 
 };
 

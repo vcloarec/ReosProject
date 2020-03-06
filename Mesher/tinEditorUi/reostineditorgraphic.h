@@ -275,6 +275,14 @@ class ReosTinEditorUi : public ReosModule
     void addSegment( VertexPointer v1, VertexPointer v2, QList<PointAndNeighbours> &oldNeigboursStructure );
     void removeHardLine( VertexPointer v1, VertexPointer v2 );
 
+    void addVectorLayer( QgsVectorLayer *vectorLayer );
+
+    void addPointVectorLayer( QgsVectorLayer *vectorLayer, const QgsCoordinateTransformContext &transformContext );
+
+    //! Adds multipoint to the TIN and returns the count of point effectivly added
+    int addMultiPointGeometry( QgsMultiPoint *multipoint, const QgsCoordinateTransform &transform = QgsCoordinateTransform() );
+
+    bool addPointGeometry( QgsPoint *point, const QgsCoordinateTransform &transform = QgsCoordinateTransform() );
 
     ReosMeshItemVertexAndNeighbours saveStructure( ReosMeshItemVertex *vert ) const;
 

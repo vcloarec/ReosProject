@@ -78,7 +78,7 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 
 
 
-class HdTreeLayerSIGView: public QgsLayerTreeView
+class ReosTreeLayerGISView: public QgsLayerTreeView
 {
     // QWidget interface
   protected:
@@ -109,23 +109,34 @@ class ReosGisManager: public ReosModule
 {
     Q_OBJECT
   public:
+    //!Constructor
     ReosGisManager( ReosMap *map, ReosModule *parent = nullptr );
     ~ReosGisManager() override {}
 
+    //! Launches a dialog to choose a raster layer in the layer available and retturn the chosen layer
     QgsRasterLayer *getRasterLayer();
+
+    //! Launches a dialog to choose a raster layer in the layer available and retturn the chosen layer
+    QgsRasterLayer *getVectorLayer();
+
+    //! Factory for a idget that display the map CRS
     QWidget *createCRSDisplay( QWidget *parent );
 
+    //! Returns a context menu related to the layer tree
     QMenu *getContextMenu();
 
+    //! Load a QGIS project
     void loadGISProject();
+    //! Saves the map as a QGIS file
     void saveGISProject();
 
-    QgsRectangle transformExtentFrom( const QgsRectangle &extent, const QgsCoordinateReferenceSystem crsSource );
-    QgsRectangle transformExtentTo( const QgsRectangle &extent, const QgsCoordinateReferenceSystem crsDest );
+
+    QgsRectangle transformExtentFrom( const QgsRectangle &extent, const QgsCoordinateReferenceSystem &crsSource );
+    QgsRectangle transformExtentTo( const QgsRectangle &extent, const QgsCoordinateReferenceSystem &crsDest );
 
 
-    void transformTo( QgsAbstractGeometry *sourceGeometry, const QgsCoordinateReferenceSystem crsDest );
-    void transformFrom( QgsAbstractGeometry *sourceGeometry, const QgsCoordinateReferenceSystem crsDest );
+    void transformTo( QgsAbstractGeometry *sourceGeometry, const QgsCoordinateReferenceSystem &crsDest );
+    void transformFrom( QgsAbstractGeometry *sourceGeometry, const QgsCoordinateReferenceSystem &crsDest );
 
     ReosMap *getMap() const;
 
@@ -150,7 +161,7 @@ class ReosGisManager: public ReosModule
     void mapCrsChanged( const QgsCoordinateReferenceSystem &mCrs );
 
   public slots:
-    void openProjectSIG();
+    void openGISProject();
     void newProjectSIG();
     void loadVectorielLayer();
     void loadRasterLayer();
@@ -164,12 +175,12 @@ class ReosGisManager: public ReosModule
   private:
     ReosMap *mMap;
     QgsCoordinateReferenceSystem mCrs;
-    QgsCoordinateReferenceSystem deFaultCrs;
-    HdTreeLayerSIGView *treeLayerView_;
-    QgsLayerTreeMapCanvasBridge *bridgeTreeMap_;
+    QgsCoordinateReferenceSystem mDeFaultCrs;
+    ReosTreeLayerGISView *mTreeLayerView;
+    QgsLayerTreeMapCanvasBridge *mBridgeTreeMap;
     HdTreeLayerModel *treemodel_;
     QString pluginPath;
-    QString GISFileName;
+    QString mGISFileName;
 
     QWidget *controlPannel;
     QWidget *crsDisplay;

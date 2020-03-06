@@ -32,15 +32,8 @@ class ReosInformationSender
     virtual ~ReosInformationSender();
 
   protected:
-    virtual void receive( int mes )
-    {
-      sendToParent( mes );
-    }
-    void sendToParent( int mes )
-    {
-      if ( parent )
-        parent->receive( mes );
-    }
+    virtual void receive( int mes );
+    void sendToParent( int mes );
   private:
     ReosInformationSender *parent;
 };
@@ -53,11 +46,10 @@ class ReosModule : public QObject, public ReosInformationSender
     explicit ReosModule( ReosModule *parent );
     virtual ~ReosModule();
 
-
     virtual QWidget *getWidget() const {return nullptr;}
     QList<QAction *> getActions() const;
-    QMenu *getMenu() const {return menu;}
-    QToolBar *getToolBar() const {return toolBar;}
+    QMenu *getMenu() const {return mMenu;}
+    QToolBar *getToolBar() const {return mToolBar;}
 
   signals:
     void newCommandToUndoStack( QUndoCommand *command );
@@ -95,18 +87,16 @@ class ReosModule : public QObject, public ReosInformationSender
     void order( QString message ) const;
 
   protected:
-    QActionGroup *groupAction = nullptr;
-    QToolBar *toolBar = nullptr;
-    QMenu *menu = nullptr;
+    QActionGroup *mGroupAction = nullptr;
+    QToolBar *mToolBar = nullptr;
+    QMenu *mMenu = nullptr;
     QUndoStack *mUndoStack = nullptr;
 
     void sendMessage( QString mes, ReosMessageBox::Type type ) const;
 
-
-
   private:
-    ReosModule *reosParent = nullptr;
-    QList<ReosModule *> reosChildren;
+    ReosModule *mReosParent = nullptr;
+    QList<ReosModule *> mReosChildren;
 };
 
 #endif // REOSMODULE_H

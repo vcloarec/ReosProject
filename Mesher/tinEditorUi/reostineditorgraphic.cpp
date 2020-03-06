@@ -14,6 +14,7 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
  ***************************************************************************/
 
 #include "reostineditorgraphic.h"
+#include "qgsmultipoint.h"
 
 ReosTinEditorUi::ReosTinEditorUi( ReosGisManager *gismanager, QObject *parent ): ReosModule( parent ),
   mDomain( new ReosMapMeshEditorItemDomain( this, gismanager->getMap()->getMapCanvas() ) ),
@@ -59,16 +60,16 @@ ReosTinEditorUi::ReosTinEditorUi( ReosGisManager *gismanager, QObject *parent ):
 
 
 
-  groupAction->addAction( actionNewTinLayer );
-  groupAction->addAction( actionOpenTinLayer );
-  groupAction->addAction( actionSaveTinLayer );
-  groupAction->addAction( actionNewVertex );
-  groupAction->addAction( actionRemoveVertex );
-  groupAction->addAction( actionNewHardLineSegment );
-  groupAction->addAction( actionRemoveSegment );
-  groupAction->addAction( actionZSpecifierEditor );
-  groupAction->addAction( actionFlipFaces );
-  groupAction->addAction( actionTriangulateTIN );
+  mGroupAction->addAction( actionNewTinLayer );
+  mGroupAction->addAction( actionOpenTinLayer );
+  mGroupAction->addAction( actionSaveTinLayer );
+  mGroupAction->addAction( actionNewVertex );
+  mGroupAction->addAction( actionRemoveVertex );
+  mGroupAction->addAction( actionNewHardLineSegment );
+  mGroupAction->addAction( actionRemoveSegment );
+  mGroupAction->addAction( actionZSpecifierEditor );
+  mGroupAction->addAction( actionFlipFaces );
+  mGroupAction->addAction( actionTriangulateTIN );
 
   actionEditList.append( actionNewVertex );
   actionEditList.append( actionNewHardLineSegment );
@@ -210,7 +211,6 @@ VertexPointer ReosTinEditorUi::addRealWorldVertex( const QPointF &mapPoint, doub
     vert = mTIN->addVertex( p.x(), p.y() );
     vert->setZValue( z );
     addMapVertex( mapPoint, vert );
-
   }
 
   return vert;
@@ -404,7 +404,7 @@ void ReosTinEditorUi::updateMeshLayer()
     mTIN = nullptr;
   else
   {
-    if ( mMeshLayer->dataProvider()->name() == QStringLiteral( "TIN" ) )
+    if ( mMeshLayer->dataProvider() && mMeshLayer->dataProvider()->name() == QStringLiteral( "TIN" ) )
     {
       mTIN = static_cast<TINProvider *>( mMeshLayer->dataProvider() )->tin();
       mTransform.reset( new QgsCoordinateTransform( mMeshLayer->crs(), mMap->getCoordinateReferenceSystem(), QgsProject::instance() ) );
@@ -703,6 +703,95 @@ void ReosTinEditorUi::removeHardLine( VertexPointer v1, VertexPointer v2 )
 
   for ( auto v : verticesList )
     updateGraphics( v );
+}
+
+void ReosTinEditorUi::addVectorLayer( QgsVectorLayer *vectorLayer )
+{
+  if ( !vectorLayer )
+    return;
+  QgsWkbTypes::GeometryType geometryType = vectorLayer->geometryType();
+  switch ( geometryType )
+  {
+    case QgsWkbTypes::PointGeometry:
+      addPointVectorLayer( vectorLayer, QgsProject::instance()->transformContext() );
+      break;
+    case QgsWkbTypes::LineGeometry:
+    case QgsWkbTypes::PolygonGeometry:
+
+      break;
+    case QgsWkbTypes::UnknownGeometry:
+      break;
+    case QgsWkbTypes::NullGeometry:
+      break;
+  }
+}
+
+void ReosTinEditorUi::addPointVectorLayer( QgsVectorLayer *vectorLayer, const QgsCoordinateTransformContext &transformContext )
+{
+  if ( !QgsWkbTypes::hasZ( vectorLayer->wkbType() ) )
+  {
+    QMessageBox::warning( uiDialog, tr( "Add vertex from layer" ), tr( "No Z value provided" ) );
+  }
+
+  QgsFeatureIterator fIt = vectorLayer->getFeatures();
+  QgsFeature feat;
+
+  QgsCoordinateTransform transform( vectorLayer->crs(), mMeshLayer->crs(), transformContext );
+
+  int addedPoint = 0;
+
+  while ( fIt.nextFeature( feat ) )
+  {
+    QgsAbstractGeometry *geom = feat.geometry().get();
+    if ( QgsWkbTypes::isMultiType( geom->wkbType() ) )
+      addedPoint += addMultiPointGeometry( qgsgeometry_cast<QgsMultiPoint *>( geom ), transform );
+    else
+    {
+      if ( addPointGeometry( qgsgeometry_cast<QgsPoint *>( geom ), transform ) )
+        addedPoint++;
+    }
+  }
+}
+
+int ReosTinEditorUi::addMultiPointGeometry( QgsMultiPoint *multipoint, const QgsCoordinateTransform &transform )
+{
+  int count = multipoint->numGeometries();
+  int added = 0;
+  for ( int i = 0; i < count; ++i )
+  {
+    if ( addPointGeometry( qgsgeometry_cast<QgsPoint *>( multipoint->geometryN( i ) ), transform ) )
+      added++;
+  }
+
+  return added;
+}
+
+bool ReosTinEditorUi::addPointGeometry( QgsPoint *point, const QgsCoordinateTransform &transform )
+{
+  if ( transform.isValid() )
+  {
+    try
+    {
+      QgsPointXY transPoint = transform.transform( *point );
+      VertexPointer vert = mTIN->addVertex( transPoint.x(), transPoint.y() );
+      vert->setZValue( point->z() );
+      addMapVertex( vert );
+      return true;
+    }
+    catch ( QgsException &e )
+    {
+      Q_UNUSED( e );
+      return false;
+    }
+  }
+  else
+  {
+    VertexPointer vert = mTIN->addVertex( point->x(), point->y() );
+    vert->setZValue( point->z() );
+    addMapVertex( vert );
+    return true;
+  }
+
 }
 
 void ReosTinEditorUi::populateDomain()

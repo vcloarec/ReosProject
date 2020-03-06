@@ -35,24 +35,22 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 
 namespace Ui
 {
-  class HdVectorLayerPropertiesDialog;
+  class ReosVectorLayerPropertiesDialog;
 }
 
-class HdVectorLayerPropertiesDialog : public QDialog
+class ReosVectorLayerPropertiesDialog : public QDialog
 {
     Q_OBJECT
 
   public:
-    explicit HdVectorLayerPropertiesDialog( QgsVectorLayer *layer, QgsMapCanvas *canvas );
-    ~HdVectorLayerPropertiesDialog();
-
-
+    explicit ReosVectorLayerPropertiesDialog( QgsVectorLayer *layer, QgsMapCanvas *canvas );
+    ~ReosVectorLayerPropertiesDialog();
 
   private slots:
 
     void apply();
   private:
-    Ui::HdVectorLayerPropertiesDialog *ui;
+    Ui::ReosVectorLayerPropertiesDialog *ui;
     QgsVectorLayer *layer;
     QgsRendererPropertiesDialog *renderDialog = nullptr;
     QgsMapCanvas *canvas;

@@ -17,11 +17,11 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 
 
 ReosGisManager::ReosGisManager( ReosMap *map, ReosModule *parent ): ReosModule( parent ), mMap( map ),
-  treeLayerView_( new HdTreeLayerSIGView() ),
+  mTreeLayerView( new ReosTreeLayerGISView() ),
 #ifdef _DEBUG
-  pluginPath( "pluginsQGISDebug" ),
+  pluginPath( "/home/cloarec/dev/built/QGIS_debug/lib/qgis/plugins/" ),
 #else
-  pluginPath( "pluginsQGIS" ),
+  pluginPath( "/home/cloarec/dev/built/QGIS_Release/lib/qgis/plugins/" ),
 #endif
   controlPannel( new QWidget() ),
   actionNewProjectSIG( new QAction( QPixmap( "://toolbar/NouveauDoc.png" ), tr( "Nouveau projet SIG" ), this ) ),
@@ -38,11 +38,10 @@ ReosGisManager::ReosGisManager( ReosMap *map, ReosModule *parent ): ReosModule( 
   QgsApplication::setPkgDataPath( "./" );
 
 
-  deFaultCrs = QgsCoordinateReferenceSystem( QStringLiteral( "EPSG:4326" ) );
-  setCRS( deFaultCrs );
+  mDeFaultCrs = QgsCoordinateReferenceSystem( QStringLiteral( "EPSG:4326" ) );
+  setCRS( mDeFaultCrs );
 
-  toolBar = new QToolBar( tr( "Gestion couche QGIS" ) );
-
+  mToolBar = new QToolBar( tr( "GIS Manager" ) );
 
   treemodel_ = new HdTreeLayerModel( QgsProject::instance()->layerTreeRoot() );
   treemodel_->setFlags( QgsLayerTreeModel::ShowLegendAsTree |
@@ -51,32 +50,29 @@ ReosGisManager::ReosGisManager( ReosMap *map, ReosModule *parent ): ReosModule( 
                         QgsLayerTreeModel::AllowNodeChangeVisibility |
                         QgsLayerTreeModel::AllowNodeReorder );
 
-  bridgeTreeMap_ = new QgsLayerTreeMapCanvasBridge( QgsProject::instance()->layerTreeRoot(), map->getMapCanvas(), this );
-  treeLayerView_->setModel( treemodel_ );
-  treeLayerView_->setDragDropMode( QAbstractItemView::DragDrop );
-  treeLayerView_->setAcceptDrops( true );
-  treeLayerView_->setDragEnabled( true );
-  treeLayerView_->setMenuProvider( new HdSigTreeViewContextMenuProvider( this ) );
+  mBridgeTreeMap = new QgsLayerTreeMapCanvasBridge( QgsProject::instance()->layerTreeRoot(), map->getMapCanvas(), this );
+  mTreeLayerView->setModel( treemodel_ );
+  mTreeLayerView->setDragDropMode( QAbstractItemView::DragDrop );
+  mTreeLayerView->setAcceptDrops( true );
+  mTreeLayerView->setDragEnabled( true );
+  mTreeLayerView->setMenuProvider( new HdSigTreeViewContextMenuProvider( this ) );
 
-  toolBar->addAction( actionNewProjectSIG );
-  toolBar->addAction( actionOpenProjectSIG );
-  toolBar->addAction( actionLoadVectorielLayer );
-  toolBar->addAction( actionLoadRasterLayer );
-  toolBar->addAction( actionRemoveLayer );
-  toolBar->addAction( actionZoomLayerExtent );
-  toolBar->addAction( actionCRSSelection );
-
+  mToolBar->addAction( actionNewProjectSIG );
+  mToolBar->addAction( actionOpenProjectSIG );
+  mToolBar->addAction( actionLoadVectorielLayer );
+  mToolBar->addAction( actionLoadRasterLayer );
+  mToolBar->addAction( actionRemoveLayer );
+  mToolBar->addAction( actionZoomLayerExtent );
+  mToolBar->addAction( actionCRSSelection );
 
   QVBoxLayout *layoutControl = new QVBoxLayout();
-  layoutControl->addWidget( toolBar );
-  layoutControl->addWidget( treeLayerView_ );
+  layoutControl->addWidget( mToolBar );
+  layoutControl->addWidget( mTreeLayerView );
   controlPannel->setLayout( layoutControl );
 
 
-
-
-  connect( actionNewProjectSIG, &QAction::triggered, this, &ReosGisManager::newProjectSIG );
-  connect( actionOpenProjectSIG, &QAction::triggered, this, &ReosGisManager::openProjectSIG );
+  connect( actionNewProjectSIG, &QAction::triggered, this, &ReosGisManager::openGISProject );
+  connect( actionOpenProjectSIG, &QAction::triggered, this, &ReosGisManager::openGISProject );
   connect( actionLoadVectorielLayer, &QAction::triggered, this, &ReosGisManager::loadVectorielLayer );
   connect( actionLoadRasterLayer, &QAction::triggered, this, &ReosGisManager::loadRasterLayer );
   connect( actionRemoveLayer, &QAction::triggered, this, &ReosGisManager::removeSelectedLayers );
@@ -84,8 +80,8 @@ ReosGisManager::ReosGisManager( ReosMap *map, ReosModule *parent ): ReosModule( 
   connect( actionCRSSelection, &QAction::triggered, this, &ReosGisManager::CRSSelection );
   connect( actionCRSSelectionWithText, &QAction::triggered, this, &ReosGisManager::CRSSelection );
   connect( actionLayerProperties, &QAction::triggered, this, &ReosGisManager::layerProperties );
-  connect( treeLayerView_, &QAbstractItemView::doubleClicked, this, &ReosGisManager::layerPropertiesByIndex );
-  connect( treeLayerView_, &QgsLayerTreeView::currentLayerChanged, this, &ReosGisManager::currentLayerChanged );
+  connect( mTreeLayerView, &QAbstractItemView::doubleClicked, this, &ReosGisManager::layerPropertiesByIndex );
+  connect( mTreeLayerView, &QgsLayerTreeView::currentLayerChanged, this, &ReosGisManager::currentLayerChanged );
 
   connect( QgsProject::instance(), &QgsProject::crsChanged, mMap, &ReosMap::crsChanged );
 
@@ -108,29 +104,40 @@ QgsRasterLayer *ReosGisManager::getRasterLayer()
   return static_cast<QgsRasterLayer *>( comboBox->currentLayer() );
 }
 
+QgsRasterLayer *ReosGisManager::getVectorLayer()
+{
+  QgsMapLayerComboBox *comboBox = new QgsMapLayerComboBox;
+  comboBox->setFilters( QgsMapLayerProxyModel::VectorLayer );
+  ReosDialogBox dial( comboBox );
+
+  dial.exec();
+
+  return static_cast<QgsRasterLayer *>( comboBox->currentLayer() );
+}
+
 QWidget *ReosGisManager::createCRSDisplay( QWidget *parent )
 {
   crsDisplay = new QWidget( parent );
   crsDisplay->setLayout( new QHBoxLayout );
   QToolBar *toolBar = new QToolBar( crsDisplay );
   toolBar->addAction( actionCRSSelectionWithText );
-  crsDisplay->layout()->addWidget( new QLabel( tr( "Système de coordonnées : " ) ) );
+  crsDisplay->layout()->addWidget( new QLabel( tr( "Coordinate system : " ) ) );
   crsDisplay->layout()->addWidget( toolBar );
   return crsDisplay;
 }
 
 QMenu *ReosGisManager::getContextMenu()
 {
-  if ( treeLayerView_->selectedLayers().count() == 0 )
+  if ( mTreeLayerView->selectedLayers().count() == 0 )
     return nullptr;
 
-  if ( treeLayerView_->selectedLayers().count() == 1 )
+  if ( mTreeLayerView->selectedLayers().count() == 1 )
   {
-    if ( treeLayerView_->currentLayer()->type() == RASTER_LAYER_TYPE )
+    if ( mTreeLayerView->currentLayer()->type() == RASTER_LAYER_TYPE )
       return getMenuForOneRasterLayer();
 
 
-    if ( treeLayerView_->currentLayer()->type() == VECTOR_LAYER_TYPE )
+    if ( mTreeLayerView->currentLayer()->type() == VECTOR_LAYER_TYPE )
       return getMenuForOneVectorLayer();
 
     return nullptr;
@@ -141,12 +148,12 @@ QMenu *ReosGisManager::getContextMenu()
 
 }
 
-void ReosGisManager::openProjectSIG()
+void ReosGisManager::openGISProject()
 {
 
   if ( treemodel_->rowCount() != 0 )
   {
-    QMessageBox dia( QMessageBox::Question, tr( "Ouverture projet SIG" ), tr( "Cela enlèvera les couches actuelles. Voulez vous continuer ?" ),
+    QMessageBox dia( QMessageBox::Question, tr( "Open GIS Project" ), tr( "This will remove current layer. Continue ?" ),
                      QMessageBox::Ok | QMessageBox::Cancel );
     dia.exec();
     if ( dia.result() != QMessageBox::Ok )
@@ -155,26 +162,28 @@ void ReosGisManager::openProjectSIG()
 
   ReosSettings settings;
   QString path = settings.value( QStringLiteral( "/Path/Project" ) ).toString();
-  QString nomFichierProjet = QFileDialog::getOpenFileName( controlPannel, tr( "Ouverture d'une fichier de projet QGis" ), path, "*.qgs *.qgz" );
+  QString projectFileName = QFileDialog::getOpenFileName( controlPannel, tr( "Open GIS Project" ), path, "*.qgs *.qgz" );
 
-  if ( nomFichierProjet == "" )
+  if ( projectFileName == "" )
     return;
-  QFileInfo fileInfo( nomFichierProjet );
+  QFileInfo fileInfo( projectFileName );
   settings.setValue( QStringLiteral( "/Path/Project" ), fileInfo.path() );
 
-  GISFileName = nomFichierProjet;
+  mGISFileName = projectFileName;
   mMap->saveMapExtent();
+  emit currentLayerChanged( nullptr );
   loadGISProject();
-
 }
 
 void ReosGisManager::newProjectSIG()
 {
-  QMessageBox dia( QMessageBox::Question, tr( "Nouveau projet SIG" ), tr( "Enlever les couches actuelles ?" )
+  QMessageBox dia( QMessageBox::Question, tr( "New project" ), tr( "Remove current layers ?" )
                    , QMessageBox::Ok | QMessageBox::Cancel );
 
   if ( dia.exec() )
     clear();
+
+  emit currentLayerChanged( nullptr );
 
 }
 
@@ -186,7 +195,7 @@ bool ReosGisManager::addLayer( QgsMapLayer *layer )
     {
       controlLayerCRS( layer );
       QgsProject::instance()->addMapLayer( layer, true, true );
-      bridgeTreeMap_->mapCanvas()->refresh();
+      mBridgeTreeMap->mapCanvas()->refresh();
       return true;
     }
   }
@@ -203,8 +212,6 @@ void ReosGisManager::loadVectorielLayer()
   QString myLayerPath = QFileDialog::getOpenFileName( controlPannel, tr( "Ajouter une couche vectoriel" ), path, "*.*" );
   if ( myLayerPath == "" )
     return;
-
-
 
   QFileInfo fileInfo( myLayerPath );
   settings.setValue( QStringLiteral( "/Path/SIGLayer" ), fileInfo.path() );
@@ -247,7 +254,7 @@ void ReosGisManager::loadRasterLayer()
 
 void ReosGisManager::removeLayer()
 {
-  QgsMapLayer *layer = treeLayerView_->currentLayer();
+  QgsMapLayer *layer = mTreeLayerView->currentLayer();
 
 
   if ( layer )
@@ -276,7 +283,7 @@ void ReosGisManager::removeLayer()
 
 void ReosGisManager::removeSelectedLayers()
 {
-  QList<QgsMapLayer *> listLayer = treeLayerView_->selectedLayers();
+  QList<QgsMapLayer *> listLayer = mTreeLayerView->selectedLayers();
 
   if ( listLayer.count() > 0 )
   {
@@ -296,8 +303,8 @@ void ReosGisManager::removeSelectedLayers()
     }
 
     QgsMapLayer *currentLayer = nullptr;
-    if ( treeLayerView_->selectedLayers().count() > 0 )
-      currentLayer = treeLayerView_->selectedLayers().at( 0 );
+    if ( mTreeLayerView->selectedLayers().count() > 0 )
+      currentLayer = mTreeLayerView->selectedLayers().at( 0 );
     emit currentLayerChanged( currentLayer );
 
   }
@@ -305,11 +312,11 @@ void ReosGisManager::removeSelectedLayers()
 
 void ReosGisManager::zoomExtentToLayer()
 {
-  QgsMapLayer *layer = treeLayerView_->currentLayer();
+  QgsMapLayer *layer = mTreeLayerView->currentLayer();
   if ( layer )
   {
-    bridgeTreeMap_->mapCanvas()->setExtent( layer->extent() );
-    bridgeTreeMap_->mapCanvas()->refresh();
+    mBridgeTreeMap->mapCanvas()->setExtent( layer->extent() );
+    mBridgeTreeMap->mapCanvas()->refresh();
   }
 }
 
@@ -344,17 +351,17 @@ void ReosGisManager::setExtentAfterLoading()
 {
   setCRS( mCrs );
   mMap->setToSaveExtent();
-  disconnect( bridgeTreeMap_, &QgsLayerTreeMapCanvasBridge::canvasLayersChanged, this, &ReosGisManager::setExtentAfterLoading );
+  disconnect( mBridgeTreeMap, &QgsLayerTreeMapCanvasBridge::canvasLayersChanged, this, &ReosGisManager::setExtentAfterLoading );
 }
 
 QString ReosGisManager::getGISFileName() const
 {
-  return GISFileName;
+  return mGISFileName;
 }
 
 void ReosGisManager::setGISFileName( const QString &value )
 {
-  GISFileName = value;
+  mGISFileName = value;
 }
 
 QByteArray ReosGisManager::encode()
@@ -383,7 +390,7 @@ void ReosGisManager::decode( QByteArray &ba )
 void ReosGisManager::clear()
 {
   QgsProject::instance()->clear();
-  setCRS( deFaultCrs );
+  setCRS( mDeFaultCrs );
 }
 
 QMenu *ReosGisManager::getMenuForOneRasterLayer()
@@ -416,9 +423,9 @@ QMenu *ReosGisManager::getMenuForSeveralLayers()
 
 void ReosGisManager::loadGISProject()
 {
-  connect( bridgeTreeMap_, &QgsLayerTreeMapCanvasBridge::canvasLayersChanged, this, &ReosGisManager::setExtentAfterLoading );
+  connect( mBridgeTreeMap, &QgsLayerTreeMapCanvasBridge::canvasLayersChanged, this, &ReosGisManager::setExtentAfterLoading );
   QgsProject::instance()->clear();
-  QgsProject::instance()->read( GISFileName );
+  QgsProject::instance()->read( mGISFileName );
 
   setCRS( QgsProject::instance()->crs() );
 
@@ -426,10 +433,10 @@ void ReosGisManager::loadGISProject()
 
 void ReosGisManager::saveGISProject()
 {
-  QgsProject::instance()->write( GISFileName );
+  QgsProject::instance()->write( mGISFileName );
 }
 
-QgsRectangle ReosGisManager::transformExtentFrom( const QgsRectangle &extent, const QgsCoordinateReferenceSystem crsSource )
+QgsRectangle ReosGisManager::transformExtentFrom( const QgsRectangle &extent, const QgsCoordinateReferenceSystem &crsSource )
 {
   if ( mCrs == crsSource )
     return extent;
@@ -441,11 +448,9 @@ QgsRectangle ReosGisManager::transformExtentFrom( const QgsRectangle &extent, co
     {
       QgsCoordinateTransform transform( crsSource, mCrs, QgsProject::instance() );
       rectReturn = transform.transform( extent );
-
     }
     catch ( QgsCsException &e )
     {
-
       rectReturn = extent;
       error( e.what() );
     }
@@ -456,7 +461,7 @@ QgsRectangle ReosGisManager::transformExtentFrom( const QgsRectangle &extent, co
     return extent;
 }
 
-QgsRectangle ReosGisManager::transformExtentTo( const QgsRectangle &extent, const QgsCoordinateReferenceSystem crsDest )
+QgsRectangle ReosGisManager::transformExtentTo( const QgsRectangle &extent, const QgsCoordinateReferenceSystem &crsDest )
 {
   if ( mCrs == crsDest )
     return extent;
@@ -468,7 +473,6 @@ QgsRectangle ReosGisManager::transformExtentTo( const QgsRectangle &extent, cons
     {
       QgsCoordinateTransform transform( crsDest, mCrs, QgsProject::instance() );
       rectReturn = transform.transform( extent, QgsCoordinateTransform::ReverseTransform );
-
     }
     catch ( QgsCsException &e )
     {
@@ -483,14 +487,12 @@ QgsRectangle ReosGisManager::transformExtentTo( const QgsRectangle &extent, cons
     return extent;
 }
 
-void ReosGisManager::transformTo( QgsAbstractGeometry *sourceGeometry, const QgsCoordinateReferenceSystem crsDest )
+void ReosGisManager::transformTo( QgsAbstractGeometry *sourceGeometry, const QgsCoordinateReferenceSystem &crsDest )
 {
-
   try
   {
     QgsCoordinateTransform transform( crsDest, mCrs, QgsProject::instance() );
     sourceGeometry->transform( transform );
-
   }
   catch ( QgsCsException &e )
   {
@@ -499,17 +501,14 @@ void ReosGisManager::transformTo( QgsAbstractGeometry *sourceGeometry, const Qgs
     message.append( e.what() );
     error( message );
   }
-
 }
 
-void ReosGisManager::transformFrom( QgsAbstractGeometry *sourceGeometry, const QgsCoordinateReferenceSystem crsDest )
+void ReosGisManager::transformFrom( QgsAbstractGeometry *sourceGeometry, const QgsCoordinateReferenceSystem &crsDest )
 {
-
   try
   {
     QgsCoordinateTransform transform( crsDest, mCrs, QgsProject::instance() );
     sourceGeometry->transform( transform, QgsCoordinateTransform::ReverseTransform );
-
   }
   catch ( QgsCsException &e )
   {
@@ -614,7 +613,7 @@ void ReosGisManager::callPropertiesLayer( QgsMapLayer *layer )
     case VECTOR_LAYER_TYPE:
       vl = qobject_cast<QgsVectorLayer *>( layer );
       if ( vl )
-        dial = new HdVectorLayerPropertiesDialog( vl, mMap->getMapCanvas() );
+        dial = new ReosVectorLayerPropertiesDialog( vl, mMap->getMapCanvas() );
       break;
     case RASTER_LAYER_TYPE:
       rl = qobject_cast<QgsRasterLayer *>( layer );
@@ -638,14 +637,14 @@ void ReosGisManager::callPropertiesLayer( QgsMapLayer *layer )
 
 void ReosGisManager::layerProperties()
 {
-  QgsMapLayer *layer = treeLayerView_->currentLayer();
+  QgsMapLayer *layer = mTreeLayerView->currentLayer();
   callPropertiesLayer( layer );
 
 }
 
 void ReosGisManager::layerPropertiesByIndex( QModelIndex index )
 {
-  QgsLayerTreeNode *node = treeLayerView_->layerTreeModel()->index2node( index );
+  QgsLayerTreeNode *node = mTreeLayerView->layerTreeModel()->index2node( index );
   if ( !node )
     return;
   if ( node->nodeType() == QgsLayerTreeNode::NodeLayer )
@@ -666,7 +665,7 @@ QWidget *ReosGisManager::getWidget() const
 
 
 
-void HdTreeLayerSIGView::dragEnterEvent( QDragEnterEvent *event )
+void ReosTreeLayerGISView::dragEnterEvent( QDragEnterEvent *event )
 {
   QgsLayerTreeView::dragEnterEvent( event );
 }
@@ -733,7 +732,7 @@ QVariant HdTreeLayerModel::data( const QModelIndex &index, int role ) const
     if ( QgsLayerTree::isLayer( node ) )
     {
       QgsMapLayer *layer = QgsLayerTree::toLayer( node )->layer();
-      if ( layer->dataProvider()->name() == "TIN" )
+      if ( layer && layer->dataProvider() && layer->dataProvider()->name() == "TIN" )
         return QPixmap( "://toolbar/MeshTinIcon.png" );
     }
   }
