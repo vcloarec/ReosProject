@@ -117,7 +117,7 @@ class ReosGisManager: public ReosModule
     QgsRasterLayer *getRasterLayer();
 
     //! Launches a dialog to choose a raster layer in the layer available and retturn the chosen layer
-    QgsRasterLayer *getVectorLayer();
+    QgsVectorLayer *getVectorLayer();
 
     //! Factory for a idget that display the map CRS
     QWidget *createCRSDisplay( QWidget *parent );

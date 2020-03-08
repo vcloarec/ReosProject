@@ -6,6 +6,7 @@
 
 #include "../../Mesher/tinEditorUi/reostineditorgraphic.h"
 #include "../../Mesher/provider/meshdataprovider.h"
+#include "../../GIS/hdgismanager.h"
 
 using namespace testing;
 

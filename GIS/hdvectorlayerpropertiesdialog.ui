@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>HdVectorLayerPropertiesDialog</class>
- <widget class="QDialog" name="HdVectorLayerPropertiesDialog">
+ <class>ReosVectorLayerPropertiesDialog</class>
+ <widget class="QDialog" name="ReosVectorLayerPropertiesDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -39,7 +39,7 @@
      </property>
      <widget class="QWidget" name="tabSource">
       <attribute name="icon">
-       <iconset resource="../cmn/icone/hdicone.qrc">
+       <iconset resource="../icones/hdicone.qrc">
         <normaloff>:/Qgis/Qgis/system.png</normaloff>:/Qgis/Qgis/system.png</iconset>
       </attribute>
       <attribute name="title">
@@ -123,7 +123,7 @@
      </widget>
      <widget class="QWidget" name="tabSymbology">
       <attribute name="icon">
-       <iconset resource="../cmn/icone/hdicone.qrc">
+       <iconset resource="../icones/hdicone.qrc">
         <normaloff>:/Qgis/Qgis/symbology.png</normaloff>:/Qgis/Qgis/symbology.png</iconset>
       </attribute>
       <attribute name="title">
@@ -156,7 +156,7 @@
             <x>0</x>
             <y>0</y>
             <width>746</width>
-            <height>587</height>
+            <height>585</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -199,13 +199,13 @@
   </layout>
  </widget>
  <resources>
-  <include location="../cmn/icone/hdicone.qrc"/>
+  <include location="../icones/hdicone.qrc"/>
  </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>HdVectorLayerPropertiesDialog</receiver>
+   <receiver>ReosVectorLayerPropertiesDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -221,7 +221,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>HdVectorLayerPropertiesDialog</receiver>
+   <receiver>ReosVectorLayerPropertiesDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

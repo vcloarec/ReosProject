@@ -60,15 +60,12 @@ QgsMeshDataBlock TINProvider::datasetValues( QgsMeshDatasetIndex index, int valu
 
       ++i;
     }
-
+    dataBlock.setValues( values );
+    dataBlock.setValid( true );
     return dataBlock;
   }
   else
-  {
     return QgsMeshDataBlock();
-  }
-
-
 }
 
 bool TINProvider::isFaceActive( QgsMeshDatasetIndex index, int faceIndex ) const
@@ -90,8 +87,9 @@ QgsMeshDataBlock TINProvider::areFacesActive( QgsMeshDatasetIndex index, int fac
   Q_UNUSED( faceIndex );
   Q_UNUSED( count );
 
-
-  return QgsMeshDataBlock();
+  QgsMeshDataBlock ret( QgsMeshDataBlock::ActiveFlagInteger, count );
+  ret.setValid( true );
+  return ret;
 
 }
 

@@ -232,26 +232,7 @@ class TinReader: public MeshIO
     bool allBoundaryEdgesReaden() const override;
 
     int zSpecifierCount() const override;
-    void readSpecifier( ReosVertexZSpecifier::Data &zSpecifierData ) override
-    {
-      zSpecifierData = vItForZSpecifier->tinVertex()->zSpecifier()->data();
-
-      zSpecifierData.verticesIndexes.push_back( verticesIndex[vItForZSpecifier->handle()] );
-      for ( auto v : zSpecifierData.otherVertices )
-      {
-        if ( v )
-          zSpecifierData.verticesIndexes.push_back( verticesIndex[static_cast<TINVertex *>( v )->handle()] );
-        else
-          zSpecifierData.verticesIndexes.push_back( -1 );
-      }
-
-      vItForZSpecifier++;
-      while ( vItForZSpecifier != mTriangulation->finite_vertices_end()
-              && vItForZSpecifier->tinVertex()->zSpecifier()->type() == ReosVertexZSpecifier::Type::Simple )
-      {
-        vItForZSpecifier++;
-      }
-    }
+    void readSpecifier( ReosVertexZSpecifier::Data &zSpecifierData ) override;
     bool allZSpecifierReaden() const override
     {
       return vItForZSpecifier == mTriangulation->finite_vertices_end();
@@ -296,8 +277,11 @@ class ReosTin: public ReosMesh
     void clear() override;
     void clearFaces() override {}
 
+    //! Creates a vertex without triangulation
     VertexPointer createVertex( double x, double y ) override;
+    //! Inserts a vertex in the triangulation
     VertexPointer insertVertex( double x, double y ) override ;
+    //! Purposes to add a vertex in the triangulation, if vertex exist does nothing and return the verex
     VertexPointer addVertex( double x, double y ) override;
     int maxNodesPerFaces() const override {return 3;}
 

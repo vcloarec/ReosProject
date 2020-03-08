@@ -4,9 +4,9 @@ INCLUDEPATH +=$${QWT_INCLUDE_PATH}
 
 
 CONFIG(debug, debug|release){
-    LIBS +=-L$${QWT_LIB_FILE} -lqwtd
+    LIBS += $${QWT_LIB_FILE}
 } else {
-    LIBS +=-L$${QWT_LIB_FILE} -lqwt
+    LIBS += $${QWT_LIB_FILE}
 }
 
 

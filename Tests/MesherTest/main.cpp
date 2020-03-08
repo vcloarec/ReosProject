@@ -1,4 +1,4 @@
-#include "tst_001_meshgenerator.cpp"
+//#include "tst_001_meshgenerator.cpp" //Contains test related to Triangle lib
 #include "tst_002_00_mesheseditortest.cpp"
 #include "tst_003_meshergeneratorprovidertest.cpp"
 #include "tst_004_editablemeshlayertest.cpp"

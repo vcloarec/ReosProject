@@ -7,6 +7,7 @@ INCLUDEPATH += $${QGIS_SRC_PATH}/core
 INCLUDEPATH += $${QGIS_SRC_PATH}/core/symbology
 INCLUDEPATH += $${QGIS_SRC_PATH}/core/raster
 INCLUDEPATH += $${QGIS_SRC_PATH}/../external
+INCLUDEPATH += $${QGIS_SRC_PATH}/../external/qt3dextra-headers
 
 RESOURCES += $${QGIS_SRC_PATH}/../images/images.qrc
 

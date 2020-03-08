@@ -13,8 +13,37 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
  *                                                                         *
  ***************************************************************************/
 
+
+#include <QObject>
+#include <QAction>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QLineEdit>
+#include <QLabel>
+#include <QPixmap>
+
+#include <qgsmapcanvas.h>
+#include <qgsmeshlayer.h>
+#include <qgsmaptool.h>
+#include <qgsmapmouseevent.h>
+#include <qgsmultipoint.h>
+#include <qgsmultilinestring.h>
+
+#include "../../GIS/hdgismanager.h"
+#include "../../Reos/reosmodule.h"
+
+#include "../provider/meshdataprovider.h"
 #include "reostineditorgraphic.h"
-#include "qgsmultipoint.h"
+
+#include "reosmapmeshitem.h"
+#include "hdtineditoruidialog.h"
+#include "hdtineditornewdialog.h"
+#include "reosvertexzspecifierwidget.h"
+#include "reosvertexzspecifiereditorwidget.h"
+
+#include "../ReosTin/reostin.h"
 
 ReosTinEditorUi::ReosTinEditorUi( ReosGisManager *gismanager, QObject *parent ): ReosModule( parent ),
   mDomain( new ReosMapMeshEditorItemDomain( this, gismanager->getMap()->getMapCanvas() ) ),
@@ -35,7 +64,8 @@ ReosTinEditorUi::ReosTinEditorUi( ReosGisManager *gismanager, QObject *parent ):
   mapToolZSpecifierEditor( new ReosMapToolSelection( gismanager->getMap() ) ),
   actionFlipFaces( new QAction( QPixmap( "://toolbar/MeshFlipFaces.png" ), tr( "Flip faces" ), this ) ),
   mapToolFlipFaces( new ReosTinMapToolFlipFaces( gismanager->getMap(), this ) ),
-  actionTriangulateTIN( new QAction( QPixmap( "://toolbar/MeshTINTriangulation.png" ), tr( "update mesh" ), this ) )
+  actionTriangulateTIN( new QAction( QPixmap( "://toolbar/MeshTINTriangulation.png" ), tr( "update mesh" ), this ) ),
+  actionVectorLayerToTin( new QAction( tr( "From Vector Layer" ), this ) )
 {
   actionNewVertex->setCheckable( true );
   mapToolNewVertex->setAction( actionNewVertex );
@@ -70,6 +100,7 @@ ReosTinEditorUi::ReosTinEditorUi( ReosGisManager *gismanager, QObject *parent ):
   mGroupAction->addAction( actionZSpecifierEditor );
   mGroupAction->addAction( actionFlipFaces );
   mGroupAction->addAction( actionTriangulateTIN );
+  mGroupAction->addAction( actionVectorLayerToTin );
 
   actionEditList.append( actionNewVertex );
   actionEditList.append( actionNewHardLineSegment );
@@ -110,6 +141,8 @@ ReosTinEditorUi::ReosTinEditorUi( ReosGisManager *gismanager, QObject *parent ):
 
   connect( actionRemoveSegment, &QAction::triggered, this, &ReosTinEditorUi::startRemoveSegment );
   connect( mapToolRemoveSegment, &ReosMapToolSelection::zonalCanvasRect, this, &ReosTinEditorUi::removeSegmentFromRect );
+
+  connect( actionVectorLayerToTin, &QAction::triggered, this, &ReosTinEditorUi::vectorLayerToTin );
 
   connect( actionZSpecifierEditor, &QAction::triggered, this, &ReosTinEditorUi::startZSpecifierEditor );
   connect( mapToolZSpecifierEditor, &ReosMapToolSelection::zonalCanvasRect, this, &ReosTinEditorUi::selectVertexForZSpecifierEditor );
@@ -155,7 +188,7 @@ VertexPointer ReosTinEditorUi::realWorldVertex( const QPointF &mapPoint ) const
     return nullptr;
 
   bool ok;
-  QPointF meshPoint = meshCoordinates( mapPoint, ok );
+  QPointF meshPoint = meshCoordinatesFromMap( mapPoint, ok );
   if ( !ok )
     return nullptr;
   return mTIN->vertex( meshPoint.x(), meshPoint.y() );
@@ -187,7 +220,7 @@ FacePointer ReosTinEditorUi::realWorldFace( const QPointF &mapPoint ) const
     return nullptr;
 
   bool ok;
-  QPointF meshPoint = meshCoordinates( mapPoint, ok );
+  QPointF meshPoint = meshCoordinatesFromMap( mapPoint, ok );
   if ( !ok )
     return nullptr;
   return mTIN->face( meshPoint.x(), meshPoint.y() );
@@ -198,41 +231,29 @@ bool ReosTinEditorUi::isFlipable( FacePointer f1, FacePointer f2 ) const
   return mTIN->isFlipable( f1, f2 );
 }
 
-VertexPointer ReosTinEditorUi::addRealWorldVertex( const QPointF &mapPoint, double z )
+VertexPointer ReosTinEditorUi::addRealWorldVertexFromMap( const QPointF &mapPoint, double z )
 {
-  VertexPointer vert = nullptr;
-
-  if ( mTIN )
-  {
-    bool ok;
-    QPointF p = meshCoordinates( mapPoint, ok );
-    if ( !ok )
-      return nullptr;
-    vert = mTIN->addVertex( p.x(), p.y() );
+  VertexPointer vert = addRealWorldVertexFromMap( mapPoint );
+  if ( vert )
     vert->setZValue( z );
-    addMapVertex( mapPoint, vert );
-  }
-
   return vert;
 }
 
-VertexPointer ReosTinEditorUi::addRealWorldVertex( const QPointF &mapPoint )
+VertexPointer ReosTinEditorUi::addRealWorldVertexFromMap( const QPointF &mapPoint )
 {
   VertexPointer vert = nullptr;
+  bool ok;
+  QPointF p = meshCoordinatesFromMap( mapPoint, ok );
+  if ( !ok )
+    return nullptr;
 
   if ( mTIN )
   {
-    bool ok;
-    QPointF p = meshCoordinates( mapPoint, ok );
-    if ( !ok )
-      return nullptr;
     vert = mTIN->addVertex( p.x(), p.y() );
     addMapVertex( mapPoint, vert );
-    mZSpecifierWidget->assignZSpecifier( vert );
   }
 
   return vert;
-
 }
 
 
@@ -256,7 +277,9 @@ void ReosTinEditorUi::removeVertex( VertexPointer vert )
 
 void ReosTinEditorUi::doCommand( ReosTinUndoCommandNewVertex *command )
 {
-  addRealWorldVertex( command->mMapPoint );
+  VertexPointer vert = addRealWorldVertexFromMap( command->mMapPoint );
+  if ( vert )
+    mZSpecifierWidget->assignZSpecifier( vert );
 }
 void ReosTinEditorUi::undoCommand( ReosTinUndoCommandNewVertex *command )
 {
@@ -272,7 +295,7 @@ void ReosTinEditorUi::doCommand( ReosTinUndoCommandNewSegmentWithNewSecondVertex
     return;
 
   //add the second realWorld vertex
-  VertexPointer secondVertex = addRealWorldVertex( command->mMapPointSecond );
+  VertexPointer secondVertex = addRealWorldVertexFromMap( command->mMapPointSecond );
   addSegment( firstVertex, secondVertex, command->mVerticesPositionAndStructureMemory );
 
 }
@@ -707,7 +730,7 @@ void ReosTinEditorUi::removeHardLine( VertexPointer v1, VertexPointer v2 )
 
 void ReosTinEditorUi::addVectorLayer( QgsVectorLayer *vectorLayer )
 {
-  if ( !vectorLayer )
+  if ( !vectorLayer || !mMeshLayer )
     return;
   QgsWkbTypes::GeometryType geometryType = vectorLayer->geometryType();
   switch ( geometryType )
@@ -717,7 +740,7 @@ void ReosTinEditorUi::addVectorLayer( QgsVectorLayer *vectorLayer )
       break;
     case QgsWkbTypes::LineGeometry:
     case QgsWkbTypes::PolygonGeometry:
-
+      addLineVectorLayer( vectorLayer, QgsProject::instance()->transformContext() );
       break;
     case QgsWkbTypes::UnknownGeometry:
       break;
@@ -728,9 +751,10 @@ void ReosTinEditorUi::addVectorLayer( QgsVectorLayer *vectorLayer )
 
 void ReosTinEditorUi::addPointVectorLayer( QgsVectorLayer *vectorLayer, const QgsCoordinateTransformContext &transformContext )
 {
+  QString messageTitle = tr( "Add vertex from layer" );
   if ( !QgsWkbTypes::hasZ( vectorLayer->wkbType() ) )
   {
-    QMessageBox::warning( uiDialog, tr( "Add vertex from layer" ), tr( "No Z value provided" ) );
+    QMessageBox::warning( uiDialog, messageTitle, tr( "No Z value provided" ) );
   }
 
   QgsFeatureIterator fIt = vectorLayer->getFeatures();
@@ -742,19 +766,21 @@ void ReosTinEditorUi::addPointVectorLayer( QgsVectorLayer *vectorLayer, const Qg
 
   while ( fIt.nextFeature( feat ) )
   {
-    QgsAbstractGeometry *geom = feat.geometry().get();
+    QgsGeometry g = feat.geometry();
+    QgsAbstractGeometry *geom = g.get();
+
     if ( QgsWkbTypes::isMultiType( geom->wkbType() ) )
       addedPoint += addMultiPointGeometry( qgsgeometry_cast<QgsMultiPoint *>( geom ), transform );
-    else
-    {
-      if ( addPointGeometry( qgsgeometry_cast<QgsPoint *>( geom ), transform ) )
-        addedPoint++;
-    }
+    else if ( addPointGeometry( qgsgeometry_cast<QgsPoint *>( geom ), transform ) )
+      addedPoint++;
   }
+  QMessageBox::information( uiDialog, tr( "Add vertex from layer" ), tr( "%1 points added" ).arg( addedPoint ) );
 }
 
 int ReosTinEditorUi::addMultiPointGeometry( QgsMultiPoint *multipoint, const QgsCoordinateTransform &transform )
 {
+  if ( !multipoint )
+    return 0;
   int count = multipoint->numGeometries();
   int added = 0;
   for ( int i = 0; i < count; ++i )
@@ -768,6 +794,8 @@ int ReosTinEditorUi::addMultiPointGeometry( QgsMultiPoint *multipoint, const Qgs
 
 bool ReosTinEditorUi::addPointGeometry( QgsPoint *point, const QgsCoordinateTransform &transform )
 {
+  if ( !point )
+    return false;
   if ( transform.isValid() )
   {
     try
@@ -792,6 +820,61 @@ bool ReosTinEditorUi::addPointGeometry( QgsPoint *point, const QgsCoordinateTran
     return true;
   }
 
+}
+
+void ReosTinEditorUi::addLineVectorLayer( QgsVectorLayer *vectorLayer, const QgsCoordinateTransformContext &transformContext )
+{
+  QString messageTitle = tr( "Add hard line from layer" );
+  if ( !QgsWkbTypes::hasZ( vectorLayer->wkbType() ) )
+  {
+    QMessageBox::warning( uiDialog, messageTitle, tr( "No Z value provided" ) );
+  }
+
+  QgsFeatureIterator fIt = vectorLayer->getFeatures();
+  QgsFeature feat;
+
+  QgsCoordinateTransform transform( vectorLayer->crs(), mMeshLayer->crs(), transformContext );
+
+  int addedPoint = 0;
+
+  while ( fIt.nextFeature( feat ) )
+  {
+    QgsGeometry g = feat.geometry();
+    QgsAbstractGeometry *geom = g.get();
+
+    if ( QgsWkbTypes::isMultiType( geom->wkbType() ) )
+      addedPoint += addMultiCurveGeometry( qgsgeometry_cast<QgsMultiLineString *>( geom ), transform );
+    else
+      addedPoint += addCurveGeometry( qgsgeometry_cast<QgsLineString *>( geom ), transform );
+  }
+}
+
+int ReosTinEditorUi::addMultiCurveGeometry( QgsMultiLineString *multiLine, const QgsCoordinateTransform &transform )
+{
+  if ( !multiLine )
+    return 0;
+  int count = multiLine->numGeometries();
+  int added = 0;
+  for ( int i = 0; i < count; ++i )
+  {
+    added += addCurveGeometry( qgsgeometry_cast<QgsLineString *>( multiLine->geometryN( i ) ), transform );
+  }
+
+  return added;
+}
+
+int ReosTinEditorUi::addCurveGeometry( QgsLineString *line, const QgsCoordinateTransform &transform )
+{
+  if ( !line )
+    return 0;
+  int pointCount = line->numPoints();
+
+  for ( int i = 0; i < pointCount - 1; ++i )
+  {
+    const QgsPoint p1 = line->pointN( i );
+    const QgsPoint p2 = line->pointN( i );
+
+  }
 }
 
 void ReosTinEditorUi::populateDomain()
@@ -888,6 +971,12 @@ void ReosTinEditorUi::stopZSpecifierEditor()
   mZSpecifierEditor->stop();
 }
 
+void ReosTinEditorUi::vectorLayerToTin()
+{
+  QgsVectorLayer *vectorLayer = mGisManager->getVectorLayer();
+  addVectorLayer( vectorLayer );
+  updateMesh();
+}
 
 void ReosTinEditorUi::startNewVertex()
 {
@@ -896,13 +985,13 @@ void ReosTinEditorUi::startNewVertex()
   stopZSpecifierEditor();
 }
 
-
 void ReosTinEditorUi::updateMesh()
 {
   if ( mMeshLayer )
     mMeshLayer->reload();
-
   mMap->refreshMap();
+
+  emit mMeshLayer->dataChanged();
 }
 
 void ReosTinEditorUi::enableEditAction( bool enable )
@@ -955,6 +1044,12 @@ bool ReosTinEditorUi::openTinWithFileName( QString fileName )
   }
 
   return false;
+}
+
+void ReosTinEditorUi::meshHasBeenChanged()
+{
+  if ( uiDialog->autoUpdate() )
+    updateMesh();
 }
 
 
@@ -1019,14 +1114,14 @@ QPointF ReosTinEditorUi::mapCoordinates( const QPointF &meshCoordinate, bool &ok
     return meshCoordinate;
 }
 
-QPointF ReosTinEditorUi::meshCoordinates( const QPointF &mapCoordinate, bool &ok ) const
+QPointF ReosTinEditorUi::transformCoordinates( const QPointF &coordinate, bool &ok, const QgsCoordinateTransform &transform ) const
 {
   ok = true;
-  if ( mTransform )
+  if ( transform.isValid() )
   {
     try
     {
-      return mTransform->transform( mapCoordinate.x(), mapCoordinate.y(), QgsCoordinateTransform::ReverseTransform ).toQPointF();
+      return mTransform->transform( coordinate.x(), coordinate.y(), QgsCoordinateTransform::ReverseTransform ).toQPointF();
     }
     catch ( QgsCsException &except )
     {
@@ -1038,6 +1133,14 @@ QPointF ReosTinEditorUi::meshCoordinates( const QPointF &mapCoordinate, bool &ok
       return QPointF();
     }
   }
+  else
+    return coordinate;
+}
+
+QPointF ReosTinEditorUi::meshCoordinatesFromMap( const QPointF &mapCoordinate, bool &ok ) const
+{
+  if ( mTransform )
+    return transformCoordinates( mapCoordinate, ok, *mTransform );
   else
     return mapCoordinate;
 }
@@ -1122,6 +1225,15 @@ void ReosTinEditorUi::updateGraphics( VertexPointer realWorldVertex )
 
 };
 
+ReosTinMapToolHardLineSegement::ReosTinMapToolHardLineSegement( ReosMap *map, ReosTinEditorUi *uiEditor ): ReosMapTool( map ),
+  mUiEditor( uiEditor ),
+  rubberBand( new QgsRubberBand( map->getMapCanvas(), QgsWkbTypes::LineGeometry ) )
+{
+  rubberBand->setLineStyle( Qt::DashDotLine );
+  rubberBand->setColor( Qt::red );
+  rubberBand->setWidth( 3 );
+}
+
 void ReosTinMapToolHardLineSegement::suspend()
 {
   rubberBand->hide();
@@ -1133,6 +1245,21 @@ void ReosTinMapToolHardLineSegement::unsuspend()
 {
   ReosMapTool::unsuspend();
   showWhenMoving = true;
+}
+
+void ReosTinMapToolHardLineSegement::vertexHasToBeRemoved( ReosMeshItemVertex *vert )
+{
+  if ( firstVertex == vert )
+    reset();
+}
+
+void ReosTinMapToolHardLineSegement::reset()
+{
+  unsuspend();
+  rubberBand->reset();
+  firstVertex = nullptr;
+  firstPoint = QPointF();
+  inProgress_ = false;
 }
 
 void ReosTinMapToolHardLineSegement::canvasPressEvent( QgsMapMouseEvent *e )
@@ -1275,4 +1402,15 @@ bool ReosTinMapToolFlipFaces::faceCoupleIsValid( FacePointer f1, FacePointer f2 
     return false;
 
   return true;
+}
+
+void ReosTinMapToolFlipFaces::reset()
+{
+  firstFace = nullptr;
+  if ( currentFaceItem )
+    delete currentFaceItem;
+  currentFaceItem = nullptr;
+  if ( firstFaceItem )
+    delete firstFaceItem;
+  firstFaceItem = nullptr;
 }

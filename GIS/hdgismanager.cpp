@@ -35,10 +35,10 @@ ReosGisManager::ReosGisManager( ReosMap *map, ReosModule *parent ): ReosModule( 
   actionCRSSelectionWithText( new QAction( this ) )
 {
   QgsProviderRegistry::instance( pluginPath );
-  QgsApplication::setPkgDataPath( "./" );
+  //QgsApplication::setPkgDataPath( "./" );
 
 
-  mDeFaultCrs = QgsCoordinateReferenceSystem( QStringLiteral( "EPSG:4326" ) );
+  mDeFaultCrs = QgsCoordinateReferenceSystem( QStringLiteral( "EPSG:32620" ) );
   setCRS( mDeFaultCrs );
 
   mToolBar = new QToolBar( tr( "GIS Manager" ) );
@@ -104,7 +104,7 @@ QgsRasterLayer *ReosGisManager::getRasterLayer()
   return static_cast<QgsRasterLayer *>( comboBox->currentLayer() );
 }
 
-QgsRasterLayer *ReosGisManager::getVectorLayer()
+QgsVectorLayer *ReosGisManager::getVectorLayer()
 {
   QgsMapLayerComboBox *comboBox = new QgsMapLayerComboBox;
   comboBox->setFilters( QgsMapLayerProxyModel::VectorLayer );
@@ -112,7 +112,7 @@ QgsRasterLayer *ReosGisManager::getVectorLayer()
 
   dial.exec();
 
-  return static_cast<QgsRasterLayer *>( comboBox->currentLayer() );
+  return static_cast<QgsVectorLayer *>( comboBox->currentLayer() );
 }
 
 QWidget *ReosGisManager::createCRSDisplay( QWidget *parent )

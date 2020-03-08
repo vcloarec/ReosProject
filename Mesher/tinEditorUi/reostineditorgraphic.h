@@ -16,34 +16,17 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #ifndef HDTINEDITORGRAPHIC_H
 #define HDTINEDITORGRAPHIC_H
 
-#include <QObject>
-#include <QAction>
-#include <QDialog>
-#include <QDialogButtonBox>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QLineEdit>
-#include <QLabel>
-#include <QPixmap>
+#include "reosvertexzspecifiereditorwidget.h"
+#include "hdtineditoruidialog.h"
 
-#include <qgsmapcanvas.h>
-#include "qgsmeshlayer.h"
-#include <qgsmaptool.h>
-#include <qgsmapmouseevent.h>
-
-#include "../../GIS/hdgismanager.h"
+#include "reosmapmeshitem.h"
+#include "../../GIS/reosmaptool.h"
 #include "../../Reos/reosmodule.h"
 
-#include "../provider/meshdataprovider.h"
-#include "reosmapmeshitem.h"
-#include "hdtineditoruidialog.h"
-#include "hdtineditornewdialog.h"
-#include "reosvertexzspecifierwidget.h"
-#include "reosvertexzspecifiereditorwidget.h"
 
-#include "../ReosTin/reostin.h"
+class QgsMultiLineString;
 
-
+class ReosGisManager;
 class ReosTinEditorUi;
 class ReosTinUndoCommandNewVertex;
 class ReosTinUndoCommandNewSegmentWithNewSecondVertex;
@@ -81,34 +64,16 @@ class ReosTinMapToolHardLineSegement: public ReosMapTool
 {
     Q_OBJECT
   public:
-    ReosTinMapToolHardLineSegement( ReosMap *map, ReosTinEditorUi *uiEditor ): ReosMapTool( map ),
-      mUiEditor( uiEditor ),
-      rubberBand( new QgsRubberBand( map->getMapCanvas(), QgsWkbTypes::LineGeometry ) )
-    {
-      rubberBand->setLineStyle( Qt::DashDotLine );
-      rubberBand->setColor( Qt::red );
-      rubberBand->setWidth( 3 );
-    }
+    ReosTinMapToolHardLineSegement( ReosMap *map, ReosTinEditorUi *uiEditor );
 
 
     void suspend() override;
     void unsuspend() override;
 
-    void vertexHasToBeRemoved( ReosMeshItemVertex *vert )
-    {
-      if ( firstVertex == vert )
-        reset();
-    }
+    void vertexHasToBeRemoved( ReosMeshItemVertex *vert );
 
   public slots:
-    void reset() override
-    {
-      unsuspend();
-      rubberBand->reset();
-      firstVertex = nullptr;
-      firstPoint = QPointF();
-      inProgress_ = false;
-    }
+    void reset() override;
 
   protected:
     void canvasPressEvent( QgsMapMouseEvent *e ) override;
@@ -150,16 +115,7 @@ class ReosTinMapToolFlipFaces: public ReosMapTool
 
     // ReosMapTool interface
   public slots:
-    void reset() override
-    {
-      firstFace = nullptr;
-      if ( currentFaceItem )
-        delete currentFaceItem;
-      currentFaceItem = nullptr;
-      if ( firstFaceItem )
-        delete firstFaceItem;
-      firstFaceItem = nullptr;
-    }
+    void reset() override;
 };
 
 class UIMeshEditorTesting;
@@ -230,11 +186,7 @@ class ReosTinEditorUi : public ReosModule
     bool openTin();
     bool openTinWithFileName( QString fileName );
 
-    void meshHasBeenChanged()
-    {
-      if ( uiDialog->autoUpdate() )
-        updateMesh();
-    }
+    void meshHasBeenChanged();
 
   private slots :
 
@@ -243,6 +195,8 @@ class ReosTinEditorUi : public ReosModule
     void layerHasToBeRemoved( QgsMapLayer *layer );
     void mapCrsChanged( const QgsCoordinateReferenceSystem &crs );
     void stopZSpecifierEditor();
+
+    void vectorLayerToTin();
 
   private: //method
 
@@ -266,23 +220,30 @@ class ReosTinEditorUi : public ReosModule
     void removeVertex( VertexPointer vert );
 
     QPointF mapCoordinates( const QPointF &meshCoordinate, bool &ok ) const;
-    QPointF meshCoordinates( const QPointF &mapCordinate, bool &ok ) const;
+    //! Return the transformed coordinate
+    QPointF transformCoordinates( const QPointF &coordinate, bool &ok, const QgsCoordinateTransform &transform ) const;
+    QPointF meshCoordinatesFromMap( const QPointF &mapCoordinate, bool &ok ) const;
 
-    VertexPointer addRealWorldVertex( const QPointF &mapPoint, double z );
-    VertexPointer addRealWorldVertex( const QPointF &mapPoint );
+    VertexPointer addRealWorldVertexFromMap( const QPointF &mapPoint, double z );
+    VertexPointer addRealWorldVertexFromMap( const QPointF &mapPoint );
     ReosMeshItemVertex *addMapVertex_2( VertexPointer realWorldVertex );
 
     void addSegment( VertexPointer v1, VertexPointer v2, QList<PointAndNeighbours> &oldNeigboursStructure );
     void removeHardLine( VertexPointer v1, VertexPointer v2 );
 
+    //! Adds element to the TIN from a vector layer (points or lines)
     void addVectorLayer( QgsVectorLayer *vectorLayer );
-
+    //! Adds vertex to the TIN from a point vector layer
     void addPointVectorLayer( QgsVectorLayer *vectorLayer, const QgsCoordinateTransformContext &transformContext );
-
-    //! Adds multipoint to the TIN and returns the count of point effectivly added
+    //! Adds multipoint to the TIN using the transform and returns the count of point effectivly added
     int addMultiPointGeometry( QgsMultiPoint *multipoint, const QgsCoordinateTransform &transform = QgsCoordinateTransform() );
-
+    //! Adds point to the TIN using the transform and returns the count of point effectivly added
     bool addPointGeometry( QgsPoint *point, const QgsCoordinateTransform &transform = QgsCoordinateTransform() );
+
+    void addLineVectorLayer( QgsVectorLayer *vectorLayer, const QgsCoordinateTransformContext &transformContext );
+    int addMultiCurveGeometry( QgsMultiLineString *multiLine, const QgsCoordinateTransform &transform = QgsCoordinateTransform() );
+    int addCurveGeometry( QgsLineString *line, const QgsCoordinateTransform &transform = QgsCoordinateTransform() );
+
 
     ReosMeshItemVertexAndNeighbours saveStructure( ReosMeshItemVertex *vert ) const;
 
@@ -336,17 +297,15 @@ class ReosTinEditorUi : public ReosModule
 
     QAction *actionTriangulateTIN;
 
-
+    QAction *actionVectorLayerToTin;
 
     friend class UIMeshEditorTesting;
-
 };
 
 
 
 class ReosTinUndoCommandNewVertex: public QUndoCommand
 {
-
   public:
     void undo() override
     {

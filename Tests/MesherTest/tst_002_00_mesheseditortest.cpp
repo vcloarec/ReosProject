@@ -67,6 +67,8 @@ TEST_F( MeshEditorTesting, setCurrentMeshGeneratorSuccess )
   ASSERT_TRUE( meshEditor.currentMeshGenerator() != nullptr );
 }
 
+// test using triangle for generate triangulation
+/*
 TEST_F( MeshEditorTesting, generateMeshFail )
 {
   initializeMeshEditor();
@@ -82,7 +84,7 @@ TEST_F( MeshEditorTesting, generateMeshSucess )
 
   ASSERT_TRUE( meshEditor.generateMesh() );
 }
-
+*/
 
 TEST_F( MeshEditorTesting, searchVertex )
 {

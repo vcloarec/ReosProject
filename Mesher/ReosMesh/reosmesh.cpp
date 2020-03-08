@@ -38,7 +38,7 @@ int ReosMesh::writeUGRIDFormat( std::string fileName )
 
   std::string meshNodeXVariableName( "TIN_node_x" );
   std::string meshNodeYVariableName( "TIN_node_y" );
-  std::string meshNodeZVariableName( "TIN_altitude" );
+  std::string meshNodeZVariableName( "TIN_node_z" );
   std::string meshFaceNodeConnectivity( "TIN_face_node_connectivity" );
   std::string coordinateSystemVariableName( "Coordinate system" );
 

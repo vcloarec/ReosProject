@@ -195,7 +195,9 @@ static std::string triangleExecutableCall = "triangle.exe";
 #endif
 
 
-
+/*
+ * Class that generate triangulation with the Triangle library (https://www.cs.cmu.edu/~quake/triangle.html)
+ */
 class HdMeshGeneratorTriangleFile: public HdMeshGenerator
 {
   public:

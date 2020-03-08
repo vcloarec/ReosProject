@@ -84,7 +84,7 @@ SOURCES += \
     tst_003_meshergeneratorprovidertest.cpp \
     tst_002_01_vertexzvalueediting.cpp \
     tst_002_00_mesheseditortest.cpp \
-    tst_001_meshgenerator.cpp \
+    #tst_001_meshgenerator.cpp \  #Contains test related to Triangle lib
     tst_004_editablemeshlayertest.cpp \
     tst_005_tineditorgraphictest.cpp \
     tst_006_mapmeshitemtest.cpp \

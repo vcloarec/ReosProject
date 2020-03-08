@@ -137,8 +137,7 @@ VertexPointer ReosTin::addVertex( double x, double y )
   if ( vertFound )
     return vertFound;
 
-  auto vert = triangulation.insert( CgalPoint( x, y ) );
-  return new TINVertex( vert ); //&(*vert);
+  return insertVertex( x, y ) ;
 }
 
 FacePointer ReosTin::createFace( const std::vector<VertexPointer> &vertices )
@@ -551,7 +550,7 @@ int ReosTin::readUGRIDFormat( std::string fileName )
   //read nodes
   std::string meshNodeXVariableName( "TIN_node_x" );
   std::string meshNodeYVariableName( "TIN_node_y" );
-  std::string meshNodeZVariableName( "TIN_altitude" );
+  std::string meshNodeZVariableName( "TIN_node_z" );
 
   int ncNodeXVariableId;
   error = nc_inq_varid( ncId, meshNodeXVariableName.c_str(), &ncNodeXVariableId );
@@ -1250,7 +1249,6 @@ void TinReader::readBoundaryEdge( int *be )
     be[1] = ( *boundaryIterator )[1];
   }
   boundaryIterator++;
-
 }
 
 bool TinReader::allBoundaryEdgesReaden() const
@@ -1261,6 +1259,27 @@ bool TinReader::allBoundaryEdgesReaden() const
 int TinReader::zSpecifierCount() const
 {
   return mZSpecifierCount;
+}
+
+void TinReader::readSpecifier( ReosVertexZSpecifier::Data &zSpecifierData )
+{
+  zSpecifierData = vItForZSpecifier->tinVertex()->zSpecifier()->data();
+
+  zSpecifierData.verticesIndexes.push_back( verticesIndex[vItForZSpecifier->handle()] );
+  for ( auto v : zSpecifierData.otherVertices )
+  {
+    if ( v )
+      zSpecifierData.verticesIndexes.push_back( verticesIndex[static_cast<TINVertex *>( v )->handle()] );
+    else
+      zSpecifierData.verticesIndexes.push_back( -1 );
+  }
+
+  vItForZSpecifier++;
+  while ( vItForZSpecifier != mTriangulation->finite_vertices_end()
+          && vItForZSpecifier->tinVertex()->zSpecifier()->type() == ReosVertexZSpecifier::Type::Simple )
+  {
+    vItForZSpecifier++;
+  }
 }
 
 bool TinReader::allSegmentsReaden() const
