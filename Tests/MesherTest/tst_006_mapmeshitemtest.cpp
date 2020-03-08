@@ -7,6 +7,7 @@
 #include "../../Mesher/tinEditorUi/reostineditorgraphic.h"
 #include "../../Mesher/tinEditorUi/reosmapmeshitem.h"
 #include "../../Mesher/provider/meshdataprovider.h"
+#include "../../GIS/hdgismanager.h"
 
 
 using namespace testing;
@@ -112,78 +113,4 @@ TEST_F( MeshItemTesting, associateNewMeshAfterPopulateToEditor )
   ASSERT_THAT( uiEditor->domain()->verticesCount(), Eq( 5 ) );
 }
 
-
-//TEST_F(MeshItemTesting, itemCount)
-//{
-//    populateEditorWithVertexAndSegment();
-//    HdMapMeshEditorItemDomain domain(mapCanvas);
-
-//    domain.setTINEditor(&tinEditor);
-
-//    ASSERT_THAT(domain.verticesCount(),Eq(tinEditor.verticesCount()));
-//    ASSERT_THAT(domain.segmentCount(),Eq(tinEditor.segmentsCount()));
-//}
-
-//TEST_F(MeshItemTesting, addVertex)
-//{
-//    populateEditorWithVertex();
-//    HdMapMeshEditorItemDomain editorDomain(mapCanvas);
-//    editorDomain.setTINEditor(&tinEditor);
-
-//    tinEditor.addVertex(5,5);
-
-//    ASSERT_THAT(editorDomain.verticesCount(),Eq(6));
-//    ASSERT_THAT(editorDomain.verticesCount(),Eq(tinEditor.verticesCount()));
-//}
-
-//TEST_F(MeshItemTesting, addVertexOrSegmentToVoidDomain)
-//{
-//    populateEditorWithVertex();
-//    HdMapMeshEditorItemDomain editorDomain(mapCanvas);
-
-//    VertexPointer v1=tinEditor.addVertex(5,5);
-//    VertexPointer v2=tinEditor.addVertex(10,5);
-
-//    ASSERT_THAT(v1,Eq(nullptr));
-//    ASSERT_THAT(v2,Eq(nullptr));
-//    ASSERT_THAT(editorDomain.verticesCount(),Eq(0));
-//}
-
-//TEST_F(MeshItemTesting, addDuplicateVertex)
-//{
-//    populateEditorWithVertex();
-//    HdMapMeshEditorItemDomain editorDomain(mapCanvas);
-//    editorDomain.setTINEditor(&tinEditor);
-
-//    tinEditor.setTolerance(0.01);
-//    tinEditor.addVertex(4.999,10.001);
-
-//    ASSERT_THAT(editorDomain.verticesCount(),Eq(5));
-//    ASSERT_THAT(editorDomain.verticesCount(),Eq(tinEditor.verticesCount()));
-//}
-
-//TEST_F(MeshItemTesting, addHardLine)
-//{
-//    HdMapMeshEditorItemDomain editorDomain(mapCanvas);
-//    editorDomain.setTINEditor(&tinEditor);
-
-
-
-//    ASSERT_THAT(editorDomain.verticesCount(),Eq(2));
-//    ASSERT_THAT(editorDomain.verticesCount(),Eq(tinEditor.verticesCount()));
-//    ASSERT_THAT(editorDomain.segmentCount(),Eq(1));
-
-//}
-
-//TEST_F(MeshItemTesting, addDupplicateHardLine)
-//{
-//    HdMapMeshEditorItemDomain editorDomain(mapCanvas);
-//    editorDomain.setTINEditor(&tinEditor);
-
-
-//    ASSERT_THAT(editorDomain.verticesCount(),Eq(2));
-//    ASSERT_THAT(editorDomain.verticesCount(),Eq(tinEditor.verticesCount()));
-//    ASSERT_THAT(editorDomain.segmentCount(),Eq(1));
-
-//}
 
