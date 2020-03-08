@@ -36,17 +36,6 @@ class MeshItemTesting : public Test
       uiEditor->newVertex( QPointF( 10, 5 ) );
     }
 
-    void populateEditorWithVertexAndSegment()
-    {
-      uiEditor->newVertex( QPointF( 5, 15 ) );
-      uiEditor->newVertex( QPointF( 10, 15 ) );
-      uiEditor->newVertex( QPointF( 5, 10 ) );
-      uiEditor->newVertex( QPointF( 10, 10 ) );
-      uiEditor->newVertex( QPointF( 10, 5 ) );
-
-      //tinEditor.addSegment(0,4);
-    }
-
     // Test interface
   protected:
     void SetUp() override

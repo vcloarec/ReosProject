@@ -126,36 +126,41 @@ class ReosTinEditorUi : public ReosModule
   public:
     explicit ReosTinEditorUi( ReosGisManager *gismanager, QObject *parent = nullptr );
 
+    //! Returns the graphic domain that represents the vertives and faces
     ReosMapMeshEditorItemDomain *domain() const {return mDomain;}
+
+    //! Sets the mesh layer
     void setMeshLayer( QgsMeshLayer *meshLayer );
 
+    //! Returns the item representing a vertex localized at map point
     ReosMeshItemVertex *mapVertex( const QPointF &mapPoint ) const;
+
+    //! Returns the vertex localized at map point
     VertexPointer realWorldVertex( const QPointF &mapPoint ) const;
 
+    //! Returns the three map points of the face located at the map point, void list if no face
     QList<QPointF> mapFace( const QPointF &mapPoint ) const;
+    //! Returns the face located at the map point
     FacePointer realWorldFace( const QPointF &mapPoint ) const;
 
+    //! Returns true is the two faces are flippable
     bool isFlipable( FacePointer f1, FacePointer f2 ) const;
 
-
+    //! Do and Undo commands
     void doCommand( ReosTinUndoCommandNewVertex *command );
     void undoCommand( ReosTinUndoCommandNewVertex *command );
     void doCommand( ReosTinUndoCommandNewSegmentWithNewSecondVertex *command );
     void undoCommand( ReosTinUndoCommandNewSegmentWithNewSecondVertex *command );
     void doCommand( ReosTinUndoCommandNewSegmentWithExistingSecondVertex *command );
     void undoCommand( ReosTinUndoCommandNewSegmentWithExistingSecondVertex * );
-
     void doCommand( ReosTinUndoCommandRemoveVertex *command );
     void undoCommand( ReosTinUndoCommandRemoveVertex * );
-
     void doCommand( ReosTinUndoCommandRemoveHardLine *command );
     void undoCommand( ReosTinUndoCommandRemoveHardLine * ) {}
-
     void doCommand( ReosTinUndoCommandFlipFaces *command );
     void undoCommand( ReosTinUndoCommandFlipFaces *command );
 
     void newTin( const QString &fileName, const QString &name, const QgsCoordinateReferenceSystem &crs );
-
 
   public slots:
     void startNewVertex();
@@ -212,23 +217,31 @@ class ReosTinEditorUi : public ReosModule
     void startVertexEntry();
     void stopVertexEntry();
 
+    //! Returns the mesh coordinate in map coordinates, ok is true if the transform doesn't fail
+    QPointF mapCoordinatesToMesh( const QPointF &meshCoordinate, bool &ok ) const;
+    //! Returns the map coordinate in mesh coordinates, ok is true if the transform doesn't fail
+    QPointF meshCoordinatesFromMap( const QPointF &mapCoordinate, bool &ok ) const;
+    //! Return the transformed coordinate, ok is true if the transform doesn't fail
+    QPointF transformCoordinates( const QPointF &coordinate, bool &ok, const QgsCoordinateTransform &transform ) const;
 
-
+    //! Adds a vertex item ossociated with the vertex to the map, the map location is retrieve using transform (can fail)
     ReosMeshItemVertex *addMapVertex( VertexPointer vert );
+    //! Adds a vertex item ossociated with the vertex to the map at mapPoint
     ReosMeshItemVertex *addMapVertex( const QPointF &mapPoint, VertexPointer vert );
 
+    //! Remove the vertex
     void removeVertex( VertexPointer vert );
 
-    QPointF mapCoordinates( const QPointF &meshCoordinate, bool &ok ) const;
-    //! Return the transformed coordinate
-    QPointF transformCoordinates( const QPointF &coordinate, bool &ok, const QgsCoordinateTransform &transform ) const;
-    QPointF meshCoordinatesFromMap( const QPointF &mapCoordinate, bool &ok ) const;
-
+    //! add a vertex to the TIN with a simple Z specifier (with z value)
     VertexPointer addRealWorldVertexFromMap( const QPointF &mapPoint, double z );
-    VertexPointer addRealWorldVertexFromMap( const QPointF &mapPoint );
-    ReosMeshItemVertex *addMapVertex_2( VertexPointer realWorldVertex );
 
+    //! add a vertex to the TIN with a the Z specifier specified in the widget
+    VertexPointer addRealWorldVertexFromMap( const QPointF &mapPoint );
+
+    //! add a hardline segment between the two vertices, returns the neighbours structure of the news vertices (used for undo)
     void addSegment( VertexPointer v1, VertexPointer v2, QList<PointAndNeighbours> &oldNeigboursStructure );
+
+    //! remove the hardline segment between the two vertices
     void removeHardLine( VertexPointer v1, VertexPointer v2 );
 
     //! Adds element to the TIN from a vector layer (points or lines)
@@ -267,7 +280,7 @@ class ReosTinEditorUi : public ReosModule
     HdTinEditorUiDialog *uiDialog;
     ReosVertexZSpecifierWidget *mZSpecifierWidget;
     ReosVertexZSpecifierEditorWidget *mZSpecifierEditor;
-    std::unique_ptr<QgsCoordinateTransform> mTransform;
+    QgsCoordinateTransform mTransform;
 
     QgsMeshLayer *mMeshLayer = nullptr;
     //TINEditor *mTIN=nullptr;
