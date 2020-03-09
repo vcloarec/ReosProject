@@ -23,5 +23,9 @@ It will be a part of the Reos project, a free and open sources solution dedicate
 
 ![](mesher_2.gif)
 
+![](mesher_3.gif)
+
+![](mesher_4.gif)
+
 ## Working principle with QGIS API
 ![](TIN_Editor_principle.PNG)
