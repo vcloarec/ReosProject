@@ -320,7 +320,11 @@ void ReosTinEditorUi::doCommand( ReosTinUndoCommandNewSegmentWithNewSecondVertex
 
   //add the second realWorld vertex
   VertexPointer secondVertex = addRealWorldVertexFromMap( command->mMapPointSecond );
-  addSegment( firstVertex, secondVertex, command->mVerticesPositionAndStructureMemory );
+  if ( secondVertex )
+  {
+    mZSpecifierWidget->assignZSpecifier( secondVertex );
+    addSegment( firstVertex, secondVertex, command->mVerticesPositionAndStructureMemory );
+  }
 
 }
 
@@ -611,6 +615,8 @@ void ReosTinEditorUi::newSegment( ReosMeshItemVertex *firstVertex, const QPointF
   bool ok;
   QPointF mapPointFirst = mapCoordinatesFromMesh( QPointF( firstVertex->realWorldVertex()->x(), firstVertex->realWorldVertex()->y() ), ok );
 
+  if ( !ok )
+    return;
   auto command = new ReosTinUndoCommandNewSegmentWithNewSecondVertex( this, mapPointFirst, secondMapPoint );
   newCommand( command );
 }
