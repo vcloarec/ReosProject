@@ -130,6 +130,8 @@ class ReosGisManager: public ReosModule
     //! Saves the map as a QGIS file
     void saveGISProject();
 
+    void closeGISProject();
+
 
     QgsRectangle transformExtentFrom( const QgsRectangle &extent, const QgsCoordinateReferenceSystem &crsSource );
     QgsRectangle transformExtentTo( const QgsRectangle &extent, const QgsCoordinateReferenceSystem &crsDest );
@@ -159,6 +161,7 @@ class ReosGisManager: public ReosModule
     void layerHasToBeRemoved( QgsMapLayer *layer );
     void layerHasToBeUpdated( QgsMapLayer *layer );
     void mapCrsChanged( const QgsCoordinateReferenceSystem &mCrs );
+    void projectHasToBeClosed();
 
   public slots:
     void openGISProject();
@@ -171,6 +174,7 @@ class ReosGisManager: public ReosModule
     void CRSSelection();
     void setCRS( const QgsCoordinateReferenceSystem &newCrs );
     void setExtentAfterLoading();
+
 
   private:
     ReosMap *mMap;

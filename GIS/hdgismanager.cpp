@@ -160,6 +160,8 @@ void ReosGisManager::openGISProject()
       return;
   }
 
+
+
   ReosSettings settings;
   QString path = settings.value( QStringLiteral( "/Path/Project" ) ).toString();
   QString projectFileName = QFileDialog::getOpenFileName( controlPannel, tr( "Open GIS Project" ), path, "*.qgs *.qgz" );
@@ -171,7 +173,9 @@ void ReosGisManager::openGISProject()
 
   mGISFileName = projectFileName;
   mMap->saveMapExtent();
-  emit currentLayerChanged( nullptr );
+
+
+  closeGISProject();
   loadGISProject();
 }
 
@@ -424,16 +428,26 @@ QMenu *ReosGisManager::getMenuForSeveralLayers()
 void ReosGisManager::loadGISProject()
 {
   connect( mBridgeTreeMap, &QgsLayerTreeMapCanvasBridge::canvasLayersChanged, this, &ReosGisManager::setExtentAfterLoading );
-  QgsProject::instance()->clear();
+
   QgsProject::instance()->read( mGISFileName );
+  QgsMapCanvas *canvas = mMap->getMapCanvas();
+  canvas->setCanvasColor( QgsProject::instance()->backgroundColor() );
+  canvas->setSelectionColor( QgsProject::instance()->selectionColor() );
 
   setCRS( QgsProject::instance()->crs() );
-
 }
 
 void ReosGisManager::saveGISProject()
 {
   QgsProject::instance()->write( mGISFileName );
+}
+
+void ReosGisManager::closeGISProject()
+{
+  emit projectHasToBeClosed();
+  mMap->getMapCanvas()->setLayers( QList<QgsMapLayer *>() );
+  mMap->getMapCanvas()->clearCache();
+  QgsProject::instance()->clear();
 }
 
 QgsRectangle ReosGisManager::transformExtentFrom( const QgsRectangle &extent, const QgsCoordinateReferenceSystem &crsSource )

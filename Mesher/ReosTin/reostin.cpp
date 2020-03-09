@@ -985,8 +985,6 @@ FaceHandle ReosTin::faceHandle( TinTriangulation::Face *f ) const
 
 std::list<VertexPointer> ReosTin::addHardLine( VertexPointer v1, VertexPointer v2 )
 {
-  //auto handle_1=static_cast<TinTriangulation::Vertex*>(v1)->handle();
-  //auto handle_2=static_cast<TinTriangulation::Vertex*>(v2)->handle();
   auto handle_1 = static_cast<TINVertex *>( v1 )->handle();
   auto handle_2 = static_cast<TINVertex *>( v2 )->handle();
 
@@ -1007,7 +1005,6 @@ std::list<VertexPointer> ReosTin::addHardLine( VertexPointer v1, VertexPointer v
         it++ )
   {
     VertexHandle handle = *it;
-    //constraintVertices.push_back(&(*handle));
     if ( handle->tinVertex() )
       constraintVertices.push_back( handle->tinVertex() );
     else

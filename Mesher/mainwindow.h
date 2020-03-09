@@ -66,12 +66,17 @@ class MainWindow : public QMainWindow
       mUndoGroup->setActiveStack( undoStack );
     }
 
+    void openMap3D();
+
   private:
     Ui::MainWindow *ui;
+    ReosMap *mMap = nullptr;
+    ReosGisManager *mGisManager;
     ReosTinEditorUi *tinEditor;
     QUndoGroup *mUndoGroup;
 
     QAction *actionTinEditor;
+    QAction *actionMap3D;
 };
 
 #endif // MAINWINDOW_H

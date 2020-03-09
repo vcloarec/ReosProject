@@ -217,26 +217,29 @@ class ReosTinEditorUi : public ReosModule
     void startVertexEntry();
     void stopVertexEntry();
 
-    //! Returns the mesh coordinate in map coordinates, ok is true if the transform doesn't fail
-    QPointF mapCoordinatesToMesh( const QPointF &meshCoordinate, bool &ok ) const;
-    //! Returns the map coordinate in mesh coordinates, ok is true if the transform doesn't fail
+    //! Returns the mesh coordinate to map coordinates, ok is true if the transform doesn't fail
+    QPointF mapCoordinatesFromMesh( const QPointF &meshCoordinate, bool &ok ) const;
+    //! Returns the map coordinate to mesh coordinates, ok is true if the transform doesn't fail
     QPointF meshCoordinatesFromMap( const QPointF &mapCoordinate, bool &ok ) const;
-    //! Return the transformed coordinate, ok is true if the transform doesn't fail
-    QPointF transformCoordinates( const QPointF &coordinate, bool &ok, const QgsCoordinateTransform &transform ) const;
+    //! Return the transformed coordinate to mesh coordinate, ok is true if the transform doesn't fail
+    QPointF transformToMeshCoordinates( const QPointF &coordinate, bool &ok, const QgsCoordinateTransform &transform ) const;
+    //! Return the transformed coordinate from mesh coordinate, ok is true if the transform doesn't fail
+    QPointF transformFromMeshCoordinates( const QPointF &coordinate, bool &ok, const QgsCoordinateTransform &transform ) const;
 
     //! Adds a vertex item ossociated with the vertex to the map, the map location is retrieve using transform (can fail)
     ReosMeshItemVertex *addMapVertex( VertexPointer vert );
     //! Adds a vertex item ossociated with the vertex to the map at mapPoint
     ReosMeshItemVertex *addMapVertex( const QPointF &mapPoint, VertexPointer vert );
-
     //! Remove the vertex
     void removeVertex( VertexPointer vert );
 
-    //! add a vertex to the TIN with a simple Z specifier (with z value)
+    //! add a vertex to the TIN with map coordinate and with a simple Z specifier (with z value)
     VertexPointer addRealWorldVertexFromMap( const QPointF &mapPoint, double z );
 
-    //! add a vertex to the TIN with a the Z specifier specified in the widget
+    //! add a vertex to the TIN with map coordinate and with the Z specifier specified in the widget
     VertexPointer addRealWorldVertexFromMap( const QPointF &mapPoint );
+    //! add a vertex to the TIN with transform coordinate and with the Z specifier specified in the widget
+    VertexPointer addRealWorldVertex( const QPointF &point, double z, const QgsCoordinateTransform &transform );
 
     //! add a hardline segment between the two vertices, returns the neighbours structure of the news vertices (used for undo)
     void addSegment( VertexPointer v1, VertexPointer v2, QList<PointAndNeighbours> &oldNeigboursStructure );
@@ -280,6 +283,7 @@ class ReosTinEditorUi : public ReosModule
     HdTinEditorUiDialog *uiDialog;
     ReosVertexZSpecifierWidget *mZSpecifierWidget;
     ReosVertexZSpecifierEditorWidget *mZSpecifierEditor;
+    //! Transform from mesh coordinate to map coordinate
     QgsCoordinateTransform mTransform;
 
     QgsMeshLayer *mMeshLayer = nullptr;

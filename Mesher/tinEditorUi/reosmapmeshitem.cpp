@@ -82,7 +82,6 @@ ReosMeshItemVertex::~ReosMeshItemVertex() {}
 
 void ReosMeshItemVertex::setRealWorldVertex( VertexPointer vertex )
 {
-
   mRealWorldVertex = vertex;
 }
 

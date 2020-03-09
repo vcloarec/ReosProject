@@ -206,7 +206,7 @@ QList<QPointF> ReosTinEditorUi::mapFace( const QPointF &mapPoint ) const
   {
     VertexPointer v = face->vertexPointer( i );
     bool ok;
-    QPointF mp = mapCoordinatesToMesh( QPointF( v->x(), v->y() ), ok );
+    QPointF mp = mapCoordinatesFromMesh( QPointF( v->x(), v->y() ), ok );
     if ( ok )
       vertices.append( mp );
   }
@@ -256,6 +256,30 @@ VertexPointer ReosTinEditorUi::addRealWorldVertexFromMap( const QPointF &mapPoin
   return vert;
 }
 
+VertexPointer ReosTinEditorUi::addRealWorldVertex( const QPointF &point, double z, const QgsCoordinateTransform &transform )
+{
+  VertexPointer vert = nullptr;
+  bool ok;
+  QPointF meshPoint = transformToMeshCoordinates( point, ok, transform );
+  if ( !ok )
+    return nullptr;
+
+  QPointF mapPoint = mapCoordinatesFromMesh( meshPoint, ok );
+
+  if ( mTIN )
+  {
+    vert = mTIN->vertex( meshPoint.x(), meshPoint.y() );
+    if ( !vert )
+    {
+      vert = mTIN->addVertex( meshPoint.x(), meshPoint.y() );
+      addMapVertex( mapPoint, vert );
+    }
+  }
+
+  if ( vert )
+    vert->setZValue( z );
+  return vert;
+}
 
 void ReosTinEditorUi::removeVertex( VertexPointer vert )
 {
@@ -512,7 +536,7 @@ void ReosTinEditorUi::removeVertexFromRect( const QRectF &selectionZone )
     else
     {
       bool ok;
-      QPointF mapPoint = mapCoordinatesToMesh( QPointF( realWorldVertex->x(), realWorldVertex->y() ), ok );
+      QPointF mapPoint = mapCoordinatesFromMesh( QPointF( realWorldVertex->x(), realWorldVertex->y() ), ok );
       if ( !ok )
         return;
       ReosTinUndoCommandRemoveVertex *command = new ReosTinUndoCommandRemoveVertex( this, mapPoint );
@@ -531,8 +555,8 @@ void ReosTinEditorUi::removeSegmentFromRect( const QRectF &selectionZone )
     VertexPointer v2 = seg->vertex2()->realWorldVertex();
 
     bool ok1, ok2;
-    QPointF mapPoint1 = mapCoordinatesToMesh( QPointF( v1->x(), v1->y() ), ok1 );
-    QPointF mapPoint2 = mapCoordinatesToMesh( QPointF( v2->x(), v2->y() ), ok2 );
+    QPointF mapPoint1 = mapCoordinatesFromMesh( QPointF( v1->x(), v1->y() ), ok1 );
+    QPointF mapPoint2 = mapCoordinatesFromMesh( QPointF( v2->x(), v2->y() ), ok2 );
 
     if ( !ok1 || !ok2 )
       return;
@@ -585,7 +609,7 @@ void ReosTinEditorUi::newSegment( ReosMeshItemVertex *firstVertex, const QPointF
     return;
 
   bool ok;
-  QPointF mapPointFirst = mapCoordinatesToMesh( QPointF( firstVertex->realWorldVertex()->x(), firstVertex->realWorldVertex()->y() ), ok );
+  QPointF mapPointFirst = mapCoordinatesFromMesh( QPointF( firstVertex->realWorldVertex()->x(), firstVertex->realWorldVertex()->y() ), ok );
 
   auto command = new ReosTinUndoCommandNewSegmentWithNewSecondVertex( this, mapPointFirst, secondMapPoint );
   newCommand( command );
@@ -663,8 +687,6 @@ void ReosTinEditorUi::addSegment( VertexPointer v1, VertexPointer v2, QList<Poin
 {
   //add real world segment
   std::list<VertexPointer> hardLineVertices = mTIN->addHardLine( v1, v2 );
-
-  qDebug() << "Numbre of hardline created " << hardLineVertices.size();
 
   //set Z value for next
   for ( auto vert : hardLineVertices )
@@ -784,30 +806,8 @@ bool ReosTinEditorUi::addPointGeometry( QgsPoint *point, const QgsCoordinateTran
 {
   if ( !point )
     return false;
-  if ( transform.isValid() )
-  {
-    try
-    {
-      QgsPointXY transPoint = transform.transform( *point );
-      VertexPointer vert = mTIN->addVertex( transPoint.x(), transPoint.y() );
-      vert->setZValue( point->z() );
-      addMapVertex( transPoint.toQPointF(), vert );
-      return true;
-    }
-    catch ( QgsException &e )
-    {
-      Q_UNUSED( e );
-      return false;
-    }
-  }
-  else
-  {
-    VertexPointer vert = mTIN->addVertex( point->x(), point->y() );
-    vert->setZValue( point->z() );
-    addMapVertex( point->toQPointF(), vert );
-    return true;
-  }
 
+  return ( addRealWorldVertex( point->toQPointF(), point->z(), transform ) != nullptr );
 }
 
 void ReosTinEditorUi::addLineVectorLayer( QgsVectorLayer *vectorLayer, const QgsCoordinateTransformContext &transformContext )
@@ -857,12 +857,25 @@ int ReosTinEditorUi::addCurveGeometry( QgsLineString *line, const QgsCoordinateT
     return 0;
   int pointCount = line->numPoints();
 
+  int added = 0;
+
   for ( int i = 0; i < pointCount - 1; ++i )
   {
     const QgsPoint p1 = line->pointN( i );
-    const QgsPoint p2 = line->pointN( i );
+    const QgsPoint p2 = line->pointN( i + 1 );
 
+    VertexPointer v1 = addRealWorldVertex( p1.toQPointF(), p1.z(), transform );
+    VertexPointer v2 = addRealWorldVertex( p2.toQPointF(), p2.z(), transform );
+
+    QList<PointAndNeighbours> n;
+
+    if ( v1 && v2 )
+      addSegment( v1, v2, n );
+
+    added += n.size() - 2;
   }
+
+  return added;
 }
 
 void ReosTinEditorUi::populateDomain()
@@ -962,6 +975,8 @@ void ReosTinEditorUi::stopZSpecifierEditor()
 void ReosTinEditorUi::vectorLayerToTin()
 {
   QgsVectorLayer *vectorLayer = mGisManager->getVectorLayer();
+  if ( !vectorLayer )
+    return;
   addVectorLayer( vectorLayer );
   updateMesh();
 }
@@ -977,6 +992,9 @@ void ReosTinEditorUi::updateMesh()
 {
   if ( mMeshLayer )
     mMeshLayer->reload();
+  else
+    return;
+
   mMap->refreshMap();
 
   emit mMeshLayer->dataChanged();
@@ -1088,30 +1106,12 @@ ReosMeshItemVertex *ReosTinEditorUi::addMapVertex( const QPointF &mapPoint, Vert
 }
 
 
-QPointF ReosTinEditorUi::mapCoordinatesToMesh( const QPointF &meshCoordinate, bool &ok ) const
+QPointF ReosTinEditorUi::mapCoordinatesFromMesh( const QPointF &meshCoordinate, bool &ok ) const
 {
-  ok = true;
-  if ( mTransform.isValid() )
-  {
-    try
-    {
-      return mTransform.transform( meshCoordinate.x(), meshCoordinate.y(), QgsCoordinateTransform::ForwardTransform ).toQPointF();
-    }
-    catch ( QgsCsException &except )
-    {
-      QString message = tr( "Error when transforming coordinate" );
-      message.append( "/n" );
-      message.append( except.what() );
-      QMessageBox::critical( mGisManager->getMap()->getMapCanvas(), tr( "Coordinate transform" ), tr( "Error when transforming coordinate" ) );
-      ok = false;
-      return QPointF();
-    }
-  }
-  else
-    return meshCoordinate;
+  return transformFromMeshCoordinates( meshCoordinate, ok, mTransform );
 }
 
-QPointF ReosTinEditorUi::transformCoordinates( const QPointF &coordinate, bool &ok, const QgsCoordinateTransform &transform ) const
+QPointF ReosTinEditorUi::transformToMeshCoordinates( const QPointF &coordinate, bool &ok, const QgsCoordinateTransform &transform ) const
 {
   ok = true;
   if ( transform.isValid() )
@@ -1122,10 +1122,25 @@ QPointF ReosTinEditorUi::transformCoordinates( const QPointF &coordinate, bool &
     }
     catch ( QgsCsException &except )
     {
-      QString message = tr( "Error when transforming coordinate" );
-      message.append( "/n" );
-      message.append( except.what() );
-      QMessageBox::critical( mGisManager->getMap()->getMapCanvas(), tr( "Coordinate transform" ), tr( "Error when transforming coordinate" ) );
+      ok = false;
+      return QPointF();
+    }
+  }
+  else
+    return coordinate;
+}
+
+QPointF ReosTinEditorUi::transformFromMeshCoordinates( const QPointF &coordinate, bool &ok, const QgsCoordinateTransform &transform ) const
+{
+  ok = true;
+  if ( transform.isValid() )
+  {
+    try
+    {
+      return mTransform.transform( coordinate.x(), coordinate.y(), QgsCoordinateTransform::ForwardTransform ).toQPointF();
+    }
+    catch ( QgsCsException &except )
+    {
       ok = false;
       return QPointF();
     }
@@ -1136,14 +1151,7 @@ QPointF ReosTinEditorUi::transformCoordinates( const QPointF &coordinate, bool &
 
 QPointF ReosTinEditorUi::meshCoordinatesFromMap( const QPointF &mapCoordinate, bool &ok ) const
 {
-  if ( mTransform.isValid() )
-    return transformCoordinates( mapCoordinate, ok, mTransform );
-  else
-  {
-    ok = true;
-    return mapCoordinate;
-  }
-
+  return transformToMeshCoordinates( mapCoordinate, ok, mTransform );
 }
 
 ReosMeshItemVertexAndNeighbours ReosTinEditorUi::saveStructure( ReosMeshItemVertex *vert ) const

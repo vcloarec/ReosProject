@@ -24,6 +24,8 @@ int main( int argc, char *argv[] )
   QCoreApplication::setOrganizationName( QStringLiteral( "ReosProject" ) );
   QCoreApplication::setApplicationName( QStringLiteral( "Mesher" ) );
   QSettings::setDefaultFormat( QSettings::IniFormat );
+
+
   a.init();
 
   MainWindow w;
