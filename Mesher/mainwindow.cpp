@@ -55,7 +55,7 @@ MainWindow::MainWindow( QWidget *parent ) :
   dockMessage->setWidget( messageBox );
   addDockWidget( Qt::LeftDockWidgetArea, dockMessage );
 
-  QgsProviderRegistry::instance()->registerProvider( new HdTinEditorProviderMetaData() );
+  QgsProviderRegistry::instance()->registerProvider( new ReosMeshPoviderMetadata() );
 
   QMenu *fileMenu = new QMenu( tr( "Files" ) );
   menuBar()->addMenu( fileMenu );

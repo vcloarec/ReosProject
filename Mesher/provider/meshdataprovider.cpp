@@ -24,7 +24,7 @@ QgsMeshDatasetGroupMetadata TINProvider::datasetGroupMetadata( int groupIndex ) 
   QMap<QString, QString> extraOptions;
 
   extraOptions["By"] = "vcloarec";
-  return QgsMeshDatasetGroupMetadata( tr( "Altitude terrain" ), true, QgsMeshDatasetGroupMetadata::DataOnVertices, -5, 20, 1, QDateTime(), extraOptions );
+  return QgsMeshDatasetGroupMetadata( tr( "Altitude terrain" ), true, QgsMeshDatasetGroupMetadata::DataOnVertices, -5, 20, 1, QDateTime(), false, extraOptions );
 }
 
 QgsMeshDatasetMetadata TINProvider::datasetMetadata( QgsMeshDatasetIndex index ) const
@@ -122,6 +122,11 @@ int TINProvider::faceCount() const
   return mTin.facesCount();
 }
 
+int TINProvider::edgeCount() const
+{
+  return 0;
+}
+
 void TINProvider::populateMesh( QgsMesh *mesh ) const
 {
   if ( !mesh )
@@ -189,11 +194,6 @@ QgsRectangle TINProvider::extent() const
 }
 
 
-QgsDataProvider *createTinEditorProvider( const QString &source, const QgsDataProvider::ProviderOptions &option )
-{
-  Q_UNUSED( source );
-  return new TINProvider( source, option );
-}
 
 HdTinLayer::HdTinLayer( QString path ): QgsMeshLayer( path, "Editable mesh layer", "TIN" )
 {

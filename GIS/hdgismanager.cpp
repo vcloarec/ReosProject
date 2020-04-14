@@ -19,9 +19,9 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 ReosGisManager::ReosGisManager( ReosMap *map, ReosModule *parent ): ReosModule( parent ), mMap( map ),
   mTreeLayerView( new ReosTreeLayerGISView() ),
 #ifdef _DEBUG
-  pluginPath( "/home/cloarec/dev/built/QGIS_debug/lib/qgis/plugins/" ),
+  pluginPath( "./providers" ),
 #else
-  pluginPath( "/home/cloarec/dev/built/QGIS_Release/lib/qgis/plugins/" ),
+  pluginPath( "./providers" ),
 #endif
   controlPannel( new QWidget() ),
   actionNewProjectSIG( new QAction( QPixmap( "://toolbar/NouveauDoc.png" ), tr( "Nouveau projet SIG" ), this ) ),
@@ -35,7 +35,6 @@ ReosGisManager::ReosGisManager( ReosMap *map, ReosModule *parent ): ReosModule( 
   actionCRSSelectionWithText( new QAction( this ) )
 {
   QgsProviderRegistry::instance( pluginPath );
-  //QgsApplication::setPkgDataPath( "./" );
 
 
   mDeFaultCrs = QgsCoordinateReferenceSystem( QStringLiteral( "EPSG:32620" ) );
@@ -90,8 +89,6 @@ ReosGisManager::ReosGisManager( ReosMap *map, ReosModule *parent ): ReosModule( 
   QgsApplication::colorSchemeRegistry()->addDefaultSchemes();
 
 }
-
-
 
 QgsRasterLayer *ReosGisManager::getRasterLayer()
 {

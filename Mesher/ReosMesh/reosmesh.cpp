@@ -42,6 +42,23 @@ int ReosMesh::writeUGRIDFormat( std::string fileName )
   std::string meshFaceNodeConnectivity( "TIN_face_node_connectivity" );
   std::string coordinateSystemVariableName( "Coordinate system" );
 
+  //define variable for Reos metadata
+  int ncIdREOSVariable;
+  error = nc_def_var( ncId, "Reos-Metadata", NC_STRING, 0, nullptr, &ncIdREOSVariable );
+  if ( error != NC_NOERR )
+  {
+    nc_close( ncId );
+    return error;
+  }
+
+  const char *typeChar = "TIN";
+  error = nc_put_att_text( ncId, ncIdREOSVariable, "mesh-type", std::strlen( typeChar ), typeChar );
+  if ( error != NC_NOERR )
+  {
+    nc_close( ncId );
+    return error;
+  }
+
   //***********************************
   //define dimensions
 

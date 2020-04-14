@@ -28,6 +28,7 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #include <qgsprovidermetadata.h>
 #include <qgsmeshlayer.h>
 
+
 #include "../ReosTin/reostin.h"
 #include "../ReosMesh/reosmesheditor.h"
 
@@ -70,6 +71,8 @@ class TINProvider: public QgsMeshDataProvider
       tin.writeUGRIDFormat( filePath.toStdString() );
     }
 
+
+
   private:
     ReosTin mTin;
 
@@ -91,6 +94,7 @@ class TINProvider: public QgsMeshDataProvider
   public:
     int vertexCount() const override;
     int faceCount() const override;
+    int edgeCount() const override;
     void populateMesh( QgsMesh *mesh ) const override;
 
     // QgsDataProvider interface
@@ -100,16 +104,68 @@ class TINProvider: public QgsMeshDataProvider
     bool isValid() const override {return true;}
     QString name() const override {return QStringLiteral( "TIN" );}
     QString description() const override {return QString();}
-
 };
 
 
-QgsDataProvider *createTinEditorProvider( const QString &source, const QgsDataProvider::ProviderOptions &option );
-
-class HdTinEditorProviderMetaData: public QgsProviderMetadata
+class ReosMeshPoviderMetadata: public QgsProviderMetadata
 {
   public:
-    HdTinEditorProviderMetaData(): QgsProviderMetadata( "TIN", "For editable mesh", createTinEditorProvider ) {}
+    ReosMeshPoviderMetadata(): QgsProviderMetadata( "mdal", "For editable TIN" )
+    {
+      init();
+    }
+
+    QgsDataProvider *createProvider( const QString &uri, const QgsDataProvider::ProviderOptions &options ) override
+    {
+      int ncId;
+      if ( nc_open( uri.toStdString().c_str(), NC_NOWRITE, &ncId ) == NC_NOERR )
+      {
+        // can open the file --> the file is a netCDf file
+        // query for the Reos metadata
+        int ncIdReosMetadataVariable;
+        int error = nc_inq_varid( ncId, "Reos-Metadata", &ncIdReosMetadataVariable );
+
+        if ( error == NC_NOERR )
+        {
+          size_t len;
+          const char *attName = "mesh-type";
+          error = nc_inq_attlen( ncId, ncIdReosMetadataVariable, attName, &len );
+          if ( error == NC_NOERR )
+          {
+            std::string type( len, '0' );
+            error = nc_get_att_text( ncId, ncIdReosMetadataVariable, attName, &type[0] );
+            nc_close( ncId );
+            if ( error == NC_NOERR && std::strcmp( type.c_str(), "TIN" ) == 0 )
+              return new TINProvider( uri, options );
+          }
+        }
+      }
+
+      if ( metaMDAL )
+        return metaMDAL->createProvider( uri, options );
+      else
+        return nullptr;
+    }
+
+  private:
+
+    typedef QgsProviderMetadata *factory_function( );
+
+    void init()
+    {
+      QString mdalLibPath = "./providers/mdal/libmdalprovider.so";
+      QLibrary mdalLib( mdalLibPath );
+      QFunctionPointer func = mdalLib.resolve( QStringLiteral( "providerMetadataFactory" ).toLatin1().data() );
+      factory_function *function = reinterpret_cast< factory_function * >( cast_to_fptr( func ) );
+      if ( !function )
+        return;
+
+      metaMDAL = function();
+    }
+
+    QLibrary mMdalLib;
+
+    QgsProviderMetadata *metaMDAL = nullptr;
 
 };
 

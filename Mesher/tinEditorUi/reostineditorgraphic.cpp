@@ -1030,7 +1030,7 @@ void ReosTinEditorUi::newTin( const QString &fileName, const QString &name, cons
 
   TINProvider::createEmptyTIN( fileName, crs );
 
-  auto layer = new QgsMeshLayer( fileName, name, "TIN" );
+  auto layer = new QgsMeshLayer( fileName, name, "mdal" );
 
   if ( layer->isValid() )
   {

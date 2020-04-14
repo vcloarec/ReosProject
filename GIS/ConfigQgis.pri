@@ -1,6 +1,7 @@
 INCLUDEPATH += $${QGIS_INCLUDE_PATH}/
 
 INCLUDEPATH += $${QGIS_SRC_PATH}/app
+INCLUDEPATH += $${QGIS_SRC_PATH}/app/3d
 INCLUDEPATH += $${QGIS_SRC_PATH}/app/mesh
 INCLUDEPATH += $${QGIS_SRC_PATH}/gui
 INCLUDEPATH += $${QGIS_SRC_PATH}/core
@@ -8,6 +9,8 @@ INCLUDEPATH += $${QGIS_SRC_PATH}/core/symbology
 INCLUDEPATH += $${QGIS_SRC_PATH}/core/raster
 INCLUDEPATH += $${QGIS_SRC_PATH}/../external
 INCLUDEPATH += $${QGIS_SRC_PATH}/../external/qt3dextra-headers
+
+INCLUDEPATH += $${QGIS_SRC_PATH}/providers/mdal
 
 RESOURCES += $${QGIS_SRC_PATH}/../images/images.qrc
 
@@ -18,7 +21,8 @@ FORMS +=\
         $${QGIS_SRC_PATH}/ui/qgspalettedrendererwidgetbase.ui \
         $${QGIS_SRC_PATH}/ui/qgsrasterlayerpropertiesbase.ui \
         $${QGIS_SRC_PATH}/ui/qgslayertreeembeddedconfigwidgetbase.ui \
-        $${QGIS_SRC_PATH}/ui/qgsvectorlayerpropertiesbase.ui \
+        $${QGIS_SRC_PATH}/ui/mesh/qgsmeshstaticdatasetwidgetbase.ui \
+        #$${QGIS_SRC_PATH}/ui/qgsvectorlayerpropertiesbase.ui \
         $${QGIS_SRC_PATH}/ui/mesh/qgsmeshlayerpropertiesbase.ui \
         $${QGIS_SRC_PATH}/ui/qgsvectorlayersaveasdialogbase.ui
 
