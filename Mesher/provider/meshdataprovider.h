@@ -104,6 +104,18 @@ class TINProvider: public QgsMeshDataProvider
     bool isValid() const override {return true;}
     QString name() const override {return QStringLiteral( "TIN" );}
     QString description() const override {return QString();}
+
+
+    // QgsMeshDatasetSourceInterface interface
+  public:
+    bool persistDatasetGroup( const QString &outputFilePath, const QString &outputDriver, const QgsMeshDatasetGroupMetadata &meta, const QVector<QgsMeshDataBlock> &datasetValues, const QVector<QgsMeshDataBlock> &datasetActive, const QVector<double> &times )
+    {
+      return false;
+    }
+
+    // QgsMeshDatasetSourceInterface interface
+  public:
+    bool persistDatasetGroup( const QString &outputFilePath, const QString &outputDriver, QgsMeshDatasetSourceInterface *source, int datasetGroupIndex ) {return true;}
 };
 
 

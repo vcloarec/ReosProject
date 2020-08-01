@@ -203,6 +203,8 @@ class ReosTinEditorUi : public ReosModule
 
     void vectorLayerToTin();
 
+    void exportTxt();
+
   private: //method
 
     QWidget *getWidget() const override {return uiDialog;}
@@ -315,6 +317,8 @@ class ReosTinEditorUi : public ReosModule
     QAction *actionTriangulateTIN;
 
     QAction *actionVectorLayerToTin;
+
+    QAction *actionExportTxt;
 
     friend class UIMeshEditorTesting;
 };

@@ -24,6 +24,7 @@ FORMS +=\
         $${QGIS_SRC_PATH}/ui/mesh/qgsmeshstaticdatasetwidgetbase.ui \
         #$${QGIS_SRC_PATH}/ui/qgsvectorlayerpropertiesbase.ui \
         $${QGIS_SRC_PATH}/ui/mesh/qgsmeshlayerpropertiesbase.ui \
+        $${QGIS_SRC_PATH}/ui/mesh/qgsmeshdatasetgrouptreewidgetbase.ui \
         $${QGIS_SRC_PATH}/ui/qgsvectorlayersaveasdialogbase.ui
 
 

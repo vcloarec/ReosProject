@@ -24,7 +24,7 @@ QgsMeshDatasetGroupMetadata TINProvider::datasetGroupMetadata( int groupIndex ) 
   QMap<QString, QString> extraOptions;
 
   extraOptions["By"] = "vcloarec";
-  return QgsMeshDatasetGroupMetadata( tr( "Altitude terrain" ), true, QgsMeshDatasetGroupMetadata::DataOnVertices, -5, 20, 1, QDateTime(), false, extraOptions );
+  return QgsMeshDatasetGroupMetadata( tr( "Altitude terrain" ), "", true, QgsMeshDatasetGroupMetadata::DataOnVertices, -5, 20, 1, QDateTime(), false, extraOptions );
 }
 
 QgsMeshDatasetMetadata TINProvider::datasetMetadata( QgsMeshDatasetIndex index ) const

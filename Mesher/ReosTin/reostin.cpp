@@ -995,7 +995,7 @@ std::list<VertexPointer> ReosTin::addHardLine( VertexPointer v1, VertexPointer v
   if ( cid == nullptr )
     return constraintVertices;
 
-  typedef TinTriangulation::Vertices_in_constraint VerticesConstraint;
+  typedef TinTriangulation::Vertices_in_constraint_iterator VerticesConstraint;
   VerticesConstraint begin = triangulation.vertices_in_constraint_begin( cid );
   VerticesConstraint end = triangulation.vertices_in_constraint_end( cid );
 
@@ -1010,6 +1010,7 @@ std::list<VertexPointer> ReosTin::addHardLine( VertexPointer v1, VertexPointer v
     else
       constraintVertices.push_back( new TINVertex( handle ) );
   }
+
   return constraintVertices;
 }
 

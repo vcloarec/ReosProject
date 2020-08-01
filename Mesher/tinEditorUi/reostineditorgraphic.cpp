@@ -65,7 +65,8 @@ ReosTinEditorUi::ReosTinEditorUi( ReosGisManager *gismanager, QObject *parent ):
   actionFlipFaces( new QAction( QPixmap( "://toolbar/MeshFlipFaces.png" ), tr( "Flip faces" ), this ) ),
   mapToolFlipFaces( new ReosTinMapToolFlipFaces( gismanager->getMap(), this ) ),
   actionTriangulateTIN( new QAction( QPixmap( "://toolbar/MeshTINTriangulation.png" ), tr( "update mesh" ), this ) ),
-  actionVectorLayerToTin( new QAction( tr( "From Vector Layer" ), this ) )
+  actionVectorLayerToTin( new QAction( tr( "From Vector Layer" ), this ) ),
+  actionExportTxt( new QAction( tr( "Export txt *.mnt" ), this ) )
 {
   actionNewVertex->setCheckable( true );
   mapToolNewVertex->setAction( actionNewVertex );
@@ -101,6 +102,7 @@ ReosTinEditorUi::ReosTinEditorUi( ReosGisManager *gismanager, QObject *parent ):
   mGroupAction->addAction( actionFlipFaces );
   mGroupAction->addAction( actionTriangulateTIN );
   mGroupAction->addAction( actionVectorLayerToTin );
+  mGroupAction->addAction( actionExportTxt );
 
   actionEditList.append( actionNewVertex );
   actionEditList.append( actionNewHardLineSegment );
@@ -157,6 +159,8 @@ ReosTinEditorUi::ReosTinEditorUi( ReosGisManager *gismanager, QObject *parent ):
 
   connect( uiDialog, &HdTinEditorUiDialog::closed, this, &ReosTinEditorUi::widgetClosed );
   connect( uiDialog, &HdTinEditorUiDialog::escapePressed, mMap, &ReosMap::stopMapTool );
+
+  connect( actionExportTxt, &QAction::triggered, this, &ReosTinEditorUi::exportTxt );
 
   gismanager->setCRS( QgsCoordinateReferenceSystem() );
 }
@@ -985,6 +989,44 @@ void ReosTinEditorUi::vectorLayerToTin()
     return;
   addVectorLayer( vectorLayer );
   updateMesh();
+}
+
+void ReosTinEditorUi::exportTxt()
+{
+  QString fileName = QFileDialog::getSaveFileName( uiDialog, "Save TIN in text file", "", "*.mnt" );
+
+  if ( fileName.isEmpty() )
+    return;
+  QFile file( fileName );
+  if ( !file.open( QIODevice::WriteOnly ) )
+    return;
+
+  QTextStream stream( &file );
+  stream.setRealNumberNotation( QTextStream::FixedNotation );
+
+  auto reader = mTIN->getReader();
+
+  int vertexCount = reader->verticesCount();
+
+  QVector<QVector<double>> vertices( vertexCount, QVector<double>( 3, 0 ) );
+
+  int i = 0;
+  while ( !reader->allVerticesReaden() )
+    reader->readVertex( vertices[i++].data() );
+
+  while ( !reader->allFacesReaden() )
+  {
+    QVector<int> face( 3 );
+    reader->readFace( face.data() );
+    for ( int &f : face )
+    {
+      for ( int j = 0; j < 3; ++j )
+        stream << vertices[f][j] << " ";
+    }
+  }
+
+  file.close();
+
 }
 
 void ReosTinEditorUi::startNewVertex()
