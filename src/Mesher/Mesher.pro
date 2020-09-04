@@ -119,7 +119,7 @@ RESOURCES += \
     ../icones/hdicone.qrc \
     ../icones/symbology/symbology.qrc
 
-######################### QGIG
+######################### QGIS
 INCLUDEPATH +=../GIS/QGis_app/
 include(../GIS/ConfigQgis.pri); #comment to generate the linguist file
 
