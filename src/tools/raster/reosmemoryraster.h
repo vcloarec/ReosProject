@@ -427,9 +427,15 @@ class ReosRasterCellPos
     ReosRasterCellPos neighbourWithDirection( unsigned char direction );
 
     void goInDirection( unsigned char direction );
+
+    virtual bool isValid() const
+    {
+      return mRow != -1 && mColumn != -1;
+    }
+
   private:
-    int mRow = 0;
-    int mColumn = 0;
+    int mRow = -1;
+    int mColumn = -1;
 };
 
 /**
@@ -479,8 +485,9 @@ class ReosRasterCellValue: public ReosRasterCellPos
       return  false;
     }
 
-    bool isValid()
+    bool isValid() const override
     {
+
       if ( !mRaster || !mRaster->isValid() )
         return false;
 
@@ -493,7 +500,7 @@ class ReosRasterCellValue: public ReosRasterCellPos
       if ( row() < 0 || column() < 0 )
         return false;
 
-      return true;
+      return ReosRasterCellPos::isValid();
     }
 
   private:

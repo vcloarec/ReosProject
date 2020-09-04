@@ -11,3 +11,10 @@ std::string test_file( std::string basename )
   path += basename;
   return path;
 }
+
+std::string tmp_file( std::string basename )
+{
+  std::string path( data_path() + std::string( "/tmp" ) );
+  path += basename;
+  return path;
+}

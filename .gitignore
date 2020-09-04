@@ -1,4 +1,2 @@
-
 *.user
-
-Mesher/tinEditorUi/reostineditorgraphic.cpp.autosave
+Tests/testData/*

@@ -1,7 +1,9 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock-matchers.h>
 
-#include "raster/reosmemoryraster.h"
+#include "reosmemoryraster.h"
+#include "reosrasterline.h"
+#include "reos_testutils.h"
 
 using namespace testing;
 
@@ -106,11 +108,11 @@ TEST_F( ReosRasterTesting, ReosRasterMemory )
   ASSERT_FALSE( memoryRaster_2.isValid() );
 
   GDALAllRegister();
-  ReosRasterExtent extent( QRectF( 0, 0, 100, 100 ), 1, 1 );
-  ASSERT_TRUE( memoryRaster.createTiffFile( "/home/vincent/es.tif", GDALDataType::GDT_Float64, extent ) );
+  ReosRasterExtent extent( QRectF( 0, 0, 100, 100 ), 1, -1 );
+  ASSERT_TRUE( memoryRaster.createTiffFile( tmp_file( "/rasterMemory.tif" ).c_str(), GDALDataType::GDT_Float64, extent ) );
 
   ReosRasterMemory<double> memoryRaster_3;
-  ASSERT_TRUE( memoryRaster_3.loadDataFromTiffFile( "/home/vincent/es.tif", GDALDataType::GDT_Float64 ) );
+  ASSERT_TRUE( memoryRaster_3.loadDataFromTiffFile( tmp_file( "/rasterMemory.tif" ).c_str(), GDALDataType::GDT_Float64 ) );
 
   ASSERT_TRUE( memoryRaster_3.isValid() );
   EXPECT_EQ( memoryRaster_3.columnCount(), 100 );
@@ -168,7 +170,46 @@ TEST_F( ReosRasterTesting, ReosRasterCellValue )
       EXPECT_EQ( rasterValue.value(), rasterValue.column() );
     ++counter;
   }
+}
 
+TEST_F( ReosRasterTesting, ReosRasterLine )
+{
+  ReosRasterLine slimLine( false );
+  ReosRasterLine thickLine( true );
+  ASSERT_EQ( slimLine.cellCount(), 0 );
+  ASSERT_EQ( thickLine.cellCount(), 0 );
+
+  slimLine.addPoint( 0, 0 );
+  thickLine.addPoint( 0, 0 );
+  EXPECT_EQ( slimLine.cellCount(), 1 );
+  EXPECT_EQ( thickLine.cellCount(), 1 );
+
+  slimLine.addPoint( ReosRasterCellPos( 2, 5 ) );
+  thickLine.addPoint( 2, 5 );
+  EXPECT_EQ( slimLine.cellCount(), 6 );
+  EXPECT_EQ( thickLine.cellCount(), 8 );
+
+  slimLine.addPoint( 0, 7 );
+  thickLine.addPoint( 0, 7 );
+  EXPECT_EQ( slimLine.cellCount(), 8 );
+  EXPECT_EQ( thickLine.cellCount(), 12 );
+
+  slimLine.addPoint( 3, 9 );
+  thickLine.addPoint( 3, 9 );
+  EXPECT_EQ( slimLine.cellCount(), 11 );
+  EXPECT_EQ( thickLine.cellCount(), 17 );
+
+  ReosRasterCellPos cellPos( 1, 3 );
+  EXPECT_TRUE( slimLine.contains( cellPos ) );
+  EXPECT_TRUE( thickLine.contains( cellPos ) );
+
+  cellPos = ReosRasterCellPos( 1, 4 );
+  EXPECT_FALSE( slimLine.contains( cellPos ) );
+  EXPECT_TRUE( thickLine.contains( cellPos ) );
+
+  cellPos = ReosRasterCellPos( 2, 9 );
+  EXPECT_FALSE( slimLine.contains( cellPos ) );
+  EXPECT_TRUE( thickLine.contains( cellPos ) );
 }
 
 int main( int argc, char **argv )

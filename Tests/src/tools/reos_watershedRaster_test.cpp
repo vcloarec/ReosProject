@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock-matchers.h>
 
-#include "raster/reosmemoryraster.h"
-#include "raster/reosrasterfilling.h"
+#include "reosmemoryraster.h"
+#include "reosrasterfilling.h"
 #include "reos_testutils.h"
 
 using namespace testing;

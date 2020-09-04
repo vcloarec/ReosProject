@@ -6,12 +6,14 @@ FIND_PACKAGE(GDAL REQUIRED)
 SET(REOS_TOOLS_SOURCES
   raster/reosmemoryraster.cpp
   raster/reosrasterfilling.cpp
+  raster/reosrasterline.cpp
 )
 
 SET(REOS_TOOLS_HEADERS
   reos_tools.h
   raster/reosmemoryraster.h
   raster/reosrasterfilling.h
+  raster/reosrasterline.h
 )
 
 SET(REOS_TOOLS_LIBS ${REOS_TOOLS_LIBS} reosTools)
