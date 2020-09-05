@@ -24,7 +24,7 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reosprocess.h"
 #include "reosmemoryraster.h"
 #include "reosrasterline.h"
-//#include "hdrastertools.h"
+#include "reosrastertrace.h"
 
 
 class HdWatershedFromDirectionAndDownStreamLine;
@@ -171,7 +171,7 @@ class HdWatershedPolygonFromWatershedRaster: public ReosProcess
     std::shared_ptr<ReosRasterMemory<unsigned char>> rasterWatershed;
     ReosRasterExtent emprise;
 
-    std::unique_ptr<traceurInterPixelValeurIdentique<unsigned char>> traceur = nullptr;
+    std::unique_ptr<ReosRasterTraceBetweenCellsUniqueValue<unsigned char>> trace = nullptr;
 
     QList<QPoint> *elim = nullptr;
 
@@ -227,21 +227,21 @@ class HdDrawGoDownTrace: public ReosProcess
       bool isStopLine = false;
       bool testIsInPolygon = ( polyLimit != QPolygonF() );
 
-      while ( ( !isStopLine ) && ( dir != 4 ) && ( dir != 9 ) && ( !stopWithMutex() ) && pointIsInPolyLimit )
+      while ( ( !isStopLine ) && ( dir != 4 ) && ( dir != 9 ) && ( !isStopAsked() ) && pointIsInPolyLimit )
       {
         if ( dir != lastDir )
           resultPolyline.append( posMap );
         lastDir = dir;
-        pos = pos.getNeighbourWithDirection( dir );
-        posMap = empriseRaster.pixelCenterToMap( pos );
+        pos = pos.neighbourWithDirection( dir );
+        posMap = empriseRaster.cellCenterToMap( pos );
 
         if ( testIsInPolygon )
           pointIsInPolyLimit = polyLimit.containsPoint( posMap, Qt::OddEvenFill );
         if ( stopLine )
-          isStopLine = stopLine->contain( &pos );
-        dir = directionRaster->getValeur( pos.getRow(), pos.getColumn() );
+          isStopLine = stopLine->contains( pos );
+        dir = directionRaster->value( pos.row(), pos.column() );
       }
-      resultPolyline.append( empriseRaster.pixelCenterToMap( pos ) );
+      resultPolyline.append( empriseRaster.cellCenterToMap( pos ) );
     }
 };
 

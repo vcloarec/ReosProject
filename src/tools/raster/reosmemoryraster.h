@@ -123,6 +123,58 @@ class ReosRasterExtent
 
 };
 
+/**
+ * Convenient class used to navigate in a raster
+ */
+class ReosRasterCellPos
+{
+  public:
+    //! Default constructor
+    ReosRasterCellPos() = default;
+    //! Constructor
+    ReosRasterCellPos( int r, int c );
+
+    //! Returns the row index
+    int row() const;
+    //! Sets the row index
+    void setRow( int value );
+    //! Returns the column index
+    int column() const;
+    //! Sets the column index
+    void setColumn( int value );
+
+    ReosRasterCellPos operator+( const ReosRasterCellPos &other ) const;
+    ReosRasterCellPos operator-( const ReosRasterCellPos &other ) const;
+
+    bool operator==( const ReosRasterCellPos &other ) const;
+    bool operator!=( const ReosRasterCellPos &other ) const;
+
+    /**
+     * Return new position from this position and a direction :
+     *
+    // -------------
+    // | 0 | 3 | 6 |
+    // -------------
+    // | 1 | 4 | 7 |
+    // -------------
+    // | 2 | 5 | 8 |
+    // -------------
+     *
+     */
+    ReosRasterCellPos neighbourWithDirection( unsigned char direction );
+
+    void goInDirection( unsigned char direction );
+
+    virtual bool isValid() const
+    {
+      return mRow != -1 && mColumn != -1;
+    }
+
+  private:
+    int mRow = -1;
+    int mColumn = -1;
+};
+
 
 /**
  * Class that stores a raster of type T in memory
@@ -145,6 +197,8 @@ class ReosRasterMemory
     T value( int i, int j ) const;
     //! Sets the value at position \a i,j
     void setValue( int i, int j, T v );
+    //! Sets the value at position \a cellPos
+    void setValue( const ReosRasterCellPos &cellPos, T v );
     //! Returns a void pointer to the data
     void *data();
     //! Sets the value that is considered as no data
@@ -247,6 +301,12 @@ void ReosRasterMemory<T>::setValue( int i, int j, T v )
 {
   if ( ( i < mRowCount ) && ( j < mColumnCount ) && ( i >= 0 ) && ( j >= 0 ) )
     mValues[i * mColumnCount  + j] = v;
+}
+
+template<typename T>
+void ReosRasterMemory<T>::setValue( const ReosRasterCellPos &cellPos, T v )
+{
+  setValue( cellPos.row(), cellPos.column(), v );
 }
 
 template<typename T>
@@ -385,58 +445,6 @@ bool ReosRasterMemory<T>::isValid() const
   return !mValues.empty() && mValues.size() == mRowCount * mColumnCount;
 }
 
-
-/**
- * Convenient class used to navigate in a raster
- */
-class ReosRasterCellPos
-{
-  public:
-    //! Default constructor
-    ReosRasterCellPos() = default;
-    //! Constructor
-    ReosRasterCellPos( int r, int c );
-
-    //! Returns the row index
-    int row() const;
-    //! Sets the row index
-    void setRow( int value );
-    //! Returns the column index
-    int column() const;
-    //! Sets the column index
-    void setColumn( int value );
-
-    ReosRasterCellPos operator+( const ReosRasterCellPos &other ) const;
-    ReosRasterCellPos operator-( const ReosRasterCellPos &other ) const;
-
-    bool operator==( const ReosRasterCellPos &other ) const;
-    bool operator!=( const ReosRasterCellPos &other ) const;
-
-    /**
-     * Return new position from this position and a direction :
-     *
-    // -------------
-    // | 0 | 3 | 6 |
-    // -------------
-    // | 1 | 4 | 7 |
-    // -------------
-    // | 2 | 5 | 8 |
-    // -------------
-     *
-     */
-    ReosRasterCellPos neighbourWithDirection( unsigned char direction );
-
-    void goInDirection( unsigned char direction );
-
-    virtual bool isValid() const
-    {
-      return mRow != -1 && mColumn != -1;
-    }
-
-  private:
-    int mRow = -1;
-    int mColumn = -1;
-};
 
 /**
  * Convenient class used to navigate in a raster and can hande the raser value at corresponding position

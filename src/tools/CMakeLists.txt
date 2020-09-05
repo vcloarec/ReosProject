@@ -7,6 +7,7 @@ SET(REOS_TOOLS_SOURCES
   raster/reosmemoryraster.cpp
   raster/reosrasterfilling.cpp
   raster/reosrasterline.cpp
+  raster/reosrastertrace.cpp
 )
 
 SET(REOS_TOOLS_HEADERS
@@ -14,6 +15,7 @@ SET(REOS_TOOLS_HEADERS
   raster/reosmemoryraster.h
   raster/reosrasterfilling.h
   raster/reosrasterline.h
+  raster/reosrastertrace.h
 )
 
 SET(REOS_TOOLS_LIBS ${REOS_TOOLS_LIBS} reosTools)

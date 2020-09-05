@@ -3,6 +3,7 @@
 
 #include "reosmemoryraster.h"
 #include "reosrasterline.h"
+#include "reosrastertrace.h"
 #include "reos_testutils.h"
 
 using namespace testing;
@@ -210,6 +211,43 @@ TEST_F( ReosRasterTesting, ReosRasterLine )
   cellPos = ReosRasterCellPos( 2, 9 );
   EXPECT_FALSE( slimLine.contains( cellPos ) );
   EXPECT_TRUE( thickLine.contains( cellPos ) );
+}
+
+TEST_F( ReosRasterTesting, ReosRasterTrace )
+{
+  ReosRasterMemory<int> memoryRaster( 100, 100 );
+  QVector<QPoint> stopLine;
+  stopLine << QPoint( 2, 47 ) << QPoint( 2, 48 ) << QPoint( 2, 49 ) << QPoint( 2, 50 ) << QPoint( 2, 51 );
+  QList<QPoint> elimination;
+  ReosRasterTraceBetweenCellsUniqueValue<int> invalidTrace( &memoryRaster, 5, QPoint( 0, 20 ), QPoint( -1, 20 ), stopLine, elimination );
+
+  ASSERT_FALSE( invalidTrace.startTracing() );
+
+  GDALAllRegister();
+  memoryRaster.loadDataFromTiffFile( test_file( "rasterForTrace.tif" ).c_str(), GDALDataType::GDT_Int32 );
+
+  ReosRasterTraceBetweenCellsUniqueValue<int> trace( &memoryRaster, 5, QPoint( 2, 50 ), QPoint( 1, 0 ), stopLine, elimination );
+
+  ASSERT_TRUE( trace.startTracing() );
+  ASSERT_EQ( trace.error(), 0 );
+  QPolygon tr = trace.trace();
+
+  QPolygon testTrace( {QPoint( {2, 50} ), QPoint( {2, 49} ), QPoint( {4, 49} ), QPoint( {4, 48} ), QPoint( {6, 48} ), QPoint( {6, 47} ), QPoint( {8, 47} ), QPoint( {8, 46} ), QPoint( {10, 46} ), QPoint( {10, 45} ),
+                       QPoint( {12, 45} ), QPoint( {12, 44} ), QPoint( {14, 44} ), QPoint( {14, 43} ), QPoint( {16, 43} ), QPoint( {16, 42} ), QPoint( {18, 42} ), QPoint( {18, 41} ), QPoint( {20, 41} ), QPoint( {20, 40} ),
+                       QPoint( {22, 40} ), QPoint( {22, 39} ), QPoint( {24, 39} ), QPoint( {24, 38} ), QPoint( {26, 38} ), QPoint( {26, 37} ), QPoint( {28, 37} ), QPoint( {28, 36} ), QPoint( {30, 36} ), QPoint( {30, 35} ),
+                       QPoint( {32, 35} ), QPoint( {32, 34} ), QPoint( {34, 34} ), QPoint( {34, 33} ), QPoint( {36, 33} ), QPoint( {36, 32} ), QPoint( {38, 32} ), QPoint( {38, 31} ), QPoint( {40, 31} ), QPoint( {40, 30} ),
+                       QPoint( {42, 30} ), QPoint( {42, 29} ), QPoint( {44, 29} ), QPoint( {44, 28} ), QPoint( {46, 28} ), QPoint( {46, 27} ), QPoint( {48, 27} ), QPoint( {48, 26} ), QPoint( {50, 26} ), QPoint( {50, 25} ),
+                       QPoint( {52, 25} ), QPoint( {52, 24} ), QPoint( {54, 24} ), QPoint( {54, 23} ), QPoint( {56, 23} ), QPoint( {56, 22} ), QPoint( {58, 22} ), QPoint( {58, 21} ), QPoint( {60, 21} ), QPoint( {60, 20} ),
+                       QPoint( {62, 20} ), QPoint( {62, 19} ), QPoint( {64, 19} ), QPoint( {64, 18} ), QPoint( {66, 18} ), QPoint( {66, 17} ), QPoint( {68, 17} ), QPoint( {68, 16} ), QPoint( {70, 16} ), QPoint( {70, 85} ),
+                       QPoint( {68, 85} ), QPoint( {68, 84} ), QPoint( {66, 84} ), QPoint( {66, 83} ), QPoint( {64, 83} ), QPoint( {64, 82} ), QPoint( {62, 82} ), QPoint( {62, 81} ), QPoint( {60, 81} ), QPoint( {60, 80} ),
+                       QPoint( {58, 80} ), QPoint( {58, 79} ), QPoint( {56, 79} ), QPoint( {56, 78} ), QPoint( {54, 78} ), QPoint( {54, 77} ), QPoint( {52, 77} ), QPoint( {52, 76} ), QPoint( {50, 76} ), QPoint( {50, 75} ),
+                       QPoint( {48, 75} ), QPoint( {48, 74} ), QPoint( {46, 74} ), QPoint( {46, 73} ), QPoint( {44, 73} ), QPoint( {44, 72} ), QPoint( {42, 72} ), QPoint( {42, 71} ), QPoint( {40, 71} ), QPoint( {40, 70} ),
+                       QPoint( {38, 70} ), QPoint( {38, 69} ), QPoint( {36, 69} ), QPoint( {36, 68} ), QPoint( {34, 68} ), QPoint( {34, 67} ), QPoint( {32, 67} ), QPoint( {32, 66} ), QPoint( {30, 66} ), QPoint( {30, 65} ),
+                       QPoint( {28, 65} ), QPoint( {28, 64} ), QPoint( {26, 64} ), QPoint( {26, 63} ), QPoint( {24, 63} ), QPoint( {24, 62} ), QPoint( {22, 62} ), QPoint( {22, 61} ), QPoint( {20, 61} ), QPoint( {20, 60} ),
+                       QPoint( {18, 60} ), QPoint( {18, 59} ), QPoint( {16, 59} ), QPoint( {16, 58} ), QPoint( {14, 58} ), QPoint( {14, 57} ), QPoint( {12, 57} ), QPoint( {12, 56} ), QPoint( {10, 56} ), QPoint( {10, 55} ),
+                       QPoint( {8, 55} ), QPoint( {8, 54} ), QPoint( {6, 54} ), QPoint( {6, 53} ), QPoint( {4, 53} ), QPoint( {4, 52} ), QPoint( {3, 52} )} );
+
+  EXPECT_EQ( testTrace, tr );
 }
 
 int main( int argc, char **argv )
