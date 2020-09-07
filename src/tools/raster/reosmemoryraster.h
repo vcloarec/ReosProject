@@ -21,6 +21,7 @@ email                : vcloarec@gmail.com
 #include <QPoint>
 #include <QPointF>
 #include <QRectF>
+#include <QPolygonF>
 
 #include <gdal/gdal_priv.h>
 #include <gdal/ogr_spatialref.h>
@@ -557,6 +558,28 @@ class RasterNeighborCirculator
     // 0 ..7 : cyclePositon
     // i=-1,0,+1 j=-1,0,+1 : relative position
 };
+
+
+
+class ReosRasterTestingCell
+{
+  public:
+    virtual ~ReosRasterTestingCell() = default;
+    virtual bool testCell( const ReosRasterCellPos &cell ) const;
+};
+
+class ReosRasterTestingCellInPolygon: public ReosRasterTestingCell
+{
+  public:
+    ReosRasterTestingCellInPolygon( ReosRasterExtent emprise, const QPolygonF &polygon );
+
+    bool testCell( const ReosRasterCellPos &cell ) const override;
+
+  private:
+    ReosRasterExtent mExtent;
+    const QPolygonF mPolygon;
+};
+
 
 #endif // REOSMEMORYRASTER_H
 

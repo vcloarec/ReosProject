@@ -91,8 +91,6 @@ QPolygon ReosRasterTraceBetweenCells::trace() {return mTrace;}
 
 int ReosRasterTraceBetweenCells::error() const {return mErrorCode;}
 
-
-
 ReosRasterTraceBetweenCells::~ReosRasterTraceBetweenCells()
 {}
 
@@ -149,14 +147,14 @@ bool ReosRasterTraceBetweenCells::startTracing()
       bool end = false;
       while ( ( tr < listDir.count() ) && ( !end ) )
       {
-        QPoint dir = listDir.at( tr );
+        const QPoint dir = listDir.at( tr );
 
         int testNewPoint = testPosition( mPosition, dir, mTreatedCells );
 
         if ( testNewPoint == -100 )
         {
-          QPoint newPosition = mPosition + dir;
-          QPoint newOrigin = QPoint() - dir;
+          const QPoint newPosition = mPosition + dir;
+          const QPoint newOrigin = QPoint() - dir;
           mThrownTrace.append( newTrace( newPosition, newOrigin, mCellsToEliminate ) );
           errorsInDirections.append( testNewPoint );
         }

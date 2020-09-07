@@ -30,6 +30,7 @@ class ReosRasterTraceBetweenCells
   public:
     //! Starts the tracing
     bool startTracing();
+
     //! Returns the actuel trace
     QPolygon trace();
 
@@ -83,7 +84,7 @@ class ReosRasterTraceBetweenCells
                                 QList<QPoint> &sv,
                                 QList<QPoint> &sh ) = 0;
 
-    virtual ReosRasterTraceBetweenCells *newTrace( QPoint &dep, QPoint &Orig, QList<QPoint> &elim ) = 0;
+    virtual ReosRasterTraceBetweenCells *newTrace( const QPoint &dep, const QPoint &Orig, QList<QPoint> &elim ) = 0;
 
     virtual int arrivalTest( const QPoint &p, const QPoint &dir );
 
@@ -118,7 +119,6 @@ class ReosRasterTraceBetweenCells
     bool mIsStopped;
 
     QVector<ReosRasterTraceBetweenCells *> mThrownTrace;
-
 };
 
 /**
@@ -157,7 +157,7 @@ class ReosRasterTraceBetweenCellsUniqueValue: public ReosRasterTraceBetweenCells
                                 QPoint &resDir,
                                 QList<QPoint> &sv, QList<QPoint> &sh ) override;
 
-    virtual ReosRasterTraceBetweenCells *newTrace( QPoint &start, QPoint &ori, QList<QPoint> &elim ) override;
+    virtual ReosRasterTraceBetweenCells *newTrace( const QPoint &start, const QPoint &ori, QList<QPoint> &elim ) override;
 
     bool isValid() const override;
 
@@ -217,7 +217,7 @@ bool ReosRasterTraceBetweenCellsUniqueValue<T>::startNewTrace(
 }
 
 template<typename T>
-ReosRasterTraceBetweenCells *ReosRasterTraceBetweenCellsUniqueValue<T>::newTrace( QPoint &start, QPoint &ori, QList<QPoint> &elim )
+ReosRasterTraceBetweenCells *ReosRasterTraceBetweenCellsUniqueValue<T>::newTrace( const QPoint &start, const QPoint &ori, QList<QPoint> &elim )
 {
   return new ReosRasterTraceBetweenCellsUniqueValue( mRaster, mValue, start, ori, mStopLine, elim );
 }

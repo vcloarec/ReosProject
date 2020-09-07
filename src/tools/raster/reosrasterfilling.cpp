@@ -178,9 +178,10 @@ void ReosRasterFillingWangLiu::processCell( const ReosRasterCellValue<float> &ce
         }
         else
         {
-          if ( neigh.value() <= Zcentral )
+          float delta = ( sqrt( powf( ( i - 1 ) * mXSize, 2 ) + powf( ( j - 1 ) * mYSize, 2 ) ) ) * mMimimumSlope;
+          if ( neigh.value() <= Zcentral + delta )
           {
-            neigh.setValue( Zcentral + ( sqrt( powf( ( i - 1 )*mXSize, 2 ) + powf( ( j - 1 )*mYSize, 2 ) ) )*mMimimumSlope );
+            neigh.setValue( Zcentral + delta );
           }
           unsigned char dir = static_cast<unsigned char>( ( r - RowNeigh + 1 ) + 3 * ( c - ColNeigh + 1 ) );
           mPriorityStack.insert( neigh );

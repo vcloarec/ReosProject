@@ -418,3 +418,17 @@ const std::array<std::array<unsigned, 3>, 3> RasterNeighborCirculator::relativeP
   std::array<unsigned, 3>( {4, 8, 0} ),
   std::array<unsigned, 3>( {5, 6, 7} )
 };
+
+ReosRasterTestingCellInPolygon::ReosRasterTestingCellInPolygon( ReosRasterExtent emprise, const QPolygonF &polygon ): mExtent( emprise ), mPolygon( polygon ) {}
+
+bool ReosRasterTestingCellInPolygon::testCell( const ReosRasterCellPos &cell ) const
+{
+  QPointF pointMap = mExtent.cellCenterToMap( cell );
+  return mPolygon.containsPoint( pointMap, Qt::OddEvenFill );
+}
+
+bool ReosRasterTestingCell::testCell( const ReosRasterCellPos &cell ) const
+{
+  Q_UNUSED( cell );
+  return true;
+}

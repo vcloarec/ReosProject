@@ -224,7 +224,7 @@ TEST_F( ReosRasterTesting, ReosRasterTrace )
   ASSERT_FALSE( invalidTrace.startTracing() );
 
   GDALAllRegister();
-  memoryRaster.loadDataFromTiffFile( test_file( "rasterForTrace.tif" ).c_str(), GDALDataType::GDT_Int32 );
+  memoryRaster.loadDataFromTiffFile( test_file( "rasterForTrace.tiff" ).c_str(), GDALDataType::GDT_Int32 );
 
   ReosRasterTraceBetweenCellsUniqueValue<int> trace( &memoryRaster, 5, QPoint( 2, 50 ), QPoint( 1, 0 ), stopLine, elimination );
 

@@ -38,6 +38,8 @@ class ReosProcess
 
     bool isSuccessful() const;
 
+    static void processStart( ReosProcess *p );
+
   protected:
 
     bool isStopped() const {return mStopWithoutMutex;}
@@ -56,7 +58,5 @@ class ReosProcess
     std::mutex mMutexProgression;
     std::mutex mMutexStop;
 };
-
-static void processStart( ReosProcess *p );
 
 #endif // REOSPROCESS_H

@@ -68,7 +68,7 @@ bool ReosProcess::isSuccessful() const
   return mIsSuccessful;
 }
 
-static void processStart( ReosProcess *p )
+void ReosProcess::processStart( ReosProcess *p )
 {
   p->start();
 }
