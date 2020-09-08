@@ -1,8 +1,8 @@
 /***************************************************************************
-                      reos_testutils.cpp
+                      reossettings.cpp
                      --------------------------------------
-Date                 : 04-09-2020
-Copyright            : (C) 2020 by Vincent Cloarec
+Date                 : 18-11-2018
+Copyright            : (C) 2018 by Vincent Cloarec
 email                : vcloarec at gmail dot com
  ***************************************************************************
  *                                                                         *
@@ -13,23 +13,40 @@ email                : vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
-#include "reos_testutils.h"
+#include "reossettings.h"
 
-const char *data_path()
+
+ReosSettings::ReosSettings()
 {
-  return TESTDATA;
+
 }
 
-std::string test_file( std::string basename )
+void ReosSettings::setPath( QString path )
 {
-  std::string path( data_path() );
-  path += basename;
-  return path;
+  if ( !pathSet )
+  {
+    QSettings::setPath( QSettings::IniFormat, QSettings::UserScope, path );
+  }
 }
 
-std::string tmp_file( std::string basename )
+void ReosSettings::setValue( const QString &key, const QVariant &value )
 {
-  std::string path( data_path() + std::string( "/tmp" ) );
-  path += basename;
-  return path;
+  settings.setValue( key, value );
 }
+
+QVariant ReosSettings::value( const QString &key, const QVariant &defaultValue ) const
+{
+  return settings.value( key, defaultValue );
+}
+
+QString ReosSettings::fileName() const
+{
+  return settings.fileName();
+}
+
+bool ReosSettings::contains( const QString &key ) const
+{
+  return settings.contains( key );
+}
+
+bool ReosSettings::pathSet = false;

@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>lekan.svg</file>
+        <file>mActionOpen.png</file>
+        <file>mActionNew.png</file>
+        <file>mActionSaveAs.png</file>
+        <file>mActionSave.png</file>
+        <file>mActionRedo.png</file>
+        <file>mActionUndo.png</file>
+    </qresource>
+</RCC>

@@ -1,8 +1,8 @@
 /***************************************************************************
-                      reos_testutils.cpp
+                      reossettings.h
                      --------------------------------------
-Date                 : 04-09-2020
-Copyright            : (C) 2020 by Vincent Cloarec
+Date                 : 18-11-2018
+Copyright            : (C) 2018 by Vincent Cloarec
 email                : vcloarec at gmail dot com
  ***************************************************************************
  *                                                                         *
@@ -13,23 +13,27 @@ email                : vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
-#include "reos_testutils.h"
+#ifndef REOSSETTINGS_H
+#define REOSSETTINGS_H
 
-const char *data_path()
-{
-  return TESTDATA;
-}
+#include <QSettings>
 
-std::string test_file( std::string basename )
+class ReosSettings
 {
-  std::string path( data_path() );
-  path += basename;
-  return path;
-}
+  public:
+    ReosSettings();
+    static void setPath( QString path );
+    void setValue( const QString &key, const QVariant &value );
+    QVariant value( const QString &key, const QVariant &defaultValue = QVariant() ) const;
+    QString fileName() const;
+    bool contains( const QString &key ) const;
 
-std::string tmp_file( std::string basename )
-{
-  std::string path( data_path() + std::string( "/tmp" ) );
-  path += basename;
-  return path;
-}
+  private:
+    QSettings settings;
+
+    static bool pathSet;
+
+};
+
+
+#endif // REOSSETTINGS_H

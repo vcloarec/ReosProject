@@ -1,5 +1,5 @@
-# MDAL - Mesh Data Abstraction Library (MIT License)
-# Copyright (C) 2018 Peter Petrik (zilolv at gmail dot com)
+# Reos licence GPL version 2
+# Copyright (C) 2020 Vincent Cloarec (vcloarec at gmail dot com)
 
 FIND_PACKAGE(GDAL REQUIRED)
 
@@ -21,10 +21,11 @@ SET(REOS_TOOLS_HEADERS
 )
 
 SET(REOS_TOOLS_LIBS ${REOS_TOOLS_LIBS} reosTools)
-  ADD_LIBRARY(reosTools SHARED
+ADD_LIBRARY(reosTools SHARED
     ${REOS_TOOLS_SOURCES}
     ${REOS_TOOLS_HEADERS}
   )
+
 IF(WIN32)
   INSTALL(TARGETS reosTools RUNTIME DESTINATION lib)
 ELSE(WIN32)

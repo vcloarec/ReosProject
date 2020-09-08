@@ -1,21 +1,33 @@
-# MDAL - Mesh Data Abstraction Library (MIT License)
-# Copyright (C) 2018 Peter Petrik (zilolv at gmail dot com)
+# Reos licence GPL version 2
+# Copyright (C) 2020 Vincent Cloarec (vcloarec at gmail dot com)
 
 FIND_PACKAGE(GDAL REQUIRED)
 
 SET(REOS_CORE_SOURCES
+  reosdocumentation.cpp
+  reosmodule.cpp
   reosprocess.cpp
+  reossettings.cpp
+  reosversion.cpp
 )
 
 SET(REOS_CORE_HEADERS
-  reosprocess.h
+    reosdocumentation.h
+    reosmodule.h
+    reosprocess.h
+    reossettings.h
+    reosversion.h
 )
+
+SET(IMAGE_RCCS ../../images/images.qrc)
 
 SET(REOS_CORE_LIBS ${REOS_CORE_LIBS} reosCore)
 ADD_LIBRARY(reosCore SHARED
     ${REOS_CORE_SOURCES}
     ${REOS_CORE_HEADERS}
+    ${IMAGE_RCCS}
   )
+
 IF(WIN32)
   INSTALL(TARGETS reosCore RUNTIME DESTINATION lib)
 ELSE(WIN32)
@@ -44,4 +56,4 @@ TARGET_LINK_LIBRARIES(reosCore PUBLIC
 )
 
 # INSTALL HEADER
-INSTALL(FILES reosprocess.h DESTINATION include)
+

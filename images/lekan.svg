@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="14.857863mm"
+   height="14.899958mm"
+   viewBox="0 0 14.857863 14.899958"
+   version="1.1"
+   id="svg932"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
+   sodipodi:docname="lekan.svg">
+  <defs
+     id="defs926">
+    <linearGradient
+       gradientTransform="translate(-30.503147,-0.37793027)"
+       inkscape:collect="always"
+       xlink:href="#linearGradient4706"
+       id="linearGradient4708-6"
+       x1="229.49504"
+       y1="341.90366"
+       x2="229.49504"
+       y2="337.01047"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient4706">
+      <stop
+         style="stop-color:#0996e6;stop-opacity:1"
+         offset="0"
+         id="stop4702" />
+      <stop
+         style="stop-color:#0996e6;stop-opacity:0"
+         offset="1"
+         id="stop4704" />
+    </linearGradient>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="3.959798"
+     inkscape:cx="-10.333906"
+     inkscape:cy="38.480979"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:window-width="1920"
+     inkscape:window-height="1015"
+     inkscape:window-x="1920"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata929">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Calque 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-125.61869,-65.788117)">
+    <g
+       transform="translate(-67.974555,-269.80728)"
+       style="display:inline"
+       id="g4750"
+       inkscape:export-filename="D:\Prog\sources\projet\hydrogiciel\cmn\icone\lekan.png"
+       inkscape:export-xdpi="109.10098"
+       inkscape:export-ydpi="109.10098">
+      <path
+         inkscape:transform-center-y="3.2414185"
+         inkscape:transform-center-x="0.61616513"
+         sodipodi:nodetypes="ccc"
+         inkscape:connector-curvature="0"
+         id="path4606"
+         d="m 207.74095,336.29847 c -4.2976,1.12216 -2.29528,6.07174 -6.14095,7.31759 -3.95538,1.24835 -6.27354,1.86724 -7.30388,6.16909"
+         style="fill:none;stroke:#0996e6;stroke-width:1.40100002;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <path
+         inkscape:transform-center-y="3.8738076"
+         inkscape:transform-center-x="0.68558058"
+         sodipodi:nodetypes="ccc"
+         inkscape:connector-curvature="0"
+         id="path4606-9"
+         d="m 207.6705,339.65083 c -1.31654,1.73969 -1.51328,4.77985 -4.11889,5.90845 -2.01222,0.89337 -5.38009,0.85285 -6.73809,4.11959"
+         style="display:inline;fill:none;stroke:#0996e6;stroke-width:1.39999998;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <path
+         sodipodi:nodetypes="ccccc"
+         inkscape:connector-curvature="0"
+         id="path4642-0"
+         d="m 198.99189,336.63254 c -0.46507,1.38148 -1.40634,2.51098 -1.40173,3.34605 0.0397,0.76643 0.5213,1.51818 1.40173,1.54714 0.90003,-0.0248 1.44327,-0.78071 1.45986,-1.54714 0.004,-0.84136 -0.95794,-1.96549 -1.45986,-3.34605 z"
+         style="display:inline;fill:url(#linearGradient4708-6);fill-opacity:1;stroke:#0996e6;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </g>
+  </g>
+</svg>

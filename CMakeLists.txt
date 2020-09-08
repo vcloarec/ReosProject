@@ -1,8 +1,12 @@
-# Reos
+# Reos licence GPL version 2
 # Copyright (C) 2020 Vincent Cloarec (vcloarec at gmail dot com)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 3.9)
+
+SET(CMAKE_AUTORCC ON)
 PROJECT(Reos)
+
+SET(CMAKE_AUTOMOC ON)
 
 SET (CMAKE_CXX_STANDARD 11)
 # set path to additional CMake modules
@@ -14,8 +18,13 @@ SET (ENABLE_TESTS TRUE CACHE BOOL "Build tests?")
 
 FIND_PACKAGE(Qt5 COMPONENTS Core Gui Widgets Network Xml Svg Concurrent Test UiTools Sql REQUIRED)
 
+ADD_SUBDIRECTORY(images)
 ADD_SUBDIRECTORY(src/core)
+ADD_SUBDIRECTORY(src/gui)
+ADD_SUBDIRECTORY(src/ui)
 ADD_SUBDIRECTORY(src/tools)
+ADD_SUBDIRECTORY(src/lekan)
+
 
 # testing
 IF (ENABLE_TESTS)

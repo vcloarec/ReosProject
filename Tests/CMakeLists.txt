@@ -1,5 +1,5 @@
-# MDAL - Mesh Data Abstraction Library (MIT License)
-# Copyright (C) 2018 Peter Petrik (zilolv at gmail dot com)
+# Reos licence GPL version 2
+# Copyright (C) 2020 Vincent Cloarec (vcloarec at gmail dot com)
 
 FIND_PACKAGE(Threads REQUIRED)
 FIND_PACKAGE(GTest)
@@ -29,6 +29,11 @@ IF (NOT GTEST_FOUND)
 ELSE(NOT GTEST_FOUND)
     INCLUDE_DIRECTORIES(${GTEST_INCLUDE_DIR})
 ENDIF(NOT GTEST_FOUND)
+
+#########################################################################
+#########################################################################
+SET(TESTDATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/testData/")
+ADD_DEFINITIONS(-DTESTDATA="${TESTDATA_DIR}")
 
 #########################################################################
 #########################################################################
@@ -68,9 +73,3 @@ SET(TESTS
 FOREACH(TESTSRC ${TESTS})
     ADD_REOS_TEST(${TESTSRC})
 ENDFOREACH(TESTSRC)
-
-#########################################################################
-#########################################################################
-SET(TESTDATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/testData/")
-ADD_DEFINITIONS(-DTESTDATA="${TESTDATA_DIR}")
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src/tools)

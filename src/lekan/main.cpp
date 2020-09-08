@@ -18,6 +18,9 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include <QCoreApplication>
 #include <QTranslator>
 #include <QDesktopWidget>
+#include <QMainWindow>
+
+#include "reosstartingwidget.h"
 
 #include "lekanmainwindow.h"
 #include "../Reos/reossettings.h"
@@ -28,6 +31,8 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 
 int main( int argc, char *argv[] )
 {
+
+  Q_INIT_RESOURCE( images );
 
   qDebug() << QDir::currentPath().append( "/../gdal/" ).toLatin1().data();
 #ifdef Q_OS_WIN
@@ -44,24 +49,26 @@ int main( int argc, char *argv[] )
 
   ReosSettings settings;
   QLocale locale;
-  if ( settings.contains( QStringLiteral( "Locale" ) ) )
-    locale = settings.value( QStringLiteral( "Locale" ) ).toLocale();
-  else
+//  if ( settings.contains( QStringLiteral( "Locale" ) ) )
+//    locale = settings.value( QStringLiteral( "Locale" ) ).toLocale();
+//  else
   {
     locale = QLocale::system();
     settings.setValue( QStringLiteral( "Locale" ), locale );
   }
 
-  QTranslator translatorHydro;
-  QTranslator translatorQt;
-  QTranslator translatorQGis;
-  translatorHydro.load( locale, "i18n/hydro", "_" );
-  translatorQt.load( locale, "i18n/qtbase", "_" );
-  translatorQGis.load( locale, "i18n/qgis", "_" );
+  //TODO ; need totake care of the translation...
+//  QTranslator translatorReos;
+//  QTranslator translatorQt;
+//  QTranslator translatorQGis;
+//  qDebug() << QDir::currentPath();
+//  qDebug() << "load reos translation" << translatorReos.load( locale, QStringLiteral( "i18n/hydro" ), "_" );
+//  translatorQt.load( locale, QStringLiteral( "../i18n/qtbase" ), "_" );
+//  translatorQGis.load( locale, QStringLiteral( "../i18n/qgis" ), "_" );
 
-  a.installTranslator( &translatorHydro );
-  a.installTranslator( &translatorQt );
-  a.installTranslator( &translatorQGis );
+//  a.installTranslator( &translatorReos );
+//  a.installTranslator( &translatorQt );
+//  a.installTranslator( &translatorQGis );
 
   LekanMainWindow w;
 
@@ -76,27 +83,26 @@ int main( int argc, char *argv[] )
     w.showMaximized();
   }
 
+//  ReosVersionMessageBox *versionBox = new ReosVersionMessageBox( &w, lekanVersion );
+//  versionBox->setDefaultWebSite( webSite );
 
-  ReosVersionMessageBox *versionBox = new ReosVersionMessageBox( &w, lekanVersion );
-  versionBox->setDefaultWebSite( webSite );
+  ReosStartingWidget *starting = new ReosStartingWidget( &w );
 
-
-  Demarrage *demarrage = new Demarrage( &w );
-  demarrage->move( QApplication::desktop()->screenGeometry().center() - demarrage->rect().center() );
-  demarrage->setBan( QPixmap( "://titre_Lekan.png" ) );
-  if ( demarrage->exec() )
+  starting->move( QApplication::desktop()->screenGeometry().center() - starting->rect().center() );
+  starting->setBan( QPixmap( ":/images/lekan.svg" ) );
+  if ( starting->exec() )
   {
-    if ( settings.contains( QStringLiteral( "Windows/MainWindow/state" ) ) )
-    {
-      w.addDock();
-      w.restoreState( settings.value( QStringLiteral( "Windows/MainWindow/state" ) ).toByteArray() );
-    }
-    else
-    {
-      w.addDock();
-    }
+//    if ( settings.contains( QStringLiteral( "Windows/MainWindow/state" ) ) )
+//    {
+//      w.addDock();
+//      w.restoreState( settings.value( QStringLiteral( "Windows/MainWindow/state" ) ).toByteArray() );
+//    }
+//    else
+//    {
+//      w.addDock();
+//    }
 
-    if ( demarrage->choixOuvrirProjet() )
+    if ( starting->openProjectChoice() )
       w.open();
 
   }

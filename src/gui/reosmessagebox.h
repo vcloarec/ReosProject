@@ -1,8 +1,8 @@
 /***************************************************************************
-                      reos_testutils.cpp
+                      reosmessagebox.h
                      --------------------------------------
-Date                 : 04-09-2020
-Copyright            : (C) 2020 by Vincent Cloarec
+Date                 : 30-12-2018
+Copyright            : (C) 2018 by Vincent Cloarec
 email                : vcloarec at gmail dot com
  ***************************************************************************
  *                                                                         *
@@ -13,23 +13,33 @@ email                : vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
-#include "reos_testutils.h"
+#ifndef REOSMESSAGEBOX_H
+#define REOSMESSAGEBOX_H
 
-const char *data_path()
+#include <QWidget>
+#include <QTime>
+
+#include "reosmodule.h"
+
+namespace Ui
 {
-  return TESTDATA;
+  class ReosMessageBox;
 }
 
-std::string test_file( std::string basename )
+class ReosMessageBox : public QWidget
 {
-  std::string path( data_path() );
-  path += basename;
-  return path;
-}
+    Q_OBJECT
 
-std::string tmp_file( std::string basename )
-{
-  std::string path( data_path() + std::string( "/tmp" ) );
-  path += basename;
-  return path;
-}
+  public:
+    explicit ReosMessageBox( QWidget *parent = nullptr );
+    ~ReosMessageBox();
+
+  public slots:
+    void receiveMessage( const QString &mes, ReosModule::MessageType type = ReosModule::Message );
+    void clean();
+
+  private:
+    Ui::ReosMessageBox *ui;
+};
+
+#endif // REOSMESSAGEBOX_H

@@ -1,8 +1,8 @@
 /***************************************************************************
-                      reos_testutils.cpp
+                      reosdocumentation.h
                      --------------------------------------
-Date                 : 04-09-2020
-Copyright            : (C) 2020 by Vincent Cloarec
+Date                 : 07-04-2019
+Copyright            : (C) 2018 by Vincent Cloarec
 email                : vcloarec at gmail dot com
  ***************************************************************************
  *                                                                         *
@@ -13,23 +13,32 @@ email                : vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
-#include "reos_testutils.h"
+#ifndef REOSDOCUMENTATION_H
+#define REOSDOCUMENTATION_H
 
-const char *data_path()
-{
-  return TESTDATA;
-}
+#include<QtNetwork/QNetworkAccessManager>
+#include <QDesktopServices>
+#include <QUrl>
 
-std::string test_file( std::string basename )
-{
-  std::string path( data_path() );
-  path += basename;
-  return path;
-}
+#include "reosversion.h"
 
-std::string tmp_file( std::string basename )
+
+static const QString serverDocumentationAddress( "https://www.reos.site/availableDocumentation/" );
+
+class ReosDocumentation: public QObject
 {
-  std::string path( data_path() + std::string( "/tmp" ) );
-  path += basename;
-  return path;
-}
+    Q_OBJECT
+  public:
+    ReosDocumentation( const ReosVersion &version, QObject *parent );
+
+  public slots:
+    void call();
+
+  private:
+    ReosVersion mVersion;
+    QNetworkAccessManager *mNetWorkAccess = nullptr;
+  private slots:
+    void launchWebSite( QNetworkReply *reply );
+};
+
+#endif // REOSDOCUMENTATION_H
