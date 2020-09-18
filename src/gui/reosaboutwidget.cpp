@@ -28,7 +28,7 @@ ReosAboutWidget::~ReosAboutWidget()
   delete ui;
 }
 
-void ReosAboutWidget::setSoftwarename( const QString &nom )
+void ReosAboutWidget::setSoftwareName( const QString &nom )
 {
   ui->mLabelSoftName->setText( nom );
 }

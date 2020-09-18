@@ -34,7 +34,6 @@ int main( int argc, char *argv[] )
 
   Q_INIT_RESOURCE( images );
 
-  qDebug() << QDir::currentPath().append( "/../gdal/" ).toLatin1().data();
 #ifdef Q_OS_WIN
   _putenv( QString( "%1=%2" ).arg( "GDAL_DATA" ).arg( QDir::currentPath().append( "/../gdal" ) ).toLatin1().data() );
   _putenv( QString( "%1=%2" ).arg( "GDAL_DRIVER_PATH" ).arg( QDir::currentPath().append( "./gdalplugins/" ) ).toLatin1().data() );
@@ -83,8 +82,8 @@ int main( int argc, char *argv[] )
     w.showMaximized();
   }
 
-//  ReosVersionMessageBox *versionBox = new ReosVersionMessageBox( &w, lekanVersion );
-//  versionBox->setDefaultWebSite( webSite );
+  ReosVersionMessageBox *versionBox = new ReosVersionMessageBox( &w, lekanVersion );
+  versionBox->setDefaultWebSite( webSite );
 
   ReosStartingWidget *starting = new ReosStartingWidget( &w );
 

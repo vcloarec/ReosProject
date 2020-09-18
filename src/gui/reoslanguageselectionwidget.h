@@ -23,6 +23,7 @@ namespace Ui
   class ReosLanguageSelectionWidget;
 }
 
+//! Widget to select language
 class ReosLanguageSelectionWidget : public QDialog
 {
     Q_OBJECT

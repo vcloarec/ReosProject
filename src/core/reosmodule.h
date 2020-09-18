@@ -36,7 +36,6 @@ class ReosModule : public QObject
     };
 
     explicit ReosModule( QObject *parent = nullptr );
-    explicit ReosModule( ReosModule *parent );
     virtual ~ReosModule();
 
     QList<QAction *> actions() const;
@@ -44,7 +43,7 @@ class ReosModule : public QObject
   signals:
     void newCommandToUndoStack( QUndoCommand *command );
     void activeUndoStack( QUndoStack *undoStack );
-    void messageEmited( QString &message, MessageType type ) const;
+    void emitMessage( const QString &message, const MessageType &type ) const;
 
   public slots:
 
@@ -63,6 +62,9 @@ class ReosModule : public QObject
     void error( QString message ) const;
     void message( QString message ) const;
     void order( QString message ) const;
+
+  private slots:
+    void onMessageReceived( const QString &message, const MessageType &type );
 
   protected:
     QActionGroup *mGroupAction = nullptr;

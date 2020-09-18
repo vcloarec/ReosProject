@@ -7,7 +7,7 @@ SET(REOS_LEKAN_SOURCES
 )
 
 SET(REOS_LEKAN_HEADERS
-    lekanmainwindow.cpp
+    lekanmainwindow.h
 )
 
 ADD_EXECUTABLE(lekan
@@ -28,10 +28,13 @@ TARGET_LINK_LIBRARIES(lekan PUBLIC
         reosCore
 )
 
-
 INCLUDE_DIRECTORIES(
     ${CMAKE_BINARY_DIR}/src/ui
     ${CMAKE_SOURCE_DIR}/src/gui
+    ${CMAKE_SOURCE_DIR}/src/gui/GIS
     ${CMAKE_SOURCE_DIR}/src/core
+    ${CMAKE_SOURCE_DIR}/src/core/GIS
     )
+
+INSTALL(TARGETS lekan RUNTIME DESTINATION bin)
 

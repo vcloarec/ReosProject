@@ -24,6 +24,7 @@ email                : vcloarec at gmail dot com
 
 #include "reosversion.h"
 
+//! Widget that give information to the user of avaibaility of new version of the application
 class ReosVersionMessageBox: public QMessageBox
 {
   public:
@@ -33,7 +34,6 @@ class ReosVersionMessageBox: public QMessageBox
     void setDefaultWebSite( const QString &value );
 
   public slots:
-
     void receiveNetWorkRequest( QNetworkReply *reply );
 
   private:
@@ -41,7 +41,6 @@ class ReosVersionMessageBox: public QMessageBox
     QNetworkAccessManager *mNetWorkAccess = nullptr;
     bool mStart;
     QString mDefaultWebSite = serverVersionAddress;
-
 };
 
 #endif // REOSVERSIONMESSAGEBOX_H

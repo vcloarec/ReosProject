@@ -7,5 +7,9 @@
         <file>mActionSave.png</file>
         <file>mActionRedo.png</file>
         <file>mActionUndo.png</file>
+        <file>mActionAddVectorLayer.png</file>
+        <file>mActionAddRasterLayer.png</file>
+        <file>mActionAddMeshLayer.svg</file>
     </qresource>
+    <qresource prefix="/"/>
 </RCC>

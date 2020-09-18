@@ -27,8 +27,6 @@ void ReosProcess::setMaxProgession( int value )
   mMaxProgession = value;
 }
 
-
-
 int ReosProcess::currentProgression()
 {
   int progress;
@@ -37,8 +35,6 @@ int ReosProcess::currentProgression()
   mMutexProgression.unlock();
   return progress;
 }
-
-
 
 void ReosProcess::setCurrentProgression( int value )
 {

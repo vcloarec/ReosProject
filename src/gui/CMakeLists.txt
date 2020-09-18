@@ -8,6 +8,10 @@ SET(REOS_GUI_SOURCES
     reosmessagebox.cpp
     reosstartingwidget.cpp
     reosversionmessagebox.cpp
+    GIS/reosmap.cpp
+    GIS/reosmapitem.cpp
+    GIS/reosmappolygon_p.cpp
+    GIS/reosgislayerswidget.cpp
 )
 
 SET(REOS_GUI_HEADERS
@@ -17,10 +21,18 @@ SET(REOS_GUI_HEADERS
     reosmessagebox.h
     reosstartingwidget.h
     reosversionmessagebox.h
+    GIS/reosmap.h
+    GIS/reosmapitem.h
+    GIS/reosgislayerswidget.h
 )
+
+SET(REOS_GUI_HEADERS_PRIVATE
+    GIS/reosmappolygon_p.h
+    )
 
 ADD_LIBRARY(reosGui SHARED
     ${REOS_GUI_HEADERS}
+    ${REOS_GUI_HEADERS_PRIVATE}
     ${REOS_GUI_SOURCES}
   )
 
@@ -34,6 +46,7 @@ TARGET_LINK_LIBRARIES(reosGui PUBLIC
         ${Qt5Network_LIBRARIES}
         ${Qt5Sql_LIBRARIES}
         ${Qt5Concurrent_LIBRARIES}
+        ${QGIS_LIBS}
         reosCore
 )
 
@@ -46,6 +59,8 @@ ENDIF(WIN32)
 INCLUDE_DIRECTORIES(
     ${CMAKE_BINARY_DIR}/src/ui
     ${CMAKE_SOURCE_DIR}/src/core
+    ${CMAKE_SOURCE_DIR}/src/core/GIS
+    ${QGIS_INCLUDE_DIR}
 )
 
 

@@ -27,6 +27,7 @@ namespace Ui
   class ReosStartingWidget;
 }
 
+//! Popup widget oin the start of the aplication to purpose to the user to create a new project or opening an xisting one
 class ReosStartingWidget : public QDialog
 {
     Q_OBJECT

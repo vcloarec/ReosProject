@@ -20,6 +20,8 @@ email                : vcloarec at gmail dot com
 #include <QFileDialog>
 #include <QDockWidget>
 
+#include <qgsmapcanvas.h>
+
 #include "reossettings.h"
 #include "reosmodule.h"
 #include "reosmessagebox.h"
@@ -27,6 +29,7 @@ email                : vcloarec at gmail dot com
 #include "reosaboutwidget.h"
 #include "reosdocumentation.h"
 #include "reosversionmessagebox.h"
+
 
 ReosMainWindow::ReosMainWindow( QWidget *parent ) :
   QMainWindow( parent ),
@@ -46,6 +49,12 @@ ReosMainWindow::ReosMainWindow( QWidget *parent ) :
   mUndoStack( new QUndoStack( this ) )
 {
   setDockNestingEnabled( true );
+
+  QWidget *centralWidget = new QWidget( this );
+  setCentralWidget( centralWidget );
+  QGridLayout *centralLayout = new QGridLayout( centralWidget );
+  centralWidget->setLayout( centralLayout );
+  centralLayout->setContentsMargins( 0, 0, 0, 0 );
 }
 
 void ReosMainWindow::init()
@@ -62,7 +71,6 @@ void ReosMainWindow::init()
   mGroupActionFile->addAction( mActionOpenFile );
   mGroupActionFile->addAction( mActionSaveFile );
   mGroupActionFile->addAction( mActionSaveFileAs );
-
 
   mToolBarFile = addToolBar( tr( "File" ) );
   mToolBarFile->addActions( mGroupActionFile->actions() );
@@ -111,7 +119,7 @@ void ReosMainWindow::init()
   connect( mActionNewVersionAvailable, &QAction::triggered, this, &ReosMainWindow::newVersionAvailable );
   connect( mActionDocumentation, &QAction::triggered, mDocumentation, &ReosDocumentation::call );
 
-  connect( mRootModule, &ReosModule::messageEmited, messageBox, &ReosMessageBox::receiveMessage );
+  connect( mRootModule, &ReosModule::emitMessage, messageBox, &ReosMessageBox::receiveMessage );
 }
 
 void ReosMainWindow::addActionsFile( const QList<QAction *> actions )
@@ -207,6 +215,11 @@ void ReosMainWindow::languageSelection()
 void ReosMainWindow::newVersionAvailable()
 {
   new ReosVersionMessageBox( this, version(), false );
+}
+
+ReosModule *ReosMainWindow::rootModule() const
+{
+  return mRootModule;
 }
 
 

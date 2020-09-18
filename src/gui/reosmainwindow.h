@@ -31,7 +31,7 @@ class ReosMessageBox;
 
 static const QString webSite( "www.reos.site/projet-reos/" );
 
-
+//! Mainwindow of application
 class ReosMainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -50,6 +50,8 @@ class ReosMainWindow : public QMainWindow
     void addActionEdit( const QList<QAction *> actions );
     void addActionOption( const QList<QAction *> actions );
     void addActionInterrogation( const QList<QAction *> actions );
+
+    ReosModule *rootModule() const;
 
   private slots:
     void newUndoCommand( QUndoCommand *command );

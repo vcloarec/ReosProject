@@ -14,20 +14,23 @@ email                : vcloarec@gmail.com projetreos@gmail.com
  ***************************************************************************/
 
 #include "lekanmainwindow.h"
-#include "ui_lekanmainwindow.h"
 
 #include <QKeyEvent>
+#include <QMenu>
+#include <QStatusBar>
+#include <QDockWidget>
 
 #include "reossettings.h"
 #include "reosmodule.h"
+#include "reosmap.h"
+#include "reosgisengine.h"
+#include "reosgislayerswidget.h"
 
 LekanMainWindow::LekanMainWindow( QWidget *parent ) :
-  ReosMainWindow( parent )
+  ReosMainWindow( parent ),
+  mGisEngine( new ReosGisEngine( rootModule() ) ),
+  mMap( new ReosMap( mGisEngine, this ) )
 {
-
-  //setDockNestingEnabled( true );
-
-  ReosSettings settings;
 
 
   //****************************************************************
@@ -35,7 +38,6 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
 //  map = new ReosMap( rootReosModule );
 //  centralWidget()->setLayout( new QVBoxLayout );
 //  centralWidget()->layout()->addWidget( map->getMapCanvas() );
-//  statusBar()->addPermanentWidget( map->getCursorPosition() );
 
 
 //  gisManager = new ReosGisManager( map, rootReosModule );
@@ -98,7 +100,14 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   //connect( rootReosModule, &ReosModule::messageEmited, messageBox, &ReosMessageBox::receiveMessage );
 
   init();
+
+  statusBar()->addPermanentWidget( new ReosMapCursorPosition( mMap, this ) );
+  centralWidget()->layout()->addWidget( mMap->mapCanvas() );
+  mGisDock = new QDockWidget( tr( "GIS Layers" ) );
+  mGisDock->setWidget( new ReosGisLayersWidget( mGisEngine, mMap, this ) );
+  addDockWidget( Qt::LeftDockWidgetArea, mGisDock );
 }
+
 
 QString LekanMainWindow::projectFileFilter() const
 {

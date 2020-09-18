@@ -9,6 +9,8 @@ SET(REOS_CORE_SOURCES
   reosprocess.cpp
   reossettings.cpp
   reosversion.cpp
+
+  GIS/reosgisengine.cpp
 )
 
 SET(REOS_CORE_HEADERS
@@ -17,7 +19,12 @@ SET(REOS_CORE_HEADERS
     reosprocess.h
     reossettings.h
     reosversion.h
+
+    GIS/reosgisengine.h
 )
+
+SET(REOS_CORE_HEADERS_PRIVATE
+    )
 
 SET(IMAGE_RCCS ../../images/images.qrc)
 
@@ -53,7 +60,25 @@ TARGET_LINK_LIBRARIES(reosCore PUBLIC
         ${Qt5Network_LIBRARIES}
         ${Qt5Sql_LIBRARIES}
         ${Qt5Concurrent_LIBRARIES}
+        ${QGIS_LIBS}
 )
+
+IF(GDAL_FOUND)
+    message(STATUS "************************  GDAL found")
+    TARGET_INCLUDE_DIRECTORIES(reosCore PUBLIC ${GDAL_INCLUDE_DIRS})
+    TARGET_LINK_LIBRARIES(reosCore PUBLIC ${GDAL_LIBRARIES} )
+ELSE(GDAL_FOUND)
+    message(STATUS "************************  GDAL not found")
+    ENDIF(GDAL_FOUND)
+
+INCLUDE_DIRECTORIES(
+    ${CMAKE_SOURCE_DIR}/src/core
+    ${QGIS_INCLUDE_DIR}
+)
+
+
+SET(QGIS_PLUGINS_DIR "${QGIS_LIB_PATH}/qgis/plugins/")
+ADD_DEFINITIONS(-DQGIS_PLUGINS="${QGIS_PLUGINS_DIR}")
 
 # INSTALL HEADER
 

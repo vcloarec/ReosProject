@@ -37,13 +37,13 @@ void ReosMessageBox::receiveMessage( const QString &mes, ReosModule::MessageType
     case ReosModule::Error:
       message.append( QTime::currentTime().toString() );
       message.append( " : " );
-      message.append( tr( "Erreur : " ) );
+      message.append( tr( "Error : " ) );
       ui->textBrowser->setTextColor( Qt::red );
       break;
     case ReosModule::Warning:
       message.append( QTime::currentTime().toString() );
       message.append( " : " );
-      message.append( tr( "Attention : " ) );
+      message.append( tr( "Warning : " ) );
       ui->textBrowser->setTextColor( QColor( 200, 100, 0 ) );
       break;
     case ReosModule::Message:

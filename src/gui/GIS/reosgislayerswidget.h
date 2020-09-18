@@ -1,8 +1,8 @@
 /***************************************************************************
-                      reosmessagebox.h
+                      reosgislayerwidget.h
                      --------------------------------------
-Date                 : 30-12-2018
-Copyright            : (C) 2018 by Vincent Cloarec
+Date                 : 17-09-2020
+Copyright            : (C) 2020 by Vincent Cloarec
 email                : vcloarec at gmail dot com
  ***************************************************************************
  *                                                                         *
@@ -13,34 +13,41 @@ email                : vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
-#ifndef REOSMESSAGEBOX_H
-#define REOSMESSAGEBOX_H
+#ifndef REOSGISLAYERSWIDGET_H
+#define REOSGISLAYERSWIDGET_H
 
 #include <QWidget>
-#include <QTime>
+#include <QToolBar>
 
-#include "reosmodule.h"
+class QgsLayerTreeView;
+class ReosGisEngine;
+class ReosMap;
 
-namespace Ui
-{
-  class ReosMessageBox;
-}
-
-//! Widget displaying messages for the user
-class ReosMessageBox : public QWidget
+class ReosGisLayersWidget: public QWidget
 {
     Q_OBJECT
-
   public:
-    explicit ReosMessageBox( QWidget *parent = nullptr );
-    ~ReosMessageBox();
+    ReosGisLayersWidget( ReosGisEngine *engine,
+                         ReosMap *map,
+                         QWidget *parent = nullptr );
 
-  public slots:
-    void receiveMessage( const QString &mes, ReosModule::MessageType type = ReosModule::Message );
-    void clean();
+  private slots:
+    void onLoadVectorLayer();
+    void onLoadRasterLayer();
+    void onLoadMeshLayer();
+    void onTreeLayerDoubleClick();
 
   private:
-    Ui::ReosMessageBox *ui;
+    ReosGisEngine *mGisEngine;
+    ReosMap *mMap;
+
+    QgsLayerTreeView *mTreeView;
+
+    QToolBar *mToolBar;
+
+    QAction *mActionLoadVectorLayer;
+    QAction *mActionLoadRasterLayer;
+    QAction *mActionLoadMeshLayer;
 };
 
-#endif // REOSMESSAGEBOX_H
+#endif // REOSGISLAYERSWIDGET_H

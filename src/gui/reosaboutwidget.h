@@ -25,6 +25,7 @@ namespace Ui
   class ReosAboutWidget;
 }
 
+//! Widget displaying informatio about software
 class ReosAboutWidget : public QDialog
 {
     Q_OBJECT
@@ -33,13 +34,12 @@ class ReosAboutWidget : public QDialog
     explicit ReosAboutWidget( QWidget *parent = nullptr );
     ~ReosAboutWidget();
 
-    void setSoftwarename( const QString &nom );
+    void setSoftwareName( const QString &nom );
     void setBan( const QPixmap &pixmap );
     void setVersion( const QString &version );
     void setVersion( const ReosVersion &version );
     void setWebAddress( const QString &ad, const QString &from = QString() );
     void addLibrary( const QString &bibli, const QString &version, const QString &lienWEB = QString() );
-
     void setLicenceText( const QString &txt );
 
   private:

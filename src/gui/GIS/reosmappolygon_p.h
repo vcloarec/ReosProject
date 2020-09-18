@@ -1,8 +1,8 @@
 /***************************************************************************
-                      reosmessagebox.h
+                      reosmappolygon.h
                      --------------------------------------
-Date                 : 30-12-2018
-Copyright            : (C) 2018 by Vincent Cloarec
+Date                 : 17-09-2020
+Copyright            : (C) 2020 by Vincent Cloarec
 email                : vcloarec at gmail dot com
  ***************************************************************************
  *                                                                         *
@@ -13,34 +13,27 @@ email                : vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
-#ifndef REOSMESSAGEBOX_H
-#define REOSMESSAGEBOX_H
+#ifndef REOSMAPPOLYGON_P_H
+#define REOSMAPPOLYGON_P_H
 
-#include <QWidget>
-#include <QTime>
+#include <qgsmapcanvasitem.h>
 
-#include "reosmodule.h"
-
-namespace Ui
+class ReosMapPolygon_p: public QgsMapCanvasItem
 {
-  class ReosMessageBox;
-}
-
-//! Widget displaying messages for the user
-class ReosMessageBox : public QWidget
-{
-    Q_OBJECT
-
   public:
-    explicit ReosMessageBox( QWidget *parent = nullptr );
-    ~ReosMessageBox();
+    ReosMapPolygon_p( QgsMapCanvas *canvas );
 
-  public slots:
-    void receiveMessage( const QString &mes, ReosModule::MessageType type = ReosModule::Message );
-    void clean();
+    QRectF boundingRect() const {return mViewPolygon.boundingRect();}
+    void updatePosition();
+    QPolygonF mapPolygon;
+
+  protected:
+    void paint( QPainter *painter );
 
   private:
-    Ui::ReosMessageBox *ui;
+    QPolygonF mViewPolygon;
+
+
 };
 
-#endif // REOSMESSAGEBOX_H
+#endif // REOSMAPPOLYGON_P_H

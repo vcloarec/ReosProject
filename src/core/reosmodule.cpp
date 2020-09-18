@@ -18,14 +18,7 @@ email                : vcloarec at gmail dot com
 ReosModule::ReosModule( QObject *parent ):
   QObject( parent ),  mGroupAction( new QActionGroup( this ) )
 {
-
-}
-
-ReosModule::ReosModule( ReosModule *parent ): ReosModule( static_cast<QObject *>( parent ) )
-{
-
-  mReosParent = parent;
-  mReosChildren.append( this );
+  mReosParent = qobject_cast<ReosModule *>( parent );
 }
 
 ReosModule::~ReosModule()
@@ -33,8 +26,6 @@ ReosModule::~ReosModule()
   if ( mReosParent )
     mReosParent->mReosChildren.removeOne( this );
 }
-
-
 
 void ReosModule::newCommand( QUndoCommand *command )
 {
@@ -74,12 +65,17 @@ void ReosModule::order( QString message ) const
   sendMessage( message, Order );
 }
 
+void ReosModule::onMessageReceived( const QString &message, const ReosModule::MessageType &type )
+{
+  sendMessage( message, type );
+}
+
 void ReosModule::sendMessage( QString mes, MessageType type ) const
 {
   if ( mReosParent )
     mReosParent->sendMessage( mes, type );
   else
-    emit messageEmited( mes, type );
+    emit emitMessage( mes, type );
 }
 
 QList<QAction *> ReosModule::actions() const {return mGroupAction->actions();}

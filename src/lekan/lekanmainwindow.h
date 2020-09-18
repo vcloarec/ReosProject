@@ -50,6 +50,8 @@ email                : vcloarec at gmail dot com
 //#include "../cmn/classes_diverses/dialogchoixlangue.h"
 
 class ReosModule;
+class ReosMap;
+class ReosGisEngine;
 
 static const ReosVersion lekanVersion( "Lekan", 1, 0, 5 );
 
@@ -88,7 +90,10 @@ class LekanMainWindow : public ReosMainWindow
 //    ReosMessageBox *messageBox = nullptr;
 //    ReosDocumentation *reosDocumentation;
 
-    QDockWidget *dockSIG;
+    ReosGisEngine *mGisEngine;
+    ReosMap *mMap = nullptr;
+
+    QDockWidget *mGisDock;
     QDockWidget *dockDEM;
     QDockWidget *dockWatershed;
     QDockWidget *mDockMessageBox;
