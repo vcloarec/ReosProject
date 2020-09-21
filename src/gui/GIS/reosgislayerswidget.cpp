@@ -20,9 +20,13 @@ email                : vcloarec at gmail dot com
 #include <QMessageBox>
 #include <qgslayertreeview.h>
 #include <qgslayertree.h>
+#include <qgslayertreeutils.h>
 #include <qgsvectorlayerproperties.h>
 #include <qgsrasterlayerproperties.h>
 #include <qgsmeshlayerproperties.h>
+#include <qgsprojectionselectiontreewidget.h>
+#include <qgsprojectionselectiondialog.h>
+#include <qgslayertreeregistrybridge.h>
 #include <qgsmapcanvas.h>
 #include <qgsmessagebar.h>
 
@@ -38,7 +42,8 @@ ReosGisLayersWidget::ReosGisLayersWidget( ReosGisEngine *engine, ReosMap *map, Q
   mToolBar( new QToolBar( this ) ),
   mActionLoadVectorLayer( new QAction( QPixmap( ":/images/mActionAddVectorLayer.png" ), tr( "Add Vector Layer" ), this ) ),
   mActionLoadRasterLayer( new QAction( QPixmap( ":/images/mActionAddRasterLayer.png" ), tr( "Add Raster Layer" ), this ) ),
-  mActionLoadMeshLayer( new QAction( QPixmap( ":/images/mActionAddMeshLayer.svg" ), tr( "Add Mesh Layer" ), this ) )
+  mActionLoadMeshLayer( new QAction( QPixmap( ":/images/mActionAddMeshLayer.svg" ), tr( "Add Mesh Layer" ), this ) ),
+  mActionSetProjectCrs( new QAction( QPixmap( ":/images/CRS.svg" ), tr( "Project coordinate reference system" ), this ) )
 {
   mTreeView->setModel( engine->layerTreeModel() );
 
@@ -50,13 +55,16 @@ ReosGisLayersWidget::ReosGisLayersWidget( ReosGisEngine *engine, ReosMap *map, Q
   mToolBar->addAction( mActionLoadVectorLayer );
   mToolBar->addAction( mActionLoadRasterLayer );
   mToolBar->addAction( mActionLoadMeshLayer );
+  mToolBar->addAction( mActionSetProjectCrs );
 
   connect( mActionLoadVectorLayer, &QAction::triggered, this, &ReosGisLayersWidget::onLoadVectorLayer );
   connect( mActionLoadRasterLayer, &QAction::triggered, this, &ReosGisLayersWidget::onLoadRasterLayer );
   connect( mActionLoadMeshLayer, &QAction::triggered, this, &ReosGisLayersWidget::onLoadMeshLayer );
+  connect( mActionSetProjectCrs, &QAction::triggered, this, &ReosGisLayersWidget::onSetCrs );
 
 
   connect( mTreeView, &QAbstractItemView::doubleClicked, this, &ReosGisLayersWidget::onTreeLayerDoubleClick );
+  connect( mTreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &ReosGisLayersWidget::updateLayerInsertionPoint );
 }
 
 void ReosGisLayersWidget::onLoadVectorLayer()
@@ -126,8 +134,10 @@ void ReosGisLayersWidget::onTreeLayerDoubleClick()
       break;
     case QgsMapLayerType::RasterLayer:
       dial.reset( new QgsRasterLayerProperties( mapLayer, mapCanvas, this ) );
+      break;
     case QgsMapLayerType::MeshLayer:
       dial.reset( new QgsMeshLayerProperties( mapLayer, mapCanvas, this ) );
+      break;
     default:
       break;
   }
@@ -135,4 +145,52 @@ void ReosGisLayersWidget::onTreeLayerDoubleClick()
   if ( dial )
     dial->exec();
 
+}
+
+void ReosGisLayersWidget::onSetCrs()
+{
+  QgsProjectionSelectionDialog dial;
+  QString crs = mGisEngine->crs();
+  dial.setCrs( QgsCoordinateReferenceSystem::fromWkt( crs ) );
+  if ( dial.exec() )
+    mGisEngine->setCrs( dial.crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED ) );
+
+}
+
+void ReosGisLayersWidget::updateLayerInsertionPoint() const
+{
+  // from QGIS sources :  QgisApp::layerTreeInsertionPoint() in src/app/qgisapp.cpp
+
+  QgsLayerTreeRegistryBridge::InsertionPoint insertPoint( nullptr, -1 );
+  QgsLayerTreeGroup *insertGroup = mTreeView->layerTreeModel()->rootGroup();
+  QgsLayerTreeNode *currentNode = mTreeView->currentNode();
+
+  if ( currentNode )
+  {
+    // if the insertion point is actually a group, insert new layers into the group
+    if ( QgsLayerTree::isGroup( currentNode ) )
+    {
+      // if the group is embedded go to the first non-embedded group, at worst the top level item
+      QgsLayerTreeGroup *insertGroup = QgsLayerTreeUtils::firstGroupWithoutCustomProperty( QgsLayerTree::toGroup( currentNode ), QStringLiteral( "embedded" ) );
+      insertPoint = QgsLayerTreeRegistryBridge::InsertionPoint( insertGroup, 0 );
+    }
+    else
+    {
+      int ind = mTreeView->currentIndex().row();
+      // otherwise just set the insertion point in front of the current node
+      QgsLayerTreeNode *parentNode = currentNode->parent();
+      if ( QgsLayerTree::isGroup( parentNode ) )
+      {
+        // if the group is embedded go to the first non-embedded group, at worst the top level item
+        QgsLayerTreeGroup *parentGroup = QgsLayerTree::toGroup( parentNode );
+        insertGroup = QgsLayerTreeUtils::firstGroupWithoutCustomProperty( parentGroup, QStringLiteral( "embedded" ) );
+        if ( parentGroup != insertGroup )
+          ind = 0;
+      }
+
+      insertPoint = QgsLayerTreeRegistryBridge::InsertionPoint( insertGroup, ind );
+    }
+  }
+
+  QgsProject::instance()->layerTreeRegistryBridge()->setLayerInsertionPoint( insertPoint );
 }

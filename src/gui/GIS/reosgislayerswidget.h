@@ -36,6 +36,9 @@ class ReosGisLayersWidget: public QWidget
     void onLoadRasterLayer();
     void onLoadMeshLayer();
     void onTreeLayerDoubleClick();
+    void onSetCrs();
+
+    void  updateLayerInsertionPoint() const;
 
   private:
     ReosGisEngine *mGisEngine;
@@ -48,6 +51,7 @@ class ReosGisLayersWidget: public QWidget
     QAction *mActionLoadVectorLayer;
     QAction *mActionLoadRasterLayer;
     QAction *mActionLoadMeshLayer;
+    QAction *mActionSetProjectCrs;
 };
 
 #endif // REOSGISLAYERSWIDGET_H

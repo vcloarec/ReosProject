@@ -4,6 +4,7 @@
 FIND_PACKAGE(GDAL REQUIRED)
 
 SET(REOS_CORE_SOURCES
+  reosapplication.cpp
   reosdocumentation.cpp
   reosmodule.cpp
   reosprocess.cpp
@@ -14,6 +15,7 @@ SET(REOS_CORE_SOURCES
 )
 
 SET(REOS_CORE_HEADERS
+    reosapplication.h
     reosdocumentation.h
     reosmodule.h
     reosprocess.h
@@ -64,12 +66,9 @@ TARGET_LINK_LIBRARIES(reosCore PUBLIC
 )
 
 IF(GDAL_FOUND)
-    message(STATUS "************************  GDAL found")
     TARGET_INCLUDE_DIRECTORIES(reosCore PUBLIC ${GDAL_INCLUDE_DIRS})
     TARGET_LINK_LIBRARIES(reosCore PUBLIC ${GDAL_LIBRARIES} )
-ELSE(GDAL_FOUND)
-    message(STATUS "************************  GDAL not found")
-    ENDIF(GDAL_FOUND)
+ENDIF(GDAL_FOUND)
 
 INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core

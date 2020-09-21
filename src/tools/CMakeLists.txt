@@ -62,12 +62,9 @@ INCLUDE_DIRECTORIES(
 
 
 IF(GDAL_FOUND)
-    message(STATUS "************************  GDAL found")
     TARGET_INCLUDE_DIRECTORIES(reosTools PUBLIC ${GDAL_INCLUDE_DIRS})
     TARGET_LINK_LIBRARIES(reosTools PUBLIC ${GDAL_LIBRARIES} )
-ELSE(GDAL_FOUND)
-    message(STATUS "************************  GDAL not found")
-    ENDIF(GDAL_FOUND)
+ENDIF(GDAL_FOUND)
 
 
 # INSTALL HEADER

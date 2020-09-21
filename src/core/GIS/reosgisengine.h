@@ -18,7 +18,6 @@ email                : vcloarec at gmail dot com
 #define REOSGISENGINE_H
 
 #include <QAbstractItemModel>
-
 #include "reosmodule.h"
 
 /**
@@ -26,6 +25,7 @@ email                : vcloarec at gmail dot com
  */
 class ReosGisEngine: public ReosModule
 {
+    Q_OBJECT
   public:
     //! Constructor
     ReosGisEngine( QObject *parent = nullptr );
@@ -41,12 +41,21 @@ class ReosGisEngine: public ReosModule
     //! Returns the model containing GIS layers tree
     QAbstractItemModel *layerTreeModel();
 
+    //! Returns vector layer fil suffix filter
     QString vectorLayerFilters() const;
+    //! Returns raster layer fil suffix filter
     QString rasterLayerFilters() const;
+    //! Returns mesh layer fil suffix filter
     QString meshLayerFilters() const;
 
+    QString crs() const ;
+    void setCrs( const QString &wktCrs );
+
+  signals:
+    void crsChanged( const QString &wktCrs );
+
   private:
-    QAbstractItemModel *mLayerTreeModel;
+    QAbstractItemModel *mAbstractLayerTreeModel;
 };
 
 #endif // REOSGISENGINE_H

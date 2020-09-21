@@ -29,6 +29,8 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include <QDir>
 #include <QDebug>
 
+#include "reosapplication.h"
+
 int main( int argc, char *argv[] )
 {
 
@@ -41,7 +43,7 @@ int main( int argc, char *argv[] )
   setenv( "GDAL_DATA", QDir::currentPath().append( "/../gdal" ).toLatin1().data(), 0 );
 #endif
 
-  QApplication a( argc, argv );
+  ReosApplication a( argc, argv );
   QCoreApplication::setOrganizationName( QStringLiteral( "ReosProject" ) );
   QCoreApplication::setApplicationName( QStringLiteral( "Lekan" ) );
   QSettings::setDefaultFormat( QSettings::IniFormat );

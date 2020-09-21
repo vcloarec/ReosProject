@@ -16,6 +16,9 @@ email                : vcloarec at gmail dot com
 #include "reosgisengine.h"
 
 #include <qgslayertreemodel.h>
+#include <qgslayertree.h>
+#include <qgslayertreeutils.h>
+#include <qgslayertreeregistrybridge.h>
 #include <qgsproject.h>
 #include <qgsvectorlayer.h>
 #include <qgsrasterlayer.h>
@@ -24,11 +27,18 @@ email                : vcloarec at gmail dot com
 #include <qgsproviderregistry.h>
 #include <qgsapplication.h>
 
+#define  mLayerTreeModel _layerTreeModel(mAbstractLayerTreeModel)
+
+static QgsLayerTreeModel *_layerTreeModel( QAbstractItemModel *sourceModel )
+{
+  return qobject_cast<QgsLayerTreeModel *>( sourceModel );
+}
+
 ReosGisEngine::ReosGisEngine( QObject *parent ): ReosModule( parent )
 {
   QgsApplication::init();
   QgsProviderRegistry::instance( QGIS_PLUGINS );
-  mLayerTreeModel = new QgsLayerTreeModel( QgsProject::instance()->layerTreeRoot(), this );
+  mAbstractLayerTreeModel = new QgsLayerTreeModel( QgsProject::instance()->layerTreeRoot(), this );
 }
 
 bool ReosGisEngine::addVectorLayer( QString uri, QString name )
@@ -108,4 +118,16 @@ QString ReosGisEngine::meshLayerFilters() const
     error( tr( "Could not find MDAL" ) );
     return QString();
   }
+}
+
+QString ReosGisEngine::crs() const
+{
+  return QgsProject::instance()->crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED );
+}
+
+void ReosGisEngine::setCrs( const QString &wktCrs )
+{
+  QgsCoordinateReferenceSystem crs = QgsCoordinateReferenceSystem::fromWkt( wktCrs );
+  QgsProject::instance()->setCrs( crs );
+  emit crsChanged( wktCrs );
 }
