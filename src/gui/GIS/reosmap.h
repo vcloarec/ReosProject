@@ -17,6 +17,7 @@ email                : vcloarec at gmail dot com
 #define REOSMAP_H
 
 #include <QLabel>
+#include <QDomDocument>
 
 #include "reosmodule.h"
 #include "reosmapitem.h"
@@ -77,20 +78,15 @@ class ReosMap: public ReosModule
   signals:
     //! emitted when the mouse cursor moves on the map cavans.
     void cursorMoved( const QPointF &point );
+    void readProject( const QDomDocument &doc );
 
   private:
     QgsMapCanvas *mCanvas = nullptr;
-    ReosMapCursorPosition *mCursorPosition = nullptr;
 
 //    HdCursorPosition *cursorPosition;
 //    HdMapToolNeutral *mapToolNeutral;
 //    ReosMapTool *currentMapTool = nullptr;
 //    QgsRectangle savedExtent;
-
-  public:
-
-    // ReosModule interface
-//    QWidget *getWidget() const override;
 
 };
 

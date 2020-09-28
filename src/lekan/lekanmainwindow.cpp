@@ -19,6 +19,8 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include <QMenu>
 #include <QStatusBar>
 #include <QDockWidget>
+#include <QFileInfo>
+#include <QDir>
 
 #include "reossettings.h"
 #include "reosmodule.h"
@@ -108,10 +110,31 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   addDockWidget( Qt::LeftDockWidgetArea, mGisDock );
 }
 
+bool LekanMainWindow::openProject()
+{
+  mGisEngine->loadQGISProject( gisFileInfo().filePath() );
+  return false;
+}
+
+bool LekanMainWindow::saveProject()
+{
+  mGisEngine->saveQGISProject( gisFileInfo().filePath() );
+  return false;
+}
+
 
 QString LekanMainWindow::projectFileFilter() const
 {
   return QStringLiteral( "Lekan file (*.lkn)" );
+}
+
+QFileInfo LekanMainWindow::gisFileInfo() const
+{
+  QString gisFileName = currentProjectBaseName();
+  gisFileName.prepend( QStringLiteral( "lkn_" ) );
+  gisFileName.append( QStringLiteral( ".qgz" ) );
+  QDir dir( currentProjectPath() );
+  return QFileInfo( dir, gisFileName );
 }
 
 QList<QMenu *> LekanMainWindow::specificMenus()

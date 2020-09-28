@@ -11,5 +11,6 @@
         <file>mActionAddRasterLayer.png</file>
         <file>mActionAddMeshLayer.svg</file>
         <file>CRS.svg</file>
+        <file>mActionLoadQGISProject.png</file>
     </qresource>
 </RCC>

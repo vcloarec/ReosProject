@@ -18,6 +18,7 @@ email                : vcloarec at gmail dot com
 
 #include <QMainWindow>
 #include <QActionGroup>
+#include <QDir>
 #include <QUndoStack>
 
 #include <QVBoxLayout>
@@ -39,7 +40,6 @@ class ReosMainWindow : public QMainWindow
   public:
     explicit ReosMainWindow( QWidget *parent = nullptr );
     bool open();
-    virtual bool openProject( QString file ) = 0;
 
   protected:
     void closeEvent( QCloseEvent *event ) override;
@@ -53,6 +53,11 @@ class ReosMainWindow : public QMainWindow
 
     ReosModule *rootModule() const;
 
+    QString currentProjectFilePath() const;
+    QString currentProjectFileName() const;
+    QString currentProjectBaseName() const;
+    QString currentProjectPath() const;
+
   private slots:
     void newUndoCommand( QUndoCommand *command );
 
@@ -64,6 +69,7 @@ class ReosMainWindow : public QMainWindow
     virtual ReosVersion version() const {return ReosVersion();}
     virtual bool saveProject() = 0;
     virtual void clearProject() = 0;
+    virtual bool openProject() = 0;
     virtual QByteArray encode() const = 0;
     virtual bool decode( const QByteArray &byteArray ) = 0;
     virtual QString projectFileFilter() const;
@@ -104,8 +110,7 @@ class ReosMainWindow : public QMainWindow
     QToolBar *mToolBarFile;
     QToolBar *mToolBarEdit;
 
-    QString mFileNameCurrentProject;
-
+    QFileInfo mCurrentProjectFileInfo;
     QUndoStack *mUndoStack;
 };
 

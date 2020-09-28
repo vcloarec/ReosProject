@@ -32,6 +32,7 @@ class ReosGisLayersWidget: public QWidget
                          QWidget *parent = nullptr );
 
   private slots:
+    void onLoadQGISProject();
     void onLoadVectorLayer();
     void onLoadRasterLayer();
     void onLoadMeshLayer();
@@ -48,6 +49,7 @@ class ReosGisLayersWidget: public QWidget
 
     QToolBar *mToolBar;
 
+    QAction *mActionLoadQGISProject;
     QAction *mActionLoadVectorLayer;
     QAction *mActionLoadRasterLayer;
     QAction *mActionLoadMeshLayer;

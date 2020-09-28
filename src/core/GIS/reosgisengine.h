@@ -31,12 +31,14 @@ class ReosGisEngine: public ReosModule
     ReosGisEngine( QObject *parent = nullptr );
 
     //! Add a vector layer, if the loaded vector layer is invalid, do nothing and return false
-    bool addVectorLayer( QString uri, QString name );
+    bool addVectorLayer( const QString &uri, const QString &name );
     //! Add a raster layer, if the loaded vector layer is invalid, do nothing and return false
-    bool addRasterLayer( QString uri, QString name );
+    bool addRasterLayer( const QString &uri, const QString &name );
 
     //! Add a raster layer, if the loaded vector layer is invalid, do nothing and return false
-    bool addMeshLayer( QString uri, QString name );
+    bool addMeshLayer( const QString &uri, const QString &name );
+
+    void addGroupLayer();
 
     //! Returns the model containing GIS layers tree
     QAbstractItemModel *layerTreeModel();
@@ -50,6 +52,10 @@ class ReosGisEngine: public ReosModule
 
     QString crs() const ;
     void setCrs( const QString &wktCrs );
+
+    void loadQGISProject( const QString &fileName );
+
+    void saveQGISProject( const QString &fileName );
 
   signals:
     void crsChanged( const QString &wktCrs );

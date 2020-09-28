@@ -157,12 +157,18 @@ bool ReosMainWindow::open()
   if ( fileName.isEmpty() )
     return false;
 
-  return openProject( fileName );
+  mCurrentProjectFileInfo = QFileInfo( fileName );
+  bool result = openProject();
+
+  if ( !result )
+    mCurrentProjectFileInfo = QFileInfo();
+
+  return result;
 }
 
 bool ReosMainWindow::save()
 {
-  if ( mFileNameCurrentProject.isEmpty() )
+  if ( !mCurrentProjectFileInfo.exists() )
     return saveAs();
 
   return saveProject();
@@ -173,13 +179,13 @@ bool ReosMainWindow::saveAs()
   ReosSettings settings;
   QString path = settings.value( QStringLiteral( "/Path/Project" ) ).toString();
 
-  mFileNameCurrentProject = QFileDialog::getSaveFileName( this, tr( "Save project as" ), path, projectFileFilter() );
+  QString filePath = QFileDialog::getSaveFileName( this, tr( "Save project as" ), path, projectFileFilter() );
 
-  if ( mFileNameCurrentProject.isEmpty() )
+  if ( filePath.isEmpty() )
     return false;
 
-  QFileInfo fileInfo( mFileNameCurrentProject );
-  settings.setValue( QStringLiteral( "/Path/Project" ), fileInfo.path() );
+  mCurrentProjectFileInfo = QFileInfo( filePath );
+  settings.setValue( QStringLiteral( "/Path/Project" ), mCurrentProjectFileInfo.path() );
 
   return saveProject();
 }
@@ -195,7 +201,7 @@ void ReosMainWindow::newProject()
   if ( returnButton == QMessageBox::Ok )
     saveProject();
 
-  mFileNameCurrentProject.clear();
+  mCurrentProjectFileInfo = QFileInfo();
   clearProject();
 }
 
@@ -220,6 +226,26 @@ void ReosMainWindow::newVersionAvailable()
 ReosModule *ReosMainWindow::rootModule() const
 {
   return mRootModule;
+}
+
+QString ReosMainWindow::currentProjectFilePath() const
+{
+  return mCurrentProjectFileInfo.filePath();
+}
+
+QString ReosMainWindow::currentProjectFileName() const
+{
+  return mCurrentProjectFileInfo.fileName();
+}
+
+QString ReosMainWindow::currentProjectPath() const
+{
+  return mCurrentProjectFileInfo.path();
+}
+
+QString ReosMainWindow::currentProjectBaseName() const
+{
+  return mCurrentProjectFileInfo.baseName();
 }
 
 

@@ -27,6 +27,7 @@ email                : vcloarec at gmail dot com
 #include <qgsprojectionselectiontreewidget.h>
 #include <qgsprojectionselectiondialog.h>
 #include <qgslayertreeregistrybridge.h>
+#include <qgslayertreeviewdefaultactions.h>
 #include <qgsmapcanvas.h>
 #include <qgsmessagebar.h>
 
@@ -34,12 +35,59 @@ email                : vcloarec at gmail dot com
 #include "reossettings.h"
 #include "reosmap.h"
 
+
+class ContextMenuProvider: public QgsLayerTreeViewMenuProvider
+{
+
+  public:
+    ContextMenuProvider( QgsLayerTreeView *layerTreeView, ReosMap *map ):
+      QgsLayerTreeViewMenuProvider(),
+      mLayerTreeView( layerTreeView ),
+      mMap( map )
+    {
+      mDefaultAction = new QgsLayerTreeViewDefaultActions( layerTreeView );
+    }
+
+    QMenu *createContextMenu() override
+    {
+      QMenu *menu = new QMenu;
+      menu->addAction( mDefaultAction->actionRemoveGroupOrLayer( mLayerTreeView ) );
+      menu->addAction( mDefaultAction->actionRenameGroupOrLayer( mLayerTreeView ) );
+      menu->addSeparator();
+      menu->addAction( mDefaultAction->actionCheckAndAllChildren( mLayerTreeView ) );
+      menu->addAction( mDefaultAction->actionUncheckAndAllChildren( mLayerTreeView ) );
+      menu->addAction( mDefaultAction->actionCheckAndAllParents( mLayerTreeView ) );
+
+      QgsMapCanvas *mapCanvas = qobject_cast<QgsMapCanvas *>( mMap->mapCanvas() );
+      if ( mapCanvas )
+      {
+        menu->addSeparator();
+        menu->addAction( mDefaultAction->actionZoomToLayer( mapCanvas, mLayerTreeView ) );
+        menu->addAction( mDefaultAction->actionZoomToGroup( mapCanvas, mLayerTreeView ) );
+      }
+
+      menu->addSeparator();
+      menu->addAction( mDefaultAction->actionMoveOutOfGroup( mLayerTreeView ) );
+      menu->addAction( mDefaultAction->actionMoveToTop( mLayerTreeView ) );
+      menu->addAction( mDefaultAction->actionMoveToBottom( mLayerTreeView ) );
+      menu->addAction( mDefaultAction->actionGroupSelected( mLayerTreeView ) );
+
+      return menu;
+    }
+
+  private:
+    QgsLayerTreeView *mLayerTreeView = nullptr;
+    QgsLayerTreeViewDefaultActions *mDefaultAction = nullptr;
+    ReosMap *mMap = nullptr;
+};
+
 ReosGisLayersWidget::ReosGisLayersWidget( ReosGisEngine *engine, ReosMap *map, QWidget *parent ):
   QWidget( parent ),
   mGisEngine( engine ),
   mMap( map ),
   mTreeView( new QgsLayerTreeView( this ) ),
   mToolBar( new QToolBar( this ) ),
+  mActionLoadQGISProject( new QAction( QPixmap( ":/images/mActionLoadQGISProject.png" ), tr( "Load QGIS Project" ), this ) ),
   mActionLoadVectorLayer( new QAction( QPixmap( ":/images/mActionAddVectorLayer.png" ), tr( "Add Vector Layer" ), this ) ),
   mActionLoadRasterLayer( new QAction( QPixmap( ":/images/mActionAddRasterLayer.png" ), tr( "Add Raster Layer" ), this ) ),
   mActionLoadMeshLayer( new QAction( QPixmap( ":/images/mActionAddMeshLayer.svg" ), tr( "Add Mesh Layer" ), this ) ),
@@ -52,11 +100,24 @@ ReosGisLayersWidget::ReosGisLayersWidget( ReosGisEngine *engine, ReosMap *map, Q
   layout()->addWidget( mToolBar );
   layout()->addWidget( mTreeView );
 
+  mToolBar->addAction( mActionLoadQGISProject );
   mToolBar->addAction( mActionLoadVectorLayer );
   mToolBar->addAction( mActionLoadRasterLayer );
   mToolBar->addAction( mActionLoadMeshLayer );
   mToolBar->addAction( mActionSetProjectCrs );
 
+  auto defaulAction = new QgsLayerTreeViewDefaultActions( mTreeView );
+
+  mToolBar->addAction( defaulAction->actionAddGroup( this ) );
+  mToolBar->addAction( defaulAction->actionRemoveGroupOrLayer( this ) );
+
+  QgsMapCanvas *mapCanvas = qobject_cast<QgsMapCanvas *>( mMap->mapCanvas() );
+  if ( mapCanvas )
+  {
+    mToolBar->addAction( defaulAction->actionZoomToLayer( mapCanvas, this ) );
+  }
+
+  connect( mActionLoadQGISProject, &QAction::triggered, this, &ReosGisLayersWidget::onLoadQGISProject );
   connect( mActionLoadVectorLayer, &QAction::triggered, this, &ReosGisLayersWidget::onLoadVectorLayer );
   connect( mActionLoadRasterLayer, &QAction::triggered, this, &ReosGisLayersWidget::onLoadRasterLayer );
   connect( mActionLoadMeshLayer, &QAction::triggered, this, &ReosGisLayersWidget::onLoadMeshLayer );
@@ -65,6 +126,20 @@ ReosGisLayersWidget::ReosGisLayersWidget( ReosGisEngine *engine, ReosMap *map, Q
 
   connect( mTreeView, &QAbstractItemView::doubleClicked, this, &ReosGisLayersWidget::onTreeLayerDoubleClick );
   connect( mTreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &ReosGisLayersWidget::updateLayerInsertionPoint );
+
+  mTreeView->setMenuProvider( new ContextMenuProvider( mTreeView, mMap ) );
+}
+
+void ReosGisLayersWidget::onLoadQGISProject()
+{
+  ReosSettings settings;
+  QString path = settings.value( QStringLiteral( "/Path/GisProject" ) ).toString();
+  const QString projectFileName = QFileDialog::getOpenFileName( this, tr( "Load QGIS Project" ), path );
+  if ( !projectFileName.isEmpty() )
+  {
+    mGisEngine->loadQGISProject( projectFileName );
+    settings.setValue( QStringLiteral( "/Path/GisProject" ), projectFileName ) ;
+  }
 }
 
 void ReosGisLayersWidget::onLoadVectorLayer()

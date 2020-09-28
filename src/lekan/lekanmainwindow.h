@@ -62,7 +62,7 @@ class LekanMainWindow : public ReosMainWindow
   public:
     explicit LekanMainWindow( QWidget *parent = nullptr );
 
-    bool openProject( QString file ) override {return false;}
+    bool openProject() override;
 
 //    bool openBackFile( QString filename );
 //    void addDock();
@@ -76,10 +76,12 @@ class LekanMainWindow : public ReosMainWindow
 
   private:
 
-    bool saveProject() override {return false;}
+    bool saveProject() override;
     void clearProject() override {}
     ReosVersion version() const {return lekanVersion;}
     QString projectFileFilter()  const override;
+
+    QFileInfo gisFileInfo() const;
 
 //    HdDEMManager *demManager = nullptr;
 //    ReosGisManager *gisManager = nullptr;

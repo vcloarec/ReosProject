@@ -35,6 +35,20 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ): ReosModule(
   {
     auto bridge = new QgsLayerTreeMapCanvasBridge( layerTreeModel->rootGroup(), mCanvas, this );
     bridge->setAutoSetupOnFirstLayer( true );
+
+    //Thses two following connections seem weird, but that is for avoiding that the QgsProjectInstance call the lambda while this is destroyed
+    //connect( QgsProject::instance(), &QgsProject::readProject, this, &ReosMap::readProject );
+
+    //connect( this, &ReosMap::readProject, [this, bridge]( const QDomDocument & doc )
+    connect( QgsProject::instance(), &QgsProject::readProject, [this, bridge]( const QDomDocument & doc )
+    {
+      bool autoSetupOnFirstLayer = bridge->autoSetupOnFirstLayer();
+      bridge->setAutoSetupOnFirstLayer( false );
+      bridge->setCanvasLayers();
+      if ( autoSetupOnFirstLayer )
+        bridge->setAutoSetupOnFirstLayer( true );
+      this->mCanvas->readProject( doc );
+    } );
   }
 
   connect( mCanvas, &QgsMapCanvas::xyCoordinates, this, [this]( const QgsPointXY & p )
@@ -54,7 +68,6 @@ void ReosMap::refreshCanvas()
 {
   mCanvas->refresh();
 }
-
 
 //void ReosMap::setMapTool( ReosMapTool *tool )
 //{
