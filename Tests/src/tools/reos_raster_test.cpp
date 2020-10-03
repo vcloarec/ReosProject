@@ -48,8 +48,8 @@ TEST_F( ReosRasterTesting, ReosRasterExtent )
   extent = ReosRasterExtent( QRectF( 20, 10, 110, 100 ), 0.5, -0.5 );
   ASSERT_TRUE( extent.isValid() );
 
-  EXPECT_EQ( extent.xOrigin(), 20.0 );
-  EXPECT_EQ( extent.yOrigin(), 110.0 ); //as y size < 0, the origin is Ymax
+  EXPECT_EQ( extent.xMapOrigin(), 20.0 );
+  EXPECT_EQ( extent.yMapOrigin(), 110.0 ); //as y size < 0, the origin is Ymax
   EXPECT_EQ( extent.cellSurface(), 0.25 );
   EXPECT_EQ( extent.xCellCount(), 220 );
   EXPECT_EQ( extent.yCellCount(), 200 );
@@ -95,8 +95,8 @@ TEST_F( ReosRasterTesting, ReosRasterExtent )
 
   ReosRasterExtent extent_3 = extent * extent_2;
   EXPECT_EQ( extent_3.cellSurface(), 1 );
-  EXPECT_EQ( extent_3.xOrigin(), 5 );
-  EXPECT_EQ( extent_3.yOrigin(), 5 );
+  EXPECT_EQ( extent_3.xMapOrigin(), 5 );
+  EXPECT_EQ( extent_3.yMapOrigin(), 5 );
   EXPECT_EQ( extent_3.xCellCount(), 5 );
   EXPECT_EQ( extent_3.yCellCount(), 4 );
 }

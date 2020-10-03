@@ -14,6 +14,8 @@ email                : vcloarec at gmail dot com
  ***************************************************************************/
 
 #include "reosgisengine.h"
+#include "reosdigitalelevationmodel.h"
+#include "reosdigitalelevationmodel_p.h"
 
 #include <qgslayertreemodel.h>
 #include <qgslayertree.h>
@@ -48,54 +50,54 @@ ReosGisEngine::ReosGisEngine( QObject *parent ): ReosModule( parent )
   mLayerTreeModel->setAutoCollapseLegendNodes( 10 );
 }
 
-bool ReosGisEngine::addVectorLayer( const QString &uri, const QString &name )
+QString ReosGisEngine::addVectorLayer( const QString &uri, const QString &name )
 {
   std::unique_ptr<QgsVectorLayer> vectorLayer( new QgsVectorLayer( uri, name ) );
 
   if ( vectorLayer->isValid() )
   {
-    QgsProject::instance()->addMapLayer( vectorLayer.release() );
+    QgsMapLayer *mapLayer = QgsProject::instance()->addMapLayer( vectorLayer.release() );
     message( tr( "Vector layer loaded: %1" ).arg( uri ) );
-    return true;
+    return mapLayer->id();
   }
   else
   {
     warning( tr( "Vector layer not loaded: %1" ).arg( uri ) );
-    return false;
+    return QString();
   }
 }
 
-bool ReosGisEngine::addRasterLayer( const QString &uri, const QString &name )
+QString ReosGisEngine::addRasterLayer( const QString &uri, const QString &name )
 {
   std::unique_ptr<QgsRasterLayer> rasterlayer( new QgsRasterLayer( uri, name ) );
 
   if ( rasterlayer->isValid() )
   {
-    QgsProject::instance()->addMapLayer( rasterlayer.release() );
+    QgsMapLayer *mapLayer = QgsProject::instance()->addMapLayer( rasterlayer.release() );
     message( tr( "Raster layer loaded: %1" ).arg( uri ) );
-    return true;
+    return mapLayer->id();
   }
   else
   {
     warning( tr( "Raster layer not loaded: %1" ).arg( uri ) );
-    return false;
+    return QString();
   }
 }
 
-bool ReosGisEngine::addMeshLayer( const QString &uri, const QString &name )
+QString ReosGisEngine::addMeshLayer( const QString &uri, const QString &name )
 {
   std::unique_ptr<QgsMeshLayer> meshLayer( new QgsMeshLayer( uri, name, "mdal" ) );
 
   if ( meshLayer->isValid() )
   {
-    QgsProject::instance()->addMapLayer( meshLayer.release() );
+    QgsMapLayer *mapLayer = QgsProject::instance()->addMapLayer( meshLayer.release() );
     message( tr( "Mesh layer loaded: %1" ).arg( uri ) );
-    return true;
+    return mapLayer->id();;
   }
   else
   {
     warning( tr( "Mesh layer not loaded: %1" ).arg( uri ) );
-    return false;
+    return QString();
   }
 
 }
@@ -149,7 +151,70 @@ void ReosGisEngine::loadQGISProject( const QString &fileName )
   QgsProject::instance()->read( fileName );
 }
 
-void ReosGisEngine::saveQGISProject( const QString &fileName )
+void ReosGisEngine::saveQGISProject( const QString &fileName ) const
 {
   QgsProject::instance()->write( fileName );
+}
+
+bool ReosGisEngine::registerLayerAsDigitalElevationModel( const QString &layerId )
+{
+  QgsMapLayer *layer = QgsProject::instance()->mapLayer( layerId );
+  if ( !layer )
+    return false;
+
+  if ( layer->type() == QgsMapLayerType::RasterLayer )
+  {
+    mAsDEMRegisteredLayer.append( layerId );
+    return true;
+  }
+  return false;
+}
+
+void ReosGisEngine::unRegisterLayerAsDigitalElevationModel( const QString &layerId )
+{
+  mAsDEMRegisteredLayer.removeOne( layerId );
+}
+
+bool ReosGisEngine::isDigitalElevationModel( const QString &layerId ) const
+{
+  return mAsDEMRegisteredLayer.contains( layerId );
+}
+
+static void allLayersOrder( QgsLayerTreeNode *node, QList<QgsMapLayer *> &allLayers )
+{
+  if ( QgsLayerTree::isLayer( node ) )
+  {
+    QgsLayerTreeLayer *nodeLayer = QgsLayerTree::toLayer( node );
+    if ( nodeLayer->layer() && nodeLayer->layer()->isSpatial() )
+    {
+      allLayers << nodeLayer->layer();
+    }
+  }
+
+  const QList<QgsLayerTreeNode *> children = node->children();
+  for ( QgsLayerTreeNode *child : children )
+    allLayersOrder( child, allLayers );
+}
+
+ReosDigitalElevationModel *ReosGisEngine::getTopDigitalElevationModel() const
+{
+  QgsLayerTreeNode *rootNode = mLayerTreeModel->rootGroup();
+  QList<QgsMapLayer *> layersOrder;
+  allLayersOrder( rootNode, layersOrder );
+
+  for ( QgsMapLayer *layer : layersOrder )
+  {
+    if ( mAsDEMRegisteredLayer.contains( layer->id() ) )
+    {
+      QgsRasterLayer *rl = qobject_cast<QgsRasterLayer *>( layer );
+      if ( rl )
+      {
+        QgsCoordinateTransformContext transformContext = QgsProject::instance()->transformContext();
+        return ReosDigitalElevationModelFactory::createDEM( rl, transformContext );
+      }
+      else
+        return nullptr;
+    }
+  }
+  return nullptr;
 }

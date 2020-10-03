@@ -52,13 +52,20 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/src/tools/raster
   ${CMAKE_SOURCE_DIR}/src/core
+  ${CMAKE_SOURCE_DIR}/src/core/GIS
 )
 
 MACRO (ADD_REOS_TEST TESTSRC)
   GET_FILENAME_COMPONENT(TESTNAME ${TESTSRC} NAME)
   STRING(REPLACE ".cpp" "" TESTNAME ${TESTNAME})
   ADD_EXECUTABLE(${TESTNAME} ${TESTSRC} $<TARGET_OBJECTS:reostestutils>)
-  TARGET_LINK_LIBRARIES(${TESTNAME} gtest gmock ${CMAKE_THREAD_LIBS_INIT} reosTools)
+  TARGET_LINK_LIBRARIES(${TESTNAME}
+                        ${Qt5Test_LIBRARIES}
+                        ${CMAKE_THREAD_LIBS_INIT}
+                        gtest
+                        gmock
+                        reosTools)
+
   IF(GDAL_FOUND)
     TARGET_INCLUDE_DIRECTORIES(${TESTNAME} PRIVATE ${GDAL_INCLUDE_DIRS})
   ENDIF(GDAL_FOUND)
@@ -66,6 +73,7 @@ MACRO (ADD_REOS_TEST TESTSRC)
 ENDMACRO (ADD_REOS_TEST)
 
 SET(TESTS
+    src/core/reos_dem_test.cpp
     src/tools/reos_raster_test.cpp
     src/tools/reos_watershedRaster_test.cpp
     )

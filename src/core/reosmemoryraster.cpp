@@ -15,12 +15,12 @@ email                : vcloarec@gmail.com
 
 #include "reosmemoryraster.h"
 
-double ReosRasterExtent::xOrigin() const
+double ReosRasterExtent::xMapOrigin() const
 {
   return mXOrigin;
 }
 
-double ReosRasterExtent::yOrigin() const
+double ReosRasterExtent::yMapOrigin() const
 {
   return mYOrigin;
 }
@@ -49,8 +49,8 @@ ReosRasterExtent ReosRasterExtent::operator*( const ReosRasterExtent &other ) co
 {
   ReosRasterExtent ret;
 
-  QRectF rect( QPointF( xMin(), yMin() ), QPointF( xMax(), yMax() ) );
-  QRectF rectOther( QPointF( other.xMin(), other.yMin() ), QPointF( other.xMax(), other.yMax() ) );
+  QRectF rect( QPointF( xMapMin(), yMapMin() ), QPointF( xMapMax(), yMapMax() ) );
+  QRectF rectOther( QPointF( other.xMapMin(), other.yMapMin() ), QPointF( other.xMapMax(), other.yMapMax() ) );
 
   QRectF result = rect.intersected( rectOther );
 
@@ -73,7 +73,7 @@ ReosRasterExtent ReosRasterExtent::operator*( const ReosRasterExtent &other ) co
   return ret;
 }
 
-double ReosRasterExtent::xMax() const
+double ReosRasterExtent::xMapMax() const
 {
   if ( mXCellSize > 0 )
   {
@@ -83,7 +83,7 @@ double ReosRasterExtent::xMax() const
     return mXOrigin;
 }
 
-double ReosRasterExtent::yMax() const
+double ReosRasterExtent::yMapMax() const
 {
   if ( mYCellSize > 0 )
   {
@@ -93,7 +93,7 @@ double ReosRasterExtent::yMax() const
     return mYOrigin;
 }
 
-double ReosRasterExtent::xMin() const
+double ReosRasterExtent::xMapMin() const
 {
   if ( mXCellSize < 0 )
   {
@@ -103,7 +103,7 @@ double ReosRasterExtent::xMin() const
     return mXOrigin;
 }
 
-double ReosRasterExtent::yMin() const
+double ReosRasterExtent::yMapMin() const
 {
   if ( mYCellSize < 0 )
   {
@@ -115,16 +115,16 @@ double ReosRasterExtent::yMin() const
 
 QPoint ReosRasterExtent::mapToCell( const QPointF &point ) const
 {
-  int x = int( ( point.x() - xOrigin() ) / xCellSize() );
-  int y = int( ( point.y() - yOrigin() ) / yCellSize() );
+  int x = int( ( point.x() - xMapOrigin() ) / xCellSize() );
+  int y = int( ( point.y() - yMapOrigin() ) / yCellSize() );
 
   return QPoint( x, y );
 }
 
 ReosRasterCellPos ReosRasterExtent::mapToCellPos( const QPointF &point ) const
 {
-  int col = int( ( point.x() - xOrigin() ) / xCellSize() );
-  int row = int( ( point.y() - yOrigin() ) / yCellSize() );
+  int col = int( ( point.x() - xMapOrigin() ) / xCellSize() );
+  int row = int( ( point.y() - yMapOrigin() ) / yCellSize() );
 
   return ReosRasterCellPos( row, col );
 }

@@ -21,65 +21,26 @@ email                : vcloarec at gmail dot com
 #include <qgslayertreeview.h>
 #include <qgslayertree.h>
 #include <qgslayertreeutils.h>
-#include <qgsvectorlayerproperties.h>
-#include <qgsrasterlayerproperties.h>
-#include <qgsmeshlayerproperties.h>
-#include <qgsprojectionselectiontreewidget.h>
-#include <qgsprojectionselectiondialog.h>
 #include <qgslayertreeregistrybridge.h>
+#include <qgslayertreeutils.h>
 #include <qgslayertreeviewdefaultactions.h>
 #include <qgsmapcanvas.h>
+#include <qgsmeshlayerproperties.h>
 #include <qgsmessagebar.h>
+#include <qgsprojectionselectiondialog.h>
+#include <qgsprojectionselectiontreewidget.h>
+#include <qgsrasterlayerproperties.h>
+#include <qgsvectorlayerproperties.h>
+
 
 #include "reosgisengine.h"
 #include "reossettings.h"
 #include "reosmap.h"
 
+#include "reoslayertreecontextmenuprovider_p.h"
 
-class ContextMenuProvider: public QgsLayerTreeViewMenuProvider
-{
 
-  public:
-    ContextMenuProvider( QgsLayerTreeView *layerTreeView, ReosMap *map ):
-      QgsLayerTreeViewMenuProvider(),
-      mLayerTreeView( layerTreeView ),
-      mMap( map )
-    {
-      mDefaultAction = new QgsLayerTreeViewDefaultActions( layerTreeView );
-    }
-
-    QMenu *createContextMenu() override
-    {
-      QMenu *menu = new QMenu;
-      menu->addAction( mDefaultAction->actionRemoveGroupOrLayer( mLayerTreeView ) );
-      menu->addAction( mDefaultAction->actionRenameGroupOrLayer( mLayerTreeView ) );
-      menu->addSeparator();
-      menu->addAction( mDefaultAction->actionCheckAndAllChildren( mLayerTreeView ) );
-      menu->addAction( mDefaultAction->actionUncheckAndAllChildren( mLayerTreeView ) );
-      menu->addAction( mDefaultAction->actionCheckAndAllParents( mLayerTreeView ) );
-
-      QgsMapCanvas *mapCanvas = qobject_cast<QgsMapCanvas *>( mMap->mapCanvas() );
-      if ( mapCanvas )
-      {
-        menu->addSeparator();
-        menu->addAction( mDefaultAction->actionZoomToLayer( mapCanvas, mLayerTreeView ) );
-        menu->addAction( mDefaultAction->actionZoomToGroup( mapCanvas, mLayerTreeView ) );
-      }
-
-      menu->addSeparator();
-      menu->addAction( mDefaultAction->actionMoveOutOfGroup( mLayerTreeView ) );
-      menu->addAction( mDefaultAction->actionMoveToTop( mLayerTreeView ) );
-      menu->addAction( mDefaultAction->actionMoveToBottom( mLayerTreeView ) );
-      menu->addAction( mDefaultAction->actionGroupSelected( mLayerTreeView ) );
-
-      return menu;
-    }
-
-  private:
-    QgsLayerTreeView *mLayerTreeView = nullptr;
-    QgsLayerTreeViewDefaultActions *mDefaultAction = nullptr;
-    ReosMap *mMap = nullptr;
-};
+class DEMIndicatorProvider;
 
 ReosGisLayersWidget::ReosGisLayersWidget( ReosGisEngine *engine, ReosMap *map, QWidget *parent ):
   QWidget( parent ),
@@ -127,7 +88,26 @@ ReosGisLayersWidget::ReosGisLayersWidget( ReosGisEngine *engine, ReosMap *map, Q
   connect( mTreeView, &QAbstractItemView::doubleClicked, this, &ReosGisLayersWidget::onTreeLayerDoubleClick );
   connect( mTreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &ReosGisLayersWidget::updateLayerInsertionPoint );
 
-  mTreeView->setMenuProvider( new ContextMenuProvider( mTreeView, mMap ) );
+  mTreeView->setMenuProvider( new ReosGisLayerTreeContextMenuProvider( this, mTreeView, mMap ) );
+}
+
+bool ReosGisLayersWidget::isLayerDigitalElevationModel( const QString &layerId )
+{
+  return mGisEngine->isDigitalElevationModel( layerId );
+}
+
+void ReosGisLayersWidget::registerCurrentLayerAsDigitalElevationModel()
+{
+  QgsMapLayer *mapLayer = mTreeView->currentLayer();
+  if ( mapLayer )
+    mGisEngine->registerLayerAsDigitalElevationModel( mapLayer->id() );
+}
+
+void ReosGisLayersWidget::unRegisterCurrentLayerAsDigitalElevationModel()
+{
+  QgsMapLayer *mapLayer = mTreeView->currentLayer();
+  if ( mapLayer )
+    mGisEngine->unRegisterLayerAsDigitalElevationModel( mapLayer->id() );
 }
 
 void ReosGisLayersWidget::onLoadQGISProject()
@@ -150,7 +130,7 @@ void ReosGisLayersWidget::onLoadVectorLayer()
   const QString vectorFileName = QFileDialog::getOpenFileName( this, tr( "Load Vector Layer" ), path, mGisEngine->vectorLayerFilters() );
   const QFileInfo fileInfo( vectorFileName );
   if ( fileInfo.exists() )
-    if ( ! mGisEngine->addVectorLayer( vectorFileName, fileInfo.fileName() ) )
+    if ( mGisEngine->addVectorLayer( vectorFileName, fileInfo.fileName() ).isEmpty() )
       QMessageBox::warning( this, tr( "Loading Vector Layer" ), tr( "Invalid vector layer, file not loaded." ) );
 
   settings.setValue( QStringLiteral( "/Path/GisLayer" ), fileInfo.path() );
@@ -164,7 +144,7 @@ void ReosGisLayersWidget::onLoadRasterLayer()
   const QString rasterFileName = QFileDialog::getOpenFileName( this, tr( "Load Raster Layer" ), path, mGisEngine->rasterLayerFilters() );
   const QFileInfo fileInfo( rasterFileName );
   if ( fileInfo.exists() )
-    if ( ! mGisEngine->addRasterLayer( rasterFileName, fileInfo.fileName() ) )
+    if ( mGisEngine->addRasterLayer( rasterFileName, fileInfo.fileName() ).isEmpty() )
       QMessageBox::warning( this, tr( "Loading Raster Layer" ), tr( "Invalid raster layer, file not loaded." ) );
 
   settings.setValue( QStringLiteral( "/Path/GisLayer" ), fileInfo.path() );
@@ -183,7 +163,7 @@ void ReosGisLayersWidget::onLoadMeshLayer()
 
   const QFileInfo fileInfo( meshFileName );
   if ( fileInfo.exists() )
-    if ( ! mGisEngine->addMeshLayer( meshFileName, fileInfo.fileName() ) )
+    if ( mGisEngine->addMeshLayer( meshFileName, fileInfo.fileName() ).isEmpty() )
       QMessageBox::warning( this, tr( "Loading Raster Layer" ), tr( "Invalid raster layer, file not loaded." ) );
 
 }
