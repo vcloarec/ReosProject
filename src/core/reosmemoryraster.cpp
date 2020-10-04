@@ -15,12 +15,12 @@ email                : vcloarec@gmail.com
 
 #include "reosmemoryraster.h"
 
-double ReosRasterExtent::xOrigin() const
+double ReosRasterExtent::xMapOrigin() const
 {
   return mXOrigin;
 }
 
-double ReosRasterExtent::yOrigin() const
+double ReosRasterExtent::yMapOrigin() const
 {
   return mYOrigin;
 }
@@ -47,125 +47,132 @@ int ReosRasterExtent::yCellCount() const
 
 ReosRasterExtent ReosRasterExtent::operator*( const ReosRasterExtent &other ) const
 {
-  ReosRasterExtent ret;
 
-  QRectF rect( QPointF( xMin(), yMin() ), QPointF( xMax(), yMax() ) );
-  QRectF rectOther( QPointF( other.xMin(), other.yMin() ), QPointF( other.xMax(), other.yMax() ) );
+  ReosMapExtent retMapExtent = ReosMapExtent::operator*( other );
+
+  if ( retMapExtent == ReosMapExtent() )
+    return ReosRasterExtent();
+
+  QRectF rect( QPointF( xMapMin(), yMapMin() ), QPointF( xMapMax(), yMapMax() ) );
+  QRectF rectOther( QPointF( other.xMapMin(), other.yMapMin() ), QPointF( other.xMapMax(), other.yMapMax() ) );
 
   QRectF result = rect.intersected( rectOther );
 
-  if ( result == QRectF() )
+  if ( retMapExtent == QRectF() )
   {
-    return ret;
+    return ReosRasterExtent();
   }
   else
   {
-    const QPointF pointOrigine = cellMinMinCornerToMap( mapToCell( result.topLeft() ) );
-    ret.mXOrigin = pointOrigine.x();
-    ret.mYOrigin = pointOrigine.y();
-    ret.mXCellSize = mXCellSize;
-    ret.mYCellSize = mYCellSize;
-    ret.mXCellCount = result.width() / abs( mXCellSize );
-    ret.mYCellCount = result.height() / abs( mYCellSize );
-    ret.mIsValid = true;
-  }
+    double xMin = int( ( retMapExtent.xMapMin() - xMapMin() ) / abs( mXCellSize ) ) * abs( mXCellSize ) + xMapMin();
+    double xMax = xMapMax() - int( ( xMapMax() - retMapExtent.xMapMax() ) / abs( mXCellSize ) ) * abs( mXCellSize );
+    double yMin = int( ( retMapExtent.yMapMin() - yMapMin() ) / abs( mYCellSize ) ) * abs( mYCellSize ) + yMapMin();
+    double yMax = yMapMax() - int( ( yMapMax() - retMapExtent.yMapMax() ) / abs( mYCellSize ) ) * abs( mYCellSize );
 
-  return ret;
+    double xOrigin = ( mXCellSize > 0 ? xMin : xMax );
+    double yOrigin = ( mYCellSize > 0 ? yMin : yMax );
+
+    int xCount = int( ( xMax - xMin ) / abs( mXCellSize ) + 0.5 );
+    int yCount = int( ( yMax - yMin ) / abs( mYCellSize ) + 0.5 );
+
+
+    return ReosRasterExtent( xOrigin, yOrigin, xCount, yCount, mXCellSize, mYCellSize );
+  }
 }
 
-double ReosRasterExtent::xMax() const
-{
-  if ( mXCellSize > 0 )
-  {
-    return mXOrigin + mXCellSize * mXCellCount;
-  }
-  else
-    return mXOrigin;
-}
+//double ReosRasterExtent::xMapMax() const
+//{
+//  if ( mXCellSize > 0 )
+//  {
+//    return mXOrigin + mXCellSize * mXCellCount;
+//  }
+//  else
+//    return mXOrigin;
+//}
 
-double ReosRasterExtent::yMax() const
-{
-  if ( mYCellSize > 0 )
-  {
-    return mYOrigin + mYCellSize * mYCellCount;
-  }
-  else
-    return mYOrigin;
-}
+//double ReosRasterExtent::yMapMax() const
+//{
+//  if ( mYCellSize > 0 )
+//  {
+//    return mYOrigin + mYCellSize * mYCellCount;
+//  }
+//  else
+//    return mYOrigin;
+//}
 
-double ReosRasterExtent::xMin() const
-{
-  if ( mXCellSize < 0 )
-  {
-    return mXOrigin + mXCellSize * mXCellCount;
-  }
-  else
-    return mXOrigin;
-}
+//double ReosRasterExtent::xMapMin() const
+//{
+//  if ( mXCellSize < 0 )
+//  {
+//    return mXOrigin + mXCellSize * mXCellCount;
+//  }
+//  else
+//    return mXOrigin;
+//}
 
-double ReosRasterExtent::yMin() const
-{
-  if ( mYCellSize < 0 )
-  {
-    return mYOrigin + mYCellSize * mYCellCount;
-  }
-  else
-    return mYOrigin;
-}
+//double ReosRasterExtent::yMapMin() const
+//{
+//  if ( mYCellSize < 0 )
+//  {
+//    return mYOrigin + mYCellSize * mYCellCount;
+//  }
+//  else
+//    return mYOrigin;
+//}
 
 QPoint ReosRasterExtent::mapToCell( const QPointF &point ) const
 {
-  int x = int( ( point.x() - xOrigin() ) / xCellSize() );
-  int y = int( ( point.y() - yOrigin() ) / yCellSize() );
+  int x = int( ( point.x() - xMapOrigin() ) / xCellSize() );
+  int y = int( ( point.y() - yMapOrigin() ) / yCellSize() );
 
   return QPoint( x, y );
 }
 
 ReosRasterCellPos ReosRasterExtent::mapToCellPos( const QPointF &point ) const
 {
-  int col = int( ( point.x() - xOrigin() ) / xCellSize() );
-  int row = int( ( point.y() - yOrigin() ) / yCellSize() );
+  int col = int( ( point.x() - xMapOrigin() ) / xCellSize() );
+  int row = int( ( point.y() - yMapOrigin() ) / yCellSize() );
 
   return ReosRasterCellPos( row, col );
 }
 
 QPointF ReosRasterExtent::interCellToMap( const QPoint &cellPos ) const
 {
-  return QPointF( cellPos.x() * mXCellSize + mXOrigin, mYOrigin + cellPos.y() * mYCellSize );
+  return QPointF( cellPos.x() * mXCellSize + xMapOrigin(), yMapOrigin() + cellPos.y() * mYCellSize );
 }
 
 double ReosRasterExtent::cellXBeforeToMap( int i ) const
 {
-  return mXOrigin + mXCellSize * ( i /*+ ( mXCellSize > 0 ? 0 : 1 ) */ );
+  return xMapOrigin() + mXCellSize * ( i /*+ ( mXCellSize > 0 ? 0 : 1 ) */ );
 }
 
 double ReosRasterExtent::cellXAfterToMap( int i )const
 {
-  return mXOrigin + mXCellSize * ( i + 1/*+ ( mXCellSize > 0 ? 1 : 0 ) */ );
+  return xMapOrigin() + mXCellSize * ( i + 1/*+ ( mXCellSize > 0 ? 1 : 0 ) */ );
 }
 
 double ReosRasterExtent::cellYBeforeToMap( int i )const
 {
-  return mYOrigin + mYCellSize * ( i /*+ ( mYCellSize > 0 ? 0 : 1 )*/ );
+  return yMapOrigin() + mYCellSize * ( i /*+ ( mYCellSize > 0 ? 0 : 1 )*/ );
 }
 
 double ReosRasterExtent::cellYAfterToMap( int i )const
 {
-  return mYOrigin + mYCellSize * ( i + 1/*+ ( mYCellSize > 0 ? 1 : 0 ) */ );
+  return yMapOrigin() + mYCellSize * ( i + 1/*+ ( mYCellSize > 0 ? 1 : 0 ) */ );
 }
 
 QPointF ReosRasterExtent::cellCenterToMap( const QPoint &cellPos ) const
 {
-  double x = mXOrigin + mXCellSize * ( cellPos.x() + 0.5 );
-  double y = mYOrigin + mYCellSize * ( cellPos.y() + 0.5 );
+  double x = xMapOrigin() + mXCellSize * ( cellPos.x() + 0.5 );
+  double y = yMapOrigin() + mYCellSize * ( cellPos.y() + 0.5 );
 
   return QPointF( x, y );
 }
 
 QPointF ReosRasterExtent::cellCenterToMap( const ReosRasterCellPos &cellPos ) const
 {
-  double x = mXOrigin + mXCellSize * ( cellPos.column() + 0.5 );
-  double y = mYOrigin + mYCellSize * ( cellPos.row() + 0.5 );
+  double x = xMapOrigin() + mXCellSize * ( cellPos.column() + 0.5 );
+  double y = yMapOrigin() + mYCellSize * ( cellPos.row() + 0.5 );
 
   return QPointF( x, y );
 }
@@ -202,7 +209,7 @@ QPointF ReosRasterExtent::cellMaxMinCornerToMap( const QPoint &cellPos ) const
   return QPointF( x, y );
 }
 
-QRect ReosRasterExtent::mapRectToCellRect( const QRectF &mapRect ) const
+QRect ReosRasterExtent::mapExtentToCellRect( const ReosMapExtent &mapExtent ) const
 {
   double x0;
   double y0;
@@ -211,24 +218,24 @@ QRect ReosRasterExtent::mapRectToCellRect( const QRectF &mapRect ) const
 
   if ( mXCellSize > 0 )
   {
-    x0 = mapRect.left();
-    x1 = mapRect.right();
+    x0 = mapExtent.xMapMin();
+    x1 = mapExtent.xMapMax();
   }
   else
   {
-    x0 = mapRect.right();
-    x1 = mapRect.left();
+    x0 = mapExtent.xMapMax();
+    x1 = mapExtent.xMapMin();
   }
 
   if ( mYCellSize > 0 )
   {
-    y0 = mapRect.bottom();
-    y1 = mapRect.top();
+    y0 = mapExtent.yMapMax();
+    y1 = mapExtent.yMapMin();
   }
   else
   {
-    y0 = mapRect.top();
-    y1 = mapRect.bottom();
+    y0 = mapExtent.yMapMin();
+    y1 = mapExtent.yMapMax();
   }
 
   QPoint pt0;
@@ -242,7 +249,7 @@ QRect ReosRasterExtent::mapRectToCellRect( const QRectF &mapRect ) const
   return ret.normalized();;
 }
 
-QRectF ReosRasterExtent::cellRectToMapRect( const QRect &cellRect, const Position &position ) const
+ReosMapExtent ReosRasterExtent::cellRectToMapExtent( const QRect &cellRect, const Position &position ) const
 {
   QRect cr = cellRect.normalized();
 
@@ -266,31 +273,36 @@ QRectF ReosRasterExtent::cellRectToMapRect( const QRect &cellRect, const Positio
   }
 
   QRectF ret( pt0, pt1 );
-
-  return ret.normalized();
+  ret = ret.normalized();
+  return ReosMapExtent( ret );
 }
 
 double ReosRasterExtent::cellSurface() const {return fabs( mXCellSize * mYCellSize );}
 
-ReosRasterExtent::ReosRasterExtent( const QRectF &extent, double XCellSize, double YCellSize )
+ReosRasterExtent::ReosRasterExtent( double xOrigine, double yOrigine, int XCellCount, int YCellCount, double XCellSize, double YCellSize ):
+  ReosMapExtent( XCellSize > 0 ? xOrigine : xOrigine + XCellSize * XCellCount,
+                 YCellSize > 0 ? yOrigine : yOrigine + YCellSize * YCellCount,
+                 ( XCellSize > 0 ? xOrigine : xOrigine + XCellSize * XCellCount ) + fabs( XCellSize * XCellCount ),
+                 ( YCellSize > 0 ? yOrigine : yOrigine + YCellSize * YCellCount ) + fabs( YCellSize * YCellCount ) ),
+  mXOrigin( xOrigine ),
+  mYOrigin( yOrigine ),
+  mXCellSize( XCellSize ),
+  mYCellSize( YCellSize ),
+  mXCellCount( XCellCount ),
+  mYCellCount( YCellCount )
 {
-  QRectF ext = extent.normalized();
   mIsValid = true;
-  mXCellSize = XCellSize;
-  mYCellSize = YCellSize;
+}
 
-  if ( mXCellSize > 0 )
-    mXOrigin = ext.left();
-  else
-    mXOrigin = ext.right();
+ReosRasterExtent::ReosRasterExtent( const ReosMapExtent &extent, int XCellCount, int YcellCount, bool xAscendant, bool yAscendant ):
+  ReosMapExtent( extent ), mXCellCount( XCellCount ), mYCellCount( YcellCount )
+{
+  mIsValid = true;
+  mXCellSize = extent.width() / mXCellCount * ( xAscendant ? 1 : -1 );
+  mYCellSize = extent.height() / mYCellCount * ( yAscendant ? 1 : -1 );
 
-  if ( mYCellSize < 0 )
-    mYOrigin = ext.bottom();
-  else
-    mYOrigin = ext.top();
-
-  mXCellCount = int( fabs( ext.width() / XCellSize ) + 0.5 );
-  mYCellCount = int( fabs( ext.height() / YCellSize ) + 0.5 );
+  mXOrigin = xAscendant ? extent.xMapMin() : extent.xMapMax();
+  mYOrigin = yAscendant ? extent.yMapMin() : extent.yMapMax();
 }
 
 bool ReosRasterExtent::isValid() const

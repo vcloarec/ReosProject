@@ -10,8 +10,10 @@ SET(REOS_GUI_SOURCES
     reosversionmessagebox.cpp
     GIS/reosmap.cpp
     GIS/reosmapitem.cpp
-    GIS/reosmappolygon_p.cpp
     GIS/reosgislayerswidget.cpp
+    GIS/private/reosmappolygon_p.cpp
+    GIS/private/reoslayertreecontextmenuprovider_p.cpp
+    GIS/private/reoslayertreeviewdemindicator.cpp
 )
 
 SET(REOS_GUI_HEADERS
@@ -27,7 +29,9 @@ SET(REOS_GUI_HEADERS
 )
 
 SET(REOS_GUI_HEADERS_PRIVATE
-    GIS/reosmappolygon_p.h
+    GIS/private/reosmappolygon_p.h
+    GIS/private/reoslayertreecontextmenuprovider_p.h
+    GIS/private/reoslayertreeviewdemindicator.h
     )
 
 ADD_LIBRARY(reosGui SHARED
@@ -60,6 +64,8 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_BINARY_DIR}/src/ui
     ${CMAKE_SOURCE_DIR}/src/core
     ${CMAKE_SOURCE_DIR}/src/core/GIS
+    ${CMAKE_SOURCE_DIR}/src/gui/GIS
+    ${CMAKE_SOURCE_DIR}/src/gui/GIS/private
     ${QGIS_INCLUDE_DIR}
 )
 

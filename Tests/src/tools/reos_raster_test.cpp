@@ -45,11 +45,11 @@ TEST_F( ReosRasterTesting, ReosRasterExtent )
 {
   ReosRasterExtent extent;
   ASSERT_FALSE( extent.isValid() );
-  extent = ReosRasterExtent( QRectF( 20, 10, 110, 100 ), 0.5, -0.5 );
+  extent = ReosRasterExtent( 20, 110, 220, 200, 0.5, -0.5 );
   ASSERT_TRUE( extent.isValid() );
 
-  EXPECT_EQ( extent.xOrigin(), 20.0 );
-  EXPECT_EQ( extent.yOrigin(), 110.0 ); //as y size < 0, the origin is Ymax
+  EXPECT_EQ( extent.xMapOrigin(), 20.0 );
+  EXPECT_EQ( extent.yMapOrigin(), 110.0 ); //as y size < 0, the origin is Ymax
   EXPECT_EQ( extent.cellSurface(), 0.25 );
   EXPECT_EQ( extent.xCellCount(), 220 );
   EXPECT_EQ( extent.yCellCount(), 200 );
@@ -59,7 +59,7 @@ TEST_F( ReosRasterTesting, ReosRasterExtent )
   EXPECT_EQ( extent.interCellToMap( QPoint( 1, 1 ) ), QPointF( 20.5, 109.5 ) );
   EXPECT_EQ( extent.cellCenterToMap( QPoint( 10, 10 ) ), QPointF( 25.25, 104.75 ) );
 
-  extent = ReosRasterExtent( QRectF( 0, 0, 10, 10 ), 1, -1 );
+  extent = ReosRasterExtent( 0, 10, 10, 10, 1, -1 );
   EXPECT_EQ( extent.mapToCell( QPointF( 1.6, 2.6 ) ), QPoint( 1, 7 ) );
   EXPECT_EQ( extent.cellXBeforeToMap( 4 ), 4.0 );
   EXPECT_EQ( extent.cellXAfterToMap( 7 ), 8.0 );
@@ -68,14 +68,14 @@ TEST_F( ReosRasterTesting, ReosRasterExtent )
   EXPECT_EQ( extent.cellMinMinCornerToMap( QPoint( 1, 1 ) ), QPointF( 1.0, 9.0 ) );
   EXPECT_EQ( extent.cellMaxMaxCornerToMap( QPoint( 1, 1 ) ), QPointF( 2.0, 8.0 ) );
 
-  QRect rect = extent.mapRectToCellRect( QRectF( 3.6, 5.2, 4, 3 ) );
+  QRect rect = extent.mapExtentToCellRect( ReosMapExtent( 3.6, 5.2, 7.6, 8.2 ) );
   EXPECT_EQ( rect, QRect( QPoint( 3, 1 ), QPoint( 7, 4 ) ) );
 
-  EXPECT_EQ( extent.cellRectToMapRect( rect ), QRectF( 3.5, 5.5, 4, 3 ) );
-  EXPECT_EQ( extent.cellRectToMapRect( rect, ReosRasterExtent::Interior ), QRectF( 4.0, 6.0, 3.0, 2.0 ) );
-  EXPECT_EQ( extent.cellRectToMapRect( rect, ReosRasterExtent::Exterior ), QRectF( 3.0, 5.0, 5.0, 4.0 ) );
+  EXPECT_EQ( extent.cellRectToMapExtent( rect ), ReosMapExtent( 3.5, 5.5, 7.5, 8.5 ) );
+  EXPECT_EQ( extent.cellRectToMapExtent( rect, ReosRasterExtent::Interior ), ReosMapExtent( 4.0, 6.0, 7.0, 8.0 ) );
+  EXPECT_EQ( extent.cellRectToMapExtent( rect, ReosRasterExtent::Exterior ), ReosMapExtent( 3.0, 5.0, 8.0, 9.0 ) );
 
-  extent = ReosRasterExtent( QRectF( 0, 0, 10, 10 ), 1, 1 );
+  extent = ReosRasterExtent( 0, 0, 10, 10, 1, 1 );
   EXPECT_EQ( extent.mapToCell( QPointF( 1.6, 2.6 ) ), QPoint( 1, 2 ) );
   EXPECT_EQ( extent.cellXBeforeToMap( 4 ), 4.0 );
   EXPECT_EQ( extent.cellXAfterToMap( 7 ), 8.0 );
@@ -84,21 +84,30 @@ TEST_F( ReosRasterTesting, ReosRasterExtent )
   EXPECT_EQ( extent.cellMinMinCornerToMap( QPoint( 1, 1 ) ), QPointF( 1.0, 1.0 ) );
   EXPECT_EQ( extent.cellMaxMaxCornerToMap( QPoint( 1, 1 ) ), QPointF( 2.0, 2.0 ) );
 
-  rect = extent.mapRectToCellRect( QRectF( 3.6, 5.2, 4, 3 ) );
+  rect = extent.mapExtentToCellRect( ReosMapExtent( 3.6, 5.2, 7.6, 8.2 ) );
   EXPECT_EQ( rect, QRect( QPoint( 3, 5 ), QPoint( 7, 8 ) ) );
 
-  EXPECT_EQ( extent.cellRectToMapRect( rect ), QRectF( 3.5, 5.5, 4, 3 ) );
-  EXPECT_EQ( extent.cellRectToMapRect( rect, ReosRasterExtent::Interior ), QRectF( 4.0, 6.0, 3.0, 2.0 ) );
-  EXPECT_EQ( extent.cellRectToMapRect( rect, ReosRasterExtent::Exterior ), QRectF( 3.0, 5.0, 5.0, 4.0 ) );
+  EXPECT_EQ( extent.cellRectToMapExtent( rect ), ReosMapExtent( 3.5, 5.5, 7.5, 8.5 ) );
+  EXPECT_EQ( extent.cellRectToMapExtent( rect, ReosRasterExtent::Interior ), ReosMapExtent( 4.0, 6.0, 7.0, 8.0 ) );
+  EXPECT_EQ( extent.cellRectToMapExtent( rect, ReosRasterExtent::Exterior ), ReosMapExtent( 3.0, 5.0, 8.0, 9.0 ) );
 
-  ReosRasterExtent extent_2( QRectF( 5, 5, 15, 4 ), 0.5, -0.5 );
+  ReosRasterExtent extent_2( 5, 5, 20, 9, 0.5, -0.5 );
 
   ReosRasterExtent extent_3 = extent * extent_2;
   EXPECT_EQ( extent_3.cellSurface(), 1 );
-  EXPECT_EQ( extent_3.xOrigin(), 5 );
-  EXPECT_EQ( extent_3.yOrigin(), 5 );
+  EXPECT_EQ( extent_3.xMapOrigin(), 5 );
+  EXPECT_EQ( extent_3.yMapOrigin(), 0 );
   EXPECT_EQ( extent_3.xCellCount(), 5 );
-  EXPECT_EQ( extent_3.yCellCount(), 4 );
+  EXPECT_EQ( extent_3.yCellCount(), 5 );
+
+  extent = ReosRasterExtent( 0, 10, 10, 10, 1, -1 );
+  extent_2 = ReosRasterExtent( 5, 5, 20, 9, 0.5, -0.5 );
+  extent_3 = extent * extent_2;
+  EXPECT_EQ( extent_3.cellSurface(), 1 );
+  EXPECT_EQ( extent_3.xMapOrigin(), 5 );
+  EXPECT_EQ( extent_3.yMapOrigin(), 5 );
+  EXPECT_EQ( extent_3.xCellCount(), 5 );
+  EXPECT_EQ( extent_3.yCellCount(), 5 );
 }
 
 TEST_F( ReosRasterTesting, ReosRasterMemory )

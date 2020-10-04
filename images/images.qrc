@@ -12,5 +12,8 @@
         <file>mActionAddMeshLayer.svg</file>
         <file>CRS.svg</file>
         <file>mActionLoadQGISProject.png</file>
+        <file>dem.svg</file>
+        <file>noDem.svg</file>
     </qresource>
+    <qresource prefix="/"/>
 </RCC>

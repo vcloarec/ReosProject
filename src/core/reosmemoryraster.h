@@ -26,12 +26,14 @@ email                : vcloarec@gmail.com
 #include <gdal/gdal_priv.h>
 #include <gdal/ogr_spatialref.h>
 
+#include "reosmapextent.h"
+
 class ReosRasterCellPos;
 
 /**
- * Class that represent the extent of a raster
+ * Class that represent the extent of a raster in a map, handle also pixel map position
  */
-class ReosRasterExtent
+class ReosRasterExtent : public ReosMapExtent
 {
   public:
 
@@ -49,21 +51,23 @@ class ReosRasterExtent
      * Constructor
      *
      * \param extent in real world coordinate coordinates
+     * \param XCellCount
      * \param XCellSize size of the cell in X direction, can be negative
      * \param YCellSize size of the cell in X direction, can be negative
      *
      * If cell size is negative, the row or column index will increase when real world coordinate decreases.
-     * So ,if YCellSize < 0 ans XCellSize, then the origin of the grid raster (0,0) will be at (Xmin,Ymax) of extent.
+     * So ,if YCellSize < 0 and XCellSize>0, then the origin of the grid raster (0,0) will be at (Xmin,Ymax) of extent.
      *
      */
-    ReosRasterExtent( const QRectF &extent, double XCellSize, double YCellSize );
+    ReosRasterExtent( double xOrigine, double yOrigine, int XCellCount, int YCellCount, double XCellSize, double YCellSize );
+    ReosRasterExtent( const ReosMapExtent &extent, int XCellCount, int YcellCount, bool xAscendant = true, bool yAscendant = false );
 
     //! Returns whether the extent is valid
     bool isValid() const;
     //! Returns x map coordinate of the orgin if the raster, x min if XCellSize > 0
-    double xOrigin() const;
+    double xMapOrigin() const;
     //! Returns y map coordinate of the orgin if the raster, x min if XCellSize > 0
-    double yOrigin() const;
+    double yMapOrigin() const;
     //! Returns cell size in X direction
     double xCellSize() const;
     //! Returns cell size in Y direction
@@ -98,9 +102,9 @@ class ReosRasterExtent
     //! Returns the position in real world coordinate of the center of the cell at position \a cellPos
     QPointF cellCenterToMap( const ReosRasterCellPos &cellPos ) const;
     //! Returns a rectangle from real world cordintates to raster cell postions
-    QRect mapRectToCellRect( const QRectF &mapRect ) const;
+    QRect mapExtentToCellRect( const ReosMapExtent &mapExtent ) const;
     //! Returns a rectangle from raster cell position to real world coordinates
-    QRectF cellRectToMapRect( const QRect &cellRect, const Position &position = Center ) const;
+    ReosMapExtent cellRectToMapExtent( const QRect &cellRect, const Position &position = Center ) const;
     //! Returns the surface of a cell
     double cellSurface() const;
     //! Returns position of the cell from a \a point in real world coordinates
@@ -108,6 +112,8 @@ class ReosRasterExtent
 
     //! Returns the intersection of the extents, the position and the size of the pixels are the ones of the first member
     ReosRasterExtent operator*( const ReosRasterExtent &other ) const;
+
+
   private:
     bool mIsValid = false;
     double mXOrigin = std::numeric_limits<double>::quiet_NaN();
@@ -117,10 +123,6 @@ class ReosRasterExtent
     int mXCellCount = 0;
     int mYCellCount = 0;
 
-    double xMax() const;
-    double yMax() const;
-    double xMin() const;
-    double yMin() const;
 
 };
 
@@ -195,9 +197,9 @@ class ReosRasterMemory
     //! Clears and frees memory
     bool freeMemory();
     //! Returns the value at position \a i,j
-    T value( int i, int j ) const;
+    T value( int row, int col ) const;
     //! Sets the value at position \a i,j
-    void setValue( int i, int j, T v );
+    void setValue( int row, int col, T v );
     //! Sets the value at position \a cellPos
     void setValue( const ReosRasterCellPos &cellPos, T v );
     //! Returns a void pointer to the data
@@ -289,19 +291,19 @@ bool ReosRasterMemory<T>::freeMemory()
 }
 
 template<typename T>
-T ReosRasterMemory<T>::value( int i, int j ) const
+T ReosRasterMemory<T>::value( int row, int col ) const
 {
-  if ( ( i < 0 ) || ( i >= mRowCount ) || ( j < 0 ) || ( j >= mColumnCount ) )
+  if ( ( row < 0 ) || ( row >= mRowCount ) || ( col < 0 ) || ( col >= mColumnCount ) )
     return noData();
 
-  return mValues[i * mColumnCount + j];
+  return mValues[row * mColumnCount + col];
 }
 
 template<typename T>
-void ReosRasterMemory<T>::setValue( int i, int j, T v )
+void ReosRasterMemory<T>::setValue( int row, int col, T v )
 {
-  if ( ( i < mRowCount ) && ( j < mColumnCount ) && ( i >= 0 ) && ( j >= 0 ) )
-    mValues[i * mColumnCount  + j] = v;
+  if ( ( row < mRowCount ) && ( col < mColumnCount ) && ( row >= 0 ) && ( col >= 0 ) )
+    mValues[row * mColumnCount  + col] = v;
 }
 
 template<typename T>
@@ -377,7 +379,7 @@ bool ReosRasterMemory<T>::createTiffFile( const char *fileName, GDALDataType typ
 template<typename T>
 bool ReosRasterMemory<T>::createTiffFile( const char *fileName, GDALDataType type, const ReosRasterExtent &emprise, OGRSpatialReference *crs )
 {
-  double geoTrans[6] = {emprise.xOrigin(), emprise.xCellSize(), 0, emprise.yOrigin(), 0, emprise.yCellSize()};
+  double geoTrans[6] = {emprise.xMapOrigin(), emprise.xCellSize(), 0, emprise.yMapOrigin(), 0, emprise.yCellSize()};
   return createTiffFile( fileName, type, geoTrans, crs );
 }
 

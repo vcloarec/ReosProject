@@ -20,6 +20,7 @@ email                : vcloarec at gmail dot com
 #include <QToolBar>
 
 class QgsLayerTreeView;
+class QgsLayerTreeViewIndicator;
 class ReosGisEngine;
 class ReosMap;
 
@@ -31,6 +32,12 @@ class ReosGisLayersWidget: public QWidget
                          ReosMap *map,
                          QWidget *parent = nullptr );
 
+    bool isLayerDigitalElevationModel( const QString &layerId );
+
+  public slots:
+    void registerCurrentLayerAsDigitalElevationModel();
+    void unRegisterCurrentLayerAsDigitalElevationModel();
+
   private slots:
     void onLoadQGISProject();
     void onLoadVectorLayer();
@@ -39,13 +46,15 @@ class ReosGisLayersWidget: public QWidget
     void onTreeLayerDoubleClick();
     void onSetCrs();
 
-    void  updateLayerInsertionPoint() const;
+    void updateLayerInsertionPoint() const;
+    void updateDigitalElevationModel() {}
 
   private:
     ReosGisEngine *mGisEngine;
     ReosMap *mMap;
 
-    QgsLayerTreeView *mTreeView;
+    QgsLayerTreeView *mTreeView = nullptr;
+    QgsLayerTreeViewIndicator *mDemIndicator = nullptr;
 
     QToolBar *mToolBar;
 
@@ -54,6 +63,8 @@ class ReosGisLayersWidget: public QWidget
     QAction *mActionLoadRasterLayer;
     QAction *mActionLoadMeshLayer;
     QAction *mActionSetProjectCrs;
+
+
 };
 
 #endif // REOSGISLAYERSWIDGET_H
