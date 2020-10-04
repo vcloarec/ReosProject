@@ -15,3 +15,51 @@ email                : vcloarec at gmail dot com
 
 #include "reosmapextent.h"
 
+
+ReosMapExtent::ReosMapExtent( QRectF extent )
+{
+  mXMin = extent.left();
+  mXMax = extent.right();
+  mYMin = extent.top();
+  mYMax = extent.bottom();
+}
+
+ReosMapExtent::ReosMapExtent( double xMin, double yMin, double xMax, double yMax ):
+  mXMin( xMin ), mXMax( xMax ), mYMin( yMin ), mYMax( yMax )
+{}
+
+double ReosMapExtent::width() const
+{return mXMax - mXMin;}
+
+double ReosMapExtent::height() const
+{return mYMax - mYMin;}
+
+double ReosMapExtent::xMapMin() const {return mXMin;}
+
+double ReosMapExtent::xMapMax() const {return mXMax;}
+
+double ReosMapExtent::yMapMin() const {return mYMin;}
+
+double ReosMapExtent::yMapMax() const {return mYMax;}
+
+bool ReosMapExtent::operator==( const ReosMapExtent &other ) const
+{
+  return mXMin == other.mXMin && mXMax == other.mXMax && mYMin == other.mYMin && mYMax == other.mYMax;
+
+}
+
+ReosMapExtent ReosMapExtent::operator*( const ReosMapExtent &other ) const
+{
+  ReosMapExtent ret;
+
+  ret.mXMin = std::max( mXMin, other.mXMin );
+  ret.mXMax = std::min( mXMax, other.mXMax );
+  ret.mYMin = std::max( mYMin, other.mYMin );
+  ret.mYMax = std::min( mYMax, other.mYMax );
+
+  if ( ret.mXMin > ret.mXMax || ret.mYMin > ret.mYMax )
+    return ReosMapExtent();
+
+  return ret;
+
+}

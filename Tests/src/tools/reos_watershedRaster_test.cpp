@@ -93,7 +93,7 @@ TEST_F( ReosRasterWatershedTest, Delineate )
 
   EXPECT_TRUE( *testWatershed.get() == *watershed.get() );
 
-  ReosRasterExtent extent( QRectF( 10, 10, 22, 22 ), 2, 2 );
+  ReosRasterExtent extent( ReosMapExtent( 10, 10, 32, 32 ), 11, 11, true, true );
   ReosRasterWatershedToVector rasterToVector( watershed, extent, watershedDelineate.fisrtCell() );
   rasterToVector.start();
   QPolygonF watershedPolygon = rasterToVector.watershed();

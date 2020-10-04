@@ -24,22 +24,27 @@ email                : vcloarec at gmail dot com
 class ReosMapExtent
 {
   public:
+    ReosMapExtent() = default;
     ReosMapExtent( QRectF extent );
-    ReosMapExtent( double xMin, double yMin, double xMax, double Ymax );
+    ReosMapExtent( double xMapMin, double yMapMin, double xMapMax, double yMapMax );
 
-    double width();
-    double height();
+    double width() const;
+    double height()const;
 
-    double xMin();
-    double xMax();
-    double yMin();
-    double yMax();
+    double xMapMin() const;
+    double xMapMax() const;
+    double yMapMin() const;
+    double yMapMax() const;
+
+    bool operator==( const ReosMapExtent &other ) const;
+
+    ReosMapExtent operator*( const ReosMapExtent &other ) const;
 
   protected:
-    double mXMin;
-    double mXMax;
-    double mYMin;
-    double mYMax;
+    double mXMin = std::numeric_limits<double>::quiet_NaN();
+    double mXMax = std::numeric_limits<double>::quiet_NaN();
+    double mYMin = std::numeric_limits<double>::quiet_NaN();
+    double mYMax = std::numeric_limits<double>::quiet_NaN();
 };
 
 #endif // REOSMAPEXTENT_H

@@ -26,12 +26,14 @@ email                : vcloarec@gmail.com
 #include <gdal/gdal_priv.h>
 #include <gdal/ogr_spatialref.h>
 
+#include "reosmapextent.h"
+
 class ReosRasterCellPos;
 
 /**
  * Class that represent the extent of a raster in a map, handle also pixel map position
  */
-class ReosRasterExtent
+class ReosRasterExtent : public ReosMapExtent
 {
   public:
 
@@ -49,6 +51,7 @@ class ReosRasterExtent
      * Constructor
      *
      * \param extent in real world coordinate coordinates
+     * \param XCellCount
      * \param XCellSize size of the cell in X direction, can be negative
      * \param YCellSize size of the cell in X direction, can be negative
      *
@@ -56,7 +59,8 @@ class ReosRasterExtent
      * So ,if YCellSize < 0 and XCellSize>0, then the origin of the grid raster (0,0) will be at (Xmin,Ymax) of extent.
      *
      */
-    ReosRasterExtent( const QRectF &extent, double XCellSize, double YCellSize );
+    ReosRasterExtent( double xOrigine, double yOrigine, int XCellCount, int YCellCount, double XCellSize, double YCellSize );
+    ReosRasterExtent( const ReosMapExtent &extent, int XCellCount, int YcellCount, bool xAscendant = true, bool yAscendant = false );
 
     //! Returns whether the extent is valid
     bool isValid() const;
@@ -98,9 +102,9 @@ class ReosRasterExtent
     //! Returns the position in real world coordinate of the center of the cell at position \a cellPos
     QPointF cellCenterToMap( const ReosRasterCellPos &cellPos ) const;
     //! Returns a rectangle from real world cordintates to raster cell postions
-    QRect mapRectToCellRect( const QRectF &mapRect ) const;
+    QRect mapExtentToCellRect( const ReosMapExtent &mapExtent ) const;
     //! Returns a rectangle from raster cell position to real world coordinates
-    QRectF cellRectToMapRect( const QRect &cellRect, const Position &position = Center ) const;
+    ReosMapExtent cellRectToMapExtent( const QRect &cellRect, const Position &position = Center ) const;
     //! Returns the surface of a cell
     double cellSurface() const;
     //! Returns position of the cell from a \a point in real world coordinates
@@ -109,10 +113,6 @@ class ReosRasterExtent
     //! Returns the intersection of the extents, the position and the size of the pixels are the ones of the first member
     ReosRasterExtent operator*( const ReosRasterExtent &other ) const;
 
-    double xMapMax() const;
-    double yMapMax() const;
-    double xMapMin() const;
-    double yMapMin() const;
 
   private:
     bool mIsValid = false;
@@ -122,6 +122,7 @@ class ReosRasterExtent
     double mYCellSize = std::numeric_limits<double>::quiet_NaN();
     int mXCellCount = 0;
     int mYCellCount = 0;
+
 
 };
 

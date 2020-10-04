@@ -37,7 +37,7 @@ class ReosDigitalElevationModel
      *
      */
     virtual ReosRasterMemory<float> *extractMemoryRasterSimplePrecision(
-      const QRectF &extent,
+      const ReosMapExtent &extent,
       ReosRasterExtent &rasterExtent,
       const QString &destinationCrs = QString() ) = 0;
 

@@ -109,6 +109,11 @@ ReosRasterMemory<float> *ReosDigitalElevationModelRaster::extractMemoryRasterSim
 
 }
 
+QString ReosDigitalElevationModelRaster::layerId() const
+{
+    return 
+}
+
 ReosRasterExtent ReosDigitalElevationModelRaster::rasterExtent( const QgsRectangle &originalExtent ) const
 {
   assert( mDataProvider );

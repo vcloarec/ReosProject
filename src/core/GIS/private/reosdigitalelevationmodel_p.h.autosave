@@ -31,7 +31,7 @@ class ReosDigitalElevationModelRaster: public ReosDigitalElevationModel
     ReosRasterMemory<float> *extractMemoryRasterSimplePrecision( const ReosMapExtent &destinationExtent,
         ReosRasterExtent &outputRasterExtent,
         const QString &destinationCrs = QString() ) override;
-
+    
   private:
     std::unique_ptr<QgsRasterDataProvider> mDataProvider;
     QgsCoordinateReferenceSystem mCrs;

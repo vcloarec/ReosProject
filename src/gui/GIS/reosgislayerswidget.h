@@ -20,6 +20,7 @@ email                : vcloarec at gmail dot com
 #include <QToolBar>
 
 class QgsLayerTreeView;
+class QgsLayerTreeViewIndicator;
 class ReosGisEngine;
 class ReosMap;
 
@@ -52,7 +53,8 @@ class ReosGisLayersWidget: public QWidget
     ReosGisEngine *mGisEngine;
     ReosMap *mMap;
 
-    QgsLayerTreeView *mTreeView;
+    QgsLayerTreeView *mTreeView = nullptr;
+    QgsLayerTreeViewIndicator *mDemIndicator = nullptr;
 
     QToolBar *mToolBar;
 
@@ -61,6 +63,8 @@ class ReosGisLayersWidget: public QWidget
     QAction *mActionLoadRasterLayer;
     QAction *mActionLoadMeshLayer;
     QAction *mActionSetProjectCrs;
+
+
 };
 
 #endif // REOSGISLAYERSWIDGET_H

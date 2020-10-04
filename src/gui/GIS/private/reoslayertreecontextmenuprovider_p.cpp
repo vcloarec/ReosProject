@@ -18,6 +18,7 @@ email                : vcloarec at gmail dot com
 #include <qgslayertreelayer.h>
 #include <qgslayertreeviewdefaultactions.h>
 #include <qgsmapcanvas.h>
+#include <qgsrasterlayer.h>
 
 #include "reosgislayerswidget.h"
 #include "reoslayertreecontextmenuprovider_p.h"
@@ -55,17 +56,18 @@ QMenu *ReosGisLayerTreeContextMenuProvider::createContextMenu()
   menu->addAction( mDefaultAction->actionMoveToBottom( mLayerTreeView ) );
   menu->addAction( mDefaultAction->actionGroupSelected( mLayerTreeView ) );
 
-  QgsMapLayer *layer = mLayerTreeView->currentLayer();
-  if ( layer && layer->type() == QgsMapLayerType::RasterLayer )
+  QgsRasterLayer *rasterLayer = qobject_cast<QgsRasterLayer *>( mLayerTreeView->currentLayer() );
+  if ( rasterLayer && rasterLayer->dataProvider() && rasterLayer->dataProvider()->bandCount() == 1 )
   {
-    if ( mLayerWidget->isLayerDigitalElevationModel( layer->id() ) )
+    menu->addSeparator();
+    if ( mLayerWidget->isLayerDigitalElevationModel( rasterLayer->id() ) )
     {
-      QAction *unRegisterAction = menu->addAction( QObject::tr( "Unregister as Digital Elevation Model" ) );
+      QAction *unRegisterAction = menu->addAction( QPixmap( ":/images/noDem.svg" ), QObject::tr( "Unregister as Digital Elevation Model" ) );
       QObject::connect( unRegisterAction, &QAction::triggered, mLayerWidget, &ReosGisLayersWidget::unRegisterCurrentLayerAsDigitalElevationModel );
     }
     else
     {
-      QAction *registerAction = menu->addAction( QObject::tr( "Register as Digital Elevation Model" ) );
+      QAction *registerAction = menu->addAction( QPixmap( ":/images/dem.svg" ), QObject::tr( "Register as Digital Elevation Model" ) );
       QObject::connect( registerAction, &QAction::triggered, mLayerWidget, &ReosGisLayersWidget::registerCurrentLayerAsDigitalElevationModel );
     }
   }

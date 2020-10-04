@@ -24,6 +24,7 @@ email                : vcloarec at gmail dot com
 #include <qgslayertreeregistrybridge.h>
 #include <qgslayertreeutils.h>
 #include <qgslayertreeviewdefaultactions.h>
+#include <qgslayertreeviewindicator.h>
 #include <qgsmapcanvas.h>
 #include <qgsmeshlayerproperties.h>
 #include <qgsmessagebar.h>
@@ -39,8 +40,6 @@ email                : vcloarec at gmail dot com
 
 #include "reoslayertreecontextmenuprovider_p.h"
 
-
-class DEMIndicatorProvider;
 
 ReosGisLayersWidget::ReosGisLayersWidget( ReosGisEngine *engine, ReosMap *map, QWidget *parent ):
   QWidget( parent ),
@@ -72,6 +71,10 @@ ReosGisLayersWidget::ReosGisLayersWidget( ReosGisEngine *engine, ReosMap *map, Q
   mToolBar->addAction( defaulAction->actionAddGroup( this ) );
   mToolBar->addAction( defaulAction->actionRemoveGroupOrLayer( this ) );
 
+  mDemIndicator = new QgsLayerTreeViewIndicator( mTreeView );
+  mDemIndicator->setIcon( QPixmap( ":/images/dem.svg" ) );
+  mDemIndicator->setToolTip( tr( "Digital Elevation Model" ) );
+
   QgsMapCanvas *mapCanvas = qobject_cast<QgsMapCanvas *>( mMap->mapCanvas() );
   if ( mapCanvas )
   {
@@ -101,6 +104,8 @@ void ReosGisLayersWidget::registerCurrentLayerAsDigitalElevationModel()
   QgsMapLayer *mapLayer = mTreeView->currentLayer();
   if ( mapLayer )
     mGisEngine->registerLayerAsDigitalElevationModel( mapLayer->id() );
+
+  mTreeView->addIndicator( mTreeView->currentNode(), mDemIndicator );
 }
 
 void ReosGisLayersWidget::unRegisterCurrentLayerAsDigitalElevationModel()
@@ -108,6 +113,8 @@ void ReosGisLayersWidget::unRegisterCurrentLayerAsDigitalElevationModel()
   QgsMapLayer *mapLayer = mTreeView->currentLayer();
   if ( mapLayer )
     mGisEngine->unRegisterLayerAsDigitalElevationModel( mapLayer->id() );
+
+  mTreeView->removeIndicator( mTreeView->currentNode(), mDemIndicator );
 }
 
 void ReosGisLayersWidget::onLoadQGISProject()
