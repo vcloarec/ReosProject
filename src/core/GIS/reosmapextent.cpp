@@ -42,6 +42,14 @@ double ReosMapExtent::yMapMin() const {return mYMin;}
 
 double ReosMapExtent::yMapMax() const {return mYMax;}
 
+bool ReosMapExtent::inExtent( const QPointF &point ) const
+{
+  return point.x() >= mXMin &&
+         point.x() <= mXMax &&
+         point.y() >= mYMin &&
+         point.y() <= mYMax;
+}
+
 bool ReosMapExtent::operator==( const ReosMapExtent &other ) const
 {
   return mXMin == other.mXMin && mXMax == other.mXMax && mYMin == other.mYMin && mYMax == other.mYMax;

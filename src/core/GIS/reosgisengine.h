@@ -30,16 +30,30 @@ class ReosGisEngine: public ReosModule
 {
     Q_OBJECT
   public:
+    //! Supported layer types
+    enum LayerType
+    {
+      NoLayer,
+      VectorLayer,
+      RasterLayer,
+      MeshLayer,
+      NotSupported
+    };
+
+
     //! Constructor
     ReosGisEngine( QObject *parent = nullptr );
 
     //! Adds a vector layer, if the loaded vector layer is invalid, do nothing and return false
-    QString addVectorLayer( const QString &uri, const QString &name );
+    QString addVectorLayer( const QString &uri, const QString &name = QString() );
     //! Adds a raster layer, if the loaded vector layer is invalid, do nothing and return false
-    QString addRasterLayer( const QString &uri, const QString &name );
+    QString addRasterLayer( const QString &uri, const QString &name = QString() );
 
     //! Adds a raster layer, if the loaded vector layer is invalid, do nothing and return false
-    QString addMeshLayer( const QString &uri, const QString &name );
+    QString addMeshLayer( const QString &uri, const QString &name = QString() );
+
+    //! Returns the layer type corresponding to the the layer Id
+    LayerType layerType( const QString layerId ) const;
 
     //! Adds a empty group layer
     void addGroupLayer();
@@ -78,9 +92,12 @@ class ReosGisEngine: public ReosModule
     //! Returns a pointer to the on the top Digitial Elevation Model, caller take ownership
     ReosDigitalElevationModel *getTopDigitalElevationModel() const;
 
+    //! Returns the list of layer Ids that are registered as Digital Elevation Model with associated name
+    QMap<QString, QString> digitalElevationModelRasterList() const;
+
   signals:
     void crsChanged( const QString &wktCrs );
-    void newDigitalElevationRegistered( const QString &layerId );
+    void digitalElevationRegistered( const QString &layerId );
 
   private:
     QAbstractItemModel *mAbstractLayerTreeModel;

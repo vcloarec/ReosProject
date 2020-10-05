@@ -36,6 +36,8 @@ class ReosMapExtent
     double yMapMin() const;
     double yMapMax() const;
 
+    bool inExtent( const QPointF &point ) const;
+
     bool operator==( const ReosMapExtent &other ) const;
 
     ReosMapExtent operator*( const ReosMapExtent &other ) const;

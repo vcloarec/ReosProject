@@ -220,3 +220,53 @@ ReosDigitalElevationModel *ReosGisEngine::getTopDigitalElevationModel() const
   }
   return nullptr;
 }
+
+QMap<QString, QString> ReosGisEngine::digitalElevationModelRasterList() const
+{
+  QgsLayerTreeNode *rootNode = mLayerTreeModel->rootGroup();
+  QList<QgsMapLayer *> layersOrder;
+  allLayersOrder( rootNode, layersOrder );
+
+  QMap<QString, QString> demList;
+  for ( QgsMapLayer *layer : layersOrder )
+  {
+    if ( mAsDEMRegisteredLayer.contains( layer->id() ) )
+    {
+      QgsRasterLayer *rl = qobject_cast<QgsRasterLayer *>( layer );
+      if ( rl )
+      {
+        demList[rl->id()] = rl->name();
+      }
+    }
+  }
+
+  return demList;
+}
+
+ReosGisEngine::LayerType ReosGisEngine::layerType( const QString layerId ) const
+{
+  QgsMapLayer *layer = QgsProject::instance()->mapLayer( layerId );
+
+  if ( !layer )
+    return NoLayer;
+
+  switch ( layer->type() )
+  {
+    case QgsMapLayerType::VectorLayer:
+      return VectorLayer;
+      break;
+    case QgsMapLayerType::RasterLayer:
+      return RasterLayer;
+      break;
+    case QgsMapLayerType::MeshLayer:
+      return MeshLayer;
+      break;
+    default:
+      return NotSupported;
+      break;
+  }
+
+  return NotSupported;
+
+
+}

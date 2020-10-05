@@ -53,6 +53,7 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_SOURCE_DIR}/src/tools/raster
   ${CMAKE_SOURCE_DIR}/src/core
   ${CMAKE_SOURCE_DIR}/src/core/GIS
+  ${CMAKE_SOURCE_DIR}/src/core/watershed
 )
 
 MACRO (ADD_REOS_TEST TESTSRC)
@@ -74,6 +75,7 @@ ENDMACRO (ADD_REOS_TEST)
 
 SET(TESTS
     src/core/reos_dem_test.cpp
+    src/core/reos_watershed_test.cpp
     src/tools/reos_raster_test.cpp
     src/tools/reos_watershedRaster_test.cpp
     )

@@ -16,6 +16,8 @@ SET(REOS_CORE_SOURCES
   GIS/reosgisengine.cpp
   GIS/reosmapextent.cpp
   GIS/private/reosdigitalelevationmodel_p.cpp
+
+  watershed/reoswatersheddelineating.cpp
 )
 
 SET(REOS_CORE_HEADERS
@@ -31,6 +33,8 @@ SET(REOS_CORE_HEADERS
     GIS/reosgisengine.h
     GIS/reosmapextent.h
     GIS/private/reosdigitalelevationmodel_p.h
+
+    watershed/reoswatersheddelineating.h
 )
 
 SET(REOS_CORE_HEADERS_PRIVATE
