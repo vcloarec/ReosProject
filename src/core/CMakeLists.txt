@@ -8,7 +8,7 @@ SET(REOS_CORE_SOURCES
   reosdocumentation.cpp
   reosmemoryraster.cpp
   reosmodule.cpp
-  reosprocess.cpp
+
   reossettings.cpp
   reosversion.cpp
 
@@ -17,6 +17,14 @@ SET(REOS_CORE_SOURCES
   GIS/reosmapextent.cpp
   GIS/private/reosdigitalelevationmodel_p.cpp
 
+  process/reosprocess.cpp
+
+  raster/reosrasterfilling.cpp
+  raster/reosrasterline.cpp
+  raster/reosrastertrace.cpp
+  raster/reosrasterwatershed.cpp
+  
+  watershed/reoswatershed.cpp
   watershed/reoswatersheddelineating.cpp
 )
 
@@ -25,19 +33,27 @@ SET(REOS_CORE_HEADERS
     reosdocumentation.h
     reosmemoryraster.h
     reosmodule.h
-    reosprocess.h
     reossettings.h
     reosversion.h
 
     GIS/reosdigitalelevationmodel.h
     GIS/reosgisengine.h
     GIS/reosmapextent.h
-    GIS/private/reosdigitalelevationmodel_p.h
 
+    process/reosprocess.h
+
+    raster/reosrasterfilling.h
+    raster/reosrasterline.h
+    raster/reosrastertrace.h
+    raster/reosrasterwatershed.h
+
+    watershed/reoswatershed.h
     watershed/reoswatersheddelineating.h
+
 )
 
 SET(REOS_CORE_HEADERS_PRIVATE
+    GIS/private/reosdigitalelevationmodel_p.h
     )
 
 SET(IMAGE_RCCS ../../images/images.qrc)
@@ -86,6 +102,8 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core
     ${CMAKE_SOURCE_DIR}/src/core/GIS
     ${CMAKE_SOURCE_DIR}/src/core/GIS/private
+    ${CMAKE_SOURCE_DIR}/src/core/process
+    ${CMAKE_SOURCE_DIR}/src/core/raster
     ${QGIS_INCLUDE_DIR}
 )
 

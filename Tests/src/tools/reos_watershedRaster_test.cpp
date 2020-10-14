@@ -43,7 +43,7 @@ void finalize_test()
 
 TEST_F( ReosRasterWatershedTest, RasterFilling )
 {
-  std::shared_ptr<ReosRasterMemory<float>> dem;
+  ReosRasterMemory<float> dem;
 
   std::unique_ptr<ReosRasterFillingWangLiu> rasterFilling;
   rasterFilling.reset( new ReosRasterFillingWangLiu( dem, 1.0, 1.0 ) );
@@ -51,14 +51,15 @@ TEST_F( ReosRasterWatershedTest, RasterFilling )
   rasterFilling->start();
   EXPECT_FALSE( rasterFilling->isSuccessful() );
 
-  dem = std::make_shared<ReosRasterMemory<float>>( 11, 11 );
+  dem = ReosRasterMemory<float>( 11, 11 );
   rasterFilling.reset( new ReosRasterFillingWangLiu( dem, 1.0, 1.0 ) );
   rasterFilling->start();
   EXPECT_FALSE( rasterFilling->isSuccessful() );
 
-  dem->reserveMemory();
-  dem->fill( 5 );
-  dem->setValue( 0, 5, 3.0 );
+  dem.reserveMemory();
+  dem.fill( 5 );
+  dem.setValue( 0, 5, 3.0 );
+  rasterFilling.reset( new ReosRasterFillingWangLiu( dem, 1.0, 1.0 ) );
   rasterFilling->start();
   EXPECT_TRUE( rasterFilling->isSuccessful() );
 
@@ -66,18 +67,21 @@ TEST_F( ReosRasterWatershedTest, RasterFilling )
 
   ReosRasterMemory<float> testFilledDem;
   testFilledDem.loadDataFromTiffFile( test_file( "filledDem.tiff" ).c_str(), GDALDataType::GDT_Float32 );
-  EXPECT_TRUE( testFilledDem == *dem.get() );
+  ReosRasterMemory<float> returnDem;
+  returnDem = rasterFilling->filledDEM();
+  EXPECT_TRUE( testFilledDem == returnDem );
 
   ReosRasterMemory<unsigned char> testFilledDemDir;
   testFilledDemDir.loadDataFromTiffFile( test_file( "filledDemDir.tiff" ).c_str(), GDALDataType::GDT_Byte );
-  EXPECT_TRUE( testFilledDemDir == *rasterFilling->direction().get() );
+  ReosRasterMemory<unsigned char> filledDemDir = rasterFilling->directionRaster();
+  EXPECT_TRUE( testFilledDemDir == filledDemDir );
 }
 
 TEST_F( ReosRasterWatershedTest, Delineate )
 {
-  ReosRasterWatershed::Directions directions = std::make_shared<ReosRasterMemory<unsigned char>>();
+  ReosRasterWatershed::Directions directions;
   GDALAllRegister();
-  directions->loadDataFromTiffFile( test_file( "filledDemDir.tiff" ).c_str(), GDALDataType::GDT_Byte );
+  directions.loadDataFromTiffFile( test_file( "filledDemDir.tiff" ).c_str(), GDALDataType::GDT_Byte );
 
   ReosRasterLine downStreamLine;
   downStreamLine.addPoint( 2, 4 );
@@ -88,13 +92,13 @@ TEST_F( ReosRasterWatershedTest, Delineate )
   watershedDelineate.start();
 
   ReosRasterWatershed::Watershed watershed = watershedDelineate.watershed();
-  ReosRasterWatershed::Watershed testWatershed = std::make_shared<ReosRasterMemory<unsigned char>>();;
-  testWatershed->loadDataFromTiffFile( test_file( "watershed.tiff" ).c_str(), GDALDataType::GDT_Byte );
+  ReosRasterWatershed::Watershed testWatershed;
+  testWatershed.loadDataFromTiffFile( test_file( "watershed.tiff" ).c_str(), GDALDataType::GDT_Byte );
 
-  EXPECT_TRUE( *testWatershed.get() == *watershed.get() );
+  EXPECT_TRUE( testWatershed == watershed );
 
   ReosRasterExtent extent( ReosMapExtent( 10, 10, 32, 32 ), 11, 11, true, true );
-  ReosRasterWatershedToVector rasterToVector( watershed, extent, watershedDelineate.fisrtCell() );
+  ReosRasterWatershedToVector rasterToVector( watershed, extent, watershedDelineate.firstCell() );
   rasterToVector.start();
   QPolygonF watershedPolygon = rasterToVector.watershed();
 

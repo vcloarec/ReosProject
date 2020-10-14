@@ -16,8 +16,31 @@ email                : vcloarec at gmail dot com
 #ifndef REOSWATERSHEDDELINEATING_H
 #define REOSWATERSHEDDELINEATING_H
 
-#include "reosmodule.h"
+#include <memory>
+
 #include "reosgisengine.h"
+#include "reosmapextent.h"
+#include "reosmodule.h"
+#include "reosprocess.h"
+#include "reoswatershed.h"
+#include "reosrasterwatershed.h"
+
+class ReosRasterFillingWangLiu;
+
+class ReosWatershedDelineatingProcess: public ReosProcess
+{
+
+  public:
+    ReosWatershedDelineatingProcess( ReosDigitalElevationModel *dem, const ReosMapExtent &mapExtent,  const QPolygonF &downtreamLine );
+
+    void start();
+
+  private:
+    ReosMapExtent mExtent;
+    std::unique_ptr<ReosDigitalElevationModel> mEntryDem;
+    QPolygonF mDownstreamLine;
+};
+
 
 class ReosWatershedDelineating : public ReosModule
 {
@@ -25,27 +48,32 @@ class ReosWatershedDelineating : public ReosModule
     //! State of the tool chain
     enum State
     {
+      NoDigitalElevationModel,
       WaitingForDownstream,
       WaitingForExtent,
       WaitingWithBroughtBackExtent,
-      WaitingforAutomaticDrawing,
+      WaitingforProceed,
       WaitingForValidate
     };
 
     ReosWatershedDelineating( ReosModule *parent, ReosGisEngine *gisEngine );
+    State currentState() const;
+
+
     bool hasValidDigitalElevationModel() const;
     bool setDigitalElevationModelDEM( const QString &layerId );
 
-    State currentState() const;
+    bool setDownstreamLine( const QPolygonF &downstreamLine );
+    bool setPreDefinedExtent( const ReosMapExtent &extent );
 
-    void setDownstreamLine( const QPolygonF &downstreamLine );
+    ReosProcess *delineatingProcess();
 
   private:
     ReosGisEngine *mGisEngine = nullptr;
     QString mDEMLayerId;
-    State mCurrentState = WaitingForDownstream;
+    State mCurrentState = NoDigitalElevationModel;
     QPolygonF mDownstreamLine;
-
+    ReosMapExtent mExtent;
 };
 
 #endif // REOSWATERSHEDDELINEATING_H

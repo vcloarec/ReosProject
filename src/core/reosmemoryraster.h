@@ -236,7 +236,7 @@ class ReosRasterMemory
   private:
     int mRowCount = 0;
     int mColumnCount = 0;;
-    std::vector<T> mValues;
+    QVector<T> mValues;
     T mNoData;
 };
 
@@ -457,14 +457,17 @@ class ReosRasterCellValue: public ReosRasterCellPos
 {
   public:
 
-    ReosRasterCellValue(): ReosRasterCellPos( 0, 0 ), mRaster( nullptr )
+    ReosRasterCellValue( ReosRasterMemory<T> &raster ): ReosRasterCellPos( 0, 0 ), mRaster( raster )
     {}
 
-    ReosRasterCellValue( ReosRasterMemory<T> *raster ): ReosRasterCellPos( 0, 0 ), mRaster( raster )
+    ReosRasterCellValue( ReosRasterMemory<T> &raster, int row, int col ): ReosRasterCellPos( row, col ), mRaster( raster )
     {}
 
-    ReosRasterCellValue( ReosRasterMemory<T> *raster, int row, int col ): ReosRasterCellPos( row, col ), mRaster( raster )
-    {}
+    ReosRasterCellValue( const ReosRasterCellValue<T> &other ):
+      ReosRasterCellPos( other.row(), other.column() ),
+      mRaster( other.mRaster )
+    {
+    }
 
     bool operator<( const ReosRasterCellValue<T> &other ) const
     {
@@ -476,8 +479,8 @@ class ReosRasterCellValue: public ReosRasterCellPos
       return value() <= other.value();
     }
 
-    T value() const {return mRaster->value( row(), column() );}
-    void setValue( T value ) {mRaster->setValue( row(), column(), value );}
+    T value() const {return mRaster.value( row(), column() );}
+    void setValue( T value ) {mRaster.setValue( row(), column(), value );}
 
     bool isBorder() const
     {
@@ -499,13 +502,13 @@ class ReosRasterCellValue: public ReosRasterCellPos
     bool isValid() const override
     {
 
-      if ( !mRaster || !mRaster->isValid() )
+      if ( ! mRaster.isValid() )
         return false;
 
-      if ( row() >= mRaster->rowCount() )
+      if ( row() >= mRaster.rowCount() )
         return false;
 
-      if ( column() >= mRaster->columnCount() )
+      if ( column() >= mRaster.columnCount() )
         return false;
 
       if ( row() < 0 || column() < 0 )
@@ -514,8 +517,17 @@ class ReosRasterCellValue: public ReosRasterCellPos
       return ReosRasterCellPos::isValid();
     }
 
+    ReosRasterCellValue &operator=( const ReosRasterCellValue &other )
+    {
+      mRaster = other.mRaster;
+      setColumn( other.column() );
+      setRow( other.row() );
+
+      return *this;
+    }
+
   private:
-    ReosRasterMemory<T> *mRaster = nullptr;
+    ReosRasterMemory<T> &mRaster;
 
 };
 

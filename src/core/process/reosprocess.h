@@ -17,13 +17,19 @@ email                : vcloarec at gmail dot com
 #ifndef REOSPROCESS_H
 #define REOSPROCESS_H
 
+#include <memory>
 #include <mutex>
 #include <QString>
+#include <QObject>
 
-class ReosProcess
+
+/**
+ * Abstract class that represent a process (log calculation). this class has convenient method to handle, feedback and bring the process in other thread
+ * Processes can be nested.
+*/
+class ReosProcess : public QObject
 {
   public:
-
     virtual ~ReosProcess();
 
     int maxProgession() const;
@@ -45,9 +51,7 @@ class ReosProcess
     bool isStopped() const {return mStopWithoutMutex;}
     bool isStopAsked();
     void stop( bool b ) {mStopWithoutMutex = b;}
-
     bool mIsSuccessful = false;
-
 
   private:
     int mMaxProgession;

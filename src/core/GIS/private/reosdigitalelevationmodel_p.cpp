@@ -59,9 +59,9 @@ double ReosDigitalElevationModelRaster::elevationAt( const QPointF &point, const
     return mDataProvider->sourceNoDataValue( 1 );
 }
 
-ReosRasterMemory<float> *ReosDigitalElevationModelRaster::extractMemoryRasterSimplePrecision( const ReosMapExtent &destinationExtent, ReosRasterExtent &outputRasterExtent, const QString &destinationCrs )
+ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimplePrecision( const ReosMapExtent &destinationExtent, ReosRasterExtent &outputRasterExtent, const QString &destinationCrs )
 {
-  QgsCoordinateReferenceSystem destCrs = QgsCoordinateReferenceSystem::fromWkt( destinationCrs );
+  QgsCoordinateReferenceSystem destCrs = QgsCoordinateReferenceSystem::fromWkt( destinationCrs.isEmpty() ? destinationCrs : destinationExtent.crs() );
   QgsCoordinateTransform transform( mCrs, destCrs, mTransformContext );
 
   QgsRectangle destExtent( destinationExtent.xMapMin(),
@@ -98,14 +98,14 @@ ReosRasterMemory<float> *ReosDigitalElevationModelRaster::extractMemoryRasterSim
   std::unique_ptr<QgsRasterBlock> block;
   block.reset( mDataProvider->block( 1, adjustedExtent, xPixCount, yPixCount ) );
 
-  std::unique_ptr<ReosRasterMemory<float>> ret = std::make_unique<ReosRasterMemory<float>>( yPixCount, xPixCount ); //(row, col)
-  ret->reserveMemory();
+  ReosRasterMemory<float> ret = ReosRasterMemory<float>( yPixCount, xPixCount ); //(row, col)
+  ret.reserveMemory();
 
   for ( int i = 0; i < yPixCount; ++i )
     for ( int j = 0; j < xPixCount; ++j )
-      ret->setValue( i, j, float( block->value( i, j ) ) );
+      ret.setValue( i, j, float( block->value( i, j ) ) );
 
-  return ret.release();
+  return ret;
 
 }
 

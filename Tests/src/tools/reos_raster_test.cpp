@@ -150,7 +150,7 @@ TEST_F( ReosRasterTesting, ReosRasterCellValue )
 {
   ReosRasterMemory<double> memoryRaster( 100, 100 );
   ASSERT_FALSE( memoryRaster.isValid() );
-  ReosRasterCellValue<double> rasterValue( &memoryRaster );
+  ReosRasterCellValue<double> rasterValue( memoryRaster );
   ASSERT_FALSE( rasterValue.isValid() );
   ASSERT_TRUE( memoryRaster.reserveMemory() );
   ASSERT_TRUE( rasterValue.isValid() );
@@ -243,14 +243,14 @@ TEST_F( ReosRasterTesting, ReosRasterTrace )
   QVector<QPoint> stopLine;
   stopLine << QPoint( 2, 47 ) << QPoint( 2, 48 ) << QPoint( 2, 49 ) << QPoint( 2, 50 ) << QPoint( 2, 51 );
   QList<QPoint> elimination;
-  ReosRasterTraceBetweenCellsUniqueValue<int> invalidTrace( &memoryRaster, 5, QPoint( 0, 20 ), QPoint( -1, 20 ), stopLine, elimination );
+  ReosRasterTraceBetweenCellsUniqueValue<int> invalidTrace( memoryRaster, 5, QPoint( 0, 20 ), QPoint( -1, 20 ), stopLine, elimination );
 
   ASSERT_FALSE( invalidTrace.startTracing() );
 
   GDALAllRegister();
   memoryRaster.loadDataFromTiffFile( test_file( "rasterForTrace.tiff" ).c_str(), GDALDataType::GDT_Int32 );
 
-  ReosRasterTraceBetweenCellsUniqueValue<int> trace( &memoryRaster, 5, QPoint( 2, 50 ), QPoint( 1, 0 ), stopLine, elimination );
+  ReosRasterTraceBetweenCellsUniqueValue<int> trace( memoryRaster, 5, QPoint( 2, 50 ), QPoint( 1, 0 ), stopLine, elimination );
 
   ASSERT_TRUE( trace.startTracing() );
   ASSERT_EQ( trace.error(), 0 );

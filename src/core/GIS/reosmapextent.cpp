@@ -71,3 +71,28 @@ ReosMapExtent ReosMapExtent::operator*( const ReosMapExtent &other ) const
   return ret;
 
 }
+
+QString ReosMapExtent::crs() const
+{
+  return mCrs;
+}
+
+void ReosMapExtent::setCrs( const QString &crs )
+{
+  mCrs = crs;
+}
+
+bool ReosMapExtent::contains( const QPointF &point ) const
+{
+  return point.x() >= mXMin && point.x() <= mXMax &&
+         point.y() >= mYMin && point.y() <= mYMax;
+}
+
+bool ReosMapExtent::containsPartialy( const QPolygonF &line ) const
+{
+  for ( auto &point : line )
+    if ( contains( point ) )
+      return true;
+
+  return false;
+}

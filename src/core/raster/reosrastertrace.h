@@ -139,7 +139,7 @@ class ReosRasterTraceBetweenCellsUniqueValue: public ReosRasterTraceBetweenCells
      * @param elimination a ist of point to not consider during tracing, could be void and will be filled when tracing
      */
     ReosRasterTraceBetweenCellsUniqueValue(
-      ReosRasterMemory<T> *raster,
+      ReosRasterMemory<T> raster,
       T value,
       const QPoint &start,
       const QPoint &origin,
@@ -163,11 +163,11 @@ class ReosRasterTraceBetweenCellsUniqueValue: public ReosRasterTraceBetweenCells
 
   private:
     int mValue;
-    ReosRasterMemory<T> *mRaster;
+    ReosRasterMemory<T> mRaster;
 };
 
 template<typename T>
-ReosRasterTraceBetweenCellsUniqueValue<T>::ReosRasterTraceBetweenCellsUniqueValue( ReosRasterMemory<T> *raster, T value, const QPoint &start, const QPoint &origin, const QVector<QPoint> &stopLine, QList<QPoint> &elimination ):
+ReosRasterTraceBetweenCellsUniqueValue<T>::ReosRasterTraceBetweenCellsUniqueValue( ReosRasterMemory<T> raster, T value, const QPoint &start, const QPoint &origin, const QVector<QPoint> &stopLine, QList<QPoint> &elimination ):
   ReosRasterTraceBetweenCells( start, origin, stopLine, elimination ),
   mValue( value ),
   mRaster( raster )
@@ -181,8 +181,8 @@ void ReosRasterTraceBetweenCellsUniqueValue<T>::defineDirection( QList<QPoint> &
   {
     QVector<QPoint> cellToTest = fromBetweenAndDirectionToCells( mPosition, listDir[i] );
 
-    T v1 = mRaster->value( cellToTest[0].x(), cellToTest[0].y() );
-    T v2 = mRaster->value( cellToTest[1].x(), cellToTest[1].y() );
+    T v1 = mRaster.value( cellToTest[0].x(), cellToTest[0].y() );
+    T v2 = mRaster.value( cellToTest[1].x(), cellToTest[1].y() );
 
     bool condition = ( v1 != v2 ) && ( ( v1 == mValue ) || ( v2 == mValue ) );
 
@@ -225,7 +225,7 @@ ReosRasterTraceBetweenCells *ReosRasterTraceBetweenCellsUniqueValue<T>::newTrace
 template<typename T>
 bool ReosRasterTraceBetweenCellsUniqueValue<T>::isValid() const
 {
-  return ( mRaster && mRaster->isValid() );
+  return ( mRaster.isValid() );
 }
 
 #endif // HDRASTERTOOLS_H

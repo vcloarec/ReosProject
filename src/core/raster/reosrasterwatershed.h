@@ -29,8 +29,8 @@ email                : vcloarec@gmail.com
 
 namespace ReosRasterWatershed
 {
-  typedef  std::shared_ptr<ReosRasterMemory<unsigned char>> Directions;
-  typedef std::shared_ptr<ReosRasterMemory<unsigned char>> Watershed;
+  typedef ReosRasterMemory<unsigned char> Directions;
+  typedef ReosRasterMemory<unsigned char> Watershed;
 
   struct Climber
   {
@@ -66,8 +66,8 @@ class ReosRasterWatershedMarkerFromDirection: public ReosProcess
 
     ReosRasterWatershedMarkerFromDirection( ReosRasterWatershedFromDirectionAndDownStreamLine *mParent,
                                             const ReosRasterWatershed::Climber &initialClimb,
-                                            ReosRasterWatershed::Directions mDirections,
-                                            ReosRasterWatershed::Watershed mWatershed,
+                                            ReosRasterWatershed::Directions directions,
+                                            ReosRasterWatershed::Watershed &watershed,
                                             const ReosRasterLine &excludedCell );
 
     void start() override;
@@ -75,7 +75,7 @@ class ReosRasterWatershedMarkerFromDirection: public ReosProcess
   private:
     ReosRasterWatershedFromDirectionAndDownStreamLine *mParent;
     ReosRasterWatershed::Directions mDirections;
-    ReosRasterWatershed::Watershed mWatershed;
+    ReosRasterWatershed::Watershed &mWatershed;
     ReosRasterLine mExcludedPixel;
     std::queue<ReosRasterWatershed::Climber> mClimberToTreat;
     size_t mMaxClimberStored = 10;
@@ -89,7 +89,7 @@ class ReosRasterWatershedFromDirectionAndDownStreamLine: public ReosProcess
   public:
     //! Constrcutor with \a rasterDirection and downstream \a line
     ReosRasterWatershedFromDirectionAndDownStreamLine( ReosRasterWatershed::Directions rasterDirection, const ReosRasterLine &line );
-    ReosRasterWatershedFromDirectionAndDownStreamLine( ReosRasterWatershed::Directions, const ReosRasterLine &line, ReosRasterTestingCell *testingCell );
+    ReosRasterWatershedFromDirectionAndDownStreamLine( ReosRasterWatershed::Directions rasterDirection, const ReosRasterLine &line, ReosRasterTestingCell *testingCell );
 
     void start() override;
     void stopAsSoonAsPossible( bool b ) override;
@@ -98,7 +98,7 @@ class ReosRasterWatershedFromDirectionAndDownStreamLine: public ReosProcess
     ReosRasterWatershed::Watershed watershed() const;
 
     //! Returns the first defined cells, that is on the middle of the downstream line
-    ReosRasterCellPos fisrtCell() const;
+    ReosRasterCellPos firstCell() const;
     //! Returns the cells at the end of the longer path
     ReosRasterCellPos endOfLongerPath() const;
 

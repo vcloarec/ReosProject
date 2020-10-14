@@ -19,7 +19,7 @@ email                : vcloarec@gmail.com
 ReosRasterWatershedMarkerFromDirection::ReosRasterWatershedMarkerFromDirection( ReosRasterWatershedFromDirectionAndDownStreamLine *parent,
     const ReosRasterWatershed::Climber &initialClimb,
     ReosRasterWatershed::Directions directionRaster,
-    ReosRasterWatershed::Watershed resultRaster,
+    ReosRasterWatershed::Watershed &resultRaster,
     const ReosRasterLine &excludedPixel ):
   mParent( parent ),
   mDirections( directionRaster ),
@@ -45,13 +45,13 @@ void ReosRasterWatershedMarkerFromDirection::start()
         {
           ReosRasterCellPos pixelToTest( currentClimb.pos.row() + i - 1, currentClimb.pos.column() + j - 1 );
 
-          unsigned char direction = mDirections->value( pixelToTest.row(), pixelToTest.column() );
+          unsigned char direction = mDirections.value( pixelToTest.row(), pixelToTest.column() );
 
           if ( direction == ( 8 - ( i + j * 3 ) ) )
           {
             if ( !mExcludedPixel.contains( pixelToTest ) && mParent->testCell( pixelToTest ) )
             {
-              mWatershed->setValue( pixelToTest.row(), pixelToTest.column(), 1 );
+              mWatershed.setValue( pixelToTest.row(), pixelToTest.column(), 1 );
               double dl = 0;
               if ( direction % 2 == 0 )
               {
@@ -95,15 +95,15 @@ ReosRasterWatershedFromDirectionAndDownStreamLine::ReosRasterWatershedFromDirect
     const ReosRasterLine &line ):
   mDirections( rasterDirection ), mDownstreamLine( line )
 {
-  mWatershed = std::make_shared<ReosRasterMemory<unsigned char> >( mDirections->rowCount(), mDirections->columnCount() ) ;
-  mWatershed->reserveMemory();
-  mWatershed->fill( 0 );
+  mWatershed = ReosRasterWatershed::Watershed( mDirections.rowCount(), mDirections.columnCount() );
+  mWatershed.reserveMemory();
+  mWatershed.fill( 0 );
 
   for ( unsigned i = 0; i < mDownstreamLine.cellCount(); ++i )
   {
     ReosRasterCellPos pix = mDownstreamLine.cellPosition( i );
     mPoolCellsToTreat.push_back( ReosRasterWatershed::Climber( pix ) );
-    mWatershed->setValue( pix.row(), pix.column(), 1 );
+    mWatershed.setValue( pix.row(), pix.column(), 1 );
   }
 
   setMaxProgession( int( mPoolCellsToTreat.size() ) );
@@ -112,10 +112,9 @@ ReosRasterWatershedFromDirectionAndDownStreamLine::ReosRasterWatershedFromDirect
 
 }
 
-ReosRasterWatershedFromDirectionAndDownStreamLine::ReosRasterWatershedFromDirectionAndDownStreamLine(
-  ReosRasterWatershed::Directions rasterDirection,
-  const ReosRasterLine &line,
-  ReosRasterTestingCell *testingCell ):
+ReosRasterWatershedFromDirectionAndDownStreamLine::ReosRasterWatershedFromDirectionAndDownStreamLine( ReosRasterWatershed::Directions rasterDirection,
+    const ReosRasterLine &line,
+    ReosRasterTestingCell *testingCell ):
   ReosRasterWatershedFromDirectionAndDownStreamLine( rasterDirection, line )
 {
   mTestingCell.reset( testingCell );
@@ -160,7 +159,7 @@ void ReosRasterWatershedFromDirectionAndDownStreamLine::proposeEndOfPath( ReosRa
 
 ReosRasterWatershed::Watershed ReosRasterWatershedFromDirectionAndDownStreamLine::watershed() const {return mWatershed;}
 
-ReosRasterCellPos ReosRasterWatershedFromDirectionAndDownStreamLine::fisrtCell() const {return mFirstCell;}
+ReosRasterCellPos ReosRasterWatershedFromDirectionAndDownStreamLine::firstCell() const {return mFirstCell;}
 
 ReosRasterCellPos ReosRasterWatershedFromDirectionAndDownStreamLine::endOfLongerPath() const {return mEndOfLongerPath.pos;}
 
@@ -174,9 +173,9 @@ bool ReosRasterWatershedFromDirectionAndDownStreamLine::testCell( const ReosRast
 
 void ReosRasterWatershedFromDirectionAndDownStreamLine::start()
 {
+  mIsSuccessful = false;
 
   unsigned nbThread = std::thread::hardware_concurrency() - 1;
-
 
   mThreads.clear();
   mJobs.clear();
@@ -200,6 +199,8 @@ void ReosRasterWatershedFromDirectionAndDownStreamLine::start()
 
   mJobs.clear();
   mThreads.clear();
+
+  mIsSuccessful = true;
 }
 
 void ReosRasterWatershedFromDirectionAndDownStreamLine::stopAsSoonAsPossible( bool b )
@@ -219,7 +220,7 @@ ReosRasterWatershedToVector::ReosRasterWatershedToVector( ReosRasterWatershed::W
   while ( ( !findLimit ) && ( Columnlimite > -1 ) )
   {
     Columnlimite--;
-    if ( rasterWatershed->value( cellInWatershed.row(), Columnlimite ) != 1 )
+    if ( rasterWatershed.value( cellInWatershed.row(), Columnlimite ) != 1 )
     {
       findLimit = true;
     }
@@ -234,7 +235,7 @@ ReosRasterWatershedToVector::ReosRasterWatershedToVector( ReosRasterWatershed::W
   endLine.append( startingPoint );
 
   mWatershedTrace = std::unique_ptr<ReosRasterTraceBetweenCellsUniqueValue<unsigned char>>(
-                      new ReosRasterTraceBetweenCellsUniqueValue<unsigned char>( rasterWatershed.get(), 1, startingPoint, origin, endLine, mEliminationPoint ) );
+                      new ReosRasterTraceBetweenCellsUniqueValue<unsigned char>( rasterWatershed, 1, startingPoint, origin, endLine, mEliminationPoint ) );
 
   setMaxProgession( 0 );
 }
@@ -253,7 +254,9 @@ const QPolygonF ReosRasterWatershedToVector::watershed() const
 
 void ReosRasterWatershedToVector::start()
 {
+  mIsSuccessful = false;
   mWatershedTrace->startTracing();
+  mIsSuccessful = true;;
 }
 
 ReosRasterWatershedTraceDownstream::ReosRasterWatershedTraceDownstream( ReosRasterWatershed::Directions directionRaster, const ReosRasterLine stopLine, const ReosRasterExtent &extent, const ReosRasterCellPos &startPos ):
@@ -273,7 +276,7 @@ ReosRasterWatershedTraceDownstream::ReosRasterWatershedTraceDownstream( ReosRast
 void ReosRasterWatershedTraceDownstream::start()
 {
   unsigned char lastDir = 4;
-  unsigned char dir = mDirectionRaster->value( mPos.row(), mPos.column() );
+  unsigned char dir = mDirectionRaster.value( mPos.row(), mPos.column() );
   QPointF posMap = mEmpriseRaster.cellCenterToMap( mPos );
   bool pointIsInPolyLimit = true;
   bool isStopLine = false;
@@ -291,7 +294,7 @@ void ReosRasterWatershedTraceDownstream::start()
       pointIsInPolyLimit = mPolyLimit.containsPoint( posMap, Qt::OddEvenFill );
     if ( mStopLine.cellCount() != 0 )
       isStopLine = mStopLine.contains( mPos );
-    dir = mDirectionRaster->value( mPos.row(), mPos.column() );
+    dir = mDirectionRaster.value( mPos.row(), mPos.column() );
   }
   mResultPolyline.append( mEmpriseRaster.cellCenterToMap( mPos ) );
 }

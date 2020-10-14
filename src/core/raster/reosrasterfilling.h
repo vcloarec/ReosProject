@@ -23,11 +23,12 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reosmemoryraster.h"
 #include "reosprocess.h"
 
+
 class ReosRasterFilling: public ReosProcess
 {
   public:
     //! Constructor with the \a dem to fill
-    ReosRasterFilling( std::shared_ptr<ReosRasterMemory<float>> dem, double XSize, double YSize ):
+    ReosRasterFilling( const ReosRasterMemory<float> &dem, double XSize, double YSize ):
       mDem( dem ), mXSize( XSize ), mYSize( YSize )
     {}
     virtual ~ReosRasterFilling();
@@ -44,12 +45,12 @@ class ReosRasterFilling: public ReosProcess
     //! Set the size of the raster cell in the Y direction (used to apply slope criteria)
     void setYSize( float value );
 
-    //! Returns the calculated filled DEM
-    std::shared_ptr<ReosRasterMemory<float>> filledDEM() const {return mDem;}
+    //! Returns the calculated filled DEM, the caller has to take the ownership
+    ReosRasterMemory<float> filledDEM();
 
   protected:
 
-    std::shared_ptr<ReosRasterMemory<float>> mDem;
+    ReosRasterMemory<float> mDem;
     float mMimimumSlope = 0.0001;
     double mXSize = 0;
     double mYSize = 0;
@@ -61,15 +62,15 @@ class ReosRasterFilling: public ReosProcess
 class ReosRasterFillingWangLiu: public ReosRasterFilling
 {
   public:
-    ReosRasterFillingWangLiu( std::shared_ptr<ReosRasterMemory<float>> dem, double XSize, double YSize );
+    ReosRasterFillingWangLiu( const ReosRasterMemory<float> &dem, double XSize, double YSize );
     ~ReosRasterFillingWangLiu() = default;
 
     bool initialize();
 
     void start() override;
 
-    //! Returns the direction raster used to filled the DEM
-    std::shared_ptr<ReosRasterMemory<unsigned char>> direction() {return mRasterChar;}
+    //! Returns the direction raster used to filled the DEM, the caller take ownership
+    ReosRasterMemory<unsigned char> directionRaster() {return mRasterChar;}
 
   private:
     std::multiset<ReosRasterCellValue<float>> mPriorityStack;
@@ -78,7 +79,7 @@ class ReosRasterFillingWangLiu: public ReosRasterFilling
 
     //! used during the process to store which pixel is treated and may be used after for the direction raster
     //! 255 : not treated ; 20X in the priorityStack and X is the direction; 00X : X final direction completly treated                    */
-    std::shared_ptr<ReosRasterMemory<unsigned char>> mRasterChar;
+    ReosRasterMemory<unsigned char> mRasterChar;
 
     bool makePriorityStack();
 

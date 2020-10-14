@@ -37,19 +37,21 @@ void ReosRasterFilling::setYSize( float value )
   mYSize = value;
 }
 
+ReosRasterMemory<float> ReosRasterFilling::filledDEM() {return mDem;}
+
 unsigned char ReosRasterFilling::calculateDirection( int row, int column )
 {
   unsigned char dir = 4;
-  float min = mDem->value( row, column );
+  float min = mDem.value( row, column );
 
-  if ( min == mDem->noData() )
+  if ( min == mDem.noData() )
     return 9;
 
   for ( int i = 0; i < 3; ++i )
     for ( int j = 0; j < 3; ++j )
     {
-      float z = mDem->value( row - 1 + i, column - 1 + j );
-      if ( ( z < min ) && ( z != mDem->noData() ) && ( ( i * j ) != 1 ) )
+      float z = mDem.value( row - 1 + i, column - 1 + j );
+      if ( ( z < min ) && ( z != mDem.noData() ) && ( ( i * j ) != 1 ) )
       {
         dir = static_cast<unsigned char>( i + 3 * j );
         min = z;
@@ -60,23 +62,23 @@ unsigned char ReosRasterFilling::calculateDirection( int row, int column )
 
 }
 
-ReosRasterFillingWangLiu::ReosRasterFillingWangLiu( std::shared_ptr<ReosRasterMemory<float> > dem, double XSize, double YSize ):
+ReosRasterFillingWangLiu::ReosRasterFillingWangLiu( const ReosRasterMemory<float> &dem, double XSize, double YSize ):
   ReosRasterFilling( dem, XSize, YSize )
 {}
 
 bool ReosRasterFillingWangLiu::initialize()
 {
-  mRasterChar = std::make_shared<ReosRasterMemory<unsigned char>>();
+  mRasterChar = ReosRasterMemory<unsigned char>();
 
-  if ( !( mDem && mDem->isValid() ) )
+  if ( !( mDem.isValid() ) )
     return false;
 
-  if ( !mRasterChar->reserveMemory( mDem->rowCount(), mDem->columnCount() ) )
+  if ( !mRasterChar.reserveMemory( mDem.rowCount(), mDem.columnCount() ) )
     return false;
 
-  mRasterChar->fill( 255 );
-  mRasterChar->setNodata( 9 );
-  setMaxProgession( mDem->rowCount()*mDem->columnCount() );
+  mRasterChar.fill( 255 );
+  mRasterChar.setNodata( 9 );
+  setMaxProgession( mDem.rowCount()*mDem.columnCount() );
   return true;
 }
 
@@ -85,38 +87,38 @@ bool ReosRasterFillingWangLiu::makePriorityStack()
   std::set<ReosRasterCellValue<float>>::iterator insertion = mPriorityStack.begin();
   int r = 0;
   int c = 0;
-  float noData = mDem->noData();
+  float noData = mDem.noData();
 
   //! Take borders cells and insert them in the prioriry stack if no noData
 
-  while ( r < mDem->rowCount() - 1 )
+  while ( r < mDem.rowCount() - 1 )
   {
-    mRasterChar->setValue( r, c, 254 );
-    if ( mDem->value( r, c ) == noData )
+    mRasterChar.setValue( r, c, 254 );
+    if ( mDem.value( r, c ) == noData )
     {
-      mNoDataStack.push_back( ReosRasterCellValue<float>( mDem.get(), r, c ) );
+      mNoDataStack.push_back( ReosRasterCellValue<float>( mDem, r, c ) );
       mCelllsToCalculateDirectionAtTheEnd.push_back( mNoDataStack.back() );
     }
     else
     {
-      insertion = mPriorityStack.insert( insertion, ReosRasterCellValue<float>( mDem.get(), r, c ) );
+      insertion = mPriorityStack.insert( insertion, ReosRasterCellValue<float>( mDem, r, c ) );
       mCelllsToCalculateDirectionAtTheEnd.push_back( ( *insertion ) );
     }
 
     ++r;
   }
 
-  while ( c < mDem->columnCount() - 1 )
+  while ( c < mDem.columnCount() - 1 )
   {
-    mRasterChar->setValue( r, c, 254 );
-    if ( mDem->value( r, c ) == noData )
+    mRasterChar.setValue( r, c, 254 );
+    if ( mDem.value( r, c ) == noData )
     {
-      mNoDataStack.push_back( ReosRasterCellValue<float>( mDem.get(), r, c ) );
+      mNoDataStack.push_back( ReosRasterCellValue<float>( mDem, r, c ) );
       mCelllsToCalculateDirectionAtTheEnd.push_back( mNoDataStack.back() );
     }
     else
     {
-      insertion = mPriorityStack.insert( insertion, ReosRasterCellValue<float>( mDem.get(), r, c ) );
+      insertion = mPriorityStack.insert( insertion, ReosRasterCellValue<float>( mDem, r, c ) );
       mCelllsToCalculateDirectionAtTheEnd.push_back( ( *insertion ) );
     }
     ++c;
@@ -124,15 +126,15 @@ bool ReosRasterFillingWangLiu::makePriorityStack()
 
   while ( r > 0 )
   {
-    mRasterChar->setValue( r, c, 254 );
-    if ( mDem->value( r, c ) == noData )
+    mRasterChar.setValue( r, c, 254 );
+    if ( mDem.value( r, c ) == noData )
     {
-      mNoDataStack.push_back( ReosRasterCellValue<float>( mDem.get(), r, c ) );
+      mNoDataStack.push_back( ReosRasterCellValue<float>( mDem, r, c ) );
       mCelllsToCalculateDirectionAtTheEnd.push_back( mNoDataStack.back() );
     }
     else
     {
-      insertion = mPriorityStack.insert( insertion, ReosRasterCellValue<float>( mDem.get(), r, c ) );
+      insertion = mPriorityStack.insert( insertion, ReosRasterCellValue<float>( mDem, r, c ) );
       mCelllsToCalculateDirectionAtTheEnd.push_back( ( *insertion ) );
     }
     --r;
@@ -140,15 +142,15 @@ bool ReosRasterFillingWangLiu::makePriorityStack()
 
   while ( c > 0 )
   {
-    mRasterChar->setValue( r, c, 254 );
-    if ( mDem->value( r, c ) == noData )
+    mRasterChar.setValue( r, c, 254 );
+    if ( mDem.value( r, c ) == noData )
     {
-      mNoDataStack.push_back( ReosRasterCellValue<float>( mDem.get(), r, c ) );
+      mNoDataStack.push_back( ReosRasterCellValue<float>( mDem, r, c ) );
       mCelllsToCalculateDirectionAtTheEnd.push_back( mNoDataStack.back() );
     }
     else
     {
-      insertion = mPriorityStack.insert( insertion, ReosRasterCellValue<float>( mDem.get(), r, c ) );
+      insertion = mPriorityStack.insert( insertion, ReosRasterCellValue<float>( mDem, r, c ) );
       mCelllsToCalculateDirectionAtTheEnd.push_back( ( *insertion ) );
     }
     --c;
@@ -168,10 +170,10 @@ void ReosRasterFillingWangLiu::processCell( const ReosRasterCellValue<float> &ce
     {
       int RowNeigh = r + i - 1;
       int ColNeigh = c + j - 1;
-      if ( ( mRasterChar->value( RowNeigh, ColNeigh ) == 255 ) && ( ( i * j ) != 1 ) )
+      if ( ( mRasterChar.value( RowNeigh, ColNeigh ) == 255 ) && ( ( i * j ) != 1 ) )
       {
-        ReosRasterCellValue<float> neigh( mDem.get(), RowNeigh, ColNeigh );
-        if ( neigh.value() == mDem->noData() )
+        ReosRasterCellValue<float> neigh( mDem, RowNeigh, ColNeigh );
+        if ( neigh.value() == mDem.noData() )
         {
           mNoDataStack.push_back( neigh );
           setDirectionValue( RowNeigh, ColNeigh, 9 );
@@ -202,10 +204,10 @@ void ReosRasterFillingWangLiu::processNoDataCell( const ReosRasterCellValue<floa
     {
       int RowNeigh = r + i - 1;
       int ColNeigh = c + j - 1;
-      if ( ( mRasterChar->value( RowNeigh, ColNeigh ) == 255 ) && ( ( i * j ) != 1 ) )
+      if ( ( mRasterChar.value( RowNeigh, ColNeigh ) == 255 ) && ( ( i * j ) != 1 ) )
       {
-        ReosRasterCellValue<float> neigh( mDem.get(), RowNeigh, ColNeigh );
-        if ( neigh.value() == mDem->noData() )
+        ReosRasterCellValue<float> neigh( mDem, RowNeigh, ColNeigh );
+        if ( neigh.value() == mDem.noData() )
         {
           mNoDataStack.push_back( neigh );
           setDirectionValue( RowNeigh, ColNeigh, 9 );
@@ -235,7 +237,7 @@ bool ReosRasterFillingWangLiu::calculateBorderDirections()
 
 void ReosRasterFillingWangLiu::setDirectionValue( int row, int column, unsigned char value )
 {
-  mRasterChar->setValue( row, column, value );
+  mRasterChar.setValue( row, column, value );
   mProgession++;
   if ( mProgession % 100 == 0 )
   {
@@ -252,7 +254,7 @@ void ReosRasterFillingWangLiu::start()
   if ( !initialize() )
     return;
 
-  if ( !mDem->isValid() )
+  if ( !mDem.isValid() )
     return;
 
   if ( !makePriorityStack() )
@@ -260,7 +262,7 @@ void ReosRasterFillingWangLiu::start()
 
   while ( !( ( mPriorityStack.empty() && mNoDataStack.empty() ) || isStopped() ) )
   {
-    ReosRasterCellValue<float> cell;
+    ReosRasterCellValue<float> cell( mDem );
     if ( mNoDataStack.empty() )
     {
       cell = ( *mPriorityStack.begin() );

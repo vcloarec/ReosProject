@@ -17,9 +17,11 @@ email                : vcloarec at gmail dot com
 #define REOSMAPEXTENT_H
 
 #include <QRectF>
+#include <QString>
+#include <QPolygon>
 
 /**
- * Class that represent a extent in a map
+ * Class that represent a rectangular extent in a map
  */
 class ReosMapExtent
 {
@@ -42,11 +44,21 @@ class ReosMapExtent
 
     ReosMapExtent operator*( const ReosMapExtent &other ) const;
 
+    QString crs() const;
+    void setCrs( const QString &crs );
+
+    bool contains( const QPointF &point ) const;
+
+    //! Return true if the extent cotains, even partially, the \a line
+    bool containsPartialy( const  QPolygonF &line ) const;
+
   protected:
     double mXMin = std::numeric_limits<double>::quiet_NaN();
     double mXMax = std::numeric_limits<double>::quiet_NaN();
     double mYMin = std::numeric_limits<double>::quiet_NaN();
     double mYMax = std::numeric_limits<double>::quiet_NaN();
+
+    QString mCrs;
 };
 
 #endif // REOSMAPEXTENT_H
