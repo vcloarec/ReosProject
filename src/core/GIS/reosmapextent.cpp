@@ -16,7 +16,7 @@ email                : vcloarec at gmail dot com
 #include "reosmapextent.h"
 
 
-ReosMapExtent::ReosMapExtent( QRectF extent )
+ReosMapExtent::ReosMapExtent( const QRectF &extent )
 {
   mXMin = extent.left();
   mXMax = extent.right();
@@ -27,6 +27,20 @@ ReosMapExtent::ReosMapExtent( QRectF extent )
 ReosMapExtent::ReosMapExtent( double xMin, double yMin, double xMax, double yMax ):
   mXMin( xMin ), mXMax( xMax ), mYMin( yMin ), mYMax( yMax )
 {}
+
+ReosMapExtent::ReosMapExtent( const QPolygonF &polygon )
+{
+  if ( polygon.isEmpty() )
+    return;
+
+  mXMin = std::numeric_limits<double>::max();
+  mXMax = -std::numeric_limits<double>::max();
+  mYMin = std::numeric_limits<double>::max();
+  mYMax = -std::numeric_limits<double>::max();
+
+  for ( const QPointF &pt : polygon )
+    addPointToExtent( pt );
+}
 
 double ReosMapExtent::width() const
 {return mXMax - mXMin;}
@@ -42,13 +56,6 @@ double ReosMapExtent::yMapMin() const {return mYMin;}
 
 double ReosMapExtent::yMapMax() const {return mYMax;}
 
-bool ReosMapExtent::inExtent( const QPointF &point ) const
-{
-  return point.x() >= mXMin &&
-         point.x() <= mXMax &&
-         point.y() >= mYMin &&
-         point.y() <= mYMax;
-}
 
 bool ReosMapExtent::operator==( const ReosMapExtent &other ) const
 {

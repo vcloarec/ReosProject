@@ -19,7 +19,10 @@ email                : vcloarec at gmail dot com
 #include "reosmemoryraster.h"
 #include "reosrasterline.h"
 #include "reosrastertrace.h"
+#include "reosrastercompressed.h"
 #include "reos_testutils.h"
+
+#include "fstream"
 
 using namespace testing;
 
@@ -241,7 +244,7 @@ TEST_F( ReosRasterTesting, ReosRasterTrace )
 {
   ReosRasterMemory<int> memoryRaster( 100, 100 );
   QVector<QPoint> stopLine;
-  stopLine << QPoint( 2, 47 ) << QPoint( 2, 48 ) << QPoint( 2, 49 ) << QPoint( 2, 50 ) << QPoint( 2, 51 );
+  stopLine << QPoint( 47, 2 ) << QPoint( 48, 2 ) << QPoint( 49, 2 ) << QPoint( 50, 2 ) << QPoint( 51, 2 );
   QList<QPoint> elimination;
   ReosRasterTraceBetweenCellsUniqueValue<int> invalidTrace( memoryRaster, 5, QPoint( 0, 20 ), QPoint( -1, 20 ), stopLine, elimination );
 
@@ -250,28 +253,51 @@ TEST_F( ReosRasterTesting, ReosRasterTrace )
   GDALAllRegister();
   memoryRaster.loadDataFromTiffFile( test_file( "rasterForTrace.tiff" ).c_str(), GDALDataType::GDT_Int32 );
 
-  ReosRasterTraceBetweenCellsUniqueValue<int> trace( memoryRaster, 5, QPoint( 2, 50 ), QPoint( 1, 0 ), stopLine, elimination );
+  ReosRasterTraceBetweenCellsUniqueValue<int> trace( memoryRaster, 5, QPoint( 50, 2 ), QPoint( 0, 1 ), stopLine, elimination );
 
   ASSERT_TRUE( trace.startTracing() );
   ASSERT_EQ( trace.error(), 0 );
   QPolygon tr = trace.trace();
 
-  QPolygon testTrace( {QPoint( {2, 50} ), QPoint( {2, 49} ), QPoint( {4, 49} ), QPoint( {4, 48} ), QPoint( {6, 48} ), QPoint( {6, 47} ), QPoint( {8, 47} ), QPoint( {8, 46} ), QPoint( {10, 46} ), QPoint( {10, 45} ),
-                       QPoint( {12, 45} ), QPoint( {12, 44} ), QPoint( {14, 44} ), QPoint( {14, 43} ), QPoint( {16, 43} ), QPoint( {16, 42} ), QPoint( {18, 42} ), QPoint( {18, 41} ), QPoint( {20, 41} ), QPoint( {20, 40} ),
-                       QPoint( {22, 40} ), QPoint( {22, 39} ), QPoint( {24, 39} ), QPoint( {24, 38} ), QPoint( {26, 38} ), QPoint( {26, 37} ), QPoint( {28, 37} ), QPoint( {28, 36} ), QPoint( {30, 36} ), QPoint( {30, 35} ),
-                       QPoint( {32, 35} ), QPoint( {32, 34} ), QPoint( {34, 34} ), QPoint( {34, 33} ), QPoint( {36, 33} ), QPoint( {36, 32} ), QPoint( {38, 32} ), QPoint( {38, 31} ), QPoint( {40, 31} ), QPoint( {40, 30} ),
-                       QPoint( {42, 30} ), QPoint( {42, 29} ), QPoint( {44, 29} ), QPoint( {44, 28} ), QPoint( {46, 28} ), QPoint( {46, 27} ), QPoint( {48, 27} ), QPoint( {48, 26} ), QPoint( {50, 26} ), QPoint( {50, 25} ),
-                       QPoint( {52, 25} ), QPoint( {52, 24} ), QPoint( {54, 24} ), QPoint( {54, 23} ), QPoint( {56, 23} ), QPoint( {56, 22} ), QPoint( {58, 22} ), QPoint( {58, 21} ), QPoint( {60, 21} ), QPoint( {60, 20} ),
-                       QPoint( {62, 20} ), QPoint( {62, 19} ), QPoint( {64, 19} ), QPoint( {64, 18} ), QPoint( {66, 18} ), QPoint( {66, 17} ), QPoint( {68, 17} ), QPoint( {68, 16} ), QPoint( {70, 16} ), QPoint( {70, 85} ),
-                       QPoint( {68, 85} ), QPoint( {68, 84} ), QPoint( {66, 84} ), QPoint( {66, 83} ), QPoint( {64, 83} ), QPoint( {64, 82} ), QPoint( {62, 82} ), QPoint( {62, 81} ), QPoint( {60, 81} ), QPoint( {60, 80} ),
-                       QPoint( {58, 80} ), QPoint( {58, 79} ), QPoint( {56, 79} ), QPoint( {56, 78} ), QPoint( {54, 78} ), QPoint( {54, 77} ), QPoint( {52, 77} ), QPoint( {52, 76} ), QPoint( {50, 76} ), QPoint( {50, 75} ),
-                       QPoint( {48, 75} ), QPoint( {48, 74} ), QPoint( {46, 74} ), QPoint( {46, 73} ), QPoint( {44, 73} ), QPoint( {44, 72} ), QPoint( {42, 72} ), QPoint( {42, 71} ), QPoint( {40, 71} ), QPoint( {40, 70} ),
-                       QPoint( {38, 70} ), QPoint( {38, 69} ), QPoint( {36, 69} ), QPoint( {36, 68} ), QPoint( {34, 68} ), QPoint( {34, 67} ), QPoint( {32, 67} ), QPoint( {32, 66} ), QPoint( {30, 66} ), QPoint( {30, 65} ),
-                       QPoint( {28, 65} ), QPoint( {28, 64} ), QPoint( {26, 64} ), QPoint( {26, 63} ), QPoint( {24, 63} ), QPoint( {24, 62} ), QPoint( {22, 62} ), QPoint( {22, 61} ), QPoint( {20, 61} ), QPoint( {20, 60} ),
-                       QPoint( {18, 60} ), QPoint( {18, 59} ), QPoint( {16, 59} ), QPoint( {16, 58} ), QPoint( {14, 58} ), QPoint( {14, 57} ), QPoint( {12, 57} ), QPoint( {12, 56} ), QPoint( {10, 56} ), QPoint( {10, 55} ),
-                       QPoint( {8, 55} ), QPoint( {8, 54} ), QPoint( {6, 54} ), QPoint( {6, 53} ), QPoint( {4, 53} ), QPoint( {4, 52} ), QPoint( {3, 52} )} );
+  QPolygon testTrace( {QPoint( {50, 2} ), QPoint( {49, 2} ), QPoint( {49, 4} ), QPoint( {48, 4} ), QPoint( {48, 6} ), QPoint( {47, 6} ), QPoint( {47, 8} ),
+                       QPoint( {46, 8} ), QPoint( {46, 10} ), QPoint( {45, 10} ), QPoint( {45, 12} ), QPoint( {44, 12} ), QPoint( {44, 14} ),
+                       QPoint( {43, 14} ), QPoint( {43, 16} ), QPoint( {42, 16} ), QPoint( {42, 18} ), QPoint( {41, 18} ), QPoint( {41, 20} ),
+                       QPoint( {40, 20} ), QPoint( {40, 22} ), QPoint( {39, 22} ), QPoint( {39, 24} ), QPoint( {38, 24} ), QPoint( {38, 26} ),
+                       QPoint( {37, 26} ), QPoint( {37, 28} ), QPoint( {36, 28} ), QPoint( {36, 30} ), QPoint( {35, 30} ), QPoint( {35, 32} ),
+                       QPoint( {34, 32} ), QPoint( {34, 34} ), QPoint( {33, 34} ), QPoint( {33, 36} ), QPoint( {32, 36} ), QPoint( {32, 38} ),
+                       QPoint( {31, 38} ), QPoint( {31, 40} ), QPoint( {30, 40} ), QPoint( {30, 42} ), QPoint( {29, 42} ), QPoint( {29, 44} ),
+                       QPoint( {28, 44} ), QPoint( {28, 46} ), QPoint( {27, 46} ), QPoint( {27, 48} ), QPoint( {26, 48} ), QPoint( {26, 50} ),
+                       QPoint( {25, 50} ), QPoint( {25, 52} ), QPoint( {24, 52} ), QPoint( {24, 54} ), QPoint( {23, 54} ), QPoint( {23, 56} ),
+                       QPoint( {22, 56} ), QPoint( {22, 58} ), QPoint( {21, 58} ), QPoint( {21, 60} ), QPoint( {20, 60} ), QPoint( {20, 62} ),
+                       QPoint( {19, 62} ), QPoint( {19, 64} ), QPoint( {18, 64} ), QPoint( {18, 66} ), QPoint( {17, 66} ), QPoint( {17, 68} ),
+                       QPoint( {16, 68} ), QPoint( {16, 70} ), QPoint( {85, 70} ), QPoint( {85, 68} ), QPoint( {84, 68} ), QPoint( {84, 66} ),
+                       QPoint( {83, 66} ), QPoint( {83, 64} ), QPoint( {82, 64} ), QPoint( {82, 62} ), QPoint( {81, 62} ), QPoint( {81, 60} ),
+                       QPoint( {80, 60} ), QPoint( {80, 58} ), QPoint( {79, 58} ), QPoint( {79, 56} ), QPoint( {78, 56} ), QPoint( {78, 54} ),
+                       QPoint( {77, 54} ), QPoint( {77, 52} ), QPoint( {76, 52} ), QPoint( {76, 50} ), QPoint( {75, 50} ), QPoint( {75, 48} ),
+                       QPoint( {74, 48} ), QPoint( {74, 46} ), QPoint( {73, 46} ), QPoint( {73, 44} ), QPoint( {72, 44} ), QPoint( {72, 42} ),
+                       QPoint( {71, 42} ), QPoint( {71, 40} ), QPoint( {70, 40} ), QPoint( {70, 38} ), QPoint( {69, 38} ), QPoint( {69, 36} ),
+                       QPoint( {68, 36} ), QPoint( {68, 34} ), QPoint( {67, 34} ), QPoint( {67, 32} ), QPoint( {66, 32} ), QPoint( {66, 30} ),
+                       QPoint( {65, 30} ), QPoint( {65, 28} ), QPoint( {64, 28} ), QPoint( {64, 26} ), QPoint( {63, 26} ), QPoint( {63, 24} ),
+                       QPoint( {62, 24} ), QPoint( {62, 22} ), QPoint( {61, 22} ), QPoint( {61, 20} ), QPoint( {60, 20} ), QPoint( {60, 18} ),
+                       QPoint( {59, 18} ), QPoint( {59, 16} ), QPoint( {58, 16} ), QPoint( {58, 14} ), QPoint( {57, 14} ), QPoint( {57, 12} ),
+                       QPoint( {56, 12} ), QPoint( {56, 10} ), QPoint( {55, 10} ), QPoint( {55, 8} ), QPoint( {54, 8} ), QPoint( {54, 6} ),
+                       QPoint( {53, 6} ), QPoint( {53, 4} ), QPoint( {52, 4} ), QPoint( {52, 3} )} );
+
 
   EXPECT_EQ( testTrace, tr );
+}
+
+TEST_F( ReosRasterTesting, ReosRasterByteCompressed )
+{
+  GDALAllRegister();
+  ReosRasterMemory<unsigned char> memoryRaster;
+  memoryRaster.loadDataFromTiffFile( test_file( "filledDemDir.tiff" ).c_str(), GDALDataType::GDT_Byte );
+
+  ReosRasterByteCompressed compressed( memoryRaster );
+
+  ReosRasterMemory<unsigned char> uncompressed = compressed.uncompressRaster();
+
+  ASSERT_TRUE( uncompressed == memoryRaster );
 }
 
 int main( int argc, char **argv )

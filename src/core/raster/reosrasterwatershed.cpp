@@ -1,5 +1,5 @@
 /***************************************************************************
-                      hdrasterwatershed.cpp
+                      reosrasterwatershed.cpp
                      --------------------------------------
 Date                 : 18-11-2018
 Copyright            : (C) 2018 by Vincent Cloarec
@@ -63,9 +63,9 @@ void ReosRasterWatershedMarkerFromDirection::start()
               if ( mClimberToTreat.size() < mMaxClimberStored )
                 mClimberToTreat.push( ReosRasterWatershed::Climber( pixelToTest, currentClimb.lengthPath + dl ) );
               else
+                mParent->addClimberInPool( ReosRasterWatershed::Climber( pixelToTest, currentClimb.lengthPath + dl ) );
 
-
-                endOfPath &= false;
+              endOfPath &= false;
             }
           }
         }
@@ -228,8 +228,8 @@ ReosRasterWatershedToVector::ReosRasterWatershedToVector( ReosRasterWatershed::W
 
   Columnlimite++;
 
-  QPoint startingPoint = QPoint( cellInWatershed.row(), Columnlimite );
-  QPoint origin( 0, -1 );
+  QPoint startingPoint = QPoint( Columnlimite, cellInWatershed.row() );
+  QPoint origin( -1, 0 );
 
   QVector<QPoint> endLine;
   endLine.append( startingPoint );
@@ -275,6 +275,7 @@ ReosRasterWatershedTraceDownstream::ReosRasterWatershedTraceDownstream( ReosRast
 
 void ReosRasterWatershedTraceDownstream::start()
 {
+  mIsSuccessful = false;
   unsigned char lastDir = 4;
   unsigned char dir = mDirectionRaster.value( mPos.row(), mPos.column() );
   QPointF posMap = mEmpriseRaster.cellCenterToMap( mPos );
@@ -297,6 +298,8 @@ void ReosRasterWatershedTraceDownstream::start()
     dir = mDirectionRaster.value( mPos.row(), mPos.column() );
   }
   mResultPolyline.append( mEmpriseRaster.cellCenterToMap( mPos ) );
+
+  mIsSuccessful = true;
 }
 
 QPolygonF ReosRasterWatershedTraceDownstream::resultPolyline() const

@@ -13,7 +13,6 @@ email                : vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
-
 #ifndef REOSPROCESS_H
 #define REOSPROCESS_H
 
@@ -27,7 +26,7 @@ email                : vcloarec at gmail dot com
  * Abstract class that represent a process (log calculation). this class has convenient method to handle, feedback and bring the process in other thread
  * Processes can be nested.
 */
-class ReosProcess : public QObject
+class ReosProcess
 {
   public:
     virtual ~ReosProcess();
@@ -36,18 +35,18 @@ class ReosProcess : public QObject
     void setMaxProgession( int value );
 
     int currentProgression();
-    void setCurrentProgression( int value );
 
     virtual void stopAsSoonAsPossible( bool b );
-
-    virtual void start() = 0;
 
     bool isSuccessful() const;
 
     static void processStart( ReosProcess *p );
 
+    virtual void start() = 0;
+
   protected:
 
+    void setCurrentProgression( int value );
     bool isStopped() const {return mStopWithoutMutex;}
     bool isStopAsked();
     void stop( bool b ) {mStopWithoutMutex = b;}

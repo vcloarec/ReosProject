@@ -23,6 +23,8 @@ email                : vcloarec at gmail dot com
 #include <QTime>
 #include <QToolBar>
 
+class ReosProcess;
+
 class ReosModule : public QObject
 {
     Q_OBJECT
@@ -44,6 +46,8 @@ class ReosModule : public QObject
     void newCommandToUndoStack( QUndoCommand *command );
     void activeUndoStack( QUndoStack *undoStack );
     void emitMessage( const QString &message, const MessageType &type ) const;
+    //! signal emittedwhen a process in the module just finished
+    void processFinished();
 
   public slots:
 
@@ -71,6 +75,9 @@ class ReosModule : public QObject
     QUndoStack *mUndoStack = nullptr;
 
     void sendMessage( QString mes, MessageType type ) const;
+
+    void startProcessOnOtherThread( ReosProcess *process );
+    void startProcessOnSameThread( ReosProcess *process );
 
   private:
     ReosModule *mReosParent = nullptr;

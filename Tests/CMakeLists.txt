@@ -40,6 +40,9 @@ ADD_DEFINITIONS(-DTESTDATA="${TESTDATA_DIR}")
 SET(TESTDATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data")
 ADD_DEFINITIONS(-DTESTDATA="${TESTDATA_DIR}")
 ADD_LIBRARY(reostestutils OBJECT ${CMAKE_CURRENT_SOURCE_DIR}/src/reos_testutils.h ${CMAKE_CURRENT_SOURCE_DIR}/src/reos_testutils.cpp )
+TARGET_LINK_LIBRARIES(reostestutils
+                      ${Qt5Core_LIBRARIES}
+                      reosCore)
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/Tests/src/tools)
 
 #########################################################################
@@ -63,11 +66,13 @@ MACRO (ADD_REOS_TEST TESTSRC)
   STRING(REPLACE ".cpp" "" TESTNAME ${TESTNAME})
   ADD_EXECUTABLE(${TESTNAME} ${TESTSRC} $<TARGET_OBJECTS:reostestutils>)
   TARGET_LINK_LIBRARIES(${TESTNAME}
+                        ${Qt5Core_LIBRARIES}
                         ${Qt5Test_LIBRARIES}
                         ${CMAKE_THREAD_LIBS_INIT}
                         gtest
                         gmock
-                        reosTools)
+                        reosTools
+                        reosCore)
 
   IF(GDAL_FOUND)
     TARGET_INCLUDE_DIRECTORIES(${TESTNAME} PRIVATE ${GDAL_INCLUDE_DIRS})

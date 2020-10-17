@@ -23,9 +23,11 @@ SET(REOS_CORE_SOURCES
   raster/reosrasterline.cpp
   raster/reosrastertrace.cpp
   raster/reosrasterwatershed.cpp
+  raster/reosrastercompressed.cpp
   
   watershed/reoswatershed.cpp
   watershed/reoswatersheddelineating.cpp
+  watershed/reoswatershedstore.cpp
 )
 
 SET(REOS_CORE_HEADERS
@@ -46,9 +48,11 @@ SET(REOS_CORE_HEADERS
     raster/reosrasterline.h
     raster/reosrastertrace.h
     raster/reosrasterwatershed.h
+    raster/reosrastercompressed.h
 
     watershed/reoswatershed.h
     watershed/reoswatersheddelineating.h
+    watershed/reoswatershedstore.h
 
 )
 

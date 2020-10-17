@@ -1,7 +1,7 @@
 /***************************************************************************
-                      reos_testutils.h
+                      reoswatershedstore.h
                      --------------------------------------
-Date                 : 04-09-2020
+Date                 : 04-10-2020
 Copyright            : (C) 2020 by Vincent Cloarec
 email                : vcloarec at gmail dot com
  ***************************************************************************
@@ -13,34 +13,34 @@ email                : vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
-#ifndef REOS_TESTUTILS_H
-#define REOS_TESTUTILS_H
+#ifndef REOSWATERSHEDSTORE_H
+#define REOSWATERSHEDSTORE_H
 
-#include <QObject>
-#include <QEventLoop>
-#include <string>
+#include <vector>
+#include <memory>
 
-class ReosModule;
 
-const char *data_path();
 
-std::string test_file( std::string basename );
+class ReosWatershed;
+class QPolygonF;
 
-std::string tmp_file( std::string basename );
-
-class ModuleProcessControler: public QObject
+class ReosWatershedStore
 {
   public:
-    ModuleProcessControler( ReosModule *module );
-    void waitForFinished();
-    void reset();
+    ReosWatershedStore();
 
-  private slots:
-    void processFinished();
+    //! Adds a watershed to the store, take ownership and return a pointer to the watershed
+    ReosWatershed *addWatershed( ReosWatershed *watershed );
+
+    //! Returns the smallest watershed downstream the line, if the line is partially included by any watershed, ok is false
+    //! If there is no watershed downstrea, return nullptr
+    ReosWatershed *downstreamWatershed( const QPolygonF &line, bool &ok ) const;
+
+    int watershedCount() const;
 
   private:
-    bool mProcessFinished = false;
-    QEventLoop mEventLoop;
+
+    std::vector<std::unique_ptr<ReosWatershed>> mWatersheds;
 };
 
-#endif // REOS_TESTUTILS_H
+#endif // REOSWATERSHEDSTORE_H

@@ -97,27 +97,27 @@ TEST_F( ReosRasterWatershedTest, Delineate )
 
   EXPECT_TRUE( testWatershed == watershed );
 
-  ReosRasterExtent extent( ReosMapExtent( 10, 10, 32, 32 ), 11, 11, true, true );
+  ReosRasterExtent extent( ReosMapExtent( 0, 0, 11, 11 ), 11, 11 );
   ReosRasterWatershedToVector rasterToVector( watershed, extent, watershedDelineate.firstCell() );
   rasterToVector.start();
   QPolygonF watershedPolygon = rasterToVector.watershed();
 
-  QPolygonF testWatershedPolygon( {QPointF( 14, 18 ), QPointF( 16, 18 ), QPointF( 16, 16 ), QPointF( 20, 16 ),
-                                   QPointF( 20, 18 ), QPointF( 24, 18 ), QPointF( 24, 22 ), QPointF( 22, 22 ),
-                                   QPointF( 22, 24 ), QPointF( 20, 24 ), QPointF( 20, 26 ), QPointF( 18, 26 ),
-                                   QPointF( 18, 28 ), QPointF( 16, 28 ), QPointF( 16, 30 ), QPointF( 14, 30 ),
-                                   QPointF( 14, 20 )} );
+  QPolygonF testWatershedPolygon( {QPointF( 4, 9 ), QPointF( 4, 8 ), QPointF( 3, 8 ), QPointF( 3, 6 ),
+                                   QPointF( 4, 6 ), QPointF( 4, 4 ), QPointF( 6, 4 ), QPointF( 6, 5 ),
+                                   QPointF( 7, 5 ), QPointF( 7, 6 ), QPointF( 8, 6 ), QPointF( 8, 7 ),
+                                   QPointF( 9, 7 ), QPointF( 9, 8 ), QPointF( 10, 8 ), QPointF( 10, 9 ),
+                                   QPointF( 5, 9 )} );
 
   EXPECT_TRUE( watershedPolygon == testWatershedPolygon );
 
-  ReosRasterCellPos startCell( 6, 6 );
+  ReosRasterCellPos startCell( 6, 5 );
   ReosRasterWatershedTraceDownstream traceDownstream( directions, watershedPolygon, extent, startCell );
   traceDownstream.start();
 
   QPolygonF traceDownstreamPolyline = traceDownstream.resultPolyline();
 
   QPolygonF testTraceDownstream;
-  testTraceDownstream << QPointF( 23.0, 23.0 ) << QPointF( 25.0, 21.0 );
+  testTraceDownstream << QPointF( 5.5, 4.5 ) << QPointF( 4.5, 5.5 ) << QPointF( 4.5, 9.5 );
 
   EXPECT_TRUE( traceDownstreamPolyline == testTraceDownstream );
 }

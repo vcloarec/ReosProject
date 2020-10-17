@@ -3,7 +3,7 @@
                      --------------------------------------
 Date                 : 18-11-2018
 Copyright            : (C) 2018 by Vincent Cloarec
-email                : vcloarec@gmail.com projetreos@gmail.com
+email                : vcloarec@gmail.com
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *

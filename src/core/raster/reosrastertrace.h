@@ -181,8 +181,8 @@ void ReosRasterTraceBetweenCellsUniqueValue<T>::defineDirection( QList<QPoint> &
   {
     QVector<QPoint> cellToTest = fromBetweenAndDirectionToCells( mPosition, listDir[i] );
 
-    T v1 = mRaster.value( cellToTest[0].x(), cellToTest[0].y() );
-    T v2 = mRaster.value( cellToTest[1].x(), cellToTest[1].y() );
+    T v1 = mRaster.value( cellToTest[0].y(), cellToTest[0].x() );
+    T v2 = mRaster.value( cellToTest[1].y(), cellToTest[1].x() );
 
     bool condition = ( v1 != v2 ) && ( ( v1 == mValue ) || ( v2 == mValue ) );
 

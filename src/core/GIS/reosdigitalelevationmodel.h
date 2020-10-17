@@ -24,7 +24,7 @@ class ReosDigitalElevationModel
 {
   public:
     ReosDigitalElevationModel();
-    ~ReosDigitalElevationModel();
+    virtual ~ReosDigitalElevationModel();
 
     //! Returns elevation value at \a point in DEM coordinate
     virtual double elevationAt( const QPointF &point, const QString &destinationCrs = QString() ) = 0;
@@ -41,9 +41,6 @@ class ReosDigitalElevationModel
       const ReosMapExtent &extent,
       ReosRasterExtent &rasterExtent,
       const QString &destinationCrs = QString() ) = 0;
-
-  private:
-
 };
 
 

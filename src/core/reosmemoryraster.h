@@ -209,9 +209,9 @@ class ReosRasterMemory
     //! Returns the value that is considered as no data
     T noData() const;
     //! Returns the row count
-    int rowCount() {return mRowCount;}
+    int rowCount() const {return mRowCount;}
     //! Returns the columns count
-    int columnCount() {return mColumnCount;}
+    int columnCount() const {return mColumnCount;}
     //! Fill the raster with \a val
     void fill( T val );
 

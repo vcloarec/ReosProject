@@ -1,5 +1,5 @@
 /***************************************************************************
-                      hdrasterwatershed.h
+                      reosrasterwatershed.h
                      --------------------------------------
 Date                 : 18-11-2018
 Copyright            : (C) 2018 by Vincent Cloarec
@@ -46,16 +46,15 @@ namespace ReosRasterWatershed
 class ReosRasterWatershedFromDirectionAndDownStreamLine;
 
 /**
- * Class used to mark cells in a direction raster that are in the same watershed.
+ * Class used to mark cells from a direction raster that are in the same watershed.
  * To do that, the class ascends the direction raster until the highest cells.
- * During this ascension, the legnth of the path is calculated.
+ * During this ascension, the length of the path is calculated.
  * For this a "Climber" is used that store the cell position and the length of the path from the beginning
  *
  * The instance of this class is created from an instance ReosWatershedFromDirectionAndDownStreamLine and link with this
  * instance that can provide new starting cell if needed. Several instance of ReosRasterWatershedMarkFromDirection can work
  * in different parralel threads with a common ReosWatershedFromDirectionAndDownStreamLine parent instance.
  *
- * The watershed is mark on
  */
 
 class ReosRasterWatershedMarkerFromDirection: public ReosProcess
@@ -78,7 +77,7 @@ class ReosRasterWatershedMarkerFromDirection: public ReosProcess
     ReosRasterWatershed::Watershed &mWatershed;
     ReosRasterLine mExcludedPixel;
     std::queue<ReosRasterWatershed::Climber> mClimberToTreat;
-    size_t mMaxClimberStored = 10;
+    size_t mMaxClimberStored = 100;
 };
 
 /**

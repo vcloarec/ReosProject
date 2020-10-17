@@ -1,9 +1,9 @@
 /***************************************************************************
-                      reos_testutils.h
+                      reosrastercompressed.h
                      --------------------------------------
-Date                 : 04-09-2020
+Date                 : 16-10-2020
 Copyright            : (C) 2020 by Vincent Cloarec
-email                : vcloarec at gmail dot com
+email                : vcloarec@gmail.com
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -12,35 +12,32 @@ email                : vcloarec at gmail dot com
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
+#ifndef REOSRASTERCOMPRESSED_H
+#define REOSRASTERCOMPRESSED_H
 
-#ifndef REOS_TESTUTILS_H
-#define REOS_TESTUTILS_H
+#include <QByteArray>
+#include "reosmemoryraster.h"
 
-#include <QObject>
-#include <QEventLoop>
-#include <string>
 
-class ReosModule;
-
-const char *data_path();
-
-std::string test_file( std::string basename );
-
-std::string tmp_file( std::string basename );
-
-class ModuleProcessControler: public QObject
+/**
+ * Class used to store unsigned char raser that has value unde 128 by a compress way
+ *
+ */
+class ReosRasterByteCompressed
 {
   public:
-    ModuleProcessControler( ReosModule *module );
-    void waitForFinished();
-    void reset();
+    ReosRasterByteCompressed() = default;
+    //! Constructor with an existing \a raster
+    ReosRasterByteCompressed( const ReosRasterMemory<unsigned char> &raster );
 
-  private slots:
-    void processFinished();
+    //! Decompresses the raster and returns it
+    ReosRasterMemory<unsigned char> uncompressRaster() const;
 
   private:
-    bool mProcessFinished = false;
-    QEventLoop mEventLoop;
+    int mRowCount = 0;
+    int mColumnCount = 0;
+    QByteArray mData;
 };
 
-#endif // REOS_TESTUTILS_H
+
+#endif // REOSRASTERCOMPRESSED_H
