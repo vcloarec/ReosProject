@@ -1,7 +1,7 @@
 /***************************************************************************
-                      reos_raster_test.cpp
+                      reos_watershed_test.cpp
                      --------------------------------------
-Date                 : 04-09-2020
+Date                 : October-2020
 Copyright            : (C) 2020 by Vincent Cloarec
 email                : vcloarec at gmail dot com
  ***************************************************************************
@@ -27,6 +27,7 @@ class ReosWatersehdTest: public QObject
   private slots:
     void watershedDelineating();
     void watershedDelineatingWithBurningLine();
+    void watershdDelineatingMultiWatershed();
 
   private:
     ReosModule rootModule;
@@ -195,10 +196,11 @@ void ReosWatersehdTest::watershedDelineating()
 
   //! Attempt to delineate an upstream watershed
   downstreamLine.clear();
-  //! Partially contained line
+  //! Partially contained line --> not possible
   downstreamLine << QPointF( 661560, 1792750 ) << QPointF( 661760, 1792900 );
 
   QVERIFY( !watershedDelineating.setDownstreamLine( downstreamLine, watershedStore ) );
+  QCOMPARE( watershedDelineating.currentState(), ReosWatershedDelineating::WaitingForDownstream );
 
   downstreamLine.clear();
   downstreamLine << QPointF( 661637, 1792840 ) << QPointF( 661703.5, 1792843.86 );
@@ -261,7 +263,14 @@ void ReosWatersehdTest::watershedDelineating()
 
   QCOMPARE( polygonWatershed, polygonWatershedTest );
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForValidate );
+
+  watershedDelineating.validateWatershed( watershedStore );
+  QVERIFY( watershedStore.masterWatershedCount() == 1 );
+  QVERIFY( watershedStore.watershedCount() == 2 );
 }
+
+//----------------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------
 
 void ReosWatersehdTest::watershedDelineatingWithBurningLine()
 {
@@ -382,6 +391,138 @@ void ReosWatersehdTest::watershedDelineatingWithBurningLine()
 
 
   QCOMPARE( polygonWatershed, polygonWatershedTest );
+
+}
+
+void ReosWatersehdTest::watershdDelineatingMultiWatershed()
+{
+  // create watershed delineating module
+  ReosWatershedDelineating watershedDelineating( &rootModule, &gisEngine );
+  ModuleProcessControler controler( &watershedDelineating );
+  ReosWatershedStore watershedStore;
+
+  // add raster layer and register it as DEM
+  QString layerId = gisEngine.addRasterLayer( test_file( "DEM_for_multi_watershed.tif" ).c_str(), QStringLiteral( "raster_DEM" ) );
+  QCOMPARE( gisEngine.layerType( layerId ), ReosGisEngine::RasterLayer );
+  QVERIFY( gisEngine.registerLayerAsDigitalElevationModel( layerId ) );
+  QMap<QString, QString> demList = gisEngine.digitalElevationModelRasterList();
+  QVERIFY( watershedDelineating.setDigitalElevationModelDEM( layerId ) );
+  QVERIFY( watershedDelineating.hasValidDigitalElevationModel() );
+  QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForDownstream );
+
+  QPolygonF downstreamLine;
+  downstreamLine << QPointF( 666701.724, 1799132.754 ) << QPointF( 666692.005, 1799212.636 );
+  QVERIFY( watershedDelineating.setDownstreamLine( downstreamLine, watershedStore ) );
+  QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForExtent );
+
+  ReosMapExtent predifinedExtent( 666503.15, 1798940.06, 667100.8, 1799458.2 );
+  QVERIFY( watershedDelineating.setPreDefinedExtent( predifinedExtent ) );
+  QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingforProceed );
+  QVERIFY( watershedDelineating.startDelineating() );
+  controler.waitForFinished();
+  controler.reset();
+
+  QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForValidate );
+
+  QPolygonF polygonWatershed = watershedDelineating.lastWatershedDelineated();
+
+  QPolygonF polygonWatershedTest(
+  {
+    QPointF( 666694.50, 1799175.50 ), QPointF( 666694.50, 1799145.50 ), QPointF( 666699.50, 1799145.50 ), QPointF( 666699.50, 1799130.50 ), QPointF( 666704.50, 1799130.50 ), QPointF( 666704.50, 1799105.50 ), QPointF( 666699.50, 1799105.50 ), QPointF( 666699.50, 1799095.50 ), QPointF( 666704.50, 1799095.50 ), QPointF( 666704.50, 1799085.50 ),
+    QPointF( 666709.50, 1799085.50 ), QPointF( 666709.50, 1799065.50 ), QPointF( 666714.50, 1799065.50 ), QPointF( 666714.50, 1799045.50 ), QPointF( 666719.50, 1799045.50 ), QPointF( 666719.50, 1799015.50 ), QPointF( 666724.50, 1799015.50 ), QPointF( 666724.50, 1799005.50 ), QPointF( 666744.50, 1799005.50 ), QPointF( 666744.50, 1799000.50 ),
+    QPointF( 666754.50, 1799000.50 ), QPointF( 666754.50, 1798995.50 ), QPointF( 666769.50, 1798995.50 ), QPointF( 666769.50, 1798990.50 ), QPointF( 666779.50, 1798990.50 ), QPointF( 666779.50, 1798985.50 ), QPointF( 666789.50, 1798985.50 ), QPointF( 666789.50, 1798980.50 ), QPointF( 666829.50, 1798980.50 ), QPointF( 666829.50, 1798975.50 ),
+    QPointF( 666854.50, 1798975.50 ), QPointF( 666854.50, 1798970.50 ), QPointF( 666859.50, 1798970.50 ), QPointF( 666859.50, 1798965.50 ), QPointF( 666864.50, 1798965.50 ), QPointF( 666864.50, 1798960.50 ), QPointF( 666869.50, 1798960.50 ), QPointF( 666869.50, 1798955.50 ), QPointF( 666874.50, 1798955.50 ), QPointF( 666874.50, 1798950.50 ),
+    QPointF( 666884.50, 1798950.50 ), QPointF( 666884.50, 1798955.50 ), QPointF( 666889.50, 1798955.50 ), QPointF( 666889.50, 1798960.50 ), QPointF( 666894.50, 1798960.50 ), QPointF( 666894.50, 1798955.50 ), QPointF( 666899.50, 1798955.50 ), QPointF( 666899.50, 1798960.50 ), QPointF( 666904.50, 1798960.50 ), QPointF( 666904.50, 1798970.50 ),
+    QPointF( 666909.50, 1798970.50 ), QPointF( 666909.50, 1798975.50 ), QPointF( 666914.50, 1798975.50 ), QPointF( 666914.50, 1798980.50 ), QPointF( 666919.50, 1798980.50 ), QPointF( 666919.50, 1798985.50 ), QPointF( 666924.50, 1798985.50 ), QPointF( 666924.50, 1798990.50 ), QPointF( 666929.50, 1798990.50 ), QPointF( 666929.50, 1798995.50 ),
+    QPointF( 666924.50, 1798995.50 ), QPointF( 666924.50, 1799000.50 ), QPointF( 666919.50, 1799000.50 ), QPointF( 666919.50, 1799005.50 ), QPointF( 666929.50, 1799005.50 ), QPointF( 666929.50, 1799000.50 ), QPointF( 666934.50, 1799000.50 ), QPointF( 666934.50, 1798995.50 ), QPointF( 666944.50, 1798995.50 ), QPointF( 666944.50, 1799000.50 ),
+    QPointF( 666954.50, 1799000.50 ), QPointF( 666954.50, 1799005.50 ), QPointF( 666959.50, 1799005.50 ), QPointF( 666959.50, 1799010.50 ), QPointF( 666964.50, 1799010.50 ), QPointF( 666964.50, 1799015.50 ), QPointF( 666979.50, 1799015.50 ), QPointF( 666979.50, 1799020.50 ), QPointF( 666984.50, 1799020.50 ), QPointF( 666984.50, 1799025.50 ),
+    QPointF( 666999.50, 1799025.50 ), QPointF( 666999.50, 1799030.50 ), QPointF( 667014.50, 1799030.50 ), QPointF( 667014.50, 1799035.50 ), QPointF( 667029.50, 1799035.50 ), QPointF( 667029.50, 1799040.50 ), QPointF( 667034.50, 1799040.50 ), QPointF( 667034.50, 1799045.50 ), QPointF( 667049.50, 1799045.50 ), QPointF( 667049.50, 1799050.50 ),
+    QPointF( 667054.50, 1799050.50 ), QPointF( 667054.50, 1799055.50 ), QPointF( 667059.50, 1799055.50 ), QPointF( 667059.50, 1799060.50 ), QPointF( 667064.50, 1799060.50 ), QPointF( 667064.50, 1799065.50 ), QPointF( 667074.50, 1799065.50 ), QPointF( 667074.50, 1799070.50 ), QPointF( 667079.50, 1799070.50 ), QPointF( 667079.50, 1799080.50 ),
+    QPointF( 667074.50, 1799080.50 ), QPointF( 667074.50, 1799085.50 ), QPointF( 667069.50, 1799085.50 ), QPointF( 667069.50, 1799105.50 ), QPointF( 667064.50, 1799105.50 ), QPointF( 667064.50, 1799110.50 ), QPointF( 667059.50, 1799110.50 ), QPointF( 667059.50, 1799135.50 ), QPointF( 667054.50, 1799135.50 ), QPointF( 667054.50, 1799140.50 ),
+    QPointF( 667049.50, 1799140.50 ), QPointF( 667049.50, 1799145.50 ), QPointF( 667054.50, 1799145.50 ), QPointF( 667054.50, 1799150.50 ), QPointF( 667049.50, 1799150.50 ), QPointF( 667049.50, 1799160.50 ), QPointF( 667044.50, 1799160.50 ), QPointF( 667044.50, 1799170.50 ), QPointF( 667039.50, 1799170.50 ), QPointF( 667039.50, 1799175.50 ),
+    QPointF( 667034.50, 1799175.50 ), QPointF( 667034.50, 1799195.50 ), QPointF( 667039.50, 1799195.50 ), QPointF( 667039.50, 1799200.50 ), QPointF( 667044.50, 1799200.50 ), QPointF( 667044.50, 1799210.50 ), QPointF( 667039.50, 1799210.50 ), QPointF( 667039.50, 1799220.50 ), QPointF( 667034.50, 1799220.50 ), QPointF( 667034.50, 1799225.50 ),
+    QPointF( 667029.50, 1799225.50 ), QPointF( 667029.50, 1799230.50 ), QPointF( 667024.50, 1799230.50 ), QPointF( 667024.50, 1799245.50 ), QPointF( 667019.50, 1799245.50 ), QPointF( 667019.50, 1799255.50 ), QPointF( 667014.50, 1799255.50 ), QPointF( 667014.50, 1799275.50 ), QPointF( 667009.50, 1799275.50 ), QPointF( 667009.50, 1799285.50 ),
+    QPointF( 667004.50, 1799285.50 ), QPointF( 667004.50, 1799290.50 ), QPointF( 666999.50, 1799290.50 ), QPointF( 666999.50, 1799295.50 ), QPointF( 666994.50, 1799295.50 ), QPointF( 666994.50, 1799300.50 ), QPointF( 666984.50, 1799300.50 ), QPointF( 666984.50, 1799305.50 ), QPointF( 666979.50, 1799305.50 ), QPointF( 666979.50, 1799315.50 ),
+    QPointF( 666984.50, 1799315.50 ), QPointF( 666984.50, 1799325.50 ), QPointF( 666974.50, 1799325.50 ), QPointF( 666974.50, 1799340.50 ), QPointF( 666969.50, 1799340.50 ), QPointF( 666969.50, 1799350.50 ), QPointF( 666964.50, 1799350.50 ), QPointF( 666964.50, 1799355.50 ), QPointF( 666954.50, 1799355.50 ), QPointF( 666954.50, 1799360.50 ),
+    QPointF( 666949.50, 1799360.50 ), QPointF( 666949.50, 1799365.50 ), QPointF( 666944.50, 1799365.50 ), QPointF( 666944.50, 1799370.50 ), QPointF( 666939.50, 1799370.50 ), QPointF( 666939.50, 1799375.50 ), QPointF( 666934.50, 1799375.50 ), QPointF( 666934.50, 1799380.50 ), QPointF( 666929.50, 1799380.50 ), QPointF( 666929.50, 1799385.50 ),
+    QPointF( 666924.50, 1799385.50 ), QPointF( 666924.50, 1799395.50 ), QPointF( 666919.50, 1799395.50 ), QPointF( 666919.50, 1799400.50 ), QPointF( 666914.50, 1799400.50 ), QPointF( 666914.50, 1799405.50 ), QPointF( 666909.50, 1799405.50 ), QPointF( 666909.50, 1799410.50 ), QPointF( 666904.50, 1799410.50 ), QPointF( 666904.50, 1799415.50 ),
+    QPointF( 666894.50, 1799415.50 ), QPointF( 666894.50, 1799420.50 ), QPointF( 666889.50, 1799420.50 ), QPointF( 666889.50, 1799415.50 ), QPointF( 666884.50, 1799415.50 ), QPointF( 666884.50, 1799410.50 ), QPointF( 666879.50, 1799410.50 ), QPointF( 666879.50, 1799405.50 ), QPointF( 666834.50, 1799405.50 ), QPointF( 666834.50, 1799400.50 ),
+    QPointF( 666824.50, 1799400.50 ), QPointF( 666824.50, 1799395.50 ), QPointF( 666814.50, 1799395.50 ), QPointF( 666814.50, 1799390.50 ), QPointF( 666809.50, 1799390.50 ), QPointF( 666809.50, 1799385.50 ), QPointF( 666784.50, 1799385.50 ), QPointF( 666784.50, 1799380.50 ), QPointF( 666774.50, 1799380.50 ), QPointF( 666774.50, 1799375.50 ),
+    QPointF( 666769.50, 1799375.50 ), QPointF( 666769.50, 1799365.50 ), QPointF( 666764.50, 1799365.50 ), QPointF( 666764.50, 1799360.50 ), QPointF( 666759.50, 1799360.50 ), QPointF( 666759.50, 1799355.50 ), QPointF( 666754.50, 1799355.50 ), QPointF( 666754.50, 1799350.50 ), QPointF( 666749.50, 1799350.50 ), QPointF( 666749.50, 1799340.50 ),
+    QPointF( 666744.50, 1799340.50 ), QPointF( 666744.50, 1799335.50 ), QPointF( 666734.50, 1799335.50 ), QPointF( 666734.50, 1799330.50 ), QPointF( 666729.50, 1799330.50 ), QPointF( 666729.50, 1799325.50 ), QPointF( 666724.50, 1799325.50 ), QPointF( 666724.50, 1799320.50 ), QPointF( 666719.50, 1799320.50 ), QPointF( 666719.50, 1799300.50 ),
+    QPointF( 666714.50, 1799300.50 ), QPointF( 666714.50, 1799285.50 ), QPointF( 666709.50, 1799285.50 ), QPointF( 666709.50, 1799280.50 ), QPointF( 666704.50, 1799280.50 ), QPointF( 666704.50, 1799275.50 ), QPointF( 666699.50, 1799275.50 ), QPointF( 666699.50, 1799270.50 ), QPointF( 666694.50, 1799270.50 ), QPointF( 666694.50, 1799265.50 ),
+    QPointF( 666689.50, 1799265.50 ), QPointF( 666689.50, 1799260.50 ), QPointF( 666684.50, 1799260.50 ), QPointF( 666684.50, 1799255.50 ), QPointF( 666679.50, 1799255.50 ), QPointF( 666679.50, 1799245.50 ), QPointF( 666674.50, 1799245.50 ), QPointF( 666674.50, 1799230.50 ), QPointF( 666679.50, 1799230.50 ), QPointF( 666679.50, 1799225.50 ),
+    QPointF( 666674.50, 1799225.50 ), QPointF( 666674.50, 1799215.50 ), QPointF( 666679.50, 1799215.50 ), QPointF( 666679.50, 1799205.50 ), QPointF( 666684.50, 1799205.50 ), QPointF( 666684.50, 1799200.50 ), QPointF( 666689.50, 1799200.50 ), QPointF( 666689.50, 1799185.50 ), QPointF( 666694.50, 1799185.50 ), QPointF( 666694.50, 1799175.50 )
+  } );
+
+  QCOMPARE( polygonWatershed, polygonWatershedTest );
+
+  ReosWatershed *watershed1 = watershedDelineating.validateWatershed( watershedStore );
+  QVERIFY( watershed1->hasDirectiondata() );
+  ReosRasterExtent rasterExtent1( ReosMapExtent( 666664.5, 1798940.5, 667089.5, 1799430.5 ), 85, 98 );
+  QCOMPARE( rasterExtent1, watershed1->directionExtent() );
+  QVERIFY( watershedStore.masterWatershedCount() == 1 );
+  QVERIFY( watershedStore.watershedCount() == 1 );
+
+  QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForDownstream );
+
+  downstreamLine.clear();
+  downstreamLine << QPointF( 666526.94, 1799174.90 ) << QPointF( 666664.30, 1799227.25 );
+  QVERIFY( watershedDelineating.setDownstreamLine( downstreamLine, watershedStore ) );
+  QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForExtent );
+
+  predifinedExtent = ReosMapExtent( 666450.45, 1798920, 667143.16, 1799505.46 );
+  QVERIFY( watershedDelineating.setPreDefinedExtent( predifinedExtent ) );
+  QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingforProceed );
+  QVERIFY( watershedDelineating.startDelineating() );
+  controler.waitForFinished();
+  controler.reset();
+
+  QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForValidate );
+
+  ReosWatershed *watershed2 = watershedDelineating.validateWatershed( watershedStore );
+  QVERIFY( watershed2->hasDirectiondata() );
+  QVERIFY( watershed1->hasDirectiondata() );
+  QCOMPARE( watershed1->directions(), watershed2->directions() );
+  QCOMPARE( watershed1->directionExtent(), watershed2->directionExtent() );
+  QCOMPARE( watershedStore.masterWatershedCount(), 1 );
+  QCOMPARE( watershedStore.watershedCount(), 2 );
+
+  QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForDownstream );
+
+  downstreamLine.clear();
+  downstreamLine << QPointF( 666506.3, 1799336.8 ) << QPointF( 666599.38, 1799355.69 );
+  QVERIFY( watershedDelineating.setDownstreamLine( downstreamLine, watershedStore ) );
+  QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForExtent );
+  predifinedExtent = ReosMapExtent( 666407.06, 1799254.47, 666838.9, 1799641.1 );
+  QVERIFY( watershedDelineating.setPreDefinedExtent( predifinedExtent ) );
+  QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingforProceed );
+  QVERIFY( watershedDelineating.startDelineating() );
+  controler.waitForFinished();
+  controler.reset();
+  QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForValidate );
+  ReosWatershed *watershed3 = watershedDelineating.validateWatershed( watershedStore );
+
+  QCOMPARE( watershedStore.masterWatershedCount(), 2 );
+  QCOMPARE( watershedStore.watershedCount(), 3 );
+
+  downstreamLine.clear();
+  downstreamLine << QPointF( 666453.28, 1799229.84 ) << QPointF( 666495.14, 1799321.72 );
+  QVERIFY( watershedDelineating.setDownstreamLine( downstreamLine, watershedStore ) );
+  QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForExtent );
+  predifinedExtent = ReosMapExtent( 666407.06, 1798924.49, 667146.31, 1799678.08 );
+  QVERIFY( watershedDelineating.setPreDefinedExtent( predifinedExtent ) );
+  QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingforProceed );
+  QVERIFY( watershedDelineating.startDelineating() );
+  controler.waitForFinished();
+  controler.reset();
+
+
+  QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForValidate );
+  ReosWatershed *watershed4 = watershedDelineating.validateWatershed( watershedStore );
+
+  QCOMPARE( watershedStore.masterWatershedCount(), 1 );
+  QCOMPARE( watershedStore.watershedCount(), 4 );
 
 }
 

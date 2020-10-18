@@ -33,6 +33,9 @@ class ReosRasterByteCompressed
     //! Decompresses the raster and returns it
     ReosRasterMemory<unsigned char> uncompressRaster() const;
 
+    //! Return whether the instance of this object contains data
+    bool hasData() const;
+
   private:
     int mRowCount = 0;
     int mColumnCount = 0;

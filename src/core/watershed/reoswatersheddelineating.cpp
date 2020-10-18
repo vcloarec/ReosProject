@@ -59,21 +59,18 @@ bool ReosWatershedDelineating::setDownstreamLine( const QPolygonF &downstreamLin
   if ( mCurrentState == WaitingForDownstream && downstreamLine.count() > 1 )
   {
     bool ok;
-    ReosWatershed *downstreamWatershed = store.downstreamWatershed( downstreamLine, ok );
+    mDownstreamWatershed = store.downstreamWatershed( downstreamLine, ok );
     if ( !ok )
       return false;
 
     mDownstreamLine = downstreamLine;
-    if ( downstreamWatershed )
+    if ( mDownstreamWatershed && mDownstreamWatershed->hasDirectiondata() )
     {
-      mDirection = downstreamWatershed->directions();
-      if ( mDirection.isValid() )
-      {
-        mDirectionExtent = downstreamWatershed->directionExtent();
-        mCurrentState = WaitingforProceed;
-        return true;
-      }
+      mCurrentState = WaitingforProceed;
+      return true;
     }
+    else
+      mDownstreamWatershed = nullptr;
 
     mCurrentState = WaitingForExtent;
     return true;
@@ -102,8 +99,8 @@ bool ReosWatershedDelineating::startDelineating()
     return false;
   }
 
-  if ( mDirection.isValid() )
-    mProcess = std::make_unique<ReosWatershedDelineatingProcess>( mDirection, mDirectionExtent, mDownstreamLine );
+  if ( mDownstreamWatershed && mDownstreamWatershed->hasDirectiondata() )
+    mProcess = std::make_unique<ReosWatershedDelineatingProcess>( mDownstreamWatershed, mDownstreamLine );
   else
   {
     std::unique_ptr<ReosDigitalElevationModel> dem;
@@ -141,11 +138,37 @@ ReosWatershed *ReosWatershedDelineating::validateWatershed( ReosWatershedStore &
   if ( mCurrentState == WaitingForValidate && isDelineatingFinished() && mProcess && mProcess->isSuccessful() )
   {
     mCurrentState = WaitingForDownstream;
-    return store.addWatershed( new ReosWatershed(
-                                 mProcess->watershedPolygon(),
-                                 mDownstreamLine,
-                                 mProcess->directions(),
-                                 mProcess->outputRasterExtent() ) );
+    if ( mDownstreamWatershed )
+      return mDownstreamWatershed->addUpstreamWatershed( new ReosWatershed(
+               mProcess->watershedPolygon(),
+               mProcess->streamLine().last(),
+               mDownstreamLine ) );
+    else
+    {
+      // reduce the direction raster extent and create new watershed with it
+      ReosRasterExtent originalRasterExtent = mProcess->outputRasterExtent();
+      QPointF cornerMin = QPointF( mExtent.xMapMin() + fabs( originalRasterExtent.xCellSize() ) / 2,
+                                   mExtent.yMapMin() + fabs( originalRasterExtent.yCellSize() ) / 2 );
+      QPointF cornerMax = QPointF( mExtent.xMapMax() - fabs( originalRasterExtent.xCellSize() ) / 2,
+                                   mExtent.yMapMax() - fabs( originalRasterExtent.yCellSize() ) / 2 );
+
+      ReosRasterCellPos corner1 = originalRasterExtent.mapToCellPos( cornerMin );
+      ReosRasterCellPos corner2 = originalRasterExtent.mapToCellPos( cornerMax );
+      int rowMin = std::min( corner1.row(), corner2.row() );
+      int rowMax = std::max( corner1.row(), corner2.row() );
+      int colMin = std::min( corner1.column(), corner2.column() );
+      int colMax = std::max( corner1.column(), corner2.column() );
+      ReosRasterExtent reducedRasterExtent( mExtent, colMax - colMin + 1, rowMax - rowMin + 1 );
+
+      ReosRasterWatershed::Directions reducedDirection = mProcess->directions().reduceRaster( rowMin, rowMax, colMin, colMax );
+
+      return store.addWatershed( new ReosWatershed(
+                                   mProcess->watershedPolygon(),
+                                   mProcess->streamLine().last(),
+                                   mDownstreamLine,
+                                   reducedDirection,
+                                   reducedRasterExtent ) );
+    }
   }
   else
     return nullptr;
@@ -182,6 +205,16 @@ void ReosWatershedDelineating::testPredefinedExtentValidity()
     return;
   }
 
+  if ( !mDownstreamWatershed )
+  {
+    //! Here the original extent is not too small, so reduce it to fit just to the new watershed (with extraborder);
+    mExtent = ReosMapExtent( watershedExtent.xMapMin() - xCellSize * 2,
+                             watershedExtent.yMapMin() - yCellSize * 2,
+                             watershedExtent.xMapMax() + xCellSize * 2,
+                             watershedExtent.yMapMax() + yCellSize * 2 );
+
+  }
+
   mCurrentState = WaitingForValidate;
 }
 
@@ -202,13 +235,12 @@ ReosWatershedDelineatingProcess::ReosWatershedDelineatingProcess( ReosDigitalEle
   mBurningLines( burningLines )
 {}
 
-ReosWatershedDelineatingProcess::ReosWatershedDelineatingProcess( ReosRasterWatershed::Directions direction,
-    const ReosRasterExtent &rasterExtent,
+ReosWatershedDelineatingProcess::ReosWatershedDelineatingProcess( ReosWatershed *downstreamWatershed,
     const QPolygonF &downtreamLine ):
 
   mDownstreamLine( downtreamLine ),
-  mDirections( direction ),
-  mOutputRasterExtent( rasterExtent )
+  mDirections( downstreamWatershed->directions() ),
+  mOutputRasterExtent( downstreamWatershed->directionExtent() )
 {
 
 }

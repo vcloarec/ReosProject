@@ -32,11 +32,12 @@ class ReosWatershedStore
     //! Adds a watershed to the store, take ownership and return a pointer to the watershed
     ReosWatershed *addWatershed( ReosWatershed *watershed );
 
-    //! Returns the smallest watershed downstream the line, if the line is partially included by any watershed, ok is false
-    //! If there is no watershed downstrea, return nullptr
+    //! Returns the smallest watershed that is downstream the line, if the line is partially included by any watershed, ok is false
+    //! If there is no watershed downstrean, return nullptr
     ReosWatershed *downstreamWatershed( const QPolygonF &line, bool &ok ) const;
 
     int watershedCount() const;
+    int masterWatershedCount() const;
 
   private:
 

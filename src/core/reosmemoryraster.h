@@ -113,6 +113,11 @@ class ReosRasterExtent : public ReosMapExtent
     //! Returns the intersection of the extents, the position and the size of the pixels are the ones of the first member
     ReosRasterExtent operator*( const ReosRasterExtent &other ) const;
 
+//    bool operator==(const ReosRasterExtent &other)
+//    {
+//        return mIsValid==other.mIsValid &&
+//                mXOrigin==
+//    }
 
   private:
     bool mIsValid = false;
@@ -229,7 +234,7 @@ class ReosRasterMemory
     bool isValid() const;
 
     //! Returns a pointer to a new raster in memory from \a this with reduced column and row count, the caller takes ownership
-    ReosRasterMemory<T> *reduceRaster( int rowMin, int rowMax, int columnMin, int columnMax );
+    ReosRasterMemory<T> reduceRaster( int rowMin, int rowMax, int columnMin, int columnMax );
 
     bool operator==( const ReosRasterMemory<T> &rhs ) const;
 
@@ -405,17 +410,17 @@ bool ReosRasterMemory<T>::copy( ReosRasterMemory<T> *other )
 }
 
 template<typename T>
-ReosRasterMemory<T> *ReosRasterMemory<T>::reduceRaster( int rowMin, int rowMax, int columnMin, int columnMax )
+ReosRasterMemory<T> ReosRasterMemory<T>::reduceRaster( int rowMin, int rowMax, int columnMin, int columnMax )
 {
   if ( ( rowMax < rowMin ) || ( columnMax < columnMin ) )
-    return nullptr;
-  ReosRasterMemory<T> *returnRaster = new ReosRasterMemory<T>( rowMax - rowMin + 1, columnMax - columnMin + 1 );
-  returnRaster->reserveMemory();
+    return ReosRasterMemory<T>();
+  ReosRasterMemory<T> returnRaster( rowMax - rowMin + 1, columnMax - columnMin + 1 );
+  returnRaster.reserveMemory();
 
   for ( int row = rowMin; row <= rowMax; ++row )
     for ( int col = columnMin; col <= columnMax; ++col )
     {
-      returnRaster->setValue( row - rowMin, col - columnMin, value( row, col ) );
+      returnRaster.setValue( row - rowMin, col - columnMin, value( row, col ) );
     }
 
   return returnRaster;

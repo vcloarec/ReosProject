@@ -78,3 +78,8 @@ ReosRasterMemory<unsigned char> ReosRasterByteCompressed::uncompressRaster() con
 
   return raster;
 }
+
+bool ReosRasterByteCompressed::hasData() const
+{
+  return !mData.isEmpty();
+}

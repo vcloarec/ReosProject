@@ -31,15 +31,13 @@ class ReosWatershedStore;
 
 class ReosWatershedDelineatingProcess: public ReosProcess
 {
-
   public:
     ReosWatershedDelineatingProcess( ReosDigitalElevationModel *dem,
                                      const ReosMapExtent &mapExtent,
                                      const QPolygonF &downtreamLine,
                                      const QList<QPolygonF> &burningLines );
 
-    ReosWatershedDelineatingProcess( ReosRasterWatershed::Directions direction,
-                                     const ReosRasterExtent &rasterExtent,
+    ReosWatershedDelineatingProcess( ReosWatershed *downstreamWatershed,
                                      const QPolygonF &downtreamLine );
 
     void start() override;
@@ -125,8 +123,7 @@ class ReosWatershedDelineating : public ReosModule
     State mCurrentState = NoDigitalElevationModel;
     QPolygonF mDownstreamLine;
     ReosMapExtent mExtent;
-    ReosRasterWatershed::Directions mDirection;
-    ReosRasterExtent mDirectionExtent;
+    ReosWatershed *mDownstreamWatershed = nullptr;
     QList<QPolygonF> mBurningLines;
     bool mIsBurningLineUpToDate = false;
 

@@ -59,6 +59,7 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_SOURCE_DIR}/src/core/raster
   ${CMAKE_SOURCE_DIR}/src/core/process
   ${CMAKE_SOURCE_DIR}/src/core/watershed
+  ${CMAKE_SOURCE_DIR}/src/core/utils
 )
 
 MACRO (ADD_REOS_TEST TESTSRC)
@@ -83,8 +84,9 @@ ENDMACRO (ADD_REOS_TEST)
 SET(TESTS
     src/core/reos_dem_test.cpp
     src/core/reos_watershed_test.cpp
-    src/tools/reos_raster_test.cpp
-    src/tools/reos_watershedRaster_test.cpp
+    src/core/reos_raster_test.cpp
+    src/core/reos_watershedRaster_test.cpp
+    src/core/reos_geometry_test.cpp
     )
 
 FOREACH(TESTSRC ${TESTS})
