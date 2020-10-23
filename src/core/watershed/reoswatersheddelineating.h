@@ -27,7 +27,7 @@ email                : vcloarec at gmail dot com
 #include "reosdigitalelevationmodel.h"
 
 class ReosRasterFillingWangLiu;
-class ReosWatershedStore;
+class ReosWatershedTree;
 
 class ReosWatershedDelineatingProcess: public ReosProcess
 {
@@ -77,7 +77,7 @@ class ReosWatershedDelineating : public ReosModule
       WaitingForValidate
     };
 
-    ReosWatershedDelineating( ReosModule *parent, ReosGisEngine *gisEngine );
+    ReosWatershedDelineating( ReosModule *parent, ReosWatershedTree *watershedTree, ReosGisEngine *gisEngine );
     State currentState() const;
 
     //------------------ Settings
@@ -87,13 +87,15 @@ class ReosWatershedDelineating : public ReosModule
     bool setDigitalElevationModelDEM( const QString &layerId );
 
     //! Sets the downstream line
-    bool setDownstreamLine( const QPolygonF &downstreamLine,  const ReosWatershedStore &store );
+    bool setDownstreamLine( const QPolygonF &downstreamLine );
     //! Sets the predefined extent where to operate
     bool setPreDefinedExtent( const ReosMapExtent &extent );
 
     //! Adds a burning line
     void addBurningLines( const QPolygonF &burningLine );
 
+    //! Returns whether the module has direction data ready for proceed
+    bool hasDirectionData() const;
 
     //---------------------- Processing
     //! Start the delineating, return true if starting this process is sucessful
@@ -112,12 +114,13 @@ class ReosWatershedDelineating : public ReosModule
     // -------- validating and watershed producing
 
     //! Validates and and add the xwatershed to the \a store, returns pointer to the watershed
-    ReosWatershed *validateWatershed( ReosWatershedStore &store );
+    ReosWatershed *validateWatershed();
 
   private slots:
     void onDelineatingFinished();
 
   private:
+    ReosWatershedTree *mWatershedTree;
     ReosGisEngine *mGisEngine = nullptr;
     QString mDEMLayerId;
     State mCurrentState = NoDigitalElevationModel;

@@ -48,13 +48,44 @@ class ReosWatershed
     //! Returns the outlet point of the watershed
     QPointF outletPoint() const;
 
-    int upstreamWatershedCount();
+    //! Returns the count if upstream watershed
+    int upstreamWatershedCount() const;
+
+    //! Returns the count of watershed that are directky upstream
+    int directUpstreamWatershedCount() const;
+
+    //! Returns the ith direct upstream watershed, return nullptr if there is not
+    ReosWatershed *directUpstreamWatershed( int i ) const
+    {
+      if ( i<0 or i >= int( mUpstreamWatersheds.size() ) )
+        return nullptr;
+      return mUpstreamWatersheds.at( i ).get();
+    }
+
     //! Adds a upstream watershed (take ownership) and update this one
     ReosWatershed *addUpstreamWatershed( ReosWatershed *upstreamWatershed );
 
     //! Returns the smallest watershed that is downstream the line, if the line is partially included by any watershed, ok is false
     //! If there is no watershed downstrean, return nullptr
     ReosWatershed *upstreamWatershed( const QPolygonF &poly, bool &ok );
+
+    //! Returns, if exists a pointer to the direct downstream watershed, if not returns nullptr
+    ReosWatershed *downstreamWatershed() const;
+
+    int positionInDownstreamWatershed() const
+    {
+      if ( !mDownstreamWatershed )
+        return -1;
+
+      for ( size_t i = 0; i < mDownstreamWatershed->mUpstreamWatersheds.size(); ++i )
+      {
+        if ( this == mDownstreamWatershed->mUpstreamWatersheds.at( i ).get() )
+          return i;
+      }
+
+      return -1;
+
+    }
 
   private:
     ReosMapExtent mExtent;
@@ -65,7 +96,7 @@ class ReosWatershed
     ReosRasterExtent mDirectionExtent;
 
     std::vector<std::unique_ptr<ReosWatershed>> mUpstreamWatersheds;
-    ReosWatershed *mDownstreamWatershed;
+    ReosWatershed *mDownstreamWatershed = nullptr;
 };
 
 

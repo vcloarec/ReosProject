@@ -16,51 +16,53 @@ email                : vcloarec at gmail dot com
 #ifndef REOSMAPITEM_H
 #define REOSMAPITEM_H
 
+#include <memory>
+
 #include <QPolygonF>
 
 class ReosMap;
-class QgsMapCanvas;
 class ReosMapPolygon_p;
 
-class ReosMapItem
+
+class ReosMapPolygon
 {
   public:
-    virtual ~ReosMapItem();
+    //! Contructor
+    ReosMapPolygon( ReosMap *map );
 
-};
+    //! Resets the polygon with \a polygon
+    void resetPolygon( const QPolygonF &polygon = QPolygonF() );
 
-class ReosMapItemFactory
-{
-  private:
-    virtual ReosMapItem *create( QgsMapCanvas *mapcanvas ) = 0;
-    friend class ReosMap;
-};
+    //! Returns the polygon
+    QPolygonF mapPolygon() const;
 
-class ReosMapPolygon: public ReosMapItem
-{
-  public:
-    ~ReosMapPolygon() override;
-
-    void setPolygon( const QPolygonF &polygon );
+    //! Move the point at \a index and update the map
     void movePoint( int pointIndex, const QPointF &p );
 
   private:
-    ReosMapPolygon_p *d = nullptr;
-    ReosMapPolygon( ReosMapPolygon_p * );
-
-    friend class ReosMapPolygonFactory;
+    std::unique_ptr<ReosMapPolygon_p> d;
 };
 
-class ReosMapPolygonFactory: public ReosMapItemFactory
+class ReosMapPolyline
 {
   public:
-    ReosMapPolygon *mapItem( ReosMap *map, const QPolygonF &polygon );
+    //! Constructor
+    ReosMapPolyline( ReosMap *map );
+
+    //! Rsets the polyline with \a polyline
+    void resetPolyline( const QPolygonF &polyline );
+
+    //! Returns the map polyline
+    QPolygonF mapPolyline() const;
+
+    //! Move the point at \a index and update the map
+    void movePoint( int pointIndex, const QPointF &p );
 
   private:
-    virtual ReosMapItem *create( QgsMapCanvas *map ) override;
-
-    friend class ReosMap;
+    std::unique_ptr<ReosMapPolygon_p> d;
 };
+
+
 
 
 #endif // REOSMAPITEM_H

@@ -46,3 +46,16 @@ void ReosMapPolygon_p::paint( QPainter *painter )
   painter->drawPolygon( mViewPolygon );
   painter->restore();
 }
+
+ReosMapPolyline_p::ReosMapPolyline_p( QgsMapCanvas *canvas ):
+  ReosMapPolygon_p( canvas )
+{
+
+}
+
+void ReosMapPolyline_p::paint( QPainter *painter )
+{
+  painter->save();
+  painter->drawPolyline( mViewPolygon );
+  painter->restore();
+}

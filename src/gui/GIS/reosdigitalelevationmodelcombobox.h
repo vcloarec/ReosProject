@@ -1,7 +1,7 @@
 /***************************************************************************
-                      reosmappolygon.h
+                      reosdigitalelevationmodelcombobox.h
                      --------------------------------------
-Date                 : 17-09-2020
+Date                 : October-2020
 Copyright            : (C) 2020 by Vincent Cloarec
 email                : vcloarec at gmail dot com
  ***************************************************************************
@@ -13,31 +13,32 @@ email                : vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
-#ifndef REOSMAPPOLYGON_P_H
-#define REOSMAPPOLYGON_P_H
+#ifndef REOSDIGITALELEVATIONMODELCOMBOBOX_H
+#define REOSDIGITALELEVATIONMODELCOMBOBOX_H
 
-#include <qgsmapcanvasitem.h>
+#include <QComboBox>
 
-class ReosMapPolygon_p: public QgsMapCanvasItem
+#include "reosgisengine.h"
+
+class ReosDigitalElevationModelComboBox: public QComboBox
 {
+    Q_OBJECT
   public:
-    ReosMapPolygon_p( QgsMapCanvas *canvas );
+    ReosDigitalElevationModelComboBox( QWidget *parent, ReosGisEngine *gisEngine = nullptr );
 
-    QRectF boundingRect() const override {return mViewPolygon.boundingRect();}
-    void updatePosition() override;
-    QPolygonF mapPolygon;
+    void setGisEngine( ReosGisEngine *gisEngine );
+    QString currentDemLayerId() const;
 
-  protected:
-    void paint( QPainter *painter ) override;
-    QPolygonF mViewPolygon;
+  signals:
+    void currentDigitalElevationChanged( QString currentId );
+
+  private slots:
+    void onDemChanged();
+
+  private:
+    ReosGisEngine *mGisEngine = nullptr;
+
+    void updateItems();
 };
 
-class ReosMapPolyline_p: public ReosMapPolygon_p
-{
-  public:
-    ReosMapPolyline_p( QgsMapCanvas *canvas );
-  protected:
-    void paint( QPainter *painter ) override;
-};
-
-#endif // REOSMAPPOLYGON_P_H
+#endif // REOSDIGITALELEVATIONMODELCOMBOBOX_H

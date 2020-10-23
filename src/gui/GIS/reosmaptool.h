@@ -1,7 +1,7 @@
 /***************************************************************************
-                      reoswatershedstore.h
+                      reosmaptool.h
                      --------------------------------------
-Date                 : 04-10-2020
+Date                 : October-2020
 Copyright            : (C) 2020 by Vincent Cloarec
 email                : vcloarec at gmail dot com
  ***************************************************************************
@@ -13,35 +13,45 @@ email                : vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
-#ifndef REOSWATERSHEDSTORE_H
-#define REOSWATERSHEDSTORE_H
+#ifndef REOSMAPTOOL_H
+#define REOSMAPTOOL_H
 
-#include <vector>
 #include <memory>
 
+#include "reosmap.h"
 
+class ReosMapToolDrawPolyline_p;
+class ReosMapTool_p;
 
-class ReosWatershed;
-class QPolygonF;
-
-class ReosWatershedStore
+class ReosMapTool : public QObject
 {
   public:
-    ReosWatershedStore();
-
-    //! Adds a watershed to the store, take ownership and return a pointer to the watershed
-    ReosWatershed *addWatershed( ReosWatershed *watershed );
-
-    //! Returns the smallest watershed that is downstream the line, if the line is partially included by any watershed, ok is false
-    //! If there is no watershed downstrean, return nullptr
-    ReosWatershed *downstreamWatershed( const QPolygonF &line, bool &ok ) const;
-
-    int watershedCount() const;
-    int masterWatershedCount() const;
+    void activate();
+    void deactivate();
 
   private:
-
-    std::vector<std::unique_ptr<ReosWatershed>> mWatersheds;
+    virtual ReosMapTool_p *tool_p() const = 0;
 };
 
-#endif // REOSWATERSHEDSTORE_H
+class ReosMapToolDrawPolyline : public ReosMapTool
+{
+    Q_OBJECT
+  public:
+    ReosMapToolDrawPolyline( ReosMap *map );
+    void setCurrentToolInMap() const;
+
+    void setStrokeWidth( double width );
+    void setColor( const QColor &color );
+    void setSecondaryStrokeColor( const QColor &color );
+    void setLineStyle( Qt::PenStyle style );
+
+  signals:
+    void polylineDrawn( const QPolygonF &polyline ) const;
+
+  private:
+    ReosMapToolDrawPolyline_p *d;
+    ReosMapTool_p *tool_p() const override;
+
+};
+
+#endif // REOSMAPTOOL_H

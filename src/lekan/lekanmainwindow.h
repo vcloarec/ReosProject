@@ -26,6 +26,7 @@ email                : vcloarec at gmail dot com
 #include "reosversion.h"
 #include "reosversionmessagebox.h"
 #include "reosmainwindow.h"
+#include "reoswatershedtree.h"
 
 //#include <qgsmapcanvas.h>
 //#include <qgsrubberband.h>
@@ -52,6 +53,7 @@ email                : vcloarec at gmail dot com
 class ReosModule;
 class ReosMap;
 class ReosGisEngine;
+class ReosWatershedDelineating;
 
 static const ReosVersion lekanVersion( "Lekan", 1, 0, 5 );
 
@@ -94,6 +96,8 @@ class LekanMainWindow : public ReosMainWindow
 
     ReosGisEngine *mGisEngine;
     ReosMap *mMap = nullptr;
+    ReosWatershedDelineating *mWatershedDelineatingModule = nullptr;
+    ReosWatershedTree mWatershedTree;
 
     QDockWidget *mGisDock;
     QDockWidget *dockDEM;

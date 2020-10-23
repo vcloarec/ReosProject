@@ -52,7 +52,6 @@ class ReosMap: public ReosModule
 //    void setMapSavedExtent( QRectF extent );
 
     QWidget *mapCanvas() const;
-    ReosMapItem *createMapItem( ReosMapItemFactory *factory );
 
     void refreshCanvas();
 

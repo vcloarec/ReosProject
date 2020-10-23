@@ -18,29 +18,22 @@ email                : vcloarec at gmail dot com
 #include <qgsmapcanvas.h>
 #include "reosmappolygon_p.h"
 
-ReosMapItem *ReosMapPolygonFactory::create( QgsMapCanvas *map )
+ReosMapPolygon::ReosMapPolygon( ReosMap *map )
 {
-  return new ReosMapPolygon( new ReosMapPolygon_p( map ) );
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  if ( canvas )
+    d = std::make_unique<ReosMapPolygon_p>( canvas );
 }
 
-ReosMapPolygon *ReosMapPolygonFactory::mapItem( ReosMap *map, const QPolygonF &polygon )
-{
-  ReosMapPolygon *item = static_cast<ReosMapPolygon *>( map->createMapItem( this ) );
-  item->setPolygon( polygon );
-  return item;
-}
-
-
-ReosMapPolygon::~ReosMapPolygon()
-{
-  if ( d )
-    delete d;
-}
-
-void ReosMapPolygon::setPolygon( const QPolygonF &polygon )
+void ReosMapPolygon::resetPolygon( const QPolygonF &polygon )
 {
   d->mapPolygon = polygon;
   d->updatePosition();
+}
+
+QPolygonF ReosMapPolygon::mapPolygon() const
+{
+  return d->mapPolygon;
 }
 
 void ReosMapPolygon::movePoint( int pointIndex, const QPointF &p )
@@ -54,7 +47,32 @@ void ReosMapPolygon::movePoint( int pointIndex, const QPointF &p )
   d->updatePosition();
 }
 
-ReosMapPolygon::ReosMapPolygon( ReosMapPolygon_p *p_d ): d( p_d )
-{}
 
-ReosMapItem::~ReosMapItem() {}
+ReosMapPolyline::ReosMapPolyline( ReosMap *map )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  if ( canvas )
+    d = std::make_unique<ReosMapPolyline_p>( canvas );
+}
+
+void ReosMapPolyline::resetPolyline( const QPolygonF &polyline )
+{
+  d->mapPolygon = polyline;
+  d->updatePosition();
+}
+
+QPolygonF ReosMapPolyline::mapPolyline() const
+{
+  return d->mapPolygon;
+}
+
+void ReosMapPolyline::movePoint( int pointIndex, const QPointF &p )
+{
+  if ( !d )
+    return;
+  if ( pointIndex < 0 || pointIndex >= d->mapPolygon.count() )
+    return;
+
+  d->mapPolygon.replace( pointIndex, p );
+  d->updatePosition();
+}

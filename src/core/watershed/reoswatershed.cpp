@@ -72,13 +72,18 @@ ReosRasterExtent ReosWatershed::directionExtent() const
 
 QPointF ReosWatershed::outletPoint() const {return mOutletPoint;}
 
-int ReosWatershed::upstreamWatershedCount()
+int ReosWatershed::upstreamWatershedCount() const
 {
   int count = 0;
   for ( const std::unique_ptr<ReosWatershed> &watershed : mUpstreamWatersheds )
     count += watershed->upstreamWatershedCount() + 1;
 
   return count;
+}
+
+int ReosWatershed::directUpstreamWatershedCount() const
+{
+  return mUpstreamWatersheds.size();
 }
 
 ReosWatershed *ReosWatershed::addUpstreamWatershed( ReosWatershed *upstreamWatershed )
@@ -97,6 +102,11 @@ ReosWatershed *ReosWatershed::addUpstreamWatershed( ReosWatershed *upstreamWater
 ReosWatershed *ReosWatershed::upstreamWatershed( const QPolygonF &poly, bool &ok )
 {
 
+}
+
+ReosWatershed *ReosWatershed::downstreamWatershed() const
+{
+  return mDownstreamWatershed;
 }
 
 

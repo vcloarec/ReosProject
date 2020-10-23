@@ -18,8 +18,9 @@ email                : vcloarec at gmail dot com
 #include <fstream>
 
 #include "reoswatersheddelineating.h"
-#include "reoswatershedstore.h"
+#include "reoswatershedtree.h"
 #include "reos_testutils.h"
+
 
 class ReosWatersehdTest: public QObject
 {
@@ -37,9 +38,10 @@ class ReosWatersehdTest: public QObject
 void ReosWatersehdTest::watershedDelineating()
 {
   // create watershed delinating module
-  ReosWatershedDelineating watershedDelineating( &rootModule, &gisEngine );
+  ReosWatershedTree watershedStore;
+  ReosWatershedDelineating watershedDelineating( &rootModule, &watershedStore, &gisEngine );
   ModuleProcessControler controler( &watershedDelineating );
-  ReosWatershedStore watershedStore;
+  ReosWatershedItemModel itemModel( &watershedStore );
 
   QCOMPARE( watershedDelineating.currentState(), ReosWatershedDelineating::NoDigitalElevationModel );
 
@@ -67,11 +69,11 @@ void ReosWatersehdTest::watershedDelineating()
   QPolygonF downstreamLine( {QPointF( 661598.75, 1792949.65 )} );
 
   // Add only one point line --> fails and still waiting
-  QVERIFY( ! watershedDelineating.setDownstreamLine( downstreamLine, watershedStore ) );
+  QVERIFY( ! watershedDelineating.setDownstreamLine( downstreamLine ) );
   QCOMPARE( watershedDelineating.currentState(), ReosWatershedDelineating::WaitingForDownstream );
 
   downstreamLine.prepend( QPointF( 661753, 1792949.65 ) );
-  QVERIFY( watershedDelineating.setDownstreamLine( downstreamLine, watershedStore ) );
+  QVERIFY( watershedDelineating.setDownstreamLine( downstreamLine ) );
   QCOMPARE( watershedDelineating.currentState(), ReosWatershedDelineating::WaitingForExtent );
 
   // Extent that do not contain the downstream line
@@ -190,8 +192,10 @@ void ReosWatersehdTest::watershedDelineating()
 
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForValidate );
 
-  watershedDelineating.validateWatershed( watershedStore );
+  watershedDelineating.validateWatershed();
   QVERIFY( watershedStore.watershedCount() == 1 );
+  QVERIFY( watershedStore.masterWatershedCount() == 1 );
+  QVERIFY( itemModel.rowCount( QModelIndex() ) == 1 );
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForDownstream );
 
   //! Attempt to delineate an upstream watershed
@@ -199,13 +203,13 @@ void ReosWatersehdTest::watershedDelineating()
   //! Partially contained line --> not possible
   downstreamLine << QPointF( 661560, 1792750 ) << QPointF( 661760, 1792900 );
 
-  QVERIFY( !watershedDelineating.setDownstreamLine( downstreamLine, watershedStore ) );
+  QVERIFY( !watershedDelineating.setDownstreamLine( downstreamLine ) );
   QCOMPARE( watershedDelineating.currentState(), ReosWatershedDelineating::WaitingForDownstream );
 
   downstreamLine.clear();
   downstreamLine << QPointF( 661637, 1792840 ) << QPointF( 661703.5, 1792843.86 );
 
-  QVERIFY( watershedDelineating.setDownstreamLine( downstreamLine, watershedStore ) );
+  QVERIFY( watershedDelineating.setDownstreamLine( downstreamLine ) );
   QCOMPARE( watershedDelineating.currentState(), ReosWatershedDelineating::WaitingforProceed );
 
   QVERIFY( watershedDelineating.startDelineating() );
@@ -264,9 +268,12 @@ void ReosWatersehdTest::watershedDelineating()
   QCOMPARE( polygonWatershed, polygonWatershedTest );
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForValidate );
 
-  watershedDelineating.validateWatershed( watershedStore );
+  watershedDelineating.validateWatershed();
   QVERIFY( watershedStore.masterWatershedCount() == 1 );
   QVERIFY( watershedStore.watershedCount() == 2 );
+
+  QVERIFY( itemModel.rowCount( QModelIndex() ) == 1 );
+  QVERIFY( itemModel.rowCount( itemModel.index( 0, 0, QModelIndex() ) ) == 1 );
 }
 
 //----------------------------------------------------------------------------------------------------------------------------
@@ -275,9 +282,10 @@ void ReosWatersehdTest::watershedDelineating()
 void ReosWatersehdTest::watershedDelineatingWithBurningLine()
 {
   // create watershed delineating module
-  ReosWatershedDelineating watershedDelineating( &rootModule, &gisEngine );
+  ReosWatershedTree watershedStore;
+  ReosWatershedDelineating watershedDelineating( &rootModule, &watershedStore, &gisEngine );
   ModuleProcessControler controler( &watershedDelineating );
-  ReosWatershedStore watershedStore;
+
 
   // add raster layer and register it as DEM
   QString layerId = gisEngine.addRasterLayer( test_file( "DEM_for_watershed.tif" ).c_str(), QStringLiteral( "raster_DEM" ) );
@@ -295,7 +303,7 @@ void ReosWatersehdTest::watershedDelineatingWithBurningLine()
   // Set a downstream line
   QPolygonF downstreamLine;
   downstreamLine << QPointF( 661598.75, 1792949.65 ) << QPointF( 661753, 1792949.65 );
-  QVERIFY( watershedDelineating.setDownstreamLine( downstreamLine, watershedStore ) );
+  QVERIFY( watershedDelineating.setDownstreamLine( downstreamLine ) );
   QCOMPARE( watershedDelineating.currentState(), ReosWatershedDelineating::WaitingForExtent );
 
   // Start the good delineating
@@ -397,9 +405,10 @@ void ReosWatersehdTest::watershedDelineatingWithBurningLine()
 void ReosWatersehdTest::watershdDelineatingMultiWatershed()
 {
   // create watershed delineating module
-  ReosWatershedDelineating watershedDelineating( &rootModule, &gisEngine );
+  ReosWatershedTree watershedStore;
+  ReosWatershedDelineating watershedDelineating( &rootModule, &watershedStore, &gisEngine );
   ModuleProcessControler controler( &watershedDelineating );
-  ReosWatershedStore watershedStore;
+  ReosWatershedItemModel itemModel( &watershedStore );
 
   // add raster layer and register it as DEM
   QString layerId = gisEngine.addRasterLayer( test_file( "DEM_for_multi_watershed.tif" ).c_str(), QStringLiteral( "raster_DEM" ) );
@@ -412,7 +421,7 @@ void ReosWatersehdTest::watershdDelineatingMultiWatershed()
 
   QPolygonF downstreamLine;
   downstreamLine << QPointF( 666701.724, 1799132.754 ) << QPointF( 666692.005, 1799212.636 );
-  QVERIFY( watershedDelineating.setDownstreamLine( downstreamLine, watershedStore ) );
+  QVERIFY( watershedDelineating.setDownstreamLine( downstreamLine ) );
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForExtent );
 
   ReosMapExtent predifinedExtent( 666503.15, 1798940.06, 667100.8, 1799458.2 );
@@ -457,18 +466,20 @@ void ReosWatersehdTest::watershdDelineatingMultiWatershed()
 
   QCOMPARE( polygonWatershed, polygonWatershedTest );
 
-  ReosWatershed *watershed1 = watershedDelineating.validateWatershed( watershedStore );
+  ReosWatershed *watershed1 = watershedDelineating.validateWatershed();
   QVERIFY( watershed1->hasDirectiondata() );
   ReosRasterExtent rasterExtent1( ReosMapExtent( 666664.5, 1798940.5, 667089.5, 1799430.5 ), 85, 98 );
   QCOMPARE( rasterExtent1, watershed1->directionExtent() );
   QVERIFY( watershedStore.masterWatershedCount() == 1 );
   QVERIFY( watershedStore.watershedCount() == 1 );
+  QVERIFY( itemModel.rowCount( QModelIndex() ) == 1 );
+  QVERIFY( watershed1->downstreamWatershed() == nullptr );
 
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForDownstream );
 
   downstreamLine.clear();
   downstreamLine << QPointF( 666526.94, 1799174.90 ) << QPointF( 666664.30, 1799227.25 );
-  QVERIFY( watershedDelineating.setDownstreamLine( downstreamLine, watershedStore ) );
+  QVERIFY( watershedDelineating.setDownstreamLine( downstreamLine ) );
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForExtent );
 
   predifinedExtent = ReosMapExtent( 666450.45, 1798920, 667143.16, 1799505.46 );
@@ -480,19 +491,24 @@ void ReosWatersehdTest::watershdDelineatingMultiWatershed()
 
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForValidate );
 
-  ReosWatershed *watershed2 = watershedDelineating.validateWatershed( watershedStore );
+  ReosWatershed *watershed2 = watershedDelineating.validateWatershed();
   QVERIFY( watershed2->hasDirectiondata() );
   QVERIFY( watershed1->hasDirectiondata() );
   QCOMPARE( watershed1->directions(), watershed2->directions() );
   QCOMPARE( watershed1->directionExtent(), watershed2->directionExtent() );
   QCOMPARE( watershedStore.masterWatershedCount(), 1 );
   QCOMPARE( watershedStore.watershedCount(), 2 );
+  QVERIFY( watershed1->downstreamWatershed() == watershed2 );
+  QVERIFY( watershed2->directUpstreamWatershedCount() == 1 );
+  QVERIFY( watershed2->directUpstreamWatershed( 0 ) == watershed1 );
+  QVERIFY( itemModel.rowCount( QModelIndex() ) == 1 );
+  QVERIFY( itemModel.rowCount( itemModel.index( 0, 0, QModelIndex() ) ) == 1 );
 
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForDownstream );
 
   downstreamLine.clear();
   downstreamLine << QPointF( 666506.3, 1799336.8 ) << QPointF( 666599.38, 1799355.69 );
-  QVERIFY( watershedDelineating.setDownstreamLine( downstreamLine, watershedStore ) );
+  QVERIFY( watershedDelineating.setDownstreamLine( downstreamLine ) );
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForExtent );
   predifinedExtent = ReosMapExtent( 666407.06, 1799254.47, 666838.9, 1799641.1 );
   QVERIFY( watershedDelineating.setPreDefinedExtent( predifinedExtent ) );
@@ -501,14 +517,19 @@ void ReosWatersehdTest::watershdDelineatingMultiWatershed()
   controler.waitForFinished();
   controler.reset();
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForValidate );
-  ReosWatershed *watershed3 = watershedDelineating.validateWatershed( watershedStore );
+  ReosWatershed *watershed3 = watershedDelineating.validateWatershed();
+  QVERIFY( watershed3->downstreamWatershed() == nullptr );
+  QVERIFY( watershed3->directUpstreamWatershedCount() == 0 );
 
   QCOMPARE( watershedStore.masterWatershedCount(), 2 );
   QCOMPARE( watershedStore.watershedCount(), 3 );
+  QVERIFY( itemModel.rowCount( QModelIndex() ) == 2 );
+  QVERIFY( itemModel.rowCount( itemModel.index( 0, 0, QModelIndex() ) ) == 1 );
+  QVERIFY( itemModel.rowCount( itemModel.index( 1, 0, QModelIndex() ) ) == 0 );
 
   downstreamLine.clear();
   downstreamLine << QPointF( 666453.28, 1799229.84 ) << QPointF( 666495.14, 1799321.72 );
-  QVERIFY( watershedDelineating.setDownstreamLine( downstreamLine, watershedStore ) );
+  QVERIFY( watershedDelineating.setDownstreamLine( downstreamLine ) );
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForExtent );
   predifinedExtent = ReosMapExtent( 666407.06, 1798924.49, 667146.31, 1799678.08 );
   QVERIFY( watershedDelineating.setPreDefinedExtent( predifinedExtent ) );
@@ -517,12 +538,18 @@ void ReosWatersehdTest::watershdDelineatingMultiWatershed()
   controler.waitForFinished();
   controler.reset();
 
-
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForValidate );
-  ReosWatershed *watershed4 = watershedDelineating.validateWatershed( watershedStore );
+  ReosWatershed *watershed4 = watershedDelineating.validateWatershed();
+  QVERIFY( watershed4->downstreamWatershed() == nullptr );
+  QVERIFY( watershed4->directUpstreamWatershedCount() == 2 );
+  QVERIFY( watershed4->directUpstreamWatershed( 0 ) == watershed2 );
+  QVERIFY( watershed4->directUpstreamWatershed( 1 ) == watershed3 );
 
   QCOMPARE( watershedStore.masterWatershedCount(), 1 );
   QCOMPARE( watershedStore.watershedCount(), 4 );
+  QCOMPARE( itemModel.rowCount( QModelIndex() ), 1 );
+  QCOMPARE( itemModel.rowCount( itemModel.index( 0, 0, QModelIndex() ) ), 2 );
+  QCOMPARE( itemModel.rowCount( itemModel.index( 0, 0, itemModel.index( 0, 0, QModelIndex() ) ) ), 2 );
 
 }
 

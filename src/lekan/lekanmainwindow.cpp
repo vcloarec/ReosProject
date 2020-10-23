@@ -27,11 +27,16 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reosmap.h"
 #include "reosgisengine.h"
 #include "reosgislayerswidget.h"
+#include "reosmaptool.h"
+#include "reoswatersheddelineating.h"
+#include "reosdelineatingwatershedfromdemwidget.h"
+
 
 LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   ReosMainWindow( parent ),
   mGisEngine( new ReosGisEngine( rootModule() ) ),
-  mMap( new ReosMap( mGisEngine, this ) )
+  mMap( new ReosMap( mGisEngine, this ) ),
+  mWatershedDelineatingModule( new ReosWatershedDelineating( rootModule(), &mWatershedTree, mGisEngine ) )
 {
 
 
@@ -108,6 +113,15 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   mGisDock = new QDockWidget( tr( "GIS Layers" ) );
   mGisDock->setWidget( new ReosGisLayersWidget( mGisEngine, mMap, this ) );
   addDockWidget( Qt::LeftDockWidgetArea, mGisDock );
+
+  QDialog *delineatingDialog = new QDialog( this );
+  ReosDelineatingWatershedFromDemWidget *delineatingFromDem = new ReosDelineatingWatershedFromDemWidget(
+    mWatershedDelineatingModule,
+    mGisEngine,
+    mMap,
+    delineatingDialog );
+  delineatingDialog->show();
+
 }
 
 bool LekanMainWindow::openProject()

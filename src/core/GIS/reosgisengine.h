@@ -98,6 +98,7 @@ class ReosGisEngine: public ReosModule
   signals:
     void crsChanged( const QString &wktCrs );
     void digitalElevationRegistered( const QString &layerId );
+    void digitalElevationUnregistered( const QString &layerId );
 
   private:
     QAbstractItemModel *mAbstractLayerTreeModel;

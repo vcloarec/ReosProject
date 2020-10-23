@@ -59,11 +59,6 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ): ReosModule(
 
 QWidget *ReosMap::mapCanvas() const {return mCanvas;}
 
-ReosMapItem *ReosMap::createMapItem( ReosMapItemFactory *factory )
-{
-  return factory->create( mCanvas );
-}
-
 void ReosMap::refreshCanvas()
 {
   mCanvas->refresh();

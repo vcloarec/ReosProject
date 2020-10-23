@@ -17,10 +17,11 @@ email                : vcloarec at gmail dot com
 #include "reosdigitalelevationmodel.h"
 #include "reosrasterfilling.h"
 #include "reosrasterwatershed.h"
-#include "reoswatershedstore.h"
+#include "reoswatershedtree.h"
 
-ReosWatershedDelineating::ReosWatershedDelineating( ReosModule *parent, ReosGisEngine *gisEngine ):
+ReosWatershedDelineating::ReosWatershedDelineating( ReosModule *parent, ReosWatershedTree *watershedtree, ReosGisEngine *gisEngine ):
   ReosModule( parent ),
+  mWatershedTree( watershedtree ),
   mGisEngine( gisEngine )
 {
   connect( this, &ReosModule::processFinished, this, &ReosWatershedDelineating::onDelineatingFinished );
@@ -45,6 +46,9 @@ bool ReosWatershedDelineating::setDigitalElevationModelDEM( const QString &layer
     return true;
   }
 
+  mDEMLayerId = QString();
+  mCurrentState = NoDigitalElevationModel;
+
   return false;
 }
 
@@ -54,12 +58,12 @@ ReosWatershedDelineating::State ReosWatershedDelineating::currentState() const
   return mCurrentState;
 }
 
-bool ReosWatershedDelineating::setDownstreamLine( const QPolygonF &downstreamLine, const ReosWatershedStore &store )
+bool ReosWatershedDelineating::setDownstreamLine( const QPolygonF &downstreamLine )
 {
   if ( mCurrentState == WaitingForDownstream && downstreamLine.count() > 1 )
   {
     bool ok;
-    mDownstreamWatershed = store.downstreamWatershed( downstreamLine, ok );
+    mDownstreamWatershed = mWatershedTree->downstreamWatershed( downstreamLine, ok );
     if ( !ok )
       return false;
 
@@ -133,7 +137,7 @@ QPolygonF ReosWatershedDelineating::lastStreamLine() const
     return QPolygonF();
 }
 
-ReosWatershed *ReosWatershedDelineating::validateWatershed( ReosWatershedStore &store )
+ReosWatershed *ReosWatershedDelineating::validateWatershed()
 {
   if ( mCurrentState == WaitingForValidate && isDelineatingFinished() && mProcess && mProcess->isSuccessful() )
   {
@@ -162,16 +166,21 @@ ReosWatershed *ReosWatershedDelineating::validateWatershed( ReosWatershedStore &
 
       ReosRasterWatershed::Directions reducedDirection = mProcess->directions().reduceRaster( rowMin, rowMax, colMin, colMax );
 
-      return store.addWatershed( new ReosWatershed(
-                                   mProcess->watershedPolygon(),
-                                   mProcess->streamLine().last(),
-                                   mDownstreamLine,
-                                   reducedDirection,
-                                   reducedRasterExtent ) );
+      return mWatershedTree->addWatershed( new ReosWatershed(
+                                             mProcess->watershedPolygon(),
+                                             mProcess->streamLine().last(),
+                                             mDownstreamLine,
+                                             reducedDirection,
+                                             reducedRasterExtent ) );
     }
   }
   else
     return nullptr;
+}
+
+bool ReosWatershedDelineating::hasDirectionData() const
+{
+  return ( mDownstreamWatershed && mDownstreamWatershed->hasDirectiondata() );
 }
 
 void ReosWatershedDelineating::onDelineatingFinished()
