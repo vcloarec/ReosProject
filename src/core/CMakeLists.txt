@@ -6,11 +6,14 @@ FIND_PACKAGE(GDAL REQUIRED)
 SET(REOS_CORE_SOURCES
   reosapplication.cpp
   reosdocumentation.cpp
+  reosencodedelement.cpp
   reosmemoryraster.cpp
   reosmodule.cpp
 
   reossettings.cpp
   reosversion.cpp
+
+  reosexception.cpp
 
   GIS/reosdigitalelevationmodel.cpp
   GIS/reosgisengine.cpp
@@ -35,10 +38,12 @@ SET(REOS_CORE_SOURCES
 SET(REOS_CORE_HEADERS
     reosapplication.h
     reosdocumentation.h
+    reosencodedelement.h
     reosmemoryraster.h
     reosmodule.h
     reossettings.h
     reosversion.h
+    reosexception.h
 
     GIS/reosdigitalelevationmodel.h
     GIS/reosgisengine.h
@@ -112,6 +117,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/GIS/private
     ${CMAKE_SOURCE_DIR}/src/core/process
     ${CMAKE_SOURCE_DIR}/src/core/raster
+    ${CMAKE_SOURCE_DIR}/src/core/utils
     ${QGIS_INCLUDE_DIR}
 )
 

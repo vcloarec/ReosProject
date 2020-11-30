@@ -18,6 +18,8 @@ email                : vcloarec at gmail dot com
 
 #include <QLabel>
 #include <QDomDocument>
+#include <QPointer>
+#include <QGraphicsView>
 
 #include "reosmodule.h"
 #include "reosmapitem.h"
@@ -32,6 +34,7 @@ class ReosMap: public ReosModule
     Q_OBJECT
   public:
     ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget = nullptr );
+    ~ReosMap();
 
 //    //QgsMapCanvas *getMapCanvas() const;
 
@@ -52,9 +55,7 @@ class ReosMap: public ReosModule
 //    void setMapSavedExtent( QRectF extent );
 
     QWidget *mapCanvas() const;
-
     void refreshCanvas();
-
 
   public slots:
 //    void unsetMapTool( ReosMapTool *tool );
@@ -80,7 +81,7 @@ class ReosMap: public ReosModule
     void readProject( const QDomDocument &doc );
 
   private:
-    QgsMapCanvas *mCanvas = nullptr;
+    QPointer<QGraphicsView> mCanvas = nullptr;
 
 //    HdCursorPosition *cursorPosition;
 //    HdMapToolNeutral *mapToolNeutral;

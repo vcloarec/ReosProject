@@ -53,6 +53,9 @@ ReosGisLayersWidget::ReosGisLayersWidget( ReosGisEngine *engine, ReosMap *map, Q
   mActionLoadMeshLayer( new QAction( QPixmap( ":/images/mActionAddMeshLayer.svg" ), tr( "Add Mesh Layer" ), this ) ),
   mActionSetProjectCrs( new QAction( QPixmap( ":/images/CRS.svg" ), tr( "Project coordinate reference system" ), this ) )
 {
+
+  connect( mGisEngine, &ReosGisEngine::updated, this, &ReosGisLayersWidget::onGISEngineUpdated );
+
   mTreeView->setModel( engine->layerTreeModel() );
 
   setLayout( new QVBoxLayout() );
@@ -255,4 +258,21 @@ void ReosGisLayersWidget::updateLayerInsertionPoint() const
   }
 
   QgsProject::instance()->layerTreeRegistryBridge()->setLayerInsertionPoint( insertPoint );
+}
+
+void ReosGisLayersWidget::onGISEngineUpdated()
+{
+  updateIndicator();
+}
+
+void ReosGisLayersWidget::updateIndicator()
+{
+  QStringList demList = mGisEngine->digitalElevationModelIds();
+
+  for ( const QString &layerId : demList )
+  {
+    QgsLayerTreeLayer *layerNode = mTreeView->layerTreeModel()->rootGroup()->findLayer( layerId );
+    mTreeView->addIndicator( layerNode, mDemIndicator );
+  }
+
 }

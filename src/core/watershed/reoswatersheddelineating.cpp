@@ -60,7 +60,7 @@ ReosWatershedDelineating::State ReosWatershedDelineating::currentState() const
 
 bool ReosWatershedDelineating::setDownstreamLine( const QPolygonF &downstreamLine )
 {
-  if ( mCurrentState == WaitingForDownstream && downstreamLine.count() > 1 )
+  if ( downstreamLine.count() > 1 )
   {
     bool ok;
     mDownstreamWatershed = mWatershedTree->downstreamWatershed( downstreamLine, ok );
@@ -85,8 +85,7 @@ bool ReosWatershedDelineating::setDownstreamLine( const QPolygonF &downstreamLin
 
 bool ReosWatershedDelineating::setPreDefinedExtent( const ReosMapExtent &extent )
 {
-  if ( extent.containsPartialy( mDownstreamLine ) &&
-       ( mCurrentState == WaitingForExtent || mCurrentState == WaitingWithBroughtBackExtent ) )
+  if ( extent.containsPartialy( mDownstreamLine ) )
   {
     mExtent = extent;
     mCurrentState = WaitingforProceed;
@@ -116,6 +115,11 @@ bool ReosWatershedDelineating::startDelineating()
   return true;
 }
 
+ReosProcess *ReosWatershedDelineating::delineatingProcess()
+{
+  return mProcess.get();
+}
+
 bool ReosWatershedDelineating::isDelineatingFinished() const
 {
   return ( mProcess && mProcess->isSuccessful() );
@@ -139,14 +143,17 @@ QPolygonF ReosWatershedDelineating::lastStreamLine() const
 
 ReosWatershed *ReosWatershedDelineating::validateWatershed()
 {
+  ReosWatershed *newWatershed = nullptr;
+
   if ( mCurrentState == WaitingForValidate && isDelineatingFinished() && mProcess && mProcess->isSuccessful() )
   {
     mCurrentState = WaitingForDownstream;
+
     if ( mDownstreamWatershed )
-      return mDownstreamWatershed->addUpstreamWatershed( new ReosWatershed(
-               mProcess->watershedPolygon(),
-               mProcess->streamLine().last(),
-               mDownstreamLine ) );
+      newWatershed = new ReosWatershed(
+        mProcess->watershedPolygon(),
+        mProcess->streamLine().last(),
+        mDownstreamLine );
     else
     {
       // reduce the direction raster extent and create new watershed with it
@@ -166,16 +173,17 @@ ReosWatershed *ReosWatershedDelineating::validateWatershed()
 
       ReosRasterWatershed::Directions reducedDirection = mProcess->directions().reduceRaster( rowMin, rowMax, colMin, colMax );
 
-      return mWatershedTree->addWatershed( new ReosWatershed(
-                                             mProcess->watershedPolygon(),
-                                             mProcess->streamLine().last(),
-                                             mDownstreamLine,
-                                             reducedDirection,
-                                             reducedRasterExtent ) );
+      newWatershed = new ReosWatershed( mProcess->watershedPolygon(),
+                                        mProcess->streamLine().last(),
+                                        mDownstreamLine,
+                                        reducedDirection,
+                                        reducedRasterExtent ) ;
     }
+
+    mWatershedTree->addWatershed( newWatershed, mDownstreamWatershed, true );
   }
-  else
-    return nullptr;
+
+  return newWatershed;
 }
 
 bool ReosWatershedDelineating::hasDirectionData() const
@@ -261,17 +269,35 @@ void ReosWatershedDelineatingProcess::start()
   if ( !mDirections.isValid() )
   {
     if ( !mEntryDem )
+    {
+      finish();
       return;
+    }
+
     //--------------------------
     //Extract dem and fill it (burn it if needed)
-    ReosRasterMemory<float> dem( mEntryDem->extractMemoryRasterSimplePrecision( mExtent, mOutputRasterExtent ) );
-    burnRasterDem( dem, mBurningLines, mOutputRasterExtent );
-    std::unique_ptr<ReosRasterFillingWangLiu> fillDemProcess( new ReosRasterFillingWangLiu( dem, fabs( mOutputRasterExtent.xCellSize() ), fabs( mOutputRasterExtent.yCellSize() ) ) );
+    setCurrentProgression( 0 );
+    setInformation( tr( "Extract digital elevation model" ) );
+    ReosRasterMemory<float> dem( mEntryDem->extractMemoryRasterSimplePrecision( mExtent, mOutputRasterExtent, QString(), this ) );
+    if ( isStopAsked() )
+    {
+      finish();
+      return;
+    }
 
+    burnRasterDem( dem, mBurningLines, mOutputRasterExtent );
+    setCurrentProgression( 0 );
+    std::unique_ptr<ReosRasterFillingWangLiu> fillDemProcess( new ReosRasterFillingWangLiu( dem, fabs( mOutputRasterExtent.xCellSize() ), fabs( mOutputRasterExtent.yCellSize() ) ) );
+    setSubProcess( fillDemProcess.get() );
+
+    setInformation( tr( "Filling digital elevation model and calculating direction" ) );
     fillDemProcess->start();
 
-    if ( !fillDemProcess->isSuccessful() )
+    if ( isStopAsked() || !fillDemProcess->isSuccessful() )
+    {
+      finish();
       return;
+    }
 
     mDirections = fillDemProcess->directionRaster();
     fillDemProcess.release();
@@ -290,11 +316,18 @@ void ReosWatershedDelineatingProcess::start()
   // Calculate raster watershed
   std::unique_ptr<ReosRasterWatershedFromDirectionAndDownStreamLine> rasterWatershedFromDirection(
     new ReosRasterWatershedFromDirectionAndDownStreamLine( mDirections, rasterDownstreamLine ) );
+  setCurrentProgression( 0 );
+  setSubProcess( rasterWatershedFromDirection.get() );
+
+  setInformation( tr( "Delineate watershed" ) );
 
   rasterWatershedFromDirection->start();
 
-  if ( !rasterWatershedFromDirection->isSuccessful() )
+  if ( isStopAsked() || !rasterWatershedFromDirection->isSuccessful() )
+  {
+    finish();
     return;
+  }
 
   ReosRasterWatershed::Watershed watershed = rasterWatershedFromDirection->watershed();
   ReosRasterCellPos downStreamPoint = rasterWatershedFromDirection->firstCell();
@@ -304,25 +337,35 @@ void ReosWatershedDelineatingProcess::start()
   //--------------------------
   // Polygonize the raster watershed
   std::unique_ptr<ReosRasterWatershedToVector> watershedToPolygon( new ReosRasterWatershedToVector( watershed, mOutputRasterExtent, downStreamPoint ) );
+  setSubProcess( watershedToPolygon.get() );
+  setCurrentProgression( 0 );
+  setInformation( tr( "Polygonize watershed" ) );
   watershedToPolygon->start();
 
-  if ( !watershedToPolygon->isSuccessful() )
+  if ( isStopAsked() || !watershedToPolygon->isSuccessful() )
+  {
+    finish();
     return;
-
+  }
   mOutputWatershed = watershedToPolygon->watershed();
   watershedToPolygon.release();
 
   //--------------------------
   // Get the stream line
   std::unique_ptr<ReosRasterWatershedTraceDownstream> traceDownstream( new ReosRasterWatershedTraceDownstream( mDirections, rasterDownstreamLine, mOutputRasterExtent, endOfLongerPath ) );
+  setInformation( tr( "Trace stream line" ) );
   traceDownstream->start();
 
-  if ( !traceDownstream->isSuccessful() )
+  if ( isStopAsked() || !traceDownstream->isSuccessful() )
+  {
+    finish();
     return;
+  }
 
   mOutputStreamline = traceDownstream->resultPolyline();
 
   mIsSuccessful = true;
+  emit finished();
 }
 
 QPolygonF ReosWatershedDelineatingProcess::watershedPolygon() const

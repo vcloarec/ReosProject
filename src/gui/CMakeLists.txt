@@ -8,6 +8,7 @@ SET(REOS_GUI_SOURCES
     reosmessagebox.cpp
     reosstartingwidget.cpp
     reosversionmessagebox.cpp
+    reosprocesscontroler.cpp
 
 
     GIS/reosdigitalelevationmodelcombobox.cpp
@@ -20,7 +21,8 @@ SET(REOS_GUI_SOURCES
     GIS/private/reoslayertreecontextmenuprovider_p.cpp
     GIS/private/reoslayertreeviewdemindicator.cpp
 
-    watershed/reosdelineatingwatershedfromdemwidget.cpp
+    watershed/reosdelineatingwatershedwidget.cpp
+    watershed/reoswatershedtreeview.cpp
 )
 
 SET(REOS_GUI_HEADERS
@@ -30,7 +32,7 @@ SET(REOS_GUI_HEADERS
     reosmessagebox.h
     reosstartingwidget.h
     reosversionmessagebox.h
-
+    reosprocesscontroler.h
 
     GIS/reosdigitalelevationmodelcombobox.h
     GIS/reosmap.h
@@ -38,7 +40,8 @@ SET(REOS_GUI_HEADERS
     GIS/reosmaptool.h
     GIS/reosgislayerswidget.h
 
-    watershed/reosdelineatingwatershedfromdemwidget.h
+    watershed/reosdelineatingwatershedwidget.h
+    watershed/reoswatershedtreeview.h
 )
 
 SET(REOS_GUI_HEADERS_PRIVATE
@@ -50,7 +53,7 @@ SET(REOS_GUI_HEADERS_PRIVATE
 
 ADD_LIBRARY(reosGui SHARED
     ${REOS_GUI_HEADERS}
-    ${REOS_GUI_HEADERS_PRIVATE}
+    #${REOS_GUI_HEADERS_PRIVATE}
     ${REOS_GUI_SOURCES}
   )
 
@@ -83,9 +86,11 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/raster
     ${CMAKE_SOURCE_DIR}/src/core/watershed
 
+    ${CMAKE_SOURCE_DIR}/src/gui
     ${CMAKE_SOURCE_DIR}/src/gui/GIS
     ${CMAKE_SOURCE_DIR}/src/gui/GIS/private
     ${QGIS_INCLUDE_DIR}
+    ${QSCISCINTILLA_INCLUDE_DIR}
 )
 
 

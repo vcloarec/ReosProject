@@ -50,7 +50,9 @@ ReosMapToolDrawPolyline_p::~ReosMapToolDrawPolyline_p()
 
 void ReosMapToolDrawPolyline_p::deactivate()
 {
-  mRubberBand->reset();
+  if ( mRubberBand )
+    mRubberBand->reset();
+  ReosMapTool_p::deactivate();
 }
 
 void ReosMapToolDrawPolyline_p::canvasMoveEvent( QgsMapMouseEvent *e )
@@ -72,3 +74,45 @@ void ReosMapToolDrawPolyline_p::canvasReleaseEvent( QgsMapMouseEvent *e )
   }
 }
 
+
+ReosMapToolDrawExtent_p::ReosMapToolDrawExtent_p( QgsMapCanvas *map ): ReosMapTool_p( map )
+{
+  mRubberBand = new QgsRubberBand( map, QgsWkbTypes::PolygonGeometry );
+}
+
+ReosMapToolDrawExtent_p::~ReosMapToolDrawExtent_p()
+{
+  if ( mRubberBand )
+    delete mRubberBand.data();
+}
+
+void ReosMapToolDrawExtent_p::canvasMoveEvent( QgsMapMouseEvent *e )
+{
+  if ( !mIsDrawing )
+    return;
+
+  mEndPoint = e->mapPoint();
+  drawExtent();
+}
+
+void ReosMapToolDrawExtent_p::canvasPressEvent( QgsMapMouseEvent *e )
+{
+  mIsDrawing = true;
+  mStartPoint = e->mapPoint();
+}
+
+void ReosMapToolDrawExtent_p::canvasReleaseEvent( QgsMapMouseEvent *e )
+{
+  mIsDrawing = false;
+  mEndPoint = e->mapPoint();
+  mRubberBand->reset( QgsWkbTypes::PolygonGeometry );
+  QRectF extent( mStartPoint.toQPointF(), mEndPoint.toQPointF() );
+  emit extentDrawn( extent );
+}
+
+void ReosMapToolDrawExtent_p::deactivate()
+{
+  mRubberBand->reset( QgsWkbTypes::PolygonGeometry );
+  mIsDrawing = false;
+  ReosMapTool_p::deactivate();
+}

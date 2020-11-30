@@ -19,6 +19,7 @@ email                : vcloarec at gmail dot com
 
 #include <QAbstractItemModel>
 #include "reosmodule.h"
+#include "reosencodedelement.h"
 
 class ReosDigitalElevationModel;
 class ReosDigitalElevationModelProvider;
@@ -95,15 +96,26 @@ class ReosGisEngine: public ReosModule
     //! Returns the list of layer Ids that are registered as Digital Elevation Model with associated name
     QMap<QString, QString> digitalElevationModelRasterList() const;
 
+    //! Returns the list of layer Ids that are registered as Digital Elevation
+    QStringList digitalElevationModelIds() const;
+
+    //! Returns encoded information about the GIS engine after saving GIS project int the \a path with the \a baseFileName
+    ReosEncodedElement encode( const QString &path, const QString baseFileName );
+    //! Decode information about the GIS engine and load the GIS poject from the \a path with the \a baseFileName
+    bool decode( const ReosEncodedElement &encodedElement, const QString &path, const QString baseFileName );
+
   signals:
     void crsChanged( const QString &wktCrs );
     void digitalElevationRegistered( const QString &layerId );
     void digitalElevationUnregistered( const QString &layerId );
 
+    void updated();
+
   private:
     QAbstractItemModel *mAbstractLayerTreeModel;
     ReosDigitalElevationModelProvider *mDemProvider;
-    QList<QString> mAsDEMRegisteredLayer;
+
+    QStringList mAsDEMRegisteredLayer;
 };
 
 #endif // REOSGISENGINE_H

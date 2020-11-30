@@ -18,10 +18,11 @@ email                : vcloarec at gmail dot com
 
 ReosMapExtent::ReosMapExtent( const QRectF &extent )
 {
-  mXMin = extent.left();
-  mXMax = extent.right();
-  mYMin = extent.top();
-  mYMax = extent.bottom();
+  QRectF normalizedExtent = extent.normalized();
+  mXMin = normalizedExtent.left();
+  mXMax = normalizedExtent.right();
+  mYMin = normalizedExtent.top();
+  mYMax = normalizedExtent.bottom();
 }
 
 ReosMapExtent::ReosMapExtent( double xMin, double yMin, double xMax, double yMax ):
@@ -77,6 +78,17 @@ ReosMapExtent ReosMapExtent::operator*( const ReosMapExtent &other ) const
 
   return ret;
 
+}
+
+QPolygonF ReosMapExtent::toPolygon() const
+{
+  QPolygonF ret;
+  ret << QPointF( mXMin, mYMin );
+  ret << QPointF( mXMin, mYMax );
+  ret << QPointF( mXMax, mYMax );
+  ret << QPointF( mXMax, mYMin );
+
+  return ret;
 }
 
 QString ReosMapExtent::crs() const

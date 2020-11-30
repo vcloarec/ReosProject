@@ -54,6 +54,7 @@ class ReosModule;
 class ReosMap;
 class ReosGisEngine;
 class ReosWatershedDelineating;
+class ReosDelineatingWatershedWidget;
 
 static const ReosVersion lekanVersion( "Lekan", 1, 0, 5 );
 
@@ -97,23 +98,24 @@ class LekanMainWindow : public ReosMainWindow
     ReosGisEngine *mGisEngine;
     ReosMap *mMap = nullptr;
     ReosWatershedDelineating *mWatershedDelineatingModule = nullptr;
+    ReosDelineatingWatershedWidget *mDelineatingWidget = nullptr;
+
     ReosWatershedTree mWatershedTree;
 
     QDockWidget *mGisDock;
-    QDockWidget *dockDEM;
-    QDockWidget *dockWatershed;
+    QDockWidget *mDockWatershed;
     QDockWidget *mDockMessageBox;
 
-    QToolBar *toolBarRainfallRunoffModel;
-    QMenu *menuRainFallRunoffModel;
-    QMenu *mMenuInterrogation;
+//    QToolBar *toolBarRainfallRunoffModel;
+//    QMenu *menuRainFallRunoffModel;
+//    QMenu *mMenuInterrogation;
 
-    QActionGroup *mGroupActionEdit;
-    QActionGroup *mGroupActionOption;
-    QActionGroup *mGroupActionInterrogation;
+//    QActionGroup *mGroupActionEdit;
+//    QActionGroup *mGroupActionOption;
+//    QActionGroup *mGroupActionInterrogation;
 
-    QAction *mActionNewVersionAvailable;
-    QAction *mActionDocumentation;
+//    QAction *mActionNewVersionAvailable;
+//    QAction *mActionDocumentation;
 
     QList<QMenu *> specificMenus() override;
 };

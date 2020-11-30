@@ -17,49 +17,71 @@ email                : vcloarec at gmail dot com
 #define REOSPROCESS_H
 
 #include <memory>
-#include <mutex>
 #include <QString>
 #include <QObject>
-
+#include <QMutex>
 
 /**
- * Abstract class that represent a process (log calculation). this class has convenient method to handle, feedback and bring the process in other thread
+ * Abstract class that represent a process (long calculation). this class has convenient method to handle feedback and bring the process in other thread
  * Processes can be nested.
 */
-class ReosProcess
+class ReosProcess : public QObject
 {
+    Q_OBJECT
   public:
     virtual ~ReosProcess();
 
-    int maxProgession() const;
-    void setMaxProgession( int value );
+    //! Returns the max progression value
+    int maxProgression() const;
 
-    int currentProgression();
+    //! Return the current progression on the process
+    int currentProgression() const;
+
+    QString currentInformation() const;
 
     virtual void stopAsSoonAsPossible( bool b );
+    bool isStopAsked();
 
     bool isSuccessful() const;
-
     static void processStart( ReosProcess *p );
-
     virtual void start() = 0;
+
+    //! Sets a the current sub process
+    void setSubProcess( ReosProcess *subProcess );
+
+    //! Sets the maximum progression value
+    void setMaxProgression( int value );
+    void setCurrentProgression( int value );
+
+  signals:
+    void finished();
+    void sendInformation( const QString & );
 
   protected:
 
-    void setCurrentProgression( int value );
+
     bool isStopped() const {return mStopWithoutMutex;}
-    bool isStopAsked();
     void stop( bool b ) {mStopWithoutMutex = b;}
+    bool finish();
+    void setInformation( const QString &info );
+
     bool mIsSuccessful = false;
 
   private:
-    int mMaxProgession;
+    int mMaxProgression;
     int mCurrentProgression;
     bool mStopWithoutMutex = false;
     bool mStopWithMutex = false;
+    QString mCurrentInformation;
 
-    std::mutex mMutexProgression;
-    std::mutex mMutexStop;
+    mutable QMutex mMutexProgression;
+    mutable QMutex mMutexInformation;
+    mutable QMutex mMutexStop;
+
+    ReosProcess *mParentProcess = nullptr;
+    ReosProcess *mCurrentSubProcess = nullptr;
+
+    void setParentProcess( ReosProcess *parent );
 };
 
 #endif // REOSPROCESS_H

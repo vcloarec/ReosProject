@@ -29,11 +29,59 @@ class ReosWatersehdTest: public QObject
     void watershedDelineating();
     void watershedDelineatingWithBurningLine();
     void watershdDelineatingMultiWatershed();
+    void inclusion();
 
   private:
     ReosModule rootModule;
     ReosGisEngine gisEngine;
 };
+
+void ReosWatersehdTest::inclusion()
+{
+  QPolygonF poly1;
+  poly1 << QPointF( 0, 0 ) << QPointF( 0, 5 ) << QPointF( 5, 5 ) << QPointF( 5, 0 );
+  ReosWatershed watershed1( poly1, QPointF( 0, 2.5 ) );
+
+  QPolygonF poly2;
+  poly2 << QPointF( 1, 0 ) << QPointF( 1, 5 ) << QPointF( 5, 5 ) << QPointF( 5, 0 );
+  ReosWatershed watershed2( poly2, QPointF( 1, 2.5 ) );
+
+  QPolygonF poly3;
+  poly3 << QPointF( 1, 1 ) << QPointF( 1, 4 ) << QPointF( 4, 4 ) << QPointF( 4, 1 );
+  ReosWatershed watershed3( poly3, QPointF( 1, 2.5 ) );
+
+  QPolygonF poly4;
+  poly4 << QPointF( 0, 2 ) << QPointF( 0, 3 ) << QPointF( 5, 3 ) << QPointF( 4, 2 );
+  ReosWatershed watershed4( poly4, QPointF( 0, 2.5 ) );
+
+  QPolygonF poly5;
+  poly5 << QPointF( 5, 2 ) << QPointF( 5, 3 ) << QPointF( 10, 3 ) << QPointF( 10, 2 );
+  ReosWatershed watershed5( poly5, QPointF( 5, 2.5 ) );
+
+  ReosInclusionType inclusion = watershed3.isInside( watershed1 );
+  QCOMPARE( inclusion, ReosInclusionType::Total );
+
+  inclusion = watershed3.isInside( watershed2 );
+  QCOMPARE( inclusion, ReosInclusionType::Total );
+
+  inclusion = watershed1.isInside( watershed2 );
+  QCOMPARE( inclusion, ReosInclusionType::Partial );
+
+  inclusion = watershed2.isInside( watershed1 );
+  QCOMPARE( inclusion, ReosInclusionType::Total );
+
+  inclusion = watershed1.isInside( watershed4 );
+  QCOMPARE( inclusion, ReosInclusionType::Partial );
+  inclusion = watershed4.isInside( watershed1 );
+  QCOMPARE( inclusion, ReosInclusionType::Total );
+  inclusion = watershed4.isInside( watershed2 );
+  QCOMPARE( inclusion, ReosInclusionType::Partial );
+  inclusion = watershed4.isInside( watershed3 );
+  QCOMPARE( inclusion, ReosInclusionType::Partial );
+
+  inclusion = watershed5.isInside( watershed1 );
+  QCOMPARE( inclusion, ReosInclusionType::None );
+}
 
 void ReosWatersehdTest::watershedDelineating()
 {
@@ -549,7 +597,7 @@ void ReosWatersehdTest::watershdDelineatingMultiWatershed()
   QCOMPARE( watershedStore.watershedCount(), 4 );
   QCOMPARE( itemModel.rowCount( QModelIndex() ), 1 );
   QCOMPARE( itemModel.rowCount( itemModel.index( 0, 0, QModelIndex() ) ), 2 );
-  QCOMPARE( itemModel.rowCount( itemModel.index( 0, 0, itemModel.index( 0, 0, QModelIndex() ) ) ), 2 );
+  QCOMPARE( itemModel.rowCount( itemModel.index( 0, 0, itemModel.index( 0, 0, QModelIndex() ) ) ), 1 );
 
 }
 

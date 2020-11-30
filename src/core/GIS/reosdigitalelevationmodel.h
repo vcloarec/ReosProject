@@ -20,6 +20,8 @@ email                : vcloarec at gmail dot com
 
 #include "reosmemoryraster.h"
 
+class ReosProcess;
+
 class ReosDigitalElevationModel
 {
   public:
@@ -40,7 +42,7 @@ class ReosDigitalElevationModel
     virtual ReosRasterMemory<float> extractMemoryRasterSimplePrecision(
       const ReosMapExtent &extent,
       ReosRasterExtent &rasterExtent,
-      const QString &destinationCrs = QString() ) = 0;
+      const QString &destinationCrs = QString(), ReosProcess *process = nullptr ) = 0;
 };
 
 

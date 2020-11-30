@@ -26,6 +26,7 @@ email                : vcloarec at gmail dot com
 
 #include "reosmap.h"
 
+
 class ReosMapTool_p: public QgsMapTool
 {
   public:
@@ -48,14 +49,50 @@ class ReosMapToolDrawPolyline_p: public ReosMapTool_p
 
     QPointer<QgsRubberBand> mRubberBand;
 
-  signals:
-    void polylineDrawn( const QPolygonF &polyline ) const;
-
-  protected:
     void canvasMoveEvent( QgsMapMouseEvent *e ) override;
     void canvasReleaseEvent( QgsMapMouseEvent *e ) override;
 
-    void clean() {}
+  signals:
+    void polylineDrawn( const QPolygonF &polyline ) const;
+
+
+};
+
+class ReosMapToolDrawExtent_p: public ReosMapTool_p
+{
+    Q_OBJECT
+  public:
+    ReosMapToolDrawExtent_p( QgsMapCanvas *map );
+    ~ReosMapToolDrawExtent_p();
+
+    void canvasMoveEvent( QgsMapMouseEvent *e ) override;
+    void canvasPressEvent( QgsMapMouseEvent *e ) override;
+    void canvasReleaseEvent( QgsMapMouseEvent *e ) override;
+    void deactivate() override;
+
+    QPointer<QgsRubberBand> mRubberBand;
+
+  signals:
+    void extentDrawn( const QRectF &rectangularExtent );
+
+  private:
+
+    bool mIsDrawing = false;
+
+    QgsPointXY mStartPoint;
+    QgsPointXY mEndPoint;
+
+    void drawExtent()
+    {
+      QgsRectangle rect( mStartPoint, mEndPoint );
+
+      mRubberBand->reset( QgsWkbTypes::PolygonGeometry );
+      mRubberBand->addPoint( QgsPointXY( rect.xMinimum(), rect.yMinimum() ), false );
+      mRubberBand->addPoint( QgsPointXY( rect.xMaximum(), rect.yMinimum() ), false );
+      mRubberBand->addPoint( QgsPointXY( rect.xMaximum(), rect.yMaximum() ), false );
+      mRubberBand->addPoint( QgsPointXY( rect.xMinimum(), rect.yMaximum() ), true );
+    }
+
 };
 
 #endif // REOSMAPTOOL_P_H

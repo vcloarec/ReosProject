@@ -14,49 +14,74 @@ email                : vcloarec at gmail dot com
  ***************************************************************************/
 
 #include "reosprocess.h"
+#include <QMutexLocker>
 
 ReosProcess::~ReosProcess() {}
 
-int ReosProcess::maxProgession() const
+int ReosProcess::maxProgression() const
 {
-  return mMaxProgession;
+  QMutexLocker locker( &mMutexProgression );
+  return mMaxProgression;
 }
 
-void ReosProcess::setMaxProgession( int value )
+void ReosProcess::setMaxProgression( int value )
 {
-  mMaxProgession = value;
+  QMutexLocker locker( &mMutexProgression );
+  if ( mParentProcess )
+    mParentProcess->setMaxProgression( value );
+  mMaxProgression = value;
 }
 
-int ReosProcess::currentProgression()
+int ReosProcess::currentProgression() const
 {
-  int progress;
-  mMutexProgression.lock();
-  progress = mCurrentProgression;
-  mMutexProgression.unlock();
-  return progress;
+  QMutexLocker locker( &mMutexProgression );
+  return mCurrentProgression;
+}
+
+QString ReosProcess::currentInformation() const
+{
+  QMutexLocker locker( &mMutexInformation );
+  return mCurrentInformation;
 }
 
 void ReosProcess::setCurrentProgression( int value )
 {
-  mMutexProgression.lock();
+  QMutexLocker locker( &mMutexProgression );
+  if ( mParentProcess )
+    mParentProcess->setCurrentProgression( value );
   mCurrentProgression = value;
-  mMutexProgression.unlock();
+}
+
+bool ReosProcess::finish()
+{
+  emit finished();
+  return isSuccessful();
+}
+
+void ReosProcess::setInformation( const QString &info )
+{
+  QMutexLocker locker( &mMutexInformation );
+  mCurrentInformation = info;
+  emit sendInformation( info );
 }
 
 void ReosProcess::stopAsSoonAsPossible( bool b )
 {
-  mMutexStop.lock();
+  QMutexLocker locker( &mMutexStop );
   mStopWithMutex = b;
-  mMutexStop.unlock();
+  if ( mCurrentSubProcess )
+    mCurrentSubProcess->stopAsSoonAsPossible( b );
 }
 
 bool ReosProcess::isStopAsked()
 {
-  bool stp;
-  mMutexStop.lock();
-  stp = mStopWithMutex;
-  mMutexStop.unlock();
-  return stp;
+  QMutexLocker locker( &mMutexStop );
+  return mStopWithMutex;
+}
+
+void ReosProcess::setParentProcess( ReosProcess *parent )
+{
+  mParentProcess = parent;
 }
 
 bool ReosProcess::isSuccessful() const
@@ -67,4 +92,10 @@ bool ReosProcess::isSuccessful() const
 void ReosProcess::processStart( ReosProcess *p )
 {
   p->start();
+}
+
+void ReosProcess::setSubProcess( ReosProcess *subProcess )
+{
+  mCurrentSubProcess = subProcess;
+  subProcess->setParentProcess( this );
 }

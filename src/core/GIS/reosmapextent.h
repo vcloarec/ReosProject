@@ -63,6 +63,8 @@ class ReosMapExtent
     bool operator==( const ReosMapExtent &other ) const;
     ReosMapExtent operator*( const ReosMapExtent &other ) const;
 
+    QPolygonF toPolygon() const;
+
   protected:
     double mXMin = std::numeric_limits<double>::quiet_NaN();
     double mXMax = std::numeric_limits<double>::quiet_NaN();

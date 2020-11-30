@@ -243,6 +243,50 @@ QMap<QString, QString> ReosGisEngine::digitalElevationModelRasterList() const
   return demList;
 }
 
+QStringList ReosGisEngine::digitalElevationModelIds() const
+{
+  return mAsDEMRegisteredLayer;
+}
+
+ReosEncodedElement ReosGisEngine::encode( const QString &path, const QString baseFileName )
+{
+  QFileInfo fileInfo;
+  QDir dir( path );
+  QString fileName = baseFileName;
+  fileName.append( ".gpj" );
+  fileInfo.setFile( dir, fileName );
+
+  QgsProject::instance()->write( fileInfo.filePath() );
+  ReosEncodedElement encodedElement( QStringLiteral( "GIS-engine" ) );
+  encodedElement.addData( QStringLiteral( "registered-dem-layer-ids" ), mAsDEMRegisteredLayer );
+  return encodedElement;
+}
+
+bool ReosGisEngine::decode( const ReosEncodedElement &encodedElement, const QString &path, const QString baseFileName )
+{
+  if ( encodedElement.description() != QStringLiteral( "GIS-engine" ) )
+    return false;
+
+  QFileInfo fileInfo;
+  QDir dir( path );
+  QString fileName = baseFileName;
+  fileName.append( ".gpj" );
+  fileInfo.setFile( dir, fileName );
+
+  QgsProject::instance()->clear();
+  QgsProject::instance()->read( fileInfo.filePath() );
+
+  mAsDEMRegisteredLayer.clear();
+  if ( !encodedElement.getData( QStringLiteral( "registered-dem-layer-ids" ), mAsDEMRegisteredLayer ) )
+  {
+    emit updated();
+    return false;
+  }
+
+  emit updated();
+  return true;
+}
+
 ReosGisEngine::LayerType ReosGisEngine::layerType( const QString layerId ) const
 {
   QgsMapLayer *layer = QgsProject::instance()->mapLayer( layerId );

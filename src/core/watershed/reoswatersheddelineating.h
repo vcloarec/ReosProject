@@ -86,9 +86,9 @@ class ReosWatershedDelineating : public ReosModule
     //! Sets the DEM to operate
     bool setDigitalElevationModelDEM( const QString &layerId );
 
-    //! Sets the downstream line
+    //! Sets the downstream line, return true if sucessful
     bool setDownstreamLine( const QPolygonF &downstreamLine );
-    //! Sets the predefined extent where to operate
+    //! Sets the predefined extent, return true if sucessful
     bool setPreDefinedExtent( const ReosMapExtent &extent );
 
     //! Adds a burning line
@@ -100,8 +100,9 @@ class ReosWatershedDelineating : public ReosModule
     //---------------------- Processing
     //! Start the delineating, return true if starting this process is sucessful
     bool startDelineating();
+    ReosProcess *delineatingProcess();
 
-    //! Returns  if the delineating process is finished
+    //! Returns if the delineating process is finished
     bool isDelineatingFinished() const;
 
     //------ Results

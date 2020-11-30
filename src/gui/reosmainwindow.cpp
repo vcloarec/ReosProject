@@ -64,7 +64,7 @@ void ReosMainWindow::init()
   mDockMessageBox = new QDockWidget( tr( "Message" ) );
   mDockMessageBox->setWidget( messageBox );
   mDockMessageBox->setObjectName( QStringLiteral( "Dock message" ) );
-  addDockWidget( Qt::RightDockWidgetArea, mDockMessageBox );
+  addDockWidget( Qt::BottomDockWidgetArea, mDockMessageBox );
   //****************************************************************
 
   mGroupActionFile->addAction( mActionNewProject );

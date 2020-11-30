@@ -19,16 +19,33 @@ email                : vcloarec at gmail dot com
 #include <memory>
 
 #include <QPolygonF>
+#include <QColor>
+#include <QGraphicsScene>
+#include <QPointer>
 
 class ReosMap;
 class ReosMapPolygon_p;
 
+class ReosMapItem
+{
+  public:
+    //! Construct a map item and link ti with a map
+    ReosMapItem( ReosMap *map );
+    virtual ~ReosMapItem() = default;
+  protected:
+    bool isMapExist() const;
+    QPointer<ReosMap> mMap;
+};
 
-class ReosMapPolygon
+class ReosMapPolygon : public ReosMapItem
 {
   public:
     //! Contructor
     ReosMapPolygon( ReosMap *map );
+    ReosMapPolygon( ReosMap *map, const QPolygonF &polygon );
+    ~ReosMapPolygon();
+
+    ReosMapPolygon( const ReosMapPolygon &other );
 
     //! Resets the polygon with \a polygon
     void resetPolygon( const QPolygonF &polygon = QPolygonF() );
@@ -39,18 +56,29 @@ class ReosMapPolygon
     //! Move the point at \a index and update the map
     void movePoint( int pointIndex, const QPointF &p );
 
+    void setColor( const QColor &color );
+    void setExternalColor( const QColor &color );
+    void setWidth( double width );
+    void setExternalWidth( double externalWidth );
+    void setStyle( Qt::PenStyle style );
+
   private:
-    std::unique_ptr<ReosMapPolygon_p> d;
+    //! Private item that represent the graphic representation on the map, access to id need to check isMapExist()
+    ReosMapPolygon_p *d;
 };
 
-class ReosMapPolyline
+class ReosMapPolyline: public ReosMapItem
 {
   public:
     //! Constructor
     ReosMapPolyline( ReosMap *map );
+    ReosMapPolyline( ReosMap *map, const QPolygonF &polyline );
+    ~ReosMapPolyline();
+
+    ReosMapPolyline( const ReosMapPolyline &other );
 
     //! Rsets the polyline with \a polyline
-    void resetPolyline( const QPolygonF &polyline );
+    void resetPolyline( const QPolygonF &polyline = QPolygonF() );
 
     //! Returns the map polyline
     QPolygonF mapPolyline() const;
@@ -58,8 +86,15 @@ class ReosMapPolyline
     //! Move the point at \a index and update the map
     void movePoint( int pointIndex, const QPointF &p );
 
+    void setColor( const QColor &color );
+    void setExternalColor( const QColor &color );
+    void setWidth( double width );
+    void setExternalWidth( double externalWidth );
+    void setStyle( Qt::PenStyle style );
+
   private:
-    std::unique_ptr<ReosMapPolygon_p> d;
+    //! Private item that represent the graphic representation on the map, access to id need to check isMapExist()
+    ReosMapPolygon_p *d;
 };
 
 

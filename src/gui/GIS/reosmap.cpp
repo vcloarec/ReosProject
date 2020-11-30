@@ -27,13 +27,14 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ): ReosModule(
   /*,
   mapToolNeutral( new HdMapToolNeutral( this ) )*/
 {
-  mCanvas->setExtent( QgsRectangle( 0, 0, 200, 200 ) );
-  mCanvas->setObjectName( "map canvas" );
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
+  canvas->setExtent( QgsRectangle( 0, 0, 200, 200 ) );
+  canvas->setObjectName( "map canvas" );
 
   QgsLayerTreeModel *layerTreeModel = qobject_cast<QgsLayerTreeModel *>( gisEngine->layerTreeModel() );
   if ( layerTreeModel )
   {
-    auto bridge = new QgsLayerTreeMapCanvasBridge( layerTreeModel->rootGroup(), mCanvas, this );
+    auto bridge = new QgsLayerTreeMapCanvasBridge( layerTreeModel->rootGroup(), canvas, this );
     bridge->setAutoSetupOnFirstLayer( true );
 
     //Thses two following connections seem weird, but that is for avoiding that the QgsProjectInstance call the lambda while this is destroyed
@@ -47,21 +48,35 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ): ReosModule(
       bridge->setCanvasLayers();
       if ( autoSetupOnFirstLayer )
         bridge->setAutoSetupOnFirstLayer( true );
-      this->mCanvas->readProject( doc );
+      QgsMapCanvas *c = qobject_cast<QgsMapCanvas *>( mCanvas );
+      c->readProject( doc );
     } );
   }
 
-  connect( mCanvas, &QgsMapCanvas::xyCoordinates, this, [this]( const QgsPointXY & p )
+  connect( canvas, &QgsMapCanvas::xyCoordinates, this, [this]( const QgsPointXY & p )
   {
     emit cursorMoved( p.toQPointF() );
   } );
 }
 
-QWidget *ReosMap::mapCanvas() const {return mCanvas;}
+ReosMap::~ReosMap()
+{
+  if ( mCanvas )
+    mCanvas->scene()->clear();
+}
+
+QWidget *ReosMap::mapCanvas() const
+{
+  if ( mCanvas )
+    return mCanvas;
+  else
+    return nullptr;
+}
 
 void ReosMap::refreshCanvas()
 {
-  mCanvas->refresh();
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
+  canvas->refresh();
 }
 
 //void ReosMap::setMapTool( ReosMapTool *tool )

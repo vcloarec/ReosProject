@@ -78,7 +78,7 @@ bool ReosRasterFillingWangLiu::initialize()
 
   mRasterChar.fill( 255 );
   mRasterChar.setNodata( 9 );
-  setMaxProgession( mDem.rowCount()*mDem.columnCount() );
+  setMaxProgression( mDem.rowCount()*mDem.columnCount() );
   return true;
 }
 

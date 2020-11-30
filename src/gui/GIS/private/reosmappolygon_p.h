@@ -22,10 +22,19 @@ class ReosMapPolygon_p: public QgsMapCanvasItem
 {
   public:
     ReosMapPolygon_p( QgsMapCanvas *canvas );
+    virtual ~ReosMapPolygon_p() {}
+
+    virtual ReosMapPolygon_p *clone();
 
     QRectF boundingRect() const override {return mViewPolygon.boundingRect();}
     void updatePosition() override;
     QPolygonF mapPolygon;
+
+    QColor color;
+    QColor externalColor;
+    double width = 0.0;
+    double externalWidth = 0.0;
+    Qt::PenStyle style = Qt::SolidLine;
 
   protected:
     void paint( QPainter *painter ) override;

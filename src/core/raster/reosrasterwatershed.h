@@ -113,8 +113,8 @@ class ReosRasterWatershedFromDirectionAndDownStreamLine: public ReosProcess
 
     ReosRasterWatershed::Climber mEndOfLongerPath;
 
-    std::mutex mMutexClimber;
-    std::mutex mMutexEndOfPath;
+    mutable QMutex mMutexClimber;
+    mutable QMutex mMutexEndOfPath;
 
     std::unique_ptr<ReosRasterTestingCell> mTestingCell;
 

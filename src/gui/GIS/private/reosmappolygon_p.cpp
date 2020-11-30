@@ -24,6 +24,19 @@ ReosMapPolygon_p::ReosMapPolygon_p( QgsMapCanvas *canvas ):
 
 }
 
+ReosMapPolygon_p *ReosMapPolygon_p::clone()
+{
+  ReosMapPolygon_p *other = new ReosMapPolygon_p( mMapCanvas );
+  other->color = color;
+  other->externalColor = externalColor;
+  other->width = width;
+  other->externalWidth = externalWidth;
+  other->style = style;
+  other->mapPolygon = mapPolygon;
+  other->updatePosition();
+  return other;
+}
+
 void ReosMapPolygon_p::updatePosition()
 {
   prepareGeometryChange();
@@ -43,6 +56,20 @@ void ReosMapPolygon_p::updatePosition()
 void ReosMapPolygon_p::paint( QPainter *painter )
 {
   painter->save();
+  QPen pen;
+  if ( externalWidth > width )
+  {
+    pen.setWidthF( externalWidth );
+    pen.setColor( externalColor );
+    QBrush brush( Qt::NoBrush );
+    painter->setBrush( brush );
+    painter->setPen( pen );
+    painter->drawPolygon( mViewPolygon );
+  }
+  pen.setWidthF( width );
+  pen.setColor( color );
+  pen.setStyle( style );
+  painter->setPen( pen );
   painter->drawPolygon( mViewPolygon );
   painter->restore();
 }
@@ -56,6 +83,20 @@ ReosMapPolyline_p::ReosMapPolyline_p( QgsMapCanvas *canvas ):
 void ReosMapPolyline_p::paint( QPainter *painter )
 {
   painter->save();
+  QPen pen;
+  if ( externalWidth > width )
+  {
+    pen.setWidthF( externalWidth );
+    pen.setColor( externalColor );
+    QBrush brush( Qt::NoBrush );
+    painter->setBrush( brush );
+    painter->setPen( pen );
+    painter->drawPolyline( mViewPolygon );
+  }
+  pen.setWidthF( width );
+  pen.setColor( color );
+  pen.setStyle( style );
+  painter->setPen( pen );
   painter->drawPolyline( mViewPolygon );
   painter->restore();
 }

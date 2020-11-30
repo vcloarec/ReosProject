@@ -106,7 +106,7 @@ ReosRasterWatershedFromDirectionAndDownStreamLine::ReosRasterWatershedFromDirect
     mWatershed.setValue( pix.row(), pix.column(), 1 );
   }
 
-  setMaxProgession( int( mPoolCellsToTreat.size() ) );
+  setMaxProgression( int( mPoolCellsToTreat.size() ) );
   unsigned halfPos = mDownstreamLine.cellCount() / 2;
   mFirstCell = mDownstreamLine.cellPosition( halfPos );
 
@@ -123,7 +123,7 @@ ReosRasterWatershedFromDirectionAndDownStreamLine::ReosRasterWatershedFromDirect
 ReosRasterWatershed::Climber ReosRasterWatershedFromDirectionAndDownStreamLine::getClimberFromPool( bool &available )
 {
   ReosRasterWatershed::Climber climber;
-  mMutexClimber.lock();
+  QMutexLocker locker( &mMutexClimber );
   if ( mPoolCellsToTreat.empty() )
   {
     available = false;
@@ -136,25 +136,22 @@ ReosRasterWatershed::Climber ReosRasterWatershedFromDirectionAndDownStreamLine::
     mCounter++;
     setCurrentProgression( mCounter );
   }
-  mMutexClimber.unlock();
   return climber;
 }
 
 void ReosRasterWatershedFromDirectionAndDownStreamLine::addClimberInPool( const ReosRasterWatershed::Climber &climb )
 {
-  mMutexClimber.lock();
+  QMutexLocker locker( &mMutexClimber );
   mPoolCellsToTreat.push_front( climb );
-  mMutexClimber.unlock();
 }
 
 void ReosRasterWatershedFromDirectionAndDownStreamLine::proposeEndOfPath( ReosRasterWatershed::Climber climber )
 {
-  mMutexEndOfPath.lock();
+  QMutexLocker locker( &mMutexEndOfPath );
   if ( climber.lengthPath > mEndOfLongerPath.lengthPath )
   {
     mEndOfLongerPath = climber;
   }
-  mMutexEndOfPath.unlock();
 }
 
 ReosRasterWatershed::Watershed ReosRasterWatershedFromDirectionAndDownStreamLine::watershed() const {return mWatershed;}
@@ -201,6 +198,7 @@ void ReosRasterWatershedFromDirectionAndDownStreamLine::start()
   mThreads.clear();
 
   mIsSuccessful = true;
+  emit finished();
 }
 
 void ReosRasterWatershedFromDirectionAndDownStreamLine::stopAsSoonAsPossible( bool b )
@@ -237,7 +235,7 @@ ReosRasterWatershedToVector::ReosRasterWatershedToVector( ReosRasterWatershed::W
   mWatershedTrace = std::unique_ptr<ReosRasterTraceBetweenCellsUniqueValue<unsigned char>>(
                       new ReosRasterTraceBetweenCellsUniqueValue<unsigned char>( rasterWatershed, 1, startingPoint, origin, endLine, mEliminationPoint ) );
 
-  setMaxProgession( 0 );
+  setMaxProgression( 0 );
 }
 
 const QPolygonF ReosRasterWatershedToVector::watershed() const

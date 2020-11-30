@@ -30,7 +30,7 @@ class ReosDigitalElevationModelRaster: public ReosDigitalElevationModel
 
     ReosRasterMemory<float> extractMemoryRasterSimplePrecision( const ReosMapExtent &destinationExtent,
         ReosRasterExtent &outputRasterExtent,
-        const QString &destinationCrs = QString() ) override;
+        const QString &destinationCrs = QString(), ReosProcess *process = nullptr ) override;
 
   private:
     std::unique_ptr<QgsRasterDataProvider> mDataProvider;

@@ -32,20 +32,35 @@ class ReosWatershedTree: public QObject
   public:
     ReosWatershedTree();
 
-    //! Adds a watershed to the store, take ownership and return a pointer to the watershed
-    ReosWatershed *addWatershed( ReosWatershed *watershed );
+    /**
+     * Adds a watershed to the store, in the \a downstreamWatershed (or in one of its su watershed).
+     * Take ownership and return a pointer to the watershed where it was added
+     */
+    ReosWatershed *addWatershed( ReosWatershed *watershed, ReosWatershed *downstreamWatershed, bool adaptDelineating = false );
 
     //! Returns the smallest watershed that is downstream the line, if the line is partially included by any watershed, ok is false
     //! If there is no watershed downstrean, return nullptr
     ReosWatershed *downstreamWatershed( const QPolygonF &line, bool &ok ) const;
 
+    //! Returns the count ofwatershed (extreme downstream)
     int watershedCount() const;
+
+    //! Returns the count of master watershed (extreme downstream)
     int masterWatershedCount() const;
 
+    //! Returns a pointer to master watershed with \a index
     ReosWatershed *masterWatershed( int index ) const;
 
+    //! Returns the position of the master watershed, if not a master watershed, returns -1
+    int masterWatershedPosition( ReosWatershed *watershed );
+
+    //! Returns a list of all the watershed
+    QList<ReosWatershed *> allWatershed() const;
+
   signals:
-    void whatershedAdded();
+    void watershedWillBeAdded();
+    //! emitted when watershed is added with the pointer to the directly downsteam watershed (nullptr if added watershed is a the extreme downstream)
+    void watershedAdded( ReosWatershed * );
 
   private:
 
@@ -55,6 +70,7 @@ class ReosWatershedTree: public QObject
 
 class ReosWatershedItemModel: public QAbstractItemModel
 {
+    Q_OBJECT
   public:
     ReosWatershedItemModel( ReosWatershedTree *watershedStore, QObject *parent = nullptr );
 
@@ -65,9 +81,20 @@ class ReosWatershedItemModel: public QAbstractItemModel
     QVariant data( const QModelIndex &index, int role ) const;
 
 
-  private:
-    ReosWatershedTree *mWatershedStore = nullptr;
+    QList<ReosWatershed *> allWatersheds() const;
 
+  signals:
+    void watershedAdded( const QModelIndex &index );
+
+  private slots:
+    void onWatershedWillBeAdded();
+    //! emitted when watershed is added with the index of the directly downsteam watershed (invalid if added watershed is a the extreme downstream)
+    void onWatershedAdded( ReosWatershed *watershed );
+
+  private:
+    ReosWatershedTree *mWatershedTree = nullptr;
+
+    QModelIndex watershedToIndex( ReosWatershed *watershed ) const;
     static ReosWatershed *indexToWatershed( const QModelIndex &index );
 };
 

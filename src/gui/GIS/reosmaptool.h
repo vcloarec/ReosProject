@@ -21,6 +21,7 @@ email                : vcloarec at gmail dot com
 #include "reosmap.h"
 
 class ReosMapToolDrawPolyline_p;
+class ReosMapToolDrawExtent_p;
 class ReosMapTool_p;
 
 class ReosMapTool : public QObject
@@ -28,6 +29,9 @@ class ReosMapTool : public QObject
   public:
     void activate();
     void deactivate();
+    void setCurrentToolInMap() const;
+
+    void setAction( QAction *action );
 
   private:
     virtual ReosMapTool_p *tool_p() const = 0;
@@ -38,7 +42,6 @@ class ReosMapToolDrawPolyline : public ReosMapTool
     Q_OBJECT
   public:
     ReosMapToolDrawPolyline( ReosMap *map );
-    void setCurrentToolInMap() const;
 
     void setStrokeWidth( double width );
     void setColor( const QColor &color );
@@ -51,7 +54,27 @@ class ReosMapToolDrawPolyline : public ReosMapTool
   private:
     ReosMapToolDrawPolyline_p *d;
     ReosMapTool_p *tool_p() const override;
+};
 
+class ReosMapToolDrawExtent: public ReosMapTool
+{
+    Q_OBJECT
+  public:
+    ReosMapToolDrawExtent( ReosMap *map );
+
+    void setStrokeWidth( double width );
+    void setColor( const QColor &color );
+    void setSecondaryStrokeColor( const QColor &color );
+    void setFillColor( const QColor &color );
+    void setLineStyle( Qt::PenStyle style );
+
+
+  signals:
+    void extentDrawn( const QRectF &extent );
+
+  private:
+    ReosMapToolDrawExtent_p *d;
+    ReosMapTool_p *tool_p() const override;
 };
 
 #endif // REOSMAPTOOL_H

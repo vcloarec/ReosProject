@@ -29,7 +29,8 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reosgislayerswidget.h"
 #include "reosmaptool.h"
 #include "reoswatersheddelineating.h"
-#include "reosdelineatingwatershedfromdemwidget.h"
+#include "reosdelineatingwatershedwidget.h"
+#include "reoswatershedtreeview.h"
 
 
 LekanMainWindow::LekanMainWindow( QWidget *parent ) :
@@ -38,8 +39,6 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   mMap( new ReosMap( mGisEngine, this ) ),
   mWatershedDelineatingModule( new ReosWatershedDelineating( rootModule(), &mWatershedTree, mGisEngine ) )
 {
-
-
   //****************************************************************
 
 //  map = new ReosMap( rootReosModule );
@@ -110,30 +109,71 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
 
   statusBar()->addPermanentWidget( new ReosMapCursorPosition( mMap, this ) );
   centralWidget()->layout()->addWidget( mMap->mapCanvas() );
+
   mGisDock = new QDockWidget( tr( "GIS Layers" ) );
   mGisDock->setWidget( new ReosGisLayersWidget( mGisEngine, mMap, this ) );
   addDockWidget( Qt::LeftDockWidgetArea, mGisDock );
 
-  QDialog *delineatingDialog = new QDialog( this );
-  ReosDelineatingWatershedFromDemWidget *delineatingFromDem = new ReosDelineatingWatershedFromDemWidget(
+  mDockWatershed = new QDockWidget( tr( "Watershed" ) );
+  ReosWatershedWidget *watersehdTreeView = new  ReosWatershedWidget( mMap, mDockWatershed );
+  mDockWatershed->setWidget( watersehdTreeView );
+  addDockWidget( Qt::RightDockWidgetArea, mDockWatershed );
+
+  mDelineatingWidget = new ReosDelineatingWatershedWidget(
     mWatershedDelineatingModule,
     mGisEngine,
     mMap,
-    delineatingDialog );
-  delineatingDialog->show();
+    this );
 
+  ReosWatershedItemModel *watershedModel = new ReosWatershedItemModel( &mWatershedTree );
+  watersehdTreeView->setModel( watershedModel );
 }
 
 bool LekanMainWindow::openProject()
 {
-  mGisEngine->loadQGISProject( gisFileInfo().filePath() );
-  return false;
+  QString filePath = currentProjectFilePath();
+  QString path = currentProjectPath();
+  QString baseName = currentProjectBaseName();
+
+  QFile file( filePath );
+  if ( !file.open( QIODevice::ReadOnly ) )
+    return false;
+
+  QDataStream stream( &file );
+  QByteArray byteArray;
+  stream >> byteArray;
+
+  ReosEncodedElement lekanProject( byteArray );
+  if ( lekanProject.description() != QStringLiteral( "Lekan-project" ) )
+    return false;
+
+  QByteArray gisEngineData;
+  if ( !lekanProject.getData( QStringLiteral( "GIS-engine" ), gisEngineData ) )
+    return false;
+  ReosEncodedElement encodedGisEngine( gisEngineData );
+  if ( !mGisEngine->decode( encodedGisEngine, path, baseName ) )
+    return false;
+
+  return true;
 }
 
 bool LekanMainWindow::saveProject()
 {
-  mGisEngine->saveQGISProject( gisFileInfo().filePath() );
-  return false;
+  QString filePath = currentProjectFilePath();
+  QString path = currentProjectPath();
+  QString baseName = currentProjectBaseName();
+
+  ReosEncodedElement lekanProject( QStringLiteral( "Lekan-project" ) );
+
+  ReosEncodedElement encodedGisEngine = mGisEngine->encode( path, baseName );
+  lekanProject.addData( QStringLiteral( "GIS-engine" ), encodedGisEngine.bytes() );
+
+  QFile file( filePath );
+  if ( !file.open( QIODevice::WriteOnly ) )
+    return false;
+  QDataStream stream( &file );
+  stream << lekanProject.bytes();
+  return true;
 }
 
 
@@ -155,12 +195,12 @@ QList<QMenu *> LekanMainWindow::specificMenus()
 {
   QList<QMenu *> menusList;
 
-  menuRainFallRunoffModel = new QMenu( tr( "Modèle pluie/débit" ), this );
+  //menuRainFallRunoffModel = new QMenu( tr( "Modèle pluie/débit" ), this );
 
   //menuRainFallRunoffModel->addActions( rainfallManager->getMenu()->actions() );
-  menuRainFallRunoffModel->addSeparator();
+// menuRainFallRunoffModel->addSeparator();
   //menuRainFallRunoffModel->addActions( runoffManager->getMenu()->actions() );
-  menusList << menuRainFallRunoffModel;
+  //menusList << menuRainFallRunoffModel;
 
   return menusList;
 }

@@ -47,7 +47,8 @@ class ReosGisLayersWidget: public QWidget
     void onSetCrs();
 
     void updateLayerInsertionPoint() const;
-    void updateDigitalElevationModel() {}
+
+    void onGISEngineUpdated();
 
   private:
     ReosGisEngine *mGisEngine;
@@ -63,6 +64,9 @@ class ReosGisLayersWidget: public QWidget
     QAction *mActionLoadRasterLayer;
     QAction *mActionLoadMeshLayer;
     QAction *mActionSetProjectCrs;
+
+
+    void updateIndicator();
 
 
 };

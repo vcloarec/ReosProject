@@ -13,47 +13,63 @@ email                : vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
-#ifndef REOSDELINEATINGWATERSHEDFROMDEMWIDGET_H
-#define REOSDELINEATINGWATERSHEDFROMDEMWIDGET_H
+#ifndef REOSDELINEATINGWATERSHEDWIDGET_H
+#define REOSDELINEATINGWATERSHEDWIDGET_H
 
 #include <QWidget>
 
 #include "reoswatersheddelineating.h"
 #include "reosmaptool.h"
+#include "reosmapitem.h"
 
 class ReosWatershedDelineating;
 class ReosMap;
 
 namespace Ui
 {
-  class ReosDelineatingWatershedFromDemWidget;
+  class ReosDelineatingWatershedWidget;
 }
 
-class ReosDelineatingWatershedFromDemWidget : public QWidget
+class ReosDelineatingWatershedWidget : public QWidget
 {
     Q_OBJECT
 
   public:
-    explicit ReosDelineatingWatershedFromDemWidget(
+    explicit ReosDelineatingWatershedWidget(
       ReosWatershedDelineating *watershedDelineatingModule,
       ReosGisEngine *gisEngine,
       ReosMap *map,
       QWidget *parent = nullptr );
-    ~ReosDelineatingWatershedFromDemWidget();
+    ~ReosDelineatingWatershedWidget();
 
   private slots:
     void onDownstreamLineDrawn( const QPolygonF &downstreamLine );
+    void onPredefinedExtentDrawn( const QRectF &extent );
     void onDemComboboxChanged();
+    void onDelineateAsked();
+    void onValidateAsked();
+
+    void onMethodChange();
 
   private:
-    Ui::ReosDelineatingWatershedFromDemWidget *ui;
+    Ui::ReosDelineatingWatershedWidget *ui;
     ReosWatershedDelineating *mModule = nullptr;
+    ReosMap *mMap = nullptr;
 
-    ReosMapToolDrawPolyline *mMapToolDrawDownStreamLine;
+    QToolBar *mAutomaticToolBar = nullptr;
+
+    ReosMapToolDrawPolyline *mMapToolDrawDownStreamLine = nullptr;
+    ReosMapToolDrawExtent *mMapToolDrawPredefinedExtent = nullptr;
     QAction *mActionDrawDownstreamLine = nullptr;
-    QAction *mActionDrawnPredefinedExtent = nullptr;
+    QAction *mActionDrawPredefinedExtent = nullptr;
 
-    void updateToolButton();
+    ReosMapPolyline mDownstreamLine;
+    ReosMapPolygon mWatershedExtent;
+
+    ReosMapPolygon mTemporaryWatershed = nullptr;
+    ReosMapPolyline mTemporaryStreamLine = nullptr;
+
+    void updateTool();
 };
 
-#endif // REOSDELINEATINGWATERSHEDFROMDEMWIDGET_H
+#endif // REOSDELINEATINGWATERSHEDWIDGET_H
