@@ -16,6 +16,7 @@
         <file>noDem.svg</file>
         <file>downStreamSelection.png</file>
         <file>extentWatershedSelection.png</file>
+        <file>mActionDelineateWatershed.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

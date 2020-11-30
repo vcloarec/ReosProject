@@ -1,14 +1,31 @@
-#include "reoswatershedtreeview.h"
-#include "ui_reoswatershedtreeview.h"
+#include "reoswatershedwidget.h"
+#include "ui_reoswatershedwidget.h"
 
+#include "reossettings.h"
+#include "reoswatershedmodule.h"
 #include "reoswatershedtree.h"
+#include "reosdelineatingwatershedwidget.h"
 
-ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, QWidget *parent ) :
+ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *module, QWidget *parent ) :
   QWidget( parent ),
-  ui( new Ui::ReosWatershedTreeView ),
-  mMap( map )
+  ui( new Ui::ReosWatershedWidget ),
+  mMap( map ),
+  mDelineatingWidget( new ReosDelineatingWatershedWidget( module->delineatingModule(), map, this ) )
 {
+  ReosSettings settings;
   ui->setupUi( this );
+  mModelWatershed = new ReosWatershedItemModel( module->watershedTree(), this );
+
+  ui->treeView->setModel( mModelWatershed );
+  ui->mToolButtonDelineate->setCheckable( true );
+
+  connect( ui->mToolButtonDelineate, &QToolButton::toggled, this, &ReosWatershedWidget::onButtonDelineateClicked );
+  ui->mToolButtonDelineate->setChecked( settings.value( QStringLiteral( "/Windows/WatershedDelineateWidget/Open" ) ).toBool() );
+  connect( mDelineatingWidget, &ReosDelineatingWatershedWidget::closed, this, [ = ]
+  {
+    ui->mToolButtonDelineate->setChecked( false );
+  } );
+  onButtonDelineateClicked();
 }
 
 ReosWatershedWidget::~ReosWatershedWidget()
@@ -39,6 +56,18 @@ void ReosWatershedWidget::updateMapWatershed()
     ReosMapPolygon wsPolygon( mMap, ws->delineating() );
     mMapWatersheds.append( formatWatershedPolygon( wsPolygon ) );
   }
+}
+
+void ReosWatershedWidget::onButtonDelineateClicked()
+{
+  if ( ui->mToolButtonDelineate->isChecked() )
+    mDelineatingWidget->show();
+  else
+    mDelineatingWidget->close();
+
+  ReosSettings settings;
+  settings.setValue( QStringLiteral( "/Windows/WatershedDelineateWidget/Open" ), ui->mToolButtonDelineate->isChecked() );
+
 }
 
 ReosMapPolygon ReosWatershedWidget::formatWatershedPolygon( ReosMapPolygon &watershedPolygon )

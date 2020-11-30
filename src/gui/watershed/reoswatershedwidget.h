@@ -11,13 +11,15 @@ namespace Ui
 }
 
 class ReosWatershedItemModel;
+class ReosDelineatingWatershedWidget;
+class ReosWatershedModule;
 
 class ReosWatershedWidget : public QWidget
 {
     Q_OBJECT
 
   public:
-    explicit ReosWatershedWidget( ReosMap *map, QWidget *parent = nullptr );
+    explicit ReosWatershedWidget( ReosMap *map, ReosWatershedModule *module, QWidget *parent = nullptr );
     ~ReosWatershedWidget();
 
     void setModel( ReosWatershedItemModel *model );
@@ -26,13 +28,16 @@ class ReosWatershedWidget : public QWidget
     void onWatershedAdded( const QModelIndex &index );
     void updateMapWatershed();
 
+    void onButtonDelineateClicked();
+
   private:
     Ui::ReosWatershedWidget *ui;
     ReosWatershedItemModel *mModelWatershed = nullptr;
     ReosMap *mMap = nullptr;
 
-    QList<ReosMapPolygon> mMapWatersheds;
+    ReosDelineatingWatershedWidget *mDelineatingWidget = nullptr;
 
+    QList<ReosMapPolygon> mMapWatersheds;
     ReosMapPolygon formatWatershedPolygon( ReosMapPolygon &watershedPolygon );
 };
 

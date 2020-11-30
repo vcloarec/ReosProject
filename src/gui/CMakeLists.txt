@@ -22,7 +22,7 @@ SET(REOS_GUI_SOURCES
     GIS/private/reoslayertreeviewdemindicator.cpp
 
     watershed/reosdelineatingwatershedwidget.cpp
-    watershed/reoswatershedtreeview.cpp
+    watershed/reoswatershedwidget.cpp
 )
 
 SET(REOS_GUI_HEADERS
@@ -41,7 +41,7 @@ SET(REOS_GUI_HEADERS
     GIS/reosgislayerswidget.h
 
     watershed/reosdelineatingwatershedwidget.h
-    watershed/reoswatershedtreeview.h
+    watershed/reoswatershedwidget.h
 )
 
 SET(REOS_GUI_HEADERS_PRIVATE

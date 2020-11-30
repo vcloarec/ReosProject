@@ -53,7 +53,7 @@ email                : vcloarec at gmail dot com
 class ReosModule;
 class ReosMap;
 class ReosGisEngine;
-class ReosWatershedDelineating;
+class ReosWatershedModule;
 class ReosDelineatingWatershedWidget;
 
 static const ReosVersion lekanVersion( "Lekan", 1, 0, 5 );
@@ -97,7 +97,7 @@ class LekanMainWindow : public ReosMainWindow
 
     ReosGisEngine *mGisEngine;
     ReosMap *mMap = nullptr;
-    ReosWatershedDelineating *mWatershedDelineatingModule = nullptr;
+    ReosWatershedModule *mWatershedModule = nullptr;
     ReosDelineatingWatershedWidget *mDelineatingWidget = nullptr;
 
     ReosWatershedTree mWatershedTree;

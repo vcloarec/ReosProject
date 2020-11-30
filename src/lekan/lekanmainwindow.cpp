@@ -28,16 +28,16 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reosgisengine.h"
 #include "reosgislayerswidget.h"
 #include "reosmaptool.h"
-#include "reoswatersheddelineating.h"
+#include "reoswatershedmodule.h"
 #include "reosdelineatingwatershedwidget.h"
-#include "reoswatershedtreeview.h"
+#include "reoswatershedwidget.h"
 
 
 LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   ReosMainWindow( parent ),
   mGisEngine( new ReosGisEngine( rootModule() ) ),
   mMap( new ReosMap( mGisEngine, this ) ),
-  mWatershedDelineatingModule( new ReosWatershedDelineating( rootModule(), &mWatershedTree, mGisEngine ) )
+  mWatershedModule( new ReosWatershedModule( rootModule(),  mGisEngine ) )
 {
   //****************************************************************
 
@@ -115,15 +115,10 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   addDockWidget( Qt::LeftDockWidgetArea, mGisDock );
 
   mDockWatershed = new QDockWidget( tr( "Watershed" ) );
-  ReosWatershedWidget *watersehdTreeView = new  ReosWatershedWidget( mMap, mDockWatershed );
+  mWatershedModule = new ReosWatershedModule( rootModule(), mGisEngine );
+  ReosWatershedWidget *watersehdTreeView = new  ReosWatershedWidget( mMap, mWatershedModule, mDockWatershed );
   mDockWatershed->setWidget( watersehdTreeView );
   addDockWidget( Qt::RightDockWidgetArea, mDockWatershed );
-
-  mDelineatingWidget = new ReosDelineatingWatershedWidget(
-    mWatershedDelineatingModule,
-    mGisEngine,
-    mMap,
-    this );
 
   ReosWatershedItemModel *watershedModel = new ReosWatershedItemModel( &mWatershedTree );
   watersehdTreeView->setModel( watershedModel );

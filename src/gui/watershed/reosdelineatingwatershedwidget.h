@@ -37,10 +37,16 @@ class ReosDelineatingWatershedWidget : public QWidget
   public:
     explicit ReosDelineatingWatershedWidget(
       ReosWatershedDelineating *watershedDelineatingModule,
-      ReosGisEngine *gisEngine,
       ReosMap *map,
       QWidget *parent = nullptr );
     ~ReosDelineatingWatershedWidget();
+
+
+  signals:
+    void closed();
+
+  protected:
+    void closeEvent( QCloseEvent *event );
 
   private slots:
     void onDownstreamLineDrawn( const QPolygonF &downstreamLine );
@@ -48,8 +54,9 @@ class ReosDelineatingWatershedWidget : public QWidget
     void onDemComboboxChanged();
     void onDelineateAsked();
     void onValidateAsked();
-
     void onMethodChange();
+    void storeGeometry();
+    void restore();
 
   private:
     Ui::ReosDelineatingWatershedWidget *ui;

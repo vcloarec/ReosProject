@@ -33,6 +33,7 @@ SET(REOS_CORE_SOURCES
   watershed/reoswatershed.cpp
   watershed/reoswatersheddelineating.cpp
   watershed/reoswatershedtree.cpp
+  watershed/reoswatershedmodule.cpp
 )
 
 SET(REOS_CORE_HEADERS
@@ -62,6 +63,7 @@ SET(REOS_CORE_HEADERS
     watershed/reoswatershed.h
     watershed/reoswatersheddelineating.h
     watershed/reoswatershedtree.h
+    watershed/reoswatershedmodule.h
 
 )
 

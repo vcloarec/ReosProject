@@ -22,7 +22,9 @@ email                : vcloarec at gmail dot com
 #include "reosgisengine.h"
 
 
-ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ): ReosModule( gisEngine ),
+ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
+  ReosModule( gisEngine ),
+  mEngine( gisEngine ),
   mCanvas( new QgsMapCanvas( parentWidget ) )
   /*,
   mapToolNeutral( new HdMapToolNeutral( this ) )*/
@@ -78,6 +80,12 @@ void ReosMap::refreshCanvas()
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
   canvas->refresh();
 }
+
+ReosGisEngine *ReosMap::engine() const
+{
+  return mEngine;
+}
+
 
 //void ReosMap::setMapTool( ReosMapTool *tool )
 //{

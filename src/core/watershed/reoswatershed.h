@@ -129,5 +129,4 @@ class ReosWatershed
     ReosWatershed *mDownstreamWatershed = nullptr;
 };
 
-
 #endif // REOSWATERSHED_H

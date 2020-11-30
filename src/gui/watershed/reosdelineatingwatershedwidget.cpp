@@ -13,15 +13,17 @@ email                : vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
-
 #include "reosdelineatingwatershedwidget.h"
 #include "ui_reosdelineatingwatershedwidget.h"
 #include "reosprocesscontroler.h"
+#include "reosmap.h"
+#include "reossettings.h"
 
 #include <QBoxLayout>
 #include <QMessageBox>
+#include <QCloseEvent>
 
-ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedDelineating *watershedDelineatingModule, ReosGisEngine *gisEngine,
+ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedDelineating *watershedDelineatingModule,
     ReosMap *map,
     QWidget *parent ) :
   QWidget( parent ),
@@ -36,9 +38,10 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedDel
   mTemporaryStreamLine( map )
 {
   ui->setupUi( this );
-  ui->comboBoxDem->setGisEngine( gisEngine );
+  ui->comboBoxDem->setGisEngine( map->engine() );
 
   setWindowFlag( Qt::Dialog );
+  setWindowFlag( Qt::WindowStaysOnTopHint );
 
   mAutomaticToolBar = new QToolBar;
   qobject_cast<QBoxLayout *>( layout() )->insertWidget( 1, mAutomaticToolBar );
@@ -86,7 +89,6 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedDel
 
   updateTool();
 
-
   connect( ui->mRadioButtonAutomatic, &QRadioButton::clicked, this, &ReosDelineatingWatershedWidget::onMethodChange );
   connect( ui->mRadioButtonManual, &QRadioButton::clicked, this, &ReosDelineatingWatershedWidget::onMethodChange );
 
@@ -96,11 +98,22 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedDel
 
   connect( ui->mPushButtonDelineate, &QPushButton::clicked, this, &ReosDelineatingWatershedWidget::onDelineateAsked );
   connect( ui->pushButtonValidate, &QPushButton::clicked, this, &ReosDelineatingWatershedWidget::onValidateAsked );
+
+  connect( this, &QObject::destroyed, this, &ReosDelineatingWatershedWidget::storeGeometry );
+
+  restore();
 }
 
 ReosDelineatingWatershedWidget::~ReosDelineatingWatershedWidget()
 {
   delete ui;
+}
+
+void ReosDelineatingWatershedWidget::closeEvent( QCloseEvent *event )
+{
+  emit closed();
+  storeGeometry();
+  event->accept();
 }
 
 void ReosDelineatingWatershedWidget::onDownstreamLineDrawn( const QPolygonF &downstreamLine )
@@ -169,6 +182,18 @@ void ReosDelineatingWatershedWidget::onMethodChange()
   mAutomaticToolBar->setVisible( isAutomatic );
   ui->mPushButtonDelineate->setVisible( isAutomatic );
   ui->mCuurentDemWidget->setVisible( isAutomatic );
+}
+
+void ReosDelineatingWatershedWidget::storeGeometry()
+{
+  ReosSettings settings;
+  settings.setValue( QStringLiteral( "/Windows/WatershedDelineateWidget/Geometry" ), saveGeometry() );
+}
+
+void ReosDelineatingWatershedWidget::restore()
+{
+  ReosSettings settings;
+  restoreGeometry( settings.value( QStringLiteral( "/Windows/WatershedDelineateWidget/Geometry" ) ).toByteArray() );
 }
 
 void ReosDelineatingWatershedWidget::updateTool()

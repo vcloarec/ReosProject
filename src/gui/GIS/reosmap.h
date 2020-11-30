@@ -57,8 +57,10 @@ class ReosMap: public ReosModule
     QWidget *mapCanvas() const;
     void refreshCanvas();
 
+    ReosGisEngine *engine() const;
+
   public slots:
-//    void unsetMapTool( ReosMapTool *tool );
+    //    void unsetMapTool( ReosMapTool *tool );
 //    void unsetMapTool();
 //    void stopMapTool()
 //    {
@@ -81,6 +83,7 @@ class ReosMap: public ReosModule
     void readProject( const QDomDocument &doc );
 
   private:
+    ReosGisEngine *mEngine;
     QPointer<QGraphicsView> mCanvas = nullptr;
 
 //    HdCursorPosition *cursorPosition;
