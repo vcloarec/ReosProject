@@ -41,7 +41,6 @@ class ReosDelineatingWatershedWidget : public QWidget
       QWidget *parent = nullptr );
     ~ReosDelineatingWatershedWidget();
 
-
   signals:
     void closed();
 
@@ -51,6 +50,8 @@ class ReosDelineatingWatershedWidget : public QWidget
   private slots:
     void onDownstreamLineDrawn( const QPolygonF &downstreamLine );
     void onPredefinedExtentDrawn( const QRectF &extent );
+    void onBurningLineDrawn( const QPolygonF &burningLine );
+    void onBurningLineRemoved( ReosMapItem *item );
     void onDemComboboxChanged();
     void onDelineateAsked();
     void onValidateAsked();
@@ -67,11 +68,16 @@ class ReosDelineatingWatershedWidget : public QWidget
 
     ReosMapToolDrawPolyline *mMapToolDrawDownStreamLine = nullptr;
     ReosMapToolDrawExtent *mMapToolDrawPredefinedExtent = nullptr;
+    ReosMapToolDrawPolyline *mMapToolDrawBurningLine = nullptr;
+    ReosMapToolSelectMapItem *mMapToolRemoveBurningLine = nullptr;
     QAction *mActionDrawDownstreamLine = nullptr;
     QAction *mActionDrawPredefinedExtent = nullptr;
+    QAction *mActionDrawAddBurningLine = nullptr;
+    QAction *mActionRemoveBurningLine = nullptr;
 
     ReosMapPolyline mDownstreamLine;
     ReosMapPolygon mWatershedExtent;
+    std::vector<std::unique_ptr<ReosMapPolyline>> mBurningLines;
 
     ReosMapPolygon mTemporaryWatershed = nullptr;
     ReosMapPolyline mTemporaryStreamLine = nullptr;

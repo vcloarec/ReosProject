@@ -35,6 +35,7 @@ void ReosDigitalElevationModelComboBox::setGisEngine( ReosGisEngine *gisEngine )
   {
     disconnect( mGisEngine, &ReosGisEngine::digitalElevationRegistered, this, &ReosDigitalElevationModelComboBox::onDemChanged );
     disconnect( mGisEngine, &ReosGisEngine::digitalElevationUnregistered, this, &ReosDigitalElevationModelComboBox::onDemChanged );
+    disconnect( mGisEngine, &ReosGisEngine::updated, this, &ReosDigitalElevationModelComboBox::onDemChanged );
   }
 
   mGisEngine = gisEngine;
@@ -42,6 +43,7 @@ void ReosDigitalElevationModelComboBox::setGisEngine( ReosGisEngine *gisEngine )
 
   connect( mGisEngine, &ReosGisEngine::digitalElevationRegistered, this, &ReosDigitalElevationModelComboBox::onDemChanged );
   connect( mGisEngine, &ReosGisEngine::digitalElevationUnregistered, this, &ReosDigitalElevationModelComboBox::onDemChanged );
+  connect( mGisEngine, &ReosGisEngine::updated, this, &ReosDigitalElevationModelComboBox::onDemChanged );
 }
 
 QString ReosDigitalElevationModelComboBox::currentDemLayerId() const

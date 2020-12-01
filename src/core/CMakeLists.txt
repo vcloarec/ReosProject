@@ -71,7 +71,8 @@ SET(REOS_CORE_HEADERS_PRIVATE
     GIS/private/reosdigitalelevationmodel_p.h
     )
 
-SET(IMAGE_RCCS ../../images/images.qrc)
+SET(IMAGE_RCCS ../../images/images.qrc
+               ../../images/cursors/cursors.qrc)
 
 SET(REOS_CORE_LIBS ${REOS_CORE_LIBS} reosCore)
 ADD_LIBRARY(reosCore SHARED

@@ -80,7 +80,7 @@ class ReosWatershedDelineating : public ReosModule
     ReosWatershedDelineating( ReosModule *parent, ReosWatershedTree *watershedTree, ReosGisEngine *gisEngine );
     State currentState() const;
 
-    //------------------ Settings
+    // -------- Settings
     //! Returns wheher the instance has a registered DEM to operate
     bool hasValidDigitalElevationModel() const;
     //! Sets the DEM to operate
@@ -97,7 +97,7 @@ class ReosWatershedDelineating : public ReosModule
     //! Returns whether the module has direction data ready for proceed
     bool hasDirectionData() const;
 
-    //---------------------- Processing
+    // -------- Processing
     //! Start the delineating, return true if starting this process is sucessful
     bool startDelineating();
     ReosProcess *delineatingProcess();
@@ -105,7 +105,7 @@ class ReosWatershedDelineating : public ReosModule
     //! Returns if the delineating process is finished
     bool isDelineatingFinished() const;
 
-    //------ Results
+    // ------ Results
     //! Returns the last wateshed polygon delineated
     QPolygonF lastWatershedDelineated() const;
 

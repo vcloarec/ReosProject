@@ -30,7 +30,7 @@ class ReosWatershedTree: public QObject
 {
     Q_OBJECT
   public:
-    ReosWatershedTree();
+    ReosWatershedTree( QObject *parent = nullptr );
 
     /**
      * Adds a watershed to the store, in the \a downstreamWatershed (or in one of its su watershed).

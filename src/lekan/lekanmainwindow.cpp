@@ -114,14 +114,11 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   mGisDock->setWidget( new ReosGisLayersWidget( mGisEngine, mMap, this ) );
   addDockWidget( Qt::LeftDockWidgetArea, mGisDock );
 
-  mDockWatershed = new QDockWidget( tr( "Watershed" ) );
+  mDockWatershed = new QDockWidget( tr( "Watershed" ), this );
   mWatershedModule = new ReosWatershedModule( rootModule(), mGisEngine );
-  ReosWatershedWidget *watersehdTreeView = new  ReosWatershedWidget( mMap, mWatershedModule, mDockWatershed );
-  mDockWatershed->setWidget( watersehdTreeView );
+  ReosWatershedWidget *watersehdWidget = new  ReosWatershedWidget( mMap, mWatershedModule, this );
+  mDockWatershed->setWidget( watersehdWidget );
   addDockWidget( Qt::RightDockWidgetArea, mDockWatershed );
-
-  ReosWatershedItemModel *watershedModel = new ReosWatershedItemModel( &mWatershedTree );
-  watersehdTreeView->setModel( watershedModel );
 }
 
 bool LekanMainWindow::openProject()

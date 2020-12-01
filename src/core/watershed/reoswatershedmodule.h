@@ -18,7 +18,7 @@ class ReosWatershedModule : public ReosModule
     ReosWatershedDelineating *delineatingModule() const;
 
   private:
-    std::unique_ptr<ReosWatershedTree> mWatershedTree;
+    ReosWatershedTree *mWatershedTree = nullptr;
     ReosWatershedDelineating *mDelineatingModule = nullptr;
 };
 

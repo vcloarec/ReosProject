@@ -14,9 +14,8 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
 {
   ReosSettings settings;
   ui->setupUi( this );
-  mModelWatershed = new ReosWatershedItemModel( module->watershedTree(), this );
+  setModel( new ReosWatershedItemModel( module->watershedTree(), this ) );
 
-  ui->treeView->setModel( mModelWatershed );
   ui->mToolButtonDelineate->setCheckable( true );
 
   connect( ui->mToolButtonDelineate, &QToolButton::toggled, this, &ReosWatershedWidget::onButtonDelineateClicked );

@@ -17,11 +17,12 @@ email                : vcloarec at gmail dot com
 #define REOSMAPTOOL_H
 
 #include <memory>
-
 #include "reosmap.h"
+
 
 class ReosMapToolDrawPolyline_p;
 class ReosMapToolDrawExtent_p;
+class ReosMapToolSelectMapItem_p;
 class ReosMapTool_p;
 
 class ReosMapTool : public QObject
@@ -68,13 +69,27 @@ class ReosMapToolDrawExtent: public ReosMapTool
     void setFillColor( const QColor &color );
     void setLineStyle( Qt::PenStyle style );
 
-
   signals:
     void extentDrawn( const QRectF &extent );
 
   private:
     ReosMapToolDrawExtent_p *d;
     ReosMapTool_p *tool_p() const override;
+};
+
+class ReosMapToolSelectMapItem : public ReosMapTool
+{
+    Q_OBJECT
+  public:
+    ReosMapToolSelectMapItem( ReosMap *map, int targetType = -1 );
+    ReosMapToolSelectMapItem( ReosMap *map, const QString &targetDescription );
+
+  signals:
+    void found( ReosMapItem *item );
+
+  private:
+    ReosMapToolSelectMapItem_p *d;
+    ReosMapTool_p *tool_p() const;
 };
 
 #endif // REOSMAPTOOL_H

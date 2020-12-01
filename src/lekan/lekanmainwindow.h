@@ -64,7 +64,6 @@ class LekanMainWindow : public ReosMainWindow
 
   public:
     explicit LekanMainWindow( QWidget *parent = nullptr );
-
     bool openProject() override;
 
 //    bool openBackFile( QString filename );
@@ -98,9 +97,6 @@ class LekanMainWindow : public ReosMainWindow
     ReosGisEngine *mGisEngine;
     ReosMap *mMap = nullptr;
     ReosWatershedModule *mWatershedModule = nullptr;
-    ReosDelineatingWatershedWidget *mDelineatingWidget = nullptr;
-
-    ReosWatershedTree mWatershedTree;
 
     QDockWidget *mGisDock;
     QDockWidget *mDockWatershed;

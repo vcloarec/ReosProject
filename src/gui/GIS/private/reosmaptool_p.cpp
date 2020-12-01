@@ -14,7 +14,7 @@ email                : vcloarec at gmail dot com
  ***************************************************************************/
 
 #include "reosmaptool_p.h"
-
+#include "reosmappolygon_p.h"
 
 ReosMapTool_p::ReosMapTool_p( QgsMapCanvas *canvas ): QgsMapTool( canvas )
 {
@@ -31,11 +31,6 @@ void ReosMapTool_p::deactivate()
   QgsMapTool::deactivate();
 }
 
-void ReosMapTool_p::keyPressEvent( QKeyEvent *e )
-{
-  if ( e->key() == Qt::Key_Escape )
-    deactivate();
-}
 
 ReosMapToolDrawPolyline_p::ReosMapToolDrawPolyline_p( QgsMapCanvas *map ): ReosMapTool_p( map )
 {
@@ -112,7 +107,47 @@ void ReosMapToolDrawExtent_p::canvasReleaseEvent( QgsMapMouseEvent *e )
 
 void ReosMapToolDrawExtent_p::deactivate()
 {
-  mRubberBand->reset( QgsWkbTypes::PolygonGeometry );
+  if ( mRubberBand )
+    mRubberBand->reset( QgsWkbTypes::PolygonGeometry );
   mIsDrawing = false;
   ReosMapTool_p::deactivate();
+}
+
+ReosMapToolSelectMapItem_p::ReosMapToolSelectMapItem_p( QgsMapCanvas *map, int targetType ):
+  ReosMapTool_p( map ),
+  mTargetType( targetType )
+{}
+
+ReosMapToolSelectMapItem_p::ReosMapToolSelectMapItem_p( QgsMapCanvas *map, const QString &targetDescription ):
+  ReosMapToolSelectMapItem_p( map )
+{
+  mTargetDescritpion = targetDescription;
+}
+
+void ReosMapToolSelectMapItem_p::canvasReleaseEvent( QgsMapMouseEvent *e )
+{
+  QPointF p = e->localPos();
+  QRectF rectf( p.x(), p.y(), 5, 5 );
+  QList<QGraphicsItem *> listItems = canvas()->scene()->items( rectf );
+
+  QGraphicsItem *item = nullptr;
+  ReosMapItem_p *mapItem = nullptr;
+  int i = 0;
+  while ( !( mapItem ) && i < listItems.count() )
+  {
+
+    item = listItems.at( i );
+    if ( ( item && item->type() == mTargetType ) || mTargetType == -1 )
+    {
+      item = listItems.at( i );
+      mapItem = dynamic_cast<ReosMapItem_p *>( item );
+      if ( !mTargetDescritpion.isEmpty() && mapItem->base->description() != mTargetDescritpion )
+        mapItem = nullptr;
+    }
+
+    ++i;
+  }
+
+  if ( mapItem )
+    emit found( mapItem->base );
 }

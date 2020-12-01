@@ -108,7 +108,6 @@ class ReosGisEngine: public ReosModule
     void crsChanged( const QString &wktCrs );
     void digitalElevationRegistered( const QString &layerId );
     void digitalElevationUnregistered( const QString &layerId );
-
     void updated();
 
   private:

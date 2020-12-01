@@ -18,17 +18,13 @@ email                : vcloarec at gmail dot com
 
 #include <qgsmapcanvasitem.h>
 
-class ReosMapPolygon_p: public QgsMapCanvasItem
+class ReosMapItem;
+
+class ReosMapItem_p: public QgsMapCanvasItem
 {
   public:
-    ReosMapPolygon_p( QgsMapCanvas *canvas );
-    virtual ~ReosMapPolygon_p() {}
-
-    virtual ReosMapPolygon_p *clone();
-
-    QRectF boundingRect() const override {return mViewPolygon.boundingRect();}
-    void updatePosition() override;
-    QPolygonF mapPolygon;
+    ReosMapItem_p( QgsMapCanvas *canvas ): QgsMapCanvasItem( canvas ) {}
+    virtual ReosMapItem_p *clone() = 0;
 
     QColor color;
     QColor externalColor;
@@ -36,17 +32,38 @@ class ReosMapPolygon_p: public QgsMapCanvasItem
     double externalWidth = 0.0;
     Qt::PenStyle style = Qt::SolidLine;
 
+    ReosMapItem *base;
+
+};
+
+class ReosMapPolygon_p: public ReosMapItem_p
+{
+  public:
+    ReosMapPolygon_p( QgsMapCanvas *canvas );
+
+    ReosMapPolygon_p *clone() override;
+    QRectF boundingRect() const override;
+    void updatePosition() override;
+
+    QPolygonF mapPolygon;
+
   protected:
     void paint( QPainter *painter ) override;
     QPolygonF mViewPolygon;
+
+  private:
+    virtual void draw( QPainter *painter );
 };
 
 class ReosMapPolyline_p: public ReosMapPolygon_p
 {
   public:
     ReosMapPolyline_p( QgsMapCanvas *canvas );
-  protected:
-    void paint( QPainter *painter ) override;
+
+    ReosMapPolyline_p *clone() override;
+
+  private:
+    void draw( QPainter *painter ) override;
 };
 
 #endif // REOSMAPPOLYGON_P_H

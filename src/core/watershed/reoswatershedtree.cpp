@@ -17,7 +17,7 @@ email                : vcloarec at gmail dot com
 #include "reoswatershedtree.h"
 #include "reoswatershed.h"
 
-ReosWatershedTree::ReosWatershedTree()
+ReosWatershedTree::ReosWatershedTree( QObject *parent ): QObject( parent )
 {
 }
 

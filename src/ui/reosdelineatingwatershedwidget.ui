@@ -36,7 +36,14 @@
     </layout>
    </item>
    <item>
-    <widget class="QWidget" name="mCuurentDemWidget" native="true">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="mCurrentDemWidget" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
        <widget class="QLabel" name="label">

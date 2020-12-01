@@ -39,7 +39,7 @@ class ReosMainWindow : public QMainWindow
 
   public:
     explicit ReosMainWindow( QWidget *parent = nullptr );
-    bool open();
+    bool openFile();
 
   protected:
     void closeEvent( QCloseEvent *event ) override;

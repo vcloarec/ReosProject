@@ -19,6 +19,7 @@ email                : vcloarec@gmail.com
 #include <QPoint>
 #include <QPolygon>
 #include <QMutex>
+#include <QList>
 
 #include "reosmemoryraster.h"
 

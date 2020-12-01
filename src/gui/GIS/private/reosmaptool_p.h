@@ -33,9 +33,6 @@ class ReosMapTool_p: public QgsMapTool
     ReosMapTool_p( QgsMapCanvas *canvas );
     void activate();
     void deactivate();
-
-  protected:
-    void keyPressEvent( QKeyEvent *e );
 };
 
 class ReosMapToolDrawPolyline_p: public ReosMapTool_p
@@ -46,7 +43,6 @@ class ReosMapToolDrawPolyline_p: public ReosMapTool_p
     ~ReosMapToolDrawPolyline_p();
 
     void deactivate() override;
-
     QPointer<QgsRubberBand> mRubberBand;
 
     void canvasMoveEvent( QgsMapMouseEvent *e ) override;
@@ -54,7 +50,6 @@ class ReosMapToolDrawPolyline_p: public ReosMapTool_p
 
   signals:
     void polylineDrawn( const QPolygonF &polyline ) const;
-
 
 };
 
@@ -93,6 +88,23 @@ class ReosMapToolDrawExtent_p: public ReosMapTool_p
       mRubberBand->addPoint( QgsPointXY( rect.xMinimum(), rect.yMaximum() ), true );
     }
 
+};
+
+class ReosMapToolSelectMapItem_p: public ReosMapTool_p
+{
+    Q_OBJECT
+  public:
+    ReosMapToolSelectMapItem_p( QgsMapCanvas *map, int targetType = -1 );
+    ReosMapToolSelectMapItem_p( QgsMapCanvas *map, const QString &targetDescription );
+
+    void canvasReleaseEvent( QgsMapMouseEvent *e ) override;
+
+  signals:
+    void found( ReosMapItem *item );
+
+  private:
+    int mTargetType = -1;
+    QString mTargetDescritpion;
 };
 
 #endif // REOSMAPTOOL_P_H

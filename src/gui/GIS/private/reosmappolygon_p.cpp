@@ -19,7 +19,7 @@ email                : vcloarec at gmail dot com
 #include <qgspoint.h>
 
 ReosMapPolygon_p::ReosMapPolygon_p( QgsMapCanvas *canvas ):
-  QgsMapCanvasItem( canvas )
+  ReosMapItem_p( canvas )
 {
 
 }
@@ -36,6 +36,8 @@ ReosMapPolygon_p *ReosMapPolygon_p::clone()
   other->updatePosition();
   return other;
 }
+
+QRectF ReosMapPolygon_p::boundingRect() const {return mViewPolygon.boundingRect();}
 
 void ReosMapPolygon_p::updatePosition()
 {
@@ -64,39 +66,39 @@ void ReosMapPolygon_p::paint( QPainter *painter )
     QBrush brush( Qt::NoBrush );
     painter->setBrush( brush );
     painter->setPen( pen );
-    painter->drawPolygon( mViewPolygon );
+    draw( painter );
   }
   pen.setWidthF( width );
   pen.setColor( color );
   pen.setStyle( style );
   painter->setPen( pen );
-  painter->drawPolygon( mViewPolygon );
+  draw( painter );
   painter->restore();
+}
+
+void ReosMapPolygon_p::draw( QPainter *painter )
+{
+  painter->drawPolygon( mViewPolygon );
 }
 
 ReosMapPolyline_p::ReosMapPolyline_p( QgsMapCanvas *canvas ):
   ReosMapPolygon_p( canvas )
-{
+{}
 
+ReosMapPolyline_p *ReosMapPolyline_p::clone()
+{
+  ReosMapPolyline_p *other = new ReosMapPolyline_p( mMapCanvas );
+  other->color = color;
+  other->externalColor = externalColor;
+  other->width = width;
+  other->externalWidth = externalWidth;
+  other->style = style;
+  other->mapPolygon = mapPolygon;
+  other->updatePosition();
+  return other;
 }
 
-void ReosMapPolyline_p::paint( QPainter *painter )
+void ReosMapPolyline_p::draw( QPainter *painter )
 {
-  painter->save();
-  QPen pen;
-  if ( externalWidth > width )
-  {
-    pen.setWidthF( externalWidth );
-    pen.setColor( externalColor );
-    QBrush brush( Qt::NoBrush );
-    painter->setBrush( brush );
-    painter->setPen( pen );
-    painter->drawPolyline( mViewPolygon );
-  }
-  pen.setWidthF( width );
-  pen.setColor( color );
-  pen.setStyle( style );
-  painter->setPen( pen );
   painter->drawPolyline( mViewPolygon );
-  painter->restore();
 }

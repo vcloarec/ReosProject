@@ -24,7 +24,7 @@ ReosMapToolDrawPolyline::ReosMapToolDrawPolyline( ReosMap *map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolDrawPolyline_p( canvas );
-
+  d->setCursor( QCursor( QPixmap( ":/cursors/linearDrawing.png" ), 3, 3 ) );
   connect( d, &ReosMapToolDrawPolyline_p::polylineDrawn, this, &ReosMapToolDrawPolyline::polylineDrawn );
 }
 
@@ -36,6 +36,7 @@ void ReosMapTool::setCurrentToolInMap() const
 void ReosMapTool::setAction( QAction *action )
 {
   tool_p()->setAction( action );
+  connect( action, &QAction::triggered, [this]() {setCurrentToolInMap();} );
 }
 
 void ReosMapToolDrawPolyline::setStrokeWidth( double width )
@@ -79,7 +80,7 @@ ReosMapToolDrawExtent::ReosMapToolDrawExtent( ReosMap *map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolDrawExtent_p( canvas );
-
+  d->setCursor( QCursor( QPixmap( ":/cursors/rectangularDrawing.png" ), 3, 3 ) );
   connect( d, &ReosMapToolDrawExtent_p::extentDrawn, this, &ReosMapToolDrawExtent::extentDrawn );
 }
 
@@ -111,4 +112,25 @@ void ReosMapToolDrawExtent::setFillColor( const QColor &color )
 void ReosMapToolDrawExtent::setLineStyle( Qt::PenStyle style )
 {
   d->mRubberBand->setLineStyle( style );
+}
+
+ReosMapToolSelectMapItem::ReosMapToolSelectMapItem( ReosMap *map, int targetType )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  d = new ReosMapToolSelectMapItem_p( canvas, targetType );
+  d->setCursor( QCursor( QPixmap( ":/cursors/removeItem.png" ), 3, 3 ) );
+  connect( d, &ReosMapToolSelectMapItem_p::found, this, &ReosMapToolSelectMapItem::found );
+}
+
+ReosMapToolSelectMapItem::ReosMapToolSelectMapItem( ReosMap *map, const QString &targetDescription )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  d = new ReosMapToolSelectMapItem_p( canvas, targetDescription );
+  d->setCursor( QCursor( QPixmap( ":/cursors/removeItem.png" ), 3, 3 ) );
+  connect( d, &ReosMapToolSelectMapItem_p::found, this, &ReosMapToolSelectMapItem::found );
+}
+
+ReosMapTool_p *ReosMapToolSelectMapItem::tool_p() const
+{
+  return d;
 }

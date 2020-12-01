@@ -32,6 +32,8 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedDel
   mMap( map ),
   mActionDrawDownstreamLine( new QAction( QPixmap( ":/images/downStreamSelection.png" ), tr( "Draw downstream line" ), this ) ),
   mActionDrawPredefinedExtent( new QAction( QPixmap( ":/images/extentWatershedSelection.png" ), tr( "Draw predefined extent" ), this ) ),
+  mActionDrawAddBurningLine( new QAction( QPixmap( ":/images/burningLine.png" ), tr( "Add a burning line" ), this ) ),
+  mActionRemoveBurningLine( new QAction( QPixmap( ":/images/mActionRemoveBurningLine.png" ), tr( "Remove a burning line" ), this ) ),
   mDownstreamLine( map ),
   mWatershedExtent( map ),
   mTemporaryWatershed( map ),
@@ -41,17 +43,18 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedDel
   ui->comboBoxDem->setGisEngine( map->engine() );
 
   setWindowFlag( Qt::Dialog );
-  setWindowFlag( Qt::WindowStaysOnTopHint );
+  //setWindowFlag( Qt::WindowStaysOnTopHint );
 
   mAutomaticToolBar = new QToolBar;
-  qobject_cast<QBoxLayout *>( layout() )->insertWidget( 1, mAutomaticToolBar );
+  qobject_cast<QBoxLayout *>( layout() )->insertWidget( 2, mAutomaticToolBar );
   mAutomaticToolBar->addAction( mActionDrawDownstreamLine );
   mAutomaticToolBar->addAction( mActionDrawPredefinedExtent );
+  mAutomaticToolBar->addAction( mActionDrawAddBurningLine );
+  mAutomaticToolBar->addAction( mActionRemoveBurningLine );
 
   mMapToolDrawDownStreamLine = new ReosMapToolDrawPolyline( map );
   mMapToolDrawDownStreamLine->setAction( mActionDrawDownstreamLine );
   mActionDrawDownstreamLine->setCheckable( true );
-  connect( mActionDrawDownstreamLine, &QAction::triggered, [this]() {mMapToolDrawDownStreamLine->setCurrentToolInMap();} );
   mMapToolDrawDownStreamLine->setStrokeWidth( 2 );
   mMapToolDrawDownStreamLine->setColor( Qt::darkGreen );
   mMapToolDrawDownStreamLine->setLineStyle( Qt::DashLine );
@@ -59,11 +62,22 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedDel
   mMapToolDrawPredefinedExtent = new ReosMapToolDrawExtent( map );
   mMapToolDrawPredefinedExtent->setAction( mActionDrawPredefinedExtent );
   mActionDrawPredefinedExtent->setCheckable( true );
-  connect( mActionDrawPredefinedExtent, &QAction::triggered, [this]() {mMapToolDrawPredefinedExtent->setCurrentToolInMap();} );
   mMapToolDrawPredefinedExtent->setStrokeWidth( 2 );
   mMapToolDrawPredefinedExtent->setColor( Qt::red );
   mMapToolDrawPredefinedExtent->setFillColor( QColor( 150, 0, 0, 30 ) );
   mMapToolDrawPredefinedExtent->setLineStyle( Qt::DashLine );
+
+  mMapToolDrawBurningLine = new ReosMapToolDrawPolyline( map );
+  mMapToolDrawBurningLine->setAction( mActionDrawAddBurningLine );
+  mActionDrawAddBurningLine->setCheckable( true );
+  mMapToolDrawBurningLine->setStrokeWidth( 2 );
+  mMapToolDrawBurningLine->setColor( Qt::red );
+  mMapToolDrawBurningLine->setLineStyle( Qt::DashLine );
+
+  mMapToolRemoveBurningLine = new ReosMapToolSelectMapItem( map, -1 );
+  mMapToolRemoveBurningLine->setAction( mActionRemoveBurningLine );
+  mActionRemoveBurningLine->setCheckable( true );
+  connect( mMapToolRemoveBurningLine, &ReosMapToolSelectMapItem::found, this, &ReosDelineatingWatershedWidget::onBurningLineRemoved );
 
   mDownstreamLine.setColor( Qt::darkGreen );
   mDownstreamLine.setExternalColor( Qt::white );
@@ -93,7 +107,8 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedDel
   connect( ui->mRadioButtonManual, &QRadioButton::clicked, this, &ReosDelineatingWatershedWidget::onMethodChange );
 
   connect( mMapToolDrawDownStreamLine, &ReosMapToolDrawPolyline::polylineDrawn, this, &ReosDelineatingWatershedWidget::onDownstreamLineDrawn );
-  connect( mMapToolDrawPredefinedExtent, & ReosMapToolDrawExtent::extentDrawn, this, &ReosDelineatingWatershedWidget::onPredefinedExtentDrawn );
+  connect( mMapToolDrawPredefinedExtent, &ReosMapToolDrawExtent::extentDrawn, this, &ReosDelineatingWatershedWidget::onPredefinedExtentDrawn );
+  connect( mMapToolDrawBurningLine, &ReosMapToolDrawPolyline::polylineDrawn, this, &ReosDelineatingWatershedWidget::onBurningLineDrawn );
   connect( ui->comboBoxDem, &ReosDigitalElevationModelComboBox::currentDigitalElevationChanged, this, &ReosDelineatingWatershedWidget::onDemComboboxChanged );
 
   connect( ui->mPushButtonDelineate, &QPushButton::clicked, this, &ReosDelineatingWatershedWidget::onDelineateAsked );
@@ -132,6 +147,33 @@ void ReosDelineatingWatershedWidget::onPredefinedExtentDrawn( const QRectF &exte
   mModule->setPreDefinedExtent( mapExtent );
   mWatershedExtent.resetPolygon( mapExtent.toPolygon() );
   updateTool();
+}
+
+void ReosDelineatingWatershedWidget::onBurningLineDrawn( const QPolygonF &burningLine )
+{
+  mBurningLines.emplace_back( std::make_unique<ReosMapPolyline>( mMap, burningLine ) );
+  ReosMapPolyline *bl = mBurningLines.back().get();
+  bl->setDescription( QStringLiteral( "Burning-line" ) );
+  bl->setColor( Qt::red );
+  bl->setExternalColor( Qt::white );
+  bl->setWidth( 2 );
+  bl->setExternalWidth( 4 );
+
+}
+
+void ReosDelineatingWatershedWidget::onBurningLineRemoved( ReosMapItem *item )
+{
+  size_t i = 0;
+  bool found = false;
+  while ( i < mBurningLines.size() && !found )
+  {
+    found = mBurningLines.at( i ).get() == item;
+    if ( !found )
+      ++i;
+  }
+
+  if ( found )
+    mBurningLines.erase( mBurningLines.begin() + i );
 }
 
 void ReosDelineatingWatershedWidget::onDemComboboxChanged()
@@ -181,7 +223,7 @@ void ReosDelineatingWatershedWidget::onMethodChange()
   bool isAutomatic = ui->mRadioButtonAutomatic->isChecked() ;
   mAutomaticToolBar->setVisible( isAutomatic );
   ui->mPushButtonDelineate->setVisible( isAutomatic );
-  ui->mCuurentDemWidget->setVisible( isAutomatic );
+  ui->mCurrentDemWidget->setVisible( isAutomatic );
 }
 
 void ReosDelineatingWatershedWidget::storeGeometry()
@@ -203,6 +245,8 @@ void ReosDelineatingWatershedWidget::updateTool()
     case ReosWatershedDelineating::NoDigitalElevationModel:
       mActionDrawDownstreamLine->setEnabled( false );
       mActionDrawPredefinedExtent->setEnabled( false );
+      mActionDrawAddBurningLine->setEnabled( false );
+      mActionDrawAddBurningLine->setEnabled( false );
       ui->mPushButtonDelineate->setEnabled( false );
       ui->pushButtonValidate->setEnabled( false );
       break;
@@ -210,6 +254,8 @@ void ReosDelineatingWatershedWidget::updateTool()
       mActionDrawDownstreamLine->setEnabled( true );
       mMapToolDrawDownStreamLine->setCurrentToolInMap();
       mActionDrawPredefinedExtent->setEnabled( false );
+      mActionDrawAddBurningLine->setEnabled( true );
+      mActionDrawAddBurningLine->setEnabled( true );
       ui->mPushButtonDelineate->setEnabled( false );
       ui->pushButtonValidate->setEnabled( false );
       break;
@@ -217,6 +263,8 @@ void ReosDelineatingWatershedWidget::updateTool()
       mActionDrawDownstreamLine->setEnabled( true );
       mMapToolDrawPredefinedExtent->setCurrentToolInMap();
       mActionDrawPredefinedExtent->setEnabled( true );
+      mActionDrawAddBurningLine->setEnabled( true );
+      mActionDrawAddBurningLine->setEnabled( true );
       ui->mPushButtonDelineate->setEnabled( false );
       ui->pushButtonValidate->setEnabled( false );
       break;
@@ -224,18 +272,24 @@ void ReosDelineatingWatershedWidget::updateTool()
       mActionDrawDownstreamLine->setEnabled( true );
       mMapToolDrawPredefinedExtent->setCurrentToolInMap();
       mActionDrawPredefinedExtent->setEnabled( true );
+      mActionDrawAddBurningLine->setEnabled( true );
+      mActionDrawAddBurningLine->setEnabled( true );
       ui->mPushButtonDelineate->setEnabled( false );
       ui->pushButtonValidate->setEnabled( false );
       break;
     case ReosWatershedDelineating::WaitingforProceed:
       mActionDrawDownstreamLine->setEnabled( true );
       mActionDrawPredefinedExtent->setEnabled( !mModule->hasDirectionData() );
+      mActionDrawAddBurningLine->setEnabled( true );
+      mActionDrawAddBurningLine->setEnabled( true );
       ui->mPushButtonDelineate->setEnabled( true );
       ui->pushButtonValidate->setEnabled( false );
       break;
     case ReosWatershedDelineating::WaitingForValidate:
       mActionDrawDownstreamLine->setEnabled( true );
       mActionDrawPredefinedExtent->setEnabled( false );
+      mActionDrawAddBurningLine->setEnabled( false );
+      mActionDrawAddBurningLine->setEnabled( false );
       ui->mPushButtonDelineate->setEnabled( false );
       ui->pushButtonValidate->setEnabled( true );
       break;

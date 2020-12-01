@@ -21,16 +21,29 @@ email                : vcloarec at gmail dot com
 ReosMapItem::ReosMapItem( ReosMap *map ): mMap( map )
 {}
 
+bool ReosMapItem::isItem( QGraphicsItem *item ) const
+{
+  return d_ == item;
+}
+
 bool ReosMapItem::isMapExist() const
 {
   return ( mMap && mMap->mapCanvas() );
+}
+
+void ReosMapItem::setDescription( const QString &description )
+{
+  mDescription = description;
 }
 
 ReosMapPolygon::ReosMapPolygon( ReosMap *map ): ReosMapItem( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
-    d = new ReosMapPolygon_p( canvas ); //the owner ship of d pointer is takeny the scene of the map canvas
+  {
+    d_ = new ReosMapPolygon_p( canvas ); //the owner ship of d pointer is takeny the scene of the map canvas
+    d_->base = this;
+  }
 }
 
 ReosMapPolygon::ReosMapPolygon( ReosMap *map, const QPolygonF &polygon ): ReosMapItem( map )
@@ -38,128 +51,101 @@ ReosMapPolygon::ReosMapPolygon( ReosMap *map, const QPolygonF &polygon ): ReosMa
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
   {
-    d = new ReosMapPolygon_p( canvas ); //the owner ship of d pointer is takeny the scene of the map canvas
-    d->mapPolygon = polygon;
-    d->updatePosition();
+    d_ = new ReosMapPolygon_p( canvas ); //the owner ship of d pointer is takeny the scene of the map canvas
+    static_cast<ReosMapPolygon_p *>( d_ )->mapPolygon = polygon;
+    d_->updatePosition();
+    d_->base = this;
   }
 }
 
 ReosMapPolygon::~ReosMapPolygon()
 {
-  if ( isMapExist() && d )
-    delete d; //deleting this will remove it from the map
+  if ( isMapExist() && d_ )
+    delete d_; //deleting this will remove it from the map
 }
 
 ReosMapPolygon::ReosMapPolygon( const ReosMapPolygon &other ): ReosMapItem( other.mMap )
 {
-  if ( other.isMapExist() && other.d )
-    d = other.d->clone();
+  if ( other.isMapExist() && other.d_ )
+  {
+    d_ = other.d_->clone();
+    d_->base = this;
+  }
 }
 
 void ReosMapPolygon::resetPolygon( const QPolygonF &polygon )
 {
-  if ( isMapExist() && d )
+  if ( isMapExist() && d_ )
   {
-    d->mapPolygon = polygon;
-    d->updatePosition();
+    static_cast<ReosMapPolygon_p *>( d_ )->mapPolygon = polygon;
+    d_->updatePosition();
   }
 }
 
 QPolygonF ReosMapPolygon::mapPolygon() const
 {
-  if ( isMapExist() && d )
-    return d->mapPolygon;
+  if ( isMapExist() && d_ )
+    return static_cast<ReosMapPolygon_p *>( d_ )->mapPolygon;
 
   return QPolygonF();
 }
 
 void ReosMapPolygon::movePoint( int pointIndex, const QPointF &p )
 {
-  if ( !isMapExist() || !d )
+  if ( !isMapExist() || !d_ )
     return;
-  if ( pointIndex < 0 || pointIndex >= d->mapPolygon.count() )
+  if ( pointIndex < 0 || pointIndex >= static_cast<ReosMapPolygon_p *>( d_ )->mapPolygon.count() )
     return;
 
-  d->mapPolygon.replace( pointIndex, p );
-  d->updatePosition();
+  static_cast<ReosMapPolygon_p *>( d_ )->mapPolygon.replace( pointIndex, p );
+  d_->updatePosition();
 }
 
-void ReosMapPolygon::setColor( const QColor &color )
+void ReosMapItem::setColor( const QColor &color )
 {
-  if ( !isMapExist() || !d )
+  if ( !isMapExist() || !d_ )
     return;
-  d->color = color;
+  d_->color = color;
 }
 
-void ReosMapPolygon::setExternalColor( const QColor &color )
+void ReosMapItem::setExternalColor( const QColor &color )
 {
-  if ( !isMapExist() || !d )
+  if ( !isMapExist() || !d_ )
     return;
-  d->externalColor = color;
+  d_->externalColor = color;
 }
 
-void ReosMapPolygon::setWidth( double width )
+void ReosMapItem::setWidth( double width )
 {
-  if ( !isMapExist() || !d )
+  if ( !isMapExist() || !d_ )
     return;
-  d->width = width;
+  d_->width = width;
 }
 
-void ReosMapPolygon::setExternalWidth( double externalWidth )
+void ReosMapItem::setExternalWidth( double externalWidth )
 {
-  if ( !isMapExist() || !d )
+  if ( !isMapExist() || !d_ )
     return;
-  d->externalWidth = externalWidth;
+  d_->externalWidth = externalWidth;
 }
 
-void ReosMapPolygon::setStyle( Qt::PenStyle style )
+void ReosMapItem::setStyle( Qt::PenStyle style )
 {
-  if ( !isMapExist() || !d )
+  if ( !isMapExist() || !d_ )
     return;
-  d->style = style;
+  d_->style = style;
 }
 
-void ReosMapPolyline::setColor( const QColor &color )
-{
-  if ( !isMapExist() || !d )
-    return;
-  d->color = color;
-}
-
-void ReosMapPolyline::setExternalColor( const QColor &color )
-{
-  if ( !isMapExist() || !d )
-    return;
-  d->externalColor = color;
-}
-
-void ReosMapPolyline::setWidth( double width )
-{
-  if ( !isMapExist() || !d )
-    return;
-  d->width = width;
-}
-
-void ReosMapPolyline::setExternalWidth( double externalWidth )
-{
-  if ( !isMapExist() || !d )
-    return;
-  d->externalWidth = externalWidth;
-}
-
-void ReosMapPolyline::setStyle( Qt::PenStyle style )
-{
-  if ( !isMapExist() || !d )
-    return;
-  d->style = style;
-}
-
+QString ReosMapItem::description() const {return mDescription;}
 
 ReosMapPolyline::ReosMapPolyline( ReosMap *map ): ReosMapItem( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
-    d = new ReosMapPolyline_p( canvas );
+  {
+    d_ = new ReosMapPolyline_p( canvas );
+    d_->base = this;
+  }
 }
 
 ReosMapPolyline::ReosMapPolyline( ReosMap *map, const QPolygonF &polyline ): ReosMapItem( map )
@@ -167,46 +153,50 @@ ReosMapPolyline::ReosMapPolyline( ReosMap *map, const QPolygonF &polyline ): Reo
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
   {
-    d = new ReosMapPolyline_p( canvas ); //the owner ship of d pointer is takeny the scene of the map canvas
-    d->mapPolygon = polyline;
-    d->updatePosition();
+    d_ = new ReosMapPolyline_p( canvas ); //the owner ship of d pointer is takeny the scene of the map canvas
+    static_cast<ReosMapPolyline_p *>( d_ )->mapPolygon = polyline;
+    d_->updatePosition();
+    d_->base = this;
   }
 }
 
 ReosMapPolyline::~ReosMapPolyline()
 {
-  if ( isMapExist() && d )
-    delete d;
+  if ( isMapExist() && d_ )
+    delete d_;
 }
 
 ReosMapPolyline::ReosMapPolyline( const ReosMapPolyline &other ): ReosMapItem( other.mMap )
 {
-  if ( other.isMapExist() && other.d )
-    d = other.d->clone();
+  if ( other.isMapExist() && other.d_ )
+  {
+    d_ = other.d_->clone();
+    d_->base = this;
+  }
 }
 
 void ReosMapPolyline::resetPolyline( const QPolygonF &polyline )
 {
-  if ( !isMapExist() || !d )
+  if ( !isMapExist() || !d_ )
     return;
-  d->mapPolygon = polyline;
-  d->updatePosition();
+  static_cast<ReosMapPolyline_p *>( d_ )->mapPolygon = polyline;
+  d_->updatePosition();
 }
 
 QPolygonF ReosMapPolyline::mapPolyline() const
 {
-  if ( isMapExist() && d )
-    return d->mapPolygon;
+  if ( isMapExist() && d_ )
+    return static_cast<ReosMapPolyline_p *>( d_ )->mapPolygon;
   return QPolygonF();
 }
 
 void ReosMapPolyline::movePoint( int pointIndex, const QPointF &p )
 {
-  if ( !isMapExist() || !d )
+  if ( !isMapExist() || !d_ )
     return;
-  if ( pointIndex < 0 || pointIndex >= d->mapPolygon.count() )
+  if ( pointIndex < 0 || pointIndex >= static_cast<ReosMapPolyline_p *>( d_ )->mapPolygon.count() )
     return;
 
-  d->mapPolygon.replace( pointIndex, p );
-  d->updatePosition();
+  static_cast<ReosMapPolyline_p *>( d_ )->mapPolygon.replace( pointIndex, p );
+  d_->updatePosition();
 }

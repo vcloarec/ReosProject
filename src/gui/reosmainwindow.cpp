@@ -110,7 +110,7 @@ void ReosMainWindow::init()
   connect( mRootModule, &ReosModule::newCommandToUndoStack, this, &ReosMainWindow::newUndoCommand );
 
   connect( mActionNewProject, &QAction::triggered, this, &ReosMainWindow::newProject );
-  connect( mActionOpenFile, &QAction::triggered, this, &ReosMainWindow::open );
+  connect( mActionOpenFile, &QAction::triggered, this, &ReosMainWindow::openFile );
   connect( mActionSaveFile, &QAction::triggered, this, &ReosMainWindow::save );
   connect( mActionSaveFileAs, &QAction::triggered, this, &ReosMainWindow::saveAs );
 
@@ -146,7 +146,7 @@ void ReosMainWindow::addActionInterrogation( const QList<QAction *> actions )
     mGroupActionInterrogation->addAction( action );
 }
 
-bool ReosMainWindow::open()
+bool ReosMainWindow::openFile()
 {
   ReosSettings settings;
   QString path = settings.value( QStringLiteral( "/Path/Project" ) ).toString();
