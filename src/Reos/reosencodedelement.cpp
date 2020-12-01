@@ -3,7 +3,7 @@
                      --------------------------------------
 Date                 : 18-11-2018
 Copyright            : (C) 2018 by Vincent Cloarec
-email                : vcloarec@gmail.com projetreos@gmail.com
+email                : vcloarec@gmail.com
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -16,19 +16,21 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reosencodedelement.h"
 
 
+ReosEncodedElement::ReosEncodedElement(QString description): mDescription( description )
+{}
 
 ReosEncodedElement::ReosEncodedElement( const QByteArray &byteArray )
 {
-  QDataStream stream( byteArray );
-  stream >> description;
-  stream >> data;
+    QDataStream stream( byteArray );
+  stream >> mDescription;
+  stream >> mData;
 }
 
 QByteArray ReosEncodedElement::encode()
 {
   QByteArray byteArray;
   QDataStream stream( &byteArray, QIODevice::WriteOnly );
-  stream << description;
-  stream << data;
+  stream << mDescription;
+  stream << mData;
   return byteArray;
 }

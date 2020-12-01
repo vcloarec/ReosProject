@@ -167,6 +167,7 @@ bool ReosGisEngine::registerLayerAsDigitalElevationModel( const QString &layerId
     mAsDEMRegisteredLayer.append( layerId );
     emit digitalElevationRegistered( layerId );
     return true;
+    emit digitalElevationRegistered( layerId );
   }
   return false;
 }
@@ -174,7 +175,7 @@ bool ReosGisEngine::registerLayerAsDigitalElevationModel( const QString &layerId
 void ReosGisEngine::unRegisterLayerAsDigitalElevationModel( const QString &layerId )
 {
   if ( mAsDEMRegisteredLayer.removeOne( layerId ) )
-    emit digitalElevationUnregistered( layerId );
+    emit digitalElevationRegistered( layerId );
 }
 
 bool ReosGisEngine::isDigitalElevationModel( const QString &layerId ) const
