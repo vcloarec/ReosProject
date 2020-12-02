@@ -116,6 +116,9 @@ class ReosWatershed
     //! Returns how this watershed is included by \a other
     ReosInclusionType isInside( const ReosWatershed &other ) const;
 
+    //! Removes direction data present in the watershed or in its children
+    void removeDirectionData();
+
   private:
     QString mName;
     ReosMapExtent mExtent;

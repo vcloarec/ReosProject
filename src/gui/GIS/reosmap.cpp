@@ -86,6 +86,12 @@ ReosGisEngine *ReosMap::engine() const
   return mEngine;
 }
 
+QString ReosMap::mapCrs() const
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
+  return canvas->mapSettings().destinationCrs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED );
+}
+
 
 //void ReosMap::setMapTool( ReosMapTool *tool )
 //{

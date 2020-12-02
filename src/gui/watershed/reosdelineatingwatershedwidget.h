@@ -83,6 +83,8 @@ class ReosDelineatingWatershedWidget : public QWidget
     ReosMapPolyline mTemporaryStreamLine = nullptr;
 
     void updateTool();
+
+    void updateBurningLines();
 };
 
 #endif // REOSDELINEATINGWATERSHEDWIDGET_H

@@ -92,7 +92,7 @@ class ReosWatershedDelineating : public ReosModule
     bool setPreDefinedExtent( const ReosMapExtent &extent );
 
     //! Adds a burning line
-    void addBurningLines( const QPolygonF &burningLine );
+    void setBurningLines( const QList<QPolygonF> &burningLines );
 
     //! Returns whether the module has direction data ready for proceed
     bool hasDirectionData() const;

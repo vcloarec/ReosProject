@@ -346,7 +346,9 @@ void ReosWatersehdTest::watershedDelineatingWithBurningLine()
   QPolygonF burningLine;
   burningLine << QPointF( 661560, 1792870 ) << QPointF( 661670, 1792930 );
 
-  watershedDelineating.addBurningLines( burningLine );
+  QList<QPolygonF> burningLines;
+  burningLines << burningLine;
+  watershedDelineating.setBurningLines( burningLines );
 
   // Set a downstream line
   QPolygonF downstreamLine;
@@ -434,7 +436,6 @@ void ReosWatersehdTest::watershedDelineatingWithBurningLine()
     QPointF( 661679.50, 1792952.50 ), QPointF( 661679.50, 1792953.50 ), QPointF( 661678.50, 1792953.50 ), QPointF( 661678.50, 1792954.50 ), QPointF( 661677.50, 1792954.50 ), QPointF( 661677.50, 1792953.50 ), QPointF( 661676.50, 1792953.50 ), QPointF( 661676.50, 1792952.50 ), QPointF( 661675.50, 1792952.50 ), QPointF( 661675.50, 1792951.50 ),
     QPointF( 661674.50, 1792951.50 ), QPointF( 661674.50, 1792950.50 ), QPointF( 661669.50, 1792950.50 ), QPointF( 661669.50, 1792951.50 ), QPointF( 661667.50, 1792951.50 ), QPointF( 661667.50, 1792950.50 ), QPointF( 661599.50, 1792950.50 )} );
 
-
 //  std::ofstream file( "/home/vincent/watershed.txt" );
 //  for ( int i = 0; i < polygonWatershed.size(); ++i )
 //  {
@@ -444,7 +445,6 @@ void ReosWatersehdTest::watershedDelineatingWithBurningLine()
 //    file << QString( " QPointF(%1,%2)," ).arg( QString::number( pt.x(), 'f', 2 ) ).arg( QString::number( pt.y(), 'f', 2 ) ).toStdString();
 //    //file << QString( " %1 %2," ).arg( QString::number( pt.x(), 'f', 2 ) ).arg( QString::number( pt.y(), 'f', 2 ) ).toStdString();
 //  }
-
 
   QCOMPARE( polygonWatershed, polygonWatershedTest );
 

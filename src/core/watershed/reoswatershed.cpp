@@ -139,7 +139,7 @@ ReosWatershed *ReosWatershed::addUpstreamWatershed( ReosWatershed *upstreamWater
   // if we are here, the watershed will be added in this watershed
   ReosInclusionType inclusionType = upstreamWatershed->isInside( *this );
   if ( inclusionType == ReosInclusionType::None ) //new watershed ids not in this one
-    throw ReosWatershedException( QObject::tr( "Try to add a watershed in a not including other watershed." ), inclusionType );
+    throw ReosWatershedException( QObject::tr( "Try to add a watershed in a watershed that not contain the new one." ), inclusionType );
 
   if ( !adaptUpstreamDelineating && inclusionType == ReosInclusionType::Partial )
     throw ReosWatershedException( QObject::tr( "Try to add a watershed in a not including other watershed." ), inclusionType );
@@ -197,6 +197,17 @@ ReosInclusionType ReosWatershed::isInside( const ReosWatershed &other ) const
     return ReosInclusionType::Partial;
 
   return ReosInclusionType::None;
+}
+
+void ReosWatershed::removeDirectionData()
+{
+  if ( mDirectionRaster.hasData() )
+    mDirectionRaster = ReosRasterByteCompressed();
+  if ( mDirectionExtent.isValid() )
+    mDirectionExtent = ReosRasterExtent();
+
+  for ( size_t i = 0; i < mUpstreamWatersheds.size(); ++i )
+    mUpstreamWatersheds.at( i )->removeDirectionData();
 }
 
 

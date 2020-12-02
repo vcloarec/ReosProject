@@ -44,6 +44,7 @@ class ReosMapPolygon_p: public ReosMapItem_p
     ReosMapPolygon_p *clone() override;
     QRectF boundingRect() const override;
     void updatePosition() override;
+    QPainterPath shape() const override;
 
     QPolygonF mapPolygon;
 

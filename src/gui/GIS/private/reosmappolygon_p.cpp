@@ -55,6 +55,16 @@ void ReosMapPolygon_p::updatePosition()
   setPos( pview0 );
 }
 
+QPainterPath ReosMapPolygon_p::shape() const
+{
+  QPen pen;
+  pen.setWidthF( std::max( externalWidth, width ) );
+  QPainterPathStroker pps( pen );
+  QPainterPath path;
+  path.addPolygon( mViewPolygon );
+  return pps.createStroke( path );
+}
+
 void ReosMapPolygon_p::paint( QPainter *painter )
 {
   painter->save();

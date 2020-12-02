@@ -57,6 +57,13 @@ class ReosWatershedTree: public QObject
     //! Returns a list of all the watershed
     QList<ReosWatershed *> allWatershed() const;
 
+    //! Removes direction data present in any watershed in the tree
+    void removeDirectionData()
+    {
+      for ( size_t i = 0; i < mWatersheds.size(); ++i )
+        mWatersheds.at( i )->removeDirectionData();
+    }
+
   signals:
     void watershedWillBeAdded();
     //! emitted when watershed is added with the pointer to the directly downsteam watershed (nullptr if added watershed is a the extreme downstream)

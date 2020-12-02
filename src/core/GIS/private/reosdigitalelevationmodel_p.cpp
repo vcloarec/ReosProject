@@ -156,8 +156,6 @@ ReosRasterExtent ReosDigitalElevationModelRaster::rasterExtent( const QgsRectang
   double xPixelSize = sourceRasterExtent.width() / xCount;;
   double yPixelSize = sourceRasterExtent.height() / yCount;
 
-
-
   if ( originalExtent.xMinimum() < sourceRasterExtent.xMinimum() )
     xmin = sourceRasterExtent.xMinimum();
   else
@@ -167,8 +165,6 @@ ReosRasterExtent ReosDigitalElevationModelRaster::rasterExtent( const QgsRectang
     ymin = sourceRasterExtent.yMinimum();
   else
     ymin = int( ( originalExtent.yMinimum() - sourceRasterExtent.yMinimum() ) / yPixelSize ) * yPixelSize + sourceRasterExtent.yMinimum();
-
-
 
   if ( originalExtent.xMaximum() > sourceRasterExtent.xMaximum() )
     xmax = sourceRasterExtent.xMaximum();

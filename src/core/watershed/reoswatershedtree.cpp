@@ -60,6 +60,7 @@ ReosWatershed *ReosWatershedTree::downstreamWatershed( const QPolygonF &line, bo
 {
   for ( const std::unique_ptr<ReosWatershed> &watershed : mWatersheds )
   {
+    assert( watershed );
     switch ( watershed->contains( line ) )
     {
       case ReosInclusionType::None:

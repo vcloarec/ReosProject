@@ -68,7 +68,9 @@ bool ReosWatershedDelineating::setDownstreamLine( const QPolygonF &downstreamLin
       return false;
 
     mDownstreamLine = downstreamLine;
-    if ( mDownstreamWatershed && mDownstreamWatershed->hasDirectiondata() )
+    if ( mDownstreamWatershed &&
+         mDownstreamWatershed->hasDirectiondata() &&
+         mIsBurningLineUpToDate )
     {
       mCurrentState = WaitingforProceed;
       return true;
@@ -102,7 +104,7 @@ bool ReosWatershedDelineating::startDelineating()
     return false;
   }
 
-  if ( mDownstreamWatershed && mDownstreamWatershed->hasDirectiondata() )
+  if ( mDownstreamWatershed && mDownstreamWatershed->hasDirectiondata() && mIsBurningLineUpToDate )
     mProcess = std::make_unique<ReosWatershedDelineatingProcess>( mDownstreamWatershed, mDownstreamLine );
   else
   {
@@ -147,9 +149,7 @@ ReosWatershed *ReosWatershedDelineating::validateWatershed()
 
   if ( mCurrentState == WaitingForValidate && isDelineatingFinished() && mProcess && mProcess->isSuccessful() )
   {
-    mCurrentState = WaitingForDownstream;
-
-    if ( mDownstreamWatershed )
+    if ( mDownstreamWatershed && mDownstreamWatershed->hasDirectiondata() )
       newWatershed = new ReosWatershed(
         mProcess->watershedPolygon(),
         mProcess->streamLine().last(),
@@ -181,6 +181,8 @@ ReosWatershed *ReosWatershedDelineating::validateWatershed()
     }
 
     mWatershedTree->addWatershed( newWatershed, mDownstreamWatershed, true );
+    mIsBurningLineUpToDate = true;
+    mCurrentState = WaitingForDownstream;
   }
 
   return newWatershed;
@@ -235,10 +237,11 @@ void ReosWatershedDelineating::testPredefinedExtentValidity()
   mCurrentState = WaitingForValidate;
 }
 
-void ReosWatershedDelineating::addBurningLines( const QPolygonF &burningLine )
+void ReosWatershedDelineating::setBurningLines( const QList<QPolygonF> &burningLines )
 {
-  mBurningLines.append( burningLine );
+  mBurningLines = burningLines;
   mIsBurningLineUpToDate = false;
+  mWatershedTree->removeDirectionData();
 }
 
 

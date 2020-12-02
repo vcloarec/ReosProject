@@ -59,6 +59,8 @@ class ReosMap: public ReosModule
 
     ReosGisEngine *engine() const;
 
+    QString mapCrs() const;
+
   public slots:
     //    void unsetMapTool( ReosMapTool *tool );
 //    void unsetMapTool();

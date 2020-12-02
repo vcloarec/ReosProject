@@ -144,6 +144,7 @@ void ReosDelineatingWatershedWidget::onDownstreamLineDrawn( const QPolygonF &dow
 void ReosDelineatingWatershedWidget::onPredefinedExtentDrawn( const QRectF &extent )
 {
   ReosMapExtent mapExtent( extent );
+  mapExtent.setCrs( mMap->mapCrs() );
   mModule->setPreDefinedExtent( mapExtent );
   mWatershedExtent.resetPolygon( mapExtent.toPolygon() );
   updateTool();
@@ -159,6 +160,7 @@ void ReosDelineatingWatershedWidget::onBurningLineDrawn( const QPolygonF &burnin
   bl->setWidth( 2 );
   bl->setExternalWidth( 4 );
 
+  updateBurningLines();
 }
 
 void ReosDelineatingWatershedWidget::onBurningLineRemoved( ReosMapItem *item )
@@ -173,7 +175,10 @@ void ReosDelineatingWatershedWidget::onBurningLineRemoved( ReosMapItem *item )
   }
 
   if ( found )
+  {
     mBurningLines.erase( mBurningLines.begin() + i );
+    updateBurningLines();
+  }
 }
 
 void ReosDelineatingWatershedWidget::onDemComboboxChanged()
@@ -207,7 +212,7 @@ void ReosDelineatingWatershedWidget::onValidateAsked()
   }
   catch ( ReosWatershedException &e )
   {
-    QMessageBox::critical( this, tr( "Delineating Watershed" ), tr( "Unable to validate this watershed :%1" ).arg( e.what() ) );
+    QMessageBox::critical( this, tr( "Delineating Watershed" ), tr( "Unable to validate this watershed: %1" ).arg( e.what() ) );
   }
 
   mTemporaryWatershed.resetPolygon();
@@ -295,4 +300,15 @@ void ReosDelineatingWatershedWidget::updateTool()
       break;
 
   }
+}
+
+void ReosDelineatingWatershedWidget::updateBurningLines()
+{
+  QList<QPolygonF> list;
+  for ( size_t i = 0; i < mBurningLines.size(); ++i )
+  {
+    list.append( mBurningLines.at( i ).get()->mapPolyline() );
+  }
+
+  mModule->setBurningLines( list );
 }
