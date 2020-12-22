@@ -18,28 +18,34 @@ static QgsPolygon *createQgsPolygon( const QPolygonF &polygon )
   return qgsPolygon.release();
 }
 
+static QgsLineString *createQgsPolyline( const QPolygonF &polygon )
+{
+  std::unique_ptr<QgsLineString> linestring( QgsLineString::fromQPolygonF( polygon ) );
+  return linestring.release();
+}
+
 QPolygonF ReosGeometryUtils::polygonSubtract( const QPolygonF &polygon1, const QPolygonF &polygon2 )
 {
-  QVector<QgsPoint> poly1;
-  for ( const QPointF &pt : polygon1 )
-    poly1.append( QgsPoint( pt ) );
-  QgsGeometry geom1( new QgsPolygon( new QgsLineString( poly1 ) ) );
-
-  QVector<QgsPoint> poly2;
-  for ( const QPointF &pt : polygon2 )
-    poly2.append( QgsPoint( pt ) );
-  QgsGeometry geom2( new QgsPolygon( new QgsLineString( poly1 ) ) );
+  QgsGeometry geom1( createQgsPolygon( polygon1 ) );
+  QgsGeometry geom2( createQgsPolygon( polygon2 ) );
 
   QgsGeometry result = geom1.difference( geom2 );
 
   return result.asQPolygonF();
 }
 
-bool ReosGeometryUtils::polygonIsInsidePolygon( const QPolygonF &polygon1, const QPolygonF &polygon2 )
+ReosInclusionType ReosGeometryUtils::polygonIsInsidePolygon( const QPolygonF &polygon1, const QPolygonF &polygon2 )
 {
   QgsGeometry geom1( createQgsPolygon( polygon1 ) );
   QgsGeometry geom2( createQgsPolygon( polygon2 ) );
-  return geom2.contains( geom1 );
+  if ( geom2.contains( geom1 ) )
+    return ReosInclusionType::Total;
+
+  if ( geom1.intersection( geom2 ).area() > 0 )
+    return ReosInclusionType::Partial;
+
+  return ReosInclusionType::None;
+
 }
 
 bool ReosGeometryUtils::polygonIntersectPolygon( const QPolygonF &polygon1, const QPolygonF &polygon2 )
@@ -55,15 +61,29 @@ bool ReosGeometryUtils::polygonIntersectPolygon( const QPolygonF &polygon1, cons
 
 }
 
+ReosInclusionType ReosGeometryUtils::polylineIsInsidePolygon( const QPolygonF &polyline, const QPolygonF &polygon )
+{
+  QgsGeometry qgsPolyline( createQgsPolyline( polyline ) );
+  QgsGeometry qgsPolygon( createQgsPolygon( polygon ) );
+
+  if ( qgsPolygon.contains( qgsPolyline ) )
+    return ReosInclusionType::Total;
+
+  if ( qgsPolyline.intersection( qgsPolygon ).length() > 0 )
+    return ReosInclusionType::Partial;
+
+  return ReosInclusionType::None;
+}
+
 bool ReosGeometryUtils::lineIntersectPolygon( const QPolygonF &line, const QPolygonF &polygon )
 {
   QgsGeometry qgsLine( QgsLineString::fromQPolygonF( line ) );
-  QgsGeometry qgsPlygon( createQgsPolygon( polygon ) );
+  QgsGeometry qgsPolygon( createQgsPolygon( polygon ) );
 
-  if ( !qgsPlygon.intersects( qgsLine ) )
+  if ( !qgsPolygon.intersects( qgsLine ) )
     return false;
 
-  QgsGeometry intersection = qgsPlygon.intersection( qgsLine );
+  QgsGeometry intersection = qgsPolygon.intersection( qgsLine );
   return intersection.type() == QgsWkbTypes::PolygonGeometry;
 }
 
@@ -72,4 +92,33 @@ bool ReosGeometryUtils::pointIsInsidePolygon( const QPointF &point, const QPolyg
   QgsGeometry geom( createQgsPolygon( polygon ) );
   QgsPointXY pt( point );
   return geom.contains( &pt );
+}
+
+QPolygonF ReosGeometryUtils::polygonFitInPolygon( const QPolygonF &polygon1, const QPolygonF &polygon2 )
+{
+  QgsGeometry geom1( createQgsPolygon( polygon1 ) );
+  QgsGeometry geom2( createQgsPolygon( polygon2 ) );
+
+  QgsGeometry intersection = geom1.intersection( geom2 );
+
+  QPolygonF ret = intersection.asQPolygonF();
+
+  if ( ret.last() == ret.first() )
+    ret.removeLast();
+
+  return ret;
+
+}
+
+QPolygonF ReosGeometryUtils::polygonCutByPolygon( const QPolygonF &polygon1, const QPolygonF &polygon2 )
+{
+  QgsGeometry geom1( createQgsPolygon( polygon1 ) );
+  QgsGeometry geom2( createQgsPolygon( polygon2 ) );
+
+  QPolygonF ret = geom1.difference( geom2 ).asQPolygonF();
+
+  if ( ret.last() == ret.first() )
+    ret.removeLast();
+
+  return ret;
 }

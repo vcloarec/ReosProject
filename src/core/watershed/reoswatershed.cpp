@@ -1,6 +1,4 @@
 #include "reoswatershed.h"
-#include "reosgeometryutils.h"
-
 
 ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint, const QPolygonF &downstreamLine, const ReosRasterWatershed::Directions &direction, const ReosRasterExtent directionExent ):
   mExtent( delineating ),
@@ -26,7 +24,7 @@ ReosMapExtent ReosWatershed::extent() const
   return mExtent;
 }
 
-bool ReosWatershed::contains( const QPointF &point ) const
+bool ReosWatershed::contain( const QPointF &point ) const
 {
   if ( !mExtent.contains( point ) )
     return false;
@@ -34,25 +32,9 @@ bool ReosWatershed::contains( const QPointF &point ) const
   return ReosGeometryUtils::pointIsInsidePolygon( point, delineating() );
 }
 
-ReosInclusionType ReosWatershed::contains( const QPolygonF &line ) const
+ReosInclusionType ReosWatershed::contain( const QPolygonF &line ) const
 {
-  bool partial = false;
-  bool total = true;
-
-  for ( const QPointF &pt : line )
-  {
-    bool ct = contains( pt );
-    partial |= ct;
-    total &= ct;
-  }
-
-  if ( !partial )
-    return ReosInclusionType::None;
-
-  if ( partial && !total )
-    return ReosInclusionType::Partial;
-
-  return ReosInclusionType::Total;
+  return ReosGeometryUtils::polylineIsInsidePolygon( line, mDelineating );
 }
 
 bool ReosWatershed::hasDirectiondata() const
@@ -107,7 +89,7 @@ ReosWatershed *ReosWatershed::directUpstreamWatershed( int i ) const
   return mUpstreamWatersheds.at( i ).get();
 }
 
-ReosWatershed *ReosWatershed::addUpstreamWatershed( ReosWatershed *upstreamWatershed, bool adaptUpstreamDelineating )
+ReosWatershed *ReosWatershed::addUpstreamWatershed( ReosWatershed *upstreamWatershed )
 {
   std::unique_ptr<ReosWatershed> ws( upstreamWatershed );
   if ( hasDirectiondata() )
@@ -117,43 +99,56 @@ ReosWatershed *ReosWatershed::addUpstreamWatershed( ReosWatershed *upstreamWater
     ws->mDirectionRaster = ReosRasterByteCompressed();
   }
 
-  // check interaction with existing watershed
-  for ( size_t i = 0; i < mUpstreamWatersheds.size(); ++i )
-  {
-    std::unique_ptr<ReosWatershed> &usW = mUpstreamWatersheds.at( i );
-    if ( ws->contains( usW->outletPoint() ) )
-    {
-      //existing watershed is in the new one
-      ws->addUpstreamWatershed( usW.release() );
-      mUpstreamWatersheds.erase( mUpstreamWatersheds.begin() + i );
-      break;
-    }
-
-    if ( usW->contains( ws->outletPoint() ) )
-    {
-      //existing watershed contains new one --> propagate the adding upstream
-      return usW->addUpstreamWatershed( ws.release() );
-    }
-  }
-
-  // if we are here, the watershed will be added in this watershed
-  ReosInclusionType inclusionType = upstreamWatershed->isInside( *this );
-  if ( inclusionType == ReosInclusionType::None ) //new watershed ids not in this one
-    throw ReosWatershedException( QObject::tr( "Try to add a watershed in a watershed that not contain the new one." ), inclusionType );
-
-  if ( !adaptUpstreamDelineating && inclusionType == ReosInclusionType::Partial )
-    throw ReosWatershedException( QObject::tr( "Try to add a watershed in a not including other watershed." ), inclusionType );
-
   if ( ws->name().isEmpty() && !name().isEmpty() )
     ws->setName( name().append( "-%1" ).arg( mUpstreamWatersheds.size() + 1 ) );
-  ws->mDownstreamWatershed = this;
   mUpstreamWatersheds.emplace_back( ws.release() );
   return this;
 }
 
-ReosWatershed *ReosWatershed::upstreamWatershed( const QPolygonF &line, bool &ok )
+ReosWatershed *ReosWatershed::upstreamWatershed( const QPolygonF &line, bool &ok ) const
 {
+  for ( const std::unique_ptr<ReosWatershed> &watershed : mUpstreamWatersheds )
+  {
+    assert( watershed );
+    switch ( watershed->contain( line ) )
+    {
+      case ReosInclusionType::None:
+        continue;
+        break;
+      case ReosInclusionType::Partial:
+        ok = false;
+        return nullptr;
+        break;
+      case ReosInclusionType::Total:
+      {
+        ReosWatershed *upstream = watershed->upstreamWatershed( line, ok );
+        if ( upstream && ok )
+          return upstream;
+        else if ( !ok )
+          return nullptr;
 
+        ok = true;
+        return watershed.get();
+      }
+      break;
+    }
+  }
+
+  ok = true;
+  return nullptr;
+}
+
+const ReosWatershed *ReosWatershed::upstreamWatershed( const QPointF &point ) const
+{
+  if ( !contain( point ) )
+    return nullptr;
+  for ( const std::unique_ptr<ReosWatershed> &uws : mUpstreamWatersheds )
+  {
+    if ( uws->contain( point ) )
+      return uws->upstreamWatershed( point );
+  }
+
+  return this;
 }
 
 ReosWatershed *ReosWatershed::downstreamWatershed() const
@@ -188,15 +183,9 @@ QList<ReosWatershed *> ReosWatershed::allDownstreamWatershed() const
   return list;
 }
 
-ReosInclusionType ReosWatershed::isInside( const ReosWatershed &other ) const
+ReosInclusionType ReosWatershed::contain( const ReosWatershed &other ) const
 {
-  if ( ReosGeometryUtils::polygonIsInsidePolygon( delineating(), other.delineating() ) )
-    return ReosInclusionType::Total;
-
-  if ( ReosGeometryUtils::polygonIntersectPolygon( delineating(), other.delineating() ) )
-    return ReosInclusionType::Partial;
-
-  return ReosInclusionType::None;
+  return ReosGeometryUtils::polygonIsInsidePolygon( delineating(), other.delineating() );
 }
 
 void ReosWatershed::removeDirectionData()
@@ -208,6 +197,30 @@ void ReosWatershed::removeDirectionData()
 
   for ( size_t i = 0; i < mUpstreamWatersheds.size(); ++i )
     mUpstreamWatersheds.at( i )->removeDirectionData();
+}
+
+void ReosWatershed::fitIn( const ReosWatershed &other )
+{
+  if ( ReosGeometryUtils::polygonIsInsidePolygon( mDelineating, other.mDelineating ) == ReosInclusionType::Partial )
+  {
+    QPolygonF newDelinetating = ReosGeometryUtils::polygonFitInPolygon( mDelineating, other.mDelineating );
+    mDelineating = newDelinetating;
+  }
+
+  //remove intersection with other sub watershed
+  for ( const std::unique_ptr<ReosWatershed> &sibling : mUpstreamWatersheds )
+  {
+    adjust( *sibling.get() );
+  }
+}
+
+void ReosWatershed::adjust( const ReosWatershed &other )
+{
+  if ( ReosInclusionType::Partial == other.contain( *this ) )
+  {
+    QPolygonF newDelinetating = ReosGeometryUtils::polygonCutByPolygon( mDelineating, other.mDelineating );
+    mDelineating = newDelinetating;
+  }
 }
 
 

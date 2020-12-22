@@ -206,14 +206,7 @@ void ReosDelineatingWatershedWidget::onDelineateAsked()
 
 void ReosDelineatingWatershedWidget::onValidateAsked()
 {
-  try
-  {
-    mModule->validateWatershed();
-  }
-  catch ( ReosWatershedException &e )
-  {
-    QMessageBox::critical( this, tr( "Delineating Watershed" ), tr( "Unable to validate this watershed: %1" ).arg( e.what() ) );
-  }
+  mModule->validateWatershed();
 
   mTemporaryWatershed.resetPolygon();
   mTemporaryStreamLine.resetPolyline();

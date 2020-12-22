@@ -58,28 +58,28 @@ void ReosWatersehdTest::inclusion()
   poly5 << QPointF( 5, 2 ) << QPointF( 5, 3 ) << QPointF( 10, 3 ) << QPointF( 10, 2 );
   ReosWatershed watershed5( poly5, QPointF( 5, 2.5 ) );
 
-  ReosInclusionType inclusion = watershed3.isInside( watershed1 );
+  ReosInclusionType inclusion = watershed3.contain( watershed1 );
   QCOMPARE( inclusion, ReosInclusionType::Total );
 
-  inclusion = watershed3.isInside( watershed2 );
+  inclusion = watershed3.contain( watershed2 );
   QCOMPARE( inclusion, ReosInclusionType::Total );
 
-  inclusion = watershed1.isInside( watershed2 );
+  inclusion = watershed1.contain( watershed2 );
   QCOMPARE( inclusion, ReosInclusionType::Partial );
 
-  inclusion = watershed2.isInside( watershed1 );
+  inclusion = watershed2.contain( watershed1 );
   QCOMPARE( inclusion, ReosInclusionType::Total );
 
-  inclusion = watershed1.isInside( watershed4 );
+  inclusion = watershed1.contain( watershed4 );
   QCOMPARE( inclusion, ReosInclusionType::Partial );
-  inclusion = watershed4.isInside( watershed1 );
+  inclusion = watershed4.contain( watershed1 );
   QCOMPARE( inclusion, ReosInclusionType::Total );
-  inclusion = watershed4.isInside( watershed2 );
+  inclusion = watershed4.contain( watershed2 );
   QCOMPARE( inclusion, ReosInclusionType::Partial );
-  inclusion = watershed4.isInside( watershed3 );
+  inclusion = watershed4.contain( watershed3 );
   QCOMPARE( inclusion, ReosInclusionType::Partial );
 
-  inclusion = watershed5.isInside( watershed1 );
+  inclusion = watershed5.contain( watershed1 );
   QCOMPARE( inclusion, ReosInclusionType::None );
 }
 

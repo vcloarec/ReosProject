@@ -87,7 +87,7 @@ void ReosModule::startProcessOnOtherThread( ReosProcess *process )
   QFutureWatcher<void> *watcher = new QFutureWatcher<void>( this );
   connect( watcher, &QFutureWatcher<void>::finished, this, &ReosModule::processFinished );
   connect( watcher, &QFutureWatcher<void>::finished, watcher, &QObject::deleteLater );
-  QFuture<void> future = QtConcurrent::run( process, &ReosProcess::start );
+  QFuture<void> future = QtConcurrent::run( process, &ReosProcess::start );//https://doc.qt.io/qt-5/qtconcurrentrun.html#using-member-functions
   watcher->setFuture( future );
 }
 

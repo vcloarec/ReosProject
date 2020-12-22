@@ -84,6 +84,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/GIS
     ${CMAKE_SOURCE_DIR}/src/core/process
     ${CMAKE_SOURCE_DIR}/src/core/raster
+    ${CMAKE_SOURCE_DIR}/src/core/utils
     ${CMAKE_SOURCE_DIR}/src/core/watershed
 
     ${CMAKE_SOURCE_DIR}/src/gui

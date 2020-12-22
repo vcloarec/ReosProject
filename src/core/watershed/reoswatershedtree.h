@@ -32,17 +32,23 @@ class ReosWatershedTree: public QObject
   public:
     ReosWatershedTree( QObject *parent = nullptr );
 
+    //! Purpose to add a watershed to the tree. Returns if the delineating of the purposed watershed intersect other delineating
+    bool purposeWatershedToAdd( ReosWatershed *purposedWatershed );
+
     /**
-     * Adds a watershed to the store, in the \a downstreamWatershed (or in one of its su watershed).
-     * Take ownership and return a pointer to the watershed where it was added
+     * Adds a watershed to the store, in the \a downstreamWatershed (or in one of its sub watershed).
+     * Take ownership
      */
-    ReosWatershed *addWatershed( ReosWatershed *watershed, ReosWatershed *downstreamWatershed, bool adaptDelineating = false );
+    void addWatershed( ReosWatershed *watershed, ReosWatershed *downstreamWatershed, bool adaptDelineating = false );
 
     //! Returns the smallest watershed that is downstream the line, if the line is partially included by any watershed, ok is false
     //! If there is no watershed downstrean, return nullptr
     ReosWatershed *downstreamWatershed( const QPolygonF &line, bool &ok ) const;
 
-    //! Returns the count ofwatershed (extreme downstream)
+    //! Returns the smallest watershed (the more upstream that contains the points
+    const ReosWatershed *watershed( const QPointF &point );
+
+    //! Returns the count of watershed (extreme downstream)
     int watershedCount() const;
 
     //! Returns the count of master watershed (extreme downstream)
@@ -58,11 +64,7 @@ class ReosWatershedTree: public QObject
     QList<ReosWatershed *> allWatershed() const;
 
     //! Removes direction data present in any watershed in the tree
-    void removeDirectionData()
-    {
-      for ( size_t i = 0; i < mWatersheds.size(); ++i )
-        mWatersheds.at( i )->removeDirectionData();
-    }
+    void removeDirectionData();
 
   signals:
     void watershedWillBeAdded();

@@ -7,31 +7,8 @@
 #include "reosexception.h"
 #include "memory"
 
-#include <reosrasterwatershed.h>
-
-enum class ReosInclusionType
-{
-  None,
-  Partial,
-  Total
-};
-
-
-class ReosWatershedException : public ReosException
-{
-  public:
-    ReosWatershedException( const QString &message, ReosInclusionType inclusion ):
-      ReosException( message ),
-      mInclusion( inclusion )
-    {}
-
-    ReosInclusionType inclusion() const
-    {
-      return mInclusion;
-    }
-  private:
-    ReosInclusionType mInclusion = ReosInclusionType::None;
-};
+#include "reosgeometryutils.h"
+#include "reosrasterwatershed.h"
 
 
 class ReosWatershed
@@ -59,14 +36,17 @@ class ReosWatershed
      *
      * \note if a point of the line is exactly on a segment of the delineating polygon, this point is considered outside
      */
-    bool contains( const QPointF &point ) const;
+    bool contain( const QPointF &point ) const;
+
+    //! Returns how this watershed is included by \a other
+    ReosInclusionType contain( const ReosWatershed &other ) const;
 
     /**
      * Returns how the polygon or polyline \a line is contained in the watershed
      *
      * \note if a point of the line is exactly on a segment of the delineating polygon, this point is considered outside
      */
-    ReosInclusionType contains( const QPolygonF &line ) const;
+    ReosInclusionType contain( const QPolygonF &line ) const;
 
     //! Returns whether the watrshed or its parent contoins direction data
     bool hasDirectiondata() const;
@@ -98,11 +78,14 @@ class ReosWatershed
      * downstream watershed or its sibling. If false, a exception will be throwed if the new watershed delinetaing interset
      * downstream or siling watershed.
      */
-    ReosWatershed *addUpstreamWatershed( ReosWatershed *upstreamWatershed, bool adaptUpstreamDelineating = false );
+    ReosWatershed *addUpstreamWatershed( ReosWatershed *upstreamWatershed );
 
-    //! Returns the smallest watershed that is downstream the line, if the line is partially included by any watershed, ok is false
+    //! Returns the smallest sub watershed that is downstream the line, if the line is partially included by any watershed, ok is false and return nullptr
     //! If there is no watershed downstrean, return nullptr
-    ReosWatershed *upstreamWatershed( const QPolygonF &line, bool &ok );
+    ReosWatershed *upstreamWatershed( const QPolygonF &line, bool &ok ) const;
+
+    //! Returns the smallest sub watershed that contains the point
+    const ReosWatershed *upstreamWatershed( const QPointF &point ) const;
 
     //! Returns, if exists a pointer to the direct downstream watershed, if not returns nullptr
     ReosWatershed *downstreamWatershed() const;
@@ -113,11 +96,16 @@ class ReosWatershed
     //! Returns a list of all upstream watershed
     QList<ReosWatershed *> allDownstreamWatershed() const;
 
-    //! Returns how this watershed is included by \a other
-    ReosInclusionType isInside( const ReosWatershed &other ) const;
-
     //! Removes direction data present in the watershed or in its children
     void removeDirectionData();
+
+    //! Adjusts the delineating of this delineating to fit in the \a other watershed delineating (cut all that is outside the other and intersect with sub watershed)
+    void fitIn( const ReosWatershed &other );
+
+    //! Adjusts the delineating of this delineating to not intersect with the \a other watershed delineating (cut all that is inside the other)
+    void adjust( const ReosWatershed &other );
+
+
 
   private:
     QString mName;
