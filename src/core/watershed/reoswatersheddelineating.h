@@ -74,7 +74,8 @@ class ReosWatershedDelineating : public ReosModule
       WaitingForExtent,
       WaitingWithBroughtBackExtent,
       WaitingforProceed,
-      WaitingForValidate
+      WaitingForValidate,
+      WaitingToRecord
     };
 
     ReosWatershedDelineating( ReosModule *parent, ReosWatershedTree *watershedTree, ReosGisEngine *gisEngine );
@@ -114,8 +115,11 @@ class ReosWatershedDelineating : public ReosModule
 
     // -------- validating and watershed producing
 
-    //! Validates and and add the xwatershed to the \a store, returns pointer to the watershed
-    ReosWatershed *validateWatershed();
+    //! Validates the watershed and returns true if modification of delineating in necessary to add it
+    bool validateWatershed( bool &needAdjusting );
+
+    //! Store the wahtershed in the tree, returns pointer to the new watershed
+    ReosWatershed *storeWatershed( bool adjustIfNeeded );
 
   private slots:
     void onDelineatingFinished();
@@ -132,6 +136,8 @@ class ReosWatershedDelineating : public ReosModule
     bool mIsBurningLineUpToDate = false;
 
     std::unique_ptr<ReosWatershedDelineatingProcess> mProcess;
+
+    std::unique_ptr<ReosWatershed> mCurrentWatershed;
 
     //! Considering result, test if the predefined extent is valid, if not return false and set the state to WaitingWithBroughtBackExtent
     void testPredefinedExtentValidity();

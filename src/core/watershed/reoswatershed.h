@@ -31,15 +31,30 @@ class ReosWatershed
     //! Returns the extent of the watershed
     ReosMapExtent extent() const;
 
+    //! Returns the delineating of the watershed
+    QPolygonF delineating() const;
+
+    //! Returns the outlet point of the watershed
+    QPointF outletPoint() const;
+
+    //! Returns whether the watrshed or its parent contoins direction data
+    bool hasDirectiondata() const;
+
+    //! Returns the directions raster associated with this watershed, returned raster is invalid if there is none
+    ReosRasterWatershed::Directions directions() const;
+
+    //! Returns the extent of the raster direction, \see directions()
+    ReosRasterExtent directionExtent() const;
+
+    //! Removes direction data present in the watershed or in its children
+    void removeDirectionData();
+
     /**
-     * Returns whether the watershed include the \a point
+     * Returns whether the watershed includes the \a point
      *
-     * \note if a point of the line is exactly on a segment of the delineating polygon, this point is considered outside
+     * \note if the point is exactly on a segment of the delineating polygon, this point is considered outside
      */
     bool contain( const QPointF &point ) const;
-
-    //! Returns how this watershed is included by \a other
-    ReosInclusionType contain( const ReosWatershed &other ) const;
 
     /**
      * Returns how the polygon or polyline \a line is contained in the watershed
@@ -48,64 +63,50 @@ class ReosWatershed
      */
     ReosInclusionType contain( const QPolygonF &line ) const;
 
-    //! Returns whether the watrshed or its parent contoins direction data
-    bool hasDirectiondata() const;
 
-    //! Returns the directions raster associated with this watershed, returned raster is invalid if there is none
-    ReosRasterWatershed::Directions directions() const;
+    //! Returns how this watershed is included by \a other
+    ReosInclusionType isContainedBy( const ReosWatershed &other ) const;
 
-    //! Returns the extent od the raster direction, \see directions()
-    ReosRasterExtent directionExtent() const;
-
-    //! Returns the delineating of the watershed
-    QPolygonF delineating() const;
-
-    //! Returns the outlet point of the watershed
-    QPointF outletPoint() const;
-
-    //! Returns the count if upstream watershed
+    //! Returns the count of upstream watersheds
     int upstreamWatershedCount() const;
 
-    //! Returns the count of watershed that are directky upstream
+    //! Returns the count of watersheds that are directly upstream
     int directUpstreamWatershedCount() const;
 
     //! Returns the ith direct upstream watershed, return nullptr if there is not
     ReosWatershed *directUpstreamWatershed( int i ) const;
 
     /**
-     * Adds a \a upstream watershed (take ownership) and return the downstram watershed where it was added.
-     * If \a adaptUpstreamDelineating is true, the upstram watershed delineating will be adapted to fot with its directly
-     * downstream watershed or its sibling. If false, a exception will be throwed if the new watershed delinetaing interset
-     * downstream or siling watershed.
+     * Adds a \a upstream watershed (take ownership) and returns a pointer to this new watershed
+     * If \a adaptUpstreamDelineating is true, the upstram watershed delineating will be adapted to with its directly
+     * downstream watershed or its sibling.
      */
-    ReosWatershed *addUpstreamWatershed( ReosWatershed *upstreamWatershed );
+    ReosWatershed *addUpstreamWatershed( ReosWatershed *upstreamWatershed, bool adjustIfNeeded );
 
     //! Returns the smallest sub watershed that is downstream the line, if the line is partially included by any watershed, ok is false and return nullptr
     //! If there is no watershed downstrean, return nullptr
     ReosWatershed *upstreamWatershed( const QPolygonF &line, bool &ok ) const;
 
-    //! Returns the smallest sub watershed that contains the point
-    const ReosWatershed *upstreamWatershed( const QPointF &point ) const;
+    //! Returns the smallest upstream watershed that contains the point
+    ReosWatershed *upstreamWatershed( const QPointF &point );
 
-    //! Returns, if exists a pointer to the direct downstream watershed, if not returns nullptr
+    //! Returns, if exists, a pointer to the direct downstream watershed, if not returns nullptr
     ReosWatershed *downstreamWatershed() const;
 
     //! Returns the position in the downstream watershed
     int positionInDownstreamWatershed() const;
 
     //! Returns a list of all upstream watershed
-    QList<ReosWatershed *> allDownstreamWatershed() const;
+    QList<ReosWatershed *> allUpstreamWatershed() const;
 
-    //! Removes direction data present in the watershed or in its children
-    void removeDirectionData();
-
-    //! Adjusts the delineating of this delineating to fit in the \a other watershed delineating (cut all that is outside the other and intersect with sub watershed)
+    //! Cuts the delineating of this delineating to fit in the \a other watershed delineating (cut all that is outside the other and intersect with sub watershed)
     void fitIn( const ReosWatershed &other );
 
-    //! Adjusts the delineating of this delineating to not intersect with the \a other watershed delineating (cut all that is inside the other)
+    //! Adjusts the delineating of this watershed to not intersect with the \a other watershed delineating (cut all that is inside the other)
     void adjust( const ReosWatershed &other );
 
-
+    //! Extents the delineating of this watershed to fit with the delineating of \a other
+    void extentTo( const ReosWatershed &other );
 
   private:
     QString mName;

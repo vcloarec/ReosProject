@@ -206,7 +206,15 @@ void ReosDelineatingWatershedWidget::onDelineateAsked()
 
 void ReosDelineatingWatershedWidget::onValidateAsked()
 {
-  mModule->validateWatershed();
+  bool needAdjusting = false;
+  if ( !mModule->validateWatershed( needAdjusting ) )
+    return;
+  bool adjustIfNeeded = false;
+  if ( needAdjusting )
+    adjustIfNeeded = QMessageBox::warning( this, tr( "Delineating watershed" ), tr( "This watershe intersects existing watershed(s)\n"
+                                           "Adjust new watershed?" ), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes );
+
+  mModule->storeWatershed( adjustIfNeeded );
 
   mTemporaryWatershed.resetPolygon();
   mTemporaryStreamLine.resetPolyline();

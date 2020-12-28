@@ -122,3 +122,16 @@ QPolygonF ReosGeometryUtils::polygonCutByPolygon( const QPolygonF &polygon1, con
 
   return ret;
 }
+
+QPolygonF ReosGeometryUtils::polygonUnion( const QPolygonF &polygon1, const QPolygonF &polygon2 )
+{
+  QgsGeometry geom1( createQgsPolygon( polygon1 ) );
+  QgsGeometry geom2( createQgsPolygon( polygon2 ) );
+
+  QPolygonF ret = geom1.combine( geom2 ).asQPolygonF();
+
+  if ( ret.last() == ret.first() )
+    ret.removeLast();
+
+  return ret;
+}

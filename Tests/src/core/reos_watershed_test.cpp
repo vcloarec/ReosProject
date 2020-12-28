@@ -58,28 +58,28 @@ void ReosWatersehdTest::inclusion()
   poly5 << QPointF( 5, 2 ) << QPointF( 5, 3 ) << QPointF( 10, 3 ) << QPointF( 10, 2 );
   ReosWatershed watershed5( poly5, QPointF( 5, 2.5 ) );
 
-  ReosInclusionType inclusion = watershed3.contain( watershed1 );
+  ReosInclusionType inclusion = watershed3.isContainedBy( watershed1 );
   QCOMPARE( inclusion, ReosInclusionType::Total );
 
-  inclusion = watershed3.contain( watershed2 );
+  inclusion = watershed3.isContainedBy( watershed2 );
   QCOMPARE( inclusion, ReosInclusionType::Total );
 
-  inclusion = watershed1.contain( watershed2 );
+  inclusion = watershed1.isContainedBy( watershed2 );
   QCOMPARE( inclusion, ReosInclusionType::Partial );
 
-  inclusion = watershed2.contain( watershed1 );
+  inclusion = watershed2.isContainedBy( watershed1 );
   QCOMPARE( inclusion, ReosInclusionType::Total );
 
-  inclusion = watershed1.contain( watershed4 );
+  inclusion = watershed1.isContainedBy( watershed4 );
   QCOMPARE( inclusion, ReosInclusionType::Partial );
-  inclusion = watershed4.contain( watershed1 );
+  inclusion = watershed4.isContainedBy( watershed1 );
   QCOMPARE( inclusion, ReosInclusionType::Total );
-  inclusion = watershed4.contain( watershed2 );
+  inclusion = watershed4.isContainedBy( watershed2 );
   QCOMPARE( inclusion, ReosInclusionType::Partial );
-  inclusion = watershed4.contain( watershed3 );
+  inclusion = watershed4.isContainedBy( watershed3 );
   QCOMPARE( inclusion, ReosInclusionType::Partial );
 
-  inclusion = watershed5.contain( watershed1 );
+  inclusion = watershed5.isContainedBy( watershed1 );
   QCOMPARE( inclusion, ReosInclusionType::None );
 }
 
@@ -240,7 +240,10 @@ void ReosWatersehdTest::watershedDelineating()
 
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForValidate );
 
-  watershedDelineating.validateWatershed();
+  bool needAdjusting;
+  QVERIFY( watershedDelineating.validateWatershed( needAdjusting ) );
+  QVERIFY( !needAdjusting );
+  watershedDelineating.storeWatershed( true );
   QVERIFY( watershedStore.watershedCount() == 1 );
   QVERIFY( watershedStore.masterWatershedCount() == 1 );
   QVERIFY( itemModel.rowCount( QModelIndex() ) == 1 );
@@ -316,7 +319,9 @@ void ReosWatersehdTest::watershedDelineating()
   QCOMPARE( polygonWatershed, polygonWatershedTest );
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForValidate );
 
-  watershedDelineating.validateWatershed();
+  QVERIFY( watershedDelineating.validateWatershed( needAdjusting ) );
+  QVERIFY( !needAdjusting );
+  watershedDelineating.storeWatershed( true );
   QVERIFY( watershedStore.masterWatershedCount() == 1 );
   QVERIFY( watershedStore.watershedCount() == 2 );
 
@@ -514,7 +519,10 @@ void ReosWatersehdTest::watershdDelineatingMultiWatershed()
 
   QCOMPARE( polygonWatershed, polygonWatershedTest );
 
-  ReosWatershed *watershed1 = watershedDelineating.validateWatershed();
+  bool needAdjusting;
+  QVERIFY( watershedDelineating.validateWatershed( needAdjusting ) );
+  QVERIFY( !needAdjusting );
+  ReosWatershed *watershed1 = watershedDelineating.storeWatershed( true );
   QVERIFY( watershed1->hasDirectiondata() );
   ReosRasterExtent rasterExtent1( ReosMapExtent( 666664.5, 1798940.5, 667089.5, 1799430.5 ), 85, 98 );
   QCOMPARE( rasterExtent1, watershed1->directionExtent() );
@@ -522,7 +530,6 @@ void ReosWatersehdTest::watershdDelineatingMultiWatershed()
   QVERIFY( watershedStore.watershedCount() == 1 );
   QVERIFY( itemModel.rowCount( QModelIndex() ) == 1 );
   QVERIFY( watershed1->downstreamWatershed() == nullptr );
-
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForDownstream );
 
   downstreamLine.clear();
@@ -539,7 +546,9 @@ void ReosWatersehdTest::watershdDelineatingMultiWatershed()
 
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForValidate );
 
-  ReosWatershed *watershed2 = watershedDelineating.validateWatershed();
+  QVERIFY( watershedDelineating.validateWatershed( needAdjusting ) );
+  QVERIFY( !needAdjusting );
+  ReosWatershed *watershed2 = watershedDelineating.storeWatershed( true );
   QVERIFY( watershed2->hasDirectiondata() );
   QVERIFY( watershed1->hasDirectiondata() );
   QCOMPARE( watershed1->directions(), watershed2->directions() );
@@ -565,10 +574,11 @@ void ReosWatersehdTest::watershdDelineatingMultiWatershed()
   controler.waitForFinished();
   controler.reset();
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForValidate );
-  ReosWatershed *watershed3 = watershedDelineating.validateWatershed();
+  QVERIFY( watershedDelineating.validateWatershed( needAdjusting ) );
+  QVERIFY( !needAdjusting );
+  ReosWatershed *watershed3 = watershedDelineating.storeWatershed( true );
   QVERIFY( watershed3->downstreamWatershed() == nullptr );
   QVERIFY( watershed3->directUpstreamWatershedCount() == 0 );
-
   QCOMPARE( watershedStore.masterWatershedCount(), 2 );
   QCOMPARE( watershedStore.watershedCount(), 3 );
   QVERIFY( itemModel.rowCount( QModelIndex() ) == 2 );
@@ -587,7 +597,9 @@ void ReosWatersehdTest::watershdDelineatingMultiWatershed()
   controler.reset();
 
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForValidate );
-  ReosWatershed *watershed4 = watershedDelineating.validateWatershed();
+  QVERIFY( watershedDelineating.validateWatershed( needAdjusting ) );
+  QVERIFY( !needAdjusting );
+  ReosWatershed *watershed4 = watershedDelineating.storeWatershed( true );
   QVERIFY( watershed4->downstreamWatershed() == nullptr );
   QVERIFY( watershed4->directUpstreamWatershedCount() == 2 );
   QVERIFY( watershed4->directUpstreamWatershed( 0 ) == watershed2 );
@@ -598,7 +610,6 @@ void ReosWatersehdTest::watershdDelineatingMultiWatershed()
   QCOMPARE( itemModel.rowCount( QModelIndex() ), 1 );
   QCOMPARE( itemModel.rowCount( itemModel.index( 0, 0, QModelIndex() ) ), 2 );
   QCOMPARE( itemModel.rowCount( itemModel.index( 0, 0, itemModel.index( 0, 0, QModelIndex() ) ) ), 1 );
-
 }
 
 QTEST_MAIN( ReosWatersehdTest )

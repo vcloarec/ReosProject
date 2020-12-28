@@ -143,17 +143,15 @@ QPolygonF ReosWatershedDelineating::lastStreamLine() const
     return QPolygonF();
 }
 
-ReosWatershed *ReosWatershedDelineating::validateWatershed()
+bool ReosWatershedDelineating::validateWatershed( bool &needAdjusting )
 {
-  ReosWatershed *newWatershed = nullptr;
-
   if ( mCurrentState == WaitingForValidate && isDelineatingFinished() && mProcess && mProcess->isSuccessful() )
   {
     if ( mDownstreamWatershed && mDownstreamWatershed->hasDirectiondata() )
-      newWatershed = new ReosWatershed(
-        mProcess->watershedPolygon(),
-        mProcess->streamLine().last(),
-        mDownstreamLine );
+      mCurrentWatershed.reset( new ReosWatershed(
+                                 mProcess->watershedPolygon(),
+                                 mProcess->streamLine().last(),
+                                 mDownstreamLine ) );
     else
     {
       // reduce the direction raster extent and create new watershed with it
@@ -173,15 +171,30 @@ ReosWatershed *ReosWatershedDelineating::validateWatershed()
 
       ReosRasterWatershed::Directions reducedDirection = mProcess->directions().reduceRaster( rowMin, rowMax, colMin, colMax );
 
-      newWatershed = new ReosWatershed( mProcess->watershedPolygon(),
-                                        mProcess->streamLine().last(),
-                                        mDownstreamLine,
-                                        reducedDirection,
-                                        reducedRasterExtent ) ;
+      mCurrentWatershed.reset( new ReosWatershed( mProcess->watershedPolygon(),
+                               mProcess->streamLine().last(),
+                               mDownstreamLine,
+                               reducedDirection,
+                               reducedRasterExtent ) ) ;
     }
 
-    mWatershedTree->addWatershed( newWatershed, mDownstreamWatershed, true );
+    needAdjusting = mWatershedTree->isWatershedIntersectExisting( mCurrentWatershed.get() );
     mIsBurningLineUpToDate = true;
+    mCurrentState = WaitingToRecord;
+    return true;
+  }
+
+  return false;
+
+}
+
+ReosWatershed *ReosWatershedDelineating::storeWatershed( bool adjustIfNeeded )
+{
+  ReosWatershed *newWatershed = nullptr;
+
+  if ( mCurrentState == WaitingToRecord && mCurrentWatershed )
+  {
+    newWatershed = mWatershedTree->addWatershed( mCurrentWatershed.release(), adjustIfNeeded );
     mCurrentState = WaitingForDownstream;
   }
 

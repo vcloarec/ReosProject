@@ -32,21 +32,21 @@ class ReosWatershedTree: public QObject
   public:
     ReosWatershedTree( QObject *parent = nullptr );
 
-    //! Purpose to add a watershed to the tree. Returns if the delineating of the purposed watershed intersect other delineating
-    bool purposeWatershedToAdd( ReosWatershed *purposedWatershed );
+    //! Purpose to add a watershed to the tree. Returns whether the delineating of the purposed watershed intersect other delineating
+    bool isWatershedIntersectExisting( ReosWatershed *purposedWatershed );
 
     /**
      * Adds a watershed to the store, in the \a downstreamWatershed (or in one of its sub watershed).
-     * Take ownership
+     * Take ownership and returns a pointer to the added watershed
      */
-    void addWatershed( ReosWatershed *watershed, ReosWatershed *downstreamWatershed, bool adaptDelineating = false );
+    ReosWatershed *addWatershed( ReosWatershed *watershed, bool adaptDelineating = false );
 
     //! Returns the smallest watershed that is downstream the line, if the line is partially included by any watershed, ok is false
     //! If there is no watershed downstrean, return nullptr
     ReosWatershed *downstreamWatershed( const QPolygonF &line, bool &ok ) const;
 
     //! Returns the smallest watershed (the more upstream that contains the points
-    const ReosWatershed *watershed( const QPointF &point );
+    ReosWatershed *watershed( const QPointF &point );
 
     //! Returns the count of watershed (extreme downstream)
     int watershedCount() const;

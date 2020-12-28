@@ -21,19 +21,19 @@ ReosWatershedTree::ReosWatershedTree( QObject *parent ): QObject( parent )
 {
 }
 
-bool ReosWatershedTree::purposeWatershedToAdd( ReosWatershed *purposedWatershed )
+bool ReosWatershedTree::isWatershedIntersectExisting( ReosWatershed *purposedWatershed )
 {
   const ReosWatershed *dws = watershed( purposedWatershed->outletPoint() );
 
   if ( dws )
   {
-    if ( ReosInclusionType::Partial == dws->contain( *purposedWatershed ) )
+    if ( ReosInclusionType::Partial == purposedWatershed->isContainedBy( *dws ) )
       return true;
 
     int subWsCount = dws->directUpstreamWatershedCount();
     for ( int i = 0; i < subWsCount; ++i )
     {
-      if ( ReosInclusionType::Partial == dws->directUpstreamWatershed( i )->contain( *purposedWatershed ) )
+      if ( ReosInclusionType::Partial == purposedWatershed->isContainedBy( *dws->directUpstreamWatershed( i ) ) )
         return true;
     }
   }
@@ -41,7 +41,13 @@ bool ReosWatershedTree::purposeWatershedToAdd( ReosWatershed *purposedWatershed 
   {
     for ( size_t i = 0; i < mWatersheds.size(); ++i )
     {
-      if ( ReosInclusionType::Partial == mWatersheds.at( i )->contain( *purposedWatershed ) )
+      ReosWatershed *other = mWatersheds.at( i ).get();
+      if ( purposedWatershed->contain( other->outletPoint() ) )
+      {
+        if ( ReosInclusionType::Partial == other->isContainedBy( *purposedWatershed ) )
+          return true;
+      }
+      else if ( ReosInclusionType::Partial == purposedWatershed->isContainedBy( *other ) )
         return true;
     }
   }
@@ -50,62 +56,52 @@ bool ReosWatershedTree::purposeWatershedToAdd( ReosWatershed *purposedWatershed 
 
 }
 
-void ReosWatershedTree::addWatershed( ReosWatershed *watershedToAdd, ReosWatershed *downstreamWatershed, bool adaptDelineating )
+ReosWatershed *ReosWatershedTree::addWatershed( ReosWatershed *watershedToAdd, bool adaptDelineating )
 {
   if ( !watershedToAdd )
-    return;
+    return nullptr;
+
+  emit watershedWillBeAdded();
 
   std::unique_ptr<ReosWatershed> ws( watershedToAdd );
 
-  if ( downstreamWatershed )
-  {
-    if ( adaptDelineating && downstreamWatershed->contain( *ws.get() ) == ReosInclusionType::Partial )
-    {
-      ws->fitIn( *downstreamWatershed );
-    }
+  ReosWatershed *includingWatershed = watershed( ws->outletPoint() );
 
-    downstreamWatershed->addUpstreamWatershed( ws.release() );
+  if ( includingWatershed ) // There is a watershed that contains the new one, deal with it
+  {
+    ReosWatershed *addedWatersehd = includingWatershed->addUpstreamWatershed( ws.release(), adaptDelineating );
+    emit watershedAdded( addedWatersehd );
+    return addedWatersehd;
   }
   else
   {
-    for ( const std::unique_ptr<ReosWatershed> &sibling : mWatersheds )
+    // first assign new name
+    if ( ws->name().isEmpty() )
+      ws->setName( tr( "Watershed-%1" ).arg( mWatersheds.size() + 1 ) );
+
+    size_t i = 0;
+    while ( i < mWatersheds.size() )
     {
-      ws->adjust( *sibling.get() );
+      std::unique_ptr<ReosWatershed> &sibling = mWatersheds.at( i );
+      if ( ws->contain( sibling->outletPoint() ) ) // the sibling is in the new watershed -> move it in the new watershed
+      {
+        if ( adaptDelineating )
+          ws->extentTo( *sibling.get() );
+        ws->addUpstreamWatershed( sibling.release(), adaptDelineating );
+        mWatersheds.erase( mWatersheds.begin() + i );
+      }
+      else
+      {
+        if ( adaptDelineating )
+          ws->adjust( *sibling );
+        ++i;
+      }
     }
+
     mWatersheds.emplace_back( ws.release() );
+    emit watershedAdded( mWatersheds.back().get() );
+    return mWatersheds.back().get();
   }
-
-//  std::unique_ptr<ReosWatershed> ws( watershedToAdd );
-//  emit watershedWillBeAdded();
-//  ReosWatershed *addedWatershed = nullptr;
-//  if ( downstreamWatershed )
-//  {
-//    emit watershedAdded( downstreamWatershed->addUpstreamWatershed( ws.release(), adaptDelineating ) );
-//  }
-//  else
-//  {
-//    // Check if another watershed is upstream
-//    size_t i = 0;
-//    while ( i < mWatersheds.size() )
-//    {
-//      std::unique_ptr<ReosWatershed> &existingWatershed = mWatersheds.at( i );
-//      if ( ws->contains( existingWatershed->outletPoint() ) )
-//      {
-//        ws->addUpstreamWatershed( mWatersheds.at( i ).release(), adaptDelineating );
-//        mWatersheds.erase( mWatersheds.begin() + i );
-//      }
-//      else
-//        ++i;
-//    }
-
-//    // Add the wartershed here
-//    if ( ws->name().isEmpty() )
-//      ws->setName( tr( "Watershed-%1" ).arg( mWatersheds.size() + 1 ) );
-//    mWatersheds.emplace_back( ws.release() );
-//  }
-
-//  emit watershedAdded( nullptr );
-//  return addedWatershed;
 }
 
 ReosWatershed *ReosWatershedTree::downstreamWatershed( const QPolygonF &line, bool &ok ) const
@@ -141,13 +137,13 @@ ReosWatershed *ReosWatershedTree::downstreamWatershed( const QPolygonF &line, bo
   return nullptr;
 }
 
-const ReosWatershed *ReosWatershedTree::watershed( const QPointF &point )
+ReosWatershed *ReosWatershedTree::watershed( const QPointF &point )
 {
   for ( std::unique_ptr<ReosWatershed> &watershed : mWatersheds )
   {
     if ( watershed->contain( point ) )
     {
-      const ReosWatershed *upstream = watershed->upstreamWatershed( point );
+      ReosWatershed *upstream = watershed->upstreamWatershed( point );
       if ( upstream )
         return upstream;
 
@@ -196,7 +192,7 @@ QList<ReosWatershed *> ReosWatershedTree::allWatershed() const
   QList<ReosWatershed *> list;
   for ( const std::unique_ptr<ReosWatershed> &ws : mWatersheds )
   {
-    list.append( ws->allDownstreamWatershed() );
+    list.append( ws->allUpstreamWatershed() );
     list.append( ws.get() );
   }
 
@@ -282,7 +278,6 @@ QList<ReosWatershed *> ReosWatershedItemModel::allWatersheds() const
 
 void ReosWatershedItemModel::onWatershedWillBeAdded()
 {
-  // for now, it is quite a mess to know where is inserted the watershed, so ... reset the model...
   beginResetModel();
 }
 

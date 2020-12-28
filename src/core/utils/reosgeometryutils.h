@@ -28,6 +28,7 @@ class ReosGeometryUtils
 
     static QPolygonF polygonFitInPolygon( const QPolygonF &polygon1, const QPolygonF &polygon2 );
     static QPolygonF polygonCutByPolygon( const QPolygonF &polygon1, const QPolygonF &polygon2 );
+    static QPolygonF polygonUnion( const QPolygonF &polygon1, const QPolygonF &polygon2 );
 };
 
 #endif // REOSGEOMETRYUTILS_H
