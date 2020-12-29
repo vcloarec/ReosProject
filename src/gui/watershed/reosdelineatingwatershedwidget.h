@@ -23,6 +23,7 @@ email                : vcloarec at gmail dot com
 #include "reosmapitem.h"
 
 class ReosWatershedDelineating;
+class ReosWatershedModule;
 class ReosMap;
 
 namespace Ui
@@ -36,7 +37,7 @@ class ReosDelineatingWatershedWidget : public QWidget
 
   public:
     explicit ReosDelineatingWatershedWidget(
-      ReosWatershedDelineating *watershedDelineatingModule,
+      ReosWatershedModule *watershedModule,
       ReosMap *map,
       QWidget *parent = nullptr );
     ~ReosDelineatingWatershedWidget();
@@ -54,17 +55,25 @@ class ReosDelineatingWatershedWidget : public QWidget
     void onBurningLineRemoved( ReosMapItem *item );
     void onDemComboboxChanged();
     void onDelineateAsked();
-    void onValidateAsked();
+    void onAutomaticValidateAsked();
+
+    void onManualWatershedDrawn( const QPolygonF &polygon );
+    void onManualOutletDrawn( const QPointF &point );
+    void onManualValidateAsked();
+
     void onMethodChange();
     void storeGeometry();
     void restore();
 
   private:
     Ui::ReosDelineatingWatershedWidget *ui;
-    ReosWatershedDelineating *mModule = nullptr;
+    ReosWatershedModule *mModule = nullptr;
     ReosMap *mMap = nullptr;
+    ReosMapTool *mCurrentAutomaticMapTool = nullptr;
+    ReosMapTool *mCurrentManualMapTool = nullptr;
 
     QToolBar *mAutomaticToolBar = nullptr;
+    QToolBar *mManualToolBar = nullptr;
 
     ReosMapToolDrawPolyline *mMapToolDrawDownStreamLine = nullptr;
     ReosMapToolDrawExtent *mMapToolDrawPredefinedExtent = nullptr;
@@ -79,12 +88,23 @@ class ReosDelineatingWatershedWidget : public QWidget
     ReosMapPolygon mWatershedExtent;
     std::vector<std::unique_ptr<ReosMapPolyline>> mBurningLines;
 
-    ReosMapPolygon mTemporaryWatershed = nullptr;
-    ReosMapPolyline mTemporaryStreamLine = nullptr;
+    ReosMapToolDrawPolygon *mMapToolDrawWatershed = nullptr;
+    ReosMapToolDrawPoint *mMapToolDrawOutletPoint = nullptr;
+    QAction *mActionDrawWatershed = nullptr;
 
-    void updateTool();
+    ReosMapPolygon mTemporaryAutomaticWatershed;
+    ReosMapPolyline mTemporaryAutomaticStreamLine;
 
+    void showAutomaticDelineating( bool shown );
+    void showManualDelineating( bool shown );
+
+    void updateAutomaticTool();
     void updateBurningLines();
+
+    ReosMapPolygon mTemporaryManualWatershed;
+    ReosMapMarker mTemporaryManualOutletPoint;
+
+    void updateManualMapTool();
 };
 
 #endif // REOSDELINEATINGWATERSHEDWIDGET_H

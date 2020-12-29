@@ -89,8 +89,10 @@ class ReosWatershedItemModel: public QAbstractItemModel
     int columnCount( const QModelIndex &parent ) const;
     QVariant data( const QModelIndex &index, int role ) const;
 
-
     QList<ReosWatershed *> allWatersheds() const;
+
+    QModelIndex watershedToIndex( ReosWatershed *watershed ) const;
+    static ReosWatershed *indexToWatershed( const QModelIndex &index );
 
   signals:
     void watershedAdded( const QModelIndex &index );
@@ -102,9 +104,6 @@ class ReosWatershedItemModel: public QAbstractItemModel
 
   private:
     ReosWatershedTree *mWatershedTree = nullptr;
-
-    QModelIndex watershedToIndex( ReosWatershed *watershed ) const;
-    static ReosWatershed *indexToWatershed( const QModelIndex &index );
 };
 
 

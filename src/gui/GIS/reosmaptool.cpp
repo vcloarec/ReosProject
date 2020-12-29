@@ -20,12 +20,22 @@ email                : vcloarec at gmail dot com
 
 #include "reosmaptool_p.h"
 
-ReosMapToolDrawPolyline::ReosMapToolDrawPolyline( ReosMap *map )
+ReosMapToolDrawPolyline::ReosMapToolDrawPolyline( ReosMap *map ): ReosMapToolDrawPolyRubberBand( map, false )
 {
-  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
-  d = new ReosMapToolDrawPolyline_p( canvas );
   d->setCursor( QCursor( QPixmap( ":/cursors/linearDrawing.png" ), 3, 3 ) );
-  connect( d, &ReosMapToolDrawPolyline_p::polylineDrawn, this, &ReosMapToolDrawPolyline::polylineDrawn );
+  connect( d, &ReosMapToolDrawPolyline_p::polylineDrawn, this, &ReosMapToolDrawPolyline::drawn );
+}
+
+
+ReosMapToolDrawPolygon::ReosMapToolDrawPolygon( ReosMap *map ): ReosMapToolDrawPolyRubberBand( map, true )
+{
+  d->setCursor( QCursor( QPixmap( ":/cursors/linearDrawing.png" ), 3, 3 ) );
+  connect( d, &ReosMapToolDrawPolyline_p::polylineDrawn, this, &ReosMapToolDrawPolygon::drawn );
+}
+
+void ReosMapToolDrawPolygon::setFillColor( const QColor &color )
+{
+  d->mRubberBand->setFillColor( color );
 }
 
 void ReosMapTool::setCurrentToolInMap() const
@@ -39,28 +49,33 @@ void ReosMapTool::setAction( QAction *action )
   connect( action, &QAction::triggered, [this]() {setCurrentToolInMap();} );
 }
 
-void ReosMapToolDrawPolyline::setStrokeWidth( double width )
+ReosMapToolDrawPolyRubberBand::ReosMapToolDrawPolyRubberBand( ReosMap *map, bool closed )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  d = new ReosMapToolDrawPolyline_p( canvas, closed );
+}
+
+void ReosMapToolDrawPolyRubberBand::setStrokeWidth( double width )
 {
   d->mRubberBand->setWidth( width );
 }
 
-void ReosMapToolDrawPolyline::setColor( const QColor &color )
+void ReosMapToolDrawPolyRubberBand::setColor( const QColor &color )
 {
   d->mRubberBand->setColor( color );
 }
 
-void ReosMapToolDrawPolyline::setSecondaryStrokeColor( const QColor &color )
+void ReosMapToolDrawPolyRubberBand::setSecondaryStrokeColor( const QColor &color )
 {
   d->mRubberBand->setSecondaryStrokeColor( color );
 }
 
-void ReosMapToolDrawPolyline::setLineStyle( Qt::PenStyle style )
+void ReosMapToolDrawPolyRubberBand::setLineStyle( Qt::PenStyle style )
 {
   d->mRubberBand->setLineStyle( style );
 }
 
-
-ReosMapTool_p *ReosMapToolDrawPolyline::tool_p() const
+ReosMapTool_p *ReosMapToolDrawPolyRubberBand::tool_p() const
 {
   return d;
 }
@@ -131,6 +146,18 @@ ReosMapToolSelectMapItem::ReosMapToolSelectMapItem( ReosMap *map, const QString 
 }
 
 ReosMapTool_p *ReosMapToolSelectMapItem::tool_p() const
+{
+  return d;
+}
+
+ReosMapToolDrawPoint::ReosMapToolDrawPoint( ReosMap *map )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  d = new ReosMapToolDrawPoint_p( canvas );
+  connect( d, &ReosMapToolDrawPoint_p::pointDrawn, this, &ReosMapToolDrawPoint::drawn );
+}
+
+ReosMapTool_p *ReosMapToolDrawPoint::tool_p() const
 {
   return d;
 }

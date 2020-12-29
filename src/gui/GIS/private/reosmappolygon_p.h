@@ -31,9 +31,27 @@ class ReosMapItem_p: public QgsMapCanvasItem
     double width = 0.0;
     double externalWidth = 0.0;
     Qt::PenStyle style = Qt::SolidLine;
+    Qt::BrushStyle brushStyle = Qt::NoBrush;
+    QColor fillColor;
 
     ReosMapItem *base;
+};
 
+class ReosMapMarker_p: public ReosMapItem_p
+{
+  public:
+    ReosMapMarker_p( QgsMapCanvas *canvas );
+    ReosMapMarker_p *clone() override;
+    QRectF boundingRect() const override;
+    void updatePosition() override;
+    QPainterPath shape() const override;
+
+    QPointF mapPoint;
+    bool isEmpty = true;
+
+  protected:
+    void paint( QPainter *painter ) override;
+    QPointF mViewPoint;
 };
 
 class ReosMapPolygon_p: public ReosMapItem_p

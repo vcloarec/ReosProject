@@ -19,7 +19,7 @@ email                : vcloarec at gmail dot com
 #include <memory>
 #include "reosmap.h"
 
-
+class ReosMapToolDrawPoint_p;
 class ReosMapToolDrawPolyline_p;
 class ReosMapToolDrawExtent_p;
 class ReosMapToolSelectMapItem_p;
@@ -38,23 +38,58 @@ class ReosMapTool : public QObject
     virtual ReosMapTool_p *tool_p() const = 0;
 };
 
-class ReosMapToolDrawPolyline : public ReosMapTool
+class ReosMapToolDrawPoint: public ReosMapTool
 {
     Q_OBJECT
   public:
-    ReosMapToolDrawPolyline( ReosMap *map );
+    ReosMapToolDrawPoint( ReosMap *map );
+
+  signals:
+    void drawn( const QPointF &point );
+
+  private:
+    ReosMapToolDrawPoint_p *d;
+    ReosMapTool_p *tool_p() const override;
+};
+
+
+class ReosMapToolDrawPolyRubberBand : public ReosMapTool
+{
+    Q_OBJECT
+  public:
+    ReosMapToolDrawPolyRubberBand( ReosMap *map, bool closed );
 
     void setStrokeWidth( double width );
     void setColor( const QColor &color );
     void setSecondaryStrokeColor( const QColor &color );
     void setLineStyle( Qt::PenStyle style );
 
-  signals:
-    void polylineDrawn( const QPolygonF &polyline ) const;
-
-  private:
+  protected:
     ReosMapToolDrawPolyline_p *d;
+  private:
     ReosMapTool_p *tool_p() const override;
+};
+
+class ReosMapToolDrawPolyline : public ReosMapToolDrawPolyRubberBand
+{
+    Q_OBJECT
+  public:
+    ReosMapToolDrawPolyline( ReosMap *map );
+
+  signals:
+    void drawn( const QPolygonF &polyline ) const;
+};
+
+class ReosMapToolDrawPolygon : public ReosMapToolDrawPolyRubberBand
+{
+    Q_OBJECT
+  public:
+    ReosMapToolDrawPolygon( ReosMap *map );
+
+    void setFillColor( const QColor &color );
+
+  signals:
+    void drawn( const QPolygonF &polygon ) const;
 };
 
 class ReosMapToolDrawExtent: public ReosMapTool

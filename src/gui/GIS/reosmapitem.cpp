@@ -36,12 +36,18 @@ void ReosMapItem::setDescription( const QString &description )
   mDescription = description;
 }
 
+void ReosMapItem::setVisible( bool visible )
+{
+  if ( isMapExist() )
+    d_->setVisible( visible );
+}
+
 ReosMapPolygon::ReosMapPolygon( ReosMap *map ): ReosMapItem( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
   {
-    d_ = new ReosMapPolygon_p( canvas ); //the owner ship of d pointer is takeny the scene of the map canvas
+    d_ = new ReosMapPolygon_p( canvas ); //the owner ship of d pointer is taken by the scene of the map canvas
     d_->base = this;
   }
 }
@@ -101,11 +107,30 @@ void ReosMapPolygon::movePoint( int pointIndex, const QPointF &p )
   d_->updatePosition();
 }
 
+
+void ReosMapPolygon::setFillColor( const QColor &color )
+{
+  if ( !isMapExist() || !d_ )
+    return;
+  if ( color.isValid() )
+  {
+    d_->brushStyle = Qt::SolidPattern;
+    d_->fillColor = color;
+  }
+  else
+  {
+    d_->brushStyle = Qt::NoBrush;
+  }
+
+  d_->update();
+}
+
 void ReosMapItem::setColor( const QColor &color )
 {
   if ( !isMapExist() || !d_ )
     return;
   d_->color = color;
+  d_->update();
 }
 
 void ReosMapItem::setExternalColor( const QColor &color )
@@ -113,6 +138,7 @@ void ReosMapItem::setExternalColor( const QColor &color )
   if ( !isMapExist() || !d_ )
     return;
   d_->externalColor = color;
+  d_->update();
 }
 
 void ReosMapItem::setWidth( double width )
@@ -120,6 +146,7 @@ void ReosMapItem::setWidth( double width )
   if ( !isMapExist() || !d_ )
     return;
   d_->width = width;
+  d_->update();
 }
 
 void ReosMapItem::setExternalWidth( double externalWidth )
@@ -127,6 +154,7 @@ void ReosMapItem::setExternalWidth( double externalWidth )
   if ( !isMapExist() || !d_ )
     return;
   d_->externalWidth = externalWidth;
+  d_->update();
 }
 
 void ReosMapItem::setStyle( Qt::PenStyle style )
@@ -134,6 +162,7 @@ void ReosMapItem::setStyle( Qt::PenStyle style )
   if ( !isMapExist() || !d_ )
     return;
   d_->style = style;
+  d_->update();
 }
 
 QString ReosMapItem::description() const {return mDescription;}
@@ -199,4 +228,83 @@ void ReosMapPolyline::movePoint( int pointIndex, const QPointF &p )
 
   static_cast<ReosMapPolyline_p *>( d_ )->mapPolygon.replace( pointIndex, p );
   d_->updatePosition();
+}
+
+ReosMapMarker::ReosMapMarker( ReosMap *map ): ReosMapItem( map )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  if ( canvas )
+  {
+    d_ = new ReosMapMarker_p( canvas ); //the owner ship of d pointer is taken by the scene of the map canvas
+    d_->base = this;
+  }
+}
+
+ReosMapMarker::ReosMapMarker( ReosMap *map, const QPointF &point ): ReosMapItem( map )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  if ( canvas )
+  {
+    d_ = new ReosMapMarker_p( canvas ); //the owner ship of d pointer is takeny the scene of the map canvas
+    static_cast<ReosMapMarker_p *>( d_ )->mapPoint = point;
+    static_cast<ReosMapMarker_p *>( d_ )->isEmpty = false;
+    d_->updatePosition();
+    d_->base = this;
+  }
+}
+
+ReosMapMarker::~ReosMapMarker()
+{
+  if ( isMapExist() && d_ )
+    delete d_; //deleting this will remove it from the map
+}
+
+ReosMapMarker::ReosMapMarker( const ReosMapMarker &other ): ReosMapItem( other.mMap )
+{
+  if ( other.isMapExist() && other.d_ )
+  {
+    d_ = other.d_->clone();
+    d_->base = this;
+  }
+}
+
+void ReosMapMarker::resetPoint( const QPointF &point )
+{
+  if ( isMapExist() && d_ )
+  {
+    static_cast<ReosMapMarker_p *>( d_ )->mapPoint = point;
+    static_cast<ReosMapMarker_p *>( d_ )->isEmpty = false;
+    d_->updatePosition();
+  }
+}
+
+void ReosMapMarker::resetPoint()
+{
+  if ( isMapExist() && d_ )
+  {
+    static_cast<ReosMapMarker_p *>( d_ )->isEmpty = true;
+    d_->updatePosition();
+  }
+}
+
+QPointF ReosMapMarker::mapPoint() const
+{
+  if ( isMapExist() && d_ )
+    if ( !static_cast<ReosMapMarker_p *>( d_ )->isEmpty )
+      return static_cast<ReosMapMarker_p *>( d_ )->mapPoint;
+
+  return QPointF();
+}
+
+void ReosMapMarker::move( const QPointF &p )
+{
+  resetPoint( p );
+}
+
+bool ReosMapMarker::isEmpty() const
+{
+  if ( isMapExist() && d_ )
+    return static_cast<ReosMapMarker_p *>( d_ )->isEmpty;
+
+  return true;
 }

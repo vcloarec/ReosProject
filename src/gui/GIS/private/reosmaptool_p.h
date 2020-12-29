@@ -35,11 +35,24 @@ class ReosMapTool_p: public QgsMapTool
     void deactivate();
 };
 
+class ReosMapToolDrawPoint_p: public ReosMapTool_p
+{
+    Q_OBJECT
+  public:
+    ReosMapToolDrawPoint_p( QgsMapCanvas *map );
+    ~ReosMapToolDrawPoint_p();
+
+    void canvasReleaseEvent( QgsMapMouseEvent *e ) override;
+
+  signals:
+    void pointDrawn( const QPointF &point ) const;
+};
+
 class ReosMapToolDrawPolyline_p: public ReosMapTool_p
 {
     Q_OBJECT
   public:
-    ReosMapToolDrawPolyline_p( QgsMapCanvas *map );
+    ReosMapToolDrawPolyline_p( QgsMapCanvas *map, bool closed = false );
     ~ReosMapToolDrawPolyline_p();
 
     void deactivate() override;
@@ -50,6 +63,9 @@ class ReosMapToolDrawPolyline_p: public ReosMapTool_p
 
   signals:
     void polylineDrawn( const QPolygonF &polyline ) const;
+
+  private:
+    bool mClosed = false;
 
 };
 

@@ -2,6 +2,7 @@
 #define REOSWATERSHEDWIDGET_H
 
 #include <QWidget>
+class QItemSelection;
 
 #include "reosmap.h"
 
@@ -13,6 +14,7 @@ namespace Ui
 class ReosWatershedItemModel;
 class ReosDelineatingWatershedWidget;
 class ReosWatershedModule;
+class ReosWatershed;
 
 class ReosWatershedWidget : public QWidget
 {
@@ -26,9 +28,8 @@ class ReosWatershedWidget : public QWidget
 
   private slots:
     void onWatershedAdded( const QModelIndex &index );
-    void updateMapWatershed();
-
     void onButtonDelineateClicked();
+    void onCurrentWatershedChange( const QItemSelection &selected, const QItemSelection &deselected );
 
   private:
     Ui::ReosWatershedWidget *ui;
@@ -37,8 +38,11 @@ class ReosWatershedWidget : public QWidget
 
     ReosDelineatingWatershedWidget *mDelineatingWidget = nullptr;
 
-    QList<ReosMapPolygon> mMapWatersheds;
+    QMap<ReosWatershed *, ReosMapPolygon> mMapWatersheds;
+
+    //! Method use for styling watershed polygon
     ReosMapPolygon formatWatershedPolygon( ReosMapPolygon &watershedPolygon );
+    void clearSelection();
 };
 
 #endif // REOSWATERSHEDWIDGET_H

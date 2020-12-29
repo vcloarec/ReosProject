@@ -32,9 +32,11 @@ void ReosMapTool_p::deactivate()
 }
 
 
-ReosMapToolDrawPolyline_p::ReosMapToolDrawPolyline_p( QgsMapCanvas *map ): ReosMapTool_p( map )
+ReosMapToolDrawPolyline_p::ReosMapToolDrawPolyline_p( QgsMapCanvas *map, bool closed ):
+  ReosMapTool_p( map ),
+  mClosed( closed )
 {
-  mRubberBand = new QgsRubberBand( map );
+  mRubberBand = new QgsRubberBand( map, closed ? QgsWkbTypes::PolygonGeometry : QgsWkbTypes::LineGeometry );
 }
 
 ReosMapToolDrawPolyline_p::~ReosMapToolDrawPolyline_p()
@@ -46,7 +48,7 @@ ReosMapToolDrawPolyline_p::~ReosMapToolDrawPolyline_p()
 void ReosMapToolDrawPolyline_p::deactivate()
 {
   if ( mRubberBand )
-    mRubberBand->reset();
+    mRubberBand->reset( mClosed ? QgsWkbTypes::PolygonGeometry : QgsWkbTypes::LineGeometry );
   ReosMapTool_p::deactivate();
 }
 
@@ -63,9 +65,10 @@ void ReosMapToolDrawPolyline_p::canvasReleaseEvent( QgsMapMouseEvent *e )
   if ( e->button() == Qt::RightButton )
   {
     QPolygonF polyline = mRubberBand->asGeometry().asQPolygonF();
-    polyline.removeLast();
+    if ( !polyline.isEmpty() )
+      polyline.removeLast();
     emit polylineDrawn( polyline );
-    mRubberBand->reset();
+    mRubberBand->reset( mClosed ? QgsWkbTypes::PolygonGeometry : QgsWkbTypes::LineGeometry );
   }
 }
 
@@ -150,4 +153,16 @@ void ReosMapToolSelectMapItem_p::canvasReleaseEvent( QgsMapMouseEvent *e )
 
   if ( mapItem )
     emit found( mapItem->base );
+}
+
+ReosMapToolDrawPoint_p::ReosMapToolDrawPoint_p( QgsMapCanvas *map ): ReosMapTool_p( map )
+{
+}
+
+ReosMapToolDrawPoint_p::~ReosMapToolDrawPoint_p() {}
+
+void ReosMapToolDrawPoint_p::canvasReleaseEvent( QgsMapMouseEvent *e )
+{
+  if ( e->button() == Qt::LeftButton )
+    emit pointDrawn( e->mapPoint().toQPointF() );
 }

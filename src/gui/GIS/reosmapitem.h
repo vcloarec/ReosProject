@@ -47,13 +47,40 @@ class ReosMapItem
     QString description() const;
     void setDescription( const QString &description );
 
+    void setVisible( bool visible );
+
   protected:
     bool isMapExist() const;
     QPointer<ReosMap> mMap;
     QString mDescription;
 
-    //! Private item that represent the graphic representation on the map, access to id need to check isMapExist()
+    //! Private item that represent the graphic representation on the map, access to itt need to check isMapExist()
     ReosMapItem_p *d_;
+};
+
+class ReosMapMarker : public ReosMapItem
+{
+  public:
+    //! Contructor
+    ReosMapMarker( ReosMap *map );
+    ReosMapMarker( ReosMap *map, const QPointF &point );
+    ~ReosMapMarker();
+
+    ReosMapMarker( const ReosMapMarker &other );
+
+    //! Resets the marker with \a point
+    void resetPoint( const QPointF &point );
+
+    //! Sets the marker empty
+    void resetPoint();
+
+    //! Returns the map position
+    QPointF mapPoint() const;
+
+    //! Move the marker update the map
+    void move( const QPointF &p );
+
+    bool isEmpty() const;
 };
 
 class ReosMapPolygon : public ReosMapItem
@@ -65,6 +92,8 @@ class ReosMapPolygon : public ReosMapItem
     ~ReosMapPolygon();
 
     ReosMapPolygon( const ReosMapPolygon &other );
+
+    void setFillColor( const QColor &color );
 
     //! Resets the polygon with \a polygon
     void resetPolygon( const QPolygonF &polygon = QPolygonF() );

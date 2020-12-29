@@ -131,6 +131,8 @@ ReosWatershed *ReosWatershed::addUpstreamWatershed( ReosWatershed *newUpstreamWa
   }
 
   ws->mDownstreamWatershed = this;
+  if ( adjustIfNeeded )
+    ws->fitIn( *this );
   mUpstreamWatersheds.emplace_back( ws.release() );
 
   return mUpstreamWatersheds.back().get();
