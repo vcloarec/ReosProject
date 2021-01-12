@@ -28,6 +28,7 @@ email                : vcloarec at gmail dot com
 class QgsMapCanvas;
 class ReosMapCursorPosition;
 class ReosGisEngine;
+class ReosMapTool;
 
 class ReosMap: public ReosModule
 {
@@ -61,6 +62,9 @@ class ReosMap: public ReosModule
 
     QString mapCrs() const;
 
+    //! Sets the map tool to the default one
+    void setDefaultMapTool();
+
   public slots:
     //    void unsetMapTool( ReosMapTool *tool );
 //    void unsetMapTool();
@@ -87,6 +91,8 @@ class ReosMap: public ReosModule
   private:
     ReosGisEngine *mEngine;
     QPointer<QGraphicsView> mCanvas = nullptr;
+
+    ReosMapTool *mDefaultMapTool = nullptr;
 
 //    HdCursorPosition *cursorPosition;
 //    HdMapToolNeutral *mapToolNeutral;

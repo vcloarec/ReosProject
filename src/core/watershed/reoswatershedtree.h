@@ -66,10 +66,19 @@ class ReosWatershedTree: public QObject
     //! Removes direction data present in any watershed in the tree
     void removeDirectionData();
 
+    /**
+     * Removes (if present) the watershed from the watershed \a ws, but do not delete it, returns a pointer to it
+     * Do not maintained sub watershed but move them to downstream.
+     */
+    ReosWatershed *extractWatershed( ReosWatershed *ws );
+
   signals:
     void watershedWillBeAdded();
     //! emitted when watershed is added with the pointer to the directly downsteam watershed (nullptr if added watershed is a the extreme downstream)
     void watershedAdded( ReosWatershed * );
+
+    void watershedWillBeRemoved();
+    void watershedRemoved();
 
   private:
 
@@ -99,8 +108,9 @@ class ReosWatershedItemModel: public QAbstractItemModel
 
   private slots:
     void onWatershedWillBeAdded();
-    //! emitted when watershed is added with the index of the directly downsteam watershed (invalid if added watershed is a the extreme downstream)
     void onWatershedAdded( ReosWatershed *watershed );
+    void onWatershedWillBeRemoved();
+    void onWatershedRemoved();
 
   private:
     ReosWatershedTree *mWatershedTree = nullptr;

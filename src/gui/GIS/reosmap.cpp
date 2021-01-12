@@ -20,14 +20,14 @@ email                : vcloarec at gmail dot com
 
 #include "reosmap.h"
 #include "reosgisengine.h"
+#include "reosmaptool.h"
 
 
 ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   ReosModule( gisEngine ),
   mEngine( gisEngine ),
-  mCanvas( new QgsMapCanvas( parentWidget ) )
-  /*,
-  mapToolNeutral( new HdMapToolNeutral( this ) )*/
+  mCanvas( new QgsMapCanvas( parentWidget ) ),
+  mDefaultMapTool( new ReosMapToolNeutral( this ) )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
   canvas->setExtent( QgsRectangle( 0, 0, 200, 200 ) );
@@ -59,6 +59,8 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   {
     emit cursorMoved( p.toQPointF() );
   } );
+
+  mDefaultMapTool->setCurrentToolInMap();
 }
 
 ReosMap::~ReosMap()
@@ -90,6 +92,12 @@ QString ReosMap::mapCrs() const
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
   return canvas->mapSettings().destinationCrs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED );
+}
+
+void ReosMap::setDefaultMapTool()
+{
+  if ( mDefaultMapTool )
+    mDefaultMapTool->setCurrentToolInMap();
 }
 
 

@@ -19,5 +19,7 @@
         <file>mActionDelineateWatershed.png</file>
         <file>mActionRemoveBurningLine.png</file>
         <file>burningLine.png</file>
+        <file>delineateWatershed.svg</file>
     </qresource>
+    <qresource prefix="/"/>
 </RCC>

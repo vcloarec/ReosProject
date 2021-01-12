@@ -151,6 +151,7 @@ bool ReosWatershedDelineating::validateWatershed( bool &needAdjusting )
       mCurrentWatershed.reset( new ReosWatershed(
                                  mProcess->watershedPolygon(),
                                  mProcess->streamLine().last(),
+                                 ReosWatershed::Automatic,
                                  mDownstreamLine ) );
     else
     {
@@ -173,6 +174,7 @@ bool ReosWatershedDelineating::validateWatershed( bool &needAdjusting )
 
       mCurrentWatershed.reset( new ReosWatershed( mProcess->watershedPolygon(),
                                mProcess->streamLine().last(),
+                               ReosWatershed::Automatic,
                                mDownstreamLine,
                                reducedDirection,
                                reducedRasterExtent ) ) ;

@@ -1,5 +1,5 @@
 /***************************************************************************
-                      reosdelineatingwatershedfromdemwidget.h
+                      reosdelineatingwatershedwidget.h
                      --------------------------------------
 Date                 : October-2020
 Copyright            : (C) 2020 by Vincent Cloarec
@@ -42,6 +42,9 @@ class ReosDelineatingWatershedWidget : public QWidget
       QWidget *parent = nullptr );
     ~ReosDelineatingWatershedWidget();
 
+    //! Sets the action that will commmand open/close the widget
+    void setAction( QAction *action );
+
   signals:
     void closed();
 
@@ -67,6 +70,7 @@ class ReosDelineatingWatershedWidget : public QWidget
 
   private:
     Ui::ReosDelineatingWatershedWidget *ui;
+    QAction *mAction = nullptr;
     ReosWatershedModule *mModule = nullptr;
     ReosMap *mMap = nullptr;
     ReosMapTool *mCurrentAutomaticMapTool = nullptr;

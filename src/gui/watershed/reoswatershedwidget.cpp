@@ -10,23 +10,30 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   QWidget( parent ),
   ui( new Ui::ReosWatershedWidget ),
   mMap( map ),
-  mDelineatingWidget( new ReosDelineatingWatershedWidget( module, map, this ) )
+  mActionDelineateWatershed( new QAction( QPixmap( ":/images/delineateWatershed.svg" ), tr( "Delineate watershed" ), this ) ),
+  mDelineatingWidget( new ReosDelineatingWatershedWidget( module, map, this ) ),
+  mCurrentMapOutlet( map )
 {
-  ReosSettings settings;
   ui->setupUi( this );
   setModel( new ReosWatershedItemModel( module->watershedTree(), this ) );
 
+  mActionDelineateWatershed->setCheckable( true );
+  QToolBar *toolBar = new QToolBar( this );
+  toolBar->addAction( mActionDelineateWatershed );
+  static_cast<QBoxLayout *>( layout() )->insertWidget( 0, toolBar );
+  mDelineatingWidget->setAction( mActionDelineateWatershed );
+
   ui->mToolButtonDelineate->setCheckable( true );
 
-  connect( ui->mToolButtonDelineate, &QToolButton::toggled, this, &ReosWatershedWidget::onButtonDelineateClicked );
+  //connect( ui->mToolButtonDelineate, &QToolButton::toggled, this, &ReosWatershedWidget::onButtonDelineateClicked );
   connect( ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ReosWatershedWidget::onCurrentWatershedChange );
 
-  ui->mToolButtonDelineate->setChecked( settings.value( QStringLiteral( "/Windows/WatershedDelineateWidget/Open" ) ).toBool() );
-  connect( mDelineatingWidget, &ReosDelineatingWatershedWidget::closed, this, [ = ]
-  {
-    ui->mToolButtonDelineate->setChecked( false );
-  } );
-  onButtonDelineateClicked();
+  mCurrentMapOutlet.setWidth( 4 );
+  mCurrentMapOutlet.setExternalWidth( 6 );
+  mCurrentMapOutlet.setColor( QColor( 0, 100, 250 ) );
+  mCurrentMapOutlet.setExternalColor( Qt::white );
+  mCurrentMapOutlet.setZValue( 10 );
+
 }
 
 ReosWatershedWidget::~ReosWatershedWidget()
@@ -82,8 +89,16 @@ void ReosWatershedWidget::onCurrentWatershedChange( const QItemSelection &select
   }
 
   it = mMapWatersheds.find( currentWatershed );
+  if ( it != mMapWatersheds.end() )
   {
     it.value().setFillColor( QColor( 0, 255, 0, 30 ) );
+    mCurrentMapOutlet.resetPoint( currentWatershed->outletPoint() );
+  }
+  else
+  {
+    ReosMapPolygon wsPolygon( mMap, currentWatershed->delineating() );
+    mMapWatersheds.insert( currentWatershed, formatWatershedPolygon( wsPolygon ) );
+    onCurrentWatershedChange( selected, deselected );
   }
 }
 

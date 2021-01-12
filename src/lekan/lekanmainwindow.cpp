@@ -119,6 +119,8 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   ReosWatershedWidget *watersehdWidget = new  ReosWatershedWidget( mMap, mWatershedModule, this );
   mDockWatershed->setWidget( watersehdWidget );
   addDockWidget( Qt::RightDockWidgetArea, mDockWatershed );
+
+  mMap->setDefaultMapTool();
 }
 
 bool LekanMainWindow::openProject()

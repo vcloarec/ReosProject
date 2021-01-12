@@ -49,7 +49,7 @@ void ReosMapTool::setAction( QAction *action )
   connect( action, &QAction::triggered, [this]() {setCurrentToolInMap();} );
 }
 
-ReosMapToolDrawPolyRubberBand::ReosMapToolDrawPolyRubberBand( ReosMap *map, bool closed )
+ReosMapToolDrawPolyRubberBand::ReosMapToolDrawPolyRubberBand( ReosMap *map, bool closed ): ReosMapTool( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolDrawPolyline_p( canvas, closed );
@@ -81,6 +81,12 @@ ReosMapTool_p *ReosMapToolDrawPolyRubberBand::tool_p() const
 }
 
 
+ReosMapTool::ReosMapTool( ReosMap *map ):
+  mMap( map )
+{
+
+}
+
 void ReosMapTool::activate()
 {
   tool_p()->activate();
@@ -91,7 +97,7 @@ void ReosMapTool::deactivate()
   tool_p()->deactivate();
 }
 
-ReosMapToolDrawExtent::ReosMapToolDrawExtent( ReosMap *map )
+ReosMapToolDrawExtent::ReosMapToolDrawExtent( ReosMap *map ): ReosMapTool( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolDrawExtent_p( canvas );
@@ -129,7 +135,7 @@ void ReosMapToolDrawExtent::setLineStyle( Qt::PenStyle style )
   d->mRubberBand->setLineStyle( style );
 }
 
-ReosMapToolSelectMapItem::ReosMapToolSelectMapItem( ReosMap *map, int targetType )
+ReosMapToolSelectMapItem::ReosMapToolSelectMapItem( ReosMap *map, int targetType ): ReosMapTool( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolSelectMapItem_p( canvas, targetType );
@@ -137,7 +143,7 @@ ReosMapToolSelectMapItem::ReosMapToolSelectMapItem( ReosMap *map, int targetType
   connect( d, &ReosMapToolSelectMapItem_p::found, this, &ReosMapToolSelectMapItem::found );
 }
 
-ReosMapToolSelectMapItem::ReosMapToolSelectMapItem( ReosMap *map, const QString &targetDescription )
+ReosMapToolSelectMapItem::ReosMapToolSelectMapItem( ReosMap *map, const QString &targetDescription ): ReosMapTool( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolSelectMapItem_p( canvas, targetDescription );
@@ -150,7 +156,7 @@ ReosMapTool_p *ReosMapToolSelectMapItem::tool_p() const
   return d;
 }
 
-ReosMapToolDrawPoint::ReosMapToolDrawPoint( ReosMap *map )
+ReosMapToolDrawPoint::ReosMapToolDrawPoint( ReosMap *map ): ReosMapTool( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolDrawPoint_p( canvas );
@@ -158,6 +164,17 @@ ReosMapToolDrawPoint::ReosMapToolDrawPoint( ReosMap *map )
 }
 
 ReosMapTool_p *ReosMapToolDrawPoint::tool_p() const
+{
+  return d;
+}
+
+ReosMapToolNeutral::ReosMapToolNeutral( ReosMap *map ): ReosMapTool( map )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  d = new ReosMapTool_p( canvas );
+}
+
+ReosMapTool_p *ReosMapToolNeutral::tool_p() const
 {
   return d;
 }

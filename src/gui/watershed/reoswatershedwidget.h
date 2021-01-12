@@ -35,10 +35,11 @@ class ReosWatershedWidget : public QWidget
     Ui::ReosWatershedWidget *ui;
     ReosWatershedItemModel *mModelWatershed = nullptr;
     ReosMap *mMap = nullptr;
-
+    QAction *mActionDelineateWatershed = nullptr;
     ReosDelineatingWatershedWidget *mDelineatingWidget = nullptr;
 
     QMap<ReosWatershed *, ReosMapPolygon> mMapWatersheds;
+    ReosMapMarker mCurrentMapOutlet;
 
     //! Method use for styling watershed polygon
     ReosMapPolygon formatWatershedPolygon( ReosMapPolygon &watershedPolygon );

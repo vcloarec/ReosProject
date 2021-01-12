@@ -1,6 +1,12 @@
 #include "reoswatershed.h"
 
-ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint, const QPolygonF &downstreamLine, const ReosRasterWatershed::Directions &direction, const ReosRasterExtent directionExent ):
+ReosWatershed::ReosWatershed( const QPolygonF &delineating,
+                              const QPointF &outletPoint,
+                              Type type,
+                              const QPolygonF &downstreamLine,
+                              const ReosRasterWatershed::Directions &direction,
+                              const ReosRasterExtent &directionExent ):
+  mType( type ),
   mExtent( delineating ),
   mDelineating( delineating ),
   mOutletPoint( outletPoint ),
@@ -11,6 +17,9 @@ ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outle
 
 QString ReosWatershed::name() const
 {
+  if ( mType == Residual && mDownstreamWatershed )
+    return mDownstreamWatershed->name() + QObject::tr( " residual" );
+
   return mName;
 }
 
@@ -66,7 +75,13 @@ ReosRasterExtent ReosWatershed::directionExtent() const
 
 QPolygonF ReosWatershed::delineating() const {return mDelineating;}
 
-QPointF ReosWatershed::outletPoint() const {return mOutletPoint;}
+QPointF ReosWatershed::outletPoint() const
+{
+  if ( mType == Residual && mDownstreamWatershed )
+    return mDownstreamWatershed->outletPoint();
+
+  return mOutletPoint;
+}
 
 int ReosWatershed::upstreamWatershedCount() const
 {
@@ -84,7 +99,7 @@ int ReosWatershed::directUpstreamWatershedCount() const
 
 ReosWatershed *ReosWatershed::directUpstreamWatershed( int i ) const
 {
-  if ( i<0 or i >= int( mUpstreamWatersheds.size() ) )
+  if ( i < 0 or i >= int( mUpstreamWatersheds.size() ) )
     return nullptr;
   return mUpstreamWatersheds.at( i ).get();
 }
@@ -104,14 +119,14 @@ ReosWatershed *ReosWatershed::addUpstreamWatershed( ReosWatershed *newUpstreamWa
   // Look if the added watershed is in a sub watershed
   for ( std::unique_ptr<ReosWatershed> &existingUpstream : mUpstreamWatersheds )
   {
-    if ( existingUpstream->contain( op ) )
+    if ( existingUpstream->contain( op ) && existingUpstream->type() != Residual )
       return existingUpstream->addUpstreamWatershed( ws.release(), adjustIfNeeded ); // let the existing watershed dealing with the new one
   }
 
   if ( ws->name().isEmpty() && !name().isEmpty() )
-    ws->setName( name().append( "-%1" ).arg( mUpstreamWatersheds.size() + 1 ) );
+    ws->setName( name().append( "-%1" ).arg( mUpstreamWatersheds.size() + ( mUpstreamWatersheds.empty() ? 1 : 0 ) ) );
 
-  size_t i = 0;
+  size_t i = 1; //no consider the residual
   while ( i < mUpstreamWatersheds.size() )
   {
     std::unique_ptr<ReosWatershed> &sibling = mUpstreamWatersheds.at( i );
@@ -135,7 +150,40 @@ ReosWatershed *ReosWatershed::addUpstreamWatershed( ReosWatershed *newUpstreamWa
     ws->fitIn( *this );
   mUpstreamWatersheds.emplace_back( ws.release() );
 
+  updateResidual();
+
   return mUpstreamWatersheds.back().get();
+}
+
+ReosWatershed *ReosWatershed::extractOnlyDirectUpstreamWatershed( int i )
+{
+  std::unique_ptr<ReosWatershed> ws( extractCompleteDirectUpstreamWatershed( i ) );
+
+  for ( size_t i = 1; i < ws->mUpstreamWatersheds.size(); ++i )
+  {
+    mUpstreamWatersheds.emplace_back( ws->mUpstreamWatersheds.at( i ).release() );
+    mUpstreamWatersheds.back()->mDownstreamWatershed = this;
+  }
+  ws->mUpstreamWatersheds.clear();
+
+  updateResidual();
+  return ws.release();
+}
+
+ReosWatershed *ReosWatershed::extractCompleteDirectUpstreamWatershed( int i )
+{
+  size_t pos = static_cast<int>( i );
+  std::unique_ptr<ReosWatershed> ret;
+  if ( pos > 0 && pos < mUpstreamWatersheds.size() ) // the first one is the residual watershed
+  {
+    ret.reset( mUpstreamWatersheds.at( i ).release() );
+    mUpstreamWatersheds.erase( mUpstreamWatersheds.begin() + i );
+  }
+
+  ret->mDownstreamWatershed = nullptr;
+
+  updateResidual();
+  return ret.release();
 }
 
 ReosWatershed *ReosWatershed::upstreamWatershed( const QPolygonF &line, bool &ok ) const
@@ -243,7 +291,8 @@ void ReosWatershed::fitIn( const ReosWatershed &other )
   //remove intersection with other sub watershed
   for ( const std::unique_ptr<ReosWatershed> &sibling : mUpstreamWatersheds )
   {
-    adjust( *sibling.get() );
+    if ( sibling->type() != Residual )
+      adjust( *sibling.get() );
   }
 }
 
@@ -263,6 +312,36 @@ void ReosWatershed::extentTo( const ReosWatershed &other )
     QPolygonF newDelinetating = ReosGeometryUtils::polygonUnion( mDelineating, other.mDelineating );
     mDelineating = newDelinetating;
   }
+}
+
+void ReosWatershed::updateResidual()
+{
+  if ( mUpstreamWatersheds.empty() )
+    return;
+
+  if ( mUpstreamWatersheds.size() == 1 &&  mUpstreamWatersheds.at( 0 )->type() == ReosWatershed::Residual )
+  {
+    mUpstreamWatersheds.clear();
+    return;
+  }
+
+  if ( mUpstreamWatersheds.at( 0 )->type() != ReosWatershed::Residual )
+  {
+    mUpstreamWatersheds.emplace( mUpstreamWatersheds.begin(), new ReosWatershed( QPolygonF(), QPointF(), Residual ) );
+    mUpstreamWatersheds[0]->mDownstreamWatershed = this;
+  }
+
+  //Calculate the residual delineating
+  QPolygonF residualDelineating = mDelineating;
+  for ( size_t i = 1 ; i < mUpstreamWatersheds.size(); ++i )
+  {
+    residualDelineating = ReosGeometryUtils::polygonCutByPolygon( residualDelineating, mUpstreamWatersheds[i]->delineating() );
+  }
+
+
+  mUpstreamWatersheds[0]->mDelineating = residualDelineating;
+  mUpstreamWatersheds[0]->mName = mName + QObject::tr( " residual" );
+  mUpstreamWatersheds[0]->mDownstreamWatershed = this;
 }
 
 

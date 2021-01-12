@@ -35,6 +35,7 @@ class ReosMapItem
     ReosMapItem( ReosMap *map );
     virtual ~ReosMapItem() = default;
 
+    //! Returns whether \a item correspond to \a this item
     bool isItem( QGraphicsItem *item ) const;
 
     void setColor( const QColor &color );
@@ -42,6 +43,8 @@ class ReosMapItem
     void setWidth( double width );
     void setExternalWidth( double externalWidth );
     void setStyle( Qt::PenStyle style );
+
+    void setZValue( double Z );
 
     //! Desscription to describe what is this item, could be convenient to retrieve particular item
     QString description() const;

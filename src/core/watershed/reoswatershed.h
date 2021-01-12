@@ -14,13 +14,24 @@
 class ReosWatershed
 {
   public:
+    enum Type
+    {
+      None,
+      Automatic,
+      Manual,
+      Residual
+    };
+
     ReosWatershed() = default;
 
     ReosWatershed( const QPolygonF &delineating,
                    const QPointF &outletPoint,
+                   Type type,
                    const QPolygonF &downstreamLine = QPolygonF(),
                    const ReosRasterWatershed::Directions &direction = ReosRasterWatershed::Directions(),
-                   const ReosRasterExtent directionExent = ReosRasterExtent() );
+                   const ReosRasterExtent &directionExent = ReosRasterExtent() );
+
+    Type type() const {return mType;}
 
     //! Returns the name of the watershed
     QString name() const;
@@ -83,6 +94,18 @@ class ReosWatershed
      */
     ReosWatershed *addUpstreamWatershed( ReosWatershed *upstreamWatershed, bool adjustIfNeeded );
 
+    /**
+     * Removes (if present) the watershed from the direct upstream watershed at position \a i, but do not delete it, returns a pointer to it.
+     * Sub watershed are removed from the extracted watershed and are put in \a this watershed
+     */
+    ReosWatershed *extractOnlyDirectUpstreamWatershed( int i );
+
+    /**
+     * Removes (if present) the watershed from the direct upstream watershed at position \a i, but do not delete it, returns a pointer to it.
+     * Sub watershed are maintained in the extracted watershed
+     */
+    ReosWatershed *extractCompleteDirectUpstreamWatershed( int i );
+
     //! Returns the smallest sub watershed that is downstream the line, if the line is partially included by any watershed, ok is false and return nullptr
     //! If there is no watershed downstrean, return nullptr
     ReosWatershed *upstreamWatershed( const QPolygonF &line, bool &ok ) const;
@@ -109,6 +132,7 @@ class ReosWatershed
     void extentTo( const ReosWatershed &other );
 
   private:
+    Type mType = None;
     QString mName;
     ReosMapExtent mExtent;
     QPolygonF mDelineating;
@@ -119,6 +143,8 @@ class ReosWatershed
 
     std::vector<std::unique_ptr<ReosWatershed>> mUpstreamWatersheds;
     ReosWatershed *mDownstreamWatershed = nullptr;
+
+    void updateResidual();
 };
 
 #endif // REOSWATERSHED_H

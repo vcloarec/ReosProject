@@ -165,6 +165,11 @@ void ReosMapItem::setStyle( Qt::PenStyle style )
   d_->update();
 }
 
+void ReosMapItem::setZValue( double Z )
+{
+  d_->setZValue( Z );
+}
+
 QString ReosMapItem::description() const {return mDescription;}
 
 ReosMapPolyline::ReosMapPolyline( ReosMap *map ): ReosMapItem( map )

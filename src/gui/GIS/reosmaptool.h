@@ -28,6 +28,8 @@ class ReosMapTool_p;
 class ReosMapTool : public QObject
 {
   public:
+
+    ReosMapTool( ReosMap *map );
     void activate();
     void deactivate();
     void setCurrentToolInMap() const;
@@ -36,6 +38,17 @@ class ReosMapTool : public QObject
 
   private:
     virtual ReosMapTool_p *tool_p() const = 0;
+    ReosMap *mMap = nullptr;
+};
+
+class ReosMapToolNeutral: public ReosMapTool
+{
+  public:
+    ReosMapToolNeutral( ReosMap *map );
+
+  private:
+    ReosMapTool_p *d;
+    ReosMapTool_p *tool_p() const;
 };
 
 class ReosMapToolDrawPoint: public ReosMapTool

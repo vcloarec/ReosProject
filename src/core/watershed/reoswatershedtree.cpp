@@ -18,8 +18,7 @@ email                : vcloarec at gmail dot com
 #include "reoswatershed.h"
 
 ReosWatershedTree::ReosWatershedTree( QObject *parent ): QObject( parent )
-{
-}
+{}
 
 bool ReosWatershedTree::isWatershedIntersectExisting( ReosWatershed *purposedWatershed )
 {
@@ -205,7 +204,37 @@ void ReosWatershedTree::removeDirectionData()
     mWatersheds.at( i )->removeDirectionData();
 }
 
+ReosWatershed *ReosWatershedTree::extractWatershed( ReosWatershed *ws )
+{
+  ReosWatershed *ds = ws->downstreamWatershed();
+  if ( ds )
+  {
+    emit watershedWillBeRemoved();
+    std::unique_ptr<ReosWatershed> ret( ds->extractOnlyDirectUpstreamWatershed( ws->positionInDownstreamWatershed() ) );
+    emit watershedRemoved();
+    return ret.release();
+  }
+
+  for ( size_t i = 0; i < mWatersheds.size(); ++i )
+  {
+    if ( mWatersheds.at( i ).get() == ws )
+    {
+      emit watershedWillBeRemoved();
+      std::unique_ptr<ReosWatershed> ret( mWatersheds.at( i ).release() );
+      mWatersheds.erase( mWatersheds.begin() + i );
+      emit watershedRemoved();
+      for ( int j = 1; j < ret->directUpstreamWatershedCount(); ++j )
+      {
+        mWatersheds.emplace_back( ret->extractCompleteDirectUpstreamWatershed( j ) );
+      }
+      return ret.release();
+    }
+  }
+  return nullptr;
+}
+
 ReosWatershedItemModel::ReosWatershedItemModel( ReosWatershedTree *watershedTree, QObject *parent ):
+  QAbstractItemModel( parent ),
   mWatershedTree( watershedTree )
 {
   connect( watershedTree, &ReosWatershedTree::watershedWillBeAdded, this, &ReosWatershedItemModel::onWatershedWillBeAdded );
@@ -285,6 +314,16 @@ void ReosWatershedItemModel::onWatershedAdded( ReosWatershed *watershed )
 {
   endResetModel();
   emit watershedAdded( watershedToIndex( watershed ) );
+}
+
+void ReosWatershedItemModel::onWatershedWillBeRemoved()
+{
+  beginResetModel();
+}
+
+void ReosWatershedItemModel::onWatershedRemoved()
+{
+  endResetModel();
 }
 
 QModelIndex ReosWatershedItemModel::watershedToIndex( ReosWatershed *watershed ) const

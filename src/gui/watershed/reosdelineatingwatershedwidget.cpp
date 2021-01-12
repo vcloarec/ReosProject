@@ -1,5 +1,5 @@
 /***************************************************************************
-                      reosdelineatingwatershedfromdemwidget.cpp
+                      reosdelineatingwatershedwidget.cpp
                      --------------------------------------
 Date                 : October-2020
 Copyright            : (C) 2020 by Vincent Cloarec
@@ -37,7 +37,7 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   mActionRemoveBurningLine( new QAction( QPixmap( ":/images/mActionRemoveBurningLine.png" ), tr( "Remove a burning line" ), this ) ),
   mDownstreamLine( map ),
   mWatershedExtent( map ),
-  mActionDrawWatershed( new QAction( tr( "Draw watershed manually" ), this ) ),
+  mActionDrawWatershed( new QAction( QPixmap( ":/images/delineateWatershed.svg" ), tr( "Draw watershed manually" ), this ) ),
   mTemporaryAutomaticWatershed( map ),
   mTemporaryAutomaticStreamLine( map ),
   mTemporaryManualWatershed( map ),
@@ -129,8 +129,6 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   mTemporaryManualOutletPoint.setColor( QColor( 0, 150, 250 ) );
   mTemporaryManualOutletPoint.setExternalColor( Qt::white );
 
-  updateAutomaticTool();
-
   connect( ui->mRadioButtonAutomatic, &QRadioButton::clicked, this, &ReosDelineatingWatershedWidget::onMethodChange );
   connect( ui->mRadioButtonManual, &QRadioButton::clicked, this, &ReosDelineatingWatershedWidget::onMethodChange );
 
@@ -149,8 +147,6 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   connect( this, &QObject::destroyed, this, &ReosDelineatingWatershedWidget::storeGeometry );
 
   restore();
-
-  onMethodChange();
 }
 
 ReosDelineatingWatershedWidget::~ReosDelineatingWatershedWidget()
@@ -158,10 +154,29 @@ ReosDelineatingWatershedWidget::~ReosDelineatingWatershedWidget()
   delete ui;
 }
 
+void ReosDelineatingWatershedWidget::setAction( QAction *action )
+{
+  mAction = action;
+  connect( action, &QAction::triggered, [this]
+  {
+    if ( mAction->isChecked() )
+      show();
+    else
+      close();
+
+    onMethodChange();
+  } );
+}
+
 void ReosDelineatingWatershedWidget::closeEvent( QCloseEvent *event )
 {
   emit closed();
   storeGeometry();
+  if ( mAction )
+    mAction->setChecked( false );
+  setVisible( false );
+  onMethodChange();
+  mMap->setDefaultMapTool();
   event->accept();
 }
 
@@ -285,7 +300,9 @@ void ReosDelineatingWatershedWidget::onManualValidateAsked()
 {
   if ( mTemporaryManualOutletPoint.isEmpty() || mTemporaryManualWatershed.mapPolygon().isEmpty() )
     return;
-  std::unique_ptr<ReosWatershed> ws( new ReosWatershed( mTemporaryManualWatershed.mapPolygon(), mTemporaryManualOutletPoint.mapPoint() ) );
+  std::unique_ptr<ReosWatershed> ws( new ReosWatershed( mTemporaryManualWatershed.mapPolygon(),
+                                     mTemporaryManualOutletPoint.mapPoint(),
+                                     ReosWatershed::Manual ) );
   bool needAdjusting = mModule->watershedTree()->isWatershedIntersectExisting( ws.get() );
   bool adjustIfNeeded = false;
   mTemporaryManualOutletPoint.resetPoint();
@@ -325,6 +342,7 @@ void ReosDelineatingWatershedWidget::restore()
 
 void ReosDelineatingWatershedWidget::showAutomaticDelineating( bool shown )
 {
+  shown = shown && isVisible();
   if ( mCurrentAutomaticMapTool && shown )
     mCurrentAutomaticMapTool->setCurrentToolInMap();
 
@@ -340,18 +358,25 @@ void ReosDelineatingWatershedWidget::showAutomaticDelineating( bool shown )
   mTemporaryAutomaticWatershed.setVisible( shown );
   mTemporaryAutomaticStreamLine.setVisible( shown );
 
-  updateAutomaticTool();
+  if ( shown )
+    updateAutomaticTool();
 }
 
 void ReosDelineatingWatershedWidget::showManualDelineating( bool shown )
 {
+  shown = shown && isVisible();
+
   if ( mCurrentManualMapTool && shown )
     mCurrentManualMapTool->setCurrentToolInMap();
 
   mManualToolBar->setVisible( shown );
   ui->mPushButtonValidateManual->setVisible( shown );
 
-  updateManualMapTool();
+  mTemporaryManualOutletPoint.setVisible( shown );
+  mTemporaryManualWatershed.setVisible( shown );
+
+  if ( shown )
+    updateManualMapTool();
 }
 
 void ReosDelineatingWatershedWidget::updateAutomaticTool()
@@ -412,7 +437,7 @@ void ReosDelineatingWatershedWidget::updateAutomaticTool()
       break;
   }
 
-  if ( mCurrentAutomaticMapTool )
+  if ( mCurrentAutomaticMapTool && isVisible() )
     mCurrentAutomaticMapTool->setCurrentToolInMap();
 }
 

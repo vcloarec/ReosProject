@@ -103,7 +103,7 @@ QPolygonF ReosGeometryUtils::polygonFitInPolygon( const QPolygonF &polygon1, con
 
   QPolygonF ret = intersection.asQPolygonF();
 
-  if ( ret.last() == ret.first() )
+  if ( !ret.isEmpty() && ret.last() == ret.first() )
     ret.removeLast();
 
   return ret;
@@ -117,7 +117,7 @@ QPolygonF ReosGeometryUtils::polygonCutByPolygon( const QPolygonF &polygon1, con
 
   QPolygonF ret = geom1.difference( geom2 ).asQPolygonF();
 
-  if ( ret.last() == ret.first() )
+  if ( !ret.isEmpty() && ret.last() == ret.first() )
     ret.removeLast();
 
   return ret;
@@ -130,7 +130,7 @@ QPolygonF ReosGeometryUtils::polygonUnion( const QPolygonF &polygon1, const QPol
 
   QPolygonF ret = geom1.combine( geom2 ).asQPolygonF();
 
-  if ( ret.last() == ret.first() )
+  if ( !ret.isEmpty() && ret.last() == ret.first() )
     ret.removeLast();
 
   return ret;
