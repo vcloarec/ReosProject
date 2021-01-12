@@ -16,12 +16,31 @@ email                : vcloarec at gmail dot com
 #ifndef REOS_TESTUTILS_H
 #define REOS_TESTUTILS_H
 
+#include <QObject>
+#include <QEventLoop>
 #include <string>
+
+class ReosModule;
 
 const char *data_path();
 
 std::string test_file( std::string basename );
 
 std::string tmp_file( std::string basename );
+
+class ModuleProcessControler: public QObject
+{
+  public:
+    ModuleProcessControler( ReosModule *module );
+    void waitForFinished();
+    void reset();
+
+  private slots:
+    void processFinished();
+
+  private:
+    bool mProcessFinished = false;
+    QEventLoop mEventLoop;
+};
 
 #endif // REOS_TESTUTILS_H

@@ -20,11 +20,13 @@ email                : vcloarec at gmail dot com
 
 #include "reosmemoryraster.h"
 
+class ReosProcess;
+
 class ReosDigitalElevationModel
 {
   public:
     ReosDigitalElevationModel();
-    ~ReosDigitalElevationModel();
+    virtual ~ReosDigitalElevationModel();
 
     //! Returns elevation value at \a point in DEM coordinate
     virtual double elevationAt( const QPointF &point, const QString &destinationCrs = QString() ) = 0;
@@ -32,17 +34,15 @@ class ReosDigitalElevationModel
     /**
      * Extract a memory raster with simple precision from the DEM in \a extent.
      * The resolution of the raster will depend on the DEM specification.
-     * Resolution and adjusted extent is stored in \a rasterExtent destination coordinate reference system \destinationCrs can be provided,
-     * if not, \rasterExtent will be
+     * Resolution and adjusted extent is stored in \a rasterExtent.
+     * Destination coordinate reference system \a destinationCrs can be provided to override the extent crs
+     * If destinantion crs and extent crs are invalid, the output will be in the same coordinate system as the souce of the DEM
      *
      */
-    virtual ReosRasterMemory<float> *extractMemoryRasterSimplePrecision(
+    virtual ReosRasterMemory<float> extractMemoryRasterSimplePrecision(
       const ReosMapExtent &extent,
       ReosRasterExtent &rasterExtent,
-      const QString &destinationCrs = QString() ) = 0;
-
-  private:
-
+      const QString &destinationCrs = QString(), ReosProcess *process = nullptr ) = 0;
 };
 
 

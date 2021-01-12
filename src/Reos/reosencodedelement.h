@@ -3,7 +3,7 @@
                      --------------------------------------
 Date                 : 18-11-2018
 Copyright            : (C) 2018 by Vincent Cloarec
-email                : vcloarec@gmail.com projetreos@gmail.com
+email                : vcloarec@gmail.com
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -24,13 +24,10 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 class ReosEncodedElement
 {
   public:
-    ReosEncodedElement( QString description ): description( description )
-    {}
-
+    ReosEncodedElement( QString mDescription );
     ReosEncodedElement( const QByteArray &byteArray );
 
-    const QString selfDescription() const {return description;}
-
+    const QString selfDescription() const {return mDescription;}
 
     template<typename T>
     void addData( QString key, T &&value )
@@ -38,27 +35,27 @@ class ReosEncodedElement
       QByteArray byteArray;
       QDataStream stream( &byteArray, QIODevice::WriteOnly );
       stream << value;
-      data[key] = byteArray;
+      mData[key] = byteArray;
     }
 
 
     template<typename T>
     bool getData( QString key, T &value ) const
     {
-      if ( !data.contains( key ) )
+      if ( !mData.contains( key ) )
         return false;
 
-      QDataStream stream( data[key] );
+      QDataStream stream( mData[key] );
       stream >> value;
       return true;
     }
 
-    QByteArray encode();
+    QByteArray encode() const;
 
 
   private:
-    QMap<QString, QByteArray> data;
-    QString description;
+    QMap<QString, QByteArray> mData;
+    QString mDescription;
 
 };
 

@@ -18,6 +18,8 @@ email                : vcloarec at gmail dot com
 
 #include <QLabel>
 #include <QDomDocument>
+#include <QPointer>
+#include <QGraphicsView>
 
 #include "reosmodule.h"
 #include "reosmapitem.h"
@@ -26,12 +28,14 @@ email                : vcloarec at gmail dot com
 class QgsMapCanvas;
 class ReosMapCursorPosition;
 class ReosGisEngine;
+class ReosMapTool;
 
 class ReosMap: public ReosModule
 {
     Q_OBJECT
   public:
     ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget = nullptr );
+    ~ReosMap();
 
 //    //QgsMapCanvas *getMapCanvas() const;
 
@@ -52,13 +56,17 @@ class ReosMap: public ReosModule
 //    void setMapSavedExtent( QRectF extent );
 
     QWidget *mapCanvas() const;
-    ReosMapItem *createMapItem( ReosMapItemFactory *factory );
-
     void refreshCanvas();
 
+    ReosGisEngine *engine() const;
+
+    QString mapCrs() const;
+
+    //! Sets the map tool to the default one
+    void setDefaultMapTool();
 
   public slots:
-//    void unsetMapTool( ReosMapTool *tool );
+    //    void unsetMapTool( ReosMapTool *tool );
 //    void unsetMapTool();
 //    void stopMapTool()
 //    {
@@ -81,7 +89,10 @@ class ReosMap: public ReosModule
     void readProject( const QDomDocument &doc );
 
   private:
-    QgsMapCanvas *mCanvas = nullptr;
+    ReosGisEngine *mEngine;
+    QPointer<QGraphicsView> mCanvas = nullptr;
+
+    ReosMapTool *mDefaultMapTool = nullptr;
 
 //    HdCursorPosition *cursorPosition;
 //    HdMapToolNeutral *mapToolNeutral;

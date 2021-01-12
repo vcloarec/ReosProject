@@ -16,17 +16,32 @@ email                : vcloarec at gmail dot com
 #include "reosmapextent.h"
 
 
-ReosMapExtent::ReosMapExtent( QRectF extent )
+ReosMapExtent::ReosMapExtent( const QRectF &extent )
 {
-  mXMin = extent.left();
-  mXMax = extent.right();
-  mYMin = extent.top();
-  mYMax = extent.bottom();
+  QRectF normalizedExtent = extent.normalized();
+  mXMin = normalizedExtent.left();
+  mXMax = normalizedExtent.right();
+  mYMin = normalizedExtent.top();
+  mYMax = normalizedExtent.bottom();
 }
 
 ReosMapExtent::ReosMapExtent( double xMin, double yMin, double xMax, double yMax ):
   mXMin( xMin ), mXMax( xMax ), mYMin( yMin ), mYMax( yMax )
 {}
+
+ReosMapExtent::ReosMapExtent( const QPolygonF &polygon )
+{
+  if ( polygon.isEmpty() )
+    return;
+
+  mXMin = std::numeric_limits<double>::max();
+  mXMax = -std::numeric_limits<double>::max();
+  mYMin = std::numeric_limits<double>::max();
+  mYMax = -std::numeric_limits<double>::max();
+
+  for ( const QPointF &pt : polygon )
+    addPointToExtent( pt );
+}
 
 double ReosMapExtent::width() const
 {return mXMax - mXMin;}
@@ -41,6 +56,7 @@ double ReosMapExtent::xMapMax() const {return mXMax;}
 double ReosMapExtent::yMapMin() const {return mYMin;}
 
 double ReosMapExtent::yMapMax() const {return mYMax;}
+
 
 bool ReosMapExtent::operator==( const ReosMapExtent &other ) const
 {
@@ -62,4 +78,40 @@ ReosMapExtent ReosMapExtent::operator*( const ReosMapExtent &other ) const
 
   return ret;
 
+}
+
+QPolygonF ReosMapExtent::toPolygon() const
+{
+  QPolygonF ret;
+  ret << QPointF( mXMin, mYMin );
+  ret << QPointF( mXMin, mYMax );
+  ret << QPointF( mXMax, mYMax );
+  ret << QPointF( mXMax, mYMin );
+
+  return ret;
+}
+
+QString ReosMapExtent::crs() const
+{
+  return mCrs;
+}
+
+void ReosMapExtent::setCrs( const QString &crs )
+{
+  mCrs = crs;
+}
+
+bool ReosMapExtent::contains( const QPointF &point ) const
+{
+  return point.x() >= mXMin && point.x() <= mXMax &&
+         point.y() >= mYMin && point.y() <= mYMax;
+}
+
+bool ReosMapExtent::containsPartialy( const QPolygonF &line ) const
+{
+  for ( auto &point : line )
+    if ( contains( point ) )
+      return true;
+
+  return false;
 }

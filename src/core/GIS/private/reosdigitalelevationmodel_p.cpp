@@ -13,6 +13,7 @@ email                : vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
+#include "reosprocess.h"
 #include "reosdigitalelevationmodel_p.h"
 
 #include "qgsrasteridentifyresult.h"
@@ -59,9 +60,12 @@ double ReosDigitalElevationModelRaster::elevationAt( const QPointF &point, const
     return mDataProvider->sourceNoDataValue( 1 );
 }
 
-ReosRasterMemory<float> *ReosDigitalElevationModelRaster::extractMemoryRasterSimplePrecision( const ReosMapExtent &destinationExtent, ReosRasterExtent &outputRasterExtent, const QString &destinationCrs )
+ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimplePrecision( const ReosMapExtent &destinationExtent,
+    ReosRasterExtent &outputRasterExtent,
+    const QString &destinationCrs,
+    ReosProcess *process )
 {
-  QgsCoordinateReferenceSystem destCrs = QgsCoordinateReferenceSystem::fromWkt( destinationCrs );
+  QgsCoordinateReferenceSystem destCrs = QgsCoordinateReferenceSystem::fromWkt( destinationCrs.isEmpty() ? destinationCrs : destinationExtent.crs() );
   QgsCoordinateTransform transform( mCrs, destCrs, mTransformContext );
 
   QgsRectangle destExtent( destinationExtent.xMapMin(),
@@ -98,14 +102,29 @@ ReosRasterMemory<float> *ReosDigitalElevationModelRaster::extractMemoryRasterSim
   std::unique_ptr<QgsRasterBlock> block;
   block.reset( mDataProvider->block( 1, adjustedExtent, xPixCount, yPixCount ) );
 
-  std::unique_ptr<ReosRasterMemory<float>> ret = std::make_unique<ReosRasterMemory<float>>( yPixCount, xPixCount ); //(row, col)
-  ret->reserveMemory();
+  ReosRasterMemory<float> ret = ReosRasterMemory<float>( yPixCount, xPixCount ); //(row, col)
+  ret.reserveMemory();
+
+  if ( process )
+    process->setMaxProgression( yPixCount );
 
   for ( int i = 0; i < yPixCount; ++i )
+  {
     for ( int j = 0; j < xPixCount; ++j )
-      ret->setValue( i, j, float( block->value( i, j ) ) );
+    {
+      ret.setValue( i, j, float( block->value( i, j ) ) );
+      if ( process && process->isStopAsked() )
+      {
+        ret.freeMemory();
+        return ret;
+      }
+    }
 
-  return ret.release();
+    if ( process )
+      process->setCurrentProgression( i );
+  }
+
+  return ret;
 
 }
 
@@ -137,8 +156,6 @@ ReosRasterExtent ReosDigitalElevationModelRaster::rasterExtent( const QgsRectang
   double xPixelSize = sourceRasterExtent.width() / xCount;;
   double yPixelSize = sourceRasterExtent.height() / yCount;
 
-
-
   if ( originalExtent.xMinimum() < sourceRasterExtent.xMinimum() )
     xmin = sourceRasterExtent.xMinimum();
   else
@@ -148,8 +165,6 @@ ReosRasterExtent ReosDigitalElevationModelRaster::rasterExtent( const QgsRectang
     ymin = sourceRasterExtent.yMinimum();
   else
     ymin = int( ( originalExtent.yMinimum() - sourceRasterExtent.yMinimum() ) / yPixelSize ) * yPixelSize + sourceRasterExtent.yMinimum();
-
-
 
   if ( originalExtent.xMaximum() > sourceRasterExtent.xMaximum() )
     xmax = sourceRasterExtent.xMaximum();

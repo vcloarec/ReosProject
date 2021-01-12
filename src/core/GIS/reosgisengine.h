@@ -19,6 +19,7 @@ email                : vcloarec at gmail dot com
 
 #include <QAbstractItemModel>
 #include "reosmodule.h"
+#include "reosencodedelement.h"
 
 class ReosDigitalElevationModel;
 class ReosDigitalElevationModelProvider;
@@ -30,16 +31,30 @@ class ReosGisEngine: public ReosModule
 {
     Q_OBJECT
   public:
+    //! Supported layer types
+    enum LayerType
+    {
+      NoLayer,
+      VectorLayer,
+      RasterLayer,
+      MeshLayer,
+      NotSupported
+    };
+
+
     //! Constructor
     ReosGisEngine( QObject *parent = nullptr );
 
     //! Adds a vector layer, if the loaded vector layer is invalid, do nothing and return false
-    QString addVectorLayer( const QString &uri, const QString &name );
+    QString addVectorLayer( const QString &uri, const QString &name = QString() );
     //! Adds a raster layer, if the loaded vector layer is invalid, do nothing and return false
-    QString addRasterLayer( const QString &uri, const QString &name );
+    QString addRasterLayer( const QString &uri, const QString &name = QString() );
 
     //! Adds a raster layer, if the loaded vector layer is invalid, do nothing and return false
-    QString addMeshLayer( const QString &uri, const QString &name );
+    QString addMeshLayer( const QString &uri, const QString &name = QString() );
+
+    //! Returns the layer type corresponding to the the layer Id
+    LayerType layerType( const QString layerId ) const;
 
     //! Adds a empty group layer
     void addGroupLayer();
@@ -78,14 +93,28 @@ class ReosGisEngine: public ReosModule
     //! Returns a pointer to the on the top Digitial Elevation Model, caller take ownership
     ReosDigitalElevationModel *getTopDigitalElevationModel() const;
 
+    //! Returns the list of layer Ids that are registered as Digital Elevation Model with associated name
+    QMap<QString, QString> digitalElevationModelRasterList() const;
+
+    //! Returns the list of layer Ids that are registered as Digital Elevation
+    QStringList digitalElevationModelIds() const;
+
+    //! Returns encoded information about the GIS engine after saving GIS project int the \a path with the \a baseFileName
+    ReosEncodedElement encode( const QString &path, const QString baseFileName );
+    //! Decode information about the GIS engine and load the GIS poject from the \a path with the \a baseFileName
+    bool decode( const ReosEncodedElement &encodedElement, const QString &path, const QString baseFileName );
+
   signals:
     void crsChanged( const QString &wktCrs );
-    void newDigitalElevationRegistered( const QString &layerId );
+    void digitalElevationRegistered( const QString &layerId );
+    void digitalElevationUnregistered( const QString &layerId );
+    void updated();
 
   private:
     QAbstractItemModel *mAbstractLayerTreeModel;
     ReosDigitalElevationModelProvider *mDemProvider;
-    QList<QString> mAsDEMRegisteredLayer;
+
+    QStringList mAsDEMRegisteredLayer;
 };
 
 #endif // REOSGISENGINE_H

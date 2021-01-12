@@ -4,18 +4,11 @@
 FIND_PACKAGE(GDAL REQUIRED)
 
 SET(REOS_TOOLS_SOURCES
-  raster/reosrasterfilling.cpp
-  raster/reosrasterline.cpp
-  raster/reosrastertrace.cpp
-  raster/reosrasterwatershed.cpp
+
 )
 
 SET(REOS_TOOLS_HEADERS
   reos_tools.h
-  raster/reosrasterfilling.h
-  raster/reosrasterline.h
-  raster/reosrastertrace.h
-  raster/reosrasterwatershed.h
 )
 
 SET(REOS_TOOLS_LIBS ${REOS_TOOLS_LIBS} reosTools)
@@ -64,7 +57,3 @@ IF(GDAL_FOUND)
     TARGET_INCLUDE_DIRECTORIES(reosTools PUBLIC ${GDAL_INCLUDE_DIRS})
     TARGET_LINK_LIBRARIES(reosTools PUBLIC ${GDAL_LIBRARIES} )
 ENDIF(GDAL_FOUND)
-
-
-# INSTALL HEADER
-INSTALL(FILES raster/reosmemoryraster.h DESTINATION include)

@@ -13,7 +13,11 @@ email                : vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
+#include <QtConcurrent>
+#include <QFuture>
+
 #include "reosmodule.h"
+#include "reosprocess.h"
 
 ReosModule::ReosModule( QObject *parent ):
   QObject( parent ),  mGroupAction( new QActionGroup( this ) )
@@ -76,6 +80,21 @@ void ReosModule::sendMessage( QString mes, MessageType type ) const
     mReosParent->sendMessage( mes, type );
   else
     emit emitMessage( mes, type );
+}
+
+void ReosModule::startProcessOnOtherThread( ReosProcess *process )
+{
+  QFutureWatcher<void> *watcher = new QFutureWatcher<void>( this );
+  connect( watcher, &QFutureWatcher<void>::finished, this, &ReosModule::processFinished );
+  connect( watcher, &QFutureWatcher<void>::finished, watcher, &QObject::deleteLater );
+  QFuture<void> future = QtConcurrent::run( process, &ReosProcess::start );//https://doc.qt.io/qt-5/qtconcurrentrun.html#using-member-functions
+  watcher->setFuture( future );
+}
+
+void ReosModule::startProcessOnSameThread( ReosProcess *process )
+{
+  process->start();
+  emit processFinished();
 }
 
 QList<QAction *> ReosModule::actions() const {return mGroupAction->actions();}

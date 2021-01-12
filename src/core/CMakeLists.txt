@@ -6,37 +6,73 @@ FIND_PACKAGE(GDAL REQUIRED)
 SET(REOS_CORE_SOURCES
   reosapplication.cpp
   reosdocumentation.cpp
+  reosencodedelement.cpp
   reosmemoryraster.cpp
   reosmodule.cpp
-  reosprocess.cpp
+
   reossettings.cpp
   reosversion.cpp
+
+  reosexception.cpp
 
   GIS/reosdigitalelevationmodel.cpp
   GIS/reosgisengine.cpp
   GIS/reosmapextent.cpp
   GIS/private/reosdigitalelevationmodel_p.cpp
+
+  process/reosprocess.cpp
+
+  raster/reosrasterfilling.cpp
+  raster/reosrasterline.cpp
+  raster/reosrastertrace.cpp
+  raster/reosrasterwatershed.cpp
+  raster/reosrastercompressed.cpp
+
+  utils/reosgeometryutils.cpp
+  
+  watershed/reoswatershed.cpp
+  watershed/reoswatersheddelineating.cpp
+  watershed/reoswatershedtree.cpp
+  watershed/reoswatershedmodule.cpp
 )
 
 SET(REOS_CORE_HEADERS
     reosapplication.h
     reosdocumentation.h
+    reosencodedelement.h
     reosmemoryraster.h
     reosmodule.h
-    reosprocess.h
     reossettings.h
     reosversion.h
+    reosexception.h
 
     GIS/reosdigitalelevationmodel.h
     GIS/reosgisengine.h
     GIS/reosmapextent.h
-    GIS/private/reosdigitalelevationmodel_p.h
+
+    process/reosprocess.h
+
+    raster/reosrasterfilling.h
+    raster/reosrasterline.h
+    raster/reosrastertrace.h
+    raster/reosrasterwatershed.h
+    raster/reosrastercompressed.h
+
+    utils/reosgeometryutils.h
+
+    watershed/reoswatershed.h
+    watershed/reoswatersheddelineating.h
+    watershed/reoswatershedtree.h
+    watershed/reoswatershedmodule.h
+
 )
 
 SET(REOS_CORE_HEADERS_PRIVATE
+    GIS/private/reosdigitalelevationmodel_p.h
     )
 
-SET(IMAGE_RCCS ../../images/images.qrc)
+SET(IMAGE_RCCS ../../images/images.qrc
+               ../../images/cursors/cursors.qrc)
 
 SET(REOS_CORE_LIBS ${REOS_CORE_LIBS} reosCore)
 ADD_LIBRARY(reosCore SHARED
@@ -82,6 +118,9 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core
     ${CMAKE_SOURCE_DIR}/src/core/GIS
     ${CMAKE_SOURCE_DIR}/src/core/GIS/private
+    ${CMAKE_SOURCE_DIR}/src/core/process
+    ${CMAKE_SOURCE_DIR}/src/core/utils
+    ${CMAKE_SOURCE_DIR}/src/core/raster
     ${QGIS_INCLUDE_DIR}
 )
 

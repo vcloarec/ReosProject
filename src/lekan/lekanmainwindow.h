@@ -26,6 +26,7 @@ email                : vcloarec at gmail dot com
 #include "reosversion.h"
 #include "reosversionmessagebox.h"
 #include "reosmainwindow.h"
+#include "reoswatershedtree.h"
 
 //#include <qgsmapcanvas.h>
 //#include <qgsrubberband.h>
@@ -52,6 +53,8 @@ email                : vcloarec at gmail dot com
 class ReosModule;
 class ReosMap;
 class ReosGisEngine;
+class ReosWatershedModule;
+class ReosDelineatingWatershedWidget;
 
 static const ReosVersion lekanVersion( "Lekan", 1, 0, 5 );
 
@@ -61,7 +64,6 @@ class LekanMainWindow : public ReosMainWindow
 
   public:
     explicit LekanMainWindow( QWidget *parent = nullptr );
-
     bool openProject() override;
 
 //    bool openBackFile( QString filename );
@@ -94,22 +96,22 @@ class LekanMainWindow : public ReosMainWindow
 
     ReosGisEngine *mGisEngine;
     ReosMap *mMap = nullptr;
+    ReosWatershedModule *mWatershedModule = nullptr;
 
     QDockWidget *mGisDock;
-    QDockWidget *dockDEM;
-    QDockWidget *dockWatershed;
+    QDockWidget *mDockWatershed;
     QDockWidget *mDockMessageBox;
 
-    QToolBar *toolBarRainfallRunoffModel;
-    QMenu *menuRainFallRunoffModel;
-    QMenu *mMenuInterrogation;
+//    QToolBar *toolBarRainfallRunoffModel;
+//    QMenu *menuRainFallRunoffModel;
+//    QMenu *mMenuInterrogation;
 
-    QActionGroup *mGroupActionEdit;
-    QActionGroup *mGroupActionOption;
-    QActionGroup *mGroupActionInterrogation;
+//    QActionGroup *mGroupActionEdit;
+//    QActionGroup *mGroupActionOption;
+//    QActionGroup *mGroupActionInterrogation;
 
-    QAction *mActionNewVersionAvailable;
-    QAction *mActionDocumentation;
+//    QAction *mActionNewVersionAvailable;
+//    QAction *mActionDocumentation;
 
     QList<QMenu *> specificMenus() override;
 };

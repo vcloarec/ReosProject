@@ -17,16 +17,20 @@ email                : vcloarec at gmail dot com
 #define REOSMAPEXTENT_H
 
 #include <QRectF>
+#include <QString>
+#include <QPolygon>
 
 /**
- * Class that represent a extent in a map
+ * Class that represent a rectangular extent in a map
  */
 class ReosMapExtent
 {
   public:
     ReosMapExtent() = default;
-    ReosMapExtent( QRectF extent );
+    ReosMapExtent( const QRectF &extent );
     ReosMapExtent( double xMapMin, double yMapMin, double xMapMax, double yMapMax );
+    //! Construct an extent with the bounding box of the polygon
+    ReosMapExtent( const QPolygonF &polygon );
 
     double width() const;
     double height()const;
@@ -36,15 +40,38 @@ class ReosMapExtent
     double yMapMin() const;
     double yMapMax() const;
 
-    bool operator==( const ReosMapExtent &other ) const;
+    //! Returns true if the extent contain the point
+    bool contains( const QPointF &point ) const;
+    //! Return true if the extent cotains, even partially, the \a line
+    bool containsPartialy( const  QPolygonF &line ) const;
 
+    void addPointToExtent( const QPointF &pt )
+    {
+      if ( mXMin > pt.x() )
+        mXMin = pt.x();
+      if ( mXMax < pt.x() )
+        mXMax = pt.x();
+      if ( mYMin > pt.y() )
+        mYMin = pt.y();
+      if ( mYMax < pt.y() )
+        mYMax = pt.y();
+    }
+
+    QString crs() const;
+    void setCrs( const QString &crs );
+
+    bool operator==( const ReosMapExtent &other ) const;
     ReosMapExtent operator*( const ReosMapExtent &other ) const;
+
+    QPolygonF toPolygon() const;
 
   protected:
     double mXMin = std::numeric_limits<double>::quiet_NaN();
     double mXMax = std::numeric_limits<double>::quiet_NaN();
     double mYMin = std::numeric_limits<double>::quiet_NaN();
     double mYMax = std::numeric_limits<double>::quiet_NaN();
+
+    QString mCrs;
 };
 
 #endif // REOSMAPEXTENT_H

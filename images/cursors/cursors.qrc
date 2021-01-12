@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/cursors">
+        <file>removeItem.png</file>
+        <file>linearDrawing.png</file>
+        <file>rectangularDrawing.png</file>
+    </qresource>
+</RCC>

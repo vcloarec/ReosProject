@@ -73,6 +73,8 @@ int main( int argc, char *argv[] )
 
   LekanMainWindow w;
 
+  ReosVersionMessageBox *versionBox = new ReosVersionMessageBox( &w, lekanVersion );
+  versionBox->setDefaultWebSite( webSite );
 
   if ( settings.contains( QStringLiteral( "Windows/MainWindow/geometry" ) ) )
   {
@@ -84,28 +86,15 @@ int main( int argc, char *argv[] )
     w.showMaximized();
   }
 
-  ReosVersionMessageBox *versionBox = new ReosVersionMessageBox( &w, lekanVersion );
-  versionBox->setDefaultWebSite( webSite );
-
   ReosStartingWidget *starting = new ReosStartingWidget( &w );
-
   starting->move( QApplication::desktop()->screenGeometry().center() - starting->rect().center() );
   starting->setBan( QPixmap( ":/images/lekan.svg" ) );
   if ( starting->exec() )
   {
-//    if ( settings.contains( QStringLiteral( "Windows/MainWindow/state" ) ) )
-//    {
-//      w.addDock();
-//      w.restoreState( settings.value( QStringLiteral( "Windows/MainWindow/state" ) ).toByteArray() );
-//    }
-//    else
-//    {
-//      w.addDock();
-//    }
-
     if ( starting->openProjectChoice() )
-      w.open();
+      w.openFile();
 
+    starting->deleteLater();
   }
   else
   {

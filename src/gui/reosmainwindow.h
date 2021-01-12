@@ -39,7 +39,7 @@ class ReosMainWindow : public QMainWindow
 
   public:
     explicit ReosMainWindow( QWidget *parent = nullptr );
-    bool open();
+    bool openFile();
 
   protected:
     void closeEvent( QCloseEvent *event ) override;
@@ -53,9 +53,16 @@ class ReosMainWindow : public QMainWindow
 
     ReosModule *rootModule() const;
 
+    //! Returns the complete project file path, with path to the folder and file name
     QString currentProjectFilePath() const;
+
+    //! Returns the project file name, withour path
     QString currentProjectFileName() const;
+
+    //! Returns the project base file name, withour path and extension
     QString currentProjectBaseName() const;
+
+    //! Returns the project file's path. This doesn't include the file name.
     QString currentProjectPath() const;
 
   private slots:

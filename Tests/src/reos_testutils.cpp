@@ -14,6 +14,7 @@ email                : vcloarec at gmail dot com
  ***************************************************************************/
 
 #include "reos_testutils.h"
+#include "reosmodule.h"
 
 const char *data_path()
 {
@@ -32,4 +33,26 @@ std::string tmp_file( std::string basename )
   std::string path( data_path() + std::string( "/tmp" ) );
   path += basename;
   return path;
+}
+
+ModuleProcessControler::ModuleProcessControler( ReosModule *module )
+{
+  QObject::connect( module, &ReosModule::processFinished, this, &ModuleProcessControler::processFinished );
+}
+
+void ModuleProcessControler::waitForFinished()
+{
+  if ( !mProcessFinished )
+    mEventLoop.exec();
+}
+
+void ModuleProcessControler::reset()
+{
+  mProcessFinished = false;
+}
+
+void ModuleProcessControler::processFinished()
+{
+  mProcessFinished = true;
+  mEventLoop.exit();
 }

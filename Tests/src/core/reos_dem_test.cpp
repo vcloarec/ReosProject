@@ -42,7 +42,7 @@ void ReosDemTesting::raster_DEM()
   QCOMPARE( dem->elevationAt( QPointF( 5, 5 ) ), 5.00054216385 );
 
   ReosRasterExtent rasterExtent;
-  std::unique_ptr<ReosRasterMemory<float>> rasterMemory( dem->extractMemoryRasterSimplePrecision( ReosMapExtent( 2, 3, 5, 7 ), rasterExtent ) );
+  ReosRasterMemory<float> rasterMemory( dem->extractMemoryRasterSimplePrecision( ReosMapExtent( 2, 3, 5, 7 ), rasterExtent ) );
 
   QVERIFY( rasterExtent.isValid() );
   QCOMPARE( rasterExtent.xCellCount(), 3 );
@@ -52,10 +52,10 @@ void ReosDemTesting::raster_DEM()
   QCOMPARE( rasterExtent.xCellSize(), 1 );
   QCOMPARE( rasterExtent.yCellSize(), -1 );
 
-  QCOMPARE( rasterMemory->rowCount(), 4 );
-  QCOMPARE( rasterMemory->columnCount(), 3 );
-  QCOMPARE( rasterMemory->value( 0, 0 ), 5.00028324127 );
-  QCOMPARE( rasterMemory->value( 3, 2 ), 5.00042486191 );
+  QCOMPARE( rasterMemory.rowCount(), 4 );
+  QCOMPARE( rasterMemory.columnCount(), 3 );
+  QCOMPARE( rasterMemory.value( 0, 0 ), 5.00028324127 );
+  QCOMPARE( rasterMemory.value( 3, 2 ), 5.00042486191 );
 }
 
 QTEST_MAIN( ReosDemTesting )
