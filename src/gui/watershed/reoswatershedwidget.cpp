@@ -23,9 +23,6 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   static_cast<QBoxLayout *>( layout() )->insertWidget( 0, toolBar );
   mDelineatingWidget->setAction( mActionDelineateWatershed );
 
-  ui->mToolButtonDelineate->setCheckable( true );
-
-  //connect( ui->mToolButtonDelineate, &QToolButton::toggled, this, &ReosWatershedWidget::onButtonDelineateClicked );
   connect( ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ReosWatershedWidget::onCurrentWatershedChange );
 
   mCurrentMapOutlet.setWidth( 4 );
@@ -33,7 +30,6 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   mCurrentMapOutlet.setColor( QColor( 0, 100, 250 ) );
   mCurrentMapOutlet.setExternalColor( Qt::white );
   mCurrentMapOutlet.setZValue( 10 );
-
 }
 
 ReosWatershedWidget::~ReosWatershedWidget()
@@ -59,18 +55,6 @@ void ReosWatershedWidget::onWatershedAdded( const QModelIndex &index )
   mMapWatersheds.insert( ws, formatWatershedPolygon( wsPolygon ) );
   ui->treeView->selectionModel()->select( index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows );
   ui->treeView->setCurrentIndex( index );
-}
-
-void ReosWatershedWidget::onButtonDelineateClicked()
-{
-  if ( ui->mToolButtonDelineate->isChecked() )
-    mDelineatingWidget->show();
-  else
-    mDelineatingWidget->close();
-
-  ReosSettings settings;
-  settings.setValue( QStringLiteral( "/Windows/WatershedDelineateWidget/Open" ), ui->mToolButtonDelineate->isChecked() );
-
 }
 
 void ReosWatershedWidget::onCurrentWatershedChange( const QItemSelection &selected, const QItemSelection &deselected )

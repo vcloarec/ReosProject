@@ -381,7 +381,6 @@ void ReosDelineatingWatershedWidget::showManualDelineating( bool shown )
 
 void ReosDelineatingWatershedWidget::updateAutomaticTool()
 {
-  qDebug() << "Current state of delineating module: " << mModule->delineatingModule()->currentState();
   switch ( mModule->delineatingModule()->currentState() )
   {
     case ReosWatershedDelineating::NoDigitalElevationModel:
@@ -391,6 +390,7 @@ void ReosDelineatingWatershedWidget::updateAutomaticTool()
       mActionDrawAddBurningLine->setEnabled( false );
       ui->mPushButtonDelineate->setEnabled( false );
       ui->mPushButtonValidateAutomatic->setEnabled( false );
+      mMap->setDefaultMapTool();
       break;
     case ReosWatershedDelineating::WaitingForDownstream:
       mActionDrawDownstreamLine->setEnabled( true );

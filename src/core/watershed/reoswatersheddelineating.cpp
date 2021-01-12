@@ -73,12 +73,14 @@ bool ReosWatershedDelineating::setDownstreamLine( const QPolygonF &downstreamLin
          mIsBurningLineUpToDate )
     {
       mCurrentState = WaitingforProceed;
+      sendMessage( tr( "Waiting for proceeding to delineating" ), ReosModule::Message );
       return true;
     }
     else
       mDownstreamWatershed = nullptr;
 
     mCurrentState = WaitingForExtent;
+    sendMessage( tr( "Waiting for predefined extent" ), ReosModule::Message );
     return true;
   }
 
@@ -91,6 +93,7 @@ bool ReosWatershedDelineating::setPreDefinedExtent( const ReosMapExtent &extent 
   {
     mExtent = extent;
     mCurrentState = WaitingforProceed;
+    sendMessage( tr( "Waiting for proceeding to delineating" ), ReosModule::Message );
     return true;
   }
 
@@ -114,6 +117,7 @@ bool ReosWatershedDelineating::startDelineating()
   }
 
   startProcessOnOtherThread( mProcess.get() );
+  sendMessage( tr( "Start delineating" ), ReosModule::Message );
   return true;
 }
 
@@ -197,6 +201,9 @@ ReosWatershed *ReosWatershedDelineating::storeWatershed( bool adjustIfNeeded )
   if ( mCurrentState == WaitingToRecord && mCurrentWatershed )
   {
     newWatershed = mWatershedTree->addWatershed( mCurrentWatershed.release(), adjustIfNeeded );
+    ReosWatershed *dsws = newWatershed->downstreamWatershed();
+    sendMessage( tr( "%1 validated%2" ).arg( newWatershed->name() )
+                 .arg( dsws ? ( tr( " and added to %1" ).arg( newWatershed->downstreamWatershed()->name() ) ) : QString() ), ReosModule::Message );
     mCurrentState = WaitingForDownstream;
   }
 
@@ -236,6 +243,7 @@ void ReosWatershedDelineating::testPredefinedExtentValidity()
        watershedExtent.yMapMax() >= predefinedRasterExtent.yMapMax() - yCellSize )
   {
     mCurrentState = WaitingWithBroughtBackExtent;
+    sendMessage( tr( "Predifined extent intersect watershed delineating, please redefined extent" ), ReosModule::Warning );
     return;
   }
 
@@ -250,6 +258,7 @@ void ReosWatershedDelineating::testPredefinedExtentValidity()
   }
 
   mCurrentState = WaitingForValidate;
+  sendMessage( tr( "Watershed ready for validation" ), ReosModule::Message );
 }
 
 void ReosWatershedDelineating::setBurningLines( const QList<QPolygonF> &burningLines )

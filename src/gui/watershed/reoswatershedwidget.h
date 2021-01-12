@@ -28,7 +28,6 @@ class ReosWatershedWidget : public QWidget
 
   private slots:
     void onWatershedAdded( const QModelIndex &index );
-    void onButtonDelineateClicked();
     void onCurrentWatershedChange( const QItemSelection &selected, const QItemSelection &deselected );
 
   private:
