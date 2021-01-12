@@ -126,6 +126,10 @@ ReosWatershed *ReosWatershed::addUpstreamWatershed( ReosWatershed *newUpstreamWa
   if ( ws->name().isEmpty() && !name().isEmpty() )
     ws->setName( name().append( "-%1" ).arg( mUpstreamWatersheds.size() + ( mUpstreamWatersheds.empty() ? 1 : 0 ) ) );
 
+  ws->mDownstreamWatershed = this;
+  if ( adjustIfNeeded )
+    ws->fitIn( *this );
+
   size_t i = 1; //no consider the residual
   while ( i < mUpstreamWatersheds.size() )
   {
@@ -145,9 +149,6 @@ ReosWatershed *ReosWatershed::addUpstreamWatershed( ReosWatershed *newUpstreamWa
     }
   }
 
-  ws->mDownstreamWatershed = this;
-  if ( adjustIfNeeded )
-    ws->fitIn( *this );
   mUpstreamWatersheds.emplace_back( ws.release() );
 
   updateResidual();
