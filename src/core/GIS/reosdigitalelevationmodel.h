@@ -29,7 +29,10 @@ class ReosDigitalElevationModel
     virtual ~ReosDigitalElevationModel();
 
     //! Returns elevation value at \a point in DEM coordinate
-    virtual double elevationAt( const QPointF &point, const QString &destinationCrs = QString() ) = 0;
+    virtual double elevationAt( const QPointF &point, const QString &destinationCrs = QString() ) const = 0;
+
+    //! Returns a profile corresponding on the elevation on the DEM, resolution depends on the DEM type
+    virtual QPolygonF elevationOnPolyline( const QPolygonF &polyline, const QString &destinationCrs = QString(), ReosProcess *process = nullptr ) const = 0;
 
     /**
      * Extract a memory raster with simple precision from the DEM in \a extent.
@@ -42,7 +45,7 @@ class ReosDigitalElevationModel
     virtual ReosRasterMemory<float> extractMemoryRasterSimplePrecision(
       const ReosMapExtent &extent,
       ReosRasterExtent &rasterExtent,
-      const QString &destinationCrs = QString(), ReosProcess *process = nullptr ) = 0;
+      const QString &destinationCrs = QString(), ReosProcess *process = nullptr ) const = 0;
 };
 
 

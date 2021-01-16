@@ -13,6 +13,7 @@ namespace Ui
 
 class ReosWatershedItemModel;
 class ReosDelineatingWatershedWidget;
+class ReosLongitudinalProfileWidget;
 class ReosWatershedModule;
 class ReosWatershed;
 
@@ -26,6 +27,9 @@ class ReosWatershedWidget : public QWidget
 
     void setModel( ReosWatershedItemModel *model );
 
+  signals:
+    void currentWatershedChanged( ReosWatershed *ws );
+
   private slots:
     void onWatershedAdded( const QModelIndex &index );
     void onCurrentWatershedChange( const QItemSelection &selected, const QItemSelection &deselected );
@@ -36,9 +40,12 @@ class ReosWatershedWidget : public QWidget
     ReosMap *mMap = nullptr;
     QAction *mActionDelineateWatershed = nullptr;
     ReosDelineatingWatershedWidget *mDelineatingWidget = nullptr;
+    QAction *mActionLongitudinalProfile = nullptr;
+    ReosLongitudinalProfileWidget *mLongitudinalProfileWidget = nullptr;
 
     QMap<ReosWatershed *, ReosMapPolygon> mMapWatersheds;
     ReosMapMarker mCurrentMapOutlet;
+    ReosMapPolyline mCurrentStreamLine;
 
     //! Method use for styling watershed polygon
     ReosMapPolygon formatWatershedPolygon( ReosMapPolygon &watershedPolygon );

@@ -33,7 +33,6 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 
 int main( int argc, char *argv[] )
 {
-
   Q_INIT_RESOURCE( images );
 
 #ifdef Q_OS_WIN

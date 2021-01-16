@@ -170,7 +170,6 @@ void ReosDelineatingWatershedWidget::setAction( QAction *action )
 
 void ReosDelineatingWatershedWidget::closeEvent( QCloseEvent *event )
 {
-  emit closed();
   storeGeometry();
   if ( mAction )
     mAction->setChecked( false );

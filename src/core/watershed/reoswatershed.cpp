@@ -3,7 +3,7 @@
 ReosWatershed::ReosWatershed( const QPolygonF &delineating,
                               const QPointF &outletPoint,
                               Type type,
-                              const QPolygonF &downstreamLine,
+                              const QPolygonF &downstreamLine, const QPolygonF &streamPath,
                               const ReosRasterWatershed::Directions &direction,
                               const ReosRasterExtent &directionExent ):
   mType( type ),
@@ -12,7 +12,8 @@ ReosWatershed::ReosWatershed( const QPolygonF &delineating,
   mOutletPoint( outletPoint ),
   mDownstreamLine( downstreamLine ),
   mDirectionRaster( direction ),
-  mDirectionExtent( directionExent )
+  mDirectionExtent( directionExent ),
+  mStreamPath( streamPath )
 {}
 
 QString ReosWatershed::name() const
@@ -230,7 +231,7 @@ ReosWatershed *ReosWatershed::upstreamWatershed( const QPointF &point )
       return uws->upstreamWatershed( point );
   }
 
-  return this;
+  return nullptr;
 }
 
 ReosWatershed *ReosWatershed::downstreamWatershed() const
@@ -315,6 +316,31 @@ void ReosWatershed::extentTo( const ReosWatershed &other )
   }
 }
 
+QPolygonF ReosWatershed::streamPath() const
+{
+  return mStreamPath;
+}
+
+ReosWatershed *ReosWatershed::residualWatershed() const
+{
+  if ( mUpstreamWatersheds.size() > 1 )
+    return mUpstreamWatersheds.at( 0 ).get();
+
+  return nullptr;
+}
+
+QPolygonF ReosWatershed::profile() const
+{
+  return mProfile;
+}
+
+void ReosWatershed::setProfile( const QPolygonF &profile )
+{
+  mProfile = profile;
+}
+
+
+
 void ReosWatershed::updateResidual()
 {
   if ( mUpstreamWatersheds.empty() )
@@ -338,7 +364,6 @@ void ReosWatershed::updateResidual()
   {
     residualDelineating = ReosGeometryUtils::polygonCutByPolygon( residualDelineating, mUpstreamWatersheds[i]->delineating() );
   }
-
 
   mUpstreamWatersheds[0]->mDelineating = residualDelineating;
   mUpstreamWatersheds[0]->mName = mName + QObject::tr( " residual" );

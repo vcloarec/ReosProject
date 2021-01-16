@@ -30,11 +30,13 @@ class ReosWatersehdTest: public QObject
     void watershedDelineatingWithBurningLine();
     void watershdDelineatingMultiWatershed();
     void inclusion();
+    void watershedInteractions();
 
   private:
     ReosModule rootModule;
     ReosGisEngine gisEngine;
 };
+
 
 void ReosWatersehdTest::inclusion()
 {
@@ -81,6 +83,65 @@ void ReosWatersehdTest::inclusion()
 
   inclusion = watershed5.isContainedBy( watershed1 );
   QCOMPARE( inclusion, ReosInclusionType::None );
+}
+
+
+void ReosWatersehdTest::watershedInteractions()
+{
+  ReosWatershedTree watershedTree;
+
+  QPolygonF poly1;
+  poly1 << QPointF( 0, 0 ) << QPointF( 0, 50 ) << QPointF( 100, 50 ) << QPointF( 100, 0 );
+
+  ReosWatershed *watershed_1 = watershedTree.addWatershed( new ReosWatershed( poly1, QPointF( 0, 25 ), ReosWatershed::Manual ) );
+
+  QVERIFY( watershed_1 );
+  QCOMPARE( watershedTree.watershedCount(), 1 );
+  QCOMPARE( watershed_1->downstreamWatershed(), nullptr );
+  QCOMPARE( watershed_1->directUpstreamWatershedCount(), 0 );
+
+  QPolygonF poly2;
+  poly2 << QPointF( 75, -25 ) << QPointF( 75, 75 ) << QPointF( 125, 75 ) << QPointF( 125, -25 );
+
+  ReosWatershed *watershed_2 = watershedTree.addWatershed( new ReosWatershed( poly2, QPointF( 75, 25 ), ReosWatershed::Manual ), true );
+  QVERIFY( watershed_2 );
+  QCOMPARE( watershed_1->downstreamWatershed(), nullptr );
+  QCOMPARE( watershed_1->directUpstreamWatershedCount(), 2 ); //new one + residual watershed
+  QCOMPARE( watershedTree.watershedCount(), 3 );
+  QVERIFY( poly2 != watershed_2->delineating() ); //adding watershed 2 has to result to modify is delineating
+  poly2.clear();
+  poly2 << QPointF( 75, 0 ) << QPointF( 75, 50 ) << QPointF( 100, 50 ) << QPointF( 100, 0 );
+  QCOMPARE( poly2, watershed_2->delineating() );
+  ReosWatershed *residual = watershed_1->residualWatershed();
+  QVERIFY( residual );
+  QPolygonF residualDelineating;
+  residualDelineating << QPointF( 0, 0 ) << QPointF( 0, 50 ) << QPointF( 75, 50 ) << QPointF( 75, 0 );
+  QCOMPARE( residualDelineating, residual->delineating() );
+  QCOMPARE( residual->outletPoint(), watershed_1->outletPoint() );
+
+  QPolygonF poly3;
+  poly3 << QPointF( 50, -25 ) << QPointF( 50, 75 ) << QPointF( 125, 75 ) << QPointF( 125, -25 );
+
+  ReosWatershed *watershed_3 = watershedTree.addWatershed( new ReosWatershed( poly3, QPointF( 50, 25 ), ReosWatershed::Manual ), true );
+  QVERIFY( watershed_3 );
+  QVERIFY( poly3 != watershed_3->delineating() );
+  poly3.clear();
+  poly3 << QPointF( 50, 0 ) << QPointF( 50, 50 ) << QPointF( 100, 50 ) << QPointF( 100, 0 );
+  QCOMPARE( poly3, watershed_3->delineating() );
+  QCOMPARE( watershed_1->downstreamWatershed(), nullptr );
+  QCOMPARE( watershed_2->downstreamWatershed(), watershed_3 );
+  QCOMPARE( watershed_1->directUpstreamWatershedCount(), 2 ); //new one + residual watershed
+  QCOMPARE( watershed_2->directUpstreamWatershedCount(), 0 );
+  QCOMPARE( watershed_3->directUpstreamWatershedCount(), 2 ); //watershed_2 + residual watershed
+  QCOMPARE( watershedTree.watershedCount(), 5 );
+  residualDelineating.clear();
+  residualDelineating << QPointF( 0, 0 ) << QPointF( 0, 50 ) << QPointF( 50, 50 ) << QPointF( 50, 0 );
+  QCOMPARE( residualDelineating, watershed_1->residualWatershed()->delineating() );
+  residual = watershed_3->residualWatershed();
+  residualDelineating.clear();
+  residualDelineating << QPointF( 50, 0 ) << QPointF( 50, 50 ) << QPointF( 75, 50 ) << QPointF( 75, 0 );
+  QCOMPARE( residualDelineating, residual->delineating() );
+
 }
 
 void ReosWatersehdTest::watershedDelineating()

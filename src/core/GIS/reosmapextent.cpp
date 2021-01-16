@@ -34,11 +34,6 @@ ReosMapExtent::ReosMapExtent( const QPolygonF &polygon )
   if ( polygon.isEmpty() )
     return;
 
-  mXMin = std::numeric_limits<double>::max();
-  mXMax = -std::numeric_limits<double>::max();
-  mYMin = std::numeric_limits<double>::max();
-  mYMax = -std::numeric_limits<double>::max();
-
   for ( const QPointF &pt : polygon )
     addPointToExtent( pt );
 }

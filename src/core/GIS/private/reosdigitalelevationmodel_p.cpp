@@ -15,6 +15,7 @@ email                : vcloarec at gmail dot com
 
 #include "reosprocess.h"
 #include "reosdigitalelevationmodel_p.h"
+#include "reosrasterline.h"
 
 #include "qgsrasteridentifyresult.h"
 
@@ -30,7 +31,7 @@ ReosDigitalElevationModelRaster::ReosDigitalElevationModelRaster(
   }
 }
 
-double ReosDigitalElevationModelRaster::elevationAt( const QPointF &point, const QString &destinationCrs )
+double ReosDigitalElevationModelRaster::elevationAt( const QPointF &point, const QString &destinationCrs ) const
 {
   assert( mDataProvider );
 
@@ -60,10 +61,64 @@ double ReosDigitalElevationModelRaster::elevationAt( const QPointF &point, const
     return mDataProvider->sourceNoDataValue( 1 );
 }
 
+QPolygonF ReosDigitalElevationModelRaster::elevationOnPolyline( const QPolygonF &polyline, const QString &destinationCrs, ReosProcess *process ) const
+{
+  assert( mDataProvider );
+
+  QPolygonF ret;
+
+  if ( polyline.isEmpty() )
+    return ret;
+
+  ret.append( QPointF( 0, elevationAt( polyline.first(), destinationCrs ) ) );
+
+  double s = 0;
+  for ( int i = 0; i < polyline.count() - 1; ++i )
+  {
+    const QPointF &point1 = polyline.at( i );
+    const QPointF &point2 = polyline.at( i + 1 );
+
+    ReosMapExtent segmentExtent;
+    segmentExtent.addPointToExtent( point1 );
+    segmentExtent.addPointToExtent( point2 );
+
+    ReosRasterExtent rasterExtent;
+
+    ReosRasterMemory<float> segmentDEM = extractMemoryRasterSimplePrecision( segmentExtent, rasterExtent, destinationCrs, process );
+
+    ReosRasterCellPos pos1 = rasterExtent.mapToCellPos( point1 );
+    ReosRasterCellPos pos2 = rasterExtent.mapToCellPos( point2 );
+
+    ReosRasterLine rasterLine( false );
+    rasterLine.addPoint( pos1 );
+    rasterLine.addPoint( pos2 );
+
+    QPointF vector1 = ( point2 - point1 );
+    double len1 = sqrt( vector1.x() * vector1.x() + vector1.y() * vector1.y() );
+    double lenProj = 0;
+    for ( unsigned cell = 1; cell < rasterLine.cellCount() - 1; ++cell )
+    {
+      const ReosRasterCellPos &cellPos = rasterLine.cellPosition( cell );
+      QPointF pointOnRaster = rasterExtent.cellCenterToMap( cellPos );
+      float value = segmentDEM.value( cellPos.row(), cellPos.column() );
+      QPointF vector2 = pointOnRaster - point1;
+
+      lenProj = ( vector1.x() * vector2.x() + vector1.y() * vector2.y() ) / len1;
+      ret.append( QPointF( s + lenProj, value ) );
+    }
+
+    s = s + len1;
+    ret.append( QPointF( s, elevationAt( point2, destinationCrs ) ) );
+  }
+
+  return ret;
+
+}
+
 ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimplePrecision( const ReosMapExtent &destinationExtent,
     ReosRasterExtent &outputRasterExtent,
     const QString &destinationCrs,
-    ReosProcess *process )
+    ReosProcess *process ) const
 {
   QgsCoordinateReferenceSystem destCrs = QgsCoordinateReferenceSystem::fromWkt( destinationCrs.isEmpty() ? destinationCrs : destinationExtent.crs() );
   QgsCoordinateTransform transform( mCrs, destCrs, mTransformContext );

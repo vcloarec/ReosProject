@@ -90,8 +90,11 @@ class ReosGisEngine: public ReosModule
     //! Returns whether the layrId is registered as a Digigtal Elevation Model
     bool isDigitalElevationModel( const QString &layerId ) const;
 
-    //! Returns a pointer to the on the top Digitial Elevation Model, caller take ownership
+    //! Returns a pointer to a Digitial Elevation Model corresponding to the topest layer registered as DEM, caller take ownership
     ReosDigitalElevationModel *getTopDigitalElevationModel() const;
+
+    //! Returns a pointer to a Digitial Elevation Model corresponding to \a layerId, caller take ownership. Returns nullptr if layer is not registered as DEM
+    ReosDigitalElevationModel *getDigitalElevationModel( const QString &layerId ) const;
 
     //! Returns the list of layer Ids that are registered as Digital Elevation Model with associated name
     QMap<QString, QString> digitalElevationModelRasterList() const;

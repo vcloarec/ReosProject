@@ -20,6 +20,17 @@
         <file>mActionRemoveBurningLine.png</file>
         <file>burningLine.png</file>
         <file>delineateWatershed.svg</file>
+        <file>drawProfile.svg</file>
+        <file>editProfile.svg</file>
+        <file>saveAs.svg</file>
+        <file>save.svg</file>
+        <file>savePlot.svg</file>
+        <file>copyPlot.svg</file>
+        <file>profileExtent.svg</file>
+        <file>longProfile.svg</file>
+        <file>profileAddPoint.svg</file>
+        <file>profileRemovePoint.svg</file>
+        <file>drawStreamLine.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

@@ -3,5 +3,6 @@
         <file>removeItem.png</file>
         <file>linearDrawing.png</file>
         <file>rectangularDrawing.png</file>
+        <file>moveElement.png</file>
     </qresource>
 </RCC>

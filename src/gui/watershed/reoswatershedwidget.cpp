@@ -5,6 +5,7 @@
 #include "reoswatershedmodule.h"
 #include "reoswatershedtree.h"
 #include "reosdelineatingwatershedwidget.h"
+#include "reoslongitudinalprofilewidget.h"
 
 ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *module, QWidget *parent ) :
   QWidget( parent ),
@@ -12,16 +13,22 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   mMap( map ),
   mActionDelineateWatershed( new QAction( QPixmap( ":/images/delineateWatershed.svg" ), tr( "Delineate watershed" ), this ) ),
   mDelineatingWidget( new ReosDelineatingWatershedWidget( module, map, this ) ),
-  mCurrentMapOutlet( map )
+  mActionLongitudinalProfile( new QAction( QPixmap( ":/images/longProfile.svg" ), tr( "Longitudinal profile" ) ) ),
+  mLongitudinalProfileWidget( new ReosLongitudinalProfileWidget( map, this ) ),
+  mCurrentMapOutlet( map ),
+  mCurrentStreamLine( map )
 {
   ui->setupUi( this );
   setModel( new ReosWatershedItemModel( module->watershedTree(), this ) );
 
   mActionDelineateWatershed->setCheckable( true );
+  mActionLongitudinalProfile->setCheckable( true );
   QToolBar *toolBar = new QToolBar( this );
   toolBar->addAction( mActionDelineateWatershed );
+  toolBar->addAction( mActionLongitudinalProfile );
   static_cast<QBoxLayout *>( layout() )->insertWidget( 0, toolBar );
   mDelineatingWidget->setAction( mActionDelineateWatershed );
+  mLongitudinalProfileWidget->setAction( mActionLongitudinalProfile );
 
   connect( ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ReosWatershedWidget::onCurrentWatershedChange );
 
@@ -30,6 +37,14 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   mCurrentMapOutlet.setColor( QColor( 0, 100, 250 ) );
   mCurrentMapOutlet.setExternalColor( Qt::white );
   mCurrentMapOutlet.setZValue( 10 );
+
+  mCurrentStreamLine.setWidth( 3 );
+  mCurrentStreamLine.setExternalWidth( 5 );
+  mCurrentStreamLine.setColor( QColor( 0, 100, 250 ) );
+  mCurrentStreamLine.setExternalColor( Qt::white );
+  mCurrentStreamLine.setZValue( 9 );
+
+  connect( this, &ReosWatershedWidget::currentWatershedChanged, mLongitudinalProfileWidget, &ReosLongitudinalProfileWidget::setCurrentWatershed );
 }
 
 ReosWatershedWidget::~ReosWatershedWidget()
@@ -77,6 +92,7 @@ void ReosWatershedWidget::onCurrentWatershedChange( const QItemSelection &select
   {
     it.value().setFillColor( QColor( 0, 255, 0, 30 ) );
     mCurrentMapOutlet.resetPoint( currentWatershed->outletPoint() );
+    mCurrentStreamLine.resetPolyline( currentWatershed->streamPath() );
   }
   else
   {
@@ -84,6 +100,8 @@ void ReosWatershedWidget::onCurrentWatershedChange( const QItemSelection &select
     mMapWatersheds.insert( currentWatershed, formatWatershedPolygon( wsPolygon ) );
     onCurrentWatershedChange( selected, deselected );
   }
+
+  emit currentWatershedChanged( currentWatershed );
 }
 
 ReosMapPolygon ReosWatershedWidget::formatWatershedPolygon( ReosMapPolygon &watershedPolygon )

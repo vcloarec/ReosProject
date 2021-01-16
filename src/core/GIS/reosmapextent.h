@@ -66,10 +66,11 @@ class ReosMapExtent
     QPolygonF toPolygon() const;
 
   protected:
-    double mXMin = std::numeric_limits<double>::quiet_NaN();
-    double mXMax = std::numeric_limits<double>::quiet_NaN();
-    double mYMin = std::numeric_limits<double>::quiet_NaN();
-    double mYMax = std::numeric_limits<double>::quiet_NaN();
+    double mXMin = std::numeric_limits<double>::max();
+    double mXMax = -std::numeric_limits<double>::max();
+    double mYMin = std::numeric_limits<double>::max();
+    double mYMax = -std::numeric_limits<double>::max();
+
 
     QString mCrs;
 };

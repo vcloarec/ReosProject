@@ -45,9 +45,6 @@ class ReosDelineatingWatershedWidget : public QWidget
     //! Sets the action that will commmand open/close the widget
     void setAction( QAction *action );
 
-  signals:
-    void closed();
-
   protected:
     void closeEvent( QCloseEvent *event );
 

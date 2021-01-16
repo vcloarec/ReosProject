@@ -178,7 +178,7 @@ class ReosRasterCellPos
       return mRow != -1 && mColumn != -1;
     }
 
-  private:
+  protected:
     int mRow = -1;
     int mColumn = -1;
 };
@@ -301,7 +301,7 @@ T ReosRasterMemory<T>::value( int row, int col ) const
   if ( ( row < 0 ) || ( row >= mRowCount ) || ( col < 0 ) || ( col >= mColumnCount ) )
     return noData();
 
-  return mValues[row * mColumnCount + col];
+  return mValues.at( row * mColumnCount + col );
 }
 
 template<typename T>
@@ -469,7 +469,7 @@ class ReosRasterCellValue: public ReosRasterCellPos
     {}
 
     ReosRasterCellValue( const ReosRasterCellValue<T> &other ):
-      ReosRasterCellPos( other.row(), other.column() ),
+      ReosRasterCellPos( other.mRow, other.mColumn ),
       mRaster( other.mRaster )
     {
     }
@@ -484,21 +484,21 @@ class ReosRasterCellValue: public ReosRasterCellPos
       return value() <= other.value();
     }
 
-    T value() const {return mRaster.value( row(), column() );}
-    void setValue( T value ) {mRaster.setValue( row(), column(), value );}
+    T value() const {return mRaster.value( mRow, mColumn );}
+    void setValue( T value ) {mRaster.setValue( mRow, mColumn, value );}
 
     bool isBorder() const
     {
-      if ( row() == 0 )
+      if ( mRow == 0 )
         return true;
 
-      if ( row() == mRaster->getRowCount() - 1 )
+      if ( mRow == mRaster->getRowCount() - 1 )
         return true;
 
-      if ( column() == 0 )
+      if ( mColumn == 0 )
         return true;
 
-      if ( column() == mRaster->getColumnCount() - 1 )
+      if ( mColumn == mRaster->getColumnCount() - 1 )
         return true;
 
       return  false;
@@ -510,13 +510,13 @@ class ReosRasterCellValue: public ReosRasterCellPos
       if ( ! mRaster.isValid() )
         return false;
 
-      if ( row() >= mRaster.rowCount() )
+      if ( mRow >= mRaster.rowCount() )
         return false;
 
-      if ( column() >= mRaster.columnCount() )
+      if ( mColumn >= mRaster.columnCount() )
         return false;
 
-      if ( row() < 0 || column() < 0 )
+      if ( mRow < 0 || mColumn < 0 )
         return false;
 
       return ReosRasterCellPos::isValid();
@@ -525,8 +525,8 @@ class ReosRasterCellValue: public ReosRasterCellPos
     ReosRasterCellValue &operator=( const ReosRasterCellValue &other )
     {
       mRaster = other.mRaster;
-      setColumn( other.column() );
-      setRow( other.row() );
+      setColumn( other.mColumn );
+      setRow( other.mRow );
 
       return *this;
     }

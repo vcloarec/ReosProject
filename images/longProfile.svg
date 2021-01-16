@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="24mm"
+   height="24mm"
+   viewBox="0 0 24 24"
+   version="1.1"
+   id="svg6775"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
+   sodipodi:docname="longProfile.svg">
+  <defs
+     id="defs6769" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="3.959798"
+     inkscape:cx="54.28736"
+     inkscape:cy="36.651555"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:snap-global="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1015"
+     inkscape:window-x="1920"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata6772">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Calque 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-273)">
+    <path
+       style="fill:none;stroke:#009bf2;stroke-width:2.065;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 1.4699824,274.48255 c 1.3505934,15.01376 20.5797536,21.24792 20.5797536,21.24792"
+       id="path7320"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:#009bf2;stroke-width:0.62362206;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 47.005859 8.1445312 C 44.386716 8.1445312 42.473763 9.199384 41.267578 11.308594 C 40.061394 13.382054 39.458984 16.312135 39.458984 20.101562 C 39.458984 23.89099 40.095984 26.858947 41.371094 29.003906 C 42.680666 31.113116 44.559028 32.167969 47.005859 32.167969 C 49.659466 32.167969 51.607009 31.113116 52.847656 29.003906 C 54.122766 26.858947 54.759766 23.89099 54.759766 20.101562 C 54.759766 16.312135 54.106447 13.382054 52.796875 11.308594 C 51.487303 9.199384 49.556078 8.1445312 47.005859 8.1445312 z M 66.650391 8.6796875 L 46.179688 46.96875 L 50.160156 46.96875 L 70.630859 8.6796875 L 66.650391 8.6796875 z M 47.005859 11.46875 C 49.659466 11.46875 50.986328 14.345922 50.986328 20.101562 C 50.986328 25.892952 49.659466 28.789062 47.005859 28.789062 C 45.696288 28.789063 44.731652 28.057519 44.111328 26.591797 C 43.525467 25.126075 43.232422 22.961508 43.232422 20.101562 C 43.232422 17.241617 43.525467 15.097941 44.111328 13.667969 C 44.731652 12.202247 45.696288 11.46875 47.005859 11.46875 z M 69.595703 23.480469 C 66.976559 23.480469 65.06556 24.535321 63.859375 26.644531 C 62.65319 28.717992 62.048828 31.650025 62.048828 35.439453 C 62.048828 39.228881 62.687781 42.194885 63.962891 44.339844 C 65.272462 46.449054 67.148871 47.503906 69.595703 47.503906 C 72.249309 47.503906 74.196853 46.449054 75.4375 44.339844 C 76.712609 42.194885 77.351562 39.228881 77.351562 35.439453 C 77.351562 31.650025 76.678019 28.717992 75.333984 26.644531 C 74.024413 24.535321 72.11146 23.480469 69.595703 23.480469 z M 69.595703 26.859375 C 72.249309 26.859375 73.576172 29.719562 73.576172 35.439453 C 73.576172 41.230843 72.249309 44.125 69.595703 44.125 C 68.286131 44.125 67.321495 43.410441 66.701172 41.980469 C 66.115311 40.514747 65.822266 38.335148 65.822266 35.439453 C 65.822266 32.579508 66.115311 30.433879 66.701172 29.003906 C 67.321495 27.573934 68.286131 26.859375 69.595703 26.859375 z "
+       transform="matrix(0.26458333,0,0,0.26458333,0,273)"
+       id="flowRoot7322" />
+  </g>
+</svg>

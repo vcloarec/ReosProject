@@ -112,7 +112,7 @@ bool ReosWatershedDelineating::startDelineating()
   else
   {
     std::unique_ptr<ReosDigitalElevationModel> dem;
-    dem.reset( mGisEngine->getTopDigitalElevationModel() );
+    dem.reset( mGisEngine->getDigitalElevationModel( mDEMLayerId ) );
     mProcess = std::make_unique<ReosWatershedDelineatingProcess>( dem.release(), mExtent, mDownstreamLine, mBurningLines );
   }
 
@@ -156,7 +156,8 @@ bool ReosWatershedDelineating::validateWatershed( bool &needAdjusting )
                                  mProcess->watershedPolygon(),
                                  mProcess->streamLine().last(),
                                  ReosWatershed::Automatic,
-                                 mDownstreamLine ) );
+                                 mDownstreamLine,
+                                 mProcess->streamLine() ) );
     else
     {
       // reduce the direction raster extent and create new watershed with it
@@ -180,6 +181,7 @@ bool ReosWatershedDelineating::validateWatershed( bool &needAdjusting )
                                mProcess->streamLine().last(),
                                ReosWatershed::Automatic,
                                mDownstreamLine,
+                               mProcess->streamLine(),
                                reducedDirection,
                                reducedRasterExtent ) ) ;
     }

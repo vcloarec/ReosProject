@@ -28,6 +28,7 @@ class ReosWatershed
                    const QPointF &outletPoint,
                    Type type,
                    const QPolygonF &downstreamLine = QPolygonF(),
+                   const QPolygonF &streamPath = QPolygonF(),
                    const ReosRasterWatershed::Directions &direction = ReosRasterWatershed::Directions(),
                    const ReosRasterExtent &directionExent = ReosRasterExtent() );
 
@@ -131,6 +132,18 @@ class ReosWatershed
     //! Extents the delineating of this watershed to fit with the delineating of \a other
     void extentTo( const ReosWatershed &other );
 
+    //! Returns the stream path line of the watershed
+    QPolygonF streamPath() const;
+
+    //! Returns the residual watershed if exists, if not returns nullptr
+    ReosWatershed *residualWatershed() const;
+
+    //! Returns the longitudinale profile of the watershed
+    QPolygonF profile() const;
+
+    //! Sets the longitudinale profile of the watershed
+    void setProfile( const QPolygonF &profile );
+
   private:
     Type mType = None;
     QString mName;
@@ -140,6 +153,9 @@ class ReosWatershed
     QPolygonF mDownstreamLine;
     ReosRasterByteCompressed mDirectionRaster;
     ReosRasterExtent mDirectionExtent;
+    QPolygonF mStreamPath;
+
+    QPolygonF mProfile;
 
     std::vector<std::unique_ptr<ReosWatershed>> mUpstreamWatersheds;
     ReosWatershed *mDownstreamWatershed = nullptr;

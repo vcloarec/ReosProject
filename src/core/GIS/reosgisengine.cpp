@@ -222,6 +222,19 @@ ReosDigitalElevationModel *ReosGisEngine::getTopDigitalElevationModel() const
   return nullptr;
 }
 
+ReosDigitalElevationModel *ReosGisEngine::getDigitalElevationModel( const QString &layerId ) const
+{
+  QgsMapLayer *layer = QgsProject::instance()->mapLayer( layerId );
+  QgsRasterLayer *rl = qobject_cast<QgsRasterLayer *>( layer );
+  if ( rl )
+  {
+    QgsCoordinateTransformContext transformContext = QgsProject::instance()->transformContext();
+    return ReosDigitalElevationModelFactory::createDEM( rl, transformContext );
+  }
+
+  return nullptr;
+}
+
 QMap<QString, QString> ReosGisEngine::digitalElevationModelRasterList() const
 {
   QgsLayerTreeNode *rootNode = mLayerTreeModel->rootGroup();
