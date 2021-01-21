@@ -86,12 +86,18 @@ class ReosRasterWatershedMarkerFromDirection: public ReosProcess
 class ReosRasterWatershedFromDirectionAndDownStreamLine: public ReosProcess
 {
   public:
-    //! Constrcutor with \a rasterDirection and downstream \a line
-    ReosRasterWatershedFromDirectionAndDownStreamLine( ReosRasterWatershed::Directions rasterDirection, const ReosRasterLine &line );
-    ReosRasterWatershedFromDirectionAndDownStreamLine( ReosRasterWatershed::Directions rasterDirection, const ReosRasterLine &line, ReosRasterTestingCell *testingCell );
+    //! Constructor with \a rasterDirection and downstream \a line
+    ReosRasterWatershedFromDirectionAndDownStreamLine(
+      ReosRasterWatershed::Directions rasterDirection,
+      const ReosRasterLine &line );
+
+    ReosRasterWatershedFromDirectionAndDownStreamLine(
+      ReosRasterWatershed::Directions rasterDirection,
+      const ReosRasterLine &line,
+      ReosRasterTestingCell *testingCell );
 
     void start() override;
-    void stopAsSoonAsPossible( bool b ) override;
+    void stop( bool b ) override;
 
     //! Returns the raster watershed defined by this class after calculation
     ReosRasterWatershed::Watershed watershed() const;
@@ -148,7 +154,7 @@ class ReosRasterWatershedToVector: public ReosProcess
 class ReosRasterWatershedTraceDownstream: public ReosProcess
 {
   public:
-    //! Constructor with the \a directionRaster, the \a stopLine, the \a extent of the raster in the map and the position of the startinpoint \a startPos
+    //! Constructor with the \a directionRaster, the \a stopLine, the \a extent of the raster in the map and the position of the starting point \a startPos
     ReosRasterWatershedTraceDownstream(
       ReosRasterWatershed::Directions directionRaster,
       const ReosRasterLine stopLine,

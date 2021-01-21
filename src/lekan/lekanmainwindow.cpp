@@ -145,8 +145,10 @@ bool LekanMainWindow::openProject()
   if ( !lekanProject.getData( QStringLiteral( "GIS-engine" ), gisEngineData ) )
     return false;
   ReosEncodedElement encodedGisEngine( gisEngineData );
-  if ( !mGisEngine->decode( encodedGisEngine, path, baseName ) )
+  if ( !mGisEngine->decode( lekanProject.getEncodedData( QStringLiteral( "GIS-engine" ) ), path, baseName ) )
     return false;
+
+  mWatershedModule->decode( lekanProject.getEncodedData( QStringLiteral( "watershed-module" ) ) );
 
   return true;
 }
@@ -160,7 +162,8 @@ bool LekanMainWindow::saveProject()
   ReosEncodedElement lekanProject( QStringLiteral( "Lekan-project" ) );
 
   ReosEncodedElement encodedGisEngine = mGisEngine->encode( path, baseName );
-  lekanProject.addData( QStringLiteral( "GIS-engine" ), encodedGisEngine.bytes() );
+  lekanProject.addEncodedData( QStringLiteral( "GIS-engine" ), encodedGisEngine );
+  lekanProject.addEncodedData( QStringLiteral( "watershed-module" ), mWatershedModule->encode() );
 
   QFile file( filePath );
   if ( !file.open( QIODevice::WriteOnly ) )

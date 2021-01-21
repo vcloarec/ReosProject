@@ -26,6 +26,8 @@ class ReosMapItem_p: public QgsMapCanvasItem
     ReosMapItem_p( QgsMapCanvas *canvas ): QgsMapCanvasItem( canvas ) {}
     virtual ReosMapItem_p *clone() = 0;
 
+    virtual void setEditing( bool ) {}
+
     QColor color;
     QColor externalColor;
     double width = 0.0;
@@ -63,12 +65,25 @@ class ReosMapPolygon_p: public ReosMapItem_p
     QRectF boundingRect() const override;
     void updatePosition() override;
     QPainterPath shape() const override;
+    void setEditing( bool b ) override;
+
+    // Search a vertex in viex coordinate
+    int findVertexInView( const QRectF &zone ) const;
+
+    void activeMarker( bool b );
+    void setMarkerDistance( double d );
 
     QPolygonF mapPolygon;
+
 
   protected:
     void paint( QPainter *painter ) override;
     QPolygonF mViewPolygon;
+    bool mIsEditing = false;
+    bool mIsMarkerActive = false;
+    bool mIsMarkerOnLine = false;
+    QPointF mMarkerposition;
+    QPointF mMarkerPositionOnView;
 
   private:
     virtual void draw( QPainter *painter );
@@ -78,7 +93,6 @@ class ReosMapPolyline_p: public ReosMapPolygon_p
 {
   public:
     ReosMapPolyline_p( QgsMapCanvas *canvas );
-
     ReosMapPolyline_p *clone() override;
 
   private:

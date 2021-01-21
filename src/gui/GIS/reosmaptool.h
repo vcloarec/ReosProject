@@ -18,23 +18,32 @@ email                : vcloarec at gmail dot com
 
 #include <memory>
 #include "reosmap.h"
+#include <QPointer>
 
 class ReosMapToolDrawPoint_p;
 class ReosMapToolDrawPolyline_p;
 class ReosMapToolDrawExtent_p;
 class ReosMapToolSelectMapItem_p;
+class ReosMapToolEditPolyline_p;
 class ReosMapTool_p;
+class ReosMenuPopulator;
 
 class ReosMapTool : public QObject
 {
   public:
-
-    ReosMapTool( ReosMap *map );
+    virtual ~ReosMapTool();
     void activate();
     void deactivate();
     void setCurrentToolInMap() const;
-
     void setAction( QAction *action );
+
+    void setCursor( const QCursor &cursor );
+
+    //! Sets context menu populator, take ownership
+    void setContextMenuPopulator( ReosMenuPopulator *populator );
+
+  protected:
+    ReosMapTool( ReosMap *map );
 
   private:
     virtual ReosMapTool_p *tool_p() const = 0;
@@ -45,23 +54,26 @@ class ReosMapToolNeutral: public ReosMapTool
 {
   public:
     ReosMapToolNeutral( ReosMap *map );
+    ~ReosMapToolNeutral();
 
   private:
-    ReosMapTool_p *d;
+    QPointer<ReosMapTool_p> d;
     ReosMapTool_p *tool_p() const;
 };
+
 
 class ReosMapToolDrawPoint: public ReosMapTool
 {
     Q_OBJECT
   public:
     ReosMapToolDrawPoint( ReosMap *map );
+    ~ReosMapToolDrawPoint();
 
   signals:
     void drawn( const QPointF &point );
 
   private:
-    ReosMapToolDrawPoint_p *d;
+    QPointer<ReosMapToolDrawPoint_p> d;
     ReosMapTool_p *tool_p() const override;
 };
 
@@ -71,6 +83,7 @@ class ReosMapToolDrawPolyRubberBand : public ReosMapTool
     Q_OBJECT
   public:
     ReosMapToolDrawPolyRubberBand( ReosMap *map, bool closed );
+    ~ReosMapToolDrawPolyRubberBand();
 
     void setStrokeWidth( double width );
     void setColor( const QColor &color );
@@ -78,7 +91,7 @@ class ReosMapToolDrawPolyRubberBand : public ReosMapTool
     void setLineStyle( Qt::PenStyle style );
 
   protected:
-    ReosMapToolDrawPolyline_p *d;
+    QPointer<ReosMapToolDrawPolyline_p> d;
   private:
     ReosMapTool_p *tool_p() const override;
 };
@@ -110,6 +123,7 @@ class ReosMapToolDrawExtent: public ReosMapTool
     Q_OBJECT
   public:
     ReosMapToolDrawExtent( ReosMap *map );
+    ~ReosMapToolDrawExtent();
 
     void setStrokeWidth( double width );
     void setColor( const QColor &color );
@@ -131,12 +145,31 @@ class ReosMapToolSelectMapItem : public ReosMapTool
   public:
     ReosMapToolSelectMapItem( ReosMap *map, int targetType = -1 );
     ReosMapToolSelectMapItem( ReosMap *map, const QString &targetDescription );
+    ~ReosMapToolSelectMapItem();
+
+    void setSearchUnderPoint( bool b );
 
   signals:
-    void found( ReosMapItem *item );
+    void found( ReosMapItem *item, const QPointF &point );
 
   private:
     ReosMapToolSelectMapItem_p *d;
+    ReosMapTool_p *tool_p() const;
+};
+
+class ReosMapToolEditMapPolyline : public ReosMapTool
+{
+    Q_OBJECT
+  public:
+    ReosMapToolEditMapPolyline( ReosMap *map );
+
+    //! Sets the map \a polyline to edit
+    void setMapPolyline( ReosMapPolyline *polyline );
+
+  signals:
+    void polylineEdited();
+  private:
+    ReosMapToolEditPolyline_p *d = nullptr;
     ReosMapTool_p *tool_p() const;
 };
 

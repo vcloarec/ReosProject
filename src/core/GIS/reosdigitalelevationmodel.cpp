@@ -15,11 +15,29 @@ email                : vcloarec at gmail dot com
 
 #include "reosdigitalelevationmodel.h"
 
-ReosDigitalElevationModel::ReosDigitalElevationModel()
-{
+ReosElevationOnPolylineProcess::ReosElevationOnPolylineProcess( ReosDigitalElevationModel *dem ): ReosProcess(), mDem( dem )
+{}
 
+void ReosElevationOnPolylineProcess::setEntryPolyline( const QPolygonF &polyline, const QString destinationCRS )
+{
+  mPolyline = polyline;
+  mDestinationCRS = destinationCRS;
 }
 
-ReosDigitalElevationModel::~ReosDigitalElevationModel() = default;
+QPolygonF ReosElevationOnPolylineProcess::resultProfile() const
+{
+  if ( isSuccessful() )
+    return mResult;
 
+  return QPolygonF();
+}
 
+void ReosElevationOnPolylineProcess::start()
+{
+  mIsSuccessful = false;
+  if ( mDem )
+  {
+    mResult = mDem->elevationOnPolyline( mPolyline, mDestinationCRS, this );
+    mIsSuccessful = true;
+  }
+}

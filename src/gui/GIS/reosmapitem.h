@@ -32,11 +32,16 @@ class ReosMapItem
 {
   public:
     //! Construct a map item and link it with a map
+    ReosMapItem();
     ReosMapItem( ReosMap *map );
+    ReosMapItem( const ReosMapItem &other );
     virtual ~ReosMapItem() = default;
 
-    //! Returns whether \a item correspond to \a this item
+    //! Returns whether graphic \a internal item correspond to \a this graphical item
     bool isItem( QGraphicsItem *item ) const;
+
+    //! Returns whether interal item of \a item correspond to \a this internal item
+    bool isItem( ReosMapItem *item ) const;
 
     void setColor( const QColor &color );
     void setExternalColor( const QColor &color );
@@ -52,19 +57,22 @@ class ReosMapItem
 
     void setVisible( bool visible );
 
+    QGraphicsItem *graphicItem();
+
   protected:
     bool isMapExist() const;
-    QPointer<ReosMap> mMap;
+    QPointer<ReosMap> mMap = nullptr;
     QString mDescription;
 
     //! Private item that represent the graphic representation on the map, access to itt need to check isMapExist()
-    ReosMapItem_p *d_;
+    ReosMapItem_p *d_ = nullptr;
 };
 
 class ReosMapMarker : public ReosMapItem
 {
   public:
     //! Contructor
+    ReosMapMarker();
     ReosMapMarker( ReosMap *map );
     ReosMapMarker( ReosMap *map, const QPointF &point );
     ~ReosMapMarker();
@@ -90,6 +98,7 @@ class ReosMapPolygon : public ReosMapItem
 {
   public:
     //! Contructor
+    ReosMapPolygon();
     ReosMapPolygon( ReosMap *map );
     ReosMapPolygon( ReosMap *map, const QPolygonF &polygon );
     ~ReosMapPolygon();
@@ -112,6 +121,7 @@ class ReosMapPolyline: public ReosMapItem
 {
   public:
     //! Constructor
+    ReosMapPolyline();
     ReosMapPolyline( ReosMap *map );
     ReosMapPolyline( ReosMap *map, const QPolygonF &polyline );
     ~ReosMapPolyline();
@@ -127,6 +137,50 @@ class ReosMapPolyline: public ReosMapItem
 
     //! Move the point at \a index and update the map
     void movePoint( int pointIndex, const QPointF &p );
+
+    void activeMarker( bool b );
+    void setMarkerDistance( double d );
+
+};
+
+
+class ReosMapPolylineFormater
+{
+  public:
+    ReosMapPolylineFormater() = default;
+    ReosMapPolyline &operator()( ReosMapPolyline &&polyline );
+    ReosMapPolyline &operator()( ReosMapPolyline &polyline );
+
+
+    QColor color() const;
+    void setColor( const QColor &color );
+
+    QColor externalColor() const;
+    void setExternalColor( const QColor &externalColor );
+
+    double width() const;
+    void setWidth( double width );
+
+    double externalWidth() const;
+    void setExternalWidth( double externalWidth );
+
+    Qt::PenStyle style() const;
+    void setStyle( const Qt::PenStyle &style );
+
+    double z() const;
+    void setZ( double z );
+
+    QString description() const;
+    void setDescription( const QString &descritpion );
+
+  private:
+    QColor mColor;
+    QColor mExternalColor;
+    double mWidth = 0;
+    double mExternalWidth = 0;
+    Qt::PenStyle mStyle = Qt::SolidLine;
+    double mZ = 0;
+    QString mDescription;
 
 };
 

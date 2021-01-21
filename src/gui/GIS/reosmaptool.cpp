@@ -19,6 +19,7 @@ email                : vcloarec at gmail dot com
 #include <QObject>
 
 #include "reosmaptool_p.h"
+#include "reosmappolygon_p.h"
 
 ReosMapToolDrawPolyline::ReosMapToolDrawPolyline( ReosMap *map ): ReosMapToolDrawPolyRubberBand( map, false )
 {
@@ -49,10 +50,26 @@ void ReosMapTool::setAction( QAction *action )
   connect( action, &QAction::triggered, [this]() {setCurrentToolInMap();} );
 }
 
+void ReosMapTool::setCursor( const QCursor &cursor )
+{
+  tool_p()->setCursor( cursor );
+}
+
+void ReosMapTool::setContextMenuPopulator( ReosMenuPopulator *populator )
+{
+  tool_p()->setContextMenuPopulator( populator );
+}
+
 ReosMapToolDrawPolyRubberBand::ReosMapToolDrawPolyRubberBand( ReosMap *map, bool closed ): ReosMapTool( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolDrawPolyline_p( canvas, closed );
+}
+
+ReosMapToolDrawPolyRubberBand::~ReosMapToolDrawPolyRubberBand()
+{
+  if ( d )
+    d->deleteLater();
 }
 
 void ReosMapToolDrawPolyRubberBand::setStrokeWidth( double width )
@@ -80,12 +97,15 @@ ReosMapTool_p *ReosMapToolDrawPolyRubberBand::tool_p() const
   return d;
 }
 
-
 ReosMapTool::ReosMapTool( ReosMap *map ):
-  mMap( map )
+  QObject( map )
+  , mMap( map )
 {
 
 }
+
+ReosMapTool::~ReosMapTool()
+{}
 
 void ReosMapTool::activate()
 {
@@ -103,6 +123,12 @@ ReosMapToolDrawExtent::ReosMapToolDrawExtent( ReosMap *map ): ReosMapTool( map )
   d = new ReosMapToolDrawExtent_p( canvas );
   d->setCursor( QCursor( QPixmap( ":/cursors/rectangularDrawing.png" ), 3, 3 ) );
   connect( d, &ReosMapToolDrawExtent_p::extentDrawn, this, &ReosMapToolDrawExtent::extentDrawn );
+}
+
+ReosMapToolDrawExtent::~ReosMapToolDrawExtent()
+{
+  if ( d )
+    d->deleteLater();
 }
 
 ReosMapTool_p *ReosMapToolDrawExtent::tool_p() const
@@ -151,6 +177,17 @@ ReosMapToolSelectMapItem::ReosMapToolSelectMapItem( ReosMap *map, const QString 
   connect( d, &ReosMapToolSelectMapItem_p::found, this, &ReosMapToolSelectMapItem::found );
 }
 
+ReosMapToolSelectMapItem::~ReosMapToolSelectMapItem()
+{
+  if ( d )
+    d->deleteLater();
+}
+
+void ReosMapToolSelectMapItem::setSearchUnderPoint( bool b )
+{
+  d->setSearchUnderPoint( b );
+}
+
 ReosMapTool_p *ReosMapToolSelectMapItem::tool_p() const
 {
   return d;
@@ -161,6 +198,12 @@ ReosMapToolDrawPoint::ReosMapToolDrawPoint( ReosMap *map ): ReosMapTool( map )
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolDrawPoint_p( canvas );
   connect( d, &ReosMapToolDrawPoint_p::pointDrawn, this, &ReosMapToolDrawPoint::drawn );
+}
+
+ReosMapToolDrawPoint::~ReosMapToolDrawPoint()
+{
+  if ( d )
+    d->deleteLater();
 }
 
 ReosMapTool_p *ReosMapToolDrawPoint::tool_p() const
@@ -174,7 +217,31 @@ ReosMapToolNeutral::ReosMapToolNeutral( ReosMap *map ): ReosMapTool( map )
   d = new ReosMapTool_p( canvas );
 }
 
+ReosMapToolNeutral::~ReosMapToolNeutral()
+{
+  if ( d )
+    d->deleteLater();
+}
+
 ReosMapTool_p *ReosMapToolNeutral::tool_p() const
+{
+  return d;
+}
+
+ReosMapToolEditMapPolyline::ReosMapToolEditMapPolyline( ReosMap *map ): ReosMapTool( map )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  d = new ReosMapToolEditPolyline_p( canvas );
+  setCursor( QCursor( QPixmap( ":/cursors/moveElement.png" ), 16, 16 ) );
+  connect( d, &ReosMapToolEditPolyline_p::polylineEdited, this, &ReosMapToolEditMapPolyline::polylineEdited );
+}
+
+void ReosMapToolEditMapPolyline::setMapPolyline( ReosMapPolyline *polyline )
+{
+  d->setMapPolyline( static_cast<ReosMapPolyline_p *>( polyline->graphicItem() ) );
+}
+
+ReosMapTool_p *ReosMapToolEditMapPolyline::tool_p() const
 {
   return d;
 }

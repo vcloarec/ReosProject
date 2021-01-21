@@ -72,7 +72,8 @@ SET(REOS_CORE_HEADERS_PRIVATE
     )
 
 SET(IMAGE_RCCS ../../images/images.qrc
-               ../../images/cursors/cursors.qrc)
+               ../../images/cursors/cursors.qrc
+               ../../images/formulas/formulas.qrc)
 
 SET(REOS_CORE_LIBS ${REOS_CORE_LIBS} reosCore)
 ADD_LIBRARY(reosCore SHARED

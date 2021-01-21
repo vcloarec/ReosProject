@@ -60,6 +60,8 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_SOURCE_DIR}/src/core/process
   ${CMAKE_SOURCE_DIR}/src/core/watershed
   ${CMAKE_SOURCE_DIR}/src/core/utils
+
+  ${CMAKE_SOURCE_DIR}/src/gui/GIS
 )
 
 MACRO (ADD_REOS_TEST TESTSRC)
@@ -73,7 +75,8 @@ MACRO (ADD_REOS_TEST TESTSRC)
                         gtest
                         gmock
                         reosTools
-                        reosCore)
+                        reosCore
+                        reosGui)
 
   IF(GDAL_FOUND)
     TARGET_INCLUDE_DIRECTORIES(${TESTNAME} PRIVATE ${GDAL_INCLUDE_DIRS})
@@ -87,6 +90,8 @@ SET(TESTS
     src/core/reos_raster_test.cpp
     src/core/reos_watershedRaster_test.cpp
     src/core/reos_geometry_test.cpp
+
+    src/gui/reos_gisGui_test.cpp
     )
 
 FOREACH(TESTSRC ${TESTS})

@@ -14,7 +14,7 @@ email                : vcloarec at gmail dot com
  ***************************************************************************/
 
 #include "reos_testutils.h"
-#include "reosmodule.h"
+#include "reosprocess.h"
 
 const char *data_path()
 {
@@ -35,24 +35,19 @@ std::string tmp_file( std::string basename )
   return path;
 }
 
-ModuleProcessControler::ModuleProcessControler( ReosModule *module )
+ModuleProcessControler::ModuleProcessControler( ReosProcess *process ): mProcess( process )
 {
-  QObject::connect( module, &ReosModule::processFinished, this, &ModuleProcessControler::processFinished );
+  QObject::connect( process, &ReosProcess::finished, this, &ModuleProcessControler::processFinished );
+  process->startOnOtherThread();
 }
 
 void ModuleProcessControler::waitForFinished()
 {
-  if ( !mProcessFinished )
+  if ( mProcess && !mProcess->isFinished() )
     mEventLoop.exec();
-}
-
-void ModuleProcessControler::reset()
-{
-  mProcessFinished = false;
 }
 
 void ModuleProcessControler::processFinished()
 {
-  mProcessFinished = true;
   mEventLoop.exit();
 }

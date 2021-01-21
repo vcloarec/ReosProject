@@ -29,6 +29,9 @@ class ReosGeometryUtils
     static QPolygonF polygonFitInPolygon( const QPolygonF &polygon1, const QPolygonF &polygon2 );
     static QPolygonF polygonCutByPolygon( const QPolygonF &polygon1, const QPolygonF &polygon2 );
     static QPolygonF polygonUnion( const QPolygonF &polygon1, const QPolygonF &polygon2 );
+
+    //! Return the second vertex's index of the closest segment of \a polyline from \a point, returns -1 if none
+    static int closestSegment( const QPointF &point, const QPolygonF &polyline );
 };
 
 #endif // REOSGEOMETRYUTILS_H

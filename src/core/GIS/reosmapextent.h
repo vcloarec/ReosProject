@@ -20,6 +20,8 @@ email                : vcloarec at gmail dot com
 #include <QString>
 #include <QPolygon>
 
+#include "reosencodedelement.h"
+
 /**
  * Class that represent a rectangular extent in a map
  */
@@ -61,15 +63,62 @@ class ReosMapExtent
     void setCrs( const QString &crs );
 
     bool operator==( const ReosMapExtent &other ) const;
+    bool operator!=( const ReosMapExtent &other ) const;
+
     ReosMapExtent operator*( const ReosMapExtent &other ) const;
 
     QPolygonF toPolygon() const;
 
+    static ReosMapExtent decode( const ReosEncodedElement &element )
+    {
+      if ( element.description() == QStringLiteral( "map-extent" ) )
+      {
+        double xMin;
+        if ( !element.getData( QStringLiteral( "xmin" ), xMin ) )
+          return ReosMapExtent();
+        double xMax;
+        if ( !element.getData( QStringLiteral( "xmax" ), xMax ) )
+          return ReosMapExtent();
+        double yMin;
+        if ( !element.getData( QStringLiteral( "ymin" ), yMin ) )
+          return ReosMapExtent();
+        double yMax;
+        if ( !element.getData( QStringLiteral( "ymax" ), yMax ) )
+          return ReosMapExtent();
+        QString crs;
+        if ( !element.getData( QStringLiteral( "crs" ), crs ) )
+          return ReosMapExtent();
+
+        ReosMapExtent ret( xMin, yMin, xMax, yMax );
+        ret.setCrs( crs );
+
+        return ret;
+      }
+      else
+      {
+
+      }
+    }
+
+    ReosEncodedElement encode() const
+    {
+      ReosEncodedElement ret( QStringLiteral( "map-extent" ) );
+
+      ret.addData( QStringLiteral( "xmin" ), mXMin );
+      ret.addData( QStringLiteral( "xmax" ), mXMax );
+      ret.addData( QStringLiteral( "ymin" ), mYMin );
+      ret.addData( QStringLiteral( "ymax" ), mYMax );
+      ret.addData( QStringLiteral( "crs" ), mCrs );
+
+      return ret;
+    }
+
   protected:
-    double mXMin = std::numeric_limits<double>::quiet_NaN();
-    double mXMax = std::numeric_limits<double>::quiet_NaN();
-    double mYMin = std::numeric_limits<double>::quiet_NaN();
-    double mYMax = std::numeric_limits<double>::quiet_NaN();
+    double mXMin = std::numeric_limits<double>::max();
+    double mXMax = -std::numeric_limits<double>::max();
+    double mYMin = std::numeric_limits<double>::max();
+    double mYMax = -std::numeric_limits<double>::max();
+
 
     QString mCrs;
 };

@@ -20,7 +20,7 @@ email                : vcloarec at gmail dot com
 #include <QEventLoop>
 #include <string>
 
-class ReosModule;
+class ReosProcess;
 
 const char *data_path();
 
@@ -31,7 +31,8 @@ std::string tmp_file( std::string basename );
 class ModuleProcessControler: public QObject
 {
   public:
-    ModuleProcessControler( ReosModule *module );
+    ModuleProcessControler( ReosProcess *process );
+
     void waitForFinished();
     void reset();
 
@@ -39,6 +40,7 @@ class ModuleProcessControler: public QObject
     void processFinished();
 
   private:
+    ReosProcess *mProcess;
     bool mProcessFinished = false;
     QEventLoop mEventLoop;
 };

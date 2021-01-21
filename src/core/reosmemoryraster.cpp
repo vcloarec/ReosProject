@@ -80,6 +80,74 @@ ReosRasterExtent ReosRasterExtent::operator*( const ReosRasterExtent &other ) co
   }
 }
 
+bool ReosRasterExtent::operator==( const ReosRasterExtent &other ) const
+{
+  if ( ReosMapExtent::operator!=( other ) )
+    return false;
+  if ( mIsValid != other.mIsValid )
+    return false;
+  if ( mXOrigin != other.mXOrigin )
+    return false;
+  if ( mXOrigin != other.mXOrigin )
+    return false;
+  if ( mYOrigin != other.mYOrigin )
+    return false;
+  if ( mXCellSize != other.mXCellSize )
+    return false;
+  if ( mYCellSize != other.mYCellSize )
+    return false;
+  if ( mXCellCount != other.mXCellCount )
+    return false;
+  if ( mYCellCount != other.mYCellCount )
+    return false;
+  return true;
+}
+
+bool ReosRasterExtent::operator!=( const ReosRasterExtent &other ) const
+{
+  return !operator==( other );
+}
+
+ReosEncodedElement ReosRasterExtent::encode() const
+{
+  ReosEncodedElement ret( QStringLiteral( "raster-extent" ) );
+
+  ret.addEncodedData( QStringLiteral( "map-extent" ), ReosMapExtent::encode() );
+  ret.addData( QStringLiteral( "valid" ), mIsValid );
+  ret.addData( QStringLiteral( "x-origin" ),  mXOrigin );
+  ret.addData( QStringLiteral( "y-origin" ), mYOrigin );
+  ret.addData( QStringLiteral( "x-cell-size" ), mXCellSize );
+  ret.addData( QStringLiteral( "y-cell-size" ), mYCellSize );
+  ret.addData( QStringLiteral( "x-cell-count" ), mXCellCount );
+  ret.addData( QStringLiteral( "y-cell-count" ), mYCellCount );
+
+  return ret;
+}
+
+ReosRasterExtent ReosRasterExtent::decode( const ReosEncodedElement &element )
+{
+  ReosMapExtent me = ReosMapExtent::decode( element.getEncodedData( QStringLiteral( "map-extent" ) ) );
+  ReosRasterExtent ret( me );
+
+  if ( !element.getData( QStringLiteral( "valid" ), ret.mIsValid ) )
+    return ReosRasterExtent();
+
+  if ( !element.getData( QStringLiteral( "x-origin" ),  ret.mXOrigin ) )
+    return ReosRasterExtent();
+  if ( !element.getData( QStringLiteral( "y-origin" ), ret.mYOrigin ) )
+    return ReosRasterExtent();
+  if ( !element.getData( QStringLiteral( "x-cell-size" ), ret.mXCellSize ) )
+    return ReosRasterExtent();
+  if ( !element.getData( QStringLiteral( "y-cell-size" ), ret.mYCellSize ) )
+    return ReosRasterExtent();
+  if ( !element.getData( QStringLiteral( "x-cell-count" ), ret.mXCellCount ) )
+    return ReosRasterExtent();
+  if ( !element.getData( QStringLiteral( "y-cell-count" ), ret.mYCellCount ) )
+    return ReosRasterExtent();
+
+  return ret;
+}
+
 //double ReosRasterExtent::xMapMax() const
 //{
 //  if ( mXCellSize > 0 )
@@ -305,6 +373,9 @@ ReosRasterExtent::ReosRasterExtent( const ReosMapExtent &extent, int XCellCount,
   mYOrigin = yAscendant ? extent.yMapMin() : extent.yMapMax();
 }
 
+ReosRasterExtent::ReosRasterExtent( const ReosMapExtent &extent ): ReosMapExtent( extent )
+{}
+
 bool ReosRasterExtent::isValid() const
 {
   return mIsValid;
@@ -361,6 +432,11 @@ void ReosRasterCellPos::goInDirection( unsigned char direction )
 {
   mRow += direction % 3 - 1;
   mColumn += direction / 3 - 1;
+}
+
+bool ReosRasterCellPos::isValid() const
+{
+  return mRow != -1 && mColumn != -1;
 }
 
 RasterNeighborCirculator::RasterNeighborCirculator( const ReosRasterCellPos &central ): mCentral( central )

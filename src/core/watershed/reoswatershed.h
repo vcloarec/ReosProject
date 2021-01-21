@@ -9,10 +9,12 @@
 
 #include "reosgeometryutils.h"
 #include "reosrasterwatershed.h"
+#include "reosencodedelement.h"
 
 
-class ReosWatershed
+class ReosWatershed: public QObject
 {
+    Q_OBJECT
   public:
     enum Type
     {
@@ -26,10 +28,22 @@ class ReosWatershed
 
     ReosWatershed( const QPolygonF &delineating,
                    const QPointF &outletPoint,
+                   Type type );
+
+    ReosWatershed( const QPolygonF &delineating,
+                   const QPointF &outletPoint,
                    Type type,
-                   const QPolygonF &downstreamLine = QPolygonF(),
-                   const ReosRasterWatershed::Directions &direction = ReosRasterWatershed::Directions(),
-                   const ReosRasterExtent &directionExent = ReosRasterExtent() );
+                   const QPolygonF &downstreamLine,
+                   const QPolygonF &streamPath );
+
+    ReosWatershed( const QPolygonF &delineating,
+                   const QPointF &outletPoint,
+                   Type type,
+                   const QPolygonF &downstreamLine,
+                   const QPolygonF &streamPath,
+                   const ReosRasterWatershed::Directions &direction,
+                   const ReosRasterExtent &directionExent,
+                   const QString &refLayerId );
 
     Type type() const {return mType;}
 
@@ -49,13 +63,13 @@ class ReosWatershed
     QPointF outletPoint() const;
 
     //! Returns whether the watrshed or its parent contoins direction data
-    bool hasDirectiondata() const;
+    bool hasDirectiondata( const QString &layerId ) const;
 
     //! Returns the directions raster associated with this watershed, returned raster is invalid if there is none
-    ReosRasterWatershed::Directions directions() const;
+    ReosRasterWatershed::Directions directions( const QString &layerId ) const;
 
     //! Returns the extent of the raster direction, \see directions()
-    ReosRasterExtent directionExtent() const;
+    ReosRasterExtent directionExtent( const QString &layerId ) const;
 
     //! Removes direction data present in the watershed or in its children
     void removeDirectionData();
@@ -111,7 +125,7 @@ class ReosWatershed
     ReosWatershed *upstreamWatershed( const QPolygonF &line, bool &ok ) const;
 
     //! Returns the smallest upstream watershed that contains the point
-    ReosWatershed *upstreamWatershed( const QPointF &point );
+    ReosWatershed *upstreamWatershed( const QPointF &point, bool excludeResidual = false );
 
     //! Returns, if exists, a pointer to the direct downstream watershed, if not returns nullptr
     ReosWatershed *downstreamWatershed() const;
@@ -131,6 +145,33 @@ class ReosWatershed
     //! Extents the delineating of this watershed to fit with the delineating of \a other
     void extentTo( const ReosWatershed &other );
 
+    //! Returns the downstream line of the watersheds
+    QPolygonF downstreamLine() const;
+
+    //! Returns the stream path line of the watershed
+    QPolygonF streamPath() const;
+
+    //! Sets the stream path line of the watershed
+    void setStreamPath( const QPolygonF &streamPath );
+
+    //! Returns the residual watershed if exists, if not returns nullptr
+    ReosWatershed *residualWatershed() const;
+
+    //! Returns the longitudinale profile of the watershed
+    QPolygonF profile() const;
+
+    //! Sets the longitudinale profile of the watershed
+    void setProfile( const QPolygonF &profile );
+
+    ReosEncodedElement encode() const;
+
+    static ReosWatershed *decode( const ReosEncodedElement &element );
+
+    bool operator==( const ReosWatershed &other ) const;
+
+  signals:
+    void changed();
+
   private:
     Type mType = None;
     QString mName;
@@ -138,8 +179,16 @@ class ReosWatershed
     QPolygonF mDelineating;
     QPointF mOutletPoint;
     QPolygonF mDownstreamLine;
-    ReosRasterByteCompressed mDirectionRaster;
-    ReosRasterExtent mDirectionExtent;
+    QPolygonF mStreamPath;
+    QPolygonF mProfile;
+
+    struct DirectionData
+    {
+      ReosRasterByteCompressed directionRaster;
+      ReosRasterExtent directionExtent;
+    };
+
+    std::map<QString, DirectionData> mDirectionData;
 
     std::vector<std::unique_ptr<ReosWatershed>> mUpstreamWatersheds;
     ReosWatershed *mDownstreamWatershed = nullptr;

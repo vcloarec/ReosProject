@@ -142,7 +142,7 @@ ReosWatershed *ReosWatershedTree::watershed( const QPointF &point )
   {
     if ( watershed->contain( point ) )
     {
-      ReosWatershed *upstream = watershed->upstreamWatershed( point );
+      ReosWatershed *upstream = watershed->upstreamWatershed( point, true );
       if ( upstream )
         return upstream;
 
@@ -209,7 +209,7 @@ ReosWatershed *ReosWatershedTree::extractWatershed( ReosWatershed *ws )
   ReosWatershed *ds = ws->downstreamWatershed();
   if ( ds )
   {
-    emit watershedWillBeRemoved();
+    emit watershedWillBeRemoved( ws );
     std::unique_ptr<ReosWatershed> ret( ds->extractOnlyDirectUpstreamWatershed( ws->positionInDownstreamWatershed() ) );
     emit watershedRemoved();
     return ret.release();
@@ -219,18 +219,54 @@ ReosWatershed *ReosWatershedTree::extractWatershed( ReosWatershed *ws )
   {
     if ( mWatersheds.at( i ).get() == ws )
     {
-      emit watershedWillBeRemoved();
+      emit watershedWillBeRemoved( ws );
       std::unique_ptr<ReosWatershed> ret( mWatersheds.at( i ).release() );
       mWatersheds.erase( mWatersheds.begin() + i );
-      emit watershedRemoved();
       for ( int j = 1; j < ret->directUpstreamWatershedCount(); ++j )
       {
         mWatersheds.emplace_back( ret->extractCompleteDirectUpstreamWatershed( j ) );
       }
+      emit watershedRemoved();
       return ret.release();
     }
   }
   return nullptr;
+}
+
+ReosEncodedElement ReosWatershedTree::encode() const
+{
+  QList<QByteArray> watersheds;
+  for ( const std::unique_ptr<ReosWatershed> &ws : mWatersheds )
+    watersheds.append( ws->encode().bytes() );
+
+  ReosEncodedElement ret( QStringLiteral( "watershed-tree" ) );
+  ret.addData( QStringLiteral( "watersheds" ), watersheds );
+
+  return ret;
+}
+
+void ReosWatershedTree::decode( const ReosEncodedElement &elem )
+{
+  emit treeWillBeReset();
+  mWatersheds.clear();
+
+  if ( elem.description() == QStringLiteral( "watershed-tree" ) )
+  {
+    QList<QByteArray> watershedsList;
+    if ( elem.getData( QStringLiteral( "watersheds" ), watershedsList ) )
+    {
+      std::vector<std::unique_ptr<ReosWatershed>> watersheds;
+      for ( const QByteArray &wsba : watershedsList )
+      {
+        std::unique_ptr<ReosWatershed> uws( ReosWatershed::decode( ReosEncodedElement( wsba ) ) );
+        if ( uws )
+          watersheds.emplace_back( uws.release() );
+      }
+
+      mWatersheds = std::move( watersheds );
+    }
+  }
+  emit treeReset();
 }
 
 ReosWatershedItemModel::ReosWatershedItemModel( ReosWatershedTree *watershedTree, QObject *parent ):
@@ -239,6 +275,10 @@ ReosWatershedItemModel::ReosWatershedItemModel( ReosWatershedTree *watershedTree
 {
   connect( watershedTree, &ReosWatershedTree::watershedWillBeAdded, this, &ReosWatershedItemModel::onWatershedWillBeAdded );
   connect( watershedTree, &ReosWatershedTree::watershedAdded, this, &ReosWatershedItemModel::onWatershedAdded );
+  connect( watershedTree, &ReosWatershedTree::treeWillBeReset, this, &ReosWatershedItemModel::onTreeWillBeReset );
+  connect( watershedTree, &ReosWatershedTree::treeReset, this, &ReosWatershedItemModel::onTreeReset );
+  connect( watershedTree, &ReosWatershedTree::watershedWillBeRemoved, this, &ReosWatershedItemModel::onWatershedWillBeRemoved );
+  connect( watershedTree, &ReosWatershedTree::watershedRemoved, this, &ReosWatershedItemModel::onWatershedRemoved );
 }
 
 QModelIndex ReosWatershedItemModel::index( int row, int column, const QModelIndex &parent ) const
@@ -262,6 +302,9 @@ QModelIndex ReosWatershedItemModel::index( int row, int column, const QModelInde
 
 QModelIndex ReosWatershedItemModel::parent( const QModelIndex &child ) const
 {
+  if ( !child.isValid() )
+    return QModelIndex();
+
   ReosWatershed *watershed = static_cast<ReosWatershed *>( child.internalPointer() );
   if ( watershed && watershed->downstreamWatershed() )
     return watershedToIndex( watershed->downstreamWatershed() );
@@ -313,15 +356,39 @@ void ReosWatershedItemModel::onWatershedWillBeAdded()
 void ReosWatershedItemModel::onWatershedAdded( ReosWatershed *watershed )
 {
   endResetModel();
+  connect( watershed, &ReosWatershed::changed, this, &ReosWatershedItemModel::onWatershedChanged );
   emit watershedAdded( watershedToIndex( watershed ) );
 }
 
-void ReosWatershedItemModel::onWatershedWillBeRemoved()
+void ReosWatershedItemModel::onWatershedWillBeRemoved( ReosWatershed *ws )
 {
+  disconnect( ws, &ReosWatershed::changed, this, &ReosWatershedItemModel::onWatershedChanged );
   beginResetModel();
 }
 
 void ReosWatershedItemModel::onWatershedRemoved()
+{
+  endResetModel();
+}
+
+void ReosWatershedItemModel::onWatershedChanged()
+{
+  ReosWatershed *ws = qobject_cast<ReosWatershed *>( sender() );
+
+  if ( ws )
+  {
+    QModelIndex ind = watershedToIndex( ws );
+    emit dataChanged( ind, ind );
+  }
+
+}
+
+void ReosWatershedItemModel::onTreeWillBeReset()
+{
+  beginResetModel();
+}
+
+void ReosWatershedItemModel::onTreeReset()
 {
   endResetModel();
 }
@@ -351,4 +418,14 @@ ReosWatershed *ReosWatershedItemModel::indexToWatershed( const QModelIndex &inde
     return static_cast<ReosWatershed *>( index.internalPointer() );
   else
     return nullptr;
+}
+
+void ReosWatershedItemModel::removeWatershed( const QModelIndex &index )
+{
+  ReosWatershed *ws = indexToWatershed( index );
+
+  if ( !ws )
+    return;
+  std::unique_ptr<ReosWatershed> removed( mWatershedTree->extractWatershed( ws ) );
+
 }

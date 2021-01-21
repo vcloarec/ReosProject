@@ -38,7 +38,7 @@ class ReosWatershedDelineatingProcess: public ReosProcess
                                      const QList<QPolygonF> &burningLines );
 
     ReosWatershedDelineatingProcess( ReosWatershed *downstreamWatershed,
-                                     const QPolygonF &downtreamLine );
+                                     const QPolygonF &downtreamLine, QString layerId );
 
     void start() override;
 
@@ -65,6 +65,7 @@ class ReosWatershedDelineatingProcess: public ReosProcess
 
 class ReosWatershedDelineating : public ReosModule
 {
+    Q_OBJECT
   public:
     //! State of the tool chain
     enum State
@@ -74,6 +75,7 @@ class ReosWatershedDelineating : public ReosModule
       WaitingForExtent,
       WaitingWithBroughtBackExtent,
       WaitingforProceed,
+      Delineating,
       WaitingForValidate,
       WaitingToRecord
     };
@@ -95,12 +97,15 @@ class ReosWatershedDelineating : public ReosModule
     //! Adds a burning line
     void setBurningLines( const QList<QPolygonF> &burningLines );
 
+    //! Returns all burning lines
+    QList<QPolygonF> burningines() const;
+
     //! Returns whether the module has direction data ready for proceed
     bool hasDirectionData() const;
 
     // -------- Processing
     //! Start the delineating, return true if starting this process is sucessful
-    bool startDelineating();
+    bool prepareDelineating();
     ReosProcess *delineatingProcess();
 
     //! Returns if the delineating process is finished
@@ -121,9 +126,17 @@ class ReosWatershedDelineating : public ReosModule
     //! Store the wahtershed in the tree, returns pointer to the new watershed
     ReosWatershed *storeWatershed( bool adjustIfNeeded );
 
+    ReosEncodedElement encode() const;
+    void decode( const ReosEncodedElement &element );
+
+    //! Considering result, test if the predefined extent is valid, if not return false and set the state to WaitingWithBroughtBackExtent
+    void testPredefinedExtentValidity();
+
+  signals:
+    void hasBeenReset();
+
   private slots:
     void onDelineatingFinished();
-
   private:
     ReosWatershedTree *mWatershedTree;
     ReosGisEngine *mGisEngine = nullptr;
@@ -138,10 +151,6 @@ class ReosWatershedDelineating : public ReosModule
     std::unique_ptr<ReosWatershedDelineatingProcess> mProcess;
 
     std::unique_ptr<ReosWatershed> mCurrentWatershed;
-
-    //! Considering result, test if the predefined extent is valid, if not return false and set the state to WaitingWithBroughtBackExtent
-    void testPredefinedExtentValidity();
-
 
 };
 

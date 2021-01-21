@@ -22,7 +22,21 @@ ReosEncodedElement::ReosEncodedElement( const QByteArray &byteArray )
   stream >> mData;
 }
 
-QByteArray ReosEncodedElement::bytes()
+void ReosEncodedElement::addEncodedData( const QString &key, const ReosEncodedElement &element )
+{
+  mData[key] = element.bytes();
+}
+
+ReosEncodedElement ReosEncodedElement::getEncodedData( const QString &key ) const
+{
+  if ( !mData.contains( key ) )
+    return ReosEncodedElement( QStringLiteral( "invalid" ) );
+
+  QByteArray ba = mData[key];
+  return ReosEncodedElement( ba );
+}
+
+QByteArray ReosEncodedElement::bytes() const
 {
   QByteArray byteArray;
   QDataStream stream( &byteArray, QIODevice::WriteOnly );

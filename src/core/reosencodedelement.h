@@ -37,6 +37,12 @@ class ReosEncodedElement
     //! Returns the desctiption of the encoded element
     QString description() const {return mDescription;}
 
+
+    //! Adds data \a value with a \a key to the encoded element
+    void addEncodedData( const QString &key, const ReosEncodedElement &element );
+
+    ReosEncodedElement getEncodedData( const QString &key ) const;
+
     //! Adds data \a value with a \a key to the encoded element
     template<typename T>
     void addData( const QString &key, T &&value )
@@ -59,8 +65,8 @@ class ReosEncodedElement
       return true;
     }
 
-    //! Returns byt of the encoded element that can be store in files or in another encoded element
-    QByteArray bytes();
+    //! Returns byte of the encoded element that can be store in files or in another encoded element
+    QByteArray bytes() const;
 
   private:
     QMap<QString, QByteArray> mData;

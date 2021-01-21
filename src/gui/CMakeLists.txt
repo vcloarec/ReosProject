@@ -9,6 +9,7 @@ SET(REOS_GUI_SOURCES
     reosstartingwidget.cpp
     reosversionmessagebox.cpp
     reosprocesscontroler.cpp
+    reosmenupopulator.cpp
 
 
     GIS/reosdigitalelevationmodelcombobox.cpp
@@ -23,6 +24,16 @@ SET(REOS_GUI_SOURCES
 
     watershed/reosdelineatingwatershedwidget.cpp
     watershed/reoswatershedwidget.cpp
+    watershed/reoslongitudinalprofilewidget.cpp
+
+    chart/reoschartview.cpp
+    chart/reoschart.cpp
+    chart/reoschartwidget.cpp
+    chart/reosplotwidget.cpp
+    chart/reoseditableprofile.cpp
+    chart/private/reosprofileplot_p.cpp
+    chart/private/reosplot_p.cpp
+    chart/private/reosplotpicker_p.cpp
 )
 
 SET(REOS_GUI_HEADERS
@@ -33,6 +44,7 @@ SET(REOS_GUI_HEADERS
     reosstartingwidget.h
     reosversionmessagebox.h
     reosprocesscontroler.h
+    reosmenupopulator.h
 
     GIS/reosdigitalelevationmodelcombobox.h
     GIS/reosmap.h
@@ -42,6 +54,13 @@ SET(REOS_GUI_HEADERS
 
     watershed/reosdelineatingwatershedwidget.h
     watershed/reoswatershedwidget.h
+    watershed/reoslongitudinalprofilewidget.h
+
+    chart/reoschartview.h
+    chart/reoschart.h
+    chart/reoschartwidget.h
+    chart/reosplotwidget.h
+    chart/reoseditableprofile.h
 )
 
 SET(REOS_GUI_HEADERS_PRIVATE
@@ -49,6 +68,8 @@ SET(REOS_GUI_HEADERS_PRIVATE
     GIS/private/reosmaptool_p.h
     GIS/private/reoslayertreecontextmenuprovider_p.h
     GIS/private/reoslayertreeviewdemindicator.h
+
+    chart/private/reosplot_p.h
     )
 
 ADD_LIBRARY(reosGui SHARED
@@ -67,7 +88,9 @@ TARGET_LINK_LIBRARIES(reosGui PUBLIC
         ${Qt5Network_LIBRARIES}
         ${Qt5Sql_LIBRARIES}
         ${Qt5Concurrent_LIBRARIES}
+        ${Qt5Charts_LIBRARIES}
         ${QGIS_LIBS}
+        ${QWT_LIB}
         reosCore
 )
 
@@ -90,8 +113,11 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/gui
     ${CMAKE_SOURCE_DIR}/src/gui/GIS
     ${CMAKE_SOURCE_DIR}/src/gui/GIS/private
+    ${CMAKE_SOURCE_DIR}/src/gui/chart
+    ${CMAKE_SOURCE_DIR}/src/gui/chart/private
     ${QGIS_INCLUDE_DIR}
     ${QSCISCINTILLA_INCLUDE_DIR}
+    ${QWT_INCLUDE}
 )
 
 

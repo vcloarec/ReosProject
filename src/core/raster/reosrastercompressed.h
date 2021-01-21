@@ -36,6 +36,14 @@ class ReosRasterByteCompressed
     //! Return whether the instance of this object contains data
     bool hasData() const;
 
+    //! Encodes the instance and returns a encodeded element
+    ReosEncodedElement encode() const;
+    //! Creates a new instance of this class by decoding the \a element
+    static ReosRasterByteCompressed decode( const ReosEncodedElement &element );
+
+    bool operator==( const ReosRasterByteCompressed &other ) const;
+    bool operator!=( const ReosRasterByteCompressed &other ) const;
+
   private:
     int mRowCount = 0;
     int mColumnCount = 0;

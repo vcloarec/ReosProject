@@ -101,7 +101,27 @@ QPolygonF ReosGeometryUtils::polygonFitInPolygon( const QPolygonF &polygon1, con
 
   QgsGeometry intersection = geom1.intersection( geom2 );
 
-  QPolygonF ret = intersection.asQPolygonF();
+  QPolygonF ret;
+
+  if ( !intersection.isMultipart() )
+    ret = intersection.asQPolygonF();
+  else
+  {
+    // take the bigger part
+    double area = 0;
+    QgsGeometry selected;
+    for ( QgsAbstractGeometry::const_part_iterator it = intersection.const_parts_begin();
+          it != intersection.const_parts_end();
+          ++it )
+    {
+      if ( ( *it )->area() > area )
+      {
+        QgsGeometry geom( ( *it )->clone() );
+        ret = geom.asQPolygonF();
+        area = ( *it )->area();
+      }
+    }
+  }
 
   if ( !ret.isEmpty() && ret.last() == ret.first() )
     ret.removeLast();
@@ -134,4 +154,15 @@ QPolygonF ReosGeometryUtils::polygonUnion( const QPolygonF &polygon1, const QPol
     ret.removeLast();
 
   return ret;
+}
+
+int ReosGeometryUtils::closestSegment( const QPointF &point, const QPolygonF &polyline )
+{
+  QgsGeometry poly( createQgsPolyline( polyline ) );
+
+  QgsPointXY returnPoint;
+  int secondIndex;
+  poly.closestSegmentWithContext( QgsPointXY( point ), returnPoint, secondIndex );
+
+  return secondIndex;
 }

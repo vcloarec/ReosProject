@@ -15,6 +15,8 @@ email                : vcloarec at gmail dot com
 
 #include "reosprocess.h"
 #include <QMutexLocker>
+#include<QFutureWatcher>
+#include <QtConcurrent>
 
 ReosProcess::~ReosProcess() {}
 
@@ -52,10 +54,23 @@ void ReosProcess::setCurrentProgression( int value )
   mCurrentProgression = value;
 }
 
+void ReosProcess::startOnOtherThread()
+{
+  QFutureWatcher<void> *watcher = new QFutureWatcher<void>( this );
+  connect( watcher, &QFutureWatcher<void>::finished, this, &ReosProcess::finish );
+  connect( watcher, &QFutureWatcher<void>::finished, watcher, &QObject::deleteLater );
+  QFuture<void> future = QtConcurrent::run( this, &ReosProcess::start );//https://doc.qt.io/qt-5/qtconcurrentrun.html#using-member-functions
+  watcher->setFuture( future );
+}
+
 bool ReosProcess::finish()
 {
-  emit finished();
-  return isSuccessful();
+  if ( !mIsFinished )
+  {
+    emit finished( QPrivateSignal() );
+  }
+  mIsFinished = true;
+  return mIsSuccessful;
 }
 
 void ReosProcess::setInformation( const QString &info )
@@ -65,18 +80,16 @@ void ReosProcess::setInformation( const QString &info )
   emit sendInformation( info );
 }
 
-void ReosProcess::stopAsSoonAsPossible( bool b )
+void ReosProcess::stop( bool b )
 {
-  QMutexLocker locker( &mMutexStop );
-  mStopWithMutex = b;
+  mStop = b;
   if ( mCurrentSubProcess )
-    mCurrentSubProcess->stopAsSoonAsPossible( b );
+    mCurrentSubProcess->stop( b );
 }
 
-bool ReosProcess::isStopAsked()
+bool ReosProcess::isStop()
 {
-  QMutexLocker locker( &mMutexStop );
-  return mStopWithMutex;
+  return mStop;
 }
 
 void ReosProcess::setParentProcess( ReosProcess *parent )
@@ -87,6 +100,16 @@ void ReosProcess::setParentProcess( ReosProcess *parent )
 bool ReosProcess::isSuccessful() const
 {
   return mIsSuccessful;
+}
+
+void ReosProcess::setSuccesful( bool b )
+{
+  mIsSuccessful = b;
+}
+
+bool ReosProcess::isFinished() const
+{
+  return mIsFinished;
 }
 
 void ReosProcess::processStart( ReosProcess *p )

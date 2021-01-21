@@ -40,13 +40,11 @@ class ReosDelineatingWatershedWidget : public QWidget
       ReosWatershedModule *watershedModule,
       ReosMap *map,
       QWidget *parent = nullptr );
+
     ~ReosDelineatingWatershedWidget();
 
     //! Sets the action that will commmand open/close the widget
     void setAction( QAction *action );
-
-  signals:
-    void closed();
 
   protected:
     void closeEvent( QCloseEvent *event );
@@ -67,6 +65,8 @@ class ReosDelineatingWatershedWidget : public QWidget
     void onMethodChange();
     void storeGeometry();
     void restore();
+
+    void onModuleReset();
 
   private:
     Ui::ReosDelineatingWatershedWidget *ui;
@@ -90,7 +90,7 @@ class ReosDelineatingWatershedWidget : public QWidget
 
     ReosMapPolyline mDownstreamLine;
     ReosMapPolygon mWatershedExtent;
-    std::vector<std::unique_ptr<ReosMapPolyline>> mBurningLines;
+    QVector<ReosMapPolyline> mBurningLines;
 
     ReosMapToolDrawPolygon *mMapToolDrawWatershed = nullptr;
     ReosMapToolDrawPoint *mMapToolDrawOutletPoint = nullptr;
@@ -107,6 +107,8 @@ class ReosDelineatingWatershedWidget : public QWidget
 
     ReosMapPolygon mTemporaryManualWatershed;
     ReosMapMarker mTemporaryManualOutletPoint;
+
+    ReosMapPolylineFormater burningLineFormater;
 
     void updateManualMapTool();
 };
