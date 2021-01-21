@@ -2,6 +2,7 @@
 #define REOSPROCESSCONTROLER_H
 
 #include <QDialog>
+#include <QCloseEvent>
 #include <QTimer>
 
 #include "reosprocess.h"
@@ -23,6 +24,12 @@ class ReosProcessControler : public QDialog
     explicit ReosProcessControler( ReosProcess *process, QWidget *parent = nullptr );
 
     ~ReosProcessControler();
+
+  protected:
+    void closeEvent( QCloseEvent *event ) override;
+
+  public slots:
+    int exec() override;
 
   private slots:
     void refresh();

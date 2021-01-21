@@ -72,16 +72,19 @@ class ReosWatershedTree: public QObject
      */
     ReosWatershed *extractWatershed( ReosWatershed *ws );
 
+    ReosEncodedElement encode() const;
+    void decode( const ReosEncodedElement &elem );
+
   signals:
+    void treeWillBeReset();
+    void treeReset();
     void watershedWillBeAdded();
     //! emitted when watershed is added with the pointer to the directly downsteam watershed (nullptr if added watershed is a the extreme downstream)
     void watershedAdded( ReosWatershed * );
-
-    void watershedWillBeRemoved();
+    void watershedWillBeRemoved( ReosWatershed * );
     void watershedRemoved();
 
   private:
-
     std::vector<std::unique_ptr<ReosWatershed>> mWatersheds;
 };
 
@@ -98,10 +101,13 @@ class ReosWatershedItemModel: public QAbstractItemModel
     int columnCount( const QModelIndex &parent ) const;
     QVariant data( const QModelIndex &index, int role ) const;
 
+    //! Returns all the watershed contained in the model
     QList<ReosWatershed *> allWatersheds() const;
 
     QModelIndex watershedToIndex( ReosWatershed *watershed ) const;
     static ReosWatershed *indexToWatershed( const QModelIndex &index );
+
+    void removeWatershed( const QModelIndex &index );
 
   signals:
     void watershedAdded( const QModelIndex &index );
@@ -109,8 +115,11 @@ class ReosWatershedItemModel: public QAbstractItemModel
   private slots:
     void onWatershedWillBeAdded();
     void onWatershedAdded( ReosWatershed *watershed );
-    void onWatershedWillBeRemoved();
+    void onWatershedWillBeRemoved( ReosWatershed *ws );
     void onWatershedRemoved();
+    void onWatershedChanged();
+    void onTreeWillBeReset();
+    void onTreeReset();
 
   private:
     ReosWatershedTree *mWatershedTree = nullptr;

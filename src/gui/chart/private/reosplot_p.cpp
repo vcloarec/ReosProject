@@ -50,6 +50,10 @@ ReosPlot_p::ReosPlot_p( QWidget *parent ): QwtPlot( parent )
   mZoomerRight = new QwtPlotZoomer( QwtPlot::xTop, QwtPlot::yRight, canvas(), true );
   mZoomerLeft->setTrackerMode( QwtPicker::AlwaysOff );
   mZoomerRight->setTrackerMode( QwtPicker::AlwaysOff );
+  mZoomerLeft->setMousePattern( QwtEventPattern::MouseSelect2, Qt::NoButton );
+  mZoomerRight->setMousePattern( QwtEventPattern::MouseSelect2, Qt::NoButton );
+  mZoomerLeft->setMousePattern( QwtEventPattern::MouseSelect3, Qt::NoButton );
+  mZoomerRight->setMousePattern( QwtEventPattern::MouseSelect3, Qt::NoButton );
 
   QPen rubbberBandPen( Qt::darkGray );
   rubbberBandPen.setWidth( 2 );
@@ -60,8 +64,7 @@ ReosPlot_p::ReosPlot_p( QWidget *parent ): QwtPlot( parent )
   mPanner = new QwtPlotPanner( canvas() );
   mPanner->setMouseButton( Qt::MidButton );
 
-  mZoomerLeft->setMousePattern( QwtEventPattern::MouseSelect3, Qt::NoButton );
-  mZoomerRight->setMousePattern( QwtEventPattern::MouseSelect3, Qt::NoButton );
+
 }
 
 void ReosPlot_p::setLegendVisible( bool b )

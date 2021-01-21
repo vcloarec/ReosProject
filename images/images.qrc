@@ -31,6 +31,12 @@
         <file>profileAddPoint.svg</file>
         <file>profileRemovePoint.svg</file>
         <file>drawStreamLine.svg</file>
+        <file>selectWatershed.svg</file>
+        <file>editStreamLine.svg</file>
+        <file>demProfileExtent.svg</file>
+        <file>drawToDownstream.svg</file>
+        <file>drawToUpstream.svg</file>
+        <file>removeWatershed.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

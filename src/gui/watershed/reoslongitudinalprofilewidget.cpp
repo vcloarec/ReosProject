@@ -25,6 +25,7 @@
 
 #include "reoswatershed.h"
 #include "reosplotwidget.h"
+#include "reosprocesscontroler.h"
 #include "reoseditableprofile.h"
 #include "reosdigitalelevationmodel.h"
 #include "reosmap.h"
@@ -35,34 +36,88 @@ using namespace QtCharts;
 
 ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWidget *parent ) :
   QWidget( parent ),
-  ui( new Ui::ReosLongitudinalProfileWidget ),
-  mMap( map )
+  ui( new Ui::ReosLongitudinalProfileWidget )
+  , mMap( map )
+  , mCurrentStreamLine( map )
+  , mActionDrawStreamLine( new QAction( QPixmap( ":/images/drawStreamLine.svg" ), tr( "Draw Stream Line on Map" ), this ) )
+  , mActionEditStreamLine( new QAction( QPixmap( ":/images/editStreamLine.svg" ), tr( "Edit Stream Line on Map" ), this ) )
+  , mActionZooOnDEMProfileExtent( new QAction( QPixmap( ":/images/demProfileExtent.svg" ), tr( "Zoom on DEM Profile Extent" ), this ) )
+  , mActionDrawStreamLineFromDownstream( new QAction( QPixmap( ":/images/drawToUpstream.svg" ), tr( "Draw Stream Line From Downstream" ), this ) )
+  , mActionDrawStreamLineFromPointToDownstream( new QAction( QPixmap( ":/images/drawToDownstream.svg" ), tr( "Draw Stream Line From a Upstream Point on Map" ), this ) )
+  , mActionGroupStreamLineMapTool( new QActionGroup( this ) )
+
 {
   ui->setupUi( this );
+  setWindowFlag( Qt::Dialog );
   ui->mComboBoxDEM->setGisEngine( mMap->engine() );
 
-  setWindowFlag( Qt::Dialog );
 
+//**** set up editable profile
+  mDemCurve = new ReosPlotCurve( "Profile on current DEM", QColor( 0, 155, 242 ), 3 );
   mProfile = new ReosEditableProfile();
   ui->mPlotWidget->addPlotItem( mProfile );
   ui->mPlotWidget->setMagnifierType( ReosPlotWidget::NormalMagnifier );
   ui->mProfileTableView->setModel( mProfile->tableModel() );
   ui->mPlotWidget->setLegendAlignement( Qt::AlignRight );
-
-  mDemCurve = new ReosPlotCurve( "Profile on current DEM", QColor( 0, 155, 242 ), 3 );
   ui->mPlotWidget->addPlotItem( mDemCurve );
 
   QToolBar *profileToolBar = new QToolBar;
   profileToolBar->addActions( mProfile->actionsToolBar() );
   ui->mWidgetToolProfile->layout()->addWidget( profileToolBar );
 
+//****** set up stream line tools
+  mMapToolDrawStreamLine = new ReosMapToolDrawPolyline( map );
+  mMapToolDrawStreamLine->setAction( mActionDrawStreamLine );
+  mActionGroupStreamLineMapTool->addAction( mActionDrawStreamLine );
+  mActionGroupStreamLineMapTool->addAction( mActionEditStreamLine );
+  mActionGroupStreamLineMapTool->addAction( mActionDrawStreamLineFromPointToDownstream );
+  mActionGroupStreamLineMapTool->addAction( mActionDrawStreamLineFromDownstream );
+  mActionGroupStreamLineMapTool->setExclusive( true );
+
+  QToolBar *streamLineToolBar = new QToolBar;
+  mActionDrawStreamLine->setCheckable( true );
+  streamLineToolBar->addActions( mActionGroupStreamLineMapTool->actions() );
+  streamLineToolBar->addAction( mActionZooOnDEMProfileExtent );
+  ui->mWidgetToolStreamLine->layout()->addWidget( streamLineToolBar );
+  connect( mMapToolDrawStreamLine, &ReosMapToolDrawPolyline::drawn, this, &ReosLongitudinalProfileWidget::onStreamLineChanged );
+  mMapToolDrawStreamLine->setColor( QColor( 0, 155, 242 ) );
+  mMapToolDrawStreamLine->setSecondaryStrokeColor( Qt::white );
+  mMapToolDrawStreamLine->setStrokeWidth( 3 );
+  mMapToolDrawStreamLine->setLineStyle( Qt::DashLine );
+  mCurrentStreamLine.activeMarker( true );
+
   ui->mPlotWidget->setTitleAxeX( tr( "Distance (map unit)" ) );
   ui->mPlotWidget->setTitleAxeYleft( tr( "Elevation (DEM unit)" ) );
 
+  connect( ui->mPlotWidget, &ReosPlotWidget::cursorMoved, this, &ReosLongitudinalProfileWidget::onProfileCursorMove );
+
+  mMapToolEditStreamLine = new ReosMapToolEditMapPolyline( map );
+  mActionEditStreamLine->setCheckable( true );
+  mMapToolEditStreamLine->setAction( mActionEditStreamLine );
+  mMapToolEditStreamLine->setMapPolyline( &mCurrentStreamLine );
+  connect( mMapToolEditStreamLine, &ReosMapToolEditMapPolyline::polylineEdited, this, &ReosLongitudinalProfileWidget::onStreamLineEdited );
+  mCurrentStreamLine.setWidth( 3 );
+  mCurrentStreamLine.setExternalWidth( 5 );
+  mCurrentStreamLine.setColor( QColor( 0, 155, 242 ) );
+  mCurrentStreamLine.setExternalColor( Qt::white );
+  mCurrentStreamLine.setZValue( 9 );
+
+  mMapToolSelectMapUpstreamPoint = new ReosMapToolDrawPoint( map );
+  mMapToolSelectMapUpstreamPoint->setAction( mActionDrawStreamLineFromPointToDownstream );
+  mActionDrawStreamLineFromPointToDownstream->setCheckable( true );
+
+
+  connect( mMapToolSelectMapUpstreamPoint, &ReosMapToolDrawPoint::drawn, this, &ReosLongitudinalProfileWidget::drawStreamLinefromPointToDownstream );
+  connect( mActionDrawStreamLineFromDownstream, &QAction::triggered, this, &ReosLongitudinalProfileWidget::drawStreamLinefromPointToUpStream );
+  connect( mActionZooOnDEMProfileExtent, &QAction::triggered, this, &ReosLongitudinalProfileWidget::zoomOnDEMProfileExtent );
+
   restore();
-  updateDEMProfile();
+  mNeedUpdateDEMProfil = true;
+  askForUpdateDEMProfile();
 
   connect( mProfile, &ReosPlotItem::itemChanged, this, &ReosLongitudinalProfileWidget::updateProfile );
+  connect( ui->mComboBoxDEM, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosLongitudinalProfileWidget::askForUpdateDEMProfile );
+  connect( ui->mComboBoxDEM, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosLongitudinalProfileWidget::updateWithDirectionTools );
 }
 
 ReosLongitudinalProfileWidget::~ReosLongitudinalProfileWidget()
@@ -90,9 +145,19 @@ void ReosLongitudinalProfileWidget::setCurrentWatershed( ReosWatershed *ws )
   mCurrentWatershed = ws;
 
   if ( mCurrentWatershed )
+  {
     mProfile->setProfile( mCurrentWatershed->profile() );
+    mCurrentStreamLine.resetPolyline( mCurrentWatershed->streamPath() );
+  }
+  else
+  {
+    mCurrentStreamLine.resetPolyline();
+    mProfile->setProfile( QPolygonF() );
+  }
 
-  updateDEMProfile();
+  updateWithDirectionTools();
+  mNeedUpdateDEMProfil = true;
+  askForUpdateDEMProfile();
 }
 
 void ReosLongitudinalProfileWidget::updateProfile()
@@ -157,6 +222,28 @@ void ReosLongitudinalProfileWidget::updateProfile()
 
 }
 
+void ReosLongitudinalProfileWidget::onProfileCursorMove( const QPointF &point )
+{
+  mCurrentStreamLine.setMarkerDistance( point.x() );
+}
+
+void ReosLongitudinalProfileWidget::onStreamLineChanged( const QPolygonF &streamLine )
+{
+  if ( mCurrentWatershed )
+    mCurrentWatershed->setStreamPath( streamLine );
+
+  mCurrentStreamLine.resetPolyline( streamLine );
+  askForUpdateDEMProfile();
+}
+
+void ReosLongitudinalProfileWidget::onStreamLineEdited()
+{
+  if ( mCurrentWatershed )
+    mCurrentWatershed->setStreamPath( mCurrentStreamLine.mapPolyline() );
+
+  askForUpdateDEMProfile();
+}
+
 void ReosLongitudinalProfileWidget::storeGeometry()
 {
   ReosSettings settings;
@@ -182,8 +269,20 @@ void ReosLongitudinalProfileWidget::closeEvent( QCloseEvent *event )
   event->accept();
 }
 
+void ReosLongitudinalProfileWidget::showEvent( QShowEvent *event )
+{
+  QWidget::showEvent( event );
+  askForUpdateDEMProfile();
+}
+
 void ReosLongitudinalProfileWidget::updateDEMProfile()
 {
+  if ( !mNeedUpdateDEMProfil )
+    return;
+
+  if ( !isVisible() )
+    return;
+
   if ( !mCurrentWatershed )
     return;
 
@@ -196,7 +295,12 @@ void ReosLongitudinalProfileWidget::updateDEMProfile()
   dem.reset( mMap->engine()->getDigitalElevationModel( currentDEmId ) );
   if ( dem )
   {
-    profile = dem->elevationOnPolyline( streamLine, mMap->engine()->crs() );
+    ReosElevationOnPolylineProcess pr( dem.get() );
+    pr.setEntryPolyline( streamLine, mMap->engine()->crs() );
+    ReosProcessControler *controler = new ReosProcessControler( &pr, this );
+    controler->exec();
+
+    profile = pr.resultProfile();//dem->elevationOnPolyline( streamLine, mMap->engine()->crs() );
     if ( profile.count() > 1 )
     {
       mDemCurve->setData( profile );
@@ -212,4 +316,106 @@ void ReosLongitudinalProfileWidget::updateDEMProfile()
     }
   }
 
+  mNeedUpdateDEMProfil = false;
+}
+
+void ReosLongitudinalProfileWidget::updateWithDirectionTools()
+{
+  // activate/deactive tools depending of direction data exist
+  bool hasDirection = mCurrentWatershed && mCurrentWatershed->hasDirectiondata( ui->mComboBoxDEM->currentDemLayerId() );
+  mActionDrawStreamLineFromPointToDownstream->setEnabled( hasDirection );
+  mActionDrawStreamLineFromDownstream->setEnabled( hasDirection );
+}
+
+void ReosLongitudinalProfileWidget::askForUpdateDEMProfile()
+{
+  mNeedUpdateDEMProfil = true;
+  updateDEMProfile();
+}
+
+void ReosLongitudinalProfileWidget::zoomOnDEMProfileExtent()
+{
+  if ( mDemCurve )
+    mDemCurve->zoomOnExtent();
+}
+
+void ReosLongitudinalProfileWidget::drawStreamLinefromPointToDownstream( const QPointF &point )
+{
+  if ( !mCurrentWatershed )
+    return;
+
+  if ( !ReosGeometryUtils::pointIsInsidePolygon( point, mCurrentWatershed->delineating() ) )
+    return;
+
+  QString demLayerId = ui->mComboBoxDEM->currentDemLayerId();
+
+  if ( mCurrentWatershed->hasDirectiondata( demLayerId ) )
+  {
+    const ReosRasterExtent &rasterExtent = mCurrentWatershed->directionExtent( demLayerId );
+    const ReosRasterCellPos pos = rasterExtent.mapToCellPos( point );
+    std::unique_ptr<ReosRasterWatershedTraceDownstream> pr = std::make_unique<ReosRasterWatershedTraceDownstream>(
+          mCurrentWatershed->directions( demLayerId ),
+          mCurrentWatershed->delineating(),
+          rasterExtent,
+          pos );
+
+    ReosProcessControler *controler = new ReosProcessControler( pr.get(), this );
+    controler->exec();
+
+    if ( pr->isSuccessful() )
+      onStreamLineChanged( pr->resultPolyline() );
+
+    controler->deleteLater();
+  }
+
+}
+
+void ReosLongitudinalProfileWidget::drawStreamLinefromPointToUpStream()
+{
+  if ( !mCurrentWatershed )
+    return;
+
+  QString demLayerId = ui->mComboBoxDEM->currentDemLayerId();
+
+  if ( mCurrentWatershed->hasDirectiondata( demLayerId ) && !mCurrentWatershed->downstreamLine().empty() )
+  {
+    const ReosRasterExtent &rasterExtent = mCurrentWatershed->directionExtent( demLayerId );
+    ReosRasterLine entryLine;
+    for ( const QPointF &pt : mCurrentWatershed->downstreamLine() )
+      entryLine.addPoint( rasterExtent.mapToCellPos( pt ) );
+
+    // First search the longest path;
+    std::unique_ptr<ReosRasterWatershedFromDirectionAndDownStreamLine> pr_1 =
+      std::make_unique<ReosRasterWatershedFromDirectionAndDownStreamLine>(
+        mCurrentWatershed->directions( demLayerId ),
+        entryLine,
+        new ReosRasterTestingCellInPolygon( rasterExtent, mCurrentWatershed->delineating() ) );
+
+    pr_1->setInformation( tr( "Searching for the longest path" ) );
+    std::unique_ptr<ReosProcessControler> controler = std::make_unique<ReosProcessControler>( pr_1.get(), this );
+    controler->exec();
+
+    if ( pr_1->isSuccessful() )
+    {
+      // Now need to go downstream to obtain the polyline ...
+      ReosRasterCellPos upstreamPos = pr_1->endOfLongerPath();
+
+      pr_1.reset(); //not needd anymore
+
+      std::unique_ptr<ReosRasterWatershedTraceDownstream> pr_2 = std::make_unique<ReosRasterWatershedTraceDownstream>(
+            mCurrentWatershed->directions( demLayerId ),
+            mCurrentWatershed->delineating(),
+            rasterExtent,
+            upstreamPos );
+
+      pr_2->setInformation( tr( "trace longer path" ) );
+
+      controler.reset( new ReosProcessControler( pr_2.get(), this ) );
+      controler->exec();
+
+      if ( pr_2->isSuccessful() )
+        onStreamLineChanged( pr_2->resultPolyline() );
+
+    }
+  }
 }

@@ -242,7 +242,7 @@ void ReosRasterFillingWangLiu::setDirectionValue( int row, int column, unsigned 
   if ( mProgession % 100 == 0 )
   {
     setCurrentProgression( mProgession );
-    if ( isStopAsked() )
+    if ( isStop() )
       stop( true );
   }
 }
@@ -260,7 +260,7 @@ void ReosRasterFillingWangLiu::start()
   if ( !makePriorityStack() )
     return;
 
-  while ( !( ( mPriorityStack.empty() && mNoDataStack.empty() ) || isStopped() ) )
+  while ( !( ( mPriorityStack.empty() && mNoDataStack.empty() ) || isStop() ) )
   {
     ReosRasterCellValue<float> cell( mDem );
     if ( mNoDataStack.empty() )
@@ -277,7 +277,7 @@ void ReosRasterFillingWangLiu::start()
     processCell( cell );
   }
 
-  if ( isStopped() )
+  if ( isStop() )
     return;
 
   calculateBorderDirections();

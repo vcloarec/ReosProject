@@ -19,6 +19,7 @@
 #include <QWidget>
 
 #include "reoseditableprofile.h"
+#include "reosmaptool.h"
 
 namespace Ui
 {
@@ -52,20 +53,43 @@ class ReosLongitudinalProfileWidget : public QWidget
 
   private slots:
     void updateProfile();
+    void onProfileCursorMove( const QPointF &point );
+    void onStreamLineChanged( const QPolygonF &streamLine );
+    void onStreamLineEdited();
+    void askForUpdateDEMProfile();
+    void zoomOnDEMProfileExtent();
+    void drawStreamLinefromPointToDownstream( const QPointF &point );
+    void drawStreamLinefromPointToUpStream();
+    void updateWithDirectionTools();
 
   protected:
     void closeEvent( QCloseEvent *event );
+    void showEvent( QShowEvent *event );
   private:
     Ui::ReosLongitudinalProfileWidget *ui;
     ReosMap *mMap = nullptr;
     QAction *mAction = nullptr;
     ReosWatershed *mCurrentWatershed = nullptr;
+    ReosMapPolyline mCurrentStreamLine;
 
     ReosEditableProfile *mProfile = nullptr;
     ReosPlotCurve *mDemCurve = nullptr;
 
+    QAction *mActionStreamLineFromUpstream = nullptr;
+    QAction *mActionDrawStreamLine = nullptr;
+    QAction *mActionEditStreamLine = nullptr;
+    QAction *mActionZooOnDEMProfileExtent = nullptr;
+    QAction *mActionDrawStreamLineFromDownstream = nullptr;
+    QAction *mActionDrawStreamLineFromPointToDownstream = nullptr;
+
+    ReosMapToolDrawPolyline *mMapToolDrawStreamLine = nullptr;
+    ReosMapToolEditMapPolyline *mMapToolEditStreamLine = nullptr;
+    QActionGroup *mActionGroupStreamLineMapTool;
+    ReosMapToolDrawPoint *mMapToolSelectMapUpstreamPoint = nullptr;
+
     void updateDEMProfile();
 
+    bool mNeedUpdateDEMProfil;
 
     void storeGeometry();
     void restore();

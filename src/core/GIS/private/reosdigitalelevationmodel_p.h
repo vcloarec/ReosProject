@@ -27,16 +27,20 @@ class ReosDigitalElevationModelRaster: public ReosDigitalElevationModel
     ReosDigitalElevationModelRaster( QgsRasterLayer *rasterLayer, const QgsCoordinateTransformContext &transformContext );
 
     double elevationAt( const QPointF &point, const QString &destinationCrs = QString() ) const override;
-    QPolygonF elevationOnPolyline( const QPolygonF &polyline, const QString &destinationCrs = QString(), ReosProcess *process = nullptr ) const;
+
+    QPolygonF elevationOnPolyline( const QPolygonF &polyline, const QString &destinationCrs = QString(), ReosProcess *process = nullptr ) const override;
 
     ReosRasterMemory<float> extractMemoryRasterSimplePrecision( const ReosMapExtent &destinationExtent,
         ReosRasterExtent &outputRasterExtent,
         const QString &destinationCrs = QString(), ReosProcess *process = nullptr ) const override;
 
+    QString source() const override;
+
   private:
     std::unique_ptr<QgsRasterDataProvider> mDataProvider;
     QgsCoordinateReferenceSystem mCrs;
     QgsCoordinateTransformContext mTransformContext;
+    QString mSourceId;
 
     //! Adjust the extent to the border of pixel of the raster (extent increase)
     ReosRasterExtent rasterExtent( const QgsRectangle &originalExtent ) const;

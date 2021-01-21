@@ -58,6 +58,7 @@ class ReosPlotCurve : public ReosPlotItem
     ReosPlotCurve( const QString &name = QString(), const QColor &color = Qt::black, double width = 1 );
     void setData( const QPolygonF &data );
 
+    void zoomOnExtent();
   private:
     QwtPlotCurve *curve();
 };
@@ -85,8 +86,6 @@ class ReosPlotWidget: public QWidget
     void setTitleAxeX( const QString &title );
     void setTitleAxeYleft( const QString &title );
     void setTitleAxeYRight( const QString &title );
-
-
 
   signals:
     void cursorMoved( const QPointF &pt );

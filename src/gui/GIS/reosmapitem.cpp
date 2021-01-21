@@ -18,12 +18,30 @@ email                : vcloarec at gmail dot com
 #include <qgsmapcanvas.h>
 #include "reosmappolygon_p.h"
 
+ReosMapItem::ReosMapItem() {}
+
 ReosMapItem::ReosMapItem( ReosMap *map ): mMap( map )
 {}
+
+ReosMapItem::ReosMapItem( const ReosMapItem &other )
+{
+  if ( other.isMapExist() && other.d_ )
+  {
+    d_ = other.d_->clone();
+    d_->base = this;
+    mMap = other.mMap;
+  }
+  mDescription = other.mDescription;
+}
 
 bool ReosMapItem::isItem( QGraphicsItem *item ) const
 {
   return d_ == item;
+}
+
+bool ReosMapItem::isItem( ReosMapItem *item ) const
+{
+  return d_ == item->d_;
 }
 
 bool ReosMapItem::isMapExist() const
@@ -41,6 +59,14 @@ void ReosMapItem::setVisible( bool visible )
   if ( isMapExist() )
     d_->setVisible( visible );
 }
+
+QGraphicsItem *ReosMapItem::graphicItem()
+{
+  return d_;
+}
+
+ReosMapPolygon::ReosMapPolygon(): ReosMapItem()
+{}
 
 ReosMapPolygon::ReosMapPolygon( ReosMap *map ): ReosMapItem( map )
 {
@@ -70,13 +96,8 @@ ReosMapPolygon::~ReosMapPolygon()
     delete d_; //deleting this will remove it from the map
 }
 
-ReosMapPolygon::ReosMapPolygon( const ReosMapPolygon &other ): ReosMapItem( other.mMap )
+ReosMapPolygon::ReosMapPolygon( const ReosMapPolygon &other ): ReosMapItem( other )
 {
-  if ( other.isMapExist() && other.d_ )
-  {
-    d_ = other.d_->clone();
-    d_->base = this;
-  }
 }
 
 void ReosMapPolygon::resetPolygon( const QPolygonF &polygon )
@@ -172,6 +193,8 @@ void ReosMapItem::setZValue( double Z )
 
 QString ReosMapItem::description() const {return mDescription;}
 
+ReosMapPolyline::ReosMapPolyline(): ReosMapItem() {}
+
 ReosMapPolyline::ReosMapPolyline( ReosMap *map ): ReosMapItem( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
@@ -200,14 +223,8 @@ ReosMapPolyline::~ReosMapPolyline()
     delete d_;
 }
 
-ReosMapPolyline::ReosMapPolyline( const ReosMapPolyline &other ): ReosMapItem( other.mMap )
-{
-  if ( other.isMapExist() && other.d_ )
-  {
-    d_ = other.d_->clone();
-    d_->base = this;
-  }
-}
+ReosMapPolyline::ReosMapPolyline( const ReosMapPolyline &other ): ReosMapItem( other )
+{}
 
 void ReosMapPolyline::resetPolyline( const QPolygonF &polyline )
 {
@@ -234,6 +251,18 @@ void ReosMapPolyline::movePoint( int pointIndex, const QPointF &p )
   static_cast<ReosMapPolyline_p *>( d_ )->mapPolygon.replace( pointIndex, p );
   d_->updatePosition();
 }
+
+void ReosMapPolyline::activeMarker( bool b )
+{
+  static_cast<ReosMapPolyline_p *>( d_ )->activeMarker( b ) ;
+}
+
+void ReosMapPolyline::setMarkerDistance( double d )
+{
+  static_cast<ReosMapPolyline_p *>( d_ )->setMarkerDistance( d );
+}
+
+ReosMapMarker::ReosMapMarker(): ReosMapItem() {}
 
 ReosMapMarker::ReosMapMarker( ReosMap *map ): ReosMapItem( map )
 {
@@ -264,14 +293,8 @@ ReosMapMarker::~ReosMapMarker()
     delete d_; //deleting this will remove it from the map
 }
 
-ReosMapMarker::ReosMapMarker( const ReosMapMarker &other ): ReosMapItem( other.mMap )
-{
-  if ( other.isMapExist() && other.d_ )
-  {
-    d_ = other.d_->clone();
-    d_->base = this;
-  }
-}
+ReosMapMarker::ReosMapMarker( const ReosMapMarker &other ): ReosMapItem( other )
+{}
 
 void ReosMapMarker::resetPoint( const QPointF &point )
 {
@@ -312,4 +335,100 @@ bool ReosMapMarker::isEmpty() const
     return static_cast<ReosMapMarker_p *>( d_ )->isEmpty;
 
   return true;
+}
+
+ReosMapPolyline &ReosMapPolylineFormater::operator()( ReosMapPolyline &&polyline )
+{
+  polyline.setColor( mColor );
+  polyline.setExternalColor( mExternalColor );
+  polyline.setWidth( mWidth );
+  polyline.setExternalWidth( mExternalWidth );
+  polyline.setStyle( mStyle );
+  polyline.setZValue( mZ );
+  polyline.setDescription( mDescription );
+
+  return polyline;
+}
+
+ReosMapPolyline &ReosMapPolylineFormater::operator()( ReosMapPolyline &polyline )
+{
+  polyline.setColor( mColor );
+  polyline.setExternalColor( mExternalColor );
+  polyline.setWidth( mWidth );
+  polyline.setExternalWidth( mExternalWidth );
+  polyline.setStyle( mStyle );
+  polyline.setZValue( mZ );
+  polyline.setDescription( mDescription );
+
+  return polyline;
+}
+
+QString ReosMapPolylineFormater::description() const
+{
+  return mDescription;
+}
+
+void ReosMapPolylineFormater::setDescription( const QString &descritpion )
+{
+  mDescription = descritpion;
+}
+
+double ReosMapPolylineFormater::z() const
+{
+  return mZ;
+}
+
+void ReosMapPolylineFormater::setZ( double z )
+{
+  mZ = z;
+}
+
+Qt::PenStyle ReosMapPolylineFormater::style() const
+{
+  return mStyle;
+}
+
+void ReosMapPolylineFormater::setStyle( const Qt::PenStyle &style )
+{
+  mStyle = style;
+}
+
+double ReosMapPolylineFormater::externalWidth() const
+{
+  return mExternalWidth;
+}
+
+void ReosMapPolylineFormater::setExternalWidth( double externalWidth )
+{
+  mExternalWidth = externalWidth;
+}
+
+double ReosMapPolylineFormater::width() const
+{
+  return mWidth;
+}
+
+void ReosMapPolylineFormater::setWidth( double width )
+{
+  mWidth = width;
+}
+
+QColor ReosMapPolylineFormater::externalColor() const
+{
+  return mExternalColor;
+}
+
+void ReosMapPolylineFormater::setExternalColor( const QColor &externalColor )
+{
+  mExternalColor = externalColor;
+}
+
+QColor ReosMapPolylineFormater::color() const
+{
+  return mColor;
+}
+
+void ReosMapPolylineFormater::setColor( const QColor &color )
+{
+  mColor = color;
 }

@@ -9,6 +9,7 @@ SET(REOS_GUI_SOURCES
     reosstartingwidget.cpp
     reosversionmessagebox.cpp
     reosprocesscontroler.cpp
+    reosmenupopulator.cpp
 
 
     GIS/reosdigitalelevationmodelcombobox.cpp
@@ -43,6 +44,7 @@ SET(REOS_GUI_HEADERS
     reosstartingwidget.h
     reosversionmessagebox.h
     reosprocesscontroler.h
+    reosmenupopulator.h
 
     GIS/reosdigitalelevationmodelcombobox.h
     GIS/reosmap.h

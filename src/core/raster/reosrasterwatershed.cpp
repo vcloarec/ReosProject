@@ -31,7 +31,7 @@ ReosRasterWatershedMarkerFromDirection::ReosRasterWatershedMarkerFromDirection( 
 
 void ReosRasterWatershedMarkerFromDirection::start()
 {
-  while ( ( !mClimberToTreat.empty() ) && ( !isStopped() ) )
+  while ( ( !mClimberToTreat.empty() ) && ( !isStop() ) )
   {
     ReosRasterWatershed::Climber currentClimb = mClimberToTreat.front();
     mClimberToTreat.pop();
@@ -84,7 +84,7 @@ void ReosRasterWatershedMarkerFromDirection::start()
         mClimberToTreat.push( climb );
     };
 
-    if ( isStopAsked() )
+    if ( isStop() )
       stop( true );
 
   }
@@ -198,13 +198,13 @@ void ReosRasterWatershedFromDirectionAndDownStreamLine::start()
   mThreads.clear();
 
   mIsSuccessful = true;
-  emit finished();
+  finish();
 }
 
-void ReosRasterWatershedFromDirectionAndDownStreamLine::stopAsSoonAsPossible( bool b )
+void ReosRasterWatershedFromDirectionAndDownStreamLine::stop( bool b )
 {
   for ( auto &calc : mJobs )
-    calc->stopAsSoonAsPossible( b );
+    calc->stop( b );
 }
 
 ReosRasterWatershedToVector::ReosRasterWatershedToVector( ReosRasterWatershed::Watershed rasterWatershed,
@@ -281,7 +281,7 @@ void ReosRasterWatershedTraceDownstream::start()
   bool isStopLine = false;
   bool testIsInPolygon = !mPolyLimit .isEmpty();
 
-  while ( ( !isStopLine ) && ( dir != 4 ) && ( dir != 9 ) && ( !isStopAsked() ) && pointIsInPolyLimit )
+  while ( ( !isStopLine ) && ( dir != 4 ) && ( dir != 9 ) && ( !isStop() ) && pointIsInPolyLimit )
   {
     if ( dir != lastDir )
       mResultPolyline.append( posMap );

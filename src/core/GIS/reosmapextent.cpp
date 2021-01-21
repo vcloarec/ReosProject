@@ -59,6 +59,11 @@ bool ReosMapExtent::operator==( const ReosMapExtent &other ) const
 
 }
 
+bool ReosMapExtent::operator!=( const ReosMapExtent &other ) const
+{
+  return !operator==( other );
+}
+
 ReosMapExtent ReosMapExtent::operator*( const ReosMapExtent &other ) const
 {
   ReosMapExtent ret;

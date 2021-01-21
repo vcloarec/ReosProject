@@ -25,14 +25,22 @@ email                : vcloarec at gmail dot com
 #include <qobjectuniqueptr.h>
 
 #include "reosmap.h"
+#include "reosmenupopulator.h"
 
 
 class ReosMapTool_p: public QgsMapTool
 {
   public:
     ReosMapTool_p( QgsMapCanvas *canvas );
-    void activate();
-    void deactivate();
+    void activate() override;
+    void deactivate() override;
+    bool populateContextMenuWithEvent( QMenu *menu,  QgsMapMouseEvent *event ) override;
+
+    //! Sets context menu populator, take ownership
+    void setContextMenuPopulator( ReosMenuPopulator *populator );
+
+  private:
+    std::unique_ptr<ReosMenuPopulator> mContextMenuPopulator;
 };
 
 class ReosMapToolDrawPoint_p: public ReosMapTool_p
@@ -114,13 +122,51 @@ class ReosMapToolSelectMapItem_p: public ReosMapTool_p
     ReosMapToolSelectMapItem_p( QgsMapCanvas *map, const QString &targetDescription );
 
     void canvasReleaseEvent( QgsMapMouseEvent *e ) override;
+    bool populateContextMenuWithEvent( QMenu *menu,  QgsMapMouseEvent *event ) override;
+
+    void setSearchUnderPoint( bool underPoint );
+
+    Flags flags() const override { return ShowContextMenu; }
 
   signals:
-    void found( ReosMapItem *item );
+    void found( ReosMapItem *item, const QPointF &point );
 
   private:
     int mTargetType = -1;
     QString mTargetDescritpion;
+    bool mUnderPoint = false;
+};
+
+class ReosMapToolEditPolyline_p: public ReosMapTool_p
+{
+    Q_OBJECT
+  public:
+    ReosMapToolEditPolyline_p( QgsMapCanvas *map );
+    void setMapPolyline( ReosMapPolyline_p *polyline );
+
+    void activate() override;
+    void deactivate() override;
+
+    Flags flags() const override { return ShowContextMenu; }
+
+    bool populateContextMenuWithEvent( QMenu *menu, QgsMapMouseEvent *event ) override;
+
+  protected:
+    void canvasPressEvent( QgsMapMouseEvent *e ) override;
+    void canvasMoveEvent( QgsMapMouseEvent *e ) override;
+    void canvasReleaseEvent( QgsMapMouseEvent * ) override;
+
+  signals:
+    void polylineEdited();
+
+  private:
+    ReosMapPolyline_p *mPolyline = nullptr;
+    QSize mSearchZone = QSize( 18, 18 );
+    int mMovingVertex = -1;
+    bool mIsEdited = false;
+
+    QgsRectangle mapSearchZone( const QPoint &pt );
+    QRectF viewSearchZone( const QPoint &pt );
 };
 
 #endif // REOSMAPTOOL_P_H

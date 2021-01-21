@@ -20,10 +20,7 @@ ReosProcessControler::ReosProcessControler( ReosProcess *process, QWidget *paren
     connect( mProcess, &ReosProcess::sendInformation, ui->labelInformationText, &QLabel::setText );
   }
 
-  ui->labelInformationText->setText( mProcess->currentInformation() );
-
   mTimer.setInterval( mRefreshInterval );
-  mTimer.start();
 }
 
 ReosProcessControler::~ReosProcessControler()
@@ -31,11 +28,26 @@ ReosProcessControler::~ReosProcessControler()
   delete ui;
 }
 
+void ReosProcessControler::closeEvent( QCloseEvent *event )
+{
+  event->accept();
+}
+
+int ReosProcessControler::exec()
+{
+  mProcess->startOnOtherThread();
+  mTimer.start();
+  int res = QDialog::exec();
+  mTimer.stop();
+  return res;
+}
+
 void ReosProcessControler::refresh()
 {
   if ( !mProcess )
     return;
 
+  ui->labelInformationText->setText( mProcess->currentInformation() );
   ui->progressBar->setMaximum( mProcess->maxProgression() );
   ui->progressBar->setValue( mProcess->currentProgression() );
 
@@ -44,7 +56,7 @@ void ReosProcessControler::refresh()
 void ReosProcessControler::onCancel()
 {
   if ( mProcess )
-    mProcess->stopAsSoonAsPossible( true );
+    mProcess->stop( true );
   ui->labelInformationText->setText( tr( "Operation canceled..." ) );
 }
 

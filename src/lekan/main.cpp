@@ -70,37 +70,41 @@ int main( int argc, char *argv[] )
 //  a.installTranslator( &translatorQt );
 //  a.installTranslator( &translatorQGis );
 
-  LekanMainWindow w;
+  LekanMainWindow *w = new LekanMainWindow();
 
-  ReosVersionMessageBox *versionBox = new ReosVersionMessageBox( &w, lekanVersion );
+  ReosVersionMessageBox *versionBox = new ReosVersionMessageBox( w, lekanVersion );
   versionBox->setDefaultWebSite( webSite );
 
   if ( settings.contains( QStringLiteral( "Windows/MainWindow/geometry" ) ) )
   {
-    w.restoreGeometry( settings.value( QStringLiteral( "Windows/MainWindow/geometry" ) ).toByteArray() );
-    w.showMaximized();
+    w->restoreGeometry( settings.value( QStringLiteral( "Windows/MainWindow/geometry" ) ).toByteArray() );
+    w->showMaximized();
   }
   else
   {
-    w.showMaximized();
+    w->showMaximized();
   }
 
-  ReosStartingWidget *starting = new ReosStartingWidget( &w );
+  ReosStartingWidget *starting = new ReosStartingWidget( w );
   starting->move( QApplication::desktop()->screenGeometry().center() - starting->rect().center() );
   starting->setBan( QPixmap( ":/images/lekan.svg" ) );
   if ( starting->exec() )
   {
     if ( starting->openProjectChoice() )
-      w.openFile();
+      w->openFile();
 
     starting->deleteLater();
   }
   else
   {
+    w->deleteLater();
+
     return 0;
   }
 
-  return a.exec();
+  int ret = a.exec();
+  w->deleteLater();
 
+  return ret;
 
 }

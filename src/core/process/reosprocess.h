@@ -39,10 +39,14 @@ class ReosProcess : public QObject
 
     QString currentInformation() const;
 
-    virtual void stopAsSoonAsPossible( bool b );
-    bool isStopAsked();
+    virtual void stop( bool b );
+    bool isStop();
 
     bool isSuccessful() const;
+    void setSuccesful( bool b );
+
+    bool isFinished() const;
+
     static void processStart( ReosProcess *p );
     virtual void start() = 0;
 
@@ -52,36 +56,36 @@ class ReosProcess : public QObject
     //! Sets the maximum progression value
     void setMaxProgression( int value );
     void setCurrentProgression( int value );
-
-  signals:
-    void finished();
-    void sendInformation( const QString & );
-
-  protected:
-
-
-    bool isStopped() const {return mStopWithoutMutex;}
-    void stop( bool b ) {mStopWithoutMutex = b;}
-    bool finish();
     void setInformation( const QString &info );
 
+    void startOnOtherThread();
+
+  signals:
+    void sendInformation( const QString & );
+
+  protected slots:
+    bool finish();
+
+  protected:
     bool mIsSuccessful = false;
 
   private:
     int mMaxProgression;
     int mCurrentProgression;
-    bool mStopWithoutMutex = false;
-    bool mStopWithMutex = false;
+    bool mStop = false;
     QString mCurrentInformation;
+    bool mIsFinished = false;
 
     mutable QMutex mMutexProgression;
     mutable QMutex mMutexInformation;
-    mutable QMutex mMutexStop;
 
     ReosProcess *mParentProcess = nullptr;
     ReosProcess *mCurrentSubProcess = nullptr;
 
     void setParentProcess( ReosProcess *parent );
+
+  signals:
+    void finished( QPrivateSignal );
 };
 
 #endif // REOSPROCESS_H

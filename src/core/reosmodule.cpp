@@ -82,21 +82,6 @@ void ReosModule::sendMessage( QString mes, MessageType type ) const
     emit emitMessage( mes, type );
 }
 
-void ReosModule::startProcessOnOtherThread( ReosProcess *process )
-{
-  QFutureWatcher<void> *watcher = new QFutureWatcher<void>( this );
-  connect( watcher, &QFutureWatcher<void>::finished, this, &ReosModule::processFinished );
-  connect( watcher, &QFutureWatcher<void>::finished, watcher, &QObject::deleteLater );
-  QFuture<void> future = QtConcurrent::run( process, &ReosProcess::start );//https://doc.qt.io/qt-5/qtconcurrentrun.html#using-member-functions
-  watcher->setFuture( future );
-}
-
-void ReosModule::startProcessOnSameThread( ReosProcess *process )
-{
-  process->start();
-  emit processFinished();
-}
-
 QList<QAction *> ReosModule::actions() const {return mGroupAction->actions();}
 
 void ReosModule::redo()

@@ -13,6 +13,8 @@ email                : vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
+#include <QMutexLocker>
+
 #include "reosprocess.h"
 #include "reosdigitalelevationmodel_p.h"
 #include "reosrasterline.h"
@@ -28,6 +30,7 @@ ReosDigitalElevationModelRaster::ReosDigitalElevationModelRaster(
   {
     mDataProvider.reset( rasterLayer->dataProvider()->clone() );
     mCrs = rasterLayer->crs();
+    mSourceId = rasterLayer->id();
   }
 }
 
@@ -83,8 +86,12 @@ QPolygonF ReosDigitalElevationModelRaster::elevationOnPolyline( const QPolygonF 
     segmentExtent.addPointToExtent( point2 );
 
     ReosRasterExtent rasterExtent;
-
+    if ( process )
+      process->setInformation( QObject::tr( "Read DEM for segment %1/%2" ).arg( i + 1 ).arg( polyline.count() - 1 ) );
     ReosRasterMemory<float> segmentDEM = extractMemoryRasterSimplePrecision( segmentExtent, rasterExtent, destinationCrs, process );
+
+    if ( process && !process->isSuccessful() )
+      return ret;
 
     ReosRasterCellPos pos1 = rasterExtent.mapToCellPos( point1 );
     ReosRasterCellPos pos2 = rasterExtent.mapToCellPos( point2 );
@@ -92,12 +99,20 @@ QPolygonF ReosDigitalElevationModelRaster::elevationOnPolyline( const QPolygonF 
     ReosRasterLine rasterLine( false );
     rasterLine.addPoint( pos1 );
     rasterLine.addPoint( pos2 );
+    if ( process )
+    {
+      process->setMaxProgression( rasterLine.cellCount() );
+      process->setInformation( QObject::tr( "Project segment %1/%2" ).arg( i ).arg( polyline.count() ) );
+    }
 
-    QPointF vector1 = ( point2 - point1 );
+    const QPointF vector1 = ( point2 - point1 );
     double len1 = sqrt( vector1.x() * vector1.x() + vector1.y() * vector1.y() );
     double lenProj = 0;
     for ( unsigned cell = 1; cell < rasterLine.cellCount() - 1; ++cell )
     {
+      if ( process )
+        process->setCurrentProgression( cell );
+
       const ReosRasterCellPos &cellPos = rasterLine.cellPosition( cell );
       QPointF pointOnRaster = rasterExtent.cellCenterToMap( cellPos );
       float value = segmentDEM.value( cellPos.row(), cellPos.column() );
@@ -105,11 +120,20 @@ QPolygonF ReosDigitalElevationModelRaster::elevationOnPolyline( const QPolygonF 
 
       lenProj = ( vector1.x() * vector2.x() + vector1.y() * vector2.y() ) / len1;
       ret.append( QPointF( s + lenProj, value ) );
+
+      if ( process && process->isStop() )
+        break;
     }
 
     s = s + len1;
     ret.append( QPointF( s, elevationAt( point2, destinationCrs ) ) );
+
+    if ( process && process->isStop() )
+      break;
   }
+
+  if ( process )
+    process->setSuccesful( process->isSuccessful() && !process->isStop() );
 
   return ret;
 
@@ -153,24 +177,36 @@ ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimp
                                outputRasterExtent.xMapMax(),
                                outputRasterExtent.yMapMax() );
 
+  ReosRasterMemory<float> ret = ReosRasterMemory<float>( yPixCount, xPixCount ); //(row, col)
 
   std::unique_ptr<QgsRasterBlock> block;
   block.reset( mDataProvider->block( 1, adjustedExtent, xPixCount, yPixCount ) );
 
-  ReosRasterMemory<float> ret = ReosRasterMemory<float>( yPixCount, xPixCount ); //(row, col)
+  if ( !block->isValid() )
+  {
+    if ( process )
+      process->setSuccesful( false );
+
+    return ret;
+  }
+
   ret.reserveMemory();
 
   if ( process )
+  {
+    process->setCurrentProgression( 0 );
     process->setMaxProgression( yPixCount );
+  }
 
   for ( int i = 0; i < yPixCount; ++i )
   {
     for ( int j = 0; j < xPixCount; ++j )
     {
       ret.setValue( i, j, float( block->value( i, j ) ) );
-      if ( process && process->isStopAsked() )
+      if ( process && process->isStop() )
       {
         ret.freeMemory();
+        process->setSuccesful( false );
         return ret;
       }
     }
@@ -179,8 +215,16 @@ ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimp
       process->setCurrentProgression( i );
   }
 
+  if ( process )
+    process->setSuccesful( true );
+
   return ret;
 
+}
+
+QString ReosDigitalElevationModelRaster::source() const
+{
+  return mSourceId;
 }
 
 ReosRasterExtent ReosDigitalElevationModelRaster::rasterExtent( const QgsRectangle &originalExtent ) const

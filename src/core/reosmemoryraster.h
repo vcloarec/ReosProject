@@ -61,6 +61,7 @@ class ReosRasterExtent : public ReosMapExtent
      */
     ReosRasterExtent( double xOrigine, double yOrigine, int XCellCount, int YCellCount, double XCellSize, double YCellSize );
     ReosRasterExtent( const ReosMapExtent &extent, int XCellCount, int YcellCount, bool xAscendant = true, bool yAscendant = false );
+    ReosRasterExtent( const ReosMapExtent &extent );
 
     //! Returns whether the extent is valid
     bool isValid() const;
@@ -113,11 +114,13 @@ class ReosRasterExtent : public ReosMapExtent
     //! Returns the intersection of the extents, the position and the size of the pixels are the ones of the first member
     ReosRasterExtent operator*( const ReosRasterExtent &other ) const;
 
-//    bool operator==(const ReosRasterExtent &other)
-//    {
-//        return mIsValid==other.mIsValid &&
-//                mXOrigin==
-//    }
+    bool operator==( const ReosRasterExtent &other ) const;
+
+    bool operator!=( const ReosRasterExtent &other ) const;
+
+    ReosEncodedElement encode() const;
+
+    static ReosRasterExtent decode( const ReosEncodedElement &element );
 
   private:
     bool mIsValid = false;
@@ -127,8 +130,6 @@ class ReosRasterExtent : public ReosMapExtent
     double mYCellSize = std::numeric_limits<double>::quiet_NaN();
     int mXCellCount = 0;
     int mYCellCount = 0;
-
-
 };
 
 /**
@@ -173,10 +174,7 @@ class ReosRasterCellPos
 
     void goInDirection( unsigned char direction );
 
-    virtual bool isValid() const
-    {
-      return mRow != -1 && mColumn != -1;
-    }
+    virtual bool isValid() const;
 
   protected:
     int mRow = -1;
@@ -242,7 +240,7 @@ class ReosRasterMemory
     int mRowCount = 0;
     int mColumnCount = 0;;
     QVector<T> mValues;
-    T mNoData;
+    T mNoData = std::numeric_limits<T>::quiet_NaN();
 };
 
 template<typename T>

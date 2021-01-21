@@ -146,6 +146,14 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
 
   connect( this, &QObject::destroyed, this, &ReosDelineatingWatershedWidget::storeGeometry );
 
+  connect( mModule->delineatingModule(), &ReosWatershedDelineating::hasBeenReset, this, &ReosDelineatingWatershedWidget::onModuleReset );
+
+  burningLineFormater.setDescription( QStringLiteral( "Burning-line" ) );
+  burningLineFormater.setColor( Qt::red );
+  burningLineFormater.setExternalColor( Qt::white );
+  burningLineFormater.setWidth( 2 );
+  burningLineFormater.setExternalWidth( 4 );
+
   restore();
 }
 
@@ -200,31 +208,24 @@ void ReosDelineatingWatershedWidget::onPredefinedExtentDrawn( const QRectF &exte
 
 void ReosDelineatingWatershedWidget::onBurningLineDrawn( const QPolygonF &burningLine )
 {
-  mBurningLines.emplace_back( std::make_unique<ReosMapPolyline>( mMap, burningLine ) );
-  ReosMapPolyline *bl = mBurningLines.back().get();
-  bl->setDescription( QStringLiteral( "Burning-line" ) );
-  bl->setColor( Qt::red );
-  bl->setExternalColor( Qt::white );
-  bl->setWidth( 2 );
-  bl->setExternalWidth( 4 );
-
+  mBurningLines.append( burningLineFormater( ReosMapPolyline( mMap, burningLine ) ) );
   updateBurningLines();
 }
 
 void ReosDelineatingWatershedWidget::onBurningLineRemoved( ReosMapItem *item )
 {
-  size_t i = 0;
+  int i = 0;
   bool found = false;
-  while ( i < mBurningLines.size() && !found )
+  while ( i < mBurningLines.count() && !found )
   {
-    found = mBurningLines.at( i ).get() == item;
+    found = mBurningLines.at( i ).isItem( item );
     if ( !found )
       ++i;
   }
 
   if ( found )
   {
-    mBurningLines.erase( mBurningLines.begin() + i );
+    mBurningLines.removeAt( i );
     updateBurningLines();
   }
 }
@@ -238,11 +239,11 @@ void ReosDelineatingWatershedWidget::onDemComboboxChanged()
 
 void ReosDelineatingWatershedWidget::onDelineateAsked()
 {
-  if ( !mModule->delineatingModule()->startDelineating() )
-    return;
+  mModule->delineatingModule()->prepareDelineating();
   ReosProcessControler *controler = new ReosProcessControler( mModule->delineatingModule()->delineatingProcess(), this );
   controler->exec();
   controler->deleteLater();
+  mModule->delineatingModule()->testPredefinedExtentValidity();
   updateAutomaticTool();
 
   if ( !mModule->delineatingModule()->isDelineatingFinished() )
@@ -250,7 +251,6 @@ void ReosDelineatingWatershedWidget::onDelineateAsked()
 
   mTemporaryAutomaticWatershed.resetPolygon( mModule->delineatingModule()->lastWatershedDelineated() );
   mTemporaryAutomaticStreamLine.resetPolyline( mModule->delineatingModule()->lastStreamLine() );
-
 }
 
 void ReosDelineatingWatershedWidget::onAutomaticValidateAsked()
@@ -339,6 +339,23 @@ void ReosDelineatingWatershedWidget::restore()
   restoreGeometry( settings.value( QStringLiteral( "/Windows/WatershedDelineateWidget/Geometry" ) ).toByteArray() );
 }
 
+void ReosDelineatingWatershedWidget::onModuleReset()
+{
+  mDownstreamLine.resetPolyline();
+  mWatershedExtent.resetPolygon();
+  mBurningLines.clear();
+
+  const QList<QPolygonF> burningLines = mModule->delineatingModule()->burningines();
+  for ( const QPolygonF &bl : burningLines )
+  {
+    mBurningLines.append( burningLineFormater( ReosMapPolyline( mMap, bl ) ) );
+    mBurningLines.last().setVisible( ui->mRadioButtonAutomatic->isChecked() && isVisible() );
+  }
+
+  onMethodChange();
+
+}
+
 void ReosDelineatingWatershedWidget::showAutomaticDelineating( bool shown )
 {
   shown = shown && isVisible();
@@ -352,8 +369,8 @@ void ReosDelineatingWatershedWidget::showAutomaticDelineating( bool shown )
 
   mDownstreamLine.setVisible( shown );
   mWatershedExtent.setVisible( shown );
-  for ( size_t i = 0; i < mBurningLines.size(); ++i )
-    mBurningLines.at( i )->setVisible( shown );
+  for ( int i = 0; i < mBurningLines.size(); ++i )
+    mBurningLines[i].setVisible( shown );
   mTemporaryAutomaticWatershed.setVisible( shown );
   mTemporaryAutomaticStreamLine.setVisible( shown );
 
@@ -443,9 +460,9 @@ void ReosDelineatingWatershedWidget::updateAutomaticTool()
 void ReosDelineatingWatershedWidget::updateBurningLines()
 {
   QList<QPolygonF> list;
-  for ( size_t i = 0; i < mBurningLines.size(); ++i )
+  for ( int i = 0; i < mBurningLines.size(); ++i )
   {
-    list.append( mBurningLines.at( i ).get()->mapPolyline() );
+    list.append( mBurningLines.at( i ).mapPolyline() );
   }
 
   mModule->delineatingModule()->setBurningLines( list );

@@ -83,3 +83,57 @@ bool ReosRasterByteCompressed::hasData() const
 {
   return !mData.isEmpty();
 }
+
+ReosEncodedElement ReosRasterByteCompressed::encode() const
+{
+  ReosEncodedElement ret( QStringLiteral( "compress-byte-raster" ) );
+  ret.addData( QStringLiteral( "row-count" ), mRowCount );
+  ret.addData( QStringLiteral( "column-count" ), mColumnCount );
+  ret.addData( QStringLiteral( "data" ), mData );
+
+  return ret;
+}
+
+ReosRasterByteCompressed ReosRasterByteCompressed::decode( const ReosEncodedElement &element )
+{
+  if ( element.description() != QStringLiteral( "compress-byte-raster" ) )
+    return ReosRasterByteCompressed();
+
+  int rowCount;
+  if ( !element.getData( QStringLiteral( "row-count" ), rowCount ) )
+    return ReosRasterByteCompressed();
+
+  int columnCount;
+  if ( !element.getData( QStringLiteral( "column-count" ), columnCount ) )
+    return ReosRasterByteCompressed();
+
+  QByteArray data;
+  if ( !element.getData( QStringLiteral( "data" ), data ) )
+    return ReosRasterByteCompressed();
+
+  ReosRasterByteCompressed ret;
+  ret.mRowCount = rowCount;
+  ret.mColumnCount = columnCount;
+  ret.mData = data;
+
+  return ret;
+}
+
+bool ReosRasterByteCompressed::operator==( const ReosRasterByteCompressed &other ) const
+{
+  if ( mRowCount != other.mRowCount )
+    return false;
+
+  if ( mColumnCount != other.mColumnCount )
+    return false;
+
+  if ( mData != other.mData )
+    return false;
+
+  return true;
+}
+
+bool ReosRasterByteCompressed::operator!=( const ReosRasterByteCompressed &other ) const
+{
+  return !operator==( other );
+}

@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/formulas">
+        <file>averageSlope.svg</file>
+    </qresource>
+</RCC>

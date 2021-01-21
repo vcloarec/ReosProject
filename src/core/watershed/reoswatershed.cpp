@@ -1,20 +1,34 @@
 #include "reoswatershed.h"
 
-ReosWatershed::ReosWatershed( const QPolygonF &delineating,
-                              const QPointF &outletPoint,
-                              Type type,
-                              const QPolygonF &downstreamLine, const QPolygonF &streamPath,
-                              const ReosRasterWatershed::Directions &direction,
-                              const ReosRasterExtent &directionExent ):
+
+
+ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint, ReosWatershed::Type type ):
+  mType( type ),
+  mExtent( delineating ),
+  mDelineating( delineating ),
+  mOutletPoint( outletPoint )
+{}
+
+ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint, ReosWatershed::Type type, const QPolygonF &downstreamLine, const QPolygonF &streamPath ):
   mType( type ),
   mExtent( delineating ),
   mDelineating( delineating ),
   mOutletPoint( outletPoint ),
   mDownstreamLine( downstreamLine ),
-  mDirectionRaster( direction ),
-  mDirectionExtent( directionExent ),
   mStreamPath( streamPath )
 {}
+
+ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint, ReosWatershed::Type type, const QPolygonF &downstreamLine, const QPolygonF &streamPath, const ReosRasterWatershed::Directions &direction, const ReosRasterExtent &directionExent, const QString &refLayerId ):
+  mType( type ),
+  mExtent( delineating ),
+  mDelineating( delineating ),
+  mOutletPoint( outletPoint ),
+  mDownstreamLine( downstreamLine ),
+  mStreamPath( streamPath )
+{
+  DirectionData dir {direction, directionExent};
+  mDirectionData.insert( {refLayerId, dir} );
+}
 
 QString ReosWatershed::name() const
 {
@@ -27,6 +41,7 @@ QString ReosWatershed::name() const
 void ReosWatershed::setName( const QString &name )
 {
   mName = name;
+  void changed();
 }
 
 ReosMapExtent ReosWatershed::extent() const
@@ -47,31 +62,36 @@ ReosInclusionType ReosWatershed::contain( const QPolygonF &line ) const
   return ReosGeometryUtils::polylineIsInsidePolygon( line, mDelineating );
 }
 
-bool ReosWatershed::hasDirectiondata() const
+bool ReosWatershed::hasDirectiondata( const QString &layerId ) const
 {
-  return mDirectionRaster.hasData() || ( mDownstreamWatershed && mDownstreamWatershed->hasDirectiondata() );
+  bool localDirectionPresent =  mDirectionData.find( layerId ) != mDirectionData.end();
+  return localDirectionPresent || ( mDownstreamWatershed && mDownstreamWatershed->hasDirectiondata( layerId ) );
 }
 
-ReosRasterWatershed::Directions ReosWatershed::directions() const
+ReosRasterWatershed::Directions ReosWatershed::directions( const QString &layerId ) const
 {
-  if ( mDirectionRaster.hasData() )
-    return mDirectionRaster.uncompressRaster();
+  std::map<QString, DirectionData>::const_iterator it =  mDirectionData.find( layerId );
+
+  if ( it != mDirectionData.end() )
+    return it->second.directionRaster.uncompressRaster();
 
   if ( mDownstreamWatershed )
-    return mDownstreamWatershed->directions();
+    return mDownstreamWatershed->directions( layerId );
 
-  return mDirectionRaster.uncompressRaster();
+  return ReosRasterWatershed::Directions();
 }
 
-ReosRasterExtent ReosWatershed::directionExtent() const
+ReosRasterExtent ReosWatershed::directionExtent( const QString &layerId ) const
 {
-  if ( mDirectionExtent.isValid() )
-    return mDirectionExtent;
+  std::map<QString, DirectionData>::const_iterator it =  mDirectionData.find( layerId );
+
+  if ( it != mDirectionData.end() )
+    return it->second.directionExtent;
 
   if ( mDownstreamWatershed )
-    return mDownstreamWatershed->directionExtent();
+    return mDownstreamWatershed->directionExtent( layerId );
 
-  return mDirectionExtent;
+  return ReosRasterExtent();
 }
 
 QPolygonF ReosWatershed::delineating() const {return mDelineating;}
@@ -109,11 +129,13 @@ ReosWatershed *ReosWatershed::addUpstreamWatershed( ReosWatershed *newUpstreamWa
 {
   std::unique_ptr<ReosWatershed> ws( newUpstreamWatershed );
 
-  if ( hasDirectiondata() )
+  // Remove direction data from upstream if it has direction data from the same layer (not need anymore)
+  for ( std::map<QString, DirectionData>::const_iterator it = mDirectionData.begin(); it != mDirectionData.end(); ++it )
   {
-    // the upstream raster does not need anymore the direction data
-    ws->mDirectionExtent = ReosRasterExtent();
-    ws->mDirectionRaster = ReosRasterByteCompressed();
+    QString layerId = it->first;
+    std::map<QString, DirectionData>::const_iterator upIt = ws->mDirectionData.find( layerId );
+    if ( upIt != ws->mDirectionData.end() )
+      ws->mDirectionData.erase( upIt );
   }
 
   const QPointF &op = ws->outletPoint();
@@ -193,6 +215,8 @@ ReosWatershed *ReosWatershed::upstreamWatershed( const QPolygonF &line, bool &ok
   for ( const std::unique_ptr<ReosWatershed> &watershed : mUpstreamWatersheds )
   {
     assert( watershed );
+    if ( watershed->type() == Residual )
+      continue;
     switch ( watershed->contain( line ) )
     {
       case ReosInclusionType::None:
@@ -221,14 +245,20 @@ ReosWatershed *ReosWatershed::upstreamWatershed( const QPolygonF &line, bool &ok
   return nullptr;
 }
 
-ReosWatershed *ReosWatershed::upstreamWatershed( const QPointF &point )
+ReosWatershed *ReosWatershed::upstreamWatershed( const QPointF &point, bool excludeResidual )
 {
   if ( !contain( point ) )
     return nullptr;
   for ( const std::unique_ptr<ReosWatershed> &uws : mUpstreamWatersheds )
   {
-    if ( uws->contain( point ) )
-      return uws->upstreamWatershed( point );
+    if ( uws->contain( point ) && ( uws->type() != Residual || !excludeResidual ) )
+    {
+
+      ReosWatershed *ret = uws->upstreamWatershed( point );
+      if ( !ret )
+        return uws.get();
+      return ret;
+    }
   }
 
   return nullptr;
@@ -273,11 +303,7 @@ ReosInclusionType ReosWatershed::isContainedBy( const ReosWatershed &other ) con
 
 void ReosWatershed::removeDirectionData()
 {
-  if ( mDirectionRaster.hasData() )
-    mDirectionRaster = ReosRasterByteCompressed();
-  if ( mDirectionExtent.isValid() )
-    mDirectionExtent = ReosRasterExtent();
-
+  mDirectionData.clear();
   for ( size_t i = 0; i < mUpstreamWatersheds.size(); ++i )
     mUpstreamWatersheds.at( i )->removeDirectionData();
 }
@@ -321,6 +347,12 @@ QPolygonF ReosWatershed::streamPath() const
   return mStreamPath;
 }
 
+void ReosWatershed::setStreamPath( const QPolygonF &streamPath )
+{
+  mStreamPath = streamPath;
+  emit changed();
+}
+
 ReosWatershed *ReosWatershed::residualWatershed() const
 {
   if ( mUpstreamWatersheds.size() > 1 )
@@ -337,18 +369,169 @@ QPolygonF ReosWatershed::profile() const
 void ReosWatershed::setProfile( const QPolygonF &profile )
 {
   mProfile = profile;
+  emit changed();
+}
+
+ReosEncodedElement ReosWatershed::encode() const
+{
+  ReosEncodedElement ret( QStringLiteral( "watershed" ) );
+
+  ret.addData( QStringLiteral( "type" ), mType );
+  ret.addData( QStringLiteral( "name" ), mName );
+  ret.addEncodedData( QStringLiteral( "extent" ), mExtent.encode() );
+  ret.addData( QStringLiteral( "delineating" ), mDelineating );
+  ret.addData( QStringLiteral( "outlet-point" ), mOutletPoint );
+  ret.addData( QStringLiteral( "downstream-line" ), mDownstreamLine );
+  ret.addData( QStringLiteral( "stream-path" ), mStreamPath );
+  ret.addData( QStringLiteral( "profile" ), mProfile );
+
+  QList<QString> directionKeys;
+  QList<QByteArray> directionExtents;
+  QList<QByteArray> directionData;
+
+  for ( auto it : mDirectionData )
+  {
+    directionKeys.append( it.first );
+    directionExtents.append( it.second.directionExtent.encode().bytes() );
+    directionData.append( it.second.directionRaster.encode().bytes() );
+  }
+
+  ret.addData( QStringLiteral( "direction-keys" ), directionKeys );
+  ret.addData( QStringLiteral( "direction-extents" ), directionExtents );
+  ret.addData( QStringLiteral( "direction-data" ), directionData );
+
+  QList<QByteArray> upstreamWatersheds;
+  for ( const std::unique_ptr<ReosWatershed> &ws : mUpstreamWatersheds )
+    upstreamWatersheds.append( ws->encode().bytes() );
+
+  ret.addData( QStringLiteral( "upstream-watersheds" ), upstreamWatersheds );
+
+  return ret;
+}
+
+ReosWatershed *ReosWatershed::decode( const ReosEncodedElement &element )
+{
+  if ( element.description() != QStringLiteral( "watershed" ) )
+    return nullptr;
+
+  std::unique_ptr<ReosWatershed> ws = std::make_unique<ReosWatershed>();
+  if ( !element.getData( QStringLiteral( "type" ), ws->mType ) )
+    return nullptr;
+  if ( !element.getData( QStringLiteral( "name" ), ws->mName ) )
+    return nullptr;
+
+  ws->mExtent = ReosMapExtent::decode( element.getEncodedData( QStringLiteral( "extent" ) ) );
+
+  if ( !element.getData( QStringLiteral( "delineating" ), ws->mDelineating ) )
+    return nullptr;
+  if ( !element.getData( QStringLiteral( "outlet-point" ), ws->mOutletPoint ) )
+    return nullptr;
+  if ( !element.getData( QStringLiteral( "downstream-line" ), ws->mDownstreamLine ) )
+    return nullptr;
+  if ( !element.getData( QStringLiteral( "stream-path" ), ws->mStreamPath ) )
+    return nullptr;
+  if ( !element.getData( QStringLiteral( "profile" ), ws->mProfile ) )
+    return nullptr;
+
+  QList<QString> directionKeys;
+  QList<QByteArray> directionExtents;
+  QList<QByteArray> directionData;
+
+  if ( !element.getData( QStringLiteral( "direction-keys" ), directionKeys ) )
+    return nullptr;
+  if ( !element.getData( QStringLiteral( "direction-extents" ), directionExtents ) )
+    return nullptr;
+  if ( !element.getData( QStringLiteral( "direction-data" ), directionData ) )
+    return nullptr;
+
+  if ( directionKeys.count() != directionExtents.count() &&
+       directionExtents.count() != directionData.count() )
+    return nullptr;
+
+  for ( int i = 0; i < directionKeys.count(); ++i )
+  {
+    DirectionData dirData{ReosRasterByteCompressed::decode( ReosEncodedElement( directionData.at( i ) ) ),
+                          ReosRasterExtent::decode( ReosEncodedElement( directionExtents.at( i ) ) )};
+    ws->mDirectionData.insert( {directionKeys.at( i ), dirData} );
+  }
+
+  QList<QByteArray> upstreamWatersheds;
+
+  if ( !element.getData( QStringLiteral( "upstream-watersheds" ), upstreamWatersheds ) )
+    return nullptr;
+
+  for ( const QByteArray &ba : upstreamWatersheds )
+  {
+    std::unique_ptr<ReosWatershed> uws( ReosWatershed::decode( ReosEncodedElement( ba ) ) );
+    if ( uws )
+    {
+      uws->mDownstreamWatershed = ws.get();
+      ws->mUpstreamWatersheds.emplace_back( uws.release() );
+    }
+  }
+
+  return ws.release();
+}
+
+bool ReosWatershed::operator==( const ReosWatershed &other ) const
+{
+  if ( mType != other.mType )
+    return false;
+
+  if ( mName != other.mName )
+    return false;
+
+  if ( mExtent != other.mExtent )
+    return false;
+  if ( mDelineating != other.mDelineating )
+    return false;
+  if ( mOutletPoint != other.mOutletPoint )
+    return false;
+  if ( mDownstreamLine != other.mDownstreamLine )
+    return false;
+  if ( mStreamPath != other.mStreamPath )
+    return false;
+
+  if ( mProfile != other.mProfile )
+    return false;
+
+  if ( mDirectionData.size() != other.mDirectionData.size() )
+    return false;
+
+  for ( auto it : mDirectionData )
+  {
+    QString key = it.first;
+
+    if ( other.mDirectionData.find( key ) == other.mDirectionData.end() )
+      return false;
+
+    auto otherIt = other.mDirectionData.find( key );
+
+    if ( it.second.directionExtent != otherIt->second.directionExtent )
+      return false;
+
+    if ( it.second.directionRaster != otherIt->second.directionRaster )
+      return false;
+  }
+
+  return true;
+}
+
+QPolygonF ReosWatershed::downstreamLine() const
+{
+    return mDownstreamLine;
 }
 
 
 
 void ReosWatershed::updateResidual()
 {
-  if ( mUpstreamWatersheds.empty() )
+    if ( mUpstreamWatersheds.empty() )
     return;
 
   if ( mUpstreamWatersheds.size() == 1 &&  mUpstreamWatersheds.at( 0 )->type() == ReosWatershed::Residual )
   {
-    mUpstreamWatersheds.clear();
+    mUpstreamWatersheds.clear(); //only one the ersidual completly alone --> remove
     return;
   }
 
@@ -366,6 +549,7 @@ void ReosWatershed::updateResidual()
   }
 
   mUpstreamWatersheds[0]->mDelineating = residualDelineating;
+  mUpstreamWatersheds[0]->mExtent = ReosMapExtent( residualDelineating );
   mUpstreamWatersheds[0]->mName = mName + QObject::tr( " residual" );
   mUpstreamWatersheds[0]->mDownstreamWatershed = this;
 }

@@ -19,20 +19,25 @@ email                : vcloarec at gmail dot com
 #include <QString>
 
 #include "reosmemoryraster.h"
+#include "reosprocess.h"
 
-class ReosProcess;
-
+/**
+ * The ReosDigitalElevationModel abstract class is an interface for Digital elevation model of all type (TIN, raster)
+*/
 class ReosDigitalElevationModel
 {
   public:
-    ReosDigitalElevationModel();
-    virtual ~ReosDigitalElevationModel();
+    ReosDigitalElevationModel() = default;
+    virtual ~ReosDigitalElevationModel() = default;
 
     //! Returns elevation value at \a point in DEM coordinate
     virtual double elevationAt( const QPointF &point, const QString &destinationCrs = QString() ) const = 0;
 
     //! Returns a profile corresponding on the elevation on the DEM, resolution depends on the DEM type
     virtual QPolygonF elevationOnPolyline( const QPolygonF &polyline, const QString &destinationCrs = QString(), ReosProcess *process = nullptr ) const = 0;
+
+    //! Returns the source of the DEM, if it is a map layer, returns the layer Id
+    virtual QString source() const = 0;
 
     /**
      * Extract a memory raster with simple precision from the DEM in \a extent.
@@ -47,6 +52,31 @@ class ReosDigitalElevationModel
       ReosRasterExtent &rasterExtent,
       const QString &destinationCrs = QString(), ReosProcess *process = nullptr ) const = 0;
 };
+
+//! Process class that extract elevation on a polyline from a digital elevation model
+class ReosElevationOnPolylineProcess: public ReosProcess
+{
+  public:
+    //! Constructor
+    ReosElevationOnPolylineProcess( ReosDigitalElevationModel *dem );
+
+    //! Sets the entry \a polyline and eventually the destination CRS
+    void setEntryPolyline( const QPolygonF &polyline, const QString destinationCRS = QString() );
+
+    //! Returns the result profile after processing \see start()
+    QPolygonF resultProfile() const;
+
+    //! Start the processing
+    void start() override;
+
+  private:
+    ReosDigitalElevationModel *mDem = nullptr;
+    QPolygonF mPolyline;
+    QString mDestinationCRS;
+    QPolygonF mResult;
+
+};
+
 
 
 #endif // REOSDIGITALELEVATIONMODEL_H

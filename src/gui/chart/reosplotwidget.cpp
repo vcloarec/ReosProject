@@ -188,6 +188,16 @@ void ReosPlotCurve::setData( const QPolygonF &data )
   emit itemChanged();
 }
 
+void ReosPlotCurve::zoomOnExtent()
+{
+  if ( curve() && curve()->plot() )
+  {
+    curve()->plot()->setAxisScale( curve()->xAxis(), curve()->minXValue(), curve()->maxXValue() );
+    curve()->plot()->setAxisScale( curve()->yAxis(), curve()->minYValue(), curve()->maxYValue() );
+    curve()->plot()->replot();
+  }
+}
+
 QwtPlotCurve *ReosPlotCurve::curve()
 {
   return static_cast<QwtPlotCurve *>( mPlotItem );
