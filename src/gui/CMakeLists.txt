@@ -34,6 +34,8 @@ SET(REOS_GUI_SOURCES
     chart/private/reosprofileplot_p.cpp
     chart/private/reosplot_p.cpp
     chart/private/reosplotpicker_p.cpp
+
+    form/reosparameterwidget.cpp
 )
 
 SET(REOS_GUI_HEADERS
@@ -61,6 +63,9 @@ SET(REOS_GUI_HEADERS
     chart/reoschartwidget.h
     chart/reosplotwidget.h
     chart/reoseditableprofile.h
+
+    form/reosform.h
+    form/reosparameterwidget.h
 )
 
 SET(REOS_GUI_HEADERS_PRIVATE
@@ -106,6 +111,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core
     ${CMAKE_SOURCE_DIR}/src/core/GIS
     ${CMAKE_SOURCE_DIR}/src/core/process
+    ${CMAKE_SOURCE_DIR}/src/core/quantity
     ${CMAKE_SOURCE_DIR}/src/core/raster
     ${CMAKE_SOURCE_DIR}/src/core/utils
     ${CMAKE_SOURCE_DIR}/src/core/watershed
@@ -115,6 +121,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/gui/GIS/private
     ${CMAKE_SOURCE_DIR}/src/gui/chart
     ${CMAKE_SOURCE_DIR}/src/gui/chart/private
+    ${CMAKE_SOURCE_DIR}/src/gui/form
     ${QGIS_INCLUDE_DIR}
     ${QSCISCINTILLA_INCLUDE_DIR}
     ${QWT_INCLUDE}

@@ -4,7 +4,7 @@
 
 ReosWatershedModule::ReosWatershedModule( ReosModule *parent, ReosGisEngine *gisEngine ):
   ReosModule( parent ),
-  mWatershedTree( new ReosWatershedTree( this ) ),
+  mWatershedTree( new ReosWatershedTree( gisEngine, this ) ),
   mDelineatingModule( new ReosWatershedDelineating( this, mWatershedTree, gisEngine ) )
 {
 

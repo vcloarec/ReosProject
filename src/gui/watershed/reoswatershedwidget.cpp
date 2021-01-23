@@ -159,6 +159,17 @@ void ReosWatershedWidget::onCurrentWatershedChange( const QItemSelection &select
     return;
   }
 
+  if ( currentWatershed )
+  {
+    ui->mParameterAreaWidget->setArea( currentWatershed->area() );
+    ui->mParameterSlopeWidget->setSlope( currentWatershed->slope() );
+  }
+  else
+  {
+    ui->mParameterAreaWidget->setArea( nullptr );
+    ui->mParameterSlopeWidget->setSlope( nullptr );
+  }
+
   emit currentWatershedChanged( currentWatershed );
 }
 

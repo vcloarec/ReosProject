@@ -88,7 +88,7 @@ void ReosWatersehdTest::inclusion()
 
 void ReosWatersehdTest::watershedInteractions()
 {
-  ReosWatershedTree watershedTree;
+  ReosWatershedTree watershedTree( &gisEngine );
 
   QPolygonF poly1;
   poly1 << QPointF( 0, 0 ) << QPointF( 0, 50 ) << QPointF( 100, 50 ) << QPointF( 100, 0 );
@@ -147,7 +147,7 @@ void ReosWatersehdTest::watershedInteractions()
 void ReosWatersehdTest::watershedDelineating()
 {
   // create watershed delinating module
-  ReosWatershedTree watershedStore;
+  ReosWatershedTree watershedStore( &gisEngine );
   ReosWatershedDelineating watershedDelineating( &rootModule, &watershedStore, &gisEngine );
   ReosWatershedItemModel itemModel( &watershedStore );
   std::unique_ptr<ModuleProcessControler> controler;
@@ -399,7 +399,7 @@ void ReosWatersehdTest::watershedDelineating()
 void ReosWatersehdTest::watershedDelineatingWithBurningLine()
 {
   // create watershed delineating module
-  ReosWatershedTree watershedStore;
+  ReosWatershedTree watershedStore( &gisEngine );;
   ReosWatershedDelineating watershedDelineating( &rootModule, &watershedStore, &gisEngine );
   std::unique_ptr<ModuleProcessControler> controler;
 
@@ -523,7 +523,7 @@ void ReosWatersehdTest::watershedDelineatingWithBurningLine()
 void ReosWatersehdTest::watershdDelineatingMultiWatershed()
 {
   // create watershed delineating module
-  ReosWatershedTree watershedStore;
+  ReosWatershedTree watershedStore( &gisEngine );
   ReosWatershedDelineating watershedDelineating( &rootModule, &watershedStore, &gisEngine );
   ReosWatershedItemModel itemModel( &watershedStore );
   std::unique_ptr<ModuleProcessControler> controler;
@@ -679,7 +679,7 @@ void ReosWatersehdTest::watershdDelineatingMultiWatershed()
 
   // Test encoding
   ReosEncodedElement elem = watershedStore.encode();
-  ReosWatershedTree newTree;
+  ReosWatershedTree newTree( &gisEngine );
   newTree.decode( elem );
   QCOMPARE( newTree.masterWatershedCount(), 1 );
   QCOMPARE( newTree.watershedCount(), 6 );

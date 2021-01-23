@@ -20,6 +20,7 @@ email                : vcloarec at gmail dot com
 #include <QAbstractItemModel>
 #include "reosmodule.h"
 #include "reosencodedelement.h"
+#include "reosarea.h"
 
 class ReosDigitalElevationModel;
 class ReosDigitalElevationModelProvider;
@@ -101,6 +102,9 @@ class ReosGisEngine: public ReosModule
 
     //! Returns the list of layer Ids that are registered as Digital Elevation
     QStringList digitalElevationModelIds() const;
+
+    //! Returns area of \a polygon cosidering the coordinate reference system \a crs. If no crs is provided, the crs of the project is used
+    ReosArea polygonArea( const QPolygonF &polygon, const QString &crs = QString() ) const;
 
     //! Returns encoded information about the GIS engine after saving GIS project int the \a path with the \a baseFileName
     ReosEncodedElement encode( const QString &path, const QString baseFileName );

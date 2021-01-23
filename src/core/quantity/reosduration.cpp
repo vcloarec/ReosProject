@@ -16,98 +16,81 @@ email                :   projetreos@gmail.com
 #include "reosduration.h"
 
 
-ReosDuration::ReosDuration(double value):mValue(value)
+ReosDuration::ReosDuration( double value ): mValue( value )
 {}
 
-ReosDuration::ReosDuration( double valeur, ReosDuration::Unit un )
+ReosDuration::ReosDuration( double value, ReosDuration::Unit un )
 {
   mUnit = un;
 
   switch ( mUnit )
   {
-  case millisecond:
-    mValue = value;
-    break;
-    case seconde:
-      mValue = value*1000;
+    case millisecond:
+      mValue = value;
+      break;
+    case second:
+      mValue = value * 1000;
       break;
     case minute:
-      mValue = value * 60*1000;
+      mValue = value * 60 * 1000;
       break;
-    case heure:
-      mValue = value * 3600*1000;
+    case hour:
+      mValue = value * 3600 * 1000;
       break;
-    case jour:
-      mValue = value * 86400*1000;
+    case day:
+      mValue = value * 86400 * 1000;
       break;
-    case semaine:
-      mValue = value * 604800*1000;
+    case week:
+      mValue = value * 604800 * 1000;
       break;
-    case mois:
-      mValue = value * 2592000*1000;
+    case month:
+      mValue = value * 2592000 * 1000;
       break;
-    case annee:
-      mValue = value * 31536000*1000;
+    case year:
+      mValue = value * 31536000 * 1000;
       break;
   }
 }
 
-ReosDuration::ReosDuration(const ReosEncodedElement &encoded)
-{
-    qint8 u;
-    if ( encoded.getData( QStringLiteral( "Unit" ), u ) )
-        mUnit = Unit( u );
-    qint64 val;
-    if ( encoded.getData( QStringLiteral( "Value" ), val ) )
-        mValue = val;
-}
 
-QByteArray ReosDuration::encode() const
-{
-  ReosEncodedElement encoded( QStringLiteral( "Duration" ) );
-  encoded.addData( QStringLiteral( "Unit" ), qint8( mUnit ) );
-  encoded.addData( QStringLiteral( "Value" ), mValue ) );
 
-  return encoded.encode();
-}
-
-QString ReosDuration::toString(int precision)
+QString ReosDuration::toString( int precision )
 {
-    return toString(mUnit,precision);
+  return toString( mUnit, precision );
 }
 
 QString ReosDuration::toString( ReosDuration::Unit unit, int precision )
 {
   QString returnValue = QString::number( valueUnit( unit ), 'f', precision );
-  double val;
+  double val = valueUnit();
   switch ( unit )
   {
-    case seconde:
+    case second:
       returnValue.append( QObject::tr( " s" ) );
       break;
     case minute:
       returnValue.append( QObject::tr( " mn" ) );
       break;
-    case heure:
+    case hour:
       returnValue.append( QObject::tr( " h" ) );
       break;
-    case jour:
+    case day:
       returnValue.append( QObject::tr( " d" ) );
       break;
-    case semaine:
+    case week:
       val = valueWeek();
       if ( val > 1 )
         returnValue.append( QObject::tr( " weeks" ) );
       else
         returnValue.append( QObject::tr( " week" ) );
       break;
-    case mois:
-      if (val>1)
-          returnValue.append(QObject::tr("monthes"));
+    case month:
+      if ( val > 1 )
+        returnValue.append( QObject::tr( "monthes" ) );
       else
-          returnValue.append( QObject::tr( " month" ) );
+        returnValue.append( QObject::tr( " month" ) );
       break;
-    case annee:
+    case year:
       val = valueYear();
       if ( val > 1 )
         returnValue.append( QObject::tr( " year" ) );
@@ -193,19 +176,19 @@ bool ReosDuration::operator!=( const ReosDuration &other ) const
   return !operator==( other );
 }
 
-double ReosDuration::valueSeconde() const {return mValue/1000.0;}
+double ReosDuration::valueSeconde() const {return mValue / 1000.0;}
 
-double ReosDuration::valueMinute() const {return mValue/1000.0 / 60;}
+double ReosDuration::valueMinute() const {return mValue / 1000.0 / 60;}
 
-double ReosDuration::valueHour() const {return mValue/1000.0 / 3600;}
+double ReosDuration::valueHour() const {return mValue / 1000.0 / 3600;}
 
-double ReosDuration::valueDay() const {return mValue/1000.0 / 86400;}
+double ReosDuration::valueDay() const {return mValue / 1000.0 / 86400;}
 
-double ReosDuration::valueWeek() const {return mValue/1000.0 / 604800;}
+double ReosDuration::valueWeek() const {return mValue / 1000.0 / 604800;}
 
-double ReosDuration::valueMonth() const {return mValue/1000.0 / 2592000;}
+double ReosDuration::valueMonth() const {return mValue / 1000.0 / 2592000;}
 
-double ReosDuration::valueYear() const {return mValue/1000.0 / 31536000;}
+double ReosDuration::valueYear() const {return mValue / 1000.0 / 31536000;}
 
 double ReosDuration::valueUnit() const
 {
@@ -217,26 +200,29 @@ double ReosDuration::valueUnit( ReosDuration::Unit un ) const
   double val;
   switch ( un )
   {
-    case seconde:
+    case second:
       val = valueSeconde();
       break;
     case minute:
       val = valueMinute();
       break;
-    case heure:
+    case hour:
       val = valueHour();
       break;
-    case jour:
+    case day:
       val = valueDay();
       break;
-    case semaine:
+    case week:
       val = valueWeek();
       break;
-    case mois:
+    case month:
       val = valueMonth();
       break;
-    case annee:
+    case year:
       val = valueYear();
+      break;
+    default:
+      val = mValue;
       break;
   }
 
@@ -252,7 +238,7 @@ void ReosDuration::setUnit( ReosDuration::Unit u )
 
 unsigned ReosDuration::numberOfFullyContainedIntervals( const ReosDuration &other ) const
 {
-  if ( other.mValue() > mValue )
+  if ( other.mValue > mValue )
     return 0;
 
   return unsigned( mValue / other.mValue );

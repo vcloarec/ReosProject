@@ -23,14 +23,15 @@ email                : vcloarec at gmail dot com
 
 #include "reoswatershed.h"
 
-//class ReosWatershed;
+
 class QPolygonF;
+class ReosGisEngine;
 
 class ReosWatershedTree: public QObject
 {
     Q_OBJECT
   public:
-    ReosWatershedTree( QObject *parent = nullptr );
+    ReosWatershedTree( ReosGisEngine *gisEngine, QObject *parent = nullptr );
 
     //! Purpose to add a watershed to the tree. Returns whether the delineating of the purposed watershed intersect other delineating
     bool isWatershedIntersectExisting( ReosWatershed *purposedWatershed );
@@ -86,6 +87,7 @@ class ReosWatershedTree: public QObject
 
   private:
     std::vector<std::unique_ptr<ReosWatershed>> mWatersheds;
+    ReosGisEngine *mGisEngine = nullptr;
 };
 
 

@@ -22,19 +22,19 @@ email                :   vcloarec at gmail dot com
 #include <iostream>
 #include <math.h>
 
-#include "../reosencodedelement.h"
+#include "reosencodedelement.h"
 
 class ReosDuration
 {
   public:
 
-    enum Unit {millisecond,second, minute, hour, day, week, month, year};
+    enum Unit {millisecond, second, minute, hour, day, week, month, year};
 
-    ReosDuration(double value =0);
-    ReosDuration( double value, Unit mUnit);
+    ReosDuration( double value = 0 );
+    ReosDuration( double value, Unit mUnit );
     ReosDuration( bool defined ): mDefined( defined )
     {}
-    ReosDuration( const ReosEncodedElement &encoded );
+
 
     ReosDuration operator+( const ReosDuration & ) const;
     ReosDuration operator-( const ReosDuration & ) const;
@@ -63,8 +63,8 @@ class ReosDuration
     void setUnit( Unit u );
     QByteArray encode() const;
 
-    QString toString( int precision = 1);
-    QString toString(ReosDuration::Unit unit, int precision = 1);
+    QString toString( int precision = 1 );
+    QString toString( ReosDuration::Unit unit, int precision = 1 );
 
     unsigned numberOfFullyContainedIntervals( const ReosDuration &other ) const;
 

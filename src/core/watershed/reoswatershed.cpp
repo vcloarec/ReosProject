@@ -1,13 +1,37 @@
+/***************************************************************************
+                      reoswatershed.cpp
+                     --------------------------------------
+Date                 : 10-2020
+Copyright            : (C) 2020 by Vincent Cloarec
+email                : vcloarec at gmail dot com
+ ***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
 #include "reoswatershed.h"
+#include "reosgisengine.h"
 
-
+ReosWatershed::ReosWatershed():
+  mArea( new ReosParameterArea( tr( "Watershed area" ), this ) )
+{
+  init();
+}
 
 ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint, ReosWatershed::Type type ):
-  mType( type ),
-  mExtent( delineating ),
-  mDelineating( delineating ),
-  mOutletPoint( outletPoint )
-{}
+  mType( type )
+  , mExtent( delineating )
+  , mDelineating( delineating )
+  , mOutletPoint( outletPoint )
+  , mArea( new ReosParameterArea( tr( "Watershed area" ), this ) )
+  , mSlope( new ReosParameterSlope( tr( "Average slope" ), this ) )
+{
+  init();
+}
 
 ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint, ReosWatershed::Type type, const QPolygonF &downstreamLine, const QPolygonF &streamPath ):
   mType( type ),
@@ -16,7 +40,11 @@ ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outle
   mOutletPoint( outletPoint ),
   mDownstreamLine( downstreamLine ),
   mStreamPath( streamPath )
-{}
+  , mArea( new ReosParameterArea( tr( "Watershed area" ), this ) )
+  , mSlope( new ReosParameterSlope( tr( "Average slope" ), this ) )
+{
+  init();
+}
 
 ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint, ReosWatershed::Type type, const QPolygonF &downstreamLine, const QPolygonF &streamPath, const ReosRasterWatershed::Directions &direction, const ReosRasterExtent &directionExent, const QString &refLayerId ):
   mType( type ),
@@ -25,7 +53,10 @@ ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outle
   mOutletPoint( outletPoint ),
   mDownstreamLine( downstreamLine ),
   mStreamPath( streamPath )
+  , mArea( new ReosParameterArea( tr( "Watershed area" ), this ) )
+  , mSlope( new ReosParameterSlope( tr( "Average slope" ), this ) )
 {
+  init();
   DirectionData dir {direction, directionExent};
   mDirectionData.insert( {refLayerId, dir} );
 }
@@ -369,7 +400,24 @@ QPolygonF ReosWatershed::profile() const
 void ReosWatershed::setProfile( const QPolygonF &profile )
 {
   mProfile = profile;
+  if ( mSlope->isDerived() )
+    calculateDerivedSlope();
   emit changed();
+}
+
+void ReosWatershed::setGeographicalContext( ReosGisEngine *gisEngine )
+{
+  mGisEngine = gisEngine;
+}
+
+ReosParameterArea *ReosWatershed::area() const
+{
+  return mArea;
+}
+
+ReosParameterSlope *ReosWatershed::slope() const
+{
+  return mSlope;
 }
 
 ReosEncodedElement ReosWatershed::encode() const
@@ -406,6 +454,8 @@ ReosEncodedElement ReosWatershed::encode() const
 
   ret.addData( QStringLiteral( "upstream-watersheds" ), upstreamWatersheds );
 
+  ret.addEncodedData( QStringLiteral( "area-parameter" ), mArea->encode() );
+  ret.addEncodedData( QStringLiteral( "slope-parameter" ), mSlope->encode() );
   return ret;
 }
 
@@ -470,6 +520,15 @@ ReosWatershed *ReosWatershed::decode( const ReosEncodedElement &element )
     }
   }
 
+  if ( ws->mArea )
+    ws->mArea->deleteLater();
+  ws->mArea = ReosParameterArea::decode( element.getEncodedData( QStringLiteral( "area-parameter" ) ), true, ws.get() );
+  connect( ws->mArea, &ReosParameter::needDerivation, ws.get(), &ReosWatershed::calculateDerivedArea );
+
+  if ( ws->mSlope )
+    ws->mSlope->deleteLater();
+  ws->mSlope = ReosParameterSlope::decode( element.getEncodedData( QStringLiteral( "slope-parameter" ) ), true, ws.get() );
+  connect( ws->mSlope, &ReosParameter::needDerivation, ws.get(), &ReosWatershed::calculateDerivedSlope );
   return ws.release();
 }
 
@@ -517,16 +576,22 @@ bool ReosWatershed::operator==( const ReosWatershed &other ) const
   return true;
 }
 
+void ReosWatershed::init()
+{
+  connect( mArea, &ReosParameter::needDerivation, this, &ReosWatershed::calculateDerivedArea );
+  connect( mSlope, &ReosParameter::needDerivation, this, &ReosWatershed::calculateDerivedSlope );
+}
+
 QPolygonF ReosWatershed::downstreamLine() const
 {
-    return mDownstreamLine;
+  return mDownstreamLine;
 }
 
 
 
 void ReosWatershed::updateResidual()
 {
-    if ( mUpstreamWatersheds.empty() )
+  if ( mUpstreamWatersheds.empty() )
     return;
 
   if ( mUpstreamWatersheds.size() == 1 &&  mUpstreamWatersheds.at( 0 )->type() == ReosWatershed::Residual )
@@ -552,6 +617,52 @@ void ReosWatershed::updateResidual()
   mUpstreamWatersheds[0]->mExtent = ReosMapExtent( residualDelineating );
   mUpstreamWatersheds[0]->mName = mName + QObject::tr( " residual" );
   mUpstreamWatersheds[0]->mDownstreamWatershed = this;
+
+  if ( mUpstreamWatersheds[0]->mArea->isDerived() )
+    mUpstreamWatersheds[0]->mArea->askForDerivation();
+}
+
+void ReosWatershed::calculateDerivedArea()
+{
+  ReosGisEngine *engine = geographicalContext();
+
+  if ( engine )
+  {
+    mArea->setDerivedValue( engine->polygonArea( mDelineating ) );
+  }
+}
+
+void ReosWatershed::calculateDerivedSlope()
+{
+  double length = 0;
+  double totalDenom = 0;
+
+  for ( int i = 0; i < mProfile.size() - 1; ++i )
+  {
+    const QPointF &p1 = mProfile.at( i );
+    const QPointF &p2 = mProfile.at( i + 1 );
+    double dx = fabs( p1.x() - p2.x() );
+    double dy = fabs( p1.y() - p2.y() );
+    double dl = sqrt( std::pow( dx, 2 ) + pow( dy, 2 ) );
+    double sl = dy / dx;
+    length += dl;
+    totalDenom += dl / sqrt( sl );
+  }
+
+  double averageSlope = pow( length / totalDenom, 2 );
+
+  mSlope->setDerivedValue( averageSlope );
+}
+
+ReosGisEngine *ReosWatershed::geographicalContext() const
+{
+  if ( mGisEngine )
+    return mGisEngine;
+
+  if ( mDownstreamWatershed )
+    return mDownstreamWatershed->geographicalContext();
+
+  return nullptr;
 }
 
 

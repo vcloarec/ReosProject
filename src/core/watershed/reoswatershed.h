@@ -1,3 +1,18 @@
+/***************************************************************************
+                      reoswatershed.h
+                     --------------------------------------
+Date                 : 10-2020
+Copyright            : (C) 2020 by Vincent Cloarec
+email                : vcloarec at gmail dot com
+ ***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
 #ifndef REOSWATERSHED_H
 #define REOSWATERSHED_H
 
@@ -10,7 +25,9 @@
 #include "reosgeometryutils.h"
 #include "reosrasterwatershed.h"
 #include "reosencodedelement.h"
+#include "reosparameter.h"
 
+class ReosGisEngine;
 
 class ReosWatershed: public QObject
 {
@@ -24,7 +41,7 @@ class ReosWatershed: public QObject
       Residual
     };
 
-    ReosWatershed() = default;
+    ReosWatershed();
 
     ReosWatershed( const QPolygonF &delineating,
                    const QPointF &outletPoint,
@@ -163,14 +180,22 @@ class ReosWatershed: public QObject
     //! Sets the longitudinale profile of the watershed
     void setProfile( const QPolygonF &profile );
 
-    ReosEncodedElement encode() const;
+    void setGeographicalContext( ReosGisEngine *gisEngine );
 
+    ReosParameterArea *area() const;
+    ReosParameterSlope *slope() const;
+
+    ReosEncodedElement encode() const;
     static ReosWatershed *decode( const ReosEncodedElement &element );
 
     bool operator==( const ReosWatershed &other ) const;
 
   signals:
     void changed();
+
+  public slots:
+    void calculateDerivedArea();
+    void calculateDerivedSlope();
 
   private:
     Type mType = None;
@@ -181,6 +206,11 @@ class ReosWatershed: public QObject
     QPolygonF mDownstreamLine;
     QPolygonF mStreamPath;
     QPolygonF mProfile;
+
+    ReosGisEngine *mGisEngine = nullptr;
+    ReosParameterArea *mArea = nullptr;
+    ReosParameterSlope *mSlope = nullptr;
+    ReosGisEngine *geographicalContext() const;
 
     struct DirectionData
     {
@@ -193,6 +223,7 @@ class ReosWatershed: public QObject
     std::vector<std::unique_ptr<ReosWatershed>> mUpstreamWatersheds;
     ReosWatershed *mDownstreamWatershed = nullptr;
 
+    void init();
     void updateResidual();
 };
 

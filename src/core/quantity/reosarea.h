@@ -23,16 +23,15 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include <QPolygonF>
 #include <QDebug>
 
-#include "../../Reos/reosencodedelement.h"
+#include "reosencodedelement.h"
 
 class ReosArea
 {
   public:
     enum Unit {m2, a, ha, km2};
-    ReosArea( double value=0);
+    ReosArea( double value = 0 );
     ReosArea( double value, Unit unit );
-    ReosArea( const QPolygonF polygon, Unit unit);
-    ReosArea( const ReosEncodedElement &encodedElem );
+    ReosArea( const QPolygonF polygon, Unit unit );
 
     ReosArea operator+( const ReosArea & ) const;
     ReosArea operator-( const ReosArea & ) const;
@@ -55,19 +54,15 @@ class ReosArea
 
     Unit unit() const;
 
-    QByteArray encode() const;
-
     void setUnitAuto();
-    void setUnit( ReosArea::Unit u )
-    {
-      mUnit = u;
-    }
+    void setUnit( ReosArea::Unit u );
+
+    ReosEncodedElement encode() const;
+    static ReosArea decode( const ReosEncodedElement &element );
 
   private:
-    double mValueM2=0;
-    Unit mUnit=m2;
-
-
+    double mValueM2 = 0;
+    Unit mUnit = m2;
 };
 
 #endif // REOSAREA_H

@@ -17,7 +17,9 @@ email                : vcloarec at gmail dot com
 #include "reoswatershedtree.h"
 #include "reoswatershed.h"
 
-ReosWatershedTree::ReosWatershedTree( QObject *parent ): QObject( parent )
+ReosWatershedTree::ReosWatershedTree( ReosGisEngine *gisEngine, QObject *parent ):
+  QObject( parent )
+  , mGisEngine( gisEngine )
 {}
 
 bool ReosWatershedTree::isWatershedIntersectExisting( ReosWatershed *purposedWatershed )
@@ -57,14 +59,17 @@ bool ReosWatershedTree::isWatershedIntersectExisting( ReosWatershed *purposedWat
 
 ReosWatershed *ReosWatershedTree::addWatershed( ReosWatershed *watershedToAdd, bool adaptDelineating )
 {
-  if ( !watershedToAdd )
+
+  std::unique_ptr<ReosWatershed> ws( watershedToAdd );
+
+  if ( !ws )
     return nullptr;
 
   emit watershedWillBeAdded();
 
-  std::unique_ptr<ReosWatershed> ws( watershedToAdd );
-
   ReosWatershed *includingWatershed = watershed( ws->outletPoint() );
+  ws->setGeographicalContext( mGisEngine );
+  ws->calculateDerivedArea();
 
   if ( includingWatershed ) // There is a watershed that contains the new one, deal with it
   {
@@ -249,7 +254,6 @@ void ReosWatershedTree::decode( const ReosEncodedElement &elem )
 {
   emit treeWillBeReset();
   mWatersheds.clear();
-
   if ( elem.description() == QStringLiteral( "watershed-tree" ) )
   {
     QList<QByteArray> watershedsList;
@@ -260,7 +264,10 @@ void ReosWatershedTree::decode( const ReosEncodedElement &elem )
       {
         std::unique_ptr<ReosWatershed> uws( ReosWatershed::decode( ReosEncodedElement( wsba ) ) );
         if ( uws )
+        {
+          uws->setGeographicalContext( mGisEngine );
           watersheds.emplace_back( uws.release() );
+        }
       }
 
       mWatersheds = std::move( watersheds );

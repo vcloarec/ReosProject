@@ -16,9 +16,9 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reosarea.h"
 
 
-ReosArea::ReosArea(double value):mValueM2(value)
+ReosArea::ReosArea( double value ): mValueM2( value )
 {
-    setUnitAuto();
+  setUnitAuto();
 }
 
 ReosArea::ReosArea( double value, Unit unit ): mUnit( unit )
@@ -40,7 +40,7 @@ ReosArea::ReosArea( double value, Unit unit ): mUnit( unit )
   }
 }
 
-ReosArea::ReosArea(const QPolygonF polygon, ReosArea::Unit unit ): mUnit( unit )
+ReosArea::ReosArea( const QPolygonF polygon, ReosArea::Unit unit ): mUnit( unit )
 {
   double cumul = 0;
   int pointCount = polygon.count();
@@ -60,24 +60,6 @@ ReosArea::ReosArea(const QPolygonF polygon, ReosArea::Unit unit ): mUnit( unit )
   }
 
   mValueM2 = fabs( cumul / 2 );
-}
-
-ReosArea::ReosArea( const ReosEncodedElement &encodedElem )
-{
-  encodedElem.getData( QStringLiteral( "Value_m2"), mValueM2 );
-  int u;
-  encodedElem.getData( QStringLiteral( "Unit" ), u );
-  mUnit = static_cast<Unit>( u );
-}
-
-
-
-QByteArray ReosArea::encode() const
-{
-  ReosEncodedElement encodedArea( QStringLiteral( "Area" ) );
-  encodedArea.addData( QStringLiteral( "Value_m2" ), mValueM2 );
-  encodedArea.addData( QStringLiteral( "Unit" ), int( mUnit ) );
-  return encodedArea.encode();
 }
 
 ReosArea ReosArea::operator+( const ReosArea &other ) const
@@ -224,5 +206,37 @@ void ReosArea::setUnitAuto()
   }
 
   mUnit = km2;
+}
+
+void ReosArea::setUnit( ReosArea::Unit u )
+{
+  mUnit = u;
+}
+
+ReosEncodedElement ReosArea::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "area" ) );
+
+  element.addData( QStringLiteral( "value" ), mValueM2 );
+  element.addData( QStringLiteral( "unit" ), mUnit );
+
+  return element;
+}
+
+ReosArea ReosArea::decode( const ReosEncodedElement &element )
+{
+  ReosArea ret;
+  if ( element.description() != QStringLiteral( "area" ) )
+    return ret;
+
+  if ( !element.getData( QStringLiteral( "value" ), ret.mValueM2 ) )
+    return ret;
+
+  int unit;
+  if ( !element.getData( QStringLiteral( "unit" ), unit ) )
+    return ret;
+  ret.mUnit = static_cast<ReosArea::Unit>( unit );
+
+  return ret;
 }
 

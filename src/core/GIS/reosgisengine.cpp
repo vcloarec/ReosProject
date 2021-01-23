@@ -28,6 +28,9 @@ email                : vcloarec at gmail dot com
 #include <qgsprovidermetadata.h>
 #include <qgsproviderregistry.h>
 #include <qgsapplication.h>
+#include <qgslinestring.h>
+#include <qgsgeometry.h>
+#include <qgspolygon.h>
 
 #define  mLayerTreeModel _layerTreeModel(mAbstractLayerTreeModel)
 static QgsLayerTreeModel *_layerTreeModel( QAbstractItemModel *sourceModel )
@@ -260,6 +263,28 @@ QMap<QString, QString> ReosGisEngine::digitalElevationModelRasterList() const
 QStringList ReosGisEngine::digitalElevationModelIds() const
 {
   return mAsDEMRegisteredLayer;
+}
+
+ReosArea ReosGisEngine::polygonArea( const QPolygonF &polygon, const QString &crs ) const
+{
+
+  QgsCoordinateReferenceSystem qgsCrs;
+  if ( crs.isEmpty() )
+    qgsCrs = QgsProject::instance()->crs();
+  else
+    qgsCrs = QgsCoordinateReferenceSystem::fromWkt( crs );
+
+  QgsDistanceArea areaCalculation;
+  areaCalculation.setSourceCrs( qgsCrs, QgsProject::instance()->transformContext() );
+
+  std::unique_ptr<QgsLineString> linestring( QgsLineString::fromQPolygonF( polygon ) );
+  std::unique_ptr<QgsPolygon> qgsPolygon = std::make_unique<QgsPolygon>( linestring.release() );
+  double area = areaCalculation.measureArea( QgsGeometry( qgsPolygon.release() ) );
+  QgsUnitTypes::AreaUnit unit = areaCalculation.areaUnits();
+
+  double transFormFactorToSquareMeter = QgsUnitTypes::fromUnitToUnitFactor( unit, QgsUnitTypes::AreaSquareMeters );
+
+  return ReosArea( area * transFormFactorToSquareMeter );
 }
 
 ReosEncodedElement ReosGisEngine::encode( const QString &path, const QString baseFileName )

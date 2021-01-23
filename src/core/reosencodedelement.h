@@ -74,7 +74,4 @@ class ReosEncodedElement
 
 };
 
-
-
-
 #endif // REOSENCODEDELEMENT_H
