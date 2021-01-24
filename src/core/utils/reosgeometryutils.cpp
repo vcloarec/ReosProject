@@ -13,6 +13,7 @@ email                : vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
+#include <math.h>
 #include <qgsgeometry.h>
 #include <qgslinestring.h>
 #include <qgspolygon.h>

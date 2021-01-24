@@ -57,7 +57,7 @@ class ReosRasterWatershedFromDirectionAndDownStreamLine;
  *
  */
 
-class ReosRasterWatershedMarkerFromDirection: public ReosProcess
+class REOSCORE_EXPORT ReosRasterWatershedMarkerFromDirection: public ReosProcess
 {
   public:
 
@@ -83,7 +83,7 @@ class ReosRasterWatershedMarkerFromDirection: public ReosProcess
 /**
  * Class that produce a raster defining a watershed with unique value from a direction raster and a downstream line
  */
-class ReosRasterWatershedFromDirectionAndDownStreamLine: public ReosProcess
+class REOSCORE_EXPORT ReosRasterWatershedFromDirectionAndDownStreamLine: public ReosProcess
 {
   public:
     //! Constructor with \a rasterDirection and downstream \a line
@@ -133,7 +133,7 @@ class ReosRasterWatershedFromDirectionAndDownStreamLine: public ReosProcess
     friend class ReosRasterWatershedMarkerFromDirection;
 };
 
-class ReosRasterWatershedToVector: public ReosProcess
+class REOSCORE_EXPORT ReosRasterWatershedToVector: public ReosProcess
 {
   public:
 
@@ -151,7 +151,7 @@ class ReosRasterWatershedToVector: public ReosProcess
     QList<QPoint> mEliminationPoint;
 };
 
-class ReosRasterWatershedTraceDownstream: public ReosProcess
+class REOSCORE_EXPORT ReosRasterWatershedTraceDownstream: public ReosProcess
 {
   public:
     //! Constructor with the \a directionRaster, the \a stopLine, the \a extent of the raster in the map and the position of the starting point \a startPos

@@ -25,7 +25,7 @@ email                : vcloarec at gmail dot com
 
 static const QString serverDocumentationAddress( "https://www.reos.site/availableDocumentation/" );
 
-class ReosDocumentation: public QObject
+class REOSCORE_EXPORT ReosDocumentation: public QObject
 {
     Q_OBJECT
   public:

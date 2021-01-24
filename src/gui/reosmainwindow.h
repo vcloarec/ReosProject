@@ -24,6 +24,7 @@ email                : vcloarec at gmail dot com
 #include <QVBoxLayout>
 #include <QPixmap>
 
+#include "reosgui.h"
 #include "reosversion.h"
 
 class ReosModule;
@@ -33,7 +34,7 @@ class ReosMessageBox;
 static const QString webSite( "www.reos.site/projet-reos/" );
 
 //! Mainwindow of application
-class ReosMainWindow : public QMainWindow
+class REOSGUI_EXPORT ReosMainWindow : public QMainWindow
 {
     Q_OBJECT
 

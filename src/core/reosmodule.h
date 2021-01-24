@@ -23,9 +23,11 @@ email                : vcloarec at gmail dot com
 #include <QTime>
 #include <QToolBar>
 
+#include "reoscore.h"
+
 class ReosProcess;
 
-class ReosModule : public QObject
+class REOSCORE_EXPORT ReosModule : public QObject
 {
     Q_OBJECT
   public:

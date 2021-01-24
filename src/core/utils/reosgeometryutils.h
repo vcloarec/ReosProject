@@ -16,7 +16,11 @@ email                : vcloarec at gmail dot com
 #ifndef REOSGEOMETRYUTILS_H
 #define REOSGEOMETRYUTILS_H
 
+#include <math.h>
+
 #include <QPolygonF>
+
+#include "reoscore.h"
 
 enum class ReosInclusionType
 {
@@ -25,7 +29,7 @@ enum class ReosInclusionType
   Total
 };
 
-class ReosGeometryUtils
+class REOSCORE_EXPORT ReosGeometryUtils
 {
   public:
     ReosGeometryUtils() = default;

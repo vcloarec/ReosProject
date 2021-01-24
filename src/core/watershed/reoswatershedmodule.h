@@ -7,7 +7,7 @@
 class ReosWatershedDelineating;
 class ReosGisEngine;
 
-class ReosWatershedModule : public ReosModule
+class REOSCORE_EXPORT ReosWatershedModule : public ReosModule
 {
     Q_OBJECT
   public:

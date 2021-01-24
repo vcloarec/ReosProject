@@ -17,11 +17,11 @@
 #define REOSPARAMETER_H
 
 #include <QObject>
-
+#include "reoscore.h"
 #include "reosarea.h"
 
 
-class ReosParameter : public QObject
+class REOSCORE_EXPORT ReosParameter : public QObject
 {
     Q_OBJECT
   public:
@@ -52,7 +52,7 @@ class ReosParameter : public QObject
 
 };
 
-class ReosParameterArea: public ReosParameter
+class REOSCORE_EXPORT ReosParameterArea: public ReosParameter
 {
   public:
     explicit ReosParameterArea( const QString &name, QObject *parent = nullptr );
@@ -69,7 +69,7 @@ class ReosParameterArea: public ReosParameter
     ReosArea mValue;
 };
 
-class ReosParameterSlope: public ReosParameter
+class REOSCORE_EXPORT ReosParameterSlope: public ReosParameter
 {
   public:
     explicit ReosParameterSlope( const QString &name, QObject *parent = nullptr );

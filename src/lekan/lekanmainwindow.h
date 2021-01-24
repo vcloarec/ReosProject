@@ -74,7 +74,7 @@ class LekanMainWindow : public ReosMainWindow
   private slots:
 
     QByteArray encode() const override {return QByteArray();}
-    bool decode( const QByteArray &byteArray ) override {}
+	bool decode(const QByteArray &byteArray) override { return false; }
 
   private:
 

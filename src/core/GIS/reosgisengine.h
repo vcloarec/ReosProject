@@ -17,7 +17,10 @@ email                : vcloarec at gmail dot com
 #ifndef REOSGISENGINE_H
 #define REOSGISENGINE_H
 
+#include <cmath>
 #include <QAbstractItemModel>
+
+#include "reoscore.h"
 #include "reosmodule.h"
 #include "reosencodedelement.h"
 #include "reosarea.h"
@@ -28,7 +31,7 @@ class ReosDigitalElevationModelProvider;
 /**
  * Reos module class that handles GIS layer
  */
-class ReosGisEngine: public ReosModule
+class REOSCORE_EXPORT ReosGisEngine: public ReosModule
 {
     Q_OBJECT
   public:

@@ -18,7 +18,9 @@ email                : vcloarec at gmail dot com
 
 #include <QApplication>
 
-class ReosApplication: public QApplication
+#include "reoscore.h"
+
+class REOSCORE_EXPORT ReosApplication: public QApplication
 {
   public:
     ReosApplication( int &argc, char **argv, int flag = ApplicationFlags );

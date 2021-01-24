@@ -25,7 +25,7 @@ email                : vcloarec at gmail dot com
 /**
  * Class that represent a rectangular extent in a map
  */
-class ReosMapExtent
+class REOSCORE_EXPORT ReosMapExtent
 {
   public:
     ReosMapExtent() = default;
@@ -96,7 +96,7 @@ class ReosMapExtent
       }
       else
       {
-
+		  return ReosMapExtent();
       }
     }
 

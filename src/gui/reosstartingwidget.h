@@ -20,6 +20,7 @@ email                : vcloarec at gmail dot com
 #include <QDialog>
 #include <QDebug>
 
+#include "reosgui.h"
 #include "ui_reosstartingwidget.h"
 
 namespace Ui
@@ -28,7 +29,7 @@ namespace Ui
 }
 
 //! Popup widget oin the start of the aplication to purpose to the user to create a new project or opening an xisting one
-class ReosStartingWidget : public QDialog
+class REOSGUI_EXPORT ReosStartingWidget : public QDialog
 {
     Q_OBJECT
   public:

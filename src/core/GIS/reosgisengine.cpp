@@ -29,6 +29,7 @@ email                : vcloarec at gmail dot com
 #include <qgsproviderregistry.h>
 #include <qgsapplication.h>
 #include <qgslinestring.h>
+#include <qmath.h>
 #include <qgsgeometry.h>
 #include <qgspolygon.h>
 

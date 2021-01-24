@@ -64,7 +64,6 @@ SET(REOS_GUI_HEADERS
     chart/reosplotwidget.h
     chart/reoseditableprofile.h
 
-    form/reosform.h
     form/reosparameterwidget.h
 )
 
@@ -94,10 +93,19 @@ TARGET_LINK_LIBRARIES(reosGui PUBLIC
         ${Qt5Sql_LIBRARIES}
         ${Qt5Concurrent_LIBRARIES}
         ${Qt5Charts_LIBRARIES}
+		${Qt5WebKitWidgets_LIBRARIES}
         ${QGIS_LIBS}
         ${QWT_LIB}
         reosCore
 )
+
+IF (MSVC)
+  add_compile_definitions(_USE_MATH_DEFINES)
+  add_compile_definitions(QWT_DLL)
+ENDIF (MSVC)
+IF(WITH_QTWEBKIT)
+  add_compile_definitions(WITH_QTWEBKIT)
+ENDIF(WITH_QTWEBKIT)
 
 IF(WIN32)
   INSTALL(TARGETS reosGui RUNTIME DESTINATION lib)

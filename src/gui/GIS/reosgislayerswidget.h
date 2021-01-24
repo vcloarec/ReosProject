@@ -19,12 +19,14 @@ email                : vcloarec at gmail dot com
 #include <QWidget>
 #include <QToolBar>
 
+#include "reosgui.h"
+
 class QgsLayerTreeView;
 class QgsLayerTreeViewIndicator;
 class ReosGisEngine;
 class ReosMap;
 
-class ReosGisLayersWidget: public QWidget
+class REOSGUI_EXPORT ReosGisLayersWidget: public QWidget
 {
     Q_OBJECT
   public:

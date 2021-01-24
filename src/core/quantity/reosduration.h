@@ -24,7 +24,7 @@ email                :   vcloarec at gmail dot com
 
 #include "reosencodedelement.h"
 
-class ReosDuration
+class REOSCORE_EXPORT ReosDuration
 {
   public:
 

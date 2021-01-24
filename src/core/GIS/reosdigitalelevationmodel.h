@@ -18,13 +18,14 @@ email                : vcloarec at gmail dot com
 
 #include <QString>
 
+#include "reoscore.h"
 #include "reosmemoryraster.h"
 #include "reosprocess.h"
 
 /**
  * The ReosDigitalElevationModel abstract class is an interface for Digital elevation model of all type (TIN, raster)
 */
-class ReosDigitalElevationModel
+class REOSCORE_EXPORT ReosDigitalElevationModel
 {
   public:
     ReosDigitalElevationModel() = default;
@@ -54,7 +55,7 @@ class ReosDigitalElevationModel
 };
 
 //! Process class that extract elevation on a polyline from a digital elevation model
-class ReosElevationOnPolylineProcess: public ReosProcess
+class REOSCORE_EXPORT ReosElevationOnPolylineProcess: public ReosProcess
 {
   public:
     //! Constructor

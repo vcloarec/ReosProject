@@ -4,6 +4,7 @@
 #include <QWidget>
 class QItemSelection;
 
+#include "reosgui.h"
 #include "reosmap.h"
 
 namespace Ui
@@ -18,7 +19,7 @@ class ReosWatershedModule;
 class ReosWatershed;
 class ReosMapToolSelectMapItem;
 
-class ReosWatershedWidget : public QWidget
+class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
 {
     Q_OBJECT
 

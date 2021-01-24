@@ -21,6 +21,7 @@ email                : vcloarec at gmail dot com
 #include <QPointer>
 #include <QGraphicsView>
 
+#include "reosgui.h"
 #include "reosmodule.h"
 #include "reosmapitem.h"
 //#include "../Reos/reosencodedelement.h"
@@ -30,7 +31,7 @@ class ReosMapCursorPosition;
 class ReosGisEngine;
 class ReosMapTool;
 
-class ReosMap: public ReosModule
+class REOSGUI_EXPORT ReosMap: public ReosModule
 {
     Q_OBJECT
   public:
@@ -102,7 +103,7 @@ class ReosMap: public ReosModule
 };
 
 
-class ReosMapCursorPosition : public QLabel
+class REOSGUI_EXPORT ReosMapCursorPosition : public QLabel
 {
     Q_OBJECT
   public:

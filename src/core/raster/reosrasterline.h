@@ -18,7 +18,7 @@ email                : vcloarec@gmail.com
 
 #include "reosmemoryraster.h"
 
-class ReosRasterLine
+class REOSCORE_EXPORT ReosRasterLine
 {
   public:
     /**

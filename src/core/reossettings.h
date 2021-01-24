@@ -18,7 +18,9 @@ email                : vcloarec at gmail dot com
 
 #include <QSettings>
 
-class ReosSettings
+#include "reoscore.h"
+
+class REOSCORE_EXPORT ReosSettings
 {
   public:
     ReosSettings();

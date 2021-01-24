@@ -21,10 +21,12 @@ email                : vcloarec@gmail.com
 #include <QString>
 #include <QDataStream>
 
+#include "reoscore.h"
+
 /**
  * Class used to store data under byte array
  */
-class ReosEncodedElement
+class REOSCORE_EXPORT ReosEncodedElement
 {
   public:
     //! Constructor of an empty encoded element with only the description

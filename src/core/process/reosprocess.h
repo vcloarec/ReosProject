@@ -21,11 +21,13 @@ email                : vcloarec at gmail dot com
 #include <QObject>
 #include <QMutex>
 
+#include "reoscore.h"
+
 /**
  * Abstract class that represent a process (long calculation). this class has convenient method to handle feedback and bring the process in other thread
  * Processes can be nested.
 */
-class ReosProcess : public QObject
+class REOSCORE_EXPORT ReosProcess : public QObject
 {
     Q_OBJECT
   public:

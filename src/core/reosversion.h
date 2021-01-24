@@ -20,10 +20,12 @@ email                : vcloarec at gmail dot com
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
 
+#include "reoscore.h"
+
 static const QString serverVersionAddress( "https://www.reos.site/availableVersion/" );
 
 //! Class that store the version of Reos software
-class ReosVersion
+class REOSCORE_EXPORT ReosVersion
 {
   public:
     //! Default constructor

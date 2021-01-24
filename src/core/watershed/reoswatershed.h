@@ -16,6 +16,7 @@ email                : vcloarec at gmail dot com
 #ifndef REOSWATERSHED_H
 #define REOSWATERSHED_H
 
+#include "reoscore.h"
 #include "reosmapextent.h"
 #include "reosrastercompressed.h"
 #include "reosrasterwatershed.h"
@@ -29,7 +30,7 @@ email                : vcloarec at gmail dot com
 
 class ReosGisEngine;
 
-class ReosWatershed: public QObject
+class REOSCORE_EXPORT ReosWatershed: public QObject
 {
     Q_OBJECT
   public:

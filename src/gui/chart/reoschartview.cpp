@@ -14,7 +14,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "reoschartview.h"
-
+#include <memory>
 #include <QLineSeries>
 
 ReosChartView::ReosChartView( QWidget *parent ): QChartView( new QChart, parent )

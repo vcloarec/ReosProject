@@ -87,6 +87,10 @@ ADD_LIBRARY(reosCore SHARED
     ${REOS_CORE_HEADERS}
     ${IMAGE_RCCS}
   )
+  
+IF (MSVC)
+  add_compile_definitions(_USE_MATH_DEFINES)
+ENDIF (MSVC)
 
 IF(WIN32)
   INSTALL(TARGETS reosCore RUNTIME DESTINATION lib)

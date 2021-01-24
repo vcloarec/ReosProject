@@ -151,7 +151,7 @@ int ReosWatershed::directUpstreamWatershedCount() const
 
 ReosWatershed *ReosWatershed::directUpstreamWatershed( int i ) const
 {
-  if ( i < 0 or i >= int( mUpstreamWatersheds.size() ) )
+  if ( i < 0 || i >= int( mUpstreamWatersheds.size() ) )
     return nullptr;
   return mUpstreamWatersheds.at( i ).get();
 }
@@ -465,8 +465,10 @@ ReosWatershed *ReosWatershed::decode( const ReosEncodedElement &element )
     return nullptr;
 
   std::unique_ptr<ReosWatershed> ws = std::make_unique<ReosWatershed>();
-  if ( !element.getData( QStringLiteral( "type" ), ws->mType ) )
+  int intType;
+  if ( !element.getData( QStringLiteral( "type" ), intType) )
     return nullptr;
+  ws->mType = static_cast<ReosWatershed::Type>(intType);
   if ( !element.getData( QStringLiteral( "name" ), ws->mName ) )
     return nullptr;
 

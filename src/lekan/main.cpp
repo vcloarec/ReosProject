@@ -33,7 +33,7 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 
 int main( int argc, char *argv[] )
 {
-  Q_INIT_RESOURCE( images );
+  //Q_INIT_RESOURCE( images );
 
 #ifdef Q_OS_WIN
   _putenv( QString( "%1=%2" ).arg( "GDAL_DATA" ).arg( QDir::currentPath().append( "/../gdal" ) ).toLatin1().data() );

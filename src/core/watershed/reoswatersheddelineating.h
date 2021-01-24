@@ -63,7 +63,7 @@ class ReosWatershedDelineatingProcess: public ReosProcess
 };
 
 
-class ReosWatershedDelineating : public ReosModule
+class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
 {
     Q_OBJECT
   public:

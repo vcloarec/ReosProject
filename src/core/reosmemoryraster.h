@@ -23,8 +23,8 @@ email                : vcloarec@gmail.com
 #include <QRectF>
 #include <QPolygonF>
 
-#include <gdal/gdal_priv.h>
-#include <gdal/ogr_spatialref.h>
+#include <gdal_priv.h>
+#include <ogr_spatialref.h>
 
 #include "reosmapextent.h"
 
@@ -33,7 +33,7 @@ class ReosRasterCellPos;
 /**
  * Class that represent the extent of a raster in a map, handle also pixel map position
  */
-class ReosRasterExtent : public ReosMapExtent
+class REOSCORE_EXPORT ReosRasterExtent : public ReosMapExtent
 {
   public:
 
@@ -135,7 +135,7 @@ class ReosRasterExtent : public ReosMapExtent
 /**
  * Convenient class used to navigate in a raster
  */
-class ReosRasterCellPos
+class REOSCORE_EXPORT ReosRasterCellPos
 {
   public:
     //! Default constructor
@@ -456,7 +456,7 @@ bool ReosRasterMemory<T>::isValid() const
  * Convenient class used to navigate in a raster and can hande the raser value at corresponding position
  */
 template <typename T>
-class ReosRasterCellValue: public ReosRasterCellPos
+class REOSCORE_EXPORT ReosRasterCellValue: public ReosRasterCellPos
 {
   public:
 
@@ -578,14 +578,14 @@ class RasterNeighborCirculator
 
 
 
-class ReosRasterTestingCell
+class REOSCORE_EXPORT ReosRasterTestingCell
 {
   public:
     virtual ~ReosRasterTestingCell() = default;
     virtual bool testCell( const ReosRasterCellPos &cell ) const;
 };
 
-class ReosRasterTestingCellInPolygon: public ReosRasterTestingCell
+class REOSCORE_EXPORT ReosRasterTestingCellInPolygon: public ReosRasterTestingCell
 {
   public:
     ReosRasterTestingCellInPolygon( ReosRasterExtent emprise, const QPolygonF &polygon );

@@ -51,7 +51,7 @@ class ReosRasterFilling: public ReosProcess
   protected:
 
     ReosRasterMemory<float> mDem;
-    float mMimimumSlope = 0.0001;
+    float mMimimumSlope = 0.0001f;
     double mXSize = 0;
     double mYSize = 0;
 

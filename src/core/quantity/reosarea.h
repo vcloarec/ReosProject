@@ -23,9 +23,10 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include <QPolygonF>
 #include <QDebug>
 
+#include "reoscore.h"
 #include "reosencodedelement.h"
 
-class ReosArea
+class REOSCORE_EXPORT ReosArea
 {
   public:
     enum Unit {m2, a, ha, km2};

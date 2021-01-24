@@ -23,9 +23,10 @@ email                : vcloarec at gmail dot com
 #include <QWidget>
 
 #include "reosversion.h"
+#include "reosgui.h"
 
 //! Widget that give information to the user of avaibaility of new version of the application
-class ReosVersionMessageBox: public QMessageBox
+class REOSGUI_EXPORT ReosVersionMessageBox: public QMessageBox
 {
   public:
     ReosVersionMessageBox( QWidget *parent, const ReosVersion &mVersion, bool mStart = true );

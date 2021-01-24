@@ -16,6 +16,7 @@
 #ifndef REOSPLOT_P_H
 #define REOSPLOT_P_H
 
+#include <memory>
 #include <qwt_plot.h>
 #include <qwt_plot_magnifier.h>
 
