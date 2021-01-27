@@ -23,6 +23,8 @@ email                : vcloarec at gmail dot com
 #include <QGraphicsScene>
 #include <QPointer>
 
+#include "reosgui.h"
+
 class ReosMap;
 class ReosMapItem_p;
 class ReosMapPolygon_p;

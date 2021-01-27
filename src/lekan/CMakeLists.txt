@@ -33,6 +33,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/gui
     ${CMAKE_SOURCE_DIR}/src/gui/GIS
     ${CMAKE_SOURCE_DIR}/src/gui/watershed
+    ${CMAKE_SOURCE_DIR}/src/gui/rainfall
     ${CMAKE_SOURCE_DIR}/src/core
     ${CMAKE_SOURCE_DIR}/src/core/GIS
     ${CMAKE_SOURCE_DIR}/src/core/process
@@ -40,6 +41,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/quantity
     ${CMAKE_SOURCE_DIR}/src/core/utils
     ${CMAKE_SOURCE_DIR}/src/core/watershed
+    ${CMAKE_SOURCE_DIR}/src/core/rainfall
     )
 
 INSTALL(TARGETS lekan RUNTIME DESTINATION bin)

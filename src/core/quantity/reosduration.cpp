@@ -53,7 +53,6 @@ ReosDuration::ReosDuration( double value, ReosDuration::Unit un )
 }
 
 
-
 QString ReosDuration::toString( int precision )
 {
   return toString( mUnit, precision );
@@ -242,4 +241,32 @@ unsigned ReosDuration::numberOfFullyContainedIntervals( const ReosDuration &othe
     return 0;
 
   return unsigned( mValue / other.mValue );
+}
+
+ReosEncodedElement ReosDuration::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "duration" ) );
+
+  element.addData( QStringLiteral( "value" ), mValue );
+  element.addData( QStringLiteral( "unit" ), static_cast<int>( mUnit ) );
+
+  return element;
+}
+
+ReosDuration ReosDuration::decode( const ReosEncodedElement &element )
+{
+  ReosDuration ret;
+
+  if ( element.description() != QStringLiteral( "duration" ) )
+    return ret;
+
+  if ( !element.getData( QStringLiteral( "value" ), ret.mValue ) )
+    return ret;
+
+  int intUnit;
+  if ( !element.getData( QStringLiteral( "unit" ), intUnit ) )
+    return ret;
+  ret.mUnit = static_cast<Unit>( intUnit );
+
+  return ret;
 }

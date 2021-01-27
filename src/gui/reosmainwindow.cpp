@@ -92,7 +92,11 @@ void ReosMainWindow::init()
 
   const QList<QMenu *> &sm = specificMenus();
   for ( QMenu *menu : sm )
+  {
     menuBar()->addMenu( menu );
+    QToolBar *tb = addToolBar( menu->title() );
+    tb->addActions( menu->actions() );
+  }
 
   mGroupActionOption->addAction( mActionLanguageSelection );
   mMenuOption = menuBar()->addMenu( tr( "Options" ) );

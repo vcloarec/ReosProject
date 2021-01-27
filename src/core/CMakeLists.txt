@@ -34,11 +34,18 @@ SET(REOS_CORE_SOURCES
   watershed/reoswatershedtree.cpp
   watershed/reoswatershedmodule.cpp
 
+  rainfall/reosrainfallitem.cpp
+  rainfall/reosrainfallmodel.cpp
+  rainfall/reosrainfalldatastore.cpp
+
   quantity/reosarea.cpp
   quantity/reosduration.cpp
+  quantity/reostimeserie.cpp
+  quantity/reosrainfalldata.cpp
 )
 
 SET(REOS_CORE_HEADERS
+    reoscore.h
     reosapplication.h
     reosdocumentation.h
     reosencodedelement.h
@@ -68,8 +75,14 @@ SET(REOS_CORE_HEADERS
     watershed/reoswatershedtree.h
     watershed/reoswatershedmodule.h
 
+    rainfall/reosrainfallitem.h
+    rainfall/reosrainfallmodel.h
+    rainfall/reosrainfalldatastore.h
+
     quantity/reosarea.h
     quantity/reosduration.h
+    quantity/reostimeserie.h
+    quantity/reosrainfalldata.h
 
 )
 

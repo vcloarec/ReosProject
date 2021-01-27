@@ -46,7 +46,7 @@ QMenu *ReosGisLayerTreeContextMenuProvider::createContextMenu()
   if ( mapCanvas )
   {
     menu->addSeparator();
-    menu->addAction( mDefaultAction->actionZoomToLayer( mapCanvas, mLayerTreeView ) );
+    menu->addAction( mDefaultAction->actionZoomToLayers( mapCanvas, mLayerTreeView ) );
     menu->addAction( mDefaultAction->actionZoomToGroup( mapCanvas, mLayerTreeView ) );
   }
 

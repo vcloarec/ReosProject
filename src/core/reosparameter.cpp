@@ -38,6 +38,11 @@ bool ReosParameter::isDerived() const
   return mIsDerived;
 }
 
+void ReosParameter::askForDerivation()
+{
+  emit needDerivation();
+}
+
 void ReosParameter::encode( ReosEncodedElement &element ) const
 {
   element.addData( QStringLiteral( "name" ), mName );
@@ -148,6 +153,113 @@ ReosParameterSlope *ReosParameterSlope::decode( const ReosEncodedElement &elemen
 
   if ( !element.getData( QStringLiteral( "slope-value" ), ret->mSlope ) )
     ret->mSlope = 0;
+
+  return ret;
+}
+
+ReosParameterString::ReosParameterString( const QString &name, QObject *parent ):
+  ReosParameter( name, parent )
+{
+  setDerivable( false );
+}
+
+void ReosParameterString::setValue( const QString &string )
+{
+  mValue = string;
+  emit valueChanged();
+}
+
+ReosParameterDuration::ReosParameterDuration( const QString &name, QObject *parent ):
+  ReosParameter( name, parent )
+{
+
+}
+
+void ReosParameterDuration::setValue( const ReosDuration &duration )
+{
+  mDuration = duration;
+  mIsDerived = false;
+  emit valueChanged();
+}
+
+void ReosParameterDuration::setDerivedValue( const ReosDuration &duration )
+{
+  mDuration = duration;
+  mIsDerived = true;
+  emit valueChanged();
+}
+
+void ReosParameterDuration::changeUnit( ReosDuration::Unit unit )
+{
+  mDuration.setUnit( unit );
+}
+
+ReosDuration ReosParameterDuration::value() const {return mDuration;}
+
+ReosEncodedElement ReosParameterDuration::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "duration-parameter" ) );
+  ReosParameter::encode( element );
+
+  element.addEncodedData( QStringLiteral( "duration-value" ), mDuration.encode() );
+
+  return element;
+}
+
+ReosParameterDuration *ReosParameterDuration::decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent )
+{
+  ReosParameterDuration *ret = new ReosParameterDuration( QString(), parent );
+
+  if ( element.description() != QStringLiteral( "duration-parameter" ) )
+    return ret;
+
+  ret->ReosParameter::decode( element, isDerivable );
+
+  ret->mDuration = ReosDuration::decode( element.getEncodedData( QStringLiteral( "duration-value" ) ) );
+
+  return ret;
+}
+
+ReosParameterDateTime::ReosParameterDateTime( const QString &name, QObject *parent ):
+  ReosParameter( name, parent )
+{}
+
+void ReosParameterDateTime::setValue( const QDateTime &dt )
+{
+  mDateTime = dt;
+  mIsDerived = false;
+  emit valueChanged();
+}
+
+void ReosParameterDateTime::setDerivedValue( const QDateTime &dt )
+{
+  mDateTime = dt;
+  mIsDerived = true;
+  emit valueChanged();
+}
+
+ReosEncodedElement ReosParameterDateTime::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "datetime-parameter" ) );
+  ReosParameter::encode( element );
+
+  element.addData( QStringLiteral( "date-time-value" ), mDateTime );
+
+  return element;
+}
+
+ReosParameterDateTime *ReosParameterDateTime::decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent )
+
+{
+  ReosParameterDateTime *ret = new ReosParameterDateTime( tr( "Date/Time" ), parent );
+
+  if ( element.description() != QStringLiteral( "datetime-parameter" ) )
+    return ret;
+
+  ret->ReosParameter::decode( element, isDerivable );
+
+  if ( !element.getData( QStringLiteral( "date-time-value" ), ret->mDateTime ) )
+    ret->mDateTime = QDateTime();
 
   return ret;
 }

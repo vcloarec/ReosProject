@@ -55,6 +55,7 @@ class ReosMap;
 class ReosGisEngine;
 class ReosWatershedModule;
 class ReosDelineatingWatershedWidget;
+class ReosRainfallManager;
 
 static const ReosVersion lekanVersion( "Lekan", 1, 0, 5 );
 
@@ -74,7 +75,7 @@ class LekanMainWindow : public ReosMainWindow
   private slots:
 
     QByteArray encode() const override {return QByteArray();}
-	bool decode(const QByteArray &byteArray) override { return false; }
+    bool decode( const QByteArray &byteArray ) override { return false; }
 
   private:
 
@@ -114,6 +115,9 @@ class LekanMainWindow : public ReosMainWindow
 //    QAction *mActionDocumentation;
 
     QList<QMenu *> specificMenus() override;
+
+    QAction *mActionRainfallManager = nullptr;
+    ReosRainfallManager *mRainFallManagerWidget = nullptr;
 };
 
 #endif // LEKANMAINWINDOW_H

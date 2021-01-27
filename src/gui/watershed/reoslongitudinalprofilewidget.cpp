@@ -35,7 +35,7 @@ using namespace QtCharts;
 
 
 ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWidget *parent ) :
-  QWidget( parent ),
+  ReosActionWidget( parent ),
   ui( new Ui::ReosLongitudinalProfileWidget )
   , mMap( map )
   , mCurrentStreamLine( map )
@@ -50,6 +50,9 @@ ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWi
   ui->setupUi( this );
   setWindowFlag( Qt::Dialog );
   ui->mComboBoxDEM->setGisEngine( mMap->engine() );
+
+  ui->mSplitter->setStretchFactor( 0, 3 );
+  ui->mSplitter->setStretchFactor( 1, 1 );
 
 
 //**** set up editable profile
@@ -111,13 +114,16 @@ ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWi
   connect( mActionDrawStreamLineFromDownstream, &QAction::triggered, this, &ReosLongitudinalProfileWidget::drawStreamLinefromPointToUpStream );
   connect( mActionZooOnDEMProfileExtent, &QAction::triggered, this, &ReosLongitudinalProfileWidget::zoomOnDEMProfileExtent );
 
-  restore();
   mNeedUpdateDEMProfil = true;
   askForUpdateDEMProfile();
 
   connect( mProfile, &ReosPlotItem::itemChanged, this, &ReosLongitudinalProfileWidget::updateProfile );
   connect( ui->mComboBoxDEM, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosLongitudinalProfileWidget::askForUpdateDEMProfile );
   connect( ui->mComboBoxDEM, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosLongitudinalProfileWidget::updateWithDirectionTools );
+  connect( this, &ReosActionWidget::opened, this, &ReosLongitudinalProfileWidget::onOpened );
+
+  restore();
+
 }
 
 ReosLongitudinalProfileWidget::~ReosLongitudinalProfileWidget()
@@ -125,17 +131,6 @@ ReosLongitudinalProfileWidget::~ReosLongitudinalProfileWidget()
   delete ui;
 }
 
-void ReosLongitudinalProfileWidget::setAction( QAction *action )
-{
-  mAction = action;
-  connect( action, &QAction::triggered, [this]
-  {
-    if ( mAction->isChecked() )
-      show();
-    else
-      close();
-  } );
-}
 
 void ReosLongitudinalProfileWidget::setCurrentWatershed( ReosWatershed *ws )
 {
@@ -244,36 +239,6 @@ void ReosLongitudinalProfileWidget::onStreamLineEdited()
   askForUpdateDEMProfile();
 }
 
-void ReosLongitudinalProfileWidget::storeGeometry()
-{
-  ReosSettings settings;
-  settings.setValue( QStringLiteral( "/Windows/LongitudinalProfileWidget/Geometry" ), saveGeometry() );
-}
-
-void ReosLongitudinalProfileWidget::restore()
-{
-  ReosSettings settings;
-  ui->mSplitter->setStretchFactor( 0, 3 );
-  ui->mSplitter->setStretchFactor( 1, 1 );
-
-  restoreGeometry( settings.value( QStringLiteral( "/Windows/LongitudinalProfileWidget/Geometry" ) ).toByteArray() );
-}
-
-void ReosLongitudinalProfileWidget::closeEvent( QCloseEvent *event )
-{
-  storeGeometry();
-  if ( mAction )
-    mAction->setChecked( false );
-  setVisible( false );
-  mMap->setDefaultMapTool();
-  event->accept();
-}
-
-void ReosLongitudinalProfileWidget::showEvent( QShowEvent *event )
-{
-  QWidget::showEvent( event );
-  askForUpdateDEMProfile();
-}
 
 void ReosLongitudinalProfileWidget::updateDEMProfile()
 {
@@ -325,6 +290,11 @@ void ReosLongitudinalProfileWidget::updateWithDirectionTools()
   bool hasDirection = mCurrentWatershed && mCurrentWatershed->hasDirectiondata( ui->mComboBoxDEM->currentDemLayerId() );
   mActionDrawStreamLineFromPointToDownstream->setEnabled( hasDirection );
   mActionDrawStreamLineFromDownstream->setEnabled( hasDirection );
+}
+
+void ReosLongitudinalProfileWidget::onOpened()
+{
+  askForUpdateDEMProfile();
 }
 
 void ReosLongitudinalProfileWidget::askForUpdateDEMProfile()

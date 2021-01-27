@@ -27,7 +27,7 @@ email                : vcloarec at gmail dot com
 ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedModule *watershedModule,
     ReosMap *map,
     QWidget *parent ) :
-  QWidget( parent ),
+  ReosActionWidget( parent ),
   ui( new Ui::ReosDelineatingWatershedWidget ),
   mModule( watershedModule ),
   mMap( map ),
@@ -144,8 +144,6 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   connect( mMapToolDrawOutletPoint, &ReosMapToolDrawPoint::drawn, this, &ReosDelineatingWatershedWidget::onManualOutletDrawn );
   connect( ui->mPushButtonValidateManual, &QPushButton::clicked, this, &ReosDelineatingWatershedWidget::onManualValidateAsked );
 
-  connect( this, &QObject::destroyed, this, &ReosDelineatingWatershedWidget::storeGeometry );
-
   connect( mModule->delineatingModule(), &ReosWatershedDelineating::hasBeenReset, this, &ReosDelineatingWatershedWidget::onModuleReset );
 
   burningLineFormater.setDescription( QStringLiteral( "Burning-line" ) );
@@ -154,37 +152,14 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   burningLineFormater.setWidth( 2 );
   burningLineFormater.setExternalWidth( 4 );
 
+  connect( this, &ReosActionWidget::opened, this, &ReosDelineatingWatershedWidget::onMethodChange );
+
   restore();
 }
 
 ReosDelineatingWatershedWidget::~ReosDelineatingWatershedWidget()
 {
   delete ui;
-}
-
-void ReosDelineatingWatershedWidget::setAction( QAction *action )
-{
-  mAction = action;
-  connect( action, &QAction::triggered, [this]
-  {
-    if ( mAction->isChecked() )
-      show();
-    else
-      close();
-
-    onMethodChange();
-  } );
-}
-
-void ReosDelineatingWatershedWidget::closeEvent( QCloseEvent *event )
-{
-  storeGeometry();
-  if ( mAction )
-    mAction->setChecked( false );
-  setVisible( false );
-  onMethodChange();
-  mMap->setDefaultMapTool();
-  event->accept();
 }
 
 void ReosDelineatingWatershedWidget::onDownstreamLineDrawn( const QPolygonF &downstreamLine )
@@ -327,17 +302,6 @@ void ReosDelineatingWatershedWidget::onMethodChange()
   showManualDelineating( !isAutomatic );
 }
 
-void ReosDelineatingWatershedWidget::storeGeometry()
-{
-  ReosSettings settings;
-  settings.setValue( QStringLiteral( "/Windows/WatershedDelineateWidget/Geometry" ), saveGeometry() );
-}
-
-void ReosDelineatingWatershedWidget::restore()
-{
-  ReosSettings settings;
-  restoreGeometry( settings.value( QStringLiteral( "/Windows/WatershedDelineateWidget/Geometry" ) ).toByteArray() );
-}
 
 void ReosDelineatingWatershedWidget::onModuleReset()
 {

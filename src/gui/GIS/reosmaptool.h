@@ -34,7 +34,14 @@ class ReosMapTool : public QObject
     virtual ~ReosMapTool();
     void activate();
     void deactivate();
+
     void setCurrentToolInMap() const;
+
+    //! Set default map tool for map
+    void quitMap();
+
+    bool isCurrentToolInMap() const;
+
     void setAction( QAction *action );
 
     void setCursor( const QCursor &cursor );

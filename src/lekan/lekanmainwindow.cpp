@@ -31,6 +31,8 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reoswatershedmodule.h"
 #include "reosdelineatingwatershedwidget.h"
 #include "reoswatershedwidget.h"
+#include "reosrainfallmanager.h"
+#include "reosrainfallmodel.h"
 
 
 LekanMainWindow::LekanMainWindow( QWidget *parent ) :
@@ -121,6 +123,11 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   addDockWidget( Qt::RightDockWidgetArea, mDockWatershed );
 
   mMap->setDefaultMapTool();
+
+  ReosRainfallModel *mRainfallModel = new ReosRainfallModel( this );
+  mRainFallManagerWidget = new ReosRainfallManager( mRainfallModel, this );
+  mActionRainfallManager->setCheckable( true );
+  mRainFallManagerWidget->setAction( mActionRainfallManager );
 }
 
 bool LekanMainWindow::openProject()
@@ -191,6 +198,11 @@ QFileInfo LekanMainWindow::gisFileInfo() const
 QList<QMenu *> LekanMainWindow::specificMenus()
 {
   QList<QMenu *> menusList;
+
+  QMenu *hydrologyMenu = new QMenu( tr( "Hydrology" ), this );
+  mActionRainfallManager = hydrologyMenu->addAction( tr( "Rainfall manager" ) );
+
+  menusList << hydrologyMenu;
 
   //menuRainFallRunoffModel = new QMenu( tr( "Modèle pluie/débit" ), this );
 

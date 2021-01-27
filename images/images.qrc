@@ -37,6 +37,8 @@
         <file>drawToDownstream.svg</file>
         <file>drawToUpstream.svg</file>
         <file>removeWatershed.svg</file>
+        <file>fakeEarth.svg</file>
+        <file>station.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

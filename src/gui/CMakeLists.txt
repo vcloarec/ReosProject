@@ -10,6 +10,7 @@ SET(REOS_GUI_SOURCES
     reosversionmessagebox.cpp
     reosprocesscontroler.cpp
     reosmenupopulator.cpp
+    reosactionwidget.cpp
 
 
     GIS/reosdigitalelevationmodelcombobox.cpp
@@ -26,6 +27,8 @@ SET(REOS_GUI_SOURCES
     watershed/reoswatershedwidget.cpp
     watershed/reoslongitudinalprofilewidget.cpp
 
+    rainfall/reosrainfallmanager.cpp
+
     chart/reoschartview.cpp
     chart/reoschart.cpp
     chart/reoschartwidget.cpp
@@ -36,9 +39,11 @@ SET(REOS_GUI_SOURCES
     chart/private/reosplotpicker_p.cpp
 
     form/reosparameterwidget.cpp
+    form/reosformwidget.cpp
 )
 
 SET(REOS_GUI_HEADERS
+    reosgui.h
     reosaboutwidget.h
     reoslanguageselectionwidget.h
     reosmainwindow.h
@@ -47,6 +52,7 @@ SET(REOS_GUI_HEADERS
     reosversionmessagebox.h
     reosprocesscontroler.h
     reosmenupopulator.h
+    reosactionwidget.h
 
     GIS/reosdigitalelevationmodelcombobox.h
     GIS/reosmap.h
@@ -58,6 +64,8 @@ SET(REOS_GUI_HEADERS
     watershed/reoswatershedwidget.h
     watershed/reoslongitudinalprofilewidget.h
 
+    rainfall/reosrainfallmanager.h
+
     chart/reoschartview.h
     chart/reoschart.h
     chart/reoschartwidget.h
@@ -65,6 +73,7 @@ SET(REOS_GUI_HEADERS
     chart/reoseditableprofile.h
 
     form/reosparameterwidget.h
+    form/reosformwidget.h
 )
 
 SET(REOS_GUI_HEADERS_PRIVATE
@@ -93,7 +102,7 @@ TARGET_LINK_LIBRARIES(reosGui PUBLIC
         ${Qt5Sql_LIBRARIES}
         ${Qt5Concurrent_LIBRARIES}
         ${Qt5Charts_LIBRARIES}
-		${Qt5WebKitWidgets_LIBRARIES}
+        ${Qt5WebKitWidgets_LIBRARIES}
         ${QGIS_LIBS}
         ${QWT_LIB}
         reosCore
@@ -103,7 +112,11 @@ IF (MSVC)
   add_compile_definitions(_USE_MATH_DEFINES)
   add_compile_definitions(QWT_DLL)
 ENDIF (MSVC)
+
 IF(WITH_QTWEBKIT)
+  TARGET_LINK_LIBRARIES(reosGui PUBLIC
+        ${Qt5WebKitWidgets_LIBRARIES}
+  )
   add_compile_definitions(WITH_QTWEBKIT)
 ENDIF(WITH_QTWEBKIT)
 
@@ -123,6 +136,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/raster
     ${CMAKE_SOURCE_DIR}/src/core/utils
     ${CMAKE_SOURCE_DIR}/src/core/watershed
+    ${CMAKE_SOURCE_DIR}/src/core/rainfall
 
     ${CMAKE_SOURCE_DIR}/src/gui
     ${CMAKE_SOURCE_DIR}/src/gui/GIS

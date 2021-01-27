@@ -31,6 +31,10 @@ class ReosParameterWidget : public QWidget
   public:
     explicit ReosParameterWidget( QWidget *parent = nullptr );
 
+    void setFocusOnEdit();
+
+    static ReosParameterWidget *createWidget( ReosParameter *parameter, QWidget *parent = nullptr );
+
   public slots:
     virtual void updateValue() = 0;
     virtual void applyValue() = 0;
@@ -39,7 +43,9 @@ class ReosParameterWidget : public QWidget
   protected:
     void finalizeWidget();
     void setTextValue( double value );
+    void setTextValue( const QString &str );
     double value() const;
+    QString textValue() const;
     void setParameter( ReosParameter *param );
 
     ReosParameter *mParameter = nullptr;
@@ -49,6 +55,25 @@ class ReosParameterWidget : public QWidget
     QLabel *mLabelName = nullptr;
     QToolButton *mDerivationButton = nullptr;
 
+};
+
+class ReosParameterStringWidget : public ReosParameterWidget
+{
+  public:
+    explicit ReosParameterStringWidget( QWidget *parent = nullptr );
+    explicit ReosParameterStringWidget( ReosParameterString *string, QWidget *parent = nullptr );
+
+    void setString( ReosParameterString *string )
+    {
+      setParameter( string );
+    }
+    void updateValue();
+    void applyValue();
+
+    static QString type() {return QStringLiteral( "string" );}
+
+  private:
+    ReosParameterString *stringParameter();
 };
 
 class ReosParameterAreaWidget: public ReosParameterWidget
@@ -61,6 +86,8 @@ class ReosParameterAreaWidget: public ReosParameterWidget
     void updateValue();
     void applyValue();
 
+    static QString type() {return QStringLiteral( "area" );}
+
   private:
     ReosParameterArea *areaParameter() const;
     QComboBox *mUnitCombobox = nullptr;
@@ -70,16 +97,35 @@ class ReosParameterSlopeWidget: public ReosParameterWidget
 {
   public:
     explicit ReosParameterSlopeWidget( QWidget *parent = nullptr );
-    explicit ReosParameterSlopeWidget( ReosParameterArea *area, QWidget *parent = nullptr );
+    explicit ReosParameterSlopeWidget( ReosParameterSlope *slope, QWidget *parent = nullptr );
 
     void setSlope( ReosParameterSlope *slope );
     void updateValue();
     void applyValue();
 
+    static QString type() {return QStringLiteral( "slope" );}
+
   private:
     ReosParameterSlope *slopeParameter() const;
     QLabel *mLabelSlopeUnit = nullptr;
     int mFactor = 100;
+};
 
+
+class ReosParameterDurationWidget: public ReosParameterWidget
+{
+  public:
+    explicit ReosParameterDurationWidget( QWidget *parent = nullptr );
+    explicit ReosParameterDurationWidget( ReosParameterDuration *area, QWidget *parent = nullptr );
+
+    void setDuration( ReosParameterDuration *duration );
+    void updateValue();
+    void applyValue();
+
+    static QString type() {return QStringLiteral( "duration" );}
+
+  private:
+    ReosParameterDuration *durationParameter() const;
+    QComboBox *mUnitCombobox = nullptr;
 };
 #endif // REOSPARAMETERWIDGET_H

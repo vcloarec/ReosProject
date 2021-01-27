@@ -81,7 +81,7 @@ ReosGisLayersWidget::ReosGisLayersWidget( ReosGisEngine *engine, ReosMap *map, Q
   QgsMapCanvas *mapCanvas = qobject_cast<QgsMapCanvas *>( mMap->mapCanvas() );
   if ( mapCanvas )
   {
-    mToolBar->addAction( defaulAction->actionZoomToLayer( mapCanvas, this ) );
+    mToolBar->addAction( defaulAction->actionZoomToLayers( mapCanvas, this ) );
   }
 
   connect( mActionLoadQGISProject, &QAction::triggered, this, &ReosGisLayersWidget::onLoadQGISProject );

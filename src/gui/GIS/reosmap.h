@@ -66,6 +66,7 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     //! Sets the map tool to the default one
     void setDefaultMapTool();
 
+
   public slots:
     //    void unsetMapTool( ReosMapTool *tool );
 //    void unsetMapTool();
