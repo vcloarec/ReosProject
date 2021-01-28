@@ -18,6 +18,7 @@
 #include <QVBoxLayout>
 #include <QDialogButtonBox>
 #include <QTableView>
+#include <QHeaderView>
 
 #include "reosparameterwidget.h"
 #include "reosparameter.h"
@@ -33,6 +34,8 @@ ReosFormWidget::ReosFormWidget( QWidget *parent ) : QWidget( parent )
 void ReosFormWidget::addParameter( ReosParameter *parameter )
 {
   ReosParameterWidget *w = ReosParameterWidget::createWidget( parameter, this );
+  if ( !w )
+    return;
   layout()->addWidget( w );
   w->updateValue();
   if ( mParamCount == 0 )
@@ -47,6 +50,29 @@ void ReosFormWidget::addParameters( QList<ReosParameter *> parameters )
 {
   for ( ReosParameter *p : qAsConst( parameters ) )
     addParameter( p );
+}
+
+void ReosFormWidget::addData( ReosDataObject *data )
+{
+  ReosFormWidget *dataWidget = createDataWidget( data, this );
+  if ( dataWidget )
+    layout()->addWidget( dataWidget );
+}
+
+ReosFormWidget *ReosFormWidget::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+{
+  if ( !dataObject )
+    return nullptr;
+
+  if ( dataObject->type() == QStringLiteral( "time-serie-constant-interval" ) )
+  {
+    ReosTimeSerieConstantInterval *object = qobject_cast<ReosTimeSerieConstantInterval *>( dataObject );
+    if ( object )
+      return new ReosTimeSerieConstantIntervalWidget( object, parent );
+  }
+
+  return nullptr;
+
 }
 
 ReosFormDialog::ReosFormDialog( QWidget *parent ):
@@ -68,15 +94,17 @@ void ReosFormDialog::addParameter( ReosParameter *parameter )
 }
 
 
-ReosTimeSerieConstantIntervalWidget::ReosTimeSerieConstantIntervalWidget( std::weak_ptr<ReosTimeSerieConstantInterval> timeSerie, QWidget *parent ):
-  QWidget( parent )
-  , mModel( new ReosTimeSerieModel( this ) )
+ReosTimeSerieConstantIntervalWidget::ReosTimeSerieConstantIntervalWidget( ReosTimeSerieConstantInterval *timeSerie, QWidget *parent ):
+  ReosFormWidget( parent )
+  , mModel( new ReosTimeSerieConstantIntervalModel( this ) )
 {
   mModel->setSerieData( timeSerie );
-  setLayout( new QVBoxLayout );
+  addParameter( timeSerie->timeStep() );
+  addParameter( timeSerie->referenceTime() );
 
   QTableView *view = new QTableView( this );
   layout()->addWidget( view );
-
   view->setModel( mModel );
+  view->horizontalHeader()->setStretchLastSection( true );
+  layout()->addWidget( view );
 }

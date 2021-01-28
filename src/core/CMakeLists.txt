@@ -36,12 +36,11 @@ SET(REOS_CORE_SOURCES
 
   rainfall/reosrainfallitem.cpp
   rainfall/reosrainfallmodel.cpp
-  rainfall/reosrainfalldatastore.cpp
 
   quantity/reosarea.cpp
   quantity/reosduration.cpp
-  quantity/reostimeserie.cpp
-  quantity/reosrainfalldata.cpp
+
+  data/reostimeserie.cpp
 )
 
 SET(REOS_CORE_HEADERS
@@ -77,12 +76,11 @@ SET(REOS_CORE_HEADERS
 
     rainfall/reosrainfallitem.h
     rainfall/reosrainfallmodel.h
-    rainfall/reosrainfalldatastore.h
 
     quantity/reosarea.h
     quantity/reosduration.h
-    quantity/reostimeserie.h
-    quantity/reosrainfalldata.h
+
+    data/reostimeserie.h
 
 )
 
@@ -140,6 +138,7 @@ ENDIF(GDAL_FOUND)
 
 INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core
+    ${CMAKE_SOURCE_DIR}/src/core/data
     ${CMAKE_SOURCE_DIR}/src/core/GIS
     ${CMAKE_SOURCE_DIR}/src/core/GIS/private
     ${CMAKE_SOURCE_DIR}/src/core/process

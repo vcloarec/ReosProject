@@ -43,6 +43,7 @@ class ReosRainfallManager : public ReosActionWidget
     void onAddRootZone();
     void onAddZoneToZone();
     void onAddStation();
+    void onAddGaugedRainfall();
     void onCurrentTreeIndexChanged();
     void onTreeViewContextMenu( const QPoint &pos );
 
@@ -55,6 +56,7 @@ class ReosRainfallManager : public ReosActionWidget
     QAction *mActionAddRootZone = nullptr;
     QAction *mActionAddZoneToZone = nullptr;
     QAction *mActionAddStation = nullptr;
+    QAction *mActionAddGaugedRainfall = nullptr;
 
     ReosFormWidget *mCurrentForm = nullptr;
 

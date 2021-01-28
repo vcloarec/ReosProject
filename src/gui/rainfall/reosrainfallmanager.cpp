@@ -35,6 +35,7 @@ ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWid
   , mActionAddRootZone( new QAction( tr( "Add New Zone to the Root" ), this ) )
   , mActionAddZoneToZone( new QAction( tr( "Add New Sub Zone" ), this ) )
   , mActionAddStation( new QAction( tr( "Add Station" ), this ) )
+  , mActionAddGaugedRainfall( new QAction( tr( "Add Gauged Rainfall" ), this ) )
 {
   ui->setupUi( this );
   setWindowFlag( Qt::Dialog );
@@ -53,6 +54,7 @@ ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWid
   connect( mActionAddRootZone, &QAction::triggered, this, &ReosRainfallManager::onAddRootZone );
   connect( mActionAddZoneToZone, &QAction::triggered, this, &ReosRainfallManager::onAddZoneToZone );
   connect( mActionAddStation, &QAction::triggered, this, &ReosRainfallManager::onAddStation );
+  connect( mActionAddGaugedRainfall, &QAction::triggered, this, &ReosRainfallManager::onAddGaugedRainfall );
   connect( ui->mTreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ReosRainfallManager::onCurrentTreeIndexChanged );
   connect( ui->mTreeView, &QWidget::customContextMenuRequested, this, &ReosRainfallManager::onTreeViewContextMenu );
 
@@ -67,16 +69,13 @@ ReosRainfallManager::~ReosRainfallManager()
 void ReosRainfallManager::onAddRootZone()
 {
   ReosParameterString string( "Zone name" );
-
-  ReosFormDialog *dial = new ReosFormDialog( this );
+  std::unique_ptr<ReosFormDialog> dial = std::make_unique<ReosFormDialog>( this );
   dial->addParameter( &string );
   ReosParameterString descritpion( tr( "Descriprition" ) );
   dial->addParameter( &descritpion );
 
   if ( dial->exec() )
-    mModel->addZone( string.value(), descritpion.value() );
-
-
+    selectItem( mModel->addZone( string.value(), descritpion.value() ) );
 }
 
 void ReosRainfallManager::onAddZoneToZone()
@@ -86,15 +85,16 @@ void ReosRainfallManager::onAddZoneToZone()
   if ( index.isValid() )
   {
     ReosParameterString name( tr( "Zone name" ) );
-    ReosFormDialog *dial = new ReosFormDialog( this );
+    std::unique_ptr<ReosFormDialog> dial = std::make_unique<ReosFormDialog>( this );
     dial->addParameter( &name );
     ReosParameterString descritpion( tr( "Descriprition" ) );
     dial->addParameter( &descritpion );
 
     if ( dial->exec() )
+    {
       selectItem( mModel->addZone( name.value(), descritpion.value(), index ) );
+    }
 
-    dial->deleteLater();
   }
 }
 
@@ -104,7 +104,7 @@ void ReosRainfallManager::onAddStation()
 
   if ( index.isValid() )
   {
-    ReosFormDialog *dial = new ReosFormDialog( this );
+    std::unique_ptr<ReosFormDialog> dial = std::make_unique<ReosFormDialog>( this );
     ReosParameterString name( tr( "Station name" ) );
     dial->addParameter( &name );
     ReosParameterString descritpion( tr( "Descriprition" ) );
@@ -115,8 +115,25 @@ void ReosRainfallManager::onAddStation()
     {
       selectItem( mModel->addStation( name.value(), descritpion.value(), index ) );
     }
+  }
+}
 
-    dial->deleteLater();
+void ReosRainfallManager::onAddGaugedRainfall()
+{
+  QModelIndex index = ui->mTreeView->currentIndex();
+
+  if ( index.isValid() )
+  {
+    std::unique_ptr<ReosFormDialog> dial = std::make_unique<ReosFormDialog>( this );
+    ReosParameterString name( tr( "Gauged Rainfall name" ) );
+    dial->addParameter( &name );
+    ReosParameterString descritpion( tr( "Descriprition" ) );
+    dial->addParameter( &descritpion );
+
+    if ( dial->exec() )
+    {
+      selectItem( mModel->addGaugedRainfall( name.value(), descritpion.value(), index ) );
+    }
   }
 }
 
@@ -131,6 +148,7 @@ void ReosRainfallManager::onCurrentTreeIndexChanged()
   {
     ReosFormWidget *newForm = new ReosFormWidget( this );
     newForm->addParameters( item->parameters() );
+    newForm->addData( item->data() );
 
     if ( mCurrentForm )
     {
@@ -164,6 +182,7 @@ void ReosRainfallManager::onTreeViewContextMenu( const QPoint &pos )
           menu.addAction( mActionAddStation );
           break;
         case ReosRainfallItem::Station:
+          menu.addAction( mActionAddGaugedRainfall );
           break;
         case ReosRainfallItem::Data:
           break;
@@ -181,6 +200,6 @@ void ReosRainfallManager::selectItem( ReosRainfallItem *item )
   if ( !item )
     return;
   QModelIndex index = mModel->itemToIndex( item );
-  ui->mTreeView->selectionModel()->select( index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows );
+  //ui->mTreeView->selectionModel()->select( index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows );
   ui->mTreeView->setCurrentIndex( index );
 }

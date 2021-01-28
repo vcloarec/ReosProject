@@ -25,12 +25,19 @@
 #include "reosduration.h"
 #include "reosparameter.h"
 
-class ReosTimeSerie : public QObject
+
+class ReosDataObject: public QObject
+{
+  public:
+    ReosDataObject( QObject *parent = nullptr ): QObject( parent ) {}
+
+    virtual QString type() const = 0;
+};
+
+class ReosTimeSerie : public ReosDataObject
 {
   public:
     ReosTimeSerie( QObject *parent = nullptr );
-    virtual ~ReosTimeSerie() = default;
-
     ReosParameterDateTime *referenceTime() const {return mReferenceTime;}
 
     int valueCount() const;
@@ -38,44 +45,69 @@ class ReosTimeSerie : public QObject
     virtual ReosDuration relativeTimeAt( int i ) const = 0 ;
     double valueAt( int i ) const;
 
-  private:
+  protected:
     QVector<double> mValues;
+
+  private:
     ReosParameterDateTime *mReferenceTime = nullptr;
 };
 
 class ReosTimeSerieConstantInterval: public ReosTimeSerie
 {
+    Q_OBJECT
   public:
     ReosTimeSerieConstantInterval( QObject *parent = nullptr );
-
     ReosParameterDuration *timeStep() const;
 
     ReosDuration relativeTimeAt( int i ) const override;
 
+    void setValueAt( int i, double value )
+    {
+      if ( i < mValues.count() )
+        mValues[i] = value;
+    }
+
+    void appendValue( double value )
+    {
+      mValues.append( value );
+    }
+
+    double valueAt( int i ) const
+    {
+      if ( i < mValues.count() )
+        return mValues.at( i );
+      else return 0;
+    }
+
+    QString type() const override {return QStringLiteral( "time-serie-constant-interval" );}
+
   private:
-    ReosParameterDuration *mTimeStep;
+    ReosParameterDuration *mTimeStep = nullptr;
 };
 
 
-class ReosTimeSerieModel : public QAbstractTableModel
+class ReosTimeSerieConstantIntervalModel : public QAbstractTableModel
 {
   public:
-    ReosTimeSerieModel( QObject *parent = nullptr );
+    ReosTimeSerieConstantIntervalModel( QObject *parent = nullptr );
 
     QModelIndex index( int row, int column, const QModelIndex & ) const override;
     QModelIndex parent( const QModelIndex & ) const override;
     int rowCount( const QModelIndex & ) const override;
     int columnCount( const QModelIndex & ) const override;
     QVariant data( const QModelIndex &index, int role ) const override;
+    bool setData( const QModelIndex &index, const QVariant &value, int role );
+    QVariant headerData( int section, Qt::Orientation orientation, int role ) const override;
 
-    void setSerieData( std::weak_ptr<ReosTimeSerie> data );
-    void setTimeUnit( ReosDuration::Unit unit );
+    Qt::ItemFlags flags( const QModelIndex &index ) const override;
+
+    void setSerieData( ReosTimeSerieConstantInterval *data );
     void setEditable( bool b );
 
   private:
-    std::shared_ptr<ReosTimeSerie> mData;
-    ReosDuration::Unit mTimeUnit = ReosDuration::minute;
-    bool mIsEditable = false;
+    ReosTimeSerieConstantInterval *mData;
+    bool mIsEditable = true;
+
 };
 
 #endif // REOSTIMESERIE_H

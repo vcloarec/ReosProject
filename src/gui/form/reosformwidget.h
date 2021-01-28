@@ -20,8 +20,10 @@
 #include <QDialog>
 
 class ReosParameter;
+class ReosDataObject;
 class ReosTimeSerieConstantInterval;
-class ReosTimeSerieModel;
+class ReosTimeSerieConstantIntervalModel;
+
 
 class ReosFormWidget : public QWidget
 {
@@ -31,6 +33,10 @@ class ReosFormWidget : public QWidget
 
     void addParameter( ReosParameter *parameter );
     void addParameters( QList<ReosParameter *> parameters );
+    void addData( ReosDataObject *data );
+
+
+    static ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent = nullptr );
 
   signals:
     void parametersChanged();
@@ -53,14 +59,13 @@ class ReosFormDialog : public QDialog
 
 };
 
-class ReosTimeSerieConstantIntervalWidget: public QWidget
+class ReosTimeSerieConstantIntervalWidget: public ReosFormWidget
 {
   public:
-    explicit ReosTimeSerieConstantIntervalWidget( std::weak_ptr<ReosTimeSerieConstantInterval> timeSerie, QWidget *parent );
-
+    explicit ReosTimeSerieConstantIntervalWidget( ReosTimeSerieConstantInterval *timeSerie, QWidget *parent );
 
   private:
-    ReosTimeSerieModel *mModel = nullptr;
+    ReosTimeSerieConstantIntervalModel *mModel = nullptr;
 
 };
 

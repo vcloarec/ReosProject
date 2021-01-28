@@ -22,6 +22,7 @@ class QLabel;
 class QLineEdit;
 class QComboBox;
 class QToolButton;
+class QDateTimeEdit;
 
 #include "reosparameter.h"
 
@@ -31,42 +32,52 @@ class ReosParameterWidget : public QWidget
   public:
     explicit ReosParameterWidget( QWidget *parent = nullptr );
 
-    void setFocusOnEdit();
-
+    //! Sets the keyboard focus on the edit part of the widget
+    virtual void setFocusOnEdit() = 0;
     static ReosParameterWidget *createWidget( ReosParameter *parameter, QWidget *parent = nullptr );
 
   public slots:
+    //! Update the dispayed value from the parameter
     virtual void updateValue() = 0;
+    //! Set the parameter value with the displayed value
     virtual void applyValue() = 0;
     virtual void askDerivation();
 
   protected:
     void finalizeWidget();
-    void setTextValue( double value );
-    void setTextValue( const QString &str );
-    double value() const;
-    QString textValue() const;
     void setParameter( ReosParameter *param );
 
     ReosParameter *mParameter = nullptr;
 
   private:
-    QLineEdit *mLineEdit = nullptr;
     QLabel *mLabelName = nullptr;
+
     QToolButton *mDerivationButton = nullptr;
 
 };
 
-class ReosParameterStringWidget : public ReosParameterWidget
+class ReosParameterInLineWidget : public ReosParameterWidget
+{
+  public:
+    ReosParameterInLineWidget( QWidget *parent = nullptr );
+    void setFocusOnEdit() override;
+
+  protected:
+    void setTextValue( double value );
+    void setTextValue( const QString &str );
+    double value() const;
+    QString textValue() const;
+  private:
+    QLineEdit *mLineEdit = nullptr;
+};
+
+class ReosParameterStringWidget : public ReosParameterInLineWidget
 {
   public:
     explicit ReosParameterStringWidget( QWidget *parent = nullptr );
     explicit ReosParameterStringWidget( ReosParameterString *string, QWidget *parent = nullptr );
 
-    void setString( ReosParameterString *string )
-    {
-      setParameter( string );
-    }
+    void setString( ReosParameterString *string );
     void updateValue();
     void applyValue();
 
@@ -76,7 +87,7 @@ class ReosParameterStringWidget : public ReosParameterWidget
     ReosParameterString *stringParameter();
 };
 
-class ReosParameterAreaWidget: public ReosParameterWidget
+class ReosParameterAreaWidget: public ReosParameterInLineWidget
 {
   public:
     explicit ReosParameterAreaWidget( QWidget *parent = nullptr );
@@ -93,7 +104,7 @@ class ReosParameterAreaWidget: public ReosParameterWidget
     QComboBox *mUnitCombobox = nullptr;
 };
 
-class ReosParameterSlopeWidget: public ReosParameterWidget
+class ReosParameterSlopeWidget: public ReosParameterInLineWidget
 {
   public:
     explicit ReosParameterSlopeWidget( QWidget *parent = nullptr );
@@ -112,7 +123,7 @@ class ReosParameterSlopeWidget: public ReosParameterWidget
 };
 
 
-class ReosParameterDurationWidget: public ReosParameterWidget
+class ReosParameterDurationWidget: public ReosParameterInLineWidget
 {
   public:
     explicit ReosParameterDurationWidget( QWidget *parent = nullptr );
@@ -127,5 +138,25 @@ class ReosParameterDurationWidget: public ReosParameterWidget
   private:
     ReosParameterDuration *durationParameter() const;
     QComboBox *mUnitCombobox = nullptr;
+};
+
+class ReosParameterDateTimeWidget: public ReosParameterWidget
+{
+  public:
+    explicit ReosParameterDateTimeWidget( QWidget *parent = nullptr );
+    explicit ReosParameterDateTimeWidget( ReosParameterDateTime *dateTime, QWidget *parent = nullptr );
+
+    void setDateTime( ReosParameterDateTime *dateTime );
+    void updateValue() override;
+    void applyValue() override;
+    void setFocusOnEdit() override;
+
+    static QString type() {return QStringLiteral( "date-time" );}
+
+  private:
+    QDateTimeEdit *mDateTimeEdit = nullptr;
+    ReosParameterDateTime *dateTimeParameter() const;
+
+
 };
 #endif // REOSPARAMETERWIDGET_H

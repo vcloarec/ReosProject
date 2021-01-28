@@ -222,7 +222,9 @@ ReosParameterDuration *ReosParameterDuration::decode( const ReosEncodedElement &
 
 ReosParameterDateTime::ReosParameterDateTime( const QString &name, QObject *parent ):
   ReosParameter( name, parent )
-{}
+{
+  mDateTime.setDate( QDate( QDate::currentDate().year(), 1, 1 ) );
+}
 
 void ReosParameterDateTime::setValue( const QDateTime &dt )
 {

@@ -19,8 +19,8 @@
 #include <QObject>
 #include <QIcon>
 
+#include "reostimeserie.h"
 #include "reoscore.h"
-#include "reosrainfalldata.h"
 
 class ReosParameterString;
 class ReosParameter;
@@ -82,6 +82,7 @@ class ReosRainfallItem : public QObject
     virtual ReosRainfallItem *addItem( ReosRainfallItem *item );
     virtual QList<ReosParameter *> parameters() const;
     virtual bool accept( ReosRainfallItem *item ) const;
+    virtual ReosDataObject *data() const {return nullptr;}
 
   signals:
     void changed( ReosRainfallItem *item );
@@ -152,27 +153,12 @@ class ReosRootItem: public ReosRainfallItem
 
 class ReosRainfallSeriesItem: public ReosRainfallDataItem
 {
-
   public:
-
-    ReosRainfallSeriesItem( const QString &name, const QString &description ):
-      ReosRainfallDataItem( name, description )
-    {
-
-    }
-
-
-    std::weak_ptr<ReosTimeSerieConstantInterval> data() const
-    {
-      return std::weak_ptr<ReosTimeSerieConstantInterval>( mData );
-    }
-
+    ReosRainfallSeriesItem( const QString &name, const QString &description );
+    ReosTimeSerieConstantInterval *data() const override;
 
   private:
-    std::shared_ptr<ReosTimeSerieConstantInterval> mData;
-
-
-
+    ReosTimeSerieConstantInterval *mData;
 };
 
 

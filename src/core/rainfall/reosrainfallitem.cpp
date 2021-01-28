@@ -17,7 +17,6 @@
 
 #include "reosparameter.h"
 
-
 bool ReosRootItem::accept( ReosRainfallItem *item ) const
 {
   return ( item &&
@@ -176,4 +175,15 @@ ReosRootItem::ReosRootItem(): ReosRainfallItem( QString(), QString(), Root ) {}
 ReosRainfallItem *ReosRootItem::addItem( ReosRainfallItem *item )
 {
   return ReosRainfallItem::addItem( item );
+}
+
+ReosRainfallSeriesItem::ReosRainfallSeriesItem( const QString &name, const QString &description ):
+  ReosRainfallDataItem( name, description )
+{
+  mData = new ReosTimeSerieConstantInterval( this );
+}
+
+ReosTimeSerieConstantInterval *ReosRainfallSeriesItem::data() const
+{
+  return mData;
 }
