@@ -40,6 +40,9 @@ class ReosRainfallManager : public ReosActionWidget
     ~ReosRainfallManager();
 
   private slots:
+    void onOpenRainfallFile();
+    void onSaveRainfallFile();
+    void OnSaveAsRainfallFile();
     void onAddRootZone();
     void onAddZoneToZone();
     void onAddStation();
@@ -50,9 +53,12 @@ class ReosRainfallManager : public ReosActionWidget
   private:
     Ui::ReosRainfallManager *ui;
     ReosRainfallModel *mModel = nullptr;
+    QString mCurrentFileName;
     QAction *mAction;
 
     QAction *mActionOpenRainfallDataFile = nullptr;
+    QAction *mActionSaveRainfallDataFile = nullptr;
+    QAction *mActionSaveAsRainfallDataFile = nullptr;
     QAction *mActionAddRootZone = nullptr;
     QAction *mActionAddZoneToZone = nullptr;
     QAction *mActionAddStation = nullptr;
@@ -61,6 +67,8 @@ class ReosRainfallManager : public ReosActionWidget
     ReosFormWidget *mCurrentForm = nullptr;
 
     void selectItem( ReosRainfallItem *item );
+
+    bool saveOnFile( const QString &fileName );
 };
 
 #endif // REOSRAINFALLMANAGER_H

@@ -17,7 +17,9 @@
 #include "ui_reosrainfallmanager.h"
 
 #include<QAction>
+#include <QFileDialog>
 #include <QMenu>
+#include <QMessageBox>
 #include <QCloseEvent>
 #include <QTreeView>
 
@@ -31,7 +33,9 @@ ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWid
   ReosActionWidget( parent )
   , ui( new Ui::ReosRainfallManager )
   , mModel( rainfallmodel )
-  , mActionOpenRainfallDataFile( new QAction( tr( "Open rainfal Data File" ), this ) )
+  , mActionOpenRainfallDataFile( new QAction( tr( "Open Rainfal Data File" ), this ) )
+  , mActionSaveRainfallDataFile( new QAction( tr( "Save Rainfal Data File" ), this ) )
+  , mActionSaveAsRainfallDataFile( new QAction( tr( "Save Rainfal Data File as ..." ), this ) )
   , mActionAddRootZone( new QAction( tr( "Add New Zone to the Root" ), this ) )
   , mActionAddZoneToZone( new QAction( tr( "Add New Sub Zone" ), this ) )
   , mActionAddStation( new QAction( tr( "Add Station" ), this ) )
@@ -49,7 +53,13 @@ ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWid
   QToolBar *toolBar = new QToolBar( this );
   ui->mToolBarWidget->layout()->addWidget( toolBar );
   toolBar->addAction( mActionOpenRainfallDataFile );
+  toolBar->addAction( mActionSaveRainfallDataFile );
+  toolBar->addAction( mActionSaveAsRainfallDataFile );
   toolBar->addAction( mActionAddRootZone );
+
+  connect( mActionOpenRainfallDataFile, &QAction::triggered, this, &ReosRainfallManager::onOpenRainfallFile );
+  connect( mActionSaveRainfallDataFile, &QAction::triggered, this, &ReosRainfallManager::onSaveRainfallFile );
+  connect( mActionSaveAsRainfallDataFile, &QAction::triggered, this, &ReosRainfallManager::OnSaveAsRainfallFile );
 
   connect( mActionAddRootZone, &QAction::triggered, this, &ReosRainfallManager::onAddRootZone );
   connect( mActionAddZoneToZone, &QAction::triggered, this, &ReosRainfallManager::onAddZoneToZone );
@@ -64,6 +74,83 @@ ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWid
 ReosRainfallManager::~ReosRainfallManager()
 {
   delete ui;
+}
+
+void ReosRainfallManager::onOpenRainfallFile()
+{
+  if ( mModel->rootZoneCount() > 0 )
+  {
+    int ret = QMessageBox::warning( this, tr( "Open Rainfall Data File" ),
+                                    tr( "This action will remove the actual rainfall data, do you want to save before?" ),
+                                    QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel );
+
+    if ( ret == QMessageBox::Cancel )
+      return;
+
+    if ( ret == QMessageBox::Yes )
+    {
+      onSaveRainfallFile();
+    }
+  }
+
+  ReosSettings settings;
+  QString dir = settings.value( QStringLiteral( "/rainfall/fileDirectory" ) ).toString();
+  QString fileName = QFileDialog::getOpenFileName( this, tr( "Open Rainfall Data" ), dir, QStringLiteral( " *.rrf" ) );
+
+  if ( fileName.isEmpty() )
+    return;
+
+  if ( mModel->loadFromFile( fileName, QStringLiteral( "rainfall data" ) ) )
+  {
+    mCurrentFileName = fileName;
+    QMessageBox::information( this, tr( "Open Rainfall Data" ), tr( "Rainfall data file open: %1" ).arg( mCurrentFileName ) );
+  }
+  else
+  {
+    QMessageBox::critical( this, tr( "Open Rainfall Data" ), tr( "Unable to open the file: %1" ).arg( fileName ) );
+  }
+
+
+}
+
+
+bool ReosRainfallManager::saveOnFile( const QString &fileName )
+{
+  return mModel->saveToFile( fileName, QStringLiteral( "rainfall data" ) );
+}
+
+void ReosRainfallManager::onSaveRainfallFile()
+{
+  QFileInfo fileInfo( mCurrentFileName );
+  if ( !fileInfo.exists() )
+    OnSaveAsRainfallFile();
+
+  if ( !saveOnFile( mCurrentFileName ) )
+    QMessageBox::warning( this, tr( "Save Rainfall Data" ), tr( "Unable to write the file" ) );
+  else
+    QMessageBox::information( this, tr( "Save Rainfall Data" ), tr( "Rainfall data save on file: %1" ).arg( mCurrentFileName ) );
+}
+
+void ReosRainfallManager::OnSaveAsRainfallFile()
+{
+  ReosSettings settings;
+  QString dir = settings.value( QStringLiteral( "/rainfall/fileDirectory" ) ).toString();
+  QString fileName = QFileDialog::getSaveFileName( this, tr( "Save Rainfall Data as..." ), dir, QStringLiteral( " *.rrf" ) );
+
+  if ( fileName.isEmpty() )
+    return;
+
+  QFileInfo fileInfo( fileName );
+  if ( fileInfo.suffix().isEmpty() )
+    fileName.append( QStringLiteral( ".rrf" ) );
+
+  if ( !saveOnFile( fileName ) )
+    QMessageBox::warning( this, tr( "Save Rainfall Data as..." ), tr( "Unable to write the file" ) );
+  else
+  {
+    mCurrentFileName = fileName;
+    settings.setValue( QStringLiteral( "/rainfall/fileDirectory" ), fileInfo.path() );
+  }
 }
 
 void ReosRainfallManager::onAddRootZone()
@@ -203,3 +290,4 @@ void ReosRainfallManager::selectItem( ReosRainfallItem *item )
   //ui->mTreeView->selectionModel()->select( index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows );
   ui->mTreeView->setCurrentIndex( index );
 }
+

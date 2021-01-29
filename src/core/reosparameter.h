@@ -50,7 +50,7 @@ class REOSCORE_EXPORT ReosParameter : public QObject
 
   private:
     QString mName;
-    bool mIsDerivable;
+    bool mIsDerivable = false;
 
 };
 
@@ -62,6 +62,9 @@ class ReosParameterString: public ReosParameter
     void setValue( const QString &string );
     QString value() const {return mValue;}
     QString type() {return QStringLiteral( "string" );}
+
+    ReosEncodedElement encode() const;
+    static ReosParameterString *decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent );
 
   private:
 

@@ -45,6 +45,10 @@ class ReosTimeSerie : public ReosDataObject
     virtual ReosDuration relativeTimeAt( int i ) const = 0 ;
     double valueAt( int i ) const;
 
+    //! Encodes base information in the \a element
+    virtual void baseEncode( ReosEncodedElement &element ) const;
+    virtual bool  decodeBase( const ReosEncodedElement &element );
+
   protected:
     QVector<double> mValues;
 
@@ -61,25 +65,14 @@ class ReosTimeSerieConstantInterval: public ReosTimeSerie
 
     ReosDuration relativeTimeAt( int i ) const override;
 
-    void setValueAt( int i, double value )
-    {
-      if ( i < mValues.count() )
-        mValues[i] = value;
-    }
+    void setValueAt( int i, double value );
+    void appendValue( double value );
+    double valueAt( int i ) const;
+    QString type() const override;
 
-    void appendValue( double value )
-    {
-      mValues.append( value );
-    }
+    ReosEncodedElement encode() const;
 
-    double valueAt( int i ) const
-    {
-      if ( i < mValues.count() )
-        return mValues.at( i );
-      else return 0;
-    }
-
-    QString type() const override {return QStringLiteral( "time-serie-constant-interval" );}
+    static ReosTimeSerieConstantInterval *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
 
   private:
     ReosParameterDuration *mTimeStep = nullptr;
@@ -96,7 +89,7 @@ class ReosTimeSerieConstantIntervalModel : public QAbstractTableModel
     int rowCount( const QModelIndex & ) const override;
     int columnCount( const QModelIndex & ) const override;
     QVariant data( const QModelIndex &index, int role ) const override;
-    bool setData( const QModelIndex &index, const QVariant &value, int role );
+    bool setData( const QModelIndex &index, const QVariant &value, int role ) override;
     QVariant headerData( int section, Qt::Orientation orientation, int role ) const override;
 
     Qt::ItemFlags flags( const QModelIndex &index ) const override;

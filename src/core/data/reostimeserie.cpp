@@ -55,19 +55,27 @@ QVariant ReosTimeSerieConstantIntervalModel::data( const QModelIndex &index, int
   if ( !index.isValid() || index.row() >= maxRowCount )
     return QVariant();
 
-  if ( role == Qt::DisplayRole )
+  switch ( role )
   {
-    if ( index.row() < mData->valueCount() )
-      return mData->valueAt( index.row() );
+    case Qt::DisplayRole:
+      if ( index.row() < mData->valueCount() )
+        return mData->valueAt( index.row() );
 
-    if ( mIsEditable )
-    {
-      if ( index.row() == mData->valueCount() )
-        return QString();
-    }
+      if ( mIsEditable )
+      {
+        if ( index.row() == mData->valueCount() )
+          return QString();
+      }
+      break;
+    case Qt::TextAlignmentRole:
+      return Qt::AlignRight;
+      break;
+    default:
+      return QVariant();
   }
 
   return QVariant();
+
 }
 
 bool ReosTimeSerieConstantIntervalModel::setData( const QModelIndex &index, const QVariant &value, int role )
@@ -110,7 +118,7 @@ QVariant ReosTimeSerieConstantIntervalModel::headerData( int section, Qt::Orient
     if ( mData->referenceTime()->value().isValid() )
     {
       return mData->referenceTime()->value().
-             addSecs( mData->relativeTimeAt( section ).valueSeconde() ).toString( QStringLiteral( "yyyy.MM.dd HH:mm::ss" ) );
+             addSecs( mData->relativeTimeAt( section ).valueSeconde() ).toString( QStringLiteral( "yyyy.MM.dd HH:mm:ss" ) );
     }
     else
       return mData->relativeTimeAt( section ).valueSeconde();
@@ -164,6 +172,60 @@ ReosDuration ReosTimeSerieConstantInterval::relativeTimeAt( int i ) const
   return mTimeStep->value() * i;
 }
 
+void ReosTimeSerieConstantInterval::setValueAt( int i, double value )
+{
+  if ( i < mValues.count() )
+    mValues[i] = value;
+}
+
+void ReosTimeSerieConstantInterval::appendValue( double value )
+{
+  mValues.append( value );
+}
+
+double ReosTimeSerieConstantInterval::valueAt( int i ) const
+{
+  if ( i < mValues.count() )
+    return mValues.at( i );
+  else return 0;
+}
+
+QString ReosTimeSerieConstantInterval::type() const {return QStringLiteral( "time-serie-constant-interval" );}
+
+ReosEncodedElement ReosTimeSerieConstantInterval::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "time-serie-constant-interval" ) );
+  ReosTimeSerie::baseEncode( element );
+  element.addEncodedData( QStringLiteral( "time-step" ), mTimeStep->encode() );
+
+  return element;
+}
+
+ReosTimeSerieConstantInterval *ReosTimeSerieConstantInterval::decode( const ReosEncodedElement &element, QObject *parent )
+{
+  if ( element.description() != QStringLiteral( "time-serie-constant-interval" ) )
+    return nullptr;
+
+  std::unique_ptr<ReosTimeSerieConstantInterval> ret = std::make_unique<ReosTimeSerieConstantInterval>( parent );
+
+  if ( !ret->decodeBase( element ) )
+    return nullptr;
+
+  ReosParameterDuration *newTimeStep =
+    ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "time-step" ) ), false, parent );
+
+  if ( newTimeStep )
+  {
+    ret->mTimeStep->deleteLater();
+    ret->mTimeStep = newTimeStep;
+  }
+  else
+    return nullptr;
+
+  return ret.release();
+
+}
+
 ReosTimeSerie::ReosTimeSerie( QObject *parent ):
   ReosDataObject( parent )
   , mReferenceTime( new ReosParameterDateTime( tr( "Reference time" ), this ) )
@@ -178,4 +240,28 @@ int ReosTimeSerie::valueCount() const
 double ReosTimeSerie::valueAt( int i ) const
 {
   return mValues.at( i );
+}
+
+void ReosTimeSerie::baseEncode( ReosEncodedElement &element ) const
+{
+  element.addEncodedData( QStringLiteral( "reference-time" ), mReferenceTime->encode() );
+  element.addData( QStringLiteral( "values" ), mValues );
+}
+
+bool ReosTimeSerie::decodeBase( const ReosEncodedElement &element )
+{
+  if ( !element.getData( QStringLiteral( "values" ), mValues ) )
+    return true;
+
+  ReosParameterDateTime *newTimeref = ReosParameterDateTime::decode(
+                                        element.getEncodedData( QStringLiteral( "reference-time" ) ),
+                                        false, this );
+  if ( newTimeref )
+  {
+    mReferenceTime->deleteLater();
+    mReferenceTime = newTimeref;
+    return true;
+  }
+  else
+    return false;
 }

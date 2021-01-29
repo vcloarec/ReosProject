@@ -74,6 +74,19 @@ void ReosRainfallTest::addingItem()
   QCOMPARE( item->name(), QStringLiteral( "Elsewhere in somewhere" ) );
   QCOMPARE( item->name(), rainfallModel.data( index, Qt::DisplayRole ).toString() );
 
+  QString tempFileName( tmp_file( QStringLiteral( "rainfallFile" ).toStdString() ).c_str() );
+
+  rainfallModel.saveToFile( tempFileName, QStringLiteral( "test" ) );
+
+  ReosRainfallModel otherModel;
+
+  otherModel.loadFromFile( tempFileName, QStringLiteral( "test" ) );
+  index = otherModel.index( 0, 0, otherModel.index( 1, 0, QModelIndex() ) );
+  QVERIFY( index.isValid() );
+  item = otherModel.indexToItem( index );
+  QVERIFY( item );
+  QCOMPARE( item->name(), QStringLiteral( "Elsewhere in somewhere" ) );
+  QCOMPARE( item->name(), otherModel.data( index, Qt::DisplayRole ).toString() );
 }
 
 QTEST_MAIN( ReosRainfallTest )

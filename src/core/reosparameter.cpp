@@ -169,6 +169,30 @@ void ReosParameterString::setValue( const QString &string )
   emit valueChanged();
 }
 
+ReosEncodedElement ReosParameterString::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "string-parameter" ) );
+  ReosParameter::encode( element );
+
+  element.addData( QStringLiteral( "string-value" ), mValue );
+
+  return element;
+}
+
+ReosParameterString *ReosParameterString::decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent )
+{
+  ReosParameterString *ret = new ReosParameterString( QString(), parent );
+
+  if ( element.description() != QStringLiteral( "string-parameter" ) )
+    return ret;
+
+  ret->ReosParameter::decode( element, isDerivable );
+
+  element.getData( QStringLiteral( "string-value" ), ret->mValue );
+
+  return ret;
+}
+
 ReosParameterDuration::ReosParameterDuration( const QString &name, QObject *parent ):
   ReosParameter( name, parent )
 {

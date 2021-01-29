@@ -22,6 +22,7 @@
 
 #include "reoscore.h"
 
+class ReosEncodedElement;
 class ReosRainfallItem;
 class ReosRootItem;
 class ReosZoneItem;
@@ -39,29 +40,36 @@ class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
     int rowCount( const QModelIndex &parent ) const override;
     int columnCount( const QModelIndex & ) const override;
     QVariant data( const QModelIndex &index, int role ) const override;
-    QVariant headerData( int section, Qt::Orientation orientation, int role ) const;
+    QVariant headerData( int section, Qt::Orientation orientation, int role ) const override;
     Qt::ItemFlags flags( const QModelIndex &index ) const override;
     bool canDropMimeData( const QMimeData *data, Qt::DropAction, int, int, const QModelIndex &parent ) const override;
     bool dropMimeData( const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent ) override;
     QMimeData *mimeData( const QModelIndexList &indexes ) const override;
-    Qt::DropActions supportedDropActions() const {return Qt::MoveAction;}
-    Qt::DropActions supportedDragActions() const {return Qt::MoveAction;}
+    Qt::DropActions supportedDropActions() const override {return Qt::MoveAction;}
+    Qt::DropActions supportedDragActions() const override {return Qt::MoveAction;}
 
     //! Add a zone to the hierarchical tree, if \a index is invalid, add to the roots return fals if it fails
     ReosZoneItem *addZone( const QString &name, const QString &description, const QModelIndex &index = QModelIndex() );
     ReosStationItem *addStation( const QString &name, const QString &description, const QModelIndex &index );
     ReosRainfallSeriesItem *addGaugedRainfall( const QString &name, const QString &description, const QModelIndex &index );
 
+    int rootZoneCount() const;
+
     QModelIndex itemToIndex( ReosRainfallItem *item ) const;
     ReosRainfallItem *indexToItem( const QModelIndex &index ) const;
 
     ReosRainfallItem *positonPathToItem( const QList<int> &path ) const;
 
+    ReosEncodedElement encode() const;
+    bool decode( const ReosEncodedElement &element );
+
+    bool saveToFile( const QString &path, const QString &header );
+    bool loadFromFile( const QString &path, const QString &header );
+
   protected:
 
   private slots:
     void onItemChanged( ReosRainfallItem *item );
-
 
   private:
     std::unique_ptr<ReosRootItem> mRootZone;

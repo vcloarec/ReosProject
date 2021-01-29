@@ -36,6 +36,34 @@ ReosEncodedElement ReosEncodedElement::getEncodedData( const QString &key ) cons
   return ReosEncodedElement( ba );
 }
 
+void ReosEncodedElement::addListEncodedData( const QString &key, const QList<ReosEncodedElement> &list )
+{
+  QByteArray byteArray;
+  QDataStream stream( &byteArray, QIODevice::WriteOnly );
+  QList<QByteArray> listByte;
+  for ( const ReosEncodedElement &elem : qAsConst( list ) )
+    listByte.append( elem.bytes() );
+
+  stream << listByte;
+
+  mData[key] = byteArray;
+}
+
+QList<ReosEncodedElement> ReosEncodedElement::getListEncodedData( const QString &key ) const
+{
+  QList<ReosEncodedElement> list;
+  if ( !mData.contains( key ) )
+    return list;
+  QDataStream stream( mData[key] );
+  QList<QByteArray> listByte;
+  stream >> listByte;
+
+  for ( const QByteArray &ba : qAsConst( listByte ) )
+    list.append( ReosEncodedElement( ba ) );
+
+  return list;
+}
+
 QByteArray ReosEncodedElement::bytes() const
 {
   QByteArray byteArray;
@@ -44,3 +72,14 @@ QByteArray ReosEncodedElement::bytes() const
   stream << mData;
   return byteArray;
 }
+
+bool ReosEncodedElement::hasEncodedData() const
+{
+  return !mData.empty();
+}
+
+bool ReosEncodedElement::hasEncodedData( const QString &key ) const
+{
+  return mData.contains( key );
+}
+

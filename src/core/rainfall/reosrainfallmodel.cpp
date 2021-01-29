@@ -15,6 +15,8 @@
  ***************************************************************************/
 #include "reosrainfallmodel.h"
 
+#include <QFile>
+#include <QFileInfo>
 #include <QMimeData>
 #include <QTime>
 #include <QElapsedTimer>
@@ -130,7 +132,6 @@ Qt::ItemFlags ReosRainfallModel::flags( const QModelIndex &index ) const
 bool ReosRainfallModel::canDropMimeData( const QMimeData *data, Qt::DropAction, int row, int, const QModelIndex &parent ) const
 {
   return true;
-  qDebug() << "can drop?" << QTime::currentTime();
   QElapsedTimer timer;
   timer.start();
   QByteArray ba = data->data( QStringLiteral( "lekan/rainfallItem_position_path" ) );
@@ -138,21 +139,17 @@ bool ReosRainfallModel::canDropMimeData( const QMimeData *data, Qt::DropAction, 
 
   QList<int> positionPath;
   stream >> positionPath;
-  qDebug() << positionPath;
 
   ReosRainfallItem *item = positonPathToItem( positionPath );
   ReosRainfallItem *receiver = indexToItem( parent );
 
   if ( item == receiver )
   {
-    qDebug() << "in itself";
     return false;
   }
 
   if ( receiver == nullptr )
     receiver = mRootZone.get();
-
-  qDebug() << "in " << receiver->positionPathInTree();
 
   if ( !item || !receiver || receiver->isSubItem( item ) )
   {
@@ -269,6 +266,8 @@ ReosRainfallSeriesItem *ReosRainfallModel::addGaugedRainfall( const QString &nam
   return static_cast<ReosRainfallSeriesItem *>( addItem( receiver, newRainfal.release() ) );
 }
 
+int ReosRainfallModel::rootZoneCount() const {return mRootZone->childrenCount();}
+
 QModelIndex ReosRainfallModel::itemToIndex( ReosRainfallItem *item ) const
 {
   if ( item == nullptr || item == mRootZone.get() )
@@ -317,6 +316,92 @@ ReosRainfallItem *ReosRainfallModel::positonPathToItem( const QList<int> &path )
   }
 
   return item;
+}
+
+ReosEncodedElement ReosRainfallModel::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "rainfall-data" ) );
+  if ( mRootZone )
+    element.addEncodedData( QStringLiteral( "rainfall-tree" ), mRootZone->encode() );
+
+  return element;
+}
+
+bool ReosRainfallModel::decode( const ReosEncodedElement &element )
+{
+  if ( element.description() != QStringLiteral( "rainfall-data" ) )
+    return false;
+
+  beginResetModel();
+  if ( mRootZone )
+    mRootZone->clear();
+
+  if ( !element.hasEncodedData( QStringLiteral( "rainfall-tree" ) ) )
+  {
+    endResetModel();
+    return false;
+  }
+
+  ReosEncodedElement encodedRootItem = element.getEncodedData( QStringLiteral( "rainfall-tree" ) );
+  if ( !encodedRootItem.hasEncodedData() || encodedRootItem.description() != QStringLiteral( "root-item" ) )
+  {
+    endResetModel();
+    return false;
+  }
+
+  mRootZone.reset( new ReosRootItem( encodedRootItem ) );
+  endResetModel();
+  return true;
+
+}
+
+bool ReosRainfallModel::saveToFile( const QString &path, const QString &header )
+{
+  QFileInfo fileInfo( path );
+
+  if ( fileInfo.exists() )
+  {
+    QFile file( path );
+    file.copy( path + QStringLiteral( ".bck" ) );
+  }
+
+  QFile file( path );
+
+  QDataStream stream( &file );
+  if ( file.open( QIODevice::WriteOnly ) )
+  {
+    stream << header;
+    stream << encode().bytes();
+    return true;
+  }
+
+  return false;
+}
+
+bool ReosRainfallModel::loadFromFile( const QString &path, const QString &header )
+{
+  Q_UNUSED( header );
+
+  QFileInfo fileInfo( path );
+
+  if ( !fileInfo.exists() )
+    return false;
+
+  QFile file( path );
+  QDataStream stream( &file );
+
+  if ( !file.open( QIODevice::ReadOnly ) )
+    return false;
+
+  QString readenHeader;
+  stream >> readenHeader;
+
+  QByteArray data;
+  stream >> data;
+
+  ReosEncodedElement dataElement( data );
+
+  return decode( dataElement );
 }
 
 void ReosRainfallModel::onItemChanged( ReosRainfallItem *item )
