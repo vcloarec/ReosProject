@@ -30,6 +30,7 @@ class QAction;
 class ReosRainfallModel;
 class ReosRainfallItem;
 class ReosFormWidget;
+class ReosPlotWidget;
 
 class ReosRainfallManager : public ReosActionWidget
 {
@@ -38,6 +39,9 @@ class ReosRainfallManager : public ReosActionWidget
   public:
     explicit ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWidget *parent = nullptr );
     ~ReosRainfallManager();
+
+    //! Loads the data file defined on settings
+    void loadDataFile();
 
   private slots:
     void onOpenRainfallFile();
@@ -65,10 +69,14 @@ class ReosRainfallManager : public ReosActionWidget
     QAction *mActionAddGaugedRainfall = nullptr;
 
     ReosFormWidget *mCurrentForm = nullptr;
+    ReosPlotWidget *mCurrentPlot = nullptr;
 
     void selectItem( ReosRainfallItem *item );
-
     bool saveOnFile( const QString &fileName );
+
+
+
+
 };
 
 #endif // REOSRAINFALLMANAGER_H

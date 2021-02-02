@@ -98,6 +98,7 @@ class ReosRainfallItem : public QObject
     //! Encodes in \a element the base information about the item
     void encodeBase( ReosEncodedElement &element ) const;
 
+    //! Encoded the element
     virtual ReosEncodedElement encode() const = 0;
 
   signals:
@@ -106,6 +107,8 @@ class ReosRainfallItem : public QObject
   protected:
     ReosRainfallItem( const QString &name, const QString &description, Type type );
     ReosRainfallItem( const ReosEncodedElement &element, Type type );
+
+    void connectParameters();
 
   private:
     std::unique_ptr<ReosParameterString> mName;
@@ -121,10 +124,9 @@ class ReosRainfallDataItem: public ReosRainfallItem
   public:
     ReosRainfallDataItem( const QString &name, const QString &description );
     ReosRainfallDataItem( const ReosEncodedElement &elem ): ReosRainfallItem( elem, Data ) {}
-
 };
 
-
+//! Class that represent a station item that contains rainfall data
 class ReosStationItem: public ReosRainfallItem
 {
   public:
@@ -144,7 +146,7 @@ class ReosStationItem: public ReosRainfallItem
 
 };
 
-
+//! Class that represents a geographical zone item that can contain other zone or rainfall station
 class ReosZoneItem: public ReosRainfallItem
 {
   public:
@@ -161,10 +163,9 @@ class ReosZoneItem: public ReosRainfallItem
       ReosRainfallItem::encodeBase( element );
       return element;
     }
-
 };
 
-
+//! Class that represents the root of the tree, can contain only zone item (\see ReosZoneItem)
 class ReosRootItem: public ReosRainfallItem
 {
   public:
@@ -172,13 +173,12 @@ class ReosRootItem: public ReosRainfallItem
     ReosRootItem( const ReosEncodedElement &element );
 
     QIcon icone() const override {return QIcon( QPixmap( ":/images/fakeEarth.svg" ) );}
-
     virtual bool accept( ReosRainfallItem *item ) const override;
-
     virtual ReosEncodedElement encode() const override;
 };
 
 
+//! Class that represents time serie data item
 class ReosRainfallSeriesItem: public ReosRainfallDataItem
 {
   public:
@@ -186,18 +186,12 @@ class ReosRainfallSeriesItem: public ReosRainfallDataItem
     ReosRainfallSeriesItem( const ReosEncodedElement &element );
 
     ReosTimeSerieConstantInterval *data() const override;
-
-    virtual ReosEncodedElement encode() const override
-    {
-      ReosEncodedElement element( QStringLiteral( "rainfall-serie-item" ) );
-      ReosRainfallItem::encodeBase( element );
-
-      element.addEncodedData( QStringLiteral( "data" ), mData->encode() );
-      return element;
-    }
+    virtual ReosEncodedElement encode() const override;
+    QIcon icone() const override {return QIcon( QPixmap( ":/images/gaugedRainfall.svg" ) );}
 
   private:
     ReosTimeSerieConstantInterval *mData = nullptr;
+    void setupData();
 };
 
 

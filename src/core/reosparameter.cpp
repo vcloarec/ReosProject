@@ -216,6 +216,7 @@ void ReosParameterDuration::setDerivedValue( const ReosDuration &duration )
 void ReosParameterDuration::changeUnit( ReosDuration::Unit unit )
 {
   mDuration.setUnit( unit );
+  emit unitChanged();
 }
 
 ReosDuration ReosParameterDuration::value() const {return mDuration;}

@@ -39,6 +39,15 @@
         <file>removeWatershed.svg</file>
         <file>fakeEarth.svg</file>
         <file>station.svg</file>
+        <file>rainfall.svg</file>
+        <file>saveAsRainfall.svg</file>
+        <file>saveRainfall.svg</file>
+        <file>openRainfall.svg</file>
+        <file>open.svg</file>
+        <file>addZone.svg</file>
+        <file>addGaugedRainfall.svg</file>
+        <file>gaugedRainfall.svg</file>
+        <file>addStation.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

@@ -47,7 +47,9 @@
        <enum>Qt::Vertical</enum>
       </property>
       <widget class="QTreeView" name="mTreeView"/>
-      <widget class="ReosPlotWidget" name="mHyetographWidget" native="true"/>
+      <widget class="QWidget" name="mPlotWidget" native="true">
+       <layout class="QVBoxLayout" name="verticalLayout_3"/>
+      </widget>
      </widget>
      <widget class="QWidget" name="mEditorWidget" native="true">
       <layout class="QVBoxLayout" name="verticalLayout_2"/>
@@ -56,14 +58,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>ReosPlotWidget</class>
-   <extends>QWidget</extends>
-   <header>reosplotwidget.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

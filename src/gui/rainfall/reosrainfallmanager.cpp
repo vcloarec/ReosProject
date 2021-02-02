@@ -16,30 +16,32 @@
 #include "reosrainfallmanager.h"
 #include "ui_reosrainfallmanager.h"
 
-#include<QAction>
+#include <QAction>
 #include <QFileDialog>
 #include <QMenu>
 #include <QMessageBox>
 #include <QCloseEvent>
+#include <QToolBar>
 #include <QTreeView>
 
 #include "reossettings.h"
 #include "reosrainfallmodel.h"
 #include "reosrainfallitem.h"
 #include "reosparameterwidget.h"
+#include "reosplotwidget.h"
 #include "reosformwidget.h"
 
 ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWidget *parent ) :
   ReosActionWidget( parent )
   , ui( new Ui::ReosRainfallManager )
   , mModel( rainfallmodel )
-  , mActionOpenRainfallDataFile( new QAction( tr( "Open Rainfal Data File" ), this ) )
-  , mActionSaveRainfallDataFile( new QAction( tr( "Save Rainfal Data File" ), this ) )
-  , mActionSaveAsRainfallDataFile( new QAction( tr( "Save Rainfal Data File as ..." ), this ) )
-  , mActionAddRootZone( new QAction( tr( "Add New Zone to the Root" ), this ) )
-  , mActionAddZoneToZone( new QAction( tr( "Add New Sub Zone" ), this ) )
-  , mActionAddStation( new QAction( tr( "Add Station" ), this ) )
-  , mActionAddGaugedRainfall( new QAction( tr( "Add Gauged Rainfall" ), this ) )
+  , mActionOpenRainfallDataFile( new QAction( QPixmap( QStringLiteral( ":/images/openRainfall.svg" ) ), tr( "Open Rainfal Data File" ), this ) )
+  , mActionSaveRainfallDataFile( new QAction( QPixmap( QStringLiteral( ":/images/saveRainfall.svg" ) ), tr( "Save Rainfal Data File" ), this ) )
+  , mActionSaveAsRainfallDataFile( new QAction( QPixmap( QStringLiteral( ":/images/saveAsRainfall.svg" ) ), tr( "Save Rainfal Data File as ..." ), this ) )
+  , mActionAddRootZone( new QAction( QPixmap( QStringLiteral( ":/images/addZone.svg" ) ), tr( "Add New Zone to the Root" ), this ) )
+  , mActionAddZoneToZone( new QAction( QPixmap( QStringLiteral( ":/images/addZone.svg" ) ), tr( "Add New Sub Zone" ), this ) )
+  , mActionAddStation( new QAction( QPixmap( QStringLiteral( ":/images/addStation.svg" ) ), tr( "Add Station" ), this ) )
+  , mActionAddGaugedRainfall( new QAction( QPixmap( QStringLiteral( ":/images/addGaugedRainfall.svg" ) ), tr( "Add Gauged Rainfall" ), this ) )
 {
   ui->setupUi( this );
   setWindowFlag( Qt::Dialog );
@@ -76,6 +78,28 @@ ReosRainfallManager::~ReosRainfallManager()
   delete ui;
 }
 
+void ReosRainfallManager::loadDataFile()
+{
+  QString fileName;
+  ReosSettings settings;
+  fileName = settings.value( QStringLiteral( "/rainfall/dataFile" ) ).toString();
+
+  if ( fileName.isEmpty() )
+    return;
+
+  if ( mModel->loadFromFile( fileName, QStringLiteral( "rainfall data" ) ) )
+  {
+    mCurrentFileName = fileName;
+  }
+  else
+  {
+    QMessageBox::warning( this, tr( "Open Rainfall Data" ), tr( "Unable to open the current rainfall data file: %1" ).arg( fileName ) );
+  }
+
+  ui->mTreeView->expandAll();
+  ui->mTreeView->resizeColumnToContents( 0 );
+}
+
 void ReosRainfallManager::onOpenRainfallFile()
 {
   if ( mModel->rootZoneCount() > 0 )
@@ -104,13 +128,14 @@ void ReosRainfallManager::onOpenRainfallFile()
   {
     mCurrentFileName = fileName;
     QMessageBox::information( this, tr( "Open Rainfall Data" ), tr( "Rainfall data file open: %1" ).arg( mCurrentFileName ) );
+    settings.setValue( QStringLiteral( "/rainfall/dataFile" ), fileName );
+    QFileInfo fileInfo( fileName );
+    settings.setValue( QStringLiteral( "/rainfall/fileDirectory" ), fileInfo.path() );
   }
   else
   {
     QMessageBox::critical( this, tr( "Open Rainfall Data" ), tr( "Unable to open the file: %1" ).arg( fileName ) );
   }
-
-
 }
 
 
@@ -248,6 +273,35 @@ void ReosRainfallManager::onCurrentTreeIndexChanged()
       mCurrentForm = newForm;
       ui->mEditorWidget->layout()->addWidget( mCurrentForm );
     }
+
+    if ( item->data() )
+    {
+      ReosPlotWidget *newPlot = new ReosPlotWidget( this );
+      newPlot->addDataObject( item->data() );
+      if ( mCurrentPlot )
+      {
+        ui->mPlotWidget->layout()->replaceWidget( mCurrentPlot, newPlot );
+        mCurrentPlot->deleteLater();
+        mCurrentPlot = newPlot;
+      }
+      else
+      {
+        mCurrentPlot = newPlot;
+        ui->mPlotWidget->layout()->addWidget( mCurrentPlot );
+      }
+
+      mCurrentPlot->setAxeXType( ReosPlotWidget::temporal );
+    }
+    else
+    {
+      if ( mCurrentPlot )
+      {
+        ui->mPlotWidget->layout()->removeWidget( mCurrentPlot );
+        mCurrentPlot->deleteLater();
+        mCurrentPlot = nullptr;
+      }
+    }
+
   }
 }
 
@@ -287,7 +341,6 @@ void ReosRainfallManager::selectItem( ReosRainfallItem *item )
   if ( !item )
     return;
   QModelIndex index = mModel->itemToIndex( item );
-  //ui->mTreeView->selectionModel()->select( index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows );
   ui->mTreeView->setCurrentIndex( index );
 }
 

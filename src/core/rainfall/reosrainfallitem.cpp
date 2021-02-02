@@ -167,15 +167,20 @@ ReosRainfallItem::ReosRainfallItem( const QString &name, const QString &descript
 {
   mName->setValue( name );
   mDescription->setValue( description );
-
-  connect( mName.get(), &ReosParameter::valueChanged, this, [this] {emit changed( this );} );
-  connect( mDescription.get(), &ReosParameter::valueChanged, this, [this] {emit changed( this );} );
+  connectParameters();
 }
 
 ReosRainfallItem::ReosRainfallItem( const ReosEncodedElement &element, ReosRainfallItem::Type type ): mType( type )
 {
   mName.reset( ReosParameterString::decode( element.getEncodedData( QStringLiteral( "name" ) ), false, this ) );
   mDescription.reset( ReosParameterString::decode( element.getEncodedData( QStringLiteral( "description" ) ), false, this ) );
+  connectParameters();
+}
+
+void ReosRainfallItem::connectParameters()
+{
+  connect( mName.get(), &ReosParameter::valueChanged, this, [this] {emit changed( this );} );
+  connect( mDescription.get(), &ReosParameter::valueChanged, this, [this] {emit changed( this );} );
 }
 
 ReosRainfallDataItem::ReosRainfallDataItem( const QString &name, const QString &description ) :
@@ -241,13 +246,13 @@ ReosRootItem::ReosRootItem( const ReosEncodedElement &element ): ReosRainfallIte
     if ( childElem.description() == QStringLiteral( "rainfall-station-item" ) )
       addItem( new ReosStationItem( childElem ) );
   }
-
 }
 
 ReosRainfallSeriesItem::ReosRainfallSeriesItem( const QString &name, const QString &description ):
   ReosRainfallDataItem( name, description )
 {
   mData = new ReosTimeSerieConstantInterval( this );
+  setupData();
 }
 
 ReosRainfallSeriesItem::ReosRainfallSeriesItem( const ReosEncodedElement &element ):
@@ -257,9 +262,41 @@ ReosRainfallSeriesItem::ReosRainfallSeriesItem( const ReosEncodedElement &elemen
     return;
 
   mData = ReosTimeSerieConstantInterval::decode( element.getEncodedData( "data" ), this );
+  setupData();
 }
 
 ReosTimeSerieConstantInterval *ReosRainfallSeriesItem::data() const
 {
   return mData;
+}
+
+ReosEncodedElement ReosRainfallSeriesItem::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "rainfall-serie-item" ) );
+  ReosRainfallItem::encodeBase( element );
+
+  element.addEncodedData( QStringLiteral( "data" ), mData->encode() );
+  return element;
+}
+
+void ReosRainfallSeriesItem::setupData()
+{
+  if ( !mData )
+    return;
+  mData->setValueUnit( tr( "mm" ) );
+  mData->setValueModeName( ReosTimeSerieConstantInterval::Value, tr( "height per time step" ) );
+  mData->setValueModeName( ReosTimeSerieConstantInterval::Cumulative, tr( "total height" ) );
+  mData->setValueModeName( ReosTimeSerieConstantInterval::Intensity, tr( "Rainfall intensity" ) );
+  mData->setValueModeColor( ReosTimeSerieConstantInterval::Value, QColor( 0, 0, 200, 200 ) );
+  mData->setValueModeColor( ReosTimeSerieConstantInterval::Intensity, QColor( 50, 100, 255, 200 ) );
+  mData->setValueModeColor( ReosTimeSerieConstantInterval::Cumulative, QColor( 255, 50, 0 ) );
+  mData->setAddCumultive( true );
+  mData->setName( name() );
+
+  connect( this, &ReosRainfallItem::changed, mData, [this]
+  {
+    if ( this->mData )
+      this->mData->setName( this->name() );
+  } );
+
 }

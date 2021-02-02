@@ -16,9 +16,12 @@
 
 #include "reosplotwidget.h"
 #include "reosplot_p.h"
+#include "reostimeserie.h"
+#include "reosplottimeconstantinterval.h"
 
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
+#include <qwt_plot_histogram.h>
 #include <qwt_plot_grid.h>
 #include <qwt_plot_legenditem.h>
 #include <qwt_plot_magnifier.h>
@@ -26,6 +29,8 @@
 #include <qwt_picker_machine.h>
 #include <qwt_plot_zoomer.h>
 #include <qwt_plot_renderer.h>
+#include <qwt_date_scale_draw.h>
+#include <qwt_date_scale_engine.h>
 
 ReosPlotWidget::ReosPlotWidget( QWidget *parent ): QWidget( parent ),
   mActionExportAsImage( new QAction( QPixmap( ":/images/savePlot.svg" ), tr( "Save as Image" ), this ) ),
@@ -42,7 +47,7 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent ): QWidget( parent ),
 
   layout()->addWidget( mPlot );
 
-  setMagnifierType( NormalMagnifier );
+  setMagnifierType( normalMagnifier );
 
   connect( mActionExportAsImage, &QAction::triggered, this, &ReosPlotWidget::exportAsImage );
   connect( mActionCopyAsImage, &QAction::triggered, this, &ReosPlotWidget::copyAsImage );
@@ -64,9 +69,9 @@ void ReosPlotWidget::setMagnifierType( ReosPlotWidget::MagnifierType type )
 {
   switch ( type )
   {
-    case NormalMagnifier:
+    case normalMagnifier:
       mPlot->setNormalMagnifier();
-    case PositiveMagnifier:
+    case positiveMagnifier:
       mPlot->setPositiveMagnifier();
       break;
   }
@@ -101,8 +106,16 @@ void ReosPlotWidget::addActions( QList<QAction *> actions )
 
 void ReosPlotWidget::addPlotItem( ReosPlotItem *item )
 {
+  if ( !item )
+    return;
   item->attach( mPlot );
+  item->setParent( this );
   connect( item, &ReosPlotItem::itemChanged, this, &ReosPlotWidget::updatePlot );
+}
+
+void ReosPlotWidget::addDataObject( ReosDataObject *data )
+{
+  createItems( data );
 }
 
 void ReosPlotWidget::setTitleAxeX( const QString &title )
@@ -118,6 +131,26 @@ void ReosPlotWidget::setTitleAxeYleft( const QString &title )
 void ReosPlotWidget::setTitleAxeYRight( const QString &title )
 {
   mPlot->setAxisTitle( QwtPlot::yRight, title );
+}
+
+static void setAxeType( QwtPlot *plot, QwtPlot::Axis axe, ReosPlotWidget::AxeType type )
+{
+  switch ( type )
+  {
+    case ReosPlotWidget::normal:
+      break;
+    case ReosPlotWidget::temporal:
+      plot->setAxisScaleDraw( axe, new ReosDateScaleDraw_p( Qt::UTC ) );
+      plot->setAxisScaleEngine( axe, new QwtDateScaleEngine( Qt::UTC ) );
+      break;
+    case ReosPlotWidget::logarithm:
+      break;
+  }
+}
+
+void ReosPlotWidget::setAxeXType( ReosPlotWidget::AxeType type )
+{
+  setAxeType( mPlot, QwtPlot::xBottom, type );
 }
 
 void ReosPlotWidget::updatePlot()
@@ -154,6 +187,32 @@ void ReosPlotWidget::receiveMoveFromPicker( const QPointF &pt )
 }
 
 
+void ReosPlotWidget::createItems( ReosDataObject *data )
+{
+  if ( data && data->type() == QStringLiteral( "time-serie-constant-interval" ) )
+  {
+    ReosTimeSerieConstantInterval *_data = static_cast<ReosTimeSerieConstantInterval *>( data );
+
+    if ( _data->valueMode() != ReosTimeSerieConstantInterval::Cumulative )
+    {
+      std::unique_ptr<ReosPlotTimeHistogram> histogram = std::make_unique<ReosPlotTimeHistogram>( _data->name() + tr( ", instant value" ) );
+      histogram->setTimeSerie( _data );
+      addPlotItem( histogram.release() );
+    }
+
+    if ( _data->valueMode() == ReosTimeSerieConstantInterval::Cumulative || _data->addCumultive() )
+    {
+      mPlot->enableAxis( QwtPlot::yRight );
+      //mPlot->setAxisAutoScale( QwtPlot::yRight, true );
+      std::unique_ptr<ReosPlotTimeCumulativeCurve> cumulCurve = std::make_unique<ReosPlotTimeCumulativeCurve>( _data->name() + tr( ", cumulative value" ) );
+      cumulCurve->setTimeSerie( _data );
+      cumulCurve->setOnRightAxe();
+      addPlotItem( cumulCurve.release() );
+    }
+  }
+}
+
+
 void ReosPlotItem::attach( ReosPlot_p *plot )
 {
   if ( mPlotItem )
@@ -169,8 +228,18 @@ ReosPlotItem::~ReosPlotItem()
   {
     delete mPlotItem;
   }
+}
 
+void ReosPlotItem::setOnRightAxe()
+{
+  if ( mPlotItem )
+    mPlotItem->setYAxis( QwtPlot::yRight );
+}
 
+void ReosPlotItem::setOnLeftAxe()
+{
+  if ( mPlotItem )
+    mPlotItem->setYAxis( QwtPlot::yLeft );
 }
 
 ReosPlotCurve::ReosPlotCurve( const QString &name, const QColor &color, double width ): ReosPlotItem()
@@ -202,3 +271,4 @@ QwtPlotCurve *ReosPlotCurve::curve()
 {
   return static_cast<QwtPlotCurve *>( mPlotItem );
 }
+

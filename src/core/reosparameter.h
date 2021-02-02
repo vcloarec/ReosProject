@@ -41,6 +41,7 @@ class REOSCORE_EXPORT ReosParameter : public QObject
   signals:
     void valueChanged();
     void needDerivation();
+    void unitChanged();
 
   protected:
     bool mIsDerived;

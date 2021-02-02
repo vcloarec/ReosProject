@@ -18,6 +18,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QMimeData>
+#include <QStack>
 #include <QTime>
 #include <QElapsedTimer>
 
@@ -350,6 +351,7 @@ bool ReosRainfallModel::decode( const ReosEncodedElement &element )
   }
 
   mRootZone.reset( new ReosRootItem( encodedRootItem ) );
+  connectItem( mRootZone.get() );
   endResetModel();
   return true;
 
@@ -422,8 +424,25 @@ ReosRainfallItem *ReosRainfallModel::addItem( ReosRainfallItem *receiver, ReosRa
   ReosRainfallItem *ret = receiver->addItem( item.release() );
   endInsertRows();
 
-  connect( ret, &ReosRainfallItem::changed, this, &ReosRainfallModel::onItemChanged );
+  connectItem( ret );
   return ret;
+}
+
+void ReosRainfallModel::connectItem( ReosRainfallItem *item )
+{
+  QStack<ReosRainfallItem *> itemToConnect;
+
+  itemToConnect.push( item );
+
+  while ( !itemToConnect.isEmpty() )
+  {
+    ReosRainfallItem *currentItem = itemToConnect.pop();
+    connect( currentItem, &ReosRainfallItem::changed, this, &ReosRainfallModel::onItemChanged );
+
+    for ( int i = 0; i < currentItem->childrenCount(); ++i )
+      itemToConnect.push( currentItem->itemAt( i ) );
+  }
+
 }
 
 

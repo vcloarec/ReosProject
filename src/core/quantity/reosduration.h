@@ -47,7 +47,8 @@ class REOSCORE_EXPORT ReosDuration
     bool operator==( const ReosDuration & ) const;
     bool operator!=( const ReosDuration & ) const;
 
-    double valueSeconde() const;
+    qint64 valueMilliSecond() const;
+    double valueSecond() const;
     double valueMinute() const;
     double valueHour() const;
     double valueDay() const;
@@ -63,6 +64,9 @@ class REOSCORE_EXPORT ReosDuration
 
     QString toString( int precision = 1 );
     QString toString( ReosDuration::Unit unit, int precision = 1 );
+
+    QString unitToString( ReosDuration::Unit unit ) const;
+    QString unitToString() const;
 
     unsigned numberOfFullyContainedIntervals( const ReosDuration &other ) const;
 

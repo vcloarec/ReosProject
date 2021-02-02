@@ -39,7 +39,7 @@ ReosMainWindow::ReosMainWindow( QWidget *parent ) :
   mGroupActionOption( new QActionGroup( this ) ),
   mGroupActionInterrogation( new QActionGroup( this ) ),
   mActionNewProject( new QAction( QPixmap( "://images/mActionNew.png" ), tr( "New Project" ), this ) ),
-  mActionOpenFile( new QAction( QPixmap( "://images/mActionOpen.png" ), tr( "Open file" ), this ) ),
+  mActionOpenFile( new QAction( QPixmap( ":/images/open.svg" ), tr( "Open file" ), this ) ),
   mActionSaveFile( new QAction( QPixmap( ":/images/save.svg" ), tr( "Save" ), this ) ),
   mActionSaveFileAs( new QAction( QPixmap( ":/images/saveAs.svg" ), tr( "Save as ..." ), this ) ),
   mActionLanguageSelection( new QAction( tr( "Select language" ), this ) ),

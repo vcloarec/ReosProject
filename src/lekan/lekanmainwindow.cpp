@@ -128,6 +128,7 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   mRainFallManagerWidget = new ReosRainfallManager( mRainfallModel, this );
   mActionRainfallManager->setCheckable( true );
   mRainFallManagerWidget->setAction( mActionRainfallManager );
+  mRainFallManagerWidget->loadDataFile();
 }
 
 bool LekanMainWindow::openProject()
@@ -200,7 +201,7 @@ QList<QMenu *> LekanMainWindow::specificMenus()
   QList<QMenu *> menusList;
 
   QMenu *hydrologyMenu = new QMenu( tr( "Hydrology" ), this );
-  mActionRainfallManager = hydrologyMenu->addAction( tr( "Rainfall manager" ) );
+  mActionRainfallManager = hydrologyMenu->addAction( QPixmap( QStringLiteral( ":/images/rainfall.svg" ) ), tr( "Rainfall manager" ) );
 
   menusList << hydrologyMenu;
 

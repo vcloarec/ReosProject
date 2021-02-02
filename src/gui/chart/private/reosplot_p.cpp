@@ -19,8 +19,11 @@
 #include "qwt_plot_legenditem.h"
 #include "qwt_plot_zoomer.h"
 #include "qwt_plot_panner.h"
+#include "qwt_scale_engine.h"
+#include "qwt_date.h"
 
 #include "reosplotwidget.h"
+#include "reostimeserie.h"
 
 
 ReosPlot_p::ReosPlot_p( QWidget *parent ): QwtPlot( parent )
@@ -64,8 +67,10 @@ ReosPlot_p::ReosPlot_p( QWidget *parent ): QwtPlot( parent )
   mPanner = new QwtPlotPanner( canvas() );
   mPanner->setMouseButton( Qt::MidButton );
 
-
 }
+
+ReosPlot_p::~ReosPlot_p()
+{}
 
 void ReosPlot_p::setLegendVisible( bool b )
 {
@@ -167,4 +172,123 @@ void ReosPositiveMagnifier::rescale( double factor )
     plot()->setAxisScaleDiv( QwtPlot::xBottom, scaleDivBottom );
     plot()->replot();
   }
+}
+
+ReosPlotConstantIntervalTimeIntervalSerie::ReosPlotConstantIntervalTimeIntervalSerie( ReosTimeSerieConstantInterval *timeSerie ):
+  QwtSeriesData<QwtIntervalSample>()
+  , mTimeSerie( timeSerie )
+{}
+
+size_t ReosPlotConstantIntervalTimeIntervalSerie::size() const
+{
+  if ( mTimeSerie )
+    return mTimeSerie->valueCount();
+  else
+    return 0;
+}
+
+QwtIntervalSample ReosPlotConstantIntervalTimeIntervalSerie::sample( size_t i ) const
+{
+  if ( !mTimeSerie )
+    return QwtIntervalSample();
+
+  double y = mTimeSerie->valueAt( i );
+  double x1 = QwtDate::toDouble( mTimeSerie->timeAt( i ) );
+  double x2 = QwtDate::toDouble( mTimeSerie->timeAt( i ).addMSecs( mTimeSerie->timeStep()->value().valueMilliSecond() ) );
+
+  return QwtIntervalSample( y, x1, x2 );
+}
+
+QRectF ReosPlotConstantIntervalTimeIntervalSerie::boundingRect() const
+{
+  if ( !mTimeSerie )
+    return QRectF();
+  const QPair<QDateTime, QDateTime> timeExtent = mTimeSerie->timeExtent();
+  const  QPair<double, double> valueExtent = mTimeSerie->valueExent();
+  double x1 = QwtDate::toDouble( timeExtent.first );
+  double x2 = QwtDate::toDouble( timeExtent.second );
+  return QRectF( x1, valueExtent.first, x2 - x1, valueExtent.second - valueExtent.first );
+}
+
+ReosDateScaleDraw_p::ReosDateScaleDraw_p( Qt::TimeSpec timeSpec ):
+  QwtDateScaleDraw( timeSpec )
+{
+  setDateFormat( QwtDate::Millisecond, QString( "mm:ss.zzz" ) );
+  setDateFormat( QwtDate::Second, QString( "hh:mm:ss" ) );
+  setDateFormat( QwtDate::Minute, QString( "hh:mm" ) );
+  setDateFormat( QwtDate::Hour, QString( "hh:mm\ndd MMM" ) );
+  setDateFormat( QwtDate::Day, QString( "hh:mm\nyyyy.MM.dd" ) );
+  setDateFormat( QwtDate::Week, QString( "yyyy.MM.dd" ) );
+  setDateFormat( QwtDate::Month, QString( "yyyy MMM" ) );
+  setDateFormat( QwtDate::Year, QString( "yyyy" ) );
+
+  setLabelAlignment( Qt::AlignHCenter | Qt::AlignBottom );
+}
+
+void ReosDateScaleDraw_p::drawLabel( QPainter *painter, double value ) const
+{
+  QwtText lbl = tickLabel( painter->font(), value );
+  if ( lbl.isEmpty() )
+    return;
+  lbl.setRenderFlags( Qt::AlignCenter );
+
+  QPointF pos = labelPosition( value );
+  QSizeF labelSize = lbl.textSize( painter->font() );
+  const QTransform transform = labelTransformation( pos, labelSize );
+
+  painter->save();
+  painter->setWorldTransform( transform, true );
+
+  lbl.draw( painter, QRect( QPoint( 0, 0 ), labelSize.toSize() ) );
+
+  painter->restore();
+
+}
+
+ReosPlotConstantIntervalTimePointSerie::ReosPlotConstantIntervalTimePointSerie( ReosTimeSerieConstantInterval *timeSerie ):
+  QwtSeriesData<QPointF>()
+  , mTimeSerie( timeSerie )
+{
+  mValueMode = timeSerie->valueMode();
+}
+
+size_t ReosPlotConstantIntervalTimePointSerie::size() const
+{
+  return mTimeSerie->valueCount() + ( mIsCumulative ? 1 : 0 );
+}
+
+QPointF ReosPlotConstantIntervalTimePointSerie::sample( size_t i ) const
+{
+  if ( mIsCumulative )
+  {
+    double x;
+    if ( i == 0 )
+      x = QwtDate::toDouble( mTimeSerie->timeAt( 0 ) );
+    else
+      x = QwtDate::toDouble( mTimeSerie->timeAt( i - 1 ).addMSecs( mTimeSerie->timeStep()->value().valueMilliSecond() ) );
+
+    return QPointF( x, mTimeSerie->valueWithMode( i, mValueMode ) );
+  }
+  else
+    return QPointF( QwtDate::toDouble( mTimeSerie->timeAt( i ) ), mTimeSerie->valueWithMode( i, mValueMode ) );
+}
+
+QRectF ReosPlotConstantIntervalTimePointSerie::boundingRect() const
+{
+  if ( !mTimeSerie )
+    return QRectF();
+  QPair<QDateTime, QDateTime> timeExtent = mTimeSerie->timeExtent();
+  QPair<double, double> valueExtent = mTimeSerie->extentValueWithMode( mValueMode );
+  if ( mIsCumulative && mTimeSerie->valueCount() > 0 )
+  {
+    timeExtent.second = timeExtent.second.addMSecs( mTimeSerie->timeStep()->value().valueMilliSecond() );
+    double lastValue = mTimeSerie->valueWithMode( mTimeSerie->valueCount(), mValueMode );
+    if ( valueExtent.first > lastValue )
+      valueExtent.first = lastValue;
+    if ( valueExtent.second < lastValue )
+      valueExtent.second = lastValue;
+  }
+  double x1 = QwtDate::toDouble( timeExtent.first );
+  double x2 = QwtDate::toDouble( timeExtent.second );
+  return QRectF( x1, valueExtent.first, x2 - x1, valueExtent.second - valueExtent.first );
 }

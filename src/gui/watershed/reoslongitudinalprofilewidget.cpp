@@ -59,7 +59,7 @@ ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWi
   mDemCurve = new ReosPlotCurve( "Profile on current DEM", QColor( 0, 155, 242 ), 3 );
   mProfile = new ReosEditableProfile();
   ui->mPlotWidget->addPlotItem( mProfile );
-  ui->mPlotWidget->setMagnifierType( ReosPlotWidget::NormalMagnifier );
+  ui->mPlotWidget->setMagnifierType( ReosPlotWidget::normalMagnifier );
   ui->mProfileTableView->setModel( mProfile->tableModel() );
   ui->mPlotWidget->setLegendAlignement( Qt::AlignRight );
   ui->mPlotWidget->addPlotItem( mDemCurve );

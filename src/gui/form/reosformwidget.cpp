@@ -15,8 +15,14 @@
  ***************************************************************************/
 #include "reosformwidget.h"
 
+#include <QApplication>
+#include <QClipboard>
 #include <QVBoxLayout>
 #include <QDialogButtonBox>
+#include <QKeyEvent>
+#include <QMenu>
+#include <QMessageBox>
+#include <QMimeData>
 #include <QTableView>
 #include <QHeaderView>
 
@@ -102,9 +108,113 @@ ReosTimeSerieConstantIntervalWidget::ReosTimeSerieConstantIntervalWidget( ReosTi
   addParameter( timeSerie->timeStep() );
   addParameter( timeSerie->referenceTime() );
 
-  QTableView *view = new QTableView( this );
+  mValueModeComboBox = new QComboBox( this );
+  mValueModeComboBox->addItem( timeSerie->valueModeName( ReosTimeSerieConstantInterval::Value ), ReosTimeSerieConstantInterval::Value );
+  mValueModeComboBox->addItem( timeSerie->valueModeName( ReosTimeSerieConstantInterval::Intensity ), ReosTimeSerieConstantInterval::Intensity );
+
+  layout()->addWidget( mValueModeComboBox );
+
+  connect( mValueModeComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), timeSerie, [timeSerie, this]()
+  {
+    ReosTimeSerieConstantInterval::ValueMode mode = static_cast<ReosTimeSerieConstantInterval::ValueMode>( this->mValueModeComboBox->currentData().toInt() );
+    timeSerie->setValueMode( mode );
+  } );
+
+  ReosTimeSerieConstantIntervalView *view = new ReosTimeSerieConstantIntervalView( this );
   layout()->addWidget( view );
   view->setModel( mModel );
   view->horizontalHeader()->setStretchLastSection( true );
+  view->horizontalHeader()->setCascadingSectionResizes( true );
   layout()->addWidget( view );
+
+  connect( view, &ReosTimeSerieConstantIntervalView::pastDataFromClipboard, mModel, &ReosTimeSerieConstantIntervalModel::setValues );
+  connect( view, &ReosTimeSerieConstantIntervalView::insertRow, mModel, &ReosTimeSerieConstantIntervalModel::insertValueRows );
+  connect( view, &ReosTimeSerieConstantIntervalView::deleteRows, mModel, &ReosTimeSerieConstantIntervalModel::deleteValueRows );
+}
+
+ReosTimeSerieConstantIntervalView::ReosTimeSerieConstantIntervalView( QWidget *parent ): QTableView( parent )
+{
+}
+
+void ReosTimeSerieConstantIntervalView::keyPressEvent( QKeyEvent *event )
+{
+  if ( event->matches( QKeySequence::Paste ) )
+  {
+    QList<double> values = clipboardToValues();
+    if ( !values.isEmpty() )
+      emit pastDataFromClipboard( currentIndex(), values );
+  }
+
+
+  QTableView::keyPressEvent( event );
+
+  if ( event->key() == Qt::Key_Enter )
+  {
+    QModelIndex index = currentIndex();
+    if ( index.isValid() )
+      setCurrentIndex( model()->index( index.row() + 1, index.column() ) );
+  }
+}
+
+void ReosTimeSerieConstantIntervalView::contextMenuEvent( QContextMenuEvent *event )
+{
+  QMenu menu;
+
+  menu.addAction( tr( "Delete selected row(s)" ), this, [this]()
+  {
+    int count = this->selectionModel()->selectedIndexes().count();
+    if ( count > 0 )
+    {
+      emit deleteRows( this->selectionModel()->selectedIndexes().first(), count );
+    }
+  } );
+
+  menu.addAction( tr( "Insert row(s)" ), this, [this]()
+  {
+    int count = this->selectionModel()->selectedIndexes().count();
+    if ( count > 0 )
+    {
+      emit insertRow( this->selectionModel()->selectedIndexes().first(), count );
+    }
+  } );
+
+  menu.addAction( tr( "Insert row(s) from clipboard" ), this, [this]()
+  {
+    int count = this->selectionModel()->selectedIndexes().count();
+    QList<double> values = clipboardToValues();
+    if ( values.count() > 0 && count > 0 )
+    {
+      emit insertRow( this->selectionModel()->selectedIndexes().first(), count );
+      emit pastDataFromClipboard( this->selectionModel()->selectedIndexes().first(), values );
+    }
+  } );
+
+  menu.exec( mapToGlobal( event->pos() ) );
+
+}
+
+QList<double> ReosTimeSerieConstantIntervalView::clipboardToValues()
+{
+  QClipboard *clipBoard = QApplication::clipboard();
+  QString clipBoardText = clipBoard->text();
+  if ( QLocale::system().decimalPoint() == ',' )
+    clipBoardText.replace( ',', '.' );
+  const QStringList lines = clipBoardText.split( "\n" );
+  QList<double> values;
+  bool ok = true;
+  for ( const QString &l : lines )
+  {
+    if ( l == QString() )
+      continue;
+    values.append( l.toDouble( &ok ) );
+    if ( !ok )
+      break;
+  }
+  if ( !ok )
+  {
+    QMessageBox::warning( this, tr( "Paste value to table" ), tr( "Incompatible data in the cliboard: " ).arg( clipBoardText ) );
+    return QList<double>();
+  }
+  else
+    return values;
 }

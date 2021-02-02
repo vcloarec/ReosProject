@@ -76,6 +76,9 @@ class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
 
     ReosRainfallItem *addItem( ReosRainfallItem *receiver, ReosRainfallItem *newItem );
 
+    //! Connect item and all the children
+    void connectItem( ReosRainfallItem *item );
+
 
 };
 
