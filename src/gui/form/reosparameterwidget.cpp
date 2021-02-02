@@ -19,8 +19,9 @@
 #include <QComboBox>
 #include <QLabel>
 #include <QToolButton>
-
+#include <QDateTimeEdit>
 #include "reosparameterwidget.h"
+
 
 ReosParameterWidget::ReosParameterWidget( QWidget *parent ):
   QWidget( parent )
@@ -29,7 +30,11 @@ ReosParameterWidget::ReosParameterWidget( QWidget *parent ):
 
   mLabelName = new QLabel( this );
   layout()->addWidget( mLabelName );
+}
 
+ReosParameterInLineWidget::ReosParameterInLineWidget( QWidget *parent ):
+  ReosParameterWidget( parent )
+{
   mLineEdit = new QLineEdit( this );
   layout()->addWidget( mLineEdit );
   mLineEdit->setAlignment( Qt::AlignRight );
@@ -42,7 +47,33 @@ ReosParameterWidget::ReosParameterWidget( QWidget *parent ):
   } );
 }
 
-void ReosParameterWidget::setTextValue( double value )
+void ReosParameterInLineWidget::setFocusOnEdit()
+{
+  mLineEdit->setFocus();
+}
+
+ReosParameterWidget *ReosParameterWidget::createWidget( ReosParameter *parameter, QWidget *parent )
+{
+  if ( parameter->type() == ReosParameterStringWidget::type() )
+    return new ReosParameterStringWidget( static_cast<ReosParameterString *>( parameter ), parent );
+
+  if ( parameter->type() == ReosParameterAreaWidget::type() )
+    return new ReosParameterAreaWidget( static_cast<ReosParameterArea *>( parameter ), parent );
+
+  if ( parameter->type() == ReosParameterSlopeWidget::type() )
+    return new ReosParameterSlopeWidget( static_cast<ReosParameterSlope *>( parameter ), parent );
+
+  if ( parameter->type() == ReosParameterDurationWidget::type() )
+    return new ReosParameterDurationWidget( static_cast<ReosParameterDuration *>( parameter ), parent );
+
+  if ( parameter->type() == ReosParameterDateTimeWidget::type() )
+    return new ReosParameterDateTimeWidget( static_cast<ReosParameterDateTime *>( parameter ), parent );
+
+  return nullptr;
+
+}
+
+void ReosParameterInLineWidget::setTextValue( double value )
 {
   if ( mParameter->isDerived() )
   {
@@ -55,9 +86,19 @@ void ReosParameterWidget::setTextValue( double value )
 
 }
 
-double ReosParameterWidget::value() const
+void ReosParameterInLineWidget::setTextValue( const QString &str )
+{
+  mLineEdit->setText( str );
+}
+
+double ReosParameterInLineWidget::value() const
 {
   return mLineEdit->text().toDouble();
+}
+
+QString ReosParameterInLineWidget::textValue() const
+{
+  return mLineEdit->text();
 }
 
 void ReosParameterWidget::setParameter( ReosParameter *param )
@@ -80,26 +121,27 @@ void ReosParameterWidget::setParameter( ReosParameter *param )
 
 void ReosParameterWidget::finalizeWidget()
 {
-  mDerivationButton = new QToolButton( this );
-  layout()->addWidget( mDerivationButton );
-
-  connect( mDerivationButton, &QToolButton::clicked, this, &ReosParameterWidget::askDerivation );
+  if ( mParameter && mParameter->isDerivable() )
+  {
+    mDerivationButton = new QToolButton( this );
+    layout()->addWidget( mDerivationButton );
+    connect( mDerivationButton, &QToolButton::clicked, this, &ReosParameterWidget::askDerivation );
+  }
 }
 
 
 void ReosParameterWidget::askDerivation()
 {
-  if ( mParameter )
+  if ( mParameter && mParameter->isDerivable() )
   {
     mDerivationButton->setFocus(); //to avoid a ficus on the line edit --> that produce a signal textEdited that set the param not derived
     mParameter->askForDerivation();
   }
-
 }
 
 
 ReosParameterAreaWidget::ReosParameterAreaWidget( QWidget *parent ):
-  ReosParameterWidget( parent )
+  ReosParameterInLineWidget( parent )
 {
   mUnitCombobox = new QComboBox( this );
   layout()->addWidget( mUnitCombobox );
@@ -165,12 +207,18 @@ ReosParameterArea *ReosParameterAreaWidget::areaParameter() const
 
 
 ReosParameterSlopeWidget::ReosParameterSlopeWidget( QWidget *parent ):
-  ReosParameterWidget( parent )
+  ReosParameterInLineWidget( parent )
 {
   mLabelSlopeUnit = new QLabel( QString( '%' ) );
   layout()->addWidget( mLabelSlopeUnit );
 
   finalizeWidget();
+}
+
+ReosParameterSlopeWidget::ReosParameterSlopeWidget( ReosParameterSlope *slope, QWidget *parent ):
+  ReosParameterSlopeWidget( parent )
+{
+  setSlope( slope );
 }
 
 void ReosParameterSlopeWidget::setSlope( ReosParameterSlope *slope )
@@ -216,4 +264,166 @@ void ReosParameterSlopeWidget::applyValue()
 ReosParameterSlope *ReosParameterSlopeWidget::slopeParameter() const
 {
   return static_cast<ReosParameterSlope *>( mParameter );
+}
+
+ReosParameterStringWidget::ReosParameterStringWidget( QWidget *parent ):
+  ReosParameterInLineWidget( parent )
+{
+  finalizeWidget();
+}
+
+ReosParameterStringWidget::ReosParameterStringWidget( ReosParameterString *string, QWidget *parent ):
+  ReosParameterStringWidget( parent )
+{
+  setString( string );
+}
+
+void ReosParameterStringWidget::setString( ReosParameterString *string )
+{
+  setParameter( string );
+}
+
+void ReosParameterStringWidget::updateValue()
+{
+  if ( stringParameter() )
+    setTextValue( stringParameter()->value() );
+}
+
+void ReosParameterStringWidget::applyValue()
+{
+  if ( stringParameter() )
+    stringParameter()->setValue( textValue() );
+}
+
+ReosParameterString *ReosParameterStringWidget::stringParameter()
+{
+  if ( mParameter )
+    return static_cast<ReosParameterString *>( mParameter );
+
+  return nullptr;
+}
+
+ReosParameterDurationWidget::ReosParameterDurationWidget( QWidget *parent ):
+  ReosParameterInLineWidget( parent )
+{
+  mUnitCombobox = new QComboBox( this );
+  layout()->addWidget( mUnitCombobox );
+
+  mUnitCombobox->addItem( tr( "millisecond" ), ReosDuration::millisecond );
+  mUnitCombobox->addItem( tr( "second" ), ReosDuration::second );
+  mUnitCombobox->addItem( tr( "minute" ), ReosDuration::minute );
+  mUnitCombobox->addItem( tr( "hour" ), ReosDuration::hour );
+  mUnitCombobox->addItem( tr( "day" ), ReosDuration::day );
+  mUnitCombobox->addItem( tr( "week" ), ReosDuration::week );
+  mUnitCombobox->addItem( tr( "month" ), ReosDuration::month );
+  mUnitCombobox->addItem( tr( "year" ), ReosDuration::year );
+
+
+  connect( mUnitCombobox, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosParameterWidget::updateValue );
+  connect( mUnitCombobox, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]
+  {
+    if ( this->durationParameter() )
+      this->durationParameter()->changeUnit( static_cast<ReosDuration::Unit>( mUnitCombobox->currentData().toInt() ) );
+  } );
+
+  finalizeWidget();
+}
+
+ReosParameterDurationWidget::ReosParameterDurationWidget( ReosParameterDuration *duration, QWidget *parent ):
+  ReosParameterDurationWidget( parent )
+{
+  setDuration( duration );
+}
+
+void ReosParameterDurationWidget::setDuration( ReosParameterDuration *duration )
+{
+  setParameter( duration );
+
+  if ( durationParameter() )
+  {
+    setTextValue( durationParameter()->value().valueUnit() );
+    mUnitCombobox->setCurrentIndex( mUnitCombobox->findData( durationParameter()->value().unit() ) );
+    show();
+  }
+  else
+  {
+    setTextValue( std::numeric_limits<double>::quiet_NaN() );
+    mUnitCombobox->setCurrentIndex( -1 );
+    hide();
+  }
+}
+
+void ReosParameterDurationWidget::updateValue()
+{
+  if ( durationParameter() )
+    setTextValue( durationParameter()->value().valueUnit( static_cast<ReosDuration::Unit>( mUnitCombobox->currentData().toInt() ) ) );
+}
+
+void ReosParameterDurationWidget::applyValue()
+{
+  if ( durationParameter() )
+  {
+    durationParameter()->setValue( ReosDuration( value(), static_cast<ReosDuration::Unit>( mUnitCombobox->currentData().toInt() ) ) );
+    setTextValue( value() );
+  }
+}
+
+ReosParameterDuration *ReosParameterDurationWidget::durationParameter() const
+{
+  return static_cast<ReosParameterDuration *>( mParameter );
+}
+
+
+ReosParameterDateTimeWidget::ReosParameterDateTimeWidget( QWidget *parent ):
+  ReosParameterWidget( parent )
+  , mDateTimeEdit( new QDateTimeEdit( this ) )
+{
+  layout()->addWidget( mDateTimeEdit );
+  connect( mDateTimeEdit, &QDateTimeEdit::dateTimeChanged, this, &ReosParameterWidget::applyValue );
+  mDateTimeEdit->setDisplayFormat( QStringLiteral( "yyyy.MM.dd HH:mm:ss" ) );
+  mDateTimeEdit->setTimeSpec( Qt::UTC );
+  finalizeWidget();
+}
+
+ReosParameterDateTimeWidget::ReosParameterDateTimeWidget( ReosParameterDateTime *dateTime, QWidget *parent ):
+  ReosParameterDateTimeWidget( parent )
+{
+  setDateTime( dateTime );
+}
+
+void ReosParameterDateTimeWidget::setDateTime( ReosParameterDateTime *dateTime )
+{
+  setParameter( dateTime );
+
+  if ( dateTimeParameter() )
+  {
+    updateValue();
+    show();
+  }
+  else
+  {
+    hide();
+  }
+}
+
+void ReosParameterDateTimeWidget::updateValue()
+{
+  if ( dateTimeParameter() && mDateTimeEdit )
+    mDateTimeEdit->setDateTime( dateTimeParameter()->value() );
+}
+
+void ReosParameterDateTimeWidget::applyValue()
+{
+  if ( dateTimeParameter() && mDateTimeEdit )
+    dateTimeParameter()->setValue( mDateTimeEdit->dateTime() );
+}
+
+void ReosParameterDateTimeWidget::setFocusOnEdit()
+{
+  mDateTimeEdit->setFocus();
+}
+
+ReosParameterDateTime *ReosParameterDateTimeWidget::dateTimeParameter() const
+{
+  return static_cast<ReosParameterDateTime *>( mParameter );
 }

@@ -17,12 +17,20 @@
 #define REOSPLOT_P_H
 
 #include <memory>
+
+#include <QPointer>
+
 #include <qwt_plot.h>
 #include <qwt_plot_magnifier.h>
+#include <qwt_series_data.h>
+#include <qwt_date_scale_draw.h>
+
+#include "reostimeserie.h"
+
+class ReosPlotItem;
 
 class QwtPlotLegendItem;
 class QwtPlotGrid;
-class ReosPlotItem;
 class QwtPlotMagnifier;
 class QwtPlotPanner;
 class QwtPlotZoomer;
@@ -43,11 +51,19 @@ class ReosPositiveMagnifier : public QwtPlotMagnifier
     bool mIsYMinEnabeled;
 };
 
+class ReosDateScaleDraw_p : public QwtDateScaleDraw
+{
+  public :
+    ReosDateScaleDraw_p( Qt::TimeSpec timeSpec = Qt::LocalTime );
+    void drawLabel( QPainter *painter, double value ) const override; //Method override because bas align center with qwt
+};
+
 class ReosPlot_p: public QwtPlot
 {
     Q_OBJECT
   public:
     ReosPlot_p( QWidget *parent = nullptr );
+    ~ReosPlot_p();
 
     void setLegendVisible( bool b );
     void setLegendAlignement( Qt::Alignment align );
@@ -88,4 +104,58 @@ class ReosPlot_p: public QwtPlot
     QwtPlotZoomer *mZoomerLeft = nullptr;
     QwtPlotZoomer *mZoomerRight = nullptr;
 };
+
+
+class ReosPlotConstantIntervalTimeIntervalSerie: public QwtSeriesData<QwtIntervalSample>
+{
+  public:
+    ReosPlotConstantIntervalTimeIntervalSerie( ReosTimeSerieConstantInterval *timeSerie );
+
+    size_t size() const override;
+    QwtIntervalSample sample( size_t i ) const override;
+    QRectF boundingRect() const override;
+
+    ReosTimeSerieConstantInterval *data() const
+    {
+      if ( mTimeSerie.isNull() )
+        return nullptr;
+      else
+        return mTimeSerie.data();
+    }
+
+  private:
+    QPointer<ReosTimeSerieConstantInterval> mTimeSerie;
+
+};
+
+class ReosPlotConstantIntervalTimePointSerie: public QwtSeriesData<QPointF>
+{
+  public:
+    ReosPlotConstantIntervalTimePointSerie( ReosTimeSerieConstantInterval *timeSerie );
+
+    size_t size() const override;
+    QPointF sample( size_t i ) const override;
+    QRectF boundingRect() const override;
+
+    ReosTimeSerieConstantInterval *data() const
+    {
+      if ( mTimeSerie.isNull() )
+        return nullptr;
+      else
+        return mTimeSerie.data();
+    }
+
+    void setCumulative( bool b )
+    {
+      mIsCumulative = b;
+      mValueMode = ReosTimeSerieConstantInterval::Cumulative;
+    }
+
+  private:
+    QPointer<ReosTimeSerieConstantInterval> mTimeSerie;
+    bool mIsCumulative = false;
+    ReosTimeSerieConstantInterval::ValueMode mValueMode = ReosTimeSerieConstantInterval::Value ;
+
+};
+
 #endif // REOSPLOT_P_H

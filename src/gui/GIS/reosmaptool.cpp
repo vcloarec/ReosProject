@@ -44,10 +44,20 @@ void ReosMapTool::setCurrentToolInMap() const
   tool_p()->canvas()->setMapTool( tool_p() );
 }
 
+void ReosMapTool::quitMap()
+{
+  mMap->setDefaultMapTool();
+}
+
+bool ReosMapTool::isCurrentToolInMap() const
+{
+  return tool_p()->isActive();
+}
+
 void ReosMapTool::setAction( QAction *action )
 {
   tool_p()->setAction( action );
-  connect( action, &QAction::triggered, [this]() {setCurrentToolInMap();} );
+  connect( action, &QAction::triggered, this, [this]() {setCurrentToolInMap();} );
 }
 
 void ReosMapTool::setCursor( const QCursor &cursor )

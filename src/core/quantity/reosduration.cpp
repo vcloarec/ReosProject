@@ -53,7 +53,6 @@ ReosDuration::ReosDuration( double value, ReosDuration::Unit un )
 }
 
 
-
 QString ReosDuration::toString( int precision )
 {
   return toString( mUnit, precision );
@@ -62,44 +61,57 @@ QString ReosDuration::toString( int precision )
 QString ReosDuration::toString( ReosDuration::Unit unit, int precision )
 {
   QString returnValue = QString::number( valueUnit( unit ), 'f', precision );
-  double val = valueUnit();
+  returnValue.append( ' ' + unitToString( unit ) );
+
+  return returnValue;
+}
+
+QString ReosDuration::unitToString( ReosDuration::Unit unit ) const
+{
+  double val;
   switch ( unit )
   {
     case second:
-      returnValue.append( QObject::tr( " s" ) );
+      return QObject::tr( "s" ) ;
       break;
     case minute:
-      returnValue.append( QObject::tr( " mn" ) );
+      return QObject::tr( "mn" );
       break;
     case hour:
-      returnValue.append( QObject::tr( " h" ) );
+      return QObject::tr( "h" );
       break;
     case day:
-      returnValue.append( QObject::tr( " d" ) );
+      return QObject::tr( "d" );
       break;
     case week:
       val = valueWeek();
       if ( val > 1 )
-        returnValue.append( QObject::tr( " weeks" ) );
+        return  QObject::tr( "weeks" );
       else
-        returnValue.append( QObject::tr( " week" ) );
+        return QObject::tr( "week" );
       break;
     case month:
+      val = valueMonth();
       if ( val > 1 )
-        returnValue.append( QObject::tr( "monthes" ) );
+        return QObject::tr( "monthes" );
       else
-        returnValue.append( QObject::tr( " month" ) );
+        return  QObject::tr( "month" );
       break;
     case year:
       val = valueYear();
       if ( val > 1 )
-        returnValue.append( QObject::tr( " year" ) );
+        return  QObject::tr( "year" );
       else
-        returnValue.append( QObject::tr( " years" ) );
+        return QObject::tr( "years" );
       break;
   }
 
-  return returnValue;
+  return QString();
+}
+
+QString ReosDuration::unitToString() const
+{
+  return unitToString( mUnit );
 }
 
 ReosDuration ReosDuration::operator+( const ReosDuration &other ) const
@@ -176,7 +188,12 @@ bool ReosDuration::operator!=( const ReosDuration &other ) const
   return !operator==( other );
 }
 
-double ReosDuration::valueSeconde() const {return mValue / 1000.0;}
+qint64 ReosDuration::valueMilliSecond() const
+{
+  return mValue;
+}
+
+double ReosDuration::valueSecond() const {return mValue / 1000.0;}
 
 double ReosDuration::valueMinute() const {return mValue / 1000.0 / 60;}
 
@@ -201,7 +218,7 @@ double ReosDuration::valueUnit( ReosDuration::Unit un ) const
   switch ( un )
   {
     case second:
-      val = valueSeconde();
+      val = valueSecond();
       break;
     case minute:
       val = valueMinute();
@@ -242,4 +259,32 @@ unsigned ReosDuration::numberOfFullyContainedIntervals( const ReosDuration &othe
     return 0;
 
   return unsigned( mValue / other.mValue );
+}
+
+ReosEncodedElement ReosDuration::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "duration" ) );
+
+  element.addData( QStringLiteral( "value" ), mValue );
+  element.addData( QStringLiteral( "unit" ), static_cast<int>( mUnit ) );
+
+  return element;
+}
+
+ReosDuration ReosDuration::decode( const ReosEncodedElement &element )
+{
+  ReosDuration ret;
+
+  if ( element.description() != QStringLiteral( "duration" ) )
+    return ret;
+
+  if ( !element.getData( QStringLiteral( "value" ), ret.mValue ) )
+    return ret;
+
+  int intUnit;
+  if ( !element.getData( QStringLiteral( "unit" ), intUnit ) )
+    return ret;
+  ret.mUnit = static_cast<Unit>( intUnit );
+
+  return ret;
 }

@@ -67,8 +67,14 @@ class REOSCORE_EXPORT ReosEncodedElement
       return true;
     }
 
+    void addListEncodedData( const QString &key, const QList<ReosEncodedElement> &list );
+    QList<ReosEncodedElement> getListEncodedData( const QString &key ) const;
+
     //! Returns byte of the encoded element that can be store in files or in another encoded element
     QByteArray bytes() const;
+
+    bool hasEncodedData() const;
+    bool hasEncodedData( const QString &key ) const;
 
   private:
     QMap<QString, QByteArray> mData;

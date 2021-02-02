@@ -34,11 +34,17 @@ SET(REOS_CORE_SOURCES
   watershed/reoswatershedtree.cpp
   watershed/reoswatershedmodule.cpp
 
+  rainfall/reosrainfallitem.cpp
+  rainfall/reosrainfallmodel.cpp
+
   quantity/reosarea.cpp
   quantity/reosduration.cpp
+
+  data/reostimeserie.cpp
 )
 
 SET(REOS_CORE_HEADERS
+    reoscore.h
     reosapplication.h
     reosdocumentation.h
     reosencodedelement.h
@@ -68,8 +74,13 @@ SET(REOS_CORE_HEADERS
     watershed/reoswatershedtree.h
     watershed/reoswatershedmodule.h
 
+    rainfall/reosrainfallitem.h
+    rainfall/reosrainfallmodel.h
+
     quantity/reosarea.h
     quantity/reosduration.h
+
+    data/reostimeserie.h
 
 )
 
@@ -127,6 +138,7 @@ ENDIF(GDAL_FOUND)
 
 INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core
+    ${CMAKE_SOURCE_DIR}/src/core/data
     ${CMAKE_SOURCE_DIR}/src/core/GIS
     ${CMAKE_SOURCE_DIR}/src/core/GIS/private
     ${CMAKE_SOURCE_DIR}/src/core/process

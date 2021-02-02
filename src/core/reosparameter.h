@@ -17,8 +17,11 @@
 #define REOSPARAMETER_H
 
 #include <QObject>
+#include <QDateTime>
+
 #include "reoscore.h"
 #include "reosarea.h"
+#include "reosduration.h"
 
 
 class REOSCORE_EXPORT ReosParameter : public QObject
@@ -26,30 +29,47 @@ class REOSCORE_EXPORT ReosParameter : public QObject
     Q_OBJECT
   public:
     explicit ReosParameter( const QString &name, QObject *parent = nullptr );
+    virtual ~ReosParameter() = default;
     QString name() const;
 
-    bool isDerivable() const;
-    void setDerivable( bool b );
-    bool isDerived() const;
+    virtual QString type() {return QString();}
 
-    void askForDerivation()
-    {
-      emit needDerivation();
-    }
+    bool isDerivable() const;
+    bool isDerived() const;
+    void askForDerivation();
 
   signals:
     void valueChanged();
     void needDerivation();
+    void unitChanged();
 
   protected:
     bool mIsDerived;
+    void setDerivable( bool b );
     void encode( ReosEncodedElement &element ) const;
     void decode( const ReosEncodedElement &element, bool isDerivable );
 
   private:
     QString mName;
-    bool mIsDerivable;
+    bool mIsDerivable = false;
 
+};
+
+class ReosParameterString: public ReosParameter
+{
+  public:
+    explicit ReosParameterString( const QString &name, QObject *parent = nullptr );
+
+    void setValue( const QString &string );
+    QString value() const {return mValue;}
+    QString type() {return QStringLiteral( "string" );}
+
+    ReosEncodedElement encode() const;
+    static ReosParameterString *decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent );
+
+  private:
+
+    QString mValue;
 };
 
 class REOSCORE_EXPORT ReosParameterArea: public ReosParameter
@@ -61,6 +81,8 @@ class REOSCORE_EXPORT ReosParameterArea: public ReosParameter
     void setDerivedValue( const ReosArea &area );
     void changeUnit( ReosArea::Unit unit );
     ReosArea value() const {return mValue;}
+
+    QString type() {return QStringLiteral( "area" );}
 
     ReosEncodedElement encode() const;
     static ReosParameterArea *decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent );
@@ -79,11 +101,51 @@ class REOSCORE_EXPORT ReosParameterSlope: public ReosParameter
 
     double value() {return mSlope;}
 
+    QString type() override {return QStringLiteral( "slope" );}
+
     ReosEncodedElement encode() const;
     static ReosParameterSlope *decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent );
 
   private:
     double mSlope = 0;
+};
+
+class REOSCORE_EXPORT ReosParameterDuration: public ReosParameter
+{
+  public:
+    explicit ReosParameterDuration( const QString &name, QObject *parent = nullptr );
+
+    void setValue( const ReosDuration &duration );
+    void setDerivedValue( const ReosDuration &duration );
+    void changeUnit( ReosDuration::Unit unit );
+    ReosDuration value() const;
+
+    QString type() override {return QStringLiteral( "duration" );}
+
+    ReosEncodedElement encode() const;
+    static ReosParameterDuration *decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent );
+
+  private:
+    ReosDuration mDuration;
+};
+
+class REOSCORE_EXPORT ReosParameterDateTime: public ReosParameter
+{
+  public:
+    explicit ReosParameterDateTime( const QString &name, QObject *parent = nullptr );
+
+    void setValue( const QDateTime &dt );
+    void setDerivedValue( const QDateTime &dt );
+
+    QDateTime value() {return mDateTime;}
+
+    QString type() override {return QStringLiteral( "date-time" );}
+
+    ReosEncodedElement encode() const;
+    static ReosParameterDateTime *decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent );
+
+  private:
+    QDateTime mDateTime;
 };
 
 

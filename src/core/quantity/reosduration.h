@@ -32,8 +32,6 @@ class REOSCORE_EXPORT ReosDuration
 
     ReosDuration( double value = 0 );
     ReosDuration( double value, Unit mUnit );
-    ReosDuration( bool defined ): mDefined( defined )
-    {}
 
 
     ReosDuration operator+( const ReosDuration & ) const;
@@ -49,7 +47,8 @@ class REOSCORE_EXPORT ReosDuration
     bool operator==( const ReosDuration & ) const;
     bool operator!=( const ReosDuration & ) const;
 
-    double valueSeconde() const;
+    qint64 valueMilliSecond() const;
+    double valueSecond() const;
     double valueMinute() const;
     double valueHour() const;
     double valueDay() const;
@@ -61,22 +60,24 @@ class REOSCORE_EXPORT ReosDuration
 
     Unit unit() const;
     void setUnit( Unit u );
-    QByteArray encode() const;
+
 
     QString toString( int precision = 1 );
     QString toString( ReosDuration::Unit unit, int precision = 1 );
 
+    QString unitToString( ReosDuration::Unit unit ) const;
+    QString unitToString() const;
+
     unsigned numberOfFullyContainedIntervals( const ReosDuration &other ) const;
 
-    bool isDefined() const
-    {
-      return mDefined;
-    }
+    ReosEncodedElement encode() const;
+
+    static ReosDuration decode( const ReosEncodedElement &element );
 
   private:
     Unit mUnit = second;
     qint64 mValue = 0; //milliseconds
-    bool mDefined = true;
+
 };
 
 #endif //REOSDURATION_H

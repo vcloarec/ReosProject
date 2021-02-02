@@ -55,14 +55,17 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/src/tools
   ${CMAKE_SOURCE_DIR}/src/core
+  ${CMAKE_SOURCE_DIR}/src/core/data
   ${CMAKE_SOURCE_DIR}/src/core/GIS
   ${CMAKE_SOURCE_DIR}/src/core/raster
   ${CMAKE_SOURCE_DIR}/src/core/quantity
   ${CMAKE_SOURCE_DIR}/src/core/process
   ${CMAKE_SOURCE_DIR}/src/core/watershed
+  ${CMAKE_SOURCE_DIR}/src/core/rainfall
   ${CMAKE_SOURCE_DIR}/src/core/utils
 
   ${CMAKE_SOURCE_DIR}/src/gui/GIS
+  ${CMAKE_SOURCE_DIR}/src/gui
 )
 
 MACRO (ADD_REOS_TEST TESTSRC)
@@ -88,6 +91,7 @@ ENDMACRO (ADD_REOS_TEST)
 SET(TESTS
     src/core/reos_dem_test.cpp
     src/core/reos_watershed_test.cpp
+    src/core/reos_rainfall_test.cpp
     src/core/reos_raster_test.cpp
     src/core/reos_watershedRaster_test.cpp
     src/core/reos_geometry_test.cpp

@@ -16,11 +16,11 @@
 #ifndef REOSPLOTWIDGET_H
 #define REOSPLOTWIDGET_H
 
+#include <QPointer>
 #include <QToolBar>
 #include <QHBoxLayout>
 #include <QApplication>
 #include <QClipboard>
-
 
 class ReosPlot_p;
 
@@ -31,7 +31,10 @@ class QwtPlotPicker;
 
 class QwtPlotItem;
 class QwtPlotCurve;
+class QwtPlotHistogram;
 
+class ReosDataObject;
+class ReosTimeSerieConstantInterval;
 
 
 class ReosPlotItem: public QObject
@@ -40,6 +43,9 @@ class ReosPlotItem: public QObject
   public:
     virtual void attach( ReosPlot_p *plot );
     virtual ~ReosPlotItem();
+
+    void setOnRightAxe();
+    void setOnLeftAxe();
 
   signals:
     void itemChanged();
@@ -69,7 +75,14 @@ class ReosPlotWidget: public QWidget
 {
     Q_OBJECT
   public:
-    enum MagnifierType {NormalMagnifier, PositiveMagnifier};
+    enum MagnifierType {normalMagnifier, positiveMagnifier};
+
+    enum AxeType
+    {
+      normal,
+      temporal,
+      logarithm
+    };
 
     ReosPlotWidget( QWidget *parent = nullptr );
 
@@ -82,10 +95,15 @@ class ReosPlotWidget: public QWidget
     void addActions( QList<QAction *> actions );
 
     void addPlotItem( ReosPlotItem *item );
+    void addDataObject( ReosDataObject *data );
 
     void setTitleAxeX( const QString &title );
     void setTitleAxeYleft( const QString &title );
     void setTitleAxeYRight( const QString &title );
+
+    void setAxeXType( AxeType type );
+    void setAxeYLeftType( AxeType type );
+    void setAxeYRightType( AxeType type );
 
   signals:
     void cursorMoved( const QPointF &pt );
@@ -98,7 +116,6 @@ class ReosPlotWidget: public QWidget
     void copyAsImage();
     void receiveMoveFromPicker( const QPointF &pt );
 
-
   private:
 
     ReosPlot_p *mPlot = nullptr;
@@ -107,6 +124,8 @@ class ReosPlotWidget: public QWidget
     QToolBar *mToolBar = nullptr;
     QAction *mActionExportAsImage = nullptr;
     QAction *mActionCopyAsImage = nullptr;
+
+    void createItems( ReosDataObject *data );
 };
 
 

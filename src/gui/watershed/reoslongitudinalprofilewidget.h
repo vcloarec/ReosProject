@@ -20,6 +20,7 @@
 
 #include "reoseditableprofile.h"
 #include "reosmaptool.h"
+#include "reosactionwidget.h"
 
 namespace Ui
 {
@@ -37,16 +38,13 @@ class ReosWatershed;
 class ReosPlotWidget;
 class ReosMap;
 
-class ReosLongitudinalProfileWidget : public QWidget
+class ReosLongitudinalProfileWidget : public ReosActionWidget
 {
     Q_OBJECT
 
   public:
     explicit ReosLongitudinalProfileWidget( ReosMap *map, QWidget *parent = nullptr );
     ~ReosLongitudinalProfileWidget();
-
-    //! Sets the action that will commmand open/close the widget
-    void setAction( QAction *action );
 
   public slots:
     void setCurrentWatershed( ReosWatershed *ws );
@@ -61,10 +59,8 @@ class ReosLongitudinalProfileWidget : public QWidget
     void drawStreamLinefromPointToDownstream( const QPointF &point );
     void drawStreamLinefromPointToUpStream();
     void updateWithDirectionTools();
+    void onOpened();
 
-  protected:
-    void closeEvent( QCloseEvent *event );
-    void showEvent( QShowEvent *event );
   private:
     Ui::ReosLongitudinalProfileWidget *ui;
     ReosMap *mMap = nullptr;
@@ -90,9 +86,6 @@ class ReosLongitudinalProfileWidget : public QWidget
     void updateDEMProfile();
 
     bool mNeedUpdateDEMProfil;
-
-    void storeGeometry();
-    void restore();
 };
 
 #endif // REOSLONGITUDINALPROFILEWIDGET_H

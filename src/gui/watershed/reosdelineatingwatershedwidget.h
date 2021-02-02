@@ -21,6 +21,7 @@ email                : vcloarec at gmail dot com
 #include "reoswatersheddelineating.h"
 #include "reosmaptool.h"
 #include "reosmapitem.h"
+#include "reosactionwidget.h"
 
 class ReosWatershedDelineating;
 class ReosWatershedModule;
@@ -31,7 +32,7 @@ namespace Ui
   class ReosDelineatingWatershedWidget;
 }
 
-class ReosDelineatingWatershedWidget : public QWidget
+class ReosDelineatingWatershedWidget : public ReosActionWidget
 {
     Q_OBJECT
 
@@ -42,12 +43,6 @@ class ReosDelineatingWatershedWidget : public QWidget
       QWidget *parent = nullptr );
 
     ~ReosDelineatingWatershedWidget();
-
-    //! Sets the action that will commmand open/close the widget
-    void setAction( QAction *action );
-
-  protected:
-    void closeEvent( QCloseEvent *event );
 
   private slots:
     void onDownstreamLineDrawn( const QPolygonF &downstreamLine );
@@ -63,8 +58,6 @@ class ReosDelineatingWatershedWidget : public QWidget
     void onManualValidateAsked();
 
     void onMethodChange();
-    void storeGeometry();
-    void restore();
 
     void onModuleReset();
 
