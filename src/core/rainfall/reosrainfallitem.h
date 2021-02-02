@@ -49,7 +49,7 @@ class ReosRainfallItem : public QObject
     QString description();
 
     //! Returns the parent of the item, root item hasn't parent (nullptr)
-    ReosRainfallItem *parent() const {return mParent;}
+    ReosRainfallItem *parentItem() const {return mParent;}
 
     //! Returns the count of child items
     int childrenCount() const;
@@ -68,6 +68,9 @@ class ReosRainfallItem : public QObject
      *  The taken children has no parent anymore an caller need to handle ownership.
      */
     ReosRainfallItem *takeChild( int pos );
+
+    //! Remove child \a item, if not present, do nothing
+    void removeItem( ReosRainfallItem *item );
 
     /**
      * Inserts a child \a item at position \a pos. Take ownership of the new child

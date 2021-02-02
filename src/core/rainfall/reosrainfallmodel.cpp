@@ -58,10 +58,10 @@ QModelIndex ReosRainfallModel::parent( const QModelIndex &child ) const
 
   ReosRainfallItem *childItem = indexToItem( child );
 
-  if ( !childItem || childItem->parent() == nullptr || childItem->parent() == mRootZone.get() )
+  if ( !childItem || childItem->parentItem() == nullptr || childItem->parentItem() == mRootZone.get() )
     return QModelIndex();
 
-  return itemToIndex( childItem->parent() );
+  return itemToIndex( childItem->parentItem() );
 }
 
 int ReosRainfallModel::rowCount( const QModelIndex &parent ) const
@@ -267,6 +267,15 @@ ReosRainfallSeriesItem *ReosRainfallModel::addGaugedRainfall( const QString &nam
   return static_cast<ReosRainfallSeriesItem *>( addItem( receiver, newRainfal.release() ) );
 }
 
+void ReosRainfallModel::removeItem( ReosRainfallItem *item )
+{
+  ReosRainfallItem *parentItem = item->parentItem();
+
+  beginRemoveRows( itemToIndex( parentItem ), item->positionInParent(), item->positionInParent() );
+  parentItem->removeItem( item );
+  endRemoveRows();
+}
+
 int ReosRainfallModel::rootZoneCount() const {return mRootZone->childrenCount();}
 
 QModelIndex ReosRainfallModel::itemToIndex( ReosRainfallItem *item ) const
@@ -274,7 +283,7 @@ QModelIndex ReosRainfallModel::itemToIndex( ReosRainfallItem *item ) const
   if ( item == nullptr || item == mRootZone.get() )
     return QModelIndex();
 
-  ReosRainfallItem *parentItem = item->parent();
+  ReosRainfallItem *parentItem = item->parentItem();
   int row = -1;
 
   QModelIndex parentIndex;

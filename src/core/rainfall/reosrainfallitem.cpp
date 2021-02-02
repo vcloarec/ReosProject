@@ -142,6 +142,18 @@ ReosRainfallItem *ReosRainfallItem::takeChild( int pos )
   return item.release();
 }
 
+void ReosRainfallItem::removeItem( ReosRainfallItem *item )
+{
+  for ( size_t i = 0; i < mChildItems.size(); ++i )
+  {
+    if ( mChildItems.at( i ).get() == item )
+    {
+      mChildItems.erase( mChildItems.begin() + i );
+      break;
+    }
+  }
+}
+
 void ReosRainfallItem::insertChild( int pos, ReosRainfallItem *item )
 {
   mChildItems.emplace( mChildItems.begin() + pos, item );

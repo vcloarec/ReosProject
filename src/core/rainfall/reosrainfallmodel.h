@@ -52,6 +52,7 @@ class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
     ReosZoneItem *addZone( const QString &name, const QString &description, const QModelIndex &index = QModelIndex() );
     ReosStationItem *addStation( const QString &name, const QString &description, const QModelIndex &index );
     ReosRainfallSeriesItem *addGaugedRainfall( const QString &name, const QString &description, const QModelIndex &index );
+    void removeItem( ReosRainfallItem *item );
 
     int rootZoneCount() const;
 

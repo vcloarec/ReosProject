@@ -32,8 +32,8 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   mActionLongitudinalProfile->setCheckable( true );
   QToolBar *toolBar = new QToolBar( this );
   toolBar->addAction( mActionSelectWatershed );
-  toolBar->addAction( mActionRemoveWatershed );
   toolBar->addAction( mActionDelineateWatershed );
+  toolBar->addAction( mActionRemoveWatershed );
   toolBar->addAction( mActionLongitudinalProfile );
   static_cast<QBoxLayout *>( layout() )->insertWidget( 0, toolBar );
   mDelineatingWidget->setAction( mActionDelineateWatershed );

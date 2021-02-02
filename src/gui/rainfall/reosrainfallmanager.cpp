@@ -41,6 +41,7 @@ ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWid
   , mActionAddRootZone( new QAction( QPixmap( QStringLiteral( ":/images/addZone.svg" ) ), tr( "Add New Zone to the Root" ), this ) )
   , mActionAddZoneToZone( new QAction( QPixmap( QStringLiteral( ":/images/addZone.svg" ) ), tr( "Add New Sub Zone" ), this ) )
   , mActionAddStation( new QAction( QPixmap( QStringLiteral( ":/images/addStation.svg" ) ), tr( "Add Station" ), this ) )
+  , mActionRemoveItem( new QAction( tr( "Remove item" ), this ) )
   , mActionAddGaugedRainfall( new QAction( QPixmap( QStringLiteral( ":/images/addGaugedRainfall.svg" ) ), tr( "Add Gauged Rainfall" ), this ) )
 {
   ui->setupUi( this );
@@ -67,6 +68,9 @@ ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWid
   connect( mActionAddZoneToZone, &QAction::triggered, this, &ReosRainfallManager::onAddZoneToZone );
   connect( mActionAddStation, &QAction::triggered, this, &ReosRainfallManager::onAddStation );
   connect( mActionAddGaugedRainfall, &QAction::triggered, this, &ReosRainfallManager::onAddGaugedRainfall );
+
+  connect( mActionRemoveItem, &QAction::triggered, this, &ReosRainfallManager::onRemoveItem );
+
   connect( ui->mTreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ReosRainfallManager::onCurrentTreeIndexChanged );
   connect( ui->mTreeView, &QWidget::customContextMenuRequested, this, &ReosRainfallManager::onTreeViewContextMenu );
 
@@ -249,6 +253,18 @@ void ReosRainfallManager::onAddGaugedRainfall()
   }
 }
 
+void ReosRainfallManager::onRemoveItem()
+{
+  QModelIndex index = ui->mTreeView->currentIndex();
+  ReosRainfallItem *item = mModel->indexToItem( index );
+
+  if ( !item )
+    return;
+
+  if ( QMessageBox::question( this, tr( "Remove item" ), tr( "Remove: %1" ).arg( item->name() ) ) == QMessageBox::Yes )
+    mModel->removeItem( item );
+}
+
 
 void ReosRainfallManager::onCurrentTreeIndexChanged()
 {
@@ -328,6 +344,8 @@ void ReosRainfallManager::onTreeViewContextMenu( const QPoint &pos )
         case ReosRainfallItem::Data:
           break;
       }
+
+      menu.addAction( mActionRemoveItem );
     }
   }
   else

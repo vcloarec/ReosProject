@@ -32,6 +32,8 @@ class ReosRainfallItem;
 class ReosFormWidget;
 class ReosPlotWidget;
 
+
+//! Widget to handle rainfall data
 class ReosRainfallManager : public ReosActionWidget
 {
     Q_OBJECT
@@ -51,6 +53,7 @@ class ReosRainfallManager : public ReosActionWidget
     void onAddZoneToZone();
     void onAddStation();
     void onAddGaugedRainfall();
+    void onRemoveItem();
     void onCurrentTreeIndexChanged();
     void onTreeViewContextMenu( const QPoint &pos );
 
@@ -67,15 +70,13 @@ class ReosRainfallManager : public ReosActionWidget
     QAction *mActionAddZoneToZone = nullptr;
     QAction *mActionAddStation = nullptr;
     QAction *mActionAddGaugedRainfall = nullptr;
+    QAction *mActionRemoveItem = nullptr;
 
     ReosFormWidget *mCurrentForm = nullptr;
     ReosPlotWidget *mCurrentPlot = nullptr;
 
     void selectItem( ReosRainfallItem *item );
     bool saveOnFile( const QString &fileName );
-
-
-
 
 };
 
