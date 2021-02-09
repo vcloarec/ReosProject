@@ -213,6 +213,43 @@ void ReosArea::setUnit( ReosArea::Unit u )
   mUnit = u;
 }
 
+QString ReosArea::toString( ReosArea::Unit u, int precision ) const
+{
+  double v = valueInUnit( u );
+  return QString::number( v, 'f', precision ) + " " + unitToString( u );
+}
+
+QString ReosArea::toString( int precision ) const
+{
+  return toString( mUnit, precision );
+}
+
+QString ReosArea::unitToString() const
+{
+  return unitToString( ( mUnit ) );
+}
+
+QString ReosArea::unitToString( ReosArea::Unit u )
+{
+  switch ( u )
+  {
+    case ReosArea::m2:
+      return QString( 'm' ).append( QChar( 0x00B2 ) );
+      break;
+    case ReosArea::a:
+      return QObject::tr( "a" );
+      break;
+    case ReosArea::ha:
+      return QObject::tr( "ha" );
+      break;
+    case ReosArea::km2:
+      return QStringLiteral( "km" ).append( QChar( 0x00B2 ) );
+      break;
+
+  }
+  return QString();
+}
+
 ReosEncodedElement ReosArea::encode() const
 {
   ReosEncodedElement element( QStringLiteral( "area" ) );

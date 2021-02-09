@@ -1,4 +1,4 @@
-﻿/***************************************************************************
+/***************************************************************************
   reosformwidget.h - ReosFormWidget
 
  ---------------------
@@ -33,6 +33,7 @@ class ReosFormWidget : public QWidget
   public:
     explicit ReosFormWidget( QWidget *parent = nullptr );
 
+    void addText( const QString &text );
     void addParameter( ReosParameter *parameter );
     void addParameters( QList<ReosParameter *> parameters );
     void addData( ReosDataObject *data );
@@ -54,6 +55,7 @@ class ReosFormDialog : public QDialog
   public:
     explicit ReosFormDialog( QWidget *parent = nullptr );
     void addParameter( ReosParameter *parameter );
+    void addText( const QString &text );
 
   private:
     ReosFormWidget *mForm = nullptr;

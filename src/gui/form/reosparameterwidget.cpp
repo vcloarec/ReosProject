@@ -88,6 +88,13 @@ void ReosParameterInLineWidget::setTextValue( double value )
 
 void ReosParameterInLineWidget::setTextValue( const QString &str )
 {
+  if ( mParameter->isDerived() )
+  {
+    mLineEdit->setStyleSheet( "color: grey" );
+  }
+  else
+    mLineEdit->setStyleSheet( "color: black" );
+
   mLineEdit->setText( str );
 }
 
@@ -111,22 +118,22 @@ void ReosParameterWidget::setParameter( ReosParameter *param )
   if ( mParameter )
   {
     mLabelName->setText( param->name() );
+    mDerivationButton->setVisible( mParameter->isDerivable() );
     connect( mParameter, &ReosParameter::valueChanged, this, &ReosParameterWidget::updateValue );
   }
   else
   {
     mLabelName->setText( QString( '-' ) );
+    mDerivationButton->setVisible( false );
   }
 }
 
 void ReosParameterWidget::finalizeWidget()
 {
-  if ( mParameter && mParameter->isDerivable() )
-  {
-    mDerivationButton = new QToolButton( this );
-    layout()->addWidget( mDerivationButton );
-    connect( mDerivationButton, &QToolButton::clicked, this, &ReosParameterWidget::askDerivation );
-  }
+  mDerivationButton = new QToolButton( this );
+  layout()->addWidget( mDerivationButton );
+  connect( mDerivationButton, &QToolButton::clicked, this, &ReosParameterWidget::askDerivation );
+  mDerivationButton->setVisible( mParameter && mParameter->isDerivable() );
 }
 
 
@@ -134,7 +141,7 @@ void ReosParameterWidget::askDerivation()
 {
   if ( mParameter && mParameter->isDerivable() )
   {
-    mDerivationButton->setFocus(); //to avoid a ficus on the line edit --> that produce a signal textEdited that set the param not derived
+    mDerivationButton->setFocus(); //to avoid a focus on the line edit --> that produce a signal textEdited that set the param not derived
     mParameter->askForDerivation();
   }
 }
@@ -146,10 +153,10 @@ ReosParameterAreaWidget::ReosParameterAreaWidget( QWidget *parent ):
   mUnitCombobox = new QComboBox( this );
   layout()->addWidget( mUnitCombobox );
 
-  mUnitCombobox->addItem( QString( 'm' ).append( QChar( 0x00B2 ) ), ReosArea::m2 );
-  mUnitCombobox->addItem( tr( "a" ), ReosArea::a );
-  mUnitCombobox->addItem( tr( "ha" ), ReosArea::ha );
-  mUnitCombobox->addItem( QStringLiteral( "km" ).append( QChar( 0x00B2 ) ), ReosArea::km2 );
+  mUnitCombobox->addItem( ReosArea::unitToString( ReosArea::m2 ), ReosArea::m2 );
+  mUnitCombobox->addItem( ReosArea::unitToString( ReosArea::a ), ReosArea::a );
+  mUnitCombobox->addItem( ReosArea::unitToString( ReosArea::ha ), ReosArea::ha );
+  mUnitCombobox->addItem( ReosArea::unitToString( ReosArea::km2 ), ReosArea::km2 );
 
   connect( mUnitCombobox, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosParameterWidget::updateValue );
   connect( mUnitCombobox, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]

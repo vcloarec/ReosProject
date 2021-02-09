@@ -29,6 +29,7 @@ namespace Ui
 class QAction;
 class ReosRainfallModel;
 class ReosRainfallItem;
+class ReosRainfallDataItem;
 class ReosFormWidget;
 class ReosPlotWidget;
 
@@ -53,6 +54,9 @@ class ReosRainfallManager : public ReosActionWidget
     void onAddZoneToZone();
     void onAddStation();
     void onAddGaugedRainfall();
+    void onAddIDFCurves();
+    void onAddIDCurve();
+    void onReorderIDCurve();
     void onRemoveItem();
     void onCurrentTreeIndexChanged();
     void onTreeViewContextMenu( const QPoint &pos );
@@ -70,6 +74,9 @@ class ReosRainfallManager : public ReosActionWidget
     QAction *mActionAddZoneToZone = nullptr;
     QAction *mActionAddStation = nullptr;
     QAction *mActionAddGaugedRainfall = nullptr;
+    QAction *mActionAddIDFCurves = nullptr;
+    QAction *mActionAddIDCurve = nullptr;
+    QAction *mActionReorderIdVurve = nullptr;
     QAction *mActionRemoveItem = nullptr;
 
     ReosFormWidget *mCurrentForm = nullptr;
@@ -77,6 +84,10 @@ class ReosRainfallManager : public ReosActionWidget
 
     void selectItem( ReosRainfallItem *item );
     bool saveOnFile( const QString &fileName );
+
+    QList<QAction *> dataItemActions( ReosRainfallDataItem *dataItem );
+
+    bool addSimpleItemDialog( const QString &title, QString &name, QString &description );
 
 };
 

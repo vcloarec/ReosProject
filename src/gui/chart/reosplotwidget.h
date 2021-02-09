@@ -47,6 +47,9 @@ class ReosPlotItem: public QObject
     void setOnRightAxe();
     void setOnLeftAxe();
 
+  public slots:
+    virtual void fullExtent() {};
+
   signals:
     void itemChanged();
 
@@ -98,12 +101,17 @@ class ReosPlotWidget: public QWidget
     void addDataObject( ReosDataObject *data );
 
     void setTitleAxeX( const QString &title );
-    void setTitleAxeYleft( const QString &title );
+    void setTitleAxeYLeft( const QString &title );
     void setTitleAxeYRight( const QString &title );
 
     void setAxeXType( AxeType type );
     void setAxeYLeftType( AxeType type );
     void setAxeYRightType( AxeType type );
+
+    void setAxeXExtent( double min, double max );
+    void setAxeYLeftExtent( double min, double max );
+    void setAxeYRightExtent( double min, double max );
+
 
   signals:
     void cursorMoved( const QPointF &pt );

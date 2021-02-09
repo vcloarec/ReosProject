@@ -51,3 +51,8 @@ void ModuleProcessControler::processFinished()
 {
   mEventLoop.exit();
 }
+
+bool equal( double a, double b, double precision )
+{
+  return std::fabs( a - b ) < precision;
+}

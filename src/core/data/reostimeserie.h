@@ -25,29 +25,9 @@
 
 #include "reosduration.h"
 #include "reosparameter.h"
+#include "reosdataobject.h"
 
 
-class ReosDataObject: public QObject
-{
-    Q_OBJECT
-  public:
-    ReosDataObject( QObject *parent = nullptr ): QObject( parent ) {}
-    virtual QString type() const = 0;
-
-    //! Returns the name of the data object
-    QString name() const;
-
-  public slots:
-    //! Sets the name of the data object
-    void setName( const QString &name );
-
-  signals:
-    void dataChanged();
-    void settingsChanged();
-
-  private:
-    QString mName;
-};
 //! Class that handle time serie data
 class ReosTimeSerie : public ReosDataObject
 {

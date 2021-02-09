@@ -62,8 +62,8 @@ class REOSCORE_EXPORT ReosDuration
     void setUnit( Unit u );
 
 
-    QString toString( int precision = 1 );
-    QString toString( ReosDuration::Unit unit, int precision = 1 );
+    QString toString( int precision = 1 ) const;
+    QString toString( ReosDuration::Unit unit, int precision = 1 ) const;
 
     QString unitToString( ReosDuration::Unit unit ) const;
     QString unitToString() const;

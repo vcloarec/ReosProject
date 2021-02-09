@@ -36,11 +36,13 @@ SET(REOS_CORE_SOURCES
 
   rainfall/reosrainfallitem.cpp
   rainfall/reosrainfallmodel.cpp
+  rainfall/reosidfcurves.cpp
 
   quantity/reosarea.cpp
   quantity/reosduration.cpp
 
   data/reostimeserie.cpp
+  data/reosdataobject.cpp
 )
 
 SET(REOS_CORE_HEADERS
@@ -76,11 +78,13 @@ SET(REOS_CORE_HEADERS
 
     rainfall/reosrainfallitem.h
     rainfall/reosrainfallmodel.h
+    rainfall/reosidfcurves.h
 
     quantity/reosarea.h
     quantity/reosduration.h
 
     data/reostimeserie.h
+    data/reosdataobject.h
 
 )
 

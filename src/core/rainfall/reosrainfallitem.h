@@ -19,12 +19,13 @@
 #include <QObject>
 #include <QIcon>
 
+#include "reosidfcurves.h"
 #include "reostimeserie.h"
 #include "reoscore.h"
 
 class ReosParameterString;
 class ReosParameter;
-class ReosTimeSerieConstantInterval;
+class ReosRainfallIntensityDurationCurveItem;
 
 class ReosRainfallItem : public QObject
 {
@@ -42,9 +43,9 @@ class ReosRainfallItem : public QObject
     virtual ~ReosRainfallItem();
 
     //! Returns the type of the item
-    Type type() const {return mType;}
+    virtual Type type() const {return mType;}
     //! Returns the name of the item
-    QString name();
+    virtual QString name() const;
     //! Returns the description of the item
     QString description();
 
@@ -63,28 +64,17 @@ class ReosRainfallItem : public QObject
     //! Returns the position of this item in the parent item, returns -1 if parent is nullptr
     int positionInParent() const;
 
-    /**
-     *  Takes the children at position \a pos. If no item at this position returns nullptr.
-     *  The taken children has no parent anymore an caller need to handle ownership.
-     */
-    ReosRainfallItem *takeChild( int pos );
-
     //! Remove child \a item, if not present, do nothing
     void removeItem( ReosRainfallItem *item );
 
-    /**
-     * Inserts a child \a item at position \a pos. Take ownership of the new child
-     */
-    void insertChild( int pos, ReosRainfallItem *item );
+    //! add another item as children of this item
+    ReosRainfallItem *addItem( ReosRainfallItem *item );
 
     //! Returns whether the item is a somewhere in the child hierarchy
     bool isSubItem( ReosRainfallItem *item ) const;
 
     //! Return the icon used to represent this item, default implentation return invalid icon
     virtual QIcon icone() const {return QIcon();}
-
-    //! add another item as children of this item
-    ReosRainfallItem *addItem( ReosRainfallItem *item );
 
     //! Returns all parameters of this items
     virtual QList<ReosParameter *> parameters() const;
@@ -95,7 +85,7 @@ class ReosRainfallItem : public QObject
     //! removes all children items
     virtual void clear();
 
-    //! Return the data object link to this item
+    //! Return the data object link to this item, dfault implementation return nullptr
     virtual ReosDataObject *data() const {return nullptr;}
 
     //! Encodes in \a element the base information about the item
@@ -104,8 +94,21 @@ class ReosRainfallItem : public QObject
     //! Encoded the element
     virtual ReosEncodedElement encode() const = 0;
 
+    void swapChildren( int first, int second );
+
+  public slots :
+    //! Setup the data related to the item, default implementation does nothing, must be called before acces to the data of the item
+    virtual void setupData() {}
+
+    //! method calles when a children is changed, default implementation does nothing
+    virtual void onChildChanged( ReosRainfallItem * ) {}
+
   signals:
     void changed( ReosRainfallItem *item );
+    void itemWillBeRemovedfromParent( ReosRainfallItem *item, int pos );
+    void itemRemovedfromParent();
+    void itemWillBeInsertedInParent( ReosRainfallItem *item, int pos );
+    void itemInsertedInParent();
 
   protected:
     ReosRainfallItem( const QString &name, const QString &description, Type type );
@@ -113,9 +116,21 @@ class ReosRainfallItem : public QObject
 
     void connectParameters();
 
+    //! Inserts a child \a item at position \a pos. Take ownership of the new child,
+    //! As this method emit signals to the model before and after interting, this method can be used from items
+    void insertChild( int pos, ReosRainfallItem *item );
+
+    /**
+     *  Takes the children at position \a pos. If no item at this position returns nullptr.
+     *  The taken children has no parent anymore an caller need to handle ownership.
+     *
+    //! As this method emit signals to the model before and after taking, this method can be used from items
+     */
+    ReosRainfallItem *takeChild( int pos );
+
   private:
-    std::unique_ptr<ReosParameterString> mName;
-    std::unique_ptr<ReosParameterString> mDescription;
+    ReosParameterString *mName;
+    ReosParameterString *mDescription;
     Type  mType = Zone;
     ReosRainfallItem *mParent = nullptr;
     std::vector<std::unique_ptr<ReosRainfallItem>> mChildItems;
@@ -124,14 +139,19 @@ class ReosRainfallItem : public QObject
 
 class ReosRainfallDataItem: public ReosRainfallItem
 {
+    Q_OBJECT
   public:
+
     ReosRainfallDataItem( const QString &name, const QString &description );
     ReosRainfallDataItem( const ReosEncodedElement &elem ): ReosRainfallItem( elem, Data ) {}
+
+    virtual QString dataType() const = 0;
 };
 
 //! Class that represent a station item that contains rainfall data
 class ReosStationItem: public ReosRainfallItem
 {
+    Q_OBJECT
   public:
     ReosStationItem( const QString &name, const QString &description );
     ReosStationItem( const ReosEncodedElement &element );
@@ -140,18 +160,14 @@ class ReosStationItem: public ReosRainfallItem
 
     virtual bool accept( ReosRainfallItem *item ) const override;
 
-    virtual ReosEncodedElement encode() const override
-    {
-      ReosEncodedElement element( QStringLiteral( "station-item" ) );
-      ReosRainfallItem::encodeBase( element );
-      return element;
-    }
+    virtual ReosEncodedElement encode() const override;
 
 };
 
 //! Class that represents a geographical zone item that can contain other zone or rainfall station
 class ReosZoneItem: public ReosRainfallItem
 {
+    Q_OBJECT
   public:
     ReosZoneItem( const QString &name, const QString &descritpion );
     ReosZoneItem( const ReosEncodedElement &element );
@@ -160,17 +176,13 @@ class ReosZoneItem: public ReosRainfallItem
 
     virtual bool accept( ReosRainfallItem *item ) const override;
 
-    virtual ReosEncodedElement encode() const override
-    {
-      ReosEncodedElement element( QStringLiteral( "zone-item" ) );
-      ReosRainfallItem::encodeBase( element );
-      return element;
-    }
+    virtual ReosEncodedElement encode() const override;
 };
 
 //! Class that represents the root of the tree, can contain only zone item (\see ReosZoneItem)
 class ReosRootItem: public ReosRainfallItem
 {
+    Q_OBJECT
   public:
     ReosRootItem();
     ReosRootItem( const ReosEncodedElement &element );
@@ -184,17 +196,65 @@ class ReosRootItem: public ReosRainfallItem
 //! Class that represents time serie data item
 class ReosRainfallSeriesItem: public ReosRainfallDataItem
 {
+    Q_OBJECT
   public:
     ReosRainfallSeriesItem( const QString &name, const QString &description );
     ReosRainfallSeriesItem( const ReosEncodedElement &element );
 
+    QString dataType() const override {return QStringLiteral( "gauged-rainfall" );}
     ReosTimeSerieConstantInterval *data() const override;
-    virtual ReosEncodedElement encode() const override;
     QIcon icone() const override {return QIcon( QPixmap( ":/images/gaugedRainfall.svg" ) );}
+    virtual bool accept( ReosRainfallItem * ) const override;
+    virtual ReosEncodedElement encode() const override;
+    void setupData() override;
 
   private:
     ReosTimeSerieConstantInterval *mData = nullptr;
-    void setupData();
+};
+
+
+class ReosRainfallIdfCurvesItem: public ReosRainfallDataItem
+{
+    Q_OBJECT
+  public:
+    ReosRainfallIdfCurvesItem( const QString &name, const QString &description );
+    ReosRainfallIdfCurvesItem( const ReosEncodedElement &element );
+
+    QString dataType() const override {return QStringLiteral( "idf-curves" );}
+    QIcon icone() const override {return QIcon( QPixmap( ":/images/intensityDurationCurves.svg" ) );}
+    virtual bool accept( ReosRainfallItem *item ) const override;
+    ReosIntensityDurationFrequencyCurves *data() const override;
+    ReosEncodedElement encode() const override;
+    void setupData() override;
+
+    //! Returns position of the item
+    int placeIdCurveItem( ReosRainfallIntensityDurationCurveItem *item );
+
+    //! Returns the curve with index \a i
+    ReosIntensityDurationCurve *curve( int i );
+
+  private:
+    ReosIntensityDurationFrequencyCurves *mData = nullptr;
+
+};
+
+class ReosRainfallIntensityDurationCurveItem: public ReosRainfallDataItem
+{
+    Q_OBJECT
+  public:
+    ReosRainfallIntensityDurationCurveItem( const ReosDuration &returnPeriod, const QString &name, const QString &description );
+    ReosRainfallIntensityDurationCurveItem( const ReosEncodedElement &element );
+
+    QString name() const override;
+    QString dataType() const override {return QStringLiteral( "id-curve" );}
+    QIcon icone() const override {return QIcon( QPixmap( ":/images/intensityDurationCurve.svg" ) );}
+    virtual bool accept( ReosRainfallItem * ) const override {return false;}
+    QList<ReosParameter *> parameters() const override;
+    ReosIntensityDurationCurve *data() const override;
+    ReosEncodedElement encode() const override;
+
+  private:
+    ReosIntensityDurationCurve *mIntensityDurationCurve = nullptr;
 };
 
 

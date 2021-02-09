@@ -1,8 +1,8 @@
 /***************************************************************************
-  reoseditableplot_p.h - ReosEditablePlot_p
+  reosdataobject.cpp - ReosDataObject
 
  ---------------------
- begin                : 14.1.2021
+ begin                : 4.2.2021
  copyright            : (C) 2021 by Vincent Cloarec
  email                : vcloarec at gmail dot com
  ***************************************************************************
@@ -13,32 +13,17 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#ifndef REOSPROFILEPLOT_P_H
-#define REOSPROFILEPLOT_P_H
+#include "reosdataobject.h"
 
-#include <qwt_plot_item.h>
 
-#include "reosplotwidget.h"
+ReosDataObject::ReosDataObject( QObject *parent ): QObject( parent ) {}
 
-class ReosProfilePlot_p: public QwtPlotItem
+QString ReosDataObject::name() const
 {
-  public:
-    ReosProfilePlot_p( const QPolygonF &points );
-    void setDisplayingSlope( bool b );
+  return mName;
+}
 
-    void draw( QPainter *painter, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRectF &canvasRect ) const override;
-
-  private:
-    const QPolygonF &mPoints;
-    double mMarkerSize = 8;
-    QPen mPenMarker;
-    QBrush mBrushMarker;
-    QPen mPenLine;
-    QPen mPenTxt;
-    QBrush mBrushTxtBackground;
-    QPen mPenTxtBackground;
-    bool mDisplayingSlope = true;
-
-};
-
-#endif // REOSPROFILEPLOT_P_H
+void ReosDataObject::setName( const QString &name )
+{
+  mName = name;
+}

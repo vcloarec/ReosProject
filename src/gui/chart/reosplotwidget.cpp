@@ -18,6 +18,8 @@
 #include "reosplot_p.h"
 #include "reostimeserie.h"
 #include "reosplottimeconstantinterval.h"
+#include "reosidfcurves.h"
+#include "reosplotidfcurve.h"
 
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
@@ -123,7 +125,7 @@ void ReosPlotWidget::setTitleAxeX( const QString &title )
   mPlot->setAxisTitle( QwtPlot::xBottom, title );
 }
 
-void ReosPlotWidget::setTitleAxeYleft( const QString &title )
+void ReosPlotWidget::setTitleAxeYLeft( const QString &title )
 {
   mPlot->setAxisTitle( QwtPlot::yLeft, title );
 }
@@ -151,6 +153,21 @@ static void setAxeType( QwtPlot *plot, QwtPlot::Axis axe, ReosPlotWidget::AxeTyp
 void ReosPlotWidget::setAxeXType( ReosPlotWidget::AxeType type )
 {
   setAxeType( mPlot, QwtPlot::xBottom, type );
+}
+
+void ReosPlotWidget::setAxeXExtent( double min, double max )
+{
+  mPlot->setAxisScale( QwtPlot::xBottom, min, max );
+}
+
+void ReosPlotWidget::setAxeYLeftExtent( double min, double max )
+{
+  mPlot->setAxisScale( QwtPlot::yLeft, min, max );
+}
+
+void ReosPlotWidget::setAxeYRightExtent( double min, double max )
+{
+  mPlot->setAxisScale( QwtPlot::yRight, min, max );
 }
 
 void ReosPlotWidget::updatePlot()
@@ -198,17 +215,65 @@ void ReosPlotWidget::createItems( ReosDataObject *data )
       std::unique_ptr<ReosPlotTimeHistogram> histogram = std::make_unique<ReosPlotTimeHistogram>( _data->name() + tr( ", instant value" ) );
       histogram->setTimeSerie( _data );
       addPlotItem( histogram.release() );
+      if ( _data->valueMode() == ReosTimeSerieConstantInterval::Intensity )
+        setTitleAxeYLeft( tr( "rainfall intensity (mm/h)" ) );
+      if ( _data->valueMode() == ReosTimeSerieConstantInterval::Value )
+        setTitleAxeYLeft( tr( "rainfall height (mm)" ) );
     }
 
     if ( _data->valueMode() == ReosTimeSerieConstantInterval::Cumulative || _data->addCumultive() )
     {
       mPlot->enableAxis( QwtPlot::yRight );
-      //mPlot->setAxisAutoScale( QwtPlot::yRight, true );
       std::unique_ptr<ReosPlotTimeCumulativeCurve> cumulCurve = std::make_unique<ReosPlotTimeCumulativeCurve>( _data->name() + tr( ", cumulative value" ) );
       cumulCurve->setTimeSerie( _data );
       cumulCurve->setOnRightAxe();
       addPlotItem( cumulCurve.release() );
+      setTitleAxeYRight( tr( "cumulative rainfall (mm)" ) );
     }
+
+    setTitleAxeX( tr( "Time" ) );
+
+    setAxeXType( ReosPlotWidget::temporal );
+  }
+
+  if ( data && data->type() == QStringLiteral( "rainfall-intensity-duration-curve" ) )
+  {
+    ReosIntensityDurationCurve *_data = static_cast<ReosIntensityDurationCurve *>( data );
+    ReosPlotIdfCurve *curve = new ReosPlotIdfCurve( _data );
+    curve->setColors( Qt::red );
+    addPlotItem( curve );
+    curve->fullExtent();
+    setLegendVisible( false );
+    setTitleAxeX( tr( "Rainfall duration (mn)" ) );
+    setTitleAxeYLeft( tr( "Rainfall intensity (mm/h)" ) );
+  }
+
+  if ( data && data->type() == QStringLiteral( "rainfall-intensity-duration-frequency-curves" ) )
+  {
+    ReosIntensityDurationFrequencyCurves *_data = static_cast<ReosIntensityDurationFrequencyCurves *>( data );
+    for ( int i = 0; i < _data->curvesCount(); ++i )
+    {
+      QColor color = QColor::fromHsvF( 1 - double( i ) / _data->curvesCount(), 0.5, 0.85 );
+      if ( _data->curve( i ) )
+      {
+        ReosPlotIdfCurve *plotCurve = new ReosPlotIdfCurve( _data->curve( i ), _data->name( i ) );
+        plotCurve->setColors( color );
+        addPlotItem( plotCurve );
+      }
+
+    }
+    QRectF extent = _data->fullExtent();
+    double xMin = extent.left() - extent.width() * 0.1;
+    double xmax = extent.right() + extent.width() * 0.1;
+    double yMin = extent.top() - extent.height() * 0.1;
+    double yMax = extent.bottom() + extent.height() * 0.1;
+
+    setAxeXExtent( xMin, xmax );
+    setAxeYLeftExtent( yMin, yMax );
+    setLegendAlignement( Qt::AlignRight );
+    setLegendVisible( true );
+    setTitleAxeX( tr( "Rainfall duration (mn)" ) );
+    setTitleAxeYLeft( tr( "Rainfall duration (mm/h)" ) );
   }
 }
 

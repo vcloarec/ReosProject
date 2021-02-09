@@ -27,8 +27,8 @@ ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outle
   , mExtent( delineating )
   , mDelineating( delineating )
   , mOutletPoint( outletPoint )
-  , mArea( new ReosParameterArea( tr( "Watershed area" ), this ) )
-  , mSlope( new ReosParameterSlope( tr( "Average slope" ), this ) )
+  , mArea( new ReosParameterArea( tr( "Watershed area" ), true, this ) )
+  , mSlope( new ReosParameterSlope( tr( "Average slope" ), true, this ) )
 {
   init();
 }
@@ -40,8 +40,8 @@ ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outle
   mOutletPoint( outletPoint ),
   mDownstreamLine( downstreamLine ),
   mStreamPath( streamPath )
-  , mArea( new ReosParameterArea( tr( "Watershed area" ), this ) )
-  , mSlope( new ReosParameterSlope( tr( "Average slope" ), this ) )
+  , mArea( new ReosParameterArea( tr( "Watershed area" ), true, this ) )
+  , mSlope( new ReosParameterSlope( tr( "Average slope" ), true, this ) )
 {
   init();
 }
@@ -53,8 +53,8 @@ ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outle
   mOutletPoint( outletPoint ),
   mDownstreamLine( downstreamLine ),
   mStreamPath( streamPath )
-  , mArea( new ReosParameterArea( tr( "Watershed area" ), this ) )
-  , mSlope( new ReosParameterSlope( tr( "Average slope" ), this ) )
+  , mArea( new ReosParameterArea( tr( "Watershed area" ), true, this ) )
+  , mSlope( new ReosParameterSlope( tr( "Average slope" ), true, this ) )
 {
   init();
   DirectionData dir {direction, directionExent};
@@ -466,9 +466,9 @@ ReosWatershed *ReosWatershed::decode( const ReosEncodedElement &element )
 
   std::unique_ptr<ReosWatershed> ws = std::make_unique<ReosWatershed>();
   int intType;
-  if ( !element.getData( QStringLiteral( "type" ), intType) )
+  if ( !element.getData( QStringLiteral( "type" ), intType ) )
     return nullptr;
-  ws->mType = static_cast<ReosWatershed::Type>(intType);
+  ws->mType = static_cast<ReosWatershed::Type>( intType );
   if ( !element.getData( QStringLiteral( "name" ), ws->mName ) )
     return nullptr;
 

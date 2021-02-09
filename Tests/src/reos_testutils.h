@@ -19,6 +19,7 @@ email                : vcloarec at gmail dot com
 #include <QObject>
 #include <QEventLoop>
 #include <string>
+#include <math.h>
 
 class ReosProcess;
 
@@ -27,6 +28,8 @@ const char *data_path();
 std::string test_file( std::string basename );
 
 std::string tmp_file( std::string basename );
+
+bool equal( double a, double b, double precision );
 
 class ModuleProcessControler: public QObject
 {

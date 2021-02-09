@@ -35,7 +35,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QSplitter" name="splitter_2">
+    <widget class="QSplitter" name="mSplitter">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>

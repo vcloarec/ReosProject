@@ -28,14 +28,16 @@ class REOSCORE_EXPORT ReosParameter : public QObject
 {
     Q_OBJECT
   public:
-    explicit ReosParameter( const QString &name, QObject *parent = nullptr );
+    explicit ReosParameter( const QString &name, bool derivable, QObject *parent = nullptr );
     virtual ~ReosParameter() = default;
     QString name() const;
 
-    virtual QString type() {return QString();}
+    virtual QString type() const {return QString();}
+    virtual QString toString( int precision = 2 ) const = 0;
 
     bool isDerivable() const;
     bool isDerived() const;
+    bool isValid() const;
     void askForDerivation();
 
   signals:
@@ -44,7 +46,8 @@ class REOSCORE_EXPORT ReosParameter : public QObject
     void unitChanged();
 
   protected:
-    bool mIsDerived;
+    bool mIsDerived = false;
+    bool mIsValid = false;
     void setDerivable( bool b );
     void encode( ReosEncodedElement &element ) const;
     void decode( const ReosEncodedElement &element, bool isDerivable );
@@ -55,14 +58,40 @@ class REOSCORE_EXPORT ReosParameter : public QObject
 
 };
 
+
+
+class ReosParameterDouble: public ReosParameter
+{
+  public:
+    explicit ReosParameterDouble( const QString &name, bool derivable, QObject *parent = nullptr );
+    explicit ReosParameterDouble( const QString &name, QObject *parent = nullptr );
+
+    QString type() const override {return QString( "double" );}
+
+    void setValue( double value );
+    bool setValueWithString( const QString &value );
+    void setDerivedValue( double value );
+    double value() const {return mValue;}
+    QString toString( int precision = -1 ) const override;
+
+    ReosEncodedElement encode() const;
+    static ReosParameterDouble *decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent );
+
+  private:
+    double mValue = 0;
+    int mDisplayPrecision = -1;
+};
+
 class ReosParameterString: public ReosParameter
 {
   public:
+    explicit ReosParameterString( const QString &name, bool derivable, QObject *parent = nullptr );
     explicit ReosParameterString( const QString &name, QObject *parent = nullptr );
 
     void setValue( const QString &string );
     QString value() const {return mValue;}
-    QString type() {return QStringLiteral( "string" );}
+    QString type() const override {return QStringLiteral( "string" );}
+    QString toString( int = 2 ) const override;
 
     ReosEncodedElement encode() const;
     static ReosParameterString *decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent );
@@ -75,14 +104,16 @@ class ReosParameterString: public ReosParameter
 class REOSCORE_EXPORT ReosParameterArea: public ReosParameter
 {
   public:
-    explicit ReosParameterArea( const QString &name, QObject *parent = nullptr );
+    explicit ReosParameterArea( const QString &name, bool derivable,  QObject *parent = nullptr );
+    explicit ReosParameterArea( const QString &name,  QObject *parent = nullptr );
 
     void setValue( const ReosArea &area );
     void setDerivedValue( const ReosArea &area );
     void changeUnit( ReosArea::Unit unit );
     ReosArea value() const {return mValue;}
 
-    QString type() {return QStringLiteral( "area" );}
+    QString type() const override {return QStringLiteral( "area" );}
+    QString toString( int precision = 2 ) const  override;
 
     ReosEncodedElement encode() const;
     static ReosParameterArea *decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent );
@@ -94,14 +125,17 @@ class REOSCORE_EXPORT ReosParameterArea: public ReosParameter
 class REOSCORE_EXPORT ReosParameterSlope: public ReosParameter
 {
   public:
+    explicit ReosParameterSlope( const QString &name, bool derivable, QObject *parent = nullptr );
     explicit ReosParameterSlope( const QString &name, QObject *parent = nullptr );
 
     void setValue( double slope );
     void setDerivedValue( double slope );
 
-    double value() {return mSlope;}
+    double value() const {return mSlope;}
 
-    QString type() override {return QStringLiteral( "slope" );}
+    QString type() const override {return QStringLiteral( "slope" );}
+    QString toString( int precision = 2 ) const override;
+
 
     ReosEncodedElement encode() const;
     static ReosParameterSlope *decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent );
@@ -113,6 +147,7 @@ class REOSCORE_EXPORT ReosParameterSlope: public ReosParameter
 class REOSCORE_EXPORT ReosParameterDuration: public ReosParameter
 {
   public:
+    explicit ReosParameterDuration( const QString &name, bool derivable, QObject *parent = nullptr );
     explicit ReosParameterDuration( const QString &name, QObject *parent = nullptr );
 
     void setValue( const ReosDuration &duration );
@@ -120,7 +155,8 @@ class REOSCORE_EXPORT ReosParameterDuration: public ReosParameter
     void changeUnit( ReosDuration::Unit unit );
     ReosDuration value() const;
 
-    QString type() override {return QStringLiteral( "duration" );}
+    QString type() const override {return QStringLiteral( "duration" );}
+    QString toString( int precision = 2 ) const override;
 
     ReosEncodedElement encode() const;
     static ReosParameterDuration *decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent );
@@ -132,6 +168,7 @@ class REOSCORE_EXPORT ReosParameterDuration: public ReosParameter
 class REOSCORE_EXPORT ReosParameterDateTime: public ReosParameter
 {
   public:
+    explicit ReosParameterDateTime( const QString &name, bool derivable, QObject *parent = nullptr );
     explicit ReosParameterDateTime( const QString &name, QObject *parent = nullptr );
 
     void setValue( const QDateTime &dt );
@@ -139,7 +176,8 @@ class REOSCORE_EXPORT ReosParameterDateTime: public ReosParameter
 
     QDateTime value() {return mDateTime;}
 
-    QString type() override {return QStringLiteral( "date-time" );}
+    QString type() const override {return QStringLiteral( "date-time" );}
+    QString toString( int = 2 ) const override;
 
     ReosEncodedElement encode() const;
     static ReosParameterDateTime *decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent );

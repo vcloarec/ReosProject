@@ -518,12 +518,3 @@ void ReosTimeSerie::connectParameters()
   connect( mReferenceTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
 }
 
-QString ReosDataObject::name() const
-{
-  return mName;
-}
-
-void ReosDataObject::setName( const QString &name )
-{
-  mName = name;
-}

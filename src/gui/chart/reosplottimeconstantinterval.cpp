@@ -40,6 +40,8 @@ void ReosPlotTimeHistogram::setColors()
     QBrush brush;
     brush.setStyle( Qt::SolidPattern );
     brush.setColor( mTimeSerie->data()->currentValueModeColor() );
+    if ( histogram()->plot() )
+      histogram()->plot()->setAxisTitle( QwtPlot::yLeft, mTimeSerie->data()->valueModeName( mTimeSerie->data()->valueMode() ) );
     histogram()->setBrush( brush );
     histogram()->setPen( pen );
   }

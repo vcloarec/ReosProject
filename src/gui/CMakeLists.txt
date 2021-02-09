@@ -28,6 +28,7 @@ SET(REOS_GUI_SOURCES
     watershed/reoslongitudinalprofilewidget.cpp
 
     rainfall/reosrainfallmanager.cpp
+    rainfall/reosrainfallintensitydurationwidget.cpp
 
     chart/reoschartview.cpp
     chart/reoschart.cpp
@@ -35,9 +36,11 @@ SET(REOS_GUI_SOURCES
     chart/reosplotwidget.cpp
     chart/reoseditableprofile.cpp
     chart/reosplottimeconstantinterval.cpp
+    chart/reosplotidfcurve.cpp
     chart/private/reosprofileplot_p.cpp
     chart/private/reosplot_p.cpp
     chart/private/reosplotpicker_p.cpp
+    chart/private/reosidfplot_p.cpp
 
     form/reosparameterwidget.cpp
     form/reosformwidget.cpp
@@ -66,6 +69,7 @@ SET(REOS_GUI_HEADERS
     watershed/reoslongitudinalprofilewidget.h
 
     rainfall/reosrainfallmanager.h
+    rainfall/reosrainfallintensitydurationwidget.h
 
     chart/reoschartview.h
     chart/reoschart.h
@@ -73,6 +77,7 @@ SET(REOS_GUI_HEADERS
     chart/reosplotwidget.h
     chart/reoseditableprofile.h
     chart/reosplottimeconstantinterval.h
+    chart/reosplotidfcurve.h
 
     form/reosparameterwidget.h
     form/reosformwidget.h
@@ -85,6 +90,7 @@ SET(REOS_GUI_HEADERS_PRIVATE
     GIS/private/reoslayertreeviewdemindicator.h
 
     chart/private/reosplot_p.h
+    chart/private/reosidfplot_p.h
     )
 
 ADD_LIBRARY(reosGui SHARED
@@ -147,6 +153,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/gui/chart
     ${CMAKE_SOURCE_DIR}/src/gui/chart/private
     ${CMAKE_SOURCE_DIR}/src/gui/form
+    ${CMAKE_SOURCE_DIR}/src/gui/rainfall
     ${QGIS_INCLUDE_DIR}
     ${QSCISCINTILLA_INCLUDE_DIR}
     ${QWT_INCLUDE}

@@ -267,6 +267,52 @@ ReosRainfallSeriesItem *ReosRainfallModel::addGaugedRainfall( const QString &nam
   return static_cast<ReosRainfallSeriesItem *>( addItem( receiver, newRainfal.release() ) );
 }
 
+ReosRainfallIdfCurvesItem *ReosRainfallModel::addIDFCurves( const QString &name, const QString &description, const QModelIndex &index )
+{
+  ReosRainfallItem *receiver = indexToItem( index );
+  if ( receiver == nullptr )
+    return nullptr;
+  else
+  {
+    if ( receiver->type() != ReosRainfallItem::Station )
+      return nullptr;
+  }
+
+  std::unique_ptr<ReosRainfallIdfCurvesItem> newIDF = std::make_unique<ReosRainfallIdfCurvesItem>( name, description );
+
+  if ( ! receiver->accept( newIDF.get() ) )
+    return nullptr;
+
+  return static_cast<ReosRainfallIdfCurvesItem *>( addItem( receiver, newIDF.release() ) );
+}
+
+ReosRainfallIntensityDurationCurveItem *ReosRainfallModel::addIDCurve( const ReosDuration &duration, const QString &description, const QModelIndex &index )
+{
+  ReosRainfallItem *receiver = indexToItem( index );
+  if ( receiver == nullptr )
+    return nullptr;
+
+  if ( receiver->type() != ReosRainfallItem::Data )
+    return nullptr;
+
+  ReosRainfallDataItem *dataItemReceiver = qobject_cast<ReosRainfallDataItem *>( receiver );
+
+  if ( !dataItemReceiver || dataItemReceiver->dataType() != QStringLiteral( "idf-curves" ) )
+    return nullptr;
+
+  ReosRainfallIdfCurvesItem *idfItem = qobject_cast<ReosRainfallIdfCurvesItem *>( dataItemReceiver );
+  if ( !idfItem )
+    return nullptr;
+
+
+  std::unique_ptr<ReosRainfallIntensityDurationCurveItem> newID = std::make_unique<ReosRainfallIntensityDurationCurveItem>( duration, QString(), description );
+
+  if ( ! receiver->accept( newID.get() ) )
+    return nullptr;
+
+  return static_cast<ReosRainfallIntensityDurationCurveItem *>( idfItem->itemAt( idfItem->placeIdCurveItem( newID.release() ) ) );
+}
+
 void ReosRainfallModel::removeItem( ReosRainfallItem *item )
 {
   ReosRainfallItem *parentItem = item->parentItem();
@@ -313,6 +359,23 @@ ReosRainfallItem *ReosRainfallModel::indexToItem( const QModelIndex &index ) con
     return nullptr;
 
   return static_cast<ReosRainfallItem *>( index.internalPointer() );
+}
+
+void ReosRainfallModel::swapItems( ReosRainfallItem *parent, int first, int second )
+{
+  QModelIndex indexFrom;
+  QModelIndex indexTo;
+  if ( first < second )
+  {
+    indexFrom = itemToIndex( parent->itemAt( first ) );
+    indexTo = itemToIndex( parent->itemAt( second ) );
+  }
+  else
+  {
+    indexFrom = itemToIndex( parent->itemAt( second ) );
+    indexTo = itemToIndex( parent->itemAt( first ) );
+  }
+  parent->swapChildren( first, second );
 }
 
 ReosRainfallItem *ReosRainfallModel::positonPathToItem( const QList<int> &path ) const
@@ -425,6 +488,30 @@ void ReosRainfallModel::onItemChanged( ReosRainfallItem *item )
 
 }
 
+void ReosRainfallModel::onItemWillBeRemovedfromParent( ReosRainfallItem *item, int pos )
+{
+  QModelIndex index = itemToIndex( item );
+  if ( index.isValid() )
+    beginRemoveRows( index, pos, pos );
+}
+
+void ReosRainfallModel::onItemRemovedfromParent()
+{
+  endRemoveRows();
+}
+
+void ReosRainfallModel::onItemWillBeInsertedInParent( ReosRainfallItem *item, int pos )
+{
+  QModelIndex index = itemToIndex( item );
+  if ( index.isValid() )
+    beginInsertRows( index, pos, pos );
+}
+
+void ReosRainfallModel::onItemInsertedInParent()
+{
+  endInsertRows();
+}
+
 ReosRainfallItem *ReosRainfallModel::addItem( ReosRainfallItem *receiver, ReosRainfallItem *newItem )
 {
   std::unique_ptr<ReosRainfallItem> item( newItem );
@@ -447,11 +534,15 @@ void ReosRainfallModel::connectItem( ReosRainfallItem *item )
   {
     ReosRainfallItem *currentItem = itemToConnect.pop();
     connect( currentItem, &ReosRainfallItem::changed, this, &ReosRainfallModel::onItemChanged );
-
+    connect( currentItem, &ReosRainfallItem::itemInsertedInParent, this, &ReosRainfallModel::onItemInsertedInParent );
+    connect( currentItem, &ReosRainfallItem::itemRemovedfromParent, this, &ReosRainfallModel::onItemRemovedfromParent );
+    connect( currentItem, &ReosRainfallItem::itemWillBeInsertedInParent, this, &ReosRainfallModel::onItemWillBeInsertedInParent );
+    connect( currentItem, &ReosRainfallItem::itemWillBeRemovedfromParent, this, &ReosRainfallModel::onItemWillBeRemovedfromParent );
     for ( int i = 0; i < currentItem->childrenCount(); ++i )
       itemToConnect.push( currentItem->itemAt( i ) );
   }
-
 }
+
+
 
 

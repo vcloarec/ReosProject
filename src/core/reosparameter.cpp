@@ -16,9 +16,10 @@
 #include "reosparameter.h"
 
 
-ReosParameter::ReosParameter( const QString &name, QObject *parent ):
+ReosParameter::ReosParameter( const QString &name, bool derivable, QObject *parent ):
   QObject( parent )
   , mName( name )
+  , mIsDerivable( derivable )
 {
 
 }
@@ -47,6 +48,7 @@ void ReosParameter::encode( ReosEncodedElement &element ) const
 {
   element.addData( QStringLiteral( "name" ), mName );
   element.addData( QStringLiteral( "is-derived" ), mIsDerived );
+  element.addData( QStringLiteral( "is-valid" ), mIsValid );
 }
 
 void ReosParameter::decode( const ReosEncodedElement &element, bool isDerivable )
@@ -58,29 +60,48 @@ void ReosParameter::decode( const ReosEncodedElement &element, bool isDerivable 
 
   if ( !element.getData( QStringLiteral( "is-derived" ), mIsDerived ) )
     return;
+
+  if ( !element.getData( QStringLiteral( "is-valid" ), mIsValid ) )
+    return;
 }
 
 
+ReosParameterArea::ReosParameterArea( const QString &name, bool derivable, QObject *parent ):
+  ReosParameter( name, derivable, parent )
+{}
+
 ReosParameterArea::ReosParameterArea( const QString &name, QObject *parent ):
-  ReosParameter( name, parent )
+  ReosParameter( name, false, parent )
 {}
 
 void ReosParameterArea::setValue( const ReosArea &area )
 {
   mValue = area;
   mIsDerived = false;
+  mIsValid = true;
 }
 
 void ReosParameterArea::setDerivedValue( const ReosArea &area )
 {
   mValue = area;
   mIsDerived = true;
+  mIsValid = true;
   emit valueChanged();
 }
 
 void ReosParameterArea::changeUnit( ReosArea::Unit unit )
 {
   mValue.setUnit( unit );
+}
+
+QString ReosParameterArea::toString( int precision ) const
+{
+  if ( isValid() )
+    return mValue.toString( precision );
+  else
+  {
+    return QString( '-' );
+  }
 }
 
 ReosEncodedElement ReosParameterArea::encode() const
@@ -112,16 +133,19 @@ void ReosParameter::setDerivable( bool b )
   mIsDerivable = b;
 }
 
+ReosParameterSlope::ReosParameterSlope( const QString &name, bool derivable, QObject *parent ):
+  ReosParameter( name, derivable, parent )
+{}
+
 ReosParameterSlope::ReosParameterSlope( const QString &name, QObject *parent ):
   ReosParameter( name, parent )
-{
-
-}
+{}
 
 void ReosParameterSlope::setValue( double slope )
 {
   mSlope = slope;
   mIsDerived = false;
+  mIsValid = true;
   emit valueChanged();
 }
 
@@ -129,7 +153,21 @@ void ReosParameterSlope::setDerivedValue( double slope )
 {
   mSlope = slope;
   mIsDerived = true;
+  mIsValid = true;
   emit valueChanged();
+}
+
+QString ReosParameterSlope::toString( int precision ) const
+{
+  if ( isValid() )
+  {
+    if ( int( mSlope * 1000 ) == 0 )
+      return QString::number( mSlope * 1000, 'f', precision ) + QString( ' ' ) + QChar( 0x2030 ) ;
+    else
+      return QString::number( mSlope * 1000, 'f', precision ) + QString( ' ' ) + QString( '%' ) ;
+  }
+  else
+    return QString( '-' );
 }
 
 ReosEncodedElement ReosParameterSlope::encode() const
@@ -157,16 +195,32 @@ ReosParameterSlope *ReosParameterSlope::decode( const ReosEncodedElement &elemen
   return ret;
 }
 
-ReosParameterString::ReosParameterString( const QString &name, QObject *parent ):
-  ReosParameter( name, parent )
+ReosParameterString::ReosParameterString( const QString &name, bool derivable, QObject *parent ):
+  ReosParameter( name, derivable, parent )
 {
-  setDerivable( false );
+}
+
+ReosParameterString::ReosParameterString( const QString &name, QObject *parent ):
+  ReosParameter( name, false, parent )
+{
+
 }
 
 void ReosParameterString::setValue( const QString &string )
 {
   mValue = string;
+  mIsValid = true;
   emit valueChanged();
+}
+
+QString ReosParameterString::toString( int ) const
+{
+  if ( isValid() )
+    return mValue;
+  else
+  {
+    return QString( '-' );
+  }
 }
 
 ReosEncodedElement ReosParameterString::encode() const
@@ -193,16 +247,19 @@ ReosParameterString *ReosParameterString::decode( const ReosEncodedElement &elem
   return ret;
 }
 
-ReosParameterDuration::ReosParameterDuration( const QString &name, QObject *parent ):
-  ReosParameter( name, parent )
-{
+ReosParameterDuration::ReosParameterDuration( const QString &name, bool derivable, QObject *parent ):
+  ReosParameter( name, derivable, parent )
+{}
 
-}
+ReosParameterDuration::ReosParameterDuration( const QString &name, QObject *parent ):
+  ReosParameter( name,  parent )
+{}
 
 void ReosParameterDuration::setValue( const ReosDuration &duration )
 {
   mDuration = duration;
   mIsDerived = false;
+  mIsValid = true;
   emit valueChanged();
 }
 
@@ -210,6 +267,7 @@ void ReosParameterDuration::setDerivedValue( const ReosDuration &duration )
 {
   mDuration = duration;
   mIsDerived = true;
+  mIsValid = true;
   emit valueChanged();
 }
 
@@ -220,6 +278,16 @@ void ReosParameterDuration::changeUnit( ReosDuration::Unit unit )
 }
 
 ReosDuration ReosParameterDuration::value() const {return mDuration;}
+
+QString ReosParameterDuration::toString( int precision ) const
+{
+  if ( isValid() )
+  {
+    return mDuration.toString( precision );
+  }
+  else
+    return QString( '-' );
+}
 
 ReosEncodedElement ReosParameterDuration::encode() const
 {
@@ -255,6 +323,7 @@ void ReosParameterDateTime::setValue( const QDateTime &dt )
 {
   mDateTime = dt;
   mIsDerived = false;
+  mIsValid = true;
   emit valueChanged();
 }
 
@@ -262,7 +331,18 @@ void ReosParameterDateTime::setDerivedValue( const QDateTime &dt )
 {
   mDateTime = dt;
   mIsDerived = true;
+  mIsValid = true;
   emit valueChanged();
+}
+
+QString ReosParameterDateTime::toString( int ) const
+{
+  if ( isValid() )
+  {
+    return mDateTime.toString();
+  }
+  else
+    return QString( '-' );
 }
 
 ReosEncodedElement ReosParameterDateTime::encode() const
@@ -289,4 +369,97 @@ ReosParameterDateTime *ReosParameterDateTime::decode( const ReosEncodedElement &
     ret->mDateTime = QDateTime();
 
   return ret;
+}
+
+ReosParameterDouble::ReosParameterDouble( const QString &name,  bool derivable, QObject *parent ):
+  ReosParameter( name, derivable, parent )
+{}
+
+ReosParameterDouble::ReosParameterDouble( const QString &name, QObject *parent ):
+  ReosParameter( name, false, parent )
+{}
+
+
+
+QString ReosParameterDouble::toString( int precision ) const
+{
+  if ( isValid() )
+  {
+    int p = 2;
+    if ( precision >= 0 )
+      p = precision;
+    else if ( mDisplayPrecision >= 0 )
+      p = mDisplayPrecision;
+    return QString::number( mValue, 'f', p );
+  }
+  else
+  {
+    return QString( '-' );
+  }
+}
+
+void ReosParameterDouble::setValue( double value )
+{
+  mValue = value;
+  mIsValid = true;
+  emit valueChanged();
+}
+
+bool ReosParameterDouble::setValueWithString( const QString &value )
+{
+  bool ok = false;
+  double v = value.toDouble( &ok );
+  if ( !ok )
+    return false;
+
+  QString digits = value.split( QLocale().decimalPoint() ).last();
+  if ( digits == value )
+    digits = value.split( '.' ).last();
+
+  if ( digits != value )
+    mDisplayPrecision = digits.count();
+
+  mValue = v;
+  mIsValid = true;
+  emit valueChanged();
+  return true;
+}
+
+void ReosParameterDouble::setDerivedValue( double value )
+{
+  mValue = value;
+  mIsDerived = true;
+  mIsValid = true;
+  emit valueChanged();
+}
+
+ReosEncodedElement ReosParameterDouble::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "double-parameter" ) );
+  ReosParameter::encode( element );
+
+  element.addData( QStringLiteral( "double-value" ), mValue );
+  element.addData( QStringLiteral( "double-display-precision" ), mDisplayPrecision );
+
+  return element;
+}
+
+ReosParameterDouble *ReosParameterDouble::decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent )
+{
+  ReosParameterDouble *ret = new ReosParameterDouble( QString(), parent );
+
+  if ( element.description() != QStringLiteral( "double-parameter" ) )
+    return ret;
+
+  ret->ReosParameter::decode( element, isDerivable );
+
+  element.getData( QStringLiteral( "double-value" ), ret->mValue );
+  element.getData( QStringLiteral( "double-display-precision" ), ret->mDisplayPrecision );
+
+  return ret;
+}
+
+bool ReosParameter::isValid() const
+{
+  return mIsValid;
 }

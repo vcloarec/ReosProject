@@ -1,8 +1,8 @@
 /***************************************************************************
-  reoseditableplot_p.h - ReosEditablePlot_p
+  reosdataobject.h - ReosDataObject
 
  ---------------------
- begin                : 14.1.2021
+ begin                : 4.2.2021
  copyright            : (C) 2021 by Vincent Cloarec
  email                : vcloarec at gmail dot com
  ***************************************************************************
@@ -13,32 +13,34 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#ifndef REOSPROFILEPLOT_P_H
-#define REOSPROFILEPLOT_P_H
+#ifndef REOSDATAOBJECT_H
+#define REOSDATAOBJECT_H
 
-#include <qwt_plot_item.h>
+#include <QObject>
 
-#include "reosplotwidget.h"
 
-class ReosProfilePlot_p: public QwtPlotItem
+//! Abstract class uses to be an interface for data
+class ReosDataObject: public QObject
 {
+    Q_OBJECT
   public:
-    ReosProfilePlot_p( const QPolygonF &points );
-    void setDisplayingSlope( bool b );
+    ReosDataObject( QObject *parent = nullptr );
 
-    void draw( QPainter *painter, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRectF &canvasRect ) const override;
+    //! Returns the type
+    virtual QString type() const = 0;
+
+    //! Returns the name of the data object
+    QString name() const;
+
+  public slots:
+    //! Sets the name of the data object
+    void setName( const QString &name );
+
+  signals:
+    void dataChanged();
+    void settingsChanged();
 
   private:
-    const QPolygonF &mPoints;
-    double mMarkerSize = 8;
-    QPen mPenMarker;
-    QBrush mBrushMarker;
-    QPen mPenLine;
-    QPen mPenTxt;
-    QBrush mBrushTxtBackground;
-    QPen mPenTxtBackground;
-    bool mDisplayingSlope = true;
-
+    QString mName;
 };
-
-#endif // REOSPROFILEPLOT_P_H
+#endif // REOSDATAOBJECT_H

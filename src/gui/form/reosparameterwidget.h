@@ -37,9 +37,9 @@ class ReosParameterWidget : public QWidget
     static ReosParameterWidget *createWidget( ReosParameter *parameter, QWidget *parent = nullptr );
 
   public slots:
-    //! Update the dispayed value from the parameter
+    //! Updates the dispayed value from the parameter
     virtual void updateValue() = 0;
-    //! Set the parameter value with the displayed value
+    //! Sets the parameter value with the displayed value
     virtual void applyValue() = 0;
     virtual void askDerivation();
 

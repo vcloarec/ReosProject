@@ -39,7 +39,6 @@ class REOSCORE_EXPORT ReosEncodedElement
     //! Returns the desctiption of the encoded element
     QString description() const {return mDescription;}
 
-
     //! Adds data \a value with a \a key to the encoded element
     void addEncodedData( const QString &key, const ReosEncodedElement &element );
 

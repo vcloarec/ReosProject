@@ -1,8 +1,8 @@
 /***************************************************************************
-  reoseditableplot_p.h - ReosEditablePlot_p
+  reosplotidfcurve.h - ReosPlotIdfCurve
 
  ---------------------
- begin                : 14.1.2021
+ begin                : 5.2.2021
  copyright            : (C) 2021 by Vincent Cloarec
  email                : vcloarec at gmail dot com
  ***************************************************************************
@@ -13,32 +13,28 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#ifndef REOSPROFILEPLOT_P_H
-#define REOSPROFILEPLOT_P_H
-
-#include <qwt_plot_item.h>
+#ifndef REOSPLOTIDFCURVE_H
+#define REOSPLOTIDFCURVE_H
 
 #include "reosplotwidget.h"
+#include "reosidfcurves.h"
 
-class ReosProfilePlot_p: public QwtPlotItem
+class ReosIdfPlot_p;
+
+class ReosPlotIdfCurve: public ReosPlotItem
 {
+    Q_OBJECT
   public:
-    ReosProfilePlot_p( const QPolygonF &points );
-    void setDisplayingSlope( bool b );
+    ReosPlotIdfCurve( ReosIntensityDurationCurve *mCurve, const QString &name = QString() );
 
-    void draw( QPainter *painter, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRectF &canvasRect ) const override;
+  public slots:
+    void fullExtent();
+
+    void setColors( const QColor &color );
 
   private:
-    const QPolygonF &mPoints;
-    double mMarkerSize = 8;
-    QPen mPenMarker;
-    QBrush mBrushMarker;
-    QPen mPenLine;
-    QPen mPenTxt;
-    QBrush mBrushTxtBackground;
-    QPen mPenTxtBackground;
-    bool mDisplayingSlope = true;
+    ReosIdfPlot_p *item();
 
 };
 
-#endif // REOSPROFILEPLOT_P_H
+#endif // REOSPLOTIDFCURVE_H

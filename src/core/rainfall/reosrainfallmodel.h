@@ -21,6 +21,7 @@
 #include <QAbstractItemModel>
 
 #include "reoscore.h"
+#include "reosduration.h"
 
 class ReosEncodedElement;
 class ReosRainfallItem;
@@ -28,6 +29,8 @@ class ReosRootItem;
 class ReosZoneItem;
 class ReosStationItem;
 class ReosRainfallSeriesItem;
+class ReosRainfallIdfCurvesItem;
+class ReosRainfallIntensityDurationCurveItem;
 
 class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
 {
@@ -52,12 +55,16 @@ class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
     ReosZoneItem *addZone( const QString &name, const QString &description, const QModelIndex &index = QModelIndex() );
     ReosStationItem *addStation( const QString &name, const QString &description, const QModelIndex &index );
     ReosRainfallSeriesItem *addGaugedRainfall( const QString &name, const QString &description, const QModelIndex &index );
+    ReosRainfallIdfCurvesItem *addIDFCurves( const QString &name, const QString &description, const QModelIndex &index );
+    ReosRainfallIntensityDurationCurveItem *addIDCurve( const ReosDuration &duration, const QString &description, const QModelIndex &index );
     void removeItem( ReosRainfallItem *item );
 
     int rootZoneCount() const;
 
     QModelIndex itemToIndex( ReosRainfallItem *item ) const;
     ReosRainfallItem *indexToItem( const QModelIndex &index ) const;
+
+    void swapItems( ReosRainfallItem *parent, int first, int second );
 
     ReosRainfallItem *positonPathToItem( const QList<int> &path ) const;
 
@@ -71,15 +78,18 @@ class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
 
   private slots:
     void onItemChanged( ReosRainfallItem *item );
+    void onItemWillBeRemovedfromParent( ReosRainfallItem *item, int pos );
+    void onItemRemovedfromParent();
+    void onItemWillBeInsertedInParent( ReosRainfallItem *item, int pos );
+    void onItemInsertedInParent();
 
   private:
     std::unique_ptr<ReosRootItem> mRootZone;
 
     ReosRainfallItem *addItem( ReosRainfallItem *receiver, ReosRainfallItem *newItem );
 
-    //! Connect item and all the children
+    //! Connects item and all the children
     void connectItem( ReosRainfallItem *item );
-
 
 };
 

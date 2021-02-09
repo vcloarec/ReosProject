@@ -58,6 +58,12 @@ class REOSCORE_EXPORT ReosArea
     void setUnitAuto();
     void setUnit( ReosArea::Unit u );
 
+    QString toString( ReosArea::Unit u, int precision = 2 ) const;
+    QString toString( int precision = 2 ) const;
+    QString unitToString() const;
+
+    static QString unitToString( ReosArea::Unit u );
+
     ReosEncodedElement encode() const;
     static ReosArea decode( const ReosEncodedElement &element );
 

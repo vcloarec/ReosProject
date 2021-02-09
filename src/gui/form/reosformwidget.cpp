@@ -20,6 +20,7 @@
 #include <QVBoxLayout>
 #include <QDialogButtonBox>
 #include <QKeyEvent>
+#include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
 #include <QMimeData>
@@ -29,12 +30,19 @@
 #include "reosparameterwidget.h"
 #include "reosparameter.h"
 #include "reostimeserie.h"
+#include "reosrainfallintensitydurationwidget.h"
+#include "reosidfcurves.h"
 
 ReosFormWidget::ReosFormWidget( QWidget *parent ) : QWidget( parent )
 {
   setLayout( new QVBoxLayout( this ) );
   layout()->setContentsMargins( 0, 0, 0, 0 );
   layout()->setSpacing( 0 );
+}
+
+void ReosFormWidget::addText( const QString &text )
+{
+  layout()->addWidget( new QLabel( text ) );
 }
 
 void ReosFormWidget::addParameter( ReosParameter *parameter )
@@ -55,7 +63,8 @@ void ReosFormWidget::addParameter( ReosParameter *parameter )
 void ReosFormWidget::addParameters( QList<ReosParameter *> parameters )
 {
   for ( ReosParameter *p : qAsConst( parameters ) )
-    addParameter( p );
+    if ( p )
+      addParameter( p );
 }
 
 void ReosFormWidget::addData( ReosDataObject *data )
@@ -75,6 +84,13 @@ ReosFormWidget *ReosFormWidget::createDataWidget( ReosDataObject *dataObject, QW
     ReosTimeSerieConstantInterval *object = qobject_cast<ReosTimeSerieConstantInterval *>( dataObject );
     if ( object )
       return new ReosTimeSerieConstantIntervalWidget( object, parent );
+  }
+
+  if ( dataObject->type() == QStringLiteral( "rainfall-intensity-duration-curve" ) )
+  {
+    ReosIntensityDurationCurve *object = qobject_cast<ReosIntensityDurationCurve *>( dataObject );
+    if ( object )
+      return new ReosRainfallIntensityDurationWidget( object, parent );
   }
 
   return nullptr;
@@ -97,6 +113,11 @@ ReosFormDialog::ReosFormDialog( QWidget *parent ):
 void ReosFormDialog::addParameter( ReosParameter *parameter )
 {
   mForm->addParameter( parameter );
+}
+
+void ReosFormDialog::addText( const QString &text )
+{
+  mForm->addText( text );
 }
 
 

@@ -1,8 +1,8 @@
 /***************************************************************************
-  reoseditableplot_p.h - ReosEditablePlot_p
+  reosplotidfcurve.cpp - ReosPlotIdfCurve
 
  ---------------------
- begin                : 14.1.2021
+ begin                : 5.2.2021
  copyright            : (C) 2021 by Vincent Cloarec
  email                : vcloarec at gmail dot com
  ***************************************************************************
@@ -13,32 +13,28 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#ifndef REOSPROFILEPLOT_P_H
-#define REOSPROFILEPLOT_P_H
+#include "reosplotidfcurve.h"
+#include "reosidfplot_p.h"
 
-#include <qwt_plot_item.h>
-
-#include "reosplotwidget.h"
-
-class ReosProfilePlot_p: public QwtPlotItem
+ReosPlotIdfCurve::ReosPlotIdfCurve( ReosIntensityDurationCurve *curve,  const QString &name )
 {
-  public:
-    ReosProfilePlot_p( const QPolygonF &points );
-    void setDisplayingSlope( bool b );
+  mPlotItem = new ReosIdfPlot_p( curve );
+  mPlotItem->setTitle( name );
+  connect( curve, &ReosDataObject::dataChanged, this, &ReosPlotItem::itemChanged );
+  connect( curve, &ReosDataObject::dataChanged, this, &ReosPlotItem::fullExtent );
+}
 
-    void draw( QPainter *painter, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRectF &canvasRect ) const override;
+void ReosPlotIdfCurve::fullExtent()
+{
+  item()->fullExtent();
+}
 
-  private:
-    const QPolygonF &mPoints;
-    double mMarkerSize = 8;
-    QPen mPenMarker;
-    QBrush mBrushMarker;
-    QPen mPenLine;
-    QPen mPenTxt;
-    QBrush mBrushTxtBackground;
-    QPen mPenTxtBackground;
-    bool mDisplayingSlope = true;
+void ReosPlotIdfCurve::setColors( const QColor &color )
+{
+  item()->setColor( color );
+}
 
-};
-
-#endif // REOSPROFILEPLOT_P_H
+ReosIdfPlot_p *ReosPlotIdfCurve::item()
+{
+  return static_cast<ReosIdfPlot_p *>( mPlotItem );
+}

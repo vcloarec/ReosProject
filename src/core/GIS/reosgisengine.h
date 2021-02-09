@@ -45,7 +45,6 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
       NotSupported
     };
 
-
     //! Constructor
     ReosGisEngine( QObject *parent = nullptr );
 

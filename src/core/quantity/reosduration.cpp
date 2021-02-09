@@ -53,12 +53,12 @@ ReosDuration::ReosDuration( double value, ReosDuration::Unit un )
 }
 
 
-QString ReosDuration::toString( int precision )
+QString ReosDuration::toString( int precision ) const
 {
   return toString( mUnit, precision );
 }
 
-QString ReosDuration::toString( ReosDuration::Unit unit, int precision )
+QString ReosDuration::toString( ReosDuration::Unit unit, int precision ) const
 {
   QString returnValue = QString::number( valueUnit( unit ), 'f', precision );
   returnValue.append( ' ' + unitToString( unit ) );
@@ -100,9 +100,9 @@ QString ReosDuration::unitToString( ReosDuration::Unit unit ) const
     case year:
       val = valueYear();
       if ( val > 1 )
-        return  QObject::tr( "year" );
+        return  QObject::tr( "years" );
       else
-        return QObject::tr( "years" );
+        return QObject::tr( "year" );
       break;
   }
 

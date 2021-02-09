@@ -90,7 +90,7 @@ ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWi
   mCurrentStreamLine.activeMarker( true );
 
   ui->mPlotWidget->setTitleAxeX( tr( "Distance (map unit)" ) );
-  ui->mPlotWidget->setTitleAxeYleft( tr( "Elevation (DEM unit)" ) );
+  ui->mPlotWidget->setTitleAxeYLeft( tr( "Elevation (DEM unit)" ) );
 
   connect( ui->mPlotWidget, &ReosPlotWidget::cursorMoved, this, &ReosLongitudinalProfileWidget::onProfileCursorMove );
 
