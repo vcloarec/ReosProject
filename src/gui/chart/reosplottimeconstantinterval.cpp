@@ -31,7 +31,7 @@ QwtPlotHistogram *ReosPlotTimeHistogram::histogram()
   return static_cast<QwtPlotHistogram *>( mPlotItem );
 }
 
-void ReosPlotTimeHistogram::setColors()
+void ReosPlotTimeHistogram::setSettings()
 {
   if ( mTimeSerie && mTimeSerie->data() )
   {
@@ -41,7 +41,8 @@ void ReosPlotTimeHistogram::setColors()
     brush.setStyle( Qt::SolidPattern );
     brush.setColor( mTimeSerie->data()->currentValueModeColor() );
     if ( histogram()->plot() )
-      histogram()->plot()->setAxisTitle( QwtPlot::yLeft, mTimeSerie->data()->valueModeName( mTimeSerie->data()->valueMode() ) );
+      histogram()->plot()->setAxisTitle( QwtPlot::yLeft,
+                                         mTimeSerie->data()->valueModeName( mTimeSerie->data()->valueMode() ) );
     histogram()->setBrush( brush );
     histogram()->setPen( pen );
   }
@@ -58,10 +59,10 @@ void ReosPlotTimeHistogram::setTimeSerie( ReosTimeSerieConstantInterval *timeSer
   if ( timeSerie )
   {
     connect( timeSerie, &ReosDataObject::dataChanged, this, &ReosPlotItem::itemChanged );
-    connect( timeSerie, &ReosDataObject::settingsChanged, this, &ReosPlotTimeHistogram::setColors );
+    connect( timeSerie, &ReosDataObject::settingsChanged, this, &ReosPlotTimeHistogram::setSettings );
   }
 
-  setColors();
+  setSettings();
 }
 
 ReosPlotTimeCumulativeCurve::ReosPlotTimeCumulativeCurve( const QString &name )

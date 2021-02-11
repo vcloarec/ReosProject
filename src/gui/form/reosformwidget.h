@@ -21,6 +21,9 @@
 #include <QDialog>
 #include <QComboBox>
 
+
+class QLayoutItem;
+class QBoxLayout;
 class ReosParameter;
 class ReosDataObject;
 class ReosTimeSerieConstantInterval;
@@ -31,12 +34,14 @@ class ReosFormWidget : public QWidget
 {
     Q_OBJECT
   public:
-    explicit ReosFormWidget( QWidget *parent = nullptr );
+    explicit ReosFormWidget( QWidget *parent = nullptr, Qt::Orientation orientation = Qt::Vertical, bool withSpacer = true );
 
     void addText( const QString &text );
     void addParameter( ReosParameter *parameter );
     void addParameters( QList<ReosParameter *> parameters );
     void addData( ReosDataObject *data );
+    void addWidget( QWidget *widget );
+    void addItem( QLayoutItem *item );
 
     static ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent = nullptr );
 
@@ -45,6 +50,7 @@ class ReosFormWidget : public QWidget
 
   private:
     int mParamCount = 0;
+    QBoxLayout *mMainLayout = nullptr;
 
 };
 
@@ -55,6 +61,7 @@ class ReosFormDialog : public QDialog
   public:
     explicit ReosFormDialog( QWidget *parent = nullptr );
     void addParameter( ReosParameter *parameter );
+    void addData( ReosDataObject *data );
     void addText( const QString &text );
 
   private:
@@ -80,8 +87,6 @@ class ReosTimeSerieConstantIntervalView: public QTableView
     void contextMenuEvent( QContextMenuEvent *event ) override;
 
   private:
-    QWidget *QTableView;
-
     QList<double> clipboardToValues();
 };
 
@@ -95,6 +100,7 @@ class ReosTimeSerieConstantIntervalWidget: public ReosFormWidget
     //! Customed table view
     ReosTimeSerieConstantIntervalModel *mModel = nullptr;
     QComboBox *mValueModeComboBox = nullptr;
+    QComboBox *mIntensityUnitComboBox = nullptr;
 };
 
 #endif // REOSFORMWIDGET_H

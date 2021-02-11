@@ -29,6 +29,7 @@ class REOSCORE_EXPORT ReosParameter : public QObject
     Q_OBJECT
   public:
     explicit ReosParameter( const QString &name, bool derivable, QObject *parent = nullptr );
+    explicit ReosParameter( const QString &name, QObject *parent = nullptr );
     virtual ~ReosParameter() = default;
     QString name() const;
 
@@ -55,7 +56,6 @@ class REOSCORE_EXPORT ReosParameter : public QObject
   private:
     QString mName;
     bool mIsDerivable = false;
-
 };
 
 

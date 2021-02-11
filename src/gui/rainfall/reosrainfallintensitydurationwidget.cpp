@@ -25,7 +25,7 @@
 #include <QLayout>
 
 ReosRainfallIntensityDurationWidget::ReosRainfallIntensityDurationWidget( ReosIntensityDurationCurve *curve, QWidget *parent ):
-  ReosFormWidget( parent )
+  ReosFormWidget( parent, Qt::Vertical, false )
   , mComboFormula( new QComboBox( this ) )
   , mModel( new ReosIntensityDurationCurveTableModel( curve, this ) )
   , mView( new QTableView( this ) )

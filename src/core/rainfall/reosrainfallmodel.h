@@ -29,6 +29,7 @@ class ReosRootItem;
 class ReosZoneItem;
 class ReosStationItem;
 class ReosRainfallSeriesItem;
+class ReosTimeSerieConstantInterval;
 class ReosRainfallIdfCurvesItem;
 class ReosRainfallIntensityDurationCurveItem;
 
@@ -54,7 +55,7 @@ class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
     //! Add a zone to the hierarchical tree, if \a index is invalid, add to the roots return fals if it fails
     ReosZoneItem *addZone( const QString &name, const QString &description, const QModelIndex &index = QModelIndex() );
     ReosStationItem *addStation( const QString &name, const QString &description, const QModelIndex &index );
-    ReosRainfallSeriesItem *addGaugedRainfall( const QString &name, const QString &description, const QModelIndex &index );
+    ReosRainfallSeriesItem *addGaugedRainfall( const QString &name, const QString &description, const QModelIndex &index, ReosTimeSerieConstantInterval *data = nullptr );
     ReosRainfallIdfCurvesItem *addIDFCurves( const QString &name, const QString &description, const QModelIndex &index );
     ReosRainfallIntensityDurationCurveItem *addIDCurve( const ReosDuration &duration, const QString &description, const QModelIndex &index );
     void removeItem( ReosRainfallItem *item );

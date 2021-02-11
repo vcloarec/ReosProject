@@ -20,9 +20,14 @@
 #include <QFileDialog>
 #include <QMenu>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QCloseEvent>
 #include <QToolBar>
 #include <QTreeView>
+#include <QToolButton>
+#include <QLabel>
+#include <QDialogButtonBox>
+#include <QSplitter>
 
 #include "reossettings.h"
 #include "reosrainfallmodel.h"
@@ -30,6 +35,8 @@
 #include "reosparameterwidget.h"
 #include "reosplotwidget.h"
 #include "reosformwidget.h"
+#include "reosimportfromtextfile.h"
+#include "reostextfiledata.h"
 
 #include "reosidfcurves.h"
 
@@ -48,6 +55,7 @@ ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWid
   , mActionAddIDCurve( new QAction( QPixmap( QStringLiteral( ":/images/addIntensityDurationCurve.svg" ) ), tr( "Add Intensity Duration Curve" ), this ) )
   , mActionReorderIdVurve( new QAction( tr( "Reorder Intensity Duration Curves" ), this ) )
   , mActionRemoveItem( new QAction( tr( "Remove item" ), this ) )
+  , mActionImportFromTextFile( new QAction( QPixmap( QStringLiteral( ":/images/importRainfall.svg" ) ), tr( "Import Rainfall from Text File" ), this ) )
 {
   ui->setupUi( this );
   setWindowFlag( Qt::Dialog );
@@ -67,10 +75,12 @@ ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWid
   toolBar->addAction( mActionSaveRainfallDataFile );
   toolBar->addAction( mActionSaveAsRainfallDataFile );
   toolBar->addAction( mActionAddRootZone );
+  toolBar->addAction( mActionImportFromTextFile );
 
   connect( mActionOpenRainfallDataFile, &QAction::triggered, this, &ReosRainfallManager::onOpenRainfallFile );
   connect( mActionSaveRainfallDataFile, &QAction::triggered, this, &ReosRainfallManager::onSaveRainfallFile );
-  connect( mActionSaveAsRainfallDataFile, &QAction::triggered, this, &ReosRainfallManager::OnSaveAsRainfallFile );
+  connect( mActionSaveAsRainfallDataFile, &QAction::triggered, this, &ReosRainfallManager::onSaveAsRainfallFile );
+  connect( mActionImportFromTextFile, &QAction::triggered, this, &ReosRainfallManager::onImportFromTextFile );
 
   connect( mActionAddRootZone, &QAction::triggered, this, &ReosRainfallManager::onAddRootZone );
   connect( mActionAddZoneToZone, &QAction::triggered, this, &ReosRainfallManager::onAddZoneToZone );
@@ -82,13 +92,12 @@ ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWid
 
   connect( mActionRemoveItem, &QAction::triggered, this, &ReosRainfallManager::onRemoveItem );
 
+
   connect( ui->mTreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ReosRainfallManager::onCurrentTreeIndexChanged );
   connect( ui->mTreeView, &QWidget::customContextMenuRequested, this, &ReosRainfallManager::onTreeViewContextMenu );
 
   ReosIdfFormulaRegistery::instance()->registerFormula( new ReosIdfFormulaMontana );
   ReosIdfFormulaRegistery::instance()->registerFormula( new ReosIdfFormulaSherman );
-
-  //restore();
 }
 
 ReosRainfallManager::~ReosRainfallManager()
@@ -197,7 +206,7 @@ bool ReosRainfallManager::addSimpleItemDialog( const QString &title, QString &na
   return false;
 }
 
-void ReosRainfallManager::OnSaveAsRainfallFile()
+void ReosRainfallManager::onSaveAsRainfallFile()
 {
   ReosSettings settings;
   QString dir = settings.value( QStringLiteral( "/rainfall/fileDirectory" ) ).toString();
@@ -233,7 +242,7 @@ void ReosRainfallManager::onSaveRainfallFile()
 {
   QFileInfo fileInfo( mCurrentFileName );
   if ( !fileInfo.exists() )
-    OnSaveAsRainfallFile();
+    onSaveAsRainfallFile();
 
   if ( !saveOnFile( mCurrentFileName ) )
     QMessageBox::warning( this, tr( "Save Rainfall Data" ), tr( "Unable to write the file" ) );
@@ -386,6 +395,7 @@ void ReosRainfallManager::onCurrentTreeIndexChanged()
       mCurrentForm = newForm;
       ui->mEditorWidget->layout()->addWidget( mCurrentForm );
     }
+
     if ( item->data() )
     {
       ReosPlotWidget *newPlot = new ReosPlotWidget( this );
@@ -449,6 +459,17 @@ void ReosRainfallManager::onTreeViewContextMenu( const QPoint &pos )
   menu.exec( ui->mTreeView->mapToGlobal( pos ) );
 }
 
+void ReosRainfallManager::onImportFromTextFile()
+{
+  ReosTextFileData textFile;
+
+  ReosImportRainfallDialog *dialog = new ReosImportRainfallDialog( mModel, this );
+
+  dialog->exec();
+
+  dialog->deleteLater();
+}
+
 void ReosRainfallManager::selectItem( ReosRainfallItem *item )
 {
   if ( !item )
@@ -457,3 +478,161 @@ void ReosRainfallManager::selectItem( ReosRainfallItem *item )
   ui->mTreeView->setCurrentIndex( index );
 }
 
+
+ReosImportRainfallDialog::ReosImportRainfallDialog( ReosRainfallModel *model, QWidget *parent ):
+  QDialog( parent )
+  , mModel( model )
+  , mTextFile( new ReosTextFileData( this ) )
+  , mImportedRainfall( new ReosTimeSerieConstantInterval )
+  , mName( new ReosParameterString( tr( "name" ), false, this ) )
+  , mDescription( new ReosParameterString( tr( "Description" ), false, this ) )
+{
+  ReosTextFileData mtextFile;
+
+  mImportedRainfall->setValueUnit( tr( "mm" ) );
+  mImportedRainfall->setValueModeName( ReosTimeSerieConstantInterval::Value, tr( "Height per time step" ) );
+  mImportedRainfall->setValueModeName( ReosTimeSerieConstantInterval::Cumulative, tr( "Total height" ) );
+  mImportedRainfall->setValueModeName( ReosTimeSerieConstantInterval::Intensity, tr( "Rainfall intensity" ) );
+  mImportedRainfall->setValueModeColor( ReosTimeSerieConstantInterval::Value, QColor( 0, 0, 200, 200 ) );
+  mImportedRainfall->setValueModeColor( ReosTimeSerieConstantInterval::Intensity, QColor( 50, 100, 255, 200 ) );
+  mImportedRainfall->setValueModeColor( ReosTimeSerieConstantInterval::Cumulative, QColor( 255, 50, 0 ) );
+  mImportedRainfall->setAddCumultive( true );
+
+  setLayout( new QHBoxLayout );
+  layout()->setContentsMargins( 0, 0, 0, 0 );
+  QSplitter *mainWidget = new QSplitter( this );
+  layout()->addWidget( mainWidget );
+
+  ReosImportFromTextFile *importWidget = new ReosImportFromTextFile( mTextFile, this );
+  mainWidget->addWidget( importWidget );
+
+  QWidget *selectionWidget = new QWidget( this );
+  QVBoxLayout *selectionLayout = new QVBoxLayout;
+  selectionWidget->setLayout( selectionLayout );
+  selectionLayout->addItem( new QSpacerItem( 10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding ) );
+  selectionLayout->addWidget( new QLabel( tr( "Field to import" ) ) );
+  mComboSelectedField = importWidget->createAvailableFieldComboBox( this );
+  selectionLayout->addWidget( mComboSelectedField );
+  mImportButton = new QToolButton( selectionWidget );
+  mImportButton->setIcon( QPixmap( QStringLiteral( ":/images/moveRight.svg" ) ) );
+  QHBoxLayout *buttonLayout = new QHBoxLayout( this );
+  buttonLayout->addWidget( mImportButton );
+  selectionLayout->addItem( buttonLayout );
+  selectionLayout->addItem( new QSpacerItem( 10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding ) );
+  mainWidget->addWidget( selectionWidget );
+
+  QWidget *importedRainfallWidget = new QWidget( this );
+  QVBoxLayout *rainfallLayout = new QVBoxLayout;
+  importedRainfallWidget->setLayout( rainfallLayout );
+  rainfallLayout->setContentsMargins( 9, 9, 9, 9 );
+  rainfallLayout->addWidget( new ReosParameterStringWidget( mName, this ) );
+  rainfallLayout->addWidget( new ReosParameterStringWidget( mDescription, this ) );
+  rainfallLayout->addWidget( ReosFormWidget::createDataWidget( mImportedRainfall, importedRainfallWidget ) );
+  mainWidget->addWidget( importedRainfallWidget );
+
+  QWidget *stationWidget = new QWidget( this );
+  QVBoxLayout *stationLayout = new QVBoxLayout;
+  stationWidget->setLayout( stationLayout );
+  stationLayout->addItem( new QSpacerItem( 10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding ) );
+  mSelectStationButton = new QToolButton( stationWidget );
+  mSelectStationButton->setIcon( QPixmap( QStringLiteral( ":/images/station.svg" ) ) );
+  stationLayout->addWidget( new QLabel( tr( "Select a Station to Import" ), this ) );
+  QHBoxLayout *finalizeLayout = new QHBoxLayout( this );
+  mSelectStationButton->setEnabled( false );
+  finalizeLayout->addWidget( mSelectStationButton );
+  stationLayout->addItem( finalizeLayout );
+
+  stationLayout->addItem( new QSpacerItem( 10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding ) );
+  mainWidget->addWidget( stationWidget );
+
+  connect( mImportButton, &QToolButton::clicked, this, &ReosImportRainfallDialog::onImportButton );
+  connect( mSelectStationButton, &QToolButton::clicked, this, &ReosImportRainfallDialog::onSelectStationButton );
+}
+
+void ReosImportRainfallDialog::onImportButton()
+{
+  int index  = mComboSelectedField->currentIndex();
+  QVector<QString> stringValues = mTextFile->columnValues( index );
+
+  if ( stringValues.isEmpty() )
+    return;
+
+  mImportedRainfall->clear();
+
+  for ( const QString &str : qAsConst( stringValues ) )
+  {
+    bool ok;
+    double value = str.toDouble( &ok );
+    if ( !ok )
+      value = 0;
+    mImportedRainfall->appendValue( value );
+  }
+
+  mSelectStationButton->setEnabled( true );
+
+}
+
+void ReosImportRainfallDialog::onSelectStationButton()
+{
+  ReosRainfallItemSelectionDialog *dialog = new ReosRainfallItemSelectionDialog( mModel, this );
+  dialog->setSelectionType( ReosRainfallItem::Station );
+  dialog->setText( tr( "Select a station where to import the rainfall" ) );
+  if ( dialog->exec() )
+  {
+    ReosRainfallItem *item = dialog->selectedItem();
+    ReosStationItem *stationItem = qobject_cast<ReosStationItem *>( item );
+    if ( stationItem )
+    {
+      mModel->addGaugedRainfall( mName->value(), mDescription->value(), mModel->itemToIndex( item ), mImportedRainfall );
+      close();
+    }
+  }
+}
+
+ReosRainfallItemSelectionDialog::ReosRainfallItemSelectionDialog( ReosRainfallModel *model, QWidget *parent ):
+  QDialog( parent )
+  , mTreeView( new QTreeView( this ) )
+  , mModel( model )
+  , mTextLabel( new QLabel( this ) )
+{
+  setLayout( new QVBoxLayout );
+  layout()->addWidget( mTextLabel );
+  layout()->addWidget( mTreeView );
+  mTreeView->setModel( model );
+  mTreeView->header()->setSectionResizeMode( QHeaderView::ResizeToContents );
+  mTreeView->expandAll();
+
+  mButtonBox = new QDialogButtonBox( QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this );
+  layout()->addWidget( mButtonBox );
+  connect( mTreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ReosRainfallItemSelectionDialog::onSelectionChange );
+  connect( mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject );
+  connect( mButtonBox, &QDialogButtonBox::accepted, this, &QDialog::accept );
+  onSelectionChange();
+}
+
+void ReosRainfallItemSelectionDialog::setSelectionType( ReosRainfallItem::Type type, QString dataType )
+{
+  mSelectionType = type;
+  mSelectionDataType = dataType;
+  onSelectionChange();
+}
+
+void ReosRainfallItemSelectionDialog::setText( const QString &text )
+{
+  mTextLabel->setText( text );
+}
+
+ReosRainfallItem *ReosRainfallItemSelectionDialog::selectedItem() const
+{
+  return mModel->indexToItem( mTreeView->currentIndex() );
+}
+
+void ReosRainfallItemSelectionDialog::onSelectionChange()
+{
+  QModelIndex currentIndex = mTreeView->currentIndex();
+
+  ReosRainfallItem *item = mModel->indexToItem( currentIndex );
+  bool selectionIsGood = ( item && item->type() == mSelectionType );
+
+  mButtonBox->button( QDialogButtonBox::Ok )->setEnabled( selectionIsGood );
+}

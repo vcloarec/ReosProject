@@ -42,6 +42,7 @@ SET(REOS_CORE_SOURCES
   quantity/reosduration.cpp
 
   data/reostimeserie.cpp
+  data/reostextfiledata.cpp
   data/reosdataobject.cpp
 )
 
@@ -84,6 +85,7 @@ SET(REOS_CORE_HEADERS
     quantity/reosduration.h
 
     data/reostimeserie.h
+    data/reostextfiledata.h
     data/reosdataobject.h
 
 )

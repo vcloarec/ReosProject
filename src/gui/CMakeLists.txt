@@ -44,6 +44,8 @@ SET(REOS_GUI_SOURCES
 
     form/reosparameterwidget.cpp
     form/reosformwidget.cpp
+
+    data/reosimportfromtextfile.cpp
 )
 
 SET(REOS_GUI_HEADERS
@@ -81,6 +83,8 @@ SET(REOS_GUI_HEADERS
 
     form/reosparameterwidget.h
     form/reosformwidget.h
+
+    data/reosimportfromtextfile.h
 )
 
 SET(REOS_GUI_HEADERS_PRIVATE
@@ -148,6 +152,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/data
 
     ${CMAKE_SOURCE_DIR}/src/gui
+    ${CMAKE_SOURCE_DIR}/src/gui/data
     ${CMAKE_SOURCE_DIR}/src/gui/GIS
     ${CMAKE_SOURCE_DIR}/src/gui/GIS/private
     ${CMAKE_SOURCE_DIR}/src/gui/chart

@@ -198,7 +198,7 @@ class ReosRainfallSeriesItem: public ReosRainfallDataItem
 {
     Q_OBJECT
   public:
-    ReosRainfallSeriesItem( const QString &name, const QString &description );
+    ReosRainfallSeriesItem( const QString &name, const QString &description, ReosTimeSerieConstantInterval *data = nullptr );
     ReosRainfallSeriesItem( const ReosEncodedElement &element );
 
     QString dataType() const override {return QStringLiteral( "gauged-rainfall" );}

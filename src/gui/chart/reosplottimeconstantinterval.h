@@ -31,7 +31,7 @@ class ReosPlotTimeHistogram: public ReosPlotItem
     void setTimeSerie( ReosTimeSerieConstantInterval *timeSerie );
 
   private slots:
-    void setColors();
+    void setSettings();
 
   private:
     QwtPlotHistogram *histogram();

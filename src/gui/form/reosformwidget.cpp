@@ -33,16 +33,29 @@
 #include "reosrainfallintensitydurationwidget.h"
 #include "reosidfcurves.h"
 
-ReosFormWidget::ReosFormWidget( QWidget *parent ) : QWidget( parent )
+ReosFormWidget::ReosFormWidget( QWidget *parent, Qt::Orientation orientation, bool withSpacer ) : QWidget( parent )
 {
   setLayout( new QVBoxLayout( this ) );
+  switch ( orientation )
+  {
+    case Qt::Horizontal:
+      mMainLayout = new QHBoxLayout( this );
+      break;
+    case Qt::Vertical:
+      mMainLayout = new QVBoxLayout( this );
+      break;
+  }
+  mMainLayout->setContentsMargins( 0, 0, 0, 0 );
+  mMainLayout->setSpacing( 6 );
   layout()->setContentsMargins( 0, 0, 0, 0 );
-  layout()->setSpacing( 0 );
+  layout()->addItem( mMainLayout );
+  if ( withSpacer )
+    layout()->addItem( new QSpacerItem( 10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding ) );
 }
 
 void ReosFormWidget::addText( const QString &text )
 {
-  layout()->addWidget( new QLabel( text ) );
+  addWidget( new QLabel( text ) );
 }
 
 void ReosFormWidget::addParameter( ReosParameter *parameter )
@@ -50,7 +63,7 @@ void ReosFormWidget::addParameter( ReosParameter *parameter )
   ReosParameterWidget *w = ReosParameterWidget::createWidget( parameter, this );
   if ( !w )
     return;
-  layout()->addWidget( w );
+  addWidget( w );
   w->updateValue();
   if ( mParamCount == 0 )
     w->setFocusOnEdit();
@@ -71,7 +84,17 @@ void ReosFormWidget::addData( ReosDataObject *data )
 {
   ReosFormWidget *dataWidget = createDataWidget( data, this );
   if ( dataWidget )
-    layout()->addWidget( dataWidget );
+    addWidget( dataWidget );
+}
+
+void ReosFormWidget::addWidget( QWidget *widget )
+{
+  mMainLayout->addWidget( widget );
+}
+
+void ReosFormWidget::addItem( QLayoutItem *item )
+{
+  mMainLayout->addItem( item );
 }
 
 ReosFormWidget *ReosFormWidget::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
@@ -115,6 +138,11 @@ void ReosFormDialog::addParameter( ReosParameter *parameter )
   mForm->addParameter( parameter );
 }
 
+void ReosFormDialog::addData( ReosDataObject *data )
+{
+  mForm->addData( data );
+}
+
 void ReosFormDialog::addText( const QString &text )
 {
   mForm->addText( text );
@@ -122,7 +150,7 @@ void ReosFormDialog::addText( const QString &text )
 
 
 ReosTimeSerieConstantIntervalWidget::ReosTimeSerieConstantIntervalWidget( ReosTimeSerieConstantInterval *timeSerie, QWidget *parent ):
-  ReosFormWidget( parent )
+  ReosFormWidget( parent, Qt::Vertical, false )
   , mModel( new ReosTimeSerieConstantIntervalModel( this ) )
 {
   mModel->setSerieData( timeSerie );
@@ -132,25 +160,52 @@ ReosTimeSerieConstantIntervalWidget::ReosTimeSerieConstantIntervalWidget( ReosTi
   mValueModeComboBox = new QComboBox( this );
   mValueModeComboBox->addItem( timeSerie->valueModeName( ReosTimeSerieConstantInterval::Value ), ReosTimeSerieConstantInterval::Value );
   mValueModeComboBox->addItem( timeSerie->valueModeName( ReosTimeSerieConstantInterval::Intensity ), ReosTimeSerieConstantInterval::Intensity );
+  mValueModeComboBox->setCurrentIndex( mValueModeComboBox->findData( timeSerie->valueMode() ) );
+  mIntensityUnitComboBox = new QComboBox( this );
 
-  layout()->addWidget( mValueModeComboBox );
+  mIntensityUnitComboBox->addItem( tr( "millisecond" ), ReosDuration::millisecond );
+  mIntensityUnitComboBox->addItem( tr( "second" ), ReosDuration::second );
+  mIntensityUnitComboBox->addItem( tr( "minute" ), ReosDuration::minute );
+  mIntensityUnitComboBox->addItem( tr( "hour" ), ReosDuration::hour );
+  mIntensityUnitComboBox->addItem( tr( "day" ), ReosDuration::day );
+  mIntensityUnitComboBox->addItem( tr( "week" ), ReosDuration::week );
+  mIntensityUnitComboBox->addItem( tr( "month" ), ReosDuration::month );
+  mIntensityUnitComboBox->addItem( tr( "year" ), ReosDuration::year );
+  mIntensityUnitComboBox->setCurrentIndex( mIntensityUnitComboBox->findData( timeSerie->intensityTimeUnit() ) );
+  mIntensityUnitComboBox->setEnabled( timeSerie->valueMode() == ReosTimeSerieConstantInterval::Intensity );
+
+  QHBoxLayout *layoutIntUnit = new QHBoxLayout( this );
+  layoutIntUnit->addWidget( new QLabel( tr( "Intenstity time unit" ), this ) );
+  layoutIntUnit->addWidget( mIntensityUnitComboBox );
+  addItem( layoutIntUnit );
+  QHBoxLayout *layoutMode = new QHBoxLayout( this );
+  layoutMode->addWidget( new QLabel( tr( "Value type" ), this ) );
+  layoutMode->addWidget( mValueModeComboBox );
+  addItem( layoutMode );
 
   connect( mValueModeComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), timeSerie, [timeSerie, this]()
   {
     ReosTimeSerieConstantInterval::ValueMode mode = static_cast<ReosTimeSerieConstantInterval::ValueMode>( this->mValueModeComboBox->currentData().toInt() );
     timeSerie->setValueMode( mode );
+    mIntensityUnitComboBox->setEnabled( mode == ReosTimeSerieConstantInterval::Intensity );
+  } );
+
+  connect( mIntensityUnitComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), timeSerie, [timeSerie, this]()
+  {
+    ReosDuration::Unit unit = static_cast<ReosDuration::Unit>( this->mIntensityUnitComboBox->currentData().toInt() );
+    timeSerie->setIntensityTimeUnit( unit );
   } );
 
   ReosTimeSerieConstantIntervalView *view = new ReosTimeSerieConstantIntervalView( this );
-  layout()->addWidget( view );
+  addWidget( view );
   view->setModel( mModel );
   view->horizontalHeader()->setStretchLastSection( true );
   view->horizontalHeader()->setCascadingSectionResizes( true );
-  layout()->addWidget( view );
 
   connect( view, &ReosTimeSerieConstantIntervalView::pastDataFromClipboard, mModel, &ReosTimeSerieConstantIntervalModel::setValues );
   connect( view, &ReosTimeSerieConstantIntervalView::insertRow, mModel, &ReosTimeSerieConstantIntervalModel::insertValueRows );
   connect( view, &ReosTimeSerieConstantIntervalView::deleteRows, mModel, &ReosTimeSerieConstantIntervalModel::deleteValueRows );
+
 }
 
 ReosTimeSerieConstantIntervalView::ReosTimeSerieConstantIntervalView( QWidget *parent ): QTableView( parent )

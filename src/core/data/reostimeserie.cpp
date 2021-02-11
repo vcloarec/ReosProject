@@ -116,7 +116,7 @@ QVariant ReosTimeSerieConstantIntervalModel::headerData( int section, Qt::Orient
           return  mData->valueUnit();
           break;
         case ReosTimeSerieConstantInterval::Intensity:
-          return tr( "Intensity (%1/%2)" ).arg( mData->valueUnit(), mData->timeStep()->value().unitToString() );
+          return tr( "Intensity (%1/%2)" ).arg( mData->valueUnit(), ReosDuration().unitToString( mData->intensityTimeUnit() ) );
           break;
       }
     }
@@ -263,6 +263,78 @@ double ReosTimeSerieConstantInterval::valueAt( int i ) const
 
 }
 
+void ReosTimeSerieConstantInterval::setValueAt( int i, double value )
+{
+  switch ( mValueMode )
+  {
+    case ReosTimeSerieConstantInterval::Value:
+      ReosTimeSerie::setValueAt( i, value );
+      break;
+    case ReosTimeSerieConstantInterval::Intensity:
+      ReosTimeSerie::setValueAt( i, convertFromIntensityValue( value ) );
+      break;
+    case ReosTimeSerieConstantInterval::Cumulative:
+    {
+      if ( i > 0 )
+      {
+        double cumulValueBefore = valueWithMode( i - 1 );
+        ReosTimeSerie::setValueAt( i, value - cumulValueBefore );
+      }
+      else
+      {}     // nothing to do, cumulative value at i=0 is always 0, so it is wrong to set another value
+    }
+    break;
+  }
+}
+
+void ReosTimeSerieConstantInterval::appendValue( double value )
+{
+  switch ( mValueMode )
+  {
+    case ReosTimeSerieConstantInterval::Value:
+      ReosTimeSerie::appendValue( value );
+      break;
+    case ReosTimeSerieConstantInterval::Intensity:
+      ReosTimeSerie::appendValue( convertFromIntensityValue( value ) );
+      break;
+    case ReosTimeSerieConstantInterval::Cumulative:
+    {
+      if ( mValues.count() > 0 )
+      {
+        double cumulValueBefore = valueWithMode( mValues.count() - 1 );
+        ReosTimeSerie::appendValue( value - cumulValueBefore );
+      }
+      else
+      {
+        ReosTimeSerie::appendValue( value );
+      }
+    }
+    break;
+  }
+}
+
+void ReosTimeSerieConstantInterval::insertValues( int fromPos, int count, double value )
+{
+  switch ( mValueMode )
+  {
+    case ReosTimeSerieConstantInterval::Value:
+      ReosTimeSerie::insertValues( fromPos, count, value );
+      break;
+    case ReosTimeSerieConstantInterval::Intensity:
+      ReosTimeSerie::insertValues( fromPos, count, convertFromIntensityValue( value ) );
+      break;
+    case ReosTimeSerieConstantInterval::Cumulative:
+    {
+      double cumulValueBefore = valueWithMode( mValues.count() - 1 );
+      if ( fromPos > 0 )
+        ReosTimeSerie::insertValues( fromPos, 1, value - cumulValueBefore );
+      if ( count > 1 )
+        ReosTimeSerie::insertValues( fromPos + 1, count - 1, 0.0 );
+    }
+    break;
+  }
+}
+
 double ReosTimeSerieConstantInterval::valueWithMode( int i, ReosTimeSerieConstantInterval::ValueMode mode ) const
 {
   switch ( mode )
@@ -271,7 +343,7 @@ double ReosTimeSerieConstantInterval::valueWithMode( int i, ReosTimeSerieConstan
       return mValues.at( i );
       break;
     case ReosTimeSerieConstantInterval::Intensity:
-      return mValues.at( i ) / mTimeStep->value().valueUnit();
+      return mValues.at( i ) / mTimeStep->value().valueUnit( mIntensityTimeUnit );
       break;
     case ReosTimeSerieConstantInterval::Cumulative:
     {
@@ -377,14 +449,31 @@ void ReosTimeSerieConstantInterval::connectParameters()
   connect( mTimeStep, &ReosParameter::unitChanged, this, &ReosDataObject::dataChanged );
 }
 
-bool ReosTimeSerieConstantInterval::addCumultive() const
+double ReosTimeSerieConstantInterval::convertFromIntensityValue( double v )
 {
-  return mAddCumultive;
+  return v * mTimeStep->value().valueUnit( mIntensityTimeUnit );
 }
 
-void ReosTimeSerieConstantInterval::setAddCumultive( bool addCumultive )
+ReosDuration::Unit ReosTimeSerieConstantInterval::intensityTimeUnit() const
 {
-  mAddCumultive = addCumultive;
+  return mIntensityTimeUnit;
+}
+
+void ReosTimeSerieConstantInterval::setIntensityTimeUnit( const ReosDuration::Unit &intensityTimeUnit )
+{
+  mIntensityTimeUnit = intensityTimeUnit;
+  emit dataChanged();
+  emit settingsChanged();
+}
+
+bool ReosTimeSerieConstantInterval::addCumultive() const
+{
+  return mAddCumulative;
+}
+
+void ReosTimeSerieConstantInterval::setAddCumultive( bool addCumulative )
+{
+  mAddCumulative = addCumulative;
 }
 
 QString ReosTimeSerie::valueUnit() const
@@ -467,6 +556,12 @@ void ReosTimeSerie::insertValues( int fromPos, int count, double value )
   for ( int i = 0; i < count; ++i )
     mValues.insert( fromPos, value );
 
+  emit dataChanged();
+}
+
+void ReosTimeSerie::clear()
+{
+  mValues.clear();
   emit dataChanged();
 }
 

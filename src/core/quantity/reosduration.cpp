@@ -71,6 +71,9 @@ QString ReosDuration::unitToString( ReosDuration::Unit unit ) const
   double val;
   switch ( unit )
   {
+    case millisecond:
+      return QObject::tr( "ms" ) ;
+      break;
     case second:
       return QObject::tr( "s" ) ;
       break;

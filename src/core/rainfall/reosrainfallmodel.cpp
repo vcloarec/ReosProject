@@ -248,7 +248,7 @@ ReosStationItem *ReosRainfallModel::addStation( const QString &name, const QStri
   return static_cast<ReosStationItem *>( addItem( receiver, newStation.release() ) );
 }
 
-ReosRainfallSeriesItem *ReosRainfallModel::addGaugedRainfall( const QString &name, const QString &description, const QModelIndex &index )
+ReosRainfallSeriesItem *ReosRainfallModel::addGaugedRainfall( const QString &name, const QString &description, const QModelIndex &index, ReosTimeSerieConstantInterval *data )
 {
   ReosRainfallItem *receiver = indexToItem( index );
   if ( receiver == nullptr )
@@ -259,7 +259,7 @@ ReosRainfallSeriesItem *ReosRainfallModel::addGaugedRainfall( const QString &nam
       return nullptr;
   }
 
-  std::unique_ptr<ReosRainfallSeriesItem> newRainfal = std::make_unique<ReosRainfallSeriesItem>( name, description );
+  std::unique_ptr<ReosRainfallSeriesItem> newRainfal = std::make_unique<ReosRainfallSeriesItem>( name, description, data );
 
   if ( ! receiver->accept( newRainfal.get() ) )
     return nullptr;

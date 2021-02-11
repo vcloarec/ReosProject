@@ -17,9 +17,9 @@
 #define REOSRAINFALLMANAGER_H
 
 #include <QWidget>
-
+#include <QDialog>
 #include "reosactionwidget.h"
-
+#include "reosrainfallitem.h"
 
 namespace Ui
 {
@@ -28,8 +28,8 @@ namespace Ui
 
 class QAction;
 class ReosRainfallModel;
-class ReosRainfallItem;
 class ReosRainfallDataItem;
+class ReosStationItem;
 class ReosFormWidget;
 class ReosPlotWidget;
 
@@ -49,7 +49,7 @@ class ReosRainfallManager : public ReosActionWidget
   private slots:
     void onOpenRainfallFile();
     void onSaveRainfallFile();
-    void OnSaveAsRainfallFile();
+    void onSaveAsRainfallFile();
     void onAddRootZone();
     void onAddZoneToZone();
     void onAddStation();
@@ -60,6 +60,8 @@ class ReosRainfallManager : public ReosActionWidget
     void onRemoveItem();
     void onCurrentTreeIndexChanged();
     void onTreeViewContextMenu( const QPoint &pos );
+
+    void onImportFromTextFile();
 
   private:
     Ui::ReosRainfallManager *ui;
@@ -79,6 +81,8 @@ class ReosRainfallManager : public ReosActionWidget
     QAction *mActionReorderIdVurve = nullptr;
     QAction *mActionRemoveItem = nullptr;
 
+    QAction *mActionImportFromTextFile = nullptr;
+
     ReosFormWidget *mCurrentForm = nullptr;
     ReosPlotWidget *mCurrentPlot = nullptr;
 
@@ -88,7 +92,58 @@ class ReosRainfallManager : public ReosActionWidget
     QList<QAction *> dataItemActions( ReosRainfallDataItem *dataItem );
 
     bool addSimpleItemDialog( const QString &title, QString &name, QString &description );
+};
 
+class ReosTextFileData;
+class QComboBox;
+class QDialogButtonBox;
+class QLabel;
+class QToolButton;
+class QTreeView;
+class ReosTimeSerieConstantInterval;
+
+class ReosImportRainfallDialog: public QDialog
+{
+    Q_OBJECT
+  public:
+    explicit ReosImportRainfallDialog( ReosRainfallModel *model, QWidget *parent = nullptr );
+
+  private slots:
+    void onImportButton();
+    void onSelectStationButton();
+
+  private:
+    ReosRainfallModel *mModel = nullptr;
+    ReosTextFileData *mTextFile = nullptr;
+    QComboBox *mComboSelectedField = nullptr;
+    ReosTimeSerieConstantInterval *mImportedRainfall = nullptr;
+    QToolButton *mImportButton = nullptr;
+    QToolButton *mSelectStationButton = nullptr;
+    ReosParameterString *mName = nullptr;
+    ReosParameterString *mDescription = nullptr;
+};
+
+
+class ReosRainfallItemSelectionDialog: public QDialog
+{
+  public:
+    Q_OBJECT
+  public:
+    explicit ReosRainfallItemSelectionDialog( ReosRainfallModel *model, QWidget *parent = nullptr );
+    void setSelectionType( ReosRainfallItem::Type type, QString dataType = QString() );
+    void setText( const QString &text );
+    ReosRainfallItem *selectedItem() const;
+
+  private slots:
+    void onSelectionChange();
+
+  private:
+    QTreeView *mTreeView;
+    ReosRainfallModel *mModel = nullptr;
+    ReosRainfallItem::Type mSelectionType = ReosRainfallItem::Zone;
+    QString  mSelectionDataType;
+    QLabel *mTextLabel;
+    QDialogButtonBox *mButtonBox = nullptr;
 };
 
 #endif // REOSRAINFALLMANAGER_H

@@ -24,6 +24,13 @@ ReosParameter::ReosParameter( const QString &name, bool derivable, QObject *pare
 
 }
 
+ReosParameter::ReosParameter( const QString &name, QObject *parent ):
+  QObject( parent )
+  , mName( name )
+  , mIsDerivable( false )
+{
+}
+
 QString ReosParameter::name() const
 {
   return mName;

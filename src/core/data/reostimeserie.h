@@ -53,16 +53,19 @@ class ReosTimeSerie : public ReosDataObject
     virtual double valueAt( int i ) const;
 
     //! Sets the \a value at position \a i
-    void setValueAt( int i, double value );
+    virtual void setValueAt( int i, double value );
 
     //! Apppends the \a value
-    void appendValue( double value );
+    virtual void appendValue( double value );
 
     //! Removes \a count values from position \a fromPos
     void removeValues( int fromPos, int count );
 
     //! Inserts \a count values from position \a fromPos with \a value
-    void insertValues( int fromPos, int count, double value );
+    virtual void insertValues( int fromPos, int count, double value );
+
+    //! Clears all values
+    void clear();
 
     //! Return the value extent of the serie
     QPair<double, double> valueExent() const;
@@ -109,6 +112,11 @@ class ReosTimeSerieConstantInterval: public ReosTimeSerie
     ReosDuration relativeTimeAt( int i ) const override;
     QPair<QDateTime, QDateTime> timeExtent() const override;
     double valueAt( int i ) const override;
+
+    virtual void setValueAt( int i, double value ) override;
+    virtual void appendValue( double value ) override;
+    virtual void insertValues( int fromPos, int count, double value ) override;
+
     QString type() const override;
 
     //! Returns the current value mode
@@ -119,6 +127,9 @@ class ReosTimeSerieConstantInterval: public ReosTimeSerie
 
     //! Returns a pointer to the constant time step parameter
     ReosParameterDuration *timeStep() const;
+
+    ReosDuration::Unit intensityTimeUnit() const;
+    void setIntensityTimeUnit( const ReosDuration::Unit &intensityTimeUnit );
 
     //! Returns value at position \a i considering the \a mode
     double valueWithMode( int i, ValueMode mode = Value ) const;
@@ -140,13 +151,13 @@ class ReosTimeSerieConstantInterval: public ReosTimeSerie
 
     void setValueModeColor( ValueMode mode, const QColor &color );
 
-    //! Returns a encoded element correspondint to this serie
-    ReosEncodedElement encode() const;
-
     //! Returns a flag to make this instance using cumulative mode in addition to the current mode
     bool addCumultive() const;
     //! Sets a flag to make this instance using cumulative mode in addition to the current mode
-    void setAddCumultive( bool addCumultive );
+    void setAddCumultive( bool addCumulative );
+
+    //! Returns a encoded element correspondint to this serie
+    ReosEncodedElement encode() const;
 
     //! Creates new instance from the encoded element
     static ReosTimeSerieConstantInterval *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
@@ -157,9 +168,12 @@ class ReosTimeSerieConstantInterval: public ReosTimeSerie
   private:
     ReosParameterDuration *mTimeStep = nullptr;
     ValueMode mValueMode = Value;
+    ReosDuration::Unit mIntensityTimeUnit = ReosDuration::hour;
     QMap<ValueMode, QString> mValueModeName;
     QMap<ValueMode, QColor> mValueModeColor;
-    bool mAddCumultive = false;
+    bool mAddCumulative = false;
+
+    double convertFromIntensityValue( double v );
 };
 
 

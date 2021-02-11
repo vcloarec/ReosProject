@@ -53,6 +53,9 @@
         <file>addIntensityDurationCurve.svg</file>
         <file>addIntensityDurationCurves.svg</file>
         <file>add.svg</file>
+        <file>moveLeft.svg</file>
+        <file>moveRight.svg</file>
+        <file>importRainfall.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

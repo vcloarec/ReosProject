@@ -31,10 +31,12 @@ TARGET_LINK_LIBRARIES(lekan PUBLIC
 INCLUDE_DIRECTORIES(
     ${CMAKE_BINARY_DIR}/src/ui
     ${CMAKE_SOURCE_DIR}/src/gui
+    ${CMAKE_SOURCE_DIR}/src/gui/data
     ${CMAKE_SOURCE_DIR}/src/gui/GIS
     ${CMAKE_SOURCE_DIR}/src/gui/watershed
     ${CMAKE_SOURCE_DIR}/src/gui/rainfall
     ${CMAKE_SOURCE_DIR}/src/core
+    ${CMAKE_SOURCE_DIR}/src/core/data
     ${CMAKE_SOURCE_DIR}/src/core/GIS
     ${CMAKE_SOURCE_DIR}/src/core/process
     ${CMAKE_SOURCE_DIR}/src/core/raster
