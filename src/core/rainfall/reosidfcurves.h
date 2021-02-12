@@ -92,6 +92,9 @@ class ReosIdfFormulaRegistery
 
     static ReosIdfFormulaRegistery *instance();
 
+    //! Returns whether the static instance exist
+    static bool isInstanciate();
+
     //! Returns the list of the names of formulas registered, those name are the key to retrieve the formula
     QStringList formulasList() const;
 
@@ -214,7 +217,7 @@ class ReosIntensityDurationCurve: public ReosDataObject
     QPair<ReosDuration, ReosDuration> timeInterval( int i ) const;
 
     //! Returns the calculated height with the current formula, return -1 for invalid value
-    double height( const ReosDuration &duration ) const;
+    double height( const ReosDuration &duration, bool interpolationAllowed = false ) const;
     //! Returns the calculated height corresponding to the begining of the interval at position \a intervalIndex
     double firstHeight( int intervalIndex ) const;
     //! Returns the calculated height corresponding to the and of the interval at position \a intervalIndex

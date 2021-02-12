@@ -394,9 +394,13 @@ void ReosTimeSerie::appendValue( double value )
 
 QString ReosTimeSerieConstantInterval::type() const {return QStringLiteral( "time-serie-constant-interval" );}
 
-ReosEncodedElement ReosTimeSerieConstantInterval::encode() const
+ReosEncodedElement ReosTimeSerieConstantInterval::encode( const QString &descritpion ) const
 {
-  ReosEncodedElement element( QStringLiteral( "time-serie-constant-interval" ) );
+  QString descript = descritpion;
+  if ( descript.isEmpty() )
+    descript = QStringLiteral( "time-serie-constant-interval" );
+
+  ReosEncodedElement element( descript );
   ReosTimeSerie::baseEncode( element );
   element.addEncodedData( QStringLiteral( "time-step" ), mTimeStep->encode() );
 
@@ -408,26 +412,15 @@ ReosTimeSerieConstantInterval *ReosTimeSerieConstantInterval::decode( const Reos
   if ( element.description() != QStringLiteral( "time-serie-constant-interval" ) )
     return nullptr;
 
-  std::unique_ptr<ReosTimeSerieConstantInterval> ret = std::make_unique<ReosTimeSerieConstantInterval>( parent );
+  return new ReosTimeSerieConstantInterval( element, parent );
+}
 
-  if ( !ret->decodeBase( element ) )
-    return nullptr;
 
-  ReosParameterDuration *newTimeStep =
-    ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "time-step" ) ), false, parent );
-
-  if ( newTimeStep )
-  {
-    ret->mTimeStep->deleteLater();
-    ret->mTimeStep = newTimeStep;
-  }
-  else
-    return nullptr;
-
-  ret->connectParameters();
-
-  return ret.release();
-
+ReosTimeSerieConstantInterval::ReosTimeSerieConstantInterval( const ReosEncodedElement &element, QObject *parent ): ReosTimeSerie( parent )
+{
+  decodeBase( element );
+  mTimeStep = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "time-step" ) ), false, this );
+  connectParameters();
 }
 
 ReosTimeSerieConstantInterval::ValueMode ReosTimeSerieConstantInterval::valueMode() const

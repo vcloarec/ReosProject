@@ -203,10 +203,11 @@ void ReosPlotWidget::receiveMoveFromPicker( const QPointF &pt )
   emit cursorMoved( pt );
 }
 
-
 void ReosPlotWidget::createItems( ReosDataObject *data )
 {
-  if ( data && data->type() == QStringLiteral( "time-serie-constant-interval" ) )
+  if ( data &&
+       ( data->type() == QStringLiteral( "time-serie-constant-interval" ) ||
+         data->type() == QStringLiteral( "chicago-rainfall" ) ) )
   {
     ReosTimeSerieConstantInterval *_data = static_cast<ReosTimeSerieConstantInterval *>( data );
 

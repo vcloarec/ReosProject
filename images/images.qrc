@@ -56,6 +56,10 @@
         <file>moveLeft.svg</file>
         <file>moveRight.svg</file>
         <file>importRainfall.svg</file>
+        <file>addChicagoRainfall.svg</file>
+        <file>addDoubleTriangleRainfall.svg</file>
+        <file>chicagoRainfall.svg</file>
+        <file>doubleTriangleRainfall.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

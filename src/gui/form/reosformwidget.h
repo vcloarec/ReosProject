@@ -28,6 +28,8 @@ class ReosParameter;
 class ReosDataObject;
 class ReosTimeSerieConstantInterval;
 class ReosTimeSerieConstantIntervalModel;
+class ReosChicagoRainfall;
+class ReosIntensityDurationSelectedCurveWidget;
 
 
 class ReosFormWidget : public QWidget
@@ -36,12 +38,12 @@ class ReosFormWidget : public QWidget
   public:
     explicit ReosFormWidget( QWidget *parent = nullptr, Qt::Orientation orientation = Qt::Vertical, bool withSpacer = true );
 
-    void addText( const QString &text );
-    void addParameter( ReosParameter *parameter );
+    void addText( const QString &text, int position = -1 );
+    void addParameter( ReosParameter *parameter, int position = -1 );
     void addParameters( QList<ReosParameter *> parameters );
-    void addData( ReosDataObject *data );
-    void addWidget( QWidget *widget );
-    void addItem( QLayoutItem *item );
+    void addData( ReosDataObject *data, int position = -1 );
+    void addWidget( QWidget *widget, int position = -1 );
+    void addItem( QLayoutItem *item, int position = -1 );
 
     static ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent = nullptr );
 
@@ -97,10 +99,19 @@ class ReosTimeSerieConstantIntervalWidget: public ReosFormWidget
     explicit ReosTimeSerieConstantIntervalWidget( ReosTimeSerieConstantInterval *timeSerie, QWidget *parent );
 
   private:
-    //! Customed table view
     ReosTimeSerieConstantIntervalModel *mModel = nullptr;
     QComboBox *mValueModeComboBox = nullptr;
     QComboBox *mIntensityUnitComboBox = nullptr;
+};
+
+//! Widget that can be uses to display/edits paramters of a Chicago rainfall
+class ReosChicagoRainfallWidget: public ReosTimeSerieConstantIntervalWidget
+{
+  public:
+    explicit ReosChicagoRainfallWidget( ReosChicagoRainfall *rainfall, QWidget *parent );
+
+  private:
+    ReosIntensityDurationSelectedCurveWidget *mIdfWidget = nullptr;
 };
 
 #endif // REOSFORMWIDGET_H

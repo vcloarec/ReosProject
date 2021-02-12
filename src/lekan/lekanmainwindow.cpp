@@ -32,7 +32,7 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reosdelineatingwatershedwidget.h"
 #include "reoswatershedwidget.h"
 #include "reosrainfallmanager.h"
-#include "reosrainfallmodel.h"
+#include "reosrainfallregistery.h"
 
 
 LekanMainWindow::LekanMainWindow( QWidget *parent ) :
@@ -124,8 +124,7 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
 
   mMap->setDefaultMapTool();
 
-  ReosRainfallModel *mRainfallModel = new ReosRainfallModel( this );
-  mRainFallManagerWidget = new ReosRainfallManager( mRainfallModel, this );
+  mRainFallManagerWidget = new ReosRainfallManager( ReosRainfallRegistery::instance()->rainfallModel(), this );
   mActionRainfallManager->setCheckable( true );
   mRainFallManagerWidget->setAction( mActionRainfallManager );
   mRainFallManagerWidget->loadDataFile();

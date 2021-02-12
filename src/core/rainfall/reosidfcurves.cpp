@@ -142,6 +142,8 @@ ReosIdfFormulaRegistery *ReosIdfFormulaRegistery::instance()
   return sIdfRegistery;
 }
 
+bool ReosIdfFormulaRegistery::isInstanciate() {return sIdfRegistery != nullptr;}
+
 QStringList ReosIdfFormulaRegistery::formulasList() const
 {
   QStringList ret;
@@ -199,7 +201,7 @@ void ReosIntensityDurationCurve::setupFormula( ReosIdfFormulaRegistery *register
   emit dataChanged();
 }
 
-double ReosIntensityDurationCurve::height( const ReosDuration &duration ) const
+double ReosIntensityDurationCurve::height( const ReosDuration &duration, bool interpolationAllowed ) const
 {
   if ( !mCurrentFormula )
     return -1;
@@ -209,15 +211,52 @@ double ReosIntensityDurationCurve::height( const ReosDuration &duration ) const
 
   const ReosIntensityDurationInterval *inter = interval( duration );
 
-  if ( !inter )
+  if ( inter )
+  {
+    ReosIdfParameters *parameters = inter->parameters( mCurrentFormulaName );
+
+    if ( !parameters )
+      return -1;
+
+    return mCurrentFormula->height( duration, parameters );
+  }
+
+  if ( !interpolationAllowed )
     return -1;
 
-  ReosIdfParameters *parameters = inter->parameters( mCurrentFormulaName );
+  ReosIntensityDurationInterval *interBefore = nullptr;
+  ReosIntensityDurationInterval *interAfter = nullptr;
+  for ( ReosIntensityDurationInterval *i : mIntensityDurationIntervals )
+  {
+    if ( i->endDuration() < duration )
+      interBefore = i;
+    if ( i->startDuration() > duration && !interAfter )
+      interAfter = i;
 
-  if ( !parameters )
-    return -1;
+    if ( interAfter && interBefore )
+      break;
+  }
 
-  return mCurrentFormula->height( duration, parameters );
+  double returnValue = 0;
+  int c = 0;
+  if ( interBefore )
+  {
+    ReosIdfParameters *parametersBefore = interBefore->parameters( mCurrentFormulaName );
+    returnValue += mCurrentFormula->height( duration, parametersBefore );
+    c++;
+  }
+
+  if ( interAfter )
+  {
+    ReosIdfParameters *parametersAfter = interAfter->parameters( mCurrentFormulaName );
+    returnValue += mCurrentFormula->height( duration, parametersAfter );
+    c++;
+  }
+
+  if ( c > 0 )
+    returnValue /= c;
+
+  return returnValue;
 }
 
 bool ReosIntensityDurationCurve::addInterval( const ReosDuration &start, const ReosDuration &end )

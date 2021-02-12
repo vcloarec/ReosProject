@@ -32,6 +32,9 @@
 #include "reostimeserie.h"
 #include "reosrainfallintensitydurationwidget.h"
 #include "reosidfcurves.h"
+#include "reossyntheticrainfall.h"
+#include "reosintensitydurationselectedcurvewidget.h"
+#include "reosrainfallregistery.h"
 
 ReosFormWidget::ReosFormWidget( QWidget *parent, Qt::Orientation orientation, bool withSpacer ) : QWidget( parent )
 {
@@ -53,17 +56,17 @@ ReosFormWidget::ReosFormWidget( QWidget *parent, Qt::Orientation orientation, bo
     layout()->addItem( new QSpacerItem( 10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding ) );
 }
 
-void ReosFormWidget::addText( const QString &text )
+void ReosFormWidget::addText( const QString &text, int position )
 {
-  addWidget( new QLabel( text ) );
+  addWidget( new QLabel( text ), position );
 }
 
-void ReosFormWidget::addParameter( ReosParameter *parameter )
+void ReosFormWidget::addParameter( ReosParameter *parameter, int position )
 {
   ReosParameterWidget *w = ReosParameterWidget::createWidget( parameter, this );
   if ( !w )
     return;
-  addWidget( w );
+  addWidget( w, position );
   w->updateValue();
   if ( mParamCount == 0 )
     w->setFocusOnEdit();
@@ -80,21 +83,27 @@ void ReosFormWidget::addParameters( QList<ReosParameter *> parameters )
       addParameter( p );
 }
 
-void ReosFormWidget::addData( ReosDataObject *data )
+void ReosFormWidget::addData( ReosDataObject *data, int position )
 {
   ReosFormWidget *dataWidget = createDataWidget( data, this );
   if ( dataWidget )
-    addWidget( dataWidget );
+    addWidget( dataWidget, position );
 }
 
-void ReosFormWidget::addWidget( QWidget *widget )
+void ReosFormWidget::addWidget( QWidget *widget, int position )
 {
-  mMainLayout->addWidget( widget );
+  if ( position >= 0 )
+    mMainLayout->insertWidget( position, widget );
+  else
+    mMainLayout->addWidget( widget );
 }
 
-void ReosFormWidget::addItem( QLayoutItem *item )
+void ReosFormWidget::addItem( QLayoutItem *item, int position )
 {
-  mMainLayout->addItem( item );
+  if ( position >= 0 )
+    mMainLayout->insertItem( position, item );
+  else
+    mMainLayout->addItem( item );
 }
 
 ReosFormWidget *ReosFormWidget::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
@@ -107,6 +116,13 @@ ReosFormWidget *ReosFormWidget::createDataWidget( ReosDataObject *dataObject, QW
     ReosTimeSerieConstantInterval *object = qobject_cast<ReosTimeSerieConstantInterval *>( dataObject );
     if ( object )
       return new ReosTimeSerieConstantIntervalWidget( object, parent );
+  }
+
+  if ( dataObject->type() == QStringLiteral( "chicago-rainfall" ) )
+  {
+    ReosChicagoRainfall *object = qobject_cast<ReosChicagoRainfall *>( dataObject );
+    if ( object )
+      return new ReosChicagoRainfallWidget( object, parent );
   }
 
   if ( dataObject->type() == QStringLiteral( "rainfall-intensity-duration-curve" ) )
@@ -293,4 +309,27 @@ QList<double> ReosTimeSerieConstantIntervalView::clipboardToValues()
   }
   else
     return values;
+}
+
+ReosChicagoRainfallWidget::ReosChicagoRainfallWidget( ReosChicagoRainfall *rainfall, QWidget *parent ):
+  ReosTimeSerieConstantIntervalWidget( rainfall, parent ),
+  mIdfWidget( new ReosIntensityDurationSelectedCurveWidget( this ) )
+{
+  addParameter( rainfall->totalDuration(), 1 );
+
+  if ( ReosRainfallRegistery::isInstantiate() )
+  {
+    ReosRainfallIntensityDurationCurveItem *curveItem =
+      qobject_cast<ReosRainfallIntensityDurationCurveItem *>( ReosRainfallRegistery::instance()->item( rainfall->intensityDurationUri() ) );
+    if ( curveItem )
+      mIdfWidget->setCurveItem( curveItem );
+  }
+
+  connect( mIdfWidget, &ReosIntensityDurationSelectedCurveWidget::curveChanged, rainfall, [rainfall, this]
+  {
+    rainfall->setIntensityDurationCurve( this->mIdfWidget->curveItem()->data(), this->mIdfWidget->curveItem()->uri() );
+  } );
+
+  addWidget( mIdfWidget, 3 );
+  addParameter( rainfall->centerCoefficient() );
 }

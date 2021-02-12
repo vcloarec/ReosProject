@@ -71,6 +71,22 @@ class ReosParameterInLineWidget : public ReosParameterWidget
     QLineEdit *mLineEdit = nullptr;
 };
 
+class ReosParameterDoubleWidget : public ReosParameterInLineWidget
+{
+  public:
+    explicit ReosParameterDoubleWidget( QWidget *parent = nullptr );
+    explicit ReosParameterDoubleWidget( ReosParameterDouble *value, QWidget *parent = nullptr );
+
+    void setDouble( ReosParameterDouble *value );
+    void updateValue();
+    void applyValue();
+
+    static QString type() {return QStringLiteral( "double" );}
+
+  private:
+    ReosParameterDouble *doubleParameter();
+};
+
 class ReosParameterStringWidget : public ReosParameterInLineWidget
 {
   public:

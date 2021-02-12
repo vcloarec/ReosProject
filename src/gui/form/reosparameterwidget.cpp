@@ -69,6 +69,9 @@ ReosParameterWidget *ReosParameterWidget::createWidget( ReosParameter *parameter
   if ( parameter->type() == ReosParameterDateTimeWidget::type() )
     return new ReosParameterDateTimeWidget( static_cast<ReosParameterDateTime *>( parameter ), parent );
 
+  if ( parameter->type() == ReosParameterDoubleWidget::type() )
+    return new ReosParameterDoubleWidget( static_cast<ReosParameterDouble *>( parameter ), parent );
+
   return nullptr;
 
 }
@@ -309,6 +312,52 @@ ReosParameterString *ReosParameterStringWidget::stringParameter()
 
   return nullptr;
 }
+
+
+ReosParameterDoubleWidget::ReosParameterDoubleWidget( QWidget *parent ):
+  ReosParameterInLineWidget( parent )
+{
+  finalizeWidget();
+}
+
+ReosParameterDoubleWidget::ReosParameterDoubleWidget( ReosParameterDouble *value, QWidget *parent ):
+  ReosParameterDoubleWidget( parent )
+{
+  setDouble( value );
+}
+
+void ReosParameterDoubleWidget::setDouble( ReosParameterDouble *value )
+{
+  setParameter( value );
+}
+
+void ReosParameterDoubleWidget::updateValue()
+{
+  if ( doubleParameter() )
+    setTextValue( doubleParameter()->toString() );
+}
+
+void ReosParameterDoubleWidget::applyValue()
+{
+  if ( doubleParameter() )
+  {
+    bool ok = false;
+    double v = textValue().toDouble( &ok );
+    if ( ok )
+      doubleParameter()->setValue( v );
+    else
+      doubleParameter()->setInvalid();
+  }
+}
+
+ReosParameterDouble *ReosParameterDoubleWidget::doubleParameter()
+{
+  if ( mParameter )
+    return static_cast<ReosParameterDouble *>( mParameter );
+
+  return nullptr;
+}
+
 
 ReosParameterDurationWidget::ReosParameterDurationWidget( QWidget *parent ):
   ReosParameterInLineWidget( parent )

@@ -22,6 +22,7 @@
 
 #include "reoscore.h"
 #include "reosduration.h"
+#include "reosrainfallitem.h"
 
 class ReosEncodedElement;
 class ReosRainfallItem;
@@ -56,6 +57,8 @@ class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
     ReosZoneItem *addZone( const QString &name, const QString &description, const QModelIndex &index = QModelIndex() );
     ReosStationItem *addStation( const QString &name, const QString &description, const QModelIndex &index );
     ReosRainfallSeriesItem *addGaugedRainfall( const QString &name, const QString &description, const QModelIndex &index, ReosTimeSerieConstantInterval *data = nullptr );
+    ReosRainfallChicagoItem *addChicagoRainfall( const QString &name, const QString &description, const QModelIndex &index );
+    ReosRainfallChicagoItem *addDoubleTriangleRainfall( const QString &name, const QString &description, const QModelIndex &index );
     ReosRainfallIdfCurvesItem *addIDFCurves( const QString &name, const QString &description, const QModelIndex &index );
     ReosRainfallIntensityDurationCurveItem *addIDCurve( const ReosDuration &duration, const QString &description, const QModelIndex &index );
     void removeItem( ReosRainfallItem *item );
@@ -68,13 +71,13 @@ class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
     void swapItems( ReosRainfallItem *parent, int first, int second );
 
     ReosRainfallItem *positonPathToItem( const QList<int> &path ) const;
+    ReosRainfallItem *uriToItem( const QString &uri ) const;
 
     ReosEncodedElement encode() const;
     bool decode( const ReosEncodedElement &element );
 
     bool saveToFile( const QString &path, const QString &header );
     bool loadFromFile( const QString &path, const QString &header );
-
   protected:
 
   private slots:

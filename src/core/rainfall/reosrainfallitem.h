@@ -21,11 +21,13 @@
 
 #include "reosidfcurves.h"
 #include "reostimeserie.h"
+#include "reossyntheticrainfall.h"
 #include "reoscore.h"
 
 class ReosParameterString;
 class ReosParameter;
 class ReosRainfallIntensityDurationCurveItem;
+class ReosChicagoRainfall;
 
 class ReosRainfallItem : public QObject
 {
@@ -58,8 +60,12 @@ class ReosRainfallItem : public QObject
     ReosRainfallItem *itemAt( int i ) const;
     //! Returns whether the item have a child with name \a itemName
     bool hasChildItemName( const QString &itemName ) const;
+
     //! Returns a list of int representing the position of the item in the tree from root item
     QList<int> positionPathInTree() const;
+
+    //! Returns a string that represent the position of this item in the tree
+    QString uri() const;
 
     //! Returns the position of this item in the parent item, returns -1 if parent is nullptr
     int positionInParent() const;
@@ -93,6 +99,9 @@ class ReosRainfallItem : public QObject
 
     //! Encoded the element
     virtual ReosEncodedElement encode() const = 0;
+
+    //! Retrivied item dependencies, for example after loading from disk
+    virtual void resolveDependencies() {}
 
     void swapChildren( int first, int second );
 
@@ -210,6 +219,33 @@ class ReosRainfallSeriesItem: public ReosRainfallDataItem
 
   private:
     ReosTimeSerieConstantInterval *mData = nullptr;
+};
+
+class ReosRainfallChicagoItem: public ReosRainfallDataItem
+{
+    Q_OBJECT
+  public:
+    ReosRainfallChicagoItem( const QString &name, const QString &description );
+    ReosRainfallChicagoItem( const ReosEncodedElement &element );
+
+    QString dataType() const override {return QStringLiteral( "chicago-rainfall" );}
+    ReosChicagoRainfall *data() const override {return mData;}
+    QIcon icone() const override {return QIcon( QPixmap( ":/images/chicagoRainfall.svg" ) );}
+    virtual bool accept( ReosRainfallItem * ) const override {return false;}
+    virtual ReosEncodedElement encode() const override;
+    void setupData() override;
+    void resolveDependencies() override;
+
+
+  private slots:
+    void setIntensityDurationCurve( const QString &uri );
+  private:
+    ReosChicagoRainfall *mData = nullptr;
+    QPointer<ReosRainfallIntensityDurationCurveItem> mCurveItem;
+
+
+
+
 };
 
 

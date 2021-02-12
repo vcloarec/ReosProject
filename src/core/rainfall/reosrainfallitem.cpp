@@ -16,7 +16,10 @@
 #include "reosrainfallitem.h"
 
 #include "reosidfcurves.h"
+#include "reossyntheticrainfall.h"
 #include "reosparameter.h"
+#include "reosrainfallregistery.h"
+#include "reosrainfallmodel.h"
 
 bool ReosRootItem::accept( ReosRainfallItem *item ) const
 {
@@ -108,6 +111,17 @@ QList<int> ReosRainfallItem::positionPathInTree() const
   }
 
   return ret;
+}
+
+QString ReosRainfallItem::uri() const
+{
+  QList<int> numericPath = positionPathInTree();
+  QStringList strList;
+  for ( int i : qAsConst( numericPath ) )
+    strList.append( QString::number( i ) );
+  QString uri = strList.join( ':' );
+
+  return uri;
 }
 
 int ReosRainfallItem::positionInParent() const
@@ -252,6 +266,9 @@ ReosStationItem::ReosStationItem( const ReosEncodedElement &element ): ReosRainf
 
     if ( childElem.description() == QStringLiteral( "idf-item" ) )
       addItem( new ReosRainfallIdfCurvesItem( childElem ) );
+
+    if ( childElem.description() == QStringLiteral( "chicago-rainfall-item" ) )
+      addItem( new ReosRainfallChicagoItem( childElem ) );
   }
 }
 
@@ -457,12 +474,14 @@ ReosRainfallIntensityDurationCurveItem::ReosRainfallIntensityDurationCurveItem( 
   if ( element.description() != QStringLiteral( "intensity-duration-item" ) )
     return;
   mIntensityDurationCurve = ReosIntensityDurationCurve::decode( element.getEncodedData( QStringLiteral( "curve" ) ), this );
+  if ( ReosIdfFormulaRegistery::isInstanciate() )
+    mIntensityDurationCurve->setupFormula( ReosIdfFormulaRegistery::instance() );
   connect( mIntensityDurationCurve, &ReosDataObject::dataChanged, this, [this] { emit ReosRainfallDataItem::changed( this );} );
 }
 
 QString ReosRainfallIntensityDurationCurveItem::name() const
 {
-  return data()->returnPeriod()->toString();
+  return data()->returnPeriod()->toString( 0 );
 }
 
 QList<ReosParameter *> ReosRainfallIntensityDurationCurveItem::parameters() const
@@ -484,7 +503,10 @@ QList<ReosParameter *> ReosRainfallIntensityDurationCurveItem::parameters() cons
   return ret;
 }
 
-ReosIntensityDurationCurve *ReosRainfallIntensityDurationCurveItem::data() const {return mIntensityDurationCurve;}
+ReosIntensityDurationCurve *ReosRainfallIntensityDurationCurveItem::data() const
+{
+  return mIntensityDurationCurve;
+}
 
 ReosEncodedElement ReosRainfallIntensityDurationCurveItem::encode() const
 {
@@ -493,3 +515,81 @@ ReosEncodedElement ReosRainfallIntensityDurationCurveItem::encode() const
   element.addEncodedData( QStringLiteral( "curve" ), mIntensityDurationCurve->encode() );
   return element;
 }
+
+ReosRainfallChicagoItem::ReosRainfallChicagoItem( const QString &name, const QString &description ):
+  ReosRainfallDataItem( name, description )
+{
+  mData = new ReosChicagoRainfall( this );
+  connect( mData, &ReosChicagoRainfall::newIntensityDuration, this, &ReosRainfallChicagoItem::setIntensityDurationCurve );
+}
+
+ReosRainfallChicagoItem::ReosRainfallChicagoItem( const ReosEncodedElement &element ): ReosRainfallDataItem( element )
+{
+  mData = ReosChicagoRainfall::decode( element.getEncodedData( QStringLiteral( "chicago-rainfall-data" ) ) );
+  QString curveItemUri;
+  if ( element.getData( QStringLiteral( "curve-item-uri" ), curveItemUri ) )
+  {
+    mData->setIntensityDurationUri( curveItemUri );
+  }
+
+  connect( mData, &ReosChicagoRainfall::newIntensityDuration, this, &ReosRainfallChicagoItem::setIntensityDurationCurve );
+}
+
+ReosEncodedElement ReosRainfallChicagoItem::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "chicago-rainfall-item" ) );
+
+  encodeBase( element );
+
+  QString curveItemUri;
+  if ( !mCurveItem.isNull() )
+    curveItemUri = mCurveItem->uri();
+  element.addData( QStringLiteral( "curve-item-uri" ), curveItemUri );
+
+  element.addEncodedData( QStringLiteral( "chicago-rainfall-data" ), mData->encode() );
+
+  return element;
+}
+
+void ReosRainfallChicagoItem::setupData()
+{
+  if ( !mData )
+    return;
+  mData->setValueUnit( tr( "mm" ) );
+  mData->setValueModeName( ReosTimeSerieConstantInterval::Value, tr( "Height per time step" ) );
+  mData->setValueModeName( ReosTimeSerieConstantInterval::Cumulative, tr( "Total height" ) );
+  mData->setValueModeName( ReosTimeSerieConstantInterval::Intensity, tr( "Rainfall intensity" ) );
+  mData->setValueModeColor( ReosTimeSerieConstantInterval::Value, QColor( 0, 0, 200, 200 ) );
+  mData->setValueModeColor( ReosTimeSerieConstantInterval::Intensity, QColor( 50, 100, 255, 200 ) );
+  mData->setValueModeColor( ReosTimeSerieConstantInterval::Cumulative, QColor( 255, 50, 0 ) );
+  mData->setAddCumultive( true );
+  mData->setName( name() );
+  if ( mCurveItem )
+    mData->setIntensityDurationUri( mCurveItem->uri() );
+
+  connect( this, &ReosRainfallItem::changed, mData, [this]
+  {
+    if ( this->mData )
+      this->mData->setName( this->name() );
+  } );
+}
+
+void ReosRainfallChicagoItem::resolveDependencies()
+{
+  if ( ReosRainfallRegistery::isInstantiate() && mData )
+  {
+    mCurveItem = qobject_cast<ReosRainfallIntensityDurationCurveItem *>( ReosRainfallRegistery::instance()->item( mData->intensityDurationUri() ) );
+    if ( mCurveItem )
+      mData->setIntensityDurationCurve( mCurveItem->data() );
+  }
+}
+
+void ReosRainfallChicagoItem::setIntensityDurationCurve( const QString &uri )
+{
+  if ( !ReosRainfallRegistery::isInstantiate() )
+    return;
+
+  mCurveItem = qobject_cast<ReosRainfallIntensityDurationCurveItem *>
+               ( ReosRainfallRegistery::instance()->rainfallModel()->uriToItem( uri ) );
+}
+

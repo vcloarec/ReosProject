@@ -412,6 +412,12 @@ void ReosParameterDouble::setValue( double value )
   emit valueChanged();
 }
 
+void ReosParameterDouble::setInvalid()
+{
+  mIsValid = false;
+  emit valueChanged();
+}
+
 bool ReosParameterDouble::setValueWithString( const QString &value )
 {
   bool ok = false;

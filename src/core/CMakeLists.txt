@@ -37,6 +37,8 @@ SET(REOS_CORE_SOURCES
   rainfall/reosrainfallitem.cpp
   rainfall/reosrainfallmodel.cpp
   rainfall/reosidfcurves.cpp
+  rainfall/reossyntheticrainfall.cpp
+  rainfall/reosrainfallregistery.cpp
 
   quantity/reosarea.cpp
   quantity/reosduration.cpp
@@ -80,6 +82,8 @@ SET(REOS_CORE_HEADERS
     rainfall/reosrainfallitem.h
     rainfall/reosrainfallmodel.h
     rainfall/reosidfcurves.h
+    rainfall/reossyntheticrainfall.h
+    rainfall/reosrainfallregistery.h
 
     quantity/reosarea.h
     quantity/reosduration.h

@@ -29,6 +29,7 @@ SET(REOS_GUI_SOURCES
 
     rainfall/reosrainfallmanager.cpp
     rainfall/reosrainfallintensitydurationwidget.cpp
+    rainfall/reosintensitydurationselectedcurvewidget.cpp
 
     chart/reoschartview.cpp
     chart/reoschart.cpp
@@ -72,6 +73,7 @@ SET(REOS_GUI_HEADERS
 
     rainfall/reosrainfallmanager.h
     rainfall/reosrainfallintensitydurationwidget.h
+    rainfall/reosintensitydurationselectedcurvewidget.h
 
     chart/reoschartview.h
     chart/reoschart.h

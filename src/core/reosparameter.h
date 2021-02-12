@@ -69,6 +69,7 @@ class ReosParameterDouble: public ReosParameter
     QString type() const override {return QString( "double" );}
 
     void setValue( double value );
+    void setInvalid();
     bool setValueWithString( const QString &value );
     void setDerivedValue( double value );
     double value() const {return mValue;}

@@ -37,7 +37,8 @@
 #include "reosformwidget.h"
 #include "reosimportfromtextfile.h"
 #include "reostextfiledata.h"
-
+#include "reosintensitydurationselectedcurvewidget.h"
+#include "reosrainfallregistery.h"
 #include "reosidfcurves.h"
 
 ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWidget *parent ) :
@@ -51,6 +52,8 @@ ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWid
   , mActionAddZoneToZone( new QAction( QPixmap( QStringLiteral( ":/images/addZone.svg" ) ), tr( "Add New Sub Zone" ), this ) )
   , mActionAddStation( new QAction( QPixmap( QStringLiteral( ":/images/addStation.svg" ) ), tr( "Add Station" ), this ) )
   , mActionAddGaugedRainfall( new QAction( QPixmap( QStringLiteral( ":/images/addGaugedRainfall.svg" ) ), tr( "Add Gauged Rainfall" ), this ) )
+  , mActionAddChicagoRainfall( new QAction( QPixmap( QStringLiteral( ":/images/addChicagoRainfall.svg" ) ), tr( "Add Chicago Rainfall" ), this ) )
+  , mActionAddDoubleTriangleRainfall( new QAction( QPixmap( QStringLiteral( ":/images/addDoubleTriangleRainfall.svg" ) ), tr( "Add Double Triangle Rainfall" ), this ) )
   , mActionAddIDFCurves( new QAction( QPixmap( QStringLiteral( ":/images/addIntensityDurationCurves.svg" ) ), tr( "Add Intensity Duration Frequency Curves" ), this ) )
   , mActionAddIDCurve( new QAction( QPixmap( QStringLiteral( ":/images/addIntensityDurationCurve.svg" ) ), tr( "Add Intensity Duration Curve" ), this ) )
   , mActionReorderIdVurve( new QAction( tr( "Reorder Intensity Duration Curves" ), this ) )
@@ -86,6 +89,8 @@ ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWid
   connect( mActionAddZoneToZone, &QAction::triggered, this, &ReosRainfallManager::onAddZoneToZone );
   connect( mActionAddStation, &QAction::triggered, this, &ReosRainfallManager::onAddStation );
   connect( mActionAddGaugedRainfall, &QAction::triggered, this, &ReosRainfallManager::onAddGaugedRainfall );
+  connect( mActionAddChicagoRainfall, &QAction::triggered, this, &ReosRainfallManager::onAddChicagoRainfall );
+  connect( mActionAddDoubleTriangleRainfall, &QAction::triggered, this, &ReosRainfallManager::onAddDoubleTriangleRainfall );
   connect( mActionAddIDFCurves, &QAction::triggered, this, &ReosRainfallManager::onAddIDFCurves );
   connect( mActionAddIDCurve, &QAction::triggered, this, &ReosRainfallManager::onAddIDCurve );
   connect( mActionReorderIdVurve, &QAction::triggered, this, &ReosRainfallManager::onReorderIDCurve );
@@ -102,6 +107,13 @@ ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWid
 
 ReosRainfallManager::~ReosRainfallManager()
 {
+  ///TODO : put those static deleting elsewhere
+  if ( ReosIdfFormulaRegistery::isInstanciate() )
+    delete ReosIdfFormulaRegistery::instance();
+
+  if ( ReosRainfallRegistery::isInstantiate() )
+    delete ReosRainfallRegistery::instance();
+
   delete ui;
 }
 
@@ -293,6 +305,34 @@ void ReosRainfallManager::onAddGaugedRainfall()
   }
 }
 
+void ReosRainfallManager::onAddChicagoRainfall()
+{
+  QModelIndex index = ui->mTreeView->currentIndex();
+
+  if ( index.isValid() )
+  {
+    QString name = tr( "Rainfall name" );
+    QString description;
+
+    if ( addSimpleItemDialog( tr( "Add Chicago Rainfall" ), name, description ) )
+      selectItem( mModel->addChicagoRainfall( name, description, index ) );
+  }
+}
+
+void ReosRainfallManager::onAddDoubleTriangleRainfall()
+{
+  QModelIndex index = ui->mTreeView->currentIndex();
+
+  if ( index.isValid() )
+  {
+    QString name = tr( "Rainfall name" );
+    QString description;
+
+    if ( addSimpleItemDialog( tr( "Add Double Triangle Rainfall" ), name, description ) )
+      selectItem( mModel->addDoubleTriangleRainfall( name, description, index ) );
+  }
+}
+
 void ReosRainfallManager::onAddIDFCurves()
 {
   QModelIndex index = ui->mTreeView->currentIndex();
@@ -381,6 +421,7 @@ void ReosRainfallManager::onCurrentTreeIndexChanged()
   if ( item )
   {
     item->setupData();
+    // First the form to acces parameter
     ReosFormWidget *newForm = new ReosFormWidget( this );
     newForm->addParameters( item->parameters() );
     newForm->addData( item->data() );
@@ -396,6 +437,7 @@ void ReosRainfallManager::onCurrentTreeIndexChanged()
       ui->mEditorWidget->layout()->addWidget( mCurrentForm );
     }
 
+    // Then the plot to visualize the data
     if ( item->data() )
     {
       ReosPlotWidget *newPlot = new ReosPlotWidget( this );
@@ -443,13 +485,14 @@ void ReosRainfallManager::onTreeViewContextMenu( const QPoint &pos )
           break;
         case ReosRainfallItem::Station:
           menu.addAction( mActionAddGaugedRainfall );
+          menu.addAction( mActionAddChicagoRainfall );
+          menu.addAction( mActionAddDoubleTriangleRainfall );
           menu.addAction( mActionAddIDFCurves );
           break;
         case ReosRainfallItem::Data:
           menu.addActions( dataItemActions( qobject_cast<ReosRainfallDataItem *>( item ) ) );
           break;
       }
-
       menu.addAction( mActionRemoveItem );
     }
   }
@@ -574,65 +617,18 @@ void ReosImportRainfallDialog::onImportButton()
 
 void ReosImportRainfallDialog::onSelectStationButton()
 {
-  ReosRainfallItemSelectionDialog *dialog = new ReosRainfallItemSelectionDialog( mModel, this );
+  ReosRainfallItemSelectionDialog *dialog = new ReosRainfallItemSelectionDialog( this );
   dialog->setSelectionType( ReosRainfallItem::Station );
   dialog->setText( tr( "Select a station where to import the rainfall" ) );
   if ( dialog->exec() )
   {
     ReosRainfallItem *item = dialog->selectedItem();
     ReosStationItem *stationItem = qobject_cast<ReosStationItem *>( item );
+    dialog->deleteLater();
     if ( stationItem )
     {
       mModel->addGaugedRainfall( mName->value(), mDescription->value(), mModel->itemToIndex( item ), mImportedRainfall );
       close();
     }
   }
-}
-
-ReosRainfallItemSelectionDialog::ReosRainfallItemSelectionDialog( ReosRainfallModel *model, QWidget *parent ):
-  QDialog( parent )
-  , mTreeView( new QTreeView( this ) )
-  , mModel( model )
-  , mTextLabel( new QLabel( this ) )
-{
-  setLayout( new QVBoxLayout );
-  layout()->addWidget( mTextLabel );
-  layout()->addWidget( mTreeView );
-  mTreeView->setModel( model );
-  mTreeView->header()->setSectionResizeMode( QHeaderView::ResizeToContents );
-  mTreeView->expandAll();
-
-  mButtonBox = new QDialogButtonBox( QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this );
-  layout()->addWidget( mButtonBox );
-  connect( mTreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ReosRainfallItemSelectionDialog::onSelectionChange );
-  connect( mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject );
-  connect( mButtonBox, &QDialogButtonBox::accepted, this, &QDialog::accept );
-  onSelectionChange();
-}
-
-void ReosRainfallItemSelectionDialog::setSelectionType( ReosRainfallItem::Type type, QString dataType )
-{
-  mSelectionType = type;
-  mSelectionDataType = dataType;
-  onSelectionChange();
-}
-
-void ReosRainfallItemSelectionDialog::setText( const QString &text )
-{
-  mTextLabel->setText( text );
-}
-
-ReosRainfallItem *ReosRainfallItemSelectionDialog::selectedItem() const
-{
-  return mModel->indexToItem( mTreeView->currentIndex() );
-}
-
-void ReosRainfallItemSelectionDialog::onSelectionChange()
-{
-  QModelIndex currentIndex = mTreeView->currentIndex();
-
-  ReosRainfallItem *item = mModel->indexToItem( currentIndex );
-  bool selectionIsGood = ( item && item->type() == mSelectionType );
-
-  mButtonBox->button( QDialogButtonBox::Ok )->setEnabled( selectionIsGood );
 }

@@ -157,7 +157,7 @@ class ReosTimeSerieConstantInterval: public ReosTimeSerie
     void setAddCumultive( bool addCumulative );
 
     //! Returns a encoded element correspondint to this serie
-    ReosEncodedElement encode() const;
+    ReosEncodedElement encode( const QString &descritpion = QString() ) const;
 
     //! Creates new instance from the encoded element
     static ReosTimeSerieConstantInterval *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
@@ -165,8 +165,12 @@ class ReosTimeSerieConstantInterval: public ReosTimeSerie
   protected:
     void connectParameters();
 
+    ReosTimeSerieConstantInterval( const ReosEncodedElement &element, QObject *parent = nullptr );
+
   private:
     ReosParameterDuration *mTimeStep = nullptr;
+
+    //! Attribute that are defined during runtime
     ValueMode mValueMode = Value;
     ReosDuration::Unit mIntensityTimeUnit = ReosDuration::hour;
     QMap<ValueMode, QString> mValueModeName;

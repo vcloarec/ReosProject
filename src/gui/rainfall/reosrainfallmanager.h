@@ -54,6 +54,8 @@ class ReosRainfallManager : public ReosActionWidget
     void onAddZoneToZone();
     void onAddStation();
     void onAddGaugedRainfall();
+    void onAddChicagoRainfall();
+    void onAddDoubleTriangleRainfall();
     void onAddIDFCurves();
     void onAddIDCurve();
     void onReorderIDCurve();
@@ -76,6 +78,8 @@ class ReosRainfallManager : public ReosActionWidget
     QAction *mActionAddZoneToZone = nullptr;
     QAction *mActionAddStation = nullptr;
     QAction *mActionAddGaugedRainfall = nullptr;
+    QAction *mActionAddChicagoRainfall = nullptr;
+    QAction *mActionAddDoubleTriangleRainfall = nullptr;
     QAction *mActionAddIDFCurves = nullptr;
     QAction *mActionAddIDCurve = nullptr;
     QAction *mActionReorderIdVurve = nullptr;
@@ -124,26 +128,6 @@ class ReosImportRainfallDialog: public QDialog
 };
 
 
-class ReosRainfallItemSelectionDialog: public QDialog
-{
-  public:
-    Q_OBJECT
-  public:
-    explicit ReosRainfallItemSelectionDialog( ReosRainfallModel *model, QWidget *parent = nullptr );
-    void setSelectionType( ReosRainfallItem::Type type, QString dataType = QString() );
-    void setText( const QString &text );
-    ReosRainfallItem *selectedItem() const;
 
-  private slots:
-    void onSelectionChange();
-
-  private:
-    QTreeView *mTreeView;
-    ReosRainfallModel *mModel = nullptr;
-    ReosRainfallItem::Type mSelectionType = ReosRainfallItem::Zone;
-    QString  mSelectionDataType;
-    QLabel *mTextLabel;
-    QDialogButtonBox *mButtonBox = nullptr;
-};
 
 #endif // REOSRAINFALLMANAGER_H
