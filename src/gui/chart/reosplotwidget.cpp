@@ -207,7 +207,8 @@ void ReosPlotWidget::createItems( ReosDataObject *data )
 {
   if ( data &&
        ( data->type() == QStringLiteral( "time-serie-constant-interval" ) ||
-         data->type() == QStringLiteral( "chicago-rainfall" ) ) )
+         data->type() == QStringLiteral( "chicago-rainfall" )   ||
+         data->type() == QStringLiteral( "double-triangle-rainfall" ) ) )
   {
     ReosTimeSerieConstantInterval *_data = static_cast<ReosTimeSerieConstantInterval *>( data );
 
@@ -233,7 +234,6 @@ void ReosPlotWidget::createItems( ReosDataObject *data )
     }
 
     setTitleAxeX( tr( "Time" ) );
-
     setAxeXType( ReosPlotWidget::temporal );
   }
 

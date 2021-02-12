@@ -27,7 +27,7 @@ ReosParameterWidget::ReosParameterWidget( QWidget *parent ):
   QWidget( parent )
 {
   setLayout( new QHBoxLayout( this ) );
-
+  layout()->setContentsMargins( 0, 0, 0, 0 );
   mLabelName = new QLabel( this );
   layout()->addWidget( mLabelName );
 }

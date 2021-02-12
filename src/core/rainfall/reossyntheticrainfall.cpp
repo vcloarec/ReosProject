@@ -20,6 +20,7 @@ ReosChicagoRainfall::ReosChicagoRainfall( QObject *parent ): ReosTimeSerieConsta
   , mCenterCoefficient( new ReosParameterDouble( tr( "Eccentricity" ), false, this ) )
 {
   mCenterCoefficient->setValueWithString( QStringLiteral( "0.5" ) );
+  mTotalDuration->setValue( ReosDuration( 60, ReosDuration::minute ) );
 }
 
 ReosParameterDuration *ReosChicagoRainfall::totalDuration()
@@ -178,4 +179,181 @@ ReosChicagoRainfall *ReosChicagoRainfall::decode( const ReosEncodedElement &elem
     return nullptr;
 
   return new ReosChicagoRainfall( element, parent );
+}
+
+ReosParameterDuration *ReosDoubleTriangleRainfall::totalDuration()
+{
+  return mTotalDuration;
+}
+
+ReosParameterDuration *ReosDoubleTriangleRainfall::intenseDuration()
+{
+  return mIntenseDuration;
+}
+
+ReosParameterDouble *ReosDoubleTriangleRainfall::centerCoefficient()
+{
+  return mCenterCoefficient;
+}
+
+ReosIntensityDurationCurve *ReosDoubleTriangleRainfall::intensityDurationCurveIntensePeriod() const
+{
+  if ( mIntensityDurationCurveIntense.isNull() )
+    return nullptr;
+  return mIntensityDurationCurveIntense;
+}
+
+ReosIntensityDurationCurve *ReosDoubleTriangleRainfall::intensityDurationCurveTotal() const
+{
+  if ( mIntensityDurationCurveTotal.isNull() )
+    return nullptr;
+  return mIntensityDurationCurveTotal;
+}
+
+void ReosDoubleTriangleRainfall::setIntensityDurationCurve( ReosIntensityDurationCurve *intensityDurationCurveIntense,
+    ReosIntensityDurationCurve *intensityDurationCurveTotal,
+    const QString &intensityDurationUriIntense,
+    const QString &intensityDurationUriTotal )
+{
+  mIntensityDurationCurveIntense = intensityDurationCurveIntense;
+  mIntensityDurationCurveTotal = intensityDurationCurveTotal;
+  if ( !intensityDurationUriIntense.isEmpty() && !intensityDurationUriTotal.isEmpty() )
+  {
+    mIntensityDurationUriIntense = intensityDurationUriIntense;
+    mIntensityDurationUriTotal = intensityDurationUriTotal;
+    emit newIntensityDuration( mIntensityDurationUriIntense, mIntensityDurationUriTotal );
+  }
+  updateRainfall();
+}
+
+void ReosDoubleTriangleRainfall::setIntensityDurationUri( const QString &intenseUri, const QString &totalUri )
+{
+  mIntensityDurationUriIntense = intenseUri;
+  mIntensityDurationUriTotal = totalUri;
+}
+
+QString ReosDoubleTriangleRainfall::intensityDurationUriIntense() const
+{
+  return mIntensityDurationUriIntense;
+}
+
+QString ReosDoubleTriangleRainfall::intensityDurationUriTotal() const
+{
+  return mIntensityDurationUriTotal;
+}
+
+ReosDoubleTriangleRainfall *ReosDoubleTriangleRainfall::decode( const ReosEncodedElement &element, QObject *parent )
+{
+  if ( element.description() != QStringLiteral( "double-triangle-rainfall-data" ) )
+    return nullptr;
+
+  return new ReosDoubleTriangleRainfall( element, parent );
+}
+
+void ReosDoubleTriangleRainfall::updateRainfall()
+{
+  if ( mIntensityDurationCurveIntense.isNull() || mIntensityDurationCurveTotal.isNull() )
+    return;
+
+  mValues.clear();
+
+  ReosDuration ts = timeStep()->value();
+  ReosDuration totalDuration = mTotalDuration->value();
+  ReosDuration intenseDuration = mIntenseDuration->value();
+  double eccentricity = mCenterCoefficient->value();
+
+  unsigned nbLowInterLeft = ( ( totalDuration - intenseDuration ) * eccentricity ).numberOfFullyContainedIntervals( ts );
+  unsigned nbLowInterRight = ( ( totalDuration - intenseDuration ) * ( 1 - eccentricity ) ).numberOfFullyContainedIntervals( ts );
+  unsigned nbInterIntense = intenseDuration.numberOfFullyContainedIntervals( ts );
+
+  ReosDuration correctedIntenseDuration = ts * int( nbInterIntense );
+  ReosDuration correctedTotalDuration = ts * int( nbLowInterRight + nbLowInterLeft );
+
+
+  double intenseHeight = mIntensityDurationCurveIntense->height( correctedIntenseDuration, true );
+  double lowHeight = mIntensityDurationCurveTotal->height( correctedIntenseDuration + correctedTotalDuration, true ) - intenseHeight;
+  if ( lowHeight < 0 )
+    lowHeight = 0;
+
+  double intensitePicPeuIntense = lowHeight / ( correctedTotalDuration ).valueHour() * 2;
+  double intensitePicIntense = ( intenseHeight - intensitePicPeuIntense * ( correctedIntenseDuration ).valueHour() ) / correctedIntenseDuration.valueHour() * 2 + intensitePicPeuIntense;
+
+
+  for ( unsigned i = 1; i <= nbLowInterLeft; ++i )
+  {
+    double intensite = ( i - 0.5 ) * intensitePicPeuIntense / ( nbLowInterLeft );
+    mValues.push_back( intensite * ts.valueHour() );
+  }
+
+  unsigned nbIntenseLateral = nbInterIntense / 2;
+
+  for ( unsigned i = 1; i <= nbIntenseLateral; ++i )
+  {
+    double intensite = ( ts * ( i - 0.5 ) ).valueHour() * ( intensitePicIntense - intensitePicPeuIntense ) / ( correctedIntenseDuration / 2 ).valueHour() + intensitePicPeuIntense;
+    mValues.push_back( intensite * ts.valueHour() );
+  }
+
+  //si presence intervalle central
+  if ( nbInterIntense - 2 * nbIntenseLateral > 0 )
+  {
+    double intensiteLateral = ( intensitePicIntense - intensitePicPeuIntense ) * double( nbIntenseLateral ) / ( double( nbInterIntense ) / 2 ) + intensitePicPeuIntense;
+    double intensiteCentral = ( intensitePicIntense + intensiteLateral ) / 2;
+    mValues.push_back( intensiteCentral * ts.valueHour() );
+  }
+
+  for ( unsigned i = 1; i <= nbIntenseLateral; ++i )
+  {
+    double intensite = ( ts * ( nbIntenseLateral - i + 0.5 ) ).valueHour() * ( intensitePicIntense - intensitePicPeuIntense ) / ( correctedIntenseDuration / 2 ).valueHour() + intensitePicPeuIntense;
+    mValues.push_back( intensite * ts.valueHour() );
+  }
+
+  for ( unsigned i = 1; i <= nbLowInterRight; ++i )
+  {
+    double intensite = ( nbLowInterRight - i + 0.5 ) * intensitePicPeuIntense / ( nbLowInterRight );
+    mValues.push_back( intensite * ts.valueHour() );
+  }
+
+  emit dataChanged();
+
+}
+
+ReosEncodedElement ReosDoubleTriangleRainfall::encode() const
+{
+  ReosEncodedElement element = ReosTimeSerieConstantInterval::encode( QStringLiteral( "double-triangle-rainfall-data" ) );
+
+  element.addEncodedData( QStringLiteral( "intense-duration" ), mIntenseDuration->encode() );
+  element.addEncodedData( QStringLiteral( "total-duration" ), mTotalDuration->encode() );
+  element.addEncodedData( QStringLiteral( "eccentry-coefficient" ), mCenterCoefficient->encode() );
+
+  return element;
+}
+
+ReosDoubleTriangleRainfall::ReosDoubleTriangleRainfall( const ReosEncodedElement &element, QObject *parent ):
+  ReosTimeSerieConstantInterval( element, parent )
+{
+  mTotalDuration = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "total-duration" ) ), false, this );
+  mIntenseDuration = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "intense-duration" ) ), false, this );
+  mCenterCoefficient = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "eccentry-coefficient" ) ), false, this );
+  connectParameters();
+}
+
+void ReosDoubleTriangleRainfall::connectParameters()
+{
+  connect( timeStep(), &ReosParameter::valueChanged, this, &ReosDoubleTriangleRainfall::updateRainfall );
+  connect( referenceTime(), &ReosParameter::valueChanged, this, &ReosDoubleTriangleRainfall::updateRainfall );
+  connect( mIntenseDuration, &ReosParameter::valueChanged, this, &ReosDoubleTriangleRainfall::updateRainfall );
+  connect( mTotalDuration, &ReosParameter::valueChanged, this, &ReosDoubleTriangleRainfall::updateRainfall );
+  connect( mCenterCoefficient, &ReosParameter::valueChanged, this, &ReosDoubleTriangleRainfall::updateRainfall );
+}
+
+ReosDoubleTriangleRainfall::ReosDoubleTriangleRainfall( QObject *parent ) :
+  ReosTimeSerieConstantInterval( parent )
+  , mIntenseDuration( new ReosParameterDuration( tr( "Intense Duration" ), false, this ) )
+  , mTotalDuration( new ReosParameterDuration( tr( "Total Duration" ), false, this ) )
+  , mCenterCoefficient( new ReosParameterDouble( tr( "Eccentricity" ), false, this ) )
+{
+  mCenterCoefficient->setValueWithString( QStringLiteral( "0.5" ) );
+  mTotalDuration->setValue( ReosDuration( 60, ReosDuration::minute ) );
+  mIntenseDuration->setValue( ReosDuration( 15, ReosDuration::minute ) );
+  connectParameters();
 }

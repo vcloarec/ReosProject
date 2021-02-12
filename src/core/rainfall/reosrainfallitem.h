@@ -236,16 +236,34 @@ class ReosRainfallChicagoItem: public ReosRainfallDataItem
     void setupData() override;
     void resolveDependencies() override;
 
-
   private slots:
-    void setIntensityDurationCurve( const QString &uri );
+    void setIntensityDurationCurveUri( const QString &uri );
   private:
     ReosChicagoRainfall *mData = nullptr;
     QPointer<ReosRainfallIntensityDurationCurveItem> mCurveItem;
+};
 
+class ReosRainfallDoubleTriangleItem: public ReosRainfallDataItem
+{
+    Q_OBJECT
+  public:
+    ReosRainfallDoubleTriangleItem( const QString &name, const QString &description );
+    ReosRainfallDoubleTriangleItem( const ReosEncodedElement &element );
 
+    QString dataType() const override {return QStringLiteral( "double-triangle-rainfall" );}
+    ReosDoubleTriangleRainfall *data() const override {return mData;}
+    QIcon icone() const override {return QIcon( QPixmap( ":/images/doubleTriangleRainfall.svg" ) );}
+    virtual bool accept( ReosRainfallItem * ) const override {return false;}
+    virtual ReosEncodedElement encode() const override;
+    void setupData() override;
+    void resolveDependencies() override;
 
-
+  private slots:
+    void setIntensityDurationCurveUris( const QString &intenseUri, const QString &totalUri );
+  private:
+    ReosDoubleTriangleRainfall *mData = nullptr;
+    QPointer<ReosRainfallIntensityDurationCurveItem> mIntenseCurveItem;
+    QPointer<ReosRainfallIntensityDurationCurveItem> mTotalCurveItem;
 };
 
 

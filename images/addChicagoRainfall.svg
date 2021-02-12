@@ -47,19 +47,6 @@
     <filter
        inkscape:collect="always"
        style="color-interpolation-filters:sRGB"
-       id="filter5277"
-       x="-0.067971572"
-       width="1.1359431"
-       y="-0.05093108"
-       height="1.1018622">
-      <feGaussianBlur
-         inkscape:collect="always"
-         stdDeviation="0.072070929"
-         id="feGaussianBlur5279" />
-    </filter>
-    <filter
-       inkscape:collect="always"
-       style="color-interpolation-filters:sRGB"
        id="filter3204"
        x="-0.081139669"
        width="1.1622792"
@@ -70,6 +57,19 @@
          stdDeviation="0.12568823"
          id="feGaussianBlur3206" />
     </filter>
+    <filter
+       inkscape:collect="always"
+       style="color-interpolation-filters:sRGB"
+       id="filter2434"
+       x="-0.072823907"
+       width="1.1456478"
+       y="-0.053576172"
+       height="1.1071523">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="0.077937552"
+         id="feGaussianBlur2436" />
+    </filter>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -78,9 +78,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4142137"
-     inkscape:cx="156.57878"
-     inkscape:cy="60.281407"
+     inkscape:zoom="16.000002"
+     inkscape:cx="27.863092"
+     inkscape:cy="8.2299137"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -107,7 +107,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -118,16 +118,16 @@
      transform="translate(0,-288.53333)">
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:4.75653028px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#7c7c7c;fill-opacity:1;stroke:#808080;stroke-width:0.14999999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter5277)"
-       x="13.974987"
-       y="323.31213"
+       style="font-style:normal;font-weight:normal;font-size:4.75653028px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#767676;fill-opacity:1;stroke:#767676;stroke-width:0.14999999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter2434)"
+       x="8.7956648"
+       y="329.22787"
        id="text2726-7"
-       transform="matrix(1.1146478,0,0,0.89714437,-10.500351,4.7707608)"><tspan
+       transform="matrix(1.1146478,0,0,0.89714437,-4.779036,-0.51263016)"><tspan
          sodipodi:role="line"
-         id="tspan2724-4"
-         x="13.974987"
-         y="323.31213"
-         style="fill:#7c7c7c;fill-opacity:1;stroke:#808080;stroke-width:0.14999999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1">T</tspan></text>
+         id="tspan2724-5"
+         x="8.7956648"
+         y="329.22787"
+         style="fill:#767676;fill-opacity:1;stroke:#767676;stroke-width:0.14999999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1">C</tspan></text>
     <g
        transform="translate(0.47181511,0.31915283)"
        id="g1024-6"
@@ -380,7 +380,7 @@
          id="tspan2724"
          x="4.3885341"
          y="328.36917"
-         style="fill:#ff0000;fill-opacity:1;stroke:#960202;stroke-width:0.14999999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1">T</tspan></text>
+         style="fill:#ff0000;fill-opacity:1;stroke:#960202;stroke-width:0.14999999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1">C</tspan></text>
     <g
        id="g5326"
        transform="translate(24.485538,21.634838)">

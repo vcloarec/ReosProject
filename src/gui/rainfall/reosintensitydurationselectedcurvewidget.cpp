@@ -90,7 +90,6 @@ ReosIntensityDurationSelectedCurveWidget::ReosIntensityDurationSelectedCurveWidg
   ui( new Ui::ReosIntensityDurationSelectedCurveWidget )
 {
   ui->setupUi( this );
-
   connect( ui->toolButtonCurve, &QToolButton::clicked, this, &ReosIntensityDurationSelectedCurveWidget::onToolButtonCurve );
 }
 
@@ -153,4 +152,12 @@ void ReosIntensityDurationSelectedCurveWidget::setCurveItem( ReosRainfallIntensi
 {
   mCurveItem = curveItem;
   onCurveChanged();
+}
+
+void ReosIntensityDurationSelectedCurveWidget::clearCurveItem()
+{
+  mCurveItem = nullptr;
+  ui->labelReturnPeriod->setText( QString() );
+  ui->labelStation->setText( QString() );
+  ui->labelName->setText( QString() );
 }

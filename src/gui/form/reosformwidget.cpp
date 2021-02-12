@@ -125,6 +125,13 @@ ReosFormWidget *ReosFormWidget::createDataWidget( ReosDataObject *dataObject, QW
       return new ReosChicagoRainfallWidget( object, parent );
   }
 
+  if ( dataObject->type() == QStringLiteral( "double-triangle-rainfall" ) )
+  {
+    ReosDoubleTriangleRainfall *object = qobject_cast<ReosDoubleTriangleRainfall *>( dataObject );
+    if ( object )
+      return new ReosDoubleTriangleRainfallWidget( object, parent );
+  }
+
   if ( dataObject->type() == QStringLiteral( "rainfall-intensity-duration-curve" ) )
   {
     ReosIntensityDurationCurve *object = qobject_cast<ReosIntensityDurationCurve *>( dataObject );
@@ -323,13 +330,64 @@ ReosChicagoRainfallWidget::ReosChicagoRainfallWidget( ReosChicagoRainfall *rainf
       qobject_cast<ReosRainfallIntensityDurationCurveItem *>( ReosRainfallRegistery::instance()->item( rainfall->intensityDurationUri() ) );
     if ( curveItem )
       mIdfWidget->setCurveItem( curveItem );
+    else
+      mIdfWidget->clearCurveItem();
   }
 
   connect( mIdfWidget, &ReosIntensityDurationSelectedCurveWidget::curveChanged, rainfall, [rainfall, this]
   {
-    rainfall->setIntensityDurationCurve( this->mIdfWidget->curveItem()->data(), this->mIdfWidget->curveItem()->uri() );
+    if ( mIdfWidget->curveItem() )
+      rainfall->setIntensityDurationCurve( this->mIdfWidget->curveItem()->data(), this->mIdfWidget->curveItem()->uri() );
   } );
 
   addWidget( mIdfWidget, 3 );
+  addParameter( rainfall->centerCoefficient() );
+}
+
+ReosDoubleTriangleRainfallWidget::ReosDoubleTriangleRainfallWidget( ReosDoubleTriangleRainfall *rainfall, QWidget *parent ):
+  ReosTimeSerieConstantIntervalWidget( rainfall, parent ),
+  mIntenseIdfWidget( new ReosIntensityDurationSelectedCurveWidget( this ) ),
+  mTotalIdfWidget( new ReosIntensityDurationSelectedCurveWidget( this ) )
+{
+  addParameter( rainfall->intenseDuration(), 1 );
+  addParameter( rainfall->totalDuration(), 2 );
+
+  if ( ReosRainfallRegistery::isInstantiate() )
+  {
+    ReosRainfallIntensityDurationCurveItem *intenseCurveItem =
+      qobject_cast<ReosRainfallIntensityDurationCurveItem *>( ReosRainfallRegistery::instance()->item( rainfall->intensityDurationUriIntense() ) );
+    if ( intenseCurveItem )
+      mIntenseIdfWidget->setCurveItem( intenseCurveItem );
+    else
+      mIntenseIdfWidget->clearCurveItem();
+
+    ReosRainfallIntensityDurationCurveItem *totalCurveItem =
+      qobject_cast<ReosRainfallIntensityDurationCurveItem *>( ReosRainfallRegistery::instance()->item( rainfall->intensityDurationUriTotal() ) );
+    if ( totalCurveItem )
+      mTotalIdfWidget->setCurveItem( totalCurveItem );
+    else
+      mTotalIdfWidget->clearCurveItem();
+  }
+
+  connect( mIntenseIdfWidget, &ReosIntensityDurationSelectedCurveWidget::curveChanged, rainfall, [rainfall, this]
+  {
+    if ( this->mIntenseIdfWidget->curveItem() && this->mTotalIdfWidget->curveItem() )
+      rainfall->setIntensityDurationCurve( this->mIntenseIdfWidget->curveItem()->data(),
+                                           this->mTotalIdfWidget->curveItem()->data(),
+                                           this->mIntenseIdfWidget->curveItem()->uri(),
+                                           this->mTotalIdfWidget->curveItem()->uri() );
+  } );
+
+  connect( mTotalIdfWidget, &ReosIntensityDurationSelectedCurveWidget::curveChanged, rainfall, [rainfall, this]
+  {
+    if ( this->mIntenseIdfWidget->curveItem() && this->mTotalIdfWidget->curveItem() )
+      rainfall->setIntensityDurationCurve( this->mIntenseIdfWidget->curveItem()->data(),
+                                           this->mTotalIdfWidget->curveItem()->data(),
+                                           this->mIntenseIdfWidget->curveItem()->uri(),
+                                           this->mTotalIdfWidget->curveItem()->uri() );
+  } );
+
+  addWidget( mIntenseIdfWidget, 4 );
+  addWidget( mTotalIdfWidget, 4 );
   addParameter( rainfall->centerCoefficient() );
 }

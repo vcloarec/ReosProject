@@ -7,6 +7,7 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="32"
@@ -18,6 +19,18 @@
    sodipodi:docname="chicagoRainfall.svg">
   <defs
      id="defs3657">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient1563">
+      <stop
+         style="stop-color:#ff0000;stop-opacity:1;"
+         offset="0"
+         id="stop1559" />
+      <stop
+         style="stop-color:#ff0000;stop-opacity:0;"
+         offset="1"
+         id="stop1561" />
+    </linearGradient>
     <filter
        inkscape:collect="always"
        style="color-interpolation-filters:sRGB"
@@ -44,18 +57,27 @@
          stdDeviation="0.1393979"
          id="feGaussianBlur2077" />
     </filter>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1563"
+       id="linearGradient1565"
+       x1="-5.4242149"
+       y1="328.15653"
+       x2="-2.7056886"
+       y2="328.15653"
+       gradientUnits="userSpaceOnUse" />
     <filter
        inkscape:collect="always"
        style="color-interpolation-filters:sRGB"
-       id="filter5277"
-       x="-0.067971572"
-       width="1.1359431"
-       y="-0.05093108"
-       height="1.1018622">
+       id="filter2184"
+       x="-0.072823907"
+       width="1.1456478"
+       y="-0.053576172"
+       height="1.1071523">
       <feGaussianBlur
          inkscape:collect="always"
-         stdDeviation="0.072070929"
-         id="feGaussianBlur5279" />
+         stdDeviation="0.077937552"
+         id="feGaussianBlur2186" />
     </filter>
   </defs>
   <sodipodi:namedview
@@ -65,9 +87,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4.0000002"
-     inkscape:cx="-6.1083359"
-     inkscape:cy="41.05346"
+     inkscape:zoom="8.0000004"
+     inkscape:cx="21.720871"
+     inkscape:cy="6.6495752"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -105,16 +127,16 @@
      transform="translate(0,-288.53333)">
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:4.75653028px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#7c7c7c;fill-opacity:1;stroke:#808080;stroke-width:0.14999999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter5277)"
-       x="13.974987"
-       y="323.31213"
-       id="text2726-7"
-       transform="matrix(1.1146478,0,0,0.89714437,-10.500351,4.7707608)"><tspan
+       style="font-style:normal;font-weight:normal;font-size:4.75653028px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#797979;fill-opacity:1;stroke:#797979;stroke-width:0.14999999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter2184)"
+       x="-5.6393633"
+       y="329.85461"
+       id="text2726-3"
+       transform="matrix(1.1146478,0,0,0.89714437,11.34401,-1.0417968)"><tspan
          sodipodi:role="line"
-         id="tspan2724-4"
-         x="13.974987"
-         y="323.31213"
-         style="fill:#7c7c7c;fill-opacity:1;stroke:#808080;stroke-width:0.14999999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1">T</tspan></text>
+         id="tspan2724-6"
+         x="-5.6393633"
+         y="329.85461"
+         style="fill:#797979;fill-opacity:1;stroke:#797979;stroke-width:0.14999999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1">C</tspan></text>
     <g
        transform="translate(0.47181511,0.31915283)"
        id="g1024-6"
@@ -367,6 +389,6 @@
          id="tspan2724"
          x="4.3885341"
          y="328.36917"
-         style="fill:#ff0000;fill-opacity:1;stroke:#960202;stroke-width:0.14999999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1">T</tspan></text>
+         style="fill:#ff0000;fill-opacity:1;stroke:#960202;stroke-width:0.14999999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1">C</tspan></text>
   </g>
 </svg>

@@ -286,9 +286,23 @@ ReosRainfallChicagoItem *ReosRainfallModel::addChicagoRainfall( const QString &n
   return static_cast<ReosRainfallChicagoItem *>( addItem( receiver, newRainfal.release() ) );
 }
 
-ReosRainfallChicagoItem *ReosRainfallModel::addDoubleTriangleRainfall( const QString &name, const QString &description, const QModelIndex &index )
+ReosRainfallDoubleTriangleItem *ReosRainfallModel::addDoubleTriangleRainfall( const QString &name, const QString &description, const QModelIndex &index )
 {
+  ReosRainfallItem *receiver = indexToItem( index );
+  if ( receiver == nullptr )
+    return nullptr;
+  else
+  {
+    if ( receiver->type() != ReosRainfallItem::Station )
+      return nullptr;
+  }
 
+  std::unique_ptr<ReosRainfallDoubleTriangleItem> newRainfal = std::make_unique<ReosRainfallDoubleTriangleItem>( name, description );
+
+  if ( ! receiver->accept( newRainfal.get() ) )
+    return nullptr;
+
+  return static_cast<ReosRainfallDoubleTriangleItem *>( addItem( receiver, newRainfal.release() ) );
 }
 
 ReosRainfallIdfCurvesItem *ReosRainfallModel::addIDFCurves( const QString &name, const QString &description, const QModelIndex &index )

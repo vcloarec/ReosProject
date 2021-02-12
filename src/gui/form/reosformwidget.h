@@ -29,6 +29,7 @@ class ReosDataObject;
 class ReosTimeSerieConstantInterval;
 class ReosTimeSerieConstantIntervalModel;
 class ReosChicagoRainfall;
+class ReosDoubleTriangleRainfall;
 class ReosIntensityDurationSelectedCurveWidget;
 
 
@@ -112,6 +113,17 @@ class ReosChicagoRainfallWidget: public ReosTimeSerieConstantIntervalWidget
 
   private:
     ReosIntensityDurationSelectedCurveWidget *mIdfWidget = nullptr;
+};
+
+//! Widget that can be uses to display/edits paramters of a Chicago rainfall
+class ReosDoubleTriangleRainfallWidget: public ReosTimeSerieConstantIntervalWidget
+{
+  public:
+    explicit ReosDoubleTriangleRainfallWidget( ReosDoubleTriangleRainfall *rainfall, QWidget *parent );
+
+  private:
+    ReosIntensityDurationSelectedCurveWidget *mIntenseIdfWidget = nullptr;
+    ReosIntensityDurationSelectedCurveWidget *mTotalIdfWidget = nullptr;
 };
 
 #endif // REOSFORMWIDGET_H

@@ -58,7 +58,7 @@ class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
     ReosStationItem *addStation( const QString &name, const QString &description, const QModelIndex &index );
     ReosRainfallSeriesItem *addGaugedRainfall( const QString &name, const QString &description, const QModelIndex &index, ReosTimeSerieConstantInterval *data = nullptr );
     ReosRainfallChicagoItem *addChicagoRainfall( const QString &name, const QString &description, const QModelIndex &index );
-    ReosRainfallChicagoItem *addDoubleTriangleRainfall( const QString &name, const QString &description, const QModelIndex &index );
+    ReosRainfallDoubleTriangleItem *addDoubleTriangleRainfall( const QString &name, const QString &description, const QModelIndex &index );
     ReosRainfallIdfCurvesItem *addIDFCurves( const QString &name, const QString &description, const QModelIndex &index );
     ReosRainfallIntensityDurationCurveItem *addIDCurve( const ReosDuration &duration, const QString &description, const QModelIndex &index );
     void removeItem( ReosRainfallItem *item );
