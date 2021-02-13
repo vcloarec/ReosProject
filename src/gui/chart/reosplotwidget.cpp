@@ -14,6 +14,8 @@
  *                                                                         *
  ***************************************************************************/
 
+#include <QComboBox>
+
 #include "reosplotwidget.h"
 #include "reosplot_p.h"
 #include "reostimeserie.h"
@@ -58,6 +60,22 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent ): QWidget( parent ),
   mPickerTracker->setStateMachine( new QwtPickerTrackerMachine );
   connect( mPickerTracker, &QwtPlotPicker::moved, this, &ReosPlotWidget::cursorMoved );
 
+  mXAxisFormatCombobox = new QComboBox( this );
+  mToolBar->addSeparator();
+  mToolBar->addWidget( mXAxisFormatCombobox );
+  mXAxisFormatCombobox->addItem( tr( "X linear scale" ) );
+  mXAxisFormatCombobox->addItem( tr( "X logarithmic scale" ) );
+  connect( mXAxisFormatCombobox, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]( int index )
+  {
+    if ( index == 0 )
+      mPlot->setAxisScaleEngine( QwtPlot::xBottom, new QwtLinearScaleEngine() );
+
+    if ( index == 1 )
+      mPlot->setAxisScaleEngine( QwtPlot::xBottom, new QwtLogScaleEngine( 10 ) );
+
+    updatePlot();
+  } );
+  mXAxisFormatCombobox->setEnabled( false );
 }
 
 
@@ -170,6 +188,11 @@ void ReosPlotWidget::setAxeYRightExtent( double min, double max )
   mPlot->setAxisScale( QwtPlot::yRight, min, max );
 }
 
+void ReosPlotWidget::enableScaleTypeChoice( bool b )
+{
+  mXAxisFormatCombobox->setEnabled( b );
+}
+
 void ReosPlotWidget::updatePlot()
 {
   mPlot->setAxisAutoScale( QwtPlot::xBottom );
@@ -275,6 +298,7 @@ void ReosPlotWidget::createItems( ReosDataObject *data )
     setLegendVisible( true );
     setTitleAxeX( tr( "Rainfall duration (mn)" ) );
     setTitleAxeYLeft( tr( "Rainfall duration (mm/h)" ) );
+    enableScaleTypeChoice( true );
   }
 }
 

@@ -22,7 +22,7 @@
 #include <QApplication>
 #include <QClipboard>
 
-class ReosPlot_p;
+class QComboBox;
 
 class QwtPlotMagnifier;
 class QwtPlotPanner;
@@ -33,6 +33,7 @@ class QwtPlotItem;
 class QwtPlotCurve;
 class QwtPlotHistogram;
 
+class ReosPlot_p;
 class ReosDataObject;
 class ReosTimeSerieConstantInterval;
 
@@ -112,6 +113,8 @@ class ReosPlotWidget: public QWidget
     void setAxeYLeftExtent( double min, double max );
     void setAxeYRightExtent( double min, double max );
 
+    void enableScaleTypeChoice( bool b );
+
 
   signals:
     void cursorMoved( const QPointF &pt );
@@ -132,6 +135,7 @@ class ReosPlotWidget: public QWidget
     QToolBar *mToolBar = nullptr;
     QAction *mActionExportAsImage = nullptr;
     QAction *mActionCopyAsImage = nullptr;
+    QComboBox *mXAxisFormatCombobox = nullptr;
 
     void createItems( ReosDataObject *data );
 };
