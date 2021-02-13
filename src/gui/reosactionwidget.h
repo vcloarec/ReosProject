@@ -18,9 +18,11 @@
 
 #include <QWidget>
 
+#include "reosgui.h"
+
 class ReosMapTool;
 
-class ReosActionWidget : public QWidget
+class REOSGUI_EXPORT ReosActionWidget : public QWidget
 {
     Q_OBJECT
   public:
@@ -40,9 +42,6 @@ class ReosActionWidget : public QWidget
     QList<ReosMapTool *> mMapTools;
 
     void storeGeometry();
-
-
-
 };
 
 #endif // REOSACTIONWIDGET_H

@@ -17,6 +17,7 @@
 #define REOSIDFCURVES_H
 
 #include <map>
+#include <memory>
 
 #include <QAbstractTableModel>
 #include <QPointer>
@@ -30,7 +31,7 @@ class ReosIntensityDurationInterval;
  *  Class that contains double parameters needed by a formula that calculates rainfall height depending of its duration
  *  The parameters count depends of the formula
  */
-class  ReosIdfParameters: public QObject
+class ReosIdfParameters: public QObject
 {
     Q_OBJECT
   public:
@@ -62,10 +63,12 @@ class  ReosIdfParameters: public QObject
 
 };
 
-//! Class that represents
-class ReosIdfFormula
+//! Class that represents an intensity duration formula
+class REOSCORE_EXPORT ReosIdfFormula
 {
   public:
+	virtual ~ReosIdfFormula();
+
     //! Returns the name of the formula
     virtual QString name() const = 0;
 
@@ -80,12 +83,11 @@ class ReosIdfFormula
 };
 
 //! Class that register rainfall intensity duration formula. It is a singleton class that can be called everywhere
-class ReosIdfFormulaRegistery
+class REOSCORE_EXPORT ReosIdfFormulaRegistery
 {
   public:
-
     //! Return a pointer to the formula with \a name, return nullptr if not exists
-    ReosIdfFormula *formula( const QString &name );
+    ReosIdfFormula* formula( const QString &name );
 
     //! Register a formula, take ownership
     void registerFormula( ReosIdfFormula *formula );
@@ -99,12 +101,16 @@ class ReosIdfFormulaRegistery
     QStringList formulasList() const;
 
   private:
+
+#ifdef _MSC_VER
+	  std::unique_ptr<ReosIdfFormula> dummy; // work arround for MSVC, if not =, the line after create an compilation error if this class is exported (REOSCORE_EXPORT)
+#endif
     std::map<QString, std::unique_ptr<ReosIdfFormula>> mFormulas;
     static ReosIdfFormulaRegistery *sIdfRegistery;
 };
 
 //! Montana Formula
-class ReosIdfFormulaMontana: public ReosIdfFormula
+class REOSCORE_EXPORT ReosIdfFormulaMontana: public ReosIdfFormula
 {
   public:
     QString name() const override;
@@ -113,7 +119,7 @@ class ReosIdfFormulaMontana: public ReosIdfFormula
 };
 
 //! Sherman Formula
-class ReosIdfFormulaSherman: public ReosIdfFormula
+class REOSCORE_EXPORT ReosIdfFormulaSherman: public ReosIdfFormula
 {
   public:
     QString name() const override;
@@ -177,7 +183,7 @@ class ReosIntensityDurationInterval: public QObject
  * Class that represents a intensity duration curve.
  * An instance of this class can represent several formulas
  */
-class ReosIntensityDurationCurve: public ReosDataObject
+class REOSCORE_EXPORT ReosIntensityDurationCurve: public ReosDataObject
 {
     Q_OBJECT
   public:
@@ -264,7 +270,7 @@ class ReosIntensityDurationCurve: public ReosDataObject
 /**
  * Model representing a intensity/duration curve
  */
-class ReosIntensityDurationCurveTableModel:  public QAbstractTableModel
+class REOSCORE_EXPORT ReosIntensityDurationCurveTableModel:  public QAbstractTableModel
 {
     Q_OBJECT
   public:
@@ -298,7 +304,7 @@ class ReosIntensityDurationCurveTableModel:  public QAbstractTableModel
 /**
  * Class that represents several intensity/duration curves with different return periiod. This class representes complete IDF concept.
  */
-class ReosIntensityDurationFrequencyCurves : public ReosDataObject
+class REOSCORE_EXPORT ReosIntensityDurationFrequencyCurves : public ReosDataObject
 {
   public:
     ReosIntensityDurationFrequencyCurves( QObject *parent = nullptr ): ReosDataObject( parent )

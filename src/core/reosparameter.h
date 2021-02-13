@@ -60,7 +60,7 @@ class REOSCORE_EXPORT ReosParameter : public QObject
 
 
 
-class ReosParameterDouble: public ReosParameter
+class REOSCORE_EXPORT ReosParameterDouble: public ReosParameter
 {
   public:
     explicit ReosParameterDouble( const QString &name, bool derivable, QObject *parent = nullptr );
@@ -83,7 +83,7 @@ class ReosParameterDouble: public ReosParameter
     int mDisplayPrecision = -1;
 };
 
-class ReosParameterString: public ReosParameter
+class REOSCORE_EXPORT ReosParameterString: public ReosParameter
 {
   public:
     explicit ReosParameterString( const QString &name, bool derivable, QObject *parent = nullptr );

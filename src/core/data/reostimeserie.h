@@ -29,7 +29,7 @@
 
 
 //! Class that handle time serie data
-class ReosTimeSerie : public ReosDataObject
+class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
 {
   public:
     ReosTimeSerie( QObject *parent = nullptr );
@@ -96,7 +96,7 @@ class ReosTimeSerie : public ReosDataObject
  *  By default, value are considered as incremental value. Different modes (\see ValueMode) can be used to return
  *   intensity value ( incremental value divided by the time step) or cumulative value (sum from the begining).
  */
-class ReosTimeSerieConstantInterval: public ReosTimeSerie
+class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
 {
     Q_OBJECT
   public:
@@ -182,7 +182,7 @@ class ReosTimeSerieConstantInterval: public ReosTimeSerie
 
 
 //! Model used to handle time series with constant time step
-class ReosTimeSerieConstantIntervalModel : public QAbstractTableModel
+class REOSCORE_EXPORT ReosTimeSerieConstantIntervalModel : public QAbstractTableModel
 {
   public:
     ReosTimeSerieConstantIntervalModel( QObject *parent = nullptr );

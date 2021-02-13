@@ -19,10 +19,12 @@
 #include <memory>
 #include <QString>
 
+#include "reoscore.h"
+
 class ReosRainfallModel;
 class ReosRainfallItem;
 
-class ReosRainfallRegistery
+class REOSCORE_EXPORT ReosRainfallRegistery
 {
   public:
     ReosRainfallRegistery();

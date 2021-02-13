@@ -20,8 +20,9 @@
 #include <QAbstractTableModel>
 #include <QTextStream>
 
+#include "reoscore.h"
 
-class ReosTextFileData : public QAbstractTableModel
+class REOSCORE_EXPORT ReosTextFileData : public QAbstractTableModel
 {
     Q_OBJECT
   public:

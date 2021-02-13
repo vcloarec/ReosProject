@@ -35,7 +35,7 @@ class ReosPlotWidget;
 
 
 //! Widget to handle rainfall data
-class ReosRainfallManager : public ReosActionWidget
+class REOSGUI_EXPORT ReosRainfallManager : public ReosActionWidget
 {
     Q_OBJECT
 

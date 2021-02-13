@@ -18,9 +18,10 @@
 
 #include <QObject>
 
+#include "reoscore.h"
 
 //! Abstract class uses to be an interface for data
-class ReosDataObject: public QObject
+class REOSCORE_EXPORT ReosDataObject: public QObject
 {
     Q_OBJECT
   public:

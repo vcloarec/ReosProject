@@ -29,7 +29,7 @@ class ReosParameter;
 class ReosRainfallIntensityDurationCurveItem;
 class ReosChicagoRainfall;
 
-class ReosRainfallItem : public QObject
+class REOSCORE_EXPORT ReosRainfallItem : public QObject
 {
     Q_OBJECT
   public:
@@ -146,7 +146,7 @@ class ReosRainfallItem : public QObject
 };
 
 
-class ReosRainfallDataItem: public ReosRainfallItem
+class REOSCORE_EXPORT ReosRainfallDataItem: public ReosRainfallItem
 {
     Q_OBJECT
   public:
@@ -158,7 +158,7 @@ class ReosRainfallDataItem: public ReosRainfallItem
 };
 
 //! Class that represent a station item that contains rainfall data
-class ReosStationItem: public ReosRainfallItem
+class REOSCORE_EXPORT ReosStationItem: public ReosRainfallItem
 {
     Q_OBJECT
   public:
@@ -174,7 +174,7 @@ class ReosStationItem: public ReosRainfallItem
 };
 
 //! Class that represents a geographical zone item that can contain other zone or rainfall station
-class ReosZoneItem: public ReosRainfallItem
+class REOSCORE_EXPORT ReosZoneItem: public ReosRainfallItem
 {
     Q_OBJECT
   public:
@@ -203,7 +203,7 @@ class ReosRootItem: public ReosRainfallItem
 
 
 //! Class that represents time serie data item
-class ReosRainfallSeriesItem: public ReosRainfallDataItem
+class REOSCORE_EXPORT ReosRainfallSeriesItem: public ReosRainfallDataItem
 {
     Q_OBJECT
   public:
@@ -221,7 +221,7 @@ class ReosRainfallSeriesItem: public ReosRainfallDataItem
     ReosTimeSerieConstantInterval *mData = nullptr;
 };
 
-class ReosRainfallChicagoItem: public ReosRainfallDataItem
+class REOSCORE_EXPORT ReosRainfallChicagoItem: public ReosRainfallDataItem
 {
     Q_OBJECT
   public:
@@ -243,7 +243,7 @@ class ReosRainfallChicagoItem: public ReosRainfallDataItem
     QPointer<ReosRainfallIntensityDurationCurveItem> mCurveItem;
 };
 
-class ReosRainfallDoubleTriangleItem: public ReosRainfallDataItem
+class REOSCORE_EXPORT ReosRainfallDoubleTriangleItem: public ReosRainfallDataItem
 {
     Q_OBJECT
   public:
@@ -267,7 +267,7 @@ class ReosRainfallDoubleTriangleItem: public ReosRainfallDataItem
 };
 
 
-class ReosRainfallIdfCurvesItem: public ReosRainfallDataItem
+class REOSCORE_EXPORT ReosRainfallIdfCurvesItem: public ReosRainfallDataItem
 {
     Q_OBJECT
   public:
@@ -292,7 +292,7 @@ class ReosRainfallIdfCurvesItem: public ReosRainfallDataItem
 
 };
 
-class ReosRainfallIntensityDurationCurveItem: public ReosRainfallDataItem
+class REOSCORE_EXPORT ReosRainfallIntensityDurationCurveItem: public ReosRainfallDataItem
 {
     Q_OBJECT
   public:

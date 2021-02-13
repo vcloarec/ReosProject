@@ -23,7 +23,7 @@
 
 class ReosParameterDuration;
 
-class ReosChicagoRainfall : public ReosTimeSerieConstantInterval
+class REOSCORE_EXPORT ReosChicagoRainfall : public ReosTimeSerieConstantInterval
 {
     Q_OBJECT
   public:
@@ -69,7 +69,7 @@ class ReosChicagoRainfall : public ReosTimeSerieConstantInterval
     void connectParameters();
 };
 
-class ReosDoubleTriangleRainfall : public ReosTimeSerieConstantInterval
+class REOSCORE_EXPORT ReosDoubleTriangleRainfall : public ReosTimeSerieConstantInterval
 {
     Q_OBJECT
   public:

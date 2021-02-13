@@ -123,15 +123,15 @@ ReosIntensityDurationInterval *ReosIntensityDurationInterval::decode( const Reos
 ReosIdfFormula *ReosIdfFormulaRegistery::formula( const QString &name )
 {
   auto it = mFormulas.find( name );
-  if ( it != mFormulas.end() )
-    return it->second.get();
+  if (it != mFormulas.end())
+	  return it->second.get();
   else
     return nullptr;
 }
 
 void ReosIdfFormulaRegistery::registerFormula( ReosIdfFormula *formula )
 {
-  mFormulas[formula->name()] = std::unique_ptr<ReosIdfFormula>( formula );
+	mFormulas[formula->name()] = std::unique_ptr<ReosIdfFormula>(formula); //issue with MSVC
 }
 
 ReosIdfFormulaRegistery *ReosIdfFormulaRegistery::instance()
@@ -578,6 +578,8 @@ bool ReosIdfParameters::isValid() const
 
   return valid;
 }
+
+ReosIdfFormula::~ReosIdfFormula() = default;
 
 ReosIdfParameters *ReosIdfFormula::createParameters( ReosIntensityDurationInterval *interval ) const
 {

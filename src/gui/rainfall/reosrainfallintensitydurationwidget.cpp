@@ -17,6 +17,8 @@
 
 #include "reosidfcurves.h"
 
+#include <memory>
+
 #include <QComboBox>
 #include <QHeaderView>
 #include <QMenu>
