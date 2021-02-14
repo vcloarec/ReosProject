@@ -27,6 +27,7 @@ ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outle
   , mExtent( delineating )
   , mDelineating( delineating )
   , mOutletPoint( outletPoint )
+  , mName( new ReosParameterString( tr( "Watershed name" ), false, this ) )
   , mArea( new ReosParameterArea( tr( "Watershed area" ), true, this ) )
   , mSlope( new ReosParameterSlope( tr( "Average slope" ), true, this ) )
 {
@@ -40,6 +41,7 @@ ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outle
   mOutletPoint( outletPoint ),
   mDownstreamLine( downstreamLine ),
   mStreamPath( streamPath )
+  , mName( new ReosParameterString( tr( "Watershed name" ), false, this ) )
   , mArea( new ReosParameterArea( tr( "Watershed area" ), true, this ) )
   , mSlope( new ReosParameterSlope( tr( "Average slope" ), true, this ) )
 {
@@ -53,6 +55,7 @@ ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outle
   mOutletPoint( outletPoint ),
   mDownstreamLine( downstreamLine ),
   mStreamPath( streamPath )
+  , mName( new ReosParameterString( tr( "Watershed name" ), false, this ) )
   , mArea( new ReosParameterArea( tr( "Watershed area" ), true, this ) )
   , mSlope( new ReosParameterSlope( tr( "Average slope" ), true, this ) )
 {
@@ -61,17 +64,17 @@ ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outle
   mDirectionData.insert( {refLayerId, dir} );
 }
 
-QString ReosWatershed::name() const
+ReosParameterString *ReosWatershed::name() const
 {
-  if ( mType == Residual && mDownstreamWatershed )
-    return mDownstreamWatershed->name() + QObject::tr( " residual" );
+//  if ( mType == Residual && mDownstreamWatershed )
+//    return mDownstreamWatershed->name() + QObject::tr( " residual" );
 
   return mName;
 }
 
 void ReosWatershed::setName( const QString &name )
 {
-  mName = name;
+  mName->setValue( name );
   void changed();
 }
 
@@ -177,8 +180,8 @@ ReosWatershed *ReosWatershed::addUpstreamWatershed( ReosWatershed *newUpstreamWa
       return existingUpstream->addUpstreamWatershed( ws.release(), adjustIfNeeded ); // let the existing watershed dealing with the new one
   }
 
-  if ( ws->name().isEmpty() && !name().isEmpty() )
-    ws->setName( name().append( "-%1" ).arg( mUpstreamWatersheds.size() + ( mUpstreamWatersheds.empty() ? 1 : 0 ) ) );
+  if ( !ws->name()->isValid() && name()->isValid() )
+    ws->setName( name()->value().append( "-%1" ).arg( mUpstreamWatersheds.size() + ( mUpstreamWatersheds.empty() ? 1 : 0 ) ) );
 
   ws->mDownstreamWatershed = this;
   if ( adjustIfNeeded )
@@ -425,7 +428,6 @@ ReosEncodedElement ReosWatershed::encode() const
   ReosEncodedElement ret( QStringLiteral( "watershed" ) );
 
   ret.addData( QStringLiteral( "type" ), mType );
-  ret.addData( QStringLiteral( "name" ), mName );
   ret.addEncodedData( QStringLiteral( "extent" ), mExtent.encode() );
   ret.addData( QStringLiteral( "delineating" ), mDelineating );
   ret.addData( QStringLiteral( "outlet-point" ), mOutletPoint );
@@ -454,6 +456,7 @@ ReosEncodedElement ReosWatershed::encode() const
 
   ret.addData( QStringLiteral( "upstream-watersheds" ), upstreamWatersheds );
 
+  ret.addEncodedData( QStringLiteral( "name" ), mName->encode() );
   ret.addEncodedData( QStringLiteral( "area-parameter" ), mArea->encode() );
   ret.addEncodedData( QStringLiteral( "slope-parameter" ), mSlope->encode() );
   return ret;
@@ -469,8 +472,6 @@ ReosWatershed *ReosWatershed::decode( const ReosEncodedElement &element )
   if ( !element.getData( QStringLiteral( "type" ), intType ) )
     return nullptr;
   ws->mType = static_cast<ReosWatershed::Type>( intType );
-  if ( !element.getData( QStringLiteral( "name" ), ws->mName ) )
-    return nullptr;
 
   ws->mExtent = ReosMapExtent::decode( element.getEncodedData( QStringLiteral( "extent" ) ) );
 
@@ -531,6 +532,11 @@ ReosWatershed *ReosWatershed::decode( const ReosEncodedElement &element )
     ws->mSlope->deleteLater();
   ws->mSlope = ReosParameterSlope::decode( element.getEncodedData( QStringLiteral( "slope-parameter" ) ), true, ws.get() );
   connect( ws->mSlope, &ReosParameter::needDerivation, ws.get(), &ReosWatershed::calculateDerivedSlope );
+
+  if ( ws->mName )
+    ws->mName->deleteLater();
+  ws->mName = ReosParameterString::decode( element.getEncodedData( QStringLiteral( "name" ) ), false, ws.get() );
+
   return ws.release();
 }
 
@@ -617,7 +623,7 @@ void ReosWatershed::updateResidual()
 
   mUpstreamWatersheds[0]->mDelineating = residualDelineating;
   mUpstreamWatersheds[0]->mExtent = ReosMapExtent( residualDelineating );
-  mUpstreamWatersheds[0]->mName = mName + QObject::tr( " residual" );
+  mUpstreamWatersheds[0]->mName->setValue( mName->value() + QObject::tr( " residual" ) );
   mUpstreamWatersheds[0]->mDownstreamWatershed = this;
 
   if ( mUpstreamWatersheds[0]->mArea->isDerived() )

@@ -63,6 +63,11 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   connect( module, &ReosWatershedModule::hasBeenReset, this, &ReosWatershedWidget::onModuleReset );
 
   connect( mActionRemoveWatershed, &QAction::triggered, this, &ReosWatershedWidget::onRemoveWatershed );
+
+  connect( ui->mParameterNameWidget, &ReosParameterWidget::valueChanged, ui->treeView, [this]
+  {
+    ui->treeView->dataChanged( ui->treeView->currentIndex(), ui->treeView->currentIndex() );
+  } );
 }
 
 ReosWatershedWidget::~ReosWatershedWidget()
@@ -117,7 +122,7 @@ void ReosWatershedWidget::onRemoveWatershed()
   if ( !ws )
     return;
 
-  if ( QMessageBox::warning( this, tr( "Removing watershed" ), tr( "Do you want to remove the current watershed '%1'?" ).arg( ws->name() ),
+  if ( QMessageBox::warning( this, tr( "Removing watershed" ), tr( "Do you want to remove the current watershed '%1'?" ).arg( ws->name()->value() ),
                              QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::No )
     return;
 
@@ -161,11 +166,13 @@ void ReosWatershedWidget::onCurrentWatershedChange( const QItemSelection &select
 
   if ( currentWatershed )
   {
+    ui->mParameterNameWidget->setString( currentWatershed->name() );
     ui->mParameterAreaWidget->setArea( currentWatershed->area() );
     ui->mParameterSlopeWidget->setSlope( currentWatershed->slope() );
   }
   else
   {
+    ui->mParameterNameWidget->setString( nullptr );
     ui->mParameterAreaWidget->setArea( nullptr );
     ui->mParameterSlopeWidget->setSlope( nullptr );
   }

@@ -54,6 +54,7 @@ void ReosActionWidget::closeEvent( QCloseEvent *event )
       break;
     }
   }
+  closingWidget();
   event->accept();
 }
 

@@ -60,12 +60,11 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent ): QWidget( parent ),
   mPickerTracker->setStateMachine( new QwtPickerTrackerMachine );
   connect( mPickerTracker, &QwtPlotPicker::moved, this, &ReosPlotWidget::cursorMoved );
 
-  mXAxisFormatCombobox = new QComboBox( this );
-  mToolBar->addSeparator();
-  mToolBar->addWidget( mXAxisFormatCombobox );
-  mXAxisFormatCombobox->addItem( tr( "X linear scale" ) );
-  mXAxisFormatCombobox->addItem( tr( "X logarithmic scale" ) );
-  connect( mXAxisFormatCombobox, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]( int index )
+  QComboBox *xAxisFormatCombobox = new QComboBox( this );
+  mXAxisFormatCombobox = mToolBar->addWidget( xAxisFormatCombobox );
+  xAxisFormatCombobox->addItem( tr( "X linear scale" ) );
+  xAxisFormatCombobox->addItem( tr( "X logarithmic scale" ) );
+  connect( xAxisFormatCombobox, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]( int index )
   {
     if ( index == 0 )
       mPlot->setAxisScaleEngine( QwtPlot::xBottom, new QwtLinearScaleEngine() );
@@ -75,7 +74,7 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent ): QWidget( parent ),
 
     updatePlot();
   } );
-  mXAxisFormatCombobox->setEnabled( false );
+  mXAxisFormatCombobox->setVisible( false );
 }
 
 
@@ -190,7 +189,7 @@ void ReosPlotWidget::setAxeYRightExtent( double min, double max )
 
 void ReosPlotWidget::enableScaleTypeChoice( bool b )
 {
-  mXAxisFormatCombobox->setEnabled( b );
+  mXAxisFormatCombobox->setVisible( b );
 }
 
 void ReosPlotWidget::updatePlot()
@@ -270,6 +269,8 @@ void ReosPlotWidget::createItems( ReosDataObject *data )
     setLegendVisible( false );
     setTitleAxeX( tr( "Rainfall duration (mn)" ) );
     setTitleAxeYLeft( tr( "Rainfall intensity (mm/h)" ) );
+
+    enableScaleTypeChoice( true );
   }
 
   if ( data && data->type() == QStringLiteral( "rainfall-intensity-duration-frequency-curves" ) )

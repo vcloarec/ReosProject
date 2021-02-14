@@ -20,13 +20,9 @@ ReosPlotIdfCurve::ReosPlotIdfCurve( ReosIntensityDurationCurve *curve,  const QS
 {
   mPlotItem = new ReosIdfPlot_p( curve );
   mPlotItem->setTitle( name );
+  mPlotItem->setItemAttribute( QwtPlotItem::AutoScale, true );
   connect( curve, &ReosDataObject::dataChanged, this, &ReosPlotItem::itemChanged );
   connect( curve, &ReosDataObject::dataChanged, this, &ReosPlotItem::fullExtent );
-}
-
-void ReosPlotIdfCurve::fullExtent()
-{
-  item()->fullExtent();
 }
 
 void ReosPlotIdfCurve::setColors( const QColor &color )

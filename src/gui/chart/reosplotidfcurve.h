@@ -28,8 +28,6 @@ class ReosPlotIdfCurve: public ReosPlotItem
     ReosPlotIdfCurve( ReosIntensityDurationCurve *mCurve, const QString &name = QString() );
 
   public slots:
-    void fullExtent();
-
     void setColors( const QColor &color );
 
   private:

@@ -65,6 +65,7 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   mMapToolDrawDownStreamLine->setStrokeWidth( 2 );
   mMapToolDrawDownStreamLine->setColor( Qt::darkGreen );
   mMapToolDrawDownStreamLine->setLineStyle( Qt::DashLine );
+  mMapTools << mMapToolDrawDownStreamLine;
 
   mMapToolDrawPredefinedExtent = new ReosMapToolDrawExtent( map );
   mMapToolDrawPredefinedExtent->setAction( mActionDrawPredefinedExtent );
@@ -73,6 +74,7 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   mMapToolDrawPredefinedExtent->setColor( Qt::red );
   mMapToolDrawPredefinedExtent->setFillColor( QColor( 150, 0, 0, 30 ) );
   mMapToolDrawPredefinedExtent->setLineStyle( Qt::DashLine );
+  mMapTools << mMapToolDrawPredefinedExtent;
 
   mMapToolDrawBurningLine = new ReosMapToolDrawPolyline( map );
   mMapToolDrawBurningLine->setAction( mActionDrawAddBurningLine );
@@ -80,11 +82,13 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   mMapToolDrawBurningLine->setStrokeWidth( 2 );
   mMapToolDrawBurningLine->setColor( Qt::red );
   mMapToolDrawBurningLine->setLineStyle( Qt::DashLine );
+  mMapTools << mMapToolDrawBurningLine;
 
   mMapToolRemoveBurningLine = new ReosMapToolSelectMapItem( map, -1 );
   mMapToolRemoveBurningLine->setAction( mActionRemoveBurningLine );
   mActionRemoveBurningLine->setCheckable( true );
   connect( mMapToolRemoveBurningLine, &ReosMapToolSelectMapItem::found, this, &ReosDelineatingWatershedWidget::onBurningLineRemoved );
+  mMapTools << mMapToolDrawBurningLine;
 
   mDownstreamLine.setColor( Qt::darkGreen );
   mDownstreamLine.setExternalColor( Qt::white );
@@ -115,8 +119,10 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   mMapToolDrawWatershed->setColor( Qt::darkGreen );
   mMapToolDrawWatershed->setLineStyle( Qt::DashLine );
   mMapToolDrawWatershed->setFillColor( QColor( 0, 150, 0, 50 ) );
+  mMapTools << mMapToolDrawWatershed;
 
   mMapToolDrawOutletPoint = new ReosMapToolDrawPoint( map );
+  mMapTools << mMapToolDrawOutletPoint;
 
   mTemporaryManualWatershed.setColor( QColor( 50, 250, 50 ) );
   mTemporaryManualWatershed.setExternalColor( Qt::white );
@@ -318,6 +324,17 @@ void ReosDelineatingWatershedWidget::onModuleReset()
 
   onMethodChange();
 
+}
+
+void ReosDelineatingWatershedWidget::closingWidget()
+{
+  mDownstreamLine.resetPolyline();
+  mWatershedExtent.resetPolygon();
+  mTemporaryAutomaticWatershed.resetPolygon();
+  mTemporaryAutomaticStreamLine.resetPolyline();
+  mTemporaryManualWatershed.resetPolygon();
+  mTemporaryManualOutletPoint.resetPoint();
+  mModule->delineatingModule()->clear();
 }
 
 void ReosDelineatingWatershedWidget::showAutomaticDelineating( bool shown )

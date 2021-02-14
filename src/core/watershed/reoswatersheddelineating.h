@@ -132,6 +132,8 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
     //! Considering result, test if the predefined extent is valid, if not return false and set the state to WaitingWithBroughtBackExtent
     void testPredefinedExtentValidity();
 
+    void clear();
+
   signals:
     void hasBeenReset();
 

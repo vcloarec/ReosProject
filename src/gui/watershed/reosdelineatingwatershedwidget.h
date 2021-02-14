@@ -52,14 +52,14 @@ class ReosDelineatingWatershedWidget : public ReosActionWidget
     void onDemComboboxChanged();
     void onDelineateAsked();
     void onAutomaticValidateAsked();
-
     void onManualWatershedDrawn( const QPolygonF &polygon );
     void onManualOutletDrawn( const QPointF &point );
     void onManualValidateAsked();
-
     void onMethodChange();
-
     void onModuleReset();
+
+    void closingWidget() override;
+
 
   private:
     Ui::ReosDelineatingWatershedWidget *ui;

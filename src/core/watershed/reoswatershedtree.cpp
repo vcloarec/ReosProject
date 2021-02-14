@@ -80,7 +80,7 @@ ReosWatershed *ReosWatershedTree::addWatershed( ReosWatershed *watershedToAdd, b
   else
   {
     // first assign new name
-    if ( ws->name().isEmpty() )
+    if ( !ws->name()->isValid() )
       ws->setName( tr( "Watershed-%1" ).arg( mWatersheds.size() + 1 ) );
 
     size_t i = 0;
@@ -340,7 +340,7 @@ QVariant ReosWatershedItemModel::data( const QModelIndex &index, int role ) cons
   switch ( role )
   {
     case Qt::DisplayRole:
-      return indexToWatershed( index )->name();
+      return indexToWatershed( index )->name()->value();
       break;
     default:
       break;

@@ -66,7 +66,7 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
     Type type() const {return mType;}
 
     //! Returns the name of the watershed
-    QString name() const;
+    ReosParameterString *name() const;
 
     //! Sets the name of the watershed
     void setName( const QString &name );
@@ -200,15 +200,15 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
 
   private:
     Type mType = None;
-    QString mName;
     ReosMapExtent mExtent;
     QPolygonF mDelineating;
     QPointF mOutletPoint;
     QPolygonF mDownstreamLine;
     QPolygonF mStreamPath;
     QPolygonF mProfile;
-
     ReosGisEngine *mGisEngine = nullptr;
+
+    ReosParameterString *mName;
     ReosParameterArea *mArea = nullptr;
     ReosParameterSlope *mSlope = nullptr;
     ReosGisEngine *geographicalContext() const;

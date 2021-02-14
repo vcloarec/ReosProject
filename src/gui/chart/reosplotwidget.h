@@ -135,7 +135,7 @@ class ReosPlotWidget: public QWidget
     QToolBar *mToolBar = nullptr;
     QAction *mActionExportAsImage = nullptr;
     QAction *mActionCopyAsImage = nullptr;
-    QComboBox *mXAxisFormatCombobox = nullptr;
+    QAction *mXAxisFormatCombobox = nullptr;
 
     void createItems( ReosDataObject *data );
 };

@@ -114,7 +114,10 @@ QString ReosParameterInLineWidget::textValue() const
 void ReosParameterWidget::setParameter( ReosParameter *param )
 {
   if ( mParameter )
+  {
     disconnect( mParameter, &ReosParameter::valueChanged, this, &ReosParameterWidget::updateValue );
+    disconnect( mParameter, &ReosParameter::valueChanged, this, &ReosParameterWidget::valueChanged );
+  }
 
   mParameter = param;
 
@@ -123,6 +126,7 @@ void ReosParameterWidget::setParameter( ReosParameter *param )
     mLabelName->setText( param->name() );
     mDerivationButton->setVisible( mParameter->isDerivable() );
     connect( mParameter, &ReosParameter::valueChanged, this, &ReosParameterWidget::updateValue );
+    connect( mParameter, &ReosParameter::valueChanged, this, &ReosParameterWidget::valueChanged );
   }
   else
   {
@@ -180,7 +184,12 @@ ReosParameterAreaWidget::ReosParameterAreaWidget( ReosParameterArea *area, QWidg
 void ReosParameterAreaWidget::setArea( ReosParameterArea *area )
 {
   setParameter( area );
+  updateValue();
 
+}
+
+void ReosParameterAreaWidget::updateValue()
+{
   if ( areaParameter() )
   {
     setTextValue( areaParameter()->value().valueInUnit() );
@@ -193,12 +202,6 @@ void ReosParameterAreaWidget::setArea( ReosParameterArea *area )
     mUnitCombobox->setCurrentIndex( -1 );
     hide();
   }
-}
-
-void ReosParameterAreaWidget::updateValue()
-{
-  if ( areaParameter() )
-    setTextValue( areaParameter()->value().valueInUnit( static_cast<ReosArea::Unit>( mUnitCombobox->currentData().toInt() ) ) );
 }
 
 void ReosParameterAreaWidget::applyValue()
@@ -291,12 +294,21 @@ ReosParameterStringWidget::ReosParameterStringWidget( ReosParameterString *strin
 void ReosParameterStringWidget::setString( ReosParameterString *string )
 {
   setParameter( string );
+  updateValue();
 }
 
 void ReosParameterStringWidget::updateValue()
 {
   if ( stringParameter() )
+  {
     setTextValue( stringParameter()->value() );
+    show();
+  }
+  else
+  {
+    setTextValue( QString( '-' ) );
+    hide();
+  }
 }
 
 void ReosParameterStringWidget::applyValue()
@@ -329,12 +341,21 @@ ReosParameterDoubleWidget::ReosParameterDoubleWidget( ReosParameterDouble *value
 void ReosParameterDoubleWidget::setDouble( ReosParameterDouble *value )
 {
   setParameter( value );
+  updateValue();
 }
 
 void ReosParameterDoubleWidget::updateValue()
 {
   if ( doubleParameter() )
+  {
     setTextValue( doubleParameter()->toString() );
+    show();
+  }
+  else
+  {
+    setTextValue( QString( '-' ) );
+    hide();
+  }
 }
 
 void ReosParameterDoubleWidget::applyValue()
@@ -394,7 +415,11 @@ ReosParameterDurationWidget::ReosParameterDurationWidget( ReosParameterDuration 
 void ReosParameterDurationWidget::setDuration( ReosParameterDuration *duration )
 {
   setParameter( duration );
+  updateValue();
+}
 
+void ReosParameterDurationWidget::updateValue()
+{
   if ( durationParameter() )
   {
     setTextValue( durationParameter()->value().valueUnit() );
@@ -407,12 +432,6 @@ void ReosParameterDurationWidget::setDuration( ReosParameterDuration *duration )
     mUnitCombobox->setCurrentIndex( -1 );
     hide();
   }
-}
-
-void ReosParameterDurationWidget::updateValue()
-{
-  if ( durationParameter() )
-    setTextValue( durationParameter()->value().valueUnit( static_cast<ReosDuration::Unit>( mUnitCombobox->currentData().toInt() ) ) );
 }
 
 void ReosParameterDurationWidget::applyValue()

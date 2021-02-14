@@ -88,6 +88,7 @@ ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWi
   mMapToolDrawStreamLine->setStrokeWidth( 3 );
   mMapToolDrawStreamLine->setLineStyle( Qt::DashLine );
   mCurrentStreamLine.activeMarker( true );
+  mMapTools << mMapToolDrawStreamLine;
 
   ui->mPlotWidget->setTitleAxeX( tr( "Distance (map unit)" ) );
   ui->mPlotWidget->setTitleAxeYLeft( tr( "Elevation (DEM unit)" ) );
@@ -98,6 +99,7 @@ ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWi
   mActionEditStreamLine->setCheckable( true );
   mMapToolEditStreamLine->setAction( mActionEditStreamLine );
   mMapToolEditStreamLine->setMapPolyline( &mCurrentStreamLine );
+  mMapTools << mMapToolEditStreamLine;
   connect( mMapToolEditStreamLine, &ReosMapToolEditMapPolyline::polylineEdited, this, &ReosLongitudinalProfileWidget::onStreamLineEdited );
   mCurrentStreamLine.setWidth( 3 );
   mCurrentStreamLine.setExternalWidth( 5 );
@@ -108,6 +110,7 @@ ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWi
   mMapToolSelectMapUpstreamPoint = new ReosMapToolDrawPoint( map );
   mMapToolSelectMapUpstreamPoint->setAction( mActionDrawStreamLineFromPointToDownstream );
   mActionDrawStreamLineFromPointToDownstream->setCheckable( true );
+  mMapTools << mMapToolSelectMapUpstreamPoint;
 
 
   connect( mMapToolSelectMapUpstreamPoint, &ReosMapToolDrawPoint::drawn, this, &ReosLongitudinalProfileWidget::drawStreamLinefromPointToDownstream );
@@ -135,7 +138,7 @@ ReosLongitudinalProfileWidget::~ReosLongitudinalProfileWidget()
 void ReosLongitudinalProfileWidget::setCurrentWatershed( ReosWatershed *ws )
 {
   if ( ws )
-    ui->mLabelWatershedName->setText( ws->name() );
+    ui->mLabelWatershedName->setText( ws->name()->value() );
 
   mCurrentWatershed = ws;
 

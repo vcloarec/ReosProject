@@ -27,7 +27,7 @@
    <item>
     <layout class="QVBoxLayout" name="layoutDescription">
      <property name="spacing">
-      <number>0</number>
+      <number>6</number>
      </property>
      <property name="topMargin">
       <number>0</number>
@@ -38,6 +38,9 @@
         <string>Watershed Values</string>
        </property>
       </widget>
+     </item>
+     <item>
+      <widget class="ReosParameterStringWidget" name="mParameterNameWidget" native="true"/>
      </item>
      <item>
       <widget class="ReosParameterSlopeWidget" name="mParameterSlopeWidget" native="true">
@@ -67,6 +70,12 @@
    <class>ReosParameterSlopeWidget</class>
    <extends>QWidget</extends>
    <header>reosparameterwidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ReosParameterStringWidget</class>
+   <extends>QWidget</extends>
+   <header>reosparameterwidet.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

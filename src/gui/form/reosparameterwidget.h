@@ -43,6 +43,9 @@ class ReosParameterWidget : public QWidget
     virtual void applyValue() = 0;
     virtual void askDerivation();
 
+  signals:
+    void valueChanged();
+
   protected:
     void finalizeWidget();
     void setParameter( ReosParameter *param );

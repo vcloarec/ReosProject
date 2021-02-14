@@ -121,24 +121,7 @@ void ReosIdfPlot_p::draw( QPainter *painter, const QwtScaleMap &xMap, const QwtS
   painter->restore();
 }
 
-void ReosIdfPlot_p::fullExtent()
-{
-  if ( !plot() )
-    return;
-
-  QRectF ext = extent();
-
-  if ( !ext.isValid() )
-    return;
-
-  double dx = 0.1 *  ext.width() ;
-  plot()->setAxisScale( QwtPlot::xBottom, ext.left() - dx, ext.right() + dx );
-  double dy = 0.1 * ( ext.height() );
-  plot()->setAxisScale( QwtPlot::yLeft, ext.top() - dy, ext.bottom() + dy );
-  plot()->replot();
-}
-
-QRectF ReosIdfPlot_p::extent() const
+QRectF ReosIdfPlot_p::boundingRect() const
 {
   if ( mCurve.isNull() )
     return QRectF();

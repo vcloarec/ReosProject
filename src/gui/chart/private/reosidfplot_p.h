@@ -30,8 +30,7 @@ class ReosIdfPlot_p: public QwtPlotItem
     ReosIdfPlot_p( ReosIntensityDurationCurve *curve );
     void draw( QPainter *painter, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRectF &canvasRect ) const override;
 
-    void fullExtent();
-    QRectF extent() const;
+    QRectF boundingRect() const override;
 
     void setColor( const QColor &color );
 
