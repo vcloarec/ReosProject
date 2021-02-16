@@ -12,6 +12,7 @@ class REOSCORE_EXPORT ReosWatershedModule : public ReosModule
     Q_OBJECT
   public:
     ReosWatershedModule( ReosModule *parent, ReosGisEngine *gisEngine );
+    ~ReosWatershedModule();
 
     //! Returns a pointer to the watershed tree
     ReosWatershedTree *watershedTree() const;

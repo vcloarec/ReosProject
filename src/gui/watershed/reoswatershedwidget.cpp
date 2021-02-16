@@ -7,6 +7,7 @@
 #include "reoswatershedtree.h"
 #include "reosdelineatingwatershedwidget.h"
 #include "reoslongitudinalprofilewidget.h"
+#include "reosconcentrationtimewidget.h"
 #include "reosmenupopulator.h"
 
 #include <QMessageBox>
@@ -15,29 +16,38 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   QWidget( parent ),
   ui( new Ui::ReosWatershedWidget ),
   mMap( map ),
-  mActionSelectWatershed( new QAction( QPixmap( ":/images/selectWatershed.svg" ), tr( "Select watershed on map" ), this ) ),
+  mActionSelectWatershed( new QAction( QPixmap( QStringLiteral( ":/images/selectWatershed.svg" ) ), tr( "Select watershed on map" ), this ) ),
   mMapToolSelectWatershed( new ReosMapToolSelectMapItem( map, QStringLiteral( "Watershed" ) ) ),
-  mActionRemoveWatershed( new QAction( QPixmap( ":/images/removeWatershed.svg" ), tr( "Remove watershed" ), this ) ),
-  mActionDelineateWatershed( new QAction( QPixmap( ":/images/delineateWatershed.svg" ), tr( "Delineate watershed" ), this ) ),
+  mActionRemoveWatershed( new QAction( QPixmap( QStringLiteral( ":/images/removeWatershed.svg" ) ), tr( "Remove watershed" ), this ) ),
+  mActionDelineateWatershed( new QAction( QPixmap( QStringLiteral( ":/images/delineateWatershed.svg" ) ), tr( "Delineate watershed" ), this ) ),
   mDelineatingWidget( new ReosDelineatingWatershedWidget( module, map, this ) ),
-  mActionLongitudinalProfile( new QAction( QPixmap( ":/images/longProfile.svg" ), tr( "Longitudinal profile" ) ) ),
+  mActionLongitudinalProfile( new QAction( QPixmap( QStringLiteral( ":/images/longProfile.svg" ) ), tr( "Longitudinal profile" ) ) ),
   mLongitudinalProfileWidget( new ReosLongitudinalProfileWidget( map, this ) ),
+  mActionConcentrationTime( new QAction( QPixmap( QStringLiteral( ":/images/concentrationTimeWatershed.svg" ) ), tr( "Concentration time" ), this ) ),
+  mConcentrationTimeWidget( new ReosConcentrationTimeWidget( this ) ),
   mCurrentMapOutlet( map ),
   mCurrentStreamLine( map )
 {
   ui->setupUi( this );
   setModel( new ReosWatershedItemModel( module->watershedTree(), this ) );
 
+  ui->mParameterAreaWidget->setDefaultName( tr( "Area" ) );
+  ui->mParameterSlopeWidget->setDefaultName( tr( "Average Slope" ) );
+  ui->mParameterNameWidget->setDefaultName( tr( "Watershed name" ) );
+
   mActionDelineateWatershed->setCheckable( true );
   mActionLongitudinalProfile->setCheckable( true );
+  mActionConcentrationTime->setCheckable( true );
   QToolBar *toolBar = new QToolBar( this );
   toolBar->addAction( mActionSelectWatershed );
   toolBar->addAction( mActionDelineateWatershed );
   toolBar->addAction( mActionRemoveWatershed );
   toolBar->addAction( mActionLongitudinalProfile );
+  toolBar->addAction( mActionConcentrationTime );
   static_cast<QBoxLayout *>( layout() )->insertWidget( 0, toolBar );
   mDelineatingWidget->setAction( mActionDelineateWatershed );
   mLongitudinalProfileWidget->setAction( mActionLongitudinalProfile );
+  mConcentrationTimeWidget->setAction( mActionConcentrationTime );
 
   mMapToolSelectWatershed->setAction( mActionSelectWatershed );
   mActionSelectWatershed->setCheckable( true );
@@ -59,6 +69,7 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   mCurrentMapOutlet.setZValue( 10 );
 
   connect( this, &ReosWatershedWidget::currentWatershedChanged, mLongitudinalProfileWidget, &ReosLongitudinalProfileWidget::setCurrentWatershed );
+  connect( this, &ReosWatershedWidget::currentWatershedChanged, mConcentrationTimeWidget, &ReosConcentrationTimeWidget::setCurrentWatershed );
 
   connect( module, &ReosWatershedModule::hasBeenReset, this, &ReosWatershedWidget::onModuleReset );
 

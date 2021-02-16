@@ -15,6 +15,7 @@ namespace Ui
 class ReosWatershedItemModel;
 class ReosDelineatingWatershedWidget;
 class ReosLongitudinalProfileWidget;
+class ReosConcentrationTimeWidget;
 class ReosWatershedModule;
 class ReosWatershed;
 class ReosMapToolSelectMapItem;
@@ -52,6 +53,9 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
     ReosDelineatingWatershedWidget *mDelineatingWidget = nullptr;
     QAction *mActionLongitudinalProfile = nullptr;
     ReosLongitudinalProfileWidget *mLongitudinalProfileWidget = nullptr;
+    QAction *mActionConcentrationTime = nullptr;
+    ReosConcentrationTimeWidget *mConcentrationTimeWidget = nullptr;
+
 
     QMap<ReosWatershed *, ReosMapPolygon> mMapWatersheds;
     ReosMapMarker mCurrentMapOutlet;

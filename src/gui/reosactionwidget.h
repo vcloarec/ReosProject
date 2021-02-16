@@ -44,8 +44,6 @@ class REOSGUI_EXPORT ReosActionWidget : public QWidget
 
   private:
     QAction *mAction;
-
-
     void storeGeometry();
 };
 

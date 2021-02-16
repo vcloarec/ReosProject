@@ -31,6 +31,7 @@ class ReosWatersehdTest: public QObject
     void watershdDelineatingMultiWatershed();
     void inclusion();
     void watershedInteractions();
+    void concentrationTime();
 
   private:
     ReosModule rootModule;
@@ -143,6 +144,7 @@ void ReosWatersehdTest::watershedInteractions()
   QCOMPARE( residualDelineating, residual->delineating() );
 
 }
+
 
 void ReosWatersehdTest::watershedDelineating()
 {
@@ -690,6 +692,79 @@ void ReosWatersehdTest::watershdDelineatingMultiWatershed()
   std::unique_ptr<ReosWatershed> removedWs( watershedStore.extractWatershed( watershed2 ) );
   QCOMPARE( removedWs->directUpstreamWatershedCount(), 0 );
   QCOMPARE( removedWs->downstreamWatershed(), nullptr );
+}
+
+
+
+void ReosWatersehdTest::concentrationTime()
+{
+  ReosConcentrationTimeCalculation calculation;
+  ReosConcentrationTimeFormula::Parameters params;
+
+  QStringList activeFormulas;
+  activeFormulas << QStringLiteral( "Kirpich" )
+                 << QStringLiteral( "Johnstone" )
+                 << QStringLiteral( "Ven te Show" )
+                 << QStringLiteral( "Turazza" )
+                 << QStringLiteral( "Ventura" )
+                 << QStringLiteral( "Passini" );
+
+  calculation.setActiveFormula( activeFormulas );
+
+  params.area = ReosArea( 10, ReosArea::ha );
+  params.slope = 0.03;
+  params.drop = 100;
+  params.length = 3000;
+
+  QCOMPARE( ReosDuration(), calculation.concentrationTime( params ) );
+
+  ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaKirpich );
+
+  QCOMPARE( ReosDuration( 2147224, ReosDuration::millisecond ), calculation.concentrationTime( params ) );
+
+  ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaJohnstone );
+  ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaPassini );
+  ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaVentura );
+  ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaVenTeShow );
+  ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaTurazza );
+
+  QVERIFY( ReosConcentrationTimeFormulasRegistery::instance()->formula( "Kirpich" )->isInValidityDomain( params ) );
+  QVERIFY( !ReosConcentrationTimeFormulasRegistery::instance()->formula( "Johnstone" )->isInValidityDomain( params ) );
+  QVERIFY( ReosConcentrationTimeFormulasRegistery::instance()->formula( "Ven te Show" )->isInValidityDomain( params ) );
+  QVERIFY( ReosConcentrationTimeFormulasRegistery::instance()->formula( "Turazza" )->isInValidityDomain( params ) );
+  QVERIFY( ReosConcentrationTimeFormulasRegistery::instance()->formula( "Ventura" )->isInValidityDomain( params ) );
+  QVERIFY( ReosConcentrationTimeFormulasRegistery::instance()->formula( "Passini" )->isInValidityDomain( params ) );
+
+  calculation.setUsedMethod( ReosConcentrationTimeCalculation::UserChoosenFormula );
+  calculation.setUserChoosenFormula( QStringLiteral( "Kirpich" ) );
+  QCOMPARE( ReosDuration( 2147224, ReosDuration::millisecond ), calculation.concentrationTime( params ) );
+
+  calculation.setUserChoosenFormula( QStringLiteral( "Johnstone" ) );
+  QCOMPARE( ReosDuration( 6926386, ReosDuration::millisecond ), calculation.concentrationTime( params ) );
+
+  calculation.setUserChoosenFormula( QStringLiteral( "Ven te Show" ) );
+  QCOMPARE( ReosDuration( 3578028, ReosDuration::millisecond ), calculation.concentrationTime( params ) );
+
+  calculation.setUserChoosenFormula( QStringLiteral( "Turazza" ) );
+  QCOMPARE( ReosDuration( 1502701, ReosDuration::millisecond ), calculation.concentrationTime( params ) );
+
+  calculation.setUserChoosenFormula( QStringLiteral( "Ventura" ) );
+  QCOMPARE( ReosDuration( 791893, ReosDuration::millisecond ), calculation.concentrationTime( params ) );
+
+  calculation.setUserChoosenFormula( QStringLiteral( "Passini" ) );
+  QCOMPARE( ReosDuration( 1503304, ReosDuration::millisecond ), calculation.concentrationTime( params ) );
+
+  calculation.setUsedMethod( ReosConcentrationTimeCalculation::Average );
+  QCOMPARE( ReosDuration( 2741589, ReosDuration::millisecond ), calculation.concentrationTime( params ) );
+
+  calculation.setUsedMethod( ReosConcentrationTimeCalculation::Maximum );
+  QCOMPARE( ReosDuration( 6926386, ReosDuration::millisecond ), calculation.concentrationTime( params ) );
+
+  calculation.setUsedMethod( ReosConcentrationTimeCalculation::Minimum );
+  QCOMPARE( ReosDuration( 791893, ReosDuration::millisecond ), calculation.concentrationTime( params ) );
+
+  if ( ReosConcentrationTimeFormulasRegistery::isInstantiate() )
+    delete ReosConcentrationTimeFormulasRegistery::instance();
 }
 
 QTEST_MAIN( ReosWatersehdTest )

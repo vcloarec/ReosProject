@@ -27,6 +27,7 @@ email                : vcloarec at gmail dot com
 #include "reosrasterwatershed.h"
 #include "reosencodedelement.h"
 #include "reosparameter.h"
+#include "reosconcentrationtimecalculation.h"
 
 class ReosGisEngine;
 
@@ -185,21 +186,35 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
 
     ReosParameterArea *area() const;
     ReosParameterSlope *slope() const;
+    ReosParameterDouble *drop() const;
+    ReosParameterDouble *longestPath() const;
+
+    ReosParameterDuration *concentrationTime() const;
+    ReosConcentrationTimeCalculation concentrationTimeCalculation() const;
+    void setConcentrationTimeCalculation( const ReosConcentrationTimeCalculation &concentrationTimeCalculation );
 
     ReosEncodedElement encode() const;
     static ReosWatershed *decode( const ReosEncodedElement &element );
 
     bool operator==( const ReosWatershed &other ) const;
 
+
+
   signals:
     void changed();
 
   public slots:
-    void calculateDerivedArea();
-    void calculateDerivedSlope();
+    void calculateArea();
+
+  private slots:
+    void calculateSlope();
+    void calculateLongerPath();
+    void calculateDrop();
+    void calculateConcentrationTime();
 
   private:
     Type mType = None;
+
     ReosMapExtent mExtent;
     QPolygonF mDelineating;
     QPointF mOutletPoint;
@@ -209,8 +224,15 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
     ReosGisEngine *mGisEngine = nullptr;
 
     ReosParameterString *mName;
+
     ReosParameterArea *mArea = nullptr;
     ReosParameterSlope *mSlope = nullptr;
+    ReosParameterDouble *mDrop = nullptr;
+    ReosParameterDouble *mLongestStreamPath = nullptr;
+
+    ReosConcentrationTimeCalculation mConcentrationTimeCalculation;
+    ReosParameterDuration *mConcentrationTimeValue = nullptr;
+
     ReosGisEngine *geographicalContext() const;
 
     struct DirectionData
@@ -225,6 +247,7 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
     ReosWatershed *mDownstreamWatershed = nullptr;
 
     void init();
+    void connectParameters();
     void updateResidual();
 };
 

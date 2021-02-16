@@ -23,17 +23,19 @@
 #include "reosparameterwidget.h"
 
 
-ReosParameterWidget::ReosParameterWidget( QWidget *parent ):
+ReosParameterWidget::ReosParameterWidget( const QString &defaultName, QWidget *parent ):
   QWidget( parent )
+  , mDefaultName( defaultName )
 {
-  setLayout( new QHBoxLayout( this ) );
+  mLayout = new QHBoxLayout( this );
+  setLayout( mLayout );
   layout()->setContentsMargins( 0, 0, 0, 0 );
-  mLabelName = new QLabel( this );
+  mLabelName = new QLabel( defaultName, this );
   layout()->addWidget( mLabelName );
 }
 
-ReosParameterInLineWidget::ReosParameterInLineWidget( QWidget *parent ):
-  ReosParameterWidget( parent )
+ReosParameterInLineWidget::ReosParameterInLineWidget( QWidget *parent, const QString &defaultName ):
+  ReosParameterWidget( defaultName, parent )
 {
   mLineEdit = new QLineEdit( this );
   layout()->addWidget( mLineEdit );
@@ -73,12 +75,29 @@ ReosParameterWidget *ReosParameterWidget::createWidget( ReosParameter *parameter
     return new ReosParameterDoubleWidget( static_cast<ReosParameterDouble *>( parameter ), parent );
 
   return nullptr;
+}
+
+void ReosParameterWidget::enableSpacer( bool b )
+{
+  if ( mSpacer )
+  {
+    mLayout->removeItem( mSpacer );
+    delete mSpacer;
+    mSpacer = nullptr;
+  }
+
+  if ( b )
+  {
+    mSpacer = new QSpacerItem( 0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored );
+    mLayout->insertItem( 1, mSpacer );
+  }
+
 
 }
 
 void ReosParameterInLineWidget::setTextValue( double value )
 {
-  if ( mParameter->isDerived() )
+  if ( mParameter && mParameter->isDerived() )
   {
     mLineEdit->setStyleSheet( "color: grey" );
   }
@@ -86,12 +105,13 @@ void ReosParameterInLineWidget::setTextValue( double value )
     mLineEdit->setStyleSheet( "color: black" );
 
   mLineEdit->setText( QString::number( value, 'f', 2 ) );
+  mCurrentText = mLineEdit->text();
 
 }
 
 void ReosParameterInLineWidget::setTextValue( const QString &str )
 {
-  if ( mParameter->isDerived() )
+  if ( mParameter && mParameter->isDerived() )
   {
     mLineEdit->setStyleSheet( "color: grey" );
   }
@@ -99,6 +119,7 @@ void ReosParameterInLineWidget::setTextValue( const QString &str )
     mLineEdit->setStyleSheet( "color: black" );
 
   mLineEdit->setText( str );
+  mCurrentText = mLineEdit->text();
 }
 
 double ReosParameterInLineWidget::value() const
@@ -108,7 +129,13 @@ double ReosParameterInLineWidget::value() const
 
 QString ReosParameterInLineWidget::textValue() const
 {
-  return mLineEdit->text();
+  mCurrentText = mLineEdit->text();
+  return mCurrentText;
+}
+
+bool ReosParameterInLineWidget::textHasChanged() const
+{
+  return mCurrentText != mLineEdit->text();
 }
 
 void ReosParameterWidget::setParameter( ReosParameter *param )
@@ -117,22 +144,41 @@ void ReosParameterWidget::setParameter( ReosParameter *param )
   {
     disconnect( mParameter, &ReosParameter::valueChanged, this, &ReosParameterWidget::updateValue );
     disconnect( mParameter, &ReosParameter::valueChanged, this, &ReosParameterWidget::valueChanged );
+    disconnect( mParameter, &ReosParameter::unitChanged, this, &ReosParameterWidget::updateValue );
+    disconnect( mParameter, &ReosParameter::unitChanged, this, &ReosParameterWidget::unitChanged );
   }
 
   mParameter = param;
 
   if ( mParameter )
   {
-    mLabelName->setText( param->name() );
+    if ( param->name().isEmpty() )
+      mLabelName->setText( mDefaultName );
+    else
+      mLabelName->setText( param->name() );
     mDerivationButton->setVisible( mParameter->isDerivable() );
     connect( mParameter, &ReosParameter::valueChanged, this, &ReosParameterWidget::updateValue );
+    connect( mParameter, &ReosParameter::unitChanged, this, &ReosParameterWidget::updateValue );
     connect( mParameter, &ReosParameter::valueChanged, this, &ReosParameterWidget::valueChanged );
+    connect( mParameter, &ReosParameter::unitChanged, this, &ReosParameterWidget::unitChanged );
   }
   else
   {
-    mLabelName->setText( QString( '-' ) );
+    mLabelName->setText( mDefaultName );
     mDerivationButton->setVisible( false );
   }
+}
+
+void ReosParameterWidget::setDefaultName( const QString &defaultName )
+{
+  mDefaultName = defaultName;
+  if ( mLabelName->text().isEmpty() )
+    mLabelName->setText( defaultName );
+}
+
+void ReosParameterWidget::hideWhenVoid( bool b )
+{
+  mHideWhenVoid = b;
 }
 
 void ReosParameterWidget::finalizeWidget()
@@ -141,6 +187,7 @@ void ReosParameterWidget::finalizeWidget()
   layout()->addWidget( mDerivationButton );
   connect( mDerivationButton, &QToolButton::clicked, this, &ReosParameterWidget::askDerivation );
   mDerivationButton->setVisible( mParameter && mParameter->isDerivable() );
+  mDerivationButton->setIcon( QPixmap( ":/images/calculation.svg" ) );
 }
 
 
@@ -154,8 +201,8 @@ void ReosParameterWidget::askDerivation()
 }
 
 
-ReosParameterAreaWidget::ReosParameterAreaWidget( QWidget *parent ):
-  ReosParameterInLineWidget( parent )
+ReosParameterAreaWidget::ReosParameterAreaWidget( QWidget *parent, const QString &defaultName ):
+  ReosParameterInLineWidget( parent, defaultName )
 {
   mUnitCombobox = new QComboBox( this );
   layout()->addWidget( mUnitCombobox );
@@ -165,18 +212,18 @@ ReosParameterAreaWidget::ReosParameterAreaWidget( QWidget *parent ):
   mUnitCombobox->addItem( ReosArea::unitToString( ReosArea::ha ), ReosArea::ha );
   mUnitCombobox->addItem( ReosArea::unitToString( ReosArea::km2 ), ReosArea::km2 );
 
-  connect( mUnitCombobox, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosParameterWidget::updateValue );
   connect( mUnitCombobox, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]
   {
     if ( this->areaParameter() )
       this->areaParameter()->changeUnit( static_cast<ReosArea::Unit>( mUnitCombobox->currentData().toInt() ) );
+    this->updateValue();
   } );
 
   finalizeWidget();
 }
 
 ReosParameterAreaWidget::ReosParameterAreaWidget( ReosParameterArea *area, QWidget *parent ):
-  ReosParameterAreaWidget( parent )
+  ReosParameterAreaWidget( parent, area ? area->name() : QString() )
 {
   setArea( area );
 }
@@ -190,7 +237,7 @@ void ReosParameterAreaWidget::setArea( ReosParameterArea *area )
 
 void ReosParameterAreaWidget::updateValue()
 {
-  if ( areaParameter() )
+  if ( areaParameter() && areaParameter()->isValid() )
   {
     setTextValue( areaParameter()->value().valueInUnit() );
     mUnitCombobox->setCurrentIndex( mUnitCombobox->findData( areaParameter()->value().unit() ) );
@@ -198,15 +245,18 @@ void ReosParameterAreaWidget::updateValue()
   }
   else
   {
-    setTextValue( std::numeric_limits<double>::quiet_NaN() );
+    setTextValue( '-' );
     mUnitCombobox->setCurrentIndex( -1 );
-    hide();
+    show();
   }
+
+  if ( mHideWhenVoid && !areaParameter() )
+    hide();
 }
 
 void ReosParameterAreaWidget::applyValue()
 {
-  if ( areaParameter() )
+  if ( textHasChanged() && areaParameter() )
   {
     areaParameter()->setValue( ReosArea( value(), static_cast<ReosArea::Unit>( mUnitCombobox->currentData().toInt() ) ) );
     setTextValue( value() );
@@ -219,8 +269,8 @@ ReosParameterArea *ReosParameterAreaWidget::areaParameter() const
 }
 
 
-ReosParameterSlopeWidget::ReosParameterSlopeWidget( QWidget *parent ):
-  ReosParameterInLineWidget( parent )
+ReosParameterSlopeWidget::ReosParameterSlopeWidget( QWidget *parent, const QString &defaultName ):
+  ReosParameterInLineWidget( parent, defaultName )
 {
   mLabelSlopeUnit = new QLabel( QString( '%' ) );
   layout()->addWidget( mLabelSlopeUnit );
@@ -229,7 +279,7 @@ ReosParameterSlopeWidget::ReosParameterSlopeWidget( QWidget *parent ):
 }
 
 ReosParameterSlopeWidget::ReosParameterSlopeWidget( ReosParameterSlope *slope, QWidget *parent ):
-  ReosParameterSlopeWidget( parent )
+  ReosParameterSlopeWidget( parent, slope ? slope->name() : QString() )
 {
   setSlope( slope );
 }
@@ -245,29 +295,45 @@ void ReosParameterSlopeWidget::setSlope( ReosParameterSlope *slope )
   }
   else
   {
-    hide();
+    if ( mHideWhenVoid )
+      hide();
   }
 }
 
 void ReosParameterSlopeWidget::updateValue()
 {
-  if ( int( slopeParameter()->value() * 1000 ) == 0 )
+
+  if ( slopeParameter() && slopeParameter()->isValid() )
   {
-    mFactor = 1000;
-    mLabelSlopeUnit->setText( QChar( 0x2030 ) );
+    if ( int( slopeParameter()->value() * 1000 ) == 0 )
+    {
+      mFactor = 1000;
+      mLabelSlopeUnit->setText( QChar( 0x2030 ) );
+    }
+    else
+    {
+      mFactor = 100;
+      mLabelSlopeUnit->setText( QString( '%' ) );
+    }
+
+    setTextValue( slopeParameter()->value() * mFactor );
+    show();
   }
   else
   {
-    mFactor = 100;
+    setTextValue( '-' );
     mLabelSlopeUnit->setText( QString( '%' ) );
+    show();
   }
 
-  setTextValue( slopeParameter()->value() * mFactor );
+  if ( mHideWhenVoid && !slopeParameter() )
+    hide();
+
 }
 
 void ReosParameterSlopeWidget::applyValue()
 {
-  if ( slopeParameter() )
+  if ( textHasChanged() && slopeParameter() )
   {
     slopeParameter()->setValue( value() / mFactor );
     updateValue();
@@ -279,14 +345,14 @@ ReosParameterSlope *ReosParameterSlopeWidget::slopeParameter() const
   return static_cast<ReosParameterSlope *>( mParameter );
 }
 
-ReosParameterStringWidget::ReosParameterStringWidget( QWidget *parent ):
-  ReosParameterInLineWidget( parent )
+ReosParameterStringWidget::ReosParameterStringWidget( QWidget *parent, const QString &defaultName ):
+  ReosParameterInLineWidget( parent, defaultName )
 {
   finalizeWidget();
 }
 
 ReosParameterStringWidget::ReosParameterStringWidget( ReosParameterString *string, QWidget *parent ):
-  ReosParameterStringWidget( parent )
+  ReosParameterStringWidget( parent, string ? string->name() : QString() )
 {
   setString( string );
 }
@@ -299,7 +365,7 @@ void ReosParameterStringWidget::setString( ReosParameterString *string )
 
 void ReosParameterStringWidget::updateValue()
 {
-  if ( stringParameter() )
+  if ( stringParameter() && stringParameter()->isValid() )
   {
     setTextValue( stringParameter()->value() );
     show();
@@ -307,13 +373,16 @@ void ReosParameterStringWidget::updateValue()
   else
   {
     setTextValue( QString( '-' ) );
-    hide();
+    show();
   }
+
+  if ( mHideWhenVoid && !stringParameter() )
+    hide();
 }
 
 void ReosParameterStringWidget::applyValue()
 {
-  if ( stringParameter() )
+  if ( textHasChanged() && stringParameter() )
     stringParameter()->setValue( textValue() );
 }
 
@@ -326,14 +395,14 @@ ReosParameterString *ReosParameterStringWidget::stringParameter()
 }
 
 
-ReosParameterDoubleWidget::ReosParameterDoubleWidget( QWidget *parent ):
-  ReosParameterInLineWidget( parent )
+ReosParameterDoubleWidget::ReosParameterDoubleWidget( QWidget *parent, const QString &defaultName ):
+  ReosParameterInLineWidget( parent, defaultName )
 {
   finalizeWidget();
 }
 
 ReosParameterDoubleWidget::ReosParameterDoubleWidget( ReosParameterDouble *value, QWidget *parent ):
-  ReosParameterDoubleWidget( parent )
+  ReosParameterDoubleWidget( parent, value ? value->name() : QString() )
 {
   setDouble( value );
 }
@@ -346,7 +415,7 @@ void ReosParameterDoubleWidget::setDouble( ReosParameterDouble *value )
 
 void ReosParameterDoubleWidget::updateValue()
 {
-  if ( doubleParameter() )
+  if ( doubleParameter() && doubleParameter()->isValid() )
   {
     setTextValue( doubleParameter()->toString() );
     show();
@@ -354,13 +423,16 @@ void ReosParameterDoubleWidget::updateValue()
   else
   {
     setTextValue( QString( '-' ) );
-    hide();
+    show();
   }
+
+  if ( mHideWhenVoid && !doubleParameter() )
+    hide();
 }
 
 void ReosParameterDoubleWidget::applyValue()
 {
-  if ( doubleParameter() )
+  if ( textHasChanged() && doubleParameter() )
   {
     bool ok = false;
     double v = textValue().toDouble( &ok );
@@ -380,8 +452,8 @@ ReosParameterDouble *ReosParameterDoubleWidget::doubleParameter()
 }
 
 
-ReosParameterDurationWidget::ReosParameterDurationWidget( QWidget *parent ):
-  ReosParameterInLineWidget( parent )
+ReosParameterDurationWidget::ReosParameterDurationWidget( QWidget *parent, const QString &defaultName ):
+  ReosParameterInLineWidget( parent, defaultName )
 {
   mUnitCombobox = new QComboBox( this );
   layout()->addWidget( mUnitCombobox );
@@ -395,19 +467,18 @@ ReosParameterDurationWidget::ReosParameterDurationWidget( QWidget *parent ):
   mUnitCombobox->addItem( tr( "month" ), ReosDuration::month );
   mUnitCombobox->addItem( tr( "year" ), ReosDuration::year );
 
-
-  connect( mUnitCombobox, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosParameterWidget::updateValue );
   connect( mUnitCombobox, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]
   {
     if ( this->durationParameter() )
       this->durationParameter()->changeUnit( static_cast<ReosDuration::Unit>( mUnitCombobox->currentData().toInt() ) );
+    this->updateValue();
   } );
 
   finalizeWidget();
 }
 
 ReosParameterDurationWidget::ReosParameterDurationWidget( ReosParameterDuration *duration, QWidget *parent ):
-  ReosParameterDurationWidget( parent )
+  ReosParameterDurationWidget( parent, duration ? duration->name() : QString() )
 {
   setDuration( duration );
 }
@@ -420,7 +491,7 @@ void ReosParameterDurationWidget::setDuration( ReosParameterDuration *duration )
 
 void ReosParameterDurationWidget::updateValue()
 {
-  if ( durationParameter() )
+  if ( durationParameter() && durationParameter()->isValid() )
   {
     setTextValue( durationParameter()->value().valueUnit() );
     mUnitCombobox->setCurrentIndex( mUnitCombobox->findData( durationParameter()->value().unit() ) );
@@ -428,15 +499,18 @@ void ReosParameterDurationWidget::updateValue()
   }
   else
   {
-    setTextValue( std::numeric_limits<double>::quiet_NaN() );
+    setTextValue( "-" );
     mUnitCombobox->setCurrentIndex( -1 );
-    hide();
+    show();
   }
+
+  if ( mHideWhenVoid && !durationParameter() )
+    hide();
 }
 
 void ReosParameterDurationWidget::applyValue()
 {
-  if ( durationParameter() )
+  if ( textHasChanged() && durationParameter() )
   {
     durationParameter()->setValue( ReosDuration( value(), static_cast<ReosDuration::Unit>( mUnitCombobox->currentData().toInt() ) ) );
     setTextValue( value() );
@@ -449,8 +523,8 @@ ReosParameterDuration *ReosParameterDurationWidget::durationParameter() const
 }
 
 
-ReosParameterDateTimeWidget::ReosParameterDateTimeWidget( QWidget *parent ):
-  ReosParameterWidget( parent )
+ReosParameterDateTimeWidget::ReosParameterDateTimeWidget( QWidget *parent, const QString &defaultName ):
+  ReosParameterWidget( defaultName, parent )
   , mDateTimeEdit( new QDateTimeEdit( this ) )
 {
   layout()->addWidget( mDateTimeEdit );
@@ -461,7 +535,7 @@ ReosParameterDateTimeWidget::ReosParameterDateTimeWidget( QWidget *parent ):
 }
 
 ReosParameterDateTimeWidget::ReosParameterDateTimeWidget( ReosParameterDateTime *dateTime, QWidget *parent ):
-  ReosParameterDateTimeWidget( parent )
+  ReosParameterDateTimeWidget( parent, dateTime ? dateTime->name() : QString() )
 {
   setDateTime( dateTime );
 }
@@ -469,22 +543,26 @@ ReosParameterDateTimeWidget::ReosParameterDateTimeWidget( ReosParameterDateTime 
 void ReosParameterDateTimeWidget::setDateTime( ReosParameterDateTime *dateTime )
 {
   setParameter( dateTime );
-
-  if ( dateTimeParameter() )
-  {
-    updateValue();
-    show();
-  }
-  else
-  {
-    hide();
-  }
+  updateValue();
 }
 
 void ReosParameterDateTimeWidget::updateValue()
 {
-  if ( dateTimeParameter() && mDateTimeEdit )
-    mDateTimeEdit->setDateTime( dateTimeParameter()->value() );
+  if ( dateTimeParameter() && dateTimeParameter()->isValid() )
+  {
+    if ( mDateTimeEdit )
+      mDateTimeEdit->setDateTime( dateTimeParameter()->value() );
+    show();
+  }
+  else
+  {
+    if ( mDateTimeEdit )
+      mDateTimeEdit->setDateTime( QDateTime() );
+    show();
+  }
+
+  if ( mHideWhenVoid && !dateTimeParameter() )
+    hide();
 }
 
 void ReosParameterDateTimeWidget::applyValue()

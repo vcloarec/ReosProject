@@ -26,6 +26,7 @@ SET(REOS_GUI_SOURCES
     watershed/reosdelineatingwatershedwidget.cpp
     watershed/reoswatershedwidget.cpp
     watershed/reoslongitudinalprofilewidget.cpp
+    watershed/reosconcentrationtimewidget.cpp
 
     rainfall/reosrainfallmanager.cpp
     rainfall/reosrainfallintensitydurationwidget.cpp
@@ -70,6 +71,7 @@ SET(REOS_GUI_HEADERS
     watershed/reosdelineatingwatershedwidget.h
     watershed/reoswatershedwidget.h
     watershed/reoslongitudinalprofilewidget.h
+    watershed/reosconcentrationtimewidget.h
 
     rainfall/reosrainfallmanager.h
     rainfall/reosrainfallintensitydurationwidget.h

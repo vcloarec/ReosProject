@@ -284,6 +284,7 @@ void ReosLongitudinalProfileWidget::updateDEMProfile()
     }
   }
 
+  updateProfile();
   mNeedUpdateDEMProfil = false;
 }
 

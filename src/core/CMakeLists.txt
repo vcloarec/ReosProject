@@ -33,6 +33,7 @@ SET(REOS_CORE_SOURCES
   watershed/reoswatersheddelineating.cpp
   watershed/reoswatershedtree.cpp
   watershed/reoswatershedmodule.cpp
+  watershed/reosconcentrationtimecalculation.cpp
 
   rainfall/reosrainfallitem.cpp
   rainfall/reosrainfallmodel.cpp
@@ -78,6 +79,7 @@ SET(REOS_CORE_HEADERS
     watershed/reoswatersheddelineating.h
     watershed/reoswatershedtree.h
     watershed/reoswatershedmodule.h
+    watershed/reosconcentrationtimecalculation.h
 
     rainfall/reosrainfallitem.h
     rainfall/reosrainfallmodel.h

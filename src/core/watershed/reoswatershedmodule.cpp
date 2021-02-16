@@ -1,6 +1,7 @@
 #include "reoswatershedmodule.h"
 
 #include "reoswatersheddelineating.h"
+#include "reosconcentrationtimecalculation.h"
 
 ReosWatershedModule::ReosWatershedModule( ReosModule *parent, ReosGisEngine *gisEngine ):
   ReosModule( parent ),
@@ -8,6 +9,12 @@ ReosWatershedModule::ReosWatershedModule( ReosModule *parent, ReosGisEngine *gis
   mDelineatingModule( new ReosWatershedDelineating( this, mWatershedTree, gisEngine ) )
 {
 
+}
+
+ReosWatershedModule::~ReosWatershedModule()
+{
+  if ( ReosConcentrationTimeFormulasRegistery::isInstantiate() )
+    delete ReosConcentrationTimeFormulasRegistery::instance();
 }
 
 ReosWatershedTree *ReosWatershedModule::watershedTree() const

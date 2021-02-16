@@ -15,6 +15,14 @@ email                :   projetreos@gmail.com
 
 #include "reosduration.h"
 
+static qint64 SECOND_IN_MILLISECONDS = 1000;
+static qint64 MINUTE_IN_MILLISECONDS = SECOND_IN_MILLISECONDS * 60;
+static qint64 HOUR_IN_MILLISECONDS = MINUTE_IN_MILLISECONDS * 60;
+static qint64 DAY_IN_MILLISECONDS = HOUR_IN_MILLISECONDS * 24;
+static qint64 WEEK_IN_MILLISECOND = DAY_IN_MILLISECONDS * 7;
+static qint64 MONTH_IN_MILLISECOND = DAY_IN_MILLISECONDS * 30;
+static qint64 YEAR_IN_MILLISECOND = DAY_IN_MILLISECONDS * 365;
+
 
 ReosDuration::ReosDuration( double value ): mValue( value )
 {}
@@ -29,25 +37,25 @@ ReosDuration::ReosDuration( double value, ReosDuration::Unit un )
       mValue = value;
       break;
     case second:
-      mValue = value * 1000;
+      mValue = value * SECOND_IN_MILLISECONDS;
       break;
     case minute:
-      mValue = value * 60 * 1000;
+      mValue = value * MINUTE_IN_MILLISECONDS;
       break;
     case hour:
-      mValue = value * 3600 * 1000;
+      mValue = value * HOUR_IN_MILLISECONDS;
       break;
     case day:
-      mValue = value * 86400 * 1000;
+      mValue = value * DAY_IN_MILLISECONDS;
       break;
     case week:
-      mValue = value * 604800 * 1000;
+      mValue = value * WEEK_IN_MILLISECOND;
       break;
     case month:
-      mValue = value * 2592000 * 1000;
+      mValue = value * MONTH_IN_MILLISECOND;
       break;
     case year:
-      mValue = value * 31536000 * 1000;
+      mValue = value * YEAR_IN_MILLISECOND;
       break;
   }
 }
@@ -196,19 +204,19 @@ qint64 ReosDuration::valueMilliSecond() const
   return mValue;
 }
 
-double ReosDuration::valueSecond() const {return mValue / 1000.0;}
+double ReosDuration::valueSecond() const {return mValue / SECOND_IN_MILLISECONDS;}
 
-double ReosDuration::valueMinute() const {return mValue / 1000.0 / 60;}
+double ReosDuration::valueMinute() const {return mValue / MINUTE_IN_MILLISECONDS;}
 
-double ReosDuration::valueHour() const {return mValue / 1000.0 / 3600;}
+double ReosDuration::valueHour() const {return mValue / HOUR_IN_MILLISECONDS;}
 
-double ReosDuration::valueDay() const {return mValue / 1000.0 / 86400;}
+double ReosDuration::valueDay() const {return mValue / DAY_IN_MILLISECONDS;}
 
-double ReosDuration::valueWeek() const {return mValue / 1000.0 / 604800;}
+double ReosDuration::valueWeek() const {return mValue / WEEK_IN_MILLISECOND;}
 
-double ReosDuration::valueMonth() const {return mValue / 1000.0 / 2592000;}
+double ReosDuration::valueMonth() const {return mValue / MONTH_IN_MILLISECOND;}
 
-double ReosDuration::valueYear() const {return mValue / 1000.0 / 31536000;}
+double ReosDuration::valueYear() const {return mValue / YEAR_IN_MILLISECOND;}
 
 double ReosDuration::valueUnit() const
 {
@@ -290,4 +298,28 @@ ReosDuration ReosDuration::decode( const ReosEncodedElement &element )
   ret.mUnit = static_cast<Unit>( intUnit );
 
   return ret;
+}
+
+void ReosDuration::setAdaptedUnit()
+{
+  if ( mValue > SECOND_IN_MILLISECONDS )
+    mUnit = ReosDuration::second;
+
+  if ( mValue > MINUTE_IN_MILLISECONDS )
+    mUnit = ReosDuration::minute;
+
+  if ( mValue > HOUR_IN_MILLISECONDS )
+    mUnit = ReosDuration::hour;
+
+  if ( mValue > DAY_IN_MILLISECONDS )
+    mUnit = ReosDuration::day;
+
+  if ( mValue > WEEK_IN_MILLISECOND )
+    mUnit = ReosDuration::week;
+
+  if ( mValue > MONTH_IN_MILLISECOND )
+    mUnit = ReosDuration::month;
+
+  if ( mValue > YEAR_IN_MILLISECOND )
+    mUnit = ReosDuration::year;
 }

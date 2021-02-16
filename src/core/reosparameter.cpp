@@ -18,6 +18,7 @@
 
 ReosParameter::ReosParameter( const QString &name, bool derivable, QObject *parent ):
   QObject( parent )
+  , mIsDerived( derivable )
   , mName( name )
   , mIsDerivable( derivable )
 {
@@ -48,7 +49,13 @@ bool ReosParameter::isDerived() const
 
 void ReosParameter::askForDerivation()
 {
-  emit needDerivation();
+  emit needCalculation();
+}
+
+void ReosParameter::updateIfNecessary()
+{
+  if ( mIsDerived )
+    askForDerivation();
 }
 
 void ReosParameter::encode( ReosEncodedElement &element ) const
@@ -86,6 +93,7 @@ void ReosParameterArea::setValue( const ReosArea &area )
   mValue = area;
   mIsDerived = false;
   mIsValid = true;
+  emit valueChanged();
 }
 
 void ReosParameterArea::setDerivedValue( const ReosArea &area )
@@ -216,6 +224,7 @@ ReosParameterString::ReosParameterString( const QString &name, QObject *parent )
 void ReosParameterString::setValue( const QString &string )
 {
   mValue = string;
+  mIsDerived = false;
   mIsValid = true;
   emit valueChanged();
 }
@@ -407,12 +416,13 @@ QString ReosParameterDouble::toString( int precision ) const
 
 void ReosParameterDouble::setValue( double value )
 {
+  mIsDerived = false;
   mValue = value;
   mIsValid = true;
   emit valueChanged();
 }
 
-void ReosParameterDouble::setInvalid()
+void ReosParameter::setInvalid()
 {
   mIsValid = false;
   emit valueChanged();

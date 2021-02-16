@@ -60,6 +60,12 @@
         <file>addDoubleTriangleRainfall.svg</file>
         <file>chicagoRainfall.svg</file>
         <file>doubleTriangleRainfall.svg</file>
+        <file>calculation.svg</file>
+        <file>selectAllFormula.svg</file>
+        <file>deselectAllFormula.svg</file>
+        <file>selectValidFormula.svg</file>
+        <file>concentrationTimeWatershed.svg</file>
+        <file>copySelected.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

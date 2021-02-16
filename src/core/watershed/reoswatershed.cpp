@@ -27,9 +27,6 @@ ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outle
   , mExtent( delineating )
   , mDelineating( delineating )
   , mOutletPoint( outletPoint )
-  , mName( new ReosParameterString( tr( "Watershed name" ), false, this ) )
-  , mArea( new ReosParameterArea( tr( "Watershed area" ), true, this ) )
-  , mSlope( new ReosParameterSlope( tr( "Average slope" ), true, this ) )
 {
   init();
 }
@@ -41,9 +38,6 @@ ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outle
   mOutletPoint( outletPoint ),
   mDownstreamLine( downstreamLine ),
   mStreamPath( streamPath )
-  , mName( new ReosParameterString( tr( "Watershed name" ), false, this ) )
-  , mArea( new ReosParameterArea( tr( "Watershed area" ), true, this ) )
-  , mSlope( new ReosParameterSlope( tr( "Average slope" ), true, this ) )
 {
   init();
 }
@@ -55,9 +49,6 @@ ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outle
   mOutletPoint( outletPoint ),
   mDownstreamLine( downstreamLine ),
   mStreamPath( streamPath )
-  , mName( new ReosParameterString( tr( "Watershed name" ), false, this ) )
-  , mArea( new ReosParameterArea( tr( "Watershed area" ), true, this ) )
-  , mSlope( new ReosParameterSlope( tr( "Average slope" ), true, this ) )
 {
   init();
   DirectionData dir {direction, directionExent};
@@ -66,16 +57,13 @@ ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outle
 
 ReosParameterString *ReosWatershed::name() const
 {
-//  if ( mType == Residual && mDownstreamWatershed )
-//    return mDownstreamWatershed->name() + QObject::tr( " residual" );
-
   return mName;
 }
 
 void ReosWatershed::setName( const QString &name )
 {
   mName->setValue( name );
-  void changed();
+  emit changed();
 }
 
 ReosMapExtent ReosWatershed::extent() const
@@ -403,8 +391,10 @@ QPolygonF ReosWatershed::profile() const
 void ReosWatershed::setProfile( const QPolygonF &profile )
 {
   mProfile = profile;
-  if ( mSlope->isDerived() )
-    calculateDerivedSlope();
+  mSlope->updateIfNecessary();
+  mDrop->updateIfNecessary();
+  mLongestStreamPath->updateIfNecessary();
+
   emit changed();
 }
 
@@ -421,6 +411,21 @@ ReosParameterArea *ReosWatershed::area() const
 ReosParameterSlope *ReosWatershed::slope() const
 {
   return mSlope;
+}
+
+ReosParameterDouble *ReosWatershed::drop() const
+{
+  return mDrop;
+}
+
+ReosParameterDouble *ReosWatershed::longestPath() const
+{
+  return mLongestStreamPath;
+}
+
+ReosParameterDuration *ReosWatershed::concentrationTime() const
+{
+  return mConcentrationTimeValue;
 }
 
 ReosEncodedElement ReosWatershed::encode() const
@@ -459,6 +464,13 @@ ReosEncodedElement ReosWatershed::encode() const
   ret.addEncodedData( QStringLiteral( "name" ), mName->encode() );
   ret.addEncodedData( QStringLiteral( "area-parameter" ), mArea->encode() );
   ret.addEncodedData( QStringLiteral( "slope-parameter" ), mSlope->encode() );
+  ret.addEncodedData( QStringLiteral( "longer-stream-length-parameter" ), mLongestStreamPath->encode() );
+  ret.addEncodedData( QStringLiteral( "drop-parameter" ), mDrop->encode() );
+
+  ret.addEncodedData( QStringLiteral( "concentration-time-value" ), mConcentrationTimeValue->encode() );
+  ret.addEncodedData( QStringLiteral( "concentration-time-calculation" ), mConcentrationTimeCalculation.encode() );
+
+
   return ret;
 }
 
@@ -526,16 +538,30 @@ ReosWatershed *ReosWatershed::decode( const ReosEncodedElement &element )
   if ( ws->mArea )
     ws->mArea->deleteLater();
   ws->mArea = ReosParameterArea::decode( element.getEncodedData( QStringLiteral( "area-parameter" ) ), true, ws.get() );
-  connect( ws->mArea, &ReosParameter::needDerivation, ws.get(), &ReosWatershed::calculateDerivedArea );
 
   if ( ws->mSlope )
     ws->mSlope->deleteLater();
   ws->mSlope = ReosParameterSlope::decode( element.getEncodedData( QStringLiteral( "slope-parameter" ) ), true, ws.get() );
-  connect( ws->mSlope, &ReosParameter::needDerivation, ws.get(), &ReosWatershed::calculateDerivedSlope );
+
+  if ( ws->mLongestStreamPath )
+    ws->mLongestStreamPath->deleteLater();
+  ws->mLongestStreamPath = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "longer-stream-length-parameter" ) ), true, ws.get() );
+
+  if ( ws->mDrop )
+    ws->mDrop->deleteLater();
+  ws->mDrop = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "drop-parameter" ) ), true, ws.get() );
 
   if ( ws->mName )
     ws->mName->deleteLater();
   ws->mName = ReosParameterString::decode( element.getEncodedData( QStringLiteral( "name" ) ), false, ws.get() );
+
+  if ( ws->mConcentrationTimeValue )
+    ws->mConcentrationTimeValue->deleteLater();
+  ws->mConcentrationTimeValue = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "concentration-time-value" ) ), true, ws.get() );
+
+  ws->mConcentrationTimeCalculation = ReosConcentrationTimeCalculation::decode( element.getEncodedData( QStringLiteral( "concentration-time-calculation" ) ) );
+
+  ws->connectParameters();
 
   return ws.release();
 }
@@ -545,7 +571,7 @@ bool ReosWatershed::operator==( const ReosWatershed &other ) const
   if ( mType != other.mType )
     return false;
 
-  if ( mName != other.mName )
+  if ( mName->value() != other.mName->value() )
     return false;
 
   if ( mExtent != other.mExtent )
@@ -586,16 +612,43 @@ bool ReosWatershed::operator==( const ReosWatershed &other ) const
 
 void ReosWatershed::init()
 {
-  connect( mArea, &ReosParameter::needDerivation, this, &ReosWatershed::calculateDerivedArea );
-  connect( mSlope, &ReosParameter::needDerivation, this, &ReosWatershed::calculateDerivedSlope );
+  mName = new ReosParameterString( tr( "Watershed name" ), false, this );
+  mArea = new ReosParameterArea( tr( "Watershed area" ), true, this );
+  mSlope = new ReosParameterSlope( tr( "Average slope" ), true, this );
+  mDrop = new ReosParameterDouble( tr( "Drop" ), true, this );
+  mLongestStreamPath = new ReosParameterDouble( tr( "Longest stream path" ), true, this );
+  mConcentrationTimeValue = new ReosParameterDuration( tr( "Concentration time" ), true, this );
+
+  connectParameters();
+}
+
+void ReosWatershed::connectParameters()
+{
+  // calcultion of parameters
+  connect( mArea, &ReosParameter::needCalculation, this, &ReosWatershed::calculateArea );
+  connect( mSlope, &ReosParameter::needCalculation, this, &ReosWatershed::calculateSlope );
+  connect( mDrop, &ReosParameter::needCalculation, this, &ReosWatershed::calculateDrop );
+  connect( mLongestStreamPath, &ReosParameter::needCalculation, this, &ReosWatershed::calculateLongerPath );
+  connect( mConcentrationTimeValue, &ReosParameterDuration::needCalculation, this, &ReosWatershed::calculateConcentrationTime );
+
+  // updating concentration time after parameters changed
+  connect( mArea, &ReosParameter::valueChanged, mConcentrationTimeValue, &ReosParameter::updateIfNecessary );
+  connect( mSlope, &ReosParameter::valueChanged, mConcentrationTimeValue, &ReosParameter::updateIfNecessary );
+  connect( mDrop, &ReosParameter::valueChanged, mConcentrationTimeValue, &ReosParameter::updateIfNecessary );
+  connect( mLongestStreamPath, &ReosParameter::valueChanged, mConcentrationTimeValue, &ReosParameter::updateIfNecessary );
+
+  // Propagate change outside the watershed
+  connect( mArea, &ReosParameter::valueChanged, this, &ReosWatershed::changed );
+  connect( mSlope, &ReosParameter::valueChanged, this, &ReosWatershed::changed );
+  connect( mDrop, &ReosParameter::valueChanged, this, &ReosWatershed::changed );
+  connect( mLongestStreamPath, &ReosParameter::valueChanged, this, &ReosWatershed::changed );
+  connect( mConcentrationTimeValue, &ReosParameterDuration::valueChanged, this, &ReosWatershed::changed );
 }
 
 QPolygonF ReosWatershed::downstreamLine() const
 {
   return mDownstreamLine;
 }
-
-
 
 void ReosWatershed::updateResidual()
 {
@@ -630,7 +683,7 @@ void ReosWatershed::updateResidual()
     mUpstreamWatersheds[0]->mArea->askForDerivation();
 }
 
-void ReosWatershed::calculateDerivedArea()
+void ReosWatershed::calculateArea()
 {
   ReosGisEngine *engine = geographicalContext();
 
@@ -640,8 +693,11 @@ void ReosWatershed::calculateDerivedArea()
   }
 }
 
-void ReosWatershed::calculateDerivedSlope()
+void ReosWatershed::calculateSlope()
 {
+  if ( mProfile.count() < 2 )
+    mSlope->setInvalid();
+
   double length = 0;
   double totalDenom = 0;
 
@@ -660,6 +716,85 @@ void ReosWatershed::calculateDerivedSlope()
   double averageSlope = pow( length / totalDenom, 2 );
 
   mSlope->setDerivedValue( averageSlope );
+}
+
+void ReosWatershed::calculateLongerPath()
+{
+  if ( mProfile.count() < 2 )
+  {
+    mLongestStreamPath->setInvalid();
+    return;
+  }
+
+  double length = 0;
+  for ( int i = 0; i < mProfile.size() - 1; ++i )
+  {
+    const QPointF &p1 = mProfile.at( i );
+    const QPointF &p2 = mProfile.at( i + 1 );
+    double dx = fabs( p1.x() - p2.x() );
+    double dy = fabs( p1.y() - p2.y() );
+    double dl = sqrt( std::pow( dx, 2 ) + pow( dy, 2 ) );
+    length += dl;
+  }
+
+  mLongestStreamPath->setDerivedValue( length );
+}
+
+void ReosWatershed::calculateDrop()
+{
+  if ( mProfile.count() > 1 )
+    mDrop->setDerivedValue( std::abs( mProfile.first().y() - mProfile.last().y() ) );
+  else
+    mDrop->setInvalid();
+}
+
+void ReosWatershed::calculateConcentrationTime()
+{
+  blockSignals( true );
+
+  ReosConcentrationTimeFormula::Parameters param;
+  param.area = mArea->value();
+  param.drop = mDrop->value();
+  param.length = longestPath()->value();
+  param.slope = slope()->value();
+
+  if ( !mConcentrationTimeCalculation.alreadyCalculated() )
+  {
+    QStringList allFormulas = ReosConcentrationTimeFormulasRegistery::instance()->formulasList();
+    QStringList selectedFormulas;
+    for ( const QString &f : allFormulas )
+    {
+      if ( ReosConcentrationTimeFormulasRegistery::instance()->formula( f )->isInValidityDomain( param ) )
+        selectedFormulas.append( f );
+    }
+    mConcentrationTimeCalculation.setActiveFormula( selectedFormulas );
+  }
+
+  ReosDuration::Unit unit = ReosDuration::hour;
+  bool keepUnit = mConcentrationTimeValue->isValid();
+  if ( keepUnit )
+    unit = mConcentrationTimeValue->value().unit();
+
+  blockSignals( false );
+  ReosDuration time = mConcentrationTimeCalculation.concentrationTime( param );
+  mConcentrationTimeValue->setDerivedValue( time );
+  if ( time == ReosDuration() )
+    mConcentrationTimeValue->setInvalid();
+  if ( keepUnit )
+    mConcentrationTimeValue->changeUnit( unit );
+
+  if ( mConcentrationTimeValue->isValid() )
+    mConcentrationTimeCalculation.setAlreadyCalculated( true );
+}
+
+ReosConcentrationTimeCalculation ReosWatershed::concentrationTimeCalculation() const
+{
+  return mConcentrationTimeCalculation;
+}
+
+void ReosWatershed::setConcentrationTimeCalculation( const ReosConcentrationTimeCalculation &concentrationTimeCalculation )
+{
+  mConcentrationTimeCalculation = concentrationTimeCalculation;
 }
 
 ReosGisEngine *ReosWatershed::geographicalContext() const

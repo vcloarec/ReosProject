@@ -40,10 +40,14 @@ class REOSCORE_EXPORT ReosParameter : public QObject
     bool isDerived() const;
     bool isValid() const;
     void askForDerivation();
+    void setInvalid();
+
+  public slots:
+    void updateIfNecessary();
 
   signals:
     void valueChanged();
-    void needDerivation();
+    void needCalculation();
     void unitChanged();
 
   protected:
@@ -69,7 +73,6 @@ class REOSCORE_EXPORT ReosParameterDouble: public ReosParameter
     QString type() const override {return QString( "double" );}
 
     void setValue( double value );
-    void setInvalid();
     bool setValueWithString( const QString &value );
     void setDerivedValue( double value );
     double value() const {return mValue;}

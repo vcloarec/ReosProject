@@ -69,7 +69,7 @@ ReosWatershed *ReosWatershedTree::addWatershed( ReosWatershed *watershedToAdd, b
 
   ReosWatershed *includingWatershed = watershed( ws->outletPoint() );
   ws->setGeographicalContext( mGisEngine );
-  ws->calculateDerivedArea();
+  ws->calculateArea();
 
   if ( includingWatershed ) // There is a watershed that contains the new one, deal with it
   {

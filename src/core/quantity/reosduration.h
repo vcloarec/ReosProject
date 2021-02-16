@@ -33,7 +33,6 @@ class REOSCORE_EXPORT ReosDuration
     ReosDuration( double value = 0 );
     ReosDuration( double value, Unit mUnit );
 
-
     ReosDuration operator+( const ReosDuration & ) const;
     ReosDuration operator-( const ReosDuration & ) const;
     ReosDuration operator*( double k ) const;
@@ -73,6 +72,8 @@ class REOSCORE_EXPORT ReosDuration
     ReosEncodedElement encode() const;
 
     static ReosDuration decode( const ReosEncodedElement &element );
+
+    void setAdaptedUnit();
 
   private:
     Unit mUnit = second;
