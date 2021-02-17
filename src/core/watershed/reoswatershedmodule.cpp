@@ -2,11 +2,14 @@
 
 #include "reoswatersheddelineating.h"
 #include "reosconcentrationtimecalculation.h"
+#include "reosmeteorologicmodel.h"
+#include "reosrainfallregistery.h"
 
 ReosWatershedModule::ReosWatershedModule( ReosModule *parent, ReosGisEngine *gisEngine ):
   ReosModule( parent ),
   mWatershedTree( new ReosWatershedTree( gisEngine, this ) ),
-  mDelineatingModule( new ReosWatershedDelineating( this, mWatershedTree, gisEngine ) )
+  mDelineatingModule( new ReosWatershedDelineating( this, mWatershedTree, gisEngine ) ),
+  mMeteorologicModelsCollection( new ReosMeteorologicModelsCollection() )
 {
 
 }
@@ -36,6 +39,11 @@ void ReosWatershedModule::decode( const ReosEncodedElement &element )
   mWatershedTree->decode( element.getEncodedData( QStringLiteral( "watershed-tree" ) ) );
   mDelineatingModule->decode( element.getEncodedData( QStringLiteral( "delineating-module" ) ) );
 
+  if ( ReosRainfallRegistery::isInstantiate() )
+  {
+    mMeteorologicModelsCollection->decode( element.getEncodedData( QStringLiteral( "meteo-models-collection" ) ), mWatershedTree, ReosRainfallRegistery::instance() );
+  }
+
   emit hasBeenReset();
 }
 
@@ -44,6 +52,12 @@ ReosEncodedElement ReosWatershedModule::encode() const
   ReosEncodedElement ret( QStringLiteral( "watershed-module" ) );
   ret.addEncodedData( QStringLiteral( "watershed-tree" ), mWatershedTree->encode() );
   ret.addEncodedData( QStringLiteral( "delineating-module" ), mDelineatingModule->encode() );
+  ret.addEncodedData( QStringLiteral( "meteo-models-collection" ), mMeteorologicModelsCollection->encode( mWatershedTree ) );
 
   return ret;
+}
+
+ReosMeteorologicModelsCollection *ReosWatershedModule::meteoModelsCollection()
+{
+  return mMeteorologicModelsCollection.get();
 }

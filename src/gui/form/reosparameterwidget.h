@@ -16,6 +16,7 @@
 #ifndef REOSPARAMETERWIDGET_H
 #define REOSPARAMETERWIDGET_H
 
+#include <QPointer>
 #include <QWidget>
 
 class QLabel;
@@ -58,7 +59,7 @@ class ReosParameterWidget : public QWidget
     void setParameter( ReosParameter *param );
     bool mHideWhenVoid = true;
 
-    ReosParameter *mParameter = nullptr;
+    QPointer<ReosParameter> mParameter = nullptr;
 
   private:
     QLabel *mLabelName = nullptr;

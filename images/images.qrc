@@ -66,6 +66,10 @@
         <file>selectValidFormula.svg</file>
         <file>concentrationTimeWatershed.svg</file>
         <file>copySelected.svg</file>
+        <file>meteoModel.svg</file>
+        <file>remove.svg</file>
+        <file>duplicateMeteoModel.svg</file>
+        <file>rename.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

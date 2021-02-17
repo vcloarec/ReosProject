@@ -6,6 +6,7 @@
 
 class ReosWatershedDelineating;
 class ReosGisEngine;
+class ReosMeteorologicModelsCollection;
 
 class REOSCORE_EXPORT ReosWatershedModule : public ReosModule
 {
@@ -17,6 +18,7 @@ class REOSCORE_EXPORT ReosWatershedModule : public ReosModule
     //! Returns a pointer to the watershed tree
     ReosWatershedTree *watershedTree() const;
     ReosWatershedDelineating *delineatingModule() const;
+    ReosMeteorologicModelsCollection *meteoModelsCollection();
 
     void decode( const ReosEncodedElement &element );
     ReosEncodedElement encode() const;
@@ -27,6 +29,7 @@ class REOSCORE_EXPORT ReosWatershedModule : public ReosModule
   private:
     ReosWatershedTree *mWatershedTree = nullptr;
     ReosWatershedDelineating *mDelineatingModule = nullptr;
+    std::unique_ptr<ReosMeteorologicModelsCollection> mMeteorologicModelsCollection;
 };
 
 #endif // REOSWATERSHEDMODULE_H

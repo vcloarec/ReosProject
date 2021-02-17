@@ -204,19 +204,19 @@ qint64 ReosDuration::valueMilliSecond() const
   return mValue;
 }
 
-double ReosDuration::valueSecond() const {return mValue / SECOND_IN_MILLISECONDS;}
+double ReosDuration::valueSecond() const {return mValue / static_cast<double>( SECOND_IN_MILLISECONDS );}
 
-double ReosDuration::valueMinute() const {return mValue / MINUTE_IN_MILLISECONDS;}
+double ReosDuration::valueMinute() const {return mValue / static_cast<double>( MINUTE_IN_MILLISECONDS );}
 
-double ReosDuration::valueHour() const {return mValue / HOUR_IN_MILLISECONDS;}
+double ReosDuration::valueHour() const {return mValue / static_cast<double>( HOUR_IN_MILLISECONDS );}
 
-double ReosDuration::valueDay() const {return mValue / DAY_IN_MILLISECONDS;}
+double ReosDuration::valueDay() const {return mValue / static_cast<double>( DAY_IN_MILLISECONDS );}
 
-double ReosDuration::valueWeek() const {return mValue / WEEK_IN_MILLISECOND;}
+double ReosDuration::valueWeek() const {return mValue / static_cast<double>( WEEK_IN_MILLISECOND );}
 
-double ReosDuration::valueMonth() const {return mValue / MONTH_IN_MILLISECOND;}
+double ReosDuration::valueMonth() const {return mValue / static_cast<double>( MONTH_IN_MILLISECOND );}
 
-double ReosDuration::valueYear() const {return mValue / YEAR_IN_MILLISECOND;}
+double ReosDuration::valueYear() const {return mValue / static_cast<double>( YEAR_IN_MILLISECOND );}
 
 double ReosDuration::valueUnit() const
 {

@@ -19,6 +19,8 @@ class ReosConcentrationTimeWidget;
 class ReosWatershedModule;
 class ReosWatershed;
 class ReosMapToolSelectMapItem;
+class ReosMeteorologicItemModel;
+class ReosMeteorologicModelWidget;
 
 class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
 {
@@ -27,8 +29,6 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
   public:
     explicit ReosWatershedWidget( ReosMap *map, ReosWatershedModule *module, QWidget *parent = nullptr );
     ~ReosWatershedWidget();
-
-    void setModel( ReosWatershedItemModel *model );
 
   signals:
     void currentWatershedChanged( ReosWatershed *ws );
@@ -46,16 +46,22 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
     ReosWatershedItemModel *mModelWatershed = nullptr;
 
     ReosMap *mMap = nullptr;
+
     QAction *mActionSelectWatershed = nullptr;
     ReosMapToolSelectMapItem *mMapToolSelectWatershed = nullptr;
     QAction *mActionRemoveWatershed = nullptr;
+
     QAction *mActionDelineateWatershed = nullptr;
     ReosDelineatingWatershedWidget *mDelineatingWidget = nullptr;
+
     QAction *mActionLongitudinalProfile = nullptr;
     ReosLongitudinalProfileWidget *mLongitudinalProfileWidget = nullptr;
+
     QAction *mActionConcentrationTime = nullptr;
     ReosConcentrationTimeWidget *mConcentrationTimeWidget = nullptr;
 
+    QAction *mActionMeteorologicModel = nullptr;
+    ReosMeteorologicModelWidget *mMeteorolocicModelWidget = nullptr;
 
     QMap<ReosWatershed *, ReosMapPolygon> mMapWatersheds;
     ReosMapMarker mCurrentMapOutlet;
@@ -64,6 +70,8 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
     //! Method use for styling watershed polygon
     ReosMapPolygon &formatWatershedPolygon( ReosMapPolygon &&watershedPolygon );
     void clearSelection();
+
+    void setWatershedModel( ReosWatershedItemModel *model );
 };
 
 #endif // REOSWATERSHEDWIDGET_H

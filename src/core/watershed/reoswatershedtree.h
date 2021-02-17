@@ -59,7 +59,7 @@ class REOSCORE_EXPORT ReosWatershedTree: public QObject
     ReosWatershed *masterWatershed( int index ) const;
 
     //! Returns the position of the master watershed, if not a master watershed, returns -1
-    int masterWatershedPosition( ReosWatershed *watershed );
+    int masterWatershedPosition( ReosWatershed *watershed ) const;
 
     //! Returns a list of all the watershed
     QList<ReosWatershed *> allWatershed() const;
@@ -73,8 +73,12 @@ class REOSCORE_EXPORT ReosWatershedTree: public QObject
      */
     ReosWatershed *extractWatershed( ReosWatershed *ws );
 
+    ReosWatershed *uriToWatershed( const QString &uri ) const;
+    QString watershedUri( ReosWatershed *watershed ) const;
+
     ReosEncodedElement encode() const;
     void decode( const ReosEncodedElement &elem );
+
 
   signals:
     void treeWillBeReset();
@@ -110,6 +114,9 @@ class REOSCORE_EXPORT ReosWatershedItemModel: public QAbstractItemModel
     static ReosWatershed *indexToWatershed( const QModelIndex &index );
 
     void removeWatershed( const QModelIndex &index );
+
+    ReosWatershed *uriToWatershed( const QString &uri ) const;
+    QString watershedUri( ReosWatershed *watershed ) const;
 
   signals:
     void watershedAdded( const QModelIndex &index );

@@ -201,11 +201,7 @@ QMimeData *ReosRainfallModel::mimeData( const QModelIndexList &indexes ) const
   if ( !item )
     return mimeData.release();
 
-  QByteArray data;
-  QDataStream stream( &data, QIODevice::WriteOnly );
-
-  stream << item->positionPathInTree();
-  mimeData->setData( QStringLiteral( "lekan/rainfallItem_position_path" ), data );
+  mimeData->setText( item->uri() );
 
   return mimeData.release();
 }
@@ -248,7 +244,7 @@ ReosStationItem *ReosRainfallModel::addStation( const QString &name, const QStri
   return static_cast<ReosStationItem *>( addItem( receiver, newStation.release() ) );
 }
 
-ReosRainfallSeriesItem *ReosRainfallModel::addGaugedRainfall( const QString &name, const QString &description, const QModelIndex &index, ReosTimeSerieConstantInterval *data )
+ReosRainfallGaugedRainfallItem *ReosRainfallModel::addGaugedRainfall( const QString &name, const QString &description, const QModelIndex &index, ReosTimeSerieConstantInterval *data )
 {
   ReosRainfallItem *receiver = indexToItem( index );
   if ( receiver == nullptr )
@@ -259,12 +255,12 @@ ReosRainfallSeriesItem *ReosRainfallModel::addGaugedRainfall( const QString &nam
       return nullptr;
   }
 
-  std::unique_ptr<ReosRainfallSeriesItem> newRainfal = std::make_unique<ReosRainfallSeriesItem>( name, description, data );
+  std::unique_ptr<ReosRainfallGaugedRainfallItem> newRainfal = std::make_unique<ReosRainfallGaugedRainfallItem>( name, description, data );
 
   if ( ! receiver->accept( newRainfal.get() ) )
     return nullptr;
 
-  return static_cast<ReosRainfallSeriesItem *>( addItem( receiver, newRainfal.release() ) );
+  return static_cast<ReosRainfallGaugedRainfallItem *>( addItem( receiver, newRainfal.release() ) );
 }
 
 ReosRainfallChicagoItem *ReosRainfallModel::addChicagoRainfall( const QString &name, const QString &description, const QModelIndex &index )

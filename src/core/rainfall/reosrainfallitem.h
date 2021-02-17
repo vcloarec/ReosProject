@@ -201,27 +201,36 @@ class ReosRootItem: public ReosRainfallItem
     virtual ReosEncodedElement encode() const override;
 };
 
-
-//! Class that represents time serie data item
-class REOSCORE_EXPORT ReosRainfallSeriesItem: public ReosRainfallDataItem
+class REOSCORE_EXPORT ReosRainfallSerieRainfallItem: public ReosRainfallDataItem
 {
     Q_OBJECT
   public:
-    ReosRainfallSeriesItem( const QString &name, const QString &description, ReosTimeSerieConstantInterval *data = nullptr );
-    ReosRainfallSeriesItem( const ReosEncodedElement &element );
+    ReosRainfallSerieRainfallItem( const QString &name, const QString &description );
+    ReosRainfallSerieRainfallItem( const ReosEncodedElement &element );
+
+    ReosTimeSerieConstantInterval *data() const override = 0;
+    void setupData() override;
+};
+
+//! Class that represents time serie data item
+class REOSCORE_EXPORT ReosRainfallGaugedRainfallItem: public ReosRainfallSerieRainfallItem
+{
+    Q_OBJECT
+  public:
+    ReosRainfallGaugedRainfallItem( const QString &name, const QString &description, ReosTimeSerieConstantInterval *data = nullptr );
+    ReosRainfallGaugedRainfallItem( const ReosEncodedElement &element );
 
     QString dataType() const override {return QStringLiteral( "gauged-rainfall" );}
     ReosTimeSerieConstantInterval *data() const override;
     QIcon icone() const override {return QIcon( QPixmap( ":/images/gaugedRainfall.svg" ) );}
     virtual bool accept( ReosRainfallItem * ) const override;
     virtual ReosEncodedElement encode() const override;
-    void setupData() override;
 
-  private:
+  protected:
     ReosTimeSerieConstantInterval *mData = nullptr;
 };
 
-class REOSCORE_EXPORT ReosRainfallChicagoItem: public ReosRainfallDataItem
+class REOSCORE_EXPORT ReosRainfallChicagoItem: public ReosRainfallSerieRainfallItem
 {
     Q_OBJECT
   public:
@@ -243,7 +252,7 @@ class REOSCORE_EXPORT ReosRainfallChicagoItem: public ReosRainfallDataItem
     QPointer<ReosRainfallIntensityDurationCurveItem> mCurveItem;
 };
 
-class REOSCORE_EXPORT ReosRainfallDoubleTriangleItem: public ReosRainfallDataItem
+class REOSCORE_EXPORT ReosRainfallDoubleTriangleItem: public ReosRainfallSerieRainfallItem
 {
     Q_OBJECT
   public:

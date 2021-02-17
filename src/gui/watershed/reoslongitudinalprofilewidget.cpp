@@ -31,9 +31,6 @@
 #include "reosmap.h"
 #include "reossettings.h"
 
-using namespace QtCharts;
-
-
 ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWidget *parent ) :
   ReosActionWidget( parent ),
   ui( new Ui::ReosLongitudinalProfileWidget )

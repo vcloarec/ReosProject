@@ -38,24 +38,6 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget = nullptr );
     ~ReosMap();
 
-//    //QgsMapCanvas *getMapCanvas() const;
-
-//    void setMapTool( ReosMapTool *tool );
-//    ReosMapTool *getMaptool() const;
-
-//    QgsCoordinateReferenceSystem getCoordinateReferenceSystem();
-
-//
-
-//    QRectF getMapExtent() const {return canvas_->extent().toRectF();}
-//    void setMapExtent( QRectF extent );
-
-//    QByteArray encode() const;
-//    void decode( QByteArray &byteArray );
-//    void setToSaveExtent();
-//    void saveMapExtent();
-//    void setMapSavedExtent( QRectF extent );
-
     QWidget *mapCanvas() const;
     void refreshCanvas();
 
@@ -65,25 +47,6 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
 
     //! Sets the map tool to the default one
     void setDefaultMapTool();
-
-
-  public slots:
-    //    void unsetMapTool( ReosMapTool *tool );
-//    void unsetMapTool();
-//    void stopMapTool()
-//    {
-//      if ( currentMapTool )
-//      {
-//        bool inProgress = currentMapTool->isInProgress();
-//        currentMapTool->askForEscape();
-//        if ( !inProgress )
-//          unsetMapTool();
-//      }
-
-//    }
-//    void askUnsetMapTool();
-//    void refreshMap();
-//    void crsChanged();
 
   signals:
     //! emitted when the mouse cursor moves on the map cavans.
@@ -95,11 +58,6 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     QPointer<QGraphicsView> mCanvas = nullptr;
 
     ReosMapTool *mDefaultMapTool = nullptr;
-
-//    HdCursorPosition *cursorPosition;
-//    HdMapToolNeutral *mapToolNeutral;
-//    ReosMapTool *currentMapTool = nullptr;
-//    QgsRectangle savedExtent;
 
 };
 

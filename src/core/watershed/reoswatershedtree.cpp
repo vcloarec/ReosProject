@@ -180,7 +180,7 @@ ReosWatershed *ReosWatershedTree::masterWatershed( int index ) const
     return nullptr;
 }
 
-int ReosWatershedTree::masterWatershedPosition( ReosWatershed *watershed )
+int ReosWatershedTree::masterWatershedPosition( ReosWatershed *watershed ) const
 {
   for ( size_t i = 0; i < mWatersheds.size(); ++i )
   {
@@ -435,4 +435,55 @@ void ReosWatershedItemModel::removeWatershed( const QModelIndex &index )
     return;
   std::unique_ptr<ReosWatershed> removed( mWatershedTree->extractWatershed( ws ) );
 
+}
+
+ReosWatershed *ReosWatershedItemModel::uriToWatershed( const QString &uri ) const
+{
+  return mWatershedTree->uriToWatershed( uri );
+}
+
+ReosWatershed *ReosWatershedTree::uriToWatershed( const QString &uri ) const
+{
+  QStringList strPositions = uri.split( ':' );
+
+  if ( strPositions.isEmpty() )
+    return nullptr;
+
+  bool ok = false;
+
+  int pos = strPositions.takeFirst().toInt( &ok );
+  if ( pos < 0 || pos >= masterWatershedCount() )
+    return nullptr;
+  ReosWatershed *ret = masterWatershed( pos );
+
+  while ( !strPositions.isEmpty() && ret )
+  {
+    pos = strPositions.takeFirst().toInt( &ok );
+    if ( !ok || pos < 0 || pos >= ret->upstreamWatershedCount() )
+      return nullptr;
+    ret = ret->directUpstreamWatershed( pos );
+  }
+
+  return ret;
+}
+
+QString ReosWatershedTree::watershedUri( ReosWatershed *watershed ) const
+{
+  QString uri;
+  ReosWatershed *currentWatershed = watershed;
+  while ( currentWatershed->downstreamWatershed() )
+  {
+    uri.prepend( QString::number( currentWatershed->positionInDownstreamWatershed() ) );
+    uri.prepend( ':' );
+    currentWatershed = currentWatershed->downstreamWatershed();
+  }
+
+  uri.prepend( QString::number( masterWatershedPosition( currentWatershed ) ) );
+
+  return uri;
+}
+
+QString ReosWatershedItemModel::watershedUri( ReosWatershed *watershed ) const
+{
+  return mWatershedTree->watershedUri( watershed );
 }

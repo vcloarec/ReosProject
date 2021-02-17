@@ -9,6 +9,8 @@
 #include "reoslongitudinalprofilewidget.h"
 #include "reosconcentrationtimewidget.h"
 #include "reosmenupopulator.h"
+#include "reosmeteorologicmodel.h"
+#include "reosmeteorologicmodelwidget.h"
 
 #include <QMessageBox>
 
@@ -25,11 +27,14 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   mLongitudinalProfileWidget( new ReosLongitudinalProfileWidget( map, this ) ),
   mActionConcentrationTime( new QAction( QPixmap( QStringLiteral( ":/images/concentrationTimeWatershed.svg" ) ), tr( "Concentration time" ), this ) ),
   mConcentrationTimeWidget( new ReosConcentrationTimeWidget( this ) ),
+  mActionMeteorologicModel( new QAction( QPixmap( QStringLiteral( ":/images/meteoModel.svg" ) ), tr( "Meteorologic models" ), this ) ),
   mCurrentMapOutlet( map ),
   mCurrentStreamLine( map )
 {
   ui->setupUi( this );
-  setModel( new ReosWatershedItemModel( module->watershedTree(), this ) );
+  setWatershedModel( new ReosWatershedItemModel( module->watershedTree(), this ) );
+
+  mMeteorolocicModelWidget = new ReosMeteorologicModelWidget( mModelWatershed, module->meteoModelsCollection(), this );
 
   ui->mParameterAreaWidget->setDefaultName( tr( "Area" ) );
   ui->mParameterSlopeWidget->setDefaultName( tr( "Average Slope" ) );
@@ -38,16 +43,21 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   mActionDelineateWatershed->setCheckable( true );
   mActionLongitudinalProfile->setCheckable( true );
   mActionConcentrationTime->setCheckable( true );
+  mActionMeteorologicModel->setCheckable( true );
   QToolBar *toolBar = new QToolBar( this );
+
   toolBar->addAction( mActionSelectWatershed );
   toolBar->addAction( mActionDelineateWatershed );
   toolBar->addAction( mActionRemoveWatershed );
   toolBar->addAction( mActionLongitudinalProfile );
   toolBar->addAction( mActionConcentrationTime );
+  toolBar->addAction( mActionMeteorologicModel );
+
   static_cast<QBoxLayout *>( layout() )->insertWidget( 0, toolBar );
   mDelineatingWidget->setAction( mActionDelineateWatershed );
   mLongitudinalProfileWidget->setAction( mActionLongitudinalProfile );
   mConcentrationTimeWidget->setAction( mActionConcentrationTime );
+  mMeteorolocicModelWidget->setAction( mActionMeteorologicModel );
 
   mMapToolSelectWatershed->setAction( mActionSelectWatershed );
   mActionSelectWatershed->setCheckable( true );
@@ -86,7 +96,7 @@ ReosWatershedWidget::~ReosWatershedWidget()
   delete ui;
 }
 
-void ReosWatershedWidget::setModel( ReosWatershedItemModel *model )
+void ReosWatershedWidget::setWatershedModel( ReosWatershedItemModel *model )
 {
   ui->treeView->setModel( model );
   mModelWatershed = model;
@@ -208,6 +218,8 @@ void ReosWatershedWidget::onModuleReset()
 
   for ( ReosWatershed *ws : allWs )
     mMapWatersheds.insert( ws, formatWatershedPolygon( ReosMapPolygon( mMap, ws->delineating() ) ) );
+
+  mMeteorolocicModelWidget->setCurrentMeteorologicalModel( 0 );
 }
 
 ReosMapPolygon &ReosWatershedWidget::formatWatershedPolygon( ReosMapPolygon &&watershedPolygon )

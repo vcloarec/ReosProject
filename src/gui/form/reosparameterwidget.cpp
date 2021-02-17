@@ -140,7 +140,7 @@ bool ReosParameterInLineWidget::textHasChanged() const
 
 void ReosParameterWidget::setParameter( ReosParameter *param )
 {
-  if ( mParameter )
+  if ( mParameter && !mParameter.isNull() )
   {
     disconnect( mParameter, &ReosParameter::valueChanged, this, &ReosParameterWidget::updateValue );
     disconnect( mParameter, &ReosParameter::valueChanged, this, &ReosParameterWidget::valueChanged );
@@ -265,7 +265,7 @@ void ReosParameterAreaWidget::applyValue()
 
 ReosParameterArea *ReosParameterAreaWidget::areaParameter() const
 {
-  return static_cast<ReosParameterArea *>( mParameter );
+  return static_cast<ReosParameterArea *>( mParameter.data() );
 }
 
 
@@ -342,7 +342,7 @@ void ReosParameterSlopeWidget::applyValue()
 
 ReosParameterSlope *ReosParameterSlopeWidget::slopeParameter() const
 {
-  return static_cast<ReosParameterSlope *>( mParameter );
+  return static_cast<ReosParameterSlope *>( mParameter.data() );
 }
 
 ReosParameterStringWidget::ReosParameterStringWidget( QWidget *parent, const QString &defaultName ):
@@ -389,7 +389,7 @@ void ReosParameterStringWidget::applyValue()
 ReosParameterString *ReosParameterStringWidget::stringParameter()
 {
   if ( mParameter )
-    return static_cast<ReosParameterString *>( mParameter );
+    return static_cast<ReosParameterString *>( mParameter.data() );
 
   return nullptr;
 }
@@ -446,7 +446,7 @@ void ReosParameterDoubleWidget::applyValue()
 ReosParameterDouble *ReosParameterDoubleWidget::doubleParameter()
 {
   if ( mParameter )
-    return static_cast<ReosParameterDouble *>( mParameter );
+    return static_cast<ReosParameterDouble *>( mParameter.data() );
 
   return nullptr;
 }
@@ -519,7 +519,7 @@ void ReosParameterDurationWidget::applyValue()
 
 ReosParameterDuration *ReosParameterDurationWidget::durationParameter() const
 {
-  return static_cast<ReosParameterDuration *>( mParameter );
+  return static_cast<ReosParameterDuration *>( mParameter.data() );
 }
 
 
@@ -578,5 +578,5 @@ void ReosParameterDateTimeWidget::setFocusOnEdit()
 
 ReosParameterDateTime *ReosParameterDateTimeWidget::dateTimeParameter() const
 {
-  return static_cast<ReosParameterDateTime *>( mParameter );
+  return static_cast<ReosParameterDateTime *>( mParameter.data() );
 }

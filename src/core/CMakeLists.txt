@@ -34,6 +34,7 @@ SET(REOS_CORE_SOURCES
   watershed/reoswatershedtree.cpp
   watershed/reoswatershedmodule.cpp
   watershed/reosconcentrationtimecalculation.cpp
+  watershed/reosmeteorologicmodel.cpp
 
   rainfall/reosrainfallitem.cpp
   rainfall/reosrainfallmodel.cpp
@@ -80,6 +81,7 @@ SET(REOS_CORE_HEADERS
     watershed/reoswatershedtree.h
     watershed/reoswatershedmodule.h
     watershed/reosconcentrationtimecalculation.h
+    watershed/reosmeteorologicmodel.h
 
     rainfall/reosrainfallitem.h
     rainfall/reosrainfallmodel.h
@@ -156,7 +158,10 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/process
     ${CMAKE_SOURCE_DIR}/src/core/quantity
     ${CMAKE_SOURCE_DIR}/src/core/utils
+    ${CMAKE_SOURCE_DIR}/src/core/rainfall
     ${CMAKE_SOURCE_DIR}/src/core/raster
+    ${CMAKE_SOURCE_DIR}/src/core/watershed
+
     ${QGIS_INCLUDE_DIR}
 )
 

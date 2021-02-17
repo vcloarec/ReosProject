@@ -109,6 +109,11 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
 
   init();
 
+  mRainFallManagerWidget = new ReosRainfallManager( ReosRainfallRegistery::instance()->rainfallModel(), this );
+  mActionRainfallManager->setCheckable( true );
+  mRainFallManagerWidget->setAction( mActionRainfallManager );
+  mRainFallManagerWidget->loadDataFile();
+
   statusBar()->addPermanentWidget( new ReosMapCursorPosition( mMap, this ) );
   centralWidget()->layout()->addWidget( mMap->mapCanvas() );
 
@@ -123,11 +128,6 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   addDockWidget( Qt::RightDockWidgetArea, mDockWatershed );
 
   mMap->setDefaultMapTool();
-
-  mRainFallManagerWidget = new ReosRainfallManager( ReosRainfallRegistery::instance()->rainfallModel(), this );
-  mActionRainfallManager->setCheckable( true );
-  mRainFallManagerWidget->setAction( mActionRainfallManager );
-  mRainFallManagerWidget->loadDataFile();
 }
 
 bool LekanMainWindow::openProject()
