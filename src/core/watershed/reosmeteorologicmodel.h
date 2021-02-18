@@ -123,9 +123,6 @@ class ReosMeteorologicItemModel: public QIdentityProxyModel
 
     ReosRainfallSerieRainfallItem *rainfallInMeteorologicModel( const QModelIndex &index );
     ReosRainfallSerieRainfallItem *rainfallInRainfallModel( const QString &uri ) const;
-
-
-
 };
 
 #endif // REOSMETEOROLOGICMODEL_H

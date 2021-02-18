@@ -224,9 +224,9 @@ QVariant ReosMeteorologicItemModel::headerData( int section, Qt::Orientation ori
 
   if ( role == Qt::DisplayRole )
   {
-    if ( section == 1 )
+    if ( section == 0 )
       return tr( "Watershed" );
-    if ( section == 2 )
+    if ( section == 1 )
       return tr( "Associated rainfall" );
   }
 
