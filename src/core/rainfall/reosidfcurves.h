@@ -24,6 +24,7 @@
 
 #include "reosparameter.h"
 #include "reosdataobject.h"
+#include "reosmodule.h"
 
 class ReosIntensityDurationInterval;
 
@@ -67,7 +68,7 @@ class ReosIdfParameters: public QObject
 class REOSCORE_EXPORT ReosIdfFormula
 {
   public:
-	virtual ~ReosIdfFormula();
+    virtual ~ReosIdfFormula();
 
     //! Returns the name of the formula
     virtual QString name() const = 0;
@@ -83,15 +84,16 @@ class REOSCORE_EXPORT ReosIdfFormula
 };
 
 //! Class that register rainfall intensity duration formula. It is a singleton class that can be called everywhere
-class REOSCORE_EXPORT ReosIdfFormulaRegistery
+class REOSCORE_EXPORT ReosIdfFormulaRegistery: public ReosModule
 {
   public:
     //! Return a pointer to the formula with \a name, return nullptr if not exists
-    ReosIdfFormula* formula( const QString &name );
+    ReosIdfFormula *formula( const QString &name );
 
     //! Register a formula, take ownership
     void registerFormula( ReosIdfFormula *formula );
 
+    static void instantiate( ReosModule *parentModule );
     static ReosIdfFormulaRegistery *instance();
 
     //! Returns whether the static instance exist
@@ -101,9 +103,10 @@ class REOSCORE_EXPORT ReosIdfFormulaRegistery
     QStringList formulasList() const;
 
   private:
+    ReosIdfFormulaRegistery( ReosModule *parent = nullptr );
 
 #ifdef _MSC_VER
-	  std::unique_ptr<ReosIdfFormula> dummy; // work arround for MSVC, if not =, the line after create an compilation error if this class is exported (REOSCORE_EXPORT)
+    std::unique_ptr<ReosIdfFormula> dummy; // work arround for MSVC, if not =, the line after create an compilation error if this class is exported (REOSCORE_EXPORT)
 #endif
     std::map<QString, std::unique_ptr<ReosIdfFormula>> mFormulas;
     static ReosIdfFormulaRegistery *sIdfRegistery;

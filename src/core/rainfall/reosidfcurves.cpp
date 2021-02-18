@@ -123,21 +123,27 @@ ReosIntensityDurationInterval *ReosIntensityDurationInterval::decode( const Reos
 ReosIdfFormula *ReosIdfFormulaRegistery::formula( const QString &name )
 {
   auto it = mFormulas.find( name );
-  if (it != mFormulas.end())
-	  return it->second.get();
+  if ( it != mFormulas.end() )
+    return it->second.get();
   else
     return nullptr;
 }
 
 void ReosIdfFormulaRegistery::registerFormula( ReosIdfFormula *formula )
 {
-	mFormulas[formula->name()] = std::unique_ptr<ReosIdfFormula>(formula); //issue with MSVC
+  mFormulas[formula->name()] = std::unique_ptr<ReosIdfFormula>( formula ); //issue with MSVC
+}
+
+void ReosIdfFormulaRegistery::instantiate( ReosModule *parentModule )
+{
+  if ( !sIdfRegistery )
+    sIdfRegistery = new ReosIdfFormulaRegistery( parentModule );
 }
 
 ReosIdfFormulaRegistery *ReosIdfFormulaRegistery::instance()
 {
   if ( !sIdfRegistery )
-    sIdfRegistery = new ReosIdfFormulaRegistery;
+    sIdfRegistery = new ReosIdfFormulaRegistery();
 
   return sIdfRegistery;
 }
@@ -151,6 +157,11 @@ QStringList ReosIdfFormulaRegistery::formulasList() const
     ret.append( f.first );
 
   return ret;
+}
+
+ReosIdfFormulaRegistery::ReosIdfFormulaRegistery( ReosModule *parent ): ReosModule( parent )
+{
+
 }
 
 QString ReosIdfFormulaMontana::name() const {return QStringLiteral( "Montana" );}

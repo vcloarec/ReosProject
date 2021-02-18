@@ -20,26 +20,27 @@
 #include <QString>
 
 #include "reoscore.h"
+#include "reosmodule.h"
 
 class ReosRainfallModel;
 class ReosRainfallItem;
 
-class REOSCORE_EXPORT ReosRainfallRegistery
+//! Singleton class that register and handle data related to rainfall
+class REOSCORE_EXPORT ReosRainfallRegistery: public ReosModule
 {
   public:
-    ReosRainfallRegistery();
-    ~ReosRainfallRegistery();
+
+    static void instantiate( ReosModule *parentModule = nullptr );
     static ReosRainfallRegistery *instance();
     static bool isInstantiate();
-    ReosRainfallModel *rainfallModel() const;
 
+    ReosRainfallModel *rainfallModel() const;
     ReosRainfallItem *item( const QString &uri ) const;
 
-
-
   private:
+    ReosRainfallRegistery( ReosModule *parentModule = nullptr );
     static ReosRainfallRegistery *sRainfallRegistery;
-    std::unique_ptr<ReosRainfallModel> mRainfallModel;
+    ReosRainfallModel *mRainfallModel = nullptr;
 };
 
 #endif // REOSRAINFALLREGISTERY_H

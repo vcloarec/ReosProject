@@ -17,15 +17,35 @@
 
 #include "reosrainfallmodel.h"
 #include "reosrainfallitem.h"
+#include "reosidfcurves.h"
 
 ReosRainfallRegistery *ReosRainfallRegistery::sRainfallRegistery = nullptr;
 
-ReosRainfallRegistery::ReosRainfallRegistery()
+ReosRainfallRegistery::ReosRainfallRegistery( ReosModule *parentModule ): ReosModule( parentModule )
 {
-  mRainfallModel.reset( new ReosRainfallModel );
+  mRainfallModel = new ReosRainfallModel( this );
+
+  ReosIdfFormulaRegistery::instantiate( this );
+
+  connect( mRainfallModel, &ReosRainfallModel::loaded, this, [this]( const QString & filePath )
+  {
+    QString text = tr( "Rainfall data loaded from file: %1" ).arg( filePath );
+    message( text );
+  } );
+
+  connect( mRainfallModel, &ReosRainfallModel::saved, this, [this]( const QString & filePath )
+  {
+    QString text = tr( "Rainfall data saved to file:%1" ).arg( filePath );
+    message( text );
+  } );
 }
 
-ReosRainfallRegistery::~ReosRainfallRegistery() {}
+
+void ReosRainfallRegistery::instantiate( ReosModule *parentModule )
+{
+  if ( !sRainfallRegistery )
+    sRainfallRegistery = new ReosRainfallRegistery( parentModule );
+}
 
 ReosRainfallRegistery *ReosRainfallRegistery::instance()
 {
@@ -42,7 +62,7 @@ bool ReosRainfallRegistery::isInstantiate()
 
 ReosRainfallModel *ReosRainfallRegistery::rainfallModel() const
 {
-  return mRainfallModel.get();
+  return mRainfallModel;
 }
 
 ReosRainfallItem *ReosRainfallRegistery::item( const QString &uri ) const

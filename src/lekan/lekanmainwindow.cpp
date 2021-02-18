@@ -109,6 +109,8 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
 
   init();
 
+  ReosRainfallRegistery::instantiate( rootModule() );
+
   mRainFallManagerWidget = new ReosRainfallManager( ReosRainfallRegistery::instance()->rainfallModel(), this );
   mActionRainfallManager->setCheckable( true );
   mRainFallManagerWidget->setAction( mActionRainfallManager );

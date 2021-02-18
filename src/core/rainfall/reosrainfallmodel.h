@@ -81,7 +81,10 @@ class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
 
     bool saveToFile( const QString &path, const QString &header );
     bool loadFromFile( const QString &path, const QString &header );
-  protected:
+
+  signals:
+    void saved( const QString &file );
+    void loaded( const QString &file );
 
   private slots:
     void onItemChanged( ReosRainfallItem *item );

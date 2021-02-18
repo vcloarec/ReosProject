@@ -93,12 +93,12 @@ void ReosRainfallTest::addingItem()
 
 void ReosRainfallTest::IDFCurves()
 {
-  ReosIdfFormulaRegistery formulaRegistery;
-  formulaRegistery.registerFormula( new ReosIdfFormulaMontana );
+  ReosIdfFormulaRegistery *formulaRegistery = ReosIdfFormulaRegistery::instance();
+  formulaRegistery->registerFormula( new ReosIdfFormulaMontana );
 
-  ReosIdfFormula *formula = formulaRegistery.formula( QStringLiteral( "XXX" ) );
+  ReosIdfFormula *formula = formulaRegistery->formula( QStringLiteral( "XXX" ) );
   QVERIFY( !formula );
-  formula = formulaRegistery.formula( QStringLiteral( "Montana" ) );
+  formula = formulaRegistery->formula( QStringLiteral( "Montana" ) );
   QVERIFY( formula );
 
   ReosIntensityDurationCurve curve;
@@ -108,15 +108,15 @@ void ReosRainfallTest::IDFCurves()
   ReosDuration duration_4( 70, ReosDuration::minute );
 
   QVERIFY( !curve.isFormulaValid() );
-  curve.setupFormula( &formulaRegistery );
+  curve.setupFormula( formulaRegistery );
   QVERIFY( !curve.isFormulaValid() );
   curve.setCurrentFormula( QStringLiteral( "dfdsf" ) );
   QVERIFY( !curve.isFormulaValid() );
-  curve.setupFormula( &formulaRegistery );
+  curve.setupFormula( formulaRegistery );
   QVERIFY( !curve.isFormulaValid() );
   curve.setCurrentFormula( QStringLiteral( "Montana" ) );
   QVERIFY( !curve.isFormulaValid() );
-  curve.setupFormula( &formulaRegistery );
+  curve.setupFormula( formulaRegistery );
   QVERIFY( curve.isFormulaValid() );
 
   QVERIFY( curve.height( duration_1 ) < 0 );
@@ -163,6 +163,8 @@ void ReosRainfallTest::IDFCurves()
   QVERIFY( equal( curve.height( duration_2 ), 36.749, 0.001 ) );
   QVERIFY( equal( curve.height( duration_3 ), 58.791, 0.001 ) );
   QVERIFY( curve.height( duration_4 ) < 0 );
+
+  delete formulaRegistery;
 }
 
 QTEST_MAIN( ReosRainfallTest )

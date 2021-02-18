@@ -107,13 +107,6 @@ ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWid
 
 ReosRainfallManager::~ReosRainfallManager()
 {
-  ///TODO : put those static deleting elsewhere
-  if ( ReosIdfFormulaRegistery::isInstanciate() )
-    delete ReosIdfFormulaRegistery::instance();
-
-  if ( ReosRainfallRegistery::isInstantiate() )
-    delete ReosRainfallRegistery::instance();
-
   delete ui;
 }
 
@@ -167,7 +160,6 @@ void ReosRainfallManager::onOpenRainfallFile()
   if ( mModel->loadFromFile( fileName, QStringLiteral( "rainfall data" ) ) )
   {
     mCurrentFileName = fileName;
-    QMessageBox::information( this, tr( "Open Rainfall Data" ), tr( "Rainfall data file open: %1" ).arg( mCurrentFileName ) );
     settings.setValue( QStringLiteral( "/rainfall/dataFile" ), fileName );
     QFileInfo fileInfo( fileName );
     settings.setValue( QStringLiteral( "/rainfall/fileDirectory" ), fileInfo.path() );
@@ -258,8 +250,6 @@ void ReosRainfallManager::onSaveRainfallFile()
 
   if ( !saveOnFile( mCurrentFileName ) )
     QMessageBox::warning( this, tr( "Save Rainfall Data" ), tr( "Unable to write the file" ) );
-  else
-    QMessageBox::information( this, tr( "Save Rainfall Data" ), tr( "Rainfall data save on file: %1" ).arg( mCurrentFileName ) );
 }
 
 void ReosRainfallManager::onAddZoneToZone()

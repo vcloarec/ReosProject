@@ -492,6 +492,9 @@ bool ReosRainfallModel::saveToFile( const QString &path, const QString &header )
   {
     stream << header;
     stream << encode().bytes();
+    file.close();
+    emit saved( path );
+
     return true;
   }
 
@@ -520,6 +523,9 @@ bool ReosRainfallModel::loadFromFile( const QString &path, const QString &header
   stream >> data;
 
   ReosEncodedElement dataElement( data );
+
+  file.close();
+  emit loaded( path );
 
   return decode( dataElement );
 }
