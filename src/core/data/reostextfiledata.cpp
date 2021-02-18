@@ -88,7 +88,7 @@ void ReosTextFileData::setDelimiters( const QStringList &delimiters )
       list.append( str );
   }
 
-  mRegExpDelimiters = QRegExp( list.join( '|' ) );
+  mRegExpDelimiters = QRegularExpression( list.join( '|' ) );
 
   beginResetModel();
   parsePreview();
@@ -239,7 +239,7 @@ bool ReosTextFileData::parsePreview()
 QStringList ReosTextFileData::splitLine( const QString &line ) const
 {
 
-  if ( mRegExpDelimiters.isValid() && !mRegExpDelimiters.isEmpty() )
+  if ( mRegExpDelimiters.isValid() && !mRegExpDelimiters.pattern().isEmpty() )
     return line.split( mRegExpDelimiters );
   else
     return QStringList( line );

@@ -19,6 +19,7 @@
 #include <QFile>
 #include <QAbstractTableModel>
 #include <QTextStream>
+#include <QRegularExpression>
 
 #include "reoscore.h"
 
@@ -55,7 +56,7 @@ class REOSCORE_EXPORT ReosTextFileData : public QAbstractTableModel
   private:
     QString mFileName;
     QStringList mDelimiters;
-    QRegExp mRegExpDelimiters;
+    QRegularExpression mRegExpDelimiters;
     int mPreviewLineMaxCount = 25;
     int mHeaderLine = 0;
     int mFirstDataLine = 1;
