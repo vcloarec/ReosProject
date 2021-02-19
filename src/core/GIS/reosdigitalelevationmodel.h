@@ -32,10 +32,16 @@ class REOSCORE_EXPORT ReosDigitalElevationModel
     virtual ~ReosDigitalElevationModel() = default;
 
     //! Returns elevation value at \a point in DEM coordinate
-    virtual double elevationAt( const QPointF &point, const QString &destinationCrs = QString() ) const = 0;
+    virtual double elevationAt( const QPointF &point, const QString &pointCrs = QString() ) const = 0;
 
-    //! Returns a profile corresponding on the elevation on the DEM, resolution depends on the DEM type
-    virtual QPolygonF elevationOnPolyline( const QPolygonF &polyline, const QString &destinationCrs = QString(), ReosProcess *process = nullptr ) const = 0;
+    /**
+     *  Returns a profile corresponding on the elevation on the DEM, resolution depends on the DEM type
+     *
+     * \param polyline the polyline that support the projection of elevation
+     * \param polylineCrs is the CRS of \a polyline
+     * \return a profile with distance in meters
+     */
+    virtual QPolygonF elevationOnPolyline( const QPolygonF &polyline, const QString &polylineCrs = QString(), ReosProcess *process = nullptr ) const = 0;
 
     //! Returns the source of the DEM, if it is a map layer, returns the layer Id
     virtual QString source() const = 0;

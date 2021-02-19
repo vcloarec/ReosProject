@@ -20,6 +20,7 @@ email                : vcloarec at gmail dot com
 #include "reosrasterline.h"
 
 #include "qgsrasteridentifyresult.h"
+#include "qgslinestring.h"
 
 ReosDigitalElevationModelRaster::ReosDigitalElevationModelRaster(
   QgsRasterLayer *rasterLayer,
@@ -34,37 +35,37 @@ ReosDigitalElevationModelRaster::ReosDigitalElevationModelRaster(
   }
 }
 
-double ReosDigitalElevationModelRaster::elevationAt( const QPointF &point, const QString &destinationCrs ) const
+double ReosDigitalElevationModelRaster::elevationAt( const QPointF &point, const QString &pointCrs ) const
 {
   assert( mDataProvider );
 
-  QgsCoordinateReferenceSystem destCrs = QgsCoordinateReferenceSystem::fromWkt( destinationCrs );
-  QgsCoordinateTransform transform( mCrs, destCrs, mTransformContext );
-  QgsPointXY pointInDestination;
+  QgsCoordinateReferenceSystem ptCrs = QgsCoordinateReferenceSystem::fromWkt( pointCrs );
+  QgsCoordinateTransform transform( ptCrs, mCrs, mTransformContext );
+  QgsPointXY pointInDem;
   if ( transform.isValid() )
   {
     try
     {
-      pointInDestination = transform.transform( QgsPointXY( point.x(), point.y() ) );
+      pointInDem = transform.transform( QgsPointXY( point.x(), point.y() ) );
     }
     catch ( QgsCsException &e )
     {
-      pointInDestination = QgsPointXY( point.x(), point.y() );
+      pointInDem = QgsPointXY( point.x(), point.y() );
     }
   }
   else
   {
-    pointInDestination = QgsPointXY( point.x(), point.y() );
+    pointInDem = QgsPointXY( point.x(), point.y() );
   }
 
-  QgsRasterIdentifyResult result = mDataProvider->identify( pointInDestination, QgsRaster::IdentifyFormatValue );
+  QgsRasterIdentifyResult result = mDataProvider->identify( pointInDem, QgsRaster::IdentifyFormatValue );
   if ( result.isValid() )
     return result.results().value( 1 ).toDouble();
   else
     return mDataProvider->sourceNoDataValue( 1 );
 }
 
-QPolygonF ReosDigitalElevationModelRaster::elevationOnPolyline( const QPolygonF &polyline, const QString &destinationCrs, ReosProcess *process ) const
+QPolygonF ReosDigitalElevationModelRaster::elevationOnPolyline( const QPolygonF &polyline, const QString &polylineCrs, ReosProcess *process ) const
 {
   assert( mDataProvider );
 
@@ -73,7 +74,13 @@ QPolygonF ReosDigitalElevationModelRaster::elevationOnPolyline( const QPolygonF 
   if ( polyline.isEmpty() )
     return ret;
 
-  ret.append( QPointF( 0, elevationAt( polyline.first(), destinationCrs ) ) );
+  ret.append( QPointF( 0, elevationAt( polyline.first(), polylineCrs ) ) );
+
+  QgsCoordinateReferenceSystem qgsCrs = QgsCoordinateReferenceSystem::fromWkt( polylineCrs );
+  QgsDistanceArea distanceCalculation;
+  distanceCalculation.setSourceCrs( qgsCrs, mTransformContext );
+  QgsUnitTypes::DistanceUnit unit = distanceCalculation.lengthUnits();
+  double unitFactor = QgsUnitTypes::fromUnitToUnitFactor( unit, QgsUnitTypes::DistanceMeters );
 
   double s = 0;
   for ( int i = 0; i < polyline.count() - 1; ++i )
@@ -88,7 +95,7 @@ QPolygonF ReosDigitalElevationModelRaster::elevationOnPolyline( const QPolygonF 
     ReosRasterExtent rasterExtent;
     if ( process )
       process->setInformation( QObject::tr( "Read DEM for segment %1/%2" ).arg( i + 1 ).arg( polyline.count() - 1 ) );
-    ReosRasterMemory<float> segmentDEM = extractMemoryRasterSimplePrecision( segmentExtent, rasterExtent, destinationCrs, process );
+    ReosRasterMemory<float> segmentDEM = extractMemoryRasterSimplePrecision( segmentExtent, rasterExtent, polylineCrs, process );
 
     if ( process && !process->isSuccessful() )
       return ret;
@@ -105,9 +112,13 @@ QPolygonF ReosDigitalElevationModelRaster::elevationOnPolyline( const QPolygonF 
       process->setInformation( QObject::tr( "Project segment %1/%2" ).arg( i ).arg( polyline.count() ) );
     }
 
-    const QPointF vector1 = ( point2 - point1 );
-    double len1 = sqrt( vector1.x() * vector1.x() + vector1.y() * vector1.y() );
-    double lenProj = 0;
+
+    QVector<QgsPointXY> line;
+    line << point1;
+    line << point2;
+
+    double len1 = unitFactor * distanceCalculation.measureLine( line );
+
     for ( unsigned cell = 1; cell < rasterLine.cellCount() - 1; ++cell )
     {
       if ( process )
@@ -116,9 +127,17 @@ QPolygonF ReosDigitalElevationModelRaster::elevationOnPolyline( const QPolygonF 
       const ReosRasterCellPos &cellPos = rasterLine.cellPosition( cell );
       QPointF pointOnRaster = rasterExtent.cellCenterToMap( cellPos );
       float value = segmentDEM.value( cellPos.row(), cellPos.column() );
-      QPointF vector2 = pointOnRaster - point1;
 
-      lenProj = ( vector1.x() * vector2.x() + vector1.y() * vector2.y() ) / len1;
+      QgsPointXY ptOnRaster( pointOnRaster );
+      QgsPointXY projectedPt;
+      // project point on pt1-pt2
+      ptOnRaster.sqrDistToSegment( point1.x(), point1.y(), point2.x(), point2.y(), projectedPt );
+      QVector<QgsPointXY> linePart;
+      linePart << point1;
+      linePart << projectedPt;
+      double lenProj = unitFactor * distanceCalculation.measureLine( linePart );
+
+
       ret.append( QPointF( s + lenProj, value ) );
 
       if ( process && process->isStop() )
@@ -126,7 +145,7 @@ QPolygonF ReosDigitalElevationModelRaster::elevationOnPolyline( const QPolygonF 
     }
 
     s = s + len1;
-    ret.append( QPointF( s, elevationAt( point2, destinationCrs ) ) );
+    ret.append( QPointF( s, elevationAt( point2, polylineCrs ) ) );
 
     if ( process && process->isStop() )
       break;
@@ -139,12 +158,13 @@ QPolygonF ReosDigitalElevationModelRaster::elevationOnPolyline( const QPolygonF 
 
 }
 
-ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimplePrecision( const ReosMapExtent &destinationExtent,
-    ReosRasterExtent &outputRasterExtent,
-    const QString &destinationCrs,
-    ReosProcess *process ) const
+ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimplePrecision(
+  const ReosMapExtent &destinationExtent,
+  ReosRasterExtent &outputRasterExtent,
+  const QString &destinationCrs,
+  ReosProcess *process ) const
 {
-  QgsCoordinateReferenceSystem destCrs = QgsCoordinateReferenceSystem::fromWkt( destinationCrs.isEmpty() ? destinationCrs : destinationExtent.crs() );
+  QgsCoordinateReferenceSystem destCrs = QgsCoordinateReferenceSystem::fromWkt( destinationCrs.isEmpty() ? destinationExtent.crs() : destinationCrs );
   QgsCoordinateTransform transform( mCrs, destCrs, mTransformContext );
 
   QgsRectangle destExtent( destinationExtent.xMapMin(),
@@ -152,30 +172,53 @@ ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimp
                            destinationExtent.xMapMax(),
                            destinationExtent.yMapMax() );
 
-  QgsRectangle extentInDEMCoordinate;
+  QgsRectangle extentInDEMCoordinates;
   if ( transform.isValid() )
   {
     try
     {
-      extentInDEMCoordinate = transform.transform( destExtent, QgsCoordinateTransform::ReverseTransform );
+      extentInDEMCoordinates = transform.transform( destExtent, QgsCoordinateTransform::ReverseTransform );
     }
     catch ( QgsCsException &e )
     {
-      extentInDEMCoordinate = destExtent;
+      extentInDEMCoordinates = destExtent;
     }
   }
   else
-    extentInDEMCoordinate = destExtent;
+    extentInDEMCoordinates = destExtent;
 
-  outputRasterExtent = rasterExtent( extentInDEMCoordinate );
+  ReosRasterExtent outputRasterExtentInDemCoorindates = rasterExtent( extentInDEMCoordinates );
 
-  int xPixCount = outputRasterExtent.xCellCount();
-  int yPixCount = outputRasterExtent.yCellCount();
+  int xPixCount = outputRasterExtentInDemCoorindates.xCellCount();
+  int yPixCount = outputRasterExtentInDemCoorindates.yCellCount();
 
-  QgsRectangle adjustedExtent( outputRasterExtent.xMapMin(),
-                               outputRasterExtent.yMapMin(),
-                               outputRasterExtent.xMapMax(),
-                               outputRasterExtent.yMapMax() );
+  QgsRectangle adjustedExtent( outputRasterExtentInDemCoorindates.xMapMin(),
+                               outputRasterExtentInDemCoorindates.yMapMin(),
+                               outputRasterExtentInDemCoorindates.xMapMax(),
+                               outputRasterExtentInDemCoorindates.yMapMax() );
+
+  if ( transform.isValid() )
+  {
+    QgsRectangle adjustedExtentInDestinationCoordinates;
+    try
+    {
+      adjustedExtentInDestinationCoordinates = transform.transform( adjustedExtent );
+    }
+    catch ( QgsCsException &e )
+    {
+      adjustedExtentInDestinationCoordinates = adjustedExtent;
+    }
+
+    outputRasterExtent =      ReosRasterExtent(
+                                ReosMapExtent( adjustedExtentInDestinationCoordinates.xMinimum(),
+                                    adjustedExtentInDestinationCoordinates.yMinimum(),
+                                    adjustedExtentInDestinationCoordinates.xMaximum(),
+                                    adjustedExtentInDestinationCoordinates.yMaximum() ),
+                                xPixCount, yPixCount );
+  }
+  else
+    outputRasterExtent = outputRasterExtentInDemCoorindates;
+
 
   ReosRasterMemory<float> ret = ReosRasterMemory<float>( yPixCount, xPixCount ); //(row, col)
 

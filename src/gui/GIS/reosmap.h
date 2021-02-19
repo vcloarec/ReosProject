@@ -53,6 +53,9 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     void cursorMoved( const QPointF &point );
     void readProject( const QDomDocument &doc );
 
+  private slots:
+    void setCrs( const QString &crs );
+
   private:
     ReosGisEngine *mEngine;
     QPointer<QGraphicsView> mCanvas = nullptr;

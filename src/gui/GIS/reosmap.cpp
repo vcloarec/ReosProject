@@ -60,6 +60,8 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
     emit cursorMoved( p.toQPointF() );
   } );
 
+  connect( gisEngine, &ReosGisEngine::crsChanged, this, &ReosMap::setCrs );
+
   mDefaultMapTool->setCurrentToolInMap();
 }
 
@@ -98,6 +100,12 @@ void ReosMap::setDefaultMapTool()
 {
   if ( mDefaultMapTool )
     mDefaultMapTool->setCurrentToolInMap();
+}
+
+void ReosMap::setCrs( const QString &crsWkt )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
+  canvas->setDestinationCrs( QgsCoordinateReferenceSystem::fromWkt( crsWkt ) );
 }
 
 ReosMapCursorPosition::ReosMapCursorPosition( ReosMap *map, QWidget *parent ): QLabel( parent )

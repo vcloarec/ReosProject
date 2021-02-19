@@ -27,9 +27,9 @@ class ReosDigitalElevationModelRaster: public ReosDigitalElevationModel
   public:
     ReosDigitalElevationModelRaster( QgsRasterLayer *rasterLayer, const QgsCoordinateTransformContext &transformContext );
 
-    double elevationAt( const QPointF &point, const QString &destinationCrs = QString() ) const override;
+    double elevationAt( const QPointF &point, const QString &pointCrs = QString() ) const override;
 
-    QPolygonF elevationOnPolyline( const QPolygonF &polyline, const QString &destinationCrs = QString(), ReosProcess *process = nullptr ) const override;
+    QPolygonF elevationOnPolyline( const QPolygonF &polyline, const QString &polylineCrs = QString(), ReosProcess *process = nullptr ) const override;
 
     ReosRasterMemory<float> extractMemoryRasterSimplePrecision( const ReosMapExtent &destinationExtent,
         ReosRasterExtent &outputRasterExtent,
