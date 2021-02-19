@@ -105,6 +105,21 @@ class REOSCORE_EXPORT ReosRainfallItem : public QObject
 
     void swapChildren( int first, int second );
 
+
+    /**
+     *  Inserts a child \a item at position \a pos. Take ownership of the new child,
+     * As this method emit signals to the model before and after interting, this method can be used from items
+     */
+    void insertChild( int pos, ReosRainfallItem *item );
+
+    /**
+     *  Takes the children at position \a pos. If no item at this position returns nullptr.
+     *  The taken children has no parent anymore an caller need to handle ownership.
+     *
+     * As this method emit signals to the model before and after taking, this method can be used from items
+     */
+    ReosRainfallItem *takeChild( int pos );
+
   public slots :
     //! Setup the data related to the item, default implementation does nothing, must be called before acces to the data of the item
     virtual void setupData() {}
@@ -125,17 +140,7 @@ class REOSCORE_EXPORT ReosRainfallItem : public QObject
 
     void connectParameters();
 
-    //! Inserts a child \a item at position \a pos. Take ownership of the new child,
-    //! As this method emit signals to the model before and after interting, this method can be used from items
-    void insertChild( int pos, ReosRainfallItem *item );
 
-    /**
-     *  Takes the children at position \a pos. If no item at this position returns nullptr.
-     *  The taken children has no parent anymore an caller need to handle ownership.
-     *
-    //! As this method emit signals to the model before and after taking, this method can be used from items
-     */
-    ReosRainfallItem *takeChild( int pos );
 
   private:
     ReosParameterString *mName;

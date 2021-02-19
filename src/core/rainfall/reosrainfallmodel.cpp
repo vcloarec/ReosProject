@@ -130,18 +130,9 @@ Qt::ItemFlags ReosRainfallModel::flags( const QModelIndex &index ) const
   return QAbstractItemModel::flags( index ) | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 }
 
-bool ReosRainfallModel::canDropMimeData( const QMimeData *data, Qt::DropAction, int row, int, const QModelIndex &parent ) const
+bool ReosRainfallModel::canDropMimeData( const QMimeData *data, Qt::DropAction, int, int, const QModelIndex &parent ) const
 {
-  return true;
-  QElapsedTimer timer;
-  timer.start();
-  QByteArray ba = data->data( QStringLiteral( "lekan/rainfallItem_position_path" ) );
-  QDataStream stream( ba );
-
-  QList<int> positionPath;
-  stream >> positionPath;
-
-  ReosRainfallItem *item = positonPathToItem( positionPath );
+  ReosRainfallItem *item = uriToItem( data->text() );
   ReosRainfallItem *receiver = indexToItem( parent );
 
   if ( item == receiver )
@@ -154,38 +145,28 @@ bool ReosRainfallModel::canDropMimeData( const QMimeData *data, Qt::DropAction, 
 
   if ( !item || !receiver || receiver->isSubItem( item ) )
   {
-    qDebug() << timer.elapsed();
     return false;
   }
 
-  qDebug() << timer.elapsed();
   return receiver->accept( item );
 }
 
-bool ReosRainfallModel::dropMimeData( const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent )
+bool ReosRainfallModel::dropMimeData( const QMimeData *data, Qt::DropAction,  int row, int, const QModelIndex &parent )
 {
-//  QByteArray ba = data->data( QStringLiteral( "lekan/rainfallItem_position_path" ) );
-//  QDataStream stream( ba );
+  ReosRainfallItem *item = uriToItem( data->text() );
+  ReosRainfallItem *receiver = indexToItem( parent );
+  if ( receiver == nullptr )
+    receiver = mRootZone.get();
 
-//  QList<int> positionPath;
-//  stream >> positionPath;
+  if ( !item || !receiver || receiver->isSubItem( item ) )
+    return false;
 
-//  ReosRainfallItem *item = positonPathToItem( positionPath );
-//  ReosRainfallItem *receiver = indexToItem( parent );
-//  if ( receiver == nullptr )
-//    receiver = mRootZone.get();
-
-//  if ( !item || !receiver || receiver->isSubItem( item ) )
-//    return false;
-
-//  if ( row == -1 )
-//    row = receiver->itemCount();
-//  ReosRainfallItem *oldParent = item->parent();
-//  beginMoveRows( itemToIndex( oldParent ), item->positionInParent(), item->positionInParent(), parent, row );
-//  receiver->insertChild( row, oldParent->takeChild( item->positionInParent() ) );
-//  endMoveRows();
-
-  return false;
+  if ( row == -1 )
+    row = receiver->childrenCount();
+  ReosRainfallItem *oldParent = item->parentItem();
+  beginMoveRows( itemToIndex( oldParent ), item->positionInParent(), item->positionInParent(), parent, row );
+  receiver->insertChild( row, oldParent->takeChild( item->positionInParent() ) );
+  endMoveRows();
 
   return true;
 }
@@ -204,6 +185,13 @@ QMimeData *ReosRainfallModel::mimeData( const QModelIndexList &indexes ) const
   mimeData->setText( item->uri() );
 
   return mimeData.release();
+}
+
+QStringList ReosRainfallModel::mimeTypes() const
+{
+  QStringList ret;
+  ret << QStringLiteral( "text/plain" );
+  return ret;
 }
 
 ReosZoneItem *ReosRainfallModel::addZone( const QString &name, const QString &description, const QModelIndex &index )
