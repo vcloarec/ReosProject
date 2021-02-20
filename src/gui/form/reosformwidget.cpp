@@ -352,6 +352,9 @@ ReosDoubleTriangleRainfallWidget::ReosDoubleTriangleRainfallWidget( ReosDoubleTr
   addParameter( rainfall->intenseDuration(), 1 );
   addParameter( rainfall->totalDuration(), 2 );
 
+  mIntenseIdfWidget->setTitle( tr( "Intense Intensity Duration Curve" ) );
+  mTotalIdfWidget->setTitle( tr( "Total Intensity Duration Curve" ) );
+
   if ( ReosRainfallRegistery::isInstantiate() )
   {
     ReosRainfallIntensityDurationCurveItem *intenseCurveItem =

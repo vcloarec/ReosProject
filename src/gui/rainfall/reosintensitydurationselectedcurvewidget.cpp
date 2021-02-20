@@ -161,3 +161,8 @@ void ReosIntensityDurationSelectedCurveWidget::clearCurveItem()
   ui->labelStation->setText( QString() );
   ui->labelName->setText( QString() );
 }
+
+void ReosIntensityDurationSelectedCurveWidget::setTitle( const QString &title )
+{
+  ui->title->setText( title );
+}

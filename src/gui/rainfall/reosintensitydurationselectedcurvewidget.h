@@ -45,6 +45,8 @@ class ReosIntensityDurationSelectedCurveWidget : public QWidget
     void setCurveItem( ReosRainfallIntensityDurationCurveItem *curve );
     void clearCurveItem();
 
+    void setTitle( const QString &title );
+
   public slots:
     void onCurveChanged();
 
