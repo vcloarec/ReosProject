@@ -529,7 +529,7 @@ ReosImportRainfallDialog::ReosImportRainfallDialog( ReosRainfallModel *model, QW
   mImportedRainfall->setValueModeColor( ReosTimeSerieConstantInterval::Value, QColor( 0, 0, 200, 200 ) );
   mImportedRainfall->setValueModeColor( ReosTimeSerieConstantInterval::Intensity, QColor( 50, 100, 255, 200 ) );
   mImportedRainfall->setValueModeColor( ReosTimeSerieConstantInterval::Cumulative, QColor( 255, 50, 0 ) );
-  mImportedRainfall->setAddCumultive( true );
+  mImportedRainfall->setAddCumulative( true );
 
   setLayout( new QHBoxLayout );
   layout()->setContentsMargins( 0, 0, 0, 0 );

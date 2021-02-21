@@ -395,7 +395,7 @@ double ReosIntensityDurationCurve::lastIntensity( int intervalIndex, ReosDuratio
     return -1.0;
 }
 
-ReosIdfParameters *ReosIntensityDurationCurve::setParameters( int i, ReosIdfFormula *formula )
+ReosIdfParameters *ReosIntensityDurationCurve::createParameters( int i, ReosIdfFormula *formula )
 {
   if ( i < 0 || i > mIntensityDurationIntervals.count() )
     return nullptr;
@@ -412,7 +412,7 @@ ReosIdfParameters *ReosIntensityDurationCurve::currentParameters( int i )
   if ( param )
     return param;
   else
-    return setParameters( i, mCurrentFormula );
+    return createParameters( i, mCurrentFormula );
 
   return mIntensityDurationIntervals.at( i )->parameters( mCurrentFormulaName );
 }

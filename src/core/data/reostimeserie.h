@@ -55,14 +55,8 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
     //! Sets the \a value at position \a i
     virtual void setValueAt( int i, double value );
 
-    //! Apppends the \a value
-    virtual void appendValue( double value );
-
     //! Removes \a count values from position \a fromPos
     void removeValues( int fromPos, int count );
-
-    //! Inserts \a count values from position \a fromPos with \a value
-    virtual void insertValues( int fromPos, int count, double value );
 
     //! Clears all values
     void clear();
@@ -114,8 +108,8 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     double valueAt( int i ) const override;
 
     virtual void setValueAt( int i, double value ) override;
-    virtual void appendValue( double value ) override;
-    virtual void insertValues( int fromPos, int count, double value ) override;
+    void appendValue( double value );
+    void insertValues( int fromPos, int count, double value );
 
     QString type() const override;
 
@@ -154,7 +148,7 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     //! Returns a flag to make this instance using cumulative mode in addition to the current mode
     bool addCumultive() const;
     //! Sets a flag to make this instance using cumulative mode in addition to the current mode
-    void setAddCumultive( bool addCumulative );
+    void setAddCumulative( bool addCumulative );
 
     //! Returns a encoded element correspondint to this serie
     ReosEncodedElement encode( const QString &descritpion = QString() ) const;
@@ -207,6 +201,27 @@ class REOSCORE_EXPORT ReosTimeSerieConstantIntervalModel : public QAbstractTable
     ReosTimeSerieConstantInterval *mData;
     bool mIsEditable = true;
     double defaultValue = 0;
+
+};
+
+class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
+{
+  public:
+
+    ReosTimeSerieVariableTimeStep( QObject *parent );
+
+    ReosDuration relativeTimeAt( int i ) const;
+    QPair<QDateTime, QDateTime> timeExtent() const;
+
+
+    //! Sets the value at \a relative time with \a value, if the \a relative time is not present insert a new couple (time, value)
+    void setValue( const ReosDuration &relativeTime, double value );
+
+  private:
+    QVector<ReosDuration> mTimeValues;
+
+    // returns the index of the time value if the value is present, or the indexof the value just before if not present (-1 if less than the first one)
+    int timeValueIndex( const ReosDuration &time ) const;
 
 };
 

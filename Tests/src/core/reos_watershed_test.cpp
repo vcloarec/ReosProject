@@ -18,6 +18,8 @@ email                : vcloarec at gmail dot com
 #include <fstream>
 
 #include "reoswatersheddelineating.h"
+#include "reosrunoffmodel.h"
+#include "reossyntheticrainfall.h"
 #include "reoswatershedtree.h"
 #include "reos_testutils.h"
 
@@ -32,6 +34,8 @@ class ReosWatersehdTest: public QObject
     void inclusion();
     void watershedInteractions();
     void concentrationTime();
+
+    void runoffConstantCoefficient();
 
   private:
     ReosModule rootModule;
@@ -726,12 +730,10 @@ void ReosWatersehdTest::concentrationTime()
   ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaPassini );
   ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaVentura );
   ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaVenTeShow );
-  ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaTurazza );
 
   QVERIFY( ReosConcentrationTimeFormulasRegistery::instance()->formula( "Kirpich" )->isInValidityDomain( params ) );
   QVERIFY( !ReosConcentrationTimeFormulasRegistery::instance()->formula( "Johnstone" )->isInValidityDomain( params ) );
   QVERIFY( ReosConcentrationTimeFormulasRegistery::instance()->formula( "Ven te Show" )->isInValidityDomain( params ) );
-  QVERIFY( ReosConcentrationTimeFormulasRegistery::instance()->formula( "Turazza" )->isInValidityDomain( params ) );
   QVERIFY( ReosConcentrationTimeFormulasRegistery::instance()->formula( "Ventura" )->isInValidityDomain( params ) );
   QVERIFY( ReosConcentrationTimeFormulasRegistery::instance()->formula( "Passini" )->isInValidityDomain( params ) );
 
@@ -744,9 +746,6 @@ void ReosWatersehdTest::concentrationTime()
 
   calculation.setUserChoosenFormula( QStringLiteral( "Ven te Show" ) );
   QCOMPARE( ReosDuration( 3578028, ReosDuration::millisecond ), calculation.concentrationTime( params ) );
-
-  calculation.setUserChoosenFormula( QStringLiteral( "Turazza" ) );
-  QCOMPARE( ReosDuration( 1502701, ReosDuration::millisecond ), calculation.concentrationTime( params ) );
 
   calculation.setUserChoosenFormula( QStringLiteral( "Ventura" ) );
   QCOMPARE( ReosDuration( 791893, ReosDuration::millisecond ), calculation.concentrationTime( params ) );
@@ -765,6 +764,66 @@ void ReosWatersehdTest::concentrationTime()
 
   if ( ReosConcentrationTimeFormulasRegistery::isInstantiate() )
     delete ReosConcentrationTimeFormulasRegistery::instance();
+}
+
+void ReosWatersehdTest::runoffConstantCoefficient()
+{
+// build a rainfall
+  ReosModule root;
+  ReosIdfFormulaRegistery::instantiate( &root );
+  ReosIdfFormulaRegistery *idfRegistery = ReosIdfFormulaRegistery::instance();
+  idfRegistery->registerFormula( new ReosIdfFormulaMontana );
+
+  ReosIntensityDurationCurve idCurve;
+  idCurve.addInterval( ReosDuration( 5, ReosDuration::minute ), ReosDuration( 1, ReosDuration::hour ) );
+  idCurve.createParameters( 0, idfRegistery->formula( QStringLiteral( "Montana" ) ) );
+  idCurve.setCurrentFormula( QStringLiteral( "Montana" ) );
+  idCurve.setupFormula( idfRegistery );
+  ReosParameterDouble *a = idCurve.currentParameters( 0 )->parameter( 0 );
+  ReosParameterDouble *b = idCurve.currentParameters( 0 )->parameter( 1 );
+  a->setValue( 4.78 );
+  b->setValue( 0.322 );
+  ReosChicagoRainfall chicagoRainfall;
+  chicagoRainfall.timeStep()->setValue( ReosDuration( 5, ReosDuration::minute ) );
+  chicagoRainfall.totalDuration()->setValue( ReosDuration( 1, ReosDuration::hour ) );
+  chicagoRainfall.setIntensityDurationCurve( &idCurve );
+  chicagoRainfall.updateRainfall();
+
+  QCOMPARE( chicagoRainfall.valueCount(), 12 );
+  QVERIFY( equal( chicagoRainfall.valueAt( 5 ), 14.234, 0.001 ) );
+
+  // apply runoff
+
+  ReosRunoffConstantCoefficientModel runoffConstantCoefficientModel;
+  runoffConstantCoefficientModel.coefficient()->setValue( 0.5 );
+
+  ReosRunoff runoff( &runoffConstantCoefficientModel, &chicagoRainfall );
+  QVERIFY( runoff.updateValues() );
+  QCOMPARE( runoff.valueCount(), 12 );
+  for ( int i = 0; i < runoff.valueCount(); ++i )
+    QVERIFY( equal( runoff.value( 5 ),
+                    chicagoRainfall.valueAt( 5 ) * runoffConstantCoefficientModel.coefficient()->value(),
+                    0.001 ) );
+
+  //! runoff automaticaly updated if rainfall change
+  chicagoRainfall.setValueAt( 5, 10 );
+  QVERIFY( equal( chicagoRainfall.valueAt( 5 ), 10, 0.001 ) );
+  QVERIFY( equal( runoff.value( 5 ), 5, 0.001 ) );
+
+  for ( int i = 0; i < runoff.valueCount(); ++i )
+    QVERIFY( equal( runoff.value( 5 ),
+                    chicagoRainfall.valueAt( 5 ) * runoffConstantCoefficientModel.coefficient()->value(),
+                    0.001 ) );
+
+  //! runoff automaticaly updated if model change
+  runoffConstantCoefficientModel.coefficient()->setValue( 0.1 );
+  QVERIFY( equal( runoff.value( 5 ), 1, 0.001 ) );
+
+  for ( int i = 0; i < runoff.valueCount(); ++i )
+    QVERIFY( equal( runoff.value( 5 ),
+                    chicagoRainfall.valueAt( 5 ) * runoffConstantCoefficientModel.coefficient()->value(),
+                    0.001 ) );
+
 }
 
 QTEST_MAIN( ReosWatersehdTest )

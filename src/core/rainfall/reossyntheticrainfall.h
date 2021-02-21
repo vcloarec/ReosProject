@@ -27,7 +27,7 @@ class REOSCORE_EXPORT ReosChicagoRainfall : public ReosTimeSerieConstantInterval
 {
     Q_OBJECT
   public:
-    ReosChicagoRainfall( QObject *parent );
+    ReosChicagoRainfall( QObject *parent = nullptr );
 
     QString type() const override {return QStringLiteral( "chicago-rainfall" );}
 

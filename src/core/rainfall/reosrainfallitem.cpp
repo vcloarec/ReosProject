@@ -662,7 +662,7 @@ void ReosRainfallSerieRainfallItem::setupData()
   data()->setValueModeColor( ReosTimeSerieConstantInterval::Value, QColor( 0, 0, 200, 200 ) );
   data()->setValueModeColor( ReosTimeSerieConstantInterval::Intensity, QColor( 50, 100, 255, 200 ) );
   data()->setValueModeColor( ReosTimeSerieConstantInterval::Cumulative, QColor( 255, 50, 0 ) );
-  data()->setAddCumultive( true );
+  data()->setAddCumulative( true );
   data()->setName( name() );
 
   connect( this, &ReosRainfallItem::changed, data(), [this]

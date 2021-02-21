@@ -293,25 +293,27 @@ void ReosTimeSerieConstantInterval::appendValue( double value )
   switch ( mValueMode )
   {
     case ReosTimeSerieConstantInterval::Value:
-      ReosTimeSerie::appendValue( value );
+      mValues.append( value );
       break;
     case ReosTimeSerieConstantInterval::Intensity:
-      ReosTimeSerie::appendValue( convertFromIntensityValue( value ) );
+      mValues.append( convertFromIntensityValue( value ) );
       break;
     case ReosTimeSerieConstantInterval::Cumulative:
     {
       if ( mValues.count() > 0 )
       {
         double cumulValueBefore = valueWithMode( mValues.count() - 1 );
-        ReosTimeSerie::appendValue( value - cumulValueBefore );
+        mValues.append( value - cumulValueBefore );
       }
       else
       {
-        ReosTimeSerie::appendValue( value );
+        mValues.append( value );
       }
     }
     break;
   }
+
+  emit dataChanged();
 }
 
 void ReosTimeSerieConstantInterval::insertValues( int fromPos, int count, double value )
@@ -319,18 +321,21 @@ void ReosTimeSerieConstantInterval::insertValues( int fromPos, int count, double
   switch ( mValueMode )
   {
     case ReosTimeSerieConstantInterval::Value:
-      ReosTimeSerie::insertValues( fromPos, count, value );
+      for ( int i = 0; i < count; ++i )
+        mValues.insert( fromPos, value );
       break;
     case ReosTimeSerieConstantInterval::Intensity:
-      ReosTimeSerie::insertValues( fromPos, count, convertFromIntensityValue( value ) );
+      for ( int i = 0; i < count; ++i )
+        mValues.insert( fromPos, count, convertFromIntensityValue( value ) );
       break;
     case ReosTimeSerieConstantInterval::Cumulative:
     {
       double cumulValueBefore = valueWithMode( mValues.count() - 1 );
       if ( fromPos > 0 )
-        ReosTimeSerie::insertValues( fromPos, 1, value - cumulValueBefore );
+        mValues.insert( fromPos, 1, value - cumulValueBefore );
       if ( count > 1 )
-        ReosTimeSerie::insertValues( fromPos + 1, count - 1, 0.0 );
+        for ( int i = 0; i < count - 1; ++i )
+          mValues.insert( fromPos + 1,  0.0 );
     }
     break;
   }
@@ -387,11 +392,6 @@ void ReosTimeSerie::setValueAt( int i, double value )
   }
 }
 
-void ReosTimeSerie::appendValue( double value )
-{
-  mValues.append( value );
-  emit dataChanged();
-}
 
 QString ReosTimeSerieConstantInterval::type() const {return QStringLiteral( "time-serie-constant-interval" );}
 
@@ -465,7 +465,7 @@ bool ReosTimeSerieConstantInterval::addCumultive() const
   return mAddCumulative;
 }
 
-void ReosTimeSerieConstantInterval::setAddCumultive( bool addCumulative )
+void ReosTimeSerieConstantInterval::setAddCumulative( bool addCumulative )
 {
   mAddCumulative = addCumulative;
 }
@@ -545,14 +545,6 @@ void ReosTimeSerie::removeValues( int fromPos, int count )
   emit dataChanged();
 }
 
-void ReosTimeSerie::insertValues( int fromPos, int count, double value )
-{
-  for ( int i = 0; i < count; ++i )
-    mValues.insert( fromPos, value );
-
-  emit dataChanged();
-}
-
 void ReosTimeSerie::clear()
 {
   mValues.clear();
@@ -607,3 +599,67 @@ void ReosTimeSerie::connectParameters()
   connect( mReferenceTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
 }
 
+
+ReosTimeSerieVariableTimeStep::ReosTimeSerieVariableTimeStep( QObject *parent ): ReosTimeSerie( parent ) {}
+
+ReosDuration ReosTimeSerieVariableTimeStep::relativeTimeAt( int i ) const
+{
+  return mTimeValues.at( i );
+}
+
+QPair<QDateTime, QDateTime> ReosTimeSerieVariableTimeStep::timeExtent() const
+{
+  if ( mTimeValues.isEmpty() )
+    return {referenceTime()->value(), referenceTime()->value() };
+
+  QDateTime refTime = referenceTime()->value();
+  return {refTime.addMSecs( mTimeValues.first().valueMilliSecond() ), refTime.addMSecs( mTimeValues.last().valueMilliSecond() )};
+}
+
+void ReosTimeSerieVariableTimeStep::setValue( const ReosDuration &relativeTime, double value )
+{
+  if ( relativeTime >= mTimeValues.last() )
+  {
+    mValues.append( value );
+    mTimeValues.append( relativeTime );
+    return;
+  }
+
+  int index = timeValueIndex( relativeTime );
+
+  if ( mTimeValues.at( index ) == relativeTime )
+    mValues[index] = value;
+  else
+  {
+    mValues.insert( index + 1, value );
+    mTimeValues.insert( index + 1, relativeTime );
+  }
+}
+
+int ReosTimeSerieVariableTimeStep::timeValueIndex( const ReosDuration &time ) const
+{
+  if ( time < mTimeValues.first() )
+    return -1;
+
+  if ( time > mTimeValues.last() )
+    return mTimeValues.count() - 1;
+
+  int i1 = 0;
+  int i2 = mTimeValues.count() - 1;
+  while ( true )
+  {
+    if ( mTimeValues.at( i1 ) == time )
+      return i1;
+    if ( mTimeValues.at( i2 ) == time )
+      return i2;
+
+    if ( i1 == i2 || i1 == i2 + 1 )
+      return i1;
+
+    int inter = ( i1 + i2 ) / 2;
+    if ( time < mTimeValues.at( inter ) )
+      i2 = inter;
+    else
+      i1 = inter;
+  }
+}

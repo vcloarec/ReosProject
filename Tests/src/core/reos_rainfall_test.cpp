@@ -140,7 +140,7 @@ void ReosRainfallTest::IDFCurves()
   QVERIFY( curve.height( duration_3 ) < 0 );
   QVERIFY( curve.height( duration_4 ) < 0 );
 
-  ReosIdfParameters *parameters_1 = curve.setParameters( 0, formula );
+  ReosIdfParameters *parameters_1 = curve.createParameters( 0, formula );
   QVERIFY( parameters_1 );
   QCOMPARE( parameters_1->formulaName, QStringLiteral( "Montana" ) );
   QCOMPARE( parameters_1->parametersCount(), 2 );
@@ -152,7 +152,7 @@ void ReosRainfallTest::IDFCurves()
   QVERIFY( curve.height( duration_3 ) < 0 );
   QVERIFY( curve.height( duration_4 ) < 0 );
 
-  ReosIdfParameters *parameters_2 = curve.setParameters( 1, formula );
+  ReosIdfParameters *parameters_2 = curve.createParameters( 1, formula );
   QVERIFY( parameters_2 );
   QCOMPARE( parameters_2->formulaName, QStringLiteral( "Montana" ) );
   QCOMPARE( parameters_2->parametersCount(), 2 );
@@ -166,6 +166,7 @@ void ReosRainfallTest::IDFCurves()
 
   delete formulaRegistery;
 }
+
 
 QTEST_MAIN( ReosRainfallTest )
 #include "reos_rainfall_test.moc"
