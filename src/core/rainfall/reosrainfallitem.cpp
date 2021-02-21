@@ -213,7 +213,7 @@ bool ReosRainfallItem::isSubItem( ReosRainfallItem *item ) const
 {
   for ( const std::unique_ptr<ReosRainfallItem> &child : mChildItems )
   {
-    if ( child.get() == item || child->isSubItem( item ) )
+    if ( child.get() == item /*|| child->isSubItem( item )*/ )
       return true;
   }
 

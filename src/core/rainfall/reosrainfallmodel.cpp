@@ -130,10 +130,13 @@ Qt::ItemFlags ReosRainfallModel::flags( const QModelIndex &index ) const
   return QAbstractItemModel::flags( index ) | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 }
 
-bool ReosRainfallModel::canDropMimeData( const QMimeData *data, Qt::DropAction, int, int, const QModelIndex &parent ) const
+bool ReosRainfallModel::canDropMimeData( const QMimeData *data, Qt::DropAction, int row, int column, const QModelIndex &parent ) const
 {
   ReosRainfallItem *item = uriToItem( data->text() );
   ReosRainfallItem *receiver = indexToItem( parent );
+
+  if ( row != -1 ) //to not allow moving between two items, for now, because it makes crash
+    return false;
 
   if ( item == receiver )
   {
@@ -531,8 +534,8 @@ void ReosRainfallModel::onItemChanged( ReosRainfallItem *item )
 void ReosRainfallModel::onItemWillBeRemovedfromParent( ReosRainfallItem *item, int pos )
 {
   QModelIndex index = itemToIndex( item );
-  if ( index.isValid() )
-    beginRemoveRows( index, pos, pos );
+  //if ( index.isValid() )
+  beginRemoveRows( index, pos, pos );
 }
 
 void ReosRainfallModel::onItemRemovedfromParent()
