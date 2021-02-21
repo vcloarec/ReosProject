@@ -16,6 +16,7 @@
 #include "reosconcentrationtimewidget.h"
 #include "ui_reosconcentrationtimewidget.h"
 
+#include <QDialog>
 #include <QToolBar>
 #include <QLayout>
 #include <QClipboard>
@@ -43,7 +44,6 @@ ReosConcentrationTimeWidget::ReosConcentrationTimeWidget( QWidget *parent ) :
   ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaKirpich );
   ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaPassini );
   ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaVentura );
-  ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaTurazza );
   ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaJohnstone );
   ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaVenTeShow );
 
@@ -90,6 +90,9 @@ ReosConcentrationTimeWidget::ReosConcentrationTimeWidget( QWidget *parent ) :
     if ( durationParameter )
       this->mFormulasModel->setCurrentTimeUnit( durationParameter->value().unit() );
   } );
+
+  connect( ui->toolButtonForumulaDisplaying, &QToolButton::clicked, this, &ReosConcentrationTimeWidget::onFormulaDisplaying );
+
 }
 
 ReosConcentrationTimeWidget::~ReosConcentrationTimeWidget()
@@ -247,6 +250,52 @@ void ReosConcentrationTimeWidget::onViewDoubleClicked( const QModelIndex &index 
 
   mFormulasModel->setChoosenFormula( index );
   applyCalculation();
+}
+
+void ReosConcentrationTimeWidget::onFormulaDisplaying()
+{
+  QDialog *dialog = new QDialog( this );
+
+  QVBoxLayout *vertLayout = new QVBoxLayout;
+  dialog->setLayout( vertLayout );
+
+  auto addLine = [this, vertLayout]
+  {
+    QFrame *line = new QFrame( this );
+    line->setFrameShape( QFrame::HLine );
+    line->setFrameShadow( QFrame::Sunken );
+    vertLayout->addWidget( line );
+  };
+
+
+
+  dialog->layout()->addWidget( new QLabel( tr( "Concentration Time Formula" ), this ) );
+  addLine();
+
+  if ( ReosConcentrationTimeFormulasRegistery::isInstantiate() )
+  {
+    ReosConcentrationTimeFormulasRegistery *registery = ReosConcentrationTimeFormulasRegistery::instance();
+
+    for ( const QString &formulaName : registery->formulasList() )
+    {
+      QHBoxLayout *lay = new QHBoxLayout( this );
+      vertLayout->addLayout( lay );
+      lay->addWidget( new QLabel( formulaName, this ) );
+      QLabel *formulaLabel = new QLabel( this );
+      formulaLabel->setPixmap( registery->formula( formulaName )->formulaImage() );
+      lay->addWidget( formulaLabel );
+      addLine();
+
+    }
+  }
+
+  dialog->layout()->addWidget( new QLabel( tr( "L : longest path (m)" ), this ) );
+  dialog->layout()->addWidget( new QLabel( tr( "A : watershed area (m²)" ), this ) );
+  dialog->layout()->addWidget( new QLabel( tr( "i : average slope (m/m)" ), this ) );
+  dialog->layout()->addWidget( new QLabel( tr( "H : Drop (m)" ), this ) );
+  dialog->layout()->addWidget( new QLabel( tr( "All results in minutes" ), this ) );
+
+  dialog->exec();
 }
 
 ReosConcentrationTimeCalculation::UsedMethod ReosConcentrationTimeWidget::usedMethod() const

@@ -20,6 +20,7 @@
 
 #include <QColor>
 #include <QAbstractTableModel>
+#include <QPixmap>
 #include <QStringList>
 
 #include "reosparameter.h"
@@ -52,6 +53,9 @@ class ReosConcentrationTimeFormula
 
     //! Returns whether the calculation can be executed (even if the parameters are outside the validity domain)
     virtual bool canBeCalculated( const ReosConcentrationTimeFormula::Parameters &parameters ) const = 0;
+
+    //! Returns an image with the formula, parameters have to be in S.I. unit and result on minutes
+    virtual QPixmap formulaImage() const = 0;
 };
 
 //! Singleton class that is used to store concentration time formula
@@ -93,6 +97,8 @@ class ReosConcentrationTimeFormulaKirpich : public ReosConcentrationTimeFormula
     ReosDuration concentrationTime( const Parameters &parameters ) const override;
     bool isInValidityDomain( const Parameters &parameters ) const override;
     bool canBeCalculated( const ReosConcentrationTimeFormula::Parameters &parameters ) const override;
+
+    virtual QPixmap formulaImage() const override {return QPixmap( QStringLiteral( ":/formulas/concentrationTimeKirpich.svg" ) );}
 };
 
 class ReosConcentrationTimeFormulaPassini : public ReosConcentrationTimeFormula
@@ -102,6 +108,8 @@ class ReosConcentrationTimeFormulaPassini : public ReosConcentrationTimeFormula
     ReosDuration concentrationTime( const Parameters &parameters ) const override;
     bool isInValidityDomain( const Parameters &parameters ) const override;
     bool canBeCalculated( const ReosConcentrationTimeFormula::Parameters &parameters ) const override;
+
+    virtual QPixmap formulaImage() const override {return QPixmap( QStringLiteral( ":/formulas/concentrationTimePassini.svg" ) );}
 };
 
 class ReosConcentrationTimeFormulaVentura : public ReosConcentrationTimeFormula
@@ -111,15 +119,8 @@ class ReosConcentrationTimeFormulaVentura : public ReosConcentrationTimeFormula
     ReosDuration concentrationTime( const Parameters &parameters ) const override;
     bool isInValidityDomain( const Parameters & ) const override;
     bool canBeCalculated( const ReosConcentrationTimeFormula::Parameters &parameters ) const override;
-};
 
-class ReosConcentrationTimeFormulaTurazza : public ReosConcentrationTimeFormula
-{
-  public:
-    QString name() const override {return QStringLiteral( "Turazza" );}
-    ReosDuration concentrationTime( const Parameters &parameters ) const override;
-    bool isInValidityDomain( const Parameters & ) const override;
-    bool canBeCalculated( const ReosConcentrationTimeFormula::Parameters &parameters ) const override;
+    virtual QPixmap formulaImage() const override {return QPixmap( QStringLiteral( ":/formulas/concentrationTimeVentura.svg" ) );}
 };
 
 class ReosConcentrationTimeFormulaVenTeShow : public ReosConcentrationTimeFormula
@@ -129,6 +130,8 @@ class ReosConcentrationTimeFormulaVenTeShow : public ReosConcentrationTimeFormul
     ReosDuration concentrationTime( const Parameters &parameters ) const override;
     bool isInValidityDomain( const Parameters & ) const override;
     bool canBeCalculated( const ReosConcentrationTimeFormula::Parameters &parameters ) const override;
+
+    virtual QPixmap formulaImage() const override {return QPixmap( QStringLiteral( ":/formulas/concentrationTimeVenTeShow.svg" ) );}
 };
 
 class ReosConcentrationTimeFormulaJohnstone : public ReosConcentrationTimeFormula
@@ -138,6 +141,8 @@ class ReosConcentrationTimeFormulaJohnstone : public ReosConcentrationTimeFormul
     ReosDuration concentrationTime( const Parameters &parameters ) const override;
     bool isInValidityDomain( const Parameters &parameters ) const override;
     bool canBeCalculated( const ReosConcentrationTimeFormula::Parameters &parameters ) const override;
+
+    virtual QPixmap formulaImage() const override {return QPixmap( QStringLiteral( ":/formulas/concentrationTimeJohnstone.svg" ) );}
 };
 
 //********************************************************************

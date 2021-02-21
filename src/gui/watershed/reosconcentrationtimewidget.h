@@ -57,6 +57,8 @@ class ReosConcentrationTimeWidget : public ReosActionWidget
 
     void onViewDoubleClicked( const QModelIndex &index );
 
+    void onFormulaDisplaying();
+
   private:
     Ui::ReosConcentrationTimeWidget *ui;
     ReosConcentrationTimeFormulasModel *mFormulasModel = nullptr;

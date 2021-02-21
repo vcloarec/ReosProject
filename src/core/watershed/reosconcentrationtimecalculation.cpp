@@ -308,35 +308,6 @@ bool ReosConcentrationTimeFormulaVentura::canBeCalculated( const ReosConcentrati
   return ( A > 0 && L > 0 && H > 0 );
 }
 
-ReosDuration ReosConcentrationTimeFormulaTurazza::concentrationTime( const ReosConcentrationTimeFormula::Parameters &parameters ) const
-{
-  double S = parameters.slope;
-  double A = parameters.area.valueKm2();
-  double L = parameters.length / 1000;
-  if ( A > 0 && L > 0 && S > 0 )
-  {
-    double valueInHour = 0.108 * pow( A * L, 0.3333333 ) / sqrt( S );
-    return ReosDuration( valueInHour, ReosDuration::hour );
-  }
-
-  return ReosDuration();
-}
-
-bool ReosConcentrationTimeFormulaTurazza::isInValidityDomain( const ReosConcentrationTimeFormula::Parameters &parameters ) const
-{
-  double S = parameters.slope;
-  double A = parameters.area.valueKm2();
-  double L = parameters.length / 1000;
-  return ( A > 0 && L > 0 && S > 0 );
-}
-
-bool ReosConcentrationTimeFormulaTurazza::canBeCalculated( const ReosConcentrationTimeFormula::Parameters &parameters ) const
-{
-  double S = parameters.slope;
-  double A = parameters.area.valueInUnit();
-  double L = parameters.length;
-  return ( A > 0 && L > 0 && S > 0 );
-}
 
 ReosDuration ReosConcentrationTimeFormulaVenTeShow::concentrationTime( const ReosConcentrationTimeFormula::Parameters &parameters ) const
 {
