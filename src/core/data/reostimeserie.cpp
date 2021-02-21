@@ -58,6 +58,7 @@ QVariant ReosTimeSerieConstantIntervalModel::data( const QModelIndex &index, int
   switch ( role )
   {
     case Qt::DisplayRole:
+    case Qt::EditRole:
       if ( index.row() < mData->valueCount() )
         return mData->valueAt( index.row() );
 

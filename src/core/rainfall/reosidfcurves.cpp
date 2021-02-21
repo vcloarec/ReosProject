@@ -668,7 +668,7 @@ QVariant ReosIntensityDurationCurveTableModel::data( const QModelIndex &index, i
     return QVariant();
   }
 
-  if ( role == Qt::DisplayRole )
+  if ( role == Qt::DisplayRole || role == Qt::EditRole )
   {
     ReosIdfParameters *param = mCurve->currentParameters( index.row() );
     if ( !param )
