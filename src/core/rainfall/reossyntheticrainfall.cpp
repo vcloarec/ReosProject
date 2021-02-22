@@ -39,20 +39,20 @@ ReosIntensityDurationCurve *ReosChicagoRainfall::intensityDurationCurve() const
   return mIntensityDurationCurve;
 }
 
-void ReosChicagoRainfall::setIntensityDurationCurve( ReosIntensityDurationCurve *intensityDurationCurve, const QString &intensityDurationUri )
+void ReosChicagoRainfall::setIntensityDurationCurve( ReosIntensityDurationCurve *intensityDurationCurve, const QString &intensityDurationUid )
 {
   mIntensityDurationCurve = intensityDurationCurve;
-  if ( !intensityDurationUri.isEmpty() )
+  if ( !intensityDurationUid.isEmpty() )
   {
-    mIntensityDurationUri = intensityDurationUri;
-    emit newIntensityDuration( intensityDurationUri );
+    mIntensityDurationUid = intensityDurationUid;
+    emit newIntensityDuration( intensityDurationUid );
   }
   updateRainfall();
 }
 
-void ReosChicagoRainfall::setIntensityDurationUri( const QString &uri )
+void ReosChicagoRainfall::setIntensityDurationUid( const QString &uid )
 {
-  mIntensityDurationUri = uri;
+  mIntensityDurationUid = uid;
 }
 
 void ReosChicagoRainfall::updateRainfall()
@@ -158,9 +158,9 @@ void ReosChicagoRainfall::connectParameters()
   connect( mCenterCoefficient, &ReosParameter::valueChanged, this, &ReosChicagoRainfall::updateRainfall );
 }
 
-QString ReosChicagoRainfall::intensityDurationUri() const
+QString ReosChicagoRainfall::intensityDurationUid() const
 {
-  return mIntensityDurationUri;
+  return mIntensityDurationUid;
 }
 
 ReosEncodedElement ReosChicagoRainfall::encode() const
@@ -212,34 +212,34 @@ ReosIntensityDurationCurve *ReosDoubleTriangleRainfall::intensityDurationCurveTo
 
 void ReosDoubleTriangleRainfall::setIntensityDurationCurve( ReosIntensityDurationCurve *intensityDurationCurveIntense,
     ReosIntensityDurationCurve *intensityDurationCurveTotal,
-    const QString &intensityDurationUriIntense,
-    const QString &intensityDurationUriTotal )
+    const QString &intensityDurationUniqueIdIntense,
+    const QString &intensityDurationUniqueIdTotal )
 {
   mIntensityDurationCurveIntense = intensityDurationCurveIntense;
   mIntensityDurationCurveTotal = intensityDurationCurveTotal;
-  if ( !intensityDurationUriIntense.isEmpty() && !intensityDurationUriTotal.isEmpty() )
+  if ( !intensityDurationUniqueIdIntense.isEmpty() && !intensityDurationUniqueIdTotal.isEmpty() )
   {
-    mIntensityDurationUriIntense = intensityDurationUriIntense;
-    mIntensityDurationUriTotal = intensityDurationUriTotal;
-    emit newIntensityDuration( mIntensityDurationUriIntense, mIntensityDurationUriTotal );
+    mIntensityDurationUniqueIdIntense = intensityDurationUniqueIdIntense;
+    mIntensityDurationUniqueIdTotal = intensityDurationUniqueIdTotal;
+    emit newIntensityDuration( mIntensityDurationUniqueIdIntense, mIntensityDurationUniqueIdTotal );
   }
   updateRainfall();
 }
 
-void ReosDoubleTriangleRainfall::setIntensityDurationUri( const QString &intenseUri, const QString &totalUri )
+void ReosDoubleTriangleRainfall::setIntensityDurationUniqueId( const QString &intenseUid, const QString &totalUid )
 {
-  mIntensityDurationUriIntense = intenseUri;
-  mIntensityDurationUriTotal = totalUri;
+  mIntensityDurationUniqueIdIntense = intenseUid;
+  mIntensityDurationUniqueIdTotal = totalUid;
 }
 
-QString ReosDoubleTriangleRainfall::intensityDurationUriIntense() const
+QString ReosDoubleTriangleRainfall::intensityDurationUniqueIdIntense() const
 {
-  return mIntensityDurationUriIntense;
+  return mIntensityDurationUniqueIdIntense;
 }
 
-QString ReosDoubleTriangleRainfall::intensityDurationUriTotal() const
+QString ReosDoubleTriangleRainfall::intensityDurationUniqueIdTotal() const
 {
-  return mIntensityDurationUriTotal;
+  return mIntensityDurationUniqueIdTotal;
 }
 
 ReosDoubleTriangleRainfall *ReosDoubleTriangleRainfall::decode( const ReosEncodedElement &element, QObject *parent )

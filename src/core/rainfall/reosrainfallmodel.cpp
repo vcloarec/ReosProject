@@ -428,6 +428,11 @@ ReosRainfallItem *ReosRainfallModel::uriToItem( const QString &uri ) const
   return positonPathToItem( path );
 }
 
+ReosRainfallItem *ReosRainfallModel::uniqueIdToItem( const QString &uid ) const
+{
+  return mRootZone->searchForChildWithUniqueId( uid );
+}
+
 ReosEncodedElement ReosRainfallModel::encode() const
 {
   ReosEncodedElement element( QStringLiteral( "rainfall-data" ) );

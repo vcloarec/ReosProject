@@ -75,6 +75,7 @@ class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
 
     ReosRainfallItem *positonPathToItem( const QList<int> &path ) const;
     ReosRainfallItem *uriToItem( const QString &uri ) const;
+    ReosRainfallItem *uniqueIdToItem( const QString &uid ) const;
 
     ReosEncodedElement encode() const;
     bool decode( const ReosEncodedElement &element );

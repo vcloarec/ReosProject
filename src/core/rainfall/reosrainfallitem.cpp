@@ -124,6 +124,27 @@ QString ReosRainfallItem::uri() const
   return uri;
 }
 
+QString ReosRainfallItem::uniqueId() const
+{
+  return mUid;
+}
+
+ReosRainfallItem *ReosRainfallItem::searchForChildWithUniqueId( const QString &uid ) const
+{
+  for ( const std::unique_ptr<ReosRainfallItem> &childItem : mChildItems )
+  {
+    if ( childItem->uniqueId() == uid )
+      return childItem.get();
+
+    ReosRainfallItem *subChildMatch = childItem->searchForChildWithUniqueId( uid );
+
+    if ( subChildMatch )
+      return subChildMatch;
+  }
+
+  return nullptr;
+}
+
 int ReosRainfallItem::positionInParent() const
 {
   int pos = -1;
@@ -155,6 +176,7 @@ void ReosRainfallItem::encodeBase( ReosEncodedElement &element ) const
 {
   element.addEncodedData( QStringLiteral( "name" ), mName->encode() );
   element.addEncodedData( QStringLiteral( "description" ), mDescription->encode() );
+  element.addData( QStringLiteral( "uid" ), mUid );
 
   QList<ReosEncodedElement> encodedChildren;
 
@@ -224,6 +246,7 @@ ReosRainfallItem::ReosRainfallItem( const QString &name, const QString &descript
   QObject()
   , mName( new ReosParameterString( QObject::tr( "Name" ) ) )
   , mDescription( new ReosParameterString( QObject::tr( "Description" ) ) )
+  , mUid( QUuid::createUuid().toString() )
   , mType( type )
 {
   mName->setValue( name );
@@ -236,6 +259,11 @@ ReosRainfallItem::ReosRainfallItem( const ReosEncodedElement &element, ReosRainf
   , mDescription( ReosParameterString::decode( element.getEncodedData( QStringLiteral( "description" ) ), false, this ) )
   , mType( type )
 {
+
+  element.getData( QStringLiteral( "uid" ), mUid );
+  if ( mUid.isEmpty() )
+    mUid = QUuid::createUuid().toString();
+
   connectParameters();
 }
 
@@ -501,20 +529,20 @@ ReosRainfallChicagoItem::ReosRainfallChicagoItem( const QString &name, const QSt
   ReosRainfallSerieRainfallItem( name, description )
 {
   mData = new ReosChicagoRainfall( this );
-  connect( mData, &ReosChicagoRainfall::newIntensityDuration, this, &ReosRainfallChicagoItem::setIntensityDurationCurveUri );
+  connect( mData, &ReosChicagoRainfall::newIntensityDuration, this, &ReosRainfallChicagoItem::setIntensityDurationCurveUniqueId );
   connectParameters();
 }
 
 ReosRainfallChicagoItem::ReosRainfallChicagoItem( const ReosEncodedElement &element ): ReosRainfallSerieRainfallItem( element )
 {
   mData = ReosChicagoRainfall::decode( element.getEncodedData( QStringLiteral( "chicago-rainfall-data" ) ) );
-  QString curveItemUri;
-  if ( element.getData( QStringLiteral( "curve-item-uri" ), curveItemUri ) )
+  QString curveItemUniqueId;
+  if ( element.getData( QStringLiteral( "curve-item-unique-id" ), curveItemUniqueId ) )
   {
-    mData->setIntensityDurationUri( curveItemUri );
+    mData->setIntensityDurationUid( curveItemUniqueId );
   }
 
-  connect( mData, &ReosChicagoRainfall::newIntensityDuration, this, &ReosRainfallChicagoItem::setIntensityDurationCurveUri );
+  connect( mData, &ReosChicagoRainfall::newIntensityDuration, this, &ReosRainfallChicagoItem::setIntensityDurationCurveUniqueId );
   connectParameters();
 }
 
@@ -524,10 +552,10 @@ ReosEncodedElement ReosRainfallChicagoItem::encode() const
 
   encodeBase( element );
 
-  QString curveItemUri;
+  QString curveItemUniqueId;
   if ( !mCurveItem.isNull() )
-    curveItemUri = mCurveItem->uri();
-  element.addData( QStringLiteral( "curve-item-uri" ), curveItemUri );
+    curveItemUniqueId = mCurveItem->uniqueId();
+  element.addData( QStringLiteral( "curve-item-unique-id" ), curveItemUniqueId );
 
   element.addEncodedData( QStringLiteral( "chicago-rainfall-data" ), mData->encode() );
 
@@ -539,7 +567,7 @@ void ReosRainfallChicagoItem::setupData()
   ReosRainfallSerieRainfallItem::setupData();
 
   if ( mCurveItem )
-    data()->setIntensityDurationUri( mCurveItem->uri() );
+    data()->setIntensityDurationUid( mCurveItem->uniqueId() );
 
   connect( this, &ReosRainfallItem::changed, data(), [this]
   {
@@ -552,19 +580,19 @@ void ReosRainfallChicagoItem::resolveDependencies()
 {
   if ( ReosRainfallRegistery::isInstantiate() && mData )
   {
-    mCurveItem = qobject_cast<ReosRainfallIntensityDurationCurveItem *>( ReosRainfallRegistery::instance()->item( mData->intensityDurationUri() ) );
+    mCurveItem = qobject_cast<ReosRainfallIntensityDurationCurveItem *>( ReosRainfallRegistery::instance()->itemByUniqueId( mData->intensityDurationUid() ) );
     if ( mCurveItem )
       mData->setIntensityDurationCurve( mCurveItem->data() );
   }
 }
 
-void ReosRainfallChicagoItem::setIntensityDurationCurveUri( const QString &uri )
+void ReosRainfallChicagoItem::setIntensityDurationCurveUniqueId( const QString &uid )
 {
   if ( !ReosRainfallRegistery::isInstantiate() )
     return;
 
   mCurveItem = qobject_cast<ReosRainfallIntensityDurationCurveItem *>
-               ( ReosRainfallRegistery::instance()->rainfallModel()->uriToItem( uri ) );
+               ( ReosRainfallRegistery::instance()->rainfallModel()->uniqueIdToItem( uid ) );
 }
 
 
@@ -572,21 +600,21 @@ ReosRainfallDoubleTriangleItem::ReosRainfallDoubleTriangleItem( const QString &n
   ReosRainfallSerieRainfallItem( name, description )
 {
   mData = new ReosDoubleTriangleRainfall( this );
-  connect( mData, &ReosDoubleTriangleRainfall::newIntensityDuration, this, &ReosRainfallDoubleTriangleItem::setIntensityDurationCurveUris );
+  connect( mData, &ReosDoubleTriangleRainfall::newIntensityDuration, this, &ReosRainfallDoubleTriangleItem::setIntensityDurationCurveUniqueIds );
   connectParameters();
 }
 
 ReosRainfallDoubleTriangleItem::ReosRainfallDoubleTriangleItem( const ReosEncodedElement &element ): ReosRainfallSerieRainfallItem( element )
 {
   mData = ReosDoubleTriangleRainfall::decode( element.getEncodedData( QStringLiteral( "double-triangle-rainfall-data" ) ) );
-  QString curveItemIntenseUri;
-  QString curveItemTotalUri;
-  if ( element.getData( QStringLiteral( "intense-curve-item-uri" ), curveItemIntenseUri ) &&
-       element.getData( QStringLiteral( "total-curve-item-uri" ), curveItemTotalUri ) )
+  QString curveItemIntenseUid;
+  QString curveItemTotalUid;
+  if ( element.getData( QStringLiteral( "intense-curve-item-unique-id" ), curveItemIntenseUid ) &&
+       element.getData( QStringLiteral( "total-curve-item-unique-id" ), curveItemTotalUid ) )
   {
-    mData->setIntensityDurationUri( curveItemIntenseUri, curveItemTotalUri );
+    mData->setIntensityDurationUniqueId( curveItemIntenseUid, curveItemTotalUid );
   }
-  connect( mData, &ReosDoubleTriangleRainfall::newIntensityDuration, this, &ReosRainfallDoubleTriangleItem::setIntensityDurationCurveUris );
+  connect( mData, &ReosDoubleTriangleRainfall::newIntensityDuration, this, &ReosRainfallDoubleTriangleItem::setIntensityDurationCurveUniqueIds );
   connectParameters();
 }
 
@@ -596,15 +624,15 @@ ReosEncodedElement ReosRainfallDoubleTriangleItem::encode() const
 
   encodeBase( element );
 
-  QString curveItemIntenseUri;
-  QString curveItemTotalUri;
+  QString curveItemIntenseUniqueId;
+  QString curveItemTotalUniqueId;
   if ( !mIntenseCurveItem.isNull() )
-    curveItemIntenseUri = mIntenseCurveItem->uri();
+    curveItemIntenseUniqueId = mIntenseCurveItem->uniqueId();
   if ( !mTotalCurveItem.isNull() )
-    curveItemTotalUri = mTotalCurveItem->uri();
+    curveItemTotalUniqueId = mTotalCurveItem->uniqueId();
 
-  element.addData( QStringLiteral( "intense-curve-item-uri" ), curveItemIntenseUri );
-  element.addData( QStringLiteral( "total-curve-item-uri" ), curveItemTotalUri );
+  element.addData( QStringLiteral( "intense-curve-item-unique-id" ), curveItemIntenseUniqueId );
+  element.addData( QStringLiteral( "total-curve-item-unique-id" ), curveItemTotalUniqueId );
   element.addEncodedData( QStringLiteral( "double-triangle-rainfall-data" ), mData->encode() );
 
   return element;
@@ -615,7 +643,7 @@ void ReosRainfallDoubleTriangleItem::setupData()
   ReosRainfallSerieRainfallItem::setupData();
 
   if ( mIntenseCurveItem && mTotalCurveItem )
-    mData->setIntensityDurationUri( mIntenseCurveItem->uri(), mTotalCurveItem->uri() );
+    mData->setIntensityDurationUniqueId( mIntenseCurveItem->uniqueId(), mTotalCurveItem->uniqueId() );
 }
 
 void ReosRainfallDoubleTriangleItem::resolveDependencies()
@@ -623,24 +651,24 @@ void ReosRainfallDoubleTriangleItem::resolveDependencies()
   if ( ReosRainfallRegistery::isInstantiate() && mData )
   {
     mIntenseCurveItem = qobject_cast<ReosRainfallIntensityDurationCurveItem *>(
-                          ReosRainfallRegistery::instance()->item( mData->intensityDurationUriIntense() ) );
+                          ReosRainfallRegistery::instance()->itemByUniqueId( mData->intensityDurationUniqueIdIntense() ) );
     mTotalCurveItem = qobject_cast<ReosRainfallIntensityDurationCurveItem *>(
-                        ReosRainfallRegistery::instance()->item( mData->intensityDurationUriTotal() ) );
+                        ReosRainfallRegistery::instance()->itemByUniqueId( mData->intensityDurationUniqueIdTotal() ) );
     if ( mIntenseCurveItem && mTotalCurveItem )
       mData->setIntensityDurationCurve( mIntenseCurveItem->data(), mTotalCurveItem->data() );
   }
 }
 
-void ReosRainfallDoubleTriangleItem::setIntensityDurationCurveUris( const QString &intenseUri, const QString &totalUri )
+void ReosRainfallDoubleTriangleItem::setIntensityDurationCurveUniqueIds( const QString &intenseUid, const QString &totalUid )
 {
   if ( !ReosRainfallRegistery::isInstantiate() )
     return;
 
   mIntenseCurveItem = qobject_cast<ReosRainfallIntensityDurationCurveItem *>
-                      ( ReosRainfallRegistery::instance()->rainfallModel()->uriToItem( intenseUri ) );
+                      ( ReosRainfallRegistery::instance()->rainfallModel()->uniqueIdToItem( intenseUid ) );
 
   mTotalCurveItem = qobject_cast<ReosRainfallIntensityDurationCurveItem *>
-                    ( ReosRainfallRegistery::instance()->rainfallModel()->uriToItem( totalUri ) );
+                    ( ReosRainfallRegistery::instance()->rainfallModel()->uniqueIdToItem( totalUid ) );
 }
 
 ReosRainfallSerieRainfallItem::ReosRainfallSerieRainfallItem( const QString &name, const QString &description ):

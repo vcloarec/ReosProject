@@ -35,7 +35,8 @@ class REOSCORE_EXPORT ReosRainfallRegistery: public ReosModule
     static bool isInstantiate();
 
     ReosRainfallModel *rainfallModel() const;
-    ReosRainfallItem *item( const QString &uri ) const;
+    ReosRainfallItem *itemByUri( const QString &uri ) const;
+    ReosRainfallItem *itemByUniqueId( const QString &uid ) const;
 
   private:
     ReosRainfallRegistery( ReosModule *parentModule = nullptr );

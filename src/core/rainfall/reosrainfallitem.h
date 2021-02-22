@@ -18,6 +18,7 @@
 
 #include <QObject>
 #include <QIcon>
+#include <QUuid>
 
 #include "reosidfcurves.h"
 #include "reostimeserie.h"
@@ -66,6 +67,12 @@ class REOSCORE_EXPORT ReosRainfallItem : public QObject
 
     //! Returns a string that represent the position of this item in the tree
     QString uri() const;
+
+    //! Returns a string that represents the unique id of the item
+    QString uniqueId() const;
+
+    //! Searches the child with unique id \a uid as deep as necessary, returns the child item or nullptr it does not exist
+    ReosRainfallItem *searchForChildWithUniqueId( const QString &uid ) const;
 
     //! Returns the position of this item in the parent item, returns -1 if parent is nullptr
     int positionInParent() const;
@@ -145,6 +152,7 @@ class REOSCORE_EXPORT ReosRainfallItem : public QObject
   private:
     ReosParameterString *mName;
     ReosParameterString *mDescription;
+    QString mUid;
     Type  mType = Zone;
     ReosRainfallItem *mParent = nullptr;
     std::vector<std::unique_ptr<ReosRainfallItem>> mChildItems;
@@ -251,7 +259,7 @@ class REOSCORE_EXPORT ReosRainfallChicagoItem: public ReosRainfallSerieRainfallI
     void resolveDependencies() override;
 
   private slots:
-    void setIntensityDurationCurveUri( const QString &uri );
+    void setIntensityDurationCurveUniqueId( const QString &uid );
   private:
     ReosChicagoRainfall *mData = nullptr;
     QPointer<ReosRainfallIntensityDurationCurveItem> mCurveItem;
@@ -273,7 +281,7 @@ class REOSCORE_EXPORT ReosRainfallDoubleTriangleItem: public ReosRainfallSerieRa
     void resolveDependencies() override;
 
   private slots:
-    void setIntensityDurationCurveUris( const QString &intenseUri, const QString &totalUri );
+    void setIntensityDurationCurveUniqueIds( const QString &intenseUid, const QString &totalUid );
   private:
     ReosDoubleTriangleRainfall *mData = nullptr;
     QPointer<ReosRainfallIntensityDurationCurveItem> mIntenseCurveItem;

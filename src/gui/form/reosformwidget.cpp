@@ -73,7 +73,6 @@ void ReosFormWidget::addParameter( ReosParameter *parameter, int position )
   mParamCount++;
 
   connect( parameter, &ReosParameter::valueChanged, this, &ReosFormWidget::parametersChanged );
-
 }
 
 void ReosFormWidget::addParameters( QList<ReosParameter *> parameters )
@@ -327,7 +326,7 @@ ReosChicagoRainfallWidget::ReosChicagoRainfallWidget( ReosChicagoRainfall *rainf
   if ( ReosRainfallRegistery::isInstantiate() )
   {
     ReosRainfallIntensityDurationCurveItem *curveItem =
-      qobject_cast<ReosRainfallIntensityDurationCurveItem *>( ReosRainfallRegistery::instance()->item( rainfall->intensityDurationUri() ) );
+      qobject_cast<ReosRainfallIntensityDurationCurveItem *>( ReosRainfallRegistery::instance()->itemByUniqueId( rainfall->intensityDurationUid() ) );
     if ( curveItem )
       mIdfWidget->setCurveItem( curveItem );
     else
@@ -337,7 +336,7 @@ ReosChicagoRainfallWidget::ReosChicagoRainfallWidget( ReosChicagoRainfall *rainf
   connect( mIdfWidget, &ReosIntensityDurationSelectedCurveWidget::curveChanged, rainfall, [rainfall, this]
   {
     if ( mIdfWidget->curveItem() )
-      rainfall->setIntensityDurationCurve( this->mIdfWidget->curveItem()->data(), this->mIdfWidget->curveItem()->uri() );
+      rainfall->setIntensityDurationCurve( this->mIdfWidget->curveItem()->data(), this->mIdfWidget->curveItem()->uniqueId() );
   } );
 
   addWidget( mIdfWidget, 3 );
@@ -358,14 +357,14 @@ ReosDoubleTriangleRainfallWidget::ReosDoubleTriangleRainfallWidget( ReosDoubleTr
   if ( ReosRainfallRegistery::isInstantiate() )
   {
     ReosRainfallIntensityDurationCurveItem *intenseCurveItem =
-      qobject_cast<ReosRainfallIntensityDurationCurveItem *>( ReosRainfallRegistery::instance()->item( rainfall->intensityDurationUriIntense() ) );
+      qobject_cast<ReosRainfallIntensityDurationCurveItem *>( ReosRainfallRegistery::instance()->itemByUniqueId( rainfall->intensityDurationUniqueIdIntense() ) );
     if ( intenseCurveItem )
       mIntenseIdfWidget->setCurveItem( intenseCurveItem );
     else
       mIntenseIdfWidget->clearCurveItem();
 
     ReosRainfallIntensityDurationCurveItem *totalCurveItem =
-      qobject_cast<ReosRainfallIntensityDurationCurveItem *>( ReosRainfallRegistery::instance()->item( rainfall->intensityDurationUriTotal() ) );
+      qobject_cast<ReosRainfallIntensityDurationCurveItem *>( ReosRainfallRegistery::instance()->itemByUniqueId( rainfall->intensityDurationUniqueIdTotal() ) );
     if ( totalCurveItem )
       mTotalIdfWidget->setCurveItem( totalCurveItem );
     else
@@ -377,8 +376,8 @@ ReosDoubleTriangleRainfallWidget::ReosDoubleTriangleRainfallWidget( ReosDoubleTr
     if ( this->mIntenseIdfWidget->curveItem() && this->mTotalIdfWidget->curveItem() )
       rainfall->setIntensityDurationCurve( this->mIntenseIdfWidget->curveItem()->data(),
                                            this->mTotalIdfWidget->curveItem()->data(),
-                                           this->mIntenseIdfWidget->curveItem()->uri(),
-                                           this->mTotalIdfWidget->curveItem()->uri() );
+                                           this->mIntenseIdfWidget->curveItem()->uniqueId(),
+                                           this->mTotalIdfWidget->curveItem()->uniqueId() );
   } );
 
   connect( mTotalIdfWidget, &ReosIntensityDurationSelectedCurveWidget::curveChanged, rainfall, [rainfall, this]
@@ -386,8 +385,8 @@ ReosDoubleTriangleRainfallWidget::ReosDoubleTriangleRainfallWidget( ReosDoubleTr
     if ( this->mIntenseIdfWidget->curveItem() && this->mTotalIdfWidget->curveItem() )
       rainfall->setIntensityDurationCurve( this->mIntenseIdfWidget->curveItem()->data(),
                                            this->mTotalIdfWidget->curveItem()->data(),
-                                           this->mIntenseIdfWidget->curveItem()->uri(),
-                                           this->mTotalIdfWidget->curveItem()->uri() );
+                                           this->mIntenseIdfWidget->curveItem()->uniqueId(),
+                                           this->mTotalIdfWidget->curveItem()->uniqueId() );
   } );
 
   addWidget( mIntenseIdfWidget, 4 );

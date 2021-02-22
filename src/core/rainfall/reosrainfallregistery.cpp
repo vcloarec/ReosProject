@@ -65,7 +65,12 @@ ReosRainfallModel *ReosRainfallRegistery::rainfallModel() const
   return mRainfallModel;
 }
 
-ReosRainfallItem *ReosRainfallRegistery::item( const QString &uri ) const
+ReosRainfallItem *ReosRainfallRegistery::itemByUri( const QString &uri ) const
 {
   return mRainfallModel->uriToItem( uri );
+}
+
+ReosRainfallItem *ReosRainfallRegistery::itemByUniqueId( const QString &uid ) const
+{
+  return mRainfallModel->uniqueIdToItem( uid );
 }

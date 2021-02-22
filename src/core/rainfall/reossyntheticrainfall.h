@@ -35,14 +35,14 @@ class REOSCORE_EXPORT ReosChicagoRainfall : public ReosTimeSerieConstantInterval
     ReosParameterDouble *centerCoefficient();
     ReosIntensityDurationCurve *intensityDurationCurve() const;
 
-    //! Sets the intensity duration curve and its uri, emit signal with uri if not empty, so becareful to not used it with uri from signal receiver
-    void setIntensityDurationCurve( ReosIntensityDurationCurve *intensityDurationCurve, const QString &intensityDurationUri = QString() );
+    //! Sets the intensity duration curve and its uid, emit signal with uid if not empty, so becareful to not used it with uid from signal receiver (to prevent cycle connection)
+    void setIntensityDurationCurve( ReosIntensityDurationCurve *intensityDurationCurve, const QString &intensityDurationUid = QString() );
 
-    //! Sets only the uri of the intensity duration curve, then the uri can be used to retrieve the source of the curve
-    void setIntensityDurationUri( const QString &uri );
+    //! Sets only the unique id \a uid of the intensity duration curve, then the uid can be used to retrieve the source of the curve
+    void setIntensityDurationUid( const QString &uid );
 
-    //! Returns the uri of the intensity duration curve
-    QString intensityDurationUri() const;
+    //! Returns the unique id of the intensity duration curve
+    QString intensityDurationUid() const;
 
     ReosEncodedElement encode() const;
     //! Creates new instance from the encoded element
@@ -52,7 +52,7 @@ class REOSCORE_EXPORT ReosChicagoRainfall : public ReosTimeSerieConstantInterval
     void updateRainfall();
 
   signals:
-    void newIntensityDuration( const QString &intensityDurationUri );
+    void newIntensityDuration( const QString &intensityDurationUid );
 
   protected:
     ReosChicagoRainfall( const ReosEncodedElement &element, QObject *parent = nullptr );
@@ -62,9 +62,7 @@ class REOSCORE_EXPORT ReosChicagoRainfall : public ReosTimeSerieConstantInterval
     ReosParameterDouble *mCenterCoefficient;
     QPointer<ReosIntensityDurationCurve> mIntensityDurationCurve;
 
-    //! This uri has to be used as a temporary information for location of the source.
-    //! Could not be considered as persistent during runtime (for example, item can move)
-    QString mIntensityDurationUri;
+    QString mIntensityDurationUid;
 
     void connectParameters();
 };
@@ -83,18 +81,18 @@ class REOSCORE_EXPORT ReosDoubleTriangleRainfall : public ReosTimeSerieConstantI
     ReosIntensityDurationCurve *intensityDurationCurveIntensePeriod() const;
     ReosIntensityDurationCurve *intensityDurationCurveTotal() const;
 
-    //! Sets the intensity duration curves and their uri, emit signal with uris if not empty, so be careful to not used it with uri from signal receiver
+    //! Sets the intensity duration curves and their unique id, emit signal with uids if not empty, so be careful to not used it with uid from signal receiver
     void setIntensityDurationCurve( ReosIntensityDurationCurve *intensityDurationCurveIntense,
                                     ReosIntensityDurationCurve *intensityDurationCurveTotal,
-                                    const QString &intensityDurationUriIntense = QString(),
-                                    const QString &intensityDurationUriTotal = QString() );
+                                    const QString &intensityDurationUniqueIdIntense = QString(),
+                                    const QString &intensityDurationUniqueIdTotal = QString() );
 
-    //! Sets only the uri of the intensity duration curve, then the uri can be used to retrieve the source of the curve
-    void setIntensityDurationUri( const QString &intenseUri, const QString &totalUri );
+    //! Sets only the uids of the intensity duration curves, then the uid can be used to retrieve the source of the curve
+    void setIntensityDurationUniqueId( const QString &intenseUid, const QString &totalUid );
 
-    //! Returns the uri of the intensity duration curve
-    QString intensityDurationUriIntense() const;
-    QString intensityDurationUriTotal() const;
+    //! Returns the uis of the intensity duration curve
+    QString intensityDurationUniqueIdIntense() const;
+    QString intensityDurationUniqueIdTotal() const;
 
     ReosEncodedElement encode() const;
     //! Creates new instance from the encoded element
@@ -104,7 +102,7 @@ class REOSCORE_EXPORT ReosDoubleTriangleRainfall : public ReosTimeSerieConstantI
     void updateRainfall();
 
   signals:
-    void newIntensityDuration( const QString &intensityDurationUriIntense, const QString &intensityDurationUriTotal );
+    void newIntensityDuration( const QString &intensityDurationUniqueIdIntense, const QString &intensityDurationUniqueIdTotal );
 
   protected:
     ReosDoubleTriangleRainfall( const ReosEncodedElement &element, QObject *parent = nullptr );
@@ -116,10 +114,8 @@ class REOSCORE_EXPORT ReosDoubleTriangleRainfall : public ReosTimeSerieConstantI
     QPointer<ReosIntensityDurationCurve> mIntensityDurationCurveIntense;
     QPointer<ReosIntensityDurationCurve> mIntensityDurationCurveTotal;
 
-    //! Those uri has to be used as a temporary information for location of the source.
-    //! Could not be considered as persistent during runtime (for example, item can move)
-    QString mIntensityDurationUriIntense;
-    QString mIntensityDurationUriTotal;
+    QString mIntensityDurationUniqueIdIntense;
+    QString mIntensityDurationUniqueIdTotal;
 
     void connectParameters();
 };
