@@ -31,14 +31,14 @@ ReosMeteorologicModel::ReosMeteorologicModel( const ReosEncodedElement &element,
   if ( element.description() != QStringLiteral( "meteorologic-configuration" ) )
     return;
 
-  QMap<QString, QString> urisAssociations;
-  element.getData( QStringLiteral( "associations" ), urisAssociations );
+  QMap<QString, QString> associations;
+  element.getData( QStringLiteral( "associations" ), associations );
 
-  for ( const QString &watershedUri : urisAssociations.keys() )
+  for ( const QString &watershedUri : associations.keys() )
   {
     ReosWatershed *ws = watershedTree->uriToWatershed( watershedUri );
     ReosRainfallSerieRainfallItem *rainfall = qobject_cast<ReosRainfallSerieRainfallItem *>
-        ( rainfallregistery->item( urisAssociations.value( watershedUri ) ) );
+        ( rainfallregistery->itemByUniqueId( associations.value( watershedUri ) ) );
 
     if ( ws && rainfall )
       mAssociations.append( {QPointer<ReosWatershed>( ws ), QPointer<ReosRainfallSerieRainfallItem>( rainfall )} );
@@ -59,19 +59,19 @@ ReosParameterString *ReosMeteorologicModel::name() const
 
 ReosEncodedElement ReosMeteorologicModel::encode( ReosWatershedTree *watershedTree ) const
 {
-  QMap<QString, QString> urisAssociations;
+  QMap<QString, QString> associations;
   for ( const WatershedRainfallAssociation &association : mAssociations )
   {
     if ( association.first.isNull() || association.second.isNull() )
       continue;
     QString watershedUri = watershedTree->watershedUri( association.first );
-    QString rainfallUri = association.second->uri();
-    urisAssociations[watershedUri] = rainfallUri;
+    QString rainfallUid = association.second->uniqueId();
+    associations[watershedUri] = rainfallUid;
   }
 
   ReosEncodedElement element( QStringLiteral( "meteorologic-configuration" ) );
 
-  element.addData( QStringLiteral( "associations" ), urisAssociations );
+  element.addData( QStringLiteral( "associations" ), associations );
   element.addEncodedData( QStringLiteral( "name" ), mName->encode() );
 
   return element;
@@ -253,7 +253,7 @@ void ReosMeteorologicItemModel::removeAssociation( const QModelIndex &index )
 ReosRainfallSerieRainfallItem *ReosMeteorologicItemModel::rainfallInRainfallModel( const QString &uri ) const
 {
   if ( ReosRainfallRegistery::isInstantiate() )
-    return qobject_cast<ReosRainfallSerieRainfallItem *>( ReosRainfallRegistery::instance()->item( uri ) );
+    return qobject_cast<ReosRainfallSerieRainfallItem *>( ReosRainfallRegistery::instance()->itemByUri( uri ) );
 
   return nullptr;
 }
