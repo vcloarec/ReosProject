@@ -754,7 +754,7 @@ void ReosWatersehdTest::concentrationTime()
   QCOMPARE( ReosDuration( 1503304, ReosDuration::millisecond ), calculation.concentrationTime( params ) );
 
   calculation.setUsedMethod( ReosConcentrationTimeCalculation::Average );
-  QCOMPARE( ReosDuration( 2741589, ReosDuration::millisecond ), calculation.concentrationTime( params ) );
+  QCOMPARE( ReosDuration( 2989367, ReosDuration::millisecond ), calculation.concentrationTime( params ) );
 
   calculation.setUsedMethod( ReosConcentrationTimeCalculation::Maximum );
   QCOMPARE( ReosDuration( 6926386, ReosDuration::millisecond ), calculation.concentrationTime( params ) );
@@ -823,7 +823,6 @@ void ReosWatersehdTest::runoffConstantCoefficient()
     QVERIFY( equal( runoff.value( 5 ),
                     chicagoRainfall.valueAt( 5 ) * runoffConstantCoefficientModel.coefficient()->value(),
                     0.001 ) );
-
 }
 
 QTEST_MAIN( ReosWatersehdTest )
