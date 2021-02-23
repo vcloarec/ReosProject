@@ -70,6 +70,11 @@
         <file>remove.svg</file>
         <file>duplicateMeteoModel.svg</file>
         <file>rename.svg</file>
+        <file>runoff.svg</file>
+        <file>runoffConstantCoefficient.svg</file>
+        <file>saveRunoffAs.svg</file>
+        <file>saveRunoff.svg</file>
+        <file>openRunoff.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

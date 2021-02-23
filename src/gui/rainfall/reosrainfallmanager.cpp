@@ -246,7 +246,10 @@ void ReosRainfallManager::onSaveRainfallFile()
 {
   QFileInfo fileInfo( mCurrentFileName );
   if ( !fileInfo.exists() )
+  {
     onSaveAsRainfallFile();
+    return;
+  }
 
   if ( !saveOnFile( mCurrentFileName ) )
     QMessageBox::warning( this, tr( "Save Rainfall Data" ), tr( "Unable to write the file" ) );
@@ -452,6 +455,21 @@ void ReosRainfallManager::onCurrentTreeIndexChanged()
         mCurrentPlot->deleteLater();
         mCurrentPlot = nullptr;
       }
+    }
+  }
+  else
+  {
+    if ( mCurrentForm )
+    {
+      ui->mEditorWidget->layout()->removeWidget( mCurrentForm );
+      mCurrentForm->deleteLater();
+      mCurrentForm = nullptr;
+    }
+    if ( mCurrentPlot )
+    {
+      ui->mPlotWidget->layout()->removeWidget( mCurrentPlot );
+      mCurrentPlot->deleteLater();
+      mCurrentPlot = nullptr;
     }
   }
 }

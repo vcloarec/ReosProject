@@ -56,6 +56,7 @@ class ReosGisEngine;
 class ReosWatershedModule;
 class ReosDelineatingWatershedWidget;
 class ReosRainfallManager;
+class ReosRunoffManager;
 
 static const ReosVersion lekanVersion( "Lekan", 1, 0, 5 );
 
@@ -117,7 +118,9 @@ class LekanMainWindow : public ReosMainWindow
     QList<QMenu *> specificMenus() override;
 
     QAction *mActionRainfallManager = nullptr;
+    QAction *mActionRunoffManager = nullptr;
     ReosRainfallManager *mRainFallManagerWidget = nullptr;
+    ReosRunoffManager *mRunoffManagerWidget = nullptr;
 };
 
 #endif // LEKANMAINWINDOW_H

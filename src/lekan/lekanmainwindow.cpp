@@ -33,6 +33,8 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reoswatershedwidget.h"
 #include "reosrainfallmanager.h"
 #include "reosrainfallregistery.h"
+#include "reosrunoffmanager.h"
+#include "reosrunoffmodel.h"
 
 
 LekanMainWindow::LekanMainWindow( QWidget *parent ) :
@@ -110,11 +112,18 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   init();
 
   ReosRainfallRegistery::instantiate( rootModule() );
+  ReosRunoffModelRegistery::instantiate( rootModule() );
 
   mRainFallManagerWidget = new ReosRainfallManager( ReosRainfallRegistery::instance()->rainfallModel(), this );
   mActionRainfallManager->setCheckable( true );
   mRainFallManagerWidget->setAction( mActionRainfallManager );
   mRainFallManagerWidget->loadDataFile();
+
+  mRunoffManagerWidget = new ReosRunoffManager( ReosRunoffModelRegistery::instance()->model(), this );
+  mActionRunoffManager->setCheckable( true );
+  mRunoffManagerWidget->setAction( mActionRunoffManager );
+  mRunoffManagerWidget->loadDataFile();
+
 
   statusBar()->addPermanentWidget( new ReosMapCursorPosition( mMap, this ) );
   centralWidget()->layout()->addWidget( mMap->mapCanvas() );
@@ -203,6 +212,7 @@ QList<QMenu *> LekanMainWindow::specificMenus()
 
   QMenu *hydrologyMenu = new QMenu( tr( "Hydrology" ), this );
   mActionRainfallManager = hydrologyMenu->addAction( QPixmap( QStringLiteral( ":/images/rainfall.svg" ) ), tr( "Rainfall manager" ) );
+  mActionRunoffManager = hydrologyMenu->addAction( QPixmap( QStringLiteral( ":/images/runoff.svg" ) ), tr( "Runoff manager" ) );
 
   menusList << hydrologyMenu;
 

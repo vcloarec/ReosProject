@@ -58,7 +58,9 @@ ReosFormWidget::ReosFormWidget( QWidget *parent, Qt::Orientation orientation, bo
 
 void ReosFormWidget::addText( const QString &text, int position )
 {
-  addWidget( new QLabel( text ), position );
+  QLabel *label = new QLabel( text, this );
+  label->setWordWrap( true );
+  addWidget( label, position );
 }
 
 void ReosFormWidget::addParameter( ReosParameter *parameter, int position )
