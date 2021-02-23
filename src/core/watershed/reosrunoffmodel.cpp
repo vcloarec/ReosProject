@@ -27,17 +27,26 @@ ReosRunoffModel::ReosRunoffModel( const QString &name, QObject *parent ):
   , mName( new ReosParameterString( QObject::tr( "Name" ), false, this ) )
 {
   mName->setValue( name );
+  mUniqueId = QUuid::createUuid().toString();
 }
 
 ReosRunoffModel::ReosRunoffModel( const ReosEncodedElement &element, QObject *parent ):
   QObject( parent )
 {
   mName = ReosParameterString::decode( element.getEncodedData( QStringLiteral( "name" ) ), false, this );
+  element.getData( QStringLiteral( "unique-id" ), mUniqueId );
+  if ( mUniqueId.isEmpty() )
+    mUniqueId = QUuid::createUuid().toString();
 }
 
 ReosParameterString *ReosRunoffModel::name() const
 {
   return mName;
+}
+
+QString ReosRunoffModel::uniqueId() const
+{
+  return mUniqueId;
 }
 
 void ReosRunoffModel::connectParameters()
@@ -50,6 +59,7 @@ void ReosRunoffModel::connectParameters()
 void ReosRunoffModel::encodeBase( ReosEncodedElement &element ) const
 {
   element.addEncodedData( QStringLiteral( "name" ), mName->encode() );
+  element.addData( QStringLiteral( "unique-id" ), mUniqueId );
 }
 
 ReosRunoff::ReosRunoff( ReosRunoffModel *runoffModel, ReosTimeSerieConstantInterval *rainfall, QObject *parent ):
@@ -355,6 +365,18 @@ QList<ReosEncodedElement> ReosRunoffModelModel::encodeModels() const
   return ret;
 }
 
+ReosRunoffModel *ReosRunoffModelModel::runoffModelByUniqueId( const QString &uniqueId ) const
+{
+  for ( const ReosRunoffModelCollection &roCol : mRunoffCollections )
+  {
+    ReosRunoffModel *ro = roCol.runoffModelByUniqueId( uniqueId );
+    if ( ro )
+      return ro;
+  }
+
+  return nullptr;
+}
+
 ReosRunoffModel *ReosRunoffModelModel::indexToRunoffModel( const QModelIndex &index ) const
 {
   return static_cast<ReosRunoffModel *>( index.internalPointer() );
@@ -516,6 +538,13 @@ bool ReosRunoffModelRegistery::loadFromFile( const QString &fileName, const QStr
   return decode( data );
 }
 
+ReosRunoffModel *ReosRunoffModelRegistery::runoffModelByUniqueId( const QString &uniqueId ) const
+{
+  if ( mModel )
+    return mModel->runoffModelByUniqueId( uniqueId );
+  return nullptr;
+}
+
 
 ReosRunoffModelRegistery::ReosRunoffModelRegistery( QObject *parent ):
   ReosModule( parent )
@@ -579,4 +608,13 @@ void ReosRunoffModelCollection::clearCollection()
 {
   while ( !mRunoffModels.isEmpty() )
     mRunoffModels.takeLast()->deleteLater();
+}
+
+ReosRunoffModel *ReosRunoffModelCollection::runoffModelByUniqueId( const QString &uniqueId ) const
+{
+  for ( ReosRunoffModel *ro : qAsConst( mRunoffModels ) )
+    if ( ro->uniqueId() == uniqueId )
+      return ro;
+
+  return nullptr;
 }

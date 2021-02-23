@@ -50,6 +50,9 @@ class ReosRunoffModel : public QObject
 
     virtual ReosEncodedElement encode() const = 0;
 
+    //! Returns the unique Id of this runoff model
+    QString uniqueId() const;
+
   signals:
     void modelChanged();
 
@@ -61,6 +64,7 @@ class ReosRunoffModel : public QObject
 
   private:
     ReosParameterString *mName;
+    QString mUniqueId;
 };
 
 //! Class that contains several models with same type
@@ -105,6 +109,9 @@ class ReosRunoffModelCollection
 
     //! Deletes all runoff models
     void clearCollection();
+
+    //! Returns a runoff model consiering its unique id
+    ReosRunoffModel *runoffModelByUniqueId( const QString &uniqueId ) const;
 
   private:
     QString mType;
@@ -187,6 +194,9 @@ class ReosRunoffModelModel : public QAbstractItemModel
     //! Returns all the models encoded
     QList<ReosEncodedElement> encodeModels() const;
 
+    //! Returns a runoff model consiering its unique id
+    ReosRunoffModel *runoffModelByUniqueId( const QString &uniqueId ) const;
+
   private:
     QMap<QString, ReosRunoffModelCollection> mRunoffCollections;
 
@@ -235,6 +245,9 @@ class ReosRunoffModelRegistery : public ReosModule
 
     //! Clears all current data and load new from files
     bool loadFromFile( const QString &fileName, const QString &header );
+
+    //! Returns a runoff model consiering its unique id
+    ReosRunoffModel *runoffModelByUniqueId( const QString &uniqueId ) const;
 
   private:
     ReosRunoffModelRegistery( QObject *parent );
