@@ -75,6 +75,8 @@
         <file>saveRunoffAs.svg</file>
         <file>saveRunoff.svg</file>
         <file>openRunoff.svg</file>
+        <file>runoffHydrograph.svg</file>
+        <file>lock.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

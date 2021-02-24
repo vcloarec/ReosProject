@@ -24,6 +24,12 @@ static qint64 MONTH_IN_MILLISECOND = DAY_IN_MILLISECONDS * 30;
 static qint64 YEAR_IN_MILLISECOND = DAY_IN_MILLISECONDS * 365;
 
 
+ReosDuration::ReosDuration( qint64 milliseconds )
+{
+  mUnit = millisecond;
+  mValue = milliseconds;
+}
+
 ReosDuration::ReosDuration( double value ): mValue( value )
 {}
 
@@ -164,9 +170,9 @@ ReosDuration ReosDuration::operator/( const double k ) const
   return ret;
 }
 
-double ReosDuration::operator/( ReosDuration &other ) const
+double ReosDuration::operator/( const ReosDuration &other ) const
 {
-  return mValue / other.mValue;
+  return mValue / static_cast<double>( other.mValue );
 }
 
 bool ReosDuration::operator>( const ReosDuration &other ) const

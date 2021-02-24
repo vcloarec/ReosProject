@@ -11,6 +11,7 @@
 #include "reosmenupopulator.h"
 #include "reosmeteorologicmodel.h"
 #include "reosmeteorologicmodelwidget.h"
+#include "reosrunoffhydrographwidget.h"
 
 #include <QMessageBox>
 
@@ -28,6 +29,8 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   mActionConcentrationTime( new QAction( QPixmap( QStringLiteral( ":/images/concentrationTimeWatershed.svg" ) ), tr( "Concentration time" ), this ) ),
   mConcentrationTimeWidget( new ReosConcentrationTimeWidget( this ) ),
   mActionMeteorologicModel( new QAction( QPixmap( QStringLiteral( ":/images/meteoModel.svg" ) ), tr( "Meteorologic models" ), this ) ),
+  mActionRunoffHydrograph( new QAction( QPixmap( QStringLiteral( ":/images/runoffHydrograph.svg" ) ), tr( "Runoff hydrograph" ), this ) ),
+  mRunoffHydrographWidget( new ReosRunoffHydrographWidget( this ) ),
   mCurrentMapOutlet( map ),
   mCurrentStreamLine( map )
 {
@@ -44,6 +47,7 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   mActionLongitudinalProfile->setCheckable( true );
   mActionConcentrationTime->setCheckable( true );
   mActionMeteorologicModel->setCheckable( true );
+  mActionRunoffHydrograph->setCheckable( true );
   QToolBar *toolBar = new QToolBar( this );
 
   toolBar->addAction( mActionSelectWatershed );
@@ -52,12 +56,14 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   toolBar->addAction( mActionLongitudinalProfile );
   toolBar->addAction( mActionConcentrationTime );
   toolBar->addAction( mActionMeteorologicModel );
+  toolBar->addAction( mActionRunoffHydrograph );
 
   static_cast<QBoxLayout *>( layout() )->insertWidget( 0, toolBar );
   mDelineatingWidget->setAction( mActionDelineateWatershed );
   mLongitudinalProfileWidget->setAction( mActionLongitudinalProfile );
   mConcentrationTimeWidget->setAction( mActionConcentrationTime );
   mMeteorolocicModelWidget->setAction( mActionMeteorologicModel );
+  mRunoffHydrographWidget->setAction( mActionRunoffHydrograph );
 
   mMapToolSelectWatershed->setAction( mActionSelectWatershed );
   mActionSelectWatershed->setCheckable( true );
@@ -70,6 +76,8 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   std::unique_ptr<ReosMenuPopulator> menuPopulator = std::make_unique<ReosMenuPopulator>();
   menuPopulator->addAction( mActionLongitudinalProfile );
   menuPopulator->addAction( mActionRemoveWatershed );
+  menuPopulator->addAction( mActionConcentrationTime );
+  menuPopulator->addAction( mActionRunoffHydrograph );
   mMapToolSelectWatershed->setContextMenuPopulator( menuPopulator.release() );
 
   mCurrentMapOutlet.setWidth( 4 );
@@ -80,6 +88,7 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
 
   connect( this, &ReosWatershedWidget::currentWatershedChanged, mLongitudinalProfileWidget, &ReosLongitudinalProfileWidget::setCurrentWatershed );
   connect( this, &ReosWatershedWidget::currentWatershedChanged, mConcentrationTimeWidget, &ReosConcentrationTimeWidget::setCurrentWatershed );
+  connect( this, &ReosWatershedWidget::currentWatershedChanged, mRunoffHydrographWidget, &ReosRunoffHydrographWidget::setCurrentWatershed );
 
   connect( module, &ReosWatershedModule::hasBeenReset, this, &ReosWatershedWidget::onModuleReset );
 

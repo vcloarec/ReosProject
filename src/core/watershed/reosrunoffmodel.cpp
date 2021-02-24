@@ -377,6 +377,24 @@ ReosRunoffModel *ReosRunoffModelModel::runoffModelByUniqueId( const QString &uni
   return nullptr;
 }
 
+QList<ReosRunoffModel *> ReosRunoffModelModel::runofModels( const QString &type )
+{
+  if ( mRunoffCollections.contains( type ) )
+    return mRunoffCollections[type].models();
+  else
+    return QList<ReosRunoffModel *>();
+}
+
+QStringList ReosRunoffModelModel::collectionTypes() const
+{
+  return mRunoffCollections.keys();
+}
+
+ReosRunoffModelCollection ReosRunoffModelModel::runoffModelCollection( const QString &type ) const
+{
+  return mRunoffCollections.value( type );
+}
+
 ReosRunoffModel *ReosRunoffModelModel::indexToRunoffModel( const QModelIndex &index ) const
 {
   return static_cast<ReosRunoffModel *>( index.internalPointer() );
@@ -545,6 +563,16 @@ ReosRunoffModel *ReosRunoffModelRegistery::runoffModelByUniqueId( const QString 
   return nullptr;
 }
 
+QStringList ReosRunoffModelRegistery::runoffTypes() const
+{
+  return mModel->collectionTypes();
+}
+
+ReosRunoffModelCollection ReosRunoffModelRegistery::runoffModelCollection( const QString &type ) const
+{
+  return mModel->runoffModelCollection( type );
+}
+
 
 ReosRunoffModelRegistery::ReosRunoffModelRegistery( QObject *parent ):
   ReosModule( parent )
@@ -617,4 +645,178 @@ ReosRunoffModel *ReosRunoffModelCollection::runoffModelByUniqueId( const QString
       return ro;
 
   return nullptr;
+}
+
+QList<ReosRunoffModel *> ReosRunoffModelCollection::models() const
+{
+  return mRunoffModels;
+}
+
+ReosWatershedRunoffModels::ReosWatershedRunoffModels( QObject *parent ):
+  ReosDataObject( parent ) {}
+
+void ReosWatershedRunoffModels::addRunoffModel( ReosRunoffModel *runoffModel )
+{
+  ReosParameterDouble *paramPortion = new ReosParameterDouble( tr( "Portion" ), false, this );
+  paramPortion->setValue( sharePortion() );
+  mRunoffModels.append( {QPointer<ReosRunoffModel>( runoffModel ), paramPortion, false} );
+
+  connect( runoffModel, &ReosRunoffModel::modelChanged, this, &ReosDataObject::dataChanged );
+  connect( paramPortion, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+
+  emit dataChanged();
+}
+
+void ReosWatershedRunoffModels::replaceRunnofModel( int i, ReosRunoffModel *runoffModel )
+{
+  if ( i < 0 || i >= mRunoffModels.count() )
+    return;
+
+  std::get<0>( mRunoffModels[i] ) = runoffModel;
+}
+
+int ReosWatershedRunoffModels::runoffModelCount() const {return mRunoffModels.count();}
+
+void ReosWatershedRunoffModels::removeRunoffModel( int i )
+{
+  if ( i < 0 || i >= mRunoffModels.count() )
+    return;
+
+  std::get<1>( mRunoffModels.at( i ) )->deleteLater();
+  mRunoffModels.removeAt( i );
+
+  emit dataChanged();
+}
+
+void ReosWatershedRunoffModels::lock( int i, bool b )
+{
+  if ( i < 0 || i >= mRunoffModels.count() )
+    return;
+  std::get<2>( mRunoffModels[i] ) = b;
+}
+
+bool ReosWatershedRunoffModels::isLocked( int i ) const
+{
+  if ( i < 0 || i >= mRunoffModels.count() )
+    return false;
+  return std::get<2>( mRunoffModels[i] );
+}
+
+ReosRunoffModel *ReosWatershedRunoffModels::runoffModel( int i ) const
+{
+  if ( i < 0 || i >= mRunoffModels.count() )
+    return nullptr;
+
+  if ( std::get<0>( mRunoffModels.at( i ) ).isNull() )
+    return nullptr;
+
+  return std::get<0>( mRunoffModels.at( i ) );
+}
+
+ReosParameterDouble *ReosWatershedRunoffModels::portion( int i ) const
+{
+
+  if ( i < 0 || i >= mRunoffModels.count() )
+    return nullptr;
+
+  return std::get<1>( mRunoffModels.at( i ) );
+}
+
+void ReosWatershedRunoffModels::clear()
+{
+  blockSignals( true );
+  while ( runoffModelCount() > 0 )
+    removeRunoffModel( 0 );
+  blockSignals( false );
+  emit dataChanged();
+}
+
+ReosEncodedElement ReosWatershedRunoffModels::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "watershed-runoff-models" ) );
+  QList<ReosEncodedElement> encodedElements;
+
+  for ( int i = 0; i < runoffModelCount(); ++i )
+  {
+    ReosEncodedElement elem( QStringLiteral( "watershed-runoff-model" ) );
+    ReosRunoffModel *ro = runoffModel( i );
+    if ( ro )
+      elem.addData( QStringLiteral( "runoff-unique-id" ), ro->uniqueId() );
+    else
+      elem.addData( QStringLiteral( "runoff-unique-id" ), QStringLiteral( "none" ) );
+
+    elem.addEncodedData( QStringLiteral( "watershed-portion" ), portion( i )->encode() );
+    elem.addData( QStringLiteral( "locked" ), isLocked( i ) ? 1 : 0 );
+    encodedElements.append( elem );
+  }
+
+  element.addListEncodedData( QStringLiteral( "models" ), encodedElements );
+
+  return element;
+}
+
+void ReosWatershedRunoffModels::decode( const ReosEncodedElement &element )
+{
+  if ( !ReosRunoffModelRegistery::isInstantiate() )
+    return;
+
+  ReosRunoffModelRegistery *registery = ReosRunoffModelRegistery::instance();
+
+  blockSignals( true );
+  clear();
+  if ( element.description() == QStringLiteral( "watershed-runoff-models" ) )
+  {
+    QList<ReosEncodedElement> encodedModels = element.getListEncodedData( QStringLiteral( "models" ) );
+
+    for ( const ReosEncodedElement &elem : qAsConst( encodedModels ) )
+    {
+      if ( elem.description() != QStringLiteral( "watershed-runoff-model" ) )
+        continue;
+
+      QString roId;
+      elem.getData( QStringLiteral( "runoff-unique-id" ), roId );
+      ReosRunoffModel *ro = registery->runoffModelByUniqueId( roId );
+      int l = 0;
+      elem.getData( QStringLiteral( "locked" ), l );
+      ReosParameterDouble *paramPortion = ReosParameterDouble::decode( elem.getEncodedData( "watershed-portion" ), false, this );
+      mRunoffModels.append( {QPointer<ReosRunoffModel>( ro ), paramPortion, l == 1} );
+    }
+  }
+
+  blockSignals( false );
+  emit dataChanged();
+}
+
+
+double ReosWatershedRunoffModels::sharePortion()
+{
+  blockSignals( true );
+
+  double sharablePortion = 1;
+  int generousOne = 0;
+
+  for ( int i = 0; i < runoffModelCount(); ++i )
+  {
+    if ( isLocked( i ) )
+      sharablePortion -= portion( i )->value();
+    else
+      generousOne++;
+  }
+
+  double givenPortion = sharablePortion / ( generousOne + 1 );
+
+  //! adjust the generous
+  for ( int i = 0; i < runoffModelCount(); ++i )
+  {
+    if ( !isLocked( i ) )
+    {
+      double old = portion( i )->value();
+      double taken = old / sharablePortion * givenPortion;
+      portion( i )->setValue( old - taken );
+    }
+  }
+
+  blockSignals( false );
+
+  return givenPortion;
 }

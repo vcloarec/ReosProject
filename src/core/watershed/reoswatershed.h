@@ -30,6 +30,7 @@ email                : vcloarec at gmail dot com
 #include "reosconcentrationtimecalculation.h"
 
 class ReosGisEngine;
+class ReosWatershedRunoffModels;
 
 class REOSCORE_EXPORT ReosWatershed: public QObject
 {
@@ -198,7 +199,7 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
 
     bool operator==( const ReosWatershed &other ) const;
 
-
+    ReosWatershedRunoffModels *runoffModels() const;
 
   signals:
     void changed();
@@ -245,6 +246,8 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
 
     std::vector<std::unique_ptr<ReosWatershed>> mUpstreamWatersheds;
     ReosWatershed *mDownstreamWatershed = nullptr;
+
+    ReosWatershedRunoffModels *mRunoffModels;
 
     void init();
     void connectParameters();

@@ -106,12 +106,13 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     ReosDuration relativeTimeAt( int i ) const override;
     QPair<QDateTime, QDateTime> timeExtent() const override;
     double valueAt( int i ) const override;
-
     virtual void setValueAt( int i, double value ) override;
+    QString type() const override;
+
     void appendValue( double value );
     void insertValues( int fromPos, int count, double value );
 
-    QString type() const override;
+
 
     //! Returns the current value mode
     ValueMode valueMode() const;
@@ -210,6 +211,8 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
 
     ReosTimeSerieVariableTimeStep( QObject *parent );
 
+    QString type() const {return QStringLiteral( "time-serie-variable-time-step" );}
+
     ReosDuration relativeTimeAt( int i ) const;
     QPair<QDateTime, QDateTime> timeExtent() const;
 
@@ -217,10 +220,16 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
     //! Sets the value at \a relative time with \a value, if the \a relative time is not present insert a new couple (time, value)
     void setValue( const ReosDuration &relativeTime, double value );
 
+    //! Returns the value at relative time \a relative time, interpolate if relative time is between two time values, return 0 if before first one or after last one
+    double valueAtTime( const ReosDuration &relativeTime ) const;
+
+    //! Adds another instance to this the values of this ones, create new time step if needed
+    void addOther( ReosTimeSerieVariableTimeStep *other );
+
   private:
     QVector<ReosDuration> mTimeValues;
 
-    // returns the index of the time value if the value is present, or the indexof the value just before if not present (-1 if less than the first one)
+    //! returns the index of the time value if the value is present, or the indexof the value just before if not present (-1 if less than the first one)
     int timeValueIndex( const ReosDuration &time ) const;
 
 };

@@ -468,7 +468,6 @@ bool ReosRainfallModel::decode( const ReosEncodedElement &element )
   connectItem( mRootZone.get() );
   endResetModel();
   return true;
-
 }
 
 bool ReosRainfallModel::saveToFile( const QString &path, const QString &header )

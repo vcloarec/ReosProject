@@ -124,7 +124,6 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   mRunoffManagerWidget->setAction( mActionRunoffManager );
   mRunoffManagerWidget->loadDataFile();
 
-
   statusBar()->addPermanentWidget( new ReosMapCursorPosition( mMap, this ) );
   centralWidget()->layout()->addWidget( mMap->mapCanvas() );
 

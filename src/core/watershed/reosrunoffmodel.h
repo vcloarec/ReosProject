@@ -67,6 +67,56 @@ class ReosRunoffModel : public QObject
     QString mUniqueId;
 };
 
+/**
+ *  Class that represents a collection of runoff models (to be associted to a watershed).
+ *  Several instances can share same runoff model and can have several runoff models,
+ *  each models in the instance is assoiated with a portion of watershed
+ */
+class ReosWatershedRunoffModels : public ReosDataObject
+{
+  public:
+    ReosWatershedRunoffModels( QObject *parent = nullptr );
+
+    QString type() const override {return QStringLiteral( "watershed-runoff-models" );}
+
+    //! Adds a new runoff model
+    void addRunoffModel( ReosRunoffModel *runoffModel );
+
+    void replaceRunnofModel( int i, ReosRunoffModel *runoffModel );
+
+    //! Returns the count of runoff models
+    int runoffModelCount() const;
+
+    //! remove the runoff models at position \a i
+    void removeRunoffModel( int i );
+
+    //! Sets whether the portion value at position \a i is locked
+    void lock( int i, bool b );
+
+    //! Returns whether the portion value at position \a i is locked
+    bool isLocked( int i ) const;
+
+    //! Returns a pointer to the runoff model at position \a i, return nullptr if this runoff does not exist anymore (delete else where)
+    ReosRunoffModel *runoffModel( int i ) const;
+
+    //! Returns the parameters reprensenting the portion value of runoff model at position \a i
+    ReosParameterDouble *portion( int i ) const;
+
+    //! Clears all the runoff models (do not delete the runoff that is own elsewhere)
+    void clear();
+
+    ReosEncodedElement encode() const;
+    void decode( const ReosEncodedElement &element );
+
+  private:
+    using WatershedRunoff = std::tuple<QPointer<ReosRunoffModel>, ReosParameterDouble *, bool> ;
+    QList<WatershedRunoff> mRunoffModels;
+
+    // Reduce portion of not locked runoff model to share with a new one, returns the available portion
+    double sharePortion();
+};
+
+
 //! Class that contains several models with same type
 class ReosRunoffModelCollection
 {
@@ -112,6 +162,9 @@ class ReosRunoffModelCollection
 
     //! Returns a runoff model consiering its unique id
     ReosRunoffModel *runoffModelByUniqueId( const QString &uniqueId ) const;
+
+    //! Returns a list of all the runoff models
+    QList<ReosRunoffModel *> models() const;
 
   private:
     QString mType;
@@ -197,6 +250,15 @@ class ReosRunoffModelModel : public QAbstractItemModel
     //! Returns a runoff model consiering its unique id
     ReosRunoffModel *runoffModelByUniqueId( const QString &uniqueId ) const;
 
+    //! Returns the list of models of type \a type
+    QList<ReosRunoffModel *> runofModels( const QString &type );
+
+    //! Returns all the collection types avalaible
+    QStringList collectionTypes() const;
+
+    //! Returns the collection model of type \a type
+    ReosRunoffModelCollection runoffModelCollection( const QString &type ) const;
+
   private:
     QMap<QString, ReosRunoffModelCollection> mRunoffCollections;
 
@@ -248,6 +310,12 @@ class ReosRunoffModelRegistery : public ReosModule
 
     //! Returns a runoff model consiering its unique id
     ReosRunoffModel *runoffModelByUniqueId( const QString &uniqueId ) const;
+
+    //! Returns all the runoff model types available
+    QStringList runoffTypes() const;
+
+    //! Returns the collection model of type \a type
+    ReosRunoffModelCollection runoffModelCollection( const QString &type ) const;
 
   private:
     ReosRunoffModelRegistery( QObject *parent );

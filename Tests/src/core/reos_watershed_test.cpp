@@ -794,7 +794,7 @@ void ReosWatersehdTest::runoffConstantCoefficient()
 
   // apply runoff
 
-  ReosRunoffConstantCoefficientModel runoffConstantCoefficientModel;
+  ReosRunoffConstantCoefficientModel runoffConstantCoefficientModel( "test" );
   runoffConstantCoefficientModel.coefficient()->setValue( 0.5 );
 
   ReosRunoff runoff( &runoffConstantCoefficientModel, &chicagoRainfall );

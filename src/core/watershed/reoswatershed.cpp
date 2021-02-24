@@ -15,6 +15,7 @@ email                : vcloarec at gmail dot com
 
 #include "reoswatershed.h"
 #include "reosgisengine.h"
+#include "reosrunoffmodel.h"
 
 ReosWatershed::ReosWatershed():
   mArea( new ReosParameterArea( tr( "Watershed area" ), this ) )
@@ -470,6 +471,7 @@ ReosEncodedElement ReosWatershed::encode() const
   ret.addEncodedData( QStringLiteral( "concentration-time-value" ), mConcentrationTimeValue->encode() );
   ret.addEncodedData( QStringLiteral( "concentration-time-calculation" ), mConcentrationTimeCalculation.encode() );
 
+  ret.addEncodedData( QStringLiteral( "runoff-models" ), mRunoffModels->encode() );
 
   return ret;
 }
@@ -561,6 +563,8 @@ ReosWatershed *ReosWatershed::decode( const ReosEncodedElement &element )
 
   ws->mConcentrationTimeCalculation = ReosConcentrationTimeCalculation::decode( element.getEncodedData( QStringLiteral( "concentration-time-calculation" ) ) );
 
+  ws->mRunoffModels->decode( element.getEncodedData( QStringLiteral( "runoff-models" ) ) );
+
   ws->connectParameters();
 
   return ws.release();
@@ -618,6 +622,8 @@ void ReosWatershed::init()
   mDrop = new ReosParameterDouble( tr( "Drop" ), true, this );
   mLongestStreamPath = new ReosParameterDouble( tr( "Longest stream path" ), true, this );
   mConcentrationTimeValue = new ReosParameterDuration( tr( "Concentration time" ), true, this );
+
+  mRunoffModels = new ReosWatershedRunoffModels( this );
 
   connectParameters();
 }
@@ -806,6 +812,11 @@ ReosGisEngine *ReosWatershed::geographicalContext() const
     return mDownstreamWatershed->geographicalContext();
 
   return nullptr;
+}
+
+ReosWatershedRunoffModels *ReosWatershed::runoffModels() const
+{
+  return mRunoffModels;
 }
 
 

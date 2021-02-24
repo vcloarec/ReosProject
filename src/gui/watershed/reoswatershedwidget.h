@@ -21,6 +21,7 @@ class ReosWatershed;
 class ReosMapToolSelectMapItem;
 class ReosMeteorologicItemModel;
 class ReosMeteorologicModelWidget;
+class ReosRunoffHydrographWidget;
 
 class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
 {
@@ -62,6 +63,9 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
 
     QAction *mActionMeteorologicModel = nullptr;
     ReosMeteorologicModelWidget *mMeteorolocicModelWidget = nullptr;
+
+    QAction *mActionRunoffHydrograph = nullptr;
+    ReosRunoffHydrographWidget *mRunoffHydrographWidget = nullptr;
 
     QMap<ReosWatershed *, ReosMapPolygon> mMapWatersheds;
     ReosMapMarker mCurrentMapOutlet;

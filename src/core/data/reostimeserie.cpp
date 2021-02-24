@@ -618,10 +618,17 @@ QPair<QDateTime, QDateTime> ReosTimeSerieVariableTimeStep::timeExtent() const
 
 void ReosTimeSerieVariableTimeStep::setValue( const ReosDuration &relativeTime, double value )
 {
-  if ( relativeTime >= mTimeValues.last() )
+  if ( relativeTime > mTimeValues.last() )
   {
     mValues.append( value );
     mTimeValues.append( relativeTime );
+    return;
+  }
+
+  if ( relativeTime < mTimeValues.first() )
+  {
+    mValues.prepend( value );
+    mTimeValues.prepend( relativeTime );
     return;
   }
 
@@ -634,6 +641,59 @@ void ReosTimeSerieVariableTimeStep::setValue( const ReosDuration &relativeTime, 
     mValues.insert( index + 1, value );
     mTimeValues.insert( index + 1, relativeTime );
   }
+
+  emit dataChanged();
+}
+
+double ReosTimeSerieVariableTimeStep::valueAtTime( const ReosDuration &relativeTime ) const
+{
+  int index = timeValueIndex( relativeTime );
+
+  if ( index < 0 || index >= mValues.count() )
+    return 0;
+
+  if ( mTimeValues.at( index ) == relativeTime )
+    return mValues.at( index );
+
+  if ( index == mValues.count() - 1 ) // relative greater that the last time
+    return 0;
+
+  const ReosDuration time1 = mTimeValues.at( index );
+  const ReosDuration time2 = mTimeValues.at( index + 1 );
+
+  double ratio = ( relativeTime - time1 ) / ( time2 - time1 );
+
+  return ( mValues.at( index + 1 ) - mValues.at( index ) ) * ratio + mValues.at( index );
+}
+
+void ReosTimeSerieVariableTimeStep::addOther( ReosTimeSerieVariableTimeStep *other )
+{
+  blockSignals( true );
+  if ( !other )
+    return;
+
+  ReosDuration offset( referenceTime()->value().msecsTo( other->referenceTime()->value() ) );
+
+  for ( int i = 0; i < mTimeValues.count(); ++i )
+  {
+    ReosDuration thisTimeValue = mTimeValues.at( i );
+    setValue( thisTimeValue, mValues.at( i ) + other->valueAtTime( thisTimeValue + offset ) );
+  }
+
+  // now add time step not existing in this instance
+  for ( int i = 0; i < other->mTimeValues.count(); ++i )
+  {
+    ReosDuration otherTimeValue = other->mTimeValues.at( i ) - offset;
+    int index = timeValueIndex( otherTimeValue );
+
+    if ( index < 0 || index >= mTimeValues.count() || mTimeValues.at( index ) != otherTimeValue )
+      setValue( otherTimeValue, valueAtTime( otherTimeValue ) + other->valueAt( i ) );
+  }
+
+  blockSignals( false );
+
+  emit dataChanged();
+
 }
 
 int ReosTimeSerieVariableTimeStep::timeValueIndex( const ReosDuration &time ) const

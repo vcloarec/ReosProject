@@ -30,15 +30,16 @@ class REOSCORE_EXPORT ReosDuration
 
     enum Unit {millisecond, second, minute, hour, day, week, month, year};
 
-    ReosDuration( double value = 0 );
-    ReosDuration( double value, Unit mUnit );
+    explicit ReosDuration( double value = 0 );
+    explicit ReosDuration( qint64 milliseconds );
+    explicit ReosDuration( double value, Unit mUnit );
 
     ReosDuration operator+( const ReosDuration & ) const;
     ReosDuration operator-( const ReosDuration & ) const;
     ReosDuration operator*( double k ) const;
     ReosDuration operator*( int i ) const;
     ReosDuration operator/( double k ) const;
-    double operator/( ReosDuration & ) const;
+    double operator/( const ReosDuration & ) const;
     bool operator>( const ReosDuration & ) const;
     bool operator>=( const ReosDuration & ) const;
     bool operator<( const ReosDuration & ) const;

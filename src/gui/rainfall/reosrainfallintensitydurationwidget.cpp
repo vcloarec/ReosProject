@@ -105,7 +105,6 @@ void ReosRainfallIntensityDurationWidget::onTableViewContextMenu( const QPoint &
 {
   QModelIndex index = mView->indexAt( pos );
   contextMenu( mView->viewport()->mapToGlobal( pos ), index );
-
 }
 
 void ReosRainfallIntensityDurationWidget::onVerticalHeaderViewContextMenu( const QPoint &pos )
