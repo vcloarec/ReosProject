@@ -123,19 +123,19 @@ void ReosGisLayersWidget::unRegisterCurrentLayerAsDigitalElevationModel()
 void ReosGisLayersWidget::onLoadQGISProject()
 {
   ReosSettings settings;
-  QString path = settings.value( QStringLiteral( "/Path/GisProject" ) ).toString();
+  QString path = settings.value( QStringLiteral( "Path/GisProject" ) ).toString();
   const QString projectFileName = QFileDialog::getOpenFileName( this, tr( "Load QGIS Project" ), path );
   if ( !projectFileName.isEmpty() )
   {
     mGisEngine->loadQGISProject( projectFileName );
-    settings.setValue( QStringLiteral( "/Path/GisProject" ), projectFileName ) ;
+    settings.setValue( QStringLiteral( "Path/GisProject" ), projectFileName ) ;
   }
 }
 
 void ReosGisLayersWidget::onLoadVectorLayer()
 {
   ReosSettings settings;
-  QString path = settings.value( QStringLiteral( "/Path/GisLayer" ) ).toString();
+  QString path = settings.value( QStringLiteral( "Path/GisLayer" ) ).toString();
 
   const QString vectorFileName = QFileDialog::getOpenFileName( this, tr( "Load Vector Layer" ), path, mGisEngine->vectorLayerFilters() );
   const QFileInfo fileInfo( vectorFileName );
@@ -143,13 +143,13 @@ void ReosGisLayersWidget::onLoadVectorLayer()
     if ( mGisEngine->addVectorLayer( vectorFileName, fileInfo.fileName() ).isEmpty() )
       QMessageBox::warning( this, tr( "Loading Vector Layer" ), tr( "Invalid vector layer, file not loaded." ) );
 
-  settings.setValue( QStringLiteral( "/Path/GisLayer" ), fileInfo.path() );
+  settings.setValue( QStringLiteral( "Path/GisLayer" ), fileInfo.path() );
 }
 
 void ReosGisLayersWidget::onLoadRasterLayer()
 {
   ReosSettings settings;
-  QString path = settings.value( QStringLiteral( "/Path/GisLayer" ) ).toString();
+  QString path = settings.value( QStringLiteral( "Path/GisLayer" ) ).toString();
 
   const QString rasterFileName = QFileDialog::getOpenFileName( this, tr( "Load Raster Layer" ), path, mGisEngine->rasterLayerFilters() );
   const QFileInfo fileInfo( rasterFileName );
@@ -157,13 +157,13 @@ void ReosGisLayersWidget::onLoadRasterLayer()
     if ( mGisEngine->addRasterLayer( rasterFileName, fileInfo.fileName() ).isEmpty() )
       QMessageBox::warning( this, tr( "Loading Raster Layer" ), tr( "Invalid raster layer, file not loaded." ) );
 
-  settings.setValue( QStringLiteral( "/Path/GisLayer" ), fileInfo.path() );
+  settings.setValue( QStringLiteral( "Path/GisLayer" ), fileInfo.path() );
 }
 
 void ReosGisLayersWidget::onLoadMeshLayer()
 {
   ReosSettings settings;
-  QString path = settings.value( QStringLiteral( "/Path/GisLayer" ) ).toString();
+  QString path = settings.value( QStringLiteral( "Path/GisLayer" ) ).toString();
   QString filter = mGisEngine->meshLayerFilters();
 
   if ( filter.isEmpty() )

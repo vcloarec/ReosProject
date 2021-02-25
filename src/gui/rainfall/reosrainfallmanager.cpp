@@ -114,12 +114,12 @@ void ReosRainfallManager::loadDataFile()
 {
   QString fileName;
   ReosSettings settings;
-  fileName = settings.value( QStringLiteral( "/rainfall/dataFile" ) ).toString();
+  fileName = settings.value( QStringLiteral( "Rainfall/dataFile" ) ).toString();
 
   if ( fileName.isEmpty() )
     return;
 
-  if ( mModel->loadFromFile( fileName, QStringLiteral( "rainfall data" ) ) )
+  if ( mModel->loadFromFile( fileName, QStringLiteral( "Rainfall data" ) ) )
   {
     mCurrentFileName = fileName;
   }
@@ -151,7 +151,7 @@ void ReosRainfallManager::onOpenRainfallFile()
   }
 
   ReosSettings settings;
-  QString dir = settings.value( QStringLiteral( "/rainfall/fileDirectory" ) ).toString();
+  QString dir = settings.value( QStringLiteral( "Rainfall/fileDirectory" ) ).toString();
   QString fileName = QFileDialog::getOpenFileName( this, tr( "Open Rainfall Data" ), dir, QStringLiteral( " *.rrf" ) );
 
   if ( fileName.isEmpty() )
@@ -160,9 +160,9 @@ void ReosRainfallManager::onOpenRainfallFile()
   if ( mModel->loadFromFile( fileName, QStringLiteral( "rainfall data" ) ) )
   {
     mCurrentFileName = fileName;
-    settings.setValue( QStringLiteral( "/rainfall/dataFile" ), fileName );
+    settings.setValue( QStringLiteral( "Rainfall/dataFile" ), fileName );
     QFileInfo fileInfo( fileName );
-    settings.setValue( QStringLiteral( "/rainfall/fileDirectory" ), fileInfo.path() );
+    settings.setValue( QStringLiteral( "Rainfall/fileDirectory" ), fileInfo.path() );
   }
   else
   {
@@ -213,7 +213,7 @@ bool ReosRainfallManager::addSimpleItemDialog( const QString &title, QString &na
 void ReosRainfallManager::onSaveAsRainfallFile()
 {
   ReosSettings settings;
-  QString dir = settings.value( QStringLiteral( "/rainfall/fileDirectory" ) ).toString();
+  QString dir = settings.value( QStringLiteral( "Rainfall/fileDirectory" ) ).toString();
   QString fileName = QFileDialog::getSaveFileName( this, tr( "Save Rainfall Data as..." ), dir, QStringLiteral( " *.rrf" ) );
 
   if ( fileName.isEmpty() )
@@ -228,7 +228,7 @@ void ReosRainfallManager::onSaveAsRainfallFile()
   else
   {
     mCurrentFileName = fileName;
-    settings.setValue( QStringLiteral( "/rainfall/fileDirectory" ), fileInfo.path() );
+    settings.setValue( QStringLiteral( "Rainfall/fileDirectory" ), fileInfo.path() );
   }
 }
 

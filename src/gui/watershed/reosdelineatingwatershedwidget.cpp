@@ -159,8 +159,6 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   burningLineFormater.setExternalWidth( 4 );
 
   connect( this, &ReosActionWidget::opened, this, &ReosDelineatingWatershedWidget::onMethodChange );
-
-  restore();
 }
 
 ReosDelineatingWatershedWidget::~ReosDelineatingWatershedWidget()

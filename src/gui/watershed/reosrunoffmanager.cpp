@@ -64,7 +64,7 @@ void ReosRunoffManager::loadDataFile()
 
   QString fileName;
   ReosSettings settings;
-  fileName = settings.value( QStringLiteral( "/runoff-model/dataFile" ) ).toString();
+  fileName = settings.value( QStringLiteral( "Runoff-model/dataFile" ) ).toString();
 
   if ( fileName.isEmpty() )
     return;
@@ -95,7 +95,7 @@ void ReosRunoffManager::onSave()
 void ReosRunoffManager::onSaveAs()
 {
   ReosSettings settings;
-  QString dir = settings.value( QStringLiteral( "/runoff-model/fileDirectory" ) ).toString();
+  QString dir = settings.value( QStringLiteral( "Runoff-model/fileDirectory" ) ).toString();
   QString fileName = QFileDialog::getSaveFileName( this, tr( "Save Runoff Data as..." ), dir, QStringLiteral( " *.rro" ) );
 
   if ( fileName.isEmpty() )
@@ -110,7 +110,7 @@ void ReosRunoffManager::onSaveAs()
   else
   {
     mCurrentFile = fileName;
-    settings.setValue( QStringLiteral( "/runoff-model/fileDirectory" ), fileInfo.path() );
+    settings.setValue( QStringLiteral( "Runoff-model/fileDirectory" ), fileInfo.path() );
   }
 }
 
@@ -137,7 +137,7 @@ void ReosRunoffManager::onOpenFile()
   }
 
   ReosSettings settings;
-  QString dir = settings.value( QStringLiteral( "/runoff-model/fileDirectory" ) ).toString();
+  QString dir = settings.value( QStringLiteral( "Runoff-model/fileDirectory" ) ).toString();
   QString fileName = QFileDialog::getOpenFileName( this, tr( "Open Runoff Data" ), dir, QStringLiteral( " *.rro" ) );
 
   if ( fileName.isEmpty() )
@@ -146,9 +146,9 @@ void ReosRunoffManager::onOpenFile()
   if ( registery->loadFromFile( fileName, QStringLiteral( "runoff data" ) ) )
   {
     mCurrentFile = fileName;
-    settings.setValue( QStringLiteral( "/runoff-model/dataFile" ), fileName );
+    settings.setValue( QStringLiteral( "Runoff-model/dataFile" ), fileName );
     QFileInfo fileInfo( fileName );
-    settings.setValue( QStringLiteral( "/runoff-model/fileDirectory" ), fileInfo.path() );
+    settings.setValue( QStringLiteral( "Runoff-model/fileDirectory" ), fileInfo.path() );
   }
   else
   {

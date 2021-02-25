@@ -153,7 +153,7 @@ void ReosMainWindow::addActionInterrogation( const QList<QAction *> actions )
 bool ReosMainWindow::openFile()
 {
   ReosSettings settings;
-  QString path = settings.value( QStringLiteral( "/Path/Project" ) ).toString();
+  QString path = settings.value( QStringLiteral( "Path/Project" ) ).toString();
 
   QString filter = projectFileFilter();
   QString fileName = QFileDialog::getOpenFileName( this, tr( "Open a project" ), path, projectFileFilter() );
@@ -181,7 +181,7 @@ bool ReosMainWindow::save()
 bool ReosMainWindow::saveAs()
 {
   ReosSettings settings;
-  QString path = settings.value( QStringLiteral( "/Path/Project" ) ).toString();
+  QString path = settings.value( QStringLiteral( "Path/Project" ) ).toString();
 
   QString filePath = QFileDialog::getSaveFileName( this, tr( "Save project as" ), path, projectFileFilter() );
 
@@ -189,7 +189,7 @@ bool ReosMainWindow::saveAs()
     return false;
 
   mCurrentProjectFileInfo = QFileInfo( filePath );
-  settings.setValue( QStringLiteral( "/Path/Project" ), mCurrentProjectFileInfo.path() );
+  settings.setValue( QStringLiteral( "Path/Project" ), mCurrentProjectFileInfo.path() );
 
   return saveProject();
 }

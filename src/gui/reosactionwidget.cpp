@@ -32,11 +32,15 @@ void ReosActionWidget::setAction( QAction *action )
   {
     if ( mAction->isChecked() )
     {
+      restore();
       show();
       emit opened();
     }
     else
+    {
+      storeGeometry();
       close();
+    }
   } );
 }
 
@@ -61,11 +65,11 @@ void ReosActionWidget::closeEvent( QCloseEvent *event )
 void ReosActionWidget::storeGeometry()
 {
   ReosSettings settings;
-  settings.setValue( QStringLiteral( "/Windows/%1/Geometry" ).arg( objectName() ), saveGeometry() );
+  settings.setValue( QStringLiteral( "Windows/%1/Geometry" ).arg( objectName() ), saveGeometry() );
 }
 
 void ReosActionWidget::restore()
 {
   ReosSettings settings;
-  restoreGeometry( settings.value( QStringLiteral( "/Windows/%1/Geometry" ).arg( objectName() ) ).toByteArray() );
+  restoreGeometry( settings.value( QStringLiteral( "Windows/%1/Geometry" ).arg( objectName() ) ).toByteArray() );
 }

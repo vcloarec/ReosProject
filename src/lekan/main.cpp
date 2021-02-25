@@ -19,6 +19,7 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include <QTranslator>
 #include <QDesktopWidget>
 #include <QMainWindow>
+#include <QStandardPaths>
 
 #include "reosstartingwidget.h"
 
@@ -45,6 +46,7 @@ int main( int argc, char *argv[] )
   ReosApplication a( argc, argv );
   QCoreApplication::setOrganizationName( QStringLiteral( "ReosProject" ) );
   QCoreApplication::setApplicationName( QStringLiteral( "Lekan" ) );
+
   QSettings::setDefaultFormat( QSettings::IniFormat );
 
   ReosSettings settings;

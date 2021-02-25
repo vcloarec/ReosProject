@@ -70,7 +70,7 @@ QComboBox *ReosImportFromTextFile::createAvailableFieldComboBox( QWidget *parent
 void ReosImportFromTextFile::onFileNameButton()
 {
   ReosSettings settings;
-  QString dir = settings.value( QStringLiteral( "/importFile/directory" ) ).toString();
+  QString dir = settings.value( QStringLiteral( "ImportFile/directory" ) ).toString();
   QString fileName = QFileDialog::getOpenFileName( this, tr( "Choose file" ), dir );
 
   if ( fileName.isEmpty() )
@@ -83,7 +83,7 @@ void ReosImportFromTextFile::onFileNameButton()
     return;
   }
 
-  settings.setValue( QStringLiteral( "/importFile/directory" ), fileInfo.path() );
+  settings.setValue( QStringLiteral( "ImportFile/directory" ), fileInfo.path() );
 
   ui->lineEditFileName->setText( fileName );
   ui->spinBoxHeaderLine->setFocus();
