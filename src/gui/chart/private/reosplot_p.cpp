@@ -210,6 +210,14 @@ QRectF ReosPlotConstantIntervalTimeIntervalSerie::boundingRect() const
   return QRectF( x1, valueExtent.first, x2 - x1, valueExtent.second - valueExtent.first );
 }
 
+ReosTimeSerieConstantInterval *ReosPlotConstantIntervalTimeIntervalSerie::data() const
+{
+  if ( mTimeSerie.isNull() )
+    return nullptr;
+  else
+    return mTimeSerie.data();
+}
+
 ReosDateScaleDraw_p::ReosDateScaleDraw_p( Qt::TimeSpec timeSpec ):
   QwtDateScaleDraw( timeSpec )
 {
@@ -291,4 +299,35 @@ QRectF ReosPlotConstantIntervalTimePointSerie::boundingRect() const
   double x1 = QwtDate::toDouble( timeExtent.first );
   double x2 = QwtDate::toDouble( timeExtent.second );
   return QRectF( x1, valueExtent.first, x2 - x1, valueExtent.second - valueExtent.first );
+}
+
+ReosTimeSerieConstantInterval *ReosPlotConstantIntervalTimePointSerie::data() const
+{
+  if ( mTimeSerie.isNull() )
+    return nullptr;
+  else
+    return mTimeSerie.data();
+}
+
+void ReosPlotConstantIntervalTimePointSerie::setCumulative( bool b )
+{
+  mIsCumulative = b;
+  mValueMode = ReosTimeSerieConstantInterval::Cumulative;
+}
+
+QwtGraphic ReosPlotHistogramItem_p::legendIcon( int, const QSizeF &size ) const
+{
+
+  QwtGraphic icon;
+  if ( !size.isEmpty() )
+  {
+    icon.setDefaultSize( size );
+    QRectF r( 0, 0, size.width(), size.height() );
+    QPainter painter( &icon );
+    painter.setPen( pen() );
+    painter.setBrush( brush() );
+    painter.drawRect( r );
+  }
+
+  return icon;
 }

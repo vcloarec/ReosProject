@@ -71,7 +71,7 @@ void ReosRunoffManager::loadDataFile()
 
   if ( registery->loadFromFile( fileName, QStringLiteral( "rainfall data" ) ) )
   {
-    mCurrentFile = fileName;
+    ui->labelFileName->setText( fileName );
   }
   else
   {
@@ -81,14 +81,14 @@ void ReosRunoffManager::loadDataFile()
 
 void ReosRunoffManager::onSave()
 {
-  QFileInfo fileInfo( mCurrentFile );
+  QFileInfo fileInfo( ui->labelFileName->text() );
   if ( !fileInfo.exists() )
   {
     onSaveAs();
     return;
   }
 
-  if ( !saveOn( mCurrentFile ) )
+  if ( !saveOn( ui->labelFileName->text() ) )
     QMessageBox::warning( this, tr( "Save Rainfall Data" ), tr( "Unable to write the file" ) );
 }
 
@@ -109,8 +109,9 @@ void ReosRunoffManager::onSaveAs()
     QMessageBox::warning( this, tr( "Save Runoff Data as..." ), tr( "Unable to write the file" ) );
   else
   {
-    mCurrentFile = fileName;
+    ui->labelFileName->setText( fileName );
     settings.setValue( QStringLiteral( "Runoff-model/fileDirectory" ), fileInfo.path() );
+    settings.setValue( QStringLiteral( "Runoff-model/dataFile" ), fileInfo.path() );
   }
 }
 
@@ -145,7 +146,7 @@ void ReosRunoffManager::onOpenFile()
 
   if ( registery->loadFromFile( fileName, QStringLiteral( "runoff data" ) ) )
   {
-    mCurrentFile = fileName;
+    ui->labelFileName->setText( fileName );
     settings.setValue( QStringLiteral( "Runoff-model/dataFile" ), fileName );
     QFileInfo fileInfo( fileName );
     settings.setValue( QStringLiteral( "Runoff-model/fileDirectory" ), fileInfo.path() );
@@ -211,7 +212,7 @@ void ReosRunoffManager::onCurrentTreeIndexChanged()
   if ( mCurrentForm )
   {
     ui->widgetEditor->layout()->replaceWidget( mCurrentForm, newForm );
-    mCurrentForm->deleteLater();
+    delete mCurrentForm;
     mCurrentForm = newForm;
   }
   else

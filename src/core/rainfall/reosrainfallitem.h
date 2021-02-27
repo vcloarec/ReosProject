@@ -221,7 +221,7 @@ class REOSCORE_EXPORT ReosRainfallSerieRainfallItem: public ReosRainfallDataItem
     ReosRainfallSerieRainfallItem( const QString &name, const QString &description );
     ReosRainfallSerieRainfallItem( const ReosEncodedElement &element );
 
-    ReosTimeSerieConstantInterval *data() const override = 0;
+    ReosSerieRainfall *data() const override = 0;
     void setupData() override;
 };
 
@@ -230,17 +230,17 @@ class REOSCORE_EXPORT ReosRainfallGaugedRainfallItem: public ReosRainfallSerieRa
 {
     Q_OBJECT
   public:
-    ReosRainfallGaugedRainfallItem( const QString &name, const QString &description, ReosTimeSerieConstantInterval *data = nullptr );
+    ReosRainfallGaugedRainfallItem( const QString &name, const QString &description, ReosSerieRainfall *data = nullptr );
     ReosRainfallGaugedRainfallItem( const ReosEncodedElement &element );
 
     QString dataType() const override {return QStringLiteral( "gauged-rainfall" );}
-    ReosTimeSerieConstantInterval *data() const override;
+    ReosSerieRainfall *data() const override;
     QIcon icone() const override {return QIcon( QPixmap( ":/images/gaugedRainfall.svg" ) );}
     virtual bool accept( ReosRainfallItem * ) const override;
     virtual ReosEncodedElement encode() const override;
 
   protected:
-    ReosTimeSerieConstantInterval *mData = nullptr;
+    ReosSerieRainfall *mData = nullptr;
 };
 
 class REOSCORE_EXPORT ReosRainfallChicagoItem: public ReosRainfallSerieRainfallItem

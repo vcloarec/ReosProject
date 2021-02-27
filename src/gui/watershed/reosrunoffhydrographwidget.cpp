@@ -21,10 +21,14 @@
 #include "reosrunoffmodel.h"
 #include "reosparameter.h"
 #include "reoswatershed.h"
+#include "reoswatershedmodule.h"
+#include "reosmeteorologicmodel.h"
+#include "reosplottimeconstantinterval.h"
 
-ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( QWidget *parent ) :
-  ReosActionWidget( parent ),
-  ui( new Ui::ReosRunoffHydrographWidget )
+ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *watershedModule, QWidget *parent ) :
+  ReosActionWidget( parent )
+  , ui( new Ui::ReosRunoffHydrographWidget )
+  , mWatershedModule( watershedModule )
   , mWatershedRunoffModelsModel( new ReosWatershedRunoffModelsModel( this ) )
 {
   ui->setupUi( this );
@@ -35,9 +39,22 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( QWidget *parent ) :
   ui->tableViewRunoff->horizontalHeader()->setSectionResizeMode( 1, QHeaderView::ResizeToContents );
   ui->tableViewRunoff->horizontalHeader()->setSectionResizeMode( 2, QHeaderView::ResizeToContents );
   ui->tableViewRunoff->horizontalHeader()->setStretchLastSection( true );
-
   ui->tableViewRunoff->setContextMenuPolicy( Qt::CustomContextMenu );
   connect( ui->tableViewRunoff, &QWidget::customContextMenuRequested, this,  &ReosRunoffHydrographWidget::onRunoffTableViewContextMenu );
+
+  mRainfallHistogram = new ReosPlotTimeHistogram( tr( "Rainfall" ), true );
+  mRainfallHistogram->setBorderColor( Qt::blue );
+  mRainfallHistogram->setBrushStyle( Qt::NoBrush );
+  mRainfallHistogram->setBorderWdidth( 1.5 );
+  mRunoffHistogram = new ReosPlotTimeHistogram( tr( "Runoff" ), false );
+  mRunoffHistogram->setBrushColor( QColor( 250, 150, 0, 175 ) );
+  ui->widgetPlot->addPlotItem( mRainfallHistogram );
+  ui->widgetPlot->addPlotItem( mRunoffHistogram );
+  ui->widgetPlot->setTitleAxeX( QObject::tr( "Time" ) );
+  ui->widgetPlot->setAxeXType( ReosPlotWidget::temporal );
+
+  ui->comboBoxMeteoModel->setModel( mWatershedModule->meteoModelsCollection() );
+  connect( ui->comboBoxMeteoModel, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosRunoffHydrographWidget::onModelMeteoChanged );
 }
 
 ReosRunoffHydrographWidget::~ReosRunoffHydrographWidget()
@@ -47,10 +64,30 @@ ReosRunoffHydrographWidget::~ReosRunoffHydrographWidget()
 
 void ReosRunoffHydrographWidget::setCurrentWatershed( ReosWatershed *watershed )
 {
-  if ( !watershed )
+  mCurrentWatershed = watershed;
+
+  if ( !mCurrentWatershed )
+  {
     mWatershedRunoffModelsModel->setWatershedRunoffModels( nullptr );
+  }
   else
+  {
     mWatershedRunoffModelsModel->setWatershedRunoffModels( watershed->runoffModels() );
+    ui->tableViewRunoff->horizontalHeader()->setSectionResizeMode( 0, QHeaderView::ResizeToContents );
+  }
+
+  updateRainall();
+}
+
+void ReosRunoffHydrographWidget::setCurrentMeteorologicModel( int index )
+{
+  ui->comboBoxMeteoModel->setCurrentIndex( index );
+}
+
+void ReosRunoffHydrographWidget::onModelMeteoChanged()
+{
+  mCurrentMeteoModel = mWatershedModule->meteoModelsCollection()->meteorologicModel( ui->comboBoxMeteoModel->currentIndex() );
+  updateRainall();
 }
 
 void ReosRunoffHydrographWidget::onRunoffTableViewContextMenu( const QPoint &pos )
@@ -68,6 +105,36 @@ void ReosRunoffHydrographWidget::onRunoffTableViewContextMenu( const QPoint &pos
 
   buildRunoffChoiceMenu( &contextMenu, row );
   contextMenu.exec( ui->tableViewRunoff->verticalHeader()->mapToGlobal( pos ) );
+}
+
+void ReosRunoffHydrographWidget::updateRainall()
+{
+  mCurrentRunoff->deleteLater();
+  mCurrentRunoff = nullptr;
+
+  ReosRainfallSerieRainfallItem *rainfall = nullptr;
+
+  if ( mCurrentMeteoModel && mCurrentWatershed )
+    rainfall = mCurrentMeteoModel->associatedRainfall( mCurrentWatershed );
+
+  if ( rainfall )
+    mRainfallHistogram->setTimeSerie( rainfall->data() );
+  else
+    mRainfallHistogram->setTimeSerie( nullptr );
+
+  if ( mCurrentWatershed && rainfall )
+    mCurrentRunoff = new ReosRunoff( mCurrentWatershed->runoffModels(), rainfall->data(), this );
+
+  updateRunoff();
+}
+
+void ReosRunoffHydrographWidget::updateRunoff()
+{
+  if ( mCurrentRunoff )
+  {
+    mCurrentRunoff->updateValues(); /// TODO : doing that under a parallel process with progress bar
+    mRunoffHistogram->setTimeSerie( mCurrentRunoff->data() );
+  }
 }
 
 void ReosRunoffHydrographWidget::buildRunoffChoiceMenu( QMenu *menu, int row )
@@ -102,7 +169,7 @@ void ReosRunoffHydrographWidget::buildRunoffChoiceMenu( QMenu *menu, int row )
 }
 
 
-void ReosWatershedRunoffModelsModel::setWatershedRunoffModels( ReosWatershedRunoffModels *watershedRunoffModels )
+void ReosWatershedRunoffModelsModel::setWatershedRunoffModels( ReosRunoffModelsGroup *watershedRunoffModels )
 {
   beginResetModel();
   mWatershedRunoffModels = watershedRunoffModels;
@@ -171,7 +238,7 @@ bool ReosWatershedRunoffModelsModel::replacePortion( int position, double portio
     if ( i == position )
       continue;
 
-    double v = mWatershedRunoffModels->portion( i )->value();
+    double v = mWatershedRunoffModels->coefficient( i )->value();
 
     if ( mWatershedRunoffModels->isLocked( i ) )
       totalLock += v;
@@ -191,19 +258,18 @@ bool ReosWatershedRunoffModelsModel::replacePortion( int position, double portio
 
     if ( !mWatershedRunoffModels->isLocked( i ) )
     {
-      double old = mWatershedRunoffModels->portion( i )->value();
+      double old = mWatershedRunoffModels->coefficient( i )->value();
       if ( old >= dif )
       {
-        mWatershedRunoffModels->portion( i )->setValue( old - dif );
+        mWatershedRunoffModels->coefficient( i )->setValue( old - dif );
         break;
       }
       else
       {
-        mWatershedRunoffModels->portion( i )->setValue( 0.0 );
+        mWatershedRunoffModels->coefficient( i )->setValue( 0.0 );
         dif = dif - old;
       }
     }
-
   }
 
   return true;
@@ -276,7 +342,7 @@ QVariant ReosWatershedRunoffModelsModel::data( const QModelIndex &index, int rol
     break;
     case 1:
     {
-      ReosParameterDouble *portion = mWatershedRunoffModels->portion( i );
+      ReosParameterDouble *portion = mWatershedRunoffModels->coefficient( i );
       if ( !portion )
         return QVariant();
 
@@ -340,7 +406,7 @@ bool ReosWatershedRunoffModelsModel::setData( const QModelIndex &index, const QV
   {
     case 1:
     {
-      ReosParameterDouble *portion = mWatershedRunoffModels->portion( i );
+      ReosParameterDouble *portion = mWatershedRunoffModels->coefficient( i );
       if ( !portion )
         return false;
       if ( role == Qt::EditRole )

@@ -40,6 +40,9 @@
 #include "reosintensitydurationselectedcurvewidget.h"
 #include "reosrainfallregistery.h"
 #include "reosidfcurves.h"
+#include "reosplotidfcurve.h"
+#include "reosplottimeconstantinterval.h"
+#include "reosrainfalldataform.h"
 
 ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWidget *parent ) :
   ReosActionWidget( parent )
@@ -103,6 +106,17 @@ ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWid
 
   ReosIdfFormulaRegistery::instance()->registerFormula( new ReosIdfFormulaMontana );
   ReosIdfFormulaRegistery::instance()->registerFormula( new ReosIdfFormulaSherman );
+
+  ReosPlotItemFactoryRegistery::instance()->addFactory( new ReosPlotItemRainfallIntensityDurationFrequencyFactory );
+  ReosPlotItemFactoryRegistery::instance()->addFactory( new ReosPlotItemRainfallIntensityDurationFactory );
+  ReosPlotItemFactoryRegistery::instance()->addFactory( new ReosPlotItemRainfallSerieFactory );
+  ReosPlotItemFactoryRegistery::instance()->addFactory( new ReosPlotItemRainfallChicagoFactory );
+  ReosPlotItemFactoryRegistery::instance()->addFactory( new ReosPlotItemRainfallDoubleTriangleFactory );
+
+  ReosFormWidgetRegistery::instance()->addDataWidgetFactory( new ReosFormWidgetRainFallSerieFactory );
+  ReosFormWidgetRegistery::instance()->addDataWidgetFactory( new ReosFormWidgetChicagoRainfalFactory );
+  ReosFormWidgetRegistery::instance()->addDataWidgetFactory( new ReosFormWidgetDoubleTriangleRainfalFactory );
+  ReosFormWidgetRegistery::instance()->addDataWidgetFactory( new ReosFormWidgetIntensityDurationCurveFactory );
 }
 
 ReosRainfallManager::~ReosRainfallManager()
@@ -121,7 +135,7 @@ void ReosRainfallManager::loadDataFile()
 
   if ( mModel->loadFromFile( fileName, QStringLiteral( "Rainfall data" ) ) )
   {
-    mCurrentFileName = fileName;
+    ui->labelFileName->setText( fileName );
   }
   else
   {
@@ -159,7 +173,7 @@ void ReosRainfallManager::onOpenRainfallFile()
 
   if ( mModel->loadFromFile( fileName, QStringLiteral( "rainfall data" ) ) )
   {
-    mCurrentFileName = fileName;
+    ui->labelFileName->setText( fileName );
     settings.setValue( QStringLiteral( "Rainfall/dataFile" ), fileName );
     QFileInfo fileInfo( fileName );
     settings.setValue( QStringLiteral( "Rainfall/fileDirectory" ), fileInfo.path() );
@@ -227,7 +241,7 @@ void ReosRainfallManager::onSaveAsRainfallFile()
     QMessageBox::warning( this, tr( "Save Rainfall Data as..." ), tr( "Unable to write the file" ) );
   else
   {
-    mCurrentFileName = fileName;
+    ui->labelFileName->setText( fileName );
     settings.setValue( QStringLiteral( "Rainfall/fileDirectory" ), fileInfo.path() );
   }
 }
@@ -244,14 +258,14 @@ void ReosRainfallManager::onAddRootZone()
 
 void ReosRainfallManager::onSaveRainfallFile()
 {
-  QFileInfo fileInfo( mCurrentFileName );
+  QFileInfo fileInfo( ui->labelFileName->text() );
   if ( !fileInfo.exists() )
   {
     onSaveAsRainfallFile();
     return;
   }
 
-  if ( !saveOnFile( mCurrentFileName ) )
+  if ( !saveOnFile( ui->labelFileName->text() ) )
     QMessageBox::warning( this, tr( "Save Rainfall Data" ), tr( "Unable to write the file" ) );
 }
 
@@ -431,10 +445,10 @@ void ReosRainfallManager::onCurrentTreeIndexChanged()
     }
 
     // Then the plot to visualize the data
-    if ( item->data() )
+    if ( item->data() && ReosPlotItemFactoryRegistery::isInstantiate() )
     {
       ReosPlotWidget *newPlot = new ReosPlotWidget( this );
-      newPlot->addDataObject( item->data() );
+      ReosPlotItemFactoryRegistery::instance()->buildPlotItems( newPlot, item->data() );
       if ( mCurrentPlot )
       {
         ui->mPlotWidget->layout()->replaceWidget( mCurrentPlot, newPlot );
@@ -534,7 +548,7 @@ ReosImportRainfallDialog::ReosImportRainfallDialog( ReosRainfallModel *model, QW
   QDialog( parent )
   , mModel( model )
   , mTextFile( new ReosTextFileData( this ) )
-  , mImportedRainfall( new ReosTimeSerieConstantInterval )
+  , mImportedRainfall( new ReosSerieRainfall )
   , mName( new ReosParameterString( tr( "name" ), false, this ) )
   , mDescription( new ReosParameterString( tr( "Description" ), false, this ) )
 {
@@ -640,3 +654,76 @@ void ReosImportRainfallDialog::onSelectStationButton()
     }
   }
 }
+
+
+void ReosPlotItemRainfallIntensityDurationFrequencyFactory::buildPlotItems( ReosPlotWidget *plotWidget, ReosDataObject *data )
+{
+  if ( data && data->type() == QStringLiteral( "rainfall-intensity-duration-frequency-curves" ) )
+  {
+    ReosIntensityDurationFrequencyCurves *_data = static_cast<ReosIntensityDurationFrequencyCurves *>( data );
+    for ( int i = 0; i < _data->curvesCount(); ++i )
+    {
+      QColor color = QColor::fromHsvF( 1 - double( i ) / _data->curvesCount(), 0.5, 0.85 );
+      if ( _data->curve( i ) )
+      {
+        ReosPlotIdfCurve *plotCurve = new ReosPlotIdfCurve( _data->curve( i ), _data->name( i ) );
+        plotCurve->setColors( color );
+        plotWidget->addPlotItem( plotCurve );
+      }
+    }
+
+    QRectF extent = _data->fullExtent();
+    double xMin = extent.left() - extent.width() * 0.1;
+    double xmax = extent.right() + extent.width() * 0.1;
+    double yMin = extent.top() - extent.height() * 0.1;
+    double yMax = extent.bottom() + extent.height() * 0.1;
+
+    plotWidget->setAxeXExtent( xMin, xmax );
+    plotWidget->setAxeYLeftExtent( yMin, yMax );
+    plotWidget->setLegendAlignement( Qt::AlignRight );
+    plotWidget->setLegendVisible( true );
+    plotWidget->setTitleAxeX( QObject::tr( "Rainfall duration (mn)" ) );
+    plotWidget->setTitleAxeYLeft( QObject::tr( "Rainfall duration (mm/h)" ) );
+    plotWidget->enableScaleTypeChoice( true );
+  }
+}
+
+void ReosPlotItemRainfallIntensityDurationFactory::buildPlotItems( ReosPlotWidget *plotWidget, ReosDataObject *data )
+{
+  ReosIntensityDurationCurve *_data = static_cast<ReosIntensityDurationCurve *>( data );
+  ReosPlotIdfCurve *curve = new ReosPlotIdfCurve( _data );
+  curve->setColors( Qt::red );
+  plotWidget->addPlotItem( curve );
+  curve->fullExtent();
+  plotWidget->setLegendVisible( false );
+  plotWidget->setTitleAxeX( QObject::tr( "Rainfall duration (mn)" ) );
+  plotWidget->setTitleAxeYLeft( QObject::tr( "Rainfall intensity (mm/h)" ) );
+
+  plotWidget->enableScaleTypeChoice( true );
+}
+
+void ReosPlotItemRainfallSerieFactory::buildPlotItems( ReosPlotWidget *plotWidget, ReosDataObject *data )
+{
+  ReosTimeSerieConstantInterval *_data = static_cast<ReosTimeSerieConstantInterval *>( data );
+
+  if ( _data->valueMode() != ReosTimeSerieConstantInterval::Cumulative )
+  {
+    std::unique_ptr<ReosPlotTimeHistogram> histogram = std::make_unique<ReosPlotTimeHistogram>( _data->name() + QObject::tr( ", instant value" ), true );
+    histogram->setTimeSerie( _data );
+    plotWidget->addPlotItem( histogram.release() );
+  }
+
+  if ( _data->valueMode() == ReosTimeSerieConstantInterval::Cumulative || _data->addCumultive() )
+  {
+    plotWidget->enableAxeYright( true );
+    std::unique_ptr<ReosPlotTimeCumulativeCurve> cumulCurve = std::make_unique<ReosPlotTimeCumulativeCurve>( _data->name() + QObject::tr( ", cumulative value" ) );
+    cumulCurve->setTimeSerie( _data );
+    cumulCurve->setOnRightAxe();
+    plotWidget->addPlotItem( cumulCurve.release() );
+    plotWidget->setTitleAxeYRight( QObject::tr( "cumulative rainfall (mm)" ) );
+  }
+
+  plotWidget->setTitleAxeX( QObject::tr( "Time" ) );
+  plotWidget->setAxeXType( ReosPlotWidget::temporal );
+}
+

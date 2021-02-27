@@ -24,7 +24,7 @@
 #include <qwt_plot_magnifier.h>
 #include <qwt_series_data.h>
 #include <qwt_date_scale_draw.h>
-
+#include <qwt_plot_histogram.h>
 #include "reostimeserie.h"
 
 class ReosPlotItem;
@@ -115,18 +115,12 @@ class ReosPlotConstantIntervalTimeIntervalSerie: public QwtSeriesData<QwtInterva
     QwtIntervalSample sample( size_t i ) const override;
     QRectF boundingRect() const override;
 
-    ReosTimeSerieConstantInterval *data() const
-    {
-      if ( mTimeSerie.isNull() )
-        return nullptr;
-      else
-        return mTimeSerie.data();
-    }
+    ReosTimeSerieConstantInterval *data() const;
 
   private:
     QPointer<ReosTimeSerieConstantInterval> mTimeSerie;
-
 };
+
 
 class ReosPlotConstantIntervalTimePointSerie: public QwtSeriesData<QPointF>
 {
@@ -137,19 +131,8 @@ class ReosPlotConstantIntervalTimePointSerie: public QwtSeriesData<QPointF>
     QPointF sample( size_t i ) const override;
     QRectF boundingRect() const override;
 
-    ReosTimeSerieConstantInterval *data() const
-    {
-      if ( mTimeSerie.isNull() )
-        return nullptr;
-      else
-        return mTimeSerie.data();
-    }
-
-    void setCumulative( bool b )
-    {
-      mIsCumulative = b;
-      mValueMode = ReosTimeSerieConstantInterval::Cumulative;
-    }
+    ReosTimeSerieConstantInterval *data() const;
+    void setCumulative( bool b );
 
   private:
     QPointer<ReosTimeSerieConstantInterval> mTimeSerie;
@@ -157,5 +140,15 @@ class ReosPlotConstantIntervalTimePointSerie: public QwtSeriesData<QPointF>
     ReosTimeSerieConstantInterval::ValueMode mValueMode = ReosTimeSerieConstantInterval::Value ;
 
 };
+
+
+class ReosPlotHistogramItem_p: public QwtPlotHistogram
+{
+  public:
+    ReosPlotHistogramItem_p( const QString &title ): QwtPlotHistogram( title ) {}
+    QwtGraphic legendIcon( int, const QSizeF &size ) const override;
+
+};
+
 
 #endif // REOSPLOT_P_H

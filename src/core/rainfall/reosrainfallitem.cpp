@@ -348,12 +348,12 @@ ReosRootItem::ReosRootItem( const ReosEncodedElement &element ): ReosRainfallIte
   }
 }
 
-ReosRainfallGaugedRainfallItem::ReosRainfallGaugedRainfallItem( const QString &name, const QString &description, ReosTimeSerieConstantInterval *data ):
+ReosRainfallGaugedRainfallItem::ReosRainfallGaugedRainfallItem( const QString &name, const QString &description, ReosSerieRainfall *data ):
   ReosRainfallSerieRainfallItem( name, description )
   , mData( data )
 {
   if ( !mData )
-    mData = new ReosTimeSerieConstantInterval( this );
+    mData = new ReosSerieRainfall( this );
   else
     mData->setParent( this );
 }
@@ -364,10 +364,10 @@ ReosRainfallGaugedRainfallItem::ReosRainfallGaugedRainfallItem( const ReosEncode
   if ( element.description() != QStringLiteral( "rainfall-serie-item" ) )
     return;
 
-  mData = ReosTimeSerieConstantInterval::decode( element.getEncodedData( "data" ), this );
+  mData = ReosSerieRainfall::decode( element.getEncodedData( "data" ), this );
 }
 
-ReosTimeSerieConstantInterval *ReosRainfallGaugedRainfallItem::data() const
+ReosSerieRainfall *ReosRainfallGaugedRainfallItem::data() const
 {
   return mData;
 }
@@ -683,13 +683,7 @@ void ReosRainfallSerieRainfallItem::setupData()
 {
   if ( !data() )
     return;
-  data()->setValueUnit( tr( "mm" ) );
-  data()->setValueModeName( ReosTimeSerieConstantInterval::Value, tr( "Height per time step" ) );
-  data()->setValueModeName( ReosTimeSerieConstantInterval::Cumulative, tr( "Total height" ) );
-  data()->setValueModeName( ReosTimeSerieConstantInterval::Intensity, tr( "Rainfall intensity" ) );
-  data()->setValueModeColor( ReosTimeSerieConstantInterval::Value, QColor( 0, 0, 200, 200 ) );
-  data()->setValueModeColor( ReosTimeSerieConstantInterval::Intensity, QColor( 50, 100, 255, 200 ) );
-  data()->setValueModeColor( ReosTimeSerieConstantInterval::Cumulative, QColor( 255, 50, 0 ) );
+
   data()->setAddCumulative( true );
   data()->setName( name() );
 

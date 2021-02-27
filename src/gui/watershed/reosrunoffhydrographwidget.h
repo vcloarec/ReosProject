@@ -22,9 +22,13 @@
 
 class QMenu;
 
-class ReosWatershedRunoffModels;
+class ReosRunoffModelsGroup;
 class ReosRunoffModel;
+class ReosRunoff;
 class ReosWatershed;
+class ReosWatershedModule;
+class ReosPlotTimeHistogram;
+class ReosMeteorologicModel;
 
 namespace Ui
 {
@@ -45,14 +49,14 @@ class ReosWatershedRunoffModelsModel: public QAbstractTableModel
     Qt::ItemFlags flags( const QModelIndex &index ) const override;
     QVariant headerData( int section, Qt::Orientation orientation, int role ) const override;
 
-    void setWatershedRunoffModels( ReosWatershedRunoffModels *watershedRunoffModels );
+    void setWatershedRunoffModels( ReosRunoffModelsGroup *watershedRunoffModels );
     void addRunoffModel( ReosRunoffModel *runoffModel );
     void replaceRunoffModel( int row, ReosRunoffModel *runoffModel );
 
     int runoffCount() const;
 
   private:
-    ReosWatershedRunoffModels *mWatershedRunoffModels = nullptr;
+    ReosRunoffModelsGroup *mWatershedRunoffModels = nullptr;
 
     bool portionEditable() const;
     void allDataChanged();
@@ -66,18 +70,32 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
     Q_OBJECT
 
   public:
-    explicit ReosRunoffHydrographWidget( QWidget *parent = nullptr );
+    explicit ReosRunoffHydrographWidget( ReosWatershedModule *watershedModule, QWidget *parent = nullptr );
     ~ReosRunoffHydrographWidget();
 
     void setCurrentWatershed( ReosWatershed *watershed );
 
+  public slots:
+    void setCurrentMeteorologicModel( int index );
+
   private slots:
+    void onModelMeteoChanged();
+    void updateRainall();
+    void updateRunoff();
+
     void onRunoffTableViewContextMenu( const QPoint &pos );
 
   private:
     Ui::ReosRunoffHydrographWidget *ui;
-
+    ReosWatershedModule *mWatershedModule = nullptr;
     ReosWatershedRunoffModelsModel *mWatershedRunoffModelsModel = nullptr;
+    ReosWatershed *mCurrentWatershed = nullptr;
+    ReosMeteorologicModel *mCurrentMeteoModel = nullptr;
+
+    ReosPlotTimeHistogram *mRainfallHistogram = nullptr;
+    ReosPlotTimeHistogram *mRunoffHistogram = nullptr;
+
+    ReosRunoff *mCurrentRunoff = nullptr;
 
     void buildRunoffChoiceMenu( QMenu *menu, int row );
 

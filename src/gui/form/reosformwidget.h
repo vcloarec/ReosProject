@@ -21,6 +21,7 @@
 #include <QDialog>
 #include <QComboBox>
 
+#include "reosmodule.h"
 
 class QLayoutItem;
 class QBoxLayout;
@@ -69,61 +70,35 @@ class ReosFormDialog : public QDialog
 
   private:
     ReosFormWidget *mForm = nullptr;
-
 };
 
-//! Table view widget custmed to display/edit time series with constant time step
-class ReosTimeSerieConstantIntervalView: public QTableView
-{
-    Q_OBJECT
-  public:
-    ReosTimeSerieConstantIntervalView( QWidget *parent = nullptr );
 
-  signals:
-    void pastDataFromClipboard( const QModelIndex &index, const QList<double> &data );
-    void insertRow( const QModelIndex &fromIndex, int count );
-    void deleteRows( const QModelIndex &fromIndex, int count );
-    void insertRowFromClipboard( const QModelIndex &index, const QList<double> &data );
-
-  protected:
-    void keyPressEvent( QKeyEvent *event ) override;
-    void contextMenuEvent( QContextMenuEvent *event ) override;
-
-  private:
-    QList<double> clipboardToValues();
-};
-
-//! Widget that can be uses to display/edits paramters of a ReosTimeSerieConstantInterval
-class ReosTimeSerieConstantIntervalWidget: public ReosFormWidget
+class ReosFormWidgetDataFactory
 {
   public:
-    explicit ReosTimeSerieConstantIntervalWidget( ReosTimeSerieConstantInterval *timeSerie, QWidget *parent );
-
-  private:
-    ReosTimeSerieConstantIntervalModel *mModel = nullptr;
-    QComboBox *mValueModeComboBox = nullptr;
-    QComboBox *mIntensityUnitComboBox = nullptr;
+    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent ) = 0;
+    virtual QString datatype() const = 0;
 };
 
-//! Widget that can be uses to display/edits paramters of a Chicago rainfall
-class ReosChicagoRainfallWidget: public ReosTimeSerieConstantIntervalWidget
+class ReosFormWidgetRegistery: public ReosModule
 {
   public:
-    explicit ReosChicagoRainfallWidget( ReosChicagoRainfall *rainfall, QWidget *parent );
+    static void instantiate( ReosModule *parent );
+    static bool isInstantiate();
+    static ReosFormWidgetRegistery *instance();
+
+    void addDataWidgetFactory( ReosFormWidgetDataFactory *fact );
+    ReosFormWidget *createDataFormWidget( ReosDataObject *dataObject, QWidget *parent ) const;
 
   private:
-    ReosIntensityDurationSelectedCurveWidget *mIdfWidget = nullptr;
+    ReosFormWidgetRegistery( ReosModule *parent );
+    static ReosFormWidgetRegistery *sInstance;
+    using DataWidgetFactory = std::unique_ptr<ReosFormWidgetDataFactory>;
+    std::vector<DataWidgetFactory> mDataWidgetFactories;
 };
 
-//! Widget that can be uses to display/edits paramters of a Chicago rainfall
-class ReosDoubleTriangleRainfallWidget: public ReosTimeSerieConstantIntervalWidget
-{
-  public:
-    explicit ReosDoubleTriangleRainfallWidget( ReosDoubleTriangleRainfall *rainfall, QWidget *parent );
 
-  private:
-    ReosIntensityDurationSelectedCurveWidget *mIntenseIdfWidget = nullptr;
-    ReosIntensityDurationSelectedCurveWidget *mTotalIdfWidget = nullptr;
-};
+
+
 
 #endif // REOSFORMWIDGET_H

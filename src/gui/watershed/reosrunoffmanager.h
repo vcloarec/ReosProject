@@ -53,8 +53,6 @@ class ReosRunoffManager : public ReosActionWidget
     ReosRunoffModelModel *mRunoffModelModel;
     ReosFormWidget *mCurrentForm = nullptr;
 
-    QString mCurrentFile;
-
     bool saveOn( const QString &fileName );
 
     void selectRunoffModel( ReosRunoffModel *runoffModel );

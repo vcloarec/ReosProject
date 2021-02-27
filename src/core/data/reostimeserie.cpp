@@ -109,18 +109,7 @@ QVariant ReosTimeSerieConstantIntervalModel::headerData( int section, Qt::Orient
   if ( orientation == Qt::Horizontal )
   {
     if ( section == 0 && role == Qt::DisplayRole )
-    {
-      switch ( mData->valueMode() )
-      {
-        case ReosTimeSerieConstantInterval::Value:
-        case ReosTimeSerieConstantInterval::Cumulative:
-          return  mData->valueUnit();
-          break;
-        case ReosTimeSerieConstantInterval::Intensity:
-          return tr( "Intensity (%1/%2)" ).arg( mData->valueUnit(), ReosDuration().unitToString( mData->intensityTimeUnit() ) );
-          break;
-      }
-    }
+      return mData->unitStringCurrentMode();
     return QVariant();
   }
 
@@ -248,7 +237,7 @@ QPair<QDateTime, QDateTime> ReosTimeSerieConstantInterval::timeExtent() const
   if ( mValues.size() > 0 )
     ret.first = timeAt( 0 );
   else
-    return ret;
+    ret.first = referenceTime()->value();
 
   if ( mValues.size() > 1 )
     ret.second = timeAt( mValues.size() - 1 ).addMSecs( mTimeStep->value().valueMilliSecond() );
@@ -392,9 +381,6 @@ void ReosTimeSerie::setValueAt( int i, double value )
   }
 }
 
-
-QString ReosTimeSerieConstantInterval::type() const {return QStringLiteral( "time-serie-constant-interval" );}
-
 ReosEncodedElement ReosTimeSerieConstantInterval::encode( const QString &descritpion ) const
 {
   QString descript = descritpion;
@@ -470,6 +456,24 @@ void ReosTimeSerieConstantInterval::setAddCumulative( bool addCumulative )
   mAddCumulative = addCumulative;
 }
 
+void ReosTimeSerieConstantInterval::syncWith( ReosTimeSerieConstantInterval *other )
+{
+  connect( other, &ReosDataObject::dataChanged, this, [this, other]
+  {
+    copyAttribute( other );
+  } );
+}
+
+void ReosTimeSerieConstantInterval::copyAttribute( ReosTimeSerieConstantInterval *other )
+{
+  timeStep()->setValue( other->timeStep()->value() );
+  referenceTime()->setValue( other->referenceTime()->value() );
+  setValueMode( other->valueMode() );
+  setValueUnit( other->valueUnit() );
+  setIntensityTimeUnit( other->intensityTimeUnit() );
+  setAddCumulative( other->addCumultive() );
+}
+
 QString ReosTimeSerie::valueUnit() const
 {
   return mValueUnit;
@@ -499,6 +503,22 @@ QColor ReosTimeSerieConstantInterval::valueModeColor( ReosTimeSerieConstantInter
     return mValueModeColor.value( mode );
   else
     return Qt::black;
+}
+
+QString ReosTimeSerieConstantInterval::unitStringCurrentMode() const
+{
+  switch ( valueMode() )
+  {
+    case ReosTimeSerieConstantInterval::Value:
+    case ReosTimeSerieConstantInterval::Cumulative:
+      return  valueModeName( valueMode() ) + QStringLiteral( " (%1)" ).arg( valueUnit() );
+      break;
+    case ReosTimeSerieConstantInterval::Intensity:
+      return tr( "Intensity (%1/%2)" ).arg( valueUnit(), ReosDuration().unitToString( intensityTimeUnit() ) );
+      break;
+  }
+
+  return QString();
 }
 
 QColor ReosTimeSerieConstantInterval::currentValueModeColor() const

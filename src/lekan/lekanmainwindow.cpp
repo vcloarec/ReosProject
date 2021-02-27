@@ -113,6 +113,8 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
 
   ReosRainfallRegistery::instantiate( rootModule() );
   ReosRunoffModelRegistery::instantiate( rootModule() );
+  ReosPlotItemFactoryRegistery::instantiate( rootModule() );
+  ReosFormWidgetRegistery::instantiate( rootModule() );
 
   mRainFallManagerWidget = new ReosRainfallManager( ReosRainfallRegistery::instance()->rainfallModel(), this );
   mActionRainfallManager->setCheckable( true );
@@ -181,6 +183,10 @@ bool LekanMainWindow::saveProject()
   ReosEncodedElement encodedGisEngine = mGisEngine->encode( path, baseName );
   lekanProject.addEncodedData( QStringLiteral( "GIS-engine" ), encodedGisEngine );
   lekanProject.addEncodedData( QStringLiteral( "watershed-module" ), mWatershedModule->encode() );
+
+  QFileInfo fileInfo( filePath );
+  if ( fileInfo.suffix().isEmpty() )
+    filePath.append( QStringLiteral( ".lkn" ) );
 
   QFile file( filePath );
   if ( !file.open( QIODevice::WriteOnly ) )

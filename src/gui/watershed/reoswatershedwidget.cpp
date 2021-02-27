@@ -30,7 +30,7 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   mConcentrationTimeWidget( new ReosConcentrationTimeWidget( this ) ),
   mActionMeteorologicModel( new QAction( QPixmap( QStringLiteral( ":/images/meteoModel.svg" ) ), tr( "Meteorologic models" ), this ) ),
   mActionRunoffHydrograph( new QAction( QPixmap( QStringLiteral( ":/images/runoffHydrograph.svg" ) ), tr( "Runoff hydrograph" ), this ) ),
-  mRunoffHydrographWidget( new ReosRunoffHydrographWidget( this ) ),
+  mRunoffHydrographWidget( new ReosRunoffHydrographWidget( module, this ) ),
   mCurrentMapOutlet( map ),
   mCurrentStreamLine( map )
 {
@@ -98,6 +98,9 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   {
     ui->treeView->dataChanged( ui->treeView->currentIndex(), ui->treeView->currentIndex() );
   } );
+
+  connect( mMeteorolocicModelWidget, &ReosMeteorologicModelWidget::currentModelChanged,
+           mRunoffHydrographWidget, &ReosRunoffHydrographWidget::setCurrentMeteorologicModel );
 }
 
 ReosWatershedWidget::~ReosWatershedWidget()

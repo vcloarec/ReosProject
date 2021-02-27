@@ -112,12 +112,12 @@ void ReosPlotWidget::enableAutoMinimumSize( bool b )
   mPlot->enableAutoMinimumSize( b );
 }
 
-void ReosPlotWidget::setMinimumPlotSize( QSize size )
+void ReosPlotWidget::setMinimumPlotSize( const QSize &size )
 {
   mPlot->setMinimumPlotSize( size - QSize( mToolBar->size().height(), 0 ) );
 }
 
-void ReosPlotWidget::addActions( QList<QAction *> actions )
+void ReosPlotWidget::addActions( const QList<QAction *> &actions )
 {
   if ( mToolBar )
     mToolBar->addActions( actions );
@@ -129,13 +129,10 @@ void ReosPlotWidget::addPlotItem( ReosPlotItem *item )
     return;
   item->attach( mPlot );
   item->setParent( this );
+  item->setSettings();
   connect( item, &ReosPlotItem::itemChanged, this, &ReosPlotWidget::updatePlot );
 }
 
-void ReosPlotWidget::addDataObject( ReosDataObject *data )
-{
-  createItems( data );
-}
 
 void ReosPlotWidget::setTitleAxeX( const QString &title )
 {
@@ -150,6 +147,11 @@ void ReosPlotWidget::setTitleAxeYLeft( const QString &title )
 void ReosPlotWidget::setTitleAxeYRight( const QString &title )
 {
   mPlot->setAxisTitle( QwtPlot::yRight, title );
+}
+
+void ReosPlotWidget::enableAxeYright( bool b )
+{
+  mPlot->enableAxis( QwtPlot::yRight, b );
 }
 
 static void setAxeType( QwtPlot *plot, QwtPlot::Axis axe, ReosPlotWidget::AxeType type )
@@ -225,85 +227,6 @@ void ReosPlotWidget::receiveMoveFromPicker( const QPointF &pt )
   emit cursorMoved( pt );
 }
 
-void ReosPlotWidget::createItems( ReosDataObject *data )
-{
-  if ( data &&
-       ( data->type() == QStringLiteral( "time-serie-constant-interval" ) ||
-         data->type() == QStringLiteral( "chicago-rainfall" )   ||
-         data->type() == QStringLiteral( "double-triangle-rainfall" ) ) )
-  {
-    ReosTimeSerieConstantInterval *_data = static_cast<ReosTimeSerieConstantInterval *>( data );
-
-    if ( _data->valueMode() != ReosTimeSerieConstantInterval::Cumulative )
-    {
-      std::unique_ptr<ReosPlotTimeHistogram> histogram = std::make_unique<ReosPlotTimeHistogram>( _data->name() + tr( ", instant value" ) );
-      histogram->setTimeSerie( _data );
-      addPlotItem( histogram.release() );
-      if ( _data->valueMode() == ReosTimeSerieConstantInterval::Intensity )
-        setTitleAxeYLeft( tr( "rainfall intensity (mm/h)" ) );
-      if ( _data->valueMode() == ReosTimeSerieConstantInterval::Value )
-        setTitleAxeYLeft( tr( "rainfall height (mm)" ) );
-    }
-
-    if ( _data->valueMode() == ReosTimeSerieConstantInterval::Cumulative || _data->addCumultive() )
-    {
-      mPlot->enableAxis( QwtPlot::yRight );
-      std::unique_ptr<ReosPlotTimeCumulativeCurve> cumulCurve = std::make_unique<ReosPlotTimeCumulativeCurve>( _data->name() + tr( ", cumulative value" ) );
-      cumulCurve->setTimeSerie( _data );
-      cumulCurve->setOnRightAxe();
-      addPlotItem( cumulCurve.release() );
-      setTitleAxeYRight( tr( "cumulative rainfall (mm)" ) );
-    }
-
-    setTitleAxeX( tr( "Time" ) );
-    setAxeXType( ReosPlotWidget::temporal );
-  }
-
-  if ( data && data->type() == QStringLiteral( "rainfall-intensity-duration-curve" ) )
-  {
-    ReosIntensityDurationCurve *_data = static_cast<ReosIntensityDurationCurve *>( data );
-    ReosPlotIdfCurve *curve = new ReosPlotIdfCurve( _data );
-    curve->setColors( Qt::red );
-    addPlotItem( curve );
-    curve->fullExtent();
-    setLegendVisible( false );
-    setTitleAxeX( tr( "Rainfall duration (mn)" ) );
-    setTitleAxeYLeft( tr( "Rainfall intensity (mm/h)" ) );
-
-    enableScaleTypeChoice( true );
-  }
-
-  if ( data && data->type() == QStringLiteral( "rainfall-intensity-duration-frequency-curves" ) )
-  {
-    ReosIntensityDurationFrequencyCurves *_data = static_cast<ReosIntensityDurationFrequencyCurves *>( data );
-    for ( int i = 0; i < _data->curvesCount(); ++i )
-    {
-      QColor color = QColor::fromHsvF( 1 - double( i ) / _data->curvesCount(), 0.5, 0.85 );
-      if ( _data->curve( i ) )
-      {
-        ReosPlotIdfCurve *plotCurve = new ReosPlotIdfCurve( _data->curve( i ), _data->name( i ) );
-        plotCurve->setColors( color );
-        addPlotItem( plotCurve );
-      }
-
-    }
-    QRectF extent = _data->fullExtent();
-    double xMin = extent.left() - extent.width() * 0.1;
-    double xmax = extent.right() + extent.width() * 0.1;
-    double yMin = extent.top() - extent.height() * 0.1;
-    double yMax = extent.bottom() + extent.height() * 0.1;
-
-    setAxeXExtent( xMin, xmax );
-    setAxeYLeftExtent( yMin, yMax );
-    setLegendAlignement( Qt::AlignRight );
-    setLegendVisible( true );
-    setTitleAxeX( tr( "Rainfall duration (mn)" ) );
-    setTitleAxeYLeft( tr( "Rainfall duration (mm/h)" ) );
-    enableScaleTypeChoice( true );
-  }
-}
-
-
 void ReosPlotItem::attach( ReosPlot_p *plot )
 {
   if ( mPlotItem )
@@ -331,6 +254,11 @@ void ReosPlotItem::setOnLeftAxe()
 {
   if ( mPlotItem )
     mPlotItem->setYAxis( QwtPlot::yLeft );
+}
+
+void ReosPlotItem::setAsMasterItem( bool b )
+{
+  mMasterItem = b;
 }
 
 ReosPlotCurve::ReosPlotCurve( const QString &name, const QColor &color, double width ): ReosPlotItem()
@@ -363,3 +291,46 @@ QwtPlotCurve *ReosPlotCurve::curve()
   return static_cast<QwtPlotCurve *>( mPlotItem );
 }
 
+
+void ReosPlotItemFactoryRegistery::instantiate( ReosModule *parent )
+{
+  if ( !sInstance )
+    sInstance = new ReosPlotItemFactoryRegistery( parent );
+}
+
+bool ReosPlotItemFactoryRegistery::isInstantiate()
+{
+  return sInstance != nullptr;
+}
+
+void ReosPlotItemFactoryRegistery::addFactory( ReosDataPlotItemFactory *fact )
+{
+  for ( const Factory &currentFact : mFactories )
+    if ( currentFact->datatype() == fact->datatype() )
+      return;
+
+  mFactories.emplace_back( fact );
+}
+
+ReosPlotItemFactoryRegistery *ReosPlotItemFactoryRegistery::sInstance = nullptr;
+
+ReosPlotItemFactoryRegistery *ReosPlotItemFactoryRegistery::instance()
+{
+  return sInstance;
+}
+
+void ReosPlotItemFactoryRegistery::buildPlotItems( ReosPlotWidget *plotWidget, ReosDataObject *data, const QString &dataType )
+{
+  QString type = dataType;
+  if ( type.isEmpty() )
+    type = data->type();
+
+  for ( const Factory &fact : mFactories )
+    if ( fact->datatype() == type )
+    {
+      fact->buildPlotItems( plotWidget, data );
+      return;
+    }
+}
+
+ReosPlotItemFactoryRegistery::ReosPlotItemFactoryRegistery( ReosModule *parent ): ReosModule( parent ) {}

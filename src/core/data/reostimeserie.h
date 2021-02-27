@@ -74,6 +74,9 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
     //! Sets the text unit of values
     void setValueUnit( const QString &valueUnit );
 
+    //! Returns a pointer to access directly to the data, can be used only  when need efficient calculation.
+    double *data() {return mValues.data();}
+
   protected:
     //! Connect all parameters with
     void connectParameters();
@@ -107,12 +110,13 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     QPair<QDateTime, QDateTime> timeExtent() const override;
     double valueAt( int i ) const override;
     virtual void setValueAt( int i, double value ) override;
-    QString type() const override;
+    QString type() const override {return QStringLiteral( "time-serie-constant-interval" );}
+
+    //! Overrides the type
+    void setType( const QString &dataType );
 
     void appendValue( double value );
     void insertValues( int fromPos, int count, double value );
-
-
 
     //! Returns the current value mode
     ValueMode valueMode() const;
@@ -141,6 +145,9 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     //! Returns the color attributed to the data cnsidering the \a mode
     QColor valueModeColor( ValueMode mode ) const;
 
+    //! Return current mode value unit string
+    QString unitStringCurrentMode() const;
+
     //! Returns the color attributed to the current mode
     QColor currentValueModeColor() const;
 
@@ -151,11 +158,18 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     //! Sets a flag to make this instance using cumulative mode in addition to the current mode
     void setAddCumulative( bool addCumulative );
 
+    //! Connects attribute with \a other
+    void syncWith( ReosTimeSerieConstantInterval *other );
+
+    //! Copy atributes from \a other to \a this
+    void copyAttribute( ReosTimeSerieConstantInterval *other );
+
     //! Returns a encoded element correspondint to this serie
     ReosEncodedElement encode( const QString &descritpion = QString() ) const;
 
     //! Creates new instance from the encoded element
     static ReosTimeSerieConstantInterval *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
+
 
   protected:
     void connectParameters();

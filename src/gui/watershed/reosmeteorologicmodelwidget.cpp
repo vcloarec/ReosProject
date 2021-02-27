@@ -160,6 +160,8 @@ void ReosMeteorologicModelWidget::onCurrentModelChanged()
   mActionDuplicateMeteoModel->setEnabled( current != nullptr );
   mActionRemoveMeteoModel->setEnabled( current != nullptr );
   mActionRenameMeteoModel->setEnabled( current != nullptr );
+
+  emit currentModelChanged( ui->comboBoxCurrentModel->currentIndex() );
 }
 
 void ReosMeteorologicModelWidget::onMeteoTreeViewContextMenu( const QPoint &pos )

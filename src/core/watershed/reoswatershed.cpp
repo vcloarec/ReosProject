@@ -623,7 +623,7 @@ void ReosWatershed::init()
   mLongestStreamPath = new ReosParameterDouble( tr( "Longest stream path" ), true, this );
   mConcentrationTimeValue = new ReosParameterDuration( tr( "Concentration time" ), true, this );
 
-  mRunoffModels = new ReosWatershedRunoffModels( this );
+  mRunoffModels = new ReosRunoffModelsGroup( this );
 
   connectParameters();
 }
@@ -814,7 +814,7 @@ ReosGisEngine *ReosWatershed::geographicalContext() const
   return nullptr;
 }
 
-ReosWatershedRunoffModels *ReosWatershed::runoffModels() const
+ReosRunoffModelsGroup *ReosWatershed::runoffModels() const
 {
   return mRunoffModels;
 }

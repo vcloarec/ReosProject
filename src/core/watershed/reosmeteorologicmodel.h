@@ -28,11 +28,16 @@ class ReosRainfallRegistery;
 class ReosWatershedItemModel;
 
 //! Class that handle association between watesheds and rainfalls
-class ReosMeteorologicModel
+class ReosMeteorologicModel : public ReosDataObject
 {
   public:
-    ReosMeteorologicModel( const QString &name );
-    ReosMeteorologicModel( const ReosEncodedElement &element, ReosWatershedTree *watershedTree, ReosRainfallRegistery *rainfallregistery );
+    ReosMeteorologicModel( const QString &name, QObject *parent = nullptr );
+    ReosMeteorologicModel( const ReosEncodedElement &element,
+                           ReosWatershedTree *watershedTree,
+                           ReosRainfallRegistery *rainfallregistery,
+                           QObject *parent = nullptr );
+
+    QString type() const override {return QStringLiteral( "meteorologic-model" );}
 
     //! Returns a pointer to a copy of \a this
     ReosMeteorologicModel *duplicate( const QString &dupplicateName );
@@ -55,7 +60,7 @@ class ReosMeteorologicModel
 
   private:
     std::unique_ptr<ReosParameterString> mName;
-    typedef QPair<QPointer<ReosWatershed>, QPointer<ReosRainfallSerieRainfallItem>> WatershedRainfallAssociation;
+    using WatershedRainfallAssociation = QPair<QPointer<ReosWatershed>, QPointer<ReosRainfallSerieRainfallItem>>;
     mutable QList<WatershedRainfallAssociation> mAssociations;
 
     //! Searchs for \a watershed, if found , return its index, otherwise return -1
@@ -80,7 +85,7 @@ class ReosMeteorologicModelsCollection : public QAbstractListModel
     //! Adds an empty (no association) meteorologic model with \a name
     void addMeteorologicModel( const QString &name );
 
-    //! Adds an existing meteorologic \a model, tkaes ownership
+    //! Adds an existing meteorologic \a model, takes ownership
     void addMeteorologicModel( ReosMeteorologicModel *model );
 
     //! Removes the meteorologic model at position \a i
@@ -90,7 +95,7 @@ class ReosMeteorologicModelsCollection : public QAbstractListModel
     void decode( const ReosEncodedElement &element, ReosWatershedTree *watershedTree, ReosRainfallRegistery *rainfallregistery );
 
   private:
-    std::vector<std::unique_ptr<ReosMeteorologicModel>> mMeteoModels;
+    QVector<ReosMeteorologicModel *> mMeteoModels;
 };
 
 

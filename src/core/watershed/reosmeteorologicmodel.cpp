@@ -17,16 +17,18 @@
 #include "reoswatershedtree.h"
 #include "reosrainfallregistery.h"
 
-ReosMeteorologicModel::ReosMeteorologicModel( const QString &name ):
-  mName( new ReosParameterString( QObject::tr( "Meteorologic model name" ), false, nullptr ) )
+ReosMeteorologicModel::ReosMeteorologicModel( const QString &name, QObject *parent ):
+  ReosDataObject( parent )
+  , mName( new ReosParameterString( QObject::tr( "Meteorologic model name" ), false, nullptr ) )
 {
   mName->setValue( name );
 }
 
 ReosMeteorologicModel::ReosMeteorologicModel( const ReosEncodedElement &element,
     ReosWatershedTree *watershedTree,
-    ReosRainfallRegistery *rainfallregistery ):
-  mName( ReosParameterString::decode( element.getEncodedData( QStringLiteral( "name" ) ), false, nullptr ) )
+    ReosRainfallRegistery *rainfallregistery, QObject *parent ):
+  ReosDataObject( parent )
+  , mName( ReosParameterString::decode( element.getEncodedData( QStringLiteral( "name" ) ), false, nullptr ) )
 {
   if ( element.description() != QStringLiteral( "meteorologic-configuration" ) )
     return;
@@ -87,6 +89,8 @@ void ReosMeteorologicModel::associate( ReosWatershed *watershed, ReosRainfallSer
     mAssociations.append( {QPointer<ReosWatershed>( watershed ), QPointer<ReosRainfallSerieRainfallItem>( rainfall )} );
 
   purge();
+
+  emit dataChanged();
 }
 
 void ReosMeteorologicModel::disassociate( ReosWatershed *watershed )
@@ -95,6 +99,8 @@ void ReosMeteorologicModel::disassociate( ReosWatershed *watershed )
 
   if ( index >= 0 )
     mAssociations.removeAt( index );
+
+  emit dataChanged();
 }
 
 ReosRainfallSerieRainfallItem *ReosMeteorologicModel::associatedRainfall( ReosWatershed *watershed ) const
@@ -278,7 +284,7 @@ QModelIndex ReosMeteorologicModelsCollection::index( int row, int column, const 
   if ( row >= modelCount() )
     return QModelIndex();
 
-  return createIndex( row, column, mMeteoModels.at( row ).get() );
+  return createIndex( row, column, mMeteoModels.at( row ) );
 }
 
 QModelIndex ReosMeteorologicModelsCollection::parent( const QModelIndex & ) const
@@ -304,7 +310,7 @@ ReosMeteorologicModel *ReosMeteorologicModelsCollection::meteorologicModel( int 
   if ( i < 0 || i >= static_cast<int>( mMeteoModels.size() ) )
     return nullptr;
 
-  return mMeteoModels.at( i ).get();
+  return mMeteoModels.at( i );
 }
 
 int ReosMeteorologicModelsCollection::modelCount() const
@@ -315,22 +321,21 @@ int ReosMeteorologicModelsCollection::modelCount() const
 void ReosMeteorologicModelsCollection::addMeteorologicModel( const QString &name )
 {
   beginInsertRows( QModelIndex(), modelCount(), modelCount() );
-  mMeteoModels.emplace_back( new ReosMeteorologicModel( name ) );
+  mMeteoModels.append( new ReosMeteorologicModel( name, this ) );
   endInsertRows();
 }
 
 void ReosMeteorologicModelsCollection::addMeteorologicModel( ReosMeteorologicModel *model )
 {
   beginInsertRows( QModelIndex(), modelCount(), modelCount() );
-  mMeteoModels.emplace_back( model );
+  mMeteoModels.append( model );
+  model->setParent( this );
   endInsertRows();
 }
 
 void ReosMeteorologicModelsCollection::removeMeteorologicModel( int i )
 {
-  beginRemoveRows( QModelIndex(), i, i );
-  mMeteoModels.erase( mMeteoModels.begin() + i );
-  endRemoveRows();
+  mMeteoModels.takeAt( i )->deleteLater();
 }
 
 ReosEncodedElement ReosMeteorologicModelsCollection::encode( ReosWatershedTree *watershedTree ) const
@@ -339,7 +344,7 @@ ReosEncodedElement ReosMeteorologicModelsCollection::encode( ReosWatershedTree *
 
   QList<ReosEncodedElement> encodedModels;
 
-  for ( const std::unique_ptr<ReosMeteorologicModel> &model : mMeteoModels )
+  for ( ReosMeteorologicModel *model : mMeteoModels )
     encodedModels.append( model->encode( watershedTree ) );
 
   element.addListEncodedData( QStringLiteral( "models" ), encodedModels );
@@ -355,6 +360,6 @@ void ReosMeteorologicModelsCollection::decode( const ReosEncodedElement &element
   QList<ReosEncodedElement> encodedModels = element.getListEncodedData( QStringLiteral( "models" ) );
 
   for ( const ReosEncodedElement &elem : encodedModels )
-    mMeteoModels.emplace_back( new ReosMeteorologicModel( elem, watershedTree, rainfallregistery ) );
+    mMeteoModels.append( new ReosMeteorologicModel( elem, watershedTree, rainfallregistery, this ) );
 
 }

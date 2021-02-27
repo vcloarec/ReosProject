@@ -27,6 +27,7 @@ class ReosTimeSerieConstantInterval;
 class ReosParameter;
 class ReosParameterDouble;
 class ReosParameterString;
+class ReosTimeSerieConstantInterval;
 /**
  * Abstract class that represent a runoff calculation on a rainfall,
  * instance of a derived class should contain the parameter necessary to apply the model on a rainfall
@@ -46,7 +47,10 @@ class ReosRunoffModel : public QObject
     ReosParameterString *name() const;
 
     //! Applies the model on the \a rainfall and put the result in runoffResult
-    virtual bool applyRunoffModel( ReosTimeSerieConstantInterval *rainfall, QVector<double> &runoffResult ) = 0;
+    virtual bool applyRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double  factor = 1 ) = 0;
+
+    //! Adds the resulting application of \a rainfall to the \a runoff result
+    virtual bool addRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double factor = 1 ) = 0;
 
     virtual ReosEncodedElement encode() const = 0;
 
@@ -68,14 +72,14 @@ class ReosRunoffModel : public QObject
 };
 
 /**
- *  Class that represents a collection of runoff models (to be associted to a watershed).
+ *  Class that represents a group of runoff models (for example, to be associted to a watershed) associated with a coefficient
  *  Several instances can share same runoff model and can have several runoff models,
  *  each models in the instance is assoiated with a portion of watershed
  */
-class ReosWatershedRunoffModels : public ReosDataObject
+class ReosRunoffModelsGroup : public ReosDataObject
 {
   public:
-    ReosWatershedRunoffModels( QObject *parent = nullptr );
+    ReosRunoffModelsGroup( QObject *parent = nullptr );
 
     QString type() const override {return QStringLiteral( "watershed-runoff-models" );}
 
@@ -100,7 +104,7 @@ class ReosWatershedRunoffModels : public ReosDataObject
     ReosRunoffModel *runoffModel( int i ) const;
 
     //! Returns the parameters reprensenting the portion value of runoff model at position \a i
-    ReosParameterDouble *portion( int i ) const;
+    ReosParameterDouble *coefficient( int i ) const;
 
     //! Clears all the runoff models (do not delete the runoff that is own elsewhere)
     void clear();
@@ -174,16 +178,15 @@ class ReosRunoffModelCollection
 };
 
 
-//! Abstract class that represents the application of a runoff model on a rainfall
+//! Class that represents the application of a runoff models groups
 class ReosRunoff : public ReosDataObject
 {
-    Q_OBJECT
   public:
-    //! Constructor with the \a runoffModel and the ·\a rainfall
-    ReosRunoff( ReosRunoffModel *runoffModel, ReosTimeSerieConstantInterval *rainfall, QObject *parent = nullptr );
+    //! Constructor with the runoff models group and the \a rainfall
+    ReosRunoff( ReosRunoffModelsGroup *runoffModels, ReosTimeSerieConstantInterval *rainfall, QObject *parent = nullptr );
     ~ReosRunoff() = default;
 
-    QString type() const override {return QStringLiteral( "runoff" );}
+    QString type() const override {return QStringLiteral( "runoff-result" );}
 
     //! Returns the current values count
     int valueCount() const;
@@ -194,14 +197,18 @@ class ReosRunoff : public ReosDataObject
     //! Returns the value at positon \i
     double value( int i ) const;
 
-  public slots:
     //! Updates the values
     bool updateValues();
 
+    //! Returns a pointer to the time series that represents the result values of the runoff
+    ReosTimeSerieConstantInterval *data() const;
+
   protected:
     QPointer<ReosTimeSerieConstantInterval> mRainfall;
-    QPointer<ReosRunoffModel> mRunoffModel;
-    QVector<double> mData;
+    QPointer<ReosRunoffModelsGroup> mRunoffModelsGroups;
+    ReosTimeSerieConstantInterval *mData;
+
+
 };
 
 //! Class that represents a model containing runoff model collections and theirs runoff models
@@ -330,6 +337,7 @@ class ReosRunoffModelRegistery : public ReosModule
 
 //*****************************************************************************
 
+//! Implementation of the constant coefficient run off model
 class ReosRunoffConstantCoefficientModel: public ReosRunoffModel
 {
   public:
@@ -337,7 +345,8 @@ class ReosRunoffConstantCoefficientModel: public ReosRunoffModel
 
     QString runoffType() const override {return QStringLiteral( "constant-coefficient" );}
     QList<ReosParameter *> parameters() const override;
-    bool applyRunoffModel( ReosTimeSerieConstantInterval *rainfall, QVector<double> &runoffResult ) override;
+    bool applyRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double factor = 1 ) override;
+    bool addRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double factor = 1 ) override;
     ReosEncodedElement encode() const override;
     static ReosRunoffConstantCoefficientModel *create( const ReosEncodedElement &element, QObject *parent = nullptr );
 

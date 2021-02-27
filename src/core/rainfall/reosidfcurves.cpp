@@ -21,7 +21,7 @@ ReosIdfFormulaRegistery *ReosIdfFormulaRegistery::sIdfRegistery = nullptr;
 
 ReosIntensityDurationInterval::ReosIntensityDurationInterval( const ReosDuration &start, const ReosDuration &end, QObject *parent ):
   QObject( parent )
-  , mStartDuration( new ReosParameterDuration( tr( "start" ) ) ), mEndDuration( new ReosParameterDuration( tr( "start" ) ) )
+  , mStartDuration( new ReosParameterDuration( tr( "start" ), false, this ) ), mEndDuration( new ReosParameterDuration( tr( "end" ), false, this ) )
 {
   mStartDuration->setValue( start );
   mEndDuration->setValue( end );

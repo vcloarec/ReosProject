@@ -20,15 +20,17 @@
 #include <qwt_plot_histogram.h>
 #include <qwt_plot_curve.h>
 
-ReosPlotTimeHistogram::ReosPlotTimeHistogram( const QString &name ): ReosPlotItem()
+ReosPlotTimeHistogram::ReosPlotTimeHistogram( const QString &name, bool masterItem ):
+  ReosPlotItem()
 {
-  mPlotItem = new QwtPlotHistogram( name );
+  mPlotItem = new ReosPlotHistogramItem_p( name );
+  mMasterItem = masterItem;
 }
 
 
-QwtPlotHistogram *ReosPlotTimeHistogram::histogram()
+ReosPlotHistogramItem_p *ReosPlotTimeHistogram::histogram()
 {
-  return static_cast<QwtPlotHistogram *>( mPlotItem );
+  return static_cast<ReosPlotHistogramItem_p *>( mPlotItem );
 }
 
 void ReosPlotTimeHistogram::setSettings()
@@ -36,15 +38,21 @@ void ReosPlotTimeHistogram::setSettings()
   if ( mTimeSerie && mTimeSerie->data() )
   {
     QPen pen;
-    pen.setColor( Qt::black );
+    if ( mBorderWidth > 0 )
+      pen.setWidthF( mBorderWidth );
+    pen.setColor( mBorderColor );
     QBrush brush;
-    brush.setStyle( Qt::SolidPattern );
-    brush.setColor( mTimeSerie->data()->currentValueModeColor() );
-    if ( histogram()->plot() )
-      histogram()->plot()->setAxisTitle( QwtPlot::yLeft,
-                                         mTimeSerie->data()->valueModeName( mTimeSerie->data()->valueMode() ) );
+    brush.setStyle( mBrushStyle );
+    QColor brushColor = mBrushColor.isValid() ? mBrushColor : mTimeSerie->data()->currentValueModeColor();
+    brush.setColor( brushColor );
     histogram()->setBrush( brush );
     histogram()->setPen( pen );
+
+    if ( histogram()->plot() && mMasterItem )
+    {
+      histogram()->plot()->setAxisTitle( QwtPlot::yLeft,
+                                         mTimeSerie->data()->unitStringCurrentMode() );
+    }
   }
 }
 
@@ -63,6 +71,29 @@ void ReosPlotTimeHistogram::setTimeSerie( ReosTimeSerieConstantInterval *timeSer
   }
 
   setSettings();
+
+  if ( histogram()->plot() )
+    histogram()->plot()->replot();
+}
+
+void ReosPlotTimeHistogram::setBorderColor( const QColor &color )
+{
+  mBorderColor = color;
+}
+
+void ReosPlotTimeHistogram::setBorderWdidth( double w )
+{
+  mBorderWidth = w;
+}
+
+void ReosPlotTimeHistogram::setBrushColor( const QColor &color )
+{
+  mBrushColor = color;
+}
+
+void ReosPlotTimeHistogram::setBrushStyle( Qt::BrushStyle style )
+{
+  mBrushStyle = style;
 }
 
 ReosPlotTimeCumulativeCurve::ReosPlotTimeCumulativeCurve( const QString &name )

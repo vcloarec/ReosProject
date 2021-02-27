@@ -43,6 +43,9 @@ class ReosMeteorologicModelWidget : public ReosActionWidget
 
     ~ReosMeteorologicModelWidget();
 
+  signals:
+    void currentModelChanged( int index );
+
   private slots:
     void onAddMeteoModel();
     void onDuplicateMeteoModel();

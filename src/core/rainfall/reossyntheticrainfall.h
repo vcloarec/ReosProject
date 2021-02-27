@@ -23,7 +23,27 @@
 
 class ReosParameterDuration;
 
-class REOSCORE_EXPORT ReosChicagoRainfall : public ReosTimeSerieConstantInterval
+class ReosSerieRainfall : public ReosTimeSerieConstantInterval
+{
+    Q_OBJECT
+  public:
+    ReosSerieRainfall( QObject *parent = nullptr );
+    QString type() const override {return QStringLiteral( "serie-rainfall" );}
+
+    ReosEncodedElement encode() const;
+
+    //! Creates new instance from the encoded element
+    static ReosSerieRainfall *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
+
+  protected:
+    ReosSerieRainfall( const ReosEncodedElement &element, QObject *parent = nullptr );
+
+  private:
+    void setUpdata();
+
+};
+
+class REOSCORE_EXPORT ReosChicagoRainfall : public ReosSerieRainfall
 {
     Q_OBJECT
   public:
@@ -67,7 +87,7 @@ class REOSCORE_EXPORT ReosChicagoRainfall : public ReosTimeSerieConstantInterval
     void connectParameters();
 };
 
-class REOSCORE_EXPORT ReosDoubleTriangleRainfall : public ReosTimeSerieConstantInterval
+class REOSCORE_EXPORT ReosDoubleTriangleRainfall : public ReosSerieRainfall
 {
     Q_OBJECT
   public:

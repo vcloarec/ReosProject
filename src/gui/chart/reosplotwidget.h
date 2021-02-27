@@ -22,16 +22,16 @@
 #include <QApplication>
 #include <QClipboard>
 
+#include "reosmodule.h"
+
 class QComboBox;
 
 class QwtPlotMagnifier;
 class QwtPlotPanner;
 class QwtPlotZoomer;
 class QwtPlotPicker;
-
 class QwtPlotItem;
 class QwtPlotCurve;
-class QwtPlotHistogram;
 
 class ReosPlot_p;
 class ReosDataObject;
@@ -48,8 +48,15 @@ class ReosPlotItem: public QObject
     void setOnRightAxe();
     void setOnLeftAxe();
 
+    /**
+     *  For Item that can control settings of the plot, set whether this item is a master,
+     *  that is can control settings of the plot (axes, title,...)
+     */
+    void setAsMasterItem( bool b );
+
   public slots:
     virtual void fullExtent() {};
+    virtual void setSettings() {};
 
   signals:
     void itemChanged();
@@ -57,6 +64,7 @@ class ReosPlotItem: public QObject
   protected:
     ReosPlotItem() = default;
     QwtPlotItem *mPlotItem = nullptr;
+    bool mMasterItem = false;
 
   private:
     bool mAttached = false;
@@ -72,7 +80,6 @@ class ReosPlotCurve : public ReosPlotItem
   private:
     QwtPlotCurve *curve();
 };
-
 
 
 class ReosPlotWidget: public QWidget
@@ -95,26 +102,23 @@ class ReosPlotWidget: public QWidget
     void setEnableZoomer( bool b );
     void setLegendAlignement( Qt::Alignment align );
     void enableAutoMinimumSize( bool b );
-    void setMinimumPlotSize( QSize size );
-    void addActions( QList<QAction *> actions );
+    void setMinimumPlotSize( const QSize &size );
+    void addActions( const QList<QAction *> &actions );
 
     void addPlotItem( ReosPlotItem *item );
-    void addDataObject( ReosDataObject *data );
 
     void setTitleAxeX( const QString &title );
     void setTitleAxeYLeft( const QString &title );
     void setTitleAxeYRight( const QString &title );
 
-    void setAxeXType( AxeType type );
-    void setAxeYLeftType( AxeType type );
-    void setAxeYRightType( AxeType type );
+    void enableAxeYright( bool b );
 
+    void setAxeXType( AxeType type );
     void setAxeXExtent( double min, double max );
     void setAxeYLeftExtent( double min, double max );
     void setAxeYRightExtent( double min, double max );
 
     void enableScaleTypeChoice( bool b );
-
 
   signals:
     void cursorMoved( const QPointF &pt );
@@ -140,6 +144,31 @@ class ReosPlotWidget: public QWidget
     void createItems( ReosDataObject *data );
 };
 
+class ReosDataPlotItemFactory
+{
+  public:
+    virtual QString datatype() const = 0;
+    virtual void buildPlotItems( ReosPlotWidget *plotWidget, ReosDataObject *data ) = 0;
+};
+
+
+class ReosPlotItemFactoryRegistery: public ReosModule
+{
+  public:
+    static void instantiate( ReosModule *parent );
+    static bool isInstantiate();
+    static ReosPlotItemFactoryRegistery *instance();
+
+    void addFactory( ReosDataPlotItemFactory *fact );
+    void buildPlotItems( ReosPlotWidget *plotWidget, ReosDataObject *data, const QString &dataType = QString() );
+
+  private:
+    ReosPlotItemFactoryRegistery( ReosModule *parent = nullptr );
+    static ReosPlotItemFactoryRegistery *sInstance;
+    using Factory = std::unique_ptr<ReosDataPlotItemFactory>;
+    std::vector<Factory> mFactories;
+
+};
 
 
 

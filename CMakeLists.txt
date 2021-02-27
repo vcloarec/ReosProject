@@ -27,7 +27,7 @@ SET(QGIS_GUI_LIB CACHE FILEPATH "Path to QGIS gui lib")
 SET(QGIS_LIBS ${QGIS_CORE_LIB} ${QGIS_GUI_LIB})
 SET(QSCISCINTILLA_INCLUDE_DIR CACHE PATH "Path to Qsciscintilla include dir")
 
-FIND_PACKAGE(Qt5 COMPONENTS Core Gui Widgets Network Xml Svg Concurrent Test UiTools Sql Charts REQUIRED)
+FIND_PACKAGE(Qt5 COMPONENTS Core Gui Widgets Network Xml Svg Concurrent Test UiTools Sql REQUIRED)
 
 IF (WITH_QTWEBKIT)
   FIND_PACKAGE(Qt5 COMPONENTS WebKit WebKitWidgets REQUIRED)

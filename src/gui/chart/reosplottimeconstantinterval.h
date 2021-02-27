@@ -18,24 +18,45 @@
 
 #include "reosplotwidget.h"
 
+class ReosPlotHistogramItem_p;
 
 class ReosPlotConstantIntervalTimeIntervalSerie;
 class ReosPlotConstantIntervalTimePointSerie;
 
-//! Plot item that can be used to represent time serie with contant time step with histogram
+/**
+ *  Plot item that can be used to represent time serie with constant time step with histogram
+ */
 class ReosPlotTimeHistogram: public ReosPlotItem
 {
     Q_OBJECT
   public:
-    ReosPlotTimeHistogram( const QString &name = QString() );
+    //! Contructor with the name of the item. If this item is contructed with \a masterItem true, this item will control the title of Y left axe.
+    ReosPlotTimeHistogram( const QString &name, bool masterItem = false );
     void setTimeSerie( ReosTimeSerieConstantInterval *timeSerie );
 
+    //! Sets the color of the border (default black);
+    void setBorderColor( const QColor &color );
+
+    //! Set the border of the each interval bars
+    void setBorderWdidth( double w );
+
+    //! Sets the brush color, if not defined the color defined on the time series will be used (default black);
+    void setBrushColor( const QColor &color );
+
+    //! Sets the brush style, default: Qt::SolidPattern
+    void setBrushStyle( Qt::BrushStyle style );
+
   private slots:
-    void setSettings();
+    void setSettings() override;
 
   private:
-    QwtPlotHistogram *histogram();
+    ReosPlotHistogramItem_p *histogram();
     ReosPlotConstantIntervalTimeIntervalSerie *mTimeSerie = nullptr;
+
+    QColor mBorderColor = Qt::black;
+    QColor mBrushColor;
+    Qt::BrushStyle mBrushStyle = Qt::SolidPattern;
+    double mBorderWidth = -1;
 };
 
 //! Plot item that can be used to represent time serie with contant time step with cummulative curve
@@ -48,7 +69,6 @@ class ReosPlotTimeCumulativeCurve: public ReosPlotItem
 
   private slots:
     void setSettings();
-
 
   private:
     QwtPlotCurve *curve();

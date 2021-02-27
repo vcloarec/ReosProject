@@ -794,35 +794,57 @@ void ReosWatersehdTest::runoffConstantCoefficient()
 
   // apply runoff
 
-  ReosRunoffConstantCoefficientModel runoffConstantCoefficientModel( "test" );
-  runoffConstantCoefficientModel.coefficient()->setValue( 0.5 );
+  ReosRunoffConstantCoefficientModel runoffConstantCoefficientModel_1( "test_1" );
+  runoffConstantCoefficientModel_1.coefficient()->setValue( 0.5 );
 
-  ReosRunoff runoff( &runoffConstantCoefficientModel, &chicagoRainfall );
+  ReosRunoffModelsGroup modelsGroup;
+  modelsGroup.addRunoffModel( &runoffConstantCoefficientModel_1 );
+
+  ReosRunoff runoff( &modelsGroup, &chicagoRainfall );
   QVERIFY( runoff.updateValues() );
   QCOMPARE( runoff.valueCount(), 12 );
   for ( int i = 0; i < runoff.valueCount(); ++i )
     QVERIFY( equal( runoff.value( 5 ),
-                    chicagoRainfall.valueAt( 5 ) * runoffConstantCoefficientModel.coefficient()->value(),
+                    chicagoRainfall.valueAt( 5 ) * runoffConstantCoefficientModel_1.coefficient()->value(),
                     0.001 ) );
 
-  //! runoff automaticaly updated if rainfall change
   chicagoRainfall.setValueAt( 5, 10 );
+  runoff.updateValues();
   QVERIFY( equal( chicagoRainfall.valueAt( 5 ), 10, 0.001 ) );
   QVERIFY( equal( runoff.value( 5 ), 5, 0.001 ) );
 
   for ( int i = 0; i < runoff.valueCount(); ++i )
     QVERIFY( equal( runoff.value( 5 ),
-                    chicagoRainfall.valueAt( 5 ) * runoffConstantCoefficientModel.coefficient()->value(),
+                    chicagoRainfall.valueAt( 5 ) * runoffConstantCoefficientModel_1.coefficient()->value(),
                     0.001 ) );
 
-  //! runoff automaticaly updated if model change
-  runoffConstantCoefficientModel.coefficient()->setValue( 0.1 );
+  runoffConstantCoefficientModel_1.coefficient()->setValue( 0.1 );
+  runoff.updateValues();
   QVERIFY( equal( runoff.value( 5 ), 1, 0.001 ) );
 
   for ( int i = 0; i < runoff.valueCount(); ++i )
     QVERIFY( equal( runoff.value( 5 ),
-                    chicagoRainfall.valueAt( 5 ) * runoffConstantCoefficientModel.coefficient()->value(),
+                    chicagoRainfall.valueAt( 5 ) * runoffConstantCoefficientModel_1.coefficient()->value(),
                     0.001 ) );
+
+
+  ReosRunoffConstantCoefficientModel runoffConstantCoefficientModel_2( "test_2" );
+  runoffConstantCoefficientModel_2.coefficient()->setValue( 1 );
+
+  modelsGroup.addRunoffModel( &runoffConstantCoefficientModel_2 );
+  modelsGroup.coefficient( 0 )->setValue( 0.25 );
+  modelsGroup.coefficient( 1 )->setValue( 0.75 );
+  QVERIFY( runoff.updateValues() );
+  QCOMPARE( runoff.valueCount(), 12 );
+  for ( int i = 0; i < runoff.valueCount(); ++i )
+  {
+    QVERIFY( equal( runoff.value( 5 ),
+                    chicagoRainfall.valueAt( 5 ) *
+                    ( runoffConstantCoefficientModel_1.coefficient()->value() * 0.25 +
+                      runoffConstantCoefficientModel_2.coefficient()->value() * 0.75 ),
+                    0.001 ) );
+  }
+
 }
 
 QTEST_MAIN( ReosWatersehdTest )
