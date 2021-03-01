@@ -19,10 +19,12 @@
 #include <QWidget>
 
 #include "reosactionwidget.h"
+#include "reosformwidget.h"
 
 class ReosRunoffModelModel;
 class ReosFormWidget;
 class ReosRunoffModel;
+class ReosDataObject;
 
 namespace Ui
 {
@@ -56,6 +58,20 @@ class ReosRunoffManager : public ReosActionWidget
     bool saveOn( const QString &fileName );
 
     void selectRunoffModel( ReosRunoffModel *runoffModel );
+};
+
+class ReosFormRunoffConstantCoefficientWidgetFactory: public ReosFormWidgetDataFactory
+{
+  public:
+    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent );
+    virtual QString datatype() const {return QStringLiteral( "runoff-model-constant-coefficient" );}
+};
+
+class ReosFormRunoffGreenAmptWidgetFactory: public ReosFormWidgetDataFactory
+{
+  public:
+    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent );
+    virtual QString datatype() const {return QStringLiteral( "runoff-model-green-ampt" );}
 };
 
 #endif // REOSRUNOFFMANAGER_H

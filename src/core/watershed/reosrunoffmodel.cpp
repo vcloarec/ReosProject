@@ -23,7 +23,7 @@
 #include "reosparameter.h"
 
 ReosRunoffModel::ReosRunoffModel( const QString &name, QObject *parent ):
-  QObject( parent )
+  ReosDataObject( parent )
   , mName( new ReosParameterString( QObject::tr( "Name" ), false, this ) )
 {
   mName->setValue( name );
@@ -31,7 +31,7 @@ ReosRunoffModel::ReosRunoffModel( const QString &name, QObject *parent ):
 }
 
 ReosRunoffModel::ReosRunoffModel( const ReosEncodedElement &element, QObject *parent ):
-  QObject( parent )
+  ReosDataObject( parent )
 {
   mName = ReosParameterString::decode( element.getEncodedData( QStringLiteral( "name" ) ), false, this );
   element.getData( QStringLiteral( "unique-id" ), mUniqueId );
@@ -53,7 +53,7 @@ void ReosRunoffModel::connectParameters()
 {
   QList<ReosParameter *> params = parameters();
   for ( int i = 1; i < params.count(); ++i ) //do not take the first one that should be the name
-    connect( params.at( i ), &ReosParameter::valueChanged, this, &ReosRunoffModel::modelChanged );
+    connect( params.at( i ), &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
 }
 
 void ReosRunoffModel::encodeBase( ReosEncodedElement &element ) const
@@ -152,7 +152,7 @@ QList<ReosParameter *> ReosRunoffConstantCoefficientModel::parameters() const
   return ret;
 }
 
-bool ReosRunoffConstantCoefficientModel::applyRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double factor )
+bool ReosRunoffModel::applyRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double factor )
 {
   if ( !rainfall || !runoffResult )
     return false;
@@ -488,6 +488,9 @@ ReosRunoffModel *ReosRunoffModelRegistery::createModel( const QString &type, con
   if ( type == QStringLiteral( "constant-coefficient" ) )
     runoffModel.reset( new ReosRunoffConstantCoefficientModel( name, this ) );
 
+  if ( type == QStringLiteral( "green-ampt" ) )
+    runoffModel.reset( new ReosRunoffGreenAmptModel( name, this ) );
+
   if ( mModel->addModel( runoffModel.get() ) )
     return runoffModel.release();
 
@@ -499,9 +502,10 @@ ReosRunoffModel *ReosRunoffModelRegistery::createModel( const ReosEncodedElement
   std::unique_ptr<ReosRunoffModel> runoffModel;
 
   if ( element.description() == QStringLiteral( "constant-coefficient-runoff-model" ) )
-  {
     runoffModel.reset( ReosRunoffConstantCoefficientModel::create( element, this ) );
-  }
+
+  if ( element.description() == QStringLiteral( "green-ampt-runoff-model" ) )
+    runoffModel.reset( ReosRunoffGreenAmptModel::create( element, this ) );
 
   if ( runoffModel )
     return runoffModel.release();
@@ -519,6 +523,8 @@ QString ReosRunoffModelRegistery::createRunoffModelName( const QString &type )
   {
     if ( type == QStringLiteral( "constant-coefficient" ) )
       name = tr( "Constant coefficient %1" ).arg( suffix );
+    else if ( type == QStringLiteral( "green-ampt" ) )
+      name = tr( "Green Ampt %1" ).arg( suffix );
     else
       name = tr( "Undefined type %1" ).arg( suffix );
 
@@ -630,6 +636,12 @@ ReosRunoffModelRegistery::ReosRunoffModelRegistery( QObject *parent ):
                       QPixmap( QStringLiteral( ":/images/runoffConstantCoefficient.svg" ) ) );
 
   addDescription( QStringLiteral( "constant-coefficient" ), tr( "A constant coefficient between 0 and 1\nis applied on the rainfall" ) );
+
+  addModelCollection( QStringLiteral( "green-ampt" ),
+                      tr( "Green Ampt" ),
+                      QPixmap( QStringLiteral( ":/images/runoffGreenAmpt.svg" ) ) );
+
+  addDescription( QStringLiteral( "green-ampt" ), tr( "The Green Ampt approach for runoff" ) );
 }
 
 ReosRunoffModelCollection::ReosRunoffModelCollection( const QString &type, const QString &displayedText, const QPixmap &icon ):
@@ -708,7 +720,7 @@ void ReosRunoffModelsGroup::addRunoffModel( ReosRunoffModel *runoffModel )
   paramPortion->setValue( sharePortion() );
   mRunoffModels.append( {QPointer<ReosRunoffModel>( runoffModel ), paramPortion, false} );
 
-  connect( runoffModel, &ReosRunoffModel::modelChanged, this, &ReosDataObject::dataChanged );
+  connect( runoffModel, &ReosDataObject::dataChanged, this, &ReosDataObject::dataChanged );
   connect( paramPortion, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
 
   emit dataChanged();
@@ -885,4 +897,199 @@ void ReosRunoffModelsGroup::dispatch( double coefToDispatch )
     coefficient( i )->setValue( oldValue + toGive );
     availableToDispatch -= toGive;
   }
+}
+
+ReosRunoffGreenAmptModel::ReosRunoffGreenAmptModel( const QString &name, QObject *parent ):
+  ReosRunoffModel( name, parent )
+  , mInitialRetentionParameter( new ReosParameterDouble( tr( "Initial retention (mm)" ), false, this ) )
+  , mSaturatedPermeabilityParameter( new ReosParameterDouble( tr( "Saturated permeability (mm/h)" ), false, this ) )
+  , mSoilPorosityParameter( new ReosParameterDouble( tr( "Soil porosity (vol/vol)" ), false, this ) )
+  , mInitialWaterContentParameter( new ReosParameterDouble( tr( "Initial water content (vol/vol)" ), false, this ) )
+  , mWettingFrontSuctionParameter( new ReosParameterDouble( tr( "Wetting front suction (mm)" ), false, this ) )
+{
+  mInitialRetentionParameter->setValue( 0.0 );
+  mSaturatedPermeabilityParameter->setValue( 15 );
+  mSoilPorosityParameter->setValue( 0.35 );
+  mInitialWaterContentParameter->setValue( 0.25 );
+  mWettingFrontSuctionParameter->setValue( 600 );
+
+  connectParameters();
+}
+
+QList<ReosParameter *> ReosRunoffGreenAmptModel::parameters() const
+{
+  QList<ReosParameter *> ret;
+  ret << mInitialRetentionParameter;
+  ret << mSaturatedPermeabilityParameter;
+  ret << mSoilPorosityParameter;
+  ret << mInitialWaterContentParameter;
+  ret << mWettingFrontSuctionParameter;
+
+  return ret;
+}
+
+double static resolveFpEquation( double T, double SM, double K )
+{
+  double X1;
+  double X2 = 1;
+  int it = 0;
+  do
+  {
+    X1 = X2;
+    X2 = X1 - ( X1 - log( 1 + X1 ) - K / SM * T ) / ( 1 - 1 / ( 1 + X1 ) );
+    it++;
+  }
+  while ( fabs( ( X2 - X1 ) / X2 ) > 0.001 && it < 100 );
+
+  return X2 * SM;
+}
+
+bool ReosRunoffGreenAmptModel::addRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double factor )
+{
+  if ( !rainfall || !runoffResult )
+    return false;
+  if ( runoffResult->valueCount() != rainfall->valueCount() )
+    return applyRunoffModel( rainfall, runoffResult, factor );
+
+  double *rain = rainfall->data();
+  double *runoff = runoffResult->data();
+
+  int n = rainfall->valueCount();
+  double Ia = mInitialRetentionParameter->value();
+  double K = mSaturatedPermeabilityParameter->value();
+  double P = 0;
+  double Rprev = 0;
+  double R = 0;
+//  double rm = 0;
+  double F = 0;
+  double Fp = 0;
+  double I = 0;
+  double KSMIK = std::numeric_limits<double>::max();
+  double SM = ( mSoilPorosityParameter->value() - mInitialWaterContentParameter->value() ) * mWettingFrontSuctionParameter->value();
+  double cu = -10;
+  double cp = -10;
+  double tp = 0;
+  double Pp;
+  double ts = 0;
+  bool pondingInitial = false;
+  bool pondingTerminal = false;
+  ReosDuration timeStep = rainfall->timeStep()->value();
+  double timeStepHour = timeStep.valueHour();
+
+  double K_h = K * timeStepHour;
+
+  if ( SM < 0 )
+  {
+    for ( int i = 0; i < n; ++i )
+      if ( rain[i] > K_h )
+        runoff[i] += rain[i] - K_h;
+    return true;
+  }
+
+
+  for ( int i = 0; i < rainfall->valueCount() ; ++i )
+  {
+    double dP = rain[i];
+    Rprev = R;
+    P += dP;
+    I = dP / timeStepHour;
+    pondingInitial = pondingTerminal;
+
+    if ( I > K )
+    {
+      //rm = 0;
+      KSMIK = K * SM / ( I - K );
+      cu = P - R - KSMIK;
+
+
+      if ( !pondingInitial )
+      {
+        pondingTerminal = cu > 0;
+      }
+      else
+      {
+        pondingTerminal = true;
+      }
+
+      if ( ( !pondingInitial ) && ( pondingTerminal ) )
+      {
+        double dt = ( KSMIK - P + dP + R ) / I;;
+        if ( dt < 0 )
+          dt = 0;
+
+        tp = i * timeStepHour + dt;
+
+        Pp = P - dP + I * dt;
+        ts = ( ( Pp - R ) / SM - log( 1 + ( Pp - R ) / SM ) ) * SM / K;
+      }
+
+      if ( pondingTerminal )
+      {
+        Fp = resolveFpEquation( ( i + 1 ) * timeStepHour - tp + ts, SM, K );
+        cp = P - Fp - R;
+
+        pondingTerminal = cp > 0;
+
+        if ( pondingTerminal )
+        {
+          F = Fp;
+          if ( P - Fp - Ia > R )
+          {
+            R = P - Fp - Ia;
+          }
+        }
+//        else
+//        {
+//          F = P - R;
+//        }
+      }
+//      if ( !pondingInitial && !pondingTerminal )
+//      {
+//        F = P - R;
+//      }
+    }
+    else
+    {
+//      F = P - R;
+      pondingTerminal = false;
+    }
+
+    runoff[i] += R - Rprev;
+  }
+
+
+  return true;
+}
+
+ReosEncodedElement ReosRunoffGreenAmptModel::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "green-ampt-runoff-model" ) );
+  encodeBase( element );
+
+  element.addEncodedData( QStringLiteral( "initial-retention" ), mInitialRetentionParameter->encode() );
+  element.addEncodedData( QStringLiteral( "saturated-permeability" ), mSaturatedPermeabilityParameter->encode() );
+  element.addEncodedData( QStringLiteral( "soil-porosity" ), mSoilPorosityParameter->encode() );
+  element.addEncodedData( QStringLiteral( "initial-water-content" ), mInitialWaterContentParameter->encode() );
+  element.addEncodedData( QStringLiteral( "wetting-front-succion" ), mWettingFrontSuctionParameter->encode() );
+
+  return element;
+}
+
+ReosRunoffGreenAmptModel *ReosRunoffGreenAmptModel::create( const ReosEncodedElement &element, QObject *parent )
+{
+  if ( element.description() != QStringLiteral( "green-ampt-runoff-model" ) )
+    return nullptr;
+
+  return new ReosRunoffGreenAmptModel( element, parent );
+}
+
+ReosRunoffGreenAmptModel::ReosRunoffGreenAmptModel( const ReosEncodedElement &element, QObject *parent ):
+  ReosRunoffModel( element, parent )
+{
+  mInitialRetentionParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "initial-retention" ) ), false, this );
+  mSaturatedPermeabilityParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "saturated-permeability" ) ), false, this );
+  mSoilPorosityParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "soil-porosity" ) ), false, this );
+  mInitialWaterContentParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "initial-water-content" ) ), false, this );
+  mWettingFrontSuctionParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "wetting-front-succion" ) ), false, this );
+  connectParameters();
 }

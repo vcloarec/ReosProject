@@ -22,6 +22,7 @@
 #include "reosdataobject.h"
 #include "reosduration.h"
 #include "reosmodule.h"
+#include "reosdataobject.h"
 
 class ReosTimeSerieConstantInterval;
 class ReosParameter;
@@ -32,7 +33,7 @@ class ReosTimeSerieConstantInterval;
  * Abstract class that represent a runoff calculation on a rainfall,
  * instance of a derived class should contain the parameter necessary to apply the model on a rainfall
  */
-class ReosRunoffModel : public QObject
+class ReosRunoffModel : public ReosDataObject
 {
     Q_OBJECT
   public:
@@ -47,7 +48,7 @@ class ReosRunoffModel : public QObject
     ReosParameterString *name() const;
 
     //! Applies the model on the \a rainfall and put the result in runoffResult
-    virtual bool applyRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double  factor = 1 ) = 0;
+    bool applyRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double  factor = 1 );
 
     //! Adds the resulting application of \a rainfall to the \a runoff result
     virtual bool addRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double factor = 1 ) = 0;
@@ -57,8 +58,6 @@ class ReosRunoffModel : public QObject
     //! Returns the unique Id of this runoff model
     QString uniqueId() const;
 
-  signals:
-    void modelChanged();
 
   protected:
     ReosRunoffModel( const QString &name, QObject *parent = nullptr );
@@ -346,12 +345,13 @@ class ReosRunoffModelRegistery : public ReosModule
 //! Implementation of the constant coefficient run off model
 class ReosRunoffConstantCoefficientModel: public ReosRunoffModel
 {
+    Q_OBJECT
   public:
     ReosRunoffConstantCoefficientModel( const QString &name, QObject *parent = nullptr );
 
+    QString type() const override {return QStringLiteral( "runoff-model-constant-coefficient" );}
     QString runoffType() const override {return QStringLiteral( "constant-coefficient" );}
     QList<ReosParameter *> parameters() const override;
-    bool applyRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double factor = 1 ) override;
     bool addRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double factor = 1 ) override;
     ReosEncodedElement encode() const override;
     static ReosRunoffConstantCoefficientModel *create( const ReosEncodedElement &element, QObject *parent = nullptr );
@@ -361,10 +361,34 @@ class ReosRunoffConstantCoefficientModel: public ReosRunoffModel
 
   private:
     ReosRunoffConstantCoefficientModel( const ReosEncodedElement &element, QObject *parent = nullptr );
-    ReosParameterDouble *mCoefficient;
+    ReosParameterDouble *mCoefficient = nullptr;
 };
 
 //*****************************************************************************
+
+//! Implementation of the Green Ampt run off model
+class ReosRunoffGreenAmptModel: public ReosRunoffModel
+{
+    Q_OBJECT
+  public:
+    ReosRunoffGreenAmptModel( const QString &name, QObject *parent = nullptr );
+
+    QString type() const override {return QStringLiteral( "runoff-model-green-ampt" );}
+    QString runoffType() const override {return QStringLiteral( "green-ampt" );}
+    QList<ReosParameter *> parameters() const override;
+    bool addRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double factor = 1 ) override;
+    ReosEncodedElement encode() const override;
+    static ReosRunoffGreenAmptModel *create( const ReosEncodedElement &element, QObject *parent = nullptr );
+
+  private:
+    ReosRunoffGreenAmptModel( const ReosEncodedElement &element, QObject *parent = nullptr );
+
+    ReosParameterDouble *mInitialRetentionParameter = nullptr;
+    ReosParameterDouble *mSaturatedPermeabilityParameter = nullptr;
+    ReosParameterDouble *mSoilPorosityParameter = nullptr;
+    ReosParameterDouble *mInitialWaterContentParameter = nullptr;
+    ReosParameterDouble *mWettingFrontSuctionParameter = nullptr;
+};
 
 
 #endif // REOSRUNOFFMODEL_H

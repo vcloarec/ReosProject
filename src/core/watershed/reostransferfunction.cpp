@@ -128,6 +128,10 @@ QColor ReosHydrograph::color() const
   return Qt::red;
 }
 
+ReosTransferFunctionGeneralizedRationalMethod::ReosTransferFunctionGeneralizedRationalMethod( ReosWatershed *watershed ):
+  ReosTransferFunction( watershed )
+{}
+
 ReosHydrograph *ReosTransferFunctionGeneralizedRationalMethod::applyFunction( ReosRunoff *runoff, QObject *hydrographParent ) const
 {
   return nullptr;
@@ -253,4 +257,14 @@ QVariant ReosTransferFunctionFactoriesModel::data( const QModelIndex &index, int
   }
 
   return QModelIndex();
+}
+
+ReosTransferFunction *ReosTransferFunctionGeneralizedRationalMethodFactory::createTransferFunction( ReosWatershed *watershed ) const
+{
+  return new ReosTransferFunctionGeneralizedRationalMethod( watershed );
+}
+
+ReosTransferFunction *ReosTransferFunctionLinearReservoirFactory::createTransferFunction( ReosWatershed *watershed ) const
+{
+  return new ReosTransferFunctionLinearReservoir( watershed );
 }

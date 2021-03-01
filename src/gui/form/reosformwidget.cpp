@@ -81,11 +81,11 @@ ReosParameterWidget *ReosFormWidget::addParameter( ReosParameter *parameter, int
   return w;
 }
 
-void ReosFormWidget::addParameters( QList<ReosParameter *> parameters )
+void ReosFormWidget::addParameters( QList<ReosParameter *> parameters, ReosParameterWidget::SpacerPosition spacer )
 {
   for ( ReosParameter *p : qAsConst( parameters ) )
     if ( p )
-      addParameter( p );
+      addParameter( p, spacer );
 }
 
 void ReosFormWidget::addData( ReosDataObject *data, int position )

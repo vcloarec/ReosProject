@@ -43,7 +43,7 @@ class ReosFormWidget : public QWidget
 
     void addText( const QString &text, int position = -1 );
     ReosParameterWidget *addParameter( ReosParameter *parameter, int position = -1, ReosParameterWidget::SpacerPosition spacer = ReosParameterWidget::NoSpacer );
-    void addParameters( QList<ReosParameter *> parameters );
+    void addParameters( QList<ReosParameter *> parameters, ReosParameterWidget::SpacerPosition spacer = ReosParameterWidget::NoSpacer );
     void addData( ReosDataObject *data, int position = -1 );
     void addWidget( QWidget *widget, int position = -1 );
     void addItem( QLayoutItem *item, int position = -1 );

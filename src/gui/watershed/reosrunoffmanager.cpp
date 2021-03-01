@@ -48,6 +48,12 @@ ReosRunoffManager::ReosRunoffManager( ReosRunoffModelModel *model, QWidget *pare
   onCurrentTreeIndexChanged();
 
   connect( ui->treeView, &QWidget::customContextMenuRequested, this, &ReosRunoffManager::onTreeViewContextMenu );
+
+  if ( ReosFormWidgetFactories::isInstantiate() )
+  {
+    ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormRunoffConstantCoefficientWidgetFactory );
+    ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormRunoffGreenAmptWidgetFactory );
+  }
 }
 
 ReosRunoffManager::~ReosRunoffManager()
@@ -198,13 +204,14 @@ void ReosRunoffManager::onCurrentTreeIndexChanged()
   ReosRunoffModel *runoffModel = mRunoffModelModel->runoffModel( currentIndex );
   QString runoffType = mRunoffModelModel->indexToType( currentIndex );
 
-  ReosFormWidget *newForm = new ReosFormWidget( this );
-  if ( runoffModel )
+  ReosFormWidget *newForm = nullptr;
+  if ( runoffModel && ReosFormWidgetFactories::isInstantiate() )
   {
-    newForm->addParameters( runoffModel->parameters() );
+    newForm = ReosFormWidgetFactories::instance()->createDataFormWidget( runoffModel, this );
   }
   else
   {
+    newForm = new ReosFormWidget( this );
     if ( ReosRunoffModelRegistery::isInstantiate() )
       newForm->addText( ReosRunoffModelRegistery::instance()->modelDescription( runoffType ) );
   }
@@ -218,7 +225,8 @@ void ReosRunoffManager::onCurrentTreeIndexChanged()
   else
   {
     mCurrentForm = newForm;
-    ui->widgetEditor->layout()->addWidget( mCurrentForm );
+    if ( mCurrentForm )
+      ui->widgetEditor->layout()->addWidget( mCurrentForm );
   }
 }
 
@@ -265,4 +273,30 @@ void ReosRunoffManager::selectRunoffModel( ReosRunoffModel *runoffModel )
   QModelIndex index = mRunoffModelModel->runoffModelToIndex( runoffModel );
   ui->treeView->expand( index );
   ui->treeView->setCurrentIndex( index );
+}
+
+ReosFormWidget *ReosFormRunoffConstantCoefficientWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+{
+  ReosRunoffConstantCoefficientModel *runoffModel = qobject_cast<ReosRunoffConstantCoefficientModel *>( dataObject );
+  if ( !runoffModel )
+    return nullptr;
+
+  std::unique_ptr<ReosFormWidget> form = std::make_unique<ReosFormWidget>( parent );
+
+  form->addParameters( runoffModel->parameters() );
+
+  return form.release();
+}
+
+ReosFormWidget *ReosFormRunoffGreenAmptWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+{
+  ReosRunoffGreenAmptModel *runoffModel = qobject_cast<ReosRunoffGreenAmptModel *>( dataObject );
+  if ( !runoffModel )
+    return nullptr;
+
+  std::unique_ptr<ReosFormWidget> form = std::make_unique<ReosFormWidget>( parent );
+
+  form->addParameters( runoffModel->parameters() );
+
+  return form.release();
 }
