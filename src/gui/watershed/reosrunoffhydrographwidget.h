@@ -19,6 +19,8 @@
 #include <QAbstractTableModel>
 
 #include "reosactionwidget.h"
+#include "reosformwidget.h"
+#include "reostransferfunction.h"
 
 class QMenu;
 
@@ -29,6 +31,9 @@ class ReosWatershed;
 class ReosWatershedModule;
 class ReosPlotTimeHistogram;
 class ReosMeteorologicModel;
+class ReosPlotTimeSerieVariableStep;
+class ReosTransferFunction;
+class ReosSerieRainfall;
 
 namespace Ui
 {
@@ -52,6 +57,8 @@ class ReosWatershedRunoffModelsModel: public QAbstractTableModel
     void setWatershedRunoffModels( ReosRunoffModelsGroup *watershedRunoffModels );
     void addRunoffModel( ReosRunoffModel *runoffModel );
     void replaceRunoffModel( int row, ReosRunoffModel *runoffModel );
+    bool canBeRemoved( int row );
+    void removeRunoffModel( int row );
 
     int runoffCount() const;
 
@@ -62,7 +69,41 @@ class ReosWatershedRunoffModelsModel: public QAbstractTableModel
     void allDataChanged();
 
     bool replacePortion( int position, double portion );
+};
 
+class ReosRunoffResultModel: public QAbstractTableModel
+{
+  public:
+    ReosRunoffResultModel( QObject *parent = nullptr );
+    QModelIndex index( int row, int column, const QModelIndex & ) const override;
+    QModelIndex parent( const QModelIndex & ) const override;
+    int rowCount( const QModelIndex & ) const override;
+    int columnCount( const QModelIndex & ) const override;
+    QVariant data( const QModelIndex &index, int role ) const override;
+    QVariant headerData( int section, Qt::Orientation orientation, int role ) const;
+
+    void setRainFall( ReosSerieRainfall *rainfall );
+    void setRunoff( ReosTimeSerieConstantInterval *runoff );
+
+  private:
+    QPointer<ReosSerieRainfall> mRainfall = nullptr;
+    QPointer<ReosTimeSerieConstantInterval> mRunoff = nullptr;
+};
+
+class ReosReosHydrographResultModel: public QAbstractTableModel
+{
+  public:
+    ReosReosHydrographResultModel( QObject *parent = nullptr );
+    QModelIndex index( int row, int column, const QModelIndex & ) const override;
+    QModelIndex parent( const QModelIndex & ) const override;
+    int rowCount( const QModelIndex & ) const override;
+    int columnCount( const QModelIndex & ) const override;
+    QVariant data( const QModelIndex &index, int role ) const override;
+    QVariant headerData( int section, Qt::Orientation orientation, int role ) const;
+
+    void setHydrograph( ReosHydrograph *hydrograph );
+  private:
+    QPointer<ReosHydrograph> mHydrograph = nullptr;
 };
 
 class ReosRunoffHydrographWidget : public ReosActionWidget
@@ -82,6 +123,8 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
     void onModelMeteoChanged();
     void updateRainall();
     void updateRunoff();
+    void updateHydrograph();
+    void onTransferFunctionChanged();
 
     void onRunoffTableViewContextMenu( const QPoint &pos );
 
@@ -91,14 +134,37 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
     ReosWatershedRunoffModelsModel *mWatershedRunoffModelsModel = nullptr;
     ReosWatershed *mCurrentWatershed = nullptr;
     ReosMeteorologicModel *mCurrentMeteoModel = nullptr;
+    ReosRunoffResultModel *mRunoffResultTabModel;
+    ReosReosHydrographResultModel *mHydrographResultModel;
+
+    ReosTransferFunction *mCurrentTransferFunction = nullptr; //to remove?
+    ReosFormWidget *mCurrentTransferFunctionForm = nullptr;
 
     ReosPlotTimeHistogram *mRainfallHistogram = nullptr;
     ReosPlotTimeHistogram *mRunoffHistogram = nullptr;
+    ReosPlotTimeSerieVariableStep *mHydrographCurve = nullptr;
 
     ReosRunoff *mCurrentRunoff = nullptr;
+    ReosHydrograph *mCurrentHydrograph = nullptr;
 
     void buildRunoffChoiceMenu( QMenu *menu, int row );
 
+    void syncTransferFunction( ReosTransferFunction *function );
+};
+
+
+class ReosFormLinearReservoirWidgetFactory: public ReosFormWidgetDataFactory
+{
+  public:
+    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent );
+    virtual QString datatype() const {return QStringLiteral( "transfer-function-linear-reservoir" );}
+};
+
+class ReosFormGeneralizedRationalMethodWidgetFactory: public ReosFormWidgetDataFactory
+{
+  public:
+    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent );
+    virtual QString datatype() const {return QStringLiteral( "transfer-function-generalized-rational-method" );}
 };
 
 #endif // REOSRUNOFFHYDROGRAPHWIDGET_H

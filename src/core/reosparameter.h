@@ -190,5 +190,25 @@ class REOSCORE_EXPORT ReosParameterDateTime: public ReosParameter
     QDateTime mDateTime;
 };
 
+class ReosParameterBoolean : public ReosParameter
+{
+  public:
+    explicit ReosParameterBoolean( const QString &name, bool derivable, QObject *parent = nullptr );
+    explicit ReosParameterBoolean( const QString &name, QObject *parent = nullptr );
+
+    QString type() const override {return QString( "boolean" );}
+
+    void setValue( bool value );
+    void setDerivedValue( bool value );
+    bool value() const {return mValue;}
+    QString toString( int = -1 ) const override;
+
+    ReosEncodedElement encode() const;
+    static ReosParameterBoolean *decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent );
+
+  private:
+    bool mValue = 0;
+};
+
 
 #endif // REOSPARAMETER_H

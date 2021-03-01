@@ -99,6 +99,7 @@ void ReosPlotTimeHistogram::setBrushStyle( Qt::BrushStyle style )
 ReosPlotTimeCumulativeCurve::ReosPlotTimeCumulativeCurve( const QString &name )
 {
   mPlotItem = new QwtPlotCurve( name );
+  mPlotItem->setRenderHint( QwtPlotItem::RenderAntialiased, true );
 }
 
 void ReosPlotTimeCumulativeCurve::setTimeSerie( ReosTimeSerieConstantInterval *timeSerie )
@@ -135,4 +136,39 @@ QwtPlotCurve *ReosPlotTimeCumulativeCurve::curve()
   return static_cast<QwtPlotCurve *>( mPlotItem );
 }
 
+ReosPlotTimeSerieVariableStep::ReosPlotTimeSerieVariableStep( const QString &name )
+{
+  mPlotItem = new QwtPlotCurve( name );
+  mPlotItem->setRenderHint( QwtPlotItem::RenderAntialiased, true );
+}
 
+void ReosPlotTimeSerieVariableStep::setTimeSerie( ReosTimeSerieVariableTimeStep *timeSerie )
+{
+  if ( mTimeSerie && mTimeSerie->data() )
+    disconnect( mTimeSerie->data(), &ReosDataObject::dataChanged, this, &ReosPlotItem::itemChanged );
+
+  mTimeSerie = new ReosPlotVariableStepTimeSerie( timeSerie );
+  curve()->setSamples( mTimeSerie );
+
+  setSettings();
+
+  if ( timeSerie )
+    connect( timeSerie, &ReosDataObject::dataChanged, this, &ReosPlotItem::itemChanged );
+
+  if ( curve()->plot() )
+    curve()->plot()->replot();
+}
+
+void ReosPlotTimeSerieVariableStep::setSettings()
+{
+  QPen pen;
+  pen.setWidthF( 2 );
+  if ( mTimeSerie && mTimeSerie->data() )
+    pen.setColor( mTimeSerie->data()->color() );
+  curve()->setPen( pen );
+}
+
+QwtPlotCurve *ReosPlotTimeSerieVariableStep::curve()
+{
+  return static_cast<QwtPlotCurve *>( mPlotItem );
+}

@@ -16,6 +16,7 @@ email                : vcloarec at gmail dot com
 #include "reoswatershed.h"
 #include "reosgisengine.h"
 #include "reosrunoffmodel.h"
+#include "reostransferfunction.h"
 
 ReosWatershed::ReosWatershed():
   mArea( new ReosParameterArea( tr( "Watershed area" ), this ) )
@@ -756,6 +757,9 @@ void ReosWatershed::calculateDrop()
 
 void ReosWatershed::calculateConcentrationTime()
 {
+  if ( !ReosConcentrationTimeFormulasRegistery::isInstantiate() )
+    return;
+
   blockSignals( true );
 
   ReosConcentrationTimeFormula::Parameters param;
@@ -817,6 +821,25 @@ ReosGisEngine *ReosWatershed::geographicalContext() const
 ReosRunoffModelsGroup *ReosWatershed::runoffModels() const
 {
   return mRunoffModels;
+}
+
+ReosTransferFunction *ReosWatershed::currentTransferFunction() const
+{
+  if ( !mTransferFunctions.contains( mCurrentTransferFuntion ) )
+    return nullptr;
+
+  return mTransferFunctions[mCurrentTransferFuntion];
+}
+
+void ReosWatershed::setCurrentTransferFunction( const QString &type )
+{
+  if ( !mTransferFunctions.contains( type ) )
+  {
+    if ( ReosTransferFunctionFactories::isInstantiate() )
+      mTransferFunctions[type] = ReosTransferFunctionFactories::instance()->createTransferFunction( type, this );
+  }
+
+  mCurrentTransferFuntion = type;
 }
 
 

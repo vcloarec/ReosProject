@@ -62,8 +62,7 @@ class ReosConcentrationTimeFormula
 class ReosConcentrationTimeFormulasRegistery
 {
   public:
-
-    ReosConcentrationTimeFormulasRegistery();
+    ~ReosConcentrationTimeFormulasRegistery();
 
     //! Returns the formulas that has the \a name
     ReosConcentrationTimeFormula *formula( const QString &name ) const;
@@ -84,6 +83,8 @@ class ReosConcentrationTimeFormulasRegistery
     void registerFormulas( ReosConcentrationTimeFormula *formula );
 
   private:
+    ReosConcentrationTimeFormulasRegistery();
+
     std::map<QString, std::unique_ptr<ReosConcentrationTimeFormula>> mFormulas;
     static ReosConcentrationTimeFormulasRegistery *sInstance;
 };

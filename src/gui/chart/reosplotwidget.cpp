@@ -292,18 +292,18 @@ QwtPlotCurve *ReosPlotCurve::curve()
 }
 
 
-void ReosPlotItemFactoryRegistery::instantiate( ReosModule *parent )
+void ReosPlotItemFactories::instantiate( ReosModule *parent )
 {
   if ( !sInstance )
-    sInstance = new ReosPlotItemFactoryRegistery( parent );
+    sInstance = new ReosPlotItemFactories( parent );
 }
 
-bool ReosPlotItemFactoryRegistery::isInstantiate()
+bool ReosPlotItemFactories::isInstantiate()
 {
   return sInstance != nullptr;
 }
 
-void ReosPlotItemFactoryRegistery::addFactory( ReosDataPlotItemFactory *fact )
+void ReosPlotItemFactories::addFactory( ReosDataPlotItemFactory *fact )
 {
   for ( const Factory &currentFact : mFactories )
     if ( currentFact->datatype() == fact->datatype() )
@@ -312,14 +312,16 @@ void ReosPlotItemFactoryRegistery::addFactory( ReosDataPlotItemFactory *fact )
   mFactories.emplace_back( fact );
 }
 
-ReosPlotItemFactoryRegistery *ReosPlotItemFactoryRegistery::sInstance = nullptr;
+ReosPlotItemFactories *ReosPlotItemFactories::sInstance = nullptr;
 
-ReosPlotItemFactoryRegistery *ReosPlotItemFactoryRegistery::instance()
+ReosPlotItemFactories *ReosPlotItemFactories::instance()
 {
+  if ( !sInstance )
+    instantiate();
   return sInstance;
 }
 
-void ReosPlotItemFactoryRegistery::buildPlotItems( ReosPlotWidget *plotWidget, ReosDataObject *data, const QString &dataType )
+void ReosPlotItemFactories::buildPlotItems( ReosPlotWidget *plotWidget, ReosDataObject *data, const QString &dataType )
 {
   QString type = dataType;
   if ( type.isEmpty() )
@@ -333,4 +335,4 @@ void ReosPlotItemFactoryRegistery::buildPlotItems( ReosPlotWidget *plotWidget, R
     }
 }
 
-ReosPlotItemFactoryRegistery::ReosPlotItemFactoryRegistery( ReosModule *parent ): ReosModule( parent ) {}
+ReosPlotItemFactories::ReosPlotItemFactories( ReosModule *parent ): ReosModule( parent ) {}

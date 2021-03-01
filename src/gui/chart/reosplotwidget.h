@@ -152,19 +152,19 @@ class ReosDataPlotItemFactory
 };
 
 
-class ReosPlotItemFactoryRegistery: public ReosModule
+class ReosPlotItemFactories: public ReosModule
 {
   public:
-    static void instantiate( ReosModule *parent );
+    static void instantiate( ReosModule *parent = nullptr );
     static bool isInstantiate();
-    static ReosPlotItemFactoryRegistery *instance();
+    static ReosPlotItemFactories *instance();
 
     void addFactory( ReosDataPlotItemFactory *fact );
     void buildPlotItems( ReosPlotWidget *plotWidget, ReosDataObject *data, const QString &dataType = QString() );
 
   private:
-    ReosPlotItemFactoryRegistery( ReosModule *parent = nullptr );
-    static ReosPlotItemFactoryRegistery *sInstance;
+    ReosPlotItemFactories( ReosModule *parent = nullptr );
+    static ReosPlotItemFactories *sInstance;
     using Factory = std::unique_ptr<ReosDataPlotItemFactory>;
     std::vector<Factory> mFactories;
 

@@ -38,7 +38,7 @@ ReosConcentrationTimeWidget::ReosConcentrationTimeWidget( QWidget *parent ) :
   setWindowFlag( Qt::Dialog );
 
   ui->usedValue->setDefaultName( tr( "Used value" ) );
-  ui->usedValue->enableSpacer( true );
+  ui->usedValue->enableSpacer( ReosParameterWidget::SpacerInMiddle );
   ui->usedValue->hideWhenVoid( false );
 
   ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaKirpich );
@@ -57,16 +57,16 @@ ReosConcentrationTimeWidget::ReosConcentrationTimeWidget( QWidget *parent ) :
 
   ui->formulasView->setModel( mFormulasModel );
   ui->groupBoxparameters->layout()->addWidget( mLengthParameterWidget );
-  mLengthParameterWidget->enableSpacer( true );
+  mLengthParameterWidget->enableSpacer( ReosParameterWidget::SpacerInMiddle );
   mLengthParameterWidget->hideWhenVoid( false );
   ui->groupBoxparameters->layout()->addWidget( mDropParameterWidget );
-  mDropParameterWidget->enableSpacer( true );
+  mDropParameterWidget->enableSpacer( ReosParameterWidget::SpacerInMiddle );
   mDropParameterWidget->hideWhenVoid( false );
   ui->groupBoxparameters->layout()->addWidget( mSlopeParameterWidget );
-  mSlopeParameterWidget->enableSpacer( true );
+  mSlopeParameterWidget->enableSpacer( ReosParameterWidget::SpacerInMiddle );
   mSlopeParameterWidget->hideWhenVoid( false );
   ui->groupBoxparameters->layout()->addWidget( mAreaParameterWidget );
-  mAreaParameterWidget->enableSpacer( true );
+  mAreaParameterWidget->enableSpacer( ReosParameterWidget::SpacerInMiddle );
   mAreaParameterWidget->hideWhenVoid( false );
 
   connect( mAreaParameterWidget, &ReosParameterWidget::valueChanged, this, &ReosConcentrationTimeWidget::updateFormulas );

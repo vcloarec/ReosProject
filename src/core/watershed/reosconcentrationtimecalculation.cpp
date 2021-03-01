@@ -179,6 +179,11 @@ ReosConcentrationTimeFormulasRegistery::ReosConcentrationTimeFormulasRegistery()
 {
 }
 
+ReosConcentrationTimeFormulasRegistery::~ReosConcentrationTimeFormulasRegistery()
+{
+  sInstance = nullptr;
+}
+
 ReosConcentrationTimeFormula *ReosConcentrationTimeFormulasRegistery::formula( const QString &name ) const
 {
   std::map<QString, std::unique_ptr<ReosConcentrationTimeFormula>>::const_iterator it = mFormulas.find( name );

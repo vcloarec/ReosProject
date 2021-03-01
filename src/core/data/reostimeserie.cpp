@@ -314,9 +314,12 @@ void ReosTimeSerieConstantInterval::insertValues( int fromPos, int count, double
         mValues.insert( fromPos, value );
       break;
     case ReosTimeSerieConstantInterval::Intensity:
+    {
+      double intensity = convertFromIntensityValue( value );
       for ( int i = 0; i < count; ++i )
-        mValues.insert( fromPos, count, convertFromIntensityValue( value ) );
-      break;
+        mValues.insert( fromPos, convertFromIntensityValue( intensity ) );
+    }
+    break;
     case ReosTimeSerieConstantInterval::Cumulative:
     {
       double cumulValueBefore = valueWithMode( mValues.count() - 1 );
@@ -638,7 +641,7 @@ QPair<QDateTime, QDateTime> ReosTimeSerieVariableTimeStep::timeExtent() const
 
 void ReosTimeSerieVariableTimeStep::setValue( const ReosDuration &relativeTime, double value )
 {
-  if ( relativeTime > mTimeValues.last() )
+  if ( mTimeValues.isEmpty() || relativeTime > mTimeValues.last() )
   {
     mValues.append( value );
     mTimeValues.append( relativeTime );

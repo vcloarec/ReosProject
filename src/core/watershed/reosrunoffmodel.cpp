@@ -90,6 +90,11 @@ double ReosRunoff::value( int i ) const
   return mData->valueAt( i );
 }
 
+double ReosRunoff::incrementalValue( int i )
+{
+  return mData->valueWithMode( i, ReosTimeSerieConstantInterval::Value );
+}
+
 bool ReosRunoff::updateValues()
 {
   if ( !mRainfall.isNull() && mRunoffModelsGroups )
@@ -103,13 +108,17 @@ bool ReosRunoff::updateValues()
       if ( model )
       {
         if ( !model->addRunoffModel( mRainfall, mData, coefficient ) )
+        {
+          emit dataChanged();
           return false;
+        }
       }
     }
-
+    emit dataChanged();
     return true;
   }
 
+  emit dataChanged();
   return false;
 }
 
@@ -722,8 +731,10 @@ void ReosRunoffModelsGroup::removeRunoffModel( int i )
   if ( i < 0 || i >= mRunoffModels.count() )
     return;
 
+  double coefficientToDispatch = coefficient( i )->value();
   std::get<1>( mRunoffModels.at( i ) )->deleteLater();
   mRunoffModels.removeAt( i );
+  dispatch( coefficientToDispatch );
 
   emit dataChanged();
 }
@@ -860,4 +871,18 @@ double ReosRunoffModelsGroup::sharePortion()
   blockSignals( false );
 
   return givenPortion;
+}
+
+void ReosRunoffModelsGroup::dispatch( double coefToDispatch )
+{
+  double availableToDispatch = coefToDispatch;
+  for ( int i = 0; i < runoffModelCount(); ++i )
+  {
+    if ( isLocked( i ) )
+      continue;
+    double oldValue = coefficient( i )->value();
+    double toGive = std::max( std::min( availableToDispatch, ( 1 - oldValue ) ), 0.0 );
+    coefficient( i )->setValue( oldValue + toGive );
+    availableToDispatch -= toGive;
+  }
 }

@@ -679,6 +679,23 @@ ReosRainfallSerieRainfallItem::ReosRainfallSerieRainfallItem( const ReosEncodedE
   ReosRainfallDataItem( element )
 {}
 
+QString ReosRainfallSerieRainfallItem::rainfallInformation() const
+{
+  QString ret;
+  ret.append( tr( "Name: %1" ).arg( name() ) );
+  ret.append( "\n" );
+  ret.append( tr( "Type: %1" ).arg( dataType() ) );
+  ret.append( "\n" );
+  QPair<QDateTime, QDateTime> timeExtent = data()->timeExtent();
+  ReosDuration duration( timeExtent.first.msecsTo( timeExtent.second ) );
+  duration.setAdaptedUnit();
+  ret.append( tr( "Duration: %1" ).arg( duration.toString( 2 ) ) );
+  double cumul = data()->valueWithMode( data()->valueCount(), ReosTimeSerieConstantInterval::Cumulative );
+  ret.append( "\n" );
+  ret.append( tr( "Cumulative height: %1 mm" ).arg( QString::number( cumul, 'f', 2 ) ) );
+  return ret;
+}
+
 void ReosRainfallSerieRainfallItem::setupData()
 {
   if ( !data() )

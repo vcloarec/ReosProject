@@ -138,7 +138,21 @@ class ReosPlotConstantIntervalTimePointSerie: public QwtSeriesData<QPointF>
     QPointer<ReosTimeSerieConstantInterval> mTimeSerie;
     bool mIsCumulative = false;
     ReosTimeSerieConstantInterval::ValueMode mValueMode = ReosTimeSerieConstantInterval::Value ;
+};
 
+class ReosPlotVariableStepTimeSerie: public  QwtSeriesData<QPointF>
+{
+  public:
+    ReosPlotVariableStepTimeSerie( ReosTimeSerieVariableTimeStep *timeSerie );
+
+    size_t size() const override;
+    QPointF sample( size_t i ) const override;
+    QRectF boundingRect() const override;
+
+    ReosTimeSerieVariableTimeStep *data() const;
+
+  private:
+    QPointer<ReosTimeSerieVariableTimeStep> mTimeSerie;
 };
 
 

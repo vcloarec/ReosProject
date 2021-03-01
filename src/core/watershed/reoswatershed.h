@@ -31,6 +31,7 @@ email                : vcloarec at gmail dot com
 
 class ReosGisEngine;
 class ReosRunoffModelsGroup;
+class ReosTransferFunction;
 
 class REOSCORE_EXPORT ReosWatershed: public QObject
 {
@@ -201,6 +202,9 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
 
     ReosRunoffModelsGroup *runoffModels() const;
 
+    ReosTransferFunction *currentTransferFunction() const;
+    void setCurrentTransferFunction( const QString &type );
+
   signals:
     void changed();
 
@@ -248,6 +252,8 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
     ReosWatershed *mDownstreamWatershed = nullptr;
 
     ReosRunoffModelsGroup *mRunoffModels;
+    QMap<QString, ReosTransferFunction *> mTransferFunctions;
+    QString mCurrentTransferFuntion;
 
     void init();
     void connectParameters();

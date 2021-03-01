@@ -396,7 +396,6 @@ ReosParameterDouble::ReosParameterDouble( const QString &name, QObject *parent )
 {}
 
 
-
 QString ReosParameterDouble::toString( int precision ) const
 {
   if ( isValid() )
@@ -485,4 +484,65 @@ ReosParameterDouble *ReosParameterDouble::decode( const ReosEncodedElement &elem
 bool ReosParameter::isValid() const
 {
   return mIsValid;
+}
+
+ReosParameterBoolean::ReosParameterBoolean( const QString &name, bool derivable, QObject *parent ):
+  ReosParameter( name, derivable, parent )
+{}
+
+ReosParameterBoolean::ReosParameterBoolean( const QString &name, QObject *parent ):
+  ReosParameter( name, false, parent )
+{}
+
+QString ReosParameterBoolean::toString( int ) const
+{
+  if ( isValid() )
+  {
+    return mValue ? tr( "True" ) : tr( "False" );
+  }
+  else
+  {
+    return QString( '-' );
+  }
+}
+
+void ReosParameterBoolean::setValue( bool value )
+{
+  mIsDerived = false;
+  mValue = value;
+  mIsValid = true;
+  emit valueChanged();
+}
+
+
+void ReosParameterBoolean::setDerivedValue( bool value )
+{
+  mValue = value;
+  mIsDerived = true;
+  mIsValid = true;
+  emit valueChanged();
+}
+
+ReosEncodedElement ReosParameterBoolean::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "boolean-parameter" ) );
+  ReosParameter::encode( element );
+
+  element.addData( QStringLiteral( "boolean-value" ), mValue );
+
+  return element;
+}
+
+ReosParameterBoolean *ReosParameterBoolean::decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent )
+{
+  ReosParameterBoolean *ret = new ReosParameterBoolean( QString(), parent );
+
+  if ( element.description() != QStringLiteral( "boolean-parameter" ) )
+    return ret;
+
+  ret->ReosParameter::decode( element, isDerivable );
+
+  element.getData( QStringLiteral( "boolean-value" ), ret->mValue );
+
+  return ret;
 }

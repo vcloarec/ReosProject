@@ -40,81 +40,15 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   ReosMainWindow( parent ),
   mGisEngine( new ReosGisEngine( rootModule() ) ),
-  mMap( new ReosMap( mGisEngine, this ) ),
-  mWatershedModule( new ReosWatershedModule( rootModule(),  mGisEngine ) )
+  mMap( new ReosMap( mGisEngine, this ) )
 {
-  //****************************************************************
-
-//  map = new ReosMap( rootReosModule );
-//  centralWidget()->setLayout( new QVBoxLayout );
-//  centralWidget()->layout()->addWidget( map->getMapCanvas() );
-
-
-//  gisManager = new ReosGisManager( map, rootReosModule );
-//  dockSIG = new QDockWidget( tr( "Panneau de contrôle SIG" ) );
-//  dockSIG->setWidget( gisManager->getWidget() );
-//  statusBar()->addPermanentWidget( gisManager->createCRSDisplay( this ) );
-//  dockSIG->setObjectName( QStringLiteral( "Dock GIS" ) );
-
-//  demManager = new HdDEMManager( gisManager, rootReosModule );
-//  dockDEM = new QDockWidget( tr( "Panneau de contrôle MNT" ) );
-//  dockDEM->setWidget( demManager->getWidget() );
-//  dockDEM->setObjectName( QStringLiteral( "Dock DEM" ) );
-
-//  watershedManager = new HlgWatershedManager( map, gisManager, demManager, rootReosModule );
-//  dockWatershed = new QDockWidget( tr( "Panneau de contrôle Bassin versant" ) );
-//  dockWatershed->setWidget( watershedManager->getWidget() );
-//  dockWatershed->setObjectName( QStringLiteral( "Dock watershed" ) );
-
-
-//  rainfallManager = new HlgRainfallManager( map->getMapCanvas(), watershedManager );
-//  runoffManager = new HlgRunoffManager( map->getMapCanvas(), watershedManager, rainfallManager );
-
-//  messageBox = new ReosMessageBox( this );
-//  dockMessageBox = new QDockWidget( tr( "Message" ) );
-//  dockMessageBox->setWidget( messageBox );
-//  dockMessageBox->setObjectName( QStringLiteral( "Dock message" ) );
-
-//  //****************************************************************
-
-  //  menuBar()->addMenu( watershedManager->getMenu() );
-  //  addToolBar( watershedManager->getToolBar() );
-
-  //  addToolBar( rainfallManager->getToolBar() );
-  //toolBarRainfallRunoffModel = addToolBar( tr( "Modèle pluie/débit" ) );
-  //    toolBarRainsFaillRunoffModel->addActions(rainfallManager->getToolBar()->actions());
-  //    toolBarRainsFaillRunoffModel->addSeparator();
-  // toolBarRainfallRunoffModel->addActions( runoffManager->getToolBar()->actions() );
-
-
-
-
-//  groupActionInterrogation->addAction( actionNewVersionAvailable );
-//  groupActionInterrogation->addAction( actionDocumentation );
-//  menuInterrogation = menuBar()->addMenu( tr( "?" ) );
-//  menuInterrogation->addActions( groupActionInterrogation->actions() );
-
-  //reosDocumentation = new ReosDocumentation( lekanVersion, this );
-  //****************************************************************
-
-//  connect( actionNewProject, &QAction::triggered, this, &LekanMainWindow::newProject );
-//  connect( actionOpenFile, &QAction::triggered, this, &LekanMainWindow::open );
-//  connect( actionSaveFileAs, &QAction::triggered, this, &LekanMainWindow::saveProjectAs );
-//  connect( actionSaveFile, &QAction::triggered, this, &LekanMainWindow::saveProject );
-
-//  connect( actionLanguageSelection, &QAction::triggered, this, &LekanMainWindow::languageSelection );
-//  connect( actionAPropos, &QAction::triggered, this, &LekanMainWindow::aPropos );
-//  connect( actionNewVersionAvailable, &QAction::triggered, this, &LekanMainWindow::newVersionAvailable );
-  //connect( actionDocumentation, &QAction::triggered, reosDocumentation, &ReosDocumentation::call );
-
-  //connect( rootReosModule, &ReosModule::messageEmited, messageBox, &ReosMessageBox::receiveMessage );
-
   init();
 
   ReosRainfallRegistery::instantiate( rootModule() );
   ReosRunoffModelRegistery::instantiate( rootModule() );
-  ReosPlotItemFactoryRegistery::instantiate( rootModule() );
-  ReosFormWidgetRegistery::instantiate( rootModule() );
+
+  ReosPlotItemFactories::instantiate( rootModule() );
+  ReosFormWidgetFactories::instantiate( rootModule() );
 
   mRainFallManagerWidget = new ReosRainfallManager( ReosRainfallRegistery::instance()->rainfallModel(), this );
   mActionRainfallManager->setCheckable( true );

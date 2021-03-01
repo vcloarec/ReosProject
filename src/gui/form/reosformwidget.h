@@ -22,6 +22,7 @@
 #include <QComboBox>
 
 #include "reosmodule.h"
+#include "reosparameterwidget.h"
 
 class QLayoutItem;
 class QBoxLayout;
@@ -41,7 +42,7 @@ class ReosFormWidget : public QWidget
     explicit ReosFormWidget( QWidget *parent = nullptr, Qt::Orientation orientation = Qt::Vertical, bool withSpacer = true );
 
     void addText( const QString &text, int position = -1 );
-    void addParameter( ReosParameter *parameter, int position = -1 );
+    ReosParameterWidget *addParameter( ReosParameter *parameter, int position = -1, ReosParameterWidget::SpacerPosition spacer = ReosParameterWidget::NoSpacer );
     void addParameters( QList<ReosParameter *> parameters );
     void addData( ReosDataObject *data, int position = -1 );
     void addWidget( QWidget *widget, int position = -1 );
@@ -80,19 +81,19 @@ class ReosFormWidgetDataFactory
     virtual QString datatype() const = 0;
 };
 
-class ReosFormWidgetRegistery: public ReosModule
+class ReosFormWidgetFactories: public ReosModule
 {
   public:
     static void instantiate( ReosModule *parent );
     static bool isInstantiate();
-    static ReosFormWidgetRegistery *instance();
+    static ReosFormWidgetFactories *instance();
 
     void addDataWidgetFactory( ReosFormWidgetDataFactory *fact );
-    ReosFormWidget *createDataFormWidget( ReosDataObject *dataObject, QWidget *parent ) const;
+    ReosFormWidget *createDataFormWidget( ReosDataObject *dataObject, QWidget *parent = nullptr ) const;
 
   private:
-    ReosFormWidgetRegistery( ReosModule *parent );
-    static ReosFormWidgetRegistery *sInstance;
+    ReosFormWidgetFactories( ReosModule *parent );
+    static ReosFormWidgetFactories *sInstance;
     using DataWidgetFactory = std::unique_ptr<ReosFormWidgetDataFactory>;
     std::vector<DataWidgetFactory> mDataWidgetFactories;
 };

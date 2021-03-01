@@ -262,7 +262,10 @@ ReosPlotConstantIntervalTimePointSerie::ReosPlotConstantIntervalTimePointSerie( 
 
 size_t ReosPlotConstantIntervalTimePointSerie::size() const
 {
-  return mTimeSerie->valueCount() + ( mIsCumulative ? 1 : 0 );
+  if ( mTimeSerie )
+    return mTimeSerie->valueCount() + ( mIsCumulative ? 1 : 0 );
+  else
+    return 0;
 }
 
 QPointF ReosPlotConstantIntervalTimePointSerie::sample( size_t i ) const
@@ -317,7 +320,6 @@ void ReosPlotConstantIntervalTimePointSerie::setCumulative( bool b )
 
 QwtGraphic ReosPlotHistogramItem_p::legendIcon( int, const QSizeF &size ) const
 {
-
   QwtGraphic icon;
   if ( !size.isEmpty() )
   {
@@ -330,4 +332,43 @@ QwtGraphic ReosPlotHistogramItem_p::legendIcon( int, const QSizeF &size ) const
   }
 
   return icon;
+}
+
+ReosPlotVariableStepTimeSerie::ReosPlotVariableStepTimeSerie( ReosTimeSerieVariableTimeStep *timeSerie ):
+  mTimeSerie( timeSerie )
+{}
+
+size_t ReosPlotVariableStepTimeSerie::size() const
+{
+  if ( mTimeSerie )
+    return mTimeSerie->valueCount();
+  else
+    return 0;
+}
+
+QPointF ReosPlotVariableStepTimeSerie::sample( size_t i ) const
+{
+  double x = QwtDate::toDouble( mTimeSerie->timeAt( i ) );
+  double y = mTimeSerie->valueAt( i );
+
+  return QPointF( x, y );
+}
+
+QRectF ReosPlotVariableStepTimeSerie::boundingRect() const
+{
+  if ( !mTimeSerie )
+    return QRectF();
+  QPair<QDateTime, QDateTime> timeExtent = mTimeSerie->timeExtent();
+  QPair<double, double> valueExtent = mTimeSerie->valueExent();
+  double x1 = QwtDate::toDouble( timeExtent.first );
+  double x2 = QwtDate::toDouble( timeExtent.second );
+  return QRectF( x1, valueExtent.first, x2 - x1, valueExtent.second - valueExtent.first );
+}
+
+ReosTimeSerieVariableTimeStep *ReosPlotVariableStepTimeSerie::data() const
+{
+  if ( mTimeSerie.isNull() )
+    return nullptr;
+
+  return mTimeSerie;
 }

@@ -4,6 +4,7 @@
 #include "reosconcentrationtimecalculation.h"
 #include "reosmeteorologicmodel.h"
 #include "reosrainfallregistery.h"
+#include "reostransferfunction.h"
 
 ReosWatershedModule::ReosWatershedModule( ReosModule *parent, ReosGisEngine *gisEngine ):
   ReosModule( parent ),
@@ -11,7 +12,9 @@ ReosWatershedModule::ReosWatershedModule( ReosModule *parent, ReosGisEngine *gis
   mDelineatingModule( new ReosWatershedDelineating( this, mWatershedTree, gisEngine ) ),
   mMeteorologicModelsCollection( new ReosMeteorologicModelsCollection() )
 {
-
+  ReosTransferFunctionFactories::instantiate( this );
+  ReosTransferFunctionFactories::instance()->addFactory( new ReosTransferFunctionLinearReservoirFactory );
+  ReosTransferFunctionFactories::instance()->addFactory( new ReosTransferFunctionGeneralizedRationalMethodFactory );
 }
 
 ReosWatershedModule::~ReosWatershedModule()

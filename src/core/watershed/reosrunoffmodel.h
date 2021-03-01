@@ -116,8 +116,11 @@ class ReosRunoffModelsGroup : public ReosDataObject
     using WatershedRunoff = std::tuple<QPointer<ReosRunoffModel>, ReosParameterDouble *, bool> ;
     QList<WatershedRunoff> mRunoffModels;
 
-    // Reduce portion of not locked runoff model to share with a new one, returns the available portion
+    //! Reduce portion of not locked runoff model to share with a new one, returns the available portion
     double sharePortion();
+
+    //! Dispatch \a  coefToDispatch in to unlocked runoff model
+    void dispatch( double coefToDispatch );
 };
 
 
@@ -196,6 +199,9 @@ class ReosRunoff : public ReosDataObject
 
     //! Returns the value at positon \i
     double value( int i ) const;
+
+    //! Returns the incremental value in mm independently of the settings
+    double incrementalValue( int i );
 
     //! Updates the values
     bool updateValues();

@@ -230,7 +230,6 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
     ReosDuration relativeTimeAt( int i ) const;
     QPair<QDateTime, QDateTime> timeExtent() const;
 
-
     //! Sets the value at \a relative time with \a value, if the \a relative time is not present insert a new couple (time, value)
     void setValue( const ReosDuration &relativeTime, double value );
 
@@ -239,6 +238,9 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
 
     //! Adds another instance to this the values of this ones, create new time step if needed
     void addOther( ReosTimeSerieVariableTimeStep *other );
+
+    //! Return the color associated with this time serie
+    virtual QColor color() const {return QColor();}
 
   private:
     QVector<ReosDuration> mTimeValues;

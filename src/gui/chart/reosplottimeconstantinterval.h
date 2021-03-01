@@ -22,6 +22,8 @@ class ReosPlotHistogramItem_p;
 
 class ReosPlotConstantIntervalTimeIntervalSerie;
 class ReosPlotConstantIntervalTimePointSerie;
+class ReosTimeSerieVariableTimeStep;
+class ReosPlotVariableStepTimeSerie;
 
 /**
  *  Plot item that can be used to represent time serie with constant time step with histogram
@@ -74,6 +76,22 @@ class ReosPlotTimeCumulativeCurve: public ReosPlotItem
     QwtPlotCurve *curve();
     ReosPlotConstantIntervalTimePointSerie *mTimeSerie = nullptr;
 
+};
+
+
+class ReosPlotTimeSerieVariableStep: public ReosPlotItem
+{
+    Q_OBJECT
+  public:
+    ReosPlotTimeSerieVariableStep( const QString &name = QString() );
+    void setTimeSerie( ReosTimeSerieVariableTimeStep *timeSerie );
+
+  private slots:
+    void setSettings();
+
+  private:
+    QwtPlotCurve *curve();
+    ReosPlotVariableStepTimeSerie *mTimeSerie = nullptr;
 };
 
 #endif // REOSPLOTTIMECONSTANTINTERVAL_H

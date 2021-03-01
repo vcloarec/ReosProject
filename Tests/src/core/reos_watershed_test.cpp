@@ -20,6 +20,7 @@ email                : vcloarec at gmail dot com
 #include "reoswatersheddelineating.h"
 #include "reosrunoffmodel.h"
 #include "reossyntheticrainfall.h"
+#include "reostransferfunction.h"
 #include "reoswatershedtree.h"
 #include "reos_testutils.h"
 
@@ -845,6 +846,15 @@ void ReosWatersehdTest::runoffConstantCoefficient()
                     0.001 ) );
   }
 
+  ReosWatershed watershed;
+  ReosTransferFunctionLinearReservoir *linearReservoir = new ReosTransferFunctionLinearReservoir( &watershed );
+  linearReservoir->lagTime()->setValue( ReosDuration( 10, ReosDuration::minute ) );
+  linearReservoir->useConcentrationTime()->setValue( false );
+
+  watershed.area()->setValue( ReosArea( 20, ReosArea::ha ) );
+  ReosHydrograph *hydrograph = linearReservoir->applyFunction( &runoff, &runoff );
+
+  hydrograph->valueCount();
 }
 
 QTEST_MAIN( ReosWatersehdTest )

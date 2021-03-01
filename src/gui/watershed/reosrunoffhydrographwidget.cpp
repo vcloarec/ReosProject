@@ -17,19 +17,24 @@
 #include "ui_reosrunoffhydrographwidget.h"
 
 #include <QMenu>
+#include <QLabel>
 
+#include "reostransferfunction.h"
 #include "reosrunoffmodel.h"
 #include "reosparameter.h"
 #include "reoswatershed.h"
 #include "reoswatershedmodule.h"
 #include "reosmeteorologicmodel.h"
 #include "reosplottimeconstantinterval.h"
+#include "reosrunoffhydrographwidget.h"
 
 ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *watershedModule, QWidget *parent ) :
   ReosActionWidget( parent )
   , ui( new Ui::ReosRunoffHydrographWidget )
   , mWatershedModule( watershedModule )
   , mWatershedRunoffModelsModel( new ReosWatershedRunoffModelsModel( this ) )
+  , mRunoffResultTabModel( new ReosRunoffResultModel( this ) )
+  , mHydrographResultModel( new ReosReosHydrographResultModel( this ) )
 {
   ui->setupUi( this );
   setWindowFlag( Qt::Dialog );
@@ -48,13 +53,37 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *wat
   mRainfallHistogram->setBorderWdidth( 1.5 );
   mRunoffHistogram = new ReosPlotTimeHistogram( tr( "Runoff" ), false );
   mRunoffHistogram->setBrushColor( QColor( 250, 150, 0, 175 ) );
+  mHydrographCurve = new ReosPlotTimeSerieVariableStep( tr( "Hydrograph" ) );
+  mHydrographCurve->setOnRightAxe();
   ui->widgetPlot->addPlotItem( mRainfallHistogram );
   ui->widgetPlot->addPlotItem( mRunoffHistogram );
-  ui->widgetPlot->setTitleAxeX( QObject::tr( "Time" ) );
+  ui->widgetPlot->addPlotItem( mHydrographCurve );
+  ui->widgetPlot->setTitleAxeX( tr( "Time" ) );
   ui->widgetPlot->setAxeXType( ReosPlotWidget::temporal );
+  ui->widgetPlot->enableAxeYright( true );
+  ui->widgetPlot->setTitleAxeYRight( tr( "Flow rate (m\u00B3/s)" ) );
 
   ui->comboBoxMeteoModel->setModel( mWatershedModule->meteoModelsCollection() );
   connect( ui->comboBoxMeteoModel, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosRunoffHydrographWidget::onModelMeteoChanged );
+
+  if ( ReosTransferFunctionFactories::isInstantiate() )
+  {
+    ui->comboBoxTransferFunction->setModel( ReosTransferFunctionFactories::instance()->listModel() );
+    ui->comboBoxTransferFunction->setCurrentIndex( 0 );
+    connect( ui->comboBoxTransferFunction, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosRunoffHydrographWidget::onTransferFunctionChanged );
+  }
+
+  if ( ReosFormWidgetFactories::isInstantiate() )
+  {
+    ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormLinearReservoirWidgetFactory );
+    ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormGeneralizedRationalMethodWidgetFactory );
+  }
+
+  ui->tableViewRunoffResult->setModel( mRunoffResultTabModel );
+  ui->tableViewRunoffResult->horizontalHeader()->setStretchLastSection( true );
+  ui->tableViewHydrographResult->setModel( mHydrographResultModel );
+  ui->tableViewHydrographResult->horizontalHeader()->setStretchLastSection( true );
+
 }
 
 ReosRunoffHydrographWidget::~ReosRunoffHydrographWidget()
@@ -69,11 +98,14 @@ void ReosRunoffHydrographWidget::setCurrentWatershed( ReosWatershed *watershed )
   if ( !mCurrentWatershed )
   {
     mWatershedRunoffModelsModel->setWatershedRunoffModels( nullptr );
+    mCurrentTransferFunction = nullptr;
+    syncTransferFunction( nullptr );
   }
   else
   {
     mWatershedRunoffModelsModel->setWatershedRunoffModels( watershed->runoffModels() );
     ui->tableViewRunoff->horizontalHeader()->setSectionResizeMode( 0, QHeaderView::ResizeToContents );
+    syncTransferFunction( watershed->currentTransferFunction() );
   }
 
   updateRainall();
@@ -109,8 +141,12 @@ void ReosRunoffHydrographWidget::onRunoffTableViewContextMenu( const QPoint &pos
 
 void ReosRunoffHydrographWidget::updateRainall()
 {
-  mCurrentRunoff->deleteLater();
-  mCurrentRunoff = nullptr;
+  if ( mCurrentWatershed )
+  {
+    mCurrentRunoff->deleteLater();
+    mCurrentRunoff = nullptr;
+  }
+
 
   ReosRainfallSerieRainfallItem *rainfall = nullptr;
 
@@ -118,9 +154,19 @@ void ReosRunoffHydrographWidget::updateRainall()
     rainfall = mCurrentMeteoModel->associatedRainfall( mCurrentWatershed );
 
   if ( rainfall )
+  {
     mRainfallHistogram->setTimeSerie( rainfall->data() );
+    ui->labelRainfAllInfo->setText( rainfall->rainfallInformation() );
+    mRunoffResultTabModel->setRainFall( rainfall->data() );
+    ui->tableViewRunoffResult->horizontalHeader()->resizeSections( QHeaderView::ResizeToContents );
+    ui->tableViewRunoffResult->verticalHeader()->resizeSections( QHeaderView::ResizeToContents );
+  }
   else
+  {
     mRainfallHistogram->setTimeSerie( nullptr );
+    ui->labelRainfAllInfo->setText( QString() );
+    mRunoffResultTabModel->setRainFall( nullptr );
+  }
 
   if ( mCurrentWatershed && rainfall )
     mCurrentRunoff = new ReosRunoff( mCurrentWatershed->runoffModels(), rainfall->data(), this );
@@ -134,7 +180,54 @@ void ReosRunoffHydrographWidget::updateRunoff()
   {
     mCurrentRunoff->updateValues(); /// TODO : doing that under a parallel process with progress bar
     mRunoffHistogram->setTimeSerie( mCurrentRunoff->data() );
+    mRunoffResultTabModel->setRunoff( mCurrentRunoff->data() );
+    ui->tableViewRunoffResult->horizontalHeader()->resizeSections( QHeaderView::ResizeToContents );
+    ui->tableViewRunoffResult->verticalHeader()->resizeSections( QHeaderView::ResizeToContents );
+    connect( mCurrentRunoff, &ReosDataObject::dataChanged, this, &ReosRunoffHydrographWidget::updateHydrograph );
   }
+  else
+  {
+    mRunoffHistogram->setTimeSerie( nullptr );
+    mRunoffResultTabModel->setRunoff( nullptr );
+  }
+
+  updateHydrograph();
+}
+
+void ReosRunoffHydrographWidget::updateHydrograph()
+{
+  if ( mCurrentHydrograph )
+  {
+    mCurrentHydrograph->deleteLater();
+    mCurrentHydrograph = nullptr;
+  }
+
+  if ( mCurrentRunoff && mCurrentTransferFunction )
+    mCurrentHydrograph = mCurrentTransferFunction->applyFunction( mCurrentRunoff, this );
+
+  mHydrographCurve->setTimeSerie( mCurrentHydrograph );
+
+  mHydrographResultModel->setHydrograph( mCurrentHydrograph );
+  ui->tableViewHydrographResult->horizontalHeader()->resizeSections( QHeaderView::ResizeToContents );
+  ui->tableViewHydrographResult->verticalHeader()->resizeSections( QHeaderView::ResizeToContents );
+}
+
+void ReosRunoffHydrographWidget::onTransferFunctionChanged()
+{
+  if ( !ReosTransferFunctionFactories::isInstantiate() )
+    return;
+
+  ReosTransferFunctionFactories *factories = ReosTransferFunctionFactories::instance();
+  int currentIndex = ui->comboBoxTransferFunction->currentIndex();
+
+  if ( mCurrentWatershed && currentIndex >= 0 )
+  {
+    QString type = factories->type( currentIndex );
+    mCurrentWatershed->setCurrentTransferFunction( type );
+    syncTransferFunction( mCurrentWatershed->currentTransferFunction() );
+  }
+  else
+    syncTransferFunction( nullptr );
 }
 
 void ReosRunoffHydrographWidget::buildRunoffChoiceMenu( QMenu *menu, int row )
@@ -162,10 +255,55 @@ void ReosRunoffHydrographWidget::buildRunoffChoiceMenu( QMenu *menu, int row )
           mWatershedRunoffModelsModel->replaceRunoffModel( row, rom );
       } );
     }
-
     menu->addMenu( typeMenu );
   }
 
+  if ( row < mWatershedRunoffModelsModel->runoffCount() && mWatershedRunoffModelsModel->canBeRemoved( row ) )
+    menu->addAction( tr( "Remove this model" ), menu, [this, row]
+  {
+    mWatershedRunoffModelsModel->removeRunoffModel( row );
+  } );
+
+
+}
+
+void ReosRunoffHydrographWidget::syncTransferFunction( ReosTransferFunction *function )
+{
+  if ( ! ReosTransferFunctionFactories::isInstantiate() )
+    return;
+
+  ReosTransferFunctionFactories *factories = ReosTransferFunctionFactories::instance();
+  int index = -1;
+  if ( function )
+  {
+    index = factories->index( function->type() );
+    if ( index < 0 )
+    {
+      function = nullptr;
+    }
+  }
+  ui->comboBoxTransferFunction->setCurrentIndex( index );
+
+  ReosFormWidget *oldForm = mCurrentTransferFunctionForm;
+  if ( oldForm )
+  {
+    ui->widgetTransferFunction->layout()->removeWidget( oldForm );
+    oldForm->deleteLater();
+  }
+
+  if ( mCurrentTransferFunction )
+    disconnect( mCurrentTransferFunction, &ReosDataObject::dataChanged, this, &ReosRunoffHydrographWidget::updateHydrograph );
+
+  mCurrentTransferFunction = function;
+
+  if ( mCurrentTransferFunction )
+    connect( mCurrentTransferFunction, &ReosDataObject::dataChanged, this, &ReosRunoffHydrographWidget::updateHydrograph );
+
+  mCurrentTransferFunctionForm = ReosFormWidgetFactories::instance()->createDataFormWidget( function );
+  if ( mCurrentTransferFunctionForm )
+    ui->widgetTransferFunction->layout()->addWidget( mCurrentTransferFunctionForm );
+
+  updateHydrograph();
 }
 
 
@@ -189,6 +327,19 @@ void ReosWatershedRunoffModelsModel::replaceRunoffModel( int row, ReosRunoffMode
   mWatershedRunoffModels->replaceRunnofModel( row, runoffModel );
   QModelIndex i = index( row, 0, QModelIndex() );
   emit dataChanged( i, i );
+}
+
+bool ReosWatershedRunoffModelsModel::canBeRemoved( int row )
+{
+  return !mWatershedRunoffModels->isLocked( row ) && portionEditable();
+}
+
+void ReosWatershedRunoffModelsModel::removeRunoffModel( int row )
+{
+  beginRemoveRows( QModelIndex(), row, 0 );
+  mWatershedRunoffModels->removeRunoffModel( row );
+  endRemoveRows();
+  allDataChanged();
 }
 
 int ReosWatershedRunoffModelsModel::runoffCount() const
@@ -510,4 +661,283 @@ QVariant ReosWatershedRunoffModelsModel::headerData( int section, Qt::Orientatio
   }
 
   return QAbstractTableModel::headerData( section, orientation, role );
+}
+
+ReosFormWidget *ReosFormLinearReservoirWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+{
+  ReosTransferFunctionLinearReservoir *transferFunction = qobject_cast<ReosTransferFunctionLinearReservoir *>( dataObject );
+  if ( !transferFunction )
+    return nullptr;
+
+  std::unique_ptr<ReosFormWidget> form = std::make_unique<ReosFormWidget>( parent );
+
+  form->addParameter( transferFunction->area(), -1, ReosParameterWidget::SpacerInMiddle );
+  form->addParameter( transferFunction->concentrationTime(), -1, ReosParameterWidget::SpacerInMiddle );
+  form->addParameter( transferFunction->useConcentrationTime(), -1, ReosParameterWidget::SpacerAfter );
+  ReosParameterWidget *factorWidget = form->addParameter( transferFunction->factorToLagTime(), -1, ReosParameterWidget::SpacerInMiddle );
+  ReosParameterWidget *lagTimeWidget = form->addParameter( transferFunction->lagTime(), -1, ReosParameterWidget::SpacerInMiddle );
+  QLabel *lagTimeDeduced = new QLabel( form.get() );
+  form->addWidget( lagTimeDeduced );
+
+  bool useConcTime = transferFunction->useConcentrationTime()->value();
+  factorWidget->setVisible( useConcTime );
+  lagTimeWidget->setVisible( !useConcTime );
+
+  QString lagTimeDeducedtext = QObject::tr( "Lag time from concentration time: %1" );
+  ReosDuration concTime = transferFunction->concentrationTime()->value();
+  double fact = transferFunction->factorToLagTime()->value();
+  lagTimeDeduced->setText( lagTimeDeducedtext.arg( ( concTime * fact ).toString( 2 ) ) );
+
+  QObject::connect( transferFunction->useConcentrationTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, factorWidget, lagTimeWidget, lagTimeDeduced]
+  {
+    bool useConcTime = transferFunction->useConcentrationTime()->value();
+    factorWidget->setVisible( useConcTime );
+    lagTimeDeduced->setVisible( useConcTime );
+    lagTimeWidget->setVisible( !useConcTime );
+  } );
+
+  QObject::connect( transferFunction->concentrationTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, lagTimeDeduced, lagTimeDeducedtext]
+  {
+    ReosDuration concTime = transferFunction->concentrationTime()->value();
+    double fact = transferFunction->factorToLagTime()->value();
+    lagTimeDeduced->setText( lagTimeDeducedtext.arg( ( concTime * fact ).toString( 2 ) ) );
+  } );
+
+  QObject::connect( transferFunction->concentrationTime(), &ReosParameter::unitChanged, form.get(), [transferFunction, lagTimeDeduced, lagTimeDeducedtext]
+  {
+    ReosDuration concTime = transferFunction->concentrationTime()->value();
+    double fact = transferFunction->factorToLagTime()->value();
+    lagTimeDeduced->setText( lagTimeDeducedtext.arg( ( concTime * fact ).toString( 2 ) ) );
+  } );
+
+  QObject::connect( transferFunction->factorToLagTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, lagTimeDeduced, lagTimeDeducedtext]
+  {
+    ReosDuration concTime = transferFunction->concentrationTime()->value();
+    double fact = transferFunction->factorToLagTime()->value();
+    lagTimeDeduced->setText( lagTimeDeducedtext.arg( ( concTime * fact ).toString( 2 ) ) );
+  } );
+
+  return form.release();
+}
+
+ReosFormWidget *ReosFormGeneralizedRationalMethodWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+{
+  ReosTransferFunctionGeneralizedRationalMethod *transferFunction = qobject_cast<ReosTransferFunctionGeneralizedRationalMethod *>( dataObject );
+  if ( !transferFunction )
+    return nullptr;
+
+  std::unique_ptr<ReosFormWidget> form = std::make_unique<ReosFormWidget>( parent );
+
+  form->addParameter( transferFunction->area(), -1, ReosParameterWidget::SpacerInMiddle );
+  form->addParameter( transferFunction->concentrationTime(), -1, ReosParameterWidget::SpacerInMiddle );
+
+  return form.release();
+}
+
+ReosRunoffResultModel::ReosRunoffResultModel( QObject *parent ): QAbstractTableModel( parent ) {}
+
+QModelIndex ReosRunoffResultModel::index( int row, int column, const QModelIndex & ) const
+{
+  return createIndex( row, column );
+}
+
+QModelIndex ReosRunoffResultModel::parent( const QModelIndex & ) const
+{
+  return QModelIndex();
+}
+
+int ReosRunoffResultModel::rowCount( const QModelIndex & ) const
+{
+  if ( !mRainfall.isNull() )
+    return mRainfall->valueCount();
+
+  return 0;
+}
+
+int ReosRunoffResultModel::columnCount( const QModelIndex & ) const
+{
+  if ( !mRunoff.isNull() )
+    return 3;
+  if ( !mRainfall.isNull() )
+    return 2;
+
+  return 0;
+
+}
+
+QVariant ReosRunoffResultModel::data( const QModelIndex &index, int role ) const
+{
+  if ( index.row() >= rowCount( QModelIndex() ) )
+    return QVariant();
+
+  int row = index.row();
+
+  if ( role == Qt::DisplayRole )
+  {
+    switch ( index.column() )
+    {
+      case 0: //time
+        if ( !mRainfall.isNull() && row < mRainfall->valueCount() )
+          return mRainfall->timeAt( row ).toString( "yyyy.MM.dd hh:mm:ss" );
+        break;
+      case 1: //rainfall
+        if ( !mRainfall.isNull() && row < mRainfall->valueCount() )
+          return QString::number( mRainfall->valueAt( row ), 'f', 2 );
+        break;
+      case 2: //runoff
+        if ( !mRunoff.isNull() && row < mRunoff->valueCount() )
+          return QString::number( mRunoff->valueAt( row ), 'f', 2 );
+        break;
+      default:
+        return QVariant();
+        break;;
+    }
+  }
+
+  if ( role == Qt::TextAlignmentRole )
+  {
+    return Qt::AlignHCenter;
+  }
+
+  return QVariant();
+}
+
+QVariant ReosRunoffResultModel::headerData( int section, Qt::Orientation orientation, int role ) const
+{
+  if ( orientation == Qt::Vertical )
+    return QVariant();
+
+  if ( role == Qt::DisplayRole )
+  {
+    switch ( section )
+    {
+      case 0: //time
+        return tr( "Time" );
+        break;
+      case 1: //rainfall
+        return tr( "Rainfall %1" ).arg( mRainfall->unitStringCurrentMode() );
+        break;
+      case 2: //runoff
+        return tr( "Runoff %1" ).arg( mRunoff->unitStringCurrentMode() );
+        break;
+        break;
+      default:
+        return QVariant();
+        break;;
+    }
+  }
+
+  return QVariant();
+}
+
+void ReosRunoffResultModel::setRainFall( ReosSerieRainfall *rainfall )
+{
+  beginResetModel();
+  mRainfall = rainfall;
+  mRunoff = nullptr;
+  endResetModel();
+
+}
+
+void ReosRunoffResultModel::setRunoff( ReosTimeSerieConstantInterval *runoff )
+{
+  beginResetModel();
+  mRunoff = runoff;
+  endResetModel();
+}
+
+
+ReosReosHydrographResultModel::ReosReosHydrographResultModel( QObject *parent ): QAbstractTableModel( parent )
+{
+
+}
+
+QModelIndex ReosReosHydrographResultModel::index( int row, int column, const QModelIndex & ) const
+{
+  return createIndex( row, column );
+}
+
+QModelIndex ReosReosHydrographResultModel::parent( const QModelIndex & ) const
+{
+  return QModelIndex();
+}
+
+int ReosReosHydrographResultModel::rowCount( const QModelIndex & ) const
+{
+  if ( mHydrograph.isNull() )
+    return 0;
+  else
+    return mHydrograph->valueCount();
+}
+
+int ReosReosHydrographResultModel::columnCount( const QModelIndex & ) const
+{
+  if ( mHydrograph.isNull() )
+    return 0;
+  else
+    return 2;
+}
+
+QVariant ReosReosHydrographResultModel::data( const QModelIndex &index, int role ) const
+{
+  if ( index.row() >= rowCount( QModelIndex() ) )
+    return QVariant();
+
+  int row = index.row();
+
+  if ( role == Qt::DisplayRole )
+  {
+    switch ( index.column() )
+    {
+      case 0: //time
+        if ( !mHydrograph.isNull() && row < mHydrograph->valueCount() )
+          return mHydrograph->timeAt( row ).toString( "yyyy.MM.dd hh:mm:ss" );
+        break;
+      case 1: //flow rate
+        if ( !mHydrograph.isNull() && row < mHydrograph->valueCount() )
+          return QString::number( mHydrograph->valueAt( row ), 'f', 2 );
+        break;
+      default:
+        return QVariant();
+        break;;
+    }
+  }
+
+  if ( role == Qt::TextAlignmentRole )
+  {
+    return Qt::AlignHCenter;
+  }
+
+  return QVariant();
+}
+
+QVariant ReosReosHydrographResultModel::headerData( int section, Qt::Orientation orientation, int role ) const
+{
+  if ( orientation == Qt::Vertical )
+    return QVariant();
+
+  if ( role == Qt::DisplayRole )
+  {
+    switch ( section )
+    {
+      case 0: //time
+        return tr( "Time" );
+        break;
+      case 1: //flow rate
+        return tr( "Flow rate (m\u00B3/s)" );
+        break;
+      default:
+        return QVariant();
+        break;;
+    }
+  }
+
+  return QVariant();
+}
+
+void ReosReosHydrographResultModel::setHydrograph( ReosHydrograph *hydrograph )
+{
+  beginResetModel();
+  mHydrograph = hydrograph;
+  endResetModel();
 }

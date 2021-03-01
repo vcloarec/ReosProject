@@ -107,16 +107,16 @@ ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWid
   ReosIdfFormulaRegistery::instance()->registerFormula( new ReosIdfFormulaMontana );
   ReosIdfFormulaRegistery::instance()->registerFormula( new ReosIdfFormulaSherman );
 
-  ReosPlotItemFactoryRegistery::instance()->addFactory( new ReosPlotItemRainfallIntensityDurationFrequencyFactory );
-  ReosPlotItemFactoryRegistery::instance()->addFactory( new ReosPlotItemRainfallIntensityDurationFactory );
-  ReosPlotItemFactoryRegistery::instance()->addFactory( new ReosPlotItemRainfallSerieFactory );
-  ReosPlotItemFactoryRegistery::instance()->addFactory( new ReosPlotItemRainfallChicagoFactory );
-  ReosPlotItemFactoryRegistery::instance()->addFactory( new ReosPlotItemRainfallDoubleTriangleFactory );
+  ReosPlotItemFactories::instance()->addFactory( new ReosPlotItemRainfallIntensityDurationFrequencyFactory );
+  ReosPlotItemFactories::instance()->addFactory( new ReosPlotItemRainfallIntensityDurationFactory );
+  ReosPlotItemFactories::instance()->addFactory( new ReosPlotItemRainfallSerieFactory );
+  ReosPlotItemFactories::instance()->addFactory( new ReosPlotItemRainfallChicagoFactory );
+  ReosPlotItemFactories::instance()->addFactory( new ReosPlotItemRainfallDoubleTriangleFactory );
 
-  ReosFormWidgetRegistery::instance()->addDataWidgetFactory( new ReosFormWidgetRainFallSerieFactory );
-  ReosFormWidgetRegistery::instance()->addDataWidgetFactory( new ReosFormWidgetChicagoRainfalFactory );
-  ReosFormWidgetRegistery::instance()->addDataWidgetFactory( new ReosFormWidgetDoubleTriangleRainfalFactory );
-  ReosFormWidgetRegistery::instance()->addDataWidgetFactory( new ReosFormWidgetIntensityDurationCurveFactory );
+  ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormWidgetRainFallSerieFactory );
+  ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormWidgetChicagoRainfalFactory );
+  ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormWidgetDoubleTriangleRainfalFactory );
+  ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormWidgetIntensityDurationCurveFactory );
 }
 
 ReosRainfallManager::~ReosRainfallManager()
@@ -445,10 +445,10 @@ void ReosRainfallManager::onCurrentTreeIndexChanged()
     }
 
     // Then the plot to visualize the data
-    if ( item->data() && ReosPlotItemFactoryRegistery::isInstantiate() )
+    if ( item->data() && ReosPlotItemFactories::isInstantiate() )
     {
       ReosPlotWidget *newPlot = new ReosPlotWidget( this );
-      ReosPlotItemFactoryRegistery::instance()->buildPlotItems( newPlot, item->data() );
+      ReosPlotItemFactories::instance()->buildPlotItems( newPlot, item->data() );
       if ( mCurrentPlot )
       {
         ui->mPlotWidget->layout()->replaceWidget( mCurrentPlot, newPlot );

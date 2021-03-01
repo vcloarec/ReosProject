@@ -14,12 +14,15 @@
  *                                                                         *
  ***************************************************************************/
 
+#include <QCheckBox>
 #include <QHBoxLayout>
 #include <QLineEdit>
 #include <QComboBox>
 #include <QLabel>
 #include <QToolButton>
 #include <QDateTimeEdit>
+
+
 #include "reosparameterwidget.h"
 
 
@@ -74,24 +77,52 @@ ReosParameterWidget *ReosParameterWidget::createWidget( ReosParameter *parameter
   if ( parameter->type() == ReosParameterDoubleWidget::type() )
     return new ReosParameterDoubleWidget( static_cast<ReosParameterDouble *>( parameter ), parent );
 
+  if ( parameter->type() == ReosParameterBooleanWidget::type() )
+    return new ReosParameterBooleanWidget( static_cast<ReosParameterBoolean *>( parameter ), parent );
+
   return nullptr;
 }
 
-void ReosParameterWidget::enableSpacer( bool b )
+void ReosParameterWidget::enableSpacer( SpacerPosition spacerPosition )
 {
-  if ( mSpacer )
+  if ( mSpacerBefore )
   {
-    mLayout->removeItem( mSpacer );
-    delete mSpacer;
-    mSpacer = nullptr;
+    mLayout->removeItem( mSpacerBefore );
+    delete mSpacerBefore;
+    mSpacerBefore = nullptr;
   }
 
-  if ( b )
+  if ( mSpacerMiddle )
   {
-    mSpacer = new QSpacerItem( 0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored );
-    mLayout->insertItem( 1, mSpacer );
+    mLayout->removeItem( mSpacerMiddle );
+    delete mSpacerMiddle;
+    mSpacerMiddle = nullptr;
   }
 
+  if ( mSpacerAfter )
+  {
+    mLayout->removeItem( mSpacerAfter );
+    delete mSpacerAfter;
+    mSpacerAfter = nullptr;
+  }
+
+  if ( spacerPosition & SpacerPosition::SpacerAfter )
+  {
+    mSpacerAfter = new QSpacerItem( 0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored );
+    mLayout->addItem( mSpacerAfter );
+  }
+
+  if ( spacerPosition & SpacerPosition::SpacerInMiddle )
+  {
+    mSpacerMiddle = new QSpacerItem( 0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored );
+    mLayout->insertItem( 1, mSpacerMiddle );
+  }
+
+  if ( spacerPosition & SpacerPosition::SpacerBefore )
+  {
+    mSpacerBefore = new QSpacerItem( 0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored );
+    mLayout->insertItem( 0, mSpacerBefore );
+  }
 
 }
 
@@ -579,4 +610,62 @@ void ReosParameterDateTimeWidget::setFocusOnEdit()
 ReosParameterDateTime *ReosParameterDateTimeWidget::dateTimeParameter() const
 {
   return static_cast<ReosParameterDateTime *>( mParameter.data() );
+}
+
+ReosParameterBooleanWidget::ReosParameterBooleanWidget( QWidget *parent, const QString &defaultName ):
+  ReosParameterWidget( defaultName, parent )
+  , mCheckBox( new QCheckBox( this ) )
+{
+  layout()->addWidget( mCheckBox );
+  connect( mCheckBox, &QCheckBox::stateChanged, this, &ReosParameterWidget::applyValue );
+  finalizeWidget();
+}
+
+ReosParameterBooleanWidget::ReosParameterBooleanWidget( ReosParameterBoolean *booleanParameter, QWidget *parent ):
+  ReosParameterBooleanWidget( parent, booleanParameter ? booleanParameter->name() : QString() )
+{
+  setBooleanParameter( booleanParameter );
+}
+
+void ReosParameterBooleanWidget::setBooleanParameter( ReosParameterBoolean *boolean )
+{
+  setParameter( boolean );
+}
+
+void ReosParameterBooleanWidget::updateValue()
+{
+  if ( booleanParameter() && booleanParameter()->isValid() )
+  {
+    if ( mCheckBox )
+    {
+      mCheckBox->setEnabled( true );
+      mCheckBox->setChecked( booleanParameter()->value() );
+    }
+    show();
+  }
+  else
+  {
+    if ( mCheckBox )
+      mCheckBox->setEnabled( false );
+    show();
+  }
+
+  if ( mHideWhenVoid && !booleanParameter() )
+    hide();
+}
+
+void ReosParameterBooleanWidget::applyValue()
+{
+  if ( booleanParameter() && mCheckBox )
+    booleanParameter()->setValue( mCheckBox->isChecked() );
+}
+
+void ReosParameterBooleanWidget::setFocusOnEdit()
+{
+  mCheckBox->setFocus();
+}
+
+ReosParameterBoolean *ReosParameterBooleanWidget::booleanParameter() const
+{
+  return static_cast<ReosParameterBoolean *>( mParameter.data() );
 }

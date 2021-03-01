@@ -222,6 +222,7 @@ class REOSCORE_EXPORT ReosRainfallSerieRainfallItem: public ReosRainfallDataItem
     ReosRainfallSerieRainfallItem( const ReosEncodedElement &element );
 
     ReosSerieRainfall *data() const override = 0;
+    QString rainfallInformation() const;
     void setupData() override;
 };
 
@@ -235,6 +236,7 @@ class REOSCORE_EXPORT ReosRainfallGaugedRainfallItem: public ReosRainfallSerieRa
 
     QString dataType() const override {return QStringLiteral( "gauged-rainfall" );}
     ReosSerieRainfall *data() const override;
+
     QIcon icone() const override {return QIcon( QPixmap( ":/images/gaugedRainfall.svg" ) );}
     virtual bool accept( ReosRainfallItem * ) const override;
     virtual ReosEncodedElement encode() const override;
