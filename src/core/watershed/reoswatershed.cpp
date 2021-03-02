@@ -706,6 +706,7 @@ void ReosWatershed::updateResidual()
   mUpstreamWatersheds[0]->mExtent = ReosMapExtent( residualDelineating );
   mUpstreamWatersheds[0]->mName->setValue( mName->value() + QObject::tr( " residual" ) );
   mUpstreamWatersheds[0]->mDownstreamWatershed = this;
+  mUpstreamWatersheds[0]->mDownstreamLine = mDownstreamLine;
 
   if ( mUpstreamWatersheds[0]->mArea->isDerived() )
     mUpstreamWatersheds[0]->mArea->askForDerivation();
