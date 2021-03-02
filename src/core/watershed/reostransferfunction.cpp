@@ -47,6 +47,33 @@ ReosParameterArea *ReosTransferFunction::area() const
   return mArea;
 }
 
+void ReosTransferFunction::encodeBase( ReosEncodedElement &element ) const
+{
+  if ( !mWatershed )
+  {
+    element.addEncodedData( QStringLiteral( "concentration-time" ), mConcentrationTime->encode() );
+    element.addEncodedData( QStringLiteral( "area" ), mArea->encode() );
+  }
+}
+
+ReosTransferFunction::ReosTransferFunction( const ReosEncodedElement &element, ReosWatershed *watershed ):
+  ReosDataObject( watershed )
+{
+  if ( watershed )
+  {
+    mConcentrationTime = watershed->concentrationTime();
+    mArea = watershed->area();
+    connect( watershed, &ReosWatershed::changed, this, &ReosDataObject::dataChanged );
+  }
+  else
+  {
+    mConcentrationTime = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "concentration-time" ) ), false, this );
+    mArea = ReosParameterArea::decode( element.getEncodedData( QStringLiteral( "area" ) ), false, this );
+    connect( mConcentrationTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+    connect( mArea, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+  }
+}
+
 ReosTransferFunctionLinearReservoir::ReosTransferFunctionLinearReservoir( ReosWatershed *parent ):
   ReosTransferFunction( parent )
   , mLagTime( new ReosParameterDuration( tr( "Lag time" ), false, this ) )
@@ -108,6 +135,26 @@ ReosHydrograph *ReosTransferFunctionLinearReservoir::applyFunction( ReosRunoff *
   return hydrograph.release();
 }
 
+ReosEncodedElement ReosTransferFunctionLinearReservoir::encode() const
+{
+  ReosEncodedElement element( type() );
+  encodeBase( element );
+
+  element.addEncodedData( QStringLiteral( "lag-time" ), mLagTime->encode() );
+  element.addEncodedData( QStringLiteral( "use-concentration-time" ), mUseConcentrationTime->encode() );
+  element.addEncodedData( QStringLiteral( "factor-to-lag-time" ), mFactorToLagTime->encode() );
+
+  return element;
+}
+
+ReosTransferFunctionLinearReservoir *ReosTransferFunctionLinearReservoir::decode( const ReosEncodedElement &element, ReosWatershed *watershed )
+{
+  if ( element.description() != QStringLiteral( "transfer-function-linear-reservoir" ) )
+    return nullptr;
+
+  return new ReosTransferFunctionLinearReservoir( element, watershed );
+}
+
 ReosParameterDouble *ReosTransferFunctionLinearReservoir::factorToLagTime() const
 {
   return mFactorToLagTime;
@@ -123,6 +170,18 @@ ReosParameterDuration *ReosTransferFunctionLinearReservoir::lagTime() const
   return mLagTime;
 }
 
+ReosTransferFunctionLinearReservoir::ReosTransferFunctionLinearReservoir( const ReosEncodedElement &element, ReosWatershed *watershed ):
+  ReosTransferFunction( element, watershed )
+{
+  mLagTime = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "lag-time" ) ), false, this );
+  mUseConcentrationTime = ReosParameterBoolean::decode( element.getEncodedData( QStringLiteral( "use-concentration-time" ) ), false, this );
+  mFactorToLagTime = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "factor-to-lag-time" ) ), false, this );
+
+  connect( mLagTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+  connect( mUseConcentrationTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+  connect( mFactorToLagTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+}
+
 QColor ReosHydrograph::color() const
 {
   return Qt::red;
@@ -136,6 +195,26 @@ ReosHydrograph *ReosTransferFunctionGeneralizedRationalMethod::applyFunction( Re
 {
   return nullptr;
 }
+
+ReosEncodedElement ReosTransferFunctionGeneralizedRationalMethod::encode() const
+{
+  ReosEncodedElement element( type() );
+  encodeBase( element );
+
+  return element;
+}
+
+ReosTransferFunction *ReosTransferFunctionGeneralizedRationalMethod::decode( const ReosEncodedElement &element, ReosWatershed *watershed )
+{
+  if ( element.description() != QStringLiteral( "transfer-function-generalized-rational-method" ) )
+    return nullptr;
+
+  return new ReosTransferFunctionGeneralizedRationalMethod( element, watershed );
+}
+
+ReosTransferFunctionGeneralizedRationalMethod::ReosTransferFunctionGeneralizedRationalMethod( const ReosEncodedElement &element, ReosWatershed *watershed ):
+  ReosTransferFunction( element, watershed )
+{}
 
 ReosTransferFunctionFactories *ReosTransferFunctionFactories::sInstance = nullptr;
 
@@ -164,6 +243,15 @@ ReosTransferFunction *ReosTransferFunctionFactories::createTransferFunction( con
   for ( const Factory &fact : mFactories )
     if ( fact->type() == type )
       return fact->createTransferFunction( watershed );
+
+  return nullptr;
+}
+
+ReosTransferFunction *ReosTransferFunctionFactories::createTransferFunction( const ReosEncodedElement &elem, ReosWatershed *watershed )
+{
+  for ( const Factory &fac : mFactories )
+    if ( fac->type() == elem.description() )
+      return fac->createTransferFunction( elem, watershed );
 
   return nullptr;
 }
@@ -242,10 +330,10 @@ int ReosTransferFunctionFactoriesModel::columnCount( const QModelIndex & ) const
 QVariant ReosTransferFunctionFactoriesModel::data( const QModelIndex &index, int role ) const
 {
   if ( !index.isValid() )
-    return QModelIndex();
+    return QVariant();
 
   if ( index.row() >= static_cast<int>( mFactories.size() ) )
-    return QModelIndex();
+    return QVariant();
 
   switch ( role )
   {
@@ -256,7 +344,7 @@ QVariant ReosTransferFunctionFactoriesModel::data( const QModelIndex &index, int
       break;
   }
 
-  return QModelIndex();
+  return QVariant();
 }
 
 ReosTransferFunction *ReosTransferFunctionGeneralizedRationalMethodFactory::createTransferFunction( ReosWatershed *watershed ) const
@@ -264,7 +352,17 @@ ReosTransferFunction *ReosTransferFunctionGeneralizedRationalMethodFactory::crea
   return new ReosTransferFunctionGeneralizedRationalMethod( watershed );
 }
 
+ReosTransferFunction *ReosTransferFunctionGeneralizedRationalMethodFactory::createTransferFunction( const ReosEncodedElement &element, ReosWatershed *watershed ) const
+{
+  return ReosTransferFunctionGeneralizedRationalMethod::decode( element, watershed );
+}
+
 ReosTransferFunction *ReosTransferFunctionLinearReservoirFactory::createTransferFunction( ReosWatershed *watershed ) const
 {
   return new ReosTransferFunctionLinearReservoir( watershed );
+}
+
+ReosTransferFunction *ReosTransferFunctionLinearReservoirFactory::createTransferFunction( const ReosEncodedElement &element, ReosWatershed *watershed ) const
+{
+  return ReosTransferFunctionLinearReservoir::decode( element, watershed );
 }

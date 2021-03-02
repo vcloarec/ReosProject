@@ -18,6 +18,7 @@
 
 #include "reostimeserie.h"
 #include "reosmodule.h"
+#include "reosencodedelement.h"
 
 class ReosRunoff;
 class ReosWatershed;
@@ -53,6 +54,12 @@ class ReosTransferFunction : public ReosDataObject
      */
     ReosParameterArea *area() const;
 
+    virtual ReosEncodedElement encode() const = 0;
+
+  protected:
+    void encodeBase( ReosEncodedElement &element ) const;
+    ReosTransferFunction( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr );
+
   private:
     ReosWatershed *mWatershed = nullptr;
     ReosParameterDuration *mConcentrationTime = nullptr;
@@ -66,7 +73,9 @@ class ReosTransferFunctionFactory
   public:
     virtual QString type() const = 0;
     virtual QString displayText() const = 0;
+
     virtual ReosTransferFunction *createTransferFunction( ReosWatershed *watershed = nullptr ) const = 0;
+    virtual ReosTransferFunction *createTransferFunction( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr ) const = 0;
 
 };
 
@@ -98,6 +107,8 @@ class ReosTransferFunctionFactories : public ReosModule
 
     //! Creates a transfer fuction of type \a type linked to \a watershed, return nullptr if \a type is not handled
     ReosTransferFunction *createTransferFunction( const QString &type, ReosWatershed *watershed );
+
+    ReosTransferFunction *createTransferFunction( const ReosEncodedElement &elem, ReosWatershed *watershed );
 
     //! Adds a factory
     void addFactory( ReosTransferFunctionFactory *factory );
@@ -131,6 +142,12 @@ class ReosTransferFunctionGeneralizedRationalMethod : public ReosTransferFunctio
     ReosTransferFunctionGeneralizedRationalMethod( ReosWatershed *watershed = nullptr );
     QString type() const override {return QStringLiteral( "transfer-function-generalized-rational-method" );}
     ReosHydrograph *applyFunction( ReosRunoff *runoff, QObject *hydrographParent = nullptr ) const override;
+    ReosEncodedElement encode() const override;
+
+    static ReosTransferFunction *decode( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr );
+
+  private:
+    ReosTransferFunctionGeneralizedRationalMethod( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr );
 };
 
 class ReosTransferFunctionGeneralizedRationalMethodFactory: public ReosTransferFunctionFactory
@@ -139,6 +156,7 @@ class ReosTransferFunctionGeneralizedRationalMethodFactory: public ReosTransferF
     QString type() const override {return QStringLiteral( "transfer-function-generalized-rational-method" );}
     QString displayText() const override {return QObject::tr( "Generalized Rational Method" );}
     ReosTransferFunction *createTransferFunction( ReosWatershed *watershed ) const override;
+    ReosTransferFunction *createTransferFunction( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr ) const override;
 };
 
 //**********************************************************
@@ -149,18 +167,19 @@ class ReosTransferFunctionLinearReservoir : public ReosTransferFunction
     ReosTransferFunctionLinearReservoir( ReosWatershed *parent = nullptr );
     ReosHydrograph *applyFunction( ReosRunoff *runoff, QObject *hydrographParent = nullptr ) const override;
     QString type() const override {return QStringLiteral( "transfer-function-linear-reservoir" );}
+    ReosEncodedElement encode() const override;
+
+    static ReosTransferFunctionLinearReservoir *decode( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr );
 
     ReosParameterDouble *factorToLagTime() const;
     ReosParameterBoolean *useConcentrationTime() const;
     ReosParameterDuration *lagTime() const;
 
-
   private:
+    ReosTransferFunctionLinearReservoir( const ReosEncodedElement &element, ReosWatershed *parent = nullptr );
     ReosParameterDuration *mLagTime;
     ReosParameterBoolean *mUseConcentrationTime;
     ReosParameterDouble *mFactorToLagTime;
-
-
 };
 
 class ReosTransferFunctionLinearReservoirFactory: public ReosTransferFunctionFactory
@@ -169,6 +188,7 @@ class ReosTransferFunctionLinearReservoirFactory: public ReosTransferFunctionFac
     QString type() const override {return QStringLiteral( "transfer-function-linear-reservoir" );}
     QString displayText() const override {return QObject::tr( "Linear reservoir" );}
     ReosTransferFunction *createTransferFunction( ReosWatershed *watershed ) const override;
+    ReosTransferFunction *createTransferFunction( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr ) const override;
 };
 
 

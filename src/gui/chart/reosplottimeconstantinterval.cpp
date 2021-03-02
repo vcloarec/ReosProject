@@ -147,7 +147,9 @@ void ReosPlotTimeSerieVariableStep::setTimeSerie( ReosTimeSerieVariableTimeStep 
   if ( mTimeSerie && mTimeSerie->data() )
     disconnect( mTimeSerie->data(), &ReosDataObject::dataChanged, this, &ReosPlotItem::itemChanged );
 
-  mTimeSerie = new ReosPlotVariableStepTimeSerie( timeSerie );
+  mTimeSerie = nullptr;
+  if ( timeSerie )
+    mTimeSerie = new ReosPlotVariableStepTimeSerie( timeSerie );
   curve()->setSamples( mTimeSerie );
 
   setSettings();

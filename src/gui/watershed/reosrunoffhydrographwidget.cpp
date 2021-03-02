@@ -690,9 +690,9 @@ ReosFormWidget *ReosFormLinearReservoirWidgetFactory::createDataWidget( ReosData
   QObject::connect( transferFunction->useConcentrationTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, factorWidget, lagTimeWidget, lagTimeDeduced]
   {
     bool useConcTime = transferFunction->useConcentrationTime()->value();
+    lagTimeWidget->setVisible( !useConcTime );
     factorWidget->setVisible( useConcTime );
     lagTimeDeduced->setVisible( useConcTime );
-    lagTimeWidget->setVisible( !useConcTime );
   } );
 
   QObject::connect( transferFunction->concentrationTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, lagTimeDeduced, lagTimeDeducedtext]

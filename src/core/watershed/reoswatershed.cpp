@@ -474,6 +474,15 @@ ReosEncodedElement ReosWatershed::encode() const
 
   ret.addEncodedData( QStringLiteral( "runoff-models" ), mRunoffModels->encode() );
 
+  QList<ReosEncodedElement> encodedTransferFunctions;
+  for ( const QString &key : mTransferFunctions.keys() )
+  {
+    ReosTransferFunction *tf = mTransferFunctions.value( key );
+    encodedTransferFunctions.append( tf->encode() );
+  }
+  ret.addListEncodedData( QStringLiteral( "transfer-functions" ), encodedTransferFunctions );
+  ret.addData( QStringLiteral( "current-transfer-function" ), mCurrentTransferFuntion );
+
   return ret;
 }
 
@@ -565,6 +574,18 @@ ReosWatershed *ReosWatershed::decode( const ReosEncodedElement &element )
   ws->mConcentrationTimeCalculation = ReosConcentrationTimeCalculation::decode( element.getEncodedData( QStringLiteral( "concentration-time-calculation" ) ) );
 
   ws->mRunoffModels->decode( element.getEncodedData( QStringLiteral( "runoff-models" ) ) );
+
+  if ( ReosTransferFunctionFactories::isInstantiate() )
+  {
+    const QList<ReosEncodedElement> encodedTransferFunctions = element.getListEncodedData( QStringLiteral( "transfer-functions" ) );
+    for ( const ReosEncodedElement &elem : encodedTransferFunctions )
+    {
+      std::unique_ptr<ReosTransferFunction> tf( ReosTransferFunctionFactories::instance()->createTransferFunction( elem, ws.get() ) );
+      ws->mTransferFunctions[tf->type()] = tf.release();
+    }
+  }
+
+  element.getData( QStringLiteral( "current-transfer-function" ), ws->mCurrentTransferFuntion );
 
   ws->connectParameters();
 
