@@ -26,6 +26,7 @@
 
 class ReosTimeSerieConstantInterval;
 class ReosParameter;
+class ReosParameterBoolean;
 class ReosParameterDouble;
 class ReosParameterString;
 class ReosTimeSerieConstantInterval;
@@ -57,7 +58,6 @@ class ReosRunoffModel : public ReosDataObject
 
     //! Returns the unique Id of this runoff model
     QString uniqueId() const;
-
 
   protected:
     ReosRunoffModel( const QString &name, QObject *parent = nullptr );
@@ -120,6 +120,9 @@ class ReosRunoffModelsGroup : public ReosDataObject
 
     //! Dispatch \a  coefToDispatch in to unlocked runoff model
     void dispatch( double coefToDispatch );
+
+    void connectModel( int i );
+    void disconnectModel( int i );
 };
 
 
@@ -220,8 +223,7 @@ class ReosRunoff : public ReosDataObject
 class ReosRunoffModelModel : public QAbstractItemModel
 {
   public :
-    ReosRunoffModelModel( QObject *parent = nullptr ): QAbstractItemModel( parent )
-    {}
+    ReosRunoffModelModel( QObject *parent = nullptr );
 
     QModelIndex index( int row, int column, const QModelIndex &parent ) const override;
     QModelIndex parent( const QModelIndex &child ) const override;
@@ -389,6 +391,34 @@ class ReosRunoffGreenAmptModel: public ReosRunoffModel
     ReosParameterDouble *mInitialWaterContentParameter = nullptr;
     ReosParameterDouble *mWettingFrontSuctionParameter = nullptr;
 };
+
+//! Implementation of the Green Ampt run off model
+class ReosRunoffCurveNumberModel: public ReosRunoffModel
+{
+    Q_OBJECT
+  public:
+    ReosRunoffCurveNumberModel( const QString &name, QObject *parent = nullptr );
+
+    QString type() const override {return QStringLiteral( "runoff-model-curve-number" );}
+    QString runoffType() const override {return QStringLiteral( "curve-number" );}
+    QList<ReosParameter *> parameters() const override;
+    bool addRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double factor = 1 ) override;
+    ReosEncodedElement encode() const override;
+    static ReosRunoffCurveNumberModel *create( const ReosEncodedElement &element, QObject *parent = nullptr );
+
+    ReosParameterDouble *curveNumber() const;
+    ReosParameterBoolean *initialRetentionFromS() const;
+    ReosParameterDouble *initialRetention() const;
+
+  private:
+    ReosRunoffCurveNumberModel( const ReosEncodedElement &element, QObject *parent = nullptr );
+
+    ReosParameterDouble *mCurveNumberParameter = nullptr;
+    ReosParameterDouble *mInitialRetentionParameter = nullptr;
+    ReosParameterBoolean *mInitialRetentionFromS = nullptr;
+};
+
+
 
 
 #endif // REOSRUNOFFMODEL_H

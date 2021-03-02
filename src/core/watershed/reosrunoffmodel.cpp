@@ -204,6 +204,9 @@ ReosRunoffConstantCoefficientModel *ReosRunoffConstantCoefficientModel::create( 
   return new ReosRunoffConstantCoefficientModel( element, parent );
 }
 
+ReosRunoffModelModel::ReosRunoffModelModel( QObject *parent ): QAbstractItemModel( parent )
+{}
+
 QModelIndex ReosRunoffModelModel::index( int row, int column, const QModelIndex &parent ) const
 {
   if ( parent.isValid() )
@@ -491,6 +494,9 @@ ReosRunoffModel *ReosRunoffModelRegistery::createModel( const QString &type, con
   if ( type == QStringLiteral( "green-ampt" ) )
     runoffModel.reset( new ReosRunoffGreenAmptModel( name, this ) );
 
+  if ( type == QStringLiteral( "curve-number" ) )
+    runoffModel.reset( new ReosRunoffCurveNumberModel( name, this ) );
+
   if ( mModel->addModel( runoffModel.get() ) )
     return runoffModel.release();
 
@@ -506,6 +512,9 @@ ReosRunoffModel *ReosRunoffModelRegistery::createModel( const ReosEncodedElement
 
   if ( element.description() == QStringLiteral( "green-ampt-runoff-model" ) )
     runoffModel.reset( ReosRunoffGreenAmptModel::create( element, this ) );
+
+  if ( element.description() == QStringLiteral( "curve-number-runoff-model" ) )
+    runoffModel.reset( ReosRunoffCurveNumberModel::create( element, this ) );
 
   if ( runoffModel )
     return runoffModel.release();
@@ -525,6 +534,8 @@ QString ReosRunoffModelRegistery::createRunoffModelName( const QString &type )
       name = tr( "Constant coefficient %1" ).arg( suffix );
     else if ( type == QStringLiteral( "green-ampt" ) )
       name = tr( "Green Ampt %1" ).arg( suffix );
+    else if ( type == QStringLiteral( "curve-number" ) )
+      name = tr( "Curve Number %1" ).arg( suffix );
     else
       name = tr( "Undefined type %1" ).arg( suffix );
 
@@ -626,7 +637,6 @@ ReosRunoffModelCollection ReosRunoffModelRegistery::runoffModelCollection( const
   return mModel->runoffModelCollection( type );
 }
 
-
 ReosRunoffModelRegistery::ReosRunoffModelRegistery( QObject *parent ):
   ReosModule( parent )
   , mModel( new ReosRunoffModelModel( this ) )
@@ -635,13 +645,19 @@ ReosRunoffModelRegistery::ReosRunoffModelRegistery( QObject *parent ):
                       tr( "Constant coefficient" ),
                       QPixmap( QStringLiteral( ":/images/runoffConstantCoefficient.svg" ) ) );
 
-  addDescription( QStringLiteral( "constant-coefficient" ), tr( "A constant coefficient between 0 and 1\nis applied on the rainfall" ) );
+
 
   addModelCollection( QStringLiteral( "green-ampt" ),
                       tr( "Green Ampt" ),
                       QPixmap( QStringLiteral( ":/images/runoffGreenAmpt.svg" ) ) );
 
+  addModelCollection( QStringLiteral( "curve-number" ),
+                      tr( "Curve Number" ),
+                      QPixmap( QStringLiteral( ":/images/runoffCurveNumber.svg" ) ) );
+
+  addDescription( QStringLiteral( "constant-coefficient" ), tr( "A constant coefficient between 0 and 1\nis applied on the rainfall" ) );
   addDescription( QStringLiteral( "green-ampt" ), tr( "The Green Ampt approach for runoff" ) );
+  addDescription( QStringLiteral( "curve-number" ), tr( "Curve Number runoff" ) );
 }
 
 ReosRunoffModelCollection::ReosRunoffModelCollection( const QString &type, const QString &displayedText, const QPixmap &icon ):
@@ -720,8 +736,7 @@ void ReosRunoffModelsGroup::addRunoffModel( ReosRunoffModel *runoffModel )
   paramPortion->setValue( sharePortion() );
   mRunoffModels.append( {QPointer<ReosRunoffModel>( runoffModel ), paramPortion, false} );
 
-  connect( runoffModel, &ReosDataObject::dataChanged, this, &ReosDataObject::dataChanged );
-  connect( paramPortion, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+  connectModel( mRunoffModels.count() - 1 );
 
   emit dataChanged();
 }
@@ -731,8 +746,9 @@ void ReosRunoffModelsGroup::replaceRunnofModel( int i, ReosRunoffModel *runoffMo
   if ( i < 0 || i >= mRunoffModels.count() )
     return;
 
-  std::get<0>( mRunoffModels[i] ) = runoffModel;
 
+  std::get<0>( mRunoffModels[i] ) = runoffModel;
+  connectModel( i );
   emit dataChanged();
 }
 
@@ -744,6 +760,7 @@ void ReosRunoffModelsGroup::removeRunoffModel( int i )
     return;
 
   double coefficientToDispatch = coefficient( i )->value();
+  disconnectModel( i );
   std::get<1>( mRunoffModels.at( i ) )->deleteLater();
   mRunoffModels.removeAt( i );
   dispatch( coefficientToDispatch );
@@ -789,7 +806,9 @@ void ReosRunoffModelsGroup::clear()
 {
   blockSignals( true );
   while ( runoffModelCount() > 0 )
+  {
     removeRunoffModel( 0 );
+  }
   blockSignals( false );
 
   emit dataChanged();
@@ -844,6 +863,7 @@ void ReosRunoffModelsGroup::decode( const ReosEncodedElement &element )
       elem.getData( QStringLiteral( "locked" ), l );
       ReosParameterDouble *paramPortion = ReosParameterDouble::decode( elem.getEncodedData( "watershed-portion" ), false, this );
       mRunoffModels.append( {QPointer<ReosRunoffModel>( ro ), paramPortion, l == 1} );
+      connectModel( mRunoffModels.count() - 1 );
     }
   }
 
@@ -899,6 +919,18 @@ void ReosRunoffModelsGroup::dispatch( double coefToDispatch )
   }
 }
 
+void ReosRunoffModelsGroup::connectModel( int i )
+{
+  connect( runoffModel( i ), &ReosDataObject::dataChanged, this, &ReosDataObject::dataChanged );
+  connect( coefficient( i ), &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+}
+
+void ReosRunoffModelsGroup::disconnectModel( int i )
+{
+  disconnect( runoffModel( i ), &ReosDataObject::dataChanged, this, &ReosDataObject::dataChanged );
+  disconnect( coefficient( i ), &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+}
+
 ReosRunoffGreenAmptModel::ReosRunoffGreenAmptModel( const QString &name, QObject *parent ):
   ReosRunoffModel( name, parent )
   , mInitialRetentionParameter( new ReosParameterDouble( tr( "Initial retention (mm)" ), false, this ) )
@@ -919,6 +951,7 @@ ReosRunoffGreenAmptModel::ReosRunoffGreenAmptModel( const QString &name, QObject
 QList<ReosParameter *> ReosRunoffGreenAmptModel::parameters() const
 {
   QList<ReosParameter *> ret;
+  ret << name();
   ret << mInitialRetentionParameter;
   ret << mSaturatedPermeabilityParameter;
   ret << mSoilPorosityParameter;
@@ -982,7 +1015,7 @@ bool ReosRunoffGreenAmptModel::addRunoffModel( ReosTimeSerieConstantInterval *ra
   {
     for ( int i = 0; i < n; ++i )
       if ( rain[i] > K_h )
-        runoff[i] += rain[i] - K_h;
+        runoff[i] += ( rain[i] - K_h ) * factor;
     return true;
   }
 
@@ -1054,7 +1087,7 @@ bool ReosRunoffGreenAmptModel::addRunoffModel( ReosTimeSerieConstantInterval *ra
       pondingTerminal = false;
     }
 
-    runoff[i] += R - Rprev;
+    runoff[i] += ( R - Rprev ) * factor;
   }
 
 
@@ -1091,5 +1124,114 @@ ReosRunoffGreenAmptModel::ReosRunoffGreenAmptModel( const ReosEncodedElement &el
   mSoilPorosityParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "soil-porosity" ) ), false, this );
   mInitialWaterContentParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "initial-water-content" ) ), false, this );
   mWettingFrontSuctionParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "wetting-front-succion" ) ), false, this );
+  connectParameters();
+}
+
+ReosRunoffCurveNumberModel::ReosRunoffCurveNumberModel( const QString &name, QObject *parent ):
+  ReosRunoffModel( name, parent )
+  , mCurveNumberParameter( new ReosParameterDouble( tr( "Curve number" ), false, this ) )
+  , mInitialRetentionParameter( new ReosParameterDouble( tr( "Initial retention (mm)" ), false, this ) )
+  , mInitialRetentionFromS( new ReosParameterBoolean( tr( "Initial retention : 0.2 x S" ) ) )
+{
+  mCurveNumberParameter->setValue( 80.0 );
+  mInitialRetentionParameter->setValue( 0.0 );
+  mInitialRetentionFromS->setValue( true );
+
+  connectParameters();
+}
+
+QList<ReosParameter *> ReosRunoffCurveNumberModel::parameters() const
+{
+  QList<ReosParameter *> ret;
+  ret << name();
+  ret << mCurveNumberParameter;
+  ret << mInitialRetentionFromS;
+  ret << mInitialRetentionParameter;
+
+  return ret;
+}
+
+bool ReosRunoffCurveNumberModel::addRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double factor )
+{
+  if ( !rainfall || !runoffResult )
+    return false;
+  if ( runoffResult->valueCount() != rainfall->valueCount() )
+    return applyRunoffModel( rainfall, runoffResult, factor );
+
+  if ( mCurveNumberParameter->value() <= 0 )
+    return true;
+
+  int n = rainfall->valueCount();
+
+  double P = 0;
+  double R = 0;
+  double S = 25400 / mCurveNumberParameter->value() - 254;
+  double Ia;
+  if ( mInitialRetentionFromS )
+    Ia = 0.2 * S;
+  else
+    Ia = mInitialRetentionParameter->value();
+
+  double *rain = rainfall->data();
+  double *runoff = runoffResult->data();
+
+  for ( int i = 0; i < n; ++i )
+  {
+    double dP = rain[i];
+    double Rprev = R;
+    P += dP;
+    if ( P < Ia )
+      R = 0;
+    else
+    {
+      R = pow( P - Ia, 2 ) / ( P - Ia + S );
+    }
+    runoff[i] += ( R - Rprev ) * factor;
+  }
+
+  return true;
+}
+
+ReosEncodedElement ReosRunoffCurveNumberModel::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "curve-number-runoff-model" ) );
+  encodeBase( element );
+
+  element.addEncodedData( QStringLiteral( "curve-number" ), mCurveNumberParameter->encode() );
+  element.addEncodedData( QStringLiteral( "initial-retention" ), mInitialRetentionParameter->encode() );
+  element.addEncodedData( QStringLiteral( "calculate-initial-retention" ), mInitialRetentionFromS->encode() );
+
+  return element;
+}
+
+ReosRunoffCurveNumberModel *ReosRunoffCurveNumberModel::create( const ReosEncodedElement &element, QObject *parent )
+{
+  if ( element.description() != QStringLiteral( "curve-number-runoff-model" ) )
+    return nullptr;
+
+  return new ReosRunoffCurveNumberModel( element, parent );
+}
+
+ReosParameterDouble *ReosRunoffCurveNumberModel::curveNumber() const
+{
+  return mCurveNumberParameter;
+}
+
+ReosParameterBoolean *ReosRunoffCurveNumberModel::initialRetentionFromS() const
+{
+  return mInitialRetentionFromS;
+}
+
+ReosParameterDouble *ReosRunoffCurveNumberModel::initialRetention() const
+{
+  return mInitialRetentionParameter;
+}
+
+ReosRunoffCurveNumberModel::ReosRunoffCurveNumberModel( const ReosEncodedElement &element, QObject *parent ):
+  ReosRunoffModel( element, parent )
+{
+  mCurveNumberParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "curve-number" ) ), false, this );
+  mInitialRetentionParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "initial-retention" ) ), false, this );
+  mInitialRetentionFromS = ReosParameterBoolean::decode( element.getEncodedData( QStringLiteral( "calculate-initial-retention" ) ), false, this );
   connectParameters();
 }

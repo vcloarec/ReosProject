@@ -74,4 +74,11 @@ class ReosFormRunoffGreenAmptWidgetFactory: public ReosFormWidgetDataFactory
     virtual QString datatype() const {return QStringLiteral( "runoff-model-green-ampt" );}
 };
 
+class ReosFormRunofCurveNumberWidgetFactory: public ReosFormWidgetDataFactory
+{
+  public:
+    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent );
+    virtual QString datatype() const {return QStringLiteral( "runoff-model-curve-number" );}
+};
+
 #endif // REOSRUNOFFMANAGER_H

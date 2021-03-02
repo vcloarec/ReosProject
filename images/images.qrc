@@ -78,6 +78,7 @@
         <file>runoffHydrograph.svg</file>
         <file>lock.svg</file>
         <file>runoffGreenAmpt.svg</file>
+        <file>runoffCurveNumber.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

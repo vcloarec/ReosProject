@@ -16,6 +16,7 @@
 #include "reosrunoffmanager.h"
 #include "ui_reosrunoffmanager.h"
 
+#include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
 #include <QFileDialog>
@@ -53,6 +54,7 @@ ReosRunoffManager::ReosRunoffManager( ReosRunoffModelModel *model, QWidget *pare
   {
     ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormRunoffConstantCoefficientWidgetFactory );
     ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormRunoffGreenAmptWidgetFactory );
+    ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormRunofCurveNumberWidgetFactory );
   }
 }
 
@@ -299,4 +301,39 @@ ReosFormWidget *ReosFormRunoffGreenAmptWidgetFactory::createDataWidget( ReosData
   form->addParameters( runoffModel->parameters() );
 
   return form.release();
+}
+
+ReosFormWidget *ReosFormRunofCurveNumberWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+{
+  ReosRunoffCurveNumberModel *runoffModel = qobject_cast<ReosRunoffCurveNumberModel *>( dataObject );
+  if ( !runoffModel )
+    return nullptr;
+
+  std::unique_ptr<ReosFormWidget> form = std::make_unique<ReosFormWidget>( parent );
+
+  form->addParameter( runoffModel->curveNumber() );
+  form->addParameter( runoffModel->initialRetentionFromS() );
+  ReosParameterWidget *iniRet = form->addParameter( runoffModel->initialRetention() );
+  QLabel *labelInitialRetention = new QLabel( form.get() );
+  form->addWidget( labelInitialRetention );
+  iniRet->setVisible( !runoffModel->initialRetentionFromS() );
+
+  double value = ( 25400 / runoffModel->curveNumber()->value() - 254 ) * 0.2;
+  QString textLabelInitialRetention = QObject::tr( "Initial retention: %1 mm" );
+  labelInitialRetention->setText( textLabelInitialRetention.arg( QString::number( value, 'f', 2 ) ) );
+
+  QObject::connect( runoffModel->initialRetentionFromS(), &ReosParameter::valueChanged, form.get(), [iniRet, runoffModel, labelInitialRetention]
+  {
+    iniRet->setVisible( !runoffModel->initialRetentionFromS()->value() );
+    labelInitialRetention->setVisible( runoffModel->initialRetentionFromS()->value() );
+  } );
+
+  QObject::connect( runoffModel->curveNumber(), &ReosParameter::valueChanged, form.get(), [textLabelInitialRetention, runoffModel, labelInitialRetention]
+  {
+    double value = ( 25400 / runoffModel->curveNumber()->value() - 254 ) * 0.2;
+    labelInitialRetention->setText( textLabelInitialRetention.arg( QString::number( value, 'f', 2 ) ) );
+  } );
+
+  return form.release();
+
 }

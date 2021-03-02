@@ -147,7 +147,6 @@ void ReosRunoffHydrographWidget::updateRainall()
     mCurrentRunoff = nullptr;
   }
 
-
   ReosRainfallSerieRainfallItem *rainfall = nullptr;
 
   if ( mCurrentMeteoModel && mCurrentWatershed )
