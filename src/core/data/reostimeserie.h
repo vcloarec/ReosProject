@@ -237,7 +237,7 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
     double valueAtTime( const ReosDuration &relativeTime ) const;
 
     //! Adds another instance to this the values of this ones, create new time step if needed
-    void addOther( ReosTimeSerieVariableTimeStep *other );
+    void addOther( const ReosTimeSerieVariableTimeStep &other, double factor = 1 );
 
     //! Return the color associated with this time serie
     virtual QColor color() const {return QColor();}

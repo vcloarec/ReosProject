@@ -135,31 +135,7 @@ class ReosTransferFunctionFactories : public ReosModule
 
 //**********************************************************
 //**********************************************************
-class ReosTransferFunctionGeneralizedRationalMethod : public ReosTransferFunction
-{
-    Q_OBJECT
-  public:
-    ReosTransferFunctionGeneralizedRationalMethod( ReosWatershed *watershed = nullptr );
-    QString type() const override {return QStringLiteral( "transfer-function-generalized-rational-method" );}
-    ReosHydrograph *applyFunction( ReosRunoff *runoff, QObject *hydrographParent = nullptr ) const override;
-    ReosEncodedElement encode() const override;
 
-    static ReosTransferFunction *decode( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr );
-
-  private:
-    ReosTransferFunctionGeneralizedRationalMethod( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr );
-};
-
-class ReosTransferFunctionGeneralizedRationalMethodFactory: public ReosTransferFunctionFactory
-{
-  public:
-    QString type() const override {return QStringLiteral( "transfer-function-generalized-rational-method" );}
-    QString displayText() const override {return QObject::tr( "Generalized Rational Method" );}
-    ReosTransferFunction *createTransferFunction( ReosWatershed *watershed ) const override;
-    ReosTransferFunction *createTransferFunction( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr ) const override;
-};
-
-//**********************************************************
 class ReosTransferFunctionLinearReservoir : public ReosTransferFunction
 {
     Q_OBJECT
@@ -191,7 +167,31 @@ class ReosTransferFunctionLinearReservoirFactory: public ReosTransferFunctionFac
     ReosTransferFunction *createTransferFunction( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr ) const override;
 };
 
-
 //**********************************************************
 
+class ReosTransferFunctionGeneralizedRationalMethod : public ReosTransferFunction
+{
+    Q_OBJECT
+  public:
+    ReosTransferFunctionGeneralizedRationalMethod( ReosWatershed *watershed = nullptr );
+    QString type() const override {return QStringLiteral( "transfer-function-generalized-rational-method" );}
+    ReosHydrograph *applyFunction( ReosRunoff *runoff, QObject *hydrographParent = nullptr ) const override;
+    ReosEncodedElement encode() const override;
+
+    static ReosTransferFunction *decode( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr );
+
+  private:
+    ReosTransferFunctionGeneralizedRationalMethod( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr );
+};
+
+class ReosTransferFunctionGeneralizedRationalMethodFactory: public ReosTransferFunctionFactory
+{
+  public:
+    QString type() const override {return QStringLiteral( "transfer-function-generalized-rational-method" );}
+    QString displayText() const override {return QObject::tr( "Generalized Rational Method" );}
+    ReosTransferFunction *createTransferFunction( ReosWatershed *watershed ) const override;
+    ReosTransferFunction *createTransferFunction( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr ) const override;
+};
+
+//**********************************************************
 #endif // REOSTRANSFERFUNCTION_H

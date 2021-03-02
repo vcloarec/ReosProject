@@ -689,28 +689,26 @@ double ReosTimeSerieVariableTimeStep::valueAtTime( const ReosDuration &relativeT
   return ( mValues.at( index + 1 ) - mValues.at( index ) ) * ratio + mValues.at( index );
 }
 
-void ReosTimeSerieVariableTimeStep::addOther( ReosTimeSerieVariableTimeStep *other )
+void ReosTimeSerieVariableTimeStep::addOther( const ReosTimeSerieVariableTimeStep &other, double factor )
 {
   blockSignals( true );
-  if ( !other )
-    return;
 
-  ReosDuration offset( referenceTime()->value().msecsTo( other->referenceTime()->value() ) );
+  ReosDuration offset( referenceTime()->value().msecsTo( other.referenceTime()->value() ), ReosDuration::millisecond );
 
   for ( int i = 0; i < mTimeValues.count(); ++i )
   {
     ReosDuration thisTimeValue = mTimeValues.at( i );
-    setValue( thisTimeValue, mValues.at( i ) + other->valueAtTime( thisTimeValue + offset ) );
+    setValue( thisTimeValue, mValues.at( i ) + factor * other.valueAtTime( thisTimeValue - offset ) );
   }
 
   // now add time step not existing in this instance
-  for ( int i = 0; i < other->mTimeValues.count(); ++i )
+  for ( int i = 0; i < other.mTimeValues.count(); ++i )
   {
-    ReosDuration otherTimeValue = other->mTimeValues.at( i ) - offset;
+    ReosDuration otherTimeValue = other.mTimeValues.at( i ) + offset;
     int index = timeValueIndex( otherTimeValue );
 
     if ( index < 0 || index >= mTimeValues.count() || mTimeValues.at( index ) != otherTimeValue )
-      setValue( otherTimeValue, valueAtTime( otherTimeValue ) + other->valueAt( i ) );
+      setValue( otherTimeValue, valueAtTime( otherTimeValue ) + factor * other.valueAt( i ) );
   }
 
   blockSignals( false );
@@ -721,7 +719,7 @@ void ReosTimeSerieVariableTimeStep::addOther( ReosTimeSerieVariableTimeStep *oth
 
 int ReosTimeSerieVariableTimeStep::timeValueIndex( const ReosDuration &time ) const
 {
-  if ( time < mTimeValues.first() )
+  if ( mTimeValues.empty() || time < mTimeValues.first() )
     return -1;
 
   if ( time > mTimeValues.last() )
@@ -736,7 +734,7 @@ int ReosTimeSerieVariableTimeStep::timeValueIndex( const ReosDuration &time ) co
     if ( mTimeValues.at( i2 ) == time )
       return i2;
 
-    if ( i1 == i2 || i1 == i2 + 1 )
+    if ( i1 == i2 || i1 + 1 == i2 )
       return i1;
 
     int inter = ( i1 + i2 ) / 2;
