@@ -77,6 +77,7 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *wat
   {
     ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormLinearReservoirWidgetFactory );
     ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormGeneralizedRationalMethodWidgetFactory );
+    ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormSCSUnithydrographWidgetFactory );
   }
 
   ui->tableViewRunoffResult->setModel( mRunoffResultTabModel );
@@ -672,6 +673,7 @@ ReosFormWidget *ReosFormLinearReservoirWidgetFactory::createDataWidget( ReosData
 
   form->addParameter( transferFunction->area(), -1, ReosParameterWidget::SpacerInMiddle );
   form->addParameter( transferFunction->concentrationTime(), -1, ReosParameterWidget::SpacerInMiddle );
+  form->addLine();
   form->addParameter( transferFunction->useConcentrationTime(), -1, ReosParameterWidget::SpacerAfter );
   ReosParameterWidget *factorWidget = form->addParameter( transferFunction->factorToLagTime(), -1, ReosParameterWidget::SpacerInMiddle );
   ReosParameterWidget *lagTimeWidget = form->addParameter( transferFunction->lagTime(), -1, ReosParameterWidget::SpacerInMiddle );
@@ -729,6 +731,7 @@ ReosFormWidget *ReosFormGeneralizedRationalMethodWidgetFactory::createDataWidget
 
   form->addParameter( transferFunction->area(), -1, ReosParameterWidget::SpacerInMiddle );
   form->addParameter( transferFunction->concentrationTime(), -1, ReosParameterWidget::SpacerInMiddle );
+  form->addLine();
 
   return form.release();
 }
@@ -939,4 +942,63 @@ void ReosReosHydrographResultModel::setHydrograph( ReosHydrograph *hydrograph )
   beginResetModel();
   mHydrograph = hydrograph;
   endResetModel();
+}
+
+ReosFormWidget *ReosFormSCSUnithydrographWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+{
+  ReosTransferFunctionSCSUnitHydrograph *transferFunction = qobject_cast<ReosTransferFunctionSCSUnitHydrograph *>( dataObject );
+  if ( !transferFunction )
+    return nullptr;
+
+  std::unique_ptr<ReosFormWidget> form = std::make_unique<ReosFormWidget>( parent );
+
+  form->addParameter( transferFunction->area(), -1, ReosParameterWidget::SpacerInMiddle );
+  form->addParameter( transferFunction->concentrationTime(), -1, ReosParameterWidget::SpacerInMiddle );
+  form->addLine();
+  form->addParameter( transferFunction->peakRateFactor(), -1, ReosParameterWidget::SpacerInMiddle );
+  form->addParameter( transferFunction->useConcentrationTime(), -1, ReosParameterWidget::SpacerAfter );
+  ReosParameterWidget *factorWidget = form->addParameter( transferFunction->factorToLagTime(), -1, ReosParameterWidget::SpacerInMiddle );
+  ReosParameterWidget *lagTimeWidget = form->addParameter( transferFunction->lagTime(), -1, ReosParameterWidget::SpacerInMiddle );
+  QLabel *lagTimeDeduced = new QLabel( form.get() );
+  form->addWidget( lagTimeDeduced );
+
+  bool useConcTime = transferFunction->useConcentrationTime()->value();
+  factorWidget->setVisible( useConcTime );
+  lagTimeWidget->setVisible( !useConcTime );
+
+  QString lagTimeDeducedtext = QObject::tr( "Lag time from concentration time: %1" );
+  ReosDuration concTime = transferFunction->concentrationTime()->value();
+  double fact = transferFunction->factorToLagTime()->value();
+  lagTimeDeduced->setText( lagTimeDeducedtext.arg( ( concTime * fact ).toString( 2 ) ) );
+
+  QObject::connect( transferFunction->useConcentrationTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, factorWidget, lagTimeWidget, lagTimeDeduced]
+  {
+    bool useConcTime = transferFunction->useConcentrationTime()->value();
+    lagTimeWidget->setVisible( !useConcTime );
+    factorWidget->setVisible( useConcTime );
+    lagTimeDeduced->setVisible( useConcTime );
+  } );
+
+  QObject::connect( transferFunction->concentrationTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, lagTimeDeduced, lagTimeDeducedtext]
+  {
+    ReosDuration concTime = transferFunction->concentrationTime()->value();
+    double fact = transferFunction->factorToLagTime()->value();
+    lagTimeDeduced->setText( lagTimeDeducedtext.arg( ( concTime * fact ).toString( 2 ) ) );
+  } );
+
+  QObject::connect( transferFunction->concentrationTime(), &ReosParameter::unitChanged, form.get(), [transferFunction, lagTimeDeduced, lagTimeDeducedtext]
+  {
+    ReosDuration concTime = transferFunction->concentrationTime()->value();
+    double fact = transferFunction->factorToLagTime()->value();
+    lagTimeDeduced->setText( lagTimeDeducedtext.arg( ( concTime * fact ).toString( 2 ) ) );
+  } );
+
+  QObject::connect( transferFunction->factorToLagTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, lagTimeDeduced, lagTimeDeducedtext]
+  {
+    ReosDuration concTime = transferFunction->concentrationTime()->value();
+    double fact = transferFunction->factorToLagTime()->value();
+    lagTimeDeduced->setText( lagTimeDeducedtext.arg( ( concTime * fact ).toString( 2 ) ) );
+  } );
+
+  return form.release();
 }

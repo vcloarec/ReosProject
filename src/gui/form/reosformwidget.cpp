@@ -111,6 +111,14 @@ void ReosFormWidget::addItem( QLayoutItem *item, int position )
     mMainLayout->addItem( item );
 }
 
+void ReosFormWidget::addLine( int position )
+{
+  QFrame *line = new QFrame( this );
+  line->setFrameShape( mOrientation == Qt::Vertical ? QFrame::HLine : QFrame::VLine );
+  line->setFrameShadow( QFrame::Sunken );
+  addWidget( line, position );
+}
+
 ReosFormWidget *ReosFormWidget::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
 {
   if ( !dataObject && !ReosFormWidgetFactories::isInstantiate() )

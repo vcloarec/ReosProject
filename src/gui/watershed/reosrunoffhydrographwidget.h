@@ -152,6 +152,7 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
     void syncTransferFunction( ReosTransferFunction *function );
 };
 
+//**************************************************
 
 class ReosFormLinearReservoirWidgetFactory: public ReosFormWidgetDataFactory
 {
@@ -165,6 +166,13 @@ class ReosFormGeneralizedRationalMethodWidgetFactory: public ReosFormWidgetDataF
   public:
     virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent );
     virtual QString datatype() const {return QStringLiteral( "transfer-function-generalized-rational-method" );}
+};
+
+class ReosFormSCSUnithydrographWidgetFactory: public ReosFormWidgetDataFactory
+{
+  public:
+    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent );
+    virtual QString datatype() const {return QStringLiteral( "transfer-function-scs-unit-hydrograph" );}
 };
 
 #endif // REOSRUNOFFHYDROGRAPHWIDGET_H

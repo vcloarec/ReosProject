@@ -47,6 +47,7 @@ class ReosFormWidget : public QWidget
     void addData( ReosDataObject *data, int position = -1 );
     void addWidget( QWidget *widget, int position = -1 );
     void addItem( QLayoutItem *item, int position = -1 );
+    void addLine( int position = -1 );
 
     static ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent = nullptr );
 
@@ -56,6 +57,7 @@ class ReosFormWidget : public QWidget
   private:
     int mParamCount = 0;
     QBoxLayout *mMainLayout = nullptr;
+    Qt::Orientation mOrientation = Qt::Vertical;
 
 };
 

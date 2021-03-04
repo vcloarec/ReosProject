@@ -15,6 +15,7 @@ ReosWatershedModule::ReosWatershedModule( ReosModule *parent, ReosGisEngine *gis
   ReosTransferFunctionFactories::instantiate( this );
   ReosTransferFunctionFactories::instance()->addFactory( new ReosTransferFunctionLinearReservoirFactory );
   ReosTransferFunctionFactories::instance()->addFactory( new ReosTransferFunctionGeneralizedRationalMethodFactory );
+  ReosTransferFunctionFactories::instance()->addFactory( new ReosTransferFunctionSCSUnitHydrographFactory );
 }
 
 ReosWatershedModule::~ReosWatershedModule()

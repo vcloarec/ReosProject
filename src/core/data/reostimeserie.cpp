@@ -686,6 +686,7 @@ double ReosTimeSerieVariableTimeStep::valueAtTime( const ReosDuration &relativeT
 
   double ratio = ( relativeTime - time1 ) / ( time2 - time1 );
 
+  double v = ( mValues.at( index + 1 ) - mValues.at( index ) ) * ratio + mValues.at( index );
   return ( mValues.at( index + 1 ) - mValues.at( index ) ) * ratio + mValues.at( index );
 }
 
@@ -695,20 +696,35 @@ void ReosTimeSerieVariableTimeStep::addOther( const ReosTimeSerieVariableTimeSte
 
   ReosDuration offset( referenceTime()->value().msecsTo( other.referenceTime()->value() ), ReosDuration::millisecond );
 
+  //need to store apart and then apply, if not changed value will disturb the addiion for following
+  QVector<double> newValue_1( mTimeValues.count() );
   for ( int i = 0; i < mTimeValues.count(); ++i )
   {
     ReosDuration thisTimeValue = mTimeValues.at( i );
-    setValue( thisTimeValue, mValues.at( i ) + factor * other.valueAtTime( thisTimeValue - offset ) );
+    newValue_1[i] = mValues.at( i ) + factor * other.valueAtTime( thisTimeValue - offset );
+    //setValue( thisTimeValue, mValues.at( i ) + factor * other.valueAtTime( thisTimeValue - offset ) );
   }
 
-  // now add time step not existing in this instance
+  // now add time step not existing in this instance,
+  QMap<ReosDuration, double> newValue_2;
   for ( int i = 0; i < other.mTimeValues.count(); ++i )
   {
     ReosDuration otherTimeValue = other.mTimeValues.at( i ) + offset;
     int index = timeValueIndex( otherTimeValue );
 
     if ( index < 0 || index >= mTimeValues.count() || mTimeValues.at( index ) != otherTimeValue )
-      setValue( otherTimeValue, valueAtTime( otherTimeValue ) + factor * other.valueAt( i ) );
+      newValue_2[otherTimeValue] = valueAtTime( otherTimeValue ) + factor * other.valueAt( i );
+    //setValue( otherTimeValue, valueAtTime( otherTimeValue ) + factor * other.valueAt( i ) );
+  }
+
+  // Then apply the value
+  for ( int i = 0; i < mTimeValues.count(); ++i )
+    setValueAt( i, newValue_1.at( i ) );
+
+  const QList<ReosDuration> &keys = newValue_2.keys();
+  for ( const ReosDuration &key : keys )
+  {
+    setValue( key, newValue_2.value( key ) );
   }
 
   blockSignals( false );
