@@ -147,6 +147,24 @@ ReosEncodedElement ReosTransferFunctionLinearReservoir::encode() const
   return element;
 }
 
+ReosTransferFunctionCalculation *ReosTransferFunctionLinearReservoir::calculationProcess( ReosRunoff *runoff )
+{
+  if ( !runoff )
+    return nullptr;
+
+  ReosDuration lagTime;
+
+  if ( mUseConcentrationTime->value() )
+    lagTime = concentrationTime()->value() * mFactorToLagTime->value();
+  else
+    lagTime = mLagTime->value();
+
+  if ( lagTime < ReosDuration( qint64( 0 ) ) )
+    return nullptr;
+
+  return new Calculation( runoff->data()->constData(), lagTime, area()->value(), runoff->timeStep(), runoff->data()->referenceTime()->value() );
+}
+
 ReosTransferFunctionLinearReservoir *ReosTransferFunctionLinearReservoir::decode( const ReosEncodedElement &element, ReosWatershed *watershed )
 {
   if ( element.description() != QStringLiteral( "transfer-function-linear-reservoir" ) )
@@ -233,6 +251,13 @@ ReosEncodedElement ReosTransferFunctionGeneralizedRationalMethod::encode() const
   encodeBase( element );
 
   return element;
+}
+
+ReosTransferFunctionCalculation *ReosTransferFunctionGeneralizedRationalMethod::calculationProcess( ReosRunoff *runoff )
+{
+  if ( !runoff || !runoff->data() )
+    return nullptr;
+  return new Calculation( runoff->data()->constData(), concentrationTime()->value(), area()->value(), runoff->timeStep(), runoff->data()->referenceTime()->value() );
 }
 
 ReosTransferFunction *ReosTransferFunctionGeneralizedRationalMethod::decode( const ReosEncodedElement &element, ReosWatershed *watershed )
@@ -417,16 +442,17 @@ ReosTransferFunctionSCSUnitHydrograph::ReosTransferFunctionSCSUnitHydrograph( Re
   connect( mFactorToLagTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
 }
 
-ReosHydrograph *ReosTransferFunctionSCSUnitHydrograph::applyFunction( ReosRunoff *runoff, QObject *hydrographParent ) const
+
+ReosHydrograph *ReosTransferFunctionSCSUnitHydrograph::applyFunction( ReosRunoff *runoff, QObject *parent ) const
 {
   if ( !runoff || !runoff->data() )
     return nullptr;
 
-  std::unique_ptr<ReosHydrograph> hydrograph = std::make_unique<ReosHydrograph>( hydrographParent );
   ReosTimeSerieConstantInterval *runoffTimeSerie = runoff->data();
   QDateTime referenceTime = runoffTimeSerie->referenceTime()->value();
-
   ReosDuration timeStep = runoffTimeSerie->timeStep()->value();
+
+
 
   // here, we the time step has to be lesser than the peak time, check that and adjust the time step
   ReosDuration peakTime;
@@ -445,17 +471,10 @@ ReosHydrograph *ReosTransferFunctionSCSUnitHydrograph::applyFunction( ReosRunoff
   }
   while ( peakTime <=  timeStep * 2 );
 
-//! Construct the unit hydrograph
-  std::unique_ptr<ReosHydrograph> unitHydrograph = createUnitHydrograph( referenceTime, peakTime );
-  double *runoffData = runoffTimeSerie->data();
-  for ( int i = 0; i < runoffTimeSerie->valueCount()*reduceTimeStepFactor; ++i )
-  {
-    ReosDuration relativeTime = timeStep * i;
-    unitHydrograph->referenceTime()->setValue( referenceTime.addMSecs( relativeTime.valueMilliSecond() ) );
-    hydrograph->addOther( *( unitHydrograph.get() ), runoffData[i / reduceTimeStepFactor] / reduceTimeStepFactor );
-  }
+  Calculation calculation( runoffTimeSerie->constData(), reduceTimeStepFactor, timeStep, referenceTime, peakTime, mPeakRateFactor->value(), area()->value() );
+  calculation.start();
 
-  return hydrograph.release();
+  return calculation.hydrograph();
 }
 
 ReosEncodedElement ReosTransferFunctionSCSUnitHydrograph::encode() const
@@ -499,6 +518,37 @@ ReosParameterDuration *ReosTransferFunctionSCSUnitHydrograph::lagTime() const
   return mLagTime;
 }
 
+ReosTransferFunctionCalculation *ReosTransferFunctionSCSUnitHydrograph::calculationProcess( ReosRunoff *runoff )
+{
+  if ( !runoff || !runoff->data() )
+    return nullptr;
+
+  ReosTimeSerieConstantInterval *runoffTimeSerie = runoff->data();
+  QDateTime referenceTime = runoffTimeSerie->referenceTime()->value();
+  ReosDuration timeStep = runoffTimeSerie->timeStep()->value();
+
+
+
+  // here, we the time step has to be lesser than the peak time, check that and adjust the time step
+  ReosDuration peakTime;
+  int reduceTimeStepFactor = 1;
+  ReosDuration originalTimeStep = timeStep;
+  do
+  {
+    timeStep = originalTimeStep / reduceTimeStepFactor;
+    if ( mUseConcentrationTime->value() )
+      peakTime = timeStep / 2 + concentrationTime()->value() * mFactorToLagTime->value();
+    else
+      peakTime = timeStep / 2 + mLagTime->value();
+
+    if ( peakTime <=  timeStep * 2 )
+      reduceTimeStepFactor *= 2;
+  }
+  while ( peakTime <=  timeStep * 2 );
+
+  return new Calculation( runoffTimeSerie->constData(), reduceTimeStepFactor, timeStep, referenceTime, peakTime, mPeakRateFactor->value(), area()->value() );
+}
+
 ReosTransferFunctionSCSUnitHydrograph::ReosTransferFunctionSCSUnitHydrograph( const ReosEncodedElement &element, ReosWatershed *watershed ):
   ReosTransferFunction( element, watershed )
 {
@@ -529,15 +579,15 @@ int ReosTransferFunctionSCSUnitHydrograph::indexInTable( double peakRateFactor, 
   return sTable.count();
 }
 
-std::unique_ptr<ReosHydrograph> ReosTransferFunctionSCSUnitHydrograph::createUnitHydrograph( QDateTime referenceTime, const ReosDuration &peakTime ) const
+std::unique_ptr<ReosHydrograph> ReosTransferFunctionSCSUnitHydrograph::Calculation::createUnitHydrograph() const
 {
   // here we use SI units whereas the peak factor is in US unit, and the runoff is in mm where as in litterature, t is in cm for SI
-  double peakFlow = ( mPeakRateFactor->value() / 484 ) * 0.208 / peakTime.valueHour() * area()->value().valueKm2();
+  double peakFlow = ( mPeakFactor / 484 ) * 0.208 / mPeakTime.valueHour() * mArea.valueKm2();
 
   UH_SCS_dimensionneless scs1;
   bool exact = false;
   int index = 0;
-  if ( int( mPeakRateFactor->value() + 0.5 ) == 484 ) //use the common dimensionless curve
+  if ( int( mPeakFactor + 0.5 ) == 484 ) //use the common dimensionless curve
   {
     exact = true;
     scs1 = {484, 0.1, {
@@ -549,7 +599,7 @@ std::unique_ptr<ReosHydrograph> ReosTransferFunctionSCSUnitHydrograph::createUni
   }
   else
   {
-    index = indexInTable( mPeakRateFactor->value(), exact );
+    index = indexInTable( mPeakFactor, exact );
     if ( index == sTable.count() ) //greater than the greater in the table --> take the greater in the table
     {
       index = sTable.count() - 1;
@@ -562,33 +612,33 @@ std::unique_ptr<ReosHydrograph> ReosTransferFunctionSCSUnitHydrograph::createUni
   }
 
   std::unique_ptr<ReosHydrograph> hydrograph1 = std::make_unique<ReosHydrograph>();
-  hydrograph1->referenceTime()->setValue( referenceTime );
+  hydrograph1->referenceTime()->setValue( mReferenceTime );
 
   double aDimStep1 = scs1.dimensionlessTimeStep;
   for ( int i = 0; i < scs1.dimensionlessRate.count(); i++ )
-    hydrograph1->setValue( peakTime * i * aDimStep1, scs1.dimensionlessRate.at( i ) );
+    hydrograph1->setValue( mPeakTime * i * aDimStep1, scs1.dimensionlessRate.at( i ) );
 
   if ( exact )
   {
     std::unique_ptr<ReosHydrograph> hydrograph = std::make_unique<ReosHydrograph>();
-    hydrograph->referenceTime()->setValue( referenceTime );
+    hydrograph->referenceTime()->setValue( mReferenceTime );
     hydrograph->addOther( *( hydrograph1 ), peakFlow );
 
     return hydrograph;
   }
 
   std::unique_ptr<ReosHydrograph> hydrograph2 = std::make_unique<ReosHydrograph>();
-  hydrograph2->referenceTime()->setValue( referenceTime );
+  hydrograph2->referenceTime()->setValue( mReferenceTime );
 
   const UH_SCS_dimensionneless &scs2 = sTable.at( index - 1 );
   double aDimStep2 = scs2.dimensionlessTimeStep;
   for ( int i = 0; i < scs2.dimensionlessRate.count(); i++ )
-    hydrograph2->setValue( peakTime * i * aDimStep2, scs2.dimensionlessRate.at( i ) );
+    hydrograph2->setValue( mPeakTime * i * aDimStep2, scs2.dimensionlessRate.at( i ) );
 
-  double f = ( mPeakRateFactor->value() - scs2.peakRateFactor ) / ( scs1.peakRateFactor - scs2.peakRateFactor );
+  double f = ( mPeakFactor - scs2.peakRateFactor ) / ( scs1.peakRateFactor - scs2.peakRateFactor );
 
   std::unique_ptr<ReosHydrograph> hydrograph = std::make_unique<ReosHydrograph>();
-  hydrograph->referenceTime()->setValue( referenceTime );
+  hydrograph->referenceTime()->setValue( mReferenceTime );
 
   hydrograph->addOther( *( hydrograph1 ), f * peakFlow );
   hydrograph->addOther( *( hydrograph2 ), ( 1 - f )*peakFlow );
@@ -718,3 +768,143 @@ QVector<ReosTransferFunctionSCSUnitHydrograph::UH_SCS_dimensionneless> ReosTrans
   }
 };
 
+ReosTransferFunctionSCSUnitHydrograph::Calculation::Calculation( const QVector<double> runoffData, int reduceTimeStepFactor, const ReosDuration &timeStep, const QDateTime &referenceTime, const ReosDuration &peakTime, double peakFactor, const ReosArea &area ):
+  mRunoffData( runoffData )
+  , mReduceTimeStepFactor( reduceTimeStepFactor )
+  , mTimeStep( timeStep )
+  , mReferenceTime( referenceTime )
+  , mPeakTime( peakTime )
+  , mPeakFactor( peakFactor )
+  , mArea( area )
+{
+}
+
+void ReosTransferFunctionSCSUnitHydrograph::Calculation::start()
+{
+  mHydrograph = std::make_unique<ReosHydrograph>();
+
+  std::unique_ptr<ReosHydrograph> unitHydrograph = createUnitHydrograph();
+
+  mHydrograph->referenceTime()->setValue( mReferenceTime );
+  int stepCount = mRunoffData.count() * mReduceTimeStepFactor;
+  setMaxProgression( stepCount );
+  for ( int i = 0; i < stepCount; ++i )
+  {
+    ReosDuration relativeTime = mTimeStep * i;
+    unitHydrograph->referenceTime()->setValue( mReferenceTime.addMSecs( relativeTime.valueMilliSecond() ) );
+    mHydrograph->addOther( *( unitHydrograph.get() ), mRunoffData.at( i / mReduceTimeStepFactor ) / mReduceTimeStepFactor );
+    if ( isStop() )
+    {
+      mHydrograph.reset();
+      break;
+    }
+    setCurrentProgression( i );
+  }
+
+
+}
+
+
+ReosTransferFunctionLinearReservoir::Calculation::Calculation( const QVector<double> runoffData, ReosDuration lagTime, const ReosArea &area, const ReosDuration &timeStep, const QDateTime &referenceTime ):
+  mRunoffData( runoffData )
+  , mLagTime( lagTime )
+  , mArea( area )
+  , mTimeStep( timeStep )
+  , mReferenceTime( referenceTime )
+{}
+
+void ReosTransferFunctionLinearReservoir::Calculation::start()
+{
+  mHydrograph = std::make_unique<ReosHydrograph>();
+
+  double adt = mTimeStep / mLagTime;
+  double wsArea = mArea.valueM2();
+  double dt = mTimeStep.valueSecond();
+  double qPrev = 0;
+
+  mHydrograph->referenceTime()->setValue( mReferenceTime );
+  mHydrograph->setValue( ReosDuration(), 0 );
+  setMaxProgression( mRunoffData.count() );
+  for ( int i = 0; i < mRunoffData.count(); ++i )
+  {
+    double intensity = mRunoffData.at( i ) / dt;
+    double q = qPrev * exp( -adt ) + intensity * ( 1 - exp( -adt ) ) / 1000 * wsArea;
+    mHydrograph->setValue( mTimeStep * ( i + 1 ), q );
+    qPrev = q;
+
+    if ( isStop() )
+    {
+      mHydrograph.reset();
+      break;
+    }
+    setCurrentProgression( i );
+  }
+
+  if ( !isStop() )
+  {
+    double lastQ = qPrev;
+    int i = mRunoffData.count() + 1;
+    while ( qPrev != 0 && qPrev > lastQ / 100 )
+    {
+      mHydrograph->setValue( mTimeStep * ( i ),  qPrev * exp( -adt ) );
+      qPrev = qPrev * exp( -adt );
+      ++i;
+      if ( isStop() )
+      {
+        mHydrograph.reset();
+        break;
+      }
+    }
+  }
+}
+
+ReosHydrograph *ReosTransferFunctionCalculation::hydrograph( QObject *parent )
+{
+  if ( mHydrograph )
+    mHydrograph->setParent( parent );
+  return mHydrograph.release();
+}
+
+ReosTransferFunctionGeneralizedRationalMethod::Calculation::Calculation( const QVector<double> runoffData,
+    const ReosDuration &concentrationTime,
+    const ReosArea &area,
+    const ReosDuration &timeStep,
+    const QDateTime &referenceTime ):
+  mRunoffData( runoffData )
+  , mConcentrationTime( concentrationTime )
+  , mArea( area )
+  , mTimeStep( timeStep )
+  , mReferenceTime( referenceTime )
+{}
+
+void ReosTransferFunctionGeneralizedRationalMethod::Calculation::start()
+{
+  mHydrograph = std::make_unique<ReosHydrograph>();
+  ReosDuration::Unit timeUnit = ReosDuration::second;
+  //! Construct the unit hydrograph
+  double peakRatio = ( mArea.valueM2() / ( 1000 * mTimeStep.valueUnit( timeUnit ) ) ) * std::min( 1.0, mTimeStep / mConcentrationTime );
+  ReosHydrograph unitHydrograph;
+  ReosDuration d1 = mTimeStep;
+  ReosDuration d2 = mConcentrationTime;
+  ReosDuration d3 = mTimeStep + mConcentrationTime;
+  unitHydrograph.setValue( ReosDuration(), 0 );
+  unitHydrograph.setValue( d1, peakRatio );
+  unitHydrograph.setValue( d2, peakRatio );
+  unitHydrograph.setValue( d3, 0 );
+
+
+  unitHydrograph.referenceTime()->setValue( mReferenceTime );
+  mHydrograph->referenceTime()->setValue( mReferenceTime );
+  setMaxProgression( mRunoffData.count() );
+  for ( int i = 0; i < mRunoffData.count(); ++i )
+  {
+    unitHydrograph.referenceTime()->setValue( mReferenceTime.addMSecs( mTimeStep.valueMilliSecond()*i ) );
+    mHydrograph->addOther( unitHydrograph, mRunoffData.at( i ) );
+    if ( isStop() )
+    {
+      mHydrograph.reset();
+      break;
+    }
+    setCurrentProgression( i );
+  }
+}

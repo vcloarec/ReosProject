@@ -19,6 +19,7 @@
 #include "reostimeserie.h"
 #include "reosmodule.h"
 #include "reosencodedelement.h"
+#include "reosprocess.h"
 
 class ReosRunoff;
 class ReosWatershed;
@@ -31,6 +32,17 @@ class ReosHydrograph : public ReosTimeSerieVariableTimeStep
 
     QString type() const override {return QStringLiteral( "runoff-hydrograph" );}
     QColor color() const override;
+};
+
+//! Process Abstract class that handle the calculation of the hydrograph an onother thread
+class ReosTransferFunctionCalculation : public ReosProcess
+{
+  public:
+    //! Returns the hydrograph result, has to be call after the process is finished, if \a parent is not specified, the caller need to take ownership
+    ReosHydrograph *hydrograph( QObject *parent = nullptr );
+
+  protected:
+    std::unique_ptr<ReosHydrograph> mHydrograph;
 };
 
 //! Class that reprsents a transfer function, that is a tranformation from runoff to hydrograph
@@ -55,6 +67,11 @@ class ReosTransferFunction : public ReosDataObject
     ReosParameterArea *area() const;
 
     virtual ReosEncodedElement encode() const = 0;
+
+
+    //! Returns a calculaton process for hydrograph calculation, the caller take ownership
+    virtual ReosTransferFunctionCalculation *calculationProcess( ReosRunoff *runoff ) = 0;
+
 
   protected:
     void encodeBase( ReosEncodedElement &element ) const;
@@ -144,6 +161,7 @@ class ReosTransferFunctionLinearReservoir : public ReosTransferFunction
     ReosHydrograph *applyFunction( ReosRunoff *runoff, QObject *hydrographParent = nullptr ) const override;
     QString type() const override {return QStringLiteral( "transfer-function-linear-reservoir" );}
     ReosEncodedElement encode() const override;
+    virtual ReosTransferFunctionCalculation *calculationProcess( ReosRunoff *runoff ) override;
 
     static ReosTransferFunctionLinearReservoir *decode( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr );
 
@@ -156,6 +174,38 @@ class ReosTransferFunctionLinearReservoir : public ReosTransferFunction
     ReosParameterDuration *mLagTime = nullptr;
     ReosParameterBoolean *mUseConcentrationTime = nullptr;
     ReosParameterDouble *mFactorToLagTime = nullptr;
+
+    class Calculation: public ReosTransferFunctionCalculation
+    {
+      public:
+        Calculation( const QVector<double> runoffData,
+                     ReosDuration  lagTime,
+                     const ReosArea &area,
+                     const ReosDuration &timeStep,
+                     const QDateTime &referenceTime );
+
+        void start() override;
+
+      private:
+        QVector<double> mRunoffData;
+        ReosDuration mLagTime;
+        ReosArea mArea;
+        ReosDuration mTimeStep;
+        QDateTime mReferenceTime;
+    };
+
+  private:
+    std::unique_ptr<ReosHydrograph> mHydrograph;
+    QVector<double> mRunoffData;
+    int mReduceTimeStepFactor;
+    ReosDuration mTimeStep;
+    QDateTime mReferenceTime;
+    ReosDuration mPeakTime;
+    double mPeakFactor;
+    ReosArea mArea;
+
+    std::unique_ptr<ReosHydrograph> createUnitHydrograph() const;
+
 };
 
 class ReosTransferFunctionLinearReservoirFactory: public ReosTransferFunctionFactory
@@ -177,11 +227,31 @@ class ReosTransferFunctionGeneralizedRationalMethod : public ReosTransferFunctio
     QString type() const override {return QStringLiteral( "transfer-function-generalized-rational-method" );}
     ReosHydrograph *applyFunction( ReosRunoff *runoff, QObject *hydrographParent = nullptr ) const override;
     ReosEncodedElement encode() const override;
+    virtual ReosTransferFunctionCalculation *calculationProcess( ReosRunoff *runoff ) override;
 
     static ReosTransferFunction *decode( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr );
 
   private:
     ReosTransferFunctionGeneralizedRationalMethod( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr );
+
+    class Calculation: public ReosTransferFunctionCalculation
+    {
+      public:
+        Calculation( const QVector<double> runoffData,
+                     const ReosDuration &concentrationTime,
+                     const ReosArea &area,
+                     const ReosDuration &timeStep,
+                     const QDateTime &referenceTime );
+
+        void start() override;
+
+      private:
+        QVector<double> mRunoffData;
+        ReosDuration mConcentrationTime;
+        ReosArea mArea;
+        ReosDuration mTimeStep;
+        QDateTime mReferenceTime;
+    };
 };
 
 class ReosTransferFunctionGeneralizedRationalMethodFactory: public ReosTransferFunctionFactory
@@ -203,7 +273,7 @@ class ReosTransferFunctionSCSUnitHydrograph : public ReosTransferFunction
   public:
     ReosTransferFunctionSCSUnitHydrograph( ReosWatershed *watershed = nullptr );
     QString type() const override {return QStringLiteral( "transfer-function-scs-unit-hydrograph" );}
-    ReosHydrograph *applyFunction( ReosRunoff *runoff, QObject *hydrographParent = nullptr ) const override;
+    ReosHydrograph *applyFunction( ReosRunoff *runoff, QObject *parent = nullptr ) const override;
     ReosEncodedElement encode() const override;
 
     static ReosTransferFunction *decode( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr );
@@ -220,8 +290,35 @@ class ReosTransferFunctionSCSUnitHydrograph : public ReosTransferFunction
       QVector<double> dimensionlessRate;
     };
 
+    ReosTransferFunctionCalculation *calculationProcess( ReosRunoff *runoff ) override;
+
   private:
     ReosTransferFunctionSCSUnitHydrograph( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr );
+
+    class Calculation: public ReosTransferFunctionCalculation
+    {
+      public:
+        Calculation( const QVector<double> runoffData,
+                     int reduceTimeStepFactor,
+                     const ReosDuration &timeStep,
+                     const QDateTime &referenceTime,
+                     const ReosDuration &peakTime,
+                     double peakFactor,
+                     const ReosArea &area );
+
+        void start() override;
+
+      private:
+        QVector<double> mRunoffData;
+        int mReduceTimeStepFactor = 0;
+        ReosDuration mTimeStep;
+        QDateTime mReferenceTime;
+        ReosDuration mPeakTime;
+        double mPeakFactor = 0;
+        ReosArea mArea;
+
+        std::unique_ptr<ReosHydrograph> createUnitHydrograph() const;
+    };
 
     ReosParameterDouble *mPeakRateFactor = nullptr;
     ReosParameterDuration *mLagTime = nullptr;
@@ -233,7 +330,6 @@ class ReosTransferFunctionSCSUnitHydrograph : public ReosTransferFunction
     // returns the index in the table of the peak factor just greater or equal
     static int indexInTable( double peakRateFactor, bool &exact );
 
-    std::unique_ptr<ReosHydrograph> createUnitHydrograph( QDateTime referenceTime, const ReosDuration &peakTime ) const;
 };
 
 class ReosTransferFunctionSCSUnitHydrographFactory: public ReosTransferFunctionFactory

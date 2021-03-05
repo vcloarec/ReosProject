@@ -27,6 +27,7 @@
 #include "reosmeteorologicmodel.h"
 #include "reosplottimeconstantinterval.h"
 #include "reosrunoffhydrographwidget.h"
+#include "reosprocesscontroler.h"
 
 ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *watershedModule, QWidget *parent ) :
   ReosActionWidget( parent )
@@ -256,7 +257,16 @@ void ReosRunoffHydrographWidget::updateHydrograph()
   }
 
   if ( mCurrentRunoff && mCurrentTransferFunction )
-    mCurrentHydrograph = mCurrentTransferFunction->applyFunction( mCurrentRunoff, this );
+  {
+    std::unique_ptr<ReosTransferFunctionCalculation> calculation;
+    calculation.reset( mCurrentTransferFunction->calculationProcess( mCurrentRunoff ) );
+    if ( calculation )
+    {
+      ReosProcessControler *controler = new ReosProcessControler( calculation.get(), this );
+      controler->exec();
+      mCurrentHydrograph = calculation->hydrograph();
+    }
+  }
 
   mHydrographCurve->setTimeSerie( mCurrentHydrograph );
 

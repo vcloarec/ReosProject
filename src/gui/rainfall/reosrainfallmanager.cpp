@@ -392,7 +392,6 @@ void ReosRainfallManager::onReorderIDCurve()
         return;
     }
 
-
     int childrenCount = idfCurvesItem->childrenCount();
     for ( int i = 0; i < childrenCount; ++i )
     {

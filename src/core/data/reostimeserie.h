@@ -77,6 +77,8 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
     //! Returns a pointer to access directly to the data, can be used only  when need efficient calculation.
     double *data() {return mValues.data();}
 
+    const QVector<double> &constData() const {return  mValues;}
+
   protected:
     //! Connect all parameters with
     void connectParameters();

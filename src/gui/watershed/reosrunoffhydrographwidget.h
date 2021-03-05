@@ -94,7 +94,6 @@ class ReosTimeSeriesTabModel: public QAbstractTableModel
 class ReosRunoffHydrographWidget : public ReosActionWidget
 {
     Q_OBJECT
-
   public:
     explicit ReosRunoffHydrographWidget( ReosWatershedModule *watershedModule, QWidget *parent = nullptr );
     ~ReosRunoffHydrographWidget();
