@@ -26,13 +26,13 @@ class ReosRunoffHydrographWidget;
 class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
 {
     Q_OBJECT
-
   public:
     explicit ReosWatershedWidget( ReosMap *map, ReosWatershedModule *module, QWidget *parent = nullptr );
     ~ReosWatershedWidget();
 
   signals:
     void currentWatershedChanged( ReosWatershed *ws );
+    void currentMapWatershedChanged( ReosMapPolygon *mapWatershed );
 
   private slots:
     void onWatershedAdded( const QModelIndex &index );
@@ -67,12 +67,13 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
     QAction *mActionRunoffHydrograph = nullptr;
     ReosRunoffHydrographWidget *mRunoffHydrographWidget = nullptr;
 
-    QMap<ReosWatershed *, ReosMapPolygon> mMapWatersheds;
+    using MapWatersheds = std::map<ReosWatershed *, std::unique_ptr<ReosMapPolygon>>;
+    MapWatersheds mMapWatersheds_;
+
     ReosMapMarker mCurrentMapOutlet;
     ReosMapPolyline mCurrentStreamLine;
 
-    //! Method use for styling watershed polygon
-    ReosMapPolygon &formatWatershedPolygon( ReosMapPolygon &&watershedPolygon );
+    void formatWatershedPolygon( ReosMapPolygon * );
     void clearSelection();
 
     void setWatershedModel( ReosWatershedItemModel *model );

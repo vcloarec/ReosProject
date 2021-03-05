@@ -24,7 +24,7 @@ class ReosMapToolDrawPoint_p;
 class ReosMapToolDrawPolyline_p;
 class ReosMapToolDrawExtent_p;
 class ReosMapToolSelectMapItem_p;
-class ReosMapToolEditPolyline_p;
+class ReosMapToolEditPolygon_p;
 class ReosMapTool_p;
 class ReosMenuPopulator;
 
@@ -176,7 +176,23 @@ class ReosMapToolEditMapPolyline : public ReosMapTool
   signals:
     void polylineEdited();
   private:
-    ReosMapToolEditPolyline_p *d = nullptr;
+    ReosMapToolEditPolygon_p *d = nullptr;
+    ReosMapTool_p *tool_p() const;
+};
+
+class ReosMapToolEditMapPolygon : public ReosMapTool
+{
+    Q_OBJECT
+  public:
+    ReosMapToolEditMapPolygon( ReosMap *map );
+
+    //! Sets the map \a polyline to edit
+    void setMapPolygon( ReosMapPolygon *polygon );
+
+  signals:
+    void polygonEdited();
+  private:
+    ReosMapToolEditPolygon_p *d = nullptr;
     ReosMapTool_p *tool_p() const;
 };
 

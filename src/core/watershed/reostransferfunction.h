@@ -34,7 +34,7 @@ class ReosHydrograph : public ReosTimeSerieVariableTimeStep
     QColor color() const override;
 };
 
-//! Process Abstract class that handle the calculation of the hydrograph an onother thread
+//! Process abstract class that handle the calculation of the hydrograph an onother thread
 class ReosTransferFunctionCalculation : public ReosProcess
 {
   public:

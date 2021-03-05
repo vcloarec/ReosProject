@@ -31,13 +31,14 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   ui( new Ui::ReosDelineatingWatershedWidget ),
   mModule( watershedModule ),
   mMap( map ),
-  mActionDrawDownstreamLine( new QAction( QPixmap( ":/images/downStreamSelection.png" ), tr( "Draw downstream line" ), this ) ),
-  mActionDrawPredefinedExtent( new QAction( QPixmap( ":/images/extentWatershedSelection.png" ), tr( "Draw predefined extent" ), this ) ),
-  mActionDrawAddBurningLine( new QAction( QPixmap( ":/images/burningLine.png" ), tr( "Add a burning line" ), this ) ),
-  mActionRemoveBurningLine( new QAction( QPixmap( ":/images/mActionRemoveBurningLine.png" ), tr( "Remove a burning line" ), this ) ),
+  mActionDrawDownstreamLine( new QAction( QPixmap( QStringLiteral( ":/images/downStreamSelection.png" ) ), tr( "Draw downstream line" ), this ) ),
+  mActionDrawPredefinedExtent( new QAction( QPixmap( QStringLiteral( ":/images/extentWatershedSelection.png" ) ), tr( "Draw predefined extent" ), this ) ),
+  mActionDrawAddBurningLine( new QAction( QPixmap( QStringLiteral( ":/images/burningLine.png" ) ), tr( "Add a burning line" ), this ) ),
+  mActionRemoveBurningLine( new QAction( QPixmap( QStringLiteral( ":/images/mActionRemoveBurningLine.png" ) ), tr( "Remove a burning line" ), this ) ),
   mDownstreamLine( map ),
   mWatershedExtent( map ),
-  mActionDrawWatershed( new QAction( QPixmap( ":/images/delineateWatershed.svg" ), tr( "Draw watershed manually" ), this ) ),
+  mActionDrawWatershed( new QAction( QPixmap( QStringLiteral( ":/images/delineateWatershed.svg" ) ), tr( "Draw watershed manually" ), this ) ),
+  mActionEditWatershed( new QAction( QPixmap( QStringLiteral( ":/images/delineateWatershed.svg" ) ), tr( "Edit watershed manually" ), this ) ),
   mTemporaryAutomaticWatershed( map ),
   mTemporaryAutomaticStreamLine( map ),
   mTemporaryManualWatershed( map ),
@@ -58,6 +59,7 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   mAutomaticToolBar->addAction( mActionRemoveBurningLine );
 
   mManualToolBar->addAction( mActionDrawWatershed );
+  mManualToolBar->addAction( mActionEditWatershed );
 
   mMapToolDrawDownStreamLine = new ReosMapToolDrawPolyline( map );
   mMapToolDrawDownStreamLine->setAction( mActionDrawDownstreamLine );
@@ -121,6 +123,11 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   mMapToolDrawWatershed->setFillColor( QColor( 0, 150, 0, 50 ) );
   mMapTools << mMapToolDrawWatershed;
 
+  mMapToolEditWatersed = new ReosMapToolEditMapPolygon( map );
+  mMapToolEditWatersed->setAction( mActionEditWatershed );
+  mActionEditWatershed->setCheckable( true );
+  mMapTools << mMapToolEditWatersed;
+
   mMapToolDrawOutletPoint = new ReosMapToolDrawPoint( map );
   mMapTools << mMapToolDrawOutletPoint;
 
@@ -164,6 +171,11 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
 ReosDelineatingWatershedWidget::~ReosDelineatingWatershedWidget()
 {
   delete ui;
+}
+
+void ReosDelineatingWatershedWidget::setCurrentWatershed( ReosWatershed *ws )
+{
+
 }
 
 void ReosDelineatingWatershedWidget::onDownstreamLineDrawn( const QPolygonF &downstreamLine )

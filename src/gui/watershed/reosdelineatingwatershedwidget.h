@@ -44,6 +44,9 @@ class ReosDelineatingWatershedWidget : public ReosActionWidget
 
     ~ReosDelineatingWatershedWidget();
 
+  public slots:
+    void setCurrentWatershed( ReosWatershed *ws );
+
   private slots:
     void onDownstreamLineDrawn( const QPolygonF &downstreamLine );
     void onPredefinedExtentDrawn( const QRectF &extent );
@@ -87,7 +90,9 @@ class ReosDelineatingWatershedWidget : public ReosActionWidget
 
     ReosMapToolDrawPolygon *mMapToolDrawWatershed = nullptr;
     ReosMapToolDrawPoint *mMapToolDrawOutletPoint = nullptr;
+    ReosMapToolEditMapPolygon *mMapToolEditWatersed = nullptr;
     QAction *mActionDrawWatershed = nullptr;
+    QAction *mActionEditWatershed = nullptr;
 
     ReosMapPolygon mTemporaryAutomaticWatershed;
     ReosMapPolyline mTemporaryAutomaticStreamLine;

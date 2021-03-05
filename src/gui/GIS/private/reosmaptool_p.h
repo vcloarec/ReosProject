@@ -137,12 +137,12 @@ class ReosMapToolSelectMapItem_p: public ReosMapTool_p
     bool mUnderPoint = false;
 };
 
-class ReosMapToolEditPolyline_p: public ReosMapTool_p
+class ReosMapToolEditPolygon_p: public ReosMapTool_p
 {
     Q_OBJECT
   public:
-    ReosMapToolEditPolyline_p( QgsMapCanvas *map );
-    void setMapPolyline( ReosMapPolyline_p *polyline );
+    ReosMapToolEditPolygon_p( QgsMapCanvas *map );
+    void setMapPolygon( ReosMapPolygon_p *polygon );
 
     void activate() override;
     void deactivate() override;
@@ -157,10 +157,10 @@ class ReosMapToolEditPolyline_p: public ReosMapTool_p
     void canvasReleaseEvent( QgsMapMouseEvent * ) override;
 
   signals:
-    void polylineEdited();
+    void polygonEdited();
 
   private:
-    ReosMapPolyline_p *mPolyline = nullptr;
+    ReosMapPolygon_p *mPolygon = nullptr;
     QSize mSearchZone = QSize( 18, 18 );
     int mMovingVertex = -1;
     bool mIsEdited = false;

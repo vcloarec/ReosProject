@@ -206,39 +206,39 @@ void ReosMapToolDrawPoint_p::canvasReleaseEvent( QgsMapMouseEvent *e )
     emit pointDrawn( e->mapPoint().toQPointF() );
 }
 
-ReosMapToolEditPolyline_p::ReosMapToolEditPolyline_p( QgsMapCanvas *map ):
+ReosMapToolEditPolygon_p::ReosMapToolEditPolygon_p( QgsMapCanvas *map ):
   ReosMapTool_p( map )
 {
 }
 
-void ReosMapToolEditPolyline_p::setMapPolyline( ReosMapPolyline_p *polyline )
+void ReosMapToolEditPolygon_p::setMapPolygon( ReosMapPolygon_p *polygon )
 {
-  if ( mPolyline )
-    mPolyline->setEditing( false );
+  if ( mPolygon )
+    mPolygon->setEditing( false );
 
-  mPolyline = polyline;
+  mPolygon = polygon;
 
-  if ( mPolyline )
-    mPolyline->setEditing( isActive() );
+  if ( mPolygon )
+    mPolygon->setEditing( isActive() );
 }
 
-void ReosMapToolEditPolyline_p::activate()
+void ReosMapToolEditPolygon_p::activate()
 {
-  if ( mPolyline )
-    mPolyline->setEditing( true );
+  if ( mPolygon )
+    mPolygon->setEditing( true );
 
   ReosMapTool_p::activate();
 }
 
-void ReosMapToolEditPolyline_p::deactivate()
+void ReosMapToolEditPolygon_p::deactivate()
 {
-  if ( mPolyline )
-    mPolyline->setEditing( false );
+  if ( mPolygon )
+    mPolygon->setEditing( false );
 
   ReosMapTool_p::deactivate();
 }
 
-bool ReosMapToolEditPolyline_p::populateContextMenuWithEvent( QMenu *menu, QgsMapMouseEvent *event )
+bool ReosMapToolEditPolygon_p::populateContextMenuWithEvent( QMenu *menu, QgsMapMouseEvent *event )
 {
   if ( !menu )
     return false;
@@ -247,66 +247,65 @@ bool ReosMapToolEditPolyline_p::populateContextMenuWithEvent( QMenu *menu, QgsMa
   menu->clear();
 
   const QPointF mapPoint = event->mapPoint().toQPointF();
-  menu->addAction( tr( "Insert vertex" ), [mapPoint, this]
+  menu->addAction( tr( "Insert vertex" ), this, [mapPoint, this]
   {
-    int index = ReosGeometryUtils::closestSegment( mapPoint, mPolyline->mapPolygon );
+    int index = ReosGeometryUtils::closestSegment( mapPoint, mPolygon->mapPolygon );
     if ( index != -1 )
     {
-      mPolyline->mapPolygon.insert( index, mapPoint );
-      mPolyline->updatePosition();
-      emit this->polylineEdited();
+      mPolygon->mapPolygon.insert( index, mapPoint );
+      mPolygon->updatePosition();
+      emit this->polygonEdited();
     }
 
   } );
 
-
-  int existingVertex = mPolyline->findVertexInView( viewSearchZone( event->pos() ) );
+  int existingVertex = mPolygon->findVertexInView( viewSearchZone( event->pos() ) );
   if ( existingVertex >= 0 )
   {
     menu->addAction( tr( "Remove vertex" ), [existingVertex, this]
     {
-      mPolyline->mapPolygon.removeAt( existingVertex );
-      mPolyline->updatePosition();
-      emit this->polylineEdited();
+      mPolygon->mapPolygon.removeAt( existingVertex );
+      mPolygon->updatePosition();
+      emit this->polygonEdited();
     } );
   }
 
   return true;
 }
 
-void ReosMapToolEditPolyline_p::canvasPressEvent( QgsMapMouseEvent *e )
+void ReosMapToolEditPolygon_p::canvasPressEvent( QgsMapMouseEvent *e )
 {
-  if ( !mPolyline )
+  if ( !mPolygon )
     return;
 
-  mMovingVertex = mPolyline->findVertexInView( viewSearchZone( e->pos() ) );
+  mMovingVertex = mPolygon->findVertexInView( viewSearchZone( e->pos() ) );
 }
 
-void ReosMapToolEditPolyline_p::canvasMoveEvent( QgsMapMouseEvent *e )
+void ReosMapToolEditPolygon_p::canvasMoveEvent( QgsMapMouseEvent *e )
 {
-  if ( mMovingVertex < 0 || !mPolyline )
+  if ( mMovingVertex < 0 || !mPolygon )
     return;
   mIsEdited = true;
-  mPolyline->mapPolygon[mMovingVertex] = e->mapPoint().toQPointF();
-  mPolyline->updatePosition();
+  mPolygon->mapPolygon[mMovingVertex] = e->mapPoint().toQPointF();
+  mPolygon->updatePosition();
 
 }
 
-void ReosMapToolEditPolyline_p::canvasReleaseEvent( QgsMapMouseEvent * )
+void ReosMapToolEditPolygon_p::canvasReleaseEvent( QgsMapMouseEvent * )
 {
   if ( mIsEdited )
-    emit polylineEdited();
+    emit polygonEdited();
   mIsEdited = false;
   mMovingVertex = -1;
 }
 
-QgsRectangle ReosMapToolEditPolyline_p::mapSearchZone( const QPoint &pt )
+QgsRectangle ReosMapToolEditPolygon_p::mapSearchZone( const QPoint &pt )
 {
   QPoint zone( mSearchZone.width(), mSearchZone.height() );
   return QgsRectangle( toMapCoordinates( pt ), toMapCoordinates( pt + zone ) );
 }
 
-QRectF ReosMapToolEditPolyline_p::viewSearchZone( const QPoint &pt )
+QRectF ReosMapToolEditPolygon_p::viewSearchZone( const QPoint &pt )
 {
   QPoint zone( mSearchZone.width() / 2, mSearchZone.height() / 2 );
   return QRectF( QPointF( pt - zone ),  QPointF( pt + zone ) );

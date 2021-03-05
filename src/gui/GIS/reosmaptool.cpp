@@ -241,17 +241,35 @@ ReosMapTool_p *ReosMapToolNeutral::tool_p() const
 ReosMapToolEditMapPolyline::ReosMapToolEditMapPolyline( ReosMap *map ): ReosMapTool( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
-  d = new ReosMapToolEditPolyline_p( canvas );
+  d = new ReosMapToolEditPolygon_p( canvas );
   setCursor( QCursor( QPixmap( ":/cursors/moveElement.png" ), 16, 16 ) );
-  connect( d, &ReosMapToolEditPolyline_p::polylineEdited, this, &ReosMapToolEditMapPolyline::polylineEdited );
+  connect( d, &ReosMapToolEditPolygon_p::polygonEdited, this, &ReosMapToolEditMapPolyline::polylineEdited );
 }
 
 void ReosMapToolEditMapPolyline::setMapPolyline( ReosMapPolyline *polyline )
 {
-  d->setMapPolyline( static_cast<ReosMapPolyline_p *>( polyline->graphicItem() ) );
+  d->setMapPolygon( static_cast<ReosMapPolyline_p *>( polyline->graphicItem() ) );
 }
 
 ReosMapTool_p *ReosMapToolEditMapPolyline::tool_p() const
+{
+  return d;
+}
+
+ReosMapToolEditMapPolygon::ReosMapToolEditMapPolygon( ReosMap *map ): ReosMapTool( map )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  d = new ReosMapToolEditPolygon_p( canvas );
+  setCursor( QCursor( QPixmap( ":/cursors/moveElement.png" ), 16, 16 ) );
+  connect( d, &ReosMapToolEditPolygon_p::polygonEdited, this, &ReosMapToolEditMapPolygon::polygonEdited );
+}
+
+void ReosMapToolEditMapPolygon::setMapPolygon( ReosMapPolygon *polygon )
+{
+  d->setMapPolygon( static_cast<ReosMapPolygon_p *>( polygon->graphicItem() ) );
+}
+
+ReosMapTool_p *ReosMapToolEditMapPolygon::tool_p() const
 {
   return d;
 }

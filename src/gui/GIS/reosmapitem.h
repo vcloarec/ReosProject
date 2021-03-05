@@ -42,7 +42,7 @@ class ReosMapItem
     //! Returns whether graphic \a internal item correspond to \a this graphical item
     bool isItem( QGraphicsItem *item ) const;
 
-    //! Returns whether interal item of \a item correspond to \a this internal item
+    //! Returns whether internal item of \a item correspond to \a this internal item
     bool isItem( ReosMapItem *item ) const;
 
     void setColor( const QColor &color );
@@ -90,7 +90,7 @@ class ReosMapMarker : public ReosMapItem
     //! Returns the map position
     QPointF mapPoint() const;
 
-    //! Move the marker update the map
+    //! Moves the marker updates the map
     void move( const QPointF &p );
 
     bool isEmpty() const;
