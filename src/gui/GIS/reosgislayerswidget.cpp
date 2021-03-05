@@ -47,9 +47,9 @@ ReosGisLayersWidget::ReosGisLayersWidget( ReosGisEngine *engine, ReosMap *map, Q
   mMap( map ),
   mTreeView( new QgsLayerTreeView( this ) ),
   mToolBar( new QToolBar( this ) ),
-  mActionLoadQGISProject( new QAction( QPixmap( ":/images/mActionLoadQGISProject.png" ), tr( "Load QGIS Project" ), this ) ),
-  mActionLoadVectorLayer( new QAction( QPixmap( ":/images/mActionAddVectorLayer.png" ), tr( "Add Vector Layer" ), this ) ),
-  mActionLoadRasterLayer( new QAction( QPixmap( ":/images/mActionAddRasterLayer.png" ), tr( "Add Raster Layer" ), this ) ),
+  mActionLoadQGISProject( new QAction( QPixmap( ":/images/openQGISProject.svg" ), tr( "Load QGIS Project" ), this ) ),
+  mActionLoadVectorLayer( new QAction( QPixmap( ":/images/mActionAddVectorLayer.svg" ), tr( "Add Vector Layer" ), this ) ),
+  mActionLoadRasterLayer( new QAction( QPixmap( ":/images/mActionAddRasterLayer.svg" ), tr( "Add Raster Layer" ), this ) ),
   mActionLoadMeshLayer( new QAction( QPixmap( ":/images/mActionAddMeshLayer.svg" ), tr( "Add Mesh Layer" ), this ) ),
   mActionSetProjectCrs( new QAction( QPixmap( ":/images/CRS.svg" ), tr( "Project coordinate reference system" ), this ) )
 {

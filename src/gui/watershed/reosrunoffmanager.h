@@ -42,7 +42,9 @@ class ReosRunoffManager : public ReosActionWidget
     void loadDataFile();
 
   public slots:
-    void onSave();
+    void save();
+
+  private slots:
     void onSaveAs();
     void onOpenFile();
     void onAddNewModel( const QString &type );

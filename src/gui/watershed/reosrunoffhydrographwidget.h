@@ -71,39 +71,24 @@ class ReosWatershedRunoffModelsModel: public QAbstractTableModel
     bool replacePortion( int position, double portion );
 };
 
-class ReosRunoffResultModel: public QAbstractTableModel
+class ReosTimeSeriesTabModel: public QAbstractTableModel
 {
   public:
-    ReosRunoffResultModel( QObject *parent = nullptr );
+    ReosTimeSeriesTabModel( QObject *parent = nullptr );
     QModelIndex index( int row, int column, const QModelIndex & ) const override;
     QModelIndex parent( const QModelIndex & ) const override;
     int rowCount( const QModelIndex & ) const override;
     int columnCount( const QModelIndex & ) const override;
     QVariant data( const QModelIndex &index, int role ) const override;
-    QVariant headerData( int section, Qt::Orientation orientation, int role ) const;
+    QVariant headerData( int section, Qt::Orientation orientation, int role ) const override;
 
-    void setRainFall( ReosSerieRainfall *rainfall );
-    void setRunoff( ReosTimeSerieConstantInterval *runoff );
+    void addTimeSerie( ReosTimeSerie *timeSerie, const QString &name );
+
+    void clearSerie();
 
   private:
-    QPointer<ReosSerieRainfall> mRainfall = nullptr;
-    QPointer<ReosTimeSerieConstantInterval> mRunoff = nullptr;
-};
-
-class ReosReosHydrographResultModel: public QAbstractTableModel
-{
-  public:
-    ReosReosHydrographResultModel( QObject *parent = nullptr );
-    QModelIndex index( int row, int column, const QModelIndex & ) const override;
-    QModelIndex parent( const QModelIndex & ) const override;
-    int rowCount( const QModelIndex & ) const override;
-    int columnCount( const QModelIndex & ) const override;
-    QVariant data( const QModelIndex &index, int role ) const override;
-    QVariant headerData( int section, Qt::Orientation orientation, int role ) const;
-
-    void setHydrograph( ReosHydrograph *hydrograph );
-  private:
-    QPointer<ReosHydrograph> mHydrograph = nullptr;
+    QList<QPointer<ReosTimeSerie>> mTimeSerie;
+    QStringList mHeaderName;
 };
 
 class ReosRunoffHydrographWidget : public ReosActionWidget
@@ -125,8 +110,11 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
     void updateRunoff();
     void updateHydrograph();
     void onTransferFunctionChanged();
-
     void onRunoffTableViewContextMenu( const QPoint &pos );
+    void copyHydrographSelected( bool withHeader );
+    void copyRainfallRunoffSelected( bool withHeader );
+    void hydrographTabContextMenu( const QPoint &pos );
+    void rainfallRunoffTabContextMenu( const QPoint &pos );
 
   private:
     Ui::ReosRunoffHydrographWidget *ui;
@@ -134,8 +122,8 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
     ReosWatershedRunoffModelsModel *mWatershedRunoffModelsModel = nullptr;
     ReosWatershed *mCurrentWatershed = nullptr;
     ReosMeteorologicModel *mCurrentMeteoModel = nullptr;
-    ReosRunoffResultModel *mRunoffResultTabModel;
-    ReosReosHydrographResultModel *mHydrographResultModel;
+    ReosTimeSeriesTabModel *mRunoffResultTabModel;
+    ReosTimeSeriesTabModel *mHydrographResultModel;
 
     ReosTransferFunction *mCurrentTransferFunction = nullptr; //to remove?
     ReosFormWidget *mCurrentTransferFunctionForm = nullptr;
@@ -148,7 +136,6 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
     ReosHydrograph *mCurrentHydrograph = nullptr;
 
     void buildRunoffChoiceMenu( QMenu *menu, int row );
-
     void syncTransferFunction( ReosTransferFunction *function );
 };
 

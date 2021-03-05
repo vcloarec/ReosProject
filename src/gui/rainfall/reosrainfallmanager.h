@@ -47,9 +47,11 @@ class REOSGUI_EXPORT ReosRainfallManager : public ReosActionWidget
     //! Loads the data file defined on settings
     void loadDataFile();
 
+  public slots:
+    void saveRainfallFile();
+
   private slots:
     void onOpenRainfallFile();
-    void onSaveRainfallFile();
     void onSaveAsRainfallFile();
     void onAddRootZone();
     void onAddZoneToZone();

@@ -89,7 +89,7 @@ void ReosTimeSerieConstantIntervalView::contextMenuEvent( QContextMenuEvent *eve
     }
   } );
 
-  menu.exec( mapToGlobal( event->pos() ) );
+  menu.exec( viewport()->mapToGlobal( event->pos() ) );
 
 }
 

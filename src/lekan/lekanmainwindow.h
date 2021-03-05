@@ -28,28 +28,6 @@ email                : vcloarec at gmail dot com
 #include "reosmainwindow.h"
 #include "reoswatershedtree.h"
 
-//#include <qgsmapcanvas.h>
-//#include <qgsrubberband.h>
-
-//#include "../Tools/raster/hdrasterdata.h"
-//#include "../ReosProject/GIS/reosmap.h"
-//#include "../ReosProject/GIS/hdgismanager.h"
-//#include "../hydrologie/Watershed/hlgdelineatewatershed.h"
-//#include "../hydrologie/Watershed/hlgwatershedmanager.h"
-//#include "../hydrologie/Runoff/hlgrunoffmanager.h"
-//#include "../hydrologie/InterfacePluies/hlgrainfallmanager.h"
-
-//#include "../cmn/DEM/hddemmanager.h"
-
-
-//#include "../cmn/Mainwindow/demarrage.h"
-//#include "../ReosProject/Reos/reosmodule.h"
-//#include "../ReosProject/Reos/reosmessagebox.h"
-//#include "../Reos/reosversion.h"
-//#include "../Reos/reosdocumentation.h"
-//#include "../cmn/Noyau/apropos.h"
-//#include "../cmn/classes_diverses/dialogchoixlangue.h"
-
 class ReosModule;
 class ReosMap;
 class ReosGisEngine;
@@ -68,33 +46,17 @@ class LekanMainWindow : public ReosMainWindow
     explicit LekanMainWindow( QWidget *parent = nullptr );
     bool openProject() override;
 
-//    bool openBackFile( QString filename );
-//    void addDock();
-
-//    QString getGISFileName();
-
   private slots:
-
     QByteArray encode() const override {return QByteArray();}
     bool decode( const QByteArray &byteArray ) override { return false; }
 
   private:
-
     bool saveProject() override;
     void clearProject() override {}
     ReosVersion version() const {return lekanVersion;}
     QString projectFileFilter()  const override;
 
     QFileInfo gisFileInfo() const;
-
-//    HdDEMManager *demManager = nullptr;
-//    ReosGisManager *gisManager = nullptr;
-//    ReosMap *map = nullptr;
-//    HlgWatershedManager *watershedManager = nullptr;
-//    HlgRunoffManager *runoffManager = nullptr;
-//    HlgRainfallManager *rainfallManager = nullptr;
-//    ReosMessageBox *messageBox = nullptr;
-//    ReosDocumentation *reosDocumentation;
 
     ReosGisEngine *mGisEngine;
     ReosMap *mMap = nullptr;
@@ -103,14 +65,6 @@ class LekanMainWindow : public ReosMainWindow
     QDockWidget *mGisDock;
     QDockWidget *mDockWatershed;
     QDockWidget *mDockMessageBox;
-
-//    QToolBar *toolBarRainfallRunoffModel;
-//    QMenu *menuRainFallRunoffModel;
-//    QMenu *mMenuInterrogation;
-
-//    QActionGroup *mGroupActionEdit;
-//    QActionGroup *mGroupActionOption;
-//    QActionGroup *mGroupActionInterrogation;
 
 //    QAction *mActionNewVersionAvailable;
 //    QAction *mActionDocumentation;

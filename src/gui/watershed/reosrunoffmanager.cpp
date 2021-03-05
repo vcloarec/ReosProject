@@ -42,7 +42,7 @@ ReosRunoffManager::ReosRunoffManager( ReosRunoffModelModel *model, QWidget *pare
   QToolBar *toolBar = new QToolBar( this );
   ui->widgetTools->layout()->addWidget( toolBar );
   toolBar->addAction( QPixmap( QStringLiteral( ":/images/openRunoff.svg" ) ), tr( "Open File" ), this, &ReosRunoffManager::onOpenFile );
-  toolBar->addAction( QPixmap( QStringLiteral( ":/images/saveRunoff.svg" ) ), tr( "Save Runoff Models" ), this, &ReosRunoffManager::onSave );
+  toolBar->addAction( QPixmap( QStringLiteral( ":/images/saveRunoff.svg" ) ), tr( "Save Runoff Models" ), this, &ReosRunoffManager::save );
   toolBar->addAction( QPixmap( QStringLiteral( ":/images/saveRunoffAs.svg" ) ), tr( "Save Runoff Models as ..." ), this, &ReosRunoffManager::onSaveAs );
 
   connect( ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ReosRunoffManager::onCurrentTreeIndexChanged );
@@ -87,7 +87,7 @@ void ReosRunoffManager::loadDataFile()
   }
 }
 
-void ReosRunoffManager::onSave()
+void ReosRunoffManager::save()
 {
   QFileInfo fileInfo( ui->labelFileName->text() );
   if ( !fileInfo.exists() )
@@ -141,7 +141,7 @@ void ReosRunoffManager::onOpenFile()
 
     if ( ret == QMessageBox::Yes )
     {
-      onSave();
+      save();
     }
   }
 

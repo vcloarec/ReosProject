@@ -61,8 +61,8 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
     //! Clears all values
     void clear();
 
-    //! Return the value extent of the serie
-    QPair<double, double> valueExent() const;
+    //! Return the value extent of the serie, if withZero, zeo will be a extrem if all values are positive or negative
+    QPair<double, double> valueExent( bool withZero = false ) const;
 
     //! Encodes/Decodes base information in the \a element
     virtual void baseEncode( ReosEncodedElement &element ) const;
@@ -245,8 +245,11 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
   private:
     QVector<ReosDuration> mTimeValues;
 
-    //! returns the index of the time value if the value is present, or the indexof the value just before if not present (-1 if less than the first one)
-    int timeValueIndex( const ReosDuration &time ) const;
+    /**
+     *  Returns the index of the time value if the value is present, or the index of the value just before if not present (-1 if less than the first one)
+     *  If \a time exactly corresponds to an existing index, return true in \a exact
+     */
+    int timeValueIndex( const ReosDuration &time, bool &exact ) const;
 
 };
 

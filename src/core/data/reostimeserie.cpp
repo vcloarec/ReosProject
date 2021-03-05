@@ -360,8 +360,8 @@ QPair<double, double> ReosTimeSerieConstantInterval::extentValueWithMode( ReosTi
 {
   if ( mValues.isEmpty() )
     return QPair<double, double>( std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN() );
-  double min = std::numeric_limits<double>::max();
-  double max = -std::numeric_limits<double>::max();
+  double min = 0;
+  double max = 0;
 
   for ( int i = 0; i < valueCount(); ++i )
   {
@@ -574,12 +574,22 @@ void ReosTimeSerie::clear()
   emit dataChanged();
 }
 
-QPair<double, double> ReosTimeSerie::valueExent() const
+QPair<double, double> ReosTimeSerie::valueExent( bool withZero ) const
 {
   if ( mValues.isEmpty() )
     return QPair<double, double>( std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN() );
-  double min = std::numeric_limits<double>::max();
-  double max = -std::numeric_limits<double>::max();
+  double min;
+  double max;
+  if ( withZero )
+  {
+    min = 0;
+    max = 0;
+  }
+  else
+  {
+    min = std::numeric_limits<double>::max();
+    max = -std::numeric_limits<double>::max();
+  }
 
   for ( int i = 0; i < valueCount(); ++i )
   {
@@ -655,9 +665,10 @@ void ReosTimeSerieVariableTimeStep::setValue( const ReosDuration &relativeTime, 
     return;
   }
 
-  int index = timeValueIndex( relativeTime );
+  bool exact = false;
+  int index = timeValueIndex( relativeTime, exact );
 
-  if ( mTimeValues.at( index ) == relativeTime )
+  if ( exact )
     mValues[index] = value;
   else
   {
@@ -670,15 +681,13 @@ void ReosTimeSerieVariableTimeStep::setValue( const ReosDuration &relativeTime, 
 
 double ReosTimeSerieVariableTimeStep::valueAtTime( const ReosDuration &relativeTime ) const
 {
-  int index = timeValueIndex( relativeTime );
+  bool exact = false;
+  int index = timeValueIndex( relativeTime, exact );
 
-  if ( index < 0 || index >= mValues.count() )
-    return 0;
-
-  if ( mTimeValues.at( index ) == relativeTime )
+  if ( exact )
     return mValues.at( index );
 
-  if ( index == mValues.count() - 1 ) // relative greater that the last time
+  if ( index < 0 || index >= mValues.count() - 1 )
     return 0;
 
   const ReosDuration time1 = mTimeValues.at( index );
@@ -686,13 +695,14 @@ double ReosTimeSerieVariableTimeStep::valueAtTime( const ReosDuration &relativeT
 
   double ratio = ( relativeTime - time1 ) / ( time2 - time1 );
 
-  double v = ( mValues.at( index + 1 ) - mValues.at( index ) ) * ratio + mValues.at( index );
   return ( mValues.at( index + 1 ) - mValues.at( index ) ) * ratio + mValues.at( index );
 }
 
 void ReosTimeSerieVariableTimeStep::addOther( const ReosTimeSerieVariableTimeStep &other, double factor )
 {
   blockSignals( true );
+
+  bool allowInterpolation = false;
 
   ReosDuration offset( referenceTime()->value().msecsTo( other.referenceTime()->value() ), ReosDuration::millisecond );
 
@@ -705,16 +715,18 @@ void ReosTimeSerieVariableTimeStep::addOther( const ReosTimeSerieVariableTimeSte
     //setValue( thisTimeValue, mValues.at( i ) + factor * other.valueAtTime( thisTimeValue - offset ) );
   }
 
-  // now add time step not existing in this instance,
+  // now add time steps not existing in this instance,
   QMap<ReosDuration, double> newValue_2;
   for ( int i = 0; i < other.mTimeValues.count(); ++i )
   {
+    bool exact = false;
     ReosDuration otherTimeValue = other.mTimeValues.at( i ) + offset;
-    int index = timeValueIndex( otherTimeValue );
-
-    if ( index < 0 || index >= mTimeValues.count() || mTimeValues.at( index ) != otherTimeValue )
-      newValue_2[otherTimeValue] = valueAtTime( otherTimeValue ) + factor * other.valueAt( i );
-    //setValue( otherTimeValue, valueAtTime( otherTimeValue ) + factor * other.valueAt( i ) );
+    int index = timeValueIndex( otherTimeValue, exact );
+    if ( !exact )
+    {
+      if ( index < 0 || index >= ( mTimeValues.count() - 1 ) || allowInterpolation )
+        newValue_2[otherTimeValue] = valueAtTime( otherTimeValue ) + factor * other.valueAt( i );
+    }
   }
 
   // Then apply the value
@@ -733,25 +745,40 @@ void ReosTimeSerieVariableTimeStep::addOther( const ReosTimeSerieVariableTimeSte
 
 }
 
-int ReosTimeSerieVariableTimeStep::timeValueIndex( const ReosDuration &time ) const
+int ReosTimeSerieVariableTimeStep::timeValueIndex( const ReosDuration &time, bool &exact ) const
 {
   if ( mTimeValues.empty() || time < mTimeValues.first() )
+  {
+    exact = false;
     return -1;
+  }
 
   if ( time > mTimeValues.last() )
+  {
+    exact = false;
     return mTimeValues.count() - 1;
+  }
 
   int i1 = 0;
   int i2 = mTimeValues.count() - 1;
   while ( true )
   {
     if ( mTimeValues.at( i1 ) == time )
+    {
+      exact = true;
       return i1;
+    }
     if ( mTimeValues.at( i2 ) == time )
+    {
+      exact = true;
       return i2;
+    }
 
     if ( i1 == i2 || i1 + 1 == i2 )
+    {
+      exact = false;
       return i1;
+    }
 
     int inter = ( i1 + i2 ) / 2;
     if ( time < mTimeValues.at( inter ) )

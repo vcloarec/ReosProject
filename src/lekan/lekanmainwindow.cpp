@@ -112,8 +112,10 @@ bool LekanMainWindow::saveProject()
   QString path = currentProjectPath();
   QString baseName = currentProjectBaseName();
 
-  ReosEncodedElement lekanProject( QStringLiteral( "Lekan-project" ) );
+  mRainFallManagerWidget->saveRainfallFile();
+  mRunoffManagerWidget->save();
 
+  ReosEncodedElement lekanProject( QStringLiteral( "Lekan-project" ) );
   ReosEncodedElement encodedGisEngine = mGisEngine->encode( path, baseName );
   lekanProject.addEncodedData( QStringLiteral( "GIS-engine" ), encodedGisEngine );
   lekanProject.addEncodedData( QStringLiteral( "watershed-module" ), mWatershedModule->encode() );

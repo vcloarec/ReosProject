@@ -77,18 +77,18 @@ void ReosMainWindow::init()
   mMenuFile = menuBar()->addMenu( tr( "File" ) );
   mMenuFile->addActions( mGroupActionFile->actions() );
 
-  QAction *actionUndo = mUndoStack->createUndoAction( this );
-  actionUndo->setIcon( QPixmap( "://images/mActionUndo.png" ) );
+//  QAction *actionUndo = mUndoStack->createUndoAction( this );
+//  actionUndo->setIcon( QPixmap( "://images/mActionUndo.png" ) );
 
-  mGroupActionEdit->addAction( actionUndo );
-  QAction *actionRedo = mUndoStack->createRedoAction( this );
-  actionRedo->setIcon( QPixmap( "://images/mActionRedo.png" ) );
-  mGroupActionEdit->addAction( actionRedo );
+//  mGroupActionEdit->addAction( actionUndo );
+//  QAction *actionRedo = mUndoStack->createRedoAction( this );
+//  actionRedo->setIcon( QPixmap( "://images/mActionRedo.png" ) );
+//  mGroupActionEdit->addAction( actionRedo );
 
-  mToolBarEdit = addToolBar( tr( "Edit" ) );
-  mToolBarEdit->addActions( mGroupActionEdit->actions() );
-  mMenuEdit = menuBar()->addMenu( tr( "Edit" ) );
-  mMenuEdit->addActions( mGroupActionEdit->actions() );
+//  mToolBarEdit = addToolBar( tr( "Edit" ) );
+//  mToolBarEdit->addActions( mGroupActionEdit->actions() );
+//  mMenuEdit = menuBar()->addMenu( tr( "Edit" ) );
+//  mMenuEdit->addActions( mGroupActionEdit->actions() );
 
   const QList<QMenu *> &sm = specificMenus();
   for ( QMenu *menu : sm )

@@ -243,7 +243,7 @@ ReosRainfallGaugedRainfallItem *ReosRainfallModel::addGaugedRainfall( const QStr
   else
   {
     if ( receiver->type() != ReosRainfallItem::Station )
-      return nullptr;
+      return addGaugedRainfall( name, description, index.parent(), data );
   }
 
   std::unique_ptr<ReosRainfallGaugedRainfallItem> newRainfal = std::make_unique<ReosRainfallGaugedRainfallItem>( name, description, data );
@@ -262,7 +262,7 @@ ReosRainfallChicagoItem *ReosRainfallModel::addChicagoRainfall( const QString &n
   else
   {
     if ( receiver->type() != ReosRainfallItem::Station )
-      return nullptr;
+      return addChicagoRainfall( name, description, index.parent() );
   }
 
   std::unique_ptr<ReosRainfallChicagoItem> newRainfal = std::make_unique<ReosRainfallChicagoItem>( name, description );
@@ -281,7 +281,7 @@ ReosRainfallDoubleTriangleItem *ReosRainfallModel::addDoubleTriangleRainfall( co
   else
   {
     if ( receiver->type() != ReosRainfallItem::Station )
-      return nullptr;
+      return addDoubleTriangleRainfall( name, description, index.parent() );
   }
 
   std::unique_ptr<ReosRainfallDoubleTriangleItem> newRainfal = std::make_unique<ReosRainfallDoubleTriangleItem>( name, description );
@@ -300,7 +300,7 @@ ReosRainfallIdfCurvesItem *ReosRainfallModel::addIDFCurves( const QString &name,
   else
   {
     if ( receiver->type() != ReosRainfallItem::Station )
-      return nullptr;
+      return addIDFCurves( name, description, index.parent() );
   }
 
   std::unique_ptr<ReosRainfallIdfCurvesItem> newIDF = std::make_unique<ReosRainfallIdfCurvesItem>( name, description );
@@ -323,7 +323,7 @@ ReosRainfallIntensityDurationCurveItem *ReosRainfallModel::addIDCurve( const Reo
   ReosRainfallDataItem *dataItemReceiver = qobject_cast<ReosRainfallDataItem *>( receiver );
 
   if ( !dataItemReceiver || dataItemReceiver->dataType() != QStringLiteral( "idf-curves" ) )
-    return nullptr;
+    return addIDCurve( duration, description, index.parent() );
 
   ReosRainfallIdfCurvesItem *idfItem = qobject_cast<ReosRainfallIdfCurvesItem *>( dataItemReceiver );
   if ( !idfItem )

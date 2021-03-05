@@ -204,7 +204,7 @@ QRectF ReosPlotConstantIntervalTimeIntervalSerie::boundingRect() const
   if ( !mTimeSerie )
     return QRectF();
   const QPair<QDateTime, QDateTime> timeExtent = mTimeSerie->timeExtent();
-  const  QPair<double, double> valueExtent = mTimeSerie->valueExent();
+  const  QPair<double, double> valueExtent = mTimeSerie->valueExent( true );
   double x1 = QwtDate::toDouble( timeExtent.first );
   double x2 = QwtDate::toDouble( timeExtent.second );
   return QRectF( x1, valueExtent.first, x2 - x1, valueExtent.second - valueExtent.first );

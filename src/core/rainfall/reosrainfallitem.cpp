@@ -690,8 +690,10 @@ QString ReosRainfallSerieRainfallItem::rainfallInformation() const
   ReosDuration duration( timeExtent.first.msecsTo( timeExtent.second ) );
   duration.setAdaptedUnit();
   ret.append( tr( "Duration: %1" ).arg( duration.toString( 2 ) ) );
-  double cumul = data()->valueWithMode( data()->valueCount(), ReosTimeSerieConstantInterval::Cumulative );
   ret.append( "\n" );
+  ret.append( tr( "Time Step: %1" ).arg( data()->timeStep()->value().toString( 2 ) ) );
+  ret.append( "\n" );
+  double cumul = data()->valueWithMode( data()->valueCount(), ReosTimeSerieConstantInterval::Cumulative );
   ret.append( tr( "Cumulative height: %1 mm" ).arg( QString::number( cumul, 'f', 2 ) ) );
   return ret;
 }

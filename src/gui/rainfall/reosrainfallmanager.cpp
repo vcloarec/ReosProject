@@ -84,7 +84,7 @@ ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWid
   toolBar->addAction( mActionImportFromTextFile );
 
   connect( mActionOpenRainfallDataFile, &QAction::triggered, this, &ReosRainfallManager::onOpenRainfallFile );
-  connect( mActionSaveRainfallDataFile, &QAction::triggered, this, &ReosRainfallManager::onSaveRainfallFile );
+  connect( mActionSaveRainfallDataFile, &QAction::triggered, this, &ReosRainfallManager::saveRainfallFile );
   connect( mActionSaveAsRainfallDataFile, &QAction::triggered, this, &ReosRainfallManager::onSaveAsRainfallFile );
   connect( mActionImportFromTextFile, &QAction::triggered, this, &ReosRainfallManager::onImportFromTextFile );
 
@@ -160,7 +160,7 @@ void ReosRainfallManager::onOpenRainfallFile()
 
     if ( ret == QMessageBox::Yes )
     {
-      onSaveRainfallFile();
+      saveRainfallFile();
     }
   }
 
@@ -196,7 +196,7 @@ QList<QAction *> ReosRainfallManager::dataItemActions( ReosRainfallDataItem *dat
   if ( !dataItem )
     return actions;
 
-  if ( dataItem->dataType() == QStringLiteral( "idf-curves" ) )
+  if ( dataItem->dataType() == QStringLiteral( "idf-curves" ) || dataItem->dataType() == QStringLiteral( "id-curve" ) )
   {
     actions.append( mActionAddIDCurve );
     actions.append( mActionReorderIdVurve );
@@ -256,7 +256,7 @@ void ReosRainfallManager::onAddRootZone()
 }
 
 
-void ReosRainfallManager::onSaveRainfallFile()
+void ReosRainfallManager::saveRainfallFile()
 {
   QFileInfo fileInfo( ui->labelFileName->text() );
   if ( !fileInfo.exists() )
@@ -385,7 +385,13 @@ void ReosRainfallManager::onReorderIDCurve()
 
     ReosRainfallIdfCurvesItem *idfCurvesItem = qobject_cast<ReosRainfallIdfCurvesItem *>( item );
     if ( !idfCurvesItem )
-      return;
+    {
+      //try with parent
+      idfCurvesItem = qobject_cast<ReosRainfallIdfCurvesItem *>( item->parentItem() );
+      if ( !idfCurvesItem )
+        return;
+    }
+
 
     int childrenCount = idfCurvesItem->childrenCount();
     for ( int i = 0; i < childrenCount; ++i )
@@ -435,7 +441,7 @@ void ReosRainfallManager::onCurrentTreeIndexChanged()
     if ( mCurrentForm )
     {
       ui->mEditorWidget->layout()->replaceWidget( mCurrentForm, newForm );
-      mCurrentForm->deleteLater();
+      delete mCurrentForm;
       mCurrentForm = newForm;
     }
     else
@@ -452,7 +458,7 @@ void ReosRainfallManager::onCurrentTreeIndexChanged()
       if ( mCurrentPlot )
       {
         ui->mPlotWidget->layout()->replaceWidget( mCurrentPlot, newPlot );
-        mCurrentPlot->deleteLater();
+        delete mCurrentPlot;
         mCurrentPlot = newPlot;
       }
       else
@@ -466,7 +472,7 @@ void ReosRainfallManager::onCurrentTreeIndexChanged()
       if ( mCurrentPlot )
       {
         ui->mPlotWidget->layout()->removeWidget( mCurrentPlot );
-        mCurrentPlot->deleteLater();
+        delete mCurrentPlot;
         mCurrentPlot = nullptr;
       }
     }
@@ -476,13 +482,13 @@ void ReosRainfallManager::onCurrentTreeIndexChanged()
     if ( mCurrentForm )
     {
       ui->mEditorWidget->layout()->removeWidget( mCurrentForm );
-      mCurrentForm->deleteLater();
+      delete mCurrentForm;
       mCurrentForm = nullptr;
     }
     if ( mCurrentPlot )
     {
       ui->mPlotWidget->layout()->removeWidget( mCurrentPlot );
-      mCurrentPlot->deleteLater();
+      delete mCurrentPlot;
       mCurrentPlot = nullptr;
     }
   }
@@ -505,14 +511,13 @@ void ReosRainfallManager::onTreeViewContextMenu( const QPoint &pos )
           menu.addAction( mActionAddZoneToZone );
           menu.addAction( mActionAddStation );
           break;
+        case ReosRainfallItem::Data:
+          menu.addActions( dataItemActions( qobject_cast<ReosRainfallDataItem *>( item ) ) );
         case ReosRainfallItem::Station:
           menu.addAction( mActionAddGaugedRainfall );
           menu.addAction( mActionAddChicagoRainfall );
           menu.addAction( mActionAddDoubleTriangleRainfall );
           menu.addAction( mActionAddIDFCurves );
-          break;
-        case ReosRainfallItem::Data:
-          menu.addActions( dataItemActions( qobject_cast<ReosRainfallDataItem *>( item ) ) );
           break;
       }
       menu.addAction( mActionRemoveItem );
@@ -521,7 +526,7 @@ void ReosRainfallManager::onTreeViewContextMenu( const QPoint &pos )
   else
     menu.addAction( mActionAddRootZone );
 
-  menu.exec( ui->mTreeView->mapToGlobal( pos ) );
+  menu.exec( ui->mTreeView->viewport()->mapToGlobal( pos ) );
 }
 
 void ReosRainfallManager::onImportFromTextFile()
