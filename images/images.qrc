@@ -82,6 +82,7 @@
         <file>openQGISProject.svg</file>
         <file>mActionAddVectorLayer.svg</file>
         <file>mActionAddRasterLayer.svg</file>
+        <file>editWatershed.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

@@ -25,6 +25,7 @@ email                : vcloarec at gmail dot com
 
 class ReosWatershedDelineating;
 class ReosWatershedModule;
+class ReosMapToolEditMapPolygon;
 class ReosMap;
 
 namespace Ui
@@ -43,6 +44,8 @@ class ReosDelineatingWatershedWidget : public ReosActionWidget
       QWidget *parent = nullptr );
 
     ~ReosDelineatingWatershedWidget();
+
+    void setEditingDelineatingMapTool( ReosMapToolEditMapPolygon *mapTool );
 
   public slots:
     void setCurrentWatershed( ReosWatershed *ws );

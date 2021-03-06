@@ -80,6 +80,9 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
     //! Returns the delineating of the watershed
     QPolygonF delineating() const;
 
+    //! Sets the delineating of the watershed
+    void setDelineating( const QPolygonF &del );
+
     //! Returns the outlet point of the watershed
     QPointF outletPoint() const;
 

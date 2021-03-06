@@ -19,6 +19,7 @@ class ReosConcentrationTimeWidget;
 class ReosWatershedModule;
 class ReosWatershed;
 class ReosMapToolSelectMapItem;
+class ReosMapToolEditMapPolygon;
 class ReosMeteorologicItemModel;
 class ReosMeteorologicModelWidget;
 class ReosRunoffHydrographWidget;
@@ -32,7 +33,6 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
 
   signals:
     void currentWatershedChanged( ReosWatershed *ws );
-    void currentMapWatershedChanged( ReosMapPolygon *mapWatershed );
 
   private slots:
     void onWatershedAdded( const QModelIndex &index );
@@ -68,11 +68,14 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
     ReosRunoffHydrographWidget *mRunoffHydrographWidget = nullptr;
 
     using MapWatersheds = std::map<ReosWatershed *, std::unique_ptr<ReosMapPolygon>>;
-    MapWatersheds mMapWatersheds_;
+    MapWatersheds mMapWatersheds;
 
     ReosMapMarker mCurrentMapOutlet;
     ReosMapPolyline mCurrentStreamLine;
 
+    ReosMapToolEditMapPolygon *mMapToolEditDelineating = nullptr;
+
+    ReosWatershed *currentWatershed() const;
     void formatWatershedPolygon( ReosMapPolygon * );
     void clearSelection();
 

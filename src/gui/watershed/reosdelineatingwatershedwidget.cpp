@@ -38,7 +38,7 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   mDownstreamLine( map ),
   mWatershedExtent( map ),
   mActionDrawWatershed( new QAction( QPixmap( QStringLiteral( ":/images/delineateWatershed.svg" ) ), tr( "Draw watershed manually" ), this ) ),
-  mActionEditWatershed( new QAction( QPixmap( QStringLiteral( ":/images/delineateWatershed.svg" ) ), tr( "Edit watershed manually" ), this ) ),
+  mActionEditWatershed( new QAction( QPixmap( QStringLiteral( ":/images/editWatershed.svg" ) ), tr( "Edit watershed manually" ), this ) ),
   mTemporaryAutomaticWatershed( map ),
   mTemporaryAutomaticStreamLine( map ),
   mTemporaryManualWatershed( map ),
@@ -123,10 +123,7 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   mMapToolDrawWatershed->setFillColor( QColor( 0, 150, 0, 50 ) );
   mMapTools << mMapToolDrawWatershed;
 
-  mMapToolEditWatersed = new ReosMapToolEditMapPolygon( map );
-  mMapToolEditWatersed->setAction( mActionEditWatershed );
   mActionEditWatershed->setCheckable( true );
-  mMapTools << mMapToolEditWatersed;
 
   mMapToolDrawOutletPoint = new ReosMapToolDrawPoint( map );
   mMapTools << mMapToolDrawOutletPoint;
@@ -171,6 +168,12 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
 ReosDelineatingWatershedWidget::~ReosDelineatingWatershedWidget()
 {
   delete ui;
+}
+
+void ReosDelineatingWatershedWidget::setEditingDelineatingMapTool( ReosMapToolEditMapPolygon *mapTool )
+{
+  mapTool->setAction( mActionEditWatershed );
+  mMapTools << mapTool;
 }
 
 void ReosDelineatingWatershedWidget::setCurrentWatershed( ReosWatershed *ws )

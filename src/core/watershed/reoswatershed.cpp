@@ -120,6 +120,13 @@ ReosRasterExtent ReosWatershed::directionExtent( const QString &layerId ) const
 
 QPolygonF ReosWatershed::delineating() const {return mDelineating;}
 
+void ReosWatershed::setDelineating( const QPolygonF &del )
+{
+  mDelineating = del;
+  if ( mArea->isDerived() )
+    calculateArea();
+}
+
 QPointF ReosWatershed::outletPoint() const
 {
   if ( mType == Residual && mDownstreamWatershed )
