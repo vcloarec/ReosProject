@@ -289,8 +289,12 @@ void ReosParameterAreaWidget::applyValue()
 {
   if ( textHasChanged() && areaParameter() )
   {
-    areaParameter()->setValue( ReosArea( value(), static_cast<ReosArea::Unit>( mUnitCombobox->currentData().toInt() ) ) );
-    setTextValue( value() );
+    ReosArea newValue( value(), static_cast<ReosArea::Unit>( mUnitCombobox->currentData().toInt() ) );
+    if ( newValue != areaParameter()->value() )
+    {
+      setTextValue( value() );
+      areaParameter()->setValue( newValue );
+    }
   }
 }
 
@@ -364,7 +368,7 @@ void ReosParameterSlopeWidget::updateValue()
 
 void ReosParameterSlopeWidget::applyValue()
 {
-  if ( textHasChanged() && slopeParameter() )
+  if ( textHasChanged() && slopeParameter() && ( value() / mFactor ) != slopeParameter()->value() )
   {
     slopeParameter()->setValue( value() / mFactor );
     updateValue();
@@ -463,7 +467,7 @@ void ReosParameterDoubleWidget::updateValue()
 
 void ReosParameterDoubleWidget::applyValue()
 {
-  if ( textHasChanged() && doubleParameter() )
+  if ( textHasChanged() && doubleParameter() && value() != doubleParameter()->value() )
   {
     bool ok = false;
     double v = textValue().toDouble( &ok );
@@ -541,10 +545,14 @@ void ReosParameterDurationWidget::updateValue()
 
 void ReosParameterDurationWidget::applyValue()
 {
-  if ( textHasChanged() && durationParameter() )
+  if ( textHasChanged() && durationParameter() && textHasChanged() )
   {
-    durationParameter()->setValue( ReosDuration( value(), static_cast<ReosDuration::Unit>( mUnitCombobox->currentData().toInt() ) ) );
-    setTextValue( value() );
+    ReosDuration newValue = ReosDuration( value(), static_cast<ReosDuration::Unit>( mUnitCombobox->currentData().toInt() ) );
+    if ( newValue != durationParameter()->value() )
+    {
+      setTextValue( value() );
+      durationParameter()->setValue( newValue );
+    }
   }
 }
 
@@ -598,7 +606,9 @@ void ReosParameterDateTimeWidget::updateValue()
 
 void ReosParameterDateTimeWidget::applyValue()
 {
-  if ( dateTimeParameter() && mDateTimeEdit )
+  if ( dateTimeParameter() &&
+       mDateTimeEdit &&
+       dateTimeParameter()->value() != mDateTimeEdit->dateTime() )
     dateTimeParameter()->setValue( mDateTimeEdit->dateTime() );
 }
 
@@ -656,7 +666,7 @@ void ReosParameterBooleanWidget::updateValue()
 
 void ReosParameterBooleanWidget::applyValue()
 {
-  if ( booleanParameter() && mCheckBox )
+  if ( booleanParameter() && mCheckBox && booleanParameter()->value() != mCheckBox->isChecked() )
     booleanParameter()->setValue( mCheckBox->isChecked() );
 }
 

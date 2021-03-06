@@ -34,8 +34,10 @@ ReosEditableProfile::ReosEditableProfile():
 
 {
   mPlotItem = new ReosProfilePlot_p( mModel.points() );
+  connect( &mModel, &ReosEditableProfileModel::pointChanged, this, &ReosEditableProfile::profileChanged );
+  connect( &mModel, &ReosEditableProfileModel::pointInserted, this, &ReosEditableProfile::profileChanged );
+  connect( &mModel, &ReosEditableProfileModel::pointRemoved, this, &ReosEditableProfile::profileChanged );
   connect( &mModel, &ReosEditableProfileModel::pointChanged, this, &ReosEditableProfile::itemChanged );
-  connect( &mModel, &ReosEditableProfileModel::dataChanged, this, &ReosEditableProfile::itemChanged );
   connect( &mModel, &ReosEditableProfileModel::pointInserted, this, &ReosEditableProfile::itemChanged );
   connect( &mModel, &ReosEditableProfileModel::pointRemoved, this, &ReosEditableProfile::itemChanged );
 
@@ -118,6 +120,7 @@ void ReosEditableProfile::endMovePoint()
 {
   mMovingPointIndex = -1;
   emit itemChanged();
+  emit profileChanged();
 }
 
 void ReosEditableProfile::createProfileNewPoint( const QPointF &newPos )
@@ -262,7 +265,7 @@ QVariant ReosEditableProfileModel::data( const QModelIndex &index, int role ) co
   if ( !index.isValid() )
     return QVariant();
 
-  if ( role == Qt::DisplayRole )
+  if ( role == Qt::DisplayRole || role == Qt::EditRole )
   {
     if ( index.row() == mPoints.count() )
     {

@@ -67,7 +67,6 @@ class ReosParameterWidget : public QWidget
     void finalizeWidget();
     void setParameter( ReosParameter *param );
     bool mHideWhenVoid = true;
-
     QPointer<ReosParameter> mParameter = nullptr;
 
   private:

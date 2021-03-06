@@ -94,6 +94,9 @@ class ReosEditableProfile: public ReosPlotItem
     void addPoint( const QPointF &point );
     void setProfile( const QPolygonF &prof );
 
+  signals:
+    void profileChanged();
+
   private slots:
     void beginMove( const QRectF &rect );
     void movePoint( const QPointF &newPos );

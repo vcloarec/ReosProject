@@ -8,6 +8,8 @@ ReosProcessControler::ReosProcessControler( ReosProcess *process, QWidget *paren
   mProcess( process )
 {
   ui->setupUi( this );
+  setFocusPolicy( Qt::NoFocus );
+  setAttribute( Qt::WA_ShowWithoutActivating );
 
   connect( &mTimer, &QTimer::timeout, this, &ReosProcessControler::refresh );
   connect( this, &QDialog::rejected, this, &ReosProcessControler::onCancel );

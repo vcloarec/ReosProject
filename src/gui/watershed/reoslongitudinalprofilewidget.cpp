@@ -117,7 +117,7 @@ ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWi
   mNeedUpdateDEMProfil = true;
   askForUpdateDEMProfile();
 
-  connect( mProfile, &ReosPlotItem::itemChanged, this, &ReosLongitudinalProfileWidget::updateProfile );
+  connect( mProfile, &ReosEditableProfile::profileChanged, this, &ReosLongitudinalProfileWidget::updateProfile );
   connect( ui->mComboBoxDEM, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosLongitudinalProfileWidget::askForUpdateDEMProfile );
   connect( ui->mComboBoxDEM, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosLongitudinalProfileWidget::updateWithDirectionTools );
   connect( this, &ReosActionWidget::opened, this, &ReosLongitudinalProfileWidget::onOpened );

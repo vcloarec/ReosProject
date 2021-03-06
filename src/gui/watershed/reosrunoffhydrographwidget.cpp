@@ -91,6 +91,8 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *wat
   connect( ui->tableViewHydrographResult, &QWidget::customContextMenuRequested, this, &ReosRunoffHydrographWidget::hydrographTabContextMenu );
   connect( ui->tableViewRunoffResult, &QWidget::customContextMenuRequested, this, &ReosRunoffHydrographWidget::rainfallRunoffTabContextMenu );
 
+  connect( this, &ReosActionWidget::opened, this, &ReosRunoffHydrographWidget::updateRainall );
+
 }
 
 ReosRunoffHydrographWidget::~ReosRunoffHydrographWidget()
@@ -125,7 +127,14 @@ void ReosRunoffHydrographWidget::setCurrentMeteorologicModel( int index )
 
 void ReosRunoffHydrographWidget::onModelMeteoChanged()
 {
+  if ( mCurrentMeteoModel )
+    disconnect( mCurrentMeteoModel, &ReosDataObject::dataChanged, this, &ReosRunoffHydrographWidget::updateRainall );
+
   mCurrentMeteoModel = mWatershedModule->meteoModelsCollection()->meteorologicModel( ui->comboBoxMeteoModel->currentIndex() );
+
+  if ( mCurrentMeteoModel )
+    connect( mCurrentMeteoModel, &ReosDataObject::dataChanged, this, &ReosRunoffHydrographWidget::updateRainall );
+
   updateRainall();
 }
 
@@ -195,12 +204,14 @@ void ReosRunoffHydrographWidget::copyRainfallRunoffSelected( bool withHeader )
 
 void ReosRunoffHydrographWidget::updateRainall()
 {
+  if ( !isVisible() )
+    return;
+
   if ( mCurrentWatershed )
   {
     mCurrentRunoff->deleteLater();
     mCurrentRunoff = nullptr;
   }
-
 
   ReosRainfallSerieRainfallItem *rainfall = nullptr;
 
@@ -231,6 +242,9 @@ void ReosRunoffHydrographWidget::updateRainall()
 
 void ReosRunoffHydrographWidget::updateRunoff()
 {
+  if ( !isVisible() )
+    return;
+
   if ( mCurrentRunoff )
   {
     mCurrentRunoff->updateValues(); /// TODO : doing that under a parallel process with progress bar
@@ -250,6 +264,9 @@ void ReosRunoffHydrographWidget::updateRunoff()
 
 void ReosRunoffHydrographWidget::updateHydrograph()
 {
+  if ( !isVisible() )
+    return;
+
   if ( mCurrentHydrograph )
   {
     mCurrentHydrograph->deleteLater();
@@ -265,6 +282,7 @@ void ReosRunoffHydrographWidget::updateHydrograph()
       ReosProcessControler *controler = new ReosProcessControler( calculation.get(), this );
       controler->exec();
       mCurrentHydrograph = calculation->hydrograph();
+      controler->deleteLater();
     }
   }
 
