@@ -337,14 +337,22 @@ QVariant ReosWatershedItemModel::data( const QModelIndex &index, int role ) cons
   if ( !index.isValid() )
     return QVariant();
 
+  ReosWatershed *ws = indexToWatershed( index );
+
+  if ( !ws )
+    return QVariant();
+
   switch ( role )
   {
     case Qt::DisplayRole:
-      return indexToWatershed( index )->name()->value();
+      return ws->name()->value();
+      break;
+    case Qt::ForegroundRole:
+      if ( ws->type() == ReosWatershed::Residual )
+        return QColor( Qt::gray );
       break;
     default:
       break;
-
   }
 
   return QVariant();
@@ -481,6 +489,13 @@ QString ReosWatershedTree::watershedUri( ReosWatershed *watershed ) const
   uri.prepend( QString::number( masterWatershedPosition( currentWatershed ) ) );
 
   return uri;
+}
+
+void ReosWatershedTree::clearWatersheds()
+{
+  emit treeWillBeReset();
+  mWatersheds.clear();
+  emit treeReset();
 }
 
 QString ReosWatershedItemModel::watershedUri( ReosWatershed *watershed ) const

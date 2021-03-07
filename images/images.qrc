@@ -84,6 +84,7 @@
         <file>mActionAddRasterLayer.svg</file>
         <file>editWatershed.svg</file>
         <file>exportWatershed.svg</file>
+        <file>zoomToWatershed.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

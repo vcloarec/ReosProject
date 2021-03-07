@@ -102,6 +102,13 @@ void ReosMap::setDefaultMapTool()
     mDefaultMapTool->setCurrentToolInMap();
 }
 
+void ReosMap::setExtent( const ReosMapExtent &extent )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
+  canvas->setExtent( QgsRectangle( extent.xMapMin(), extent.yMapMin(), extent.xMapMax(), extent.yMapMax() ) );
+  canvas->refresh();
+}
+
 void ReosMap::setCrs( const QString &crsWkt )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );

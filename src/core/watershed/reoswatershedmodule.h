@@ -20,6 +20,9 @@ class REOSCORE_EXPORT ReosWatershedModule : public ReosModule
     ReosWatershedDelineating *delineatingModule() const;
     ReosMeteorologicModelsCollection *meteoModelsCollection();
 
+    //! Removes all the watersheds
+    void clearWatersheds();
+
     void decode( const ReosEncodedElement &element );
     ReosEncodedElement encode() const;
 

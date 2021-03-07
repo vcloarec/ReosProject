@@ -266,7 +266,10 @@ ReosMapToolEditMapPolygon::ReosMapToolEditMapPolygon( ReosMap *map ): ReosMapToo
 
 void ReosMapToolEditMapPolygon::setMapPolygon( ReosMapPolygon *polygon )
 {
-  d->setMapPolygon( static_cast<ReosMapPolygon_p *>( polygon->graphicItem() ) );
+  if ( polygon )
+    d->setMapPolygon( static_cast<ReosMapPolygon_p *>( polygon->graphicItem() ) );
+  else
+    d->setMapPolygon( nullptr );
 }
 
 ReosMapTool_p *ReosMapToolEditMapPolygon::tool_p() const

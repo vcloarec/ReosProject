@@ -76,6 +76,9 @@ class REOSCORE_EXPORT ReosWatershedTree: public QObject
     ReosWatershed *uriToWatershed( const QString &uri ) const;
     QString watershedUri( ReosWatershed *watershed ) const;
 
+    //! Removes all the watersheds of the tree
+    void clearWatersheds();
+
     ReosEncodedElement encode() const;
     void decode( const ReosEncodedElement &elem );
 
@@ -101,11 +104,11 @@ class REOSCORE_EXPORT ReosWatershedItemModel: public QAbstractItemModel
   public:
     ReosWatershedItemModel( ReosWatershedTree *watershedTree, QObject *parent = nullptr );
 
-    QModelIndex index( int row, int column, const QModelIndex &parent ) const;
-    QModelIndex parent( const QModelIndex &child ) const;
-    int rowCount( const QModelIndex &parent ) const;
-    int columnCount( const QModelIndex &parent ) const;
-    QVariant data( const QModelIndex &index, int role ) const;
+    QModelIndex index( int row, int column, const QModelIndex &parent ) const override;
+    QModelIndex parent( const QModelIndex &child ) const override;
+    int rowCount( const QModelIndex &parent ) const override;
+    int columnCount( const QModelIndex &parent ) const override;
+    QVariant data( const QModelIndex &index, int role ) const override;
 
     //! Returns all the watershed contained in the model
     QList<ReosWatershed *> allWatersheds() const;

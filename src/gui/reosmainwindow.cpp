@@ -202,8 +202,8 @@ void ReosMainWindow::newProject()
   if ( returnButton == QMessageBox::Cancel )
     return;
 
-  if ( returnButton == QMessageBox::Ok )
-    saveProject();
+  if ( returnButton == QMessageBox::Save )
+    save();
 
   mCurrentProjectFileInfo = QFileInfo();
   clearProject();

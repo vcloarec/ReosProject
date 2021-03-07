@@ -122,9 +122,13 @@ QPolygonF ReosWatershed::delineating() const {return mDelineating;}
 
 void ReosWatershed::setDelineating( const QPolygonF &del )
 {
+  blockSignals( true );
   mDelineating = del;
   if ( mArea->isDerived() )
     calculateArea();
+  blockSignals( false );
+
+  emit changed();
 }
 
 QPointF ReosWatershed::outletPoint() const
@@ -692,7 +696,7 @@ void ReosWatershed::updateResidual()
 
   if ( mUpstreamWatersheds.size() == 1 &&  mUpstreamWatersheds.at( 0 )->type() == ReosWatershed::Residual )
   {
-    mUpstreamWatersheds.clear(); //only one the ersidual completly alone --> remove
+    mUpstreamWatersheds.clear(); //only one, the residual completly alone --> remove
     return;
   }
 
@@ -709,7 +713,7 @@ void ReosWatershed::updateResidual()
     residualDelineating = ReosGeometryUtils::polygonCutByPolygon( residualDelineating, mUpstreamWatersheds[i]->delineating() );
   }
 
-  mUpstreamWatersheds[0]->mDelineating = residualDelineating;
+  mUpstreamWatersheds[0]->setDelineating( residualDelineating );
   mUpstreamWatersheds[0]->mExtent = ReosMapExtent( residualDelineating );
   mUpstreamWatersheds[0]->mName->setValue( mName->value() + QObject::tr( " residual" ) );
   mUpstreamWatersheds[0]->mDownstreamWatershed = this;

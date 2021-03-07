@@ -176,10 +176,6 @@ void ReosDelineatingWatershedWidget::setEditingDelineatingMapTool( ReosMapToolEd
   mMapTools << mapTool;
 }
 
-void ReosDelineatingWatershedWidget::setCurrentWatershed( ReosWatershed *ws )
-{
-
-}
 
 void ReosDelineatingWatershedWidget::onDownstreamLineDrawn( const QPolygonF &downstreamLine )
 {
@@ -237,7 +233,7 @@ void ReosDelineatingWatershedWidget::onDelineateAsked()
   ReosProcessControler *controler = new ReosProcessControler( mModule->delineatingModule()->delineatingProcess(), this );
   controler->exec();
   controler->deleteLater();
-  mModule->delineatingModule()->testPredefinedExtentValidity();
+  //mModule->delineatingModule()->testPredefinedExtentValidity();
   updateAutomaticTool();
 
   if ( !mModule->delineatingModule()->isDelineatingFinished() )
@@ -336,7 +332,11 @@ void ReosDelineatingWatershedWidget::onModuleReset()
   }
 
   onMethodChange();
+  if ( mCurrentAutomaticMapTool )
+    mCurrentAutomaticMapTool->quitMap();
 
+  if ( mCurrentManualMapTool )
+    mCurrentAutomaticMapTool->quitMap();
 }
 
 void ReosDelineatingWatershedWidget::closingWidget()
@@ -347,7 +347,7 @@ void ReosDelineatingWatershedWidget::closingWidget()
   mTemporaryAutomaticStreamLine.resetPolyline();
   mTemporaryManualWatershed.resetPolygon();
   mTemporaryManualOutletPoint.resetPoint();
-  mModule->delineatingModule()->clear();
+  mModule->delineatingModule()->reset();
 }
 
 void ReosDelineatingWatershedWidget::showAutomaticDelineating( bool shown )

@@ -24,7 +24,7 @@ email                : vcloarec at gmail dot com
 #include "reosgui.h"
 #include "reosmodule.h"
 #include "reosmapitem.h"
-//#include "../Reos/reosencodedelement.h"
+#include "reosmapextent.h"
 
 class QgsMapCanvas;
 class ReosMapCursorPosition;
@@ -42,11 +42,12 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     void refreshCanvas();
 
     ReosGisEngine *engine() const;
-
     QString mapCrs() const;
 
     //! Sets the map tool to the default one
     void setDefaultMapTool();
+
+    void setExtent( const ReosMapExtent &extent );
 
   signals:
     //! emitted when the mouse cursor moves on the map cavans.

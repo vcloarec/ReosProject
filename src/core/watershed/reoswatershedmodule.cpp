@@ -65,3 +65,10 @@ ReosMeteorologicModelsCollection *ReosWatershedModule::meteoModelsCollection()
 {
   return mMeteorologicModelsCollection.get();
 }
+
+void ReosWatershedModule::clearWatersheds()
+{
+  mWatershedTree->clearWatersheds();
+  mDelineatingModule->clear();
+  emit hasBeenReset();
+}

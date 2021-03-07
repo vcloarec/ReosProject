@@ -309,12 +309,22 @@ void ReosWatershedDelineating::testPredefinedExtentValidity()
   sendMessage( tr( "Watershed ready for validation" ), ReosModule::Message );
 }
 
-void ReosWatershedDelineating::clear()
+void ReosWatershedDelineating::reset()
 {
   mCurrentState = WaitingForDownstream;
   mDownstreamLine.clear();
   mExtent = ReosMapExtent();
   mDownstreamWatershed = nullptr;
+}
+
+void ReosWatershedDelineating::clear()
+{
+  reset();
+  mDEMLayerId.clear();
+  mCurrentState = NoDigitalElevationModel;
+  mBurningLines.clear();
+  mIsBurningLineUpToDate = false;
+  emit hasBeenReset();
 }
 
 void ReosWatershedDelineating::setBurningLines( const QList<QPolygonF> &burningLines )

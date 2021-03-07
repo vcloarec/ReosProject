@@ -113,6 +113,9 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     //! Decode information about the GIS engine and load the GIS poject from the \a path with the \a baseFileName
     bool decode( const ReosEncodedElement &encodedElement, const QString &path, const QString baseFileName );
 
+    //! Clears the GIS project
+    void clearProject();
+
   signals:
     void crsChanged( const QString &wktCrs );
     void digitalElevationRegistered( const QString &layerId );

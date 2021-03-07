@@ -52,7 +52,7 @@ class LekanMainWindow : public ReosMainWindow
 
   private:
     bool saveProject() override;
-    void clearProject() override {}
+    void clearProject() override;
     ReosVersion version() const {return lekanVersion;}
     QString projectFileFilter()  const override;
 

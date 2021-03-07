@@ -330,6 +330,16 @@ bool ReosGisEngine::decode( const ReosEncodedElement &encodedElement, const QStr
   return true;
 }
 
+void ReosGisEngine::clearProject()
+{
+  if ( QgsProject::instance() )
+    QgsProject::instance()->clear();
+
+  mAsDEMRegisteredLayer.clear();
+
+  emit updated();
+}
+
 ReosGisEngine::LayerType ReosGisEngine::layerType( const QString layerId ) const
 {
   QgsMapLayer *layer = QgsProject::instance()->mapLayer( layerId );

@@ -39,9 +39,11 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
     void onWatershedSelectedOnMap( ReosMapItem *item, const QPointF &pos );
     void onRemoveWatershed();
     void onCurrentWatershedChange( const QItemSelection &selected, const QItemSelection &deselected );
+    void onTreeViewContextMenu( const QPoint &pos );
     void onWatershedDataChanged( const QModelIndex &index );
     void onModuleReset();
     void onExportToVectorLayer();
+    void onZoomToWatershed();
 
   private:
     Ui::ReosWatershedWidget *ui;
@@ -70,6 +72,8 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
 
     QAction *mActionExportToVectorLayer = nullptr;
 
+    QAction *mActionZoomToWatershed = nullptr;
+
     using MapWatersheds = std::map<ReosWatershed *, std::unique_ptr<ReosMapPolygon>>;
     MapWatersheds mMapWatersheds;
 
@@ -83,6 +87,8 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
     void clearSelection();
 
     void setWatershedModel( ReosWatershedItemModel *model );
+
+    ReosMapPolygon *mapDelineating( ReosWatershed *ws );
 };
 
 #endif // REOSWATERSHEDWIDGET_H

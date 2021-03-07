@@ -47,9 +47,6 @@ class ReosDelineatingWatershedWidget : public ReosActionWidget
 
     void setEditingDelineatingMapTool( ReosMapToolEditMapPolygon *mapTool );
 
-  public slots:
-    void setCurrentWatershed( ReosWatershed *ws );
-
   private slots:
     void onDownstreamLineDrawn( const QPolygonF &downstreamLine );
     void onPredefinedExtentDrawn( const QRectF &extent );

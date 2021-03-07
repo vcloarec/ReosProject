@@ -132,6 +132,15 @@ bool LekanMainWindow::saveProject()
   return true;
 }
 
+void LekanMainWindow::clearProject()
+{
+  if ( mGisEngine )
+    mGisEngine->clearProject();
+
+  if ( mWatershedModule )
+    mWatershedModule->clearWatersheds();
+}
+
 
 QString LekanMainWindow::projectFileFilter() const
 {

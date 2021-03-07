@@ -86,6 +86,7 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
     // -------- Settings
     //! Returns wheher the instance has a registered DEM to operate
     bool hasValidDigitalElevationModel() const;
+
     //! Sets the DEM to operate
     bool setDigitalElevationModelDEM( const QString &layerId );
 
@@ -132,6 +133,10 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
     //! Considering result, test if the predefined extent is valid, if not return false and set the state to WaitingWithBroughtBackExtent
     void testPredefinedExtentValidity();
 
+    //! Resets the delineating toolto waiting for a downstream line
+    void reset();
+
+    //! Clears all the data from the delineating tool
     void clear();
 
   signals:
