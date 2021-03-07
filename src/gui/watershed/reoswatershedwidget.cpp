@@ -12,6 +12,7 @@
 #include "reosmeteorologicmodel.h"
 #include "reosmeteorologicmodelwidget.h"
 #include "reosrunoffhydrographwidget.h"
+#include "reosexportwatershedtovectordialog.h"
 
 #include <QMessageBox>
 
@@ -31,6 +32,7 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   mActionMeteorologicModel( new QAction( QPixmap( QStringLiteral( ":/images/meteoModel.svg" ) ), tr( "Meteorologic models" ), this ) ),
   mActionRunoffHydrograph( new QAction( QPixmap( QStringLiteral( ":/images/runoffHydrograph.svg" ) ), tr( "Runoff hydrograph" ), this ) ),
   mRunoffHydrographWidget( new ReosRunoffHydrographWidget( module, this ) ),
+  mActionExportToVectorLayer( new QAction( QPixmap( QStringLiteral( ":/images/exportWatershed.svg" ) ), tr( "Export watershed geometry to vector layer" ), this ) ),
   mCurrentMapOutlet( map ),
   mCurrentStreamLine( map ),
   mMapToolEditDelineating( new ReosMapToolEditMapPolygon( map ) )
@@ -58,6 +60,7 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   toolBar->addAction( mActionConcentrationTime );
   toolBar->addAction( mActionMeteorologicModel );
   toolBar->addAction( mActionRunoffHydrograph );
+  toolBar->addAction( mActionExportToVectorLayer );
 
   static_cast<QBoxLayout *>( layout() )->insertWidget( 0, toolBar );
   mDelineatingWidget->setAction( mActionDelineateWatershed );
@@ -114,6 +117,8 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
     }
 
   } );
+
+  connect( mActionExportToVectorLayer, &QAction::triggered, this, &ReosWatershedWidget::onExportToVectorLayer );
 }
 
 ReosWatershedWidget::~ReosWatershedWidget()
@@ -251,6 +256,14 @@ void ReosWatershedWidget::onModuleReset()
   }
 
   mMeteorolocicModelWidget->setCurrentMeteorologicalModel( 0 );
+}
+
+void ReosWatershedWidget::onExportToVectorLayer()
+{
+  ReosExportWatershedToVectorDialog *dial = new ReosExportWatershedToVectorDialog( mModelWatershed->allWatersheds(), mMap->engine()->crs(), this );
+  dial->exec();
+
+  dial->deleteLater();
 }
 
 ReosWatershed *ReosWatershedWidget::currentWatershed() const

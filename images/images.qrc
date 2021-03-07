@@ -83,6 +83,7 @@
         <file>mActionAddVectorLayer.svg</file>
         <file>mActionAddRasterLayer.svg</file>
         <file>editWatershed.svg</file>
+        <file>exportWatershed.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

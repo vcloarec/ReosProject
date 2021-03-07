@@ -30,6 +30,7 @@ SET(REOS_GUI_SOURCES
     watershed/reosmeteorologicmodelwidget.cpp
     watershed/reosrunoffmanager.cpp
     watershed/reosrunoffhydrographwidget.cpp
+    watershed/reosexportwatershedtovectordialog.cpp
 
     rainfall/reosrainfallmanager.cpp
     rainfall/reosrainfallintensitydurationwidget.cpp
@@ -76,6 +77,7 @@ SET(REOS_GUI_HEADERS
     watershed/reosmeteorologicmodelwidget.h
     watershed/reosrunoffmanager.h
     watershed/reosrunoffhydrographwidget.h
+    watershed/reosexportwatershedtovectordialog.h
 
     rainfall/reosrainfallmanager.h
     rainfall/reosrainfallintensitydurationwidget.h

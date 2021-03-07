@@ -41,6 +41,7 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
     void onCurrentWatershedChange( const QItemSelection &selected, const QItemSelection &deselected );
     void onWatershedDataChanged( const QModelIndex &index );
     void onModuleReset();
+    void onExportToVectorLayer();
 
   private:
     Ui::ReosWatershedWidget *ui;
@@ -66,6 +67,8 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
 
     QAction *mActionRunoffHydrograph = nullptr;
     ReosRunoffHydrographWidget *mRunoffHydrographWidget = nullptr;
+
+    QAction *mActionExportToVectorLayer = nullptr;
 
     using MapWatersheds = std::map<ReosWatershed *, std::unique_ptr<ReosMapPolygon>>;
     MapWatersheds mMapWatersheds;
