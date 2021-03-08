@@ -36,6 +36,7 @@
 #include <qwt_date_scale_draw.h>
 #include <qwt_date_scale_engine.h>
 
+
 ReosPlotWidget::ReosPlotWidget( QWidget *parent ): QWidget( parent ),
   mActionExportAsImage( new QAction( QPixmap( ":/images/savePlot.svg" ), tr( "Save as Image" ), this ) ),
   mActionCopyAsImage( new QAction( QPixmap( ":/images/copyPlot.svg" ), tr( "Copy as Image" ), this ) )
@@ -192,6 +193,21 @@ void ReosPlotWidget::setAxeYRightExtent( double min, double max )
 void ReosPlotWidget::enableScaleTypeChoice( bool b )
 {
   mXAxisFormatCombobox->setVisible( b );
+}
+
+QString ReosPlotWidget::plotEngineName()
+{
+  return QStringLiteral( "Qwt" );
+}
+
+QString ReosPlotWidget::plotEngineVersion()
+{
+  return QWT_VERSION_STR;
+}
+
+QString ReosPlotWidget::plotEngineLink()
+{
+  return QStringLiteral( "qwt.sourceforge.io" );
 }
 
 void ReosPlotWidget::updatePlot()

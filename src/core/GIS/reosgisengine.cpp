@@ -340,6 +340,21 @@ void ReosGisEngine::clearProject()
   emit updated();
 }
 
+QString ReosGisEngine::gisEngineName()
+{
+  return QStringLiteral( "QGIS" );
+}
+
+QString ReosGisEngine::gisEngineVersion()
+{
+  return Qgis::version();
+}
+
+QString ReosGisEngine::gisEngineLink()
+{
+  return QStringLiteral( "www.qgis.org" );
+}
+
 ReosGisEngine::LayerType ReosGisEngine::layerType( const QString layerId ) const
 {
   QgsMapLayer *layer = QgsProject::instance()->mapLayer( layerId );

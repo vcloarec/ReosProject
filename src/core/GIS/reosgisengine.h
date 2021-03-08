@@ -116,6 +116,10 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     //! Clears the GIS project
     void clearProject();
 
+    static QString gisEngineName();
+    static QString gisEngineVersion();
+    static QString gisEngineLink();
+
   signals:
     void crsChanged( const QString &wktCrs );
     void digitalElevationRegistered( const QString &layerId );

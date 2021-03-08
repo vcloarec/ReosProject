@@ -120,6 +120,10 @@ class ReosPlotWidget: public QWidget
 
     void enableScaleTypeChoice( bool b );
 
+    static QString plotEngineName();
+    static QString plotEngineVersion();
+    static QString plotEngineLink();
+
   signals:
     void cursorMoved( const QPointF &pt );
 

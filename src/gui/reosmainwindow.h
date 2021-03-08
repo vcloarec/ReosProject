@@ -31,7 +31,7 @@ class ReosModule;
 class ReosDocumentation;
 class ReosMessageBox;
 
-static const QString webSite( "www.reos.site/projet-reos/" );
+static const QString webSite( "www.reos.site/reos-project/" );
 
 //! Mainwindow of application
 class REOSGUI_EXPORT ReosMainWindow : public QMainWindow

@@ -19,6 +19,7 @@
 
 #include "reossettings.h"
 #include "reosmaptool.h"
+#include "QLayout"
 
 ReosActionWidget::ReosActionWidget( QWidget *parent ) : QWidget( parent )
 {

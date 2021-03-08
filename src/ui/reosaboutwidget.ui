@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>A propos</string>
+   <string>About</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -57,7 +57,7 @@
       </font>
      </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;copyright © Vincent Cloarec 2018&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;copyright © Vincent Cloarec 2021&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -126,7 +126,7 @@ p, li { white-space: pre-wrap; }
    <item>
     <widget class="QLabel" name="label_5">
      <property name="text">
-      <string>Foollowing libraryare used:</string>
+      <string>Following library are used:</string>
      </property>
     </widget>
    </item>

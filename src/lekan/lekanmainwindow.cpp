@@ -43,6 +43,7 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   mMap( new ReosMap( mGisEngine, this ) )
 {
   init();
+  setWindowIcon( QPixmap( QStringLiteral( ":/images/lekan.svg" ) ) );
 
   ReosRainfallRegistery::instantiate( rootModule() );
   ReosRunoffModelRegistery::instantiate( rootModule() );

@@ -30,6 +30,9 @@ email                : vcloarec at gmail dot com
 #include "reosdocumentation.h"
 #include "reosversionmessagebox.h"
 
+#include "reosgisengine.h"
+#include "reosplotwidget.h"
+
 
 ReosMainWindow::ReosMainWindow( QWidget *parent ) :
   QMainWindow( parent ),
@@ -104,7 +107,7 @@ void ReosMainWindow::init()
 
   mGroupActionInterrogation->addAction( mActionAbout );
   mGroupActionInterrogation->addAction( mActionNewVersionAvailable );
-  mGroupActionInterrogation->addAction( mActionDocumentation );
+  //mGroupActionInterrogation->addAction( mActionDocumentation );
   mMenuInterrogation = menuBar()->addMenu( tr( "?" ) );
   mMenuInterrogation->addActions( mGroupActionInterrogation->actions() );
 
@@ -121,7 +124,7 @@ void ReosMainWindow::init()
   connect( mActionLanguageSelection, &QAction::triggered, this, &ReosMainWindow::languageSelection );
   connect( mActionAbout, &QAction::triggered, this, &ReosMainWindow::about );
   connect( mActionNewVersionAvailable, &QAction::triggered, this, &ReosMainWindow::newVersionAvailable );
-  connect( mActionDocumentation, &QAction::triggered, mDocumentation, &ReosDocumentation::call );
+  //connect( mActionDocumentation, &QAction::triggered, mDocumentation, &ReosDocumentation::call );
 
   connect( mRootModule, &ReosModule::emitMessage, messageBox, &ReosMessageBox::receiveMessage );
 }
@@ -260,39 +263,15 @@ void ReosMainWindow::about()
   about->setBan( QPixmap( "://titre_Lekan.png" ) );
   about->setVersion( version().softwareNameWithVersion() );
   about->setWebAddress( webSite );
-  about->addLibrary( "Qt", "5.11", "www.qt.io/" );
-  about->addLibrary( "QGis", "3.4.12", "www.qgis.org/" );
-  about->addLibrary( "GDAL", "2.4", "www.gdal.org/" );
-  about->addLibrary( "Qwt", "6.1.4", "qwt.sourceforge.io" );
+  about->addLibrary( "Qt", qVersion(), "www.qt.io" );
+  about->addLibrary( ReosGisEngine::gisEngineName(), ReosGisEngine::gisEngineVersion(),  ReosGisEngine::gisEngineLink() );
+  about->addLibrary( ReosPlotWidget::plotEngineName(),  ReosPlotWidget::plotEngineVersion(),  ReosPlotWidget::plotEngineLink() );
 
   QString licenceTxt;
-
-  licenceTxt.append( "Overview: \n" );
-  licenceTxt.append( "1. Lekan\n" );
-  licenceTxt.append( "2. ECW Raster Plugin for GDAL\n" );
-  licenceTxt.append( "3. MrSID Raster Plugin for GDAL\n\n\n" );
-
-  licenceTxt.append( "1. Lekan\n" );
   QFile licenceFileLekan( "../LICENSE_LEKAN.txt" );
   QTextStream streamLekan( &licenceFileLekan );
   licenceFileLekan.open( QIODevice::ReadOnly );
   licenceTxt.append( streamLekan.readAll() );
-
-  licenceTxt.append( "\n\n\n\n****************************\n\n\n\n" );
-
-  licenceTxt.append( "2. ECW Raster Plugin for GDAL\n" );
-  QFile licenceFileECW( "../ECWLicense.txt" );
-  QTextStream streamECW( &licenceFileECW );
-  licenceFileECW.open( QIODevice::ReadOnly );
-  licenceTxt.append( streamECW.readAll() );
-
-  licenceTxt.append( "\n\n\n\n****************************\n\n\n\n" );
-
-  licenceTxt.append( "3. MrSID Raster Plugin for GDAL\n" );
-  QFile licenceFileMrSID( "../MRSIDLicense.txt" );
-  QTextStream streamMrSID( &licenceFileMrSID );
-  licenceFileMrSID.open( QIODevice::ReadOnly );
-  licenceTxt.append( streamMrSID.readAll() );
 
   about->setLicenceText( licenceTxt );
 

@@ -59,7 +59,7 @@ int main( int argc, char *argv[] )
     settings.setValue( QStringLiteral( "Locale" ), locale );
   }
 
-  //TODO ; need totake care of the translation...
+  //TODO ; need totale care of the translation...
 //  QTranslator translatorReos;
 //  QTranslator translatorQt;
 //  QTranslator translatorQGis;
