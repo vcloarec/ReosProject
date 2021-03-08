@@ -188,25 +188,36 @@ void ReosWatershedWidget::onRemoveWatershed()
   if ( !ws || ws->type() == ReosWatershed::Residual )
     return;
 
+  ReosWatershed *wsResid = ws->residualWatershed();
+
   if ( QMessageBox::warning( this, tr( "Removing watershed" ), tr( "Do you want to remove the current watershed '%1'?" ).arg( ws->name()->value() ),
                              QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::No )
     return;
 
   ReosWatershed *downstreamWatershed = ws->downstreamWatershed();
+  ReosWatershed *downstreamResidualWatershed = nullptr;
+  if ( downstreamWatershed )
+    downstreamResidualWatershed = downstreamWatershed->residualWatershed(); //store it to update the map delineating later
 
   mMapToolEditDelineating->setMapPolygon( nullptr );
   mModelWatershed->removeWatershed( currentIndex );
   MapWatersheds::iterator it = mMapWatersheds.find( ws );
   if ( it != mMapWatersheds.end() )
     mMapWatersheds.erase( it );
+
+  it = mMapWatersheds.find( wsResid );
+  if ( it != mMapWatersheds.end() )
+    mMapWatersheds.erase( it );
+
   mCurrentMapOutlet.resetPoint();
 
-  // update the residual of upstream if exist
-  if ( downstreamWatershed && downstreamWatershed->residualWatershed() )
+
+  // update the residual of downstream if exist
+  if ( downstreamWatershed && downstreamResidualWatershed )
   {
-    ReosMapPolygon *mapDelin = mapDelineating( downstreamWatershed->residualWatershed() );
+    ReosMapPolygon *mapDelin = mapDelineating( downstreamResidualWatershed );
     if ( mapDelin )
-      mapDelin->resetPolygon( downstreamWatershed->residualWatershed()->delineating() );
+      mapDelin->resetPolygon( downstreamResidualWatershed->delineating() );
   }
 
   emit currentWatershedChanged( nullptr );

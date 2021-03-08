@@ -218,11 +218,12 @@ ReosWatershed *ReosWatershed::extractOnlyDirectUpstreamWatershed( int i )
 {
   std::unique_ptr<ReosWatershed> ws( extractCompleteDirectUpstreamWatershed( i ) );
 
-  for ( size_t i = 1; i < ws->mUpstreamWatersheds.size(); ++i )
+  while ( ws->directUpstreamWatershedCount() > 1 )
   {
-    mUpstreamWatersheds.emplace_back( ws->mUpstreamWatersheds.at( i ).release() );
+    mUpstreamWatersheds.emplace_back( ws->extractCompleteDirectUpstreamWatershed( 1 ) );
     mUpstreamWatersheds.back()->mDownstreamWatershed = this;
   }
+
   ws->mUpstreamWatersheds.clear();
 
   updateResidual();
@@ -288,8 +289,7 @@ ReosWatershed *ReosWatershed::upstreamWatershed( const QPointF &point, bool excl
   {
     if ( uws->contain( point ) && ( uws->type() != Residual || !excludeResidual ) )
     {
-
-      ReosWatershed *ret = uws->upstreamWatershed( point );
+      ReosWatershed *ret = uws->upstreamWatershed( point, excludeResidual );
       if ( !ret )
         return uws.get();
       return ret;

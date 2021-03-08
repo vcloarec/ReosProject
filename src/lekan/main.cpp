@@ -13,7 +13,7 @@ email                : vcloarec@gmail.com projetreos@gmail.com
  *                                                                         *
  ***************************************************************************/
 
-
+#include <QTimer>
 #include <QApplication>
 #include <QCoreApplication>
 #include <QTranslator>
@@ -72,9 +72,9 @@ int main( int argc, char *argv[] )
 //  a.installTranslator( &translatorQt );
 //  a.installTranslator( &translatorQGis );
 
-  LekanMainWindow *w = new LekanMainWindow();
+  std::unique_ptr<LekanMainWindow> w = std::make_unique<LekanMainWindow>();
 
-  ReosVersionMessageBox *versionBox = new ReosVersionMessageBox( w, lekanVersion );
+  ReosVersionMessageBox *versionBox = new ReosVersionMessageBox( w.get(), lekanVersion );
   versionBox->setDefaultWebSite( webSite );
 
   if ( settings.contains( QStringLiteral( "Windows/MainWindow/geometry" ) ) )
@@ -87,25 +87,17 @@ int main( int argc, char *argv[] )
     w->showMaximized();
   }
 
-  ReosStartingWidget *starting = new ReosStartingWidget( w );
+  ReosStartingWidget *starting = new ReosStartingWidget( w.get() );
   starting->move( QApplication::desktop()->screenGeometry().center() - starting->rect().center() );
   starting->setBan( QPixmap( ":/images/lekan.svg" ) );
-  if ( starting->exec() )
-  {
-    if ( starting->openProjectChoice() )
-      w->openFile();
 
+  QTimer::singleShot( 1, starting, [starting]
+  {
+    starting->exec();
     starting->deleteLater();
-  }
-  else
-  {
-    w->deleteLater();
-
-    return 0;
-  }
+  } );
 
   int ret = a.exec();
-  w->deleteLater();
 
   return ret;
 

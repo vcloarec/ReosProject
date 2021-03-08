@@ -1,31 +1,28 @@
-# Mesher
+# Reos Project
+
+The aim of this project is to provide free and ope-source tools for hydrological and hydraulic analysis.
+
+# Lekan
 
 ## Presentation
-A mesher based on the QGis API
+The aim of Lekan is to assist the user in estimatind runoff hydrographs.
 
-The aim of this project is to provide a Mesher in a GIS environment based on QGIS API.
+The user is able to define watershed in the GIS environment (based on QGIS engine) and evaluate the geometric characteristics from digital terrain models.
 
-This mesher will be able to generate TIN DEM and other unstructured grids for hydraulic models.
+GIS environment allow to:
+- load GIS data or open directly QGIS project for base map
+- use raster DEM to automaticly delineate watershed and define longitudinale profile
 
-It will be a part of the Reos project, a free and open sources solution dedicated to hydrology and surface hydraulic (http://www.project.reos.site).
+![](delineate_r.gif)
 
-## TODO list
-- [x] add flip faces functionality
-- [x] Save/open TIN using UGRID format
-- [x] add possibility to modify the Z value of vertices.
-- [x] add tool to set automaticaly the Z value for the vertices.
-- [x] Import points and lines from vector layers.
-- [ ] Move vertices.
-- [x] Open a QGIS 3D map view and display the TIN when editing it in the 2D map view
-- [ ] Snap on vertices and layers
 
-![](mesher.gif)
+The tool calculates concentration time with different formulas available and the user can apply runoff model to each watersheds.
 
-![](mesher_2.gif)
+With user defined rainfalls or designed rainfalls linked to watersheds following meteorological models, runoff hydrographs are calculated for each watersheds.
 
-![](mesher_3.gif)
 
-![](mesher_4.gif)
+![](profile.jpg)
 
-## Working principle with QGIS API
-![](TIN_Editor_principle.PNG)
+![](rainfall.jpg)
+
+![](runoff_hydrograph.jpg)

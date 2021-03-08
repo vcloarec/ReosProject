@@ -17,6 +17,7 @@
 #define REOSCONCENTRATIONTIMECALCULATION_H
 
 #include <map>
+#include <memory>
 
 #include <QColor>
 #include <QAbstractTableModel>

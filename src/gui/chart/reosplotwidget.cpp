@@ -64,7 +64,7 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent ): QWidget( parent ),
 
   mZoomerLeft = new QwtPlotZoomer( QwtPlot::xBottom, QwtPlot::yLeft, mPlot->canvas(), true );
   mZoomerLeft->setTrackerMode( QwtPicker::AlwaysOff );
-  mZoomerRight = new QwtPlotZoomer( QwtPlot::xBottom, QwtPlot::yRight, mPlot->canvas(), true );
+  mZoomerRight = new QwtPlotZoomer( QwtPlot::xTop, QwtPlot::yRight, mPlot->canvas(), true );
   mZoomerRight->setTrackerMode( QwtPicker::AlwaysOff );
   mPlot->setZoomer( mZoomerLeft, mZoomerRight );
 

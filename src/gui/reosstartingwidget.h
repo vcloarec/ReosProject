@@ -21,6 +21,7 @@ email                : vcloarec at gmail dot com
 #include <QDebug>
 
 #include "reosgui.h"
+#include "reosmainwindow.h"
 #include "ui_reosstartingwidget.h"
 
 namespace Ui
@@ -33,16 +34,14 @@ class REOSGUI_EXPORT ReosStartingWidget : public QDialog
 {
     Q_OBJECT
   public:
-    explicit ReosStartingWidget( QWidget *parent = nullptr );
+    explicit ReosStartingWidget( ReosMainWindow *parent = nullptr );
     ~ReosStartingWidget();
-
-    bool openProjectChoice() {return mOpenProjectChoice;}
 
     void setBan( const QPixmap &image );
 
   private:
     Ui::ReosStartingWidget *ui;
-    bool mOpenProjectChoice;
+    ReosMainWindow *mMainWindow = nullptr;
 
   private slots:
     void onNewProject();

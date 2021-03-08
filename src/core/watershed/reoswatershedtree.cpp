@@ -227,9 +227,9 @@ ReosWatershed *ReosWatershedTree::extractWatershed( ReosWatershed *ws )
       emit watershedWillBeRemoved( ws );
       std::unique_ptr<ReosWatershed> ret( mWatersheds.at( i ).release() );
       mWatersheds.erase( mWatersheds.begin() + i );
-      for ( int j = 1; j < ret->directUpstreamWatershedCount(); ++j )
+      while ( ret->directUpstreamWatershedCount() > 1 )
       {
-        mWatersheds.emplace_back( ret->extractCompleteDirectUpstreamWatershed( j ) );
+        mWatersheds.emplace_back( ret->extractCompleteDirectUpstreamWatershed( 1 ) );
       }
       emit watershedRemoved();
       return ret.release();

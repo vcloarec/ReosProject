@@ -16,6 +16,8 @@
 #ifndef REOSPLOTWIDGET_H
 #define REOSPLOTWIDGET_H
 
+#include <memory>
+
 #include <QPointer>
 #include <QToolBar>
 #include <QHBoxLayout>

@@ -16,6 +16,8 @@
 #ifndef REOSFORMWIDGET_H
 #define REOSFORMWIDGET_H
 
+#include <memory>
+
 #include <QWidget>
 #include <QTableView>
 #include <QDialog>

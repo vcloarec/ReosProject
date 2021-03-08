@@ -15,9 +15,10 @@ email                : vcloarec at gmail dot com
 
 #include "reosstartingwidget.h"
 
-ReosStartingWidget::ReosStartingWidget( QWidget *parent ) :
+ReosStartingWidget::ReosStartingWidget( ReosMainWindow *parent ) :
   QDialog( parent ),
-  ui( new Ui::ReosStartingWidget )
+  ui( new Ui::ReosStartingWidget ),
+  mMainWindow( parent )
 {
   ui->setupUi( this );
   connect( ui->mPushButtonNewProject, SIGNAL( clicked() ), this, SLOT( onNewProject() ) );
@@ -39,12 +40,11 @@ void ReosStartingWidget::setBan( const QPixmap &image )
 
 void ReosStartingWidget::onNewProject()
 {
-  mOpenProjectChoice = false;
   accept();
 }
 
 void ReosStartingWidget::onOpenProject()
 {
-  mOpenProjectChoice = true;
+  mMainWindow->openFile();
   accept();
 }

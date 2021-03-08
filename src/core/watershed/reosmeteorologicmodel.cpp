@@ -281,7 +281,7 @@ int ReosMeteorologicModelsCollection::rowCount( const QModelIndex & ) const
 
 QModelIndex ReosMeteorologicModelsCollection::index( int row, int column, const QModelIndex & ) const
 {
-  if ( row >= modelCount() )
+  if ( row < 0 || row >= modelCount() )
     return QModelIndex();
 
   return createIndex( row, column, mMeteoModels.at( row ) );

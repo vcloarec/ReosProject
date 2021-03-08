@@ -16,9 +16,6 @@
 #include "reoslongitudinalprofilewidget.h"
 #include "ui_reoslongitudinalprofilewidget.h"
 
-#include <QtCharts/QChartView>
-#include <QtCharts/QChart>
-#include <QtCharts/QLineSeries>
 #include <QLayout>
 #include <QAction>
 #include <QGraphicsSceneMouseEvent>
@@ -126,6 +123,7 @@ ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWi
 ReosLongitudinalProfileWidget::~ReosLongitudinalProfileWidget()
 {
   delete ui;
+  qDebug() << "delete longitudinale profile";
 }
 
 
