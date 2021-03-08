@@ -38,7 +38,7 @@ ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWi
   , mCurrentStreamLine( map )
   , mActionDrawStreamLine( new QAction( QPixmap( ":/images/drawStreamLine.svg" ), tr( "Draw Stream Line on Map" ), this ) )
   , mActionEditStreamLine( new QAction( QPixmap( ":/images/editStreamLine.svg" ), tr( "Edit Stream Line on Map" ), this ) )
-  , mActionZooOnDEMProfileExtent( new QAction( QPixmap( ":/images/demProfileExtent.svg" ), tr( "Zoom on DEM Profile Extent" ), this ) )
+  , mActionZoomOnDEMProfileExtent( new QAction( QPixmap( ":/images/demProfileExtent.svg" ), tr( "Zoom on DEM Profile Extent" ), this ) )
   , mActionDrawStreamLineFromDownstream( new QAction( QPixmap( ":/images/drawToUpstream.svg" ), tr( "Draw Stream Line From Downstream" ), this ) )
   , mActionDrawStreamLineFromPointToDownstream( new QAction( QPixmap( ":/images/drawToDownstream.svg" ), tr( "Draw Stream Line From a Upstream Point on Map" ), this ) )
   , mActionGroupStreamLineMapTool( new QActionGroup( this ) )
@@ -77,7 +77,7 @@ ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWi
   QToolBar *streamLineToolBar = new QToolBar;
   mActionDrawStreamLine->setCheckable( true );
   streamLineToolBar->addActions( mActionGroupStreamLineMapTool->actions() );
-  streamLineToolBar->addAction( mActionZooOnDEMProfileExtent );
+  streamLineToolBar->addAction( mActionZoomOnDEMProfileExtent );
   ui->mWidgetToolStreamLine->layout()->addWidget( streamLineToolBar );
   connect( mMapToolDrawStreamLine, &ReosMapToolDrawPolyline::drawn, this, &ReosLongitudinalProfileWidget::onStreamLineChanged );
   mMapToolDrawStreamLine->setColor( QColor( 0, 155, 242 ) );
@@ -112,7 +112,7 @@ ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWi
 
   connect( mMapToolSelectMapUpstreamPoint, &ReosMapToolDrawPoint::drawn, this, &ReosLongitudinalProfileWidget::drawStreamLinefromPointToDownstream );
   connect( mActionDrawStreamLineFromDownstream, &QAction::triggered, this, &ReosLongitudinalProfileWidget::drawStreamLinefromPointToUpStream );
-  connect( mActionZooOnDEMProfileExtent, &QAction::triggered, this, &ReosLongitudinalProfileWidget::zoomOnDEMProfileExtent );
+  connect( mActionZoomOnDEMProfileExtent, &QAction::triggered, this, &ReosLongitudinalProfileWidget::zoomOnDEMProfileExtent );
 
   mNeedUpdateDEMProfil = true;
   askForUpdateDEMProfile();
@@ -305,6 +305,9 @@ void ReosLongitudinalProfileWidget::zoomOnDEMProfileExtent()
 {
   if ( mDemCurve )
     mDemCurve->zoomOnExtent();
+
+  ui->mPlotWidget->resetZoomBase();
+
 }
 
 void ReosLongitudinalProfileWidget::drawStreamLinefromPointToDownstream( const QPointF &point )

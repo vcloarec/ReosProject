@@ -10,11 +10,11 @@
     <x>0</x>
     <y>0</y>
     <width>324</width>
-    <height>95</height>
+    <height>96</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Processing...</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

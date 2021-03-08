@@ -72,7 +72,6 @@ void ReosVersionMessageBox::receiveNetWorkRequest( QNetworkReply *reply )
 
   }
 
-
   if ( newVersion )
   {
     QString message;
@@ -94,7 +93,7 @@ void ReosVersionMessageBox::receiveNetWorkRequest( QNetworkReply *reply )
   }
   else
   {
-    setText( tr( "No new version is available." ) );
+    setText( tr( "No new version available." ) );
   }
 
   exec();

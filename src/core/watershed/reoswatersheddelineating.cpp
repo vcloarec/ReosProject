@@ -311,7 +311,8 @@ void ReosWatershedDelineating::testPredefinedExtentValidity()
 
 void ReosWatershedDelineating::reset()
 {
-  mCurrentState = WaitingForDownstream;
+  if ( mCurrentState != NoDigitalElevationModel )
+    mCurrentState = WaitingForDownstream;
   mDownstreamLine.clear();
   mExtent = ReosMapExtent();
   mDownstreamWatershed = nullptr;

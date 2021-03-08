@@ -61,6 +61,13 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent ): QWidget( parent ),
   mPickerTracker->setStateMachine( new QwtPickerTrackerMachine );
   connect( mPickerTracker, &QwtPlotPicker::moved, this, &ReosPlotWidget::cursorMoved );
 
+
+  mZoomerLeft = new QwtPlotZoomer( QwtPlot::xBottom, QwtPlot::yLeft, mPlot->canvas(), true );
+  mZoomerLeft->setTrackerMode( QwtPicker::AlwaysOff );
+  mZoomerRight = new QwtPlotZoomer( QwtPlot::xBottom, QwtPlot::yRight, mPlot->canvas(), true );
+  mZoomerRight->setTrackerMode( QwtPicker::AlwaysOff );
+  mPlot->setZoomer( mZoomerLeft, mZoomerRight );
+
   QComboBox *xAxisFormatCombobox = new QComboBox( this );
   mXAxisFormatCombobox = mToolBar->addWidget( xAxisFormatCombobox );
   xAxisFormatCombobox->addItem( tr( "X linear scale" ) );
@@ -91,6 +98,7 @@ void ReosPlotWidget::setMagnifierType( ReosPlotWidget::MagnifierType type )
   {
     case normalMagnifier:
       mPlot->setNormalMagnifier();
+      break;
     case positiveMagnifier:
       mPlot->setPositiveMagnifier();
       break;
@@ -132,6 +140,13 @@ void ReosPlotWidget::addPlotItem( ReosPlotItem *item )
   item->setParent( this );
   item->setSettings();
   connect( item, &ReosPlotItem::itemChanged, this, &ReosPlotWidget::updatePlot );
+
+  if ( item->isOnLeftAxe() )
+    mZoomerLeft->setZoomBase();
+
+  if ( item->isOnRightAxe() )
+    mZoomerRight->setZoomBase();
+
 }
 
 
@@ -178,16 +193,20 @@ void ReosPlotWidget::setAxeXType( ReosPlotWidget::AxeType type )
 void ReosPlotWidget::setAxeXExtent( double min, double max )
 {
   mPlot->setAxisScale( QwtPlot::xBottom, min, max );
+  mZoomerLeft->setZoomBase();
+  mZoomerRight->setZoomBase();
 }
 
 void ReosPlotWidget::setAxeYLeftExtent( double min, double max )
 {
   mPlot->setAxisScale( QwtPlot::yLeft, min, max );
+  mZoomerLeft->setZoomBase();
 }
 
 void ReosPlotWidget::setAxeYRightExtent( double min, double max )
 {
   mPlot->setAxisScale( QwtPlot::yRight, min, max );
+  mZoomerRight->setZoomBase();
 }
 
 void ReosPlotWidget::enableScaleTypeChoice( bool b )
@@ -210,12 +229,18 @@ QString ReosPlotWidget::plotEngineLink()
   return QStringLiteral( "qwt.sourceforge.io" );
 }
 
+void ReosPlotWidget::resetZoomBase()
+{
+  mZoomerLeft->setZoomBase();
+  mZoomerRight->setZoomBase();
+}
+
 void ReosPlotWidget::updatePlot()
 {
-  mPlot->setAxisAutoScale( QwtPlot::xBottom );
-  mPlot->setAxisAutoScale( QwtPlot::yLeft );
-  mPlot->setAxisAutoScale( QwtPlot::yRight );
+  mPlot->autoScale();
   mPlot->replot();
+  mZoomerLeft->setZoomBase();
+  mZoomerRight->setZoomBase();
 }
 
 void ReosPlotWidget::exportAsImage()
@@ -266,10 +291,26 @@ void ReosPlotItem::setOnRightAxe()
     mPlotItem->setYAxis( QwtPlot::yRight );
 }
 
+bool ReosPlotItem::isOnRightAxe()
+{
+  if ( mPlotItem )
+    return mPlotItem->yAxis() == QwtPlot::yRight;
+  else
+    return false;
+}
+
 void ReosPlotItem::setOnLeftAxe()
 {
   if ( mPlotItem )
     mPlotItem->setYAxis( QwtPlot::yLeft );
+}
+
+bool ReosPlotItem::isOnLeftAxe()
+{
+  if ( mPlotItem )
+    return mPlotItem->yAxis() == QwtPlot::yLeft;
+  else
+    return false;
 }
 
 void ReosPlotItem::setAsMasterItem( bool b )

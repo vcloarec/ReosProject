@@ -72,6 +72,7 @@ class ReosPlot_p: public QwtPlot
     void setRightAxeEnabled( bool b );
 
     void setEnableZoomer( bool b );
+    void resetZoomBase();
 
     void setNormalMagnifier();
     void setPositiveMagnifier();
@@ -82,15 +83,17 @@ class ReosPlot_p: public QwtPlot
     //! Adds an item to the plot, takes ownership
     void addItem( ReosPlotItem *item );
 
+    void setZoomer( QwtPlotZoomer *zoomerLeft, QwtPlotZoomer *zoomerRight );
+
+
+    void autoScale();
+
   signals:
     void reploted();
 
   public slots:
-    void replot() override
-    {
-      QwtPlot::replot();
-      emit reploted();
-    }
+    void replot() override;
+    void enableAutoScale( bool b = true );
 
   private:
     QwtPlotGrid *mGrid = nullptr;
@@ -103,6 +106,8 @@ class ReosPlot_p: public QwtPlot
     QwtPlotPanner *mPanner = nullptr;
     QwtPlotZoomer *mZoomerLeft = nullptr;
     QwtPlotZoomer *mZoomerRight = nullptr;
+
+    bool mAutoScale = true;
 };
 
 
@@ -161,7 +166,6 @@ class ReosPlotHistogramItem_p: public QwtPlotHistogram
   public:
     ReosPlotHistogramItem_p( const QString &title ): QwtPlotHistogram( title ) {}
     QwtGraphic legendIcon( int, const QSizeF &size ) const override;
-
 };
 
 

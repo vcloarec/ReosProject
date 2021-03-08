@@ -729,5 +729,6 @@ void ReosPlotItemRainfallSerieFactory::buildPlotItems( ReosPlotWidget *plotWidge
 
   plotWidget->setTitleAxeX( QObject::tr( "Time" ) );
   plotWidget->setAxeXType( ReosPlotWidget::temporal );
+  plotWidget->setMagnifierType( ReosPlotWidget::positiveMagnifier );
 }
 

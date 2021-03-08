@@ -46,7 +46,10 @@ class ReosPlotItem: public QObject
     virtual ~ReosPlotItem();
 
     void setOnRightAxe();
+    bool isOnRightAxe();
+
     void setOnLeftAxe();
+    bool isOnLeftAxe();
 
     /**
      *  For Item that can control settings of the plot, set whether this item is a master,
@@ -124,6 +127,8 @@ class ReosPlotWidget: public QWidget
     static QString plotEngineVersion();
     static QString plotEngineLink();
 
+    void resetZoomBase();
+
   signals:
     void cursorMoved( const QPointF &pt );
 
@@ -146,6 +151,12 @@ class ReosPlotWidget: public QWidget
     QAction *mXAxisFormatCombobox = nullptr;
 
     void createItems( ReosDataObject *data );
+
+
+    QwtPlotMagnifier *mMagnifier = nullptr;
+    QwtPlotPanner *mPanner = nullptr;
+    QwtPlotZoomer *mZoomerLeft = nullptr;
+    QwtPlotZoomer *mZoomerRight = nullptr;
 };
 
 class ReosDataPlotItemFactory

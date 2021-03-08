@@ -74,7 +74,7 @@ class ReosLongitudinalProfileWidget : public ReosActionWidget
     QAction *mActionStreamLineFromUpstream = nullptr;
     QAction *mActionDrawStreamLine = nullptr;
     QAction *mActionEditStreamLine = nullptr;
-    QAction *mActionZooOnDEMProfileExtent = nullptr;
+    QAction *mActionZoomOnDEMProfileExtent = nullptr;
     QAction *mActionDrawStreamLineFromDownstream = nullptr;
     QAction *mActionDrawStreamLineFromPointToDownstream = nullptr;
 

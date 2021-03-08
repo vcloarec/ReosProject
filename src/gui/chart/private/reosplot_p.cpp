@@ -49,24 +49,23 @@ ReosPlot_p::ReosPlot_p( QWidget *parent ): QwtPlot( parent )
 
   mLegend->setVisible( false );
 
-  mZoomerLeft = new QwtPlotZoomer( QwtPlot::xBottom, QwtPlot::yLeft, canvas(), true );
-  mZoomerRight = new QwtPlotZoomer( QwtPlot::xTop, QwtPlot::yRight, canvas(), true );
-  mZoomerLeft->setTrackerMode( QwtPicker::AlwaysOff );
-  mZoomerRight->setTrackerMode( QwtPicker::AlwaysOff );
-  mZoomerLeft->setMousePattern( QwtEventPattern::MouseSelect2, Qt::NoButton );
-  mZoomerRight->setMousePattern( QwtEventPattern::MouseSelect2, Qt::NoButton );
-  mZoomerLeft->setMousePattern( QwtEventPattern::MouseSelect3, Qt::NoButton );
-  mZoomerRight->setMousePattern( QwtEventPattern::MouseSelect3, Qt::NoButton );
+  //mZoomerLeft = new QwtPlotZoomer( QwtPlot::xBottom, QwtPlot::yLeft, canvas(), true );
+  //mZoomerRight = new QwtPlotZoomer( QwtPlot::xBottom, QwtPlot::yRight, canvas(), true );
+  //mZoomerLeft->setTrackerMode( QwtPicker::AlwaysOff );
+  //mZoomerRight->setTrackerMode( QwtPicker::AlwaysOff );
+  //mZoomerLeft->setMousePattern( QwtEventPattern::MouseSelect2, Qt::NoButton );
+  //mZoomerRight->setMousePattern( QwtEventPattern::MouseSelect2, Qt::NoButton );
+  //mZoomerLeft->setMousePattern( QwtEventPattern::MouseSelect3, Qt::NoButton );
+  //mZoomerRight->setMousePattern( QwtEventPattern::MouseSelect3, Qt::NoButton );
 
   QPen rubbberBandPen( Qt::darkGray );
   rubbberBandPen.setWidth( 2 );
   rubbberBandPen.setStyle( Qt::DotLine );
-  mZoomerLeft->setRubberBandPen( rubbberBandPen );
-  mZoomerRight->setRubberBandPen( QPen( Qt::NoPen ) );
+  //mZoomerLeft->setRubberBandPen( rubbberBandPen );
+  //mZoomerRight->setRubberBandPen( QPen( Qt::NoPen ) );
 
   mPanner = new QwtPlotPanner( canvas() );
   mPanner->setMouseButton( Qt::MidButton );
-
 }
 
 ReosPlot_p::~ReosPlot_p()
@@ -109,6 +108,30 @@ void ReosPlot_p::addItem( ReosPlotItem *item )
   mItems.emplace_back( item );
 }
 
+void ReosPlot_p::setZoomer( QwtPlotZoomer *zoomerLeft, QwtPlotZoomer *zoomerRight )
+{
+  mZoomerLeft = zoomerLeft;
+  mZoomerRight = zoomerRight;
+}
+
+void ReosPlot_p::enableAutoScale( bool b )
+{
+  mAutoScale = b;
+}
+
+void ReosPlot_p::autoScale()
+{
+  setAxisAutoScale( QwtPlot::xBottom, mAutoScale );
+  setAxisAutoScale( QwtPlot::yLeft, mAutoScale );
+  setAxisAutoScale( QwtPlot::yRight, mAutoScale );
+}
+
+void ReosPlot_p::replot()
+{
+  QwtPlot::replot();
+  emit reploted();
+}
+
 
 void ReosPlot_p::setMinimumPlotSize( QSize minSize )
 {
@@ -122,8 +145,18 @@ void ReosPlot_p::setRightAxeEnabled( bool b )
 
 void ReosPlot_p::setEnableZoomer( bool b )
 {
-  mZoomerLeft->setEnabled( b );
-  mZoomerRight->setEnabled( b );
+  if ( mZoomerLeft )
+    mZoomerLeft->setEnabled( b );
+  if ( mZoomerRight )
+    mZoomerRight->setEnabled( b );
+}
+
+void ReosPlot_p::resetZoomBase()
+{
+  if ( mZoomerLeft )
+    mZoomerLeft->setZoomBase();
+  if ( mZoomerRight )
+    mZoomerRight->setZoomBase();
 }
 
 void ReosPlot_p::setNormalMagnifier()

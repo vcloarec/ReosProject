@@ -61,6 +61,7 @@ void ReosEditableProfile::attach( ReosPlot_p *plot )
   connect( mPickerEditPoint, &ReosPlotPickerEditPoint_p::rightClick, this, &ReosEditableProfile::contextMenuEdition );
   connect( mPickerEditPoint, &ReosPlotPicker_p::activated, this, &ReosEditableProfile::pickerActivated );
   connect( mPickerEditPoint, &ReosPlotPicker_p::deactivated, this, &ReosEditableProfile::activateZoomer );
+  connect( mPickerEditPoint, &ReosPlotPicker_p::deactivated, mPlot, [this] {mPlot->enableAutoScale( true );} );
   connect( mPickerEditPoint, &ReosPlotPickerEditPoint_p::purposeBeginMove, this, &ReosEditableProfile::beginMove );
   connect( mPickerEditPoint, &ReosPlotPickerEditPoint_p::moved, this, &ReosEditableProfile::movePoint );
   connect( mPickerEditPoint, &ReosPlotPickerEditPoint_p::moveFinished, this, &ReosEditableProfile::endMovePoint );
@@ -69,6 +70,7 @@ void ReosEditableProfile::attach( ReosPlot_p *plot )
   mPickerNewProfile = new ReosPlotPickerDrawLines_p( plot );
   connect( mPickerNewProfile, &ReosPlotPicker_p::activated, this, &ReosEditableProfile::pickerActivated );
   connect( mPickerNewProfile, &ReosPlotPicker_p::deactivated, this, &ReosEditableProfile::activateZoomer );
+  connect( mPickerNewProfile, &ReosPlotPicker_p::deactivated, mPlot, [this] {mPlot->enableAutoScale( true );} );
   connect( mPickerNewProfile, &ReosPlotPicker_p::appended, this, &ReosEditableProfile::createProfileNewPoint );
   //connect( mPickerNewProfile, &QwtPlotPicker::selected, this, &ReosEditableProfile::finishProfile ); //don't know why (not investigate a lot) but do not work
   connect( mPickerNewProfile, SIGNAL( selected( const QVector< QPointF > ) ), this, SLOT( finishProfile( const QVector< QPointF > ) ) ); //so instead use the "old way"
@@ -150,6 +152,7 @@ void ReosEditableProfile::finishProfile( const QVector<QPointF> &pts )
   emit itemChanged();
 
   mPickerNewProfile->deactivate();
+
 }
 
 void ReosEditableProfile::pickerActivated( ReosPlotPicker_p *picker )
@@ -161,6 +164,7 @@ void ReosEditableProfile::pickerActivated( ReosPlotPicker_p *picker )
     mCurrentPicker = picker;
   }
   deactivateZoomer();
+  mPlot->enableAutoScale( false );
 }
 
 void ReosEditableProfile::deactivateZoomer()
@@ -228,8 +232,8 @@ void ReosEditableProfile::zoomExtent()
 
   mPlot->setAxisScale( QwtPlot::xBottom, bbox.left(), bbox.right() );
   mPlot->setAxisScale( QwtPlot::yLeft, bbox.top(), bbox.bottom() );
-
   mPlot->replot();
+  mPlot->resetZoomBase();
 }
 
 void ReosEditableProfile::addPoint( const QPointF &point )
