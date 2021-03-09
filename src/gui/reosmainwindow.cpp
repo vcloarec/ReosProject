@@ -268,7 +268,7 @@ void ReosMainWindow::about()
   about->addLibrary( ReosPlotWidget::plotEngineName(),  ReosPlotWidget::plotEngineVersion(),  ReosPlotWidget::plotEngineLink() );
 
   QString licenceTxt;
-  QFile licenceFileLekan( "../LICENSE_LEKAN.txt" );
+  QFile licenceFileLekan( QCoreApplication::applicationDirPath() + QStringLiteral( "../LICENSE_LEKAN.txt" ) );
   QTextStream streamLekan( &licenceFileLekan );
   licenceFileLekan.open( QIODevice::ReadOnly );
   licenceTxt.append( streamLekan.readAll() );
