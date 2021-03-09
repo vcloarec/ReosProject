@@ -1,7 +1,7 @@
 ﻿;NSIS Modern User Interface
 ;Header Bitmap Example Script
 ;Written by Joost Verburg
-;modifié par Vincent Cloarec
+;edited par Vincent Cloarec
 
 ;--------------------------------
 ;Include Modern UI
@@ -28,9 +28,11 @@
 ;--------------------------------
 ;Interface Configuration
 
-  !define MUI_HEADERIMAGE
-  !define MUI_HEADERIMAGE_BITMAP "Lekan.bmp" ; optional
+  ;!define MUI_HEADERIMAGE
+  ;!define MUI_HEADERIMAGE_BITMAP "Lekan.bmp" ; optional
   !define MUI_ABORTWARNING
+
+ 
   
   ;Finish page action
 Function finishpageaction
@@ -46,7 +48,7 @@ FunctionEnd
 ;Pages
 
   Var SMDir
-  !insertmacro MUI_PAGE_LICENSE "..\Lekan\LICENSE_LEKAN.txt"
+  !insertmacro MUI_PAGE_LICENSE "..\..\..\LICENSE_LEKAN.txt"
   !insertmacro MUI_PAGE_DIRECTORY
   !insertmacro MUI_PAGE_STARTMENU 0 $SMDir
   !insertmacro MUI_PAGE_INSTFILES
@@ -56,9 +58,11 @@ FunctionEnd
   !insertmacro MUI_UNPAGE_INSTFILES
   !insertmacro MUI_UNPAGE_FINISH
   
-;--------------------------------
+;-------------------------
+;  Languages Files
+  !insertmacro MUI_LANGUAGE "English"
+  !insertmacro MUI_LANGUAGE "French"
 
-  
 ;--------------------------------
 ;Installer Sections
 
@@ -67,7 +71,7 @@ Section "Install" SecInstall
   SetOutPath "$INSTDIR"
   
   ;Path to file
-  File /r "---\*.*"
+  File /r "D:\ReosProject-release\1.99\*.*"
 
   ;Store installation folder
   WriteRegStr HKLM "Lekan 2" "" $INSTDIR
