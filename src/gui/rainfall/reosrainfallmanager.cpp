@@ -134,13 +134,9 @@ void ReosRainfallManager::loadDataFile()
     return;
 
   if ( mModel->loadFromFile( fileName, QStringLiteral( "Rainfall data" ) ) )
-  {
     ui->labelFileName->setText( fileName );
-  }
   else
-  {
     QMessageBox::warning( this, tr( "Open Rainfall Data" ), tr( "Unable to open the current rainfall data file: %1" ).arg( fileName ) );
-  }
 
   ui->mTreeView->expandAll();
   ui->mTreeView->resizeColumnToContents( 0 );
@@ -242,6 +238,7 @@ void ReosRainfallManager::onSaveAsRainfallFile()
   else
   {
     ui->labelFileName->setText( fileName );
+    settings.setValue( QStringLiteral( "Rainfall/dataFile" ), fileName );
     settings.setValue( QStringLiteral( "Rainfall/fileDirectory" ), fileInfo.path() );
   }
 }

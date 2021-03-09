@@ -31,7 +31,6 @@ ReosRunoffManager::ReosRunoffManager( ReosRunoffModelModel *model, QWidget *pare
   ReosActionWidget( parent ),
   ui( new Ui::ReosRunoffManager )
   , mRunoffModelModel( model )
-
 {
   ui->setupUi( this );
   setWindowFlag( Qt::Dialog );
@@ -97,7 +96,7 @@ void ReosRunoffManager::save()
   }
 
   if ( !saveOn( ui->labelFileName->text() ) )
-    QMessageBox::warning( this, tr( "Save Rainfall Data" ), tr( "Unable to write the file" ) );
+    QMessageBox::warning( this, tr( "Save Runoff Data" ), tr( "Unable to write the file" ) );
 }
 
 void ReosRunoffManager::onSaveAs()
@@ -119,7 +118,7 @@ void ReosRunoffManager::onSaveAs()
   {
     ui->labelFileName->setText( fileName );
     settings.setValue( QStringLiteral( "Runoff-model/fileDirectory" ), fileInfo.path() );
-    settings.setValue( QStringLiteral( "Runoff-model/dataFile" ), fileInfo.path() );
+    settings.setValue( QStringLiteral( "Runoff-model/dataFile" ), fileName );
   }
 }
 

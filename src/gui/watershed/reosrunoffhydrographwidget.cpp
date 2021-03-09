@@ -290,7 +290,7 @@ void ReosRunoffHydrographWidget::updateHydrograph()
 
   mHydrographResultModel->clearSerie();
   if ( mCurrentHydrograph )
-    mHydrographResultModel->addTimeSerie( mCurrentHydrograph, tr( "Flow rate (%1)" ).arg( "m\u00B3/s" ) );
+    mHydrographResultModel->addTimeSerie( mCurrentHydrograph, tr( "Flow rate (%1%)" ).arg( QString( "m%1/s" ).arg( QChar( 0x179 ) ) ) );
 
   ui->tableViewHydrographResult->horizontalHeader()->resizeSections( QHeaderView::ResizeToContents );
   ui->tableViewHydrographResult->verticalHeader()->resizeSections( QHeaderView::ResizeToContents );
