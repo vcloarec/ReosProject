@@ -1,13 +1,13 @@
 # Reos Project
 
-The aim of this project is to provide free and ope-source tools for hydrological and hydraulic analysis.
+The aim of this project is to provide free and open-source tools for hydrological and hydraulic analysis.
 
 # Lekan
 
 ## Presentation
-The aim of Lekan is to assist the user in estimatind runoff hydrographs.
+The aim of Lekan is to assist the user for estimating runoff hydrographs.
 
-The user is able to define watershed in the GIS environment (based on QGIS engine) and evaluate the geometric characteristics from digital terrain models.
+The user is able to define watershed in the GIS environment (based on QGIS engine) and can evaluate the geometric characteristics from digital terrain models.
 
 GIS environment allow to:
 - load GIS data or open directly QGIS project for base map
