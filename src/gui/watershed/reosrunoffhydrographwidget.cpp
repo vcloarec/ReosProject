@@ -62,7 +62,7 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *wat
   ui->widgetPlot->setTitleAxeX( tr( "Time" ) );
   ui->widgetPlot->setAxeXType( ReosPlotWidget::temporal );
   ui->widgetPlot->enableAxeYright( true );
-  ui->widgetPlot->setTitleAxeYRight( tr( "Flow rate (m\u00B3/s)" ) );
+  ui->widgetPlot->setTitleAxeYRight( tr( "Flow rate (%1)" ).arg( QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
 
   ui->comboBoxMeteoModel->setModel( mWatershedModule->meteoModelsCollection() );
   connect( ui->comboBoxMeteoModel, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosRunoffHydrographWidget::onModelMeteoChanged );
@@ -290,7 +290,7 @@ void ReosRunoffHydrographWidget::updateHydrograph()
 
   mHydrographResultModel->clearSerie();
   if ( mCurrentHydrograph )
-    mHydrographResultModel->addTimeSerie( mCurrentHydrograph, tr( "Flow rate (%1%)" ).arg( QString( "m%1/s" ).arg( QChar( 0x179 ) ) ) );
+    mHydrographResultModel->addTimeSerie( mCurrentHydrograph, tr( "Flow rate (%1)" ).arg( QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
 
   ui->tableViewHydrographResult->horizontalHeader()->resizeSections( QHeaderView::ResizeToContents );
   ui->tableViewHydrographResult->verticalHeader()->resizeSections( QHeaderView::ResizeToContents );
