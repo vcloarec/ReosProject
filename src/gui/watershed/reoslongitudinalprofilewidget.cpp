@@ -123,7 +123,6 @@ ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWi
 ReosLongitudinalProfileWidget::~ReosLongitudinalProfileWidget()
 {
   delete ui;
-  qDebug() << "delete longitudinale profile";
 }
 
 

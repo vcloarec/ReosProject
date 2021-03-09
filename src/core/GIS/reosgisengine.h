@@ -48,6 +48,8 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     //! Constructor
     ReosGisEngine( QObject *parent = nullptr );
 
+    void initGisEngine();
+
     //! Adds a vector layer, if the loaded vector layer is invalid, do nothing and return false
     QString addVectorLayer( const QString &uri, const QString &name = QString() );
     //! Adds a raster layer, if the loaded vector layer is invalid, do nothing and return false
@@ -58,9 +60,6 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
 
     //! Returns the layer type corresponding to the the layer Id
     LayerType layerType( const QString layerId ) const;
-
-    //! Adds a empty group layer
-    void addGroupLayer();
 
     //! Returns the model containing GIS layers tree
     QAbstractItemModel *layerTreeModel();

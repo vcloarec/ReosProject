@@ -34,6 +34,7 @@ email                : vcloarec at gmail dot com
 #include <qmath.h>
 #include <qgsgeometry.h>
 #include <qgspolygon.h>
+#include <qgsprojutils.h>
 
 #define  mLayerTreeModel _layerTreeModel(mAbstractLayerTreeModel)
 static QgsLayerTreeModel *_layerTreeModel( QAbstractItemModel *sourceModel )
@@ -43,21 +44,8 @@ static QgsLayerTreeModel *_layerTreeModel( QAbstractItemModel *sourceModel )
 
 ReosGisEngine::ReosGisEngine( QObject *parent ): ReosModule( parent )
 {
-  QString profileFolder = QStandardPaths::standardLocations( QStandardPaths::AppDataLocation ).value( 0 );
-  // here we do not want profile folder as QGIS has, but only one unique folder for QGIS stuff, so we gives only the App data location
-  // Give a profile folder also avoid QGIS to override the settings path
-  QgsApplication::init( profileFolder );
 
-  // Here we use the provider files that are in the folder "qgisProvider", if this folder do not exist (local build), 
-  // then we use the folder defined by the varaible QGIS_PLUGINS
-  QString qgisProviderPath = QCoreApplication::applicationDirPath();
-  QDir providerDir(qgisProviderPath);
-  if (providerDir.cd(QStringLiteral("qgisProvider")))
-	  qgisProviderPath = providerDir.absolutePath();
-  else
-	  qgisProviderPath = QGIS_PLUGINS;
-  QgsProviderRegistry::instance(qgisProviderPath);
-  mAbstractLayerTreeModel = new QgsLayerTreeModel( QgsProject::instance()->layerTreeRoot(), this );
+  initGisEngine();
 
   mLayerTreeModel->setFlag( QgsLayerTreeModel::AllowNodeReorder );
   mLayerTreeModel->setFlag( QgsLayerTreeModel::AllowNodeRename );
@@ -66,6 +54,42 @@ ReosGisEngine::ReosGisEngine( QObject *parent ): ReosModule( parent )
   mLayerTreeModel->setFlag( QgsLayerTreeModel::UseEmbeddedWidgets );
   mLayerTreeModel->setFlag( QgsLayerTreeModel::UseTextFormatting );
   mLayerTreeModel->setAutoCollapseLegendNodes( 10 );
+}
+
+void ReosGisEngine::initGisEngine()
+{
+  QString profileFolder = QStandardPaths::standardLocations( QStandardPaths::AppDataLocation ).value( 0 );
+  // here we do not want profile folder as QGIS has, but only one unique folder for QGIS stuff, so we gives only the App data location
+  // Give a profile folder also avoid QGIS to override the settings path
+  QgsApplication::init( profileFolder );
+
+  // Here we use the provider files that are in the folder "qgisProvider", if this folder do not exist (local build),
+  // then we use the folder defined by the varaible QGIS_PLUGINS
+  QString qgisProviderPath = QCoreApplication::applicationDirPath();
+  QDir providerDir( qgisProviderPath );
+  if ( providerDir.cd( QStringLiteral( "qgisProvider" ) ) )
+    qgisProviderPath = providerDir.absolutePath();
+  else
+    qgisProviderPath = QGIS_PLUGINS;
+  QgsProviderRegistry::instance( qgisProviderPath );
+
+  //check for proj data
+  const QStringList projPaths = QgsProjUtils::searchPaths();
+  bool projDataPresent = false;
+  for ( const QString &projPath : projPaths )
+  {
+    QDir dir( projPath );
+    QString projDbPath = dir.filePath( QStringLiteral( "proj.db" ) );
+    QFileInfo fileInfo( projDbPath );
+    projDataPresent |= fileInfo.exists();
+  }
+
+  if ( !projDataPresent )
+  {
+//TODO : implement a way to found proj data : copy to app data or link to qgis proj folder.
+  }
+
+  mAbstractLayerTreeModel = new QgsLayerTreeModel( QgsProject::instance()->layerTreeRoot(), this );
 }
 
 QString ReosGisEngine::addVectorLayer( const QString &uri, const QString &name )
@@ -117,12 +141,6 @@ QString ReosGisEngine::addMeshLayer( const QString &uri, const QString &name )
     warning( tr( "Mesh layer not loaded: %1" ).arg( uri ) );
     return QString();
   }
-
-}
-
-void ReosGisEngine::addGroupLayer()
-{
-
 }
 
 QAbstractItemModel *ReosGisEngine::layerTreeModel() {return mLayerTreeModel;}
