@@ -328,14 +328,14 @@ QString ReosTransferFunctionFactories::type( int i )
 
 int ReosTransferFunctionFactories::factoryCount() const
 {
-  return static_cast<int>(mFactories.size());
+  return static_cast<int>( mFactories.size() );
 }
 
 int ReosTransferFunctionFactories::index( const QString &type ) const
 {
   for ( size_t i = 0; i < mFactories.size(); ++i )
     if ( mFactories.at( i )->type() == type )
-      return static_cast<int>(i);
+      return static_cast<int>( i );
 
   return -1;
 }
@@ -375,7 +375,7 @@ QModelIndex ReosTransferFunctionFactoriesModel::parent( const QModelIndex & ) co
 
 int ReosTransferFunctionFactoriesModel::rowCount( const QModelIndex & ) const
 {
-  return static_cast<int>(mFactories.size());
+  return static_cast<int>( mFactories.size() );
 }
 
 int ReosTransferFunctionFactoriesModel::columnCount( const QModelIndex & ) const
@@ -527,12 +527,22 @@ ReosTransferFunctionCalculation *ReosTransferFunctionSCSUnitHydrograph::calculat
   QDateTime referenceTime = runoffTimeSerie->referenceTime()->value();
   ReosDuration timeStep = runoffTimeSerie->timeStep()->value();
 
-
+  if ( mUseConcentrationTime->value() )
+  {
+    if ( !concentrationTime()->isValid() || !mFactorToLagTime->isValid() )
+      return nullptr;
+  }
+  else
+  {
+    if ( !mLagTime->isValid() )
+      return nullptr;
+  }
 
   // here, we the time step has to be lesser than the peak time, check that and adjust the time step
   ReosDuration peakTime;
   int reduceTimeStepFactor = 1;
   ReosDuration originalTimeStep = timeStep;
+  int counter = 0; //to prevent infinite loop
   do
   {
     timeStep = originalTimeStep / reduceTimeStepFactor;
@@ -543,8 +553,10 @@ ReosTransferFunctionCalculation *ReosTransferFunctionSCSUnitHydrograph::calculat
 
     if ( peakTime <=  timeStep * 2 )
       reduceTimeStepFactor *= 2;
+
+    counter++;
   }
-  while ( peakTime <=  timeStep * 2 );
+  while ( peakTime <=  timeStep * 2 && counter < 100 );
 
   return new Calculation( runoffTimeSerie->constData(), reduceTimeStepFactor, timeStep, referenceTime, peakTime, mPeakRateFactor->value(), area()->value() );
 }
