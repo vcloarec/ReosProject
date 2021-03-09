@@ -25,7 +25,7 @@ class ReosRunoff;
 class ReosWatershed;
 
 //! Class that represents a hydrograph
-class ReosHydrograph : public ReosTimeSerieVariableTimeStep
+class REOSCORE_EXPORT ReosHydrograph : public ReosTimeSerieVariableTimeStep
 {
   public:
     ReosHydrograph( QObject *parent = nullptr ): ReosTimeSerieVariableTimeStep( parent ) {}
@@ -35,7 +35,7 @@ class ReosHydrograph : public ReosTimeSerieVariableTimeStep
 };
 
 //! Process abstract class that handle the calculation of the hydrograph an onother thread
-class ReosTransferFunctionCalculation : public ReosProcess
+class REOSCORE_EXPORT ReosTransferFunctionCalculation : public ReosProcess
 {
   public:
     //! Returns the hydrograph result, has to be call after the process is finished, if \a parent is not specified, the caller need to take ownership
@@ -46,7 +46,7 @@ class ReosTransferFunctionCalculation : public ReosProcess
 };
 
 //! Class that reprsents a transfer function, that is a tranformation from runoff to hydrograph
-class ReosTransferFunction : public ReosDataObject
+class REOSCORE_EXPORT ReosTransferFunction : public ReosDataObject
 {
   public:
     ReosTransferFunction( ReosWatershed *watershed = nullptr );
@@ -85,7 +85,7 @@ class ReosTransferFunction : public ReosDataObject
 
 
 //! Abstract class that represents a transfer function factory
-class ReosTransferFunctionFactory
+class REOSCORE_EXPORT ReosTransferFunctionFactory
 {
   public:
     virtual QString type() const = 0;
@@ -115,7 +115,7 @@ class ReosTransferFunctionFactoriesModel : public QAbstractListModel
 };
 
 //! Singleton class used to store and to acces to transfer function factory
-class ReosTransferFunctionFactories : public ReosModule
+class REOSCORE_EXPORT ReosTransferFunctionFactories : public ReosModule
 {
   public:
     static void instantiate( ReosModule *parent );
@@ -153,7 +153,7 @@ class ReosTransferFunctionFactories : public ReosModule
 //**********************************************************
 //**********************************************************
 
-class ReosTransferFunctionLinearReservoir : public ReosTransferFunction
+class REOSCORE_EXPORT ReosTransferFunctionLinearReservoir : public ReosTransferFunction
 {
     Q_OBJECT
   public:
@@ -208,7 +208,7 @@ class ReosTransferFunctionLinearReservoir : public ReosTransferFunction
 
 };
 
-class ReosTransferFunctionLinearReservoirFactory: public ReosTransferFunctionFactory
+class REOSCORE_EXPORT ReosTransferFunctionLinearReservoirFactory: public ReosTransferFunctionFactory
 {
   public:
     QString type() const override {return QStringLiteral( "transfer-function-linear-reservoir" );}
@@ -219,7 +219,7 @@ class ReosTransferFunctionLinearReservoirFactory: public ReosTransferFunctionFac
 
 //**********************************************************
 
-class ReosTransferFunctionGeneralizedRationalMethod : public ReosTransferFunction
+class REOSCORE_EXPORT ReosTransferFunctionGeneralizedRationalMethod : public ReosTransferFunction
 {
     Q_OBJECT
   public:
@@ -254,7 +254,7 @@ class ReosTransferFunctionGeneralizedRationalMethod : public ReosTransferFunctio
     };
 };
 
-class ReosTransferFunctionGeneralizedRationalMethodFactory: public ReosTransferFunctionFactory
+class REOSCORE_EXPORT ReosTransferFunctionGeneralizedRationalMethodFactory: public ReosTransferFunctionFactory
 {
   public:
     QString type() const override {return QStringLiteral( "transfer-function-generalized-rational-method" );}
@@ -267,7 +267,7 @@ class ReosTransferFunctionGeneralizedRationalMethodFactory: public ReosTransferF
 
 //**********************************************************
 
-class ReosTransferFunctionSCSUnitHydrograph : public ReosTransferFunction
+class REOSCORE_EXPORT ReosTransferFunctionSCSUnitHydrograph : public ReosTransferFunction
 {
     Q_OBJECT
   public:
@@ -332,7 +332,7 @@ class ReosTransferFunctionSCSUnitHydrograph : public ReosTransferFunction
 
 };
 
-class ReosTransferFunctionSCSUnitHydrographFactory: public ReosTransferFunctionFactory
+class REOSCORE_EXPORT ReosTransferFunctionSCSUnitHydrographFactory: public ReosTransferFunctionFactory
 {
   public:
     QString type() const override {return QStringLiteral( "transfer-function-scs-unit-hydrograph" );}

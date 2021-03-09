@@ -28,7 +28,7 @@ class ReosRainfallRegistery;
 class ReosWatershedItemModel;
 
 //! Class that handle association between watesheds and rainfalls
-class ReosMeteorologicModel : public ReosDataObject
+class REOSCORE_EXPORT ReosMeteorologicModel : public ReosDataObject
 {
   public:
     ReosMeteorologicModel( const QString &name, QObject *parent = nullptr );
@@ -68,7 +68,7 @@ class ReosMeteorologicModel : public ReosDataObject
 };
 
 //! List model class that represents a collection of meteorologic model
-class ReosMeteorologicModelsCollection : public QAbstractListModel
+class REOSCORE_EXPORT ReosMeteorologicModelsCollection : public QAbstractListModel
 {
   public:
     int rowCount( const QModelIndex & ) const override;
@@ -100,7 +100,7 @@ class ReosMeteorologicModelsCollection : public QAbstractListModel
 
 
 //! Item model class that represents association between watershed and rainfall for a given meteorologic model
-class ReosMeteorologicItemModel: public QIdentityProxyModel
+class REOSCORE_EXPORT ReosMeteorologicItemModel: public QIdentityProxyModel
 {
   public:
 

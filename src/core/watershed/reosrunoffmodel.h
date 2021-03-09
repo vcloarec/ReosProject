@@ -34,7 +34,7 @@ class ReosTimeSerieConstantInterval;
  * Abstract class that represent a runoff calculation on a rainfall,
  * instance of a derived class should contain the parameter necessary to apply the model on a rainfall
  */
-class ReosRunoffModel : public ReosDataObject
+class REOSCORE_EXPORT ReosRunoffModel : public ReosDataObject
 {
     Q_OBJECT
   public:
@@ -75,7 +75,7 @@ class ReosRunoffModel : public ReosDataObject
  *  Several instances can share same runoff model and can have several runoff models,
  *  each models in the instance is assoiated with a portion of watershed
  */
-class ReosRunoffModelsGroup : public ReosDataObject
+class REOSCORE_EXPORT ReosRunoffModelsGroup : public ReosDataObject
 {
   public:
     ReosRunoffModelsGroup( QObject *parent = nullptr );
@@ -127,7 +127,7 @@ class ReosRunoffModelsGroup : public ReosDataObject
 
 
 //! Class that contains several models with same type
-class ReosRunoffModelCollection
+class REOSCORE_EXPORT ReosRunoffModelCollection
 {
   public:
     ReosRunoffModelCollection() = default;
@@ -184,7 +184,7 @@ class ReosRunoffModelCollection
 
 
 //! Class that represents the application of a runoff models groups
-class ReosRunoff : public ReosDataObject
+class REOSCORE_EXPORT ReosRunoff : public ReosDataObject
 {
   public:
     //! Constructor with the runoff models group and the \a rainfall
@@ -220,7 +220,7 @@ class ReosRunoff : public ReosDataObject
 };
 
 //! Class that represents a model containing runoff model collections and theirs runoff models
-class ReosRunoffModelModel : public QAbstractItemModel
+class REOSCORE_EXPORT ReosRunoffModelModel : public QAbstractItemModel
 {
   public :
     ReosRunoffModelModel( QObject *parent = nullptr );
@@ -283,7 +283,7 @@ class ReosRunoffModelModel : public QAbstractItemModel
 /**
  * Sinlgeton class that register and handle all the runoff models created
  */
-class ReosRunoffModelRegistery : public ReosModule
+class REOSCORE_EXPORT ReosRunoffModelRegistery : public ReosModule
 {
   public:
     //! Intantiate the singleton
@@ -345,7 +345,7 @@ class ReosRunoffModelRegistery : public ReosModule
 //*****************************************************************************
 
 //! Implementation of the constant coefficient run off model
-class ReosRunoffConstantCoefficientModel: public ReosRunoffModel
+class REOSCORE_EXPORT ReosRunoffConstantCoefficientModel: public ReosRunoffModel
 {
     Q_OBJECT
   public:
@@ -369,7 +369,7 @@ class ReosRunoffConstantCoefficientModel: public ReosRunoffModel
 //*****************************************************************************
 
 //! Implementation of the Green Ampt run off model
-class ReosRunoffGreenAmptModel: public ReosRunoffModel
+class REOSCORE_EXPORT ReosRunoffGreenAmptModel: public ReosRunoffModel
 {
     Q_OBJECT
   public:
@@ -393,7 +393,7 @@ class ReosRunoffGreenAmptModel: public ReosRunoffModel
 };
 
 //! Implementation of the Green Ampt run off model
-class ReosRunoffCurveNumberModel: public ReosRunoffModel
+class REOSCORE_EXPORT ReosRunoffCurveNumberModel: public ReosRunoffModel
 {
     Q_OBJECT
   public:

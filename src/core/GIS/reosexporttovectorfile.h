@@ -20,10 +20,12 @@
 #include <QVariant>
 #include <memory>
 
+#include "reoscore.h"
+
 class QgsVectorFileWriter;
 class QgsAbstractGeometry;
 
-class ReosExportToVectorFile
+class REOSCORE_EXPORT ReosExportToVectorFile
 {
   public:
     enum GeometryType
@@ -57,8 +59,7 @@ class ReosExportToVectorFile
     GeometryType mType;
     QList<Field> mFields;
 
-    void addFeature( QgsAbstractGeometry *ageom, const QVariantMap &attributes );
-
+	void addFeature(QgsAbstractGeometry *ageom, const QVariantMap &attributes);
 };
 
 #endif // REOSEXPORTTOVECTORFILE_H

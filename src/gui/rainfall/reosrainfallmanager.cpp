@@ -210,7 +210,7 @@ bool ReosRainfallManager::addSimpleItemDialog( const QString &title, QString &na
   ReosParameterString string( name );
   std::unique_ptr<ReosFormDialog> dial = std::make_unique<ReosFormDialog>( this );
   dial->addParameter( &string );
-  ReosParameterString descritpion( tr( "Descriprition" ) );
+  ReosParameterString descritpion( tr( "Description" ) );
   dial->addParameter( &descritpion );
   dial->setWindowTitle( title );
 

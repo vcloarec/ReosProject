@@ -147,8 +147,6 @@ class REOSCORE_EXPORT ReosRainfallItem : public QObject
 
     void connectParameters();
 
-
-
   private:
     ReosParameterString *mName;
     ReosParameterString *mDescription;

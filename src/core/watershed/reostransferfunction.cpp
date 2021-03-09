@@ -328,14 +328,14 @@ QString ReosTransferFunctionFactories::type( int i )
 
 int ReosTransferFunctionFactories::factoryCount() const
 {
-  return mFactories.size();
+  return static_cast<int>(mFactories.size());
 }
 
 int ReosTransferFunctionFactories::index( const QString &type ) const
 {
   for ( size_t i = 0; i < mFactories.size(); ++i )
     if ( mFactories.at( i )->type() == type )
-      return i;
+      return static_cast<int>(i);
 
   return -1;
 }
@@ -375,7 +375,7 @@ QModelIndex ReosTransferFunctionFactoriesModel::parent( const QModelIndex & ) co
 
 int ReosTransferFunctionFactoriesModel::rowCount( const QModelIndex & ) const
 {
-  return mFactories.size();
+  return static_cast<int>(mFactories.size());
 }
 
 int ReosTransferFunctionFactoriesModel::columnCount( const QModelIndex & ) const

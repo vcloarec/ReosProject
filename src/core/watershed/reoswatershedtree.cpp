@@ -185,7 +185,7 @@ int ReosWatershedTree::masterWatershedPosition( ReosWatershed *watershed ) const
   for ( size_t i = 0; i < mWatersheds.size(); ++i )
   {
     if ( watershed == mWatersheds.at( i ).get() )
-      return i;
+      return static_cast<int>(i);
   }
 
   return -1;

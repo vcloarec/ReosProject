@@ -42,10 +42,10 @@ ReosFormWidget::ReosFormWidget( QWidget *parent, Qt::Orientation orientation, bo
   switch ( orientation )
   {
     case Qt::Horizontal:
-      mMainLayout = new QHBoxLayout( this );
+      mMainLayout = new QHBoxLayout( );
       break;
     case Qt::Vertical:
-      mMainLayout = new QVBoxLayout( this );
+      mMainLayout = new QVBoxLayout( );
       break;
   }
   mMainLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -201,5 +201,5 @@ ReosFormWidgetFactories::ReosFormWidgetFactories( ReosModule *parent ): ReosModu
 
 ReosFormWidget *ReosFormWidgetDataFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
 {
-
+	return nullptr;
 }

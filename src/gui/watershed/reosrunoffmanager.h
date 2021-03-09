@@ -31,7 +31,7 @@ namespace Ui
   class ReosRunoffManager;
 }
 
-class ReosRunoffManager : public ReosActionWidget
+class REOSGUI_EXPORT ReosRunoffManager : public ReosActionWidget
 {
     Q_OBJECT
 

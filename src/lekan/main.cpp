@@ -15,6 +15,7 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 
 #include <QTimer>
 #include <QApplication>
+#include <qstylefactory.h>
 #include <QCoreApplication>
 #include <QTranslator>
 #include <QDesktopWidget>
@@ -37,8 +38,8 @@ int main( int argc, char *argv[] )
   //Q_INIT_RESOURCE( images );
 
 #ifdef Q_OS_WIN
-  _putenv( QString( "%1=%2" ).arg( "GDAL_DATA" ).arg( QDir::currentPath().append( "/../gdal" ) ).toLatin1().data() );
-  _putenv( QString( "%1=%2" ).arg( "GDAL_DRIVER_PATH" ).arg( QDir::currentPath().append( "./gdalplugins/" ) ).toLatin1().data() );
+  //_putenv( QString( "%1=%2" ).arg( "GDAL_DATA" ).arg( QDir::currentPath().append( "/../gdal" ) ).toLatin1().data() );
+  //_putenv( QString( "%1=%2" ).arg( "GDAL_DRIVER_PATH" ).arg( QDir::currentPath().append( "./gdalplugins/" ) ).toLatin1().data() );
 #else
   setenv( "GDAL_DATA", QDir::currentPath().append( "/../gdal" ).toLatin1().data(), 0 );
 #endif
@@ -46,6 +47,8 @@ int main( int argc, char *argv[] )
   ReosApplication a( argc, argv );
   QCoreApplication::setOrganizationName( QStringLiteral( "ReosProject" ) );
   QCoreApplication::setApplicationName( QStringLiteral( "Lekan" ) );
+
+  QApplication::setStyle(QStyleFactory::create("fusion"));
 
   QSettings::setDefaultFormat( QSettings::IniFormat );
 

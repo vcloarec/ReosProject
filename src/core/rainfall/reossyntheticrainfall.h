@@ -23,7 +23,7 @@
 
 class ReosParameterDuration;
 
-class ReosSerieRainfall : public ReosTimeSerieConstantInterval
+class REOSCORE_EXPORT ReosSerieRainfall : public ReosTimeSerieConstantInterval
 {
     Q_OBJECT
   public:

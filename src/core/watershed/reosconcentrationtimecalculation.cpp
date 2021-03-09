@@ -204,7 +204,7 @@ QStringList ReosConcentrationTimeFormulasRegistery::formulasList() const
 
 int ReosConcentrationTimeFormulasRegistery::formulasCount() const
 {
-  return mFormulas.size();
+  return static_cast<int>(mFormulas.size());
 }
 
 bool ReosConcentrationTimeFormulasRegistery::isInstantiate()

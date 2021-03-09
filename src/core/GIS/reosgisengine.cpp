@@ -17,6 +17,8 @@ email                : vcloarec at gmail dot com
 #include "reosdigitalelevationmodel.h"
 #include "reosdigitalelevationmodel_p.h"
 
+#include <QStandardPaths>
+
 #include <qgslayertreemodel.h>
 #include <qgslayertree.h>
 #include <qgslayertreeutils.h>
@@ -45,7 +47,16 @@ ReosGisEngine::ReosGisEngine( QObject *parent ): ReosModule( parent )
   // here we do not want profile folder as QGIS has, but only one unique folder for QGIS stuff, so we gives only the App data location
   // Give a profile folder also avoid QGIS to override the settings path
   QgsApplication::init( profileFolder );
-  QgsProviderRegistry::instance( QGIS_PLUGINS );
+
+  // Here we use the provider files that are in the folder "qgisProvider", if this folder do not exist (local build), 
+  // then we use the folder defined by the varaible QGIS_PLUGINS
+  QString qgisProviderPath = QCoreApplication::applicationDirPath();
+  QDir providerDir(qgisProviderPath);
+  if (providerDir.cd(QStringLiteral("qgisProvider")))
+	  qgisProviderPath = providerDir.absolutePath();
+  else
+	  qgisProviderPath = QGIS_PLUGINS;
+  QgsProviderRegistry::instance(qgisProviderPath);
   mAbstractLayerTreeModel = new QgsLayerTreeModel( QgsProject::instance()->layerTreeRoot(), this );
 
   mLayerTreeModel->setFlag( QgsLayerTreeModel::AllowNodeReorder );

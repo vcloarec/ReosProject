@@ -190,7 +190,7 @@ class REOSCORE_EXPORT ReosParameterDateTime: public ReosParameter
     QDateTime mDateTime;
 };
 
-class ReosParameterBoolean : public ReosParameter
+class REOSCORE_EXPORT ReosParameterBoolean : public ReosParameter
 {
   public:
     explicit ReosParameterBoolean( const QString &name, bool derivable, QObject *parent = nullptr );

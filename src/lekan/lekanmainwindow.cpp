@@ -77,11 +77,6 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   mMap->setDefaultMapTool();
 }
 
-LekanMainWindow::~LekanMainWindow()
-{
-  int a = 1;
-}
-
 bool LekanMainWindow::openProject()
 {
   QString filePath = currentProjectFilePath();

@@ -25,6 +25,7 @@
 #include <QClipboard>
 
 #include "reosmodule.h"
+#include "reosgui.h"
 
 class QComboBox;
 
@@ -169,7 +170,7 @@ class ReosDataPlotItemFactory
 };
 
 
-class ReosPlotItemFactories: public ReosModule
+class REOSGUI_EXPORT ReosPlotItemFactories: public ReosModule
 {
   public:
     static void instantiate( ReosModule *parent = nullptr );

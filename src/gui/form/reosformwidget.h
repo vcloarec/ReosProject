@@ -25,6 +25,7 @@
 
 #include "reosmodule.h"
 #include "reosparameterwidget.h"
+#include "reosgui.h"
 
 class QLayoutItem;
 class QBoxLayout;
@@ -85,7 +86,7 @@ class ReosFormWidgetDataFactory
     virtual QString datatype() const = 0;
 };
 
-class ReosFormWidgetFactories: public ReosModule
+class REOSGUI_EXPORT ReosFormWidgetFactories: public ReosModule
 {
   public:
     static void instantiate( ReosModule *parent );

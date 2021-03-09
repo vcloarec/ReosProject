@@ -24,12 +24,13 @@
 #include <QPixmap>
 #include <QStringList>
 
+#include "reoscore.h"
 #include "reosparameter.h"
 
 /**
  * Abstract class that represent en watersehd concentration time calculation
  */
-class ReosConcentrationTimeFormula
+class REOSCORE_EXPORT ReosConcentrationTimeFormula
 {
   public:
     ~ReosConcentrationTimeFormula();
@@ -60,7 +61,7 @@ class ReosConcentrationTimeFormula
 };
 
 //! Singleton class that is used to store concentration time formula
-class ReosConcentrationTimeFormulasRegistery
+class REOSCORE_EXPORT ReosConcentrationTimeFormulasRegistery
 {
   public:
     ~ReosConcentrationTimeFormulasRegistery();
@@ -86,13 +87,17 @@ class ReosConcentrationTimeFormulasRegistery
   private:
     ReosConcentrationTimeFormulasRegistery();
 
+#ifdef _MSC_VER
+	std::unique_ptr<ReosConcentrationTimeFormula> dummy; // work arround for MSVC, if not, the line after create an compilation error if this class is exported (REOSCORE_EXPORT)
+#endif
+
     std::map<QString, std::unique_ptr<ReosConcentrationTimeFormula>> mFormulas;
     static ReosConcentrationTimeFormulasRegistery *sInstance;
 };
 
 //********************************************************************
 
-class ReosConcentrationTimeFormulaKirpich : public ReosConcentrationTimeFormula
+class REOSCORE_EXPORT ReosConcentrationTimeFormulaKirpich : public ReosConcentrationTimeFormula
 {
   public:
     QString name() const override {return QStringLiteral( "Kirpich" );}
@@ -103,7 +108,7 @@ class ReosConcentrationTimeFormulaKirpich : public ReosConcentrationTimeFormula
     virtual QPixmap formulaImage() const override {return QPixmap( QStringLiteral( ":/formulas/concentrationTimeKirpich.svg" ) );}
 };
 
-class ReosConcentrationTimeFormulaPassini : public ReosConcentrationTimeFormula
+class REOSCORE_EXPORT ReosConcentrationTimeFormulaPassini : public ReosConcentrationTimeFormula
 {
   public:
     QString name() const override {return QStringLiteral( "Passini" );}
@@ -114,7 +119,7 @@ class ReosConcentrationTimeFormulaPassini : public ReosConcentrationTimeFormula
     virtual QPixmap formulaImage() const override {return QPixmap( QStringLiteral( ":/formulas/concentrationTimePassini.svg" ) );}
 };
 
-class ReosConcentrationTimeFormulaVentura : public ReosConcentrationTimeFormula
+class REOSCORE_EXPORT ReosConcentrationTimeFormulaVentura : public ReosConcentrationTimeFormula
 {
   public:
     QString name() const override {return QStringLiteral( "Ventura" );}
@@ -125,7 +130,7 @@ class ReosConcentrationTimeFormulaVentura : public ReosConcentrationTimeFormula
     virtual QPixmap formulaImage() const override {return QPixmap( QStringLiteral( ":/formulas/concentrationTimeVentura.svg" ) );}
 };
 
-class ReosConcentrationTimeFormulaVenTeShow : public ReosConcentrationTimeFormula
+class REOSCORE_EXPORT ReosConcentrationTimeFormulaVenTeShow : public ReosConcentrationTimeFormula
 {
   public:
     QString name() const override {return QStringLiteral( "Ven te Show" );}
@@ -136,7 +141,7 @@ class ReosConcentrationTimeFormulaVenTeShow : public ReosConcentrationTimeFormul
     virtual QPixmap formulaImage() const override {return QPixmap( QStringLiteral( ":/formulas/concentrationTimeVenTeShow.svg" ) );}
 };
 
-class ReosConcentrationTimeFormulaJohnstone : public ReosConcentrationTimeFormula
+class REOSCORE_EXPORT ReosConcentrationTimeFormulaJohnstone : public ReosConcentrationTimeFormula
 {
   public:
     QString name() const override {return QStringLiteral( "Johnstone" );}
@@ -152,7 +157,7 @@ class ReosConcentrationTimeFormulaJohnstone : public ReosConcentrationTimeFormul
 /**
  *  Class that represents the calculation of a concentration time onsidering severals formula
  */
-class ReosConcentrationTimeCalculation
+class REOSCORE_EXPORT ReosConcentrationTimeCalculation
 {
   public:
     enum UsedMethod
@@ -201,7 +206,7 @@ class ReosConcentrationTimeCalculation
 };
 
 //! Model that can be used to display formulas in a table view
-class ReosConcentrationTimeFormulasModel : public QAbstractTableModel
+class REOSCORE_EXPORT ReosConcentrationTimeFormulasModel : public QAbstractTableModel
 {
     Q_OBJECT
   public:

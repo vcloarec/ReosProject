@@ -150,7 +150,7 @@ int ReosWatershed::upstreamWatershedCount() const
 
 int ReosWatershed::directUpstreamWatershedCount() const
 {
-  return mUpstreamWatersheds.size();
+  return static_cast<int>(mUpstreamWatersheds.size());
 }
 
 ReosWatershed *ReosWatershed::directUpstreamWatershed( int i ) const
@@ -312,7 +312,7 @@ int ReosWatershed::positionInDownstreamWatershed() const
   for ( size_t i = 0; i < mDownstreamWatershed->mUpstreamWatersheds.size(); ++i )
   {
     if ( this == mDownstreamWatershed->mUpstreamWatersheds.at( i ).get() )
-      return i;
+      return static_cast<int>(i);
   }
 
   return -1;
