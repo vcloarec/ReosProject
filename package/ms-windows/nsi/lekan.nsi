@@ -3,6 +3,11 @@
 ;Written by Joost Verburg
 ;edited par Vincent Cloarec
 
+Unicode True
+
+!define LEKAN_VERSION "1.99.0"
+!define PACKAGE_SOURCE "D:\ReosProject-release"
+
 ;--------------------------------
 ;Include Modern UI
 
@@ -12,9 +17,11 @@
 ;--------------------------------
 ;General
 
+  SetCompressor /SOLID lzma
+
   ;Name and file
   Name "Lekan"
-  OutFile "Lekan-1.99-install-win64.exe"
+  OutFile "${PACKAGE_SOURCE}\Lekan-${LEKAN_VERSION}-install-win64.exe"
 
   ;Default installation folder
   InstallDir "$PROGRAMFILES64\ReosProject"
@@ -27,12 +34,12 @@
 
 ;--------------------------------
 ;Interface Configuration
-
-  ;!define MUI_HEADERIMAGE
-  ;!define MUI_HEADERIMAGE_BITMAP "Lekan.bmp" ; optional
+  !define MUI_ICON "lekan.ico"
+  !define MUI_UNICON "lekan_remove.ico"
+  !define MUI_HEADERIMAGE
+  !define MUI_HEADERIMAGE_BITMAP "bannerLekan.bmp"
   !define MUI_ABORTWARNING
 
- 
   
   ;Finish page action
 Function finishpageaction
@@ -71,7 +78,7 @@ Section "Install" SecInstall
   SetOutPath "$INSTDIR"
   
   ;Path to file
-  File /r "D:\ReosProject-release\1.99\*.*"
+  File /r "${PACKAGE_SOURCE}\${LEKAN_VERSION}\*.*"
 
   ;Store installation folder
   WriteRegStr HKLM "Lekan 2" "" $INSTDIR

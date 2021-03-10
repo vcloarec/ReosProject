@@ -85,6 +85,7 @@
         <file>editWatershed.svg</file>
         <file>exportWatershed.svg</file>
         <file>zoomToWatershed.svg</file>
+		<file>bannerLekan.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

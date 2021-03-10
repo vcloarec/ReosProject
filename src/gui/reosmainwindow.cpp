@@ -41,7 +41,7 @@ ReosMainWindow::ReosMainWindow( QWidget *parent ) :
   mGroupActionEdit( new QActionGroup( this ) ),
   mGroupActionOption( new QActionGroup( this ) ),
   mGroupActionInterrogation( new QActionGroup( this ) ),
-  mActionNewProject( new QAction( QPixmap( "://images/mActionNew.png" ), tr( "New Project" ), this ) ),
+  mActionNewProject( new QAction( QPixmap( ":/images/mActionNew.png" ), tr( "New Project" ), this ) ),
   mActionOpenFile( new QAction( QPixmap( ":/images/open.svg" ), tr( "Open file" ), this ) ),
   mActionSaveFile( new QAction( QPixmap( ":/images/save.svg" ), tr( "Save" ), this ) ),
   mActionSaveFileAs( new QAction( QPixmap( ":/images/saveAs.svg" ), tr( "Save as ..." ), this ) ),
@@ -260,7 +260,7 @@ void ReosMainWindow::about()
 {
   ReosAboutWidget *about = new ReosAboutWidget( this );
 
-  about->setBan( QPixmap( "://titre_Lekan.png" ) );
+  about->setBan( QPixmap( ":/images/bannerLekan.svg" ) );
   about->setVersion( version().softwareNameWithVersion() );
   about->setWebAddress( webSite );
   about->addLibrary( "Qt", qVersion(), "www.qt.io" );
@@ -268,7 +268,9 @@ void ReosMainWindow::about()
   about->addLibrary( ReosPlotWidget::plotEngineName(),  ReosPlotWidget::plotEngineVersion(),  ReosPlotWidget::plotEngineLink() );
 
   QString licenceTxt;
-  QFile licenceFileLekan( QCoreApplication::applicationDirPath() + QStringLiteral( "../LICENSE_LEKAN.txt" ) );
+  QDir dir(QCoreApplication::applicationDirPath());
+  dir.cdUp();
+  QFile licenceFileLekan( dir.filePath( QStringLiteral( "LICENSE_LEKAN.txt" ) ));
   QTextStream streamLekan( &licenceFileLekan );
   licenceFileLekan.open( QIODevice::ReadOnly );
   licenceTxt.append( streamLekan.readAll() );
