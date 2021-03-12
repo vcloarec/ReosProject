@@ -8,6 +8,8 @@ The aim of this project is to provide free and open-source tools for hydrologica
 
 Self installer of this tool can be downloaded [here](https://www.reos.site/en/reos-project/download/) (for Windows).
 
+Documentation (work in progress, help will be appreciated!) is available in the wiki of this repo [here](https://github.com/vcloarec/ReosProject/wiki).
+
 The aim of Lekan is to assist the user for estimating runoff hydrographs.
 
 The user is able to define watershed in the GIS environment (based on QGIS engine) and can evaluate the geometric characteristics from digital terrain models.
