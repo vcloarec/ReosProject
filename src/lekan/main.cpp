@@ -25,7 +25,7 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reosstartingwidget.h"
 
 #include "lekanmainwindow.h"
-#include "../Reos/reossettings.h"
+#include "reossettings.h"
 
 
 #include <QDir>
@@ -48,7 +48,7 @@ int main( int argc, char *argv[] )
   QCoreApplication::setOrganizationName( QStringLiteral( "ReosProject" ) );
   QCoreApplication::setApplicationName( QStringLiteral( "Lekan" ) );
 
-  QApplication::setStyle(QStyleFactory::create("fusion"));
+  QApplication::setStyle( QStyleFactory::create( "fusion" ) );
 
   QSettings::setDefaultFormat( QSettings::IniFormat );
 

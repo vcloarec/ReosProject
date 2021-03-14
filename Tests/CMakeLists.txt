@@ -78,7 +78,6 @@ MACRO (ADD_REOS_TEST TESTSRC)
                         ${CMAKE_THREAD_LIBS_INIT}
                         gtest
                         gmock
-                        reosTools
                         reosCore
                         reosGui)
 

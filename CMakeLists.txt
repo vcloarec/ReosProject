@@ -40,7 +40,6 @@ ADD_SUBDIRECTORY(images)
 ADD_SUBDIRECTORY(src/core)
 ADD_SUBDIRECTORY(src/gui)
 ADD_SUBDIRECTORY(src/ui)
-ADD_SUBDIRECTORY(src/tools)
 ADD_SUBDIRECTORY(src/lekan)
 
 # testing
