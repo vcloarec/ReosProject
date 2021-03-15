@@ -54,6 +54,9 @@ ReosGisEngine::ReosGisEngine( QObject *parent ): ReosModule( parent )
   mLayerTreeModel->setFlag( QgsLayerTreeModel::UseEmbeddedWidgets );
   mLayerTreeModel->setFlag( QgsLayerTreeModel::UseTextFormatting );
   mLayerTreeModel->setAutoCollapseLegendNodes( 10 );
+
+  connect( QgsProject::instance(), &QgsProject::layerRemoved, this, &ReosGisEngine::layerRemoved );
+
 }
 
 void ReosGisEngine::initGisEngine()
@@ -203,7 +206,6 @@ bool ReosGisEngine::registerLayerAsDigitalElevationModel( const QString &layerId
     mAsDEMRegisteredLayer.append( layerId );
     emit digitalElevationRegistered( layerId );
     return true;
-    emit digitalElevationRegistered( layerId );
   }
   return false;
 }
@@ -211,7 +213,7 @@ bool ReosGisEngine::registerLayerAsDigitalElevationModel( const QString &layerId
 void ReosGisEngine::unRegisterLayerAsDigitalElevationModel( const QString &layerId )
 {
   if ( mAsDEMRegisteredLayer.removeOne( layerId ) )
-    emit digitalElevationRegistered( layerId );
+    emit digitalElevationUnregistered( layerId );
 }
 
 bool ReosGisEngine::isDigitalElevationModel( const QString &layerId ) const
@@ -408,6 +410,9 @@ ReosGisEngine::LayerType ReosGisEngine::layerType( const QString layerId ) const
   }
 
   return NotSupported;
+}
 
-
+void ReosGisEngine::layerRemoved( const QString &layerId )
+{
+  unRegisterLayerAsDigitalElevationModel( layerId );
 }

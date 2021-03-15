@@ -125,11 +125,14 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     void digitalElevationUnregistered( const QString &layerId );
     void updated();
 
+  private slots:
+    void layerRemoved( const QString &layerId );
+
   private:
     QAbstractItemModel *mAbstractLayerTreeModel;
     ReosDigitalElevationModelProvider *mDemProvider;
-
     QStringList mAsDEMRegisteredLayer;
+
 };
 
 #endif // REOSGISENGINE_H
