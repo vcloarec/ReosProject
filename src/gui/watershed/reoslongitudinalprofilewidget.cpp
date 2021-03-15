@@ -33,11 +33,11 @@ ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWi
   ui( new Ui::ReosLongitudinalProfileWidget )
   , mMap( map )
   , mCurrentStreamLine( map )
-  , mActionDrawStreamLine( new QAction( QPixmap( ":/images/drawStreamLine.svg" ), tr( "Draw Stream Line on Map" ), this ) )
-  , mActionEditStreamLine( new QAction( QPixmap( ":/images/editStreamLine.svg" ), tr( "Edit Stream Line on Map" ), this ) )
+  , mActionDrawStreamLine( new QAction( QPixmap( ":/images/drawStreamLine.svg" ), tr( "Draw Flow Path on Map" ), this ) )
+  , mActionEditStreamLine( new QAction( QPixmap( ":/images/editStreamLine.svg" ), tr( "Edit Flow Path on Map" ), this ) )
   , mActionZoomOnDEMProfileExtent( new QAction( QPixmap( ":/images/demProfileExtent.svg" ), tr( "Zoom on DEM Profile Extent" ), this ) )
-  , mActionDrawStreamLineFromDownstream( new QAction( QPixmap( ":/images/drawToUpstream.svg" ), tr( "Draw Stream Line From Downstream" ), this ) )
-  , mActionDrawStreamLineFromPointToDownstream( new QAction( QPixmap( ":/images/drawToDownstream.svg" ), tr( "Draw Stream Line From a Upstream Point on Map" ), this ) )
+  , mActionDrawStreamLineFromDownstream( new QAction( QPixmap( ":/images/drawToUpstream.svg" ), tr( "Draw Longest Flow Path From Downstream" ), this ) )
+  , mActionDrawStreamLineFromPointToDownstream( new QAction( QPixmap( ":/images/drawToDownstream.svg" ), tr( "Draw Flow Path From a Upstream Point on Map" ), this ) )
   , mActionGroupStreamLineMapTool( new QActionGroup( this ) )
 
 {

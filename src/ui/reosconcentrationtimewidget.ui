@@ -132,7 +132,7 @@
         <item>
          <widget class="QRadioButton" name="radioButtonChoosen">
           <property name="text">
-           <string>Choosen formula</string>
+           <string>Chosen formula</string>
           </property>
          </widget>
         </item>
