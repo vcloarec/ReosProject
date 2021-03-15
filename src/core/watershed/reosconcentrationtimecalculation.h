@@ -88,7 +88,7 @@ class REOSCORE_EXPORT ReosConcentrationTimeFormulasRegistery
     ReosConcentrationTimeFormulasRegistery();
 
 #ifdef _MSC_VER
-	std::unique_ptr<ReosConcentrationTimeFormula> dummy; // work arround for MSVC, if not, the line after create an compilation error if this class is exported (REOSCORE_EXPORT)
+    std::unique_ptr<ReosConcentrationTimeFormula> dummy; // work arround for MSVC, if not, the line after create an compilation error if this class is exported (REOSCORE_EXPORT)
 #endif
 
     std::map<QString, std::unique_ptr<ReosConcentrationTimeFormula>> mFormulas;
@@ -219,6 +219,7 @@ class REOSCORE_EXPORT ReosConcentrationTimeFormulasModel : public QAbstractTable
     bool setData( const QModelIndex &index, const QVariant &value, int role ) override;
     QVariant data( const QModelIndex &index, int role ) const override;
     Qt::ItemFlags flags( const QModelIndex &index ) const override;
+    QVariant headerData( int section, Qt::Orientation orientation, int role ) const override;
 
     //! Sets the \a parameters
     void setParameters( ReosConcentrationTimeFormula::Parameters parameters );

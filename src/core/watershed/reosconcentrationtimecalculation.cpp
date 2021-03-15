@@ -204,7 +204,7 @@ QStringList ReosConcentrationTimeFormulasRegistery::formulasList() const
 
 int ReosConcentrationTimeFormulasRegistery::formulasCount() const
 {
-  return static_cast<int>(mFormulas.size());
+  return static_cast<int>( mFormulas.size() );
 }
 
 bool ReosConcentrationTimeFormulasRegistery::isInstantiate()
@@ -493,6 +493,22 @@ Qt::ItemFlags ReosConcentrationTimeFormulasModel::flags( const QModelIndex &inde
     return QAbstractItemModel::flags( index ) | Qt::ItemIsUserCheckable;
   else
     return QAbstractItemModel::flags( index );
+}
+
+QVariant ReosConcentrationTimeFormulasModel::headerData( int section, Qt::Orientation orientation, int role ) const
+{
+  if ( orientation == Qt::Vertical )
+    return QVariant();
+
+  if ( role == Qt::DisplayRole )
+  {
+    if ( section == 0 )
+      return tr( "Formula Name" );
+    if ( section == 1 )
+      return tr( "Calculated Value" );
+  }
+
+  return QVariant();
 }
 
 void ReosConcentrationTimeFormulasModel::setParameters( ReosConcentrationTimeFormula::Parameters parameters )
