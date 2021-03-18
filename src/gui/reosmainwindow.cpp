@@ -107,7 +107,7 @@ void ReosMainWindow::init()
 
   mGroupActionInterrogation->addAction( mActionAbout );
   mGroupActionInterrogation->addAction( mActionNewVersionAvailable );
-  //mGroupActionInterrogation->addAction( mActionDocumentation );
+  mGroupActionInterrogation->addAction( mActionDocumentation );
   mMenuInterrogation = menuBar()->addMenu( tr( "?" ) );
   mMenuInterrogation->addActions( mGroupActionInterrogation->actions() );
 
@@ -124,7 +124,7 @@ void ReosMainWindow::init()
   connect( mActionLanguageSelection, &QAction::triggered, this, &ReosMainWindow::languageSelection );
   connect( mActionAbout, &QAction::triggered, this, &ReosMainWindow::about );
   connect( mActionNewVersionAvailable, &QAction::triggered, this, &ReosMainWindow::newVersionAvailable );
-  //connect( mActionDocumentation, &QAction::triggered, mDocumentation, &ReosDocumentation::call );
+  connect( mActionDocumentation, &QAction::triggered, mDocumentation, &ReosDocumentation::call );
 
   connect( mRootModule, &ReosModule::emitMessage, messageBox, &ReosMessageBox::receiveMessage );
 }
@@ -268,9 +268,9 @@ void ReosMainWindow::about()
   about->addLibrary( ReosPlotWidget::plotEngineName(),  ReosPlotWidget::plotEngineVersion(),  ReosPlotWidget::plotEngineLink() );
 
   QString licenceTxt;
-  QDir dir(QCoreApplication::applicationDirPath());
+  QDir dir( QCoreApplication::applicationDirPath() );
   dir.cdUp();
-  QFile licenceFileLekan( dir.filePath( QStringLiteral( "LICENSE_LEKAN.txt" ) ));
+  QFile licenceFileLekan( dir.filePath( QStringLiteral( "LICENSE_LEKAN.txt" ) ) );
   QTextStream streamLekan( &licenceFileLekan );
   licenceFileLekan.open( QIODevice::ReadOnly );
   licenceTxt.append( streamLekan.readAll() );
