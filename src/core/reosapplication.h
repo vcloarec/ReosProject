@@ -24,8 +24,9 @@ class REOSCORE_EXPORT ReosApplication: public QApplication
 {
   public:
     ReosApplication( int &argc, char **argv, int flag = ApplicationFlags );
-
     bool notify( QObject *receiver, QEvent *event ) override;
+
+    static QString i18nPath();
 };
 
 #endif // REOSAPPLICATION_H

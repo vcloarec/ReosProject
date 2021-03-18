@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="fr">
+<TS version="2.1" language="es">
 <context>
     <name>LekanMainWindow</name>
     <message>
@@ -11,27 +11,27 @@
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="67"/>
         <source>GIS Layers</source>
-        <translation>Couches SIG</translation>
+        <translation>Capas SIG</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="71"/>
         <source>Watershed</source>
-        <translation>Bassin Versant</translation>
+        <translation>Cuenca</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="164"/>
         <source>Hydrology</source>
-        <translation>Hydrologie</translation>
+        <translation>Hidrología</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="165"/>
         <source>Rainfall manager</source>
-        <translation>Gestionnaires des pluies</translation>
+        <translation>Gestor de Precipitación</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="166"/>
         <source>Runoff manager</source>
-        <translation>Gestionnaires des ruissellements</translation>
+        <translation>Gestor de Escurrimiento</translation>
     </message>
 </context>
 <context>
@@ -39,12 +39,12 @@
     <message>
         <location filename="../src/core/GIS/private/reosdigitalelevationmodel_p.cpp" line="97"/>
         <source>Read DEM for segment %1/%2</source>
-        <translation>Lecture du MNT pour le segment %1/%2</translation>
+        <translation>Leer MDT para tramo %1%2</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reosdigitalelevationmodel_p.cpp" line="112"/>
         <source>Project segment %1/%2</source>
-        <translation>Projette segment %1/%2</translation>
+        <translation>Tramo de Proyecto %1%2</translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosarea.cpp" line="240"/>
@@ -56,180 +56,180 @@
     <message>
         <location filename="../src/core/quantity/reosarea.cpp" line="243"/>
         <source>ha</source>
-        <translation>ha</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosduration.cpp" line="89"/>
         <source>ms</source>
-        <translation>ms</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosduration.cpp" line="92"/>
         <source>s</source>
-        <translation>s</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosduration.cpp" line="95"/>
         <source>mn</source>
-        <translation>n</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosduration.cpp" line="98"/>
         <source>h</source>
-        <translation>h</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosduration.cpp" line="101"/>
         <source>d</source>
-        <translation>d</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosduration.cpp" line="106"/>
         <source>weeks</source>
-        <translation>semaines</translation>
+        <translation>semanas</translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosduration.cpp" line="108"/>
         <source>week</source>
-        <translation>semaine</translation>
+        <translation>semana</translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosduration.cpp" line="113"/>
         <source>monthes</source>
-        <translation>mois</translation>
+        <translation>meses</translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosduration.cpp" line="115"/>
         <source>month</source>
-        <translation>mois</translation>
+        <translation>mes</translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosduration.cpp" line="120"/>
         <source>years</source>
-        <translation>années</translation>
+        <translation>años</translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosduration.cpp" line="122"/>
         <source>year</source>
-        <translation>année</translation>
+        <translation>año</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reosidfcurves.cpp" line="185"/>
         <source>b</source>
-        <translation>b</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reosidfcurves.cpp" line="619"/>
         <source>c</source>
-        <translation>c</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reosidfcurves.cpp" line="620"/>
         <source>n</source>
-        <translation>n</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reosrainfallitem.cpp" line="247"/>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="27"/>
         <source>Name</source>
-        <translation>Nom</translation>
+        <translation>Nombre</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reosrainfallitem.cpp" line="248"/>
         <source>Description</source>
-        <translation>Description</translation>
+        <translation>Descripción</translation>
     </message>
     <message>
         <location filename="../src/core/reosversion.cpp" line="78"/>
         <source>version</source>
-        <translation>version</translation>
+        <translation>versión</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosmeteorologicmodel.cpp" line="22"/>
         <source>Meteorologic model name</source>
-        <translation>Nom du modèle météorologique</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="132"/>
         <source>Coefficient</source>
-        <translation>Coefficient</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.h" line="215"/>
         <source>Linear reservoir</source>
-        <translation>Réservoir linéaire</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.h" line="261"/>
         <source>Generalized Rational Method</source>
-        <translation>Méthode Rationnelle Généralisée</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.h" line="339"/>
         <source>SCS Unit Hydrograph</source>
-        <translation>Hydrographe unitaire SCS</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reoswatershed.cpp" line="718"/>
         <source> residual</source>
-        <translation>résiduel</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/private/reoslayertreecontextmenuprovider_p.cpp" line="65"/>
         <source>Unregister as Digital Elevation Model</source>
-        <translation>Désenregistre en tant que MNT</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/private/reoslayertreecontextmenuprovider_p.cpp" line="70"/>
         <source>Register as Digital Elevation Model</source>
-        <translation>Enregistre en tant que MNT</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="686"/>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="700"/>
         <source>Rainfall duration (mn)</source>
-        <translation>Durée de la pluie (mn)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="687"/>
         <source>Rainfall duration (mm/h)</source>
-        <translation>Durée de la pluie (mm/h)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="701"/>
         <source>Rainfall intensity (mm/h)</source>
-        <translation>Intensité de la pluie (mm/h)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="712"/>
         <source>, instant value</source>
-        <translation>, valeur instantanée</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="720"/>
         <source>, cumulative value</source>
-        <translation>, valeur cumulée</translation>
+        <translation>, valor acumulado</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="724"/>
         <source>cumulative rainfall (mm)</source>
-        <translation>pluie cumulée (mm)</translation>
+        <translation>precipitación acumulada (mm)</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="727"/>
         <source>Time</source>
-        <translation>Temps</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="805"/>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="992"/>
         <source>Lag time from concentration time: %1</source>
-        <translation>Temps de décalage dérivée du temps de concentration : %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="321"/>
         <source>Initial retention: %1 mm</source>
-        <translation>Rétention initiale : %1 mm</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -237,22 +237,22 @@
     <message>
         <location filename="../src/ui/reosaboutwidget.ui"/>
         <source>About</source>
-        <translation>A propos</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reosaboutwidget.ui"/>
         <source>Reos</source>
-        <translation>Reos</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reosaboutwidget.ui"/>
         <source>version</source>
-        <translation>version</translation>
+        <translation type="unfinished">versión</translation>
     </message>
     <message>
         <location filename="../src/ui/reosaboutwidget.ui"/>
         <source>under GPL licence v2 or later:</source>
-        <translation>sous licence GPL v2 ou ultérieure</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reosaboutwidget.ui"/>
@@ -266,12 +266,12 @@
         <location filename="../src/core/reosapplication.cpp" line="34"/>
         <location filename="../src/core/reosapplication.cpp" line="39"/>
         <source>Exception</source>
-        <translation>Exception</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/reosapplication.cpp" line="39"/>
         <source>unknown exception</source>
-        <translation>Exception inconnue</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -287,12 +287,12 @@
     <message>
         <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="19"/>
         <source>Total Duration</source>
-        <translation>Durée totale</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="20"/>
         <source>Eccentricity</source>
-        <translation>Excentricité</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -300,12 +300,12 @@
     <message>
         <location filename="../src/core/watershed/reosconcentrationtimecalculation.cpp" line="506"/>
         <source>Formula Name</source>
-        <translation>Nom de formule</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosconcentrationtimecalculation.cpp" line="508"/>
         <source>Calculated Value</source>
-        <translation>Valeur Calculée</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -313,12 +313,12 @@
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
         <source>Concentration Time</source>
-        <translation>Temps de concentration</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
         <source>Parameters</source>
-        <translation>Paramètres</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
@@ -328,92 +328,92 @@
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic; color:#ff0000;&quot;&gt;Red value: at least one parameter is outside the validity domain of the formula&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic; color:#ff0000;&quot;&gt;Valeur en rouge : au moins un paramètre en dehors du domaine de validité de la formule &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
         <source>Used Value</source>
-        <translation>Valeur utilisée</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
         <source>Minimum</source>
-        <translation>Minimum</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
         <source>Maximum</source>
-        <translation>Maximum</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
         <source>Average</source>
-        <translation>Moyenne</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="32"/>
         <source>Longest path</source>
-        <translation>Plus long chemin</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="33"/>
         <source>Drop</source>
-        <translation>Dénivelée</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="34"/>
         <source>Slope</source>
-        <translation>Pente</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="35"/>
         <source>Area</source>
-        <translation>Superficie</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="40"/>
         <source>Used value</source>
-        <translation>Valeur utilisée</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="53"/>
         <source>Select All </source>
-        <translation>Sélectionne tout</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="54"/>
         <source>Deselect All </source>
-        <translation>Désélectionne tout</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="55"/>
         <source>Select Valid </source>
-        <translation>Sélectionne les valides</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="56"/>
         <source>Copy values to Clipboard </source>
-        <translation>Copie les valeurs dans le presse papier</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="225"/>
         <source>Maximum value</source>
-        <translation>Valeur maximale</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="228"/>
         <source>Minimum value</source>
-        <translation>Valeur minimale</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="231"/>
         <source>Average value</source>
-        <translation>Valeur moyenne</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="234"/>
         <source>Choosen formula (%1)</source>
-        <translation>Formule retenue (%1)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="272"/>
@@ -542,12 +542,12 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="352"/>
         <source>Total Duration</source>
-        <translation type="unfinished">Durée totale</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="353"/>
         <source>Eccentricity</source>
-        <translation type="unfinished">Excentricité</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -648,13 +648,13 @@ Adjust new watershed?</source>
         <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="82"/>
         <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="91"/>
         <source>Name</source>
-        <translation type="unfinished">Nom</translation>
+        <translation type="unfinished">Nombre</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="67"/>
         <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="74"/>
         <source>Area</source>
-        <translation type="unfinished">Superficie</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="83"/>
@@ -666,13 +666,13 @@ Adjust new watershed?</source>
         <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="84"/>
         <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="93"/>
         <source>Slope</source>
-        <translation type="unfinished">Pente</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="85"/>
         <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="94"/>
         <source>Drop</source>
-        <translation type="unfinished">Dénivelée</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="109"/>
@@ -867,7 +867,7 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="554"/>
         <source>Description</source>
-        <translation type="unfinished">Description</translation>
+        <translation type="unfinished">Descripción</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="558"/>
@@ -941,7 +941,7 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/ui/reosintensitydurationselectedcurvewidget.ui"/>
         <source>Name</source>
-        <translation type="unfinished">Nom</translation>
+        <translation type="unfinished">Nombre</translation>
     </message>
     <message>
         <location filename="../src/ui/reosintensitydurationselectedcurvewidget.ui"/>
@@ -1233,7 +1233,7 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/core/watershed/reosmeteorologicmodel.cpp" line="234"/>
         <source>Watershed</source>
-        <translation type="unfinished">Bassin Versant</translation>
+        <translation type="unfinished">Cuenca</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosmeteorologicmodel.cpp" line="236"/>
@@ -1379,17 +1379,17 @@ choose a new name:</source>
     <message>
         <location filename="../src/gui/form/reosparameterwidget.cpp" line="501"/>
         <source>week</source>
-        <translation type="unfinished">semaine</translation>
+        <translation type="unfinished">semana</translation>
     </message>
     <message>
         <location filename="../src/gui/form/reosparameterwidget.cpp" line="502"/>
         <source>month</source>
-        <translation type="unfinished">mois</translation>
+        <translation type="unfinished">mes</translation>
     </message>
     <message>
         <location filename="../src/gui/form/reosparameterwidget.cpp" line="503"/>
         <source>year</source>
-        <translation type="unfinished">année</translation>
+        <translation type="unfinished">año</translation>
     </message>
 </context>
 <context>
@@ -1441,7 +1441,7 @@ choose a new name:</source>
     <message>
         <location filename="../src/core/rainfall/reosrainfallitem.cpp" line="503"/>
         <source>Name</source>
-        <translation type="unfinished">Nom</translation>
+        <translation type="unfinished">Nombre</translation>
     </message>
 </context>
 <context>
@@ -1587,7 +1587,7 @@ choose a new name:</source>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="209"/>
         <source>Description</source>
-        <translation type="unfinished">Description</translation>
+        <translation type="unfinished">Descripción</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="227"/>
@@ -1665,12 +1665,12 @@ choose a new name:</source>
     <message>
         <location filename="../src/core/rainfall/reosrainfallmodel.cpp" line="119"/>
         <source>Name</source>
-        <translation type="unfinished">Nom</translation>
+        <translation type="unfinished">Nombre</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reosrainfallmodel.cpp" line="122"/>
         <source>Description</source>
-        <translation type="unfinished">Description</translation>
+        <translation type="unfinished">Descripción</translation>
     </message>
 </context>
 <context>
@@ -1825,7 +1825,7 @@ choose a new name:</source>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="62"/>
         <source>Time</source>
-        <translation type="unfinished">Temps</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="65"/>
@@ -1945,7 +1945,7 @@ choose a new name:</source>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="180"/>
         <source>Name</source>
-        <translation type="unfinished">Nom</translation>
+        <translation type="unfinished">Nombre</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="195"/>
@@ -2168,17 +2168,17 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="142"/>
         <source>week</source>
-        <translation type="unfinished">semaine</translation>
+        <translation type="unfinished">semana</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="143"/>
         <source>month</source>
-        <translation type="unfinished">mois</translation>
+        <translation type="unfinished">mes</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="144"/>
         <source>year</source>
-        <translation type="unfinished">année</translation>
+        <translation type="unfinished">año</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="149"/>
@@ -2196,7 +2196,7 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="943"/>
         <source>Time</source>
-        <translation type="unfinished">Temps</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2209,7 +2209,7 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="34"/>
         <source>Area</source>
-        <translation type="unfinished">Superficie</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2298,7 +2298,7 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/core/watershed/reoswatershed.cpp" line="655"/>
         <source>Drop</source>
-        <translation type="unfinished">Dénivelée</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reoswatershed.cpp" line="656"/>
@@ -2414,7 +2414,7 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/ui/reoswatershedwidget.ui"/>
         <source>Watershed</source>
-        <translation type="unfinished">Bassin Versant</translation>
+        <translation type="unfinished">Cuenca</translation>
     </message>
     <message>
         <location filename="../src/ui/reoswatershedwidget.ui"/>
@@ -2469,7 +2469,7 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="47"/>
         <source>Area</source>
-        <translation type="unfinished">Superficie</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="48"/>

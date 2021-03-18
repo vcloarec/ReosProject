@@ -41,3 +41,8 @@ bool ReosApplication::notify( QObject *receiver, QEvent *event )
 
   return done;
 }
+
+QString ReosApplication::i18nPath()
+{
+  return QApplication::applicationDirPath() + QStringLiteral( "/../i18n" );
+}

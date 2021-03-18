@@ -54,29 +54,27 @@ int main( int argc, char *argv[] )
 
   ReosSettings settings;
   QLocale locale;
-//  if ( settings.contains( QStringLiteral( "Locale" ) ) )
-//    locale = settings.value( QStringLiteral( "Locale" ) ).toLocale();
-//  else
-  {
+  if ( settings.contains( QStringLiteral( "Locale" ) ) )
+    locale = settings.value( QStringLiteral( "Locale" ) ).toLocale();
+  else
     locale = QLocale::system();
-    settings.setValue( QStringLiteral( "Locale" ), locale );
-  }
 
-  //TODO ; need totale care of the translation...
-//  QTranslator translatorReos;
-//  QTranslator translatorQt;
-//  QTranslator translatorQGis;
-//  qDebug() << QDir::currentPath();
-//  qDebug() << "load reos translation" << translatorReos.load( locale, QStringLiteral( "i18n/hydro" ), "_" );
-//  translatorQt.load( locale, QStringLiteral( "../i18n/qtbase" ), "_" );
-//  translatorQGis.load( locale, QStringLiteral( "../i18n/qgis" ), "_" );
 
-//  a.installTranslator( &translatorReos );
-//  a.installTranslator( &translatorQt );
-//  a.installTranslator( &translatorQGis );
+  QTranslator ReosTranslator;
+  QTranslator QtTranslator;
+  QTranslator QgisTranslator;
+
+  QString i18nPath = ReosApplication::i18nPath();
+
+  if ( QtTranslator.load( locale, i18nPath + QStringLiteral( "/qt" ), "_" ) )
+    a.installTranslator( &QtTranslator );
+  if ( QgisTranslator.load( locale, i18nPath + QStringLiteral( "/qgis" ), "_" ) )
+    a.installTranslator( &QgisTranslator );
+  if ( ReosTranslator.load( locale, i18nPath + QStringLiteral( "/reos" ), "_" ) )
+    a.installTranslator( &ReosTranslator );
+
 
   std::unique_ptr<LekanMainWindow> w = std::make_unique<LekanMainWindow>();
-
   ReosVersionMessageBox *versionBox = new ReosVersionMessageBox( w.get(), lekanVersion );
   versionBox->setDefaultWebSite( webSite );
 

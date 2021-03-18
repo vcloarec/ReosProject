@@ -13,24 +13,26 @@ email                : vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
+#include <QDir>
+
 #include "reoslanguageselectionwidget.h"
 #include "ui_reoslanguageselectionwidget.h"
+
+#include "reosapplication.h"
 
 ReosLanguageSelectionWidget::ReosLanguageSelectionWidget( QLocale locale, QWidget *parent ) :
   QDialog( parent ),
   ui( new Ui::ReosLanguageSelectionWidget )
 {
   ui->setupUi( this );
-  ui->comboBox->addItems( QStringList( {tr( "System language" ), tr( "French" ), tr( "English" )} ) );
+  ui->comboBox->addItem( tr( "System language" ), QLocale::system() );
 
-  if ( locale == QLocale::system() )
-    ui->comboBox->setCurrentIndex( 0 );
+  const QStringList languages = availableLanguages();
+  for ( const QString &lang : languages )
+    ui->comboBox->addItem( QLocale( lang ).nativeLanguageName(), QLocale( lang ) );
 
-  if ( locale == QLocale::French )
-    ui->comboBox->setCurrentIndex( 1 );
+  ui->comboBox->setCurrentIndex( ui->comboBox->findData( locale ) );
 
-  if ( locale == QLocale::English )
-    ui->comboBox->setCurrentIndex( 2 );
 }
 
 ReosLanguageSelectionWidget::~ReosLanguageSelectionWidget()
@@ -40,25 +42,29 @@ ReosLanguageSelectionWidget::~ReosLanguageSelectionWidget()
 
 QLocale ReosLanguageSelectionWidget::language()
 {
-  QLocale ret;
+  if ( ui->comboBox->currentText() < 0 )
+    return QLocale::system();
 
-  int indexCombobox = ui->comboBox->currentIndex();
+  return ui->comboBox->currentData().toLocale();
+}
 
-  switch ( indexCombobox )
+QStringList ReosLanguageSelectionWidget::availableLanguages() const
+{
+  //From QGIS, QgsOptions::i18nList()
+  QStringList languageList;
+  languageList << QStringLiteral( "en_US" ); //there is no qm file for this so we add it manually
+  QString myI18nPath = ReosApplication::i18nPath();
+  QDir myDir( myI18nPath, QStringLiteral( "reos*.qm" ) );
+  QStringList myFileList = myDir.entryList();
+  QStringListIterator myIterator( myFileList );
+  while ( myIterator.hasNext() )
   {
-    case 0:
-      ret = QLocale::system();
-      break;
-    case 1:
-      ret = QLocale::French;
-      break;
-    case 2:
-      ret = QLocale::English;
-      break;
-    default:
-      ret = QLocale::system();
-      break;
-  }
+    QString myFileName = myIterator.next();
 
-  return ret;
+    // Ignore the 'en' translation file, already added as 'en_US'.
+    if ( myFileName.compare( QLatin1String( "reos_en.qm" ) ) == 0 ) continue;
+
+    languageList << myFileName.remove( QStringLiteral( "reos_" ) ).remove( QStringLiteral( ".qm" ) );
+  }
+  return languageList;
 }

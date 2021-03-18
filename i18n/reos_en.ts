@@ -251,36 +251,7 @@
     </message>
     <message>
         <location filename="../src/ui/reosaboutwidget.ui"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;copyright © Vincent Cloarec 2021&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosaboutwidget.ui"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;http://www.acses.fr/defret/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;www.reos.site&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosaboutwidget.ui"/>
-        <source>information@reos.site</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosaboutwidget.ui"/>
         <source>under GPL licence v2 or later:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosaboutwidget.ui"/>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosaboutwidget.ui"/>
-        <source>file:///D:/Prog/sources/projet/reos/LEKAN/allLicences.txt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -307,11 +278,6 @@ p, li { white-space: pre-wrap; }
     <name>ReosChartWidget</name>
     <message>
         <location filename="../src/ui/reoschartwidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reoschartwidget.ui"/>
         <source>...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -330,6 +296,19 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>ReosConcentrationTimeFormulasModel</name>
+    <message>
+        <location filename="../src/core/watershed/reosconcentrationtimecalculation.cpp" line="506"/>
+        <source>Formula Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/watershed/reosconcentrationtimecalculation.cpp" line="508"/>
+        <source>Calculated Value</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ReosConcentrationTimeWidget</name>
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
@@ -339,11 +318,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
         <source>Parameters</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
-        <source>Available Formula</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -374,11 +348,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
         <source>Average</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
-        <source>Choosen formula</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -474,6 +443,16 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="296"/>
         <source>All results in minutes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
+        <source>Chosen formula</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
+        <source>Available Formulas</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -709,37 +688,37 @@ Adjust new watershed?</source>
 <context>
     <name>ReosGisEngine</name>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="102"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="105"/>
         <source>Vector layer loaded: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="107"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="110"/>
         <source>Vector layer not loaded: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="119"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="122"/>
         <source>Raster layer loaded: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="124"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="127"/>
         <source>Raster layer not loaded: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="136"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="139"/>
         <source>Mesh layer loaded: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="141"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="144"/>
         <source>Mesh layer not loaded: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="168"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="171"/>
         <source>Could not find MDAL</source>
         <translation type="unfinished"></translation>
     </message>
@@ -951,11 +930,6 @@ Adjust new watershed?</source>
     <name>ReosIntensityDurationSelectedCurveWidget</name>
     <message>
         <location filename="../src/ui/reosintensitydurationselectedcurvewidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosintensitydurationselectedcurvewidget.ui"/>
         <source>Return period</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1071,39 +1045,28 @@ Adjust new watershed?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/reoslongitudinalprofilewidget.ui"/>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;img src=&quot;:/formulas/averageSlope.svg&quot; /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;L : length of section&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;p : slope of section&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/watershed/reoslongitudinalprofilewidget.cpp" line="36"/>
-        <source>Draw Stream Line on Map</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/watershed/reoslongitudinalprofilewidget.cpp" line="37"/>
-        <source>Edit Stream Line on Map</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../src/gui/watershed/reoslongitudinalprofilewidget.cpp" line="38"/>
         <source>Zoom on DEM Profile Extent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/gui/watershed/reoslongitudinalprofilewidget.cpp" line="36"/>
+        <source>Draw Flow Path on Map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/watershed/reoslongitudinalprofilewidget.cpp" line="37"/>
+        <source>Edit Flow Path on Map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../src/gui/watershed/reoslongitudinalprofilewidget.cpp" line="39"/>
-        <source>Draw Stream Line From Downstream</source>
+        <source>Draw Longest Flow Path From Downstream</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoslongitudinalprofilewidget.cpp" line="40"/>
-        <source>Draw Stream Line From a Upstream Point on Map</source>
+        <source>Draw Flow Path From a Upstream Point on Map</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1245,12 +1208,6 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ReosMessageBox</name>
     <message>
-        <location filename="../src/gui/reosmessagebox.ui"/>
-        <location filename="../src/ui/reosmessagebox.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../src/gui/reosmessagebox.cpp" line="40"/>
         <source>Error : </source>
         <translation type="unfinished"></translation>
@@ -1258,6 +1215,16 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../src/gui/reosmessagebox.cpp" line="46"/>
         <source>Warning : </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/reosmessagebox.ui"/>
+        <source>Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/reosmessagebox.ui"/>
+        <source>Form</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

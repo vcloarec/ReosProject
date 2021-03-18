@@ -30,7 +30,7 @@
      <item>
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Available Formula</string>
+        <string>Available Formulas</string>
        </property>
       </widget>
      </item>

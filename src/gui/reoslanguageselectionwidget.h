@@ -17,6 +17,7 @@ email                : vcloarec at gmail dot com
 #define REOSLANGUAGESELECTIONWIDGET_H
 
 #include <QDialog>
+#include <QStringList>
 
 namespace Ui
 {
@@ -36,6 +37,8 @@ class ReosLanguageSelectionWidget : public QDialog
 
   private:
     Ui::ReosLanguageSelectionWidget *ui;
+
+    QStringList availableLanguages() const;
 };
 
 #endif // REOSLANGUAGESELECTIONWIDGET_H

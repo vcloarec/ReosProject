@@ -14,6 +14,11 @@
 #                                                                         #
 ###########################################################################
 
+# Modified by Vincent Cloarec (vcloarec at gmail dot com) for Reos Project
+
+#set here the Qt directery
+QTDIR=/opt/Qt/5.15.2/gcc_64/bin/
+
 set -e
 
 export SRCDIR=$PWD
@@ -40,16 +45,13 @@ cleanup() {
 	fi
 
 	echo Removing temporary files
-	rm -rf python/tmp python/plugins/processing/tmp python/plugins/*/tmp qgis_ts.pro
-	find src python \( -name "*-i18n.ui" -o -name "*-i18n.cpp" -o -name "*-i18n.ts" \) -delete
+	#find src python \( -name "*-i18n.ui" -o -name "*-i18n.cpp" -o -name "*-i18n.ts" \) -delete
 
 	trap "" EXIT
 }
 
 export QT_SELECT=5
-
 PATH=$QTDIR/bin:$PATH
-
 if type cygpath >/dev/null 2>&1; then
 	SRCDIR=$(cygpath -am $SRCDIR)
 fi
@@ -76,18 +78,11 @@ if ! type tx >/dev/null 2>&1; then
 	exit 1
 fi
 
+
 files=
 if [ -d "$2" ]; then
 	builddir=$(realpath $2)
 	textcpp=
-	for i in $builddir/src/core/qgsexpression_texts.cpp $builddir/src/core/qgsexpressionparser.cpp; do
-		if [ -f $i ]; then
-			textcpp="$textcpp $i"
-		elif [ "$action" != "pull" ]; then
-			echo Generated help file $i not found
-			exit 1
-		fi
-	done
 	shift
 	shift
 	if [[ $# -gt 0 ]]; then
@@ -115,8 +110,7 @@ if [[ "$(git name-rev --name-only HEAD)" =~ ^release-[0-9]+_[0-9]+$ ]]; then
 fi
 
 echo Saving translations
-files="$files $(find python -name "*.ts")"
-[ $action = push ] && files="$files i18n/qgis_*.ts"
+[ $action = push ] && files="$files i18n/reos_*.ts"
 [ -n "${files## }" ] && tar --remove-files -cf i18n/backup.tar $files
 
 if [ $action = push ]; then
@@ -127,11 +121,11 @@ if [ $action = push ]; then
 		echo Retry $i/$retries...
 		sleep 10
 	done
-	if (( fail )) || ! [ -f "i18n/qgis_en.ts" ]; then
+	if (( fail )) || ! [ -f "i18n/reos_en.ts" ]; then
 		echo Download of source translation failed
 		exit 1
 	fi
-	cp i18n/qgis_en.ts /tmp/qgis_en.ts-downloaded
+	cp i18n/reos_en.ts /tmp/reos_en.ts-downloaded
 	perl scripts/ts_clear.pl  # reset English translations
 elif [ $action = pull ]; then
 	rm -f i18n/qgis_*.ts
@@ -145,8 +139,10 @@ elif [ $action = pull ]; then
 	fi
 
 	fail=1
+	echo "tx option "$o
+	echo "current directory "$PWD
 	for i in $(seq $retries); do
-		tx pull $o -s --minimum-perc=35 $TX_FLAGS && fail=0 && break
+		tx pull $o -s $TX_FLAGS && fail=0 && break
 		echo Retry $i/$retries...
 		sleep 10
 	done
@@ -157,72 +153,16 @@ elif [ $action = pull ]; then
 	fi
 fi
 
-if [ -d "$builddir" ]; then
-	echo Updating python translations
-	(
-		cd python
-		mkdir -p tmp
-		pylupdate5 user.py utils.py {console,pyplugin_installer}/*.{py,ui} -ts python-i18n.ts
-		perl ../scripts/ts2ui.pl python-i18n.ts tmp
-		rm python-i18n.ts
-	)
-	for i in python/plugins/*/CMakeLists.txt; do
-		cd ${i%/*}
-		cat <<EOF >python-i18n.pro
-SOURCES = $(find . -type f -name "*.py" -print | sed -e 's/^/  /' -e 's/$/ \\/')
 
-
-FORMS = $(find . -type f -name "*.ui" -print | sed -e 's/^/  /' -e 's/$/ \\/')
-
-
-TRANSLATIONS = python-i18n.ts
-EOF
-
-		pylupdate5 -tr-function trAlgorithm python-i18n.pro
-		mkdir -p tmp
-		perl ../../../scripts/ts2ui.pl python-i18n.ts tmp
-		rm python-i18n.ts python-i18n.pro
-		cd ../../..
-	done
-
-	echo Updating GRASS module translations
-	perl scripts/qgm2ui.pl >src/plugins/grass/grasslabels-i18n.ui
-
-	echo Updating processing translations
-	mkdir -p python/plugins/processing/tmp
-	perl scripts/processing2ui.pl python/plugins/processing/tmp
-
-	echo Updating appinfo files
-	python3 scripts/appinfo2ui.py >src/app/appinfo-i18n.ui
-
-	echo Creating qmake project file
-	$QMAKE -project -o qgis_ts.pro -nopwd $SRCDIR/src $SRCDIR/python $SRCDIR/i18n $textcpp
+echo Creating qmake project file
+	$QMAKE -project -o reos_ts.pro -nopwd $SRCDIR/src $SRCDIR/i18n
 
 	QT_INSTALL_HEADERS=$(qmake -query QT_INSTALL_HEADERS)
-
+	
 	echo "TR_EXCLUDE = ${QT_INSTALL_HEADERS%
-}/*" >>qgis_ts.pro
+}/*" >>reos_ts.pro
 
-	echo Updating translations
-	$LUPDATE -no-ui-lines -no-obsolete -locations absolute -verbose qgis_ts.pro
-
-	perl -i.bak -ne 'print unless /^\s+<location.*(qgs(expression|contexthelp)_texts\.cpp|-i18n\.(ui|cpp)).*$/;' i18n/qgis_*.ts
-fi
-
-if [ $action = push ]; then
-	cp i18n/qgis_en.ts /tmp/qgis_en.ts-uploading
-	echo Pushing translation...
-	fail=1
-	for i in $(seq $retries); do
-		tx push -s --parallel $TX_FLAGS && fail=0 && break
-		echo Retry $i/$retries...
-		sleep 10
-	done
-	if (( fail )); then
-		echo "Could not push translations"
-		exit 1
-	fi
-else
-	echo Updating TRANSLATORS File
-	./scripts/tsstat.pl >doc/TRANSLATORS
-fi
+echo Updating translations
+	$LUPDATE -no-ui-lines -no-obsolete -locations absolute -verbose reos_ts.pro
+	
+	
