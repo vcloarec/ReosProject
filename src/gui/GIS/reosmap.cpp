@@ -24,10 +24,17 @@ email                : vcloarec at gmail dot com
 
 
 ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
-  ReosModule( gisEngine ),
-  mEngine( gisEngine ),
-  mCanvas( new QgsMapCanvas( parentWidget ) ),
-  mDefaultMapTool( new ReosMapToolNeutral( this ) )
+  ReosModule( gisEngine )
+  , mEngine( gisEngine )
+  , mCanvas( new QgsMapCanvas( parentWidget ) )
+  , mActionNeutral( new QAction( QPixmap( QStringLiteral( ":/images/neutral.svg" ) ), tr( "Deactivate Tool" ), this ) )
+  , mDefaultMapTool( new ReosMapToolNeutral( this ) )
+  , mActionZoom( new QAction( QPixmap( QStringLiteral( ":/images/zoomInExtent.svg" ) ), tr( "Zoom In" ), this ) )
+  , mZoomMapTool( new ReosMapToolDrawExtent( this ) )
+  , mActionZoomIn( new QAction( QPixmap( QStringLiteral( ":/images/zoomIn.svg" ) ), tr( "Zoom In" ) ) )
+  , mActionZoomOut( new QAction( QPixmap( QStringLiteral( ":/images/zoomOut.svg" ) ), tr( "Zoom Out" ) ) )
+  , mActionPreviousZoom( new QAction( QPixmap( QStringLiteral( ":/images/zoomPrevious.svg" ) ), tr( "Previous Zoom" ) ) )
+  , mActionNextZoom( new QAction( QPixmap( QStringLiteral( ":/images/zoomNext.svg" ) ), tr( "Next Zoom" ) ) )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
   canvas->setExtent( QgsRectangle( 0, 0, 200, 200 ) );
@@ -52,6 +59,8 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
         bridge->setAutoSetupOnFirstLayer( true );
       QgsMapCanvas *c = qobject_cast<QgsMapCanvas *>( mCanvas );
       c->readProject( doc );
+      c->setDestinationCrs( QgsProject::instance()->crs() );
+      emit crsChanged( mapCrs() );
     } );
   }
 
@@ -62,7 +71,42 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
 
   connect( gisEngine, &ReosGisEngine::crsChanged, this, &ReosMap::setCrs );
 
+  mDefaultMapTool->setAction( mActionNeutral );
   mDefaultMapTool->setCurrentToolInMap();
+
+  mZoomMapTool->setAction( mActionZoom );
+  mZoomMapTool->setColor( QColor( 9, 150, 230 ) );
+  mZoomMapTool->setFillColor( QColor( 9, 150, 230, 20 ) );
+  mZoomMapTool->setStrokeWidth( 1 );
+  mZoomMapTool->setLineStyle( Qt::DotLine );
+  mZoomMapTool->setCursor( QCursor( QPixmap( ":/cursors/zoomInExtent.svg" ), 5, 5 ) );
+  mActionZoom->setCheckable( true );
+
+  connect( mZoomMapTool, &ReosMapToolDrawExtent::extentDrawn, this, [this]( const QRectF & extent )
+  {
+    this->setExtent( extent );
+  } );
+
+  connect( mActionZoomIn, &QAction::triggered, this, [canvas]
+  {
+    canvas->zoomByFactor( 0.5 );
+  } );
+
+  connect( mActionZoomOut, &QAction::triggered, this, [canvas]
+  {
+    canvas->zoomByFactor( 2 );
+  } );
+
+
+  connect( mActionPreviousZoom, &QAction::triggered, canvas, &QgsMapCanvas::zoomToPreviousExtent );
+  connect( mActionNextZoom, &QAction::triggered, canvas, &QgsMapCanvas::zoomToNextExtent );
+  connect( canvas, &QgsMapCanvas::zoomLastStatusChanged, mActionPreviousZoom, &QAction::setEnabled );
+  connect( canvas, &QgsMapCanvas::zoomNextStatusChanged, mActionNextZoom, &QAction::setEnabled );
+
+  mActionPreviousZoom->setEnabled( false );
+  mActionNextZoom->setEnabled( false );
+
+  emit crsChanged( mapCrs() );
 }
 
 ReosMap::~ReosMap()
@@ -109,18 +153,50 @@ void ReosMap::setExtent( const ReosMapExtent &extent )
   canvas->refresh();
 }
 
+QList<QAction *> ReosMap::mapToolActions()
+{
+  QList<QAction *> ret;
+  ret << mActionNeutral;
+  ret << mActionZoom;
+  ret << mActionZoomIn;
+  ret << mActionZoomOut;
+  ret << mActionPreviousZoom;
+  ret << mActionNextZoom;
+
+  return ret;
+}
+
 void ReosMap::setCrs( const QString &crsWkt )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
   canvas->setDestinationCrs( QgsCoordinateReferenceSystem::fromWkt( crsWkt ) );
+  emit crsChanged( crsWkt );
 }
 
-ReosMapCursorPosition::ReosMapCursorPosition( ReosMap *map, QWidget *parent ): QLabel( parent )
+ReosMapCursorPosition::ReosMapCursorPosition( ReosMap *map, QWidget *parent ):
+  QWidget( parent )
+  , mCoordinates( new QLabel( this ) )
+  , mCrs( new QLabel( this ) )
 {
+  setLayout( new QHBoxLayout );
+  layout()->addWidget( mCoordinates );
+  QFrame *line = new QFrame( this );
+  line->setFrameShape( QFrame::VLine );
+  line->setFrameStyle( QFrame::Sunken );
+  layout()->addWidget( line );
+  layout()->addWidget( mCrs );
+
   QRect rect( 0, 0, 150, 15 );
-  setGeometry( rect );
+  mCoordinates->setGeometry( rect );
 
   connect( map, &ReosMap::cursorMoved, this, &ReosMapCursorPosition::setPosition );
+  connect( map, &ReosMap::crsChanged, this, &ReosMapCursorPosition::setCrs );
+
+  setCrs( map->mapCrs() );
+}
+
+ReosMapCursorPosition::~ReosMapCursorPosition()
+{
 }
 
 void ReosMapCursorPosition::setPosition( const  QPointF &p )
@@ -130,5 +206,13 @@ void ReosMapCursorPosition::setPosition( const  QPointF &p )
   position.append( " : " );
   position.append( QString::number( p.y(), 'f', 2 ) );
   position.append( "  " );
-  setText( position );
+  mCoordinates->setText( position );
+}
+
+void ReosMapCursorPosition::setCrs( const QString &crs )
+{
+  QgsCoordinateReferenceSystem qgsCrs = QgsCoordinateReferenceSystem::fromWkt( crs );
+  QString str = qgsCrs.authid();
+  mCrs->setText( qgsCrs.authid() );
+
 }

@@ -20,6 +20,7 @@ email                : vcloarec at gmail dot com
 #include <QDomDocument>
 #include <QPointer>
 #include <QGraphicsView>
+#include <QToolButton>
 
 #include "reosgui.h"
 #include "reosmodule.h"
@@ -30,6 +31,7 @@ class QgsMapCanvas;
 class ReosMapCursorPosition;
 class ReosGisEngine;
 class ReosMapTool;
+class ReosMapToolDrawExtent;
 
 class REOSGUI_EXPORT ReosMap: public ReosModule
 {
@@ -46,13 +48,15 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
 
     //! Sets the map tool to the default one
     void setDefaultMapTool();
-
     void setExtent( const ReosMapExtent &extent );
+
+    QList<QAction *> mapToolActions();
 
   signals:
     //! emitted when the mouse cursor moves on the map cavans.
     void cursorMoved( const QPointF &point );
     void readProject( const QDomDocument &doc );
+    void crsChanged( const QString &crs );
 
   private slots:
     void setCrs( const QString &crs );
@@ -61,22 +65,33 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     ReosGisEngine *mEngine;
     QPointer<QGraphicsView> mCanvas = nullptr;
 
+    QAction *mActionNeutral = nullptr;
     ReosMapTool *mDefaultMapTool = nullptr;
 
+    QAction *mActionZoom = nullptr;
+    ReosMapToolDrawExtent *mZoomMapTool = nullptr;
+
+    QAction *mActionZoomIn = nullptr;
+    QAction *mActionZoomOut = nullptr;
+    QAction *mActionPreviousZoom = nullptr;
+    QAction *mActionNextZoom = nullptr;
 };
 
 
-class REOSGUI_EXPORT ReosMapCursorPosition : public QLabel
+class REOSGUI_EXPORT ReosMapCursorPosition : public QWidget
 {
     Q_OBJECT
   public:
     ReosMapCursorPosition( ReosMap *map, QWidget *parent = nullptr );
-    ~ReosMapCursorPosition()
-    {
-    }
+    ~ReosMapCursorPosition();
 
   private slots:
     void setPosition( const QPointF &p );
+    void setCrs( const QString &crz );
+
+  private:
+    QLabel *mCoordinates;
+    QLabel *mCrs;
 };
 
 
