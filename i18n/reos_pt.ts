@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="en_US">
+<TS version="2.1" language="pt">
 <context>
     <name>LekanMainWindow</name>
     <message>
@@ -1227,6 +1227,11 @@ Adjust new watershed?</source>
 <context>
     <name>ReosMessageBox</name>
     <message>
+        <location filename="../src/gui/reosmessagebox.ui"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../src/gui/reosmessagebox.cpp" line="40"/>
         <source>Error : </source>
         <translation type="unfinished"></translation>
@@ -1239,11 +1244,6 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/ui/reosmessagebox.ui"/>
         <source>Messages</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/reosmessagebox.ui"/>
-        <source>Form</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -33,6 +33,11 @@
         <source>Runoff manager</source>
         <translation>Gestionnaires des ruissellements</translation>
     </message>
+    <message>
+        <location filename="../src/lekan/lekanmainwindow.cpp" line="168"/>
+        <source>Map</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -257,7 +262,7 @@
     <message>
         <location filename="../src/ui/reosaboutwidget.ui"/>
         <source>Following library are used:</source>
-        <translation type="unfinished"></translation>
+        <translation>Les libraires suivantes sont utilisées :</translation>
     </message>
 </context>
 <context>
@@ -418,42 +423,42 @@
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="272"/>
         <source>Concentration Time Formula</source>
-        <translation type="unfinished"></translation>
+        <translation>Formule de temps de concentration</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="292"/>
         <source>L : longest path (m)</source>
-        <translation type="unfinished"></translation>
+        <translation>L : plus long chemin (m)</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="293"/>
         <source>A : watershed area (m²)</source>
-        <translation type="unfinished"></translation>
+        <translation>A : superficie (m²)</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="294"/>
         <source>i : average slope (m/m)</source>
-        <translation type="unfinished"></translation>
+        <translation>i : pente moyenne (m/m)</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="295"/>
         <source>H : Drop (m)</source>
-        <translation type="unfinished"></translation>
+        <translation>H : dénivelée (m)</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="296"/>
         <source>All results in minutes</source>
-        <translation type="unfinished"></translation>
+        <translation>Tous les résultats en minutes</translation>
     </message>
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
         <source>Chosen formula</source>
-        <translation type="unfinished"></translation>
+        <translation>Formule retenue</translation>
     </message>
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
         <source>Available Formulas</source>
-        <translation type="unfinished"></translation>
+        <translation>Formules disponibles</translation>
     </message>
 </context>
 <context>
@@ -461,75 +466,76 @@
     <message>
         <location filename="../src/ui/reosdelineatingwatershedwidget.ui"/>
         <source>Watershed Delineating</source>
-        <translation type="unfinished"></translation>
+        <translation>Découpage de bassin versant</translation>
     </message>
     <message>
         <location filename="../src/ui/reosdelineatingwatershedwidget.ui"/>
         <source>Automatic from DEM</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatique depuis un MNT</translation>
     </message>
     <message>
         <location filename="../src/ui/reosdelineatingwatershedwidget.ui"/>
         <source>Manual Delineating</source>
-        <translation type="unfinished"></translation>
+        <translation>Découpage manuel</translation>
     </message>
     <message>
         <location filename="../src/ui/reosdelineatingwatershedwidget.ui"/>
         <source>Current DEM</source>
-        <translation type="unfinished"></translation>
+        <translation>MNT courant</translation>
     </message>
     <message>
         <location filename="../src/ui/reosdelineatingwatershedwidget.ui"/>
         <source>Delineate Watershed</source>
-        <translation type="unfinished"></translation>
+        <translation>Découpe bassin versant</translation>
     </message>
     <message>
         <location filename="../src/ui/reosdelineatingwatershedwidget.ui"/>
         <source>Validate Watershed</source>
-        <translation type="unfinished"></translation>
+        <translation>Valide bassin versant</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="34"/>
         <source>Draw downstream line</source>
-        <translation type="unfinished"></translation>
+        <translation>Trace ligne aval</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="35"/>
         <source>Draw predefined extent</source>
-        <translation type="unfinished"></translation>
+        <translation>Trace étendue prédéfinie</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="36"/>
         <source>Add a burning line</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajoute une ligne de brûlure</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="37"/>
         <source>Remove a burning line</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajoute une ligne de brûlure</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="40"/>
         <source>Draw watershed manually</source>
-        <translation type="unfinished"></translation>
+        <translation>Trace un bassin versant manuellement</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="41"/>
         <source>Edit watershed manually</source>
-        <translation type="unfinished"></translation>
+        <translation>Édite le contour du bassin versant</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="255"/>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="301"/>
         <source>Delineating watershed</source>
-        <translation type="unfinished"></translation>
+        <translation>Découpage de bassin versant</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="255"/>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="301"/>
         <source>This watershed intersects existing watershed(s)
 Adjust new watershed?</source>
-        <translation type="unfinished"></translation>
+        <translation>Ce bassin versant intersecte un ou plusieurs bassins versants existants
+Faut-il ajuster le nouveau bassin versant ?</translation>
     </message>
 </context>
 <context>
@@ -537,17 +543,17 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="351"/>
         <source>Intense Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>Durée intense</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="352"/>
         <source>Total Duration</source>
-        <translation type="unfinished">Durée totale</translation>
+        <translation>Durée totale</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="353"/>
         <source>Eccentricity</source>
-        <translation type="unfinished">Excentricité</translation>
+        <translation>Excentricité</translation>
     </message>
 </context>
 <context>
@@ -555,12 +561,12 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="216"/>
         <source>Intense Intensity Duration Curve</source>
-        <translation type="unfinished"></translation>
+        <translation>Courbe Intensité Durée Intense</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="217"/>
         <source>Total Intensity Duration Curve</source>
-        <translation type="unfinished"></translation>
+        <translation>Courbe Intensité Durée Totale</translation>
     </message>
 </context>
 <context>
@@ -568,27 +574,27 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/gui/chart/reoseditableprofile.cpp" line="27"/>
         <source>Edit Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Édition du profil</translation>
     </message>
     <message>
         <location filename="../src/gui/chart/reoseditableprofile.cpp" line="28"/>
         <source>Create New Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Créer un Nouveau Profil</translation>
     </message>
     <message>
         <location filename="../src/gui/chart/reoseditableprofile.cpp" line="30"/>
         <source>Zoom on Defined Profile Extent</source>
-        <translation type="unfinished"></translation>
+        <translation>Zoom sur l’Étendu du Profil Défini</translation>
     </message>
     <message>
         <location filename="../src/gui/chart/reoseditableprofile.cpp" line="31"/>
         <source>Remove Point</source>
-        <translation type="unfinished"></translation>
+        <translation>Supprimer Point</translation>
     </message>
     <message>
         <location filename="../src/gui/chart/reoseditableprofile.cpp" line="32"/>
         <source>Insert point</source>
-        <translation type="unfinished"></translation>
+        <translation>Insérer Point</translation>
     </message>
 </context>
 <context>
@@ -596,12 +602,12 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/gui/chart/reoseditableprofile.cpp" line="369"/>
         <source>Distance</source>
-        <translation type="unfinished"></translation>
+        <translation>Distance</translation>
     </message>
     <message>
         <location filename="../src/gui/chart/reoseditableprofile.cpp" line="373"/>
         <source>Altitude</source>
-        <translation type="unfinished"></translation>
+        <translation>Altitude</translation>
     </message>
 </context>
 <context>
@@ -609,18 +615,18 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/ui/reosexportwatershedtovectordialog.ui"/>
         <source>Export Watershed to Vector File</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporte le Bassin Versant au Format Vectoriel</translation>
     </message>
     <message>
         <location filename="../src/ui/reosexportwatershedtovectordialog.ui"/>
         <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="45"/>
         <source>Export watershed delineating</source>
-        <translation type="unfinished"></translation>
+        <translation>Export du contour du bassin versant</translation>
     </message>
     <message>
         <location filename="../src/ui/reosexportwatershedtovectordialog.ui"/>
         <source>File name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom du Fichier</translation>
     </message>
     <message>
         <location filename="../src/ui/reosexportwatershedtovectordialog.ui"/>
@@ -630,12 +636,7 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/ui/reosexportwatershedtovectordialog.ui"/>
         <source>Export longest path</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosexportwatershedtovectordialog.ui"/>
-        <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation>Export du chemin hydraulique</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="54"/>
@@ -968,11 +969,6 @@ Adjust new watershed?</source>
     <name>ReosLanguageSelectionWidget</name>
     <message>
         <location filename="../src/ui/reoslanguageselectionwidget.ui"/>
-        <source>Choix de la langue</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reoslanguageselectionwidget.ui"/>
         <source>Language choice</source>
         <translation type="unfinished"></translation>
     </message>
@@ -982,18 +978,13 @@ Adjust new watershed?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/reoslanguageselectionwidget.cpp" line="24"/>
+        <location filename="../src/gui/reoslanguageselectionwidget.cpp" line="28"/>
         <source>System language</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/reoslanguageselectionwidget.cpp" line="24"/>
-        <source>French</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/reoslanguageselectionwidget.cpp" line="24"/>
-        <source>English</source>
+        <location filename="../src/ui/reoslanguageselectionwidget.ui"/>
+        <source>Language</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1022,7 +1013,7 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/ui/reoslongitudinalprofilewidget.ui"/>
         <source>Current DEM</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">MNT courant</translation>
     </message>
     <message>
         <location filename="../src/ui/reoslongitudinalprofilewidget.ui"/>
@@ -1185,9 +1176,38 @@ Adjust new watershed?</source>
     </message>
 </context>
 <context>
+    <name>ReosMap</name>
+    <message>
+        <location filename="../src/gui/GIS/reosmap.cpp" line="30"/>
+        <source>Deactivate Tool</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/GIS/reosmap.cpp" line="32"/>
+        <location filename="../src/gui/GIS/reosmap.cpp" line="34"/>
+        <source>Zoom In</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/GIS/reosmap.cpp" line="35"/>
+        <source>Zoom Out</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/GIS/reosmap.cpp" line="36"/>
+        <source>Previous Zoom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/GIS/reosmap.cpp" line="37"/>
+        <source>Next Zoom</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ReosMapCursorPosition</name>
     <message>
-        <location filename="../src/gui/GIS/reosmap.cpp" line="128"/>
+        <location filename="../src/gui/GIS/reosmap.cpp" line="204"/>
         <source>Map Coordinate : </source>
         <translation type="unfinished"></translation>
     </message>
