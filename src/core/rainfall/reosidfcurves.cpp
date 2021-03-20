@@ -174,8 +174,9 @@ double ReosIdfFormulaMontana::height( const ReosDuration &duration, ReosIdfParam
   double a = parameters->parameter( 0 )->value();
   double b = parameters->parameter( 1 )->value();
   double t = duration.valueUnit( parameters->parameterTimeUnit() );
+  double tr = duration.valueUnit( parameters->resutlTimeUnit() );
 
-  return a * pow( t, 1 - b );
+  return tr * a * pow( t, - b );
 }
 
 QStringList ReosIdfFormulaMontana::parametersNames() const
@@ -395,12 +396,14 @@ double ReosIntensityDurationCurve::lastIntensity( int intervalIndex, ReosDuratio
     return -1.0;
 }
 
-ReosIdfParameters *ReosIntensityDurationCurve::createParameters( int i, ReosIdfFormula *formula )
+ReosIdfParameters *ReosIntensityDurationCurve::createParameters( int i, ReosIdfFormula *formula,
+    ReosDuration::Unit parameterTimeUnit,
+    ReosDuration::Unit resultTimeUnit )
 {
   if ( i < 0 || i > mIntensityDurationIntervals.count() )
     return nullptr;
 
-  return formula->createParameters( mIntensityDurationIntervals.at( i ) );
+  return formula->createParameters( mIntensityDurationIntervals.at( i ), parameterTimeUnit, resultTimeUnit );
 }
 
 ReosIdfParameters *ReosIntensityDurationCurve::currentParameters( int i )
@@ -449,6 +452,44 @@ QRectF ReosIntensityDurationCurve::extent( ReosDuration::Unit timeUnit ) const
   return QRectF( QPointF( xMin, yMin ), QPointF( xMax, yMax ) );
 }
 
+void ReosIntensityDurationCurve::setCurrentParameterTimeUnit( ReosDuration::Unit timeUnit )
+{
+  mParametersTimesUnit[mCurrentFormulaName] = timeUnit;
+  for ( ReosIntensityDurationInterval *inter : qAsConst( mIntensityDurationIntervals ) )
+  {
+    if ( inter->parameters( mCurrentFormulaName ) )
+      inter->parameters( mCurrentFormulaName )->setParameterTimeUnit( timeUnit );
+  }
+  emit dataChanged();
+}
+
+ReosDuration::Unit ReosIntensityDurationCurve::currentParameterTimeUnit( )
+{
+  if ( mParametersTimesUnit.contains( mCurrentFormulaName ) )
+    return mParametersTimesUnit.value( mCurrentFormulaName );
+  else
+    return ReosDuration::minute;
+}
+
+void ReosIntensityDurationCurve::setCurrentResultTimeUnit( ReosDuration::Unit timeUnit )
+{
+  mResultTimesUnit[mCurrentFormulaName] = timeUnit;
+  for ( ReosIntensityDurationInterval *inter : qAsConst( mIntensityDurationIntervals ) )
+  {
+    if ( inter->parameters( mCurrentFormulaName ) )
+      inter->parameters( mCurrentFormulaName )->setResultTimeUnit( timeUnit );
+  }
+  emit dataChanged();
+}
+
+ReosDuration::Unit ReosIntensityDurationCurve::currentResultTimeUnit()
+{
+  if ( mResultTimesUnit.contains( mCurrentFormulaName ) )
+    return mResultTimesUnit.value( mCurrentFormulaName );
+  else
+    return ReosDuration::minute;
+}
+
 ReosEncodedElement ReosIntensityDurationCurve::encode() const
 {
   ReosEncodedElement element( QStringLiteral( "intensity-duration-curve" ) );
@@ -459,6 +500,26 @@ ReosEncodedElement ReosIntensityDurationCurve::encode() const
   element.addListEncodedData( QStringLiteral( "intervals" ), encodedIntervals );
   element.addEncodedData( QStringLiteral( "return-period" ), mReturnPeriod->encode() );
   element.addData( QStringLiteral( "current-formula" ), mCurrentFormulaName );
+
+  QList<ReosEncodedElement> encodedParameterTimeUnit;
+  QStringList formulasNames;
+  for ( const QString &key : mParametersTimesUnit.keys() )
+  {
+    formulasNames.append( key );
+    encodedParameterTimeUnit.append( ReosDuration( 0.0, mParametersTimesUnit.value( key ) ).encode() );
+  }
+  element.addListEncodedData( QStringLiteral( "parameter-time-unit-per-formula" ), encodedParameterTimeUnit );
+  element.addData( QStringLiteral( "formula-parameter-time-units" ), formulasNames );
+
+  QList<ReosEncodedElement> encodedResultTimeUnit;
+  formulasNames.clear();
+  for ( const QString &key : mResultTimesUnit.keys() )
+  {
+    formulasNames.append( key );
+    encodedResultTimeUnit.append( ReosDuration( 0.0, mResultTimesUnit.value( key ) ).encode() );
+  }
+  element.addListEncodedData( QStringLiteral( "result-time-unit-per-formula" ), encodedResultTimeUnit );
+  element.addData( QStringLiteral( "formula-result-time-units" ), formulasNames );
 
   return element;
 }
@@ -488,6 +549,25 @@ ReosIntensityDurationCurve *ReosIntensityDurationCurve::decode( const ReosEncode
       connect( inter, &ReosIntensityDurationInterval::changed, ret.get(), &ReosDataObject::dataChanged );
     }
   }
+
+  QList<ReosEncodedElement> encodedParameterTimeUnits = element.getListEncodedData( QStringLiteral( "parameter-time-unit-per-formula" ) );
+  QStringList formulaNames;
+  element.getData( QStringLiteral( "formula-parameter-time-units" ), formulaNames );
+  for ( int i = 0; i < encodedParameterTimeUnits.count(); ++i )
+  {
+    if ( i < formulaNames.count() )
+      ret->mParametersTimesUnit[formulaNames.at( i )] = ReosDuration::decode( encodedParameterTimeUnits.at( i ) ).unit();
+  }
+
+  QList<ReosEncodedElement> encodedResultTimeUnits = element.getListEncodedData( QStringLiteral( "result-time-unit-per-formula" ) );
+  formulaNames.clear();
+  element.getData( QStringLiteral( "formula-result-time-units" ), formulaNames );
+  for ( int i = 0; i < encodedResultTimeUnits.count(); ++i )
+  {
+    if ( i < formulaNames.count() )
+      ret->mResultTimesUnit[formulaNames.at( i )] = ReosDuration::decode( encodedResultTimeUnits.at( i ) ).unit();
+  }
+
   return ret.release();
 }
 
@@ -518,9 +598,15 @@ const ReosIntensityDurationInterval *ReosIntensityDurationCurve::interval( const
   return nullptr;
 }
 
-ReosIdfParameters::ReosIdfParameters( ReosIntensityDurationInterval *interval, const QString &formulaName, const QStringList parameterNames ):
+ReosIdfParameters::ReosIdfParameters( ReosIntensityDurationInterval *interval,
+                                      const QString &formulaName,
+                                      const QStringList parameterNames,
+                                      ReosDuration::Unit parameterTimeUnit,
+                                      ReosDuration::Unit resultTimeUnit ):
   QObject( interval )
   , formulaName( formulaName )
+  , mParameterTimeUnit( parameterTimeUnit )
+  , mResultTimeUnit( resultTimeUnit )
 {
   mParameters.resize( parameterNames.size() );
   interval->addParameters( this );
@@ -539,6 +625,7 @@ ReosEncodedElement ReosIdfParameters::encode() const
 
   element.addData( QStringLiteral( "formulaName" ), formulaName );
   element.addEncodedData( QStringLiteral( "parameters-time-unit" ), ReosDuration( 0, mParameterTimeUnit ).encode() );
+  element.addEncodedData( QStringLiteral( "result-time-unit" ), ReosDuration( 0, mResultTimeUnit ).encode() );
 
   QList<ReosEncodedElement> encodedParameters;
   for ( ReosParameterDouble *param : mParameters )
@@ -559,9 +646,10 @@ void ReosIdfParameters::decode( const ReosEncodedElement &element, ReosIntensity
 
   QString formulaName;
   element.getData( QStringLiteral( "formulaName" ), formulaName );
-  ReosIdfParameters *ret = new ReosIdfParameters( interval, formulaName, QStringList() );
+  ReosDuration::Unit timeUnitParam = ReosDuration::decode( element.getEncodedData( "parameters-time-unit" ) ).unit();
+  ReosDuration::Unit timeUnitResult = ReosDuration::decode( element.getEncodedData( "resutl-time-unit" ) ).unit();
+  ReosIdfParameters *ret = new ReosIdfParameters( interval, formulaName, QStringList(), timeUnitParam, timeUnitResult );
 
-  ret->mParameterTimeUnit = ReosDuration::decode( element.getEncodedData( "parameters-time-unit" ) ).unit();
   QList<ReosEncodedElement> encodedParameters = element.getListEncodedData( QStringLiteral( "parameters" ) );
   for ( const ReosEncodedElement &elem : qAsConst( encodedParameters ) )
   {
@@ -569,6 +657,14 @@ void ReosIdfParameters::decode( const ReosEncodedElement &element, ReosIntensity
     connect( ret->mParameters.last(), &ReosParameter::valueChanged, ret, &ReosIdfParameters::changed );
   }
 }
+
+ReosDuration::Unit ReosIdfParameters::parameterTimeUnit() {return mParameterTimeUnit;}
+
+void ReosIdfParameters::setParameterTimeUnit( ReosDuration::Unit timeUnit ) {mParameterTimeUnit = timeUnit;}
+
+ReosDuration::Unit ReosIdfParameters::resutlTimeUnit() {return mResultTimeUnit;}
+
+void ReosIdfParameters::setResultTimeUnit( ReosDuration::Unit timeUnit ) {mResultTimeUnit = timeUnit;}
 
 int ReosIdfParameters::parametersCount()
 {
@@ -591,9 +687,9 @@ bool ReosIdfParameters::isValid() const
 
 ReosIdfFormula::~ReosIdfFormula() = default;
 
-ReosIdfParameters *ReosIdfFormula::createParameters( ReosIntensityDurationInterval *interval ) const
+ReosIdfParameters *ReosIdfFormula::createParameters( ReosIntensityDurationInterval *interval, ReosDuration::Unit parameterTimeUnit, ReosDuration::Unit resultTimeUnit ) const
 {
-  return new ReosIdfParameters( interval, name(), parametersNames() );
+  return new ReosIdfParameters( interval, name(), parametersNames(), parameterTimeUnit, resultTimeUnit );
 }
 
 QString ReosIdfFormulaSherman::name() const {return QStringLiteral( "Sherman" );}
@@ -607,8 +703,9 @@ double ReosIdfFormulaSherman::height( const ReosDuration &duration, ReosIdfParam
   double c = parameters->parameter( 1 )->value();
   double n = parameters->parameter( 2 )->value();
   double t = duration.valueUnit( parameters->parameterTimeUnit() );
+  double tr = duration.valueUnit( parameters->resutlTimeUnit() );
 
-  return t * a / ( std::pow( ( t + c ), n ) );
+  return tr * a / ( std::pow( ( t + c ), n ) );
 }
 
 QStringList ReosIdfFormulaSherman::parametersNames() const
@@ -743,11 +840,6 @@ void ReosIntensityDurationCurveTableModel::setCurrentFormula( const QString &for
   mCurve->setCurrentFormula( formulaName );
   mCurve->setupFormula( ReosIdfFormulaRegistery::instance() );
   endResetModel();
-}
-
-void ReosIntensityDurationCurveTableModel::setParameterTimeUnit( ReosDuration::Unit timeUnit )
-{
-
 }
 
 void ReosIntensityDurationCurveTableModel::onIntervalWillBeAdded( int pos )

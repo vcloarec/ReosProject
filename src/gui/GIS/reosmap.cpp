@@ -182,7 +182,7 @@ ReosMapCursorPosition::ReosMapCursorPosition( ReosMap *map, QWidget *parent ):
   layout()->addWidget( mCoordinates );
   QFrame *line = new QFrame( this );
   line->setFrameShape( QFrame::VLine );
-  line->setFrameStyle( QFrame::Sunken );
+  line->setFrameShadow( QFrame::Sunken );
   layout()->addWidget( line );
   layout()->addWidget( mCrs );
 

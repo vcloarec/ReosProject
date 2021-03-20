@@ -36,7 +36,11 @@ class ReosIdfParameters: public QObject
 {
     Q_OBJECT
   public:
-    ReosIdfParameters( ReosIntensityDurationInterval *interval, const QString  &formulaName, const QStringList parameterNames );
+    ReosIdfParameters( ReosIntensityDurationInterval *interval,
+                       const QString  &formulaName,
+                       const QStringList parameterNames,
+                       ReosDuration::Unit parameterTimeUnit,
+                       ReosDuration::Unit resultTimeUnit );
 
     //! Returns the parameters count
     int parametersCount();
@@ -47,17 +51,23 @@ class ReosIdfParameters: public QObject
     //! Returns whether all the parameters are valid
     bool isValid() const;
 
-    ReosEncodedElement encode() const;
-    static void decode( const ReosEncodedElement &element, ReosIntensityDurationInterval *interval );
+    //! Returns the time unit used by the formula with these parameters, minutes by default
+    ReosDuration::Unit parameterTimeUnit();
 
-    //! Returns the time unit used by the formula with these paramters, minutes by default
-    ReosDuration::Unit parameterTimeUnit() {return mParameterTimeUnit;}
+    //! Sets the time unit used by the formula with these parameters, minutes by default
+    void setParameterTimeUnit( ReosDuration::Unit timeUnit );
 
-    //! Sets the time unit used by the formula with these paramters, minutes by default
-    void setParameterTimeUnit( ReosDuration::Unit timeUnit ) {mParameterTimeUnit = timeUnit;}
+    //! Returns the time unit used by the formula for the result, hous by default
+    ReosDuration::Unit resutlTimeUnit();
+
+    //! Sets the time unit used by the formula for the result, hour by default
+    void setResultTimeUnit( ReosDuration::Unit timeUnit );
 
     //! Formula name retlated to parameters
     const QString formulaName;
+
+    ReosEncodedElement encode() const;
+    static void decode( const ReosEncodedElement &element, ReosIntensityDurationInterval *interval );
 
   signals:
     void changed();
@@ -65,6 +75,7 @@ class ReosIdfParameters: public QObject
   private:
     QVector<ReosParameterDouble *> mParameters;
     ReosDuration::Unit mParameterTimeUnit = ReosDuration::minute;
+    ReosDuration::Unit mResultTimeUnit = ReosDuration::hour;
 
 };
 
@@ -81,7 +92,7 @@ class REOSCORE_EXPORT ReosIdfFormula
     virtual double height( const ReosDuration &duration, ReosIdfParameters *parameters ) const = 0;
 
     //! Creates paramters and add it to the \a interval
-    ReosIdfParameters *createParameters( ReosIntensityDurationInterval *interval ) const;
+    ReosIdfParameters *createParameters( ReosIntensityDurationInterval *interval, ReosDuration::Unit parameterTimeUnit, ReosDuration::Unit resultTimeUnit ) const;
 
     //! Returns thelist of the parameter names
     virtual QStringList parametersNames() const = 0;
@@ -246,7 +257,9 @@ class REOSCORE_EXPORT ReosIntensityDurationCurve: public ReosDataObject
     double lastIntensity( int intervalIndex, ReosDuration::Unit unit = ReosDuration::hour ) const;
 
     //! Sets parameters for the interval at position \a i and for the \a formula
-    ReosIdfParameters *createParameters( int i, ReosIdfFormula *formula );
+    ReosIdfParameters *createParameters( int i, ReosIdfFormula *formula,
+                                         ReosDuration::Unit parameterTimeUnit = ReosDuration::minute,
+                                         ReosDuration::Unit resultTimeUnit = ReosDuration::minute );
 
     //! Returns the parameters for interval at position \a i and for the current formula
     ReosIdfParameters *currentParameters( int i );
@@ -256,6 +269,18 @@ class REOSCORE_EXPORT ReosIntensityDurationCurve: public ReosDataObject
 
     //! Returns the intensity extent of the curve with unit time \a time unit
     QRectF extent( ReosDuration::Unit timeUnit ) const;
+
+    //! Sets the time unit corresponding to parameter with current formula
+    void setCurrentParameterTimeUnit( ReosDuration::Unit timeUnit );
+
+    //! Returns the time unit corresponding to parameter with current formula, return minute by default
+    ReosDuration::Unit currentParameterTimeUnit();
+
+    //! Sets the time unit corresponding to result (if intensity result) with current formula
+    void setCurrentResultTimeUnit( ReosDuration::Unit timeUnit );
+
+    //! Returns the time unit corresponding to result (if intensity result) with current formula, return minute by default
+    ReosDuration::Unit currentResultTimeUnit();
 
     ReosEncodedElement encode() const;
     static ReosIntensityDurationCurve *decode( const ReosEncodedElement &element, QObject *parent );
@@ -271,7 +296,8 @@ class REOSCORE_EXPORT ReosIntensityDurationCurve: public ReosDataObject
     ReosParameterDuration *mReturnPeriod = nullptr;
     ReosIdfFormula *mCurrentFormula = nullptr;
     QVector<ReosIntensityDurationInterval *> mIntensityDurationIntervals;
-    QMap<QString, ReosDuration::Unit> mTimesUnit;
+    QMap<QString, ReosDuration::Unit> mParametersTimesUnit;
+    QMap<QString, ReosDuration::Unit> mResultTimesUnit;
 
     const ReosIntensityDurationInterval *interval( const ReosDuration &duration ) const;
     mutable int mLastDurationPos = 0;
@@ -300,7 +326,6 @@ class REOSCORE_EXPORT ReosIntensityDurationCurveTableModel:  public QAbstractTab
 
   public slots:
     void setCurrentFormula( const QString &formulaName );
-    void setParameterTimeUnit( ReosDuration::Unit timeUnit );
 
   private slots:
     void onIntervalWillBeAdded( int pos );

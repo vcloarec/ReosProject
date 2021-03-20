@@ -680,7 +680,8 @@ ReosParameterBoolean *ReosParameterBooleanWidget::booleanParameter() const
   return static_cast<ReosParameterBoolean *>( mParameter.data() );
 }
 
-ReosDurationUnitComboBox::ReosDurationUnitComboBox( QWidget *parent, ReosDuration::Unit timeUnit )
+ReosDurationUnitComboBox::ReosDurationUnitComboBox( QWidget *parent, ReosDuration::Unit timeUnit ):
+  QComboBox( parent )
 {
   addItem( tr( "millisecond" ), ReosDuration::millisecond );
   addItem( tr( "second" ), ReosDuration::second );
@@ -694,6 +695,9 @@ ReosDurationUnitComboBox::ReosDurationUnitComboBox( QWidget *parent, ReosDuratio
   setCurrentUnit( timeUnit );
 }
 
-ReosDuration::Unit ReosDurationUnitComboBox::currentUnit() const {return static_cast<ReosDuration::Unit>( currentData().toInt() );}
+ReosDuration::Unit ReosDurationUnitComboBox::currentUnit() const
+{
+  return static_cast<ReosDuration::Unit>( currentData().toInt() );
+}
 
 void ReosDurationUnitComboBox::setCurrentUnit( ReosDuration::Unit unit ) { setCurrentIndex( findData( unit ) );}

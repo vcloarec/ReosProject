@@ -33,14 +33,27 @@ ReosRainfallIntensityDurationWidget::ReosRainfallIntensityDurationWidget( ReosIn
   , mModel( new ReosIntensityDurationCurveTableModel( curve, this ) )
   , mView( new QTableView( this ) )
 {
+  QFrame *line = new QFrame( this );
+  line->setFrameShape( QFrame::HLine );
+  line->setFrameShadow( QFrame::Sunken );
+  layout()->addWidget( line );
   mComboFormula->addItems( ReosIdfFormulaRegistery::instance()->formulasList() );
   mComboFormula->setCurrentText( curve->currentFormula() );
   layout()->addWidget( mComboFormula );
 
-  QHBoxLayout *layoutTimeUnit = new QHBoxLayout( this );
-  layoutTimeUnit->addWidget( new QLabel( tr( "time unit for this parameters" ) ) );
-  ReosDurationUnitComboBox *mTimeUnitComboBox = new ReosDurationUnitComboBox( this );
-  layoutTimeUnit->addWidget( mTimeUnitComboBox );
+  QHBoxLayout *layoutParameterTimeUnit = new QHBoxLayout;
+  layoutParameterTimeUnit->addWidget( new QLabel( tr( "Time unit for parameters of the formula" ), this ) );
+  layoutParameterTimeUnit->addItem( new QSpacerItem( 5, 0, QSizePolicy::Minimum, QSizePolicy::Ignored ) );
+  mParameterTimeUnitComboBox = new ReosDurationUnitComboBox( this );
+  layoutParameterTimeUnit->addWidget( mParameterTimeUnitComboBox );
+  layout()->addItem( layoutParameterTimeUnit );
+
+  QHBoxLayout *layoutResultTimeUnit = new QHBoxLayout;
+  layoutResultTimeUnit->addWidget( new QLabel( tr( "Time unit for result of the formula" ), this ) );
+  layoutResultTimeUnit->addItem( new QSpacerItem( 5, 0, QSizePolicy::Minimum, QSizePolicy::Ignored ) );
+  mResultTimeUnitComboBox = new ReosDurationUnitComboBox( this, ReosDuration::hour );
+  layoutResultTimeUnit->addWidget( mResultTimeUnitComboBox );
+  layout()->addItem( layoutResultTimeUnit );
 
   mView->setModel( mModel );
   mView->horizontalHeader()->setStretchLastSection( true );
@@ -55,7 +68,15 @@ ReosRainfallIntensityDurationWidget::ReosRainfallIntensityDurationWidget( ReosIn
   connect( mView, &QWidget::customContextMenuRequested, this, &ReosRainfallIntensityDurationWidget::onTableViewContextMenu );
   connect( mView->verticalHeader(), &QWidget::customContextMenuRequested, this,  &ReosRainfallIntensityDurationWidget::onVerticalHeaderViewContextMenu );
 
+  connect( mParameterTimeUnitComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosRainfallIntensityDurationWidget::onParameterTimeUnitChanged );
+  connect( mResultTimeUnitComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosRainfallIntensityDurationWidget::onResultTimeUnitChanged );
+
   mModel->setCurrentFormula( mComboFormula->currentText() );
+  if ( curve )
+  {
+    mParameterTimeUnitComboBox->setCurrentUnit( curve->currentParameterTimeUnit() ) ;
+    mResultTimeUnitComboBox->setCurrentUnit( curve->currentResultTimeUnit() );
+  }
 
 }
 
@@ -118,6 +139,24 @@ void ReosRainfallIntensityDurationWidget::onVerticalHeaderViewContextMenu( const
 {
   QModelIndex index = mView->indexAt( pos );
   contextMenu( mView->verticalHeader()->mapToGlobal( pos ), index );
+}
+
+void ReosRainfallIntensityDurationWidget::onParameterTimeUnitChanged()
+{
+  if ( mModel->curve() )
+    mModel->curve()->setCurrentParameterTimeUnit( mParameterTimeUnitComboBox->currentUnit() );
+
+}
+
+void ReosRainfallIntensityDurationWidget::onResultTimeUnitChanged()
+{
+  if ( mModel->curve() )
+    mModel->curve()->setCurrentResultTimeUnit( mResultTimeUnitComboBox->currentUnit() );
+}
+
+void ReosRainfallIntensityDurationWidget::onDisplayingFormula()
+{
+
 }
 
 void ReosRainfallIntensityDurationWidget::contextMenu( const QPoint &globalPos, const QModelIndex &index )
