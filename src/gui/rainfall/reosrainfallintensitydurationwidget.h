@@ -36,6 +36,7 @@ class ReosRainfallIntensityDurationWidget: public ReosFormWidget
 
   private:
     QComboBox *mComboFormula = nullptr;
+    ReosDurationUnitComboBox *mTimeUnitComboBox = nullptr;
     ReosIntensityDurationCurveTableModel *mModel = nullptr;
     QTableView *mView = nullptr;
 

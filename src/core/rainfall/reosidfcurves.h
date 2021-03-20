@@ -50,17 +50,21 @@ class ReosIdfParameters: public QObject
     ReosEncodedElement encode() const;
     static void decode( const ReosEncodedElement &element, ReosIntensityDurationInterval *interval );
 
+    //! Returns the time unit used by the formula with these paramters, minutes by default
+    ReosDuration::Unit parameterTimeUnit() {return mParameterTimeUnit;}
+
+    //! Sets the time unit used by the formula with these paramters, minutes by default
+    void setParameterTimeUnit( ReosDuration::Unit timeUnit ) {mParameterTimeUnit = timeUnit;}
+
     //! Formula name retlated to parameters
     const QString formulaName;
-
-    //! Time unit used by the formula with these paramters, minutes by default
-    ReosDuration::Unit parameterTimeUnit;
 
   signals:
     void changed();
 
   private:
     QVector<ReosParameterDouble *> mParameters;
+    ReosDuration::Unit mParameterTimeUnit = ReosDuration::minute;
 
 };
 
@@ -213,7 +217,9 @@ class REOSCORE_EXPORT ReosIntensityDurationCurve: public ReosDataObject
     //! Returns the interval count in this curve
     int intervalCount() const {return mIntensityDurationIntervals.count();}
 
-    //! Adds an interval to this curve, returns false if interval can't be added (new one intersects existent one)
+    /**
+     * Adds an interval to this curve, returns false if interval can't be added (new one intersects existent one)
+     */
     bool addInterval( const ReosDuration &start, const ReosDuration &end );
 
     //! Sets duration extremity value for the interval at position \i, becareful do not handle new eventual order of interval
@@ -265,6 +271,7 @@ class REOSCORE_EXPORT ReosIntensityDurationCurve: public ReosDataObject
     ReosParameterDuration *mReturnPeriod = nullptr;
     ReosIdfFormula *mCurrentFormula = nullptr;
     QVector<ReosIntensityDurationInterval *> mIntensityDurationIntervals;
+    QMap<QString, ReosDuration::Unit> mTimesUnit;
 
     const ReosIntensityDurationInterval *interval( const ReosDuration &duration ) const;
     mutable int mLastDurationPos = 0;
@@ -293,6 +300,7 @@ class REOSCORE_EXPORT ReosIntensityDurationCurveTableModel:  public QAbstractTab
 
   public slots:
     void setCurrentFormula( const QString &formulaName );
+    void setParameterTimeUnit( ReosDuration::Unit timeUnit );
 
   private slots:
     void onIntervalWillBeAdded( int pos );

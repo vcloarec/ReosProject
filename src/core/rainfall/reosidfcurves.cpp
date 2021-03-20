@@ -173,7 +173,7 @@ double ReosIdfFormulaMontana::height( const ReosDuration &duration, ReosIdfParam
 
   double a = parameters->parameter( 0 )->value();
   double b = parameters->parameter( 1 )->value();
-  double t = duration.valueUnit( parameters->parameterTimeUnit );
+  double t = duration.valueUnit( parameters->parameterTimeUnit() );
 
   return a * pow( t, 1 - b );
 }
@@ -523,7 +523,6 @@ ReosIdfParameters::ReosIdfParameters( ReosIntensityDurationInterval *interval, c
   , formulaName( formulaName )
 {
   mParameters.resize( parameterNames.size() );
-  parameterTimeUnit = ReosDuration::minute;
   interval->addParameters( this );
   connect( this, &ReosIdfParameters::changed, interval, &ReosIntensityDurationInterval::changed );
 
@@ -539,7 +538,7 @@ ReosEncodedElement ReosIdfParameters::encode() const
   ReosEncodedElement element( QStringLiteral( "idf-parameters" ) );
 
   element.addData( QStringLiteral( "formulaName" ), formulaName );
-  element.addEncodedData( QStringLiteral( "parameters-time-unit" ), ReosDuration( 0, parameterTimeUnit ).encode() );
+  element.addEncodedData( QStringLiteral( "parameters-time-unit" ), ReosDuration( 0, mParameterTimeUnit ).encode() );
 
   QList<ReosEncodedElement> encodedParameters;
   for ( ReosParameterDouble *param : mParameters )
@@ -562,7 +561,7 @@ void ReosIdfParameters::decode( const ReosEncodedElement &element, ReosIntensity
   element.getData( QStringLiteral( "formulaName" ), formulaName );
   ReosIdfParameters *ret = new ReosIdfParameters( interval, formulaName, QStringList() );
 
-  ret->parameterTimeUnit = ReosDuration::decode( element.getEncodedData( "parameters-time-unit" ) ).unit();
+  ret->mParameterTimeUnit = ReosDuration::decode( element.getEncodedData( "parameters-time-unit" ) ).unit();
   QList<ReosEncodedElement> encodedParameters = element.getListEncodedData( QStringLiteral( "parameters" ) );
   for ( const ReosEncodedElement &elem : qAsConst( encodedParameters ) )
   {
@@ -607,7 +606,7 @@ double ReosIdfFormulaSherman::height( const ReosDuration &duration, ReosIdfParam
   double a = parameters->parameter( 0 )->value();
   double c = parameters->parameter( 1 )->value();
   double n = parameters->parameter( 2 )->value();
-  double t = duration.valueUnit( parameters->parameterTimeUnit );
+  double t = duration.valueUnit( parameters->parameterTimeUnit() );
 
   return t * a / ( std::pow( ( t + c ), n ) );
 }
@@ -744,6 +743,11 @@ void ReosIntensityDurationCurveTableModel::setCurrentFormula( const QString &for
   mCurve->setCurrentFormula( formulaName );
   mCurve->setupFormula( ReosIdfFormulaRegistery::instance() );
   endResetModel();
+}
+
+void ReosIntensityDurationCurveTableModel::setParameterTimeUnit( ReosDuration::Unit timeUnit )
+{
+
 }
 
 void ReosIntensityDurationCurveTableModel::onIntervalWillBeAdded( int pos )

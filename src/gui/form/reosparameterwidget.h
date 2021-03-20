@@ -18,6 +18,7 @@
 
 #include <QPointer>
 #include <QWidget>
+#include <QComboBox>
 
 class QLabel;
 class QLineEdit;
@@ -162,6 +163,17 @@ class ReosParameterSlopeWidget: public ReosParameterInLineWidget
     int mFactor = 100;
 };
 
+class ReosDurationUnitComboBox: public QComboBox
+{
+  public:
+    ReosDurationUnitComboBox( QWidget *parent = nullptr, ReosDuration::Unit timeUnit = ReosDuration::minute );
+
+    //! Returns the current time unit
+    ReosDuration::Unit currentUnit() const;
+
+    //! Sets the current time unit
+    void setCurrentUnit( ReosDuration::Unit unit );
+};
 
 class ReosParameterDurationWidget: public ReosParameterInLineWidget
 {
@@ -179,7 +191,7 @@ class ReosParameterDurationWidget: public ReosParameterInLineWidget
 
   private:
 
-    QComboBox *mUnitCombobox = nullptr;
+    ReosDurationUnitComboBox *mUnitCombobox = nullptr;
 };
 
 class ReosParameterDateTimeWidget: public ReosParameterWidget

@@ -21,6 +21,7 @@
 
 #include <QComboBox>
 #include <QHeaderView>
+#include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
 #include <QMouseEvent>
@@ -35,6 +36,11 @@ ReosRainfallIntensityDurationWidget::ReosRainfallIntensityDurationWidget( ReosIn
   mComboFormula->addItems( ReosIdfFormulaRegistery::instance()->formulasList() );
   mComboFormula->setCurrentText( curve->currentFormula() );
   layout()->addWidget( mComboFormula );
+
+  QHBoxLayout *layoutTimeUnit = new QHBoxLayout( this );
+  layoutTimeUnit->addWidget( new QLabel( tr( "time unit for this parameters" ) ) );
+  ReosDurationUnitComboBox *mTimeUnitComboBox = new ReosDurationUnitComboBox( this );
+  layoutTimeUnit->addWidget( mTimeUnitComboBox );
 
   mView->setModel( mModel );
   mView->horizontalHeader()->setStretchLastSection( true );
@@ -83,6 +89,7 @@ void ReosRainfallIntensityDurationWidget::onVerticalHeaderDoubleClicked( int sec
   }
 
   ReosFormDialog *dial = new ReosFormDialog( this );
+  dial->setWindowTitle( tr( "Duration Interval Edition" ) );
   dial->addText( text );
   dial->addParameter( startParameter.get() );
   dial->addParameter( endParameter.get() );

@@ -490,7 +490,7 @@ ReosParameterDouble *ReosParameterDoubleWidget::doubleParameter()
 ReosParameterDurationWidget::ReosParameterDurationWidget( QWidget *parent, const QString &defaultName ):
   ReosParameterInLineWidget( parent, defaultName )
 {
-  mUnitCombobox = new QComboBox( this );
+  mUnitCombobox = new ReosDurationUnitComboBox( this );
   layout()->addWidget( mUnitCombobox );
 
   mUnitCombobox->addItem( tr( "millisecond" ), ReosDuration::millisecond );
@@ -505,7 +505,7 @@ ReosParameterDurationWidget::ReosParameterDurationWidget( QWidget *parent, const
   connect( mUnitCombobox, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]
   {
     if ( this->durationParameter() )
-      this->durationParameter()->changeUnit( static_cast<ReosDuration::Unit>( mUnitCombobox->currentData().toInt() ) );
+      this->durationParameter()->changeUnit( mUnitCombobox->currentUnit() );
     this->updateValue();
   } );
 
@@ -529,7 +529,7 @@ void ReosParameterDurationWidget::updateValue()
   if ( durationParameter() && durationParameter()->isValid() )
   {
     setTextValue( durationParameter()->value().valueUnit() );
-    mUnitCombobox->setCurrentIndex( mUnitCombobox->findData( durationParameter()->value().unit() ) );
+    mUnitCombobox->setCurrentUnit( durationParameter()->value().unit() );
     show();
   }
   else
@@ -547,7 +547,7 @@ void ReosParameterDurationWidget::applyValue()
 {
   if ( textHasChanged() && durationParameter() && textHasChanged() )
   {
-    ReosDuration newValue = ReosDuration( value(), static_cast<ReosDuration::Unit>( mUnitCombobox->currentData().toInt() ) );
+    ReosDuration newValue = ReosDuration( value(), mUnitCombobox->currentUnit() );
     if ( newValue != durationParameter()->value() )
     {
       setTextValue( value() );
@@ -679,3 +679,21 @@ ReosParameterBoolean *ReosParameterBooleanWidget::booleanParameter() const
 {
   return static_cast<ReosParameterBoolean *>( mParameter.data() );
 }
+
+ReosDurationUnitComboBox::ReosDurationUnitComboBox( QWidget *parent, ReosDuration::Unit timeUnit )
+{
+  addItem( tr( "millisecond" ), ReosDuration::millisecond );
+  addItem( tr( "second" ), ReosDuration::second );
+  addItem( tr( "minute" ), ReosDuration::minute );
+  addItem( tr( "hour" ), ReosDuration::hour );
+  addItem( tr( "day" ), ReosDuration::day );
+  addItem( tr( "week" ), ReosDuration::week );
+  addItem( tr( "month" ), ReosDuration::month );
+  addItem( tr( "year" ), ReosDuration::year );;
+
+  setCurrentUnit( timeUnit );
+}
+
+ReosDuration::Unit ReosDurationUnitComboBox::currentUnit() const {return static_cast<ReosDuration::Unit>( currentData().toInt() );}
+
+void ReosDurationUnitComboBox::setCurrentUnit( ReosDuration::Unit unit ) { setCurrentIndex( findData( unit ) );}
