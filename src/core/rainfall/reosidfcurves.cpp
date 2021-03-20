@@ -601,7 +601,7 @@ QString ReosIdfFormulaSherman::name() const {return QStringLiteral( "Sherman" );
 
 double ReosIdfFormulaSherman::height( const ReosDuration &duration, ReosIdfParameters *parameters ) const
 {
-  if ( parameters->parametersCount() != 2 )
+  if ( parameters->parametersCount() != 3 )
     return -1;
 
   double a = parameters->parameter( 0 )->value();
@@ -609,7 +609,7 @@ double ReosIdfFormulaSherman::height( const ReosDuration &duration, ReosIdfParam
   double n = parameters->parameter( 2 )->value();
   double t = duration.valueUnit( parameters->parameterTimeUnit );
 
-  return a / ( std::pow( ( t + c ), n ) );
+  return t * a / ( std::pow( ( t + c ), n ) );
 }
 
 QStringList ReosIdfFormulaSherman::parametersNames() const

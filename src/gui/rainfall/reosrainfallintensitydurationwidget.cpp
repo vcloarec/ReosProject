@@ -59,7 +59,7 @@ void ReosRainfallIntensityDurationWidget::onVerticalHeaderDoubleClicked( int sec
   QString text;
 
   std::unique_ptr<ReosParameterDuration> startParameter = std::make_unique<ReosParameterDuration>( tr( "Interval duration start:" ) );
-  std::unique_ptr<ReosParameterDuration> endParameter = std::make_unique<ReosParameterDuration>( tr( "Interval duration start:" ) );
+  std::unique_ptr<ReosParameterDuration> endParameter = std::make_unique<ReosParameterDuration>( tr( "Interval duration end:" ) );
   bool newInterval = section == mModel->rowCount( QModelIndex() ) - 1;
 
   if ( newInterval )

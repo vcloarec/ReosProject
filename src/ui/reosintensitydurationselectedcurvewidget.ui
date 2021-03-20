@@ -78,21 +78,21 @@
    <item row="4" column="1" colspan="2">
     <widget class="QLabel" name="labelStation">
      <property name="text">
-      <string>TextLabel</string>
+      <string/>
      </property>
     </widget>
    </item>
    <item row="2" column="1" colspan="2">
     <widget class="QLabel" name="labelName">
      <property name="text">
-      <string>TextLabel</string>
+      <string/>
      </property>
     </widget>
    </item>
    <item row="3" column="1" colspan="2">
     <widget class="QLabel" name="labelReturnPeriod">
      <property name="text">
-      <string>TextLabel</string>
+      <string/>
      </property>
     </widget>
    </item>
