@@ -245,7 +245,7 @@ bool ReosRainfallItem::isSubItem( ReosRainfallItem *item ) const
 ReosRainfallItem::ReosRainfallItem( const QString &name, const QString &description, ReosRainfallItem::Type type ):
   QObject()
   , mName( new ReosParameterString( QObject::tr( "Name" ) ) )
-  , mDescription( new ReosParameterString( QObject::tr( "Description" ) ) )
+  , mDescription( new ReosParameterLongString( QObject::tr( "Description" ) ) )
   , mUid( QUuid::createUuid().toString() )
   , mType( type )
 {
@@ -256,7 +256,7 @@ ReosRainfallItem::ReosRainfallItem( const QString &name, const QString &descript
 
 ReosRainfallItem::ReosRainfallItem( const ReosEncodedElement &element, ReosRainfallItem::Type type ):
   mName( ReosParameterString::decode( element.getEncodedData( QStringLiteral( "name" ) ), false, this ) )
-  , mDescription( ReosParameterString::decode( element.getEncodedData( QStringLiteral( "description" ) ), false, this ) )
+  , mDescription( ReosParameterLongString::decode( element.getEncodedData( QStringLiteral( "description" ) ), false, this ) )
   , mType( type )
 {
 
