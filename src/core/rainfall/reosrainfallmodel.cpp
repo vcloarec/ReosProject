@@ -329,7 +329,6 @@ ReosRainfallIntensityDurationCurveItem *ReosRainfallModel::addIDCurve( const Reo
   if ( !idfItem )
     return nullptr;
 
-
   std::unique_ptr<ReosRainfallIntensityDurationCurveItem> newID = std::make_unique<ReosRainfallIntensityDurationCurveItem>( duration, QString(), description );
 
   if ( ! receiver->accept( newID.get() ) )

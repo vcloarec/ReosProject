@@ -26,10 +26,12 @@
 #include <QMessageBox>
 #include <QMouseEvent>
 #include <QLayout>
+#include <QToolButton>
 
 ReosRainfallIntensityDurationWidget::ReosRainfallIntensityDurationWidget( ReosIntensityDurationCurve *curve, QWidget *parent ):
   ReosFormWidget( parent, Qt::Vertical, false )
   , mComboFormula( new QComboBox( this ) )
+  , mButtonDisplayFormula( new QToolButton( this ) )
   , mModel( new ReosIntensityDurationCurveTableModel( curve, this ) )
   , mView( new QTableView( this ) )
 {
@@ -37,27 +39,30 @@ ReosRainfallIntensityDurationWidget::ReosRainfallIntensityDurationWidget( ReosIn
   line->setFrameShape( QFrame::HLine );
   line->setFrameShadow( QFrame::Sunken );
   layout()->addWidget( line );
+  QHBoxLayout *comboFormulaLayout = new QHBoxLayout;
   mComboFormula->addItems( ReosIdfFormulaRegistery::instance()->formulasList() );
   mComboFormula->setCurrentText( curve->currentFormula() );
-  layout()->addWidget( mComboFormula );
+  comboFormulaLayout->addWidget( mComboFormula );
+  mButtonDisplayFormula->setIcon( QPixmap( QStringLiteral( ":/images/function.svg" ) ) );
+  comboFormulaLayout->addWidget( mButtonDisplayFormula );
+  layout()->addItem( comboFormulaLayout );
 
   QHBoxLayout *layoutParameterTimeUnit = new QHBoxLayout;
-  layoutParameterTimeUnit->addWidget( new QLabel( tr( "Time unit for parameters of the formula" ), this ) );
+  layoutParameterTimeUnit->addWidget( new QLabel( tr( "Time unit for parameters" ), this ) );
   layoutParameterTimeUnit->addItem( new QSpacerItem( 5, 0, QSizePolicy::Minimum, QSizePolicy::Ignored ) );
   mParameterTimeUnitComboBox = new ReosDurationUnitComboBox( this );
   layoutParameterTimeUnit->addWidget( mParameterTimeUnitComboBox );
   layout()->addItem( layoutParameterTimeUnit );
 
   QHBoxLayout *layoutResultTimeUnit = new QHBoxLayout;
-  layoutResultTimeUnit->addWidget( new QLabel( tr( "Time unit for result of the formula" ), this ) );
+  layoutResultTimeUnit->addWidget( new QLabel( tr( "Time unit for result" ), this ) );
   layoutResultTimeUnit->addItem( new QSpacerItem( 5, 0, QSizePolicy::Minimum, QSizePolicy::Ignored ) );
   mResultTimeUnitComboBox = new ReosDurationUnitComboBox( this, ReosDuration::hour );
   layoutResultTimeUnit->addWidget( mResultTimeUnitComboBox );
   layout()->addItem( layoutResultTimeUnit );
 
   mView->setModel( mModel );
-  mView->horizontalHeader()->setStretchLastSection( true );
-  mView->horizontalHeader()->setCascadingSectionResizes( true );
+  mView->horizontalHeader()->setSectionResizeMode( QHeaderView::Stretch );
   mView->setContextMenuPolicy( Qt::CustomContextMenu );
   mView->verticalHeader()->setContextMenuPolicy( Qt::CustomContextMenu );
   layout()->addWidget( mView );
@@ -77,6 +82,8 @@ ReosRainfallIntensityDurationWidget::ReosRainfallIntensityDurationWidget( ReosIn
     mParameterTimeUnitComboBox->setCurrentUnit( curve->currentParameterTimeUnit() ) ;
     mResultTimeUnitComboBox->setCurrentUnit( curve->currentResultTimeUnit() );
   }
+
+  connect( mButtonDisplayFormula, &QToolButton::clicked, this, &ReosRainfallIntensityDurationWidget::onDisplayingFormula );
 
 }
 
@@ -156,7 +163,32 @@ void ReosRainfallIntensityDurationWidget::onResultTimeUnitChanged()
 
 void ReosRainfallIntensityDurationWidget::onDisplayingFormula()
 {
+  if ( !ReosIdfFormulaRegistery::isInstantiate() )
+    return;
 
+  ReosIdfFormulaRegistery *registery = ReosIdfFormulaRegistery::instance();
+
+  QDialog *dial = new QDialog( this );
+
+  dial->setWindowTitle( mComboFormula->currentText() );
+  dial->setLayout( new QVBoxLayout );
+
+  QLabel *formulaLabel = new QLabel( this );
+  formulaLabel->setAlignment( Qt::AlignHCenter );
+  formulaLabel->setPixmap( registery->formula( mComboFormula->currentText() )->formulaImage() );
+  dial->layout()->addWidget( formulaLabel );
+
+  QFrame *line = new QFrame( this );
+  line->setFrameShape( QFrame::HLine );
+  line->setFrameShadow( QFrame::Sunken );
+  dial->layout()->addWidget( line );
+
+  dial->layout()->addWidget( new QLabel( tr( "I: rainfall intensity (mm per time unit for result)" ) ) );
+  dial->layout()->addWidget( new QLabel( tr( "t: rainfall duration (time unit for parameters)" ) ) );
+
+  dial->exec();
+
+  dial->deleteLater();
 }
 
 void ReosRainfallIntensityDurationWidget::contextMenu( const QPoint &globalPos, const QModelIndex &index )

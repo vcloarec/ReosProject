@@ -19,6 +19,7 @@
 #include <QPointer>
 #include <QWidget>
 #include <QComboBox>
+#include <QTextEdit>
 
 class QLabel;
 class QLineEdit;
@@ -43,7 +44,7 @@ class ReosParameterWidget : public QWidget
       SpacerAfter = 1 << 3, //!< Include a spacer after the value
     };
 
-    explicit ReosParameterWidget( const QString &defaultName, QWidget *parent = nullptr );
+    explicit ReosParameterWidget( const QString &defaultName, QWidget *parent = nullptr, Qt::Orientation orientation = Qt::Horizontal );
 
     //! Sets the keyboard focus on the edit part of the widget
     virtual void setFocusOnEdit() = 0;
@@ -230,7 +231,39 @@ class ReosParameterBooleanWidget : public ReosParameterWidget
 
   private:
     QCheckBox *mCheckBox = nullptr;
-
 };
 
+// Derived from QTextEdit to have a signal editingFinished when the focus go out
+class ReosParameterTextEdit: public QTextEdit
+{
+    Q_OBJECT
+  public:
+    ReosParameterTextEdit( QWidget *parent );
+
+  signals:
+    void editingFinished();
+
+  protected:
+    void focusOutEvent( QFocusEvent *event ) override;
+};
+
+class ReosParameterLongStringWidget : public ReosParameterWidget
+{
+  public:
+    explicit ReosParameterLongStringWidget( QWidget *parent = nullptr, const QString &defaultName = QString() );
+    explicit ReosParameterLongStringWidget( ReosParameterLongString *longStringParameter, QWidget *parent = nullptr );
+
+    void setString( ReosParameterLongString *string );
+    void updateValue() override;
+    void applyValue() override;
+    void setFocusOnEdit() override;
+
+    static QString type() {return QStringLiteral( "long-string" );}
+
+    ReosParameterLongString *stringParameter() const;
+
+  private:
+    ReosParameterTextEdit *mTextEdit;
+
+};
 #endif // REOSPARAMETERWIDGET_H

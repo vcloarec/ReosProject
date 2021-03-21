@@ -39,6 +39,10 @@
        <property name="text">
         <string>...</string>
        </property>
+       <property name="icon">
+        <iconset resource="../../images/images.qrc">
+         <normaloff>:/images/function.svg</normaloff>:/images/function.svg</iconset>
+       </property>
       </widget>
      </item>
     </layout>
@@ -154,6 +158,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../images/images.qrc"/>
+ </resources>
  <connections/>
 </ui>

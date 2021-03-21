@@ -149,7 +149,7 @@ class REOSCORE_EXPORT ReosRainfallItem : public QObject
 
   private:
     ReosParameterString *mName;
-    ReosParameterString *mDescription;
+    ReosParameterLongString *mDescription;
     QString mUid;
     Type  mType = Zone;
     ReosRainfallItem *mParent = nullptr;

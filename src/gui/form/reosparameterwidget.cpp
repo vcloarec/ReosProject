@@ -16,21 +16,27 @@
 
 #include <QCheckBox>
 #include <QHBoxLayout>
+#include <QVBoxLayout>
 #include <QLineEdit>
 #include <QComboBox>
 #include <QLabel>
 #include <QToolButton>
 #include <QDateTimeEdit>
+#include <QTextEdit>
 
 
 #include "reosparameterwidget.h"
 
 
-ReosParameterWidget::ReosParameterWidget( const QString &defaultName, QWidget *parent ):
+ReosParameterWidget::ReosParameterWidget( const QString &defaultName, QWidget *parent, Qt::Orientation orientation ):
   QWidget( parent )
   , mDefaultName( defaultName )
 {
-  mLayout = new QHBoxLayout( this );
+  if ( orientation == Qt::Horizontal )
+    mLayout =  new QHBoxLayout( this );
+  else
+    mLayout =  new QVBoxLayout( this );
+
   setLayout( mLayout );
   layout()->setContentsMargins( 0, 0, 0, 0 );
   mLabelName = new QLabel( defaultName, this );
@@ -79,6 +85,9 @@ ReosParameterWidget *ReosParameterWidget::createWidget( ReosParameter *parameter
 
   if ( parameter->type() == ReosParameterBooleanWidget::type() )
     return new ReosParameterBooleanWidget( static_cast<ReosParameterBoolean *>( parameter ), parent );
+
+  if ( parameter->type() == ReosParameterLongStringWidget::type() )
+    return new ReosParameterLongStringWidget( static_cast<ReosParameterLongString *>( parameter ), parent );
 
   return nullptr;
 }
@@ -701,3 +710,67 @@ ReosDuration::Unit ReosDurationUnitComboBox::currentUnit() const
 }
 
 void ReosDurationUnitComboBox::setCurrentUnit( ReosDuration::Unit unit ) { setCurrentIndex( findData( unit ) );}
+
+ReosParameterLongStringWidget::ReosParameterLongStringWidget( QWidget *parent, const QString &defaultName ):
+  ReosParameterWidget( defaultName, parent, Qt::Vertical ),
+  mTextEdit( new ReosParameterTextEdit( this ) )
+{
+  layout()->addWidget( mTextEdit );
+  mTextEdit->setMaximumHeight( 30 );
+  connect( mTextEdit, &ReosParameterTextEdit::editingFinished, this, &ReosParameterWidget::applyValue );
+  finalizeWidget();
+}
+
+ReosParameterLongStringWidget::ReosParameterLongStringWidget( ReosParameterLongString *longStringParameter, QWidget *parent ):
+  ReosParameterLongStringWidget( parent, longStringParameter ? longStringParameter->name() : QString() )
+{
+  setParameter( longStringParameter );
+}
+
+void ReosParameterLongStringWidget::setString( ReosParameterLongString *string )
+{
+  setParameter( string );
+}
+
+void ReosParameterLongStringWidget::updateValue()
+{
+  if ( stringParameter() && stringParameter()->isValid() )
+  {
+    if ( mTextEdit )
+      mTextEdit->setText( stringParameter()->value() );
+    show();
+  }
+  else
+  {
+    if ( mTextEdit )
+      mTextEdit->setText( QStringLiteral( "-" ) );
+    show();
+  }
+
+  if ( mHideWhenVoid && !stringParameter() )
+    hide();
+}
+
+void ReosParameterLongStringWidget::applyValue()
+{
+  if ( stringParameter() && mTextEdit && stringParameter()->value() != mTextEdit->toPlainText() )
+    stringParameter()->setValue( mTextEdit->toPlainText() );
+}
+
+void ReosParameterLongStringWidget::setFocusOnEdit()
+{
+  mTextEdit->setFocus();
+}
+
+ReosParameterLongString *ReosParameterLongStringWidget::stringParameter() const
+{
+  return static_cast<ReosParameterLongString *>( mParameter.data() );
+}
+
+ReosParameterTextEdit::ReosParameterTextEdit( QWidget *parent ): QTextEdit( parent ) {}
+
+void ReosParameterTextEdit::focusOutEvent( QFocusEvent *event )
+{
+  emit editingFinished();
+  QWidget::focusOutEvent( event );
+}

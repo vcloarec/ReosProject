@@ -100,9 +100,21 @@ class REOSCORE_EXPORT ReosParameterString: public ReosParameter
     ReosEncodedElement encode() const;
     static ReosParameterString *decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent );
 
-  private:
-
+  protected:
     QString mValue;
+};
+
+class REOSCORE_EXPORT ReosParameterLongString: public ReosParameterString
+{
+  public:
+    explicit ReosParameterLongString( const QString &name, bool derivable, QObject *parent = nullptr );
+    explicit ReosParameterLongString( const QString &name, QObject *parent = nullptr );
+
+    QString type() const override {return QStringLiteral( "long-string" );}
+
+    ReosEncodedElement encode() const;
+    static ReosParameterLongString *decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent );
+
 };
 
 class REOSCORE_EXPORT ReosParameterArea: public ReosParameter

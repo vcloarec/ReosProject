@@ -546,3 +546,36 @@ ReosParameterBoolean *ReosParameterBoolean::decode( const ReosEncodedElement &el
 
   return ret;
 }
+
+ReosParameterLongString::ReosParameterLongString( const QString &name, bool derivable, QObject *parent ):
+  ReosParameterString( name, derivable, parent )
+{}
+
+ReosParameterLongString::ReosParameterLongString( const QString &name, QObject *parent ):
+  ReosParameterString( name, parent )
+{}
+
+ReosEncodedElement ReosParameterLongString::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "long-string-parameter" ) );
+  ReosParameter::encode( element );
+
+  element.addData( QStringLiteral( "string-value" ), mValue );
+
+  return element;
+}
+
+ReosParameterLongString *ReosParameterLongString::decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent )
+{
+  ReosParameterLongString *ret = new ReosParameterLongString( QString(), parent );
+
+  if ( element.description() != QStringLiteral( "long-string-parameter" ) &&
+       element.description() != QStringLiteral( "string-parameter" ) )
+    return ret;
+
+  ret->ReosParameter::decode( element, isDerivable );
+
+  element.getData( QStringLiteral( "string-value" ), ret->mValue );
+
+  return ret;
+}

@@ -96,6 +96,8 @@ class REOSCORE_EXPORT ReosIdfFormula
 
     //! Returns thelist of the parameter names
     virtual QStringList parametersNames() const = 0;
+
+    virtual QPixmap formulaImage() const;
 };
 
 //! Class that register rainfall intensity duration formula. It is a singleton class that can be called everywhere
@@ -112,10 +114,12 @@ class REOSCORE_EXPORT ReosIdfFormulaRegistery: public ReosModule
     static ReosIdfFormulaRegistery *instance();
 
     //! Returns whether the static instance exist
-    static bool isInstanciate();
+    static bool isInstantiate();
 
     //! Returns the list of the names of formulas registered, those name are the key to retrieve the formula
     QStringList formulasList() const;
+
+    QPixmap formulaImage( const QString name ) const;
 
   private:
     ReosIdfFormulaRegistery( ReosModule *parent = nullptr );
@@ -133,7 +137,8 @@ class REOSCORE_EXPORT ReosIdfFormulaMontana: public ReosIdfFormula
   public:
     QString name() const override;
     double height( const ReosDuration &duration, ReosIdfParameters *parameters ) const override;
-    virtual QStringList parametersNames() const override;
+    QStringList parametersNames() const override;
+    QPixmap formulaImage() const override;
 };
 
 //! Sherman Formula
@@ -142,7 +147,8 @@ class REOSCORE_EXPORT ReosIdfFormulaSherman: public ReosIdfFormula
   public:
     QString name() const override;
     double height( const ReosDuration &, ReosIdfParameters *parameters ) const override;
-    virtual QStringList parametersNames() const override;
+    QStringList parametersNames() const override;
+    QPixmap formulaImage() const override;
 };
 
 /**
