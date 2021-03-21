@@ -148,7 +148,7 @@ ReosIdfFormulaRegistery *ReosIdfFormulaRegistery::instance()
   return sIdfRegistery;
 }
 
-bool ReosIdfFormulaRegistery::isInstanciate() {return sIdfRegistery != nullptr;}
+bool ReosIdfFormulaRegistery::isInstantiate() {return sIdfRegistery != nullptr;}
 
 QStringList ReosIdfFormulaRegistery::formulasList() const
 {
@@ -157,6 +157,15 @@ QStringList ReosIdfFormulaRegistery::formulasList() const
     ret.append( f.first );
 
   return ret;
+}
+
+QPixmap ReosIdfFormulaRegistery::formulaImage( const QString name ) const
+{
+  auto it = mFormulas.find( name );
+  if ( it != mFormulas.end() )
+    return it->second.get()->formulaImage();
+  else
+    return QPixmap();
 }
 
 ReosIdfFormulaRegistery::ReosIdfFormulaRegistery( ReosModule *parent ): ReosModule( parent )
@@ -187,6 +196,17 @@ QStringList ReosIdfFormulaMontana::parametersNames() const
 
   return param;
 }
+
+QPixmap ReosIdfFormulaMontana::formulaImage() const
+{
+  return QPixmap( QStringLiteral( ":/formulas/idfMontana.svg" ) );
+}
+
+QPixmap ReosIdfFormulaSherman::formulaImage() const
+{
+  return QPixmap( QStringLiteral( ":/formulas/idfSherman.svg" ) );
+}
+
 
 ReosIntensityDurationCurve::ReosIntensityDurationCurve( const ReosDuration &returnPeriod, QObject *parent ):
   ReosDataObject( parent )
@@ -691,6 +711,8 @@ ReosIdfParameters *ReosIdfFormula::createParameters( ReosIntensityDurationInterv
 {
   return new ReosIdfParameters( interval, name(), parametersNames(), parameterTimeUnit, resultTimeUnit );
 }
+
+QPixmap ReosIdfFormula::formulaImage() const {return QPixmap();}
 
 QString ReosIdfFormulaSherman::name() const {return QStringLiteral( "Sherman" );}
 

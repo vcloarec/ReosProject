@@ -767,6 +767,8 @@ ReosParameterLongString *ReosParameterLongStringWidget::stringParameter() const
   return static_cast<ReosParameterLongString *>( mParameter.data() );
 }
 
+ReosParameterTextEdit::ReosParameterTextEdit( QWidget *parent ): QTextEdit( parent ) {}
+
 void ReosParameterTextEdit::focusOutEvent( QFocusEvent *event )
 {
   emit editingFinished();

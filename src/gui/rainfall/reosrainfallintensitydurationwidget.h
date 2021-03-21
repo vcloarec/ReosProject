@@ -35,9 +35,11 @@ class ReosRainfallIntensityDurationWidget: public ReosFormWidget
     void onVerticalHeaderViewContextMenu( const QPoint &pos );
     void onParameterTimeUnitChanged();
     void onResultTimeUnitChanged();
+    void onDisplayingFormula();
 
   private:
     QComboBox *mComboFormula = nullptr;
+    QToolButton *mButtonDisplayFormula = nullptr;
     ReosDurationUnitComboBox *mParameterTimeUnitComboBox = nullptr;
     ReosDurationUnitComboBox *mResultTimeUnitComboBox = nullptr;
     ReosIntensityDurationCurveTableModel *mModel = nullptr;

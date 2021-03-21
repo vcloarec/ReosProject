@@ -92,6 +92,7 @@
         <file>zoomPrevious.svg</file>
         <file>zoomOut.svg</file>
         <file>zoomIn.svg</file>
+        <file>function.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

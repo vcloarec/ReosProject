@@ -483,7 +483,7 @@ ReosRainfallIntensityDurationCurveItem::ReosRainfallIntensityDurationCurveItem( 
   if ( element.description() != QStringLiteral( "intensity-duration-item" ) )
     return;
   mIntensityDurationCurve = ReosIntensityDurationCurve::decode( element.getEncodedData( QStringLiteral( "curve" ) ), this );
-  if ( ReosIdfFormulaRegistery::isInstanciate() )
+  if ( ReosIdfFormulaRegistery::isInstantiate() )
     mIntensityDurationCurve->setupFormula( ReosIdfFormulaRegistery::instance() );
   connect( mIntensityDurationCurve, &ReosDataObject::dataChanged, this, [this] { emit ReosRainfallDataItem::changed( this );} );
 }
