@@ -777,7 +777,7 @@ void ReosWatersehdTest::runoffConstantCoefficient()
 
   ReosIntensityDurationCurve idCurve;
   idCurve.addInterval( ReosDuration( 5, ReosDuration::minute ), ReosDuration( 1, ReosDuration::hour ) );
-  idCurve.createParameters( 0, idfRegistery->formula( QStringLiteral( "Montana" ) ) );
+  idCurve.createParameters( 0, idfRegistery->formula( QStringLiteral( "Montana" ) ), ReosDuration::minute, ReosDuration::minute );
   idCurve.setCurrentFormula( QStringLiteral( "Montana" ) );
   idCurve.setupFormula( idfRegistery );
   ReosParameterDouble *a = idCurve.currentParameters( 0 )->parameter( 0 );

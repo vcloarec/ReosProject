@@ -25,13 +25,22 @@ class ReosRainfallTest: public QObject
 {
     Q_OBJECT
   private slots:
-
+    void initTestCase();
     void addingItem();
-    void IDFCurves();
+    void IDFCurvesMontana();
+    void IDFCurvesSherman();
 
   private:
+    ReosModule mRootModule;
 
 };
+
+
+
+void ReosRainfallTest::initTestCase()
+{
+  ReosIdfFormulaRegistery::instantiate( &mRootModule );
+}
 
 void ReosRainfallTest::addingItem()
 {
@@ -91,7 +100,7 @@ void ReosRainfallTest::addingItem()
   QCOMPARE( item->name(), otherModel.data( index, Qt::DisplayRole ).toString() );
 }
 
-void ReosRainfallTest::IDFCurves()
+void ReosRainfallTest::IDFCurvesMontana()
 {
   ReosIdfFormulaRegistery *formulaRegistery = ReosIdfFormulaRegistery::instance();
   formulaRegistery->registerFormula( new ReosIdfFormulaMontana );
@@ -119,6 +128,88 @@ void ReosRainfallTest::IDFCurves()
   curve.setupFormula( formulaRegistery );
   QVERIFY( curve.isFormulaValid() );
 
+  curve.setCurrentParameterTimeUnit( ReosDuration::minute );
+  curve.setCurrentResultTimeUnit( ReosDuration::minute );
+
+  QVERIFY( curve.height( duration_1 ) < 0 );
+  QVERIFY( curve.height( duration_2 ) < 0 );
+
+  QVERIFY( curve.addInterval( ReosDuration( 15, ReosDuration::minute ), ReosDuration( 30, ReosDuration::minute ) ) );
+  QVERIFY( !curve.addInterval( ReosDuration( 10, ReosDuration::minute ), ReosDuration( 25, ReosDuration::minute ) ) );
+  QVERIFY( !curve.addInterval( ReosDuration( 20, ReosDuration::minute ), ReosDuration( 35, ReosDuration::minute ) ) );
+  QVERIFY( !curve.addInterval( ReosDuration( 20, ReosDuration::minute ), ReosDuration( 22, ReosDuration::minute ) ) );
+  QVERIFY( curve.addInterval( ReosDuration( 30, ReosDuration::minute ), ReosDuration( 60, ReosDuration::minute ) ) );
+
+  QCOMPARE( curve.intervalCount(), 2 );
+
+  QVERIFY( curve.timeInterval( 0 ).first == ReosDuration( 15, ReosDuration::minute ) );
+  QVERIFY( curve.timeInterval( 0 ).second == ReosDuration( 30, ReosDuration::minute ) );
+  QVERIFY( curve.timeInterval( 1 ).first == ReosDuration( 30, ReosDuration::minute ) );
+  QVERIFY( curve.timeInterval( 1 ).second == ReosDuration( 60, ReosDuration::minute ) );
+
+  QVERIFY( curve.height( duration_1 ) < 0 );
+  QVERIFY( curve.height( duration_2 ) < 0 );
+  QVERIFY( curve.height( duration_3 ) < 0 );
+  QVERIFY( curve.height( duration_4 ) < 0 );
+
+  ReosIdfParameters *parameters_1 = curve.createParameters( 0, formula, curve.currentParameterTimeUnit(), curve.currentResultTimeUnit() );
+  QVERIFY( parameters_1 );
+  QCOMPARE( parameters_1->formulaName, QStringLiteral( "Montana" ) );
+  QCOMPARE( parameters_1->parametersCount(), 2 );
+  parameters_1->parameter( 0 )->setValue( 4.782 );
+  parameters_1->parameter( 1 )->setValue( 0.31928 );
+
+  QVERIFY( curve.height( duration_1 ) < 0 );
+  QVERIFY( equal( curve.height( duration_2 ), 36.749, 0.001 ) );
+  QVERIFY( curve.height( duration_3 ) < 0 );
+  QVERIFY( curve.height( duration_4 ) < 0 );
+
+  ReosIdfParameters *parameters_2 = curve.createParameters( 1, formula, curve.currentParameterTimeUnit(), curve.currentResultTimeUnit() );
+  QVERIFY( parameters_2 );
+  QCOMPARE( parameters_2->formulaName, QStringLiteral( "Montana" ) );
+  QCOMPARE( parameters_2->parametersCount(), 2 );
+  parameters_2->parameter( 0 )->setValue( 4.680 );
+  parameters_2->parameter( 1 )->setValue( 0.313964 );
+
+  QVERIFY( curve.height( duration_1 ) < 0 );
+  QVERIFY( equal( curve.height( duration_2 ), 36.749, 0.001 ) );
+  QVERIFY( equal( curve.height( duration_3 ), 58.791, 0.001 ) );
+  QVERIFY( curve.height( duration_4 ) < 0 );
+
+}
+
+void ReosRainfallTest::IDFCurvesSherman()
+{
+  ReosIdfFormulaRegistery *formulaRegistery = ReosIdfFormulaRegistery::instance();
+
+
+  ReosIdfFormula *formula = formulaRegistery->formula( QStringLiteral( "XXX" ) );
+  QVERIFY( !formula );
+  formula = formulaRegistery->formula( QStringLiteral( "Sherman" ) );
+  QVERIFY( !formula );
+
+  formulaRegistery->registerFormula( new ReosIdfFormulaSherman );
+  formula = formulaRegistery->formula( QStringLiteral( "Sherman" ) );
+  QVERIFY( formula );
+
+  ReosIntensityDurationCurve curve;
+  ReosDuration duration_1( 10, ReosDuration::minute );
+  ReosDuration duration_2( 20, ReosDuration::minute );
+  ReosDuration duration_3( 40, ReosDuration::minute );
+  ReosDuration duration_4( 70, ReosDuration::minute );
+
+  QVERIFY( !curve.isFormulaValid() );
+  curve.setupFormula( formulaRegistery );
+  QVERIFY( !curve.isFormulaValid() );
+  curve.setCurrentFormula( QStringLiteral( "dfdsf" ) );
+  QVERIFY( !curve.isFormulaValid() );
+  curve.setupFormula( formulaRegistery );
+  QVERIFY( !curve.isFormulaValid() );
+  curve.setCurrentFormula( QStringLiteral( "Sherman" ) );
+  QVERIFY( !curve.isFormulaValid() );
+  curve.setupFormula( formulaRegistery );
+  QVERIFY( curve.isFormulaValid() );
+
   QVERIFY( curve.height( duration_1 ) < 0 );
   QVERIFY( curve.height( duration_2 ) < 0 );
 
@@ -142,30 +233,32 @@ void ReosRainfallTest::IDFCurves()
 
   ReosIdfParameters *parameters_1 = curve.createParameters( 0, formula );
   QVERIFY( parameters_1 );
-  QCOMPARE( parameters_1->formulaName, QStringLiteral( "Montana" ) );
-  QCOMPARE( parameters_1->parametersCount(), 2 );
-  parameters_1->parameter( 0 )->setValue( 4.782 );
-  parameters_1->parameter( 1 )->setValue( 0.31928 );
+  QCOMPARE( parameters_1->formulaName, QStringLiteral( "Sherman" ) );
+  QCOMPARE( parameters_1->parametersCount(), 3 );
+  parameters_1->parameter( 0 )->setValue( 1750.134 );
+  parameters_1->parameter( 1 )->setValue( 20 );
+  parameters_1->parameter( 2 )->setValue( 0.74 );
 
   QVERIFY( curve.height( duration_1 ) < 0 );
-  QVERIFY( equal( curve.height( duration_2 ), 36.749, 0.001 ) );
+  QVERIFY( equal( curve.height( duration_2 ), 38.056, 0.01 ) );
   QVERIFY( curve.height( duration_3 ) < 0 );
   QVERIFY( curve.height( duration_4 ) < 0 );
 
   ReosIdfParameters *parameters_2 = curve.createParameters( 1, formula );
   QVERIFY( parameters_2 );
-  QCOMPARE( parameters_2->formulaName, QStringLiteral( "Montana" ) );
-  QCOMPARE( parameters_2->parametersCount(), 2 );
-  parameters_2->parameter( 0 )->setValue( 4.680 );
-  parameters_2->parameter( 1 )->setValue( 0.313964 );
+  QCOMPARE( parameters_2->formulaName, QStringLiteral( "Sherman" ) );
+  QCOMPARE( parameters_2->parametersCount(), 3 );
+  parameters_2->parameter( 0 )->setValue( 1750.134 );
+  parameters_2->parameter( 1 )->setValue( 20 );
+  parameters_2->parameter( 2 )->setValue( 0.74 );
 
   QVERIFY( curve.height( duration_1 ) < 0 );
-  QVERIFY( equal( curve.height( duration_2 ), 36.749, 0.001 ) );
-  QVERIFY( equal( curve.height( duration_3 ), 58.791, 0.001 ) );
+  QVERIFY( equal( curve.height( duration_2 ), 38.056, 0.01 ) );
+  QVERIFY( equal( curve.height( duration_3 ), 56.383, 0.001 ) );
   QVERIFY( curve.height( duration_4 ) < 0 );
-
-  delete formulaRegistery;
 }
+
+
 
 
 QTEST_MAIN( ReosRainfallTest )

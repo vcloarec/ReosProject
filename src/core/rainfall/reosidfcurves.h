@@ -265,7 +265,7 @@ class REOSCORE_EXPORT ReosIntensityDurationCurve: public ReosDataObject
     //! Sets parameters for the interval at position \a i and for the \a formula
     ReosIdfParameters *createParameters( int i, ReosIdfFormula *formula,
                                          ReosDuration::Unit parameterTimeUnit = ReosDuration::minute,
-                                         ReosDuration::Unit resultTimeUnit = ReosDuration::minute );
+                                         ReosDuration::Unit resultTimeUnit = ReosDuration::hour );
 
     //! Returns the parameters for interval at position \a i and for the current formula
     ReosIdfParameters *currentParameters( int i );

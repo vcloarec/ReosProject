@@ -435,7 +435,16 @@ ReosIdfParameters *ReosIntensityDurationCurve::currentParameters( int i )
   if ( param )
     return param;
   else
-    return createParameters( i, mCurrentFormula );
+  {
+    ReosDuration::Unit paramTimeUnit = ReosDuration::minute;
+    ReosDuration::Unit resultTimeUnit = ReosDuration::minute;
+    if ( mParametersTimesUnit.contains( mCurrentFormulaName ) )
+      paramTimeUnit = mParametersTimesUnit[mCurrentFormulaName];
+    if ( mResultTimesUnit.contains( mCurrentFormulaName ) )
+      resultTimeUnit = mResultTimesUnit[mCurrentFormulaName];
+
+    return createParameters( i, mCurrentFormula, paramTimeUnit, resultTimeUnit );
+  }
 
   return mIntensityDurationIntervals.at( i )->parameters( mCurrentFormulaName );
 }
