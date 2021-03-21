@@ -93,6 +93,7 @@
         <file>zoomOut.svg</file>
         <file>zoomIn.svg</file>
         <file>function.svg</file>
+        <file>temporal.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>
