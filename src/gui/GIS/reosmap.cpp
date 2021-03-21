@@ -13,10 +13,12 @@ email                : vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
+#include <QDockWidget>
 #include <QLayout>
 #include <qgsmapcanvas.h>
 #include <qgslayertreemapcanvasbridge.h>
 #include <qgslayertreemodel.h>
+#include <qgstemporalcontrollerwidget.h>
 
 #include "reosmap.h"
 #include "reosgisengine.h"
@@ -35,6 +37,7 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   , mActionZoomOut( new QAction( QPixmap( QStringLiteral( ":/images/zoomOut.svg" ) ), tr( "Zoom Out" ) ) )
   , mActionPreviousZoom( new QAction( QPixmap( QStringLiteral( ":/images/zoomPrevious.svg" ) ), tr( "Previous Zoom" ) ) )
   , mActionNextZoom( new QAction( QPixmap( QStringLiteral( ":/images/zoomNext.svg" ) ), tr( "Next Zoom" ) ) )
+  , mTemporalControllerAction( new QAction( tr( "temporal controller" ), this ) )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
   canvas->setExtent( QgsRectangle( 0, 0, 200, 200 ) );
@@ -105,8 +108,18 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
 
   mActionPreviousZoom->setEnabled( false );
   mActionNextZoom->setEnabled( false );
-
   emit crsChanged( mapCrs() );
+
+  mTemporalDockWidget = new QDockWidget( tr( "Temporal controller" ), canvas );
+  QgsTemporalControllerWidget *temporalControlerWidget = new QgsTemporalControllerWidget( mTemporalDockWidget );
+  canvas->setTemporalController( temporalControlerWidget->temporalController() );
+  mTemporalDockWidget->setWidget( temporalControlerWidget );
+  mTemporalControllerAction->setCheckable( true );
+  connect( mTemporalControllerAction, &QAction::triggered, this, [this]
+  {
+    mTemporalDockWidget->setVisible( mTemporalControllerAction->isChecked() );
+  } );
+  mTemporalDockWidget->hide();
 }
 
 ReosMap::~ReosMap()
@@ -162,8 +175,14 @@ QList<QAction *> ReosMap::mapToolActions()
   ret << mActionZoomOut;
   ret << mActionPreviousZoom;
   ret << mActionNextZoom;
+  ret << mTemporalControllerAction;
 
   return ret;
+}
+
+QDockWidget *ReosMap::temporalControllerDockWidget()
+{
+  return mTemporalDockWidget;
 }
 
 void ReosMap::setCrs( const QString &crsWkt )

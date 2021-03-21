@@ -27,6 +27,7 @@ email                : vcloarec at gmail dot com
 #include "reosmapitem.h"
 #include "reosmapextent.h"
 
+class QDockWidget;
 class QgsMapCanvas;
 class ReosMapCursorPosition;
 class ReosGisEngine;
@@ -52,6 +53,9 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
 
     QList<QAction *> mapToolActions();
 
+    QDockWidget *temporalControllerDockWidget();
+
+
   signals:
     //! emitted when the mouse cursor moves on the map cavans.
     void cursorMoved( const QPointF &point );
@@ -64,6 +68,7 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
   private:
     ReosGisEngine *mEngine;
     QPointer<QGraphicsView> mCanvas = nullptr;
+    QDockWidget *mTemporalDockWidget = nullptr;
 
     QAction *mActionNeutral = nullptr;
     ReosMapTool *mDefaultMapTool = nullptr;
@@ -75,6 +80,7 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     QAction *mActionZoomOut = nullptr;
     QAction *mActionPreviousZoom = nullptr;
     QAction *mActionNextZoom = nullptr;
+    QAction *mTemporalControllerAction = nullptr;
 };
 
 

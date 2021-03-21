@@ -75,6 +75,8 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   addDockWidget( Qt::RightDockWidgetArea, mDockWatershed );
 
   mMap->setDefaultMapTool();
+
+  addDockWidget( Qt::TopDockWidgetArea, mMap->temporalControllerDockWidget() );
 }
 
 bool LekanMainWindow::openProject()
