@@ -713,10 +713,11 @@ void ReosDurationUnitComboBox::setCurrentUnit( ReosDuration::Unit unit ) { setCu
 
 ReosParameterLongStringWidget::ReosParameterLongStringWidget( QWidget *parent, const QString &defaultName ):
   ReosParameterWidget( defaultName, parent, Qt::Vertical ),
-  mTextEdit( new QTextEdit( this ) )
+  mTextEdit( new ReosParameterTextEdit( this ) )
 {
   layout()->addWidget( mTextEdit );
   mTextEdit->setMaximumHeight( 30 );
+  connect( mTextEdit, &ReosParameterTextEdit::editingFinished, this, &ReosParameterWidget::applyValue );
   finalizeWidget();
 }
 
@@ -766,9 +767,8 @@ ReosParameterLongString *ReosParameterLongStringWidget::stringParameter() const
   return static_cast<ReosParameterLongString *>( mParameter.data() );
 }
 
-void ReosParameterLongStringWidget::focusOutEvent( QFocusEvent *event )
+void ReosParameterTextEdit::focusOutEvent( QFocusEvent *event )
 {
-  applyValue();
-
+  emit editingFinished();
   QWidget::focusOutEvent( event );
 }

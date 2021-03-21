@@ -75,7 +75,6 @@ ReosParameterWidget *ReosFormWidget::addParameter( ReosParameter *parameter, int
   mParamCount++;
 
   connect( parameter, &ReosParameter::valueChanged, this, &ReosFormWidget::parametersChanged );
-
   w->enableSpacer( spacer );
 
   return w;
@@ -88,11 +87,13 @@ void ReosFormWidget::addParameters( QList<ReosParameter *> parameters, ReosParam
       addParameter( p, spacer );
 }
 
-void ReosFormWidget::addData( ReosDataObject *data, int position )
+ReosFormWidget *ReosFormWidget::addData( ReosDataObject *data, int position )
 {
   ReosFormWidget *dataWidget = createDataWidget( data, this );
   if ( dataWidget )
     addWidget( dataWidget, position );
+
+  return dataWidget;
 }
 
 void ReosFormWidget::addWidget( QWidget *widget, int position )
@@ -127,6 +128,11 @@ ReosFormWidget *ReosFormWidget::createDataWidget( ReosDataObject *dataObject, QW
   return ReosFormWidgetFactories::instance()->createDataFormWidget( dataObject, parent );
 }
 
+void ReosFormWidget::setStretch( int i, int stretch )
+{
+  mMainLayout->setStretch( i, stretch );
+}
+
 ReosFormDialog::ReosFormDialog( QWidget *parent ):
   QDialog( parent )
   , mForm( new ReosFormWidget( this ) )
@@ -145,9 +151,9 @@ void ReosFormDialog::addParameter( ReosParameter *parameter )
   mForm->addParameter( parameter );
 }
 
-void ReosFormDialog::addData( ReosDataObject *data )
+ReosFormWidget *ReosFormDialog::addData( ReosDataObject *data )
 {
-  mForm->addData( data );
+  return mForm->addData( data );
 }
 
 void ReosFormDialog::addText( const QString &text )
@@ -201,5 +207,5 @@ ReosFormWidgetFactories::ReosFormWidgetFactories( ReosModule *parent ): ReosModu
 
 ReosFormWidget *ReosFormWidgetDataFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
 {
-	return nullptr;
+  return nullptr;
 }

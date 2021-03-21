@@ -42,14 +42,14 @@ ReosRainfallIntensityDurationWidget::ReosRainfallIntensityDurationWidget( ReosIn
   layout()->addWidget( mComboFormula );
 
   QHBoxLayout *layoutParameterTimeUnit = new QHBoxLayout;
-  layoutParameterTimeUnit->addWidget( new QLabel( tr( "Time unit for parameters of the formula" ), this ) );
+  layoutParameterTimeUnit->addWidget( new QLabel( tr( "Time unit for parameters" ), this ) );
   layoutParameterTimeUnit->addItem( new QSpacerItem( 5, 0, QSizePolicy::Minimum, QSizePolicy::Ignored ) );
   mParameterTimeUnitComboBox = new ReosDurationUnitComboBox( this );
   layoutParameterTimeUnit->addWidget( mParameterTimeUnitComboBox );
   layout()->addItem( layoutParameterTimeUnit );
 
   QHBoxLayout *layoutResultTimeUnit = new QHBoxLayout;
-  layoutResultTimeUnit->addWidget( new QLabel( tr( "Time unit for result of the formula" ), this ) );
+  layoutResultTimeUnit->addWidget( new QLabel( tr( "Time unit for result" ), this ) );
   layoutResultTimeUnit->addItem( new QSpacerItem( 5, 0, QSizePolicy::Minimum, QSizePolicy::Ignored ) );
   mResultTimeUnitComboBox = new ReosDurationUnitComboBox( this, ReosDuration::hour );
   layoutResultTimeUnit->addWidget( mResultTimeUnitComboBox );

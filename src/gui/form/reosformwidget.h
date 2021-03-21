@@ -47,12 +47,14 @@ class ReosFormWidget : public QWidget
     void addText( const QString &text, int position = -1 );
     ReosParameterWidget *addParameter( ReosParameter *parameter, int position = -1, ReosParameterWidget::SpacerPosition spacer = ReosParameterWidget::NoSpacer );
     void addParameters( QList<ReosParameter *> parameters, ReosParameterWidget::SpacerPosition spacer = ReosParameterWidget::NoSpacer );
-    void addData( ReosDataObject *data, int position = -1 );
+    ReosFormWidget *addData( ReosDataObject *data, int position = -1 );
     void addWidget( QWidget *widget, int position = -1 );
     void addItem( QLayoutItem *item, int position = -1 );
     void addLine( int position = -1 );
 
     static ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent = nullptr );
+
+    void setStretch( int i, int stretch );
 
   signals:
     void parametersChanged();
@@ -71,7 +73,7 @@ class ReosFormDialog : public QDialog
   public:
     explicit ReosFormDialog( QWidget *parent = nullptr );
     void addParameter( ReosParameter *parameter );
-    void addData( ReosDataObject *data );
+    ReosFormWidget *addData( ReosDataObject *data );
     void addText( const QString &text );
 
   private:

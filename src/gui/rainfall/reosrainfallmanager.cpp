@@ -433,7 +433,12 @@ void ReosRainfallManager::onCurrentTreeIndexChanged()
     // First the form to acces parameter
     ReosFormWidget *newForm = new ReosFormWidget( this );
     newForm->addParameters( item->parameters() );
-    newForm->addData( item->data() );
+    if ( !item->data() ||  !newForm->addData( item->data() ) )
+    {
+      newForm->addItem( new QSpacerItem( 20, 40, QSizePolicy::Ignored, QSizePolicy::Expanding ) );
+      newForm->setStretch( 2, 1 );
+    }
+
     if ( mCurrentForm )
     {
       ui->mEditorWidget->layout()->replaceWidget( mCurrentForm, newForm );

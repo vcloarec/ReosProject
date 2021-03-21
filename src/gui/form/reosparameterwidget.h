@@ -19,10 +19,10 @@
 #include <QPointer>
 #include <QWidget>
 #include <QComboBox>
+#include <QTextEdit>
 
 class QLabel;
 class QLineEdit;
-class QTextEdit;
 class QComboBox;
 class QToolButton;
 class QDateTimeEdit;
@@ -233,6 +233,20 @@ class ReosParameterBooleanWidget : public ReosParameterWidget
     QCheckBox *mCheckBox = nullptr;
 };
 
+// Derived from QTextEdit to have a signal editingFinished when the focus go out
+class ReosParameterTextEdit: public QTextEdit
+{
+    Q_OBJECT
+  public:
+    ReosParameterTextEdit( QWidget *parent );
+
+  signals:
+    void editingFinished();
+
+  protected:
+    void focusOutEvent( QFocusEvent *event ) override;
+};
+
 class ReosParameterLongStringWidget : public ReosParameterWidget
 {
   public:
@@ -248,11 +262,8 @@ class ReosParameterLongStringWidget : public ReosParameterWidget
 
     ReosParameterLongString *stringParameter() const;
 
-  protected:
-    void focusOutEvent( QFocusEvent *event );
-
   private:
-    QTextEdit *mTextEdit;
+    ReosParameterTextEdit *mTextEdit;
 
 };
 #endif // REOSPARAMETERWIDGET_H
