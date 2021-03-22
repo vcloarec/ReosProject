@@ -437,7 +437,7 @@ ReosIdfParameters *ReosIntensityDurationCurve::currentParameters( int i )
   else
   {
     ReosDuration::Unit paramTimeUnit = ReosDuration::minute;
-    ReosDuration::Unit resultTimeUnit = ReosDuration::minute;
+    ReosDuration::Unit resultTimeUnit = ReosDuration::hour;
     if ( mParametersTimesUnit.contains( mCurrentFormulaName ) )
       paramTimeUnit = mParametersTimesUnit[mCurrentFormulaName];
     if ( mResultTimesUnit.contains( mCurrentFormulaName ) )
@@ -516,7 +516,7 @@ ReosDuration::Unit ReosIntensityDurationCurve::currentResultTimeUnit()
   if ( mResultTimesUnit.contains( mCurrentFormulaName ) )
     return mResultTimesUnit.value( mCurrentFormulaName );
   else
-    return ReosDuration::minute;
+    return ReosDuration::hour;
 }
 
 ReosEncodedElement ReosIntensityDurationCurve::encode() const
