@@ -48,14 +48,14 @@ ReosRainfallIntensityDurationWidget::ReosRainfallIntensityDurationWidget( ReosIn
   layout()->addItem( comboFormulaLayout );
 
   QHBoxLayout *layoutParameterTimeUnit = new QHBoxLayout;
-  layoutParameterTimeUnit->addWidget( new QLabel( tr( "Time unit for parameters" ), this ) );
+  layoutParameterTimeUnit->addWidget( new QLabel( tr( "Entry time unit" ), this ) );
   layoutParameterTimeUnit->addItem( new QSpacerItem( 5, 0, QSizePolicy::Minimum, QSizePolicy::Ignored ) );
   mParameterTimeUnitComboBox = new ReosDurationUnitComboBox( this );
   layoutParameterTimeUnit->addWidget( mParameterTimeUnitComboBox );
   layout()->addItem( layoutParameterTimeUnit );
 
   QHBoxLayout *layoutResultTimeUnit = new QHBoxLayout;
-  layoutResultTimeUnit->addWidget( new QLabel( tr( "Time unit for result" ), this ) );
+  layoutResultTimeUnit->addWidget( new QLabel( tr( "Result time unit" ), this ) );
   layoutResultTimeUnit->addItem( new QSpacerItem( 5, 0, QSizePolicy::Minimum, QSizePolicy::Ignored ) );
   mResultTimeUnitComboBox = new ReosDurationUnitComboBox( this, ReosDuration::hour );
   layoutResultTimeUnit->addWidget( mResultTimeUnitComboBox );
@@ -183,8 +183,8 @@ void ReosRainfallIntensityDurationWidget::onDisplayingFormula()
   line->setFrameShadow( QFrame::Sunken );
   dial->layout()->addWidget( line );
 
-  dial->layout()->addWidget( new QLabel( tr( "I: rainfall intensity (mm per time unit for result)" ) ) );
-  dial->layout()->addWidget( new QLabel( tr( "t: rainfall duration (time unit for parameters)" ) ) );
+  dial->layout()->addWidget( new QLabel( tr( "I: rainfall intensity (mm per result time unit)" ) ) );
+  dial->layout()->addWidget( new QLabel( tr( "t: rainfall duration (entry time unit)" ) ) );
 
   dial->exec();
 

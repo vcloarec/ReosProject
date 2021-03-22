@@ -38,7 +38,7 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   , mActionZoomOut( new QAction( QPixmap( QStringLiteral( ":/images/zoomOut.svg" ) ), tr( "Zoom Out" ) ) )
   , mActionPreviousZoom( new QAction( QPixmap( QStringLiteral( ":/images/zoomPrevious.svg" ) ), tr( "Previous Zoom" ) ) )
   , mActionNextZoom( new QAction( QPixmap( QStringLiteral( ":/images/zoomNext.svg" ) ), tr( "Next Zoom" ) ) )
-  , mTemporalControllerAction( new QAction( QPixmap( QStringLiteral( ":/images/temporal.svg" ) ), tr( "temporal controller" ), this ) )
+  , mTemporalControllerAction( new QAction( QPixmap( QStringLiteral( ":/images/temporal.svg" ) ), tr( "Temporal controller" ), this ) )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
   canvas->setExtent( QgsRectangle( 0, 0, 200, 200 ) );
