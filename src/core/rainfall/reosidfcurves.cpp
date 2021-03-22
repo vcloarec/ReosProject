@@ -676,7 +676,7 @@ void ReosIdfParameters::decode( const ReosEncodedElement &element, ReosIntensity
   QString formulaName;
   element.getData( QStringLiteral( "formulaName" ), formulaName );
   ReosDuration::Unit timeUnitParam = ReosDuration::decode( element.getEncodedData( "parameters-time-unit" ) ).unit();
-  ReosDuration::Unit timeUnitResult = ReosDuration::decode( element.getEncodedData( "resutl-time-unit" ) ).unit();
+  ReosDuration::Unit timeUnitResult = ReosDuration::decode( element.getEncodedData( "result-time-unit" ) ).unit();
   ReosIdfParameters *ret = new ReosIdfParameters( interval, formulaName, QStringList(), timeUnitParam, timeUnitResult );
 
   QList<ReosEncodedElement> encodedParameters = element.getListEncodedData( QStringLiteral( "parameters" ) );
