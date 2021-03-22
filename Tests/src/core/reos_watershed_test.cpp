@@ -709,7 +709,7 @@ void ReosWatersehdTest::concentrationTime()
   QStringList activeFormulas;
   activeFormulas << QStringLiteral( "Kirpich" )
                  << QStringLiteral( "Johnstone" )
-                 << QStringLiteral( "Ven te Show" )
+                 << QStringLiteral( "Ven te Chow" )
                  << QStringLiteral( "Turazza" )
                  << QStringLiteral( "Ventura" )
                  << QStringLiteral( "Passini" );
@@ -730,11 +730,11 @@ void ReosWatersehdTest::concentrationTime()
   ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaJohnstone );
   ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaPassini );
   ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaVentura );
-  ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaVenTeShow );
+  ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaVenTeChow );
 
   QVERIFY( ReosConcentrationTimeFormulasRegistery::instance()->formula( "Kirpich" )->isInValidityDomain( params ) );
   QVERIFY( !ReosConcentrationTimeFormulasRegistery::instance()->formula( "Johnstone" )->isInValidityDomain( params ) );
-  QVERIFY( ReosConcentrationTimeFormulasRegistery::instance()->formula( "Ven te Show" )->isInValidityDomain( params ) );
+  QVERIFY( ReosConcentrationTimeFormulasRegistery::instance()->formula( "Ven te Chow" )->isInValidityDomain( params ) );
   QVERIFY( ReosConcentrationTimeFormulasRegistery::instance()->formula( "Ventura" )->isInValidityDomain( params ) );
   QVERIFY( ReosConcentrationTimeFormulasRegistery::instance()->formula( "Passini" )->isInValidityDomain( params ) );
 
@@ -745,7 +745,7 @@ void ReosWatersehdTest::concentrationTime()
   calculation.setUserChoosenFormula( QStringLiteral( "Johnstone" ) );
   QCOMPARE( ReosDuration( 6926386, ReosDuration::millisecond ), calculation.concentrationTime( params ) );
 
-  calculation.setUserChoosenFormula( QStringLiteral( "Ven te Show" ) );
+  calculation.setUserChoosenFormula( QStringLiteral( "Ven te Chow" ) );
   QCOMPARE( ReosDuration( 3578028, ReosDuration::millisecond ), calculation.concentrationTime( params ) );
 
   calculation.setUserChoosenFormula( QStringLiteral( "Ventura" ) );

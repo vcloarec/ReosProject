@@ -314,7 +314,7 @@ bool ReosConcentrationTimeFormulaVentura::canBeCalculated( const ReosConcentrati
 }
 
 
-ReosDuration ReosConcentrationTimeFormulaVenTeShow::concentrationTime( const ReosConcentrationTimeFormula::Parameters &parameters ) const
+ReosDuration ReosConcentrationTimeFormulaVenTeChow::concentrationTime( const ReosConcentrationTimeFormula::Parameters &parameters ) const
 {
   double S = parameters.slope;
   double L = parameters.length;
@@ -327,14 +327,14 @@ ReosDuration ReosConcentrationTimeFormulaVenTeShow::concentrationTime( const Reo
   return ReosDuration();
 }
 
-bool ReosConcentrationTimeFormulaVenTeShow::isInValidityDomain( const ReosConcentrationTimeFormula::Parameters &parameters ) const
+bool ReosConcentrationTimeFormulaVenTeChow::isInValidityDomain( const ReosConcentrationTimeFormula::Parameters &parameters ) const
 {
   double S = parameters.slope;
   double A = parameters.area.valueKm2();
   return ( S >= 0.0051 ) && ( S <= 0.09 ) && ( A >= 0.01 ) && ( A <= 18.5 );
 }
 
-bool ReosConcentrationTimeFormulaVenTeShow::canBeCalculated( const ReosConcentrationTimeFormula::Parameters &parameters ) const
+bool ReosConcentrationTimeFormulaVenTeChow::canBeCalculated( const ReosConcentrationTimeFormula::Parameters &parameters ) const
 {
   double S = parameters.slope;
   double L = parameters.length;

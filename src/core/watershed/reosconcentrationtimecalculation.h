@@ -130,15 +130,15 @@ class REOSCORE_EXPORT ReosConcentrationTimeFormulaVentura : public ReosConcentra
     virtual QPixmap formulaImage() const override {return QPixmap( QStringLiteral( ":/formulas/concentrationTimeVentura.svg" ) );}
 };
 
-class REOSCORE_EXPORT ReosConcentrationTimeFormulaVenTeShow : public ReosConcentrationTimeFormula
+class REOSCORE_EXPORT ReosConcentrationTimeFormulaVenTeChow : public ReosConcentrationTimeFormula
 {
   public:
-    QString name() const override {return QStringLiteral( "Ven te Show" );}
+    QString name() const override {return QStringLiteral( "Ven te Chow" );}
     ReosDuration concentrationTime( const Parameters &parameters ) const override;
     bool isInValidityDomain( const Parameters & ) const override;
     bool canBeCalculated( const ReosConcentrationTimeFormula::Parameters &parameters ) const override;
 
-    virtual QPixmap formulaImage() const override {return QPixmap( QStringLiteral( ":/formulas/concentrationTimeVenTeShow.svg" ) );}
+    virtual QPixmap formulaImage() const override {return QPixmap( QStringLiteral( ":/formulas/concentrationTimeVenTeChow.svg" ) );}
 };
 
 class REOSCORE_EXPORT ReosConcentrationTimeFormulaJohnstone : public ReosConcentrationTimeFormula

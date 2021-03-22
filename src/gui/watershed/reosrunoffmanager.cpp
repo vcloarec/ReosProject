@@ -175,7 +175,7 @@ void ReosRunoffManager::onAddNewModel( const QString &type )
 
   ReosFormDialog *dial = new ReosFormDialog( this );
 
-  dial->setWindowTitle( tr( "Add a nw runoff model" ) );
+  dial->setWindowTitle( tr( "Add a new runoff model" ) );
   dial->addText( tr( "Choose model's name:" ) );
   ReosParameterString *name = new ReosParameterString( tr( "Name" ), false, this );
   name->setValue( registery->createRunoffModelName( type ) );

@@ -45,7 +45,7 @@ ReosConcentrationTimeWidget::ReosConcentrationTimeWidget( QWidget *parent ) :
   ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaPassini );
   ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaVentura );
   ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaJohnstone );
-  ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaVenTeShow );
+  ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaVenTeChow );
 
   QToolBar *toolBar = new QToolBar( ui->widgetTools );
   ui->widgetTools->layout()->addWidget( toolBar );
