@@ -15,6 +15,7 @@ email                : vcloarec at gmail dot com
 
 #include <QDockWidget>
 #include <QLayout>
+#include <QMenu>
 #include <qgsmapcanvas.h>
 #include <qgslayertreemapcanvasbridge.h>
 #include <qgslayertreemodel.h>
