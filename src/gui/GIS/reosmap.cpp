@@ -34,10 +34,10 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   , mDefaultMapTool( new ReosMapToolNeutral( this ) )
   , mActionZoom( new QAction( QPixmap( QStringLiteral( ":/images/zoomInExtent.svg" ) ), tr( "Zoom In" ), this ) )
   , mZoomMapTool( new ReosMapToolDrawExtent( this ) )
-  , mActionZoomIn( new QAction( QPixmap( QStringLiteral( ":/images/zoomIn.svg" ) ), tr( "Zoom In" ) ) )
-  , mActionZoomOut( new QAction( QPixmap( QStringLiteral( ":/images/zoomOut.svg" ) ), tr( "Zoom Out" ) ) )
-  , mActionPreviousZoom( new QAction( QPixmap( QStringLiteral( ":/images/zoomPrevious.svg" ) ), tr( "Previous Zoom" ) ) )
-  , mActionNextZoom( new QAction( QPixmap( QStringLiteral( ":/images/zoomNext.svg" ) ), tr( "Next Zoom" ) ) )
+  , mActionZoomIn( new QAction( QPixmap( QStringLiteral( ":/images/zoomIn.svg" ) ), tr( "Zoom In" ), this ) )
+  , mActionZoomOut( new QAction( QPixmap( QStringLiteral( ":/images/zoomOut.svg" ) ), tr( "Zoom Out" ), this ) )
+  , mActionPreviousZoom( new QAction( QPixmap( QStringLiteral( ":/images/zoomPrevious.svg" ) ), tr( "Previous Zoom" ), this ) )
+  , mActionNextZoom( new QAction( QPixmap( QStringLiteral( ":/images/zoomNext.svg" ) ), tr( "Next Zoom" ), this ) )
   , mTemporalControllerAction( new QAction( QPixmap( QStringLiteral( ":/images/temporal.svg" ) ), tr( "Temporal controller" ), this ) )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );

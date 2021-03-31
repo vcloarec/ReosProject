@@ -33,6 +33,7 @@ class ReosGisGuiTest: public QObject
   private:
     std::unique_ptr<ReosGisEngine> gisEngine;
     ReosMap *map;
+    QWidget placeHolderWidget;
 };
 
 
@@ -43,7 +44,7 @@ void ReosGisGuiTest::initTestCase()
 
 void ReosGisGuiTest::mapItemToolCreationDeletation()
 {
-  map = new ReosMap( gisEngine.get() );
+  map = new ReosMap( gisEngine.get(), &placeHolderWidget );
 
   // Destruct map before item or tool
   ReosMapMarker *markerP = new ReosMapMarker( map );
@@ -57,7 +58,7 @@ void ReosGisGuiTest::mapItemToolCreationDeletation()
   delete markerP;
 
   // Destruct item or tool before map
-  map = new ReosMap( gisEngine.get() );
+  map = new ReosMap( gisEngine.get(), &placeHolderWidget );
   markerP = new ReosMapMarker( map );
   toolExtent = new ReosMapToolDrawExtent( map );
 

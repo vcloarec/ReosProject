@@ -38,7 +38,7 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
 {
     Q_OBJECT
   public:
-    ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget = nullptr );
+    ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget );
     ~ReosMap();
 
     QWidget *mapCanvas() const;
