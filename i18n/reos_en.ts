@@ -175,7 +175,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="718"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="722"/>
         <source> residual</source>
         <translation type="unfinished"></translation>
     </message>
@@ -190,38 +190,38 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="691"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="705"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="693"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="707"/>
         <source>Rainfall duration (mn)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="692"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="694"/>
         <source>Rainfall duration (mm/h)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="706"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="708"/>
         <source>Rainfall intensity (mm/h)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="717"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="719"/>
         <source>, instant value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="725"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="727"/>
         <source>, cumulative value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="729"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="731"/>
         <source>cumulative rainfall (mm)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="732"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="734"/>
         <source>Time</source>
         <translation type="unfinished"></translation>
     </message>
@@ -731,37 +731,37 @@ Adjust new watershed?</source>
 <context>
     <name>ReosGisEngine</name>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="105"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="110"/>
         <source>Vector layer loaded: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="110"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="115"/>
         <source>Vector layer not loaded: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="122"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="127"/>
         <source>Raster layer loaded: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="127"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="132"/>
         <source>Raster layer not loaded: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="139"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="144"/>
         <source>Mesh layer loaded: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="144"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="149"/>
         <source>Mesh layer not loaded: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="171"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="176"/>
         <source>Could not find MDAL</source>
         <translation type="unfinished"></translation>
     </message>
@@ -913,37 +913,42 @@ Adjust new watershed?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="563"/>
-        <source>mm</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="564"/>
-        <source>Height per time step</source>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="562"/>
+        <source>Import Rainfall</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="565"/>
-        <source>Total height</source>
+        <source>mm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="566"/>
+        <source>Height per time step</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="567"/>
+        <source>Total height</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="568"/>
         <source>Rainfall intensity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="584"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="586"/>
         <source>Field to import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="610"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="612"/>
         <source>Select a Station to Import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="650"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="652"/>
         <source>Select a station where to import the rainfall</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1387,7 +1392,17 @@ choose a new name:</source>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="170"/>
-        <source>disassociate rainfall</source>
+        <source>Disassociate rainfall</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/reosmeteorologicmodelwidget.ui"/>
+        <source>Drag a rainfall</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/reosmeteorologicmodelwidget.ui"/>
+        <source>Drop it on watershed</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2373,32 +2388,32 @@ is applied on the rainfall</source>
     <name>ReosWatershed</name>
     <message>
         <location filename="../src/core/watershed/reoswatershed.cpp" line="22"/>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="653"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="657"/>
         <source>Watershed area</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="652"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="656"/>
         <source>Watershed name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="654"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="658"/>
         <source>Average slope</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="655"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="659"/>
         <source>Drop</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="656"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="660"/>
         <source>Longest stream path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="657"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="661"/>
         <source>Concentration time</source>
         <translation type="unfinished"></translation>
     </message>
