@@ -59,6 +59,11 @@ ReosGisEngine::ReosGisEngine( QObject *parent ): ReosModule( parent )
 
 }
 
+ReosGisEngine::~ReosGisEngine()
+{
+  QgsApplication::exitQgis();
+}
+
 void ReosGisEngine::initGisEngine()
 {
   QString profileFolder = QStandardPaths::standardLocations( QStandardPaths::AppDataLocation ).value( 0 );

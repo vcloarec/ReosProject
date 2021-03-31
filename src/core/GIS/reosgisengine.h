@@ -47,6 +47,7 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
 
     //! Constructor
     ReosGisEngine( QObject *parent = nullptr );
+    ~ReosGisEngine();
 
     void initGisEngine();
 

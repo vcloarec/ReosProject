@@ -244,8 +244,8 @@ bool ReosRainfallItem::isSubItem( ReosRainfallItem *item ) const
 
 ReosRainfallItem::ReosRainfallItem( const QString &name, const QString &description, ReosRainfallItem::Type type ):
   QObject()
-  , mName( new ReosParameterString( QObject::tr( "Name" ) ) )
-  , mDescription( new ReosParameterLongString( QObject::tr( "Description" ) ) )
+  , mName( new ReosParameterString( QObject::tr( "Name" ), false, this ) )
+  , mDescription( new ReosParameterLongString( QObject::tr( "Description" ), false, this ) )
   , mUid( QUuid::createUuid().toString() )
   , mType( type )
 {
