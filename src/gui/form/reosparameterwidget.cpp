@@ -502,15 +502,6 @@ ReosParameterDurationWidget::ReosParameterDurationWidget( QWidget *parent, const
   mUnitCombobox = new ReosDurationUnitComboBox( this );
   layout()->addWidget( mUnitCombobox );
 
-  mUnitCombobox->addItem( tr( "millisecond" ), ReosDuration::millisecond );
-  mUnitCombobox->addItem( tr( "second" ), ReosDuration::second );
-  mUnitCombobox->addItem( tr( "minute" ), ReosDuration::minute );
-  mUnitCombobox->addItem( tr( "hour" ), ReosDuration::hour );
-  mUnitCombobox->addItem( tr( "day" ), ReosDuration::day );
-  mUnitCombobox->addItem( tr( "week" ), ReosDuration::week );
-  mUnitCombobox->addItem( tr( "month" ), ReosDuration::month );
-  mUnitCombobox->addItem( tr( "year" ), ReosDuration::year );
-
   connect( mUnitCombobox, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]
   {
     if ( this->durationParameter() )
