@@ -150,7 +150,7 @@ int ReosWatershed::upstreamWatershedCount() const
 
 int ReosWatershed::directUpstreamWatershedCount() const
 {
-  return static_cast<int>(mUpstreamWatersheds.size());
+  return static_cast<int>( mUpstreamWatersheds.size() );
 }
 
 ReosWatershed *ReosWatershed::directUpstreamWatershed( int i ) const
@@ -312,7 +312,7 @@ int ReosWatershed::positionInDownstreamWatershed() const
   for ( size_t i = 0; i < mDownstreamWatershed->mUpstreamWatersheds.size(); ++i )
   {
     if ( this == mDownstreamWatershed->mUpstreamWatersheds.at( i ).get() )
-      return static_cast<int>(i);
+      return static_cast<int>( i );
   }
 
   return -1;
@@ -592,7 +592,11 @@ ReosWatershed *ReosWatershed::decode( const ReosEncodedElement &element )
     for ( const ReosEncodedElement &elem : encodedTransferFunctions )
     {
       std::unique_ptr<ReosTransferFunction> tf( ReosTransferFunctionFactories::instance()->createTransferFunction( elem, ws.get() ) );
-      ws->mTransferFunctions[tf->type()] = tf.release();
+      if ( tf )
+      {
+        QString type = tf->type();
+        ws->mTransferFunctions[type] = tf.release();
+      }
     }
   }
 

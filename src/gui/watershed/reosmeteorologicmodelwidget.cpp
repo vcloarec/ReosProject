@@ -167,7 +167,7 @@ void ReosMeteorologicModelWidget::onCurrentModelChanged()
 void ReosMeteorologicModelWidget::onMeteoTreeViewContextMenu( const QPoint &pos )
 {
   QMenu menu;
-  menu.addAction( QPixmap( QStringLiteral( ":/images/remove.svg" ) ), tr( "disassociate rainfall" ), &menu, [this, pos]
+  menu.addAction( QPixmap( QStringLiteral( ":/images/remove.svg" ) ), tr( "Disassociate rainfall" ), &menu, [this, pos]
   {
     mMeteorologicItemModel->removeAssociation( ui->treeViewMeteorologicModel->indexAt( pos ) );
   } );
