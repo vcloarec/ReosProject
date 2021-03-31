@@ -5,7 +5,7 @@
 
 Unicode True
 
-!define LEKAN_VERSION "1.99.1"
+!define LEKAN_VERSION "1.99.2"
 !define PACKAGE_SOURCE "D:\ReosProject-release"
 
 ;--------------------------------
