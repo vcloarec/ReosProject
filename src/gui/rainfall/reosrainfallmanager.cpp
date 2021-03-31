@@ -558,6 +558,8 @@ ReosImportRainfallDialog::ReosImportRainfallDialog( ReosRainfallModel *model, QW
   , mName( new ReosParameterString( tr( "name" ), false, this ) )
   , mDescription( new ReosParameterString( tr( "Description" ), false, this ) )
 {
+
+  setWindowTitle( tr( "Import Rainfall" ) );
   ReosTextFileData mtextFile;
 
   mImportedRainfall->setValueUnit( tr( "mm" ) );
