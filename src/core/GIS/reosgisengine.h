@@ -27,6 +27,7 @@ email                : vcloarec at gmail dot com
 
 class ReosDigitalElevationModel;
 class ReosDigitalElevationModelProvider;
+class QgsRasterLayer;
 
 /**
  * Reos module class that handles GIS layer
@@ -133,6 +134,8 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     QAbstractItemModel *mAbstractLayerTreeModel;
     ReosDigitalElevationModelProvider *mDemProvider;
     QStringList mAsDEMRegisteredLayer;
+
+    void defaultstyleRasterLayer( QgsRasterLayer *layer );
 
 };
 

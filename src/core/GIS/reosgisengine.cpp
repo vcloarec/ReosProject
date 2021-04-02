@@ -18,6 +18,7 @@ email                : vcloarec at gmail dot com
 #include "reosdigitalelevationmodel_p.h"
 
 #include <QStandardPaths>
+#include <qmath.h>
 
 #include <qgslayertreemodel.h>
 #include <qgslayertree.h>
@@ -31,10 +32,10 @@ email                : vcloarec at gmail dot com
 #include <qgsproviderregistry.h>
 #include <qgsapplication.h>
 #include <qgslinestring.h>
-#include <qmath.h>
 #include <qgsgeometry.h>
 #include <qgspolygon.h>
 #include <qgsprojutils.h>
+#include <qgssinglebandpseudocolorrenderer.h>
 
 #define  mLayerTreeModel _layerTreeModel(mAbstractLayerTreeModel)
 static QgsLayerTreeModel *_layerTreeModel( QAbstractItemModel *sourceModel )
@@ -123,6 +124,7 @@ QString ReosGisEngine::addRasterLayer( const QString &uri, const QString &name )
 
   if ( rasterlayer->isValid() )
   {
+    defaultstyleRasterLayer( rasterlayer.get() );
     QgsMapLayer *mapLayer = QgsProject::instance()->addMapLayer( rasterlayer.release() );
     message( tr( "Raster layer loaded: %1" ).arg( uri ) );
     return mapLayer->id();
@@ -420,4 +422,49 @@ ReosGisEngine::LayerType ReosGisEngine::layerType( const QString layerId ) const
 void ReosGisEngine::layerRemoved( const QString &layerId )
 {
   unRegisterLayerAsDigitalElevationModel( layerId );
+}
+
+void ReosGisEngine::defaultstyleRasterLayer( QgsRasterLayer *layer )
+{
+  QgsRasterDataProvider *provider = layer->dataProvider();
+  if ( !provider )
+    return;
+
+  int bandCount = provider->bandCount();
+  if ( bandCount <= 0 )
+    return;
+
+  if ( bandCount == 1 )
+  {
+    Qgis::DataType dataType = provider->dataType( 1 );
+    switch ( dataType )
+    {
+      case Qgis::UnknownDataType:
+      case Qgis::Byte:
+      case Qgis::UInt16:
+      case Qgis::Int16:
+      case Qgis::UInt32:
+      case Qgis::Int32:
+        return;
+        break;
+      case Qgis::CFloat32:
+      case Qgis::CFloat64:
+      case Qgis::Float32:
+      case Qgis::Float64:
+        //could be a DEM
+        break;
+      case Qgis::CInt16:
+      case Qgis::CInt32:
+      case Qgis::ARGB32:
+      case Qgis::ARGB32_Premultiplied:
+        return;
+        break;
+    }
+
+    QString defaultStylePath = QCoreApplication::applicationDirPath() + QStringLiteral( "/../resources/" );
+    bool ok;
+    layer->loadNamedStyle( defaultStylePath + QStringLiteral( "dem.qml" ), ok );
+  }
+
+
 }
