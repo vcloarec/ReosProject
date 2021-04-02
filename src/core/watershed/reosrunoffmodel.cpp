@@ -560,7 +560,7 @@ bool ReosRunoffModelRegistery::decode( const ReosEncodedElement &element )
 
   QList<ReosEncodedElement> runoffModelsEncoded = element.getListEncodedData( QStringLiteral( "runoff-models" ) );
 
-  for ( const ReosEncodedElement &elem : qAsConst( runoffModelsEncoded ) )
+  for ( const ReosEncodedElement &elem : std::as_const( runoffModelsEncoded ) )
     mModel->addModel( createModel( elem ) );
 
   return true;
@@ -715,7 +715,7 @@ void ReosRunoffModelCollection::clearCollection()
 
 ReosRunoffModel *ReosRunoffModelCollection::runoffModelByUniqueId( const QString &uniqueId ) const
 {
-  for ( ReosRunoffModel *ro : qAsConst( mRunoffModels ) )
+  for ( ReosRunoffModel *ro : std::as_const( mRunoffModels ) )
     if ( ro->uniqueId() == uniqueId )
       return ro;
 
@@ -851,7 +851,7 @@ void ReosRunoffModelsGroup::decode( const ReosEncodedElement &element )
   {
     QList<ReosEncodedElement> encodedModels = element.getListEncodedData( QStringLiteral( "models" ) );
 
-    for ( const ReosEncodedElement &elem : qAsConst( encodedModels ) )
+    for ( const ReosEncodedElement &elem : std::as_const( encodedModels ) )
     {
       if ( elem.description() != QStringLiteral( "watershed-runoff-model" ) )
         continue;

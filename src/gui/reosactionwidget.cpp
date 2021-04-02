@@ -51,7 +51,7 @@ void ReosActionWidget::closeEvent( QCloseEvent *event )
   if ( mAction )
     mAction->setChecked( false );
   setVisible( false );
-  for ( ReosMapTool *tool : qAsConst( mMapTools ) )
+  for ( ReosMapTool *tool : std::as_const( mMapTools ) )
   {
     if ( tool->isCurrentToolInMap() )
     {

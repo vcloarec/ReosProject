@@ -117,7 +117,7 @@ QString ReosRainfallItem::uri() const
 {
   QList<int> numericPath = positionPathInTree();
   QStringList strList;
-  for ( int i : qAsConst( numericPath ) )
+  for ( int i : std::as_const( numericPath ) )
     strList.append( QString::number( i ) );
   QString uri = strList.join( ':' );
 
@@ -287,7 +287,7 @@ ReosStationItem::ReosStationItem( const ReosEncodedElement &element ): ReosRainf
     return;
 
   QList<ReosEncodedElement> encodedChildren = element.getListEncodedData( QStringLiteral( "children" ) );
-  for ( const ReosEncodedElement &childElem : qAsConst( encodedChildren ) )
+  for ( const ReosEncodedElement &childElem : std::as_const( encodedChildren ) )
   {
     if ( childElem.description() == QStringLiteral( "rainfall-serie-item" ) )
       addItem( new ReosRainfallGaugedRainfallItem( childElem ) );
@@ -320,7 +320,7 @@ ReosZoneItem::ReosZoneItem( const ReosEncodedElement &element ): ReosRainfallIte
     return;
 
   QList<ReosEncodedElement> encodedChildren = element.getListEncodedData( QStringLiteral( "children" ) );
-  for ( const ReosEncodedElement &childElem : qAsConst( encodedChildren ) )
+  for ( const ReosEncodedElement &childElem : std::as_const( encodedChildren ) )
   {
     if ( childElem.description() == QStringLiteral( "zone-item" ) )
       addItem( new ReosZoneItem( childElem ) );
@@ -398,7 +398,7 @@ ReosRainfallIdfCurvesItem::ReosRainfallIdfCurvesItem( const ReosEncodedElement &
     return;
 
   QList<ReosEncodedElement> encodedChildren = element.getListEncodedData( QStringLiteral( "children" ) );
-  for ( const ReosEncodedElement &childElem : qAsConst( encodedChildren ) )
+  for ( const ReosEncodedElement &childElem : std::as_const( encodedChildren ) )
   {
     if ( childElem.description() == QStringLiteral( "intensity-duration-item" ) )
       addItem( new ReosRainfallIntensityDurationCurveItem( childElem ) );

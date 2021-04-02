@@ -112,7 +112,7 @@ ReosIntensityDurationInterval *ReosIntensityDurationInterval::decode( const Reos
 
   QList<ReosEncodedElement> encodedParameters = element.getListEncodedData( QStringLiteral( "parameters" ) );
 
-  for ( const ReosEncodedElement &encodedParam : qAsConst( encodedParameters ) )
+  for ( const ReosEncodedElement &encodedParam : std::as_const( encodedParameters ) )
     ReosIdfParameters::decode( encodedParam, ret.get() );
 
 
@@ -484,7 +484,7 @@ QRectF ReosIntensityDurationCurve::extent( ReosDuration::Unit timeUnit ) const
 void ReosIntensityDurationCurve::setCurrentParameterTimeUnit( ReosDuration::Unit timeUnit )
 {
   mParametersTimesUnit[mCurrentFormulaName] = timeUnit;
-  for ( ReosIntensityDurationInterval *inter : qAsConst( mIntensityDurationIntervals ) )
+  for ( ReosIntensityDurationInterval *inter : std::as_const( mIntensityDurationIntervals ) )
   {
     if ( inter->parameters( mCurrentFormulaName ) )
       inter->parameters( mCurrentFormulaName )->setParameterTimeUnit( timeUnit );
@@ -503,7 +503,7 @@ ReosDuration::Unit ReosIntensityDurationCurve::currentParameterTimeUnit( )
 void ReosIntensityDurationCurve::setCurrentResultTimeUnit( ReosDuration::Unit timeUnit )
 {
   mResultTimesUnit[mCurrentFormulaName] = timeUnit;
-  for ( ReosIntensityDurationInterval *inter : qAsConst( mIntensityDurationIntervals ) )
+  for ( ReosIntensityDurationInterval *inter : std::as_const( mIntensityDurationIntervals ) )
   {
     if ( inter->parameters( mCurrentFormulaName ) )
       inter->parameters( mCurrentFormulaName )->setResultTimeUnit( timeUnit );
@@ -569,7 +569,7 @@ ReosIntensityDurationCurve *ReosIntensityDurationCurve::decode( const ReosEncode
   ret->mReturnPeriod = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "return-period" ) ), false, ret.get() );
   connect( ret->mReturnPeriod, &ReosParameter::valueChanged, ret.get(), &ReosDataObject::dataChanged );
 
-  for ( const ReosEncodedElement &elem : qAsConst( encodedIntervals ) )
+  for ( const ReosEncodedElement &elem : std::as_const( encodedIntervals ) )
   {
     ReosIntensityDurationInterval *inter = ReosIntensityDurationInterval::decode( elem, ret.get() );
     if ( inter )
@@ -680,7 +680,7 @@ void ReosIdfParameters::decode( const ReosEncodedElement &element, ReosIntensity
   ReosIdfParameters *ret = new ReosIdfParameters( interval, formulaName, QStringList(), timeUnitParam, timeUnitResult );
 
   QList<ReosEncodedElement> encodedParameters = element.getListEncodedData( QStringLiteral( "parameters" ) );
-  for ( const ReosEncodedElement &elem : qAsConst( encodedParameters ) )
+  for ( const ReosEncodedElement &elem : std::as_const( encodedParameters ) )
   {
     ret->mParameters.append( ReosParameterDouble::decode( elem, false, ret ) );
     connect( ret->mParameters.last(), &ReosParameter::valueChanged, ret, &ReosIdfParameters::changed );
@@ -708,7 +708,7 @@ ReosParameterDouble *ReosIdfParameters::parameter( int i )
 bool ReosIdfParameters::isValid() const
 {
   bool valid = !mParameters.isEmpty();
-  for ( ReosParameterDouble *p : qAsConst( mParameters ) )
+  for ( ReosParameterDouble *p : std::as_const( mParameters ) )
     valid &= p->isValid();
 
   return valid;

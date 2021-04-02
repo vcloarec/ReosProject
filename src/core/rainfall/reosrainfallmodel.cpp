@@ -405,7 +405,7 @@ void ReosRainfallModel::swapItems( ReosRainfallItem *parent, int first, int seco
 ReosRainfallItem *ReosRainfallModel::positonPathToItem( const QList<int> &path ) const
 {
   ReosRainfallItem *item = mRootZone.get();
-  for ( int pos : qAsConst( path ) )
+  for ( int pos : std::as_const( path ) )
   {
     if ( pos < 0 || pos >= item->childrenCount() )
       return nullptr;
@@ -421,7 +421,7 @@ ReosRainfallItem *ReosRainfallModel::uriToItem( const QString &uri ) const
 
   QList<int> path;
 
-  for ( const QString &str : qAsConst( strList ) )
+  for ( const QString &str : std::as_const( strList ) )
     path.append( str.toInt() );
 
   return positonPathToItem( path );

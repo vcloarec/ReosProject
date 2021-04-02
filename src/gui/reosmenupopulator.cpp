@@ -25,7 +25,7 @@ ReosMenuPopulator::ReosMenuPopulator()
 void ReosMenuPopulator::populate( QMenu *menu )
 {
   menu->clear();
-  for ( QAction *action : qAsConst( mActions ) )
+  for ( QAction *action : std::as_const( mActions ) )
     menu->addAction( action );
 }
 

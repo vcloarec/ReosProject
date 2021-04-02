@@ -171,7 +171,7 @@ void ReosMapPolygon_p::paint( QPainter *painter )
     painter->setBrush( brush );
     painter->setPen( pen );
 
-    for ( const QPointF &pt : qAsConst( mViewPolygon ) )
+    for ( const QPointF &pt : std::as_const( mViewPolygon ) )
     {
       QRectF rect( pt - QPointF( externalWidth, externalWidth ), QSizeF( externalWidth * 2, externalWidth * 2 ) );
       painter->drawRect( rect );
@@ -181,7 +181,7 @@ void ReosMapPolygon_p::paint( QPainter *painter )
     brush.setColor( color );
     painter->setBrush( brush );
     painter->setPen( pen );
-    for ( const QPointF &pt : qAsConst( mViewPolygon ) )
+    for ( const QPointF &pt : std::as_const( mViewPolygon ) )
     {
       QRectF rect( pt - QPointF( width, width ), QSizeF( width * 2, width * 2 ) );
       painter->drawRect( rect );

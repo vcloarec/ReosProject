@@ -41,7 +41,7 @@ void ReosEncodedElement::addListEncodedData( const QString &key, const QList<Reo
   QByteArray byteArray;
   QDataStream stream( &byteArray, QIODevice::WriteOnly );
   QList<QByteArray> listByte;
-  for ( const ReosEncodedElement &elem : qAsConst( list ) )
+  for ( const ReosEncodedElement &elem : std::as_const( list ) )
     listByte.append( elem.bytes() );
 
   stream << listByte;
@@ -58,7 +58,7 @@ QList<ReosEncodedElement> ReosEncodedElement::getListEncodedData( const QString 
   QList<QByteArray> listByte;
   stream >> listByte;
 
-  for ( const QByteArray &ba : qAsConst( listByte ) )
+  for ( const QByteArray &ba : std::as_const( listByte ) )
     list.append( ReosEncodedElement( ba ) );
 
   return list;

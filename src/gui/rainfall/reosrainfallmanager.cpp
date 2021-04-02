@@ -632,7 +632,7 @@ void ReosImportRainfallDialog::onImportButton()
 
   mImportedRainfall->clear();
 
-  for ( const QString &str : qAsConst( stringValues ) )
+  for ( const QString &str : std::as_const( stringValues ) )
   {
     bool ok;
     double value = str.toDouble( &ok );

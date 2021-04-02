@@ -42,7 +42,7 @@ ReosDuration ReosConcentrationTimeCalculation::concentrationTime( const ReosConc
   // calculate result for each active and valid formula
   QVector<ReosDuration> results;
 
-  for ( const QString &formulaName : qAsConst( mActiveFormulas ) )
+  for ( const QString &formulaName : std::as_const( mActiveFormulas ) )
   {
     ReosConcentrationTimeFormula *formula = registery->formula( formulaName );
     if ( formula && formula->canBeCalculated( parameters ) )
@@ -61,7 +61,7 @@ ReosDuration ReosConcentrationTimeCalculation::concentrationTime( const ReosConc
     case ReosConcentrationTimeCalculation::Maximum:
     {
       ReosDuration max = results.at( 0 );
-      for ( const ReosDuration &d : qAsConst( results ) )
+      for ( const ReosDuration &d : std::as_const( results ) )
       {
         if ( max < d )
           max = d;
@@ -72,7 +72,7 @@ ReosDuration ReosConcentrationTimeCalculation::concentrationTime( const ReosConc
     case ReosConcentrationTimeCalculation::Minimum:
     {
       ReosDuration min = results.at( 0 );
-      for ( const ReosDuration &d : qAsConst( results ) )
+      for ( const ReosDuration &d : std::as_const( results ) )
       {
         if ( min > d )
           min = d;
@@ -83,7 +83,7 @@ ReosDuration ReosConcentrationTimeCalculation::concentrationTime( const ReosConc
     case ReosConcentrationTimeCalculation::Average:
     {
       ReosDuration sum;
-      for ( const ReosDuration &d : qAsConst( results ) )
+      for ( const ReosDuration &d : std::as_const( results ) )
       {
         sum = sum + d;
       }
@@ -566,7 +566,7 @@ QString ReosConcentrationTimeFormulasModel::textData() const
 {
   QStringList formulaList = mRegistery->formulasList();
   QString ret;
-  for ( const QString &formulaName : qAsConst( formulaList ) )
+  for ( const QString &formulaName : std::as_const( formulaList ) )
   {
     if ( mActiveFormulas.contains( formulaName ) )
     {
