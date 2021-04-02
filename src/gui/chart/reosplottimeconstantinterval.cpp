@@ -24,6 +24,7 @@ ReosPlotTimeHistogram::ReosPlotTimeHistogram( const QString &name, bool masterIt
   ReosPlotItem()
 {
   mPlotItem = new ReosPlotHistogramItem_p( name );
+  mPlotItem->setItemAttribute( QwtPlotItem::AutoScale, true );
   mMasterItem = masterItem;
 }
 
@@ -100,6 +101,7 @@ ReosPlotTimeCumulativeCurve::ReosPlotTimeCumulativeCurve( const QString &name )
 {
   mPlotItem = new QwtPlotCurve( name );
   mPlotItem->setRenderHint( QwtPlotItem::RenderAntialiased, true );
+  mPlotItem->setItemAttribute( QwtPlotItem::AutoScale, true );
 }
 
 void ReosPlotTimeCumulativeCurve::setTimeSerie( ReosTimeSerieConstantInterval *timeSerie )
@@ -140,6 +142,7 @@ ReosPlotTimeSerieVariableStep::ReosPlotTimeSerieVariableStep( const QString &nam
 {
   mPlotItem = new QwtPlotCurve( name );
   mPlotItem->setRenderHint( QwtPlotItem::RenderAntialiased, true );
+  mPlotItem->setItemAttribute( QwtPlotItem::AutoScale, true );
 }
 
 void ReosPlotTimeSerieVariableStep::setTimeSerie( ReosTimeSerieVariableTimeStep *timeSerie )

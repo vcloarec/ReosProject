@@ -43,7 +43,7 @@ namespace Ui
 class ReosWatershedRunoffModelsModel: public QAbstractTableModel
 {
   public:
-    ReosWatershedRunoffModelsModel( QObject *parent = nullptr ): QAbstractTableModel( parent ) {}
+    ReosWatershedRunoffModelsModel( QObject *parent = nullptr );
 
     QModelIndex index( int row, int column, const QModelIndex & ) const override;
     QModelIndex parent( const QModelIndex & ) const override;

@@ -59,6 +59,7 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent ): QWidget( parent ),
 
   mPickerTracker = new QwtPlotPicker( mPlot->canvas() );
   mPickerTracker->setStateMachine( new QwtPickerTrackerMachine );
+  mPickerTracker->setMousePattern( QwtEventPattern::MouseSelect3, Qt::NoButton );
   connect( mPickerTracker, &QwtPlotPicker::moved, this, &ReosPlotWidget::cursorMoved );
 
 
@@ -66,6 +67,9 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent ): QWidget( parent ),
   mZoomerLeft->setTrackerMode( QwtPicker::AlwaysOff );
   mZoomerRight = new QwtPlotZoomer( QwtPlot::xTop, QwtPlot::yRight, mPlot->canvas(), true );
   mZoomerRight->setTrackerMode( QwtPicker::AlwaysOff );
+
+  mZoomerLeft->setMousePattern( QwtEventPattern::MouseSelect3, Qt::NoButton );
+  mZoomerRight->setMousePattern( QwtEventPattern::MouseSelect3, Qt::NoButton );
   mPlot->setZoomer( mZoomerLeft, mZoomerRight );
 
   QComboBox *xAxisFormatCombobox = new QComboBox( this );
@@ -103,12 +107,6 @@ void ReosPlotWidget::setMagnifierType( ReosPlotWidget::MagnifierType type )
       mPlot->setPositiveMagnifier();
       break;
   }
-}
-
-void ReosPlotWidget::setEnableZoomer( bool b )
-{
-
-  mPlot->setEnableZoomer( b );
 }
 
 void ReosPlotWidget::setLegendAlignement( Qt::Alignment align )
@@ -316,6 +314,12 @@ bool ReosPlotItem::isOnLeftAxe()
 void ReosPlotItem::setAsMasterItem( bool b )
 {
   mMasterItem = b;
+}
+
+void ReosPlotItem::fullExtent()
+{
+  if ( mPlotItem )
+    mPlotItem->plot()->replot();
 }
 
 ReosPlotCurve::ReosPlotCurve( const QString &name, const QColor &color, double width ): ReosPlotItem()

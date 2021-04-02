@@ -37,8 +37,17 @@ class QwtPlotZoomer;
 class QwtPlotPicker;
 class QwtPlotItem;
 
+class ReosNormalMagnifier : public QwtPlotMagnifier
+{
+  public:
+    ReosNormalMagnifier( QWidget *canvas );
 
-class ReosPositiveMagnifier : public QwtPlotMagnifier
+  protected:
+    void widgetWheelEvent( QWheelEvent * ) override;
+};
+
+
+class ReosPositiveMagnifier : public ReosNormalMagnifier
 {
   public:
     ReosPositiveMagnifier( QWidget *canvas );
@@ -50,6 +59,7 @@ class ReosPositiveMagnifier : public QwtPlotMagnifier
   private:
     bool mIsYMinEnabeled;
 };
+
 
 class ReosDateScaleDraw_p : public QwtDateScaleDraw
 {
@@ -84,7 +94,6 @@ class ReosPlot_p: public QwtPlot
     void addItem( ReosPlotItem *item );
 
     void setZoomer( QwtPlotZoomer *zoomerLeft, QwtPlotZoomer *zoomerRight );
-
 
     void autoScale();
 

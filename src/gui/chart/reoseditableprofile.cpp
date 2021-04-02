@@ -228,7 +228,6 @@ void ReosEditableProfile::zoomExtent()
     return;
 
   QRectF bbox = points.boundingRect();
-  bbox = bbox.marginsAdded( QMarginsF( 20, 20, 20, 20 ) );
 
   mPlot->setAxisScale( QwtPlot::xBottom, bbox.left(), bbox.right() );
   mPlot->setAxisScale( QwtPlot::yLeft, bbox.top(), bbox.bottom() );

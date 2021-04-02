@@ -63,6 +63,7 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *wat
   ui->widgetPlot->setAxeXType( ReosPlotWidget::temporal );
   ui->widgetPlot->enableAxeYright( true );
   ui->widgetPlot->setTitleAxeYRight( tr( "Flow rate (%1)" ).arg( QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
+  ui->widgetPlot->setMagnifierType( ReosPlotWidget::positiveMagnifier );
 
   ui->comboBoxMeteoModel->setModel( mWatershedModule->meteoModelsCollection() );
   connect( ui->comboBoxMeteoModel, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosRunoffHydrographWidget::onModelMeteoChanged );
@@ -294,6 +295,8 @@ void ReosRunoffHydrographWidget::updateHydrograph()
 
   ui->tableViewHydrographResult->horizontalHeader()->resizeSections( QHeaderView::ResizeToContents );
   ui->tableViewHydrographResult->verticalHeader()->resizeSections( QHeaderView::ResizeToContents );
+
+  ui->widgetPlot->updatePlot();
 }
 
 void ReosRunoffHydrographWidget::onTransferFunctionChanged()
@@ -543,6 +546,8 @@ bool ReosWatershedRunoffModelsModel::replacePortion( int position, double portio
 
   return true;
 }
+
+ReosWatershedRunoffModelsModel::ReosWatershedRunoffModelsModel( QObject *parent ): QAbstractTableModel( parent ) {}
 
 QModelIndex ReosWatershedRunoffModelsModel::index( int row, int column, const QModelIndex & ) const
 {

@@ -61,7 +61,7 @@ class ReosPlotItem: public QObject
     void setAsMasterItem( bool b );
 
   public slots:
-    virtual void fullExtent() {};
+    virtual void fullExtent();
     virtual void setSettings() {};
 
   signals:
@@ -105,7 +105,6 @@ class ReosPlotWidget: public QWidget
 
     void setLegendVisible( bool b );
     void setMagnifierType( MagnifierType type );
-    void setEnableZoomer( bool b );
     void setLegendAlignement( Qt::Alignment align );
     void enableAutoMinimumSize( bool b );
     void setMinimumPlotSize( const QSize &size );
@@ -152,9 +151,6 @@ class ReosPlotWidget: public QWidget
     QAction *mActionExportAsImage = nullptr;
     QAction *mActionCopyAsImage = nullptr;
     QAction *mXAxisFormatCombobox = nullptr;
-
-    void createItems( ReosDataObject *data );
-
 
     QwtPlotMagnifier *mMagnifier = nullptr;
     QwtPlotPanner *mPanner = nullptr;

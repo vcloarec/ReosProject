@@ -75,7 +75,6 @@ class ReosPlotTimeCumulativeCurve: public ReosPlotItem
   private:
     QwtPlotCurve *curve();
     ReosPlotConstantIntervalTimePointSerie *mTimeSerie = nullptr;
-
 };
 
 

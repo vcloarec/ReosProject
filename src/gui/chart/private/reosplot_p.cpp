@@ -15,6 +15,8 @@
  ***************************************************************************/
 #include "reosplot_p.h"
 
+#include <QWheelEvent>
+
 #include "qwt_plot_grid.h"
 #include "qwt_plot_legenditem.h"
 #include "qwt_plot_zoomer.h"
@@ -49,23 +51,12 @@ ReosPlot_p::ReosPlot_p( QWidget *parent ): QwtPlot( parent )
 
   mLegend->setVisible( false );
 
-  //mZoomerLeft = new QwtPlotZoomer( QwtPlot::xBottom, QwtPlot::yLeft, canvas(), true );
-  //mZoomerRight = new QwtPlotZoomer( QwtPlot::xBottom, QwtPlot::yRight, canvas(), true );
-  //mZoomerLeft->setTrackerMode( QwtPicker::AlwaysOff );
-  //mZoomerRight->setTrackerMode( QwtPicker::AlwaysOff );
-  //mZoomerLeft->setMousePattern( QwtEventPattern::MouseSelect2, Qt::NoButton );
-  //mZoomerRight->setMousePattern( QwtEventPattern::MouseSelect2, Qt::NoButton );
-  //mZoomerLeft->setMousePattern( QwtEventPattern::MouseSelect3, Qt::NoButton );
-  //mZoomerRight->setMousePattern( QwtEventPattern::MouseSelect3, Qt::NoButton );
-
   QPen rubbberBandPen( Qt::darkGray );
   rubbberBandPen.setWidth( 2 );
   rubbberBandPen.setStyle( Qt::DotLine );
-  //mZoomerLeft->setRubberBandPen( rubbberBandPen );
-  //mZoomerRight->setRubberBandPen( QPen( Qt::NoPen ) );
 
   mPanner = new QwtPlotPanner( canvas() );
-  mPanner->setMouseButton( Qt::MidButton );
+  mPanner->setMouseButton( Qt::MiddleButton );
 }
 
 ReosPlot_p::~ReosPlot_p()
@@ -162,7 +153,7 @@ void ReosPlot_p::resetZoomBase()
 void ReosPlot_p::setNormalMagnifier()
 {
   mMagnifier->deleteLater();
-  mMagnifier = new QwtPlotMagnifier( canvas() );
+  mMagnifier = new ReosNormalMagnifier( canvas() );
 }
 
 void ReosPlot_p::setPositiveMagnifier()
@@ -171,7 +162,7 @@ void ReosPlot_p::setPositiveMagnifier()
   mMagnifier = new ReosPositiveMagnifier( canvas() );
 }
 
-ReosPositiveMagnifier::ReosPositiveMagnifier( QWidget *canvas ): QwtPlotMagnifier( canvas ), mIsYMinEnabeled( true )
+ReosPositiveMagnifier::ReosPositiveMagnifier( QWidget *canvas ): ReosNormalMagnifier( canvas ), mIsYMinEnabeled( true )
 {}
 
 void ReosPositiveMagnifier::setYMinimumEnabled( bool b )
@@ -206,6 +197,7 @@ void ReosPositiveMagnifier::rescale( double factor )
     plot()->replot();
   }
 }
+
 
 ReosPlotConstantIntervalTimeIntervalSerie::ReosPlotConstantIntervalTimeIntervalSerie( ReosTimeSerieConstantInterval *timeSerie ):
   QwtSeriesData<QwtIntervalSample>()
@@ -404,4 +396,15 @@ ReosTimeSerieVariableTimeStep *ReosPlotVariableStepTimeSerie::data() const
     return nullptr;
 
   return mTimeSerie;
+}
+
+ReosNormalMagnifier::ReosNormalMagnifier( QWidget *canvas ): QwtPlotMagnifier( canvas )
+{
+  setWheelFactor( 1.1 );
+}
+
+void ReosNormalMagnifier::widgetWheelEvent( QWheelEvent *wheelEvent )
+{
+  if ( wheelEvent->buttons() == Qt::NoButton )
+    QwtMagnifier::widgetWheelEvent( wheelEvent );
 }
