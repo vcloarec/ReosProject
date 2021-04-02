@@ -105,6 +105,8 @@ void ReosMapPolygon::resetPolygon( const QPolygonF &polygon )
   if ( isMapExist() && d_ )
   {
     static_cast<ReosMapPolygon_p *>( d_ )->mapPolygon = polygon;
+    if ( polygon.isEmpty() )
+      static_cast<ReosMapPolygon_p *>( d_ )->setMarkerDistance( -1 );
     d_->updatePosition();
   }
 }
@@ -231,6 +233,8 @@ void ReosMapPolyline::resetPolyline( const QPolygonF &polyline )
   if ( !isMapExist() || !d_ )
     return;
   static_cast<ReosMapPolyline_p *>( d_ )->mapPolygon = polyline;
+  if ( polyline.isEmpty() )
+    static_cast<ReosMapPolyline_p *>( d_ )->setMarkerDistance( -1 );
   d_->updatePosition();
 }
 

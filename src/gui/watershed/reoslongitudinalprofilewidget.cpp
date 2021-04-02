@@ -243,7 +243,10 @@ void ReosLongitudinalProfileWidget::updateDEMProfile()
     return;
 
   if ( !mCurrentWatershed )
+  {
+    mDemCurve->setData( QPolygonF() );
     return;
+  }
 
   QPolygonF streamLine = mCurrentWatershed->streamPath();
 
