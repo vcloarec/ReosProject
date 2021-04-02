@@ -617,7 +617,14 @@ bool ReosRunoffModelRegistery::loadFromFile( const QString &fileName, const QStr
 
   ReosEncodedElement dataElement( data );
 
-  return decode( data );
+  bool result = decode( data );
+
+  if ( result )
+    message( tr( "Runoff data loaded from file: %1" ).arg( fileName ) );
+  else
+    warning( tr( "Unable to load runoff data from file: %1" ).arg( fileName ) );
+
+  return result;
 }
 
 ReosRunoffModel *ReosRunoffModelRegistery::runoffModelByUniqueId( const QString &uniqueId ) const
