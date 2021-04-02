@@ -57,7 +57,11 @@ ReosGisEngine::ReosGisEngine( QObject *parent ): ReosModule( parent )
   mLayerTreeModel->setAutoCollapseLegendNodes( 10 );
 
   connect( QgsProject::instance(), &QgsProject::layerRemoved, this, &ReosGisEngine::layerRemoved );
-
+  connect( QgsProject::instance(), &QgsProject::crsChanged, this, [this]
+  {
+    QString wktCrs = QgsProject::instance()->crs().toWkt();
+    emit crsChanged( wktCrs );
+  } );
 }
 
 ReosGisEngine::~ReosGisEngine()
@@ -185,11 +189,11 @@ QString ReosGisEngine::crs() const
   return QgsProject::instance()->crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED );
 }
 
-void ReosGisEngine::setCrs( const QString &wktCrs )
+void ReosGisEngine::setCrs( const QString &crsString )
 {
-  QgsCoordinateReferenceSystem crs = QgsCoordinateReferenceSystem::fromWkt( wktCrs );
+  QgsCoordinateReferenceSystem crs( crsString );
   QgsProject::instance()->setCrs( crs );
-  emit crsChanged( wktCrs );
+  emit crsChanged( crs.toWkt() );
 }
 
 void ReosGisEngine::loadQGISProject( const QString &fileName )
@@ -373,7 +377,7 @@ void ReosGisEngine::clearProject()
   if ( QgsProject::instance() )
     QgsProject::instance()->clear();
 
-  mAsDEMRegisteredLayer.clear();
+  setCrs( QStringLiteral( "EPSG:4326" ) );
 
   emit updated();
 }

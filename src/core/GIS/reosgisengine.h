@@ -77,7 +77,7 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     QString crs() const ;
 
     //! Sets the coordinate reference system of the GIS project
-    void setCrs( const QString &wktCrs );
+    void setCrs( const QString &crsString );
 
     //! loads a QGIS project as GIS project
     void loadQGISProject( const QString &fileName );
