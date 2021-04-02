@@ -380,6 +380,7 @@ void ReosWatershedDelineatingProcess::start()
     setCurrentProgression( 0 );
     setInformation( tr( "Extract digital elevation model" ) );
     ReosRasterMemory<float> dem( mEntryDem->extractMemoryRasterSimplePrecision( mExtent, mOutputRasterExtent, QString(), this ) );
+    mEntryDem.reset();
     if ( isStop() )
     {
       finish();
