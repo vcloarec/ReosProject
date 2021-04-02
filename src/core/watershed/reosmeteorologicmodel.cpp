@@ -272,7 +272,10 @@ ReosRainfallSerieRainfallItem *ReosMeteorologicItemModel::rainfallInMeteorologic
   return mCurrentMeteoModel->associatedRainfall( ws );
 }
 
-
+ReosMeteorologicModelsCollection::ReosMeteorologicModelsCollection()
+{
+  addMeteorologicModel( tr( "Meteorological Model" ) );
+}
 
 int ReosMeteorologicModelsCollection::rowCount( const QModelIndex & ) const
 {
@@ -338,6 +341,12 @@ void ReosMeteorologicModelsCollection::removeMeteorologicModel( int i )
   mMeteoModels.takeAt( i )->deleteLater();
 }
 
+void ReosMeteorologicModelsCollection::clearModels()
+{
+  while ( mMeteoModels.isEmpty() )
+    mMeteoModels.takeAt( 0 )->deleteLater();
+}
+
 ReosEncodedElement ReosMeteorologicModelsCollection::encode( ReosWatershedTree *watershedTree ) const
 {
   ReosEncodedElement element( QStringLiteral( "meteo-model-collection" ) );
@@ -354,6 +363,8 @@ ReosEncodedElement ReosMeteorologicModelsCollection::encode( ReosWatershedTree *
 
 void ReosMeteorologicModelsCollection::decode( const ReosEncodedElement &element, ReosWatershedTree *watershedTree, ReosRainfallRegistery *rainfallregistery )
 {
+  clearModels();
+
   if ( element.description() != QStringLiteral( "meteo-model-collection" ) )
     return;
 

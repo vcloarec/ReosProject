@@ -71,6 +71,8 @@ class REOSCORE_EXPORT ReosMeteorologicModel : public ReosDataObject
 class REOSCORE_EXPORT ReosMeteorologicModelsCollection : public QAbstractListModel
 {
   public:
+    ReosMeteorologicModelsCollection();
+
     int rowCount( const QModelIndex & ) const override;
     QModelIndex index( int row, int column, const QModelIndex & ) const override;
     QModelIndex parent( const QModelIndex & ) const override;
@@ -90,6 +92,8 @@ class REOSCORE_EXPORT ReosMeteorologicModelsCollection : public QAbstractListMod
 
     //! Removes the meteorologic model at position \a i
     void removeMeteorologicModel( int i );
+
+    void clearModels();
 
     ReosEncodedElement encode( ReosWatershedTree *watershedTree ) const;
     void decode( const ReosEncodedElement &element, ReosWatershedTree *watershedTree, ReosRainfallRegistery *rainfallregistery );
