@@ -299,14 +299,86 @@ void ReosMapToolEditPolygon_p::canvasReleaseEvent( QgsMapMouseEvent * )
   mMovingVertex = -1;
 }
 
-QgsRectangle ReosMapToolEditPolygon_p::mapSearchZone( const QPoint &pt )
-{
-  QPoint zone( mSearchZone.width(), mSearchZone.height() );
-  return QgsRectangle( toMapCoordinates( pt ), toMapCoordinates( pt + zone ) );
-}
 
-QRectF ReosMapToolEditPolygon_p::viewSearchZone( const QPoint &pt )
+QRectF ReosMapTool_p::viewSearchZone( const QPoint &pt )
 {
   QPoint zone( mSearchZone.width() / 2, mSearchZone.height() / 2 );
   return QRectF( QPointF( pt - zone ),  QPointF( pt + zone ) );
+}
+
+
+ReosMapToolMoveItem_p::ReosMapToolMoveItem_p( QgsMapCanvas *map ): ReosMapTool_p( map )
+{
+
+}
+
+void ReosMapToolMoveItem_p::setCurrentItem( ReosMapItem_p *item )
+{
+  if ( item )
+    item->setEditing( false );
+
+  mCurrentItem = item;
+
+  if ( item )
+    item->setEditing( isActive() );
+}
+
+void ReosMapToolMoveItem_p::canvasPressEvent( QgsMapMouseEvent *e )
+{
+  if ( !mCurrentItem || !searchItem( e->pos() ) )
+    return;
+
+  mMovingItem.reset( mCurrentItem->clone() );
+  mMovingItem->color = mMovingColor;
+  mMovingItem->externalColor = mMovingColor;
+  mStartPoint = e->mapPoint().toQPointF();
+  mIsMoving = true;
+
+}
+
+void ReosMapToolMoveItem_p::canvasMoveEvent( QgsMapMouseEvent *e )
+{
+  if ( !mCurrentItem || !mIsMoving || !mMovingItem )
+    return;
+  QPointF translation = e->mapPoint().toQPointF() - mStartPoint;
+  QPointF oldItemTranslation = mMovingItem->mapPos() - mCurrentItem->mapPos();
+  QPointF diff = translation - oldItemTranslation;
+
+  mMovingItem->move( diff );
+}
+
+void ReosMapToolMoveItem_p::canvasReleaseEvent( QgsMapMouseEvent *e )
+{
+  if ( !mMovingItem )
+    return;
+
+  mMovingItem.reset();
+
+  if ( mCurrentItem )
+  {
+    mCurrentItem->move( e->mapPoint().toQPointF() - mStartPoint );
+    emit itemMoved( mCurrentItem->base );
+  }
+
+  mIsMoving = false;
+}
+
+bool ReosMapToolMoveItem_p::searchItem( const QPoint &p )
+{
+  QList<QGraphicsItem *> listItems;
+
+  listItems  = canvas()->scene()->items( viewSearchZone( p ) );
+
+  for ( QGraphicsItem *item : std::as_const( listItems ) )
+    if ( item == mCurrentItem )
+      return true;
+
+
+  return false;
+
+}
+
+void ReosMapToolMoveItem_p::setMovingColor( const QColor &movingColor )
+{
+  mMovingColor = movingColor;
 }

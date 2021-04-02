@@ -81,6 +81,25 @@ void ReosMapPolygon_p::setEditing( bool b )
   update();
 }
 
+void ReosMapPolygon_p::move( const QPointF &translation )
+{
+  QPolygonF newPoints( mapPolygon.size() );
+
+  for ( int i = 0; i < mapPolygon.size(); ++i )
+    newPoints[i] = mapPolygon.at( i ) + translation;
+
+  mapPolygon = newPoints;
+  updatePosition();
+}
+
+QPointF ReosMapPolygon_p::mapPos() const
+{
+  if ( mapPolygon.isEmpty() )
+    return QPointF();
+  else
+    return mapPolygon.at( 0 );
+}
+
 int ReosMapPolygon_p::findVertexInView( const QRectF &zone ) const
 {
   for ( int i = 0; i < mViewPolygon.size(); ++i )
@@ -280,6 +299,14 @@ QPainterPath ReosMapMarker_p::shape() const
   path.addEllipse( mViewPoint, w / 2, w / 2 );
   return pps.createStroke( path );
 }
+
+void ReosMapMarker_p::move( const QPointF &translation )
+{
+  mapPoint += translation;
+  updatePosition();
+}
+
+QPointF ReosMapMarker_p::mapPos() const {return mapPoint;}
 
 void ReosMapMarker_p::paint( QPainter *painter )
 {

@@ -29,6 +29,7 @@ class ReosMap;
 class ReosMapItem_p;
 class ReosMapPolygon_p;
 class ReosMapPolyline_p;
+class ReosMapMarker_p;
 
 class ReosMapItem
 {

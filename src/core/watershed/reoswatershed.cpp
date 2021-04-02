@@ -139,6 +139,14 @@ QPointF ReosWatershed::outletPoint() const
   return mOutletPoint;
 }
 
+void ReosWatershed::setOutletPoint( const QPointF &outletPoint )
+{
+  if ( mType == Residual )
+    return;
+
+  mOutletPoint = outletPoint;
+}
+
 int ReosWatershed::upstreamWatershedCount() const
 {
   int count = 0;

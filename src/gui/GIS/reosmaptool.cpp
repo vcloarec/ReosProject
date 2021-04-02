@@ -183,7 +183,6 @@ ReosMapToolSelectMapItem::ReosMapToolSelectMapItem( ReosMap *map, const QString 
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolSelectMapItem_p( canvas, targetDescription );
-  d->setCursor( QCursor( QPixmap( ":/cursors/removeItem.png" ), 3, 3 ) );
   connect( d, &ReosMapToolSelectMapItem_p::found, this, &ReosMapToolSelectMapItem::found );
 }
 
@@ -269,10 +268,42 @@ void ReosMapToolEditMapPolygon::setMapPolygon( ReosMapPolygon *polygon )
   if ( polygon )
     d->setMapPolygon( static_cast<ReosMapPolygon_p *>( polygon->graphicItem() ) );
   else
+  {
     d->setMapPolygon( nullptr );
+    quitMap();
+  }
 }
 
 ReosMapTool_p *ReosMapToolEditMapPolygon::tool_p() const
+{
+  return d;
+}
+
+ReosMapToolMoveMapItem::ReosMapToolMoveMapItem( ReosMap *map ): ReosMapTool( map )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  d = new ReosMapToolMoveItem_p( canvas );
+  setCursor( QCursor( QPixmap( ":/cursors/moveElement.png" ), 16, 16 ) );
+  connect( d, &ReosMapToolMoveItem_p::itemMoved, this, &ReosMapToolMoveMapItem::itemMoved );
+}
+
+void ReosMapToolMoveMapItem::setCurrentMapItem( ReosMapItem *item )
+{
+  if ( item )
+    d->setCurrentItem( static_cast<ReosMapItem_p *>( item->graphicItem() ) );
+  else
+  {
+    d->setCurrentItem( nullptr );
+    quitMap();
+  }
+}
+
+void ReosMapToolMoveMapItem::setMovingColor( const QColor &movingColor )
+{
+  d->setMovingColor( movingColor );
+}
+
+ReosMapTool_p *ReosMapToolMoveMapItem::tool_p() const
 {
   return d;
 }

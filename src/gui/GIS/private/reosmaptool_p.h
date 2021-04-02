@@ -26,6 +26,7 @@ email                : vcloarec at gmail dot com
 
 #include "reosmap.h"
 #include "reosmenupopulator.h"
+#include "reosmappolygon_p.h"
 
 
 class ReosMapTool_p: public QgsMapTool
@@ -39,8 +40,13 @@ class ReosMapTool_p: public QgsMapTool
     //! Sets context menu populator, take ownership
     void setContextMenuPopulator( ReosMenuPopulator *populator );
 
+  protected:
+    QRectF viewSearchZone( const QPoint &pt );
+
   private:
     std::unique_ptr<ReosMenuPopulator> mContextMenuPopulator;
+
+    QSize mSearchZone = QSize( 18, 18 );
 };
 
 class ReosMapToolDrawPoint_p: public ReosMapTool_p
@@ -161,12 +167,35 @@ class ReosMapToolEditPolygon_p: public ReosMapTool_p
 
   private:
     ReosMapPolygon_p *mPolygon = nullptr;
-    QSize mSearchZone = QSize( 18, 18 );
     int mMovingVertex = -1;
     bool mIsEdited = false;
+};
 
-    QgsRectangle mapSearchZone( const QPoint &pt );
-    QRectF viewSearchZone( const QPoint &pt );
+class ReosMapToolMoveItem_p: public ReosMapTool_p
+{
+    Q_OBJECT
+  public:
+    ReosMapToolMoveItem_p( QgsMapCanvas *map );
+    void setCurrentItem( ReosMapItem_p *item );
+    void setMovingColor( const QColor &movingColor );
+
+  signals:
+    void itemMoved( ReosMapItem *item );
+
+  protected:
+    void canvasPressEvent( QgsMapMouseEvent *e ) override;
+    void canvasMoveEvent( QgsMapMouseEvent *e ) override;
+    void canvasReleaseEvent( QgsMapMouseEvent * ) override;
+
+  private:
+    ReosMapItem_p *mCurrentItem = nullptr;
+    std::unique_ptr<ReosMapItem_p> mMovingItem;
+    bool mIsMoving = false;
+    QPointF mStartPoint;
+    QColor mMovingColor;
+
+    bool searchItem( const QPoint &p );
+
 };
 
 #endif // REOSMAPTOOL_P_H

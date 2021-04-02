@@ -35,9 +35,9 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   mRunoffHydrographWidget( new ReosRunoffHydrographWidget( module, this ) ),
   mActionExportToVectorLayer( new QAction( QPixmap( QStringLiteral( ":/images/exportWatershed.svg" ) ), tr( "Export watershed geometry to vector layer" ), this ) ),
   mActionZoomToWatershed( new QAction( QPixmap( QStringLiteral( ":/images/zoomToWatershed.svg" ) ), tr( "Zoom to watershed" ), this ) ),
-  mCurrentMapOutlet( map ),
   mCurrentStreamLine( map ),
-  mMapToolEditDelineating( new ReosMapToolEditMapPolygon( map ) )
+  mMapToolEditDelineating( new ReosMapToolEditMapPolygon( map ) ),
+  mMapToolMoveOutletPoint( new ReosMapToolMoveMapItem( map ) )
 {
   ui->setupUi( this );
   setWatershedModel( new ReosWatershedItemModel( module->watershedTree(), this ) );
@@ -67,6 +67,7 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   static_cast<QBoxLayout *>( layout() )->insertWidget( 0, toolBar );
   mDelineatingWidget->setAction( mActionDelineateWatershed );
   mDelineatingWidget->setEditingDelineatingMapTool( mMapToolEditDelineating );
+  mDelineatingWidget->setMoveOutletPointMapTool( mMapToolMoveOutletPoint );
   mLongitudinalProfileWidget->setAction( mActionLongitudinalProfile );
   mConcentrationTimeWidget->setAction( mActionConcentrationTime );
   mMeteorolocicModelWidget->setAction( mActionMeteorologicModel );
@@ -89,18 +90,11 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   menuPopulator->addAction( mActionRunoffHydrograph );
   mMapToolSelectWatershed->setContextMenuPopulator( menuPopulator.release() );
 
-  mCurrentMapOutlet.setWidth( 4 );
-  mCurrentMapOutlet.setExternalWidth( 6 );
-  mCurrentMapOutlet.setColor( QColor( 0, 155, 242 ) );
-  mCurrentMapOutlet.setExternalColor( Qt::white );
-  mCurrentMapOutlet.setZValue( 10 );
-
   connect( this, &ReosWatershedWidget::currentWatershedChanged, mLongitudinalProfileWidget, &ReosLongitudinalProfileWidget::setCurrentWatershed );
   connect( this, &ReosWatershedWidget::currentWatershedChanged, mConcentrationTimeWidget, &ReosConcentrationTimeWidget::setCurrentWatershed );
   connect( this, &ReosWatershedWidget::currentWatershedChanged, mRunoffHydrographWidget, &ReosRunoffHydrographWidget::setCurrentWatershed );
 
   connect( module, &ReosWatershedModule::hasBeenReset, this, &ReosWatershedWidget::onModuleReset );
-
   connect( mActionRemoveWatershed, &QAction::triggered, this, &ReosWatershedWidget::onRemoveWatershed );
 
   connect( ui->mParameterNameWidget, &ReosParameterWidget::valueChanged, ui->treeView, [this]
@@ -111,15 +105,24 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   connect( mMeteorolocicModelWidget, &ReosMeteorologicModelWidget::currentModelChanged,
            mRunoffHydrographWidget, &ReosRunoffHydrographWidget::setCurrentMeteorologicModel );
 
+  mMapToolMoveOutletPoint->setMovingColor( QColor( 255, 0, 0, 150 ) );
   connect( mMapToolEditDelineating, &ReosMapToolEditMapPolygon::polygonEdited, this, [this]
   {
-
     MapWatersheds::iterator it = mMapWatersheds.find( currentWatershed() );
-    if ( it != mMapWatersheds.end() && currentWatershed() && it->second )
+    if ( it != mMapWatersheds.end() && currentWatershed() )
     {
-      currentWatershed()->setDelineating( it->second->mapPolygon() );
+      currentWatershed()->setDelineating( it.value().delineating->mapPolygon() );
     }
 
+  } );
+
+  connect( mMapToolMoveOutletPoint, &ReosMapToolMoveMapItem::itemMoved, this, [this]
+  {
+    MapWatersheds::iterator it = mMapWatersheds.find( currentWatershed() );
+    if ( it != mMapWatersheds.end() && currentWatershed() )
+    {
+      currentWatershed()->setOutletPoint( it.value().outletPoint->mapPoint() );
+    }
   } );
 
   connect( mActionExportToVectorLayer, &QAction::triggered, this, &ReosWatershedWidget::onExportToVectorLayer );
@@ -145,7 +148,7 @@ ReosMapPolygon *ReosWatershedWidget::mapDelineating( ReosWatershed *ws )
 {
   MapWatersheds::const_iterator it = mMapWatersheds.find( ws );
   if ( it != mMapWatersheds.end() )
-    return it->second.get();
+    return it.value().delineating.get();
   else
     return nullptr;
 }
@@ -156,24 +159,24 @@ void ReosWatershedWidget::onWatershedAdded( const QModelIndex &index )
   ReosWatershed *ws = mModelWatershed->indexToWatershed( index );
   if ( !ws )
     return;
-  mMapWatersheds[ws] = std::make_unique<ReosMapPolygon>( mMap, ws->delineating() );
-  formatWatershedPolygon( mMapWatersheds[ws].get() );
+  mMapWatersheds[ws] = MapWatershed( mMap, ws->delineating(), ws->outletPoint() );
+  formatMapWatershed( mMapWatersheds[ws] );
   ui->treeView->selectionModel()->select( index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows );
   ui->treeView->setCurrentIndex( index );
 }
 
 void ReosWatershedWidget::onWatershedSelectedOnMap( ReosMapItem *item, const QPointF &pos )
 {
-  for ( const auto &it : mMapWatersheds )
+  for ( const auto &ws : mMapWatersheds.keys() )
   {
-    if ( it.second->isItem( item ) )
+    if ( mMapWatersheds.value( ws ).delineating->isItem( item ) )
     {
       //Watershed found, return the more upstream under the point pos
-      ReosWatershed *uws = it.first->upstreamWatershed( pos, true );
+      ReosWatershed *uws = ws->upstreamWatershed( pos, true );
       if ( uws )
         ui->treeView->setCurrentIndex( mModelWatershed->watershedToIndex( uws ) );
       else
-        ui->treeView->setCurrentIndex( mModelWatershed->watershedToIndex( it.first ) );
+        ui->treeView->setCurrentIndex( mModelWatershed->watershedToIndex( ws ) );
       return;
     }
   }
@@ -209,9 +212,6 @@ void ReosWatershedWidget::onRemoveWatershed()
   if ( it != mMapWatersheds.end() )
     mMapWatersheds.erase( it );
 
-  mCurrentMapOutlet.resetPoint();
-
-
   // update the residual of downstream if exist
   if ( downstreamWatershed && downstreamResidualWatershed )
   {
@@ -242,20 +242,20 @@ void ReosWatershedWidget::onCurrentWatershedChange( const QItemSelection &select
   MapWatersheds::iterator it = mMapWatersheds.find( previousWatershed );
   if ( it != mMapWatersheds.end() )
   {
-    it->second->setFillColor( QColor() );
+    formatUnselectedWatershed( it.value() );
   }
 
   it = mMapWatersheds.find( currentWatershed );
   if ( it != mMapWatersheds.end() )
   {
-    it->second->setFillColor( QColor( 0, 255, 0, 30 ) );
-    mCurrentMapOutlet.resetPoint( currentWatershed->outletPoint() );
-    mMapToolEditDelineating->setMapPolygon( it->second.get() );
+    formatSelectedWatershed( it.value() );
+    mMapToolEditDelineating->setMapPolygon( it.value().delineating.get() );
+    mMapToolMoveOutletPoint->setCurrentMapItem( it.value().outletPoint.get() );
   }
   else
   {
-    mMapWatersheds[currentWatershed] = std::make_unique<ReosMapPolygon>( mMap, currentWatershed->delineating() );
-    formatWatershedPolygon( mMapWatersheds[currentWatershed].get() );
+    mMapWatersheds[currentWatershed] = MapWatershed( mMap, currentWatershed->delineating(), currentWatershed->outletPoint() );
+    formatMapWatershed( mMapWatersheds[currentWatershed] );
     onCurrentWatershedChange( selected, deselected );
     return;
   }
@@ -304,10 +304,6 @@ void ReosWatershedWidget::onWatershedDataChanged( const QModelIndex &index )
   if ( !ws )
     return;
 
-  if ( ui->treeView->currentIndex() == index )
-  {
-    mCurrentMapOutlet.resetPoint( ws->outletPoint() );
-  }
   ReosMapPolygon *delineating = mapDelineating( ws );
   if ( delineating )
     delineating->resetPolygon( ws->delineating() );
@@ -322,11 +318,10 @@ void ReosWatershedWidget::onModuleReset()
   const QList<ReosWatershed *> allWs = mModelWatershed->allWatersheds();
   for ( ReosWatershed *ws : allWs )
   {
-    mMapWatersheds[ws] = std::make_unique<ReosMapPolygon>( mMap, ws->delineating() );
-    formatWatershedPolygon( mMapWatersheds[ws].get() );
+    mMapWatersheds[ws] = MapWatershed( mMap, ws->delineating(), ws->outletPoint() );
+    formatMapWatershed( mMapWatersheds[ws] );
   }
   mCurrentStreamLine.resetPolyline();
-  mCurrentMapOutlet.resetPoint();
 
   mMeteorolocicModelWidget->setCurrentMeteorologicalModel( 0 );
 }
@@ -352,17 +347,42 @@ ReosWatershed *ReosWatershedWidget::currentWatershed() const
   return mModelWatershed->indexToWatershed( currentIndex );
 }
 
-void ReosWatershedWidget::formatWatershedPolygon( ReosMapPolygon *wsp )
+void ReosWatershedWidget::formatMapWatershed( MapWatershed &mapWatershed )
 {
-  wsp->setDescription( QStringLiteral( "Watershed" ) );
-  wsp->setWidth( 3 );
-  wsp->setColor( QColor( 0, 200, 100 ) );
-  wsp->setExternalWidth( 5 );
+
+  mapWatershed.delineating->setDescription( QStringLiteral( "Watershed" ) );
+  mapWatershed.delineating->setWidth( 3 );
+  mapWatershed.delineating->setColor( QColor( 0, 200, 100 ) );
+  mapWatershed.delineating->setExternalWidth( 5 );
+
+  mapWatershed.outletPoint->setWidth( 4 );
+  mapWatershed.outletPoint->setExternalWidth( 6 );
+  mapWatershed.outletPoint->setColor( QColor( 0, 155, 242 ) );
+  mapWatershed.outletPoint->setExternalColor( Qt::white );
+  mapWatershed.outletPoint->setZValue( 10 );
 }
+
+void ReosWatershedWidget::formatSelectedWatershed( ReosWatershedWidget::MapWatershed &mapWatershed )
+{
+  mapWatershed.delineating->setFillColor( QColor( 0, 255, 0, 30 ) );
+  mapWatershed.outletPoint->setWidth( 8 );
+  mapWatershed.outletPoint->setExternalWidth( 12 );
+}
+
+void ReosWatershedWidget::formatUnselectedWatershed( ReosWatershedWidget::MapWatershed &mapWatershed )
+{
+  mapWatershed.delineating->setFillColor( QColor() );
+  mapWatershed.outletPoint->setWidth( 4 );
+  mapWatershed.outletPoint->setExternalWidth( 6 );
+}
+
 
 void ReosWatershedWidget::clearSelection()
 {
-  MapWatersheds::iterator it_ = mMapWatersheds.begin();
-  while ( it_ != mMapWatersheds.end() )
-    ( it_++ )->second->setFillColor( QColor() );
+  MapWatersheds::iterator it = mMapWatersheds.begin();
+  while ( it != mMapWatersheds.end() )
+  {
+    formatUnselectedWatershed( it.value() );
+    it++;
+  }
 }

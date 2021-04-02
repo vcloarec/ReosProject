@@ -25,6 +25,7 @@ class ReosMapToolDrawPolyline_p;
 class ReosMapToolDrawExtent_p;
 class ReosMapToolSelectMapItem_p;
 class ReosMapToolEditPolygon_p;
+class ReosMapToolMoveItem_p;
 class ReosMapTool_p;
 class ReosMenuPopulator;
 
@@ -195,5 +196,22 @@ class ReosMapToolEditMapPolygon : public ReosMapTool
     ReosMapToolEditPolygon_p *d = nullptr;
     ReosMapTool_p *tool_p() const;
 };
+
+class ReosMapToolMoveMapItem: public ReosMapTool
+{
+    Q_OBJECT
+  public:
+    ReosMapToolMoveMapItem( ReosMap *map );
+    void setCurrentMapItem( ReosMapItem *item );
+    void setMovingColor( const QColor &movingColor );
+
+  signals:
+    void itemMoved( ReosMapItem *item );
+
+  private:
+    ReosMapToolMoveItem_p *d = nullptr;
+    ReosMapTool_p *tool_p() const;
+};
+
 
 #endif // REOSMAPTOOL_H

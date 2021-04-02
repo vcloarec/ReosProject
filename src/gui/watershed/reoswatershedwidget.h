@@ -20,6 +20,7 @@ class ReosWatershedModule;
 class ReosWatershed;
 class ReosMapToolSelectMapItem;
 class ReosMapToolEditMapPolygon;
+class ReosMapToolMoveMapItem;
 class ReosMeteorologicItemModel;
 class ReosMeteorologicModelWidget;
 class ReosRunoffHydrographWidget;
@@ -74,16 +75,31 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
 
     QAction *mActionZoomToWatershed = nullptr;
 
-    using MapWatersheds = std::map<ReosWatershed *, std::unique_ptr<ReosMapPolygon>>;
+    struct MapWatershed
+    {
+      MapWatershed() {}
+      MapWatershed( ReosMap *map, const QPolygonF &delineat, const QPointF &outletPt )
+      {
+        delineating = std::make_shared<ReosMapPolygon>( map, delineat );
+        outletPoint = std::make_shared<ReosMapMarker>( map, outletPt );
+      }
+
+      std::shared_ptr<ReosMapPolygon> delineating;
+      std::shared_ptr<ReosMapMarker> outletPoint;
+    };
+
+    using MapWatersheds = QMap<ReosWatershed *, MapWatershed>;
     MapWatersheds mMapWatersheds;
 
-    ReosMapMarker mCurrentMapOutlet;
     ReosMapPolyline mCurrentStreamLine;
 
     ReosMapToolEditMapPolygon *mMapToolEditDelineating = nullptr;
+    ReosMapToolMoveMapItem *mMapToolMoveOutletPoint = nullptr;
 
     ReosWatershed *currentWatershed() const;
-    void formatWatershedPolygon( ReosMapPolygon * );
+    void formatMapWatershed( MapWatershed &mapWatershed );
+    void formatSelectedWatershed( MapWatershed &mapWatershed );
+    void formatUnselectedWatershed( MapWatershed &mapWatershed );
     void clearSelection();
 
     void setWatershedModel( ReosWatershedItemModel *model );

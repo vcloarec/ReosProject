@@ -86,6 +86,9 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
     //! Returns the outlet point of the watershed
     QPointF outletPoint() const;
 
+    //! Sets the outlet point of the watershed
+    void setOutletPoint( const QPointF &outletPoint );
+
     //! Returns whether the watrshed or its parent contoins direction data
     bool hasDirectiondata( const QString &layerId ) const;
 

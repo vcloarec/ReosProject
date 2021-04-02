@@ -39,6 +39,7 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   mWatershedExtent( map ),
   mActionDrawWatershed( new QAction( QPixmap( QStringLiteral( ":/images/delineateWatershed.svg" ) ), tr( "Draw watershed manually" ), this ) ),
   mActionEditWatershed( new QAction( QPixmap( QStringLiteral( ":/images/editWatershed.svg" ) ), tr( "Edit watershed manually" ), this ) ),
+  mActionMoveOutletPoint( new QAction( QPixmap( QStringLiteral( ":/images/moveOutlet.svg" ) ), tr( "Move outlet point" ), this ) ),
   mTemporaryAutomaticWatershed( map ),
   mTemporaryAutomaticStreamLine( map ),
   mTemporaryManualWatershed( map ),
@@ -60,6 +61,7 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
 
   mManualToolBar->addAction( mActionDrawWatershed );
   mManualToolBar->addAction( mActionEditWatershed );
+  mManualToolBar->addAction( mActionMoveOutletPoint );
 
   mMapToolDrawDownStreamLine = new ReosMapToolDrawPolyline( map );
   mMapToolDrawDownStreamLine->setAction( mActionDrawDownstreamLine );
@@ -124,6 +126,7 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   mMapTools << mMapToolDrawWatershed;
 
   mActionEditWatershed->setCheckable( true );
+  mActionMoveOutletPoint->setCheckable( true );
 
   mMapToolDrawOutletPoint = new ReosMapToolDrawPoint( map );
   mMapTools << mMapToolDrawOutletPoint;
@@ -173,6 +176,12 @@ ReosDelineatingWatershedWidget::~ReosDelineatingWatershedWidget()
 void ReosDelineatingWatershedWidget::setEditingDelineatingMapTool( ReosMapToolEditMapPolygon *mapTool )
 {
   mapTool->setAction( mActionEditWatershed );
+  mMapTools << mapTool;
+}
+
+void ReosDelineatingWatershedWidget::setMoveOutletPointMapTool( ReosMapToolMoveMapItem *mapTool )
+{
+  mapTool->setAction( mActionMoveOutletPoint );
   mMapTools << mapTool;
 }
 
