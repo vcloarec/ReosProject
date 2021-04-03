@@ -19,22 +19,22 @@
         <translation>Bassin Versant</translation>
     </message>
     <message>
-        <location filename="../src/lekan/lekanmainwindow.cpp" line="166"/>
+        <location filename="../src/lekan/lekanmainwindow.cpp" line="168"/>
         <source>Hydrology</source>
         <translation>Hydrologie</translation>
     </message>
     <message>
-        <location filename="../src/lekan/lekanmainwindow.cpp" line="167"/>
+        <location filename="../src/lekan/lekanmainwindow.cpp" line="169"/>
         <source>Rainfall manager</source>
         <translation>Gestionnaires des pluies</translation>
     </message>
     <message>
-        <location filename="../src/lekan/lekanmainwindow.cpp" line="168"/>
+        <location filename="../src/lekan/lekanmainwindow.cpp" line="170"/>
         <source>Runoff manager</source>
         <translation>Gestionnaires des ruissellements</translation>
     </message>
     <message>
-        <location filename="../src/lekan/lekanmainwindow.cpp" line="170"/>
+        <location filename="../src/lekan/lekanmainwindow.cpp" line="172"/>
         <source>Map</source>
         <translation>Carte</translation>
     </message>
@@ -160,22 +160,22 @@
         <translation>Coefficient</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.h" line="215"/>
+        <location filename="../src/core/watershed/reostransferfunction.h" line="230"/>
         <source>Linear reservoir</source>
         <translation>Réservoir linéaire</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.h" line="261"/>
+        <location filename="../src/core/watershed/reostransferfunction.h" line="278"/>
         <source>Generalized Rational Method</source>
         <translation>Méthode Rationnelle Généralisée</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.h" line="339"/>
+        <location filename="../src/core/watershed/reostransferfunction.h" line="359"/>
         <source>SCS Unit Hydrograph</source>
         <translation>Hydrographe unitaire SCS</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="722"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="730"/>
         <source> residual</source>
         <translation>résiduel</translation>
     </message>
@@ -191,43 +191,39 @@
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="693"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="707"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="708"/>
         <source>Rainfall duration (mn)</source>
         <translation>Durée de la pluie (mn)</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="694"/>
-        <source>Rainfall duration (mm/h)</source>
-        <translation>Durée de la pluie (mm/h)</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="708"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="709"/>
         <source>Rainfall intensity (mm/h)</source>
         <translation>Intensité de la pluie (mm/h)</translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="719"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="720"/>
         <source>, instant value</source>
         <translation>, valeur instantanée</translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="727"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="728"/>
         <source>, cumulative value</source>
         <translation>, valeur cumulée</translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="731"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="732"/>
         <source>cumulative rainfall (mm)</source>
         <translation>pluie cumulée (mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="734"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="735"/>
         <source>Time</source>
         <translation>Temps</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="805"/>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="992"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="856"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="1043"/>
         <source>Lag time from concentration time: %1</source>
         <translation>Temps de décalage dérivée du temps de concentration : %1</translation>
     </message>
@@ -235,6 +231,36 @@
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="321"/>
         <source>Initial retention: %1 mm</source>
         <translation>Rétention initiale : %1 mm</translation>
+    </message>
+    <message>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="445"/>
+        <source>The Generalize Rational Method is a Unit Hydrograph transfer function.&lt;br&gt;This Unit Hydrograph is defined as below:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="453"/>
+        <source>Where:&lt;br&gt;- Δt : the time step of the runoff&lt;br&gt;- t&lt;sub&gt;c&lt;/sub&gt; : the concentration time&lt;br&gt;- A : the watershed area&lt;br&gt;- r : the runoff intensity or the effective rainfall intensity during the time step in mm per unit time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="472"/>
+        <source>The Linear Reservoir Method is expressing the flow rate for the n&lt;sup&gt;th&lt;/sup&gt; time step as below:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="482"/>
+        <source>Where:&lt;br&gt;- Δt : the time step of the runoff&lt;br&gt;- t&lt;sub&gt;l&lt;/sub&gt; : the lag time&lt;br&gt;- A : the watershed area&lt;br&gt;- r : the runoff intensity or the effective rainfall intensity during the time step in mm per unit time&lt;br&gt;- Q&lt;sub&gt;0&lt;/sub&gt; = 0</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="740"/>
+        <source>The SCS Unit Hydrograph defines a Unit Hydropraph with predifined hydrograph shape depending on a peak factor.&lt;br&gt;This peak factor links the peak flow rate and the peak time as below:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="750"/>
+        <source>Where:&lt;br&gt;- Q&lt;sub&gt;p&lt;/sub&gt; : the peak flow rate for a effective rainfall height or a runoff of 1 cm&lt;br&gt;- T&lt;sub&gt;p&lt;/sub&gt; : the time of the peak in hours&lt;br&gt;- A : the watershed area in km&lt;sup&gt;2&lt;/sup&gt;&lt;br&gt;- P&lt;sub&gt;f&lt;/sub&gt; : the peak factor that is between 100 and 600 with a common value of 484&lt;br&gt; Peak factor with high value is for watershed with quick reaction (mountain), and lower value is for slower watershed (plain).</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -524,14 +550,19 @@
         <translation>Édite le contour du bassin versant</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="255"/>
-        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="301"/>
+        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="42"/>
+        <source>Move outlet point</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="264"/>
+        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="310"/>
         <source>Delineating watershed</source>
         <translation>Découpage de bassin versant</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="255"/>
-        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="301"/>
+        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="264"/>
+        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="310"/>
         <source>This watershed intersects existing watershed(s)
 Adjust new watershed?</source>
         <translation>Ce bassin versant intersecte un ou plusieurs bassins versants existants
@@ -572,42 +603,42 @@ Faut-il ajuster le nouveau bassin versant ?</translation>
 <context>
     <name>ReosDurationUnitComboBox</name>
     <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="695"/>
+        <location filename="../src/gui/form/reosparameterwidget.cpp" line="686"/>
         <source>millisecond</source>
         <translation>milliseconde</translation>
     </message>
     <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="696"/>
+        <location filename="../src/gui/form/reosparameterwidget.cpp" line="687"/>
         <source>second</source>
         <translation>seconde</translation>
     </message>
     <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="697"/>
+        <location filename="../src/gui/form/reosparameterwidget.cpp" line="688"/>
         <source>minute</source>
         <translation>minute</translation>
     </message>
     <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="698"/>
+        <location filename="../src/gui/form/reosparameterwidget.cpp" line="689"/>
         <source>hour</source>
         <translation>heure</translation>
     </message>
     <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="699"/>
+        <location filename="../src/gui/form/reosparameterwidget.cpp" line="690"/>
         <source>day</source>
         <translation>jour</translation>
     </message>
     <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="700"/>
+        <location filename="../src/gui/form/reosparameterwidget.cpp" line="691"/>
         <source>week</source>
         <translation>semaine</translation>
     </message>
     <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="701"/>
+        <location filename="../src/gui/form/reosparameterwidget.cpp" line="692"/>
         <source>month</source>
         <translation>mois</translation>
     </message>
     <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="702"/>
+        <location filename="../src/gui/form/reosparameterwidget.cpp" line="693"/>
         <source>year</source>
         <translation>année</translation>
     </message>
@@ -643,12 +674,12 @@ Faut-il ajuster le nouveau bassin versant ?</translation>
 <context>
     <name>ReosEditableProfileModel</name>
     <message>
-        <location filename="../src/gui/chart/reoseditableprofile.cpp" line="369"/>
+        <location filename="../src/gui/chart/reoseditableprofile.cpp" line="368"/>
         <source>Distance</source>
         <translation>Distance</translation>
     </message>
     <message>
-        <location filename="../src/gui/chart/reoseditableprofile.cpp" line="373"/>
+        <location filename="../src/gui/chart/reoseditableprofile.cpp" line="372"/>
         <source>Altitude</source>
         <translation>Altitude</translation>
     </message>
@@ -732,37 +763,37 @@ Faut-il ajuster le nouveau bassin versant ?</translation>
 <context>
     <name>ReosGisEngine</name>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="110"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="115"/>
         <source>Vector layer loaded: %1</source>
         <translation>Couche vectorielle chargée : %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="115"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="120"/>
         <source>Vector layer not loaded: %1</source>
         <translation>Couche vectorielle non chargée : %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="127"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="133"/>
         <source>Raster layer loaded: %1</source>
         <translation>Couche raster chargée : %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="132"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="138"/>
         <source>Raster layer not loaded: %1</source>
         <translation>Couche raster non chargée : %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="144"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="150"/>
         <source>Mesh layer loaded: %1</source>
         <translation>Couche maillage chargée : %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="149"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="155"/>
         <source>Mesh layer not loaded: %1</source>
         <translation>Couche maillage non chargée : %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="176"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="182"/>
         <source>Could not find MDAL</source>
         <translation>MDAL non trouvé</translation>
     </message>
@@ -1124,12 +1155,12 @@ Faut-il ajuster le nouveau bassin versant ?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reoslongitudinalprofilewidget.cpp" line="362"/>
+        <location filename="../src/gui/watershed/reoslongitudinalprofilewidget.cpp" line="365"/>
         <source>Searching for the longest path</source>
         <translation>Recherche du plus long chemin</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reoslongitudinalprofilewidget.cpp" line="379"/>
+        <location filename="../src/gui/watershed/reoslongitudinalprofilewidget.cpp" line="382"/>
         <source>trace longer path</source>
         <translation>Tracé du plus long chemin</translation>
     </message>
@@ -1410,6 +1441,14 @@ choisir un nouveau nom :</translation>
     </message>
 </context>
 <context>
+    <name>ReosMeteorologicModelsCollection</name>
+    <message>
+        <location filename="../src/core/watershed/reosmeteorologicmodel.cpp" line="277"/>
+        <source>Meteorological Model</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ReosParameterBoolean</name>
     <message>
         <location filename="../src/core/reosparameter.cpp" line="501"/>
@@ -1428,49 +1467,6 @@ choisir un nouveau nom :</translation>
         <location filename="../src/core/reosparameter.cpp" line="377"/>
         <source>Date/Time</source>
         <translation>Date/heure</translation>
-    </message>
-</context>
-<context>
-    <name>ReosParameterDurationWidget</name>
-    <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="505"/>
-        <source>millisecond</source>
-        <translation>miliseconde</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="506"/>
-        <source>second</source>
-        <translation>seconde</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="507"/>
-        <source>minute</source>
-        <translation>minute</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="508"/>
-        <source>hour</source>
-        <translation>heure</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="509"/>
-        <source>day</source>
-        <translation>jour</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="510"/>
-        <source>week</source>
-        <translation>semaine</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="511"/>
-        <source>month</source>
-        <translation>mois</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="512"/>
-        <source>year</source>
-        <translation>année</translation>
     </message>
 </context>
 <context>
@@ -1494,12 +1490,12 @@ choisir un nouveau nom :</translation>
         <translation>Copier en tant qu&apos;image</translation>
     </message>
     <message>
-        <location filename="../src/gui/chart/reosplotwidget.cpp" line="73"/>
+        <location filename="../src/gui/chart/reosplotwidget.cpp" line="77"/>
         <source>X linear scale</source>
         <translation>X échelle linéaire</translation>
     </message>
     <message>
-        <location filename="../src/gui/chart/reosplotwidget.cpp" line="74"/>
+        <location filename="../src/gui/chart/reosplotwidget.cpp" line="78"/>
         <source>X logarithmic scale</source>
         <translation>X échelle logarithmique</translation>
     </message>
@@ -1827,17 +1823,17 @@ choisir un nouveau nom :</translation>
 <context>
     <name>ReosRunoffCurveNumberModel</name>
     <message>
-        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="1132"/>
+        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="1139"/>
         <source>Curve number</source>
         <translation>Curve Number</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="1133"/>
+        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="1140"/>
         <source>Initial retention (mm)</source>
         <translation>Rétention initiale (mm)</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="1134"/>
+        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="1141"/>
         <source>Initial retention : 0.2 x S</source>
         <translation>Rétention initiale : 0.2 x S</translation>
     </message>
@@ -1845,27 +1841,27 @@ choisir un nouveau nom :</translation>
 <context>
     <name>ReosRunoffGreenAmptModel</name>
     <message>
-        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="936"/>
+        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="943"/>
         <source>Initial retention (mm)</source>
         <translation>Rétention initiale (mm)</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="937"/>
+        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="944"/>
         <source>Saturated permeability (mm/h)</source>
         <translation>Perméabilité à saturation (mm/h)</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="938"/>
+        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="945"/>
         <source>Soil porosity (vol/vol)</source>
         <translation>Porosité du sol (vol/vol)</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="939"/>
+        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="946"/>
         <source>Initial water content (vol/vol)</source>
         <translation>Teneur en eau initiale (vol/vol)</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="940"/>
+        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="947"/>
         <source>Wetting front suction (mm)</source>
         <translation>Front de succion humide (mm)</translation>
     </message>
@@ -1939,34 +1935,34 @@ choisir un nouveau nom :</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="65"/>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="293"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="296"/>
         <source>Flow rate (%1)</source>
         <translation>Débit (%1)</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="227"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="230"/>
         <source>Rainfall %1</source>
         <translation>Pluie %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="252"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="255"/>
         <source>Runoff %1</source>
         <translation>Ruissellement %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="346"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="351"/>
         <source>Remove this model</source>
         <translation>Supprimer ce modèle</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="397"/>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="414"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="402"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="419"/>
         <source>Copy selected values</source>
         <translation>Copier les valeurs sélectionnées</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="402"/>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="419"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="407"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="424"/>
         <source>Copy selected values with headers</source>
         <translation>Copier les valeurs sélectionnées avec l&apos;entête</translation>
     </message>
@@ -2106,34 +2102,44 @@ choisir un nouveau nom :</translation>
         <translation>Modèles de ruissellements sauvés dans le fichier : %1</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="645"/>
+        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="623"/>
+        <source>Runoff data loaded from file: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="625"/>
+        <source>Unable to load runoff data from file: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="652"/>
         <source>Constant coefficient</source>
         <translation>Coefficient constant</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="651"/>
+        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="658"/>
         <source>Green Ampt</source>
         <translation>Green Ampt</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="655"/>
+        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="662"/>
         <source>Curve Number</source>
         <translation>Curve Number</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="658"/>
+        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="665"/>
         <source>A constant coefficient between 0 and 1
 is applied on the rainfall</source>
         <translation>Un coefficient constant compris entre 0 et 1
 est appliqué sur la pluie</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="659"/>
+        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="666"/>
         <source>The Green Ampt approach for runoff</source>
         <translation>L&apos;approche de Green Ampt pour le ruissellement</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="660"/>
+        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="667"/>
         <source>Curve Number runoff</source>
         <translation>Ruissellement avec Curve Number</translation>
     </message>
@@ -2141,7 +2147,7 @@ est appliqué sur la pluie</translation>
 <context>
     <name>ReosRunoffModelsGroup</name>
     <message>
-        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="735"/>
+        <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="742"/>
         <source>Portion</source>
         <translation>Part</translation>
     </message>
@@ -2305,7 +2311,7 @@ est appliqué sur la pluie</translation>
 <context>
     <name>ReosTimeSeriesTabModel</name>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="943"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="994"/>
         <source>Time</source>
         <translation>Temps</translation>
     </message>
@@ -2344,22 +2350,22 @@ est appliqué sur la pluie</translation>
 <context>
     <name>ReosTransferFunctionSCSUnitHydrograph</name>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="428"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="494"/>
         <source>Peak Factor</source>
         <translation>Facteur de pointe</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="429"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="495"/>
         <source>Lag time</source>
         <translation>Temps de décalage</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="430"/>
-        <source>Use concentration time</source>
-        <translation>Utiliser le temps de concentration</translation>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="496"/>
+        <source>Use concentration time for the lag time</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="431"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="497"/>
         <source>Factor</source>
         <translation>Facteur</translation>
     </message>
@@ -2393,32 +2399,32 @@ est appliqué sur la pluie</translation>
     <name>ReosWatershed</name>
     <message>
         <location filename="../src/core/watershed/reoswatershed.cpp" line="22"/>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="657"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="665"/>
         <source>Watershed area</source>
         <translation>Superficie du bassin versant</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="656"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="664"/>
         <source>Watershed name</source>
         <translation>Nom du bassin versant</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="658"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="666"/>
         <source>Average slope</source>
         <translation>Pente moyenne</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="659"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="667"/>
         <source>Drop</source>
         <translation>Dénivelée</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="660"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="668"/>
         <source>Longest stream path</source>
         <translation>Plus long chemin hydraulique</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="661"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="669"/>
         <source>Concentration time</source>
         <translation>Temps de concentration</translation>
     </message>
@@ -2470,22 +2476,22 @@ est appliqué sur la pluie</translation>
         <translation>Extrait le modèle numérique de terrain</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="394"/>
+        <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="395"/>
         <source>Filling digital elevation model and calculating direction</source>
         <translation>Remplissage du modèle numérique de terrain et calcul des directions</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="423"/>
+        <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="424"/>
         <source>Delineate watershed</source>
         <translation>Découpe du bassin versant</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="443"/>
+        <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="444"/>
         <source>Polygonize watershed</source>
         <translation>Polygonise le bassin versant</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="457"/>
+        <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="458"/>
         <source>Trace stream line</source>
         <translation>Trace le chemin hydraulique</translation>
     </message>
@@ -2493,22 +2499,22 @@ est appliqué sur la pluie</translation>
 <context>
     <name>ReosWatershedRunoffModelsModel</name>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="583"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="634"/>
         <source>Right click to add</source>
         <translation>Clique droit pour ajouter</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="601"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="652"/>
         <source>Invalid</source>
         <translation>Invalide</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="744"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="795"/>
         <source>Runoff model</source>
         <translation>Modèle de ruissellement</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="747"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="798"/>
         <source>Portion in watershed</source>
         <translation>Part de bassin versant</translation>
     </message>
@@ -2594,12 +2600,12 @@ est appliqué sur la pluie</translation>
         <translation>Nom du bassin versant</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="193"/>
+        <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="196"/>
         <source>Removing watershed</source>
         <translation>Supprimer le bassin versant</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="193"/>
+        <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="196"/>
         <source>Do you want to remove the current watershed &apos;%1&apos;?</source>
         <translation>Supprimer le bassin versant &apos;%1&apos; ?</translation>
     </message>
