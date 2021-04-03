@@ -114,6 +114,7 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
     void copyRainfallRunoffSelected( bool withHeader );
     void hydrographTabContextMenu( const QPoint &pos );
     void rainfallRunoffTabContextMenu( const QPoint &pos );
+    void onTransferFunctionFormulation();
 
   private:
     Ui::ReosRunoffHydrographWidget *ui;

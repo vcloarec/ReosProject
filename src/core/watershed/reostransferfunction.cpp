@@ -345,6 +345,33 @@ QAbstractListModel *ReosTransferFunctionFactories::listModel() const
   return mModel;
 }
 
+QString ReosTransferFunctionFactories::presentationText( const QString &type ) const
+{
+  for ( const Factory &fact : mFactories )
+    if ( fact->type() == type )
+      return fact->presentationText();
+
+  return QString();
+}
+
+QPixmap ReosTransferFunctionFactories::formulation( const QString &type ) const
+{
+  for ( const Factory &fact : mFactories )
+    if ( fact->type() == type )
+      return fact->formulation();
+
+  return QPixmap();
+}
+
+QString ReosTransferFunctionFactories::variablesDescription( const QString &type ) const
+{
+  for ( const Factory &fact : mFactories )
+    if ( fact->type() == type )
+      return fact->variablesDescription();
+
+  return QString();
+}
+
 ReosTransferFunctionFactories::ReosTransferFunctionFactories( ReosModule *parent ):
   ReosModule( parent ),
   mModel( new ReosTransferFunctionFactoriesModel( mFactories, this ) )
@@ -413,6 +440,23 @@ ReosTransferFunction *ReosTransferFunctionGeneralizedRationalMethodFactory::crea
   return ReosTransferFunctionGeneralizedRationalMethod::decode( element, watershed );
 }
 
+QString ReosTransferFunctionGeneralizedRationalMethodFactory::presentationText() const
+{
+  return QObject::tr( "The Generalize Rational Method is a Unit Hydrograph transfer function.<br>"
+                      "This Unit Hydrograph is defined as below:" );
+}
+
+QPixmap ReosTransferFunctionGeneralizedRationalMethodFactory::formulation() const {return QPixmap( QStringLiteral( ":/formulas/rationalUnitHydrograph.svg" ) );}
+
+QString ReosTransferFunctionGeneralizedRationalMethodFactory::variablesDescription() const
+{
+  return QObject::tr( "Where:<br>"
+                      "- \u0394t : the time step of the runoff<br>"
+                      "- t<sub>c</sub> : the concentration time<br>"
+                      "- A : the watershed area<br>"
+                      "- r : the runoff intensity or the effective rainfall intensity during the time step in mm per unit time" );
+}
+
 ReosTransferFunction *ReosTransferFunctionLinearReservoirFactory::createTransferFunction( ReosWatershed *watershed ) const
 {
   return new ReosTransferFunctionLinearReservoir( watershed );
@@ -423,11 +467,33 @@ ReosTransferFunction *ReosTransferFunctionLinearReservoirFactory::createTransfer
   return ReosTransferFunctionLinearReservoir::decode( element, watershed );
 }
 
+QString ReosTransferFunctionLinearReservoirFactory::presentationText() const
+{
+  return QObject::tr( "The Linear Reservoir Method is expressing the flow rate for the n<sup>th</sup> time step as below:" );
+}
+
+QPixmap ReosTransferFunctionLinearReservoirFactory::formulation() const
+{
+  return QPixmap( QStringLiteral( ":/formulas/linearReservoirHydrograph.svg" ) );
+}
+
+QString ReosTransferFunctionLinearReservoirFactory::variablesDescription() const
+{
+  return QObject::tr( "Where:<br>"
+                      "- \u0394t : the time step of the runoff<br>"
+                      "- t<sub>l</sub> : the lag time<br>"
+                      "- A : the watershed area<br>"
+                      "- r : the runoff intensity or the effective rainfall intensity during the time step in mm per unit time<br>"
+                      "- Q<sub>0</sub> = 0" );
+}
+
+
+
 ReosTransferFunctionSCSUnitHydrograph::ReosTransferFunctionSCSUnitHydrograph( ReosWatershed *watershed ):
   ReosTransferFunction( watershed )
   , mPeakRateFactor( new ReosParameterDouble( tr( "Peak Factor" ), false, this ) )
   , mLagTime( new ReosParameterDuration( tr( "Lag time" ), false, this ) )
-  , mUseConcentrationTime( new ReosParameterBoolean( tr( "Use concentration time" ), false, this ) )
+  , mUseConcentrationTime( new ReosParameterBoolean( tr( "Use concentration time for the lag time" ), false, this ) )
   , mFactorToLagTime( new ReosParameterDouble( tr( "Factor" ), false, this ) )
 {
   mUseConcentrationTime->setValue( true );
@@ -668,6 +734,28 @@ ReosTransferFunction *ReosTransferFunctionSCSUnitHydrographFactory::createTransf
 {
   return ReosTransferFunctionSCSUnitHydrograph::decode( element, watershed );
 }
+
+QString ReosTransferFunctionSCSUnitHydrographFactory::presentationText() const
+{
+  return QObject::tr( "The SCS Unit Hydrograph defines a Unit Hydropraph with predifined hydrograph shape depending on a peak factor.<br>This peak factor links the peak flow rate and the peak time as below:" );
+}
+
+QPixmap ReosTransferFunctionSCSUnitHydrographFactory::formulation() const
+{
+  return QPixmap( QStringLiteral( ":/formulas/SCSUnitHydrograph.svg" ) );
+}
+
+QString ReosTransferFunctionSCSUnitHydrographFactory::variablesDescription() const
+{
+  return QObject::tr( "Where:<br>"
+                      "- Q<sub>p</sub> : the peak flow rate for a rainfall height of 1 cm<br>"
+                      "- T<sub>p</sub> : the time of the peak in hours<br>"
+                      "- A : the watershed area in km<sup>2</sup><br>"
+                      "- P<sub>f</sub> : the peak factor that is between 100 and 600 with a common value of 484<br>"
+                      " Peak factor with high value is for watershed (mountain) with quick reaction, and lower value is for slower watershed (plain)." );
+}
+
+
 
 
 QVector<ReosTransferFunctionSCSUnitHydrograph::UH_SCS_dimensionneless> ReosTransferFunctionSCSUnitHydrograph::sTable =

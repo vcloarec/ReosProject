@@ -8,5 +8,8 @@
         <file>concentrationTimeVentura.svg</file>
         <file>idfMontana.svg</file>
         <file>idfSherman.svg</file>
+        <file>rationalUnitHydrograph.svg</file>
+        <file>linearReservoirHydrograph.svg</file>
+        <file>SCSUnitHydrograph.svg</file>
     </qresource>
 </RCC>

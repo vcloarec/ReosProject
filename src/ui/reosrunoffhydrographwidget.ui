@@ -154,7 +154,7 @@
            </property>
            <item>
             <widget class="QWidget" name="widget_3" native="true">
-             <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,1">
+             <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,1,0">
               <property name="leftMargin">
                <number>0</number>
               </property>
@@ -182,6 +182,17 @@
               </item>
               <item>
                <widget class="QComboBox" name="comboBoxTransferFunction"/>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButtonTransferFunctionFormulation">
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="../../images/images.qrc">
+                  <normaloff>:/images/function.svg</normaloff>:/images/function.svg</iconset>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
@@ -394,6 +405,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../images/images.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -94,6 +94,8 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *wat
 
   connect( this, &ReosActionWidget::opened, this, &ReosRunoffHydrographWidget::updateRainall );
 
+  connect( ui->pushButtonTransferFunctionFormulation, &QPushButton::clicked, this, &ReosRunoffHydrographWidget::onTransferFunctionFormulation );
+
 }
 
 ReosRunoffHydrographWidget::~ReosRunoffHydrographWidget()
@@ -425,6 +427,50 @@ void ReosRunoffHydrographWidget::rainfallRunoffTabContextMenu( const QPoint &pos
   } );
 
   contextMenu.exec( ui->tableViewRunoffResult->mapToGlobal( pos ) );
+}
+
+void ReosRunoffHydrographWidget::onTransferFunctionFormulation()
+{
+  if ( !ReosTransferFunctionFactories::isInstantiate() )
+    return;
+
+  ReosTransferFunctionFactories *factories = ReosTransferFunctionFactories::instance();
+
+  int currentIndex = ui->comboBoxTransferFunction->currentIndex();
+
+  if ( mCurrentWatershed && currentIndex >= 0 )
+  {
+    QString type = factories->type( currentIndex );
+    QDialog *dial = new QDialog( this );
+
+    QFont font = dial->font();
+    font.setPointSizeF( 11 );
+    dial->setFont( font );
+
+    dial->setWindowTitle( ui->comboBoxTransferFunction->currentText() );
+    dial->setLayout( new QVBoxLayout );
+    QLabel *labelpresentation = new QLabel( dial );
+    labelpresentation->setTextFormat( Qt::RichText );
+    labelpresentation->setWordWrap( true );
+    labelpresentation->setText( factories->presentationText( type ) );
+    dial->layout()->addWidget( labelpresentation );
+
+    QLabel *formulationLabel = new QLabel( this );
+    formulationLabel->setAlignment( Qt::AlignHCenter );
+    formulationLabel->setPixmap( factories->formulation( type ) );
+
+    dial->layout()->addWidget( formulationLabel );
+    QLabel *labelVariables = new QLabel( dial );
+    labelVariables->setTextFormat( Qt::RichText );
+    labelVariables->setWordWrap( true );
+    labelVariables->setText( factories->variablesDescription( type ) );
+
+    dial->layout()->addWidget( labelVariables );
+
+    dial->exec();
+
+    dial->deleteLater();
+  }
 }
 
 
