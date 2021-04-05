@@ -338,7 +338,9 @@ void ReosMeteorologicModelsCollection::addMeteorologicModel( ReosMeteorologicMod
 
 void ReosMeteorologicModelsCollection::removeMeteorologicModel( int i )
 {
+  beginRemoveRows( QModelIndex(), i, i );
   mMeteoModels.takeAt( i )->deleteLater();
+  endRemoveRows();
 }
 
 void ReosMeteorologicModelsCollection::clearModels()
