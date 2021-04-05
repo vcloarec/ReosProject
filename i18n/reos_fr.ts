@@ -234,7 +234,7 @@
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="445"/>
-        <source>The Generalize Rational Method is a Unit Hydrograph transfer function.&lt;br&gt;This Unit Hydrograph is defined as below:</source>
+        <source>The Generalized Rational Method is a Unit Hydrograph transfer function.&lt;br&gt;This Unit Hydrograph is defined as below:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -254,12 +254,12 @@
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="740"/>
-        <source>The SCS Unit Hydrograph defines a Unit Hydropraph with predifined hydrograph shape depending on a peak factor.&lt;br&gt;This peak factor links the peak flow rate and the peak time as below:</source>
+        <source>The SCS Unit Hydrograph defines a Unit Hydrograph with predefined hydrograph shapes depending on a peak factor.&lt;br&gt;This peak factor links the peak flow rate and the peak time as below:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="750"/>
-        <source>Where:&lt;br&gt;- Q&lt;sub&gt;p&lt;/sub&gt; : the peak flow rate for a effective rainfall height or a runoff of 1 cm&lt;br&gt;- T&lt;sub&gt;p&lt;/sub&gt; : the time of the peak in hours&lt;br&gt;- A : the watershed area in km&lt;sup&gt;2&lt;/sup&gt;&lt;br&gt;- P&lt;sub&gt;f&lt;/sub&gt; : the peak factor that is between 100 and 600 with a common value of 484&lt;br&gt; Peak factor with high value is for watershed with quick reaction (mountain), and lower value is for slower watershed (plain).</source>
+        <source>Where:&lt;br&gt;- Q&lt;sub&gt;p&lt;/sub&gt; : the peak flow rate for an effective rainfall height or a runoff of 1 cm&lt;br&gt;- T&lt;sub&gt;p&lt;/sub&gt; : the time of the peak in hours&lt;br&gt;- A : the watershed area in km&lt;sup&gt;2&lt;/sup&gt;&lt;br&gt;- P&lt;sub&gt;f&lt;/sub&gt; : the peak factor between 100 and 600 with a typical value of 484&lt;br&gt; Peak factor with high value is for watershed with quick reaction (mountain), and lower values are for slower watersheds (plain).</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1900,11 +1900,6 @@ choisir un nouveau nom :</translation>
     </message>
     <message>
         <location filename="../src/ui/reosrunoffhydrographwidget.ui"/>
-        <source>Tabs</source>
-        <translation>Tableaux</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosrunoffhydrographwidget.ui"/>
         <source>Runoff results</source>
         <translation>Ruissellements</translation>
     </message>
@@ -1965,6 +1960,11 @@ choisir un nouveau nom :</translation>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="424"/>
         <source>Copy selected values with headers</source>
         <translation>Copier les valeurs sélectionnées avec l&apos;entête</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/reosrunoffhydrographwidget.ui"/>
+        <source>Tables</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

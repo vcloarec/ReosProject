@@ -442,7 +442,7 @@ ReosTransferFunction *ReosTransferFunctionGeneralizedRationalMethodFactory::crea
 
 QString ReosTransferFunctionGeneralizedRationalMethodFactory::presentationText() const
 {
-  return QObject::tr( "The Generalize Rational Method is a Unit Hydrograph transfer function.<br>"
+  return QObject::tr( "The Generalized Rational Method is a Unit Hydrograph transfer function.<br>"
                       "This Unit Hydrograph is defined as below:" );
 }
 
@@ -737,7 +737,7 @@ ReosTransferFunction *ReosTransferFunctionSCSUnitHydrographFactory::createTransf
 
 QString ReosTransferFunctionSCSUnitHydrographFactory::presentationText() const
 {
-  return QObject::tr( "The SCS Unit Hydrograph defines a Unit Hydropraph with predifined hydrograph shape depending on a peak factor.<br>This peak factor links the peak flow rate and the peak time as below:" );
+  return QObject::tr( "The SCS Unit Hydrograph defines a Unit Hydrograph with predefined hydrograph shapes depending on a peak factor.<br>This peak factor links the peak flow rate and the peak time as below:" );
 }
 
 QPixmap ReosTransferFunctionSCSUnitHydrographFactory::formulation() const
@@ -748,11 +748,11 @@ QPixmap ReosTransferFunctionSCSUnitHydrographFactory::formulation() const
 QString ReosTransferFunctionSCSUnitHydrographFactory::variablesDescription() const
 {
   return QObject::tr( "Where:<br>"
-                      "- Q<sub>p</sub> : the peak flow rate for a effective rainfall height or a runoff of 1 cm<br>"
+                      "- Q<sub>p</sub> : the peak flow rate for an effective rainfall height or a runoff of 1 cm<br>"
                       "- T<sub>p</sub> : the time of the peak in hours<br>"
                       "- A : the watershed area in km<sup>2</sup><br>"
-                      "- P<sub>f</sub> : the peak factor that is between 100 and 600 with a common value of 484<br>"
-                      " Peak factor with high value is for watershed with quick reaction (mountain), and lower value is for slower watershed (plain)." );
+                      "- P<sub>f</sub> : the peak factor between 100 and 600 with a typical value of 484<br>"
+                      " Peak factor with high value is for watershed with quick reaction (mountain), and lower values are for slower watersheds (plain)." );
 }
 
 
