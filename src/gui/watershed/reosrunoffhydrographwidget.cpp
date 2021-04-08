@@ -96,6 +96,8 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *wat
 
   connect( ui->pushButtonTransferFunctionFormulation, &QPushButton::clicked, this, &ReosRunoffHydrographWidget::onTransferFunctionFormulation );
 
+  onModelMeteoChanged();
+
 }
 
 ReosRunoffHydrographWidget::~ReosRunoffHydrographWidget()
