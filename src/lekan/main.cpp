@@ -66,7 +66,7 @@ int main( int argc, char *argv[] )
 
   QString i18nPath = ReosApplication::i18nPath();
 
-  if ( QtTranslator.load( locale, i18nPath + QStringLiteral( "/qt" ), "_" ) )
+  if ( QtTranslator.load( locale, i18nPath + QStringLiteral( "/qtbase" ), "_" ) )
     a.installTranslator( &QtTranslator );
   if ( QgisTranslator.load( locale, i18nPath + QStringLiteral( "/qgis" ), "_" ) )
     a.installTranslator( &QgisTranslator );
