@@ -546,6 +546,7 @@ void ReosRainfallManager::selectItem( ReosRainfallItem *item )
   if ( !item )
     return;
   QModelIndex index = mModel->itemToIndex( item );
+  ui->mTreeView->resizeColumnToContents( 0 );
   ui->mTreeView->setCurrentIndex( index );
 }
 

@@ -246,14 +246,14 @@ ReosTimeSerieConstantInterval *ReosPlotConstantIntervalTimeIntervalSerie::data()
 ReosDateScaleDraw_p::ReosDateScaleDraw_p( Qt::TimeSpec timeSpec ):
   QwtDateScaleDraw( timeSpec )
 {
-  setDateFormat( QwtDate::Millisecond, QString( "mm:ss.zzz" ) );
-  setDateFormat( QwtDate::Second, QString( "hh:mm:ss" ) );
-  setDateFormat( QwtDate::Minute, QString( "hh:mm" ) );
-  setDateFormat( QwtDate::Hour, QString( "hh:mm\ndd MMM" ) );
-  setDateFormat( QwtDate::Day, QString( "hh:mm\nyyyy.MM.dd" ) );
-  setDateFormat( QwtDate::Week, QString( "yyyy.MM.dd" ) );
-  setDateFormat( QwtDate::Month, QString( "yyyy MMM" ) );
-  setDateFormat( QwtDate::Year, QString( "yyyy" ) );
+  setDateFormat( QwtDate::Millisecond, QStringLiteral( "mm:ss.zzz" ) );
+  setDateFormat( QwtDate::Second, QStringLiteral( "hh:mm:ss" ) );
+  setDateFormat( QwtDate::Minute, QStringLiteral( "hh:mm" ) );
+  setDateFormat( QwtDate::Hour, QStringLiteral( "hh:mm\n dd MMM" ) );
+  setDateFormat( QwtDate::Day, QStringLiteral( "hh:mm\nyyyy.MM.dd" ) );
+  setDateFormat( QwtDate::Week, QStringLiteral( "yyyy.MM.dd" ) );
+  setDateFormat( QwtDate::Month, QStringLiteral( "yyyy MMM" ) );
+  setDateFormat( QwtDate::Year, QStringLiteral( "yyyy" ) );
 
   setLabelAlignment( Qt::AlignHCenter | Qt::AlignBottom );
 }
