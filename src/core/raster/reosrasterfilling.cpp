@@ -41,24 +41,39 @@ ReosRasterMemory<float> ReosRasterFilling::filledDEM() {return mDem;}
 
 unsigned char ReosRasterFilling::calculateDirection( int row, int column )
 {
-  unsigned char dir = 4;
-  float min = mDem.value( row, column );
-
-  if ( min == mDem.noData() )
+  float centralValue = mDem.value( row, column );
+  if ( centralValue == mDem.noData() )
     return 9;
 
-  for ( int i = 0; i < 3; ++i )
-    for ( int j = 0; j < 3; ++j )
+  unsigned char retDir = 4;
+  float dzmin = 0;
+
+  for ( unsigned char i = 0; i < 3; ++i )
+    for ( unsigned char j = 0; j < 3; ++j )
     {
+      if ( i == 1 && j == 1 )
+        continue;
+
       float z = mDem.value( row - 1 + i, column - 1 + j );
-      if ( ( z < min ) && ( z != mDem.noData() ) && ( ( i * j ) != 1 ) )
+
+      if ( z == mDem.noData() )
+        continue;
+
+      float dz = ( centralValue - z );
+
+      unsigned char dir = i + 3 * j;
+
+      if ( dir % 2 == 0 )
+        dz = dz / sqrt( 2 );
+
+      if ( dz < dzmin )
       {
-        dir = static_cast<unsigned char>( i + 3 * j );
-        min = z;
+        retDir = dir;
+        dzmin = dz;
       }
     }
 
-  return dir;
+  return retDir;
 
 }
 
@@ -180,19 +195,17 @@ void ReosRasterFillingWangLiu::processCell( const ReosRasterCellValue<float> &ce
         }
         else
         {
-          float delta = ( sqrt( powf( ( i - 1 ) * mXSize, 2 ) + powf( ( j - 1 ) * mYSize, 2 ) ) ) * mMimimumSlope;
+          unsigned char dir = static_cast<unsigned char>( ( r - RowNeigh + 1 ) + 3 * ( c - ColNeigh + 1 ) );
+          float delta = ( sqrt( powf( ( i - 1 ) * float( mXSize ), 2 ) + powf( ( j - 1 ) * float( mYSize ), 2 ) ) ) * mMimimumSlope;
           if ( neigh.value() <= Zcentral + delta )
           {
             neigh.setValue( Zcentral + delta );
           }
-          unsigned char dir = static_cast<unsigned char>( ( r - RowNeigh + 1 ) + 3 * ( c - ColNeigh + 1 ) );
           mPriorityStack.insert( neigh );
           setDirectionValue( RowNeigh, ColNeigh, dir );
         }
-
       }
     }
-
 }
 
 void ReosRasterFillingWangLiu::processNoDataCell( const ReosRasterCellValue<float> &central )

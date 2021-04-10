@@ -18,7 +18,7 @@ email                : vcloarec@gmail.com
 
 ReosRasterWatershedMarkerFromDirection::ReosRasterWatershedMarkerFromDirection( ReosRasterWatershedFromDirectionAndDownStreamLine *parent,
     const ReosRasterWatershed::Climber &initialClimb,
-    ReosRasterWatershed::Directions directionRaster,
+    const ReosRasterWatershed::Directions &directionRaster,
     ReosRasterWatershed::Watershed &resultRaster,
     const ReosRasterLine &excludedPixel ):
   mParent( parent ),
@@ -91,7 +91,7 @@ void ReosRasterWatershedMarkerFromDirection::start()
 
 }
 
-ReosRasterWatershedFromDirectionAndDownStreamLine::ReosRasterWatershedFromDirectionAndDownStreamLine( ReosRasterWatershed::Directions rasterDirection,
+ReosRasterWatershedFromDirectionAndDownStreamLine::ReosRasterWatershedFromDirectionAndDownStreamLine( const ReosRasterWatershed::Directions &rasterDirection,
     const ReosRasterLine &line ):
   mDirections( rasterDirection ), mDownstreamLine( line )
 {
@@ -112,7 +112,7 @@ ReosRasterWatershedFromDirectionAndDownStreamLine::ReosRasterWatershedFromDirect
 
 }
 
-ReosRasterWatershedFromDirectionAndDownStreamLine::ReosRasterWatershedFromDirectionAndDownStreamLine( ReosRasterWatershed::Directions rasterDirection,
+ReosRasterWatershedFromDirectionAndDownStreamLine::ReosRasterWatershedFromDirectionAndDownStreamLine( const ReosRasterWatershed::Directions &rasterDirection,
     const ReosRasterLine &line,
     ReosRasterTestingCell *testingCell ):
   ReosRasterWatershedFromDirectionAndDownStreamLine( rasterDirection, line )
@@ -172,7 +172,7 @@ void ReosRasterWatershedFromDirectionAndDownStreamLine::start()
 {
   mIsSuccessful = false;
 
-  unsigned nbThread = std::thread::hardware_concurrency() - 1;
+  unsigned nbThread = maximumThreadCount();
 
   mThreads.clear();
   mJobs.clear();
@@ -303,4 +303,37 @@ void ReosRasterWatershedTraceDownstream::start()
 QPolygonF ReosRasterWatershedTraceDownstream::resultPolyline() const
 {
   return mResultPolyline;
+}
+
+void ReosRasterWatershedDirectionCalculation::start()
+{
+  mIsSuccessful = false;
+
+  unsigned nbThread = maximumThreadCount();
+
+  mThreads.clear();
+  mJobs.clear();
+
+  for ( unsigned i = 0; i < nbThread; ++i )
+  {
+    bool pixelAvailable;
+    ReosRasterWatershed::Climber pix = getClimberFromPool( pixelAvailable );
+    if ( pixelAvailable )
+    {
+      ReosRasterWatershedMarkerFromDirection *cal = new ReosRasterWatershedMarkerFromDirection( this, pix, mDirections, mWatershed, mDownstreamLine );
+      mJobs.emplace_back( cal );
+      mThreads.emplace_back( ReosProcess::processStart, cal );
+    }
+  }
+
+  for ( auto &&t : mThreads )
+  {
+    t.join();
+  }
+
+  mJobs.clear();
+  mThreads.clear();
+
+  mIsSuccessful = true;
+  finish();
 }

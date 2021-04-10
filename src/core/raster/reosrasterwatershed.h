@@ -31,6 +31,7 @@ namespace ReosRasterWatershed
 {
   typedef ReosRasterMemory<unsigned char> Directions;
   typedef ReosRasterMemory<unsigned char> Watershed;
+  typedef ReosRasterMemory<unsigned char> Dem;
 
   struct Climber
   {
@@ -44,6 +45,18 @@ namespace ReosRasterWatershed
 }
 
 class ReosRasterWatershedFromDirectionAndDownStreamLine;
+
+class ReosRasterWatershedDirectionCalculation: public ReosProcess
+{
+  public:
+    ReosRasterWatershedDirectionCalculation( const ReosRasterWatershed::Dem &dem );
+
+    void start() override;
+
+  private:
+    const ReosRasterWatershed::Dem mDem;
+    std::vector<std::thread> mThreads;
+};
 
 /**
  * Class used to mark cells from a direction raster that are in the same watershed.
@@ -65,7 +78,7 @@ class REOSCORE_EXPORT ReosRasterWatershedMarkerFromDirection: public ReosProcess
 
     ReosRasterWatershedMarkerFromDirection( ReosRasterWatershedFromDirectionAndDownStreamLine *mParent,
                                             const ReosRasterWatershed::Climber &initialClimb,
-                                            ReosRasterWatershed::Directions directions,
+                                            const ReosRasterWatershed::Directions &directions,
                                             ReosRasterWatershed::Watershed &watershed,
                                             const ReosRasterLine &excludedCell );
 
@@ -73,7 +86,7 @@ class REOSCORE_EXPORT ReosRasterWatershedMarkerFromDirection: public ReosProcess
 
   private:
     ReosRasterWatershedFromDirectionAndDownStreamLine *mParent;
-    ReosRasterWatershed::Directions mDirections;
+    const ReosRasterWatershed::Directions mDirections;
     ReosRasterWatershed::Watershed &mWatershed;
     ReosRasterLine mExcludedPixel;
     std::queue<ReosRasterWatershed::Climber> mClimberToTreat;
@@ -88,11 +101,11 @@ class REOSCORE_EXPORT ReosRasterWatershedFromDirectionAndDownStreamLine: public 
   public:
     //! Constructor with \a rasterDirection and downstream \a line
     ReosRasterWatershedFromDirectionAndDownStreamLine(
-      ReosRasterWatershed::Directions rasterDirection,
+      const ReosRasterWatershed::Directions &rasterDirection,
       const ReosRasterLine &line );
 
     ReosRasterWatershedFromDirectionAndDownStreamLine(
-      ReosRasterWatershed::Directions rasterDirection,
+      const ReosRasterWatershed::Directions &rasterDirection,
       const ReosRasterLine &line,
       ReosRasterTestingCell *testingCell );
 

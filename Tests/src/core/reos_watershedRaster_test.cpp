@@ -72,9 +72,37 @@ TEST_F( ReosRasterWatershedTest, RasterFilling )
   EXPECT_TRUE( testFilledDem == returnDem );
 
   ReosRasterMemory<unsigned char> testFilledDemDir;
-  testFilledDemDir.loadDataFromTiffFile( test_file( "filledDemDir.tiff" ).c_str(), GDALDataType::GDT_Byte );
+  testFilledDemDir.loadDataFromTiffFile( test_file( "filledDemDir_expected.tiff" ).c_str(), GDALDataType::GDT_Byte );
   ReosRasterMemory<unsigned char> filledDemDir = rasterFilling->directionRaster();
+
   EXPECT_TRUE( testFilledDemDir == filledDemDir );
+}
+
+TEST_F( ReosRasterWatershedTest, PlanDEM_1 )
+{
+  ReosRasterMemory<float> dem( 10, 10 );
+  dem.reserveMemory();
+
+  for ( int i = 0; i < 10; ++i )
+    for ( int j = 0; j < 10; ++j )
+      dem.setValue( i, j, 10.0 - i / 10.0 );
+
+  std::unique_ptr<ReosRasterFillingWangLiu> rasterFilling;
+  rasterFilling.reset( new ReosRasterFillingWangLiu( dem, 1.0, 1.0 ) );
+
+  rasterFilling->start();
+  EXPECT_TRUE( rasterFilling->isSuccessful() );
+
+  ReosRasterMemory<unsigned char> direction = rasterFilling->directionRaster();
+
+  GDALAllRegister();
+
+  ReosRasterExtent extent( 0, 0, 10, 10, 1, -1 );
+  direction.createTiffFile( test_file( "planDEM1_expected.tiff" ).c_str(), GDALDataType::GDT_Byte, extent );
+  rasterFilling->filledDEM().createTiffFile( test_file( "planDEM1_dem_expected.tiff" ).c_str(), GDALDataType::GDT_Float32, extent );
+
+  int a = 1;
+
 }
 
 TEST_F( ReosRasterWatershedTest, Delineate )
