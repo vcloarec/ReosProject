@@ -33,34 +33,32 @@ class REOSCORE_EXPORT ReosProcess : public QObject
   public:
     virtual ~ReosProcess();
 
-    //! Returns the max progression value
-    int maxProgression() const;
+    virtual void stop( bool b );
+    bool isStop();
+    bool isSuccessful() const;
+    bool isFinished() const;
 
+    virtual void start() = 0;
     //! Return the current progression on the process
     int currentProgression() const;
 
-    QString currentInformation() const;
-
-    virtual void stop( bool b );
-    bool isStop();
-
-    bool isSuccessful() const;
-    void setSuccesful( bool b );
-
-    bool isFinished() const;
-
-    static void processStart( ReosProcess *p );
-    virtual void start() = 0;
-
-    //! Sets a the current sub process
-    void setSubProcess( ReosProcess *subProcess );
+    //! Returns the max progression value
+    int maxProgression() const;
 
     //! Sets the maximum progression value
     void setMaxProgression( int value );
-    void setCurrentProgression( int value );
+
+    QString currentInformation() const;
     void setInformation( const QString &info );
 
+    //! Start the process on another thread
     void startOnOtherThread();
+
+    //! Static method used to start a process (used in std::thread API)
+    static void processStart( ReosProcess *p );
+
+    void setSuccesful( bool b );
+    void setCurrentProgression( int value );
 
   signals:
     void sendInformation( const QString & );
@@ -70,6 +68,9 @@ class REOSCORE_EXPORT ReosProcess : public QObject
 
   protected:
     bool mIsSuccessful = false;
+
+    //! Sets a the current sub process
+    void setSubProcess( ReosProcess *subProcess );
 
   private:
     int mMaxProgression;
