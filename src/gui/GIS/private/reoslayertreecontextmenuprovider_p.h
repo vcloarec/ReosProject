@@ -18,8 +18,6 @@ class ReosGisLayerTreeContextMenuProvider: public QgsLayerTreeViewMenuProvider
     QgsLayerTreeView *mLayerTreeView = nullptr;
     QgsLayerTreeViewDefaultActions *mDefaultAction = nullptr;
     ReosMap *mMap = nullptr;
-
-    QAction *mActionRegisterAsDem = nullptr;
 };
 
 #endif // REOSLAYERTREECONTEXTMENUPROVIDER_H

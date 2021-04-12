@@ -40,6 +40,8 @@ class REOSGUI_EXPORT ReosGisLayersWidget: public QWidget
     void registerCurrentLayerAsDigitalElevationModel();
     void unRegisterCurrentLayerAsDigitalElevationModel();
 
+    void layerProperties();
+
   private slots:
     void onLoadQGISProject();
     void onLoadVectorLayer();

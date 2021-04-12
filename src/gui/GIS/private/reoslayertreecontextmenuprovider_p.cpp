@@ -56,21 +56,33 @@ QMenu *ReosGisLayerTreeContextMenuProvider::createContextMenu()
   menu->addAction( mDefaultAction->actionMoveToBottom( mLayerTreeView ) );
   menu->addAction( mDefaultAction->actionGroupSelected( mLayerTreeView ) );
 
-  QgsRasterLayer *rasterLayer = qobject_cast<QgsRasterLayer *>( mLayerTreeView->currentLayer() );
-  if ( rasterLayer && rasterLayer->dataProvider() && rasterLayer->dataProvider()->bandCount() == 1 )
+  QgsMapLayer *currentLayer = mLayerTreeView->currentLayer();
+
+  if ( currentLayer )
   {
     menu->addSeparator();
-    if ( mLayerWidget->isLayerDigitalElevationModel( rasterLayer->id() ) )
+    QAction *layerPropertiesAction = menu->addAction( QObject::tr( "Layer properties" ) );
+    QObject::connect( layerPropertiesAction, &QAction::triggered, mLayerWidget, &ReosGisLayersWidget::layerProperties );
+
+    QgsRasterLayer *rasterLayer = qobject_cast<QgsRasterLayer *>( mLayerTreeView->currentLayer() );
+    if ( rasterLayer && rasterLayer->dataProvider() && rasterLayer->dataProvider()->bandCount() == 1 )
     {
-      QAction *unRegisterAction = menu->addAction( QPixmap( ":/images/noDem.svg" ), QObject::tr( "Unregister as Digital Elevation Model" ) );
-      QObject::connect( unRegisterAction, &QAction::triggered, mLayerWidget, &ReosGisLayersWidget::unRegisterCurrentLayerAsDigitalElevationModel );
-    }
-    else
-    {
-      QAction *registerAction = menu->addAction( QPixmap( ":/images/dem.svg" ), QObject::tr( "Register as Digital Elevation Model" ) );
-      QObject::connect( registerAction, &QAction::triggered, mLayerWidget, &ReosGisLayersWidget::registerCurrentLayerAsDigitalElevationModel );
+      menu->addSeparator();
+      if ( mLayerWidget->isLayerDigitalElevationModel( rasterLayer->id() ) )
+      {
+        QAction *unRegisterAction = menu->addAction( QPixmap( ":/images/noDem.svg" ), QObject::tr( "Unregister as Digital Elevation Model" ) );
+        QObject::connect( unRegisterAction, &QAction::triggered, mLayerWidget, &ReosGisLayersWidget::unRegisterCurrentLayerAsDigitalElevationModel );
+      }
+      else
+      {
+        QAction *registerAction = menu->addAction( QPixmap( ":/images/dem.svg" ), QObject::tr( "Register as Digital Elevation Model" ) );
+        QObject::connect( registerAction, &QAction::triggered, mLayerWidget, &ReosGisLayersWidget::registerCurrentLayerAsDigitalElevationModel );
+      }
     }
   }
+
+
+
 
   return menu;
 }

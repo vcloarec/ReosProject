@@ -120,6 +120,11 @@ void ReosGisLayersWidget::unRegisterCurrentLayerAsDigitalElevationModel()
   mTreeView->removeIndicator( mTreeView->currentNode(), mDemIndicator );
 }
 
+void ReosGisLayersWidget::layerProperties()
+{
+  onTreeLayerDoubleClick();
+}
+
 void ReosGisLayersWidget::onLoadQGISProject()
 {
   ReosSettings settings;
