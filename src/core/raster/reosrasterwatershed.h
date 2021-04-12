@@ -19,7 +19,9 @@ email                : vcloarec@gmail.com
 #include <queue>
 #include <thread>
 #include <algorithm>
+#include <iostream>
 #include <QPolygonF>
+#include <QtConcurrentMap>
 
 #include "reosprocess.h"
 #include "reosmemoryraster.h"
@@ -31,6 +33,7 @@ namespace ReosRasterWatershed
 {
   typedef ReosRasterMemory<unsigned char> Directions;
   typedef ReosRasterMemory<unsigned char> Watershed;
+  typedef ReosRasterMemory<float> Dem;
 
   struct Climber
   {
@@ -44,6 +47,39 @@ namespace ReosRasterWatershed
 }
 
 class ReosRasterWatershedFromDirectionAndDownStreamLine;
+
+class ReosRasterWatershedDirectionCalculation: public ReosProcess
+{
+  public:
+    ReosRasterWatershedDirectionCalculation( const ReosRasterWatershed::Dem &dem );
+
+    void stop( bool b ) override;
+
+    int currentProgression() const override;
+    int maxProgression() const override;
+
+    void start() override;
+
+    struct Job
+    {
+      int startRow;
+      int endRow;
+      const ReosRasterWatershed::Dem &dem;
+      ReosRasterWatershed::Directions *directions;
+    };
+
+    static void calculateDirection( Job job );
+
+    ReosRasterWatershed::Directions directions() const;
+
+  private:
+    const ReosRasterWatershed::Dem mDem;
+    ReosRasterWatershed::Directions mDirections;
+    std::vector<std::thread> mThreads;
+
+    QFuture<void> mFuture;
+
+};
 
 /**
  * Class used to mark cells from a direction raster that are in the same watershed.
@@ -65,7 +101,7 @@ class REOSCORE_EXPORT ReosRasterWatershedMarkerFromDirection: public ReosProcess
 
     ReosRasterWatershedMarkerFromDirection( ReosRasterWatershedFromDirectionAndDownStreamLine *mParent,
                                             const ReosRasterWatershed::Climber &initialClimb,
-                                            ReosRasterWatershed::Directions directions,
+                                            const ReosRasterWatershed::Directions &directions,
                                             ReosRasterWatershed::Watershed &watershed,
                                             const ReosRasterLine &excludedCell );
 
@@ -73,7 +109,7 @@ class REOSCORE_EXPORT ReosRasterWatershedMarkerFromDirection: public ReosProcess
 
   private:
     ReosRasterWatershedFromDirectionAndDownStreamLine *mParent;
-    ReosRasterWatershed::Directions mDirections;
+    const ReosRasterWatershed::Directions mDirections;
     ReosRasterWatershed::Watershed &mWatershed;
     ReosRasterLine mExcludedPixel;
     std::queue<ReosRasterWatershed::Climber> mClimberToTreat;
@@ -88,11 +124,11 @@ class REOSCORE_EXPORT ReosRasterWatershedFromDirectionAndDownStreamLine: public 
   public:
     //! Constructor with \a rasterDirection and downstream \a line
     ReosRasterWatershedFromDirectionAndDownStreamLine(
-      ReosRasterWatershed::Directions rasterDirection,
+      const ReosRasterWatershed::Directions &rasterDirection,
       const ReosRasterLine &line );
 
     ReosRasterWatershedFromDirectionAndDownStreamLine(
-      ReosRasterWatershed::Directions rasterDirection,
+      const ReosRasterWatershed::Directions &rasterDirection,
       const ReosRasterLine &line,
       ReosRasterTestingCell *testingCell );
 

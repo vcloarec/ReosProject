@@ -23,21 +23,25 @@ ReosProcess::~ReosProcess() {}
 int ReosProcess::maxProgression() const
 {
   QMutexLocker locker( &mMutexProgression );
-  return mMaxProgression;
+  if ( mCurrentSubProcess )
+    return mCurrentSubProcess->maxProgression();
+  else
+    return mMaxProgression;
 }
 
 void ReosProcess::setMaxProgression( int value )
 {
   QMutexLocker locker( &mMutexProgression );
-  if ( mParentProcess )
-    mParentProcess->setMaxProgression( value );
   mMaxProgression = value;
 }
 
 int ReosProcess::currentProgression() const
 {
   QMutexLocker locker( &mMutexProgression );
-  return mCurrentProgression;
+  if ( mCurrentSubProcess )
+    return mCurrentSubProcess->currentProgression();
+  else
+    return mCurrentProgression;
 }
 
 QString ReosProcess::currentInformation() const
@@ -49,9 +53,16 @@ QString ReosProcess::currentInformation() const
 void ReosProcess::setCurrentProgression( int value )
 {
   QMutexLocker locker( &mMutexProgression );
-  if ( mParentProcess )
-    mParentProcess->setCurrentProgression( value );
   mCurrentProgression = value;
+}
+
+unsigned ReosProcess::maximumThread()
+{
+  unsigned maxThread = std::max( std::thread::hardware_concurrency() - 1, 1u );
+  if ( MAX_THREAD > 0u )
+    maxThread = std::min( MAX_THREAD, maxThread );
+
+  return maxThread;
 }
 
 void ReosProcess::startOnOtherThread()
@@ -119,6 +130,8 @@ void ReosProcess::processStart( ReosProcess *p )
 
 void ReosProcess::setSubProcess( ReosProcess *subProcess )
 {
+  QMutexLocker locker( &mMutexProgression );
   mCurrentSubProcess = subProcess;
-  subProcess->setParentProcess( this );
+  if ( subProcess )
+    subProcess->setParentProcess( this );
 }

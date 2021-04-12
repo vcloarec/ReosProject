@@ -23,6 +23,8 @@ email                : vcloarec at gmail dot com
 
 #include "reoscore.h"
 
+#define MAX_THREAD 0u
+
 /**
  * Abstract class that represent a process (long calculation). this class has convenient method to handle feedback and bring the process in other thread
  * Processes can be nested.
@@ -40,13 +42,13 @@ class REOSCORE_EXPORT ReosProcess : public QObject
 
     virtual void start() = 0;
     //! Return the current progression on the process
-    int currentProgression() const;
+    virtual int currentProgression() const;
 
     //! Returns the max progression value
-    int maxProgression() const;
+    virtual int maxProgression() const;
 
     //! Sets the maximum progression value
-    void setMaxProgression( int value );
+    virtual void setMaxProgression( int value );
 
     QString currentInformation() const;
     void setInformation( const QString &info );
@@ -60,6 +62,8 @@ class REOSCORE_EXPORT ReosProcess : public QObject
     void setSuccesful( bool b );
     void setCurrentProgression( int value );
 
+    static unsigned maximumThread();
+
   signals:
     void sendInformation( const QString & );
 
@@ -69,7 +73,7 @@ class REOSCORE_EXPORT ReosProcess : public QObject
   protected:
     bool mIsSuccessful = false;
 
-    //! Sets a the current sub process
+    //! Sets a the current sub process, do not take ownership and caller must set nullptr before deleting the subprocess
     void setSubProcess( ReosProcess *subProcess );
 
   private:

@@ -18,7 +18,7 @@ email                : vcloarec@gmail.com
 
 ReosRasterWatershedMarkerFromDirection::ReosRasterWatershedMarkerFromDirection( ReosRasterWatershedFromDirectionAndDownStreamLine *parent,
     const ReosRasterWatershed::Climber &initialClimb,
-    ReosRasterWatershed::Directions directionRaster,
+    const ReosRasterWatershed::Directions &directionRaster,
     ReosRasterWatershed::Watershed &resultRaster,
     const ReosRasterLine &excludedPixel ):
   mParent( parent ),
@@ -91,7 +91,7 @@ void ReosRasterWatershedMarkerFromDirection::start()
 
 }
 
-ReosRasterWatershedFromDirectionAndDownStreamLine::ReosRasterWatershedFromDirectionAndDownStreamLine( ReosRasterWatershed::Directions rasterDirection,
+ReosRasterWatershedFromDirectionAndDownStreamLine::ReosRasterWatershedFromDirectionAndDownStreamLine( const ReosRasterWatershed::Directions &rasterDirection,
     const ReosRasterLine &line ):
   mDirections( rasterDirection ), mDownstreamLine( line )
 {
@@ -112,7 +112,7 @@ ReosRasterWatershedFromDirectionAndDownStreamLine::ReosRasterWatershedFromDirect
 
 }
 
-ReosRasterWatershedFromDirectionAndDownStreamLine::ReosRasterWatershedFromDirectionAndDownStreamLine( ReosRasterWatershed::Directions rasterDirection,
+ReosRasterWatershedFromDirectionAndDownStreamLine::ReosRasterWatershedFromDirectionAndDownStreamLine( const ReosRasterWatershed::Directions &rasterDirection,
     const ReosRasterLine &line,
     ReosRasterTestingCell *testingCell ):
   ReosRasterWatershedFromDirectionAndDownStreamLine( rasterDirection, line )
@@ -172,7 +172,7 @@ void ReosRasterWatershedFromDirectionAndDownStreamLine::start()
 {
   mIsSuccessful = false;
 
-  unsigned nbThread = std::thread::hardware_concurrency() - 1;
+  unsigned nbThread = maximumThread();
 
   mThreads.clear();
   mJobs.clear();
@@ -303,4 +303,113 @@ void ReosRasterWatershedTraceDownstream::start()
 QPolygonF ReosRasterWatershedTraceDownstream::resultPolyline() const
 {
   return mResultPolyline;
+}
+
+
+ReosRasterWatershedDirectionCalculation::ReosRasterWatershedDirectionCalculation( const ReosRasterWatershed::Dem &dem ): mDem( dem )
+{
+  mDirections.reserveMemory( dem.rowCount(), dem.columnCount() );
+  mDirections.setNodata( 9 );
+}
+
+void ReosRasterWatershedDirectionCalculation::stop( bool b )
+{
+  ReosProcess::stop( b );
+  if ( b )
+    mFuture.cancel();
+}
+
+int ReosRasterWatershedDirectionCalculation::currentProgression() const
+{
+  return mFuture.progressValue();
+}
+
+int ReosRasterWatershedDirectionCalculation::maxProgression() const
+{
+  return mFuture.progressMaximum();
+}
+
+void ReosRasterWatershedDirectionCalculation::start()
+{
+  unsigned threadCount = static_cast<int>( maximumThread() );
+
+  QVector<Job> jobs;
+  int totalRowsCount = mDirections.rowCount();
+  int rowPerJob;
+
+  if ( threadCount > totalRowsCount )
+    threadCount = totalRowsCount;
+
+  if ( totalRowsCount % threadCount == 0 )
+    rowPerJob = totalRowsCount / threadCount;
+  else
+  {
+    rowPerJob = totalRowsCount /  threadCount + 1;
+  }
+
+  for ( int t = 0; t < static_cast<int>( threadCount ); ++t )
+  {
+    int start = t * rowPerJob;
+    int end = std::min( ( t + 1 ) * rowPerJob - 1, totalRowsCount - 1 );
+
+    if ( end >= start )
+      jobs.append( Job( {start, end, mDem, &mDirections} ) );
+  }
+
+  mFuture = QtConcurrent::map( jobs, calculateDirection );
+
+  mFuture.waitForFinished();
+
+  setSuccesful( !mFuture.isCanceled() );
+
+}
+
+void ReosRasterWatershedDirectionCalculation::calculateDirection( ReosRasterWatershedDirectionCalculation::Job job )
+{
+  for ( int row = job.startRow; row <= job.endRow; ++row )
+  {
+    for ( int column = 0; column < job.dem.columnCount(); ++column )
+    {
+      float centralValue = job.dem.value( row, column );
+      unsigned char retDir = 4;
+
+      if ( centralValue == job.dem.noData() )
+        retDir = 9;
+      else
+      {
+        float dzmin = 0;
+
+        for ( unsigned char i = 0; i < 3; ++i )
+          for ( unsigned char j = 0; j < 3; ++j )
+          {
+            if ( i == 1 && j == 1 )
+              continue;
+
+            float z = job.dem.value( row - 1 + i, column - 1 + j );
+
+            if ( z == job.dem.noData() )
+              continue;
+
+            float dz = ( z - centralValue );
+
+            unsigned char dir = i + 3 * j;
+
+            if ( dir % 2 == 0 )
+              dz = dz / sqrt( 2 );
+
+            if ( dz < dzmin )
+            {
+              retDir = dir;
+              dzmin = dz;
+            }
+          }
+      }
+      job.directions->setValue( row, column, retDir );
+    }
+  }
+}
+
+ReosRasterWatershed::Directions ReosRasterWatershedDirectionCalculation::directions() const
+{
+  return mDirections;
 }

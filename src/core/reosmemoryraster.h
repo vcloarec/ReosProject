@@ -337,7 +337,7 @@ bool ReosRasterMemory<T>::loadDataFromTiffFile( const char *fileName, GDALDataTy
   }
 
   Band = Dataset->GetRasterBand( 1 );
-  reserveMemory( Band->GetXSize(), Band->GetYSize() );
+  reserveMemory( Band->GetYSize(), Band->GetXSize() );
 
   CPLErr err = Band->RasterIO( GF_Read, 0, 0, mColumnCount, mRowCount, mValues.data(), mColumnCount, mRowCount, type, 0, 0 );
   if ( err )
