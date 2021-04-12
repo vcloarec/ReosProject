@@ -215,9 +215,15 @@ void ReosWatershedWidget::onRemoveWatershed()
   // update the residual of downstream if exist
   if ( downstreamWatershed && downstreamResidualWatershed )
   {
-    ReosMapPolygon *mapDelin = mapDelineating( downstreamResidualWatershed );
-    if ( mapDelin )
-      mapDelin->resetPolygon( downstreamResidualWatershed->delineating() );
+    // remove the old map polygon
+    mMapWatersheds.remove( downstreamResidualWatershed );
+    // add new one if still exist
+    downstreamResidualWatershed = downstreamWatershed->residualWatershed();
+    if ( downstreamResidualWatershed )
+    {
+      mMapWatersheds[downstreamResidualWatershed] = MapWatershed( mMap, downstreamResidualWatershed->delineating(), downstreamResidualWatershed->outletPoint() );
+      formatMapWatershed( mMapWatersheds[downstreamResidualWatershed] );
+    }
   }
 
   emit currentWatershedChanged( nullptr );
