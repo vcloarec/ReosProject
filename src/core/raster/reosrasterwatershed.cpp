@@ -353,7 +353,7 @@ void ReosRasterWatershedDirectionCalculation::start()
     int end = std::min( ( t + 1 ) * rowPerJob - 1, totalRowsCount - 1 );
 
     if ( end >= start )
-      jobs.append( Job( {start, end, mDem, &mDirections} ) );
+      jobs.append( Job( {start, end,&mDem, &mDirections} ) );
   }
 
   mFuture = QtConcurrent::map( jobs, calculateDirection );
@@ -368,12 +368,12 @@ void ReosRasterWatershedDirectionCalculation::calculateDirection( ReosRasterWate
 {
   for ( int row = job.startRow; row <= job.endRow; ++row )
   {
-    for ( int column = 0; column < job.dem.columnCount(); ++column )
+    for ( int column = 0; column < job.dem->columnCount(); ++column )
     {
-      float centralValue = job.dem.value( row, column );
+      float centralValue = job.dem->value( row, column );
       unsigned char retDir = 4;
 
-      if ( centralValue == job.dem.noData() )
+      if ( centralValue == job.dem->noData() )
         retDir = 9;
       else
       {
@@ -385,9 +385,9 @@ void ReosRasterWatershedDirectionCalculation::calculateDirection( ReosRasterWate
             if ( i == 1 && j == 1 )
               continue;
 
-            float z = job.dem.value( row - 1 + i, column - 1 + j );
+            float z = job.dem->value( row - 1 + i, column - 1 + j );
 
-            if ( z == job.dem.noData() )
+            if ( z == job.dem->noData() )
               continue;
 
             float dz = ( z - centralValue );

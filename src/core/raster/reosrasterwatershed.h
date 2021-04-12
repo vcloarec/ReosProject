@@ -64,7 +64,7 @@ class ReosRasterWatershedDirectionCalculation: public ReosProcess
     {
       int startRow;
       int endRow;
-      const ReosRasterWatershed::Dem &dem;
+      ReosRasterWatershed::Dem *dem;
       ReosRasterWatershed::Directions *directions;
     };
 
@@ -73,7 +73,7 @@ class ReosRasterWatershedDirectionCalculation: public ReosProcess
     ReosRasterWatershed::Directions directions() const;
 
   private:
-    const ReosRasterWatershed::Dem mDem;
+    ReosRasterWatershed::Dem mDem;
     ReosRasterWatershed::Directions mDirections;
     std::vector<std::thread> mThreads;
 
