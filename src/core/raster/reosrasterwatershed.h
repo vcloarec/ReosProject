@@ -19,7 +19,9 @@ email                : vcloarec@gmail.com
 #include <queue>
 #include <thread>
 #include <algorithm>
+#include <iostream>
 #include <QPolygonF>
+#include <QtConcurrentMap>
 
 #include "reosprocess.h"
 #include "reosmemoryraster.h"
@@ -31,7 +33,7 @@ namespace ReosRasterWatershed
 {
   typedef ReosRasterMemory<unsigned char> Directions;
   typedef ReosRasterMemory<unsigned char> Watershed;
-  typedef ReosRasterMemory<unsigned char> Dem;
+  typedef ReosRasterMemory<float> Dem;
 
   struct Climber
   {
@@ -51,11 +53,32 @@ class ReosRasterWatershedDirectionCalculation: public ReosProcess
   public:
     ReosRasterWatershedDirectionCalculation( const ReosRasterWatershed::Dem &dem );
 
+    void stop( bool b ) override;
+
+    int currentProgression() const override;
+    int maxProgression() const override;
+
     void start() override;
+
+    struct Job
+    {
+      int startRow;
+      int endRow;
+      const ReosRasterWatershed::Dem &dem;
+      ReosRasterWatershed::Directions *directions;
+    };
+
+    static void calculateDirection( Job job );
+
+    ReosRasterWatershed::Directions directions() const;
 
   private:
     const ReosRasterWatershed::Dem mDem;
+    ReosRasterWatershed::Directions mDirections;
     std::vector<std::thread> mThreads;
+
+    QFuture<void> mFuture;
+
 };
 
 /**

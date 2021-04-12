@@ -37,45 +37,7 @@ void ReosRasterFilling::setYSize( float value )
   mYSize = value;
 }
 
-ReosRasterMemory<float> ReosRasterFilling::filledDEM() {return mDem;}
-
-unsigned char ReosRasterFilling::calculateDirection( int row, int column )
-{
-  float centralValue = mDem.value( row, column );
-  if ( centralValue == mDem.noData() )
-    return 9;
-
-  unsigned char retDir = 4;
-  float dzmin = 0;
-
-  for ( unsigned char i = 0; i < 3; ++i )
-    for ( unsigned char j = 0; j < 3; ++j )
-    {
-      if ( i == 1 && j == 1 )
-        continue;
-
-      float z = mDem.value( row - 1 + i, column - 1 + j );
-
-      if ( z == mDem.noData() )
-        continue;
-
-      float dz = ( centralValue - z );
-
-      unsigned char dir = i + 3 * j;
-
-      if ( dir % 2 == 0 )
-        dz = dz / sqrt( 2 );
-
-      if ( dz < dzmin )
-      {
-        retDir = dir;
-        dzmin = dz;
-      }
-    }
-
-  return retDir;
-
-}
+const ReosRasterMemory<float> &ReosRasterFilling::filledDEM() const {return mDem;}
 
 ReosRasterFillingWangLiu::ReosRasterFillingWangLiu( const ReosRasterMemory<float> &dem, double XSize, double YSize ):
   ReosRasterFilling( dem, XSize, YSize )
@@ -83,7 +45,7 @@ ReosRasterFillingWangLiu::ReosRasterFillingWangLiu( const ReosRasterMemory<float
 
 bool ReosRasterFillingWangLiu::initialize()
 {
-  mRasterChar = ReosRasterMemory<unsigned char>();
+  mRasterChar = ReosRasterMemory<bool>();
 
   if ( !( mDem.isValid() ) )
     return false;
@@ -91,8 +53,8 @@ bool ReosRasterFillingWangLiu::initialize()
   if ( !mRasterChar.reserveMemory( mDem.rowCount(), mDem.columnCount() ) )
     return false;
 
-  mRasterChar.fill( 255 );
-  mRasterChar.setNodata( 9 );
+  mRasterChar.fill( false );
+  mRasterChar.setNodata( true );
   setMaxProgression( mDem.rowCount()*mDem.columnCount() );
   return true;
 }
@@ -104,70 +66,43 @@ bool ReosRasterFillingWangLiu::makePriorityStack()
   int c = 0;
   float noData = mDem.noData();
 
-  //! Take borders cells and insert them in the prioriry stack if no noData
-
   while ( r < mDem.rowCount() - 1 )
   {
-    mRasterChar.setValue( r, c, 254 );
+    markPixel( r, c );
     if ( mDem.value( r, c ) == noData )
-    {
       mNoDataStack.push_back( ReosRasterCellValue<float>( mDem, r, c ) );
-      mCelllsToCalculateDirectionAtTheEnd.push_back( mNoDataStack.back() );
-    }
     else
-    {
       insertion = mPriorityStack.insert( insertion, ReosRasterCellValue<float>( mDem, r, c ) );
-      mCelllsToCalculateDirectionAtTheEnd.push_back( ( *insertion ) );
-    }
-
     ++r;
   }
 
   while ( c < mDem.columnCount() - 1 )
   {
-    mRasterChar.setValue( r, c, 254 );
+    markPixel( r, c );
     if ( mDem.value( r, c ) == noData )
-    {
       mNoDataStack.push_back( ReosRasterCellValue<float>( mDem, r, c ) );
-      mCelllsToCalculateDirectionAtTheEnd.push_back( mNoDataStack.back() );
-    }
     else
-    {
       insertion = mPriorityStack.insert( insertion, ReosRasterCellValue<float>( mDem, r, c ) );
-      mCelllsToCalculateDirectionAtTheEnd.push_back( ( *insertion ) );
-    }
     ++c;
   }
 
   while ( r > 0 )
   {
-    mRasterChar.setValue( r, c, 254 );
+    markPixel( r, c );
     if ( mDem.value( r, c ) == noData )
-    {
       mNoDataStack.push_back( ReosRasterCellValue<float>( mDem, r, c ) );
-      mCelllsToCalculateDirectionAtTheEnd.push_back( mNoDataStack.back() );
-    }
     else
-    {
       insertion = mPriorityStack.insert( insertion, ReosRasterCellValue<float>( mDem, r, c ) );
-      mCelllsToCalculateDirectionAtTheEnd.push_back( ( *insertion ) );
-    }
     --r;
   }
 
   while ( c > 0 )
   {
-    mRasterChar.setValue( r, c, 254 );
+    markPixel( r, c );
     if ( mDem.value( r, c ) == noData )
-    {
       mNoDataStack.push_back( ReosRasterCellValue<float>( mDem, r, c ) );
-      mCelllsToCalculateDirectionAtTheEnd.push_back( mNoDataStack.back() );
-    }
     else
-    {
       insertion = mPriorityStack.insert( insertion, ReosRasterCellValue<float>( mDem, r, c ) );
-      mCelllsToCalculateDirectionAtTheEnd.push_back( ( *insertion ) );
-    }
     --c;
   }
 
@@ -185,25 +120,20 @@ void ReosRasterFillingWangLiu::processCell( const ReosRasterCellValue<float> &ce
     {
       int RowNeigh = r + i - 1;
       int ColNeigh = c + j - 1;
-      if ( ( mRasterChar.value( RowNeigh, ColNeigh ) == 255 ) && ( ( i * j ) != 1 ) )
+      if ( !( mRasterChar.value( RowNeigh, ColNeigh ) ) && ( ( i * j ) != 1 ) )
       {
         ReosRasterCellValue<float> neigh( mDem, RowNeigh, ColNeigh );
         if ( neigh.value() == mDem.noData() )
-        {
           mNoDataStack.push_back( neigh );
-          setDirectionValue( RowNeigh, ColNeigh, 9 );
-        }
         else
         {
-          unsigned char dir = static_cast<unsigned char>( ( r - RowNeigh + 1 ) + 3 * ( c - ColNeigh + 1 ) );
           float delta = ( sqrt( powf( ( i - 1 ) * float( mXSize ), 2 ) + powf( ( j - 1 ) * float( mYSize ), 2 ) ) ) * mMimimumSlope;
           if ( neigh.value() <= Zcentral + delta )
-          {
             neigh.setValue( Zcentral + delta );
-          }
+
           mPriorityStack.insert( neigh );
-          setDirectionValue( RowNeigh, ColNeigh, dir );
         }
+        markPixel( RowNeigh, ColNeigh );
       }
     }
 }
@@ -217,47 +147,25 @@ void ReosRasterFillingWangLiu::processNoDataCell( const ReosRasterCellValue<floa
     {
       int RowNeigh = r + i - 1;
       int ColNeigh = c + j - 1;
-      if ( ( mRasterChar.value( RowNeigh, ColNeigh ) == 255 ) && ( ( i * j ) != 1 ) )
+      if ( !( mRasterChar.value( RowNeigh, ColNeigh ) ) && ( ( i * j ) != 1 ) )
       {
         ReosRasterCellValue<float> neigh( mDem, RowNeigh, ColNeigh );
         if ( neigh.value() == mDem.noData() )
-        {
           mNoDataStack.push_back( neigh );
-          setDirectionValue( RowNeigh, ColNeigh, 9 );
-        }
         else
-        {
           mPriorityStack.insert( neigh );
-          mCelllsToCalculateDirectionAtTheEnd.push_back( neigh );
-        }
 
+        markPixel( RowNeigh, ColNeigh );
       }
     }
 }
 
-bool ReosRasterFillingWangLiu::calculateBorderDirections()
+void ReosRasterFillingWangLiu::markPixel( int row, int column )
 {
-
-  for ( auto cell : mCelllsToCalculateDirectionAtTheEnd )
-  {
-    int r = cell.row();
-    int c = cell.column();
-    setDirectionValue( r, c, calculateDirection( r, c ) );
-  }
-
-  return true;
-}
-
-void ReosRasterFillingWangLiu::setDirectionValue( int row, int column, unsigned char value )
-{
-  mRasterChar.setValue( row, column, value );
+  mRasterChar.setValue( row, column, true );
   mProgession++;
   if ( mProgession % 100 == 0 )
-  {
     setCurrentProgression( mProgession );
-    if ( isStop() )
-      stop( true );
-  }
 }
 
 void ReosRasterFillingWangLiu::start()
@@ -292,8 +200,6 @@ void ReosRasterFillingWangLiu::start()
 
   if ( isStop() )
     return;
-
-  calculateBorderDirections();
 
   mIsSuccessful = true;
 

@@ -392,7 +392,7 @@ void ReosWatershedDelineatingProcess::start()
     std::unique_ptr<ReosRasterFillingWangLiu> fillDemProcess( new ReosRasterFillingWangLiu( dem, fabs( mOutputRasterExtent.xCellSize() ), fabs( mOutputRasterExtent.yCellSize() ) ) );
     setSubProcess( fillDemProcess.get() );
 
-    setInformation( tr( "Filling digital elevation model and calculating direction" ) );
+    setInformation( tr( "Filling digital elevation model" ) );
     fillDemProcess->start();
 
     if ( isStop() || !fillDemProcess->isSuccessful() )
@@ -401,8 +401,25 @@ void ReosWatershedDelineatingProcess::start()
       return;
     }
 
-    mDirections = fillDemProcess->directionRaster();
+    setCurrentProgression( 0 );
+    std::unique_ptr<ReosRasterWatershedDirectionCalculation> directionProcess( new ReosRasterWatershedDirectionCalculation( fillDemProcess->filledDEM() ) );
+    setSubProcess( directionProcess.get() );
+
+    setInformation( tr( "Calculating direction" ) );
+    directionProcess->start();
+
+    if ( isStop() || !directionProcess->isSuccessful() )
+    {
+      finish();
+      return;
+    }
+
+    mDirections = directionProcess->directions();
+
+    setSubProcess( nullptr );
+
     fillDemProcess.reset();
+    directionProcess.reset();
   }
 
   //--------------------------
@@ -434,6 +451,7 @@ void ReosWatershedDelineatingProcess::start()
   ReosRasterWatershed::Watershed watershed = rasterWatershedFromDirection->watershed();
   ReosRasterCellPos downStreamPoint = rasterWatershedFromDirection->firstCell();
   ReosRasterCellPos endOfLongerPath = rasterWatershedFromDirection->endOfLongerPath();
+  setSubProcess( nullptr );
   rasterWatershedFromDirection.reset();
 
   //--------------------------
@@ -450,6 +468,7 @@ void ReosWatershedDelineatingProcess::start()
     return;
   }
   mOutputWatershed = watershedToPolygon->watershed();
+  setSubProcess( nullptr );
   watershedToPolygon.reset();
 
   //--------------------------

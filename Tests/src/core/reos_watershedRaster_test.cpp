@@ -35,6 +35,7 @@ class ReosRasterWatershedTest: public Test
 
 void init_test()
 {
+  GDALAllRegister();
 }
 
 void finalize_test()
@@ -63,18 +64,20 @@ TEST_F( ReosRasterWatershedTest, RasterFilling )
   rasterFilling->start();
   EXPECT_TRUE( rasterFilling->isSuccessful() );
 
-  GDALAllRegister();
-
   ReosRasterMemory<float> testFilledDem;
   testFilledDem.loadDataFromTiffFile( test_file( "filledDem.tiff" ).c_str(), GDALDataType::GDT_Float32 );
   ReosRasterMemory<float> returnDem;
   returnDem = rasterFilling->filledDEM();
   EXPECT_TRUE( testFilledDem == returnDem );
 
+  std::unique_ptr<ReosRasterWatershedDirectionCalculation> directionCal = std::make_unique<ReosRasterWatershedDirectionCalculation>( rasterFilling->filledDEM() );
+  directionCal->start();
+
   ReosRasterMemory<unsigned char> testFilledDemDir;
   testFilledDemDir.loadDataFromTiffFile( test_file( "filledDemDir_expected.tiff" ).c_str(), GDALDataType::GDT_Byte );
-  ReosRasterMemory<unsigned char> filledDemDir = rasterFilling->directionRaster();
 
+  ReosRasterExtent extent( 0, 0, 11, 11, 1, -1 );
+  ReosRasterMemory<unsigned char> filledDemDir = directionCal->directions();
   EXPECT_TRUE( testFilledDemDir == filledDemDir );
 }
 
@@ -93,22 +96,21 @@ TEST_F( ReosRasterWatershedTest, PlanDEM_1 )
   rasterFilling->start();
   EXPECT_TRUE( rasterFilling->isSuccessful() );
 
-  ReosRasterMemory<unsigned char> direction = rasterFilling->directionRaster();
+  std::unique_ptr<ReosRasterWatershedDirectionCalculation> directionCalculation = std::make_unique<ReosRasterWatershedDirectionCalculation>( rasterFilling->filledDEM() );
+  directionCalculation->start();
+  ReosRasterMemory<unsigned char> direction = directionCalculation->directions();
 
-  GDALAllRegister();
+  for ( int r = 0; r < 9; r++ )
+    for ( int c = 0; c < 10; c++ )
+      EXPECT_EQ( direction.value( r, c ), 5 );
 
-  ReosRasterExtent extent( 0, 0, 10, 10, 1, -1 );
-  direction.createTiffFile( test_file( "planDEM1_expected.tiff" ).c_str(), GDALDataType::GDT_Byte, extent );
-  rasterFilling->filledDEM().createTiffFile( test_file( "planDEM1_dem_expected.tiff" ).c_str(), GDALDataType::GDT_Float32, extent );
-
-  int a = 1;
-
+  for ( int c = 0; c < 10; c++ )
+    EXPECT_EQ( direction.value( 9, c ), 4 );
 }
 
 TEST_F( ReosRasterWatershedTest, Delineate )
 {
   ReosRasterWatershed::Directions directions;
-  GDALAllRegister();
   directions.loadDataFromTiffFile( test_file( "filledDemDir.tiff" ).c_str(), GDALDataType::GDT_Byte );
 
   ReosRasterLine downStreamLine;

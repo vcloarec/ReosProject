@@ -45,8 +45,8 @@ class ReosRasterFilling: public ReosProcess
     //! Set the size of the raster cell in the Y direction (used to apply slope criteria)
     void setYSize( float value );
 
-    //! Returns the calculated filled DEM, the caller has to take the ownership
-    ReosRasterMemory<float> filledDEM();
+    //! Returns the calculated filled DEM
+    const ReosRasterMemory<float> &filledDEM() const;
 
   protected:
 
@@ -55,7 +55,6 @@ class ReosRasterFilling: public ReosProcess
     double mXSize = 0;
     double mYSize = 0;
 
-    unsigned char calculateDirection( int row, int column );
 };
 
 
@@ -69,25 +68,20 @@ class ReosRasterFillingWangLiu: public ReosRasterFilling
 
     void start() override;
 
-    //! Returns the direction raster used to filled the DEM, the caller take ownership
-    ReosRasterMemory<unsigned char> directionRaster() {return mRasterChar;}
-
   private:
     std::multiset<ReosRasterCellValue<float>> mPriorityStack;
     std::deque<ReosRasterCellValue<float>> mNoDataStack;
-    std::deque<ReosRasterCellValue<float>> mCelllsToCalculateDirectionAtTheEnd;
 
-    //! used during the process to store which pixel is treated and may be used after for the direction raster
-    //! 255 : not treated ; 20X in the priorityStack and X is the direction; 00X : X final direction completly treated                    */
-    ReosRasterMemory<unsigned char> mRasterChar;
+    //! used during the process to store which pixel is treated
+    //! 255 : not treated ; 254 in the priorityStack and X is the direction; 00X : X final direction completly treated                    */
+    ReosRasterMemory<bool> mRasterChar;
 
     bool makePriorityStack();
 
     void processCell( const ReosRasterCellValue<float> &central );
     void processNoDataCell( const ReosRasterCellValue<float> &central );
-    bool calculateBorderDirections();
 
-    void setDirectionValue( int row, int column, unsigned char value );
+    void markPixel( int row, int column );
     int mProgession = 0;
 };
 
