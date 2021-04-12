@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="en_US">
+<TS version="2.1" language="ar">
 <context>
     <name>LekanMainWindow</name>
     <message>
@@ -16,12 +16,12 @@
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="71"/>
         <source>Watershed</source>
-        <translation type="unfinished"></translation>
+        <translation>حوض ساكب</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="168"/>
         <source>Hydrology</source>
-        <translation type="unfinished"></translation>
+        <translation>الهدرولوجيا-علم المياه</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="169"/>
@@ -31,7 +31,7 @@
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="170"/>
         <source>Runoff manager</source>
-        <translation type="unfinished"></translation>
+        <translation>الجريان السطحي</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="172"/>
@@ -1337,7 +1337,7 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/core/watershed/reosmeteorologicmodel.cpp" line="234"/>
         <source>Watershed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">حوض ساكب</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosmeteorologicmodel.cpp" line="236"/>
@@ -2537,7 +2537,7 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/ui/reoswatershedwidget.ui"/>
         <source>Watershed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">حوض ساكب</translation>
     </message>
     <message>
         <location filename="../src/ui/reoswatershedwidget.ui"/>
