@@ -35,6 +35,7 @@ class ReosWatershedModule;
 class ReosDelineatingWatershedWidget;
 class ReosRainfallManager;
 class ReosRunoffManager;
+class ReosTinEditor;
 
 static const ReosVersion lekanVersion( "Lekan", 2, 0, 0 );
 
@@ -62,6 +63,7 @@ class LekanMainWindow : public ReosMainWindow
     ReosGisEngine *mGisEngine;
     ReosMap *mMap = nullptr;
     ReosWatershedModule *mWatershedModule = nullptr;
+    ReosTinEditor *mTinEditor = nullptr;
 
     QDockWidget *mGisDock;
     QDockWidget *mDockWatershed;

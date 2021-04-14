@@ -18,7 +18,10 @@ SET(REOS_CORE_SOURCES
   GIS/reosgisengine.cpp
   GIS/reosmapextent.cpp
   GIS/reosexporttovectorfile.cpp
+  GIS/reostriangularirregularnetwork.cpp
   GIS/private/reosdigitalelevationmodel_p.cpp
+  GIS/private/reoseditabletindataprovider_p.cpp
+  GIS/private/reostriangularirregularnetworkqgsdualedge_p.cpp
 
   process/reosprocess.cpp
 
@@ -69,6 +72,7 @@ SET(REOS_CORE_HEADERS
     GIS/reosgisengine.h
     GIS/reosmapextent.h
     GIS/reosexporttovectorfile.h
+    GIS/reostriangularirregularnetwork.h
 
     process/reosprocess.h
 
@@ -106,6 +110,8 @@ SET(REOS_CORE_HEADERS
 
 SET(REOS_CORE_HEADERS_PRIVATE
     GIS/private/reosdigitalelevationmodel_p.h
+    GIS/private/reoseditabletindataprovider_p.h
+    GIS/private/reostriangularirregularnetworkqgsdualedge_p.h
     )
 
 SET(IMAGE_RCCS ../../images/images.qrc

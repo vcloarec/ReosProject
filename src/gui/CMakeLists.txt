@@ -18,10 +18,12 @@ SET(REOS_GUI_SOURCES
     GIS/reosmapitem.cpp
     GIS/reosmaptool.cpp
     GIS/reosgislayerswidget.cpp
+    GIS/reostineditor.cpp
     GIS/private/reosmappolygon_p.cpp
     GIS/private/reosmaptool_p.cpp
     GIS/private/reoslayertreecontextmenuprovider_p.cpp
     GIS/private/reoslayertreeviewdemindicator.cpp
+    GIS/private/reostineditormapitems_p.cpp
 
     watershed/reosdelineatingwatershedwidget.cpp
     watershed/reoswatershedwidget.cpp
@@ -69,6 +71,7 @@ SET(REOS_GUI_HEADERS
     GIS/reosmapitem.h
     GIS/reosmaptool.h
     GIS/reosgislayerswidget.h
+    GIS/reostineditor.h
 
     watershed/reosdelineatingwatershedwidget.h
     watershed/reoswatershedwidget.h
@@ -100,6 +103,7 @@ SET(REOS_GUI_HEADERS_PRIVATE
     GIS/private/reosmaptool_p.h
     GIS/private/reoslayertreecontextmenuprovider_p.h
     GIS/private/reoslayertreeviewdemindicator.h
+    GIS/private/reostineditormapitems_p.h
 
     chart/private/reosplot_p.h
     chart/private/reosidfplot_p.h

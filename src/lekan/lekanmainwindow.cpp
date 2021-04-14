@@ -37,11 +37,14 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reosrunoffmanager.h"
 #include "reosrunoffmodel.h"
 
+#include "reostineditor.h"
+
 
 LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   ReosMainWindow( parent ),
   mGisEngine( new ReosGisEngine( rootModule() ) ),
-  mMap( new ReosMap( mGisEngine, this ) )
+  mMap( new ReosMap( mGisEngine, this ) ),
+  mTinEditor( new ReosTinEditor( mGisEngine, mMap, this ) )
 {
   init();
   setWindowIcon( QPixmap( QStringLiteral( ":/images/lekan.svg" ) ) );
@@ -68,7 +71,8 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   centralWidget()->layout()->addWidget( mMap->mapCanvas() );
 
   mGisDock = new QDockWidget( tr( "GIS Layers" ) );
-  mGisDock->setWidget( new ReosGisLayersWidget( mGisEngine, mMap, this ) );
+  ReosGisLayersWidget *gisLayerWidget = new ReosGisLayersWidget( mGisEngine, mMap, this );
+  mGisDock->setWidget( gisLayerWidget );
   addDockWidget( Qt::LeftDockWidgetArea, mGisDock );
 
   mDockWatershed = new QDockWidget( tr( "Watershed" ), this );
@@ -80,6 +84,8 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   mMap->setDefaultMapTool();
 
   addDockWidget( Qt::TopDockWidgetArea, mMap->temporalControllerDockWidget() );
+
+  connect( gisLayerWidget, &ReosGisLayersWidget::currentLayerChanged, mTinEditor, &ReosTinEditor::setCurrentLayer );
 
   clearProject();
 }
@@ -190,7 +196,10 @@ QList<QMenu *> LekanMainWindow::specificMenus()
   QMenu *mapMenu = new QMenu( tr( "Map" ), this );
   mapMenu->addActions( mMap->mapToolActions() );
 
-  menusList << hydrologyMenu << mapMenu;
+  QMenu *tinMenu = new QMenu( tr( "TIN" ), this );
+  tinMenu->addActions( mTinEditor->actions() );
+
+  menusList << hydrologyMenu << mapMenu << tinMenu;
 
   return menusList;
 }

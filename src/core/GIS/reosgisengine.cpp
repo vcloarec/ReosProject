@@ -37,6 +37,8 @@ email                : vcloarec at gmail dot com
 #include <qgsprojutils.h>
 #include <qgssinglebandpseudocolorrenderer.h>
 
+#include "reoseditabletindataprovider_p.h"
+
 #define  mLayerTreeModel _layerTreeModel(mAbstractLayerTreeModel)
 static QgsLayerTreeModel *_layerTreeModel( QAbstractItemModel *sourceModel )
 {
@@ -85,6 +87,8 @@ void ReosGisEngine::initGisEngine()
   else
     qgisProviderPath = QGIS_PLUGINS;
   QgsProviderRegistry::instance( qgisProviderPath );
+
+  QgsProviderRegistry::instance()->registerProvider( new ReosEditableTinProviderMetadata );
 
   //check for proj data
   const QStringList projPaths = QgsProjUtils::searchPaths();
@@ -145,20 +149,77 @@ QString ReosGisEngine::addRasterLayer( const QString &uri, const QString &name, 
 
 QString ReosGisEngine::addMeshLayer( const QString &uri, const QString &name )
 {
-  std::unique_ptr<QgsMeshLayer> meshLayer( new QgsMeshLayer( uri, name, "mdal" ) );
+  return createTinEditor( name );
+  //std::unique_ptr<QgsMeshLayer> meshLayer( new QgsMeshLayer( uri, name, "mdal" ) );
 
-  if ( meshLayer->isValid() )
+//  if ( meshLayer->isValid() )
+//  {
+//    QgsMapLayer *mapLayer = QgsProject::instance()->addMapLayer( meshLayer.release() );
+//    message( tr( "Mesh layer loaded: %1" ).arg( uri ) );
+//    return mapLayer->id();;
+//  }
+//  else
+//  {
+//    warning( tr( "Mesh layer not loaded: %1" ).arg( uri ) );
+//    return QString();
+//  }
+}
+
+QString ReosGisEngine::createTinEditor( const QString &name )
+{
+  std::unique_ptr<QgsMeshLayer> meshLayer( new QgsMeshLayer( "TIN editor", "name", "ReosTinEditor" ) );
+
+  ReosEditableTinDataProvider *dataProvider = qobject_cast< ReosEditableTinDataProvider *>( meshLayer->dataProvider() );
+
+  QgsMeshLayer *ml = meshLayer.get();
+  connect( dataProvider->triangulation(), &ReosTriangularIrregularNetwork::updated,  meshLayer.get(), [ml]
+  {
+    ml->reload();
+    QgsMeshRendererSettings renderSettings = ml->rendererSettings();
+    QgsMeshRendererScalarSettings scalarSettings = renderSettings.scalarSettings( 0 );
+    QgsColorRampShader colorRampShader = scalarSettings.colorRampShader();
+    if ( std::isnan( colorRampShader.minimumValue() ) )
+    {
+      QgsMeshDatasetGroupMetadata meta = ml->datasetGroupMetadata( QgsMeshDatasetIndex( 0, 0 ) );
+      colorRampShader.setMinimumValue( meta.minimum() );
+      colorRampShader.setMaximumValue( meta.maximum() );
+      scalarSettings.setClassificationMinimumMaximum( meta.minimum(), meta.maximum() );
+      int classeCount = colorRampShader.colorRampItemList().count();
+      colorRampShader.classifyColorRamp( classeCount, -1 );
+      scalarSettings.setColorRampShader( colorRampShader );
+      renderSettings.setScalarSettings( 0, scalarSettings );
+      ml->setRendererSettings( renderSettings );
+    }
+    ml->triggerRepaint();
+  } );
+
+  if ( dataProvider )
   {
     QgsMapLayer *mapLayer = QgsProject::instance()->addMapLayer( meshLayer.release() );
-    message( tr( "Mesh layer loaded: %1" ).arg( uri ) );
+    message( tr( "TIN editor created: %1" ).arg( name ) );
     return mapLayer->id();;
   }
   else
   {
-    warning( tr( "Mesh layer not loaded: %1" ).arg( uri ) );
+    warning( tr( "Could not create TIN editor: %1" ).arg( name ) );
     return QString();
   }
 }
+
+ReosTriangularIrregularNetwork *ReosGisEngine::triangularIrregularNetWork( const QString &layerId ) const
+{
+  QgsMapLayer *layer = QgsProject::instance()->mapLayer( layerId );
+  if ( !layer )
+    return nullptr;
+
+  ReosEditableTinDataProvider *dataProvider = qobject_cast< ReosEditableTinDataProvider *>( layer->dataProvider() );
+
+  if ( dataProvider )
+    return dataProvider->triangulation();
+  else
+    return nullptr;
+}
+
 
 QAbstractItemModel *ReosGisEngine::layerTreeModel() {return mLayerTreeModel;}
 
@@ -386,6 +447,7 @@ void ReosGisEngine::clearProject()
 
   setCrs( QStringLiteral( "EPSG:4326" ) );
 
+  emit cleared();
   emit updated();
 }
 

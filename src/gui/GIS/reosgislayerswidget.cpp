@@ -55,6 +55,10 @@ ReosGisLayersWidget::ReosGisLayersWidget( ReosGisEngine *engine, ReosMap *map, Q
 {
 
   connect( mGisEngine, &ReosGisEngine::updated, this, &ReosGisLayersWidget::onGISEngineUpdated );
+  connect( mGisEngine, &ReosGisEngine::cleared, this, [this]
+  {
+    emit currentLayerChanged( QString() );
+  } );
 
   mTreeView->setModel( engine->layerTreeModel() );
 
@@ -94,6 +98,14 @@ ReosGisLayersWidget::ReosGisLayersWidget( ReosGisEngine *engine, ReosMap *map, Q
   connect( mTreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &ReosGisLayersWidget::updateLayerInsertionPoint );
 
   mTreeView->setMenuProvider( new ReosGisLayerTreeContextMenuProvider( this, mTreeView, mMap ) );
+
+  connect( mTreeView, &QgsLayerTreeView::currentLayerChanged, this, [this]( QgsMapLayer * layer )
+  {
+    if ( layer )
+      emit currentLayerChanged( layer->id() );
+    else
+      emit QString();
+  } );
 }
 
 bool ReosGisLayersWidget::isLayerDigitalElevationModel( const QString &layerId )
@@ -178,6 +190,8 @@ void ReosGisLayersWidget::onLoadRasterLayer()
 
 void ReosGisLayersWidget::onLoadMeshLayer()
 {
+  mGisEngine->addMeshLayer( QString(), QString() );
+  return;
   ReosSettings settings;
   QString path = settings.value( QStringLiteral( "Path/GisLayer" ) ).toString();
   QString filter = mGisEngine->meshLayerFilters();

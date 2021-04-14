@@ -27,6 +27,7 @@ email                : vcloarec at gmail dot com
 
 class ReosDigitalElevationModel;
 class ReosDigitalElevationModelProvider;
+class ReosTriangularIrregularNetwork;
 class QgsRasterLayer;
 
 /**
@@ -52,17 +53,32 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
 
     void initGisEngine();
 
-    //! Adds a vector layer, if the loaded vector layer is invalid, do nothing and return false
+    /**
+     *  Adds a vector layer, return the layer Id.
+     *  If the loaded vector layer is invalid, do nothing and return void QString
+    */
     QString addVectorLayer( const QString &uri, const QString &name = QString() );
+     *  Adds a raster layer, return the layer Id.
 
     /**
-     *  Adds a raster layer, if the loaded vector layer is invalid, do nothing and return false.
      *  If the rasgter layer as to be registered as a DEM, \a isDem has to point to a bool with true value.
      */
     QString addRasterLayer( const QString &uri, const QString &name = QString(), bool *isDEM = nullptr );
+    /**
+     *  Adds a mesh layer, return the layer Id.
+     *  If the loaded mesh layer is invalid, do nothing and return void QString
+    */
 
-    //! Adds a raster layer, if the loaded vector layer is invalid, do nothing and return false
     QString addMeshLayer( const QString &uri, const QString &name = QString() );
+
+    /**
+     *  Create a new TIN editor layer, return the layer Id.
+     *  If the layer is not created return void QString.
+    */
+    QString createTinEditor( const QString &name );
+
+    //! Returns the TIN assocated with the mesh layer with \a layerId, return nullptr if this Id does not correspond with a TIN
+    ReosTriangularIrregularNetwork *triangularIrregularNetWork( const QString &layerId ) const;
 
     //! Returns the layer type corresponding to the the layer Id
     LayerType layerType( const QString layerId ) const;
@@ -132,6 +148,7 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
   signals:
     void crsChanged( const QString &wktCrs );
     void updated();
+    void cleared();
 
   private slots:
     void layerRemoved( const QString &layerId );

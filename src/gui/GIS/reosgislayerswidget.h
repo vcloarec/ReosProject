@@ -42,6 +42,9 @@ class REOSGUI_EXPORT ReosGisLayersWidget: public QWidget
 
     void layerProperties();
 
+  signals:
+    void currentLayerChanged( const QString &layerId );
+
   private slots:
     void onLoadQGISProject();
     void onLoadVectorLayer();
