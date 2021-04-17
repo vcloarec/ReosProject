@@ -284,10 +284,10 @@ void ReosRunoffHydrographWidget::updateHydrograph()
     calculation.reset( mCurrentTransferFunction->calculationProcess( mCurrentRunoff ) );
     if ( calculation )
     {
-      ReosProcessControler *controler = new ReosProcessControler( calculation.get(), this );
-      controler->exec();
+      QApplication::setOverrideCursor( Qt::WaitCursor );
+      calculation->start();
       mCurrentHydrograph = calculation->hydrograph();
-      controler->deleteLater();
+      QApplication::restoreOverrideCursor();
     }
   }
 
