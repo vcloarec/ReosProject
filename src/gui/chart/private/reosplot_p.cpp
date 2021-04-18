@@ -152,13 +152,15 @@ void ReosPlot_p::resetZoomBase()
 
 void ReosPlot_p::setNormalMagnifier()
 {
-  mMagnifier->deleteLater();
+  if ( mMagnifier )
+    mMagnifier->deleteLater();
   mMagnifier = new ReosNormalMagnifier( canvas() );
 }
 
 void ReosPlot_p::setPositiveMagnifier()
 {
-  mMagnifier->deleteLater();
+  if ( mMagnifier )
+    mMagnifier->deleteLater();
   mMagnifier = new ReosPositiveMagnifier( canvas() );
 }
 
