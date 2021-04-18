@@ -106,6 +106,7 @@ class REOSCORE_EXPORT ReosMeteorologicModelsCollection : public QAbstractListMod
 //! Item model class that represents association between watershed and rainfall for a given meteorologic model
 class REOSCORE_EXPORT ReosMeteorologicItemModel: public QIdentityProxyModel
 {
+    Q_OBJECT
   public:
 
     ReosMeteorologicItemModel( ReosWatershedItemModel *watershedModel, QObject *parent = nullptr );

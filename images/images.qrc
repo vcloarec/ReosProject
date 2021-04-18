@@ -95,6 +95,8 @@
         <file>function.svg</file>
         <file>temporal.svg</file>
         <file>moveOutlet.svg</file>
+        <file>addAlternatingBlockRainfall.svg</file>
+        <file>alternatingBlockRainfall.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

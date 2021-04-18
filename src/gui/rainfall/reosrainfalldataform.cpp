@@ -293,3 +293,39 @@ ReosFormWidget *ReosFormWidgetIntensityDurationCurveFactory::createDataWidget( R
 
   return nullptr;
 }
+
+
+ReosFormWidget *ReosFormWidgetAlternatingBlockRainfalFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+{
+  ReosAlternatingBlockRainfall *object = qobject_cast<ReosAlternatingBlockRainfall *>( dataObject );
+  if ( object )
+    return new ReosAlternatingBlockRainfallWidget( object, parent );
+
+  return nullptr;
+}
+
+ReosAlternatingBlockRainfallWidget::ReosAlternatingBlockRainfallWidget( ReosAlternatingBlockRainfall *rainfall, QWidget *parent ):
+  ReosTimeSerieConstantIntervalWidget( rainfall, parent ),
+  mIdfWidget( new ReosIntensityDurationSelectedCurveWidget( this ) )
+{
+  addParameter( rainfall->totalDuration(), 1 );
+
+  if ( ReosRainfallRegistery::isInstantiate() )
+  {
+    ReosRainfallIntensityDurationCurveItem *curveItem =
+      qobject_cast<ReosRainfallIntensityDurationCurveItem *>( ReosRainfallRegistery::instance()->itemByUniqueId( rainfall->intensityDurationUid() ) );
+    if ( curveItem )
+      mIdfWidget->setCurveItem( curveItem );
+    else
+      mIdfWidget->clearCurveItem();
+  }
+
+  connect( mIdfWidget, &ReosIntensityDurationSelectedCurveWidget::curveChanged, rainfall, [rainfall, this]
+  {
+    if ( mIdfWidget->curveItem() )
+      rainfall->setIntensityDurationCurve( this->mIdfWidget->curveItem()->data(), this->mIdfWidget->curveItem()->uniqueId() );
+  } );
+
+  addWidget( mIdfWidget, 3 );
+  addParameter( rainfall->centerCoefficient() );
+}

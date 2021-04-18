@@ -34,6 +34,7 @@ class ReosDataObject;
 class ReosTimeSerieConstantInterval;
 class ReosTimeSerieConstantIntervalModel;
 class ReosChicagoRainfall;
+class ReosAlternatingBlockRainfall;
 class ReosDoubleTriangleRainfall;
 class ReosIntensityDurationSelectedCurveWidget;
 
@@ -65,7 +66,6 @@ class ReosFormWidget : public QWidget
     Qt::Orientation mOrientation = Qt::Vertical;
 
 };
-
 
 class ReosFormDialog : public QDialog
 {

@@ -42,6 +42,7 @@ namespace Ui
 
 class ReosWatershedRunoffModelsModel: public QAbstractTableModel
 {
+    Q_OBJECT
   public:
     ReosWatershedRunoffModelsModel( QObject *parent = nullptr );
 

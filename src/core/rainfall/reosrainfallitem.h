@@ -29,6 +29,7 @@ class ReosParameterString;
 class ReosParameter;
 class ReosRainfallIntensityDurationCurveItem;
 class ReosChicagoRainfall;
+class ReosAlternatingBlockRainfall;
 
 class REOSCORE_EXPORT ReosRainfallItem : public QObject
 {
@@ -262,6 +263,28 @@ class REOSCORE_EXPORT ReosRainfallChicagoItem: public ReosRainfallSerieRainfallI
     void setIntensityDurationCurveUniqueId( const QString &uid );
   private:
     ReosChicagoRainfall *mData = nullptr;
+    QPointer<ReosRainfallIntensityDurationCurveItem> mCurveItem;
+};
+
+class REOSCORE_EXPORT ReosRainfallAlternatingBlockItem: public ReosRainfallSerieRainfallItem
+{
+    Q_OBJECT
+  public:
+    ReosRainfallAlternatingBlockItem( const QString &name, const QString &description );
+    ReosRainfallAlternatingBlockItem( const ReosEncodedElement &element );
+
+    QString dataType() const override {return QStringLiteral( "alternating-block-rainfall" );}
+    ReosAlternatingBlockRainfall *data() const override {return mData;}
+    QIcon icone() const override {return QIcon( QPixmap( ":/images/alternatingBlockRainfall.svg" ) );}
+    virtual bool accept( ReosRainfallItem * ) const override {return false;}
+    virtual ReosEncodedElement encode() const override;
+    void setupData() override;
+    void resolveDependencies() override;
+
+  private slots:
+    void setIntensityDurationCurveUniqueId( const QString &uid );
+  private:
+    ReosAlternatingBlockRainfall *mData = nullptr;
     QPointer<ReosRainfallIntensityDurationCurveItem> mCurveItem;
 };
 

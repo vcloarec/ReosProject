@@ -712,3 +712,73 @@ void ReosRainfallSerieRainfallItem::setupData()
       this->data()->setName( this->name() );
   } );
 }
+
+ReosRainfallAlternatingBlockItem::ReosRainfallAlternatingBlockItem( const QString &name, const QString &description ):
+  ReosRainfallSerieRainfallItem( name, description )
+{
+  mData = new ReosAlternatingBlockRainfall( this );
+  connect( mData, &ReosAlternatingBlockRainfall::newIntensityDuration, this, &ReosRainfallAlternatingBlockItem::setIntensityDurationCurveUniqueId );
+  connectParameters();
+}
+
+ReosRainfallAlternatingBlockItem::ReosRainfallAlternatingBlockItem( const ReosEncodedElement &element ): ReosRainfallSerieRainfallItem( element )
+{
+  mData = ReosAlternatingBlockRainfall::decode( element.getEncodedData( QStringLiteral( "alternating-rainfall-data" ) ) );
+  QString curveItemUniqueId;
+  if ( element.getData( QStringLiteral( "curve-item-unique-id" ), curveItemUniqueId ) )
+  {
+    mData->setIntensityDurationUid( curveItemUniqueId );
+  }
+
+  connect( mData, &ReosAlternatingBlockRainfall::newIntensityDuration, this, &ReosRainfallAlternatingBlockItem::setIntensityDurationCurveUniqueId );
+  connectParameters();
+}
+
+ReosEncodedElement ReosRainfallAlternatingBlockItem::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "alternating-block-rainfall-item" ) );
+
+  encodeBase( element );
+
+  QString curveItemUniqueId;
+  if ( !mCurveItem.isNull() )
+    curveItemUniqueId = mCurveItem->uniqueId();
+  element.addData( QStringLiteral( "curve-item-unique-id" ), curveItemUniqueId );
+
+  element.addEncodedData( QStringLiteral( "alternating-rainfall-data" ), mData->encode() );
+
+  return element;
+}
+
+void ReosRainfallAlternatingBlockItem::setupData()
+{
+  ReosRainfallSerieRainfallItem::setupData();
+
+  if ( mCurveItem )
+    data()->setIntensityDurationUid( mCurveItem->uniqueId() );
+
+  connect( this, &ReosRainfallItem::changed, data(), [this]
+  {
+    if ( this->data() )
+      this->data()->setName( this->name() );
+  } );
+}
+
+void ReosRainfallAlternatingBlockItem::resolveDependencies()
+{
+  if ( ReosRainfallRegistery::isInstantiate() && mData )
+  {
+    mCurveItem = qobject_cast<ReosRainfallIntensityDurationCurveItem *>( ReosRainfallRegistery::instance()->itemByUniqueId( mData->intensityDurationUid() ) );
+    if ( mCurveItem )
+      mData->setIntensityDurationCurve( mCurveItem->data() );
+  }
+}
+
+void ReosRainfallAlternatingBlockItem::setIntensityDurationCurveUniqueId( const QString &uid )
+{
+  if ( !ReosRainfallRegistery::isInstantiate() )
+    return;
+
+  mCurveItem = qobject_cast<ReosRainfallIntensityDurationCurveItem *>
+               ( ReosRainfallRegistery::instance()->rainfallModel()->uniqueIdToItem( uid ) );
+}

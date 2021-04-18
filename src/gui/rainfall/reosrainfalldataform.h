@@ -91,6 +91,23 @@ class ReosFormWidgetChicagoRainfalFactory : public ReosFormWidgetDataFactory
 };
 
 //! Widget that can be uses to display/edits paramters of a Chicago rainfall
+class ReosAlternatingBlockRainfallWidget: public ReosTimeSerieConstantIntervalWidget
+{
+  public:
+    explicit ReosAlternatingBlockRainfallWidget( ReosAlternatingBlockRainfall *rainfall, QWidget *parent );
+
+  private:
+    ReosIntensityDurationSelectedCurveWidget *mIdfWidget = nullptr;
+};
+
+class ReosFormWidgetAlternatingBlockRainfalFactory : public ReosFormWidgetDataFactory
+{
+  public:
+    ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent ) override;
+    QString datatype() const override {return QStringLiteral( "alternating-block-rainfall" );}
+};
+
+//! Widget that can be uses to display/edits paramters of a Chicago rainfall
 class ReosDoubleTriangleRainfallWidget: public ReosTimeSerieConstantIntervalWidget
 {
   public:

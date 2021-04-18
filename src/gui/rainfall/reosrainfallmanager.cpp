@@ -56,6 +56,7 @@ ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWid
   , mActionAddStation( new QAction( QPixmap( QStringLiteral( ":/images/addStation.svg" ) ), tr( "Add Station" ), this ) )
   , mActionAddGaugedRainfall( new QAction( QPixmap( QStringLiteral( ":/images/addGaugedRainfall.svg" ) ), tr( "Add Gauged Rainfall" ), this ) )
   , mActionAddChicagoRainfall( new QAction( QPixmap( QStringLiteral( ":/images/addChicagoRainfall.svg" ) ), tr( "Add Chicago Rainfall" ), this ) )
+  , mActionAddAlternatingBlockRainfall( new QAction( QPixmap( QStringLiteral( ":/images/addAlternatingBlockRainfall.svg" ) ), tr( "Add Alternating Block Rainfall" ), this ) )
   , mActionAddDoubleTriangleRainfall( new QAction( QPixmap( QStringLiteral( ":/images/addDoubleTriangleRainfall.svg" ) ), tr( "Add Double Triangle Rainfall" ), this ) )
   , mActionAddIDFCurves( new QAction( QPixmap( QStringLiteral( ":/images/addIntensityDurationCurves.svg" ) ), tr( "Add Intensity Duration Frequency Curves" ), this ) )
   , mActionAddIDCurve( new QAction( QPixmap( QStringLiteral( ":/images/addIntensityDurationCurve.svg" ) ), tr( "Add Intensity Duration Curve" ), this ) )
@@ -93,6 +94,7 @@ ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWid
   connect( mActionAddStation, &QAction::triggered, this, &ReosRainfallManager::onAddStation );
   connect( mActionAddGaugedRainfall, &QAction::triggered, this, &ReosRainfallManager::onAddGaugedRainfall );
   connect( mActionAddChicagoRainfall, &QAction::triggered, this, &ReosRainfallManager::onAddChicagoRainfall );
+  connect( mActionAddAlternatingBlockRainfall, &QAction::triggered, this, &ReosRainfallManager::onAddAlternatingBlockRainfall );
   connect( mActionAddDoubleTriangleRainfall, &QAction::triggered, this, &ReosRainfallManager::onAddDoubleTriangleRainfall );
   connect( mActionAddIDFCurves, &QAction::triggered, this, &ReosRainfallManager::onAddIDFCurves );
   connect( mActionAddIDCurve, &QAction::triggered, this, &ReosRainfallManager::onAddIDCurve );
@@ -111,10 +113,12 @@ ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWid
   ReosPlotItemFactories::instance()->addFactory( new ReosPlotItemRainfallIntensityDurationFactory );
   ReosPlotItemFactories::instance()->addFactory( new ReosPlotItemRainfallSerieFactory );
   ReosPlotItemFactories::instance()->addFactory( new ReosPlotItemRainfallChicagoFactory );
+  ReosPlotItemFactories::instance()->addFactory( new ReosPlotItemRainfallAlternatingBlockFactory );
   ReosPlotItemFactories::instance()->addFactory( new ReosPlotItemRainfallDoubleTriangleFactory );
 
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormWidgetRainFallSerieFactory );
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormWidgetChicagoRainfalFactory );
+  ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormWidgetAlternatingBlockRainfalFactory );
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormWidgetDoubleTriangleRainfalFactory );
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormWidgetIntensityDurationCurveFactory );
 }
@@ -323,6 +327,20 @@ void ReosRainfallManager::onAddChicagoRainfall()
   }
 }
 
+void ReosRainfallManager::onAddAlternatingBlockRainfall()
+{
+  QModelIndex index = ui->mTreeView->currentIndex();
+
+  if ( index.isValid() )
+  {
+    QString name = tr( "Rainfall name" );
+    QString description;
+
+    if ( addSimpleItemDialog( tr( "Add Alternating Block Rainfall" ), name, description ) )
+      selectItem( mModel->addAlternatingBlockRainfall( name, description, index ) );
+  }
+}
+
 void ReosRainfallManager::onAddDoubleTriangleRainfall()
 {
   QModelIndex index = ui->mTreeView->currentIndex();
@@ -517,6 +535,7 @@ void ReosRainfallManager::onTreeViewContextMenu( const QPoint &pos )
         case ReosRainfallItem::Station:
           menu.addAction( mActionAddGaugedRainfall );
           menu.addAction( mActionAddChicagoRainfall );
+          menu.addAction( mActionAddAlternatingBlockRainfall );
           menu.addAction( mActionAddDoubleTriangleRainfall );
           menu.addAction( mActionAddIDFCurves );
           break;

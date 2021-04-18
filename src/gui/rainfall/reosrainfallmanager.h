@@ -58,6 +58,7 @@ class REOSGUI_EXPORT ReosRainfallManager : public ReosActionWidget
     void onAddStation();
     void onAddGaugedRainfall();
     void onAddChicagoRainfall();
+    void onAddAlternatingBlockRainfall();
     void onAddDoubleTriangleRainfall();
     void onAddIDFCurves();
     void onAddIDCurve();
@@ -81,6 +82,7 @@ class REOSGUI_EXPORT ReosRainfallManager : public ReosActionWidget
     QAction *mActionAddStation = nullptr;
     QAction *mActionAddGaugedRainfall = nullptr;
     QAction *mActionAddChicagoRainfall = nullptr;
+    QAction *mActionAddAlternatingBlockRainfall = nullptr;
     QAction *mActionAddDoubleTriangleRainfall = nullptr;
     QAction *mActionAddIDFCurves = nullptr;
     QAction *mActionAddIDCurve = nullptr;
@@ -155,6 +157,12 @@ class ReosPlotItemRainfallChicagoFactory: public ReosPlotItemRainfallSerieFactor
 {
   public:
     QString datatype() const override {return QStringLiteral( "chicago-rainfall" );}
+};
+
+class ReosPlotItemRainfallAlternatingBlockFactory: public ReosPlotItemRainfallSerieFactory
+{
+  public:
+    QString datatype() const override {return QStringLiteral( "alternating-block-rainfall" );}
 };
 
 class ReosPlotItemRainfallDoubleTriangleFactory: public ReosPlotItemRainfallSerieFactory
