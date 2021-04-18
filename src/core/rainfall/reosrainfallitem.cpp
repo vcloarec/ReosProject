@@ -21,11 +21,11 @@
 #include "reosrainfallregistery.h"
 #include "reosrainfallmodel.h"
 
-bool ReosRootItem::accept( ReosRainfallItem *item ) const
+bool ReosRootItem::accept( ReosRainfallItem *item, bool acceptSameName ) const
 {
   return ( item &&
-           ( item->type() == ReosRainfallItem::Station || item->type() == ReosRainfallItem::Zone ) &&
-           ReosRainfallItem::accept( item ) );
+           ( item->type() == ReosRainfallItem::Zone ) &&
+           ReosRainfallItem::accept( item, acceptSameName ) );
 }
 
 ReosEncodedElement ReosRootItem::encode() const
@@ -35,12 +35,12 @@ ReosEncodedElement ReosRootItem::encode() const
   return element;
 }
 
-bool ReosZoneItem::accept( ReosRainfallItem *item ) const
+bool ReosZoneItem::accept( ReosRainfallItem *item, bool acceptSameName ) const
 {
 
   return ( item &&
            ( item->type() == ReosRainfallItem::Station || item->type() == ReosRainfallItem::Zone ) &&
-           ReosRainfallItem::accept( item ) );
+           ReosRainfallItem::accept( item, acceptSameName ) );
 }
 
 ReosEncodedElement ReosZoneItem::encode() const
@@ -50,11 +50,11 @@ ReosEncodedElement ReosZoneItem::encode() const
   return element;
 }
 
-bool ReosStationItem::accept( ReosRainfallItem *item ) const
+bool ReosStationItem::accept( ReosRainfallItem *item, bool acceptSameName ) const
 {
   return ( item &&
            item->type() == ReosRainfallItem::Data &&
-           ReosRainfallItem::accept( item ) );
+           ReosRainfallItem::accept( item, acceptSameName ) );
 }
 
 ReosEncodedElement ReosStationItem::encode() const
@@ -162,9 +162,9 @@ int ReosRainfallItem::positionInParent() const
   return pos;
 }
 
-bool ReosRainfallItem::accept( ReosRainfallItem *item ) const
+bool ReosRainfallItem::accept( ReosRainfallItem *item, bool acceptSameName ) const
 {
-  return ( ! hasChildItemName( item->name() ) ) ;
+  return ( acceptSameName || ! hasChildItemName( item->name() ) ) ;
 }
 
 void ReosRainfallItem::clear()
@@ -381,7 +381,7 @@ ReosEncodedElement ReosRainfallGaugedRainfallItem::encode() const
   return element;
 }
 
-bool ReosRainfallGaugedRainfallItem::accept( ReosRainfallItem * ) const
+bool ReosRainfallGaugedRainfallItem::accept( ReosRainfallItem *, bool ) const
 {
   return false;
 }
@@ -405,7 +405,7 @@ ReosRainfallIdfCurvesItem::ReosRainfallIdfCurvesItem( const ReosEncodedElement &
   }
 }
 
-bool ReosRainfallIdfCurvesItem::accept( ReosRainfallItem *item ) const
+bool ReosRainfallIdfCurvesItem::accept( ReosRainfallItem *item, bool ) const
 {
   ReosRainfallDataItem *dataItem = qobject_cast<ReosRainfallDataItem *>( item );
 

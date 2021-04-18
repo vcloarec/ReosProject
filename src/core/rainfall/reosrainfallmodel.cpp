@@ -130,13 +130,10 @@ Qt::ItemFlags ReosRainfallModel::flags( const QModelIndex &index ) const
   return QAbstractItemModel::flags( index ) | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 }
 
-bool ReosRainfallModel::canDropMimeData( const QMimeData *data, Qt::DropAction, int row, int column, const QModelIndex &parent ) const
+bool ReosRainfallModel::canDropMimeData( const QMimeData *data, Qt::DropAction, int, int, const QModelIndex &parent ) const
 {
   ReosRainfallItem *item = uriToItem( data->text() );
   ReosRainfallItem *receiver = indexToItem( parent );
-
-  if ( row != -1 ) //to not allow moving between two items, for now, because it makes crash
-    return false;
 
   if ( item == receiver )
   {
@@ -146,12 +143,12 @@ bool ReosRainfallModel::canDropMimeData( const QMimeData *data, Qt::DropAction, 
   if ( receiver == nullptr )
     receiver = mRootZone.get();
 
-  if ( !item || !receiver || receiver->isSubItem( item ) )
+  if ( !item || !receiver )
   {
     return false;
   }
 
-  return receiver->accept( item );
+  return receiver->accept( item, true );
 }
 
 bool ReosRainfallModel::dropMimeData( const QMimeData *data, Qt::DropAction,  int row, int, const QModelIndex &parent )
@@ -161,15 +158,17 @@ bool ReosRainfallModel::dropMimeData( const QMimeData *data, Qt::DropAction,  in
   if ( receiver == nullptr )
     receiver = mRootZone.get();
 
-  if ( !item || !receiver || receiver->isSubItem( item ) )
+  if ( !item || !receiver )
     return false;
 
   if ( row == -1 )
     row = receiver->childrenCount();
   ReosRainfallItem *oldParent = item->parentItem();
-  beginMoveRows( itemToIndex( oldParent ), item->positionInParent(), item->positionInParent(), parent, row );
+  int positionInOldParent = item->positionInParent();
+
+  if ( receiver == oldParent && row > positionInOldParent )
+    row--;
   receiver->insertChild( row, oldParent->takeChild( item->positionInParent() ) );
-  endMoveRows();
 
   return true;
 }
@@ -568,8 +567,8 @@ void ReosRainfallModel::onItemRemovedfromParent()
 void ReosRainfallModel::onItemWillBeInsertedInParent( ReosRainfallItem *item, int pos )
 {
   QModelIndex index = itemToIndex( item );
-  if ( index.isValid() )
-    beginInsertRows( index, pos, pos );
+  //if ( index.isValid() )
+  beginInsertRows( index, pos, pos );
 }
 
 void ReosRainfallModel::onItemInsertedInParent()
