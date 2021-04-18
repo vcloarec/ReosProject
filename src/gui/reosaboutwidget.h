@@ -42,6 +42,9 @@ class ReosAboutWidget : public QDialog
     void addLibrary( const QString &bibli, const QString &version, const QString &lienWEB = QString() );
     void setLicenceText( const QString &txt );
 
+    void setDevelopersTextFile( const QString &txt );
+    void setTranslatorsTextFile( const QString &txt );
+
   private:
     Ui::ReosAboutWidget *ui;
 };

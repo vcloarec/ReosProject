@@ -112,11 +112,14 @@ SET(IMAGE_RCCS ../../images/images.qrc
                ../../images/cursors/cursors.qrc
                ../../images/formulas/formulas.qrc)
 
+SET(CREDITS_RCCS ../../credits/credits.qrc)
+
 SET(REOS_CORE_LIBS ${REOS_CORE_LIBS} reosCore)
 ADD_LIBRARY(reosCore SHARED
     ${REOS_CORE_SOURCES}
     ${REOS_CORE_HEADERS}
     ${IMAGE_RCCS}
+    ${CREDITS_RCCS}
   )
   
 IF (MSVC)

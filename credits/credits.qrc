@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>developers</file>
+        <file>translators</file>
+    </qresource>
+</RCC>

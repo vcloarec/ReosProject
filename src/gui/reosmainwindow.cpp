@@ -277,6 +277,9 @@ void ReosMainWindow::about()
 
   about->setLicenceText( licenceTxt );
 
+  about->setDevelopersTextFile( QStringLiteral( ":/developers" ) );
+  about->setTranslatorsTextFile( QStringLiteral( ":/translators" ) );
+
   about->exec();
 }
 

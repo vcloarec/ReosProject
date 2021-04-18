@@ -16,6 +16,8 @@ email                : vcloarec at gmail dot com
 #include "reosaboutwidget.h"
 #include "ui_reosaboutwidget.h"
 
+#include <QFile>
+
 ReosAboutWidget::ReosAboutWidget( QWidget *parent ) :
   QDialog( parent ),
   ui( new Ui::ReosAboutWidget )
@@ -81,4 +83,22 @@ void ReosAboutWidget::addLibrary( const QString &lib, const QString &version, co
 void ReosAboutWidget::setLicenceText( const QString &txt )
 {
   ui->textBrowser->setText( txt );
+}
+
+void ReosAboutWidget::setDevelopersTextFile( const QString &txt )
+{
+  QFile devFiles( txt );
+  if ( !devFiles.open( QIODevice::ReadOnly ) )
+    return;
+  QTextStream txtStream( &devFiles );
+  ui->devTextBrowser->setText( txtStream.readAll() );
+}
+
+void ReosAboutWidget::setTranslatorsTextFile( const QString &txt )
+{
+  QFile devFiles( txt );
+  if ( !devFiles.open( QIODevice::ReadOnly ) )
+    return;
+  QTextStream txtStream( &devFiles );
+  ui->transTextBrowser->setText( txtStream.readAll() );
 }
