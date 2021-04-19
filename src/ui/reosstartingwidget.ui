@@ -72,8 +72,8 @@
        </property>
        <property name="iconSize">
         <size>
-         <width>40</width>
-         <height>40</height>
+         <width>48</width>
+         <height>29</height>
         </size>
        </property>
       </widget>
@@ -90,12 +90,12 @@
        </property>
        <property name="icon">
         <iconset resource="../../images/images.qrc">
-         <normaloff>:/images/mActionOpen.png</normaloff>:/images/mActionOpen.png</iconset>
+         <normaloff>:/images/open.svg</normaloff>:/images/open.svg</iconset>
        </property>
        <property name="iconSize">
         <size>
-         <width>40</width>
-         <height>40</height>
+         <width>29</width>
+         <height>29</height>
         </size>
        </property>
       </widget>

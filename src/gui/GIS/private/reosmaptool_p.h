@@ -107,16 +107,7 @@ class ReosMapToolDrawExtent_p: public ReosMapTool_p
     QgsPointXY mStartPoint;
     QgsPointXY mEndPoint;
 
-    void drawExtent()
-    {
-      QgsRectangle rect( mStartPoint, mEndPoint );
-
-      mRubberBand->reset( QgsWkbTypes::PolygonGeometry );
-      mRubberBand->addPoint( QgsPointXY( rect.xMinimum(), rect.yMinimum() ), false );
-      mRubberBand->addPoint( QgsPointXY( rect.xMaximum(), rect.yMinimum() ), false );
-      mRubberBand->addPoint( QgsPointXY( rect.xMaximum(), rect.yMaximum() ), false );
-      mRubberBand->addPoint( QgsPointXY( rect.xMinimum(), rect.yMaximum() ), true );
-    }
+    void drawExtent();
 
 };
 

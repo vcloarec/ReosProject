@@ -136,6 +136,17 @@ void ReosMapToolDrawExtent_p::deactivate()
   ReosMapTool_p::deactivate();
 }
 
+void ReosMapToolDrawExtent_p::drawExtent()
+{
+  QgsRectangle rect( mStartPoint, mEndPoint );
+
+  mRubberBand->reset( QgsWkbTypes::PolygonGeometry );
+  mRubberBand->addPoint( QgsPointXY( rect.xMinimum(), rect.yMinimum() ), false );
+  mRubberBand->addPoint( QgsPointXY( rect.xMaximum(), rect.yMinimum() ), false );
+  mRubberBand->addPoint( QgsPointXY( rect.xMaximum(), rect.yMaximum() ), false );
+  mRubberBand->addPoint( QgsPointXY( rect.xMinimum(), rect.yMaximum() ), true );
+}
+
 ReosMapToolSelectMapItem_p::ReosMapToolSelectMapItem_p( QgsMapCanvas *map, int targetType ):
   ReosMapTool_p( map ),
   mTargetType( targetType )
