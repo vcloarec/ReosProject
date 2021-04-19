@@ -140,13 +140,13 @@
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string>Licence</string>
+       <string>License</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>Under GPL licence v2 or later:</string>
+          <string>Under GPL license v2 or later:</string>
          </property>
         </widget>
        </item>
@@ -197,7 +197,7 @@
      </widget>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">
-       <string>Credits</string>
+       <string>Contributors</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_4" stretch="1,1,1,0">
        <item>
