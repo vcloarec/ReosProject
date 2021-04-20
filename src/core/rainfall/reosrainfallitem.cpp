@@ -298,6 +298,9 @@ ReosStationItem::ReosStationItem( const ReosEncodedElement &element ): ReosRainf
     if ( childElem.description() == QStringLiteral( "chicago-rainfall-item" ) )
       addItem( new ReosRainfallChicagoItem( childElem ) );
 
+    if ( childElem.description() == QStringLiteral( "alternating-block-rainfall-item" ) )
+      addItem( new ReosRainfallAlternatingBlockItem( childElem ) );
+
     if ( childElem.description() == QStringLiteral( "double-triangle-rainfall-item" ) )
       addItem( new ReosRainfallDoubleTriangleItem( childElem ) );
   }
