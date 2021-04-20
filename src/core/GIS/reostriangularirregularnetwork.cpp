@@ -25,6 +25,7 @@
 #include <qgsmulticurve.h>
 #include <qgscurve.h>
 
+
 bool ReosTriangularIrregularNetwork::autoUpdate() const
 {
   return mAutoUpdate;

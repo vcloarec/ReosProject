@@ -34,14 +34,24 @@ ReosTinEditor::ReosTinEditor( ReosGisEngine *gisEngine, ReosMap *map, QWidget *p
   , mParentWidget( parentWidget )
   , mActionAddVertex( new QAction( tr( "Add vertex to the current TIN" ), this ) )
   , mActionFromVectorLayer( new QAction( tr( "From vector layer" ), this ) )
+  , mActionRemoveVertex( new QAction( tr( "Remove vertex" ) ) )
   , mItems( map )
 {
   ReosMapToolDrawPoint *mapToolAddVertex = new ReosMapToolDrawPoint( map );
   mapToolAddVertex->setAction( mActionAddVertex );
   mActionAddVertex->setCheckable( true );
   connect( mapToolAddVertex, &ReosMapToolDrawPoint::drawn, this, &ReosTinEditor::addVertex );
-
   connect( mActionFromVectorLayer, &QAction::triggered, this, &ReosTinEditor::fromVectorLayer );
+
+  mRemoveVertexMapTool = new ReosTinEditorMapToolSelectVertex( map, &mItems );
+  mRemoveVertexMapTool->setAction( mActionRemoveVertex );
+  mActionRemoveVertex->setCheckable( true );
+
+  connect( mRemoveVertexMapTool, &ReosTinEditorMapToolSelectVertex::selectedVertexIndex, this, [this]( int index )
+  {
+    if ( index >= 0 )
+      mCurrentTriangulation->removeVertex( index );
+  } );
 
   setCurrentLayer( QString() );
 }
@@ -49,7 +59,9 @@ ReosTinEditor::ReosTinEditor( ReosGisEngine *gisEngine, ReosMap *map, QWidget *p
 QList<QAction *> ReosTinEditor::actions() const
 {
   QList<QAction *> ret;
-  ret << mActionAddVertex << mActionFromVectorLayer;
+  ret << mActionAddVertex
+      << mActionFromVectorLayer
+      << mActionRemoveVertex;
   return ret;
 }
 
@@ -134,4 +146,18 @@ void ReosTinEditorMapItems::updateItems()
 {
   d_->updatePosition();
   d_->update();
+}
+
+
+ReosTinEditorMapToolSelectVertex::ReosTinEditorMapToolSelectVertex( ReosMap *map, ReosTinEditorMapItems *tinEditorMapItems ): ReosMapTool( map )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  d = new ReosTinEditorMapToolSelectVertex_p( canvas, static_cast<ReosTinEditorMapItems_p *>( tinEditorMapItems->graphicItem() ) );
+  d->setCursor( QCursor( QPixmap( ":/cursors/removeItem.png" ), 3, 3 ) );
+  connect( d, &ReosTinEditorMapToolSelectVertex_p::selectedVertexIndex, this, &ReosTinEditorMapToolSelectVertex::selectedVertexIndex );
+}
+
+ReosMapTool_p *ReosTinEditorMapToolSelectVertex::tool_p() const
+{
+  return d;
 }

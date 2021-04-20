@@ -17,6 +17,7 @@
 #define REOSTINEDITORMAPITEMS_P_H
 
 #include "reosmappolygon_p.h"
+#include "reosmaptool_p.h"
 #include "reostriangularirregularnetwork.h"
 
 #include <QPointer>
@@ -26,35 +27,64 @@ class ReosTinEditorMapItems_p: public ReosMapItem_p
 {
   public:
     ReosTinEditorMapItems_p( QgsMapCanvas *canvas );
-    ReosTinEditorMapItems_p *clone() {return nullptr;}
+    ReosTinEditorMapItems_p *clone() override {return nullptr;}
     QRectF boundingRect() const override {return mBoundingRect;}
     void updatePosition() override;
     //QPainterPath shape() const override;
-    void move( const QPointF &translation ) override {};
+    void move( const QPointF & ) override {};
     QPointF mapPos() const override {return QPointF();}
+
+    void highlightVertex( const QPointF &mapPoint, const QSizeF searchSize );
+    int vertexIndexAt( const QPointF &mapPoint, const QSizeF searchSize );
 
     QPointer<ReosTriangularIrregularNetwork> mTriangulation;
 
   protected:
-
+    void paint( QPainter *painter ) override;
+  private:
     struct PointView
     {
       QPointF posView;
       QPoint gridView;
+      int triangulationIndex;
     };
 
-    QVector < QVector < int>> mGridView;
+    QVector < QVector < QPair<int, int>>> mGridView;
 
-    void paint( QPainter *painter ) override;
     QVector<PointView> mVertexView;
+    int mHighlightVertex = -1;
     QRectF mBoundingRect;
 
-    int resolReduction = 4;
+    int mMinResolReduction = 4;
+    int mResolReduction = 4;
 
-
-
-
+    int searchPointView( const QPointF &map, const QSizeF &searchSize ) const;
 
 };
+
+
+class ReosTinEditorMapToolSelectVertex_p: public ReosMapTool_p
+{
+    Q_OBJECT
+  public:
+    ReosTinEditorMapToolSelectVertex_p( QgsMapCanvas *map, ReosTinEditorMapItems_p *editoMapItems ):
+      ReosMapTool_p( map )
+      , mEditorMapItems( editoMapItems )
+    {
+    }
+
+    void canvasMoveEvent( QgsMapMouseEvent *e ) override;
+    void canvasReleaseEvent( QgsMapMouseEvent *e ) override;
+
+  signals:
+    void selectedVertexIndex( int index );
+
+  protected:
+
+  private:
+    ReosTinEditorMapItems_p *mEditorMapItems = nullptr;
+
+};
+
 
 #endif // REOSTINEDITORMAPITEMS_P_H

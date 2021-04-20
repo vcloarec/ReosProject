@@ -61,7 +61,23 @@ bool ReosTriangularIrregularNetworkQgsDualEdge_p::addVertex( const Vertex &vert 
     emit updated();
   }
 
-  return ( pointAdded );
+  return pointAdded;
+}
+
+bool ReosTriangularIrregularNetworkQgsDualEdge_p::removeVertex( int vertexIndex )
+{
+  bool pointRemoved = mTriangulation->removePoint( vertexIndex );
+
+  if ( pointRemoved )
+    mDirty = true;
+
+  if ( autoUpdate() )
+  {
+    updateMesh();
+    emit updated();
+  }
+
+  return pointRemoved;
 }
 
 void ReosTriangularIrregularNetworkQgsDualEdge_p::addConstraintLine( const QVector<ReosTriangularIrregularNetwork::Vertex> &vertices )

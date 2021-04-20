@@ -35,6 +35,7 @@ class ReosTriangularIrregularNetworkQgsDualEdge_p : public ReosTriangularIrregul
     QgsRectangle qgsExtent() const;
 
     bool addVertex( const Vertex &vert ) override;
+    bool removeVertex( int vertexIndex ) override;
     void addConstraintLine( const QVector<Vertex> &vertices ) override;
     int vertexCount() const override;
     QPointF vertexXY( int index ) const override;

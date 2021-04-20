@@ -49,6 +49,9 @@ class ReosTriangularIrregularNetwork : public QObject
     //! Add a constraint line to the TIN
     virtual void addConstraintLine( const QVector<Vertex> &vertices ) = 0;
 
+    //! Remove a vertex in the TIN, return true if the vertex is effectivly removed
+    virtual bool removeVertex( int vertexIndex ) = 0;
+
     //! Returns the vertices count
     virtual int vertexCount() const = 0;
 

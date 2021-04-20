@@ -23,18 +23,33 @@ class ReosGisEngine;
 class ReosMap;
 class ReosMapToolDrawPoint;
 class ReosTriangularIrregularNetwork;
+class ReosTinEditorMapToolSelectVertex_p;
 
 class ReosTinEditorMapItems : public ReosMapItem
 {
   public:
     ReosTinEditorMapItems( ReosMap *map );
     void setTriangulation( ReosTriangularIrregularNetwork *triangulation );
-
     void updateItems();
+};
+
+class ReosTinEditorMapToolSelectVertex : public ReosMapTool
+{
+    Q_OBJECT
+  public:
+    ReosTinEditorMapToolSelectVertex( ReosMap *map, ReosTinEditorMapItems *tinEditorMapItems );
+
+  signals:
+    void selectedVertexIndex( int vertexIndex );
+
+  private:
+    QPointer<ReosTinEditorMapToolSelectVertex_p> d;
+    ReosMapTool_p *tool_p() const;
 };
 
 class ReosTinEditor: public ReosModule
 {
+    Q_OBJECT
   public:
     ReosTinEditor( ReosGisEngine *gisEngine, ReosMap *map, QWidget *parentWidget );
     QList<QAction *> actions() const;
@@ -50,9 +65,12 @@ class ReosTinEditor: public ReosModule
   private:
     ReosGisEngine *mGisEngine;
     QWidget *mParentWidget;
+
     QAction *mActionAddVertex = nullptr;
     QAction *mActionFromVectorLayer = nullptr;
+    QAction *mActionRemoveVertex = nullptr;
     ReosTinEditorMapItems mItems;
+    ReosTinEditorMapToolSelectVertex *mRemoveVertexMapTool = nullptr;
 
     ReosTriangularIrregularNetwork *mCurrentTriangulation = nullptr;
 };
