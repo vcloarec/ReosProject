@@ -195,34 +195,34 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="694"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="709"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="713"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="728"/>
         <source>Rainfall duration (mn)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="695"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="710"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="714"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="729"/>
         <source>Rainfall intensity (mm/h)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="721"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="740"/>
         <source>, instant value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="729"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="748"/>
         <source>, cumulative value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="733"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="752"/>
         <source>cumulative rainfall (mm)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="736"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="755"/>
         <source>Time</source>
         <translation type="unfinished"></translation>
     </message>
@@ -287,12 +287,37 @@
     </message>
     <message>
         <location filename="../src/ui/reosaboutwidget.ui"/>
-        <source>under GPL licence v2 or later:</source>
+        <source>Dependencies</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reosaboutwidget.ui"/>
-        <source>Following library are used:</source>
+        <source>Following libraries are used:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/reosaboutwidget.ui"/>
+        <source>Developers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/reosaboutwidget.ui"/>
+        <source>Translators</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/reosaboutwidget.ui"/>
+        <source>Contributors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/reosaboutwidget.ui"/>
+        <source>License</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/reosaboutwidget.ui"/>
+        <source>Under GPL license v2 or later:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -315,19 +340,6 @@
     <message>
         <location filename="../src/ui/reoschartwidget.ui"/>
         <source>...</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ReosChicagoRainfall</name>
-    <message>
-        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="19"/>
-        <source>Total Duration</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="20"/>
-        <source>Eccentricity</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -576,17 +588,17 @@ Adjust new watershed?</source>
 <context>
     <name>ReosDoubleTriangleRainfall</name>
     <message>
-        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="351"/>
+        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="360"/>
         <source>Intense Duration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="352"/>
+        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="361"/>
         <source>Total Duration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="353"/>
+        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="362"/>
         <source>Eccentricity</source>
         <translation type="unfinished"></translation>
     </message>
@@ -939,52 +951,52 @@ Adjust new watershed?</source>
 <context>
     <name>ReosImportRainfallDialog</name>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="559"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="578"/>
         <source>name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="560"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="579"/>
         <source>Description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="563"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="582"/>
         <source>Import Rainfall</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="566"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="585"/>
         <source>mm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="567"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="586"/>
         <source>Height per time step</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="568"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="587"/>
         <source>Total height</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="569"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="588"/>
         <source>Rainfall intensity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="587"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="606"/>
         <source>Field to import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="613"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="632"/>
         <source>Select a Station to Import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="653"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="672"/>
         <source>Select a station where to import the rainfall</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1299,12 +1311,12 @@ Adjust new watershed?</source>
 <context>
     <name>ReosMapToolEditPolygon_p</name>
     <message>
-        <location filename="../src/gui/GIS/private/reosmaptool_p.cpp" line="250"/>
+        <location filename="../src/gui/GIS/private/reosmaptool_p.cpp" line="261"/>
         <source>Insert vertex</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/private/reosmaptool_p.cpp" line="265"/>
+        <location filename="../src/gui/GIS/private/reosmaptool_p.cpp" line="276"/>
         <source>Remove vertex</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1518,7 +1530,7 @@ choose a new name:</source>
 <context>
     <name>ReosRainfallIntensityDurationCurveItem</name>
     <message>
-        <location filename="../src/core/rainfall/reosrainfallitem.cpp" line="503"/>
+        <location filename="../src/core/rainfall/reosrainfallitem.cpp" line="506"/>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1616,154 +1628,161 @@ choose a new name:</source>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="56"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="293"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="297"/>
         <source>Add Station</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="57"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="307"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="311"/>
         <source>Add Gauged Rainfall</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="58"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="321"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="325"/>
         <source>Add Chicago Rainfall</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="59"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="335"/>
-        <source>Add Double Triangle Rainfall</source>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="339"/>
+        <source>Add Alternating Block Rainfall</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="60"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="349"/>
-        <source>Add Intensity Duration Frequency Curves</source>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="353"/>
+        <source>Add Double Triangle Rainfall</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="61"/>
-        <source>Add Intensity Duration Curve</source>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="367"/>
+        <source>Add Intensity Duration Frequency Curves</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="62"/>
-        <source>Reorder Intensity Duration Curves</source>
+        <source>Add Intensity Duration Curve</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="63"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="419"/>
-        <source>Remove item</source>
+        <source>Reorder Intensity Duration Curves</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="64"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="437"/>
+        <source>Remove item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="65"/>
         <source>Import Rainfall from Text File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="139"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="165"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="179"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="143"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="169"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="183"/>
         <source>Open Rainfall Data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="139"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="143"/>
         <source>Unable to open the current rainfall data file: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="150"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="154"/>
         <source>Open Rainfall Data File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="151"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="155"/>
         <source>This action will remove the actual rainfall data, do you want to save before?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="179"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="183"/>
         <source>Unable to open the file: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="209"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="213"/>
         <source>Description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="227"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="237"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="231"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="241"/>
         <source>Save Rainfall Data as...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="237"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="266"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="241"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="270"/>
         <source>Unable to write the file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="248"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="275"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="252"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="279"/>
         <source>Zone name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="251"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="255"/>
         <source>Add Zone on Root</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="266"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="270"/>
         <source>Save Rainfall Data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="278"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="282"/>
         <source>Add Zone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="290"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="294"/>
         <source>Station name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="304"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="318"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="332"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="308"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="322"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="336"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="350"/>
         <source>Rainfall name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="346"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="364"/>
         <source>IDF group name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="361"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="379"/>
         <source>Return period</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="364"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="382"/>
         <source>Descriprition</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="366"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="384"/>
         <source>Add new Intensity Duration Curve</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="419"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="437"/>
         <source>Remove: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1797,27 +1816,27 @@ choose a new name:</source>
 <context>
     <name>ReosRainfallSerieRainfallItem</name>
     <message>
-        <location filename="../src/core/rainfall/reosrainfallitem.cpp" line="685"/>
+        <location filename="../src/core/rainfall/reosrainfallitem.cpp" line="688"/>
         <source>Name: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/rainfall/reosrainfallitem.cpp" line="687"/>
+        <location filename="../src/core/rainfall/reosrainfallitem.cpp" line="690"/>
         <source>Type: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/rainfall/reosrainfallitem.cpp" line="692"/>
+        <location filename="../src/core/rainfall/reosrainfallitem.cpp" line="695"/>
         <source>Duration: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/rainfall/reosrainfallitem.cpp" line="694"/>
+        <location filename="../src/core/rainfall/reosrainfallitem.cpp" line="697"/>
         <source>Time Step: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/rainfall/reosrainfallitem.cpp" line="697"/>
+        <location filename="../src/core/rainfall/reosrainfallitem.cpp" line="700"/>
         <source>Cumulative height: %1 mm</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2156,22 +2175,22 @@ is applied on the rainfall</source>
 <context>
     <name>ReosSerieRainfall</name>
     <message>
-        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="387"/>
+        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="396"/>
         <source>mm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="388"/>
+        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="397"/>
         <source>Height per time step</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="389"/>
+        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="398"/>
         <source>Total height</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="390"/>
+        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="399"/>
         <source>Rainfall intensity</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2368,6 +2387,19 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="497"/>
         <source>Factor</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ReosUniqueIdfCurveSyntheticRainfall</name>
+    <message>
+        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="26"/>
+        <source>Total Duration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="27"/>
+        <source>Eccentricity</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
