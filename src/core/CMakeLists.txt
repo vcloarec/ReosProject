@@ -110,7 +110,8 @@ SET(REOS_CORE_HEADERS_PRIVATE
 
 SET(IMAGE_RCCS ../../images/images.qrc
                ../../images/cursors/cursors.qrc
-               ../../images/formulas/formulas.qrc)
+               ../../images/formulas/formulas.qrc
+               ../../images/flags/flags.qrc)
 
 SET(CREDITS_RCCS ../../credits/credits.qrc)
 
