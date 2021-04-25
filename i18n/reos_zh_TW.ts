@@ -56,7 +56,7 @@
         <location filename="../src/core/rainfall/reosidfcurves.cpp" line="194"/>
         <location filename="../src/core/rainfall/reosidfcurves.cpp" line="745"/>
         <source>a</source>
-        <translation>a</translation>
+        <translation>公畝</translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosarea.cpp" line="243"/>
@@ -152,7 +152,7 @@
     <message>
         <location filename="../src/core/watershed/reosmeteorologicmodel.cpp" line="22"/>
         <source>Meteorologic model name</source>
-        <translation>氣象模式名稱</translation>
+        <translation>氣象資料名稱</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="132"/>
@@ -774,7 +774,7 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="110"/>
         <source>Do you want to overwrite the file %1?</source>
-        <translation>你想要覆寫檔案 %1?</translation>
+        <translation>您想要覆寫檔案 %1?</translation>
     </message>
 </context>
 <context>
@@ -836,7 +836,7 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="53"/>
         <source>Add Mesh Layer</source>
-        <translation>加入網格圖層</translation>
+        <translation>加入Mesh網格圖層</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="54"/>
@@ -872,7 +872,7 @@ Adjust new watershed?</source>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="163"/>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="182"/>
         <source>Loading Raster Layer</source>
-        <translation>載入網格圖層</translation>
+        <translation>載入網格圖層中</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="163"/>
@@ -1271,7 +1271,7 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/gui/GIS/reosmap.cpp" line="33"/>
         <source>Deactivate Tool</source>
-        <translation>停用工具</translation>
+        <translation>選取工具</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosmap.cpp" line="35"/>
@@ -1363,54 +1363,54 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/ui/reosmeteorologicmodelwidget.ui"/>
         <source>Meteorological Models</source>
-        <translation>氣象模式</translation>
+        <translation>氣象資料</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeteorologicmodelwidget.ui"/>
         <source>Current Meteorological Model</source>
-        <translation>目前氣象模式</translation>
+        <translation>目前氣象資料</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="63"/>
         <source>Add Meteorologic Model</source>
-        <translation>增加氣象模式</translation>
+        <translation>增加氣象資料</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="64"/>
         <source>Duplicate Meteorologic Model</source>
-        <translation>複製氣象模式</translation>
+        <translation>複製氣象資料</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="65"/>
         <source>Remove Meteorologic Model</source>
-        <translation>移除氣象模式</translation>
+        <translation>移除氣象資料</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="66"/>
         <source>Rename Meteorologic Model</source>
-        <translation>重命名氣象模式</translation>
+        <translation>重命名氣象資料</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="85"/>
         <source>Add Meteo Model</source>
-        <translation>加入氣象模式</translation>
+        <translation>加入氣象資料</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="86"/>
         <source>Add a new meteorologic model, choose a name:</source>
-        <translation>增加一個新的氣象模式，選擇一個名稱：</translation>
+        <translation>增加一個新的氣象資料，選擇一個名稱：</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="87"/>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="108"/>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="143"/>
         <source>Meteorologic Model name</source>
-        <translation>氣象模式名稱</translation>
+        <translation>氣象資料名稱</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="106"/>
         <source>Duplicate Meteo Model</source>
-        <translation>重複的氣象模式</translation>
+        <translation>重複的氣象資料</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="107"/>
@@ -1422,7 +1422,7 @@ choose a name:</source>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="126"/>
         <source>Remove Meteo Model</source>
-        <translation>移除氣象模式</translation>
+        <translation>移除氣象資料</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="127"/>
@@ -1432,13 +1432,13 @@ choose a name:</source>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="141"/>
         <source>Rename Meteo Model</source>
-        <translation>修改氣象模式名稱</translation>
+        <translation>修改氣象資料名稱</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="142"/>
         <source>Rename meteorologic model &apos;%1&apos;,
 choose a new name:</source>
-        <translation>修改氣象模式名稱 &apos;%1&apos;
+        <translation>修改氣象資料名稱 &apos;%1&apos;
 選擇一個新名稱:</translation>
     </message>
     <message>
@@ -1462,7 +1462,7 @@ choose a new name:</source>
     <message>
         <location filename="../src/core/watershed/reosmeteorologicmodel.cpp" line="277"/>
         <source>Meteorological Model</source>
-        <translation>氣象模式</translation>
+        <translation>氣象資料</translation>
     </message>
 </context>
 <context>
@@ -1900,7 +1900,7 @@ choose a new name:</source>
     <message>
         <location filename="../src/ui/reosrunoffhydrographwidget.ui"/>
         <source>Current Meteorologic Model</source>
-        <translation>目前氣象模式</translation>
+        <translation>目前氣象資料</translation>
     </message>
     <message>
         <location filename="../src/ui/reosrunoffhydrographwidget.ui"/>
@@ -2609,7 +2609,7 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="33"/>
         <source>Meteorologic models</source>
-        <translation>氣象模式</translation>
+        <translation>氣象資料</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="34"/>
@@ -2624,7 +2624,7 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="37"/>
         <source>Zoom to watershed</source>
-        <translation>瀏覽集水區</translation>
+        <translation>縮放到集水區範圍</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="47"/>
