@@ -1342,7 +1342,7 @@ Faut-il ajuster le nouveau bassin versant ?</translation>
     <message>
         <location filename="../src/gui/reosmessagebox.ui"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>FormeX</translation>
     </message>
 </context>
 <context>
