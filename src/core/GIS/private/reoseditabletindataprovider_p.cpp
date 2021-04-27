@@ -92,6 +92,11 @@ void ReosEditableTinDataProvider::populateMesh( QgsMesh *mesh ) const
   *mesh = mTriangulation->triangulatedMesh();
 }
 
+void ReosEditableTinDataProvider::updateMesh( QgsMesh *mesh, QgsRectangle &updatedExtent ) const
+{
+  *mesh = mTriangulation->updatedTriangulatedMesh( updatedExtent );
+}
+
 QgsRectangle ReosEditableTinDataProvider::extent() const
 {
   if ( mTriangulation )

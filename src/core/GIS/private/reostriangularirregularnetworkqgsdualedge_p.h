@@ -44,6 +44,8 @@ class ReosTriangularIrregularNetworkQgsDualEdge_p : public ReosTriangularIrregul
     //! Returns the QGIS mesh
     QgsMesh triangulatedMesh() const;
 
+    QgsMesh updatedTriangulatedMesh( QgsRectangle &updatedExtent );
+
   private:
     std::unique_ptr<QgsDualEdgeTriangulation> mTriangulation;
     mutable bool mDirty = true;

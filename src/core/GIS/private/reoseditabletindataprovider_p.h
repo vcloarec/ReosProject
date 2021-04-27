@@ -53,6 +53,7 @@ class ReosEditableTinDataProvider : public QgsMeshDataProvider
     int faceCount() const override;
     int edgeCount() const override {return 0;};
     void populateMesh( QgsMesh *mesh ) const override;
+    void updateMesh( QgsMesh *mesh, QgsRectangle &updatedExtent ) const override;
 
     // QgsDataProvider interface
   public:

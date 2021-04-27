@@ -114,6 +114,15 @@ QgsMesh ReosTriangularIrregularNetworkQgsDualEdge_p::triangulatedMesh() const
   return mMesh;
 }
 
+QgsMesh ReosTriangularIrregularNetworkQgsDualEdge_p::updatedTriangulatedMesh( QgsRectangle &updatedExtent )
+{
+  if ( !mTriangulation )
+    return QgsMesh();
+
+  return mTriangulation->editedTriangulationToMesh( updatedExtent );
+
+}
+
 void ReosTriangularIrregularNetworkQgsDualEdge_p::updateMesh() const
 {
   if ( !mTriangulation )
