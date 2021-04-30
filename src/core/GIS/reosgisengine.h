@@ -54,8 +54,12 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
 
     //! Adds a vector layer, if the loaded vector layer is invalid, do nothing and return false
     QString addVectorLayer( const QString &uri, const QString &name = QString() );
-    //! Adds a raster layer, if the loaded vector layer is invalid, do nothing and return false
-    QString addRasterLayer( const QString &uri, const QString &name = QString() );
+
+    /**
+     *  Adds a raster layer, if the loaded vector layer is invalid, do nothing and return false.
+     *  If the rasgter layer as to be registered as a DEM, \a isDem has to point to a bool with true value.
+     */
+    QString addRasterLayer( const QString &uri, const QString &name = QString(), bool *isDEM = nullptr );
 
     //! Adds a raster layer, if the loaded vector layer is invalid, do nothing and return false
     QString addMeshLayer( const QString &uri, const QString &name = QString() );
@@ -111,11 +115,15 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
 
     //! Returns encoded information about the GIS engine after saving GIS project int the \a path with the \a baseFileName
     ReosEncodedElement encode( const QString &path, const QString baseFileName );
+
     //! Decode information about the GIS engine and load the GIS poject from the \a path with the \a baseFileName
     bool decode( const ReosEncodedElement &encodedElement, const QString &path, const QString baseFileName );
 
     //! Clears the GIS project
     void clearProject();
+
+
+    bool canBeRasterDem( const QString &uri ) const;
 
     static QString gisEngineName();
     static QString gisEngineVersion();
@@ -123,8 +131,6 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
 
   signals:
     void crsChanged( const QString &wktCrs );
-    void digitalElevationRegistered( const QString &layerId );
-    void digitalElevationUnregistered( const QString &layerId );
     void updated();
 
   private slots:
@@ -136,6 +142,8 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     QStringList mAsDEMRegisteredLayer;
 
     void defaultstyleRasterLayer( QgsRasterLayer *layer );
+
+    bool canBeRasterDem( QgsRasterLayer *layer ) const;
 
 };
 

@@ -28,6 +28,7 @@ class ReosDigitalElevationModelComboBox: public QComboBox
 
     void setGisEngine( ReosGisEngine *gisEngine );
     QString currentDemLayerId() const;
+    void setCurrentDemLayer( const QString &layerId );
 
   signals:
     void currentDigitalElevationChanged( QString currentId );

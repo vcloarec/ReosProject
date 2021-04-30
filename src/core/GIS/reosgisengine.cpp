@@ -122,15 +122,18 @@ QString ReosGisEngine::addVectorLayer( const QString &uri, const QString &name )
   }
 }
 
-QString ReosGisEngine::addRasterLayer( const QString &uri, const QString &name )
+QString ReosGisEngine::addRasterLayer( const QString &uri, const QString &name, bool *isDEM )
 {
   std::unique_ptr<QgsRasterLayer> rasterlayer( new QgsRasterLayer( uri, name ) );
 
   if ( rasterlayer->isValid() )
   {
-    defaultstyleRasterLayer( rasterlayer.get() );
+    if ( isDEM && *isDEM )
+      defaultstyleRasterLayer( rasterlayer.get() );
     QgsMapLayer *mapLayer = QgsProject::instance()->addMapLayer( rasterlayer.release() );
     message( tr( "Raster layer loaded: %1" ).arg( uri ) );
+    if ( isDEM && *isDEM )
+      registerLayerAsDigitalElevationModel( mapLayer->id() );
     return mapLayer->id();
   }
   else
@@ -214,9 +217,13 @@ bool ReosGisEngine::registerLayerAsDigitalElevationModel( const QString &layerId
 
   if ( layer->type() == QgsMapLayerType::RasterLayer )
   {
-    mAsDEMRegisteredLayer.append( layerId );
-    emit digitalElevationRegistered( layerId );
-    return true;
+    QgsRasterLayer *rasterLayer = qobject_cast<QgsRasterLayer *>( layer );
+    if ( canBeRasterDem( rasterLayer ) )
+    {
+      mAsDEMRegisteredLayer.append( layerId );
+      emit updated();
+      return true;
+    }
   }
   return false;
 }
@@ -224,7 +231,7 @@ bool ReosGisEngine::registerLayerAsDigitalElevationModel( const QString &layerId
 void ReosGisEngine::unRegisterLayerAsDigitalElevationModel( const QString &layerId )
 {
   if ( mAsDEMRegisteredLayer.removeOne( layerId ) )
-    emit digitalElevationUnregistered( layerId );
+    emit updated();
 }
 
 bool ReosGisEngine::isDigitalElevationModel( const QString &layerId ) const
@@ -382,6 +389,13 @@ void ReosGisEngine::clearProject()
   emit updated();
 }
 
+bool ReosGisEngine::canBeRasterDem( const QString &uri ) const
+{
+  std::unique_ptr<QgsRasterLayer> rasterLayer = std::make_unique<QgsRasterLayer>( uri );
+
+  return canBeRasterDem( rasterLayer.get() );
+}
+
 QString ReosGisEngine::gisEngineName()
 {
   return QStringLiteral( "QGIS" );
@@ -430,14 +444,20 @@ void ReosGisEngine::layerRemoved( const QString &layerId )
 
 void ReosGisEngine::defaultstyleRasterLayer( QgsRasterLayer *layer )
 {
+  if ( !canBeRasterDem( layer ) )
+    return;
+  QString defaultStylePath = QCoreApplication::applicationDirPath() + QStringLiteral( "/../resources/" );
+  bool ok;
+  layer->loadNamedStyle( defaultStylePath + QStringLiteral( "dem.qml" ), ok );
+}
+
+
+bool ReosGisEngine::canBeRasterDem( QgsRasterLayer *layer ) const
+{
   QgsRasterDataProvider *provider = layer->dataProvider();
   if ( !provider )
-    return;
-
+    return false;
   int bandCount = provider->bandCount();
-  if ( bandCount <= 0 )
-    return;
-
   if ( bandCount == 1 )
   {
     Qgis::DataType dataType = provider->dataType( 1 );
@@ -449,26 +469,21 @@ void ReosGisEngine::defaultstyleRasterLayer( QgsRasterLayer *layer )
       case Qgis::Int16:
       case Qgis::UInt32:
       case Qgis::Int32:
-        return;
+      case Qgis::CInt16:
+      case Qgis::CInt32:
+      case Qgis::ARGB32:
+      case Qgis::ARGB32_Premultiplied:
+        return false;
         break;
       case Qgis::CFloat32:
       case Qgis::CFloat64:
       case Qgis::Float32:
       case Qgis::Float64:
+        return true;
         //could be a DEM
         break;
-      case Qgis::CInt16:
-      case Qgis::CInt32:
-      case Qgis::ARGB32:
-      case Qgis::ARGB32_Premultiplied:
-        return;
-        break;
     }
-
-    QString defaultStylePath = QCoreApplication::applicationDirPath() + QStringLiteral( "/../resources/" );
-    bool ok;
-    layer->loadNamedStyle( defaultStylePath + QStringLiteral( "dem.qml" ), ok );
   }
 
-
+  return false;
 }

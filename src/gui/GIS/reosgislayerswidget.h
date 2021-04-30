@@ -49,9 +49,7 @@ class REOSGUI_EXPORT ReosGisLayersWidget: public QWidget
     void onLoadMeshLayer();
     void onTreeLayerDoubleClick();
     void onSetCrs();
-
     void updateLayerInsertionPoint() const;
-
     void onGISEngineUpdated();
 
   private:

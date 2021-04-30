@@ -32,23 +32,25 @@ void ReosDigitalElevationModelComboBox::setGisEngine( ReosGisEngine *gisEngine )
     return;
 
   if ( mGisEngine )
-  {
-    disconnect( mGisEngine, &ReosGisEngine::digitalElevationRegistered, this, &ReosDigitalElevationModelComboBox::onDemChanged );
-    disconnect( mGisEngine, &ReosGisEngine::digitalElevationUnregistered, this, &ReosDigitalElevationModelComboBox::onDemChanged );
     disconnect( mGisEngine, &ReosGisEngine::updated, this, &ReosDigitalElevationModelComboBox::onDemChanged );
-  }
 
   mGisEngine = gisEngine;
   updateItems();
 
-  connect( mGisEngine, &ReosGisEngine::digitalElevationRegistered, this, &ReosDigitalElevationModelComboBox::onDemChanged );
-  connect( mGisEngine, &ReosGisEngine::digitalElevationUnregistered, this, &ReosDigitalElevationModelComboBox::onDemChanged );
   connect( mGisEngine, &ReosGisEngine::updated, this, &ReosDigitalElevationModelComboBox::onDemChanged );
 }
 
 QString ReosDigitalElevationModelComboBox::currentDemLayerId() const
 {
   return currentData().toString();
+}
+
+void ReosDigitalElevationModelComboBox::setCurrentDemLayer( const QString &layerId )
+{
+  if ( !mGisEngine->isDigitalElevationModel( layerId ) )
+    return;
+
+  setCurrentIndex( findData( layerId ) );
 }
 
 void ReosDigitalElevationModelComboBox::onDemChanged()

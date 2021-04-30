@@ -90,7 +90,6 @@ ReosGisLayersWidget::ReosGisLayersWidget( ReosGisEngine *engine, ReosMap *map, Q
   connect( mActionLoadMeshLayer, &QAction::triggered, this, &ReosGisLayersWidget::onLoadMeshLayer );
   connect( mActionSetProjectCrs, &QAction::triggered, this, &ReosGisLayersWidget::onSetCrs );
 
-
   connect( mTreeView, &QAbstractItemView::doubleClicked, this, &ReosGisLayersWidget::onTreeLayerDoubleClick );
   connect( mTreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &ReosGisLayersWidget::updateLayerInsertionPoint );
 
@@ -106,9 +105,13 @@ void ReosGisLayersWidget::registerCurrentLayerAsDigitalElevationModel()
 {
   QgsMapLayer *mapLayer = mTreeView->currentLayer();
   if ( mapLayer )
+  {
     mGisEngine->registerLayerAsDigitalElevationModel( mapLayer->id() );
-
-  mTreeView->addIndicator( mTreeView->currentNode(), mDemIndicator );
+  }
+  else
+  {
+    QMessageBox::warning( this, tr( "Register Layer as DEM" ), tr( "This layer is not recognized as a possible DEM" ) );
+  }
 }
 
 void ReosGisLayersWidget::unRegisterCurrentLayerAsDigitalElevationModel()
@@ -159,8 +162,16 @@ void ReosGisLayersWidget::onLoadRasterLayer()
   const QString rasterFileName = QFileDialog::getOpenFileName( this, tr( "Load Raster Layer" ), path, mGisEngine->rasterLayerFilters() );
   const QFileInfo fileInfo( rasterFileName );
   if ( fileInfo.exists() )
-    if ( mGisEngine->addRasterLayer( rasterFileName, fileInfo.fileName() ).isEmpty() )
+  {
+    bool isDEM = false;
+    if ( mGisEngine->canBeRasterDem( rasterFileName ) )
+    {
+      isDEM = QMessageBox::question( this, tr( "Loading Raster Layer" ),
+                                     tr( "This raster layer could be a DEM, do you want to register as a DEM?" ) ) == QMessageBox::Yes;
+    }
+    if ( mGisEngine->addRasterLayer( rasterFileName, fileInfo.fileName(), &isDEM ).isEmpty() )
       QMessageBox::warning( this, tr( "Loading Raster Layer" ), tr( "Invalid raster layer, file not loaded." ) );
+  }
 
   settings.setValue( QStringLiteral( "Path/GisLayer" ), fileInfo.path() );
 }
@@ -269,6 +280,7 @@ void ReosGisLayersWidget::onGISEngineUpdated()
 {
   updateIndicator();
 }
+
 
 void ReosGisLayersWidget::updateIndicator()
 {

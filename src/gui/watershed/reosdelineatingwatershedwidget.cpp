@@ -23,6 +23,7 @@ email                : vcloarec at gmail dot com
 #include <QBoxLayout>
 #include <QMessageBox>
 #include <QCloseEvent>
+#include <QFileDialog>
 
 ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedModule *watershedModule,
     ReosMap *map,
@@ -52,7 +53,7 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
 
   mAutomaticToolBar = new QToolBar;
   mManualToolBar = new QToolBar;
-  qobject_cast<QBoxLayout *>( layout() )->insertWidget( 2, mAutomaticToolBar );
+  qobject_cast<QBoxLayout *>( layout() )->insertWidget( 3, mAutomaticToolBar );
   qobject_cast<QBoxLayout *>( layout() )->insertWidget( 2, mManualToolBar );
   mAutomaticToolBar->addAction( mActionDrawDownstreamLine );
   mAutomaticToolBar->addAction( mActionDrawPredefinedExtent );
@@ -149,6 +150,7 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   connect( mMapToolDrawPredefinedExtent, &ReosMapToolDrawExtent::extentDrawn, this, &ReosDelineatingWatershedWidget::onPredefinedExtentDrawn );
   connect( mMapToolDrawBurningLine, &ReosMapToolDrawPolyline::drawn, this, &ReosDelineatingWatershedWidget::onBurningLineDrawn );
   connect( ui->comboBoxDem, &ReosDigitalElevationModelComboBox::currentDigitalElevationChanged, this, &ReosDelineatingWatershedWidget::onDemComboboxChanged );
+  connect( ui->toolButtonLoadRasterDem, &QToolButton::clicked, this, &ReosDelineatingWatershedWidget::onLoadRasterDem );
 
   connect( ui->mPushButtonDelineate, &QPushButton::clicked, this, &ReosDelineatingWatershedWidget::onDelineateAsked );
   connect( ui->mPushButtonValidateAutomatic, &QPushButton::clicked, this, &ReosDelineatingWatershedWidget::onAutomaticValidateAsked );
@@ -236,6 +238,41 @@ void ReosDelineatingWatershedWidget::onDemComboboxChanged()
   QString currentDemId = ui->comboBoxDem->currentDemLayerId();
   mModule->delineatingModule()->setDigitalElevationModelDEM( currentDemId );
   updateAutomaticTool();
+}
+
+void ReosDelineatingWatershedWidget::onLoadRasterDem()
+{
+  ReosSettings settings;
+  QString path = settings.value( QStringLiteral( "Path/GisLayer" ) ).toString();
+
+  const QString rasterFileName = QFileDialog::getOpenFileName( this, tr( "Load Raster DEM Layer" ), path, mMap->engine()->rasterLayerFilters() );
+  const QFileInfo fileInfo( rasterFileName );
+  if ( fileInfo.exists() )
+  {
+    bool isDEM;
+    if ( mMap->engine()->canBeRasterDem( rasterFileName ) )
+      isDEM = true;
+    else
+    {
+      if ( QMessageBox::warning( this, tr( "Loading Raster DEM Layer" ),
+                                 tr( "This layer is not recognized as a possible DEM, do you want to load it?" ),
+                                 QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes ) == QMessageBox::No )
+        return;
+      isDEM = false;
+    }
+
+    const QString layerId = mMap->engine()->addRasterLayer( rasterFileName, fileInfo.fileName(), &isDEM );
+
+    if ( layerId.isEmpty() )
+      QMessageBox::warning( this, tr( "Loading Raster Layer" ), tr( "Invalid raster layer, file not loaded." ) );
+
+    if ( isDEM && mMap->engine()->registerLayerAsDigitalElevationModel( layerId ) )
+    {
+      ui->comboBoxDem->setCurrentDemLayer( layerId );
+    }
+  }
+
+  settings.setValue( QStringLiteral( "Path/GisLayer" ), fileInfo.path() );
 }
 
 void ReosDelineatingWatershedWidget::onDelineateAsked()

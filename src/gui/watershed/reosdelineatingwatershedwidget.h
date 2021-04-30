@@ -54,6 +54,7 @@ class ReosDelineatingWatershedWidget : public ReosActionWidget
     void onBurningLineDrawn( const QPolygonF &burningLine );
     void onBurningLineRemoved( ReosMapItem *item );
     void onDemComboboxChanged();
+    void onLoadRasterDem();
     void onDelineateAsked();
     void onAutomaticValidateAsked();
     void onManualWatershedDrawn( const QPolygonF &polygon );
