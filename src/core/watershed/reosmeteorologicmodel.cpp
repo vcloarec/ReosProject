@@ -345,7 +345,7 @@ void ReosMeteorologicModelsCollection::removeMeteorologicModel( int i )
 
 void ReosMeteorologicModelsCollection::clearModels()
 {
-  while ( mMeteoModels.isEmpty() )
+  while ( !mMeteoModels.isEmpty() )
     mMeteoModels.takeAt( 0 )->deleteLater();
 }
 
