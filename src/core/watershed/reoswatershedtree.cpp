@@ -61,9 +61,10 @@ ReosWatershed *ReosWatershedTree::addWatershed( ReosWatershed *watershedToAdd, b
 {
 
   std::unique_ptr<ReosWatershed> ws( watershedToAdd );
-
   if ( !ws )
     return nullptr;
+
+  connect( ws.get(), &ReosWatershed::changed, this, &ReosWatershedTree::watershedChanged );
 
   emit watershedWillBeAdded();
 
@@ -185,18 +186,18 @@ int ReosWatershedTree::masterWatershedPosition( ReosWatershed *watershed ) const
   for ( size_t i = 0; i < mWatersheds.size(); ++i )
   {
     if ( watershed == mWatersheds.at( i ).get() )
-      return static_cast<int>(i);
+      return static_cast<int>( i );
   }
 
   return -1;
 }
 
-QList<ReosWatershed *> ReosWatershedTree::allWatershed() const
+QList<ReosWatershed *> ReosWatershedTree::allWatersheds() const
 {
   QList<ReosWatershed *> list;
   for ( const std::unique_ptr<ReosWatershed> &ws : mWatersheds )
   {
-    list.append( ws->allUpstreamWatershed() );
+    list.append( ws->allUpstreamWatersheds() );
     list.append( ws.get() );
   }
 
@@ -273,6 +274,11 @@ void ReosWatershedTree::decode( const ReosEncodedElement &elem )
       mWatersheds = std::move( watersheds );
     }
   }
+
+  QList<ReosWatershed *> allWs = allWatersheds();
+  for ( ReosWatershed *ws : std::as_const( allWs ) )
+    connect( ws, &ReosWatershed::changed, this, &ReosWatershedTree::watershedChanged );
+
   emit treeReset();
 }
 
@@ -360,7 +366,7 @@ QVariant ReosWatershedItemModel::data( const QModelIndex &index, int role ) cons
 
 QList<ReosWatershed *> ReosWatershedItemModel::allWatersheds() const
 {
-  return mWatershedTree->allWatershed();
+  return mWatershedTree->allWatersheds();
 }
 
 void ReosWatershedItemModel::onWatershedWillBeAdded()

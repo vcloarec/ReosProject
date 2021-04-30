@@ -58,6 +58,8 @@ ReosMainWindow::ReosMainWindow( QWidget *parent ) :
   QGridLayout *centralLayout = new QGridLayout( centralWidget );
   centralWidget->setLayout( centralLayout );
   centralLayout->setContentsMargins( 0, 0, 0, 0 );
+
+  connect( mRootModule, &ReosModule::dirtied, this, [this] {mProjectIsDirty = true;} );
 }
 
 void ReosMainWindow::init()
@@ -178,7 +180,10 @@ bool ReosMainWindow::save()
   if ( !mCurrentProjectFileInfo.exists() )
     return saveAs();
 
-  return saveProject();
+  bool saved = saveProject();
+  if ( saved )
+    mProjectIsDirty = false;
+  return saved;
 }
 
 bool ReosMainWindow::saveAs()
@@ -194,7 +199,10 @@ bool ReosMainWindow::saveAs()
   mCurrentProjectFileInfo = QFileInfo( filePath );
   settings.setValue( QStringLiteral( "Path/Project" ), mCurrentProjectFileInfo.path() );
 
-  return saveProject();
+  bool saved = saveProject();
+  if ( saved )
+    mProjectIsDirty = false;
+  return saved;
 }
 
 
@@ -286,6 +294,13 @@ void ReosMainWindow::about()
 
 void ReosMainWindow::closeEvent( QCloseEvent *event )
 {
+  if ( mProjectIsDirty )
+  {
+    if ( QMessageBox::question( this, tr( "Closing current project" ), tr( "The current project has been modified, do you want to save it?" ) )
+         == QMessageBox::Yes )
+      save();
+  }
+
   ReosSettings settings;
   settings.setValue( QStringLiteral( "Windows/MainWindow/geometry" ), saveGeometry() );
   settings.setValue( QStringLiteral( "Windows/MainWindow/state" ), saveState() );

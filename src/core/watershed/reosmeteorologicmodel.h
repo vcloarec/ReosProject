@@ -70,8 +70,9 @@ class REOSCORE_EXPORT ReosMeteorologicModel : public ReosDataObject
 //! List model class that represents a collection of meteorologic model
 class REOSCORE_EXPORT ReosMeteorologicModelsCollection : public QAbstractListModel
 {
+    Q_OBJECT
   public:
-    ReosMeteorologicModelsCollection();
+    ReosMeteorologicModelsCollection( QObject *parent );
 
     int rowCount( const QModelIndex & ) const override;
     QModelIndex index( int row, int column, const QModelIndex & ) const override;
@@ -97,6 +98,9 @@ class REOSCORE_EXPORT ReosMeteorologicModelsCollection : public QAbstractListMod
 
     ReosEncodedElement encode( ReosWatershedTree *watershedTree ) const;
     void decode( const ReosEncodedElement &element, ReosWatershedTree *watershedTree, ReosRainfallRegistery *rainfallregistery );
+
+  signals:
+    emit void changed();
 
   private:
     QVector<ReosMeteorologicModel *> mMeteoModels;

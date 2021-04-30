@@ -272,7 +272,7 @@ ReosRainfallSerieRainfallItem *ReosMeteorologicItemModel::rainfallInMeteorologic
   return mCurrentMeteoModel->associatedRainfall( ws );
 }
 
-ReosMeteorologicModelsCollection::ReosMeteorologicModelsCollection()
+ReosMeteorologicModelsCollection::ReosMeteorologicModelsCollection( QObject *parent ): QAbstractListModel( parent )
 {
   addMeteorologicModel( tr( "Meteorological Model" ) );
 }
@@ -325,6 +325,7 @@ void ReosMeteorologicModelsCollection::addMeteorologicModel( const QString &name
 {
   beginInsertRows( QModelIndex(), modelCount(), modelCount() );
   mMeteoModels.append( new ReosMeteorologicModel( name, this ) );
+  connect( mMeteoModels.last(), &ReosMeteorologicModel::dataChanged, this, &ReosMeteorologicModelsCollection::changed );
   endInsertRows();
 }
 
@@ -333,6 +334,7 @@ void ReosMeteorologicModelsCollection::addMeteorologicModel( ReosMeteorologicMod
   beginInsertRows( QModelIndex(), modelCount(), modelCount() );
   mMeteoModels.append( model );
   model->setParent( this );
+  connect( model, &ReosMeteorologicModel::dataChanged, this, &ReosMeteorologicModelsCollection::changed );
   endInsertRows();
 }
 
@@ -345,7 +347,7 @@ void ReosMeteorologicModelsCollection::removeMeteorologicModel( int i )
 
 void ReosMeteorologicModelsCollection::clearModels()
 {
-  while ( mMeteoModels.isEmpty() )
+  while ( !mMeteoModels.isEmpty() )
     mMeteoModels.takeAt( 0 )->deleteLater();
 }
 
@@ -374,5 +376,8 @@ void ReosMeteorologicModelsCollection::decode( const ReosEncodedElement &element
 
   for ( const ReosEncodedElement &elem : encodedModels )
     mMeteoModels.append( new ReosMeteorologicModel( elem, watershedTree, rainfallregistery, this ) );
+
+  for ( ReosMeteorologicModel *model : std::as_const( mMeteoModels ) )
+    connect( model, &ReosMeteorologicModel::dataChanged, this, &ReosMeteorologicModelsCollection::changed );
 
 }

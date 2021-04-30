@@ -62,7 +62,7 @@ class REOSCORE_EXPORT ReosWatershedTree: public QObject
     int masterWatershedPosition( ReosWatershed *watershed ) const;
 
     //! Returns a list of all the watershed
-    QList<ReosWatershed *> allWatershed() const;
+    QList<ReosWatershed *> allWatersheds() const;
 
     //! Removes direction data present in any watershed in the tree
     void removeDirectionData();
@@ -91,6 +91,7 @@ class REOSCORE_EXPORT ReosWatershedTree: public QObject
     void watershedAdded( ReosWatershed * );
     void watershedWillBeRemoved( ReosWatershed * );
     void watershedRemoved();
+    void watershedChanged();
 
   private:
     std::vector<std::unique_ptr<ReosWatershed>> mWatersheds;

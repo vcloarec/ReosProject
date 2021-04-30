@@ -327,12 +327,12 @@ int ReosWatershed::positionInDownstreamWatershed() const
 
 }
 
-QList<ReosWatershed *> ReosWatershed::allUpstreamWatershed() const
+QList<ReosWatershed *> ReosWatershed::allUpstreamWatersheds() const
 {
   QList<ReosWatershed *> list;
   for ( const std::unique_ptr<ReosWatershed> &ws : mUpstreamWatersheds )
   {
-    list.append( ws->allUpstreamWatershed() );
+    list.append( ws->allUpstreamWatersheds() );
     list.append( ws.get() );
   }
 
@@ -669,6 +669,7 @@ void ReosWatershed::init()
   mConcentrationTimeValue = new ReosParameterDuration( tr( "Concentration time" ), true, this );
 
   mRunoffModels = new ReosRunoffModelsGroup( this );
+  connect( mRunoffModels, &ReosRunoffModelsGroup::dataChanged, this, &ReosWatershed::changed );
 
   connectParameters();
 }

@@ -89,6 +89,7 @@ class REOSGUI_EXPORT ReosMainWindow : public QMainWindow
     virtual QList<QMenu *> specificMenus() {return QList<QMenu *>();}
 
     ReosModule *mRootModule = nullptr;
+    bool mProjectIsDirty = false;
 
     ReosMessageBox *messageBox = nullptr;
     ReosDocumentation *mDocumentation;

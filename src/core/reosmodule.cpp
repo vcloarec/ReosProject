@@ -23,6 +23,9 @@ ReosModule::ReosModule( QObject *parent ):
   QObject( parent ),  mGroupAction( new QActionGroup( this ) )
 {
   mReosParent = qobject_cast<ReosModule *>( parent );
+
+  if ( mReosParent )
+    connect( this, &ReosModule::dirtied, mReosParent, &ReosModule::dirtied );
 }
 
 ReosModule::~ReosModule()

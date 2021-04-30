@@ -152,7 +152,7 @@ void ReosLongitudinalProfileWidget::setCurrentWatershed( ReosWatershed *ws )
 void ReosLongitudinalProfileWidget::updateProfile()
 {
   const QPolygonF &profile = mProfile->profile();
-  if ( mCurrentWatershed )
+  if ( mCurrentWatershed && profile != mCurrentWatershed->profile() )
     mCurrentWatershed->setProfile( profile );
 
   double length = 0;

@@ -10,12 +10,18 @@ ReosWatershedModule::ReosWatershedModule( ReosModule *parent, ReosGisEngine *gis
   ReosModule( parent ),
   mWatershedTree( new ReosWatershedTree( gisEngine, this ) ),
   mDelineatingModule( new ReosWatershedDelineating( this, mWatershedTree, gisEngine ) ),
-  mMeteorologicModelsCollection( new ReosMeteorologicModelsCollection() )
+  mMeteorologicModelsCollection( new ReosMeteorologicModelsCollection( this ) )
 {
   ReosTransferFunctionFactories::instantiate( this );
   ReosTransferFunctionFactories::instance()->addFactory( new ReosTransferFunctionLinearReservoirFactory );
   ReosTransferFunctionFactories::instance()->addFactory( new ReosTransferFunctionGeneralizedRationalMethodFactory );
   ReosTransferFunctionFactories::instance()->addFactory( new ReosTransferFunctionSCSUnitHydrographFactory );
+
+  connect( mWatershedTree, &ReosWatershedTree::watershedChanged, this, &ReosModule::dirtied );
+  connect( mWatershedTree, &ReosWatershedTree::watershedAdded, this, &ReosModule::dirtied );
+  connect( mWatershedTree, &ReosWatershedTree::watershedRemoved, this, &ReosModule::dirtied );
+
+  connect( mMeteorologicModelsCollection, &ReosMeteorologicModelsCollection::changed, this, &ReosModule::dirtied );
 }
 
 ReosWatershedModule::~ReosWatershedModule()
@@ -63,7 +69,7 @@ ReosEncodedElement ReosWatershedModule::encode() const
 
 ReosMeteorologicModelsCollection *ReosWatershedModule::meteoModelsCollection()
 {
-  return mMeteorologicModelsCollection.get();
+  return mMeteorologicModelsCollection;
 }
 
 void ReosWatershedModule::clearWatersheds()

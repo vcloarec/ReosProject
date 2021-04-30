@@ -48,6 +48,7 @@ class REOSCORE_EXPORT ReosModule : public QObject
     void newCommandToUndoStack( QUndoCommand *command );
     void activeUndoStack( QUndoStack *undoStack );
     void emitMessage( const QString &message, const MessageType &type ) const;
+    void dirtied();
 
   public slots:
 

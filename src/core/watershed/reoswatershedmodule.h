@@ -32,7 +32,7 @@ class REOSCORE_EXPORT ReosWatershedModule : public ReosModule
   private:
     ReosWatershedTree *mWatershedTree = nullptr;
     ReosWatershedDelineating *mDelineatingModule = nullptr;
-    std::unique_ptr<ReosMeteorologicModelsCollection> mMeteorologicModelsCollection;
+    ReosMeteorologicModelsCollection *mMeteorologicModelsCollection = nullptr;
 };
 
 #endif // REOSWATERSHEDMODULE_H
