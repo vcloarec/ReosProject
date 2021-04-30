@@ -99,7 +99,7 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
     void setBurningLines( const QList<QPolygonF> &burningLines );
 
     //! Returns all burning lines
-    QList<QPolygonF> burningines() const;
+    QList<QPolygonF> burninglines() const;
 
     //! Returns whether the module has direction data ready for proceed
     bool hasDirectionData() const;

@@ -166,6 +166,8 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   burningLineFormater.setExternalWidth( 4 );
 
   connect( this, &ReosActionWidget::opened, this, &ReosDelineatingWatershedWidget::onMethodChange );
+
+  mActionRemoveBurningLine->setEnabled( !mBurningLines.isEmpty() );
 }
 
 ReosDelineatingWatershedWidget::~ReosDelineatingWatershedWidget()
@@ -333,12 +335,14 @@ void ReosDelineatingWatershedWidget::onModuleReset()
   mWatershedExtent.resetPolygon();
   mBurningLines.clear();
 
-  const QList<QPolygonF> burningLines = mModule->delineatingModule()->burningines();
+  const QList<QPolygonF> burningLines = mModule->delineatingModule()->burninglines();
   for ( const QPolygonF &bl : burningLines )
   {
     mBurningLines.append( burningLineFormater( ReosMapPolyline( mMap, bl ) ) );
     mBurningLines.last().setVisible( ui->mRadioButtonAutomatic->isChecked() && isVisible() );
   }
+
+  mActionRemoveBurningLine->setEnabled( !burningLines.isEmpty() );
 
   onMethodChange();
   if ( mCurrentAutomaticMapTool )
@@ -469,6 +473,9 @@ void ReosDelineatingWatershedWidget::updateBurningLines()
   }
 
   mModule->delineatingModule()->setBurningLines( list );
+
+  mActionRemoveBurningLine->setEnabled( !list.isEmpty() );
+
 }
 
 void ReosDelineatingWatershedWidget::updateManualMapTool()
