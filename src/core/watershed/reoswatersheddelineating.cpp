@@ -335,7 +335,7 @@ void ReosWatershedDelineating::setBurningLines( const QList<QPolygonF> &burningL
   mWatershedTree->removeDirectionData();
 }
 
-QList<QPolygonF> ReosWatershedDelineating::burningines() const
+QList<QPolygonF> ReosWatershedDelineating::burninglines() const
 {
   return mBurningLines;
 }
