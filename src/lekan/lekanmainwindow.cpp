@@ -32,6 +32,7 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reosdelineatingwatershedwidget.h"
 #include "reoswatershedwidget.h"
 #include "reosrainfallmanager.h"
+#include "reosrainfallmodel.h"
 #include "reosrainfallregistery.h"
 #include "reosrunoffmanager.h"
 #include "reosrunoffmodel.h"
@@ -55,11 +56,13 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   mActionRainfallManager->setCheckable( true );
   mRainFallManagerWidget->setAction( mActionRainfallManager );
   mRainFallManagerWidget->loadDataFile();
+  connect( ReosRainfallRegistery::instance()->rainfallModel(), &ReosRainfallModel::changed, this, [this] {mIsRainfallDirty = true;} );
 
   mRunoffManagerWidget = new ReosRunoffManager( ReosRunoffModelRegistery::instance()->model(), this );
   mActionRunoffManager->setCheckable( true );
   mRunoffManagerWidget->setAction( mActionRunoffManager );
   mRunoffManagerWidget->loadDataFile();
+  connect( ReosRunoffModelRegistery::instance()->model(), &ReosRunoffModelModel::modelChanged, this, [this] {mIsRunoffDirty = true;} );
 
   statusBar()->addPermanentWidget( new ReosMapCursorPosition( mMap, this ) );
   centralWidget()->layout()->addWidget( mMap->mapCanvas() );
@@ -144,6 +147,21 @@ void LekanMainWindow::clearProject()
 
   if ( mWatershedModule )
     mWatershedModule->clearWatersheds();
+}
+
+void LekanMainWindow::checkExtraProjectToSave()
+{
+  if ( mIsRainfallDirty )
+  {
+    if ( QMessageBox::question( this, tr( "Rainfall Data Changed" ), tr( "Rainfall data have changed, do you want to save?" ) ) == QMessageBox::Yes )
+      mRainFallManagerWidget->saveRainfallFile();
+  }
+
+  if ( mIsRunoffDirty )
+  {
+    if ( QMessageBox::question( this, tr( "Runoff Data Changed" ), tr( "Runoff data have changed, do you want to save?" ) ) == QMessageBox::Yes )
+      mRunoffManagerWidget->save();
+  }
 }
 
 

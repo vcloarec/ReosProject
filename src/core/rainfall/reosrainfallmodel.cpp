@@ -362,6 +362,7 @@ void ReosRainfallModel::removeItem( ReosRainfallItem *item )
   beginRemoveRows( itemToIndex( parentItem ), item->positionInParent(), item->positionInParent() );
   parentItem->removeItem( item );
   endRemoveRows();
+  emit changed();
 }
 
 int ReosRainfallModel::rootZoneCount() const {return mRootZone->childrenCount();}
@@ -418,6 +419,7 @@ void ReosRainfallModel::swapItems( ReosRainfallItem *parent, int first, int seco
     indexTo = itemToIndex( parent->itemAt( first ) );
   }
   parent->swapChildren( first, second );
+  emit changed();
 }
 
 ReosRainfallItem *ReosRainfallModel::positonPathToItem( const QList<int> &path ) const
@@ -506,7 +508,6 @@ bool ReosRainfallModel::saveToFile( const QString &path, const QString &header )
     stream << encode().bytes();
     file.close();
     emit saved( path );
-
     return true;
   }
 
@@ -549,7 +550,7 @@ void ReosRainfallModel::onItemChanged( ReosRainfallItem *item )
   {
     dataChanged( ind, index( ind.row(), 1, ind.parent() ) );
   }
-
+  emit changed();
 }
 
 void ReosRainfallModel::onItemWillBeRemovedfromParent( ReosRainfallItem *item, int pos )
@@ -562,6 +563,7 @@ void ReosRainfallModel::onItemWillBeRemovedfromParent( ReosRainfallItem *item, i
 void ReosRainfallModel::onItemRemovedfromParent()
 {
   endRemoveRows();
+  emit changed();
 }
 
 void ReosRainfallModel::onItemWillBeInsertedInParent( ReosRainfallItem *item, int pos )
@@ -574,6 +576,7 @@ void ReosRainfallModel::onItemWillBeInsertedInParent( ReosRainfallItem *item, in
 void ReosRainfallModel::onItemInsertedInParent()
 {
   endInsertRows();
+  emit changed();
 }
 
 ReosRainfallItem *ReosRainfallModel::addItem( ReosRainfallItem *receiver, ReosRainfallItem *newItem )
@@ -587,6 +590,7 @@ ReosRainfallItem *ReosRainfallModel::addItem( ReosRainfallItem *receiver, ReosRa
   connectItem( ret );
   return ret;
 }
+
 
 void ReosRainfallModel::connectItem( ReosRainfallItem *item )
 {

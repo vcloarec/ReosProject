@@ -154,7 +154,7 @@ class REOSCORE_EXPORT ReosRunoffModelCollection
     //! Adds a model to ths collection
     void addModel( ReosRunoffModel *runoffModel );
 
-    //! Remove the modl at potions \a i
+    //! Remove the model at positions \a i
     void removeRunoffModel( int i );
 
     //! Returns the position of \a runoffModel in this collection, returns -1 if no present
@@ -222,6 +222,7 @@ class REOSCORE_EXPORT ReosRunoff : public ReosDataObject
 //! Class that represents a model containing runoff model collections and theirs runoff models
 class REOSCORE_EXPORT ReosRunoffModelModel : public QAbstractItemModel
 {
+    Q_OBJECT
   public :
     ReosRunoffModelModel( QObject *parent = nullptr );
 
@@ -272,6 +273,9 @@ class REOSCORE_EXPORT ReosRunoffModelModel : public QAbstractItemModel
 
     //! Returns the collection model of type \a type
     ReosRunoffModelCollection runoffModelCollection( const QString &type ) const;
+
+  signals:
+    void modelChanged();
 
   private:
     QMap<QString, ReosRunoffModelCollection> mRunoffCollections;

@@ -291,6 +291,7 @@ bool ReosRunoffModelModel::addModel( ReosRunoffModel *runoffModel )
   {
     ReosRunoffModelCollection &modelCollection = mRunoffCollections[runoffType];
     beginInsertRows( typeToIndex( runoffType ), modelCollection.runoffModelsCount(), modelCollection.runoffModelsCount() );
+    connect( runoffModel, &ReosRunoffModel::dataChanged, this, &ReosRunoffModelModel::modelChanged );
     modelCollection.addModel( runoffModel );
     endInsertRows();
     return true;

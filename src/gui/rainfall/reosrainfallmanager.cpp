@@ -421,8 +421,6 @@ void ReosRainfallManager::onReorderIDCurve()
       if ( smallest != i )
         mModel->swapItems( idfCurvesItem, smallest, i );
     }
-
-    ReosIntensityDurationCurve *curve( int i );
   }
 }
 

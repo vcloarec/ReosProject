@@ -53,6 +53,7 @@ class LekanMainWindow : public ReosMainWindow
   private:
     bool saveProject() override;
     void clearProject() override;
+    void checkExtraProjectToSave() override;
     ReosVersion version() const {return lekanVersion;}
     QString projectFileFilter()  const override;
 
@@ -66,15 +67,15 @@ class LekanMainWindow : public ReosMainWindow
     QDockWidget *mDockWatershed;
     QDockWidget *mDockMessageBox;
 
-//    QAction *mActionNewVersionAvailable;
-//    QAction *mActionDocumentation;
-
     QList<QMenu *> specificMenus() override;
 
     QAction *mActionRainfallManager = nullptr;
     QAction *mActionRunoffManager = nullptr;
     ReosRainfallManager *mRainFallManagerWidget = nullptr;
     ReosRunoffManager *mRunoffManagerWidget = nullptr;
+
+    bool mIsRainfallDirty = false;
+    bool mIsRunoffDirty = false;
 };
 
 #endif // LEKANMAINWINDOW_H

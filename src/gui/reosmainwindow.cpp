@@ -300,6 +300,8 @@ void ReosMainWindow::closeEvent( QCloseEvent *event )
          == QMessageBox::Yes )
       save();
   }
+  else
+    checkExtraProjectToSave();
 
   ReosSettings settings;
   settings.setValue( QStringLiteral( "Windows/MainWindow/geometry" ), saveGeometry() );

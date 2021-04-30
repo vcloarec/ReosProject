@@ -78,6 +78,7 @@ class REOSGUI_EXPORT ReosMainWindow : public QMainWindow
     virtual bool saveProject() = 0;
     virtual void clearProject() = 0;
     virtual bool openProject() = 0;
+    virtual void checkExtraProjectToSave() = 0;
     virtual QByteArray encode() const = 0;
     virtual bool decode( const QByteArray &byteArray ) = 0;
     virtual QString projectFileFilter() const;

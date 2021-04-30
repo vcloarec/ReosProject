@@ -87,6 +87,7 @@ class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
   signals:
     void saved( const QString &file );
     void loaded( const QString &file );
+    void changed();
 
   private slots:
     void onItemChanged( ReosRainfallItem *item );
@@ -97,7 +98,6 @@ class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
 
   private:
     std::unique_ptr<ReosRootItem> mRootZone;
-
     ReosRainfallItem *addItem( ReosRainfallItem *receiver, ReosRainfallItem *newItem );
 
     //! Connects item and all the children
