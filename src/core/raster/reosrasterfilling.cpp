@@ -15,6 +15,13 @@ email                : vcloarec@gmail.com
 
 #include "reosrasterfilling.h"
 
+ReosRasterFilling::ReosRasterFilling( const ReosRasterMemory<float> &dem, double XSize, double YSize ):
+  mDem( dem ), mXSize( XSize ), mYSize( YSize )
+{
+  if ( mMimimumSlope < ( 1e-4f / std::min( fabs( mYSize ), fabs( mXSize ) ) ) )
+    mMimimumSlope = ( 1e-4f / std::min( fabs( mYSize ), fabs( mXSize ) ) );
+}
+
 ReosRasterFilling::~ReosRasterFilling() {}
 
 float ReosRasterFilling::mimimumSlope() const

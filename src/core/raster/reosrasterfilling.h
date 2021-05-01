@@ -28,9 +28,7 @@ class ReosRasterFilling: public ReosProcess
 {
   public:
     //! Constructor with the \a dem to fill
-    ReosRasterFilling( const ReosRasterMemory<float> &dem, double XSize, double YSize ):
-      mDem( dem ), mXSize( XSize ), mYSize( YSize )
-    {}
+    ReosRasterFilling( const ReosRasterMemory<float> &dem, double XSize, double YSize );
     virtual ~ReosRasterFilling();
 
     virtual bool initialize() = 0;
