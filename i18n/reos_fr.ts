@@ -554,7 +554,7 @@
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="37"/>
         <source>Remove a burning line</source>
-        <translation>Ajoute une ligne de brûlure</translation>
+        <translation>Supprime une ligne de brûlure</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="40"/>
@@ -572,14 +572,14 @@
         <translation>Déplacer le point exutoire</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="264"/>
-        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="310"/>
+        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="266"/>
+        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="312"/>
         <source>Delineating watershed</source>
         <translation>Découpage de bassin versant</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="264"/>
-        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="310"/>
+        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="266"/>
+        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="312"/>
         <source>This watershed intersects existing watershed(s)
 Adjust new watershed?</source>
         <translation>Ce bassin versant intersecte un ou plusieurs bassins versants existants
