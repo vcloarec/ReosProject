@@ -245,7 +245,7 @@
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="453"/>
         <source>Where:&lt;br&gt;- Δt : the time step of the runoff&lt;br&gt;- t&lt;sub&gt;c&lt;/sub&gt; : the concentration time&lt;br&gt;- A : the watershed area&lt;br&gt;- r : the runoff intensity or the effective rainfall intensity during the time step in mm per unit time</source>
-        <translation>在 : &lt;br&gt;- Δt : 逕流時間間距 &lt;br&gt; - t &lt;sub&gt; c &lt;/sub&gt; : 集中時間&lt;br&gt; - A : 集水區面積 &lt;br&gt;- r : 時間間距中的徑流強度或有效降雨強度，單位為mm</translation>
+        <translation>在 : &lt;br&gt;- Δt : 逕流時間間距 &lt;br&gt; - t &lt;sub&gt; c &lt;/sub&gt; : 集流時間&lt;br&gt; - A : 集水區面積 &lt;br&gt;- r : 時間間距中的徑流強度或有效降雨強度，單位為mm</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="472"/>
@@ -361,7 +361,7 @@
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
         <source>Concentration Time</source>
-        <translation>集中時間</translation>
+        <translation>集流時間</translation>
     </message>
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
@@ -466,7 +466,7 @@
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="272"/>
         <source>Concentration Time Formula</source>
-        <translation>濃度時間公式</translation>
+        <translation>集流時間公式</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="292"/>
@@ -549,12 +549,12 @@
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="36"/>
         <source>Add a burning line</source>
-        <translation>加入挖除線</translation>
+        <translation>加入挖深線</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="37"/>
         <source>Remove a burning line</source>
-        <translation>移除挖除線</translation>
+        <translation>移除挖深線</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="40"/>
@@ -572,14 +572,14 @@
         <translation>移動控制點</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="264"/>
-        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="310"/>
+        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="266"/>
+        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="312"/>
         <source>Delineating watershed</source>
         <translation>偵測集水區範圍</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="264"/>
-        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="310"/>
+        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="266"/>
+        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="312"/>
         <source>This watershed intersects existing watershed(s)
 Adjust new watershed?</source>
         <translation>這一個集水區和現存集水區(多個集水區)重疊
@@ -1298,7 +1298,7 @@ Adjust new watershed?</source>
         <location filename="../src/gui/GIS/reosmap.cpp" line="41"/>
         <location filename="../src/gui/GIS/reosmap.cpp" line="114"/>
         <source>Temporal controller</source>
-        <translation>時間性控制</translation>
+        <translation>時間序列操作</translation>
     </message>
 </context>
 <context>
@@ -2345,7 +2345,7 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="33"/>
         <source>Concentration time</source>
-        <translation>集中時間</translation>
+        <translation>集流時間</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="34"/>
@@ -2363,7 +2363,7 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="80"/>
         <source>Use concentration time</source>
-        <translation>使用集中型時間</translation>
+        <translation>使用集流時間</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="81"/>
@@ -2386,7 +2386,7 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="496"/>
         <source>Use concentration time for the lag time</source>
-        <translation>使用集中時間延時</translation>
+        <translation>使用洪峰稽延時間</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="497"/>
@@ -2463,7 +2463,7 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/core/watershed/reoswatershed.cpp" line="669"/>
         <source>Concentration time</source>
-        <translation>集中時間</translation>
+        <translation>集流時間</translation>
     </message>
 </context>
 <context>
@@ -2604,7 +2604,7 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="31"/>
         <source>Concentration time</source>
-        <translation>集中時間</translation>
+        <translation>集流時間</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="33"/>

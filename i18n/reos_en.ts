@@ -572,14 +572,14 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="264"/>
-        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="310"/>
+        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="266"/>
+        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="312"/>
         <source>Delineating watershed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="264"/>
-        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="310"/>
+        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="266"/>
+        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="312"/>
         <source>This watershed intersects existing watershed(s)
 Adjust new watershed?</source>
         <translation type="unfinished"></translation>

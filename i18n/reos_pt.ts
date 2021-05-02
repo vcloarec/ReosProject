@@ -572,14 +572,14 @@
         <translation>Move ponto de exutório</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="264"/>
-        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="310"/>
+        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="266"/>
+        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="312"/>
         <source>Delineating watershed</source>
         <translation>delimitando bacia hidrográfica</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="264"/>
-        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="310"/>
+        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="266"/>
+        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="312"/>
         <source>This watershed intersects existing watershed(s)
 Adjust new watershed?</source>
         <translation>Esta bacia hidrográfica cruza bacia(s) existentes
