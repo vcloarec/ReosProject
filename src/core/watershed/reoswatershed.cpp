@@ -720,11 +720,12 @@ void ReosWatershed::updateResidual()
   }
 
   //Calculate the residual delineating
-  QPolygonF residualDelineating = mDelineating;
+  QList<QPolygonF> upstreamDelineatings;
   for ( size_t i = 1 ; i < mUpstreamWatersheds.size(); ++i )
-  {
-    residualDelineating = ReosGeometryUtils::polygonCutByPolygon( residualDelineating, mUpstreamWatersheds[i]->delineating() );
-  }
+    upstreamDelineatings.append( mUpstreamWatersheds[i]->delineating() );
+
+  QPolygonF residualDelineating = ReosGeometryUtils::polygonCutByPolygons( mDelineating, upstreamDelineatings );
+
 
   mUpstreamWatersheds[0]->setDelineating( residualDelineating );
   mUpstreamWatersheds[0]->mExtent = ReosMapExtent( residualDelineating );
