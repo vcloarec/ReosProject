@@ -254,6 +254,8 @@ void ReosWatershedWidget::onCurrentWatershedChange( const QItemSelection &select
   it = mMapWatersheds.find( currentWatershed );
   if ( it != mMapWatersheds.end() )
   {
+    if ( currentWatershed->type() == ReosWatershed::Residual ) //update the delineating that could be changed if watershed was added
+      it.value().delineating->resetPolygon( currentWatershed->delineating() );
     formatSelectedWatershed( it.value() );
     mMapToolEditDelineating->setMapPolygon( it.value().delineating.get() );
     mMapToolMoveOutletPoint->setCurrentMapItem( it.value().outletPoint.get() );
@@ -355,7 +357,6 @@ ReosWatershed *ReosWatershedWidget::currentWatershed() const
 
 void ReosWatershedWidget::formatMapWatershed( MapWatershed &mapWatershed )
 {
-
   mapWatershed.delineating->setDescription( QStringLiteral( "Watershed" ) );
   mapWatershed.delineating->setWidth( 3 );
   mapWatershed.delineating->setColor( QColor( 0, 200, 100 ) );

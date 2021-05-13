@@ -46,6 +46,7 @@ class REOSCORE_EXPORT ReosGeometryUtils
 
     static QPolygonF polygonFitInPolygon( const QPolygonF &polygon1, const QPolygonF &polygon2 );
     static QPolygonF polygonCutByPolygon( const QPolygonF &polygon1, const QPolygonF &polygon2 );
+    static QPolygonF polygonCutByPolygons( const QPolygonF &polygon1, const QList<QPolygonF> &polygons );
     static QPolygonF polygonUnion( const QPolygonF &polygon1, const QPolygonF &polygon2 );
 
     //! Return the second vertex's index of the closest segment of \a polyline from \a point, returns -1 if none

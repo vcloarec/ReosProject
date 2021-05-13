@@ -154,6 +154,26 @@ QPolygonF ReosGeometryUtils::polygonCutByPolygon( const QPolygonF &polygon1, con
   return ret;
 }
 
+QPolygonF ReosGeometryUtils::polygonCutByPolygons( const QPolygonF &polygon1, const QList<QPolygonF> &polygons )
+{
+  QgsGeometry geom1( createQgsPolygon( polygon1 ) );
+
+  if ( polygons.isEmpty() )
+    return polygon1;
+
+  // merge polygons
+  QVector<QgsGeometry> polygonsVector( polygons.count() );
+
+  for ( int i = 0; i < polygons.count(); ++i )
+    polygonsVector[i] = QgsGeometry( createQgsPolygon( polygons.at( i ) ) );
+
+  QgsGeometry mergedPolygons = QgsGeometry::unaryUnion( polygonsVector );
+
+  QgsGeometry result = geom1.difference( mergedPolygons );
+
+  return result.asQPolygonF();
+}
+
 QPolygonF ReosGeometryUtils::polygonUnion( const QPolygonF &polygon1, const QPolygonF &polygon2 )
 {
   QgsGeometry geom1( createQgsPolygon( polygon1 ) );
