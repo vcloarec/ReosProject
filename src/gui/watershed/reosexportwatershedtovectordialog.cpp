@@ -45,8 +45,8 @@ void ReosExportWatershedToVectorDialog::onChooseDelineatingFile()
   QString fileName = QFileDialog::getSaveFileName( nullptr, tr( "Export watershed delineating" ),
                      "", "*.shp" );
 
-  if ( checkFileExist( fileName ) )
-    ui->lineEditDelineatingFile->setText( fileName );
+  ui->lineEditDelineatingFile->setText( fileName );
+
 }
 
 void ReosExportWatershedToVectorDialog::onChooseStreamPathFile()
@@ -54,8 +54,7 @@ void ReosExportWatershedToVectorDialog::onChooseStreamPathFile()
   QString fileName = QFileDialog::getSaveFileName( nullptr, tr( "Export watershed longest path" ),
                      "", "*.shp" );
 
-  if ( checkFileExist( fileName ) )
-    ui->lineEditStreamPathFile->setText( fileName );
+  ui->lineEditStreamPathFile->setText( fileName );
 }
 
 void ReosExportWatershedToVectorDialog::accept()
@@ -98,18 +97,4 @@ void ReosExportWatershedToVectorDialog::accept()
 
 
   QDialog::accept();
-}
-
-bool ReosExportWatershedToVectorDialog::checkFileExist( const QString &fileName )
-{
-  QFileInfo file( fileName );
-
-  if ( file.exists() )
-  {
-    return QMessageBox::warning( this, tr( "export watershed to vector file" ),
-                                 tr( "Do you want to overwrite the file %1?" ).arg( fileName ),
-                                 QMessageBox::Yes | QMessageBox::No ) == QMessageBox::Yes;
-  }
-
-  return true;
 }

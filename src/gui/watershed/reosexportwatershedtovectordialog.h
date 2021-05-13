@@ -42,8 +42,6 @@ class ReosExportWatershedToVectorDialog : public QDialog
     Ui::ReosExportWatershedToVectorDialog *ui;
     const QList<ReosWatershed *> mWatersheds;
     QString mCrs;
-
-    bool checkFileExist( const QString &fileName );
 };
 
 #endif // REOSEXPORTWATERSHEDTOVECTORDIALOG_H
