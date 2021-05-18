@@ -99,7 +99,23 @@ void ReosGisEngine::initGisEngine()
 
   if ( !projDataPresent )
   {
-//TODO : implement a way to found proj data : copy to app data or link to qgis proj folder.
+	  QDir projDir(QApplication::applicationDirPath());
+	  if (projDir.cdUp() && projDir.cd(QStringLiteral("share")) && projDir.cd(QStringLiteral("proj")))
+	  {
+		  QStringList filesList = projDir.entryList(QDir::NoDotAndDotDot | QDir::Files);
+		  QString destinationPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+		  QDir destinationDir(destinationPath);
+		  if (!destinationDir.cd(QStringLiteral("proj")))
+		  {
+			  destinationDir.mkdir(QStringLiteral("proj"));
+			  destinationDir.cd(QStringLiteral("proj"));
+		  }
+		  for (const QString &fileName : filesList)
+		  {
+			  QFile file(projDir.absoluteFilePath(fileName));
+			  file.copy(destinationDir.absoluteFilePath(fileName));
+		  }
+	  }
   }
 
   mAbstractLayerTreeModel = new QgsLayerTreeModel( QgsProject::instance()->layerTreeRoot(), this );
