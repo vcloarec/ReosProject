@@ -169,9 +169,11 @@ QPolygonF ReosGeometryUtils::polygonCutByPolygons( const QPolygonF &polygon1, co
 
   QgsGeometry mergedPolygons = QgsGeometry::unaryUnion( polygonsVector );
 
-  QgsGeometry result = geom1.difference( mergedPolygons );
+  QPolygonF polyResult = geom1.difference(mergedPolygons).asQPolygonF();
+  if (polyResult.first() == polyResult.last())
+	  polyResult.removeLast();
 
-  return result.asQPolygonF();
+  return polyResult;
 }
 
 QPolygonF ReosGeometryUtils::polygonUnion( const QPolygonF &polygon1, const QPolygonF &polygon2 )
