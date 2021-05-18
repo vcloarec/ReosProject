@@ -67,6 +67,9 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     //! Returns the layer type corresponding to the the layer Id
     LayerType layerType( const QString layerId ) const;
 
+    //! Returns the name of the layer with \a layerId
+    QString layerName( const QString layerId ) const;
+
     //! Returns the model containing GIS layers tree
     QAbstractItemModel *layerTreeModel();
 

@@ -201,6 +201,8 @@ class ReosRasterMemory
     bool freeMemory();
     //! Returns the value at position \a i,j
     T value( int row, int col ) const;
+    //! Returns the value at position \a pos
+    T value( const ReosRasterCellPos &cellPos ) const;
     //! Sets the value at position \a i,j
     void setValue( int row, int col, T v );
     //! Sets the value at position \a cellPos
@@ -231,8 +233,10 @@ class ReosRasterMemory
     //! Returns whether the raster is valid
     bool isValid() const;
 
-    //! Returns a pointer to a new raster in memory from \a this with reduced column and row count, the caller takes ownership
+    //! Returns a new raster in memory from \a this with reduced column and row count
     ReosRasterMemory<T> reduceRaster( int rowMin, int rowMax, int columnMin, int columnMax );
+
+    bool isInRaster( const ReosRasterCellPos &pos ) const;
 
     bool operator==( const ReosRasterMemory<T> &rhs ) const;
 
@@ -301,6 +305,13 @@ T ReosRasterMemory<T>::value( int row, int col ) const
 
   return mValues.at( row * mColumnCount + col );
 }
+
+template<typename T>
+T ReosRasterMemory<T>::value( const ReosRasterCellPos &cellPos ) const
+{
+  return value( cellPos.row(), cellPos.column() );
+}
+
 
 template<typename T>
 void ReosRasterMemory<T>::setValue( int row, int col, T v )

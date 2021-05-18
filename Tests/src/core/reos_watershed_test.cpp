@@ -317,6 +317,8 @@ void ReosWatersehdTest::watershedDelineating()
   QVERIFY( watershedStore.masterWatershedCount() == 1 );
   QVERIFY( itemModel.rowCount( QModelIndex() ) == 1 );
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForDownstream );
+  ReosWatershed *ws = watershedStore.allWatersheds().at( 0 );
+  QVERIFY( equal( ws->averageElevation()->value(), 23.2079186831, 0.00000001 ) );
 
   //! Attempt to delineate an upstream watershed
   downstreamLine.clear();
@@ -567,6 +569,9 @@ void ReosWatersehdTest::watershdDelineatingMultiWatershed()
   } );
 
   QCOMPARE( polygonWatershed, polygonWatershedTest );
+
+  ReosExportToVectorFile exportPolygon_1( "/home/vincent/bv_poly_test_1.shp", QList<ReosExportToVectorFile::Field>(), ReosExportToVectorFile::Polygon, QString() );
+  exportPolygon_1.addPolygon( watershedDelineating.lastWatershedDelineated(), QVariantMap() );
 
   bool needAdjusting;
   QVERIFY( watershedDelineating.validateWatershed( needAdjusting ) );

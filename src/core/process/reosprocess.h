@@ -62,7 +62,7 @@ class REOSCORE_EXPORT ReosProcess : public QObject
     void setSuccesful( bool b );
     void setCurrentProgression( int value );
 
-    static unsigned maximumThread();
+    static unsigned maximumThreads();
 
   signals:
     void sendInformation( const QString & );

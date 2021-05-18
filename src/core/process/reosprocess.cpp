@@ -56,7 +56,7 @@ void ReosProcess::setCurrentProgression( int value )
   mCurrentProgression = value;
 }
 
-unsigned ReosProcess::maximumThread()
+unsigned ReosProcess::maximumThreads()
 {
   unsigned maxThread = std::max( std::thread::hardware_concurrency() - 1, 1u );
   if ( MAX_THREAD > 0u )

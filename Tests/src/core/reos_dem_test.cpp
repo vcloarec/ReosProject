@@ -83,7 +83,10 @@ void ReosDemTesting::raster_DEM()
 
   QCOMPARE( profile, expectedProfile );
 
+  QPolygonF polygon;
+  polygon << QPointF( 1, 1 ) << QPointF( 1, 5 ) << QPointF( 2, 5 ) << QPointF( 9, 9 ) << QPointF( 1, 9 );
 
+  QVERIFY( equal( dem->averageElevationInPolygon( polygon, QString() ), 5.0002, 0.0001 ) );
 }
 
 QTEST_MAIN( ReosDemTesting )

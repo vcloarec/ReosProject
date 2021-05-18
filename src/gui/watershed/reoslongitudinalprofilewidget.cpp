@@ -48,7 +48,6 @@ ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWi
   ui->mSplitter->setStretchFactor( 0, 3 );
   ui->mSplitter->setStretchFactor( 1, 1 );
 
-
 //**** set up editable profile
   mDemCurve = new ReosPlotCurve( "Profile on current DEM", QColor( 0, 155, 242 ), 3 );
   mProfile = new ReosEditableProfile();
@@ -207,7 +206,22 @@ void ReosLongitudinalProfileWidget::updateProfile()
     txtLength = QString::number( length, 'f', 0 );
     txtLength.append( tr( " m" ) );
   }
+
+  double drop;
+  QString txtDrop;
+  if ( profile.size() < 2 )
+  {
+    drop = std::numeric_limits<double>::quiet_NaN();
+    txtDrop = '-';
+  }
+  else
+  {
+    drop = profile.first().y() - profile.last().y() ;
+    txtDrop = QString::number( drop );
+  }
+
   ui->mLabelTotalLength->setText( txtLength );
+  ui->mLabelDrop->setText( txtDrop );
 
 }
 

@@ -16,12 +16,12 @@
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="71"/>
         <source>Watershed</source>
-        <translation>حوض ساكب</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="168"/>
         <source>Hydrology</source>
-        <translation>الهدرولوجيا-علم المياه</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="169"/>
@@ -31,7 +31,7 @@
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="170"/>
         <source>Runoff manager</source>
-        <translation>الجريان السطحي</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="172"/>
@@ -572,14 +572,14 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="264"/>
-        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="310"/>
+        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="266"/>
+        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="312"/>
         <source>Delineating watershed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="264"/>
-        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="310"/>
+        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="266"/>
+        <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="312"/>
         <source>This watershed intersects existing watershed(s)
 Adjust new watershed?</source>
         <translation type="unfinished"></translation>
@@ -1349,7 +1349,7 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/core/watershed/reosmeteorologicmodel.cpp" line="234"/>
         <source>Watershed</source>
-        <translation type="unfinished">حوض ساكب</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosmeteorologicmodel.cpp" line="236"/>
@@ -2569,7 +2569,7 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/ui/reoswatershedwidget.ui"/>
         <source>Watershed</source>
-        <translation type="unfinished">حوض ساكب</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reoswatershedwidget.ui"/>

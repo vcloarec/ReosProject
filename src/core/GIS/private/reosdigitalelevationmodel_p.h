@@ -31,9 +31,18 @@ class ReosDigitalElevationModelRaster: public ReosDigitalElevationModel
 
     QPolygonF elevationOnPolyline( const QPolygonF &polyline, const QString &polylineCrs = QString(), ReosProcess *process = nullptr ) const override;
 
-    ReosRasterMemory<float> extractMemoryRasterSimplePrecision( const ReosMapExtent &destinationExtent,
-        ReosRasterExtent &outputRasterExtent,
-        const QString &destinationCrs = QString(), ReosProcess *process = nullptr ) const override;
+
+    double averageElevationInPolygon( const QPolygonF &polygon, const QString &polygonCrs, ReosProcess *process ) const override;
+    double averageElevationOnGrid( const ReosRasterMemory<unsigned char> &grid, const ReosRasterExtent &gridExtent, ReosProcess *process = nullptr ) const override;
+
+    ReosRasterMemory<float> extractMemoryRasterSimplePrecision(
+      const ReosMapExtent &destinationExtent,
+      ReosRasterExtent &outputRasterExtent,
+      const QString &destinationCrs = QString(), ReosProcess *process = nullptr ) const override;
+
+    ReosRasterMemory<float> extractMemoryRasterSimplePrecision(
+      const ReosRasterExtent &destinationRasterExtent,
+      ReosProcess *process = nullptr ) const override;
 
     QString source() const override;
 
@@ -42,9 +51,11 @@ class ReosDigitalElevationModelRaster: public ReosDigitalElevationModel
     QgsCoordinateReferenceSystem mCrs;
     QgsCoordinateTransformContext mTransformContext;
     QString mSourceId;
+    ReosRasterExtent mExtent;
 
     //! Adjust the extent to the border of pixel of the raster (extent increase)
     ReosRasterExtent rasterExtent( const QgsRectangle &originalExtent ) const;
+
 };
 
 

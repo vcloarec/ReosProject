@@ -97,13 +97,13 @@ class REOSCORE_EXPORT ReosRasterWatershedMarkerFromDirection: public ReosProcess
 {
   public:
 
-    //! Struct used to store information during ascension of the direction raster
-
     ReosRasterWatershedMarkerFromDirection( ReosRasterWatershedFromDirectionAndDownStreamLine *mParent,
                                             const ReosRasterWatershed::Climber &initialClimb,
                                             const ReosRasterWatershed::Directions &directions,
                                             ReosRasterWatershed::Watershed &watershed,
                                             const ReosRasterLine &excludedCell );
+
+    //! Set a dem for
 
     void start() override;
 
@@ -222,5 +222,42 @@ class REOSCORE_EXPORT ReosRasterWatershedTraceDownstream: public ReosProcess
     QPolygonF mResultPolyline;
     QPolygonF mPolyLimit;
 };
+
+class REOSCORE_EXPORT ReosRasterAverageValueInPolygon: public ReosProcess
+{
+  public:
+    ReosRasterAverageValueInPolygon( const ReosRasterMemory<float> &entryRaster,
+                                     ReosRasterExtent &rasterExtent,
+                                     const QPolygonF &polygon ):
+      mEntryRaster( entryRaster ), mRasterExtent( rasterExtent ), mPolygon( polygon )
+    {}
+
+    void start() override;
+    float result() const;
+
+    struct Job
+    {
+      int startRow;
+      int endRow;
+      ReosRasterMemory<float> *entryRaster;
+      ReosRasterMemory<char> *rasterizedPolygon;
+      int valueCount;
+      double sum;
+    };
+
+  private:
+
+    ReosRasterMemory<float> mEntryRaster;
+    ReosRasterExtent mRasterExtent;
+    const QPolygonF mPolygon;
+    float mResult;
+
+};
+
+static void averageOnJob( typename ReosRasterAverageValueInPolygon::Job &job );
+
+
+
+
 
 #endif // HDRASTERWATERSHED_H

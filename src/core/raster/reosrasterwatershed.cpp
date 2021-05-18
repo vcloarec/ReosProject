@@ -172,7 +172,7 @@ void ReosRasterWatershedFromDirectionAndDownStreamLine::start()
 {
   mIsSuccessful = false;
 
-  unsigned nbThread = maximumThread();
+  unsigned nbThread = maximumThreads();
 
   mThreads.clear();
   mJobs.clear();
@@ -331,13 +331,13 @@ int ReosRasterWatershedDirectionCalculation::maxProgression() const
 
 void ReosRasterWatershedDirectionCalculation::start()
 {
-  unsigned threadCount = static_cast<int>( maximumThread() );
+  unsigned threadCount = static_cast<int>( maximumThreads() );
 
   QVector<Job> jobs;
   int totalRowsCount = mDirections.rowCount();
   int rowPerJob;
 
-  if ( threadCount > totalRowsCount )
+  if ( static_cast<int>( threadCount ) > totalRowsCount )
     threadCount = totalRowsCount;
 
   if ( totalRowsCount % threadCount == 0 )
@@ -353,7 +353,7 @@ void ReosRasterWatershedDirectionCalculation::start()
     int end = std::min( ( t + 1 ) * rowPerJob - 1, totalRowsCount - 1 );
 
     if ( end >= start )
-      jobs.append( Job( {start, end,&mDem, &mDirections} ) );
+      jobs.append( Job( {start, end, &mDem, &mDirections} ) );
   }
 
   mFuture = QtConcurrent::map( jobs, calculateDirection );
@@ -413,3 +413,80 @@ ReosRasterWatershed::Directions ReosRasterWatershedDirectionCalculation::directi
 {
   return mDirections;
 }
+
+
+void averageOnJob( ReosRasterAverageValueInPolygon::Job &job )
+{
+  for ( int row = job.startRow; row <= job.endRow; ++row )
+  {
+    int boundCount = 0;
+    for ( int col = 0; col < job.rasterizedPolygon->rowCount(); ++col )
+    {
+      boundCount += job.rasterizedPolygon->value( row, col );
+      if ( boundCount % 2 == 1 || job.rasterizedPolygon->value( row, col ) )
+      {
+        job.sum += job.entryRaster->value( row, col );
+      }
+    }
+  }
+}
+
+void ReosRasterAverageValueInPolygon::start()
+{
+  mIsSuccessful = false;
+
+  setInformation( tr( "Prepare calculation" ) );
+  // Create a byte raster to rasterize the boundary of the polygon
+  ReosRasterMemory<char> rasterizedPolygon( mEntryRaster.rowCount(), mEntryRaster.columnCount() );
+  rasterizedPolygon.setNodata( 3 );
+  if ( !rasterizedPolygon.reserveMemory() )
+    return;
+
+  rasterizedPolygon.fill( 3 );
+
+  if ( mPolygon.count() < 3 )
+    return;
+
+  // rasterize the polygon
+  ReosRasterLine rasterizedExterior( false );
+  for ( int i = 0; i < mPolygon.count(); ++i )
+  {
+    ReosRasterCellPos pos1 = mRasterExtent.mapToCellPos( mPolygon.at( i ) );
+    if ( rasterizedExterior.cellCount() == 0 || pos1 != rasterizedExterior.lastCellPosition() )
+      rasterizedExterior.addPoint( pos1 );
+  }
+  ReosRasterCellPos pos1 = mRasterExtent.mapToCellPos( mPolygon.at( 0 ) );
+  if ( rasterizedExterior.cellCount() == 0 || pos1 != rasterizedExterior.lastCellPosition() )
+    rasterizedExterior.addPoint( pos1 );
+
+  char lastDir = 0;
+  for ( int i = 0; i < static_cast<int>( rasterizedExterior.cellCount() ) - 1; ++i )
+  {
+    ReosRasterCellPos pos1 = rasterizedExterior.cellPosition( i );
+    ReosRasterCellPos pos2 = rasterizedExterior.cellPosition( i + 1 );
+
+    char currentDir;
+    if ( pos1.row() < pos2.row() )
+      currentDir = 1; //up
+    else if ( pos1.row() > pos2.row() )
+      currentDir = 2; //up
+    else
+      currentDir = 0;
+
+    rasterizedPolygon.setValue( pos2, currentDir );
+
+    if ( lastDir != 0 && currentDir != 0 && lastDir != currentDir )
+      rasterizedPolygon.setValue( pos1, 0 );
+
+    lastDir = currentDir;
+  }
+
+  rasterizedPolygon.createTiffFile( "/home/vincent/rasterized.tif", GDT_Byte, mRasterExtent );
+}
+
+float ReosRasterAverageValueInPolygon::result() const
+{
+  return mResult;
+}
+
+

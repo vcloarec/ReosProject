@@ -437,6 +437,16 @@ ReosGisEngine::LayerType ReosGisEngine::layerType( const QString layerId ) const
   return NotSupported;
 }
 
+QString ReosGisEngine::layerName( const QString layerId ) const
+{
+  QgsMapLayer *layer = QgsProject::instance()->mapLayer( layerId );
+
+  if ( !layer )
+    return QString();
+
+  return layer->name();
+}
+
 void ReosGisEngine::layerRemoved( const QString &layerId )
 {
   unRegisterLayerAsDigitalElevationModel( layerId );
