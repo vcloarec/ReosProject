@@ -47,6 +47,7 @@ ReosConcentrationTimeWidget::ReosConcentrationTimeWidget( QWidget *parent ) :
   ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaVentura );
   ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaJohnstone );
   ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaVenTeChow );
+  ReosConcentrationTimeFormulasRegistery::instance()->registerFormulas( new ReosConcentrationTimeFormulaGiandotti );
 
   QToolBar *toolBar = new QToolBar( ui->widgetTools );
   ui->widgetTools->layout()->addWidget( toolBar );
@@ -152,7 +153,12 @@ void ReosConcentrationTimeWidget::updateFormulas()
   if ( mSlopeParameterWidget->slopeParameter() )
     params.slope = mSlopeParameterWidget->slopeParameter()->value();
   if ( mAverageElevationWidget->doubleParameter() )
-    params.averageElevation = mAverageElevationWidget->doubleParameter()->value();
+  {
+    if ( mCurrentWatershed && !mCurrentWatershed->profile().isEmpty() )
+      params.relativeAverageElevation = mAverageElevationWidget->doubleParameter()->value() - mCurrentWatershed->profile().last().y();
+    else
+      params.relativeAverageElevation = mAverageElevationWidget->doubleParameter()->value();
+  }
 
   mFormulasModel->setParameters( params );
 
@@ -302,6 +308,7 @@ void ReosConcentrationTimeWidget::onFormulaDisplaying()
   dialog->layout()->addWidget( new QLabel( tr( "A : watershed area (m²)" ), this ) );
   dialog->layout()->addWidget( new QLabel( tr( "i : average slope (m/m)" ), this ) );
   dialog->layout()->addWidget( new QLabel( tr( "H : Drop (m)" ), this ) );
+  dialog->layout()->addWidget( new QLabel( tr( "Hm : relative average elevation (from outlet) (m)" ), this ) );
   dialog->layout()->addWidget( new QLabel( tr( "All results in minutes" ), this ) );
 
   dialog->exec();

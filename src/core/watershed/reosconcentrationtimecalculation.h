@@ -42,7 +42,7 @@ class REOSCORE_EXPORT ReosConcentrationTimeFormula
       ReosArea area = ReosArea();
       double drop = 0; //!< in meters
       double length = 0; //!< in meters
-      double averageElevation = 0; //!< in meters
+      double relativeAverageElevation = 0; //!< in meters
     };
 
     //! Returns the name if the formula
@@ -151,6 +151,17 @@ class REOSCORE_EXPORT ReosConcentrationTimeFormulaJohnstone : public ReosConcent
     bool canBeCalculated( const ReosConcentrationTimeFormula::Parameters &parameters ) const override;
 
     virtual QPixmap formulaImage() const override {return QPixmap( QStringLiteral( ":/formulas/concentrationTimeJohnstone.svg" ) );}
+};
+
+class REOSCORE_EXPORT ReosConcentrationTimeFormulaGiandotti : public ReosConcentrationTimeFormula
+{
+  public:
+    QString name() const override {return QStringLiteral( "Giandotti" );}
+    ReosDuration concentrationTime( const Parameters &parameters ) const override;
+    bool isInValidityDomain( const Parameters &parameters ) const override;
+    bool canBeCalculated( const ReosConcentrationTimeFormula::Parameters &parameters ) const override;
+
+    virtual QPixmap formulaImage() const override {return QPixmap( QStringLiteral( ":/formulas/concentrationTimeGiandotti.svg" ) );}
 };
 
 //********************************************************************

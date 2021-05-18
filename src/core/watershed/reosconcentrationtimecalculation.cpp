@@ -366,6 +366,37 @@ bool ReosConcentrationTimeFormulaJohnstone::canBeCalculated( const ReosConcentra
   return ( L > 0 && S > 0 );
 }
 
+
+ReosDuration ReosConcentrationTimeFormulaGiandotti::concentrationTime( const ReosConcentrationTimeFormula::Parameters &parameters ) const
+{
+  double A = parameters.area.valueKm2();
+  double L = parameters.length / 1000;
+  double H = parameters.relativeAverageElevation;
+
+  if ( L > 0 && A > 0 && H > 0 )
+  {
+    double valueInHour = ( 4 * sqrt( A ) + 1.5 * L ) / ( 0.8 * sqrt( H ) );
+    return ReosDuration( valueInHour, ReosDuration::hour );
+  }
+
+  return ReosDuration();;
+}
+
+bool ReosConcentrationTimeFormulaGiandotti::isInValidityDomain( const ReosConcentrationTimeFormula::Parameters &parameters ) const
+{
+  double A = parameters.area.valueKm2();
+  return ( A >= 170 && A <= 70000 );
+}
+
+bool ReosConcentrationTimeFormulaGiandotti::canBeCalculated( const ReosConcentrationTimeFormula::Parameters &parameters ) const
+{
+  double A = parameters.area.valueKm2();
+  double L = parameters.length ;
+  double H = parameters.relativeAverageElevation;
+
+  return ( A > 0 && L > 0 && H > 0 );
+}
+
 ReosConcentrationTimeFormulasModel::ReosConcentrationTimeFormulasModel( ReosConcentrationTimeFormulasRegistery *registery, QObject *parent ):
   QAbstractTableModel( parent )
   , mRegistery( registery )

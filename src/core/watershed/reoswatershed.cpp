@@ -899,7 +899,10 @@ void ReosWatershed::calculateConcentrationTime()
   param.drop = mDrop->value();
   param.length = longestPath()->value();
   param.slope = slope()->value();
-  param.averageElevation = averageElevation()->value();
+  if ( mProfile.isEmpty() )
+    param.relativeAverageElevation = averageElevation()->value();
+  else
+    param.relativeAverageElevation = averageElevation()->value() - mProfile.last().y();
 
   if ( !mConcentrationTimeCalculation.alreadyCalculated() )
   {
