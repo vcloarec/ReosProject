@@ -36,7 +36,7 @@ class ReosDelineatingWatershedWidget;
 class ReosRainfallManager;
 class ReosRunoffManager;
 
-static const ReosVersion lekanVersion( "Lekan", 2, 0, 0 );
+static const ReosVersion lekanVersion( "Lekan", 2, 0, 99 );
 
 class LekanMainWindow : public ReosMainWindow
 {

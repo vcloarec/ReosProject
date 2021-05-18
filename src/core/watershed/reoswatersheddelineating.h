@@ -35,18 +35,27 @@ class ReosWatershedDelineatingProcess: public ReosProcess
     ReosWatershedDelineatingProcess( ReosDigitalElevationModel *dem,
                                      const ReosMapExtent &mapExtent,
                                      const QPolygonF &downtreamLine,
-                                     const QList<QPolygonF> &burningLines );
+                                     const QList<QPolygonF> &burningLines,
+                                     bool calculateAverageElevation = false );
 
     ReosWatershedDelineatingProcess( ReosWatershed *downstreamWatershed,
-                                     const QPolygonF &downtreamLine, QString layerId );
+                                     const QPolygonF &downtreamLine,
+                                     const QString layerId );
 
     void start() override;
 
     QPolygonF watershedPolygon() const;
     QPolygonF streamLine() const;
     ReosRasterWatershed::Directions directions() const;
+    ReosRasterWatershed::Watershed rasterizedWatershed() const;
 
+    //! Returns the entry extent matching to dem raster resolution
+    ReosRasterExtent predefinedRasterExtent() const;
     ReosRasterExtent outputRasterExtent() const;
+
+    double averageElevation() const;
+
+    bool calculateAverageElevation() const;
 
   private:
     ReosMapExtent mExtent;
@@ -55,9 +64,13 @@ class ReosWatershedDelineatingProcess: public ReosProcess
     const QList<QPolygonF> mBurningLines;
 
     ReosRasterWatershed::Directions mDirections;
+    ReosRasterWatershed::Watershed mRasterizedWatershed;
     QPolygonF mOutputWatershed;
     QPolygonF mOutputStreamline;
+    ReosRasterExtent mPredefinedRasterExtent;
     ReosRasterExtent mOutputRasterExtent;
+    bool mCalculateAverageElevation = false;
+    double mAverageElevation = 0;
 
     static void burnRasterDem( ReosRasterMemory<float> &rasterDem, const QList<QPolygonF> &burningLines, const ReosRasterExtent &rasterExtent );
 };
@@ -92,6 +105,7 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
 
     //! Sets the downstream line, return true if sucessful
     bool setDownstreamLine( const QPolygonF &downstreamLine );
+
     //! Sets the predefined extent, return true if sucessful
     bool setPreDefinedExtent( const ReosMapExtent &extent );
 
@@ -100,6 +114,9 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
 
     //! Returns all burning lines
     QList<QPolygonF> burninglines() const;
+
+    //! Sets whether the average elevation of the watershed is calculated after delineating
+    void setCalculateAverageElevation( bool calculate );
 
     //! Returns whether the module has direction data ready for proceed
     bool hasDirectionData() const;
@@ -154,6 +171,7 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
     ReosWatershed *mDownstreamWatershed = nullptr;
     QList<QPolygonF> mBurningLines;
     bool mIsBurningLineUpToDate = false;
+    bool mCalculateAverageElevation = true;
 
     std::unique_ptr<ReosWatershedDelineatingProcess> mProcess;
 

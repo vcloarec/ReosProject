@@ -157,7 +157,7 @@ class REOSCORE_EXPORT ReosParameterSlope: public ReosParameter
     static ReosParameterSlope *decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent );
 
   private:
-    double mSlope = 0;
+    double mSlope = std::numeric_limits<double>::quiet_NaN();
 };
 
 class REOSCORE_EXPORT ReosParameterDuration: public ReosParameter

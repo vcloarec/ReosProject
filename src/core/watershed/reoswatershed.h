@@ -47,23 +47,30 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
 
     ReosWatershed();
 
+    //! Constructor used with manual delineating
     ReosWatershed( const QPolygonF &delineating,
                    const QPointF &outletPoint,
                    Type type );
 
+    //! Constructor used with automatic delineating with direction data containded in the upstream watershed
     ReosWatershed( const QPolygonF &delineating,
                    const QPointF &outletPoint,
                    Type type,
                    const QPolygonF &downstreamLine,
-                   const QPolygonF &streamPath );
+                   const QPolygonF &streamPath,
+                   const ReosRasterWatershed::Watershed &rasterizedWatershed,
+                   const ReosRasterExtent &rasterizedWatershedExtent,
+                   const QString &refLayerId );
 
+    //! Constructor used with automatic delineating with direction data
     ReosWatershed( const QPolygonF &delineating,
                    const QPointF &outletPoint,
                    Type type,
                    const QPolygonF &downstreamLine,
                    const QPolygonF &streamPath,
                    const ReosRasterWatershed::Directions &direction,
-                   const ReosRasterExtent &directionExent,
+                   const ReosRasterWatershed::Watershed &rasterizedWatershed,
+                   const ReosRasterExtent &rasterExtent,
                    const QString &refLayerId );
 
     Type type() const {return mType;}
@@ -114,7 +121,6 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
      * \note if a point of the line is exactly on a segment of the delineating polygon, this point is considered outside
      */
     ReosInclusionType contain( const QPolygonF &line ) const;
-
 
     //! Returns how this watershed is included by \a other
     ReosInclusionType isContainedBy( const ReosWatershed &other ) const;
@@ -196,6 +202,7 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
     ReosParameterSlope *slope() const;
     ReosParameterDouble *drop() const;
     ReosParameterDouble *longestPath() const;
+    ReosParameterDouble *averageElevation() const;
 
     ReosParameterDuration *concentrationTime() const;
     ReosConcentrationTimeCalculation concentrationTimeCalculation() const;
@@ -222,12 +229,14 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
     void calculateLongerPath();
     void calculateDrop();
     void calculateConcentrationTime();
+    void calculateAverageElevation();
 
   private:
     Type mType = None;
 
     ReosMapExtent mExtent;
     QPolygonF mDelineating;
+    QString mDelineatingReferenceLayer;
     QPointF mOutletPoint;
     QPolygonF mDownstreamLine;
     QPolygonF mStreamPath;
@@ -240,6 +249,7 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
     ReosParameterSlope *mSlope = nullptr;
     ReosParameterDouble *mDrop = nullptr;
     ReosParameterDouble *mLongestStreamPath = nullptr;
+    ReosParameterDouble *mAverageElevation = nullptr;
 
     ReosConcentrationTimeCalculation mConcentrationTimeCalculation;
     ReosParameterDuration *mConcentrationTimeValue = nullptr;
@@ -251,8 +261,14 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
       ReosRasterByteCompressed directionRaster;
       ReosRasterExtent directionExtent;
     };
-
     std::map<QString, DirectionData> mDirectionData;
+
+    struct RasterizedWatershedData
+    {
+      ReosRasterByteCompressed rasterizedWatershed;
+      ReosRasterExtent rasterizedWatershedExtent;
+    };
+    std::map<QString, RasterizedWatershedData> mRasterizedWatershedData;
 
     std::vector<std::unique_ptr<ReosWatershed>> mUpstreamWatersheds;
     ReosWatershed *mDownstreamWatershed = nullptr;

@@ -23,6 +23,7 @@
 #include <QToolButton>
 #include <QDateTimeEdit>
 #include <QTextEdit>
+#include <QApplication>
 
 
 #include "reosparameterwidget.h"
@@ -236,7 +237,9 @@ void ReosParameterWidget::askDerivation()
   if ( mParameter && mParameter->isDerivable() )
   {
     mDerivationButton->setFocus(); //to avoid a focus on the line edit --> that produce a signal textEdited that set the param not derived
+    QApplication::setOverrideCursor( Qt::WaitCursor );
     mParameter->askForDerivation();
+    QApplication::restoreOverrideCursor();
   }
 }
 
@@ -285,7 +288,7 @@ void ReosParameterAreaWidget::updateValue()
   }
   else
   {
-    setTextValue( '-' );
+    setTextValue( QString( '-' ) );
     mUnitCombobox->setCurrentIndex( -1 );
     show();
   }
@@ -346,7 +349,6 @@ void ReosParameterSlopeWidget::setSlope( ReosParameterSlope *slope )
 
 void ReosParameterSlopeWidget::updateValue()
 {
-
   if ( slopeParameter() && slopeParameter()->isValid() )
   {
     if ( int( slopeParameter()->value() * 1000 ) == 0 )
@@ -365,7 +367,7 @@ void ReosParameterSlopeWidget::updateValue()
   }
   else
   {
-    setTextValue( '-' );
+    setTextValue( QString( '-' ) );
     mLabelSlopeUnit->setText( QString( '%' ) );
     show();
   }
@@ -534,7 +536,7 @@ void ReosParameterDurationWidget::updateValue()
   }
   else
   {
-    setTextValue( "-" );
+    setTextValue( QString( '-' ) );
     mUnitCombobox->setCurrentIndex( -1 );
     show();
   }

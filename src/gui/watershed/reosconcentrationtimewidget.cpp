@@ -33,6 +33,7 @@ ReosConcentrationTimeWidget::ReosConcentrationTimeWidget( QWidget *parent ) :
   , mDropParameterWidget( new ReosParameterDoubleWidget( this, tr( "Drop" ) ) )
   , mSlopeParameterWidget( new ReosParameterSlopeWidget( this, tr( "Slope" ) ) )
   , mAreaParameterWidget( new ReosParameterAreaWidget( this, tr( "Area" ) ) )
+  , mAverageElevationWidget( new ReosParameterDoubleWidget( this, tr( "Average elevation" ) ) )
 {
   ui->setupUi( this );
   setWindowFlag( Qt::Dialog );
@@ -68,11 +69,15 @@ ReosConcentrationTimeWidget::ReosConcentrationTimeWidget( QWidget *parent ) :
   ui->groupBoxparameters->layout()->addWidget( mAreaParameterWidget );
   mAreaParameterWidget->enableSpacer( ReosParameterWidget::SpacerInMiddle );
   mAreaParameterWidget->hideWhenVoid( false );
+  ui->groupBoxparameters->layout()->addWidget( mAverageElevationWidget );
+  mAverageElevationWidget->enableSpacer( ReosParameterWidget::SpacerInMiddle );
+  mAverageElevationWidget->hideWhenVoid( false );
 
   connect( mAreaParameterWidget, &ReosParameterWidget::valueChanged, this, &ReosConcentrationTimeWidget::updateFormulas );
   connect( mLengthParameterWidget, &ReosParameterWidget::valueChanged, this, &ReosConcentrationTimeWidget::updateFormulas );
   connect( mDropParameterWidget, &ReosParameterWidget::valueChanged, this, &ReosConcentrationTimeWidget::updateFormulas );
   connect( mSlopeParameterWidget, &ReosParameterWidget::valueChanged, this, &ReosConcentrationTimeWidget::updateFormulas );
+  connect( mAverageElevationWidget, &ReosParameterWidget::valueChanged, this, &ReosConcentrationTimeWidget::updateFormulas );
   connect( ui->usedValue, &ReosParameterWidget::valueChanged, this, &ReosConcentrationTimeWidget::updateFormulas );
 
   connect( ui->radioButtonAverage, &QRadioButton::clicked, this, &ReosConcentrationTimeWidget::onMethodChanged );
@@ -110,6 +115,7 @@ void ReosConcentrationTimeWidget::setCurrentWatershed( ReosWatershed *ws )
     mDropParameterWidget->setDouble( nullptr );
     mSlopeParameterWidget->setSlope( nullptr );
     mAreaParameterWidget->setArea( nullptr );
+    mAverageElevationWidget->setDouble( nullptr );
     ui->usedValue->setDuration( nullptr );
     setUsedMethod( ReosConcentrationTimeCalculation::Average );
     mFormulasModel->setActiveFormulas( QStringList() );
@@ -121,6 +127,7 @@ void ReosConcentrationTimeWidget::setCurrentWatershed( ReosWatershed *ws )
     mDropParameterWidget->setDouble( ws->drop() );
     mSlopeParameterWidget->setSlope( ws->slope() );
     mAreaParameterWidget->setArea( ws->area() );
+    mAverageElevationWidget->setDouble( ws->averageElevation() );
     ui->usedValue->setDuration( ws->concentrationTime() );
     setUsedMethod( mCurrentWatershed->concentrationTimeCalculation().usedMethod() );
     mFormulasModel->setActiveFormulas( mCurrentWatershed->concentrationTimeCalculation().activeFormulas() );
@@ -144,6 +151,8 @@ void ReosConcentrationTimeWidget::updateFormulas()
     params.length = mLengthParameterWidget->doubleParameter()->value();
   if ( mSlopeParameterWidget->slopeParameter() )
     params.slope = mSlopeParameterWidget->slopeParameter()->value();
+  if ( mAverageElevationWidget->doubleParameter() )
+    params.averageElevation = mAverageElevationWidget->doubleParameter()->value();
 
   mFormulasModel->setParameters( params );
 

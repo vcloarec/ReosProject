@@ -42,6 +42,7 @@ class REOSCORE_EXPORT ReosConcentrationTimeFormula
       ReosArea area = ReosArea();
       double drop = 0; //!< in meters
       double length = 0; //!< in meters
+      double averageElevation = 0; //!< in meters
     };
 
     //! Returns the name if the formula

@@ -68,6 +68,7 @@ class ReosConcentrationTimeWidget : public ReosActionWidget
     ReosParameterDoubleWidget *mDropParameterWidget = nullptr;
     ReosParameterSlopeWidget *mSlopeParameterWidget = nullptr;
     ReosParameterAreaWidget *mAreaParameterWidget = nullptr;
+    ReosParameterDoubleWidget *mAverageElevationWidget = nullptr;
 
     QAction *mActionSelectAll = nullptr;
     QAction *mActionDeselectAll = nullptr;

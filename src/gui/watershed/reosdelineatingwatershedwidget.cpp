@@ -51,6 +51,8 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
 
   setWindowFlag( Qt::Dialog );
 
+  ReosSettings settings;
+
   mAutomaticToolBar = new QToolBar;
   mManualToolBar = new QToolBar;
   qobject_cast<QBoxLayout *>( layout() )->insertWidget( 3, mAutomaticToolBar );
@@ -151,6 +153,16 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   connect( mMapToolDrawBurningLine, &ReosMapToolDrawPolyline::drawn, this, &ReosDelineatingWatershedWidget::onBurningLineDrawn );
   connect( ui->comboBoxDem, &ReosDigitalElevationModelComboBox::currentDigitalElevationChanged, this, &ReosDelineatingWatershedWidget::onDemComboboxChanged );
   connect( ui->toolButtonLoadRasterDem, &QToolButton::clicked, this, &ReosDelineatingWatershedWidget::onLoadRasterDem );
+
+  if ( settings.contains( QStringLiteral( "DelineatingWidget/averageElevation" ) ) )
+    ui->mCheckBoxAverageElevation->setChecked( settings.value( QStringLiteral( "DelineatingWidget/averageElevation" ) ).toBool() );
+  mModule->delineatingModule()->setCalculateAverageElevation( ui->mCheckBoxAverageElevation->isChecked() );
+  connect( ui->mCheckBoxAverageElevation, &QCheckBox::toggled, this, [this]
+  {
+    mModule->delineatingModule()->setCalculateAverageElevation( ui->mCheckBoxAverageElevation->isChecked() );
+    ReosSettings settings;
+    settings.setValue( QStringLiteral( "DelineatingWidget/averageElevation" ), ui->mCheckBoxAverageElevation->isChecked() );
+  } );
 
   connect( ui->mPushButtonDelineate, &QPushButton::clicked, this, &ReosDelineatingWatershedWidget::onDelineateAsked );
   connect( ui->mPushButtonValidateAutomatic, &QPushButton::clicked, this, &ReosDelineatingWatershedWidget::onAutomaticValidateAsked );
@@ -294,7 +306,10 @@ void ReosDelineatingWatershedWidget::onDelineateAsked()
 void ReosDelineatingWatershedWidget::onAutomaticValidateAsked()
 {
   bool needAdjusting = false;
-  if ( !mModule->delineatingModule()->validateWatershed( needAdjusting ) )
+  QApplication::setOverrideCursor( Qt::WaitCursor );
+  bool result = mModule->delineatingModule()->validateWatershed( needAdjusting );
+  QApplication::restoreOverrideCursor();
+  if ( !result )
     return;
 
   bool adjustIfNeeded = false;
@@ -308,12 +323,14 @@ void ReosDelineatingWatershedWidget::onAutomaticValidateAsked()
     adjustIfNeeded = QMessageBox::Yes == answer;
   }
 
+  QApplication::setOverrideCursor( Qt::WaitCursor );
   mModule->delineatingModule()->storeWatershed( adjustIfNeeded );
 
   mTemporaryAutomaticWatershed.resetPolygon();
   mTemporaryAutomaticStreamLine.resetPolyline();
   mDownstreamLine.resetPolyline();
   mWatershedExtent.resetPolygon();
+  QApplication::restoreOverrideCursor();
 
   updateAutomaticTool();
 }
@@ -410,6 +427,7 @@ void ReosDelineatingWatershedWidget::showAutomaticDelineating( bool shown )
   ui->mPushButtonDelineate->setVisible( shown );
   ui->mCurrentDemWidget->setVisible( shown );
   ui->mPushButtonValidateAutomatic->setVisible( shown );
+  ui->mCheckBoxAverageElevation->setVisible( shown );
 
   mDownstreamLine.setVisible( shown );
   mWatershedExtent.setVisible( shown );

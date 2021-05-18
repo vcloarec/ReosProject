@@ -56,8 +56,6 @@ ReosRasterExtent ReosRasterExtent::operator*( const ReosRasterExtent &other ) co
   QRectF rect( QPointF( xMapMin(), yMapMin() ), QPointF( xMapMax(), yMapMax() ) );
   QRectF rectOther( QPointF( other.xMapMin(), other.yMapMin() ), QPointF( other.xMapMax(), other.yMapMax() ) );
 
-  QRectF result = rect.intersected( rectOther );
-
   if ( retMapExtent == QRectF() )
   {
     return ReosRasterExtent();
@@ -519,4 +517,10 @@ bool ReosRasterTestingCell::testCell( const ReosRasterCellPos &cell ) const
 {
   Q_UNUSED( cell );
   return true;
+}
+
+template<typename T>
+bool ReosRasterMemory<T>::isInRaster( const ReosRasterCellPos &pos ) const
+{
+  return ( pos.row() >= 0 && pos.column() >= 0 && pos.row() < mRowCount && pos.column() < mColumnCount );
 }

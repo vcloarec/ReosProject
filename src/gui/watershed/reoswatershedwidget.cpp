@@ -47,6 +47,7 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   ui->mParameterAreaWidget->setDefaultName( tr( "Area" ) );
   ui->mParameterSlopeWidget->setDefaultName( tr( "Average Slope" ) );
   ui->mParameterNameWidget->setDefaultName( tr( "Watershed name" ) );
+  ui->mParameterAverageElevationWidget->setDefaultName( tr( "Average elevation" ) );
 
   mActionDelineateWatershed->setCheckable( true );
   mActionLongitudinalProfile->setCheckable( true );
@@ -197,6 +198,9 @@ void ReosWatershedWidget::onRemoveWatershed()
                              QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::No )
     return;
 
+
+  emit currentWatershedChanged( nullptr );
+
   ReosWatershed *downstreamWatershed = ws->downstreamWatershed();
   ReosWatershed *downstreamResidualWatershed = nullptr;
   if ( downstreamWatershed )
@@ -226,7 +230,6 @@ void ReosWatershedWidget::onRemoveWatershed()
     }
   }
 
-  emit currentWatershedChanged( nullptr );
 }
 
 void ReosWatershedWidget::onCurrentWatershedChange( const QItemSelection &selected, const QItemSelection &deselected )
@@ -273,12 +276,14 @@ void ReosWatershedWidget::onCurrentWatershedChange( const QItemSelection &select
     ui->mParameterNameWidget->setString( currentWatershed->name() );
     ui->mParameterAreaWidget->setArea( currentWatershed->area() );
     ui->mParameterSlopeWidget->setSlope( currentWatershed->slope() );
+    ui->mParameterAverageElevationWidget->setDouble( currentWatershed->averageElevation() );
   }
   else
   {
     ui->mParameterNameWidget->setString( nullptr );
     ui->mParameterAreaWidget->setArea( nullptr );
     ui->mParameterSlopeWidget->setSlope( nullptr );
+    ui->mParameterAverageElevationWidget->setDouble( nullptr );
   }
 
   emit currentWatershedChanged( currentWatershed );

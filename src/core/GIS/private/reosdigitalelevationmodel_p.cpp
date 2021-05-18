@@ -21,6 +21,7 @@ email                : vcloarec at gmail dot com
 
 #include "qgsrasteridentifyresult.h"
 #include "qgslinestring.h"
+#include "qgszonalstatistics.h"
 
 ReosDigitalElevationModelRaster::ReosDigitalElevationModelRaster(
   QgsRasterLayer *rasterLayer,
@@ -32,6 +33,8 @@ ReosDigitalElevationModelRaster::ReosDigitalElevationModelRaster(
     mDataProvider.reset( rasterLayer->dataProvider()->clone() );
     mCrs = rasterLayer->crs();
     mSourceId = rasterLayer->id();
+    QgsRectangle qgsRasterExtent = mDataProvider->extent();
+    mExtent = ReosRasterExtent( ReosMapExtent( qgsRasterExtent.toRectF() ), mDataProvider->xSize(), mDataProvider->ySize() );
   }
 }
 
@@ -158,6 +161,199 @@ QPolygonF ReosDigitalElevationModelRaster::elevationOnPolyline( const QPolygonF 
 
 }
 
+double ReosDigitalElevationModelRaster::averageElevationInPolygon( const QPolygonF &polygon, const QString &polygonCrs, ReosProcess *process ) const
+{
+  assert( mDataProvider );
+
+  QgsCoordinateReferenceSystem qgsCrs = QgsCoordinateReferenceSystem::fromWkt( polygonCrs );
+  QgsCoordinateTransform transform( mCrs, qgsCrs, mTransformContext );
+
+  ReosMapExtent polygonExtent = ReosMapExtent( polygon );
+  polygonExtent.setCrs( polygonCrs );
+  if ( process )
+    process->setInformation( QObject::tr( "Extract DEM from layer" ) );
+
+  QPolygonF closedPolygon = polygon;
+  if ( !closedPolygon.isClosed() )
+    closedPolygon.append( closedPolygon.first() );
+
+  QgsGeometry geometry = QgsGeometry::fromQPolygonF( closedPolygon );
+
+  if ( transform.isValid() )
+  {
+    try
+    {
+      geometry.transform( transform );
+    }
+    catch ( QgsCsException &e )
+    {
+      geometry = QgsGeometry::fromQPolygonF( polygon );
+    }
+  }
+
+  QMap<QgsZonalStatistics::Statistic, QVariant> result = QgsZonalStatistics::calculateStatistics( mDataProvider.get(),
+      geometry,
+      fabs( mExtent.xCellSize() ),
+      fabs( mExtent.yCellSize() ),
+      1,
+      QgsZonalStatistics::Mean );
+
+  return result.value( QgsZonalStatistics::Mean ).toDouble();
+}
+
+
+#define MULTI_THREAD false
+
+#if MULTI_THREAD
+struct AverageElevationJob
+{
+  int *count;
+  double *sum;
+  int rowStart;
+  int rowEnd;
+  bool noDataValueExist;
+  double noDataValue;
+  const ReosRasterMemory<unsigned char> *grid;
+  ReosRasterMemory<float> *demGrid;
+};
+
+static void calculateAverageElevation( const AverageElevationJob &job )
+{
+  for ( int row = job.rowStart; row <= job.rowEnd; ++row )
+  {
+    for ( int col = 0; col < job.grid->columnCount(); ++col )
+    {
+      if ( job.grid->value( row, col ) != 0 )
+      {
+        double value = job.demGrid->value( row, col );
+        if ( job.noDataValueExist && value != job.noDataValue )
+        {
+          *( job.sum ) += value;
+          *( job.count ) += 1;
+        }
+      }
+    }
+  }
+}
+#endif
+
+
+double ReosDigitalElevationModelRaster::averageElevationOnGrid( const ReosRasterMemory<unsigned char> &grid, const ReosRasterExtent &gridExtent, ReosProcess *process ) const
+{
+  double sum = 0;
+  size_t valueCount = 0;
+
+  QgsCoordinateReferenceSystem ptCrs = QgsCoordinateReferenceSystem::fromWkt( gridExtent.crs() );
+  QgsCoordinateTransform transform( ptCrs, mCrs, mTransformContext );
+  bool noDataValueExist = mDataProvider->sourceHasNoDataValue( 1 );
+  double noDataValue = std::numeric_limits<double>::quiet_NaN();
+  if ( noDataValueExist )
+    noDataValue = mDataProvider->sourceNoDataValue( 1 );
+
+  if ( process )
+  {
+    process->setInformation( QObject::tr( "Calculate average elevation from grid" ) );
+    process->setMaxProgression( grid.rowCount() );
+    process->setCurrentProgression( 0 );
+  }
+  ReosRasterMemory<float> demGrid = extractMemoryRasterSimplePrecision( gridExtent );
+  int totalRowsCount = grid.rowCount();
+
+#if MULTI_THREAD
+  int rowPerJob;
+  int numThread = ReosProcess::maximumThreads();
+
+  if ( static_cast<int>( numThread ) > totalRowsCount )
+    numThread = totalRowsCount;
+
+  qDebug() << "thread count: " << numThread;
+
+  QVector<AverageElevationJob> jobs;
+  QVector<int> counts( numThread );
+  QVector<double> sums( numThread );
+
+  if ( totalRowsCount % numThread == 0 )
+    rowPerJob = totalRowsCount / numThread;
+  else
+  {
+    rowPerJob = totalRowsCount /  numThread + 1;
+  }
+
+  std::vector<std::thread> threads;
+
+  for ( int t = 0; t < static_cast<int>( numThread ); ++t )
+  {
+    int start = t * rowPerJob;
+    int end = std::min( ( t + 1 ) * rowPerJob - 1, totalRowsCount - 1 );
+
+    if ( end >= start )
+    {
+      AverageElevationJob job( { & ( counts[t] ), &( sums[t] ), start, end, noDataValueExist, noDataValue, &grid, &demGrid} );
+      threads.emplace_back( calculateAverageElevation, job );
+    }
+  }
+
+  for ( auto &&t : threads )
+  {
+    t.join();
+  }
+
+  threads.clear();
+
+  for ( int t = 0; t < 1; ++t )
+  {
+    int start = t * rowPerJob;
+    int end = std::min( ( t + 1 ) * rowPerJob - 1, totalRowsCount - 1 );
+
+    if ( end >= start )
+    {
+      //jobs.append( { & ( counts[t] ), &( sums[t] ), start, end, noDataValueExist, noDataValue, &grid, &demGrid} );
+      AverageElevationJob job( { & ( counts[t] ), &( sums[t] ), 0, totalRowsCount - 1, noDataValueExist, noDataValue, &grid, &demGrid} );
+      threads.emplace_back( calculateAverageElevation, job );
+
+    }
+  }
+
+  for ( auto &&t : threads )
+  {
+    t.join();
+  }
+
+  for ( const AverageElevationJob &job : jobs )
+  {
+    sum += *job.sum;
+    valueCount += *job.count;
+  }
+#else
+  for ( int row = 0; row < totalRowsCount; ++row )
+  {
+    for ( int col = 0; col < grid.columnCount(); ++col )
+    {
+      if ( grid.value( row, col ) != 0 )
+      {
+        double value = demGrid.value( row, col );
+        if ( noDataValueExist && value != noDataValue )
+        {
+          sum  += value;
+          valueCount += 1;
+        }
+      }
+    }
+    if ( process )
+    {
+      if ( process->isStop() )
+        return std::numeric_limits<double>::quiet_NaN();
+      process->setCurrentProgression( row );
+    }
+  }
+#endif
+
+  if ( valueCount != 0 )
+    return sum / valueCount;
+  else
+    return std::numeric_limits<double>::quiet_NaN();
+}
+
 ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimplePrecision(
   const ReosMapExtent &destinationExtent,
   ReosRasterExtent &outputRasterExtent,
@@ -224,6 +420,78 @@ ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimp
 
   std::unique_ptr<QgsRasterBlock> block;
   block.reset( mDataProvider->block( 1, adjustedExtent, xPixCount, yPixCount ) );
+
+  if ( !block->isValid() )
+  {
+    if ( process )
+      process->setSuccesful( false );
+
+    return ret;
+  }
+
+  ret.reserveMemory();
+
+  if ( process )
+  {
+    process->setCurrentProgression( 0 );
+    process->setMaxProgression( yPixCount );
+  }
+
+  for ( int i = 0; i < yPixCount; ++i )
+  {
+    for ( int j = 0; j < xPixCount; ++j )
+    {
+      ret.setValue( i, j, float( block->value( i, j ) ) );
+      if ( process && process->isStop() )
+      {
+        ret.freeMemory();
+        process->setSuccesful( false );
+        return ret;
+      }
+    }
+
+    if ( process )
+      process->setCurrentProgression( i );
+  }
+
+  if ( process )
+    process->setSuccesful( true );
+
+  return ret;
+
+}
+
+ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimplePrecision( const ReosRasterExtent &destinationRasterExtent, ReosProcess *process ) const
+{
+  QgsCoordinateReferenceSystem destCrs = QgsCoordinateReferenceSystem::fromWkt( destinationRasterExtent.crs() );
+  QgsCoordinateTransform transform( mCrs, destCrs, mTransformContext );
+
+  QgsRectangle destExtent( destinationRasterExtent.xMapMin(),
+                           destinationRasterExtent.yMapMin(),
+                           destinationRasterExtent.xMapMax(),
+                           destinationRasterExtent.yMapMax() );
+
+  QgsRectangle extentInDEMCoordinates;
+  if ( transform.isValid() )
+  {
+    try
+    {
+      extentInDEMCoordinates = transform.transform( destExtent, QgsCoordinateTransform::ReverseTransform );
+    }
+    catch ( QgsCsException &e )
+    {
+      extentInDEMCoordinates = destExtent;
+    }
+  }
+  else
+    extentInDEMCoordinates = destExtent;
+
+  double xPixCount = destinationRasterExtent.xCellCount();
+  double yPixCount = destinationRasterExtent.yCellCount();
+
+  ReosRasterMemory<float> ret = ReosRasterMemory<float>( yPixCount, xPixCount ); //(row, col)
+  std::unique_ptr<QgsRasterBlock> block;
+  block.reset( mDataProvider->block( 1, extentInDEMCoordinates, xPixCount, yPixCount ) );
 
   if ( !block->isValid() )
   {

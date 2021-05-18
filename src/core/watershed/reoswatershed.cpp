@@ -17,9 +17,16 @@ email                : vcloarec at gmail dot com
 #include "reosgisengine.h"
 #include "reosrunoffmodel.h"
 #include "reostransferfunction.h"
+#include "reosdigitalelevationmodel.h"
 
-ReosWatershed::ReosWatershed():
-  mArea( new ReosParameterArea( tr( "Watershed area" ), this ) )
+#include <QMessageBox>
+
+#include <QElapsedTimer>
+#include <QFile>
+#include <QTextStream>
+
+
+ReosWatershed::ReosWatershed()
 {
   init();
 }
@@ -33,28 +40,50 @@ ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outle
   init();
 }
 
-ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint, ReosWatershed::Type type, const QPolygonF &downstreamLine, const QPolygonF &streamPath ):
+ReosWatershed::ReosWatershed( const QPolygonF &delineating,
+                              const QPointF &outletPoint,
+                              ReosWatershed::Type type,
+                              const QPolygonF &downstreamLine,
+                              const QPolygonF &streamPath,
+                              const ReosRasterWatershed::Watershed &rasterizedWatershed,
+                              const ReosRasterExtent &rasterizedWatershedExtent,
+                              const QString &refLayerId ):
   mType( type ),
   mExtent( delineating ),
   mDelineating( delineating ),
+  mDelineatingReferenceLayer( refLayerId ),
   mOutletPoint( outletPoint ),
   mDownstreamLine( downstreamLine ),
   mStreamPath( streamPath )
 {
   init();
+  RasterizedWatershedData rw{rasterizedWatershed, rasterizedWatershedExtent};
+  mRasterizedWatershedData.insert( {refLayerId, rw} );
 }
 
-ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint, ReosWatershed::Type type, const QPolygonF &downstreamLine, const QPolygonF &streamPath, const ReosRasterWatershed::Directions &direction, const ReosRasterExtent &directionExent, const QString &refLayerId ):
+ReosWatershed::ReosWatershed( const QPolygonF &delineating,
+                              const QPointF &outletPoint,
+                              ReosWatershed::Type type,
+                              const QPolygonF &downstreamLine,
+                              const QPolygonF &streamPath,
+                              const ReosRasterWatershed::Directions &direction,
+                              const ReosRasterWatershed::Watershed &rasterizedWatershed,
+                              const ReosRasterExtent &rasterExtent,
+                              const QString &refLayerId ):
   mType( type ),
   mExtent( delineating ),
   mDelineating( delineating ),
+  mDelineatingReferenceLayer( refLayerId ),
   mOutletPoint( outletPoint ),
   mDownstreamLine( downstreamLine ),
   mStreamPath( streamPath )
 {
   init();
-  DirectionData dir {direction, directionExent};
+  DirectionData dir {direction, rasterExtent};
   mDirectionData.insert( {refLayerId, dir} );
+
+  RasterizedWatershedData rw{rasterizedWatershed, rasterExtent};
+  mRasterizedWatershedData.insert( {refLayerId, rw} );
 }
 
 ReosParameterString *ReosWatershed::name() const
@@ -126,6 +155,10 @@ void ReosWatershed::setDelineating( const QPolygonF &del )
   mDelineating = del;
   if ( mArea->isDerived() )
     calculateArea();
+
+  mRasterizedWatershedData.clear();
+  if ( mType == Automatic )
+    mType = Manual;
   blockSignals( false );
 
   emit changed();
@@ -476,6 +509,23 @@ ReosEncodedElement ReosWatershed::encode() const
   ret.addData( QStringLiteral( "direction-extents" ), directionExtents );
   ret.addData( QStringLiteral( "direction-data" ), directionData );
 
+  QList<QString> rasterizedKeys;
+  QList<QByteArray> rasterizedExtents;
+  QList<QByteArray> rasterizedData;
+
+  for ( auto it : mRasterizedWatershedData )
+  {
+    rasterizedKeys.append( it.first );
+    rasterizedExtents.append( it.second.rasterizedWatershedExtent.encode().bytes() );
+    rasterizedData.append( it.second.rasterizedWatershed.encode().bytes() );
+  }
+
+  ret.addData( QStringLiteral( "rasterized-keys" ), rasterizedKeys );
+  ret.addData( QStringLiteral( "rasterized-extents" ), rasterizedExtents );
+  ret.addData( QStringLiteral( "rasterized-data" ), rasterizedData );
+
+  ret.addData( QStringLiteral( "delineating-reference-layer" ), mDelineatingReferenceLayer );
+
   QList<QByteArray> upstreamWatersheds;
   for ( const std::unique_ptr<ReosWatershed> &ws : mUpstreamWatersheds )
     upstreamWatersheds.append( ws->encode().bytes() );
@@ -487,6 +537,7 @@ ReosEncodedElement ReosWatershed::encode() const
   ret.addEncodedData( QStringLiteral( "slope-parameter" ), mSlope->encode() );
   ret.addEncodedData( QStringLiteral( "longer-stream-length-parameter" ), mLongestStreamPath->encode() );
   ret.addEncodedData( QStringLiteral( "drop-parameter" ), mDrop->encode() );
+  ret.addEncodedData( QStringLiteral( "average-elevation" ), mAverageElevation->encode() );
 
   ret.addEncodedData( QStringLiteral( "concentration-time-value" ), mConcentrationTimeValue->encode() );
   ret.addEncodedData( QStringLiteral( "concentration-time-calculation" ), mConcentrationTimeCalculation.encode() );
@@ -532,24 +583,46 @@ ReosWatershed *ReosWatershed::decode( const ReosEncodedElement &element )
   QList<QString> directionKeys;
   QList<QByteArray> directionExtents;
   QList<QByteArray> directionData;
+  bool directionDataPresent = true;
+  directionDataPresent &= element.getData( QStringLiteral( "direction-keys" ), directionKeys );
+  directionDataPresent &= element.getData( QStringLiteral( "direction-extents" ), directionExtents );
+  directionDataPresent &= element.getData( QStringLiteral( "direction-data" ), directionData );
 
-  if ( !element.getData( QStringLiteral( "direction-keys" ), directionKeys ) )
-    return nullptr;
-  if ( !element.getData( QStringLiteral( "direction-extents" ), directionExtents ) )
-    return nullptr;
-  if ( !element.getData( QStringLiteral( "direction-data" ), directionData ) )
-    return nullptr;
+  directionDataPresent &= ( directionKeys.count() == directionExtents.count() &&
+                            directionExtents.count() == directionData.count() );
 
-  if ( directionKeys.count() != directionExtents.count() &&
-       directionExtents.count() != directionData.count() )
-    return nullptr;
-
-  for ( int i = 0; i < directionKeys.count(); ++i )
+  if ( directionDataPresent )
   {
-    DirectionData dirData{ReosRasterByteCompressed::decode( ReosEncodedElement( directionData.at( i ) ) ),
-                          ReosRasterExtent::decode( ReosEncodedElement( directionExtents.at( i ) ) )};
-    ws->mDirectionData.insert( {directionKeys.at( i ), dirData} );
+    for ( int i = 0; i < directionKeys.count(); ++i )
+    {
+      DirectionData dirData{ReosRasterByteCompressed::decode( ReosEncodedElement( directionData.at( i ) ) ),
+                            ReosRasterExtent::decode( ReosEncodedElement( directionExtents.at( i ) ) )};
+      ws->mDirectionData.insert( {directionKeys.at( i ), dirData} );
+    }
   }
+
+  QList<QString> rasterizedKeys;
+  QList<QByteArray> rasterizedExtents;
+  QList<QByteArray> rasterizedData;
+  bool rasterizedDataPresent = true;
+  rasterizedDataPresent &= element.getData( QStringLiteral( "rasterized-keys" ), rasterizedKeys );
+  rasterizedDataPresent &= element.getData( QStringLiteral( "rasterized-extents" ), rasterizedExtents );
+  rasterizedDataPresent &= element.getData( QStringLiteral( "rasterized-data" ), rasterizedData );
+
+  rasterizedDataPresent &= ( rasterizedKeys.count() == rasterizedExtents.count() &&
+                             rasterizedExtents.count() == rasterizedData.count() );
+
+  if ( rasterizedDataPresent )
+  {
+    for ( int i = 0; i < rasterizedKeys.count(); ++i )
+    {
+      RasterizedWatershedData rasterWsData{ReosRasterByteCompressed::decode( ReosEncodedElement( rasterizedData.at( i ) ) ),
+                                           ReosRasterExtent::decode( ReosEncodedElement( rasterizedExtents.at( i ) ) )};
+      ws->mRasterizedWatershedData.insert( {rasterizedKeys.at( i ), rasterWsData} );
+    }
+  }
+
+  element.getData( QStringLiteral( "delineating-reference-layer" ), ws->mDelineatingReferenceLayer );
 
   QList<QByteArray> upstreamWatersheds;
 
@@ -581,6 +654,10 @@ ReosWatershed *ReosWatershed::decode( const ReosEncodedElement &element )
   if ( ws->mDrop )
     ws->mDrop->deleteLater();
   ws->mDrop = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "drop-parameter" ) ), true, ws.get() );
+
+  if ( ws->mAverageElevation )
+    ws->mAverageElevation->deleteLater();
+  ws->mAverageElevation = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "average-elevation" ) ), true, ws.get() );
 
   if ( ws->mName )
     ws->mName->deleteLater();
@@ -666,6 +743,7 @@ void ReosWatershed::init()
   mSlope = new ReosParameterSlope( tr( "Average slope" ), true, this );
   mDrop = new ReosParameterDouble( tr( "Drop" ), true, this );
   mLongestStreamPath = new ReosParameterDouble( tr( "Longest stream path" ), true, this );
+  mAverageElevation = new ReosParameterDouble( tr( "Average elevation" ), true, this );
   mConcentrationTimeValue = new ReosParameterDuration( tr( "Concentration time" ), true, this );
 
   mRunoffModels = new ReosRunoffModelsGroup( this );
@@ -676,24 +754,28 @@ void ReosWatershed::init()
 
 void ReosWatershed::connectParameters()
 {
-  // calcultion of parameters
+  // calculation of parameters
   connect( mArea, &ReosParameter::needCalculation, this, &ReosWatershed::calculateArea );
   connect( mSlope, &ReosParameter::needCalculation, this, &ReosWatershed::calculateSlope );
   connect( mDrop, &ReosParameter::needCalculation, this, &ReosWatershed::calculateDrop );
   connect( mLongestStreamPath, &ReosParameter::needCalculation, this, &ReosWatershed::calculateLongerPath );
   connect( mConcentrationTimeValue, &ReosParameterDuration::needCalculation, this, &ReosWatershed::calculateConcentrationTime );
+  connect( mAverageElevation, &ReosParameterDuration::needCalculation, this, &ReosWatershed::calculateAverageElevation );
 
   // updating concentration time after parameters changed
   connect( mArea, &ReosParameter::valueChanged, mConcentrationTimeValue, &ReosParameter::updateIfNecessary );
   connect( mSlope, &ReosParameter::valueChanged, mConcentrationTimeValue, &ReosParameter::updateIfNecessary );
   connect( mDrop, &ReosParameter::valueChanged, mConcentrationTimeValue, &ReosParameter::updateIfNecessary );
   connect( mLongestStreamPath, &ReosParameter::valueChanged, mConcentrationTimeValue, &ReosParameter::updateIfNecessary );
+  connect( mAverageElevation, &ReosParameter::valueChanged, mConcentrationTimeValue, &ReosParameter::updateIfNecessary );
+
 
   // Propagate change outside the watershed
   connect( mArea, &ReosParameter::valueChanged, this, &ReosWatershed::changed );
   connect( mSlope, &ReosParameter::valueChanged, this, &ReosWatershed::changed );
   connect( mDrop, &ReosParameter::valueChanged, this, &ReosWatershed::changed );
   connect( mLongestStreamPath, &ReosParameter::valueChanged, this, &ReosWatershed::changed );
+  connect( mAverageElevation, &ReosParameter::valueChanged, this, &ReosWatershed::changed );
   connect( mConcentrationTimeValue, &ReosParameterDuration::valueChanged, this, &ReosWatershed::changed );
 }
 
@@ -750,7 +832,10 @@ void ReosWatershed::calculateArea()
 void ReosWatershed::calculateSlope()
 {
   if ( mProfile.count() < 2 )
+  {
     mSlope->setInvalid();
+    return;
+  }
 
   double length = 0;
   double totalDenom = 0;
@@ -814,6 +899,7 @@ void ReosWatershed::calculateConcentrationTime()
   param.drop = mDrop->value();
   param.length = longestPath()->value();
   param.slope = slope()->value();
+  param.averageElevation = averageElevation()->value();
 
   if ( !mConcentrationTimeCalculation.alreadyCalculated() )
   {
@@ -842,6 +928,45 @@ void ReosWatershed::calculateConcentrationTime()
 
   if ( mConcentrationTimeValue->isValid() )
     mConcentrationTimeCalculation.setAlreadyCalculated( true );
+}
+
+void ReosWatershed::calculateAverageElevation()
+{
+  ReosGisEngine *gisEngine = geographicalContext();
+  std::unique_ptr<ReosDigitalElevationModel> dem;
+  dem.reset( gisEngine->getTopDigitalElevationModel() );
+
+  if ( !dem )
+    gisEngine->error( tr( "Unable to calculate average elevation for watershed \"%1\" : no DEM available" ).arg( name()->value() ) );
+  else
+    gisEngine->message( tr( "Average elevation calculation for watershed \"%1\" with DEM \"%2\"" ).arg( name()->value(), gisEngine->layerName( dem->source() ) ) );
+
+  double gridResult = 0;
+
+  if ( mType == Automatic && dem && !mDelineatingReferenceLayer.isEmpty() && mDelineatingReferenceLayer == dem->source() )
+  {
+    auto it = mRasterizedWatershedData.find( mDelineatingReferenceLayer );
+    if ( it != mRasterizedWatershedData.end() )
+    {
+      ReosRasterWatershed::Watershed rasterizedWatershed = it->second.rasterizedWatershed.uncompressRaster();
+      gridResult = dem->averageElevationOnGrid( rasterizedWatershed, it->second.rasterizedWatershedExtent );
+    }
+
+    mAverageElevation->setDerivedValue( gridResult );
+  }
+  else if ( dem )
+  {
+    mAverageElevation->setDerivedValue( dem->averageElevationInPolygon( mDelineating, QString() ) );
+  }
+  else
+  {
+    mAverageElevation->setInvalid();
+  }
+}
+
+ReosParameterDouble *ReosWatershed::averageElevation() const
+{
+  return mAverageElevation;
 }
 
 ReosConcentrationTimeCalculation ReosWatershed::concentrationTimeCalculation() const
