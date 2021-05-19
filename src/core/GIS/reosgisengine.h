@@ -116,6 +116,9 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     //! Returns area of \a polygon cosidering the coordinate reference system \a crs. If no crs is provided, the crs of the project is used
     ReosArea polygonArea( const QPolygonF &polygon, const QString &crs = QString() ) const;
 
+    //! Convert a length from meter to map unit considering the coordinate reference system
+    double convertLengthFromMeterToMapunit( double length );
+
     //! Returns encoded information about the GIS engine after saving GIS project int the \a path with the \a baseFileName
     ReosEncodedElement encode( const QString &path, const QString baseFileName );
 

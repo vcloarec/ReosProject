@@ -227,7 +227,8 @@ void ReosLongitudinalProfileWidget::updateProfile()
 
 void ReosLongitudinalProfileWidget::onProfileCursorMove( const QPointF &point )
 {
-  mCurrentStreamLine.setMarkerDistance( point.x() );
+  double d = mMap->engine()->convertLengthFromMeterToMapunit( point.x() );
+  mCurrentStreamLine.setMarkerDistance( d );
 }
 
 void ReosLongitudinalProfileWidget::onStreamLineChanged( const QPolygonF &streamLine )

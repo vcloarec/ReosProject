@@ -99,23 +99,23 @@ void ReosGisEngine::initGisEngine()
 
   if ( !projDataPresent )
   {
-	  QDir projDir(QApplication::applicationDirPath());
-	  if (projDir.cdUp() && projDir.cd(QStringLiteral("share")) && projDir.cd(QStringLiteral("proj")))
-	  {
-		  QStringList filesList = projDir.entryList(QDir::NoDotAndDotDot | QDir::Files);
-		  QString destinationPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-		  QDir destinationDir(destinationPath);
-		  if (!destinationDir.cd(QStringLiteral("proj")))
-		  {
-			  destinationDir.mkdir(QStringLiteral("proj"));
-			  destinationDir.cd(QStringLiteral("proj"));
-		  }
-		  for (const QString &fileName : filesList)
-		  {
-			  QFile file(projDir.absoluteFilePath(fileName));
-			  file.copy(destinationDir.absoluteFilePath(fileName));
-		  }
-	  }
+    QDir projDir( QApplication::applicationDirPath() );
+    if ( projDir.cdUp() && projDir.cd( QStringLiteral( "share" ) ) && projDir.cd( QStringLiteral( "proj" ) ) )
+    {
+      QStringList filesList = projDir.entryList( QDir::NoDotAndDotDot | QDir::Files );
+      QString destinationPath = QStandardPaths::writableLocation( QStandardPaths::AppDataLocation );
+      QDir destinationDir( destinationPath );
+      if ( !destinationDir.cd( QStringLiteral( "proj" ) ) )
+      {
+        destinationDir.mkdir( QStringLiteral( "proj" ) );
+        destinationDir.cd( QStringLiteral( "proj" ) );
+      }
+      for ( const QString &fileName : filesList )
+      {
+        QFile file( projDir.absoluteFilePath( fileName ) );
+        file.copy( destinationDir.absoluteFilePath( fileName ) );
+      }
+    }
   }
 
   mAbstractLayerTreeModel = new QgsLayerTreeModel( QgsProject::instance()->layerTreeRoot(), this );
@@ -355,6 +355,13 @@ ReosArea ReosGisEngine::polygonArea( const QPolygonF &polygon, const QString &cr
 
   return ReosArea( area * transFormFactorToSquareMeter );
 }
+
+double ReosGisEngine::convertLengthFromMeterToMapunit( double length )
+{
+  double unitFactor = QgsUnitTypes::fromUnitToUnitFactor( QgsUnitTypes::DistanceMeters, QgsProject::instance()->crs().mapUnits() );
+  return length * unitFactor;
+}
+
 
 ReosEncodedElement ReosGisEngine::encode( const QString &path, const QString baseFileName )
 {
