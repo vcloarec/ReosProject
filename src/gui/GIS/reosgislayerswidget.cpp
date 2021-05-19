@@ -93,6 +93,9 @@ ReosGisLayersWidget::ReosGisLayersWidget( ReosGisEngine *engine, ReosMap *map, Q
   connect( mTreeView, &QAbstractItemView::doubleClicked, this, &ReosGisLayersWidget::onTreeLayerDoubleClick );
   connect( mTreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &ReosGisLayersWidget::updateLayerInsertionPoint );
 
+  QgsLayerTreeNode *rootNode = mTreeView->index2node( QModelIndex() );
+  connect( rootNode, &QgsLayerTreeNode::addedChildren, this, &ReosGisLayersWidget::updateIndicator );
+
   mTreeView->setMenuProvider( new ReosGisLayerTreeContextMenuProvider( this, mTreeView, mMap ) );
 }
 
@@ -282,14 +285,27 @@ void ReosGisLayersWidget::onGISEngineUpdated()
 }
 
 
+static void updateTreeIndicator( QgsLayerTreeView *treeView, QgsLayerTreeNode *node, QStringList layerIdList, QgsLayerTreeViewIndicator *indicator )
+{
+  if ( node->nodeType() == QgsLayerTreeNode::NodeLayer )
+  {
+    if ( layerIdList.contains( static_cast<QgsLayerTreeLayer *>( node )->layerId() ) )
+    {
+      treeView->removeIndicator( node, indicator );
+      treeView->addIndicator( node, indicator );
+    }
+  }
+
+  QList<QgsLayerTreeNode *> children = node->children();
+  for ( QgsLayerTreeNode *child : children )
+    updateTreeIndicator( treeView, child, layerIdList, indicator );
+}
+
 void ReosGisLayersWidget::updateIndicator()
 {
   QStringList demList = mGisEngine->digitalElevationModelIds();
 
-  for ( const QString &layerId : demList )
-  {
-    QgsLayerTreeLayer *layerNode = mTreeView->layerTreeModel()->rootGroup()->findLayer( layerId );
-    mTreeView->addIndicator( layerNode, mDemIndicator );
-  }
+  QgsLayerTreeNode *rootNode = mTreeView->index2node( QModelIndex() );
 
+  updateTreeIndicator( mTreeView, rootNode, demList, mDemIndicator );
 }

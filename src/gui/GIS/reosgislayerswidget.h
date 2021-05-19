@@ -51,6 +51,7 @@ class REOSGUI_EXPORT ReosGisLayersWidget: public QWidget
     void onSetCrs();
     void updateLayerInsertionPoint() const;
     void onGISEngineUpdated();
+    void updateIndicator();
 
   private:
     ReosGisEngine *mGisEngine;
@@ -66,11 +67,6 @@ class REOSGUI_EXPORT ReosGisLayersWidget: public QWidget
     QAction *mActionLoadRasterLayer;
     QAction *mActionLoadMeshLayer;
     QAction *mActionSetProjectCrs;
-
-
-    void updateIndicator();
-
-
 };
 
 #endif // REOSGISLAYERSWIDGET_H
