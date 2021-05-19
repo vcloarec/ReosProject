@@ -157,6 +157,9 @@ void ReosWatershed::setDelineating( const QPolygonF &del )
     calculateArea();
 
   mRasterizedWatershedData.clear();
+  mDelineatingReferenceLayer.clear();
+  mAverageElevation->setInvalid();
+
   if ( mType == Automatic )
     mType = Manual;
   blockSignals( false );
