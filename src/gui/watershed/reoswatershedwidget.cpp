@@ -168,6 +168,12 @@ void ReosWatershedWidget::onWatershedAdded( const QModelIndex &index )
 
 void ReosWatershedWidget::onWatershedSelectedOnMap( ReosMapItem *item, const QPointF &pos )
 {
+  if ( !item )
+  {
+    ui->treeView->setCurrentIndex( QModelIndex() );
+    return;
+  }
+
   for ( const auto &ws : mMapWatersheds.keys() )
   {
     if ( mMapWatersheds.value( ws ).delineating->isItem( item ) )
@@ -241,8 +247,8 @@ void ReosWatershedWidget::onCurrentWatershedChange( const QItemSelection &select
     currentIndex = selected.indexes().at( 0 );
     currentWatershed = mModelWatershed->indexToWatershed( currentIndex );
   }
-  if ( currentWatershed )
-    mActionRemoveWatershed->setEnabled( currentWatershed->type() != ReosWatershed::Residual );
+
+  mActionRemoveWatershed->setEnabled( currentWatershed && currentWatershed->type() != ReosWatershed::Residual );
 
   ReosWatershed *previousWatershed = nullptr;
   if ( deselected.indexes().count() > 0 )
@@ -263,7 +269,7 @@ void ReosWatershedWidget::onCurrentWatershedChange( const QItemSelection &select
     mMapToolEditDelineating->setMapPolygon( it.value().delineating.get() );
     mMapToolMoveOutletPoint->setCurrentMapItem( it.value().outletPoint.get() );
   }
-  else
+  else if ( currentWatershed )
   {
     mMapWatersheds[currentWatershed] = MapWatershed( mMap, currentWatershed->delineating(), currentWatershed->outletPoint() );
     formatMapWatershed( mMapWatersheds[currentWatershed] );

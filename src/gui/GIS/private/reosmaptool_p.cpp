@@ -191,6 +191,8 @@ void ReosMapToolSelectMapItem_p::canvasReleaseEvent( QgsMapMouseEvent *e )
 
   if ( mapItem )
     emit found( mapItem->base, e->mapPoint().toQPointF() );
+  else
+    emit found( nullptr, e->mapPoint().toQPointF() );
 
 }
 
