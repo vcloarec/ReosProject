@@ -207,7 +207,10 @@ void ReosDelineatingWatershedWidget::onDownstreamLineDrawn( const QPolygonF &dow
   if ( mModule->delineatingModule()->setDownstreamLine( downstreamLine ) )
   {
     mDownstreamLine.resetPolyline( downstreamLine );
-    mWatershedExtent.resetPolygon();
+    if ( mModule->delineatingModule()->currentState() == ReosWatershedDelineating::WaitingforProceed )
+      mWatershedExtent.resetPolygon( mModule->delineatingModule()->currentExtent().toPolygon() );
+    else
+      mWatershedExtent.resetPolygon();
   }
   updateAutomaticTool();
 }
@@ -293,12 +296,13 @@ void ReosDelineatingWatershedWidget::onDelineateAsked()
   ReosProcessControler *controler = new ReosProcessControler( mModule->delineatingModule()->delineatingProcess(), this );
   controler->exec();
   controler->deleteLater();
-  //mModule->delineatingModule()->testPredefinedExtentValidity();
+
   updateAutomaticTool();
 
   if ( !mModule->delineatingModule()->isDelineatingFinished() )
     return;
 
+  mWatershedExtent.resetPolygon( mModule->delineatingModule()->currentExtent().toPolygon() );
   mTemporaryAutomaticWatershed.resetPolygon( mModule->delineatingModule()->lastWatershedDelineated() );
   mTemporaryAutomaticStreamLine.resetPolyline( mModule->delineatingModule()->lastStreamLine() );
 }

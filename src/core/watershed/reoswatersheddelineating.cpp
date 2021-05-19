@@ -256,6 +256,11 @@ bool ReosWatershedDelineating::hasDirectionData() const
   return ( mDownstreamWatershed && mDownstreamWatershed->hasDirectiondata( mDEMLayerId ) );
 }
 
+ReosMapExtent ReosWatershedDelineating::currentExtent() const
+{
+  return mExtent;
+}
+
 void ReosWatershedDelineating::onDelineatingFinished()
 {
   if ( mCurrentState == Delineating )

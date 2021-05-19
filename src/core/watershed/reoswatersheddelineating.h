@@ -121,6 +121,9 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
     //! Returns whether the module has direction data ready for proceed
     bool hasDirectionData() const;
 
+    //! Returns the current extent
+    ReosMapExtent currentExtent() const;
+
     // -------- Processing
     //! Start the delineating, return true if starting this process is sucessful
     bool prepareDelineating();

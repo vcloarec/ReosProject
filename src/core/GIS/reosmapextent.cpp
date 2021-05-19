@@ -115,3 +115,15 @@ bool ReosMapExtent::containsPartialy( const QPolygonF &line ) const
 
   return false;
 }
+
+void ReosMapExtent::addPointToExtent( const QPointF &pt )
+{
+  if ( mXMin > pt.x() )
+    mXMin = pt.x();
+  if ( mXMax < pt.x() )
+    mXMax = pt.x();
+  if ( mYMin > pt.y() )
+    mYMin = pt.y();
+  if ( mYMax < pt.y() )
+    mYMax = pt.y();
+}

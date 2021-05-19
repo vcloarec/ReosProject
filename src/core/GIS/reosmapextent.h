@@ -47,17 +47,7 @@ class REOSCORE_EXPORT ReosMapExtent
     //! Return true if the extent cotains, even partially, the \a line
     bool containsPartialy( const  QPolygonF &line ) const;
 
-    void addPointToExtent( const QPointF &pt )
-    {
-      if ( mXMin > pt.x() )
-        mXMin = pt.x();
-      if ( mXMax < pt.x() )
-        mXMax = pt.x();
-      if ( mYMin > pt.y() )
-        mYMin = pt.y();
-      if ( mYMax < pt.y() )
-        mYMax = pt.y();
-    }
+    void addPointToExtent( const QPointF &pt );
 
     QString crs() const;
     void setCrs( const QString &crs );
@@ -96,7 +86,7 @@ class REOSCORE_EXPORT ReosMapExtent
       }
       else
       {
-		  return ReosMapExtent();
+        return ReosMapExtent();
       }
     }
 
