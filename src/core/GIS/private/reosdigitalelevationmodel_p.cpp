@@ -61,9 +61,10 @@ double ReosDigitalElevationModelRaster::elevationAt( const QPointF &point, const
     pointInDem = QgsPointXY( point.x(), point.y() );
   }
 
-  QgsRasterIdentifyResult result = mDataProvider->identify( pointInDem, QgsRaster::IdentifyFormatValue );
-  if ( result.isValid() )
-    return result.results().value( 1 ).toDouble();
+  bool ok = false;
+  double result = mDataProvider->sample( pointInDem, 1, &ok );
+  if ( ok )
+    return result;
   else
     return mDataProvider->sourceNoDataValue( 1 );
 }

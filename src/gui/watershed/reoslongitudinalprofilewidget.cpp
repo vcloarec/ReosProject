@@ -248,7 +248,6 @@ void ReosLongitudinalProfileWidget::onStreamLineEdited()
   askForUpdateDEMProfile();
 }
 
-
 void ReosLongitudinalProfileWidget::updateDEMProfile()
 {
   if ( !mNeedUpdateDEMProfil )
