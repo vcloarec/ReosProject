@@ -23,16 +23,8 @@
 
 class ReosRunoff;
 class ReosWatershed;
+class ReosHydrograph;
 
-//! Class that represents a hydrograph
-class REOSCORE_EXPORT ReosHydrograph : public ReosTimeSerieVariableTimeStep
-{
-  public:
-    ReosHydrograph( QObject *parent = nullptr ): ReosTimeSerieVariableTimeStep( parent ) {}
-
-    QString type() const override {return QStringLiteral( "runoff-hydrograph" );}
-    QColor color() const override;
-};
 
 //! Process abstract class that handle the calculation of the hydrograph an onother thread
 class REOSCORE_EXPORT ReosTransferFunctionCalculation : public ReosProcess
@@ -173,6 +165,7 @@ class REOSCORE_EXPORT ReosTransferFunctionLinearReservoir : public ReosTransferF
     Q_OBJECT
   public:
     ReosTransferFunctionLinearReservoir( ReosWatershed *parent = nullptr );
+    ~ReosTransferFunctionLinearReservoir();
     ReosHydrograph *applyFunction( ReosRunoff *runoff, QObject *hydrographParent = nullptr ) const override;
     QString type() const override {return QStringLiteral( "transfer-function-linear-reservoir" );}
     ReosEncodedElement encode() const override;
@@ -220,7 +213,6 @@ class REOSCORE_EXPORT ReosTransferFunctionLinearReservoir : public ReosTransferF
     ReosArea mArea;
 
     std::unique_ptr<ReosHydrograph> createUnitHydrograph() const;
-
 };
 
 class REOSCORE_EXPORT ReosTransferFunctionLinearReservoirFactory: public ReosTransferFunctionFactory

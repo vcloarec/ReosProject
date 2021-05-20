@@ -637,6 +637,12 @@ void ReosTimeSerie::connectParameters()
 
 ReosTimeSerieVariableTimeStep::ReosTimeSerieVariableTimeStep( QObject *parent ): ReosTimeSerie( parent ) {}
 
+void ReosTimeSerieVariableTimeStep::clear()
+{
+  ReosTimeSerie::clear();
+  mTimeValues.clear();
+}
+
 ReosDuration ReosTimeSerieVariableTimeStep::relativeTimeAt( int i ) const
 {
   return mTimeValues.at( i );
@@ -700,11 +706,14 @@ double ReosTimeSerieVariableTimeStep::valueAtTime( const ReosDuration &relativeT
   return ( mValues.at( index + 1 ) - mValues.at( index ) ) * ratio + mValues.at( index );
 }
 
-void ReosTimeSerieVariableTimeStep::addOther( const ReosTimeSerieVariableTimeStep &other, double factor )
+double ReosTimeSerieVariableTimeStep::valueAtTime( const QDateTime &time ) const
+{
+  return valueAtTime( ReosDuration( referenceTime()->value().msecsTo( time ) ) );
+}
+
+void ReosTimeSerieVariableTimeStep::addOther( const ReosTimeSerieVariableTimeStep &other, double factor, bool allowInterpolation )
 {
   blockSignals( true );
-
-  bool allowInterpolation = false;
 
   ReosDuration offset( referenceTime()->value().msecsTo( other.referenceTime()->value() ), ReosDuration::millisecond );
 

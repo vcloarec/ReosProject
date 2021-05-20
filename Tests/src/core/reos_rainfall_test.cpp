@@ -258,8 +258,5 @@ void ReosRainfallTest::IDFCurvesSherman()
   QVERIFY( curve.height( duration_4 ) < 0 );
 }
 
-
-
-
 QTEST_MAIN( ReosRainfallTest )
 #include "reos_rainfall_test.moc"

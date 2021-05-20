@@ -17,6 +17,7 @@
 
 #include "reoswatershed.h"
 #include "reosrunoffmodel.h"
+#include "reoshydrograph.h"
 
 ReosTransferFunction::ReosTransferFunction( ReosWatershed *watershed ):
   ReosDataObject( watershed )
@@ -89,6 +90,8 @@ ReosTransferFunctionLinearReservoir::ReosTransferFunctionLinearReservoir( ReosWa
   connect( mUseConcentrationTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
   connect( mFactorToLagTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
 }
+
+ReosTransferFunctionLinearReservoir::~ReosTransferFunctionLinearReservoir() = default;
 
 ReosHydrograph *ReosTransferFunctionLinearReservoir::applyFunction( ReosRunoff *runoff, QObject *hydrographParent ) const
 {
@@ -200,11 +203,6 @@ ReosTransferFunctionLinearReservoir::ReosTransferFunctionLinearReservoir( const 
   connect( mFactorToLagTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
 }
 
-QColor ReosHydrograph::color() const
-{
-  return Qt::red;
-}
-
 ReosTransferFunctionGeneralizedRationalMethod::ReosTransferFunctionGeneralizedRationalMethod( ReosWatershed *watershed ):
   ReosTransferFunction( watershed )
 {}
@@ -239,7 +237,7 @@ ReosHydrograph *ReosTransferFunctionGeneralizedRationalMethod::applyFunction( Re
   for ( int i = 0; i < runoffTimeSerie->valueCount(); ++i )
   {
     unitHydrograph.referenceTime()->setValue( runoffTimeSerie->referenceTime()->value().addMSecs( timeStep.valueMilliSecond()*i ) );
-    hydrograph->addOther( unitHydrograph, runoffData[i] );
+    hydrograph->addOther( unitHydrograph, runoffData[i], false );
   }
 
   return hydrograph.release();
@@ -700,7 +698,7 @@ std::unique_ptr<ReosHydrograph> ReosTransferFunctionSCSUnitHydrograph::Calculati
   {
     std::unique_ptr<ReosHydrograph> hydrograph = std::make_unique<ReosHydrograph>();
     hydrograph->referenceTime()->setValue( mReferenceTime );
-    hydrograph->addOther( *( hydrograph1 ), peakFlow );
+    hydrograph->addOther( *( hydrograph1 ), peakFlow, false );
 
     return hydrograph;
   }
@@ -718,8 +716,8 @@ std::unique_ptr<ReosHydrograph> ReosTransferFunctionSCSUnitHydrograph::Calculati
   std::unique_ptr<ReosHydrograph> hydrograph = std::make_unique<ReosHydrograph>();
   hydrograph->referenceTime()->setValue( mReferenceTime );
 
-  hydrograph->addOther( *( hydrograph1 ), f * peakFlow );
-  hydrograph->addOther( *( hydrograph2 ), ( 1 - f )*peakFlow );
+  hydrograph->addOther( *( hydrograph1 ), f * peakFlow, false );
+  hydrograph->addOther( *( hydrograph2 ), ( 1 - f )*peakFlow, false );
 
   return hydrograph;
 }
@@ -892,7 +890,7 @@ void ReosTransferFunctionSCSUnitHydrograph::Calculation::start()
   {
     ReosDuration relativeTime = mTimeStep * i;
     unitHydrograph->referenceTime()->setValue( mReferenceTime.addMSecs( relativeTime.valueMilliSecond() ) );
-    mHydrograph->addOther( *( unitHydrograph.get() ), mRunoffData.at( i / mReduceTimeStepFactor ) / mReduceTimeStepFactor );
+    mHydrograph->addOther( *( unitHydrograph.get() ), mRunoffData.at( i / mReduceTimeStepFactor ) / mReduceTimeStepFactor, false );
     if ( isStop() )
     {
       mHydrograph.reset();
@@ -999,7 +997,7 @@ void ReosTransferFunctionGeneralizedRationalMethod::Calculation::start()
   for ( int i = 0; i < mRunoffData.count(); ++i )
   {
     unitHydrograph.referenceTime()->setValue( mReferenceTime.addMSecs( mTimeStep.valueMilliSecond()*i ) );
-    mHydrograph->addOther( unitHydrograph, mRunoffData.at( i ) );
+    mHydrograph->addOther( unitHydrograph, mRunoffData.at( i ), false );
     if ( isStop() )
     {
       mHydrograph.reset();

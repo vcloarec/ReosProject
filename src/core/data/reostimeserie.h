@@ -59,7 +59,7 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
     void removeValues( int fromPos, int count );
 
     //! Clears all values
-    void clear();
+    virtual  void clear();
 
     //! Return the value extent of the serie, if withZero, zeo will be a extrem if all values are positive or negative
     QPair<double, double> valueExent( bool withZero = false ) const;
@@ -228,10 +228,13 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
 
     ReosTimeSerieVariableTimeStep( QObject *parent );
 
-    QString type() const {return QStringLiteral( "time-serie-variable-time-step" );}
+    void clear() override;
 
-    ReosDuration relativeTimeAt( int i ) const;
-    QPair<QDateTime, QDateTime> timeExtent() const;
+    QString type() const override {return QStringLiteral( "time-serie-variable-time-step" );}
+
+    ReosDuration relativeTimeAt( int i ) const override;
+
+    QPair<QDateTime, QDateTime> timeExtent() const override;
 
     //! Sets the value at \a relative time with \a value, if the \a relative time is not present insert a new couple (time, value)
     void setValue( const ReosDuration &relativeTime, double value );
@@ -239,8 +242,11 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
     //! Returns the value at relative time \a relative time, interpolate if relative time is between two time values, return 0 if before first one or after last one
     double valueAtTime( const ReosDuration &relativeTime ) const;
 
-    //! Adds another instance to this the values of this ones, create new time step if needed
-    void addOther( const ReosTimeSerieVariableTimeStep &other, double factor = 1 );
+    //! Returns the value at time \a time, interpolate if time is between two time values, return 0 if before first one or after last one
+    double valueAtTime( const QDateTime &time ) const;
+
+    //! Adds another instance to this the values of this ones, create new time steps if needed
+    void addOther( const ReosTimeSerieVariableTimeStep &other, double factor = 1, bool allowInterpolation = true );
 
     //! Return the color associated with this time serie
     virtual QColor color() const {return QColor();}

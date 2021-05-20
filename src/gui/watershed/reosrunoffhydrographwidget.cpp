@@ -28,6 +28,7 @@
 #include "reosplottimeconstantinterval.h"
 #include "reosrunoffhydrographwidget.h"
 #include "reosprocesscontroler.h"
+#include "reoshydrograph.h"
 
 ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *watershedModule, QWidget *parent ) :
   ReosActionWidget( parent )
@@ -355,6 +356,7 @@ void ReosRunoffHydrographWidget::updateHydrograph()
       QApplication::setOverrideCursor( Qt::WaitCursor );
       calculation->start();
       mCurrentHydrograph = calculation->hydrograph();
+      mCurrentHydrograph->setColor( Qt::red );
       QApplication::restoreOverrideCursor();
     }
   }
