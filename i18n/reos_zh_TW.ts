@@ -175,7 +175,7 @@
         <translation>SCS 單位歷線</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="730"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="731"/>
         <source> residual</source>
         <translation>剩餘</translation>
     </message>
@@ -721,11 +721,6 @@ Adjust new watershed?</source>
     </message>
     <message>
         <location filename="../src/ui/reosexportwatershedtovectordialog.ui"/>
-        <source>...</source>
-        <translation>...</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosexportwatershedtovectordialog.ui"/>
         <source>Export longest path</source>
         <translation>輸出最長路徑</translation>
     </message>
@@ -735,82 +730,72 @@ Adjust new watershed?</source>
         <translation>輸出集水區最長路徑</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="66"/>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="73"/>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="82"/>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="91"/>
+        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="65"/>
+        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="72"/>
+        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="81"/>
+        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="90"/>
         <source>Name</source>
         <translation>名稱</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="67"/>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="74"/>
+        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="66"/>
+        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="73"/>
         <source>Area</source>
         <translation>面積</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="83"/>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="92"/>
+        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="82"/>
+        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="91"/>
         <source>Length</source>
         <translation>長度</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="84"/>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="93"/>
+        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="83"/>
+        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="92"/>
         <source>Slope</source>
         <translation>坡度</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="85"/>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="94"/>
+        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="84"/>
+        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="93"/>
         <source>Drop</source>
         <translation>降低</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="109"/>
-        <source>export watershed to vector file</source>
-        <translation>輸出集水區向量圖檔</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="110"/>
-        <source>Do you want to overwrite the file %1?</source>
-        <translation>您想要覆寫檔案 %1?</translation>
     </message>
 </context>
 <context>
     <name>ReosGisEngine</name>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="115"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="131"/>
         <source>Vector layer loaded: %1</source>
         <translation>向量圖層載入: %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="120"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="136"/>
         <source>Vector layer not loaded: %1</source>
         <translation>向量圖層未載入: %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="133"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="149"/>
         <source>Raster layer loaded: %1</source>
         <translation>網格圖層載入: %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="138"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="154"/>
         <source>Raster layer not loaded: %1</source>
         <translation>網格圖層未載入: %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="150"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="166"/>
         <source>Mesh layer loaded: %1</source>
         <translation>Mesh網格圖層載入: %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="155"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="171"/>
         <source>Mesh layer not loaded: %1</source>
         <translation>Mesh網格圖層未載入: %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="182"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="198"/>
         <source>Could not find MDAL</source>
         <translation>無法找到MDAL網格</translation>
     </message>
@@ -1032,11 +1017,6 @@ Adjust new watershed?</source>
     </message>
     <message>
         <location filename="../src/ui/reosintensitydurationselectedcurvewidget.ui"/>
-        <source>...</source>
-        <translation>...</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosintensitydurationselectedcurvewidget.ui"/>
         <source>Name</source>
         <translation>名稱</translation>
     </message>
@@ -1093,11 +1073,6 @@ Adjust new watershed?</source>
     </message>
     <message>
         <location filename="../src/ui/reoslongitudinalprofilewidget.ui"/>
-        <source>-----</source>
-        <translation>-----</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reoslongitudinalprofilewidget.ui"/>
         <source>Watershed Stream Path</source>
         <translation>集水區水系</translation>
     </message>
@@ -1120,11 +1095,6 @@ Adjust new watershed?</source>
         <location filename="../src/ui/reoslongitudinalprofilewidget.ui"/>
         <source>Total Length</source>
         <translation>總長度</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reoslongitudinalprofilewidget.ui"/>
-        <source>-</source>
-        <translation>-</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoslongitudinalprofilewidget.cpp" line="38"/>

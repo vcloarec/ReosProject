@@ -175,7 +175,7 @@
         <translation>Hydrographe unitaire SCS</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="730"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="731"/>
         <source> residual</source>
         <translation>résiduel</translation>
     </message>
@@ -721,11 +721,6 @@ Faut-il ajuster le nouveau bassin versant ?</translation>
     </message>
     <message>
         <location filename="../src/ui/reosexportwatershedtovectordialog.ui"/>
-        <source>...</source>
-        <translation type="unfinished">...</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosexportwatershedtovectordialog.ui"/>
         <source>Export longest path</source>
         <translation>Export du chemin hydraulique</translation>
     </message>
@@ -735,82 +730,72 @@ Faut-il ajuster le nouveau bassin versant ?</translation>
         <translation>Exporte le plus long chemin du bassin versant</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="66"/>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="73"/>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="82"/>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="91"/>
+        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="65"/>
+        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="72"/>
+        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="81"/>
+        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="90"/>
         <source>Name</source>
         <translation>Nom</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="67"/>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="74"/>
+        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="66"/>
+        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="73"/>
         <source>Area</source>
         <translation>Superficie</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="83"/>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="92"/>
+        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="82"/>
+        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="91"/>
         <source>Length</source>
         <translation>Longueur</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="84"/>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="93"/>
+        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="83"/>
+        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="92"/>
         <source>Slope</source>
         <translation>Pente</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="85"/>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="94"/>
+        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="84"/>
+        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="93"/>
         <source>Drop</source>
         <translation>Dénivelée</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="109"/>
-        <source>export watershed to vector file</source>
-        <translation>exporte le bassin versant vers un fichier vectoriel</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="110"/>
-        <source>Do you want to overwrite the file %1?</source>
-        <translation>Voulez vous écraser le fichier %1 ?</translation>
     </message>
 </context>
 <context>
     <name>ReosGisEngine</name>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="115"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="131"/>
         <source>Vector layer loaded: %1</source>
         <translation>Couche vectorielle chargée : %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="120"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="136"/>
         <source>Vector layer not loaded: %1</source>
         <translation>Couche vectorielle non chargée : %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="133"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="149"/>
         <source>Raster layer loaded: %1</source>
         <translation>Couche raster chargée : %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="138"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="154"/>
         <source>Raster layer not loaded: %1</source>
         <translation>Couche raster non chargée : %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="150"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="166"/>
         <source>Mesh layer loaded: %1</source>
         <translation>Couche maillage chargée : %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="155"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="171"/>
         <source>Mesh layer not loaded: %1</source>
         <translation>Couche maillage non chargée : %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="182"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="198"/>
         <source>Could not find MDAL</source>
         <translation>MDAL non trouvé</translation>
     </message>
@@ -1032,11 +1017,6 @@ Faut-il ajuster le nouveau bassin versant ?</translation>
     </message>
     <message>
         <location filename="../src/ui/reosintensitydurationselectedcurvewidget.ui"/>
-        <source>...</source>
-        <translation type="unfinished">...</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosintensitydurationselectedcurvewidget.ui"/>
         <source>Name</source>
         <translation>Nom</translation>
     </message>
@@ -1093,11 +1073,6 @@ Faut-il ajuster le nouveau bassin versant ?</translation>
     </message>
     <message>
         <location filename="../src/ui/reoslongitudinalprofilewidget.ui"/>
-        <source>-----</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reoslongitudinalprofilewidget.ui"/>
         <source>Watershed Stream Path</source>
         <translation>Chemin hydraulique du bassin versant</translation>
     </message>
@@ -1120,11 +1095,6 @@ Faut-il ajuster le nouveau bassin versant ?</translation>
         <location filename="../src/ui/reoslongitudinalprofilewidget.ui"/>
         <source>Total Length</source>
         <translation>Longueur Totale</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reoslongitudinalprofilewidget.ui"/>
-        <source>-</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoslongitudinalprofilewidget.cpp" line="38"/>
