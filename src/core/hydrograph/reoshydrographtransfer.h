@@ -17,6 +17,7 @@
 #define REOSHYDROGRAPHTRANSFER_H
 
 #include <QPointer>
+#include <QPointF>
 
 #include "reoshydrographsource.h"
 #include "reoshydrauliclink.h"
@@ -30,7 +31,7 @@ class ReosHydrographTransfer : public ReosHydraulicLink
     Q_OBJECT
   public:
     //! Constructor
-    ReosHydrographTransfer( QObject *parent = nullptr );
+    ReosHydrographTransfer( ReosHydraulicNetwork *parent = nullptr );
 
     //! Sets the input hydrograph source
     void setInputHydrographSource( ReosHydrographSource *hydrographSource );
@@ -49,7 +50,7 @@ class ReosHydrographTransfer : public ReosHydraulicLink
 class ReosHydrographTransferDirect: public ReosHydrographTransfer
 {
   public:
-    ReosHydrographTransferDirect( QObject *parent = nullptr ): ReosHydrographTransfer( parent ) {}
+    ReosHydrographTransferDirect( ReosHydraulicNetwork *parent = nullptr );
 
     ReosHydrograph *outputHydrograph( const ReosCalculationContext &context ) override;
 };
@@ -59,13 +60,17 @@ class ReosHydrographTransferDirect: public ReosHydrographTransfer
  */
 class ReosHydrographJunction : public ReosHydrographSource
 {
+    Q_OBJECT
   public:
-    ReosHydrographJunction( QObject *parent = nullptr );
+    ReosHydrographJunction( const QPointF &position, ReosHydraulicNetwork *parent = nullptr );
     ReosHydrograph *outputHydrograph( const ReosCalculationContext &context ) override;
+    QString type() const override {return QStringLiteral( "node:hydrograph:junction" );}
+    QPointF position() const override;
 
   private:
     mutable ReosHydrograph *mHydrograph;
 
+    QPointF mPosition;
 
 };
 

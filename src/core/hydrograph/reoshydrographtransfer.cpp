@@ -16,12 +16,12 @@
 #include "reoshydrographtransfer.h"
 #include "reoshydrograph.h"
 
-ReosHydrographTransfer::ReosHydrographTransfer( QObject *parent ): ReosHydraulicLink( parent )
+ReosHydrographTransfer::ReosHydrographTransfer( ReosHydraulicNetwork *parent ): ReosHydraulicLink( parent )
 {}
 
 void ReosHydrographTransfer::setInputHydrographSource( ReosHydrographSource *hydrographSource )
 {
-  attachOnSide1( mNode_1 );
+  attachOnSide1( hydrographSource );
 }
 
 ReosHydrographSource *ReosHydrographTransfer::inputHydrographSource() const
@@ -37,9 +37,10 @@ void ReosHydrographTransfer::setHydrographDestination( ReosHydrographNode *desti
   attachOnSide2( destination );
 }
 
-ReosHydrographJunction::ReosHydrographJunction( QObject *parent ):
+ReosHydrographJunction::ReosHydrographJunction( const QPointF &position, ReosHydraulicNetwork *parent ):
   ReosHydrographSource( parent )
-  , mHydrograph( new ReosHydrograph( this ) )
+  , mHydrograph( new ReosHydrograph( this ) ),
+  mPosition( position )
 {}
 
 ReosHydrograph *ReosHydrographJunction::outputHydrograph( const ReosCalculationContext &context )
@@ -66,6 +67,13 @@ ReosHydrograph *ReosHydrographJunction::outputHydrograph( const ReosCalculationC
 
   return mHydrograph;
 }
+
+QPointF ReosHydrographJunction::position() const
+{
+  return mPosition;
+}
+
+ReosHydrographTransferDirect::ReosHydrographTransferDirect( ReosHydraulicNetwork *parent ): ReosHydrographTransfer( parent ) {}
 
 ReosHydrograph *ReosHydrographTransferDirect::outputHydrograph( const ReosCalculationContext &context )
 {

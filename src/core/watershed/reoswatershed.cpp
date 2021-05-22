@@ -183,6 +183,7 @@ void ReosWatershed::setOutletPoint( const QPointF &outletPoint )
     return;
 
   mOutletPoint = outletPoint;
+  emit changed();
 }
 
 int ReosWatershed::upstreamWatershedCount() const

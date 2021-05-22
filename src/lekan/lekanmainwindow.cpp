@@ -36,6 +36,8 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reosrainfallregistery.h"
 #include "reosrunoffmanager.h"
 #include "reosrunoffmodel.h"
+#include "reoshydraulicnetwork.h"
+#include "reoshydraulicnetworkwidget.h"
 
 
 LekanMainWindow::LekanMainWindow( QWidget *parent ) :
@@ -73,9 +75,17 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
 
   mDockWatershed = new QDockWidget( tr( "Watershed" ), this );
   mWatershedModule = new ReosWatershedModule( rootModule(), mGisEngine );
-  ReosWatershedWidget *watersehdWidget = new  ReosWatershedWidget( mMap, mWatershedModule, mDockWatershed );
+
+  mDockHydraulicNetwork = new QDockWidget( tr( "Hydraulic Network" ), this );
+  mHydraulicNetwork = new ReosHydraulicNetwork( rootModule() );
+
+  ReosWatershedWidget *watersehdWidget = new  ReosWatershedWidget( mMap, mWatershedModule, mHydraulicNetwork, mDockWatershed );
   mDockWatershed->setWidget( watersehdWidget );
   addDockWidget( Qt::RightDockWidgetArea, mDockWatershed );
+
+  ReosHydraulicNetworkWidget *networkWidget = new ReosHydraulicNetworkWidget( mHydraulicNetwork, mMap, mDockHydraulicNetwork );
+  mDockHydraulicNetwork->setWidget( networkWidget );
+  addDockWidget( Qt::RightDockWidgetArea, mDockHydraulicNetwork );
 
   mMap->setDefaultMapTool();
 

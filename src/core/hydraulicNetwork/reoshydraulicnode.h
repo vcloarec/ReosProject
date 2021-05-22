@@ -19,13 +19,17 @@
 #include <QObject>
 #include <QPointer>
 
+#include "reoshydraulicnetwork.h"
+
 class ReosHydraulicLink;
 
-class ReosHydraulicNode : public QObject
+class ReosHydraulicNode : public ReosHydraulicNetworkElement
 {
   public:
-    ReosHydraulicNode( QObject *parent );
+    ReosHydraulicNode( ReosHydraulicNetwork *parent );
     ~ReosHydraulicNode();
+
+    QString type() const override {return QStringLiteral( "node" );}
 
   protected:
     QList<QPointer<ReosHydraulicLink>> mLinksBySide1;

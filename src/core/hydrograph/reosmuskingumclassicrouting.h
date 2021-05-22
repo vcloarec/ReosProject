@@ -22,9 +22,9 @@
 class ReosMuskingumClassicRouting : public ReosHydrographTransfer
 {
   public:
-    ReosMuskingumClassicRouting( QObject *parent = nullptr );
+    ReosMuskingumClassicRouting( ReosHydraulicNetwork *parent = nullptr );
 
-    ReosHydrograph *outputHydrograph( const ReosCalculationContext &context ) const override;
+    ReosHydrograph *outputHydrograph( const ReosCalculationContext &context ) override;
 
   private:
     ReosParameterDuration *mKParameter = nullptr;

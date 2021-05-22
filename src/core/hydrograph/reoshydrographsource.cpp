@@ -18,13 +18,13 @@
 #include "reoscalculationcontext.h"
 
 
-ReosHydrographNode::ReosHydrographNode( QObject *parent ): ReosHydraulicNode( parent )
+ReosHydrographNode::ReosHydrographNode( ReosHydraulicNetwork *parent ): ReosHydraulicNode( parent )
 {}
 
-ReosHydrographSource::ReosHydrographSource( QObject *parent ) : ReosHydrographNode( parent )
+ReosHydrographSource::ReosHydrographSource( ReosHydraulicNetwork *parent ) : ReosHydrographNode( parent )
 {}
 
-ReosHydrographSourceFixed::ReosHydrographSourceFixed( QObject *parent ):
+ReosHydrographSourceFixed::ReosHydrographSourceFixed( ReosHydraulicNetwork *parent ):
   ReosHydrographSource( parent )
 {}
 
@@ -40,6 +40,14 @@ void ReosHydrographSourceFixed::setHydrograph( ReosHydrograph *hydrograph )
 }
 
 
+ReosHydrographSourceWatershed::ReosHydrographSourceWatershed( ReosWatershed *watershed, ReosHydraulicNetwork *parent ):
+  ReosHydrographSource( parent )
+  , mWatershed( watershed )
+{
+  if ( mWatershed )
+    connect( mWatershed, &ReosWatershed::changed, this, [this] {positionChanged();} );
+}
+
 ReosHydrograph *ReosHydrographSourceWatershed::outputHydrograph( const ReosCalculationContext &context )
 {
   if ( mWatershed.isNull() )
@@ -49,4 +57,20 @@ ReosHydrograph *ReosHydrographSourceWatershed::outputHydrograph( const ReosCalcu
   mHydrograph = mWatershed->createHydrograph( context.meteorologicModel()->associatedRainfall( mWatershed )->data(), this );
 
   return mHydrograph;
+}
+
+ReosWatershed *ReosHydrographSourceWatershed::watershed() const
+{
+  if ( mWatershed.isNull() )
+    return nullptr;
+  else
+    return mWatershed.data();
+}
+
+QPointF ReosHydrographSourceWatershed::position() const
+{
+  if ( mWatershed.isNull() )
+    return QPointF();
+  else
+    return mWatershed->outletPoint();
 }

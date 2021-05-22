@@ -17,12 +17,12 @@
 #include "reosrunoffhydrographwidget.h"
 #include "reosexportwatershedtovectordialog.h"
 
-ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *module, QWidget *parent ) :
+ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *module, ReosHydraulicNetwork *hydraulicNetwork, QWidget *parent ) :
   QWidget( parent ),
   ui( new Ui::ReosWatershedWidget ),
   mMap( map ),
   mActionSelectWatershed( new QAction( QPixmap( QStringLiteral( ":/images/selectWatershed.svg" ) ), tr( "Select watershed on map" ), this ) ),
-  mMapToolSelectWatershed( new ReosMapToolSelectMapItem( map, QStringLiteral( "Watershed" ) ) ),
+  mMapToolSelectWatershed( new ReosMapToolSelectMapItem( map, QStringLiteral( "watershed:delineatingPolygon" ) ) ),
   mActionRemoveWatershed( new QAction( QPixmap( QStringLiteral( ":/images/removeWatershed.svg" ) ), tr( "Remove watershed" ), this ) ),
   mActionDelineateWatershed( new QAction( QPixmap( QStringLiteral( ":/images/delineateWatershed.svg" ) ), tr( "Delineate watershed" ), this ) ),
   mDelineatingWidget( new ReosDelineatingWatershedWidget( module, map, this ) ),
@@ -32,7 +32,7 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   mConcentrationTimeWidget( new ReosConcentrationTimeWidget( this ) ),
   mActionMeteorologicModel( new QAction( QPixmap( QStringLiteral( ":/images/meteoModel.svg" ) ), tr( "Meteorologic models" ), this ) ),
   mActionRunoffHydrograph( new QAction( QPixmap( QStringLiteral( ":/images/runoffHydrograph.svg" ) ), tr( "Runoff hydrograph" ), this ) ),
-  mRunoffHydrographWidget( new ReosRunoffHydrographWidget( module, this ) ),
+  mRunoffHydrographWidget( new ReosRunoffHydrographWidget( module, hydraulicNetwork, this ) ),
   mActionExportToVectorLayer( new QAction( QPixmap( QStringLiteral( ":/images/exportWatershed.svg" ) ), tr( "Export watershed geometry to vector layer" ), this ) ),
   mActionZoomToWatershed( new QAction( QPixmap( QStringLiteral( ":/images/zoomToWatershed.svg" ) ), tr( "Zoom to watershed" ), this ) ),
   mCurrentStreamLine( map ),
@@ -128,7 +128,6 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
 
   connect( mActionExportToVectorLayer, &QAction::triggered, this, &ReosWatershedWidget::onExportToVectorLayer );
   connect( mActionZoomToWatershed, &QAction::triggered, this, &ReosWatershedWidget::onZoomToWatershed );
-
 }
 
 ReosWatershedWidget::~ReosWatershedWidget()
@@ -168,11 +167,10 @@ void ReosWatershedWidget::onWatershedAdded( const QModelIndex &index )
 
 void ReosWatershedWidget::onWatershedSelectedOnMap( ReosMapItem *item, const QPointF &pos )
 {
+  ui->treeView->setCurrentIndex( QModelIndex() );
+
   if ( !item )
-  {
-    ui->treeView->setCurrentIndex( QModelIndex() );
     return;
-  }
 
   for ( const auto &ws : mMapWatersheds.keys() )
   {
@@ -368,7 +366,7 @@ ReosWatershed *ReosWatershedWidget::currentWatershed() const
 
 void ReosWatershedWidget::formatMapWatershed( MapWatershed &mapWatershed )
 {
-  mapWatershed.delineating->setDescription( QStringLiteral( "Watershed" ) );
+  mapWatershed.delineating->setDescription( QStringLiteral( "watershed:delineatingPolygon" ) );
   mapWatershed.delineating->setWidth( 3 );
   mapWatershed.delineating->setColor( QColor( 0, 200, 100 ) );
   mapWatershed.delineating->setExternalWidth( 5 );

@@ -45,19 +45,50 @@ class ReosMapMarker_p: public ReosMapItem_p
 {
   public:
     ReosMapMarker_p( QgsMapCanvas *canvas );
-    ReosMapMarker_p *clone() override;
-    QRectF boundingRect() const override;
     void updatePosition() override;
-    QPainterPath shape() const override;
     void move( const QPointF &translation ) override;
     QPointF mapPos() const override;
-
+    QRectF boundingRect() const override;
     QPointF mapPoint;
     bool isEmpty = true;
 
   protected:
-    void paint( QPainter *painter ) override;
     QPointF mViewPoint;
+
+};
+
+class ReosMapMarkerFilledCircle_p: public ReosMapMarker_p
+{
+  public:
+    ReosMapMarkerFilledCircle_p( QgsMapCanvas *canvas );
+    ReosMapMarkerFilledCircle_p *clone() override;
+    QPainterPath shape() const override;
+
+  protected:
+    void paint( QPainter *painter ) override;
+};
+
+
+class ReosMapMarkerEmptySquare_p: public ReosMapMarker_p
+{
+  public:
+    ReosMapMarkerEmptySquare_p( QgsMapCanvas *canvas );
+    ReosMapMarkerEmptySquare_p *clone() override;
+    QPainterPath shape() const override;
+
+  protected:
+    void paint( QPainter *painter ) override;
+};
+
+class ReosMapMarkerEmptyCircle_p: public ReosMapMarker_p
+{
+  public:
+    ReosMapMarkerEmptyCircle_p( QgsMapCanvas *canvas );
+    ReosMapMarkerEmptyCircle_p *clone() override;
+    QPainterPath shape() const override;
+
+  protected:
+    void paint( QPainter *painter ) override;
 };
 
 class ReosMapPolygon_p: public ReosMapItem_p

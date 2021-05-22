@@ -29,7 +29,7 @@ class ReosMap;
 class ReosMapItem_p;
 class ReosMapPolygon_p;
 class ReosMapPolyline_p;
-class ReosMapMarker_p;
+class ReosMapMarkerFilledCircle_p;
 
 class ReosMapItem
 {
@@ -71,16 +71,11 @@ class ReosMapItem
     ReosMapItem_p *d_ = nullptr;
 };
 
-class ReosMapMarker : public ReosMapItem
+class ReosMapMarker:  public ReosMapItem
 {
   public:
-    //! Contructor
-    ReosMapMarker();
-    ReosMapMarker( ReosMap *map );
-    ReosMapMarker( ReosMap *map, const QPointF &point );
-    ~ReosMapMarker();
-
-    ReosMapMarker( const ReosMapMarker &other );
+    ReosMapMarker() {}
+    ReosMapMarker( ReosMap *map ): ReosMapItem( map ) {}
 
     //! Resets the marker with \a point
     void resetPoint( const QPointF &point );
@@ -96,6 +91,39 @@ class ReosMapMarker : public ReosMapItem
 
     bool isEmpty() const;
 };
+
+class ReosMapMarkerFilledCircle : public ReosMapMarker
+{
+  public:
+    //! Contructor
+    ReosMapMarkerFilledCircle();
+    ReosMapMarkerFilledCircle( ReosMap *map );
+    ReosMapMarkerFilledCircle( ReosMap *map, const QPointF &point );
+    ~ReosMapMarkerFilledCircle();
+};
+
+
+
+class ReosMapMarkerEmptyCircle : public ReosMapMarker
+{
+  public:
+    //! Contructor
+    ReosMapMarkerEmptyCircle();
+    ReosMapMarkerEmptyCircle( ReosMap *map );
+    ReosMapMarkerEmptyCircle( ReosMap *map, const QPointF &point );
+    ~ReosMapMarkerEmptyCircle();
+};
+
+class ReosMapMarkerEmptySquare : public ReosMapMarker
+{
+  public:
+    //! Contructor
+    ReosMapMarkerEmptySquare();
+    ReosMapMarkerEmptySquare( ReosMap *map );
+    ReosMapMarkerEmptySquare( ReosMap *map, const QPointF &point );
+    ~ReosMapMarkerEmptySquare();
+};
+
 
 class ReosMapPolygon : public ReosMapItem
 {

@@ -24,12 +24,13 @@ class ReosMapToolMoveMapItem;
 class ReosMeteorologicItemModel;
 class ReosMeteorologicModelWidget;
 class ReosRunoffHydrographWidget;
+class ReosHydraulicNetwork;
 
 class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
 {
     Q_OBJECT
   public:
-    explicit ReosWatershedWidget( ReosMap *map, ReosWatershedModule *module, QWidget *parent = nullptr );
+    explicit ReosWatershedWidget( ReosMap *map, ReosWatershedModule *module, ReosHydraulicNetwork *hydraulicNetwork = nullptr, QWidget *parent = nullptr );
     ~ReosWatershedWidget();
 
   signals:
@@ -81,11 +82,11 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
       MapWatershed( ReosMap *map, const QPolygonF &delineat, const QPointF &outletPt )
       {
         delineating = std::make_shared<ReosMapPolygon>( map, delineat );
-        outletPoint = std::make_shared<ReosMapMarker>( map, outletPt );
+        outletPoint = std::make_shared<ReosMapMarkerFilledCircle>( map, outletPt );
       }
 
       std::shared_ptr<ReosMapPolygon> delineating;
-      std::shared_ptr<ReosMapMarker> outletPoint;
+      std::shared_ptr<ReosMapMarkerFilledCircle> outletPoint;
     };
 
     using MapWatersheds = QMap<ReosWatershed *, MapWatershed>;

@@ -29,11 +29,13 @@
 #include "reosrunoffhydrographwidget.h"
 #include "reosprocesscontroler.h"
 #include "reoshydrograph.h"
+#include "reoshydrographsource.h"
 
-ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *watershedModule, QWidget *parent ) :
+ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *watershedModule, ReosHydraulicNetwork *hydraulicNetwork, QWidget *parent ) :
   ReosActionWidget( parent )
   , ui( new Ui::ReosRunoffHydrographWidget )
   , mWatershedModule( watershedModule )
+  , mHydraulicNetwork( hydraulicNetwork )
   , mWatershedRunoffModelsModel( new ReosWatershedRunoffModelsModel( this ) )
   , mRunoffResultTabModel( new ReosTimeSeriesTableModel( this ) )
   , mHydrographResultModel( new ReosTimeSeriesVariableTimeStepTabModel( this ) )
@@ -128,7 +130,10 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *wat
 
   ui->constantHydrographTimeStep->setVisible( ui->checkBoxUseConstantTimeStep->isChecked() );
 
+  connect( ui->pushButtonAddRemoveFromNetwork, &QPushButton::clicked, this, &ReosRunoffHydrographWidget::onAddRemoveNetwork );
+
   onModelMeteoChanged();
+  updateNetworkButton();
 
 }
 
@@ -157,6 +162,7 @@ void ReosRunoffHydrographWidget::setCurrentWatershed( ReosWatershed *watershed )
   }
 
   updateRainall();
+  updateNetworkButton();
 }
 
 void ReosRunoffHydrographWidget::setCurrentMeteorologicModel( int index )
@@ -475,6 +481,24 @@ void ReosRunoffHydrographWidget::syncTransferFunction( ReosTransferFunction *fun
   updateHydrograph();
 }
 
+ReosHydrographSourceWatershed *ReosRunoffHydrographWidget::currentNetworkNode()
+{
+  QList<ReosHydraulicNetworkElement *> watershedHydrographSource = mHydraulicNetwork->getElements( QStringLiteral( "node:hydrograph:source:watershed" ) );
+
+  for ( ReosHydraulicNetworkElement *elem : watershedHydrographSource )
+  {
+    ReosHydrographSourceWatershed *hsw = qobject_cast<ReosHydrographSourceWatershed *>( elem );
+    if ( hsw && hsw->watershed() == mCurrentWatershed )
+    {
+      ui->pushButtonAddRemoveFromNetwork->setText( tr( "Remove watershed from network" ) );
+      ui->pushButtonAddRemoveFromNetwork->setEnabled( true );
+      return hsw;
+    }
+  }
+
+  return nullptr;
+}
+
 void ReosRunoffHydrographWidget::hydrographTabContextMenu( const QPoint &pos )
 {
   QMenu contextMenu;
@@ -553,6 +577,46 @@ void ReosRunoffHydrographWidget::onTransferFunctionFormulation()
   }
 }
 
+void ReosRunoffHydrographWidget::updateNetworkButton()
+{
+  if ( !mHydraulicNetwork )
+  {
+    ui->pushButtonAddRemoveFromNetwork->setText( tr( "No hydraulic network" ) );
+    ui->pushButtonAddRemoveFromNetwork->setEnabled( false );
+    return;
+  }
+
+  if ( !mCurrentWatershed )
+  {
+    ui->pushButtonAddRemoveFromNetwork->setText( tr( "No watershed" ) );
+    ui->pushButtonAddRemoveFromNetwork->setEnabled( false );
+    return;
+  }
+
+  if ( currentNetworkNode() )
+  {
+    ui->pushButtonAddRemoveFromNetwork->setText( tr( "Remove watershed from network" ) );
+    ui->pushButtonAddRemoveFromNetwork->setEnabled( true );
+    return;
+  }
+
+  ui->pushButtonAddRemoveFromNetwork->setText( tr( "Add watershed to network" ) );
+  ui->pushButtonAddRemoveFromNetwork->setEnabled( true );
+}
+
+void ReosRunoffHydrographWidget::onAddRemoveNetwork()
+{
+  if ( !mCurrentWatershed )
+    return;
+
+  ReosHydrographSourceWatershed *hsw = currentNetworkNode();
+  if ( hsw )
+    hsw->destroy();
+  else
+    mHydraulicNetwork->addElement( new ReosHydrographSourceWatershed( mCurrentWatershed, mHydraulicNetwork ) );
+
+  updateNetworkButton();
+}
 
 void ReosWatershedRunoffModelsModel::setWatershedRunoffModels( ReosRunoffModelsGroup *watershedRunoffModels )
 {

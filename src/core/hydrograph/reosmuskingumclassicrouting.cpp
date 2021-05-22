@@ -16,13 +16,13 @@
 #include "reosmuskingumclassicrouting.h"
 #include "reoshydrograph.h"
 
-ReosMuskingumClassicRouting::ReosMuskingumClassicRouting( QObject *parent ) :
+ReosMuskingumClassicRouting::ReosMuskingumClassicRouting( ReosHydraulicNetwork *parent ) :
   ReosHydrographTransfer( parent )
   , mKParameter( new ReosParameterDuration( tr( "K" ), false, this ) )
   , mXParameter( new ReosParameterDouble( tr( "x" ), false, this ) )
 {}
 
-ReosHydrograph *ReosMuskingumClassicRouting::outputHydrograph( const ReosCalculationContext &context ) const
+ReosHydrograph *ReosMuskingumClassicRouting::outputHydrograph( const ReosCalculationContext &context )
 {
   calculate( context );
   return mResultHydrograph;

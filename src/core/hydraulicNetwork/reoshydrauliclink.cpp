@@ -15,10 +15,8 @@
  ***************************************************************************/
 #include "reoshydrauliclink.h"
 
-ReosHydraulicLink::ReosHydraulicLink( QObject *parent ): QObject( parent )
-{
-
-}
+ReosHydraulicLink::ReosHydraulicLink( ReosHydraulicNetwork *parent ): ReosHydraulicNetworkElement( parent )
+{}
 
 void ReosHydraulicLink::attachOnSide1( ReosHydraulicNode *node )
 {

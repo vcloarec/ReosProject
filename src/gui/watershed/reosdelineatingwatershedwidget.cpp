@@ -91,7 +91,13 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   mMapToolDrawBurningLine->setLineStyle( Qt::DashLine );
   mMapTools << mMapToolDrawBurningLine;
 
-  mMapToolRemoveBurningLine = new ReosMapToolSelectMapItem( map, -1 );
+  burningLineFormater.setDescription( QStringLiteral( "watershed:delineating:burningLine" ) );
+  burningLineFormater.setColor( Qt::red );
+  burningLineFormater.setExternalColor( Qt::white );
+  burningLineFormater.setWidth( 2 );
+  burningLineFormater.setExternalWidth( 4 );
+
+  mMapToolRemoveBurningLine = new ReosMapToolSelectMapItem( map, burningLineFormater.description() );
   mMapToolRemoveBurningLine->setAction( mActionRemoveBurningLine );
   mActionRemoveBurningLine->setCheckable( true );
   connect( mMapToolRemoveBurningLine, &ReosMapToolSelectMapItem::found, this, &ReosDelineatingWatershedWidget::onBurningLineRemoved );
@@ -173,12 +179,6 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
 
   connect( mModule->delineatingModule(), &ReosWatershedDelineating::hasBeenReset, this, &ReosDelineatingWatershedWidget::onModuleReset );
 
-  burningLineFormater.setDescription( QStringLiteral( "Burning-line" ) );
-  burningLineFormater.setColor( Qt::red );
-  burningLineFormater.setExternalColor( Qt::white );
-  burningLineFormater.setWidth( 2 );
-  burningLineFormater.setExternalWidth( 4 );
-
   connect( this, &ReosActionWidget::opened, this, &ReosDelineatingWatershedWidget::onMethodChange );
 
   mActionRemoveBurningLine->setEnabled( !mBurningLines.isEmpty() );
@@ -232,6 +232,8 @@ void ReosDelineatingWatershedWidget::onBurningLineDrawn( const QPolygonF &burnin
 
 void ReosDelineatingWatershedWidget::onBurningLineRemoved( ReosMapItem *item )
 {
+  if ( !item )
+    return;
   int i = 0;
   bool found = false;
   while ( i < mBurningLines.count() && !found )

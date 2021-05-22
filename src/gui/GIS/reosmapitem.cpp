@@ -269,24 +269,24 @@ void ReosMapPolyline::setMarkerDistance( double d )
   static_cast<ReosMapPolyline_p *>( d_ )->setMarkerDistance( d );
 }
 
-ReosMapMarker::ReosMapMarker(): ReosMapItem() {}
+ReosMapMarkerFilledCircle::ReosMapMarkerFilledCircle(): ReosMapMarker() {}
 
-ReosMapMarker::ReosMapMarker( ReosMap *map ): ReosMapItem( map )
+ReosMapMarkerFilledCircle::ReosMapMarkerFilledCircle( ReosMap *map ): ReosMapMarker( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
   {
-    d_ = new ReosMapMarker_p( canvas ); //the owner ship of d pointer is taken by the scene of the map canvas
+    d_ = new ReosMapMarkerFilledCircle_p( canvas ); //the owner ship of d pointer is taken by the scene of the map canvas
     d_->base = this;
   }
 }
 
-ReosMapMarker::ReosMapMarker( ReosMap *map, const QPointF &point ): ReosMapItem( map )
+ReosMapMarkerFilledCircle::ReosMapMarkerFilledCircle( ReosMap *map, const QPointF &point ): ReosMapMarker( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
   {
-    d_ = new ReosMapMarker_p( canvas ); //the owner ship of d pointer is takeny the scene of the map canvas
+    d_ = new ReosMapMarkerFilledCircle_p( canvas ); //the owner ship of d pointer is taken by the scene of the map canvas
     static_cast<ReosMapMarker_p *>( d_ )->mapPoint = point;
     static_cast<ReosMapMarker_p *>( d_ )->isEmpty = false;
     d_->updatePosition();
@@ -294,14 +294,11 @@ ReosMapMarker::ReosMapMarker( ReosMap *map, const QPointF &point ): ReosMapItem(
   }
 }
 
-ReosMapMarker::~ReosMapMarker()
+ReosMapMarkerFilledCircle::~ReosMapMarkerFilledCircle()
 {
   if ( isMapExist() && d_ )
     delete d_; //deleting this will remove it from the map
 }
-
-ReosMapMarker::ReosMapMarker( const ReosMapMarker &other ): ReosMapItem( other )
-{}
 
 void ReosMapMarker::resetPoint( const QPointF &point )
 {
@@ -438,4 +435,68 @@ QColor ReosMapPolylineFormater::color() const
 void ReosMapPolylineFormater::setColor( const QColor &color )
 {
   mColor = color;
+}
+
+ReosMapMarkerEmptySquare::ReosMapMarkerEmptySquare(): ReosMapMarker()
+{}
+
+ReosMapMarkerEmptySquare::ReosMapMarkerEmptySquare( ReosMap *map ): ReosMapMarker( map )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  if ( canvas )
+  {
+    d_ = new ReosMapMarkerEmptySquare_p( canvas ); //the owner ship of d pointer is taken by the scene of the map canvas
+    d_->base = this;
+  }
+}
+
+ReosMapMarkerEmptySquare::ReosMapMarkerEmptySquare( ReosMap *map, const QPointF &point ): ReosMapMarker( map )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  if ( canvas )
+  {
+    d_ = new ReosMapMarkerEmptySquare_p( canvas ); //the owner ship of d pointer is taken by the scene of the map canvas
+    static_cast<ReosMapMarker_p *>( d_ )->mapPoint = point;
+    static_cast<ReosMapMarker_p *>( d_ )->isEmpty = false;
+    d_->updatePosition();
+    d_->base = this;
+  }
+}
+
+ReosMapMarkerEmptySquare::~ReosMapMarkerEmptySquare()
+{
+  if ( isMapExist() && d_ )
+    delete d_; //deleting this will remove it from the map
+}
+
+ReosMapMarkerEmptyCircle::ReosMapMarkerEmptyCircle(): ReosMapMarker()
+{}
+
+ReosMapMarkerEmptyCircle::ReosMapMarkerEmptyCircle( ReosMap *map ): ReosMapMarker( map )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  if ( canvas )
+  {
+    d_ = new ReosMapMarkerEmptyCircle_p( canvas ); //the owner ship of d pointer is taken by the scene of the map canvas
+    d_->base = this;
+  }
+}
+
+ReosMapMarkerEmptyCircle::ReosMapMarkerEmptyCircle( ReosMap *map, const QPointF &point ): ReosMapMarker( map )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  if ( canvas )
+  {
+    d_ = new ReosMapMarkerEmptyCircle_p( canvas ); //the owner ship of d pointer is taken by the scene of the map canvas
+    static_cast<ReosMapMarker_p *>( d_ )->mapPoint = point;
+    static_cast<ReosMapMarker_p *>( d_ )->isEmpty = false;
+    d_->updatePosition();
+    d_->base = this;
+  }
+}
+
+ReosMapMarkerEmptyCircle::~ReosMapMarkerEmptyCircle()
+{
+  if ( isMapExist() && d_ )
+    delete d_; //deleting this will remove it from the map
 }

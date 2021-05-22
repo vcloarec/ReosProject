@@ -34,6 +34,8 @@ class ReosMeteorologicModel;
 class ReosPlotTimeSerieVariableStep;
 class ReosTransferFunction;
 class ReosSerieRainfall;
+class ReosHydraulicNetwork;
+class ReosHydrographSourceWatershed;
 
 namespace Ui
 {
@@ -135,7 +137,7 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
 {
     Q_OBJECT
   public:
-    explicit ReosRunoffHydrographWidget( ReosWatershedModule *watershedModule, QWidget *parent = nullptr );
+    explicit ReosRunoffHydrographWidget( ReosWatershedModule *watershedModule, ReosHydraulicNetwork *hydraulicNetwork, QWidget *parent = nullptr );
     ~ReosRunoffHydrographWidget();
 
     void setCurrentWatershed( ReosWatershed *watershed );
@@ -156,9 +158,13 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
     void rainfallRunoffTabContextMenu( const QPoint &pos );
     void onTransferFunctionFormulation();
 
+    void updateNetworkButton();
+    void onAddRemoveNetwork();
+
   private:
     Ui::ReosRunoffHydrographWidget *ui;
     ReosWatershedModule *mWatershedModule = nullptr;
+    ReosHydraulicNetwork *mHydraulicNetwork = nullptr;
     ReosWatershedRunoffModelsModel *mWatershedRunoffModelsModel = nullptr;
     ReosWatershed *mCurrentWatershed = nullptr;
     ReosMeteorologicModel *mCurrentMeteoModel = nullptr;
@@ -177,6 +183,8 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
 
     void buildRunoffChoiceMenu( QMenu *menu, int row );
     void syncTransferFunction( ReosTransferFunction *function );
+
+    ReosHydrographSourceWatershed *currentNetworkNode();
 };
 
 //**************************************************

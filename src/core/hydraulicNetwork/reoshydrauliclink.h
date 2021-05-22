@@ -20,11 +20,14 @@
 #include <QPointer>
 
 #include "reoshydraulicnode.h"
+#include "reoshydraulicnetwork.h"
 
-class ReosHydraulicLink : public QObject
+class ReosHydraulicLink : public ReosHydraulicNetworkElement
 {
   public:
-    ReosHydraulicLink( QObject *parent = nullptr );
+    ReosHydraulicLink( ReosHydraulicNetwork *parent = nullptr );
+
+    QString type() const override {return QStringLiteral( "link" );}
 
   protected:
     void attachOnSide1( ReosHydraulicNode *node );

@@ -69,7 +69,7 @@ void ReosHydrographTransferTest::initTestCase()
 void ReosHydrographTransferTest::test_junction()
 {
   ReosCalculationContext context;
-  ReosHydrographJunction junction;
+  ReosHydrographJunction junction{ QPointF()};
 
   ReosHydrograph *inputHydrograph_1 = mSource1.outputHydrograph( context );
   ReosHydrograph *inputHydrograph_2 = mSource2.outputHydrograph( context );
@@ -97,8 +97,6 @@ void ReosHydrographTransferTest::test_junction()
 
   junctionHydrograph = junction.outputHydrograph( context );
 
-
-
   QCOMPARE( junctionHydrograph->valueCount(), 8 );
 
   for ( int i = 0; i < inputHydrograph_1->valueCount(); ++i )
@@ -113,7 +111,7 @@ void ReosHydrographTransferTest::test_junction()
     QCOMPARE( junctionHydrograph->valueAtTime( time ), inputHydrograph_1->valueAtTime( time ) + inputHydrograph_2->valueAtTime( time ) );
   }
 
-  ReosHydrographJunction junction2;
+  ReosHydrographJunction junction2{ QPointF()};
 
   ReosHydrographTransferDirect transfer3;
   transfer3.setInputHydrographSource( &mSource3 );

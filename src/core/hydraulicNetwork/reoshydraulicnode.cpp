@@ -16,7 +16,7 @@
 #include "reoshydraulicnode.h"
 #include "reoshydrauliclink.h"
 
-ReosHydraulicNode::ReosHydraulicNode( QObject *parent ): QObject( parent )
+ReosHydraulicNode::ReosHydraulicNode( ReosHydraulicNetwork *parent ): ReosHydraulicNetworkElement( parent )
 {}
 
 ReosHydraulicNode::~ReosHydraulicNode() = default;
