@@ -409,7 +409,7 @@ ReosTimeSerieConstantInterval *ReosTimeSerieConstantInterval::decode( const Reos
 ReosTimeSerieConstantInterval::ReosTimeSerieConstantInterval( const ReosEncodedElement &element, QObject *parent ): ReosTimeSerie( parent )
 {
   decodeBase( element );
-  mTimeStep = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "time-step" ) ), false, this );
+  mTimeStep = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "time-step" ) ), false, tr( "Time step" ), this );
   connectParameters();
 }
 
@@ -616,7 +616,9 @@ bool ReosTimeSerie::decodeBase( const ReosEncodedElement &element )
 
   ReosParameterDateTime *newTimeref = ReosParameterDateTime::decode(
                                         element.getEncodedData( QStringLiteral( "reference-time" ) ),
-                                        false, this );
+                                        false,
+                                        tr( "Reference time" ),
+                                        this );
   if ( newTimeref )
   {
     mReferenceTime->deleteLater();

@@ -70,7 +70,7 @@
       <item>
        <widget class="QToolButton" name="toolButtonLoadRasterDem">
         <property name="text">
-         <string>...</string>
+         <string notr="true">...</string>
         </property>
         <property name="icon">
          <iconset resource="../../images/images.qrc">

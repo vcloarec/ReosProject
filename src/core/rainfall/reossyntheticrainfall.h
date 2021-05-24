@@ -75,11 +75,14 @@ class REOSCORE_EXPORT ReosUniqueIdfCurveSyntheticRainfall : public ReosSerieRain
     ReosUniqueIdfCurveSyntheticRainfall( const ReosEncodedElement &element, QObject *parent = nullptr );
     void connectParameters();
 
-    ReosParameterDuration *mTotalDuration;
-    ReosParameterDouble *mCenterCoefficient;
+    ReosParameterDuration *mTotalDuration = nullptr;
+    ReosParameterDouble *mCenterCoefficient = nullptr;
     QPointer<ReosIntensityDurationCurve> mIntensityDurationCurve;
 
     QString mIntensityDurationUid;
+
+  private:
+    void init();
 
 };
 

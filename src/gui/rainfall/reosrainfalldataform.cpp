@@ -146,7 +146,7 @@ ReosTimeSerieConstantIntervalWidget::ReosTimeSerieConstantIntervalWidget( ReosTi
   mIntensityUnitComboBox->setEnabled( timeSerie->valueMode() == ReosTimeSerieConstantInterval::Intensity );
 
   QHBoxLayout *layoutIntUnit = new QHBoxLayout( this );
-  layoutIntUnit->addWidget( new QLabel( tr( "Intenstity time unit" ), this ) );
+  layoutIntUnit->addWidget( new QLabel( tr( "Intensity time unit" ), this ) );
   layoutIntUnit->addWidget( mIntensityUnitComboBox );
   addItem( layoutIntUnit );
   QHBoxLayout *layoutMode = new QHBoxLayout( this );

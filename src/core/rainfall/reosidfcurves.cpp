@@ -105,10 +105,12 @@ ReosIntensityDurationInterval *ReosIntensityDurationInterval::decode( const Reos
     return nullptr;
 
   std::unique_ptr<ReosIntensityDurationInterval> ret = std::make_unique<ReosIntensityDurationInterval>( parent );
-  ret->mStartDuration = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "start-duration" ) ), false, ret.get() );
-  ret->mEndDuration = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "end-duration" ) ), false, ret.get() );
-  connect( ret->mStartDuration, &ReosParameter::valueChanged, ret.get(), &ReosIntensityDurationInterval::changed );
-  connect( ret->mEndDuration, &ReosParameter::valueChanged, ret.get(), &ReosIntensityDurationInterval::changed );
+  ret->mStartDuration = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "start-duration" ) ), false, tr( "start" ), ret.get() );
+  ret->mEndDuration = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "end-duration" ) ), false,  tr( "end" ), ret.get() );
+  if ( ret->mStartDuration )
+    connect( ret->mStartDuration, &ReosParameter::valueChanged, ret.get(), &ReosIntensityDurationInterval::changed );
+  if ( ret->mEndDuration )
+    connect( ret->mEndDuration, &ReosParameter::valueChanged, ret.get(), &ReosIntensityDurationInterval::changed );
 
   QList<ReosEncodedElement> encodedParameters = element.getListEncodedData( QStringLiteral( "parameters" ) );
 
@@ -566,7 +568,7 @@ ReosIntensityDurationCurve *ReosIntensityDurationCurve::decode( const ReosEncode
   if ( ret->mReturnPeriod )
     ret->mReturnPeriod->deleteLater();
 
-  ret->mReturnPeriod = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "return-period" ) ), false, ret.get() );
+  ret->mReturnPeriod = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "return-period" ) ), false, tr( "Return period" ), ret.get() );
   connect( ret->mReturnPeriod, &ReosParameter::valueChanged, ret.get(), &ReosDataObject::dataChanged );
 
   for ( const ReosEncodedElement &elem : std::as_const( encodedIntervals ) )
@@ -680,10 +682,23 @@ void ReosIdfParameters::decode( const ReosEncodedElement &element, ReosIntensity
   ReosIdfParameters *ret = new ReosIdfParameters( interval, formulaName, QStringList(), timeUnitParam, timeUnitResult );
 
   QList<ReosEncodedElement> encodedParameters = element.getListEncodedData( QStringLiteral( "parameters" ) );
-  for ( const ReosEncodedElement &elem : std::as_const( encodedParameters ) )
+  QList<QString> parametersName = ReosIdfFormulaRegistery::instance()->formula( formulaName )->parametersNames();
+
+  bool overrideName = encodedParameters.count() == parametersName.count();
+
+  for ( int i = 0; i < encodedParameters.count(); ++i )
   {
-    ret->mParameters.append( ReosParameterDouble::decode( elem, false, ret ) );
-    connect( ret->mParameters.last(), &ReosParameter::valueChanged, ret, &ReosIdfParameters::changed );
+    ReosParameterDouble *param = nullptr;
+    if ( overrideName )
+      param = ReosParameterDouble::decode( encodedParameters.at( i ), false, parametersName.at( i ), ret );
+    else
+      param = ReosParameterDouble::decode( encodedParameters.at( i ), false, ret );
+
+    if ( param )
+    {
+      ret->mParameters.append( param );
+      connect( param, &ReosParameter::valueChanged, ret, &ReosIdfParameters::changed );
+    }
   }
 }
 

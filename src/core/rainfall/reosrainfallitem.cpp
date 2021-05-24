@@ -255,8 +255,8 @@ ReosRainfallItem::ReosRainfallItem( const QString &name, const QString &descript
 }
 
 ReosRainfallItem::ReosRainfallItem( const ReosEncodedElement &element, ReosRainfallItem::Type type ):
-  mName( ReosParameterString::decode( element.getEncodedData( QStringLiteral( "name" ) ), false, this ) )
-  , mDescription( ReosParameterLongString::decode( element.getEncodedData( QStringLiteral( "description" ) ), false, this ) )
+  mName( ReosParameterString::decode( element.getEncodedData( QStringLiteral( "name" ) ), false, QObject::tr( "Name" ), this ) )
+  , mDescription( ReosParameterLongString::decode( element.getEncodedData( QStringLiteral( "description" ) ), false, QObject::tr( "Description" ), this ) )
   , mType( type )
 {
 

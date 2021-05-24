@@ -643,32 +643,46 @@ ReosWatershed *ReosWatershed::decode( const ReosEncodedElement &element )
   }
 
   if ( ws->mArea )
+  {
     ws->mArea->deleteLater();
-  ws->mArea = ReosParameterArea::decode( element.getEncodedData( QStringLiteral( "area-parameter" ) ), true, ws.get() );
+    ws->mArea = ReosParameterArea::decode( element.getEncodedData( QStringLiteral( "area-parameter" ) ), true, ws->mArea->name(), ws.get() );
+  }
 
   if ( ws->mSlope )
+  {
     ws->mSlope->deleteLater();
-  ws->mSlope = ReosParameterSlope::decode( element.getEncodedData( QStringLiteral( "slope-parameter" ) ), true, ws.get() );
+    ws->mSlope = ReosParameterSlope::decode( element.getEncodedData( QStringLiteral( "slope-parameter" ) ), true, ws->slope()->name(), ws.get() );
+  }
 
   if ( ws->mLongestStreamPath )
+  {
     ws->mLongestStreamPath->deleteLater();
-  ws->mLongestStreamPath = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "longer-stream-length-parameter" ) ), true, ws.get() );
+    ws->mLongestStreamPath = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "longer-stream-length-parameter" ) ), true, ws->mLongestStreamPath->name(), ws.get() );
+  }
 
   if ( ws->mDrop )
+  {
     ws->mDrop->deleteLater();
-  ws->mDrop = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "drop-parameter" ) ), true, ws.get() );
+    ws->mDrop = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "drop-parameter" ) ), true, ws->mDrop->name(), ws.get() );
+  }
 
   if ( ws->mAverageElevation )
+  {
     ws->mAverageElevation->deleteLater();
-  ws->mAverageElevation = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "average-elevation" ) ), true, ws.get() );
+    ws->mAverageElevation = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "average-elevation" ) ), true, ws->mAverageElevation->name(), ws.get() );
+  }
 
   if ( ws->mName )
+  {
     ws->mName->deleteLater();
-  ws->mName = ReosParameterString::decode( element.getEncodedData( QStringLiteral( "name" ) ), false, ws.get() );
+    ws->mName = ReosParameterString::decode( element.getEncodedData( QStringLiteral( "name" ) ), false, ws->mName->name(), ws.get() );
+  }
 
   if ( ws->mConcentrationTimeValue )
+  {
     ws->mConcentrationTimeValue->deleteLater();
-  ws->mConcentrationTimeValue = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "concentration-time-value" ) ), true, ws.get() );
+    ws->mConcentrationTimeValue = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "concentration-time-value" ) ), true, ws->mConcentrationTimeValue->name(), ws.get() );
+  }
 
   ws->mConcentrationTimeCalculation = ReosConcentrationTimeCalculation::decode( element.getEncodedData( QStringLiteral( "concentration-time-calculation" ) ) );
 

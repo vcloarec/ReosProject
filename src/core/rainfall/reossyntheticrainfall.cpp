@@ -25,7 +25,16 @@ ReosChicagoRainfall::ReosChicagoRainfall( QObject *parent ): ReosUniqueIdfCurveS
 ReosUniqueIdfCurveSyntheticRainfall::ReosUniqueIdfCurveSyntheticRainfall( QObject *parent ): ReosSerieRainfall( parent )
   , mTotalDuration( new ReosParameterDuration( tr( "Total Duration" ), false, this ) )
   , mCenterCoefficient( new ReosParameterDouble( tr( "Eccentricity" ), false, this ) )
-{}
+{
+
+}
+
+ReosUniqueIdfCurveSyntheticRainfall::ReosUniqueIdfCurveSyntheticRainfall( const ReosEncodedElement &element, QObject *parent ): ReosSerieRainfall( element, parent )
+{
+  mTotalDuration = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "total-duration" ) ), false, tr( "Total Duration" ), this );
+  mCenterCoefficient = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "eccentry-coefficient" ) ), false, tr( "Eccentricity" ), this );
+}
+
 
 ReosParameterDuration *ReosUniqueIdfCurveSyntheticRainfall::totalDuration()
 {
@@ -143,12 +152,6 @@ void ReosChicagoRainfall::updateRainfall()
   }
 
   emit dataChanged();
-}
-
-ReosUniqueIdfCurveSyntheticRainfall::ReosUniqueIdfCurveSyntheticRainfall( const ReosEncodedElement &element, QObject *parent ): ReosSerieRainfall( element, parent )
-{
-  mTotalDuration = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "total-duration" ) ), false, this );
-  mCenterCoefficient = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "eccentry-coefficient" ) ), false, this );
 }
 
 ReosChicagoRainfall::ReosChicagoRainfall( const ReosEncodedElement &element, QObject *parent ): ReosUniqueIdfCurveSyntheticRainfall( element, parent )
@@ -340,9 +343,9 @@ ReosEncodedElement ReosDoubleTriangleRainfall::encode() const
 ReosDoubleTriangleRainfall::ReosDoubleTriangleRainfall( const ReosEncodedElement &element, QObject *parent ):
   ReosSerieRainfall( element, parent )
 {
-  mTotalDuration = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "total-duration" ) ), false, this );
-  mIntenseDuration = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "intense-duration" ) ), false, this );
-  mCenterCoefficient = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "eccentry-coefficient" ) ), false, this );
+  mTotalDuration = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "total-duration" ) ), false, tr( "Total Duration" ), this );
+  mIntenseDuration = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "intense-duration" ) ), false, tr( "Intense Duration" ), this );
+  mCenterCoefficient = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "eccentry-coefficient" ) ), false, tr( "Eccentricity" ), this );
   connectParameters();
 }
 

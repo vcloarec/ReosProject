@@ -33,7 +33,7 @@ ReosRunoffModel::ReosRunoffModel( const QString &name, QObject *parent ):
 ReosRunoffModel::ReosRunoffModel( const ReosEncodedElement &element, QObject *parent ):
   ReosDataObject( parent )
 {
-  mName = ReosParameterString::decode( element.getEncodedData( QStringLiteral( "name" ) ), false, this );
+  mName = ReosParameterString::decode( element.getEncodedData( QStringLiteral( "name" ) ), false,  QObject::tr( "Name" ), this );
   element.getData( QStringLiteral( "unique-id" ), mUniqueId );
   if ( mUniqueId.isEmpty() )
     mUniqueId = QUuid::createUuid().toString();
@@ -139,7 +139,7 @@ ReosRunoffConstantCoefficientModel::ReosRunoffConstantCoefficientModel( const QS
 ReosRunoffConstantCoefficientModel::ReosRunoffConstantCoefficientModel( const ReosEncodedElement &element, QObject *parent ):
   ReosRunoffModel( element, parent )
 {
-  mCoefficient = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "coefficient" ) ), false, this );
+  mCoefficient = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "coefficient" ) ), false, QObject::tr( "Coefficient" ), this );
   connectParameters();
 }
 
@@ -869,7 +869,7 @@ void ReosRunoffModelsGroup::decode( const ReosEncodedElement &element )
       ReosRunoffModel *ro = registery->runoffModelByUniqueId( roId );
       int l = 0;
       elem.getData( QStringLiteral( "locked" ), l );
-      ReosParameterDouble *paramPortion = ReosParameterDouble::decode( elem.getEncodedData( "watershed-portion" ), false, this );
+      ReosParameterDouble *paramPortion = ReosParameterDouble::decode( elem.getEncodedData( "watershed-portion" ), false, tr( "Portion" ), this );
       mRunoffModels.append( {QPointer<ReosRunoffModel>( ro ), paramPortion, l == 1} );
       connectModel( mRunoffModels.count() - 1 );
     }
@@ -1127,11 +1127,11 @@ ReosRunoffGreenAmptModel *ReosRunoffGreenAmptModel::create( const ReosEncodedEle
 ReosRunoffGreenAmptModel::ReosRunoffGreenAmptModel( const ReosEncodedElement &element, QObject *parent ):
   ReosRunoffModel( element, parent )
 {
-  mInitialRetentionParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "initial-retention" ) ), false, this );
-  mSaturatedPermeabilityParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "saturated-permeability" ) ), false, this );
-  mSoilPorosityParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "soil-porosity" ) ), false, this );
-  mInitialWaterContentParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "initial-water-content" ) ), false, this );
-  mWettingFrontSuctionParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "wetting-front-succion" ) ), false, this );
+  mInitialRetentionParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "initial-retention" ) ), false, tr( "Initial retention (mm)" ), this );
+  mSaturatedPermeabilityParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "saturated-permeability" ) ), false, tr( "Saturated permeability (mm/h)" ), this );
+  mSoilPorosityParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "soil-porosity" ) ), false, tr( "Soil porosity (vol/vol)" ), this );
+  mInitialWaterContentParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "initial-water-content" ) ), false, tr( "Initial water content (vol/vol)" ), this );
+  mWettingFrontSuctionParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "wetting-front-succion" ) ), false, tr( "Wetting front suction (mm)" ), this );
   connectParameters();
 }
 
@@ -1238,8 +1238,8 @@ ReosParameterDouble *ReosRunoffCurveNumberModel::initialRetention() const
 ReosRunoffCurveNumberModel::ReosRunoffCurveNumberModel( const ReosEncodedElement &element, QObject *parent ):
   ReosRunoffModel( element, parent )
 {
-  mCurveNumberParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "curve-number" ) ), false, this );
-  mInitialRetentionParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "initial-retention" ) ), false, this );
-  mInitialRetentionFromS = ReosParameterBoolean::decode( element.getEncodedData( QStringLiteral( "calculate-initial-retention" ) ), false, this );
+  mCurveNumberParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "curve-number" ) ), false, tr( "Curve number" ), this );
+  mInitialRetentionParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "initial-retention" ) ), false, tr( "Initial retention (mm)" ), this );
+  mInitialRetentionFromS = ReosParameterBoolean::decode( element.getEncodedData( QStringLiteral( "calculate-initial-retention" ) ), false, tr( "Initial retention : 0.2 x S" ), this );
   connectParameters();
 }

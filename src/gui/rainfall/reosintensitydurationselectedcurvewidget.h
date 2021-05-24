@@ -35,7 +35,6 @@ namespace Ui
 class ReosIntensityDurationSelectedCurveWidget : public QWidget
 {
     Q_OBJECT
-
   public:
     explicit ReosIntensityDurationSelectedCurveWidget( QWidget *parent = nullptr );
     ~ReosIntensityDurationSelectedCurveWidget();

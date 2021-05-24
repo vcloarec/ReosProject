@@ -32,6 +32,7 @@ class REOSCORE_EXPORT ReosParameter : public QObject
     explicit ReosParameter( const QString &name, QObject *parent = nullptr );
     virtual ~ReosParameter() = default;
     QString name() const;
+    void setName( const QString &name );
 
     virtual QString type() const {return QString();}
     virtual QString toString( int precision = 2 ) const = 0;
@@ -80,6 +81,7 @@ class REOSCORE_EXPORT ReosParameterDouble: public ReosParameter
 
     ReosEncodedElement encode() const;
     static ReosParameterDouble *decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent );
+    static ReosParameterDouble *decode( const ReosEncodedElement &element, bool isDerivable, const QString &name, QObject *parent );
 
   private:
     double mValue = 0;
@@ -99,6 +101,7 @@ class REOSCORE_EXPORT ReosParameterString: public ReosParameter
 
     ReosEncodedElement encode() const;
     static ReosParameterString *decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent );
+    static ReosParameterString *decode( const ReosEncodedElement &element, bool isDerivable, const QString &name, QObject *parent );
 
   protected:
     QString mValue;
@@ -114,6 +117,7 @@ class REOSCORE_EXPORT ReosParameterLongString: public ReosParameterString
 
     ReosEncodedElement encode() const;
     static ReosParameterLongString *decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent );
+    static ReosParameterLongString *decode( const ReosEncodedElement &element, bool isDerivable, const QString &name, QObject *parent );
 
 };
 
@@ -133,6 +137,7 @@ class REOSCORE_EXPORT ReosParameterArea: public ReosParameter
 
     ReosEncodedElement encode() const;
     static ReosParameterArea *decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent );
+    static ReosParameterArea *decode( const ReosEncodedElement &element, bool isDerivable, const QString &name, QObject *parent );
 
   private:
     ReosArea mValue;
@@ -155,6 +160,7 @@ class REOSCORE_EXPORT ReosParameterSlope: public ReosParameter
 
     ReosEncodedElement encode() const;
     static ReosParameterSlope *decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent );
+    static ReosParameterSlope *decode( const ReosEncodedElement &element, bool isDerivable, const QString &name, QObject *parent );
 
   private:
     double mSlope = std::numeric_limits<double>::quiet_NaN();
@@ -176,6 +182,7 @@ class REOSCORE_EXPORT ReosParameterDuration: public ReosParameter
 
     ReosEncodedElement encode() const;
     static ReosParameterDuration *decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent );
+    static ReosParameterDuration *decode( const ReosEncodedElement &element, bool isDerivable, const QString &name, QObject *parent );
 
   private:
     ReosDuration mDuration;
@@ -197,6 +204,7 @@ class REOSCORE_EXPORT ReosParameterDateTime: public ReosParameter
 
     ReosEncodedElement encode() const;
     static ReosParameterDateTime *decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent );
+    static ReosParameterDateTime *decode( const ReosEncodedElement &element, bool isDerivable, const QString &name, QObject *parent );
 
   private:
     QDateTime mDateTime;
@@ -217,6 +225,7 @@ class REOSCORE_EXPORT ReosParameterBoolean : public ReosParameter
 
     ReosEncodedElement encode() const;
     static ReosParameterBoolean *decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent );
+    static ReosParameterBoolean *decode( const ReosEncodedElement &element, bool isDerivable, const QString &name, QObject *parent );
 
   private:
     bool mValue = 0;

@@ -67,8 +67,8 @@ ReosTransferFunction::ReosTransferFunction( const ReosEncodedElement &element, R
   }
   else
   {
-    mConcentrationTime = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "concentration-time" ) ), false, this );
-    mArea = ReosParameterArea::decode( element.getEncodedData( QStringLiteral( "area" ) ), false, this );
+    mConcentrationTime = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "concentration-time" ) ), false, tr( "Concentration time" ), this );
+    mArea = ReosParameterArea::decode( element.getEncodedData( QStringLiteral( "area" ) ), false, tr( "Area" ), this );
     connect( mConcentrationTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
     connect( mArea, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
   }
@@ -191,9 +191,9 @@ ReosParameterDuration *ReosTransferFunctionLinearReservoir::lagTime() const
 ReosTransferFunctionLinearReservoir::ReosTransferFunctionLinearReservoir( const ReosEncodedElement &element, ReosWatershed *watershed ):
   ReosTransferFunction( element, watershed )
 {
-  mLagTime = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "lag-time" ) ), false, this );
-  mUseConcentrationTime = ReosParameterBoolean::decode( element.getEncodedData( QStringLiteral( "use-concentration-time" ) ), false, this );
-  mFactorToLagTime = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "factor-to-lag-time" ) ), false, this );
+  mLagTime = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "lag-time" ) ), false, tr( "Lag time" ), this );
+  mUseConcentrationTime = ReosParameterBoolean::decode( element.getEncodedData( QStringLiteral( "use-concentration-time" ) ), false, tr( "Use concentration time" ), this );
+  mFactorToLagTime = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "factor-to-lag-time" ) ), false, tr( "Factor" ), this );
 
   connect( mLagTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
   connect( mUseConcentrationTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
@@ -630,10 +630,10 @@ ReosTransferFunctionCalculation *ReosTransferFunctionSCSUnitHydrograph::calculat
 ReosTransferFunctionSCSUnitHydrograph::ReosTransferFunctionSCSUnitHydrograph( const ReosEncodedElement &element, ReosWatershed *watershed ):
   ReosTransferFunction( element, watershed )
 {
-  mPeakRateFactor = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "peak-factor" ) ), false, this );
-  mLagTime = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "lag-time" ) ), false, this );
-  mUseConcentrationTime = ReosParameterBoolean::decode( element.getEncodedData( QStringLiteral( "use-concentration-time" ) ), false, this );
-  mFactorToLagTime = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "factor-to-lag-time" ) ), false, this );
+  mPeakRateFactor = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "peak-factor" ) ), false, tr( "Peak Factor" ), this );
+  mLagTime = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "lag-time" ) ), false, tr( "Lag time" ), this );
+  mUseConcentrationTime = ReosParameterBoolean::decode( element.getEncodedData( QStringLiteral( "use-concentration-time" ) ), false, tr( "Use concentration time for the lag time" ), this );
+  mFactorToLagTime = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "factor-to-lag-time" ) ), false, tr( "Factor" ), this );
 
   connect( mPeakRateFactor, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
   connect( mLagTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );

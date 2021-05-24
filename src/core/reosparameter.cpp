@@ -37,6 +37,11 @@ QString ReosParameter::name() const
   return mName;
 }
 
+void ReosParameter::setName( const QString &name )
+{
+  mName = name;
+}
+
 bool ReosParameter::isDerivable() const
 {
   return mIsDerivable;
@@ -143,6 +148,13 @@ ReosParameterArea *ReosParameterArea::decode( const ReosEncodedElement &element,
   return ret;
 }
 
+ReosParameterArea *ReosParameterArea::decode( const ReosEncodedElement &element, bool isDerivable, const QString &name, QObject *parent )
+{
+  ReosParameterArea *ret = decode( element, isDerivable, parent );
+  ret->setName( name );
+  return ret;
+}
+
 void ReosParameter::setDerivable( bool b )
 {
   mIsDerivable = b;
@@ -210,6 +222,13 @@ ReosParameterSlope *ReosParameterSlope::decode( const ReosEncodedElement &elemen
   return ret;
 }
 
+ReosParameterSlope *ReosParameterSlope::decode( const ReosEncodedElement &element, bool isDerivable, const QString &name, QObject *parent )
+{
+  ReosParameterSlope *ret = decode( element, isDerivable, parent );
+  ret->setName( name );
+  return ret;
+}
+
 ReosParameterString::ReosParameterString( const QString &name, bool derivable, QObject *parent ):
   ReosParameter( name, derivable, parent )
 {
@@ -260,6 +279,13 @@ ReosParameterString *ReosParameterString::decode( const ReosEncodedElement &elem
 
   element.getData( QStringLiteral( "string-value" ), ret->mValue );
 
+  return ret;
+}
+
+ReosParameterString *ReosParameterString::decode( const ReosEncodedElement &element, bool isDerivable, const QString &name, QObject *parent )
+{
+  ReosParameterString *ret = decode( element, isDerivable, parent );
+  ret->setName( name );
   return ret;
 }
 
@@ -329,6 +355,14 @@ ReosParameterDuration *ReosParameterDuration::decode( const ReosEncodedElement &
   return ret;
 }
 
+ReosParameterDuration *ReosParameterDuration::decode( const ReosEncodedElement &element, bool isDerivable, const QString &name, QObject *parent )
+{
+  ReosParameterDuration *ret = decode( element, isDerivable, parent );
+  ret->setName( name );
+
+  return ret;
+}
+
 ReosParameterDateTime::ReosParameterDateTime( const QString &name, QObject *parent ):
   ReosParameter( name, parent )
 {
@@ -383,6 +417,14 @@ ReosParameterDateTime *ReosParameterDateTime::decode( const ReosEncodedElement &
 
   if ( !element.getData( QStringLiteral( "date-time-value" ), ret->mDateTime ) )
     ret->mDateTime = QDateTime();
+
+  return ret;
+}
+
+ReosParameterDateTime *ReosParameterDateTime::decode( const ReosEncodedElement &element, bool isDerivable, const QString &name, QObject *parent )
+{
+  ReosParameterDateTime *ret = decode( element, isDerivable, parent );
+  ret->setName( name );
 
   return ret;
 }
@@ -481,6 +523,13 @@ ReosParameterDouble *ReosParameterDouble::decode( const ReosEncodedElement &elem
   return ret;
 }
 
+ReosParameterDouble *ReosParameterDouble::decode( const ReosEncodedElement &element, bool isDerivable, const QString &name, QObject *parent )
+{
+  ReosParameterDouble *ret = decode( element, isDerivable, parent );
+  ret->setName( name );
+  return ret;
+}
+
 bool ReosParameter::isValid() const
 {
   return mIsValid;
@@ -547,6 +596,13 @@ ReosParameterBoolean *ReosParameterBoolean::decode( const ReosEncodedElement &el
   return ret;
 }
 
+ReosParameterBoolean *ReosParameterBoolean::decode( const ReosEncodedElement &element, bool isDerivable, const QString &name, QObject *parent )
+{
+  ReosParameterBoolean *ret = decode( element, isDerivable, parent );
+  ret->setName( name );
+  return ret;
+}
+
 ReosParameterLongString::ReosParameterLongString( const QString &name, bool derivable, QObject *parent ):
   ReosParameterString( name, derivable, parent )
 {}
@@ -576,6 +632,14 @@ ReosParameterLongString *ReosParameterLongString::decode( const ReosEncodedEleme
   ret->ReosParameter::decode( element, isDerivable );
 
   element.getData( QStringLiteral( "string-value" ), ret->mValue );
+
+  return ret;
+}
+
+ReosParameterLongString *ReosParameterLongString::decode( const ReosEncodedElement &element, bool isDerivable, const QString &name, QObject *parent )
+{
+  ReosParameterLongString *ret = decode( element, isDerivable, parent );
+  ret->setName( name );
 
   return ret;
 }

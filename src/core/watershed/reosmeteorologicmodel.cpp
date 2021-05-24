@@ -28,7 +28,7 @@ ReosMeteorologicModel::ReosMeteorologicModel( const ReosEncodedElement &element,
     ReosWatershedTree *watershedTree,
     ReosRainfallRegistery *rainfallregistery, QObject *parent ):
   ReosDataObject( parent )
-  , mName( ReosParameterString::decode( element.getEncodedData( QStringLiteral( "name" ) ), false, nullptr ) )
+  , mName( ReosParameterString::decode( element.getEncodedData( QStringLiteral( "name" ) ), false, QObject::tr( "Meteorologic model name" ), nullptr ) )
 {
   if ( element.description() != QStringLiteral( "meteorologic-configuration" ) )
     return;
