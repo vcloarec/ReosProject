@@ -16,15 +16,23 @@
 #include "reoshydrographtransfer.h"
 #include "reoshydrograph.h"
 
-ReosHydrographTransfer::ReosHydrographTransfer( ReosHydraulicNetwork *parent ): ReosHydraulicLink( parent )
+ReosHydrographRouting::ReosHydrographRouting( ReosHydraulicNetwork *parent ):
+  ReosHydraulicLink( parent )
 {}
 
-void ReosHydrographTransfer::setInputHydrographSource( ReosHydrographSource *hydrographSource )
+ReosHydrographRouting::ReosHydrographRouting( ReosHydrographSource *hydrographSource, ReosHydrographNode *destination, ReosHydraulicNetwork *parent ):
+  ReosHydraulicLink( parent )
+{
+  attachOnSide1( hydrographSource );
+  attachOnSide2( destination );
+}
+
+void ReosHydrographRouting::setInputHydrographSource( ReosHydrographSource *hydrographSource )
 {
   attachOnSide1( hydrographSource );
 }
 
-ReosHydrographSource *ReosHydrographTransfer::inputHydrographSource() const
+ReosHydrographSource *ReosHydrographRouting::inputHydrographSource() const
 {
   if ( mNode_1.isNull() )
     return nullptr;
@@ -32,54 +40,8 @@ ReosHydrographSource *ReosHydrographTransfer::inputHydrographSource() const
     return qobject_cast<ReosHydrographSource *>( mNode_1 );
 }
 
-void ReosHydrographTransfer::setHydrographDestination( ReosHydrographNode *destination )
+void ReosHydrographRouting::setHydrographDestination( ReosHydrographNode *destination )
 {
   attachOnSide2( destination );
 }
 
-ReosHydrographJunction::ReosHydrographJunction( const QPointF &position, ReosHydraulicNetwork *parent ):
-  ReosHydrographSource( parent )
-  , mHydrograph( new ReosHydrograph( this ) ),
-  mPosition( position )
-{}
-
-ReosHydrograph *ReosHydrographJunction::outputHydrograph( const ReosCalculationContext &context )
-{
-  mHydrograph->clear();
-  bool first = true;
-
-  for ( const QPointer<ReosHydraulicLink> &link : mLinksBySide2 )
-  {
-    ReosHydrographTransfer *transfer = qobject_cast<ReosHydrographTransfer *>( link );
-    if ( transfer )
-    {
-      ReosHydrograph *transferhydrograph = transfer->outputHydrograph( context );
-      if ( first && transferhydrograph )
-      {
-        mHydrograph->referenceTime()->setValue( transferhydrograph->referenceTime()->value() );
-        first = false;
-      }
-
-      if ( transferhydrograph )
-        mHydrograph->addOther( *transferhydrograph );
-    }
-  }
-
-  return mHydrograph;
-}
-
-QPointF ReosHydrographJunction::position() const
-{
-  return mPosition;
-}
-
-ReosHydrographTransferDirect::ReosHydrographTransferDirect( ReosHydraulicNetwork *parent ): ReosHydrographTransfer( parent ) {}
-
-ReosHydrograph *ReosHydrographTransferDirect::outputHydrograph( const ReosCalculationContext &context )
-{
-  ReosHydrographSource *upstreamSource = inputHydrographSource();
-  if ( upstreamSource )
-    return upstreamSource->outputHydrograph( context );
-  else
-    return nullptr;
-}

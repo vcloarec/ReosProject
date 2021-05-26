@@ -14,24 +14,30 @@
  *                                                                         *
  ***************************************************************************/
 #include "reoshydraulicnetwork.h"
+#include "reoshydraulicnode.h"
+#include "reoshydrauliclink.h"
+#include <QUuid>
 
 ReosHydraulicNetworkElement::ReosHydraulicNetworkElement( ReosHydraulicNetwork *parent ):
   QObject( parent )
   , mNetWork( parent )
 {
-
+  mUid = QUuid::createUuid().toString();
 }
 
 ReosHydraulicNetworkElement::~ReosHydraulicNetworkElement()
 {
-  if ( !mNetWork.isNull() )
-    mNetWork->mElements.removeOne( this );
+}
+
+QString ReosHydraulicNetworkElement::id() const
+{
+  return type() + QString( ':' ) + mUid;
 }
 
 void ReosHydraulicNetworkElement::destroy()
 {
   if ( !mNetWork.isNull() )
-    mNetWork->mElements.removeOne( this );
+    mNetWork->mElements.remove( id() );
   deleteLater();
 }
 
@@ -52,13 +58,31 @@ QList<ReosHydraulicNetworkElement *> ReosHydraulicNetwork::getElements( const QS
   return elems;
 }
 
+ReosHydraulicNetworkElement *ReosHydraulicNetwork::getElement( const QString &elemId ) const
+{
+  if ( mElements.contains( elemId ) )
+    return mElements.value( elemId );
+  else
+    return nullptr;
+}
+
 void ReosHydraulicNetwork::addElement( ReosHydraulicNetworkElement *elem )
 {
-  mElements.append( elem );
+  mElements.insert( elem->id(), elem );
   emit elementAdded( elem );
+}
+
+void ReosHydraulicNetwork::removeElement( ReosHydraulicNetworkElement *elem )
+{
+  emit elementRemoved( elem );
+  ReosHydraulicNode *node = qobject_cast<ReosHydraulicNode *>( elem );
+  if ( node )
+    for ( ReosHydraulicLink *link : node->links() )
+      removeElement( link );
+  elem->destroy();
 }
 
 void ReosHydraulicNetwork::elemPositionChangedPrivate( ReosHydraulicNetworkElement *elem )
 {
-  emit elementPostionHasChanged( elem );
+  emit elementPositionHasChanged( elem );
 }

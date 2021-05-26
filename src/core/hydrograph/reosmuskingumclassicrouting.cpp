@@ -17,7 +17,7 @@
 #include "reoshydrograph.h"
 
 ReosMuskingumClassicRouting::ReosMuskingumClassicRouting( ReosHydraulicNetwork *parent ) :
-  ReosHydrographTransfer( parent )
+  ReosHydrographRouting( parent )
   , mKParameter( new ReosParameterDuration( tr( "K" ), false, this ) )
   , mXParameter( new ReosParameterDouble( tr( "x" ), false, this ) )
 {}

@@ -17,6 +17,7 @@
 #define REOSHYDRAULICNETWORK_H
 
 #include <QPointer>
+#include <QHash>
 
 #include "reosmodule.h"
 
@@ -30,14 +31,20 @@ class ReosHydraulicNetworkElement : public QObject
   public:
     ReosHydraulicNetworkElement( ReosHydraulicNetwork *parent = nullptr );
     virtual ~ReosHydraulicNetworkElement();
-    virtual QString type() const = 0;
+
+    QString id() const;
+
+    virtual QString type() const {return hydraulicElementType();}
+    static QString hydraulicElementType() {return QStringLiteral( "hydraulicNetwork" );}
 
     //! Destroy the element (the instance will be deleted later).
     virtual void destroy();
 
     void positionChanged();
+
   private:
     QPointer<ReosHydraulicNetwork> mNetWork = nullptr;
+    QString mUid;
 
 };
 
@@ -47,15 +54,18 @@ class ReosHydraulicNetwork : public ReosModule
   public:
     ReosHydraulicNetwork( ReosModule *parent ): ReosModule( parent ) {}
     QList<ReosHydraulicNetworkElement *> getElements( const QString &type ) const;
+    ReosHydraulicNetworkElement *getElement( const QString &elemId ) const;
 
     void addElement( ReosHydraulicNetworkElement *elem );
+    void removeElement( ReosHydraulicNetworkElement *elem );
 
   signals:
     void elementAdded( ReosHydraulicNetworkElement *elem );
-    void elementPostionHasChanged( ReosHydraulicNetworkElement *elem );
+    void elementRemoved( ReosHydraulicNetworkElement *elem );
+    void elementPositionHasChanged( ReosHydraulicNetworkElement *elem );
 
   private:
-    QList<ReosHydraulicNetworkElement *> mElements;
+    QHash<QString, ReosHydraulicNetworkElement *> mElements;
     void elemPositionChangedPrivate( ReosHydraulicNetworkElement *elem );
 
 

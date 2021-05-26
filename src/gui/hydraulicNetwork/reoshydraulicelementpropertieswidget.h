@@ -1,8 +1,8 @@
 /***************************************************************************
-  reoshydraulicnode.cpp - ReosHydraulicNode
+  reoshydraulicelementpropertieswidget.h - ReosHydraulicElementPropertiesWidget
 
  ---------------------
- begin                : 19.5.2021
+ begin                : 25.5.2021
  copyright            : (C) 2021 by Vincent Cloarec
  email                : vcloarec at gmail dot com
  ***************************************************************************
@@ -13,27 +13,34 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include "reoshydraulicnode.h"
-#include "reoshydrauliclink.h"
+#ifndef REOSHYDRAULICELEMENTPROPERTIESWIDGET_H
+#define REOSHYDRAULICELEMENTPROPERTIESWIDGET_H
 
-ReosHydraulicNode::ReosHydraulicNode( ReosHydraulicNetwork *parent ): ReosHydraulicNetworkElement( parent )
-{}
+#include <QWidget>
 
-QList<ReosHydraulicLink *> ReosHydraulicNode::links() const
+#include "reosactionwidget.h"
+
+class ReosHydraulicNetworkElement;
+
+namespace Ui
 {
-  QList<ReosHydraulicLink *> ret;
-
-  for ( const QPointer<ReosHydraulicLink> &l : mLinksBySide1 )
-    if ( !l.isNull() )
-      ret.append( l );
-
-  for ( const QPointer<ReosHydraulicLink> &l : mLinksBySide2 )
-    if ( !l.isNull() )
-      ret.append( l );
-
-  return ret;
-
+  class ReosHydraulicElementPropertiesWidget;
 }
 
-ReosHydraulicNode::~ReosHydraulicNode() = default;
+class ReosHydraulicElementPropertiesWidget : public ReosActionWidget
+{
+    Q_OBJECT
 
+  public:
+    explicit ReosHydraulicElementPropertiesWidget( QWidget *parent = nullptr );
+    ~ReosHydraulicElementPropertiesWidget();
+
+  public slots:
+    void setCurrentElement( ReosHydraulicNetworkElement *element );
+
+  private:
+    Ui::ReosHydraulicElementPropertiesWidget *ui;
+    ReosHydraulicNetworkElement *mCurrentElement;
+};
+
+#endif // REOSHYDRAULICELEMENTPROPERTIESWIDGET_H

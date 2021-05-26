@@ -60,6 +60,7 @@ class ReosMapTool_p: public QgsMapTool
 
     QRectF viewSearchZone( const QPoint &pt );
     ReosMapItem_p *searchItem( const QPointF &p ) const;
+    ReosMapItem_p *mFoundItem = nullptr;
 
   private:
     std::unique_ptr<ReosMenuPopulator> mContextMenuPopulator;
@@ -202,6 +203,26 @@ class ReosMapToolMoveItem_p: public ReosMapTool_p
     QColor mMovingColor;
 
     bool isItemUnderPoint( const QPoint &p );
+};
+
+
+class ReosMapToolDrawHydraulicNetworkLink_p: public ReosMapTool_p
+{
+    Q_OBJECT
+  public:
+    ReosMapToolDrawHydraulicNetworkLink_p( QgsMapCanvas *mapCanvas );
+
+    void appendItem( ReosMapItem_p *item );
+
+    QList<ReosMapItem_p *> mLinkedItems;
+    QgsRubberBand *mRubberBand = nullptr;
+
+  signals:
+    void itemSelected( ReosMapItem_p *item );
+
+  protected:
+    void canvasMoveEvent( QgsMapMouseEvent *e ) override;
+    void canvasReleaseEvent( QgsMapMouseEvent * ) override;
 
 };
 

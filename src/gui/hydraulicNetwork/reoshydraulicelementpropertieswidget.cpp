@@ -1,8 +1,8 @@
 /***************************************************************************
-  reoshydraulicnode.h - ReosHydraulicNode
+  reoshydraulicelementpropertieswidget.cpp - ReosHydraulicElementPropertiesWidget
 
  ---------------------
- begin                : 19.5.2021
+ begin                : 25.5.2021
  copyright            : (C) 2021 by Vincent Cloarec
  email                : vcloarec at gmail dot com
  ***************************************************************************
@@ -13,36 +13,29 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#ifndef REOSHYDRAULICNODE_H
-#define REOSHYDRAULICNODE_H
-
-#include <QObject>
-#include <QPointer>
+#include "reoshydraulicelementpropertieswidget.h"
+#include "ui_reoshydraulicelementpropertieswidget.h"
 
 #include "reoshydraulicnetwork.h"
 
-class ReosHydraulicLink;
-
-class ReosHydraulicNode : public ReosHydraulicNetworkElement
+ReosHydraulicElementPropertiesWidget::ReosHydraulicElementPropertiesWidget( QWidget *parent ) :
+  ReosActionWidget( parent ),
+  ui( new Ui::ReosHydraulicElementPropertiesWidget )
 {
-    Q_OBJECT
-  public:
-    ReosHydraulicNode( ReosHydraulicNetwork *parent );
-    ~ReosHydraulicNode();
+  ui->setupUi( this );
+  setWindowFlag( Qt::Dialog );
+}
 
-    QString type() const override {return hydraulicNodeType();}
-    static QString hydraulicNodeType() {return hydraulicElementType() + QString( ':' ) + QStringLiteral( "node" );}
+ReosHydraulicElementPropertiesWidget::~ReosHydraulicElementPropertiesWidget()
+{
+  delete ui;
+}
 
-    QList<ReosHydraulicLink *> links() const;
-
-    virtual QPointF position() const = 0;
-
-  protected:
-    QList<QPointer<ReosHydraulicLink>> mLinksBySide1;
-    QList<QPointer<ReosHydraulicLink>> mLinksBySide2;
-
-    friend class ReosHydraulicLink;
-
-};
-
-#endif // REOSHYDRAULICNODE_H
+void ReosHydraulicElementPropertiesWidget::setCurrentElement( ReosHydraulicNetworkElement *element )
+{
+  mCurrentElement = element;
+  if ( mCurrentElement )
+    setWindowTitle( mCurrentElement->type() );
+  else
+    setWindowTitle( tr( "No Element Selected" ) );
+}

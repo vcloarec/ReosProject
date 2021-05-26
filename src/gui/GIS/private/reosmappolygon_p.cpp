@@ -164,7 +164,7 @@ void ReosMapPolygon_p::paint( QPainter *painter )
   if ( externalWidth > width )
   {
     pen.setWidthF( externalWidth );
-    pen.setColor( externalColor );
+    pen.setColor( isHovered ? externalColor.lighter( 150 ) : externalColor );
     QBrush brush( Qt::NoBrush );
     painter->setBrush( brush );
     painter->setPen( pen );
@@ -173,7 +173,7 @@ void ReosMapPolygon_p::paint( QPainter *painter )
 
 
   pen.setWidthF( width );
-  pen.setColor( color );
+  pen.setColor( isHovered ? color.lighter( 150 ) : color );
   pen.setStyle( style );
   QBrush brush( brushStyle );
   brush.setColor( fillColor );
@@ -381,14 +381,14 @@ void ReosMapMarkerEmptySquare_p::paint( QPainter *painter )
   QRectF square( mViewPoint - QPointF( squareWidth / 2, squareWidth / 2 ), QSize( squareWidth, squareWidth ) );
 
   pen.setWidth( std::max( 0.0, externalWidth - width ) );
-  pen.setColor( externalColor );
+  pen.setColor( isHovered ? externalColor.lighter() : externalColor );
   QBrush brush( Qt::NoBrush );
   painter->setBrush( brush );
   painter->setPen( pen );
 
   painter->drawRect( square );
 
-  pen.setColor( color );
+  pen.setColor( isHovered ? color.lighter() : color );
   pen.setWidth( std::max( 0.0, externalWidth - width ) / 2 );
   painter->setPen( pen );
   painter->drawRect( square );
@@ -438,14 +438,14 @@ void ReosMapMarkerEmptyCircle_p::paint( QPainter *painter )
   QRectF square( mViewPoint - QPointF( circleWidth / 2, circleWidth / 2 ), QSize( circleWidth, circleWidth ) );
 
   pen.setWidth( std::max( 0.0, externalWidth - width ) );
-  pen.setColor( externalColor );
+  pen.setColor( isHovered ? externalColor.lighter() : externalColor );
   QBrush brush( Qt::NoBrush );
   painter->setBrush( brush );
   painter->setPen( pen );
 
   painter->drawEllipse( square );
 
-  pen.setColor( color );
+  pen.setColor( isHovered ? color.lighter() : color );
   pen.setWidth( std::max( 0.0, externalWidth - width ) / 2 );
   painter->setPen( pen );
   painter->drawEllipse( square );

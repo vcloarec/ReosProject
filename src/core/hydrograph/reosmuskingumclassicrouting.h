@@ -19,7 +19,7 @@
 #include "reoshydrographtransfer.h"
 #include "reosparameter.h"
 
-class ReosMuskingumClassicRouting : public ReosHydrographTransfer
+class ReosMuskingumClassicRouting : public ReosHydrographRouting
 {
   public:
     ReosMuskingumClassicRouting( ReosHydraulicNetwork *parent = nullptr );

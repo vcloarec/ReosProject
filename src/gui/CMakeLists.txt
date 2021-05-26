@@ -53,6 +53,8 @@ SET(REOS_GUI_SOURCES
 
     hydraulicNetwork/reoshydraulicnetworkwidget.cpp
     hydraulicNetwork/reoshydraulicnetworkmapitemfactory.cpp
+    hydraulicNetwork/reosmaptoolhydraulicnetwork.cpp
+    hydraulicNetwork/reoshydraulicelementpropertieswidget.cpp
 )
 
 SET(REOS_GUI_HEADERS
@@ -98,7 +100,9 @@ SET(REOS_GUI_HEADERS
     data/reosimportfromtextfile.h
 
     hydraulicNetwork/reoshydraulicnetworkwidget.h
-    hydraulicNetwork/reoshydraulicnetworkmapitemfactory.cpp
+    hydraulicNetwork/reoshydraulicnetworkmapitemfactory.h
+    hydraulicNetwork/reosmaptoolhydraulicnetwork.h
+    hydraulicNetwork/reoshydraulicelementpropertieswidget.h
 )
 
 SET(REOS_GUI_HEADERS_PRIVATE

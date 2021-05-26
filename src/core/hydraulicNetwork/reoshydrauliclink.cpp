@@ -18,6 +18,22 @@
 ReosHydraulicLink::ReosHydraulicLink( ReosHydraulicNetwork *parent ): ReosHydraulicNetworkElement( parent )
 {}
 
+ReosHydraulicNode *ReosHydraulicLink::firstNode() const
+{
+  if ( mNode_1.isNull() )
+    return nullptr;
+  else
+    return mNode_1;
+}
+
+ReosHydraulicNode *ReosHydraulicLink::secondNode() const
+{
+  if ( mNode_2.isNull() )
+    return nullptr;
+  else
+    return mNode_2;
+}
+
 void ReosHydraulicLink::attachOnSide1( ReosHydraulicNode *node )
 {
   if ( !mNode_1.isNull() )

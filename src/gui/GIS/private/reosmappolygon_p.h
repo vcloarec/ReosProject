@@ -38,6 +38,8 @@ class ReosMapItem_p: public QgsMapCanvasItem
     Qt::BrushStyle brushStyle = Qt::NoBrush;
     QColor fillColor;
 
+    bool isHovered = false;
+
     ReosMapItem *base;
 };
 

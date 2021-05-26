@@ -16,13 +16,20 @@
 #include "reoshydrographsource.h"
 #include "reoshydrograph.h"
 #include "reoscalculationcontext.h"
-
+#include "reoshydrographtransfer.h"
 
 ReosHydrographNode::ReosHydrographNode( ReosHydraulicNetwork *parent ): ReosHydraulicNode( parent )
 {}
 
 ReosHydrographSource::ReosHydrographSource( ReosHydraulicNetwork *parent ) : ReosHydrographNode( parent )
 {}
+
+ReosHydrographRouting *ReosHydrographSource::outputHydrographTransfer() const
+{
+  if ( mLinksBySide1.isEmpty() )
+    return nullptr;
+  return qobject_cast<ReosHydrographRouting *>( mLinksBySide1.at( 0 ) );
+}
 
 ReosHydrographSourceFixed::ReosHydrographSourceFixed( ReosHydraulicNetwork *parent ):
   ReosHydrographSource( parent )
@@ -40,8 +47,60 @@ void ReosHydrographSourceFixed::setHydrograph( ReosHydrograph *hydrograph )
 }
 
 
-ReosHydrographSourceWatershed::ReosHydrographSourceWatershed( ReosWatershed *watershed, ReosHydraulicNetwork *parent ):
+ReosHydrographJunction::ReosHydrographJunction( const QPointF &position, ReosHydraulicNetwork *parent ):
   ReosHydrographSource( parent )
+  , mHydrograph( new ReosHydrograph( this ) ),
+  mPosition( position )
+{}
+
+ReosHydrograph *ReosHydrographJunction::outputHydrograph( const ReosCalculationContext &context )
+{
+  mHydrograph->clear();
+  bool first = true;
+
+  for ( const QPointer<ReosHydraulicLink> &link : mLinksBySide2 )
+  {
+    ReosHydrographRouting *transfer = qobject_cast<ReosHydrographRouting *>( link );
+    if ( transfer )
+    {
+      ReosHydrograph *transferhydrograph = transfer->outputHydrograph( context );
+      if ( first && transferhydrograph )
+      {
+        mHydrograph->referenceTime()->setValue( transferhydrograph->referenceTime()->value() );
+        first = false;
+      }
+
+      if ( transferhydrograph )
+        mHydrograph->addOther( *transferhydrograph );
+    }
+  }
+
+  return mHydrograph;
+}
+
+QPointF ReosHydrographJunction::position() const
+{
+  return mPosition;
+}
+
+ReosHydrographTransferDirect::ReosHydrographTransferDirect( ReosHydraulicNetwork *parent ): ReosHydrographRouting( parent ) {}
+
+ReosHydrographTransferDirect::ReosHydrographTransferDirect( ReosHydrographSource *hydrographSource, ReosHydrographNode *destination, ReosHydraulicNetwork *parent ):
+  ReosHydrographRouting( hydrographSource, destination, parent )
+{}
+
+ReosHydrograph *ReosHydrographTransferDirect::outputHydrograph( const ReosCalculationContext &context )
+{
+  ReosHydrographSource *upstreamSource = inputHydrographSource();
+  if ( upstreamSource )
+    return upstreamSource->outputHydrograph( context );
+  else
+    return nullptr;
+}
+
+
+ReosHydrographSourceWatershed::ReosHydrographSourceWatershed( ReosWatershed *watershed, ReosHydraulicNetwork *parent ):
+  ReosHydrographJunction( watershed ? watershed->outletPoint() : QPointF(), parent )
   , mWatershed( watershed )
 {
   if ( mWatershed )

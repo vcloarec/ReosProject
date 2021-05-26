@@ -60,6 +60,8 @@ class ReosMapItem
 
     void setVisible( bool visible );
 
+    void setHovered( bool b );
+
     QGraphicsItem *graphicItem();
 
   protected:

@@ -338,6 +338,20 @@ void ReosMapTool_p::canvasMoveEvent( QgsMapMouseEvent *e )
 
   ReosMapItem_p *foundItem = searchItem( e->localPos() );
 
+  if ( mFoundItem && mFoundItem != foundItem )
+  {
+    mFoundItem->isHovered = false;
+    mFoundItem->update();
+    mFoundItem = nullptr;
+  }
+
+  if ( foundItem )
+  {
+    mFoundItem = foundItem;
+    mFoundItem->isHovered = true;
+    mFoundItem->update();
+  }
+
   if ( foundItem )
     emit foundItemWhenMoving( foundItem );
 
@@ -419,4 +433,34 @@ bool ReosMapToolMoveItem_p::isItemUnderPoint( const QPoint &p )
 void ReosMapToolMoveItem_p::setMovingColor( const QColor &movingColor )
 {
   mMovingColor = movingColor;
+}
+
+ReosMapToolDrawHydraulicNetworkLink_p::ReosMapToolDrawHydraulicNetworkLink_p( QgsMapCanvas *mapCanvas ): ReosMapTool_p( mapCanvas )
+{
+  mRubberBand = new QgsRubberBand( mCanvas );
+}
+
+void ReosMapToolDrawHydraulicNetworkLink_p::appendItem( ReosMapItem_p *item )
+{
+  mLinkedItems.append( item );
+  if ( mRubberBand->numberOfVertices() == 0 )
+    mRubberBand->addPoint( item->mapPos() );
+  mRubberBand->addPoint( item->mapPos() );
+}
+
+void ReosMapToolDrawHydraulicNetworkLink_p::canvasMoveEvent( QgsMapMouseEvent *e )
+{
+  ReosMapTool_p::canvasMoveEvent( e );
+
+  if ( mFoundItem )
+    mRubberBand->movePoint( mFoundItem->mapPos() );
+  else
+    mRubberBand->movePoint( e->mapPoint() );
+}
+
+void ReosMapToolDrawHydraulicNetworkLink_p::canvasReleaseEvent( QgsMapMouseEvent *e )
+{
+  ReosMapItem_p *item = searchItem( e->localPos() );
+  if ( item )
+    emit itemSelected( item );
 }

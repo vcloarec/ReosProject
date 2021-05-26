@@ -27,7 +27,11 @@ class ReosHydraulicLink : public ReosHydraulicNetworkElement
   public:
     ReosHydraulicLink( ReosHydraulicNetwork *parent = nullptr );
 
-    QString type() const override {return QStringLiteral( "link" );}
+    QString type() const override {return hydraulicLinkType();}
+    static QString hydraulicLinkType() {return hydraulicElementType() + QString( ':' ) + QStringLiteral( "link" );}
+
+    ReosHydraulicNode *firstNode() const;
+    ReosHydraulicNode *secondNode() const;
 
   protected:
     void attachOnSide1( ReosHydraulicNode *node );

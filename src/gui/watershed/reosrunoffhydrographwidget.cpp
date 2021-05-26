@@ -483,7 +483,7 @@ void ReosRunoffHydrographWidget::syncTransferFunction( ReosTransferFunction *fun
 
 ReosHydrographSourceWatershed *ReosRunoffHydrographWidget::currentNetworkNode()
 {
-  QList<ReosHydraulicNetworkElement *> watershedHydrographSource = mHydraulicNetwork->getElements( QStringLiteral( "node:hydrograph:source:watershed" ) );
+  QList<ReosHydraulicNetworkElement *> watershedHydrographSource = mHydraulicNetwork->getElements( ReosHydrographSourceWatershed::hydrographSourceWatershedType() );
 
   for ( ReosHydraulicNetworkElement *elem : watershedHydrographSource )
   {
@@ -611,7 +611,7 @@ void ReosRunoffHydrographWidget::onAddRemoveNetwork()
 
   ReosHydrographSourceWatershed *hsw = currentNetworkNode();
   if ( hsw )
-    hsw->destroy();
+    mHydraulicNetwork->removeElement( hsw );
   else
     mHydraulicNetwork->addElement( new ReosHydrographSourceWatershed( mCurrentWatershed, mHydraulicNetwork ) );
 

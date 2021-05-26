@@ -23,6 +23,8 @@
 
 typedef ReosMapItem *( *ReosHydraulicNetworkMapItemCreationFunction )( ReosHydraulicNetworkElement *, ReosMap * );
 typedef void ( *ReosHydraulicNetworkMapItemUpdateFunction )( ReosHydraulicNetworkElement *, ReosMapItem * );
+typedef void ( *ReosHydraulicNetworkMapItemSelectFunction )( ReosHydraulicNetworkElement *, ReosMapItem * );
+typedef void ( *ReosHydraulicNetworkMapItemUnselectFunction )( ReosHydraulicNetworkElement *, ReosMapItem * );
 
 class ReosHydraulicNetworkMapItemFactory
 {
@@ -31,13 +33,14 @@ class ReosHydraulicNetworkMapItemFactory
 
     ReosMapItem *createMapItem( ReosHydraulicNetworkElement *element, ReosMap *map );
     void updateMapItem( ReosHydraulicNetworkElement *element, ReosMapItem *item );
-
-    void addCreationFunction( QString type, ReosHydraulicNetworkMapItemCreationFunction function );
-    void addUpdateFunction( QString type, ReosHydraulicNetworkMapItemUpdateFunction function );
+    void selectItem( ReosHydraulicNetworkElement *element, ReosMapItem *item );
+    void unselectItem( ReosHydraulicNetworkElement *element, ReosMapItem *item );
 
   private:
     QHash<QString, ReosHydraulicNetworkMapItemCreationFunction> mCreationFunctions;
     QHash<QString, ReosHydraulicNetworkMapItemUpdateFunction> mUpdateFunctions;
+    QHash<QString, ReosHydraulicNetworkMapItemSelectFunction> mSelectFunctions;
+    QHash<QString, ReosHydraulicNetworkMapItemUnselectFunction> mUnselectFunctions;
 };
 
 #endif // REOSHYDRAULICNETWORKMAPITEMFACTORY_H

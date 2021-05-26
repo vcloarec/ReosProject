@@ -22,39 +22,55 @@
 #include "reosmapitem.h"
 #include "reoshydraulicnetwork.h"
 #include "reoshydraulicnetworkmapitemfactory.h"
-
-class ReosMapToolDrawPoint;
-
+#include "reosmaptoolhydraulicnetwork.h"
 
 namespace Ui
 {
   class ReosHydraulicNetworkWidget;
 }
 
+class ReosMapToolDrawPoint;
+class ReosHydraulicElementPropertiesWidget;
+
 class ReosHydraulicNetworkWidget : public QWidget
 {
     Q_OBJECT
-
   public:
     explicit ReosHydraulicNetworkWidget( ReosHydraulicNetwork *network, ReosMap *map, QWidget *parent = nullptr );
     ~ReosHydraulicNetworkWidget();
 
   private slots:
     void onElementAdded( ReosHydraulicNetworkElement *elem );
+    void onElementRemoved( ReosHydraulicNetworkElement *elem );
     void onElementChanged( ReosHydraulicNetworkElement *elem );
+
+    void onDrawHydrographRoutingFinish();
+    void onElementSelected( ReosMapItem *item );
 
   private:
     Ui::ReosHydraulicNetworkWidget *ui;
     ReosHydraulicNetwork *mHydraulicNetwork = nullptr;
     ReosMap *mMap = nullptr;
+    ReosHydraulicNetworkElement *mCurrentSelectedElement = nullptr;
 
     typedef std::shared_ptr<ReosMapItem> NetworkItem ;
 
     QMap<ReosHydraulicNetworkElement *, NetworkItem> mMapItems;
     ReosHydraulicNetworkMapItemFactory mMapItemFactory;
 
+    QAction *mActionSelectNetworkElement = nullptr;
+    ReosMapToolSelectMapItem *mMapToolSelectNetworkElement = nullptr;
+
     QAction *mActionAddHydrographJunction = nullptr;
     ReosMapToolDrawPoint *mMapToolAddHydrographJunction = nullptr;
+
+    QAction *mActionAddHydrographRouting = nullptr;
+    ReosMapToolDrawHydrographRouting *mMapToolAddHydrographRouting = nullptr;
+
+    QAction *mActionHydraulicNetworkProperties = nullptr;
+    ReosHydraulicElementPropertiesWidget *mElementPropertiesWidget = nullptr;
+
+
 
 };
 

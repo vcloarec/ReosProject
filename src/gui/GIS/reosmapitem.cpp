@@ -63,6 +63,14 @@ void ReosMapItem::setVisible( bool visible )
     d_->setVisible( visible );
 }
 
+void ReosMapItem::setHovered( bool b )
+{
+  if ( !isMapExist() || !d_ )
+    return;
+
+  d_->isHovered = b;
+}
+
 QGraphicsItem *ReosMapItem::graphicItem()
 {
   return d_;

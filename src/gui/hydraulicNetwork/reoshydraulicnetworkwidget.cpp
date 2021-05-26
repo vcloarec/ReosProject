@@ -20,81 +20,59 @@
 #include "reoshydrographtransfer.h"
 #include "reoswatershed.h"
 #include "reosmaptool.h"
-
-static ReosMapItem *createHydrographSourceWatershedItem( ReosHydraulicNetworkElement *elem, ReosMap *map )
-{
-  ReosHydrographSourceWatershed *hws = qobject_cast<ReosHydrographSourceWatershed *>( elem );
-  if ( hws )
-  {
-    std::unique_ptr<ReosMapMarkerEmptySquare> marker = std::make_unique<ReosMapMarkerEmptySquare>( map, hws->position() );
-    marker->setWidth( 12 );
-    marker->setExternalWidth( 20 );
-    marker->setColor( QColor( 0, 155, 242 ) );
-    marker->setExternalColor( Qt::white );
-    marker->setZValue( 10 );
-    marker->setDescription( hws->type() );
-    return marker.release();
-  }
-
-  return nullptr;
-}
-
-static void updateHydrographSourceWatershedItem( ReosHydraulicNetworkElement *elem, ReosMapItem *item )
-{
-  ReosHydrographSourceWatershed *hws = qobject_cast<ReosHydrographSourceWatershed *>( elem );
-  ReosMapMarker *markerItem = static_cast<ReosMapMarker *>( item );
-
-  markerItem->resetPoint( hws->watershed()->outletPoint() );
-}
-
-
-static ReosMapItem *createHydrographJunctionItem( ReosHydraulicNetworkElement *elem, ReosMap *map )
-{
-  ReosHydrographJunction *hj = qobject_cast<ReosHydrographJunction *>( elem );
-  if ( hj )
-  {
-    std::unique_ptr<ReosMapMarkerEmptyCircle> marker = std::make_unique<ReosMapMarkerEmptyCircle>( map, hj->position() );
-    marker->setWidth( 12 );
-    marker->setExternalWidth( 22 );
-    marker->setColor( QColor( 0, 155, 242 ) );
-    marker->setExternalColor( Qt::white );
-    marker->setZValue( 10 );
-    marker->setDescription( hj->type() );
-    return marker.release();
-  }
-
-  return nullptr;
-}
+#include "reoshydraulicelementpropertieswidget.h"
 
 ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *network, ReosMap *map, QWidget *parent ) :
   QWidget( parent )
   , ui( new Ui::ReosHydraulicNetworkWidget )
   , mHydraulicNetwork( network )
   , mMap( map )
+  , mActionSelectNetworkElement( new QAction( tr( "Select hydraulic network element" ), this ) )
+  , mMapToolSelectNetworkElement( new ReosMapToolSelectMapItem( map, ReosHydraulicNetworkElement::hydraulicElementType() ) )
   , mActionAddHydrographJunction( new QAction( tr( "Add hydrograph junction" ), this ) )
   , mMapToolAddHydrographJunction( new ReosMapToolDrawPoint( mMap ) )
+  , mActionAddHydrographRouting( new QAction( tr( "Add hydrograph routing" ), this ) )
+  , mMapToolAddHydrographRouting( new ReosMapToolDrawHydrographRouting( mHydraulicNetwork, mMap ) )
+  , mActionHydraulicNetworkProperties( new QAction( tr( "Hydraulic element properties" ), this ) )
+  , mElementPropertiesWidget( new ReosHydraulicElementPropertiesWidget( this ) )
 {
   ui->setupUi( this );
-
-  mMapItemFactory.addCreationFunction( QStringLiteral( "node:hydrograph:source:watershed" ), &createHydrographSourceWatershedItem );
-  mMapItemFactory.addCreationFunction( QStringLiteral( "node:hydrograph:junction" ), &createHydrographJunctionItem );
-  mMapItemFactory.addUpdateFunction( QStringLiteral( "node:hydrograph:source:watershed" ), &updateHydrographSourceWatershedItem );
 
   QToolBar *toolBar = new QToolBar( this );
   ui->groupBoxHydrographTransfer->layout()->addWidget( toolBar );
 
+  toolBar->addAction( mActionSelectNetworkElement );
+  mActionSelectNetworkElement->setCheckable( true );
+  mMapToolSelectNetworkElement->setAction( mActionSelectNetworkElement );
+  mMapToolSelectNetworkElement->setSearchItemWhenMoving( true );
+  mMapToolSelectNetworkElement->setCursor( Qt::ArrowCursor );
+
   toolBar->addAction( mActionAddHydrographJunction );
+  mActionAddHydrographJunction->setCheckable( true );
   mMapToolAddHydrographJunction->setAction( mActionAddHydrographJunction );
-  mMapToolAddHydrographJunction->setSearchingItemDecription( QStringLiteral( "node:hydrograph" ) );
-  mMapToolAddHydrographJunction->setSearchItemWhenMoving( true );
+
+  toolBar->addAction( mActionAddHydrographRouting );
+  mActionAddHydrographRouting->setCheckable( true );
+  mMapToolAddHydrographRouting->setAction( mActionAddHydrographRouting );
+  mMapToolAddHydrographRouting->setSearchingItemDecription( ReosHydrographSource::hydrographSourceType() );
+  mMapToolAddHydrographRouting->setSearchItemWhenMoving( true );
+
+  toolBar->addAction( mActionHydraulicNetworkProperties );
+  mActionHydraulicNetworkProperties->setCheckable( true );
+  mElementPropertiesWidget->setAction( mActionHydraulicNetworkProperties );
 
   connect( mHydraulicNetwork, &ReosHydraulicNetwork::elementAdded, this, &ReosHydraulicNetworkWidget::onElementAdded );
-  connect( mHydraulicNetwork, &ReosHydraulicNetwork::elementPostionHasChanged, this, &ReosHydraulicNetworkWidget::onElementChanged );
+  connect( mHydraulicNetwork, &ReosHydraulicNetwork::elementRemoved, this, &ReosHydraulicNetworkWidget::onElementRemoved );
+  connect( mHydraulicNetwork, &ReosHydraulicNetwork::elementPositionHasChanged, this, &ReosHydraulicNetworkWidget::onElementChanged );
 
   connect( mMapToolAddHydrographJunction, &ReosMapToolDrawPoint::drawn, this, [this]( const QPointF & p )
   {
     mHydraulicNetwork->addElement( new ReosHydrographJunction( p, mHydraulicNetwork ) );
   } );
+
+  connect( mMapToolAddHydrographRouting, &ReosMapToolDrawHydrographRouting::finished, this, &ReosHydraulicNetworkWidget::onDrawHydrographRoutingFinish );
+
+  connect( mMapToolSelectNetworkElement, &ReosMapToolSelectMapItem::found, this, &ReosHydraulicNetworkWidget::onElementSelected );
 }
 
 ReosHydraulicNetworkWidget::~ReosHydraulicNetworkWidget()
@@ -110,9 +88,50 @@ void ReosHydraulicNetworkWidget::onElementAdded( ReosHydraulicNetworkElement *el
     mMapItems[elem] =  item ;
 }
 
+void ReosHydraulicNetworkWidget::onElementRemoved( ReosHydraulicNetworkElement *elem )
+{
+  mMapItems.remove( elem );
+}
+
 void ReosHydraulicNetworkWidget::onElementChanged( ReosHydraulicNetworkElement *elem )
 {
   auto it = mMapItems.constFind( elem );
   if ( it != mMapItems.constEnd() )
     mMapItemFactory.updateMapItem( elem, it.value().get() );
+}
+
+void ReosHydraulicNetworkWidget::onDrawHydrographRoutingFinish()
+{
+  QList<ReosMapItem *> itemList = mMapToolAddHydrographRouting->linkedItems();
+  Q_ASSERT( itemList.count() == 2 );
+
+  ReosHydrographSource *source = qobject_cast<ReosHydrographSource *>( mHydraulicNetwork->getElement( itemList.at( 0 )->description() ) );
+  Q_ASSERT( source );
+
+  ReosHydrographNode *destination = qobject_cast<ReosHydrographNode *>( mHydraulicNetwork->getElement( itemList.at( 1 )->description() ) );
+  Q_ASSERT( destination );
+
+  mHydraulicNetwork->addElement( new ReosHydrographRouting( source, destination, mHydraulicNetwork ) );
+}
+
+void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
+{
+  if ( mCurrentSelectedElement )
+  {
+    auto it = mMapItems.constFind( mCurrentSelectedElement );
+    if ( it != mMapItems.constEnd() )
+      mMapItemFactory.unselectItem( mCurrentSelectedElement, it.value().get() );
+    mCurrentSelectedElement = nullptr;
+  }
+
+  if ( !item )
+    return;
+
+  ReosHydraulicNetworkElement *elem = mHydraulicNetwork->getElement( item->description() );
+  if ( elem )
+  {
+    mMapItemFactory.selectItem( elem, item );
+    mCurrentSelectedElement = elem;
+    mElementPropertiesWidget->setCurrentElement( elem );
+  }
 }

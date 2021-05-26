@@ -23,15 +23,32 @@
 #include "reoshydrauliclink.h"
 #include "reoscalculationcontext.h"
 
+class ReosHydrographRoutingMethod
+{
+  public:
+    virtual ReosHydrograph *outputHydrograph( ReosHydrograph *inputHydrograph, const ReosCalculationContext &context ) = 0;
+
+};
+
+class ReosHydrographRoutingDirect
+{
+  public:
+
+};
+
+
 /**
  * Abstract class that can be derived to make hydraulic link thats transfer hydrograph between a source hydrograph to another hydrograph node
  */
-class ReosHydrographTransfer : public ReosHydraulicLink
+class ReosHydrographRouting : public ReosHydraulicLink
 {
     Q_OBJECT
   public:
     //! Constructor
-    ReosHydrographTransfer( ReosHydraulicNetwork *parent = nullptr );
+    ReosHydrographRouting( ReosHydraulicNetwork *parent = nullptr );
+
+    //! Constructor with input and ouptut
+    ReosHydrographRouting( ReosHydrographSource *hydrographSource, ReosHydrographNode *destination, ReosHydraulicNetwork *parent = nullptr );
 
     //! Sets the input hydrograph source
     void setInputHydrographSource( ReosHydrographSource *hydrographSource );
@@ -42,36 +59,34 @@ class ReosHydrographTransfer : public ReosHydraulicLink
     //! Sets the destination node
     void setHydrographDestination( ReosHydrographNode *destination );
 
-    //! Returns the outpu hydrograph for the context calculation \a context
-    virtual ReosHydrograph *outputHydrograph( const ReosCalculationContext &context ) = 0;
+    //! Returns the output hydrograph for the context calculation \a context
+    virtual ReosHydrograph *outputHydrograph( const ReosCalculationContext &context )
+    {
+      return mOutputHydrograph;
+    }
+
+    QString type() const override {return hydrographRoutingType();}
+    QString static hydrographRoutingType() {return hydraulicLinkType() + QString( ':' ) + QStringLiteral( "routing" ); }
+
+  private:
+    ReosHydrographRoutingMethod *mRoutingMethod;
+    ReosHydrograph *mOutputHydrograph;
+
 };
 
 //! Class that transfers hydrograph between node without altering the hydrograph
-class ReosHydrographTransferDirect: public ReosHydrographTransfer
-{
-  public:
-    ReosHydrographTransferDirect( ReosHydraulicNetwork *parent = nullptr );
-
-    ReosHydrograph *outputHydrograph( const ReosCalculationContext &context ) override;
-};
-
-/**
- * Class that represents an node collecting and sum hydrograph
- */
-class ReosHydrographJunction : public ReosHydrographSource
+class ReosHydrographTransferDirect: public ReosHydrographRouting
 {
     Q_OBJECT
   public:
-    ReosHydrographJunction( const QPointF &position, ReosHydraulicNetwork *parent = nullptr );
+    ReosHydrographTransferDirect( ReosHydraulicNetwork *parent = nullptr );
+    ReosHydrographTransferDirect( ReosHydrographSource *hydrographSource, ReosHydrographNode *destination, ReosHydraulicNetwork *parent = nullptr );
+
     ReosHydrograph *outputHydrograph( const ReosCalculationContext &context ) override;
-    QString type() const override {return QStringLiteral( "node:hydrograph:junction" );}
-    QPointF position() const override;
 
-  private:
-    mutable ReosHydrograph *mHydrograph;
-
-    QPointF mPosition;
-
+    QString type() const override {return hydrographTransferDirectType();}
+    QString static hydrographTransferDirectType() {return hydrographRoutingType() + QString( ':' ) + QStringLiteral( "direct" ); }
 };
+
 
 #endif // REOSHYDROGRAPHTRANSFER_H
