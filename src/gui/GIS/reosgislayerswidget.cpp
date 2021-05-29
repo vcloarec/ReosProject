@@ -109,11 +109,8 @@ void ReosGisLayersWidget::registerCurrentLayerAsDigitalElevationModel()
   QgsMapLayer *mapLayer = mTreeView->currentLayer();
   if ( mapLayer )
   {
-    mGisEngine->registerLayerAsDigitalElevationModel( mapLayer->id() );
-  }
-  else
-  {
-    QMessageBox::warning( this, tr( "Register Layer as DEM" ), tr( "This layer is not recognized as a possible DEM" ) );
+    if ( !mGisEngine->registerLayerAsDigitalElevationModel( mapLayer->id() ) )
+      QMessageBox::warning( this, tr( "Register Layer as DEM" ), tr( "This layer is not recognized as a possible DEM" ) );
   }
 }
 

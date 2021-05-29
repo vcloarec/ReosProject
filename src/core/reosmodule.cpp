@@ -52,37 +52,37 @@ void ReosModule::newCommand( QUndoCommand *command )
   }
 }
 
-void ReosModule::warning( QString message ) const
+void ReosModule::warning( QString message, bool inMessageBox ) const
 {
-  sendMessage( message, Warning );
+  sendMessage( message, Warning, inMessageBox );
 }
 
-void ReosModule::error( QString message ) const
+void ReosModule::error( QString message, bool inMessageBox ) const
 {
-  sendMessage( message, Error );
+  sendMessage( message, Error, inMessageBox );
 }
 
-void ReosModule::message( QString message ) const
+void ReosModule::message( QString message, bool inMessageBox ) const
 {
-  sendMessage( message, Message );
+  sendMessage( message, Message, inMessageBox );
 }
 
-void ReosModule::order( QString message ) const
+void ReosModule::order( QString message, bool inMessageBox ) const
 {
-  sendMessage( message, Order );
+  sendMessage( message, Order, inMessageBox );
 }
 
-void ReosModule::onMessageReceived( const QString &message, const ReosModule::MessageType &type )
+void ReosModule::onMessageReceived( const QString &message, const ReosModule::MessageType &type, bool inMessageBox )
 {
-  sendMessage( message, type );
+  sendMessage( message, type, inMessageBox );
 }
 
-void ReosModule::sendMessage( QString mes, MessageType type ) const
+void ReosModule::sendMessage( QString mes, MessageType type, bool messageBox ) const
 {
   if ( mReosParent )
-    mReosParent->sendMessage( mes, type );
+    mReosParent->sendMessage( mes, type, messageBox );
   else
-    emit emitMessage( mes, type );
+    emit emitMessage( mes, type, messageBox );
 }
 
 QList<QAction *> ReosModule::actions() const {return mGroupAction->actions();}
