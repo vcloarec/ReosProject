@@ -237,6 +237,21 @@ bool ReosGisEngine::registerLayerAsDigitalElevationModel( const QString &layerId
     if ( canBeRasterDem( rasterLayer ) )
     {
       mAsDEMRegisteredLayer.append( layerId );
+      QgsRectangle layerExtent = layer->extent();
+      if ( QgsProject::instance()->crs().isGeographic() &&
+           !layer->crs().isValid() &&
+           ( std::fabs( layerExtent.xMinimum() ) > 360 ||
+             std::fabs( layerExtent.xMaximum() ) > 360 ||
+             std::fabs( layerExtent.yMinimum() ) > 360 ||
+             std::fabs( layerExtent.yMaximum() ) > 360 ) )
+        warning( tr( "This layer doesn't have a valid or known coordinates system, and calculation on DEM will "
+                     "be done considering its coordinate system is the same as the project.\n"
+                     "The project coordinates system is a geographic reference system (latitude/longitude) and "
+                     "the extent of this layer suggests that it actually a projected coordinates system.\n"
+                     "If so, the result of area or distance calculation will be incorrect.\n"
+                     "To fix this, set an appropriate map coordinate system in the layer properties "
+                     "or/and for the project coordinate project." ), true );
+
       emit updated();
       return true;
     }

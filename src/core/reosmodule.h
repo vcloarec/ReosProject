@@ -47,7 +47,7 @@ class REOSCORE_EXPORT ReosModule : public QObject
   signals:
     void newCommandToUndoStack( QUndoCommand *command );
     void activeUndoStack( QUndoStack *undoStack );
-    void emitMessage( const QString &message, const MessageType &type ) const;
+    void emitMessage( const QString &message, const MessageType &type, bool messageBox ) const;
     void dirtied();
 
   public slots:
@@ -63,19 +63,19 @@ class REOSCORE_EXPORT ReosModule : public QObject
     ///
     virtual void newCommand( QUndoCommand *command );
 
-    void warning( QString message ) const;
-    void error( QString message ) const;
-    void message( QString message ) const;
-    void order( QString message ) const;
+    void warning( QString message, bool inMessageBox = false ) const;
+    void error( QString message, bool inMessageBox = false ) const;
+    void message( QString message, bool inMessageBox = false ) const;
+    void order( QString message, bool inMessageBox = false ) const;
 
   private slots:
-    void onMessageReceived( const QString &message, const MessageType &type );
+    void onMessageReceived( const QString &message, const MessageType &type, bool inMessageBox = false );
 
   protected:
     QActionGroup *mGroupAction = nullptr;
     QUndoStack *mUndoStack = nullptr;
 
-    void sendMessage( QString mes, MessageType type ) const;
+    void sendMessage( QString mes, MessageType type, bool messageBox = false ) const;
 
   private:
     ReosModule *mReosParent = nullptr;

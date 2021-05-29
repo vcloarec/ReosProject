@@ -15,6 +15,7 @@ email                : vcloarec at gmail dot com
 
 #include "reosmessagebox.h"
 #include "ui_reosmessagebox.h"
+#include "QMessageBox"
 
 ReosMessageBox::ReosMessageBox( QWidget *parent ) :
   QWidget( parent ),
@@ -28,7 +29,7 @@ ReosMessageBox::~ReosMessageBox()
   delete ui;
 }
 
-void ReosMessageBox::receiveMessage( const QString &mes, ReosModule::MessageType type )
+void ReosMessageBox::receiveMessage( const QString &mes, ReosModule::MessageType type, bool messageBox )
 {
   QString message;
 
@@ -37,13 +38,13 @@ void ReosMessageBox::receiveMessage( const QString &mes, ReosModule::MessageType
     case ReosModule::Error:
       message.append( QTime::currentTime().toString() );
       message.append( " : " );
-      message.append( tr( "Error : " ) );
+      message.append( tr( "Error: " ) );
       ui->textBrowser->setTextColor( Qt::red );
       break;
     case ReosModule::Warning:
       message.append( QTime::currentTime().toString() );
       message.append( " : " );
-      message.append( tr( "Warning : " ) );
+      message.append( tr( "Warning: " ) );
       ui->textBrowser->setTextColor( QColor( 200, 100, 0 ) );
       break;
     case ReosModule::Message:
@@ -60,6 +61,24 @@ void ReosMessageBox::receiveMessage( const QString &mes, ReosModule::MessageType
   message.append( mes );
 
   ui->textBrowser->append( message );
+
+  if ( messageBox )
+  {
+    switch ( type )
+    {
+      case ReosModule::Message:
+      case ReosModule::Order:
+        QMessageBox::information( this, QString(), mes );
+        break;
+      case ReosModule::Warning:
+        QMessageBox::warning( this, QString(), mes );
+        break;
+      case ReosModule::Error:
+        QMessageBox::critical( this, QString(), mes );
+        break;
+
+    }
+  }
 }
 
 void ReosMessageBox::clean()
