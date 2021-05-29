@@ -876,12 +876,20 @@ Adjust new watershed?</source>
         <source>Could not find MDAL</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="247"/>
+        <source>This layer doesn&apos;t have a valid or known coordinates system, and calculation on DEM will be done considering its coordinate system is the same as the project.
+The project coordinates system is a geographic reference system (latitude/longitude) and the extent of this layer suggests that it actually a projected coordinates system.
+If so, the result of area or distance calculation will be incorrect.
+To fix this, set an appropriate map coordinate system in the layer properties or/and for the project coordinate project.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ReosGisLayersWidget</name>
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="50"/>
-        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="138"/>
+        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="135"/>
         <source>Load QGIS Project</source>
         <translation type="unfinished"></translation>
     </message>
@@ -911,55 +919,55 @@ Adjust new watershed?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="116"/>
+        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="113"/>
         <source>Register Layer as DEM</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="116"/>
+        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="113"/>
         <source>This layer is not recognized as a possible DEM</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="151"/>
+        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="148"/>
         <source>Load Vector Layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="155"/>
+        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="152"/>
         <source>Loading Vector Layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="155"/>
+        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="152"/>
         <source>Invalid vector layer, file not loaded.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="165"/>
+        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="162"/>
         <source>Load Raster Layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="172"/>
-        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="176"/>
-        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="196"/>
+        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="169"/>
+        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="173"/>
+        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="193"/>
         <source>Loading Raster Layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="173"/>
+        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="170"/>
         <source>This raster layer could be a DEM, do you want to register as a DEM?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="176"/>
-        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="196"/>
+        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="173"/>
+        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="193"/>
         <source>Invalid raster layer, file not loaded.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="191"/>
+        <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="188"/>
         <source>Load Mesh Layer</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1401,16 +1409,6 @@ Adjust new watershed?</source>
 <context>
     <name>ReosMessageBox</name>
     <message>
-        <location filename="../src/gui/reosmessagebox.cpp" line="40"/>
-        <source>Error : </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/reosmessagebox.cpp" line="46"/>
-        <source>Warning : </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../src/ui/reosmessagebox.ui"/>
         <source>Messages</source>
         <translation type="unfinished"></translation>
@@ -1418,6 +1416,16 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/gui/reosmessagebox.ui"/>
         <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/reosmessagebox.cpp" line="41"/>
+        <source>Error: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/reosmessagebox.cpp" line="47"/>
+        <source>Warning: </source>
         <translation type="unfinished"></translation>
     </message>
 </context>
