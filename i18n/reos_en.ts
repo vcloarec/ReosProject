@@ -879,7 +879,7 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/core/GIS/reosgisengine.cpp" line="247"/>
         <source>This layer doesn&apos;t have a valid or known coordinates system, and calculation on DEM will be done considering its coordinate system is the same as the project.
-The project coordinates system is a geographic reference system (latitude/longitude) and the extent of this layer suggests that it actually a projected coordinates system.
+The project&apos;s coordinates system is a geographic reference system (latitude/longitude) and the extent of this layer suggests that it is actually a projected coordinates system.
 If so, the result of area or distance calculation will be incorrect.
 To fix this, set an appropriate map coordinate system in the layer properties or/and for the project coordinate project.</source>
         <translation type="unfinished"></translation>

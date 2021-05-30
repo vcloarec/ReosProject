@@ -21,22 +21,22 @@
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="156"/>
         <source>Rainfall Data Changed</source>
-        <translation type="unfinished"></translation>
+        <translation>Données pluviométriques modifiées</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="156"/>
         <source>Rainfall data have changed, do you want to save?</source>
-        <translation type="unfinished"></translation>
+        <translation>Les données pluviométriques ont été modifiées, voulez-vous les enregistrer ?</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="162"/>
         <source>Runoff Data Changed</source>
-        <translation type="unfinished"></translation>
+        <translation>Données de ruissellement modifiées</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="162"/>
         <source>Runoff data have changed, do you want to save?</source>
-        <translation type="unfinished"></translation>
+        <translation>Les données de ruissellements ont été modifiées, voulez-vous les enregistrer ?</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="186"/>
@@ -74,12 +74,12 @@
     <message>
         <location filename="../src/core/GIS/private/reosdigitalelevationmodel_p.cpp" line="175"/>
         <source>Extract DEM from layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Extraction du MNT depuis la couche</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reosdigitalelevationmodel_p.cpp" line="256"/>
         <source>Calculate average elevation from grid</source>
-        <translation type="unfinished"></translation>
+        <translation>Calcul de l&apos;élévation moyenne depuis la grille</translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosarea.cpp" line="240"/>
@@ -106,7 +106,7 @@
     <message>
         <location filename="../src/core/quantity/reosduration.cpp" line="95"/>
         <source>mn</source>
-        <translation>n</translation>
+        <translation>mn</translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosduration.cpp" line="98"/>
@@ -456,7 +456,7 @@
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="36"/>
         <source>Average elevation</source>
-        <translation type="unfinished"></translation>
+        <translation>Élévation moyenne</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="41"/>
@@ -531,7 +531,7 @@
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="311"/>
         <source>Hm : relative average elevation (from outlet) (m)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hm : élévation moyenne relative (depuis l&apos;exutoire) (m)</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="312"/>
@@ -619,27 +619,27 @@
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="263"/>
         <source>Load Raster DEM Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Charge couche raster MNT</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="272"/>
         <source>Loading Raster DEM Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Chargement couche raster MNT</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="273"/>
         <source>This layer is not recognized as a possible DEM, do you want to load it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Cette couche n&apos;a pas été reconnue comme une couche pouvant être un MNT, voulez-vous la charger ?</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="282"/>
         <source>Loading Raster Layer</source>
-        <translation type="unfinished">Chargement Couche Raster</translation>
+        <translation>Chargement couche raster</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="282"/>
         <source>Invalid raster layer, file not loaded.</source>
-        <translation type="unfinished">Couche raster invalide, fichier non chargé.</translation>
+        <translation>Couche raster invalide, fichier non chargé</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="322"/>
@@ -658,7 +658,7 @@ Faut-il ajuster le nouveau bassin versant ?</translation>
     <message>
         <location filename="../src/ui/reosdelineatingwatershedwidget.ui"/>
         <source>Calculate average elevation</source>
-        <translation type="unfinished"></translation>
+        <translation>Calcule élévation moyenne</translation>
     </message>
 </context>
 <context>
@@ -880,10 +880,13 @@ Faut-il ajuster le nouveau bassin versant ?</translation>
     <message>
         <location filename="../src/core/GIS/reosgisengine.cpp" line="247"/>
         <source>This layer doesn&apos;t have a valid or known coordinates system, and calculation on DEM will be done considering its coordinate system is the same as the project.
-The project coordinates system is a geographic reference system (latitude/longitude) and the extent of this layer suggests that it actually a projected coordinates system.
+The project&apos;s coordinates system is a geographic reference system (latitude/longitude) and the extent of this layer suggests that it is actually a projected coordinates system.
 If so, the result of area or distance calculation will be incorrect.
 To fix this, set an appropriate map coordinate system in the layer properties or/and for the project coordinate project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cette couche n&apos;a pas de système de coordonnées valide ou connu, et les calcul sur le MNT seront réalisés en considérant son système de coordonnées comme le même que celui du projet.
+Le système de coordonnées du projet est un système géographique (latitude/longitude) et l&apos;étendue de cette couche suggère que ce système est en fait un système projeté.
+Si c&apos;est cela, le résultat de calcul d&apos;aire ou de distance sera incorrect.
+Pour éviter cela, mettre un système de coordonnées approprié dans le propriété de la couche et/ou pour le système de coordonnées du projet.</translation>
     </message>
 </context>
 <context>
@@ -922,12 +925,12 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="113"/>
         <source>Register Layer as DEM</source>
-        <translation type="unfinished"></translation>
+        <translation>Enregistre la couche en tant que MNT</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="113"/>
         <source>This layer is not recognized as a possible DEM</source>
-        <translation type="unfinished"></translation>
+        <translation>Cette couche n&apos;est pas reconnue comme un possible MNT</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="148"/>
@@ -959,7 +962,7 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="170"/>
         <source>This raster layer could be a DEM, do you want to register as a DEM?</source>
-        <translation type="unfinished"></translation>
+        <translation>Cette couche pourrait être un MNT, voulez-vous l&apos;enregistrer en tant que MNT ?</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="173"/>
@@ -1254,7 +1257,7 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/ui/reoslongitudinalprofilewidget.ui"/>
         <source>Drop</source>
-        <translation type="unfinished">Dénivelée</translation>
+        <translation>Dénivelée</translation>
     </message>
 </context>
 <context>
@@ -1343,12 +1346,12 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="299"/>
         <source>Closing current project</source>
-        <translation type="unfinished"></translation>
+        <translation>Fermeture du projet courant</translation>
     </message>
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="299"/>
         <source>The current project has been modified, do you want to save it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Le projet courant a été modifié, voulez-vous l&apos;enregistrer ?</translation>
     </message>
 </context>
 <context>
@@ -1422,12 +1425,12 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/gui/reosmessagebox.cpp" line="41"/>
         <source>Error: </source>
-        <translation type="unfinished"></translation>
+        <translation>Erreur : </translation>
     </message>
     <message>
         <location filename="../src/gui/reosmessagebox.cpp" line="47"/>
         <source>Warning: </source>
-        <translation type="unfinished"></translation>
+        <translation>Attention : </translation>
     </message>
 </context>
 <context>
@@ -1934,7 +1937,7 @@ choisir un nouveau nom :</translation>
     <message>
         <location filename="../src/core/raster/reosrasterwatershed.cpp" line="438"/>
         <source>Prepare calculation</source>
-        <translation type="unfinished"></translation>
+        <translation>Préparation du calcul</translation>
     </message>
 </context>
 <context>
@@ -2428,7 +2431,7 @@ est appliqué sur la pluie</translation>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="149"/>
         <source>Intensity time unit</source>
-        <translation type="unfinished"></translation>
+        <translation>Unité de temps d&apos;intensité</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="153"/>
@@ -2577,7 +2580,7 @@ est appliqué sur la pluie</translation>
     <message>
         <location filename="../src/core/watershed/reoswatershed.cpp" line="763"/>
         <source>Average elevation</source>
-        <translation type="unfinished"></translation>
+        <translation>Élévation moyenne</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reoswatershed.cpp" line="764"/>
@@ -2587,12 +2590,12 @@ est appliqué sur la pluie</translation>
     <message>
         <location filename="../src/core/watershed/reoswatershed.cpp" line="960"/>
         <source>Unable to calculate average elevation for watershed &quot;%1&quot; : no DEM available</source>
-        <translation type="unfinished"></translation>
+        <translation>Incapable de calculer l&apos;élévation moyenne pour le bassin versant &quot;%1&quot; : aucun MNT disponible</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reoswatershed.cpp" line="962"/>
         <source>Average elevation calculation for watershed &quot;%1&quot; with DEM &quot;%2&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Élévation moyenne calculée pour le bassin versant  &quot;%1&quot; avec le MNT &quot;%2&quot;</translation>
     </message>
 </context>
 <context>
@@ -2773,7 +2776,7 @@ est appliqué sur la pluie</translation>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="50"/>
         <source>Average elevation</source>
-        <translation type="unfinished"></translation>
+        <translation>Élévation moyenne</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="203"/>
