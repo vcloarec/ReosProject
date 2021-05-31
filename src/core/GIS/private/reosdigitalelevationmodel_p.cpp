@@ -333,7 +333,7 @@ double ReosDigitalElevationModelRaster::averageElevationOnGrid( const ReosRaster
       if ( grid.value( row, col ) != 0 )
       {
         double value = demGrid.value( row, col );
-        if ( noDataValueExist && value != noDataValue )
+        if ( !noDataValueExist || value != noDataValue )
         {
           sum  += value;
           valueCount += 1;
