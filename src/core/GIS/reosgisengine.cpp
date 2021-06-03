@@ -36,6 +36,7 @@ email                : vcloarec at gmail dot com
 #include <qgspolygon.h>
 #include <qgsprojutils.h>
 #include <qgssinglebandpseudocolorrenderer.h>
+#include <qgis.h>
 
 #define  mLayerTreeModel _layerTreeModel(mAbstractLayerTreeModel)
 static QgsLayerTreeModel *_layerTreeModel( QAbstractItemModel *sourceModel )
@@ -511,22 +512,22 @@ bool ReosGisEngine::canBeRasterDem( QgsRasterLayer *layer ) const
     Qgis::DataType dataType = provider->dataType( 1 );
     switch ( dataType )
     {
-      case Qgis::UnknownDataType:
-      case Qgis::Byte:
-      case Qgis::UInt16:
-      case Qgis::Int16:
-      case Qgis::UInt32:
-      case Qgis::Int32:
-      case Qgis::CInt16:
-      case Qgis::CInt32:
-      case Qgis::ARGB32:
-      case Qgis::ARGB32_Premultiplied:
+      case Qgis::DataType::UnknownDataType:
+      case Qgis::DataType::Byte:
+      case Qgis::DataType::UInt16:
+      case Qgis::DataType::Int16:
+      case Qgis::DataType::UInt32:
+      case Qgis::DataType::Int32:
+      case Qgis::DataType::CInt16:
+      case Qgis::DataType::CInt32:
+      case Qgis::DataType::ARGB32:
+      case Qgis::DataType::ARGB32_Premultiplied:
         return false;
         break;
-      case Qgis::CFloat32:
-      case Qgis::CFloat64:
-      case Qgis::Float32:
-      case Qgis::Float64:
+      case Qgis::DataType::CFloat32:
+      case Qgis::DataType::CFloat64:
+      case Qgis::DataType::Float32:
+      case Qgis::DataType::Float64:
         return true;
         //could be a DEM
         break;
