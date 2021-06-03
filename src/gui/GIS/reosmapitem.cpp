@@ -41,6 +41,9 @@ bool ReosMapItem::isItem( QGraphicsItem *item ) const
 
 bool ReosMapItem::isItem( ReosMapItem *item ) const
 {
+  if ( !item )
+    return false;
+
   return d_ == item->d_;
 }
 
