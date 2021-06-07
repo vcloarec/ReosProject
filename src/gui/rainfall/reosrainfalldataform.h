@@ -17,6 +17,7 @@
 #define REOSRAINFALLDATAFORM_H
 
 #include "reosformwidget.h"
+#include "QHeaderView"
 
 
 //! Widget that can be uses to display/edits paramters of a ReosTimeSerieConstantInterval
@@ -30,6 +31,15 @@ class ReosTimeSerieConstantIntervalWidget: public ReosFormWidget
     ReosTimeSerieConstantIntervalModel *mModel = nullptr;
     QComboBox *mValueModeComboBox = nullptr;
     QComboBox *mIntensityUnitComboBox = nullptr;
+};
+
+class ReosHorizontalHeaderView: public QHeaderView
+{
+  public:
+    ReosHorizontalHeaderView( QWidget *parent = nullptr );
+
+  protected:
+    QSize sectionSizeFromContents( int logicalIndex ) const override;
 };
 
 //! Table view widget custmed to display/edit time series with constant time step
