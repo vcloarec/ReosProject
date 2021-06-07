@@ -514,16 +514,16 @@ bool ReosGisEngine::canBeRasterDem( QgsRasterLayer *layer ) const
     {
       case Qgis::DataType::UnknownDataType:
       case Qgis::DataType::Byte:
+      case Qgis::DataType::ARGB32:
+      case Qgis::DataType::ARGB32_Premultiplied:
+        return false;
+        break;
       case Qgis::DataType::UInt16:
       case Qgis::DataType::Int16:
       case Qgis::DataType::UInt32:
       case Qgis::DataType::Int32:
       case Qgis::DataType::CInt16:
       case Qgis::DataType::CInt32:
-      case Qgis::DataType::ARGB32:
-      case Qgis::DataType::ARGB32_Premultiplied:
-        return false;
-        break;
       case Qgis::DataType::CFloat32:
       case Qgis::DataType::CFloat64:
       case Qgis::DataType::Float32:
