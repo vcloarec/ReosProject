@@ -16,9 +16,7 @@
 #include "reostextfiledata.h"
 
 ReosTextFileData::ReosTextFileData( QObject *parent )
-{
-
-}
+{}
 
 bool ReosTextFileData::setFileName( const QString &fileName )
 {
@@ -107,12 +105,12 @@ QModelIndex ReosTextFileData::parent( const QModelIndex &child ) const
   return QModelIndex();
 }
 
-int ReosTextFileData::rowCount( const QModelIndex &parent ) const
+int ReosTextFileData::rowCount( const QModelIndex & ) const
 {
   return mPreviewData.count() - mFirstDataLine + 1;
 }
 
-int ReosTextFileData::columnCount( const QModelIndex &parent ) const
+int ReosTextFileData::columnCount( const QModelIndex & ) const
 {
   return mHeaders.count();
 }
@@ -174,7 +172,7 @@ QVector<QString> ReosTextFileData::columnValues( int columnIndex )
   int lineCounter = 1;
   while ( !stream.atEnd() )
   {
-    QString line = stream.readLine();
+    QString line = readLine( stream );
     if ( lineCounter >= mFirstDataLine )
     {
       QStringList row = splitLine( line );
@@ -208,12 +206,14 @@ bool ReosTextFileData::parsePreview()
 
   QTextStream stream( &file );
 
+  findEOL( stream );
+
   for ( int i = 0; i < mPreviewLineMaxCount; ++i )
   {
     if ( stream.atEnd() )
       break;
     else
-      mPreviewData.append( stream.readLine() );
+      mPreviewData.append( readLine( stream ) );
   }
 
   if ( mPreviewData.empty() )
@@ -244,4 +244,48 @@ QStringList ReosTextFileData::splitLine( const QString &line ) const
   else
     return QStringList( line );
 
+}
+
+void ReosTextFileData::findEOL( QTextStream &stream )
+{
+  mFirstEOLChar = 0;
+  while ( !stream.atEnd() && mFirstEOLChar == 0 )
+  {
+    const QString str = stream.read( 1 ); //TODO : mabe change the lengh of reading with another value
+    const QChar *strChar = str.constData();
+    for ( int i = 0; i < str.size(); ++i )
+      if ( strChar[i] == '\r' || strChar[i] == '\n' )
+      {
+        mFirstEOLChar = strChar[i];
+        break;
+      }
+  }
+
+  stream.seek( 0 );
+}
+
+QString ReosTextFileData::readLine( QTextStream &stream )
+{
+  // We should always use mStream->readLine(), but it fails to detect \r
+  // line endings.
+
+  if ( mFirstEOLChar == '\r' )
+  {
+    QString line;
+    bool lineFinished = false;
+    while ( !stream.atEnd() && !lineFinished )
+    {
+      const QString str = stream.read( 1 );
+      const QChar *strChar = str.constData();
+      if ( strChar == mFirstEOLChar )
+        lineFinished = true;
+      else
+        line.append( str );
+    }
+    return line;
+  }
+  else
+  {
+    return stream.readLine();
+  }
 }
