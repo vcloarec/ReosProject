@@ -685,12 +685,12 @@ Faut-il ajuster le nouveau bassin versant ?</translation>
 <context>
     <name>ReosDoubleTriangleRainfallWidget</name>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="216"/>
+        <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="217"/>
         <source>Intense Intensity Duration Curve</source>
         <translation>Courbe Intensité Durée Intense</translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="217"/>
+        <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="218"/>
         <source>Total Intensity Duration Curve</source>
         <translation>Courbe Intensité Durée Totale</translation>
     </message>
@@ -843,42 +843,42 @@ Faut-il ajuster le nouveau bassin versant ?</translation>
 <context>
     <name>ReosGisEngine</name>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="131"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="132"/>
         <source>Vector layer loaded: %1</source>
         <translation>Couche vectorielle chargée : %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="136"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="137"/>
         <source>Vector layer not loaded: %1</source>
         <translation>Couche vectorielle non chargée : %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="150"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="151"/>
         <source>Raster layer loaded: %1</source>
         <translation>Couche raster chargée : %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="157"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="158"/>
         <source>Raster layer not loaded: %1</source>
         <translation>Couche raster non chargée : %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="169"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="170"/>
         <source>Mesh layer loaded: %1</source>
         <translation>Couche maillage chargée : %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="174"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="175"/>
         <source>Mesh layer not loaded: %1</source>
         <translation>Couche maillage non chargée : %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="201"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="202"/>
         <source>Could not find MDAL</source>
         <translation>MDAL non trouvé</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="247"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="248"/>
         <source>This layer doesn&apos;t have a valid or known coordinates system, and calculation on DEM will be done considering its coordinate system is the same as the project.
 The project coordinates system is a geographic reference system (latitude/longitude) and the extent of this layer suggests that it actually a projected coordinates system.
 If so, the result of area or distance calculation will be incorrect.
@@ -2322,7 +2322,7 @@ est appliqué sur la pluie</translation>
 <context>
     <name>ReosTextFileData</name>
     <message>
-        <location filename="../src/core/data/reostextfiledata.cpp" line="81"/>
+        <location filename="../src/core/data/reostextfiledata.cpp" line="79"/>
         <source>space</source>
         <translation>espace</translation>
     </message>

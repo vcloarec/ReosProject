@@ -216,6 +216,7 @@ SOURCES += src/core/reosapplication.cpp \
 TRANSLATIONS += i18n/reos_en.ts \
                 i18n/reos_es.ts \
                 i18n/reos_fr.ts \
+                i18n/reos_ne.ts \
                 i18n/reos_pt.ts \
                 i18n/reos_zh_TW.ts
 TR_EXCLUDE = /usr/include/x86_64-linux-gnu/qt5/*
