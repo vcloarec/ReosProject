@@ -1,62 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="fr">
+<TS version="2.1" language="ne">
 <context>
     <name>LekanMainWindow</name>
     <message>
         <location filename="../src/lekan/lekanmainwindow.ui"/>
         <source>Lekan</source>
-        <translation>Lekan</translation>
+        <translation>लेकान</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="70"/>
         <source>GIS Layers</source>
-        <translation>Couches SIG</translation>
+        <translation>GIS लेयर</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="74"/>
         <source>Watershed</source>
-        <translation>Bassin Versant</translation>
+        <translation>वाटरशेड</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="156"/>
         <source>Rainfall Data Changed</source>
-        <translation>Données pluviométriques modifiées</translation>
+        <translation>वर्षा को डाटा बदलिएको छ ।</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="156"/>
         <source>Rainfall data have changed, do you want to save?</source>
-        <translation>Les données pluviométriques ont été modifiées, voulez-vous les enregistrer ?</translation>
+        <translation>वर्षा को डाटा बदलिएको छ । सेभ गर्ने ?</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="162"/>
         <source>Runoff Data Changed</source>
-        <translation>Données de ruissellement modifiées</translation>
+        <translation>अपवाह को डाटा बदलिएको छ ।</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="162"/>
         <source>Runoff data have changed, do you want to save?</source>
-        <translation>Les données de ruissellements ont été modifiées, voulez-vous les enregistrer ?</translation>
+        <translation>अपवाह को डाटा बदलिएको छ । सेभ गर्ने ?</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="186"/>
         <source>Hydrology</source>
-        <translation>Hydrologie</translation>
+        <translation>जलविज्ञान</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="187"/>
         <source>Rainfall manager</source>
-        <translation>Gestionnaires des pluies</translation>
+        <translation>वर्षा व्यवस्थापन</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="188"/>
         <source>Runoff manager</source>
-        <translation>Gestionnaires des ruissellements</translation>
+        <translation>अपवाह व्यवस्थापन</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="190"/>
         <source>Map</source>
-        <translation>Carte</translation>
+        <translation>नक्सा&#xa0;</translation>
     </message>
 </context>
 <context>
@@ -64,104 +64,104 @@
     <message>
         <location filename="../src/core/GIS/private/reosdigitalelevationmodel_p.cpp" line="101"/>
         <source>Read DEM for segment %1/%2</source>
-        <translation>Lecture du MNT pour le segment %1/%2</translation>
+        <translation>DEM आयात गर्ने भाग %1/%2 लाई</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reosdigitalelevationmodel_p.cpp" line="116"/>
         <source>Project segment %1/%2</source>
-        <translation>Projette segment %1/%2</translation>
+        <translation>प्रक्षेपण गर्ने भाग %1/%2 लाई</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reosdigitalelevationmodel_p.cpp" line="175"/>
         <source>Extract DEM from layer</source>
-        <translation>Extraction du MNT depuis la couche</translation>
+        <translation>लेयर बाट DEM निकाल्ने</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reosdigitalelevationmodel_p.cpp" line="256"/>
         <source>Calculate average elevation from grid</source>
-        <translation>Calcul de l&apos;élévation moyenne depuis la grille</translation>
+        <translation>Grid बाट उचाई को औसत पत्ता लगाउने</translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosarea.cpp" line="240"/>
         <location filename="../src/core/rainfall/reosidfcurves.cpp" line="196"/>
         <location filename="../src/core/rainfall/reosidfcurves.cpp" line="760"/>
         <source>a</source>
-        <translation>a</translation>
+        <translation>एकड</translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosarea.cpp" line="243"/>
         <source>ha</source>
-        <translation>ha</translation>
+        <translation>हेक्टर</translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosduration.cpp" line="89"/>
         <source>ms</source>
-        <translation>ms</translation>
+        <translation>मिलिसेकेन्ड</translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosduration.cpp" line="92"/>
         <source>s</source>
-        <translation>s</translation>
+        <translation>सेकेन्ड</translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosduration.cpp" line="95"/>
         <source>mn</source>
-        <translation>mn</translation>
+        <translation>मिनेट</translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosduration.cpp" line="98"/>
         <source>h</source>
-        <translation>h</translation>
+        <translation>घन्टा</translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosduration.cpp" line="101"/>
         <source>d</source>
-        <translation>d</translation>
+        <translation>दिन</translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosduration.cpp" line="106"/>
         <source>weeks</source>
-        <translation>semaines</translation>
+        <translation>हप्ताहरु</translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosduration.cpp" line="108"/>
         <source>week</source>
-        <translation>semaine</translation>
+        <translation>हप्ता</translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosduration.cpp" line="113"/>
         <source>monthes</source>
-        <translation>mois</translation>
+        <translation>महिनाहरु</translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosduration.cpp" line="115"/>
         <source>month</source>
-        <translation>mois</translation>
+        <translation>महिना</translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosduration.cpp" line="120"/>
         <source>years</source>
-        <translation>années</translation>
+        <translation>वर्षहरु</translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosduration.cpp" line="122"/>
         <source>year</source>
-        <translation>année</translation>
+        <translation>वर्ष</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reosidfcurves.cpp" line="197"/>
         <source>b</source>
-        <translation>b</translation>
+        <translation>बी</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reosidfcurves.cpp" line="761"/>
         <source>c</source>
-        <translation>c</translation>
+        <translation>सी</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reosidfcurves.cpp" line="762"/>
         <source>n</source>
-        <translation>n</translation>
+        <translation>एन्</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reosrainfallitem.cpp" line="247"/>
@@ -169,138 +169,138 @@
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="27"/>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="36"/>
         <source>Name</source>
-        <translation>Nom</translation>
+        <translation>नाम</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reosrainfallitem.cpp" line="248"/>
         <location filename="../src/core/rainfall/reosrainfallitem.cpp" line="259"/>
         <source>Description</source>
-        <translation>Description</translation>
+        <translation>विवरण</translation>
     </message>
     <message>
         <location filename="../src/core/reosversion.cpp" line="78"/>
         <source>version</source>
-        <translation>version</translation>
+        <translation>संस्करण</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosmeteorologicmodel.cpp" line="22"/>
         <location filename="../src/core/watershed/reosmeteorologicmodel.cpp" line="31"/>
         <source>Meteorologic model name</source>
-        <translation>Nom du modèle météorologique</translation>
+        <translation>मौसम विज्ञानको नमूनाको नाम</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="132"/>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="142"/>
         <source>Coefficient</source>
-        <translation>Coefficient</translation>
+        <translation>गुणक&#xa0;</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.h" line="230"/>
         <source>Linear reservoir</source>
-        <translation>Réservoir linéaire</translation>
+        <translation>Linear reservoir (रैखिक जलाशय)</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.h" line="278"/>
         <source>Generalized Rational Method</source>
-        <translation>Méthode Rationnelle Généralisée</translation>
+        <translation>जेनेरलाईजड् र्यास्नल मेथड / Generalized Rational Method</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.h" line="359"/>
         <source>SCS Unit Hydrograph</source>
-        <translation>Hydrographe unitaire SCS</translation>
+        <translation>एस् सि एस् युनिट हाईड्रोग्राफ / SCS Unit Hydrograph</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reoswatershed.cpp" line="831"/>
         <source> residual</source>
-        <translation>résiduel</translation>
+        <translation>शेष / अवशिष्ट</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/private/reoslayertreecontextmenuprovider_p.cpp" line="64"/>
         <source>Layer properties</source>
-        <translation>Propriétés de la couche</translation>
+        <translation>लेयर विवरण</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/private/reoslayertreecontextmenuprovider_p.cpp" line="73"/>
         <source>Unregister as Digital Elevation Model</source>
-        <translation>Désenregistre en tant que MNT</translation>
+        <translation>DEM को रुपमा सुची खारेज गर्नुहोस ।</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/private/reoslayertreecontextmenuprovider_p.cpp" line="78"/>
         <source>Register as Digital Elevation Model</source>
-        <translation>Enregistre en tant que MNT</translation>
+        <translation>DEM को रुपमा सुची दर्ता गर्नुहोस ।</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="711"/>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="726"/>
         <source>Rainfall duration (mn)</source>
-        <translation>Durée de la pluie (mn)</translation>
+        <translation>बर्षा अवधि ( मिनेट )</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="712"/>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="727"/>
         <source>Rainfall intensity (mm/h)</source>
-        <translation>Intensité de la pluie (mm/h)</translation>
+        <translation>बर्षा तीव्रता ( मिलिमिटर प्रति घन्टा )</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="738"/>
         <source>, instant value</source>
-        <translation>, valeur instantanée</translation>
+        <translation>तत्काल मान</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="746"/>
         <source>, cumulative value</source>
-        <translation>, valeur cumulée</translation>
+        <translation>संचित मान</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="750"/>
         <source>cumulative rainfall (mm)</source>
-        <translation>pluie cumulée (mm)</translation>
+        <translation>संचित बर्षा ( मिलिमिटर )</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="753"/>
         <source>Time</source>
-        <translation>Temps</translation>
+        <translation>समय</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="858"/>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="1045"/>
         <source>Lag time from concentration time: %1</source>
-        <translation>Temps de décalage dérivée du temps de concentration : %1</translation>
+        <translation>एकाग्रता समय बाट ल्याग समय निकाल्ने : %1</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="321"/>
         <source>Initial retention: %1 mm</source>
-        <translation>Rétention initiale : %1 mm</translation>
+        <translation>सुरुको संचयः %1 मिलिमिटर</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="445"/>
         <source>The Generalized Rational Method is a Unit Hydrograph transfer function.&lt;br&gt;This Unit Hydrograph is defined as below:</source>
-        <translation>La méthode rationnelle généralisée est une méthode de type l&apos;hydrogramme unitaire.&lt;br&gt;Cette hydrogramme unitaire est défini comme ci-dessous :</translation>
+        <translation>Generalized Rational Method एक Unit Hydrograph स्थानान्तरण गर्ने function हो । यो Unit Hydrograph लाई यसरी वर्णन गरिन्छ :</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="453"/>
         <source>Where:&lt;br&gt;- Δt : the time step of the runoff&lt;br&gt;- t&lt;sub&gt;c&lt;/sub&gt; : the concentration time&lt;br&gt;- A : the watershed area&lt;br&gt;- r : the runoff intensity or the effective rainfall intensity during the time step in mm per unit time</source>
-        <translation>Où :&lt;br&gt;- Δt : le pas de temps du ruissellement&lt;br&gt;- t&lt;sub&gt;c&lt;/sub&gt; : le temps de concentration&lt;br&gt;- A : la superficie du bassin versant&lt;br&gt;- r : l&apos;intensité du ruissellement ou de la pluie effective durant le pas de temps en mm par unité de temps</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="472"/>
         <source>The Linear Reservoir Method is expressing the flow rate for the n&lt;sup&gt;th&lt;/sup&gt; time step as below:</source>
-        <translation>La méthode du réservoir linéaire exprime le débit au n&lt;sup&gt;ème&lt;/sup&gt; pas de temps comme ci-dessous :</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="482"/>
         <source>Where:&lt;br&gt;- Δt : the time step of the runoff&lt;br&gt;- t&lt;sub&gt;l&lt;/sub&gt; : the lag time&lt;br&gt;- A : the watershed area&lt;br&gt;- r : the runoff intensity or the effective rainfall intensity during the time step in mm per unit time&lt;br&gt;- Q&lt;sub&gt;0&lt;/sub&gt; = 0</source>
-        <translation>Où :&lt;br&gt;- Δt : le pas de temps du ruissellement&lt;br&gt;- t&lt;sub&gt;l&lt;/sub&gt; : le temps de décalage&lt;br&gt;- A : la superficie du bassin versant&lt;br&gt;- r :  l&apos;intensité du ruissellement ou de la pluie effective durant le pas de temps en mm par unité de temps&lt;br&gt;- Q&lt;sub&gt;0&lt;/sub&gt; = 0</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="740"/>
         <source>The SCS Unit Hydrograph defines a Unit Hydrograph with predefined hydrograph shapes depending on a peak factor.&lt;br&gt;This peak factor links the peak flow rate and the peak time as below:</source>
-        <translation>L&apos;hydrogramme unitaire du SCS définit un hydrogramme unitaire avec des forme d&apos;hydrogramme prédéfinies dépendant d&apos;une facteur de pointe.&lt;br&gt;Ce facteur de pointe lie le débit de pointe avec le temps de pointe comme ci-dessous:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="750"/>
         <source>Where:&lt;br&gt;- Q&lt;sub&gt;p&lt;/sub&gt; : the peak flow rate for an effective rainfall height or a runoff of 1 cm&lt;br&gt;- T&lt;sub&gt;p&lt;/sub&gt; : the time of the peak in hours&lt;br&gt;- A : the watershed area in km&lt;sup&gt;2&lt;/sup&gt;&lt;br&gt;- P&lt;sub&gt;f&lt;/sub&gt; : the peak factor between 100 and 600 with a typical value of 484&lt;br&gt; Peak factor with high value is for watershed with quick reaction (mountain), and lower values are for slower watersheds (plain).</source>
-        <translation>Où :&lt;br&gt;- Q&lt;sub&gt;p&lt;/sub&gt; : le débit de pointe pour une pluie effective ou un ruissellement de 1 cm&lt;br&gt;- T&lt;sub&gt;p&lt;/sub&gt; : le temps de pointe en heure&lt;br&gt;- A : la superficie du bassin versant en km&lt;sup&gt;2&lt;/sup&gt;&lt;br&gt;- P&lt;sub&gt;f&lt;/sub&gt; : le facteur de pointe avec une valeur entre 100 et 600 courament égal à 484 &lt;br&gt; Un facteur de pointe avec une forte valeur correspond à un bassin versant à réaction rapide (montagne), des valeurs plus basses correspondent à des bassins versants plus lents (plaine).</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -308,52 +308,52 @@
     <message>
         <location filename="../src/ui/reosaboutwidget.ui"/>
         <source>About</source>
-        <translation>A propos</translation>
+        <translation>यसको बारेमा</translation>
     </message>
     <message>
         <location filename="../src/ui/reosaboutwidget.ui"/>
         <source>Reos</source>
-        <translation>Reos</translation>
+        <translation>रियोस</translation>
     </message>
     <message>
         <location filename="../src/ui/reosaboutwidget.ui"/>
         <source>version</source>
-        <translation>version</translation>
+        <translation>संस्करण</translation>
     </message>
     <message>
         <location filename="../src/ui/reosaboutwidget.ui"/>
         <source>Dependencies</source>
-        <translation>Dépendances</translation>
+        <translation>निर्भरता हरु</translation>
     </message>
     <message>
         <location filename="../src/ui/reosaboutwidget.ui"/>
         <source>Following libraries are used:</source>
-        <translation>Les librairies suivantes sont utilisées :</translation>
+        <translation>तलका library हरु चलाइएको छ :</translation>
     </message>
     <message>
         <location filename="../src/ui/reosaboutwidget.ui"/>
         <source>Developers</source>
-        <translation>Développeurs</translation>
+        <translation>विकासक</translation>
     </message>
     <message>
         <location filename="../src/ui/reosaboutwidget.ui"/>
         <source>Translators</source>
-        <translation>Traducteurs</translation>
+        <translation>अनुवादक हरू</translation>
     </message>
     <message>
         <location filename="../src/ui/reosaboutwidget.ui"/>
         <source>Contributors</source>
-        <translation>Contributeurs</translation>
+        <translation>योगदानकर्ता हरू</translation>
     </message>
     <message>
         <location filename="../src/ui/reosaboutwidget.ui"/>
         <source>License</source>
-        <translation>Licence</translation>
+        <translation>लाइसेन्स</translation>
     </message>
     <message>
         <location filename="../src/ui/reosaboutwidget.ui"/>
         <source>Under GPL license v2 or later:</source>
-        <translation>Sous licence GPL version 2 ou ultérieure</translation>
+        <translation>GPL license v2 वा पछिको लागि :</translation>
     </message>
 </context>
 <context>
@@ -362,12 +362,12 @@
         <location filename="../src/core/reosapplication.cpp" line="34"/>
         <location filename="../src/core/reosapplication.cpp" line="39"/>
         <source>Exception</source>
-        <translation>Exception</translation>
+        <translation>अपवाद</translation>
     </message>
     <message>
         <location filename="../src/core/reosapplication.cpp" line="39"/>
         <source>unknown exception</source>
-        <translation>Exception inconnue</translation>
+        <translation>थाहा नभएको अपवाद</translation>
     </message>
 </context>
 <context>
@@ -375,7 +375,7 @@
     <message>
         <location filename="../src/ui/reoschartwidget.ui"/>
         <source>...</source>
-        <translation>...</translation>
+        <translation>~~~</translation>
     </message>
 </context>
 <context>
@@ -383,12 +383,12 @@
     <message>
         <location filename="../src/core/watershed/reosconcentrationtimecalculation.cpp" line="537"/>
         <source>Formula Name</source>
-        <translation>Nom de formule</translation>
+        <translation>सूत्रको नाम</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosconcentrationtimecalculation.cpp" line="539"/>
         <source>Calculated Value</source>
-        <translation>Valeur Calculée</translation>
+        <translation>परिकलित / गणना भएको मान</translation>
     </message>
 </context>
 <context>
@@ -396,157 +396,157 @@
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
         <source>Concentration Time</source>
-        <translation>Temps de concentration</translation>
+        <translation>एकाग्रता समय</translation>
     </message>
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
         <source>Parameters</source>
-        <translation>Paramètres</translation>
+        <translation>मापदण्ड</translation>
     </message>
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
         <source>...</source>
-        <translation>...</translation>
+        <translation>~~~</translation>
     </message>
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic; color:#ff0000;&quot;&gt;Red value: at least one parameter is outside the validity domain of the formula&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic; color:#ff0000;&quot;&gt;Valeur en rouge : au moins un paramètre en dehors du domaine de validité de la formule &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
         <source>Used Value</source>
-        <translation>Valeur utilisée</translation>
+        <translation>चलाइएको मान</translation>
     </message>
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
         <source>Minimum</source>
-        <translation>Minimum</translation>
+        <translation>न्यूनतम</translation>
     </message>
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
         <source>Maximum</source>
-        <translation>Maximum</translation>
+        <translation>अधिकतम</translation>
     </message>
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
         <source>Average</source>
-        <translation>Moyenne</translation>
+        <translation>औसत</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="32"/>
         <source>Longest path</source>
-        <translation>Plus long chemin</translation>
+        <translation>सबैभन्दा लामो पथ</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="33"/>
         <source>Drop</source>
-        <translation>Dénivelée</translation>
+        <translation>उचाई मा फरक</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="34"/>
         <source>Slope</source>
-        <translation>Pente</translation>
+        <translation>ढलान / भिरालो को जडना</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="35"/>
         <source>Area</source>
-        <translation>Superficie</translation>
+        <translation>क्षेत्रफल</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="36"/>
         <source>Average elevation</source>
-        <translation>Élévation moyenne</translation>
+        <translation>औसत उचाई</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="41"/>
         <source>Used value</source>
-        <translation>Valeur utilisée</translation>
+        <translation>चलाइएको मान</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="55"/>
         <source>Select All </source>
-        <translation>Sélectionne tout</translation>
+        <translation>सबेे चयन गर्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="56"/>
         <source>Deselect All </source>
-        <translation>Désélectionne tout</translation>
+        <translation>सबेे अचयन गर्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="57"/>
         <source>Select Valid </source>
-        <translation>Sélectionne les valides</translation>
+        <translation>मान्य चयन गर्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="58"/>
         <source>Copy values to Clipboard </source>
-        <translation>Copie les valeurs dans le presse papier</translation>
+        <translation>क्लिपबोर्डमा मानहरू कपि गर्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="240"/>
         <source>Maximum value</source>
-        <translation>Valeur maximale</translation>
+        <translation>अधिकतम मान</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="243"/>
         <source>Minimum value</source>
-        <translation>Valeur minimale</translation>
+        <translation>न्यूनतम मान</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="246"/>
         <source>Average value</source>
-        <translation>Valeur moyenne</translation>
+        <translation>औसत मान</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="249"/>
         <source>Choosen formula (%1)</source>
-        <translation>Formule retenue (%1)</translation>
+        <translation>छानिएको formula (%1)</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="287"/>
         <source>Concentration Time Formula</source>
-        <translation>Formule de temps de concentration</translation>
+        <translation>एकाग्रता समयको formula</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="307"/>
         <source>L : longest path (m)</source>
-        <translation>L : plus long chemin (m)</translation>
+        <translation>L: सबैभन्दा लामो पथ ( मिटर )</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="308"/>
         <source>A : watershed area (m²)</source>
-        <translation>A : superficie (m²)</translation>
+        <translation>A : वाटरशेड क्षेत्र ( मिटर स्कवाएर )</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="309"/>
         <source>i : average slope (m/m)</source>
-        <translation>i : pente moyenne (m/m)</translation>
+        <translation>i : औसत ढलान ( मि / मि )</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="310"/>
         <source>H : Drop (m)</source>
-        <translation>H : dénivelée (m)</translation>
+        <translation>H : उचाई मा फरक ( मि )</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="311"/>
         <source>Hm : relative average elevation (from outlet) (m)</source>
-        <translation>Hm : élévation moyenne relative (depuis l&apos;exutoire) (m)</translation>
+        <translation>Hm : सापेक्ष औसत उचाई (आउटलेटबाट) ( मिटर )</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="312"/>
         <source>All results in minutes</source>
-        <translation>Tous les résultats en minutes</translation>
+        <translation>सबेे उत्तर मिनेट मा</translation>
     </message>
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
         <source>Chosen formula</source>
-        <translation>Formule retenue</translation>
+        <translation>छानिएको formula</translation>
     </message>
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
         <source>Available Formulas</source>
-        <translation>Formules disponibles</translation>
+        <translation>उपलब्ध formula हरु</translation>
     </message>
 </context>
 <context>
@@ -554,111 +554,111 @@
     <message>
         <location filename="../src/ui/reosdelineatingwatershedwidget.ui"/>
         <source>Watershed Delineating</source>
-        <translation>Découpage de bassin versant</translation>
+        <translation>वाटरशेड बनाउने</translation>
     </message>
     <message>
         <location filename="../src/ui/reosdelineatingwatershedwidget.ui"/>
         <source>Automatic from DEM</source>
-        <translation>Automatique depuis un MNT</translation>
+        <translation> स्वचालित तारिकाले वाटरशेड बनाउने</translation>
     </message>
     <message>
         <location filename="../src/ui/reosdelineatingwatershedwidget.ui"/>
         <source>Manual Delineating</source>
-        <translation>Découpage manuel</translation>
+        <translation>मैन्युअल तारिकाले वाटरशेड बनाउने</translation>
     </message>
     <message>
         <location filename="../src/ui/reosdelineatingwatershedwidget.ui"/>
         <source>Current DEM</source>
-        <translation>MNT courant</translation>
+        <translation>चालु DEM</translation>
     </message>
     <message>
         <location filename="../src/ui/reosdelineatingwatershedwidget.ui"/>
         <source>Delineate Watershed</source>
-        <translation>Découpe bassin versant</translation>
+        <translation>वाटरशेड बनाउने</translation>
     </message>
     <message>
         <location filename="../src/ui/reosdelineatingwatershedwidget.ui"/>
         <source>Validate Watershed</source>
-        <translation>Valide bassin versant</translation>
+        <translation>वाटरशेड लाइ विधिमान्य बनाउने</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="35"/>
         <source>Draw downstream line</source>
-        <translation>Trace ligne aval</translation>
+        <translation>डाउनस्ट्रीम रेखा / सिन्क रेखा चित्रित गर्ने</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="36"/>
         <source>Draw predefined extent</source>
-        <translation>Trace étendue prédéfinie</translation>
+        <translation>पूर्वनिर्धारित सीमा चित्रित गर्ने</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="37"/>
         <source>Add a burning line</source>
-        <translation>Ajoute une ligne de brûlure</translation>
+        <translation>जल्ने रेखा थप्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="38"/>
         <source>Remove a burning line</source>
-        <translation>Supprime une ligne de brûlure</translation>
+        <translation>जल्ने रेखा हटाउनुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="41"/>
         <source>Draw watershed manually</source>
-        <translation>Trace un bassin versant manuellement</translation>
+        <translation>वाटरशेड आफेे चित्रित गर्ने</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="42"/>
         <source>Edit watershed manually</source>
-        <translation>Édite le contour du bassin versant</translation>
+        <translation>वाटरशेड आफेे संपादित गर्ने</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="43"/>
         <source>Move outlet point</source>
-        <translation>Déplacer le point exutoire</translation>
+        <translation>आउटलेट पोइन्ट सार्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="263"/>
         <source>Load Raster DEM Layer</source>
-        <translation>Charge couche raster MNT</translation>
+        <translation>DEM लेयरलाई आयात गर्ने </translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="272"/>
         <source>Loading Raster DEM Layer</source>
-        <translation>Chargement couche raster MNT</translation>
+        <translation>DEM लेयर आयात हुदेे</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="273"/>
         <source>This layer is not recognized as a possible DEM, do you want to load it?</source>
-        <translation>Cette couche n&apos;a pas été reconnue comme une couche pouvant être un MNT, voulez-vous la charger ?</translation>
+        <translation>यो लेयरलाइ मान्य DEM को रुप मा चिनिएन । लोड गर्ने ?</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="282"/>
         <source>Loading Raster Layer</source>
-        <translation>Chargement couche raster</translation>
+        <translation>र्यास्टर लेयर आयात हुदेे</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="282"/>
         <source>Invalid raster layer, file not loaded.</source>
-        <translation>Couche raster invalide, fichier non chargé</translation>
+        <translation>र्यास्टर लेयर अमान्य रहेछ । लोड भएन !</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="322"/>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="370"/>
         <source>Delineating watershed</source>
-        <translation>Découpage de bassin versant</translation>
+        <translation>वाटरशेड बनाउने</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="322"/>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="370"/>
         <source>This watershed intersects existing watershed(s)
 Adjust new watershed?</source>
-        <translation>Ce bassin versant intersecte un ou plusieurs bassins versants existants
-Faut-il ajuster le nouveau bassin versant ?</translation>
+        <translation>यो वाटरशेडले पेेले भएको वाटरशेड(हरु) संग काट्छ
+नया वाटरशेडसंग बदलिने?</translation>
     </message>
     <message>
         <location filename="../src/ui/reosdelineatingwatershedwidget.ui"/>
         <source>Calculate average elevation</source>
-        <translation>Calcule élévation moyenne</translation>
+        <translation>औसत&#xa0;उचाईको हिसाब गर्नुहोस्</translation>
     </message>
 </context>
 <context>
@@ -667,19 +667,19 @@ Faut-il ajuster le nouveau bassin versant ?</translation>
         <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="347"/>
         <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="363"/>
         <source>Intense Duration</source>
-        <translation>Durée intense</translation>
+        <translation>तीव्र अवधि</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="346"/>
         <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="364"/>
         <source>Total Duration</source>
-        <translation>Durée totale</translation>
+        <translation>कुल अवधि</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="348"/>
         <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="365"/>
         <source>Eccentricity</source>
-        <translation>Excentricité</translation>
+        <translation>विलक्षणता</translation>
     </message>
 </context>
 <context>
@@ -687,12 +687,12 @@ Faut-il ajuster le nouveau bassin versant ?</translation>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="217"/>
         <source>Intense Intensity Duration Curve</source>
-        <translation>Courbe Intensité Durée Intense</translation>
+        <translation>प्रखर तीव्रता अवधि curve</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="218"/>
         <source>Total Intensity Duration Curve</source>
-        <translation>Courbe Intensité Durée Totale</translation>
+        <translation>कुल तीव्रता अवधि curve</translation>
     </message>
 </context>
 <context>
@@ -700,42 +700,42 @@ Faut-il ajuster le nouveau bassin versant ?</translation>
     <message>
         <location filename="../src/gui/form/reosparameterwidget.cpp" line="688"/>
         <source>millisecond</source>
-        <translation>milliseconde</translation>
+        <translation>मिलिसेकेन्ड</translation>
     </message>
     <message>
         <location filename="../src/gui/form/reosparameterwidget.cpp" line="689"/>
         <source>second</source>
-        <translation>seconde</translation>
+        <translation>सेकेन्ड</translation>
     </message>
     <message>
         <location filename="../src/gui/form/reosparameterwidget.cpp" line="690"/>
         <source>minute</source>
-        <translation>minute</translation>
+        <translation>मिनेट</translation>
     </message>
     <message>
         <location filename="../src/gui/form/reosparameterwidget.cpp" line="691"/>
         <source>hour</source>
-        <translation>heure</translation>
+        <translation>घन्टा</translation>
     </message>
     <message>
         <location filename="../src/gui/form/reosparameterwidget.cpp" line="692"/>
         <source>day</source>
-        <translation>jour</translation>
+        <translation>दिन</translation>
     </message>
     <message>
         <location filename="../src/gui/form/reosparameterwidget.cpp" line="693"/>
         <source>week</source>
-        <translation>semaine</translation>
+        <translation>हप्ता</translation>
     </message>
     <message>
         <location filename="../src/gui/form/reosparameterwidget.cpp" line="694"/>
         <source>month</source>
-        <translation>mois</translation>
+        <translation>महिना</translation>
     </message>
     <message>
         <location filename="../src/gui/form/reosparameterwidget.cpp" line="695"/>
         <source>year</source>
-        <translation>année</translation>
+        <translation>बर्ष</translation>
     </message>
 </context>
 <context>
@@ -743,27 +743,27 @@ Faut-il ajuster le nouveau bassin versant ?</translation>
     <message>
         <location filename="../src/gui/chart/reoseditableprofile.cpp" line="27"/>
         <source>Edit Profile</source>
-        <translation>Édition du profil</translation>
+        <translation>प्रोफाइल सम्पादन गर्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/chart/reoseditableprofile.cpp" line="28"/>
         <source>Create New Profile</source>
-        <translation>Créer un Nouveau Profil</translation>
+        <translation>नया प्रोफाइल सिर्जना गर्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/chart/reoseditableprofile.cpp" line="30"/>
         <source>Zoom on Defined Profile Extent</source>
-        <translation>Zoom sur l’Étendu du Profil Défini</translation>
+        <translation>परिभाषित प्रोफाइल क्षेत्र मा zoom गर्नु</translation>
     </message>
     <message>
         <location filename="../src/gui/chart/reoseditableprofile.cpp" line="31"/>
         <source>Remove Point</source>
-        <translation>Supprimer Point</translation>
+        <translation>पोइन्ट हटाउनुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/chart/reoseditableprofile.cpp" line="32"/>
         <source>Insert point</source>
-        <translation>Insérer Point</translation>
+        <translation>पोइन्ट हालनुहोस</translation>
     </message>
 </context>
 <context>
@@ -771,12 +771,12 @@ Faut-il ajuster le nouveau bassin versant ?</translation>
     <message>
         <location filename="../src/gui/chart/reoseditableprofile.cpp" line="368"/>
         <source>Distance</source>
-        <translation>Distance</translation>
+        <translation>दुरि</translation>
     </message>
     <message>
         <location filename="../src/gui/chart/reoseditableprofile.cpp" line="372"/>
         <source>Altitude</source>
-        <translation>Altitude</translation>
+        <translation>उचाई</translation>
     </message>
 </context>
 <context>
@@ -784,28 +784,28 @@ Faut-il ajuster le nouveau bassin versant ?</translation>
     <message>
         <location filename="../src/ui/reosexportwatershedtovectordialog.ui"/>
         <source>Export Watershed to Vector File</source>
-        <translation>Exporte le Bassin Versant au Format Vectoriel</translation>
+        <translation>वाटरशेड लाई shapefile मा सुरक्षित गर्नु</translation>
     </message>
     <message>
         <location filename="../src/ui/reosexportwatershedtovectordialog.ui"/>
         <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="45"/>
         <source>Export watershed delineating</source>
-        <translation>Export du contour du bassin versant</translation>
+        <translation>वाटरशेड लाई shapefile मा सुरक्षित गर्नु</translation>
     </message>
     <message>
         <location filename="../src/ui/reosexportwatershedtovectordialog.ui"/>
         <source>File name</source>
-        <translation>Nom du Fichier</translation>
+        <translation>फाइलको नाम</translation>
     </message>
     <message>
         <location filename="../src/ui/reosexportwatershedtovectordialog.ui"/>
         <source>Export longest path</source>
-        <translation>Export du chemin hydraulique</translation>
+        <translation>सबैभन्दा लामो पथ shapefile मा सुरक्षित गर्नु</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="54"/>
         <source>Export watershed longest path</source>
-        <translation>Exporte le plus long chemin du bassin versant</translation>
+        <translation>वाटरशेडको सबैभन्दा लामो पथ shapefile मा सुरक्षित गर्नु</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="65"/>
@@ -813,31 +813,31 @@ Faut-il ajuster le nouveau bassin versant ?</translation>
         <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="81"/>
         <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="90"/>
         <source>Name</source>
-        <translation>Nom</translation>
+        <translation>नाम</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="66"/>
         <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="73"/>
         <source>Area</source>
-        <translation>Superficie</translation>
+        <translation>क्षेत्र</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="82"/>
         <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="91"/>
         <source>Length</source>
-        <translation>Longueur</translation>
+        <translation>लम्बाई</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="83"/>
         <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="92"/>
         <source>Slope</source>
-        <translation>Pente</translation>
+        <translation>ढलान</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="84"/>
         <location filename="../src/gui/watershed/reosexportwatershedtovectordialog.cpp" line="93"/>
         <source>Drop</source>
-        <translation>Dénivelée</translation>
+        <translation>उचाई मा फरक</translation>
     </message>
 </context>
 <context>
@@ -845,37 +845,37 @@ Faut-il ajuster le nouveau bassin versant ?</translation>
     <message>
         <location filename="../src/core/GIS/reosgisengine.cpp" line="132"/>
         <source>Vector layer loaded: %1</source>
-        <translation>Couche vectorielle chargée : %1</translation>
+        <translation>भेक्टर लेयर लोड गरियो : %1</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/reosgisengine.cpp" line="137"/>
         <source>Vector layer not loaded: %1</source>
-        <translation>Couche vectorielle non chargée : %1</translation>
+        <translation>भेक्टर लेयर लोड गरिएन : %1</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/reosgisengine.cpp" line="151"/>
         <source>Raster layer loaded: %1</source>
-        <translation>Couche raster chargée : %1</translation>
+        <translation>र्यास्टर लेयर लोड गरियो : %1</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/reosgisengine.cpp" line="158"/>
         <source>Raster layer not loaded: %1</source>
-        <translation>Couche raster non chargée : %1</translation>
+        <translation>र्यास्टर लेयर लोड गरिएन: %1</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/reosgisengine.cpp" line="170"/>
         <source>Mesh layer loaded: %1</source>
-        <translation>Couche maillage chargée : %1</translation>
+        <translation>मेस लेयर लोड गरियो : %1</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/reosgisengine.cpp" line="175"/>
         <source>Mesh layer not loaded: %1</source>
-        <translation>Couche maillage non chargée : %1</translation>
+        <translation>मेस लेयर लोड गरिएन : %1</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/reosgisengine.cpp" line="202"/>
         <source>Could not find MDAL</source>
-        <translation>MDAL non trouvé</translation>
+        <translation>MDAL फेला पार्न सकिएन</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/reosgisengine.cpp" line="248"/>
@@ -883,10 +883,7 @@ Faut-il ajuster le nouveau bassin versant ?</translation>
 The project&apos;s coordinates system is a geographic reference system (latitude/longitude) and the extent of this layer suggests that it is actually a projected coordinates system.
 If so, the result of area or distance calculation will be incorrect.
 To fix this, set an appropriate map coordinate system in the layer properties or/and for the project coordinate project.</source>
-        <translation>Cette couche n&apos;a pas de système de coordonnées valide ou connu, et les calcul sur le MNT seront réalisés en considérant son système de coordonnées comme le même que celui du projet.
-Le système de coordonnées du projet est un système géographique (latitude/longitude) et l&apos;étendue de cette couche suggère que ce système est en fait un système projeté.
-Si c&apos;est cela, le résultat de calcul d&apos;aire ou de distance sera incorrect.
-Pour éviter cela, mettre un système de coordonnées approprié dans le propriété de la couche et/ou pour le système de coordonnées du projet.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -895,85 +892,86 @@ Pour éviter cela, mettre un système de coordonnées approprié dans le propri�
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="50"/>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="135"/>
         <source>Load QGIS Project</source>
-        <translation>Charge un projet QGIS</translation>
+        <translation>QGIS प्रोजेक्ट लोड गर्नु</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="51"/>
         <source>Add Vector Layer</source>
-        <translation>Ajoute une couche vectorielle</translation>
+        <translation>भेक्टर लेयर लोड गर्नु</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="52"/>
         <source>Add Raster Layer</source>
-        <translation>Ajoute une couche raster</translation>
+        <translation>र्यास्टर लेयर लोड गर्नु</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="53"/>
         <source>Add Mesh Layer</source>
-        <translation>Ajoute une couche maillage</translation>
+        <translation>मेस लेयर लोड गर्नु</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="54"/>
         <source>Project coordinate reference system</source>
-        <translation>Système de coordonnée de référence du projet</translation>
+        <translation>परियोजना coordinate reference प्रणाली</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="79"/>
         <source>Digital Elevation Model</source>
-        <translation>Modèle Numérique de Terrain</translation>
+        <translation>डिजिटल उचाई मोडेल
+&#xa0;</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="113"/>
         <source>Register Layer as DEM</source>
-        <translation>Enregistre la couche en tant que MNT</translation>
+        <translation>DEM को रुपमा सुची दर्ता गर्नुहोस ।</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="113"/>
         <source>This layer is not recognized as a possible DEM</source>
-        <translation>Cette couche n&apos;est pas reconnue comme un possible MNT</translation>
+        <translation>यो लेयरलाइ मान्य DEM को रुप मा चिनिएन । </translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="148"/>
         <source>Load Vector Layer</source>
-        <translation>Charge Couche Vectorielle</translation>
+        <translation>भेक्टर लेयर लोड गर्नु</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="152"/>
         <source>Loading Vector Layer</source>
-        <translation>Chargement Couche Vectorielle</translation>
+        <translation>भेक्टर लेयर लोड गर्देे</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="152"/>
         <source>Invalid vector layer, file not loaded.</source>
-        <translation>Couche vectorielle invalide, fichier non chargé.</translation>
+        <translation>अवैध भेक्टर लेयर, फाइल लोड गरिएको छैन</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="162"/>
         <source>Load Raster Layer</source>
-        <translation>Charge Couche Raster</translation>
+        <translation>DEM लेयरलाई आयात गर्ने</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="169"/>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="173"/>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="193"/>
         <source>Loading Raster Layer</source>
-        <translation>Chargement Couche Raster</translation>
+        <translation>र्यास्टर लेयर आयात हुदेे</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="170"/>
         <source>This raster layer could be a DEM, do you want to register as a DEM?</source>
-        <translation>Cette couche pourrait être un MNT, voulez-vous l&apos;enregistrer en tant que MNT ?</translation>
+        <translation>र्यास्टर लेयर DEM को रुपमा मान्य रहेछ । रेजिस्टर गर्ने?</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="173"/>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="193"/>
         <source>Invalid raster layer, file not loaded.</source>
-        <translation>Couche raster invalide, fichier non chargé.</translation>
+        <translation>र्यास्टर लेयर अमान्य रहेछ । लोड भएन !</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="188"/>
         <source>Load Mesh Layer</source>
-        <translation>Charge couche maillage</translation>
+        <translation>मेस लेयर लोड गर्नु</translation>
     </message>
 </context>
 <context>
@@ -981,57 +979,57 @@ Pour éviter cela, mettre un système de coordonnées approprié dans le propri�
     <message>
         <location filename="../src/ui/reosimportfromtextfile.ui"/>
         <source>Import From Text File</source>
-        <translation>Importe depuis un fichier texte</translation>
+        <translation>Text वा CSV बाट डाटा लोड गर्नु</translation>
     </message>
     <message>
         <location filename="../src/ui/reosimportfromtextfile.ui"/>
         <source>Text file</source>
-        <translation>Fichier texte</translation>
+        <translation>Text फाईल</translation>
     </message>
     <message>
         <location filename="../src/ui/reosimportfromtextfile.ui"/>
         <source>Delimiters:</source>
-        <translation>Séparateur :</translation>
+        <translation>के ले टुक्र्याउने ?</translation>
     </message>
     <message>
         <location filename="../src/ui/reosimportfromtextfile.ui"/>
         <source>space</source>
-        <translation>espace</translation>
+        <translation>space ( ट्याब )</translation>
     </message>
     <message>
         <location filename="../src/ui/reosimportfromtextfile.ui"/>
         <source>,</source>
-        <translation>,</translation>
+        <translation>, ( कमा )</translation>
     </message>
     <message>
         <location filename="../src/ui/reosimportfromtextfile.ui"/>
         <source>;</source>
-        <translation>;</translation>
+        <translation>; ( एपोस्टोफी )</translation>
     </message>
     <message>
         <location filename="../src/ui/reosimportfromtextfile.ui"/>
         <source>Header line</source>
-        <translation>Entête</translation>
+        <translation>हेडर लाइन</translation>
     </message>
     <message>
         <location filename="../src/ui/reosimportfromtextfile.ui"/>
         <source>First data line</source>
-        <translation>Première lignes des données</translation>
+        <translation>पहिलो डाटा लाइन</translation>
     </message>
     <message>
         <location filename="../src/gui/data/reosimportfromtextfile.cpp" line="74"/>
         <source>Choose file</source>
-        <translation>Choisir un fichier</translation>
+        <translation>फाईल छनौट गर्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/data/reosimportfromtextfile.cpp" line="82"/>
         <source>Import Text File</source>
-        <translation>Importer un fichier texte</translation>
+        <translation>Text फाइल आयात गर्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/data/reosimportfromtextfile.cpp" line="82"/>
         <source>File does not exist!</source>
-        <translation>Le fichier n&apos;existe pas !</translation>
+        <translation>फाईल ठाउमा अवस्थित छैन</translation>
     </message>
 </context>
 <context>
@@ -1039,52 +1037,52 @@ Pour éviter cela, mettre un système de coordonnées approprié dans le propri�
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="576"/>
         <source>name</source>
-        <translation>nom</translation>
+        <translation>नाम</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="577"/>
         <source>Description</source>
-        <translation>Description</translation>
+        <translation>विवरण</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="580"/>
         <source>Import Rainfall</source>
-        <translation>Importer une pluie</translation>
+        <translation>वर्षाको डाटा आयात गर्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="583"/>
         <source>mm</source>
-        <translation>mm</translation>
+        <translation>मिलिमिटर</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="584"/>
         <source>Height per time step</source>
-        <translation>Hauteur par pas de temps</translation>
+        <translation>वर्षाको गहिराई प्रति समय चरण</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="585"/>
         <source>Total height</source>
-        <translation>Hauteur totale</translation>
+        <translation>कुल गहिराई&#xa0;</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="586"/>
         <source>Rainfall intensity</source>
-        <translation>Intensité de la pluie</translation>
+        <translation>बर्षा तीव्रता ( मिलिमिटर प्रति घन्टा )</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="604"/>
         <source>Field to import</source>
-        <translation>Champ à importer</translation>
+        <translation>आयात गर्ने field</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="630"/>
         <source>Select a Station to Import</source>
-        <translation>Sélectionner une station pour importer</translation>
+        <translation>आयात गर्न वर्षा स्टेशन चयन गर्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="670"/>
         <source>Select a station where to import the rainfall</source>
-        <translation>Sélectionner une station vers où importer la pluie</translation>
+        <translation>वर्षा आयात गर्न स्टेशन चयन गर्नुहोस्</translation>
     </message>
 </context>
 <context>
@@ -1093,7 +1091,7 @@ Pour éviter cela, mettre un système de coordonnées approprié dans le propri�
         <location filename="../src/core/rainfall/reosidfcurves.cpp" line="215"/>
         <location filename="../src/core/rainfall/reosidfcurves.cpp" line="571"/>
         <source>Return period</source>
-        <translation>Période de retour</translation>
+        <translation>वापसी अवधि</translation>
     </message>
 </context>
 <context>
@@ -1102,13 +1100,13 @@ Pour éviter cela, mettre un système de coordonnées approprié dans le propri�
         <location filename="../src/core/rainfall/reosidfcurves.cpp" line="24"/>
         <location filename="../src/core/rainfall/reosidfcurves.cpp" line="108"/>
         <source>start</source>
-        <translation>début</translation>
+        <translation>सुरु</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reosidfcurves.cpp" line="24"/>
         <location filename="../src/core/rainfall/reosidfcurves.cpp" line="109"/>
         <source>end</source>
-        <translation>fin</translation>
+        <translation>अन्त्य</translation>
     </message>
 </context>
 <context>
@@ -1116,27 +1114,27 @@ Pour éviter cela, mettre un système de coordonnées approprié dans le propri�
     <message>
         <location filename="../src/ui/reosintensitydurationselectedcurvewidget.ui"/>
         <source>Return period</source>
-        <translation>Période de retour</translation>
+        <translation>वापसी अवधि</translation>
     </message>
     <message>
         <location filename="../src/ui/reosintensitydurationselectedcurvewidget.ui"/>
         <source>Name</source>
-        <translation>Nom</translation>
+        <translation>नाम</translation>
     </message>
     <message>
         <location filename="../src/ui/reosintensitydurationselectedcurvewidget.ui"/>
         <source>Station</source>
-        <translation>Station</translation>
+        <translation>स्टेशन</translation>
     </message>
     <message>
         <location filename="../src/ui/reosintensitydurationselectedcurvewidget.ui"/>
         <source>Intensity Duration Curve</source>
-        <translation>Courbe intensité Durée</translation>
+        <translation>तीव्रता अवधि Curve</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosintensitydurationselectedcurvewidget.cpp" line="109"/>
         <source>Choose a Intensity Duration Curve:</source>
-        <translation>Choisir une Courbe Intensité Durée :</translation>
+        <translation>तीव्रता अवधि Curve छनौट गर्नुहोस्</translation>
     </message>
 </context>
 <context>
@@ -1144,22 +1142,22 @@ Pour éviter cela, mettre un système de coordonnées approprié dans le propri�
     <message>
         <location filename="../src/ui/reoslanguageselectionwidget.ui"/>
         <source>Language choice</source>
-        <translation>Choix du language</translation>
+        <translation>भाषा छनाेेट</translation>
     </message>
     <message>
         <location filename="../src/ui/reoslanguageselectionwidget.ui"/>
         <source>Modification will be apply after restart</source>
-        <translation>La modification sera appliquée après redémarrage de l&apos;application</translation>
+        <translation>कम्प्युटर पुन: सुरु पछि संशोधन लागू हुनेछ</translation>
     </message>
     <message>
         <location filename="../src/gui/reoslanguageselectionwidget.cpp" line="28"/>
         <source>System language</source>
-        <translation>Langage système</translation>
+        <translation>सिस्टम भाषा</translation>
     </message>
     <message>
         <location filename="../src/ui/reoslanguageselectionwidget.ui"/>
         <source>Language</source>
-        <translation>Language</translation>
+        <translation>भाषा</translation>
     </message>
 </context>
 <context>
@@ -1167,97 +1165,97 @@ Pour éviter cela, mettre un système de coordonnées approprié dans le propri�
     <message>
         <location filename="../src/ui/reoslongitudinalprofilewidget.ui"/>
         <source>Longitudinal Profile of Watershed</source>
-        <translation>Profil en Long du Bassin Versant</translation>
+        <translation>वाटरशेडको सबैभन्दा लामो खोलाको प्रोफाइल</translation>
     </message>
     <message>
         <location filename="../src/ui/reoslongitudinalprofilewidget.ui"/>
         <source>Watershed Name: </source>
-        <translation>Nom du Bassin Versant :</translation>
+        <translation>वाटरशेड नाम</translation>
     </message>
     <message>
         <location filename="../src/ui/reoslongitudinalprofilewidget.ui"/>
         <source>Watershed Stream Path</source>
-        <translation>Chemin hydraulique du bassin versant</translation>
+        <translation>वाटरशेडको सबैभन्दा लामो खोलाको पथ</translation>
     </message>
     <message>
         <location filename="../src/ui/reoslongitudinalprofilewidget.ui"/>
         <source>Current DEM</source>
-        <translation>MNT courant</translation>
+        <translation>चालु DEM</translation>
     </message>
     <message>
         <location filename="../src/ui/reoslongitudinalprofilewidget.ui"/>
         <source>Watershed Profile Slope</source>
-        <translation>Pente du profil du bassin versant</translation>
+        <translation>वाटरशेडको प्रोफाइलको ढलान</translation>
     </message>
     <message>
         <location filename="../src/ui/reoslongitudinalprofilewidget.ui"/>
         <source>Average Slope</source>
-        <translation>Pente Moyenne</translation>
+        <translation>औसत ढलान</translation>
     </message>
     <message>
         <location filename="../src/ui/reoslongitudinalprofilewidget.ui"/>
         <source>Total Length</source>
-        <translation>Longueur Totale</translation>
+        <translation>कुल लम्बाई</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoslongitudinalprofilewidget.cpp" line="38"/>
         <source>Zoom on DEM Profile Extent</source>
-        <translation>Zoom sur l&apos;étendu du profil du MNT</translation>
+        <translation>परिभाषित प्रोफाइल क्षेत्र मा zoom गर्नु</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoslongitudinalprofilewidget.cpp" line="36"/>
         <source>Draw Flow Path on Map</source>
-        <translation>Tracer le Chemin Hydraulique sur la Carte</translation>
+        <translation>नक्शामा नदीको पथ चित्रित गर्ने</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoslongitudinalprofilewidget.cpp" line="37"/>
         <source>Edit Flow Path on Map</source>
-        <translation>Éditer le Chemin Hydraulique sur la Carte</translation>
+        <translation>नक्शामा नदीको पथ सम्पादन गर्ने</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoslongitudinalprofilewidget.cpp" line="39"/>
         <source>Draw Longest Flow Path From Downstream</source>
-        <translation>Tracer le Plus Long Chemin Hydraulique Depuis l&apos;Aval</translation>
+        <translation>नक्शामा नदीको पथ चित्रित डाउनस्ट्रीम बाट चित्रित  गर्ने </translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoslongitudinalprofilewidget.cpp" line="40"/>
         <source>Draw Flow Path From a Upstream Point on Map</source>
-        <translation>Tracer le Chemin Hydraulique Depuis un Point en Amont sur la Carte</translation>
+        <translation>नक्शामा नदीको पथ चित्रित अपस्ट्रीम बाट चित्रित गर्ने </translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoslongitudinalprofilewidget.cpp" line="86"/>
         <source>Distance (meter)</source>
-        <translation>Distance (mètre)</translation>
+        <translation>दुरि ( मिटर )</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoslongitudinalprofilewidget.cpp" line="87"/>
         <source>Elevation</source>
-        <translation>Élévation</translation>
+        <translation>उचाई</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoslongitudinalprofilewidget.cpp" line="202"/>
         <source> km</source>
-        <translation>km</translation>
+        <translation>किलोमिटर</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoslongitudinalprofilewidget.cpp" line="207"/>
         <source> m</source>
-        <translation>m</translation>
+        <translation>मिटर</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoslongitudinalprofilewidget.cpp" line="379"/>
         <source>Searching for the longest path</source>
-        <translation>Recherche du plus long chemin</translation>
+        <translation>सबैभन्दा लामो पथको अन्वेषण गर्ने</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoslongitudinalprofilewidget.cpp" line="396"/>
         <source>trace longer path</source>
-        <translation>Tracé du plus long chemin</translation>
+        <translation>लामो पथ ट्रेस गर्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/ui/reoslongitudinalprofilewidget.ui"/>
         <source>Drop</source>
-        <translation>Dénivelée</translation>
+        <translation>उचाई मा फरक</translation>
     </message>
 </context>
 <context>
@@ -1265,58 +1263,58 @@ Pour éviter cela, mettre un système de coordonnées approprié dans le propri�
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="44"/>
         <source>New Project</source>
-        <translation>Nouveau Projet</translation>
+        <translation>नया प्रोजेक्ट</translation>
     </message>
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="45"/>
         <source>Open file</source>
-        <translation>Ouvrir fichier</translation>
+        <translation>फाईल खोल्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="46"/>
         <source>Save</source>
-        <translation>Sauver</translation>
+        <translation>सेभ गर्ने</translation>
     </message>
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="47"/>
         <source>Save as ...</source>
-        <translation>Sauver sous ...</translation>
+        <translation>सेभ कता गर्ने</translation>
     </message>
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="48"/>
         <source>Select language</source>
-        <translation>Sélectionner le langage</translation>
+        <translation>भाषा छनाेेट</translation>
     </message>
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="49"/>
         <source>About ...</source>
-        <translation>A propos ...</translation>
+        <translation>यसको बारेमा</translation>
     </message>
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="50"/>
         <source>Check new version</source>
-        <translation>Vérifier si nouvelle version disponible</translation>
+        <translation>नया भर्जन चेक गर्नु</translation>
     </message>
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="51"/>
         <source>Documentation</source>
-        <translation>Documentation</translation>
+        <translation>प्रलेखन</translation>
     </message>
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="69"/>
         <source>Message</source>
-        <translation>Message</translation>
+        <translation>संदेश</translation>
     </message>
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="80"/>
         <location filename="../src/gui/reosmainwindow.cpp" line="82"/>
         <source>File</source>
-        <translation>Fichier</translation>
+        <translation>फाईल</translation>
     </message>
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="107"/>
         <source>Options</source>
-        <translation>Options</translation>
+        <translation>विकल्पहरू</translation>
     </message>
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="113"/>
@@ -1326,32 +1324,32 @@ Pour éviter cela, mettre un système de coordonnées approprié dans le propri�
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="164"/>
         <source>Open a project</source>
-        <translation>Ouvrir un projet</translation>
+        <translation>प्रोजेक्ट खोल्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="194"/>
         <source>Save project as</source>
-        <translation>Sauver projet sous</translation>
+        <translation>यस रूपमा प्रोजेक्ट सेभ&#xa0;गर्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="211"/>
         <source>New project</source>
-        <translation>Nouveau projet</translation>
+        <translation>नया प्रोजेक्ट</translation>
     </message>
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="211"/>
         <source>Save current project?</source>
-        <translation>Sauver le projet courant ?</translation>
+        <translation>यस रूपमा प्रोजेक्ट सेभ गर्ने ?</translation>
     </message>
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="299"/>
         <source>Closing current project</source>
-        <translation>Fermeture du projet courant</translation>
+        <translation>प्रोजेक्ट बन्द गर्देे</translation>
     </message>
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="299"/>
         <source>The current project has been modified, do you want to save it?</source>
-        <translation>Le projet courant a été modifié, voulez-vous l&apos;enregistrer ?</translation>
+        <translation>प्रोजेक्ट को डाटा बदलिएको छ । सेभ गर्ने ?</translation>
     </message>
 </context>
 <context>
@@ -1359,34 +1357,34 @@ Pour éviter cela, mettre un système de coordonnées approprié dans le propri�
     <message>
         <location filename="../src/gui/GIS/reosmap.cpp" line="33"/>
         <source>Deactivate Tool</source>
-        <translation>Désactiver l&apos;outil</translation>
+        <translation>टुल निष्क्रिय गर्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosmap.cpp" line="35"/>
         <location filename="../src/gui/GIS/reosmap.cpp" line="37"/>
         <source>Zoom In</source>
-        <translation>Zoom +</translation>
+        <translation>भित्र जुम गर्ने</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosmap.cpp" line="38"/>
         <source>Zoom Out</source>
-        <translation>Zoom -</translation>
+        <translation>बाहिर जुम गर्ने</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosmap.cpp" line="39"/>
         <source>Previous Zoom</source>
-        <translation>Zoom Précédent</translation>
+        <translation>अघिल्लो जूम</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosmap.cpp" line="40"/>
         <source>Next Zoom</source>
-        <translation>Zoom Suivant</translation>
+        <translation>अर्को जूम</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosmap.cpp" line="41"/>
         <location filename="../src/gui/GIS/reosmap.cpp" line="114"/>
         <source>Temporal controller</source>
-        <translation>Contrôleur temporel</translation>
+        <translation>सामयिक कन्ट्रोलर</translation>
     </message>
 </context>
 <context>
@@ -1394,7 +1392,7 @@ Pour éviter cela, mettre un système de coordonnées approprié dans le propri�
     <message>
         <location filename="../src/gui/GIS/reosmap.cpp" line="224"/>
         <source>Map Coordinate : </source>
-        <translation>Coordonnées de la carte :</translation>
+        <translation>नक्शा निर्देशांक</translation>
     </message>
 </context>
 <context>
@@ -1402,12 +1400,12 @@ Pour éviter cela, mettre un système de coordonnées approprié dans le propri�
     <message>
         <location filename="../src/gui/GIS/private/reosmaptool_p.cpp" line="263"/>
         <source>Insert vertex</source>
-        <translation>Insérer un sommet</translation>
+        <translation>भर्टेक्स हाल्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/private/reosmaptool_p.cpp" line="278"/>
         <source>Remove vertex</source>
-        <translation>Supprimer un sommet</translation>
+        <translation>भर्टेक्स हटाउनुस</translation>
     </message>
 </context>
 <context>
@@ -1415,22 +1413,22 @@ Pour éviter cela, mettre un système de coordonnées approprié dans le propri�
     <message>
         <location filename="../src/ui/reosmessagebox.ui"/>
         <source>Messages</source>
-        <translation>Messages</translation>
+        <translation>संदेश</translation>
     </message>
     <message>
         <location filename="../src/gui/reosmessagebox.ui"/>
         <source>Form</source>
-        <translation>FormeX</translation>
+        <translation>फारम</translation>
     </message>
     <message>
         <location filename="../src/gui/reosmessagebox.cpp" line="41"/>
         <source>Error: </source>
-        <translation>Erreur : </translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/reosmessagebox.cpp" line="47"/>
         <source>Warning: </source>
-        <translation>Attention : </translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1438,12 +1436,12 @@ Pour éviter cela, mettre un système de coordonnées approprié dans le propri�
     <message>
         <location filename="../src/core/watershed/reosmeteorologicmodel.cpp" line="234"/>
         <source>Watershed</source>
-        <translation>Bassin versant</translation>
+        <translation>वाटरशेड</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosmeteorologicmodel.cpp" line="236"/>
         <source>Associated rainfall</source>
-        <translation>Pluie associée</translation>
+        <translation>सम्बन्धित वर्षा</translation>
     </message>
 </context>
 <context>
@@ -1451,98 +1449,96 @@ Pour éviter cela, mettre un système de coordonnées approprié dans le propri�
     <message>
         <location filename="../src/ui/reosmeteorologicmodelwidget.ui"/>
         <source>Meteorological Models</source>
-        <translation>Modèles Météorologiques</translation>
+        <translation>मौसम विज्ञानको नमूनाहरु</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeteorologicmodelwidget.ui"/>
         <source>Current Meteorological Model</source>
-        <translation>Modèles Météorologiques Courant</translation>
+        <translation>चालु मौसम विज्ञानको नमूना</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="63"/>
         <source>Add Meteorologic Model</source>
-        <translation>Ajouter un Modèle Météorologique</translation>
+        <translation>मौसम विज्ञानको नमूना थप्नुहोस</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="64"/>
         <source>Duplicate Meteorologic Model</source>
-        <translation>Dupliquer Modèle Météorologique</translation>
+        <translation>मौसम विज्ञानको नमूनाको नक्कल गर्नुहोस</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="65"/>
         <source>Remove Meteorologic Model</source>
-        <translation>Supprimer Modèle Météorologique</translation>
+        <translation>मौसम विज्ञानको नमूना हटाउनुहोस</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="66"/>
         <source>Rename Meteorologic Model</source>
-        <translation>Renommer Modèle Météorologique</translation>
+        <translation>मौसम विज्ञानको नमूनाको नाम बदल्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="85"/>
         <source>Add Meteo Model</source>
-        <translation>Ajouter un Modèle Météo</translation>
+        <translation>मौसम विज्ञानको नमूना थप्नुहोस</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="86"/>
         <source>Add a new meteorologic model, choose a name:</source>
-        <translation>Ajouter un nouveau modèle météorologique, choisir un nom :</translation>
+        <translation>मौसम विज्ञानको नया नमूना थप्न, नया नाम लेख्नुहोस</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="87"/>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="108"/>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="143"/>
         <source>Meteorologic Model name</source>
-        <translation>Nom du Modèle Météorologique</translation>
+        <translation>मौसम विज्ञानको नमूनाको नाम</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="106"/>
         <source>Duplicate Meteo Model</source>
-        <translation>Dupliquer Modèle Météo</translation>
+        <translation>मौसम विज्ञानको नमूनाको नक्कल गर्नुहोस</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="107"/>
         <source>Duplicate meteorologic model &apos;%1&apos;,
 choose a name:</source>
-        <translation>Dupliquer le modèle météorologique &apos;%1&apos;,
-choisir un nom :</translation>
+        <translation>मौसम विज्ञानको नमूनाको नक्कल गर्न &quot;%1&quot; नाम चुज गर्नुहोस</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="126"/>
         <source>Remove Meteo Model</source>
-        <translation>Supprimer Modèle Météo</translation>
+        <translation>मौसम विज्ञानको नमूना हटाउनुहोस</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="127"/>
         <source>Do you want to remove the model &apos;%1&apos;?</source>
-        <translation>Voulez-vous supprimer le modèle &apos;%1&apos; ?</translation>
+        <translation>नमूना &quot;%1&quot; हटाउने हो?</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="141"/>
         <source>Rename Meteo Model</source>
-        <translation>Renommer Modèle Météo</translation>
+        <translation>मौसम विज्ञानको नमूनाको नाम बदल्ने हो ?</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="142"/>
         <source>Rename meteorologic model &apos;%1&apos;,
 choose a new name:</source>
-        <translation>Renommer le Modèle Météorologique  &apos;%1&apos;,
-choisir un nouveau nom :</translation>
+        <translation>मौसम विज्ञानको नमूनाको नक्कल गर्न &quot;%1&quot; नाम चुज गर्नुहोस</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="170"/>
         <source>Disassociate rainfall</source>
-        <translation>Désassocier la pluie</translation>
+        <translation>वर्षा असम्बन्धित गर्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeteorologicmodelwidget.ui"/>
         <source>Drag a rainfall</source>
-        <translation>Glisser une pluie</translation>
+        <translation>एउटा वर्षा लाई ड्रयाग गर्नु</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeteorologicmodelwidget.ui"/>
         <source>Drop it on watershed</source>
-        <translation>Déposer la sur un bassin versant</translation>
+        <translation>वाटरशेड मा हाल्नुहोस्</translation>
     </message>
 </context>
 <context>
@@ -1550,7 +1546,7 @@ choisir un nouveau nom :</translation>
     <message>
         <location filename="../src/core/watershed/reosmeteorologicmodel.cpp" line="277"/>
         <source>Meteorological Model</source>
-        <translation>Modèle Météorologique</translation>
+        <translation>मौसम विज्ञानको नमूना</translation>
     </message>
 </context>
 <context>
@@ -1558,12 +1554,12 @@ choisir un nouveau nom :</translation>
     <message>
         <location filename="../src/core/reosparameter.cpp" line="550"/>
         <source>True</source>
-        <translation>Vrai</translation>
+        <translation>सहि</translation>
     </message>
     <message>
         <location filename="../src/core/reosparameter.cpp" line="550"/>
         <source>False</source>
-        <translation>Faux</translation>
+        <translation>गलत</translation>
     </message>
 </context>
 <context>
@@ -1571,7 +1567,7 @@ choisir un nouveau nom :</translation>
     <message>
         <location filename="../src/core/reosparameter.cpp" line="411"/>
         <source>Date/Time</source>
-        <translation>Date/heure</translation>
+        <translation>मिती / समय</translation>
     </message>
 </context>
 <context>
@@ -1579,7 +1575,7 @@ choisir un nouveau nom :</translation>
     <message>
         <location filename="../src/core/reosparameter.cpp" line="212"/>
         <source>Average slope</source>
-        <translation>Pente moyenne</translation>
+        <translation>औसत ढलान</translation>
     </message>
 </context>
 <context>
@@ -1587,22 +1583,22 @@ choisir un nouveau nom :</translation>
     <message>
         <location filename="../src/gui/chart/reosplotwidget.cpp" line="41"/>
         <source>Save as Image</source>
-        <translation>Sauver an tant qu&apos;image</translation>
+        <translation>ईमेजको रुपमा सेभ गर्नु</translation>
     </message>
     <message>
         <location filename="../src/gui/chart/reosplotwidget.cpp" line="42"/>
         <source>Copy as Image</source>
-        <translation>Copier en tant qu&apos;image</translation>
+        <translation>ईमेजको रुपमा कपि गर्नु</translation>
     </message>
     <message>
         <location filename="../src/gui/chart/reosplotwidget.cpp" line="77"/>
         <source>X linear scale</source>
-        <translation>X échelle linéaire</translation>
+        <translation>X लिनियर स्केल</translation>
     </message>
     <message>
         <location filename="../src/gui/chart/reosplotwidget.cpp" line="78"/>
         <source>X logarithmic scale</source>
-        <translation>X échelle logarithmique</translation>
+        <translation>X लगारिथमिक स्केल</translation>
     </message>
 </context>
 <context>
@@ -1610,12 +1606,12 @@ choisir un nouveau nom :</translation>
     <message>
         <location filename="../src/ui/reosprocesscontroler.ui"/>
         <source>Processing...</source>
-        <translation>En cours ...</translation>
+        <translation>प्रशोधन चलीरहेको छ ...</translation>
     </message>
     <message>
         <location filename="../src/gui/reosprocesscontroler.cpp" line="63"/>
         <source>Operation canceled...</source>
-        <translation>Opération annulée ...</translation>
+        <translation>अपरेसन रद्द गरियो ...</translation>
     </message>
 </context>
 <context>
@@ -1623,7 +1619,7 @@ choisir un nouveau nom :</translation>
     <message>
         <location filename="../src/core/rainfall/reosrainfallitem.cpp" line="506"/>
         <source>Name</source>
-        <translation>Nom</translation>
+        <translation>नाम</translation>
     </message>
 </context>
 <context>
@@ -1631,53 +1627,53 @@ choisir un nouveau nom :</translation>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallintensitydurationwidget.cpp" line="51"/>
         <source>Entry time unit</source>
-        <translation>Unité de temps en entrée</translation>
+        <translation>प्रवेश समय युनिट</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallintensitydurationwidget.cpp" line="58"/>
         <source>Result time unit</source>
-        <translation>Unité de temps du resultat</translation>
+        <translation>परिणाम समय युनिट</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallintensitydurationwidget.cpp" line="95"/>
         <source>Interval duration start:</source>
-        <translation>Début de l&apos;intervalle de durée : </translation>
+        <translation>अन्तराल अवधि सुरू</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallintensitydurationwidget.cpp" line="96"/>
         <source>Interval duration end:</source>
-        <translation>Fin de l&apos;intervalle de durée :</translation>
+        <translation>अन्तराल अवधि समाप्त</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallintensitydurationwidget.cpp" line="101"/>
         <source>Add a new interval</source>
-        <translation>Ajouter un nouveau intervalle</translation>
+        <translation>नयाँ अन्तराल थप्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallintensitydurationwidget.cpp" line="120"/>
         <source>Duration Interval Edition</source>
-        <translation>Édition de l&apos;intervalle de durée </translation>
+        <translation>अवधि अन्तराल संस्करण</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallintensitydurationwidget.cpp" line="186"/>
         <source>I: rainfall intensity (mm per result time unit)</source>
-        <translation>I : intensité de la pluie (mm par unité de temps du résultat)</translation>
+        <translation>I : वर्षाको तीव्रता ( मि. मि. प्रति समय युनिट )</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallintensitydurationwidget.cpp" line="187"/>
         <source>t: rainfall duration (entry time unit)</source>
-        <translation>t : durée de la pluie (unité de temps d&apos;entrée)</translation>
+        <translation>t : वर्षा अवधि ( प्रवेश समय युनिट )</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallintensitydurationwidget.cpp" line="201"/>
         <location filename="../src/gui/rainfall/reosrainfallintensitydurationwidget.cpp" line="203"/>
         <source>Remove interval</source>
-        <translation>Supprimer l&apos;intervalle</translation>
+        <translation>अन्तराल हटाउनुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallintensitydurationwidget.cpp" line="203"/>
         <source>Do you want to remove the interval?</source>
-        <translation>Supprimer l&apos;intervalle ?</translation>
+        <translation>अन्तराल हटाउने हो ?</translation>
     </message>
 </context>
 <context>
@@ -1685,164 +1681,164 @@ choisir un nouveau nom :</translation>
     <message>
         <location filename="../src/ui/reosrainfallmanager.ui"/>
         <source>Rainfall Manager</source>
-        <translation>Gestionnaire de Pluie</translation>
+        <translation>वर्षा व्यवस्थापन</translation>
     </message>
     <message>
         <location filename="../src/ui/reosrainfallmanager.ui"/>
         <source>Data from:</source>
-        <translation>Données depuis :</translation>
+        <translation>डाटा काहाबाट :</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="51"/>
         <source>Open Rainfal Data File</source>
-        <translation>Ouvrir le fichier de données pluviomètriques</translation>
+        <translation>वर्षा को डाटा फाईल खोल्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="52"/>
         <source>Save Rainfal Data File</source>
-        <translation>Sauver le fichier de données pluviométriques</translation>
+        <translation>वर्षा को डाटा सेभ गर्ने</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="53"/>
         <source>Save Rainfal Data File as ...</source>
-        <translation>Sauver le fichier de données pluviométriques sous ...</translation>
+        <translation>वर्षा को डाटा सेभ कता गर्ने</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="54"/>
         <source>Add New Zone to the Root</source>
-        <translation>Ajouter une nouvelle zone à la racine</translation>
+        <translation>रुट मा नया जोन थप्नु</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="55"/>
         <source>Add New Sub Zone</source>
-        <translation>Ajouter une nouvelle sous-zone</translation>
+        <translation>नया सब जोन थप्नु</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="56"/>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="297"/>
         <source>Add Station</source>
-        <translation>Ajouter une station</translation>
+        <translation>सटेसन थप्नु </translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="57"/>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="311"/>
         <source>Add Gauged Rainfall</source>
-        <translation>Ajouter une pluie</translation>
+        <translation>गज वर्षा को डाटा थप्नु&#xa0;</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="58"/>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="325"/>
         <source>Add Chicago Rainfall</source>
-        <translation>Ajouter une pluie de Chicago</translation>
+        <translation>सिकागो वर्षा को डाटा थप्नु </translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="59"/>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="339"/>
         <source>Add Alternating Block Rainfall</source>
-        <translation>Ajouter une pluie avec bloc alternant</translation>
+        <translation>अल्टरनेटिन्ग वर्षा को डाटा थप्नु </translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="60"/>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="353"/>
         <source>Add Double Triangle Rainfall</source>
-        <translation>Ajouter une pluie double triangle</translation>
+        <translation>डबल ट्रयान्गल वर्षा को डाटा थप्नु </translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="61"/>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="367"/>
         <source>Add Intensity Duration Frequency Curves</source>
-        <translation>Ajouter des courbes Intensité Durée Fréquences</translation>
+        <translation>तीव्रता अवधि फ्रिक्वेन्सी curve थप्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="62"/>
         <source>Add Intensity Duration Curve</source>
-        <translation>Ajouter une courbe Intensité Durée</translation>
+        <translation>तीव्रता अवधि curve थप्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="63"/>
         <source>Reorder Intensity Duration Curves</source>
-        <translation>Réordonner les courbes intensité Durée</translation>
+        <translation>तीव्रता अवधि curve मा फेरबदल गर्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="64"/>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="435"/>
         <source>Remove item</source>
-        <translation>Supprimer l&apos;élément</translation>
+        <translation>आईटम हटाउनुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="65"/>
         <source>Import Rainfall from Text File</source>
-        <translation>Importer une pluie depuis un fichier texte</translation>
+        <translation>Text वा CSV बाट डाटा लोड गर्नु</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="143"/>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="169"/>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="183"/>
         <source>Open Rainfall Data</source>
-        <translation>Ouvrir des données pluviométriques</translation>
+        <translation>वर्षा को डाटा फाईल खोल्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="143"/>
         <source>Unable to open the current rainfall data file: %1</source>
-        <translation>Impossible d&apos;ouvrir le fichier courant de données pluviométriques : %1</translation>
+        <translation>अहिलेको वर्षाको डाटा फाईल खोल्न मिल्देेन : %1</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="154"/>
         <source>Open Rainfall Data File</source>
-        <translation>Ouvrir un fichier de données pluviomètriques</translation>
+        <translation>वर्षा को डाटा फाईल खोल्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="155"/>
         <source>This action will remove the actual rainfall data, do you want to save before?</source>
-        <translation>Cette action va supprimer les actuelles données pluviométriques, continuer ?</translation>
+        <translation>यस कार्यले वास्तविक वर्षाको डाटा हटाउनेछ, के तपाईं पहिले सेभ गर्न चाहानुहुन्छ ?</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="183"/>
         <source>Unable to open the file: %1</source>
-        <translation>Impossible d&apos;ouvrir le fichier : %1</translation>
+        <translation>फाईल खोल्न मिल्देेन : %1</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="213"/>
         <source>Description</source>
-        <translation>Description</translation>
+        <translation>विवरण</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="231"/>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="241"/>
         <source>Save Rainfall Data as...</source>
-        <translation>Sauver les données pluviométriques sous ...</translation>
+        <translation>वर्षा को डाटा सेभ कता गर्ने</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="241"/>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="270"/>
         <source>Unable to write the file</source>
-        <translation>Impossible d&apos;écrire le fichier</translation>
+        <translation>फाईल बनाउन मिल्देेन </translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="252"/>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="279"/>
         <source>Zone name</source>
-        <translation>Nom de zone</translation>
+        <translation>जोनको नाम</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="255"/>
         <source>Add Zone on Root</source>
-        <translation>Ajouter une zone à la racine</translation>
+        <translation>रुट मा नया जोन थप्नु</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="270"/>
         <source>Save Rainfall Data</source>
-        <translation>Sauver les données pluvimètriques</translation>
+        <translation>वर्षा को डाटा सेभ गर्ने</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="282"/>
         <source>Add Zone</source>
-        <translation>Ajouter une zone</translation>
+        <translation>नया जोन थप्नु</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="294"/>
         <source>Station name</source>
-        <translation>Nom de station</translation>
+        <translation>स्टेशनको नाम</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="308"/>
@@ -1850,32 +1846,32 @@ choisir un nouveau nom :</translation>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="336"/>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="350"/>
         <source>Rainfall name</source>
-        <translation>Nom de la pluie</translation>
+        <translation>वर्षा को नाम</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="364"/>
         <source>IDF group name</source>
-        <translation>Nom du groupe IDF</translation>
+        <translation>तीव्रता अवधि फ्रिक्वेन्सी ग्रुपको नाम</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="379"/>
         <source>Return period</source>
-        <translation>Période de retour</translation>
+        <translation>वापसी अवधि</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="382"/>
         <source>Descriprition</source>
-        <translation>Description</translation>
+        <translation>विवरण</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="384"/>
         <source>Add new Intensity Duration Curve</source>
-        <translation>Ajouter une nouvelle courbe Intensité Durée</translation>
+        <translation>नया तीव्रता अवधि curve थप्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="435"/>
         <source>Remove: %1</source>
-        <translation>Supprimer : %1</translation>
+        <translation>हटाउनु : %1</translation>
     </message>
 </context>
 <context>
@@ -1883,12 +1879,12 @@ choisir un nouveau nom :</translation>
     <message>
         <location filename="../src/core/rainfall/reosrainfallmodel.cpp" line="119"/>
         <source>Name</source>
-        <translation>Nom</translation>
+        <translation>नाम</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reosrainfallmodel.cpp" line="122"/>
         <source>Description</source>
-        <translation>Description</translation>
+        <translation>विवरण</translation>
     </message>
 </context>
 <context>
@@ -1896,12 +1892,12 @@ choisir un nouveau nom :</translation>
     <message>
         <location filename="../src/core/rainfall/reosrainfallregistery.cpp" line="32"/>
         <source>Rainfall data loaded from file: %1</source>
-        <translation>Données pluviométriques chargées depuis le fichier : %1</translation>
+        <translation>वर्षा को डाटा लोड गरिने फाईल : %1</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reosrainfallregistery.cpp" line="38"/>
         <source>Rainfall data saved to file:%1</source>
-        <translation>Données pluviométriques enregistrée dans le fichier : %1</translation>
+        <translation>वर्षा को डाटा सेभ गरिने फाईल : %1</translation>
     </message>
 </context>
 <context>
@@ -1909,27 +1905,27 @@ choisir un nouveau nom :</translation>
     <message>
         <location filename="../src/core/rainfall/reosrainfallitem.cpp" line="688"/>
         <source>Name: %1</source>
-        <translation>Nom : %1</translation>
+        <translation>नाम : %1</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reosrainfallitem.cpp" line="690"/>
         <source>Type: %1</source>
-        <translation>Type : %1</translation>
+        <translation>प्रकार : %1</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reosrainfallitem.cpp" line="695"/>
         <source>Duration: %1</source>
-        <translation>Durée : %1</translation>
+        <translation>अवधि : %1</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reosrainfallitem.cpp" line="697"/>
         <source>Time Step: %1</source>
-        <translation>Pas de temps : %1</translation>
+        <translation>समय चरण : %1</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reosrainfallitem.cpp" line="700"/>
         <source>Cumulative height: %1 mm</source>
-        <translation>Hauteur cumulée : %1</translation>
+        <translation>संचयी गहिराई  : %1 मि. मि.</translation>
     </message>
 </context>
 <context>
@@ -1937,7 +1933,7 @@ choisir un nouveau nom :</translation>
     <message>
         <location filename="../src/core/raster/reosrasterwatershed.cpp" line="438"/>
         <source>Prepare calculation</source>
-        <translation>Préparation du calcul</translation>
+        <translation>गणना तयार गर्नुहोस्</translation>
     </message>
 </context>
 <context>
@@ -1946,19 +1942,19 @@ choisir un nouveau nom :</translation>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="1140"/>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="1241"/>
         <source>Curve number</source>
-        <translation>Curve Number</translation>
+        <translation>Curve संख्या</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="1141"/>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="1242"/>
         <source>Initial retention (mm)</source>
-        <translation>Rétention initiale (mm)</translation>
+        <translation>सुरुको संचय ( मिलिमिटर )</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="1142"/>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="1243"/>
         <source>Initial retention : 0.2 x S</source>
-        <translation>Rétention initiale : 0.2 x S</translation>
+        <translation>सुरुको संचयः 0.2 * S</translation>
     </message>
 </context>
 <context>
@@ -1967,31 +1963,31 @@ choisir un nouveau nom :</translation>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="944"/>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="1130"/>
         <source>Initial retention (mm)</source>
-        <translation>Rétention initiale (mm)</translation>
+        <translation>सुरुको संचय ( मिलिमिटर )</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="945"/>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="1131"/>
         <source>Saturated permeability (mm/h)</source>
-        <translation>Perméabilité à saturation (mm/h)</translation>
+        <translation>संतृप्त पारगम्यता / Permeability ( मि. मि. प्रति घन्टा )</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="946"/>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="1132"/>
         <source>Soil porosity (vol/vol)</source>
-        <translation>Porosité du sol (vol/vol)</translation>
+        <translation>माटोको पोर्सिटी ( भोल्युम / भोल्युम )</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="947"/>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="1133"/>
         <source>Initial water content (vol/vol)</source>
-        <translation>Teneur en eau initiale (vol/vol)</translation>
+        <translation>सुरुको पानीको मात्रा ( भोल्युम / भोल्युम )</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="948"/>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="1134"/>
         <source>Wetting front suction (mm)</source>
-        <translation>Front de succion humide (mm)</translation>
+        <translation>भिजेको फ्रन्ट सक्सन (मिमी)</translation>
     </message>
 </context>
 <context>
@@ -1999,100 +1995,100 @@ choisir un nouveau nom :</translation>
     <message>
         <location filename="../src/ui/reosrunoffhydrographwidget.ui"/>
         <source>Runoff and Hydrograph of Watershed</source>
-        <translation>Ruissellement et Hydrogramme du Bassin Versant</translation>
+        <translation>रनऑफ र वाटरशेडको हाइड्रोग्राफ</translation>
     </message>
     <message>
         <location filename="../src/ui/reosrunoffhydrographwidget.ui"/>
         <source>Current Meteorologic Model</source>
-        <translation>Modèle Météorologique Courant</translation>
+        <translation>चालु मौसम विज्ञानको नमूना</translation>
     </message>
     <message>
         <location filename="../src/ui/reosrunoffhydrographwidget.ui"/>
         <source>Rainfall Information:</source>
-        <translation>Information sur la pluie :</translation>
+        <translation>वर्षा को बारेमा विवरण</translation>
     </message>
     <message>
         <location filename="../src/ui/reosrunoffhydrographwidget.ui"/>
         <source>Runoff Models</source>
-        <translation>Modèle de ruissellement</translation>
+        <translation>रनअफ मोडेल हरू</translation>
     </message>
     <message>
         <location filename="../src/ui/reosrunoffhydrographwidget.ui"/>
         <source>Transfert Function</source>
-        <translation>Fonction de transfert</translation>
+        <translation>ट्रान्सफर्ट function</translation>
     </message>
     <message>
         <location filename="../src/ui/reosrunoffhydrographwidget.ui"/>
         <source>Plots</source>
-        <translation>Graphique</translation>
+        <translation>पल्ट हरु</translation>
     </message>
     <message>
         <location filename="../src/ui/reosrunoffhydrographwidget.ui"/>
         <source>Runoff results</source>
-        <translation>Ruissellements</translation>
+        <translation>रनअफ मोडेल हरू</translation>
     </message>
     <message>
         <location filename="../src/ui/reosrunoffhydrographwidget.ui"/>
         <source>Hydrograph result</source>
-        <translation>Hydrogramme</translation>
+        <translation>हाइड्रोग्राफ परिणाम</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="51"/>
         <source>Rainfall</source>
-        <translation>Pluie</translation>
+        <translation>वर्षा</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="55"/>
         <source>Runoff</source>
-        <translation>Ruissellements</translation>
+        <translation>रनअफ </translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="57"/>
         <source>Hydrograph</source>
-        <translation>Hydrogramme</translation>
+        <translation>हाइड्रोग्राफ</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="62"/>
         <source>Time</source>
-        <translation>Temps</translation>
+        <translation>समय</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="65"/>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="298"/>
         <source>Flow rate (%1)</source>
-        <translation>Débit (%1)</translation>
+        <translation>बग्ने गति (%1)</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="232"/>
         <source>Rainfall %1</source>
-        <translation>Pluie %1</translation>
+        <translation>वर्षा %1</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="257"/>
         <source>Runoff %1</source>
-        <translation>Ruissellement %1</translation>
+        <translation>रनअफ %1</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="353"/>
         <source>Remove this model</source>
-        <translation>Supprimer ce modèle</translation>
+        <translation>यो नमूना हटाउनुहोस</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="404"/>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="421"/>
         <source>Copy selected values</source>
-        <translation>Copier les valeurs sélectionnées</translation>
+        <translation>चयन गर्ने मान कपि गर्नुहोस</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="409"/>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="426"/>
         <source>Copy selected values with headers</source>
-        <translation>Copier les valeurs sélectionnées avec l&apos;entête</translation>
+        <translation>चयन गर्ने मान हेडर सहित कपि गर्नुहोस</translation>
     </message>
     <message>
         <location filename="../src/ui/reosrunoffhydrographwidget.ui"/>
         <source>Tables</source>
-        <translation>Tableaux</translation>
+        <translation>टेबलहरु</translation>
     </message>
 </context>
 <context>
@@ -2100,106 +2096,106 @@ choisir un nouveau nom :</translation>
     <message>
         <location filename="../src/ui/reosrunoffmanager.ui"/>
         <source>Runoff Manager</source>
-        <translation>Gestionnaire de ruissellement</translation>
+        <translation>वर्षा व्यवस्थापन</translation>
     </message>
     <message>
         <location filename="../src/ui/reosrunoffmanager.ui"/>
         <source>Data from:</source>
-        <translation>Données depuis :</translation>
+        <translation>डाटा काहाबाट :</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="43"/>
         <source>Open File</source>
-        <translation>Ouvrir fichier</translation>
+        <translation>फाईल खोल्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="44"/>
         <source>Save Runoff Models</source>
-        <translation>Sauver les modèles de ruissellement</translation>
+        <translation>रनअफ मोडेल हरू सेभ गर्ने</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="45"/>
         <source>Save Runoff Models as ...</source>
-        <translation>Sauver les modèles de ruissellement sous ...</translation>
+        <translation>रनअफ मोडेल हरू सेभ कहाँ गर्ने</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="85"/>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="149"/>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="163"/>
         <source>Open Runoff Data</source>
-        <translation>Ouvrir des données de ruissellement</translation>
+        <translation>वर्षा को डाटा फाईल खोल्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="85"/>
         <source>Unable to open the current runoff data file: %1</source>
-        <translation>Impossible d&apos;ouvrir les données de ruissellement actuelles : %1</translation>
+        <translation>अहिलेको वर्षाको डाटा फाईल खोल्न मिल्देेन : %1</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="99"/>
         <source>Save Runoff Data</source>
-        <translation>Sauver les données de ruissellement</translation>
+        <translation>रनअफ मोडेल हरू सेभ गर्ने</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="99"/>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="116"/>
         <source>Unable to write the file</source>
-        <translation>Impossible d&apos;écrire le fichier</translation>
+        <translation>फाईल बनाउन मिल्देेन </translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="106"/>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="116"/>
         <source>Save Runoff Data as...</source>
-        <translation>Sauver les données de ruissellement sous ...</translation>
+        <translation>वर्षा को डाटा सेभ कता गर्ने</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="134"/>
         <source>Open Runoff Data File</source>
-        <translation>Ouvrir des données de ruissellement</translation>
+        <translation>रनअफ को डाटा फाईल खोल्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="135"/>
         <source>This action will remove the actual runoff model data, do you want to save before?</source>
-        <translation>Cette action va supprimer les modèles de ruissellement actuels. Continuer ?</translation>
+        <translation>यस कार्यले वास्तविक वर्षाको डाटा हटाउनेछ, के तपाईं पहिले सेभ गर्न चाहानुहुन्छ ?</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="163"/>
         <source>Unable to open the file: %1</source>
-        <translation>Impossible d&apos;ouvrir le fichier : %1</translation>
+        <translation>फाईल खोल्न मिल्देेन : %1</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="178"/>
         <source>Add a new runoff model</source>
-        <translation>Ajouter un nouveau modèle de ruissellement</translation>
+        <translation>रनअफ नमूना थप्नुहोस</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="179"/>
         <source>Choose model&apos;s name:</source>
-        <translation>Choisir un nom de modèle :</translation>
+        <translation>नमूनाको नाम छान्नुहोस</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="180"/>
         <source>Name</source>
-        <translation>Nom</translation>
+        <translation>नाम</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="195"/>
         <source>Remove runoff model</source>
-        <translation>Supprimer le modèle de ruissellement</translation>
+        <translation>रनअफ नमूना हटाउनुहोस</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="196"/>
         <source>Remove runoff model %1?</source>
-        <translation>Supprimer le modèle de ruissellement %1 ?</translation>
+        <translation>रनअफ नमूना हटाउनुहोस : %1</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="247"/>
         <source>Add a new model</source>
-        <translation>Ajouter un modèle de ruissellement</translation>
+        <translation>नयाँ नमूना थप्नुहोस</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="254"/>
         <source>Remove this model</source>
-        <translation>Supprimer ce modèle</translation>
+        <translation>यो नमूना हटाउनुहोस</translation>
     </message>
 </context>
 <context>
@@ -2207,69 +2203,69 @@ choisir un nouveau nom :</translation>
     <message>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="535"/>
         <source>Constant coefficient %1</source>
-        <translation>Coefficient constant %1</translation>
+        <translation>लगातार गुणक %1</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="537"/>
         <source>Green Ampt %1</source>
-        <translation>Green Ampt %1</translation>
+        <translation>ग्रिन एम्पट %1</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="539"/>
         <source>Curve Number %1</source>
-        <translation>Curve Number %1</translation>
+        <translation>Curve नम्बर %1</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="541"/>
         <source>Undefined type %1</source>
-        <translation>Type indéfini %1</translation>
+        <translation>Undefined प्रकार %1</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="588"/>
         <source>Runoff models save to file: %1</source>
-        <translation>Modèles de ruissellements sauvés dans le fichier : %1</translation>
+        <translation>रनअफको डाटा सेभ गरिने फाईल : %1</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="624"/>
         <source>Runoff data loaded from file: %1</source>
-        <translation>Données de ruissellements chargées depuis le fichier : %1</translation>
+        <translation>वर्षा को डाटा लोड गरिने फाईल : %1</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="626"/>
         <source>Unable to load runoff data from file: %1</source>
-        <translation>Impossible de charger le fichier de ruissellements depuis le fichier : %1</translation>
+        <translation>अहिलेको वर्षाको फाईल लोड खोल्न मिल्देेन : %1</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="653"/>
         <source>Constant coefficient</source>
-        <translation>Coefficient constant</translation>
+        <translation>लगातार गुणक </translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="659"/>
         <source>Green Ampt</source>
-        <translation>Green Ampt</translation>
+        <translation>ग्रिन एम्पट</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="663"/>
         <source>Curve Number</source>
-        <translation>Curve Number</translation>
+        <translation>Curve संख्या</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="666"/>
         <source>A constant coefficient between 0 and 1
 is applied on the rainfall</source>
-        <translation>Un coefficient constant compris entre 0 et 1
-est appliqué sur la pluie</translation>
+        <translation>० र १ बीचमा 
+स्थिर गुणांक वर्षामा लागू गरियो</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="667"/>
         <source>The Green Ampt approach for runoff</source>
-        <translation>L&apos;approche de Green Ampt pour le ruissellement</translation>
+        <translation>रन अफको लागि ग्रिन एम्पट दृष्टिकोण</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="668"/>
         <source>Curve Number runoff</source>
-        <translation>Ruissellement avec Curve Number</translation>
+        <translation>Curve संख्या रनअफ</translation>
     </message>
 </context>
 <context>
@@ -2278,7 +2274,7 @@ est appliqué sur la pluie</translation>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="743"/>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="872"/>
         <source>Portion</source>
-        <translation>Part</translation>
+        <translation>भाग</translation>
     </message>
 </context>
 <context>
@@ -2286,22 +2282,22 @@ est appliqué sur la pluie</translation>
     <message>
         <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="399"/>
         <source>mm</source>
-        <translation>mm</translation>
+        <translation>मिलिमिटर</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="400"/>
         <source>Height per time step</source>
-        <translation>Hauteur par unité de temps</translation>
+        <translation>वर्षाको गहिराई प्रति समय चरण</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="401"/>
         <source>Total height</source>
-        <translation>Hauteur totale</translation>
+        <translation>कुल गहिराई</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="402"/>
         <source>Rainfall intensity</source>
-        <translation>Intensité de la pluie</translation>
+        <translation>बर्षा तीव्रता </translation>
     </message>
 </context>
 <context>
@@ -2309,17 +2305,17 @@ est appliqué sur la pluie</translation>
     <message>
         <location filename="../src/ui/reosstartingwidget.ui"/>
         <source>What do you want ?</source>
-        <translation>Que voulez-vous ?</translation>
+        <translation>तपाई के चाहानुहुन्छ?</translation>
     </message>
     <message>
         <location filename="../src/ui/reosstartingwidget.ui"/>
         <source>New Project</source>
-        <translation>Nouveau Projet</translation>
+        <translation>नया प्रोजेक्ट</translation>
     </message>
     <message>
         <location filename="../src/ui/reosstartingwidget.ui"/>
         <source>Open Project</source>
-        <translation>Ouvrir Projet</translation>
+        <translation>प्रोजेक्ट खोल्नुहोस्</translation>
     </message>
 </context>
 <context>
@@ -2327,12 +2323,12 @@ est appliqué sur la pluie</translation>
     <message>
         <location filename="../src/core/data/reostextfiledata.cpp" line="79"/>
         <source>space</source>
-        <translation>espace</translation>
+        <translation>space ( ट्याब )</translation>
     </message>
     <message>
         <location filename="../src/core/data/reostextfiledata.cpp" line="226"/>
         <source>Field %1</source>
-        <translation>Champs %1</translation>
+        <translation>फिल्ड %1</translation>
     </message>
 </context>
 <context>
@@ -2341,7 +2337,7 @@ est appliqué sur la pluie</translation>
         <location filename="../src/core/data/reostimeserie.cpp" line="539"/>
         <location filename="../src/core/data/reostimeserie.cpp" line="620"/>
         <source>Reference time</source>
-        <translation>Temps de référence</translation>
+        <translation>सन्दर्भ समय</translation>
     </message>
 </context>
 <context>
@@ -2350,12 +2346,12 @@ est appliqué sur la pluie</translation>
         <location filename="../src/core/data/reostimeserie.cpp" line="218"/>
         <location filename="../src/core/data/reostimeserie.cpp" line="412"/>
         <source>Time step</source>
-        <translation>Pas de temps</translation>
+        <translation>समय चरण</translation>
     </message>
     <message>
         <location filename="../src/core/data/reostimeserie.cpp" line="520"/>
         <source>Intensity (%1/%2)</source>
-        <translation>Intensité (%1/%2)</translation>
+        <translation>तीव्रता (%1/%2)</translation>
     </message>
 </context>
 <context>
@@ -2363,27 +2359,27 @@ est appliqué sur la pluie</translation>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="63"/>
         <source>Delete selected row(s)</source>
-        <translation>Supprimer ligne(s) sélectionnée(s)</translation>
+        <translation>चयनित पँक्ति(हरू) हटाउनुहोस्&#xa0;</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="72"/>
         <source>Insert row(s)</source>
-        <translation>Insérer ligne(s)</translation>
+        <translation>पंक्ति (हरू) थप्नुहोस</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="81"/>
         <source>Insert row(s) from clipboard</source>
-        <translation>Insérer ligne(s) depuis le presse papier</translation>
+        <translation>पंक्ति (हरू) क्लिपबोर्डबाट थप्नुहोस</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="115"/>
         <source>Paste value to table</source>
-        <translation>Colle les valeurs dans le tableau</translation>
+        <translation>तालिकामा मान पेस्ट गर्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="115"/>
         <source>Incompatible data in the cliboard: </source>
-        <translation>Données incompatibles dans le presse papier :</translation>
+        <translation>क्लिपबोर्डमा अमिल्दो डाटा छ</translation>
     </message>
 </context>
 <context>
@@ -2391,52 +2387,52 @@ est appliqué sur la pluie</translation>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="137"/>
         <source>millisecond</source>
-        <translation>milliseconde</translation>
+        <translation>मिलिसेकेन्ड</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="138"/>
         <source>second</source>
-        <translation>seconde</translation>
+        <translation>सेकेन्ड</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="139"/>
         <source>minute</source>
-        <translation>minute</translation>
+        <translation>मिनेट</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="140"/>
         <source>hour</source>
-        <translation>heure</translation>
+        <translation>घन्टा</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="141"/>
         <source>day</source>
-        <translation>jour</translation>
+        <translation>दिन</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="142"/>
         <source>week</source>
-        <translation>semaine</translation>
+        <translation>हप्ता</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="143"/>
         <source>month</source>
-        <translation>mois</translation>
+        <translation>महिना</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="144"/>
         <source>year</source>
-        <translation>année</translation>
+        <translation>बर्ष</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="149"/>
         <source>Intensity time unit</source>
-        <translation>Unité de temps d&apos;intensité</translation>
+        <translation>तीव्रता समय युनिट</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="153"/>
         <source>Value type</source>
-        <translation>Type de valeur</translation>
+        <translation>मान प्रकार</translation>
     </message>
 </context>
 <context>
@@ -2444,7 +2440,7 @@ est appliqué sur la pluie</translation>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="996"/>
         <source>Time</source>
-        <translation>Temps</translation>
+        <translation>समय</translation>
     </message>
 </context>
 <context>
@@ -2453,13 +2449,13 @@ est appliqué sur la pluie</translation>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="33"/>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="70"/>
         <source>Concentration time</source>
-        <translation>Temps de concentration</translation>
+        <translation>एकाग्रता समय</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="34"/>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="71"/>
         <source>Area</source>
-        <translation>Superficie</translation>
+        <translation>क्षेत्रफल</translation>
     </message>
 </context>
 <context>
@@ -2468,19 +2464,19 @@ est appliqué sur la pluie</translation>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="79"/>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="194"/>
         <source>Lag time</source>
-        <translation>Temps de décalage</translation>
+        <translation>ल्याग समय</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="80"/>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="195"/>
         <source>Use concentration time</source>
-        <translation>Utiliser le temps de concentration</translation>
+        <translation>एकाग्रता समय चलाउने</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="81"/>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="196"/>
         <source>Factor</source>
-        <translation>Facteur</translation>
+        <translation>कारक् / फ्याक्टर</translation>
     </message>
 </context>
 <context>
@@ -2489,25 +2485,25 @@ est appliqué sur la pluie</translation>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="494"/>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="633"/>
         <source>Peak Factor</source>
-        <translation>Facteur de pointe</translation>
+        <translation>पीक फ्याक्टर</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="495"/>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="634"/>
         <source>Lag time</source>
-        <translation>Temps de décalage</translation>
+        <translation>ल्याग समय</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="496"/>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="635"/>
         <source>Use concentration time for the lag time</source>
-        <translation>Utiliser le temps de concentration pour le temps de décalage</translation>
+        <translation>एकाग्रता समय ल्याग समयलाई चलाउने</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="497"/>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="636"/>
         <source>Factor</source>
-        <translation>Facteur</translation>
+        <translation>कारक् / फ्याक्टर</translation>
     </message>
 </context>
 <context>
@@ -2516,13 +2512,13 @@ est appliqué sur la pluie</translation>
         <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="26"/>
         <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="34"/>
         <source>Total Duration</source>
-        <translation>Durée totale</translation>
+        <translation>कुल अवधि</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="27"/>
         <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="35"/>
         <source>Eccentricity</source>
-        <translation>Excentricité</translation>
+        <translation>विलक्षणता</translation>
     </message>
 </context>
 <context>
@@ -2530,24 +2526,24 @@ est appliqué sur la pluie</translation>
     <message>
         <location filename="../src/gui/reosversionmessagebox.cpp" line="20"/>
         <source>New version available</source>
-        <translation>Nouvelle version disponible</translation>
+        <translation>नया भर्जन उपलब्ध छ ।</translation>
     </message>
     <message>
         <location filename="../src/gui/reosversionmessagebox.cpp" line="78"/>
         <source>A new version is available.
 </source>
-        <translation>Une nouvelle version est disponible.
+        <translation>नया भर्जन उपलब्ध छ ।
 </translation>
     </message>
     <message>
         <location filename="../src/gui/reosversionmessagebox.cpp" line="80"/>
         <source>Visit : </source>
-        <translation>Visitez :</translation>
+        <translation>भ्रमण गर्नु :</translation>
     </message>
     <message>
         <location filename="../src/gui/reosversionmessagebox.cpp" line="96"/>
         <source>No new version available.</source>
-        <translation>Pas de nouvelle version.</translation>
+        <translation>नया भर्जन भेटिएन</translation>
     </message>
 </context>
 <context>
@@ -2555,47 +2551,47 @@ est appliqué sur la pluie</translation>
     <message>
         <location filename="../src/core/watershed/reoswatershed.cpp" line="759"/>
         <source>Watershed area</source>
-        <translation>Superficie du bassin versant</translation>
+        <translation>वाटरशेड क्षेत्र </translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reoswatershed.cpp" line="758"/>
         <source>Watershed name</source>
-        <translation>Nom du bassin versant</translation>
+        <translation>वाटरशेड नाम</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reoswatershed.cpp" line="760"/>
         <source>Average slope</source>
-        <translation>Pente moyenne</translation>
+        <translation>औसत ढलान</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reoswatershed.cpp" line="761"/>
         <source>Drop</source>
-        <translation>Dénivelée</translation>
+        <translation>उचाई मा फरक</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reoswatershed.cpp" line="762"/>
         <source>Longest stream path</source>
-        <translation>Plus long chemin hydraulique</translation>
+        <translation>सबैभन्दा लामो नदिको पथ</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reoswatershed.cpp" line="763"/>
         <source>Average elevation</source>
-        <translation>Élévation moyenne</translation>
+        <translation>औसत उचाई</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reoswatershed.cpp" line="764"/>
         <source>Concentration time</source>
-        <translation>Temps de concentration</translation>
+        <translation>एकाग्रता समय</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reoswatershed.cpp" line="960"/>
         <source>Unable to calculate average elevation for watershed &quot;%1&quot; : no DEM available</source>
-        <translation>Incapable de calculer l&apos;élévation moyenne pour le bassin versant &quot;%1&quot; : aucun MNT disponible</translation>
+        <translation>वाटरशेड &quot;%1&quot; को लागि औसत उचाइ गणना गर्न असमर्थ: कुनै DEM उपलब्ध छैन</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reoswatershed.cpp" line="962"/>
         <source>Average elevation calculation for watershed &quot;%1&quot; with DEM &quot;%2&quot;</source>
-        <translation>Élévation moyenne calculée pour le bassin versant  &quot;%1&quot; avec le MNT &quot;%2&quot;</translation>
+        <translation>DEM &quot;%2&quot; संग वाटरहसेड &quot;%1&quot; को लागि औसत उचाइ गणना</translation>
     </message>
 </context>
 <context>
@@ -2604,37 +2600,37 @@ est appliqué sur la pluie</translation>
         <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="74"/>
         <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="94"/>
         <source>Waiting for proceeding to delineating</source>
-        <translation>En attente de procéder au découpage</translation>
+        <translation>डिलिनिएटिन्ग गर्न अगाडि बढ्न कुर्दै</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="81"/>
         <source>Waiting for predefined extent</source>
-        <translation>En attente d&apos;une étendue prédéfinie</translation>
+        <translation>पूर्वनिर्धारित सीमाको लागि पर्खँदै</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="118"/>
         <source>Start delineating</source>
-        <translation>Début du découpage</translation>
+        <translation>वाटरशेड बनाउन सुरु गराेेँ</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="204"/>
         <source>%1 validated%2</source>
-        <translation>%1 validé%2</translation>
+        <translation>%1 ले %2 लाई मान्य गर्यो</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="205"/>
         <source> and added to %1</source>
-        <translation> et ajouté à %1</translation>
+        <translation>र %1 मा थप्यो</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="296"/>
         <source>Predifined extent intersect watershed delineating, please redefined extent</source>
-        <translation>L&apos;étendue prédéfinie intersecte les limite du bassin versant, merci de redéfinir l&apos;étendue</translation>
+        <translation>पूर्वनिर्धारित सीमा वाटरशेड भन्दा सानो छ। कृपया सीमा पुन: परिभाषित गर्नुहोला।</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="311"/>
         <source>Watershed ready for validation</source>
-        <translation>Bassin versant près pour validation</translation>
+        <translation>प्रमाणीकरणको लागि वाटरशेड तयार छ</translation>
     </message>
 </context>
 <context>
@@ -2642,32 +2638,32 @@ est appliqué sur la pluie</translation>
     <message>
         <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="389"/>
         <source>Extract digital elevation model</source>
-        <translation>Extrait le modèle numérique de terrain</translation>
+        <translation>डिजिटल एलिभेसन मोडेल निकाल्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="402"/>
         <source>Filling digital elevation model</source>
-        <translation>Remplissage du modèle numérique de terrain</translation>
+        <translation>डिजिटल एलिभेसन मोडेल फिल गर्ने</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="415"/>
         <source>Calculating direction</source>
-        <translation>Calcul des directions</translation>
+        <translation>दिशा गणना गर्दै</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="448"/>
         <source>Delineate watershed</source>
-        <translation>Découpe du bassin versant</translation>
+        <translation>वाटरशेड बनाउने</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="469"/>
         <source>Polygonize watershed</source>
-        <translation>Polygonise le bassin versant</translation>
+        <translation>वाटरशेड को बहुभुज बनाुउने</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="484"/>
         <source>Trace stream line</source>
-        <translation>Trace le chemin hydraulique</translation>
+        <translation>स्ट्रिम लाइन ट्रेस गर्नुहोस्</translation>
     </message>
 </context>
 <context>
@@ -2675,22 +2671,22 @@ est appliqué sur la pluie</translation>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="636"/>
         <source>Right click to add</source>
-        <translation>Clique droit pour ajouter</translation>
+        <translation>थप्नको लागि दायाँ क्लिक गर्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="654"/>
         <source>Invalid</source>
-        <translation>Invalide</translation>
+        <translation>अमान्य</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="797"/>
         <source>Runoff model</source>
-        <translation>Modèle de ruissellement</translation>
+        <translation>रनअफ मोडेल</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="800"/>
         <source>Portion in watershed</source>
-        <translation>Part de bassin versant</translation>
+        <translation>वाटरशेड को भाग</translation>
     </message>
 </context>
 <context>
@@ -2698,7 +2694,7 @@ est appliqué sur la pluie</translation>
     <message>
         <location filename="../src/core/watershed/reoswatershedtree.cpp" line="85"/>
         <source>Watershed-%1</source>
-        <translation>Bassin versant - %1</translation>
+        <translation>वाटरशेड - %1</translation>
     </message>
 </context>
 <context>
@@ -2706,87 +2702,87 @@ est appliqué sur la pluie</translation>
     <message>
         <location filename="../src/ui/reoswatershedwidget.ui"/>
         <source>Watershed</source>
-        <translation>Bassin versant</translation>
+        <translation>वाटरशेड </translation>
     </message>
     <message>
         <location filename="../src/ui/reoswatershedwidget.ui"/>
         <source>Watershed Values</source>
-        <translation>Valeurs du bassin versant</translation>
+        <translation>वाटरशेड को मानहरू</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="24"/>
         <source>Select watershed on map</source>
-        <translation>Sélectionner un bassin versant sur la carte</translation>
+        <translation>नक्शामा वाटरशेड चयन गर्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="26"/>
         <source>Remove watershed</source>
-        <translation>Supprimer bassin versant</translation>
+        <translation>वाटरशेड हटाउने</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="27"/>
         <source>Delineate watershed</source>
-        <translation>Découper un bassin versant</translation>
+        <translation>वाटरशेड बनाउने</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="29"/>
         <source>Longitudinal profile</source>
-        <translation>Profil en long</translation>
+        <translation>वाटरशेडको सबैभन्दा लामो खोलाको प्रोफाइल</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="31"/>
         <source>Concentration time</source>
-        <translation>Temps de concentration</translation>
+        <translation>एकाग्रता समय</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="33"/>
         <source>Meteorologic models</source>
-        <translation>Modèle météorologique</translation>
+        <translation>मौसम विज्ञानको नमूनाहरु</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="34"/>
         <source>Runoff hydrograph</source>
-        <translation>Hydrogramme de ruissellement</translation>
+        <translation>रनऑफ हाइड्रोग्राफ</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="36"/>
         <source>Export watershed geometry to vector layer</source>
-        <translation>Exporter la géométrie du bassin versant vers une couche vectorielle</translation>
+        <translation>वाटरशेड लाई shapefile मा सुरक्षित गर्नु</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="37"/>
         <source>Zoom to watershed</source>
-        <translation>Zoom sur le bassin versant</translation>
+        <translation>वाटरशेड मा zoom गर्नु</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="47"/>
         <source>Area</source>
-        <translation>Superficie</translation>
+        <translation>क्षेत्रफल</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="48"/>
         <source>Average Slope</source>
-        <translation>Pente moyenne</translation>
+        <translation>औसत ढलान</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="49"/>
         <source>Watershed name</source>
-        <translation>Nom du bassin versant</translation>
+        <translation>वाटरशेड नाम</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="50"/>
         <source>Average elevation</source>
-        <translation>Élévation moyenne</translation>
+        <translation>औसत उचाई</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="203"/>
         <source>Removing watershed</source>
-        <translation>Supprimer le bassin versant</translation>
+        <translation>वाटरशेड हटाउने</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="203"/>
         <source>Do you want to remove the current watershed &apos;%1&apos;?</source>
-        <translation>Supprimer le bassin versant &apos;%1&apos; ?</translation>
+        <translation>अहिलेको वाटरसेड &quot;%1&quot; हाटाउने हो ?</translation>
     </message>
 </context>
 </TS>

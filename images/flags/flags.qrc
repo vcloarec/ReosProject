@@ -1,6 +1,8 @@
 <RCC>
     <qresource prefix="/flags">
+        <file>es.svg</file>
         <file>fr.svg</file>
+        <file>ne.svg</file>
         <file>pt_BR.svg</file>
         <file>pt_PT.svg</file>
         <file>zh-Hans.svg</file>
