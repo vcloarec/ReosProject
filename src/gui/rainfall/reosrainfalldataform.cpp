@@ -34,6 +34,7 @@
 
 ReosTimeSerieConstantIntervalView::ReosTimeSerieConstantIntervalView( QWidget *parent ): QTableView( parent )
 {
+  setHorizontalHeader( new ReosHorizontalHeaderView( this ) );
 }
 
 void ReosTimeSerieConstantIntervalView::keyPressEvent( QKeyEvent *event )
@@ -44,7 +45,6 @@ void ReosTimeSerieConstantIntervalView::keyPressEvent( QKeyEvent *event )
     if ( !values.isEmpty() )
       emit pastDataFromClipboard( currentIndex(), values );
   }
-
 
   QTableView::keyPressEvent( event );
 
@@ -172,6 +172,7 @@ ReosTimeSerieConstantIntervalWidget::ReosTimeSerieConstantIntervalWidget( ReosTi
   view->setModel( mModel );
   view->horizontalHeader()->setStretchLastSection( true );
   view->horizontalHeader()->setCascadingSectionResizes( true );
+  view->horizontalHeader()->setDefaultAlignment( Qt::AlignCenter | ( Qt::Alignment )Qt::TextWordWrap );
 
   connect( view, &ReosTimeSerieConstantIntervalView::pastDataFromClipboard, mModel, &ReosTimeSerieConstantIntervalModel::setValues );
   connect( view, &ReosTimeSerieConstantIntervalView::insertRow, mModel, &ReosTimeSerieConstantIntervalModel::insertValueRows );
@@ -328,4 +329,23 @@ ReosAlternatingBlockRainfallWidget::ReosAlternatingBlockRainfallWidget( ReosAlte
 
   addWidget( mIdfWidget, 3 );
   addParameter( rainfall->centerCoefficient() );
+}
+
+ReosHorizontalHeaderView::ReosHorizontalHeaderView( QWidget *parent ): QHeaderView( Qt::Horizontal, parent )
+{
+  setSectionResizeMode( QHeaderView::ResizeToContents );
+}
+
+QSize ReosHorizontalHeaderView::sectionSizeFromContents( int logicalIndex ) const
+{
+  //https://stackoverflow.com/questions/45084542/qtableview-header-word-wrap
+  const QString text = this->model()->headerData( logicalIndex, this->orientation(), Qt::DisplayRole ).toString();
+  const int maxWidth = this->sectionSize( logicalIndex );
+  const int maxHeight = 5000; // arbitrarily large
+  const auto alignment = defaultAlignment();
+  const QFontMetrics metrics( this->fontMetrics() );
+  const QRect rect = metrics.boundingRect( QRect( 0, 0, maxWidth, maxHeight ), alignment, text );
+
+  const QSize textMarginBuffer( 2, 2 ); // buffer space around text preventing clipping
+  return rect.size() + textMarginBuffer;
 }
