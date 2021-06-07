@@ -67,6 +67,9 @@ class REOSCORE_EXPORT ReosTextFileData : public QAbstractTableModel
     bool parsePreview();
     QStringList splitLine( const QString &line ) const;
 
+    void findEOL( QTextStream &stream );
+    QString readLine( QTextStream &stream );
+    QChar mFirstEOLChar = 0; // '\r' if EOL is "\r" or "\r\n", or `\n' if EOL is "\n"
 };
 
 #endif // REOSTEXTFILEDATA_H
