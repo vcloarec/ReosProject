@@ -22,6 +22,7 @@
 #include "reosmapitem.h"
 #include "reoshydraulicnetwork.h"
 #include "reoshydraulicnetworkmapitemfactory.h"
+#include "reosformwidget.h"
 #include "reosmaptoolhydraulicnetwork.h"
 
 namespace Ui
@@ -58,6 +59,8 @@ class ReosHydraulicNetworkWidget : public QWidget
     QMap<ReosHydraulicNetworkElement *, NetworkItem> mMapItems;
     ReosHydraulicNetworkMapItemFactory mMapItemFactory;
 
+
+
     QAction *mActionSelectNetworkElement = nullptr;
     ReosMapToolSelectMapItem *mMapToolSelectNetworkElement = nullptr;
 
@@ -69,9 +72,17 @@ class ReosHydraulicNetworkWidget : public QWidget
 
     QAction *mActionHydraulicNetworkProperties = nullptr;
     ReosHydraulicElementPropertiesWidget *mElementPropertiesWidget = nullptr;
-
-
-
 };
+
+
+
+class ReosHydrographRoutingFormWidgetFactory: public ReosFormWidgetDataFactory
+{
+  public:
+    ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent ) override;
+    QString datatype() const override;
+};
+
+
 
 #endif // REOSHYDRAULICNETWORKWIDGET_H

@@ -13,23 +13,30 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include "reoshydraulicelementpropertieswidget.h"
-#include "ui_reoshydraulicelementpropertieswidget.h"
 
+#include <QVBoxLayout>
+#include <QLabel>
+
+#include "reoshydraulicelementpropertieswidget.h"
 #include "reoshydraulicnetwork.h"
 
+#include "reoshydrographroutingpropertieswidget.h"
+#include "reoshydrographtransfer.h"
+#include "reosformwidget.h"
+
 ReosHydraulicElementPropertiesWidget::ReosHydraulicElementPropertiesWidget( QWidget *parent ) :
-  ReosActionWidget( parent ),
-  ui( new Ui::ReosHydraulicElementPropertiesWidget )
+  ReosActionWidget( parent )
 {
-  ui->setupUi( this );
   setWindowFlag( Qt::Dialog );
+  setLayout( new QVBoxLayout );
+  mDefaultWidgetfactory = new ReosHydraulicElementWidgetFactory( this );
+
+  mWidgetFactories.insert( ReosHydrographRouting::typeString(), new ReosHydrographRoutingPropertiesWidgetFactory( this ) );
+  ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormMuskingumClassicRoutingWidgetFactory );
 }
 
 ReosHydraulicElementPropertiesWidget::~ReosHydraulicElementPropertiesWidget()
-{
-  delete ui;
-}
+{}
 
 void ReosHydraulicElementPropertiesWidget::setCurrentElement( ReosHydraulicNetworkElement *element )
 {
@@ -38,4 +45,39 @@ void ReosHydraulicElementPropertiesWidget::setCurrentElement( ReosHydraulicNetwo
     setWindowTitle( mCurrentElement->type() );
   else
     setWindowTitle( tr( "No Element Selected" ) );
+
+  QWidget *newWidget = widgetFactory( element->type() )->createWidget( element, this );
+
+  if ( mCurrentWidget )
+  {
+    layout()->replaceWidget( mCurrentWidget, newWidget );
+    delete mCurrentWidget;
+    mCurrentWidget = newWidget;
+  }
+  else
+  {
+    mCurrentWidget = newWidget;
+    layout()->addWidget( mCurrentWidget );
+  }
+}
+
+ReosHydraulicElementWidgetFactory *ReosHydraulicElementPropertiesWidget::widgetFactory( const QString &elementType )
+{
+  if ( mWidgetFactories.contains( elementType ) )
+    return mWidgetFactories.value( elementType );
+
+  //! Search for keys that is contained in the element type
+  QStringList keys = mWidgetFactories.keys();
+  for ( const QString &key : keys )
+  {
+    if ( elementType.contains( key ) )
+      return mWidgetFactories.value( key );
+  }
+
+  return mDefaultWidgetfactory;
+}
+
+QWidget *ReosHydraulicElementWidgetFactory::createWidget( ReosHydraulicNetworkElement *element, QWidget *parent )
+{
+  return new QLabel( tr( "No widget available for the element of type %1" ).arg( element->type() ), parent );
 }

@@ -277,6 +277,17 @@ void ReosMapPolyline::setMarkerDistance( double d )
   static_cast<ReosMapPolyline_p *>( d_ )->setMarkerDistance( d );
 }
 
+void ReosMapPolyline::setMarkerArrow( bool b )
+{
+  static_cast<ReosMapPolyline_p *>( d_ )->setMarkerArrow( b );
+}
+
+void ReosMapPolyline::setExtremityDistance( double d )
+{
+  static_cast<ReosMapPolyline_p *>( d_ )->setExtremityDistance( d );
+}
+
+
 ReosMapMarkerFilledCircle::ReosMapMarkerFilledCircle(): ReosMapMarker() {}
 
 ReosMapMarkerFilledCircle::ReosMapMarkerFilledCircle( ReosMap *map ): ReosMapMarker( map )

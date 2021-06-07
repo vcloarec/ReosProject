@@ -1,0 +1,60 @@
+/***************************************************************************
+  reoshydrographpropertieswidget.h - ReosHydrographPropertiesWidget
+
+ ---------------------
+ begin                : 28.5.2021
+ copyright            : (C) 2021 by Vincent Cloarec
+ email                : vcloarec at gmail dot com
+ ***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+#ifndef REOSHYDROGRAPHPROPERTIESWIDGET_H
+#define REOSHYDROGRAPHPROPERTIESWIDGET_H
+
+#include <QWidget>
+#include "reoshydraulicelementpropertieswidget.h"
+#include "reosformwidget.h"
+
+namespace Ui
+{
+  class ReosHydrographRoutingPropertiesWidget;
+}
+
+class ReosHydrographRouting;
+
+class ReosHydrographRoutingPropertiesWidget : public QWidget
+{
+    Q_OBJECT
+
+  public:
+    explicit ReosHydrographRoutingPropertiesWidget( ReosHydrographRouting *hydrographRouting, QWidget *parent = nullptr );
+    ~ReosHydrographRoutingPropertiesWidget();
+
+  private:
+    Ui::ReosHydrographRoutingPropertiesWidget *ui;
+};
+
+
+class ReosHydrographRoutingPropertiesWidgetFactory : public ReosHydraulicElementWidgetFactory
+{
+  public:
+    ReosHydrographRoutingPropertiesWidgetFactory( QObject *parent = nullptr ): ReosHydraulicElementWidgetFactory( parent ) {}
+
+    QWidget *createWidget( ReosHydraulicNetworkElement *element, QWidget *parent = nullptr );
+    virtual QString elementType();
+};
+
+class ReosFormMuskingumClassicRoutingWidgetFactory: public ReosFormWidgetDataFactory
+{
+  public:
+    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent );
+    virtual QString datatype() const;
+};
+
+
+#endif // REOSHYDROGRAPHPROPERTIESWIDGET_H

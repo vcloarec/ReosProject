@@ -20,6 +20,7 @@
 #include "reoshydrographtransfer.h"
 #include "reoshydrographsource.h"
 #include "reoshydrograph.h"
+#include "reosmuskingumclassicrouting.h"
 
 
 class ReosHydrographTransferTest: public QObject
@@ -29,6 +30,7 @@ class ReosHydrographTransferTest: public QObject
     void initTestCase();
 
     void test_junction();
+    void test_classicMuskingumRouting();
 
   private:
     ReosHydrographSourceFixed mSource1;
@@ -75,7 +77,7 @@ void ReosHydrographTransferTest::test_junction()
   ReosHydrograph *inputHydrograph_2 = mSource2.outputHydrograph( context );
   ReosHydrograph *inputHydrograph_3 = mSource3.outputHydrograph( context );
 
-  ReosHydrographTransferDirect transfer1;
+  ReosHydrographRouting transfer1;
   transfer1.setInputHydrographSource( &mSource1 );
   transfer1.setHydrographDestination( &junction );
 
@@ -91,7 +93,7 @@ void ReosHydrographTransferTest::test_junction()
     QVERIFY( junctionHydrograph->timeAt( i ) == inputHydrograph_1->timeAt( i ) );
   }
 
-  ReosHydrographTransferDirect transfer2;
+  ReosHydrographRouting transfer2;
   transfer2.setInputHydrographSource( &mSource2 );
   transfer2.setHydrographDestination( &junction );
 
@@ -113,11 +115,11 @@ void ReosHydrographTransferTest::test_junction()
 
   ReosHydrographJunction junction2{ QPointF()};
 
-  ReosHydrographTransferDirect transfer3;
+  ReosHydrographRouting transfer3;
   transfer3.setInputHydrographSource( &mSource3 );
   transfer3.setHydrographDestination( &junction );
 
-  ReosHydrographTransferDirect transfer4;
+  ReosHydrographRouting transfer4;
   transfer4.setInputHydrographSource( &junction );
   transfer4.setHydrographDestination( &junction2 );
 
@@ -150,6 +152,22 @@ void ReosHydrographTransferTest::test_junction()
               inputHydrograph_2->valueAtTime( time ) +
               inputHydrograph_3->valueAtTime( time ) );
   }
+}
+
+void ReosHydrographTransferTest::test_classicMuskingumRouting()
+{
+  ReosModule rootModule;
+  ReosHydrographRoutingMethodFactories::instantiate( &rootModule );
+  ReosCalculationContext context;
+
+  ReosHydrographRouting routing;
+  QVERIFY( routing.setCurrentRoutingMethod( ReosMuskingumClassicRouting::typeString() ) );
+  QVERIFY( routing.currentRoutingMethod() );
+  QVERIFY( routing.currentRoutingMethod()->type() == ReosMuskingumClassicRouting::typeString() );
+
+  routing.setInputHydrographSource( &mSource1 );
+  routing.updateCalculation( context );
+  QVERIFY( routing.outputHydrograph() );
 }
 
 QTEST_MAIN( ReosHydrographTransferTest )

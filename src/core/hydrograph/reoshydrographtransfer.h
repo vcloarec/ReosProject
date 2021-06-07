@@ -23,18 +23,55 @@
 #include "reoshydrauliclink.h"
 #include "reoscalculationcontext.h"
 
-class ReosHydrographRoutingMethod
+class ReosHydrographRouting;
+
+class ReosHydrographRoutingMethod : public ReosDataObject
 {
   public:
-    virtual ReosHydrograph *outputHydrograph( ReosHydrograph *inputHydrograph, const ReosCalculationContext &context ) = 0;
+    ReosHydrographRoutingMethod( ReosHydrographRouting *routingLink );
+    virtual void calculateOutputHydrograph( ReosHydrograph *inputHydrograph, ReosHydrograph *outputHydrograph, const ReosCalculationContext &context ) = 0;
 
+    QString type() const override {return typeString();}
+    static QString typeString() {return QStringLiteral( "hydrographRoutingMethod" );}
 };
 
-class ReosHydrographRoutingDirect
+class ReosHydrographRoutingMethodFactory
 {
   public:
-
+    virtual ReosHydrographRoutingMethod *createRoutingMethod( ReosHydrographRouting *routingLink ) const = 0;
+    virtual QString type() const = 0;
 };
+
+
+class ReosHydrographRoutingMethodFactories : public ReosModule
+{
+  public:
+    static void instantiate( ReosModule *parent );
+
+    static bool isInstantiate();
+    static ReosHydrographRoutingMethodFactories *instance();
+
+    void addFactory( ReosHydrographRoutingMethodFactory *factory )
+    {
+      mFactories.emplace( factory->type(), factory );
+    }
+
+    ReosHydrographRoutingMethod *createRoutingMethod( const QString &type, ReosHydrographRouting *link )
+    {
+      auto it = mFactories.find( type );
+      if ( it != mFactories.end() )
+        return it->second->createRoutingMethod( link );
+
+      return nullptr;
+    }
+
+  private:
+    ReosHydrographRoutingMethodFactories( ReosModule *parent = nullptr );
+    static ReosHydrographRoutingMethodFactories *sInstance;
+    using Factory = std::unique_ptr<ReosHydrographRoutingMethodFactory>;
+    std::map<QString, Factory> mFactories;
+};
+
 
 
 /**
@@ -50,6 +87,9 @@ class ReosHydrographRouting : public ReosHydraulicLink
     //! Constructor with input and ouptut
     ReosHydrographRouting( ReosHydrographSource *hydrographSource, ReosHydrographNode *destination, ReosHydraulicNetwork *parent = nullptr );
 
+    bool setCurrentRoutingMethod( const QString &routingType );
+    ReosHydrographRoutingMethod *currentRoutingMethod() const;
+
     //! Sets the input hydrograph source
     void setInputHydrographSource( ReosHydrographSource *hydrographSource );
 
@@ -60,33 +100,43 @@ class ReosHydrographRouting : public ReosHydraulicLink
     void setHydrographDestination( ReosHydrographNode *destination );
 
     //! Returns the output hydrograph for the context calculation \a context
-    virtual ReosHydrograph *outputHydrograph( const ReosCalculationContext &context )
-    {
-      return mOutputHydrograph;
-    }
+    virtual ReosHydrograph *outputHydrograph() const;
 
-    QString type() const override {return hydrographRoutingType();}
-    QString static hydrographRoutingType() {return hydraulicLinkType() + QString( ':' ) + QStringLiteral( "routing" ); }
+    QString type() const override {return typeString();}
+    QString static typeString() {return ReosHydraulicLink::typeString() + QString( ':' ) + QStringLiteral( "routing" ); }
+
+  public slots:
+    void updateCalculation( const ReosCalculationContext &context );
 
   private:
-    ReosHydrographRoutingMethod *mRoutingMethod;
-    ReosHydrograph *mOutputHydrograph;
+    QMap<QString, ReosHydrographRoutingMethod *> mRoutingMethods;
+    QString mCurrentRoutingMethod;
+    ReosHydrograph *mOutputHydrograph = nullptr;
 
 };
 
 //! Class that transfers hydrograph between node without altering the hydrograph
-class ReosHydrographTransferDirect: public ReosHydrographRouting
+class ReosDirectHydrographRouting: public ReosHydrographRoutingMethod
 {
     Q_OBJECT
   public:
-    ReosHydrographTransferDirect( ReosHydraulicNetwork *parent = nullptr );
-    ReosHydrographTransferDirect( ReosHydrographSource *hydrographSource, ReosHydrographNode *destination, ReosHydraulicNetwork *parent = nullptr );
+    ReosDirectHydrographRouting( ReosHydrographRouting *routingLink );
 
-    ReosHydrograph *outputHydrograph( const ReosCalculationContext &context ) override;
+    virtual void calculateOutputHydrograph( ReosHydrograph *inputHydrograph,
+                                            ReosHydrograph *outputHydrograph,
+                                            const ReosCalculationContext &context ) override;
 
-    QString type() const override {return hydrographTransferDirectType();}
-    QString static hydrographTransferDirectType() {return hydrographRoutingType() + QString( ':' ) + QStringLiteral( "direct" ); }
+    QString type() const override {return typeString();}
+    QString static typeString() {return ReosHydrographRoutingMethod::typeString() + QString( ':' ) + QStringLiteral( "direct" ); }
 };
+
+class ReosDirectHydrographRoutingFactory : public ReosHydrographRoutingMethodFactory
+{
+  public:
+    ReosHydrographRoutingMethod *createRoutingMethod( ReosHydrographRouting *routingLink ) const override    {return new ReosDirectHydrographRouting( routingLink );}
+    virtual QString type() const override    {return ReosDirectHydrographRouting::typeString();}
+};
+
 
 
 #endif // REOSHYDROGRAPHTRANSFER_H

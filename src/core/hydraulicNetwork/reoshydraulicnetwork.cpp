@@ -16,10 +16,11 @@
 #include "reoshydraulicnetwork.h"
 #include "reoshydraulicnode.h"
 #include "reoshydrauliclink.h"
+#include "reoshydrographtransfer.h"
 #include <QUuid>
 
 ReosHydraulicNetworkElement::ReosHydraulicNetworkElement( ReosHydraulicNetwork *parent ):
-  QObject( parent )
+  ReosDataObject( parent )
   , mNetWork( parent )
 {
   mUid = QUuid::createUuid().toString();
@@ -47,6 +48,11 @@ void ReosHydraulicNetworkElement::positionChanged()
     mNetWork->elemPositionChangedPrivate( this );
 }
 
+
+ReosHydraulicNetwork::ReosHydraulicNetwork( ReosModule *parent ): ReosModule( parent )
+{
+  ReosHydrographRoutingMethodFactories::instantiate( this );
+}
 
 QList<ReosHydraulicNetworkElement *> ReosHydraulicNetwork::getElements( const QString &type ) const
 {

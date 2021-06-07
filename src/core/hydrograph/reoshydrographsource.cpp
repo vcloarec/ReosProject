@@ -60,10 +60,11 @@ ReosHydrograph *ReosHydrographJunction::outputHydrograph( const ReosCalculationC
 
   for ( const QPointer<ReosHydraulicLink> &link : mLinksBySide2 )
   {
-    ReosHydrographRouting *transfer = qobject_cast<ReosHydrographRouting *>( link );
-    if ( transfer )
+    ReosHydrographRouting *routing = qobject_cast<ReosHydrographRouting *>( link );
+    if ( routing )
     {
-      ReosHydrograph *transferhydrograph = transfer->outputHydrograph( context );
+      routing->updateCalculation( context );
+      ReosHydrograph *transferhydrograph = routing->outputHydrograph();
       if ( first && transferhydrograph )
       {
         mHydrograph->referenceTime()->setValue( transferhydrograph->referenceTime()->value() );
@@ -81,21 +82,6 @@ ReosHydrograph *ReosHydrographJunction::outputHydrograph( const ReosCalculationC
 QPointF ReosHydrographJunction::position() const
 {
   return mPosition;
-}
-
-ReosHydrographTransferDirect::ReosHydrographTransferDirect( ReosHydraulicNetwork *parent ): ReosHydrographRouting( parent ) {}
-
-ReosHydrographTransferDirect::ReosHydrographTransferDirect( ReosHydrographSource *hydrographSource, ReosHydrographNode *destination, ReosHydraulicNetwork *parent ):
-  ReosHydrographRouting( hydrographSource, destination, parent )
-{}
-
-ReosHydrograph *ReosHydrographTransferDirect::outputHydrograph( const ReosCalculationContext &context )
-{
-  ReosHydrographSource *upstreamSource = inputHydrographSource();
-  if ( upstreamSource )
-    return upstreamSource->outputHydrograph( context );
-  else
-    return nullptr;
 }
 
 

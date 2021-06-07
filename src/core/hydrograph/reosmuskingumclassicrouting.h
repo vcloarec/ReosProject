@@ -19,20 +19,31 @@
 #include "reoshydrographtransfer.h"
 #include "reosparameter.h"
 
-class ReosMuskingumClassicRouting : public ReosHydrographRouting
+class ReosMuskingumClassicRouting : public ReosHydrographRoutingMethod
 {
+    Q_OBJECT
   public:
-    ReosMuskingumClassicRouting( ReosHydraulicNetwork *parent = nullptr );
+    ReosMuskingumClassicRouting( ReosHydrographRouting *parent = nullptr );
 
-    ReosHydrograph *outputHydrograph( const ReosCalculationContext &context ) override;
+    void calculateOutputHydrograph( ReosHydrograph *inputHydrograph, ReosHydrograph *outputHydrograph, const ReosCalculationContext &context ) override;
+
+    QString type() const override {return typeString();}
+    static QString typeString() {return ReosHydrographRoutingMethod::typeString() + QString( ':' ) + QStringLiteral( "muskingumClassic" );}
+
+    ReosParameterDuration *kParameter() const;
+    ReosParameterDouble *xParameter() const;
 
   private:
     ReosParameterDuration *mKParameter = nullptr;
     ReosParameterDouble *mXParameter = nullptr;
-
-    mutable ReosHydrograph *mResultHydrograph = nullptr;
-
-    void calculate( const ReosCalculationContext &context ) const;
 };
+
+class ReosMuskingumClassicRoutingFactory : public ReosHydrographRoutingMethodFactory
+{
+  public:
+    ReosHydrographRoutingMethod *createRoutingMethod( ReosHydrographRouting *routingLink ) const override    {return new ReosMuskingumClassicRouting( routingLink );}
+    virtual QString type() const override    {return ReosMuskingumClassicRouting::typeString();}
+};
+
 
 #endif // REOSMUSKINGUMCLASSICROUTING_H

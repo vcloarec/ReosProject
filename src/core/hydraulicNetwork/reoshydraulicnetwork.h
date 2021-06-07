@@ -20,12 +20,14 @@
 #include <QHash>
 
 #include "reosmodule.h"
+#include "reosdataobject.h"
 
 class ReosHydraulicNode;
 class ReosHydraulicLink;
 class ReosHydraulicNetwork;
 
-class ReosHydraulicNetworkElement : public QObject
+
+class ReosHydraulicNetworkElement : public ReosDataObject
 {
     Q_OBJECT
   public:
@@ -34,8 +36,8 @@ class ReosHydraulicNetworkElement : public QObject
 
     QString id() const;
 
-    virtual QString type() const {return hydraulicElementType();}
-    static QString hydraulicElementType() {return QStringLiteral( "hydraulicNetwork" );}
+    QString type() const override {return typeString();}
+    static QString typeString() {return QStringLiteral( "hydraulicNetwork" );}
 
     //! Destroy the element (the instance will be deleted later).
     virtual void destroy();
@@ -52,7 +54,7 @@ class ReosHydraulicNetwork : public ReosModule
 {
     Q_OBJECT
   public:
-    ReosHydraulicNetwork( ReosModule *parent ): ReosModule( parent ) {}
+    ReosHydraulicNetwork( ReosModule *parent );
     QList<ReosHydraulicNetworkElement *> getElements( const QString &type ) const;
     ReosHydraulicNetworkElement *getElement( const QString &elemId ) const;
 

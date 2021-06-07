@@ -28,7 +28,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   , mHydraulicNetwork( network )
   , mMap( map )
   , mActionSelectNetworkElement( new QAction( tr( "Select hydraulic network element" ), this ) )
-  , mMapToolSelectNetworkElement( new ReosMapToolSelectMapItem( map, ReosHydraulicNetworkElement::hydraulicElementType() ) )
+  , mMapToolSelectNetworkElement( new ReosMapToolSelectMapItem( map, ReosHydraulicNetworkElement::typeString() ) )
   , mActionAddHydrographJunction( new QAction( tr( "Add hydrograph junction" ), this ) )
   , mMapToolAddHydrographJunction( new ReosMapToolDrawPoint( mMap ) )
   , mActionAddHydrographRouting( new QAction( tr( "Add hydrograph routing" ), this ) )
@@ -54,7 +54,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   toolBar->addAction( mActionAddHydrographRouting );
   mActionAddHydrographRouting->setCheckable( true );
   mMapToolAddHydrographRouting->setAction( mActionAddHydrographRouting );
-  mMapToolAddHydrographRouting->setSearchingItemDecription( ReosHydrographSource::hydrographSourceType() );
+  mMapToolAddHydrographRouting->setSearchingItemDecription( ReosHydrographSource::typeString() );
   mMapToolAddHydrographRouting->setSearchItemWhenMoving( true );
 
   toolBar->addAction( mActionHydraulicNetworkProperties );
@@ -73,6 +73,9 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   connect( mMapToolAddHydrographRouting, &ReosMapToolDrawHydrographRouting::finished, this, &ReosHydraulicNetworkWidget::onDrawHydrographRoutingFinish );
 
   connect( mMapToolSelectNetworkElement, &ReosMapToolSelectMapItem::found, this, &ReosHydraulicNetworkWidget::onElementSelected );
+
+
+  ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosHydrographRoutingFormWidgetFactory() );
 }
 
 ReosHydraulicNetworkWidget::~ReosHydraulicNetworkWidget()
@@ -134,4 +137,16 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
     mCurrentSelectedElement = elem;
     mElementPropertiesWidget->setCurrentElement( elem );
   }
+}
+
+ReosFormWidget *ReosHydrographRoutingFormWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+{
+  ReosFormWidget *form = new ReosFormWidget( parent );
+
+  return form;
+}
+
+QString ReosHydrographRoutingFormWidgetFactory::datatype() const
+{
+  return ReosHydrographRouting::typeString();
 }

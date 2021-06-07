@@ -196,8 +196,12 @@ ReosFormWidget *ReosFormWidgetFactories::createDataFormWidget( ReosDataObject *d
     return nullptr;
 
   for ( const DataWidgetFactory &fact : mDataWidgetFactories )
+  {
+    QString fac = fact->datatype();
+    QString d = dataObject->type();
     if ( fact->datatype() == dataObject->type() )
       return fact->createDataWidget( dataObject, parent );
+  }
 
   return nullptr;
 }

@@ -16,38 +16,41 @@
 #include "reosmuskingumclassicrouting.h"
 #include "reoshydrograph.h"
 
-ReosMuskingumClassicRouting::ReosMuskingumClassicRouting( ReosHydraulicNetwork *parent ) :
-  ReosHydrographRouting( parent )
+ReosMuskingumClassicRouting::ReosMuskingumClassicRouting( ReosHydrographRouting *parent ) :
+  ReosHydrographRoutingMethod( parent )
   , mKParameter( new ReosParameterDuration( tr( "K" ), false, this ) )
   , mXParameter( new ReosParameterDouble( tr( "x" ), false, this ) )
-{}
-
-ReosHydrograph *ReosMuskingumClassicRouting::outputHydrograph( const ReosCalculationContext &context )
 {
-  calculate( context );
-  return mResultHydrograph;
+  mKParameter->setValue( ReosDuration( 1.0, ReosDuration::hour ) );
+  mXParameter->setValue( 0.2 );
 }
 
-void ReosMuskingumClassicRouting::calculate( const ReosCalculationContext &context ) const
+void ReosMuskingumClassicRouting::calculateOutputHydrograph( ReosHydrograph *inputHydrograph, ReosHydrograph *outputHydrograph, const ReosCalculationContext & )
 {
   ReosDuration K = mKParameter->value();
   double x = mXParameter->value();
-  ReosHydrograph *inputHydrograph = inputHydrographSource()->outputHydrograph( context );
 
   if ( !inputHydrograph || inputHydrograph->valueCount() < 3 )
     return;
 
-  mResultHydrograph->clear();
-
   int inputCount = inputHydrograph->valueCount();
   int i = 0;
 
+  if ( inputCount < 2 ) //need at least two values
+    return;
+
   QDateTime refTime = inputHydrograph->referenceTime()->value();
   ReosDuration t = inputHydrograph->relativeTimeAt( 0 );
-  mResultHydrograph->setValue( t, 0 );
-  while ( i <= inputCount )
+  outputHydrograph->setValue( t, 0 );
+  ReosDuration lastTimeStep;
+  double lastValue = 0;
+  while ( i < ( inputCount - 1 ) || outputHydrograph->valueAtTime( t ) > lastValue / 100 )
   {
-    ReosDuration timeStep = ReosDuration( inputHydrograph->timeAt( i ).msecsTo( inputHydrograph->timeAt( i + 1 ) ), ReosDuration::millisecond );
+    ReosDuration timeStep;
+    if ( i < inputCount - 1 )
+      timeStep = ReosDuration( inputHydrograph->timeAt( i ).msecsTo( inputHydrograph->timeAt( i + 1 ) ), ReosDuration::millisecond );
+    else
+      timeStep = lastTimeStep;
     int internIteration = 1;
     if ( timeStep > K )
     {
@@ -57,6 +60,7 @@ void ReosMuskingumClassicRouting::calculate( const ReosCalculationContext &conte
         internIteration = internIteration * 2;
       }
     }
+    lastTimeStep = timeStep;
 
     ReosDuration denom = ( K * 2 * ( 1 - x ) + timeStep );
     double C1 = ( timeStep - K * 2 * x ) / denom;
@@ -65,11 +69,25 @@ void ReosMuskingumClassicRouting::calculate( const ReosCalculationContext &conte
 
     for ( int it = 0; it < internIteration; ++it )
     {
-      mResultHydrograph->setValue( t + timeStep,
-                                   C1 * inputHydrograph->valueAtTime( t ) +
-                                   C2 * inputHydrograph->valueAtTime( t + timeStep ) +
-                                   C3 * mResultHydrograph->valueAtTime( t ) );
+      outputHydrograph->setValue( t + timeStep,
+                                  C1 * inputHydrograph->valueAtTime( t ) +
+                                  C2 * inputHydrograph->valueAtTime( t + timeStep ) +
+                                  C3 * outputHydrograph->valueAtTime( t ) );
       t = t + timeStep;
     }
+    ++i;
+
+    if ( i == ( inputCount - 1 ) )
+      lastValue = outputHydrograph->valueAtTime( t - timeStep );
   }
+}
+
+ReosParameterDuration *ReosMuskingumClassicRouting::kParameter() const
+{
+  return mKParameter;
+}
+
+ReosParameterDouble *ReosMuskingumClassicRouting::xParameter() const
+{
+  return mXParameter;
 }

@@ -30,8 +30,8 @@ class ReosHydraulicNode : public ReosHydraulicNetworkElement
     ReosHydraulicNode( ReosHydraulicNetwork *parent );
     ~ReosHydraulicNode();
 
-    QString type() const override {return hydraulicNodeType();}
-    static QString hydraulicNodeType() {return hydraulicElementType() + QString( ':' ) + QStringLiteral( "node" );}
+    QString type() const override {return typeString();}
+    static QString typeString() {return ReosHydraulicNetworkElement::typeString() + QString( ':' ) + QStringLiteral( "node" );}
 
     QList<ReosHydraulicLink *> links() const;
 

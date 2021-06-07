@@ -17,6 +17,7 @@
 #define REOSHYDRAULICELEMENTPROPERTIESWIDGET_H
 
 #include <QWidget>
+#include <QMap>
 
 #include "reosactionwidget.h"
 
@@ -26,6 +27,15 @@ namespace Ui
 {
   class ReosHydraulicElementPropertiesWidget;
 }
+
+class ReosHydraulicElementWidgetFactory : public QObject
+{
+  public:
+    ReosHydraulicElementWidgetFactory( QObject *parent = nullptr ): QObject( parent ) {}
+    virtual QWidget *createWidget( ReosHydraulicNetworkElement *element, QWidget *parent = nullptr );
+    virtual QString elementType() {return QString();}
+};
+
 
 class ReosHydraulicElementPropertiesWidget : public ReosActionWidget
 {
@@ -40,7 +50,15 @@ class ReosHydraulicElementPropertiesWidget : public ReosActionWidget
 
   private:
     Ui::ReosHydraulicElementPropertiesWidget *ui;
-    ReosHydraulicNetworkElement *mCurrentElement;
+    ReosHydraulicNetworkElement *mCurrentElement = nullptr;
+    QWidget *mCurrentWidget = nullptr;
+
+    QMap<QString, ReosHydraulicElementWidgetFactory * > mWidgetFactories;
+    ReosHydraulicElementWidgetFactory *mDefaultWidgetfactory = nullptr;
+    ReosHydraulicElementWidgetFactory *widgetFactory( const QString &elementType );
 };
+
+
+
 
 #endif // REOSHYDRAULICELEMENTPROPERTIESWIDGET_H

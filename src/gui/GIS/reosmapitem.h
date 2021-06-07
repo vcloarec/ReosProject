@@ -173,6 +173,9 @@ class ReosMapPolyline: public ReosMapItem
 
     void activeMarker( bool b );
     void setMarkerDistance( double d );
+    void setMarkerArrow( bool b );
+
+    void setExtremityDistance( double d );
 
 };
 

@@ -69,7 +69,7 @@ class ReosMapToolDrawHydrographRouting: public ReosMapToolDrawHydraulicNetworkLi
       if ( !item )
         return false;
 
-      if ( itemsCount() == 0 && item->description().contains( ReosHydrographSource::hydrographSourceType() ) )
+      if ( itemsCount() == 0 && item->description().contains( ReosHydrographSource::typeString() ) )
       {
         ReosHydrographSource *source = qobject_cast<ReosHydrographSource *>( mNetwork->getElement( item->description() ) );
         if ( !source || source->outputHydrographTransfer() )
@@ -77,7 +77,7 @@ class ReosMapToolDrawHydrographRouting: public ReosMapToolDrawHydraulicNetworkLi
 
         return true;
       }
-      if ( itemsCount() == 1 && item->description().contains( ReosHydrographJunction::hydrographJunctionType() ) )
+      if ( itemsCount() == 1 && item->description().contains( ReosHydrographJunction::typeString() ) )
         return true;
 
       return false;

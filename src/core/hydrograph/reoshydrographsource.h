@@ -34,8 +34,8 @@ class ReosHydrographNode : public ReosHydraulicNode
   public:
     ReosHydrographNode( ReosHydraulicNetwork *parent = nullptr );
 
-    QString type() const override {return hydrographNodeType();}
-    static QString hydrographNodeType() {return hydraulicNodeType() + QString( ':' ) + QStringLiteral( "hydrograph" );}
+    QString type() const override {return typeString();}
+    static QString typeString() {return ReosHydraulicNode::typeString() + QString( ':' ) + QStringLiteral( "hydrograph" );}
 
     QPointF position() const override  {return QPointF();}
 
@@ -51,8 +51,8 @@ class ReosHydrographSource : public ReosHydrographNode
 
     ReosHydrographRouting *outputHydrographTransfer() const;
 
-    QString type() const override {return hydrographSourceType(); }
-    static QString hydrographSourceType() {return hydrographNodeType() + QString( ':' ) + QStringLiteral( "source" );}
+    QString type() const override {return typeString(); }
+    static QString typeString() {return ReosHydrographNode::typeString() + QString( ':' ) + QStringLiteral( "source" );}
 
 };
 
@@ -63,8 +63,8 @@ class ReosHydrographSourceFixed: public ReosHydrographSource
     ReosHydrographSourceFixed( ReosHydraulicNetwork *parent = nullptr );
     ReosHydrograph *outputHydrograph( const ReosCalculationContext &context ) override;
 
-    QString type() const override {return hydrographSourceFixedType();}
-    static QString hydrographSourceFixedType() {return hydrographSourceType() + QString( ':' ) + QStringLiteral( "fixed" );}
+    QString type() const override {return typeString();}
+    static QString typeString() {return ReosHydrographSource::typeString() + QString( ':' ) + QStringLiteral( "fixed" );}
 
     //! Sets the hydrographs, take ownership
     void setHydrograph( ReosHydrograph *hydrograph );
@@ -83,8 +83,8 @@ class ReosHydrographJunction : public ReosHydrographSource
     ReosHydrographJunction( const QPointF &position, ReosHydraulicNetwork *parent = nullptr );
     ReosHydrograph *outputHydrograph( const ReosCalculationContext &context ) override;
 
-    QString type() const override {return hydrographJunctionType(); }
-    static QString hydrographJunctionType() {return hydrographSourceType() + QString( ':' ) + QStringLiteral( "junction" );}
+    QString type() const override {return typeString(); }
+    static QString typeString() {return ReosHydrographSource::typeString() + QString( ':' ) + QStringLiteral( "junction" );}
 
     QPointF position() const override;
 
@@ -103,8 +103,8 @@ class ReosHydrographSourceWatershed : public ReosHydrographJunction
     //! Constructor with \a watershed
     ReosHydrographSourceWatershed( ReosWatershed *watershed, ReosHydraulicNetwork *parent = nullptr );
 
-    QString type() const override {return hydrographSourceWatershedType();}
-    static QString hydrographSourceWatershedType() {return hydrographJunctionType() + QString( ':' ) + QStringLiteral( "watershed" );}
+    QString type() const override {return typeString();}
+    static QString typeString() {return ReosHydrographJunction::typeString() + QString( ':' ) + QStringLiteral( "watershed" );}
 
     ReosHydrograph *outputHydrograph( const ReosCalculationContext &context ) override;
     QPointF position() const override;

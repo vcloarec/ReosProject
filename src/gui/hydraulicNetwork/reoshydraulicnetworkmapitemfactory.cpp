@@ -17,6 +17,8 @@
 #include "reoshydrographsource.h"
 #include "reoshydrographtransfer.h"
 
+#include <QVector2D>
+
 //****************************************************
 // Hydrograph Source Watershed
 
@@ -85,9 +87,14 @@ static ReosMapItem *createHydrographRoutingLink( ReosHydraulicNetworkElement *el
     if ( hr->firstNode() && hr->secondNode() )
     {
       QPolygonF mapLine;
+      QVector2D v = QVector2D( hr->firstNode()->position() - hr->secondNode()->position() );
+
       mapLine.append( hr->firstNode()->position() );
       mapLine.append( hr->secondNode()->position() );
       line->resetPolyline( mapLine );
+      line->activeMarker( true );
+      line->setMarkerArrow( true );
+      line->setMarkerDistance( v.length() / 2 );
     }
 
     line->setWidth( 3 );
@@ -96,6 +103,7 @@ static ReosMapItem *createHydrographRoutingLink( ReosHydraulicNetworkElement *el
     line->setExternalColor( Qt::white );
     line->setZValue( 9 );
     line->setDescription( hr->id() );
+    line->setExtremityDistance( 10 );
     return line.release();
   }
 
@@ -111,9 +119,12 @@ static void updateHydrographDirectTransferLink( ReosHydraulicNetworkElement *ele
   QPolygonF mapLine;
   if ( hr->firstNode() && hr->secondNode() )
   {
+    QPolygonF mapLine;
+    QVector2D v = QVector2D( hr->firstNode()->position() - hr->secondNode()->position() );
     mapLine.append( hr->firstNode()->position() );
     mapLine.append( hr->secondNode()->position() );
     line->resetPolyline( mapLine );
+    line->setMarkerDistance( v.length() / 2 );
   }
 }
 
@@ -135,19 +146,19 @@ static void unselectHydrographElement( ReosHydraulicNetworkElement *, ReosMapIte
 
 ReosHydraulicNetworkMapItemFactory::ReosHydraulicNetworkMapItemFactory()
 {
-  mCreationFunctions.insert( ReosHydrographSourceWatershed::hydrographSourceWatershedType(), &createHydrographSourceWatershedItem );
-  mCreationFunctions.insert( ReosHydrographJunction::hydrographJunctionType(), &createHydrographJunctionItem );
-  mCreationFunctions.insert( ReosHydrographRouting::hydrographRoutingType(), &createHydrographRoutingLink );
+  mCreationFunctions.insert( ReosHydrographSourceWatershed::typeString(), &createHydrographSourceWatershedItem );
+  mCreationFunctions.insert( ReosHydrographJunction::typeString(), &createHydrographJunctionItem );
+  mCreationFunctions.insert( ReosHydrographRouting::typeString(), &createHydrographRoutingLink );
 
-  mUpdateFunctions.insert( ReosHydrographSourceWatershed::hydrographSourceWatershedType(), &updateHydrographSourceWatershedItem );
-  mUpdateFunctions.insert( ReosHydrographRouting::hydrographRoutingType(), &updateHydrographDirectTransferLink );
+  mUpdateFunctions.insert( ReosHydrographSourceWatershed::typeString(), &updateHydrographSourceWatershedItem );
+  mUpdateFunctions.insert( ReosHydrographRouting::typeString(), &updateHydrographDirectTransferLink );
 
-  mSelectFunctions.insert( ReosHydrographSourceWatershed::hydrographSourceWatershedType(), &selectHydrographElement );
-  mSelectFunctions.insert( ReosHydrographJunction::hydrographJunctionType(), &selectHydrographElement );
-  mSelectFunctions.insert( ReosHydrographRouting::hydrographRoutingType(), &selectHydrographElement );
-  mUnselectFunctions.insert( ReosHydrographSourceWatershed::hydrographSourceWatershedType(), &unselectHydrographElement );
-  mUnselectFunctions.insert( ReosHydrographJunction::hydrographJunctionType(), &unselectHydrographElement );
-  mUnselectFunctions.insert( ReosHydrographRouting::hydrographRoutingType(), &unselectHydrographElement );
+  mSelectFunctions.insert( ReosHydrographSourceWatershed::typeString(), &selectHydrographElement );
+  mSelectFunctions.insert( ReosHydrographJunction::typeString(), &selectHydrographElement );
+  mSelectFunctions.insert( ReosHydrographRouting::typeString(), &selectHydrographElement );
+  mUnselectFunctions.insert( ReosHydrographSourceWatershed::typeString(), &unselectHydrographElement );
+  mUnselectFunctions.insert( ReosHydrographJunction::typeString(), &unselectHydrographElement );
+  mUnselectFunctions.insert( ReosHydrographRouting::typeString(), &unselectHydrographElement );
 }
 
 

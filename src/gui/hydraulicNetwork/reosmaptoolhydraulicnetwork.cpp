@@ -22,6 +22,10 @@ ReosMapToolDrawHydraulicNetworkLink::ReosMapToolDrawHydraulicNetworkLink( ReosMa
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolDrawHydraulicNetworkLink_p( canvas );
+  d->mRubberBand->setWidth( 3 );
+  d->mRubberBand->setLineStyle( Qt::DotLine );
+  d->mRubberBand->setStrokeColor( QColor( 0, 155, 242 ) );
+  d->mRubberBand->setSecondaryStrokeColor( Qt::white );
 
   connect( d, &ReosMapToolDrawHydraulicNetworkLink_p::itemSelected, this, &ReosMapToolDrawHydraulicNetworkLink::onItemSuggested );
 }

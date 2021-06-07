@@ -111,6 +111,7 @@ class ReosMapPolygon_p: public ReosMapItem_p
 
     void activeMarker( bool b );
     void setMarkerDistance( double d );
+    void setMarkerArrow( bool b );
 
     QPolygonF mapPolygon;
 
@@ -119,7 +120,8 @@ class ReosMapPolygon_p: public ReosMapItem_p
     QPolygonF mViewPolygon;
     bool mIsEditing = false;
     bool mIsMarkerActive = false;
-    bool mIsMarkerOnLine = false;
+    int mSegmentMarker = -1;
+    bool mMarkerArrow = false;
     QPointF mMarkerposition;
     QPointF mMarkerPositionOnView;
 
@@ -133,8 +135,11 @@ class ReosMapPolyline_p: public ReosMapPolygon_p
     ReosMapPolyline_p( QgsMapCanvas *canvas );
     ReosMapPolyline_p *clone() override;
 
+    void setExtremityDistance( double d );
+
   private:
     void draw( QPainter *painter ) override;
+    double mExtremityDistance = 0;
 };
 
 #endif // REOSMAPPOLYGON_P_H

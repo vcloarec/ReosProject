@@ -55,6 +55,8 @@ SET(REOS_GUI_SOURCES
     hydraulicNetwork/reoshydraulicnetworkmapitemfactory.cpp
     hydraulicNetwork/reosmaptoolhydraulicnetwork.cpp
     hydraulicNetwork/reoshydraulicelementpropertieswidget.cpp
+
+    hydrograph/reoshydrographroutingpropertieswidget.cpp
 )
 
 SET(REOS_GUI_HEADERS
@@ -103,6 +105,8 @@ SET(REOS_GUI_HEADERS
     hydraulicNetwork/reoshydraulicnetworkmapitemfactory.h
     hydraulicNetwork/reosmaptoolhydraulicnetwork.h
     hydraulicNetwork/reoshydraulicelementpropertieswidget.h
+
+    hydrograph/reoshydrographroutingpropertieswidget.h
 )
 
 SET(REOS_GUI_HEADERS_PRIVATE
@@ -179,7 +183,8 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/gui/chart/private
     ${CMAKE_SOURCE_DIR}/src/gui/form
     ${CMAKE_SOURCE_DIR}/src/gui/rainfall
-    ${CMAKE_SOURCE_DIR}/src/core/hydraulicNetwork
+    ${CMAKE_SOURCE_DIR}/src/gui/hydraulicNetwork
+    ${CMAKE_SOURCE_DIR}/src/gui/hydrograph
     ${QGIS_INCLUDE_DIR}
     ${QSCISCINTILLA_INCLUDE_DIR}
     ${QWT_INCLUDE}
