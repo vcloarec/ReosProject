@@ -86,6 +86,7 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   ReosHydraulicNetworkWidget *networkWidget = new ReosHydraulicNetworkWidget( mHydraulicNetwork, mMap, mDockHydraulicNetwork );
   mDockHydraulicNetwork->setWidget( networkWidget );
   addDockWidget( Qt::RightDockWidgetArea, mDockHydraulicNetwork );
+  networkWidget->setMeteoModelCollection( mWatershedModule->meteoModelsCollection() );
 
   mMap->setDefaultMapTool();
 

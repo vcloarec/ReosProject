@@ -84,3 +84,55 @@ ReosMapTool_p *ReosMapToolDrawHydraulicNetworkLink::tool_p() const
 {
   return d;
 }
+
+bool ReosMapToolDrawHydrographRouting::acceptItem( ReosMapItem *item )
+{
+  if ( !item )
+    return false;
+
+  if ( itemsCount() == 0 && item->description().contains( ReosHydrographSource::typeString() ) )
+  {
+    ReosHydrographSource *source = qobject_cast<ReosHydrographSource *>( mNetwork->getElement( item->description() ) );
+    if ( !source || source->outputHydrographTransfer() )
+      return false;
+
+    return true;
+  }
+  if ( itemsCount() == 1 && item->description().contains( ReosHydrographJunction::typeString() ) )
+    return true;
+
+  return false;
+}
+
+bool ReosMapToolDrawHydrographRouting::isFinished() const
+{
+  return itemsCount() == 2;
+}
+
+ReosMapToolMoveHydraulicNetworkElement::ReosMapToolMoveHydraulicNetworkElement( ReosHydraulicNetwork *network,
+    ReosMap *map ):
+  ReosMapTool( map )
+  , mNetwork( network )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  d = new ReosMapToolMoveHydraulicNetworkNode_p( canvas );
+
+  connect( d, &ReosMapToolMoveHydraulicNetworkNode_p::itemMoved, this, [this]( const QString & elemId, const QPointF & position )
+  {
+    ReosHydrographNode *node = qobject_cast<ReosHydrographNode *>( mNetwork->getElement( elemId ) );
+    if ( node )
+      node->setPosition( position );
+  } );
+}
+
+ReosMapToolMoveHydraulicNetworkElement::~ReosMapToolMoveHydraulicNetworkElement()
+{
+  if ( d )
+    d->deleteLater();
+}
+
+ReosMapTool_p *ReosMapToolMoveHydraulicNetworkElement::tool_p() const
+{
+  return d;
+}
+

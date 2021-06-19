@@ -27,19 +27,21 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   , ui( new Ui::ReosHydraulicNetworkWidget )
   , mHydraulicNetwork( network )
   , mMap( map )
-  , mActionSelectNetworkElement( new QAction( tr( "Select hydraulic network element" ), this ) )
+  , mActionSelectNetworkElement( new QAction( QPixmap( QStringLiteral( ":/images/neutral.svg" ) ), tr( "Select hydraulic network element" ), this ) )
   , mMapToolSelectNetworkElement( new ReosMapToolSelectMapItem( map, ReosHydraulicNetworkElement::typeString() ) )
-  , mActionAddHydrographJunction( new QAction( tr( "Add hydrograph junction" ), this ) )
+  , mActionAddHydrographJunction( new QAction( QPixmap( QStringLiteral( ":/images/addHydrographJunction.svg" ) ), tr( "Add hydrograph junction" ), this ) )
   , mMapToolAddHydrographJunction( new ReosMapToolDrawPoint( mMap ) )
-  , mActionAddHydrographRouting( new QAction( tr( "Add hydrograph routing" ), this ) )
+  , mActionAddHydrographRouting( new QAction( QPixmap( QStringLiteral( ":/images/addHydrographRouting.svg" ) ), tr( "Add hydrograph routing" ), this ) )
   , mMapToolAddHydrographRouting( new ReosMapToolDrawHydrographRouting( mHydraulicNetwork, mMap ) )
-  , mActionHydraulicNetworkProperties( new QAction( tr( "Hydraulic element properties" ), this ) )
+  , mActionHydraulicNetworkProperties( new QAction( QPixmap( QStringLiteral( ":/images/hydraulicProperties.svg" ) ), tr( "Hydraulic element properties" ), this ) )
   , mElementPropertiesWidget( new ReosHydraulicElementPropertiesWidget( this ) )
+  , mActionMoveHydrographJunction( new QAction( QPixmap( QStringLiteral( ":/images/moveHydrographJunction.svg" ) ),  tr( "Move hydrograph junction" ), this ) )
+  , mMapToolMoveHydrographJunction( new ReosMapToolMoveHydraulicNetworkElement( network, map ) )
 {
   ui->setupUi( this );
 
   QToolBar *toolBar = new QToolBar( this );
-  ui->groupBoxHydrographTransfer->layout()->addWidget( toolBar );
+  layout()->addWidget( toolBar );
 
   toolBar->addAction( mActionSelectNetworkElement );
   mActionSelectNetworkElement->setCheckable( true );
@@ -56,6 +58,12 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   mMapToolAddHydrographRouting->setAction( mActionAddHydrographRouting );
   mMapToolAddHydrographRouting->setSearchingItemDecription( ReosHydrographSource::typeString() );
   mMapToolAddHydrographRouting->setSearchItemWhenMoving( true );
+
+  toolBar->addAction( mActionMoveHydrographJunction );
+  mActionMoveHydrographJunction->setCheckable( true );
+  mMapToolMoveHydrographJunction->setAction( mActionMoveHydrographJunction );
+  mMapToolMoveHydrographJunction->setSearchingItemDecription( ReosHydrographJunction::typeString() );
+  mMapToolMoveHydrographJunction->setSearchItemWhenMoving( true );
 
   toolBar->addAction( mActionHydraulicNetworkProperties );
   mActionHydraulicNetworkProperties->setCheckable( true );
@@ -74,13 +82,26 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
 
   connect( mMapToolSelectNetworkElement, &ReosMapToolSelectMapItem::found, this, &ReosHydraulicNetworkWidget::onElementSelected );
 
-
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosHydrographRoutingFormWidgetFactory() );
 }
 
 ReosHydraulicNetworkWidget::~ReosHydraulicNetworkWidget()
 {
   delete ui;
+}
+
+ReosCalculationContext ReosHydraulicNetworkWidget::currentContext() const
+{
+  ReosCalculationContext context;
+  context.setMeteorologicModel( meteoModelCollection->meteorologicModel( ui->comboBoxMeteo->currentIndex() ) );
+
+  return context;
+}
+
+void ReosHydraulicNetworkWidget::setMeteoModelCollection( ReosMeteorologicModelsCollection *meteoCollection )
+{
+  meteoModelCollection = meteoCollection;
+  ui->comboBoxMeteo->setModel( meteoCollection );
 }
 
 void ReosHydraulicNetworkWidget::onElementAdded( ReosHydraulicNetworkElement *elem )
@@ -132,17 +153,17 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
 
   ReosHydraulicNetworkElement *elem = mHydraulicNetwork->getElement( item->description() );
   if ( elem )
-  {
     mMapItemFactory.selectItem( elem, item );
-    mCurrentSelectedElement = elem;
-    mElementPropertiesWidget->setCurrentElement( elem );
-  }
+  mCurrentSelectedElement = elem;
+
+  elem->updateCalculation( currentContext() ); //TODO : see if we update the calculation for each properties widget displaying
+  mElementPropertiesWidget->setCurrentElement( elem );
+
 }
 
 ReosFormWidget *ReosHydrographRoutingFormWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
 {
   ReosFormWidget *form = new ReosFormWidget( parent );
-
   return form;
 }
 

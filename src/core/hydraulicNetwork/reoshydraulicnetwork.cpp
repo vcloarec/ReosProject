@@ -22,6 +22,7 @@
 ReosHydraulicNetworkElement::ReosHydraulicNetworkElement( ReosHydraulicNetwork *parent ):
   ReosDataObject( parent )
   , mNetWork( parent )
+  , mNameParameter( new ReosParameterString( tr( "Name" ), false, this ) )
 {
   mUid = QUuid::createUuid().toString();
 }
@@ -46,6 +47,11 @@ void ReosHydraulicNetworkElement::positionChanged()
 {
   if ( mNetWork )
     mNetWork->elemPositionChangedPrivate( this );
+}
+
+ReosParameterString *ReosHydraulicNetworkElement::name() const
+{
+  return mNameParameter;
 }
 
 
@@ -75,6 +81,12 @@ ReosHydraulicNetworkElement *ReosHydraulicNetwork::getElement( const QString &el
 void ReosHydraulicNetwork::addElement( ReosHydraulicNetworkElement *elem )
 {
   mElements.insert( elem->id(), elem );
+  if ( !elem->name()->isValid() )
+  {
+    int index = mElementIndexesCounter.value( elem->type(), 0 ) + 1;
+    mElementIndexesCounter[ elem->type()] = index;
+    elem->name()->setValue( ( elem->defaultDisplayName() + QStringLiteral( " %1" ) ).arg( index ) );
+  }
   emit elementAdded( elem );
 }
 

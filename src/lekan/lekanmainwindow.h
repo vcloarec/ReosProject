@@ -37,7 +37,7 @@ class ReosDelineatingWatershedWidget;
 class ReosRainfallManager;
 class ReosRunoffManager;
 
-static const ReosVersion lekanVersion( "Lekan", 2, 0, 99 );
+static const ReosVersion lekanVersion( "Lekan", 2, 1, 99 );
 
 class LekanMainWindow : public ReosMainWindow
 {
@@ -55,12 +55,12 @@ class LekanMainWindow : public ReosMainWindow
     bool saveProject() override;
     void clearProject() override;
     void checkExtraProjectToSave() override;
-    ReosVersion version() const {return lekanVersion;}
+    ReosVersion version() const override {return lekanVersion;}
     QString projectFileFilter()  const override;
 
     QFileInfo gisFileInfo() const;
 
-    ReosGisEngine *mGisEngine;
+    ReosGisEngine *mGisEngine = nullptr;
     ReosMap *mMap = nullptr;
     ReosWatershedModule *mWatershedModule = nullptr;
     ReosHydraulicNetwork *mHydraulicNetwork = nullptr;

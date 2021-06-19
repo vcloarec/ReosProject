@@ -26,13 +26,14 @@ ReosHydrographRouting::ReosHydrographRouting( ReosHydraulicNetwork *parent ):
   mRoutingMethods.insert( ReosDirectHydrographRouting::typeString(), new ReosDirectHydrographRouting( this ) );
   mCurrentRoutingMethod = ReosDirectHydrographRouting::typeString();
   mOutputHydrograph = new ReosHydrograph( this );
+  mOutputHydrograph->setColor( Qt::blue );
 }
 
 ReosHydrographRouting::ReosHydrographRouting( ReosHydrographSource *hydrographSource, ReosHydrographNode *destination, ReosHydraulicNetwork *parent ):
   ReosHydrographRouting( parent )
 {
-  attachOnSide1( hydrographSource );
-  attachOnSide2( destination );
+  setInputHydrographSource( hydrographSource );
+  setHydrographDestination( destination );
 }
 
 bool ReosHydrographRouting::setCurrentRoutingMethod( const QString &routingType )
@@ -71,7 +72,14 @@ ReosHydrographRoutingMethod *ReosHydrographRouting::currentRoutingMethod() const
 
 void ReosHydrographRouting::setInputHydrographSource( ReosHydrographSource *hydrographSource )
 {
+  if ( !mNode_1.isNull() )
+  {
+    disconnect( mNode_1, &ReosHydraulicNetworkElement::calculationIsUpdated, this, &ReosHydrographRouting::onSourceUpdated );
+  }
   attachOnSide1( hydrographSource );
+
+  if ( hydrographSource )
+    connect( hydrographSource, &ReosHydraulicNetworkElement::calculationIsUpdated, this, &ReosHydrographRouting::onSourceUpdated );
 }
 
 ReosHydrographSource *ReosHydrographRouting::inputHydrographSource() const
@@ -82,9 +90,22 @@ ReosHydrographSource *ReosHydrographRouting::inputHydrographSource() const
     return qobject_cast<ReosHydrographSource *>( mNode_1 );
 }
 
+ReosHydrographNode *ReosHydrographRouting::destinationNode() const
+{
+  if ( mNode_2.isNull() )
+    return nullptr;
+  else
+    return qobject_cast<ReosHydrographNode *>( mNode_2 );
+}
+
 void ReosHydrographRouting::setHydrographDestination( ReosHydrographNode *destination )
 {
+  if ( destinationNode() )
+    disconnect( this, &ReosHydraulicNetworkElement::calculationIsUpdated, destinationNode(), &ReosHydrographNode::onUpstreamRoutingUpdated );
+
   attachOnSide2( destination );
+  if ( destination )
+    connect( this, &ReosHydraulicNetworkElement::calculationIsUpdated, destinationNode(), &ReosHydrographNode::onUpstreamRoutingUpdated );
 }
 
 ReosHydrograph *ReosHydrographRouting::outputHydrograph() const
@@ -94,10 +115,23 @@ ReosHydrograph *ReosHydrographRouting::outputHydrograph() const
 
 void ReosHydrographRouting::updateCalculation( const ReosCalculationContext &context )
 {
+  mSourceUpdated = false;
   mOutputHydrograph->clear();
-  ReosHydrographRoutingMethod *routingMethod = mRoutingMethods.value( mCurrentRoutingMethod, nullptr );
-  if ( routingMethod )
-    routingMethod->calculateOutputHydrograph( inputHydrographSource()->outputHydrograph( context ), mOutputHydrograph, context );
+  inputHydrographSource()->updateCalculation( context );
+
+  if ( mSourceUpdated )
+  {
+    ReosHydrographRoutingMethod *method = mRoutingMethods.value( mCurrentRoutingMethod, nullptr );
+    if ( method )
+      method->calculateOutputHydrograph( inputHydrographSource()->outputHydrograph(), mOutputHydrograph, context );
+
+    calculationUpdated();
+  }
+}
+
+void ReosHydrographRouting::onSourceUpdated()
+{
+  mSourceUpdated = true;
 }
 
 
@@ -136,6 +170,20 @@ ReosHydrographRoutingMethodFactories *ReosHydrographRoutingMethodFactories::inst
     sInstance = new ReosHydrographRoutingMethodFactories();
 
   return sInstance;
+}
+
+void ReosHydrographRoutingMethodFactories::addFactory( ReosHydrographRoutingMethodFactory *factory )
+{
+  mFactories.emplace( factory->type(), factory );
+}
+
+ReosHydrographRoutingMethod *ReosHydrographRoutingMethodFactories::createRoutingMethod( const QString &type, ReosHydrographRouting *link )
+{
+  auto it = mFactories.find( type );
+  if ( it != mFactories.end() )
+    return it->second->createRoutingMethod( link );
+
+  return nullptr;
 }
 
 ReosHydrographRoutingMethodFactories::ReosHydrographRoutingMethodFactories( ReosModule *parent ): ReosModule( parent )

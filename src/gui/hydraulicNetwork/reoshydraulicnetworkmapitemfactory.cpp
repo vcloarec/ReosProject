@@ -73,6 +73,17 @@ static ReosMapItem *createHydrographJunctionItem( ReosHydraulicNetworkElement *e
   return nullptr;
 }
 
+static void updateHydrographJunctionItem( ReosHydraulicNetworkElement *elem, ReosMapItem *item )
+{
+  ReosHydrographJunction *hj = qobject_cast<ReosHydrographJunction *>( elem );
+  ReosMapMarker *markerItem = static_cast<ReosMapMarker *>( item );
+
+  markerItem->resetPoint( hj->position() );
+
+  for ( ReosHydraulicLink *link : hj->links() )
+    link->positionChanged();
+}
+
 
 //****************************************************
 // Hydrograph routing link
@@ -152,6 +163,7 @@ ReosHydraulicNetworkMapItemFactory::ReosHydraulicNetworkMapItemFactory()
 
   mUpdateFunctions.insert( ReosHydrographSourceWatershed::typeString(), &updateHydrographSourceWatershedItem );
   mUpdateFunctions.insert( ReosHydrographRouting::typeString(), &updateHydrographDirectTransferLink );
+  mUpdateFunctions.insert( ReosHydrographJunction::typeString(), &updateHydrographJunctionItem );
 
   mSelectFunctions.insert( ReosHydrographSourceWatershed::typeString(), &selectHydrographElement );
   mSelectFunctions.insert( ReosHydrographJunction::typeString(), &selectHydrographElement );

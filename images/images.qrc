@@ -97,6 +97,10 @@
         <file>moveOutlet.svg</file>
         <file>addAlternatingBlockRainfall.svg</file>
         <file>alternatingBlockRainfall.svg</file>
+        <file>addHydrographJunction.svg</file>
+        <file>addHydrographRouting.svg</file>
+        <file>hydraulicProperties.svg</file>
+        <file>moveHydrographJunction.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

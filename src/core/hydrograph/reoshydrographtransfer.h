@@ -51,19 +51,8 @@ class ReosHydrographRoutingMethodFactories : public ReosModule
     static bool isInstantiate();
     static ReosHydrographRoutingMethodFactories *instance();
 
-    void addFactory( ReosHydrographRoutingMethodFactory *factory )
-    {
-      mFactories.emplace( factory->type(), factory );
-    }
-
-    ReosHydrographRoutingMethod *createRoutingMethod( const QString &type, ReosHydrographRouting *link )
-    {
-      auto it = mFactories.find( type );
-      if ( it != mFactories.end() )
-        return it->second->createRoutingMethod( link );
-
-      return nullptr;
-    }
+    void addFactory( ReosHydrographRoutingMethodFactory *factory );
+    ReosHydrographRoutingMethod *createRoutingMethod( const QString &type, ReosHydrographRouting *link );
 
   private:
     ReosHydrographRoutingMethodFactories( ReosModule *parent = nullptr );
@@ -96,22 +85,30 @@ class ReosHydrographRouting : public ReosHydraulicLink
     //! Returns the input hydrograph source
     ReosHydrographSource *inputHydrographSource() const;
 
+    ReosHydrographNode *destinationNode() const;
+
     //! Sets the destination node
     void setHydrographDestination( ReosHydrographNode *destination );
 
-    //! Returns the output hydrograph for the context calculation \a context
+    //! Returns the output hydrograph
     virtual ReosHydrograph *outputHydrograph() const;
 
     QString type() const override {return typeString();}
     QString static typeString() {return ReosHydraulicLink::typeString() + QString( ':' ) + QStringLiteral( "routing" ); }
+    QString defaultDisplayName() const {return tr( "Hydrograph routing" );}
 
   public slots:
+    //! Updates the output hydrograph for the context calculation \a context
     void updateCalculation( const ReosCalculationContext &context );
+
+  private slots:
+    void onSourceUpdated();
 
   private:
     QMap<QString, ReosHydrographRoutingMethod *> mRoutingMethods;
     QString mCurrentRoutingMethod;
     ReosHydrograph *mOutputHydrograph = nullptr;
+    bool mSourceUpdated = false;
 
 };
 

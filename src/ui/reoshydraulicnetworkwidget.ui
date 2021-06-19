@@ -15,12 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QGroupBox" name="groupBoxHydrographTransfer">
-     <property name="title">
-      <string>Hydrograph transfer</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2"/>
-    </widget>
+    <widget class="QComboBox" name="comboBoxMeteo"/>
    </item>
   </layout>
  </widget>

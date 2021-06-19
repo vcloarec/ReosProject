@@ -17,6 +17,7 @@ email                : vcloarec at gmail dot com
 #define REOSMAPPOLYGON_P_H
 
 #include <qgsmapcanvasitem.h>
+#include <qgspointxy.h>
 
 class ReosMapItem;
 
@@ -27,8 +28,9 @@ class ReosMapItem_p: public QgsMapCanvasItem
     virtual ReosMapItem_p *clone() = 0;
 
     virtual void setEditing( bool ) {}
-    virtual void move( const QPointF &translation ) = 0;
+    virtual void translate( const QPointF &translation ) = 0;
     virtual QPointF mapPos() const = 0;
+    virtual void setMapPosition( const QgsPointXY & ) {};
 
     QColor color;
     QColor externalColor;
@@ -48,9 +50,11 @@ class ReosMapMarker_p: public ReosMapItem_p
   public:
     ReosMapMarker_p( QgsMapCanvas *canvas );
     void updatePosition() override;
-    void move( const QPointF &translation ) override;
+    void translate( const QPointF &translation ) override;
     QPointF mapPos() const override;
     QRectF boundingRect() const override;
+    void setMapPosition( const QgsPointXY &pos ) override;;
+
     QPointF mapPoint;
     bool isEmpty = true;
 
@@ -103,7 +107,7 @@ class ReosMapPolygon_p: public ReosMapItem_p
     void updatePosition() override;
     QPainterPath shape() const override;
     void setEditing( bool b ) override;
-    void move( const QPointF &translation ) override;
+    void translate( const QPointF &translation ) override;
     QPointF mapPos() const override;
 
     // Search a vertex in viex coordinate

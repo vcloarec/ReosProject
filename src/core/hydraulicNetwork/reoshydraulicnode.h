@@ -36,6 +36,7 @@ class ReosHydraulicNode : public ReosHydraulicNetworkElement
     QList<ReosHydraulicLink *> links() const;
 
     virtual QPointF position() const = 0;
+    virtual void setPosition( const QPointF &pos ) = 0;
 
   protected:
     QList<QPointer<ReosHydraulicLink>> mLinksBySide1;

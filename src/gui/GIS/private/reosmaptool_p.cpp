@@ -397,7 +397,7 @@ void ReosMapToolMoveItem_p::canvasMoveEvent( QgsMapMouseEvent *e )
   QPointF oldItemTranslation = mMovingItem->mapPos() - mCurrentItem->mapPos();
   QPointF diff = translation - oldItemTranslation;
 
-  mMovingItem->move( diff );
+  mMovingItem->translate( diff );
 }
 
 void ReosMapToolMoveItem_p::canvasReleaseEvent( QgsMapMouseEvent *e )
@@ -409,7 +409,7 @@ void ReosMapToolMoveItem_p::canvasReleaseEvent( QgsMapMouseEvent *e )
 
   if ( mCurrentItem )
   {
-    mCurrentItem->move( e->mapPoint().toQPointF() - mStartPoint );
+    mCurrentItem->translate( e->mapPoint().toQPointF() - mStartPoint );
     emit itemMoved( mCurrentItem->base );
   }
 
@@ -460,7 +460,25 @@ void ReosMapToolDrawHydraulicNetworkLink_p::canvasMoveEvent( QgsMapMouseEvent *e
 
 void ReosMapToolDrawHydraulicNetworkLink_p::canvasReleaseEvent( QgsMapMouseEvent *e )
 {
-  ReosMapItem_p *item = searchItem( e->localPos() );
-  if ( item )
-    emit itemSelected( item );
+  switch ( e->button() )
+  {
+    case Qt::LeftButton:
+    {
+      ReosMapItem_p *item = searchItem( e->localPos() );
+      if ( item )
+        emit itemSelected( item );
+    }
+    break;
+    case Qt::RightButton:
+      mRubberBand->reset();
+      mLinkedItems.clear();
+      break;
+    default:
+      break;
+
+  }
+  {
+
+  }
+
 }

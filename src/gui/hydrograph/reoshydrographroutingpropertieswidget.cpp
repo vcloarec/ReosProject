@@ -19,12 +19,31 @@
 #include "reoshydrographtransfer.h"
 #include "reosformwidget.h"
 #include "reosmuskingumclassicrouting.h"
+#include "reosplottimeconstantinterval.h"
+#include "reoshydrograph.h"
 
 ReosHydrographRoutingPropertiesWidget::ReosHydrographRoutingPropertiesWidget( ReosHydrographRouting *hydrographRouting, QWidget *parent ) :
   QWidget( parent ),
   ui( new Ui::ReosHydrographRoutingPropertiesWidget )
 {
   ui->setupUi( this );
+
+  ui->mNameWidget->setLayout( new QHBoxLayout );
+  ui->mNameWidget->layout()->addWidget( new ReosParameterStringWidget( hydrographRouting->name(), this ) );
+
+  mInputHydrographCurve = new ReosPlotTimeSerieVariableStep( tr( "Input hydrograph" ) );
+  mInputHydrographCurve->setTimeSerie( hydrographRouting->inputHydrographSource()->outputHydrograph() );
+  mOutputtHydrographCurve = new ReosPlotTimeSerieVariableStep( tr( "Output hydrograph" ) );
+  mOutputtHydrographCurve->setTimeSerie( hydrographRouting->outputHydrograph() );
+
+  ui->mPlotsWidget->addPlotItem( mInputHydrographCurve );
+  ui->mPlotsWidget->addPlotItem( mOutputtHydrographCurve );
+
+  ui->mPlotsWidget->setTitleAxeX( tr( "Time" ) );
+  ui->mPlotsWidget->setAxeXType( ReosPlotWidget::temporal );
+  ui->mPlotsWidget->enableAxeYright( true );
+  ui->mPlotsWidget->setTitleAxeYLeft( tr( "Flow rate (%1)" ).arg( QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
+  ui->mPlotsWidget->setMagnifierType( ReosPlotWidget::positiveMagnifier );
 
   hydrographRouting->setCurrentRoutingMethod( ReosMuskingumClassicRouting::typeString() );
   QWidget *routingWidget = ReosFormWidgetFactories::instance()->createDataFormWidget( hydrographRouting->currentRoutingMethod() );

@@ -26,6 +26,7 @@ namespace Ui
 }
 
 class ReosHydrographRouting;
+class ReosPlotTimeSerieVariableStep;
 
 class ReosHydrographRoutingPropertiesWidget : public QWidget
 {
@@ -37,6 +38,9 @@ class ReosHydrographRoutingPropertiesWidget : public QWidget
 
   private:
     Ui::ReosHydrographRoutingPropertiesWidget *ui;
+
+    ReosPlotTimeSerieVariableStep *mInputHydrographCurve = nullptr;
+    ReosPlotTimeSerieVariableStep *mOutputtHydrographCurve = nullptr;
 };
 
 

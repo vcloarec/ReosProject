@@ -82,7 +82,7 @@ void ReosMapPolygon_p::setEditing( bool b )
   update();
 }
 
-void ReosMapPolygon_p::move( const QPointF &translation )
+void ReosMapPolygon_p::translate( const QPointF &translation )
 {
   QPolygonF newPoints( mapPolygon.size() );
 
@@ -365,8 +365,14 @@ QRectF ReosMapMarker_p::boundingRect() const
   if ( isEmpty )
     return QRectF();
 
-  double w = std::max( externalWidth, width );
+  double w = std::max( externalWidth, width ) + 2;
   return QRectF( mViewPoint - QPointF( w / 2, w / 2 ), QSizeF( w, w ) );
+}
+
+void ReosMapMarker_p::setMapPosition( const QgsPointXY &pos )
+{
+  mapPoint = pos.toQPointF();
+  updatePosition();
 }
 
 ReosMapMarker_p::ReosMapMarker_p( QgsMapCanvas *canvas ): ReosMapItem_p( canvas )
@@ -394,7 +400,7 @@ QPainterPath ReosMapMarkerFilledCircle_p::shape() const
   return pps.createStroke( path );
 }
 
-void ReosMapMarker_p::move( const QPointF &translation )
+void ReosMapMarker_p::translate( const QPointF &translation )
 {
   mapPoint += translation;
   updatePosition();
@@ -409,6 +415,7 @@ void ReosMapMarkerFilledCircle_p::paint( QPainter *painter )
 
   painter->save();
   QPen pen;
+  pen.setStyle( Qt::NoPen );
   if ( externalWidth > width )
   {
     pen.setColor( externalColor );

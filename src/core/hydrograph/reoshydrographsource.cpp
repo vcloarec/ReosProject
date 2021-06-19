@@ -35,7 +35,7 @@ ReosHydrographSourceFixed::ReosHydrographSourceFixed( ReosHydraulicNetwork *pare
   ReosHydrographSource( parent )
 {}
 
-ReosHydrograph *ReosHydrographSourceFixed::outputHydrograph( const ReosCalculationContext &context )
+ReosHydrograph *ReosHydrographSourceFixed::outputHydrograph()
 {
   return mHydrograph;
 }
@@ -53,17 +53,54 @@ ReosHydrographJunction::ReosHydrographJunction( const QPointF &position, ReosHyd
   mPosition( position )
 {}
 
-ReosHydrograph *ReosHydrographJunction::outputHydrograph( const ReosCalculationContext &context )
+ReosHydrograph *ReosHydrographJunction::outputHydrograph( )
 {
-  mHydrograph->clear();
+  return mHydrograph;
+}
+
+QPointF ReosHydrographJunction::position() const
+{
+  return mPosition;
+}
+
+void ReosHydrographJunction::setPosition( const QPointF &pos )
+{
+  mPosition = pos;
+  positionChanged();
+}
+
+void ReosHydrographJunction::updateCalculation( const ReosCalculationContext &context )
+{
+  //update upstream routing
+  for ( const QPointer<ReosHydraulicLink> &link : mLinksBySide2 )
+  {
+    ReosHydrographRouting *routing = qobject_cast<ReosHydrographRouting *>( link );
+    if ( routing )
+    {
+      mWaitingForUpstreamLinksUpdated.append( routing->id() );
+      routing->updateCalculation( context );
+    }
+  }
+
+  if ( mWaitingForUpstreamLinksUpdated.isEmpty() )
+  {
+    calculateHydrograph();
+    calculationUpdated();
+  }
+}
+
+
+
+void ReosHydrographJunction::calculateHydrograph()
+{
   bool first = true;
+  mHydrograph->clear();
 
   for ( const QPointer<ReosHydraulicLink> &link : mLinksBySide2 )
   {
     ReosHydrographRouting *routing = qobject_cast<ReosHydrographRouting *>( link );
     if ( routing )
     {
-      routing->updateCalculation( context );
       ReosHydrograph *transferhydrograph = routing->outputHydrograph();
       if ( first && transferhydrograph )
       {
@@ -75,13 +112,6 @@ ReosHydrograph *ReosHydrographJunction::outputHydrograph( const ReosCalculationC
         mHydrograph->addOther( *transferhydrograph );
     }
   }
-
-  return mHydrograph;
-}
-
-QPointF ReosHydrographJunction::position() const
-{
-  return mPosition;
 }
 
 
@@ -93,13 +123,10 @@ ReosHydrographSourceWatershed::ReosHydrographSourceWatershed( ReosWatershed *wat
     connect( mWatershed, &ReosWatershed::changed, this, [this] {positionChanged();} );
 }
 
-ReosHydrograph *ReosHydrographSourceWatershed::outputHydrograph( const ReosCalculationContext &context )
+ReosHydrograph *ReosHydrographSourceWatershed::outputHydrograph()
 {
   if ( mWatershed.isNull() )
     return nullptr;
-  if ( mHydrograph )
-    mHydrograph->deleteLater();
-  mHydrograph = mWatershed->createHydrograph( context.meteorologicModel()->associatedRainfall( mWatershed )->data(), this );
 
   return mHydrograph;
 }
@@ -110,6 +137,20 @@ ReosWatershed *ReosHydrographSourceWatershed::watershed() const
     return nullptr;
   else
     return mWatershed.data();
+}
+
+void ReosHydrographSourceWatershed::updateCalculation( const ReosCalculationContext &context )
+{
+  if ( mHydrograph )
+    mHydrograph->deleteLater();
+
+  if ( mWatershed.isNull() )
+    return;
+
+  mHydrograph = mWatershed->createHydrograph( context.meteorologicModel()->associatedRainfall( mWatershed )->data(), this );
+  mHydrograph->setColor( QColor( 50, 150, 75 ) );
+
+  calculationUpdated();
 }
 
 QPointF ReosHydrographSourceWatershed::position() const

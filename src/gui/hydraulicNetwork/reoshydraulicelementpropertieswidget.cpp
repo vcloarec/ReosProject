@@ -48,17 +48,16 @@ void ReosHydraulicElementPropertiesWidget::setCurrentElement( ReosHydraulicNetwo
 
   QWidget *newWidget = widgetFactory( element->type() )->createWidget( element, this );
 
-  if ( mCurrentWidget )
+  if ( newWidget )
   {
-    layout()->replaceWidget( mCurrentWidget, newWidget );
-    delete mCurrentWidget;
-    mCurrentWidget = newWidget;
+    if ( mCurrentWidget )
+      layout()->replaceWidget( mCurrentWidget, newWidget );
+    else
+      layout()->addWidget( newWidget );
   }
-  else
-  {
-    mCurrentWidget = newWidget;
-    layout()->addWidget( mCurrentWidget );
-  }
+
+  delete mCurrentWidget;
+  mCurrentWidget = newWidget;
 }
 
 ReosHydraulicElementWidgetFactory *ReosHydraulicElementPropertiesWidget::widgetFactory( const QString &elementType )

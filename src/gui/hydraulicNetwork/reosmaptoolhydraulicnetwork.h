@@ -22,6 +22,7 @@
 #include "reoshydrographsource.h"
 
 class ReosMapToolDrawHydraulicNetworkLink_p;
+class ReosMapToolMoveHydraulicNetworkNode_p;
 
 class ReosMapToolDrawHydraulicNetworkLink: public ReosMapTool
 {
@@ -64,32 +65,26 @@ class ReosMapToolDrawHydrographRouting: public ReosMapToolDrawHydraulicNetworkLi
     }
 
   protected:
-    bool acceptItem( ReosMapItem *item ) override
-    {
-      if ( !item )
-        return false;
+    bool acceptItem( ReosMapItem *item ) override;
 
-      if ( itemsCount() == 0 && item->description().contains( ReosHydrographSource::typeString() ) )
-      {
-        ReosHydrographSource *source = qobject_cast<ReosHydrographSource *>( mNetwork->getElement( item->description() ) );
-        if ( !source || source->outputHydrographTransfer() )
-          return false;
-
-        return true;
-      }
-      if ( itemsCount() == 1 && item->description().contains( ReosHydrographJunction::typeString() ) )
-        return true;
-
-      return false;
-    }
-
-    bool isFinished() const override
-    {
-      return itemsCount() == 2;
-    }
+    bool isFinished() const override;
 
   private:
     ReosHydraulicNetwork *mNetwork;
+};
+
+class ReosMapToolMoveHydraulicNetworkElement : public ReosMapTool
+{
+    Q_OBJECT
+  public:
+    ReosMapToolMoveHydraulicNetworkElement( ReosHydraulicNetwork *network, ReosMap *map );
+    ~ReosMapToolMoveHydraulicNetworkElement();
+
+  private:
+    ReosHydraulicNetwork *mNetwork;
+    ReosMapToolMoveHydraulicNetworkNode_p *d = nullptr;
+    ReosMapTool_p *tool_p() const;
+
 };
 
 

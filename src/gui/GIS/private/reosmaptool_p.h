@@ -223,7 +223,47 @@ class ReosMapToolDrawHydraulicNetworkLink_p: public ReosMapTool_p
   protected:
     void canvasMoveEvent( QgsMapMouseEvent *e ) override;
     void canvasReleaseEvent( QgsMapMouseEvent * ) override;
+};
 
+
+class ReosMapToolMoveHydraulicNetworkNode_p: public ReosMapTool_p
+{
+    Q_OBJECT
+  public:
+    ReosMapToolMoveHydraulicNetworkNode_p( QgsMapCanvas *map ): ReosMapTool_p( map )
+    {}
+
+    void setCurrentItem( ReosMapItem_p *item );
+  protected:
+    void canvasPressEvent( QgsMapMouseEvent *event ) override
+    {
+      ReosMapItem_p *item = searchItem( event->localPos() );
+      if ( item )
+        mCurrentItem = item;
+      else
+        mCurrentItem = nullptr;
+    }
+
+    void canvasMoveEvent( QgsMapMouseEvent *e ) override
+    {
+      if ( mCurrentItem )
+        emit itemMoved( mCurrentItem->base->description(), e->mapPoint().toQPointF() );
+      else
+        ReosMapTool_p::canvasMoveEvent( e );
+    }
+
+    void canvasReleaseEvent( QgsMapMouseEvent *e ) override
+    {
+      if ( mCurrentItem )
+        emit itemMoved( mCurrentItem->base->description(), e->mapPoint().toQPointF() );
+
+      mCurrentItem = nullptr;
+    }
+  signals:
+    void itemMoved( const QString &decription, const QPointF &position );
+
+  private:
+    ReosMapItem_p *mCurrentItem;
 };
 
 #endif // REOSMAPTOOL_P_H

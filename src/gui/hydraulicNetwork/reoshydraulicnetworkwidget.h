@@ -32,6 +32,7 @@ namespace Ui
 
 class ReosMapToolDrawPoint;
 class ReosHydraulicElementPropertiesWidget;
+class ReosMeteorologicModelsCollection;
 
 class ReosHydraulicNetworkWidget : public QWidget
 {
@@ -39,6 +40,13 @@ class ReosHydraulicNetworkWidget : public QWidget
   public:
     explicit ReosHydraulicNetworkWidget( ReosHydraulicNetwork *network, ReosMap *map, QWidget *parent = nullptr );
     ~ReosHydraulicNetworkWidget();
+
+    // Temporary methods used for implementation
+    //*******
+    ReosCalculationContext currentContext() const;
+    void setMeteoModelCollection( ReosMeteorologicModelsCollection *meteoCollection );
+    ReosMeteorologicModelsCollection *meteoModelCollection = nullptr;
+    //***
 
   private slots:
     void onElementAdded( ReosHydraulicNetworkElement *elem );
@@ -72,6 +80,9 @@ class ReosHydraulicNetworkWidget : public QWidget
 
     QAction *mActionHydraulicNetworkProperties = nullptr;
     ReosHydraulicElementPropertiesWidget *mElementPropertiesWidget = nullptr;
+
+    QAction *mActionMoveHydrographJunction = nullptr;
+    ReosMapToolMoveHydraulicNetworkElement *mMapToolMoveHydrographJunction = nullptr;
 };
 
 

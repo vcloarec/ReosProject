@@ -21,11 +21,12 @@
 
 #include "reosmodule.h"
 #include "reosdataobject.h"
+#include "reosparameter.h"
 
 class ReosHydraulicNode;
 class ReosHydraulicLink;
 class ReosHydraulicNetwork;
-
+class ReosCalculationContext;
 
 class ReosHydraulicNetworkElement : public ReosDataObject
 {
@@ -44,9 +45,26 @@ class ReosHydraulicNetworkElement : public ReosDataObject
 
     void positionChanged();
 
+    ReosParameterString *name() const;
+
+    QString defaultDisplayName() const {return type();}
+
+  public slots:
+    virtual void updateCalculation( const ReosCalculationContext &context ) = 0;
+
+  protected:
+    void calculationUpdated()
+    {
+      emit calculationIsUpdated( id(), QPrivateSignal() );
+    }
+
+  signals:
+    void calculationIsUpdated( const QString &id, QPrivateSignal );
+
   private:
     QPointer<ReosHydraulicNetwork> mNetWork = nullptr;
     QString mUid;
+    ReosParameterString *mNameParameter = nullptr;
 
 };
 
@@ -70,6 +88,7 @@ class ReosHydraulicNetwork : public ReosModule
     QHash<QString, ReosHydraulicNetworkElement *> mElements;
     void elemPositionChangedPrivate( ReosHydraulicNetworkElement *elem );
 
+    QHash<QString, int> mElementIndexesCounter;
 
     friend class ReosHydraulicNetworkElement;
 

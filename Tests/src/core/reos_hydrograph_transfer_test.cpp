@@ -73,19 +73,19 @@ void ReosHydrographTransferTest::test_junction()
   ReosCalculationContext context;
   ReosHydrographJunction junction{ QPointF()};
 
-  ReosHydrograph *inputHydrograph_1 = mSource1.outputHydrograph( context );
-  ReosHydrograph *inputHydrograph_2 = mSource2.outputHydrograph( context );
-  ReosHydrograph *inputHydrograph_3 = mSource3.outputHydrograph( context );
+  ReosHydrograph *inputHydrograph_1 = mSource1.outputHydrograph( );
+  ReosHydrograph *inputHydrograph_2 = mSource2.outputHydrograph( );
+  ReosHydrograph *inputHydrograph_3 = mSource3.outputHydrograph( );
 
   ReosHydrographRouting transfer1;
   transfer1.setInputHydrographSource( &mSource1 );
   transfer1.setHydrographDestination( &junction );
 
-  ReosHydrograph *junctionHydrograph = junction.outputHydrograph( context );
+  junction.updateCalculation( context );
+  ReosHydrograph *junctionHydrograph = junction.outputHydrograph();
 
   QVERIFY( junctionHydrograph );
-
-  Q_ASSERT( junctionHydrograph->valueCount() == inputHydrograph_1->valueCount() );
+  QCOMPARE( junctionHydrograph->valueCount(), inputHydrograph_1->valueCount() );
 
   for ( int i = 0; i < inputHydrograph_1->valueCount(); ++i )
   {
@@ -97,7 +97,9 @@ void ReosHydrographTransferTest::test_junction()
   transfer2.setInputHydrographSource( &mSource2 );
   transfer2.setHydrographDestination( &junction );
 
-  junctionHydrograph = junction.outputHydrograph( context );
+  junction.updateCalculation( context );
+
+  junctionHydrograph = junction.outputHydrograph( );
 
   QCOMPARE( junctionHydrograph->valueCount(), 8 );
 
@@ -123,8 +125,9 @@ void ReosHydrographTransferTest::test_junction()
   transfer4.setInputHydrographSource( &junction );
   transfer4.setHydrographDestination( &junction2 );
 
+  junction2.updateCalculation( context );
 
-  ReosHydrograph *junctionHydrograph2 = junction2.outputHydrograph( context );
+  ReosHydrograph *junctionHydrograph2 = junction2.outputHydrograph( );
 
   for ( int i = 0; i < inputHydrograph_1->valueCount(); ++i )
   {

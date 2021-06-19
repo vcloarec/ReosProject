@@ -39,6 +39,15 @@ class ReosHydrographNode : public ReosHydraulicNode
 
     QPointF position() const override  {return QPointF();}
 
+  public slots:
+    virtual void onUpstreamRoutingUpdated( const QString &routingId ) = 0;
+
+
+  protected:
+
+
+
+
 };
 
 //! Abstract class that represent a hydrograph source, that is a node that has a hydrograph as output
@@ -47,7 +56,7 @@ class ReosHydrographSource : public ReosHydrographNode
     Q_OBJECT
   public:
     ReosHydrographSource( ReosHydraulicNetwork *parent = nullptr );
-    virtual ReosHydrograph *outputHydrograph( const ReosCalculationContext &context ) = 0;
+    virtual ReosHydrograph *outputHydrograph() = 0;
 
     ReosHydrographRouting *outputHydrographTransfer() const;
 
@@ -59,18 +68,30 @@ class ReosHydrographSource : public ReosHydrographNode
 //! Class that represent an hydrograph source with a fixed hydrograph
 class ReosHydrographSourceFixed: public ReosHydrographSource
 {
+    Q_OBJECT
   public:
     ReosHydrographSourceFixed( ReosHydraulicNetwork *parent = nullptr );
-    ReosHydrograph *outputHydrograph( const ReosCalculationContext &context ) override;
+    ReosHydrograph *outputHydrograph() override;
 
     QString type() const override {return typeString();}
     static QString typeString() {return ReosHydrographSource::typeString() + QString( ':' ) + QStringLiteral( "fixed" );}
 
+    void setPosition( const QPointF & ) override {};
+
     //! Sets the hydrographs, take ownership
     void setHydrograph( ReosHydrograph *hydrograph );
 
+  public slots:
+    virtual void updateCalculation( const ReosCalculationContext & ) override
+    {
+      calculationUpdated();
+    };
+
+    void onUpstreamRoutingUpdated( const QString & )  override {}
+
   private:
     ReosHydrograph *mHydrograph = nullptr;
+
 };
 
 /**
@@ -81,17 +102,28 @@ class ReosHydrographJunction : public ReosHydrographSource
     Q_OBJECT
   public:
     ReosHydrographJunction( const QPointF &position, ReosHydraulicNetwork *parent = nullptr );
-    ReosHydrograph *outputHydrograph( const ReosCalculationContext &context ) override;
+    ReosHydrograph *outputHydrograph() override;
 
     QString type() const override {return typeString(); }
     static QString typeString() {return ReosHydrographSource::typeString() + QString( ':' ) + QStringLiteral( "junction" );}
 
     QPointF position() const override;
+    void setPosition( const QPointF &pos ) override;
+
+  public slots:
+    virtual void updateCalculation( const ReosCalculationContext &context ) override;
+    void onUpstreamRoutingUpdated( const QString &routingId ) override
+    {
+      mWaitingForUpstreamLinksUpdated.removeOne( routingId );
+    }
 
   private:
     mutable ReosHydrograph *mHydrograph;
-
     QPointF mPosition;
+
+    QList<QString> mWaitingForUpstreamLinksUpdated;
+
+    void calculateHydrograph();
 };
 
 
@@ -106,10 +138,16 @@ class ReosHydrographSourceWatershed : public ReosHydrographJunction
     QString type() const override {return typeString();}
     static QString typeString() {return ReosHydrographJunction::typeString() + QString( ':' ) + QStringLiteral( "watershed" );}
 
-    ReosHydrograph *outputHydrograph( const ReosCalculationContext &context ) override;
+    ReosHydrograph *outputHydrograph() override;
     QPointF position() const override;
+    void setPosition( const QPointF & ) override {};
 
     ReosWatershed *watershed() const;
+
+  public slots:
+    virtual void updateCalculation( const ReosCalculationContext &context ) override;
+    void onUpstreamRoutingUpdated( const QString &routingId ) override
+    {}
 
   private:
     QPointer<ReosWatershed> mWatershed;
