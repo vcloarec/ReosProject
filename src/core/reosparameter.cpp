@@ -366,7 +366,8 @@ ReosParameterDuration *ReosParameterDuration::decode( const ReosEncodedElement &
 ReosParameterDateTime::ReosParameterDateTime( const QString &name, QObject *parent ):
   ReosParameter( name, parent )
 {
-  mDateTime.setDate( QDate( QDate::currentDate().year(), 1, 1 ) );
+  mDateTime = QDateTime( QDate( QDate::currentDate().year(), 1, 1 ), QTime( 0, 0, 0 ), Qt::UTC );
+  mIsValid = true;
 }
 
 void ReosParameterDateTime::setValue( const QDateTime &dt )
