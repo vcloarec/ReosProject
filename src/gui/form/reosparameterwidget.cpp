@@ -598,7 +598,7 @@ void ReosParameterDateTimeWidget::updateValue()
   else
   {
     if ( mDateTimeEdit )
-      mDateTimeEdit->setDateTime( QDateTime() );
+      mDateTimeEdit->setDateTime( QDateTime( QDate( QDate::currentDate().year(), 1, 1 ), QTime( 0, 0, 0 ), Qt::UTC ) );
     show();
   }
 
