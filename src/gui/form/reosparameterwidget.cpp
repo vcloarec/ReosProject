@@ -532,13 +532,15 @@ void ReosParameterDurationWidget::updateValue()
   {
     setTextValue( durationParameter()->value().valueUnit() );
     mUnitCombobox->setCurrentUnit( durationParameter()->value().unit() );
-    show();
+    if ( !mCanBeAlwaysHidden )
+      show();
   }
   else
   {
     setTextValue( QString( '-' ) );
     mUnitCombobox->setCurrentIndex( -1 );
-    show();
+    if ( !mCanBeAlwaysHidden )
+      show();
   }
 
   if ( mHideWhenVoid && !durationParameter() )

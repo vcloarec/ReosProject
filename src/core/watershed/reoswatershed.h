@@ -218,6 +218,12 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
     ReosTransferFunction *currentTransferFunction() const;
     void setCurrentTransferFunction( const QString &type );
 
+    bool usedConstantTimeStepForOutputHydrograph() const;
+    void setUsedConstantTimeStepForOutputHydrograph( bool usedFixedTimeStepForOutputHydrograph );
+
+    ReosDuration timeStepForOutputHydrograph() const;
+    void setTimeStepForOutputHydrograph( const ReosDuration &timeStepForOutputHydrograph );
+
   signals:
     void changed();
 
@@ -276,6 +282,9 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
     ReosRunoffModelsGroup *mRunoffModels;
     QMap<QString, ReosTransferFunction *> mTransferFunctions;
     QString mCurrentTransferFuntion;
+
+    bool mUsedConstantTimeStepForOutputHydrograph = false;
+    ReosDuration mTimeStepForOutputHydrograph;
 
     void init();
     void connectParameters();

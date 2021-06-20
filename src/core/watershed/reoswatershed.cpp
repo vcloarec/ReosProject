@@ -556,6 +556,9 @@ ReosEncodedElement ReosWatershed::encode() const
   ret.addListEncodedData( QStringLiteral( "transfer-functions" ), encodedTransferFunctions );
   ret.addData( QStringLiteral( "current-transfer-function" ), mCurrentTransferFuntion );
 
+  ret.addData( QStringLiteral( "used-fixed-time-step-output-hydrograph" ), mUsedConstantTimeStepForOutputHydrograph );
+  ret.addEncodedData( QStringLiteral( "time-step-for-output-hydrograph" ), mTimeStepForOutputHydrograph.encode() );
+
   return ret;
 }
 
@@ -703,6 +706,9 @@ ReosWatershed *ReosWatershed::decode( const ReosEncodedElement &element )
   }
 
   element.getData( QStringLiteral( "current-transfer-function" ), ws->mCurrentTransferFuntion );
+
+  element.getData( QStringLiteral( "used-fixed-time-step-output-hydrograph" ), ws->mUsedConstantTimeStepForOutputHydrograph );
+  ws->mTimeStepForOutputHydrograph = ReosDuration::decode( element.getEncodedData( QStringLiteral( "time-step-for-output-hydrograph" ) ) );
 
   ws->connectParameters();
 
@@ -1010,6 +1016,26 @@ ReosGisEngine *ReosWatershed::geographicalContext() const
   return nullptr;
 }
 
+ReosDuration ReosWatershed::timeStepForOutputHydrograph() const
+{
+  return mTimeStepForOutputHydrograph;
+}
+
+void ReosWatershed::setTimeStepForOutputHydrograph( const ReosDuration &timeStepForOutputHydrograph )
+{
+  mTimeStepForOutputHydrograph = timeStepForOutputHydrograph;
+}
+
+bool ReosWatershed::usedConstantTimeStepForOutputHydrograph() const
+{
+  return mUsedConstantTimeStepForOutputHydrograph;
+}
+
+void ReosWatershed::setUsedConstantTimeStepForOutputHydrograph( bool usedFixedTimeStepForOutputHydrograph )
+{
+  mUsedConstantTimeStepForOutputHydrograph = usedFixedTimeStepForOutputHydrograph;
+}
+
 ReosRunoffModelsGroup *ReosWatershed::runoffModels() const
 {
   return mRunoffModels;
@@ -1033,6 +1059,3 @@ void ReosWatershed::setCurrentTransferFunction( const QString &type )
 
   mCurrentTransferFuntion = type;
 }
-
-
-
