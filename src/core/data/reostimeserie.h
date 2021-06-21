@@ -221,7 +221,7 @@ class REOSCORE_EXPORT ReosTimeSerieConstantIntervalModel : public QAbstractTable
 
 };
 
-class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
+class REOSCORE_EXPORT ReosTimeSerieVariableTimeStep: public ReosTimeSerie
 {
     Q_OBJECT
   public:
