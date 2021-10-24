@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="ne">
+<?xml version="1.0" ?><!DOCTYPE TS><TS language="ne" version="2.1">
 <context>
     <name>LekanMainWindow</name>
     <message>
@@ -56,7 +54,7 @@
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="190"/>
         <source>Map</source>
-        <translation>नक्सा&#xa0;</translation>
+        <translation>नक्सा </translation>
     </message>
 </context>
 <context>
@@ -192,25 +190,30 @@
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="132"/>
         <location filename="../src/core/watershed/reosrunoffmodel.cpp" line="142"/>
         <source>Coefficient</source>
-        <translation>गुणक&#xa0;</translation>
+        <translation>गुणक </translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.h" line="230"/>
+        <location filename="../src/core/watershed/reostransferfunction.h" line="228"/>
         <source>Linear reservoir</source>
         <translation>Linear reservoir (रैखिक जलाशय)</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.h" line="278"/>
+        <location filename="../src/core/watershed/reostransferfunction.h" line="277"/>
         <source>Generalized Rational Method</source>
         <translation>जेनेरलाईजड् र्यास्नल मेथड / Generalized Rational Method</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.h" line="359"/>
+        <location filename="../src/core/watershed/reostransferfunction.h" line="357"/>
         <source>SCS Unit Hydrograph</source>
         <translation>एस् सि एस् युनिट हाईड्रोग्राफ / SCS Unit Hydrograph</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="831"/>
+        <location filename="../src/core/watershed/reostransferfunction.h" line="422"/>
+        <source>Nash Unit Hydrograph</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="837"/>
         <source> residual</source>
         <translation>शेष / अवशिष्ट</translation>
     </message>
@@ -262,10 +265,15 @@
         <translation>समय</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="858"/>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="1045"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="935"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="1126"/>
         <source>Lag time from concentration time: %1</source>
         <translation>एकाग्रता समय बाट ल्याग समय निकाल्ने : %1</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="1388"/>
+        <source>K parameter from concentration time: %1</source>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="321"/>
@@ -273,34 +281,44 @@
         <translation>सुरुको संचयः %1 मिलिमिटर</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="445"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="447"/>
         <source>The Generalized Rational Method is a Unit Hydrograph transfer function.&lt;br&gt;This Unit Hydrograph is defined as below:</source>
         <translation>Generalized Rational Method एक Unit Hydrograph स्थानान्तरण गर्ने function हो । यो Unit Hydrograph लाई यसरी वर्णन गरिन्छ :</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="453"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="455"/>
         <source>Where:&lt;br&gt;- Δt : the time step of the runoff&lt;br&gt;- t&lt;sub&gt;c&lt;/sub&gt; : the concentration time&lt;br&gt;- A : the watershed area&lt;br&gt;- r : the runoff intensity or the effective rainfall intensity during the time step in mm per unit time</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="472"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="474"/>
         <source>The Linear Reservoir Method is expressing the flow rate for the n&lt;sup&gt;th&lt;/sup&gt; time step as below:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="482"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="484"/>
         <source>Where:&lt;br&gt;- Δt : the time step of the runoff&lt;br&gt;- t&lt;sub&gt;l&lt;/sub&gt; : the lag time&lt;br&gt;- A : the watershed area&lt;br&gt;- r : the runoff intensity or the effective rainfall intensity during the time step in mm per unit time&lt;br&gt;- Q&lt;sub&gt;0&lt;/sub&gt; = 0</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="740"/>
         <source>The SCS Unit Hydrograph defines a Unit Hydrograph with predefined hydrograph shapes depending on a peak factor.&lt;br&gt;This peak factor links the peak flow rate and the peak time as below:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="750"/>
         <source>Where:&lt;br&gt;- Q&lt;sub&gt;p&lt;/sub&gt; : the peak flow rate for an effective rainfall height or a runoff of 1 cm&lt;br&gt;- T&lt;sub&gt;p&lt;/sub&gt; : the time of the peak in hours&lt;br&gt;- A : the watershed area in km&lt;sup&gt;2&lt;/sup&gt;&lt;br&gt;- P&lt;sub&gt;f&lt;/sub&gt; : the peak factor between 100 and 600 with a typical value of 484&lt;br&gt; Peak factor with high value is for watershed with quick reaction (mountain), and lower values are for slower watersheds (plain).</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="1203"/>
+        <source>The Nash Unit Hydrograph is a conceptual model represented by an effective rainfall that paths through n different reservoirs with the same storage coefficient K that gives reservoirs the propriety of linearity. For a rainfall with a depth of 1 mm and a duration tending toward zero, the specific flow rate is given by the following relation:</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="1215"/>
+        <source>Where:&lt;br&gt;- t : the time from rainfall&lt;br&gt;- n : the count of reservoirs &lt;br&gt;- K : the storage coefficient in the same unit that t&lt;br&gt;- Q : the flow rate (mm per time unit)</source>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -411,7 +429,7 @@
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic; color:#ff0000;&quot;&gt;Red value: at least one parameter is outside the validity domain of the formula&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../src/ui/reosconcentrationtimewidget.ui"/>
@@ -658,7 +676,7 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/ui/reosdelineatingwatershedwidget.ui"/>
         <source>Calculate average elevation</source>
-        <translation>औसत&#xa0;उचाईको हिसाब गर्नुहोस्</translation>
+        <translation>औसत उचाईको हिसाब गर्नुहोस्</translation>
     </message>
 </context>
 <context>
@@ -698,42 +716,42 @@ Adjust new watershed?</source>
 <context>
     <name>ReosDurationUnitComboBox</name>
     <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="688"/>
+        <location filename="../src/gui/form/reosparameterwidget.cpp" line="693"/>
         <source>millisecond</source>
         <translation>मिलिसेकेन्ड</translation>
     </message>
     <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="689"/>
+        <location filename="../src/gui/form/reosparameterwidget.cpp" line="694"/>
         <source>second</source>
         <translation>सेकेन्ड</translation>
     </message>
     <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="690"/>
+        <location filename="../src/gui/form/reosparameterwidget.cpp" line="695"/>
         <source>minute</source>
         <translation>मिनेट</translation>
     </message>
     <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="691"/>
+        <location filename="../src/gui/form/reosparameterwidget.cpp" line="696"/>
         <source>hour</source>
         <translation>घन्टा</translation>
     </message>
     <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="692"/>
+        <location filename="../src/gui/form/reosparameterwidget.cpp" line="697"/>
         <source>day</source>
         <translation>दिन</translation>
     </message>
     <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="693"/>
+        <location filename="../src/gui/form/reosparameterwidget.cpp" line="698"/>
         <source>week</source>
         <translation>हप्ता</translation>
     </message>
     <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="694"/>
+        <location filename="../src/gui/form/reosparameterwidget.cpp" line="699"/>
         <source>month</source>
         <translation>महिना</translation>
     </message>
     <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="695"/>
+        <location filename="../src/gui/form/reosparameterwidget.cpp" line="700"/>
         <source>year</source>
         <translation>बर्ष</translation>
     </message>
@@ -879,11 +897,14 @@ Adjust new watershed?</source>
     </message>
     <message>
         <location filename="../src/core/GIS/reosgisengine.cpp" line="248"/>
-        <source>This layer doesn&apos;t have a valid or known coordinates system, and calculation on DEM will be done considering its coordinate system is the same as the project.
-The project&apos;s coordinates system is a geographic reference system (latitude/longitude) and the extent of this layer suggests that it is actually a projected coordinates system.
+        <source>This layer doesn't have a valid or known coordinates system, and calculation on DEM will be done considering its coordinate system is the same as the project.
+The project's coordinates system is a geographic reference system (latitude/longitude) and the extent of this layer suggests that it is actually a projected coordinates system.
 If so, the result of area or distance calculation will be incorrect.
 To fix this, set an appropriate map coordinate system in the layer properties or/and for the project coordinate project.</source>
-        <translation type="unfinished"></translation>
+        <translation>यो तहको मान्य वा ज्ञात निर्देशांक प्रणाली छैन, र DEM मा गणना यसको समन्वय प्रणाली को रूप मा विचार गरी यस्केे परियोजनाको जस्तै गरिन्छ।
+परियोजनाको निर्देशांक प्रणाली एक भौगोलिक संदर्भ प्रणाली (अक्षांश / देशांतर) हो र यो तहको विस्तारले सुझाव दिन्छ कि यो वास्तवमा एक प्रोजेक्टर्ड निर्देशांक प्रणाली हो।
+यदि त्यसो हो भने क्षेत्र वा दूरी गणनाको नतिजा गलत हुनेछ।
+यसलाई ठीक गर्न उपयुक्त नक्सा समन्वय प्रणाली सेट गर्नुहोस्।</translation>
     </message>
 </context>
 <context>
@@ -918,7 +939,7 @@ To fix this, set an appropriate map coordinate system in the layer properties or
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="79"/>
         <source>Digital Elevation Model</source>
         <translation>डिजिटल उचाई मोडेल
-&#xa0;</translation>
+ </translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="113"/>
@@ -1062,7 +1083,7 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="585"/>
         <source>Total height</source>
-        <translation>कुल गहिराई&#xa0;</translation>
+        <translation>कुल गहिराई </translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="586"/>
@@ -1329,7 +1350,7 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="194"/>
         <source>Save project as</source>
-        <translation>यस रूपमा प्रोजेक्ट सेभ&#xa0;गर्नुहोस्</translation>
+        <translation>यस रूपमा प्रोजेक्ट सेभ गर्नुहोस्</translation>
     </message>
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="211"/>
@@ -1423,12 +1444,12 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/gui/reosmessagebox.cpp" line="41"/>
         <source>Error: </source>
-        <translation type="unfinished"></translation>
+        <translation>त्रुटि</translation>
     </message>
     <message>
         <location filename="../src/gui/reosmessagebox.cpp" line="47"/>
         <source>Warning: </source>
-        <translation type="unfinished"></translation>
+        <translation>चेतावनी</translation>
     </message>
 </context>
 <context>
@@ -1500,7 +1521,7 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="107"/>
-        <source>Duplicate meteorologic model &apos;%1&apos;,
+        <source>Duplicate meteorologic model '%1',
 choose a name:</source>
         <translation>मौसम विज्ञानको नमूनाको नक्कल गर्न &quot;%1&quot; नाम चुज गर्नुहोस</translation>
     </message>
@@ -1521,7 +1542,7 @@ choose a name:</source>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="142"/>
-        <source>Rename meteorologic model &apos;%1&apos;,
+        <source>Rename meteorologic model '%1',
 choose a new name:</source>
         <translation>मौसम विज्ञानको नमूनाको नक्कल गर्न &quot;%1&quot; नाम चुज गर्नुहोस</translation>
     </message>
@@ -1552,12 +1573,12 @@ choose a new name:</source>
 <context>
     <name>ReosParameterBoolean</name>
     <message>
-        <location filename="../src/core/reosparameter.cpp" line="550"/>
+        <location filename="../src/core/reosparameter.cpp" line="551"/>
         <source>True</source>
         <translation>सहि</translation>
     </message>
     <message>
-        <location filename="../src/core/reosparameter.cpp" line="550"/>
+        <location filename="../src/core/reosparameter.cpp" line="551"/>
         <source>False</source>
         <translation>गलत</translation>
     </message>
@@ -1565,7 +1586,7 @@ choose a new name:</source>
 <context>
     <name>ReosParameterDateTime</name>
     <message>
-        <location filename="../src/core/reosparameter.cpp" line="411"/>
+        <location filename="../src/core/reosparameter.cpp" line="412"/>
         <source>Date/Time</source>
         <translation>मिती / समय</translation>
     </message>
@@ -1723,7 +1744,7 @@ choose a new name:</source>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="57"/>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="311"/>
         <source>Add Gauged Rainfall</source>
-        <translation>गज वर्षा को डाटा थप्नु&#xa0;</translation>
+        <translation>गज वर्षा को डाटा थप्नु </translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="58"/>
@@ -2054,34 +2075,34 @@ choose a new name:</source>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="65"/>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="298"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="367"/>
         <source>Flow rate (%1)</source>
         <translation>बग्ने गति (%1)</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="232"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="301"/>
         <source>Rainfall %1</source>
         <translation>वर्षा %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="257"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="326"/>
         <source>Runoff %1</source>
         <translation>रनअफ %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="353"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="430"/>
         <source>Remove this model</source>
         <translation>यो नमूना हटाउनुहोस</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="404"/>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="421"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="481"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="498"/>
         <source>Copy selected values</source>
         <translation>चयन गर्ने मान कपि गर्नुहोस</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="409"/>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="426"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="486"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="503"/>
         <source>Copy selected values with headers</source>
         <translation>चयन गर्ने मान हेडर सहित कपि गर्नुहोस</translation>
     </message>
@@ -2089,6 +2110,11 @@ choose a new name:</source>
         <location filename="../src/ui/reosrunoffhydrographwidget.ui"/>
         <source>Tables</source>
         <translation>टेबलहरु</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/reosrunoffhydrographwidget.ui"/>
+        <source>Constant time step</source>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -2359,7 +2385,7 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="63"/>
         <source>Delete selected row(s)</source>
-        <translation>चयनित पँक्ति(हरू) हटाउनुहोस्&#xa0;</translation>
+        <translation>चयनित पँक्ति(हरू) हटाउनुहोस् </translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="72"/>
@@ -2436,24 +2462,32 @@ is applied on the rainfall</source>
     </message>
 </context>
 <context>
-    <name>ReosTimeSeriesTabModel</name>
+    <name>ReosTimeSeriesTableModel</name>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="996"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="1077"/>
         <source>Time</source>
-        <translation>समय</translation>
+        <translation type="unfinished"/>
+    </message>
+</context>
+<context>
+    <name>ReosTimeSeriesVariableTimeStepTabModel</name>
+    <message>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="1245"/>
+        <source>Time</source>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
     <name>ReosTransferFunction</name>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="33"/>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="70"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="35"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="72"/>
         <source>Concentration time</source>
         <translation>एकाग्रता समय</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="34"/>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="71"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="36"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="73"/>
         <source>Area</source>
         <translation>क्षेत्रफल</translation>
     </message>
@@ -2461,46 +2495,67 @@ is applied on the rainfall</source>
 <context>
     <name>ReosTransferFunctionLinearReservoir</name>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="79"/>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="194"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="81"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="196"/>
         <source>Lag time</source>
         <translation>ल्याग समय</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="80"/>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="195"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="82"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="197"/>
         <source>Use concentration time</source>
         <translation>एकाग्रता समय चलाउने</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="81"/>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="196"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="83"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="198"/>
         <source>Factor</source>
         <translation>कारक् / फ्याक्टर</translation>
     </message>
 </context>
 <context>
+    <name>ReosTransferFunctionNashUnitHydrograph</name>
+    <message>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="1014"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="1108"/>
+        <source>K parameter</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="1015"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="1109"/>
+        <source>n parameter</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="1016"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="1110"/>
+        <source>Use concentration time for K parameter (K=tc/n)</source>
+        <translation type="unfinished"/>
+    </message>
+</context>
+<context>
     <name>ReosTransferFunctionSCSUnitHydrograph</name>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="494"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="496"/>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="633"/>
         <source>Peak Factor</source>
         <translation>पीक फ्याक्टर</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="495"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="497"/>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="634"/>
         <source>Lag time</source>
         <translation>ल्याग समय</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="496"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="498"/>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="635"/>
         <source>Use concentration time for the lag time</source>
         <translation>एकाग्रता समय ल्याग समयलाई चलाउने</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="497"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="499"/>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="636"/>
         <source>Factor</source>
         <translation>कारक् / फ्याक्टर</translation>
@@ -2549,47 +2604,47 @@ is applied on the rainfall</source>
 <context>
     <name>ReosWatershed</name>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="759"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="765"/>
         <source>Watershed area</source>
         <translation>वाटरशेड क्षेत्र </translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="758"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="764"/>
         <source>Watershed name</source>
         <translation>वाटरशेड नाम</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="760"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="766"/>
         <source>Average slope</source>
         <translation>औसत ढलान</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="761"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="767"/>
         <source>Drop</source>
         <translation>उचाई मा फरक</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="762"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="768"/>
         <source>Longest stream path</source>
         <translation>सबैभन्दा लामो नदिको पथ</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="763"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="769"/>
         <source>Average elevation</source>
         <translation>औसत उचाई</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="764"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="770"/>
         <source>Concentration time</source>
         <translation>एकाग्रता समय</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="960"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="966"/>
         <source>Unable to calculate average elevation for watershed &quot;%1&quot; : no DEM available</source>
         <translation>वाटरशेड &quot;%1&quot; को लागि औसत उचाइ गणना गर्न असमर्थ: कुनै DEM उपलब्ध छैन</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="962"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="968"/>
         <source>Average elevation calculation for watershed &quot;%1&quot; with DEM &quot;%2&quot;</source>
         <translation>DEM &quot;%2&quot; संग वाटरहसेड &quot;%1&quot; को लागि औसत उचाइ गणना</translation>
     </message>
@@ -2669,22 +2724,22 @@ is applied on the rainfall</source>
 <context>
     <name>ReosWatershedRunoffModelsModel</name>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="636"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="713"/>
         <source>Right click to add</source>
         <translation>थप्नको लागि दायाँ क्लिक गर्नुहोस्</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="654"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="731"/>
         <source>Invalid</source>
         <translation>अमान्य</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="797"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="874"/>
         <source>Runoff model</source>
         <translation>रनअफ मोडेल</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="800"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="877"/>
         <source>Portion in watershed</source>
         <translation>वाटरशेड को भाग</translation>
     </message>

@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="zh_TW">
+<?xml version="1.0" ?><!DOCTYPE TS><TS language="zh_TW" version="2.1">
 <context>
     <name>LekanMainWindow</name>
     <message>
@@ -21,22 +19,22 @@
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="156"/>
         <source>Rainfall Data Changed</source>
-        <translation type="unfinished"></translation>
+        <translation>降雨資料更新</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="156"/>
         <source>Rainfall data have changed, do you want to save?</source>
-        <translation type="unfinished"></translation>
+        <translation>降雨資料已經更新，您想要儲存嗎?</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="162"/>
         <source>Runoff Data Changed</source>
-        <translation type="unfinished"></translation>
+        <translation>逕流資料更新</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="162"/>
         <source>Runoff data have changed, do you want to save?</source>
-        <translation type="unfinished"></translation>
+        <translation>逕流資料已更新,您想要儲存嗎?</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="186"/>
@@ -74,12 +72,12 @@
     <message>
         <location filename="../src/core/GIS/private/reosdigitalelevationmodel_p.cpp" line="175"/>
         <source>Extract DEM from layer</source>
-        <translation type="unfinished"></translation>
+        <translation>由圖層取得外部數值高程DEM資料</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reosdigitalelevationmodel_p.cpp" line="256"/>
         <source>Calculate average elevation from grid</source>
-        <translation type="unfinished"></translation>
+        <translation>由網格資料計算平均高程</translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosarea.cpp" line="240"/>
@@ -195,22 +193,27 @@
         <translation>係數</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.h" line="230"/>
+        <location filename="../src/core/watershed/reostransferfunction.h" line="228"/>
         <source>Linear reservoir</source>
         <translation>線性水庫</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.h" line="278"/>
+        <location filename="../src/core/watershed/reostransferfunction.h" line="277"/>
         <source>Generalized Rational Method</source>
         <translation>Generalized Rational 方法</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.h" line="359"/>
+        <location filename="../src/core/watershed/reostransferfunction.h" line="357"/>
         <source>SCS Unit Hydrograph</source>
         <translation>SCS 單位歷線</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="831"/>
+        <location filename="../src/core/watershed/reostransferfunction.h" line="422"/>
+        <source>Nash Unit Hydrograph</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="837"/>
         <source> residual</source>
         <translation>剩餘</translation>
     </message>
@@ -262,10 +265,15 @@
         <translation>時間</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="858"/>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="1045"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="935"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="1126"/>
         <source>Lag time from concentration time: %1</source>
         <translation>洪峰稽延時間: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="1388"/>
+        <source>K parameter from concentration time: %1</source>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="321"/>
@@ -273,22 +281,22 @@
         <translation>初始保留: %1mm</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="445"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="447"/>
         <source>The Generalized Rational Method is a Unit Hydrograph transfer function.&lt;br&gt;This Unit Hydrograph is defined as below:</source>
         <translation>廣義關聯方法是單位歷線轉換功能.&lt;br&gt;該單位歷線定義如下：</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="453"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="455"/>
         <source>Where:&lt;br&gt;- Δt : the time step of the runoff&lt;br&gt;- t&lt;sub&gt;c&lt;/sub&gt; : the concentration time&lt;br&gt;- A : the watershed area&lt;br&gt;- r : the runoff intensity or the effective rainfall intensity during the time step in mm per unit time</source>
         <translation>在 : &lt;br&gt;- Δt : 逕流時間間距 &lt;br&gt; - t &lt;sub&gt; c &lt;/sub&gt; : 集流時間&lt;br&gt; - A : 集水區面積 &lt;br&gt;- r : 時間間距中的徑流強度或有效降雨強度，單位為mm</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="472"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="474"/>
         <source>The Linear Reservoir Method is expressing the flow rate for the n&lt;sup&gt;th&lt;/sup&gt; time step as below:</source>
         <translation>線性水庫方法呈現的流量比在 n&lt;sup&gt;th&lt;/sup&gt;  時間間距如下：</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="482"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="484"/>
         <source>Where:&lt;br&gt;- Δt : the time step of the runoff&lt;br&gt;- t&lt;sub&gt;l&lt;/sub&gt; : the lag time&lt;br&gt;- A : the watershed area&lt;br&gt;- r : the runoff intensity or the effective rainfall intensity during the time step in mm per unit time&lt;br&gt;- Q&lt;sub&gt;0&lt;/sub&gt; = 0</source>
         <translation>在:&lt;br&gt;- Δt : 逕流時間間距&lt;br&gt;- t&lt;sub&gt;c&lt;/sub&gt; : 集中時間&lt;br&gt;- A :集水區面積&lt;br&gt;- r :時間間距內的徑流強度或有效降雨強度，單位為mm&lt;br&gt;- Q&lt;sub&gt;0&lt;/sub&gt; = 0</translation>
     </message>
@@ -301,6 +309,16 @@
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="750"/>
         <source>Where:&lt;br&gt;- Q&lt;sub&gt;p&lt;/sub&gt; : the peak flow rate for an effective rainfall height or a runoff of 1 cm&lt;br&gt;- T&lt;sub&gt;p&lt;/sub&gt; : the time of the peak in hours&lt;br&gt;- A : the watershed area in km&lt;sup&gt;2&lt;/sup&gt;&lt;br&gt;- P&lt;sub&gt;f&lt;/sub&gt; : the peak factor between 100 and 600 with a typical value of 484&lt;br&gt; Peak factor with high value is for watershed with quick reaction (mountain), and lower values are for slower watersheds (plain).</source>
         <translation>在:&lt;br&gt; -Q&lt;sub&gt;p&lt;/sub&gt;: 洪峰流量比例由有效降雨量或逕流 1 cm &lt;br&gt;- T&lt;sub&gt;p&lt;/sub&gt;: 洪峰時間&lt;br&gt;- A : 集水區面積 km&lt;sup&gt;2&lt;/sup&gt;&lt;br&gt;- P&lt;sub&gt;f&lt;/sub&gt; : 峰值係數介於 100 與 600 間預設值為 484&lt;br&gt; 峰值係數較高，適用於具有反應快速的集水區(山區)，而較低則適用於較慢的集水區(平地)。</translation>
+    </message>
+    <message>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="1203"/>
+        <source>The Nash Unit Hydrograph is a conceptual model represented by an effective rainfall that paths through n different reservoirs with the same storage coefficient K that gives reservoirs the propriety of linearity. For a rainfall with a depth of 1 mm and a duration tending toward zero, the specific flow rate is given by the following relation:</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="1215"/>
+        <source>Where:&lt;br&gt;- t : the time from rainfall&lt;br&gt;- n : the count of reservoirs &lt;br&gt;- K : the storage coefficient in the same unit that t&lt;br&gt;- Q : the flow rate (mm per time unit)</source>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -456,7 +474,7 @@
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="36"/>
         <source>Average elevation</source>
-        <translation type="unfinished"></translation>
+        <translation>平均高程</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="41"/>
@@ -531,7 +549,7 @@
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="311"/>
         <source>Hm : relative average elevation (from outlet) (m)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hm : 相對平均高程(由會流點) (m)</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="312"/>
@@ -619,27 +637,27 @@
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="263"/>
         <source>Load Raster DEM Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>載入網格數值高程DEM圖層</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="272"/>
         <source>Loading Raster DEM Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>正載入網格數值高程DEM圖層中</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="273"/>
         <source>This layer is not recognized as a possible DEM, do you want to load it?</source>
-        <translation type="unfinished"></translation>
+        <translation>這一個圖層無法辨識似乎是DEM資料，您想要載入嗎?</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="282"/>
         <source>Loading Raster Layer</source>
-        <translation type="unfinished">載入網格圖層中</translation>
+        <translation>載入網格圖層中</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="282"/>
         <source>Invalid raster layer, file not loaded.</source>
-        <translation type="unfinished">無效網格圖層，檔案未載入。</translation>
+        <translation>無法使用的網格圖層，檔案未被載入。</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosdelineatingwatershedwidget.cpp" line="322"/>
@@ -658,7 +676,7 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/ui/reosdelineatingwatershedwidget.ui"/>
         <source>Calculate average elevation</source>
-        <translation type="unfinished"></translation>
+        <translation>計算平均高程</translation>
     </message>
 </context>
 <context>
@@ -698,42 +716,42 @@ Adjust new watershed?</source>
 <context>
     <name>ReosDurationUnitComboBox</name>
     <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="688"/>
+        <location filename="../src/gui/form/reosparameterwidget.cpp" line="693"/>
         <source>millisecond</source>
         <translation>毫秒</translation>
     </message>
     <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="689"/>
+        <location filename="../src/gui/form/reosparameterwidget.cpp" line="694"/>
         <source>second</source>
         <translation>秒</translation>
     </message>
     <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="690"/>
+        <location filename="../src/gui/form/reosparameterwidget.cpp" line="695"/>
         <source>minute</source>
         <translation>分</translation>
     </message>
     <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="691"/>
+        <location filename="../src/gui/form/reosparameterwidget.cpp" line="696"/>
         <source>hour</source>
         <translation>小時</translation>
     </message>
     <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="692"/>
+        <location filename="../src/gui/form/reosparameterwidget.cpp" line="697"/>
         <source>day</source>
         <translation>天</translation>
     </message>
     <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="693"/>
+        <location filename="../src/gui/form/reosparameterwidget.cpp" line="698"/>
         <source>week</source>
         <translation>星期</translation>
     </message>
     <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="694"/>
+        <location filename="../src/gui/form/reosparameterwidget.cpp" line="699"/>
         <source>month</source>
         <translation>月</translation>
     </message>
     <message>
-        <location filename="../src/gui/form/reosparameterwidget.cpp" line="695"/>
+        <location filename="../src/gui/form/reosparameterwidget.cpp" line="700"/>
         <source>year</source>
         <translation>年</translation>
     </message>
@@ -879,11 +897,13 @@ Adjust new watershed?</source>
     </message>
     <message>
         <location filename="../src/core/GIS/reosgisengine.cpp" line="248"/>
-        <source>This layer doesn&apos;t have a valid or known coordinates system, and calculation on DEM will be done considering its coordinate system is the same as the project.
-The project&apos;s coordinates system is a geographic reference system (latitude/longitude) and the extent of this layer suggests that it is actually a projected coordinates system.
+        <source>This layer doesn't have a valid or known coordinates system, and calculation on DEM will be done considering its coordinate system is the same as the project.
+The project's coordinates system is a geographic reference system (latitude/longitude) and the extent of this layer suggests that it is actually a projected coordinates system.
 If so, the result of area or distance calculation will be incorrect.
 To fix this, set an appropriate map coordinate system in the layer properties or/and for the project coordinate project.</source>
-        <translation type="unfinished"></translation>
+        <translation>這圖層無法驗證與確認其坐標系統，因此計算將會使用與目前專案相同的坐標系統進行計算。
+專案坐標系統的地理系統( 緯度 / 經度 )，該圖層顯示對應的坐標投影系統不相同，可能導致面積與距離計算成果不正確。
+為了解決此問題，建議在圖層屬性或專案設定內容中選擇合適的地圖坐標系統。</translation>
     </message>
 </context>
 <context>
@@ -922,12 +942,12 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="113"/>
         <source>Register Layer as DEM</source>
-        <translation type="unfinished"></translation>
+        <translation>註冊為DEM圖層</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="113"/>
         <source>This layer is not recognized as a possible DEM</source>
-        <translation type="unfinished"></translation>
+        <translation>這一個圖層無法辨識似乎是DEM資料</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="148"/>
@@ -959,7 +979,7 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="170"/>
         <source>This raster layer could be a DEM, do you want to register as a DEM?</source>
-        <translation type="unfinished"></translation>
+        <translation>這一個圖層可能是DEM資料，您想要將其註冊為DEM圖層?</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosgislayerswidget.cpp" line="173"/>
@@ -1254,7 +1274,7 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/ui/reoslongitudinalprofilewidget.ui"/>
         <source>Drop</source>
-        <translation type="unfinished"></translation>
+        <translation>高程差</translation>
     </message>
 </context>
 <context>
@@ -1343,12 +1363,12 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="299"/>
         <source>Closing current project</source>
-        <translation type="unfinished"></translation>
+        <translation>關閉目前專案</translation>
     </message>
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="299"/>
         <source>The current project has been modified, do you want to save it?</source>
-        <translation type="unfinished"></translation>
+        <translation>目前專案已經更新，您有要儲存嗎?</translation>
     </message>
 </context>
 <context>
@@ -1422,12 +1442,12 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/gui/reosmessagebox.cpp" line="41"/>
         <source>Error: </source>
-        <translation type="unfinished"></translation>
+        <translation>錯誤 Error  :</translation>
     </message>
     <message>
         <location filename="../src/gui/reosmessagebox.cpp" line="47"/>
         <source>Warning: </source>
-        <translation type="unfinished"></translation>
+        <translation>警示 :</translation>
     </message>
 </context>
 <context>
@@ -1499,7 +1519,7 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="107"/>
-        <source>Duplicate meteorologic model &apos;%1&apos;,
+        <source>Duplicate meteorologic model '%1',
 choose a name:</source>
         <translation>重複的氣象模型&apos;％1&apos;，
 選擇一個名稱：</translation>
@@ -1521,7 +1541,7 @@ choose a name:</source>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="142"/>
-        <source>Rename meteorologic model &apos;%1&apos;,
+        <source>Rename meteorologic model '%1',
 choose a new name:</source>
         <translation>修改氣象資料名稱 &apos;%1&apos;
 選擇一個新名稱:</translation>
@@ -1553,12 +1573,12 @@ choose a new name:</source>
 <context>
     <name>ReosParameterBoolean</name>
     <message>
-        <location filename="../src/core/reosparameter.cpp" line="550"/>
+        <location filename="../src/core/reosparameter.cpp" line="551"/>
         <source>True</source>
         <translation>真實</translation>
     </message>
     <message>
-        <location filename="../src/core/reosparameter.cpp" line="550"/>
+        <location filename="../src/core/reosparameter.cpp" line="551"/>
         <source>False</source>
         <translation>錯誤</translation>
     </message>
@@ -1566,7 +1586,7 @@ choose a new name:</source>
 <context>
     <name>ReosParameterDateTime</name>
     <message>
-        <location filename="../src/core/reosparameter.cpp" line="411"/>
+        <location filename="../src/core/reosparameter.cpp" line="412"/>
         <source>Date/Time</source>
         <translation>日期/時間</translation>
     </message>
@@ -1934,7 +1954,7 @@ choose a new name:</source>
     <message>
         <location filename="../src/core/raster/reosrasterwatershed.cpp" line="438"/>
         <source>Prepare calculation</source>
-        <translation type="unfinished"></translation>
+        <translation>事先計算</translation>
     </message>
 </context>
 <context>
@@ -2055,34 +2075,34 @@ choose a new name:</source>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="65"/>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="298"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="367"/>
         <source>Flow rate (%1)</source>
         <translation>流量比(%1)</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="232"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="301"/>
         <source>Rainfall %1</source>
         <translation>雨量 %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="257"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="326"/>
         <source>Runoff %1</source>
         <translation>逕流 %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="353"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="430"/>
         <source>Remove this model</source>
         <translation>移除這一個模式</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="404"/>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="421"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="481"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="498"/>
         <source>Copy selected values</source>
         <translation>複製選擇數值</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="409"/>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="426"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="486"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="503"/>
         <source>Copy selected values with headers</source>
         <translation>複製選擇數值包含檔頭</translation>
     </message>
@@ -2090,6 +2110,11 @@ choose a new name:</source>
         <location filename="../src/ui/reosrunoffhydrographwidget.ui"/>
         <source>Tables</source>
         <translation>表格</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/reosrunoffhydrographwidget.ui"/>
+        <source>Constant time step</source>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -2428,7 +2453,7 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="149"/>
         <source>Intensity time unit</source>
-        <translation type="unfinished"></translation>
+        <translation>強度時間單位</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="153"/>
@@ -2437,24 +2462,32 @@ is applied on the rainfall</source>
     </message>
 </context>
 <context>
-    <name>ReosTimeSeriesTabModel</name>
+    <name>ReosTimeSeriesTableModel</name>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="996"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="1077"/>
         <source>Time</source>
-        <translation>時間</translation>
+        <translation type="unfinished"/>
+    </message>
+</context>
+<context>
+    <name>ReosTimeSeriesVariableTimeStepTabModel</name>
+    <message>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="1245"/>
+        <source>Time</source>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
     <name>ReosTransferFunction</name>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="33"/>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="70"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="35"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="72"/>
         <source>Concentration time</source>
         <translation>集流時間</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="34"/>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="71"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="36"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="73"/>
         <source>Area</source>
         <translation>面積</translation>
     </message>
@@ -2462,46 +2495,67 @@ is applied on the rainfall</source>
 <context>
     <name>ReosTransferFunctionLinearReservoir</name>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="79"/>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="194"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="81"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="196"/>
         <source>Lag time</source>
         <translation>延時</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="80"/>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="195"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="82"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="197"/>
         <source>Use concentration time</source>
         <translation>使用集流時間</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="81"/>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="196"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="83"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="198"/>
         <source>Factor</source>
         <translation>係數</translation>
     </message>
 </context>
 <context>
+    <name>ReosTransferFunctionNashUnitHydrograph</name>
+    <message>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="1014"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="1108"/>
+        <source>K parameter</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="1015"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="1109"/>
+        <source>n parameter</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="1016"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="1110"/>
+        <source>Use concentration time for K parameter (K=tc/n)</source>
+        <translation type="unfinished"/>
+    </message>
+</context>
+<context>
     <name>ReosTransferFunctionSCSUnitHydrograph</name>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="494"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="496"/>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="633"/>
         <source>Peak Factor</source>
         <translation>峰值係數</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="495"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="497"/>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="634"/>
         <source>Lag time</source>
         <translation>稽延時間</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="496"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="498"/>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="635"/>
         <source>Use concentration time for the lag time</source>
         <translation>使用洪峰稽延時間</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.cpp" line="497"/>
+        <location filename="../src/core/watershed/reostransferfunction.cpp" line="499"/>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="636"/>
         <source>Factor</source>
         <translation>係數</translation>
@@ -2550,49 +2604,49 @@ is applied on the rainfall</source>
 <context>
     <name>ReosWatershed</name>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="759"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="765"/>
         <source>Watershed area</source>
         <translation>集水區面積</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="758"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="764"/>
         <source>Watershed name</source>
         <translation>集水區名稱</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="760"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="766"/>
         <source>Average slope</source>
         <translation>平均斜率</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="761"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="767"/>
         <source>Drop</source>
         <translation>降低</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="762"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="768"/>
         <source>Longest stream path</source>
         <translation>最長水系路徑</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="763"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="769"/>
         <source>Average elevation</source>
-        <translation type="unfinished"></translation>
+        <translation>平均高程</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="764"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="770"/>
         <source>Concentration time</source>
         <translation>集流時間</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="960"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="966"/>
         <source>Unable to calculate average elevation for watershed &quot;%1&quot; : no DEM available</source>
-        <translation type="unfinished"></translation>
+        <translation>無法進行集水區平均高程計算 &quot;%1&quot; :因為沒有DEM資料</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatershed.cpp" line="962"/>
+        <location filename="../src/core/watershed/reoswatershed.cpp" line="968"/>
         <source>Average elevation calculation for watershed &quot;%1&quot; with DEM &quot;%2&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>集水區平均高程計算 &quot;%1&quot; 由DEM &quot;%2&quot;</translation>
     </message>
 </context>
 <context>
@@ -2670,22 +2724,22 @@ is applied on the rainfall</source>
 <context>
     <name>ReosWatershedRunoffModelsModel</name>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="636"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="713"/>
         <source>Right click to add</source>
         <translation>右鍵點選增加</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="654"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="731"/>
         <source>Invalid</source>
         <translation>無效的</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="797"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="874"/>
         <source>Runoff model</source>
         <translation>逕流模式</translation>
     </message>
     <message>
-        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="800"/>
+        <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="877"/>
         <source>Portion in watershed</source>
         <translation>部分的集水區</translation>
     </message>
@@ -2773,7 +2827,7 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="50"/>
         <source>Average elevation</source>
-        <translation type="unfinished"></translation>
+        <translation>平均高程</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="203"/>
