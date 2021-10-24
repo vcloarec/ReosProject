@@ -1389,7 +1389,7 @@ ReosFormWidget *ReosFormNashUnithydrographWidgetFactory::createDataWidget( ReosD
   ReosDuration concTime = transferFunction->concentrationTime()->value();
   ReosDuration deducedK = concTime /  transferFunction->nParam()->value();
   deducedK.setAdaptedUnit();
-  KDeducedLabel->setText( KDeducedtext.arg( ( deducedK ).toString( 2 ) + ' ' + deducedK.unitToString() ) );
+  KDeducedLabel->setText( KDeducedtext.arg( ( deducedK ).toString( 2 ) ) );
 
   QObject::connect( transferFunction->useConcentrationTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, kWidget, KDeducedLabel, KDeducedtext]
   {
@@ -1412,7 +1412,7 @@ ReosFormWidget *ReosFormNashUnithydrographWidgetFactory::createDataWidget( ReosD
     ReosDuration concTime = transferFunction->concentrationTime()->value();
     ReosDuration deducedK = concTime /  transferFunction->nParam()->value();
     deducedK.setAdaptedUnit();
-    KDeducedLabel->setText( KDeducedtext.arg( ( deducedK ).toString( 2 ) + ' ' + deducedK.unitToString() ) );
+    KDeducedLabel->setText( KDeducedtext.arg( ( deducedK ).toString( 2 ) ) );
   } );
 
   QObject::connect( transferFunction->concentrationTime(), &ReosParameter::unitChanged, form.get(), [transferFunction, KDeducedLabel, KDeducedtext]
@@ -1420,7 +1420,7 @@ ReosFormWidget *ReosFormNashUnithydrographWidgetFactory::createDataWidget( ReosD
     ReosDuration concTime = transferFunction->concentrationTime()->value();
     ReosDuration deducedK = concTime /  transferFunction->nParam()->value();
     deducedK.setAdaptedUnit();
-    KDeducedLabel->setText( KDeducedtext.arg( ( deducedK ).toString( 2 ) + ' ' + deducedK.unitToString() ) );
+    KDeducedLabel->setText( KDeducedtext.arg( ( deducedK ).toString( 2 ) ) );
   } );
 
   return form.release();
