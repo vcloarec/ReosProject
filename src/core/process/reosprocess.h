@@ -36,7 +36,7 @@ class REOSCORE_EXPORT ReosProcess : public QObject
     virtual ~ReosProcess();
 
     virtual void stop( bool b );
-    bool isStop();
+    bool isStop() const;
     bool isSuccessful() const;
     bool isFinished() const;
 

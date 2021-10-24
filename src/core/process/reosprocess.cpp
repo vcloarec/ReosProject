@@ -98,7 +98,7 @@ void ReosProcess::stop( bool b )
     mCurrentSubProcess->stop( b );
 }
 
-bool ReosProcess::isStop()
+bool ReosProcess::isStop() const
 {
   return mStop;
 }

@@ -114,6 +114,19 @@ class ReosParameterDoubleWidget : public ReosParameterInLineWidget
     ReosParameterDouble *doubleParameter();
 };
 
+class ReosParameterIntegerWidget : public ReosParameterInLineWidget
+{
+  public:
+    explicit ReosParameterIntegerWidget( QWidget *parent = nullptr, const QString &defaultName = QString() );
+    explicit ReosParameterIntegerWidget( ReosParameterInteger *value, QWidget *parent = nullptr );
+
+    void setInteger( ReosParameterInteger *value );
+    void updateValue();
+    void applyValue();
+    static QString type() {return QStringLiteral( "integer" );}
+    ReosParameterInteger *integerParameter();
+};
+
 class ReosParameterStringWidget : public ReosParameterInLineWidget
 {
   public:

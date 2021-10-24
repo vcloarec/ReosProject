@@ -202,4 +202,11 @@ class ReosFormSCSUnithydrographWidgetFactory: public ReosFormWidgetDataFactory
     virtual QString datatype() const {return QStringLiteral( "transfer-function-scs-unit-hydrograph" );}
 };
 
+class ReosFormNashUnithydrographWidgetFactory: public ReosFormWidgetDataFactory
+{
+  public:
+    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent );
+    virtual QString datatype() const {return QStringLiteral( "transfer-function-nash-unit-hydrograph" );}
+};
+
 #endif // REOSRUNOFFHYDROGRAPHWIDGET_H

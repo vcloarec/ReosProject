@@ -63,8 +63,6 @@ class REOSCORE_EXPORT ReosParameter : public QObject
     bool mIsDerivable = false;
 };
 
-
-
 class REOSCORE_EXPORT ReosParameterDouble: public ReosParameter
 {
   public:
@@ -86,6 +84,28 @@ class REOSCORE_EXPORT ReosParameterDouble: public ReosParameter
   private:
     double mValue = 0;
     int mDisplayPrecision = -1;
+};
+
+class REOSCORE_EXPORT ReosParameterInteger: public ReosParameter
+{
+  public:
+    explicit ReosParameterInteger( const QString &name, bool derivable, QObject *parent = nullptr );
+    explicit ReosParameterInteger( const QString &name, QObject *parent = nullptr );
+
+    QString type() const override {return QString( "integer" );}
+
+    void setValue( int value );
+    bool setValueWithString( const QString &value );
+    void setDerivedValue( int value );
+    int value() const {return mValue;}
+    QString toString( int = 0 ) const override;
+
+    ReosEncodedElement encode() const;
+    static ReosParameterInteger *decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent );
+    static ReosParameterInteger *decode( const ReosEncodedElement &element, bool isDerivable, const QString &name, QObject *parent );
+
+  private:
+    int mValue = 0;
 };
 
 class REOSCORE_EXPORT ReosParameterString: public ReosParameter
