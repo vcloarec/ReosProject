@@ -210,7 +210,7 @@
     <message>
         <location filename="../src/core/watershed/reostransferfunction.h" line="422"/>
         <source>Nash Unit Hydrograph</source>
-        <translation type="unfinished"/>
+        <translation>Idrogramma Unitario di Nash</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reoswatershed.cpp" line="837"/>
@@ -273,7 +273,7 @@
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="1388"/>
         <source>K parameter from concentration time: %1</source>
-        <translation type="unfinished"/>
+        <translation>K parametro dal tempo di concentrazione: %1</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="321"/>
@@ -313,12 +313,12 @@
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="1203"/>
         <source>The Nash Unit Hydrograph is a conceptual model represented by an effective rainfall that paths through n different reservoirs with the same storage coefficient K that gives reservoirs the propriety of linearity. For a rainfall with a depth of 1 mm and a duration tending toward zero, the specific flow rate is given by the following relation:</source>
-        <translation type="unfinished"/>
+        <translation>L&apos;Idrogramma Unitario di Nash è un modello concettuale rappresentato da una pioggia netta che defluisce attraverso n serbatoi diversi, aventi la stessa costante d&apos;invaso K che fornisce ai serbatoi la proprietà di linearità (serbatoi lineari). Per una precipitazione con altezza pari ad 1 mm e durata che tende a zero, la portata specifica è data dalla seguente relazione:</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="1215"/>
         <source>Where:&lt;br&gt;- t : the time from rainfall&lt;br&gt;- n : the count of reservoirs &lt;br&gt;- K : the storage coefficient in the same unit that t&lt;br&gt;- Q : the flow rate (mm per time unit)</source>
-        <translation type="unfinished"/>
+        <translation>Dove: &lt;br&gt;- t : durata precipitazione &lt;br&gt;- n : numero di serbatoi &lt;br&gt;- K : costante d&apos;invaso nella stessa unità di misura della durata t  &lt;br&gt;- Q : portata specifica (mm per unità di tempo)</translation>
     </message>
 </context>
 <context>
@@ -2115,7 +2115,7 @@ scegli un nuovo nome:</translation>
     <message>
         <location filename="../src/ui/reosrunoffhydrographwidget.ui"/>
         <source>Constant time step</source>
-        <translation type="unfinished"/>
+        <translation>Intervallo di tempo costante</translation>
     </message>
 </context>
 <context>
@@ -2467,7 +2467,7 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="1077"/>
         <source>Time</source>
-        <translation type="unfinished"/>
+        <translation>Tempo</translation>
     </message>
 </context>
 <context>
@@ -2475,7 +2475,7 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="1245"/>
         <source>Time</source>
-        <translation type="unfinished"/>
+        <translation>Tempo</translation>
     </message>
 </context>
 <context>
@@ -2520,19 +2520,19 @@ is applied on the rainfall</source>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="1014"/>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="1108"/>
         <source>K parameter</source>
-        <translation type="unfinished"/>
+        <translation>Parametro K</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="1015"/>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="1109"/>
         <source>n parameter</source>
-        <translation type="unfinished"/>
+        <translation>Parametro n</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="1016"/>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="1110"/>
         <source>Use concentration time for K parameter (K=tc/n)</source>
-        <translation type="unfinished"/>
+        <translation>Usa il tempo di concentrazione per il parametro K (K=tc/n)</translation>
     </message>
 </context>
 <context>
