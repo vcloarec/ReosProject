@@ -36,7 +36,6 @@ class ReosWatersehdTest: public QObject
     void inclusion();
     void watershedInteractions();
     void concentrationTime();
-
     void runoffConstantCoefficient();
 
   private:

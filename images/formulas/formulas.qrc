@@ -12,5 +12,7 @@
         <file>linearReservoirHydrograph.svg</file>
         <file>SCSUnitHydrograph.svg</file>
         <file>concentrationTimeGiandotti.svg</file>
+        <file>NashUnitHydrograph.svg</file>
     </qresource>
+    <qresource prefix="/"/>
 </RCC>

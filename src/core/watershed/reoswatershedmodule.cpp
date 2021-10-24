@@ -16,6 +16,7 @@ ReosWatershedModule::ReosWatershedModule( ReosModule *parent, ReosGisEngine *gis
   ReosTransferFunctionFactories::instance()->addFactory( new ReosTransferFunctionLinearReservoirFactory );
   ReosTransferFunctionFactories::instance()->addFactory( new ReosTransferFunctionGeneralizedRationalMethodFactory );
   ReosTransferFunctionFactories::instance()->addFactory( new ReosTransferFunctionSCSUnitHydrographFactory );
+  ReosTransferFunctionFactories::instance()->addFactory( new ReosTransferFunctionNashUnitHydrographFactory );
 
   connect( mWatershedTree, &ReosWatershedTree::watershedChanged, this, &ReosModule::dirtied );
   connect( mWatershedTree, &ReosWatershedTree::watershedAdded, this, &ReosModule::dirtied );

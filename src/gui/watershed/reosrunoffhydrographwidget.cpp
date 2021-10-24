@@ -80,6 +80,7 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *wat
     ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormLinearReservoirWidgetFactory );
     ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormGeneralizedRationalMethodWidgetFactory );
     ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormSCSUnithydrographWidgetFactory );
+    ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormNashUnithydrographWidgetFactory );
   }
 
   ui->tableViewRunoffResult->setModel( mRunoffResultTabModel );
@@ -1127,7 +1128,7 @@ ReosFormWidget *ReosFormSCSUnithydrographWidgetFactory::createDataWidget( ReosDa
   double fact = transferFunction->factorToLagTime()->value();
   lagTimeDeduced->setText( lagTimeDeducedtext.arg( ( concTime * fact ).toString( 2 ) ) );
 
-  QObject::connect( transferFunction->useConcentrationTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, factorWidget, lagTimeWidget, lagTimeDeduced]
+  QObject::connect( transferFunction->useConcentrationTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, factorWidget, lagTimeWidget, lagTimeDeduced, lagTimeDeducedtext]
   {
     bool useConcTime = transferFunction->useConcentrationTime()->value();
     lagTimeWidget->setVisible( !useConcTime );
@@ -1360,4 +1361,67 @@ void ReosTimeSeriesVariableTimeStepTabModel::setIsFixedTimeStep( bool isFixedTim
   mIsFixedTimeStep = isFixedTimeStep;
   endResetModel();
   updateTimeStep();
+}
+
+ReosFormWidget *ReosFormNashUnithydrographWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+{
+  ReosTransferFunctionNashUnitHydrograph *transferFunction = qobject_cast<ReosTransferFunctionNashUnitHydrograph *>( dataObject );
+  if ( !transferFunction )
+    return nullptr;
+
+  std::unique_ptr<ReosFormWidget> form = std::make_unique<ReosFormWidget>( parent );
+
+  form->addParameter( transferFunction->area(), -1, ReosParameterWidget::SpacerInMiddle );
+  form->addParameter( transferFunction->concentrationTime(), -1, ReosParameterWidget::SpacerInMiddle );
+  form->addLine();
+  form->addParameter( transferFunction->nParam(), -1, ReosParameterWidget::SpacerInMiddle );
+  form->addParameter( transferFunction->useConcentrationTime(), -1, ReosParameterWidget::SpacerAfter );
+  QWidget *kWidget = form->addParameter( transferFunction->KParam(), -1, ReosParameterWidget::SpacerInMiddle );
+  QLabel *KDeducedLabel = new QLabel( form.get() );
+  form->addWidget( KDeducedLabel );
+
+
+  bool useConcTime = transferFunction->useConcentrationTime()->value();
+  KDeducedLabel->setVisible( useConcTime );
+  kWidget->setVisible( !useConcTime );
+
+  QString KDeducedtext = QObject::tr( "K parameter from concentration time: %1" );
+  ReosDuration concTime = transferFunction->concentrationTime()->value();
+  ReosDuration deducedK = concTime /  transferFunction->nParam()->value();
+  deducedK.setAdaptedUnit();
+  KDeducedLabel->setText( KDeducedtext.arg( ( deducedK ).toString( 2 ) + ' ' + deducedK.unitToString() ) );
+
+  QObject::connect( transferFunction->useConcentrationTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, kWidget, KDeducedLabel, KDeducedtext]
+  {
+    bool useConcTime = transferFunction->useConcentrationTime()->value();
+    kWidget->setVisible( !useConcTime );
+    KDeducedLabel->setVisible( useConcTime );
+
+  } );
+
+  QObject::connect( transferFunction->nParam(), &ReosParameter::valueChanged, form.get(), [transferFunction, KDeducedLabel, KDeducedtext]
+  {
+    ReosDuration concTime = transferFunction->concentrationTime()->value();
+    ReosDuration deducedK = concTime /  transferFunction->nParam()->value();
+    deducedK.setAdaptedUnit();
+    KDeducedLabel->setText( KDeducedtext.arg( ( deducedK ).toString( 2 ) + ' ' + deducedK.unitToString() ) );
+  } );
+
+  QObject::connect( transferFunction->concentrationTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, KDeducedLabel, KDeducedtext]
+  {
+    ReosDuration concTime = transferFunction->concentrationTime()->value();
+    ReosDuration deducedK = concTime /  transferFunction->nParam()->value();
+    deducedK.setAdaptedUnit();
+    KDeducedLabel->setText( KDeducedtext.arg( ( deducedK ).toString( 2 ) + ' ' + deducedK.unitToString() ) );
+  } );
+
+  QObject::connect( transferFunction->concentrationTime(), &ReosParameter::unitChanged, form.get(), [transferFunction, KDeducedLabel, KDeducedtext]
+  {
+    ReosDuration concTime = transferFunction->concentrationTime()->value();
+    ReosDuration deducedK = concTime /  transferFunction->nParam()->value();
+    deducedK.setAdaptedUnit();
+    KDeducedLabel->setText( KDeducedtext.arg( ( deducedK ).toString( 2 ) + ' ' + deducedK.unitToString() ) );
+  } );
+
+  return form.release();
 }

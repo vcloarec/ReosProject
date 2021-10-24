@@ -18,6 +18,8 @@
 #include "reoswatershed.h"
 #include "reosrunoffmodel.h"
 
+#include <cmath>
+
 ReosTransferFunction::ReosTransferFunction( ReosWatershed *watershed ):
   ReosDataObject( watershed )
   , mWatershed( watershed )
@@ -518,8 +520,6 @@ ReosHydrograph *ReosTransferFunctionSCSUnitHydrograph::applyFunction( ReosRunoff
   QDateTime referenceTime = runoffTimeSerie->referenceTime()->value();
   ReosDuration timeStep = runoffTimeSerie->timeStep()->value();
 
-
-
   // here, we the time step has to be lesser than the peak time, check that and adjust the time step
   ReosDuration peakTime;
   int reduceTimeStepFactor = 1;
@@ -540,7 +540,7 @@ ReosHydrograph *ReosTransferFunctionSCSUnitHydrograph::applyFunction( ReosRunoff
   Calculation calculation( runoffTimeSerie->constData(), reduceTimeStepFactor, timeStep, referenceTime, peakTime, mPeakRateFactor->value(), area()->value() );
   calculation.start();
 
-  return calculation.hydrograph();
+  return calculation.hydrograph( parent );
 }
 
 ReosEncodedElement ReosTransferFunctionSCSUnitHydrograph::encode() const
@@ -886,7 +886,7 @@ void ReosTransferFunctionSCSUnitHydrograph::Calculation::start()
   std::unique_ptr<ReosHydrograph> unitHydrograph = createUnitHydrograph();
 
   mHydrograph->referenceTime()->setValue( mReferenceTime );
-  int stepCount = mRunoffData.count() * mReduceTimeStepFactor;
+  int stepCount = mRunoffData.count();
   setMaxProgression( stepCount );
   for ( int i = 0; i < stepCount; ++i )
   {
@@ -1007,4 +1007,214 @@ void ReosTransferFunctionGeneralizedRationalMethod::Calculation::start()
     }
     setCurrentProgression( i );
   }
+}
+
+ReosTransferFunctionNashUnitHydrograph::ReosTransferFunctionNashUnitHydrograph( ReosWatershed *watershed ):
+  ReosTransferFunction( watershed )
+  , mKParam( new ReosParameterDuration( tr( "K parameter" ), false, this ) )
+  , mNParam( new ReosParameterInteger( tr( "n parameter" ), false, this ) )
+  , mUseConcentrationTime( new ReosParameterBoolean( tr( "Use concentration time for K parameter (K=tc/n)" ), false, this ) )
+{
+  mUseConcentrationTime->setValue( true );
+
+  mNParam->setValue( 3 );
+  if ( watershed->concentrationTime()->isValid() )
+    mKParam->setValue( watershed->concentrationTime()->value() / mNParam->value() );
+  else
+    mKParam->setValue( ReosDuration( 10, ReosDuration::minute ) );
+
+  connect( mKParam, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+  connect( mNParam, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+  connect( mUseConcentrationTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+}
+
+ReosHydrograph *ReosTransferFunctionNashUnitHydrograph::applyFunction( ReosRunoff *runoff, QObject *parent ) const
+{
+  if ( !runoff || !runoff->data() )
+    return nullptr;
+
+  ReosTimeSerieConstantInterval *runoffTimeSerie = runoff->data();
+
+  ReosDuration K;
+  if ( mUseConcentrationTime->value() )
+    K = concentrationTime()->value() / mNParam->value();
+  else
+    K = mKParam->value();
+
+  Calculation calculation( runoffTimeSerie->constData(),
+                           runoffTimeSerie->timeStep()->value(),
+                           runoffTimeSerie->referenceTime()->value(),
+                           K,
+                           mNParam->value(),
+                           area()->value() );
+  calculation.start();
+
+  return calculation.hydrograph( parent );
+}
+
+ReosEncodedElement ReosTransferFunctionNashUnitHydrograph::encode() const
+{
+  ReosEncodedElement element( type() );
+  encodeBase( element );
+
+  element.addEncodedData( QStringLiteral( "K-parameter" ), mKParam->encode() );
+  element.addEncodedData( QStringLiteral( "n-parameter" ), mNParam->encode() );
+  element.addEncodedData( QStringLiteral( "use-concentration-time" ), mUseConcentrationTime->encode() );
+
+  return element;
+}
+
+ReosTransferFunction *ReosTransferFunctionNashUnitHydrograph::decode( const ReosEncodedElement &element, ReosWatershed *watershed )
+{
+  return new ReosTransferFunctionNashUnitHydrograph( element, watershed );
+}
+
+ReosParameterDuration *ReosTransferFunctionNashUnitHydrograph::KParam() const
+{
+  return mKParam;
+}
+
+ReosParameterInteger *ReosTransferFunctionNashUnitHydrograph::nParam() const
+{
+  return mNParam;
+}
+
+ReosParameterBoolean *ReosTransferFunctionNashUnitHydrograph::useConcentrationTime() const
+{
+  return mUseConcentrationTime;
+}
+
+
+ReosTransferFunctionCalculation *ReosTransferFunctionNashUnitHydrograph::calculationProcess( ReosRunoff *runoff )
+{
+  if ( !runoff || !runoff->data() )
+    return nullptr;
+
+  ReosTimeSerieConstantInterval *runoffTimeSerie = runoff->data();
+  QDateTime referenceTime = runoffTimeSerie->referenceTime()->value();
+
+  ReosDuration K;
+  if ( mUseConcentrationTime->value() )
+    K = concentrationTime()->value() / mNParam->value();
+  else
+    K = mKParam->value();
+
+  return new Calculation( runoffTimeSerie->constData(), runoffTimeSerie->timeStep()->value(), referenceTime, K, mNParam->value(), area()->value() );
+}
+
+ReosTransferFunctionNashUnitHydrograph::ReosTransferFunctionNashUnitHydrograph( const ReosEncodedElement &element, ReosWatershed *watershed ):
+  ReosTransferFunction( element, watershed )
+{
+  mKParam = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "K-parameter" ) ), false, tr( "K parameter" ), this );
+  mNParam = ReosParameterInteger::decode( element.getEncodedData( QStringLiteral( "n-parameter" ) ), false, tr( "n parameter" ), this );
+  mUseConcentrationTime = ReosParameterBoolean::decode( element.getEncodedData( QStringLiteral( "use-concentration-time" ) ), false, tr( "Use concentration time for K parameter (K=tc/n)" ), this );
+
+  connect( mKParam, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+  connect( mNParam, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+  connect( mUseConcentrationTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+}
+
+ReosTransferFunctionNashUnitHydrograph::Calculation::Calculation( const QVector<double> runoffData,
+    const ReosDuration &timeStep,
+    const QDateTime &referenceTime,
+    const ReosDuration KParam,
+    int nParam,
+    const ReosArea &area ):
+  mRunoffData( runoffData )
+  , mKParam( KParam )
+  , mNParam( nParam )
+  , mReferenceTime( referenceTime )
+  , mArea( area )
+  , mTimeStep( timeStep )
+{}
+
+void ReosTransferFunctionNashUnitHydrograph::Calculation::start()
+{
+  ReosDuration effectiveTimeStep = mTimeStep;
+  int timeStepReductionFactor = 1;
+  while ( effectiveTimeStep > mKParam / 4 )  //reduce the effective time step to have a smooth hydrograph
+  {
+    timeStepReductionFactor *= 2;
+    effectiveTimeStep = mTimeStep / timeStepReductionFactor;
+  }
+
+  std::unique_ptr<ReosHydrograph> unitHydrograph = createUnitHydrograph( effectiveTimeStep );
+
+  mHydrograph = std::make_unique<ReosHydrograph>();
+
+
+  mHydrograph->referenceTime()->setValue( mReferenceTime );
+  int stepCount = mRunoffData.count() * timeStepReductionFactor;
+  setMaxProgression( stepCount );
+  for ( int i = 0; i < stepCount; ++i )
+  {
+    ReosDuration relativeTime = effectiveTimeStep * i;
+    unitHydrograph->referenceTime()->setValue( mReferenceTime.addMSecs( relativeTime.valueMilliSecond() ) );
+    mHydrograph->addOther( *( unitHydrograph.get() ), mRunoffData.at( i / timeStepReductionFactor ) / timeStepReductionFactor );
+    if ( isStop() )
+    {
+      mHydrograph.reset();
+      break;
+    }
+    setCurrentProgression( i );
+  }
+
+}
+
+std::unique_ptr<ReosHydrograph> ReosTransferFunctionNashUnitHydrograph::Calculation::createUnitHydrograph( const ReosDuration &timeStep ) const
+{
+  std::unique_ptr<ReosHydrograph> hydrograph = std::make_unique<ReosHydrograph>();
+
+  hydrograph->referenceTime()->setValue( mReferenceTime );
+  double Q = -1;
+  double peak = -1;
+  ReosDuration t;
+  int factorial = 1;
+  for ( int i = 1; i <  mNParam ; ++i )
+    factorial *= i;
+  double firstTerm = 1 / ( mKParam.valueSecond() * factorial );
+  do
+  {
+    double secondTerme = pow( ( t / mKParam ), mNParam - 1 );
+    double thirdTerme = std::exp( -( t / mKParam ) );
+    Q = firstTerm * secondTerme * thirdTerme * mArea.valueInUnit( ReosArea::m2 ) / 1000;
+    if ( Q > peak )
+      peak = Q;
+    hydrograph->setValue( t, Q );
+    t = t + timeStep;
+  }
+  while ( ( Q == 0  || Q > 0.005  * peak ) && ! isStop() );
+
+  return hydrograph;
+}
+
+ReosTransferFunction *ReosTransferFunctionNashUnitHydrographFactory::createTransferFunction( ReosWatershed *watershed ) const
+{
+  return new ReosTransferFunctionNashUnitHydrograph( watershed );
+}
+
+ReosTransferFunction *ReosTransferFunctionNashUnitHydrographFactory::createTransferFunction( const ReosEncodedElement &element, ReosWatershed *watershed ) const
+{
+  return ReosTransferFunctionNashUnitHydrograph::decode( element, watershed );
+}
+
+QString ReosTransferFunctionNashUnitHydrographFactory::presentationText() const
+{
+  return QObject::tr( "The Nash Unit Hydrograph is a conceptual model represented by an effective rainfall that paths through n different reservoirs "
+                      "with the same storage coefficient K that gives reservoirs the propriety of linearity. "
+                      "For a rainfall with a depth of 1 mm and a duration tending toward zero, the specific flow rate is given by the following relation:" );
+}
+
+QPixmap ReosTransferFunctionNashUnitHydrographFactory::formulation() const
+{
+  return QPixmap( QStringLiteral( ":/formulas/NashUnitHydrograph.svg" ) );
+}
+
+QString ReosTransferFunctionNashUnitHydrographFactory::variablesDescription() const
+{
+  return QObject::tr( "Where:<br>"
+                      "- t : the time from rainfall<br>"
+                      "- n : the count of reservoirs <br>"
+                      "- K : the storage coefficient in the same unit that t<br>"
+                      "- Q : the flow rate (mm per time unit)" );
 }

@@ -644,3 +644,76 @@ ReosParameterLongString *ReosParameterLongString::decode( const ReosEncodedEleme
 
   return ret;
 }
+
+ReosParameterInteger::ReosParameterInteger( const QString &name, bool derivable, QObject *parent ):
+  ReosParameter( name, derivable, parent )
+{}
+
+ReosParameterInteger::ReosParameterInteger( const QString &name, QObject *parent ):
+  ReosParameter( name, false, parent )
+{}
+
+void ReosParameterInteger::setValue( int value )
+{
+  mIsDerived = false;
+  mValue = value;
+  mIsValid = true;
+  emit valueChanged();
+}
+
+bool ReosParameterInteger::setValueWithString( const QString &value )
+{
+  bool ok = false;
+  double v = value.toInt( &ok );
+  if ( !ok )
+    return false;
+
+  mValue = v;
+  mIsValid = true;
+  emit valueChanged();
+  return true;
+}
+
+void ReosParameterInteger::setDerivedValue( int value )
+{
+  mValue = value;
+  mIsDerived = true;
+  mIsValid = true;
+  emit valueChanged();
+}
+
+QString ReosParameterInteger::toString( int ) const
+{
+  return QString::number( mValue );
+}
+
+ReosEncodedElement ReosParameterInteger::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "integer-parameter" ) );
+  ReosParameter::encode( element );
+
+  element.addData( QStringLiteral( "integer-value" ), mValue );
+
+  return element;
+}
+
+ReosParameterInteger *ReosParameterInteger::decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent )
+{
+  ReosParameterInteger *ret = new ReosParameterInteger( QString(), parent );
+
+  if ( element.description() != QStringLiteral( "integer-parameter" ) )
+    return ret;
+
+  ret->ReosParameter::decode( element, isDerivable );
+
+  element.getData( QStringLiteral( "integer-value" ), ret->mValue );
+
+  return ret;
+}
+
+ReosParameterInteger *ReosParameterInteger::decode( const ReosEncodedElement &element, bool isDerivable, const QString &name, QObject *parent )
+{
+  ReosParameterInteger *ret = decode( element, isDerivable, parent );
+  ret->setName( name );
+  return ret;
+}

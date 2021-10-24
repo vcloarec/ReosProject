@@ -84,6 +84,9 @@ ReosParameterWidget *ReosParameterWidget::createWidget( ReosParameter *parameter
   if ( parameter->type() == ReosParameterDoubleWidget::type() )
     return new ReosParameterDoubleWidget( static_cast<ReosParameterDouble *>( parameter ), parent );
 
+  if ( parameter->type() == ReosParameterIntegerWidget::type() )
+    return new ReosParameterIntegerWidget( static_cast<ReosParameterInteger *>( parameter ), parent );
+
   if ( parameter->type() == ReosParameterBooleanWidget::type() )
     return new ReosParameterBooleanWidget( static_cast<ReosParameterBoolean *>( parameter ), parent );
 
@@ -768,4 +771,60 @@ void ReosParameterTextEdit::focusOutEvent( QFocusEvent *event )
 {
   emit editingFinished();
   QWidget::focusOutEvent( event );
+}
+
+ReosParameterIntegerWidget::ReosParameterIntegerWidget( QWidget *parent, const QString &defaultName ):
+  ReosParameterInLineWidget( parent, defaultName )
+{
+  finalizeWidget();
+}
+
+ReosParameterIntegerWidget::ReosParameterIntegerWidget( ReosParameterInteger *value, QWidget *parent ):
+  ReosParameterIntegerWidget( parent, value ? value->name() : QString() )
+{
+  setInteger( value );
+}
+
+void ReosParameterIntegerWidget::setInteger( ReosParameterInteger *value )
+{
+  setParameter( value );
+  updateValue();
+}
+
+void ReosParameterIntegerWidget::updateValue()
+{
+  if ( integerParameter() && integerParameter()->isValid() )
+  {
+    setTextValue( integerParameter()->toString() );
+    show();
+  }
+  else
+  {
+    setTextValue( QString( '-' ) );
+    show();
+  }
+
+  if ( mHideWhenVoid && !integerParameter() )
+    hide();
+}
+
+void ReosParameterIntegerWidget::applyValue()
+{
+  if ( textHasChanged() && integerParameter() && value() != integerParameter()->value() )
+  {
+    bool ok = false;
+    double v = textValue().toInt( &ok );
+    if ( ok )
+      integerParameter()->setValue( v );
+    else
+      integerParameter()->setInvalid();
+  }
+}
+
+ReosParameterInteger *ReosParameterIntegerWidget::integerParameter()
+{
+  if ( mParameter )
+    return static_cast<ReosParameterInteger *>( mParameter.data() );
+
+  return nullptr;
 }
