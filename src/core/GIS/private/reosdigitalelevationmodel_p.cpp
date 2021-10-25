@@ -19,9 +19,12 @@ email                : vcloarec at gmail dot com
 #include "reosdigitalelevationmodel_p.h"
 #include "reosrasterline.h"
 
-#include "qgsrasteridentifyresult.h"
-#include "qgslinestring.h"
-#include "qgszonalstatistics.h"
+#include <qgsrasteridentifyresult.h>
+#include <qgslinestring.h>
+#include <qgszonalstatistics.h>
+#include <qgscoordinatetransform.h>
+#include <qgsdistancearea.h>
+#include <qgsgeometry.h>
 
 ReosDigitalElevationModelRaster::ReosDigitalElevationModelRaster(
   QgsRasterLayer *rasterLayer,
@@ -374,7 +377,7 @@ ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimp
   {
     try
     {
-      extentInDEMCoordinates = transform.transform( destExtent, QgsCoordinateTransform::ReverseTransform );
+      extentInDEMCoordinates = transform.transform( destExtent, Qgis::TransformDirection::Reverse );
     }
     catch ( QgsCsException &e )
     {
@@ -477,7 +480,7 @@ ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimp
   {
     try
     {
-      extentInDEMCoordinates = transform.transform( destExtent, QgsCoordinateTransform::ReverseTransform );
+      extentInDEMCoordinates = transform.transform( destExtent, Qgis::TransformDirection::Reverse );
     }
     catch ( QgsCsException &e )
     {

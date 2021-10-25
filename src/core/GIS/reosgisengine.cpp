@@ -37,6 +37,7 @@ email                : vcloarec at gmail dot com
 #include <qgsprojutils.h>
 #include <qgssinglebandpseudocolorrenderer.h>
 #include <qgis.h>
+#include <qgsdistancearea.h>
 
 #define  mLayerTreeModel _layerTreeModel(mAbstractLayerTreeModel)
 static QgsLayerTreeModel *_layerTreeModel( QAbstractItemModel *sourceModel )
