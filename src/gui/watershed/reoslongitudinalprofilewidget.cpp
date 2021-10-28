@@ -179,13 +179,13 @@ void ReosLongitudinalProfileWidget::updateProfile()
   }
   else if ( int( averageSlope * 1000 ) == 0 )
   {
-    txtSlope = QString::number( averageSlope * 1000, 'f', 2 );
+    txtSlope = ReosParameter::doubleToString( averageSlope * 1000, 2 );
     txtSlope.append( " " );
     txtSlope.append( QChar( 0x2030 ) );
   }
   else
   {
-    txtSlope = QString::number( averageSlope * 100, 'f', 2 );
+    txtSlope = ReosParameter::doubleToString( averageSlope * 100, 2 );
     txtSlope.append( " %" );
   }
 
@@ -203,7 +203,7 @@ void ReosLongitudinalProfileWidget::updateProfile()
   }
   else
   {
-    txtLength = QString::number( length, 'f', 0 );
+    txtLength = ReosParameter::doubleToString( length, 0 );
     txtLength.append( tr( " m" ) );
   }
 
@@ -217,7 +217,7 @@ void ReosLongitudinalProfileWidget::updateProfile()
   else
   {
     drop = profile.first().y() - profile.last().y() ;
-    txtDrop = QString::number( drop );
+    txtDrop = ReosParameter::doubleToString( drop );
   }
 
   ui->mLabelTotalLength->setText( txtLength );

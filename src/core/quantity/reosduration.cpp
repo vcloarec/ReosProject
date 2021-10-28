@@ -14,6 +14,8 @@ email                :   projetreos@gmail.com
  ***************************************************************************/
 
 #include "reosduration.h"
+#include "reosparameter.h"
+
 
 static qint64 SECOND_IN_MILLISECONDS = 1000;
 static qint64 MINUTE_IN_MILLISECONDS = SECOND_IN_MILLISECONDS * 60;
@@ -74,7 +76,7 @@ QString ReosDuration::toString( int precision ) const
 
 QString ReosDuration::toString( ReosDuration::Unit unit, int precision ) const
 {
-  QString returnValue = QString::number( valueUnit( unit ), 'f', precision );
+  QString returnValue = ReosParameter::doubleToString( valueUnit( unit ), precision );
   returnValue.append( ' ' + unitToString( unit ) );
 
   return returnValue;

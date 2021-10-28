@@ -106,7 +106,7 @@ QList<double> ReosTimeSerieConstantIntervalView::clipboardToValues()
   {
     if ( l == QString() )
       continue;
-    values.append( l.toDouble( &ok ) );
+    values.append( ReosParameter::stringToDouble( l, &ok ) );
     if ( !ok )
       break;
   }

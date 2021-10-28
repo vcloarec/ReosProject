@@ -148,7 +148,7 @@ void ReosParameterInLineWidget::setTextValue( double value )
   else
     mLineEdit->setStyleSheet( "color: black" );
 
-  mLineEdit->setText( QString::number( value, 'f', 2 ) );
+  mLineEdit->setText( ReosParameter::doubleToString( value, 2 ) );
   mCurrentText = mLineEdit->text();
 
 }
@@ -168,7 +168,8 @@ void ReosParameterInLineWidget::setTextValue( const QString &str )
 
 double ReosParameterInLineWidget::value() const
 {
-  return mLineEdit->text().toDouble();
+  bool ok;
+  return ReosParameter::stringToDouble( mLineEdit->text(), &ok );
 }
 
 QString ReosParameterInLineWidget::textValue() const
@@ -484,7 +485,7 @@ void ReosParameterDoubleWidget::applyValue()
   if ( textHasChanged() && doubleParameter() && value() != doubleParameter()->value() )
   {
     bool ok = false;
-    double v = textValue().toDouble( &ok );
+    double v = ReosParameter::stringToDouble( textValue(), &ok );
     if ( ok )
       doubleParameter()->setValue( v );
     else

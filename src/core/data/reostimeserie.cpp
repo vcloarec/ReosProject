@@ -60,7 +60,7 @@ QVariant ReosTimeSerieConstantIntervalModel::data( const QModelIndex &index, int
     case Qt::DisplayRole:
     case Qt::EditRole:
       if ( index.row() < mData->valueCount() )
-        return mData->valueAt( index.row() );
+        return ReosParameter::doubleToString( mData->valueAt( index.row() ), 2 );
 
       if ( mIsEditable )
       {
@@ -87,7 +87,7 @@ bool ReosTimeSerieConstantIntervalModel::setData( const QModelIndex &index, cons
   if ( role == Qt::EditRole )
   {
     bool ok = false;
-    double v = value.toString().toDouble( &ok );
+    double v = ReosParameter::stringToDouble( value.toString(), &ok );
     if ( ok )
     {
       if ( index.row() == mData->valueCount() )
@@ -97,7 +97,7 @@ bool ReosTimeSerieConstantIntervalModel::setData( const QModelIndex &index, cons
         endInsertRows();
       }
       else
-        mData->setValueAt( index.row(), value.toDouble() );
+        mData->setValueAt( index.row(), v );
       return true;
     }
   }

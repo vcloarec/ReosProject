@@ -30,15 +30,18 @@ class ReosLanguageSelectionWidget : public QDialog
     Q_OBJECT
 
   public:
-    explicit ReosLanguageSelectionWidget( QLocale locale, QWidget *parent = nullptr );
+    explicit ReosLanguageSelectionWidget( const QLocale &localeLanguage, const QLocale &globalLocale, QWidget *parent = nullptr );
     ~ReosLanguageSelectionWidget();
 
-    QLocale language();
+    QLocale language() const;
+    QLocale global() const;
 
   private:
     Ui::ReosLanguageSelectionWidget *ui;
 
     QStringList availableLanguages() const;
+
+    QStringList availableNumberLocal() const;
 };
 
 #endif // REOSLANGUAGESELECTIONWIDGET_H

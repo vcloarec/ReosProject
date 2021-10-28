@@ -189,9 +189,9 @@ QString ReosParameterSlope::toString( int precision ) const
   if ( isValid() )
   {
     if ( int( mSlope * 1000 ) == 0 )
-      return QString::number( mSlope * 1000, 'f', precision ) + QString( ' ' ) + QChar( 0x2030 ) ;
+      return ReosParameter::doubleToString( mSlope * 1000, precision ) + QString( ' ' ) + QChar( 0x2030 ) ;
     else
-      return QString::number( mSlope * 1000, 'f', precision ) + QString( ' ' ) + QString( '%' ) ;
+      return ReosParameter::doubleToString( mSlope * 1000, precision ) + QString( ' ' ) + QString( '%' ) ;
   }
   else
     return QString( '-' );
@@ -448,7 +448,7 @@ QString ReosParameterDouble::toString( int precision ) const
       p = precision;
     else if ( mDisplayPrecision >= 0 )
       p = mDisplayPrecision;
-    return QString::number( mValue, 'f', p );
+    return ReosParameter::doubleToString( mValue, p );
   }
   else
   {
@@ -470,10 +470,24 @@ void ReosParameter::setInvalid()
   emit valueChanged();
 }
 
+double ReosParameter::stringToDouble( const QString &string, bool *ok )
+{
+  double value = QLocale().toDouble( string, ok );
+  if ( !( *ok ) )
+    value = string.toDouble( ok );
+
+  return value;
+}
+
+QString ReosParameter::doubleToString( double value, int precision )
+{
+  return QLocale().toString( value, 'f', precision );
+}
+
 bool ReosParameterDouble::setValueWithString( const QString &value )
 {
   bool ok = false;
-  double v = value.toDouble( &ok );
+  double v = ReosParameter::stringToDouble( value, &ok );
   if ( !ok )
     return false;
 

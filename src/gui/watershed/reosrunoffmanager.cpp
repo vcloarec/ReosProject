@@ -319,7 +319,7 @@ ReosFormWidget *ReosFormRunofCurveNumberWidgetFactory::createDataWidget( ReosDat
 
   double value = ( 25400 / runoffModel->curveNumber()->value() - 254 ) * 0.2;
   QString textLabelInitialRetention = QObject::tr( "Initial retention: %1 mm" );
-  labelInitialRetention->setText( textLabelInitialRetention.arg( QString::number( value, 'f', 2 ) ) );
+  labelInitialRetention->setText( textLabelInitialRetention.arg( ReosParameter::doubleToString( value, 2 ) ) );
 
   QObject::connect( runoffModel->initialRetentionFromS(), &ReosParameter::valueChanged, form.get(), [iniRet, runoffModel, labelInitialRetention]
   {
@@ -330,7 +330,7 @@ ReosFormWidget *ReosFormRunofCurveNumberWidgetFactory::createDataWidget( ReosDat
   QObject::connect( runoffModel->curveNumber(), &ReosParameter::valueChanged, form.get(), [textLabelInitialRetention, runoffModel, labelInitialRetention]
   {
     double value = ( 25400 / runoffModel->curveNumber()->value() - 254 ) * 0.2;
-    labelInitialRetention->setText( textLabelInitialRetention.arg( QString::number( value, 'f', 2 ) ) );
+    labelInitialRetention->setText( textLabelInitialRetention.arg( ReosParameter::doubleToString( value, 2 ) ) );
   } );
 
   return form.release();

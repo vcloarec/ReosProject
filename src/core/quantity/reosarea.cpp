@@ -14,6 +14,7 @@ email                : vcloarec@gmail.com projetreos@gmail.com
  ***************************************************************************/
 
 #include "reosarea.h"
+#include "reosparameter.h"
 
 
 ReosArea::ReosArea( double value ): mValueM2( value )
@@ -216,7 +217,7 @@ void ReosArea::setUnit( ReosArea::Unit u )
 QString ReosArea::toString( ReosArea::Unit u, int precision ) const
 {
   double v = valueInUnit( u );
-  return QString::number( v, 'f', precision ) + " " + unitToString( u );
+  return ReosParameter::doubleToString( v, precision ) + " " + unitToString( u );
 }
 
 QString ReosArea::toString( int precision ) const
