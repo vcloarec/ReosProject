@@ -43,6 +43,12 @@ class REOSCORE_EXPORT ReosParameter : public QObject
     void askForDerivation();
     void setInvalid();
 
+    //! Transform the string to double using local intepretation and C interpreation as fallback. \a ok is set to false if fails.
+    static double stringToDouble( const QString &string, bool *ok );
+
+    //! Set the double as a string using local with \a precision as the number of digits after the decimal separator
+    static QString doubleToString( double value, int precision = 2 );
+
   public slots:
     void updateIfNecessary();
 

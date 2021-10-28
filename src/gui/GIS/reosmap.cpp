@@ -24,6 +24,7 @@ email                : vcloarec at gmail dot com
 #include "reosmap.h"
 #include "reosgisengine.h"
 #include "reosmaptool.h"
+#include "reosparameter.h"
 
 
 ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
@@ -222,9 +223,9 @@ ReosMapCursorPosition::~ReosMapCursorPosition()
 void ReosMapCursorPosition::setPosition( const  QPointF &p )
 {
   QString position = tr( "Map Coordinate : " );
-  position.append( QString::number( p.x(), 'f', 2 ) );
+  position.append( ReosParameter::doubleToString( p.x(), 2 ) );
   position.append( " : " );
-  position.append( QString::number( p.y(), 'f', 2 ) );
+  position.append( ReosParameter::doubleToString( p.y(), 2 ) );
   position.append( "  " );
   mCoordinates->setText( position );
 }

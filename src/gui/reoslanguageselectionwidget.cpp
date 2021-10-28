@@ -14,24 +14,35 @@ email                : vcloarec at gmail dot com
  ***************************************************************************/
 
 #include <QDir>
+#include <QSet>
 
 #include "reoslanguageselectionwidget.h"
 #include "ui_reoslanguageselectionwidget.h"
 
 #include "reosapplication.h"
 
-ReosLanguageSelectionWidget::ReosLanguageSelectionWidget( QLocale locale, QWidget *parent ) :
+ReosLanguageSelectionWidget::ReosLanguageSelectionWidget( const QLocale &localeLanguage, const QLocale &globalLocale, QWidget *parent ) :
   QDialog( parent ),
   ui( new Ui::ReosLanguageSelectionWidget )
 {
   ui->setupUi( this );
-  ui->comboBox->addItem( tr( "System language" ), QLocale::system() );
+  ui->comboBoxLanguage->addItem( tr( "System language" ), QLocale::system() );
 
   const QStringList languages = availableLanguages();
   for ( const QString &lang : languages )
-    ui->comboBox->addItem( QLocale( lang ).nativeLanguageName(), QLocale( lang ) );
+    ui->comboBoxLanguage->addItem( QLocale( lang ).nativeLanguageName(), QLocale( lang ) );
 
-  ui->comboBox->setCurrentIndex( ui->comboBox->findData( locale ) );
+  ui->comboBoxLanguage->setCurrentIndex( ui->comboBoxLanguage->findData( localeLanguage ) );
+
+  const QStringList globalFormat = availableNumberLocal();
+  for ( const QString &formatName : globalFormat )
+  {
+    QLocale l = QLocale( formatName );
+    ui->comboBoxNumberFormat->addItem( QStringLiteral( "%1 %2 (%3)" ).arg( QLocale::languageToString( l.language() ), QLocale::countryToString( l.country() ), l.name() ), l );
+
+  }
+
+  ui->comboBoxNumberFormat->setCurrentIndex( ui->comboBoxNumberFormat->findData( globalLocale ) );
 
 }
 
@@ -40,17 +51,25 @@ ReosLanguageSelectionWidget::~ReosLanguageSelectionWidget()
   delete ui;
 }
 
-QLocale ReosLanguageSelectionWidget::language()
+QLocale ReosLanguageSelectionWidget::language() const
 {
-  if ( ui->comboBox->currentText() < 0 )
+  if ( ui->comboBoxLanguage->currentText() < 0 )
     return QLocale::system();
 
-  return ui->comboBox->currentData().toLocale();
+  return ui->comboBoxLanguage->currentData().toLocale();
+}
+
+QLocale ReosLanguageSelectionWidget::global() const
+{
+  if ( ui->comboBoxNumberFormat->currentText() < 0 )
+    return QLocale::system();
+
+  return ui->comboBoxNumberFormat->currentData().toLocale();
 }
 
 QStringList ReosLanguageSelectionWidget::availableLanguages() const
 {
-  //From QGIS, QgsOptions::i18nList()
+  //From QGIS, QgsOptions
   QStringList languageList;
   languageList << QStringLiteral( "en_US" ); //there is no qm file for this so we add it manually
   QString myI18nPath = ReosApplication::i18nPath();
@@ -67,4 +86,27 @@ QStringList ReosLanguageSelectionWidget::availableLanguages() const
     languageList << myFileName.remove( QStringLiteral( "reos_" ) ).remove( QStringLiteral( ".qm" ) );
   }
   return languageList;
+}
+
+QStringList ReosLanguageSelectionWidget::availableNumberLocal() const
+{
+  //From QGIS, QgsOptions
+  const QList<QLocale> allLocales = QLocale::matchingLocales(
+                                      QLocale::AnyLanguage,
+                                      QLocale::AnyScript,
+                                      QLocale::AnyCountry );
+
+  QSet<QString> addedLocales;
+  QStringList globalLocales;
+  for ( const auto &l : allLocales )
+  {
+    // Do not add duplicates (like en_US)
+    if ( ! addedLocales.contains( l.name() ) )
+    {
+      globalLocales.append( l.name() );
+      addedLocales.insert( l.name() );
+    }
+  }
+
+  return globalLocales;
 }

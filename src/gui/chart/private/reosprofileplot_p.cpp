@@ -14,6 +14,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "reosprofileplot_p.h"
+#include "reosparameter.h"
 
 #include <qwt_scale_map.h>
 
@@ -69,13 +70,13 @@ void ReosProfilePlot_p::draw( QPainter *painter, const QwtScaleMap &xMap, const 
 
         if ( int( slp * 1000 ) == 0 )
         {
-          slope = QString::number( slp * 1000, 'f', 2 );
+          slope = ReosParameter::doubleToString( slp * 1000, 2 );
           slope.append( ' ' );
           slope.append( QChar( 0x2030 ) );
         }
         else
         {
-          slope = QString::number( slp * 100, 'f', 2 );
+          slope =  ReosParameter::doubleToString( slp * 100,  2 );
           slope.append( QStringLiteral( " %" ) );
         }
       }

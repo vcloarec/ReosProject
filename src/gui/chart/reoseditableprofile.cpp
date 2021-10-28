@@ -286,12 +286,12 @@ QVariant ReosEditableProfileModel::data( const QModelIndex &index, int role ) co
     {
       if ( index.column() == 0 )
       {
-        return QString::number( mPoints.at( index.row() ).x(), 'f', 0 );
+        return  ReosParameter::doubleToString( mPoints.at( index.row() ).x(),  0 );
       }
 
       if ( index.column() == 1 )
       {
-        return QString::number( mPoints.at( index.row() ).y(), 'f', 2 );
+        return  ReosParameter::doubleToString( mPoints.at( index.row() ).y(),  2 );
       }
     }
   }
@@ -322,8 +322,8 @@ bool ReosEditableProfileModel::setData( const QModelIndex &index, const QVariant
       }
 
       bool okX, okY;
-      double x = mTemporaryNewX.toDouble( &okX );
-      double y = mTemporaryNewY.toDouble( &okY );
+      double x = ReosParameter::stringToDouble( mTemporaryNewX, &okX );
+      double y = ReosParameter::stringToDouble( mTemporaryNewY, &okY );
       if ( okX && okY )
       {
         int r = index.row();
@@ -340,16 +340,27 @@ bool ReosEditableProfileModel::setData( const QModelIndex &index, const QVariant
     {
       if ( index.column() == 0 )
       {
-        mPoints[index.row()].setX( value.toDouble() );
-        emit pointChanged( index.column() );
-        return true;
+        bool ok = false;
+        double x = ReosParameter::stringToDouble( value.toString(), &ok );
+        if ( ok )
+        {
+          mPoints[index.row()].setX( x );
+          emit pointChanged( index.column() );
+          return true;
+        }
+
       }
 
       if ( index.column() == 1 )
       {
-        mPoints[index.row()].setY( value.toDouble() );
-        emit pointChanged( index.column() );
-        return true;
+        bool ok = false;
+        double y = ReosParameter::stringToDouble( value.toString(), &ok );
+        if ( ok )
+        {
+          mPoints[index.row()].setY( y );
+          emit pointChanged( index.column() );
+          return true;
+        }
       }
     }
   }

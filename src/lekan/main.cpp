@@ -53,11 +53,21 @@ int main( int argc, char *argv[] )
   QSettings::setDefaultFormat( QSettings::IniFormat );
 
   ReosSettings settings;
-  QLocale locale;
-  if ( settings.contains( QStringLiteral( "Locale" ) ) )
-    locale = settings.value( QStringLiteral( "Locale" ) ).toLocale();
+  QLocale localeGlobal;
+  if ( settings.contains( QStringLiteral( "Locale-global" ) ) )
+    localeGlobal = settings.value( QStringLiteral( "Locale-global" ) ).toLocale();
   else
-    locale = QLocale::system();
+    localeGlobal = QLocale::system();
+
+  QLocale::setDefault( localeGlobal );
+
+
+
+  QLocale localeLanguage;
+  if ( settings.contains( QStringLiteral( "Locale-language" ) ) )
+    localeLanguage = settings.value( QStringLiteral( "Locale-language" ) ).toLocale();
+  else
+    localeLanguage = QLocale::system();
 
 
   QTranslator ReosTranslator;
@@ -66,11 +76,11 @@ int main( int argc, char *argv[] )
 
   QString i18nPath = ReosApplication::i18nPath();
 
-  if ( QtTranslator.load( locale, i18nPath + QStringLiteral( "/qtbase" ), "_" ) )
+  if ( QtTranslator.load( localeLanguage, i18nPath + QStringLiteral( "/qtbase" ), "_" ) )
     a.installTranslator( &QtTranslator );
-  if ( QgisTranslator.load( locale, i18nPath + QStringLiteral( "/qgis" ), "_" ) )
+  if ( QgisTranslator.load( localeLanguage, i18nPath + QStringLiteral( "/qgis" ), "_" ) )
     a.installTranslator( &QgisTranslator );
-  if ( ReosTranslator.load( locale, i18nPath + QStringLiteral( "/reos" ), "_" ) )
+  if ( ReosTranslator.load( localeLanguage, i18nPath + QStringLiteral( "/reos" ), "_" ) )
     a.installTranslator( &ReosTranslator );
 
 

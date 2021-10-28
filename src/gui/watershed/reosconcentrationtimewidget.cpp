@@ -93,7 +93,7 @@ ReosConcentrationTimeWidget::ReosConcentrationTimeWidget( QWidget *parent ) :
   connect( ui->usedValue, &ReosParameterWidget::unitChanged, mFormulasModel, [this]()
   {
     ReosParameterDuration *durationParameter = this->ui->usedValue->durationParameter();
-    if ( durationParameter )
+    if ( durationParameter && durationParameter->isValid() )
       this->mFormulasModel->setCurrentTimeUnit( durationParameter->value().unit() );
   } );
 

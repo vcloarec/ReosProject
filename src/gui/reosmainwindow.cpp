@@ -222,13 +222,14 @@ void ReosMainWindow::newProject()
 
 void ReosMainWindow::languageSelection()
 {
-
   ReosSettings settings;
-  ReosLanguageSelectionWidget dial( settings.value( QStringLiteral( "Locale" ) ).toLocale() );
+  ReosLanguageSelectionWidget dial( settings.value( QStringLiteral( "Locale-language" ) ).toLocale(),
+                                    settings.value( QStringLiteral( "Locale-global" ) ).toLocale() );
 
   if ( dial.exec() )
   {
-    settings.setValue( QStringLiteral( "Locale" ), dial.language() );
+    settings.setValue( QStringLiteral( "Locale-language" ), dial.language() );
+    settings.setValue( QStringLiteral( "Locale-global" ), dial.global() );
   }
 
 }
