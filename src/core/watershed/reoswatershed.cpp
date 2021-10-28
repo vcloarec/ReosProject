@@ -927,7 +927,7 @@ void ReosWatershed::calculateConcentrationTime()
   else
     param.relativeAverageElevation = averageElevation()->value() - mProfile.last().y();
 
-  if ( !mConcentrationTimeCalculation.alreadyCalculated() )
+  if ( !mConcentrationTimeCalculation.alreadyCalculated() && mConcentrationTimeCalculation.activeFormulas().isEmpty() )
   {
     QStringList allFormulas = ReosConcentrationTimeFormulasRegistery::instance()->formulasList();
     QStringList selectedFormulas;
