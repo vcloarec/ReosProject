@@ -34,6 +34,7 @@ ReosLanguageSelectionWidget::ReosLanguageSelectionWidget( const QLocale &localeL
 
   ui->comboBoxLanguage->setCurrentIndex( ui->comboBoxLanguage->findData( localeLanguage ) );
 
+  ui->comboBoxNumberFormat->addItem(tr("System format"), QLocale::system());
   const QStringList globalFormat = availableNumberLocal();
   for ( const QString &formatName : globalFormat )
   {
@@ -95,16 +96,15 @@ QStringList ReosLanguageSelectionWidget::availableNumberLocal() const
                                       QLocale::AnyLanguage,
                                       QLocale::AnyScript,
                                       QLocale::AnyCountry );
-
   QSet<QString> addedLocales;
   QStringList globalLocales;
   for ( const auto &l : allLocales )
   {
     // Do not add duplicates (like en_US)
-    if ( ! addedLocales.contains( l.name() ) )
+    if ( ! addedLocales.contains( l.bcp47Name() ) )
     {
-      globalLocales.append( l.name() );
-      addedLocales.insert( l.name() );
+      globalLocales.append( l.bcp47Name() );
+      addedLocales.insert( l.bcp47Name() );
     }
   }
 

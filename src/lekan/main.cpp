@@ -57,17 +57,22 @@ int main( int argc, char *argv[] )
   if ( settings.contains( QStringLiteral( "Locale-global" ) ) )
     localeGlobal = settings.value( QStringLiteral( "Locale-global" ) ).toLocale();
   else
-    localeGlobal = QLocale::system();
+  {
+      localeGlobal = QLocale::system();
+      settings.setValue(QStringLiteral("Locale-global"), localeGlobal);
+  }
 
   QLocale::setDefault( localeGlobal );
-
 
 
   QLocale localeLanguage;
   if ( settings.contains( QStringLiteral( "Locale-language" ) ) )
     localeLanguage = settings.value( QStringLiteral( "Locale-language" ) ).toLocale();
   else
-    localeLanguage = QLocale::system();
+  {
+      localeLanguage = QLocale::system();
+      settings.setValue(QStringLiteral("Locale-language"), localeLanguage);
+  }
 
 
   QTranslator ReosTranslator;
