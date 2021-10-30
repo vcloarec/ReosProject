@@ -162,6 +162,7 @@ INCLUDE_DIRECTORIES(
 
     ${CMAKE_SOURCE_DIR}/src/gui
     ${CMAKE_SOURCE_DIR}/src/gui/data
+    ${CMAKE_SOURCE_DIR}/src/gui/hydrograph
     ${CMAKE_SOURCE_DIR}/src/gui/GIS
     ${CMAKE_SOURCE_DIR}/src/gui/GIS/private
     ${CMAKE_SOURCE_DIR}/src/gui/chart

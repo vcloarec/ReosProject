@@ -18,9 +18,10 @@ email                : vcloarec at gmail dot com
 #include "reosrunoffmodel.h"
 #include "reostransferfunction.h"
 #include "reosdigitalelevationmodel.h"
+#include "reoshydrograph.h"
+
 
 #include <QMessageBox>
-
 #include <QElapsedTimer>
 #include <QFile>
 #include <QTextStream>

@@ -20,19 +20,10 @@
 #include "reosmodule.h"
 #include "reosencodedelement.h"
 #include "reosprocess.h"
+#include "reoshydrograph.h"
 
 class ReosRunoff;
 class ReosWatershed;
-
-//! Class that represents a hydrograph
-class REOSCORE_EXPORT ReosHydrograph : public ReosTimeSerieVariableTimeStep
-{
-  public:
-    ReosHydrograph( QObject *parent = nullptr ): ReosTimeSerieVariableTimeStep( parent ) {}
-
-    QString type() const override {return QStringLiteral( "runoff-hydrograph" );}
-    QColor color() const override;
-};
 
 //! Process abstract class that handle the calculation of the hydrograph an onother thread
 class REOSCORE_EXPORT ReosTransferFunctionCalculation : public ReosProcess

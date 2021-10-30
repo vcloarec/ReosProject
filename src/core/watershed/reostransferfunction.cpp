@@ -202,11 +202,6 @@ ReosTransferFunctionLinearReservoir::ReosTransferFunctionLinearReservoir( const 
   connect( mFactorToLagTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
 }
 
-QColor ReosHydrograph::color() const
-{
-  return Qt::red;
-}
-
 ReosTransferFunctionGeneralizedRationalMethod::ReosTransferFunctionGeneralizedRationalMethod( ReosWatershed *watershed ):
   ReosTransferFunction( watershed )
 {}

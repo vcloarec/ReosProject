@@ -16,7 +16,6 @@
 #include "reoshydrograph.h"
 
 
-
 QColor ReosHydrograph::color() const
 {
   return mColor;

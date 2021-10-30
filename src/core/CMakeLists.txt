@@ -51,6 +51,8 @@ SET(REOS_CORE_SOURCES
   data/reostimeserie.cpp
   data/reostextfiledata.cpp
   data/reosdataobject.cpp
+
+  hydrograph/reoshydrograph.cpp
 )
 
 SET(REOS_CORE_HEADERS
@@ -101,6 +103,8 @@ SET(REOS_CORE_HEADERS
     data/reostimeserie.h
     data/reostextfiledata.h
     data/reosdataobject.h
+
+    hydrograph/reoshydrograph.h
 
 )
 
@@ -164,6 +168,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core
     ${CMAKE_SOURCE_DIR}/src/core/data
     ${CMAKE_SOURCE_DIR}/src/core/GIS
+    ${CMAKE_SOURCE_DIR}/src/core/hydrograph
     ${CMAKE_SOURCE_DIR}/src/core/GIS/private
     ${CMAKE_SOURCE_DIR}/src/core/process
     ${CMAKE_SOURCE_DIR}/src/core/quantity
