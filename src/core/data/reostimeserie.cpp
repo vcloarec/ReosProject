@@ -17,17 +17,17 @@
 
 
 
-ReosTimeSerieConstantIntervalModel::ReosTimeSerieConstantIntervalModel( QObject *parent ): QAbstractTableModel( parent )
+ReosTimeSerieConstantIntervalModel::ReosTimeSerieConstantIntervalModel( QObject *parent ): ReosTimeSerieModel( parent )
 {
 
 }
 
-QModelIndex ReosTimeSerieConstantIntervalModel::index( int row, int column, const QModelIndex & ) const
+QModelIndex ReosTimeSerieModel::index( int row, int column, const QModelIndex & ) const
 {
   return createIndex( row, column );
 }
 
-QModelIndex ReosTimeSerieConstantIntervalModel::parent( const QModelIndex & ) const
+QModelIndex ReosTimeSerieModel::parent( const QModelIndex & ) const
 {
   return QModelIndex();
 }
@@ -122,8 +122,7 @@ QVariant ReosTimeSerieConstantIntervalModel::headerData( int section, Qt::Orient
   {
     if ( mData->referenceTime()->value().isValid() )
     {
-      return mData->referenceTime()->value().
-             addSecs( mData->relativeTimeAt( section ).valueSecond() ).toString( QStringLiteral( "yyyy.MM.dd HH:mm:ss" ) );
+      return mData->timeAt( section ).toString( QStringLiteral( "yyyy.MM.dd HH:mm:ss" ) );
     }
     else
       return mData->relativeTimeAt( section ).valueSecond();
@@ -163,12 +162,6 @@ void ReosTimeSerieConstantIntervalModel::setSerieData( ReosTimeSerieConstantInte
     emit dataChanged( index( 0, 0, QModelIndex() ), index( rowCount( QModelIndex() ), 0, QModelIndex() ) );
     emit headerDataChanged( Qt::Horizontal, 0, 1 ) ;
   } );
-}
-
-
-void ReosTimeSerieConstantIntervalModel::setEditable( bool b )
-{
-  mIsEditable = b;
 }
 
 void ReosTimeSerieConstantIntervalModel::setValues( const QModelIndex &fromIndex, const QList<double> &values )
@@ -648,6 +641,21 @@ ReosDuration ReosTimeSerieVariableTimeStep::relativeTimeAt( int i ) const
   return mTimeValues.at( i );
 }
 
+bool ReosTimeSerieVariableTimeStep::setRelativeTimeAt( int i, const ReosDuration &relativeTime )
+{
+  if ( i > 0 && i < mTimeValues.count() )
+  {
+    if ( ( i > 1 && mTimeValues.at( i - 1 ) >= relativeTime ) ||
+         ( i < mTimeValues.count() - 1 && mTimeValues.at( i + 1 ) <= relativeTime ) )
+      return false;
+
+    mTimeValues[i] = relativeTime;
+    return true;
+  }
+
+  return false;
+}
+
 QPair<QDateTime, QDateTime> ReosTimeSerieVariableTimeStep::timeExtent() const
 {
   if ( mTimeValues.isEmpty() )
@@ -798,3 +806,227 @@ int ReosTimeSerieVariableTimeStep::timeValueIndex( const ReosDuration &time, boo
       i1 = inter;
   }
 }
+
+QString ReosTimeSerieVariableTimeStep::unitString() const
+{
+  return mUnitString;
+}
+
+void ReosTimeSerieVariableTimeStep::setUnitString( const QString &unitString )
+{
+  mUnitString = unitString;
+}
+
+
+
+ReosTimeSerieVariableTimeStepModel::ReosTimeSerieVariableTimeStepModel( QObject *parent ): ReosTimeSerieModel( parent )
+{
+  mFixedTimeStep = ReosDuration( 5, ReosDuration::minute );
+}
+
+int ReosTimeSerieVariableTimeStepModel::rowCount( const QModelIndex & ) const
+{
+  if ( !mData.isNull() )
+    return mIsEditable ? mData->valueCount() + 1 : mData->valueCount();
+  else
+    return 3;
+}
+
+int ReosTimeSerieVariableTimeStepModel::columnCount( const QModelIndex & ) const
+{
+  return valueColumn() + 1;
+}
+
+QVariant ReosTimeSerieVariableTimeStepModel::data( const QModelIndex &index, int role ) const
+{
+  if ( mData.isNull() )
+    return QVariant();
+
+  int maxRowCount = mIsEditable ? mData->valueCount() + 1 : mData->valueCount();
+
+  if ( !index.isValid() || index.row() >= maxRowCount )
+    return QVariant();
+
+  switch ( role )
+  {
+    case Qt::DisplayRole:
+    case Qt::EditRole:
+      if ( index.column() == 0 )
+      {
+        if ( index.row() < mData->valueCount() )
+          return mData->timeAt( index.row() );
+      }
+      else if ( index.column() == valueColumn() )
+      {
+        if ( index.row() < mData->valueCount() )
+          return mData->valueAt( index.row() );
+      }
+      else if ( !mNewRowWithFixedTimeStep && index.column() == 1 )
+      {
+        if ( index.row() < mData->valueCount() )
+          return mData->relativeTimeAt( index.row() ).toString( mVariableTimeStepUnit, 2 );
+      }
+
+      if ( mIsEditable )
+      {
+        if ( index.row() == mData->valueCount() )
+          return QString();
+      }
+
+      break;
+    case Qt::TextAlignmentRole:
+      return Qt::AlignRight;
+      break;
+    default:
+      return QVariant();
+  }
+
+  return QVariant();
+}
+
+bool ReosTimeSerieVariableTimeStepModel::setData( const QModelIndex &index, const QVariant &value, int role )
+{
+  if ( !index.isValid() || !mIsEditable || index.row() > mData->valueCount() )
+    return false;
+
+  if ( role == Qt::EditRole )
+  {
+    bool ok = false;
+    double v = value.toString().toDouble( &ok );
+    if ( ok )
+    {
+      if ( index.row() == mData->valueCount() ) //insert at the end
+      {
+        if ( !mNewRowWithFixedTimeStep && index.column() == valueColumn() - 1 )
+        {
+
+          ReosDuration relativeTime( value.toDouble(), mVariableTimeStepUnit );
+          if ( mData->valueCount() == 0 || relativeTime > mData->relativeTimeAt( mData->valueCount() - 1 ) )
+          {
+            beginInsertRows( QModelIndex(), index.row() + 1, index.row() + 1 );
+            mData->setValue( ReosDuration( relativeTime ), 0 );
+            endInsertRows();
+          }
+        }
+        else
+        {
+          beginInsertRows( QModelIndex(), index.row() + 1, index.row() + 1 );
+          if ( mNewRowWithFixedTimeStep )
+          {
+            ReosDuration previousrelativeTime;
+            if ( index.row() > 0 )
+              previousrelativeTime = mData->relativeTimeAt( index.row() - 1 );
+            mData->setValue( previousrelativeTime + mFixedTimeStep, v );
+          }
+          else if ( index.column() == valueColumn() )
+          {
+            ReosDuration relativeTime( 0, mVariableTimeStepUnit );
+            if ( index.row() == 1 )
+              relativeTime = mFixedTimeStep + mData->relativeTimeAt( 0 );
+            else if ( index.row() > 1 )
+            {
+              int dataCount = mData->valueCount();
+              relativeTime = mData->relativeTimeAt( dataCount - 1 ) * 2 - mData->relativeTimeAt( dataCount - 2 );
+            }
+            mData->setValue( relativeTime, v );
+          }
+          endInsertRows();
+        }
+      }
+      else
+      {
+        if ( index.column() == valueColumn() )
+          mData->setValueAt( index.row(), v );
+
+        if ( !mNewRowWithFixedTimeStep )
+        {
+          if ( index.column() == 1 )
+          {
+            ReosDuration relativeTime( v, mVariableTimeStepUnit );
+            mData->setRelativeTimeAt( index.row(), relativeTime );
+          }
+        }
+      }
+
+      return true;
+    }
+  }
+  return false;
+}
+
+Qt::ItemFlags ReosTimeSerieVariableTimeStepModel::flags( const QModelIndex &index ) const
+{
+  if ( mIsEditable && !mNewRowWithFixedTimeStep )
+    return QAbstractTableModel::flags( index ) | Qt::ItemIsEditable;
+  else if ( mIsEditable && index.column() == valueColumn() )
+    return QAbstractTableModel::flags( index ) | Qt::ItemIsEditable;
+
+  return QAbstractTableModel::flags( index );
+}
+
+QVariant ReosTimeSerieVariableTimeStepModel::headerData( int section, Qt::Orientation orientation, int role ) const
+{
+  if ( orientation == Qt::Horizontal )
+  {
+    if ( role == Qt::DisplayRole )
+    {
+      if ( section == valueColumn() )
+        return mData->unitString();
+      else if ( section == 0 )
+        return tr( "Time" );
+      else if ( ! mNewRowWithFixedTimeStep && section == 1 )
+        return tr( "Relative time" );
+    }
+
+    return QVariant();
+  }
+
+  return QVariant();
+}
+
+void ReosTimeSerieVariableTimeStepModel::setSerie( ReosTimeSerieVariableTimeStep *serie )
+{
+  if ( mData )
+    disconnect( mData->referenceTime(), &ReosParameter::valueChanged, this, &ReosTimeSerieVariableTimeStepModel::updateModel );
+
+  beginResetModel();
+  mData = serie;
+  endResetModel();
+
+  if ( mData )
+    connect( mData->referenceTime(), &ReosParameter::valueChanged, this, &ReosTimeSerieVariableTimeStepModel::updateModel );
+}
+
+void ReosTimeSerieVariableTimeStepModel::setNewRowWithFixedTimeStep( bool newRowWithFixedTimeStep )
+{
+  beginResetModel();
+  mNewRowWithFixedTimeStep = newRowWithFixedTimeStep;
+  endResetModel();
+}
+
+void ReosTimeSerieVariableTimeStepModel::setFixedTimeStep( const ReosDuration &fixedTimeStep )
+{
+  mFixedTimeStep = fixedTimeStep;
+}
+
+void ReosTimeSerieVariableTimeStepModel::setVariableTimeStepUnit( const ReosDuration::Unit &variableTimeStepUnit )
+{
+  beginResetModel();
+  mVariableTimeStepUnit = variableTimeStepUnit;
+  endResetModel();
+}
+
+void ReosTimeSerieVariableTimeStepModel::updateModel()
+{
+  beginResetModel();
+  endResetModel();
+}
+
+int ReosTimeSerieVariableTimeStepModel::valueColumn() const
+{
+  if ( mNewRowWithFixedTimeStep )
+    return 1;
+  else
+    return 2;
+}
+

@@ -31,6 +31,7 @@ SET(REOS_GUI_SOURCES
     watershed/reosrunoffmanager.cpp
     watershed/reosrunoffhydrographwidget.cpp
     watershed/reosexportwatershedtovectordialog.cpp
+    watershed/reosgaugedhydrographwidget.cpp
 
     rainfall/reosrainfallmanager.cpp
     rainfall/reosrainfallintensitydurationwidget.cpp
@@ -48,8 +49,10 @@ SET(REOS_GUI_SOURCES
 
     form/reosparameterwidget.cpp
     form/reosformwidget.cpp
+    form/reostableview.cpp
 
     data/reosimportfromtextfile.cpp
+    hydrograph/reoshydrographeditingwidget.cpp
 )
 
 SET(REOS_GUI_HEADERS
@@ -78,6 +81,7 @@ SET(REOS_GUI_HEADERS
     watershed/reosrunoffmanager.h
     watershed/reosrunoffhydrographwidget.h
     watershed/reosexportwatershedtovectordialog.h
+    watershed/reosgaugedhydrographwidget.h
 
     rainfall/reosrainfallmanager.h
     rainfall/reosrainfallintensitydurationwidget.h
@@ -91,8 +95,10 @@ SET(REOS_GUI_HEADERS
 
     form/reosparameterwidget.h
     form/reosformwidget.h
+    form/reostableview.h
 
     data/reosimportfromtextfile.h
+    hydrograph/reoshydrographeditingwidget.h
 )
 
 SET(REOS_GUI_HEADERS_PRIVATE

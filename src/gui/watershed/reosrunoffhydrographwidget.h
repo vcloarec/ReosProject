@@ -125,7 +125,6 @@ class ReosTimeSeriesVariableTimeStepTabModel: public QAbstractTableModel
     ReosDuration mTimeStep = ReosDuration( 70, ReosDuration::second );
     int mTimeStepCount = 0;
 
-
     QDateTime timeAtRow( int row ) const;
     QVariant valueAt( int row, int column ) const;
 };
@@ -138,9 +137,8 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
     explicit ReosRunoffHydrographWidget( ReosWatershedModule *watershedModule, QWidget *parent = nullptr );
     ~ReosRunoffHydrographWidget();
 
-    void setCurrentWatershed( ReosWatershed *watershed );
-
   public slots:
+    void setCurrentWatershed( ReosWatershed *watershed );
     void setCurrentMeteorologicModel( int index );
 
   private slots:

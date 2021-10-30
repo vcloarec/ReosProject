@@ -19,6 +19,7 @@
 #include <memory>
 
 #include <QColor>
+#include <QPointer>
 #include <QVector>
 #include <QDateTime>
 #include <QAbstractTableModel>
@@ -172,7 +173,6 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     //! Creates new instance from the encoded element
     static ReosTimeSerieConstantInterval *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
 
-
   protected:
     void connectParameters();
 
@@ -191,36 +191,6 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     double convertFromIntensityValue( double v );
 };
 
-
-//! Model used to handle time series with constant time step
-class REOSCORE_EXPORT ReosTimeSerieConstantIntervalModel : public QAbstractTableModel
-{
-  public:
-    ReosTimeSerieConstantIntervalModel( QObject *parent = nullptr );
-
-    QModelIndex index( int row, int column, const QModelIndex & ) const override;
-    QModelIndex parent( const QModelIndex & ) const override;
-    int rowCount( const QModelIndex & ) const override;
-    int columnCount( const QModelIndex & ) const override;
-    QVariant data( const QModelIndex &index, int role ) const override;
-    bool setData( const QModelIndex &index, const QVariant &value, int role ) override;
-    QVariant headerData( int section, Qt::Orientation orientation, int role ) const override;
-    Qt::ItemFlags flags( const QModelIndex &index ) const override;
-
-    void setSerieData( ReosTimeSerieConstantInterval *data );
-    void setEditable( bool b );
-
-    void setValues( const QModelIndex &fromIndex, const QList<double> &values );
-    void deleteValueRows( const QModelIndex &fromIndex, int count );
-    void insertValueRows( const QModelIndex &fromIndex, int count );
-
-  private:
-    ReosTimeSerieConstantInterval *mData;
-    bool mIsEditable = true;
-    double defaultValue = 0;
-
-};
-
 class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
 {
     Q_OBJECT
@@ -232,7 +202,11 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
 
     QString type() const override {return QStringLiteral( "time-serie-variable-time-step" );}
 
+    //! Returns the relative time at \a i
     ReosDuration relativeTimeAt( int i ) const override;
+
+    //! Sets the relative time \a relativeTime at postion \a i. If the value is not compatible with previous or next values, do nothing and return false.
+    bool setRelativeTimeAt( int i, const ReosDuration &relativeTime );
 
     QPair<QDateTime, QDateTime> timeExtent() const override;
 
@@ -248,8 +222,14 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
     //! Adds another instance to this the values of this ones, create new time steps if needed
     void addOther( const ReosTimeSerieVariableTimeStep &other, double factor = 1, bool allowInterpolation = true );
 
-    //! Return the color associated with this time serie
+    //! Returns the color associated with this time serie
     virtual QColor color() const {return QColor();}
+
+    //! Returns the unit of the values as a string
+    QString unitString() const;
+
+    //! Sets the unit of the values as a string
+    void setUnitString( const QString &unitString );
 
   private:
     QVector<ReosDuration> mTimeValues;
@@ -260,6 +240,82 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
      */
     int timeValueIndex( const ReosDuration &time, bool &exact ) const;
 
+    QString mUnitString;
+
+};
+
+class ReosTimeSerieModel : public QAbstractTableModel
+{
+    Q_OBJECT
+  public:
+    ReosTimeSerieModel( QObject *parent = nullptr )
+    {}
+
+    QModelIndex index( int row, int column, const QModelIndex & ) const override;
+    QModelIndex parent( const QModelIndex & ) const override;
+
+    virtual void deleteValueRows( const QModelIndex &fromIndex, int count ) = 0;
+    virtual void insertValueRows( const QModelIndex &fromIndex, int count ) = 0;
+};
+
+//! Model used to handle AND edit time series with constant time step
+class REOSCORE_EXPORT ReosTimeSerieConstantIntervalModel : public ReosTimeSerieModel
+{
+  public:
+    ReosTimeSerieConstantIntervalModel( QObject *parent = nullptr );
+
+    int rowCount( const QModelIndex & ) const override;
+    int columnCount( const QModelIndex & ) const override;
+    QVariant data( const QModelIndex &index, int role ) const override;
+    bool setData( const QModelIndex &index, const QVariant &value, int role ) override;
+    QVariant headerData( int section, Qt::Orientation orientation, int role ) const override;
+    Qt::ItemFlags flags( const QModelIndex &index ) const override;
+
+    void setSerieData( ReosTimeSerieConstantInterval *data );
+
+    void setValues( const QModelIndex &fromIndex, const QList<double> &values );
+    void deleteValueRows( const QModelIndex &fromIndex, int count ) override;
+    void insertValueRows( const QModelIndex &fromIndex, int count ) override;
+
+  private:
+    ReosTimeSerieConstantInterval *mData;
+    bool mIsEditable = true;
+    double defaultValue = 0;
+};
+
+//! Model used to handle AND edit time series with variable time step
+class REOSCORE_EXPORT ReosTimeSerieVariableTimeStepModel: public ReosTimeSerieModel
+{
+    Q_OBJECT
+  public:
+    ReosTimeSerieVariableTimeStepModel( QObject *parent = nullptr );
+
+    int rowCount( const QModelIndex & ) const;
+    int columnCount( const QModelIndex & ) const;
+    QVariant data( const QModelIndex &index, int role ) const;
+    bool setData( const QModelIndex &index, const QVariant &value, int role );
+    Qt::ItemFlags flags( const QModelIndex &index ) const override;
+    QVariant headerData( int section, Qt::Orientation orientation, int role ) const override;
+
+    void deleteValueRows( const QModelIndex &fromIndex, int count ) {};
+    void insertValueRows( const QModelIndex &fromIndex, int count ) {};
+
+    void setSerie( ReosTimeSerieVariableTimeStep *serie );
+    void setNewRowWithFixedTimeStep( bool newRowWithFixedTimeStep );
+    void setFixedTimeStep( const ReosDuration &fixedTimeStep );
+    void setVariableTimeStepUnit( const ReosDuration::Unit &variableTimeStepUnit );
+
+  private slots:
+    void updateModel();
+
+  private:
+    QPointer<ReosTimeSerieVariableTimeStep> mData;
+    bool mIsEditable = true;
+    bool mNewRowWithFixedTimeStep = true;
+    ReosDuration mFixedTimeStep;
+    ReosDuration::Unit mVariableTimeStepUnit = ReosDuration::minute;
+
+    int valueColumn() const;
 };
 
 #endif // REOSTIMESERIE_H

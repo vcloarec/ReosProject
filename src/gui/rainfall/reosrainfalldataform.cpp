@@ -32,94 +32,6 @@
 #include "reosrainfallregistery.h"
 
 
-ReosTimeSerieConstantIntervalView::ReosTimeSerieConstantIntervalView( QWidget *parent ): QTableView( parent )
-{
-  setHorizontalHeader( new ReosHorizontalHeaderView( this ) );
-}
-
-void ReosTimeSerieConstantIntervalView::keyPressEvent( QKeyEvent *event )
-{
-  if ( event->matches( QKeySequence::Paste ) )
-  {
-    QList<double> values = clipboardToValues();
-    if ( !values.isEmpty() )
-      emit pastDataFromClipboard( currentIndex(), values );
-  }
-
-  QTableView::keyPressEvent( event );
-
-  if ( event->key() == Qt::Key_Enter )
-  {
-    QModelIndex index = currentIndex();
-    if ( index.isValid() )
-      setCurrentIndex( model()->index( index.row() + 1, index.column() ) );
-  }
-}
-
-void ReosTimeSerieConstantIntervalView::contextMenuEvent( QContextMenuEvent *event )
-{
-  QMenu menu;
-
-  menu.addAction( tr( "Delete selected row(s)" ), this, [this]()
-  {
-    int count = this->selectionModel()->selectedIndexes().count();
-    if ( count > 0 )
-    {
-      emit deleteRows( this->selectionModel()->selectedIndexes().first(), count );
-    }
-  } );
-
-  menu.addAction( tr( "Insert row(s)" ), this, [this]()
-  {
-    int count = this->selectionModel()->selectedIndexes().count();
-    if ( count > 0 )
-    {
-      emit insertRow( this->selectionModel()->selectedIndexes().first(), count );
-    }
-  } );
-
-  menu.addAction( tr( "Insert row(s) from clipboard" ), this, [this]()
-  {
-    int count = this->selectionModel()->selectedIndexes().count();
-    QList<double> values = clipboardToValues();
-    if ( values.count() > 0 && count > 0 )
-    {
-      emit insertRow( this->selectionModel()->selectedIndexes().first(), count );
-      emit pastDataFromClipboard( this->selectionModel()->selectedIndexes().first(), values );
-    }
-  } );
-
-  menu.exec( viewport()->mapToGlobal( event->pos() ) );
-
-}
-
-QList<double> ReosTimeSerieConstantIntervalView::clipboardToValues()
-{
-  QClipboard *clipBoard = QApplication::clipboard();
-  QString clipBoardText = clipBoard->text();
-  if ( QLocale::system().decimalPoint() == ',' )
-    clipBoardText.replace( ',', '.' );
-  const QStringList lines = clipBoardText.split( "\n" );
-  QList<double> values;
-  bool ok = true;
-  for ( const QString &l : lines )
-  {
-    if ( l == QString() )
-      continue;
-    values.append( ReosParameter::stringToDouble( l, &ok ) );
-    if ( !ok )
-      break;
-  }
-  if ( !ok )
-  {
-    QMessageBox::warning( this, tr( "Paste value to table" ), tr( "Incompatible data in the cliboard: " ).arg( clipBoardText ) );
-    return QList<double>();
-  }
-  else
-    return values;
-}
-
-
 ReosTimeSerieConstantIntervalWidget::ReosTimeSerieConstantIntervalWidget( ReosTimeSerieConstantInterval *timeSerie, QWidget *parent ):
   ReosFormWidget( parent, Qt::Vertical, false )
   , mModel( new ReosTimeSerieConstantIntervalModel( this ) )
@@ -167,16 +79,13 @@ ReosTimeSerieConstantIntervalWidget::ReosTimeSerieConstantIntervalWidget( ReosTi
     timeSerie->setIntensityTimeUnit( unit );
   } );
 
-  ReosTimeSerieConstantIntervalView *view = new ReosTimeSerieConstantIntervalView( this );
+  ReosTableView *view = new ReosTableView( this );
   addWidget( view );
   view->setModel( mModel );
-  view->horizontalHeader()->setStretchLastSection( true );
-  view->horizontalHeader()->setCascadingSectionResizes( true );
-  view->horizontalHeader()->setDefaultAlignment( Qt::AlignCenter | ( Qt::Alignment )Qt::TextWordWrap );
 
-  connect( view, &ReosTimeSerieConstantIntervalView::pastDataFromClipboard, mModel, &ReosTimeSerieConstantIntervalModel::setValues );
-  connect( view, &ReosTimeSerieConstantIntervalView::insertRow, mModel, &ReosTimeSerieConstantIntervalModel::insertValueRows );
-  connect( view, &ReosTimeSerieConstantIntervalView::deleteRows, mModel, &ReosTimeSerieConstantIntervalModel::deleteValueRows );
+  connect( view, &ReosTableView::pastDataFromClipboard, mModel, &ReosTimeSerieConstantIntervalModel::setValues );
+  connect( view, &ReosTableView::insertRow, mModel, &ReosTimeSerieConstantIntervalModel::insertValueRows );
+  connect( view, &ReosTableView::deleteRows, mModel, &ReosTimeSerieConstantIntervalModel::deleteValueRows );
 }
 
 
@@ -331,21 +240,3 @@ ReosAlternatingBlockRainfallWidget::ReosAlternatingBlockRainfallWidget( ReosAlte
   addParameter( rainfall->centerCoefficient() );
 }
 
-ReosHorizontalHeaderView::ReosHorizontalHeaderView( QWidget *parent ): QHeaderView( Qt::Horizontal, parent )
-{
-  setSectionResizeMode( QHeaderView::ResizeToContents );
-}
-
-QSize ReosHorizontalHeaderView::sectionSizeFromContents( int logicalIndex ) const
-{
-  //https://stackoverflow.com/questions/45084542/qtableview-header-word-wrap
-  const QString text = this->model()->headerData( logicalIndex, this->orientation(), Qt::DisplayRole ).toString();
-  const int maxWidth = this->sectionSize( logicalIndex );
-  const int maxHeight = 5000; // arbitrarily large
-  const auto alignment = defaultAlignment();
-  const QFontMetrics metrics( this->fontMetrics() );
-  const QRect rect = metrics.boundingRect( QRect( 0, 0, maxWidth, maxHeight ), alignment, text );
-
-  const QSize textMarginBuffer( 2, 2 ); // buffer space around text preventing clipping
-  return rect.size() + textMarginBuffer;
-}

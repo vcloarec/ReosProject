@@ -17,7 +17,7 @@
 #define REOSRAINFALLDATAFORM_H
 
 #include "reosformwidget.h"
-#include "QHeaderView"
+#include "reostableview.h"
 
 
 //! Widget that can be uses to display/edits paramters of a ReosTimeSerieConstantInterval
@@ -31,36 +31,6 @@ class ReosTimeSerieConstantIntervalWidget: public ReosFormWidget
     ReosTimeSerieConstantIntervalModel *mModel = nullptr;
     QComboBox *mValueModeComboBox = nullptr;
     QComboBox *mIntensityUnitComboBox = nullptr;
-};
-
-class ReosHorizontalHeaderView: public QHeaderView
-{
-  public:
-    ReosHorizontalHeaderView( QWidget *parent = nullptr );
-
-  protected:
-    QSize sectionSizeFromContents( int logicalIndex ) const override;
-};
-
-//! Table view widget custmed to display/edit time series with constant time step
-class ReosTimeSerieConstantIntervalView: public QTableView
-{
-    Q_OBJECT
-  public:
-    ReosTimeSerieConstantIntervalView( QWidget *parent = nullptr );
-
-  signals:
-    void pastDataFromClipboard( const QModelIndex &index, const QList<double> &data );
-    void insertRow( const QModelIndex &fromIndex, int count );
-    void deleteRows( const QModelIndex &fromIndex, int count );
-    void insertRowFromClipboard( const QModelIndex &index, const QList<double> &data );
-
-  protected:
-    void keyPressEvent( QKeyEvent *event ) override;
-    void contextMenuEvent( QContextMenuEvent *event ) override;
-
-  private:
-    QList<double> clipboardToValues();
 };
 
 class ReosFormWidgetIntensityDurationCurveFactory : public ReosFormWidgetDataFactory
@@ -102,7 +72,7 @@ class ReosFormWidgetChicagoRainfalFactory : public ReosFormWidgetDataFactory
     QString datatype() const override {return QStringLiteral( "chicago-rainfall" );}
 };
 
-//! Widget that can be uses to display/edits paramters of a Chicago rainfall
+//! Widget that can be uses to display/edits paramters of a alternating block rainfall
 class ReosAlternatingBlockRainfallWidget: public ReosTimeSerieConstantIntervalWidget
 {
     Q_OBJECT
