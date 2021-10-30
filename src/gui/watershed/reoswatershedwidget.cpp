@@ -33,6 +33,7 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   mConcentrationTimeWidget( new ReosConcentrationTimeWidget( this ) ),
   mActionMeteorologicModel( new QAction( QPixmap( QStringLiteral( ":/images/meteoModel.svg" ) ), tr( "Meteorologic models" ), this ) ),
   mActionRunoffHydrograph( new QAction( QPixmap( QStringLiteral( ":/images/runoffHydrograph.svg" ) ), tr( "Runoff hydrograph" ), this ) ),
+  mRunoffHydrographWidget( new ReosRunoffHydrographWidget( module, this ) ),
   mActionGaugedHydrograph( new QAction( QPixmap( QStringLiteral( ":/images/gaugedHydrograph.svg" ) ), tr( "Gauged hydrograph" ), this ) ),
   mGaugedHydrographWidget( new ReosGaugedHydrographWidget( this ) ),
   mActionExportToVectorLayer( new QAction( QPixmap( QStringLiteral( ":/images/exportWatershed.svg" ) ), tr( "Export watershed geometry to vector layer" ), this ) ),
