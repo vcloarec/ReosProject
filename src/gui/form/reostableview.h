@@ -19,6 +19,8 @@
 #include <QTableView>
 #include <QHeaderView>
 
+class ReosTimeSerieModel;
+
 class ReosHorizontalHeaderView: public QHeaderView
 {
   public:
@@ -28,23 +30,21 @@ class ReosHorizontalHeaderView: public QHeaderView
     QSize sectionSizeFromContents( int logicalIndex ) const override;
 };
 
-class ReosTableView : public QTableView
+class ReosTimeSerieTableView : public QTableView
 {
     Q_OBJECT
   public:
-    ReosTableView( QWidget *parent );
-
-  signals:
-    void pastDataFromClipboard( const QModelIndex &index, const QList<double> &data );
-    void insertRow( const QModelIndex &fromIndex, int count );
-    void deleteRows( const QModelIndex &fromIndex, int count );
+    ReosTimeSerieTableView( QWidget *parent );
+    void setModel( QAbstractItemModel *model ) override;
 
   protected:
     void keyPressEvent( QKeyEvent *event ) override;
     void contextMenuEvent( QContextMenuEvent *event ) override;
 
   private:
-    QList<double> clipboardToValues();
+    QList<QVariantList> clipBoardToVariantList();
+    ReosTimeSerieModel *timeSerieModel() const;
+
 };
 
 #endif // REOSTABLEVIEW_H

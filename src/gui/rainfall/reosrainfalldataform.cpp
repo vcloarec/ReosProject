@@ -79,13 +79,10 @@ ReosTimeSerieConstantIntervalWidget::ReosTimeSerieConstantIntervalWidget( ReosTi
     timeSerie->setIntensityTimeUnit( unit );
   } );
 
-  ReosTableView *view = new ReosTableView( this );
+  ReosTimeSerieTableView *view = new ReosTimeSerieTableView( this );
   addWidget( view );
   view->setModel( mModel );
 
-  connect( view, &ReosTableView::pastDataFromClipboard, mModel, &ReosTimeSerieConstantIntervalModel::setValues );
-  connect( view, &ReosTableView::insertRow, mModel, &ReosTimeSerieConstantIntervalModel::insertValueRows );
-  connect( view, &ReosTableView::deleteRows, mModel, &ReosTimeSerieConstantIntervalModel::deleteValueRows );
 }
 
 

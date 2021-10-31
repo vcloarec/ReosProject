@@ -254,13 +254,20 @@ class ReosTimeSerieModel : public QAbstractTableModel
     QModelIndex index( int row, int column, const QModelIndex & ) const override;
     QModelIndex parent( const QModelIndex & ) const override;
 
-    virtual void deleteValueRows( const QModelIndex &fromIndex, int count ) = 0;
-    virtual void insertValueRows( const QModelIndex &fromIndex, int count ) = 0;
+    virtual void setValues( const QModelIndex &fromIndex, const QList<QVariantList> &values ) = 0;
+    virtual void insertValues( const QModelIndex &fromIndex, const QList<QVariantList> &values ) = 0;
+
+
+  public slots:
+    virtual void deleteRows( const QModelIndex &fromIndex, int count ) = 0;
+    virtual void insertRows( const QModelIndex &fromIndex, int count ) = 0;
+
 };
 
 //! Model used to handle AND edit time series with constant time step
 class REOSCORE_EXPORT ReosTimeSerieConstantIntervalModel : public ReosTimeSerieModel
 {
+    Q_OBJECT
   public:
     ReosTimeSerieConstantIntervalModel( QObject *parent = nullptr );
 
@@ -273,14 +280,20 @@ class REOSCORE_EXPORT ReosTimeSerieConstantIntervalModel : public ReosTimeSerieM
 
     void setSerieData( ReosTimeSerieConstantInterval *data );
 
-    void setValues( const QModelIndex &fromIndex, const QList<double> &values );
-    void deleteValueRows( const QModelIndex &fromIndex, int count ) override;
-    void insertValueRows( const QModelIndex &fromIndex, int count ) override;
+    void setValues( const QModelIndex &fromIndex, const QList<QVariantList> &values ) override;
+    void insertValues( const QModelIndex &fromIndex, const QList<QVariantList> &values ) override;
+
+  public slots:
+    void deleteRows( const QModelIndex &fromIndex, int count ) override;
+    void insertRows( const QModelIndex &fromIndex, int count ) override;
 
   private:
     ReosTimeSerieConstantInterval *mData;
     bool mIsEditable = true;
     double defaultValue = 0;
+    void setValues( const QModelIndex &fromIndex, const QList<double> &values );
+
+    static QList<double> doubleFromVariant( const QList<QVariantList> &values );
 };
 
 //! Model used to handle AND edit time series with variable time step
@@ -297,8 +310,11 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStepModel: public ReosTimeSerieMo
     Qt::ItemFlags flags( const QModelIndex &index ) const override;
     QVariant headerData( int section, Qt::Orientation orientation, int role ) const override;
 
-    void deleteValueRows( const QModelIndex &fromIndex, int count ) {};
-    void insertValueRows( const QModelIndex &fromIndex, int count ) {};
+
+    void setValues( const QModelIndex &fromIndex, const QList<QVariantList> &values ) {}
+    void insertValues( const QModelIndex &fromIndex, const QList<QVariantList> &values ) {}
+    void deleteRows( const QModelIndex &fromIndex, int count ) {};
+    void insertRows( const QModelIndex &fromIndex, int count ) {};
 
     void setSerie( ReosTimeSerieVariableTimeStep *serie );
     void setNewRowWithFixedTimeStep( bool newRowWithFixedTimeStep );

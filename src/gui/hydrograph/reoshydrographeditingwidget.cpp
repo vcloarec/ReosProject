@@ -76,7 +76,7 @@ ReosHydrographEditingWidget::ReosHydrographEditingWidget( ReosHydrograph *hydrog
   mConstantTimeStepForNewEntryWidget->setVisible( mIsUseConstantTimeStepForNewEntry->value() );
   mDataModel->setNewRowWithFixedTimeStep( mIsUseConstantTimeStepForNewEntry->value() );
 
-  ReosTableView *tableView = new ReosTableView( this );
+  ReosTimeSerieTableView *tableView = new ReosTimeSerieTableView( this );
   addWidget( tableView );
   tableView->setModel( mDataModel );
   tableView->verticalHeader()->hide();

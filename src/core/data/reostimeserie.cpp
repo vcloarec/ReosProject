@@ -164,6 +164,24 @@ void ReosTimeSerieConstantIntervalModel::setSerieData( ReosTimeSerieConstantInte
   } );
 }
 
+void ReosTimeSerieConstantIntervalModel::setValues( const QModelIndex &fromIndex, const QList<QVariantList> &values )
+{
+  if ( !fromIndex.isValid() )
+    return;
+
+  setValues( fromIndex, doubleFromVariant( values ) );
+}
+
+void ReosTimeSerieConstantIntervalModel::insertValues( const QModelIndex &fromIndex, const QList<QVariantList> &values )
+{
+  const QList<double> doubleValues = doubleFromVariant( values );
+  if ( doubleValues.isEmpty() )
+    return;
+
+  insertRows( fromIndex, doubleValues.count() );
+  setValues( fromIndex, doubleValues );
+}
+
 void ReosTimeSerieConstantIntervalModel::setValues( const QModelIndex &fromIndex, const QList<double> &values )
 {
   if ( !fromIndex.isValid() )
@@ -189,7 +207,25 @@ void ReosTimeSerieConstantIntervalModel::setValues( const QModelIndex &fromIndex
   emit dataChanged( index( startRow, 0, QModelIndex() ), index( endRow, 0, QModelIndex() ) );
 }
 
-void ReosTimeSerieConstantIntervalModel::deleteValueRows( const QModelIndex &fromIndex, int count )
+QList<double> ReosTimeSerieConstantIntervalModel::doubleFromVariant( const QList<QVariantList> &values )
+{
+  QList<double> doubleValues;
+  doubleValues.reserve( values.count() );
+
+  for ( const QVariantList &row : values )
+  {
+    if ( row.count() != 1 )
+      return QList<double>();
+    bool ok = false;
+    doubleValues.append( ReosParameter::stringToDouble( row.at( 0 ).toString(), &ok ) );
+    if ( !ok )
+      return QList<double>();
+  }
+
+  return doubleValues;
+}
+
+void ReosTimeSerieConstantIntervalModel::deleteRows( const QModelIndex &fromIndex, int count )
 {
   if ( !fromIndex.isValid() )
     return;
@@ -199,7 +235,7 @@ void ReosTimeSerieConstantIntervalModel::deleteValueRows( const QModelIndex &fro
   endRemoveRows();
 }
 
-void ReosTimeSerieConstantIntervalModel::insertValueRows( const QModelIndex &fromIndex, int count )
+void ReosTimeSerieConstantIntervalModel::insertRows( const QModelIndex &fromIndex, int count )
 {
   beginInsertRows( QModelIndex(), fromIndex.row(), fromIndex.row() + count - 1 );
   mData->insertValues( fromIndex.row(), count, defaultValue );
@@ -956,7 +992,7 @@ bool ReosTimeSerieVariableTimeStepModel::setData( const QModelIndex &index, cons
 
 Qt::ItemFlags ReosTimeSerieVariableTimeStepModel::flags( const QModelIndex &index ) const
 {
-  if ( mIsEditable && !mNewRowWithFixedTimeStep )
+  if ( mIsEditable && !mNewRowWithFixedTimeStep && index.column() > 0 )
     return QAbstractTableModel::flags( index ) | Qt::ItemIsEditable;
   else if ( mIsEditable && index.column() == valueColumn() )
     return QAbstractTableModel::flags( index ) | Qt::ItemIsEditable;
