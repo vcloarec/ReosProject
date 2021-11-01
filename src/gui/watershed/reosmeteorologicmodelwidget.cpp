@@ -57,6 +57,7 @@ ReosMeteorologicModelWidget::ReosMeteorologicModelWidget( ReosWatershedItemModel
   ui->comboBoxCurrentModel->setModel( meteoModelsCollection );
 
   ui->widgetToolBar->setLayout( new QHBoxLayout );
+  ui->widgetToolBar->layout()->setContentsMargins( 0, 0, 0, 0 );
   QToolBar *toolBar = new QToolBar( ui->widgetToolBar );
   ui->widgetToolBar->layout()->addWidget( toolBar );
 

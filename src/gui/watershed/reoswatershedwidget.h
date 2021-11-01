@@ -24,6 +24,7 @@ class ReosMapToolMoveMapItem;
 class ReosMeteorologicItemModel;
 class ReosMeteorologicModelWidget;
 class ReosRunoffHydrographWidget;
+class ReosGaugedHydrographWidget;
 
 class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
 {
@@ -70,6 +71,9 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
 
     QAction *mActionRunoffHydrograph = nullptr;
     ReosRunoffHydrographWidget *mRunoffHydrographWidget = nullptr;
+
+    QAction *mActionGaugedHydrograph = nullptr;
+    ReosGaugedHydrographWidget *mGaugedHydrographWidget = nullptr;
 
     QAction *mActionExportToVectorLayer = nullptr;
 

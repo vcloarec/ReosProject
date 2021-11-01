@@ -32,6 +32,9 @@ email                : vcloarec at gmail dot com
 class ReosGisEngine;
 class ReosRunoffModelsGroup;
 class ReosTransferFunction;
+class ReosHydrographStore;
+class ReosHydrograph;
+class ReosSerieRainfall;
 
 class REOSCORE_EXPORT ReosWatershed: public QObject
 {
@@ -224,6 +227,9 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
     ReosDuration timeStepForOutputHydrograph() const;
     void setTimeStepForOutputHydrograph( const ReosDuration &timeStepForOutputHydrograph );
 
+    //! Return a pointer to the gauged hydrographs store of this watershed
+    ReosHydrographStore *gaugedHydrographs() const;
+
   signals:
     void changed();
 
@@ -240,6 +246,13 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
   private:
     Type mType = None;
 
+    ReosParameterString *mName;
+
+    //! Hierarchical link in watershed tree
+    std::vector<std::unique_ptr<ReosWatershed>> mUpstreamWatersheds;
+    ReosWatershed *mDownstreamWatershed = nullptr;
+
+    //! Geographics characteristic
     ReosMapExtent mExtent;
     QPolygonF mDelineating;
     QString mDelineatingReferenceLayer;
@@ -249,17 +262,7 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
     QPolygonF mProfile;
     ReosGisEngine *mGisEngine = nullptr;
 
-    ReosParameterString *mName;
-
-    ReosParameterArea *mArea = nullptr;
-    ReosParameterSlope *mSlope = nullptr;
-    ReosParameterDouble *mDrop = nullptr;
-    ReosParameterDouble *mLongestStreamPath = nullptr;
-    ReosParameterDouble *mAverageElevation = nullptr;
-
-    ReosConcentrationTimeCalculation mConcentrationTimeCalculation;
-    ReosParameterDuration *mConcentrationTimeValue = nullptr;
-
+    //! Return mGisEngine or the one of the parent watershed if nullptr
     ReosGisEngine *geographicalContext() const;
 
     struct DirectionData
@@ -276,12 +279,24 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
     };
     std::map<QString, RasterizedWatershedData> mRasterizedWatershedData;
 
-    std::vector<std::unique_ptr<ReosWatershed>> mUpstreamWatersheds;
-    ReosWatershed *mDownstreamWatershed = nullptr;
+    //! Geomorphological characteristic
+    ReosParameterArea *mArea = nullptr;
+    ReosParameterSlope *mSlope = nullptr;
+    ReosParameterDouble *mDrop = nullptr;
+    ReosParameterDouble *mLongestStreamPath = nullptr;
+    ReosParameterDouble *mAverageElevation = nullptr;
+
+    //! Hydrological data
+    ReosConcentrationTimeCalculation mConcentrationTimeCalculation;
+    ReosParameterDuration *mConcentrationTimeValue = nullptr;
 
     ReosRunoffModelsGroup *mRunoffModels;
     QMap<QString, ReosTransferFunction *> mTransferFunctions;
     QString mCurrentTransferFuntion;
+
+    //!*********************
+
+    ReosHydrographStore *mGaugedHydrographs = nullptr;
 
     bool mUsedConstantTimeStepForOutputHydrograph = false;
     ReosDuration mTimeStepForOutputHydrograph;

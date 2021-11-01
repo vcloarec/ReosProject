@@ -700,11 +700,11 @@ void ReosPlotItemRainfallIntensityDurationFrequencyFactory::buildPlotItems( Reos
 
     QRectF extent = _data->fullExtent();
     double xMin = extent.left() - extent.width() * 0.1;
-    double xmax = extent.right() + extent.width() * 0.1;
+    double xMax = extent.right() + extent.width() * 0.1;
     double yMin = extent.top() - extent.height() * 0.1;
     double yMax = extent.bottom() + extent.height() * 0.1;
 
-    plotWidget->setAxeXExtent( xMin, xmax );
+    plotWidget->setAxeXExtent( xMin, xMax );
     plotWidget->setAxeYLeftExtent( yMin, yMax );
     plotWidget->setLegendAlignement( Qt::AlignRight );
     plotWidget->setLegendVisible( true );

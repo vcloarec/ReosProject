@@ -1,8 +1,8 @@
 /***************************************************************************
-  reosdataobject.h - ReosDataObject
+  reostableview.h - ReosTableView
 
  ---------------------
- begin                : 4.2.2021
+ begin                : 26.10.2021
  copyright            : (C) 2021 by Vincent Cloarec
  email                : vcloarec at gmail dot com
  ***************************************************************************
@@ -13,40 +13,38 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#ifndef REOSDATAOBJECT_H
-#define REOSDATAOBJECT_H
+#ifndef REOSTABLEVIEW_H
+#define REOSTABLEVIEW_H
 
-#include <QObject>
+#include <QTableView>
+#include <QHeaderView>
 
-#include "reoscore.h"
+class ReosTimeSerieModel;
 
-class ReosEncodedElement;
+class ReosHorizontalHeaderView: public QHeaderView
+{
+  public:
+    ReosHorizontalHeaderView( QWidget *parent = nullptr );
 
-//! Abstract class uses to be an interface for data
-class REOSCORE_EXPORT ReosDataObject: public QObject
+  protected:
+    QSize sectionSizeFromContents( int logicalIndex ) const override;
+};
+
+class ReosTimeSerieTableView : public QTableView
 {
     Q_OBJECT
   public:
-    ReosDataObject( QObject *parent = nullptr );
+    ReosTimeSerieTableView( QWidget *parent );
+    void setModel( QAbstractItemModel *model ) override;
 
-    //! Returns the type
-    virtual QString type() const = 0;
-
-    //! Returns the name of the data object
-    QString name() const;
-
-    void encode( ReosEncodedElement &element ) const;
-    void decode( const ReosEncodedElement &element );
-
-  public slots:
-    //! Sets the name of the data object
-    void setName( const QString &name );
-
-  signals:
-    void dataChanged();
-    void settingsChanged();
+  protected:
+    void keyPressEvent( QKeyEvent *event ) override;
+    void contextMenuEvent( QContextMenuEvent *event ) override;
 
   private:
-    QString mName;
+    QList<QVariantList> clipBoardToVariantList();
+    ReosTimeSerieModel *timeSerieModel() const;
+
 };
-#endif // REOSDATAOBJECT_H
+
+#endif // REOSTABLEVIEW_H

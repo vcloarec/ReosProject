@@ -97,6 +97,7 @@
         <file>moveOutlet.svg</file>
         <file>addAlternatingBlockRainfall.svg</file>
         <file>alternatingBlockRainfall.svg</file>
+        <file>gaugedHydrograph.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

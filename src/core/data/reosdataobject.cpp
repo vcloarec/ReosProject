@@ -15,12 +15,23 @@
  ***************************************************************************/
 #include "reosdataobject.h"
 
+#include "reosencodedelement.h"
 
 ReosDataObject::ReosDataObject( QObject *parent ): QObject( parent ) {}
 
 QString ReosDataObject::name() const
 {
   return mName;
+}
+
+void ReosDataObject::encode( ReosEncodedElement &element ) const
+{
+  element.addData( QStringLiteral( "object-name" ), mName );
+}
+
+void ReosDataObject::decode( const ReosEncodedElement &element )
+{
+  element.getData( QStringLiteral( "object-name" ), mName );
 }
 
 void ReosDataObject::setName( const QString &name )

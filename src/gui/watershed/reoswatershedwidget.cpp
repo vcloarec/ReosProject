@@ -16,6 +16,7 @@
 #include "reosmeteorologicmodelwidget.h"
 #include "reosrunoffhydrographwidget.h"
 #include "reosexportwatershedtovectordialog.h"
+#include "reosgaugedhydrographwidget.h"
 
 ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *module, QWidget *parent ) :
   QWidget( parent ),
@@ -33,6 +34,8 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   mActionMeteorologicModel( new QAction( QPixmap( QStringLiteral( ":/images/meteoModel.svg" ) ), tr( "Meteorologic models" ), this ) ),
   mActionRunoffHydrograph( new QAction( QPixmap( QStringLiteral( ":/images/runoffHydrograph.svg" ) ), tr( "Runoff hydrograph" ), this ) ),
   mRunoffHydrographWidget( new ReosRunoffHydrographWidget( module, this ) ),
+  mActionGaugedHydrograph( new QAction( QPixmap( QStringLiteral( ":/images/gaugedHydrograph.svg" ) ), tr( "Gauged hydrograph" ), this ) ),
+  mGaugedHydrographWidget( new ReosGaugedHydrographWidget( this ) ),
   mActionExportToVectorLayer( new QAction( QPixmap( QStringLiteral( ":/images/exportWatershed.svg" ) ), tr( "Export watershed geometry to vector layer" ), this ) ),
   mActionZoomToWatershed( new QAction( QPixmap( QStringLiteral( ":/images/zoomToWatershed.svg" ) ), tr( "Zoom to watershed" ), this ) ),
   mCurrentStreamLine( map ),
@@ -54,6 +57,7 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   mActionConcentrationTime->setCheckable( true );
   mActionMeteorologicModel->setCheckable( true );
   mActionRunoffHydrograph->setCheckable( true );
+  mActionGaugedHydrograph->setCheckable( true );
   QToolBar *toolBar = new QToolBar( this );
 
   toolBar->addAction( mActionSelectWatershed );
@@ -63,6 +67,7 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   toolBar->addAction( mActionConcentrationTime );
   toolBar->addAction( mActionMeteorologicModel );
   toolBar->addAction( mActionRunoffHydrograph );
+  toolBar->addAction( mActionGaugedHydrograph );
   toolBar->addAction( mActionExportToVectorLayer );
 
   static_cast<QBoxLayout *>( layout() )->insertWidget( 0, toolBar );
@@ -73,6 +78,7 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   mConcentrationTimeWidget->setAction( mActionConcentrationTime );
   mMeteorolocicModelWidget->setAction( mActionMeteorologicModel );
   mRunoffHydrographWidget->setAction( mActionRunoffHydrograph );
+  mGaugedHydrographWidget->setAction( mActionGaugedHydrograph );
 
   mMapToolSelectWatershed->setAction( mActionSelectWatershed );
   mActionSelectWatershed->setCheckable( true );
@@ -94,6 +100,7 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   connect( this, &ReosWatershedWidget::currentWatershedChanged, mLongitudinalProfileWidget, &ReosLongitudinalProfileWidget::setCurrentWatershed );
   connect( this, &ReosWatershedWidget::currentWatershedChanged, mConcentrationTimeWidget, &ReosConcentrationTimeWidget::setCurrentWatershed );
   connect( this, &ReosWatershedWidget::currentWatershedChanged, mRunoffHydrographWidget, &ReosRunoffHydrographWidget::setCurrentWatershed );
+  connect( this, &ReosWatershedWidget::currentWatershedChanged, mGaugedHydrographWidget, &ReosGaugedHydrographWidget::setCurrentWatershed );
 
   connect( module, &ReosWatershedModule::hasBeenReset, this, &ReosWatershedWidget::onModuleReset );
   connect( mActionRemoveWatershed, &QAction::triggered, this, &ReosWatershedWidget::onRemoveWatershed );

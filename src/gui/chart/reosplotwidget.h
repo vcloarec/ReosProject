@@ -120,6 +120,7 @@ class ReosPlotWidget: public QWidget
 
     void setAxeXType( AxeType type );
     void setAxeXExtent( double min, double max );
+    void setAxeXExtent( const QDateTime &timeMin, const QDateTime &timeMax );
     void setAxeYLeftExtent( double min, double max );
     void setAxeYRightExtent( double min, double max );
 
