@@ -37,6 +37,5 @@ void ReosDocumentation::launchWebSite( QNetworkReply *reply )
   QTextStream textStream( reply );
   QString text = textStream.readAll();
 
-
   QDesktopServices::openUrl( QUrl( text ) );
 }

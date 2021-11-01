@@ -634,12 +634,14 @@ QPair<double, double> ReosTimeSerie::valueExent( bool withZero ) const
 
 void ReosTimeSerie::baseEncode( ReosEncodedElement &element ) const
 {
+  ReosDataObject::encode( element );
   element.addEncodedData( QStringLiteral( "reference-time" ), mReferenceTime->encode() );
   element.addData( QStringLiteral( "values" ), mValues );
 }
 
 bool ReosTimeSerie::decodeBase( const ReosEncodedElement &element )
 {
+  ReosDataObject::decode( element );
   if ( !element.getData( QStringLiteral( "values" ), mValues ) )
     return true;
 
@@ -707,6 +709,7 @@ void ReosTimeSerieVariableTimeStep::setValue( const ReosDuration &relativeTime, 
   {
     mValues.append( value );
     mTimeValues.append( relativeTime );
+    emit dataChanged();
     return;
   }
 
@@ -714,6 +717,7 @@ void ReosTimeSerieVariableTimeStep::setValue( const ReosDuration &relativeTime, 
   {
     mValues.prepend( value );
     mTimeValues.prepend( relativeTime );
+    emit dataChanged();
     return;
   }
 
@@ -851,6 +855,36 @@ QString ReosTimeSerieVariableTimeStep::unitString() const
 void ReosTimeSerieVariableTimeStep::setUnitString( const QString &unitString )
 {
   mUnitString = unitString;
+}
+
+void ReosTimeSerieVariableTimeStep::baseEncode( ReosEncodedElement &element ) const
+{
+  ReosTimeSerie::baseEncode( element );
+
+  element.addData( QStringLiteral( "unit-string" ), mValues );
+  QList<QByteArray> encodedTimeValues;
+  encodedTimeValues.reserve( mTimeValues.count() );
+
+  for ( const ReosDuration &time : mTimeValues )
+    encodedTimeValues.append( time.encode().bytes() );
+  element.addData( QStringLiteral( "time-values" ), encodedTimeValues );
+}
+
+bool ReosTimeSerieVariableTimeStep::decodeBase( const ReosEncodedElement &element )
+{
+  ReosTimeSerie::decodeBase( element );
+
+  if ( !element.getData( QStringLiteral( "unit-string" ), mValues ) )
+    return false;
+  QList<QByteArray> encodedTimeValues;
+
+  if ( !element.getData( QStringLiteral( "time-values" ), encodedTimeValues ) )
+    return false;
+  mTimeValues.resize( encodedTimeValues.count() );
+  for ( int i = 0; i < encodedTimeValues.size(); ++i )
+    mTimeValues[i] = ReosDuration::decode( ReosEncodedElement( encodedTimeValues.at( i ) ) );
+
+  return true;
 }
 
 

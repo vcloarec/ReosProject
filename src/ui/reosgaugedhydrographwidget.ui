@@ -49,7 +49,7 @@
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <widget class="ReosPlotWidget" name="widget" native="true"/>
+     <widget class="ReosPlotWidget" name="plotWidget" native="true"/>
      <widget class="QWidget" name="mEditingWidget" native="true">
       <layout class="QVBoxLayout" name="mEditingWidgetLayout">
        <property name="spacing">

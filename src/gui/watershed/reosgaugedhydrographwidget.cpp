@@ -22,6 +22,7 @@
 #include "reoshydrograph.h"
 #include "reosformwidget.h"
 #include "reoshydrographeditingwidget.h"
+#include "reosplottimeconstantinterval.h"
 
 ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( QWidget *parent )
   : ReosActionWidget( parent )
@@ -43,6 +44,11 @@ ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( QWidget *parent )
   mActionAddHydrograph = toolBar->addAction( QPixmap( QStringLiteral( ":/images/add.svg" ) ), tr( "Add Gauged Hydrograph" ), this, &ReosGaugedHydrographWidget::onAddHydrograph );
   mActionDeleteHydrograph = toolBar->addAction( QPixmap( QStringLiteral( ":/images/remove.svg" ) ), tr( "Delete Current Hydrograph" ), this, &ReosGaugedHydrographWidget::onRemoveHydrograph );
   mActionRenameHydrograph = toolBar->addAction( QPixmap( QStringLiteral( ":/images/rename.svg" ) ), tr( "Rename Current Hydrograph" ), this, &ReosGaugedHydrographWidget::onRenameHydrograph );
+
+  mHydrographPlot = new ReosPlotTimeSerieVariableStep( tr( "Hydrograph" ) );
+  ui->plotWidget->addPlotItem( mHydrographPlot );
+  ui->plotWidget->setAxeXType( ReosPlotWidget::temporal );
+  ui->plotWidget->enableAutoMinimumSize( true );
 
   connect( ui->mComboBoxHydrographName, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosGaugedHydrographWidget::onCurrentHydrographChanged );
 
@@ -79,6 +85,7 @@ void ReosGaugedHydrographWidget::onAddHydrograph()
   {
     std::unique_ptr<ReosHydrograph> newHydrograph = std::make_unique<ReosHydrograph>();
     newHydrograph->setName( nameParam.value() );
+    newHydrograph->setColor( Qt::blue );
     mHydrographStore->addHydrograph( newHydrograph.release() );
     onStoreChanged();
   }
@@ -153,19 +160,27 @@ void ReosGaugedHydrographWidget::onStoreChanged()
 
 void ReosGaugedHydrographWidget::onCurrentHydrographChanged()
 {
-  ReosHydrograph *currentHydrograph = nullptr;
+  if ( !mCurrentHydrograph.isNull() )
+    disconnect( mCurrentHydrograph, &ReosDataObject::dataChanged, this, &ReosGaugedHydrographWidget::updatePlotExtent );
 
   if ( mHydrographStore && mHydrographStore->hydrographCount() > 0 )
   {
-    currentHydrograph = mHydrographStore->hydrograph( ui->mComboBoxHydrographName->currentIndex() );
+    mCurrentHydrograph = mHydrographStore->hydrograph( ui->mComboBoxHydrographName->currentIndex() );
   }
 
   std::unique_ptr<QWidget> newWidget;
 
-  if ( currentHydrograph )
-    newWidget.reset( ReosFormWidgetFactories::instance()->createDataFormWidget( currentHydrograph ) );
+  if ( !mCurrentHydrograph.isNull() )
+  {
+    newWidget.reset( ReosFormWidgetFactories::instance()->createDataFormWidget( mCurrentHydrograph ) );
+    mHydrographPlot->setTimeSerie( mCurrentHydrograph );
+    connect( mCurrentHydrograph, &ReosDataObject::dataChanged, this, &ReosGaugedHydrographWidget::updatePlotExtent );
+  }
   else
+  {
     newWidget.reset( new QLabel( tr( "No Hydrograph" ) ) );
+    mHydrographPlot->setTimeSerie( nullptr );
+  }
 
   if ( ui->mEditingWidgetLayout->count() != 0 )
   {
@@ -176,4 +191,14 @@ void ReosGaugedHydrographWidget::onCurrentHydrographChanged()
   mCurrenEditingWidget = newWidget.get();
   ui->mEditingWidgetLayout->addWidget( newWidget.get() );
   newWidget.release();
+}
+
+void ReosGaugedHydrographWidget::updatePlotExtent()
+{
+  if ( mCurrentHydrograph.isNull() )
+    return;
+
+  const QPair<QDateTime, QDateTime> timeExtent = mCurrentHydrograph->timeExtent();
+
+  ui->plotWidget->setAxeXExtent( timeExtent.first, timeExtent.second );
 }

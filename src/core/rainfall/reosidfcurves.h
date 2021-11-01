@@ -273,7 +273,7 @@ class REOSCORE_EXPORT ReosIntensityDurationCurve: public ReosDataObject
     //! Returns whether interval at position \a i is valid
     bool intervalIsValid( int i );
 
-    //! Returns the intensity extent of the curve with unit time \a time unit
+    //! Returns the intensity extent of the curve with unit time \a timeUnit
     QRectF extent( ReosDuration::Unit timeUnit ) const;
 
     //! Sets the time unit corresponding to parameter with current formula
@@ -363,7 +363,7 @@ class REOSCORE_EXPORT ReosIntensityDurationFrequencyCurves : public ReosDataObje
     //! Returns the curve at position \a i
     ReosIntensityDurationCurve *curve( int i );
 
-    //! Returns the name if the curve at position  \a i
+    //! Returns the name of the curve at position \a i
     QString name( int i );
 
     //! Returns the intensity extent of all the curves (duration in minutes and intensity in mm/h)

@@ -20,6 +20,8 @@
 
 #include "reoscore.h"
 
+class ReosEncodedElement;
+
 //! Abstract class uses to be an interface for data
 class REOSCORE_EXPORT ReosDataObject: public QObject
 {
@@ -32,6 +34,9 @@ class REOSCORE_EXPORT ReosDataObject: public QObject
 
     //! Returns the name of the data object
     QString name() const;
+
+    void encode( ReosEncodedElement &element ) const;
+    void decode( const ReosEncodedElement &element );
 
   public slots:
     //! Sets the name of the data object

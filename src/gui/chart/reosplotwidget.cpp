@@ -195,6 +195,13 @@ void ReosPlotWidget::setAxeXExtent( double min, double max )
   mZoomerRight->setZoomBase();
 }
 
+void ReosPlotWidget::setAxeXExtent( const QDateTime &timeMin, const QDateTime &timeMax )
+{
+  mPlot->setAxisScale( QwtPlot::xBottom, QwtDate::toDouble( timeMin ), QwtDate::toDouble( timeMax ) );
+  mZoomerLeft->setZoomBase();
+  mZoomerRight->setZoomBase();
+}
+
 void ReosPlotWidget::setAxeYLeftExtent( double min, double max )
 {
   mPlot->setAxisScale( QwtPlot::yLeft, min, max );

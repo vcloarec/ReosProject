@@ -30,6 +30,12 @@ class REOSCORE_EXPORT ReosHydrograph : public ReosTimeSerieVariableTimeStep
     QColor color() const override;
     void setColor( const QColor &color );
 
+    ReosEncodedElement encode() const;
+    static ReosHydrograph *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
+
+  protected:
+    ReosHydrograph( const ReosEncodedElement &element, QObject *parent = nullptr );
+
   private:
     QColor mColor;
 };
@@ -42,45 +48,21 @@ class REOSCORE_EXPORT ReosHydrographStore : public ReosDataObject
     ReosHydrographStore( QObject *parent = nullptr ): ReosDataObject( parent ) {}
 
     //! Add an hydrograph to the sore, take ownership
-    void addHydrograph( ReosHydrograph *hydrograph )
-    {
-      hydrograph->setParent( this );
-      mHydrographs.append( hydrograph );
-
-      emit dataChanged();
-    }
+    void addHydrograph( ReosHydrograph *hydrograph );
 
     //! Remove and destroy the hydrograph at position \a index
-    void removeHydrograph( int index )
-    {
-      delete mHydrographs.takeAt( index );
-      emit dataChanged();
-    }
+    void removeHydrograph( int index );
 
-    int hydrographCount() const
-    {
-      return mHydrographs.count();
-    }
+    int hydrographCount() const;
 
     //! Returns the list of the hydrograph names
-    QStringList hydrographNames() const
-    {
-      QStringList ret;
-      for ( const ReosHydrograph *hyd : mHydrographs )
-        ret.append( hyd->name() );
-
-      return ret;
-    }
+    QStringList hydrographNames() const;
 
     //! Returns a pointer to the hydrograph at position \a index, nullptr if not exists
-    ReosHydrograph *hydrograph( int index ) const
-    {
-      if ( index >= 0 && index < mHydrographs.count() )
-        return mHydrographs.at( index );
+    ReosHydrograph *hydrograph( int index ) const;
 
-      return nullptr;
-    }
-
+    ReosEncodedElement encode() const;
+    void decode( const ReosEncodedElement &element );
 
     QString type() const override {return QStringLiteral( "hydrograph-store" );}
   private:

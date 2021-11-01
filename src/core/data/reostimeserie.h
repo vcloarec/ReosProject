@@ -65,10 +65,6 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
     //! Return the value extent of the serie, if withZero, zeo will be a extrem if all values are positive or negative
     QPair<double, double> valueExent( bool withZero = false ) const;
 
-    //! Encodes/Decodes base information in the \a element
-    virtual void baseEncode( ReosEncodedElement &element ) const;
-    virtual bool  decodeBase( const ReosEncodedElement &element );
-
     //! Returns the text unit of values
     QString valueUnit() const;
 
@@ -83,6 +79,11 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
   protected:
     //! Connect all parameters with
     void connectParameters();
+
+    //! Encodes/Decodes base information in the \a element
+    virtual void baseEncode( ReosEncodedElement &element ) const;
+    virtual bool  decodeBase( const ReosEncodedElement &element );
+
     QVector<double> mValues;
 
   private:
@@ -167,7 +168,7 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     //! Copy atributes from \a other to \a this
     void copyAttribute( ReosTimeSerieConstantInterval *other );
 
-    //! Returns a encoded element correspondint to this serie
+    //! Returns a encoded element corresponding to this serie
     ReosEncodedElement encode( const QString &descritpion = QString() ) const;
 
     //! Creates new instance from the encoded element
@@ -195,7 +196,6 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
 {
     Q_OBJECT
   public:
-
     ReosTimeSerieVariableTimeStep( QObject *parent );
 
     void clear() override;
@@ -231,17 +231,22 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
     //! Sets the unit of the values as a string
     void setUnitString( const QString &unitString );
 
+  protected:
+
+    //! Encodes/Decodes base information in/from the \a element
+    virtual void baseEncode( ReosEncodedElement &element ) const;
+    virtual bool  decodeBase( const ReosEncodedElement &element );
+
   private:
     QVector<ReosDuration> mTimeValues;
+    QString mUnitString;
+
 
     /**
      *  Returns the index of the time value if the value is present, or the index of the value just before if not present (-1 if less than the first one)
      *  If \a time exactly corresponds to an existing index, return true in \a exact
      */
     int timeValueIndex( const ReosDuration &time, bool &exact ) const;
-
-    QString mUnitString;
-
 };
 
 class ReosTimeSerieModel : public QAbstractTableModel

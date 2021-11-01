@@ -16,6 +16,8 @@
 #ifndef REOSGAUGEDHYDROGRAPHWIDGET_H
 #define REOSGAUGEDHYDROGRAPHWIDGET_H
 
+#include <QPointer>
+
 #include "reosactionwidget.h"
 
 namespace Ui
@@ -26,6 +28,9 @@ namespace Ui
 class ReosWatershed;
 class ReosHydrographStore;
 class ReosTimeSerieVariableTimeStepModel;
+class ReosPlotTimeSerieVariableStep;
+class ReosHydrographEditingWidget;
+class ReosHydrograph;
 
 class ReosGaugedHydrographWidget : public ReosActionWidget
 {
@@ -44,6 +49,8 @@ class ReosGaugedHydrographWidget : public ReosActionWidget
     void onStoreChanged();
     void onCurrentHydrographChanged();
 
+    void updatePlotExtent();
+
   private:
     Ui::ReosGaugedHydrographWidget *ui;
 
@@ -54,6 +61,9 @@ class ReosGaugedHydrographWidget : public ReosActionWidget
     QAction *mActionDeleteHydrograph = nullptr;
     QAction *mActionRenameHydrograph = nullptr;
     QWidget *mCurrenEditingWidget = nullptr;
+    QPointer<ReosHydrograph> mCurrentHydrograph = nullptr;
+
+    ReosPlotTimeSerieVariableStep *mHydrographPlot = nullptr;
 };
 
 #endif // REOSGAUGEDHYDROGRAPHWIDGET_H
