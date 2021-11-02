@@ -49,7 +49,9 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
 
     //! Sets the map tool to the default one
     void setDefaultMapTool();
+
     void setExtent( const ReosMapExtent &extent );
+    ReosMapExtent extent() const;
 
     QList<QAction *> mapToolActions();
 
@@ -61,6 +63,7 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     void cursorMoved( const QPointF &point );
     void readProject( const QDomDocument &doc );
     void crsChanged( const QString &crs );
+    void extentChanged();
 
   private slots:
     void setCrs( const QString &crs );

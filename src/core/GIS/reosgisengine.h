@@ -28,6 +28,7 @@ email                : vcloarec at gmail dot com
 class ReosDigitalElevationModel;
 class ReosDigitalElevationModelProvider;
 class QgsRasterLayer;
+class ReosMapExtent;
 
 /**
  * Reos module class that handles GIS layer
@@ -128,12 +129,22 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     //! Clears the GIS project
     void clearProject();
 
-
     bool canBeRasterDem( const QString &uri ) const;
+
+    //! Transforms the map extent in the project coordinates system. It is supposed that \a extent contains the source CRS
+    ReosMapExtent transformToProjectExtent( const ReosMapExtent &extent );
+
+    //! Transforms the \a extent in project coordinates in an extent in \a wktCrs, the returns extent contain the destination CRS reference
+    ReosMapExtent transformFromProjectExtent( const ReosMapExtent &extent, const QString &wktCrs );
+
+    //! Transforms the \a sourcePoint from \a sourceCRS to project CRS
+    QPointF transformToProjectCoordinates( const QString &sourceCRS, const QPointF &sourcePoint );
 
     static QString gisEngineName();
     static QString gisEngineVersion();
     static QString gisEngineLink();
+
+    static QString wktEPSGCrs( int code );
 
   signals:
     void crsChanged( const QString &wktCrs );

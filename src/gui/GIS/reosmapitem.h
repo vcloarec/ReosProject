@@ -67,7 +67,7 @@ class ReosMapItem
     QPointer<ReosMap> mMap = nullptr;
     QString mDescription;
 
-    //! Private item that represent the graphic representation on the map, access to itt need to check isMapExist()
+    //! Private item that represent the graphic representation on the map, access to it need to check isMapExist()
     ReosMapItem_p *d_ = nullptr;
 };
 

@@ -95,7 +95,7 @@ SET(TESTS
     src/core/reos_raster_test.cpp
     src/core/reos_watershedRaster_test.cpp
     src/core/reos_geometry_test.cpp
-
+    src/core/reos_hubeau_test.cpp
     src/gui/reos_gisGui_test.cpp
     )
 

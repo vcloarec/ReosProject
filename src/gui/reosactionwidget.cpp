@@ -60,6 +60,7 @@ void ReosActionWidget::closeEvent( QCloseEvent *event )
     }
   }
   closingWidget();
+  emit closed();
   event->accept();
 }
 
