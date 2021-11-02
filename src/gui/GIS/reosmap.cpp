@@ -45,6 +45,8 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   canvas->setExtent( QgsRectangle( 0, 0, 200, 200 ) );
   canvas->setObjectName( "map canvas" );
 
+  connect( canvas, &QgsMapCanvas::extentsChanged, this, &ReosMap::extentChanged );
+
   QgsLayerTreeModel *layerTreeModel = qobject_cast<QgsLayerTreeModel *>( gisEngine->layerTreeModel() );
   if ( layerTreeModel )
   {
@@ -166,6 +168,13 @@ void ReosMap::setExtent( const ReosMapExtent &extent )
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
   canvas->setExtent( QgsRectangle( extent.xMapMin(), extent.yMapMin(), extent.xMapMax(), extent.yMapMax() ) );
   canvas->refresh();
+}
+
+ReosMapExtent ReosMap::extent() const
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
+  QgsRectangle extent = canvas->extent();
+  return ReosMapExtent( extent.toRectF() );
 }
 
 QList<QAction *> ReosMap::mapToolActions()

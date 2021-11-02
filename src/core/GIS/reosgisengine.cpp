@@ -436,6 +436,69 @@ bool ReosGisEngine::canBeRasterDem( const QString &uri ) const
   return canBeRasterDem( rasterLayer.get() );
 }
 
+ReosMapExtent ReosGisEngine::transformToProjectExtent( const ReosMapExtent &extent )
+{
+  QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( extent.crs() ),
+                                    QgsProject::instance()->crs(),
+                                    QgsProject::instance()->transformContext() );
+
+  QgsRectangle qgsExtent( extent.toRectF() );
+  ReosMapExtent ret;
+
+  try
+  {
+    QgsRectangle transformExtent = transform.transform( qgsExtent );
+    ret = ReosMapExtent( transformExtent.toRectF() );
+    ret.setCrs( QgsProject::instance()->crs().toWkt() );
+  }
+  catch ( ... )
+  {
+    ret = ReosMapExtent( qgsExtent.toRectF() );
+  }
+
+  return ret;
+}
+
+ReosMapExtent ReosGisEngine::transformFromProjectExtent( const ReosMapExtent &extent, const QString &wktCrs )
+{
+  QgsCoordinateTransform transform( QgsProject::instance()->crs(),
+                                    QgsCoordinateReferenceSystem::fromWkt( wktCrs ),
+                                    QgsProject::instance()->transformContext() );
+
+  QgsRectangle qgsExtent( extent.toRectF() );
+  ReosMapExtent ret;
+
+  try
+  {
+    QgsRectangle transformExtent = transform.transform( qgsExtent );
+    ret = ReosMapExtent( transformExtent.toRectF() );
+    ret.setCrs( wktCrs );
+  }
+  catch ( ... )
+  {
+    ret = ReosMapExtent( qgsExtent.toRectF() );
+  }
+
+  return ret;
+}
+
+QPointF ReosGisEngine::transformToProjectCoordinates( const QString &sourceCRS, const QPointF &sourcePoint )
+{
+  QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( sourceCRS ),
+                                    QgsProject::instance()->crs(),
+                                    QgsProject::instance()->transformContext() );
+
+  try
+  {
+    QgsPointXY transformPoint = transform.transform( QgsPointXY( sourcePoint ) );
+    return transformPoint.toQPointF();
+  }
+  catch ( ... )
+  {
+    return sourcePoint;
+  }
+}
+
 QString ReosGisEngine::gisEngineName()
 {
   return QStringLiteral( "QGIS" );
@@ -449,6 +512,11 @@ QString ReosGisEngine::gisEngineVersion()
 QString ReosGisEngine::gisEngineLink()
 {
   return QStringLiteral( "www.qgis.org" );
+}
+
+QString ReosGisEngine::wktEPSGCrs( int code )
+{
+  return QgsCoordinateReferenceSystem::fromEpsgId( code ).toWkt();
 }
 
 ReosGisEngine::LayerType ReosGisEngine::layerType( const QString layerId ) const

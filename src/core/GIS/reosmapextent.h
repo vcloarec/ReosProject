@@ -58,50 +58,10 @@ class REOSCORE_EXPORT ReosMapExtent
     ReosMapExtent operator*( const ReosMapExtent &other ) const;
 
     QPolygonF toPolygon() const;
+    QRectF toRectF() const;
 
-    static ReosMapExtent decode( const ReosEncodedElement &element )
-    {
-      if ( element.description() == QStringLiteral( "map-extent" ) )
-      {
-        double xMin;
-        if ( !element.getData( QStringLiteral( "xmin" ), xMin ) )
-          return ReosMapExtent();
-        double xMax;
-        if ( !element.getData( QStringLiteral( "xmax" ), xMax ) )
-          return ReosMapExtent();
-        double yMin;
-        if ( !element.getData( QStringLiteral( "ymin" ), yMin ) )
-          return ReosMapExtent();
-        double yMax;
-        if ( !element.getData( QStringLiteral( "ymax" ), yMax ) )
-          return ReosMapExtent();
-        QString crs;
-        if ( !element.getData( QStringLiteral( "crs" ), crs ) )
-          return ReosMapExtent();
-
-        ReosMapExtent ret( xMin, yMin, xMax, yMax );
-        ret.setCrs( crs );
-
-        return ret;
-      }
-      else
-      {
-        return ReosMapExtent();
-      }
-    }
-
-    ReosEncodedElement encode() const
-    {
-      ReosEncodedElement ret( QStringLiteral( "map-extent" ) );
-
-      ret.addData( QStringLiteral( "xmin" ), mXMin );
-      ret.addData( QStringLiteral( "xmax" ), mXMax );
-      ret.addData( QStringLiteral( "ymin" ), mYMin );
-      ret.addData( QStringLiteral( "ymax" ), mYMax );
-      ret.addData( QStringLiteral( "crs" ), mCrs );
-
-      return ret;
-    }
+    static ReosMapExtent decode( const ReosEncodedElement &element );
+    ReosEncodedElement encode() const;
 
   protected:
     double mXMin = std::numeric_limits<double>::max();

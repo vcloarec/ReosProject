@@ -276,7 +276,7 @@ ReosMapMarker::ReosMapMarker( ReosMap *map ): ReosMapItem( map )
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
   {
-    d_ = new ReosMapMarker_p( canvas ); //the owner ship of d pointer is taken by the scene of the map canvas
+    d_ = new ReosMapMarker_p( canvas ); //the ownership of d pointer is taken by the scene of the map canvas
     d_->base = this;
   }
 }
@@ -286,7 +286,7 @@ ReosMapMarker::ReosMapMarker( ReosMap *map, const QPointF &point ): ReosMapItem(
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
   {
-    d_ = new ReosMapMarker_p( canvas ); //the owner ship of d pointer is takeny the scene of the map canvas
+    d_ = new ReosMapMarker_p( canvas ); //the ownership of d pointer is takeny the scene of the map canvas
     static_cast<ReosMapMarker_p *>( d_ )->mapPoint = point;
     static_cast<ReosMapMarker_p *>( d_ )->isEmpty = false;
     d_->updatePosition();
