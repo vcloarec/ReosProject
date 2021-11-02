@@ -52,6 +52,7 @@ SET(REOS_CORE_SOURCES
   data/reostimeserieprovider.cpp
   data/reostextfiledata.cpp
   data/reosdataobject.cpp
+  data/reoshubeauserver.cpp
 
   hydrograph/reoshydrograph.cpp
 )
@@ -105,6 +106,7 @@ SET(REOS_CORE_HEADERS
     data/reostimeserieprovider.h
     data/reostextfiledata.h
     data/reosdataobject.h
+    data/reoshubeauserver.h
 
     hydrograph/reoshydrograph.h
 

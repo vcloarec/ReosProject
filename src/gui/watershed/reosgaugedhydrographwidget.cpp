@@ -24,12 +24,12 @@
 #include "reoshydrographeditingwidget.h"
 #include "reosplottimeconstantinterval.h"
 
-ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( QWidget *parent )
+#include "reoshubeauwidget.h"
+
+ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( ReosMap *map, QWidget *parent )
   : ReosActionWidget( parent )
   , ui( new Ui::ReosGaugedHydrographWidget )
-  , mActionAddHydrograph( new QAction( tr( "Add Gauged Hydrograph" ), this ) )
-  , mActionDeleteHydrograph( new QAction( tr( "Delete Current Hydrograph" ), this ) )
-  , mActionRenameHydrograph( new QAction( tr( "Rename Current Hydrograph" ), this ) )
+  , mMap( map )
 {
   ui->setupUi( this );
   setWindowFlag( Qt::Dialog );
@@ -44,6 +44,8 @@ ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( QWidget *parent )
   mActionAddHydrograph = toolBar->addAction( QPixmap( QStringLiteral( ":/images/add.svg" ) ), tr( "Add Gauged Hydrograph" ), this, &ReosGaugedHydrographWidget::onAddHydrograph );
   mActionDeleteHydrograph = toolBar->addAction( QPixmap( QStringLiteral( ":/images/remove.svg" ) ), tr( "Delete Current Hydrograph" ), this, &ReosGaugedHydrographWidget::onRemoveHydrograph );
   mActionRenameHydrograph = toolBar->addAction( QPixmap( QStringLiteral( ":/images/rename.svg" ) ), tr( "Rename Current Hydrograph" ), this, &ReosGaugedHydrographWidget::onRenameHydrograph );
+  mActionHubEau = toolBar->addAction( tr( "Hub eau" ) );
+  mActionHubEau->setCheckable( true );
 
   mHydrographPlot = new ReosPlotTimeSerieVariableStep( tr( "Hydrograph" ) );
   ui->plotWidget->addPlotItem( mHydrographPlot );
@@ -53,6 +55,11 @@ ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( QWidget *parent )
   connect( ui->mComboBoxHydrographName, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosGaugedHydrographWidget::onCurrentHydrographChanged );
 
   onStoreChanged();
+
+
+  mHubEauWidget = new ReosHubEauWidget( mMap, this );
+  mHubEauWidget->setAction( mActionHubEau );
+
 }
 
 ReosGaugedHydrographWidget::~ReosGaugedHydrographWidget()
