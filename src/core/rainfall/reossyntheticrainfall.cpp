@@ -73,13 +73,15 @@ void ReosChicagoRainfall::updateRainfall()
   if ( mIntensityDurationCurve.isNull() )
     return;
 
-  mValues.clear();
+  ReosTimeSerieConstantTimeStepProvider *data = dataProvider();
+
+  data->clear();
 
   const ReosDuration ts = timeStep()->value();
   const ReosDuration totalDuration = mTotalDuration->value();
   double eccentricityCoef = mCenterCoefficient->value();
-  mValues.append( mIntensityDurationCurve->height( ts, true ) );
-  double cumulativeHeight = mValues.last();
+  data->appendValue( mIntensityDurationCurve->height( ts, true ) );
+  double cumulativeHeight = data->lastValue();
   ReosDuration duration = ts;
 
   unsigned nbLeft = 0;
@@ -108,30 +110,30 @@ void ReosChicagoRainfall::updateRainfall()
 
       if ( dnL != 0 )
       {
-        if ( hInc <= mValues.first() )
+        if ( hInc <= data->firstValue() )
         {
-          mValues.prepend( hInc );
+          data->prependValue( hInc );
           hIncEffectiv += hInc;
         }
         else
         {
-          double hIncEf = mValues.first();
-          mValues.prepend( hIncEf );
+          double hIncEf = data->firstValue();
+          data->prependValue( hIncEf );
           hIncEffectiv += hIncEf;
         }
       }
 
       if ( dnR != 0 )
       {
-        if ( hInc <= mValues.last() )
+        if ( hInc <= data->lastValue() )
         {
-          mValues.append( hInc );
+          data->appendValue( hInc );
           hIncEffectiv += hInc;
         }
         else
         {
-          double hIncEf = mValues.last();
-          mValues.append( hIncEf );
+          double hIncEf = data->lastValue();
+          data->appendValue( hIncEf );
           hIncEffectiv += hIncEf;
         }
       }
@@ -144,11 +146,11 @@ void ReosChicagoRainfall::updateRainfall()
   }
 
   //Need correction if values count not corresponding to total duration
-  if ( ( ts * mValues.count()  < totalDuration ) )
+  if ( ( ts * data->valueCount()  < totalDuration ) )
   {
     double hWanted = mIntensityDurationCurve->height( totalDuration, true );
     double hInc = hWanted - cumulativeHeight;
-    mValues.append( hInc );
+    data->appendValue( hInc );
   }
 
   emit dataChanged();
@@ -267,7 +269,9 @@ void ReosDoubleTriangleRainfall::updateRainfall()
   if ( mIntensityDurationCurveIntense.isNull() || mIntensityDurationCurveTotal.isNull() )
     return;
 
-  mValues.clear();
+  ReosTimeSerieConstantTimeStepProvider *data = dataProvider();
+
+  data->clear();
 
   ReosDuration ts = timeStep()->value();
   ReosDuration totalDuration = mTotalDuration->value();
@@ -294,7 +298,7 @@ void ReosDoubleTriangleRainfall::updateRainfall()
   for ( unsigned i = 1; i <= nbLowInterLeft; ++i )
   {
     double intensite = ( i - 0.5 ) * intensitePicPeuIntense / ( nbLowInterLeft );
-    mValues.push_back( intensite * ts.valueHour() );
+    data->appendValue( intensite * ts.valueHour() );
   }
 
   unsigned nbIntenseLateral = nbInterIntense / 2;
@@ -302,7 +306,7 @@ void ReosDoubleTriangleRainfall::updateRainfall()
   for ( unsigned i = 1; i <= nbIntenseLateral; ++i )
   {
     double intensite = ( ts * ( i - 0.5 ) ).valueHour() * ( intensitePicIntense - intensitePicPeuIntense ) / ( correctedIntenseDuration / 2 ).valueHour() + intensitePicPeuIntense;
-    mValues.push_back( intensite * ts.valueHour() );
+    data->appendValue( intensite * ts.valueHour() );
   }
 
   //si presence intervalle central
@@ -310,19 +314,19 @@ void ReosDoubleTriangleRainfall::updateRainfall()
   {
     double intensiteLateral = ( intensitePicIntense - intensitePicPeuIntense ) * double( nbIntenseLateral ) / ( double( nbInterIntense ) / 2 ) + intensitePicPeuIntense;
     double intensiteCentral = ( intensitePicIntense + intensiteLateral ) / 2;
-    mValues.push_back( intensiteCentral * ts.valueHour() );
+    data->appendValue( intensiteCentral * ts.valueHour() );
   }
 
   for ( unsigned i = 1; i <= nbIntenseLateral; ++i )
   {
     double intensite = ( ts * ( nbIntenseLateral - i + 0.5 ) ).valueHour() * ( intensitePicIntense - intensitePicPeuIntense ) / ( correctedIntenseDuration / 2 ).valueHour() + intensitePicPeuIntense;
-    mValues.push_back( intensite * ts.valueHour() );
+    data->appendValue( intensite * ts.valueHour() );
   }
 
   for ( unsigned i = 1; i <= nbLowInterRight; ++i )
   {
     double intensite = ( nbLowInterRight - i + 0.5 ) * intensitePicPeuIntense / ( nbLowInterRight );
-    mValues.push_back( intensite * ts.valueHour() );
+    data->appendValue( intensite * ts.valueHour() );
   }
 
   emit dataChanged();
@@ -432,7 +436,9 @@ void ReosAlternatingBlockRainfall::updateRainfall()
   if ( mIntensityDurationCurve.isNull() )
     return;
 
-  mValues.clear();
+  ReosTimeSerieConstantTimeStepProvider *data = dataProvider();
+
+  data->clear();
 
   if ( !timeStep()->isValid() || !totalDuration()->isValid() || totalDuration()->value() < timeStep()->value() )
     return;
@@ -446,10 +452,10 @@ void ReosAlternatingBlockRainfall::updateRainfall()
   int peakInterval = ( intervalCount * eccentricityCoef ) ;
   if ( intervalCount > 0 )
     peakInterval = std::min( peakInterval, intervalCount - 1 );
-  mValues.resize( intervalCount );
+  data->resize( intervalCount );
 
-  mValues[peakInterval] = mIntensityDurationCurve->height( ts, true );
-  double previousHeight = mValues[peakInterval];
+  data->setValue( peakInterval, mIntensityDurationCurve->height( ts, true ) );
+  double previousHeight = data->value( peakInterval );
   double cumulHeight = previousHeight;
 
   ReosDuration cumulDuration = ts;
@@ -478,7 +484,7 @@ void ReosAlternatingBlockRainfall::updateRainfall()
     double incrementalHeight = theoricalCumulHeight - cumulHeight;
     incrementalHeight = std::clamp( incrementalHeight, 0.0, previousHeight );
 
-    mValues[pos] = incrementalHeight;
+    data->setValue( pos, incrementalHeight );
 
     previousHeight = incrementalHeight;
     cumulHeight += incrementalHeight;
