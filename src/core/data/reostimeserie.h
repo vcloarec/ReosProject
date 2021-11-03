@@ -27,13 +27,13 @@
 #include "reosduration.h"
 #include "reosparameter.h"
 #include "reosdataobject.h"
-
+#include "reostimeserieprovider.h"
 
 //! Class that handle time serie data
 class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
 {
   public:
-    ReosTimeSerie( QObject *parent = nullptr );
+    ReosTimeSerie( QObject *parent = nullptr, const QString &providerKey = QString(), const QString &dataSource = QString() );
 
     //! Returns a pointer to the refrence time parameter
     ReosParameterDateTime *referenceTime() const {return mReferenceTime;}
@@ -72,9 +72,9 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
     void setValueUnit( const QString &valueUnit );
 
     //! Returns a pointer to access directly to the data, can be used only  when need efficient calculation.
-    double *data() {return mValues.data();}
+    double *data();
 
-    const QVector<double> &constData() const {return  mValues;}
+    const QVector<double> &constData() const;
 
   protected:
     //! Connect all parameters with
@@ -82,9 +82,9 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
 
     //! Encodes/Decodes base information in the \a element
     virtual void baseEncode( ReosEncodedElement &element ) const;
-    virtual bool  decodeBase( const ReosEncodedElement &element );
+    virtual bool decodeBase( const ReosEncodedElement &element );
 
-    QVector<double> mValues;
+    std::unique_ptr<ReosTimeSerieProvider> mProvider;
 
   private:
     ReosParameterDateTime *mReferenceTime = nullptr;
@@ -108,7 +108,7 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
       Cumulative
     };
 
-    ReosTimeSerieConstantInterval( QObject *parent = nullptr );
+    ReosTimeSerieConstantInterval( QObject *parent = nullptr, const QString &providerKey = QString(), const QString &dataSource = QString() );
 
     ReosDuration relativeTimeAt( int i ) const override;
     QPair<QDateTime, QDateTime> timeExtent() const override;
@@ -174,9 +174,10 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     //! Creates new instance from the encoded element
     static ReosTimeSerieConstantInterval *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
 
+    ReosTimeSerieConstantTimeStepProvider *dataProvider() const;
+
   protected:
     void connectParameters();
-
     ReosTimeSerieConstantInterval( const ReosEncodedElement &element, QObject *parent = nullptr );
 
   private:
@@ -196,9 +197,7 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
 {
     Q_OBJECT
   public:
-    ReosTimeSerieVariableTimeStep( QObject *parent );
-
-    void clear() override;
+    ReosTimeSerieVariableTimeStep( QObject *parent, const QString &providerKey = QString(), const QString &dataSource = QString() );
 
     QString type() const override {return QStringLiteral( "time-serie-variable-time-step" );}
 
@@ -237,8 +236,9 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
     virtual void baseEncode( ReosEncodedElement &element ) const;
     virtual bool  decodeBase( const ReosEncodedElement &element );
 
+    ReosTimeSerieVariableTimeStepProvider *dataProvider() const;
+
   private:
-    QVector<ReosDuration> mTimeValues;
     QString mUnitString;
 
 
