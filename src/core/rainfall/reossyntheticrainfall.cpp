@@ -73,7 +73,7 @@ void ReosChicagoRainfall::updateRainfall()
   if ( mIntensityDurationCurve.isNull() )
     return;
 
-  ReosTimeSerieConstantTimeStepProvider *data = dataProvider();
+  ReosTimeSerieConstantTimeStepProvider *data = constantTimeStepDataProvider();
 
   data->clear();
 
@@ -269,7 +269,7 @@ void ReosDoubleTriangleRainfall::updateRainfall()
   if ( mIntensityDurationCurveIntense.isNull() || mIntensityDurationCurveTotal.isNull() )
     return;
 
-  ReosTimeSerieConstantTimeStepProvider *data = dataProvider();
+  ReosTimeSerieConstantTimeStepProvider *data = constantTimeStepDataProvider();
 
   data->clear();
 
@@ -436,7 +436,7 @@ void ReosAlternatingBlockRainfall::updateRainfall()
   if ( mIntensityDurationCurve.isNull() )
     return;
 
-  ReosTimeSerieConstantTimeStepProvider *data = dataProvider();
+  ReosTimeSerieConstantTimeStepProvider *data = constantTimeStepDataProvider();
 
   data->clear();
 

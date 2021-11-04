@@ -65,7 +65,7 @@ class ReosDateScaleDraw_p : public QwtDateScaleDraw
 {
   public :
     ReosDateScaleDraw_p( Qt::TimeSpec timeSpec = Qt::LocalTime );
-    void drawLabel( QPainter *painter, double value ) const override; //Method override because bas align center with qwt
+    void drawLabel( QPainter *painter, double value ) const override; //Method override because bad align center with qwt
 };
 
 class ReosPlot_p: public QwtPlot

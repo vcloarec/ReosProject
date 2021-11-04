@@ -21,12 +21,14 @@
 #include <QDateTime>
 
 #include "reosduration.h"
+#include "reosdataobject.h"
 
 /**
  * Abstract class for time serie provider
  */
-class ReosTimeSerieProvider
+class ReosTimeSerieProvider : public QObject
 {
+    Q_OBJECT
   public:
     virtual ~ReosTimeSerieProvider();
 
@@ -39,9 +41,9 @@ class ReosTimeSerieProvider
     virtual double firstValue() const = 0;
     virtual double lastValue() const = 0;
 
-    virtual void setValue( int i, double v ) = 0;
-    virtual void removeValues( int fromPos, int count ) = 0;
-    virtual void clear() = 0;
+    virtual void setValue( int index, double value );;
+    virtual void removeValues( int from, int count );;
+    virtual void clear();
 
     virtual double *data() = 0;
     virtual const QVector<double> &constData() const = 0;
@@ -49,8 +51,14 @@ class ReosTimeSerieProvider
     virtual ReosEncodedElement encode() const = 0;
     virtual void decode( const ReosEncodedElement &element ) = 0;
 
+    virtual void load() {}
     QString dataSource() const;
     void setDataSource( const QString &dataSource );
+
+    virtual QString htmlMetaData() const {return QString();}
+
+  signals:
+    void dataChanged();
 
   private:
     QString mDataSource;
@@ -99,10 +107,10 @@ class ReosTimeSerieConstantTimeStepProvider : public ReosTimeSerieProvider
     ReosTimeSerieConstantTimeStepProvider() = default;
     ~ReosTimeSerieConstantTimeStepProvider();
 
-    virtual void resize( int size ) = 0;
-    virtual void appendValue( double v ) = 0;
-    virtual void prependValue( double v ) = 0;
-    virtual void insertValue( int fromPos, double v ) = 0;
+    virtual void resize( int size );
+    virtual void appendValue( double value );
+    virtual void prependValue( double value );
+    virtual void insertValue( int pos, double value );
 
     virtual ReosDuration timeStep() const = 0;
 };
@@ -118,11 +126,11 @@ class ReosTimeSerieVariableTimeStepProvider : public ReosTimeSerieProvider
 
     virtual ReosDuration relativeTimeAt( int i ) const  = 0;
     virtual ReosDuration lastRelativeTime() const = 0;
-    virtual void setRelativeTimeAt( int i, const ReosDuration &relativeTime ) = 0;
 
-    virtual void appendValue( const ReosDuration &relativeTime, double v ) = 0;
-    virtual void prependValue( const ReosDuration &relativeTime, double v ) = 0;
-    virtual void insertValue( int fromPos, const ReosDuration &relativeTime, double v ) = 0;
+    virtual void setRelativeTimeAt( int i, const ReosDuration &relativeTime );;
+    virtual void appendValue( const ReosDuration &relativeTime, double v );;
+    virtual void prependValue( const ReosDuration &relativeTime, double v );;
+    virtual void insertValue( int fromPos, const ReosDuration &relativeTime, double v );;
 };
 
 

@@ -32,6 +32,7 @@
 //! Class that handle time serie data
 class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
 {
+    Q_OBJECT
   public:
     ReosTimeSerie( QObject *parent = nullptr, const QString &providerKey = QString(), const QString &dataSource = QString() );
 
@@ -75,6 +76,11 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
     double *data();
 
     const QVector<double> &constData() const;
+
+    ReosTimeSerieProvider *dataProvider() const;
+
+  public slots:
+    void onDataProviderChanged();
 
   protected:
     //! Connect all parameters with
@@ -174,7 +180,7 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     //! Creates new instance from the encoded element
     static ReosTimeSerieConstantInterval *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
 
-    ReosTimeSerieConstantTimeStepProvider *dataProvider() const;
+    ReosTimeSerieConstantTimeStepProvider *constantTimeStepDataProvider() const;
 
   protected:
     void connectParameters();
@@ -236,7 +242,7 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
     virtual void baseEncode( ReosEncodedElement &element ) const;
     virtual bool  decodeBase( const ReosEncodedElement &element );
 
-    ReosTimeSerieVariableTimeStepProvider *dataProvider() const;
+    ReosTimeSerieVariableTimeStepProvider *variableTimeStepdataProvider() const;
 
   private:
     QString mUnitString;

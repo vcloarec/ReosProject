@@ -124,6 +124,8 @@ class ReosPlotWidget: public QWidget
     void setAxeYLeftExtent( double min, double max );
     void setAxeYRightExtent( double min, double max );
 
+    void setAxeTextSize( int size );
+
     void enableScaleTypeChoice( bool b );
 
     static QString plotEngineName();

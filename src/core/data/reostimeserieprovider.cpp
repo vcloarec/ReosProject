@@ -47,6 +47,12 @@ ReosTimeSerieProvider *ReosTimeSerieProviderRegistery::createProvider( const QSt
 
 ReosTimeSerieProvider::~ReosTimeSerieProvider() {}
 
+void ReosTimeSerieProvider::setValue( int, double ) {}
+
+void ReosTimeSerieProvider::removeValues( int, int ) {}
+
+void ReosTimeSerieProvider::clear() {}
+
 QString ReosTimeSerieProvider::dataSource() const
 {
   return mDataSource;
@@ -55,9 +61,18 @@ QString ReosTimeSerieProvider::dataSource() const
 void ReosTimeSerieProvider::setDataSource( const QString &dataSource )
 {
   mDataSource = dataSource;
+  load();
 }
 
 ReosTimeSerieConstantTimeStepProvider::~ReosTimeSerieConstantTimeStepProvider() {}
+
+void ReosTimeSerieConstantTimeStepProvider::resize( int ) {}
+
+void ReosTimeSerieConstantTimeStepProvider::appendValue( double ) {}
+
+void ReosTimeSerieConstantTimeStepProvider::prependValue( double ) {}
+
+void ReosTimeSerieConstantTimeStepProvider::insertValue( int, double ) {}
 
 ReosTimeSerieConstantTimeStepMemoryProvider::ReosTimeSerieConstantTimeStepMemoryProvider( const QVector<double> &values )
   : mValues( values )
@@ -174,6 +189,15 @@ ReosTimeSerieVariableTimeStepProvider::~ReosTimeSerieVariableTimeStepProvider()
 {
 
 }
+
+void ReosTimeSerieVariableTimeStepProvider::setRelativeTimeAt( int, const ReosDuration & ) {}
+
+void ReosTimeSerieVariableTimeStepProvider::appendValue( const ReosDuration &, double ) {}
+
+void ReosTimeSerieVariableTimeStepProvider::prependValue( const ReosDuration &, double ) {}
+
+void ReosTimeSerieVariableTimeStepProvider::insertValue( int, const ReosDuration &, double ) {}
+
 
 ReosTimeSerieVariableTimeStepMemoryProvider::ReosTimeSerieVariableTimeStepMemoryProvider( const QVector<double> &values, const QVector<ReosDuration> &timeValues )
   : mValues( values )

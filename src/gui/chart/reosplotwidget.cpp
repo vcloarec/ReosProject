@@ -35,6 +35,7 @@
 #include <qwt_plot_renderer.h>
 #include <qwt_date_scale_draw.h>
 #include <qwt_date_scale_engine.h>
+#include <qwt_scale_widget.h>
 
 
 ReosPlotWidget::ReosPlotWidget( QWidget *parent ): QWidget( parent ),
@@ -44,6 +45,15 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent ): QWidget( parent ),
   setLayout( new QVBoxLayout );
   layout()->setMargin( 0 );
   mPlot = new ReosPlot_p( this );
+
+  QFrame *plotCanvasFrame = dynamic_cast<QFrame *>( mPlot->canvas() );
+  if ( plotCanvasFrame )
+    plotCanvasFrame->setFrameStyle( QFrame::NoFrame );
+
+  mPlot->setStyleSheet( "QFrame { background-color:white; }" );
+  mPlot->setContentsMargins( 5, 5, 5, 5 );
+  mPlot->setFrameStyle( QFrame::NoFrame );
+
   setLegendVisible( true );
   mToolBar = new QToolBar;
   mToolBar->addAction( mActionExportAsImage );
@@ -212,6 +222,21 @@ void ReosPlotWidget::setAxeYRightExtent( double min, double max )
 {
   mPlot->setAxisScale( QwtPlot::yRight, min, max );
   mZoomerRight->setZoomBase();
+}
+
+void ReosPlotWidget::setAxeTextSize( int size )
+{
+  QFont font = mPlot->axisWidget( QwtPlot::xBottom )->font();
+  font.setPointSize( size );
+  mPlot->axisWidget( QwtPlot::xBottom )->setFont( font );
+
+  font = mPlot->axisWidget( QwtPlot::yLeft )->font();
+  font.setPointSize( size );
+  mPlot->axisWidget( QwtPlot::yLeft )->setFont( font );
+
+  font = mPlot->axisWidget( QwtPlot::yRight )->font();
+  font.setPointSize( size );
+  mPlot->axisWidget( QwtPlot::yRight )->setFont( font );
 }
 
 void ReosPlotWidget::enableScaleTypeChoice( bool b )

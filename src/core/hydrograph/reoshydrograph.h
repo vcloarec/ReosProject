@@ -24,7 +24,8 @@ class REOSCORE_EXPORT ReosHydrograph : public ReosTimeSerieVariableTimeStep
 {
     Q_OBJECT
   public:
-    ReosHydrograph( QObject *parent = nullptr ): ReosTimeSerieVariableTimeStep( parent ) {}
+    ReosHydrograph( QObject *parent = nullptr, const QString &providerKey = QString(), const QString &dataSource = QString() )
+      : ReosTimeSerieVariableTimeStep( parent, providerKey, dataSource ) {}
 
     QString type() const override {return QStringLiteral( "hydrograph" );}
     QColor color() const override;
