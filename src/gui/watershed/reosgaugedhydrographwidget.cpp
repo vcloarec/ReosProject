@@ -18,18 +18,19 @@
 
 #include <QMessageBox>
 
+#include "reosmap.h"
 #include "reoswatershed.h"
 #include "reoshydrograph.h"
 #include "reosformwidget.h"
 #include "reoshydrographeditingwidget.h"
 #include "reosplottimeconstantinterval.h"
 
-ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( QWidget *parent )
+#include "reoshubeauwidget.h"
+
+ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( ReosMap *map, QWidget *parent )
   : ReosActionWidget( parent )
   , ui( new Ui::ReosGaugedHydrographWidget )
-  , mActionAddHydrograph( new QAction( tr( "Add Gauged Hydrograph" ), this ) )
-  , mActionDeleteHydrograph( new QAction( tr( "Delete Current Hydrograph" ), this ) )
-  , mActionRenameHydrograph( new QAction( tr( "Rename Current Hydrograph" ), this ) )
+  , mMap( map )
 {
   ui->setupUi( this );
   setWindowFlag( Qt::Dialog );
@@ -45,6 +46,13 @@ ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( QWidget *parent )
   mActionDeleteHydrograph = toolBar->addAction( QPixmap( QStringLiteral( ":/images/remove.svg" ) ), tr( "Delete Current Hydrograph" ), this, &ReosGaugedHydrographWidget::onRemoveHydrograph );
   mActionRenameHydrograph = toolBar->addAction( QPixmap( QStringLiteral( ":/images/rename.svg" ) ), tr( "Rename Current Hydrograph" ), this, &ReosGaugedHydrographWidget::onRenameHydrograph );
 
+  ui->mWidgetProviderToolBar->setLayout( new QHBoxLayout );
+  ui->mWidgetProviderToolBar->layout()->setContentsMargins( 0, 0, 0, 0 );
+  QToolBar *toolBarProvider = new QToolBar( ui->mWidgetProviderToolBar );
+  ui->mWidgetProviderToolBar->layout()->addWidget( toolBarProvider );
+  mActionHubEau = toolBarProvider->addAction( QPixmap( ":/images/icon-hubeau-blue.svg" ), tr( "Hub eau" ) );
+  mActionHubEau->setCheckable( true );
+
   mHydrographPlot = new ReosPlotTimeSerieVariableStep( tr( "Hydrograph" ) );
   ui->plotWidget->addPlotItem( mHydrographPlot );
   ui->plotWidget->setAxeXType( ReosPlotWidget::temporal );
@@ -53,6 +61,10 @@ ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( QWidget *parent )
   connect( ui->mComboBoxHydrographName, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosGaugedHydrographWidget::onCurrentHydrographChanged );
 
   onStoreChanged();
+
+  mHubEauWidget = new ReosHubEauWidget( mMap, this );
+  mHubEauWidget->setAction( mActionHubEau );
+
 }
 
 ReosGaugedHydrographWidget::~ReosGaugedHydrographWidget()

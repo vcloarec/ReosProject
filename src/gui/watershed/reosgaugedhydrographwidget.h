@@ -31,12 +31,15 @@ class ReosTimeSerieVariableTimeStepModel;
 class ReosPlotTimeSerieVariableStep;
 class ReosHydrographEditingWidget;
 class ReosHydrograph;
+class ReosMap;
+
+class ReosHubEauWidget;
 
 class ReosGaugedHydrographWidget : public ReosActionWidget
 {
     Q_OBJECT
   public:
-    explicit ReosGaugedHydrographWidget( QWidget *parent = nullptr );
+    explicit ReosGaugedHydrographWidget( ReosMap *map, QWidget *parent = nullptr );
     ~ReosGaugedHydrographWidget();
 
   public slots:
@@ -53,17 +56,19 @@ class ReosGaugedHydrographWidget : public ReosActionWidget
 
   private:
     Ui::ReosGaugedHydrographWidget *ui;
-
+    ReosMap *mMap = nullptr;
     ReosWatershed *mCurrentWatershed = nullptr;
     ReosHydrographStore *mHydrographStore = nullptr;
     ReosTimeSerieVariableTimeStepModel *mTableModel = nullptr;
+    QAction *mActionHubEau = nullptr;
     QAction *mActionAddHydrograph = nullptr;
     QAction *mActionDeleteHydrograph = nullptr;
     QAction *mActionRenameHydrograph = nullptr;
     QWidget *mCurrenEditingWidget = nullptr;
     QPointer<ReosHydrograph> mCurrentHydrograph = nullptr;
-
     ReosPlotTimeSerieVariableStep *mHydrographPlot = nullptr;
+
+    ReosHubEauWidget *mHubEauWidget = nullptr;
 };
 
 #endif // REOSGAUGEDHYDROGRAPHWIDGET_H
