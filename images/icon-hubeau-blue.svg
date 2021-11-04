@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="24"
+   height="24"
+   viewBox="0 0 23.999999 24"
+   version="1.1"
+   id="svg89"
+   sodipodi:docname="icon-hubeau-blue.svg"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
+  <metadata
+     id="metadata93">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1051"
+     id="namedview91"
+     showgrid="false"
+     inkscape:zoom="16"
+     inkscape:cx="6.9660831"
+     inkscape:cy="7.3101706"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="Groupe_1" />
+  <defs
+     id="defs68">
+    <marker
+       inkscape:stockid="Arrow1Lstart"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="marker1184"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         id="path1182"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#0c72b9;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(0.8,0,0,0.8,10,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lstart"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lstart"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         id="path900"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#0c72b9;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(0.8,0,0,0.8,10,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <filter
+       id="Tracé_1"
+       x="0"
+       y="12.523"
+       width="66.781998"
+       height="75.989998"
+       filterUnits="userSpaceOnUse">
+      <feOffset
+         dy="3"
+         input="SourceAlpha"
+         id="feOffset2" />
+      <feGaussianBlur
+         stdDeviation="3"
+         result="blur"
+         id="feGaussianBlur4" />
+      <feFlood
+         flood-opacity="0.161"
+         id="feFlood6" />
+      <feComposite
+         operator="in"
+         in2="blur"
+         id="feComposite8"
+         result="result1" />
+      <feComposite
+         in="SourceGraphic"
+         in2="result1"
+         id="feComposite10" />
+    </filter>
+    <filter
+       id="Tracé_2"
+       x="69.292999"
+       y="11.309"
+       width="24.756001"
+       height="28.951"
+       filterUnits="userSpaceOnUse">
+      <feOffset
+         dy="3"
+         input="SourceAlpha"
+         id="feOffset13" />
+      <feGaussianBlur
+         stdDeviation="3"
+         result="blur-2"
+         id="feGaussianBlur15" />
+      <feFlood
+         flood-opacity="0.161"
+         id="feFlood17" />
+      <feComposite
+         operator="in"
+         in2="blur-2"
+         id="feComposite19"
+         result="result1" />
+      <feComposite
+         in="SourceGraphic"
+         in2="result1"
+         id="feComposite21" />
+    </filter>
+    <filter
+       id="Tracé_3"
+       x="16.634001"
+       y="0"
+       width="65.560997"
+       height="64.799004"
+       filterUnits="userSpaceOnUse">
+      <feOffset
+         dy="3"
+         input="SourceAlpha"
+         id="feOffset24" />
+      <feGaussianBlur
+         stdDeviation="3"
+         result="blur-3"
+         id="feGaussianBlur26" />
+      <feFlood
+         flood-opacity="0.161"
+         id="feFlood28" />
+      <feComposite
+         operator="in"
+         in2="blur-3"
+         id="feComposite30"
+         result="result1" />
+      <feComposite
+         in="SourceGraphic"
+         in2="result1"
+         id="feComposite32" />
+    </filter>
+    <filter
+       id="Tracé_4"
+       x="79.737"
+       y="22.855"
+       width="40.853001"
+       height="41.766998"
+       filterUnits="userSpaceOnUse">
+      <feOffset
+         dy="3"
+         input="SourceAlpha"
+         id="feOffset35" />
+      <feGaussianBlur
+         stdDeviation="3"
+         result="blur-4"
+         id="feGaussianBlur37" />
+      <feFlood
+         flood-opacity="0.161"
+         id="feFlood39" />
+      <feComposite
+         operator="in"
+         in2="blur-4"
+         id="feComposite41"
+         result="result1" />
+      <feComposite
+         in="SourceGraphic"
+         in2="result1"
+         id="feComposite43" />
+    </filter>
+    <filter
+       id="Tracé_5"
+       x="105.169"
+       y="22.855"
+       width="40.853001"
+       height="41.766998"
+       filterUnits="userSpaceOnUse">
+      <feOffset
+         dy="3"
+         input="SourceAlpha"
+         id="feOffset46" />
+      <feGaussianBlur
+         stdDeviation="3"
+         result="blur-5"
+         id="feGaussianBlur48" />
+      <feFlood
+         flood-opacity="0.161"
+         id="feFlood50" />
+      <feComposite
+         operator="in"
+         in2="blur-5"
+         id="feComposite52"
+         result="result1" />
+      <feComposite
+         in="SourceGraphic"
+         in2="result1"
+         id="feComposite54" />
+    </filter>
+    <filter
+       id="Tracé_6"
+       x="133.52299"
+       y="23.221001"
+       width="38.341999"
+       height="41.401001"
+       filterUnits="userSpaceOnUse">
+      <feOffset
+         dy="3"
+         input="SourceAlpha"
+         id="feOffset57" />
+      <feGaussianBlur
+         stdDeviation="3"
+         result="blur-6"
+         id="feGaussianBlur59" />
+      <feFlood
+         flood-opacity="0.161"
+         id="feFlood61" />
+      <feComposite
+         operator="in"
+         in2="blur-6"
+         id="feComposite63"
+         result="result1" />
+      <feComposite
+         in="SourceGraphic"
+         in2="result1"
+         id="feComposite65" />
+    </filter>
+  </defs>
+  <g
+     id="Groupe_1"
+     data-name="Groupe 1"
+     transform="translate(9,-58.512001)">
+    <g
+       style="stroke-width:0.31272295;stroke-miterlimit:4;stroke-dasharray:none"
+       transform="matrix(0.31977186,0,0,0.31977186,-9.9442533,57.358644)"
+       id="g71">
+      <path
+         id="Tracé_1-2"
+         data-name="Tracé 1"
+         d="m 46.075,70.817 a 2,2 0 0 0 -2.65,0 l -4.831,4.832 a 1.7437253,1.7437253 0 1 0 2.466,2.466 L 43.1,76.076 V 80.2 c -0.093,0.836 -1.065,7.787 -7.554,7.787 -7.341,0 -7.773,-7.625 -7.774,-7.7 V 56.966 l -0.007,-0.16 C 27.413,52.992 24.654,45.778 16.73,45.778 A 10.2,10.2 0 0 0 8.957,49.087 V 35.224 a 1.743,1.743 0 0 0 -3.486,0 v 31.095 a 4.577,4.577 0 1 0 3.486,0 v -9.241 c 0.122,-0.892 1.278,-7.812 7.773,-7.812 6.453,0 7.46,6.977 7.556,7.794 v 23.225 c 0,2.363 1.911,11.186 11.261,11.186 7.922,0 10.681,-7.212 11.034,-11.026 v -4.189 l 1.858,1.859 a 1.744,1.744 0 0 0 2.466,-2.466 z"
+         transform="translate(6.37,-14.96)"
+         inkscape:connector-curvature="0"
+         style="fill:#0c72b9;stroke-width:0.31272295;stroke-miterlimit:4;stroke-dasharray:none" />
+    </g>
+    <path
+       style="fill:#0c72b9;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none"
+       inkscape:connector-curvature="0"
+       d="m 9.6667158,66.655371 a 3.7822616,3.7822616 0 0 0 -2.6880023,1.119202 v -4.918091 l -0.00384,-0.06395 C 6.8348162,61.577394 5.9023614,59.278874 3.3777626,59.278874 c -2.53323267,0 -3.415803,2.306515 -3.5283627,3.526444 v 0.511635 l -0.64497984,-0.643061 a 0.55768212,0.55768212 0 0 0 -0.78855736,0.788557 l 1.54481781,1.545138 a 0.55576349,0.55576349 0 0 0 0.3942787,0.163403 c 0.009913,0 0.0195061,-0.0022 0.029419,-0.0029 0.009913,-6.39e-4 0.0195061,0.0029 0.029419,0.0029 a 0.55544372,0.55544372 0 0 0 0.3942787,-0.163403 L 2.3528938,63.462449 A 0.55768212,0.55768212 0 0 0 1.5643364,62.673892 l -0.60213042,0.603729 v -0.392999 c 0.0297388,-0.267649 0.34055702,-2.491023 2.41555662,-2.491023 2.0602901,0 2.4446559,2.211542 2.4859064,2.499017 v 7.419986 a 0.55768212,0.55768212 0 0 0 0.00959,0.09593 c 0,0.01439 0,0.02814 0,0.04253 A 3.7944129,3.7944129 0 1 0 9.6667126,66.65537 Z m 0,6.473142 a 2.6790486,2.6790486 0 1 1 2.6796882,-2.678409 2.6819266,2.6819266 0 0 1 -2.6796882,2.678729 z"
+       data-name="Tracé 3"
+       id="Tracé_3-2" />
+  </g>
+</svg>

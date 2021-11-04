@@ -21,17 +21,19 @@
 #include <memory>
 
 #include "reosmapextent.h"
+#include "reostimeserieprovider.h"
 
 
 class QNetworkAccessManager;
 class QNetworkReply;
 class ReosMapExtent;
 class ReosMap;
+class ReosHydrograph;
 
 struct ReosHubEauStation
 {
   QString id;
-  QString name;
+  QVariantMap meta;
   double longitude;
   double latitude;
 
@@ -92,15 +94,71 @@ class ReosHubEauConnectionControler: public QObject
     QString mNextURL;
 };
 
-
-class ReosHubEauAccess : public QObject
+class ReosHubEauHydrographProvider : public ReosTimeSerieVariableTimeStepProvider
 {
     Q_OBJECT
   public:
-    ReosHubEauAccess( QObject *parent = nullptr );
+    enum class Status
+    {
+      NoData,
+      Loading,
+      Loaded
+    };
+
+    ReosHubEauHydrographProvider() = default;
+    // ReosTimeSerieProvider interface
+    QString key() const override {return QStringLiteral( "hub-eau-hydrograph" );};
+    QDateTime referenceTime() const {return mReferenceTime;}
+    QString valueUnit() const {return QString();}
+    int valueCount() const {return mCachedValues.count();}
+    double value( int i ) const {return mCachedValues.at( i );}
+    double firstValue() const {return mCachedValues.first();}
+    double lastValue() const {return mCachedValues.last();}
+
+    void load();
+
+    double *data() {return mCachedValues.data();}
+    const QVector<double> &constData() const {return mCachedValues;};
+    ReosEncodedElement encode() const {};
+    void decode( const ReosEncodedElement &element ) {};
+
+    // ReosTimeSerieVariableTimeStepProvider interface
+    ReosDuration relativeTimeAt( int i ) const {return mCachedTimeValues.at( i );}
+    ReosDuration lastRelativeTime() const {return mCachedTimeValues.last();}
+
+    Status status() const;
+
+  private slots:
+    void onResultReady( const QVariantMap &result );
+    void onLoadingFinished();
+
+  private:
+    QDateTime mReferenceTime;
+    ReosHubEauConnectionControler *mFlowRequestControler = nullptr;
+    QVector<double> mCachedValues;
+    QVector<ReosDuration> mCachedTimeValues;
+    Status mStatus = Status::Loaded;
+};
+
+class ReosHubEauHydrographProviderFactory: public ReosTimeSerieProviderFactory
+{
+  public:
+    ReosTimeSerieProvider *createProvider() const {return new ReosHubEauHydrographProvider;};
+    QString key() const {return QStringLiteral( "hub-eau-hydrograph" );}
+};
+
+
+class ReosHubEauServer : public QObject
+{
+    Q_OBJECT
+  public:
+    ReosHubEauServer( QObject *parent = nullptr );
     bool testConnection();
 
     QList<ReosHubEauStation> stations() const;
+
+    //! Create a new hydrograph from the \a stationId, caller take ownership
+    ReosHydrograph *createHydrograph( const QString &stationId ) const;
 
   signals:
     void stationsUpdated();

@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="56.902618"
+   height="26.076683"
+   viewBox="0 0 56.902616 26.076683"
+   version="1.1"
+   id="svg921"
+   sodipodi:docname="logo-hubeau-blue.svg"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
+  <metadata
+     id="metadata925">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1015"
+     id="namedview923"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:zoom="3.7791288"
+     inkscape:cx="52.67627"
+     inkscape:cy="2.2187235"
+     inkscape:window-x="1920"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg921" />
+  <defs
+     id="defs900">
+    <filter
+       id="Tracé_1"
+       x="0"
+       y="12.523"
+       width="66.781998"
+       height="75.989998"
+       filterUnits="userSpaceOnUse">
+      <feOffset
+         dy="3"
+         input="SourceAlpha"
+         id="feOffset834" />
+      <feGaussianBlur
+         stdDeviation="3"
+         result="blur"
+         id="feGaussianBlur836" />
+      <feFlood
+         flood-opacity="0.161"
+         id="feFlood838" />
+      <feComposite
+         operator="in"
+         in2="blur"
+         id="feComposite840"
+         result="result1" />
+      <feComposite
+         in="SourceGraphic"
+         in2="result1"
+         id="feComposite842" />
+    </filter>
+    <filter
+       id="Tracé_2"
+       x="69.292999"
+       y="11.309"
+       width="24.756001"
+       height="28.951"
+       filterUnits="userSpaceOnUse">
+      <feOffset
+         dy="3"
+         input="SourceAlpha"
+         id="feOffset845" />
+      <feGaussianBlur
+         stdDeviation="3"
+         result="blur-2"
+         id="feGaussianBlur847" />
+      <feFlood
+         flood-opacity="0.161"
+         id="feFlood849" />
+      <feComposite
+         operator="in"
+         in2="blur-2"
+         id="feComposite851"
+         result="result1" />
+      <feComposite
+         in="SourceGraphic"
+         in2="result1"
+         id="feComposite853" />
+    </filter>
+    <filter
+       id="Tracé_3"
+       x="16.634001"
+       y="0"
+       width="65.560997"
+       height="64.799004"
+       filterUnits="userSpaceOnUse">
+      <feOffset
+         dy="3"
+         input="SourceAlpha"
+         id="feOffset856" />
+      <feGaussianBlur
+         stdDeviation="3"
+         result="blur-3"
+         id="feGaussianBlur858" />
+      <feFlood
+         flood-opacity="0.161"
+         id="feFlood860" />
+      <feComposite
+         operator="in"
+         in2="blur-3"
+         id="feComposite862"
+         result="result1" />
+      <feComposite
+         in="SourceGraphic"
+         in2="result1"
+         id="feComposite864" />
+    </filter>
+    <filter
+       id="Tracé_4"
+       x="79.737"
+       y="22.855"
+       width="40.853001"
+       height="41.766998"
+       filterUnits="userSpaceOnUse">
+      <feOffset
+         dy="3"
+         input="SourceAlpha"
+         id="feOffset867" />
+      <feGaussianBlur
+         stdDeviation="3"
+         result="blur-4"
+         id="feGaussianBlur869" />
+      <feFlood
+         flood-opacity="0.161"
+         id="feFlood871" />
+      <feComposite
+         operator="in"
+         in2="blur-4"
+         id="feComposite873"
+         result="result1" />
+      <feComposite
+         in="SourceGraphic"
+         in2="result1"
+         id="feComposite875" />
+    </filter>
+    <filter
+       id="Tracé_5"
+       x="105.169"
+       y="22.855"
+       width="40.853001"
+       height="41.766998"
+       filterUnits="userSpaceOnUse">
+      <feOffset
+         dy="3"
+         input="SourceAlpha"
+         id="feOffset878" />
+      <feGaussianBlur
+         stdDeviation="3"
+         result="blur-5"
+         id="feGaussianBlur880" />
+      <feFlood
+         flood-opacity="0.161"
+         id="feFlood882" />
+      <feComposite
+         operator="in"
+         in2="blur-5"
+         id="feComposite884"
+         result="result1" />
+      <feComposite
+         in="SourceGraphic"
+         in2="result1"
+         id="feComposite886" />
+    </filter>
+    <filter
+       id="Tracé_6"
+       x="133.52299"
+       y="23.221001"
+       width="38.341999"
+       height="41.401001"
+       filterUnits="userSpaceOnUse">
+      <feOffset
+         dy="3"
+         input="SourceAlpha"
+         id="feOffset889" />
+      <feGaussianBlur
+         stdDeviation="3"
+         result="blur-6"
+         id="feGaussianBlur891" />
+      <feFlood
+         flood-opacity="0.161"
+         id="feFlood893" />
+      <feComposite
+         operator="in"
+         in2="blur-6"
+         id="feComposite895"
+         result="result1" />
+      <feComposite
+         in="SourceGraphic"
+         in2="result1"
+         id="feComposite897" />
+    </filter>
+  </defs>
+  <g
+     id="Groupe_1"
+     data-name="Groupe 1"
+     transform="matrix(0.36985056,0,0,0.36985056,-0.00258895,-0.00184925)"
+     style="stroke-width:2.70379472">
+    <g
+       transform="translate(-9,-6)"
+       id="g903"
+       style="stroke-width:2.70379472">
+      <path
+         id="Tracé_1-2"
+         data-name="Tracé 1"
+         d="m 46.075,70.817 a 2,2 0 0 0 -2.65,0 l -4.831,4.832 a 1.7437253,1.7437253 0 1 0 2.466,2.466 L 43.1,76.076 V 80.2 c -0.093,0.836 -1.065,7.787 -7.554,7.787 -7.341,0 -7.773,-7.625 -7.774,-7.7 V 56.966 l -0.007,-0.16 C 27.413,52.992 24.654,45.778 16.73,45.778 A 10.2,10.2 0 0 0 8.957,49.087 V 35.224 a 1.743,1.743 0 0 0 -3.486,0 v 31.095 a 4.577,4.577 0 1 0 3.486,0 v -9.241 c 0.122,-0.892 1.278,-7.812 7.773,-7.812 6.453,0 7.46,6.977 7.556,7.794 v 23.225 c 0,2.363 1.911,11.186 11.261,11.186 7.922,0 10.681,-7.212 11.034,-11.026 v -4.189 l 1.858,1.859 a 1.744,1.744 0 0 0 2.466,-2.466 z"
+         transform="translate(6.37,-14.96)"
+         inkscape:connector-curvature="0"
+         style="fill:#0c72b9;stroke-width:2.70379472" />
+    </g>
+    <g
+       transform="translate(-9,-6)"
+       id="g906"
+       style="stroke-width:2.70379472">
+      <path
+         id="Tracé_2-2"
+         data-name="Tracé 2"
+         d="m 175.4,30.788 a 2.768,2.768 0 0 0 -2.144,-0.051 2.7,2.7 0 0 0 -1.614,1.41 2.636,2.636 0 0 0 -0.13,2.086 2.512,2.512 0 0 0 0.966,1.311 14.844,14.844 0 0 1 -0.758,2.079 7.618,7.618 0 0 1 -1.083,1.795 1.5,1.5 0 0 0 -0.414,0.85 1.041,1.041 0 0 0 0.177,0.732 1.236,1.236 0 0 0 0.633,0.433 1.406,1.406 0 0 0 0.923,-0.034 4.927,4.927 0 0 0 1.648,-1.222 13.324,13.324 0 0 0 1.832,-2.336 12.125,12.125 0 0 0 1.3,-2.8 4.147,4.147 0 0 0 0.057,-2.63 2.633,2.633 0 0 0 -1.393,-1.623 z"
+         transform="translate(-91.93,-13.24)"
+         inkscape:connector-curvature="0"
+         style="fill:#0c72b9;stroke-width:2.70379472" />
+    </g>
+    <g
+       transform="translate(-9,-6)"
+       id="g909"
+       style="stroke-width:2.70379472">
+      <path
+         id="Tracé_3-2"
+         data-name="Tracé 3"
+         d="m 78.558,26.263 a 11.828,11.828 0 0 0 -8.406,3.5 v -15.38 l -0.012,-0.2 C 69.702,10.383 66.786,3.195 58.891,3.195 c -7.922,0 -10.682,7.213 -11.034,11.028 v 1.6 L 45.84,13.812 a 1.744,1.744 0 0 0 -2.466,2.466 l 4.831,4.832 a 1.738,1.738 0 0 0 1.233,0.511 c 0.031,0 0.061,-0.007 0.092,-0.009 0.031,-0.002 0.061,0.009 0.092,0.009 a 1.737,1.737 0 0 0 1.233,-0.511 l 4.831,-4.832 A 1.744,1.744 0 0 0 53.22,13.812 L 51.337,15.7 v -1.229 c 0.093,-0.837 1.065,-7.79 7.554,-7.79 6.443,0 7.645,6.916 7.774,7.815 V 37.7 a 1.744,1.744 0 0 0 0.03,0.3 c 0,0.045 0,0.088 0,0.133 a 11.866,11.866 0 1 0 11.863,-11.87 z m 0,20.243 a 8.378,8.378 0 1 1 8.38,-8.376 8.387,8.387 0 0 1 -8.38,8.377 z"
+         transform="translate(-17.23,2.81)"
+         inkscape:connector-curvature="0"
+         style="fill:#0c72b9;stroke-width:2.70379472" />
+    </g>
+    <g
+       transform="translate(-9,-6)"
+       id="g912"
+       style="stroke-width:2.70379472">
+      <path
+         id="Tracé_4-2"
+         data-name="Tracé 4"
+         d="m 206.906,58.47 a 10.994,10.994 0 0 0 -8.386,3.458 12.04,12.04 0 0 0 -3.041,8.425 11.836,11.836 0 0 0 3.179,8.427 11.19,11.19 0 0 0 8.476,3.457 11,11 0 0 0 6.706,-1.937 11.172,11.172 0 0 0 3.8,-5.068 l 0.054,-0.14 h -3.957 l -0.029,0.055 a 6.837,6.837 0 0 1 -6.529,3.78 7.657,7.657 0 0 1 -5.5,-2.071 8.194,8.194 0 0 1 -2.466,-5.028 h 19.117 v -1.475 a 12.04,12.04 0 0 0 -3.041,-8.426 10.994,10.994 0 0 0 -8.383,-3.457 z m 0,3.312 a 7.489,7.489 0 0 1 5.226,1.936 8.015,8.015 0 0 1 2.416,4.706 h -15.283 a 8.009,8.009 0 0 1 2.415,-4.706 7.489,7.489 0 0 1 5.226,-1.936 z"
+         transform="translate(-106.74,-29.61)"
+         inkscape:connector-curvature="0"
+         style="fill:#0c72b9;stroke-width:2.70379472" />
+    </g>
+    <g
+       transform="translate(-9,-6)"
+       id="g915"
+       style="stroke-width:2.70379472">
+      <path
+         id="Tracé_5-2"
+         data-name="Tracé 5"
+         d="m 276.208,62.312 a 9.187,9.187 0 0 0 -7.842,-3.842 10.757,10.757 0 0 0 -8.341,3.459 13.193,13.193 0 0 0 0,16.849 10.492,10.492 0 0 0 8.113,3.458 9.4,9.4 0 0 0 8.069,-3.8 v 3.43 h 3.631 v -23.03 h -3.631 z m -7.613,16.613 a 7.513,7.513 0 0 1 -5.858,-2.522 9.692,9.692 0 0 1 0,-12.1 7.516,7.516 0 0 1 5.858,-2.523 7.162,7.162 0 0 1 5.765,2.52 10.035,10.035 0 0 1 0,12.1 7.159,7.159 0 0 1 -5.766,2.525 z"
+         transform="translate(-142.82,-29.61)"
+         inkscape:connector-curvature="0"
+         style="fill:#0c72b9;stroke-width:2.70379472" />
+    </g>
+    <g
+       transform="translate(-9,-6)"
+       id="g918"
+       style="stroke-width:2.70379472">
+      <path
+         id="Tracé_6-2"
+         data-name="Tracé 6"
+         d="m 342.27,59.354 v 13.253 a 6.648,6.648 0 0 1 -1.977,4.948 6.744,6.744 0 0 1 -4.814,1.889 6,6 0 0 1 -4.537,-1.84 6.918,6.918 0 0 1 -1.752,-4.951 v -13.3 h -3.631 v 13.39 a 9.986,9.986 0 0 0 2.86,7.423 8.093,8.093 0 0 0 2.913,1.943 11,11 0 0 0 3.964,0.646 7.5,7.5 0 0 0 4.12,-1.158 11.633,11.633 0 0 0 2.855,-2.569 V 82.39 H 345.9 V 59.354 Z"
+         transform="translate(-183.04,-30.13)"
+         inkscape:connector-curvature="0"
+         style="fill:#0c72b9;stroke-width:2.70379472" />
+    </g>
+  </g>
+</svg>

@@ -17,8 +17,11 @@
 #define REOSHUBEAUWIDGET_H
 
 #include <memory>
-#include "reosactionwidget.h"
+#include <QPointer>
 
+#include "reosactionwidget.h"
+#include "reoshubeauserver.h"
+#include "reosmapitem.h"
 
 class ReosMapMarker;
 
@@ -27,8 +30,18 @@ namespace Ui
   class ReosHubEauWidget;
 }
 
-class ReosMap;
-class ReosHubEauAccess;
+class ReosHubEauServer;
+class ReosMapToolSelectMapItem;
+class ReosHubEauStationMarker;
+class ReosHydrograph;
+class ReosPlotTimeSerieVariableStep;
+
+class ReosHubEauStationMarker: public ReosMapMarker
+{
+  public:
+    ReosHubEauStationMarker( ReosMap *map, const QPointF &point );
+    int stationIndex;
+};
 
 class ReosHubEauWidget : public ReosActionWidget
 {
@@ -41,12 +54,21 @@ class ReosHubEauWidget : public ReosActionWidget
     void onMapExtentChanged();
     void onStationUpdated();
     void onClosed();
+    void onSelectStation( ReosMapItem *item, const QPointF & );
+    void onHydrographUpdated();
 
   private:
     Ui::ReosHubEauWidget *ui;
     ReosMap *mMap = nullptr;
-    ReosHubEauAccess *mServer = nullptr;
-    std::vector < std::unique_ptr<ReosMapMarker>> mStationsMarker;
+    ReosHubEauServer *mServer = nullptr;
+    QList<ReosHubEauStation> mStations;
+    std::vector < std::unique_ptr<ReosHubEauStationMarker>> mStationsMarker;
+    ReosMapToolSelectMapItem *mSelectStation = nullptr;
+    QPointer<ReosHydrograph> mCurrentHydrograph = nullptr;
+    ReosPlotTimeSerieVariableStep *mHydrographPlot = nullptr;
+    ReosHubEauStationMarker *mCurrentMarker = nullptr;
+
+    void populateMeta( const QVariantMap &meta );
 };
 
 #endif // REOSHUBEAUWIDGET_H

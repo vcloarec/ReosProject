@@ -18,6 +18,7 @@
 
 #include <QMessageBox>
 
+#include "reosmap.h"
 #include "reoswatershed.h"
 #include "reoshydrograph.h"
 #include "reosformwidget.h"
@@ -44,7 +45,12 @@ ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( ReosMap *map, QWidget *p
   mActionAddHydrograph = toolBar->addAction( QPixmap( QStringLiteral( ":/images/add.svg" ) ), tr( "Add Gauged Hydrograph" ), this, &ReosGaugedHydrographWidget::onAddHydrograph );
   mActionDeleteHydrograph = toolBar->addAction( QPixmap( QStringLiteral( ":/images/remove.svg" ) ), tr( "Delete Current Hydrograph" ), this, &ReosGaugedHydrographWidget::onRemoveHydrograph );
   mActionRenameHydrograph = toolBar->addAction( QPixmap( QStringLiteral( ":/images/rename.svg" ) ), tr( "Rename Current Hydrograph" ), this, &ReosGaugedHydrographWidget::onRenameHydrograph );
-  mActionHubEau = toolBar->addAction( tr( "Hub eau" ) );
+
+  ui->mWidgetProviderToolBar->setLayout( new QHBoxLayout );
+  ui->mWidgetProviderToolBar->layout()->setContentsMargins( 0, 0, 0, 0 );
+  QToolBar *toolBarProvider = new QToolBar( ui->mWidgetProviderToolBar );
+  ui->mWidgetProviderToolBar->layout()->addWidget( toolBarProvider );
+  mActionHubEau = toolBarProvider->addAction( QPixmap( ":/images/icon-hubeau-blue.svg" ), tr( "Hub eau" ) );
   mActionHubEau->setCheckable( true );
 
   mHydrographPlot = new ReosPlotTimeSerieVariableStep( tr( "Hydrograph" ) );
@@ -55,7 +61,6 @@ ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( ReosMap *map, QWidget *p
   connect( ui->mComboBoxHydrographName, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosGaugedHydrographWidget::onCurrentHydrographChanged );
 
   onStoreChanged();
-
 
   mHubEauWidget = new ReosHubEauWidget( mMap, this );
   mHubEauWidget->setAction( mActionHubEau );

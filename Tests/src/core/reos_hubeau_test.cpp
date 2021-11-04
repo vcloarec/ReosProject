@@ -35,7 +35,7 @@ class ReosHubEauTest: public QObject
 
 void ReosHubEauTest::connection()
 {
-  ReosHubEauAccess server;
+  ReosHubEauServer server;
   QVERIFY( server.testConnection() );
 }
 
@@ -43,7 +43,7 @@ void ReosHubEauTest::stations()
 {
   ReosGisEngine gisEngine;
   ReosMap map( &gisEngine, nullptr );
-  ReosHubEauAccess server( &map );
+  ReosHubEauServer server( &map );
   ReosMapExtent extent( -5.283, 47.036, -1.7500, 49.0311 );
   map.setExtent( extent );
 

@@ -26,6 +26,7 @@
 #include <QTimer>
 
 #include "reosmapextent.h"
+#include "reoshydrograph.h"
 
 
 ReosHubEauConnection::ReosHubEauConnection( QObject *parent )
@@ -100,11 +101,11 @@ ReosHubEauConnectionControler::ReosHubEauConnectionControler( QObject *parent ):
 }
 
 
-ReosHubEauAccess::ReosHubEauAccess( QObject *parent )
+ReosHubEauServer::ReosHubEauServer( QObject *parent )
   : QObject( parent )
 {
   mStationsRequestControler = new ReosHubEauConnectionControler( this );
-  connect( mStationsRequestControler, &ReosHubEauConnectionControler::resultReady, this, &ReosHubEauAccess::addStations );
+  connect( mStationsRequestControler, &ReosHubEauConnectionControler::resultReady, this, &ReosHubEauServer::addStations );
 }
 
 ReosHubEauConnectionControler::~ReosHubEauConnectionControler()
@@ -150,7 +151,7 @@ void ReosHubEauConnectionControler::onReplied()
     emit requestFinished();
 }
 
-bool ReosHubEauAccess::testConnection()
+bool ReosHubEauServer::testConnection()
 {
   ReosHubEauConnectionControler controler;
   controler.requestAndWait( QStringLiteral( "referentiel/stations?bbox=0,0,1,1&format=json&pretty&page=1&size=20" ) );
@@ -158,7 +159,7 @@ bool ReosHubEauAccess::testConnection()
   return controler.lastError() == 0;
 }
 
-void ReosHubEauAccess::setExtent( const ReosMapExtent &extent )
+void ReosHubEauServer::setExtent( const ReosMapExtent &extent )
 {
   mExtent = extent;
 
@@ -173,7 +174,7 @@ void ReosHubEauAccess::setExtent( const ReosMapExtent &extent )
   mStationsRequestControler->request( request );
 }
 
-void ReosHubEauAccess::addStations( const QVariantMap &requestResult )
+void ReosHubEauServer::addStations( const QVariantMap &requestResult )
 {
   if ( !requestResult.contains( QStringLiteral( "data" ) ) )
     return;
@@ -185,8 +186,7 @@ void ReosHubEauAccess::addStations( const QVariantMap &requestResult )
     const QVariantMap mapStation = stationVariant.toMap();
 
     ReosHubEauStation station;
-    if ( mapStation.contains( QStringLiteral( "libelle_station" ) ) )
-      station.name = mapStation.value( QStringLiteral( "libelle_station" ) ).toString();
+    station.meta = mapStation;
     if ( mapStation.contains( QStringLiteral( "code_station" ) ) )
       station.id = mapStation.value( QStringLiteral( "code_station" ) ).toString();
     if ( mapStation.contains( QStringLiteral( "longitude_station" ) ) )
@@ -200,59 +200,82 @@ void ReosHubEauAccess::addStations( const QVariantMap &requestResult )
   emit stationsUpdated();
 }
 
-QList<ReosHubEauStation> ReosHubEauAccess::stations() const
+QList<ReosHubEauStation> ReosHubEauServer::stations() const
 {
   return mStations;
 }
 
+ReosHydrograph *ReosHubEauServer::createHydrograph( const QString &stationId ) const
+{
+  std::unique_ptr<ReosHydrograph> hyd = std::make_unique<ReosHydrograph>( nullptr, QStringLiteral( "hub-eau-hydrograph" ), stationId );
+  hyd->setColor( QColor( 12, 114, 185 ) );
+  return hyd.release();
+}
 
-//QStringList ReosHubEauAccess::stationsInExtent( const ReosMapExtent &extent )
-//{
-//  double lontMin = extent.xMapMin();
-//  double lontMax = extent.xMapMax();
-//  double latMin = extent.yMapMin();
-//  double latMax = extent.yMapMax();
-//  QString request = QStringLiteral( "referentiel/stations?bbox=%1,%2,%3,%4&format=json&pretty&page=1&size=1" ).arg( lontMin ).arg( latMin ).arg( lontMax ).arg( latMax );
-//  requestAndWait( request );
+void ReosHubEauHydrographProvider::load()
+{
+  mCachedTimeValues.clear();
+  mCachedValues.clear();
+  if ( !mFlowRequestControler )
+  {
+    mFlowRequestControler = new ReosHubEauConnectionControler( this );
+    connect( mFlowRequestControler, &ReosHubEauConnectionControler::resultReady, this, &ReosHubEauHydrographProvider::onResultReady );
+    connect( mFlowRequestControler, &ReosHubEauConnectionControler::requestFinished, this, &ReosHubEauHydrographProvider::onLoadingFinished );
+  }
 
-//  QVariantMap variantMap = mConnection->result();
+  mFlowRequestControler->request( QStringLiteral( "observations_tr?code_entite=%1&size=20000&pretty&grandeur_hydro=Q&fields=code_station,date_obs,resultat_obs&sort=asc" ).arg( dataSource() ) );
+  mStatus = Status::Loading;
+}
 
-//  if ( !variantMap.contains( QStringLiteral( "count" ) ) )
-//    return QStringList();
+void ReosHubEauHydrographProvider::onResultReady( const QVariantMap &result )
+{
+  if ( !result.contains( QStringLiteral( "data" ) ) )
+    return;
 
-//  int stationCount = variantMap.value( QStringLiteral( "count" ) ).toInt();
-//  request = QStringLiteral( "referentiel/stations?bbox=%1,%2,%3,%4&format=json&pretty&page=1&size=%5" ).arg( lontMin ).arg( latMin ).arg( lontMax ).arg( latMax ).arg( stationCount );
-//  requestAndWait( request );
+  QVariant data = result.value( QStringLiteral( "data" ) );
 
-//  variantMap =  mConnection->result();
+  if ( data.type() != QVariant::List )
+    return;
 
-//  if ( !variantMap.contains( QStringLiteral( "data" ) ) )
-//    return QStringList();
+  const QVariantList dataList = data.toList();
 
-//  QVariant varData = variantMap.value( QStringLiteral( "data" ) );
+  if ( dataList.count() == 0 )
+  {
+    mStatus = Status::NoData;
+    return;
+  }
 
-//  if ( varData.type() != QVariant::List )
-//    return QStringList();
+  if ( !mReferenceTime.isValid() )
+  {
+    QVariantMap firstData =   dataList.at( 0 ).toMap();
+    QString dateString = firstData.value( QStringLiteral( "date_obs" ) ).toString();
+    mReferenceTime = QDateTime::fromString( dateString, Qt::ISODate );
+  }
 
-//  QVariantList stations = varData.toList();
+  for ( const QVariant &varDat : dataList )
+  {
+    QVariantMap mapVar = varDat.toMap();
+    const QDateTime time = QDateTime::fromString( mapVar.value( QStringLiteral( "date_obs" ) ).toString(), Qt::ISODate );
+    const ReosDuration relativeTime = ReosDuration( mReferenceTime.msecsTo( time ), ReosDuration::millisecond );
+    double value = mapVar.value( QStringLiteral( "resultat_obs" ) ).toDouble() / 1000.0; // server gives valu in l/s
+    mCachedValues.append( value );
+    mCachedTimeValues.append( relativeTime );
+  }
 
-//  QStringList ret;
-//  for ( const QVariant &station : stations )
-//  {
-//    QVariantMap stationMap = station.toMap();
-//    if ( !stationMap.contains( QStringLiteral( "code_station" ) ) )
-//      continue;
-//    request = QStringLiteral( "observations_tr?code_entite=%1&format=json&pretty&page=1&size=1" ).arg( stationMap.value( QStringLiteral( "code_site" ) ).toString() );
-//    requestAndWait( request );
+  emit dataChanged();
+}
 
-//    variantMap = mConnection->result();
+void ReosHubEauHydrographProvider::onLoadingFinished()
+{
+  if ( mCachedValues.count() == 0 )
+    mStatus = Status::NoData;
+  else
+    mStatus = Status::Loaded;
 
-//    if ( !variantMap.contains( QStringLiteral( "count" ) ) )
-//      continue;
+  emit dataChanged();
+}
 
-//    if ( variantMap.value( QStringLiteral( "count" ) ).toInt() != 0 )
-//      ret.append( stationMap.value( QStringLiteral( "libelle_site" ) ).toString() );
-//  }
-
-//  return ret;
-//}
+ReosHubEauHydrographProvider::Status ReosHubEauHydrographProvider::status() const
+{
+  return mStatus;
+}
