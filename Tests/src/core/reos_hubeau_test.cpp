@@ -15,7 +15,7 @@ email                : vcloarec at gmail dot com
 #include<QtTest/QtTest>
 #include <QObject>
 
-#include "reoshubeauserver.h"
+
 #include "reosmapextent.h"
 #include "reosmap.h"
 #include "reosgisengine.h"
@@ -35,17 +35,17 @@ class ReosHubEauTest: public QObject
 
 void ReosHubEauTest::connection()
 {
-  ReosHubEauServer server;
-  QVERIFY( server.testConnection() );
+//  ReosHubEauServer server;
+//  QVERIFY( server.testConnection() );
 }
 
 void ReosHubEauTest::stations()
 {
-  ReosGisEngine gisEngine;
-  ReosMap map( &gisEngine, nullptr );
-  ReosHubEauServer server( &map );
-  ReosMapExtent extent( -5.283, 47.036, -1.7500, 49.0311 );
-  map.setExtent( extent );
+//  ReosGisEngine gisEngine;
+//  ReosMap map( &gisEngine, nullptr );
+//  ReosHubEauServer server( &map );
+//  ReosMapExtent extent( -5.283, 47.036, -1.7500, 49.0311 );
+//  map.setExtent( extent );
 
 }
 

@@ -22,6 +22,8 @@
 #include "reosactionwidget.h"
 #include "reoshubeauserver.h"
 #include "reosmapitem.h"
+#include "reosmap.h"
+#include "reoshydrograph.h"
 
 class ReosMapMarker;
 

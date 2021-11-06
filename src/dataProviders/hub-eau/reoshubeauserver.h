@@ -36,7 +36,6 @@ struct ReosHubEauStation
   QVariantMap meta;
   double longitude;
   double latitude;
-
 };
 
 class ReosHubEauConnection: public QObject
@@ -107,24 +106,25 @@ class ReosHubEauHydrographProvider : public ReosTimeSerieVariableTimeStepProvide
 
     ReosHubEauHydrographProvider() = default;
     // ReosTimeSerieProvider interface
-    QString key() const override {return QStringLiteral( "hub-eau-hydrograph" );};
-    QDateTime referenceTime() const {return mReferenceTime;}
-    QString valueUnit() const {return QString();}
-    int valueCount() const {return mCachedValues.count();}
-    double value( int i ) const {return mCachedValues.at( i );}
-    double firstValue() const {return mCachedValues.first();}
-    double lastValue() const {return mCachedValues.last();}
+    QString key() const override;;
+    QDateTime referenceTime() const override;
+    void setReferenceTime( const QDateTime &referenceTime ) override;
+    QString valueUnit() const override;
+    int valueCount() const override;
+    double value( int i ) const override;
+    double firstValue() const override;
+    double lastValue() const override;
 
-    void load();
+    void load() override;
 
-    double *data() {return mCachedValues.data();}
-    const QVector<double> &constData() const {return mCachedValues;};
-    ReosEncodedElement encode() const {};
-    void decode( const ReosEncodedElement &element ) {};
+    double *data() override;
+    const QVector<double> &constData() const override;
+    ReosEncodedElement encode() const override;
+    void decode( const ReosEncodedElement &element ) override;
 
     // ReosTimeSerieVariableTimeStepProvider interface
-    ReosDuration relativeTimeAt( int i ) const {return mCachedTimeValues.at( i );}
-    ReosDuration lastRelativeTime() const {return mCachedTimeValues.last();}
+    ReosDuration relativeTimeAt( int i ) const override;
+    ReosDuration lastRelativeTime() const override;
 
     Status status() const;
 

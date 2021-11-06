@@ -52,7 +52,6 @@ SET(REOS_GUI_SOURCES
     form/reostableview.cpp
 
     data/reosimportfromtextfile.cpp
-    data/reoshubeauwidget.cpp
 
     hydrograph/reoshydrographeditingwidget.cpp
 )
@@ -100,7 +99,6 @@ SET(REOS_GUI_HEADERS
     form/reostableview.h
 
     data/reosimportfromtextfile.h
-    data/reoshubeauwidget.h
 
     hydrograph/reoshydrographeditingwidget.h
 )
