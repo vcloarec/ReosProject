@@ -52,7 +52,6 @@ SET(REOS_CORE_SOURCES
   data/reostimeserieprovider.cpp
   data/reostextfiledata.cpp
   data/reosdataobject.cpp
-  data/reoshubeauserver.cpp
 
   hydrograph/reoshydrograph.cpp
 )
@@ -106,10 +105,8 @@ SET(REOS_CORE_HEADERS
     data/reostimeserieprovider.h
     data/reostextfiledata.h
     data/reosdataobject.h
-    data/reoshubeauserver.h
 
     hydrograph/reoshydrograph.h
-
 )
 
 SET(REOS_CORE_HEADERS_PRIVATE
@@ -183,7 +180,6 @@ INCLUDE_DIRECTORIES(
 
     ${QGIS_INCLUDE_DIR}
 )
-
 
 SET(QGIS_PLUGINS_DIR "${QGIS_LIB_PATH}/qgis/plugins/")
 ADD_DEFINITIONS(-DQGIS_PLUGINS="${QGIS_PLUGINS_DIR}")

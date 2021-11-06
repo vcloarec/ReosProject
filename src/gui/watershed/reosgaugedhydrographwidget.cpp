@@ -25,8 +25,6 @@
 #include "reoshydrographeditingwidget.h"
 #include "reosplottimeconstantinterval.h"
 
-#include "reoshubeauwidget.h"
-
 ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( ReosMap *map, QWidget *parent )
   : ReosActionWidget( parent )
   , ui( new Ui::ReosGaugedHydrographWidget )
@@ -62,8 +60,8 @@ ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( ReosMap *map, QWidget *p
 
   onStoreChanged();
 
-  mHubEauWidget = new ReosHubEauWidget( mMap, this );
-  mHubEauWidget->setAction( mActionHubEau );
+//  mHubEauWidget = new ReosHubEauWidget( mMap, this );
+//  mHubEauWidget->setAction( mActionHubEau );
 
 }
 

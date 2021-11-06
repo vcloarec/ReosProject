@@ -212,6 +212,25 @@ ReosHydrograph *ReosHubEauServer::createHydrograph( const QString &stationId ) c
   return hyd.release();
 }
 
+QString ReosHubEauHydrographProvider::key() const {return QStringLiteral( "hub-eau-hydrograph" );}
+
+QDateTime ReosHubEauHydrographProvider::referenceTime() const {return mReferenceTime;}
+
+void ReosHubEauHydrographProvider::setReferenceTime( const QDateTime &referenceTime )
+{
+  mReferenceTime = referenceTime;
+}
+
+QString ReosHubEauHydrographProvider::valueUnit() const {return QString();}
+
+int ReosHubEauHydrographProvider::valueCount() const {return mCachedValues.count();}
+
+double ReosHubEauHydrographProvider::value( int i ) const  {return mCachedValues.at( i );}
+
+double ReosHubEauHydrographProvider::firstValue() const {return mCachedValues.first();}
+
+double ReosHubEauHydrographProvider::lastValue() const {return mCachedValues.last();}
+
 void ReosHubEauHydrographProvider::load()
 {
   mCachedTimeValues.clear();
@@ -226,6 +245,32 @@ void ReosHubEauHydrographProvider::load()
   mFlowRequestControler->request( QStringLiteral( "observations_tr?code_entite=%1&size=20000&pretty&grandeur_hydro=Q&fields=code_station,date_obs,resultat_obs&sort=asc" ).arg( dataSource() ) );
   mStatus = Status::Loading;
 }
+
+double *ReosHubEauHydrographProvider::data() {return mCachedValues.data();}
+
+const QVector<double> &ReosHubEauHydrographProvider::constData() const {return mCachedValues;}
+
+ReosEncodedElement ReosHubEauHydrographProvider::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "hub-eau-hydrograph" ) );
+  element.addData( QStringLiteral( "source" ), dataSource() );
+
+  return element;
+}
+
+void ReosHubEauHydrographProvider::decode( const ReosEncodedElement &element )
+{
+  if ( element.description() != QStringLiteral( "hub-eau-hydrograph" ) )
+    return;
+
+  QString source;
+  element.getData( QStringLiteral( "source" ), source );
+  setDataSource( source );
+}
+
+ReosDuration ReosHubEauHydrographProvider::relativeTimeAt( int i ) const {return mCachedTimeValues.at( i );}
+
+ReosDuration ReosHubEauHydrographProvider::lastRelativeTime() const {return mCachedTimeValues.last();}
 
 void ReosHubEauHydrographProvider::onResultReady( const QVariantMap &result )
 {
