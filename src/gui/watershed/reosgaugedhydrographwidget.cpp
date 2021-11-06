@@ -77,9 +77,9 @@ void ReosGaugedHydrographWidget::setCurrentWatershed( ReosWatershed *watershed )
   mCurrentWatershed = watershed;
 
   if ( watershed )
-  {
     mHydrographStore = watershed->gaugedHydrographs();
-  }
+  else
+    mHydrographStore = nullptr;
 
   onStoreChanged();
   onCurrentHydrographChanged();

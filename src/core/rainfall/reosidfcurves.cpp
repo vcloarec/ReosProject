@@ -682,6 +682,9 @@ void ReosIdfParameters::decode( const ReosEncodedElement &element, ReosIntensity
   ReosIdfParameters *ret = new ReosIdfParameters( interval, formulaName, QStringList(), timeUnitParam, timeUnitResult );
 
   QList<ReosEncodedElement> encodedParameters = element.getListEncodedData( QStringLiteral( "parameters" ) );
+  ReosIdfFormula *formula = ReosIdfFormulaRegistery::instance()->formula( formulaName );
+  if ( !formula )
+    return;
   QList<QString> parametersName = ReosIdfFormulaRegistery::instance()->formula( formulaName )->parametersNames();
 
   bool overrideName = encodedParameters.count() == parametersName.count();

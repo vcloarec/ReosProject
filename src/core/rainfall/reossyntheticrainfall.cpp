@@ -78,6 +78,8 @@ void ReosChicagoRainfall::updateRainfall()
   data->clear();
 
   const ReosDuration ts = timeStep()->value();
+  if ( ReosDuration() == ts )
+    return;
   const ReosDuration totalDuration = mTotalDuration->value();
   double eccentricityCoef = mCenterCoefficient->value();
   data->appendValue( mIntensityDurationCurve->height( ts, true ) );
@@ -447,11 +449,13 @@ void ReosAlternatingBlockRainfall::updateRainfall()
   const ReosDuration totalDuration = mTotalDuration->value();
   double eccentricityCoef = mCenterCoefficient->value();
   int intervalCount = totalDuration.numberOfFullyContainedIntervals( ts );
+  if ( intervalCount == 0 )
+    return;
+
   eccentricityCoef = std::clamp( eccentricityCoef, 0.0, 1.0 );
 
   int peakInterval = ( intervalCount * eccentricityCoef ) ;
-  if ( intervalCount > 0 )
-    peakInterval = std::min( peakInterval, intervalCount - 1 );
+  peakInterval = std::min( peakInterval, intervalCount - 1 );
   data->resize( intervalCount );
 
   data->setValue( peakInterval, mIntensityDurationCurve->height( ts, true ) );

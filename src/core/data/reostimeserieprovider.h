@@ -34,7 +34,10 @@ class ReosTimeSerieProvider : public QObject
 
     virtual QString key() const = 0;
     virtual bool isEditable() const {return false;}
+
     virtual QDateTime referenceTime() const = 0;
+    virtual void setReferenceTime( const QDateTime &referenceTime );
+
     virtual QString valueUnit() const = 0;
     virtual int valueCount() const = 0;
     virtual double value( int i ) const = 0;
@@ -113,6 +116,7 @@ class ReosTimeSerieConstantTimeStepProvider : public ReosTimeSerieProvider
     virtual void insertValue( int pos, double value );
 
     virtual ReosDuration timeStep() const = 0;
+    virtual void setTimeStep( const ReosDuration &timeStep );
 };
 
 /**
@@ -144,6 +148,9 @@ class ReosTimeSerieConstantTimeStepMemoryProvider : public ReosTimeSerieConstant
 
     QString key() const override;
     QDateTime referenceTime() const override;
+    void setReferenceTime( const QDateTime &referenceTime );
+    ReosDuration timeStep() const override;
+    void setTimeStep( const ReosDuration &timeStep );
     QString valueUnit() const override;
     int valueCount() const override;
     void resize( int size ) override;
@@ -155,7 +162,6 @@ class ReosTimeSerieConstantTimeStepMemoryProvider : public ReosTimeSerieConstant
     void prependValue( double v ) override;
     void insertValue( int fromPos, double v ) override;
     bool isEditable() const override;
-    ReosDuration timeStep() const override;
     double *data() override;
     const QVector<double> &constData() const override;
     void removeValues( int fromPos, int count ) override;
@@ -164,6 +170,8 @@ class ReosTimeSerieConstantTimeStepMemoryProvider : public ReosTimeSerieConstant
     void decode( const ReosEncodedElement &element ) override;
 
   private:
+    QDateTime mReferenceTime;
+    ReosDuration mTimeStep;
     QVector<double> mValues;
 };
 
@@ -186,6 +194,7 @@ class ReosTimeSerieVariableTimeStepMemoryProvider : public ReosTimeSerieVariable
     QString key() const override;
 
     QDateTime referenceTime() const override;
+    void setReferenceTime( const QDateTime &referenceTime ) override;
     QString valueUnit() const override;
     int valueCount() const override;
     double value( int i ) const override;
@@ -208,6 +217,7 @@ class ReosTimeSerieVariableTimeStepMemoryProvider : public ReosTimeSerieVariable
     void decode( const ReosEncodedElement &element ) override;
 
   private:
+    QDateTime mReferenceTime;
     QVector<double> mValues;
     QVector<ReosDuration> mTimeValues;
 };

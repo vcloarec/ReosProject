@@ -202,6 +202,7 @@ void ReosParameterWidget::setParameter( ReosParameter *param )
     else
       mLabelName->setText( param->name() );
     mDerivationButton->setVisible( mParameter->isDerivable() );
+    setEnabled( param->isEditable() );
     connect( mParameter, &ReosParameter::valueChanged, this, &ReosParameterWidget::updateValue );
     connect( mParameter, &ReosParameter::unitChanged, this, &ReosParameterWidget::updateValue );
     connect( mParameter, &ReosParameter::valueChanged, this, &ReosParameterWidget::valueChanged );
@@ -212,6 +213,8 @@ void ReosParameterWidget::setParameter( ReosParameter *param )
     mLabelName->setText( mDefaultName );
     mDerivationButton->setVisible( false );
   }
+
+
 }
 
 void ReosParameterWidget::setDefaultName( const QString &defaultName )

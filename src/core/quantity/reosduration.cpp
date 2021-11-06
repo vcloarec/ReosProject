@@ -274,7 +274,7 @@ void ReosDuration::setUnit( ReosDuration::Unit u )
 
 unsigned ReosDuration::numberOfFullyContainedIntervals( const ReosDuration &other ) const
 {
-  if ( other.mValue > mValue )
+  if ( other.mValue == 0 || other.mValue > mValue )
     return 0;
 
   return unsigned( mValue / other.mValue );

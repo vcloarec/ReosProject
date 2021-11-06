@@ -84,9 +84,19 @@ void ReosParameter::decode( const ReosEncodedElement &element, bool isDerivable 
     return;
 }
 
+bool ReosParameter::isEditable() const
+{
+    return mIsEditable;
+}
+
+void ReosParameter::setIsEditable(bool isEditable)
+{
+    mIsEditable = isEditable;
+}
+
 
 ReosParameterArea::ReosParameterArea( const QString &name, bool derivable, QObject *parent ):
-  ReosParameter( name, derivable, parent )
+    ReosParameter( name, derivable, parent )
 {}
 
 ReosParameterArea::ReosParameterArea( const QString &name, QObject *parent ):

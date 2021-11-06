@@ -445,9 +445,11 @@ ReosEncodedElement ReosTimeSerieConstantInterval::encode( const QString &descrit
   if ( descript.isEmpty() )
     descript = QStringLiteral( "time-serie-constant-interval" );
 
+  if ( constantTimeStepDataProvider()->isEditable() )
+    constantTimeStepDataProvider()->setTimeStep( mTimeStep->value() );
+
   ReosEncodedElement element( descript );
   ReosTimeSerie::baseEncode( element );
-  element.addEncodedData( QStringLiteral( "time-step" ), mTimeStep->encode() );
 
   return element;
 }
@@ -470,17 +472,22 @@ ReosTimeSerieConstantInterval::ReosTimeSerieConstantInterval( const ReosEncodedE
   : ReosTimeSerie( parent )
 {
   decodeBase( element );
-  mTimeStep = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "time-step" ) ), false, tr( "Time step" ), this );
 
   if ( constantTimeStepDataProvider() )
+  {
     constantTimeStepDataProvider()->decode( element.getEncodedData( QStringLiteral( "data-provider" ) ) );
+    mTimeStep = new ReosParameterDuration( tr( "Time step" ), false, this );
+    mTimeStep->setValue( constantTimeStepDataProvider()->timeStep() );
+  }
   else
   {
     //set default one as memory
     QVector<double> values;
     element.getData( QStringLiteral( "values" ), values ); //before Lekan 2.2, values were store in this element
     mProvider = std::make_unique < ReosTimeSerieConstantTimeStepMemoryProvider>( values );
+    mTimeStep = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "time-step" ) ), false, tr( "Time step" ), this );
   }
+
   connectParameters();
 }
 
@@ -699,9 +706,10 @@ QPair<double, double> ReosTimeSerie::valueExent( bool withZero ) const
 void ReosTimeSerie::baseEncode( ReosEncodedElement &element ) const
 {
   ReosDataObject::encode( element );
-  element.addEncodedData( QStringLiteral( "reference-time" ), mReferenceTime->encode() );
   if ( mProvider )
   {
+    if ( mProvider->isEditable() )
+      mProvider->setReferenceTime( mReferenceTime->value() );
     element.addData( QStringLiteral( "provider-key" ), mProvider->key() );
     element.addEncodedData( QStringLiteral( "provider-data" ), mProvider->encode() );
   }
@@ -718,7 +726,20 @@ bool ReosTimeSerie::decodeBase( const ReosEncodedElement &element )
     element.getData( QStringLiteral( "provider-key" ), providerKey );
     mProvider.reset( ReosTimeSerieProviderRegistery::instance()->createProvider( providerKey ) );
     if ( mProvider && element.hasEncodedData( QStringLiteral( "provider-data" ) ) )
+    {
       mProvider->decode( element.getEncodedData( QStringLiteral( "provider-data" ) ) );
+      mReferenceTime->setValue( mProvider->referenceTime() );
+    }
+  }
+  else
+  {
+    if ( element.hasEncodedData( QStringLiteral( "reference-time" ) ) )
+    {
+      //no provider and we has a  reference time encoded, so old version < 2.2 ->take this one
+      mReferenceTime->deleteLater();
+      mReferenceTime = ReosParameterDateTime::decode(
+                         element.getEncodedData( QStringLiteral( "reference-time" ) ), false, tr( "Reference time" ), this );
+    }
   }
 
   return true;

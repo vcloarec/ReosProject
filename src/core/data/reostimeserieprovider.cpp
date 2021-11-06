@@ -47,6 +47,8 @@ ReosTimeSerieProvider *ReosTimeSerieProviderRegistery::createProvider( const QSt
 
 ReosTimeSerieProvider::~ReosTimeSerieProvider() {}
 
+void ReosTimeSerieProvider::setReferenceTime( const QDateTime & ) {}
+
 void ReosTimeSerieProvider::setValue( int, double ) {}
 
 void ReosTimeSerieProvider::removeValues( int, int ) {}
@@ -74,6 +76,8 @@ void ReosTimeSerieConstantTimeStepProvider::prependValue( double ) {}
 
 void ReosTimeSerieConstantTimeStepProvider::insertValue( int, double ) {}
 
+void ReosTimeSerieConstantTimeStepProvider::setTimeStep( const ReosDuration & ) {}
+
 ReosTimeSerieConstantTimeStepMemoryProvider::ReosTimeSerieConstantTimeStepMemoryProvider( const QVector<double> &values )
   : mValues( values )
 {}
@@ -85,7 +89,12 @@ QString ReosTimeSerieConstantTimeStepMemoryProvider::key() const
 
 QDateTime ReosTimeSerieConstantTimeStepMemoryProvider::referenceTime() const
 {
-  return QDateTime();
+  return mReferenceTime;
+}
+
+void ReosTimeSerieConstantTimeStepMemoryProvider::setReferenceTime( const QDateTime &referenceTime )
+{
+  mReferenceTime = referenceTime;
 }
 
 QString ReosTimeSerieConstantTimeStepMemoryProvider::valueUnit() const
@@ -142,7 +151,12 @@ bool ReosTimeSerieConstantTimeStepMemoryProvider::isEditable() const {return tru
 
 ReosDuration ReosTimeSerieConstantTimeStepMemoryProvider::timeStep() const
 {
-  return ReosDuration();
+  return mTimeStep;
+}
+
+void ReosTimeSerieConstantTimeStepMemoryProvider::setTimeStep( const ReosDuration &timeStep )
+{
+  mTimeStep = timeStep;
 }
 
 double *ReosTimeSerieConstantTimeStepMemoryProvider::data()
@@ -173,6 +187,9 @@ ReosEncodedElement ReosTimeSerieConstantTimeStepMemoryProvider::encode() const
   ReosEncodedElement element( QStringLiteral( "constant-time-step-serie-memory-provider" ) );
   element.addData( QStringLiteral( "values" ), mValues );
 
+  element.addData( QStringLiteral( "reference-time" ), mReferenceTime );
+  element.addEncodedData( QStringLiteral( "time-step" ), mTimeStep.encode() );
+
   return element;
 }
 
@@ -183,6 +200,9 @@ void ReosTimeSerieConstantTimeStepMemoryProvider::decode( const ReosEncodedEleme
 
   mValues.clear();
   element.getData( QStringLiteral( "values" ), mValues );
+
+  element.getData( QStringLiteral( "reference-time" ), mReferenceTime );
+  mTimeStep = ReosDuration::decode( element.getEncodedData( QStringLiteral( "time-step" ) ) );
 }
 
 ReosTimeSerieVariableTimeStepProvider::~ReosTimeSerieVariableTimeStepProvider()
@@ -210,6 +230,11 @@ QString ReosTimeSerieVariableTimeStepMemoryProvider::key() const
 }
 
 QDateTime ReosTimeSerieVariableTimeStepMemoryProvider::referenceTime() const {return QDateTime();}
+
+void ReosTimeSerieVariableTimeStepMemoryProvider::setReferenceTime( const QDateTime &referenceTime )
+{
+  mReferenceTime = referenceTime;
+}
 
 QString ReosTimeSerieVariableTimeStepMemoryProvider::valueUnit() const {return QString();}
 
@@ -268,6 +293,9 @@ void ReosTimeSerieVariableTimeStepMemoryProvider::clear()
 ReosEncodedElement ReosTimeSerieVariableTimeStepMemoryProvider::encode() const
 {
   ReosEncodedElement element( QStringLiteral( "variable-time-step-serie-memory-provider" ) );
+
+  element.addData( QStringLiteral( "reference-time" ), mReferenceTime );
+
   element.addData( QStringLiteral( "values" ), mValues );
   QList<ReosEncodedElement> encodedTimeValues;
   encodedTimeValues.reserve( mTimeValues.count() );
@@ -284,6 +312,8 @@ void ReosTimeSerieVariableTimeStepMemoryProvider::decode( const ReosEncodedEleme
 {
   if ( element.description() != QStringLiteral( "variable-time-step-serie-memory-provider" ) )
     return;
+
+  element.getData( QStringLiteral( "reference-time" ), mReferenceTime );
 
   mValues.clear();
   element.getData( QStringLiteral( "values" ), mValues );

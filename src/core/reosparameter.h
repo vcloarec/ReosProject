@@ -42,6 +42,8 @@ class REOSCORE_EXPORT ReosParameter : public QObject
     bool isValid() const;
     void askForDerivation();
     void setInvalid();
+    bool isEditable() const;
+    void setIsEditable( bool isEditable );
 
     //! Transform the string to double using local intepretation and C interpreation as fallback. \a ok is set to false if fails.
     static double stringToDouble( const QString &string, bool *ok );
@@ -67,6 +69,7 @@ class REOSCORE_EXPORT ReosParameter : public QObject
   private:
     QString mName;
     bool mIsDerivable = false;
+    bool mIsEditable = true;
 };
 
 class REOSCORE_EXPORT ReosParameterDouble: public ReosParameter

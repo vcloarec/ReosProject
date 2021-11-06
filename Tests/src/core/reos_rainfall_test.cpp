@@ -20,6 +20,7 @@ email                : vcloarec at gmail dot com
 #include "reosrainfallmodel.h"
 #include "reosrainfallitem.h"
 #include "reosidfcurves.h"
+#include "reosrainfallregistery.h"
 
 class ReosRainfallTest: public QObject
 {
@@ -29,6 +30,7 @@ class ReosRainfallTest: public QObject
     void addingItem();
     void IDFCurvesMontana();
     void IDFCurvesSherman();
+    void loadRainfallData();
 
   private:
     ReosModule mRootModule;
@@ -181,7 +183,7 @@ void ReosRainfallTest::IDFCurvesMontana()
 void ReosRainfallTest::IDFCurvesSherman()
 {
   ReosIdfFormulaRegistery *formulaRegistery = ReosIdfFormulaRegistery::instance();
-
+  ReosIdfFormulaRegistery::instance()->registerFormula( new ReosIdfFormulaMontana );
 
   ReosIdfFormula *formula = formulaRegistery->formula( QStringLiteral( "XXX" ) );
   QVERIFY( !formula );
@@ -256,6 +258,158 @@ void ReosRainfallTest::IDFCurvesSherman()
   QVERIFY( equal( curve.height( duration_2 ), 38.056, 0.01 ) );
   QVERIFY( equal( curve.height( duration_3 ), 56.383, 0.001 ) );
   QVERIFY( curve.height( duration_4 ) < 0 );
+}
+
+void ReosRainfallTest::loadRainfallData()
+{
+  ReosRainfallModel *rainfallModel = ReosRainfallRegistery::instance()->rainfallModel();
+  ReosIdfFormulaRegistery::instance()->registerFormula( new ReosIdfFormulaMontana );
+
+  std::vector<std::string> paths;
+
+  paths.push_back( "rainfallData_before-2-2.rrf" );
+  paths.push_back( "rainfallData.rrf" );
+
+  for ( const std::string &path : std::as_const( paths ) )
+  {
+
+    QVERIFY( rainfallModel->loadFromFile( test_file( path ).c_str(), QString() ) );
+    // root, only one region item
+    QCOMPARE( rainfallModel->rowCount( QModelIndex() ), 1 );
+    ReosRainfallItem *rootItem = rainfallModel->indexToItem( rainfallModel->index( 0, 0, QModelIndex() ) );
+    Q_ASSERT( rootItem );
+    QCOMPARE( rootItem->type(), ReosRainfallItem::Zone );
+    QCOMPARE( rootItem->name(), QStringLiteral( "Somewhere" ) );
+
+    // sub region item
+    QCOMPARE( rainfallModel->rowCount( rainfallModel->itemToIndex( rootItem ) ), 1 );
+    ReosRainfallItem *subRegionItem = rainfallModel->indexToItem( rainfallModel->index( 0, 0, rainfallModel->itemToIndex( rootItem ) ) );
+    Q_ASSERT( subRegionItem );
+    QCOMPARE( subRegionItem->type(), ReosRainfallItem::Zone );
+    QCOMPARE( subRegionItem->name(), QStringLiteral( "little zone" ) );
+
+    //Station item
+    QCOMPARE( rainfallModel->rowCount( rainfallModel->itemToIndex( subRegionItem ) ), 1 );
+    ReosRainfallItem *stationItem = rainfallModel->indexToItem( rainfallModel->index( 0, 0, rainfallModel->itemToIndex( subRegionItem ) ) );
+    Q_ASSERT( stationItem );
+    QCOMPARE( stationItem->type(), ReosRainfallItem::Station );
+    QCOMPARE( stationItem->name(), QStringLiteral( "station" ) );
+
+    //data in station
+    QCOMPARE( rainfallModel->rowCount( rainfallModel->itemToIndex( stationItem ) ), 5 );
+
+    //****** IDF curves
+    ReosRainfallIdfCurvesItem *idfCurvesItem = qobject_cast<ReosRainfallIdfCurvesItem *>(
+          rainfallModel->indexToItem( rainfallModel->index( 0, 0, rainfallModel->itemToIndex( stationItem ) ) ) );
+    Q_ASSERT( idfCurvesItem );
+    QCOMPARE( idfCurvesItem->type(), ReosRainfallItem::Data );
+    QCOMPARE( idfCurvesItem->name(), QStringLiteral( "IDF Curves" ) );
+    ReosIntensityDurationFrequencyCurves *curves = idfCurvesItem->data();
+    QVERIFY( !curves );
+    //need to setupData
+    idfCurvesItem->setupData();
+    curves = idfCurvesItem->data();
+    QVERIFY( curves );
+
+    // id curve
+    ReosIntensityDurationCurve *curve = idfCurvesItem->curve( 0 );
+    Q_ASSERT( curves );
+    Q_ASSERT( curve );
+    QCOMPARE( rainfallModel->rowCount( rainfallModel->itemToIndex( idfCurvesItem ) ), 1 );
+    ReosRainfallIntensityDurationCurveItem *idCurveItem = qobject_cast<ReosRainfallIntensityDurationCurveItem *>(
+          rainfallModel->indexToItem( rainfallModel->index( 0, 0, rainfallModel->itemToIndex( idfCurvesItem ) ) ) );
+    Q_ASSERT( idCurveItem );
+    QCOMPARE( idCurveItem->name(), QStringLiteral( "10 years" ) );
+    QCOMPARE( idCurveItem->data(), curve );
+    QCOMPARE( curve->currentFormula(), "Montana" );
+    QCOMPARE( curve->intervalCount(), 4 );
+    QPair<ReosDuration, ReosDuration> interval = {ReosDuration( 6, ReosDuration::minute ), ReosDuration( 15, ReosDuration::minute )};
+    QVERIFY( curve->timeInterval( 0 ) == interval );
+    interval = {ReosDuration( 15, ReosDuration::minute ), ReosDuration( 30, ReosDuration::minute )};
+    QVERIFY( curve->timeInterval( 1 ) == interval );
+    interval = {ReosDuration( 30, ReosDuration::minute ), ReosDuration( 60, ReosDuration::minute )};
+    QVERIFY( curve->timeInterval( 2 ) == interval );
+    interval = {ReosDuration( 60, ReosDuration::minute ), ReosDuration( 120, ReosDuration::minute )};
+    QVERIFY( curve->timeInterval( 3 ) == interval );
+
+    ReosIdfParameters *param = curve->currentParameters( 0 );
+    QCOMPARE( param->parametersCount(), 2 );
+    QCOMPARE( param->parameter( 0 )->value(), 4.677 );
+    QCOMPARE( param->parameter( 1 )->value(), 0.314 );
+    param = curve->currentParameters( 1 );
+    QCOMPARE( param->parametersCount(), 2 );
+    QCOMPARE( param->parameter( 0 )->value(), 4.782 );
+    QCOMPARE( param->parameter( 1 )->value(), 0.321 );
+    param = curve->currentParameters( 2 );
+    QCOMPARE( param->parametersCount(), 2 );
+    QCOMPARE( param->parameter( 0 )->value(), 9.34 );
+    QCOMPARE( param->parameter( 1 )->value(), 0.5189 );
+    param = curve->currentParameters( 3 );
+    QCOMPARE( param->parametersCount(), 2 );
+    QCOMPARE( param->parameter( 0 )->value(), 11.722 );
+    QCOMPARE( param->parameter( 1 )->value(), 0.574 );
+
+    //****** Chicago rainfall
+    ReosRainfallChicagoItem *chicagoItem = qobject_cast<ReosRainfallChicagoItem *>(
+        rainfallModel->indexToItem( rainfallModel->index( 1, 0, rainfallModel->itemToIndex( stationItem ) ) ) );
+    QVERIFY( chicagoItem );
+    QCOMPARE( chicagoItem->name(), "Chicago 10 ans" );
+    chicagoItem->setupData();
+    chicagoItem->resolveDependencies();
+    ReosChicagoRainfall *chicagoRainfall = chicagoItem->data();
+    QVERIFY( chicagoRainfall );
+    QVERIFY( chicagoRainfall->intensityDurationCurve() == curve );
+    QVERIFY( chicagoRainfall->totalDuration()->value() == ReosDuration( 2, ReosDuration::hour ) );
+    QVERIFY( chicagoRainfall->timeStep()->value() == ReosDuration( 5, ReosDuration::minute ) );
+    QVERIFY( chicagoRainfall->centerCoefficient()->value() == 0.5 );
+    QVERIFY( chicagoRainfall->referenceTime()->value() == QDateTime( QDate( 2013, 02, 01 ), QTime( 1, 2, 3 ), Qt::UTC ) );
+
+    //****** Double triangle rainfall
+    ReosRainfallDoubleTriangleItem *doubleTriangleItem = qobject_cast<ReosRainfallDoubleTriangleItem *>(
+          rainfallModel->indexToItem( rainfallModel->index( 2, 0, rainfallModel->itemToIndex( stationItem ) ) ) );
+    QVERIFY( doubleTriangleItem );
+    QCOMPARE( doubleTriangleItem->name(), "Double triangle" );
+    doubleTriangleItem->setupData();
+    ReosDoubleTriangleRainfall *doubleTriangle = doubleTriangleItem->data();
+    QVERIFY( doubleTriangle );
+    QVERIFY( doubleTriangle->intensityDurationCurveTotal() == curve );
+    QVERIFY( doubleTriangle->intensityDurationCurveIntensePeriod() == curve );
+    QVERIFY( doubleTriangle->totalDuration()->value() == ReosDuration( 2, ReosDuration::hour ) );
+    QVERIFY( doubleTriangle->intenseDuration()->value() == ReosDuration( 10, ReosDuration::minute ) );
+    QVERIFY( doubleTriangle->timeStep()->value() == ReosDuration( 2, ReosDuration::minute ) );
+    QVERIFY( doubleTriangle->centerCoefficient()->value() == 0.5 );
+    QVERIFY( doubleTriangle->referenceTime()->value() == QDateTime( QDate( 2010, 02, 03 ), QTime( 5, 6, 7 ), Qt::UTC ) );
+
+    //****** Aletrnate rainfall
+    ReosRainfallAlternatingBlockItem *alternateItem = qobject_cast<ReosRainfallAlternatingBlockItem *>(
+          rainfallModel->indexToItem( rainfallModel->index( 4, 0, rainfallModel->itemToIndex( stationItem ) ) ) );
+    QVERIFY( alternateItem );
+    QCOMPARE( alternateItem->name(), "Alternate" );
+    alternateItem->setupData();
+    alternateItem->resolveDependencies();
+    ReosAlternatingBlockRainfall *alternateRainfall = alternateItem->data();
+    QVERIFY( alternateRainfall );
+    QVERIFY( alternateRainfall->intensityDurationCurve() == curve );
+    QVERIFY( alternateRainfall->totalDuration()->value() == ReosDuration( 1, ReosDuration::hour ) );
+    QVERIFY( alternateRainfall->timeStep()->value() == ReosDuration( 5, ReosDuration::minute ) );
+    QVERIFY( alternateRainfall->centerCoefficient()->value() == 0.5 );
+    QVERIFY( alternateRainfall->referenceTime()->value() == QDateTime( QDate( 2021, 01, 01 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+
+    //****** Aletrnate rainfall
+    ReosRainfallGaugedRainfallItem *gaugedItem = qobject_cast<ReosRainfallGaugedRainfallItem *>(
+          rainfallModel->indexToItem( rainfallModel->index( 3, 0, rainfallModel->itemToIndex( stationItem ) ) ) );
+    QVERIFY( gaugedItem );
+    QCOMPARE( gaugedItem->name(), "gauged one" );
+    gaugedItem->setupData();
+    ReosSerieRainfall *gaugedRainfall = gaugedItem->data();
+    QVERIFY( gaugedRainfall );
+    QCOMPARE( gaugedRainfall->valueCount(), 3 );
+    QVERIFY( gaugedRainfall->timeStep()->value() == ReosDuration( 10, ReosDuration::minute ) );
+    QCOMPARE( gaugedRainfall->referenceTime()->value(), QDateTime( QDate( 2013, 02, 01 ), QTime( 2, 3, 4 ), Qt::UTC ) );
+    QCOMPARE( gaugedRainfall->valueAt( 0 ), 4.0 );
+    QCOMPARE( gaugedRainfall->valueAt( 1 ), 5.0 );
+    QCOMPARE( gaugedRainfall->valueAt( 2 ), 6.0 );
+  }
 }
 
 QTEST_MAIN( ReosRainfallTest )
