@@ -16,6 +16,11 @@
 #include "reoshydrograph.h"
 
 
+ReosHydrograph::ReosHydrograph( QObject *parent, const QString &providerKey, const QString &dataSource )
+  : ReosTimeSerieVariableTimeStep( parent,
+                                   providerKey.isEmpty() ? QStringLiteral( "variable-time-step-memory" ) : providerKey,
+                                   dataSource ) {}
+
 QColor ReosHydrograph::color() const
 {
   return mColor;

@@ -24,6 +24,7 @@
 #include "reosmapitem.h"
 #include "reosmap.h"
 #include "reoshydrograph.h"
+#include "reosdataprovidergui.h"
 
 class ReosMapMarker;
 
@@ -45,17 +46,32 @@ class ReosHubEauStationMarker: public ReosMapMarker
     int stationIndex;
 };
 
-class ReosHubEauWidget : public ReosActionWidget
+class ReosHubEauWidget : public ReosDataProviderSelectorWidget
 {
     Q_OBJECT
   public:
     explicit ReosHubEauWidget( ReosMap *map, QWidget *parent = nullptr );
     ~ReosHubEauWidget();
 
+    ReosHydrograph *createData( QObject *parent = nullptr ) const override;
+    ReosHydrograph *selectedData() const override;
+
+    //! Returns the station Id of the current station conformly to hub-eau specifiations
+    QString currentStationId() const;
+
+    //! Sets the station Id of the current station conformly to hub-eau specifiations
+    void setCurrentStationId( const QString &currentStationId );
+
+  public slots:
+    //! Called when the widget is closed
+    void onClosed() override;
+
+    //! Called when the widget is open
+    void onOpened() override;
+
   private slots:
     void onMapExtentChanged();
     void onStationUpdated();
-    void onClosed();
     void onSelectStation( ReosMapItem *item, const QPointF & );
     void onHydrographUpdated();
 
@@ -69,8 +85,20 @@ class ReosHubEauWidget : public ReosActionWidget
     QPointer<ReosHydrograph> mCurrentHydrograph = nullptr;
     ReosPlotTimeSerieVariableStep *mHydrographPlot = nullptr;
     ReosHubEauStationMarker *mCurrentMarker = nullptr;
+    QString mCurrentStationId;
+    QVariantMap mCurrentStationMeta;
 
     void populateMeta( const QVariantMap &meta );
+};
+
+class ReosHubEauHydrometryGuiFactory : public ReosDataProviderGuiFactory
+{
+  public:
+    GuiCapabilities capabilities() const override;
+    QString key() const override;
+    ReosHubEauWidget *createProviderSelectorWidget( ReosMap *map, QWidget *parent = nullptr ) const override;
+    QString dataType() const override;
+    QPixmap icon() const override;
 };
 
 #endif // REOSHUBEAUWIDGET_H

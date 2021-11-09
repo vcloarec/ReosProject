@@ -38,74 +38,80 @@ ReosHydrographEditingWidget::ReosHydrographEditingWidget( ReosHydrograph *hydrog
   mDataModel->setSerie( hydrograph );
   mIsUseConstantTimeStepForNewEntry->setValue( false );
   addParameter( hydrograph->referenceTime() );
-  addParameter( mIsUseConstantTimeStepForNewEntry );
-
-  ReosDuration newEntryFixedTimeStep( 5, ReosDuration::minute );
-  if ( settings.contains( QStringLiteral( "/hydrograh/new-entry-time-step-value" ) ) &&
-       settings.contains( QStringLiteral( "/hydrograh/new-entry-time-step-unit" ) ) )
+  if ( hydrograph->dataProvider()->isEditable() )
   {
-    double timeStepValue = settings.value( QStringLiteral( "/hydrograh/new-entry-time-step-value" ) ).toDouble();
-    ReosDuration::Unit unit = static_cast<ReosDuration::Unit>(
-                                settings.value( QStringLiteral( "/hydrograh/new-entry-time-step-value" ) ).toInt() );
+    addParameter( mIsUseConstantTimeStepForNewEntry );
 
-    newEntryFixedTimeStep = ReosDuration( timeStepValue, unit );
+    ReosDuration newEntryFixedTimeStep( 5, ReosDuration::minute );
+    if ( settings.contains( QStringLiteral( "/hydrograh/new-entry-time-step-value" ) ) &&
+         settings.contains( QStringLiteral( "/hydrograh/new-entry-time-step-unit" ) ) )
+    {
+      double timeStepValue = settings.value( QStringLiteral( "/hydrograh/new-entry-time-step-value" ) ).toDouble();
+      ReosDuration::Unit unit = static_cast<ReosDuration::Unit>(
+                                  settings.value( QStringLiteral( "/hydrograh/new-entry-time-step-value" ) ).toInt() );
+
+      newEntryFixedTimeStep = ReosDuration( timeStepValue, unit );
+    }
+    mConstantTimeStepForNewEntry->setValue( newEntryFixedTimeStep );
+
+
+
+    if ( settings.contains( QStringLiteral( "/hydrograh/new-entry-use-constant-time-step" ) ) )
+    {
+      mIsUseConstantTimeStepForNewEntry->setValue( settings.value( QStringLiteral( "/hydrograh/new-entry-use-constant-time-step" ) ).toBool() );
+    }
+
+    ReosDuration::Unit timeStepUnit = ReosDuration::minute;
+    if ( settings.contains( QStringLiteral( "/hydrograh/time-step-unit" ) ) )
+    {
+      timeStepUnit = static_cast<ReosDuration::Unit>(
+                       settings.value( QStringLiteral( "/hydrograh/time-step-unit" ) ).toInt() );
+    }
+
+    QWidget *relativeTimeUnitWidget = new QWidget( this );
+    relativeTimeUnitWidget->setLayout( new QHBoxLayout );
+    relativeTimeUnitWidget->layout()->setContentsMargins( 0, 0, 0, 0 );
+    relativeTimeUnitWidget->layout()->addWidget( new QLabel( tr( "Time step unit" ) ) );
+    mTimeStepUnitCombo = new ReosDurationUnitComboBox( this, timeStepUnit );
+    relativeTimeUnitWidget->layout()->addWidget( mTimeStepUnitCombo );
+    addWidget( relativeTimeUnitWidget );
+    mConstantTimeStepForNewEntryWidget = addParameter( mConstantTimeStepForNewEntry );
+    mConstantTimeStepForNewEntryWidget->setVisible( mIsUseConstantTimeStepForNewEntry->value() );
+    mDataModel->setNewRowWithFixedTimeStep( mIsUseConstantTimeStepForNewEntry->value() );
+
+    connect( mIsUseConstantTimeStepForNewEntry, &ReosParameter::valueChanged, this, [this, relativeTimeUnitWidget]
+    {
+      bool useConstantTimeStep = mIsUseConstantTimeStepForNewEntry->value();
+      ReosSettings settings;
+      settings.setValue( QStringLiteral( "/hydrograh/new-entry-use-constant-time-step" ), useConstantTimeStep );
+      mConstantTimeStepForNewEntryWidget->setVisible( useConstantTimeStep );
+      mDataModel->setNewRowWithFixedTimeStep( useConstantTimeStep );
+      relativeTimeUnitWidget->setVisible( !useConstantTimeStep );
+    } );
+
+    connect( mConstantTimeStepForNewEntry, &ReosParameter::valueChanged, this, [this]
+    {
+      mDataModel->setFixedTimeStep( mConstantTimeStepForNewEntry->value() );
+      ReosSettings settings;
+      settings.value( QStringLiteral( "/hydrograh/new-entry-time-step-value" ), mConstantTimeStepForNewEntry->value().valueUnit() );
+      settings.value( QStringLiteral( "/hydrograh/new-entry-time-step-unit" ), mConstantTimeStepForNewEntry->value().unit() );
+    } );
+
+    connect( mTimeStepUnitCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]
+    {
+      ReosDuration::Unit unit = mTimeStepUnitCombo->currentUnit();
+      mDataModel->setVariableTimeStepUnit( unit );
+      ReosSettings settings;
+      settings.value( QStringLiteral( "/hydrograh/time-step-unit" ), unit );
+    } );
+
   }
-
-  mConstantTimeStepForNewEntry->setValue( newEntryFixedTimeStep );
-
-  ReosDuration::Unit timeStepUnit = ReosDuration::minute;
-  if ( settings.contains( QStringLiteral( "/hydrograh/time-step-unit" ) ) )
-  {
-    timeStepUnit = static_cast<ReosDuration::Unit>(
-                     settings.value( QStringLiteral( "/hydrograh/time-step-unit" ) ).toInt() );
-  }
-
-  if ( settings.contains( QStringLiteral( "/hydrograh/new-entry-use-constant-time-step" ) ) )
-  {
-    mIsUseConstantTimeStepForNewEntry->setValue( settings.value( QStringLiteral( "/hydrograh/new-entry-use-constant-time-step" ) ).toBool() );
-  }
-
-  QWidget *relativeTimeUnitWidget = new QWidget( this );
-  relativeTimeUnitWidget->setLayout( new QHBoxLayout );
-  relativeTimeUnitWidget->layout()->setContentsMargins( 0, 0, 0, 0 );
-  relativeTimeUnitWidget->layout()->addWidget( new QLabel( tr( "Time step unit" ) ) );
-  mTimeStepUnitCombo = new ReosDurationUnitComboBox( this, timeStepUnit );
-  relativeTimeUnitWidget->layout()->addWidget( mTimeStepUnitCombo );
-  addWidget( relativeTimeUnitWidget );
-  mConstantTimeStepForNewEntryWidget = addParameter( mConstantTimeStepForNewEntry );
-  mConstantTimeStepForNewEntryWidget->setVisible( mIsUseConstantTimeStepForNewEntry->value() );
-  mDataModel->setNewRowWithFixedTimeStep( mIsUseConstantTimeStepForNewEntry->value() );
 
   ReosTimeSerieTableView *tableView = new ReosTimeSerieTableView( this );
   addWidget( tableView );
   tableView->setModel( mDataModel );
   tableView->verticalHeader()->hide();
 
-  connect( mIsUseConstantTimeStepForNewEntry, &ReosParameter::valueChanged, this, [this, relativeTimeUnitWidget]
-  {
-    bool useConstantTimeStep = mIsUseConstantTimeStepForNewEntry->value();
-    ReosSettings settings;
-    settings.setValue( QStringLiteral( "/hydrograh/new-entry-use-constant-time-step" ), useConstantTimeStep );
-    mConstantTimeStepForNewEntryWidget->setVisible( useConstantTimeStep );
-    mDataModel->setNewRowWithFixedTimeStep( useConstantTimeStep );
-    relativeTimeUnitWidget->setVisible( !useConstantTimeStep );
-  } );
-
-  connect( mConstantTimeStepForNewEntry, &ReosParameter::valueChanged, this, [this]
-  {
-    mDataModel->setFixedTimeStep( mConstantTimeStepForNewEntry->value() );
-    ReosSettings settings;
-    settings.value( QStringLiteral( "/hydrograh/new-entry-time-step-value" ), mConstantTimeStepForNewEntry->value().valueUnit() );
-    settings.value( QStringLiteral( "/hydrograh/new-entry-time-step-unit" ), mConstantTimeStepForNewEntry->value().unit() );
-  } );
-
-  connect( mTimeStepUnitCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]
-  {
-    ReosDuration::Unit unit = mTimeStepUnitCombo->currentUnit();
-    mDataModel->setVariableTimeStepUnit( unit );
-    ReosSettings settings;
-    settings.value( QStringLiteral( "/hydrograh/time-step-unit" ), unit );
-  } );
 }
 
 ReosHydrographEditingWidget::~ReosHydrographEditingWidget()

@@ -52,6 +52,7 @@ SET(REOS_CORE_SOURCES
   data/reostimeserieprovider.cpp
   data/reostextfiledata.cpp
   data/reosdataobject.cpp
+  data/reosdataprovider.cpp
 
   hydrograph/reoshydrograph.cpp
 )
@@ -105,6 +106,7 @@ SET(REOS_CORE_HEADERS
     data/reostimeserieprovider.h
     data/reostextfiledata.h
     data/reosdataobject.h
+    data/reosdataprovider.h
 
     hydrograph/reoshydrograph.h
 )
@@ -113,12 +115,12 @@ SET(REOS_CORE_HEADERS_PRIVATE
     GIS/private/reosdigitalelevationmodel_p.h
     )
 
-SET(IMAGE_RCCS ../../images/images.qrc
-               ../../images/cursors/cursors.qrc
-               ../../images/formulas/formulas.qrc
-               ../../images/flags/flags.qrc)
+SET(IMAGE_RCCS ${CMAKE_SOURCE_DIR}/images/images.qrc
+               ${CMAKE_SOURCE_DIR}/images/cursors/cursors.qrc
+               ${CMAKE_SOURCE_DIR}/images/formulas/formulas.qrc
+               ${CMAKE_SOURCE_DIR}/images/flags/flags.qrc)
 
-SET(CREDITS_RCCS ../../credits/credits.qrc)
+SET(CREDITS_RCCS ${CMAKE_SOURCE_DIR}/credits/credits.qrc)
 
 SET(REOS_CORE_LIBS ${REOS_CORE_LIBS} reosCore)
 ADD_LIBRARY(reosCore SHARED
@@ -127,6 +129,13 @@ ADD_LIBRARY(reosCore SHARED
     ${IMAGE_RCCS}
     ${CREDITS_RCCS}
   )
+
+set_target_properties(reosCore
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY ${REOS_OUTPUT_DIRECTORY}
+    LIBRARY_OUTPUT_DIRECTORY ${REOS_OUTPUT_DIRECTORY}
+    RUNTIME_OUTPUT_DIRECTORY ${REOS_OUTPUT_DIRECTORY}
+    )
   
 IF (MSVC)
   add_compile_definitions(_USE_MATH_DEFINES)

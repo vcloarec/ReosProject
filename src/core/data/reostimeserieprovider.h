@@ -22,11 +22,12 @@
 
 #include "reosduration.h"
 #include "reosdataobject.h"
+#include "reosdataprovider.h"
 
 /**
  * Abstract class for time serie provider
  */
-class ReosTimeSerieProvider : public QObject
+class ReosTimeSerieProvider : public ReosDataProvider
 {
     Q_OBJECT
   public:
@@ -60,45 +61,8 @@ class ReosTimeSerieProvider : public QObject
 
     virtual QString htmlMetaData() const {return QString();}
 
-  signals:
-    void dataChanged();
-
   private:
     QString mDataSource;
-};
-
-
-/**
- * Abstract class for time serie provider factory
- */
-class ReosTimeSerieProviderFactory
-{
-  public:
-    virtual ReosTimeSerieProvider *createProvider() const = 0;
-    virtual QString key() const = 0;
-};
-
-/**
- * Class that stores time serie provider factory
- */
-class ReosTimeSerieProviderRegistery
-{
-  public:
-    ReosTimeSerieProviderRegistery();
-
-    void registerProviderFactory( ReosTimeSerieProviderFactory *factory );
-
-    static ReosTimeSerieProviderRegistery *instance();
-
-    ReosTimeSerieProvider *createProvider( const QString &key );
-
-  private:
-#ifdef _MSC_VER
-    std::unique_ptr<ReosConcentrationTimeFormula> dummy; // work arround for MSVC, if not, the line after create an compilation error if this class is exported (REOSCORE_EXPORT)
-#endif
-
-    std::map<QString, std::unique_ptr<ReosTimeSerieProviderFactory>> mFactories;
-    static ReosTimeSerieProviderRegistery *sInstance;
 };
 
 /**
@@ -106,6 +70,7 @@ class ReosTimeSerieProviderRegistery
  */
 class ReosTimeSerieConstantTimeStepProvider : public ReosTimeSerieProvider
 {
+    Q_OBJECT
   public:
     ReosTimeSerieConstantTimeStepProvider() = default;
     ~ReosTimeSerieConstantTimeStepProvider();
@@ -175,11 +140,11 @@ class ReosTimeSerieConstantTimeStepMemoryProvider : public ReosTimeSerieConstant
     QVector<double> mValues;
 };
 
-class ReosTimeSerieConstantTimeStepMemoryProviderFactory : public ReosTimeSerieProviderFactory
+class ReosTimeSerieConstantTimeStepMemoryProviderFactory : public ReosDataProviderFactory
 {
   public:
 
-    ReosTimeSerieProvider *createProvider() const override {return new ReosTimeSerieConstantTimeStepMemoryProvider;}
+    ReosDataProvider *createProvider() const override {return new ReosTimeSerieConstantTimeStepMemoryProvider;}
     QString key() const override {return QStringLiteral( "constant-time-step-memory" );}
 };
 
@@ -223,7 +188,7 @@ class ReosTimeSerieVariableTimeStepMemoryProvider : public ReosTimeSerieVariable
 };
 
 
-class ReosTimeSerieVariableTimeStepMemoryProviderFactory : public ReosTimeSerieProviderFactory
+class ReosTimeSerieVariableTimeStepMemoryProviderFactory : public ReosDataProviderFactory
 {
   public:
     ReosTimeSerieProvider *createProvider() const override {return new ReosTimeSerieVariableTimeStepMemoryProvider;}

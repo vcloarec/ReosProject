@@ -52,6 +52,7 @@ SET(REOS_GUI_SOURCES
     form/reostableview.cpp
 
     data/reosimportfromtextfile.cpp
+    data/reosdataprovidergui.cpp
 
     hydrograph/reoshydrographeditingwidget.cpp
 )
@@ -99,6 +100,7 @@ SET(REOS_GUI_HEADERS
     form/reostableview.h
 
     data/reosimportfromtextfile.h
+    data/reosdataprovidergui.h
 
     hydrograph/reoshydrographeditingwidget.h
 )
@@ -147,6 +149,13 @@ IF(WITH_QTWEBKIT)
   )
   add_compile_definitions(WITH_QTWEBKIT)
 ENDIF(WITH_QTWEBKIT)
+
+set_target_properties(reosGui
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY ${REOS_OUTPUT_DIRECTORY}
+    LIBRARY_OUTPUT_DIRECTORY ${REOS_OUTPUT_DIRECTORY}
+    RUNTIME_OUTPUT_DIRECTORY ${REOS_OUTPUT_DIRECTORY}
+    )
 
 IF(WIN32)
   INSTALL(TARGETS reosGui RUNTIME DESTINATION lib)

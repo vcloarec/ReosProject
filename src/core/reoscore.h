@@ -23,5 +23,16 @@
 #    endif
 #  endif
 
+#ifndef REOSEXTERN
+#ifdef Q_OS_WIN
+#  define REOSEXTERN extern "C" __declspec( dllexport )
+#else
+#  if defined(__GNUC__) || defined(__clang__)
+#    define REOSEXTERN extern "C" __attribute__ ((visibility ("default")))
+#  else
+#    define REOSEXTERN extern "C"
+#  endif
+#endif
+#endif
 
 #endif

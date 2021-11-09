@@ -24,6 +24,7 @@
 #include "reosformwidget.h"
 #include "reoshydrographeditingwidget.h"
 #include "reosplottimeconstantinterval.h"
+#include "reosdataprovidergui.h"
 
 ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( ReosMap *map, QWidget *parent )
   : ReosActionWidget( parent )
@@ -38,6 +39,8 @@ ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( ReosMap *map, QWidget *p
   ui->mWidgetToolBar->setLayout( new QHBoxLayout );
   ui->mWidgetToolBar->layout()->setContentsMargins( 0, 0, 0, 0 );
   QToolBar *toolBar = new QToolBar( ui->mWidgetToolBar );
+  toolBar->setIconSize( QSize( 16, 16 ) );
+  toolBar->layout()->setContentsMargins( 0, 0, 0, 0 );
   ui->mWidgetToolBar->layout()->addWidget( toolBar );
 
   mActionAddHydrograph = toolBar->addAction( QPixmap( QStringLiteral( ":/images/add.svg" ) ), tr( "Add Gauged Hydrograph" ), this, &ReosGaugedHydrographWidget::onAddHydrograph );
@@ -46,22 +49,64 @@ ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( ReosMap *map, QWidget *p
 
   ui->mWidgetProviderToolBar->setLayout( new QHBoxLayout );
   ui->mWidgetProviderToolBar->layout()->setContentsMargins( 0, 0, 0, 0 );
-  QToolBar *toolBarProvider = new QToolBar( ui->mWidgetProviderToolBar );
-  ui->mWidgetProviderToolBar->layout()->addWidget( toolBarProvider );
-  mActionHubEau = toolBarProvider->addAction( QPixmap( ":/images/icon-hubeau-blue.svg" ), tr( "Hub eau" ) );
-  mActionHubEau->setCheckable( true );
+  mToolBarProvider = new QToolBar( ui->mWidgetProviderToolBar );
+  mToolBarProvider->setIconSize( QSize( 24, 24 ) );
+  mToolBarProvider->layout()->setContentsMargins( 0, 0, 0, 0 );
+  ui->mWidgetProviderToolBar->layout()->addWidget( mToolBarProvider );
 
   mHydrographPlot = new ReosPlotTimeSerieVariableStep( tr( "Hydrograph" ) );
   ui->plotWidget->addPlotItem( mHydrographPlot );
   ui->plotWidget->setAxeXType( ReosPlotWidget::temporal );
   ui->plotWidget->enableAutoMinimumSize( true );
+  ui->plotWidget->setMagnifierType( ReosPlotWidget::positiveMagnifier );
+
+  populateProviderActions();
 
   connect( ui->mComboBoxHydrographName, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosGaugedHydrographWidget::onCurrentHydrographChanged );
 
-  onStoreChanged();
+  connect( ui->mButtonBack, &QPushButton::clicked, this, [this]
+  {
+    backToMainIndex();
+  } );
 
-//  mHubEauWidget = new ReosHubEauWidget( mMap, this );
-//  mHubEauWidget->setAction( mActionHubEau );
+  connect( ui->mButtonAddFromProvider, &QPushButton::clicked, this, [this]
+  {
+    if ( !mCurrentDataSelectorWidget )
+      return;
+    std::unique_ptr<ReosHydrograph> hyd;
+    hyd.reset( qobject_cast<ReosHydrograph *>( mCurrentDataSelectorWidget->createData() ) );
+    if ( !hyd )
+      return;
+    mHydrographStore->addHydrograph( hyd.release() );
+    onStoreChanged();
+    backToMainIndex();
+    ui->mComboBoxHydrographName->setCurrentIndex( ui->mComboBoxHydrographName->count() - 1 );
+  } );
+
+  connect( ui->mButtonCopyFromProvider, &QPushButton::clicked, this, [this]
+  {
+    if ( !mCurrentDataSelectorWidget )
+      return;
+    std::unique_ptr<ReosHydrograph> copyHyd = std::make_unique<ReosHydrograph>();
+
+    ReosHydrograph *providerHydrograph = qobject_cast<ReosHydrograph *>( mCurrentDataSelectorWidget->selectedData() );
+
+    if ( providerHydrograph )
+    {
+      copyHyd->setName( providerHydrograph->name() );
+      copyHyd->referenceTime()->setValue( providerHydrograph->dataProvider()->referenceTime() );
+      copyHyd->addOther( providerHydrograph );
+      copyHyd->setColor( providerHydrograph->color() );
+      mHydrographStore->addHydrograph( copyHyd.release() );
+      onStoreChanged();
+      ui->mComboBoxHydrographName->setCurrentIndex( ui->mComboBoxHydrographName->count() - 1 );
+    }
+
+    backToMainIndex();
+  } );
+
+  onStoreChanged();
+  ui->mStackedWidget->setCurrentIndex( 0 );
 
 }
 
@@ -98,6 +143,7 @@ void ReosGaugedHydrographWidget::onAddHydrograph()
     newHydrograph->setColor( Qt::blue );
     mHydrographStore->addHydrograph( newHydrograph.release() );
     onStoreChanged();
+    ui->mComboBoxHydrographName->setCurrentIndex( ui->mComboBoxHydrographName->count() - 1 );
   }
 
   dial->deleteLater();
@@ -171,7 +217,9 @@ void ReosGaugedHydrographWidget::onStoreChanged()
 void ReosGaugedHydrographWidget::onCurrentHydrographChanged()
 {
   if ( !mCurrentHydrograph.isNull() )
+  {
     disconnect( mCurrentHydrograph, &ReosDataObject::dataChanged, this, &ReosGaugedHydrographWidget::updatePlotExtent );
+  }
 
   if ( mHydrographStore && mHydrographStore->hydrographCount() > 0 )
   {
@@ -185,6 +233,7 @@ void ReosGaugedHydrographWidget::onCurrentHydrographChanged()
     newWidget.reset( ReosFormWidgetFactories::instance()->createDataFormWidget( mCurrentHydrograph ) );
     mHydrographPlot->setTimeSerie( mCurrentHydrograph );
     connect( mCurrentHydrograph, &ReosDataObject::dataChanged, this, &ReosGaugedHydrographWidget::updatePlotExtent );
+
   }
   else
   {
@@ -211,4 +260,72 @@ void ReosGaugedHydrographWidget::updatePlotExtent()
   const QPair<QDateTime, QDateTime> timeExtent = mCurrentHydrograph->timeExtent();
 
   ui->plotWidget->setAxeXExtent( timeExtent.first, timeExtent.second );
+}
+
+void ReosGaugedHydrographWidget::populateProviderActions()
+{
+  const QString dataType = QStringLiteral( "hydrograph" );
+
+  const QStringList providers =
+    ReosDataProviderGuiRegistery::instance()->providers( dataType, ReosDataProviderGuiFactory::GuiCapability::DataSelector );
+
+  for ( const QString &provider : providers )
+  {
+    QAction *action = new QAction(
+      ReosDataProviderGuiRegistery::instance()->providerIcon( provider ),
+      ReosDataProviderGuiRegistery::instance()->providerDisplayText( provider ), this );
+    mProvidersActionToKeys.insert( action, provider );
+    mToolBarProvider->addAction( action );
+
+    connect( action, &QAction::triggered, this, [this, provider]
+    {
+      showProviderSelector( provider );
+    } );
+  }
+
+}
+
+void ReosGaugedHydrographWidget::showProviderSelector( const QString &providerKey )
+{
+  mCurrentDataSelectorWidget =
+    ReosDataProviderGuiRegistery::instance()->guiFactory( providerKey )->createProviderSelectorWidget( mMap, this );
+  ui->mProviderWidget->layout()->addWidget( mCurrentDataSelectorWidget );
+
+  if ( mCurrentDataSelectorWidget )
+  {
+    ui->mProviderHeaderSpacer->changeSize( ui->mProviderHeaderSpacer->geometry().width(),
+                                           ui->mainHeaderLayout->sizeHint().height(),
+                                           QSizePolicy::Expanding );
+    ui->mStackedWidget->setCurrentIndex( 1 );
+
+    ui->mButtonCopyFromProvider->setEnabled( false );
+    ui->mButtonAddFromProvider->setEnabled( false );
+    // connect selection change
+    connect( mCurrentDataSelectorWidget, &ReosDataProviderSelectorWidget::dataSelectionChanged, this, [this]( bool isDataSelected )
+    {
+      ui->mButtonAddFromProvider->setEnabled( isDataSelected  && mCurrentWatershed );
+    } );
+
+    // connect loading
+    connect( mCurrentDataSelectorWidget, &ReosDataProviderSelectorWidget::dataIsLoading, this, [this]
+    {
+      ui->mButtonCopyFromProvider->setEnabled( false &&mCurrentWatershed );
+    } );
+
+    // connect data is ready
+    connect( mCurrentDataSelectorWidget, &ReosDataProviderSelectorWidget::dataIsReady, this, [this]
+    {
+      ui->mButtonCopyFromProvider->setEnabled( true &&mCurrentWatershed );
+    } );
+
+    mCurrentDataSelectorWidget->onOpened();
+  }
+}
+
+void ReosGaugedHydrographWidget::backToMainIndex()
+{
+  ui->mStackedWidget->setCurrentIndex( 0 );
+  ui->mProviderWidget->layout()->removeWidget( mCurrentDataSelectorWidget );
+  mCurrentDataSelectorWidget->deleteLater();
+  mCurrentDataSelectorWidget = nullptr;
 }

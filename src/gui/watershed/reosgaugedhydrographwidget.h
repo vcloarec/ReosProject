@@ -17,6 +17,7 @@
 #define REOSGAUGEDHYDROGRAPHWIDGET_H
 
 #include <QPointer>
+#include <QMap>
 
 #include "reosactionwidget.h"
 
@@ -32,6 +33,9 @@ class ReosPlotTimeSerieVariableStep;
 class ReosHydrographEditingWidget;
 class ReosHydrograph;
 class ReosMap;
+class ReosDataProviderSelectorWidget;
+
+class QToolBar;
 
 class ReosHubEauWidget;
 
@@ -51,7 +55,6 @@ class ReosGaugedHydrographWidget : public ReosActionWidget
     void onRenameHydrograph();
     void onStoreChanged();
     void onCurrentHydrographChanged();
-
     void updatePlotExtent();
 
   private:
@@ -60,15 +63,20 @@ class ReosGaugedHydrographWidget : public ReosActionWidget
     ReosWatershed *mCurrentWatershed = nullptr;
     ReosHydrographStore *mHydrographStore = nullptr;
     ReosTimeSerieVariableTimeStepModel *mTableModel = nullptr;
-    QAction *mActionHubEau = nullptr;
     QAction *mActionAddHydrograph = nullptr;
     QAction *mActionDeleteHydrograph = nullptr;
     QAction *mActionRenameHydrograph = nullptr;
     QWidget *mCurrenEditingWidget = nullptr;
+    QMap<QAction *, QString> mProvidersActionToKeys;
     QPointer<ReosHydrograph> mCurrentHydrograph = nullptr;
     ReosPlotTimeSerieVariableStep *mHydrographPlot = nullptr;
+    QToolBar *mToolBarProvider;
 
-    ReosHubEauWidget *mHubEauWidget = nullptr;
+    ReosDataProviderSelectorWidget  *mCurrentDataSelectorWidget = nullptr;
+
+    void populateProviderActions();
+    void showProviderSelector( const QString &providerKey );
+    void backToMainIndex();
 };
 
 #endif // REOSGAUGEDHYDROGRAPHWIDGET_H

@@ -89,7 +89,7 @@ bool ReosParameter::isEditable() const
     return mIsEditable;
 }
 
-void ReosParameter::setIsEditable(bool isEditable)
+void ReosParameter::setEditable(bool isEditable)
 {
     mIsEditable = isEditable;
 }

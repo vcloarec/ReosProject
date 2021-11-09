@@ -4,16 +4,22 @@
 SET(REOS_HUB_EAU_SOURCES
   reoshubeauserver.cpp
   reoshubeauwidget.cpp
+  reoshubeauhydrographprovider.cpp
 )
 
 SET(REOS_HUB_EAU_HEADERS
     reoshubeauserver.h
     reoshubeauwidget.h
+    reoshubeauhydrographprovider.h
 )
+
+SET(LOGO_RCCS ${CMAKE_SOURCE_DIR}/images/providers/hub-eau/hub-eau-images.qrc)
+
 
 ADD_LIBRARY(provider_hub_eau_hydrometrie MODULE
     ${REOS_HUB_EAU_SOURCES}
-    ${REOS_HUB_EAU_HEADERS})
+    ${REOS_HUB_EAU_HEADERS}
+    ${LOGO_RCCS})
 
 TARGET_LINK_LIBRARIES(provider_hub_eau_hydrometrie
         ${Qt5Xml_LIBRARIES}
@@ -28,6 +34,12 @@ TARGET_LINK_LIBRARIES(provider_hub_eau_hydrometrie
         reosGui
         reosCore
 )
+
+set_target_properties(provider_hub_eau_hydrometrie
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY ${REOS_OUTPUT_DIRECTORY}/${REOS_PROVIDERS_DIR}
+    LIBRARY_OUTPUT_DIRECTORY ${REOS_OUTPUT_DIRECTORY}/${REOS_PROVIDERS_DIR}
+    )
 
 INCLUDE_DIRECTORIES(
     ${CMAKE_BINARY_DIR}/src/ui
@@ -51,9 +63,9 @@ INCLUDE_DIRECTORIES(
     )
 
 IF(WIN32)
-  INSTALL(TARGETS provider_hub_eau_hydrometrie RUNTIME DESTINATION ${REOS_PLUGIN_DIR)
+  INSTALL(TARGETS provider_hub_eau_hydrometrie RUNTIME DESTINATION ${REOS_PROVIDERS_DIR})
 ELSE(WIN32)
-  INSTALL(TARGETS provider_hub_eau_hydrometrie LIBRARY DESTINATION ${REOS_PLUGIN_DIR})
+  INSTALL(TARGETS provider_hub_eau_hydrometrie LIBRARY DESTINATION ${REOS_PROVIDERS_DIR})
 ENDIF(WIN32)
 
 

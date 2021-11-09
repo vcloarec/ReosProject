@@ -251,7 +251,7 @@ ReosTimeSerieConstantInterval::ReosTimeSerieConstantInterval( QObject *parent, c
   }
   else
   {
-    mProvider.reset( ReosTimeSerieProviderRegistery::instance()->createProvider( QStringLiteral( "constant-time-step-memory" ) ) );
+    mProvider.reset( static_cast<ReosTimeSerieProvider *>( ReosDataProviderRegistery::instance()->createProvider( QStringLiteral( "constant-time-step-memory" ) ) ) );
     if ( mProvider )
       connect( mProvider.get(), &ReosTimeSerieProvider::dataChanged, this, &ReosTimeSerie::onDataProviderChanged );
   }
@@ -634,13 +634,13 @@ ReosTimeSerie::ReosTimeSerie( QObject *parent, const QString &providerKey, const
   , mReferenceTime( new ReosParameterDateTime( tr( "Reference time" ), this ) )
 {
   if ( !providerKey.isEmpty() )
-    mProvider.reset( ReosTimeSerieProviderRegistery::instance()->createProvider( providerKey ) );
+    mProvider.reset( static_cast<ReosTimeSerieProvider *>( ReosDataProviderRegistery::instance()->createProvider( providerKey ) ) );
 
   if ( mProvider )
   {
-    mProvider->setDataSource( dataSource );
-    mReferenceTime->setValue( mProvider->referenceTime() );
     connect( mProvider.get(), &ReosTimeSerieProvider::dataChanged, this, &ReosTimeSerie::onDataProviderChanged );
+    mProvider->setDataSource( dataSource );
+    mReferenceTime->setEditable( mProvider->isEditable() );
   }
 }
 
@@ -724,11 +724,13 @@ bool ReosTimeSerie::decodeBase( const ReosEncodedElement &element )
   {
     QString providerKey;
     element.getData( QStringLiteral( "provider-key" ), providerKey );
-    mProvider.reset( ReosTimeSerieProviderRegistery::instance()->createProvider( providerKey ) );
+    mProvider.reset( static_cast<ReosTimeSerieProvider *>( ReosDataProviderRegistery::instance()->createProvider( providerKey ) ) );
     if ( mProvider && element.hasEncodedData( QStringLiteral( "provider-data" ) ) )
     {
+      connect( mProvider.get(), &ReosTimeSerieProvider::dataChanged, this, &ReosTimeSerie::onDataProviderChanged );
       mProvider->decode( element.getEncodedData( QStringLiteral( "provider-data" ) ) );
       mReferenceTime->setValue( mProvider->referenceTime() );
+      mReferenceTime->setEditable( mProvider->isEditable() );
     }
   }
   else
@@ -762,6 +764,7 @@ ReosTimeSerieVariableTimeStep::ReosTimeSerieVariableTimeStep(
     mProvider.reset( new ReosTimeSerieVariableTimeStepMemoryProvider( ) );
     connect( mProvider.get(), &ReosTimeSerieProvider::dataChanged, this, &ReosTimeSerie::onDataProviderChanged );
   }
+  connectParameters();
 }
 
 ReosDuration ReosTimeSerieVariableTimeStep::relativeTimeAt( int i ) const
@@ -872,24 +875,24 @@ double ReosTimeSerieVariableTimeStep::valueAtTime( const QDateTime &time ) const
   return valueAtTime( ReosDuration( referenceTime()->value().msecsTo( time ) ) );
 }
 
-void ReosTimeSerieVariableTimeStep::addOther( const ReosTimeSerieVariableTimeStep &other, double factor, bool allowInterpolation )
+void ReosTimeSerieVariableTimeStep::addOther( const ReosTimeSerieVariableTimeStep *other, double factor, bool allowInterpolation )
 {
   ReosTimeSerieVariableTimeStepProvider *dataProv = variableTimeStepdataProvider();
-  ReosTimeSerieVariableTimeStepProvider *otherDataProv = other.variableTimeStepdataProvider();
+  ReosTimeSerieVariableTimeStepProvider *otherDataProv = other->variableTimeStepdataProvider();
 
   if ( !dataProv || !otherDataProv || !dataProv->isEditable() )
     return;
 
   blockSignals( true );
 
-  ReosDuration offset( referenceTime()->value().msecsTo( other.referenceTime()->value() ), ReosDuration::millisecond );
+  ReosDuration offset( referenceTime()->value().msecsTo( other->referenceTime()->value() ), ReosDuration::millisecond );
 
   //need to store apart and then apply, if not changed value will disturb the addiion for following
   QVector<double> newValue_1( dataProv->valueCount() );
   for ( int i = 0; i < dataProv->valueCount(); ++i )
   {
     ReosDuration thisTimeValue = dataProv->relativeTimeAt( i );
-    newValue_1[i] = mProvider->value( i ) + factor * other.valueAtTime( thisTimeValue - offset );
+    newValue_1[i] = mProvider->value( i ) + factor * other->valueAtTime( thisTimeValue - offset );
     //setValue( thisTimeValue, mValues.at( i ) + factor * other.valueAtTime( thisTimeValue - offset ) );
   }
 
@@ -903,7 +906,7 @@ void ReosTimeSerieVariableTimeStep::addOther( const ReosTimeSerieVariableTimeSte
     if ( !exact )
     {
       if ( index < 0 || index >= ( dataProv->valueCount() - 1 ) || allowInterpolation )
-        newValue_2[otherTimeValue] = valueAtTime( otherTimeValue ) + factor * other.valueAt( i );
+        newValue_2[otherTimeValue] = valueAtTime( otherTimeValue ) + factor * other->valueAt( i );
     }
   }
 
@@ -1031,8 +1034,6 @@ ReosTimeSerieVariableTimeStepProvider *ReosTimeSerieVariableTimeStep::variableTi
   return static_cast<ReosTimeSerieVariableTimeStepProvider *>( mProvider.get() );
 }
 
-
-
 ReosTimeSerieVariableTimeStepModel::ReosTimeSerieVariableTimeStepModel( QObject *parent ): ReosTimeSerieModel( parent )
 {
   mFixedTimeStep = ReosDuration( 5, ReosDuration::minute );
@@ -1041,7 +1042,7 @@ ReosTimeSerieVariableTimeStepModel::ReosTimeSerieVariableTimeStepModel( QObject 
 int ReosTimeSerieVariableTimeStepModel::rowCount( const QModelIndex & ) const
 {
   if ( !mData.isNull() )
-    return mIsEditable ? mData->valueCount() + 1 : mData->valueCount();
+    return isEditable() ? mData->valueCount() + 1 : mData->valueCount();
   else
     return 3;
 }
@@ -1056,7 +1057,7 @@ QVariant ReosTimeSerieVariableTimeStepModel::data( const QModelIndex &index, int
   if ( mData.isNull() )
     return QVariant();
 
-  int maxRowCount = mIsEditable ? mData->valueCount() + 1 : mData->valueCount();
+  int maxRowCount = isEditable() ? mData->valueCount() + 1 : mData->valueCount();
 
   if ( !index.isValid() || index.row() >= maxRowCount )
     return QVariant();
@@ -1081,7 +1082,7 @@ QVariant ReosTimeSerieVariableTimeStepModel::data( const QModelIndex &index, int
           return mData->relativeTimeAt( index.row() ).toString( mVariableTimeStepUnit, 2 );
       }
 
-      if ( mIsEditable )
+      if ( isEditable() )
       {
         if ( index.row() == mData->valueCount() )
           return QString();
@@ -1100,7 +1101,7 @@ QVariant ReosTimeSerieVariableTimeStepModel::data( const QModelIndex &index, int
 
 bool ReosTimeSerieVariableTimeStepModel::setData( const QModelIndex &index, const QVariant &value, int role )
 {
-  if ( !index.isValid() || !mIsEditable || index.row() > mData->valueCount() )
+  if ( !index.isValid() || !isEditable() || index.row() > mData->valueCount() )
     return false;
 
   if ( role == Qt::EditRole )
@@ -1170,9 +1171,9 @@ bool ReosTimeSerieVariableTimeStepModel::setData( const QModelIndex &index, cons
 
 Qt::ItemFlags ReosTimeSerieVariableTimeStepModel::flags( const QModelIndex &index ) const
 {
-  if ( mIsEditable && !mNewRowWithFixedTimeStep && index.column() > 0 )
+  if ( isEditable() && !mNewRowWithFixedTimeStep && index.column() > 0 )
     return QAbstractTableModel::flags( index ) | Qt::ItemIsEditable;
-  else if ( mIsEditable && index.column() == valueColumn() )
+  else if ( isEditable() && index.column() == valueColumn() )
     return QAbstractTableModel::flags( index ) | Qt::ItemIsEditable;
 
   return QAbstractTableModel::flags( index );
@@ -1201,14 +1202,16 @@ QVariant ReosTimeSerieVariableTimeStepModel::headerData( int section, Qt::Orient
 void ReosTimeSerieVariableTimeStepModel::setSerie( ReosTimeSerieVariableTimeStep *serie )
 {
   if ( mData )
-    disconnect( mData->referenceTime(), &ReosParameter::valueChanged, this, &ReosTimeSerieVariableTimeStepModel::updateModel );
+    //disconnect( mData->referenceTime(), &ReosParameter::valueChanged, this, &ReosTimeSerieVariableTimeStepModel::updateModel );
+    disconnect( mData, &ReosDataObject::dataChanged, this, &ReosTimeSerieVariableTimeStepModel::updateModel );
 
   beginResetModel();
   mData = serie;
   endResetModel();
 
   if ( mData )
-    connect( mData->referenceTime(), &ReosParameter::valueChanged, this, &ReosTimeSerieVariableTimeStepModel::updateModel );
+    //connect( mData->referenceTime(), &ReosParameter::valueChanged, this, &ReosTimeSerieVariableTimeStepModel::updateModel );
+    connect( mData, &ReosDataObject::dataChanged, this, &ReosTimeSerieVariableTimeStepModel::updateModel );
 }
 
 void ReosTimeSerieVariableTimeStepModel::setNewRowWithFixedTimeStep( bool newRowWithFixedTimeStep )
@@ -1228,6 +1231,14 @@ void ReosTimeSerieVariableTimeStepModel::setVariableTimeStepUnit( const ReosDura
   beginResetModel();
   mVariableTimeStepUnit = variableTimeStepUnit;
   endResetModel();
+}
+
+bool ReosTimeSerieVariableTimeStepModel::isEditable() const
+{
+  if ( mData && mData->dataProvider() )
+    return mData->dataProvider()->isEditable();
+
+  return false;
 }
 
 void ReosTimeSerieVariableTimeStepModel::updateModel()

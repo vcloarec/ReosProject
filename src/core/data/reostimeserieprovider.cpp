@@ -15,36 +15,6 @@
  ***************************************************************************/
 #include "reostimeserieprovider.h"
 
-ReosTimeSerieProviderRegistery *ReosTimeSerieProviderRegistery::sInstance = nullptr;
-
-ReosTimeSerieProviderRegistery::ReosTimeSerieProviderRegistery()
-{
-  registerProviderFactory( new ReosTimeSerieConstantTimeStepMemoryProviderFactory );
-  registerProviderFactory( new ReosTimeSerieVariableTimeStepMemoryProviderFactory );
-}
-
-void ReosTimeSerieProviderRegistery::registerProviderFactory( ReosTimeSerieProviderFactory *factory )
-{
-  mFactories[factory->key()] = std::unique_ptr<ReosTimeSerieProviderFactory>( factory );
-}
-
-ReosTimeSerieProviderRegistery *ReosTimeSerieProviderRegistery::instance()
-{
-  if ( !sInstance )
-    sInstance = new ReosTimeSerieProviderRegistery();
-
-  return sInstance;
-}
-
-ReosTimeSerieProvider *ReosTimeSerieProviderRegistery::createProvider( const QString &key )
-{
-  auto it = mFactories.find( key );
-  if ( it != mFactories.end() )
-    return it->second->createProvider();
-  else
-    return nullptr;
-}
-
 ReosTimeSerieProvider::~ReosTimeSerieProvider() {}
 
 void ReosTimeSerieProvider::setReferenceTime( const QDateTime & ) {}
@@ -229,7 +199,10 @@ QString ReosTimeSerieVariableTimeStepMemoryProvider::key() const
   return QStringLiteral( "variable-time-step-memory" );
 }
 
-QDateTime ReosTimeSerieVariableTimeStepMemoryProvider::referenceTime() const {return QDateTime();}
+QDateTime ReosTimeSerieVariableTimeStepMemoryProvider::referenceTime() const
+{
+  return mReferenceTime;
+}
 
 void ReosTimeSerieVariableTimeStepMemoryProvider::setReferenceTime( const QDateTime &referenceTime )
 {
