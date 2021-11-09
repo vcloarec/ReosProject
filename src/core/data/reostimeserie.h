@@ -225,7 +225,7 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
     double valueAtTime( const QDateTime &time ) const;
 
     //! Adds another instance to this the values of this ones, create new time steps if needed
-    void addOther( const ReosTimeSerieVariableTimeStep &other, double factor = 1, bool allowInterpolation = true );
+    void addOther( const ReosTimeSerieVariableTimeStep *other, double factor = 1, bool allowInterpolation = true );
 
     //! Returns the color associated with this time serie
     virtual QColor color() const {return QColor();}
@@ -321,7 +321,6 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStepModel: public ReosTimeSerieMo
     Qt::ItemFlags flags( const QModelIndex &index ) const override;
     QVariant headerData( int section, Qt::Orientation orientation, int role ) const override;
 
-
     void setValues( const QModelIndex &fromIndex, const QList<QVariantList> &values ) {}
     void insertValues( const QModelIndex &fromIndex, const QList<QVariantList> &values ) {}
     void deleteRows( const QModelIndex &fromIndex, int count ) {};
@@ -331,6 +330,8 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStepModel: public ReosTimeSerieMo
     void setNewRowWithFixedTimeStep( bool newRowWithFixedTimeStep );
     void setFixedTimeStep( const ReosDuration &fixedTimeStep );
     void setVariableTimeStepUnit( const ReosDuration::Unit &variableTimeStepUnit );
+
+    bool isEditable() const;
 
   private slots:
     void updateModel();

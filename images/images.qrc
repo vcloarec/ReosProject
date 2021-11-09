@@ -98,8 +98,6 @@
         <file>addAlternatingBlockRainfall.svg</file>
         <file>alternatingBlockRainfall.svg</file>
         <file>gaugedHydrograph.svg</file>
-        <file>logo-hubeau-blue.svg</file>
-        <file>icon-hubeau-blue.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

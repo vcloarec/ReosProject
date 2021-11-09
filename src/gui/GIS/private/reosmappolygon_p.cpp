@@ -292,12 +292,9 @@ QPainterPath ReosMapMarker_p::shape() const
 {
   if ( isEmpty )
     return QPainterPath();
-  QPen pen;
-  QPainterPathStroker pps( pen );
   QPainterPath path;
-  double w = std::max( externalWidth, width );
-  path.addEllipse( mViewPoint, w / 2, w / 2 );
-  return pps.createStroke( path );
+  path.addEllipse( boundingRect() );
+  return path;
 }
 
 void ReosMapMarker_p::move( const QPointF &translation )

@@ -24,10 +24,11 @@
 #include "reoshydrograph.h"
 #include "reosplottimeconstantinterval.h"
 #include "reosapplication.h"
+#include "reoshubeauhydrographprovider.h"
 
 
 ReosHubEauWidget::ReosHubEauWidget( ReosMap *map, QWidget *parent )
-  :  ReosActionWidget( parent )
+  :  ReosDataProviderSelectorWidget( parent )
   ,  ui( new Ui::ReosHubEauWidget )
   , mMap( map )
   , mSelectStation( new ReosMapToolSelectMapItem( map, QStringLiteral( "hub-eau-station" ) ) )
@@ -43,10 +44,8 @@ ReosHubEauWidget::ReosHubEauWidget( ReosMap *map, QWidget *parent )
   QAction *selectStationAction = toolBar->addAction( QPixmap( ":/images/neutral.svg" ), tr( "Select station" ) );
   selectStationAction->setCheckable( true );
   mSelectStation->setAction( selectStationAction );
-  mSelectStation->setSearchUnderPoint( false );
+  mSelectStation->setSearchUnderPoint( true );
   mSelectStation->setCursor( Qt::ArrowCursor );
-
-  ReosTimeSerieProviderRegistery::instance()->registerProviderFactory( new ReosHubEauHydrographProviderFactory );
 
   mHydrographPlot = new ReosPlotTimeSerieVariableStep( tr( "Hydrograph" ) );
   ui->mPlotWidget->addPlotItem( mHydrographPlot );
@@ -54,12 +53,10 @@ ReosHubEauWidget::ReosHubEauWidget( ReosMap *map, QWidget *parent )
   ui->mPlotWidget->enableAutoMinimumSize( true );
   ui->mPlotWidget->setLegendVisible( false );
   ui->mPlotWidget->setAxeTextSize( 7 );
+  ui->mPlotWidget->setMagnifierType( ReosPlotWidget::positiveMagnifier );
   mServer = new ReosHubEauServer( this );
 
   connect( mMap, &ReosMap::extentChanged, this, &ReosHubEauWidget::onMapExtentChanged );
-  connect( this, &ReosActionWidget::opened, this, &ReosHubEauWidget::onMapExtentChanged );
-  connect( this, &ReosActionWidget::opened, selectStationAction, &QAction::trigger );
-  connect( this, &ReosActionWidget::closed, this, &ReosHubEauWidget::onClosed );
   connect( mServer, &ReosHubEauServer::stationsUpdated, this, &ReosHubEauWidget::onStationUpdated );
   connect( mSelectStation, &ReosMapToolSelectMapItem::found, this, &ReosHubEauWidget::onSelectStation );
 }
@@ -67,6 +64,21 @@ ReosHubEauWidget::ReosHubEauWidget( ReosMap *map, QWidget *parent )
 ReosHubEauWidget::~ReosHubEauWidget()
 {
   delete ui;
+}
+
+ReosHydrograph *ReosHubEauWidget::createData( QObject *parent ) const
+{
+  if ( mCurrentStationId.isEmpty() )
+    return nullptr;
+
+  std::unique_ptr<ReosHydrograph> hyd( mServer->createHydrograph( mCurrentStationId, mCurrentStationMeta, parent ) );
+  hyd->setName( hyd->name() + QStringLiteral( " - " ) + tr( "real time" ) );
+  return hyd.release();
+}
+
+ReosHydrograph *ReosHubEauWidget::selectedData() const
+{
+  return mCurrentHydrograph;
 }
 
 void ReosHubEauWidget::onMapExtentChanged()
@@ -106,6 +118,12 @@ void ReosHubEauWidget::onClosed()
   mStationsMarker.clear();
 }
 
+void ReosHubEauWidget::onOpened()
+{
+  onMapExtentChanged();
+  mSelectStation->setCurrentToolInMap();
+}
+
 void ReosHubEauWidget::onSelectStation( ReosMapItem *item, const QPointF & )
 {
   if ( mCurrentHydrograph )
@@ -121,20 +139,25 @@ void ReosHubEauWidget::onSelectStation( ReosMapItem *item, const QPointF & )
   mCurrentMarker = static_cast<ReosHubEauStationMarker *>( item );
   if ( mCurrentMarker )
   {
+    mCurrentStationId = mStations.at( mCurrentMarker->stationIndex ).id;
+    mCurrentStationMeta = mStations.at( mCurrentMarker->stationIndex ).meta;
     mCurrentMarker->setExternalColor( Qt::red );
-    mCurrentHydrograph = mServer->createHydrograph( mStations.at( mCurrentMarker->stationIndex ).id );
-    mCurrentHydrograph->setParent( this );
+    mCurrentHydrograph = mServer->createHydrograph( mCurrentStationId, mCurrentStationMeta, this );
     ui->mCurrentStateLabel->setText( "Loading hydrograph" );
     connect( mCurrentHydrograph, &ReosDataObject::dataChanged, this, &ReosHubEauWidget::onHydrographUpdated );
-    populateMeta( mStations.at( mCurrentMarker->stationIndex ).meta );
+    emit dataIsLoading();
+    emit dataSelectionChanged( true );
   }
   else
   {
+    mCurrentStationId.clear();
+    mCurrentStationMeta.clear();
     mHydrographPlot->setTimeSerie( nullptr );
     ui->mCurrentStateLabel->setText( "No station selected" );
-    populateMeta( QVariantMap() );
+    emit dataSelectionChanged( false );
   }
 
+  populateMeta( mCurrentStationMeta );
   mHydrographPlot->setTimeSerie( mCurrentHydrograph );
 }
 
@@ -158,9 +181,19 @@ void ReosHubEauWidget::onHydrographUpdated()
       break;
     case ReosHubEauHydrographProvider::Status::Loaded:
       ui->mCurrentStateLabel->setText( "Hydrograph loaded" );
+      emit dataIsReady();
       break;
   }
+}
 
+QString ReosHubEauWidget::currentStationId() const
+{
+  return mCurrentStationId;
+}
+
+void ReosHubEauWidget::setCurrentStationId( const QString &currentStationId )
+{
+  mCurrentStationId = currentStationId;
 }
 
 void ReosHubEauWidget::populateMeta( const QVariantMap &meta )
@@ -220,3 +253,34 @@ void ReosHubEauWidget::populateMeta( const QVariantMap &meta )
 }
 
 ReosHubEauStationMarker::ReosHubEauStationMarker( ReosMap *map, const QPointF &point ): ReosMapMarker( map, point ) {}
+
+ReosDataProviderGuiFactory::GuiCapabilities ReosHubEauHydrometryGuiFactory::capabilities() const
+{
+  return ReosDataProviderGuiFactory::GuiCapability::DataSelector;
+}
+
+QString ReosHubEauHydrometryGuiFactory::key() const
+{
+  return QStringLiteral( "hub-eau-hydrometry" );
+}
+
+ReosHubEauWidget *ReosHubEauHydrometryGuiFactory::createProviderSelectorWidget( ReosMap *map, QWidget *parent ) const
+{
+  return new ReosHubEauWidget( map, parent );
+}
+
+QString ReosHubEauHydrometryGuiFactory::dataType() const
+{
+  return QStringLiteral( "hydrograph" );
+}
+
+QPixmap ReosHubEauHydrometryGuiFactory::icon() const
+{
+  return QPixmap( QStringLiteral( ":/hub-eau-images/icon-hubeau-blue.svg" ) );
+}
+
+REOSEXTERN ReosDataProviderGuiFactory *providerGuiFactory()
+{
+  return new ReosHubEauHydrometryGuiFactory();
+}
+

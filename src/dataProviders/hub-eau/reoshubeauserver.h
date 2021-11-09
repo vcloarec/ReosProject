@@ -38,18 +38,29 @@ struct ReosHubEauStation
   double latitude;
 };
 
+/**
+ * Class that represents a connection to a the hub-eau server through the web API
+ */
 class ReosHubEauConnection: public QObject
 {
     Q_OBJECT
   public:
     ReosHubEauConnection( QObject *parent = nullptr );
 
-    void request( const QString &string );
+    //! Launchs a request to the server with an \a operation string following hub-eau API specification
+    void request( const QString &operation );
+
+    //! Launchs a request to the server with a complete \a Url
     void requestByUrl( const QString &Url );
+
+    //! Returns the error code of the last request
     int errorCode() const;
+
+    //! Returns the result of the last request
     QVariantMap result() const;
 
   signals:
+    //! Emitted when the replied of the request is ready
     void repliedReady();
 
   private slots:
@@ -66,6 +77,7 @@ class ReosHubEauConnection: public QObject
     bool mRequestInProgress = false;
 };
 
+//! Class that represents a controller of the connection to the hub-eau server that is living on another thread.
 class ReosHubEauConnectionControler: public QObject
 {
     Q_OBJECT
@@ -74,16 +86,24 @@ class ReosHubEauConnectionControler: public QObject
     ReosHubEauConnectionControler( QObject *parent = nullptr );
     ~ReosHubEauConnectionControler();
 
-    void request( const QString &stringRequest );
+    //! Makes a request to the controller with an \a operation string following hub-eau API specification
+    void request( const QString &operation );
+
+    //! Makes a request to the controller with an \a operation string following hub-eau API specification and wait for a reply
     void requestAndWait( const QString &stringRequest );
 
+    //! Returns the last error following a requuest
     int lastError() const;
 
   signals:
+    //! Emitted when the result of the request is ready and sends it to the rceiver of the slot
     void resultReady( const QVariantMap &result );
+
+    //! Emitted when the request is finished, that is all replies have been done.
     void requestFinished();
 
   public slots:
+    //! Slot called by the connection to inform that the server replied
     void onReplied();
 
   private:
@@ -93,77 +113,27 @@ class ReosHubEauConnectionControler: public QObject
     QString mNextURL;
 };
 
-class ReosHubEauHydrographProvider : public ReosTimeSerieVariableTimeStepProvider
-{
-    Q_OBJECT
-  public:
-    enum class Status
-    {
-      NoData,
-      Loading,
-      Loaded
-    };
-
-    ReosHubEauHydrographProvider() = default;
-    // ReosTimeSerieProvider interface
-    QString key() const override;;
-    QDateTime referenceTime() const override;
-    void setReferenceTime( const QDateTime &referenceTime ) override;
-    QString valueUnit() const override;
-    int valueCount() const override;
-    double value( int i ) const override;
-    double firstValue() const override;
-    double lastValue() const override;
-
-    void load() override;
-
-    double *data() override;
-    const QVector<double> &constData() const override;
-    ReosEncodedElement encode() const override;
-    void decode( const ReosEncodedElement &element ) override;
-
-    // ReosTimeSerieVariableTimeStepProvider interface
-    ReosDuration relativeTimeAt( int i ) const override;
-    ReosDuration lastRelativeTime() const override;
-
-    Status status() const;
-
-  private slots:
-    void onResultReady( const QVariantMap &result );
-    void onLoadingFinished();
-
-  private:
-    QDateTime mReferenceTime;
-    ReosHubEauConnectionControler *mFlowRequestControler = nullptr;
-    QVector<double> mCachedValues;
-    QVector<ReosDuration> mCachedTimeValues;
-    Status mStatus = Status::Loaded;
-};
-
-class ReosHubEauHydrographProviderFactory: public ReosTimeSerieProviderFactory
-{
-  public:
-    ReosTimeSerieProvider *createProvider() const {return new ReosHubEauHydrographProvider;};
-    QString key() const {return QStringLiteral( "hub-eau-hydrograph" );}
-};
-
-
 class ReosHubEauServer : public QObject
 {
     Q_OBJECT
   public:
     ReosHubEauServer( QObject *parent = nullptr );
+
+    //! Tests connection to the hub-eau server
     bool testConnection();
 
+    //! Returns the list of the available stations
     QList<ReosHubEauStation> stations() const;
 
     //! Create a new hydrograph from the \a stationId, caller take ownership
-    ReosHydrograph *createHydrograph( const QString &stationId ) const;
+    ReosHydrograph *createHydrograph( const QString &stationId, const QVariantMap &meta, QObject *parent = nullptr ) const;
 
   signals:
+    //! emitted when stations are updated following a reply of the server
     void stationsUpdated();
 
   public slots:
+    //! Sets the extent of the area of interest to require stations
     void setExtent( const ReosMapExtent &extent );
 
   private slots:
