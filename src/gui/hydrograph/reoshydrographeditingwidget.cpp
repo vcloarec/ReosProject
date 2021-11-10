@@ -27,7 +27,7 @@
 
 
 ReosHydrographEditingWidget::ReosHydrographEditingWidget( ReosHydrograph *hydrograph, QWidget *parent )
-  : ReosFormWidget( parent )
+  : ReosFormWidget( parent, Qt::Vertical, false )
   , mIsUseConstantTimeStepForNewEntry( new ReosParameterBoolean( tr( "Use constant time step for new entry" ), false, this ) )
   , mConstantTimeStepForNewEntry( new ReosParameterDuration( tr( "Constant time step" ) ) )
   , mDataModel( new ReosTimeSerieVariableTimeStepModel( this ) )
@@ -111,7 +111,6 @@ ReosHydrographEditingWidget::ReosHydrographEditingWidget( ReosHydrograph *hydrog
   addWidget( tableView );
   tableView->setModel( mDataModel );
   tableView->verticalHeader()->hide();
-
 }
 
 ReosHydrographEditingWidget::~ReosHydrographEditingWidget()

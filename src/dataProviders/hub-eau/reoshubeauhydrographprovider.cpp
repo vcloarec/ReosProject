@@ -18,7 +18,7 @@
 #include "reoshubeauserver.h"
 #include "reoscore.h"
 
-QString ReosHubEauHydrographProvider::key() const {return QStringLiteral( "hub-eau-hydrograph" );}
+QString ReosHubEauHydrographProvider::key() const {return ReosHubEauHydrographProvider::staticKey();}
 
 QDateTime ReosHubEauHydrographProvider::referenceTime() const {return mReferenceTime;}
 
@@ -50,6 +50,7 @@ void ReosHubEauHydrographProvider::load()
 
   mFlowRequestControler->request( QStringLiteral( "observations_tr?code_entite=%1&size=20000&pretty&grandeur_hydro=Q&fields=code_station,date_obs,resultat_obs&sort=asc" ).arg( dataSource() ) );
   mStatus = Status::Loading;
+  emit dataChanged();
 }
 
 double *ReosHubEauHydrographProvider::data() {return mCachedValues.data();}
@@ -58,19 +59,22 @@ const QVector<double> &ReosHubEauHydrographProvider::constData() const {return m
 
 ReosEncodedElement ReosHubEauHydrographProvider::encode() const
 {
-  ReosEncodedElement element( QStringLiteral( "hub-eau-hydrograph" ) );
+  ReosEncodedElement element( ReosHubEauHydrographProvider::staticKey() );
   element.addData( QStringLiteral( "source" ), dataSource() );
+
+  element.addData( QStringLiteral( "metadata" ), mMetaData );
 
   return element;
 }
 
 void ReosHubEauHydrographProvider::decode( const ReosEncodedElement &element )
 {
-  if ( element.description() != QStringLiteral( "hub-eau-hydrograph" ) )
+  if ( element.description() != ReosHubEauHydrographProvider::staticKey() )
     return;
 
   QString source;
   element.getData( QStringLiteral( "source" ), source );
+  element.getData( QStringLiteral( "metadata" ), mMetaData );
   setDataSource( source );
 }
 
@@ -126,12 +130,29 @@ void ReosHubEauHydrographProvider::onLoadingFinished()
   emit dataChanged();
 }
 
+QVariantMap ReosHubEauHydrographProvider::metaData() const
+{
+  return mMetaData;
+}
+
+void ReosHubEauHydrographProvider::setMetaData( const QVariantMap &metaData )
+{
+  mMetaData = metaData;
+}
+
 ReosHubEauHydrographProvider::Status ReosHubEauHydrographProvider::status() const
 {
   return mStatus;
+}
+
+QString ReosHubEauHydrographProvider::staticKey()
+{
+  return QStringLiteral( "hub-eau-hydrometry" );
 }
 
 REOSEXTERN ReosDataProviderFactory *providerFactory()
 {
   return new ReosHubEauHydrographProviderFactory();
 }
+
+QString ReosHubEauHydrographProviderFactory::key() const {return ReosHubEauHydrographProvider::staticKey();}

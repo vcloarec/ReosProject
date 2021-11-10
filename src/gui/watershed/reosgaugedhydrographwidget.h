@@ -66,6 +66,7 @@ class ReosGaugedHydrographWidget : public ReosActionWidget
     QAction *mActionAddHydrograph = nullptr;
     QAction *mActionDeleteHydrograph = nullptr;
     QAction *mActionRenameHydrograph = nullptr;
+    QWidget *mCurrentProviderSettingsWidget = nullptr;
     QWidget *mCurrenEditingWidget = nullptr;
     QMap<QAction *, QString> mProvidersActionToKeys;
     QPointer<ReosHydrograph> mCurrentHydrograph = nullptr;

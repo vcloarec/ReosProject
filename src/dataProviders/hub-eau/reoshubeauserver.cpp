@@ -27,6 +27,7 @@
 
 #include "reosmapextent.h"
 #include "reoshydrograph.h"
+#include "reoshubeauhydrographprovider.h"
 
 
 ReosHubEauConnection::ReosHubEauConnection( QObject *parent )
@@ -207,8 +208,12 @@ QList<ReosHubEauStation> ReosHubEauServer::stations() const
 
 ReosHydrograph *ReosHubEauServer::createHydrograph( const QString &stationId, const QVariantMap &meta, QObject *parent ) const
 {
-  std::unique_ptr<ReosHydrograph> hyd = std::make_unique<ReosHydrograph>( parent, QStringLiteral( "hub-eau-hydrograph" ), stationId );
+  std::unique_ptr<ReosHydrograph> hyd = std::make_unique<ReosHydrograph>( parent, ReosHubEauHydrographProvider::staticKey(), stationId );
   hyd->setColor( QColor( 12, 114, 185 ) );
   hyd->setName( meta.value( QStringLiteral( "libelle_station" ) ).toString() );
+
+  ReosHubEauHydrographProvider *provider = qobject_cast<ReosHubEauHydrographProvider *>( hyd->dataProvider() );
+  Q_ASSERT( provider );
+  provider->setMetaData( meta );
   return hyd.release();
 }

@@ -226,18 +226,20 @@ void ReosGaugedHydrographWidget::onCurrentHydrographChanged()
     mCurrentHydrograph = mHydrographStore->hydrograph( ui->mComboBoxHydrographName->currentIndex() );
   }
 
-  std::unique_ptr<QWidget> newWidget;
+  std::unique_ptr<QWidget> newEditingWidget;
+  std::unique_ptr<QWidget> newSettingsProviderWidget;
 
   if ( !mCurrentHydrograph.isNull() )
   {
-    newWidget.reset( ReosFormWidgetFactories::instance()->createDataFormWidget( mCurrentHydrograph ) );
+    newSettingsProviderWidget.reset(
+      ReosDataProviderGuiRegistery::instance()->createProviderSettingsWidget( mCurrentHydrograph->dataProvider() ) );
+    newEditingWidget.reset( ReosFormWidgetFactories::instance()->createDataFormWidget( mCurrentHydrograph ) );
     mHydrographPlot->setTimeSerie( mCurrentHydrograph );
     connect( mCurrentHydrograph, &ReosDataObject::dataChanged, this, &ReosGaugedHydrographWidget::updatePlotExtent );
-
   }
   else
   {
-    newWidget.reset( new QLabel( tr( "No Hydrograph" ) ) );
+    newEditingWidget.reset( new QLabel( tr( "No Hydrograph" ) ) );
     mHydrographPlot->setTimeSerie( nullptr );
   }
 
@@ -245,11 +247,18 @@ void ReosGaugedHydrographWidget::onCurrentHydrographChanged()
   {
     ui->mEditingWidgetLayout->removeWidget( mCurrenEditingWidget );
     delete mCurrenEditingWidget;
+    ui->mEditingWidgetLayout->removeWidget( mCurrentProviderSettingsWidget );
+    delete mCurrentProviderSettingsWidget;
   }
 
-  mCurrenEditingWidget = newWidget.get();
-  ui->mEditingWidgetLayout->addWidget( newWidget.get() );
-  newWidget.release();
+  mCurrentProviderSettingsWidget = newSettingsProviderWidget.release();
+  if ( mCurrentProviderSettingsWidget )
+    ui->mEditingWidgetLayout->addWidget( mCurrentProviderSettingsWidget );
+
+  mCurrenEditingWidget = newEditingWidget.release();
+  ui->mEditingWidgetLayout->addWidget( mCurrenEditingWidget );
+
+  ui->mEditingWidgetLayout->setStretch( ui->mEditingWidgetLayout->count() - 1, 1 );
 }
 
 void ReosGaugedHydrographWidget::updatePlotExtent()
@@ -288,11 +297,11 @@ void ReosGaugedHydrographWidget::populateProviderActions()
 void ReosGaugedHydrographWidget::showProviderSelector( const QString &providerKey )
 {
   mCurrentDataSelectorWidget =
-    ReosDataProviderGuiRegistery::instance()->guiFactory( providerKey )->createProviderSelectorWidget( mMap, this );
-  ui->mProviderWidget->layout()->addWidget( mCurrentDataSelectorWidget );
+    ReosDataProviderGuiRegistery::instance()->createProviderSelectorWidget( providerKey, mMap, this );
 
   if ( mCurrentDataSelectorWidget )
   {
+    ui->mProviderWidget->layout()->addWidget( mCurrentDataSelectorWidget );
     ui->mProviderHeaderSpacer->changeSize( ui->mProviderHeaderSpacer->geometry().width(),
                                            ui->mainHeaderLayout->sizeHint().height(),
                                            QSizePolicy::Expanding );

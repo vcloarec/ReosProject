@@ -25,6 +25,7 @@
 #include "reosmap.h"
 #include "reoshydrograph.h"
 #include "reosdataprovidergui.h"
+#include "reoshubeausettingswidget.h"
 
 class ReosMapMarker;
 
@@ -97,6 +98,7 @@ class ReosHubEauHydrometryGuiFactory : public ReosDataProviderGuiFactory
     GuiCapabilities capabilities() const override;
     QString key() const override;
     ReosHubEauWidget *createProviderSelectorWidget( ReosMap *map, QWidget *parent = nullptr ) const override;
+    ReosHubEauSettingsWidget *createProviderSettingsWidget( ReosDataProvider *provider, QWidget *parent = nullptr ) const override;
     QString dataType() const override;
     QPixmap icon() const override;
 };
