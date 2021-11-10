@@ -33,7 +33,6 @@ class ReosTimeSerieProvider : public ReosDataProvider
   public:
     virtual ~ReosTimeSerieProvider();
 
-    virtual QString key() const = 0;
     virtual bool isEditable() const {return false;}
 
     virtual QDateTime referenceTime() const = 0;

@@ -25,6 +25,9 @@ class ReosDataProvider : public QObject
     Q_OBJECT
   public:
 
+    //! Returns the provider key
+    virtual QString key() const = 0;
+
   signals:
     void dataChanged();
 };

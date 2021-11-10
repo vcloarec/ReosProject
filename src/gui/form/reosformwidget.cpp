@@ -133,6 +133,11 @@ void ReosFormWidget::setStretch( int i, int stretch )
   mMainLayout->setStretch( i, stretch );
 }
 
+int ReosFormWidget::count() const
+{
+  return mMainLayout->count();
+}
+
 ReosFormDialog::ReosFormDialog( QWidget *parent ):
   QDialog( parent )
   , mForm( new ReosFormWidget( this ) )

@@ -5,12 +5,14 @@ SET(REOS_HUB_EAU_SOURCES
   reoshubeauserver.cpp
   reoshubeauwidget.cpp
   reoshubeauhydrographprovider.cpp
+  reoshubeausettingswidget.cpp
 )
 
 SET(REOS_HUB_EAU_HEADERS
     reoshubeauserver.h
     reoshubeauwidget.h
     reoshubeauhydrographprovider.h
+    reoshubeausettingswidget.h
 )
 
 SET(LOGO_RCCS ${CMAKE_SOURCE_DIR}/images/providers/hub-eau/hub-eau-images.qrc)

@@ -14,12 +14,18 @@
  *                                                                         *
  ***************************************************************************/
 #include "reosdataprovidergui.h"
+#include "reosdataprovider.h"
 
 #include <QCoreApplication>
 #include <QDir>
 #include <QLibrary>
 
 ReosDataProviderSelectorWidget *ReosDataProviderGuiFactory::createProviderSelectorWidget( ReosMap *, QWidget * ) const
+{
+  return nullptr;
+}
+
+ReosDataProviderSettingsWidget *ReosDataProviderGuiFactory::createProviderSettingsWidget( ReosDataProvider *provider, QWidget *parent ) const
 {
   return nullptr;
 }
@@ -50,6 +56,24 @@ QStringList ReosDataProviderGuiRegistery::providers( const QString &dataType, Re
       ret.append( fact.second->key() );
 
   return ret;
+}
+
+ReosDataProviderSelectorWidget *ReosDataProviderGuiRegistery::createProviderSelectorWidget( const QString &key, ReosMap *map, QWidget *parent )
+{
+  ReosDataProviderGuiFactory *fact = guiFactory( key );
+  if ( fact )
+    return fact->createProviderSelectorWidget( map, parent );
+
+  return nullptr;
+}
+
+ReosDataProviderSettingsWidget *ReosDataProviderGuiRegistery::createProviderSettingsWidget( ReosDataProvider *dataProvider, QWidget *parent )
+{
+  ReosDataProviderGuiFactory *fact = guiFactory( dataProvider->key() );
+  if ( fact )
+    return fact->createProviderSettingsWidget( dataProvider, parent );
+
+  return nullptr;
 }
 
 ReosDataProviderGuiFactory *ReosDataProviderGuiRegistery::guiFactory( const QString &key ) const
@@ -131,3 +155,5 @@ void ReosDataProviderGuiRegistery::loadDynamicProvider()
 ReosDataObject *ReosDataProviderSelectorWidget::createData( QObject * ) const {return nullptr;}
 
 ReosDataObject *ReosDataProviderSelectorWidget::selectedData() const {return nullptr;}
+
+ReosDataProviderSettingsWidget::ReosDataProviderSettingsWidget( QWidget *parent ): QWidget( parent ) {}

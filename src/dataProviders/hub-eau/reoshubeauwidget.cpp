@@ -83,8 +83,6 @@ ReosHydrograph *ReosHubEauWidget::selectedData() const
 
 void ReosHubEauWidget::onMapExtentChanged()
 {
-  if ( !isVisible() )
-    return;
   ReosMapExtent extent = mMap->extent();
   ReosMapExtent hubEauExtent = mMap->engine()->transformFromProjectExtent( extent, ReosGisEngine::wktEPSGCrs( 4326 ) );
   mServer->setExtent( hubEauExtent );
@@ -261,12 +259,17 @@ ReosDataProviderGuiFactory::GuiCapabilities ReosHubEauHydrometryGuiFactory::capa
 
 QString ReosHubEauHydrometryGuiFactory::key() const
 {
-  return QStringLiteral( "hub-eau-hydrometry" );
+  return ReosHubEauHydrographProvider::staticKey();
 }
 
 ReosHubEauWidget *ReosHubEauHydrometryGuiFactory::createProviderSelectorWidget( ReosMap *map, QWidget *parent ) const
 {
   return new ReosHubEauWidget( map, parent );
+}
+
+ReosHubEauSettingsWidget *ReosHubEauHydrometryGuiFactory::createProviderSettingsWidget( ReosDataProvider *provider, QWidget *parent ) const
+{
+  return new ReosHubEauSettingsWidget( provider, parent );
 }
 
 QString ReosHubEauHydrometryGuiFactory::dataType() const

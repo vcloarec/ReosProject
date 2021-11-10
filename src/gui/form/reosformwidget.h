@@ -57,6 +57,9 @@ class ReosFormWidget : public QWidget
 
     void setStretch( int i, int stretch );
 
+    //! Returns the count of element inserted in the form
+    int count() const;
+
   signals:
     void parametersChanged();
 

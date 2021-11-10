@@ -23,6 +23,7 @@
 
 class ReosMap;
 class ReosDataObject;
+class ReosDataProvider;
 
 class ReosDataProviderSelectorWidget : public QWidget
 {
@@ -50,13 +51,21 @@ class ReosDataProviderSelectorWidget : public QWidget
     virtual void onOpened() {};
 };
 
+class ReosDataProviderSettingsWidget : public QWidget
+{
+    Q_OBJECT
+  public:
+    ReosDataProviderSettingsWidget( QWidget *parent = nullptr );
+};
+
 class ReosDataProviderGuiFactory
 {
     Q_GADGET
   public:
     enum class GuiCapability
     {
-      DataSelector = 1 << 0, //!< If the driver can persist datasets defined on faces
+      DataSelector = 1 << 0, //!< If the provider have a gui data selector
+      ProviderSettings = 1 << 1, //!< If the providr have a settings widget
     };
 
     Q_ENUM( GuiCapability )
@@ -73,6 +82,9 @@ class ReosDataProviderGuiFactory
 
     //! Creates and returns a pointer to a new selector widget
     virtual ReosDataProviderSelectorWidget *createProviderSelectorWidget( ReosMap *map, QWidget *parent = nullptr ) const;
+
+    //! Creates and returns a pointer to a new data provider settings widget for the provider \a dataProvider
+    virtual ReosDataProviderSettingsWidget *createProviderSettingsWidget( ReosDataProvider *provider, QWidget *parent = nullptr ) const;
 
     //! Returns the data type string that this factory handle, used to retrieve all the factory of the same type (e.g. "hydrograph",...)
     virtual QString dataType() const = 0;
@@ -98,8 +110,11 @@ class ReosDataProviderGuiRegistery
     //! Returns all the data provider keys of type \a dataType that have a gui that have \a capability
     QStringList providers( const QString &dataType, ReosDataProviderGuiFactory::GuiCapability capability ) const;
 
-    //! Returns the gui factory of the provider with \a key
-    ReosDataProviderGuiFactory *guiFactory( const QString &key ) const;
+    //! Creates and returns a pointer to a new selector widget for the provider with \a key
+    ReosDataProviderSelectorWidget *createProviderSelectorWidget( const QString &key, ReosMap *map, QWidget *parent = nullptr );
+
+    //! Creates and returns a pointer to a new settings widget for the data provider \a dataProvider
+    ReosDataProviderSettingsWidget *createProviderSettingsWidget( ReosDataProvider *dataProvider, QWidget *parent = nullptr );
 
     //! Returns the icon that represens the provider with the \a key
     QPixmap providerIcon( const QString &key ) const;
@@ -117,6 +132,9 @@ class ReosDataProviderGuiRegistery
 
     std::map<QString, std::unique_ptr<ReosDataProviderGuiFactory>> mFactories;
     static ReosDataProviderGuiRegistery *sInstance;
+
+    //! Returns the gui factory of the provider with \a key
+    ReosDataProviderGuiFactory *guiFactory( const QString &key ) const;
 
     void loadDynamicProvider();
 };
