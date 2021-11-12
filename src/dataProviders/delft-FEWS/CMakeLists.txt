@@ -1,29 +1,26 @@
 # Reos licence GPL version 2
 # Copyright (C) 2020 Vincent Cloarec (vcloarec at gmail dot com)
 
-SET(REOS_HUB_EAU_SOURCES
-  reoshubeauserver.cpp
-  reoshubeauwidget.cpp
-  reoshubeauhydrographprovider.cpp
-  reoshubeausettingswidget.cpp
+SET(REOS_DELFT_FEWS_SOURCES
+  reosdelftfewswidget.cpp
+  reosdelftfewsxmlprovider.cpp
 )
 
-SET(REOS_HUB_EAU_HEADERS
-    reoshubeauserver.h
-    reoshubeauwidget.h
-    reoshubeauhydrographprovider.h
-    reoshubeausettingswidget.h
+SET(REOS_DELFT_FEWS_HEADERS
+    reosdelftfewswidget.h
+    reosdelftfewsxmlprovider.h
 )
 
-SET(LOGO_RCCS ${CMAKE_SOURCE_DIR}/images/providers/hub-eau/hub-eau-images.qrc)
+SET(LOGO_RCCS ${CMAKE_SOURCE_DIR}/images/providers/delft-fews/delft-fews-images.qrc)
+
+ADD_LIBRARY(provider_delft_FEWS MODULE
+    ${REOS_DELFT_FEWS_SOURCES}
+    ${REOS_DELFT_FEWS_HEADERS}
+    ${LOGO_RCCS}
+)
 
 
-ADD_LIBRARY(provider_hub_eau MODULE
-    ${REOS_HUB_EAU_SOURCES}
-    ${REOS_HUB_EAU_HEADERS}
-    ${LOGO_RCCS})
-
-TARGET_LINK_LIBRARIES(provider_hub_eau
+TARGET_LINK_LIBRARIES(provider_delft_FEWS
         ${Qt5Xml_LIBRARIES}
         ${Qt5Core_LIBRARIES}
         ${Qt5Gui_LIBRARIES}
@@ -37,7 +34,8 @@ TARGET_LINK_LIBRARIES(provider_hub_eau
         reosCore
 )
 
-set_target_properties(provider_hub_eau
+
+set_target_properties(provider_delft_FEWS
     PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY ${REOS_OUTPUT_DIRECTORY}/${REOS_PROVIDERS_DIR}
     LIBRARY_OUTPUT_DIRECTORY ${REOS_OUTPUT_DIRECTORY}/${REOS_PROVIDERS_DIR}
@@ -64,10 +62,11 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/hydrograph
     )
 
+
 IF(WIN32)
-  INSTALL(TARGETS provider_hub_eau RUNTIME DESTINATION ${REOS_PROVIDERS_DIR})
+  INSTALL(TARGETS provider_delft_FEWS RUNTIME DESTINATION ${REOS_PROVIDERS_DIR})
 ELSE(WIN32)
-  INSTALL(TARGETS provider_hub_eau LIBRARY DESTINATION ${REOS_PROVIDERS_DIR})
+  INSTALL(TARGETS provider_delft_FEWS LIBRARY DESTINATION ${REOS_PROVIDERS_DIR})
 ENDIF(WIN32)
 
 

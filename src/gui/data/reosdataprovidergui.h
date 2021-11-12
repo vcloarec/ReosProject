@@ -81,7 +81,7 @@ class ReosDataProviderGuiFactory
     virtual QString key() const = 0;
 
     //! Creates and returns a pointer to a new selector widget
-    virtual ReosDataProviderSelectorWidget *createProviderSelectorWidget( ReosMap *map, QWidget *parent = nullptr ) const;
+    virtual ReosDataProviderSelectorWidget *createProviderSelectorWidget( ReosMap *map, const QString &dataType, QWidget *parent = nullptr ) const;
 
     //! Creates and returns a pointer to a new data provider settings widget for the provider \a dataProvider
     virtual ReosDataProviderSettingsWidget *createProviderSettingsWidget( ReosDataProvider *provider, QWidget *parent = nullptr ) const;
@@ -111,7 +111,7 @@ class ReosDataProviderGuiRegistery
     QStringList providers( const QString &dataType, ReosDataProviderGuiFactory::GuiCapability capability ) const;
 
     //! Creates and returns a pointer to a new selector widget for the provider with \a key
-    ReosDataProviderSelectorWidget *createProviderSelectorWidget( const QString &key, ReosMap *map, QWidget *parent = nullptr );
+    ReosDataProviderSelectorWidget *createProviderSelectorWidget( const QString &key, const QString &dataType, ReosMap *map, QWidget *parent = nullptr );
 
     //! Creates and returns a pointer to a new settings widget for the data provider \a dataProvider
     ReosDataProviderSettingsWidget *createProviderSettingsWidget( ReosDataProvider *dataProvider, QWidget *parent = nullptr );

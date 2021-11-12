@@ -2,4 +2,5 @@
 # Copyright (C) 2020 Vincent Cloarec (vcloarec at gmail dot com)
 
 add_subdirectory(hub-eau)
+add_subdirectory(delft-FEWS)
 

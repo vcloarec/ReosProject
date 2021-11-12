@@ -38,17 +38,29 @@ void ReosDataProviderRegistery::registerProviderFactory( ReosDataProviderFactory
 ReosDataProviderRegistery *ReosDataProviderRegistery::instance()
 {
   if ( !sInstance )
+  {
     sInstance = new ReosDataProviderRegistery();
+    sInstance->loadDynamicProvider();
+  }
 
-  sInstance->loadDynamicProvider();
   return sInstance;
 }
 
 ReosDataProvider *ReosDataProviderRegistery::createProvider( const QString &key )
 {
-  auto it = mFactories.find( key );
+  QString dataType;
+  QString providerKey;
+  if ( key.contains( ':' ) )
+  {
+    providerKey = key.split( QString( ':' ) ).at( 0 );
+    dataType = key.split( QString( ':' ) ).at( 1 );
+  }
+  else
+    providerKey = key;
+
+  auto it = mFactories.find( providerKey );
   if ( it != mFactories.end() )
-    return it->second->createProvider();
+    return it->second->createProvider( dataType );
   else
     return nullptr;
 }
@@ -87,8 +99,11 @@ void ReosDataProviderRegistery::loadDynamicProvider()
       QFunctionPointer fcp = library.resolve( "providerFactory" );
       factory_function *func = reinterpret_cast<factory_function *>( fcp );
 
-      ReosDataProviderFactory *providerFactory = func();
-      registerProviderFactory( providerFactory );
+      if ( func )
+      {
+        ReosDataProviderFactory *providerFactory = func();
+        registerProviderFactory( providerFactory );
+      }
     }
   }
 }

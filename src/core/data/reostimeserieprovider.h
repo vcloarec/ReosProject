@@ -143,7 +143,7 @@ class ReosTimeSerieConstantTimeStepMemoryProviderFactory : public ReosDataProvid
 {
   public:
 
-    ReosDataProvider *createProvider() const override {return new ReosTimeSerieConstantTimeStepMemoryProvider;}
+    ReosDataProvider *createProvider( const QString & ) const override {return new ReosTimeSerieConstantTimeStepMemoryProvider;}
     QString key() const override {return QStringLiteral( "constant-time-step-memory" );}
 };
 
@@ -190,7 +190,7 @@ class ReosTimeSerieVariableTimeStepMemoryProvider : public ReosTimeSerieVariable
 class ReosTimeSerieVariableTimeStepMemoryProviderFactory : public ReosDataProviderFactory
 {
   public:
-    ReosTimeSerieProvider *createProvider() const override {return new ReosTimeSerieVariableTimeStepMemoryProvider;}
+    ReosTimeSerieProvider *createProvider( const QString & ) const override {return new ReosTimeSerieVariableTimeStepMemoryProvider;}
     QString key() const override {return QStringLiteral( "variable-time-step-memory" );}
 };
 
