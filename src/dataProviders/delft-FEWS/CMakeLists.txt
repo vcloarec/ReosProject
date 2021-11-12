@@ -4,11 +4,13 @@
 SET(REOS_DELFT_FEWS_SOURCES
   reosdelftfewswidget.cpp
   reosdelftfewsxmlprovider.cpp
+  reosdelftfewssettingswidget.cpp
 )
 
 SET(REOS_DELFT_FEWS_HEADERS
     reosdelftfewswidget.h
     reosdelftfewsxmlprovider.h
+    reosdelftfewssettingswidget.h
 )
 
 SET(LOGO_RCCS ${CMAKE_SOURCE_DIR}/images/providers/delft-fews/delft-fews-images.qrc)

@@ -26,6 +26,7 @@
 #include "reossyntheticrainfall.h"
 #include "reosmapitem.h"
 #include "reosmap.h"
+#include "reosdelftfewssettingswidget.h"
 
 class ReosPlotTimeSerieVariableStep;
 class ReosPlotTimeHistogram;
@@ -119,7 +120,7 @@ class ReosDelftFewsGuiFactory : public ReosDataProviderGuiFactory
     GuiCapabilities capabilities() const override;
     QString key() const override;
     ReosDelftFewsWidget *createProviderSelectorWidget( ReosMap *map, const QString &dataType, QWidget *parent = nullptr ) const override;
-    //ReosHubEauSettingsWidget *createProviderSettingsWidget( ReosDataProvider *provider, QWidget *parent = nullptr ) const override;
+    ReosDelftFewsSettingsWidget *createProviderSettingsWidget( ReosDataProvider *provider, QWidget *parent = nullptr ) const override;
     QString dataType() const override;
     QPixmap icon() const override;
     QString displayText() const override;

@@ -190,57 +190,10 @@ void ReosHubEauWidget::setCurrentStationId( const QString &currentStationId )
 
 void ReosHubEauWidget::populateMeta( const QVariantMap &meta )
 {
-  QString htmlText = QStringLiteral( "<html>\n<body>\n" );
-  htmlText += QLatin1String( "<table class=\"list-view\">\n" );
   ui->mTextBrowser->document()->setDefaultStyleSheet( ReosApplication::styleSheet() );
-  // Begin Provider section
+  ui->mTextBrowser->clear();
 
-  if ( meta.isEmpty() )
-  {
-    htmlText += QStringLiteral( "<h2>" ) + tr( "No station selected" ) + QStringLiteral( "</h2>\n<hr>\n" );
-  }
-  else
-  {
-    htmlText += QStringLiteral( "<h2>" ) + meta.value( QStringLiteral( "libelle_station" ) ).toString() + QStringLiteral( "</h2>\n<hr>\n" );
-
-    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                + tr( "<b>On duty</b>" ) + QStringLiteral( "</td><td>" )
-                + ( meta.value( QStringLiteral( "en_service" ) ).toBool() ? tr( "yes" ) : tr( "no" ) )
-                + QStringLiteral( "</td></tr>\n" );
-
-    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                + tr( "<b>Station type</b>" ) + QStringLiteral( "</td><td>" )
-                + meta.value( QStringLiteral( "type_station" ) ).toString()
-                + QStringLiteral( "</td></tr>\n" );
-
-    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                + tr( "<b>Opening date</b>" ) + QStringLiteral( "</td><td>" )
-                + QLocale().toString( QDateTime::fromString( meta.value( QStringLiteral( "date_ouverture_station" ) ).toString(), Qt::ISODate ) )
-                + QStringLiteral( "</td></tr>\n" );
-
-    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                + tr( "<b>Closing date</b>" ) + QStringLiteral( "</td><td>" )
-                + QLocale().toString( QDateTime::fromString( meta.value( QStringLiteral( "date_fermeture_station" ) ).toString(), Qt::ISODate ) )
-                + QStringLiteral( "</td></tr>\n" );
-
-    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                + tr( "<b>Local influence</b>" ) + QStringLiteral( "</td><td>" )
-                + meta.value( QStringLiteral( "influence_locale_station" ) ).toString()
-                + QStringLiteral( "</td></tr>\n" );
-
-    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                + tr( "<b>Local influence comments</b>" ) + QStringLiteral( "</td><td>" )
-                + meta.value( QStringLiteral( "commentaire_influence_locale_station" ) ).toString()
-                + QStringLiteral( "</td></tr>\n" );
-
-    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                + tr( "<b>Comments</b>" ) + QStringLiteral( "</td><td>" )
-                + meta.value( QStringLiteral( "commentaire_station" ) ).toString()
-                + QStringLiteral( "</td></tr>\n" );
-  }
-
-  htmlText += QLatin1String( "\n</body>\n</html>\n" );
-  ui->mTextBrowser->setText( htmlText );
+  ui->mTextBrowser->setText( ReosHubEauHydrographProvider::htmlDescriptionFromMeta( meta ) );
 }
 
 ReosHubEauStationMarker::ReosHubEauStationMarker( ReosMap *map, const QPointF &point ): ReosMapMarkerFilledCircle( map, point ) {}

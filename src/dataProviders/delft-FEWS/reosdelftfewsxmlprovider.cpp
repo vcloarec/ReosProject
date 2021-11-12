@@ -19,6 +19,7 @@
 #include <QDomElement>
 #include <QFile>
 #include <QVariantMap>
+#include <QLocale>
 
 ReosDelftFewsXMLProvider::ReosDelftFewsXMLProvider()
 {}
@@ -55,6 +56,39 @@ double ReosDelftFewsXMLProvider::doubleValueFromElement( const QDomElement &elem
 QString ReosDelftFewsXMLProvider::valueStringFromElement( const QDomElement &element )
 {
   return element.firstChild().nodeValue();
+}
+
+QString ReosDelftFewsXMLProvider::htmlDescriptionFromMetada( const QVariantMap &metadata )
+{
+  QString htmlText = QStringLiteral( "<html>\n<body>\n" );
+  htmlText += QLatin1String( "<table class=\"list-view\">\n" );
+
+  if ( metadata.isEmpty() )
+  {
+    htmlText += QStringLiteral( "<h2>" ) + QObject::tr( "No station selected" ) + QStringLiteral( "</h2>\n<hr>\n" );
+  }
+  else
+  {
+
+    htmlText += QStringLiteral( "<h2>" ) + metadata.value( QStringLiteral( "name" ) ).toString() + QStringLiteral( "</h2>\n<hr>\n" );
+
+    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+                + QObject::tr( "<b>Location Id</b>" ) + QStringLiteral( "</td><td>" )
+                + metadata.value( QStringLiteral( "location-id" ) ).toString()
+                + QStringLiteral( "</td></tr>\n" );
+
+    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+                + QObject::tr( "<b>Start date</b>" ) + QStringLiteral( "</td><td>" )
+                + metadata.value( QStringLiteral( "start-time" ) ).toDateTime().toString( QLocale().dateTimeFormat() )
+                + QStringLiteral( "</td></tr>\n" );
+
+    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+                + QObject::tr( "<b>End date</b>" ) + QStringLiteral( "</td><td>" )
+                + metadata.value( QStringLiteral( "end-time" ) ).toDateTime().toString( QLocale().dateTimeFormat() )
+                + QStringLiteral( "</td></tr>\n" );
+  }
+
+  return htmlText;
 }
 
 QDomElement ReosDelftFewsXMLProvider::seriesElement( const QString &uri, QDomDocument &xmlDoc, QString &noData ) const
@@ -127,6 +161,11 @@ void ReosDelftFewsXMLProvider::setMetadata( const QVariantMap &meta )
 
 QString ReosDelftFewsXMLHydrographProvider::key() const {return ReosDelftFewsXMLProvider::staticKey() + ':' + dataType();}
 
+QString ReosDelftFewsXMLHydrographProvider::htmlDescription() const
+{
+  return htmlDescriptionFromMetada( metadata() );
+}
+
 void ReosDelftFewsXMLHydrographProvider::load()
 {
   const QString uri = dataSource();
@@ -181,6 +220,11 @@ double *ReosDelftFewsXMLHydrographProvider::data() {return mCacheValues.data();}
 const QVector<double> &ReosDelftFewsXMLHydrographProvider::constData() const {return mCacheValues;}
 
 QString ReosDelftFewsXMLRainfallProvider::key() const {return ReosDelftFewsXMLProvider::staticKey() + ':' + dataType();}
+
+QString ReosDelftFewsXMLRainfallProvider::htmlDescription() const
+{
+  return htmlDescriptionFromMetada( metadata() );
+}
 
 void ReosDelftFewsXMLRainfallProvider::load()
 {

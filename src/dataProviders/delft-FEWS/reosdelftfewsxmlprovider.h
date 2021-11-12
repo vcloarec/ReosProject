@@ -32,6 +32,7 @@ class ReosDelftFewsXMLProvider
     static QDateTime timefromElement( const QDomElement &element );
     static double doubleValueFromElement( const QDomElement &element, const QString &noData );
     static QString valueStringFromElement( const QDomElement &element );
+    static QString htmlDescriptionFromMetada( const QVariantMap &metadata );
 
   protected:
     ReosDelftFewsXMLProvider();
@@ -52,6 +53,8 @@ class ReosDelftFewsXMLRainfallProvider: public ReosTimeSerieConstantTimeStepProv
   public:
 
     QString key() const override;
+
+    QString htmlDescription() const override;
     void load() override;
     // ReosTimeSerieProvider interface
     QDateTime referenceTime() const override;
@@ -80,9 +83,9 @@ class ReosDelftFewsXMLHydrographProvider: public ReosTimeSerieVariableTimeStepPr
 {
     Q_OBJECT
   public:
-    QString key() const override;
 
-    // ReosTimeSerieProvider interface
+    QString key() const override;
+    QString htmlDescription() const override;
     void load() override;
     QDateTime referenceTime() const override;
     QString valueUnit() const override;
