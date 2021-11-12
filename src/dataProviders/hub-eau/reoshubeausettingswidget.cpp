@@ -29,6 +29,7 @@ ReosHubEauSettingsWidget::ReosHubEauSettingsWidget( ReosDataProvider *provider, 
   connect( mProvider, &ReosDataProvider::dataChanged, this, [this]
   {
     enableLoadButton();
+    populateDescription();
   } );
 
   enableLoadButton();
@@ -49,11 +50,10 @@ void ReosHubEauSettingsWidget::onReload()
 
 void ReosHubEauSettingsWidget::populateDescription()
 {
-  const QVariantMap &meta = mProvider->metaData();
-  if ( meta.contains( QStringLiteral( "libelle_station" ) ) )
-    ui->mLabelStation->setText( meta.value( QStringLiteral( "libelle_station" ) ).toString() );
-  else
-    ui->mLabelStation->setText( "Unknown station" );
+  ui->mTextBrowser->document()->setDefaultStyleSheet( ReosApplication::styleSheet() );
+  ui->mTextBrowser->clear();
+  if ( mProvider )
+    ui->mTextBrowser->setText( mProvider->htmlDescription() );
 }
 
 void ReosHubEauSettingsWidget::enableLoadButton()

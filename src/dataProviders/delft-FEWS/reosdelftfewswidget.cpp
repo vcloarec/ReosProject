@@ -26,6 +26,7 @@
 #include "reosplottimeconstantinterval.h"
 #include "reosmaptool.h"
 #include "reosapplication.h"
+#include "reosdelftfewssettingswidget.h"
 
 ReosDelftFewsWidget::ReosDelftFewsWidget( ReosMap *map, const QString &dataType, QWidget *parent )
   : ReosDataProviderSelectorWidget( parent )
@@ -83,20 +84,23 @@ ReosDataObject *ReosDelftFewsWidget::createData( QObject *parent ) const
   if ( station.dataType() == ReosDelftFewsXMLHydrographProvider::dataType() )
   {
     dataObject.reset( createHydrograph( parent ) );
-    provider = static_cast<ReosDelftFewsXMLProvider *>(
-                 qobject_cast<ReosDelftFewsXMLHydrographProvider *>( dataObject->dataProvider() ) );
+    if ( dataObject )
+      provider = static_cast<ReosDelftFewsXMLProvider *>(
+                   qobject_cast<ReosDelftFewsXMLHydrographProvider *>( dataObject->dataProvider() ) );
   }
 
   if ( station.dataType() == ReosDelftFewsXMLRainfallProvider::dataType() )
   {
     dataObject.reset( createRainfall( parent ) );
-    provider = static_cast<ReosDelftFewsXMLProvider *>(
-                 qobject_cast<ReosDelftFewsXMLRainfallProvider *>( dataObject->dataProvider() ) );
+    if ( dataObject )
+      provider = static_cast<ReosDelftFewsXMLProvider *>(
+                   qobject_cast<ReosDelftFewsXMLRainfallProvider *>( dataObject->dataProvider() ) );
   }
 
   if ( provider )
   {
     provider->setMetadata( station.meta );
+    dataObject->setName( station.meta.value( QStringLiteral( "name" ) ).toString() );
     return dataObject.release();
   }
 
@@ -208,39 +212,17 @@ void ReosDelftFewsWidget::onStationSelectOnMap( ReosMapItem *item, const QPointF
 
 void ReosDelftFewsWidget::populateTextBrowser()
 {
-  QString htmlText = QStringLiteral( "<html>\n<body>\n" );
-  htmlText += QLatin1String( "<table class=\"list-view\">\n" );
   ui->mTextBrowser->document()->setDefaultStyleSheet( ReosApplication::styleSheet() );
 
   int stationIndex = ui->mListView->currentIndex().row();
-
-  if ( stationIndex == -1 )
-  {
-    htmlText += QStringLiteral( "<h2>" ) + tr( "No station selected" ) + QStringLiteral( "</h2>\n<hr>\n" );
-  }
-  else
+  QVariantMap meta;
+  if ( stationIndex != -1 )
   {
     const ReosDelftFewsStation &station = mStationsModel->station( stationIndex );
-    htmlText += QStringLiteral( "<h2>" ) + station.meta.value( QStringLiteral( "name" ) ).toString() + QStringLiteral( "</h2>\n<hr>\n" );
-
-    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                + tr( "<b>Location Id</b>" ) + QStringLiteral( "</td><td>" )
-                + station.meta.value( QStringLiteral( "location-id" ) ).toString()
-                + QStringLiteral( "</td></tr>\n" );
-
-    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                + tr( "<b>Start date</b>" ) + QStringLiteral( "</td><td>" )
-                + station.meta.value( QStringLiteral( "start-time" ) ).toDateTime().toString( QLocale().dateTimeFormat() )
-                + QStringLiteral( "</td></tr>\n" );
-
-    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                + tr( "<b>End date</b>" ) + QStringLiteral( "</td><td>" )
-                + station.meta.value( QStringLiteral( "end-time" ) ).toDateTime().toString( QLocale().dateTimeFormat() )
-                + QStringLiteral( "</td></tr>\n" );
+    meta = station.meta;
   }
 
-  ui->mTextBrowser->setText( htmlText );
-
+  ui->mTextBrowser->setText( ReosDelftFewsXMLProvider::htmlDescriptionFromMetada( meta ) );
 }
 
 bool ReosDelftFewsWidget::parseFile( const QString &fileName )
@@ -396,6 +378,11 @@ QString ReosDelftFewsGuiFactory::key() const
 ReosDelftFewsWidget *ReosDelftFewsGuiFactory::createProviderSelectorWidget( ReosMap *map, const QString &dataType, QWidget *parent ) const
 {
   return new ReosDelftFewsWidget( map, dataType, parent );
+}
+
+ReosDelftFewsSettingsWidget *ReosDelftFewsGuiFactory::createProviderSettingsWidget( ReosDataProvider *provider, QWidget *parent ) const
+{
+  return new ReosDelftFewsSettingsWidget( provider, parent );
 }
 
 QString ReosDelftFewsGuiFactory::dataType() const

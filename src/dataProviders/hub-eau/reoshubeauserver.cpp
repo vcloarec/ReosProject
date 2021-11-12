@@ -214,6 +214,6 @@ ReosHydrograph *ReosHubEauServer::createHydrograph( const QString &stationId, co
 
   ReosHubEauHydrographProvider *provider = qobject_cast<ReosHubEauHydrographProvider *>( hyd->dataProvider() );
   Q_ASSERT( provider );
-  provider->setMetaData( meta );
+  provider->setMetadata( meta );
   return hyd.release();
 }

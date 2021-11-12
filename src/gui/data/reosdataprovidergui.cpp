@@ -70,7 +70,11 @@ ReosDataProviderSelectorWidget *ReosDataProviderGuiRegistery::createProviderSele
 
 ReosDataProviderSettingsWidget *ReosDataProviderGuiRegistery::createProviderSettingsWidget( ReosDataProvider *dataProvider, QWidget *parent )
 {
-  ReosDataProviderGuiFactory *fact = guiFactory( dataProvider->key() );
+  QString providerKey = dataProvider->key();
+  if ( providerKey.contains( ':' ) )
+    providerKey = providerKey.split( ':' ).at( 0 );
+
+  ReosDataProviderGuiFactory *fact = guiFactory( providerKey );
   if ( fact )
     return fact->createProviderSettingsWidget( dataProvider, parent );
 
