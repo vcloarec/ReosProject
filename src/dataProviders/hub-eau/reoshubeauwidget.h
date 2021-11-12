@@ -97,10 +97,11 @@ class ReosHubEauHydrometryGuiFactory : public ReosDataProviderGuiFactory
   public:
     GuiCapabilities capabilities() const override;
     QString key() const override;
-    ReosHubEauWidget *createProviderSelectorWidget( ReosMap *map, QWidget *parent = nullptr ) const override;
+    ReosHubEauWidget *createProviderSelectorWidget( ReosMap *map, const QString &dataType, QWidget *parent = nullptr ) const override;
     ReosHubEauSettingsWidget *createProviderSettingsWidget( ReosDataProvider *provider, QWidget *parent = nullptr ) const override;
     QString dataType() const override;
     QPixmap icon() const override;
+    QString displayText() const override;
 };
 
 #endif // REOSHUBEAUWIDGET_H

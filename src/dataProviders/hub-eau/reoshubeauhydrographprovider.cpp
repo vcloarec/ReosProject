@@ -150,9 +150,10 @@ QString ReosHubEauHydrographProvider::staticKey()
   return QStringLiteral( "hub-eau-hydrometry" );
 }
 
+QString ReosHubEauHydrographProviderFactory::key() const {return ReosHubEauHydrographProvider::staticKey();}
+
+
 REOSEXTERN ReosDataProviderFactory *providerFactory()
 {
   return new ReosHubEauHydrographProviderFactory();
 }
-
-QString ReosHubEauHydrographProviderFactory::key() const {return ReosHubEauHydrographProvider::staticKey();}

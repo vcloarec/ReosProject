@@ -36,7 +36,7 @@ class ReosDataProviderFactory
 {
   public:
     //! Creates and returns a pointer to a provider, the caller has to take ownership
-    virtual ReosDataProvider *createProvider() const = 0;
+    virtual ReosDataProvider *createProvider( const QString &dataType = QString() ) const = 0;
 
     //! Returns the provider key corresponding to this factory
     virtual QString key() const = 0;

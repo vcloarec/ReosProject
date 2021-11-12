@@ -34,7 +34,7 @@ class ReosPlotTimeHistogram: public ReosPlotItem
   public:
     //! Contructor with the name of the item. If this item is contructed with \a masterItem true, this item will control the title of Y left axe.
     ReosPlotTimeHistogram( const QString &name, bool masterItem = false );
-    void setTimeSerie( ReosTimeSerieConstantInterval *timeSerie );
+    void setTimeSerie( ReosTimeSerieConstantInterval *timeSerie, bool replot = true );
 
     //! Sets the color of the border (default black);
     void setBorderColor( const QColor &color );
@@ -83,7 +83,7 @@ class ReosPlotTimeSerieVariableStep: public ReosPlotItem
     Q_OBJECT
   public:
     ReosPlotTimeSerieVariableStep( const QString &name = QString() );
-    void setTimeSerie( ReosTimeSerieVariableTimeStep *timeSerie );
+    void setTimeSerie( ReosTimeSerieVariableTimeStep *timeSerie, bool replot = true );
 
   private slots:
     void setSettings();

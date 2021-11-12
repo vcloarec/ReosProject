@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TimeSeries xmlns="http://www.wldelft.nl/fews/PI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.wldelft.nl/fews/PI http://fews.wldelft.nl/schemas/version1.0/pi-schemas/pi_timeseries.xsd" version="1.23" xmlns:fs="http://www.wldelft.nl/fews/fs">
+    <timeZone>8.0</timeZone>
+    <series>
+        <header>
+            <type>instantaneous</type>
+            <moduleInstanceId>Toucian_Wflow_100M</moduleInstanceId>
+            <locationId>Grid_WFlow_Toucian_100M</locationId>
+            <parameterId>Q.simulated</parameterId>
+            <timeStep unit="second" multiplier="3600"/>
+            <startDate date="2020-06-12" time="07:00:00"/>
+            <endDate date="2020-06-15" time="19:00:00"/>
+            <forecastDate date="2020-07-01" time="00:00:00"/>
+            <missVal>NaN</missVal>
+            <stationName>Grid_WFlow_Toucian_100M</stationName>
+            <lat>24.8475</lat>
+            <lon>120.9325</lon>
+            <x>120.9325</x>
+            <y>24.8475</y>
+            <z>0.0</z>
+            <units>m3/s</units>
+        </header>
+        <event date="2020-06-12" time="07:00:00" value="9.703" flag="0"/>
+        <event date="2020-06-12" time="08:00:00" value="9.594" flag="0"/>
+        <event date="2020-06-12" time="09:00:00" value="9.5" flag="0"/>
+        <event date="2020-06-12" time="10:00:00" value="9.422" flag="0"/>
+        <event date="2020-06-12" time="11:00:00" value="9.359" flag="0"/>
+        <event date="2020-06-12" time="12:00:00" value="9.297" flag="0"/>
+        <event date="2020-06-12" time="13:00:00" value="9.25" flag="0"/>
+        <event date="2020-06-12" time="14:00:00" value="12.438" flag="0"/>
+        <event date="2020-06-12" time="15:00:00" value="83.32" flag="0"/>
+        <event date="2020-06-12" time="16:00:00" value="681.43" flag="0"/>
+        <event date="2020-06-12" time="17:00:00" value="901.438" flag="0"/>
+        <event date="2020-06-12" time="18:00:00" value="650.734" flag="0"/>
+        <event date="2020-06-12" time="19:00:00" value="411.289" flag="0"/>
+        <event date="2020-06-12" time="20:00:00" value="262.984" flag="0"/>
+        <event date="2020-06-12" time="21:00:00" value="176.07" flag="0"/>
+        <event date="2020-06-12" time="22:00:00" value="123.688" flag="0"/>
+        <event date="2020-06-12" time="23:00:00" value="90.727" flag="0"/>
+        <event date="2020-06-13" time="00:00:00" value="69.102" flag="0"/>
+        <event date="2020-06-13" time="01:00:00" value="54.398" flag="0"/>
+        <event date="2020-06-13" time="02:00:00" value="44.07" flag="0"/>
+        <event date="2020-06-13" time="03:00:00" value="36.625" flag="0"/>
+        <event date="2020-06-13" time="04:00:00" value="31.125" flag="0"/>
+        <event date="2020-06-13" time="05:00:00" value="26.984" flag="0"/>
+        <event date="2020-06-13" time="06:00:00" value="23.82" flag="0"/>
+        <event date="2020-06-13" time="07:00:00" value="21.352" flag="0"/>
+        <event date="2020-06-13" time="08:00:00" value="19.414" flag="0"/>
+        <event date="2020-06-13" time="09:00:00" value="17.883" flag="0"/>
+        <event date="2020-06-13" time="10:00:00" value="16.648" flag="0"/>
+        <event date="2020-06-13" time="11:00:00" value="15.648" flag="0"/>
+        <event date="2020-06-13" time="12:00:00" value="14.828" flag="0"/>
+        <event date="2020-06-13" time="13:00:00" value="14.156" flag="0"/>
+        <event date="2020-06-13" time="14:00:00" value="13.617" flag="0"/>
+        <event date="2020-06-13" time="15:00:00" value="14.031" flag="0"/>
+        <event date="2020-06-13" time="16:00:00" value="21.023" flag="0"/>
+        <event date="2020-06-13" time="17:00:00" value="44.266" flag="0"/>
+        <event date="2020-06-13" time="18:00:00" value="636.898" flag="0"/>
+        <event date="2020-06-13" time="19:00:00" value="1840.0" flag="0"/>
+        <event date="2020-06-13" time="20:00:00" value="1527.219" flag="0"/>
+        <event date="2020-06-13" time="21:00:00" value="954.781" flag="0"/>
+        <event date="2020-06-13" time="22:00:00" value="569.938" flag="0"/>
+        <event date="2020-06-13" time="23:00:00" value="353.422" flag="0"/>
+        <event date="2020-06-14" time="00:00:00" value="231.922" flag="0"/>
+        <event date="2020-06-14" time="01:00:00" value="160.484" flag="0"/>
+        <event date="2020-06-14" time="02:00:00" value="117.078" flag="0"/>
+        <event date="2020-06-14" time="03:00:00" value="89.898" flag="0"/>
+        <event date="2020-06-14" time="04:00:00" value="72.797" flag="0"/>
+        <event date="2020-06-14" time="05:00:00" value="60.531" flag="0"/>
+        <event date="2020-06-14" time="06:00:00" value="50.695" flag="0"/>
+        <event date="2020-06-14" time="07:00:00" value="42.875" flag="0"/>
+        <event date="2020-06-14" time="08:00:00" value="36.742" flag="0"/>
+        <event date="2020-06-14" time="09:00:00" value="31.945" flag="0"/>
+        <event date="2020-06-14" time="10:00:00" value="28.242" flag="0"/>
+        <event date="2020-06-14" time="11:00:00" value="25.406" flag="0"/>
+        <event date="2020-06-14" time="12:00:00" value="23.875" flag="0"/>
+        <event date="2020-06-14" time="13:00:00" value="26.109" flag="0"/>
+        <event date="2020-06-14" time="14:00:00" value="39.32" flag="0"/>
+        <event date="2020-06-14" time="15:00:00" value="70.625" flag="0"/>
+        <event date="2020-06-14" time="16:00:00" value="199.93" flag="0"/>
+        <event date="2020-06-14" time="17:00:00" value="1114.492" flag="0"/>
+        <event date="2020-06-14" time="18:00:00" value="1555.727" flag="0"/>
+        <event date="2020-06-14" time="19:00:00" value="1197.508" flag="0"/>
+        <event date="2020-06-14" time="20:00:00" value="767.938" flag="0"/>
+        <event date="2020-06-14" time="21:00:00" value="493.352" flag="0"/>
+        <event date="2020-06-14" time="22:00:00" value="339.664" flag="0"/>
+        <event date="2020-06-14" time="23:00:00" value="373.391" flag="0"/>
+        <event date="2020-06-15" time="00:00:00" value="361.125" flag="0"/>
+        <event date="2020-06-15" time="01:00:00" value="293.336" flag="0"/>
+        <event date="2020-06-15" time="02:00:00" value="221.781" flag="0"/>
+        <event date="2020-06-15" time="03:00:00" value="164.883" flag="0"/>
+        <event date="2020-06-15" time="04:00:00" value="123.602" flag="0"/>
+        <event date="2020-06-15" time="05:00:00" value="94.492" flag="0"/>
+        <event date="2020-06-15" time="06:00:00" value="74.016" flag="0"/>
+        <event date="2020-06-15" time="07:00:00" value="59.445" flag="0"/>
+        <event date="2020-06-15" time="08:00:00" value="48.914" flag="0"/>
+        <event date="2020-06-15" time="09:00:00" value="41.156" flag="0"/>
+        <event date="2020-06-15" time="10:00:00" value="35.352" flag="0"/>
+        <event date="2020-06-15" time="11:00:00" value="31.109" flag="0"/>
+        <event date="2020-06-15" time="12:00:00" value="27.93" flag="0"/>
+        <event date="2020-06-15" time="13:00:00" value="25.414" flag="0"/>
+        <event date="2020-06-15" time="14:00:00" value="23.336" flag="0"/>
+        <event date="2020-06-15" time="15:00:00" value="21.797" flag="0"/>
+        <event date="2020-06-15" time="16:00:00" value="26.141" flag="0"/>
+        <event date="2020-06-15" time="17:00:00" value="38.656" flag="0"/>
+        <event date="2020-06-15" time="18:00:00" value="45.875" flag="0"/>
+        <event date="2020-06-15" time="19:00:00" value="43.656" flag="0"/>
+    </series>
+</TimeSeries>

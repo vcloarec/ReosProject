@@ -240,8 +240,10 @@ void ReosGaugedHydrographWidget::onCurrentHydrographChanged()
   else
   {
     newEditingWidget.reset( new QLabel( tr( "No Hydrograph" ) ) );
-    mHydrographPlot->setTimeSerie( nullptr );
   }
+
+  mHydrographPlot->setTimeSerie( mCurrentHydrograph, false );
+  ui->plotWidget->updatePlot();
 
   if ( ui->mEditingWidgetLayout->count() != 0 )
   {
@@ -296,8 +298,10 @@ void ReosGaugedHydrographWidget::populateProviderActions()
 
 void ReosGaugedHydrographWidget::showProviderSelector( const QString &providerKey )
 {
+  const QString dataType = QStringLiteral( "hydrograph" );
+
   mCurrentDataSelectorWidget =
-    ReosDataProviderGuiRegistery::instance()->createProviderSelectorWidget( providerKey, mMap, this );
+    ReosDataProviderGuiRegistery::instance()->createProviderSelectorWidget( providerKey, dataType, mMap, this );
 
   if ( mCurrentDataSelectorWidget )
   {
@@ -313,6 +317,11 @@ void ReosGaugedHydrographWidget::showProviderSelector( const QString &providerKe
     connect( mCurrentDataSelectorWidget, &ReosDataProviderSelectorWidget::dataSelectionChanged, this, [this]( bool isDataSelected )
     {
       ui->mButtonAddFromProvider->setEnabled( isDataSelected  && mCurrentWatershed );
+      if ( !isDataSelected )
+      {
+        ui->mButtonAddFromProvider->setEnabled( false );
+        ui->mButtonCopyFromProvider->setEnabled( false );
+      }
     } );
 
     // connect loading

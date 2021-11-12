@@ -35,13 +35,12 @@ ReosHubEauWidget::ReosHubEauWidget( ReosMap *map, QWidget *parent )
 
 {
   ui->setupUi( this );
-  setWindowFlag( Qt::Dialog );
 
   ui->mToolWidget->setLayout( new QHBoxLayout );
   ui->mToolWidget->layout()->setContentsMargins( 0, 0, 0, 0 );
   QToolBar *toolBar = new QToolBar( ui->mToolWidget );
   ui->mToolWidget->layout()->addWidget( toolBar );
-  QAction *selectStationAction = toolBar->addAction( QPixmap( ":/images/neutral.svg" ), tr( "Select station" ) );
+  QAction *selectStationAction = toolBar->addAction( QPixmap( ":/hub-eau-images/selectOnMap.svg" ), tr( "Select Station" ) );
   selectStationAction->setCheckable( true );
   mSelectStation->setAction( selectStationAction );
   mSelectStation->setSearchUnderPoint( true );
@@ -54,6 +53,7 @@ ReosHubEauWidget::ReosHubEauWidget( ReosMap *map, QWidget *parent )
   ui->mPlotWidget->setLegendVisible( false );
   ui->mPlotWidget->setAxeTextSize( 7 );
   ui->mPlotWidget->setMagnifierType( ReosPlotWidget::positiveMagnifier );
+
   mServer = new ReosHubEauServer( this );
 
   connect( mMap, &ReosMap::extentChanged, this, &ReosHubEauWidget::onMapExtentChanged );
@@ -101,11 +101,6 @@ void ReosHubEauWidget::onStationUpdated()
     const ReosHubEauStation &station = mStations.at( i );
     const QPointF pt = mMap->engine()->transformToProjectCoordinates( ReosGisEngine::wktEPSGCrs( 4326 ), QPointF( station.longitude, station.latitude ) );
     mStationsMarker.emplace_back( std::make_unique<ReosHubEauStationMarker>( mMap, pt ) );
-    mStationsMarker.back()->setColor( QColor( 12, 114, 185 ) );
-    mStationsMarker.back()->setWidth( 10 );
-    mStationsMarker.back()->setExternalColor( Qt::black );
-    mStationsMarker.back()->setExternalWidth( 14 );
-    mStationsMarker.back()->setDescription( QStringLiteral( "hub-eau-station" ) );
     mStationsMarker.back()->stationIndex = i;
   }
   ui->mStationCountLabel->setText( tr( "%n station displayed", nullptr, mStations.count() ) );
@@ -150,7 +145,6 @@ void ReosHubEauWidget::onSelectStation( ReosMapItem *item, const QPointF & )
   {
     mCurrentStationId.clear();
     mCurrentStationMeta.clear();
-    mHydrographPlot->setTimeSerie( nullptr );
     ui->mCurrentStateLabel->setText( "No station selected" );
     emit dataSelectionChanged( false );
   }
@@ -196,7 +190,6 @@ void ReosHubEauWidget::setCurrentStationId( const QString &currentStationId )
 
 void ReosHubEauWidget::populateMeta( const QVariantMap &meta )
 {
-
   QString htmlText = QStringLiteral( "<html>\n<body>\n" );
   htmlText += QLatin1String( "<table class=\"list-view\">\n" );
   ui->mTextBrowser->document()->setDefaultStyleSheet( ReosApplication::styleSheet() );
@@ -251,6 +244,12 @@ void ReosHubEauWidget::populateMeta( const QVariantMap &meta )
 }
 
 ReosHubEauStationMarker::ReosHubEauStationMarker( ReosMap *map, const QPointF &point ): ReosMapMarkerFilledCircle( map, point ) {}
+  setColor( QColor( 12, 114, 185 ) );
+  setWidth( 10 );
+  setExternalColor( Qt::black );
+  setDescription( QStringLiteral( "hub-eau-station" ) );
+  setExternalWidth( 14 );
+}
 
 ReosDataProviderGuiFactory::GuiCapabilities ReosHubEauHydrometryGuiFactory::capabilities() const
 {
@@ -262,7 +261,7 @@ QString ReosHubEauHydrometryGuiFactory::key() const
   return ReosHubEauHydrographProvider::staticKey();
 }
 
-ReosHubEauWidget *ReosHubEauHydrometryGuiFactory::createProviderSelectorWidget( ReosMap *map, QWidget *parent ) const
+ReosHubEauWidget *ReosHubEauHydrometryGuiFactory::createProviderSelectorWidget( ReosMap *map, const QString &, QWidget *parent ) const
 {
   return new ReosHubEauWidget( map, parent );
 }
@@ -281,6 +280,8 @@ QPixmap ReosHubEauHydrometryGuiFactory::icon() const
 {
   return QPixmap( QStringLiteral( ":/hub-eau-images/icon-hubeau-blue.svg" ) );
 }
+
+QString ReosHubEauHydrometryGuiFactory::displayText() const {return QStringLiteral( "Hub'Eau" );}
 
 REOSEXTERN ReosDataProviderGuiFactory *providerGuiFactory()
 {

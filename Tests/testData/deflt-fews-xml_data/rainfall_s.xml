@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TimeSeries xmlns="http://www.wldelft.nl/fews/PI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.wldelft.nl/fews/PI http://fews.wldelft.nl/schemas/version1.0/pi-schemas/pi_timeseries.xsd" version="1.23" xmlns:fs="http://www.wldelft.nl/fews/fs">
+    <timeZone>8.0</timeZone>
+    <series>
+        <header>
+            <type>accumulative</type>
+            <moduleInstanceId>Import_Telemetry</moduleInstanceId>
+            <locationId>01A190</locationId>
+            <parameterId>P.obs</parameterId>
+            <qualifierId>CWB</qualifierId>
+            <timeStep unit="second" multiplier="86400"/>
+            <startDate date="2020-11-20" time="00:00:00"/>
+            <endDate date="2020-12-28" time="00:00:00"/>
+            <missVal>NaN</missVal>
+            <stationName>碧湖</stationName>
+            <lat>24.89086199927895</lat>
+            <lon>121.74556400000003</lon>
+            <x>325324.950414844</x>
+            <y>2753895.61003771</y>
+            <z>360.0</z>
+            <units>mm</units>
+        </header>
+        <event date="2020-11-20" time="00:00:00" value="2.0" flag="0"/>
+        <event date="2020-11-21" time="00:00:00" value="17.0" flag="0"/>
+        <event date="2020-11-22" time="00:00:00" value="2.0" flag="0"/>
+        <event date="2020-11-23" time="00:00:00" value="5.0" flag="0"/>
+        <event date="2020-11-24" time="00:00:00" value="2.0" flag="0"/>
+        <event date="2020-11-25" time="00:00:00" value="5.0" flag="0"/>
+        <event date="2020-11-26" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-11-27" time="00:00:00" value="6.0" flag="0"/>
+        <event date="2020-11-28" time="00:00:00" value="8.0" flag="0"/>
+        <event date="2020-11-29" time="00:00:00" value="13.0" flag="0"/>
+        <event date="2020-11-30" time="00:00:00" value="36.0" flag="0"/>
+        <event date="2020-12-01" time="00:00:00" value="24.0" flag="0"/>
+        <event date="2020-12-02" time="00:00:00" value="9.0" flag="0"/>
+        <event date="2020-12-03" time="00:00:00" value="20.0" flag="0"/>
+        <event date="2020-12-04" time="00:00:00" value="14.0" flag="0"/>
+        <event date="2020-12-05" time="00:00:00" value="8.0" flag="0"/>
+        <event date="2020-12-06" time="00:00:00" value="15.0" flag="0"/>
+        <event date="2020-12-07" time="00:00:00" value="22.0" flag="0"/>
+        <event date="2020-12-08" time="00:00:00" value="17.0" flag="0"/>
+        <event date="2020-12-09" time="00:00:00" value="28.0" flag="0"/>
+        <event date="2020-12-10" time="00:00:00" value="14.0" flag="0"/>
+        <event date="2020-12-11" time="00:00:00" value="29.0" flag="0"/>
+        <event date="2020-12-14" time="00:00:00" value="13.0" flag="0"/>
+        <event date="2020-12-15" time="00:00:00" value="11.0" flag="0"/>
+        <event date="2020-12-16" time="00:00:00" value="19.0" flag="0"/>
+        <event date="2020-12-17" time="00:00:00" value="13.0" flag="0"/>
+        <event date="2020-12-18" time="00:00:00" value="7.0" flag="0"/>
+        <event date="2020-12-19" time="00:00:00" value="14.0" flag="0"/>
+        <event date="2020-12-20" time="00:00:00" value="12.0" flag="0"/>
+        <event date="2020-12-21" time="00:00:00" value="9.0" flag="0"/>
+        <event date="2020-12-22" time="00:00:00" value="26.0" flag="0"/>
+        <event date="2020-12-23" time="00:00:00" value="28.0" flag="0"/>
+        <event date="2020-12-24" time="00:00:00" value="5.0" flag="0"/>
+        <event date="2020-12-25" time="00:00:00" value="8.0" flag="0"/>
+        <event date="2020-12-26" time="00:00:00" value="2.0" flag="0"/>
+        <event date="2020-12-28" time="00:00:00" value="1.0" flag="0"/>
+    </series>
+    <series>
+        <header>
+            <type>accumulative</type>
+            <moduleInstanceId>Import_Telemetry</moduleInstanceId>
+            <locationId>01A200</locationId>
+            <parameterId>P.obs</parameterId>
+            <qualifierId>CWB</qualifierId>
+            <timeStep unit="second" multiplier="86400"/>
+            <startDate date="2020-11-20" time="00:00:00"/>
+            <endDate date="2020-12-28" time="00:00:00"/>
+            <missVal>NaN</missVal>
+            <stationName>火燒寮</stationName>
+            <lat>24.981048999277025</lat>
+            <lon>121.74928000000004</lon>
+            <x>325645.313258055</x>
+            <y>2763887.41530371</y>
+            <z>380.0</z>
+            <units>mm</units>
+        </header>
+        <event date="2020-11-20" time="00:00:00" value="7.0" flag="0"/>
+        <event date="2020-11-21" time="00:00:00" value="66.0" flag="0"/>
+        <event date="2020-11-22" time="00:00:00" value="8.0" flag="0"/>
+        <event date="2020-11-23" time="00:00:00" value="34.0" flag="0"/>
+        <event date="2020-11-24" time="00:00:00" value="12.0" flag="0"/>
+        <event date="2020-11-25" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-11-26" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-11-27" time="00:00:00" value="26.0" flag="0"/>
+        <event date="2020-11-28" time="00:00:00" value="60.0" flag="0"/>
+        <event date="2020-11-29" time="00:00:00" value="32.0" flag="0"/>
+        <event date="2020-11-30" time="00:00:00" value="47.0" flag="0"/>
+        <event date="2020-12-01" time="00:00:00" value="124.0" flag="0"/>
+        <event date="2020-12-02" time="00:00:00" value="15.0" flag="0"/>
+        <event date="2020-12-03" time="00:00:00" value="37.0" flag="0"/>
+        <event date="2020-12-04" time="00:00:00" value="65.0" flag="0"/>
+        <event date="2020-12-05" time="00:00:00" value="44.0" flag="0"/>
+        <event date="2020-12-06" time="00:00:00" value="52.0" flag="0"/>
+        <event date="2020-12-07" time="00:00:00" value="56.0" flag="0"/>
+        <event date="2020-12-08" time="00:00:00" value="54.0" flag="0"/>
+        <event date="2020-12-09" time="00:00:00" value="45.0" flag="0"/>
+        <event date="2020-12-10" time="00:00:00" value="37.0" flag="0"/>
+        <event date="2020-12-11" time="00:00:00" value="40.0" flag="0"/>
+        <event date="2020-12-12" time="00:00:00" value="3.0" flag="0"/>
+        <event date="2020-12-13" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-12-14" time="00:00:00" value="30.0" flag="0"/>
+        <event date="2020-12-15" time="00:00:00" value="43.0" flag="0"/>
+        <event date="2020-12-16" time="00:00:00" value="49.0" flag="0"/>
+        <event date="2020-12-17" time="00:00:00" value="25.0" flag="0"/>
+        <event date="2020-12-18" time="00:00:00" value="27.0" flag="0"/>
+        <event date="2020-12-19" time="00:00:00" value="39.0" flag="0"/>
+        <event date="2020-12-20" time="00:00:00" value="32.0" flag="0"/>
+        <event date="2020-12-21" time="00:00:00" value="40.0" flag="0"/>
+        <event date="2020-12-22" time="00:00:00" value="29.0" flag="0"/>
+        <event date="2020-12-23" time="00:00:00" value="34.0" flag="0"/>
+        <event date="2020-12-24" time="00:00:00" value="11.0" flag="0"/>
+        <event date="2020-12-25" time="00:00:00" value="15.0" flag="0"/>
+        <event date="2020-12-26" time="00:00:00" value="3.0" flag="0"/>
+        <event date="2020-12-27" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-12-28" time="00:00:00" value="2.0" flag="0"/>
+    </series>
+    <series>
+        <header>
+            <type>accumulative</type>
+            <moduleInstanceId>Import_Telemetry</moduleInstanceId>
+            <locationId>01A210</locationId>
+            <parameterId>P.obs</parameterId>
+            <qualifierId>CWB</qualifierId>
+            <timeStep unit="second" multiplier="86400"/>
+            <startDate date="2020-11-20" time="00:00:00"/>
+            <endDate date="2020-12-28" time="00:00:00"/>
+            <missVal>NaN</missVal>
+            <stationName>大豹</stationName>
+            <lat>24.887256999279046</lat>
+            <lon>121.42139</lon>
+            <x>292574.086107921</x>
+            <y>2753355.92553956</y>
+            <z>600.0</z>
+            <units>mm</units>
+        </header>
+        <event date="2020-11-20" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-11-21" time="00:00:00" value="4.0" flag="0"/>
+        <event date="2020-11-22" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-11-23" time="00:00:00" value="9.0" flag="0"/>
+        <event date="2020-12-06" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-12-12" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-12-14" time="00:00:00" value="10.0" flag="0"/>
+        <event date="2020-12-15" time="00:00:00" value="11.0" flag="0"/>
+        <event date="2020-12-16" time="00:00:00" value="11.0" flag="0"/>
+        <event date="2020-12-17" time="00:00:00" value="2.0" flag="0"/>
+        <event date="2020-12-18" time="00:00:00" value="8.0" flag="0"/>
+        <event date="2020-12-19" time="00:00:00" value="18.0" flag="0"/>
+        <event date="2020-12-20" time="00:00:00" value="4.0" flag="0"/>
+        <event date="2020-12-21" time="00:00:00" value="8.0" flag="0"/>
+        <event date="2020-12-22" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-12-23" time="00:00:00" value="20.0" flag="0"/>
+        <event date="2020-12-24" time="00:00:00" value="14.0" flag="0"/>
+        <event date="2020-12-25" time="00:00:00" value="4.0" flag="0"/>
+        <event date="2020-12-27" time="00:00:00" value="2.0" flag="0"/>
+        <event date="2020-12-28" time="00:00:00" value="2.0" flag="0"/>
+    </series>
+    <series>
+        <header>
+            <type>accumulative</type>
+            <moduleInstanceId>Import_Telemetry</moduleInstanceId>
+            <locationId>01A220</locationId>
+            <parameterId>P.obs</parameterId>
+            <qualifierId>CWB</qualifierId>
+            <timeStep unit="second" multiplier="86400"/>
+            <startDate date="2020-11-27" time="00:00:00"/>
+            <endDate date="2020-12-28" time="00:00:00"/>
+            <missVal>NaN</missVal>
+            <stationName>三峽</stationName>
+            <lat>24.938875999277958</lat>
+            <lon>121.35556200000002</lon>
+            <x>285908.311690808</x>
+            <y>2759054.36682482</y>
+            <z>33.0</z>
+            <units>mm</units>
+        </header>
+        <event date="2020-11-27" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-11-28" time="00:00:00" value="4.0" flag="0"/>
+        <event date="2020-11-29" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-11-30" time="00:00:00" value="3.0" flag="0"/>
+        <event date="2020-12-01" time="00:00:00" value="23.0" flag="0"/>
+        <event date="2020-12-02" time="00:00:00" value="3.0" flag="0"/>
+        <event date="2020-12-03" time="00:00:00" value="9.0" flag="0"/>
+        <event date="2020-12-04" time="00:00:00" value="6.0" flag="0"/>
+        <event date="2020-12-05" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-12-07" time="00:00:00" value="2.0" flag="0"/>
+        <event date="2020-12-08" time="00:00:00" value="4.0" flag="0"/>
+        <event date="2020-12-09" time="00:00:00" value="27.0" flag="0"/>
+        <event date="2020-12-10" time="00:00:00" value="3.0" flag="0"/>
+        <event date="2020-12-11" time="00:00:00" value="7.0" flag="0"/>
+        <event date="2020-12-14" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-12-15" time="00:00:00" value="3.0" flag="0"/>
+        <event date="2020-12-16" time="00:00:00" value="6.0" flag="0"/>
+        <event date="2020-12-18" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-12-19" time="00:00:00" value="8.0" flag="0"/>
+        <event date="2020-12-20" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-12-21" time="00:00:00" value="4.0" flag="0"/>
+        <event date="2020-12-23" time="00:00:00" value="17.0" flag="0"/>
+        <event date="2020-12-24" time="00:00:00" value="9.0" flag="0"/>
+        <event date="2020-12-25" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-12-28" time="00:00:00" value="2.0" flag="0"/>
+    </series>
+    <series>
+        <header>
+            <type>accumulative</type>
+            <moduleInstanceId>Import_Telemetry</moduleInstanceId>
+            <locationId>01A350</locationId>
+            <parameterId>P.obs</parameterId>
+            <qualifierId>CWB</qualifierId>
+            <timeStep unit="second" multiplier="86400"/>
+            <startDate date="2020-11-21" time="00:00:00"/>
+            <endDate date="2020-12-28" time="00:00:00"/>
+            <missVal>NaN</missVal>
+            <stationName>富貴角</stationName>
+            <lat>25.288482999270638</lat>
+            <lon>121.54487400000001</lon>
+            <x>304870.99285063</x>
+            <y>2797842.53943116</y>
+            <z>15.0</z>
+            <units>mm</units>
+        </header>
+        <event date="2020-11-21" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-11-23" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-11-27" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-11-28" time="00:00:00" value="10.0" flag="0"/>
+        <event date="2020-11-29" time="00:00:00" value="17.0" flag="0"/>
+        <event date="2020-11-30" time="00:00:00" value="15.0" flag="0"/>
+        <event date="2020-12-01" time="00:00:00" value="3.0" flag="0"/>
+        <event date="2020-12-03" time="00:00:00" value="4.0" flag="0"/>
+        <event date="2020-12-04" time="00:00:00" value="11.0" flag="0"/>
+        <event date="2020-12-05" time="00:00:00" value="7.0" flag="0"/>
+        <event date="2020-12-06" time="00:00:00" value="8.0" flag="0"/>
+        <event date="2020-12-07" time="00:00:00" value="28.0" flag="0"/>
+        <event date="2020-12-08" time="00:00:00" value="10.0" flag="0"/>
+        <event date="2020-12-09" time="00:00:00" value="40.0" flag="0"/>
+        <event date="2020-12-10" time="00:00:00" value="33.0" flag="0"/>
+        <event date="2020-12-11" time="00:00:00" value="12.0" flag="0"/>
+        <event date="2020-12-14" time="00:00:00" value="8.0" flag="0"/>
+        <event date="2020-12-15" time="00:00:00" value="30.0" flag="0"/>
+        <event date="2020-12-16" time="00:00:00" value="20.0" flag="0"/>
+        <event date="2020-12-17" time="00:00:00" value="13.0" flag="0"/>
+        <event date="2020-12-18" time="00:00:00" value="6.0" flag="0"/>
+        <event date="2020-12-19" time="00:00:00" value="25.0" flag="0"/>
+        <event date="2020-12-20" time="00:00:00" value="4.0" flag="0"/>
+        <event date="2020-12-21" time="00:00:00" value="5.0" flag="0"/>
+        <event date="2020-12-22" time="00:00:00" value="9.0" flag="0"/>
+        <event date="2020-12-23" time="00:00:00" value="26.0" flag="0"/>
+        <event date="2020-12-24" time="00:00:00" value="2.0" flag="0"/>
+        <event date="2020-12-25" time="00:00:00" value="5.0" flag="0"/>
+        <event date="2020-12-26" time="00:00:00" value="13.0" flag="0"/>
+        <event date="2020-12-28" time="00:00:00" value="2.0" flag="0"/>
+    </series>
+    <series>
+        <header>
+            <type>accumulative</type>
+            <moduleInstanceId>Import_Telemetry</moduleInstanceId>
+            <locationId>01A380</locationId>
+            <parameterId>P.obs</parameterId>
+            <qualifierId>CWB</qualifierId>
+            <timeStep unit="second" multiplier="86400"/>
+            <startDate date="2020-11-20" time="00:00:00"/>
+            <endDate date="2020-12-28" time="00:00:00"/>
+            <missVal>NaN</missVal>
+            <stationName>瑞芳(2)</stationName>
+            <lat>25.110327999274315</lat>
+            <lon>121.80332700000004</lon>
+            <x>331016.974754184</x>
+            <y>2778238.8136546</y>
+            <z>101.0</z>
+            <units>mm</units>
+        </header>
+        <event date="2020-11-20" time="00:00:00" value="2.0" flag="0"/>
+        <event date="2020-11-21" time="00:00:00" value="14.0" flag="0"/>
+        <event date="2020-11-22" time="00:00:00" value="10.0" flag="0"/>
+        <event date="2020-11-23" time="00:00:00" value="93.0" flag="0"/>
+        <event date="2020-11-24" time="00:00:00" value="3.0" flag="0"/>
+        <event date="2020-11-25" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-11-27" time="00:00:00" value="53.0" flag="0"/>
+        <event date="2020-11-28" time="00:00:00" value="35.0" flag="0"/>
+        <event date="2020-11-29" time="00:00:00" value="37.0" flag="0"/>
+        <event date="2020-11-30" time="00:00:00" value="39.0" flag="0"/>
+        <event date="2020-12-01" time="00:00:00" value="56.0" flag="0"/>
+        <event date="2020-12-02" time="00:00:00" value="10.0" flag="0"/>
+        <event date="2020-12-03" time="00:00:00" value="20.0" flag="0"/>
+        <event date="2020-12-04" time="00:00:00" value="74.0" flag="0"/>
+        <event date="2020-12-05" time="00:00:00" value="65.0" flag="0"/>
+        <event date="2020-12-06" time="00:00:00" value="96.0" flag="0"/>
+        <event date="2020-12-07" time="00:00:00" value="113.0" flag="0"/>
+        <event date="2020-12-08" time="00:00:00" value="68.0" flag="0"/>
+        <event date="2020-12-09" time="00:00:00" value="60.0" flag="0"/>
+        <event date="2020-12-10" time="00:00:00" value="140.0" flag="0"/>
+        <event date="2020-12-11" time="00:00:00" value="75.0" flag="0"/>
+        <event date="2020-12-12" time="00:00:00" value="14.0" flag="0"/>
+        <event date="2020-12-13" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-12-14" time="00:00:00" value="60.0" flag="0"/>
+        <event date="2020-12-15" time="00:00:00" value="76.0" flag="0"/>
+        <event date="2020-12-16" time="00:00:00" value="108.0" flag="0"/>
+        <event date="2020-12-17" time="00:00:00" value="54.0" flag="0"/>
+        <event date="2020-12-18" time="00:00:00" value="10.0" flag="0"/>
+        <event date="2020-12-19" time="00:00:00" value="86.0" flag="0"/>
+        <event date="2020-12-20" time="00:00:00" value="38.0" flag="0"/>
+        <event date="2020-12-21" time="00:00:00" value="56.0" flag="0"/>
+        <event date="2020-12-22" time="00:00:00" value="58.0" flag="0"/>
+        <event date="2020-12-23" time="00:00:00" value="20.0" flag="0"/>
+        <event date="2020-12-24" time="00:00:00" value="10.0" flag="0"/>
+        <event date="2020-12-25" time="00:00:00" value="27.0" flag="0"/>
+        <event date="2020-12-26" time="00:00:00" value="4.0" flag="0"/>
+        <event date="2020-12-27" time="00:00:00" value="2.0" flag="0"/>
+        <event date="2020-12-28" time="00:00:00" value="1.0" flag="0"/>
+    </series>
+    <series>
+        <header>
+            <type>accumulative</type>
+            <moduleInstanceId>Import_Telemetry</moduleInstanceId>
+            <locationId>01A410</locationId>
+            <parameterId>P.obs</parameterId>
+            <qualifierId>CWB</qualifierId>
+            <timeStep unit="second" multiplier="86400"/>
+            <startDate date="2020-11-23" time="00:00:00"/>
+            <endDate date="2020-12-28" time="00:00:00"/>
+            <missVal>NaN</missVal>
+            <stationName>中正橋</stationName>
+            <lat>25.02192099927616</lat>
+            <lon>121.51642</lon>
+            <x>302118.636274497</x>
+            <y>2768304.92406015</y>
+            <z>5.0</z>
+            <units>mm</units>
+        </header>
+        <event date="2020-11-23" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-11-29" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-11-30" time="00:00:00" value="3.0" flag="0"/>
+        <event date="2020-12-01" time="00:00:00" value="25.0" flag="0"/>
+        <event date="2020-12-02" time="00:00:00" value="13.0" flag="0"/>
+        <event date="2020-12-03" time="00:00:00" value="3.0" flag="0"/>
+        <event date="2020-12-04" time="00:00:00" value="5.0" flag="0"/>
+        <event date="2020-12-05" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-12-07" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-12-08" time="00:00:00" value="4.0" flag="0"/>
+        <event date="2020-12-09" time="00:00:00" value="26.0" flag="0"/>
+        <event date="2020-12-10" time="00:00:00" value="3.0" flag="0"/>
+        <event date="2020-12-11" time="00:00:00" value="10.0" flag="0"/>
+        <event date="2020-12-15" time="00:00:00" value="9.0" flag="0"/>
+        <event date="2020-12-16" time="00:00:00" value="10.0" flag="0"/>
+        <event date="2020-12-17" time="00:00:00" value="2.0" flag="0"/>
+        <event date="2020-12-19" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-12-20" time="00:00:00" value="2.0" flag="0"/>
+        <event date="2020-12-21" time="00:00:00" value="2.0" flag="0"/>
+        <event date="2020-12-23" time="00:00:00" value="19.0" flag="0"/>
+        <event date="2020-12-24" time="00:00:00" value="5.0" flag="0"/>
+        <event date="2020-12-25" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-12-27" time="00:00:00" value="1.0" flag="0"/>
+        <event date="2020-12-28" time="00:00:00" value="3.0" flag="0"/>
+    </series>
+</TimeSeries>

@@ -76,7 +76,7 @@ class ReosHubEauHydrographProvider : public ReosTimeSerieVariableTimeStepProvide
 class ReosHubEauHydrographProviderFactory: public ReosDataProviderFactory
 {
   public:
-    ReosTimeSerieProvider *createProvider() const override {return new ReosHubEauHydrographProvider;};
+    ReosTimeSerieProvider *createProvider( const QString & ) const override {return new ReosHubEauHydrographProvider;};
     QString key() const override;
 };
 

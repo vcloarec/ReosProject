@@ -57,7 +57,7 @@ void ReosPlotTimeHistogram::setSettings()
   }
 }
 
-void ReosPlotTimeHistogram::setTimeSerie( ReosTimeSerieConstantInterval *timeSerie )
+void ReosPlotTimeHistogram::setTimeSerie( ReosTimeSerieConstantInterval *timeSerie, bool replot )
 {
   if ( mTimeSerie && mTimeSerie->data() )
     disconnect( mTimeSerie->data(), &ReosDataObject::dataChanged, this, &ReosPlotItem::itemChanged );
@@ -73,7 +73,7 @@ void ReosPlotTimeHistogram::setTimeSerie( ReosTimeSerieConstantInterval *timeSer
 
   setSettings();
 
-  if ( histogram()->plot() )
+  if ( histogram()->plot() && replot )
     histogram()->plot()->replot();
 }
 
@@ -145,7 +145,7 @@ ReosPlotTimeSerieVariableStep::ReosPlotTimeSerieVariableStep( const QString &nam
   mPlotItem->setItemAttribute( QwtPlotItem::AutoScale, true );
 }
 
-void ReosPlotTimeSerieVariableStep::setTimeSerie( ReosTimeSerieVariableTimeStep *timeSerie )
+void ReosPlotTimeSerieVariableStep::setTimeSerie( ReosTimeSerieVariableTimeStep *timeSerie, bool replot )
 {
   if ( mTimeSerie && mTimeSerie->data() )
     disconnect( mTimeSerie->data(), &ReosDataObject::dataChanged, this, &ReosPlotItem::itemChanged );
@@ -160,7 +160,7 @@ void ReosPlotTimeSerieVariableStep::setTimeSerie( ReosTimeSerieVariableTimeStep 
   if ( timeSerie )
     connect( timeSerie, &ReosDataObject::dataChanged, this, &ReosPlotItem::itemChanged );
 
-  if ( curve()->plot() )
+  if ( curve()->plot() && replot )
     curve()->plot()->replot();
 }
 
@@ -171,6 +171,12 @@ void ReosPlotTimeSerieVariableStep::setSettings()
   if ( mTimeSerie && mTimeSerie->data() )
     pen.setColor( mTimeSerie->data()->color() );
   curve()->setPen( pen );
+
+  if ( mTimeSerie && curve()->plot() && mMasterItem )
+  {
+    curve()->plot()->setAxisTitle( QwtPlot::yLeft,
+                                   mTimeSerie->data()->unitString() );
+  }
 }
 
 QwtPlotCurve *ReosPlotTimeSerieVariableStep::curve()

@@ -31,8 +31,11 @@
 ReosPlot_p::ReosPlot_p( QWidget *parent ): QwtPlot( parent )
 {
   mGrid = new QwtPlotGrid();
-  mGrid->setMajorPen( Qt::gray );
-  mGrid->setMinorPen( Qt::lightGray );
+  mGrid->setMajorPen( Qt::lightGray );
+  QPen minorPen;
+  minorPen.setStyle( Qt::DotLine );
+  minorPen.setColor( Qt::lightGray );
+  mGrid->setMinorPen( minorPen );
   mGrid->enableYMin( true );
   mGrid->enableXMin( true );
   mGrid->attach( this );
@@ -229,7 +232,7 @@ QwtIntervalSample ReosPlotConstantIntervalTimeIntervalSerie::sample( size_t i ) 
 QRectF ReosPlotConstantIntervalTimeIntervalSerie::boundingRect() const
 {
   if ( !mTimeSerie )
-    return QRectF();
+    return QRectF( 1.0, 1.0, -2.0, -2.0 ); // invalid for qwt
   const QPair<QDateTime, QDateTime> timeExtent = mTimeSerie->timeExtent();
   const  QPair<double, double> valueExtent = mTimeSerie->valueExent( true );
   double x1 = QwtDate::toDouble( timeExtent.first );
@@ -314,7 +317,7 @@ QPointF ReosPlotConstantIntervalTimePointSerie::sample( size_t i ) const
 QRectF ReosPlotConstantIntervalTimePointSerie::boundingRect() const
 {
   if ( !mTimeSerie )
-    return QRectF();
+    return QRectF( 1.0, 1.0, -2.0, -2.0 ); // invalid for qwt
   QPair<QDateTime, QDateTime> timeExtent = mTimeSerie->timeExtent();
   QPair<double, double> valueExtent = mTimeSerie->extentValueWithMode( mValueMode );
   if ( mIsCumulative && mTimeSerie->valueCount() > 0 )
@@ -384,7 +387,7 @@ QPointF ReosPlotVariableStepTimeSerie::sample( size_t i ) const
 QRectF ReosPlotVariableStepTimeSerie::boundingRect() const
 {
   if ( !mTimeSerie )
-    return QRectF();
+    return QRectF( 1.0, 1.0, -2.0, -2.0 ); //invalid for qwt
   QPair<QDateTime, QDateTime> timeExtent = mTimeSerie->timeExtent();
   QPair<double, double> valueExtent = mTimeSerie->valueExent();
   double x1 = QwtDate::toDouble( timeExtent.first );
