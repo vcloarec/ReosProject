@@ -51,6 +51,20 @@ void ReosMapTool_p::setContextMenuPopulator( ReosMenuPopulator *populator )
   mContextMenuPopulator.reset( populator );
 }
 
+void ReosMapTool_p::setSearchUnderPoint( bool underPoint )
+{
+  mUnderPoint = underPoint;
+}
+
+void ReosMapTool_p::setSearchZoneSize( const QSizeF &size )
+{
+  mSearchZone = size;
+}
+
+void ReosMapTool_p::setSearchTargetDescription( const QString &description )
+{
+  mTargetDescritpion = description;
+}
 
 ReosMapToolDrawPolyline_p::ReosMapToolDrawPolyline_p( QgsMapCanvas *map, bool closed ):
   ReosMapTool_p( map ),
@@ -147,47 +161,19 @@ void ReosMapToolDrawExtent_p::drawExtent()
   mRubberBand->addPoint( QgsPointXY( rect.xMinimum(), rect.yMaximum() ), true );
 }
 
-ReosMapToolSelectMapItem_p::ReosMapToolSelectMapItem_p( QgsMapCanvas *map, int targetType ):
-  ReosMapTool_p( map ),
-  mTargetType( targetType )
-{}
 
 ReosMapToolSelectMapItem_p::ReosMapToolSelectMapItem_p( QgsMapCanvas *map, const QString &targetDescription ):
-  ReosMapToolSelectMapItem_p( map )
+  ReosMapTool_p( map )
 {
-  mTargetDescritpion = targetDescription;
+  setSearchTargetDescription( targetDescription );
+  setSearchZoneSize( QSizeF( 5, 5 ) );
 }
 
 void ReosMapToolSelectMapItem_p::canvasReleaseEvent( QgsMapMouseEvent *e )
 {
   QPointF p = e->localPos();
 
-  QList<QGraphicsItem *> listItems;
-  if ( mUnderPoint )
-    listItems  = canvas()->scene()->items( p );
-  else
-  {
-    QRectF rectf( p.x(), p.y(), 5, 5 );
-    listItems  = canvas()->scene()->items( rectf );
-  }
-
-  QGraphicsItem *item = nullptr;
-  ReosMapItem_p *mapItem = nullptr;
-  int i = 0;
-  while ( !( mapItem ) && i < listItems.count() )
-  {
-
-    item = listItems.at( i );
-    if ( ( item && item->type() == mTargetType ) || mTargetType == -1 )
-    {
-      item = listItems.at( i );
-      mapItem = dynamic_cast<ReosMapItem_p *>( item );
-      if ( mapItem && !mTargetDescritpion.isEmpty() && mapItem->base->description() != mTargetDescritpion )
-        mapItem = nullptr;
-    }
-
-    ++i;
-  }
+  ReosMapItem_p *mapItem = searchItem( p );
 
   if ( mapItem )
     emit found( mapItem->base, e->mapPoint().toQPointF() );
@@ -200,11 +186,6 @@ bool ReosMapToolSelectMapItem_p::populateContextMenuWithEvent( QMenu *menu, QgsM
 {
   canvasReleaseEvent( event );
   return ReosMapTool_p::populateContextMenuWithEvent( menu, event );
-}
-
-void ReosMapToolSelectMapItem_p::setSearchUnderPoint( bool underPoint )
-{
-  mUnderPoint = underPoint;
 }
 
 ReosMapToolDrawPoint_p::ReosMapToolDrawPoint_p( QgsMapCanvas *map ): ReosMapTool_p( map )
@@ -319,6 +300,65 @@ QRectF ReosMapTool_p::viewSearchZone( const QPoint &pt )
   return QRectF( QPointF( pt - zone ),  QPointF( pt + zone ) );
 }
 
+ReosMapItem_p *ReosMapTool_p::searchItem( const QPointF &p ) const
+{
+  QList<QGraphicsItem *> listItems;
+  if ( mUnderPoint )
+    listItems  = canvas()->scene()->items( p );
+  else
+  {
+    QRectF rectf( p - QPointF( mSearchZone.width() / 2, mSearchZone.height() / 2 ), mSearchZone );
+    listItems  = canvas()->scene()->items( rectf );
+  }
+
+  QGraphicsItem *item = nullptr;
+  ReosMapItem_p *mapItem = nullptr;
+  int i = 0;
+  while ( !( mapItem ) && i < listItems.count() )
+  {
+    item = listItems.at( i );
+    mapItem = dynamic_cast<ReosMapItem_p *>( item );
+    if ( mapItem && !mTargetDescritpion.isEmpty() && !mapItem->base->description().contains( mTargetDescritpion ) )
+      mapItem = nullptr;
+    ++i;
+  }
+
+  return mapItem;
+}
+
+void ReosMapTool_p::setSeachWhenMoving( bool seachWhenMoving )
+{
+  mSeachWhenMoving = seachWhenMoving;
+}
+
+void ReosMapTool_p::canvasMoveEvent( QgsMapMouseEvent *e )
+{
+  if ( !mSeachWhenMoving )
+    return;
+
+  ReosMapItem_p *foundItem = searchItem( e->localPos() );
+
+  if ( mFoundItem && mFoundItem != foundItem )
+  {
+    mFoundItem->isHovered = false;
+    mFoundItem->update();
+    mFoundItem = nullptr;
+  }
+
+  if ( foundItem )
+  {
+    mFoundItem = foundItem;
+    mFoundItem->isHovered = true;
+    mFoundItem->update();
+  }
+
+  if ( foundItem )
+    emit foundItemWhenMoving( foundItem );
+
+  if ( foundItem )
+    qDebug() << foundItem->base->description();
+}
+
 
 ReosMapToolMoveItem_p::ReosMapToolMoveItem_p( QgsMapCanvas *map ): ReosMapTool_p( map )
 {
@@ -338,7 +378,7 @@ void ReosMapToolMoveItem_p::setCurrentItem( ReosMapItem_p *item )
 
 void ReosMapToolMoveItem_p::canvasPressEvent( QgsMapMouseEvent *e )
 {
-  if ( !mCurrentItem || !searchItem( e->pos() ) )
+  if ( !mCurrentItem || !isItemUnderPoint( e->pos() ) )
     return;
 
   mMovingItem.reset( mCurrentItem->clone() );
@@ -357,7 +397,7 @@ void ReosMapToolMoveItem_p::canvasMoveEvent( QgsMapMouseEvent *e )
   QPointF oldItemTranslation = mMovingItem->mapPos() - mCurrentItem->mapPos();
   QPointF diff = translation - oldItemTranslation;
 
-  mMovingItem->move( diff );
+  mMovingItem->translate( diff );
 }
 
 void ReosMapToolMoveItem_p::canvasReleaseEvent( QgsMapMouseEvent *e )
@@ -369,14 +409,14 @@ void ReosMapToolMoveItem_p::canvasReleaseEvent( QgsMapMouseEvent *e )
 
   if ( mCurrentItem )
   {
-    mCurrentItem->move( e->mapPoint().toQPointF() - mStartPoint );
+    mCurrentItem->translate( e->mapPoint().toQPointF() - mStartPoint );
     emit itemMoved( mCurrentItem->base );
   }
 
   mIsMoving = false;
 }
 
-bool ReosMapToolMoveItem_p::searchItem( const QPoint &p )
+bool ReosMapToolMoveItem_p::isItemUnderPoint( const QPoint &p )
 {
   QList<QGraphicsItem *> listItems;
 
@@ -386,7 +426,6 @@ bool ReosMapToolMoveItem_p::searchItem( const QPoint &p )
     if ( item == mCurrentItem )
       return true;
 
-
   return false;
 
 }
@@ -394,4 +433,52 @@ bool ReosMapToolMoveItem_p::searchItem( const QPoint &p )
 void ReosMapToolMoveItem_p::setMovingColor( const QColor &movingColor )
 {
   mMovingColor = movingColor;
+}
+
+ReosMapToolDrawHydraulicNetworkLink_p::ReosMapToolDrawHydraulicNetworkLink_p( QgsMapCanvas *mapCanvas ): ReosMapTool_p( mapCanvas )
+{
+  mRubberBand = new QgsRubberBand( mCanvas );
+}
+
+void ReosMapToolDrawHydraulicNetworkLink_p::appendItem( ReosMapItem_p *item )
+{
+  mLinkedItems.append( item );
+  if ( mRubberBand->numberOfVertices() == 0 )
+    mRubberBand->addPoint( item->mapPos() );
+  mRubberBand->addPoint( item->mapPos() );
+}
+
+void ReosMapToolDrawHydraulicNetworkLink_p::canvasMoveEvent( QgsMapMouseEvent *e )
+{
+  ReosMapTool_p::canvasMoveEvent( e );
+
+  if ( mFoundItem )
+    mRubberBand->movePoint( mFoundItem->mapPos() );
+  else
+    mRubberBand->movePoint( e->mapPoint() );
+}
+
+void ReosMapToolDrawHydraulicNetworkLink_p::canvasReleaseEvent( QgsMapMouseEvent *e )
+{
+  switch ( e->button() )
+  {
+    case Qt::LeftButton:
+    {
+      ReosMapItem_p *item = searchItem( e->localPos() );
+      if ( item )
+        emit itemSelected( item );
+    }
+    break;
+    case Qt::RightButton:
+      mRubberBand->reset();
+      mLinkedItems.clear();
+      break;
+    default:
+      break;
+
+  }
+  {
+
+  }
+
 }

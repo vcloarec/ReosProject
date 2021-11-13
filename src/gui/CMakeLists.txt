@@ -186,6 +186,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/gui/chart/private
     ${CMAKE_SOURCE_DIR}/src/gui/form
     ${CMAKE_SOURCE_DIR}/src/gui/rainfall
+    ${CMAKE_SOURCE_DIR}/src/gui/hydrograph
     ${QGIS_INCLUDE_DIR}
     ${QSCISCINTILLA_INCLUDE_DIR}
     ${QWT_INCLUDE}

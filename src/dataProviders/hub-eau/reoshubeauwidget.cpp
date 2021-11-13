@@ -250,7 +250,7 @@ void ReosHubEauWidget::populateMeta( const QVariantMap &meta )
   ui->mTextBrowser->setText( htmlText );
 }
 
-ReosHubEauStationMarker::ReosHubEauStationMarker( ReosMap *map, const QPointF &point ): ReosMapMarker( map, point ) {}
+ReosHubEauStationMarker::ReosHubEauStationMarker( ReosMap *map, const QPointF &point ): ReosMapMarkerFilledCircle( map, point ) {}
 
 ReosDataProviderGuiFactory::GuiCapabilities ReosHubEauHydrometryGuiFactory::capabilities() const
 {

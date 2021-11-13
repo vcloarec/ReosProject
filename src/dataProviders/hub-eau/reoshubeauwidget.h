@@ -40,7 +40,7 @@ class ReosHubEauStationMarker;
 class ReosHydrograph;
 class ReosPlotTimeSerieVariableStep;
 
-class ReosHubEauStationMarker: public ReosMapMarker
+class ReosHubEauStationMarker: public ReosMapMarkerFilledCircle
 {
   public:
     ReosHubEauStationMarker( ReosMap *map, const QPointF &point );

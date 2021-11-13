@@ -24,6 +24,8 @@
 
 class ReosRunoff;
 class ReosWatershed;
+class ReosHydrograph;
+
 
 //! Process abstract class that handle the calculation of the hydrograph an onother thread
 class REOSCORE_EXPORT ReosTransferFunctionCalculation : public ReosProcess
@@ -163,6 +165,7 @@ class REOSCORE_EXPORT ReosTransferFunctionLinearReservoir : public ReosTransferF
     Q_OBJECT
   public:
     ReosTransferFunctionLinearReservoir( ReosWatershed *parent = nullptr );
+    ~ReosTransferFunctionLinearReservoir();
     ReosHydrograph *applyFunction( ReosRunoff *runoff, QObject *hydrographParent = nullptr ) const override;
     QString type() const override {return QStringLiteral( "transfer-function-linear-reservoir" );}
     ReosEncodedElement encode() const override;

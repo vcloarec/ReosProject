@@ -23,7 +23,7 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   ui( new Ui::ReosWatershedWidget ),
   mMap( map ),
   mActionSelectWatershed( new QAction( QPixmap( QStringLiteral( ":/images/selectWatershed.svg" ) ), tr( "Select watershed on map" ), this ) ),
-  mMapToolSelectWatershed( new ReosMapToolSelectMapItem( map, QStringLiteral( "Watershed" ) ) ),
+  mMapToolSelectWatershed( new ReosMapToolSelectMapItem( map, QStringLiteral( "watershed:delineatingPolygon" ) ) ),
   mActionRemoveWatershed( new QAction( QPixmap( QStringLiteral( ":/images/removeWatershed.svg" ) ), tr( "Remove watershed" ), this ) ),
   mActionDelineateWatershed( new QAction( QPixmap( QStringLiteral( ":/images/delineateWatershed.svg" ) ), tr( "Delineate watershed" ), this ) ),
   mDelineatingWidget( new ReosDelineatingWatershedWidget( module, map, this ) ),

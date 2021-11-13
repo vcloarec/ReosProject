@@ -106,7 +106,7 @@ class ReosDelineatingWatershedWidget : public ReosActionWidget
     void updateBurningLines();
 
     ReosMapPolygon mTemporaryManualWatershed;
-    ReosMapMarker mTemporaryManualOutletPoint;
+    ReosMapMarkerFilledCircle mTemporaryManualOutletPoint;
 
     ReosMapPolylineFormater burningLineFormater;
 

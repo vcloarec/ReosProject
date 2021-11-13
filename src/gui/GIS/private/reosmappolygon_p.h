@@ -17,6 +17,7 @@ email                : vcloarec at gmail dot com
 #define REOSMAPPOLYGON_P_H
 
 #include <qgsmapcanvasitem.h>
+#include <qgspointxy.h>
 
 class ReosMapItem;
 
@@ -27,8 +28,9 @@ class ReosMapItem_p: public QgsMapCanvasItem
     virtual ReosMapItem_p *clone() = 0;
 
     virtual void setEditing( bool ) {}
-    virtual void move( const QPointF &translation ) = 0;
+    virtual void translate( const QPointF &translation ) = 0;
     virtual QPointF mapPos() const = 0;
+    virtual void setMapPosition( const QgsPointXY & ) {};
 
     QColor color;
     QColor externalColor;
@@ -38,6 +40,8 @@ class ReosMapItem_p: public QgsMapCanvasItem
     Qt::BrushStyle brushStyle = Qt::NoBrush;
     QColor fillColor;
 
+    bool isHovered = false;
+
     ReosMapItem *base;
 };
 
@@ -45,19 +49,52 @@ class ReosMapMarker_p: public ReosMapItem_p
 {
   public:
     ReosMapMarker_p( QgsMapCanvas *canvas );
-    ReosMapMarker_p *clone() override;
-    QRectF boundingRect() const override;
     void updatePosition() override;
-    QPainterPath shape() const override;
-    void move( const QPointF &translation ) override;
+    void translate( const QPointF &translation ) override;
     QPointF mapPos() const override;
+    QRectF boundingRect() const override;
+    void setMapPosition( const QgsPointXY &pos ) override;;
 
     QPointF mapPoint;
     bool isEmpty = true;
 
   protected:
-    void paint( QPainter *painter ) override;
     QPointF mViewPoint;
+
+};
+
+class ReosMapMarkerFilledCircle_p: public ReosMapMarker_p
+{
+  public:
+    ReosMapMarkerFilledCircle_p( QgsMapCanvas *canvas );
+    ReosMapMarkerFilledCircle_p *clone() override;
+    QPainterPath shape() const override;
+
+  protected:
+    void paint( QPainter *painter ) override;
+};
+
+
+class ReosMapMarkerEmptySquare_p: public ReosMapMarker_p
+{
+  public:
+    ReosMapMarkerEmptySquare_p( QgsMapCanvas *canvas );
+    ReosMapMarkerEmptySquare_p *clone() override;
+    QPainterPath shape() const override;
+
+  protected:
+    void paint( QPainter *painter ) override;
+};
+
+class ReosMapMarkerEmptyCircle_p: public ReosMapMarker_p
+{
+  public:
+    ReosMapMarkerEmptyCircle_p( QgsMapCanvas *canvas );
+    ReosMapMarkerEmptyCircle_p *clone() override;
+    QPainterPath shape() const override;
+
+  protected:
+    void paint( QPainter *painter ) override;
 };
 
 class ReosMapPolygon_p: public ReosMapItem_p
@@ -70,7 +107,7 @@ class ReosMapPolygon_p: public ReosMapItem_p
     void updatePosition() override;
     QPainterPath shape() const override;
     void setEditing( bool b ) override;
-    void move( const QPointF &translation ) override;
+    void translate( const QPointF &translation ) override;
     QPointF mapPos() const override;
 
     // Search a vertex in viex coordinate
@@ -78,6 +115,7 @@ class ReosMapPolygon_p: public ReosMapItem_p
 
     void activeMarker( bool b );
     void setMarkerDistance( double d );
+    void setMarkerArrow( bool b );
 
     QPolygonF mapPolygon;
 
@@ -86,7 +124,8 @@ class ReosMapPolygon_p: public ReosMapItem_p
     QPolygonF mViewPolygon;
     bool mIsEditing = false;
     bool mIsMarkerActive = false;
-    bool mIsMarkerOnLine = false;
+    int mSegmentMarker = -1;
+    bool mMarkerArrow = false;
     QPointF mMarkerposition;
     QPointF mMarkerPositionOnView;
 
@@ -100,8 +139,11 @@ class ReosMapPolyline_p: public ReosMapPolygon_p
     ReosMapPolyline_p( QgsMapCanvas *canvas );
     ReosMapPolyline_p *clone() override;
 
+    void setExtremityDistance( double d );
+
   private:
     void draw( QPainter *painter ) override;
+    double mExtremityDistance = 0;
 };
 
 #endif // REOSMAPPOLYGON_P_H

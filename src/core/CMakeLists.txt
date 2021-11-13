@@ -186,6 +186,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/rainfall
     ${CMAKE_SOURCE_DIR}/src/core/raster
     ${CMAKE_SOURCE_DIR}/src/core/watershed
+    ${CMAKE_SOURCE_DIR}/src/core/hydrograph
 
     ${QGIS_INCLUDE_DIR}
 )

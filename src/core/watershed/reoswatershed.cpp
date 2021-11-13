@@ -18,6 +18,7 @@ email                : vcloarec at gmail dot com
 #include "reosrunoffmodel.h"
 #include "reostransferfunction.h"
 #include "reosdigitalelevationmodel.h"
+#include "reossyntheticrainfall.h"
 #include "reoshydrograph.h"
 
 
@@ -182,6 +183,7 @@ void ReosWatershed::setOutletPoint( const QPointF &outletPoint )
     return;
 
   mOutletPoint = outletPoint;
+  emit changed();
 }
 
 int ReosWatershed::upstreamWatershedCount() const
@@ -1011,6 +1013,20 @@ ReosConcentrationTimeCalculation ReosWatershed::concentrationTimeCalculation() c
 void ReosWatershed::setConcentrationTimeCalculation( const ReosConcentrationTimeCalculation &concentrationTimeCalculation )
 {
   mConcentrationTimeCalculation = concentrationTimeCalculation;
+}
+
+ReosHydrograph *ReosWatershed::createHydrograph( ReosSerieRainfall *rainfall, QObject *hydrographParent )
+{
+  if ( !rainfall )
+    return nullptr;
+
+  std::unique_ptr<ReosRunoff> runoff = std::make_unique<ReosRunoff>( mRunoffModels, rainfall );
+  runoff->updateValues();
+
+  std::unique_ptr<ReosHydrograph> hydrograph;
+  hydrograph.reset( currentTransferFunction()->applyFunction( runoff.get(), hydrographParent ) );
+
+  return hydrograph.release();
 }
 
 ReosGisEngine *ReosWatershed::geographicalContext() const

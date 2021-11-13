@@ -24,6 +24,7 @@ email                : vcloarec at gmail dot com
 #include "reoswatershedtree.h"
 #include "reos_testutils.h"
 #include "reosexporttovectorfile.h"
+#include "reoshydrograph.h"
 
 
 class ReosWatersehdTest: public QObject

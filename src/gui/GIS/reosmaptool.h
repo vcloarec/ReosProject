@@ -31,6 +31,7 @@ class ReosMenuPopulator;
 
 class ReosMapTool : public QObject
 {
+    Q_OBJECT
   public:
     virtual ~ReosMapTool();
     void activate();
@@ -49,6 +50,15 @@ class ReosMapTool : public QObject
 
     //! Sets context menu populator, take ownership
     void setContextMenuPopulator( ReosMenuPopulator *populator );
+
+    //! Sets whether item have to be search when moving the map tool
+    void setSearchItemWhenMoving( bool b );
+
+    //! Sets a description of the item element that have to be search
+    void setSearchingItemDecription( const QString &description );
+
+  signals:
+    void itemFoundWhenMoving( ReosMapItem *item );
 
   protected:
     ReosMapTool( ReosMap *map );
@@ -151,7 +161,6 @@ class ReosMapToolSelectMapItem : public ReosMapTool
 {
     Q_OBJECT
   public:
-    ReosMapToolSelectMapItem( ReosMap *map, int targetType = -1 );
     ReosMapToolSelectMapItem( ReosMap *map, const QString &targetDescription );
     ~ReosMapToolSelectMapItem();
 

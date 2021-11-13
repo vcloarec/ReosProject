@@ -28,13 +28,13 @@ email                : vcloarec at gmail dot com
 #include "reosencodedelement.h"
 #include "reosparameter.h"
 #include "reosconcentrationtimecalculation.h"
+#include "reoshydrograph.h"
 
 class ReosGisEngine;
 class ReosRunoffModelsGroup;
 class ReosTransferFunction;
-class ReosHydrographStore;
-class ReosHydrograph;
 class ReosSerieRainfall;
+class ReosHydrograph;
 
 class REOSCORE_EXPORT ReosWatershed: public QObject
 {
@@ -210,6 +210,9 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
     ReosParameterDuration *concentrationTime() const;
     ReosConcentrationTimeCalculation concentrationTimeCalculation() const;
     void setConcentrationTimeCalculation( const ReosConcentrationTimeCalculation &concentrationTimeCalculation );
+
+    //! Creates a hydrograph from the \a rainfall, caller has to take ownership if \æ hydrograph parent is not specified
+    ReosHydrograph *createHydrograph( ReosSerieRainfall *rainfall, QObject *hydrographParent = nullptr );
 
     ReosEncodedElement encode() const;
     static ReosWatershed *decode( const ReosEncodedElement &element );

@@ -70,6 +70,16 @@ void ReosMapTool::setContextMenuPopulator( ReosMenuPopulator *populator )
   tool_p()->setContextMenuPopulator( populator );
 }
 
+void ReosMapTool::setSearchingItemDecription( const QString &description )
+{
+  tool_p()->setSearchTargetDescription( description );
+}
+
+void ReosMapTool::setSearchItemWhenMoving( bool b )
+{
+  tool_p()->setSeachWhenMoving( b );
+}
+
 ReosMapToolDrawPolyRubberBand::ReosMapToolDrawPolyRubberBand( ReosMap *map, bool closed ): ReosMapTool( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
@@ -171,18 +181,11 @@ void ReosMapToolDrawExtent::setLineStyle( Qt::PenStyle style )
   d->mRubberBand->setLineStyle( style );
 }
 
-ReosMapToolSelectMapItem::ReosMapToolSelectMapItem( ReosMap *map, int targetType ): ReosMapTool( map )
-{
-  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
-  d = new ReosMapToolSelectMapItem_p( canvas, targetType );
-  d->setCursor( QCursor( QPixmap( ":/cursors/removeItem.png" ), 3, 3 ) );
-  connect( d, &ReosMapToolSelectMapItem_p::found, this, &ReosMapToolSelectMapItem::found );
-}
-
 ReosMapToolSelectMapItem::ReosMapToolSelectMapItem( ReosMap *map, const QString &targetDescription ): ReosMapTool( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolSelectMapItem_p( canvas, targetDescription );
+  d->setCursor( QCursor( QPixmap( ":/cursors/removeItem.png" ), 3, 3 ) );
   connect( d, &ReosMapToolSelectMapItem_p::found, this, &ReosMapToolSelectMapItem::found );
 }
 

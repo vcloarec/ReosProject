@@ -31,6 +31,7 @@ email                : vcloarec at gmail dot com
 
 class ReosMapTool_p: public QgsMapTool
 {
+    Q_OBJECT
   public:
     ReosMapTool_p( QgsMapCanvas *canvas );
     void activate() override;
@@ -40,13 +41,34 @@ class ReosMapTool_p: public QgsMapTool
     //! Sets context menu populator, take ownership
     void setContextMenuPopulator( ReosMenuPopulator *populator );
 
+    //! Sets if the search of item is under only a point or under a zone arround the point
+    void setSearchUnderPoint( bool underPoint );
+
+    //! Sets the size of the search zone
+    void setSearchZoneSize( const QSizeF &size );
+
+    void setSearchTargetDescription( const QString &description );
+
+    void setSeachWhenMoving( bool seachWhenMoving );
+
+  signals:
+    void foundItemWhenMoving( ReosMapItem_p *item );
+
   protected:
+    void canvasMoveEvent( QgsMapMouseEvent *e ) override;
+
+
     QRectF viewSearchZone( const QPoint &pt );
+    ReosMapItem_p *searchItem( const QPointF &p ) const;
+    ReosMapItem_p *mFoundItem = nullptr;
 
   private:
     std::unique_ptr<ReosMenuPopulator> mContextMenuPopulator;
+    QSizeF mSearchZone = QSizeF( 12, 12 );
+    bool mSeachWhenMoving = false;
 
-    QSize mSearchZone = QSize( 18, 18 );
+    bool mUnderPoint = false;
+    QString mTargetDescritpion;
 };
 
 class ReosMapToolDrawPoint_p: public ReosMapTool_p
@@ -115,13 +137,10 @@ class ReosMapToolSelectMapItem_p: public ReosMapTool_p
 {
     Q_OBJECT
   public:
-    ReosMapToolSelectMapItem_p( QgsMapCanvas *map, int targetType = -1 );
     ReosMapToolSelectMapItem_p( QgsMapCanvas *map, const QString &targetDescription );
 
     void canvasReleaseEvent( QgsMapMouseEvent *e ) override;
     bool populateContextMenuWithEvent( QMenu *menu,  QgsMapMouseEvent *event ) override;
-
-    void setSearchUnderPoint( bool underPoint );
 
     Flags flags() const override { return ShowContextMenu; }
 
@@ -130,8 +149,6 @@ class ReosMapToolSelectMapItem_p: public ReosMapTool_p
 
   private:
     int mTargetType = -1;
-    QString mTargetDescritpion;
-    bool mUnderPoint = false;
 };
 
 class ReosMapToolEditPolygon_p: public ReosMapTool_p
@@ -185,8 +202,68 @@ class ReosMapToolMoveItem_p: public ReosMapTool_p
     QPointF mStartPoint;
     QColor mMovingColor;
 
-    bool searchItem( const QPoint &p );
+    bool isItemUnderPoint( const QPoint &p );
+};
 
+
+class ReosMapToolDrawHydraulicNetworkLink_p: public ReosMapTool_p
+{
+    Q_OBJECT
+  public:
+    ReosMapToolDrawHydraulicNetworkLink_p( QgsMapCanvas *mapCanvas );
+
+    void appendItem( ReosMapItem_p *item );
+
+    QList<ReosMapItem_p *> mLinkedItems;
+    QgsRubberBand *mRubberBand = nullptr;
+
+  signals:
+    void itemSelected( ReosMapItem_p *item );
+
+  protected:
+    void canvasMoveEvent( QgsMapMouseEvent *e ) override;
+    void canvasReleaseEvent( QgsMapMouseEvent * ) override;
+};
+
+
+class ReosMapToolMoveHydraulicNetworkNode_p: public ReosMapTool_p
+{
+    Q_OBJECT
+  public:
+    ReosMapToolMoveHydraulicNetworkNode_p( QgsMapCanvas *map ): ReosMapTool_p( map )
+    {}
+
+    void setCurrentItem( ReosMapItem_p *item );
+  protected:
+    void canvasPressEvent( QgsMapMouseEvent *event ) override
+    {
+      ReosMapItem_p *item = searchItem( event->localPos() );
+      if ( item )
+        mCurrentItem = item;
+      else
+        mCurrentItem = nullptr;
+    }
+
+    void canvasMoveEvent( QgsMapMouseEvent *e ) override
+    {
+      if ( mCurrentItem )
+        emit itemMoved( mCurrentItem->base->description(), e->mapPoint().toQPointF() );
+      else
+        ReosMapTool_p::canvasMoveEvent( e );
+    }
+
+    void canvasReleaseEvent( QgsMapMouseEvent *e ) override
+    {
+      if ( mCurrentItem )
+        emit itemMoved( mCurrentItem->base->description(), e->mapPoint().toQPointF() );
+
+      mCurrentItem = nullptr;
+    }
+  signals:
+    void itemMoved( const QString &decription, const QPointF &position );
+
+  private:
+    ReosMapItem_p *mCurrentItem;
 };
 
 #endif // REOSMAPTOOL_P_H

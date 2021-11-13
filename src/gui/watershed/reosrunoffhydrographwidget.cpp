@@ -356,6 +356,7 @@ void ReosRunoffHydrographWidget::updateHydrograph()
       QApplication::setOverrideCursor( Qt::WaitCursor );
       calculation->start();
       mCurrentHydrograph = calculation->hydrograph();
+      mCurrentHydrograph->setColor( Qt::red );
       QApplication::restoreOverrideCursor();
     }
   }

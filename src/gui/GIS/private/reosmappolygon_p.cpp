@@ -16,6 +16,7 @@ email                : vcloarec at gmail dot com
 #include "reosmappolygon_p.h"
 
 #include <QPainter>
+#include <QVector2D>
 #include <qgspoint.h>
 
 ReosMapPolygon_p::ReosMapPolygon_p( QgsMapCanvas *canvas ):
@@ -63,7 +64,7 @@ void ReosMapPolygon_p::updatePosition()
   }
   setPos( pview0 );
 
-  if ( mIsMarkerOnLine )
+  if ( mSegmentMarker >= 0 )
     mMarkerPositionOnView = toCanvasCoordinates( QgsPoint( mMarkerposition ) );
 }
 
@@ -81,7 +82,7 @@ void ReosMapPolygon_p::setEditing( bool b )
   update();
 }
 
-void ReosMapPolygon_p::move( const QPointF &translation )
+void ReosMapPolygon_p::translate( const QPointF &translation )
 {
   QPolygonF newPoints( mapPolygon.size() );
 
@@ -118,7 +119,7 @@ void ReosMapPolygon_p::setMarkerDistance( double d )
 {
   if ( !mIsMarkerActive || d < 0 || mapPolygon.empty() )
   {
-    mIsMarkerOnLine = false;
+    mSegmentMarker = -1;
     updatePosition();
     return;
   }
@@ -135,18 +136,18 @@ void ReosMapPolygon_p::setMarkerDistance( double d )
 
   if ( d > distFromBegin )
   {
-    mIsMarkerOnLine = false;
+    mSegmentMarker = -1;
     updatePosition();
     return;
   }
 
   if ( i >= mapPolygon.count() - 1 )
   {
-    mIsMarkerOnLine = false;
+    mSegmentMarker = -1;
     updatePosition();
     return;
   }
-  mIsMarkerOnLine = true;
+  mSegmentMarker = i;
   const QPointF &p1 = mapPolygon.at( i );
   const QPointF &p2 = mapPolygon.at( i + 1 );
   double segDist = sqrt( pow( p1.x() - p2.x(), 2 ) + pow( p1.y() - p2.y(), 2 ) );
@@ -156,24 +157,70 @@ void ReosMapPolygon_p::setMarkerDistance( double d )
   updatePosition();
 }
 
+void ReosMapPolygon_p::setMarkerArrow( bool b )
+{
+  mMarkerArrow = b;
+}
+
 void ReosMapPolygon_p::paint( QPainter *painter )
 {
   painter->save();
   QPen pen;
+  pen.setJoinStyle( Qt::RoundJoin );
+
+  QVector2D dir;
+  QVector2D normDir;
+  double arrowSize = 2 * width;
+  if ( mSegmentMarker > -1 )
+  {
+    dir = QVector2D( mViewPolygon.at( mSegmentMarker + 1 ) - mViewPolygon.at( mSegmentMarker ) );
+    dir.normalize();
+    normDir = QVector2D( dir.y(), -dir.x() );
+  }
+
+  QColor colorToApply = isHovered ? color.lighter( 150 ) : color;
+  QColor externalColorToApply = isHovered ? externalColor.lighter( 150 ) : externalColor;
+
 
   if ( externalWidth > width )
   {
     pen.setWidthF( externalWidth );
-    pen.setColor( externalColor );
+    pen.setColor( externalColorToApply );
     QBrush brush( Qt::NoBrush );
     painter->setBrush( brush );
     painter->setPen( pen );
     draw( painter );
+
+    if ( mSegmentMarker >= 0 )
+    {
+      QBrush brush( Qt::SolidPattern );
+      brush.setColor( externalColorToApply );
+      pen.setWidthF( externalWidth );
+      painter->setBrush( brush );
+
+      if ( mMarkerArrow )
+      {
+        QVector2D dir;
+        QVector2D normDir;
+        dir = QVector2D( mViewPolygon.at( mSegmentMarker + 1 ) - mViewPolygon.at( mSegmentMarker ) );
+        dir.normalize();
+        normDir = QVector2D( dir.y(), -dir.x() );
+        QPolygonF arrow( 3 );
+        QPointF arrowPos = mMarkerPositionOnView - dir.toPointF() * arrowSize - pos();
+        arrow[0] =  arrowPos + dir.toPointF() * arrowSize * 2;
+        arrow[1] = arrowPos + normDir.toPointF() * arrowSize;
+        arrow[2] = arrowPos - normDir.toPointF() * arrowSize;
+        painter->setPen( pen );
+        painter->drawPolygon( arrow );
+      }
+
+      pen.setStyle( Qt::SolidLine );
+    }
+
   }
 
-
   pen.setWidthF( width );
-  pen.setColor( color );
+  pen.setColor( colorToApply );
   pen.setStyle( style );
   QBrush brush( brushStyle );
   brush.setColor( fillColor );
@@ -183,7 +230,6 @@ void ReosMapPolygon_p::paint( QPainter *painter )
 
   if ( mIsEditing )
   {
-
     pen.setWidthF( 1 );
     QBrush brush( Qt::SolidPattern );
     brush.setColor( externalColor );
@@ -208,21 +254,35 @@ void ReosMapPolygon_p::paint( QPainter *painter )
 
   }
 
-  if ( mIsMarkerOnLine )
+  if ( mSegmentMarker >= 0 )
   {
-    pen.setWidthF( 1 );
     QBrush brush( Qt::SolidPattern );
-    brush.setColor( externalColor );
-    painter->setBrush( brush );
+    brush.setColor( colorToApply );
     painter->setPen( pen );
-    painter->drawEllipse( mMarkerPositionOnView - pos(), externalWidth, externalWidth );
+    painter->setBrush( brush );
+    brush.setColor( colorToApply );
 
-    pen.setColor( color );
-    brush.setColor( color );
-    painter->setBrush( brush );
-    painter->setPen( pen );
-    painter->drawEllipse( mMarkerPositionOnView - pos(), width, width );
+    if ( mMarkerArrow )
+    {
+      QPolygonF arrow( 3 );
+      QPointF arrowPos = mMarkerPositionOnView - dir.toPointF() * arrowSize - pos();
+      arrow[0] =  arrowPos + dir.toPointF() * arrowSize * 2;
+      arrow[1] = arrowPos + normDir.toPointF() * arrowSize;
+      arrow[2] = arrowPos - normDir.toPointF() * arrowSize;
+      painter->setPen( pen );
+      painter->drawPolygon( arrow );
+    }
+    else
+    {
+      pen.setWidthF( width / 2 );
+      pen.setColor( externalColorToApply );
+      painter->setPen( pen );
+      painter->drawEllipse( mMarkerPositionOnView - pos(), externalWidth, externalWidth );
+    }
+
+    pen.setStyle( Qt::SolidLine );
   }
+
 
   painter->restore();
 }
@@ -249,17 +309,46 @@ ReosMapPolyline_p *ReosMapPolyline_p::clone()
   return other;
 }
 
-void ReosMapPolyline_p::draw( QPainter *painter )
+void ReosMapPolyline_p::setExtremityDistance( double d )
 {
-  painter->drawPolyline( mViewPolygon );
+  mExtremityDistance = d;
 }
 
-ReosMapMarker_p::ReosMapMarker_p( QgsMapCanvas *canvas ): ReosMapItem_p( canvas )
+void ReosMapPolyline_p::draw( QPainter *painter )
+{
+  if ( mExtremityDistance > 0 && mViewPolygon.count() >= 2 )
+  {
+    QPolygonF polylineToDraw = mViewPolygon;
+
+    QPointF firstPoint = mViewPolygon.first();
+    QPointF secondPoint = mViewPolygon.at( 1 );
+    QPointF lastPoint = mViewPolygon.last();
+    QPointF beforeLastPoint = mViewPolygon.at( mViewPolygon.count() - 2 );
+
+    QPointF firstDir = secondPoint - firstPoint;
+    QPointF lastDir = beforeLastPoint - lastPoint;
+
+    double d1 = std::sqrt( firstDir.x() * firstDir.x() + firstDir.y() * firstDir.y() );
+    double d2 = std::sqrt( lastDir.x() * lastDir.x() + lastDir.y() * lastDir.y() );
+
+    firstPoint = firstPoint + firstDir / d1 * mExtremityDistance;
+    lastPoint = lastPoint + lastDir / d2 * mExtremityDistance;
+
+    polylineToDraw[0] = firstPoint;
+    polylineToDraw[polylineToDraw.count() - 1] = lastPoint;
+
+    painter->drawPolyline( polylineToDraw );
+  }
+  else
+    painter->drawPolyline( mViewPolygon );
+}
+
+ReosMapMarkerFilledCircle_p::ReosMapMarkerFilledCircle_p( QgsMapCanvas *canvas ): ReosMapMarker_p( canvas )
 {}
 
-ReosMapMarker_p *ReosMapMarker_p::clone()
+ReosMapMarkerFilledCircle_p *ReosMapMarkerFilledCircle_p::clone()
 {
-  ReosMapMarker_p *other = new ReosMapMarker_p( mMapCanvas );
+  ReosMapMarkerFilledCircle_p *other = new ReosMapMarkerFilledCircle_p( mMapCanvas );
   other->color = color;
   other->externalColor = externalColor;
   other->width = width;
@@ -276,8 +365,19 @@ QRectF ReosMapMarker_p::boundingRect() const
   if ( isEmpty )
     return QRectF();
 
-  double w = std::max( externalWidth, width );
+  double w = std::max( externalWidth, width ) + 2;
   return QRectF( mViewPoint - QPointF( w / 2, w / 2 ), QSizeF( w, w ) );
+}
+
+void ReosMapMarker_p::setMapPosition( const QgsPointXY &pos )
+{
+  mapPoint = pos.toQPointF();
+  updatePosition();
+}
+
+ReosMapMarker_p::ReosMapMarker_p( QgsMapCanvas *canvas ): ReosMapItem_p( canvas )
+{
+
 }
 
 void ReosMapMarker_p::updatePosition()
@@ -288,7 +388,7 @@ void ReosMapMarker_p::updatePosition()
   mViewPoint = toCanvasCoordinates( mapPoint );
 }
 
-QPainterPath ReosMapMarker_p::shape() const
+QPainterPath ReosMapMarkerFilledCircle_p::shape() const
 {
   if ( isEmpty )
     return QPainterPath();
@@ -297,7 +397,7 @@ QPainterPath ReosMapMarker_p::shape() const
   return path;
 }
 
-void ReosMapMarker_p::move( const QPointF &translation )
+void ReosMapMarker_p::translate( const QPointF &translation )
 {
   mapPoint += translation;
   updatePosition();
@@ -305,13 +405,14 @@ void ReosMapMarker_p::move( const QPointF &translation )
 
 QPointF ReosMapMarker_p::mapPos() const {return mapPoint;}
 
-void ReosMapMarker_p::paint( QPainter *painter )
+void ReosMapMarkerFilledCircle_p::paint( QPainter *painter )
 {
   if ( isEmpty )
     return;
 
   painter->save();
   QPen pen;
+  pen.setStyle( Qt::NoPen );
   if ( externalWidth > width )
   {
     pen.setColor( externalColor );
@@ -329,3 +430,118 @@ void ReosMapMarker_p::paint( QPainter *painter )
   painter->drawEllipse( mViewPoint, width / 2, width / 2 );
   painter->restore();
 }
+
+ReosMapMarkerEmptySquare_p::ReosMapMarkerEmptySquare_p( QgsMapCanvas *canvas ):  ReosMapMarker_p( canvas )
+{}
+
+ReosMapMarkerEmptySquare_p *ReosMapMarkerEmptySquare_p::clone()
+{
+  ReosMapMarkerEmptySquare_p *other = new ReosMapMarkerEmptySquare_p( mMapCanvas );
+  other->color = color;
+  other->externalColor = externalColor;
+  other->width = width;
+  other->externalWidth = externalWidth;
+  other->style = style;
+  other->mapPoint = mapPoint;
+  other->isEmpty = isEmpty;
+  other->updatePosition();
+  return other;
+}
+
+QPainterPath ReosMapMarkerEmptySquare_p::shape() const
+{
+  if ( isEmpty )
+    return QPainterPath();
+  QPen pen;
+  QPainterPath path;
+  double squareWidth = ( externalWidth + width ) / 2;
+  QRectF square( mViewPoint - QPointF( squareWidth / 2, squareWidth / 2 ), QSize( squareWidth, squareWidth ) );
+  pen.setWidth( std::max( 0.0, externalWidth - width ) );
+  QPainterPathStroker pps( pen );
+  path.addRect( square );
+  return pps.createStroke( path );
+}
+
+void ReosMapMarkerEmptySquare_p::paint( QPainter *painter )
+{
+  if ( isEmpty )
+    return;
+
+  painter->save();
+  QPen pen;
+
+  double squareWidth = ( externalWidth + width ) / 2;
+  QRectF square( mViewPoint - QPointF( squareWidth / 2, squareWidth / 2 ), QSize( squareWidth, squareWidth ) );
+
+  pen.setWidth( std::max( 0.0, externalWidth - width ) );
+  pen.setColor( isHovered ? externalColor.lighter() : externalColor );
+  QBrush brush( Qt::NoBrush );
+  painter->setBrush( brush );
+  painter->setPen( pen );
+
+  painter->drawRect( square );
+
+  pen.setColor( isHovered ? color.lighter() : color );
+  pen.setWidth( std::max( 0.0, externalWidth - width ) / 2 );
+  painter->setPen( pen );
+  painter->drawRect( square );
+  painter->restore();
+}
+
+ReosMapMarkerEmptyCircle_p::ReosMapMarkerEmptyCircle_p( QgsMapCanvas *canvas ):  ReosMapMarker_p( canvas )
+{}
+
+ReosMapMarkerEmptyCircle_p *ReosMapMarkerEmptyCircle_p::clone()
+{
+  ReosMapMarkerEmptyCircle_p *other = new ReosMapMarkerEmptyCircle_p( mMapCanvas );
+  other->color = color;
+  other->externalColor = externalColor;
+  other->width = width;
+  other->externalWidth = externalWidth;
+  other->style = style;
+  other->mapPoint = mapPoint;
+  other->isEmpty = isEmpty;
+  other->updatePosition();
+  return other;
+}
+
+QPainterPath ReosMapMarkerEmptyCircle_p::shape() const
+{
+  if ( isEmpty )
+    return QPainterPath();
+  QPen pen;
+  QPainterPath path;
+  double squareWidth = ( externalWidth + width ) / 2;
+  QRectF square( mViewPoint - QPointF( squareWidth / 2, squareWidth / 2 ), QSize( squareWidth, squareWidth ) );
+  pen.setWidth( std::max( 0.0, externalWidth - width ) );
+  QPainterPathStroker pps( pen );
+  path.addEllipse( square );
+  return pps.createStroke( path );
+}
+
+void ReosMapMarkerEmptyCircle_p::paint( QPainter *painter )
+{
+  if ( isEmpty )
+    return;
+
+  painter->save();
+  QPen pen;
+
+  double circleWidth = ( externalWidth + width ) / 2;
+  QRectF square( mViewPoint - QPointF( circleWidth / 2, circleWidth / 2 ), QSize( circleWidth, circleWidth ) );
+
+  pen.setWidth( std::max( 0.0, externalWidth - width ) );
+  pen.setColor( isHovered ? externalColor.lighter() : externalColor );
+  QBrush brush( Qt::NoBrush );
+  painter->setBrush( brush );
+  painter->setPen( pen );
+
+  painter->drawEllipse( square );
+
+  pen.setColor( isHovered ? color.lighter() : color );
+  pen.setWidth( std::max( 0.0, externalWidth - width ) / 2 );
+  painter->setPen( pen );
+  painter->drawEllipse( square );
+  painter->restore();
+}
+

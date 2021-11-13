@@ -85,11 +85,11 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
       MapWatershed( ReosMap *map, const QPolygonF &delineat, const QPointF &outletPt )
       {
         delineating = std::make_shared<ReosMapPolygon>( map, delineat );
-        outletPoint = std::make_shared<ReosMapMarker>( map, outletPt );
+        outletPoint = std::make_shared<ReosMapMarkerFilledCircle>( map, outletPt );
       }
 
       std::shared_ptr<ReosMapPolygon> delineating;
-      std::shared_ptr<ReosMapMarker> outletPoint;
+      std::shared_ptr<ReosMapMarkerFilledCircle> outletPoint;
     };
 
     using MapWatersheds = QMap<ReosWatershed *, MapWatershed>;

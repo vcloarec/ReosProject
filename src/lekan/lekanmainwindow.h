@@ -54,17 +54,17 @@ class LekanMainWindow : public ReosMainWindow
     bool saveProject() override;
     void clearProject() override;
     void checkExtraProjectToSave() override;
-    ReosVersion version() const {return lekanVersion;}
+    ReosVersion version() const override {return lekanVersion;}
     QString projectFileFilter()  const override;
 
     QFileInfo gisFileInfo() const;
 
-    ReosGisEngine *mGisEngine;
+    ReosGisEngine *mGisEngine = nullptr;
     ReosMap *mMap = nullptr;
     ReosWatershedModule *mWatershedModule = nullptr;
 
-    QDockWidget *mGisDock;
-    QDockWidget *mDockWatershed;
+    QDockWidget *mGisDock = nullptr;
+    QDockWidget *mDockWatershed = nullptr;
     QDockWidget *mDockMessageBox;
 
     QList<QMenu *> specificMenus() override;

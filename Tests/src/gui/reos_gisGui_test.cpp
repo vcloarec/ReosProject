@@ -47,7 +47,7 @@ void ReosGisGuiTest::mapItemToolCreationDeletation()
   map = new ReosMap( gisEngine.get(), &placeHolderWidget );
 
   // Destruct map before item or tool
-  ReosMapMarker *markerP = new ReosMapMarker( map );
+  ReosMapMarkerFilledCircle *markerP = new ReosMapMarkerFilledCircle( map );
   QPointer<ReosMapToolDrawExtent> toolExtent = new ReosMapToolDrawExtent( map );
   delete map;
 
@@ -59,7 +59,7 @@ void ReosGisGuiTest::mapItemToolCreationDeletation()
 
   // Destruct item or tool before map
   map = new ReosMap( gisEngine.get(), &placeHolderWidget );
-  markerP = new ReosMapMarker( map );
+  markerP = new ReosMapMarkerFilledCircle( map );
   toolExtent = new ReosMapToolDrawExtent( map );
 
   delete markerP;
