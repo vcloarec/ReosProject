@@ -38,7 +38,7 @@ namespace Ui
   class ReosDelftFewsWidget;
 }
 
-class ReosDelftFewsStationMarker: public ReosMapMarker
+class ReosDelftFewsStationMarker: public ReosMapMarkerFilledCircle
 {
   public:
     ReosDelftFewsStationMarker( ReosMap *map, const QPointF &point );

@@ -64,6 +64,26 @@ ReosEncodedElement ReosStationItem::encode() const
   return element;
 }
 
+QPointF ReosStationItem::position() const
+{
+    return mPosition;
+}
+
+void ReosStationItem::setPosition(const QPointF &position)
+{
+    mPosition = position;
+}
+
+QString ReosStationItem::crsPosition() const
+{
+    return mCrsPosition;
+}
+
+void ReosStationItem::setCrsPosition(const QString &crsPosition)
+{
+    mCrsPosition = crsPosition;
+}
+
 ReosRainfallItem::~ReosRainfallItem() = default;
 
 QString ReosRainfallItem::name() const {return mName->value();}

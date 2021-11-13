@@ -43,10 +43,12 @@
 #include "reosplotidfcurve.h"
 #include "reosplottimeconstantinterval.h"
 #include "reosrainfalldataform.h"
+#include "reosdataprovidergui.h"
 
-ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWidget *parent ) :
+ReosRainfallManager::ReosRainfallManager( ReosMap *map, ReosRainfallModel *rainfallmodel, QWidget *parent ) :
   ReosActionWidget( parent )
   , ui( new Ui::ReosRainfallManager )
+  , mMap( map )
   , mModel( rainfallmodel )
   , mActionOpenRainfallDataFile( new QAction( QPixmap( QStringLiteral( ":/images/openRainfall.svg" ) ), tr( "Open Rainfal Data File" ), this ) )
   , mActionSaveRainfallDataFile( new QAction( QPixmap( QStringLiteral( ":/images/saveRainfall.svg" ) ), tr( "Save Rainfal Data File" ), this ) )
@@ -83,6 +85,8 @@ ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWid
   toolBar->addAction( mActionSaveAsRainfallDataFile );
   toolBar->addAction( mActionAddRootZone );
   toolBar->addAction( mActionImportFromTextFile );
+
+  populateProviderActions( toolBar );
 
   connect( mActionOpenRainfallDataFile, &QAction::triggered, this, &ReosRainfallManager::onOpenRainfallFile );
   connect( mActionSaveRainfallDataFile, &QAction::triggered, this, &ReosRainfallManager::saveRainfallFile );
@@ -222,6 +226,44 @@ bool ReosRainfallManager::addSimpleItemDialog( const QString &title, QString &na
   }
 
   return false;
+}
+
+void ReosRainfallManager::populateProviderActions( QToolBar *toolBar )
+{
+  if ( !toolBar->actions().isEmpty() )
+    toolBar->addSeparator();
+
+  const QString dataType = QStringLiteral( "rainfall" );
+
+  ReosDataProviderGuiRegistery *registery = ReosDataProviderGuiRegistery::instance();
+
+  const QStringList providers =
+    registery->providers( dataType, ReosDataProviderGuiFactory::GuiCapability::DataSelector );
+
+  for ( const QString &providerKey : providers )
+  {
+    QAction *action = toolBar->addAction( registery->providerIcon( providerKey ), registery->providerDisplayText( providerKey ) );
+    action->setCheckable( true );
+    connect( action, &QAction::triggered, this, [this, providerKey]
+    {
+      showProviderSelector( providerKey );
+    } );
+  }
+}
+
+void ReosRainfallManager::showProviderSelector( const QString &providerKey )
+{
+  const QString dataType = QStringLiteral( "rainfall" );
+  ReosDataProviderGuiRegistery *registery = ReosDataProviderGuiRegistery::instance();
+
+  if ( mCurrentProviderSelector )
+  {
+    ui->mProviderLayout->removeWidget( mCurrentProviderSelector );
+    delete mCurrentProviderSelector;
+  }
+  mCurrentProviderSelector = registery->createProviderSelectorWidget( providerKey, dataType, mMap, this );
+  ui->mProviderLayout->addWidget( mCurrentProviderSelector );
+  ui->stackedWidget->setCurrentIndex( 1 );
 }
 
 void ReosRainfallManager::onSaveAsRainfallFile()

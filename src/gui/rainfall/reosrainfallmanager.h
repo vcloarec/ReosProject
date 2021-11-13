@@ -33,6 +33,7 @@ class ReosRainfallModel;
 class ReosRainfallDataItem;
 class ReosStationItem;
 class ReosPlotWidget;
+class ReosMap;
 
 
 //! Widget to handle rainfall data
@@ -41,7 +42,7 @@ class REOSGUI_EXPORT ReosRainfallManager : public ReosActionWidget
     Q_OBJECT
 
   public:
-    explicit ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWidget *parent = nullptr );
+    explicit ReosRainfallManager( ReosMap *map, ReosRainfallModel *rainfallmodel, QWidget *parent = nullptr );
     ~ReosRainfallManager();
 
     //! Loads the data file defined on settings
@@ -71,6 +72,7 @@ class REOSGUI_EXPORT ReosRainfallManager : public ReosActionWidget
 
   private:
     Ui::ReosRainfallManager *ui;
+    ReosMap *mMap = nullptr;
     ReosRainfallModel *mModel = nullptr;
     QAction *mAction;
 
@@ -88,8 +90,9 @@ class REOSGUI_EXPORT ReosRainfallManager : public ReosActionWidget
     QAction *mActionAddIDCurve = nullptr;
     QAction *mActionReorderIdVurve = nullptr;
     QAction *mActionRemoveItem = nullptr;
-
     QAction *mActionImportFromTextFile = nullptr;
+
+    QWidget *mCurrentProviderSelector = nullptr;
 
     ReosFormWidget *mCurrentForm = nullptr;
     ReosPlotWidget *mCurrentPlot = nullptr;
@@ -100,6 +103,9 @@ class REOSGUI_EXPORT ReosRainfallManager : public ReosActionWidget
     QList<QAction *> dataItemActions( ReosRainfallDataItem *dataItem );
 
     bool addSimpleItemDialog( const QString &title, QString &name, QString &description );
+
+    void populateProviderActions( QToolBar *toolBar );
+    void showProviderSelector( const QString &providerKey );
 };
 
 class ReosTextFileData;

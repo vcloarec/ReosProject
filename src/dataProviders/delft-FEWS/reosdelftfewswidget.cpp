@@ -460,7 +460,7 @@ ReosDelftFewsStation ReosDelftFewsStationsModel::station( int i ) const
   return mStations.at( i );
 }
 
-ReosDelftFewsStationMarker::ReosDelftFewsStationMarker( ReosMap *map, const QPointF &point ): ReosMapMarker( map, point )
+ReosDelftFewsStationMarker::ReosDelftFewsStationMarker( ReosMap *map, const QPointF &point ): ReosMapMarkerFilledCircle( map, point )
 {
   setColor( QColor( 92, 142, 177 ) );
   setWidth( 10 );

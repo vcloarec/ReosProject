@@ -183,6 +183,16 @@ class REOSCORE_EXPORT ReosStationItem: public ReosRainfallItem
 
     virtual ReosEncodedElement encode() const override;
 
+    QPointF position() const;
+    void setPosition( const QPointF &position );
+
+    QString crsPosition() const;
+    void setCrsPosition( const QString &crsPosition );
+
+  private:
+    QPointF mPosition;
+    QString mCrsPosition;
+
 };
 
 //! Class that represents a geographical zone item that can contain other zone or rainfall station
