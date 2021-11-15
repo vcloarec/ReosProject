@@ -700,11 +700,9 @@ double ReosTimeSerieVariableTimeStep::valueAtTime( const ReosDuration &relativeT
   return ( mValues.at( index + 1 ) - mValues.at( index ) ) * ratio + mValues.at( index );
 }
 
-void ReosTimeSerieVariableTimeStep::addOther( const ReosTimeSerieVariableTimeStep &other, double factor )
+void ReosTimeSerieVariableTimeStep::addOther( const ReosTimeSerieVariableTimeStep &other, double factor, bool newTimeValues )
 {
   blockSignals( true );
-
-  bool allowInterpolation = false;
 
   ReosDuration offset( referenceTime()->value().msecsTo( other.referenceTime()->value() ), ReosDuration::millisecond );
 
@@ -726,7 +724,7 @@ void ReosTimeSerieVariableTimeStep::addOther( const ReosTimeSerieVariableTimeSte
     int index = timeValueIndex( otherTimeValue, exact );
     if ( !exact )
     {
-      if ( index < 0 || index >= ( mTimeValues.count() - 1 ) || allowInterpolation )
+      if ( index < 0 || index >= ( mTimeValues.count() - 1 ) || newTimeValues )
         newValue_2[otherTimeValue] = valueAtTime( otherTimeValue ) + factor * other.valueAt( i );
     }
   }

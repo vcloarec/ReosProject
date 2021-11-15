@@ -700,7 +700,7 @@ std::unique_ptr<ReosHydrograph> ReosTransferFunctionSCSUnitHydrograph::Calculati
   {
     std::unique_ptr<ReosHydrograph> hydrograph = std::make_unique<ReosHydrograph>();
     hydrograph->referenceTime()->setValue( mReferenceTime );
-    hydrograph->addOther( *( hydrograph1 ), peakFlow );
+    hydrograph->addOther( *( hydrograph1 ), peakFlow, false );
 
     return hydrograph;
   }
@@ -718,8 +718,8 @@ std::unique_ptr<ReosHydrograph> ReosTransferFunctionSCSUnitHydrograph::Calculati
   std::unique_ptr<ReosHydrograph> hydrograph = std::make_unique<ReosHydrograph>();
   hydrograph->referenceTime()->setValue( mReferenceTime );
 
-  hydrograph->addOther( *( hydrograph1 ), f * peakFlow );
-  hydrograph->addOther( *( hydrograph2 ), ( 1 - f )*peakFlow );
+  hydrograph->addOther( *( hydrograph1 ), f * peakFlow, false );
+  hydrograph->addOther( *( hydrograph2 ), ( 1 - f )*peakFlow, false );
 
   return hydrograph;
 }
@@ -892,7 +892,7 @@ void ReosTransferFunctionSCSUnitHydrograph::Calculation::start()
   {
     ReosDuration relativeTime = mTimeStep * i;
     unitHydrograph->referenceTime()->setValue( mReferenceTime.addMSecs( relativeTime.valueMilliSecond() ) );
-    mHydrograph->addOther( *( unitHydrograph.get() ), mRunoffData.at( i / mReduceTimeStepFactor ) / mReduceTimeStepFactor );
+    mHydrograph->addOther( *( unitHydrograph.get() ), mRunoffData.at( i / mReduceTimeStepFactor ) / mReduceTimeStepFactor, false );
     if ( isStop() )
     {
       mHydrograph.reset();
