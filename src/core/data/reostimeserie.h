@@ -240,7 +240,7 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStep: public ReosTimeSerie
     double valueAtTime( const ReosDuration &relativeTime ) const;
 
     //! Adds another instance to this the values of this ones, create new time step if needed
-    void addOther( const ReosTimeSerieVariableTimeStep &other, double factor = 1 );
+    void addOther( const ReosTimeSerieVariableTimeStep &other, double factor = 1, bool newTimeValues = true );
 
     //! Return the color associated with this time serie
     virtual QColor color() const {return QColor();}
