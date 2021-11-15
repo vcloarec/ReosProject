@@ -829,14 +829,289 @@ void ReosWatersehdTest::runoffConstantCoefficient()
   }
 
   ReosWatershed watershed;
+  watershed.area()->setValue( ReosArea( 5.2, ReosArea::km2 ) );
+  watershed.concentrationTime()->setValue( ReosDuration( 45, ReosDuration::minute ) );
+
   ReosTransferFunctionLinearReservoir *linearReservoir = new ReosTransferFunctionLinearReservoir( &watershed );
-  linearReservoir->lagTime()->setValue( ReosDuration( 10, ReosDuration::minute ) );
-  linearReservoir->useConcentrationTime()->setValue( false );
+  linearReservoir->useConcentrationTime()->setValue( true );
+  linearReservoir->factorToLagTime()->setValue( 0.6 );
 
-  watershed.area()->setValue( ReosArea( 20, ReosArea::ha ) );
-  ReosHydrograph *hydrograph = linearReservoir->applyFunction( &runoff, &runoff );
+  std::unique_ptr<ReosHydrograph> hydrograph( linearReservoir->applyFunction( &runoff ) );
+  QList<QPair<int, double>> values;
+  values <<
+         QPair<int, double>( {0, 0.0} ) <<
+         QPair<int, double>( {300000,  10.4488001684914} ) <<
+         QPair<int, double>( {600000,  19.9141563524573} ) <<
+         QPair<int, double>( {900000,  28.8803387638808} ) <<
+         QPair<int, double>( {1200000, 38.0865801467911} ) <<
+         QPair<int, double>( {1500000, 49.525669548095} ) <<
+         QPair<int, double>( {1800000, 63.8623720443718} ) <<
+         QPair<int, double>( {2100000,  70.9440738754042} ) <<
+         QPair<int, double>( {2400000, 73.0394572384162} ) <<
+         QPair<int, double>( {2700000, 73.0248282486918} ) <<
+         QPair<int, double>( {3000000, 71.911731284174} ) <<
+         QPair<int, double>( {3300000, 70.2038813175527} ) <<
+         QPair<int, double>( {3600000, 68.3191661471113} ) <<
+         QPair<int, double>( {3900000, 56.7698377476733} ) <<
+         QPair<int, double>( {4200000, 47.1729188110622} ) <<
+         QPair<int, double>( {4500000, 39.1983552788341} ) <<
+         QPair<int, double>( {4800000, 32.5718886024366} ) <<
+         QPair<int, double>( {5100000, 27.0656235340161} ) <<
+         QPair<int, double>( {5400000, 22.4901904285123} ) <<
+         QPair<int, double>( {5700000, 18.6882325055266} ) <<
+         QPair<int, double>( {6000000, 15.5289940870333} ) <<
+         QPair<int, double>( {6300000, 12.9038236913952} ) <<
+         QPair<int, double>( {6600000, 10.7224373275824} ) <<
+         QPair<int, double>( {6900000, 8.90981347804673} ) <<
+         QPair<int, double>( {7200000, 7.40361298353072} ) <<
+         QPair<int, double>( {7500000, 6.15203509534312} ) <<
+         QPair<int, double>( {7800000, 5.11203596116179} ) <<
+         QPair<int, double>( {8100000, 4.24784827511682} ) <<
+         QPair<int, double>( {8400000, 3.52975118044985} ) <<
+         QPair<int, double>( {8700000, 2.93304811964935} ) <<
+         QPair<int, double>( {9000000, 2.43721747862188} ) <<
+         QPair<int, double>( {9300000, 2.02520681413509} ) <<
+         QPair<int, double>( {9600000, 1.68284639183631} ) <<
+         QPair<int, double>( {9900000, 1.39836186544036} ) <<
+         QPair<int, double>( {10200000,  1.16196933731077} ) <<
+         QPair<int, double>( {10500000,  0.965538873891728} ) <<
+         QPair<int, double>( {10800000,  0.802314903725186} ) <<
+         QPair<int, double>( {11100000,  0.666683882074061} );
 
-  hydrograph->valueCount();
+  Q_ASSERT( hydrograph->valueCount() == values.count() );
+  for ( int i = 0; i < hydrograph->valueCount(); ++i )
+  {
+    QCOMPARE( values.at( i ).first,  int( hydrograph->relativeTimeAt( i ).valueMilliSecond() ) );
+    QCOMPARE( values.at( i ).second,  hydrograph->valueAt( i ) );
+  }
+
+  watershed.concentrationTime()->setValue( ReosDuration( 32, ReosDuration::minute ) );
+  ReosTransferFunctionGeneralizedRationalMethod *rationalUH = new ReosTransferFunctionGeneralizedRationalMethod( &watershed );
+  hydrograph.reset( rationalUH->applyFunction( &runoff ) );
+
+  values.clear();
+  values << QPair<int, double>( {0, 0} ) <<
+         QPair<int, double>( {300000,  9.65766809739158} ) <<
+         QPair<int, double>( {600000,  20.0389788076493} ) <<
+         QPair<int, double>( {900000,  31.4378726470174} ) <<
+         QPair<int, double>( {1200000, 44.4596153678346} ) <<
+         QPair<int, double>( {1500000, 60.9836209861718} ) <<
+         QPair<int, double>( {1800000, 81.9732043195051} ) <<
+         QPair<int, double>( {1920000, 88.58280656684} ) <<
+         QPair<int, double>( {2100000, 92.7026090794073} ) <<
+         QPair<int, double>( {2220000, 94.0482389287776} ) <<
+         QPair<int, double>( {2400000, 95.6324981351133} ) <<
+         QPair<int, double>( {2520000, 96.0395313867574} ) <<
+         QPair<int, double>( {2700000, 96.0395313867574} ) <<
+         QPair<int, double>( {2820000, 95.6324981351133} ) <<
+         QPair<int, double>( {3000000, 94.0482389287776} ) <<
+         QPair<int, double>( {3120000, 92.7026090794073} ) <<
+         QPair<int, double>( {3300000, 88.58280656684} ) <<
+         QPair<int, double>( {3420000, 85.6641414014797} ) <<
+         QPair<int, double>( {3600000, 78.6067970244417} ) <<
+         QPair<int, double>( {3720000, 70.2109636911084} ) <<
+         QPair<int, double>( {4020000, 53.6869580727712} ) <<
+         QPair<int, double>( {4320000, 40.665215351954} ) <<
+         QPair<int, double>( {4620000, 29.2663215125859} ) <<
+         QPair<int, double>( {4920000, 18.8850108023282} ) <<
+         QPair<int, double>( {5220000, 9.22734270493658} ) <<
+         QPair<int, double>( {5520000, 0} );
+
+  QCOMPARE( hydrograph->valueCount(), values.count() );
+  for ( int i = 0; i < hydrograph->valueCount(); ++i )
+  {
+    QCOMPARE( values.at( i ).first,  int( hydrograph->relativeTimeAt( i ).valueMilliSecond() ) );
+    QCOMPARE( values.at( i ).second,  hydrograph->valueAt( i ) );
+  }
+
+  ReosTransferFunctionSCSUnitHydrograph *scsUH = new ReosTransferFunctionSCSUnitHydrograph( &watershed );
+  scsUH->useConcentrationTime()->setValue( false );
+  scsUH->peakRateFactor()->setValue( 484.0 );
+  scsUH->factorToLagTime()->setValue( 0.6 );
+  hydrograph.reset( scsUH->applyFunction( &runoff ) );
+
+  values.clear();
+  values << QPair<int, double>( {0, 0} ) <<
+         QPair<int, double>( {130200,  0.319926055137039} ) <<
+         QPair<int, double>( {260400,  1.06642018379013} ) <<
+         QPair<int, double>( {390600,  2.26550057491395} ) <<
+         QPair<int, double>( {520800,  4.20817233027324} ) <<
+         QPair<int, double>( {651000,  7.02431845458297} ) <<
+         QPair<int, double>( {781200,  10.8963338421879} ) <<
+         QPair<int, double>( {911400,  15.3147268596325} ) <<
+         QPair<int, double>( {1041600, 20.3236707781381} ) <<
+         QPair<int, double>( {1171800, 25.6415843472443} ) <<
+         QPair<int, double>( {1302000, 31.1060218206529} ) <<
+         QPair<int, double>( {1432200, 37.0000812405754} ) <<
+         QPair<int, double>( {1562400, 42.6513188920306} ) <<
+         QPair<int, double>( {1692600, 48.9027953353517} ) <<
+         QPair<int, double>( {1822800, 54.984280391843} ) <<
+         QPair<int, double>( {1953000, 61.1388720401515} ) <<
+         QPair<int, double>( {2083200, 67.0090218394755} ) <<
+         QPair<int, double>( {2213400, 72.540068314109} ) <<
+         QPair<int, double>( {  2343600, 77.9630280130392} ) <<
+         QPair<int, double>( {2473800, 82.1455099278323} ) <<
+         QPair<int, double>( {2604000, 85.9232406016311} ) <<
+         QPair<int, double>( {2734200, 88.2622236031578} ) <<
+         QPair<int, double>( {2864400, 89.7978491906397} ) <<
+         QPair<int, double>( {2994600, 90.2227890881551} ) <<
+         QPair<int, double>( {3124800, 89.5807645375469} ) <<
+         QPair<int, double>( {3255000, 88.6158159488254} ) <<
+         QPair<int, double>( {3385200, 86.6115087005479} ) <<
+         QPair<int, double>( {3515400, 84.6608918268563} ) <<
+         QPair<int, double>( {3645600, 81.9994960778087} ) <<
+         QPair<int, double>( {3775800, 79.2586173949161} ) <<
+         QPair<int, double>( {3906000, 76.0617789004734} ) <<
+         QPair<int, double>( {4036200, 72.3741138246314} ) <<
+         QPair<int, double>( {4166400, 68.3562871127761} ) <<
+         QPair<int, double>( {4296600, 63.376007017574} ) <<
+         QPair<int, double>( {4426800, 58.2233822770845} ) <<
+         QPair<int, double>( {4557000, 52.4865587235491} ) <<
+         QPair<int, double>( {4687200, 46.8431506867218} ) <<
+         QPair<int, double>( {4817400, 41.2781916489604} ) <<
+         QPair<int, double>( {4947600, 35.8830422786034} ) <<
+         QPair<int, double>( {5077800, 30.9438555299734} ) <<
+         QPair<int, double>( {5208000, 26.3836442394093} ) <<
+         QPair<int, double>( {5338200, 22.3926271082785} ) <<
+         QPair<int, double>( {5468400, 18.8591844830841} ) <<
+         QPair<int, double>( {5598600, 15.9792947744262} ) <<
+         QPair<int, double>( {5728800, 13.6112908557051} ) <<
+         QPair<int, double>( {5859000, 11.5549737768769} ) <<
+         QPair<int, double>( {5989200, 9.86825507416119} ) <<
+         QPair<int, double>( {6119400, 8.37254301421143} ) <<
+         QPair<int, double>( {6249600, 7.13523894666032} ) <<
+         QPair<int, double>( {6379800, 6.02660504843071} ) <<
+         QPair<int, double>( {6510000, 5.11908274748348} ) <<
+         QPair<int, double>( {6549600, 4.87114175434491} ) <<
+         QPair<int, double>( {6679800, 4.12096400845863} ) <<
+         QPair<int, double>( {6810000, 3.49861339699591} ) <<
+         QPair<int, double>( {6849600, 3.32501324254422} ) <<
+         QPair<int, double>( {6979800, 2.8140770102472} ) <<
+         QPair<int, double>( {7110000, 2.37427815557269} ) <<
+         QPair<int, double>( {7149600, 2.25442576158561} ) <<
+         QPair<int, double>( {7279800, 1.90645048894117} ) <<
+         QPair<int, double>( {7410000, 1.59554234372908} ) <<
+         QPair<int, double>( {7449600, 1.51463979805148} ) <<
+         QPair<int, double>( {7579800, 1.27317697289775} ) <<
+         QPair<int, double>( {7710000, 1.05102293897201} ) <<
+         QPair<int, double>( {7749600, 0.997510805043472} ) <<
+         QPair<int, double>( {7879800, 0.828053321544088} ) <<
+         QPair<int, double>( {8010000, 0.673801851328885} ) <<
+         QPair<int, double>( {8049600, 0.639317391544571} ) <<
+         QPair<int, double>( {8179800, 0.525936667708267} ) <<
+         QPair<int, double>( {8310000, 0.425108789977906} ) <<
+         QPair<int, double>( {8349600, 0.402633266276684} ) <<
+         QPair<int, double>( {8479800, 0.32873646865297} ) <<
+         QPair<int, double>( {8610000, 0.262123464604087} ) <<
+         QPair<int, double>( {8649600, 0.247197720123718} ) <<
+         QPair<int, double>( {8779800, 0.198123681453414} ) <<
+         QPair<int, double>( {8910000, 0.149885087166725} ) <<
+         QPair<int, double>( {8949600, 0.139436314475832} ) <<
+         QPair<int, double>( {9079800, 0.105082016386076} ) <<
+         QPair<int, double>( {9210000, 0.071525937034092} ) <<
+         QPair<int, double>( {9249600, 0.065183480209885} ) <<
+         QPair<int, double>( {9379800, 0.044330250954536} ) <<
+         QPair<int, double>( {9510000, 0.023477021699188} ) <<
+         QPair<int, double>( {9549600, 0.020378054834895} ) <<
+         QPair<int, double>( {9679800, 0.010189027417447} ) <<
+         QPair<int, double>( {9810000, 0} );
+
+  QCOMPARE( hydrograph->valueCount(), values.count() );
+  for ( int i = 0; i < hydrograph->valueCount(); ++i )
+  {
+    QCOMPARE( values.at( i ).first,  int( hydrograph->relativeTimeAt( i ).valueMilliSecond() ) );
+    QCOMPARE( values.at( i ).second,  hydrograph->valueAt( i ) );
+  }
+
+  ReosTransferFunctionNashUnitHydrograph *nashUH = new ReosTransferFunctionNashUnitHydrograph( &watershed );
+  nashUH->useConcentrationTime()->setValue( false );
+  nashUH->nParam()->setValue( 3 );
+  nashUH->useConcentrationTime()->setValue( true );
+  hydrograph.reset( nashUH->applyFunction( &runoff ) );
+
+  values.clear();
+  values << QPair<int, double>( {0,  0} ) <<
+         QPair<int, double>( {150000, 0.314751885480496} ) <<
+         QPair<int, double>( {300000, 1.31070882619237} ) <<
+         QPair<int, double>( {450000, 3.10699324684955} ) <<
+         QPair<int, double>( {600000, 5.67463534547189} ) <<
+         QPair<int, double>( {750000, 8.9220917534873} ) <<
+         QPair<int, double>( {900000, 12.7240321361553} ) <<
+         QPair<int, double>( {1050000, 16.9741255105152} ) <<
+         QPair<int, double>( {1200000, 21.5722937636719} ) <<
+         QPair<int, double>( {1350000, 26.5019625725543} ) <<
+         QPair<int, double>( {1500000, 31.7628914820306} ) <<
+         QPair<int, double>( {1650000, 37.4151751203476} ) <<
+         QPair<int, double>( {1800000,  43.5080250497316} ) <<
+         QPair<int, double>( {1950000,  49.8150334698382} ) <<
+         QPair<int, double>( {2100000,  56.0273262172112} ) <<
+         QPair<int, double>( {2250000,  61.8318729222973} ) <<
+         QPair<int, double>( {2400000,  66.9764376331747} ) <<
+         QPair<int, double>( {2550000,  71.3107349016906} ) <<
+         QPair<int, double>( {2700000, 74.770329446913} ) <<
+         QPair<int, double>( {2850000,  77.3572015816612} ) <<
+         QPair<int, double>( {3000000,  79.1208755289647} ) <<
+         QPair<int, double>( {3150000,  80.1389879987729} ) <<
+         QPair<int, double>( {3300000,  80.5060688675524} ) <<
+         QPair<int, double>( {3450000,  80.3249251931539} ) <<
+         QPair<int, double>( {3600000, 79.6988036394642} ) <<
+         QPair<int, double>( {3750000, 78.4339563394058} ) <<
+         QPair<int, double>( {3900000, 76.2801097801219} ) <<
+         QPair<int, double>( {4050000,  73.2332221785876} ) <<
+         QPair<int, double>( {4200000,  69.419746133985} ) <<
+         QPair<int, double>( {4350000,  65.023471841131} ) <<
+         QPair<int, double>( {4500000, 60.2411724612252} ) <<
+         QPair<int, double>( {4650000, 55.2573888227363} ) <<
+         QPair<int, double>( {4800000, 50.2316426089956} ) <<
+         QPair<int, double>( {4950000,  45.2934716139456} ) <<
+         QPair<int, double>( {5100000, 40.5421703042586} ) <<
+         QPair<int, double>( {5250000, 36.0491647641101} ) <<
+         QPair<int, double>( {5400000, 31.8616782326417} ) <<
+         QPair<int, double>( {5550000, 28.0068431019027} ) <<
+         QPair<int, double>( {5700000, 24.4957536699005} ) <<
+         QPair<int, double>( {5850000, 21.3271790201678} ) <<
+         QPair<int, double>( {6000000, 18.4908015526511} ) <<
+         QPair<int, double>( {6150000, 15.9699385263522} ) <<
+         QPair<int, double>( {6300000, 13.7437589577554} ) <<
+         QPair<int, double>( {6450000, 11.7890386492722} ) <<
+         QPair<int, double>( {6600000, 10.0815105770942} ) <<
+         QPair<int, double>( {6750000, 8.59687226343714} ) <<
+         QPair<int, double>( {6900000, 7.31151011634996} ) <<
+         QPair<int, double>( {7050000, 6.18854377029007} ) <<
+         QPair<int, double>( {7200000, 5.22402647101286} ) <<
+         QPair<int, double>( {7350000, 4.39719533219186} ) <<
+         QPair<int, double>( {7500000,  3.69146979916491} ) <<
+         QPair<int, double>( {7650000, 3.08925583591464} ) <<
+         QPair<int, double>( {7800000,  2.5780259966692} ) <<
+         QPair<int, double>( {7950000,  2.14264460781499} ) <<
+         QPair<int, double>( {8100000, 1.77479991019488} ) <<
+         QPair<int, double>( {8250000, 1.45942301856704} ) <<
+         QPair<int, double>( {8400000,  1.19413006181468} ) <<
+         QPair<int, double>( {8550000,  0.96469120321767} ) <<
+         QPair<int, double>( {8700000,  0.772458441776088} ) <<
+         QPair<int, double>( {8850000, 0.618337231087849} ) <<
+         QPair<int, double>( {9000000,  0.489540508062577} ) <<
+         QPair<int, double>( {9150000, 0.387304925145542} ) <<
+         QPair<int, double>( {9300000, 0.302067737029717} ) <<
+         QPair<int, double>( {9450000, 0.233526462102227} ) <<
+         QPair<int, double>( {9600000, 0.176515017079972} ) <<
+         QPair<int, double>( {9750000, 0.130674807176691} ) <<
+         QPair<int, double>( {9900000, 0.09262983472297} ) <<
+         QPair<int, double>( {10050000, 0.062172843856876} ) <<
+         QPair<int, double>( {10200000, 0.036947301940866} ) <<
+         QPair<int, double>( {10350000, 0.016720095919204} );
+
+
+  QCOMPARE( hydrograph->valueCount(), values.count() );
+  for ( int i = 0; i < hydrograph->valueCount(); ++i )
+  {
+    QCOMPARE( values.at( i ).first,  int( hydrograph->relativeTimeAt( i ).valueMilliSecond() ) );
+    QCOMPARE( values.at( i ).second,  hydrograph->valueAt( i ) );
+  }
+  //watershed.area()->setValue( ReosArea( 20, ReosArea::ha ) );
+  //ReosHydrograph *hydrograph = linearReservoir->applyFunction( &runoff, &runoff );
+
+// hydrograph->valueCount();
 }
 
 QTEST_MAIN( ReosWatersehdTest )
