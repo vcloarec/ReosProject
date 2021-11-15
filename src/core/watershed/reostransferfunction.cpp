@@ -239,7 +239,7 @@ ReosHydrograph *ReosTransferFunctionGeneralizedRationalMethod::applyFunction( Re
   for ( int i = 0; i < runoffTimeSerie->valueCount(); ++i )
   {
     unitHydrograph.referenceTime()->setValue( runoffTimeSerie->referenceTime()->value().addMSecs( timeStep.valueMilliSecond()*i ) );
-    hydrograph->addOther( &unitHydrograph, runoffData[i], false );
+    hydrograph->addOther( &unitHydrograph, runoffData[i] );
   }
 
   return hydrograph.release();
@@ -997,7 +997,7 @@ void ReosTransferFunctionGeneralizedRationalMethod::Calculation::start()
   for ( int i = 0; i < mRunoffData.count(); ++i )
   {
     unitHydrograph.referenceTime()->setValue( mReferenceTime.addMSecs( mTimeStep.valueMilliSecond()*i ) );
-    mHydrograph->addOther( &unitHydrograph, mRunoffData.at( i ), false );
+    mHydrograph->addOther( &unitHydrograph, mRunoffData.at( i ) );
     if ( isStop() )
     {
       mHydrograph.reset();
