@@ -23,7 +23,8 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   ui( new Ui::ReosWatershedWidget ),
   mMap( map ),
   mActionSelectWatershed( new QAction( QPixmap( QStringLiteral( ":/images/selectWatershed.svg" ) ), tr( "Select watershed on map" ), this ) ),
-  mMapToolSelectWatershed( new ReosMapToolSelectMapItem( map, QStringLiteral( "watershed:delineatingPolygon" ) ) ),
+  mDescriptionKeyWatershed( QStringLiteral( "watershed:delineatingPolygon" ) ),
+  mMapToolSelectWatershed( new ReosMapToolSelectMapItem( map, mDescriptionKeyWatershed ) ),
   mActionRemoveWatershed( new QAction( QPixmap( QStringLiteral( ":/images/removeWatershed.svg" ) ), tr( "Remove watershed" ), this ) ),
   mActionDelineateWatershed( new QAction( QPixmap( QStringLiteral( ":/images/delineateWatershed.svg" ) ), tr( "Delineate watershed" ), this ) ),
   mDelineatingWidget( new ReosDelineatingWatershedWidget( module, map, this ) ),
@@ -375,7 +376,7 @@ ReosWatershed *ReosWatershedWidget::currentWatershed() const
 
 void ReosWatershedWidget::formatMapWatershed( MapWatershed &mapWatershed )
 {
-  mapWatershed.delineating->setDescription( QStringLiteral( "Watershed" ) );
+  mapWatershed.delineating->setDescription( mDescriptionKeyWatershed );
   mapWatershed.delineating->setWidth( 3 );
   mapWatershed.delineating->setColor( QColor( 0, 200, 100 ) );
   mapWatershed.delineating->setExternalWidth( 5 );

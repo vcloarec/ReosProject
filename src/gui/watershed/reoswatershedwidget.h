@@ -54,6 +54,7 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
     ReosMap *mMap = nullptr;
 
     QAction *mActionSelectWatershed = nullptr;
+    QString mDescriptionKeyWatershed;
     ReosMapToolSelectMapItem *mMapToolSelectWatershed = nullptr;
     QAction *mActionRemoveWatershed = nullptr;
 
