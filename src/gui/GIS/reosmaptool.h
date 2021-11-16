@@ -37,6 +37,8 @@ class ReosMapTool : public QObject
     void activate();
     void deactivate();
 
+    bool isActive() const;
+
     void setCurrentToolInMap() const;
 
     //! Set default map tool for map
@@ -62,6 +64,10 @@ class ReosMapTool : public QObject
 
   protected:
     ReosMapTool( ReosMap *map );
+    void setUp();
+
+  protected slots:
+    virtual void keyPressed( int key );
 
   private:
     virtual ReosMapTool_p *tool_p() const = 0;

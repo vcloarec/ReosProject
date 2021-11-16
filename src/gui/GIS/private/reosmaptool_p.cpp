@@ -359,6 +359,11 @@ void ReosMapTool_p::canvasMoveEvent( QgsMapMouseEvent *e )
     qDebug() << foundItem->base->description();
 }
 
+void ReosMapTool_p::keyPressEvent( QKeyEvent *e )
+{
+  emit keyPressed( e->key() );
+}
+
 
 ReosMapToolMoveItem_p::ReosMapToolMoveItem_p( QgsMapCanvas *map ): ReosMapTool_p( map )
 {

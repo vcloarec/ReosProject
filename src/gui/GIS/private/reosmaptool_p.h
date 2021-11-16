@@ -53,9 +53,11 @@ class ReosMapTool_p: public QgsMapTool
 
   signals:
     void foundItemWhenMoving( ReosMapItem_p *item );
+    void keyPressed( int key );
 
   protected:
     void canvasMoveEvent( QgsMapMouseEvent *e ) override;
+    void keyPressEvent( QKeyEvent *e ) override;
 
 
     QRectF viewSearchZone( const QPoint &pt );
