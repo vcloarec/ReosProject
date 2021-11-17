@@ -23,6 +23,7 @@
 #include "reoscore.h"
 #include "reosduration.h"
 #include "reosrainfallitem.h"
+#include "reosmapextent.h"
 
 class ReosEncodedElement;
 class ReosRainfallItem;
@@ -39,7 +40,6 @@ class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
     Q_OBJECT
   public:
     ReosRainfallModel( QObject *parent = nullptr );
-
 
     QModelIndex index( int row, int column, const QModelIndex &parent ) const override;
     QModelIndex parent( const QModelIndex &child ) const override;
@@ -58,7 +58,7 @@ class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
 
     //! Add a zone to the hierarchical tree, if \a index is invalid, add to the roots return fals if it fails
     ReosZoneItem *addZone( const QString &name, const QString &description, const QModelIndex &index = QModelIndex() );
-    ReosStationItem *addStation( const QString &name, const QString &description, const QModelIndex &index );
+    ReosStationItem *addStation( const QString &name, const QString &description, const QModelIndex &index, const ReosSpatialPosition &position = ReosSpatialPosition() );
     ReosRainfallGaugedRainfallItem *addGaugedRainfall( const QString &name, const QString &description, const QModelIndex &index, ReosSerieRainfall *data = nullptr );
     ReosRainfallChicagoItem *addChicagoRainfall( const QString &name, const QString &description, const QModelIndex &index );
     ReosRainfallAlternatingBlockItem *addAlternatingBlockRainfall( const QString &name, const QString &description, const QModelIndex &index );
@@ -68,6 +68,8 @@ class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
     void removeItem( ReosRainfallItem *item );
 
     int rootZoneCount() const;
+
+    ReosZoneItem *rootZone( int i ) const;
 
     QModelIndex itemToIndex( ReosRainfallItem *item ) const;
     ReosRainfallItem *indexToItem( const QModelIndex &index ) const;

@@ -17,6 +17,7 @@ email                : vcloarec at gmail dot com
 #include "reosmap.h"
 #include <qgsmapcanvas.h>
 #include "reosmappolygon_p.h"
+#include "reosgisengine.h"
 
 ReosMapItem::ReosMapItem() {}
 
@@ -515,6 +516,39 @@ ReosMapMarkerEmptyCircle::ReosMapMarkerEmptyCircle( ReosMap *map, const QPointF 
 }
 
 ReosMapMarkerEmptyCircle::~ReosMapMarkerEmptyCircle()
+{
+  if ( isMapExist() && d_ )
+    delete d_; //deleting this will remove it from the map
+}
+
+ReosMapMarkerSvg::ReosMapMarkerSvg(): ReosMapMarker()
+{}
+
+ReosMapMarkerSvg::ReosMapMarkerSvg( const QString &filePath, ReosMap *map ): ReosMapMarker( map )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  if ( canvas )
+  {
+    d_ = new ReosMapMarkerSvg_p( canvas, filePath ); //the owner ship of d pointer is taken by the scene of the map canvas
+    d_->base = this;
+  }
+}
+
+ReosMapMarkerSvg::ReosMapMarkerSvg( const QString &filePath, ReosMap *map, const ReosSpatialPosition &position ): ReosMapMarker( map )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  if ( canvas )
+  {
+    const QPointF point = map->engine()->transformToProjectCoordinates( position );
+    d_ = new ReosMapMarkerSvg_p( canvas, filePath ); //the owner ship of d pointer is taken by the scene of the map canvas
+    static_cast<ReosMapMarker_p *>( d_ )->mapPoint = point;
+    static_cast<ReosMapMarker_p *>( d_ )->isEmpty = false;
+    d_->updatePosition();
+    d_->base = this;
+  }
+}
+
+ReosMapMarkerSvg::~ReosMapMarkerSvg()
 {
   if ( isMapExist() && d_ )
     delete d_; //deleting this will remove it from the map

@@ -53,7 +53,7 @@ ReosFormWidget::ReosFormWidget( QWidget *parent, Qt::Orientation orientation, bo
   layout()->setContentsMargins( 0, 0, 0, 0 );
   layout()->addItem( mMainLayout );
   if ( withSpacer )
-    layout()->addItem( new QSpacerItem( 10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding ) );
+    layout()->addItem( new QSpacerItem( 0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding ) );
 }
 
 void ReosFormWidget::addText( const QString &text, int position )

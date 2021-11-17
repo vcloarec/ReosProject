@@ -61,6 +61,8 @@ class ReosMapTool : public QObject
 
   signals:
     void itemFoundWhenMoving( ReosMapItem *item );
+    void activated();
+    void deactivated();
 
   protected:
     ReosMapTool( ReosMap *map );

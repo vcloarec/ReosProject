@@ -24,6 +24,7 @@
 #include "reostimeserie.h"
 #include "reossyntheticrainfall.h"
 #include "reoscore.h"
+#include "reosmapextent.h"
 
 class ReosParameterString;
 class ReosParameter;
@@ -174,7 +175,7 @@ class REOSCORE_EXPORT ReosStationItem: public ReosRainfallItem
 {
     Q_OBJECT
   public:
-    ReosStationItem( const QString &name, const QString &description );
+    ReosStationItem( const QString &name, const QString &description, const ReosSpatialPosition &position = ReosSpatialPosition() );
     ReosStationItem( const ReosEncodedElement &element );
 
     QIcon icone() const override {return QIcon( QPixmap( ":/images/station.svg" ) );}
@@ -182,6 +183,13 @@ class REOSCORE_EXPORT ReosStationItem: public ReosRainfallItem
     virtual bool accept( ReosRainfallItem *item, bool acceptSameName = false ) const override;
 
     virtual ReosEncodedElement encode() const override;
+
+    ReosSpatialPosition position() const;
+    void setPosition( const ReosSpatialPosition &position );
+
+  private:
+    bool mIsSpatial = false;
+    ReosSpatialPosition mPosition;
 
 };
 

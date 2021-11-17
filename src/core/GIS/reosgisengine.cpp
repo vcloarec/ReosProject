@@ -219,7 +219,10 @@ void ReosGisEngine::setCrs( const QString &crsString )
 
 void ReosGisEngine::loadQGISProject( const QString &fileName )
 {
+  QString oldCrs = crs();
   QgsProject::instance()->read( fileName );
+  if ( crs() != oldCrs )
+    emit crsChanged( crs() );
 }
 
 void ReosGisEngine::saveQGISProject( const QString &fileName ) const
@@ -406,7 +409,7 @@ bool ReosGisEngine::decode( const ReosEncodedElement &encodedElement, const QStr
   fileInfo.setFile( dir, fileName );
 
   QgsProject::instance()->clear();
-  QgsProject::instance()->read( fileInfo.filePath() );
+  loadQGISProject( fileInfo.filePath() );
 
   mAsDEMRegisteredLayer.clear();
   if ( !encodedElement.getData( QStringLiteral( "registered-dem-layer-ids" ), mAsDEMRegisteredLayer ) )
@@ -497,6 +500,11 @@ QPointF ReosGisEngine::transformToProjectCoordinates( const QString &sourceCRS, 
   {
     return sourcePoint;
   }
+}
+
+QPointF ReosGisEngine::transformToProjectCoordinates( const ReosSpatialPosition &position )
+{
+  return transformToProjectCoordinates( position.crs(), position.position() );
 }
 
 QString ReosGisEngine::gisEngineName()

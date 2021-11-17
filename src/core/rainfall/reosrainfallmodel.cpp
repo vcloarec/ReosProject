@@ -215,7 +215,7 @@ ReosZoneItem *ReosRainfallModel::addZone( const QString &name, const QString &de
 
 }
 
-ReosStationItem *ReosRainfallModel::addStation( const QString &name, const QString &description, const QModelIndex &index )
+ReosStationItem *ReosRainfallModel::addStation( const QString &name, const QString &description, const QModelIndex &index, const ReosSpatialPosition &position )
 {
   ReosRainfallItem *receiver = indexToItem( index );
   if ( receiver == nullptr )
@@ -226,7 +226,7 @@ ReosStationItem *ReosRainfallModel::addStation( const QString &name, const QStri
       return nullptr;
   }
 
-  std::unique_ptr<ReosStationItem> newStation = std::make_unique<ReosStationItem>( name, description );
+  std::unique_ptr<ReosStationItem> newStation = std::make_unique<ReosStationItem>( name, description, position );
 
   if ( ! receiver->accept( newStation.get() ) )
     return nullptr;
@@ -365,7 +365,18 @@ void ReosRainfallModel::removeItem( ReosRainfallItem *item )
   emit changed();
 }
 
-int ReosRainfallModel::rootZoneCount() const {return mRootZone->childrenCount();}
+int ReosRainfallModel::rootZoneCount() const
+{
+  return mRootZone->childrenCount();
+}
+
+ReosZoneItem *ReosRainfallModel::rootZone( int i ) const
+{
+  if ( mRootZone->childrenCount() <= i )
+    return nullptr;
+
+  return qobject_cast<ReosZoneItem *>( mRootZone->itemAt( i ) );
+}
 
 QModelIndex ReosRainfallModel::itemToIndex( ReosRainfallItem *item ) const
 {

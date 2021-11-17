@@ -19,8 +19,31 @@ email                : vcloarec at gmail dot com
 #include <QRectF>
 #include <QString>
 #include <QPolygon>
+#include <QMetaType>
 
 #include "reosencodedelement.h"
+
+class REOSCORE_EXPORT ReosSpatialPosition
+{
+  public:
+    ReosSpatialPosition() = default;
+    ReosSpatialPosition( const QPointF &position, const QString &crs = QString() );
+
+    QPointF position() const;
+    QString crs() const;
+
+    bool isValid() const;
+
+    static ReosSpatialPosition decode( const ReosEncodedElement &element );
+    ReosEncodedElement encode() const;
+
+  private:
+    QPointF mPosition;
+    QString mCrs;
+    bool mIsValid = false;
+};
+
+Q_DECLARE_METATYPE( ReosSpatialPosition )
 
 /**
  * Class that represent a rectangular extent in a map

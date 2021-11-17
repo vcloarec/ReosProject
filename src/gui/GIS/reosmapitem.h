@@ -24,6 +24,7 @@ email                : vcloarec at gmail dot com
 #include <QPointer>
 
 #include "reosgui.h"
+#include "reosmapextent.h"
 
 class ReosMap;
 class ReosMapItem_p;
@@ -104,8 +105,6 @@ class ReosMapMarkerFilledCircle : public ReosMapMarker
     ~ReosMapMarkerFilledCircle();
 };
 
-
-
 class ReosMapMarkerEmptyCircle : public ReosMapMarker
 {
   public:
@@ -124,6 +123,16 @@ class ReosMapMarkerEmptySquare : public ReosMapMarker
     ReosMapMarkerEmptySquare( ReosMap *map );
     ReosMapMarkerEmptySquare( ReosMap *map, const QPointF &point );
     ~ReosMapMarkerEmptySquare();
+};
+
+class ReosMapMarkerSvg : public ReosMapMarker
+{
+  public:
+    //! Contructor
+    ReosMapMarkerSvg();
+    ReosMapMarkerSvg( const QString &filePath, ReosMap *map );
+    ReosMapMarkerSvg( const QString &filePath, ReosMap *map, const ReosSpatialPosition &position );
+    ~ReosMapMarkerSvg();
 };
 
 

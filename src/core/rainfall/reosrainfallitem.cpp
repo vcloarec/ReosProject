@@ -60,8 +60,20 @@ bool ReosStationItem::accept( ReosRainfallItem *item, bool acceptSameName ) cons
 ReosEncodedElement ReosStationItem::encode() const
 {
   ReosEncodedElement element( QStringLiteral( "station-item" ) );
+
   ReosRainfallItem::encodeBase( element );
+  element.addEncodedData( QStringLiteral( "position" ), mPosition.encode() );
   return element;
+}
+
+ReosSpatialPosition ReosStationItem::position() const
+{
+  return mPosition;
+}
+
+void ReosStationItem::setPosition( const ReosSpatialPosition &position )
+{
+  mPosition = position;
 }
 
 ReosRainfallItem::~ReosRainfallItem() = default;
@@ -278,7 +290,9 @@ ReosRainfallDataItem::ReosRainfallDataItem( const QString &name, const QString &
 {}
 
 
-ReosStationItem::ReosStationItem( const QString &name, const QString &description ): ReosRainfallItem( name, description, Station )
+ReosStationItem::ReosStationItem( const QString &name, const QString &description, const ReosSpatialPosition &position )
+  : ReosRainfallItem( name, description, Station )
+  , mPosition( position )
 {}
 
 ReosStationItem::ReosStationItem( const ReosEncodedElement &element ): ReosRainfallItem( element, Station )
@@ -287,6 +301,9 @@ ReosStationItem::ReosStationItem( const ReosEncodedElement &element ): ReosRainf
     return;
 
   QList<ReosEncodedElement> encodedChildren = element.getListEncodedData( QStringLiteral( "children" ) );
+
+  mPosition = ReosSpatialPosition::decode( element.getEncodedData( QStringLiteral( "position" ) ) );
+
   for ( const ReosEncodedElement &childElem : std::as_const( encodedChildren ) )
   {
     if ( childElem.description() == QStringLiteral( "rainfall-serie-item" ) )

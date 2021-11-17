@@ -98,6 +98,9 @@
         <file>addAlternatingBlockRainfall.svg</file>
         <file>alternatingBlockRainfall.svg</file>
         <file>gaugedHydrograph.svg</file>
+        <file>moveStation.svg</file>
+        <file>removeStation.svg</file>
+        <file>mapOnStation.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

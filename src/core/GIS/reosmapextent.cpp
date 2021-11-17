@@ -176,3 +176,48 @@ void ReosMapExtent::addPointToExtent( const QPointF &pt )
   if ( mYMax < pt.y() )
     mYMax = pt.y();
 }
+
+ReosSpatialPosition::ReosSpatialPosition( const QPointF &position, const QString &crs )
+  : mPosition( position )
+  , mCrs( crs )
+{
+  mIsValid = true;
+}
+
+QPointF ReosSpatialPosition::position() const
+{
+  return mPosition;
+}
+
+QString ReosSpatialPosition::crs() const
+{
+  return mCrs;
+}
+
+bool ReosSpatialPosition::isValid() const
+{
+  return mIsValid;
+}
+
+ReosSpatialPosition ReosSpatialPosition::decode( const ReosEncodedElement &element )
+{
+  ReosSpatialPosition ret;
+
+  if ( element.description() != QStringLiteral( "spatial-position" ) )
+    return ret;
+
+  ret.mIsValid = ( element.getData( QStringLiteral( "position" ), ret.mPosition ) &&
+                   element.getData( QStringLiteral( "crs" ), ret.mCrs ) );
+
+  return ret;
+}
+
+ReosEncodedElement ReosSpatialPosition::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "spatial-position" ) );
+
+  element.addData( QStringLiteral( "position" ), mPosition );;
+  element.addData( QStringLiteral( "crs" ), mCrs );
+
+  return element;
+}
