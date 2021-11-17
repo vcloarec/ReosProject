@@ -29,6 +29,7 @@ class ReosDigitalElevationModel;
 class ReosDigitalElevationModelProvider;
 class QgsRasterLayer;
 class ReosMapExtent;
+class ReosSpatialPosition;
 
 /**
  * Reos module class that handles GIS layer
@@ -139,6 +140,9 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
 
     //! Transforms the \a sourcePoint from \a sourceCRS to project CRS
     QPointF transformToProjectCoordinates( const QString &sourceCRS, const QPointF &sourcePoint );
+
+    //! Transforms the spatial position \a position to project CRS
+    QPointF transformToProjectCoordinates( const ReosSpatialPosition &position );
 
     static QString gisEngineName();
     static QString gisEngineVersion();

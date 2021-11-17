@@ -16,6 +16,8 @@ email                : vcloarec at gmail dot com
 #ifndef REOSMAPPOLYGON_P_H
 #define REOSMAPPOLYGON_P_H
 
+#include <QSvgRenderer>
+
 #include <qgsmapcanvasitem.h>
 #include <qgspointxy.h>
 
@@ -95,6 +97,24 @@ class ReosMapMarkerEmptyCircle_p: public ReosMapMarker_p
 
   protected:
     void paint( QPainter *painter ) override;
+};
+
+class ReosMapMarkerSvg_p: public ReosMapMarker_p
+{
+  public:
+    ReosMapMarkerSvg_p( QgsMapCanvas *canvas, const QString &filePath );
+    ReosMapMarkerSvg_p *clone() override;
+    QRectF boundingRect() const override;
+
+  protected:
+    void paint( QPainter *painter ) override;
+
+  private:
+    QString mFilePath;
+    std::unique_ptr<QSvgRenderer> mSvgRenderer;
+
+
+
 };
 
 class ReosMapPolygon_p: public ReosMapItem_p

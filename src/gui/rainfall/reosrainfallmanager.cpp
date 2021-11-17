@@ -40,13 +40,16 @@
 #include "reosintensitydurationselectedcurvewidget.h"
 #include "reosrainfallregistery.h"
 #include "reosidfcurves.h"
+#include "reosmaptool.h"
 #include "reosplotidfcurve.h"
 #include "reosplottimeconstantinterval.h"
 #include "reosrainfalldataform.h"
+#include "reosgisengine.h"
 
-ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWidget *parent ) :
+ReosRainfallManager::ReosRainfallManager( ReosMap *map, ReosRainfallModel *rainfallmodel, QWidget *parent ) :
   ReosActionWidget( parent )
   , ui( new Ui::ReosRainfallManager )
+  , mMap( map )
   , mModel( rainfallmodel )
   , mActionOpenRainfallDataFile( new QAction( QPixmap( QStringLiteral( ":/images/openRainfall.svg" ) ), tr( "Open Rainfal Data File" ), this ) )
   , mActionSaveRainfallDataFile( new QAction( QPixmap( QStringLiteral( ":/images/saveRainfall.svg" ) ), tr( "Save Rainfal Data File" ), this ) )
@@ -54,6 +57,7 @@ ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWid
   , mActionAddRootZone( new QAction( QPixmap( QStringLiteral( ":/images/addZone.svg" ) ), tr( "Add New Zone to the Root" ), this ) )
   , mActionAddZoneToZone( new QAction( QPixmap( QStringLiteral( ":/images/addZone.svg" ) ), tr( "Add New Sub Zone" ), this ) )
   , mActionAddStation( new QAction( QPixmap( QStringLiteral( ":/images/addStation.svg" ) ), tr( "Add Station" ), this ) )
+  , mActionAddStationOnMap( new QAction( QPixmap( QStringLiteral( ":/images/addStation.svg" ) ), tr( "Add Station on Map" ), this ) )
   , mActionAddGaugedRainfall( new QAction( QPixmap( QStringLiteral( ":/images/addGaugedRainfall.svg" ) ), tr( "Add Gauged Rainfall" ), this ) )
   , mActionAddChicagoRainfall( new QAction( QPixmap( QStringLiteral( ":/images/addChicagoRainfall.svg" ) ), tr( "Add Chicago Rainfall" ), this ) )
   , mActionAddAlternatingBlockRainfall( new QAction( QPixmap( QStringLiteral( ":/images/addAlternatingBlockRainfall.svg" ) ), tr( "Add Alternating Block Rainfall" ), this ) )
@@ -84,6 +88,15 @@ ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWid
   toolBar->addAction( mActionAddRootZone );
   toolBar->addAction( mActionImportFromTextFile );
 
+  mMapToolAddStationOnMap = new ReosMapToolDrawPoint( map );
+  mMapToolAddStationOnMap->setCursor( QCursor( QPixmap( QStringLiteral( ":/images/station.svg" ) ), 12, 12 ) );
+  mMapToolAddStationOnMap->setAction( mActionAddStationOnMap );
+  mActionAddStationOnMap->setCheckable( true );
+  connect( mMapToolAddStationOnMap, &ReosMapTool::activated, this, [this] {ui->mTreeView->setEnabled( false );} );
+  connect( mMapToolAddStationOnMap, &ReosMapTool::deactivated, this, [this] {ui->mTreeView->setEnabled( true );} );
+
+  connect( mMap, &ReosMap::crsChanged, this, &ReosRainfallManager::updateMarkers );
+
   connect( mActionOpenRainfallDataFile, &QAction::triggered, this, &ReosRainfallManager::onOpenRainfallFile );
   connect( mActionSaveRainfallDataFile, &QAction::triggered, this, &ReosRainfallManager::saveRainfallFile );
   connect( mActionSaveAsRainfallDataFile, &QAction::triggered, this, &ReosRainfallManager::onSaveAsRainfallFile );
@@ -92,6 +105,7 @@ ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWid
   connect( mActionAddRootZone, &QAction::triggered, this, &ReosRainfallManager::onAddRootZone );
   connect( mActionAddZoneToZone, &QAction::triggered, this, &ReosRainfallManager::onAddZoneToZone );
   connect( mActionAddStation, &QAction::triggered, this, &ReosRainfallManager::onAddStation );
+  connect( mMapToolAddStationOnMap, &ReosMapToolDrawPoint::drawn, this, &ReosRainfallManager::onAddStationOnMap );
   connect( mActionAddGaugedRainfall, &QAction::triggered, this, &ReosRainfallManager::onAddGaugedRainfall );
   connect( mActionAddChicagoRainfall, &QAction::triggered, this, &ReosRainfallManager::onAddChicagoRainfall );
   connect( mActionAddAlternatingBlockRainfall, &QAction::triggered, this, &ReosRainfallManager::onAddAlternatingBlockRainfall );
@@ -102,9 +116,11 @@ ReosRainfallManager::ReosRainfallManager( ReosRainfallModel *rainfallmodel, QWid
 
   connect( mActionRemoveItem, &QAction::triggered, this, &ReosRainfallManager::onRemoveItem );
 
-
   connect( ui->mTreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ReosRainfallManager::onCurrentTreeIndexChanged );
   connect( ui->mTreeView, &QWidget::customContextMenuRequested, this, &ReosRainfallManager::onTreeViewContextMenu );
+
+  connect( this, &ReosActionWidget::opened, this, [this] {setMarkersVisible( true );} );
+  connect( this, &ReosActionWidget::closed, this, [this] {setMarkersVisible( false );} );
 
   ReosIdfFormulaRegistery::instance()->registerFormula( new ReosIdfFormulaMontana );
   ReosIdfFormulaRegistery::instance()->registerFormula( new ReosIdfFormulaSherman );
@@ -138,7 +154,10 @@ void ReosRainfallManager::loadDataFile()
     return;
 
   if ( mModel->loadFromFile( fileName, QStringLiteral( "Rainfall data" ) ) )
+  {
     ui->labelFileName->setText( fileName );
+    buildMarkers();
+  }
   else
     QMessageBox::warning( this, tr( "Open Rainfall Data" ), tr( "Unable to open the current rainfall data file: %1" ).arg( fileName ) );
 
@@ -177,6 +196,7 @@ void ReosRainfallManager::onOpenRainfallFile()
     settings.setValue( QStringLiteral( "Rainfall/dataFile" ), fileName );
     QFileInfo fileInfo( fileName );
     settings.setValue( QStringLiteral( "Rainfall/fileDirectory" ), fileInfo.path() );
+    buildMarkers();
   }
   else
   {
@@ -281,11 +301,15 @@ void ReosRainfallManager::onAddZoneToZone()
 
     if ( addSimpleItemDialog( tr( "Add Zone" ), name, description ) )
       selectItem( mModel->addZone( name, description, index ) );
-
   }
 }
 
 void ReosRainfallManager::onAddStation()
+{
+  addStation();
+}
+
+void ReosRainfallManager::addStation( const QPointF &point, bool isSpattial )
 {
   QModelIndex index = ui->mTreeView->currentIndex();
 
@@ -295,8 +319,162 @@ void ReosRainfallManager::onAddStation()
     QString description;
 
     if ( addSimpleItemDialog( tr( "Add Station" ), name, description ) )
-      selectItem( mModel->addStation( name, description, index ) );
+    {
+      ReosSpatialPosition position;
+
+      if ( isSpattial )
+        position = ReosSpatialPosition( point, mMap->engine()->crs() );
+
+      ReosStationItem *stationItem = mModel->addStation( name, description, index, position );
+
+      addMapItem( stationItem );
+
+      selectItem( stationItem );
+    }
   }
+}
+
+ReosSpatialStationWidgetToolbar::ReosSpatialStationWidgetToolbar( ReosMap *map,  ReosMapItem *marker, QWidget *parent )
+  : QWidget( parent )
+  , mCurrentMarker( marker )
+{
+  setLayout( new QVBoxLayout );
+  setContentsMargins( 0, 0, 0, 0 );
+  QToolBar *toolBar = new QToolBar( this );
+  mActionSetPosition = toolBar->addAction( QPixmap( QStringLiteral( ":/images/station.svg" ) ), tr( "Set Position on Map" ) );
+  mActionMovePosition = toolBar->addAction( QPixmap( QStringLiteral( ":/images/moveStation.svg" ) ), tr( "Move Position on Map" ) );
+  mActiontRemovePosition = toolBar->addAction( QPixmap( QStringLiteral( ":/images/removeStation.svg" ) ), tr( "Remove Position on Map" ) );
+  mActionMapOnStation = toolBar->addAction( QPixmap( QStringLiteral( ":/images/mapOnStation.svg" ) ), tr( "Move Map on Station Position" ) );
+  layout()->addWidget( toolBar );
+
+  mSetPositionTool = new ReosMapToolDrawPoint( map );
+  mSetPositionTool->setCursor( QCursor( QPixmap( QStringLiteral( ":/images/station.svg" ) ), 12, 12 ) );
+  mSetPositionTool->setAction( mActionSetPosition );
+  mActionSetPosition->setCheckable( true );
+
+  connect( mSetPositionTool, &ReosMapToolDrawPoint::drawn, this, [map, this]( const QPointF & point )
+  {
+    ReosSpatialPosition position( point, map->engine()->crs() );
+    emit setMarker( position );
+    updateTools();
+  } );
+
+  mMovePositionTool = new ReosMapToolMoveMapItem( map );
+  mMovePositionTool->setAction( mActionMovePosition );
+  mActionMovePosition->setCheckable( true );
+  mMovePositionTool->setCurrentMapItem( marker );
+
+  connect( mMovePositionTool, &ReosMapToolMoveMapItem::itemMoved, this, [map, this]( ReosMapItem * item )
+  {
+    ReosSpatialPosition position( static_cast<ReosMapMarker *>( item )->mapPoint(), map->engine()->crs() );
+    emit movePosition( position );
+  } );
+
+  connect( mActiontRemovePosition, &QAction::triggered, this, [this]
+  {
+    if ( QMessageBox::warning( this, tr( "Remove spatial position of a rainfall station" ),
+                               tr( "Do you want to remove the spatial position of the station" ), QMessageBox::Yes | QMessageBox::No, QMessageBox::No )
+         == QMessageBox::Yes )
+    {
+      mCurrentMarker = nullptr;
+      emit removeMarker();
+      updateTools();
+    }
+  } );
+
+  connect( mActionMapOnStation, &QAction::triggered, this, [this]
+  {
+    emit mapOnMarker();
+  } );
+
+  updateTools();
+}
+
+ReosSpatialStationWidgetToolbar::~ReosSpatialStationWidgetToolbar()
+{
+  mSetPositionTool->deleteLater();
+  mMovePositionTool->deleteLater();
+}
+
+void ReosSpatialStationWidgetToolbar::setCurrentMarker( ReosMapItem *currentMarker )
+{
+  mCurrentMarker = currentMarker;
+  mMovePositionTool->setCurrentMapItem( currentMarker );
+  updateTools();
+}
+
+void ReosSpatialStationWidgetToolbar::updateTools()
+{
+  mActionMapOnStation->setEnabled( mCurrentMarker );
+  mActionMovePosition->setEnabled( mCurrentMarker );
+  mActiontRemovePosition->setEnabled( mCurrentMarker );
+  mActionSetPosition->setEnabled( !mCurrentMarker );
+}
+
+
+ReosFormWidget *ReosRainfallManager::createForm( ReosRainfallItem *item )
+{
+  ReosFormWidget *form = new ReosFormWidget( this, Qt::Vertical, false );
+  form->addParameters( item->parameters() );
+
+  ReosStationItem *stationItem = qobject_cast<ReosStationItem *>( item );
+  if ( stationItem )
+  {
+    setupFormForStation( form, stationItem );
+  }
+
+  if ( !item->data() ||  !form->addData( item->data() ) )
+  {
+    form->addItem( new QSpacerItem( 20, 40, QSizePolicy::Ignored, QSizePolicy::Expanding ) );
+  }
+
+  form->setStretch( form->count() - 1, 1 );
+
+  return form;
+}
+
+void ReosRainfallManager::setupFormForStation( ReosFormWidget *form, ReosStationItem *stationItem )
+{
+  auto it = mStationsMarker.find( stationItem );
+  ReosMapItem *mapItem = nullptr;
+  if ( it != mStationsMarker.end() )
+    mapItem = it->second.get();
+
+  ReosSpatialStationWidgetToolbar *stationWidget = new ReosSpatialStationWidgetToolbar( mMap, mapItem, form );
+  form->addLine();
+  form->addWidget( stationWidget );
+  form->addLine();
+
+  connect( stationWidget, &ReosSpatialStationWidgetToolbar::removeMarker, this, [this, stationItem]
+  {
+    stationItem->setPosition( ReosSpatialPosition() );
+    removeMarker( stationItem );
+  } );
+
+  connect( stationWidget, &ReosSpatialStationWidgetToolbar::mapOnMarker, this, [this, stationItem]
+  {
+    mMap->setCenter( stationItem->position() );
+  } );
+
+  connect( stationWidget, &ReosSpatialStationWidgetToolbar::movePosition, this, [stationItem]( const ReosSpatialPosition & position )
+  {
+    stationItem->setPosition( position );
+  } );
+
+  connect( stationWidget, &ReosSpatialStationWidgetToolbar::setMarker, this, [this, stationItem, stationWidget]( const ReosSpatialPosition & position )
+  {
+    stationItem->setPosition( position );
+    stationWidget->setCurrentMarker( addMapItem( stationItem ) );
+  } );
+
+}
+
+void ReosRainfallManager::onAddStationOnMap( const QPointF &point )
+{
+  if ( mMapToolAddStationOnMap->isActive() )
+    mMapToolAddStationOnMap->quitMap();
+
+  addStation( point, true );
 }
 
 void ReosRainfallManager::onAddGaugedRainfall()
@@ -433,7 +611,10 @@ void ReosRainfallManager::onRemoveItem()
     return;
 
   if ( QMessageBox::question( this, tr( "Remove item" ), tr( "Remove: %1" ).arg( item->name() ) ) == QMessageBox::Yes )
+  {
+    removeMarker( item );
     mModel->removeItem( item );
+  }
 }
 
 
@@ -447,13 +628,7 @@ void ReosRainfallManager::onCurrentTreeIndexChanged()
   {
     item->setupData();
     // First the form to acces parameter
-    ReosFormWidget *newForm = new ReosFormWidget( this );
-    newForm->addParameters( item->parameters() );
-    if ( !item->data() ||  !newForm->addData( item->data() ) )
-    {
-      newForm->addItem( new QSpacerItem( 20, 40, QSizePolicy::Ignored, QSizePolicy::Expanding ) );
-      newForm->setStretch( 2, 1 );
-    }
+    ReosFormWidget *newForm = createForm( item );
 
     if ( mCurrentForm )
     {
@@ -527,6 +702,7 @@ void ReosRainfallManager::onTreeViewContextMenu( const QPoint &pos )
         case ReosRainfallItem::Zone:
           menu.addAction( mActionAddZoneToZone );
           menu.addAction( mActionAddStation );
+          menu.addAction( mActionAddStationOnMap );
           break;
         case ReosRainfallItem::Data:
           menu.addActions( dataItemActions( qobject_cast<ReosRainfallDataItem *>( item ) ) );
@@ -556,6 +732,75 @@ void ReosRainfallManager::onImportFromTextFile()
   dialog->exec();
 
   dialog->deleteLater();
+}
+
+ReosMapItem *ReosRainfallManager::addMapItem( ReosRainfallItem *item )
+{
+  ReosStationItem *stationItem = qobject_cast < ReosStationItem *> ( item );
+  if ( stationItem )
+  {
+    if ( !stationItem->position().isValid() )
+      return nullptr;
+
+    std::pair< std::map<ReosStationItem *, std::unique_ptr<ReosMapMarkerSvg>>::iterator, bool> res =
+          mStationsMarker.emplace( stationItem, std::make_unique<ReosMapMarkerSvg>( QStringLiteral( ":/images/station.svg" ), mMap, stationItem->position() ) );
+    if ( res.second )
+      return res.first->second.get();
+  }
+
+  return nullptr;
+}
+
+void ReosRainfallManager::removeMarker( ReosRainfallItem *item )
+{
+  ReosStationItem *stationItem = qobject_cast<ReosStationItem *>( item );
+  if ( item )
+  {
+    auto it = mStationsMarker.find( stationItem );
+    if ( it != mStationsMarker.end() )
+    {
+      mStationsMarker.erase( it );
+    }
+  }
+}
+
+void ReosRainfallManager::buildMarkers()
+{
+  QList<ReosRainfallItem *> itemToTreat;
+  for ( int rz = 0; rz < mModel->rootZoneCount(); ++rz )
+  {
+    ReosZoneItem *rootZone = mModel->rootZone( rz );
+    if ( rootZone )
+      itemToTreat.append( rootZone );
+  }
+
+  while ( !itemToTreat.isEmpty() )
+  {
+    ReosRainfallItem *currentItem = itemToTreat.takeFirst();
+    for ( int i = 0; i < currentItem->childrenCount(); ++i )
+      itemToTreat.append( currentItem->itemAt( i ) );
+
+    addMapItem( currentItem );
+  }
+
+  setMarkersVisible( isVisible() );
+}
+
+void ReosRainfallManager::clearMarkers()
+{
+  mStationsMarker.clear();
+}
+
+void ReosRainfallManager::updateMarkers()
+{
+  clearMarkers();
+  buildMarkers();
+}
+
+void ReosRainfallManager::setMarkersVisible( bool b )
+{
+  for ( auto &it : mStationsMarker )
+    it.second.get()->setVisible( b );
 }
 
 void ReosRainfallManager::selectItem( ReosRainfallItem *item )
@@ -755,4 +1000,3 @@ void ReosPlotItemRainfallSerieFactory::buildPlotItems( ReosPlotWidget *plotWidge
   plotWidget->setMagnifierType( ReosPlotWidget::positiveMagnifier );
   plotWidget->updatePlot();
 }
-

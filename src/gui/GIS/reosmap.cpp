@@ -170,6 +170,19 @@ void ReosMap::setExtent( const ReosMapExtent &extent )
   canvas->refresh();
 }
 
+void ReosMap::setCenter( const QPointF &center )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
+  canvas->setCenter( center );
+  canvas->refresh();
+}
+
+void ReosMap::setCenter( const ReosSpatialPosition &center )
+{
+  if ( mEngine && center.isValid() )
+    setCenter( mEngine->transformToProjectCoordinates( center ) ) ;
+}
+
 ReosMapExtent ReosMap::extent() const
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );

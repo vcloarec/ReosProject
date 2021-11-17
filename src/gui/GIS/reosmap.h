@@ -51,6 +51,8 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     void setDefaultMapTool();
 
     void setExtent( const ReosMapExtent &extent );
+    void setCenter( const QPointF &center );
+    void setCenter( const ReosSpatialPosition &center );
     ReosMapExtent extent() const;
 
     QList<QAction *> mapToolActions();

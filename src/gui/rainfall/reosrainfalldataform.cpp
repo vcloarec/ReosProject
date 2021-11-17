@@ -81,7 +81,10 @@ ReosTimeSerieConstantIntervalWidget::ReosTimeSerieConstantIntervalWidget( ReosTi
 
   ReosTimeSerieTableView *view = new ReosTimeSerieTableView( this );
   addWidget( view );
+  setStretch( count() - 1, 1 );
   view->setModel( mModel );
+
+  setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding );
 
 }
 

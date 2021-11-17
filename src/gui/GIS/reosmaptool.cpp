@@ -133,6 +133,8 @@ ReosMapTool::ReosMapTool( ReosMap *map ):
 void ReosMapTool::setUp()
 {
   connect( tool_p(), &ReosMapTool_p::keyPressed, this, &ReosMapTool::keyPressed );
+  connect( tool_p(), &ReosMapTool_p::activated, this, &ReosMapTool::activated );
+  connect( tool_p(), &ReosMapTool_p::deactivated, this, &ReosMapTool::deactivated );
 }
 
 void ReosMapTool::keyPressed( int key )

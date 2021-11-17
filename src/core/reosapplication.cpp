@@ -17,9 +17,12 @@ email                : vcloarec at gmail dot com
 
 #include <QThread>
 #include <QMessageBox>
+#include "reosmapextent.h"
 
 ReosApplication::ReosApplication( int &argc, char **argv, int flag ): QApplication( argc, argv, flag )
-{}
+{
+  qRegisterMetaType<ReosSpatialPosition>( "ReosSpatialPosition" );
+}
 
 bool ReosApplication::notify( QObject *receiver, QEvent *event )
 {

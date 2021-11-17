@@ -52,7 +52,7 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   ReosPlotItemFactories::instantiate( rootModule() );
   ReosFormWidgetFactories::instantiate( rootModule() );
 
-  mRainFallManagerWidget = new ReosRainfallManager( ReosRainfallRegistery::instance()->rainfallModel(), this );
+  mRainFallManagerWidget = new ReosRainfallManager( mMap, ReosRainfallRegistery::instance()->rainfallModel(), this );
   mActionRainfallManager->setCheckable( true );
   mRainFallManagerWidget->setAction( mActionRainfallManager );
   mRainFallManagerWidget->loadDataFile();

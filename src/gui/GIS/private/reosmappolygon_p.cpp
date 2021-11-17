@@ -545,3 +545,38 @@ void ReosMapMarkerEmptyCircle_p::paint( QPainter *painter )
   painter->restore();
 }
 
+
+ReosMapMarkerSvg_p::ReosMapMarkerSvg_p( QgsMapCanvas *canvas, const QString &filePath )
+  : ReosMapMarker_p( canvas )
+  , mFilePath( filePath )
+  , mSvgRenderer( new QSvgRenderer( filePath ) )
+{}
+
+ReosMapMarkerSvg_p *ReosMapMarkerSvg_p::clone()
+{
+  ReosMapMarkerSvg_p *other = new ReosMapMarkerSvg_p( mMapCanvas, mFilePath );
+  other->mapPoint = mapPoint;
+  other->isEmpty = isEmpty;
+  other->updatePosition();
+  return other;
+}
+
+QRectF ReosMapMarkerSvg_p::boundingRect() const
+{
+  QRectF bb = mSvgRenderer->viewBox();
+  bb.translate( -bb.width() / 2, -bb.height() / 2 );
+  bb.translate( mViewPoint );
+
+  return bb;
+}
+
+void ReosMapMarkerSvg_p::paint( QPainter *painter )
+{
+  if ( !mSvgRenderer )
+    return;
+  painter->save();
+  QRectF viewBox = mSvgRenderer->viewBoxF();
+  painter->translate( mViewPoint - QPointF( viewBox.width() / 2, viewBox.height() / 2 ) );
+  mSvgRenderer->render( painter, viewBox );
+  painter->restore();
+}
