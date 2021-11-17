@@ -18,6 +18,8 @@
 
 #include <QWidget>
 #include <QDialog>
+
+
 #include "reosactionwidget.h"
 #include "reosrainfallitem.h"
 #include "reosplotwidget.h"
@@ -38,6 +40,7 @@ class ReosMap;
 class ReosMapItem;
 class ReosMapMarkerSvg;
 class ReosMapToolMoveMapItem;
+class ReosMapMarkerEmptyCircle;
 
 
 //! Widget to handle rainfall data
@@ -113,6 +116,8 @@ class REOSGUI_EXPORT ReosRainfallManager : public ReosActionWidget
     void clearMarkers();
     void setMarkersVisible( bool b );
 
+    std::unique_ptr<ReosMapMarkerEmptyCircle> mCurrentStationMarker;
+
     void selectItem( ReosRainfallItem *item );
     bool saveOnFile( const QString &fileName );
     QList<QAction *> dataItemActions( ReosRainfallDataItem *dataItem );
@@ -121,6 +126,8 @@ class REOSGUI_EXPORT ReosRainfallManager : public ReosActionWidget
 
     ReosFormWidget *createForm( ReosRainfallItem *item );
     void setupFormForStation( ReosFormWidget *form, ReosStationItem *stationItem );
+
+    void updateCurrentMapItemMarker( ReosRainfallItem *item );
 };
 
 class ReosTextFileData;

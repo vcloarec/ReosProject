@@ -19,13 +19,18 @@ email                : vcloarec at gmail dot com
 #include <QWidget>
 
 #include "reoswatersheddelineating.h"
-#include "reosmaptool.h"
 #include "reosmapitem.h"
 #include "reosactionwidget.h"
 
 class ReosWatershedDelineating;
 class ReosWatershedModule;
 class ReosMapToolEditMapPolygon;
+class ReosMapToolMoveMapItem;
+class ReosMapToolDrawPolyline;
+class ReosMapToolDrawPolygon;
+class ReosMapToolDrawExtent;
+class ReosMapToolSelectMapItem;
+class ReosMapToolDrawPoint;
 class ReosMap;
 
 namespace Ui

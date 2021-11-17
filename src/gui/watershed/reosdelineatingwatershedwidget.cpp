@@ -18,6 +18,7 @@ email                : vcloarec at gmail dot com
 #include "ui_reosdelineatingwatershedwidget.h"
 #include "reosprocesscontroler.h"
 #include "reosmap.h"
+#include "reosmaptool.h"
 #include "reossettings.h"
 
 #include <QBoxLayout>

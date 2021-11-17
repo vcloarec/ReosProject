@@ -18,7 +18,6 @@ email                : vcloarec at gmail dot com
 
 #include <QLabel>
 #include <QDomDocument>
-#include <QPointer>
 #include <QGraphicsView>
 #include <QToolButton>
 
@@ -58,7 +57,6 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     QList<QAction *> mapToolActions();
 
     QDockWidget *temporalControllerDockWidget();
-
 
   signals:
     //! emitted when the mouse cursor moves on the map cavans.

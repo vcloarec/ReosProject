@@ -366,9 +366,10 @@ void ReosMapTool_p::keyPressEvent( QKeyEvent *e )
 
 
 ReosMapToolMoveItem_p::ReosMapToolMoveItem_p( QgsMapCanvas *map ): ReosMapTool_p( map )
-{
+{}
 
-}
+ReosMapToolMoveItem_p::~ReosMapToolMoveItem_p()
+{}
 
 void ReosMapToolMoveItem_p::setCurrentItem( ReosMapItem_p *item )
 {
@@ -480,10 +481,5 @@ void ReosMapToolDrawHydraulicNetworkLink_p::canvasReleaseEvent( QgsMapMouseEvent
       break;
     default:
       break;
-
   }
-  {
-
-  }
-
 }

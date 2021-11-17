@@ -515,6 +515,20 @@ ReosMapMarkerEmptyCircle::ReosMapMarkerEmptyCircle( ReosMap *map, const QPointF 
   }
 }
 
+ReosMapMarkerEmptyCircle::ReosMapMarkerEmptyCircle( ReosMap *map, const ReosSpatialPosition &position ): ReosMapMarker( map )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  if ( canvas )
+  {
+    const QPointF point = map->engine()->transformToProjectCoordinates( position );
+    d_ = new ReosMapMarkerEmptyCircle_p( canvas ); //the owner ship of d pointer is taken by the scene of the map canvas
+    static_cast<ReosMapMarker_p *>( d_ )->mapPoint = point;
+    static_cast<ReosMapMarker_p *>( d_ )->isEmpty = false;
+    d_->updatePosition();
+    d_->base = this;
+  }
+}
+
 ReosMapMarkerEmptyCircle::~ReosMapMarkerEmptyCircle()
 {
   if ( isMapExist() && d_ )

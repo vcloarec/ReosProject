@@ -59,7 +59,6 @@ class ReosMapTool_p: public QgsMapTool
     void canvasMoveEvent( QgsMapMouseEvent *e ) override;
     void keyPressEvent( QKeyEvent *e ) override;
 
-
     QRectF viewSearchZone( const QPoint &pt );
     ReosMapItem_p *searchItem( const QPointF &p ) const;
     ReosMapItem_p *mFoundItem = nullptr;
@@ -186,6 +185,7 @@ class ReosMapToolMoveItem_p: public ReosMapTool_p
     Q_OBJECT
   public:
     ReosMapToolMoveItem_p( QgsMapCanvas *map );
+    ~ReosMapToolMoveItem_p();
     void setCurrentItem( ReosMapItem_p *item );
     void setMovingColor( const QColor &movingColor );
 

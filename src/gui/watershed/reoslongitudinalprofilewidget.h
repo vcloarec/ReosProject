@@ -19,8 +19,8 @@
 #include <QWidget>
 
 #include "reoseditableprofile.h"
-#include "reosmaptool.h"
 #include "reosactionwidget.h"
+#include "reosmapitem.h"
 
 namespace Ui
 {
@@ -37,6 +37,10 @@ class QAction;
 class ReosWatershed;
 class ReosPlotWidget;
 class ReosMap;
+class ReosMapToolDrawPoint;
+class ReosMapToolEditMapPolyline;
+class ReosMapToolDrawPolyline;
+
 
 class ReosLongitudinalProfileWidget : public ReosActionWidget
 {

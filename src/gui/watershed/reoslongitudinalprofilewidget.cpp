@@ -26,6 +26,7 @@
 #include "reoseditableprofile.h"
 #include "reosdigitalelevationmodel.h"
 #include "reosmap.h"
+#include "reosmaptool.h"
 #include "reossettings.h"
 
 ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWidget *parent ) :

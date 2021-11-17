@@ -24,6 +24,11 @@ email                : vcloarec at gmail dot com
 
 ReosMapToolDrawPolyline::ReosMapToolDrawPolyline( ReosMap *map ): ReosMapToolDrawPolyRubberBand( map, false )
 {
+
+}
+
+ReosMapToolDrawPolyline::ReosMapToolDrawPolyline( QObject *parent, ReosMap *map ): ReosMapToolDrawPolyRubberBand( parent, map, false )
+{
   d->setCursor( QCursor( QPixmap( ":/cursors/linearDrawing.png" ), 3, 3 ) );
   connect( d, &ReosMapToolDrawPolyline_p::polylineDrawn, this, &ReosMapToolDrawPolyline::drawn );
 
@@ -31,7 +36,10 @@ ReosMapToolDrawPolyline::ReosMapToolDrawPolyline( ReosMap *map ): ReosMapToolDra
 }
 
 
-ReosMapToolDrawPolygon::ReosMapToolDrawPolygon( ReosMap *map ): ReosMapToolDrawPolyRubberBand( map, true )
+ReosMapToolDrawPolygon::ReosMapToolDrawPolygon( ReosMap *map ): ReosMapToolDrawPolygon( map, map )
+{}
+
+ReosMapToolDrawPolygon::ReosMapToolDrawPolygon( QObject *parent, ReosMap *map ): ReosMapToolDrawPolyRubberBand( parent, map, true )
 {
   d->setCursor( QCursor( QPixmap( ":/cursors/linearDrawing.png" ), 3, 3 ) );
   connect( d, &ReosMapToolDrawPolyline_p::polylineDrawn, this, &ReosMapToolDrawPolygon::drawn );
@@ -86,7 +94,15 @@ void ReosMapTool::setSearchItemWhenMoving( bool b )
   tool_p()->setSeachWhenMoving( b );
 }
 
-ReosMapToolDrawPolyRubberBand::ReosMapToolDrawPolyRubberBand( ReosMap *map, bool closed ): ReosMapTool( map )
+ReosMapToolDrawPolyRubberBand::ReosMapToolDrawPolyRubberBand( QObject *parent, ReosMap *map, bool closed ): ReosMapTool( parent, map )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  d = new ReosMapToolDrawPolyline_p( canvas, closed );
+
+  setUp();
+}
+
+ReosMapToolDrawPolyRubberBand::ReosMapToolDrawPolyRubberBand( ReosMap *map, bool closed ): ReosMapToolDrawPolyRubberBand( map, map, closed )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolDrawPolyline_p( canvas, closed );
@@ -96,7 +112,7 @@ ReosMapToolDrawPolyRubberBand::ReosMapToolDrawPolyRubberBand( ReosMap *map, bool
 
 ReosMapToolDrawPolyRubberBand::~ReosMapToolDrawPolyRubberBand()
 {
-  if ( d )
+  if ( !d.isNull() )
     d->deleteLater();
 }
 
@@ -125,8 +141,8 @@ ReosMapTool_p *ReosMapToolDrawPolyRubberBand::tool_p() const
   return d;
 }
 
-ReosMapTool::ReosMapTool( ReosMap *map ):
-  QObject( map )
+ReosMapTool::ReosMapTool( QObject *parent, ReosMap *map )
+  : QObject( parent )
   , mMap( map )
 {}
 
@@ -161,7 +177,10 @@ bool ReosMapTool::isActive() const
   return tool_p()->isActive();
 }
 
-ReosMapToolDrawExtent::ReosMapToolDrawExtent( ReosMap *map ): ReosMapTool( map )
+ReosMapToolDrawExtent::ReosMapToolDrawExtent( ReosMap *map ): ReosMapToolDrawExtent( map, map )
+{}
+
+ReosMapToolDrawExtent::ReosMapToolDrawExtent( QObject *parent, ReosMap *map ): ReosMapTool( parent, map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolDrawExtent_p( canvas );
@@ -173,7 +192,7 @@ ReosMapToolDrawExtent::ReosMapToolDrawExtent( ReosMap *map ): ReosMapTool( map )
 
 ReosMapToolDrawExtent::~ReosMapToolDrawExtent()
 {
-  if ( d )
+  if ( !d.isNull() )
     d->deleteLater();
 }
 
@@ -207,7 +226,10 @@ void ReosMapToolDrawExtent::setLineStyle( Qt::PenStyle style )
   d->mRubberBand->setLineStyle( style );
 }
 
-ReosMapToolSelectMapItem::ReosMapToolSelectMapItem( ReosMap *map, const QString &targetDescription ): ReosMapTool( map )
+ReosMapToolSelectMapItem::ReosMapToolSelectMapItem( ReosMap *map, const QString &targetDescription ): ReosMapToolSelectMapItem( map, map, targetDescription )
+{}
+
+ReosMapToolSelectMapItem::ReosMapToolSelectMapItem( QObject *parent, ReosMap *map, const QString &targetDescription ): ReosMapTool( parent, map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolSelectMapItem_p( canvas, targetDescription );
@@ -219,7 +241,7 @@ ReosMapToolSelectMapItem::ReosMapToolSelectMapItem( ReosMap *map, const QString 
 
 ReosMapToolSelectMapItem::~ReosMapToolSelectMapItem()
 {
-  if ( d )
+  if ( !d.isNull() )
     d->deleteLater();
 }
 
@@ -233,7 +255,7 @@ ReosMapTool_p *ReosMapToolSelectMapItem::tool_p() const
   return d;
 }
 
-ReosMapToolDrawPoint::ReosMapToolDrawPoint( ReosMap *map ): ReosMapTool( map )
+ReosMapToolDrawPoint::ReosMapToolDrawPoint( QObject *parent, ReosMap *map ): ReosMapTool( parent, map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolDrawPoint_p( canvas );
@@ -242,9 +264,12 @@ ReosMapToolDrawPoint::ReosMapToolDrawPoint( ReosMap *map ): ReosMapTool( map )
   setUp();
 }
 
+ReosMapToolDrawPoint::ReosMapToolDrawPoint( ReosMap *map ): ReosMapToolDrawPoint( map, map )
+{}
+
 ReosMapToolDrawPoint::~ReosMapToolDrawPoint()
 {
-  if ( d )
+  if ( !d.isNull() )
     d->deleteLater();
 }
 
@@ -253,7 +278,11 @@ ReosMapTool_p *ReosMapToolDrawPoint::tool_p() const
   return d;
 }
 
-ReosMapToolNeutral::ReosMapToolNeutral( ReosMap *map ): ReosMapTool( map )
+ReosMapToolNeutral::ReosMapToolNeutral( ReosMap *map ): ReosMapToolNeutral( map, map )
+{
+}
+
+ReosMapToolNeutral::ReosMapToolNeutral( QObject *parent, ReosMap *map ): ReosMapTool( parent, map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapTool_p( canvas );
@@ -262,7 +291,7 @@ ReosMapToolNeutral::ReosMapToolNeutral( ReosMap *map ): ReosMapTool( map )
 
 ReosMapToolNeutral::~ReosMapToolNeutral()
 {
-  if ( d )
+  if ( !d.isNull() )
     d->deleteLater();
 }
 
@@ -271,7 +300,10 @@ ReosMapTool_p *ReosMapToolNeutral::tool_p() const
   return d;
 }
 
-ReosMapToolEditMapPolyline::ReosMapToolEditMapPolyline( ReosMap *map ): ReosMapTool( map )
+ReosMapToolEditMapPolyline::ReosMapToolEditMapPolyline( ReosMap *map ): ReosMapToolEditMapPolyline( map, map )
+{}
+
+ReosMapToolEditMapPolyline::ReosMapToolEditMapPolyline( QObject *parent, ReosMap *map ): ReosMapTool( parent, map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolEditPolygon_p( canvas );
@@ -279,6 +311,12 @@ ReosMapToolEditMapPolyline::ReosMapToolEditMapPolyline( ReosMap *map ): ReosMapT
   connect( d, &ReosMapToolEditPolygon_p::polygonEdited, this, &ReosMapToolEditMapPolyline::polylineEdited );
 
   setUp();
+}
+
+ReosMapToolEditMapPolyline::~ReosMapToolEditMapPolyline()
+{
+  if ( !d.isNull() )
+    d->deleteLater();
 }
 
 void ReosMapToolEditMapPolyline::setMapPolyline( ReosMapPolyline *polyline )
@@ -291,7 +329,10 @@ ReosMapTool_p *ReosMapToolEditMapPolyline::tool_p() const
   return d;
 }
 
-ReosMapToolEditMapPolygon::ReosMapToolEditMapPolygon( ReosMap *map ): ReosMapTool( map )
+ReosMapToolEditMapPolygon::ReosMapToolEditMapPolygon( ReosMap *map ): ReosMapToolEditMapPolygon( map, map )
+{}
+
+ReosMapToolEditMapPolygon::ReosMapToolEditMapPolygon( QObject *parent, ReosMap *map ): ReosMapTool( parent, map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolEditPolygon_p( canvas );
@@ -299,6 +340,12 @@ ReosMapToolEditMapPolygon::ReosMapToolEditMapPolygon( ReosMap *map ): ReosMapToo
   connect( d, &ReosMapToolEditPolygon_p::polygonEdited, this, &ReosMapToolEditMapPolygon::polygonEdited );
 
   setUp();
+}
+
+ReosMapToolEditMapPolygon::~ReosMapToolEditMapPolygon()
+{
+  if ( !d.isNull() )
+    d->deleteLater();
 }
 
 void ReosMapToolEditMapPolygon::setMapPolygon( ReosMapPolygon *polygon )
@@ -317,7 +364,10 @@ ReosMapTool_p *ReosMapToolEditMapPolygon::tool_p() const
   return d;
 }
 
-ReosMapToolMoveMapItem::ReosMapToolMoveMapItem( ReosMap *map ): ReosMapTool( map )
+ReosMapToolMoveMapItem::ReosMapToolMoveMapItem( ReosMap *map ): ReosMapToolMoveMapItem( map, map )
+{}
+
+ReosMapToolMoveMapItem::ReosMapToolMoveMapItem( QObject *parent, ReosMap *map ): ReosMapTool( parent, map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolMoveItem_p( canvas );
@@ -325,6 +375,12 @@ ReosMapToolMoveMapItem::ReosMapToolMoveMapItem( ReosMap *map ): ReosMapTool( map
   connect( d, &ReosMapToolMoveItem_p::itemMoved, this, &ReosMapToolMoveMapItem::itemMoved );
 
   setUp();
+}
+
+ReosMapToolMoveMapItem::~ReosMapToolMoveMapItem()
+{
+  if ( !d.isNull() )
+    d->deleteLater();
 }
 
 void ReosMapToolMoveMapItem::setCurrentMapItem( ReosMapItem *item )

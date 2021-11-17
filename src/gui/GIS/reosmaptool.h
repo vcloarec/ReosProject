@@ -17,15 +17,15 @@ email                : vcloarec at gmail dot com
 #define REOSMAPTOOL_H
 
 #include <memory>
-#include "reosmap.h"
-#include <QPointer>
 
+#include "reosmap.h"
+
+class ReosMapToolEditPolygon_p;
+class ReosMapToolMoveItem_p;
 class ReosMapToolDrawPoint_p;
 class ReosMapToolDrawPolyline_p;
 class ReosMapToolDrawExtent_p;
 class ReosMapToolSelectMapItem_p;
-class ReosMapToolEditPolygon_p;
-class ReosMapToolMoveItem_p;
 class ReosMapTool_p;
 class ReosMenuPopulator;
 
@@ -34,6 +34,7 @@ class ReosMapTool : public QObject
     Q_OBJECT
   public:
     virtual ~ReosMapTool();
+
     void activate();
     void deactivate();
 
@@ -65,7 +66,7 @@ class ReosMapTool : public QObject
     void deactivated();
 
   protected:
-    ReosMapTool( ReosMap *map );
+    ReosMapTool( QObject *parent, ReosMap *map );
     void setUp();
 
   protected slots:
@@ -80,6 +81,7 @@ class ReosMapToolNeutral: public ReosMapTool
 {
   public:
     ReosMapToolNeutral( ReosMap *map );
+    ReosMapToolNeutral( QObject *parent, ReosMap *map );
     ~ReosMapToolNeutral();
 
   private:
@@ -93,6 +95,7 @@ class ReosMapToolDrawPoint: public ReosMapTool
     Q_OBJECT
   public:
     ReosMapToolDrawPoint( ReosMap *map );
+    ReosMapToolDrawPoint( QObject *parent, ReosMap *map );
     ~ReosMapToolDrawPoint();
 
   signals:
@@ -109,6 +112,7 @@ class ReosMapToolDrawPolyRubberBand : public ReosMapTool
     Q_OBJECT
   public:
     ReosMapToolDrawPolyRubberBand( ReosMap *map, bool closed );
+    ReosMapToolDrawPolyRubberBand( QObject *parent, ReosMap *map, bool closed );
     ~ReosMapToolDrawPolyRubberBand();
 
     void setStrokeWidth( double width );
@@ -127,6 +131,7 @@ class ReosMapToolDrawPolyline : public ReosMapToolDrawPolyRubberBand
     Q_OBJECT
   public:
     ReosMapToolDrawPolyline( ReosMap *map );
+    ReosMapToolDrawPolyline( QObject *parent, ReosMap *map );
 
   signals:
     void drawn( const QPolygonF &polyline ) const;
@@ -137,6 +142,7 @@ class ReosMapToolDrawPolygon : public ReosMapToolDrawPolyRubberBand
     Q_OBJECT
   public:
     ReosMapToolDrawPolygon( ReosMap *map );
+    ReosMapToolDrawPolygon( QObject *parent, ReosMap *map );
 
     void setFillColor( const QColor &color );
 
@@ -149,6 +155,7 @@ class ReosMapToolDrawExtent: public ReosMapTool
     Q_OBJECT
   public:
     ReosMapToolDrawExtent( ReosMap *map );
+    ReosMapToolDrawExtent( QObject *parent, ReosMap *map );
     ~ReosMapToolDrawExtent();
 
     void setStrokeWidth( double width );
@@ -161,7 +168,7 @@ class ReosMapToolDrawExtent: public ReosMapTool
     void extentDrawn( const QRectF &extent );
 
   private:
-    ReosMapToolDrawExtent_p *d;
+    QPointer<ReosMapToolDrawExtent_p> d;
     ReosMapTool_p *tool_p() const override;
 };
 
@@ -170,6 +177,7 @@ class ReosMapToolSelectMapItem : public ReosMapTool
     Q_OBJECT
   public:
     ReosMapToolSelectMapItem( ReosMap *map, const QString &targetDescription );
+    ReosMapToolSelectMapItem( QObject *parent, ReosMap *map, const QString &targetDescription );
     ~ReosMapToolSelectMapItem();
 
     void setSearchUnderPoint( bool b );
@@ -178,7 +186,7 @@ class ReosMapToolSelectMapItem : public ReosMapTool
     void found( ReosMapItem *item, const QPointF &point );
 
   private:
-    ReosMapToolSelectMapItem_p *d;
+    QPointer<ReosMapToolSelectMapItem_p> d;
     ReosMapTool_p *tool_p() const;
 };
 
@@ -187,6 +195,8 @@ class ReosMapToolEditMapPolyline : public ReosMapTool
     Q_OBJECT
   public:
     ReosMapToolEditMapPolyline( ReosMap *map );
+    ReosMapToolEditMapPolyline( QObject *parent, ReosMap *map );
+    ~ReosMapToolEditMapPolyline();
 
     //! Sets the map \a polyline to edit
     void setMapPolyline( ReosMapPolyline *polyline );
@@ -194,7 +204,7 @@ class ReosMapToolEditMapPolyline : public ReosMapTool
   signals:
     void polylineEdited();
   private:
-    ReosMapToolEditPolygon_p *d = nullptr;
+    QPointer<ReosMapToolEditPolygon_p> d;
     ReosMapTool_p *tool_p() const;
 };
 
@@ -203,6 +213,8 @@ class ReosMapToolEditMapPolygon : public ReosMapTool
     Q_OBJECT
   public:
     ReosMapToolEditMapPolygon( ReosMap *map );
+    ReosMapToolEditMapPolygon( QObject *parent, ReosMap *map );
+    ~ReosMapToolEditMapPolygon();
 
     //! Sets the map \a polyline to edit
     void setMapPolygon( ReosMapPolygon *polygon );
@@ -210,7 +222,7 @@ class ReosMapToolEditMapPolygon : public ReosMapTool
   signals:
     void polygonEdited();
   private:
-    ReosMapToolEditPolygon_p *d = nullptr;
+    QPointer<ReosMapToolEditPolygon_p> d;
     ReosMapTool_p *tool_p() const;
 };
 
@@ -219,6 +231,9 @@ class ReosMapToolMoveMapItem: public ReosMapTool
     Q_OBJECT
   public:
     ReosMapToolMoveMapItem( ReosMap *map );
+    ReosMapToolMoveMapItem( QObject *parent, ReosMap *map );
+    ~ReosMapToolMoveMapItem();
+
     void setCurrentMapItem( ReosMapItem *item );
     void setMovingColor( const QColor &movingColor );
 
@@ -226,7 +241,7 @@ class ReosMapToolMoveMapItem: public ReosMapTool
     void itemMoved( ReosMapItem *item );
 
   private:
-    ReosMapToolMoveItem_p *d = nullptr;
+    QPointer<ReosMapToolMoveItem_p> d;
     ReosMapTool_p *tool_p() const;
 };
 

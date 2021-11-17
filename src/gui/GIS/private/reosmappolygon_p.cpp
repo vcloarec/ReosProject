@@ -376,9 +376,7 @@ void ReosMapMarker_p::setMapPosition( const QgsPointXY &pos )
 }
 
 ReosMapMarker_p::ReosMapMarker_p( QgsMapCanvas *canvas ): ReosMapItem_p( canvas )
-{
-
-}
+{}
 
 void ReosMapMarker_p::updatePosition()
 {

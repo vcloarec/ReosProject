@@ -347,7 +347,7 @@ ReosSpatialStationWidgetToolbar::ReosSpatialStationWidgetToolbar( ReosMap *map, 
   mActionMapOnStation = toolBar->addAction( QPixmap( QStringLiteral( ":/images/mapOnStation.svg" ) ), tr( "Move Map on Station Position" ) );
   layout()->addWidget( toolBar );
 
-  mSetPositionTool = new ReosMapToolDrawPoint( map );
+  mSetPositionTool = new ReosMapToolDrawPoint( this, map );
   mSetPositionTool->setCursor( QCursor( QPixmap( QStringLiteral( ":/images/station.svg" ) ), 12, 12 ) );
   mSetPositionTool->setAction( mActionSetPosition );
   mActionSetPosition->setCheckable( true );
@@ -359,7 +359,7 @@ ReosSpatialStationWidgetToolbar::ReosSpatialStationWidgetToolbar( ReosMap *map, 
     updateTools();
   } );
 
-  mMovePositionTool = new ReosMapToolMoveMapItem( map );
+  mMovePositionTool = new ReosMapToolMoveMapItem( this, map );
   mMovePositionTool->setAction( mActionMovePosition );
   mActionMovePosition->setCheckable( true );
   mMovePositionTool->setCurrentMapItem( marker );
@@ -391,10 +391,7 @@ ReosSpatialStationWidgetToolbar::ReosSpatialStationWidgetToolbar( ReosMap *map, 
 }
 
 ReosSpatialStationWidgetToolbar::~ReosSpatialStationWidgetToolbar()
-{
-  mSetPositionTool->deleteLater();
-  mMovePositionTool->deleteLater();
-}
+{}
 
 void ReosSpatialStationWidgetToolbar::setCurrentMarker( ReosMapItem *currentMarker )
 {
@@ -449,6 +446,7 @@ void ReosRainfallManager::setupFormForStation( ReosFormWidget *form, ReosStation
   {
     stationItem->setPosition( ReosSpatialPosition() );
     removeMarker( stationItem );
+    updateCurrentMapItemMarker( stationItem );
   } );
 
   connect( stationWidget, &ReosSpatialStationWidgetToolbar::mapOnMarker, this, [this, stationItem]
@@ -456,17 +454,34 @@ void ReosRainfallManager::setupFormForStation( ReosFormWidget *form, ReosStation
     mMap->setCenter( stationItem->position() );
   } );
 
-  connect( stationWidget, &ReosSpatialStationWidgetToolbar::movePosition, this, [stationItem]( const ReosSpatialPosition & position )
+  connect( stationWidget, &ReosSpatialStationWidgetToolbar::movePosition, this, [this, stationItem]( const ReosSpatialPosition & position )
   {
     stationItem->setPosition( position );
+    updateCurrentMapItemMarker( stationItem );
   } );
 
   connect( stationWidget, &ReosSpatialStationWidgetToolbar::setMarker, this, [this, stationItem, stationWidget]( const ReosSpatialPosition & position )
   {
     stationItem->setPosition( position );
     stationWidget->setCurrentMarker( addMapItem( stationItem ) );
+    updateCurrentMapItemMarker( stationItem );
   } );
 
+}
+
+void ReosRainfallManager::updateCurrentMapItemMarker( ReosRainfallItem *item )
+{
+  mCurrentStationMarker.reset();
+
+  ReosStationItem *stationItem = qobject_cast<ReosStationItem *>( item );
+  if ( stationItem && stationItem->position().isValid() )
+  {
+    mCurrentStationMarker.reset( new  ReosMapMarkerEmptyCircle( mMap, stationItem->position() ) );
+    mCurrentStationMarker->setWidth( 24 );
+    mCurrentStationMarker->setColor( Qt::red );
+    mCurrentStationMarker->setExternalColor( Qt::white );
+    mCurrentStationMarker->setExternalWidth( 32 );
+  }
 }
 
 void ReosRainfallManager::onAddStationOnMap( const QPointF &point )
@@ -623,6 +638,8 @@ void ReosRainfallManager::onCurrentTreeIndexChanged()
   QModelIndex currentIndex = ui->mTreeView->currentIndex();
 
   ReosRainfallItem *item = mModel->indexToItem( currentIndex );
+
+  updateCurrentMapItemMarker( item );
 
   if ( item )
   {
@@ -801,6 +818,9 @@ void ReosRainfallManager::setMarkersVisible( bool b )
 {
   for ( auto &it : mStationsMarker )
     it.second.get()->setVisible( b );
+
+  if ( mCurrentStationMarker )
+    mCurrentStationMarker->setVisible( b );
 }
 
 void ReosRainfallManager::selectItem( ReosRainfallItem *item )

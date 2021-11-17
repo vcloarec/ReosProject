@@ -112,6 +112,7 @@ class ReosMapMarkerEmptyCircle : public ReosMapMarker
     ReosMapMarkerEmptyCircle();
     ReosMapMarkerEmptyCircle( ReosMap *map );
     ReosMapMarkerEmptyCircle( ReosMap *map, const QPointF &point );
+    ReosMapMarkerEmptyCircle( ReosMap *map, const ReosSpatialPosition &position );
     ~ReosMapMarkerEmptyCircle();
 };
 
