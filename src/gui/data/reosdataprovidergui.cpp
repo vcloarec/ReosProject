@@ -19,8 +19,9 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QLibrary>
+#include <QDebug>
 
-ReosDataProviderSelectorWidget *ReosDataProviderGuiFactory::createProviderSelectorWidget( ReosMap *, QWidget * ) const
+ReosDataProviderSelectorWidget *ReosDataProviderGuiFactory::createProviderSelectorWidget( ReosMap *, const QString &, QWidget * ) const
 {
   return nullptr;
 }
@@ -52,28 +53,41 @@ QStringList ReosDataProviderGuiRegistery::providers( const QString &dataType, Re
   QStringList ret;
 
   for ( auto const &fact : std::as_const( mFactories ) )
-    if ( ( fact.second->capabilities() & capability ) && fact.second->dataType() == dataType )
+    if ( ( fact.second->capabilities() & capability ) && fact.second->dataType().contains( dataType ) )
       ret.append( fact.second->key() );
 
   return ret;
 }
 
-ReosDataProviderSelectorWidget *ReosDataProviderGuiRegistery::createProviderSelectorWidget( const QString &key, ReosMap *map, QWidget *parent )
+ReosDataProviderSelectorWidget *ReosDataProviderGuiRegistery::createProviderSelectorWidget( const QString &key, const QString &dataType, ReosMap *map, QWidget *parent )
 {
   ReosDataProviderGuiFactory *fact = guiFactory( key );
   if ( fact )
-    return fact->createProviderSelectorWidget( map, parent );
+    return fact->createProviderSelectorWidget( map, dataType, parent );
 
   return nullptr;
 }
 
 ReosDataProviderSettingsWidget *ReosDataProviderGuiRegistery::createProviderSettingsWidget( ReosDataProvider *dataProvider, QWidget *parent )
 {
-  ReosDataProviderGuiFactory *fact = guiFactory( dataProvider->key() );
+  QString providerKey = dataProvider->key();
+  if ( providerKey.contains( ':' ) )
+    providerKey = providerKey.split( ':' ).at( 0 );
+
+  ReosDataProviderGuiFactory *fact = guiFactory( providerKey );
   if ( fact )
     return fact->createProviderSettingsWidget( dataProvider, parent );
 
   return nullptr;
+}
+
+bool ReosDataProviderGuiRegistery::hasCapability( QString providerKey, ReosDataProviderGuiFactory::GuiCapability capability ) const
+{
+  ReosDataProviderGuiFactory *fact = guiFactory( providerKey );
+  if ( !fact )
+    return false;
+
+  return fact->capabilities().testFlag( capability );
 }
 
 ReosDataProviderGuiFactory *ReosDataProviderGuiRegistery::guiFactory( const QString &key ) const
@@ -106,9 +120,11 @@ QString ReosDataProviderGuiRegistery::providerDisplayText( const QString &key ) 
 ReosDataProviderGuiRegistery *ReosDataProviderGuiRegistery::instance()
 {
   if ( !sInstance )
+  {
     sInstance = new ReosDataProviderGuiRegistery();
+    sInstance->loadDynamicProvider();
+  }
 
-  sInstance->loadDynamicProvider();
   return sInstance;
 }
 
@@ -146,14 +162,24 @@ void ReosDataProviderGuiRegistery::loadDynamicProvider()
       QFunctionPointer fcp = library.resolve( "providerGuiFactory" );
       factory_function *func = reinterpret_cast<factory_function *>( fcp );
 
-      ReosDataProviderGuiFactory *providerFactory = func();
-      registerProviderGuiFactory( providerFactory );
+      if ( func )
+      {
+        ReosDataProviderGuiFactory *providerFactory = func();
+        registerProviderGuiFactory( providerFactory );
+      }
     }
+    else
+      qDebug() << library.errorString();
   }
 }
 
 ReosDataObject *ReosDataProviderSelectorWidget::createData( QObject * ) const {return nullptr;}
 
 ReosDataObject *ReosDataProviderSelectorWidget::selectedData() const {return nullptr;}
+
+QVariantMap ReosDataProviderSelectorWidget::selectedMetadata() const
+{
+  return QVariantMap();
+}
 
 ReosDataProviderSettingsWidget::ReosDataProviderSettingsWidget( QWidget *parent ): QWidget( parent ) {}

@@ -52,22 +52,28 @@ class ReosHubEauHydrographProvider : public ReosTimeSerieVariableTimeStepProvide
     //! Returns the last status of  loading data
     Status status() const;
 
-    static QString staticKey();
-
     //! Returns the meta data linked to this provider
-    QVariantMap metaData() const;
+    QVariantMap metadata() const;
 
     //! Sets the meta data of this provider
-    void setMetaData( const QVariantMap &metaData );
+    void setMetadata( const QVariantMap &metadata );
+
+    QString htmlDescription() const override;
+    static QString htmlDescriptionFromMeta( const QVariantMap &metadata );
+
+    //! Returns the key of this provider
+    static QString staticKey();
 
   private slots:
     void onResultReady( const QVariantMap &result );
     void onLoadingFinished();
+    void onMetadataReady( const QVariantMap &result );
 
   private:
     QDateTime mReferenceTime;
     ReosHubEauConnectionControler *mFlowRequestControler = nullptr;
-    QVariantMap mMetaData;
+    ReosHubEauConnectionControler *mMetadataRequestControler = nullptr;
+    QVariantMap mMetadata;
     QVector<double> mCachedValues;
     QVector<ReosDuration> mCachedTimeValues;
     Status mStatus = Status::Loaded;
@@ -76,7 +82,7 @@ class ReosHubEauHydrographProvider : public ReosTimeSerieVariableTimeStepProvide
 class ReosHubEauHydrographProviderFactory: public ReosDataProviderFactory
 {
   public:
-    ReosTimeSerieProvider *createProvider() const override {return new ReosHubEauHydrographProvider;};
+    ReosTimeSerieProvider *createProvider( const QString & ) const override {return new ReosHubEauHydrographProvider;};
     QString key() const override;
 };
 

@@ -376,7 +376,8 @@ ReosDoubleTriangleRainfall::ReosDoubleTriangleRainfall( QObject *parent ) :
   connectParameters();
 }
 
-ReosSerieRainfall::ReosSerieRainfall( QObject *parent ): ReosTimeSerieConstantInterval( parent )
+ReosSerieRainfall::ReosSerieRainfall( QObject *parent, const QString &providerKey, const QString &dataSource ):
+  ReosTimeSerieConstantInterval( parent, providerKey, dataSource )
 {
   setUpdata();
 }

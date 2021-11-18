@@ -18,6 +18,8 @@
 #include "reoshubeauserver.h"
 #include "reoscore.h"
 
+#include <QLocale>
+
 QString ReosHubEauHydrographProvider::key() const {return ReosHubEauHydrographProvider::staticKey();}
 
 QDateTime ReosHubEauHydrographProvider::referenceTime() const {return mReferenceTime;}
@@ -62,7 +64,7 @@ ReosEncodedElement ReosHubEauHydrographProvider::encode() const
   ReosEncodedElement element( ReosHubEauHydrographProvider::staticKey() );
   element.addData( QStringLiteral( "source" ), dataSource() );
 
-  element.addData( QStringLiteral( "metadata" ), mMetaData );
+  element.addData( QStringLiteral( "metadata" ), mMetadata );
 
   return element;
 }
@@ -74,8 +76,13 @@ void ReosHubEauHydrographProvider::decode( const ReosEncodedElement &element )
 
   QString source;
   element.getData( QStringLiteral( "source" ), source );
-  element.getData( QStringLiteral( "metadata" ), mMetaData );
+  element.getData( QStringLiteral( "metadata" ), mMetadata );
   setDataSource( source );
+
+  // update the metadata with server
+  mMetadataRequestControler = new ReosHubEauConnectionControler( this );
+  connect( mMetadataRequestControler, &ReosHubEauConnectionControler::resultReady, this, &ReosHubEauHydrographProvider::onMetadataReady );
+  mMetadataRequestControler->request( QStringLiteral( "referentiel/stations?code_entite=%1&format=json&pretty&page=1&size=1" ).arg( source ) );
 }
 
 ReosDuration ReosHubEauHydrographProvider::relativeTimeAt( int i ) const {return mCachedTimeValues.at( i );}
@@ -130,14 +137,88 @@ void ReosHubEauHydrographProvider::onLoadingFinished()
   emit dataChanged();
 }
 
-QVariantMap ReosHubEauHydrographProvider::metaData() const
+void ReosHubEauHydrographProvider::onMetadataReady( const QVariantMap &result )
 {
-  return mMetaData;
+  if ( result.contains( QStringLiteral( "data" ) ) )
+  {
+    const QVariant varData = result.value( QStringLiteral( "data" ) );
+    if ( varData.type() == QVariant::Map )
+    {
+      mMetadata = varData.toMap();
+      mMetadataRequestControler->deleteLater();
+      mMetadataRequestControler = nullptr;
+      emit dataChanged();
+    }
+  }
 }
 
-void ReosHubEauHydrographProvider::setMetaData( const QVariantMap &metaData )
+QVariantMap ReosHubEauHydrographProvider::metadata() const
 {
-  mMetaData = metaData;
+  return mMetadata;
+}
+
+void ReosHubEauHydrographProvider::setMetadata( const QVariantMap &metadata )
+{
+  mMetadata = metadata;
+}
+
+QString ReosHubEauHydrographProvider::htmlDescription() const
+{
+  return htmlDescriptionFromMeta( mMetadata );
+}
+
+QString ReosHubEauHydrographProvider::htmlDescriptionFromMeta( const QVariantMap &metadata )
+{
+  QString htmlText = QStringLiteral( "<html>\n<body>\n" );
+  htmlText += QLatin1String( "<table class=\"list-view\">\n" );
+
+  if ( metadata.isEmpty() )
+  {
+    htmlText += QStringLiteral( "<h2>" ) + tr( "No station selected" ) + QStringLiteral( "</h2>\n<hr>\n" );
+  }
+  else
+  {
+    htmlText += QStringLiteral( "<h2>" ) + metadata.value( QStringLiteral( "libelle_station" ) ).toString() + QStringLiteral( "</h2>\n<hr>\n" );
+
+    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+                + tr( "<b>On duty</b>" ) + QStringLiteral( "</td><td>" )
+                + ( metadata.value( QStringLiteral( "en_service" ) ).toBool() ? tr( "yes" ) : tr( "no" ) )
+                + QStringLiteral( "</td></tr>\n" );
+
+    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+                + tr( "<b>Station type</b>" ) + QStringLiteral( "</td><td>" )
+                + metadata.value( QStringLiteral( "type_station" ) ).toString()
+                + QStringLiteral( "</td></tr>\n" );
+
+    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+                + tr( "<b>Opening date</b>" ) + QStringLiteral( "</td><td>" )
+                + QLocale().toString( QDateTime::fromString( metadata.value( QStringLiteral( "date_ouverture_station" ) ).toString(), Qt::ISODate ) )
+                + QStringLiteral( "</td></tr>\n" );
+
+    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+                + tr( "<b>Closing date</b>" ) + QStringLiteral( "</td><td>" )
+                + QLocale().toString( QDateTime::fromString( metadata.value( QStringLiteral( "date_fermeture_station" ) ).toString(), Qt::ISODate ) )
+                + QStringLiteral( "</td></tr>\n" );
+
+    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+                + tr( "<b>Local influence</b>" ) + QStringLiteral( "</td><td>" )
+                + metadata.value( QStringLiteral( "influence_locale_station" ) ).toString()
+                + QStringLiteral( "</td></tr>\n" );
+
+    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+                + tr( "<b>Local influence comments</b>" ) + QStringLiteral( "</td><td>" )
+                + metadata.value( QStringLiteral( "commentaire_influence_locale_station" ) ).toString()
+                + QStringLiteral( "</td></tr>\n" );
+
+    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+                + tr( "<b>Comments</b>" ) + QStringLiteral( "</td><td>" )
+                + metadata.value( QStringLiteral( "commentaire_station" ) ).toString()
+                + QStringLiteral( "</td></tr>\n" );
+  }
+
+  htmlText += QLatin1String( "\n</body>\n</html>\n" );
+
+  return htmlText;
 }
 
 ReosHubEauHydrographProvider::Status ReosHubEauHydrographProvider::status() const
@@ -150,9 +231,10 @@ QString ReosHubEauHydrographProvider::staticKey()
   return QStringLiteral( "hub-eau-hydrometry" );
 }
 
+QString ReosHubEauHydrographProviderFactory::key() const {return ReosHubEauHydrographProvider::staticKey();}
+
+
 REOSEXTERN ReosDataProviderFactory *providerFactory()
 {
   return new ReosHubEauHydrographProviderFactory();
 }
-
-QString ReosHubEauHydrographProviderFactory::key() const {return ReosHubEauHydrographProvider::staticKey();}

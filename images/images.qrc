@@ -101,6 +101,8 @@
         <file>moveStation.svg</file>
         <file>removeStation.svg</file>
         <file>mapOnStation.svg</file>
+        <file>addSyntheticRainfall.svg</file>
+        <file>selectStationOnMap.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

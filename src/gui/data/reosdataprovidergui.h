@@ -41,6 +41,21 @@ class ReosDataProviderSelectorWidget : public QWidget
     //! Returns a pointer to the current selected object, default implementation return a null pointer.
     virtual ReosDataObject *selectedData() const;
 
+    /**
+     * Returns metadata of the data, must contains map following the Reos convention of the the datatype instead the provider convention:
+     *
+     * provider-key: provider key
+     * station: if the data is associated with a station, the name of the station
+     * station-descritpion: a short text desciption of the station
+     * x-coord: x coordinate (or longitude)
+     * y-coord: y coordinate (or longitude)
+     * crs: wkt coordinate system
+     * descritpion: a short text desciption of the data
+     * start: start date/time of data if temporal
+     * end:: end date/time of data if temporal
+     */
+    virtual QVariantMap selectedMetadata() const;
+
   signals:
     void dataSelectionChanged( bool dataIsSelected );
     void dataIsLoading();
@@ -66,6 +81,7 @@ class ReosDataProviderGuiFactory
     {
       DataSelector = 1 << 0, //!< If the provider have a gui data selector
       ProviderSettings = 1 << 1, //!< If the providr have a settings widget
+      StationIdentification = 1 << 2, //! If the provider can identify station
     };
 
     Q_ENUM( GuiCapability )
@@ -81,7 +97,7 @@ class ReosDataProviderGuiFactory
     virtual QString key() const = 0;
 
     //! Creates and returns a pointer to a new selector widget
-    virtual ReosDataProviderSelectorWidget *createProviderSelectorWidget( ReosMap *map, QWidget *parent = nullptr ) const;
+    virtual ReosDataProviderSelectorWidget *createProviderSelectorWidget( ReosMap *map, const QString &dataType, QWidget *parent = nullptr ) const;
 
     //! Creates and returns a pointer to a new data provider settings widget for the provider \a dataProvider
     virtual ReosDataProviderSettingsWidget *createProviderSettingsWidget( ReosDataProvider *provider, QWidget *parent = nullptr ) const;
@@ -111,10 +127,12 @@ class ReosDataProviderGuiRegistery
     QStringList providers( const QString &dataType, ReosDataProviderGuiFactory::GuiCapability capability ) const;
 
     //! Creates and returns a pointer to a new selector widget for the provider with \a key
-    ReosDataProviderSelectorWidget *createProviderSelectorWidget( const QString &key, ReosMap *map, QWidget *parent = nullptr );
+    ReosDataProviderSelectorWidget *createProviderSelectorWidget( const QString &key, const QString &dataType, ReosMap *map, QWidget *parent = nullptr );
 
     //! Creates and returns a pointer to a new settings widget for the data provider \a dataProvider
     ReosDataProviderSettingsWidget *createProviderSettingsWidget( ReosDataProvider *dataProvider, QWidget *parent = nullptr );
+
+    bool hasCapability( QString providerKey, ReosDataProviderGuiFactory::GuiCapability capability ) const;
 
     //! Returns the icon that represens the provider with the \a key
     QPixmap providerIcon( const QString &key ) const;

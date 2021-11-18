@@ -2,6 +2,7 @@
     <qresource prefix="/hub-eau-images">
         <file>logo-hubeau-blue.svg</file>
         <file>icon-hubeau-blue.svg</file>
+        <file>selectOnMap.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

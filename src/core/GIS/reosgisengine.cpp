@@ -38,6 +38,7 @@ email                : vcloarec at gmail dot com
 #include <qgssinglebandpseudocolorrenderer.h>
 #include <qgis.h>
 #include <qgsdistancearea.h>
+#include <qgsnetworkaccessmanager.h>
 
 #define  mLayerTreeModel _layerTreeModel(mAbstractLayerTreeModel)
 static QgsLayerTreeModel *_layerTreeModel( QAbstractItemModel *sourceModel )
@@ -119,6 +120,9 @@ void ReosGisEngine::initGisEngine()
       }
     }
   }
+
+  //! init the QGIS net work manager to access remote GIS data
+  QgsNetworkAccessManager::instance();
 
   mAbstractLayerTreeModel = new QgsLayerTreeModel( QgsProject::instance()->layerTreeRoot(), this );
 }

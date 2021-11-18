@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/delft-fews-images">
+        <file>selectOnMap.svg</file>
+    </qresource>
+    <qresource prefix="/"/>
+</RCC>

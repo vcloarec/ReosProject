@@ -34,7 +34,7 @@ QModelIndex ReosTimeSerieModel::parent( const QModelIndex & ) const
 int ReosTimeSerieConstantIntervalModel::rowCount( const QModelIndex & ) const
 {
   if ( mData )
-    return mIsEditable ? mData->valueCount() + 1 : mData->valueCount();
+    return isEditable() ? mData->valueCount() + 1 : mData->valueCount();
   else
     return 0;
 }
@@ -49,7 +49,7 @@ QVariant ReosTimeSerieConstantIntervalModel::data( const QModelIndex &index, int
   if ( !mData )
     return QVariant();
 
-  int maxRowCount = mIsEditable ? mData->valueCount() + 1 : mData->valueCount();
+  int maxRowCount = isEditable() ? mData->valueCount() + 1 : mData->valueCount();
 
   if ( !index.isValid() || index.row() >= maxRowCount )
     return QVariant();
@@ -61,7 +61,7 @@ QVariant ReosTimeSerieConstantIntervalModel::data( const QModelIndex &index, int
       if ( index.row() < mData->valueCount() )
         return ReosParameter::doubleToString( mData->valueAt( index.row() ), 2 );
 
-      if ( mIsEditable )
+      if ( isEditable() )
       {
         if ( index.row() == mData->valueCount() )
           return QString();
@@ -80,7 +80,7 @@ QVariant ReosTimeSerieConstantIntervalModel::data( const QModelIndex &index, int
 
 bool ReosTimeSerieConstantIntervalModel::setData( const QModelIndex &index, const QVariant &value, int role )
 {
-  if ( !index.isValid() || !mIsEditable || index.row() > mData->valueCount() )
+  if ( !index.isValid() || !isEditable() || index.row() > mData->valueCount() )
     return false;
 
   if ( role == Qt::EditRole )
@@ -115,7 +115,7 @@ QVariant ReosTimeSerieConstantIntervalModel::headerData( int section, Qt::Orient
   if ( role != Qt::DisplayRole )
     return QVariant();
 
-  int maxRowCount = mIsEditable ? mData->valueCount() + 1 : mData->valueCount();
+  int maxRowCount = isEditable() ? mData->valueCount() + 1 : mData->valueCount();
 
   if ( section < maxRowCount )
   {
@@ -132,7 +132,7 @@ QVariant ReosTimeSerieConstantIntervalModel::headerData( int section, Qt::Orient
 
 Qt::ItemFlags ReosTimeSerieConstantIntervalModel::flags( const QModelIndex &index ) const
 {
-  if ( mIsEditable )
+  if ( isEditable() )
     return QAbstractTableModel::flags( index ) | Qt::ItemIsEditable;
   else
     return QAbstractTableModel::flags( index );
@@ -247,7 +247,9 @@ ReosTimeSerieConstantInterval::ReosTimeSerieConstantInterval( QObject *parent, c
 {
   if ( constantTimeStepDataProvider() )
   {
-    mTimeStep->setValue( constantTimeStepDataProvider()->timeStep() );
+    ReosDuration timeStep = constantTimeStepDataProvider()->timeStep();
+    timeStep.setAdaptedUnit();
+    mTimeStep->setValue( timeStep );
   }
   else
   {
@@ -260,6 +262,7 @@ ReosTimeSerieConstantInterval::ReosTimeSerieConstantInterval( QObject *parent, c
   {
     mTimeStep->setValue( ReosDuration( 5, ReosDuration::minute ) );
   }
+
   connectParameters();
 }
 
@@ -467,6 +470,13 @@ ReosTimeSerieConstantTimeStepProvider *ReosTimeSerieConstantInterval::constantTi
   return static_cast<ReosTimeSerieConstantTimeStepProvider *>( mProvider.get() );
 }
 
+void ReosTimeSerieConstantInterval::copyFrom( ReosTimeSerieConstantInterval *other )
+{
+  if ( !other || !constantTimeStepDataProvider() || !constantTimeStepDataProvider()->isEditable() )
+    return;
+
+  constantTimeStepDataProvider()->copy( other->constantTimeStepDataProvider() );
+}
 
 ReosTimeSerieConstantInterval::ReosTimeSerieConstantInterval( const ReosEncodedElement &element, QObject *parent )
   : ReosTimeSerie( parent )
@@ -506,6 +516,9 @@ void ReosTimeSerieConstantInterval::setValueMode( const ValueMode &valueMode )
 void ReosTimeSerieConstantInterval::connectParameters()
 {
   ReosTimeSerie::connectParameters();
+  if ( mProvider )
+    mTimeStep->setEditable( mProvider->isEditable() );
+
   connect( mTimeStep, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
   connect( mTimeStep, &ReosParameter::unitChanged, this, &ReosDataObject::dataChanged );
 }
@@ -640,7 +653,6 @@ ReosTimeSerie::ReosTimeSerie( QObject *parent, const QString &providerKey, const
   {
     connect( mProvider.get(), &ReosTimeSerieProvider::dataChanged, this, &ReosTimeSerie::onDataProviderChanged );
     mProvider->setDataSource( dataSource );
-    mReferenceTime->setEditable( mProvider->isEditable() );
   }
 }
 
@@ -749,6 +761,8 @@ bool ReosTimeSerie::decodeBase( const ReosEncodedElement &element )
 
 void ReosTimeSerie::connectParameters()
 {
+  if ( mProvider )
+    mReferenceTime->setEditable( mProvider->isEditable() );
   connect( mReferenceTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
 }
 

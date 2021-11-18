@@ -28,6 +28,9 @@ class ReosDataProvider : public QObject
     //! Returns the provider key
     virtual QString key() const = 0;
 
+    //! Returns a html description of the data
+    virtual QString htmlDescription() const {return QString();}
+
   signals:
     void dataChanged();
 };
@@ -36,7 +39,7 @@ class ReosDataProviderFactory
 {
   public:
     //! Creates and returns a pointer to a provider, the caller has to take ownership
-    virtual ReosDataProvider *createProvider() const = 0;
+    virtual ReosDataProvider *createProvider( const QString &dataType = QString() ) const = 0;
 
     //! Returns the provider key corresponding to this factory
     virtual QString key() const = 0;

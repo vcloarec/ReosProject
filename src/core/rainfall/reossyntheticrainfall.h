@@ -27,7 +27,7 @@ class REOSCORE_EXPORT ReosSerieRainfall : public ReosTimeSerieConstantInterval
 {
     Q_OBJECT
   public:
-    ReosSerieRainfall( QObject *parent = nullptr );
+    ReosSerieRainfall( QObject *parent = nullptr, const QString &providerKey = QString(), const QString &dataSource = QString() );
     QString type() const override {return QStringLiteral( "serie-rainfall" );}
 
     ReosEncodedElement encode() const;
