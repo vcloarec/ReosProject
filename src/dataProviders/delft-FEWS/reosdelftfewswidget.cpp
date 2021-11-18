@@ -118,6 +118,27 @@ ReosDataObject *ReosDelftFewsWidget::selectedData() const
   return nullptr;
 }
 
+QVariantMap ReosDelftFewsWidget::selectedMetadata() const
+{
+  QVariantMap ret;
+  int stationIndex = ui->mListView->currentIndex().row();
+  if ( stationIndex < 0 )
+    return ret;
+
+  const ReosDelftFewsStation  &station = mStationsModel->station( stationIndex );
+
+  ret.insert( QStringLiteral( "provider-key" ), station.meta.value( ReosDelftFewsXMLProvider::staticKey() ) );
+  ret.insert( QStringLiteral( "station" ), station.meta.value( QStringLiteral( "name" ) ) );
+  ret.insert( QStringLiteral( "station-descritpion" ), station.meta.value( QStringLiteral( "locationIdd" ) ) );
+  ret.insert( QStringLiteral( "x-coord" ), station.meta.value( QStringLiteral( "longitude" ) ) );
+  ret.insert( QStringLiteral( "y-coord" ), station.meta.value( QStringLiteral( "latitude" ) ) );
+  ret.insert( QStringLiteral( "crs" ), ReosGisEngine::wktEPSGCrs( 4326 ) );
+  ret.insert( QStringLiteral( "start" ), station.meta.value( QStringLiteral( "start-time" ) ) );
+  ret.insert( QStringLiteral( "end" ), station.meta.value( QStringLiteral( "end-time" ) ) );
+
+  return ret;
+}
+
 void ReosDelftFewsWidget::onOpenFile()
 {
   ReosSettings settings;
@@ -187,6 +208,7 @@ void ReosDelftFewsWidget::onStationChanged()
     if ( station.dataType() == mDataType )
     {
       emit dataSelectionChanged( true );
+      emit dataIsLoading();
       emit dataIsReady();
     }
     else
@@ -286,6 +308,8 @@ bool ReosDelftFewsWidget::parseFile( const QString &fileName )
       bool ok = false;
       latitude = latStr.toDouble( &ok );
       isSpatial &= ok;
+      if ( isSpatial )
+        station.meta[QStringLiteral( "latitude" )] = latitude;
     }
 
     if ( !headerElement.firstChildElement( QStringLiteral( "lon" ) ).isNull() )
@@ -295,6 +319,8 @@ bool ReosDelftFewsWidget::parseFile( const QString &fileName )
       bool ok = false;
       longitude = lonStr.toDouble( &ok );
       isSpatial &= ok;
+      if ( isSpatial )
+        station.meta[QStringLiteral( "longitude" )] = longitude;
     }
 
     if ( !headerElement.firstChildElement( QStringLiteral( "locationId" ) ).isNull() )
@@ -324,6 +350,8 @@ bool ReosDelftFewsWidget::parseFile( const QString &fileName )
   while ( !serieElement .isNull() );
 
   mStationsModel->setStationsList( stations );
+
+  ui->mListView->setCurrentIndex( mStationsModel->index( 0, 0, QModelIndex() ) );
 
   return true;
 }
@@ -367,7 +395,11 @@ QString ReosDelftFewsWidget::currentUri() const
 
 ReosDataProviderGuiFactory::GuiCapabilities ReosDelftFewsGuiFactory::capabilities() const
 {
-  return ReosDataProviderGuiFactory::GuiCapability::DataSelector;
+  GuiCapabilities cap;
+  cap |= ReosDataProviderGuiFactory::GuiCapability::DataSelector;
+  cap |= ReosDataProviderGuiFactory::GuiCapability::ProviderSettings;
+  cap |= ReosDataProviderGuiFactory::GuiCapability::StationIdentification;
+  return cap;
 }
 
 QString ReosDelftFewsGuiFactory::key() const
@@ -460,7 +492,7 @@ ReosDelftFewsStation ReosDelftFewsStationsModel::station( int i ) const
   return mStations.at( i );
 }
 
-ReosDelftFewsStationMarker::ReosDelftFewsStationMarker( ReosMap *map, const QPointF &point ): ReosMapMarker( map, point )
+ReosDelftFewsStationMarker::ReosDelftFewsStationMarker( ReosMap *map, const QPointF &point ): ReosMapMarkerFilledCircle( map, point )
 {
   setColor( QColor( 92, 142, 177 ) );
   setWidth( 10 );

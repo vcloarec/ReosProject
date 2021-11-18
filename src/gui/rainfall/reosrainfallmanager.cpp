@@ -45,6 +45,23 @@
 #include "reosplottimeconstantinterval.h"
 #include "reosrainfalldataform.h"
 #include "reosgisengine.h"
+#include "reosdataprovidergui.h"
+
+
+class ReosStationMapMarker: public ReosMapMarkerSvg
+{
+  public:
+    ReosStationMapMarker( ReosMap *map, ReosStationItem *item )
+      : ReosMapMarkerSvg( QStringLiteral( ":/images/station.svg" ), map, item->position() )
+      , item( item )
+    {
+      setDescription( staticDescritpion() );
+    }
+
+    ReosStationItem *item = nullptr;
+
+    static QString staticDescritpion() {return QStringLiteral( "rainfall-station" );}
+};
 
 ReosRainfallManager::ReosRainfallManager( ReosMap *map, ReosRainfallModel *rainfallmodel, QWidget *parent ) :
   ReosActionWidget( parent )
@@ -57,16 +74,17 @@ ReosRainfallManager::ReosRainfallManager( ReosMap *map, ReosRainfallModel *rainf
   , mActionAddRootZone( new QAction( QPixmap( QStringLiteral( ":/images/addZone.svg" ) ), tr( "Add New Zone to the Root" ), this ) )
   , mActionAddZoneToZone( new QAction( QPixmap( QStringLiteral( ":/images/addZone.svg" ) ), tr( "Add New Sub Zone" ), this ) )
   , mActionAddStation( new QAction( QPixmap( QStringLiteral( ":/images/addStation.svg" ) ), tr( "Add Station" ), this ) )
-  , mActionAddStationOnMap( new QAction( QPixmap( QStringLiteral( ":/images/addStation.svg" ) ), tr( "Add Station on Map" ), this ) )
-  , mActionAddGaugedRainfall( new QAction( QPixmap( QStringLiteral( ":/images/addGaugedRainfall.svg" ) ), tr( "Add Gauged Rainfall" ), this ) )
-  , mActionAddChicagoRainfall( new QAction( QPixmap( QStringLiteral( ":/images/addChicagoRainfall.svg" ) ), tr( "Add Chicago Rainfall" ), this ) )
-  , mActionAddAlternatingBlockRainfall( new QAction( QPixmap( QStringLiteral( ":/images/addAlternatingBlockRainfall.svg" ) ), tr( "Add Alternating Block Rainfall" ), this ) )
-  , mActionAddDoubleTriangleRainfall( new QAction( QPixmap( QStringLiteral( ":/images/addDoubleTriangleRainfall.svg" ) ), tr( "Add Double Triangle Rainfall" ), this ) )
+  , mActionAddStationFromMap( new QAction( QPixmap( QStringLiteral( ":/images/addStation.svg" ) ), tr( "Add Station from Map" ), this ) )
+  , mActionAddGaugedRainfall( new QAction( QPixmap( QStringLiteral( ":/images/addGaugedRainfall.svg" ) ), tr( "Gauged Rainfall in a Table" ), this ) )
+  , mActionAddChicagoRainfall( new QAction( QPixmap( QStringLiteral( ":/images/chicagoRainfall.svg" ) ), tr( "Add Chicago Rainfall" ), this ) )
+  , mActionAddAlternatingBlockRainfall( new QAction( QPixmap( QStringLiteral( ":/images/alternatingBlockRainfall.svg" ) ), tr( "Add Alternating Block Rainfall" ), this ) )
+  , mActionAddDoubleTriangleRainfall( new QAction( QPixmap( QStringLiteral( ":/images/doubleTriangleRainfall.svg" ) ), tr( "Add Double Triangle Rainfall" ), this ) )
   , mActionAddIDFCurves( new QAction( QPixmap( QStringLiteral( ":/images/addIntensityDurationCurves.svg" ) ), tr( "Add Intensity Duration Frequency Curves" ), this ) )
   , mActionAddIDCurve( new QAction( QPixmap( QStringLiteral( ":/images/addIntensityDurationCurve.svg" ) ), tr( "Add Intensity Duration Curve" ), this ) )
   , mActionReorderIdVurve( new QAction( tr( "Reorder Intensity Duration Curves" ), this ) )
-  , mActionRemoveItem( new QAction( tr( "Remove item" ), this ) )
+  , mActionRemoveItem( new QAction( QPixmap( QStringLiteral( ":/images/remove.svg" ) ), tr( "Remove item" ), this ) )
   , mActionImportFromTextFile( new QAction( QPixmap( QStringLiteral( ":/images/importRainfall.svg" ) ), tr( "Import Rainfall from Text File" ), this ) )
+  , mActionSelectStationFromMap( new QAction( QPixmap( QStringLiteral( ":/images/selectStationOnMap.svg" ) ), tr( "Select Station from Map" ), this ) )
 {
   ui->setupUi( this );
   setWindowFlag( Qt::Dialog );
@@ -87,13 +105,28 @@ ReosRainfallManager::ReosRainfallManager( ReosMap *map, ReosRainfallModel *rainf
   toolBar->addAction( mActionSaveAsRainfallDataFile );
   toolBar->addAction( mActionAddRootZone );
   toolBar->addAction( mActionImportFromTextFile );
+  toolBar->addAction( mActionSelectStationFromMap );
 
-  mMapToolAddStationOnMap = new ReosMapToolDrawPoint( map );
+  mMapToolAddStationOnMap = new ReosMapToolDrawPoint( this, map );
   mMapToolAddStationOnMap->setCursor( QCursor( QPixmap( QStringLiteral( ":/images/station.svg" ) ), 12, 12 ) );
-  mMapToolAddStationOnMap->setAction( mActionAddStationOnMap );
-  mActionAddStationOnMap->setCheckable( true );
+  mMapToolAddStationOnMap->setAction( mActionAddStationFromMap );
+  mActionAddStationFromMap->setCheckable( true );
   connect( mMapToolAddStationOnMap, &ReosMapTool::activated, this, [this] {ui->mTreeView->setEnabled( false );} );
   connect( mMapToolAddStationOnMap, &ReosMapTool::deactivated, this, [this] {ui->mTreeView->setEnabled( true );} );
+
+  mMapToolSelectStation = new ReosMapToolSelectMapItem( this, map, ReosStationMapMarker::staticDescritpion() );
+  mMapToolSelectStation->setAction( mActionSelectStationFromMap );
+  mActionSelectStationFromMap->setCheckable( true );
+  mMapToolSelectStation->setCursor( Qt::ArrowCursor );
+  connect( mMapToolSelectStation, &ReosMapToolSelectMapItem::found, this, [this]( ReosMapItem * mapItem, const QPointF & )
+  {
+    if ( !mapItem || mapItem->description() != ReosStationMapMarker::staticDescritpion() )
+      return;
+
+    ReosStationMapMarker *marker = static_cast<ReosStationMapMarker *>( mapItem );
+
+    selectItem( marker->item );
+  } );
 
   connect( mMap, &ReosMap::crsChanged, this, &ReosRainfallManager::updateMarkers );
 
@@ -101,6 +134,17 @@ ReosRainfallManager::ReosRainfallManager( ReosMap *map, ReosRainfallModel *rainf
   connect( mActionSaveRainfallDataFile, &QAction::triggered, this, &ReosRainfallManager::saveRainfallFile );
   connect( mActionSaveAsRainfallDataFile, &QAction::triggered, this, &ReosRainfallManager::onSaveAsRainfallFile );
   connect( mActionImportFromTextFile, &QAction::triggered, this, &ReosRainfallManager::onImportFromTextFile );
+
+  mActionsAddSyntheticRainfall << mActionAddChicagoRainfall
+                               << mActionAddDoubleTriangleRainfall
+                               << mActionAddAlternatingBlockRainfall;
+
+  mActionsAddStations << mActionAddStation
+                      << mActionAddStationFromMap;
+
+  mActionsAddGaugedRainfall << mActionAddGaugedRainfall;
+
+  populateProviderActions( toolBar );
 
   connect( mActionAddRootZone, &QAction::triggered, this, &ReosRainfallManager::onAddRootZone );
   connect( mActionAddZoneToZone, &QAction::triggered, this, &ReosRainfallManager::onAddZoneToZone );
@@ -121,6 +165,16 @@ ReosRainfallManager::ReosRainfallManager( ReosMap *map, ReosRainfallModel *rainf
 
   connect( this, &ReosActionWidget::opened, this, [this] {setMarkersVisible( true );} );
   connect( this, &ReosActionWidget::closed, this, [this] {setMarkersVisible( false );} );
+
+  connect( ui->mProviderBackButton, &QPushButton::clicked, this, &ReosRainfallManager::backToMainIndex );
+  connect( ui->mProviderAddButton, &QPushButton::clicked, this, [this]
+  {
+    addDataFromProvider( false );
+  } );
+  connect( ui->mProviderAddCopyButton, &QPushButton::clicked, this, [this]
+  {
+    addDataFromProvider( true );
+  } );
 
   ReosIdfFormulaRegistery::instance()->registerFormula( new ReosIdfFormulaMontana );
   ReosIdfFormulaRegistery::instance()->registerFormula( new ReosIdfFormulaSherman );
@@ -225,23 +279,281 @@ QList<QAction *> ReosRainfallManager::dataItemActions( ReosRainfallDataItem *dat
   return actions;
 }
 
-bool ReosRainfallManager::addSimpleItemDialog( const QString &title, QString &name, QString &descript )
+bool ReosRainfallManager::addSimpleItemDialog( const QString &title, QString nameLabel, QString &name, QString &descript )
 {
-  ReosParameterString string( name );
+  ReosParameterString string( nameLabel );
+  if ( !name.isEmpty() )
+    string.setValue( name );
   std::unique_ptr<ReosFormDialog> dial = std::make_unique<ReosFormDialog>( this );
   dial->addParameter( &string );
-  ReosParameterString descritpion( tr( "Description" ) );
-  dial->addParameter( &descritpion );
+  ReosParameterString description( tr( "Description" ) );
+  if ( !descript.isEmpty() )
+    description.setValue( descript );
+  dial->addParameter( &description );
   dial->setWindowTitle( title );
 
   if ( dial->exec() )
   {
     name = string.value();
-    descript = descritpion.value();
+    descript = description.value();
     return true;
   }
 
   return false;
+}
+
+void ReosRainfallManager::populateProviderActions( QToolBar *toolBar )
+{
+  if ( !toolBar->actions().isEmpty() )
+    toolBar->addSeparator();
+
+  const QString dataType = QStringLiteral( "rainfall" );
+
+  ReosDataProviderGuiRegistery *registery = ReosDataProviderGuiRegistery::instance();
+
+  const QStringList providers =
+    registery->providers( dataType, ReosDataProviderGuiFactory::GuiCapability::DataSelector );
+
+  for ( const QString &providerKey : providers )
+  {
+    if ( registery->hasCapability( providerKey, ReosDataProviderGuiFactory::GuiCapability::StationIdentification ) )
+    {
+      QAction *actionAddStation = new QAction( registery->providerIcon( providerKey ), tr( "From %1" ).arg( registery->providerDisplayText( providerKey ) ) );
+      mActionsAddStations.append( actionAddStation );
+
+      connect( actionAddStation, &QAction::triggered, this, [this, providerKey]
+      {
+        showProviderSelector( providerKey );
+      } );
+    }
+
+    QAction *actionAddRainfall = new QAction( registery->providerIcon( providerKey ), tr( "From %1" ).arg( registery->providerDisplayText( providerKey ) ) );
+    mActionsAddGaugedRainfall.append( actionAddRainfall );
+    connect( actionAddRainfall, &QAction::triggered, this, [this, providerKey]
+    {
+      showProviderSelector( providerKey );
+    } );
+
+  }
+}
+
+void ReosRainfallManager::showProviderSelector( const QString &providerKey )
+{
+  const QString dataType = QStringLiteral( "rainfall" );
+  ReosDataProviderGuiRegistery *registery = ReosDataProviderGuiRegistery::instance();
+
+  if ( mCurrentProviderSelector )
+  {
+    ui->mProviderLayout->removeWidget( mCurrentProviderSelector );
+    delete mCurrentProviderSelector;
+  }
+
+  mCurrentProviderSelector = registery->createProviderSelectorWidget( providerKey, dataType, mMap, this );
+  if ( !mCurrentProviderSelector )
+    return;
+
+  ui->mProviderLayout->addWidget( mCurrentProviderSelector );
+  ui->stackedWidget->setCurrentIndex( 1 );
+
+  ui->mProviderAddButton->setEnabled( false );
+  ui->mProviderAddCopyButton->setEnabled( false );
+
+  connect( mCurrentProviderSelector, &ReosDataProviderSelectorWidget::dataSelectionChanged, this, [this]( bool dataSelected )
+  {
+    ui->mProviderAddButton->setEnabled( dataSelected );
+    ui->mProviderAddCopyButton->setEnabled( dataSelected );
+  } );
+
+  connect( mCurrentProviderSelector, &ReosDataProviderSelectorWidget::dataIsLoading, this, [this]
+  {
+    ui->mProviderAddButton->setEnabled( true );
+    ui->mProviderAddCopyButton->setEnabled( false );
+  } );
+
+  connect( mCurrentProviderSelector, &ReosDataProviderSelectorWidget::dataIsReady, this, [this]
+  {
+    ui->mProviderAddCopyButton->setEnabled( true );
+  } );
+}
+
+
+void ReosRainfallManager::backToMainIndex()
+{
+  ui->stackedWidget->setCurrentIndex( 0 );
+  ui->providerPage->layout()->removeWidget( mCurrentProviderSelector );
+  mCurrentProviderSelector->deleteLater();
+  mCurrentProviderSelector = nullptr;
+}
+
+void ReosRainfallManager::addDataFromProvider( bool copy )
+{
+  if ( !mCurrentProviderSelector )
+    return;
+
+  QVariantMap meta = mCurrentProviderSelector->selectedMetadata();
+
+  QString stationName = meta.value( QStringLiteral( "station" ) ).toString();
+  QString stationDescription = meta.value( QStringLiteral( "station-descritpion" ) ).toString();
+  QString providerName = ReosDataProviderGuiRegistery::instance()->providerDisplayText( meta.value( QStringLiteral( "provider-key" ) ).toString() );
+
+  QModelIndex index = ui->mTreeView->currentIndex();
+  ReosRainfallItem *item = nullptr;
+
+  if ( index.isValid() )
+    item = mModel->indexToItem( index );
+
+  if ( !item )
+  {
+    backToMainIndex();
+    return;
+  }
+
+  switch ( item->type() )
+  {
+      break;
+    case ReosRainfallItem::Zone:
+      addRainfallFromProvider( qobject_cast<ReosZoneItem *>( item ), meta, copy );
+      break;
+    case ReosRainfallItem::Station:
+      addRainfallFromProvider( qobject_cast<ReosStationItem *>( item ), meta, copy );
+      break;
+    case ReosRainfallItem::Data:
+    case ReosRainfallItem::Root:
+      break;
+  }
+
+  backToMainIndex();
+}
+
+void ReosRainfallManager::addRainfallFromProvider( ReosZoneItem *destination, const QVariantMap &meta, bool copy )
+{
+  QString stationName = meta.value( QStringLiteral( "station" ) ).toString();
+  QString stationDescription = meta.value( QStringLiteral( "station-descritpion" ) ).toString();
+  QString providerName = ReosDataProviderGuiRegistery::instance()->providerDisplayText( meta.value( QStringLiteral( "provider-key" ) ).toString() );
+
+  for ( int i = 0; i < destination->childrenCount(); ++i )
+  {
+    ReosStationItem *otherStation = qobject_cast<ReosStationItem *>( destination->itemAt( i ) );
+    if ( !otherStation )
+      continue;
+    if ( otherStation->name() == stationName )
+    {
+      switch ( QMessageBox::warning( this,
+                                     tr( "Add a station from %1" ).arg( providerName ),
+                                     tr( "The zone \"%1\" has already a station with name %2. Do you want to add the rainfall in this station?\n"
+                                         "If not, another station will be created" ).arg( destination->name(), stationName ),
+                                     QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Cancel ) )
+      {
+        case QMessageBox::Yes:
+          addRainfallFromProvider( otherStation, meta, copy );
+          return;
+          break;
+        case QMessageBox::No:
+        {
+          stationName.append( '_' + tr( "copy" ) );
+          if ( !addSimpleItemDialog( tr( "Create Other Station" ), tr( "Station name" ), stationName, stationDescription ) )
+            return;
+          QVariantMap otherMeta = meta;
+          otherMeta[QStringLiteral( "station" )] = stationName;
+          addRainfallFromProvider( destination, otherMeta, copy );
+          return;
+        }
+        break;
+        case QMessageBox::Cancel:
+          return;
+          break;
+        default:
+          break;
+
+      }
+    }
+  }
+
+  ReosSpatialPosition position;
+  if ( meta.contains( QStringLiteral( "x-coord" ) ) &&
+       meta.contains( QStringLiteral( "y-coord" ) ) &&
+       meta.contains( QStringLiteral( "crs" ) ) )
+  {
+    bool okX = false;
+    bool okY = false;
+    double x = meta.value( QStringLiteral( "x-coord" ) ).toDouble( &okX );
+    double y = meta.value( QStringLiteral( "y-coord" ) ).toDouble( &okY );
+    if ( okX && okY )
+      position = ReosSpatialPosition( QPointF( x, y ), meta.value( QStringLiteral( "crs" ) ).toString() );
+  }
+
+  ReosStationItem *newStationItem = mModel->addStation( stationName, stationDescription, mModel->itemToIndex( destination ), position );
+  addMapItem( newStationItem );
+
+  addRainfallFromProvider( newStationItem, meta, copy );
+
+  ui->mTreeView->expand( mModel->itemToIndex( newStationItem ) );
+
+}
+
+void ReosRainfallManager::addRainfallFromProvider( ReosStationItem *stationItem, const QVariantMap &meta, bool copy )
+{
+  if ( !mCurrentProviderSelector )
+    return;
+
+  QString dateFormat = QLocale().dateFormat( QLocale::ShortFormat );
+  QString rainfallName = tr( "From %1 to %2" ).arg( meta.value( "start" ).toDateTime().toString( dateFormat ),
+                         meta.value( "end" ).toDateTime().toString( dateFormat ) );
+
+  addRainfallFromProvider( stationItem, rainfallName, copy );
+
+}
+
+void ReosRainfallManager::addRainfallFromProvider( ReosStationItem *stationItem, const QString &rainfallName, bool copy )
+{
+  if ( !mCurrentProviderSelector )
+    return;
+
+  QString descritpion;
+
+  if ( stationItem->hasChildItemName( rainfallName ) )
+  {
+    switch ( QMessageBox::warning( this,
+                                   tr( "Add a Rainfall" ),
+                                   tr( "The station \"%1\" has already a rainfall with name %2. Do you want to add the rainfall with another name?" ).arg( stationItem->name(), rainfallName ),
+                                   QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel ) )
+    {
+      case QMessageBox::Yes:
+      {
+        QString otherName = rainfallName;
+        otherName.append( '_' + tr( "copy" ) );
+
+        if ( !addSimpleItemDialog( tr( "Add a Rainfall" ), tr( "Rainfall name" ), otherName, descritpion ) )
+          return;
+        addRainfallFromProvider( stationItem, otherName, copy );
+        return;
+      }
+      break;
+      case QMessageBox::Cancel:
+        return;
+        break;
+      default:
+        break;
+
+    }
+  }
+
+  std::unique_ptr<ReosSerieRainfall> newRainfall;
+
+  if ( copy )
+  {
+    newRainfall = std::make_unique<ReosSerieRainfall>();
+    newRainfall->copyFrom( qobject_cast<ReosSerieRainfall *>( mCurrentProviderSelector->selectedData() ) );
+  }
+  else
+  {
+    newRainfall.reset( qobject_cast<ReosSerieRainfall *>( mCurrentProviderSelector->createData() ) ) ;
+  }
+
+  selectItem( mModel->addGaugedRainfall( rainfallName,
+                                         descritpion,
+                                         mModel->itemToIndex( stationItem ),
+                                         newRainfall.release() ) );
 }
 
 void ReosRainfallManager::onSaveAsRainfallFile()
@@ -269,10 +581,10 @@ void ReosRainfallManager::onSaveAsRainfallFile()
 
 void ReosRainfallManager::onAddRootZone()
 {
-  QString name = tr( "Zone name" );
+  QString name;
   QString description;
 
-  if ( addSimpleItemDialog( tr( "Add Zone on Root" ), name, description ) )
+  if ( addSimpleItemDialog( tr( "Add Zone on Root" ), tr( "Zone name" ), name, description ) )
     selectItem( mModel->addZone( name, description ) );
 }
 
@@ -296,10 +608,10 @@ void ReosRainfallManager::onAddZoneToZone()
 
   if ( index.isValid() )
   {
-    QString name = tr( "Zone name" );
+    QString name;
     QString description;
 
-    if ( addSimpleItemDialog( tr( "Add Zone" ), name, description ) )
+    if ( addSimpleItemDialog( tr( "Add Zone" ), tr( "Zone name" ), name, description ) )
       selectItem( mModel->addZone( name, description, index ) );
   }
 }
@@ -315,10 +627,10 @@ void ReosRainfallManager::addStation( const QPointF &point, bool isSpattial )
 
   if ( index.isValid() )
   {
-    QString name = tr( "Station name" );
+    QString name;
     QString description;
 
-    if ( addSimpleItemDialog( tr( "Add Station" ), name, description ) )
+    if ( addSimpleItemDialog( tr( "Add Station" ), tr( "Station name" ), name, description ) )
     {
       ReosSpatialPosition position;
 
@@ -356,6 +668,7 @@ ReosSpatialStationWidgetToolbar::ReosSpatialStationWidgetToolbar( ReosMap *map, 
   {
     ReosSpatialPosition position( point, map->engine()->crs() );
     emit setMarker( position );
+    mSetPositionTool->quitMap();
     updateTools();
   } );
 
@@ -473,7 +786,15 @@ void ReosRainfallManager::updateCurrentMapItemMarker( ReosRainfallItem *item )
 {
   mCurrentStationMarker.reset();
 
-  ReosStationItem *stationItem = qobject_cast<ReosStationItem *>( item );
+  ReosStationItem *stationItem = nullptr;
+
+  while ( !stationItem && item->parentItem() )
+  {
+    stationItem = qobject_cast<ReosStationItem *>( item );
+    if ( !stationItem )
+      item = item->parentItem();
+  }
+
   if ( stationItem && stationItem->position().isValid() )
   {
     mCurrentStationMarker.reset( new  ReosMapMarkerEmptyCircle( mMap, stationItem->position() ) );
@@ -498,10 +819,10 @@ void ReosRainfallManager::onAddGaugedRainfall()
 
   if ( index.isValid() )
   {
-    QString name = tr( "Rainfall name" );
+    QString name;
     QString description;
 
-    if ( addSimpleItemDialog( tr( "Add Gauged Rainfall" ), name, description ) )
+    if ( addSimpleItemDialog( tr( "Add Gauged Rainfall" ), tr( "Rainfall name" ), name, description ) )
       selectItem( mModel->addGaugedRainfall( name, description, index ) );
   }
 }
@@ -512,10 +833,10 @@ void ReosRainfallManager::onAddChicagoRainfall()
 
   if ( index.isValid() )
   {
-    QString name = tr( "Rainfall name" );
+    QString name;
     QString description;
 
-    if ( addSimpleItemDialog( tr( "Add Chicago Rainfall" ), name, description ) )
+    if ( addSimpleItemDialog( tr( "Add Chicago Rainfall" ), tr( "Rainfall name" ), name, description ) )
       selectItem( mModel->addChicagoRainfall( name, description, index ) );
   }
 }
@@ -526,10 +847,10 @@ void ReosRainfallManager::onAddAlternatingBlockRainfall()
 
   if ( index.isValid() )
   {
-    QString name = tr( "Rainfall name" );
+    QString name;
     QString description;
 
-    if ( addSimpleItemDialog( tr( "Add Alternating Block Rainfall" ), name, description ) )
+    if ( addSimpleItemDialog( tr( "Add Alternating Block Rainfall" ), tr( "Rainfall name" ), name, description ) )
       selectItem( mModel->addAlternatingBlockRainfall( name, description, index ) );
   }
 }
@@ -540,10 +861,10 @@ void ReosRainfallManager::onAddDoubleTriangleRainfall()
 
   if ( index.isValid() )
   {
-    QString name = tr( "Rainfall name" );
+    QString name;
     QString description;
 
-    if ( addSimpleItemDialog( tr( "Add Double Triangle Rainfall" ), name, description ) )
+    if ( addSimpleItemDialog( tr( "Add Double Triangle Rainfall" ), tr( "Rainfall name" ), name, description ) )
       selectItem( mModel->addDoubleTriangleRainfall( name, description, index ) );
   }
 }
@@ -554,10 +875,10 @@ void ReosRainfallManager::onAddIDFCurves()
 
   if ( index.isValid() )
   {
-    QString name = tr( "IDF group name" );
+    QString name;
     QString description;
 
-    if ( addSimpleItemDialog( tr( "Add Intensity Duration Frequency Curves" ), name, description ) )
+    if ( addSimpleItemDialog( tr( "Add Intensity Duration Frequency Curves" ), tr( "IDF group name" ), name, description ) )
       selectItem( mModel->addIDFCurves( name, description, index ) );
   }
 }
@@ -717,19 +1038,38 @@ void ReosRainfallManager::onTreeViewContextMenu( const QPoint &pos )
       switch ( item->type() )
       {
         case ReosRainfallItem::Zone:
+        {
           menu.addAction( mActionAddZoneToZone );
-          menu.addAction( mActionAddStation );
-          menu.addAction( mActionAddStationOnMap );
-          break;
+          QMenu *addStationMenu = menu.addMenu( QPixmap( QStringLiteral( ":/images/addStation.svg" ) ), tr( "Add station…" ) );
+          for ( QAction *act : std::as_const( mActionsAddStations ) )
+            addStationMenu->addAction( act );
+        }
+        break;
         case ReosRainfallItem::Data:
           menu.addActions( dataItemActions( qobject_cast<ReosRainfallDataItem *>( item ) ) );
-        case ReosRainfallItem::Station:
-          menu.addAction( mActionAddGaugedRainfall );
-          menu.addAction( mActionAddChicagoRainfall );
-          menu.addAction( mActionAddAlternatingBlockRainfall );
-          menu.addAction( mActionAddDoubleTriangleRainfall );
-          menu.addAction( mActionAddIDFCurves );
           break;
+        case ReosRainfallItem::Station:
+        {
+          if ( mActionsAddGaugedRainfall.count() <= 1 )
+          {
+            mActionAddGaugedRainfall->setText( tr( "Add Gauged Rainfall in a Table" ) );
+            menu.addAction( mActionAddGaugedRainfall );
+          }
+          else
+          {
+            mActionAddGaugedRainfall->setText( tr( "Gauged Rainfall in a Table" ) );
+            QMenu *gaugedMenu = menu.addMenu( QPixmap( QStringLiteral( ":/images/addGaugedRainfall.svg" ) ), tr( "Add Gauged Rainfall…" ) );
+            for ( QAction *act : std::as_const( mActionsAddGaugedRainfall ) )
+              gaugedMenu->addAction( act );
+          }
+
+          QMenu *syntheticMenu = menu.addMenu( QPixmap( QStringLiteral( ":/images/addSyntheticRainfall.svg" ) ), tr( "Add Synthetic Rainfall…" ) );
+          syntheticMenu->addAction( mActionAddChicagoRainfall );
+          syntheticMenu->addAction( mActionAddAlternatingBlockRainfall );
+          syntheticMenu->addAction( mActionAddDoubleTriangleRainfall );
+          menu.addAction( mActionAddIDFCurves );
+        }
+        break;
       }
       menu.addAction( mActionRemoveItem );
     }
@@ -759,8 +1099,8 @@ ReosMapItem *ReosRainfallManager::addMapItem( ReosRainfallItem *item )
     if ( !stationItem->position().isValid() )
       return nullptr;
 
-    std::pair< std::map<ReosStationItem *, std::unique_ptr<ReosMapMarkerSvg>>::iterator, bool> res =
-          mStationsMarker.emplace( stationItem, std::make_unique<ReosMapMarkerSvg>( QStringLiteral( ":/images/station.svg" ), mMap, stationItem->position() ) );
+    std::pair< std::map<ReosStationItem *, std::unique_ptr<ReosStationMapMarker>>::iterator, bool> res =
+          mStationsMarker.emplace( stationItem, std::make_unique<ReosStationMapMarker>( mMap, stationItem ) );
     if ( res.second )
       return res.first->second.get();
   }

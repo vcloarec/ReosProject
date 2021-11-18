@@ -81,6 +81,8 @@ class ReosTimeSerieConstantTimeStepProvider : public ReosTimeSerieProvider
 
     virtual ReosDuration timeStep() const = 0;
     virtual void setTimeStep( const ReosDuration &timeStep );
+
+    virtual void copy( ReosTimeSerieConstantTimeStepProvider *other );;
 };
 
 /**
@@ -112,9 +114,9 @@ class ReosTimeSerieConstantTimeStepMemoryProvider : public ReosTimeSerieConstant
 
     QString key() const override;
     QDateTime referenceTime() const override;
-    void setReferenceTime( const QDateTime &referenceTime );
+    void setReferenceTime( const QDateTime &referenceTime ) override;
     ReosDuration timeStep() const override;
-    void setTimeStep( const ReosDuration &timeStep );
+    void setTimeStep( const ReosDuration &timeStep ) override;
     QString valueUnit() const override;
     int valueCount() const override;
     void resize( int size ) override;
@@ -132,6 +134,7 @@ class ReosTimeSerieConstantTimeStepMemoryProvider : public ReosTimeSerieConstant
     void clear() override;
     ReosEncodedElement encode() const override;
     void decode( const ReosEncodedElement &element ) override;
+    void copy( ReosTimeSerieConstantTimeStepProvider *other ) override;
 
   private:
     QDateTime mReferenceTime;

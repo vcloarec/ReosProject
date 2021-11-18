@@ -146,7 +146,7 @@ void ReosParameterInLineWidget::setTextValue( double value )
     mLineEdit->setStyleSheet( "color: grey" );
   }
   else
-    mLineEdit->setStyleSheet( "color: black" );
+    mLineEdit->setStyleSheet( styleSheet() );
 
   mLineEdit->setText( ReosParameter::doubleToString( value, 2 ) );
   mCurrentText = mLineEdit->text();
@@ -160,7 +160,7 @@ void ReosParameterInLineWidget::setTextValue( const QString &str )
     mLineEdit->setStyleSheet( "color: grey" );
   }
   else
-    mLineEdit->setStyleSheet( "color: black" );
+    mLineEdit->setStyleSheet( styleSheet() );
 
   mLineEdit->setText( str );
   mCurrentText = mLineEdit->text();

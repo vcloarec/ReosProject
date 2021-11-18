@@ -81,6 +81,15 @@ ReosDataProviderSettingsWidget *ReosDataProviderGuiRegistery::createProviderSett
   return nullptr;
 }
 
+bool ReosDataProviderGuiRegistery::hasCapability( QString providerKey, ReosDataProviderGuiFactory::GuiCapability capability ) const
+{
+  ReosDataProviderGuiFactory *fact = guiFactory( providerKey );
+  if ( !fact )
+    return false;
+
+  return fact->capabilities().testFlag( capability );
+}
+
 ReosDataProviderGuiFactory *ReosDataProviderGuiRegistery::guiFactory( const QString &key ) const
 {
   auto itFact = mFactories.find( key );
@@ -167,5 +176,10 @@ void ReosDataProviderGuiRegistery::loadDynamicProvider()
 ReosDataObject *ReosDataProviderSelectorWidget::createData( QObject * ) const {return nullptr;}
 
 ReosDataObject *ReosDataProviderSelectorWidget::selectedData() const {return nullptr;}
+
+QVariantMap ReosDataProviderSelectorWidget::selectedMetadata() const
+{
+  return QVariantMap();
+}
 
 ReosDataProviderSettingsWidget::ReosDataProviderSettingsWidget( QWidget *parent ): QWidget( parent ) {}

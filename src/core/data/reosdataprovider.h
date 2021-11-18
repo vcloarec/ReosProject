@@ -28,6 +28,7 @@ class ReosDataProvider : public QObject
     //! Returns the provider key
     virtual QString key() const = 0;
 
+    //! Returns a html description of the data
     virtual QString htmlDescription() const {return QString();}
 
   signals:

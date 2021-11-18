@@ -182,6 +182,9 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
 
     ReosTimeSerieConstantTimeStepProvider *constantTimeStepDataProvider() const;
 
+    //! Copy the serie \a other in \a this.
+    void copyFrom( ReosTimeSerieConstantInterval *other );
+
   protected:
     void connectParameters();
     ReosTimeSerieConstantInterval( const ReosEncodedElement &element, QObject *parent = nullptr );
@@ -294,13 +297,20 @@ class REOSCORE_EXPORT ReosTimeSerieConstantIntervalModel : public ReosTimeSerieM
     void setValues( const QModelIndex &fromIndex, const QList<QVariantList> &values ) override;
     void insertValues( const QModelIndex &fromIndex, const QList<QVariantList> &values ) override;
 
+    bool isEditable() const
+    {
+      if ( mData && mData->dataProvider() )
+        return mData->dataProvider()->isEditable();
+
+      return false;
+    }
+
   public slots:
     void deleteRows( const QModelIndex &fromIndex, int count ) override;
     void insertRows( const QModelIndex &fromIndex, int count ) override;
 
   private:
     ReosTimeSerieConstantInterval *mData;
-    bool mIsEditable = true;
     double defaultValue = 0;
     void setValues( const QModelIndex &fromIndex, const QList<double> &values );
 

@@ -74,6 +74,7 @@ ReosSpatialPosition ReosStationItem::position() const
 void ReosStationItem::setPosition( const ReosSpatialPosition &position )
 {
   mPosition = position;
+  emit changed( this );
 }
 
 ReosRainfallItem::~ReosRainfallItem() = default;

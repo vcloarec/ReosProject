@@ -209,6 +209,12 @@ ReosSpatialPosition ReosSpatialPosition::decode( const ReosEncodedElement &eleme
   ret.mIsValid = ( element.getData( QStringLiteral( "position" ), ret.mPosition ) &&
                    element.getData( QStringLiteral( "crs" ), ret.mCrs ) );
 
+  if ( ret.mIsValid )
+  {
+    ret.mIsValid = false;
+    element.getData( QStringLiteral( "is-valid" ), ret.mIsValid );
+  }
+
   return ret;
 }
 
@@ -218,6 +224,7 @@ ReosEncodedElement ReosSpatialPosition::encode() const
 
   element.addData( QStringLiteral( "position" ), mPosition );;
   element.addData( QStringLiteral( "crs" ), mCrs );
+  element.addData( QStringLiteral( "is-valid" ), mIsValid );
 
   return element;
 }

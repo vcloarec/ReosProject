@@ -36,11 +36,14 @@ class ReosRainfallDataItem;
 class ReosStationItem;
 class ReosPlotWidget;
 class ReosMapToolDrawPoint;
+class ReosMapToolSelectMapItem;
 class ReosMap;
 class ReosMapItem;
 class ReosMapMarkerSvg;
 class ReosMapToolMoveMapItem;
 class ReosMapMarkerEmptyCircle;
+class ReosDataProviderSelectorWidget;
+class ReosStationMapMarker;
 
 
 //! Widget to handle rainfall data
@@ -80,11 +83,16 @@ class REOSGUI_EXPORT ReosRainfallManager : public ReosActionWidget
 
     void updateMarkers();
 
+    void backToMainIndex();
+
   private:
     Ui::ReosRainfallManager *ui;
     ReosMap *mMap = nullptr;
     ReosRainfallModel *mModel = nullptr;
-    QAction *mAction;
+
+    QList<QAction *> mActionsAddSyntheticRainfall;
+    QList<QAction *> mActionsAddGaugedRainfall;
+    QList<QAction *> mActionsAddStations;
 
     QAction *mActionOpenRainfallDataFile = nullptr;
     QAction *mActionSaveRainfallDataFile = nullptr;
@@ -92,7 +100,7 @@ class REOSGUI_EXPORT ReosRainfallManager : public ReosActionWidget
     QAction *mActionAddRootZone = nullptr;
     QAction *mActionAddZoneToZone = nullptr;
     QAction *mActionAddStation = nullptr;
-    QAction *mActionAddStationOnMap = nullptr;
+    QAction *mActionAddStationFromMap = nullptr;
     QAction *mActionAddGaugedRainfall = nullptr;
     QAction *mActionAddChicagoRainfall = nullptr;
     QAction *mActionAddAlternatingBlockRainfall = nullptr;
@@ -101,15 +109,18 @@ class REOSGUI_EXPORT ReosRainfallManager : public ReosActionWidget
     QAction *mActionAddIDCurve = nullptr;
     QAction *mActionReorderIdVurve = nullptr;
     QAction *mActionRemoveItem = nullptr;
-
     QAction *mActionImportFromTextFile = nullptr;
+    QAction *mActionSelectStationFromMap = nullptr;
 
-    ReosMapToolDrawPoint *mMapToolAddStationOnMap;
+    ReosMapToolDrawPoint *mMapToolAddStationOnMap = nullptr;
+    ReosMapToolSelectMapItem *mMapToolSelectStation = nullptr;
+
+    ReosDataProviderSelectorWidget *mCurrentProviderSelector = nullptr;
 
     ReosFormWidget *mCurrentForm = nullptr;
     ReosPlotWidget *mCurrentPlot = nullptr;
 
-    std::map<ReosStationItem *, std::unique_ptr<ReosMapMarkerSvg>> mStationsMarker;
+    std::map<ReosStationItem *, std::unique_ptr<ReosStationMapMarker>> mStationsMarker;
     ReosMapItem *addMapItem( ReosRainfallItem *item );
     void removeMarker( ReosRainfallItem *item );
     void buildMarkers();
@@ -121,8 +132,15 @@ class REOSGUI_EXPORT ReosRainfallManager : public ReosActionWidget
     void selectItem( ReosRainfallItem *item );
     bool saveOnFile( const QString &fileName );
     QList<QAction *> dataItemActions( ReosRainfallDataItem *dataItem );
-    bool addSimpleItemDialog( const QString &title, QString &name, QString &description );
+    bool addSimpleItemDialog( const QString &title, QString nameLabel, QString &name, QString &description );
     void addStation( const QPointF &point = QPointF(), bool isSpattial = false );
+
+    void populateProviderActions( QToolBar *toolBar );
+    void showProviderSelector( const QString &providerKey );
+    void addDataFromProvider( bool copy );
+    void addRainfallFromProvider( ReosZoneItem *destination, const QVariantMap &meta, bool copy );
+    void addRainfallFromProvider( ReosStationItem *stationItem, const QVariantMap &meta, bool copy );
+    void addRainfallFromProvider( ReosStationItem *stationItem, const QString &rainfallName, bool copy );
 
     ReosFormWidget *createForm( ReosRainfallItem *item );
     void setupFormForStation( ReosFormWidget *form, ReosStationItem *stationItem );

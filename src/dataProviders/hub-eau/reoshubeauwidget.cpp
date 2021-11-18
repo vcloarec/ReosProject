@@ -196,7 +196,8 @@ void ReosHubEauWidget::populateMeta( const QVariantMap &meta )
   ui->mTextBrowser->setText( ReosHubEauHydrographProvider::htmlDescriptionFromMeta( meta ) );
 }
 
-ReosHubEauStationMarker::ReosHubEauStationMarker( ReosMap *map, const QPointF &point ): ReosMapMarkerFilledCircle( map, point ) {}
+ReosHubEauStationMarker::ReosHubEauStationMarker( ReosMap *map, const QPointF &point ): ReosMapMarkerFilledCircle( map, point )
+{
   setColor( QColor( 12, 114, 185 ) );
   setWidth( 10 );
   setExternalColor( Qt::black );

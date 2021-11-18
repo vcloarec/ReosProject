@@ -38,7 +38,7 @@ namespace Ui
   class ReosDelftFewsWidget;
 }
 
-class ReosDelftFewsStationMarker: public ReosMapMarker
+class ReosDelftFewsStationMarker: public ReosMapMarkerFilledCircle
 {
   public:
     ReosDelftFewsStationMarker( ReosMap *map, const QPointF &point );
@@ -85,6 +85,7 @@ class ReosDelftFewsWidget : public ReosDataProviderSelectorWidget
 
     ReosDataObject *createData( QObject *parent ) const override;
     ReosDataObject *selectedData() const override;
+    QVariantMap selectedMetadata() const override;
 
   private slots:
     void onOpenFile();
