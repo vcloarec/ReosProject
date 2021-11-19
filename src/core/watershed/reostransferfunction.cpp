@@ -593,7 +593,7 @@ ReosTransferFunctionCalculation *ReosTransferFunctionSCSUnitHydrograph::calculat
 
   if ( mUseConcentrationTime->value() )
   {
-    if ( !concentrationTime()->isValid() || !mFactorToLagTime->isValid() )
+    if ( !concentrationTime()->isValid() || concentrationTime()->value() == ReosDuration() || !mFactorToLagTime->isValid() )
       return nullptr;
   }
   else
@@ -884,7 +884,7 @@ void ReosTransferFunctionSCSUnitHydrograph::Calculation::start()
   std::unique_ptr<ReosHydrograph> unitHydrograph = createUnitHydrograph();
 
   mHydrograph->referenceTime()->setValue( mReferenceTime );
-  int stepCount = mRunoffData.count();
+  int stepCount = mRunoffData.count() * mReduceTimeStepFactor;
   setMaxProgression( stepCount );
   for ( int i = 0; i < stepCount; ++i )
   {
