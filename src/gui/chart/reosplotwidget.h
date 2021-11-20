@@ -39,6 +39,7 @@ class QwtPlotCurve;
 class ReosPlot_p;
 class ReosDataObject;
 class ReosTimeSerieConstantInterval;
+class ReosOptionalPlotItemButton;
 
 
 class ReosPlotItem: public QObject
@@ -46,6 +47,7 @@ class ReosPlotItem: public QObject
     Q_OBJECT
   public:
     virtual void attach( ReosPlot_p *plot );
+    virtual void detach();
     virtual ~ReosPlotItem();
 
     void setOnRightAxe();
@@ -60,9 +62,22 @@ class ReosPlotItem: public QObject
      */
     void setAsMasterItem( bool b );
 
+    //! Set if the item has to be taken into account when autoscale axes
+    void setAutoScale( bool b );
+
+    virtual QString name() const;
+
+    void setVisible( bool isVisible, bool replot = true );
+    bool isVisible() const;
+
+    virtual QColor color() const {return QColor();}
+    virtual QPixmap icone( const QSize &size ) const;
+
   public slots:
     virtual void fullExtent();
     virtual void setSettings() {};
+    void setName( const QString &name );
+    virtual void setColor( const QColor &color );
 
   signals:
     void itemChanged();
@@ -111,6 +126,7 @@ class ReosPlotWidget: public QWidget
     void addActions( const QList<QAction *> &actions );
 
     void addPlotItem( ReosPlotItem *item );
+    void addOptionalPlotItem( ReosOptionalPlotItemButton *optionalItemButton );
 
     void setTitleAxeX( const QString &title );
     void setTitleAxeYLeft( const QString &title );
@@ -150,7 +166,8 @@ class ReosPlotWidget: public QWidget
     ReosPlot_p *mPlot = nullptr;
     QwtPlotPicker *mPickerTracker;
 
-    QToolBar *mToolBar = nullptr;
+    QToolBar *mToolBarRight = nullptr;
+    QToolBar *mToolBarLeft = nullptr;
     QAction *mActionExportAsImage = nullptr;
     QAction *mActionCopyAsImage = nullptr;
     QAction *mXAxisFormatCombobox = nullptr;

@@ -52,13 +52,16 @@ class REOSCORE_EXPORT ReosHydrographStore : public ReosDataObject
     //! Remove and destroy the hydrograph at position \a index
     void removeHydrograph( int index );
 
+    //! Returns a pointer to the hydrograph at position \a index, nullptr if not exists
+    ReosHydrograph *hydrograph( int index ) const;
+
+    //! Returns the count of hydrographs stored
     int hydrographCount() const;
 
     //! Returns the list of the hydrograph names
     QStringList hydrographNames() const;
 
-    //! Returns a pointer to the hydrograph at position \a index, nullptr if not exists
-    ReosHydrograph *hydrograph( int index ) const;
+    QList<ReosHydrograph *> hydrographsForTimeRange( const QDateTime &startTime, const QDateTime &endTime );
 
     ReosEncodedElement encode() const;
     void decode( const ReosEncodedElement &element );

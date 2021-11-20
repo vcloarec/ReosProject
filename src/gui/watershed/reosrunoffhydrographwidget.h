@@ -34,6 +34,7 @@ class ReosMeteorologicModel;
 class ReosPlotTimeSerieVariableStep;
 class ReosTransferFunction;
 class ReosSerieRainfall;
+class ReosOptionalPlotItemButton;
 
 namespace Ui
 {
@@ -169,12 +170,15 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
     ReosPlotTimeHistogram *mRainfallHistogram = nullptr;
     ReosPlotTimeHistogram *mRunoffHistogram = nullptr;
     ReosPlotTimeSerieVariableStep *mHydrographCurve = nullptr;
+    ReosOptionalPlotItemButton *mGaugedHydrographButton = nullptr;
 
     ReosRunoff *mCurrentRunoff = nullptr;
     ReosHydrograph *mCurrentHydrograph = nullptr;
 
     void buildRunoffChoiceMenu( QMenu *menu, int row );
     void syncTransferFunction( ReosTransferFunction *function );
+
+    void updateGaugedHydrograph();
 };
 
 //**************************************************

@@ -15,6 +15,8 @@
  ***************************************************************************/
 
 #include <QComboBox>
+#include <QMenu>
+#include <QToolButton>
 
 #include "reosplotwidget.h"
 #include "reosplot_p.h"
@@ -22,6 +24,7 @@
 #include "reosplottimeconstantinterval.h"
 #include "reosidfcurves.h"
 #include "reosplotidfcurve.h"
+#include "reosplotitemlist.h"
 
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
@@ -42,8 +45,9 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent ): QWidget( parent ),
   mActionExportAsImage( new QAction( QPixmap( ":/images/savePlot.svg" ), tr( "Save as Image" ), this ) ),
   mActionCopyAsImage( new QAction( QPixmap( ":/images/copyPlot.svg" ), tr( "Copy as Image" ), this ) )
 {
-  setLayout( new QVBoxLayout );
-  layout()->setMargin( 0 );
+  QVBoxLayout *mainLayout = new QVBoxLayout ;
+  setLayout( mainLayout );
+  mainLayout->setContentsMargins( 0, 0, 0, 0 );
   mPlot = new ReosPlot_p( this );
 
   QFrame *plotCanvasFrame = dynamic_cast<QFrame *>( mPlot->canvas() );
@@ -55,12 +59,20 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent ): QWidget( parent ),
   mPlot->setFrameStyle( QFrame::NoFrame );
 
   setLegendVisible( true );
-  mToolBar = new QToolBar;
-  mToolBar->addAction( mActionExportAsImage );
-  mToolBar->addAction( mActionCopyAsImage );
-  layout()->addWidget( mToolBar );
 
-  layout()->addWidget( mPlot );
+  QHBoxLayout *toolBarslayout = new QHBoxLayout( this );
+  toolBarslayout->setContentsMargins( 0, 0, 0, 0 );
+  mainLayout->addItem( toolBarslayout );
+  mToolBarRight = new QToolBar( this );
+  mToolBarRight->setContentsMargins( 0, 0, 0, 0 );
+  mToolBarRight->addAction( mActionExportAsImage );
+  mToolBarRight->addAction( mActionCopyAsImage );
+  toolBarslayout->addWidget( mToolBarRight );
+  toolBarslayout->addItem( new QSpacerItem( 10, 0, QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding ) );
+  mToolBarLeft = new QToolBar( this );
+  mToolBarLeft->setContentsMargins( 0, 0, 0, 0 );
+  toolBarslayout->addWidget( mToolBarLeft );
+  mainLayout->addWidget( mPlot );
 
   setMagnifierType( normalMagnifier );
 
@@ -83,7 +95,7 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent ): QWidget( parent ),
   mPlot->setZoomer( mZoomerLeft, mZoomerRight );
 
   QComboBox *xAxisFormatCombobox = new QComboBox( this );
-  mXAxisFormatCombobox = mToolBar->addWidget( xAxisFormatCombobox );
+  mXAxisFormatCombobox = mToolBarLeft->addWidget( xAxisFormatCombobox );
   xAxisFormatCombobox->addItem( tr( "X linear scale" ) );
   xAxisFormatCombobox->addItem( tr( "X logarithmic scale" ) );
   connect( xAxisFormatCombobox, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]( int index )
@@ -97,6 +109,8 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent ): QWidget( parent ),
     updatePlot();
   } );
   mXAxisFormatCombobox->setVisible( false );
+
+  mainLayout->setStretch( 1, 1 );
 }
 
 
@@ -131,13 +145,13 @@ void ReosPlotWidget::enableAutoMinimumSize( bool b )
 
 void ReosPlotWidget::setMinimumPlotSize( const QSize &size )
 {
-  mPlot->setMinimumPlotSize( size - QSize( mToolBar->size().height(), 0 ) );
+  mPlot->setMinimumPlotSize( size - QSize( mToolBarRight->size().height(), 0 ) );
 }
 
 void ReosPlotWidget::addActions( const QList<QAction *> &actions )
 {
-  if ( mToolBar )
-    mToolBar->addActions( actions );
+  if ( mToolBarRight )
+    mToolBarRight->addActions( actions );
 }
 
 void ReosPlotWidget::addPlotItem( ReosPlotItem *item )
@@ -157,6 +171,10 @@ void ReosPlotWidget::addPlotItem( ReosPlotItem *item )
 
 }
 
+void ReosPlotWidget::addOptionalPlotItem( ReosOptionalPlotItemButton *optionalItemButton )
+{
+  mToolBarLeft->addWidget( optionalItemButton );
+}
 
 void ReosPlotWidget::setTitleAxeX( const QString &title )
 {
@@ -307,6 +325,14 @@ void ReosPlotItem::attach( ReosPlot_p *plot )
   }
 }
 
+void ReosPlotItem::detach()
+{
+  if ( mPlotItem && mAttached )
+  {
+    mPlotItem->detach();
+  }
+}
+
 ReosPlotItem::~ReosPlotItem()
 {
   if ( mPlotItem && !mAttached )
@@ -348,10 +374,55 @@ void ReosPlotItem::setAsMasterItem( bool b )
   mMasterItem = b;
 }
 
+void ReosPlotItem::setAutoScale( bool b )
+{
+  if ( mPlotItem )
+    mPlotItem->setItemAttribute( QwtPlotItem::AutoScale, b );
+}
+
+QString ReosPlotItem::name() const
+{
+  if ( mPlotItem )
+    return mPlotItem->title().text();
+  else
+    return QString();
+}
+
+void ReosPlotItem::setVisible( bool isVisible, bool replot )
+{
+  if ( mPlotItem )
+  {
+    mPlotItem->setVisible( isVisible );
+    if ( replot )
+      mPlotItem->plot()->replot();
+  }
+}
+
+bool ReosPlotItem::isVisible() const
+{
+  if ( mPlotItem )
+    return mPlotItem->isVisible();
+  else
+    return false;
+}
+
+void ReosPlotItem::setColor( const QColor & ) {}
+
+QPixmap ReosPlotItem::icone( const QSize & ) const
+{
+  return QPixmap();
+}
+
 void ReosPlotItem::fullExtent()
 {
   if ( mPlotItem )
     mPlotItem->plot()->replot();
+}
+
+void ReosPlotItem::setName( const QString &name )
+{
+  if ( mPlotItem )
+    mPlotItem->setTitle( name );
 }
 
 ReosPlotCurve::ReosPlotCurve( const QString &name, const QColor &color, double width ): ReosPlotItem()

@@ -28,6 +28,7 @@
 #include "reosplottimeconstantinterval.h"
 #include "reosrunoffhydrographwidget.h"
 #include "reosprocesscontroler.h"
+#include "reosplotitemlist.h"
 
 ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *watershedModule, QWidget *parent ) :
   ReosActionWidget( parent )
@@ -39,6 +40,8 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *wat
 {
   ui->setupUi( this );
   setWindowFlag( Qt::Dialog );
+
+  mGaugedHydrographButton = new ReosOptionalPlotItemButton( tr( "Gauged hydrographs" ), ui->widgetPlot );
 
   ui->tableViewRunoff->setModel( mWatershedRunoffModelsModel );
   ui->tableViewRunoff->horizontalHeader()->setSectionResizeMode( 0, QHeaderView::Interactive );
@@ -54,7 +57,7 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *wat
   mRainfallHistogram->setBorderWdidth( 1.5 );
   mRunoffHistogram = new ReosPlotTimeHistogram( tr( "Runoff" ), false );
   mRunoffHistogram->setBrushColor( QColor( 250, 150, 0, 175 ) );
-  mHydrographCurve = new ReosPlotTimeSerieVariableStep( tr( "Hydrograph" ) );
+  mHydrographCurve = new ReosPlotTimeSerieVariableStep( tr( "Result hydrograph" ) );
   mHydrographCurve->setOnRightAxe();
   ui->widgetPlot->addPlotItem( mRainfallHistogram );
   ui->widgetPlot->addPlotItem( mRunoffHistogram );
@@ -129,7 +132,6 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *wat
   ui->constantHydrographTimeStep->setVisible( ui->checkBoxUseConstantTimeStep->isChecked() );
 
   onModelMeteoChanged();
-
 }
 
 ReosRunoffHydrographWidget::~ReosRunoffHydrographWidget()
@@ -140,6 +142,8 @@ ReosRunoffHydrographWidget::~ReosRunoffHydrographWidget()
 void ReosRunoffHydrographWidget::setCurrentWatershed( ReosWatershed *watershed )
 {
   mCurrentWatershed = watershed;
+
+  mGaugedHydrographButton->clear();
 
   if ( !mCurrentWatershed )
   {
@@ -281,7 +285,7 @@ void ReosRunoffHydrographWidget::updateRainall()
   if ( !isVisible() )
     return;
 
-  if ( mCurrentWatershed )
+  if ( mCurrentRunoff )
   {
     mCurrentRunoff->deleteLater();
     mCurrentRunoff = nullptr;
@@ -378,6 +382,8 @@ void ReosRunoffHydrographWidget::updateHydrograph()
     mCurrentWatershed->setTimeStepForOutputHydrograph( mCurrentRunoff->timeStep() );
   }
 
+  updateGaugedHydrograph();
+
   ui->widgetPlot->updatePlot();
 }
 
@@ -432,8 +438,6 @@ void ReosRunoffHydrographWidget::buildRunoffChoiceMenu( QMenu *menu, int row )
   {
     mWatershedRunoffModelsModel->removeRunoffModel( row );
   } );
-
-
 }
 
 void ReosRunoffHydrographWidget::syncTransferFunction( ReosTransferFunction *function )
@@ -473,6 +477,45 @@ void ReosRunoffHydrographWidget::syncTransferFunction( ReosTransferFunction *fun
     ui->widgetTransferFunction->layout()->addWidget( mCurrentTransferFunctionForm );
 
   updateHydrograph();
+}
+
+void ReosRunoffHydrographWidget::updateGaugedHydrograph()
+{
+  mGaugedHydrographButton->clear();
+
+  QDateTime startTime;
+  QDateTime endTime;
+  if ( mCurrentRunoff )
+  {
+    auto timeExtent = mCurrentRunoff->data()->timeExtent();
+    startTime = timeExtent.first;
+    endTime = timeExtent.second;
+
+    if ( mCurrentHydrograph )
+    {
+      timeExtent = mCurrentHydrograph->timeExtent();
+      if ( startTime > timeExtent.first )
+        startTime = timeExtent.first;
+      if ( endTime < timeExtent.second )
+        endTime = timeExtent.second;
+    }
+  }
+
+  if ( mCurrentWatershed )
+  {
+    QList<ReosHydrograph *> gaugedHydragraphs = mCurrentWatershed->gaugedHydrographs()->hydrographsForTimeRange( startTime, endTime );
+    for ( ReosHydrograph *hyd : std::as_const( gaugedHydragraphs ) )
+    {
+      ReosPlotTimeSerieVariableStep *itempPlot = new ReosPlotTimeSerieVariableStep( hyd->name() );
+      itempPlot->setTimeSerie( hyd );
+      itempPlot->setAutoScale( false );
+      itempPlot->setOnRightAxe();
+      mGaugedHydrographButton->addPlotItem( itempPlot );
+      itempPlot->setColor( Qt::darkGray );
+      itempPlot->setStyle( Qt::DotLine );
+      itempPlot->setWidth( 2 );
+    }
+  }
 }
 
 void ReosRunoffHydrographWidget::hydrographTabContextMenu( const QPoint &pos )

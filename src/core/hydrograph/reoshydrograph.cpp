@@ -79,6 +79,21 @@ QStringList ReosHydrographStore::hydrographNames() const
   return ret;
 }
 
+QList<ReosHydrograph *> ReosHydrographStore::hydrographsForTimeRange( const QDateTime &startTime, const QDateTime &endTime )
+{
+  QList<ReosHydrograph *> ret;
+
+  for ( ReosHydrograph *hyd : std::as_const( mHydrographs ) )
+  {
+    QPair<QDateTime, QDateTime> timeExtent = hyd->timeExtent();
+    if ( ( timeExtent.first >= startTime && timeExtent.first <= endTime ) ||
+         ( timeExtent.second >= startTime && timeExtent.second <= endTime ) )
+      ret.append( hyd );
+  }
+
+  return ret;
+}
+
 ReosHydrograph *ReosHydrographStore::hydrograph( int index ) const
 {
   if ( index >= 0 && index < mHydrographs.count() )

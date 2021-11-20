@@ -42,6 +42,7 @@ SET(REOS_GUI_SOURCES
     chart/reoseditableprofile.cpp
     chart/reosplottimeconstantinterval.cpp
     chart/reosplotidfcurve.cpp
+    chart/reosplotitemlist.cpp
     chart/private/reosprofileplot_p.cpp
     chart/private/reosplot_p.cpp
     chart/private/reosplotpicker_p.cpp
@@ -94,6 +95,7 @@ SET(REOS_GUI_HEADERS
     chart/reoseditableprofile.h
     chart/reosplottimeconstantinterval.h
     chart/reosplotidfcurve.h
+    chart/reosplotitemlist.h
 
     form/reosparameterwidget.h
     form/reosformwidget.h
