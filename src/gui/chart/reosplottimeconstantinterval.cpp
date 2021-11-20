@@ -198,6 +198,8 @@ QwtPlotCurve *ReosPlotTimeSerieVariableStep::curve() const
 
 void ReosPlotTimeSerieVariableStep::setColor( const QColor &color )
 {
+  if ( mTimeSerie )
+    mTimeSerie->data()->setColor( color );
   QPen pen = curve()->pen();
   pen.setColor( color );
   curve()->setPen( pen );

@@ -86,20 +86,6 @@ class ReosOptionalPlotItemWidgetAction : public QWidgetAction
 };
 
 
-class ReosColorWidgetAction : public QWidgetAction
-{
-    Q_OBJECT
-  public:
-    ReosColorWidgetAction( QObject *parent );
-    void setColor( const QColor &color );
-
-  signals:
-    void colorChanged( const QColor &color );
-
-  private:
-    QColorDialog *mColorWidget = nullptr;
-
-};
 class ReosOptionalPlotItemButton: public QToolButton
 {
   public:

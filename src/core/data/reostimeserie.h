@@ -230,14 +230,17 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
     //! Adds another instance to this the values of this ones, create new time steps if needed
     void addOther( const ReosTimeSerieVariableTimeStep *other, double factor = 1, bool allowInterpolation = true );
 
-    //! Returns the color associated with this time serie
-    virtual QColor color() const {return QColor();}
-
     //! Returns the unit of the values as a string
     QString unitString() const;
 
     //! Sets the unit of the values as a string
     void setUnitString( const QString &unitString );
+
+    //! Returns the color used to render the time serie
+    QColor color() const;
+
+    //! Sets the color used to render the time serie
+    void setColor( const QColor &color );
 
   protected:
 
@@ -249,6 +252,7 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
 
   private:
     QString mUnitString;
+    QColor mColor;
 
 
     /**

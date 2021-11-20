@@ -27,8 +27,6 @@ class REOSCORE_EXPORT ReosHydrograph : public ReosTimeSerieVariableTimeStep
     ReosHydrograph( QObject *parent = nullptr, const QString &providerKey = QString(), const QString &dataSource = QString() );
 
     QString type() const override {return QStringLiteral( "hydrograph" );}
-    QColor color() const override;
-    void setColor( const QColor &color );
 
     ReosEncodedElement encode() const;
     static ReosHydrograph *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
@@ -36,8 +34,6 @@ class REOSCORE_EXPORT ReosHydrograph : public ReosTimeSerieVariableTimeStep
   protected:
     ReosHydrograph( const ReosEncodedElement &element, QObject *parent = nullptr );
 
-  private:
-    QColor mColor;
 };
 
 class REOSCORE_EXPORT ReosHydrographStore : public ReosDataObject

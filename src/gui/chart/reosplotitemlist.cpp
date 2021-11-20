@@ -15,6 +15,8 @@
  ***************************************************************************/
 #include "reosplotitemlist.h"
 
+#include <qgscolorwidgets.h>
+
 #include <QListView>
 #include <QMenu>
 #include <QPainter>
@@ -224,11 +226,14 @@ void ReosPlotItemListView::contextMenuEvent( QContextMenuEvent *event )
   ReosPlotItem *item = static_cast<ReosPlotItem *>( index.internalPointer() );
 
   QMenu menu;
-  ReosColorWidgetAction *colorAction = new ReosColorWidgetAction( &menu );
-  colorAction->setColor( item->color() );
-  menu.addAction( colorAction );
 
-  connect( colorAction, &ReosColorWidgetAction::colorChanged, item, &ReosPlotItem::setColor );
+  QgsColorWheel *colorWheel = new QgsColorWheel( this );
+  QgsColorWidgetAction *colorWheelAction = new QgsColorWidgetAction( colorWheel, &menu, this );
+  colorWheel->setColor( item->color() );
+  colorWheelAction->setDismissOnColorSelection( false );
+  menu.addAction( colorWheelAction );
+
+  connect( colorWheelAction, &QgsColorWidgetAction::colorChanged, item, &ReosPlotItem::setColor );
 
   menu.exec( mapToGlobal( event->pos() ) );
 }
