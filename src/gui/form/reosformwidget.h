@@ -89,6 +89,14 @@ class ReosFormWidgetDataFactory
   public:
     virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent ) = 0;
     virtual QString datatype() const = 0;
+
+    ReosFormWidget *createWidget( ReosDataObject *dataObject, QWidget *parent );
+
+    void addSubFactory( ReosFormWidgetDataFactory *fact );
+
+  private:
+    using DataWidgetFactory = std::unique_ptr<ReosFormWidgetDataFactory>;
+    std::vector<DataWidgetFactory> mSubDataWidgetFactories;
 };
 
 class REOSGUI_EXPORT ReosFormWidgetFactories: public ReosModule

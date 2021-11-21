@@ -182,11 +182,11 @@ ReosRainfallManager::ReosRainfallManager( ReosMap *map, ReosRainfallModel *rainf
   ReosPlotItemFactories::instance()->addFactory( new ReosPlotItemRainfallIntensityDurationFrequencyFactory );
   ReosPlotItemFactories::instance()->addFactory( new ReosPlotItemRainfallIntensityDurationFactory );
   ReosPlotItemFactories::instance()->addFactory( new ReosPlotItemRainfallSerieFactory );
-  ReosPlotItemFactories::instance()->addFactory( new ReosPlotItemRainfallChicagoFactory );
-  ReosPlotItemFactories::instance()->addFactory( new ReosPlotItemRainfallAlternatingBlockFactory );
-  ReosPlotItemFactories::instance()->addFactory( new ReosPlotItemRainfallDoubleTriangleFactory );
+//  ReosPlotItemFactories::instance()->addFactory( new ReosPlotItemRainfallChicagoFactory );
+//  ReosPlotItemFactories::instance()->addFactory( new ReosPlotItemRainfallAlternatingBlockFactory );
+//  ReosPlotItemFactories::instance()->addFactory( new ReosPlotItemRainfallDoubleTriangleFactory );
 
-  ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormWidgetRainFallSerieFactory );
+  ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormWidgetTimeSerieConstantIntervalFactory );
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormWidgetChicagoRainfalFactory );
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormWidgetAlternatingBlockRainfalFactory );
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormWidgetDoubleTriangleRainfalFactory );
@@ -1287,9 +1287,11 @@ void ReosImportRainfallDialog::onSelectStationButton()
 }
 
 
+QString ReosPlotItemRainfallIntensityDurationFrequencyFactory::datatype() const {return ReosIntensityDurationFrequencyCurves::staticType();}
+
 void ReosPlotItemRainfallIntensityDurationFrequencyFactory::buildPlotItems( ReosPlotWidget *plotWidget, ReosDataObject *data )
 {
-  if ( data && data->type() == QStringLiteral( "rainfall-intensity-duration-frequency-curves" ) )
+  if ( data && data->type().contains( ReosIntensityDurationFrequencyCurves::staticType() ) )
   {
     ReosIntensityDurationFrequencyCurves *_data = static_cast<ReosIntensityDurationFrequencyCurves *>( data );
     for ( int i = 0; i < _data->curvesCount(); ++i )
@@ -1319,6 +1321,8 @@ void ReosPlotItemRainfallIntensityDurationFrequencyFactory::buildPlotItems( Reos
   }
 }
 
+QString ReosPlotItemRainfallIntensityDurationFactory::datatype() const {return ReosIntensityDurationCurve::staticType();}
+
 void ReosPlotItemRainfallIntensityDurationFactory::buildPlotItems( ReosPlotWidget *plotWidget, ReosDataObject *data )
 {
   ReosIntensityDurationCurve *_data = static_cast<ReosIntensityDurationCurve *>( data );
@@ -1333,6 +1337,8 @@ void ReosPlotItemRainfallIntensityDurationFactory::buildPlotItems( ReosPlotWidge
 
   plotWidget->enableScaleTypeChoice( true );
 }
+
+QString ReosPlotItemRainfallSerieFactory::datatype() const {return ReosSerieRainfall::staticType();}
 
 void ReosPlotItemRainfallSerieFactory::buildPlotItems( ReosPlotWidget *plotWidget, ReosDataObject *data )
 {

@@ -275,7 +275,7 @@ void ReosGaugedHydrographWidget::updatePlotExtent()
 
 void ReosGaugedHydrographWidget::populateProviderActions()
 {
-  const QString dataType = QStringLiteral( "hydrograph" );
+  const QString dataType = ReosHydrograph::staticType();
 
   const QStringList providers =
     ReosDataProviderGuiRegistery::instance()->providers( dataType, ReosDataProviderGuiFactory::GuiCapability::DataSelector );
@@ -298,7 +298,7 @@ void ReosGaugedHydrographWidget::populateProviderActions()
 
 void ReosGaugedHydrographWidget::showProviderSelector( const QString &providerKey )
 {
-  const QString dataType = QStringLiteral( "hydrograph" );
+  const QString dataType = ReosHydrograph::staticType();
 
   mCurrentDataSelectorWidget =
     ReosDataProviderGuiRegistery::instance()->createProviderSelectorWidget( providerKey, dataType, mMap, this );

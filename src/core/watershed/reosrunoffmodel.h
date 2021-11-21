@@ -39,6 +39,9 @@ class REOSCORE_EXPORT ReosRunoffModel : public ReosDataObject
     Q_OBJECT
   public:
 
+    QString type() const override {return staticType();}
+    static QString staticType() {return ReosDataObject::staticType() + ':' +  QStringLiteral( "runoff-model" );}
+
     //! Returns the runoff type
     virtual QString runoffType() const = 0;
 
@@ -80,7 +83,8 @@ class REOSCORE_EXPORT ReosRunoffModelsGroup : public ReosDataObject
   public:
     ReosRunoffModelsGroup( QObject *parent = nullptr );
 
-    QString type() const override {return QStringLiteral( "watershed-runoff-models" );}
+    QString type() const override {return staticType();}
+    static QString staticType() {return ReosDataObject::staticType() + ':' +   QStringLiteral( "runoff-model-group" );}
 
     //! Adds a new runoff model
     void addRunoffModel( ReosRunoffModel *runoffModel );
@@ -191,7 +195,8 @@ class REOSCORE_EXPORT ReosRunoff : public ReosDataObject
     ReosRunoff( ReosRunoffModelsGroup *runoffModels, ReosTimeSerieConstantInterval *rainfall, QObject *parent = nullptr );
     ~ReosRunoff() = default;
 
-    QString type() const override {return QStringLiteral( "runoff-result" );}
+    QString type() const override {return staticType();}
+    static QString staticType() {return ReosDataObject::staticType() + ':' +  QStringLiteral( "runoff-result" );}
 
     //! Returns the current values count
     int valueCount() const;
@@ -355,7 +360,9 @@ class REOSCORE_EXPORT ReosRunoffConstantCoefficientModel: public ReosRunoffModel
   public:
     ReosRunoffConstantCoefficientModel( const QString &name, QObject *parent = nullptr );
 
-    QString type() const override {return QStringLiteral( "runoff-model-constant-coefficient" );}
+    QString type() const override {return staticType();}
+    static QString staticType() {return ReosRunoffModel::staticType() + ':' +   QStringLiteral( "constant-coefficient" );}
+
     QString runoffType() const override {return QStringLiteral( "constant-coefficient" );}
     QList<ReosParameter *> parameters() const override;
     bool addRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double factor = 1 ) override;
@@ -379,7 +386,9 @@ class REOSCORE_EXPORT ReosRunoffGreenAmptModel: public ReosRunoffModel
   public:
     ReosRunoffGreenAmptModel( const QString &name, QObject *parent = nullptr );
 
-    QString type() const override {return QStringLiteral( "runoff-model-green-ampt" );}
+    QString type() const override {return staticType();}
+    static QString staticType() {return ReosRunoffModel::staticType() + ':' +   QStringLiteral( "green-ampt" );}
+
     QString runoffType() const override {return QStringLiteral( "green-ampt" );}
     QList<ReosParameter *> parameters() const override;
     bool addRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double factor = 1 ) override;
@@ -403,7 +412,9 @@ class REOSCORE_EXPORT ReosRunoffCurveNumberModel: public ReosRunoffModel
   public:
     ReosRunoffCurveNumberModel( const QString &name, QObject *parent = nullptr );
 
-    QString type() const override {return QStringLiteral( "runoff-model-curve-number" );}
+    QString type() const override {return staticType();}
+    static QString staticType() {return ReosRunoffModel::staticType() + ':' +   QStringLiteral( "curve-number" );}
+
     QString runoffType() const override {return QStringLiteral( "curve-number" );}
     QList<ReosParameter *> parameters() const override;
     bool addRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double factor = 1 ) override;

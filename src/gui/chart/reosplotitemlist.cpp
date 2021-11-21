@@ -237,17 +237,3 @@ void ReosPlotItemListView::contextMenuEvent( QContextMenuEvent *event )
 
   menu.exec( mapToGlobal( event->pos() ) );
 }
-
-ReosColorWidgetAction::ReosColorWidgetAction( QObject *parent ): QWidgetAction( parent )
-{
-  mColorWidget = new QColorDialog;
-  mColorWidget->setOptions( QColorDialog::NoButtons );
-  setDefaultWidget( mColorWidget );
-
-  connect( mColorWidget, &QColorDialog::currentColorChanged, this, &ReosColorWidgetAction::colorChanged );
-}
-
-void ReosColorWidgetAction::setColor( const QColor &color )
-{
-  mColorWidget->setCurrentColor( color );
-}

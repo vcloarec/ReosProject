@@ -30,13 +30,15 @@ class REOSCORE_EXPORT ReosDataObject: public QObject
     ReosDataObject( QObject *parent = nullptr );
 
     //! Returns the type
-    virtual QString type() const = 0;
+    virtual QString type() const {return staticType();}
 
     //! Returns the name of the data object
     QString name() const;
 
     void encode( ReosEncodedElement &element ) const;
     void decode( const ReosEncodedElement &element );
+
+    static QString staticType() {return QStringLiteral( "data" );}
 
   public slots:
     //! Sets the name of the data object

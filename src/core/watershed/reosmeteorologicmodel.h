@@ -37,7 +37,8 @@ class REOSCORE_EXPORT ReosMeteorologicModel : public ReosDataObject
                            ReosRainfallRegistery *rainfallregistery,
                            QObject *parent = nullptr );
 
-    QString type() const override {return QStringLiteral( "meteorologic-model" );}
+    QString type() const override {return staticType();}
+    static QString staticType() {return ReosDataObject::staticType() + ':' +  QStringLiteral( "meteorologic-model" );}
 
     //! Returns a pointer to a copy of \a this
     ReosMeteorologicModel *duplicate( const QString &dupplicateName );

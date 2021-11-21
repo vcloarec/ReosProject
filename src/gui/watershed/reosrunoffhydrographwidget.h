@@ -187,28 +187,28 @@ class ReosFormLinearReservoirWidgetFactory: public ReosFormWidgetDataFactory
 {
   public:
     virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent );
-    virtual QString datatype() const {return QStringLiteral( "transfer-function-linear-reservoir" );}
+    virtual QString datatype() const;
 };
 
 class ReosFormGeneralizedRationalMethodWidgetFactory: public ReosFormWidgetDataFactory
 {
   public:
     virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent );
-    virtual QString datatype() const {return QStringLiteral( "transfer-function-generalized-rational-method" );}
+    virtual QString datatype() const;
 };
 
 class ReosFormSCSUnithydrographWidgetFactory: public ReosFormWidgetDataFactory
 {
   public:
     virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent );
-    virtual QString datatype() const {return QStringLiteral( "transfer-function-scs-unit-hydrograph" );}
+    virtual QString datatype() const;
 };
 
 class ReosFormNashUnithydrographWidgetFactory: public ReosFormWidgetDataFactory
 {
   public:
     virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent );
-    virtual QString datatype() const {return QStringLiteral( "transfer-function-nash-unit-hydrograph" );}
+    virtual QString datatype() const;
 };
 
 #endif // REOSRUNOFFHYDROGRAPHWIDGET_H

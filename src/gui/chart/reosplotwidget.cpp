@@ -492,7 +492,7 @@ void ReosPlotItemFactories::buildPlotItems( ReosPlotWidget *plotWidget, ReosData
     type = data->type();
 
   for ( const Factory &fact : mFactories )
-    if ( fact->datatype() == type )
+    if ( type.contains( fact->datatype() ) )
     {
       fact->buildPlotItems( plotWidget, data );
       return;

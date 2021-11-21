@@ -289,6 +289,8 @@ ReosFormWidget *ReosFormRunoffConstantCoefficientWidgetFactory::createDataWidget
   return form.release();
 }
 
+QString ReosFormRunoffConstantCoefficientWidgetFactory::datatype() const {return ReosRunoffConstantCoefficientModel::staticType();}
+
 ReosFormWidget *ReosFormRunoffGreenAmptWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
 {
   ReosRunoffGreenAmptModel *runoffModel = qobject_cast<ReosRunoffGreenAmptModel *>( dataObject );
@@ -301,6 +303,8 @@ ReosFormWidget *ReosFormRunoffGreenAmptWidgetFactory::createDataWidget( ReosData
 
   return form.release();
 }
+
+QString ReosFormRunoffGreenAmptWidgetFactory::datatype() const {return ReosRunoffGreenAmptModel::staticType();}
 
 ReosFormWidget *ReosFormRunofCurveNumberWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
 {
@@ -336,3 +340,5 @@ ReosFormWidget *ReosFormRunofCurveNumberWidgetFactory::createDataWidget( ReosDat
   return form.release();
 
 }
+
+QString ReosFormRunofCurveNumberWidgetFactory::datatype() const {return ReosRunoffCurveNumberModel::staticType();}

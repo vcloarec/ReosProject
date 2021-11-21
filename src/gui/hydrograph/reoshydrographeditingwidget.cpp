@@ -117,6 +117,8 @@ ReosHydrographEditingWidget::~ReosHydrographEditingWidget()
 {
 }
 
+QString ReosHydrographEditingWidgetFactory::datatype() const {return ReosHydrograph::staticType();}
+
 ReosFormWidget *ReosHydrographEditingWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
 {
   ReosHydrograph *hyd = qobject_cast<ReosHydrograph *>( dataObject );

@@ -176,6 +176,8 @@ ReosFormWidget *ReosFormWidgetTimeSerieConstantIntervalFactory::createDataWidget
   return nullptr;
 }
 
+QString ReosFormWidgetTimeSerieConstantIntervalFactory::datatype() const {return ReosTimeSerieConstantInterval::staticType();}
+
 
 ReosFormWidget *ReosFormWidgetChicagoRainfalFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
 {
@@ -186,6 +188,8 @@ ReosFormWidget *ReosFormWidgetChicagoRainfalFactory::createDataWidget( ReosDataO
   return nullptr;
 }
 
+QString ReosFormWidgetChicagoRainfalFactory::datatype() const {return ReosChicagoRainfall::staticType();}
+
 ReosFormWidget *ReosFormWidgetDoubleTriangleRainfalFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
 {
   ReosDoubleTriangleRainfall *object = qobject_cast<ReosDoubleTriangleRainfall *>( dataObject );
@@ -194,6 +198,8 @@ ReosFormWidget *ReosFormWidgetDoubleTriangleRainfalFactory::createDataWidget( Re
 
   return nullptr;
 }
+
+QString ReosFormWidgetDoubleTriangleRainfalFactory::datatype() const {return ReosDoubleTriangleRainfall::staticType();}
 
 ReosFormWidget *ReosFormWidgetIntensityDurationCurveFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
 {
@@ -204,6 +210,8 @@ ReosFormWidget *ReosFormWidgetIntensityDurationCurveFactory::createDataWidget( R
   return nullptr;
 }
 
+QString ReosFormWidgetIntensityDurationCurveFactory::datatype() const {return  ReosIntensityDurationCurve::staticType();}
+
 
 ReosFormWidget *ReosFormWidgetAlternatingBlockRainfalFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
 {
@@ -213,6 +221,8 @@ ReosFormWidget *ReosFormWidgetAlternatingBlockRainfalFactory::createDataWidget( 
 
   return nullptr;
 }
+
+QString ReosFormWidgetAlternatingBlockRainfalFactory::datatype() const {return ReosAlternatingBlockRainfall::staticType();}
 
 ReosAlternatingBlockRainfallWidget::ReosAlternatingBlockRainfallWidget( ReosAlternatingBlockRainfall *rainfall, QWidget *parent ):
   ReosTimeSerieConstantIntervalWidget( rainfall, parent ),
@@ -239,4 +249,3 @@ ReosAlternatingBlockRainfallWidget::ReosAlternatingBlockRainfallWidget( ReosAlte
   addWidget( mIdfWidget, 3 );
   addParameter( rainfall->centerCoefficient() );
 }
-

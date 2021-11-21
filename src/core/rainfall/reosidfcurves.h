@@ -214,7 +214,8 @@ class REOSCORE_EXPORT ReosIntensityDurationCurve: public ReosDataObject
     ReosIntensityDurationCurve( const ReosDuration &returnPeriod, QObject *parent = nullptr );
     ReosIntensityDurationCurve( QObject *parent = nullptr );
 
-    QString type() const override {return QStringLiteral( "rainfall-intensity-duration-curve" );}
+    QString type() const override {return staticType();}
+    static QString staticType() {return ReosDataObject::staticType() + ':' +  QStringLiteral( "intensity-duration-curve" );}
 
     //! Returns the parametes corresponding to the return period of this curve
     ReosParameterDuration *returnPeriod() const;
@@ -352,7 +353,8 @@ class REOSCORE_EXPORT ReosIntensityDurationFrequencyCurves : public ReosDataObje
     ReosIntensityDurationFrequencyCurves( QObject *parent = nullptr ): ReosDataObject( parent )
     {}
 
-    QString type() const {return QStringLiteral( "rainfall-intensity-duration-frequency-curves" );}
+    QString type() const override {return staticType();}
+    static QString staticType() {return ReosDataObject::staticType() + ':' +  QStringLiteral( "intensity-duration-curves" );}
 
     //! Adds an intensity-duration curve
     void addCurve( ReosIntensityDurationCurve *curve, QString name );

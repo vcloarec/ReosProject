@@ -26,10 +26,13 @@ class REOSCORE_EXPORT ReosHydrograph : public ReosTimeSerieVariableTimeStep
   public:
     ReosHydrograph( QObject *parent = nullptr, const QString &providerKey = QString(), const QString &dataSource = QString() );
 
-    QString type() const override {return QStringLiteral( "hydrograph" );}
+    QString type() const override {return staticType();}
+    static QString staticType() {return ReosTimeSerieVariableTimeStep::staticType() + ':' + QStringLiteral( "hydrograph" );}
 
     ReosEncodedElement encode() const;
     static ReosHydrograph *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
+
+
 
   protected:
     ReosHydrograph( const ReosEncodedElement &element, QObject *parent = nullptr );
@@ -62,7 +65,9 @@ class REOSCORE_EXPORT ReosHydrographStore : public ReosDataObject
     ReosEncodedElement encode() const;
     void decode( const ReosEncodedElement &element );
 
-    QString type() const override {return QStringLiteral( "hydrograph-store" );}
+    QString type() const override {return staticType();}
+    static QString staticType() {return ReosDataObject::staticType() + ':' +  QStringLiteral( "hydrograph-store" );}
+
   private:
     QList<ReosHydrograph *>  mHydrographs;
 

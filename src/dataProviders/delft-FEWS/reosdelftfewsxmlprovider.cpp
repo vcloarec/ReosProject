@@ -21,6 +21,8 @@
 #include <QVariantMap>
 #include <QLocale>
 
+#include "reoshydrograph.h"
+
 ReosDelftFewsXMLProvider::ReosDelftFewsXMLProvider()
 {}
 
@@ -380,7 +382,7 @@ ReosDuration ReosDelftFewsXMLHydrographProvider::relativeTimeAt( int i ) const {
 
 ReosDuration ReosDelftFewsXMLHydrographProvider::lastRelativeTime() const {return mCacheTimeValues.last();}
 
-QString ReosDelftFewsXMLHydrographProvider::dataType() {return QStringLiteral( "hydrograph" );}
+QString ReosDelftFewsXMLHydrographProvider::dataType() {return ReosHydrograph::staticType();}
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
 #define skipEmptyPart QString::SkipEmptyParts

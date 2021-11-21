@@ -28,7 +28,9 @@ class REOSCORE_EXPORT ReosSerieRainfall : public ReosTimeSerieConstantInterval
     Q_OBJECT
   public:
     ReosSerieRainfall( QObject *parent = nullptr, const QString &providerKey = QString(), const QString &dataSource = QString() );
-    QString type() const override {return QStringLiteral( "serie-rainfall" );}
+
+    QString type() const override {return staticType();}
+    static QString staticType() {return ReosTimeSerieConstantInterval::staticType() + ':' + QStringLiteral( "rainfall" );}
 
     ReosEncodedElement encode() const;
 
@@ -92,7 +94,8 @@ class REOSCORE_EXPORT ReosChicagoRainfall : public ReosUniqueIdfCurveSyntheticRa
   public:
     ReosChicagoRainfall( QObject *parent = nullptr );
 
-    QString type() const override {return QStringLiteral( "chicago-rainfall" );}
+    static QString staticType() {return ReosSerieRainfall::staticType() + ':' + QStringLiteral( "chicago" );}
+    QString type() const override {return staticType();}
 
     ReosEncodedElement encode() const;
     //! Creates new instance from the encoded element
@@ -112,7 +115,9 @@ class REOSCORE_EXPORT ReosAlternatingBlockRainfall : public ReosUniqueIdfCurveSy
   public:
     ReosAlternatingBlockRainfall( QObject *parent = nullptr );
 
-    QString type() const override {return QStringLiteral( "alternating-block-rainfall" );}
+
+    static QString staticType() {return ReosSerieRainfall::staticType() + ':' + QStringLiteral( "alternating-block" );}
+    QString type() const override {return staticType();}
 
     ReosEncodedElement encode() const;
     //! Creates new instance from the encoded element
@@ -131,7 +136,8 @@ class REOSCORE_EXPORT ReosDoubleTriangleRainfall : public ReosSerieRainfall
   public:
     ReosDoubleTriangleRainfall( QObject *parent );
 
-    QString type() const override {return QStringLiteral( "double-triangle-rainfall" );}
+    static QString staticType() {return ReosSerieRainfall::staticType() + ':' + QStringLiteral( "double-triangle" );}
+    QString type() const override {return staticType();}
 
     ReosParameterDuration *totalDuration();
     ReosParameterDuration *intenseDuration();

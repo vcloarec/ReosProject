@@ -1013,6 +1013,8 @@ ReosFormWidget *ReosFormLinearReservoirWidgetFactory::createDataWidget( ReosData
   return form.release();
 }
 
+QString ReosFormLinearReservoirWidgetFactory::datatype() const {return ReosTransferFunctionLinearReservoir::staticType();;}
+
 ReosFormWidget *ReosFormGeneralizedRationalMethodWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
 {
   ReosTransferFunctionGeneralizedRationalMethod *transferFunction = qobject_cast<ReosTransferFunctionGeneralizedRationalMethod *>( dataObject );
@@ -1027,6 +1029,8 @@ ReosFormWidget *ReosFormGeneralizedRationalMethodWidgetFactory::createDataWidget
 
   return form.release();
 }
+
+QString ReosFormGeneralizedRationalMethodWidgetFactory::datatype() const {return ReosTransferFunctionGeneralizedRationalMethod::staticType();}
 
 ReosTimeSeriesTableModel::ReosTimeSeriesTableModel( QObject *parent ): QAbstractTableModel( parent ) {}
 
@@ -1203,6 +1207,8 @@ ReosFormWidget *ReosFormSCSUnithydrographWidgetFactory::createDataWidget( ReosDa
 
   return form.release();
 }
+
+QString ReosFormSCSUnithydrographWidgetFactory::datatype() const {return ReosTransferFunctionSCSUnitHydrograph::staticType();}
 
 QModelIndex ReosTimeSeriesVariableTimeStepTabModel::index( int row, int column, const QModelIndex & ) const
 {
@@ -1469,3 +1475,5 @@ ReosFormWidget *ReosFormNashUnithydrographWidgetFactory::createDataWidget( ReosD
 
   return form.release();
 }
+
+QString ReosFormNashUnithydrographWidgetFactory::datatype() const {return ReosTransferFunctionNashUnitHydrograph::staticType();}
