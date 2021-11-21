@@ -712,6 +712,17 @@ ReosWatershed *ReosWatershed::decode( const ReosEncodedElement &element )
 
   element.getData( QStringLiteral( "current-transfer-function" ), ws->mCurrentTransferFuntion );
 
+  //* to ensure backward compatibility with version 2.2
+  if ( ws->mCurrentTransferFuntion == QStringLiteral( "transfer-function-nash-unit-hydrograph" ) )
+    ws->mCurrentTransferFuntion = ReosTransferFunctionNashUnitHydrograph::staticType();
+  else if ( ws->mCurrentTransferFuntion == QStringLiteral( "transfer-function-scs-unit-hydrograph" ) )
+    ws->mCurrentTransferFuntion = ReosTransferFunctionSCSUnitHydrograph::staticType();
+  else if ( ws->mCurrentTransferFuntion == QStringLiteral( "transfer-function-generalized-rational-method" ) )
+    ws->mCurrentTransferFuntion = ReosTransferFunctionGeneralizedRationalMethod::staticType();
+  else if ( ws->mCurrentTransferFuntion == QStringLiteral( "transfer-function-linear-reservoir" ) )
+    ws->mCurrentTransferFuntion = ReosTransferFunctionLinearReservoir::staticType();
+  //***
+
   element.getData( QStringLiteral( "used-fixed-time-step-output-hydrograph" ), ws->mUsedConstantTimeStepForOutputHydrograph );
   ws->mTimeStepForOutputHydrograph = ReosDuration::decode( element.getEncodedData( QStringLiteral( "time-step-for-output-hydrograph" ) ) );
 

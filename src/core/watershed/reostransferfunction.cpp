@@ -172,7 +172,7 @@ ReosTransferFunctionCalculation *ReosTransferFunctionLinearReservoir::calculatio
 
 ReosTransferFunctionLinearReservoir *ReosTransferFunctionLinearReservoir::decode( const ReosEncodedElement &element, ReosWatershed *watershed )
 {
-  if ( element.description() != QStringLiteral( "transfer-function-linear-reservoir" ) )
+  if ( element.description() != QStringLiteral( "transfer-function-linear-reservoir" ) && element.description() != staticType() )
     return nullptr;
 
   return new ReosTransferFunctionLinearReservoir( element, watershed );
@@ -262,7 +262,7 @@ ReosTransferFunctionCalculation *ReosTransferFunctionGeneralizedRationalMethod::
 
 ReosTransferFunction *ReosTransferFunctionGeneralizedRationalMethod::decode( const ReosEncodedElement &element, ReosWatershed *watershed )
 {
-  if ( element.description() != QStringLiteral( "transfer-function-generalized-rational-method" ) )
+  if ( element.description() != QStringLiteral( "transfer-function-generalized-rational-method" )  && element.description() != staticType() )
     return nullptr;
 
   return new ReosTransferFunctionGeneralizedRationalMethod( element, watershed );
@@ -305,8 +305,22 @@ ReosTransferFunction *ReosTransferFunctionFactories::createTransferFunction( con
 
 ReosTransferFunction *ReosTransferFunctionFactories::createTransferFunction( const ReosEncodedElement &elem, ReosWatershed *watershed )
 {
+
+  QString type = elem.description();
+
+  // to ensure backward compatibility with version 2.2
+  if ( type == QStringLiteral( "transfer-function-nash-unit-hydrograph" ) )
+    type = ReosTransferFunctionNashUnitHydrograph::staticType();
+  else if ( type == QStringLiteral( "transfer-function-scs-unit-hydrograph" ) )
+    type = ReosTransferFunctionSCSUnitHydrograph::staticType();
+  else if ( type == QStringLiteral( "transfer-function-generalized-rational-method" ) )
+    type = ReosTransferFunctionGeneralizedRationalMethod::staticType();
+  else if ( type == QStringLiteral( "transfer-function-linear-reservoir" ) )
+    type = ReosTransferFunctionLinearReservoir::staticType();
+  //***
+
   for ( const Factory &fac : mFactories )
-    if ( fac->type() == elem.description() )
+    if ( fac->type() == type )
       return fac->createTransferFunction( elem, watershed );
 
   return nullptr;
@@ -556,7 +570,7 @@ ReosEncodedElement ReosTransferFunctionSCSUnitHydrograph::encode() const
 
 ReosTransferFunction *ReosTransferFunctionSCSUnitHydrograph::decode( const ReosEncodedElement &element, ReosWatershed *watershed )
 {
-  if ( element.description() != QStringLiteral( "transfer-function-scs-unit-hydrograph" ) )
+  if ( element.description() != QStringLiteral( "transfer-function-scs-unit-hydrograph" )  && element.description() != staticType() )
     return nullptr;
 
   return new ReosTransferFunctionSCSUnitHydrograph( element, watershed );
@@ -1064,6 +1078,9 @@ ReosEncodedElement ReosTransferFunctionNashUnitHydrograph::encode() const
 
 ReosTransferFunction *ReosTransferFunctionNashUnitHydrograph::decode( const ReosEncodedElement &element, ReosWatershed *watershed )
 {
+  if ( element.description() != QStringLiteral( "transfer-function-nash-unit-hydrograph" ) && element.description() != staticType() )
+    return nullptr;
+
   return new ReosTransferFunctionNashUnitHydrograph( element, watershed );
 }
 
