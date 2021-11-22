@@ -55,7 +55,6 @@ class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
     Qt::DropActions supportedDragActions() const override {return Qt::MoveAction | Qt::CopyAction;}
     QStringList mimeTypes() const;
 
-
     //! Add a zone to the hierarchical tree, if \a index is invalid, add to the roots return fals if it fails
     ReosZoneItem *addZone( const QString &name, const QString &description, const QModelIndex &index = QModelIndex() );
     ReosStationItem *addStation( const QString &name, const QString &description, const QModelIndex &index, const ReosSpatialPosition &position = ReosSpatialPosition() );

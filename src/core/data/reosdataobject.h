@@ -38,17 +38,35 @@ class REOSCORE_EXPORT ReosDataObject: public QObject
     void encode( ReosEncodedElement &element ) const;
     void decode( const ReosEncodedElement &element );
 
+    //! Static method hat return the type of this class
     static QString staticType() {return QStringLiteral( "data" );}
 
   public slots:
     //! Sets the name of the data object
     void setName( const QString &name );
+    virtual void updateData() const {}; // to set pure virtual
 
   signals:
-    void dataChanged();
+    void dataChanged() const;
     void settingsChanged();
+
+  protected:
+    void registerUpsteamData( ReosDataObject *data );
+    void deregisterUpstreamData( ReosDataObject *data );
+    void setActualized() const;
+
+    //! Return true whether the data need to be calculated ot updated
+    bool isObsolete() const;
+
+  protected slots:
+    void setObsolete();
 
   private:
     QString mName;
+    mutable bool mIsObsolete = true;
+
+//*** for tests
+    friend class ReosRainfallTest;
+    friend class ReosWatersehdTest;
 };
 #endif // REOSDATAOBJECT_H

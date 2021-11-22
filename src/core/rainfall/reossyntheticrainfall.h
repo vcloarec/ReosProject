@@ -41,7 +41,7 @@ class REOSCORE_EXPORT ReosSerieRainfall : public ReosTimeSerieConstantInterval
     ReosSerieRainfall( const ReosEncodedElement &element, QObject *parent = nullptr );
 
   private:
-    void setUpdata();
+    void setupData();
 
 };
 
@@ -51,8 +51,8 @@ class REOSCORE_EXPORT ReosUniqueIdfCurveSyntheticRainfall : public ReosSerieRain
   public:
     ReosUniqueIdfCurveSyntheticRainfall( QObject *parent = nullptr );
 
-    ReosParameterDuration *totalDuration();
-    ReosParameterDouble *centerCoefficient();
+    ReosParameterDuration *totalDuration() const;
+    ReosParameterDouble *centerCoefficient() const;
     ReosIntensityDurationCurve *intensityDurationCurve() const;
 
     //! Sets the intensity duration curve and its uid, emit signal with uid if not empty, so becareful to not used it with uid from signal receiver (to prevent cycle connection)
@@ -66,14 +66,12 @@ class REOSCORE_EXPORT ReosUniqueIdfCurveSyntheticRainfall : public ReosSerieRain
 
     void encodeBase( ReosEncodedElement &element ) const;
 
-
-  public slots:
-    virtual void updateRainfall() = 0;
-
   signals:
     void newIntensityDuration( const QString &intensityDurationUid );
 
   protected:
+    void updateData() const override;
+
     ReosUniqueIdfCurveSyntheticRainfall( const ReosEncodedElement &element, QObject *parent = nullptr );
     void connectParameters();
 
@@ -85,6 +83,7 @@ class REOSCORE_EXPORT ReosUniqueIdfCurveSyntheticRainfall : public ReosSerieRain
 
   private:
     void init();
+    virtual void updateRainfall() const = 0;
 
 };
 
@@ -101,11 +100,12 @@ class REOSCORE_EXPORT ReosChicagoRainfall : public ReosUniqueIdfCurveSyntheticRa
     //! Creates new instance from the encoded element
     static ReosChicagoRainfall *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
 
-  public slots:
-    void updateRainfall() override;
-
   protected:
     ReosChicagoRainfall( const ReosEncodedElement &element, QObject *parent = nullptr );
+
+  private:
+    void updateRainfall() const override ;
+
 };
 
 
@@ -115,7 +115,6 @@ class REOSCORE_EXPORT ReosAlternatingBlockRainfall : public ReosUniqueIdfCurveSy
   public:
     ReosAlternatingBlockRainfall( QObject *parent = nullptr );
 
-
     static QString staticType() {return ReosSerieRainfall::staticType() + ':' + QStringLiteral( "alternating-block" );}
     QString type() const override {return staticType();}
 
@@ -123,18 +122,18 @@ class REOSCORE_EXPORT ReosAlternatingBlockRainfall : public ReosUniqueIdfCurveSy
     //! Creates new instance from the encoded element
     static ReosAlternatingBlockRainfall *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
 
-  public slots:
-    void updateRainfall() override;
-
   protected:
     ReosAlternatingBlockRainfall( const ReosEncodedElement &element, QObject *parent = nullptr );
+
+  private:
+    void updateRainfall() const override ;
 };
 
 class REOSCORE_EXPORT ReosDoubleTriangleRainfall : public ReosSerieRainfall
 {
     Q_OBJECT
   public:
-    ReosDoubleTriangleRainfall( QObject *parent );
+    ReosDoubleTriangleRainfall( QObject *parent = nullptr );
 
     static QString staticType() {return ReosSerieRainfall::staticType() + ':' + QStringLiteral( "double-triangle" );}
     QString type() const override {return staticType();}
@@ -162,14 +161,12 @@ class REOSCORE_EXPORT ReosDoubleTriangleRainfall : public ReosSerieRainfall
     //! Creates new instance from the encoded element
     static ReosDoubleTriangleRainfall *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
 
-  public slots:
-    void updateRainfall();
-
   signals:
     void newIntensityDuration( const QString &intensityDurationUniqueIdIntense, const QString &intensityDurationUniqueIdTotal );
 
   protected:
     ReosDoubleTriangleRainfall( const ReosEncodedElement &element, QObject *parent = nullptr );
+    void updateData() const override;
 
   private:
     ReosParameterDuration *mIntenseDuration;
@@ -182,6 +179,7 @@ class REOSCORE_EXPORT ReosDoubleTriangleRainfall : public ReosSerieRainfall
     QString mIntensityDurationUniqueIdTotal;
 
     void connectParameters();
+    void updateRainfall() const;
 };
 
 

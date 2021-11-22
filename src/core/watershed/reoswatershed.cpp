@@ -1032,7 +1032,6 @@ ReosHydrograph *ReosWatershed::createHydrograph( ReosSerieRainfall *rainfall, QO
     return nullptr;
 
   std::unique_ptr<ReosRunoff> runoff = std::make_unique<ReosRunoff>( mRunoffModels, rainfall );
-  runoff->updateValues();
 
   std::unique_ptr<ReosHydrograph> hydrograph;
   hydrograph.reset( currentTransferFunction()->applyFunction( runoff.get(), hydrographParent ) );

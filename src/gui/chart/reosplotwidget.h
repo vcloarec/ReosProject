@@ -184,8 +184,8 @@ class ReosDataPlotItemFactory
 {
   public:
     virtual QString datatype() const = 0;
-    virtual void buildPlotItemsAndSetup( ReosPlotWidget *plotWidget, ReosDataObject *data ) {};
-    virtual ReosPlotItem *buildPlotItem( ReosPlotWidget *plotWidget, ReosDataObject *data ) {};
+    virtual void buildPlotItemsAndSetup( ReosPlotWidget *plotWidget, ReosDataObject *data );
+    virtual ReosPlotItem *buildPlotItem( ReosPlotWidget *plotWidget, ReosDataObject *data );
 };
 
 

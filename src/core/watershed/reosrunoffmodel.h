@@ -211,7 +211,7 @@ class REOSCORE_EXPORT ReosRunoff : public ReosDataObject
     double incrementalValue( int i );
 
     //! Updates the values
-    bool updateValues();
+    void updateValues() const;
 
     //! Returns a pointer to the time series that represents the result values of the runoff
     ReosTimeSerieConstantInterval *data() const;
@@ -267,7 +267,7 @@ class REOSCORE_EXPORT ReosRunoffModelModel : public QAbstractItemModel
     //! Returns all the models encoded
     QList<ReosEncodedElement> encodeModels() const;
 
-    //! Returns a runoff model consiering its unique id
+    //! Returns a runoff model considering its unique id
     ReosRunoffModel *runoffModelByUniqueId( const QString &uniqueId ) const;
 
     //! Returns the list of models of type \a type
@@ -290,7 +290,7 @@ class REOSCORE_EXPORT ReosRunoffModelModel : public QAbstractItemModel
 };
 
 /**
- * Sinlgeton class that register and handle all the runoff models created
+ * Singleton class that register and handle all the runoff models created
  */
 class REOSCORE_EXPORT ReosRunoffModelRegistery : public ReosModule
 {

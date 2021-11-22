@@ -311,13 +311,7 @@ class REOSCORE_EXPORT ReosTimeSerieConstantIntervalModel : public ReosTimeSerieM
     void setValues( const QModelIndex &fromIndex, const QList<QVariantList> &values ) override;
     void insertValues( const QModelIndex &fromIndex, const QList<QVariantList> &values ) override;
 
-    bool isEditable() const
-    {
-      if ( mData && mData->dataProvider() )
-        return mData->dataProvider()->isEditable();
-
-      return false;
-    }
+    bool isEditable() const;
 
   public slots:
     void deleteRows( const QModelIndex &fromIndex, int count ) override;

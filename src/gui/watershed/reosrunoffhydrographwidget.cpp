@@ -328,7 +328,6 @@ void ReosRunoffHydrographWidget::updateRunoff()
 
   if ( mCurrentRunoff )
   {
-    mCurrentRunoff->updateValues(); /// TODO : doing that under a parallel process with progress bar
     mRunoffHistogram->setTimeSerie( mCurrentRunoff->data() );
     mRunoffResultTabModel->addTimeSerie( mCurrentRunoff->data(), tr( "Runoff %1" ).arg( mCurrentRunoff->data()->unitStringCurrentMode() ) );
     ui->tableViewRunoffResult->horizontalHeader()->resizeSections( QHeaderView::ResizeToContents );
@@ -458,7 +457,9 @@ void ReosRunoffHydrographWidget::syncTransferFunction( ReosTransferFunction *fun
       function = nullptr;
     }
   }
+  ui->comboBoxTransferFunction->blockSignals( true );
   ui->comboBoxTransferFunction->setCurrentIndex( index );
+  ui->comboBoxTransferFunction->blockSignals( false );
 
   ReosFormWidget *oldForm = mCurrentTransferFunctionForm;
   if ( oldForm )

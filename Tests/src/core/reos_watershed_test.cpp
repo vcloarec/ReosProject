@@ -770,7 +770,6 @@ void ReosWatersehdTest::runoffConstantCoefficient()
   chicagoRainfall.timeStep()->setValue( ReosDuration( 5, ReosDuration::minute ) );
   chicagoRainfall.totalDuration()->setValue( ReosDuration( 1, ReosDuration::hour ) );
   chicagoRainfall.setIntensityDurationCurve( &idCurve );
-  chicagoRainfall.updateRainfall();
 
   QCOMPARE( chicagoRainfall.valueCount(), 12 );
   QVERIFY( equal( chicagoRainfall.valueAt( 5 ), 14.234, 0.001 ) );
@@ -784,17 +783,23 @@ void ReosWatersehdTest::runoffConstantCoefficient()
   modelsGroup.addRunoffModel( &runoffConstantCoefficientModel_1 );
 
   ReosRunoff runoff( &modelsGroup, &chicagoRainfall );
-  QVERIFY( runoff.updateValues() );
+  QVERIFY( runoff.isObsolete() );
+  runoff.updateValues();
+  QVERIFY( !runoff.isObsolete() );
+
   QCOMPARE( runoff.valueCount(), 12 );
   for ( int i = 0; i < runoff.valueCount(); ++i )
     QVERIFY( equal( runoff.value( 5 ),
                     chicagoRainfall.valueAt( 5 ) * runoffConstantCoefficientModel_1.coefficient()->value(),
                     0.001 ) );
 
+  //change rainfall
   chicagoRainfall.setValueAt( 5, 10 );
-  runoff.updateValues();
   QVERIFY( equal( chicagoRainfall.valueAt( 5 ), 10, 0.001 ) );
+  QVERIFY( runoff.isObsolete() );
+
   QVERIFY( equal( runoff.value( 5 ), 5, 0.001 ) );
+  QVERIFY( !runoff.isObsolete() );
 
   for ( int i = 0; i < runoff.valueCount(); ++i )
     QVERIFY( equal( runoff.value( 5 ),
@@ -802,8 +807,9 @@ void ReosWatersehdTest::runoffConstantCoefficient()
                     0.001 ) );
 
   runoffConstantCoefficientModel_1.coefficient()->setValue( 0.1 );
-  runoff.updateValues();
+  QVERIFY( runoff.isObsolete() );
   QVERIFY( equal( runoff.value( 5 ), 1, 0.001 ) );
+  QVERIFY( !runoff.isObsolete() );
 
   for ( int i = 0; i < runoff.valueCount(); ++i )
     QVERIFY( equal( runoff.value( 5 ),
@@ -815,10 +821,13 @@ void ReosWatersehdTest::runoffConstantCoefficient()
   runoffConstantCoefficientModel_2.coefficient()->setValue( 1 );
 
   modelsGroup.addRunoffModel( &runoffConstantCoefficientModel_2 );
+  QVERIFY( runoff.isObsolete() );
   modelsGroup.coefficient( 0 )->setValue( 0.25 );
   modelsGroup.coefficient( 1 )->setValue( 0.75 );
-  QVERIFY( runoff.updateValues() );
+
   QCOMPARE( runoff.valueCount(), 12 );
+  QVERIFY( !runoff.isObsolete() );
+
   for ( int i = 0; i < runoff.valueCount(); ++i )
   {
     QVERIFY( equal( runoff.value( 5 ),

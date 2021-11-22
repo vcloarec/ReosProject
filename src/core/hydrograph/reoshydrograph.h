@@ -32,8 +32,6 @@ class REOSCORE_EXPORT ReosHydrograph : public ReosTimeSerieVariableTimeStep
     ReosEncodedElement encode() const;
     static ReosHydrograph *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
 
-
-
   protected:
     ReosHydrograph( const ReosEncodedElement &element, QObject *parent = nullptr );
 

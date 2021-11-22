@@ -181,6 +181,14 @@ void ReosTimeSerieConstantIntervalModel::insertValues( const QModelIndex &fromIn
   setValues( fromIndex, doubleValues );
 }
 
+bool ReosTimeSerieConstantIntervalModel::isEditable() const
+{
+  if ( mData && mData->dataProvider() )
+    return mData->dataProvider()->isEditable();
+
+  return false;
+}
+
 void ReosTimeSerieConstantIntervalModel::setValues( const QModelIndex &fromIndex, const QList<double> &values )
 {
   if ( !fromIndex.isValid() )
@@ -390,6 +398,7 @@ void ReosTimeSerieConstantInterval::insertValues( int fromPos, int count, double
 
 double ReosTimeSerieConstantInterval::valueWithMode( int i, ReosTimeSerieConstantInterval::ValueMode mode ) const
 {
+  updateData();
   switch ( mode )
   {
     case ReosTimeSerieConstantInterval::Value:
@@ -413,6 +422,7 @@ double ReosTimeSerieConstantInterval::valueWithMode( int i, ReosTimeSerieConstan
 
 QPair<double, double> ReosTimeSerieConstantInterval::extentValueWithMode( ReosTimeSerieConstantInterval::ValueMode mode ) const
 {
+  updateData();
   if ( mProvider->valueCount() == 0 )
     return QPair<double, double>( std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN() );
   double min = 0;
@@ -444,6 +454,7 @@ void ReosTimeSerie::setValueAt( int i, double value )
 
 ReosEncodedElement ReosTimeSerieConstantInterval::encode( const QString &descritpion ) const
 {
+  updateData();
   QString descript = descritpion;
   if ( descript.isEmpty() )
     descript = QStringLiteral( "time-serie-constant-interval" );
@@ -578,9 +589,17 @@ void ReosTimeSerie::setValueUnit( const QString &valueUnit )
   mValueUnit = valueUnit;
 }
 
-double *ReosTimeSerie::data() {return mProvider->data();}
+double *ReosTimeSerie::data()
+{
+  updateData();
+  return mProvider->data();
+}
 
-const QVector<double> &ReosTimeSerie::constData() const {return  mProvider->constData();}
+const QVector<double> &ReosTimeSerie::constData() const
+{
+  updateData();
+  return  mProvider->constData();
+}
 
 ReosTimeSerieProvider *ReosTimeSerie::dataProvider() const
 {
@@ -658,11 +677,13 @@ ReosTimeSerie::ReosTimeSerie( QObject *parent, const QString &providerKey, const
 
 int ReosTimeSerie::valueCount() const
 {
+  updateData();
   return mProvider->valueCount();
 }
 
 QDateTime ReosTimeSerie::timeAt( int i ) const
 {
+  updateData();
   if ( mReferenceTime->value().isValid() )
     return mReferenceTime->value().addMSecs( relativeTimeAt( i ).valueMilliSecond() );
   else
@@ -671,6 +692,7 @@ QDateTime ReosTimeSerie::timeAt( int i ) const
 
 double ReosTimeSerie::valueAt( int i ) const
 {
+  updateData();
   return mProvider->value( i );
 }
 
@@ -688,6 +710,7 @@ void ReosTimeSerie::clear()
 
 QPair<double, double> ReosTimeSerie::valueExent( bool withZero ) const
 {
+  updateData();
   if ( mProvider->valueCount() == 0 )
     return QPair<double, double>( std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN() );
   double min;
@@ -717,6 +740,7 @@ QPair<double, double> ReosTimeSerie::valueExent( bool withZero ) const
 
 void ReosTimeSerie::baseEncode( ReosEncodedElement &element ) const
 {
+  updateData();
   ReosDataObject::encode( element );
   if ( mProvider )
   {
@@ -784,7 +808,6 @@ ReosTimeSerieVariableTimeStep::ReosTimeSerieVariableTimeStep(
 ReosDuration ReosTimeSerieVariableTimeStep::relativeTimeAt( int i ) const
 {
   ReosTimeSerieVariableTimeStepProvider *dataProv = variableTimeStepdataProvider();
-
   if ( !dataProv )
     return ReosDuration();
 

@@ -71,32 +71,39 @@ ReosRunoff::ReosRunoff( ReosRunoffModelsGroup *runoffModels, ReosTimeSerieConsta
   mData->copyAttribute( rainfall );
   mData->syncWith( rainfall );
 
-  connect( runoffModels, &ReosDataObject::dataChanged, this, &ReosRunoff::updateValues );
-  connect( rainfall, &ReosDataObject::dataChanged, this, &ReosRunoff::updateValues );
+  registerUpsteamData( mRainfall );
+  registerUpsteamData( mRunoffModelsGroups );
 }
 
 int ReosRunoff::valueCount() const
 {
+  updateValues();
   return mData->valueCount();
 }
 
 ReosDuration ReosRunoff::timeStep() const
 {
+  updateValues();
   return mRainfall->timeStep()->value();
 }
 
 double ReosRunoff::value( int i ) const
 {
+  updateValues();
   return mData->valueAt( i );
 }
 
 double ReosRunoff::incrementalValue( int i )
 {
+  updateValues();
   return mData->valueWithMode( i, ReosTimeSerieConstantInterval::Value );
 }
 
-bool ReosRunoff::updateValues()
+void ReosRunoff::updateValues() const
 {
+  if ( !isObsolete() )
+    return;
+
   if ( !mRainfall.isNull() && mRunoffModelsGroups )
   {
     mData->clear();
@@ -109,21 +116,25 @@ bool ReosRunoff::updateValues()
       {
         if ( !model->addRunoffModel( mRainfall, mData, coefficient ) )
         {
+          setActualized();
           emit dataChanged();
-          return false;
+          return;
         }
       }
     }
+    setActualized();
     emit dataChanged();
-    return true;
+    return;
   }
 
+  setActualized();
   emit dataChanged();
-  return false;
+  return ;
 }
 
 ReosTimeSerieConstantInterval *ReosRunoff::data() const
 {
+  updateValues();
   return mData;
 }
 
