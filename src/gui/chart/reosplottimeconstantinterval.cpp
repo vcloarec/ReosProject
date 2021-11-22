@@ -151,6 +151,7 @@ void ReosPlotTimeSerieVariableStep::setTimeSerie( ReosTimeSerieVariableTimeStep 
   {
     disconnect( mTimeSerie->data(), &ReosDataObject::dataChanged, this, &ReosPlotItem::itemChanged );
     disconnect( mTimeSerie->data(), &ReosDataObject::dataChanged, this, &ReosPlotTimeSerieVariableStep::onNameChanged );
+    disconnect( mTimeSerie->data(), &ReosTimeSerieVariableTimeStep::colorChanged, this, &ReosPlotTimeSerieVariableStep::setColor );
   }
 
   mTimeSerie = nullptr;
@@ -164,6 +165,7 @@ void ReosPlotTimeSerieVariableStep::setTimeSerie( ReosTimeSerieVariableTimeStep 
   {
     connect( timeSerie, &ReosDataObject::dataChanged, this, &ReosPlotItem::itemChanged );
     connect( timeSerie, &ReosDataObject::dataChanged, this, &ReosPlotTimeSerieVariableStep::onNameChanged );
+    connect( mTimeSerie->data(), &ReosTimeSerieVariableTimeStep::colorChanged, this, &ReosPlotTimeSerieVariableStep::setColor );
   }
 
   if ( curve()->plot() && replot )
@@ -198,8 +200,6 @@ QwtPlotCurve *ReosPlotTimeSerieVariableStep::curve() const
 
 void ReosPlotTimeSerieVariableStep::setColor( const QColor &color )
 {
-  if ( mTimeSerie )
-    mTimeSerie->data()->setColor( color );
   QPen pen = curve()->pen();
   pen.setColor( color );
   curve()->setPen( pen );

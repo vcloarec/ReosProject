@@ -171,7 +171,7 @@ void ReosPlotWidget::addPlotItem( ReosPlotItem *item )
 
 }
 
-void ReosPlotWidget::addOptionalPlotItem( ReosOptionalPlotItemButton *optionalItemButton )
+void ReosPlotWidget::addOptionalPlotItem( ReosVariableTimeStepPlotListButton *optionalItemButton )
 {
   mToolBarLeft->addWidget( optionalItemButton );
 }
@@ -408,6 +408,10 @@ bool ReosPlotItem::isVisible() const
 
 void ReosPlotItem::setColor( const QColor & ) {}
 
+void ReosPlotItem::setStyle( Qt::PenStyle ) {}
+
+void ReosPlotItem::setWidth( double ) {}
+
 QPixmap ReosPlotItem::icone( const QSize & ) const
 {
   return QPixmap();
@@ -485,7 +489,7 @@ ReosPlotItemFactories *ReosPlotItemFactories::instance()
   return sInstance;
 }
 
-void ReosPlotItemFactories::buildPlotItems( ReosPlotWidget *plotWidget, ReosDataObject *data, const QString &dataType )
+void ReosPlotItemFactories::buildPlotItemsAndSetup( ReosPlotWidget *plotWidget, ReosDataObject *data, const QString &dataType )
 {
   QString type = dataType;
   if ( type.isEmpty() )
@@ -494,9 +498,20 @@ void ReosPlotItemFactories::buildPlotItems( ReosPlotWidget *plotWidget, ReosData
   for ( const Factory &fact : mFactories )
     if ( type.contains( fact->datatype() ) )
     {
-      fact->buildPlotItems( plotWidget, data );
+      fact->buildPlotItemsAndSetup( plotWidget, data );
       return;
     }
+}
+
+ReosPlotItem *ReosPlotItemFactories::buildPlotItem( ReosPlotWidget *plotWidget, ReosDataObject *data )
+{
+  for ( const Factory &fact : mFactories )
+    if ( data->type().contains( fact->datatype() ) )
+    {
+      return fact->buildPlotItem( plotWidget, data );;
+    }
+
+  return nullptr;
 }
 
 ReosPlotItemFactories::ReosPlotItemFactories( ReosModule *parent ): ReosModule( parent ) {}

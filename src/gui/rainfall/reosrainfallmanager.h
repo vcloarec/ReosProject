@@ -182,21 +182,21 @@ class ReosPlotItemRainfallIntensityDurationFrequencyFactory: public ReosDataPlot
 {
   public:
     QString datatype() const override;
-    void buildPlotItems( ReosPlotWidget *plotWidget, ReosDataObject *data ) override;
+    void buildPlotItemsAndSetup( ReosPlotWidget *plotWidget, ReosDataObject *data ) override;
 };
 
 class ReosPlotItemRainfallIntensityDurationFactory: public ReosDataPlotItemFactory
 {
   public:
     QString datatype() const override;
-    void buildPlotItems( ReosPlotWidget *plotWidget, ReosDataObject *data ) override;
+    void buildPlotItemsAndSetup( ReosPlotWidget *plotWidget, ReosDataObject *data ) override;
 };
 
 class ReosPlotItemRainfallSerieFactory: public ReosDataPlotItemFactory
 {
   public:
     QString datatype() const override;
-    void buildPlotItems( ReosPlotWidget *plotWidget, ReosDataObject *data ) override;
+    void buildPlotItemsAndSetup( ReosPlotWidget *plotWidget, ReosDataObject *data ) override;
 };
 
 class ReosSpatialStationWidgetToolbar: public QWidget

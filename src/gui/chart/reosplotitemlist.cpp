@@ -24,15 +24,17 @@
 #include <QColorDialog>
 
 #include "reosplotwidget.h"
+#include "reostimeserie.h"
 
 
-ReosPlotItemListModel::ReosPlotItemListModel( QObject *parent )
+ReosPlotItemListModel::ReosPlotItemListModel( ReosPlotWidget *plotWidget, QObject *parent )
   : QAbstractListModel( parent )
+  , mPlotWidget( plotWidget )
 {}
 
 QModelIndex ReosPlotItemListModel::index( int row, int column, const QModelIndex & ) const
 {
-  return createIndex( row, column, mPlotItems.at( row ).first );
+  return createIndex( row, column, std::get<1>( mPlot.at( row ) ) );
 }
 
 QModelIndex ReosPlotItemListModel::parent( const QModelIndex & ) const
@@ -42,7 +44,7 @@ QModelIndex ReosPlotItemListModel::parent( const QModelIndex & ) const
 
 int ReosPlotItemListModel::rowCount( const QModelIndex & ) const
 {
-  return mPlotItems.count();
+  return mPlot.count();
 }
 
 int ReosPlotItemListModel::columnCount( const QModelIndex & ) const
@@ -55,19 +57,19 @@ QVariant ReosPlotItemListModel::data( const QModelIndex &index, int role ) const
   if ( !index.isValid() )
     return QVariant();
 
-  if ( index.row() >= mPlotItems.count() )
+  if ( index.row() >= mPlot.count() )
     return QVariant();
 
   switch ( role )
   {
     case Qt::DisplayRole:
-      return mPlotItems.at( index.row() ).first->name();
+      return std::get<1>( mPlot.at( index.row() ) )->name();
       break;
     case Qt::CheckStateRole:
-      return mPlotItems.at( index.row() ).second ?  Qt::CheckState::Checked : Qt::CheckState::Unchecked;
+      return std::get<2>( mPlot.at( index.row() ) ) ?  Qt::CheckState::Checked : Qt::CheckState::Unchecked;
       break;
     case Qt::DecorationRole:
-      return mPlotItems.at( index.row() ).first->icone( QSize( 20, 12 ) );
+      return std::get<0>( mPlot.at( index.row() ) )->icone( QSize( 20, 12 ) );
       break;
     default:
       return QVariant();
@@ -82,44 +84,47 @@ bool ReosPlotItemListModel::setData( const QModelIndex &index, const QVariant &v
   if ( !index.isValid() )
     return false;
 
-  if ( index.row() >= mPlotItems.count() )
+  if ( index.row() >= mPlot.count() )
     return false;
 
   if ( role == Qt::CheckStateRole )
   {
     if ( value == Qt::CheckState::Checked )
-      mPlotItems[index.row() ].second = true;
+      mPlot[index.row()] = std::make_tuple( std::get<0>( mPlot[index.row() ] ), std::get<1>( mPlot[index.row() ] ), true );
     else if ( value == Qt::CheckState::Unchecked )
-      mPlotItems[index.row() ].second = false ;
+      mPlot[index.row()] = std::make_tuple( std::get<0>( mPlot[index.row() ] ), std::get<1>( mPlot[index.row() ] ), false );
 
-    mPlotItems.at( index.row() ).first->setVisible( mGlobalVisibilty && mPlotItems.at( index.row() ).second );
+    qDebug() << std::get<2>( mPlot.at( index.row() ) );
+    std::get<0>( mPlot.at( index.row() ) )->setVisible( mGlobalVisibilty && std::get<2>( mPlot.at( index.row() ) ) );
     return true;
   }
 
   return false;
 }
-
 Qt::ItemFlags ReosPlotItemListModel::flags( const QModelIndex &index ) const
 {
   return QAbstractItemModel::flags( index ) | Qt::ItemIsUserCheckable;
 }
 
-void ReosPlotItemListModel::addPlotItem( ReosPlotItem *item )
+ReosPlotItem *ReosPlotItemListModel::addData( ReosTimeSerieVariableTimeStep *data )
 {
   beginResetModel();
-  mPlotItems.append( {item, true} );
+  std::unique_ptr<ReosPlotItem> item( ReosPlotItemFactories::instance()->buildPlotItem( mPlotWidget, data ) );
+  mPlot.append( {item.get(), data, true} );
+  mPlotWidget->addPlotItem( item.get() );
   item->setVisible( mGlobalVisibilty );
   endResetModel();
+  return item.release();
 }
 
 void ReosPlotItemListModel::clear()
 {
-  for ( int i = 0; i < mPlotItems.count(); ++i )
+  for ( int i = 0; i < mPlot.count(); ++i )
   {
-    mPlotItems.at( i ).first->detach();
-    delete mPlotItems.at( i ).first;
+    std::get<0>( mPlot.at( i ) )->detach();
+    delete std::get<0>( mPlot.at( i ) );
   }
-  mPlotItems.clear();
+  mPlot.clear();
 }
 
 bool ReosPlotItemListModel::globalVisibilty() const
@@ -130,54 +135,15 @@ bool ReosPlotItemListModel::globalVisibilty() const
 void ReosPlotItemListModel::setGlobalVisibilty( bool globalVisibilty )
 {
   mGlobalVisibilty = globalVisibilty;
-  for ( int i = 0; i < mPlotItems.count() - 1; ++i )
-    mPlotItems.at( i ).first->setVisible( mGlobalVisibilty && mPlotItems.at( i ).second, false );
+  for ( int i = 0; i < mPlot.count() - 1; ++i )
+    std::get<0>( mPlot.at( i ) )->setVisible( mGlobalVisibilty && std::get<2>( mPlot.at( i ) ), false );
 
-  if ( !mPlotItems.isEmpty() )
-    mPlotItems.last().first->setVisible( mGlobalVisibilty && mPlotItems.last().second );
+  if ( !mPlot.isEmpty() )
+    std::get<0>( mPlot.last() )->setVisible( mGlobalVisibilty && std::get<2>( mPlot.last() ) );
 }
 
-ReosOptionalPlotItemWidgetAction::ReosOptionalPlotItemWidgetAction( ReosPlotWidget *parent )
-  : QWidgetAction( parent )
-  , mPlotItemsModel( new ReosPlotItemListModel( this ) )
-  , mPlotWidget( parent )
-{
-  setCheckable( true );
 
-  QGridLayout *gLayout = new QGridLayout();
-  gLayout->setContentsMargins( 3, 2, 3, 2 );
-
-  QWidget *w = new QWidget();
-  w->setLayout( gLayout );
-  setDefaultWidget( w );
-
-  mPlotItemListView = new ReosPlotItemListView( w );
-  mPlotItemListView->setModel( mPlotItemsModel );
-  gLayout->addWidget( mPlotItemListView );
-}
-
-void ReosOptionalPlotItemWidgetAction::addPlotItem( ReosPlotItem *plotItem )
-{
-  mPlotWidget->addPlotItem( plotItem );
-  mPlotItemsModel->addPlotItem( plotItem );
-}
-
-void ReosOptionalPlotItemWidgetAction::clear()
-{
-  mPlotItemsModel->clear();
-}
-
-bool ReosOptionalPlotItemWidgetAction::globalVisibilty() const
-{
-  return mPlotItemsModel->globalVisibilty();
-}
-
-void ReosOptionalPlotItemWidgetAction::setGlobalVisibilty( bool globalVisibilty )
-{
-  mPlotItemsModel->setGlobalVisibilty( globalVisibilty );
-}
-
-ReosOptionalPlotItemButton::ReosOptionalPlotItemButton( const QString &title, ReosPlotWidget *parent )
+ReosVariableTimeStepPlotListButton::ReosVariableTimeStepPlotListButton( const QString &title, ReosPlotWidget *parent )
   : QToolButton( parent )
 {
   setPopupMode( QToolButton::MenuButtonPopup );
@@ -186,29 +152,48 @@ ReosOptionalPlotItemButton::ReosOptionalPlotItemButton( const QString &title, Re
 
   QMenu *menu = new QMenu( this );
   setMenu( menu );
-  mWidgetAction = new ReosOptionalPlotItemWidgetAction( parent );
-  menu->addAction( mWidgetAction );
-  connect( this, &QToolButton::toggled, mWidgetAction, &ReosOptionalPlotItemWidgetAction::setGlobalVisibilty );
+  mView = new ReosVariableTimeStepPlotListView( parent, this );
+  QWidgetAction *widgetAction = new QWidgetAction( this );
+  widgetAction->setDefaultWidget( mView );
+  menu->addAction( widgetAction );
+  connect( this, &QToolButton::toggled, mView, &ReosVariableTimeStepPlotListView::setGlobalVisibility );
 
   setVisible( true );
   setCheckable( true );
 }
 
-void ReosOptionalPlotItemButton::addPlotItem( ReosPlotItem *plotItem )
+ReosPlotItem *ReosVariableTimeStepPlotListButton::addData( ReosTimeSerieVariableTimeStep *data )
 {
-  mWidgetAction->addPlotItem( plotItem );
+  return mView->addData( data );
 }
 
-void ReosOptionalPlotItemButton::clear()
+void ReosVariableTimeStepPlotListButton::clear()
 {
-  mWidgetAction->clear();
+  mView->clear();
 }
 
-ReosPlotItemListView::ReosPlotItemListView( QWidget *parent ): QListView( parent )
+ReosVariableTimeStepPlotListView::ReosVariableTimeStepPlotListView( ReosPlotWidget *plotWidget, QWidget *parent ): QListView( parent )
 {
+  mModel = new ReosPlotItemListModel( plotWidget, this );
+  setModel( mModel );
 }
 
-QSize ReosPlotItemListView::sizeHint() const
+ReosPlotItem *ReosVariableTimeStepPlotListView::addData( ReosTimeSerieVariableTimeStep *data )
+{
+  return mModel->addData( data );
+}
+
+void ReosVariableTimeStepPlotListView::setGlobalVisibility( bool isItemVisible )
+{
+  mModel->setGlobalVisibilty( isItemVisible );
+}
+
+void ReosVariableTimeStepPlotListView::clear()
+{
+  mModel->clear();
+}
+
+QSize ReosVariableTimeStepPlotListView::sizeHint() const
 {
   QSize s = QListView::sizeHint();
   if ( model()->rowCount() == 0 )
@@ -217,23 +202,24 @@ QSize ReosPlotItemListView::sizeHint() const
   return QSize( s.width(), itemsCount * sizeHintForRow( 0 ) );
 }
 
-void ReosPlotItemListView::contextMenuEvent( QContextMenuEvent *event )
+void ReosVariableTimeStepPlotListView::contextMenuEvent( QContextMenuEvent *event )
 {
   QModelIndex index = indexAt( event->pos() );
   if ( !index.isValid() )
     return;
 
-  ReosPlotItem *item = static_cast<ReosPlotItem *>( index.internalPointer() );
+  ReosTimeSerieVariableTimeStep *data = static_cast<ReosTimeSerieVariableTimeStep *>( index.internalPointer() );
 
   QMenu menu;
 
   QgsColorWheel *colorWheel = new QgsColorWheel( this );
   QgsColorWidgetAction *colorWheelAction = new QgsColorWidgetAction( colorWheel, &menu, this );
-  colorWheel->setColor( item->color() );
+
+  colorWheel->setColor( data->color() );
   colorWheelAction->setDismissOnColorSelection( false );
   menu.addAction( colorWheelAction );
 
-  connect( colorWheelAction, &QgsColorWidgetAction::colorChanged, item, &ReosPlotItem::setColor );
+  connect( colorWheelAction, &QgsColorWidgetAction::colorChanged, data, &ReosTimeSerieVariableTimeStep::setColor );
 
   menu.exec( mapToGlobal( event->pos() ) );
 }

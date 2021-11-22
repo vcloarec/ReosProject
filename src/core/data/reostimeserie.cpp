@@ -1006,6 +1006,8 @@ QColor ReosTimeSerieVariableTimeStep::color() const
 void ReosTimeSerieVariableTimeStep::setColor( const QColor &color )
 {
   mColor = color;
+
+  emit colorChanged( color );
 }
 
 void ReosTimeSerieVariableTimeStep::baseEncode( ReosEncodedElement &element ) const

@@ -39,7 +39,7 @@ class QwtPlotCurve;
 class ReosPlot_p;
 class ReosDataObject;
 class ReosTimeSerieConstantInterval;
-class ReosOptionalPlotItemButton;
+class ReosVariableTimeStepPlotListButton;
 
 
 class ReosPlotItem: public QObject
@@ -78,6 +78,8 @@ class ReosPlotItem: public QObject
     virtual void setSettings() {};
     void setName( const QString &name );
     virtual void setColor( const QColor &color );
+    virtual void setStyle( Qt::PenStyle style );
+    virtual void setWidth( double width );
 
   signals:
     void itemChanged();
@@ -126,7 +128,7 @@ class ReosPlotWidget: public QWidget
     void addActions( const QList<QAction *> &actions );
 
     void addPlotItem( ReosPlotItem *item );
-    void addOptionalPlotItem( ReosOptionalPlotItemButton *optionalItemButton );
+    void addOptionalPlotItem( ReosVariableTimeStepPlotListButton *optionalItemButton );
 
     void setTitleAxeX( const QString &title );
     void setTitleAxeYLeft( const QString &title );
@@ -182,7 +184,8 @@ class ReosDataPlotItemFactory
 {
   public:
     virtual QString datatype() const = 0;
-    virtual void buildPlotItems( ReosPlotWidget *plotWidget, ReosDataObject *data ) = 0;
+    virtual void buildPlotItemsAndSetup( ReosPlotWidget *plotWidget, ReosDataObject *data ) {};
+    virtual ReosPlotItem *buildPlotItem( ReosPlotWidget *plotWidget, ReosDataObject *data ) {};
 };
 
 
@@ -194,7 +197,8 @@ class REOSGUI_EXPORT ReosPlotItemFactories: public ReosModule
     static ReosPlotItemFactories *instance();
 
     void addFactory( ReosDataPlotItemFactory *fact );
-    void buildPlotItems( ReosPlotWidget *plotWidget, ReosDataObject *data, const QString &dataType = QString() );
+    void buildPlotItemsAndSetup( ReosPlotWidget *plotWidget, ReosDataObject *data, const QString &dataType = QString() );
+    ReosPlotItem *buildPlotItem( ReosPlotWidget *plotWidget, ReosDataObject *data );
 
   private:
     ReosPlotItemFactories( ReosModule *parent = nullptr );

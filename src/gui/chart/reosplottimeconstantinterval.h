@@ -86,14 +86,13 @@ class ReosPlotTimeSerieVariableStep: public ReosPlotItem
     void setTimeSerie( ReosTimeSerieVariableTimeStep *timeSerie, bool replot = true );
 
     QColor color() const override;
-    void setStyle( Qt::PenStyle penStyle );
-    void setWidth( double width );
-
     QPixmap icone( const QSize &size ) const override;
     QString name() const override;
 
   public slots:
     void setColor( const QColor &color ) override;
+    void setStyle( Qt::PenStyle penStyle ) override;
+    void setWidth( double width ) override;
 
   private slots:
     void setSettings() override;

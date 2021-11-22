@@ -249,11 +249,14 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
     //! Sets the color used to render the time serie
     void setColor( const QColor &color );
 
+  signals:
+    void colorChanged( const QColor &color );
+
   protected:
 
     //! Encodes/Decodes base information in/from the \a element
-    virtual void baseEncode( ReosEncodedElement &element ) const;
-    virtual bool  decodeBase( const ReosEncodedElement &element );
+    virtual void baseEncode( ReosEncodedElement &element ) const override;
+    virtual bool  decodeBase( const ReosEncodedElement &element ) override;
 
     ReosTimeSerieVariableTimeStepProvider *variableTimeStepdataProvider() const;
 

@@ -29,6 +29,7 @@
 #include "reosrunoffhydrographwidget.h"
 #include "reosprocesscontroler.h"
 #include "reosplotitemlist.h"
+#include "reoshydrographeditingwidget.h"
 
 ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *watershedModule, QWidget *parent ) :
   ReosActionWidget( parent )
@@ -41,7 +42,9 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *wat
   ui->setupUi( this );
   setWindowFlag( Qt::Dialog );
 
-  mGaugedHydrographButton = new ReosOptionalPlotItemButton( tr( "Gauged hydrographs" ), ui->widgetPlot );
+  ReosPlotItemFactories::instance()->addFactory( new ReosHydrographPlotFactory );
+
+  mGaugedHydrographButton = new ReosVariableTimeStepPlotListButton( tr( "Gauged hydrographs" ), ui->widgetPlot );
 
   ui->tableViewRunoff->setModel( mWatershedRunoffModelsModel );
   ui->tableViewRunoff->horizontalHeader()->setSectionResizeMode( 0, QHeaderView::Interactive );
@@ -506,14 +509,14 @@ void ReosRunoffHydrographWidget::updateGaugedHydrograph()
     QList<ReosHydrograph *> gaugedHydragraphs = mCurrentWatershed->gaugedHydrographs()->hydrographsForTimeRange( startTime, endTime );
     for ( ReosHydrograph *hyd : std::as_const( gaugedHydragraphs ) )
     {
-      ReosPlotTimeSerieVariableStep *itempPlot = new ReosPlotTimeSerieVariableStep( hyd->name() );
-      itempPlot->setTimeSerie( hyd );
-      itempPlot->setAutoScale( false );
-      itempPlot->setOnRightAxe();
-      mGaugedHydrographButton->addPlotItem( itempPlot );
-      itempPlot->setColor( Qt::darkGray );
-      itempPlot->setStyle( Qt::DotLine );
-      itempPlot->setWidth( 2 );
+      ReosPlotItem *itemPlot = mGaugedHydrographButton->addData( hyd );
+      if ( itemPlot )
+      {
+        itemPlot->setAutoScale( false );
+        itemPlot->setOnRightAxe();
+        itemPlot->setStyle( Qt::DotLine );
+        itemPlot->setWidth( 2 );
+      }
     }
   }
 }

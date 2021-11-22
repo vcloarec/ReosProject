@@ -22,17 +22,16 @@
 #include <QStyledItemDelegate>
 #include <QListView>
 
-
 class ReosPlotItem;
 class ReosPlotWidget;
-
-class QColorDialog;
+class ReosDataObject;
+class ReosTimeSerieVariableTimeStep;
 
 
 class ReosPlotItemListModel : public QAbstractListModel
 {
   public:
-    ReosPlotItemListModel( QObject *parent = nullptr );
+    ReosPlotItemListModel( ReosPlotWidget *mPlotWidget, QObject *parent = nullptr );
 
     QModelIndex index( int row, int column, const QModelIndex &parent ) const override;
     QModelIndex parent( const QModelIndex &child ) const override;
@@ -42,60 +41,50 @@ class ReosPlotItemListModel : public QAbstractListModel
     bool setData( const QModelIndex &index, const QVariant &value, int role ) override;
     Qt::ItemFlags flags( const QModelIndex &index ) const override;
 
-    void addPlotItem( ReosPlotItem *item );
+    ReosPlotItem *addData( ReosTimeSerieVariableTimeStep *data );
     void clear();
 
     bool globalVisibilty() const;
     void setGlobalVisibilty( bool globalVisibilty );
 
   private:
-    QList < QPair<ReosPlotItem *, bool>> mPlotItems;
+    QList < std::tuple<ReosPlotItem *, ReosTimeSerieVariableTimeStep *, bool>> mPlot;
     bool mGlobalVisibilty = false;
-};
-
-class ReosPlotItemListView : public QListView
-{
-  public:
-    ReosPlotItemListView( QWidget *parent );
-
-    QSize sizeHint() const override;
-
-  protected:
-    void contextMenuEvent( QContextMenuEvent *event ) override;
-};
-
-
-class ReosOptionalPlotItemWidgetAction : public QWidgetAction
-{
-    Q_OBJECT
-  public:
-    ReosOptionalPlotItemWidgetAction( ReosPlotWidget *parent );
-
-    void addPlotItem( ReosPlotItem *plotItem );
-    void clear();
-
-    bool globalVisibilty() const;
-
-  public slots:
-    void setGlobalVisibilty( bool globalVisibilty );
-
-  private:
-    QListView *mPlotItemListView = nullptr;
-    ReosPlotItemListModel *mPlotItemsModel = nullptr;
     ReosPlotWidget *mPlotWidget = nullptr;
 };
 
-
-class ReosOptionalPlotItemButton: public QToolButton
+class ReosVariableTimeStepPlotListView : public QListView
 {
   public:
-    ReosOptionalPlotItemButton( const QString &title, ReosPlotWidget *parent );
+    ReosVariableTimeStepPlotListView( ReosPlotWidget *plotWidget, QWidget *parent = nullptr );
+    ReosPlotItem *addData( ReosTimeSerieVariableTimeStep *data );
 
-    void addPlotItem( ReosPlotItem *plotItem );
+    void clear();
+
+    QSize sizeHint() const override;
+
+  public slots:
+    void setGlobalVisibility( bool isItemVisible );
+
+  protected:
+    void contextMenuEvent( QContextMenuEvent *event ) override;
+
+  private:
+    ReosPlotItemListModel *mModel;
+
+};
+
+
+class ReosVariableTimeStepPlotListButton: public QToolButton
+{
+  public:
+    ReosVariableTimeStepPlotListButton( const QString &title, ReosPlotWidget *parent );
+
+    ReosPlotItem *addData( ReosTimeSerieVariableTimeStep *data );
     void clear();
 
   private:
-    ReosOptionalPlotItemWidgetAction *mWidgetAction = nullptr;
+    ReosVariableTimeStepPlotListView *mView = nullptr;
 };
 
 #endif // REOSPLOTITEMLIST_H

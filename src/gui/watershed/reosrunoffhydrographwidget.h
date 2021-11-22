@@ -34,7 +34,7 @@ class ReosMeteorologicModel;
 class ReosPlotTimeSerieVariableStep;
 class ReosTransferFunction;
 class ReosSerieRainfall;
-class ReosOptionalPlotItemButton;
+class ReosVariableTimeStepPlotListButton;
 
 namespace Ui
 {
@@ -170,7 +170,7 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
     ReosPlotTimeHistogram *mRainfallHistogram = nullptr;
     ReosPlotTimeHistogram *mRunoffHistogram = nullptr;
     ReosPlotTimeSerieVariableStep *mHydrographCurve = nullptr;
-    ReosOptionalPlotItemButton *mGaugedHydrographButton = nullptr;
+    ReosVariableTimeStepPlotListButton *mGaugedHydrographButton = nullptr;
 
     ReosRunoff *mCurrentRunoff = nullptr;
     ReosHydrograph *mCurrentHydrograph = nullptr;
