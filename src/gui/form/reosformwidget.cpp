@@ -191,6 +191,11 @@ void ReosFormWidgetFactories::addDataWidgetFactory( ReosFormWidgetDataFactory *f
   for ( const DataWidgetFactory &currentFact : mDataWidgetFactories )
     if ( currentFact->datatype() == fact->datatype() )
       return;
+    else if ( fact->datatype().contains( currentFact->datatype() ) )
+    {
+      currentFact->addSubFactory( fact );
+      return;
+    }
 
   mDataWidgetFactories.emplace_back( fact );
 }
@@ -201,8 +206,8 @@ ReosFormWidget *ReosFormWidgetFactories::createDataFormWidget( ReosDataObject *d
     return nullptr;
 
   for ( const DataWidgetFactory &fact : mDataWidgetFactories )
-    if ( fact->datatype() == dataObject->type() )
-      return fact->createDataWidget( dataObject, parent );
+    if ( dataObject->type().contains( fact->datatype() ) )
+      return fact->createWidget( dataObject, parent );
 
   return nullptr;
 }
@@ -210,7 +215,30 @@ ReosFormWidget *ReosFormWidgetFactories::createDataFormWidget( ReosDataObject *d
 ReosFormWidgetFactories::ReosFormWidgetFactories( ReosModule *parent ): ReosModule( parent )
 {}
 
-ReosFormWidget *ReosFormWidgetDataFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+ReosFormWidget *ReosFormWidgetDataFactory::createDataWidget( ReosDataObject *, QWidget * )
 {
   return nullptr;
+}
+
+ReosFormWidget *ReosFormWidgetDataFactory::createWidget( ReosDataObject *dataObject, QWidget *parent )
+{
+  for ( const DataWidgetFactory &currentFact : mSubDataWidgetFactories )
+    if ( dataObject->type().contains( currentFact->datatype() ) )
+      return currentFact->createWidget( dataObject, parent );
+
+  return createDataWidget( dataObject, parent );
+}
+
+void ReosFormWidgetDataFactory::addSubFactory( ReosFormWidgetDataFactory *fact )
+{
+  for ( const DataWidgetFactory &currentFact : mSubDataWidgetFactories )
+    if ( currentFact->datatype() == fact->datatype() )
+      return;
+    else if ( fact->datatype().contains( currentFact->datatype() ) )
+    {
+      currentFact->addSubFactory( fact );
+      return;
+    }
+
+  mSubDataWidgetFactories.emplace_back( fact );
 }

@@ -26,18 +26,17 @@ class REOSCORE_EXPORT ReosHydrograph : public ReosTimeSerieVariableTimeStep
   public:
     ReosHydrograph( QObject *parent = nullptr, const QString &providerKey = QString(), const QString &dataSource = QString() );
 
-    QString type() const override {return QStringLiteral( "hydrograph" );}
-    QColor color() const override;
-    void setColor( const QColor &color );
+    QString type() const override {return staticType();}
+    static QString staticType() {return ReosTimeSerieVariableTimeStep::staticType() + ':' + QStringLiteral( "hydrograph" );}
 
     ReosEncodedElement encode() const;
     static ReosHydrograph *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
 
+
+
   protected:
     ReosHydrograph( const ReosEncodedElement &element, QObject *parent = nullptr );
 
-  private:
-    QColor mColor;
 };
 
 class REOSCORE_EXPORT ReosHydrographStore : public ReosDataObject
@@ -52,18 +51,23 @@ class REOSCORE_EXPORT ReosHydrographStore : public ReosDataObject
     //! Remove and destroy the hydrograph at position \a index
     void removeHydrograph( int index );
 
+    //! Returns a pointer to the hydrograph at position \a index, nullptr if not exists
+    ReosHydrograph *hydrograph( int index ) const;
+
+    //! Returns the count of hydrographs stored
     int hydrographCount() const;
 
     //! Returns the list of the hydrograph names
     QStringList hydrographNames() const;
 
-    //! Returns a pointer to the hydrograph at position \a index, nullptr if not exists
-    ReosHydrograph *hydrograph( int index ) const;
+    QList<ReosHydrograph *> hydrographsForTimeRange( const QDateTime &startTime, const QDateTime &endTime );
 
     ReosEncodedElement encode() const;
     void decode( const ReosEncodedElement &element );
 
-    QString type() const override {return QStringLiteral( "hydrograph-store" );}
+    QString type() const override {return staticType();}
+    static QString staticType() {return ReosDataObject::staticType() + ':' +  QStringLiteral( "hydrograph-store" );}
+
   private:
     QList<ReosHydrograph *>  mHydrographs;
 

@@ -37,22 +37,15 @@ class ReosFormWidgetIntensityDurationCurveFactory : public ReosFormWidgetDataFac
 {
   public:
     ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent ) override;
-    QString datatype() const override {return  QStringLiteral( "rainfall-intensity-duration-curve" );}
+    QString datatype() const override;
 };
 
 class ReosFormWidgetTimeSerieConstantIntervalFactory : public ReosFormWidgetDataFactory
 {
   public:
     ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent ) override;
-    QString datatype() const override {return QStringLiteral( "time-serie-constant-interval" );}
+    QString datatype() const override;
 };
-
-class ReosFormWidgetRainFallSerieFactory : public ReosFormWidgetTimeSerieConstantIntervalFactory
-{
-  public:
-    QString datatype() const override {return QStringLiteral( "serie-rainfall" );}
-};
-
 
 //! Widget that can be uses to display/edits paramters of a Chicago rainfall
 class ReosChicagoRainfallWidget: public ReosTimeSerieConstantIntervalWidget
@@ -69,7 +62,7 @@ class ReosFormWidgetChicagoRainfalFactory : public ReosFormWidgetDataFactory
 {
   public:
     ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent ) override;
-    QString datatype() const override {return QStringLiteral( "chicago-rainfall" );}
+    QString datatype() const override;
 };
 
 //! Widget that can be uses to display/edits paramters of a alternating block rainfall
@@ -87,7 +80,7 @@ class ReosFormWidgetAlternatingBlockRainfalFactory : public ReosFormWidgetDataFa
 {
   public:
     ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent ) override;
-    QString datatype() const override {return QStringLiteral( "alternating-block-rainfall" );}
+    QString datatype() const override;
 };
 
 //! Widget that can be uses to display/edits paramters of a Chicago rainfall
@@ -106,7 +99,7 @@ class ReosFormWidgetDoubleTriangleRainfalFactory : public ReosFormWidgetDataFact
 {
   public:
     ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent ) override;
-    QString datatype() const override {return QStringLiteral( "double-triangle-rainfall" );}
+    QString datatype() const override;
 };
 
 

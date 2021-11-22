@@ -19,6 +19,7 @@
 #include <QWidget>
 
 #include "reosformwidget.h"
+#include "reosplotwidget.h"
 
 class ReosParameterBoolean;
 class ReosParameterDuration;
@@ -45,8 +46,21 @@ class ReosHydrographEditingWidget : public ReosFormWidget
 class ReosHydrographEditingWidgetFactory: public ReosFormWidgetDataFactory
 {
   public:
-    QString datatype() const override {return QStringLiteral( "hydrograph" );}
+    QString datatype() const override;
     ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent ) override;
+};
+
+
+class ReosHydrographPlotFactory : public ReosDataPlotItemFactory
+{
+  public:
+    virtual QString datatype() const override;
+
+    //! Do nothing
+    void buildPlotItemsAndSetup( ReosPlotWidget *plotWidget, ReosDataObject *data ) override;
+
+    //! Creates a new plot hydrograph in the plot widget \a plotWidget with the hydrograph \a data
+    ReosPlotItem *buildPlotItem( ReosPlotWidget *plotWidget, ReosDataObject *data ) override;
 };
 
 #endif // REOSHYDROGRAPHEDITINGWIDGET_H

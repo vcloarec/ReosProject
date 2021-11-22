@@ -36,6 +36,8 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
   public:
     ReosTimeSerie( QObject *parent = nullptr, const QString &providerKey = QString(), const QString &dataSource = QString() );
 
+    QString type() const override {return staticType();}
+
     //! Returns a pointer to the refrence time parameter
     ReosParameterDateTime *referenceTime() const {return mReferenceTime;}
 
@@ -79,6 +81,8 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
 
     ReosTimeSerieProvider *dataProvider() const;
 
+    static QString staticType() {return ReosDataObject::staticType() + ':' + QStringLiteral( "time-serie" );}
+
   public slots:
     void onDataProviderChanged();
 
@@ -120,7 +124,9 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     QPair<QDateTime, QDateTime> timeExtent() const override;
     double valueAt( int i ) const override;
     virtual void setValueAt( int i, double value ) override;
-    QString type() const override {return QStringLiteral( "time-serie-constant-interval" );}
+
+    QString type() const override {return staticType();}
+    static QString staticType() {return ReosTimeSerie::staticType() + ':' + QStringLiteral( "constant-interval" );}
 
     //! Overrides the type
     void setType( const QString &dataType );
@@ -208,7 +214,8 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
   public:
     ReosTimeSerieVariableTimeStep( QObject *parent, const QString &providerKey = QString(), const QString &dataSource = QString() );
 
-    QString type() const override {return QStringLiteral( "time-serie-variable-time-step" );}
+    QString type() const override {return staticType();}
+    static QString staticType() {return ReosTimeSerie::staticType() + ':' + QStringLiteral( "variable-time-step" );}
 
     //! Returns the relative time at \a i
     ReosDuration relativeTimeAt( int i ) const override;
@@ -230,25 +237,32 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
     //! Adds another instance to this the values of this ones, create new time steps if needed
     void addOther( const ReosTimeSerieVariableTimeStep *other, double factor = 1, bool allowInterpolation = true );
 
-    //! Returns the color associated with this time serie
-    virtual QColor color() const {return QColor();}
-
     //! Returns the unit of the values as a string
     QString unitString() const;
 
     //! Sets the unit of the values as a string
     void setUnitString( const QString &unitString );
 
+    //! Returns the color used to render the time serie
+    QColor color() const;
+
+    //! Sets the color used to render the time serie
+    void setColor( const QColor &color );
+
+  signals:
+    void colorChanged( const QColor &color );
+
   protected:
 
     //! Encodes/Decodes base information in/from the \a element
-    virtual void baseEncode( ReosEncodedElement &element ) const;
-    virtual bool  decodeBase( const ReosEncodedElement &element );
+    virtual void baseEncode( ReosEncodedElement &element ) const override;
+    virtual bool  decodeBase( const ReosEncodedElement &element ) override;
 
     ReosTimeSerieVariableTimeStepProvider *variableTimeStepdataProvider() const;
 
   private:
     QString mUnitString;
+    QColor mColor;
 
 
     /**

@@ -39,6 +39,7 @@ class QwtPlotCurve;
 class ReosPlot_p;
 class ReosDataObject;
 class ReosTimeSerieConstantInterval;
+class ReosVariableTimeStepPlotListButton;
 
 
 class ReosPlotItem: public QObject
@@ -46,6 +47,7 @@ class ReosPlotItem: public QObject
     Q_OBJECT
   public:
     virtual void attach( ReosPlot_p *plot );
+    virtual void detach();
     virtual ~ReosPlotItem();
 
     void setOnRightAxe();
@@ -60,9 +62,24 @@ class ReosPlotItem: public QObject
      */
     void setAsMasterItem( bool b );
 
+    //! Set if the item has to be taken into account when autoscale axes
+    void setAutoScale( bool b );
+
+    virtual QString name() const;
+
+    void setVisible( bool isVisible, bool replot = true );
+    bool isVisible() const;
+
+    virtual QColor color() const {return QColor();}
+    virtual QPixmap icone( const QSize &size ) const;
+
   public slots:
     virtual void fullExtent();
     virtual void setSettings() {};
+    void setName( const QString &name );
+    virtual void setColor( const QColor &color );
+    virtual void setStyle( Qt::PenStyle style );
+    virtual void setWidth( double width );
 
   signals:
     void itemChanged();
@@ -111,6 +128,7 @@ class ReosPlotWidget: public QWidget
     void addActions( const QList<QAction *> &actions );
 
     void addPlotItem( ReosPlotItem *item );
+    void addOptionalPlotItem( ReosVariableTimeStepPlotListButton *optionalItemButton );
 
     void setTitleAxeX( const QString &title );
     void setTitleAxeYLeft( const QString &title );
@@ -150,7 +168,8 @@ class ReosPlotWidget: public QWidget
     ReosPlot_p *mPlot = nullptr;
     QwtPlotPicker *mPickerTracker;
 
-    QToolBar *mToolBar = nullptr;
+    QToolBar *mToolBarRight = nullptr;
+    QToolBar *mToolBarLeft = nullptr;
     QAction *mActionExportAsImage = nullptr;
     QAction *mActionCopyAsImage = nullptr;
     QAction *mXAxisFormatCombobox = nullptr;
@@ -165,7 +184,8 @@ class ReosDataPlotItemFactory
 {
   public:
     virtual QString datatype() const = 0;
-    virtual void buildPlotItems( ReosPlotWidget *plotWidget, ReosDataObject *data ) = 0;
+    virtual void buildPlotItemsAndSetup( ReosPlotWidget *plotWidget, ReosDataObject *data ) {};
+    virtual ReosPlotItem *buildPlotItem( ReosPlotWidget *plotWidget, ReosDataObject *data ) {};
 };
 
 
@@ -177,7 +197,8 @@ class REOSGUI_EXPORT ReosPlotItemFactories: public ReosModule
     static ReosPlotItemFactories *instance();
 
     void addFactory( ReosDataPlotItemFactory *fact );
-    void buildPlotItems( ReosPlotWidget *plotWidget, ReosDataObject *data, const QString &dataType = QString() );
+    void buildPlotItemsAndSetup( ReosPlotWidget *plotWidget, ReosDataObject *data, const QString &dataType = QString() );
+    ReosPlotItem *buildPlotItem( ReosPlotWidget *plotWidget, ReosDataObject *data );
 
   private:
     ReosPlotItemFactories( ReosModule *parent = nullptr );

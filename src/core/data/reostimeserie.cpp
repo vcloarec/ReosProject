@@ -998,18 +998,25 @@ void ReosTimeSerieVariableTimeStep::setUnitString( const QString &unitString )
   mUnitString = unitString;
 }
 
+QColor ReosTimeSerieVariableTimeStep::color() const
+{
+  return mColor;
+}
+
+void ReosTimeSerieVariableTimeStep::setColor( const QColor &color )
+{
+  mColor = color;
+
+  emit colorChanged( color );
+}
+
 void ReosTimeSerieVariableTimeStep::baseEncode( ReosEncodedElement &element ) const
 {
   ReosTimeSerie::baseEncode( element );
 
   element.addData( QStringLiteral( "unit-string" ), mUnitString );
+  element.addData( QStringLiteral( "color" ), mColor );
 
-//  QList<QByteArray> encodedTimeValues;
-//  encodedTimeValues.reserve( mTimeValues.count() );
-
-//  for ( const ReosDuration &time : mTimeValues )
-//    encodedTimeValues.append( time.encode().bytes() );
-//  element.addData( QStringLiteral( "time-values" ), encodedTimeValues );
 }
 
 bool ReosTimeSerieVariableTimeStep::decodeBase( const ReosEncodedElement &element )
@@ -1018,6 +1025,8 @@ bool ReosTimeSerieVariableTimeStep::decodeBase( const ReosEncodedElement &elemen
 
   if ( !element.getData( QStringLiteral( "unit-string" ), mUnitString ) )
     return false;
+  element.getData( QStringLiteral( "color" ), mColor );
+
 
   if ( !mProvider )
   {

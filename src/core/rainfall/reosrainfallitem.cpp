@@ -567,6 +567,8 @@ ReosRainfallChicagoItem::ReosRainfallChicagoItem( const ReosEncodedElement &elem
   connectParameters();
 }
 
+QString ReosRainfallChicagoItem::dataType() const {return ReosChicagoRainfall::staticType();}
+
 ReosEncodedElement ReosRainfallChicagoItem::encode() const
 {
   ReosEncodedElement element( QStringLiteral( "chicago-rainfall-item" ) );
@@ -638,6 +640,8 @@ ReosRainfallDoubleTriangleItem::ReosRainfallDoubleTriangleItem( const ReosEncode
   connect( mData, &ReosDoubleTriangleRainfall::newIntensityDuration, this, &ReosRainfallDoubleTriangleItem::setIntensityDurationCurveUniqueIds );
   connectParameters();
 }
+
+QString ReosRainfallDoubleTriangleItem::dataType() const {return ReosDoubleTriangleRainfall::staticType();}
 
 ReosEncodedElement ReosRainfallDoubleTriangleItem::encode() const
 {
@@ -754,6 +758,8 @@ ReosRainfallAlternatingBlockItem::ReosRainfallAlternatingBlockItem( const ReosEn
   connect( mData, &ReosAlternatingBlockRainfall::newIntensityDuration, this, &ReosRainfallAlternatingBlockItem::setIntensityDurationCurveUniqueId );
   connectParameters();
 }
+
+QString ReosRainfallAlternatingBlockItem::dataType() const {return ReosAlternatingBlockRainfall::staticType();}
 
 ReosEncodedElement ReosRainfallAlternatingBlockItem::encode() const
 {

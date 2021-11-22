@@ -85,11 +85,21 @@ class ReosPlotTimeSerieVariableStep: public ReosPlotItem
     ReosPlotTimeSerieVariableStep( const QString &name = QString() );
     void setTimeSerie( ReosTimeSerieVariableTimeStep *timeSerie, bool replot = true );
 
+    QColor color() const override;
+    QPixmap icone( const QSize &size ) const override;
+    QString name() const override;
+
+  public slots:
+    void setColor( const QColor &color ) override;
+    void setStyle( Qt::PenStyle penStyle ) override;
+    void setWidth( double width ) override;
+
   private slots:
-    void setSettings();
+    void setSettings() override;
+    void onNameChanged();
 
   private:
-    QwtPlotCurve *curve();
+    QwtPlotCurve *curve() const;
     ReosPlotVariableStepTimeSerie *mTimeSerie = nullptr;
 };
 

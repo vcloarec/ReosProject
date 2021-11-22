@@ -148,7 +148,11 @@ ReosPlotTimeSerieVariableStep::ReosPlotTimeSerieVariableStep( const QString &nam
 void ReosPlotTimeSerieVariableStep::setTimeSerie( ReosTimeSerieVariableTimeStep *timeSerie, bool replot )
 {
   if ( mTimeSerie && mTimeSerie->data() )
+  {
     disconnect( mTimeSerie->data(), &ReosDataObject::dataChanged, this, &ReosPlotItem::itemChanged );
+    disconnect( mTimeSerie->data(), &ReosDataObject::dataChanged, this, &ReosPlotTimeSerieVariableStep::onNameChanged );
+    disconnect( mTimeSerie->data(), &ReosTimeSerieVariableTimeStep::colorChanged, this, &ReosPlotTimeSerieVariableStep::setColor );
+  }
 
   mTimeSerie = nullptr;
   if ( timeSerie )
@@ -158,7 +162,11 @@ void ReosPlotTimeSerieVariableStep::setTimeSerie( ReosTimeSerieVariableTimeStep 
   setSettings();
 
   if ( timeSerie )
+  {
     connect( timeSerie, &ReosDataObject::dataChanged, this, &ReosPlotItem::itemChanged );
+    connect( timeSerie, &ReosDataObject::dataChanged, this, &ReosPlotTimeSerieVariableStep::onNameChanged );
+    connect( mTimeSerie->data(), &ReosTimeSerieVariableTimeStep::colorChanged, this, &ReosPlotTimeSerieVariableStep::setColor );
+  }
 
   if ( curve()->plot() && replot )
     curve()->plot()->replot();
@@ -179,7 +187,65 @@ void ReosPlotTimeSerieVariableStep::setSettings()
   }
 }
 
-QwtPlotCurve *ReosPlotTimeSerieVariableStep::curve()
+void ReosPlotTimeSerieVariableStep::onNameChanged()
+{
+  if ( mTimeSerie )
+    setName( mTimeSerie->data()->name() );
+}
+
+QwtPlotCurve *ReosPlotTimeSerieVariableStep::curve() const
 {
   return static_cast<QwtPlotCurve *>( mPlotItem );
+}
+
+void ReosPlotTimeSerieVariableStep::setColor( const QColor &color )
+{
+  QPen pen = curve()->pen();
+  pen.setColor( color );
+  curve()->setPen( pen );
+  curve()->plot()->replot();
+}
+
+QColor ReosPlotTimeSerieVariableStep::color() const
+{
+  return curve()->pen().color();
+}
+
+void ReosPlotTimeSerieVariableStep::setStyle( const Qt::PenStyle penStyle )
+{
+  QPen pen = curve()->pen();
+  pen.setStyle( penStyle );
+  curve()->setPen( pen );
+  curve()->plot()->replot();
+}
+
+void ReosPlotTimeSerieVariableStep::setWidth( double width )
+{
+  QPen pen = curve()->pen();
+  pen.setWidthF( width );
+  curve()->setPen( pen );
+  curve()->plot()->replot();
+}
+
+QPixmap ReosPlotTimeSerieVariableStep::icone( const QSize &size ) const
+{
+  QPoint p1( std::min( 3, size.width() ), ( std::min( 1, size.height() ) ) );
+  QPoint p2( std::max( 3, size.width() - 3 ), ( std::max( 1, size.height() - 1 ) ) );
+
+  QPixmap pixMap( size );
+  pixMap.fill( Qt::transparent );
+  QPainter painter( &pixMap );
+  painter.setRenderHints( QPainter::Antialiasing );
+  painter.setPen( curve()->pen() );
+  painter.drawLine( p1, p2 );
+
+  return pixMap;
+}
+
+QString ReosPlotTimeSerieVariableStep::name() const
+{
+  if ( mTimeSerie && mTimeSerie->data() )
+    return mTimeSerie->data()->name();
+  else
+    return ReosPlotItem::name();
 }

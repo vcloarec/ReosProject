@@ -227,7 +227,7 @@ ReosHubEauSettingsWidget *ReosHubEauHydrometryGuiFactory::createProviderSettings
 
 QString ReosHubEauHydrometryGuiFactory::dataType() const
 {
-  return QStringLiteral( "hydrograph" );
+  return ReosHydrograph::staticType();
 }
 
 QPixmap ReosHubEauHydrometryGuiFactory::icon() const

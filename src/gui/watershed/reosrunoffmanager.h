@@ -66,21 +66,21 @@ class ReosFormRunoffConstantCoefficientWidgetFactory: public ReosFormWidgetDataF
 {
   public:
     virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent );
-    virtual QString datatype() const {return QStringLiteral( "runoff-model-constant-coefficient" );}
+    virtual QString datatype() const;
 };
 
 class ReosFormRunoffGreenAmptWidgetFactory: public ReosFormWidgetDataFactory
 {
   public:
     virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent );
-    virtual QString datatype() const {return QStringLiteral( "runoff-model-green-ampt" );}
+    virtual QString datatype() const;
 };
 
 class ReosFormRunofCurveNumberWidgetFactory: public ReosFormWidgetDataFactory
 {
   public:
     virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent );
-    virtual QString datatype() const {return QStringLiteral( "runoff-model-curve-number" );}
+    virtual QString datatype() const;
 };
 
 #endif // REOSRUNOFFMANAGER_H

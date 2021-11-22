@@ -181,42 +181,23 @@ class ReosImportRainfallDialog: public QDialog
 class ReosPlotItemRainfallIntensityDurationFrequencyFactory: public ReosDataPlotItemFactory
 {
   public:
-    QString datatype() const override {return QStringLiteral( "rainfall-intensity-duration-frequency-curves" );}
-    void buildPlotItems( ReosPlotWidget *plotWidget, ReosDataObject *data ) override;
+    QString datatype() const override;
+    void buildPlotItemsAndSetup( ReosPlotWidget *plotWidget, ReosDataObject *data ) override;
 };
 
 class ReosPlotItemRainfallIntensityDurationFactory: public ReosDataPlotItemFactory
 {
   public:
-    QString datatype() const override {return QStringLiteral( "rainfall-intensity-duration-curve" );}
-    void buildPlotItems( ReosPlotWidget *plotWidget, ReosDataObject *data ) override;
+    QString datatype() const override;
+    void buildPlotItemsAndSetup( ReosPlotWidget *plotWidget, ReosDataObject *data ) override;
 };
 
 class ReosPlotItemRainfallSerieFactory: public ReosDataPlotItemFactory
 {
   public:
-    QString datatype() const override {return QStringLiteral( "serie-rainfall" );}
-    void buildPlotItems( ReosPlotWidget *plotWidget, ReosDataObject *data ) override;
+    QString datatype() const override;
+    void buildPlotItemsAndSetup( ReosPlotWidget *plotWidget, ReosDataObject *data ) override;
 };
-
-class ReosPlotItemRainfallChicagoFactory: public ReosPlotItemRainfallSerieFactory
-{
-  public:
-    QString datatype() const override {return QStringLiteral( "chicago-rainfall" );}
-};
-
-class ReosPlotItemRainfallAlternatingBlockFactory: public ReosPlotItemRainfallSerieFactory
-{
-  public:
-    QString datatype() const override {return QStringLiteral( "alternating-block-rainfall" );}
-};
-
-class ReosPlotItemRainfallDoubleTriangleFactory: public ReosPlotItemRainfallSerieFactory
-{
-  public:
-    QString datatype() const override {return QStringLiteral( "double-triangle-rainfall" );}
-};
-
 
 class ReosSpatialStationWidgetToolbar: public QWidget
 {

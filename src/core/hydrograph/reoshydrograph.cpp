@@ -21,21 +21,11 @@ ReosHydrograph::ReosHydrograph( QObject *parent, const QString &providerKey, con
                                    providerKey.isEmpty() ? QStringLiteral( "variable-time-step-memory" ) : providerKey,
                                    dataSource ) {}
 
-QColor ReosHydrograph::color() const
-{
-  return mColor;
-}
-
-void ReosHydrograph::setColor( const QColor &color )
-{
-  mColor = color;
-}
 
 ReosEncodedElement ReosHydrograph::encode() const
 {
   ReosEncodedElement element( QStringLiteral( "hydrograph" ) );
   ReosTimeSerieVariableTimeStep::baseEncode( element );
-  element.addData( QStringLiteral( "color" ), mColor );
   return element;
 }
 
@@ -45,7 +35,6 @@ ReosHydrograph *ReosHydrograph::decode( const ReosEncodedElement &element, QObje
     return nullptr;
 
   std::unique_ptr<ReosHydrograph> ret = std::make_unique<ReosHydrograph>( parent );
-  element.getData( QStringLiteral( "color" ), ret->mColor );
   ret->decodeBase( element );
 
   return ret.release();
@@ -75,6 +64,21 @@ QStringList ReosHydrographStore::hydrographNames() const
   QStringList ret;
   for ( const ReosHydrograph *hyd : mHydrographs )
     ret.append( hyd->name() );
+
+  return ret;
+}
+
+QList<ReosHydrograph *> ReosHydrographStore::hydrographsForTimeRange( const QDateTime &startTime, const QDateTime &endTime )
+{
+  QList<ReosHydrograph *> ret;
+
+  for ( ReosHydrograph *hyd : std::as_const( mHydrographs ) )
+  {
+    QPair<QDateTime, QDateTime> timeExtent = hyd->timeExtent();
+    if ( ( timeExtent.first >= startTime && timeExtent.first <= endTime ) ||
+         ( timeExtent.second >= startTime && timeExtent.second <= endTime ) )
+      ret.append( hyd );
+  }
 
   return ret;
 }

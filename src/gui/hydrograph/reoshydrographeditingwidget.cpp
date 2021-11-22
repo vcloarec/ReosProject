@@ -24,6 +24,7 @@
 #include "reoshydrograph.h"
 #include "reostableview.h"
 #include "reossettings.h"
+#include "reosplottimeconstantinterval.h"
 
 
 ReosHydrographEditingWidget::ReosHydrographEditingWidget( ReosHydrograph *hydrograph, QWidget *parent )
@@ -117,6 +118,8 @@ ReosHydrographEditingWidget::~ReosHydrographEditingWidget()
 {
 }
 
+QString ReosHydrographEditingWidgetFactory::datatype() const {return ReosHydrograph::staticType();}
+
 ReosFormWidget *ReosHydrographEditingWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
 {
   ReosHydrograph *hyd = qobject_cast<ReosHydrograph *>( dataObject );
@@ -124,4 +127,23 @@ ReosFormWidget *ReosHydrographEditingWidgetFactory::createDataWidget( ReosDataOb
     return new ReosHydrographEditingWidget( hyd, parent );
   else
     return nullptr;
+}
+
+QString ReosHydrographPlotFactory::datatype() const {return ReosHydrograph::staticType();}
+
+void ReosHydrographPlotFactory::buildPlotItemsAndSetup( ReosPlotWidget *, ReosDataObject * )  {}
+
+ReosPlotItem *ReosHydrographPlotFactory::buildPlotItem( ReosPlotWidget *plotWidget, ReosDataObject *data )
+{
+  ReosHydrograph *hyd = qobject_cast<ReosHydrograph *>( data );
+
+  if ( !hyd )
+    return nullptr;
+
+  std::unique_ptr<ReosPlotTimeSerieVariableStep> plotItem( new ReosPlotTimeSerieVariableStep( hyd->name() ) );
+  plotItem->setTimeSerie( hyd );
+
+  plotWidget->addPlotItem( plotItem.get() );
+
+  return plotItem.release();
 }
