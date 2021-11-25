@@ -38,7 +38,7 @@ ReosTimeSerieConstantIntervalWidget::ReosTimeSerieConstantIntervalWidget( ReosTi
 {
   mModel->setSerieData( timeSerie );
   addParameter( timeSerie->timeStep() );
-  addParameter( timeSerie->referenceTime() );
+  addParameter( timeSerie->referenceTimeParameter() );
 
   mValueModeComboBox = new QComboBox( this );
   mValueModeComboBox->addItem( timeSerie->valueModeName( ReosTimeSerieConstantInterval::Value ), ReosTimeSerieConstantInterval::Value );

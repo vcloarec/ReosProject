@@ -24,11 +24,6 @@ QString ReosHubEauHydrographProvider::key() const {return ReosHubEauHydrographPr
 
 QDateTime ReosHubEauHydrographProvider::referenceTime() const {return mReferenceTime;}
 
-void ReosHubEauHydrographProvider::setReferenceTime( const QDateTime &referenceTime )
-{
-  mReferenceTime = referenceTime;
-}
-
 QString ReosHubEauHydrographProvider::valueUnit() const {return QString();}
 
 int ReosHubEauHydrographProvider::valueCount() const {return mCachedValues.count();}

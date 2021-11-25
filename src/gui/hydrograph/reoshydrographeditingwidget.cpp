@@ -33,12 +33,11 @@ ReosHydrographEditingWidget::ReosHydrographEditingWidget( ReosHydrograph *hydrog
   , mConstantTimeStepForNewEntry( new ReosParameterDuration( tr( "Constant time step" ) ) )
   , mDataModel( new ReosTimeSerieVariableTimeStepModel( this ) )
 {
-
   ReosSettings settings;
 
   mDataModel->setSerie( hydrograph );
   mIsUseConstantTimeStepForNewEntry->setValue( false );
-  addParameter( hydrograph->referenceTime() );
+  addParameter( hydrograph->referenceTimeParameter() );
   if ( hydrograph->dataProvider()->isEditable() )
   {
     addParameter( mIsUseConstantTimeStepForNewEntry );

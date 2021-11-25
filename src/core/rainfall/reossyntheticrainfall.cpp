@@ -180,7 +180,6 @@ ReosChicagoRainfall::ReosChicagoRainfall( const ReosEncodedElement &element, QOb
 
 void ReosUniqueIdfCurveSyntheticRainfall::connectParameters()
 {
-  connect( referenceTime(), &ReosParameter::valueChanged, this, &ReosUniqueIdfCurveSyntheticRainfall::dataChanged );
   connect( timeStep(), &ReosParameter::valueChanged, this, &ReosUniqueIdfCurveSyntheticRainfall::setObsolete );
   connect( mTotalDuration, &ReosParameter::valueChanged, this, &ReosUniqueIdfCurveSyntheticRainfall::setObsolete );
   connect( mCenterCoefficient, &ReosParameter::valueChanged, this, &ReosUniqueIdfCurveSyntheticRainfall::setObsolete );
@@ -397,7 +396,6 @@ void ReosDoubleTriangleRainfall::updateData() const
 void ReosDoubleTriangleRainfall::connectParameters()
 {
   connect( timeStep(), &ReosParameter::valueChanged, this, &ReosDoubleTriangleRainfall::setObsolete );
-  connect( referenceTime(), &ReosParameter::valueChanged, this, &ReosDoubleTriangleRainfall::dataChanged );
   connect( mIntenseDuration, &ReosParameter::valueChanged, this, &ReosDoubleTriangleRainfall::setObsolete );
   connect( mTotalDuration, &ReosParameter::valueChanged, this, &ReosDoubleTriangleRainfall::setObsolete );
   connect( mCenterCoefficient, &ReosParameter::valueChanged, this, &ReosDoubleTriangleRainfall::setObsolete );
@@ -412,6 +410,7 @@ ReosDoubleTriangleRainfall::ReosDoubleTriangleRainfall( QObject *parent ) :
   mCenterCoefficient->setValueWithString( QStringLiteral( "0.5" ) );
   mTotalDuration->setValue( ReosDuration( 60, ReosDuration::minute ) );
   mIntenseDuration->setValue( ReosDuration( 15, ReosDuration::minute ) );
+  setObsolete();
   connectParameters();
 }
 

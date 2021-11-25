@@ -39,7 +39,13 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
     QString type() const override {return staticType();}
 
     //! Returns a pointer to the refrence time parameter
-    ReosParameterDateTime *referenceTime() const {return mReferenceTime;}
+    ReosParameterDateTime *referenceTimeParameter() const {return mReferenceTimeParameter;}
+
+    //! Sets the reference time
+    void setReferenceTime( const QDateTime &dateTime );
+
+    //! Returns the reference time
+    QDateTime referenceTime() const;
 
     //! Returns the count of value in the time serie
     int valueCount() const;
@@ -97,7 +103,7 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
     std::unique_ptr<ReosTimeSerieProvider> mProvider;
 
   private:
-    ReosParameterDateTime *mReferenceTime = nullptr;
+    ReosParameterDateTime *mReferenceTimeParameter = nullptr;
     QString mValueUnit;
 };
 
@@ -334,14 +340,14 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStepModel: public ReosTimeSerieMo
   public:
     ReosTimeSerieVariableTimeStepModel( QObject *parent = nullptr );
 
-    int rowCount( const QModelIndex & ) const;
-    int columnCount( const QModelIndex & ) const;
-    QVariant data( const QModelIndex &index, int role ) const;
-    bool setData( const QModelIndex &index, const QVariant &value, int role );
+    int rowCount( const QModelIndex & ) const override;
+    int columnCount( const QModelIndex & ) const override;
+    QVariant data( const QModelIndex &index, int role ) const override;
+    bool setData( const QModelIndex &index, const QVariant &value, int role ) override;
     Qt::ItemFlags flags( const QModelIndex &index ) const override;
     QVariant headerData( int section, Qt::Orientation orientation, int role ) const override;
 
-    void setValues( const QModelIndex &fromIndex, const QList<QVariantList> &values ) {}
+    void setValues( const QModelIndex &fromIndex, const QList<QVariantList> &values );
     void insertValues( const QModelIndex &fromIndex, const QList<QVariantList> &values ) {}
     void deleteRows( const QModelIndex &fromIndex, int count ) {};
     void insertRows( const QModelIndex &fromIndex, int count ) {};

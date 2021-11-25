@@ -94,8 +94,7 @@ ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( ReosMap *map, QWidget *p
     if ( providerHydrograph )
     {
       copyHyd->setName( providerHydrograph->name() );
-      copyHyd->referenceTime()->setValue( providerHydrograph->dataProvider()->referenceTime() );
-      copyHyd->addOther( providerHydrograph );
+      copyHyd->copyFrom( providerHydrograph );
       copyHyd->setColor( providerHydrograph->color() );
       mHydrographStore->addHydrograph( copyHyd.release() );
       onStoreChanged();

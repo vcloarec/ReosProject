@@ -18,7 +18,7 @@
 
 #include "reosdataprovidergui.h"
 
-class ReosDelftFewsXMLProvider;
+class ReosDelftFewsXMLProviderInterface;
 
 namespace Ui
 {

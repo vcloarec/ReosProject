@@ -1369,7 +1369,7 @@ QVariant ReosTimeSeriesVariableTimeStepTabModel::valueAt( int row, int column ) 
 
   if ( isFixedTimeStep() )
   {
-    ReosDuration relativeTime( serie->referenceTime()->value().msecsTo( mFirstTime ) );
+    ReosDuration relativeTime( serie->referenceTime().msecsTo( mFirstTime ) );
     return serie->valueAtTime( relativeTime + mTimeStep * row );
   }
   if ( row >= serie->valueCount() )
