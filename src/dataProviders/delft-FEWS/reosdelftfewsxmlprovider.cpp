@@ -93,7 +93,7 @@ QString ReosDelftFewsXMLProvider::htmlDescriptionFromMetada( const QVariantMap &
   return htmlText;
 }
 
-QDomElement ReosDelftFewsXMLProvider::seriesElement( const QString &uri, QDomDocument &xmlDoc, QString &noData ) const
+QDomElement ReosDelftFewsXMLProvider::seriesElement( const QString &uri, QDomDocument &xmlDoc ) const
 {
   const QString filePath = fileNameFromUri( uri );
   const QString stationId = stationIdFromUri( uri );
@@ -175,7 +175,7 @@ void ReosDelftFewsXMLHydrographProvider::load()
   QDomDocument xmlDoc( "delft-document" );
   QString noDataValue;
 
-  QDomElement serieElement = seriesElement( uri, xmlDoc, noDataValue );
+  QDomElement serieElement = seriesElement( uri, xmlDoc );
 
   QDomElement valueElement = serieElement.firstChildElement( QStringLiteral( "event" ) );
   while ( !valueElement.isNull() )
@@ -221,6 +221,11 @@ double *ReosDelftFewsXMLHydrographProvider::data() {return mCacheValues.data();}
 
 const QVector<double> &ReosDelftFewsXMLHydrographProvider::constData() const {return mCacheValues;}
 
+const QVector<ReosDuration> &ReosDelftFewsXMLHydrographProvider::constTimeData() const
+{
+  return mCacheTimeValues;
+}
+
 QString ReosDelftFewsXMLRainfallProvider::key() const {return ReosDelftFewsXMLProvider::staticKey() + ':' + dataType();}
 
 QString ReosDelftFewsXMLRainfallProvider::htmlDescription() const
@@ -235,7 +240,7 @@ void ReosDelftFewsXMLRainfallProvider::load()
   QDomDocument xmlDoc( "delft-document" );
   QString noDataValue;
 
-  QDomElement serieElement = seriesElement( uri, xmlDoc, noDataValue );
+  QDomElement serieElement = seriesElement( uri, xmlDoc );
 
   bool isIntensity = false;
 

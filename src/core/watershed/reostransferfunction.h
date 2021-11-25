@@ -30,12 +30,19 @@ class ReosHydrograph;
 //! Process abstract class that handle the calculation of the hydrograph an onother thread
 class REOSCORE_EXPORT ReosTransferFunctionCalculation : public ReosProcess
 {
+    Q_OBJECT
   public:
     //! Returns the hydrograph result, has to be call after the process is finished, if \a parent is not specified, the caller need to take ownership
-    ReosHydrograph *hydrograph( QObject *parent = nullptr );
+    ReosHydrograph *getHydrograph( QObject *parent = nullptr );
+
+    //! Returns a pointer to the hydrograph keeping ownership
+    ReosHydrograph hydrograph();
 
   protected:
     std::unique_ptr<ReosHydrograph> mHydrograph;
+
+  signals:
+    void hydrographReady( ReosHydrograph *hydrograph );
 };
 
 //! Class that reprsents a transfer function, that is a tranformation from runoff to hydrograph
@@ -64,7 +71,7 @@ class REOSCORE_EXPORT ReosTransferFunction : public ReosDataObject
 
     virtual ReosEncodedElement encode() const = 0;
 
-    //! Returns a calculaton process for hydrograph calculation, the caller take ownership
+    //! Returns a calculaton process for hydrograph calculation, the caller take ownership of the return object and keep the one of \a runoff
     virtual ReosTransferFunctionCalculation *calculationProcess( ReosRunoff *runoff ) = 0;
 
   protected:

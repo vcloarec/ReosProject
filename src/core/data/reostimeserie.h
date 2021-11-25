@@ -249,6 +249,8 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
     //! Sets the color used to render the time serie
     void setColor( const QColor &color );
 
+    void copyFrom( ReosTimeSerieVariableTimeStep *other );
+
   signals:
     void colorChanged( const QColor &color );
 

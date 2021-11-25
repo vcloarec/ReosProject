@@ -25,19 +25,22 @@ email                : vcloarec at gmail dot com
 #include "reos_testutils.h"
 #include "reosexporttovectorfile.h"
 #include "reoshydrograph.h"
+#include "reosmeteorologicmodel.h"
 
 
 class ReosWatersehdTest: public QObject
 {
     Q_OBJECT
   private slots:
+    void inclusion();
+    void watershedInteractions();
     void watershedDelineating();
     void watershedDelineatingWithBurningLine();
     void watershdDelineatingMultiWatershed();
-    void inclusion();
-    void watershedInteractions();
     void concentrationTime();
     void runoffConstantCoefficient();
+
+    void runoffhydrograph();
 
   private:
     ReosModule rootModule;
@@ -1117,10 +1120,289 @@ void ReosWatersehdTest::runoffConstantCoefficient()
     QCOMPARE( values.at( i ).first,  int( hydrograph->relativeTimeAt( i ).valueMilliSecond() ) );
     QCOMPARE( values.at( i ).second,  hydrograph->valueAt( i ) );
   }
-  //watershed.area()->setValue( ReosArea( 20, ReosArea::ha ) );
-  //ReosHydrograph *hydrograph = linearReservoir->applyFunction( &runoff, &runoff );
 
-// hydrograph->valueCount();
+}
+
+void ReosWatersehdTest::runoffhydrograph()
+{
+  // build a rainfall
+  ReosModule root;
+  ReosIdfFormulaRegistery::instantiate( &root );
+  ReosIdfFormulaRegistery *idfRegistery = ReosIdfFormulaRegistery::instance();
+  idfRegistery->registerFormula( new ReosIdfFormulaMontana );
+  ReosTransferFunctionFactories::instantiate( &root );
+  ReosTransferFunctionFactories::instance()->addFactory( new ReosTransferFunctionNashUnitHydrographFactory );
+  ReosTransferFunctionFactories::instance()->addFactory( new ReosTransferFunctionLinearReservoirFactory );
+
+  ReosIntensityDurationCurve idCurve;
+  idCurve.addInterval( ReosDuration( 5, ReosDuration::minute ), ReosDuration( 1, ReosDuration::hour ) );
+  idCurve.createParameters( 0, idfRegistery->formula( QStringLiteral( "Montana" ) ), ReosDuration::minute, ReosDuration::minute );
+  idCurve.setCurrentFormula( QStringLiteral( "Montana" ) );
+  idCurve.setupFormula( idfRegistery );
+  ReosParameterDouble *a = idCurve.currentParameters( 0 )->parameter( 0 );
+  ReosParameterDouble *b = idCurve.currentParameters( 0 )->parameter( 1 );
+  a->setValue( 4.78 );
+  b->setValue( 0.322 );
+  ReosRainfallChicagoItem chicagoRainfallItem( "chicago", QString() );
+  ReosRainfallAlternatingBlockItem alternateRainfallItem( "alternate", QString() );
+
+  chicagoRainfallItem.data()->timeStep()->setValue( ReosDuration( 5, ReosDuration::minute ) );
+  chicagoRainfallItem.data()->totalDuration()->setValue( ReosDuration( 1, ReosDuration::hour ) );
+  chicagoRainfallItem.data()->setIntensityDurationCurve( &idCurve );
+
+  alternateRainfallItem.data()->timeStep()->setValue( ReosDuration( 5, ReosDuration::minute ) );
+  alternateRainfallItem.data()->totalDuration()->setValue( ReosDuration( 30, ReosDuration::minute ) );
+  alternateRainfallItem.data()->setIntensityDurationCurve( &idCurve );
+
+  QCOMPARE( chicagoRainfallItem.data()->valueCount(), 12 );
+  QCOMPARE( alternateRainfallItem.data()->valueCount(), 6 );
+  QVERIFY( equal( chicagoRainfallItem.data()->valueAt( 5 ), 14.234, 0.001 ) );
+  QVERIFY( equal( alternateRainfallItem.data()->valueAt( 2 ), 8.539, 0.001 ) );
+
+  ReosWatershedTree watershedTree( &gisEngine );
+
+  ReosWatershed *watershed = watershedTree.addWatershed( new ReosWatershed() );
+  watershed->area()->setValue( ReosArea( 10, ReosArea::km2 ) );
+  watershed->concentrationTime()->setValue( ReosDuration( 2, ReosDuration::hour ) );
+  ReosRunoffConstantCoefficientModel runoffConstantCoefficientModel_1( "test_1" );
+  runoffConstantCoefficientModel_1.coefficient()->setValue( 0.5 );
+  watershed->runoffModels()->addRunoffModel( &runoffConstantCoefficientModel_1 );
+  watershed->setCurrentTransferFunction( ReosTransferFunctionNashUnitHydrograph::staticType() );
+
+  ReosMeteorologicModelsCollection meteoCollection;
+  QCOMPARE( meteoCollection.modelCount(), 1 ); //by default one model is present
+  meteoCollection.meteorologicModel( 0 )->associate( watershed, &chicagoRainfallItem );
+  ReosMeteorologicModel *meteoModel = meteoCollection.meteorologicModel( 0 );
+  ReosSerieRainfall *rainfall = meteoModel->associatedRainfall( watershed );
+  QVERIFY( rainfall );
+  QCOMPARE( rainfall->valueCount(), 12 );
+  QCOMPARE( rainfall->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 72.34254782834526 );
+
+  ReosRunoffHydrographStore runoffHydrographStore( &meteoCollection );
+  runoffHydrographStore.setWatershed( watershed );
+  QCOMPARE( runoffHydrographStore.updateCount, 0 );
+
+  QPointer<ReosRunoff> runoff = runoffHydrographStore.runoff( meteoModel );
+  QVERIFY( runoff->isObsolete() );
+  QCOMPARE( runoff->valueCount(), 12 );
+  QVERIFY( !runoff->isObsolete() );
+  QCOMPARE( runoff->data()->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 36.17127391417263 );
+
+  QEventLoop loop;
+  QTimer timer;
+  connect( &timer, &QTimer::timeout, &loop, &QEventLoop::quit );
+  QCOMPARE( runoffHydrographStore.updateCount, 0 );
+  QPointer<ReosHydrograph> hydrograph = runoffHydrographStore.hydrograph( meteoModel ); //call calculation on parallel thread
+  QVERIFY( hydrograph->isObsolete() ); //calculation not done
+  QVERIFY( hydrograph->valueCount() == 0 );
+  QCOMPARE( hydrograph->valueCount(), 0 );
+  QCOMPARE( runoffHydrographStore.updateCount, 0 ); //update will be launch when come back to the event loop
+
+  timer.start( 1 );
+  loop.exec();
+
+  QCOMPARE( runoffHydrographStore.updateCount, 1 ); //update just launch
+  QVERIFY( hydrograph->isObsolete() );
+  QVERIFY( hydrograph->valueCount() == 0 );
+  QCOMPARE( hydrograph->valueCount(), 0 );
+
+  timer.start( 200 );
+  loop.exec();
+
+  QCOMPARE( runoffHydrographStore.updateCount, 1 ); //update done
+  QVERIFY( ! hydrograph->isObsolete() );
+  QCOMPARE( hydrograph->valueCount(), 98 );
+  QCOMPARE( hydrograph->valueAt( 70 ), 1.6764100895121765 );
+  QVERIFY( hydrograph->referenceTime().isValid() );
+
+  watershed->area()->setValue( ReosArea( 9, ReosArea::km2 ) );
+  QCOMPARE( runoffHydrographStore.updateCount, 1 ); //update will be launch when come back to the event loop
+
+  timer.start( 1 );
+  loop.exec();
+
+  QCOMPARE( runoffHydrographStore.updateCount, 2 ); //update just launch
+  QVERIFY( hydrograph->isObsolete() ); //but not done
+  QCOMPARE( hydrograph->valueCount(), 0 );
+
+  timer.start( 200 );
+  loop.exec();
+
+  QVERIFY( !hydrograph->isObsolete() ); //update done
+  QCOMPARE( hydrograph->valueCount(), 98 );
+  QCOMPARE( hydrograph->valueAt( 70 ), 1.508769080560959 );
+  QCOMPARE( runoff->data()->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 36.17127391417263 );
+  QCOMPARE( rainfall->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 72.34254782834526 );
+
+  rainfall->setValueAt( 5, 0 );
+  QCOMPARE( runoffHydrographStore.updateCount, 2 ); //update will be launch when come back to the event loop
+
+  timer.start( 1 );
+  loop.exec();
+
+  QCOMPARE( runoffHydrographStore.updateCount, 3 ); //update just launch
+  QVERIFY( hydrograph->isObsolete() ); //but not done
+  QCOMPARE( hydrograph->valueCount(), 0 );
+  QCOMPARE( rainfall->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 58.10846267665004 ); //just the rainfall and runoff updated (done a least in the main thread before launching)
+  QCOMPARE( runoff->data()->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 29.05423133832502 );
+
+  timer.start( 200 );
+  loop.exec();
+
+  QVERIFY( !hydrograph->isObsolete() ); //update done
+  QCOMPARE( hydrograph->valueCount(), 98 );
+  QCOMPARE( hydrograph->valueAt( 70 ), 1.2479706882948054 );
+
+  runoffConstantCoefficientModel_1.coefficient()->setValue( 0.4 );
+  QCOMPARE( runoffHydrographStore.updateCount, 3 ); //update will be launch when come back to the event loop
+
+  timer.start( 1 );
+  loop.exec();
+
+  QCOMPARE( runoffHydrographStore.updateCount, 4 ); //update just launch
+  QVERIFY( hydrograph->isObsolete() ); //but not done
+  QCOMPARE( hydrograph->valueCount(), 0 );
+  QCOMPARE( rainfall->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 58.10846267665004 );
+  QCOMPARE( runoff->data()->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 23.243385070660015 ); // just the runoff updated (done a least in the main thread before launching)
+
+  timer.start( 200 );
+  loop.exec();
+
+  QCOMPARE( runoffHydrographStore.updateCount, 4 );
+  QVERIFY( !hydrograph->isObsolete() );
+  QCOMPARE( hydrograph->valueCount(), 98 );
+  QCOMPARE( hydrograph->valueAt( 70 ), 0.9983765506358444 );
+
+  meteoCollection.meteorologicModel( 0 )->associate( watershed, &alternateRainfallItem );
+  QCOMPARE( runoffHydrographStore.updateCount, 4 ); //update will be launch when come back to the event loop
+
+  timer.start( 1 );
+  loop.exec();
+
+  QCOMPARE( runoffHydrographStore.updateCount, 5 ); //update just launch
+  QVERIFY( hydrograph->isObsolete() );
+  QCOMPARE( hydrograph->valueCount(), 0 );
+
+  timer.start( 200 );
+  loop.exec();
+
+  QCOMPARE( runoffHydrographStore.updateCount, 5 );
+  QVERIFY( !hydrograph->isObsolete() ); //update done
+  QCOMPARE( hydrograph->valueCount(), 92 );
+  QCOMPARE( hydrograph->valueAt( 70 ), 0.56555092734 );
+
+  meteoCollection.addMeteorologicModel( "model 2" );
+  QCOMPARE( meteoCollection.modelCount(), 2 );
+  QCOMPARE( runoffHydrographStore.updateCount, 5 );
+
+  timer.start( 1 );
+  loop.exec();
+
+  QCOMPARE( runoffHydrographStore.updateCount, 5 );
+  QVERIFY( !hydrograph->isObsolete() ); //adding a model do not change anything
+  QCOMPARE( hydrograph->valueCount(), 92 );
+  QCOMPARE( hydrograph->valueAt( 70 ), 0.56555092734 );
+
+  ReosMeteorologicModel *meteoModel_2 = meteoCollection.meteorologicModel( 1 );
+  QVERIFY( meteoModel_2 );
+  QVERIFY( !runoffHydrographStore.hydrograph( meteoModel_2 ) ); //no rainfall associated yet
+
+  meteoModel_2->associate( watershed, &chicagoRainfallItem );
+
+  hydrograph = runoffHydrographStore.hydrograph( meteoModel_2 );
+  QCOMPARE( runoffHydrographStore.updateCount, 5 ); //update will be launch when come back to the event loop
+
+  timer.start( 1 );
+  loop.exec();
+
+  QCOMPARE( runoffHydrographStore.updateCount, 6 ); //update just launch
+  QVERIFY( hydrograph->isObsolete() ); //but not done
+  QCOMPARE( hydrograph->valueCount(), 0 );
+
+  timer.start( 200 );
+  loop.exec();
+
+  QCOMPARE( runoffHydrographStore.updateCount, 6 );
+  QVERIFY( !hydrograph->isObsolete() ); //update done
+  QCOMPARE( hydrograph->valueCount(), 98 );
+  QCOMPARE( hydrograph->valueAt( 70 ), 0.9983765506358444 );
+
+  meteoCollection.removeMeteorologicModel( 1 );
+
+  hydrograph = runoffHydrographStore.hydrograph( meteoModel_2 );
+  QVERIFY( !hydrograph );
+
+  timer.start( 1 );
+  loop.exec();
+
+  hydrograph = runoffHydrographStore.hydrograph( meteoModel_2 );
+
+  QVERIFY( !hydrograph );
+
+  hydrograph = runoffHydrographStore.hydrograph( meteoModel );
+
+  QVERIFY( hydrograph );
+  QVERIFY( !hydrograph->isObsolete() );
+  QCOMPARE( runoffHydrographStore.updateCount, 6 ); //update will be launch when come back to the event loop if needed (actually no)
+
+  timer.start( 1 );
+  loop.exec();
+
+  QCOMPARE( runoffHydrographStore.updateCount, 6 ); //update not launch because hydrograph was no obsolete
+  QVERIFY( !hydrograph->isObsolete() ); //still not obsolete
+
+  QVERIFY( !hydrograph->isObsolete() ); //adding a model do not change anything
+  QCOMPARE( hydrograph->valueCount(), 92 );
+  QCOMPARE( hydrograph->valueAt( 70 ), 0.56555092734 );
+
+  runoffConstantCoefficientModel_1.coefficient()->setValue( 0.4 );
+  meteoModel->disassociate( watershed );
+  //here hydrograph and runoff are deleted
+  QVERIFY( hydrograph.isNull() );
+  QVERIFY( runoff.isNull() );
+  meteoModel->associate( watershed, &chicagoRainfallItem );
+  // need to recall hydrograph/runoff to get them again
+  hydrograph = runoffHydrographStore.hydrograph( meteoModel );
+  runoff = runoffHydrographStore.runoff( meteoModel );
+  QVERIFY( hydrograph->isObsolete() );
+  QCOMPARE( runoffHydrographStore.updateCount, 6 ); //update will be launch when come back to the event loop
+
+  timer.start( 1 );
+  loop.exec();
+
+  QCOMPARE( runoffHydrographStore.updateCount, 7 ); //update just launch
+  QVERIFY( hydrograph->isObsolete() ); //but not done
+  QCOMPARE( hydrograph->valueCount(), 0 );
+  QCOMPARE( rainfall->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 58.10846267665004 );
+  QCOMPARE( runoff->data()->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 23.243385070660015 ); //just the runoff updated (done a least in the main thread before launching)
+
+  timer.start( 200 );
+  loop.exec();
+
+  QCOMPARE( runoffHydrographStore.updateCount, 7 );
+  QVERIFY( !hydrograph->isObsolete() );
+  QCOMPARE( hydrograph->valueCount(), 98 );
+  QCOMPARE( hydrograph->valueAt( 70 ), 0.9983765506358444 );
+
+  watershed->setCurrentTransferFunction( ReosTransferFunctionLinearReservoir::staticType() );
+  QCOMPARE( runoffHydrographStore.updateCount, 7 ); //update will be launch when come back to the event loop
+
+  timer.start( 1 );
+  loop.exec();
+
+  QCOMPARE( runoffHydrographStore.updateCount, 8 ); //update just launch
+  QVERIFY( hydrograph->isObsolete() ); //but not done
+  QCOMPARE( hydrograph->valueCount(), 0 );
+  QCOMPARE( rainfall->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 58.10846267665004 );
+  QCOMPARE( runoff->data()->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 23.243385070660015 ); //just the runoff updated (done a least in the main thread before launching)
+
+  timer.start( 200 );
+  loop.exec();
+
+  QCOMPARE( runoffHydrographStore.updateCount, 8 );
+  QVERIFY( !hydrograph->isObsolete() );
+  QCOMPARE( hydrograph->valueCount(), 80 );
+  QCOMPARE( hydrograph->valueAt( 70 ), 0.625077585479 );
 }
 
 QTEST_MAIN( ReosWatersehdTest )

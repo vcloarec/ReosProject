@@ -198,6 +198,9 @@ class REOSCORE_EXPORT ReosRunoff : public ReosDataObject
     QString type() const override {return staticType();}
     static QString staticType() {return ReosDataObject::staticType() + ':' +  QStringLiteral( "runoff-result" );}
 
+    //! Sets the rainfall
+    void setRainfall( ReosTimeSerieConstantInterval *rainfall );
+
     //! Returns the current values count
     int valueCount() const;
 

@@ -71,8 +71,16 @@ ReosRunoff::ReosRunoff( ReosRunoffModelsGroup *runoffModels, ReosTimeSerieConsta
   mData->copyAttribute( rainfall );
   mData->syncWith( rainfall );
 
-  registerUpsteamData( mRainfall );
-  registerUpsteamData( mRunoffModelsGroups );
+  registerUpstreamData( mRainfall );
+  registerUpstreamData( mRunoffModelsGroups );
+}
+
+void ReosRunoff::setRainfall( ReosTimeSerieConstantInterval *rainfall )
+{
+  deregisterUpstreamData( mRainfall );
+  mRainfall = rainfall;
+  setObsolete();
+  registerUpstreamData( mRainfall );
 }
 
 int ReosRunoff::valueCount() const
@@ -104,9 +112,10 @@ void ReosRunoff::updateValues() const
   if ( !isObsolete() )
     return;
 
+  mData->clear();
+
   if ( !mRainfall.isNull() && mRunoffModelsGroups )
   {
-    mData->clear();
     for ( int i = 0; i < mRunoffModelsGroups->runoffModelCount(); ++i )
     {
       ReosRunoffModel *model = mRunoffModelsGroups->runoffModel( i );

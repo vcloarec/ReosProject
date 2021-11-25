@@ -1033,6 +1033,16 @@ void ReosTimeSerieVariableTimeStep::setColor( const QColor &color )
   emit colorChanged( color );
 }
 
+void ReosTimeSerieVariableTimeStep::copyFrom( ReosTimeSerieVariableTimeStep *other )
+{
+  if ( !other || !variableTimeStepdataProvider() || !variableTimeStepdataProvider()->isEditable() )
+    return;
+
+  variableTimeStepdataProvider()->copy( other->variableTimeStepdataProvider() );
+  setActualized();
+  emit dataChanged();
+}
+
 void ReosTimeSerieVariableTimeStep::baseEncode( ReosEncodedElement &element ) const
 {
   ReosTimeSerie::baseEncode( element );

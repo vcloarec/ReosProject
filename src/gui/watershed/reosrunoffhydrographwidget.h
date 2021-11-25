@@ -146,7 +146,7 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
     void onModelMeteoChanged();
     void updateRainall();
     void updateRunoff();
-    void updateHydrograph();
+    void onHydrographReady( ReosHydrograph *hydrograph );
     void onTransferFunctionChanged();
     void onRunoffTableViewContextMenu( const QPoint &pos );
     void copyHydrographSelected( bool withHeader );
@@ -172,8 +172,11 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
     ReosPlotTimeSerieVariableStep *mHydrographCurve = nullptr;
     ReosVariableTimeStepPlotListButton *mGaugedHydrographButton = nullptr;
 
-    ReosRunoff *mCurrentRunoff = nullptr;
-    ReosHydrograph *mCurrentHydrograph = nullptr;
+
+    ReosRunoffHydrographStore *mRunoffHydrographStore = nullptr;
+
+    QPointer<ReosRunoff> mCurrentRunoff ;
+    QPointer<ReosHydrograph> mCurrentHydrograph;
 
     void buildRunoffChoiceMenu( QMenu *menu, int row );
     void syncTransferFunction( ReosTransferFunction *function );

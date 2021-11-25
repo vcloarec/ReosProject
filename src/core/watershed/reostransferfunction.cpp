@@ -29,7 +29,7 @@ ReosTransferFunction::ReosTransferFunction( ReosWatershed *watershed ):
   {
     mConcentrationTime = watershed->concentrationTime();
     mArea = watershed->area();
-    connect( watershed, &ReosWatershed::changed, this, &ReosDataObject::dataChanged );
+    connect( watershed, &ReosDataObject::dataChanged, this, &ReosDataObject::dataChanged );
   }
   else
   {
@@ -66,7 +66,7 @@ ReosTransferFunction::ReosTransferFunction( const ReosEncodedElement &element, R
   {
     mConcentrationTime = watershed->concentrationTime();
     mArea = watershed->area();
-    connect( watershed, &ReosWatershed::changed, this, &ReosDataObject::dataChanged );
+    connect( watershed, &ReosDataObject::dataChanged, this, &ReosDataObject::dataChanged );
   }
   else
   {
@@ -552,7 +552,7 @@ ReosHydrograph *ReosTransferFunctionSCSUnitHydrograph::applyFunction( ReosRunoff
   Calculation calculation( runoffTimeSerie->constData(), reduceTimeStepFactor, timeStep, referenceTime, peakTime, mPeakRateFactor->value(), area()->value() );
   calculation.start();
 
-  return calculation.hydrograph( parent );
+  return calculation.getHydrograph( parent );
 }
 
 ReosEncodedElement ReosTransferFunctionSCSUnitHydrograph::encode() const
@@ -913,7 +913,7 @@ void ReosTransferFunctionSCSUnitHydrograph::Calculation::start()
     setCurrentProgression( i );
   }
 
-
+  emit hydrographReady( mHydrograph.get() );
 }
 
 
@@ -968,9 +968,11 @@ void ReosTransferFunctionLinearReservoir::Calculation::start()
       }
     }
   }
+
+  emit hydrographReady( mHydrograph.get() );
 }
 
-ReosHydrograph *ReosTransferFunctionCalculation::hydrograph( QObject *parent )
+ReosHydrograph *ReosTransferFunctionCalculation::getHydrograph( QObject *parent )
 {
   if ( mHydrograph )
     mHydrograph->setParent( parent );
@@ -1019,6 +1021,8 @@ void ReosTransferFunctionGeneralizedRationalMethod::Calculation::start()
     }
     setCurrentProgression( i );
   }
+
+  emit hydrographReady( mHydrograph.get() );
 }
 
 ReosTransferFunctionNashUnitHydrograph::ReosTransferFunctionNashUnitHydrograph( ReosWatershed *watershed ):
@@ -1061,7 +1065,7 @@ ReosHydrograph *ReosTransferFunctionNashUnitHydrograph::applyFunction( ReosRunof
                            area()->value() );
   calculation.start();
 
-  return calculation.hydrograph( parent );
+  return calculation.getHydrograph( parent );
 }
 
 ReosEncodedElement ReosTransferFunctionNashUnitHydrograph::encode() const
@@ -1173,6 +1177,8 @@ void ReosTransferFunctionNashUnitHydrograph::Calculation::start()
     }
     setCurrentProgression( i );
   }
+
+  emit hydrographReady( mHydrograph.get() );
 
 }
 

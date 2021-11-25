@@ -67,6 +67,7 @@ QDateTime ReosTimeSerieConstantTimeStepMemoryProvider::referenceTime() const
 void ReosTimeSerieConstantTimeStepMemoryProvider::setReferenceTime( const QDateTime &referenceTime )
 {
   mReferenceTime = referenceTime;
+  emit dataChanged();
 }
 
 QString ReosTimeSerieConstantTimeStepMemoryProvider::valueUnit() const
@@ -199,6 +200,8 @@ void ReosTimeSerieVariableTimeStepProvider::prependValue( const ReosDuration &, 
 
 void ReosTimeSerieVariableTimeStepProvider::insertValue( int, const ReosDuration &, double ) {}
 
+void ReosTimeSerieVariableTimeStepProvider::copy( ReosTimeSerieVariableTimeStepProvider * ) {}
+
 
 ReosTimeSerieVariableTimeStepMemoryProvider::ReosTimeSerieVariableTimeStepMemoryProvider( const QVector<double> &values, const QVector<ReosDuration> &timeValues )
   : mValues( values )
@@ -218,6 +221,7 @@ QDateTime ReosTimeSerieVariableTimeStepMemoryProvider::referenceTime() const
 void ReosTimeSerieVariableTimeStepMemoryProvider::setReferenceTime( const QDateTime &referenceTime )
 {
   mReferenceTime = referenceTime;
+  emit dataChanged();
 }
 
 QString ReosTimeSerieVariableTimeStepMemoryProvider::valueUnit() const {return QString();}
@@ -242,6 +246,11 @@ ReosDuration ReosTimeSerieVariableTimeStepMemoryProvider::lastRelativeTime() con
 void ReosTimeSerieVariableTimeStepMemoryProvider::setRelativeTimeAt( int i, const ReosDuration &relativeTime )
 {
   mTimeValues[i] = relativeTime;
+}
+
+const QVector<ReosDuration> &ReosTimeSerieVariableTimeStepMemoryProvider::constTimeData() const
+{
+  return mTimeValues;
 }
 
 void ReosTimeSerieVariableTimeStepMemoryProvider::appendValue( const ReosDuration &relativeTime, double v )
@@ -272,6 +281,15 @@ void ReosTimeSerieVariableTimeStepMemoryProvider::clear()
 {
   mValues.clear();
   mTimeValues.clear();
+}
+
+void ReosTimeSerieVariableTimeStepMemoryProvider::copy( ReosTimeSerieVariableTimeStepProvider *other )
+{
+  mReferenceTime = other->referenceTime();
+  mValues = other->constData();
+  mTimeValues = other->constTimeData();
+
+  emit dataChanged();
 }
 
 ReosEncodedElement ReosTimeSerieVariableTimeStepMemoryProvider::encode() const

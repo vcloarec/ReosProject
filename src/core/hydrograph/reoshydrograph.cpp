@@ -14,12 +14,22 @@
  ***************************************************************************/
 
 #include "reoshydrograph.h"
+#include "reosmeteorologicmodel.h"
+#include "reosrunoffmodel.h"
+#include "reostransferfunction.h"
+
+#include <QTimer>
 
 
 ReosHydrograph::ReosHydrograph( QObject *parent, const QString &providerKey, const QString &dataSource )
   : ReosTimeSerieVariableTimeStep( parent,
                                    providerKey.isEmpty() ? QStringLiteral( "variable-time-step-memory" ) : providerKey,
                                    dataSource ) {}
+
+void ReosHydrograph::updateData() const
+{
+
+}
 
 
 ReosEncodedElement ReosHydrograph::encode() const
@@ -38,6 +48,16 @@ ReosHydrograph *ReosHydrograph::decode( const ReosEncodedElement &element, QObje
   ret->decodeBase( element );
 
   return ret.release();
+}
+
+void ReosHydrograph::setInputData( ReosDataObject *dataObject )
+{
+  registerUpstreamData( dataObject );
+}
+
+bool ReosHydrograph::hydrographIsObsolete() const
+{
+  return isObsolete();
 }
 
 void ReosHydrographStore::addHydrograph( ReosHydrograph *hydrograph )
@@ -122,3 +142,266 @@ void ReosHydrographStore::decode( const ReosEncodedElement &element )
     mHydrographs.append( ReosHydrograph::decode( ReosEncodedElement( bytes ), this ) );
 
 }
+
+ReosRunoffHydrographStore::ReosRunoffHydrographStore( ReosMeteorologicModelsCollection *meteoModelsCollection,
+    QObject *parent )
+  : ReosHydrographSource( parent )
+  , mMeteoModelsCollection( meteoModelsCollection )
+{
+  connect( mMeteoModelsCollection, &ReosMeteorologicModelsCollection::changed, this, &ReosRunoffHydrographStore::updateStore );
+}
+
+void ReosRunoffHydrographStore::setWatershed( ReosWatershed *watershed )
+{
+  mWatershed = watershed;
+  updateStore();
+}
+
+int ReosRunoffHydrographStore::hydrographCount() const
+{
+  return mMeteoModelToHydrograph.count();
+}
+
+QPointer<ReosHydrograph> ReosRunoffHydrographStore::hydrograph( ReosMeteorologicModel *meteoModel )
+{
+  if ( mMeteoModelToHydrograph.contains( meteoModel ) )
+  {
+    mModelMeteoToUpdate.insert( meteoModel );
+    updateHydrographs( mMeteoModelToHydrograph.value( meteoModel ).hydrograph );
+    return mMeteoModelToHydrograph.value( meteoModel ).hydrograph;
+  }
+
+  return nullptr;
+}
+
+QPointer<ReosRunoff> ReosRunoffHydrographStore::runoff( ReosMeteorologicModel *meteoModel )
+{
+  if ( mMeteoModelToHydrograph.contains( meteoModel ) )
+  {
+    return mMeteoModelToHydrograph.value( meteoModel ).runoff;
+  }
+
+  return nullptr;
+}
+
+void ReosRunoffHydrographStore::updateStore()
+{
+  if ( mWatershed.isNull() || mMeteoModelsCollection.isNull() )
+    mMeteoModelToHydrograph.clear();
+
+  QList<ReosMeteorologicModel *> allModels;
+  QList<ReosMeteorologicModel *> modelToRemove;
+  for ( int i = 0; i < mMeteoModelsCollection->modelCount(); ++i )
+  {
+    ReosMeteorologicModel *model = mMeteoModelsCollection->meteorologicModel( i );
+    allModels.append( model );
+    if ( model->hasRainfall( mWatershed ) )
+    {
+      if ( mMeteoModelToHydrograph.contains( model ) )
+      {
+        HydrographData hydData = mMeteoModelToHydrograph.value( model );
+        ReosSerieRainfall *modelRainfall = model->associatedRainfall( mWatershed );
+        if ( modelRainfall != hydData.rainfall )
+        {
+          deregisterInputData( hydData.rainfall, hydData.hydrograph );
+          hydData.rainfall = modelRainfall;
+          registerInputdata( hydData.rainfall, hydData.hydrograph );
+          hydData.runoff->setRainfall( hydData.rainfall );
+        }
+        mMeteoModelToHydrograph[model] = hydData;
+      }
+      else
+      {
+        HydrographData hydData;
+        hydData.rainfall = model->associatedRainfall( mWatershed );
+        hydData.hydrograph =  new ReosHydrograph( this );
+        hydData.runoff = new ReosRunoff( mWatershed->runoffModels(), hydData.rainfall );
+        mMeteoModelToHydrograph.insert( model, hydData );
+        registerInputdata( model, hydData.hydrograph );
+        registerInputdata( hydData.rainfall, hydData.hydrograph );
+        registerInputdata( mWatershed, hydData.hydrograph );
+      }
+    }
+    else if ( mMeteoModelToHydrograph.contains( model ) )
+    {
+      modelToRemove.append( model );
+    }
+  }
+
+  for ( ReosMeteorologicModel *model : mMeteoModelToHydrograph.keys() )
+    if ( !allModels.contains( model ) && !modelToRemove.contains( model ) )
+      modelToRemove.append( model );
+
+  for ( ReosMeteorologicModel *model : modelToRemove )
+  {
+    delete mMeteoModelToHydrograph.value( model ).hydrograph;
+    delete mMeteoModelToHydrograph.value( model ).runoff;
+    mMeteoModelToHydrograph.remove( model );
+  }
+}
+
+void ReosHydrographSource::registerInputdata( ReosDataObject *input, ReosHydrograph *hydrograph )
+{
+  hydrograph->setObsolete();
+  hydrograph->registerUpstreamData( input );
+
+  QList<QPointer<ReosHydrograph>> hydsPtr;
+
+  if ( mMapInputToHydrographs.contains( input ) )
+    hydsPtr = mMapInputToHydrographs.value( input );
+  else
+    connect( input, &ReosDataObject::dataChanged, this, &ReosHydrographSource::updateHydrographFromSignal );
+
+  if ( !hydsPtr.contains( hydrograph ) )
+    hydsPtr.append( hydrograph );
+  mMapInputToHydrographs[input] = hydsPtr;
+}
+
+void ReosHydrographSource::deregisterInputData( ReosDataObject *input, ReosHydrograph *hydrograph )
+{
+  hydrograph->deregisterUpstreamData( input );
+
+  if ( mMapInputToHydrographs.contains( input ) )
+  {
+    QList<QPointer<ReosHydrograph>> hydsPtr = mMapInputToHydrographs.value( input );
+    if ( hydsPtr.contains( hydrograph ) )
+      hydsPtr.removeOne( hydrograph );
+
+    if ( hydsPtr.isEmpty() )
+    {
+      disconnect( input, &ReosDataObject::dataChanged, this, &ReosHydrographSource::updateHydrographFromSignal );
+      mMapInputToHydrographs.remove( input );
+    }
+    else
+      mMapInputToHydrographs[input] = hydsPtr;
+  }
+
+}
+
+void ReosHydrographSource::updateHydrographFromSignal()
+{
+  ReosDataObject *senderData = qobject_cast<ReosDataObject *>( sender() );
+  if ( senderData )
+  {
+    if ( mMapInputToHydrographs.contains( senderData ) )
+    {
+      const QList<QPointer<ReosHydrograph>> hydsPtr = mMapInputToHydrographs.value( senderData );
+      QList<QPointer<ReosHydrograph>> hydsToUpdate;
+
+      for ( QPointer<ReosHydrograph> hydPtr : hydsPtr )
+      {
+        if ( !hydPtr.isNull() )
+        {
+          updateHydrographs( hydPtr );
+        }
+      }
+    }
+  }
+}
+
+void ReosHydrographSource::updateHydrographs( ReosHydrograph * ) {}
+
+void ReosHydrographSource::onInputDataDestroy()
+{
+  ReosDataObject *senderData = qobject_cast<ReosDataObject *>( sender() );
+  if ( senderData )
+  {
+    mMapInputToHydrographs.remove( senderData );
+  }
+}
+
+void ReosRunoffHydrographStore::updateHydrographs( ReosHydrograph *hyd )
+{
+  const QList<ReosMeteorologicModel *> keys = mMeteoModelToHydrograph.keys();
+  for ( ReosMeteorologicModel *meteoModel : keys )
+  {
+    HydrographData hydData = mMeteoModelToHydrograph.value( meteoModel );
+    if ( hyd == hydData.hydrograph )
+    {
+      //check if the rainfall is still the same
+      ReosSerieRainfall *modelRainfall = meteoModel->associatedRainfall( mWatershed );
+      if ( hydData.rainfall != modelRainfall )
+      {
+        hydData.runoff->setRainfall( modelRainfall );
+        hydData.rainfall = modelRainfall;
+        mMeteoModelToHydrograph[meteoModel] = hydData;
+      }
+
+      mModelMeteoToUpdate.insert( meteoModel );
+
+      if ( mHydrographCalculation.contains( meteoModel ) )
+        continue;
+      else
+        mModelMeteoToUpdate.insert( meteoModel );
+    }
+  }
+
+  if ( mCalculationCanBeLaunch && !mModelMeteoToUpdate.isEmpty() )
+  {
+    // first, we invoke a lambda function that prepare the calculation once we come back to the event loop
+    // this is because we are sure that all data objects related to the calculation will be set obsolete only when we are back in the event loop
+    // this is due to the propogation of signals
+    QMetaObject::invokeMethod( this, [this]
+    {
+      ReosTransferFunction *function = nullptr;
+      if ( mWatershed )
+        function = mWatershed->currentTransferFunction();
+      if ( !function )
+        return;
+
+      for ( ReosMeteorologicModel *model : mModelMeteoToUpdate )
+      {
+        HydrographData hydData;
+        if ( mMeteoModelToHydrograph.contains( model ) )
+          hydData = mMeteoModelToHydrograph.value( model );
+
+        ReosHydrograph *hydro = hydData.hydrograph;
+
+        if ( !hydro || !hydro->hydrographIsObsolete() )
+        {
+          emit hydrographReady( hydro );
+          continue;
+        }
+
+        hydro->clear();
+
+        ReosTransferFunctionCalculation *hydrographCalculation = function->calculationProcess( hydData.runoff );
+        mHydrographCalculation.insert( model, hydrographCalculation );
+
+        connect( hydrographCalculation, &ReosTransferFunctionCalculation::hydrographReady, this, [this, model, hydrographCalculation]( ReosHydrograph * result )
+        {
+          if ( mMeteoModelToHydrograph.contains( model ) )
+          {
+            mMeteoModelToHydrograph.value( model ).hydrograph->copyFrom( result );
+            emit hydrographReady( mMeteoModelToHydrograph.value( model ).hydrograph );
+          }
+          hydrographCalculation->deleteLater();
+
+        } );
+      }
+
+      mModelMeteoToUpdate.clear();
+    }, Qt::QueuedConnection );
+
+    // second, we invoke a lambda function that will be execute the calculation once we come back to the event loop
+    // this is because we are sure all data object related to the calculation will be set updated only when we are back in the event loop
+    // this is due to the propogation of signals
+    QMetaObject::invokeMethod( this, [this]
+    {
+      if ( !mHydrographCalculation.isEmpty() )
+      {
+        for ( ReosTransferFunctionCalculation *calculation : mHydrographCalculation )
+          calculation->startOnOtherThread();
+        updateCount++;
+        mHydrographCalculation.clear();
+      }
+
+      mCalculationCanBeLaunch = true;
+
+    }, Qt::QueuedConnection );
+
+    mCalculationCanBeLaunch = false;
+  }
+}
+
+

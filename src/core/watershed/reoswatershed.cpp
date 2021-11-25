@@ -88,15 +88,15 @@ ReosWatershed::ReosWatershed( const QPolygonF &delineating,
   mRasterizedWatershedData.insert( {refLayerId, rw} );
 }
 
-ReosParameterString *ReosWatershed::name() const
+ReosParameterString *ReosWatershed::watershedName() const
 {
   return mName;
 }
 
-void ReosWatershed::setName( const QString &name )
+void ReosWatershed::setWatershedName( const QString &name )
 {
   mName->setValue( name );
-  emit changed();
+  emit dataChanged();
 }
 
 ReosMapExtent ReosWatershed::extent() const
@@ -166,7 +166,7 @@ void ReosWatershed::setDelineating( const QPolygonF &del )
     mType = Manual;
   blockSignals( false );
 
-  emit changed();
+  emit dataChanged();
 }
 
 QPointF ReosWatershed::outletPoint() const
@@ -183,7 +183,7 @@ void ReosWatershed::setOutletPoint( const QPointF &outletPoint )
     return;
 
   mOutletPoint = outletPoint;
-  emit changed();
+  emit dataChanged();
 }
 
 int ReosWatershed::upstreamWatershedCount() const
@@ -224,12 +224,12 @@ ReosWatershed *ReosWatershed::addUpstreamWatershed( ReosWatershed *newUpstreamWa
   // Look if the added watershed is in a sub watershed
   for ( std::unique_ptr<ReosWatershed> &existingUpstream : mUpstreamWatersheds )
   {
-    if ( existingUpstream->contain( op ) && existingUpstream->type() != Residual )
+    if ( existingUpstream->contain( op ) && existingUpstream->watershedType() != Residual )
       return existingUpstream->addUpstreamWatershed( ws.release(), adjustIfNeeded ); // let the existing watershed dealing with the new one
   }
 
-  if ( !ws->name()->isValid() && name()->isValid() )
-    ws->setName( name()->value().append( "-%1" ).arg( mUpstreamWatersheds.size() + ( mUpstreamWatersheds.empty() ? 1 : 0 ) ) );
+  if ( !ws->watershedName()->isValid() && watershedName()->isValid() )
+    ws->setWatershedName( watershedName()->value().append( "-%1" ).arg( mUpstreamWatersheds.size() + ( mUpstreamWatersheds.empty() ? 1 : 0 ) ) );
 
   ws->mDownstreamWatershed = this;
   if ( adjustIfNeeded )
@@ -298,7 +298,7 @@ ReosWatershed *ReosWatershed::upstreamWatershed( const QPolygonF &line, bool &ok
   for ( const std::unique_ptr<ReosWatershed> &watershed : mUpstreamWatersheds )
   {
     assert( watershed );
-    if ( watershed->type() == Residual )
+    if ( watershed->watershedType() == Residual )
       continue;
     switch ( watershed->contain( line ) )
     {
@@ -334,7 +334,7 @@ ReosWatershed *ReosWatershed::upstreamWatershed( const QPointF &point, bool excl
     return nullptr;
   for ( const std::unique_ptr<ReosWatershed> &uws : mUpstreamWatersheds )
   {
-    if ( uws->contain( point ) && ( uws->type() != Residual || !excludeResidual ) )
+    if ( uws->contain( point ) && ( uws->watershedType() != Residual || !excludeResidual ) )
     {
       ReosWatershed *ret = uws->upstreamWatershed( point, excludeResidual );
       if ( !ret )
@@ -401,7 +401,7 @@ void ReosWatershed::fitIn( const ReosWatershed &other )
   //remove intersection with other sub watershed
   for ( const std::unique_ptr<ReosWatershed> &sibling : mUpstreamWatersheds )
   {
-    if ( sibling->type() != Residual )
+    if ( sibling->watershedType() != Residual )
       adjust( *sibling.get() );
   }
 }
@@ -432,7 +432,7 @@ QPolygonF ReosWatershed::streamPath() const
 void ReosWatershed::setStreamPath( const QPolygonF &streamPath )
 {
   mStreamPath = streamPath;
-  emit changed();
+  emit dataChanged();
 }
 
 ReosWatershed *ReosWatershed::residualWatershed() const
@@ -455,7 +455,7 @@ void ReosWatershed::setProfile( const QPolygonF &profile )
   mDrop->updateIfNecessary();
   mLongestStreamPath->updateIfNecessary();
 
-  emit changed();
+  emit dataChanged();
 }
 
 void ReosWatershed::setGeographicalContext( ReosGisEngine *gisEngine )
@@ -788,10 +788,10 @@ void ReosWatershed::init()
   mConcentrationTimeValue = new ReosParameterDuration( tr( "Concentration time" ), true, this );
 
   mRunoffModels = new ReosRunoffModelsGroup( this );
-  connect( mRunoffModels, &ReosRunoffModelsGroup::dataChanged, this, &ReosWatershed::changed );
+  connect( mRunoffModels, &ReosRunoffModelsGroup::dataChanged, this, &ReosDataObject::dataChanged );
 
   mGaugedHydrographs = new ReosHydrographStore( this );
-  connect( mGaugedHydrographs, &ReosHydrographStore::dataChanged, this, &ReosWatershed::changed );
+  connect( mGaugedHydrographs, &ReosHydrographStore::dataChanged, this, &ReosDataObject::dataChanged );
 
   connectParameters();
 }
@@ -815,12 +815,12 @@ void ReosWatershed::connectParameters()
 
 
   // Propagate change outside the watershed
-  connect( mArea, &ReosParameter::valueChanged, this, &ReosWatershed::changed );
-  connect( mSlope, &ReosParameter::valueChanged, this, &ReosWatershed::changed );
-  connect( mDrop, &ReosParameter::valueChanged, this, &ReosWatershed::changed );
-  connect( mLongestStreamPath, &ReosParameter::valueChanged, this, &ReosWatershed::changed );
-  connect( mAverageElevation, &ReosParameter::valueChanged, this, &ReosWatershed::changed );
-  connect( mConcentrationTimeValue, &ReosParameterDuration::valueChanged, this, &ReosWatershed::changed );
+  connect( mArea, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+  connect( mSlope, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+  connect( mDrop, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+  connect( mLongestStreamPath, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+  connect( mAverageElevation, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+  connect( mConcentrationTimeValue, &ReosParameterDuration::valueChanged, this, &ReosDataObject::dataChanged );
 }
 
 QPolygonF ReosWatershed::downstreamLine() const
@@ -833,13 +833,13 @@ void ReosWatershed::updateResidual()
   if ( mUpstreamWatersheds.empty() )
     return;
 
-  if ( mUpstreamWatersheds.size() == 1 &&  mUpstreamWatersheds.at( 0 )->type() == ReosWatershed::Residual )
+  if ( mUpstreamWatersheds.size() == 1 &&  mUpstreamWatersheds.at( 0 )->watershedType() == ReosWatershed::Residual )
   {
     mUpstreamWatersheds.clear(); //only one, the residual completly alone --> remove
     return;
   }
 
-  if ( mUpstreamWatersheds.at( 0 )->type() != ReosWatershed::Residual )
+  if ( mUpstreamWatersheds.at( 0 )->watershedType() != ReosWatershed::Residual )
   {
     mUpstreamWatersheds.emplace( mUpstreamWatersheds.begin(), new ReosWatershed( QPolygonF(), QPointF(), Residual ) );
     mUpstreamWatersheds[0]->mDownstreamWatershed = this;
@@ -984,9 +984,9 @@ void ReosWatershed::calculateAverageElevation()
   dem.reset( gisEngine->getTopDigitalElevationModel() );
 
   if ( !dem )
-    gisEngine->error( tr( "Unable to calculate average elevation for watershed \"%1\" : no DEM available" ).arg( name()->value() ) );
+    gisEngine->error( tr( "Unable to calculate average elevation for watershed \"%1\" : no DEM available" ).arg( watershedName()->value() ) );
   else
-    gisEngine->message( tr( "Average elevation calculation for watershed \"%1\" with DEM \"%2\"" ).arg( name()->value(), gisEngine->layerName( dem->source() ) ) );
+    gisEngine->message( tr( "Average elevation calculation for watershed \"%1\" with DEM \"%2\"" ).arg( watershedName()->value(), gisEngine->layerName( dem->source() ) ) );
 
   double gridResult = 0;
 
@@ -1096,5 +1096,9 @@ void ReosWatershed::setCurrentTransferFunction( const QString &type )
       mTransferFunctions[type] = ReosTransferFunctionFactories::instance()->createTransferFunction( type, this );
   }
 
-  mCurrentTransferFuntion = type;
+  if ( type != mCurrentTransferFuntion )
+  {
+    mCurrentTransferFuntion = type;
+    emit dataChanged();
+  }
 }

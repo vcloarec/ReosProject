@@ -41,7 +41,7 @@ class ReosDelftFewsXMLProvider
     static QDateTime endTimeFromUri( const QString &uri );
     static QDateTime startTimeFromUri( const QString &uri );
 
-    QDomElement seriesElement( const QString &uri, QDomDocument &document, QString &noData ) const;
+    QDomElement seriesElement( const QString &uri, QDomDocument &document ) const;
 
   private:
     QVariantMap mMeta;
@@ -95,6 +95,7 @@ class ReosDelftFewsXMLHydrographProvider: public ReosTimeSerieVariableTimeStepPr
     double lastValue() const override;
     double *data() override;
     const QVector<double> &constData() const override;
+    const QVector<ReosDuration> &constTimeData() const;
     ReosEncodedElement encode() const override;
     void decode( const ReosEncodedElement &element ) override;
 

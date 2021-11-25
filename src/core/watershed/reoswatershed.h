@@ -36,7 +36,7 @@ class ReosTransferFunction;
 class ReosSerieRainfall;
 class ReosHydrograph;
 
-class REOSCORE_EXPORT ReosWatershed: public QObject
+class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
 {
     Q_OBJECT
   public:
@@ -76,13 +76,13 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
                    const ReosRasterExtent &rasterExtent,
                    const QString &refLayerId );
 
-    Type type() const {return mType;}
+    Type watershedType() const {return mType;}
 
     //! Returns the name of the watershed
-    ReosParameterString *name() const;
+    ReosParameterString *watershedName() const;
 
     //! Sets the name of the watershed
-    void setName( const QString &name );
+    void setWatershedName( const QString &name );
 
     //! Returns the extent of the watershed
     ReosMapExtent extent() const;
@@ -232,9 +232,6 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
 
     //! Return a pointer to the gauged hydrographs store of this watershed
     ReosHydrographStore *gaugedHydrographs() const;
-
-  signals:
-    void changed();
 
   public slots:
     void calculateArea();

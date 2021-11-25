@@ -59,7 +59,7 @@ void ReosUniqueIdfCurveSyntheticRainfall::setIntensityDurationCurve( ReosIntensi
 
   mIntensityDurationCurve = intensityDurationCurve;
 
-  registerUpsteamData( mIntensityDurationCurve );
+  registerUpstreamData( mIntensityDurationCurve );
   setObsolete();
 
   if ( !intensityDurationUid.isEmpty() )
@@ -261,8 +261,8 @@ void ReosDoubleTriangleRainfall::setIntensityDurationCurve( ReosIntensityDuratio
   mIntensityDurationCurveIntense = intensityDurationCurveIntense;
   mIntensityDurationCurveTotal = intensityDurationCurveTotal;
 
-  registerUpsteamData( mIntensityDurationCurveIntense );
-  registerUpsteamData( mIntensityDurationCurveTotal );
+  registerUpstreamData( mIntensityDurationCurveIntense );
+  registerUpstreamData( mIntensityDurationCurveTotal );
 
   setObsolete();
 

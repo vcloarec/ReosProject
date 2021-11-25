@@ -40,7 +40,7 @@ void ReosDataObject::setName( const QString &name )
   mName = name;
 }
 
-void ReosDataObject::registerUpsteamData( ReosDataObject *data )
+void ReosDataObject::registerUpstreamData( ReosDataObject *data )
 {
   connect( data, &ReosDataObject::dataChanged, this, &ReosDataObject::setObsolete );
 }
@@ -58,7 +58,7 @@ void ReosDataObject::setActualized() const
 void ReosDataObject::setObsolete()
 {
   mIsObsolete = true;
-  emit dataChanged();
+  //emit dataChanged();
 }
 
 bool ReosDataObject::isObsolete() const

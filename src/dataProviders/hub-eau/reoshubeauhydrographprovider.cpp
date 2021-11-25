@@ -57,6 +57,11 @@ void ReosHubEauHydrographProvider::load()
 
 double *ReosHubEauHydrographProvider::data() {return mCachedValues.data();}
 
+const QVector<ReosDuration> &ReosHubEauHydrographProvider::constTimeData() const
+{
+  return mCachedTimeValues;
+}
+
 const QVector<double> &ReosHubEauHydrographProvider::constData() const {return mCachedValues;}
 
 ReosEncodedElement ReosHubEauHydrographProvider::encode() const

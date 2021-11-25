@@ -203,12 +203,12 @@ void ReosWatershedWidget::onRemoveWatershed()
 
   ReosWatershed *ws = mModelWatershed->indexToWatershed( currentIndex );
 
-  if ( !ws || ws->type() == ReosWatershed::Residual )
+  if ( !ws || ws->watershedType() == ReosWatershed::Residual )
     return;
 
   ReosWatershed *wsResid = ws->residualWatershed();
 
-  if ( QMessageBox::warning( this, tr( "Removing watershed" ), tr( "Do you want to remove the current watershed '%1'?" ).arg( ws->name()->value() ),
+  if ( QMessageBox::warning( this, tr( "Removing watershed" ), tr( "Do you want to remove the current watershed '%1'?" ).arg( ws->watershedName()->value() ),
                              QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::No )
     return;
 
@@ -256,7 +256,7 @@ void ReosWatershedWidget::onCurrentWatershedChange( const QItemSelection &select
     currentWatershed = mModelWatershed->indexToWatershed( currentIndex );
   }
 
-  mActionRemoveWatershed->setEnabled( currentWatershed && currentWatershed->type() != ReosWatershed::Residual );
+  mActionRemoveWatershed->setEnabled( currentWatershed && currentWatershed->watershedType() != ReosWatershed::Residual );
 
   ReosWatershed *previousWatershed = nullptr;
   if ( deselected.indexes().count() > 0 )
@@ -271,7 +271,7 @@ void ReosWatershedWidget::onCurrentWatershedChange( const QItemSelection &select
   it = mMapWatersheds.find( currentWatershed );
   if ( it != mMapWatersheds.end() )
   {
-    if ( currentWatershed->type() == ReosWatershed::Residual ) //update the delineating that could be changed if watershed was added
+    if ( currentWatershed->watershedType() == ReosWatershed::Residual ) //update the delineating that could be changed if watershed was added
       it.value().delineating->resetPolygon( currentWatershed->delineating() );
     formatSelectedWatershed( it.value() );
     mMapToolEditDelineating->setMapPolygon( it.value().delineating.get() );
@@ -287,7 +287,7 @@ void ReosWatershedWidget::onCurrentWatershedChange( const QItemSelection &select
 
   if ( currentWatershed )
   {
-    ui->mParameterNameWidget->setString( currentWatershed->name() );
+    ui->mParameterNameWidget->setString( currentWatershed->watershedName() );
     ui->mParameterAreaWidget->setArea( currentWatershed->area() );
     ui->mParameterSlopeWidget->setSlope( currentWatershed->slope() );
     ui->mParameterAverageElevationWidget->setDouble( currentWatershed->averageElevation() );
@@ -318,7 +318,7 @@ void ReosWatershedWidget::onTreeViewContextMenu( const QPoint &pos )
   contextMenu.addAction( mActionLongitudinalProfile );
   contextMenu.addAction( mActionConcentrationTime );
   contextMenu.addAction( mActionRunoffHydrograph );
-  if ( ws->type() != ReosWatershed::Residual )
+  if ( ws->watershedType() != ReosWatershed::Residual )
     contextMenu.addAction( mActionRemoveWatershed );
 
   contextMenu.exec( ui->treeView->viewport()->mapToGlobal( pos ) );

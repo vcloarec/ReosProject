@@ -129,7 +129,7 @@ ReosLongitudinalProfileWidget::~ReosLongitudinalProfileWidget()
 void ReosLongitudinalProfileWidget::setCurrentWatershed( ReosWatershed *ws )
 {
   if ( ws )
-    ui->mLabelWatershedName->setText( ws->name()->value() );
+    ui->mLabelWatershedName->setText( ws->watershedName()->value() );
 
   mCurrentWatershed = ws;
 

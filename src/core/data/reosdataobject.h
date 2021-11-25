@@ -51,7 +51,7 @@ class REOSCORE_EXPORT ReosDataObject: public QObject
     void settingsChanged();
 
   protected:
-    void registerUpsteamData( ReosDataObject *data );
+    void registerUpstreamData( ReosDataObject *data );
     void deregisterUpstreamData( ReosDataObject *data );
     void setActualized() const;
 

@@ -103,7 +103,7 @@ void ReosMeteorologicModel::disassociate( ReosWatershed *watershed )
   emit dataChanged();
 }
 
-ReosRainfallSerieRainfallItem *ReosMeteorologicModel::associatedRainfall( ReosWatershed *watershed ) const
+ReosRainfallSerieRainfallItem *ReosMeteorologicModel::associatedRainfallItem( ReosWatershed *watershed ) const
 {
   int watershedIndex = findWatershed( watershed );
 
@@ -111,6 +111,32 @@ ReosRainfallSerieRainfallItem *ReosMeteorologicModel::associatedRainfall( ReosWa
     return mAssociations.at( watershedIndex ).second;
   else
     return nullptr;
+}
+
+ReosSerieRainfall *ReosMeteorologicModel::associatedRainfall( ReosWatershed *watershed ) const
+{
+  int watershedIndex = findWatershed( watershed );
+
+  if ( watershedIndex >= 0 )
+  {
+    ReosRainfallSerieRainfallItem *rainfallItem = mAssociations.at( watershedIndex ).second;
+    if ( rainfallItem )
+      return rainfallItem->data();
+  }
+
+  return nullptr;
+}
+
+bool ReosMeteorologicModel::hasRainfall( ReosWatershed *watershed ) const
+{
+  if ( !watershed )
+    return false;
+
+  for ( const WatershedRainfallAssociation &as : mAssociations )
+    if ( as.first.data() == watershed && !as.second.isNull() )
+      return true;
+
+  return false;
 }
 
 int ReosMeteorologicModel::findWatershed( ReosWatershed *watershed ) const
@@ -159,7 +185,7 @@ QVariant ReosMeteorologicItemModel::data( const QModelIndex &index, int role ) c
   if ( index.column() == 1 )
   {
     ReosWatershed *ws = mWatershedModel->indexToWatershed( mapToSource( index ) );
-    ReosRainfallSerieRainfallItem *rainfall = mCurrentMeteoModel->associatedRainfall( ws );
+    ReosRainfallSerieRainfallItem *rainfall = mCurrentMeteoModel->associatedRainfallItem( ws );
     if ( role == Qt::DisplayRole )
     {
       if ( rainfall )
@@ -269,7 +295,7 @@ ReosRainfallSerieRainfallItem *ReosMeteorologicItemModel::rainfallInMeteorologic
   if ( !mCurrentMeteoModel )
     return nullptr;
   ReosWatershed *ws = mWatershedModel->indexToWatershed( mapToSource( index ) );
-  return mCurrentMeteoModel->associatedRainfall( ws );
+  return mCurrentMeteoModel->associatedRainfallItem( ws );
 }
 
 ReosMeteorologicModelsCollection::ReosMeteorologicModelsCollection( QObject *parent ): QAbstractListModel( parent )
@@ -343,6 +369,7 @@ void ReosMeteorologicModelsCollection::removeMeteorologicModel( int i )
   beginRemoveRows( QModelIndex(), i, i );
   mMeteoModels.takeAt( i )->deleteLater();
   endRemoveRows();
+  emit changed();
 }
 
 void ReosMeteorologicModelsCollection::clearModels()

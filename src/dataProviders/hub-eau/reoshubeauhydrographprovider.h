@@ -43,6 +43,7 @@ class ReosHubEauHydrographProvider : public ReosTimeSerieVariableTimeStepProvide
     double lastValue() const override;
     void load() override;
     double *data() override;
+    const QVector<ReosDuration> &constTimeData() const override;
     const QVector<double> &constData() const override;
     ReosEncodedElement encode() const override;
     void decode( const ReosEncodedElement &element ) override;
@@ -77,6 +78,7 @@ class ReosHubEauHydrographProvider : public ReosTimeSerieVariableTimeStepProvide
     QVector<double> mCachedValues;
     QVector<ReosDuration> mCachedTimeValues;
     Status mStatus = Status::Loaded;
+
 };
 
 class ReosHubEauHydrographProviderFactory: public ReosDataProviderFactory
