@@ -328,7 +328,8 @@ void ReosRunoffHydrographWidget::updateResultData()
   if ( mCurrentMeteoModel && mCurrentWatershed )
   {
     rainfall = mCurrentMeteoModel->associatedRainfallItem( mCurrentWatershed );
-    mRunoffResultTabModel->addTimeSerie( rainfall->data(), tr( "Rainfall %1" ).arg( rainfall->data()->unitStringCurrentMode() ) );
+    if ( rainfall && rainfall->data() )
+      mRunoffResultTabModel->addTimeSerie( rainfall->data(), tr( "Rainfall %1" ).arg( rainfall->data()->unitStringCurrentMode() ) );
   }
 
   if ( mCurrentRunoff )

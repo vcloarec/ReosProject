@@ -70,6 +70,8 @@ class ReosPlotItem: public QObject
     void setVisible( bool isVisible, bool replot = true );
     bool isVisible() const;
 
+    void setLegendActive( bool legendActive, bool updateLegend = true );
+
     virtual QColor color() const {return QColor();}
     virtual QPixmap icone( const QSize &size ) const;
 

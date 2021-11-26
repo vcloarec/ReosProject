@@ -94,8 +94,7 @@ bool ReosPlotItemListModel::setData( const QModelIndex &index, const QVariant &v
     else if ( value == Qt::CheckState::Unchecked )
       mPlot[index.row()] = std::make_tuple( std::get<0>( mPlot[index.row() ] ), std::get<1>( mPlot[index.row() ] ), false );
 
-    qDebug() << std::get<2>( mPlot.at( index.row() ) );
-    std::get<0>( mPlot.at( index.row() ) )->setVisible( mGlobalVisibilty && std::get<2>( mPlot.at( index.row() ) ) );
+    updateItemVisibility( index.row(), true );
     return true;
   }
 
@@ -112,7 +111,7 @@ ReosPlotItem *ReosPlotItemListModel::addData( ReosTimeSerieVariableTimeStep *dat
   std::unique_ptr<ReosPlotItem> item( ReosPlotItemFactories::instance()->buildPlotItem( mPlotWidget, data ) );
   mPlot.append( {item.get(), data, true} );
   mPlotWidget->addPlotItem( item.get() );
-  item->setVisible( mGlobalVisibilty );
+  updateItemVisibility( mPlot.count() - 1, true );
   endResetModel();
   return item.release();
 }
@@ -137,12 +136,18 @@ void ReosPlotItemListModel::setGlobalVisibilty( bool globalVisibilty )
   mGlobalVisibilty = globalVisibilty;
   for ( int i = 0; i < mPlot.count() - 1; ++i )
   {
-    std::get<0>( mPlot.at( i ) )->setVisible( mGlobalVisibilty && std::get<2>( mPlot.at( i ) ), false );
-    std::get<0>( mPlot.at( i ) )->setVisible( mGlobalVisibilty && std::get<2>( mPlot.at( i ) ), false );
+    updateItemVisibility( i, false );
   }
 
   if ( !mPlot.isEmpty() )
-    std::get<0>( mPlot.last() )->setVisible( mGlobalVisibilty && std::get<2>( mPlot.last() ) );
+    updateItemVisibility( mPlot.count() - 1, true );
+}
+
+void ReosPlotItemListModel::updateItemVisibility( int itemIndex, bool replot )
+{
+  bool  isVisible = mGlobalVisibilty && std::get<2>( mPlot.at( itemIndex ) );
+  std::get<0>( mPlot.at( itemIndex ) )->setLegendActive( isVisible );
+  std::get<0>( mPlot.at( itemIndex ) )->setVisible( isVisible, replot );
 }
 
 
