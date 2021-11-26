@@ -416,6 +416,14 @@ void ReosPlotItem::setLegendActive( bool legendActive, bool updateLegend )
   }
 }
 
+void ReosPlotItem::setZ( double z )
+{
+  if ( mPlotItem )
+  {
+    mPlotItem->setZ( z );
+  }
+}
+
 void ReosPlotItem::setColor( const QColor & ) {}
 
 void ReosPlotItem::setStyle( Qt::PenStyle ) {}

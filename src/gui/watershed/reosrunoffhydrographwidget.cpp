@@ -45,7 +45,8 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *wat
 
   ReosPlotItemFactories::instance()->addFactory( new ReosHydrographPlotFactory );
 
-  mGaugedHydrographButton = new ReosVariableTimeStepPlotListButton( tr( "Gauged hydrographs" ), ui->widgetPlot );
+  mGaugedHydrographButton = new ReosVariableTimeStepPlotListButton( tr( "Gauged Hydrographs" ), ui->widgetPlot );
+  mOtherRunoffHydrographButton = new ReosVariableTimeStepPlotListButton( tr( "Other Meteo Model" ), ui->widgetPlot );
 
   ui->tableViewRunoff->setModel( mWatershedRunoffModelsModel );
   ui->tableViewRunoff->horizontalHeader()->setSectionResizeMode( 0, QHeaderView::Interactive );
@@ -59,11 +60,14 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *wat
   mRainfallHistogram->setBorderColor( Qt::blue );
   mRainfallHistogram->setBrushStyle( Qt::NoBrush );
   mRainfallHistogram->setBorderWdidth( 1.5 );
+  mRainfallHistogram->setZ( 25 );
   mRunoffHistogram = new ReosPlotTimeHistogram( tr( "Runoff" ), false );
   mRunoffHistogram->setBrushColor( QColor( 250, 150, 0, 175 ) );
+  mRainfallHistogram->setZ( 30 );
   mHydrographCurve = new ReosPlotTimeSerieVariableStep( tr( "Result hydrograph" ) );
   mHydrographCurve->setOnRightAxe();
   mHydrographCurve->setColor( Qt::red );
+  mHydrographCurve->setZ( 35 );
   ui->widgetPlot->addPlotItem( mRainfallHistogram );
   ui->widgetPlot->addPlotItem( mRunoffHistogram );
   ui->widgetPlot->addPlotItem( mHydrographCurve );
@@ -169,7 +173,6 @@ void ReosRunoffHydrographWidget::setCurrentWatershed( ReosWatershed *watershed )
   }
 
   updateRainfall();
-  updateResultData();
 }
 
 void ReosRunoffHydrographWidget::setCurrentMeteorologicModel( int index )
@@ -190,7 +193,7 @@ void ReosRunoffHydrographWidget::onModelMeteoChanged()
   }
 
   updateRainfall();
-  updateResultData();
+
 }
 
 void ReosRunoffHydrographWidget::onRunoffTableViewContextMenu( const QPoint &pos )
@@ -312,6 +315,9 @@ void ReosRunoffHydrographWidget::updateRainfall()
     mRainfallHistogram->setTimeSerie( nullptr );
     ui->labelRainfAllInfo->setText( QString() );
   }
+
+  updateResultData();
+  updateOtherRunoffHydrograph();
 }
 
 void ReosRunoffHydrographWidget::updateResultData()
@@ -345,7 +351,7 @@ void ReosRunoffHydrographWidget::updateResultData()
   if ( mCurrentHydrograph )
     mHydrographCurve->setName( mCurrentHydrograph->name() );
 
-  mHydrographCurve->setTimeSerie( mCurrentHydrograph );
+  mHydrographCurve->setTimeSerie( mCurrentHydrograph, false, false );
 }
 
 
@@ -489,8 +495,8 @@ void ReosRunoffHydrographWidget::updateGaugedHydrograph()
 
   if ( mCurrentWatershed )
   {
-    QList<ReosHydrograph *> gaugedHydragraphs = mCurrentWatershed->gaugedHydrographs()->hydrographsForTimeRange( startTime, endTime );
-    for ( ReosHydrograph *hyd : std::as_const( gaugedHydragraphs ) )
+    QList<ReosHydrograph *> gaugedHydrographs = mCurrentWatershed->gaugedHydrographs()->hydrographsForTimeRange( startTime, endTime );
+    for ( ReosHydrograph *hyd : std::as_const( gaugedHydrographs ) )
     {
       ReosPlotItem *itemPlot = mGaugedHydrographButton->addData( hyd );
       if ( itemPlot )
@@ -499,6 +505,37 @@ void ReosRunoffHydrographWidget::updateGaugedHydrograph()
         itemPlot->setOnRightAxe();
         itemPlot->setStyle( Qt::DotLine );
         itemPlot->setWidth( 2 );
+        itemPlot->setZ( 15 );
+      }
+    }
+  }
+}
+
+void ReosRunoffHydrographWidget::updateOtherRunoffHydrograph()
+{
+  mOtherRunoffHydrographButton->clear();
+
+  if ( mCurrentWatershed &&  mWatershedModule &&  mWatershedModule->meteoModelsCollection() )
+  {
+    ReosMeteorologicModelsCollection *meteoCollection = mWatershedModule->meteoModelsCollection();
+
+    for ( int i = 0; i < meteoCollection->modelCount(); ++i )
+    {
+      ReosMeteorologicModel *model = meteoCollection->meteorologicModel( i );
+      if ( model == mCurrentMeteoModel )
+        continue;
+
+      ReosHydrograph *hyd = mRunoffHydrographStore->hydrograph( model );
+      if ( hyd )
+      {
+        ReosPlotItem *itemPlot = mOtherRunoffHydrographButton->addData( hyd );
+        if ( itemPlot )
+        {
+          itemPlot->setAutoScale( false );
+          itemPlot->setOnRightAxe();
+          itemPlot->setWidth( 2 );
+          itemPlot->setZ( 20 );
+        }
       }
     }
   }

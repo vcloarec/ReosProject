@@ -168,16 +168,19 @@ ReosVariableTimeStepPlotListButton::ReosVariableTimeStepPlotListButton( const QS
 
   setVisible( true );
   setCheckable( true );
+  setEnabled( false );
 }
 
 ReosPlotItem *ReosVariableTimeStepPlotListButton::addData( ReosTimeSerieVariableTimeStep *data )
 {
+  setEnabled( true );
   return mView->addData( data );
 }
 
 void ReosVariableTimeStepPlotListButton::clear()
 {
   mView->clear();
+  setEnabled( false );
 }
 
 ReosVariableTimeStepPlotListView::ReosVariableTimeStepPlotListView( ReosPlotWidget *plotWidget, QWidget *parent ): QListView( parent )

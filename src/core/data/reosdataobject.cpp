@@ -58,7 +58,6 @@ void ReosDataObject::setActualized() const
 void ReosDataObject::setObsolete()
 {
   mIsObsolete = true;
-  //emit dataChanged();
 }
 
 bool ReosDataObject::isObsolete() const

@@ -215,6 +215,11 @@ void ReosRunoffHydrographStore::updateStore()
         HydrographData hydData;
         hydData.rainfall = model->associatedRainfall( mWatershed );
         hydData.hydrograph =  new ReosHydrograph( this );
+        if ( model->color().isValid() )
+        {
+          hydData.hydrograph->setColor( model->color() );
+        }
+        connect( hydData.hydrograph, &ReosHydrograph::colorChanged, model, &ReosMeteorologicModel::setColor );
         hydData.hydrograph->setName( tr( "%1 hydrograph" ).arg( model->name()->value() ) );
         hydData.runoff = new ReosRunoff( mWatershed->runoffModels(), hydData.rainfall );
         mMeteoModelToHydrograph.insert( model, hydData );

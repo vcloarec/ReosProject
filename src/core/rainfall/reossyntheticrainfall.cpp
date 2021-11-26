@@ -183,6 +183,9 @@ void ReosUniqueIdfCurveSyntheticRainfall::connectParameters()
   connect( timeStepParameter(), &ReosParameter::valueChanged, this, &ReosUniqueIdfCurveSyntheticRainfall::setObsolete );
   connect( mTotalDuration, &ReosParameter::valueChanged, this, &ReosUniqueIdfCurveSyntheticRainfall::setObsolete );
   connect( mCenterCoefficient, &ReosParameter::valueChanged, this, &ReosUniqueIdfCurveSyntheticRainfall::setObsolete );
+
+  connect( mTotalDuration, &ReosParameter::valueChanged, this, &ReosUniqueIdfCurveSyntheticRainfall::dataChanged );
+  connect( mCenterCoefficient, &ReosParameter::valueChanged, this, &ReosUniqueIdfCurveSyntheticRainfall::dataChanged );
 }
 
 QString ReosUniqueIdfCurveSyntheticRainfall::intensityDurationUid() const
@@ -399,6 +402,10 @@ void ReosDoubleTriangleRainfall::connectParameters()
   connect( mIntenseDuration, &ReosParameter::valueChanged, this, &ReosDoubleTriangleRainfall::setObsolete );
   connect( mTotalDuration, &ReosParameter::valueChanged, this, &ReosDoubleTriangleRainfall::setObsolete );
   connect( mCenterCoefficient, &ReosParameter::valueChanged, this, &ReosDoubleTriangleRainfall::setObsolete );
+
+  connect( mIntenseDuration, &ReosParameter::valueChanged, this, &ReosDoubleTriangleRainfall::dataChanged );
+  connect( mTotalDuration, &ReosParameter::valueChanged, this, &ReosDoubleTriangleRainfall::dataChanged );
+  connect( mCenterCoefficient, &ReosParameter::valueChanged, this, &ReosDoubleTriangleRainfall::dataChanged );
 }
 
 ReosDoubleTriangleRainfall::ReosDoubleTriangleRainfall( QObject *parent ) :

@@ -145,7 +145,7 @@ ReosPlotTimeSerieVariableStep::ReosPlotTimeSerieVariableStep( const QString &nam
   mPlotItem->setItemAttribute( QwtPlotItem::AutoScale, true );
 }
 
-void ReosPlotTimeSerieVariableStep::setTimeSerie( ReosTimeSerieVariableTimeStep *timeSerie, bool replot )
+void ReosPlotTimeSerieVariableStep::setTimeSerie( ReosTimeSerieVariableTimeStep *timeSerie, bool replot, bool applysettings )
 {
   if ( mTimeSerie && mTimeSerie->data() )
   {
@@ -159,7 +159,8 @@ void ReosPlotTimeSerieVariableStep::setTimeSerie( ReosTimeSerieVariableTimeStep 
     mTimeSerie = new ReosPlotVariableStepTimeSerie( timeSerie );
   curve()->setSamples( mTimeSerie );
 
-  setSettings();
+  if ( applysettings )
+    setSettings();
 
   if ( timeSerie )
   {

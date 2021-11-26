@@ -72,6 +72,8 @@ class ReosPlotItem: public QObject
 
     void setLegendActive( bool legendActive, bool updateLegend = true );
 
+    void setZ( double z );
+
     virtual QColor color() const {return QColor();}
     virtual QPixmap icone( const QSize &size ) const;
 

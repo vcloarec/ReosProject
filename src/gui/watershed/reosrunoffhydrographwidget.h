@@ -179,6 +179,7 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
     ReosPlotTimeHistogram *mRunoffHistogram = nullptr;
     ReosPlotTimeSerieVariableStep *mHydrographCurve = nullptr;
     ReosVariableTimeStepPlotListButton *mGaugedHydrographButton = nullptr;
+    ReosVariableTimeStepPlotListButton *mOtherRunoffHydrographButton = nullptr;
 
 
     ReosRunoffHydrographStore *mRunoffHydrographStore = nullptr;
@@ -190,6 +191,7 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
     void syncTransferFunction( ReosTransferFunction *function );
 
     void updateGaugedHydrograph();
+    void updateOtherRunoffHydrograph();
 };
 
 //**************************************************

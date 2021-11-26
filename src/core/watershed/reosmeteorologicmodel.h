@@ -30,6 +30,7 @@ class ReosWatershedItemModel;
 //! Class that handle association between watesheds and rainfalls
 class REOSCORE_EXPORT ReosMeteorologicModel : public ReosDataObject
 {
+    Q_OBJECT
   public:
     ReosMeteorologicModel( const QString &name, QObject *parent = nullptr );
     ReosMeteorologicModel( const ReosEncodedElement &element,
@@ -63,12 +64,20 @@ class REOSCORE_EXPORT ReosMeteorologicModel : public ReosDataObject
     //! Remove all reference with no association
     void purge() const;
 
+    //! Returns the color used to display curve related to this meteorologic model
+    QColor color() const;
+
     ReosEncodedElement encode( ReosWatershedTree *watershedTree ) const;
+
+  public slots:
+    //! Sets the color used to display curve related to this meteorologic model
+    void setColor( const QColor &color );
 
   private:
     std::unique_ptr<ReosParameterString> mName;
     using WatershedRainfallAssociation = QPair<QPointer<ReosWatershed>, QPointer<ReosRainfallSerieRainfallItem>>;
     mutable QList<WatershedRainfallAssociation> mAssociations;
+    QColor mColor;
 
     //! Searchs for \a watershed, if found , return its index, otherwise return -1
     int findWatershed( ReosWatershed *watershed ) const;

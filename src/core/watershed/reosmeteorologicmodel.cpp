@@ -16,12 +16,14 @@
 #include "reosmeteorologicmodel.h"
 #include "reoswatershedtree.h"
 #include "reosrainfallregistery.h"
+#include "reosstyleregistery.h"
 
 ReosMeteorologicModel::ReosMeteorologicModel( const QString &name, QObject *parent ):
   ReosDataObject( parent )
   , mName( new ReosParameterString( QObject::tr( "Meteorologic model name" ), false, nullptr ) )
 {
   mName->setValue( name );
+  mColor = ReosStyleRegistery::instance()->curveColor();
 }
 
 ReosMeteorologicModel::ReosMeteorologicModel( const ReosEncodedElement &element,
@@ -35,6 +37,10 @@ ReosMeteorologicModel::ReosMeteorologicModel( const ReosEncodedElement &element,
 
   QMap<QString, QString> associations;
   element.getData( QStringLiteral( "associations" ), associations );
+  element.getData( QStringLiteral( "color" ), mColor );
+
+  if ( !mColor.isValid() )
+    mColor = ReosStyleRegistery::instance()->curveColor();
 
   for ( const QString &watershedUri : associations.keys() )
   {
@@ -75,8 +81,14 @@ ReosEncodedElement ReosMeteorologicModel::encode( ReosWatershedTree *watershedTr
 
   element.addData( QStringLiteral( "associations" ), associations );
   element.addEncodedData( QStringLiteral( "name" ), mName->encode() );
+  element.addData( QStringLiteral( "color" ), mColor );
 
   return element;
+}
+
+void ReosMeteorologicModel::setColor( const QColor &color )
+{
+  mColor = color;
 }
 
 void ReosMeteorologicModel::associate( ReosWatershed *watershed, ReosRainfallSerieRainfallItem *rainfall )
@@ -160,6 +172,11 @@ void ReosMeteorologicModel::purge() const
     else
       ++i;
   }
+}
+
+QColor ReosMeteorologicModel::color() const
+{
+  return mColor;
 }
 
 
