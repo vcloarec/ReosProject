@@ -29,7 +29,7 @@ ReosTransferFunction::ReosTransferFunction( ReosWatershed *watershed ):
   {
     mConcentrationTime = watershed->concentrationTime();
     mArea = watershed->area();
-    connect( watershed, &ReosDataObject::dataChanged, this, &ReosDataObject::dataChanged );
+    connect( this, &ReosDataObject::dataChanged, watershed, &ReosDataObject::dataChanged );
   }
   else
   {
@@ -66,7 +66,7 @@ ReosTransferFunction::ReosTransferFunction( const ReosEncodedElement &element, R
   {
     mConcentrationTime = watershed->concentrationTime();
     mArea = watershed->area();
-    connect( watershed, &ReosDataObject::dataChanged, this, &ReosDataObject::dataChanged );
+    connect( this, &ReosDataObject::dataChanged, watershed, &ReosDataObject::dataChanged );
   }
   else
   {
