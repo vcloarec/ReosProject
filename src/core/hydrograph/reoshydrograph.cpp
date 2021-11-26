@@ -215,6 +215,7 @@ void ReosRunoffHydrographStore::updateStore()
         HydrographData hydData;
         hydData.rainfall = model->associatedRainfall( mWatershed );
         hydData.hydrograph =  new ReosHydrograph( this );
+        hydData.hydrograph->setName( tr( "%1 hydrograph" ).arg( model->name()->value() ) );
         hydData.runoff = new ReosRunoff( mWatershed->runoffModels(), hydData.rainfall );
         mMeteoModelToHydrograph.insert( model, hydData );
         registerInputdata( model, hydData.hydrograph );

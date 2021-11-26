@@ -63,6 +63,7 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *wat
   mRunoffHistogram->setBrushColor( QColor( 250, 150, 0, 175 ) );
   mHydrographCurve = new ReosPlotTimeSerieVariableStep( tr( "Result hydrograph" ) );
   mHydrographCurve->setOnRightAxe();
+  mHydrographCurve->setColor( Qt::red );
   ui->widgetPlot->addPlotItem( mRainfallHistogram );
   ui->widgetPlot->addPlotItem( mRunoffHistogram );
   ui->widgetPlot->addPlotItem( mHydrographCurve );
@@ -167,7 +168,8 @@ void ReosRunoffHydrographWidget::setCurrentWatershed( ReosWatershed *watershed )
     syncTransferFunction( watershed->currentTransferFunction() );
   }
 
-  onModelMeteoChanged();
+  updateRainfall();
+  updateResultData();
 }
 
 void ReosRunoffHydrographWidget::setCurrentMeteorologicModel( int index )
@@ -178,24 +180,17 @@ void ReosRunoffHydrographWidget::setCurrentMeteorologicModel( int index )
 void ReosRunoffHydrographWidget::onModelMeteoChanged()
 {
   if ( mCurrentMeteoModel )
-    disconnect( mCurrentMeteoModel, &ReosDataObject::dataChanged, this, &ReosRunoffHydrographWidget::updateRainall );
+    disconnect( mCurrentMeteoModel, &ReosDataObject::dataChanged, this, &ReosRunoffHydrographWidget::updateRainfall );
 
   mCurrentMeteoModel = mWatershedModule->meteoModelsCollection()->meteorologicModel( ui->comboBoxMeteoModel->currentIndex() );
 
   if ( mCurrentMeteoModel )
   {
-    connect( mCurrentMeteoModel, &ReosDataObject::dataChanged, this, &ReosRunoffHydrographWidget::updateRainall );
-    mCurrentRunoff = mRunoffHydrographStore->runoff( mCurrentMeteoModel );
-    mCurrentHydrograph = mRunoffHydrographStore->hydrograph( mCurrentMeteoModel );
-  }
-  else
-  {
-    mCurrentRunoff = nullptr;
-    mCurrentHydrograph = nullptr;
+    connect( mCurrentMeteoModel, &ReosDataObject::dataChanged, this, &ReosRunoffHydrographWidget::updateRainfall );
   }
 
-  updateRainall();
-  updateRunoff();
+  updateRainfall();
+  updateResultData();
 }
 
 void ReosRunoffHydrographWidget::onRunoffTableViewContextMenu( const QPoint &pos )
@@ -297,7 +292,7 @@ void ReosRunoffHydrographWidget::copyRainfallRunoffSelected( bool withHeader )
   copyResultValues( mRunoffResultTabModel, selectionModel, withHeader );
 }
 
-void ReosRunoffHydrographWidget::updateRainall()
+void ReosRunoffHydrographWidget::updateRainfall()
 {
   if ( !isVisible() )
     return;
@@ -311,9 +306,6 @@ void ReosRunoffHydrographWidget::updateRainall()
   {
     mRainfallHistogram->setTimeSerie( rainfall->data() );
     ui->labelRainfAllInfo->setText( rainfall->rainfallInformation() );
-    mRunoffResultTabModel->addTimeSerie( rainfall->data(), tr( "Rainfall %1" ).arg( rainfall->data()->unitStringCurrentMode() ) );
-    ui->tableViewRunoffResult->horizontalHeader()->resizeSections( QHeaderView::ResizeToContents );
-    ui->tableViewRunoffResult->verticalHeader()->resizeSections( QHeaderView::ResizeToContents );
   }
   else
   {
@@ -322,10 +314,22 @@ void ReosRunoffHydrographWidget::updateRainall()
   }
 }
 
-void ReosRunoffHydrographWidget::updateRunoff()
+void ReosRunoffHydrographWidget::updateResultData()
 {
   if ( !isVisible() )
     return;
+
+  mCurrentRunoff = mRunoffHydrographStore->runoff( mCurrentMeteoModel );
+  mCurrentHydrograph = mRunoffHydrographStore->hydrograph( mCurrentMeteoModel );
+
+  mRunoffResultTabModel->clearSerie();
+
+  ReosRainfallSerieRainfallItem *rainfall = nullptr;
+  if ( mCurrentMeteoModel && mCurrentWatershed )
+  {
+    rainfall = mCurrentMeteoModel->associatedRainfallItem( mCurrentWatershed );
+    mRunoffResultTabModel->addTimeSerie( rainfall->data(), tr( "Rainfall %1" ).arg( rainfall->data()->unitStringCurrentMode() ) );
+  }
 
   if ( mCurrentRunoff )
   {
@@ -335,11 +339,14 @@ void ReosRunoffHydrographWidget::updateRunoff()
     ui->tableViewRunoffResult->verticalHeader()->resizeSections( QHeaderView::ResizeToContents );
   }
   else
-  {
     mRunoffHistogram->setTimeSerie( nullptr );
-  }
 
+  if ( mCurrentHydrograph )
+    mHydrographCurve->setName( mCurrentHydrograph->name() );
+
+  mHydrographCurve->setTimeSerie( mCurrentHydrograph );
 }
+
 
 void ReosRunoffHydrographWidget::onHydrographReady( ReosHydrograph *hydrograph )
 {
@@ -577,9 +584,15 @@ void ReosRunoffHydrographWidget::onTransferFunctionFormulation()
 
 void ReosWatershedRunoffModelsModel::setWatershedRunoffModels( ReosRunoffModelsGroup *watershedRunoffModels )
 {
+  if ( mWatershedRunoffModels )
+    disconnect( mWatershedRunoffModels, &ReosRunoffModelsGroup::dataChanged, this, &ReosWatershedRunoffModelsModel::modelChanged );
+
   beginResetModel();
   mWatershedRunoffModels = watershedRunoffModels;
   endResetModel();
+
+  if ( mWatershedRunoffModels )
+    connect( mWatershedRunoffModels, &ReosRunoffModelsGroup::dataChanged, this, &ReosWatershedRunoffModelsModel::modelChanged );
 }
 
 void ReosWatershedRunoffModelsModel::addRunoffModel( ReosRunoffModel *runoffModel )
@@ -1113,6 +1126,8 @@ QVariant ReosTimeSeriesTableModel::headerData( int section, Qt::Orientation orie
 
 void ReosTimeSeriesTableModel::addTimeSerie( ReosTimeSerie *timeSerie, const QString &name )
 {
+  connect( timeSerie, &ReosTimeSerie::dataChanged, this, &ReosTimeSeriesTableModel::onDataChanged );
+
   beginResetModel();
   mTimeSeries.append( timeSerie );
   mHeaderName.append( name );
@@ -1121,10 +1136,18 @@ void ReosTimeSeriesTableModel::addTimeSerie( ReosTimeSerie *timeSerie, const QSt
 
 void ReosTimeSeriesTableModel::clearSerie()
 {
+  for ( ReosTimeSerie *ts : std::as_const( mTimeSeries ) )
+    disconnect( ts, &ReosTimeSerie::dataChanged, this, &ReosTimeSeriesTableModel::onDataChanged );
+
   beginResetModel();
   mTimeSeries.clear();
   mHeaderName.clear();
   endResetModel();
+}
+
+void ReosTimeSeriesTableModel::onDataChanged()
+{
+  emit dataChanged( index( 0, 0, QModelIndex() ), index( rowCount( QModelIndex() ) - 1, columnCount( QModelIndex() ) - 1, QModelIndex() ) );
 }
 
 ReosFormWidget *ReosFormSCSUnithydrographWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )

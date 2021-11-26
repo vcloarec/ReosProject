@@ -136,7 +136,10 @@ void ReosPlotItemListModel::setGlobalVisibilty( bool globalVisibilty )
 {
   mGlobalVisibilty = globalVisibilty;
   for ( int i = 0; i < mPlot.count() - 1; ++i )
+  {
     std::get<0>( mPlot.at( i ) )->setVisible( mGlobalVisibilty && std::get<2>( mPlot.at( i ) ), false );
+    std::get<0>( mPlot.at( i ) )->setVisible( mGlobalVisibilty && std::get<2>( mPlot.at( i ) ), false );
+  }
 
   if ( !mPlot.isEmpty() )
     std::get<0>( mPlot.last() )->setVisible( mGlobalVisibilty && std::get<2>( mPlot.last() ) );

@@ -174,9 +174,9 @@ void ReosPlotTimeSerieVariableStep::setTimeSerie( ReosTimeSerieVariableTimeStep 
 
 void ReosPlotTimeSerieVariableStep::setSettings()
 {
-  QPen pen;
+  QPen pen = curve()->pen();
   pen.setWidthF( 2 );
-  if ( mTimeSerie && mTimeSerie->data() )
+  if ( mTimeSerie && mTimeSerie->data() && mTimeSerie->data()->color().isValid() )
     pen.setColor( mTimeSerie->data()->color() );
   curve()->setPen( pen );
 
@@ -203,7 +203,8 @@ void ReosPlotTimeSerieVariableStep::setColor( const QColor &color )
   QPen pen = curve()->pen();
   pen.setColor( color );
   curve()->setPen( pen );
-  curve()->plot()->replot();
+  if ( curve()->plot() )
+    curve()->plot()->replot();
 }
 
 QColor ReosPlotTimeSerieVariableStep::color() const

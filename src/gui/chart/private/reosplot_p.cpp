@@ -386,13 +386,19 @@ QPointF ReosPlotVariableStepTimeSerie::sample( size_t i ) const
 
 QRectF ReosPlotVariableStepTimeSerie::boundingRect() const
 {
-  if ( !mTimeSerie )
-    return QRectF( 1.0, 1.0, -2.0, -2.0 ); //invalid for qwt
-  QPair<QDateTime, QDateTime> timeExtent = mTimeSerie->timeExtent();
-  QPair<double, double> valueExtent = mTimeSerie->valueExent();
-  double x1 = QwtDate::toDouble( timeExtent.first );
-  double x2 = QwtDate::toDouble( timeExtent.second );
-  return QRectF( x1, valueExtent.first, x2 - x1, valueExtent.second - valueExtent.first );
+  if ( mTimeSerie )
+  {
+    QPair<QDateTime, QDateTime> timeExtent = mTimeSerie->timeExtent();
+    QPair<double, double> valueExtent = mTimeSerie->valueExent();
+    if ( timeExtent.first.isValid() && timeExtent.second.isValid() )
+    {
+      double x1 = QwtDate::toDouble( timeExtent.first );
+      double x2 = QwtDate::toDouble( timeExtent.second );
+      return QRectF( x1, valueExtent.first, x2 - x1, valueExtent.second - valueExtent.first );
+    }
+  }
+
+  return QRectF( 1.0, 1.0, -2.0, -2.0 ); //invalid for qwt
 }
 
 ReosTimeSerieVariableTimeStep *ReosPlotVariableStepTimeSerie::data() const
