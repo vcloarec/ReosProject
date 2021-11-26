@@ -92,7 +92,7 @@ int ReosRunoff::valueCount() const
 ReosDuration ReosRunoff::timeStep() const
 {
   updateValues();
-  return mRainfall->timeStep()->value();
+  return mRainfall->timeStepParameter()->value();
 }
 
 double ReosRunoff::value( int i ) const
@@ -1034,7 +1034,7 @@ bool ReosRunoffGreenAmptModel::addRunoffModel( ReosTimeSerieConstantInterval *ra
   double ts = 0;
   bool pondingInitial = false;
   bool pondingTerminal = false;
-  ReosDuration timeStep = rainfall->timeStep()->value();
+  ReosDuration timeStep = rainfall->timeStepParameter()->value();
   double timeStepHour = timeStep.valueHour();
 
   double K_h = K * timeStepHour;

@@ -716,7 +716,7 @@ QString ReosRainfallSerieRainfallItem::rainfallInformation() const
   duration.setAdaptedUnit();
   ret.append( tr( "Duration: %1" ).arg( duration.toString( 2 ) ) );
   ret.append( "\n" );
-  ret.append( tr( "Time Step: %1" ).arg( data()->timeStep()->value().toString( 2 ) ) );
+  ret.append( tr( "Time Step: %1" ).arg( data()->timeStepParameter()->value().toString( 2 ) ) );
   ret.append( "\n" );
   double cumul = data()->valueWithMode( data()->valueCount(), ReosTimeSerieConstantInterval::Cumulative );
   ret.append( tr( "Cumulative height: %1 mm" ).arg( ReosParameter::doubleToString( cumul, 2 ) ) );

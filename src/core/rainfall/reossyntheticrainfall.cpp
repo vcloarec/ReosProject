@@ -87,7 +87,7 @@ void ReosChicagoRainfall::updateRainfall() const
 
   data->clear();
 
-  const ReosDuration ts = timeStep()->value();
+  const ReosDuration ts = timeStepParameter()->value();
   if ( ReosDuration() == ts )
   {
     setActualized();
@@ -180,7 +180,7 @@ ReosChicagoRainfall::ReosChicagoRainfall( const ReosEncodedElement &element, QOb
 
 void ReosUniqueIdfCurveSyntheticRainfall::connectParameters()
 {
-  connect( timeStep(), &ReosParameter::valueChanged, this, &ReosUniqueIdfCurveSyntheticRainfall::setObsolete );
+  connect( timeStepParameter(), &ReosParameter::valueChanged, this, &ReosUniqueIdfCurveSyntheticRainfall::setObsolete );
   connect( mTotalDuration, &ReosParameter::valueChanged, this, &ReosUniqueIdfCurveSyntheticRainfall::setObsolete );
   connect( mCenterCoefficient, &ReosParameter::valueChanged, this, &ReosUniqueIdfCurveSyntheticRainfall::setObsolete );
 }
@@ -306,7 +306,7 @@ void ReosDoubleTriangleRainfall::updateRainfall() const
 
   data->clear();
 
-  ReosDuration ts = timeStep()->value();
+  ReosDuration ts = timeStepParameter()->value();
   ReosDuration totalDuration = mTotalDuration->value();
   ReosDuration intenseDuration = mIntenseDuration->value();
   double eccentricity = mCenterCoefficient->value();
@@ -395,7 +395,7 @@ void ReosDoubleTriangleRainfall::updateData() const
 
 void ReosDoubleTriangleRainfall::connectParameters()
 {
-  connect( timeStep(), &ReosParameter::valueChanged, this, &ReosDoubleTriangleRainfall::setObsolete );
+  connect( timeStepParameter(), &ReosParameter::valueChanged, this, &ReosDoubleTriangleRainfall::setObsolete );
   connect( mIntenseDuration, &ReosParameter::valueChanged, this, &ReosDoubleTriangleRainfall::setObsolete );
   connect( mTotalDuration, &ReosParameter::valueChanged, this, &ReosDoubleTriangleRainfall::setObsolete );
   connect( mCenterCoefficient, &ReosParameter::valueChanged, this, &ReosDoubleTriangleRainfall::setObsolete );
@@ -481,14 +481,14 @@ void ReosAlternatingBlockRainfall::updateRainfall() const
 
   data->clear();
 
-  if ( !timeStep()->isValid() || !totalDuration()->isValid() || totalDuration()->value() < timeStep()->value() )
+  if ( !timeStepParameter()->isValid() || !totalDuration()->isValid() || totalDuration()->value() < timeStepParameter()->value() )
   {
     setActualized();
     emit dataChanged();
     return;
   }
 
-  const ReosDuration ts = timeStep()->value();
+  const ReosDuration ts = timeStepParameter()->value();
   const ReosDuration totalDuration = mTotalDuration->value();
   double eccentricityCoef = mCenterCoefficient->value();
   int intervalCount = totalDuration.numberOfFullyContainedIntervals( ts );

@@ -130,6 +130,7 @@ ReosDuration ReosTimeSerieConstantTimeStepMemoryProvider::timeStep() const
 void ReosTimeSerieConstantTimeStepMemoryProvider::setTimeStep( const ReosDuration &timeStep )
 {
   mTimeStep = timeStep;
+  emit dataChanged();
 }
 
 double *ReosTimeSerieConstantTimeStepMemoryProvider::data()

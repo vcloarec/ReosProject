@@ -219,7 +219,7 @@ ReosHydrograph *ReosTransferFunctionGeneralizedRationalMethod::applyFunction( Re
   std::unique_ptr<ReosHydrograph> hydrograph = std::make_unique<ReosHydrograph>( hydrographParent );
   ReosTimeSerieConstantInterval *runoffTimeSerie = runoff->data();
 
-  ReosDuration timeStep = runoffTimeSerie->timeStep()->value();
+  ReosDuration timeStep = runoffTimeSerie->timeStepParameter()->value();
   ReosDuration concTime = concentrationTime()->value();
   //! Construct the unit hydrograph
   double peakRatio = ( area()->value().valueM2() / ( 1000 * timeStep.valueUnit( timeUnit ) ) ) * std::min( 1.0, timeStep / concTime );
@@ -530,7 +530,7 @@ ReosHydrograph *ReosTransferFunctionSCSUnitHydrograph::applyFunction( ReosRunoff
 
   ReosTimeSerieConstantInterval *runoffTimeSerie = runoff->data();
   QDateTime referenceTime = runoffTimeSerie->referenceTime();
-  ReosDuration timeStep = runoffTimeSerie->timeStep()->value();
+  ReosDuration timeStep = runoffTimeSerie->timeStepParameter()->value();
 
   // here, we the time step has to be lesser than the peak time, check that and adjust the time step
   ReosDuration peakTime;
@@ -603,7 +603,7 @@ ReosTransferFunctionCalculation *ReosTransferFunctionSCSUnitHydrograph::calculat
 
   ReosTimeSerieConstantInterval *runoffTimeSerie = runoff->data();
   QDateTime referenceTime = runoffTimeSerie->referenceTime();
-  ReosDuration timeStep = runoffTimeSerie->timeStep()->value();
+  ReosDuration timeStep = runoffTimeSerie->timeStepParameter()->value();
 
   if ( mUseConcentrationTime->value() )
   {
@@ -1070,7 +1070,7 @@ ReosHydrograph *ReosTransferFunctionNashUnitHydrograph::applyFunction( ReosRunof
     K = mKParam->value();
 
   Calculation calculation( runoffTimeSerie->constData(),
-                           runoffTimeSerie->timeStep()->value(),
+                           runoffTimeSerie->timeStepParameter()->value(),
                            runoffTimeSerie->referenceTime(),
                            K,
                            mNParam->value(),
@@ -1130,7 +1130,7 @@ ReosTransferFunctionCalculation *ReosTransferFunctionNashUnitHydrograph::calcula
   else
     K = mKParam->value();
 
-  return new Calculation( runoffTimeSerie->constData(), runoffTimeSerie->timeStep()->value(), referenceTime, K, mNParam->value(), area()->value() );
+  return new Calculation( runoffTimeSerie->constData(), runoffTimeSerie->timeStepParameter()->value(), referenceTime, K, mNParam->value(), area()->value() );
 }
 
 ReosTransferFunctionNashUnitHydrograph::ReosTransferFunctionNashUnitHydrograph( const ReosEncodedElement &element, ReosWatershed *watershed ):

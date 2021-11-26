@@ -224,7 +224,7 @@ QwtIntervalSample ReosPlotConstantIntervalTimeIntervalSerie::sample( size_t i ) 
 
   double y = mTimeSerie->valueAt( i );
   double x1 = QwtDate::toDouble( mTimeSerie->timeAt( i ) );
-  double x2 = QwtDate::toDouble( mTimeSerie->timeAt( i ).addMSecs( mTimeSerie->timeStep()->value().valueMilliSecond() ) );
+  double x2 = QwtDate::toDouble( mTimeSerie->timeAt( i ).addMSecs( mTimeSerie->timeStepParameter()->value().valueMilliSecond() ) );
 
   return QwtIntervalSample( y, x1, x2 );
 }
@@ -306,7 +306,7 @@ QPointF ReosPlotConstantIntervalTimePointSerie::sample( size_t i ) const
     if ( i == 0 )
       x = QwtDate::toDouble( mTimeSerie->timeAt( 0 ) );
     else
-      x = QwtDate::toDouble( mTimeSerie->timeAt( i - 1 ).addMSecs( mTimeSerie->timeStep()->value().valueMilliSecond() ) );
+      x = QwtDate::toDouble( mTimeSerie->timeAt( i - 1 ).addMSecs( mTimeSerie->timeStepParameter()->value().valueMilliSecond() ) );
 
     return QPointF( x, mTimeSerie->valueWithMode( i, mValueMode ) );
   }
@@ -322,7 +322,7 @@ QRectF ReosPlotConstantIntervalTimePointSerie::boundingRect() const
   QPair<double, double> valueExtent = mTimeSerie->extentValueWithMode( mValueMode );
   if ( mIsCumulative && mTimeSerie->valueCount() > 0 )
   {
-    timeExtent.second = timeExtent.second.addMSecs( mTimeSerie->timeStep()->value().valueMilliSecond() );
+    timeExtent.second = timeExtent.second.addMSecs( mTimeSerie->timeStepParameter()->value().valueMilliSecond() );
     double lastValue = mTimeSerie->valueWithMode( mTimeSerie->valueCount(), mValueMode );
     if ( valueExtent.first > lastValue )
       valueExtent.first = lastValue;

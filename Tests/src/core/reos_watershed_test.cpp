@@ -770,7 +770,7 @@ void ReosWatersehdTest::runoffConstantCoefficient()
   a->setValue( 4.78 );
   b->setValue( 0.322 );
   ReosChicagoRainfall chicagoRainfall;
-  chicagoRainfall.timeStep()->setValue( ReosDuration( 5, ReosDuration::minute ) );
+  chicagoRainfall.timeStepParameter()->setValue( ReosDuration( 5, ReosDuration::minute ) );
   chicagoRainfall.totalDuration()->setValue( ReosDuration( 1, ReosDuration::hour ) );
   chicagoRainfall.setIntensityDurationCurve( &idCurve );
 
@@ -1146,11 +1146,11 @@ void ReosWatersehdTest::runoffhydrograph()
   ReosRainfallChicagoItem chicagoRainfallItem( "chicago", QString() );
   ReosRainfallAlternatingBlockItem alternateRainfallItem( "alternate", QString() );
 
-  chicagoRainfallItem.data()->timeStep()->setValue( ReosDuration( 5, ReosDuration::minute ) );
+  chicagoRainfallItem.data()->timeStepParameter()->setValue( ReosDuration( 5, ReosDuration::minute ) );
   chicagoRainfallItem.data()->totalDuration()->setValue( ReosDuration( 1, ReosDuration::hour ) );
   chicagoRainfallItem.data()->setIntensityDurationCurve( &idCurve );
 
-  alternateRainfallItem.data()->timeStep()->setValue( ReosDuration( 5, ReosDuration::minute ) );
+  alternateRainfallItem.data()->timeStepParameter()->setValue( ReosDuration( 5, ReosDuration::minute ) );
   alternateRainfallItem.data()->totalDuration()->setValue( ReosDuration( 30, ReosDuration::minute ) );
   alternateRainfallItem.data()->setIntensityDurationCurve( &idCurve );
 

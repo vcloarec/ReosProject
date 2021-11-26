@@ -89,8 +89,8 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
 
     static QString staticType() {return ReosDataObject::staticType() + ':' + QStringLiteral( "time-serie" );}
 
-  public slots:
-    void onDataProviderChanged();
+  protected slots:
+    virtual void onDataProviderChanged();
 
   protected:
     //! Connect all parameters with
@@ -147,7 +147,13 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     void setValueMode( const ValueMode &valueMode );
 
     //! Returns a pointer to the constant time step parameter
-    ReosParameterDuration *timeStep() const;
+    ReosParameterDuration *timeStepParameter() const;
+
+    //! Sets the constant time step of this time serie
+    void setTimeStep( const ReosDuration &timeStep );
+
+    //! Returns the constant time step of this time serie
+    ReosDuration timeStep() const;
 
     ReosDuration::Unit intensityTimeUnit() const;
     void setIntensityTimeUnit( const ReosDuration::Unit &intensityTimeUnit );
@@ -197,12 +203,15 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     //! Copy the serie \a other in \a this.
     void copyFrom( ReosTimeSerieConstantInterval *other );
 
+  private slots:
+    void onDataProviderChanged() override;
+
   protected:
     void connectParameters();
     ReosTimeSerieConstantInterval( const ReosEncodedElement &element, QObject *parent = nullptr );
 
   private:
-    ReosParameterDuration *mTimeStep = nullptr;
+    ReosParameterDuration *mTimeStepParameter = nullptr;
 
     //! Attribute that are defined during runtime
     ValueMode mValueMode = Value;
