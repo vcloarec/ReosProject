@@ -1,0 +1,32 @@
+
+3.22
+New feature
+Load/Import hydrograph from external:
+Infrastructure for load or import gauged hydrograh from external source. 
+For now the following hydrograph providers are implemented.
+-deflt-fews XML file
+-Hub-Eau server
+
+The user has two options once the source of the hydrograph is chosen:
+- copy the hydrograph in Lekan, the hydrograph will be store in the Lekan project file. By this way, the hydrograh can be edited in Lekan but will not be updated if the data in the source change.
+- add simply the source to the project. The hydrograph will be loaded but can't be edited. By this way, if the data change in the source, the hydrograph will be updated (each time the project is open or for some provider if manually ask in the gauged hydrograph window)
+
+
+
+Rainfall manager:
+Stations that are used to store rainfall data have now a spatial capability. That is each station can be associated to a point on the map. 
+Now to add a station, the user can 
+
+
+Load/Import rainfall from external:
+Infrastructure for load or import gauged rainfall from external source. 
+For now the following rainfall provider is implemented.
+-deflt-fews XML file
+
+To add gauged rainfall in the rainfall manager:
+- open the rainfall manager
+If the provider have a 
+
+The user has two options once the source of the hydrograph is chosen:
+- copy the hydrograph in Lekan, the hydrograph will be store in the Lekan project file. By this way, the hydrograh can be edited in Lekan but will not be updated if the data in the source change.
+- add simply the source to the project. The hydrograph will be loaded but can't be edited. By this way, if the data change in the source, the hydrograph will be updated (each time the project is open or if manually ask in the gauges hydrograph window)
