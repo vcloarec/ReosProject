@@ -22,9 +22,8 @@ email                : vcloarec at gmail dot com
 #include "reosmappolygon_p.h"
 #include "reosapplication.h"
 
-ReosMapToolDrawPolyline::ReosMapToolDrawPolyline( ReosMap *map ): ReosMapToolDrawPolyRubberBand( map, false )
+ReosMapToolDrawPolyline::ReosMapToolDrawPolyline( ReosMap *map ): ReosMapToolDrawPolyline( map, map )
 {
-
 }
 
 ReosMapToolDrawPolyline::ReosMapToolDrawPolyline( QObject *parent, ReosMap *map ): ReosMapToolDrawPolyRubberBand( parent, map, false )
