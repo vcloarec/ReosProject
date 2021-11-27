@@ -119,9 +119,15 @@ void ReosGaugedHydrographWidget::setCurrentWatershed( ReosWatershed *watershed )
   mCurrentWatershed = watershed;
 
   if ( watershed )
+  {
     mHydrographStore = watershed->gaugedHydrographs();
+    ui->mLabelNoWatershed->setText( "" );
+  }
   else
+  {
     mHydrographStore = nullptr;
+    ui->mLabelNoWatershed->setText( tr( "Select a watershed to add hydrograhs" ) );
+  }
 
   onStoreChanged();
   onCurrentHydrographChanged();

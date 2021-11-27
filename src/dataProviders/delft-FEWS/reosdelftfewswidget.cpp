@@ -157,8 +157,6 @@ void ReosDelftFewsWidget::onFileNameChanged()
 {
   if ( !parseFile( ui->mLineEditFileName->text() ) )
     mStationsModel->setStationsList( QList<ReosDelftFewsStation>() );
-
-  onStationChanged();
 }
 
 void ReosDelftFewsWidget::onStationChanged()
@@ -360,7 +358,7 @@ ReosHydrograph *ReosDelftFewsWidget::createHydrograph( QObject *parent ) const
 {
   std::unique_ptr<ReosHydrograph> hyd =
     std::make_unique<ReosHydrograph>( parent, ReosDelftFewsXMLHydrographProvider::staticKey()
-                                      + ':'
+                                      + QStringLiteral( "::" )
                                       + ReosDelftFewsXMLHydrographProvider::dataType(), currentUri() );
   hyd->setColor( QColor( 92, 142, 177 ) );
   return hyd.release();
@@ -370,7 +368,7 @@ ReosSerieRainfall *ReosDelftFewsWidget::createRainfall( QObject *parent ) const
 {
   std::unique_ptr<ReosSerieRainfall> rainfall =
     std::make_unique<ReosSerieRainfall>( parent, ReosDelftFewsXMLHydrographProvider::staticKey()
-                                         + ':'
+                                         + QStringLiteral( "::" )
                                          + ReosDelftFewsXMLRainfallProvider::dataType(), currentUri() );
 
   rainfall->setValueMode( ReosTimeSerieConstantInterval::Intensity );
@@ -419,7 +417,7 @@ ReosDelftFewsSettingsWidget *ReosDelftFewsGuiFactory::createProviderSettingsWidg
 
 QString ReosDelftFewsGuiFactory::dataType() const
 {
-  return ReosDelftFewsXMLHydrographProvider::dataType() + ':' + ReosDelftFewsXMLRainfallProvider::dataType();
+  return ReosDelftFewsXMLHydrographProvider::dataType() + QStringLiteral( "::" ) + ReosDelftFewsXMLRainfallProvider::dataType();
 }
 
 QPixmap ReosDelftFewsGuiFactory::icon() const

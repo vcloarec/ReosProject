@@ -161,7 +161,7 @@ void ReosDelftFewsXMLProviderInterface::setMetadata( const QVariantMap &meta )
   mMeta = meta;
 }
 
-QString ReosDelftFewsXMLHydrographProvider::key() const {return ReosDelftFewsXMLProviderInterface::staticKey() + ':' + dataType();}
+QString ReosDelftFewsXMLHydrographProvider::key() const {return ReosDelftFewsXMLProviderInterface::staticKey() + QStringLiteral( "::" ) + dataType();}
 
 QString ReosDelftFewsXMLHydrographProvider::htmlDescription() const
 {
@@ -226,7 +226,7 @@ const QVector<ReosDuration> &ReosDelftFewsXMLHydrographProvider::constTimeData()
   return mCacheTimeValues;
 }
 
-QString ReosDelftFewsXMLRainfallProvider::key() const {return ReosDelftFewsXMLProviderInterface::staticKey() + ':' + dataType();}
+QString ReosDelftFewsXMLRainfallProvider::key() const {return ReosDelftFewsXMLProviderInterface::staticKey() + QStringLiteral( "::" ) + dataType();}
 
 QString ReosDelftFewsXMLRainfallProvider::htmlDescription() const
 {
@@ -357,7 +357,7 @@ void ReosDelftFewsXMLRainfallProvider::decode( const ReosEncodedElement &element
 
 ReosDuration ReosDelftFewsXMLRainfallProvider::timeStep() const {return mTimeStep;}
 
-QString ReosDelftFewsXMLRainfallProvider::dataType() {return QStringLiteral( "rainfall" );}
+QString ReosDelftFewsXMLRainfallProvider::dataType() {return ReosSerieRainfall::staticType();}
 
 ReosEncodedElement ReosDelftFewsXMLHydrographProvider::encode() const
 {
