@@ -21,7 +21,7 @@
 class QDomElement;
 class QDomDocument;
 
-class ReosDelftFewsXMLProvider
+class ReosDelftFewsXMLProviderInterface
 {
   public:
 
@@ -35,19 +35,19 @@ class ReosDelftFewsXMLProvider
     static QString htmlDescriptionFromMetada( const QVariantMap &metadata );
 
   protected:
-    ReosDelftFewsXMLProvider();
+    ReosDelftFewsXMLProviderInterface();
     static QString fileNameFromUri( const QString &uri );
     static QString stationIdFromUri( const QString &uri );
     static QDateTime endTimeFromUri( const QString &uri );
     static QDateTime startTimeFromUri( const QString &uri );
 
-    QDomElement seriesElement( const QString &uri, QDomDocument &document, QString &noData ) const;
+    QDomElement seriesElement( const QString &uri, QDomDocument &document ) const;
 
   private:
     QVariantMap mMeta;
 };
 
-class ReosDelftFewsXMLRainfallProvider: public ReosTimeSerieConstantTimeStepProvider, public ReosDelftFewsXMLProvider
+class ReosDelftFewsXMLRainfallProvider: public ReosTimeSerieConstantTimeStepProvider, public ReosDelftFewsXMLProviderInterface
 {
     Q_OBJECT
   public:
@@ -79,7 +79,7 @@ class ReosDelftFewsXMLRainfallProvider: public ReosTimeSerieConstantTimeStepProv
     QVector<double> mCacheValues;
 };
 
-class ReosDelftFewsXMLHydrographProvider: public ReosTimeSerieVariableTimeStepProvider, public ReosDelftFewsXMLProvider
+class ReosDelftFewsXMLHydrographProvider: public ReosTimeSerieVariableTimeStepProvider, public ReosDelftFewsXMLProviderInterface
 {
     Q_OBJECT
   public:
@@ -95,6 +95,7 @@ class ReosDelftFewsXMLHydrographProvider: public ReosTimeSerieVariableTimeStepPr
     double lastValue() const override;
     double *data() override;
     const QVector<double> &constData() const override;
+    const QVector<ReosDuration> &constTimeData() const override;
     ReosEncodedElement encode() const override;
     void decode( const ReosEncodedElement &element ) override;
 

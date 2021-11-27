@@ -145,7 +145,7 @@ ReosPlotTimeSerieVariableStep::ReosPlotTimeSerieVariableStep( const QString &nam
   mPlotItem->setItemAttribute( QwtPlotItem::AutoScale, true );
 }
 
-void ReosPlotTimeSerieVariableStep::setTimeSerie( ReosTimeSerieVariableTimeStep *timeSerie, bool replot )
+void ReosPlotTimeSerieVariableStep::setTimeSerie( ReosTimeSerieVariableTimeStep *timeSerie, bool replot, bool applysettings )
 {
   if ( mTimeSerie && mTimeSerie->data() )
   {
@@ -159,7 +159,8 @@ void ReosPlotTimeSerieVariableStep::setTimeSerie( ReosTimeSerieVariableTimeStep 
     mTimeSerie = new ReosPlotVariableStepTimeSerie( timeSerie );
   curve()->setSamples( mTimeSerie );
 
-  setSettings();
+  if ( applysettings )
+    setSettings();
 
   if ( timeSerie )
   {
@@ -174,9 +175,9 @@ void ReosPlotTimeSerieVariableStep::setTimeSerie( ReosTimeSerieVariableTimeStep 
 
 void ReosPlotTimeSerieVariableStep::setSettings()
 {
-  QPen pen;
+  QPen pen = curve()->pen();
   pen.setWidthF( 2 );
-  if ( mTimeSerie && mTimeSerie->data() )
+  if ( mTimeSerie && mTimeSerie->data() && mTimeSerie->data()->color().isValid() )
     pen.setColor( mTimeSerie->data()->color() );
   curve()->setPen( pen );
 
@@ -203,7 +204,8 @@ void ReosPlotTimeSerieVariableStep::setColor( const QColor &color )
   QPen pen = curve()->pen();
   pen.setColor( color );
   curve()->setPen( pen );
-  curve()->plot()->replot();
+  if ( curve()->plot() )
+    curve()->plot()->replot();
 }
 
 QColor ReosPlotTimeSerieVariableStep::color() const

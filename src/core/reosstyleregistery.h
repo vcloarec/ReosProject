@@ -1,8 +1,8 @@
 /***************************************************************************
-  reosdelftfewssettingswidget.h - ReosDelftFewsSettingsWidget
+  reosstyleregistery.h - ReosStyleRegistery
 
  ---------------------
- begin                : 12.11.2021
+ begin                : 26.11.2021
  copyright            : (C) 2021 by Vincent Cloarec
  email                : vcloarec at gmail dot com
  ***************************************************************************
@@ -13,27 +13,26 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#ifndef REOSDELFTFEWSSETTINGSWIDGET_H
-#define REOSDELFTFEWSSETTINGSWIDGET_H
+#ifndef REOSSTYLEREGISTERY_H
+#define REOSSTYLEREGISTERY_H
 
-#include "reosdataprovidergui.h"
+#include "reosmodule.h"
 
-class ReosDelftFewsXMLProviderInterface;
-
-namespace Ui
+class ReosStyleRegistery: public ReosModule
 {
-  class ReosDelftFewsSettingsWidget;
-}
-
-class ReosDelftFewsSettingsWidget : public ReosDataProviderSettingsWidget
-{
-    Q_OBJECT
   public:
-    explicit ReosDelftFewsSettingsWidget( ReosDataProvider *provider, QWidget *parent = nullptr );
-    ~ReosDelftFewsSettingsWidget();
+    ReosStyleRegistery( ReosModule *parent = nullptr );
+
+    static void instantiate( ReosModule *parent );
+    static ReosStyleRegistery *instance();
+
+    QColor curveColor() const;
 
   private:
-    Ui::ReosDelftFewsSettingsWidget *ui;
+    static ReosStyleRegistery *sInstance;
+
+    QList<QColor> mCurveColor;
+    mutable int mLastCurveColor = -1;
 };
 
-#endif // REOSDELFTFEWSSETTINGSWIDGET_H
+#endif // REOSSTYLEREGISTERY_H

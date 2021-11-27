@@ -79,13 +79,13 @@ ReosDataObject *ReosDelftFewsWidget::createData( QObject *parent ) const
   const ReosDelftFewsStation &station = mStationsModel->station( stationIndex );
 
   std::unique_ptr<ReosTimeSerie> dataObject;
-  ReosDelftFewsXMLProvider *provider = nullptr;
+  ReosDelftFewsXMLProviderInterface *provider = nullptr;
 
   if ( station.dataType() == ReosDelftFewsXMLHydrographProvider::dataType() )
   {
     dataObject.reset( createHydrograph( parent ) );
     if ( dataObject )
-      provider = static_cast<ReosDelftFewsXMLProvider *>(
+      provider = static_cast<ReosDelftFewsXMLProviderInterface *>(
                    qobject_cast<ReosDelftFewsXMLHydrographProvider *>( dataObject->dataProvider() ) );
   }
 
@@ -93,7 +93,7 @@ ReosDataObject *ReosDelftFewsWidget::createData( QObject *parent ) const
   {
     dataObject.reset( createRainfall( parent ) );
     if ( dataObject )
-      provider = static_cast<ReosDelftFewsXMLProvider *>(
+      provider = static_cast<ReosDelftFewsXMLProviderInterface *>(
                    qobject_cast<ReosDelftFewsXMLRainfallProvider *>( dataObject->dataProvider() ) );
   }
 
@@ -127,7 +127,7 @@ QVariantMap ReosDelftFewsWidget::selectedMetadata() const
 
   const ReosDelftFewsStation  &station = mStationsModel->station( stationIndex );
 
-  ret.insert( QStringLiteral( "provider-key" ), station.meta.value( ReosDelftFewsXMLProvider::staticKey() ) );
+  ret.insert( QStringLiteral( "provider-key" ), station.meta.value( ReosDelftFewsXMLProviderInterface::staticKey() ) );
   ret.insert( QStringLiteral( "station" ), station.meta.value( QStringLiteral( "name" ) ) );
   ret.insert( QStringLiteral( "station-descritpion" ), station.meta.value( QStringLiteral( "locationIdd" ) ) );
   ret.insert( QStringLiteral( "x-coord" ), station.meta.value( QStringLiteral( "longitude" ) ) );
@@ -157,8 +157,6 @@ void ReosDelftFewsWidget::onFileNameChanged()
 {
   if ( !parseFile( ui->mLineEditFileName->text() ) )
     mStationsModel->setStationsList( QList<ReosDelftFewsStation>() );
-
-  onStationChanged();
 }
 
 void ReosDelftFewsWidget::onStationChanged()
@@ -244,7 +242,7 @@ void ReosDelftFewsWidget::populateTextBrowser()
     meta = station.meta;
   }
 
-  ui->mTextBrowser->setText( ReosDelftFewsXMLProvider::htmlDescriptionFromMetada( meta ) );
+  ui->mTextBrowser->setText( ReosDelftFewsXMLProviderInterface::htmlDescriptionFromMetada( meta ) );
 }
 
 bool ReosDelftFewsWidget::parseFile( const QString &fileName )
@@ -280,7 +278,7 @@ bool ReosDelftFewsWidget::parseFile( const QString &fileName )
 
     if ( !headerElement.firstChildElement( QStringLiteral( "parameterId" ) ).isNull() )
     {
-      const QString paramater = ReosDelftFewsXMLProvider::valueStringFromElement( headerElement.firstChildElement( QStringLiteral( "parameterId" ) ) );
+      const QString paramater = ReosDelftFewsXMLProviderInterface::valueStringFromElement( headerElement.firstChildElement( QStringLiteral( "parameterId" ) ) );
       if ( paramater.isEmpty() )
         continue;
       const QString prefix = paramater.split( QString( '.' ) ).at( 0 );
@@ -299,7 +297,7 @@ bool ReosDelftFewsWidget::parseFile( const QString &fileName )
     double latitude = 0;
 
     if ( !headerElement.firstChildElement( QStringLiteral( "stationName" ) ).isNull() )
-      station.meta[QStringLiteral( "name" )] = ReosDelftFewsXMLProvider::valueStringFromElement( headerElement.firstChildElement( QStringLiteral( "stationName" ) ) );
+      station.meta[QStringLiteral( "name" )] = ReosDelftFewsXMLProviderInterface::valueStringFromElement( headerElement.firstChildElement( QStringLiteral( "stationName" ) ) );
 
     if ( !headerElement.firstChildElement( QStringLiteral( "lat" ) ).isNull() )
     {
@@ -324,13 +322,13 @@ bool ReosDelftFewsWidget::parseFile( const QString &fileName )
     }
 
     if ( !headerElement.firstChildElement( QStringLiteral( "locationId" ) ).isNull() )
-      station.meta[QStringLiteral( "location-id" )] = ReosDelftFewsXMLProvider::valueStringFromElement( headerElement.firstChildElement( QStringLiteral( "locationId" ) ) );
+      station.meta[QStringLiteral( "location-id" )] = ReosDelftFewsXMLProviderInterface::valueStringFromElement( headerElement.firstChildElement( QStringLiteral( "locationId" ) ) );
 
     if ( !headerElement.firstChildElement( QStringLiteral( "startDate" ) ).isNull() )
-      station.meta[QStringLiteral( "start-time" )] = ReosDelftFewsXMLProvider::timefromElement( headerElement.firstChildElement( QStringLiteral( "startDate" ) ) );
+      station.meta[QStringLiteral( "start-time" )] = ReosDelftFewsXMLProviderInterface::timefromElement( headerElement.firstChildElement( QStringLiteral( "startDate" ) ) );
 
     if ( !headerElement.firstChildElement( QStringLiteral( "endDate" ) ).isNull() )
-      station.meta[QStringLiteral( "end-time" )] = ReosDelftFewsXMLProvider::timefromElement( headerElement.firstChildElement( QStringLiteral( "endDate" ) ) );
+      station.meta[QStringLiteral( "end-time" )] = ReosDelftFewsXMLProviderInterface::timefromElement( headerElement.firstChildElement( QStringLiteral( "endDate" ) ) );
 
     if ( isSpatial )
     {
@@ -360,7 +358,7 @@ ReosHydrograph *ReosDelftFewsWidget::createHydrograph( QObject *parent ) const
 {
   std::unique_ptr<ReosHydrograph> hyd =
     std::make_unique<ReosHydrograph>( parent, ReosDelftFewsXMLHydrographProvider::staticKey()
-                                      + ':'
+                                      + QStringLiteral( "::" )
                                       + ReosDelftFewsXMLHydrographProvider::dataType(), currentUri() );
   hyd->setColor( QColor( 92, 142, 177 ) );
   return hyd.release();
@@ -370,7 +368,7 @@ ReosSerieRainfall *ReosDelftFewsWidget::createRainfall( QObject *parent ) const
 {
   std::unique_ptr<ReosSerieRainfall> rainfall =
     std::make_unique<ReosSerieRainfall>( parent, ReosDelftFewsXMLHydrographProvider::staticKey()
-                                         + ':'
+                                         + QStringLiteral( "::" )
                                          + ReosDelftFewsXMLRainfallProvider::dataType(), currentUri() );
 
   rainfall->setValueMode( ReosTimeSerieConstantInterval::Intensity );
@@ -404,7 +402,7 @@ ReosDataProviderGuiFactory::GuiCapabilities ReosDelftFewsGuiFactory::capabilitie
 
 QString ReosDelftFewsGuiFactory::key() const
 {
-  return ReosDelftFewsXMLProvider::staticKey();
+  return ReosDelftFewsXMLProviderInterface::staticKey();
 }
 
 ReosDelftFewsWidget *ReosDelftFewsGuiFactory::createProviderSelectorWidget( ReosMap *map, const QString &dataType, QWidget *parent ) const
@@ -419,7 +417,7 @@ ReosDelftFewsSettingsWidget *ReosDelftFewsGuiFactory::createProviderSettingsWidg
 
 QString ReosDelftFewsGuiFactory::dataType() const
 {
-  return ReosDelftFewsXMLHydrographProvider::dataType() + ':' + ReosDelftFewsXMLRainfallProvider::dataType();
+  return ReosDelftFewsXMLHydrographProvider::dataType() + QStringLiteral( "::" ) + ReosDelftFewsXMLRainfallProvider::dataType();
 }
 
 QPixmap ReosDelftFewsGuiFactory::icon() const

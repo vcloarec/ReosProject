@@ -36,7 +36,7 @@ class ReosTransferFunction;
 class ReosSerieRainfall;
 class ReosHydrograph;
 
-class REOSCORE_EXPORT ReosWatershed: public QObject
+class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
 {
     Q_OBJECT
   public:
@@ -76,13 +76,13 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
                    const ReosRasterExtent &rasterExtent,
                    const QString &refLayerId );
 
-    Type type() const {return mType;}
+    Type watershedType() const {return mType;}
 
     //! Returns the name of the watershed
-    ReosParameterString *name() const;
+    ReosParameterString *watershedName() const;
 
     //! Sets the name of the watershed
-    void setName( const QString &name );
+    void setWatershedName( const QString &name );
 
     //! Returns the extent of the watershed
     ReosMapExtent extent() const;
@@ -211,7 +211,7 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
     ReosConcentrationTimeCalculation concentrationTimeCalculation() const;
     void setConcentrationTimeCalculation( const ReosConcentrationTimeCalculation &concentrationTimeCalculation );
 
-    //! Creates a hydrograph from the \a rainfall, caller has to take ownership if \æ hydrograph parent is not specified
+    //! Creates a hydrograph from the \a rainfall, caller has to take ownership if \a hydrograph parent is not specified
     ReosHydrograph *createHydrograph( ReosSerieRainfall *rainfall, QObject *hydrographParent = nullptr );
 
     ReosEncodedElement encode() const;
@@ -232,9 +232,6 @@ class REOSCORE_EXPORT ReosWatershed: public QObject
 
     //! Return a pointer to the gauged hydrographs store of this watershed
     ReosHydrographStore *gaugedHydrographs() const;
-
-  signals:
-    void changed();
 
   public slots:
     void calculateArea();

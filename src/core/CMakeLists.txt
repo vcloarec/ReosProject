@@ -13,6 +13,7 @@ SET(REOS_CORE_SOURCES
   reosversion.cpp
   reosexception.cpp
   reosparameter.cpp
+  reosstyleregistery.cpp
 
   GIS/reosdigitalelevationmodel.cpp
   GIS/reosgisengine.cpp
@@ -68,6 +69,7 @@ SET(REOS_CORE_HEADERS
     reosversion.h
     reosexception.h
     reosparameter.h
+    reosstyleregistery.h
 
     GIS/reosdigitalelevationmodel.h
     GIS/reosgisengine.h

@@ -69,7 +69,7 @@ void ReosExportWatershedToVectorDialog::accept()
     for ( ReosWatershed *ws : mWatersheds )
     {
       QVariantMap attributes;
-      attributes[tr( "Name" )] = ws->name()->value();
+      attributes[tr( "Name" )] = ws->watershedName()->value();
       attributes[tr( "Area" )] = ws->area()->value().valueM2();
       exportToFile.addPolygon( ws->delineating(), attributes );
     }
@@ -87,7 +87,7 @@ void ReosExportWatershedToVectorDialog::accept()
     for ( ReosWatershed *ws : mWatersheds )
     {
       QVariantMap attributes;
-      attributes[tr( "Name" )] = ws->name()->value();
+      attributes[tr( "Name" )] = ws->watershedName()->value();
       attributes[tr( "Length" )] = ws->longestPath()->value();
       attributes[tr( "Slope" )] = ws->slope()->value();
       attributes[tr( "Drop" )] = ws->drop()->value();

@@ -51,6 +51,8 @@ class ReosPlotItemListModel : public QAbstractListModel
     QList < std::tuple<ReosPlotItem *, ReosTimeSerieVariableTimeStep *, bool>> mPlot;
     bool mGlobalVisibilty = false;
     ReosPlotWidget *mPlotWidget = nullptr;
+
+    void updateItemVisibility( int itemIndex, bool replot );
 };
 
 class ReosVariableTimeStepPlotListView : public QListView

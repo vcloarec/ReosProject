@@ -50,10 +50,10 @@ ReosDataProvider *ReosDataProviderRegistery::createProvider( const QString &key 
 {
   QString dataType;
   QString providerKey;
-  if ( key.contains( ':' ) )
+  if ( key.contains( QStringLiteral( "::" ) ) )
   {
-    providerKey = key.split( QString( ':' ) ).at( 0 );
-    dataType = key.split( QString( ':' ) ).at( 1 );
+    providerKey = key.split( QStringLiteral( "::" ) ).at( 0 );
+    dataType = key.split( QStringLiteral( "::" ) ).at( 1 );
   }
   else
     providerKey = key;

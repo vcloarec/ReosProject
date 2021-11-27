@@ -94,8 +94,7 @@ ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( ReosMap *map, QWidget *p
     if ( providerHydrograph )
     {
       copyHyd->setName( providerHydrograph->name() );
-      copyHyd->referenceTime()->setValue( providerHydrograph->dataProvider()->referenceTime() );
-      copyHyd->addOther( providerHydrograph );
+      copyHyd->copyFrom( providerHydrograph );
       copyHyd->setColor( providerHydrograph->color() );
       mHydrographStore->addHydrograph( copyHyd.release() );
       onStoreChanged();
@@ -120,9 +119,15 @@ void ReosGaugedHydrographWidget::setCurrentWatershed( ReosWatershed *watershed )
   mCurrentWatershed = watershed;
 
   if ( watershed )
+  {
     mHydrographStore = watershed->gaugedHydrographs();
+    ui->mLabelNoWatershed->setText( "" );
+  }
   else
+  {
     mHydrographStore = nullptr;
+    ui->mLabelNoWatershed->setText( tr( "Select a watershed to add hydrograhs" ) );
+  }
 
   onStoreChanged();
   onCurrentHydrographChanged();

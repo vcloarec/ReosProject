@@ -82,7 +82,7 @@ class ReosTimeSerieConstantTimeStepProvider : public ReosTimeSerieProvider
     virtual ReosDuration timeStep() const = 0;
     virtual void setTimeStep( const ReosDuration &timeStep );
 
-    virtual void copy( ReosTimeSerieConstantTimeStepProvider *other );;
+    virtual void copy( ReosTimeSerieConstantTimeStepProvider *other );
 };
 
 /**
@@ -96,11 +96,14 @@ class ReosTimeSerieVariableTimeStepProvider : public ReosTimeSerieProvider
 
     virtual ReosDuration relativeTimeAt( int i ) const  = 0;
     virtual ReosDuration lastRelativeTime() const = 0;
+    virtual const QVector<ReosDuration> &constTimeData() const = 0;
 
     virtual void setRelativeTimeAt( int i, const ReosDuration &relativeTime );;
     virtual void appendValue( const ReosDuration &relativeTime, double v );;
     virtual void prependValue( const ReosDuration &relativeTime, double v );;
     virtual void insertValue( int fromPos, const ReosDuration &relativeTime, double v );;
+
+    virtual void copy( ReosTimeSerieVariableTimeStepProvider *other );
 };
 
 
@@ -171,6 +174,7 @@ class ReosTimeSerieVariableTimeStepMemoryProvider : public ReosTimeSerieVariable
     ReosDuration relativeTimeAt( int i ) const override;
     ReosDuration lastRelativeTime() const override;
     void setRelativeTimeAt( int i, const ReosDuration &relativeTime ) override;
+    const QVector<ReosDuration> &constTimeData() const override;
     void appendValue( const ReosDuration &relativeTime, double v ) override;
     void prependValue( const ReosDuration &relativeTime, double v ) override;
     void insertValue( int fromPos, const ReosDuration &relativeTime, double v ) override;
@@ -179,6 +183,7 @@ class ReosTimeSerieVariableTimeStepMemoryProvider : public ReosTimeSerieVariable
     const QVector<double> &constData() const override {return mValues;}
     void removeValues( int fromPos, int count ) override;
     void clear() override;
+    void copy( ReosTimeSerieVariableTimeStepProvider *other ) override;
 
     ReosEncodedElement encode() const override;
     void decode( const ReosEncodedElement &element ) override;
@@ -187,6 +192,7 @@ class ReosTimeSerieVariableTimeStepMemoryProvider : public ReosTimeSerieVariable
     QDateTime mReferenceTime;
     QVector<double> mValues;
     QVector<ReosDuration> mTimeValues;
+
 };
 
 

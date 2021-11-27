@@ -32,6 +32,8 @@ class ReosRainfallTest: public QObject
     void IDFCurvesSherman();
     void loadRainfallData();
 
+    void syntheticRainfall();
+
   private:
     ReosModule mRootModule;
 
@@ -360,9 +362,9 @@ void ReosRainfallTest::loadRainfallData()
     QVERIFY( chicagoRainfall );
     QVERIFY( chicagoRainfall->intensityDurationCurve() == curve );
     QVERIFY( chicagoRainfall->totalDuration()->value() == ReosDuration( 2, ReosDuration::hour ) );
-    QVERIFY( chicagoRainfall->timeStep()->value() == ReosDuration( 5, ReosDuration::minute ) );
+    QVERIFY( chicagoRainfall->timeStep() == ReosDuration( 5, ReosDuration::minute ) );
     QVERIFY( chicagoRainfall->centerCoefficient()->value() == 0.5 );
-    QVERIFY( chicagoRainfall->referenceTime()->value() == QDateTime( QDate( 2013, 02, 01 ), QTime( 1, 2, 3 ), Qt::UTC ) );
+    QVERIFY( chicagoRainfall->referenceTime() == QDateTime( QDate( 2013, 02, 01 ), QTime( 1, 2, 3 ), Qt::UTC ) );
 
     //****** Double triangle rainfall
     ReosRainfallDoubleTriangleItem *doubleTriangleItem = qobject_cast<ReosRainfallDoubleTriangleItem *>(
@@ -376,9 +378,9 @@ void ReosRainfallTest::loadRainfallData()
     QVERIFY( doubleTriangle->intensityDurationCurveIntensePeriod() == curve );
     QVERIFY( doubleTriangle->totalDuration()->value() == ReosDuration( 2, ReosDuration::hour ) );
     QVERIFY( doubleTriangle->intenseDuration()->value() == ReosDuration( 10, ReosDuration::minute ) );
-    QVERIFY( doubleTriangle->timeStep()->value() == ReosDuration( 2, ReosDuration::minute ) );
+    QVERIFY( doubleTriangle->timeStep() == ReosDuration( 2, ReosDuration::minute ) );
     QVERIFY( doubleTriangle->centerCoefficient()->value() == 0.5 );
-    QVERIFY( doubleTriangle->referenceTime()->value() == QDateTime( QDate( 2010, 02, 03 ), QTime( 5, 6, 7 ), Qt::UTC ) );
+    QVERIFY( doubleTriangle->referenceTime() == QDateTime( QDate( 2010, 02, 03 ), QTime( 5, 6, 7 ), Qt::UTC ) );
 
     //****** Aletrnate rainfall
     ReosRainfallAlternatingBlockItem *alternateItem = qobject_cast<ReosRainfallAlternatingBlockItem *>(
@@ -391,9 +393,9 @@ void ReosRainfallTest::loadRainfallData()
     QVERIFY( alternateRainfall );
     QVERIFY( alternateRainfall->intensityDurationCurve() == curve );
     QVERIFY( alternateRainfall->totalDuration()->value() == ReosDuration( 1, ReosDuration::hour ) );
-    QVERIFY( alternateRainfall->timeStep()->value() == ReosDuration( 5, ReosDuration::minute ) );
+    QVERIFY( alternateRainfall->timeStep() == ReosDuration( 5, ReosDuration::minute ) );
     QVERIFY( alternateRainfall->centerCoefficient()->value() == 0.5 );
-    QVERIFY( alternateRainfall->referenceTime()->value() == QDateTime( QDate( 2021, 01, 01 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+    QVERIFY( alternateRainfall->referenceTime() == QDateTime( QDate( 2021, 01, 01 ), QTime( 0, 0, 0 ), Qt::UTC ) );
 
     //****** Aletrnate rainfall
     ReosRainfallGaugedRainfallItem *gaugedItem = qobject_cast<ReosRainfallGaugedRainfallItem *>(
@@ -404,12 +406,179 @@ void ReosRainfallTest::loadRainfallData()
     ReosSerieRainfall *gaugedRainfall = gaugedItem->data();
     QVERIFY( gaugedRainfall );
     QCOMPARE( gaugedRainfall->valueCount(), 3 );
-    QVERIFY( gaugedRainfall->timeStep()->value() == ReosDuration( 10, ReosDuration::minute ) );
-    QCOMPARE( gaugedRainfall->referenceTime()->value(), QDateTime( QDate( 2013, 02, 01 ), QTime( 2, 3, 4 ), Qt::UTC ) );
+    QVERIFY( gaugedRainfall->timeStep() == ReosDuration( 10, ReosDuration::minute ) );
+    QCOMPARE( gaugedRainfall->referenceTime(), QDateTime( QDate( 2013, 02, 01 ), QTime( 2, 3, 4 ), Qt::UTC ) );
     QCOMPARE( gaugedRainfall->valueAt( 0 ), 4.0 );
     QCOMPARE( gaugedRainfall->valueAt( 1 ), 5.0 );
     QCOMPARE( gaugedRainfall->valueAt( 2 ), 6.0 );
   }
+}
+
+void ReosRainfallTest::syntheticRainfall()
+{
+  ReosChicagoRainfall chicagoRainfall;
+  ReosModule root;
+
+  ReosIdfFormulaRegistery::instantiate( &root );
+  ReosIdfFormulaRegistery *idfRegistery = ReosIdfFormulaRegistery::instance();
+  idfRegistery->registerFormula( new ReosIdfFormulaMontana );
+
+  ReosIntensityDurationCurve idCurve;
+  idCurve.addInterval( ReosDuration( 5, ReosDuration::minute ), ReosDuration( 1, ReosDuration::hour ) );
+  idCurve.createParameters( 0, idfRegistery->formula( QStringLiteral( "Montana" ) ), ReosDuration::minute, ReosDuration::minute );
+  idCurve.setCurrentFormula( QStringLiteral( "Montana" ) );
+  idCurve.setupFormula( idfRegistery );
+  ReosParameterDouble *a = idCurve.currentParameters( 0 )->parameter( 0 );
+  ReosParameterDouble *b = idCurve.currentParameters( 0 )->parameter( 1 );
+  a->setValue( 4.78 );
+  b->setValue( 0.322 );
+
+  ReosChicagoRainfall chicagoRainFall;
+  QVERIFY( chicagoRainFall.isObsolete() );
+  chicagoRainFall.setReferenceTime( QDateTime( QDate( 2001, 05, 23 ), QTime( 02, 01, 00, Qt::UTC ) ) );
+  chicagoRainFall.setTimeStep( ReosDuration( 5, ReosDuration::minute ) );
+  chicagoRainFall.totalDuration()->setValue( ReosDuration( 1, ReosDuration::hour ) );
+  chicagoRainFall.setIntensityDurationCurve( &idCurve );
+  QVERIFY( chicagoRainFall.isObsolete() );
+
+  QCOMPARE( chicagoRainFall.valueCount(), 12 );
+  QVERIFY( !chicagoRainFall.isObsolete() );
+
+  QCOMPARE( chicagoRainFall.valueAt( 0 ), 4.601171897516586 );
+  QCOMPARE( chicagoRainFall.valueAt( 1 ), 4.945934631189797 );
+  QCOMPARE( chicagoRainFall.valueAt( 2 ), 5.430738504115798 );
+  QCOMPARE( chicagoRainFall.valueAt( 3 ), 6.203907201977437 );
+  QCOMPARE( chicagoRainFall.valueAt( 4 ), 7.872479103525403 );
+  QCOMPARE( chicagoRainFall.valueAt( 5 ), 14.23408515169522 );
+  QCOMPARE( chicagoRainFall.valueAt( 6 ), 7.872479103525403 );
+  QCOMPARE( chicagoRainFall.valueAt( 7 ), 6.203907201977437 );
+  QCOMPARE( chicagoRainFall.valueAt( 8 ), 5.430738504115798 );
+  QCOMPARE( chicagoRainFall.valueAt( 9 ), 4.945934631189797 );
+  QCOMPARE( chicagoRainFall.valueAt( 10 ), 4.601171897516586 );
+  QCOMPARE( chicagoRainFall.valueAt( 11 ), 4.396153348257627 );
+
+  chicagoRainFall.setReferenceTime( QDateTime( QDate( 2010, 05, 23 ), QTime( 02, 01, 00, Qt::UTC ) ) );
+  QVERIFY( !chicagoRainFall.isObsolete() ); //changing the reference time does not change the value, so not obsolete
+  chicagoRainFall.setTimeStep( ReosDuration( 10, ReosDuration::minute ) );
+  QVERIFY( chicagoRainFall.isObsolete() ); //changing the time step changes the calculation, so obsolete
+
+  QCOMPARE( chicagoRainFall.valueCount(), 6 );
+  QVERIFY( !chicagoRainFall.isObsolete() );
+
+  b->setValue( 0.3 );
+  QVERIFY( chicagoRainFall.isObsolete() );
+  QCOMPARE( chicagoRainFall.valueCount(), 6 );
+  QVERIFY( !chicagoRainFall.isObsolete() );
+
+  chicagoRainFall.totalDuration()->setValue( ReosDuration( 0.5, ReosDuration::hour ) );
+  QVERIFY( chicagoRainFall.isObsolete() );
+  QCOMPARE( chicagoRainFall.valueCount(), 3 );
+  QVERIFY( !chicagoRainFall.isObsolete() );
+
+  ReosAlternatingBlockRainfall alternateBlocRainfall;
+  QVERIFY( alternateBlocRainfall.isObsolete() );
+  alternateBlocRainfall.setReferenceTime( QDateTime( QDate( 2001, 05, 23 ), QTime( 02, 01, 00, Qt::UTC ) ) );
+  alternateBlocRainfall.setTimeStep( ReosDuration( 5, ReosDuration::minute ) );
+  alternateBlocRainfall.totalDuration()->setValue( ReosDuration( 1, ReosDuration::hour ) );
+  alternateBlocRainfall.setIntensityDurationCurve( &idCurve );
+  QVERIFY( alternateBlocRainfall.isObsolete() );
+
+  QCOMPARE( alternateBlocRainfall.valueCount(), 12 );
+  QVERIFY( !alternateBlocRainfall.isObsolete() );
+
+  QCOMPARE( alternateBlocRainfall.valueAt( 0 ), 4.961911178085799 );
+  QCOMPARE( alternateBlocRainfall.valueAt( 1 ), 5.254920261680383 );
+  QCOMPARE( alternateBlocRainfall.valueAt( 2 ), 5.641728953496447 );
+  QCOMPARE( alternateBlocRainfall.valueAt( 3 ),  6.19341388581261 );
+  QCOMPARE( alternateBlocRainfall.valueAt( 4 ), 7.09847006887696 );
+  QCOMPARE( alternateBlocRainfall.valueAt( 5 ), 9.209640448375385 );
+  QCOMPARE( alternateBlocRainfall.valueAt( 6 ), 14.74710931900823 );
+  QCOMPARE( alternateBlocRainfall.valueAt( 7 ),  7.862634978667487 );
+  QCOMPARE( alternateBlocRainfall.valueAt( 8 ),  6.579474320381436 );
+  QCOMPARE( alternateBlocRainfall.valueAt( 9 ), 5.889769694320201 );
+  QCOMPARE( alternateBlocRainfall.valueAt( 10 ), 5.433467305307879 );
+  QCOMPARE( alternateBlocRainfall.valueAt( 11 ), 5.099319362668766 );
+
+  alternateBlocRainfall.setReferenceTime( QDateTime( QDate( 2010, 05, 23 ), QTime( 02, 01, 00, Qt::UTC ) ) );
+  QVERIFY( !alternateBlocRainfall.isObsolete() ); //changing the reference time does not change the value, so not obsolete
+  alternateBlocRainfall.setTimeStep( ReosDuration( 10, ReosDuration::minute ) );
+  QVERIFY( alternateBlocRainfall.isObsolete() ); //changing the time step changes the calcilation, so  obsolete
+
+  QCOMPARE( alternateBlocRainfall.valueCount(), 6 );
+  QVERIFY( !alternateBlocRainfall.isObsolete() );
+
+  b->setValue( 0.3 );
+  QVERIFY( alternateBlocRainfall.isObsolete() );
+  QCOMPARE( alternateBlocRainfall.valueCount(), 6 );
+  QVERIFY( !alternateBlocRainfall.isObsolete() );
+
+  alternateBlocRainfall.totalDuration()->setValue( ReosDuration( 0.5, ReosDuration::hour ) );
+  QVERIFY( alternateBlocRainfall.isObsolete() );
+  QCOMPARE( alternateBlocRainfall.valueCount(), 3 );
+  QVERIFY( !alternateBlocRainfall.isObsolete() );
+
+  ReosIntensityDurationCurve idCurve_2;
+  idCurve_2.addInterval( ReosDuration( 5, ReosDuration::minute ), ReosDuration( 1, ReosDuration::hour ) );
+  idCurve_2.createParameters( 0, idfRegistery->formula( QStringLiteral( "Montana" ) ), ReosDuration::minute, ReosDuration::minute );
+  idCurve_2.setCurrentFormula( QStringLiteral( "Montana" ) );
+  idCurve_2.setupFormula( idfRegistery );
+  ReosParameterDouble *a_2 = idCurve_2.currentParameters( 0 )->parameter( 0 );
+  ReosParameterDouble *b_2 = idCurve_2.currentParameters( 0 )->parameter( 1 );
+  a_2->setValue( 4.78 );
+  b_2->setValue( 0.322 );
+
+  ReosDoubleTriangleRainfall doubleTriangleRainfall;
+  QVERIFY( doubleTriangleRainfall.isObsolete() );
+  doubleTriangleRainfall.setReferenceTime( QDateTime( QDate( 2001, 05, 23 ), QTime( 02, 01, 00, Qt::UTC ) ) );
+  doubleTriangleRainfall.setTimeStep( ReosDuration( 5, ReosDuration::minute ) );
+  doubleTriangleRainfall.intenseDuration()->setValue( ReosDuration( 10, ReosDuration::minute ) );
+  doubleTriangleRainfall.totalDuration()->setValue( ReosDuration( 1, ReosDuration::hour ) );
+  doubleTriangleRainfall.setIntensityDurationCurve( &idCurve, &idCurve_2 );
+  QVERIFY( doubleTriangleRainfall.isObsolete() );
+
+  QCOMPARE( doubleTriangleRainfall.valueCount(), 12 );
+  QVERIFY( !doubleTriangleRainfall.isObsolete() );
+
+  QCOMPARE( doubleTriangleRainfall.valueAt( 0 ), 1.055639028184385 );
+  QCOMPARE( doubleTriangleRainfall.valueAt( 1 ), 3.166917084553156 );
+  QCOMPARE( doubleTriangleRainfall.valueAt( 2 ), 5.278195140921927 );
+  QCOMPARE( doubleTriangleRainfall.valueAt( 3 ), 7.389473197290698 );
+  QCOMPARE( doubleTriangleRainfall.valueAt( 4 ), 9.50075125365947 );
+  QCOMPARE( doubleTriangleRainfall.valueAt( 5 ),  11.97837488369181 );
+  QCOMPARE( doubleTriangleRainfall.valueAt( 6 ), 11.97837488369181 );
+  QCOMPARE( doubleTriangleRainfall.valueAt( 7 ),  9.50075125365947 );
+  QCOMPARE( doubleTriangleRainfall.valueAt( 8 ),  7.389473197290698 );
+  QCOMPARE( doubleTriangleRainfall.valueAt( 9 ),  5.278195140921927 );
+  QCOMPARE( doubleTriangleRainfall.valueAt( 10 ), 3.166917084553156 );
+  QCOMPARE( doubleTriangleRainfall.valueAt( 11 ), 1.055639028184385 );
+
+  doubleTriangleRainfall.setReferenceTime( QDateTime( QDate( 2010, 05, 23 ), QTime( 02, 01, 00, Qt::UTC ) ) );
+  QVERIFY( !doubleTriangleRainfall.isObsolete() ); //changing the reference time does not change the value, so not obsolete
+  doubleTriangleRainfall.setTimeStep( ReosDuration( 10, ReosDuration::minute ) );
+  QVERIFY( doubleTriangleRainfall.isObsolete() ); //changing the time step changes the calcilation, so  obsolete
+
+  QCOMPARE( doubleTriangleRainfall.valueCount(), 5 );
+  QVERIFY( !doubleTriangleRainfall.isObsolete() );
+
+  b->setValue( 0.3 );
+  QVERIFY( doubleTriangleRainfall.isObsolete() );
+  QCOMPARE( doubleTriangleRainfall.valueCount(), 5 );
+  QVERIFY( !doubleTriangleRainfall.isObsolete() );
+
+  b_2->setValue( 0.3 );
+  QVERIFY( doubleTriangleRainfall.isObsolete() );
+  QCOMPARE( doubleTriangleRainfall.valueCount(), 5 );
+  QVERIFY( !doubleTriangleRainfall.isObsolete() );
+
+  doubleTriangleRainfall.totalDuration()->setValue( ReosDuration( 0.5, ReosDuration::hour ) );
+  QVERIFY( doubleTriangleRainfall.isObsolete() );
+  QCOMPARE( doubleTriangleRainfall.valueCount(), 3 );
+  QVERIFY( !doubleTriangleRainfall.isObsolete() );
+
+  doubleTriangleRainfall.intenseDuration()->setValue( ReosDuration( 5, ReosDuration::minute ) );
+  QVERIFY( doubleTriangleRainfall.isObsolete() );
+  QCOMPARE( doubleTriangleRainfall.valueCount(), 2 );
+  QVERIFY( !doubleTriangleRainfall.isObsolete() );
 }
 
 QTEST_MAIN( ReosRainfallTest )

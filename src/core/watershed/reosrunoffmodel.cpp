@@ -71,35 +71,51 @@ ReosRunoff::ReosRunoff( ReosRunoffModelsGroup *runoffModels, ReosTimeSerieConsta
   mData->copyAttribute( rainfall );
   mData->syncWith( rainfall );
 
-  connect( runoffModels, &ReosDataObject::dataChanged, this, &ReosRunoff::updateValues );
-  connect( rainfall, &ReosDataObject::dataChanged, this, &ReosRunoff::updateValues );
+  registerUpstreamData( mRainfall );
+  registerUpstreamData( mRunoffModelsGroups );
+}
+
+void ReosRunoff::setRainfall( ReosTimeSerieConstantInterval *rainfall )
+{
+  deregisterUpstreamData( mRainfall );
+  mRainfall = rainfall;
+  setObsolete();
+  registerUpstreamData( mRainfall );
 }
 
 int ReosRunoff::valueCount() const
 {
+  updateValues();
   return mData->valueCount();
 }
 
 ReosDuration ReosRunoff::timeStep() const
 {
-  return mRainfall->timeStep()->value();
+  updateValues();
+  return mRainfall->timeStepParameter()->value();
 }
 
 double ReosRunoff::value( int i ) const
 {
+  updateValues();
   return mData->valueAt( i );
 }
 
 double ReosRunoff::incrementalValue( int i )
 {
+  updateValues();
   return mData->valueWithMode( i, ReosTimeSerieConstantInterval::Value );
 }
 
-bool ReosRunoff::updateValues()
+void ReosRunoff::updateValues() const
 {
+  if ( !isObsolete() )
+    return;
+
+  mData->clear();
+
   if ( !mRainfall.isNull() && mRunoffModelsGroups )
   {
-    mData->clear();
     for ( int i = 0; i < mRunoffModelsGroups->runoffModelCount(); ++i )
     {
       ReosRunoffModel *model = mRunoffModelsGroups->runoffModel( i );
@@ -109,21 +125,25 @@ bool ReosRunoff::updateValues()
       {
         if ( !model->addRunoffModel( mRainfall, mData, coefficient ) )
         {
+          setActualized();
           emit dataChanged();
-          return false;
+          return;
         }
       }
     }
+    setActualized();
     emit dataChanged();
-    return true;
+    return;
   }
 
+  setActualized();
   emit dataChanged();
-  return false;
+  return ;
 }
 
 ReosTimeSerieConstantInterval *ReosRunoff::data() const
 {
+  updateValues();
   return mData;
 }
 
@@ -1014,7 +1034,7 @@ bool ReosRunoffGreenAmptModel::addRunoffModel( ReosTimeSerieConstantInterval *ra
   double ts = 0;
   bool pondingInitial = false;
   bool pondingTerminal = false;
-  ReosDuration timeStep = rainfall->timeStep()->value();
+  ReosDuration timeStep = rainfall->timeStepParameter()->value();
   double timeStepHour = timeStep.valueHour();
 
   double K_h = K * timeStepHour;

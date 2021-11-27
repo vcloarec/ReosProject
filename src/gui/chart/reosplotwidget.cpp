@@ -406,6 +406,24 @@ bool ReosPlotItem::isVisible() const
     return false;
 }
 
+void ReosPlotItem::setLegendActive( bool legendActive, bool updateLegend )
+{
+  if ( mPlotItem )
+  {
+    mPlotItem->setItemAttribute( QwtPlotItem::Legend, legendActive );
+    if ( updateLegend && mPlotItem->plot() )
+      mPlotItem->plot()->updateLegend();
+  }
+}
+
+void ReosPlotItem::setZ( double z )
+{
+  if ( mPlotItem )
+  {
+    mPlotItem->setZ( z );
+  }
+}
+
 void ReosPlotItem::setColor( const QColor & ) {}
 
 void ReosPlotItem::setStyle( Qt::PenStyle ) {}
@@ -515,3 +533,7 @@ ReosPlotItem *ReosPlotItemFactories::buildPlotItem( ReosPlotWidget *plotWidget, 
 }
 
 ReosPlotItemFactories::ReosPlotItemFactories( ReosModule *parent ): ReosModule( parent ) {}
+
+void ReosDataPlotItemFactory::buildPlotItemsAndSetup( ReosPlotWidget *, ReosDataObject * ) {}
+
+ReosPlotItem *ReosDataPlotItemFactory::buildPlotItem( ReosPlotWidget *, ReosDataObject * ) {return nullptr;}

@@ -64,6 +64,9 @@ class ReosWatershedRunoffModelsModel: public QAbstractTableModel
 
     int runoffCount() const;
 
+  signals:
+    void modelChanged();
+
   private:
     ReosRunoffModelsGroup *mWatershedRunoffModels = nullptr;
 
@@ -75,6 +78,7 @@ class ReosWatershedRunoffModelsModel: public QAbstractTableModel
 
 class ReosTimeSeriesTableModel: public QAbstractTableModel
 {
+    Q_OBJECT
   public:
     ReosTimeSeriesTableModel( QObject *parent = nullptr );
     QModelIndex index( int row, int column, const QModelIndex & ) const override;
@@ -87,6 +91,9 @@ class ReosTimeSeriesTableModel: public QAbstractTableModel
     void addTimeSerie( ReosTimeSerie *timeSerie, const QString &name );
 
     void clearSerie();
+
+  private slots:
+    void onDataChanged();
 
   private:
     QList<QPointer<ReosTimeSerie>> mTimeSeries;
@@ -144,9 +151,8 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
 
   private slots:
     void onModelMeteoChanged();
-    void updateRainall();
-    void updateRunoff();
-    void updateHydrograph();
+    void updateRainfall();
+    void onHydrographReady( ReosHydrograph *hydrograph );
     void onTransferFunctionChanged();
     void onRunoffTableViewContextMenu( const QPoint &pos );
     void copyHydrographSelected( bool withHeader );
@@ -154,6 +160,8 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
     void hydrographTabContextMenu( const QPoint &pos );
     void rainfallRunoffTabContextMenu( const QPoint &pos );
     void onTransferFunctionFormulation();
+
+    void updateResultData();
 
   private:
     Ui::ReosRunoffHydrographWidget *ui;
@@ -171,14 +179,19 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
     ReosPlotTimeHistogram *mRunoffHistogram = nullptr;
     ReosPlotTimeSerieVariableStep *mHydrographCurve = nullptr;
     ReosVariableTimeStepPlotListButton *mGaugedHydrographButton = nullptr;
+    ReosVariableTimeStepPlotListButton *mOtherRunoffHydrographButton = nullptr;
 
-    ReosRunoff *mCurrentRunoff = nullptr;
-    ReosHydrograph *mCurrentHydrograph = nullptr;
+
+    ReosRunoffHydrographStore *mRunoffHydrographStore = nullptr;
+
+    QPointer<ReosRunoff> mCurrentRunoff ;
+    QPointer<ReosHydrograph> mCurrentHydrograph;
 
     void buildRunoffChoiceMenu( QMenu *menu, int row );
     void syncTransferFunction( ReosTransferFunction *function );
 
     void updateGaugedHydrograph();
+    void updateOtherRunoffHydrograph();
 };
 
 //**************************************************

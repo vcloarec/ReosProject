@@ -32,9 +32,35 @@ void ReosDataObject::encode( ReosEncodedElement &element ) const
 void ReosDataObject::decode( const ReosEncodedElement &element )
 {
   element.getData( QStringLiteral( "object-name" ), mName );
+  mIsObsolete = false;
 }
 
 void ReosDataObject::setName( const QString &name )
 {
   mName = name;
+}
+
+void ReosDataObject::registerUpstreamData( ReosDataObject *data )
+{
+  connect( data, &ReosDataObject::dataChanged, this, &ReosDataObject::setObsolete );
+}
+
+void ReosDataObject::deregisterUpstreamData( ReosDataObject *data )
+{
+  disconnect( data, &ReosDataObject::dataChanged, this, &ReosDataObject::setObsolete );
+}
+
+void ReosDataObject::setActualized() const
+{
+  mIsObsolete = false;
+}
+
+void ReosDataObject::setObsolete()
+{
+  mIsObsolete = true;
+}
+
+bool ReosDataObject::isObsolete() const
+{
+  return mIsObsolete;
 }

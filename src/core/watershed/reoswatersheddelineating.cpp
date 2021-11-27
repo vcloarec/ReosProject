@@ -201,8 +201,8 @@ ReosWatershed *ReosWatershedDelineating::storeWatershed( bool adjustIfNeeded )
   {
     newWatershed = mWatershedTree->addWatershed( mCurrentWatershed.release(), adjustIfNeeded );
     ReosWatershed *dsws = newWatershed->downstreamWatershed();
-    sendMessage( tr( "%1 validated%2" ).arg( newWatershed->name()->value() )
-                 .arg( dsws ? ( tr( " and added to %1" ).arg( newWatershed->downstreamWatershed()->name()->value() ) ) : QString() ), ReosModule::Message );
+    sendMessage( tr( "%1 validated%2" ).arg( newWatershed->watershedName()->value() )
+                 .arg( dsws ? ( tr( " and added to %1" ).arg( newWatershed->downstreamWatershed()->watershedName()->value() ) ) : QString() ), ReosModule::Message );
     mCurrentState = WaitingForDownstream;
   }
 

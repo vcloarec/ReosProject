@@ -70,6 +70,10 @@ class ReosPlotItem: public QObject
     void setVisible( bool isVisible, bool replot = true );
     bool isVisible() const;
 
+    void setLegendActive( bool legendActive, bool updateLegend = true );
+
+    void setZ( double z );
+
     virtual QColor color() const {return QColor();}
     virtual QPixmap icone( const QSize &size ) const;
 
@@ -184,8 +188,8 @@ class ReosDataPlotItemFactory
 {
   public:
     virtual QString datatype() const = 0;
-    virtual void buildPlotItemsAndSetup( ReosPlotWidget *plotWidget, ReosDataObject *data ) {};
-    virtual ReosPlotItem *buildPlotItem( ReosPlotWidget *plotWidget, ReosDataObject *data ) {};
+    virtual void buildPlotItemsAndSetup( ReosPlotWidget *plotWidget, ReosDataObject *data );
+    virtual ReosPlotItem *buildPlotItem( ReosPlotWidget *plotWidget, ReosDataObject *data );
 };
 
 

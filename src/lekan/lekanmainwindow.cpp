@@ -22,6 +22,7 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include <QFileInfo>
 #include <QDir>
 
+#include "reosstyleregistery.h"
 #include "reossettings.h"
 #include "reosmodule.h"
 #include "reosmap.h"
@@ -45,6 +46,8 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
 {
   init();
   setWindowIcon( QPixmap( QStringLiteral( ":/images/lekan.svg" ) ) );
+
+  ReosStyleRegistery::instantiate( rootModule() );
 
   ReosRainfallRegistery::instantiate( rootModule() );
   ReosRunoffModelRegistery::instantiate( rootModule() );

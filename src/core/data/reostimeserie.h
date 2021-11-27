@@ -39,7 +39,13 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
     QString type() const override {return staticType();}
 
     //! Returns a pointer to the refrence time parameter
-    ReosParameterDateTime *referenceTime() const {return mReferenceTime;}
+    ReosParameterDateTime *referenceTimeParameter() const {return mReferenceTimeParameter;}
+
+    //! Sets the reference time
+    void setReferenceTime( const QDateTime &dateTime );
+
+    //! Returns the reference time
+    QDateTime referenceTime() const;
 
     //! Returns the count of value in the time serie
     int valueCount() const;
@@ -83,8 +89,8 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
 
     static QString staticType() {return ReosDataObject::staticType() + ':' + QStringLiteral( "time-serie" );}
 
-  public slots:
-    void onDataProviderChanged();
+  protected slots:
+    virtual void onDataProviderChanged();
 
   protected:
     //! Connect all parameters with
@@ -97,7 +103,7 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
     std::unique_ptr<ReosTimeSerieProvider> mProvider;
 
   private:
-    ReosParameterDateTime *mReferenceTime = nullptr;
+    ReosParameterDateTime *mReferenceTimeParameter = nullptr;
     QString mValueUnit;
 };
 
@@ -141,7 +147,13 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     void setValueMode( const ValueMode &valueMode );
 
     //! Returns a pointer to the constant time step parameter
-    ReosParameterDuration *timeStep() const;
+    ReosParameterDuration *timeStepParameter() const;
+
+    //! Sets the constant time step of this time serie
+    void setTimeStep( const ReosDuration &timeStep );
+
+    //! Returns the constant time step of this time serie
+    ReosDuration timeStep() const;
 
     ReosDuration::Unit intensityTimeUnit() const;
     void setIntensityTimeUnit( const ReosDuration::Unit &intensityTimeUnit );
@@ -191,12 +203,15 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     //! Copy the serie \a other in \a this.
     void copyFrom( ReosTimeSerieConstantInterval *other );
 
+  private slots:
+    void onDataProviderChanged() override;
+
   protected:
     void connectParameters();
     ReosTimeSerieConstantInterval( const ReosEncodedElement &element, QObject *parent = nullptr );
 
   private:
-    ReosParameterDuration *mTimeStep = nullptr;
+    ReosParameterDuration *mTimeStepParameter = nullptr;
 
     //! Attribute that are defined during runtime
     ValueMode mValueMode = Value;
@@ -248,6 +263,8 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
 
     //! Sets the color used to render the time serie
     void setColor( const QColor &color );
+
+    void copyFrom( ReosTimeSerieVariableTimeStep *other );
 
   signals:
     void colorChanged( const QColor &color );
@@ -311,13 +328,7 @@ class REOSCORE_EXPORT ReosTimeSerieConstantIntervalModel : public ReosTimeSerieM
     void setValues( const QModelIndex &fromIndex, const QList<QVariantList> &values ) override;
     void insertValues( const QModelIndex &fromIndex, const QList<QVariantList> &values ) override;
 
-    bool isEditable() const
-    {
-      if ( mData && mData->dataProvider() )
-        return mData->dataProvider()->isEditable();
-
-      return false;
-    }
+    bool isEditable() const;
 
   public slots:
     void deleteRows( const QModelIndex &fromIndex, int count ) override;
@@ -338,14 +349,14 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStepModel: public ReosTimeSerieMo
   public:
     ReosTimeSerieVariableTimeStepModel( QObject *parent = nullptr );
 
-    int rowCount( const QModelIndex & ) const;
-    int columnCount( const QModelIndex & ) const;
-    QVariant data( const QModelIndex &index, int role ) const;
-    bool setData( const QModelIndex &index, const QVariant &value, int role );
+    int rowCount( const QModelIndex & ) const override;
+    int columnCount( const QModelIndex & ) const override;
+    QVariant data( const QModelIndex &index, int role ) const override;
+    bool setData( const QModelIndex &index, const QVariant &value, int role ) override;
     Qt::ItemFlags flags( const QModelIndex &index ) const override;
     QVariant headerData( int section, Qt::Orientation orientation, int role ) const override;
 
-    void setValues( const QModelIndex &fromIndex, const QList<QVariantList> &values ) {}
+    void setValues( const QModelIndex &fromIndex, const QList<QVariantList> &values );
     void insertValues( const QModelIndex &fromIndex, const QList<QVariantList> &values ) {}
     void deleteRows( const QModelIndex &fromIndex, int count ) {};
     void insertRows( const QModelIndex &fromIndex, int count ) {};

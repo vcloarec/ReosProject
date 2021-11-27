@@ -125,8 +125,9 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
     ReosMapExtent currentExtent() const;
 
     // -------- Processing
-    //! Start the delineating, return true if starting this process is sucessful
+    //! Prepare the delineating, return true if sucessful
     bool prepareDelineating();
+
     ReosProcess *delineatingProcess();
 
     //! Returns if the delineating process is finished

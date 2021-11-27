@@ -83,7 +83,7 @@ class ReosPlotTimeSerieVariableStep: public ReosPlotItem
     Q_OBJECT
   public:
     ReosPlotTimeSerieVariableStep( const QString &name = QString() );
-    void setTimeSerie( ReosTimeSerieVariableTimeStep *timeSerie, bool replot = true );
+    void setTimeSerie( ReosTimeSerieVariableTimeStep *timeSerie, bool replot = true, bool applysettings = true );
 
     QColor color() const override;
     QPixmap icone( const QSize &size ) const override;

@@ -30,6 +30,7 @@ class ReosWatershedItemModel;
 //! Class that handle association between watesheds and rainfalls
 class REOSCORE_EXPORT ReosMeteorologicModel : public ReosDataObject
 {
+    Q_OBJECT
   public:
     ReosMeteorologicModel( const QString &name, QObject *parent = nullptr );
     ReosMeteorologicModel( const ReosEncodedElement &element,
@@ -51,18 +52,32 @@ class REOSCORE_EXPORT ReosMeteorologicModel : public ReosDataObject
     //! Disassociation the rainfall associated with the \a watershd
     void disassociate( ReosWatershed *watershed );
 
+    //! Returns the associated rainfall item of \a watershed
+    ReosRainfallSerieRainfallItem *associatedRainfallItem( ReosWatershed *watershed ) const;
+
     //! Returns the associated rainfall of \a watershed
-    ReosRainfallSerieRainfallItem *associatedRainfall( ReosWatershed *watershed ) const;
+    ReosSerieRainfall *associatedRainfall( ReosWatershed *watershed ) const;
+
+    //! Returns whether the meteomodel has a associated rainfall for the watershed \a watershed
+    bool hasRainfall( ReosWatershed *watershed ) const;
 
     //! Remove all reference with no association
     void purge() const;
 
+    //! Returns the color used to display curve related to this meteorologic model
+    QColor color() const;
+
     ReosEncodedElement encode( ReosWatershedTree *watershedTree ) const;
+
+  public slots:
+    //! Sets the color used to display curve related to this meteorologic model
+    void setColor( const QColor &color );
 
   private:
     std::unique_ptr<ReosParameterString> mName;
     using WatershedRainfallAssociation = QPair<QPointer<ReosWatershed>, QPointer<ReosRainfallSerieRainfallItem>>;
     mutable QList<WatershedRainfallAssociation> mAssociations;
+    QColor mColor;
 
     //! Searchs for \a watershed, if found , return its index, otherwise return -1
     int findWatershed( ReosWatershed *watershed ) const;
@@ -73,7 +88,7 @@ class REOSCORE_EXPORT ReosMeteorologicModelsCollection : public QAbstractListMod
 {
     Q_OBJECT
   public:
-    ReosMeteorologicModelsCollection( QObject *parent );
+    ReosMeteorologicModelsCollection( QObject *parent = nullptr );
 
     int rowCount( const QModelIndex & ) const override;
     QModelIndex index( int row, int column, const QModelIndex & ) const override;

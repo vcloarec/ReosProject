@@ -23,10 +23,10 @@
 
 #include "reoshydrograph.h"
 
-ReosDelftFewsXMLProvider::ReosDelftFewsXMLProvider()
+ReosDelftFewsXMLProviderInterface::ReosDelftFewsXMLProviderInterface()
 {}
 
-QDateTime ReosDelftFewsXMLProvider::timefromElement( const QDomElement &element )
+QDateTime ReosDelftFewsXMLProviderInterface::timefromElement( const QDomElement &element )
 {
   if ( element.hasAttribute( QStringLiteral( "date" ) ) && element.hasAttribute( QStringLiteral( "time" ) ) )
   {
@@ -39,7 +39,7 @@ QDateTime ReosDelftFewsXMLProvider::timefromElement( const QDomElement &element 
     return QDateTime();
 }
 
-double ReosDelftFewsXMLProvider::doubleValueFromElement( const QDomElement &element, const QString &noData )
+double ReosDelftFewsXMLProviderInterface::doubleValueFromElement( const QDomElement &element, const QString &noData )
 {
   if ( element.hasAttribute( QStringLiteral( "value" ) ) )
   {
@@ -55,12 +55,12 @@ double ReosDelftFewsXMLProvider::doubleValueFromElement( const QDomElement &elem
   return std::numeric_limits<double>::quiet_NaN();
 }
 
-QString ReosDelftFewsXMLProvider::valueStringFromElement( const QDomElement &element )
+QString ReosDelftFewsXMLProviderInterface::valueStringFromElement( const QDomElement &element )
 {
   return element.firstChild().nodeValue();
 }
 
-QString ReosDelftFewsXMLProvider::htmlDescriptionFromMetada( const QVariantMap &metadata )
+QString ReosDelftFewsXMLProviderInterface::htmlDescriptionFromMetada( const QVariantMap &metadata )
 {
   QString htmlText = QStringLiteral( "<html>\n<body>\n" );
   htmlText += QLatin1String( "<table class=\"list-view\">\n" );
@@ -93,7 +93,7 @@ QString ReosDelftFewsXMLProvider::htmlDescriptionFromMetada( const QVariantMap &
   return htmlText;
 }
 
-QDomElement ReosDelftFewsXMLProvider::seriesElement( const QString &uri, QDomDocument &xmlDoc, QString &noData ) const
+QDomElement ReosDelftFewsXMLProviderInterface::seriesElement( const QString &uri, QDomDocument &xmlDoc ) const
 {
   const QString filePath = fileNameFromUri( uri );
   const QString stationId = stationIdFromUri( uri );
@@ -151,17 +151,17 @@ QDomElement ReosDelftFewsXMLProvider::seriesElement( const QString &uri, QDomDoc
     return serieElement;
 }
 
-QVariantMap ReosDelftFewsXMLProvider::metadata() const
+QVariantMap ReosDelftFewsXMLProviderInterface::metadata() const
 {
   return mMeta;
 }
 
-void ReosDelftFewsXMLProvider::setMetadata( const QVariantMap &meta )
+void ReosDelftFewsXMLProviderInterface::setMetadata( const QVariantMap &meta )
 {
   mMeta = meta;
 }
 
-QString ReosDelftFewsXMLHydrographProvider::key() const {return ReosDelftFewsXMLProvider::staticKey() + ':' + dataType();}
+QString ReosDelftFewsXMLHydrographProvider::key() const {return ReosDelftFewsXMLProviderInterface::staticKey() + QStringLiteral( "::" ) + dataType();}
 
 QString ReosDelftFewsXMLHydrographProvider::htmlDescription() const
 {
@@ -175,7 +175,7 @@ void ReosDelftFewsXMLHydrographProvider::load()
   QDomDocument xmlDoc( "delft-document" );
   QString noDataValue;
 
-  QDomElement serieElement = seriesElement( uri, xmlDoc, noDataValue );
+  QDomElement serieElement = seriesElement( uri, xmlDoc );
 
   QDomElement valueElement = serieElement.firstChildElement( QStringLiteral( "event" ) );
   while ( !valueElement.isNull() )
@@ -221,7 +221,12 @@ double *ReosDelftFewsXMLHydrographProvider::data() {return mCacheValues.data();}
 
 const QVector<double> &ReosDelftFewsXMLHydrographProvider::constData() const {return mCacheValues;}
 
-QString ReosDelftFewsXMLRainfallProvider::key() const {return ReosDelftFewsXMLProvider::staticKey() + ':' + dataType();}
+const QVector<ReosDuration> &ReosDelftFewsXMLHydrographProvider::constTimeData() const
+{
+  return mCacheTimeValues;
+}
+
+QString ReosDelftFewsXMLRainfallProvider::key() const {return ReosDelftFewsXMLProviderInterface::staticKey() + QStringLiteral( "::" ) + dataType();}
 
 QString ReosDelftFewsXMLRainfallProvider::htmlDescription() const
 {
@@ -235,13 +240,13 @@ void ReosDelftFewsXMLRainfallProvider::load()
   QDomDocument xmlDoc( "delft-document" );
   QString noDataValue;
 
-  QDomElement serieElement = seriesElement( uri, xmlDoc, noDataValue );
+  QDomElement serieElement = seriesElement( uri, xmlDoc );
 
   bool isIntensity = false;
 
   const QDomElement headerElement = serieElement.firstChildElement( QStringLiteral( "header" ) );
   const QDomElement typeElement = headerElement.firstChildElement( QStringLiteral( "type" ) );
-  QString type = ReosDelftFewsXMLProvider::valueStringFromElement( typeElement );
+  QString type = ReosDelftFewsXMLProviderInterface::valueStringFromElement( typeElement );
   isIntensity = type == QStringLiteral( "instantaneous" );
 
   QDomElement timeStepElement = headerElement.firstChildElement( QStringLiteral( "timeStep" ) );
@@ -352,7 +357,7 @@ void ReosDelftFewsXMLRainfallProvider::decode( const ReosEncodedElement &element
 
 ReosDuration ReosDelftFewsXMLRainfallProvider::timeStep() const {return mTimeStep;}
 
-QString ReosDelftFewsXMLRainfallProvider::dataType() {return QStringLiteral( "rainfall" );}
+QString ReosDelftFewsXMLRainfallProvider::dataType() {return ReosSerieRainfall::staticType();}
 
 ReosEncodedElement ReosDelftFewsXMLHydrographProvider::encode() const
 {
@@ -390,7 +395,7 @@ QString ReosDelftFewsXMLHydrographProvider::dataType() {return ReosHydrograph::s
 #define skipEmptyPart Qt::SplitBehaviorFlags::SkipEmptyParts
 #endif
 
-QString ReosDelftFewsXMLProvider::fileNameFromUri( const QString &uri )
+QString ReosDelftFewsXMLProviderInterface::fileNameFromUri( const QString &uri )
 {
   if ( !uri.contains( QStringLiteral( "\"" ) ) )
     return QString();
@@ -399,7 +404,7 @@ QString ReosDelftFewsXMLProvider::fileNameFromUri( const QString &uri )
   return split.at( 0 );
 }
 
-QString ReosDelftFewsXMLProvider::stationIdFromUri( const QString &uri )
+QString ReosDelftFewsXMLProviderInterface::stationIdFromUri( const QString &uri )
 {
   QStringList splitUri = uri.split( QStringLiteral( "\"" ), skipEmptyPart );
   if ( splitUri.count() < 2 )
@@ -410,7 +415,7 @@ QString ReosDelftFewsXMLProvider::stationIdFromUri( const QString &uri )
 
 }
 
-QDateTime ReosDelftFewsXMLProvider::startTimeFromUri( const QString &uri )
+QDateTime ReosDelftFewsXMLProviderInterface::startTimeFromUri( const QString &uri )
 {
   QStringList splitUri = uri.split( QStringLiteral( "\"" ), skipEmptyPart );
   if ( splitUri.count() < 2 )
@@ -423,7 +428,7 @@ QDateTime ReosDelftFewsXMLProvider::startTimeFromUri( const QString &uri )
   return QDateTime::fromString( splitSecondPart.at( 1 ), Qt::ISODate );
 }
 
-QDateTime ReosDelftFewsXMLProvider::endTimeFromUri( const QString &uri )
+QDateTime ReosDelftFewsXMLProviderInterface::endTimeFromUri( const QString &uri )
 {
   QStringList splitUri = uri.split( QStringLiteral( "\"" ), skipEmptyPart );
   if ( splitUri.count() < 2 )
@@ -449,7 +454,7 @@ ReosTimeSerieProvider *ReosDelftFewsXMLProviderFactory::createProvider( const QS
 
 QString ReosDelftFewsXMLProviderFactory::key() const
 {
-  return ReosDelftFewsXMLProvider::staticKey();
+  return ReosDelftFewsXMLProviderInterface::staticKey();
 }
 
 REOSEXTERN ReosDataProviderFactory *providerFactory()

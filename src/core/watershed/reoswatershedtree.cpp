@@ -64,7 +64,7 @@ ReosWatershed *ReosWatershedTree::addWatershed( ReosWatershed *watershedToAdd, b
   if ( !ws )
     return nullptr;
 
-  connect( ws.get(), &ReosWatershed::changed, this, &ReosWatershedTree::watershedChanged );
+  connect( ws.get(), &ReosDataObject::dataChanged, this, &ReosWatershedTree::watershedChanged );
 
   emit watershedWillBeAdded();
 
@@ -81,8 +81,8 @@ ReosWatershed *ReosWatershedTree::addWatershed( ReosWatershed *watershedToAdd, b
   else
   {
     // first assign new name
-    if ( !ws->name()->isValid() )
-      ws->setName( tr( "Watershed-%1" ).arg( mWatersheds.size() + 1 ) );
+    if ( !ws->watershedName()->isValid() )
+      ws->setWatershedName( tr( "Watershed-%1" ).arg( mWatersheds.size() + 1 ) );
 
     size_t i = 0;
     while ( i < mWatersheds.size() )
@@ -277,7 +277,7 @@ void ReosWatershedTree::decode( const ReosEncodedElement &elem )
 
   QList<ReosWatershed *> allWs = allWatersheds();
   for ( ReosWatershed *ws : std::as_const( allWs ) )
-    connect( ws, &ReosWatershed::changed, this, &ReosWatershedTree::watershedChanged );
+    connect( ws, &ReosDataObject::dataChanged, this, &ReosWatershedTree::watershedChanged );
 
   emit treeReset();
 }
@@ -351,10 +351,10 @@ QVariant ReosWatershedItemModel::data( const QModelIndex &index, int role ) cons
   switch ( role )
   {
     case Qt::DisplayRole:
-      return ws->name()->value();
+      return ws->watershedName()->value();
       break;
     case Qt::ForegroundRole:
-      if ( ws->type() == ReosWatershed::Residual )
+      if ( ws->watershedType() == ReosWatershed::Residual )
         return QColor( Qt::gray );
       break;
     default:
@@ -377,13 +377,13 @@ void ReosWatershedItemModel::onWatershedWillBeAdded()
 void ReosWatershedItemModel::onWatershedAdded( ReosWatershed *watershed )
 {
   endResetModel();
-  connect( watershed, &ReosWatershed::changed, this, &ReosWatershedItemModel::onWatershedChanged );
+  connect( watershed, &ReosDataObject::dataChanged, this, &ReosWatershedItemModel::onWatershedChanged );
   emit watershedAdded( watershedToIndex( watershed ) );
 }
 
 void ReosWatershedItemModel::onWatershedWillBeRemoved( ReosWatershed *ws )
 {
-  disconnect( ws, &ReosWatershed::changed, this, &ReosWatershedItemModel::onWatershedChanged );
+  disconnect( ws, &ReosDataObject::dataChanged, this, &ReosWatershedItemModel::onWatershedChanged );
   beginResetModel();
 }
 
