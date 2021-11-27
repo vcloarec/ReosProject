@@ -359,6 +359,15 @@ QAbstractListModel *ReosTransferFunctionFactories::listModel() const
   return mModel;
 }
 
+QString ReosTransferFunctionFactories::displayText( const QString &type ) const
+{
+  for ( const Factory &fact : mFactories )
+    if ( fact->type() == type )
+      return fact->displayText();
+
+  return QString();
+}
+
 QString ReosTransferFunctionFactories::presentationText( const QString &type ) const
 {
   for ( const Factory &fact : mFactories )
@@ -375,6 +384,15 @@ QPixmap ReosTransferFunctionFactories::formulation( const QString &type ) const
       return fact->formulation();
 
   return QPixmap();
+}
+
+QString ReosTransferFunctionFactories::formulationRessource( const QString &type ) const
+{
+  for ( const Factory &fact : mFactories )
+    if ( fact->type() == type )
+      return fact->formulationRessource();
+
+  return QString();
 }
 
 QString ReosTransferFunctionFactories::variablesDescription( const QString &type ) const
@@ -460,7 +478,15 @@ QString ReosTransferFunctionGeneralizedRationalMethodFactory::presentationText()
                       "This Unit Hydrograph is defined as below:" );
 }
 
-QPixmap ReosTransferFunctionGeneralizedRationalMethodFactory::formulation() const {return QPixmap( QStringLiteral( ":/formulas/rationalUnitHydrograph.svg" ) );}
+QPixmap ReosTransferFunctionGeneralizedRationalMethodFactory::formulation() const
+{
+  return QPixmap( formulationRessource() );
+}
+
+QString ReosTransferFunctionGeneralizedRationalMethodFactory::formulationRessource() const
+{
+  return QStringLiteral( ":/formulas/rationalUnitHydrograph.svg" );
+}
 
 QString ReosTransferFunctionGeneralizedRationalMethodFactory::variablesDescription() const
 {
@@ -488,7 +514,12 @@ QString ReosTransferFunctionLinearReservoirFactory::presentationText() const
 
 QPixmap ReosTransferFunctionLinearReservoirFactory::formulation() const
 {
-  return QPixmap( QStringLiteral( ":/formulas/linearReservoirHydrograph.svg" ) );
+  return QPixmap( formulationRessource() );
+}
+
+QString ReosTransferFunctionLinearReservoirFactory::formulationRessource() const
+{
+  return  QStringLiteral( ":/formulas/linearReservoirHydrograph.svg" );
 }
 
 QString ReosTransferFunctionLinearReservoirFactory::variablesDescription() const
@@ -754,7 +785,12 @@ QString ReosTransferFunctionSCSUnitHydrographFactory::presentationText() const
 
 QPixmap ReosTransferFunctionSCSUnitHydrographFactory::formulation() const
 {
-  return QPixmap( QStringLiteral( ":/formulas/SCSUnitHydrograph.svg" ) );
+  return QPixmap( formulationRessource() );
+}
+
+QString ReosTransferFunctionSCSUnitHydrographFactory::formulationRessource() const
+{
+  return QStringLiteral( ":/formulas/SCSUnitHydrograph.svg" );
 }
 
 QString ReosTransferFunctionSCSUnitHydrographFactory::variablesDescription() const
@@ -1243,7 +1279,12 @@ QString ReosTransferFunctionNashUnitHydrographFactory::presentationText() const
 
 QPixmap ReosTransferFunctionNashUnitHydrographFactory::formulation() const
 {
-  return QPixmap( QStringLiteral( ":/formulas/NashUnitHydrograph.svg" ) );
+  return QPixmap( formulationRessource() );
+}
+
+QString ReosTransferFunctionNashUnitHydrographFactory::formulationRessource() const
+{
+  return QStringLiteral( ":/formulas/NashUnitHydrograph.svg" );
 }
 
 QString ReosTransferFunctionNashUnitHydrographFactory::variablesDescription() const

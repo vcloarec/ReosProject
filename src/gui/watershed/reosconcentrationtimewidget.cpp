@@ -21,6 +21,7 @@
 #include <QLayout>
 #include <QClipboard>
 
+#include "reosapplication.h"
 #include "reosparameterwidget.h"
 #include "reoswatershed.h"
 #include "reosconcentrationtimecalculation.h"
@@ -270,6 +271,9 @@ void ReosConcentrationTimeWidget::onViewDoubleClicked( const QModelIndex &index 
 void ReosConcentrationTimeWidget::onFormulaDisplaying()
 {
   QDialog *dialog = new QDialog( this );
+  dialog->setModal( false );
+  dialog->setAttribute( Qt::WA_DeleteOnClose );
+  dialog->setStyleSheet( "background-color:white;" );
 
   QVBoxLayout *vertLayout = new QVBoxLayout;
   dialog->setLayout( vertLayout );
@@ -281,8 +285,6 @@ void ReosConcentrationTimeWidget::onFormulaDisplaying()
     line->setFrameShadow( QFrame::Sunken );
     vertLayout->addWidget( line );
   };
-
-
 
   dialog->layout()->addWidget( new QLabel( tr( "Concentration Time Formula" ), this ) );
   addLine();
@@ -311,7 +313,7 @@ void ReosConcentrationTimeWidget::onFormulaDisplaying()
   dialog->layout()->addWidget( new QLabel( tr( "Hm : relative average elevation (from outlet) (m)" ), this ) );
   dialog->layout()->addWidget( new QLabel( tr( "All results in minutes" ), this ) );
 
-  dialog->exec();
+  dialog->show();
 }
 
 ReosConcentrationTimeCalculation::UsedMethod ReosConcentrationTimeWidget::usedMethod() const

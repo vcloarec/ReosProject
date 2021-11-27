@@ -18,7 +18,9 @@
 
 #include <QMenu>
 #include <QLabel>
+#include <QTextBrowser>
 
+#include "reosapplication.h"
 #include "reostransferfunction.h"
 #include "reosrunoffmodel.h"
 #include "reosparameter.h"
@@ -30,6 +32,7 @@
 #include "reosprocesscontroler.h"
 #include "reosplotitemlist.h"
 #include "reoshydrographeditingwidget.h"
+
 
 ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *watershedModule, QWidget *parent ) :
   ReosActionWidget( parent )
@@ -593,33 +596,40 @@ void ReosRunoffHydrographWidget::onTransferFunctionFormulation()
     QString type = factories->type( currentIndex );
     QDialog *dial = new QDialog( this );
 
+    dial->setAttribute( Qt::WA_DeleteOnClose );
+    dial->setModal( false );
+
+    QTextBrowser *textBrowser = new QTextBrowser( dial );
+
     QFont font = dial->font();
     font.setPointSizeF( 11 );
     dial->setFont( font );
 
     dial->setWindowTitle( ui->comboBoxTransferFunction->currentText() );
     dial->setLayout( new QVBoxLayout );
-    QLabel *labelpresentation = new QLabel( dial );
-    labelpresentation->setTextFormat( Qt::RichText );
-    labelpresentation->setWordWrap( true );
-    labelpresentation->setText( factories->presentationText( type ) );
-    dial->layout()->addWidget( labelpresentation );
+    dial->layout()->addWidget( textBrowser );
 
-    QLabel *formulationLabel = new QLabel( this );
-    formulationLabel->setAlignment( Qt::AlignHCenter );
-    formulationLabel->setPixmap( factories->formulation( type ) );
+    textBrowser->document()->setDefaultStyleSheet( ReosApplication::styleSheet() );
+    textBrowser->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+    textBrowser->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 
-    dial->layout()->addWidget( formulationLabel );
-    QLabel *labelVariables = new QLabel( dial );
-    labelVariables->setTextFormat( Qt::RichText );
-    labelVariables->setWordWrap( true );
-    labelVariables->setText( factories->variablesDescription( type ) );
+    QString htmlText = QLatin1String( "<html>\n<body>\n" );
+    htmlText += QLatin1String( "<table class=\"list-view\">\n" );
+    htmlText += QLatin1String( "<h1>" ) + factories->displayText( type ) + QLatin1String( "</h1>\n<hr>\n" );
 
-    dial->layout()->addWidget( labelVariables );
+    htmlText += factories->presentationText( type );
+    htmlText += QLatin1String( "<br>" );
 
-    dial->exec();
+    htmlText += QLatin1String( "<img src = " ) + factories->formulationRessource( type ) + QLatin1String( "/>" );
+    htmlText += QLatin1String( "<br>" );
+    htmlText += factories->variablesDescription( type );
 
-    dial->deleteLater();
+    textBrowser->setText( htmlText );
+
+    dial->show();
+
+    textBrowser->setMinimumHeight( textBrowser->document()->size().height() );
+    textBrowser->setMinimumWidth( textBrowser->document()->size().width() );
   }
 }
 

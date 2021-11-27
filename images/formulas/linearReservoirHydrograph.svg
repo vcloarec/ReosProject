@@ -11,9 +11,9 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.1"
-   width="341.48373pt"
-   height="56.087822pt"
-   viewBox="-0.239051 -0.225285 341.48373 56.087821"
+   width="365.51733"
+   height="48.869968"
+   viewBox="-0.24 -0.225285 365.51733 48.869968"
    id="svg98"
    sodipodi:docname="linearReservoirHydrograph.svg"
    inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
@@ -39,20 +39,24 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:window-width="1920"
-     inkscape:window-height="1051"
+     inkscape:window-height="1015"
      id="namedview100"
      showgrid="false"
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0"
-     inkscape:zoom="0.82967393"
-     inkscape:cx="236.55101"
-     inkscape:cy="32.5707"
-     inkscape:window-x="0"
+     inkscape:zoom="1.6593479"
+     inkscape:cx="122.80748"
+     inkscape:cy="9.1976709"
+     inkscape:window-x="1920"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg98" />
+     inkscape:current-layer="svg98"
+     units="px"
+     viewbox-height="48.87"
+     viewbox-x="-0.24"
+     scale-x="1" />
   <defs
      id="defs27">
     <path
@@ -190,8 +194,8 @@
   </defs>
   <g
      id="page1"
-     transform="matrix(1.1799779,0,0,1.2972644,-67.975761,-69.193827)"
-     style="stroke-width:0.91332895">
+     transform="matrix(0.94726848,0,0,0.8477411,-10.021228,-39.268635)"
+     style="stroke-width:1.26098597">
     <use
        x="56.413265"
        y="81.896004"
@@ -199,7 +203,7 @@
        id="use29"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="72.43708"
        y="84.995369"
@@ -207,7 +211,7 @@
        id="use31"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="87.059914"
        y="81.896004"
@@ -215,7 +219,7 @@
        id="use33"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="107.67315"
        y="81.896004"
@@ -223,7 +227,7 @@
        id="use35"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="123.69696"
        y="84.995369"
@@ -231,7 +235,7 @@
        id="use37"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="132.08209"
        y="84.995369"
@@ -239,7 +243,7 @@
        id="use39"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="143.24028"
        y="84.995369"
@@ -247,7 +251,7 @@
        id="use41"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="155.35364"
        y="81.896004"
@@ -255,7 +259,7 @@
        id="use43"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="165.68492"
        y="81.896004"
@@ -263,7 +267,7 @@
        id="use45"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="176.2574"
        y="64.891907"
@@ -271,7 +275,7 @@
        id="use47"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="186.01239"
        y="64.891907"
@@ -279,14 +283,14 @@
        id="use49"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <rect
        x="176.2574"
        y="66.667007"
        height="0.57382202"
        width="13.982143"
        id="rect51"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="179.01093"
        y="75.487595"
@@ -294,7 +298,7 @@
        id="use53"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="183.23808"
        y="79.671906"
@@ -302,7 +306,7 @@
        id="use55"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="196.52486"
        y="81.896004"
@@ -310,7 +314,7 @@
        id="use57"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="217.18568"
        y="67.917641"
@@ -318,7 +322,7 @@
        id="use59"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="236.94409"
        y="67.917641"
@@ -326,7 +330,7 @@
        id="use61"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="247.27536"
        y="67.917641"
@@ -334,14 +338,14 @@
        id="use63"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <rect
        x="217.18568"
        y="76.317131"
        height="0.82647502"
        width="39.769138"
        id="rect65"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="218.11786"
        y="96.069458"
@@ -349,7 +353,7 @@
        id="use67"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="227.59407"
        y="96.069458"
@@ -357,7 +361,7 @@
        id="use69"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="237.07028"
        y="96.069458"
@@ -365,7 +369,7 @@
        id="use71"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="246.54649"
        y="96.069458"
@@ -373,7 +377,7 @@
        id="use73"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="262.742"
        y="81.896004"
@@ -381,7 +385,7 @@
        id="use75"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="273.07327"
        y="81.896004"
@@ -389,7 +393,7 @@
        id="use77"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="280.39053"
        y="81.896004"
@@ -397,7 +401,7 @@
        id="use79"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="294.4584"
        y="81.896004"
@@ -405,7 +409,7 @@
        id="use81"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="315.12097"
        y="81.896004"
@@ -413,7 +417,7 @@
        id="use83"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="325.69345"
        y="64.891907"
@@ -421,7 +425,7 @@
        id="use85"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="335.44843"
        y="64.891907"
@@ -429,14 +433,14 @@
        id="use87"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <rect
        x="325.69345"
        y="66.667007"
        height="0.57382202"
        width="13.982143"
        id="rect89"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="328.44699"
        y="75.487595"
@@ -444,7 +448,7 @@
        id="use91"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="332.67413"
        y="79.671906"
@@ -452,7 +456,7 @@
        id="use93"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
     <use
        x="341.36923"
        y="81.896004"
@@ -460,6 +464,6 @@
        id="use95"
        width="100%"
        height="100%"
-       style="stroke-width:0.91332895" />
+       style="stroke-width:1.26098597" />
   </g>
 </svg>
