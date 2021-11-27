@@ -129,6 +129,9 @@ void ReosGaugedHydrographWidget::setCurrentWatershed( ReosWatershed *watershed )
     ui->mLabelNoWatershed->setText( tr( "Select a watershed to add hydrograhs" ) );
   }
 
+  ui->mButtonAddFromProvider->setEnabled( watershed != nullptr && mIsDatasetSelected );
+  ui->mButtonCopyFromProvider->setEnabled( watershed != nullptr && mIsDataReady );
+
   onStoreChanged();
   onCurrentHydrographChanged();
 }
@@ -321,9 +324,11 @@ void ReosGaugedHydrographWidget::showProviderSelector( const QString &providerKe
     // connect selection change
     connect( mCurrentDataSelectorWidget, &ReosDataProviderSelectorWidget::dataSelectionChanged, this, [this]( bool isDataSelected )
     {
+      mIsDatasetSelected = isDataSelected;
       ui->mButtonAddFromProvider->setEnabled( isDataSelected  && mCurrentWatershed );
       if ( !isDataSelected )
       {
+        mIsDataReady = false;
         ui->mButtonAddFromProvider->setEnabled( false );
         ui->mButtonCopyFromProvider->setEnabled( false );
       }
@@ -332,13 +337,15 @@ void ReosGaugedHydrographWidget::showProviderSelector( const QString &providerKe
     // connect loading
     connect( mCurrentDataSelectorWidget, &ReosDataProviderSelectorWidget::dataIsLoading, this, [this]
     {
-      ui->mButtonCopyFromProvider->setEnabled( false &&mCurrentWatershed );
+      mIsDataReady = false;
+      ui->mButtonCopyFromProvider->setEnabled( false );
     } );
 
     // connect data is ready
     connect( mCurrentDataSelectorWidget, &ReosDataProviderSelectorWidget::dataIsReady, this, [this]
     {
-      ui->mButtonCopyFromProvider->setEnabled( true &&mCurrentWatershed );
+      mIsDataReady = true;
+      ui->mButtonCopyFromProvider->setEnabled( mCurrentWatershed != nullptr );
     } );
 
     mCurrentDataSelectorWidget->onOpened();

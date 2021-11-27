@@ -74,6 +74,8 @@ class ReosGaugedHydrographWidget : public ReosActionWidget
     QToolBar *mToolBarProvider;
 
     ReosDataProviderSelectorWidget  *mCurrentDataSelectorWidget = nullptr;
+    bool mIsDatasetSelected = false;
+    bool mIsDataReady = false;
 
     void populateProviderActions();
     void showProviderSelector( const QString &providerKey );
