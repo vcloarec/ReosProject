@@ -58,21 +58,25 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent ): QWidget( parent ),
   mPlot->setContentsMargins( 5, 5, 5, 5 );
   mPlot->setFrameStyle( QFrame::NoFrame );
 
-  setLegendVisible( true );
-
   QHBoxLayout *toolBarslayout = new QHBoxLayout( this );
   toolBarslayout->setContentsMargins( 0, 0, 0, 0 );
   mainLayout->addItem( toolBarslayout );
-  mToolBarRight = new QToolBar( this );
-  mToolBarRight->setContentsMargins( 0, 0, 0, 0 );
-  mToolBarRight->addAction( mActionExportAsImage );
-  mToolBarRight->addAction( mActionCopyAsImage );
-  toolBarslayout->addWidget( mToolBarRight );
-  toolBarslayout->addItem( new QSpacerItem( 10, 0, QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding ) );
   mToolBarLeft = new QToolBar( this );
-  mToolBarLeft->setContentsMargins( 0, 0, 0, 0 );
+  mToolBarLeft->setContentsMargins( 3, 3, 0, 0 );
   toolBarslayout->addWidget( mToolBarLeft );
+  toolBarslayout->addItem( new QSpacerItem( 10, 0, QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding ) );
+  mToolBarRight = new QToolBar( this );
+  mToolBarRight->setContentsMargins( 3, 3, 0, 0 );
+
+  mToolBarLeft->addAction( mActionExportAsImage );
+  mToolBarLeft->addAction( mActionCopyAsImage );
+  toolBarslayout->addWidget( mToolBarRight );
   mainLayout->addWidget( mPlot );
+
+  mLegendController = new ReosPlotLegendController( this );
+  mActionLegendController = mToolBarLeft->addWidget( mLegendController );
+  connect( mLegendController, &ReosPlotLegendController::setLegendVisible, this, &ReosPlotWidget::setLegendVisible );
+  mLegendController->setChecked( true );
 
   setMagnifierType( normalMagnifier );
 
@@ -95,7 +99,7 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent ): QWidget( parent ),
   mPlot->setZoomer( mZoomerLeft, mZoomerRight );
 
   QComboBox *xAxisFormatCombobox = new QComboBox( this );
-  mXAxisFormatCombobox = mToolBarLeft->addWidget( xAxisFormatCombobox );
+  mXAxisFormatCombobox = mToolBarRight->addWidget( xAxisFormatCombobox );
   xAxisFormatCombobox->addItem( tr( "X linear scale" ) );
   xAxisFormatCombobox->addItem( tr( "X logarithmic scale" ) );
   connect( xAxisFormatCombobox, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]( int index )
@@ -113,11 +117,20 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent ): QWidget( parent ),
   mainLayout->setStretch( 1, 1 );
 }
 
+void ReosPlotWidget::setLegendEnabled( bool b )
+{
+  mActionLegendController->setVisible( b );
+  mLegendController->setLegendEnabled( b );
+}
+
 
 void ReosPlotWidget::setLegendVisible( bool b )
 {
   if ( mPlot )
+  {
     mPlot->setLegendVisible( b );
+    mPlot->replot();
+  }
 }
 
 void ReosPlotWidget::setMagnifierType( ReosPlotWidget::MagnifierType type )
@@ -136,6 +149,8 @@ void ReosPlotWidget::setMagnifierType( ReosPlotWidget::MagnifierType type )
 void ReosPlotWidget::setLegendAlignement( Qt::Alignment align )
 {
   mPlot->setLegendAlignement( align );
+  if ( mPlot )
+    mPlot->replot();
 }
 
 void ReosPlotWidget::enableAutoMinimumSize( bool b )
@@ -173,7 +188,7 @@ void ReosPlotWidget::addPlotItem( ReosPlotItem *item )
 
 void ReosPlotWidget::addOptionalPlotItem( ReosVariableTimeStepPlotListButton *optionalItemButton )
 {
-  mToolBarLeft->addWidget( optionalItemButton );
+  mToolBarRight->addWidget( optionalItemButton );
 }
 
 void ReosPlotWidget::setTitleAxeX( const QString &title )
@@ -537,3 +552,87 @@ ReosPlotItemFactories::ReosPlotItemFactories( ReosModule *parent ): ReosModule( 
 void ReosDataPlotItemFactory::buildPlotItemsAndSetup( ReosPlotWidget *, ReosDataObject * ) {}
 
 ReosPlotItem *ReosDataPlotItemFactory::buildPlotItem( ReosPlotWidget *, ReosDataObject * ) {return nullptr;}
+
+ReosPlotLegendController::ReosPlotLegendController( ReosPlotWidget *plotWidget )
+  : QToolButton( plotWidget )
+  , mPlotWiget( plotWidget )
+{
+  setText( tr( "Legend" ) );
+  setIcon( QPixmap( QStringLiteral( ":/images/plotLegend.svg" ) ) );
+  setCheckable( true );
+  setPopupMode( QToolButton::MenuButtonPopup );
+  connect( this, &QToolButton::toggled, this, &ReosPlotLegendController::setLegendVisible );
+  QMenu *menu = new QMenu( this );
+  setMenu( menu );
+
+  QWidget *widgetPlacement = new QWidget( this );
+  QGridLayout *placementLayout = new QGridLayout( widgetPlacement );
+  widgetPlacement->setLayout( placementLayout );
+  placementLayout->setContentsMargins( 3, 3, 3, 3 );
+  placementLayout->setSpacing( 2 );
+
+  QList<Qt::Alignment> legendAlignments;
+  legendAlignments << Qt::Alignment( Qt::AlignTop | Qt::AlignLeft )
+                   << Qt::Alignment( Qt::AlignTop | Qt::AlignHCenter )
+                   << Qt::Alignment( Qt::AlignTop | Qt::AlignRight )
+                   << Qt::Alignment( Qt::AlignVCenter | Qt::AlignLeft )
+                   << Qt::Alignment( Qt::AlignVCenter | Qt::AlignHCenter )
+                   << Qt::Alignment( Qt::AlignVCenter | Qt::AlignRight )
+                   << Qt::Alignment( Qt::AlignBottom | Qt::AlignLeft )
+                   << Qt::Alignment( Qt::AlignBottom | Qt::AlignHCenter )
+                   << Qt::Alignment( Qt::AlignBottom | Qt::AlignRight );
+  QList<QToolButton *> alignmentButtons;
+  for ( int i = 0; i < 9; ++i )
+  {
+    QToolButton *tb = new QToolButton( widgetPlacement );
+    tb->setCheckable( true );
+    tb->setAutoRaise( true );
+    alignmentButtons << tb;
+  }
+
+  alignmentButtons.at( 0 )->setIcon( QPixmap( QStringLiteral( ":/images/alignmentTL.svg" ) ) );
+  alignmentButtons.at( 1 )->setIcon( QPixmap( QStringLiteral( ":/images/alignmentTC.svg" ) ) );
+  alignmentButtons.at( 2 )->setIcon( QPixmap( QStringLiteral( ":/images/alignmentTR.svg" ) ) );
+  alignmentButtons.at( 3 )->setIcon( QPixmap( QStringLiteral( ":/images/alignmentCL.svg" ) ) );
+  alignmentButtons.at( 4 )->setIcon( QPixmap( QStringLiteral( ":/images/alignmentCC.svg" ) ) );
+  alignmentButtons.at( 5 )->setIcon( QPixmap( QStringLiteral( ":/images/alignmentCR.svg" ) ) );
+  alignmentButtons.at( 6 )->setIcon( QPixmap( QStringLiteral( ":/images/alignmentBL.svg" ) ) );
+  alignmentButtons.at( 7 )->setIcon( QPixmap( QStringLiteral( ":/images/alignmentBC.svg" ) ) );
+  alignmentButtons.at( 8 )->setIcon( QPixmap( QStringLiteral( ":/images/alignmentBR.svg" ) ) );
+
+  for ( int i = 0; i < 9; ++i )
+  {
+    connect( alignmentButtons.at( i ), &QToolButton::clicked, this, [plotWidget, alignmentButtons, legendAlignments, i]
+    {
+      if ( !alignmentButtons.at( i )->isChecked() )
+      {
+        alignmentButtons.at( i )->setChecked( true );
+        return;
+      }
+
+      for ( int ib = 0; ib < alignmentButtons.count(); ++ib )
+        if ( ib != i )
+          alignmentButtons.at( ib )->setChecked( false );
+
+      plotWidget->setLegendAlignement( legendAlignments.at( i ) );
+    } );
+  }
+
+
+  for ( int i = 0; i < 3; ++i )
+    for ( int j = 0; j < 3; j++ )
+    {
+      placementLayout->addWidget( alignmentButtons.at( j + i * 3 ), i, j );
+    }
+
+  QWidgetAction *actionWidget = new QWidgetAction( this );
+  actionWidget->setDefaultWidget( widgetPlacement );
+
+  menu->addAction( actionWidget );
+}
+
+void ReosPlotLegendController::setLegendEnabled( bool b )
+{
+  setEnabled( b );
+  emit setLegendVisible( b && isChecked() );
+}

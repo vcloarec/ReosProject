@@ -45,7 +45,7 @@ ReosDelftFewsWidget::ReosDelftFewsWidget( ReosMap *map, const QString &dataType,
   ui->mPlotWidget->addPlotItem( mRainfallPlot );
   ui->mPlotWidget->setAxeXType( ReosPlotWidget::temporal );
   ui->mPlotWidget->enableAutoMinimumSize( true );
-  ui->mPlotWidget->setLegendVisible( false );
+  ui->mPlotWidget->setLegendEnabled( false );
   ui->mPlotWidget->setAxeTextSize( 7 );
   ui->mPlotWidget->setMagnifierType( ReosPlotWidget::positiveMagnifier );
 

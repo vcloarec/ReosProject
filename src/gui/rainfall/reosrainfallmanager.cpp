@@ -1311,7 +1311,7 @@ void ReosPlotItemRainfallIntensityDurationFrequencyFactory::buildPlotItemsAndSet
     plotWidget->setAxeXExtent( xMin, xMax );
     plotWidget->setAxeYLeftExtent( yMin, yMax );
     plotWidget->setLegendAlignement( Qt::AlignRight );
-    plotWidget->setLegendVisible( true );
+    plotWidget->setLegendEnabled( true );
     plotWidget->setTitleAxeX( QObject::tr( "Rainfall duration (mn)" ) );
     plotWidget->setTitleAxeYLeft( QObject::tr( "Rainfall intensity (mm/h)" ) );
     plotWidget->enableScaleTypeChoice( true );
@@ -1328,7 +1328,7 @@ void ReosPlotItemRainfallIntensityDurationFactory::buildPlotItemsAndSetup( ReosP
   plotWidget->addPlotItem( curve );
   curve->fullExtent();
 
-  plotWidget->setLegendVisible( false );
+  plotWidget->setLegendEnabled( false );
   plotWidget->setTitleAxeX( QObject::tr( "Rainfall duration (mn)" ) );
   plotWidget->setTitleAxeYLeft( QObject::tr( "Rainfall intensity (mm/h)" ) );
 
