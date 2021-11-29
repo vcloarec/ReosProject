@@ -20,6 +20,7 @@
 
 #include <QPointer>
 #include <QToolBar>
+#include <QToolButton>
 #include <QHBoxLayout>
 #include <QApplication>
 #include <QClipboard>
@@ -41,6 +42,20 @@ class ReosDataObject;
 class ReosTimeSerieConstantInterval;
 class ReosVariableTimeStepPlotListButton;
 
+class ReosPlotWidget;
+
+class ReosPlotLegendController : public QToolButton
+{
+    Q_OBJECT
+  public:
+    ReosPlotLegendController( ReosPlotWidget *plotWidget );
+    void setLegendEnabled( bool b );
+
+  signals:
+    void setLegendVisible( bool b );
+  private:
+    ReosPlotWidget *mPlotWiget = nullptr;
+};
 
 class ReosPlotItem: public QObject
 {
@@ -124,9 +139,9 @@ class ReosPlotWidget: public QWidget
 
     ReosPlotWidget( QWidget *parent = nullptr );
 
-    void setLegendVisible( bool b );
-    void setMagnifierType( MagnifierType type );
+    void setLegendEnabled( bool b );
     void setLegendAlignement( Qt::Alignment align );
+    void setMagnifierType( MagnifierType type );
     void enableAutoMinimumSize( bool b );
     void setMinimumPlotSize( const QSize &size );
     void addActions( const QList<QAction *> &actions );
@@ -166,6 +181,7 @@ class ReosPlotWidget: public QWidget
     void exportAsImage();
     void copyAsImage();
     void receiveMoveFromPicker( const QPointF &pt );
+    void setLegendVisible( bool b );
 
   private:
 
@@ -182,6 +198,9 @@ class ReosPlotWidget: public QWidget
     QwtPlotPanner *mPanner = nullptr;
     QwtPlotZoomer *mZoomerLeft = nullptr;
     QwtPlotZoomer *mZoomerRight = nullptr;
+
+    ReosPlotLegendController *mLegendController = nullptr;
+    QAction *mActionLegendController = nullptr;
 };
 
 class ReosDataPlotItemFactory

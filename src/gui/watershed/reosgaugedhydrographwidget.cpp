@@ -59,6 +59,7 @@ ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( ReosMap *map, QWidget *p
   ui->plotWidget->setAxeXType( ReosPlotWidget::temporal );
   ui->plotWidget->enableAutoMinimumSize( true );
   ui->plotWidget->setMagnifierType( ReosPlotWidget::positiveMagnifier );
+  ui->plotWidget->setLegendEnabled( false );
 
   populateProviderActions();
 
@@ -127,6 +128,7 @@ void ReosGaugedHydrographWidget::setCurrentWatershed( ReosWatershed *watershed )
   {
     mHydrographStore = nullptr;
     ui->mLabelNoWatershed->setText( tr( "Select a watershed to add hydrograhs" ) );
+    mHydrographPlot->setTimeSerie( nullptr );
   }
 
   ui->mButtonAddFromProvider->setEnabled( watershed != nullptr && mIsDatasetSelected );
@@ -174,6 +176,8 @@ void ReosGaugedHydrographWidget::onRemoveHydrograph()
     mHydrographStore->removeHydrograph( currentIndex );
     ui->mComboBoxHydrographName->removeItem( currentIndex );
   }
+
+  onStoreChanged();
 }
 
 void ReosGaugedHydrographWidget::onRenameHydrograph()
@@ -206,6 +210,7 @@ void ReosGaugedHydrographWidget::onStoreChanged()
 {
   ui->mComboBoxHydrographName->clear();
   bool hasHydropraph = false;
+
   if ( mHydrographStore )
   {
     const QStringList &names = mHydrographStore->hydrographNames();
@@ -230,9 +235,9 @@ void ReosGaugedHydrographWidget::onCurrentHydrographChanged()
   }
 
   if ( mHydrographStore && mHydrographStore->hydrographCount() > 0 )
-  {
     mCurrentHydrograph = mHydrographStore->hydrograph( ui->mComboBoxHydrographName->currentIndex() );
-  }
+  else
+    mCurrentHydrograph = nullptr;
 
   std::unique_ptr<QWidget> newEditingWidget;
   std::unique_ptr<QWidget> newSettingsProviderWidget;
@@ -242,7 +247,6 @@ void ReosGaugedHydrographWidget::onCurrentHydrographChanged()
     newSettingsProviderWidget.reset(
       ReosDataProviderGuiRegistery::instance()->createProviderSettingsWidget( mCurrentHydrograph->dataProvider() ) );
     newEditingWidget.reset( ReosFormWidgetFactories::instance()->createDataFormWidget( mCurrentHydrograph ) );
-    mHydrographPlot->setTimeSerie( mCurrentHydrograph );
     connect( mCurrentHydrograph, &ReosDataObject::dataChanged, this, &ReosGaugedHydrographWidget::updatePlotExtent );
   }
   else
@@ -250,7 +254,7 @@ void ReosGaugedHydrographWidget::onCurrentHydrographChanged()
     newEditingWidget.reset( new QLabel( tr( "No Hydrograph" ) ) );
   }
 
-  mHydrographPlot->setTimeSerie( mCurrentHydrograph, false );
+  mHydrographPlot->setTimeSerie( mCurrentHydrograph );
   ui->plotWidget->updatePlot();
 
   if ( ui->mEditingWidgetLayout->count() != 0 )

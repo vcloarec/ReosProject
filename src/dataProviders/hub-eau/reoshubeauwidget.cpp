@@ -50,7 +50,7 @@ ReosHubEauWidget::ReosHubEauWidget( ReosMap *map, QWidget *parent )
   ui->mPlotWidget->addPlotItem( mHydrographPlot );
   ui->mPlotWidget->setAxeXType( ReosPlotWidget::temporal );
   ui->mPlotWidget->enableAutoMinimumSize( true );
-  ui->mPlotWidget->setLegendVisible( false );
+  ui->mPlotWidget->setLegendEnabled( false );
   ui->mPlotWidget->setAxeTextSize( 7 );
   ui->mPlotWidget->setMagnifierType( ReosPlotWidget::positiveMagnifier );
 

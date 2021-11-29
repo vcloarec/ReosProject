@@ -616,14 +616,11 @@ void ReosRunoffHydrographWidget::onTransferFunctionFormulation()
     QString htmlText = QLatin1String( "<html>\n<body>\n" );
     htmlText += QLatin1String( "<table class=\"list-view\">\n" );
     htmlText += QLatin1String( "<h1>" ) + factories->displayText( type ) + QLatin1String( "</h1>\n<hr>\n" );
-
     htmlText += factories->presentationText( type );
     htmlText += QLatin1String( "<br>" );
-
     htmlText += QLatin1String( "<img src = " ) + factories->formulationRessource( type ) + QLatin1String( "/>" );
     htmlText += QLatin1String( "<br>" );
     htmlText += factories->variablesDescription( type );
-
     textBrowser->setText( htmlText );
 
     dial->show();

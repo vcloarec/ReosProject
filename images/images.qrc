@@ -103,6 +103,15 @@
         <file>mapOnStation.svg</file>
         <file>addSyntheticRainfall.svg</file>
         <file>selectStationOnMap.svg</file>
+        <file>plotLegend.svg</file>
+        <file>alignmentTC.svg</file>
+        <file>alignmentTL.svg</file>
+        <file>alignmentTR.svg</file>
+        <file>alignmentBC.svg</file>
+        <file>alignmentBL.svg</file>
+        <file>alignmentBR.svg</file>
+        <file>alignmentCC.svg</file>
+        <file>alignmentCL.svg</file>
+        <file>alignmentCR.svg</file>
     </qresource>
-    <qresource prefix="/"/>
 </RCC>
