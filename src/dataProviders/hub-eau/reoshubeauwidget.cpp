@@ -53,6 +53,7 @@ ReosHubEauWidget::ReosHubEauWidget( ReosMap *map, QWidget *parent )
   ui->mPlotWidget->setLegendEnabled( false );
   ui->mPlotWidget->setAxesTextSize( 10 );
   ui->mPlotWidget->setMagnifierType( ReosPlotWidget::positiveMagnifier );
+  ui->mPlotWidget->setTitleAxeYLeft( tr( "Flow rate (%1)" ).arg( QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
 
   mServer = new ReosHubEauServer( this );
 

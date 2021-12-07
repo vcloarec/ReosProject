@@ -282,9 +282,9 @@ ReosDateScaleDraw_p::ReosDateScaleDraw_p( Qt::TimeSpec timeSpec ):
   setDateFormat( QwtDate::Second, QStringLiteral( "hh:mm:ss" ) );
   setDateFormat( QwtDate::Minute, QStringLiteral( "hh:mm" ) );
   setDateFormat( QwtDate::Hour, QStringLiteral( "hh:mm\n dd MMM" ) );
-  setDateFormat( QwtDate::Day, QStringLiteral( "hh:mm\nyyyy.MM.dd" ) );
-  setDateFormat( QwtDate::Week, QStringLiteral( "yyyy.MM.dd" ) );
-  setDateFormat( QwtDate::Month, QStringLiteral( "yyyy MMM" ) );
+  setDateFormat( QwtDate::Day, QStringLiteral( "hh:mm\n" ) + QLocale().dateFormat( QLocale::ShortFormat ) );
+  setDateFormat( QwtDate::Week, QLocale().dateFormat( QLocale::ShortFormat ) );
+  setDateFormat( QwtDate::Month, QStringLiteral( "MMM yyyy" ) );
   setDateFormat( QwtDate::Year, QStringLiteral( "yyyy" ) );
 
   setLabelAlignment( Qt::AlignHCenter | Qt::AlignBottom );

@@ -133,7 +133,7 @@ QVariant ReosTimeSerieConstantIntervalModel::headerData( int section, Qt::Orient
   {
     if ( mData->referenceTime().isValid() )
     {
-      return mData->timeAt( section ).toString( QStringLiteral( "yyyy.MM.dd HH:mm:ss" ) );
+      return mData->timeAt( section ).toString( QLocale().dateTimeFormat( QLocale::ShortFormat ) );;
     }
     else
       return mData->relativeTimeAt( section ).valueSecond();
@@ -1173,7 +1173,7 @@ QVariant ReosTimeSerieVariableTimeStepModel::data( const QModelIndex &index, int
       if ( index.column() == 0 )
       {
         if ( index.row() < mData->valueCount() )
-          return mData->timeAt( index.row() );
+          return mData->timeAt( index.row() ).toString( QLocale().dateTimeFormat( QLocale::ShortFormat ) );
       }
       else if ( index.column() == valueColumn() )
       {
@@ -1193,7 +1193,7 @@ QVariant ReosTimeSerieVariableTimeStepModel::data( const QModelIndex &index, int
       }
 
       break;
-    case Qt::BackgroundColorRole:
+    case Qt::BackgroundRole:
       if ( !( flags( index ) & Qt::ItemIsEditable ) )
         return QColor( 220, 220, 220 );
       break;

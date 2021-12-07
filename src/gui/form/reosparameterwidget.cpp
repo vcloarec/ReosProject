@@ -579,7 +579,7 @@ ReosParameterDateTimeWidget::ReosParameterDateTimeWidget( QWidget *parent, const
 {
   layout()->addWidget( mDateTimeEdit );
   connect( mDateTimeEdit, &QDateTimeEdit::dateTimeChanged, this, &ReosParameterWidget::applyValue );
-  mDateTimeEdit->setDisplayFormat( QStringLiteral( "yyyy.MM.dd HH:mm:ss" ) );
+  mDateTimeEdit->setDisplayFormat( QLocale().dateTimeFormat( QLocale::ShortFormat ) );
   mDateTimeEdit->setTimeSpec( Qt::UTC );
   finalizeWidget();
 }

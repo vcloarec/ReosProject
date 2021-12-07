@@ -1124,7 +1124,7 @@ QVariant ReosTimeSeriesTableModel::data( const QModelIndex &index, int role ) co
         {
           QDateTime time = mTimeSeries.at( 0 )->timeAt( row );
           time.setTimeSpec( Qt::UTC );
-          return time.toString( "yyyy.MM.dd hh:mm:ss" );
+          return time.toString( QLocale().dateTimeFormat( QLocale::ShortFormat ) );
         }
         break;
       default:
@@ -1313,7 +1313,7 @@ QVariant ReosTimeSeriesVariableTimeStepTabModel::data( const QModelIndex &index,
     switch ( index.column() )
     {
       case 0: //time
-        return timeAtRow( row ).toString( "yyyy.MM.dd hh:mm:ss" );
+        return timeAtRow( row ).toString( QLocale().dateTimeFormat( QLocale::ShortFormat ) );
         break;
       default:
         return valueAt( row, index.column() );
