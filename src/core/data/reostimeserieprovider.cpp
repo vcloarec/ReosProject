@@ -274,8 +274,9 @@ void ReosTimeSerieVariableTimeStepMemoryProvider::insertValue( int fromPos, cons
 
 void ReosTimeSerieVariableTimeStepMemoryProvider::removeValues( int fromPos, int count )
 {
-  mValues.remove( fromPos, count );
-  mTimeValues.remove( fromPos, count );
+  int effCount = std::min( mValues.count() - fromPos, count );
+  mValues.remove( fromPos, effCount );
+  mTimeValues.remove( fromPos, effCount );
 }
 
 void ReosTimeSerieVariableTimeStepMemoryProvider::clear()
