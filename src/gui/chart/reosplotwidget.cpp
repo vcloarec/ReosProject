@@ -115,6 +115,9 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent ): QWidget( parent ),
   mXAxisFormatCombobox->setVisible( false );
 
   mainLayout->setStretch( 1, 1 );
+
+  setAxesTextSize( 8 );
+  setAxesTitleSize( 10 );
 }
 
 void ReosPlotWidget::setLegendEnabled( bool b )
@@ -211,16 +214,60 @@ void ReosPlotWidget::enableAxeYright( bool b )
   mPlot->enableAxis( QwtPlot::yRight, b );
 }
 
-static void setAxeType( QwtPlot *plot, QwtPlot::Axis axe, ReosPlotWidget::AxeType type )
+
+class ReoDateScaleEngine_p : public QwtDateScaleEngine
+{
+  public:
+    ReoDateScaleEngine_p( QWidget *container, QwtScaleDraw *scaleDraw, Qt::TimeSpec timespec = Qt::LocalTime )
+      : QwtDateScaleEngine( timespec )
+      , mScaleDraw( scaleDraw )
+      , mContainer( container )
+    {}
+
+    void autoScale( int maxNumSteps, double &x1, double &x2, double &stepSize ) const
+    {
+      // here we check if the label width is not too large leading to label overlay.
+      // if yes we reduce the maxNumStep until it is ok
+      // it is necessary to insit because Qwt can consider internally greater 'maxNumSteps' to obtain "rounnd" value
+      bool ok = false;
+      int intervalCount = 0;
+      do
+      {
+        QwtDateScaleEngine::autoScale( maxNumSteps, x1, x2, stepSize );
+
+        if ( stepSize > 0 )
+        {
+          int labelWidth = mScaleDraw->maxLabelWidth( mContainer->font() );
+          intervalCount = ( x2 - x1 ) / stepSize;
+          int totalLabelWidth = labelWidth * ( 1 + intervalCount );
+          ok = 1.2 * totalLabelWidth < mContainer->width();
+          if ( !ok )
+            maxNumSteps--;
+        }
+
+      }
+      while ( !ok && maxNumSteps != 1  && stepSize > 0 );
+    }
+
+  private:
+    QwtScaleDraw *mScaleDraw = nullptr;
+    QWidget *mContainer = nullptr;
+};
+
+static void setAxeType( ReosPlot_p *plot, QwtPlot::Axis axe, ReosPlotWidget::AxeType type )
 {
   switch ( type )
   {
     case ReosPlotWidget::normal:
       break;
     case ReosPlotWidget::temporal:
-      plot->setAxisScaleDraw( axe, new ReosDateScaleDraw_p( Qt::UTC ) );
-      plot->setAxisScaleEngine( axe, new QwtDateScaleEngine( Qt::UTC ) );
-      break;
+    {
+      std::unique_ptr<ReosDateScaleDraw_p> scaleDraw( new ReosDateScaleDraw_p( Qt::UTC ) );
+      plot->setAxisScaleEngine( axe, new ReoDateScaleEngine_p( plot->axisWidget( axe ), scaleDraw.get(), Qt::UTC ) );
+      plot->setAxisScaleDraw( axe, scaleDraw.release() );
+      plot->setUpdateAxesWhenResize( true );
+    }
+    break;
     case ReosPlotWidget::logarithm:
       break;
   }
@@ -257,7 +304,7 @@ void ReosPlotWidget::setAxeYRightExtent( double min, double max )
   mZoomerRight->setZoomBase();
 }
 
-void ReosPlotWidget::setAxeTextSize( int size )
+void ReosPlotWidget::setAxesTextSize( int size )
 {
   QFont font = mPlot->axisWidget( QwtPlot::xBottom )->font();
   font.setPointSize( size );
@@ -270,6 +317,18 @@ void ReosPlotWidget::setAxeTextSize( int size )
   font = mPlot->axisWidget( QwtPlot::yRight )->font();
   font.setPointSize( size );
   mPlot->axisWidget( QwtPlot::yRight )->setFont( font );
+}
+
+void ReosPlotWidget::setAxesTitleSize( int size )
+{
+  for ( int i = 0; i < QwtPlot::axisCnt; ++i )
+  {
+    QwtText title = mPlot->axisTitle( QwtPlot::xBottom );
+    QFont font = title.font();
+    font.setPointSize( size );
+    title.setFont( font );
+    mPlot->setAxisTitle( i, title );
+  }
 }
 
 void ReosPlotWidget::enableScaleTypeChoice( bool b )

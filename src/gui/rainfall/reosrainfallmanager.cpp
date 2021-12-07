@@ -1355,7 +1355,7 @@ void ReosPlotItemRainfallSerieFactory::buildPlotItemsAndSetup( ReosPlotWidget *p
     cumulCurve->setTimeSerie( _data );
     cumulCurve->setOnRightAxe();
     plotWidget->addPlotItem( cumulCurve.release() );
-    plotWidget->setTitleAxeYRight( QObject::tr( "cumulative rainfall (mm)" ) );
+    plotWidget->setTitleAxeYRight( QObject::tr( "Cumulative rainfall (mm)" ) );
   }
 
   plotWidget->setTitleAxeX( QObject::tr( "Time" ) );

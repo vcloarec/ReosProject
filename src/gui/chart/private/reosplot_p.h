@@ -25,6 +25,7 @@
 #include <qwt_series_data.h>
 #include <qwt_date_scale_draw.h>
 #include <qwt_plot_histogram.h>
+#include <qwt_scale_widget.h>
 #include "reostimeserie.h"
 
 class ReosPlotItem;
@@ -97,12 +98,17 @@ class ReosPlot_p: public QwtPlot
 
     void autoScale();
 
+    void setUpdateAxesWhenResize( bool updateAxesWhenResize );
+
   signals:
     void reploted();
 
   public slots:
     void replot() override;
     void enableAutoScale( bool b = true );
+
+  protected:
+    void resizeEvent( QResizeEvent *e ) override;
 
   private:
     QwtPlotGrid *mGrid = nullptr;
@@ -117,6 +123,7 @@ class ReosPlot_p: public QwtPlot
     QwtPlotZoomer *mZoomerRight = nullptr;
 
     bool mAutoScale = true;
+    bool mUpdateAxeXWhenResize = false;
 };
 
 

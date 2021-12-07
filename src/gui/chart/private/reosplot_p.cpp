@@ -113,6 +113,33 @@ void ReosPlot_p::enableAutoScale( bool b )
   mAutoScale = b;
 }
 
+void ReosPlot_p::resizeEvent( QResizeEvent *e )
+{
+  QwtPlot::resizeEvent( e );
+  if ( mUpdateAxeXWhenResize )
+  {
+    QwtScaleDraw *sd = axisScaleDraw( QwtPlot::xBottom );
+    QwtScaleWidget *sw = axisWidget( QwtPlot::xBottom );
+    double labelWidth = sd->maxLabelWidth( sw->font() );
+    int majorStickCount =  axisMaxMajor( QwtPlot::xBottom );
+    int axisWidgetWidth = sw->width();
+
+    if ( 1.25 * majorStickCount * labelWidth > sw->width() )
+      majorStickCount = std::max( 2, int( ( axisWidgetWidth / labelWidth ) / 1.25 ) );
+
+    if ( majorStickCount * labelWidth < sw->width() / 2.5 )
+      majorStickCount = std::max( 2, int( ( axisWidgetWidth / labelWidth ) / 2.5 ) );
+
+    setAxisMaxMajor( QwtPlot::xBottom, majorStickCount );
+    updateAxes();
+  }
+}
+
+void ReosPlot_p::setUpdateAxesWhenResize( bool updateAxesWhenresize )
+{
+  mUpdateAxeXWhenResize = updateAxesWhenresize;
+}
+
 void ReosPlot_p::autoScale()
 {
   setAxisAutoScale( QwtPlot::xBottom, mAutoScale );

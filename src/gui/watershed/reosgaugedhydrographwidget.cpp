@@ -60,6 +60,7 @@ ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( ReosMap *map, QWidget *p
   ui->plotWidget->enableAutoMinimumSize( true );
   ui->plotWidget->setMagnifierType( ReosPlotWidget::positiveMagnifier );
   ui->plotWidget->setLegendEnabled( false );
+  ui->plotWidget->setTitleAxeYLeft( tr( "Flow rate (%1)" ).arg( QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
 
   populateProviderActions();
 

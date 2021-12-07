@@ -21,11 +21,11 @@ class ReosDataTesting: public QObject
 {
     Q_OBJECT
   private slots:
-    void _variable_time_step_time_model();
+    void variable_time_step_time_model();
 
 };
 
-void ReosDataTesting::_variable_time_step_time_model()
+void ReosDataTesting::variable_time_step_time_model()
 {
   ReosTimeSerieVariableTimeStep timeSerie;
   timeSerie.setReferenceTime( QDateTime( QDate( 2020, 01, 01 ), QTime( 2, 0, 0, Qt::UTC ) ) );
@@ -116,6 +116,9 @@ void ReosDataTesting::_variable_time_step_time_model()
   data << ( QVariantList() << QVariant( QString( "7.5" ) ) << QVariant( "1111" ) );
   data << ( QVariantList() << QVariant( QString( "10.5" ) ) << QVariant( "1111" ) );
 
+  variableTimeStepModel.insertValues( variableTimeStepModel.index( 1, 2, QModelIndex() ), data );
+  QCOMPARE( timeSerie.valueCount(), 4 );
+
   variableTimeStepModel.insertValues( variableTimeStepModel.index( 0, 2, QModelIndex() ), data );
   QCOMPARE( timeSerie.valueCount(), 4 );
 
@@ -128,14 +131,401 @@ void ReosDataTesting::_variable_time_step_time_model()
   QCOMPARE( timeSerie.valueCount(), 4 );
 
   data.clear();
-  data << ( QVariantList() << QVariant( QString( "20.5" ) ) << QVariant( "11.0" ) );
-  data << ( QVariantList() << QVariant( QString( "24.5" ) ) << QVariant( "12.2" ) );
-  data << ( QVariantList() << QVariant( QString( "25.5" ) ) << QVariant( "13.2" ) );
+  data << ( QVariantList() << QVariant( QString( "0.5" ) ) << QVariant( "11.0" ) );
+  data << ( QVariantList() << QVariant( QString( "0.75" ) ) << QVariant( "12.2" ) );
+  data << ( QVariantList() << QVariant( QString( "1.0" ) ) << QVariant( "13.2" ) );
 
   variableTimeStepModel.insertValues( variableTimeStepModel.index( 0, 2, QModelIndex() ), data );
   QCOMPARE( timeSerie.valueCount(), 7 );
-  QVERIFY( timeSerie.relativeTimeAt( 0 ) == ReosDuration( 150, ReosDuration::second ) );
-  QCOMPARE( timeSerie.valueAt( 0 ), 10.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 0 ) == ReosDuration( 30, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 0 ), 11.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 1 ) == ReosDuration( 45, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 1 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 2 ) == ReosDuration( 60, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 2 ), 13.2 );
+
+  QVERIFY( timeSerie.relativeTimeAt( 3 ) == ReosDuration( 150, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 3 ), 10.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 4 ) == ReosDuration( 3, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 4 ), 5.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 5 ) == ReosDuration( 3.5, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 5 ), 9.99 );
+  QVERIFY( timeSerie.relativeTimeAt( 6 ) == ReosDuration( 15.5, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 6 ), 10.99 );
+
+  data.clear();
+  data << ( QVariantList() << QVariant( QString( "20.5" ) ) << QVariant( "11.0" ) );
+  data << ( QVariantList() << QVariant( QString( "20.75" ) ) << QVariant( "12.2" ) );
+  data << ( QVariantList() << QVariant( QString( "21.0" ) ) << QVariant( "13.2" ) );
+
+  variableTimeStepModel.insertValues( variableTimeStepModel.index( 7, 2, QModelIndex() ), data );
+  QCOMPARE( timeSerie.valueCount(), 10 );
+  QVERIFY( timeSerie.relativeTimeAt( 0 ) == ReosDuration( 30, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 0 ), 11.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 1 ) == ReosDuration( 45, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 1 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 2 ) == ReosDuration( 60, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 2 ), 13.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 3 ) == ReosDuration( 150, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 3 ), 10.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 4 ) == ReosDuration( 3, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 4 ), 5.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 5 ) == ReosDuration( 3.5, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 5 ), 9.99 );
+  QVERIFY( timeSerie.relativeTimeAt( 6 ) == ReosDuration( 15.5, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 6 ), 10.99 );
+
+  QVERIFY( timeSerie.relativeTimeAt( 7 ) == ReosDuration( 20.5, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 7 ), 11.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 8 ) == ReosDuration( 20.75, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 8 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 9 ) == ReosDuration( 21, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 9 ), 13.2 );
+
+
+  data.clear();
+  data << ( QVariantList() << QVariant( "11.0" ) );
+  data << ( QVariantList() << QVariant( "12.2" ) );
+  variableTimeStepModel.insertValues( variableTimeStepModel.index( 1, 2, QModelIndex() ), data );
+  QCOMPARE( timeSerie.valueCount(), 12 );
+  QVERIFY( timeSerie.relativeTimeAt( 0 ) == ReosDuration( 30, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 0 ), 11.0 );
+
+  QVERIFY( timeSerie.relativeTimeAt( 1 ) == ReosDuration( 35, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 1 ), 11.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 2 ) == ReosDuration( 40, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 2 ), 12.2 );
+
+  QVERIFY( timeSerie.relativeTimeAt( 3 ) == ReosDuration( 45, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 3 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 4 ) == ReosDuration( 60, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 4 ), 13.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 5 ) == ReosDuration( 150, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 5 ), 10.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 6 ) == ReosDuration( 3, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 6 ), 5.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 7 ) == ReosDuration( 3.5, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 7 ), 9.99 );
+  QVERIFY( timeSerie.relativeTimeAt( 8 ) == ReosDuration( 15.5, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 8 ), 10.99 );
+  QVERIFY( timeSerie.relativeTimeAt( 9 ) == ReosDuration( 20.5, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 9 ), 11.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 10 ) == ReosDuration( 20.75, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 10 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 11 ) == ReosDuration( 21, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 11 ), 13.2 );
+
+
+  data.clear();
+  data << ( QVariantList() << QVariant( "12.0" ) );
+  data << ( QVariantList() << QVariant( "14.2" ) );
+  variableTimeStepModel.insertValues( variableTimeStepModel.index( 12, 2, QModelIndex() ), data );
+
+  QCOMPARE( timeSerie.valueCount(), 14 );
+  QVERIFY( timeSerie.relativeTimeAt( 0 ) == ReosDuration( 30, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 0 ), 11.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 1 ) == ReosDuration( 35, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 1 ), 11.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 2 ) == ReosDuration( 40, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 2 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 3 ) == ReosDuration( 45, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 3 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 4 ) == ReosDuration( 60, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 4 ), 13.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 5 ) == ReosDuration( 150, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 5 ), 10.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 6 ) == ReosDuration( 3, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 6 ), 5.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 7 ) == ReosDuration( 3.5, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 7 ), 9.99 );
+  QVERIFY( timeSerie.relativeTimeAt( 8 ) == ReosDuration( 15.5, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 8 ), 10.99 );
+  QVERIFY( timeSerie.relativeTimeAt( 9 ) == ReosDuration( 20.5, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 9 ), 11.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 10 ) == ReosDuration( 20.75, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 10 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 11 ) == ReosDuration( 21, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 11 ), 13.2 );
+
+  QVERIFY( timeSerie.relativeTimeAt( 12 ) == ReosDuration( 33, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 12 ), 12.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 13 ) == ReosDuration( 45, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 13 ), 14.2 );
+
+
+  data.clear();
+  data << ( QVariantList() << QVariant( "12.0" ) );
+  data << ( QVariantList() << QVariant( "14.2" ) );
+  data << ( QVariantList() << QVariant( "15.0" ) );
+  data << ( QVariantList() << QVariant( "12.23" ) );
+  data << ( QVariantList() << QVariant( "1.23" ) );
+
+  variableTimeStepModel.setValues( variableTimeStepModel.index( 4, 0, QModelIndex() ), data );
+
+  QCOMPARE( timeSerie.valueCount(), 14 );
+  QVERIFY( timeSerie.relativeTimeAt( 0 ) == ReosDuration( 30, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 0 ), 11.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 1 ) == ReosDuration( 35, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 1 ), 11.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 2 ) == ReosDuration( 40, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 2 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 3 ) == ReosDuration( 45, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 3 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 4 ) == ReosDuration( 60, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 4 ), 12.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 5 ) == ReosDuration( 150, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 5 ), 14.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 6 ) == ReosDuration( 3, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 6 ), 15.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 7 ) == ReosDuration( 3.5, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 7 ), 12.23 );
+  QVERIFY( timeSerie.relativeTimeAt( 8 ) == ReosDuration( 15.5, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 8 ), 1.23 );
+  QVERIFY( timeSerie.relativeTimeAt( 9 ) == ReosDuration( 20.5, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 9 ), 11.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 10 ) == ReosDuration( 20.75, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 10 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 11 ) == ReosDuration( 21, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 11 ), 13.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 12 ) == ReosDuration( 33, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 12 ), 12.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 13 ) == ReosDuration( 45, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 13 ), 14.2 );
+
+
+  // data with not valid time regarding the existing one
+  data.clear();
+  data << ( QVariantList() <<  QVariant( QString( "0.5" ) ) << QVariant( "2.0" ) );
+  data << ( QVariantList() << QVariant( QString( "21.5" ) ) << QVariant( "4.2" ) );
+  data << ( QVariantList() << QVariant( QString( "22.5" ) ) << QVariant( "5.0" ) );
+  data << ( QVariantList() << QVariant( QString( "23.5" ) ) << QVariant( "2.23" ) );
+  data << ( QVariantList() << QVariant( QString( "24.5" ) ) << QVariant( "0.23" ) );
+
+  variableTimeStepModel.setValues( variableTimeStepModel.index( 4, 0, QModelIndex() ), data );
+
+  QCOMPARE( timeSerie.valueCount(), 14 );
+  QVERIFY( timeSerie.relativeTimeAt( 0 ) == ReosDuration( 30, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 0 ), 11.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 1 ) == ReosDuration( 35, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 1 ), 11.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 2 ) == ReosDuration( 40, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 2 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 3 ) == ReosDuration( 45, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 3 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 4 ) == ReosDuration( 60, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 4 ), 12.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 5 ) == ReosDuration( 150, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 5 ), 14.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 6 ) == ReosDuration( 3, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 6 ), 15.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 7 ) == ReosDuration( 3.5, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 7 ), 12.23 );
+  QVERIFY( timeSerie.relativeTimeAt( 8 ) == ReosDuration( 15.5, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 8 ), 1.23 );
+  QVERIFY( timeSerie.relativeTimeAt( 9 ) == ReosDuration( 20.5, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 9 ), 11.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 10 ) == ReosDuration( 20.75, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 10 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 11 ) == ReosDuration( 21, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 11 ), 13.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 12 ) == ReosDuration( 33, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 12 ), 12.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 13 ) == ReosDuration( 45, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 13 ), 14.2 );
+
+  // data with not valid time regarding the existing one
+  data.clear();
+  data << ( QVariantList() <<  QVariant( QString( "2.0" ) ) << QVariant( "2.0" ) );
+  data << ( QVariantList() << QVariant( QString( "1.75" ) ) << QVariant( "4.2" ) );
+  data << ( QVariantList() << QVariant( QString( "1.5" ) ) << QVariant( "5.0" ) );
+  data << ( QVariantList() << QVariant( QString( "1.75" ) ) << QVariant( "2.23" ) );
+  data << ( QVariantList() << QVariant( QString( "1.2" ) ) << QVariant( "0.23" ) );
+
+  variableTimeStepModel.setValues( variableTimeStepModel.index( 4, 0, QModelIndex() ), data );
+  QCOMPARE( timeSerie.valueCount(), 14 );
+  QVERIFY( timeSerie.relativeTimeAt( 0 ) == ReosDuration( 30, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 0 ), 11.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 1 ) == ReosDuration( 35, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 1 ), 11.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 2 ) == ReosDuration( 40, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 2 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 3 ) == ReosDuration( 45, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 3 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 4 ) == ReosDuration( 60, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 4 ), 12.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 5 ) == ReosDuration( 150, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 5 ), 14.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 6 ) == ReosDuration( 3, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 6 ), 15.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 7 ) == ReosDuration( 3.5, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 7 ), 12.23 );
+  QVERIFY( timeSerie.relativeTimeAt( 8 ) == ReosDuration( 15.5, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 8 ), 1.23 );
+  QVERIFY( timeSerie.relativeTimeAt( 9 ) == ReosDuration( 20.5, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 9 ), 11.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 10 ) == ReosDuration( 20.75, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 10 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 11 ) == ReosDuration( 21, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 11 ), 13.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 12 ) == ReosDuration( 33, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 12 ), 12.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 13 ) == ReosDuration( 45, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 13 ), 14.2 );
+
+// data tme valid
+  data.clear();
+  data << ( QVariantList() <<  QVariant( QString( "1.2" ) ) << QVariant( "2.0" ) );
+  data << ( QVariantList() << QVariant( QString( "1.25" ) ) << QVariant( "4.2" ) );
+  data << ( QVariantList() << QVariant( QString( "1.5" ) ) << QVariant( "5.0" ) );
+  data << ( QVariantList() << QVariant( QString( "1.75" ) ) << QVariant( "2.23" ) );
+  data << ( QVariantList() << QVariant( QString( "2.0" ) ) << QVariant( "0.23" ) );
+
+  variableTimeStepModel.setValues( variableTimeStepModel.index( 4, 0, QModelIndex() ), data );
+
+  QCOMPARE( timeSerie.valueCount(), 14 );
+  QVERIFY( timeSerie.relativeTimeAt( 0 ) == ReosDuration( 30, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 0 ), 11.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 1 ) == ReosDuration( 35, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 1 ), 11.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 2 ) == ReosDuration( 40, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 2 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 3 ) == ReosDuration( 45, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 3 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 4 ) == ReosDuration( 72, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 4 ), 2.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 5 ) == ReosDuration( 75, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 5 ), 4.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 6 ) == ReosDuration( 1.5, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 6 ), 5.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 7 ) == ReosDuration( 1.75, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 7 ), 2.23 );
+  QVERIFY( timeSerie.relativeTimeAt( 8 ) == ReosDuration( 2.0, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 8 ), 0.23 );
+  QVERIFY( timeSerie.relativeTimeAt( 9 ) == ReosDuration( 20.5, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 9 ), 11.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 10 ) == ReosDuration( 20.75, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 10 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 11 ) == ReosDuration( 21, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 11 ), 13.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 12 ) == ReosDuration( 33, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 12 ), 12.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 13 ) == ReosDuration( 45, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 13 ), 14.2 );
+
+  // set value from end
+  data.clear();
+  data << ( QVariantList() <<  QVariant( QString( "46" ) ) << QVariant( "2.0" ) );
+  data << ( QVariantList() << QVariant( QString( "47" ) ) << QVariant( "4.2" ) );
+  data << ( QVariantList() << QVariant( QString( "48" ) ) << QVariant( "5.0" ) );
+
+  variableTimeStepModel.setValues( variableTimeStepModel.index( 14, 0, QModelIndex() ), data );
+
+  QCOMPARE( timeSerie.valueCount(), 17 );
+  QVERIFY( timeSerie.relativeTimeAt( 0 ) == ReosDuration( 30, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 0 ), 11.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 1 ) == ReosDuration( 35, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 1 ), 11.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 2 ) == ReosDuration( 40, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 2 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 3 ) == ReosDuration( 45, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 3 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 4 ) == ReosDuration( 72, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 4 ), 2.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 5 ) == ReosDuration( 75, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 5 ), 4.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 6 ) == ReosDuration( 1.5, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 6 ), 5.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 7 ) == ReosDuration( 1.75, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 7 ), 2.23 );
+  QVERIFY( timeSerie.relativeTimeAt( 8 ) == ReosDuration( 2.0, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 8 ), 0.23 );
+  QVERIFY( timeSerie.relativeTimeAt( 9 ) == ReosDuration( 20.5, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 9 ), 11.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 10 ) == ReosDuration( 20.75, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 10 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 11 ) == ReosDuration( 21, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 11 ), 13.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 12 ) == ReosDuration( 33, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 12 ), 12.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 13 ) == ReosDuration( 45, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 13 ), 14.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 14 ) == ReosDuration( 46, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 14 ), 2.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 15 ) == ReosDuration( 47, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 15 ), 4.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 16 ) == ReosDuration( 48, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 16 ), 5.0 );
+
+  variableTimeStepModel.deleteRows( variableTimeStepModel.index( 5, 0, QModelIndex() ), 10 );
+  QCOMPARE( timeSerie.valueCount(), 7 );
+  QVERIFY( timeSerie.relativeTimeAt( 0 ) == ReosDuration( 30, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 0 ), 11.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 1 ) == ReosDuration( 35, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 1 ), 11.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 2 ) == ReosDuration( 40, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 2 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 3 ) == ReosDuration( 45, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 3 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 4 ) == ReosDuration( 72, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 4 ), 2.0 );
+
+  QVERIFY( timeSerie.relativeTimeAt( 5 ) == ReosDuration( 47, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 5 ), 4.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 6 ) == ReosDuration( 48, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 6 ), 5.0 );
+
+  variableTimeStepModel.deleteRows( variableTimeStepModel.index( 0, 1, QModelIndex() ), 3 );
+  QCOMPARE( timeSerie.valueCount(), 4 );
+  QVERIFY( timeSerie.relativeTimeAt( 0 ) == ReosDuration( 45, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 0 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 1 ) == ReosDuration( 72, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 1 ), 2.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 2 ) == ReosDuration( 47, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 2 ), 4.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 3 ) == ReosDuration( 48, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 3 ), 5.0 );
+
+  variableTimeStepModel.insertRows( variableTimeStepModel.index( 0, 1, QModelIndex() ), 3 );
+  QCOMPARE( timeSerie.valueCount(), 7 );
+  QVERIFY( timeSerie.relativeTimeAt( 0 ) == ReosDuration( 0, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 0 ), 0. );
+  QVERIFY( timeSerie.relativeTimeAt( 1 ) == ReosDuration( 15, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 1 ), 4.0666666666666666667 );
+  QVERIFY( timeSerie.relativeTimeAt( 2 ) == ReosDuration( 30, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 2 ), 8.1333333333333333333 );
+  QVERIFY( timeSerie.relativeTimeAt( 3 ) == ReosDuration( 45, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 3 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 4 ) == ReosDuration( 72, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 4 ), 2.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 5 ) == ReosDuration( 47, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 5 ), 4.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 6 ) == ReosDuration( 48, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 6 ), 5.0 );
+
+  variableTimeStepModel.insertRows( variableTimeStepModel.index( 7, 1, QModelIndex() ), 2 );
+  QCOMPARE( timeSerie.valueCount(), 9 );
+  QVERIFY( timeSerie.relativeTimeAt( 0 ) == ReosDuration( 0, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 0 ), 0. );
+  QVERIFY( timeSerie.relativeTimeAt( 1 ) == ReosDuration( 15, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 1 ), 4.0666666666666666667 );
+  QVERIFY( timeSerie.relativeTimeAt( 2 ) == ReosDuration( 30, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 2 ), 8.1333333333333333333 );
+  QVERIFY( timeSerie.relativeTimeAt( 3 ) == ReosDuration( 45, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 3 ), 12.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 4 ) == ReosDuration( 72, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 4 ), 2.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 5 ) == ReosDuration( 47, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 5 ), 4.2 );
+  QVERIFY( timeSerie.relativeTimeAt( 6 ) == ReosDuration( 48, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 6 ), 5.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 7 ) == ReosDuration( 60, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 7 ), 0.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 8 ) == ReosDuration( 72, ReosDuration::minute ) );
+  QCOMPARE( timeSerie.valueAt( 8 ), 0.0 );
+
+  //not possible to insert from start if first time is 0
+  variableTimeStepModel.insertRows( variableTimeStepModel.index( 0, 1, QModelIndex() ), 10 );
+  QCOMPARE( timeSerie.valueCount(), 9 );
 
 }
 

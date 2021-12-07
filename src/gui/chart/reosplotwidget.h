@@ -161,7 +161,8 @@ class ReosPlotWidget: public QWidget
     void setAxeYLeftExtent( double min, double max );
     void setAxeYRightExtent( double min, double max );
 
-    void setAxeTextSize( int size );
+    void setAxesTextSize( int size );
+    void setAxesTitleSize( int size );
 
     void enableScaleTypeChoice( bool b );
 
