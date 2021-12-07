@@ -52,10 +52,12 @@ ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWi
 //**** set up editable profile
   mDemCurve = new ReosPlotCurve( "Profile on current DEM", QColor( 0, 155, 242 ), 3 );
   mProfile = new ReosEditableProfile();
+  ui->mPlotWidget->setLegendAlignement( Qt::AlignRight );
+  ui->mPlotWidget->setSettingsContext( QStringLiteral( "watershed-longitudinal-profil" ) );
   ui->mPlotWidget->addPlotItem( mProfile );
   ui->mPlotWidget->setMagnifierType( ReosPlotWidget::normalMagnifier );
   ui->mProfileTableView->setModel( mProfile->tableModel() );
-  ui->mPlotWidget->setLegendAlignement( Qt::AlignRight );
+
   ui->mPlotWidget->addPlotItem( mDemCurve );
 
   QToolBar *profileToolBar = new QToolBar;

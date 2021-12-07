@@ -982,6 +982,7 @@ void ReosRainfallManager::onCurrentTreeIndexChanged()
     {
       ReosPlotWidget *newPlot = new ReosPlotWidget( this );
       ReosPlotItemFactories::instance()->buildPlotItemsAndSetup( newPlot, item->data() );
+      newPlot->setSettingsContext( item->data()->type() );
       if ( mCurrentPlot )
       {
         ui->mPlotWidget->layout()->replaceWidget( mCurrentPlot, newPlot );

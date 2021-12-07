@@ -153,6 +153,7 @@ void ReosTimeSerieTableView::contextMenuEvent( QContextMenuEvent *event )
 QModelIndex ReosTimeSerieTableView::moveCursor( QAbstractItemView::CursorAction cursorAction, Qt::KeyboardModifiers modifiers )
 {
   if ( cursorAction == QAbstractItemView::MoveNext &&
+       !mEditableColumn.isEmpty() &&
        currentIndex().column() == mEditableColumn.last() )
   {
     resizeColumnsToContents();

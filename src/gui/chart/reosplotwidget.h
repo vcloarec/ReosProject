@@ -27,8 +27,10 @@
 
 #include "reosmodule.h"
 #include "reosgui.h"
+#include "reossettings.h"
 
 class QComboBox;
+class QSpinBox;
 
 class QwtPlotMagnifier;
 class QwtPlotPanner;
@@ -51,10 +53,16 @@ class ReosPlotLegendController : public QToolButton
     ReosPlotLegendController( ReosPlotWidget *plotWidget );
     void setLegendEnabled( bool b );
 
+    void setCurrentAlignment( Qt::Alignment alignment );
+    void setCurrentColumnCount( int columnCount );
+
   signals:
-    void setLegendVisible( bool b );
+    void legendVisible( bool b );
   private:
-    ReosPlotWidget *mPlotWiget = nullptr;
+    ReosPlotWidget *mPlotWidget = nullptr;
+    QSpinBox *mColumnSpinBox = nullptr;
+    QList<Qt::Alignment> mLegendAlignments;
+    QList<QToolButton *> mAlignmentButtons;
 };
 
 class ReosPlotItem: public QObject
@@ -139,8 +147,11 @@ class ReosPlotWidget: public QWidget
 
     ReosPlotWidget( QWidget *parent = nullptr );
 
+    void setSettingsContext( const QString &settingContext );
+
     void setLegendEnabled( bool b );
     void setLegendAlignement( Qt::Alignment align );
+    void setLegendColumnCount( int columnCount );
     void setMagnifierType( MagnifierType type );
     void enableAutoMinimumSize( bool b );
     void setMinimumPlotSize( const QSize &size );
@@ -185,7 +196,7 @@ class ReosPlotWidget: public QWidget
     void setLegendVisible( bool b );
 
   private:
-
+    QString mSettingsContext;
     ReosPlot_p *mPlot = nullptr;
     QwtPlotPicker *mPickerTracker;
 
@@ -202,6 +213,8 @@ class ReosPlotWidget: public QWidget
 
     ReosPlotLegendController *mLegendController = nullptr;
     QAction *mActionLegendController = nullptr;
+
+    QString settingsPrefix() const;
 };
 
 class ReosDataPlotItemFactory

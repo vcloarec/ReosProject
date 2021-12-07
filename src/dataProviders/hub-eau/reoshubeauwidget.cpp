@@ -47,6 +47,7 @@ ReosHubEauWidget::ReosHubEauWidget( ReosMap *map, QWidget *parent )
   mSelectStation->setCursor( Qt::ArrowCursor );
 
   mHydrographPlot = new ReosPlotTimeSerieVariableStep( tr( "Hydrograph" ) );
+  ui->mPlotWidget->setSettingsContext( QStringLiteral( "hub-eau-widget" ) );
   ui->mPlotWidget->addPlotItem( mHydrographPlot );
   ui->mPlotWidget->setAxeXType( ReosPlotWidget::temporal );
   ui->mPlotWidget->enableAutoMinimumSize( true );

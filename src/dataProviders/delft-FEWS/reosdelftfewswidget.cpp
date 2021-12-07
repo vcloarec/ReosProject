@@ -41,6 +41,7 @@ ReosDelftFewsWidget::ReosDelftFewsWidget( ReosMap *map, const QString &dataType,
   mRainfallPlot = new ReosPlotTimeHistogram( tr( "Rainfall" ) );
   mHydrographPlot->setAsMasterItem( true );
   mRainfallPlot->setAsMasterItem( true );
+  ui->mPlotWidget->setSettingsContext( QStringLiteral( "delft-fews-widget" ) );
   ui->mPlotWidget->addPlotItem( mHydrographPlot );
   ui->mPlotWidget->addPlotItem( mRainfallPlot );
   ui->mPlotWidget->setAxeXType( ReosPlotWidget::temporal );

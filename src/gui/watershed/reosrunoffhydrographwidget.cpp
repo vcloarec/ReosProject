@@ -71,6 +71,7 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *wat
   mHydrographCurve->setOnRightAxe();
   mHydrographCurve->setColor( Qt::red );
   mHydrographCurve->setZ( 35 );
+  ui->widgetPlot->setSettingsContext( QStringLiteral( "runoff-hydrograph" ) );
   ui->widgetPlot->addPlotItem( mRainfallHistogram );
   ui->widgetPlot->addPlotItem( mRunoffHistogram );
   ui->widgetPlot->addPlotItem( mHydrographCurve );

@@ -78,6 +78,7 @@ class ReosPlot_p: public QwtPlot
 
     void setLegendVisible( bool b );
     void setLegendAlignement( Qt::Alignment align );
+    void setLegendColumnCount( int columnCount );
     void enableAutoMinimumSize( bool b );
     void setMinimumPlotSize( QSize minSize );
     void setRightAxeEnabled( bool b );

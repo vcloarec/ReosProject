@@ -51,6 +51,7 @@ ReosPlot_p::ReosPlot_p( QWidget *parent ): QwtPlot( parent )
   mLegend->setBackgroundMode( QwtPlotLegendItem::ItemBackground );
   mLegend->setAlignment( Qt::AlignTop | Qt::AlignLeft );
   mLegend->attach( this );
+  mLegend->setMaxColumns( 1 );
 
   mLegend->setVisible( false );
 
@@ -73,6 +74,11 @@ void ReosPlot_p::setLegendVisible( bool b )
 void ReosPlot_p::setLegendAlignement( Qt::Alignment align )
 {
   mLegend->setAlignment( align );
+}
+
+void ReosPlot_p::setLegendColumnCount( int columnCount )
+{
+  mLegend->setMaxColumns( columnCount );
 }
 
 void ReosPlot_p::enableAutoMinimumSize( bool b )

@@ -55,6 +55,7 @@ ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( ReosMap *map, QWidget *p
   ui->mWidgetProviderToolBar->layout()->addWidget( mToolBarProvider );
 
   mHydrographPlot = new ReosPlotTimeSerieVariableStep( tr( "Hydrograph" ) );
+  ui->plotWidget->setSettingsContext( QStringLiteral( "gauged-hydrograph" ) );
   ui->plotWidget->addPlotItem( mHydrographPlot );
   ui->plotWidget->setAxeXType( ReosPlotWidget::temporal );
   ui->plotWidget->enableAutoMinimumSize( true );
