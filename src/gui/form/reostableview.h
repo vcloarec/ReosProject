@@ -40,10 +40,14 @@ class ReosTimeSerieTableView : public QTableView
   protected:
     void keyPressEvent( QKeyEvent *event ) override;
     void contextMenuEvent( QContextMenuEvent *event ) override;
+    QModelIndex moveCursor( QAbstractItemView::CursorAction cursorAction, Qt::KeyboardModifiers modifiers ) override;
 
   private:
     QList<QVariantList> clipBoardToVariantList();
     ReosTimeSerieModel *timeSerieModel() const;
+    QList<int> mEditableColumn;
+
+    void copySelectedToClipBoard( bool withHeader );
 
 };
 

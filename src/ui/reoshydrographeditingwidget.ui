@@ -18,7 +18,14 @@
     <widget class="ReosFormWidget" name="mFormWidget" native="true"/>
    </item>
    <item>
-    <widget class="QTableView" name="mTableView"/>
+    <widget class="QTableView" name="mTableView">
+     <property name="editTriggers">
+      <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::CurrentChanged|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
+     </property>
+     <property name="tabKeyNavigation">
+      <bool>false</bool>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
