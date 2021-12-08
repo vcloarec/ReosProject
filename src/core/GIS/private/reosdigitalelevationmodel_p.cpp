@@ -553,22 +553,23 @@ ReosRasterExtent ReosDigitalElevationModelRaster::rasterExtent( const QgsRectang
   double xmax;
   double ymax;
 
-  int yCount;
-  int xCount;
+  double xPixelSize;
+  double yPixelSize;
 
   if ( mDataProvider->capabilities() & QgsRasterInterface::Size )
   {
-    xCount = mDataProvider->xSize();
-    yCount = mDataProvider->ySize();
+    int xCount = mDataProvider->xSize();
+    int yCount = mDataProvider->ySize();
+
+    xPixelSize = sourceRasterExtent.width() / xCount;;
+    yPixelSize = sourceRasterExtent.height() / yCount;
   }
   else
   {
-    xCount = sourceRasterExtent.width();
-    yCount = sourceRasterExtent.height();
+    xPixelSize = yPixelSize = std::max( sourceRasterExtent.width(), sourceRasterExtent.height() ) / 10000;
   }
 
-  double xPixelSize = sourceRasterExtent.width() / xCount;;
-  double yPixelSize = sourceRasterExtent.height() / yCount;
+
 
   if ( originalExtent.xMinimum() < sourceRasterExtent.xMinimum() )
     xmin = sourceRasterExtent.xMinimum();
@@ -590,8 +591,8 @@ ReosRasterExtent ReosDigitalElevationModelRaster::rasterExtent( const QgsRectang
   else
     ymax = sourceRasterExtent.yMaximum() - int( ( sourceRasterExtent.yMaximum() - originalExtent.yMaximum() ) / yPixelSize ) * yPixelSize;
 
-  xCount = int( ( xmax - xmin ) / xPixelSize + 0.5 );
-  yCount = int( ( ymax - ymin ) / yPixelSize + 0.5 );
+  int xCount = int( ( xmax - xmin ) / xPixelSize + 0.5 );
+  int yCount = int( ( ymax - ymin ) / yPixelSize + 0.5 );
 
   return ReosRasterExtent( ReosMapExtent( xmin, ymin, xmax, ymax ), xCount, yCount );
 }
