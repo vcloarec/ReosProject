@@ -33,6 +33,16 @@ SET(QSCISCINTILLA_INCLUDE_DIR CACHE PATH "Path to Qsciscintilla include dir")
 
 FIND_PACKAGE(Qt5 COMPONENTS Core Gui Widgets Network Xml Svg Concurrent Test UiTools Sql REQUIRED)
 
+# Password helper
+find_package(QtKeychain REQUIRED)
+# Master password hash and authentication encryption
+FIND_PACKAGE(QCA REQUIRED)
+# Check for runtime dependency of qca-ossl plugin
+if(NOT MSVC)
+  include(QCAMacros)
+  FIND_QCAOSSL_PLUGIN_CPP(ENABLE_TESTS)
+endif()
+
 IF (WITH_QTWEBKIT)
   FIND_PACKAGE(Qt5 COMPONENTS WebKit WebKitWidgets REQUIRED)
 ENDIF(WITH_QTWEBKIT)

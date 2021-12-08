@@ -39,6 +39,8 @@ email                : vcloarec at gmail dot com
 #include <qgis.h>
 #include <qgsdistancearea.h>
 #include <qgsnetworkaccessmanager.h>
+#include <qgsauthmethodregistry.h>
+#include <qgsauthmanager.h>
 
 #define  mLayerTreeModel _layerTreeModel(mAbstractLayerTreeModel)
 static QgsLayerTreeModel *_layerTreeModel( QAbstractItemModel *sourceModel )
@@ -122,6 +124,8 @@ void ReosGisEngine::initGisEngine()
   }
 
   //! init the QGIS net work manager to access remote GIS data
+  QgsApplication::authManager()->init( qgisProviderPath, QgsApplication::qgisAuthDatabaseFilePath() );
+  QgsAuthMethodRegistry::instance( qgisProviderPath );
   QgsNetworkAccessManager::instance();
 
   mAbstractLayerTreeModel = new QgsLayerTreeModel( QgsProject::instance()->layerTreeRoot(), this );
