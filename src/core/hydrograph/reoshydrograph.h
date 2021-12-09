@@ -45,15 +45,15 @@ class REOSCORE_EXPORT ReosHydrograph : public ReosTimeSerieVariableTimeStep
 
     void updateData() const override;
 
-    friend class ReosHydrographSource;
+    friend class ReosHydrographGroup;
 
 };
 
-class ReosHydrographSource: public ReosDataObject
+class ReosHydrographGroup: public ReosDataObject
 {
     Q_OBJECT
   public:
-    ReosHydrographSource( QObject *parent = nullptr ) : ReosDataObject( parent )
+    ReosHydrographGroup( QObject *parent = nullptr ) : ReosDataObject( parent )
     {}
 
     //! Returns the count of hydrographs stored
@@ -74,11 +74,11 @@ class ReosHydrographSource: public ReosDataObject
     QMap<ReosDataObject *, QList<QPointer<ReosHydrograph>>> mMapInputToHydrographs;
 };
 
-class REOSCORE_EXPORT ReosHydrographStore : public ReosHydrographSource
+class REOSCORE_EXPORT ReosHydrographsStore : public ReosHydrographGroup
 {
     Q_OBJECT
   public:
-    ReosHydrographStore( QObject *parent = nullptr ): ReosHydrographSource( parent ) {}
+    ReosHydrographsStore( QObject *parent = nullptr );
 
     //! Add an hydrograph to the sore, take ownership
     void addHydrograph( ReosHydrograph *hydrograph );
@@ -116,12 +116,12 @@ class ReosSerieRainfall;
 class ReosRunoffModelsGroup;
 class ReosRunoff;
 
-class ReosRunoffHydrographStore: public ReosHydrographSource
+class ReosRunoffHydrographsStore: public ReosHydrographGroup
 {
     Q_OBJECT
   public:
-    ReosRunoffHydrographStore( ReosMeteorologicModelsCollection *meteoModelCollection,
-                               QObject *parent = nullptr );
+    ReosRunoffHydrographsStore( ReosMeteorologicModelsCollection *meteoModelCollection,
+                                QObject *parent = nullptr );
 
     void setWatershed( ReosWatershed *watershed );
 

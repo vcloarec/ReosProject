@@ -231,7 +231,7 @@ class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
     void setTimeStepForOutputHydrograph( const ReosDuration &timeStepForOutputHydrograph );
 
     //! Return a pointer to the gauged hydrographs store of this watershed
-    ReosHydrographStore *gaugedHydrographs() const;
+    ReosHydrographsStore *gaugedHydrographs() const;
 
   public slots:
     void calculateArea();
@@ -296,7 +296,7 @@ class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
 
     //!*********************
 
-    ReosHydrographStore *mGaugedHydrographs = nullptr;
+    ReosHydrographsStore *mGaugedHydrographs = nullptr;
 
     bool mUsedConstantTimeStepForOutputHydrograph = false;
     ReosDuration mTimeStepForOutputHydrograph;

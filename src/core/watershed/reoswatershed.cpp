@@ -790,8 +790,8 @@ void ReosWatershed::init()
   mRunoffModels = new ReosRunoffModelsGroup( this );
   connect( mRunoffModels, &ReosRunoffModelsGroup::dataChanged, this, &ReosDataObject::dataChanged );
 
-  mGaugedHydrographs = new ReosHydrographStore( this );
-  connect( mGaugedHydrographs, &ReosHydrographStore::dataChanged, this, &ReosDataObject::dataChanged );
+  mGaugedHydrographs = new ReosHydrographsStore( this );
+  connect( mGaugedHydrographs, &ReosHydrographsStore::dataChanged, this, &ReosDataObject::dataChanged );
 
   connectParameters();
 }
@@ -1050,7 +1050,7 @@ ReosGisEngine *ReosWatershed::geographicalContext() const
   return nullptr;
 }
 
-ReosHydrographStore *ReosWatershed::gaugedHydrographs() const
+ReosHydrographsStore *ReosWatershed::gaugedHydrographs() const
 {
   return mGaugedHydrographs;
 }

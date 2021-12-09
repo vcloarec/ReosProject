@@ -182,7 +182,7 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
     ReosVariableTimeStepPlotListButton *mOtherRunoffHydrographButton = nullptr;
 
 
-    ReosRunoffHydrographStore *mRunoffHydrographStore = nullptr;
+    ReosRunoffHydrographsStore *mRunoffHydrographsStore = nullptr;
 
     QPointer<ReosRunoff> mCurrentRunoff ;
     QPointer<ReosHydrograph> mCurrentHydrograph;

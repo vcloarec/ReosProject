@@ -41,7 +41,7 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *wat
   , mWatershedRunoffModelsModel( new ReosWatershedRunoffModelsModel( this ) )
   , mRunoffResultTabModel( new ReosTimeSeriesTableModel( this ) )
   , mHydrographResultModel( new ReosTimeSeriesVariableTimeStepTabModel( this ) )
-  , mRunoffHydrographStore( new ReosRunoffHydrographStore( mWatershedModule->meteoModelsCollection(), this ) )
+  , mRunoffHydrographsStore( new ReosRunoffHydrographsStore( mWatershedModule->meteoModelsCollection(), this ) )
 {
   ui->setupUi( this );
   setWindowFlag( Qt::Dialog );
@@ -106,7 +106,7 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *wat
   ui->tableViewHydrographResult->horizontalHeader()->setStretchLastSection( true );
   ui->tableViewHydrographResult->setContextMenuPolicy( Qt::CustomContextMenu );
 
-  connect( mRunoffHydrographStore, &ReosRunoffHydrographStore::hydrographReady, this, &ReosRunoffHydrographWidget::onHydrographReady );
+  connect( mRunoffHydrographsStore, &ReosRunoffHydrographsStore::hydrographReady, this, &ReosRunoffHydrographWidget::onHydrographReady );
 
   connect( ui->tableViewHydrographResult, &QWidget::customContextMenuRequested, this, &ReosRunoffHydrographWidget::hydrographTabContextMenu );
   connect( ui->tableViewRunoffResult, &QWidget::customContextMenuRequested, this, &ReosRunoffHydrographWidget::rainfallRunoffTabContextMenu );
@@ -333,8 +333,8 @@ void ReosRunoffHydrographWidget::updateResultData()
   if ( !isVisible() )
     return;
 
-  mCurrentRunoff = mRunoffHydrographStore->runoff( mCurrentMeteoModel );
-  mCurrentHydrograph = mRunoffHydrographStore->hydrograph( mCurrentMeteoModel );
+  mCurrentRunoff = mRunoffHydrographsStore->runoff( mCurrentMeteoModel );
+  mCurrentHydrograph = mRunoffHydrographsStore->hydrograph( mCurrentMeteoModel );
 
   mRunoffResultTabModel->clearSerie();
 
@@ -533,7 +533,7 @@ void ReosRunoffHydrographWidget::updateOtherRunoffHydrograph()
       if ( model == mCurrentMeteoModel )
         continue;
 
-      ReosHydrograph *hyd = mRunoffHydrographStore->hydrograph( model );
+      ReosHydrograph *hyd = mRunoffHydrographsStore->hydrograph( model );
       if ( hyd )
       {
         ReosPlotItem *itemPlot = mOtherRunoffHydrographButton->addData( hyd );

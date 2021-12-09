@@ -60,7 +60,9 @@ bool ReosHydrograph::hydrographIsObsolete() const
   return isObsolete();
 }
 
-void ReosHydrographStore::addHydrograph( ReosHydrograph *hydrograph )
+ReosHydrographsStore::ReosHydrographsStore( QObject *parent ): ReosHydrographGroup( parent ) {}
+
+void ReosHydrographsStore::addHydrograph( ReosHydrograph *hydrograph )
 {
   hydrograph->setParent( this );
   mHydrographs.append( hydrograph );
@@ -68,18 +70,18 @@ void ReosHydrographStore::addHydrograph( ReosHydrograph *hydrograph )
   emit dataChanged();
 }
 
-void ReosHydrographStore::removeHydrograph( int index )
+void ReosHydrographsStore::removeHydrograph( int index )
 {
   delete mHydrographs.takeAt( index );
   emit dataChanged();
 }
 
-int ReosHydrographStore::hydrographCount() const
+int ReosHydrographsStore::hydrographCount() const
 {
   return mHydrographs.count();
 }
 
-QStringList ReosHydrographStore::hydrographNames() const
+QStringList ReosHydrographsStore::hydrographNames() const
 {
   QStringList ret;
   for ( const ReosHydrograph *hyd : mHydrographs )
@@ -88,7 +90,7 @@ QStringList ReosHydrographStore::hydrographNames() const
   return ret;
 }
 
-QList<ReosHydrograph *> ReosHydrographStore::hydrographsForTimeRange( const QDateTime &startTime, const QDateTime &endTime )
+QList<ReosHydrograph *> ReosHydrographsStore::hydrographsForTimeRange( const QDateTime &startTime, const QDateTime &endTime )
 {
   QList<ReosHydrograph *> ret;
 
@@ -103,7 +105,7 @@ QList<ReosHydrograph *> ReosHydrographStore::hydrographsForTimeRange( const QDat
   return ret;
 }
 
-ReosHydrograph *ReosHydrographStore::hydrograph( int index ) const
+ReosHydrograph *ReosHydrographsStore::hydrograph( int index ) const
 {
   if ( index >= 0 && index < mHydrographs.count() )
     return mHydrographs.at( index );
@@ -111,7 +113,7 @@ ReosHydrograph *ReosHydrographStore::hydrograph( int index ) const
   return nullptr;
 }
 
-ReosEncodedElement ReosHydrographStore::encode() const
+ReosEncodedElement ReosHydrographsStore::encode() const
 {
   ReosEncodedElement element( QStringLiteral( "hydrograph-store" ) );
 
@@ -125,7 +127,7 @@ ReosEncodedElement ReosHydrographStore::encode() const
   return element;
 }
 
-void ReosHydrographStore::decode( const ReosEncodedElement &element )
+void ReosHydrographsStore::decode( const ReosEncodedElement &element )
 {
   qDeleteAll( mHydrographs );
   mHydrographs.clear();
@@ -143,26 +145,26 @@ void ReosHydrographStore::decode( const ReosEncodedElement &element )
 
 }
 
-ReosRunoffHydrographStore::ReosRunoffHydrographStore( ReosMeteorologicModelsCollection *meteoModelsCollection,
+ReosRunoffHydrographsStore::ReosRunoffHydrographsStore( ReosMeteorologicModelsCollection *meteoModelsCollection,
     QObject *parent )
-  : ReosHydrographSource( parent )
+  : ReosHydrographGroup( parent )
   , mMeteoModelsCollection( meteoModelsCollection )
 {
-  connect( mMeteoModelsCollection, &ReosMeteorologicModelsCollection::changed, this, &ReosRunoffHydrographStore::updateStore );
+  connect( mMeteoModelsCollection, &ReosMeteorologicModelsCollection::changed, this, &ReosRunoffHydrographsStore::updateStore );
 }
 
-void ReosRunoffHydrographStore::setWatershed( ReosWatershed *watershed )
+void ReosRunoffHydrographsStore::setWatershed( ReosWatershed *watershed )
 {
   mWatershed = watershed;
   updateStore();
 }
 
-int ReosRunoffHydrographStore::hydrographCount() const
+int ReosRunoffHydrographsStore::hydrographCount() const
 {
   return mMeteoModelToHydrograph.count();
 }
 
-QPointer<ReosHydrograph> ReosRunoffHydrographStore::hydrograph( ReosMeteorologicModel *meteoModel )
+QPointer<ReosHydrograph> ReosRunoffHydrographsStore::hydrograph( ReosMeteorologicModel *meteoModel )
 {
   if ( mMeteoModelToHydrograph.contains( meteoModel ) )
   {
@@ -174,7 +176,7 @@ QPointer<ReosHydrograph> ReosRunoffHydrographStore::hydrograph( ReosMeteorologic
   return nullptr;
 }
 
-QPointer<ReosRunoff> ReosRunoffHydrographStore::runoff( ReosMeteorologicModel *meteoModel )
+QPointer<ReosRunoff> ReosRunoffHydrographsStore::runoff( ReosMeteorologicModel *meteoModel )
 {
   if ( mMeteoModelToHydrograph.contains( meteoModel ) )
   {
@@ -184,7 +186,7 @@ QPointer<ReosRunoff> ReosRunoffHydrographStore::runoff( ReosMeteorologicModel *m
   return nullptr;
 }
 
-void ReosRunoffHydrographStore::updateStore()
+void ReosRunoffHydrographsStore::updateStore()
 {
   if ( mWatershed.isNull() || mMeteoModelsCollection.isNull() )
     mMeteoModelToHydrograph.clear();
@@ -246,7 +248,7 @@ void ReosRunoffHydrographStore::updateStore()
   }
 }
 
-void ReosHydrographSource::registerInputdata( ReosDataObject *input, ReosHydrograph *hydrograph )
+void ReosHydrographGroup::registerInputdata( ReosDataObject *input, ReosHydrograph *hydrograph )
 {
   hydrograph->setObsolete();
   hydrograph->registerUpstreamData( input );
@@ -256,14 +258,14 @@ void ReosHydrographSource::registerInputdata( ReosDataObject *input, ReosHydrogr
   if ( mMapInputToHydrographs.contains( input ) )
     hydsPtr = mMapInputToHydrographs.value( input );
   else
-    connect( input, &ReosDataObject::dataChanged, this, &ReosHydrographSource::updateHydrographFromSignal );
+    connect( input, &ReosDataObject::dataChanged, this, &ReosHydrographGroup::updateHydrographFromSignal );
 
   if ( !hydsPtr.contains( hydrograph ) )
     hydsPtr.append( hydrograph );
   mMapInputToHydrographs[input] = hydsPtr;
 }
 
-void ReosHydrographSource::deregisterInputData( ReosDataObject *input, ReosHydrograph *hydrograph )
+void ReosHydrographGroup::deregisterInputData( ReosDataObject *input, ReosHydrograph *hydrograph )
 {
   hydrograph->deregisterUpstreamData( input );
 
@@ -275,7 +277,7 @@ void ReosHydrographSource::deregisterInputData( ReosDataObject *input, ReosHydro
 
     if ( hydsPtr.isEmpty() )
     {
-      disconnect( input, &ReosDataObject::dataChanged, this, &ReosHydrographSource::updateHydrographFromSignal );
+      disconnect( input, &ReosDataObject::dataChanged, this, &ReosHydrographGroup::updateHydrographFromSignal );
       mMapInputToHydrographs.remove( input );
     }
     else
@@ -284,7 +286,7 @@ void ReosHydrographSource::deregisterInputData( ReosDataObject *input, ReosHydro
 
 }
 
-void ReosHydrographSource::updateHydrographFromSignal()
+void ReosHydrographGroup::updateHydrographFromSignal()
 {
   ReosDataObject *senderData = qobject_cast<ReosDataObject *>( sender() );
   if ( senderData )
@@ -305,9 +307,9 @@ void ReosHydrographSource::updateHydrographFromSignal()
   }
 }
 
-void ReosHydrographSource::updateHydrographs( ReosHydrograph * ) {}
+void ReosHydrographGroup::updateHydrographs( ReosHydrograph * ) {}
 
-void ReosHydrographSource::onInputDataDestroy()
+void ReosHydrographGroup::onInputDataDestroy()
 {
   ReosDataObject *senderData = qobject_cast<ReosDataObject *>( sender() );
   if ( senderData )
@@ -316,7 +318,7 @@ void ReosHydrographSource::onInputDataDestroy()
   }
 }
 
-void ReosRunoffHydrographStore::updateHydrographs( ReosHydrograph *hyd )
+void ReosRunoffHydrographsStore::updateHydrographs( ReosHydrograph *hyd )
 {
   const QList<ReosMeteorologicModel *> keys = mMeteoModelToHydrograph.keys();
   for ( ReosMeteorologicModel *meteoModel : keys )
