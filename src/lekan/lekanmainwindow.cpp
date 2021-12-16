@@ -38,12 +38,16 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reosrunoffmanager.h"
 #include "reosrunoffmodel.h"
 
+#define PROJECT_FILE_MAGIC_NUMBER 19092014
+
 
 LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   ReosMainWindow( parent ),
   mGisEngine( new ReosGisEngine( rootModule() ) ),
   mMap( new ReosMap( mGisEngine, this ) )
 {
+  ReosVersion::setCurrentApplicationVersion( lekanVersion );
+
   init();
   setWindowIcon( QPixmap( QStringLiteral( ":/images/lekan.svg" ) ) );
 
@@ -97,7 +101,32 @@ bool LekanMainWindow::openProject()
   if ( !file.open( QIODevice::ReadOnly ) )
     return false;
 
+  ReosVersion version;
+
   QDataStream stream( &file );
+
+  //*** read header
+  qint32 magicNumber;
+  qint32 serialisationVersion;
+  QByteArray bytesVersion;
+  stream >> magicNumber;
+
+  if ( magicNumber == PROJECT_FILE_MAGIC_NUMBER )
+  {
+    // since Lekan 2.2
+    stream >> serialisationVersion;
+    stream >> bytesVersion;
+    QDataStream::Version v = static_cast<QDataStream::Version>( serialisationVersion );
+    ReosEncodedElement::setSerialisationVersion( v );
+    version = ReosVersion( bytesVersion, v );
+  }
+  else
+  {
+    //old version don't have header
+    ReosEncodedElement::setSerialisationVersion( QDataStream::Qt_5_12 ); /// TODO : check the Qt version of Lekan 2.0 / 2.1
+    stream.device()->reset();
+  }
+
   QByteArray byteArray;
   stream >> byteArray;
 
@@ -138,8 +167,26 @@ bool LekanMainWindow::saveProject()
   QFile file( filePath );
   if ( !file.open( QIODevice::WriteOnly ) )
     return false;
+
   QDataStream stream( &file );
+
+  //**** header
+  qint32 magicNumber = PROJECT_FILE_MAGIC_NUMBER;
+  qint32 serialisationVersion = stream.version();
+  qDebug() << "serialisation version:" << serialisationVersion;
+
+  QByteArray versionBytes = lekanVersion.bytesVersion();
+
+  Q_ASSERT( versionBytes.size() == 21 );
+
+  stream << magicNumber;
+  stream << serialisationVersion;
+  stream << versionBytes;
+  //*****
+
   stream << lekanProject.bytes();
+
+
   return true;
 }
 

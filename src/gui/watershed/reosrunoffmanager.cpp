@@ -76,7 +76,7 @@ void ReosRunoffManager::loadDataFile()
   if ( fileName.isEmpty() )
     return;
 
-  if ( registery->loadFromFile( fileName, QStringLiteral( "rainfall data" ) ) )
+  if ( registery->loadFromFile( fileName ) )
   {
     ui->labelFileName->setText( fileName );
   }
@@ -151,7 +151,7 @@ void ReosRunoffManager::onOpenFile()
   if ( fileName.isEmpty() )
     return;
 
-  if ( registery->loadFromFile( fileName, QStringLiteral( "runoff data" ) ) )
+  if ( registery->loadFromFile( fileName ) )
   {
     ui->labelFileName->setText( fileName );
     settings.setValue( QStringLiteral( "Runoff-model/dataFile" ), fileName );
@@ -266,7 +266,7 @@ bool ReosRunoffManager::saveOn( const QString &fileName )
     return false;
 
   ReosRunoffModelRegistery *registery = ReosRunoffModelRegistery::instance();
-  return registery->saveToFile( fileName, QStringLiteral( "runoff data" ) );
+  return registery->saveToFile( fileName );
 }
 
 void ReosRunoffManager::selectRunoffModel( ReosRunoffModel *runoffModel )

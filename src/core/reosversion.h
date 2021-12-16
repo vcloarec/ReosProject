@@ -19,6 +19,7 @@ email                : vcloarec at gmail dot com
 #include <QString>
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
+#include <QDataStream>
 
 #include "reoscore.h"
 
@@ -33,6 +34,8 @@ class REOSCORE_EXPORT ReosVersion
     //! Constructor with software name and version number
     ReosVersion( const QString &name, int major, int minor, int sub );
 
+    ReosVersion( const QByteArray &bytes, QDataStream::Version v );
+
     bool operator==( const ReosVersion &other );
     bool operator>( const ReosVersion &other );
     bool operator<( const ReosVersion &other );
@@ -41,11 +44,19 @@ class REOSCORE_EXPORT ReosVersion
     QString softwareNameWithVersion() const;
     QString stringVersion() const;
 
+    QByteArray bytesVersion() const;
+
+    static ReosVersion currentApplicationVersion();
+
+    static void setCurrentApplicationVersion( const ReosVersion &value );
+
   private:
     QString mSoftName;
     int mMajor = 0;
     int mMinor = 0;
     int mSub = 0;
+
+    static ReosVersion sCurrentApplicationVersion;
 };
 
 

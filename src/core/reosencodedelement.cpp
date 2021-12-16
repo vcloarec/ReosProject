@@ -15,9 +15,12 @@ email                : vcloarec@gmail.com
 
 #include "reosencodedelement.h"
 
+QDataStream::Version ReosEncodedElement::sVersion = QDataStream::Qt_DefaultCompiledVersion;
+
 ReosEncodedElement::ReosEncodedElement( const QByteArray &byteArray )
 {
   QDataStream stream( byteArray );
+  stream.setVersion( sVersion );
   stream >> mDescription;
   stream >> mData;
 }
@@ -40,6 +43,7 @@ void ReosEncodedElement::addListEncodedData( const QString &key, const QList<Reo
 {
   QByteArray byteArray;
   QDataStream stream( &byteArray, QIODevice::WriteOnly );
+  stream.setVersion( sVersion );
   QList<QByteArray> listByte;
   for ( const ReosEncodedElement &elem : std::as_const( list ) )
     listByte.append( elem.bytes() );
@@ -55,6 +59,7 @@ QList<ReosEncodedElement> ReosEncodedElement::getListEncodedData( const QString 
   if ( !mData.contains( key ) )
     return list;
   QDataStream stream( mData[key] );
+  stream.setVersion( sVersion );
   QList<QByteArray> listByte;
   stream >> listByte;
 
@@ -68,6 +73,7 @@ QByteArray ReosEncodedElement::bytes() const
 {
   QByteArray byteArray;
   QDataStream stream( &byteArray, QIODevice::WriteOnly );
+  stream.setVersion( sVersion );
   stream << mDescription;
   stream << mData;
   return byteArray;
@@ -81,5 +87,10 @@ bool ReosEncodedElement::hasEncodedData() const
 bool ReosEncodedElement::hasEncodedData( const QString &key ) const
 {
   return mData.contains( key );
+}
+
+void ReosEncodedElement::setSerialisationVersion( QDataStream::Version version )
+{
+  sVersion = version;
 }
 

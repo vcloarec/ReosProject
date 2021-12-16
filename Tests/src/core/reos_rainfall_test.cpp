@@ -91,11 +91,11 @@ void ReosRainfallTest::addingItem()
 
   QString tempFileName( tmp_file( QStringLiteral( "rainfallFile" ).toStdString() ).c_str() );
 
-  rainfallModel.saveToFile( tempFileName, QStringLiteral( "test" ) );
+  rainfallModel.saveToFile( tempFileName );
 
   ReosRainfallModel otherModel;
 
-  otherModel.loadFromFile( tempFileName, QStringLiteral( "test" ) );
+  otherModel.loadFromFile( tempFileName );
   index = otherModel.index( 0, 0, otherModel.index( 1, 0, QModelIndex() ) );
   QVERIFY( index.isValid() );
   item = otherModel.indexToItem( index );
@@ -275,7 +275,7 @@ void ReosRainfallTest::loadRainfallData()
   for ( const std::string &path : std::as_const( paths ) )
   {
 
-    QVERIFY( rainfallModel->loadFromFile( test_file( path ).c_str(), QString() ) );
+    QVERIFY( rainfallModel->loadFromFile( test_file( path ).c_str() ) );
     // root, only one region item
     QCOMPARE( rainfallModel->rowCount( QModelIndex() ), 1 );
     ReosRainfallItem *rootItem = rainfallModel->indexToItem( rainfallModel->index( 0, 0, QModelIndex() ) );

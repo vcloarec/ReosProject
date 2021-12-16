@@ -50,6 +50,7 @@ class REOSCORE_EXPORT ReosEncodedElement
     {
       QByteArray byteArray;
       QDataStream stream( &byteArray, QIODevice::WriteOnly );
+      stream.setVersion( sVersion );
       stream << value;
       mData[key] = byteArray;
     }
@@ -62,6 +63,7 @@ class REOSCORE_EXPORT ReosEncodedElement
         return false;
 
       QDataStream stream( mData[key] );
+      stream.setVersion( sVersion );
       stream >> value;
       return true;
     }
@@ -75,9 +77,14 @@ class REOSCORE_EXPORT ReosEncodedElement
     bool hasEncodedData() const;
     bool hasEncodedData( const QString &key ) const;
 
+    static void setSerialisationVersion( QDataStream::Version version );
+
+
   private:
     QMap<QString, QByteArray> mData;
     QString mDescription;
+
+    static QDataStream::Version sVersion;
 
 };
 

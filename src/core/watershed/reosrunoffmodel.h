@@ -329,10 +329,10 @@ class REOSCORE_EXPORT ReosRunoffModelRegistery : public ReosModule
     QString createRunoffModelName( const QString &type );
 
     //! Saves the data to file
-    bool saveToFile( const QString &fileName, const QString &header ) const;
+    bool saveToFile( const QString &fileName ) const;
 
     //! Clears all current data and load new from files
-    bool loadFromFile( const QString &fileName, const QString &header );
+    bool loadFromFile( const QString &fileName );
 
     //! Returns a runoff model consiering its unique id
     ReosRunoffModel *runoffModelByUniqueId( const QString &uniqueId ) const;

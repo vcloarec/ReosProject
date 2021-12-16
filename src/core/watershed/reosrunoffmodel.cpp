@@ -21,6 +21,9 @@
 #include "reosrainfallitem.h"
 #include "reostimeserie.h"
 #include "reosparameter.h"
+#include "reosversion.h"
+
+#define  FILE_MAGIC_NUMBER 1909201402
 
 ReosRunoffModel::ReosRunoffModel( const QString &name, QObject *parent ):
   ReosDataObject( parent )
@@ -116,6 +119,9 @@ void ReosRunoff::updateValues() const
 
   if ( !mRainfall.isNull() && mRunoffModelsGroups )
   {
+    mData->setReferenceTime( mRainfall->referenceTime() );
+    mData->setTimeStep( mRainfall->timeStep() );
+
     for ( int i = 0; i < mRunoffModelsGroups->runoffModelCount(); ++i )
     {
       ReosRunoffModel *model = mRunoffModelsGroups->runoffModel( i );
@@ -587,7 +593,7 @@ bool ReosRunoffModelRegistery::decode( const ReosEncodedElement &element )
   return true;
 }
 
-bool ReosRunoffModelRegistery::saveToFile( const QString &fileName, const QString &header ) const
+bool ReosRunoffModelRegistery::saveToFile( const QString &fileName ) const
 {
   QFileInfo fileInfo( fileName );
 
@@ -602,7 +608,18 @@ bool ReosRunoffModelRegistery::saveToFile( const QString &fileName, const QStrin
   QDataStream stream( &file );
   if ( file.open( QIODevice::WriteOnly ) )
   {
-    stream << header;
+    //**** bytes header
+    qint32 magicNumber = FILE_MAGIC_NUMBER;
+    qint32 serialisationVersion = stream.version();
+    qDebug() << "serialisation version:" << serialisationVersion;
+
+    QByteArray versionBytes = ReosVersion::currentApplicationVersion().bytesVersion();
+
+    stream << magicNumber;
+    stream << serialisationVersion;
+    stream << versionBytes;
+    //*****
+
     stream << encode().bytes();
     file.close();
     message( tr( "Runoff models save to file: %1" ).arg( fileName ) );
@@ -613,10 +630,8 @@ bool ReosRunoffModelRegistery::saveToFile( const QString &fileName, const QStrin
   return false;
 }
 
-bool ReosRunoffModelRegistery::loadFromFile( const QString &fileName, const QString &header )
+bool ReosRunoffModelRegistery::loadFromFile( const QString &fileName )
 {
-  Q_UNUSED( header );
-
   mModel->clear();
 
   QFileInfo fileInfo( fileName );
@@ -630,8 +645,31 @@ bool ReosRunoffModelRegistery::loadFromFile( const QString &fileName, const QStr
   if ( !file.open( QIODevice::ReadOnly ) )
     return false;
 
-  QString readenHeader;
-  stream >> readenHeader;
+  //*** read header
+  ReosVersion version;
+  qint32 magicNumber;
+  qint32 serialisationVersion;
+  QByteArray bytesVersion;
+  stream >> magicNumber;
+
+  if ( magicNumber == FILE_MAGIC_NUMBER )
+  {
+    // since Lekan 2.2
+    stream >> serialisationVersion;
+    stream >> bytesVersion;
+    QDataStream::Version v = static_cast<QDataStream::Version>( serialisationVersion );
+    ReosEncodedElement::setSerialisationVersion( v );
+    version = ReosVersion( bytesVersion, v );
+  }
+  else
+  {
+    //old version don't have real header but a text header
+    ReosEncodedElement::setSerialisationVersion( QDataStream::Qt_5_12 ); /// TODO : check the Qt version of Lekan 2.0 / 2.1
+    stream.device()->reset();
+
+    QString readenHeader;
+    stream >> readenHeader;
+  }
 
   QByteArray data;
   stream >> data;
