@@ -266,6 +266,25 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
 
     void copyFrom( ReosTimeSerieVariableTimeStep *other );
 
+    bool operator==( ReosTimeSerieVariableTimeStep &other ) const
+    {
+      if ( other.valueCount() != valueCount() )
+        return false;
+
+      if ( referenceTime() != other.referenceTime() )
+        return false;
+
+      for ( int i = 0; i < valueCount(); ++i )
+      {
+        if ( valueAt( i ) != other.valueAt( i ) )
+          return false;
+        if ( relativeTimeAt( i ) != other.relativeTimeAt( i ) )
+          return false;
+      }
+
+      return true;
+    }
+
   signals:
     void colorChanged( const QColor &color );
 

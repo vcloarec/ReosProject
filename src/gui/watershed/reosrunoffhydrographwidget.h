@@ -35,6 +35,8 @@ class ReosPlotTimeSerieVariableStep;
 class ReosTransferFunction;
 class ReosSerieRainfall;
 class ReosVariableTimeStepPlotListButton;
+class ReosHydraulicNetwork;
+class ReosHydrographNodeWatershed;
 
 namespace Ui
 {
@@ -192,6 +194,8 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
 
     void updateGaugedHydrograph();
     void updateOtherRunoffHydrograph();
+
+    ReosHydrographNodeWatershed *currentNetworkNode();
 };
 
 //**************************************************

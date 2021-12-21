@@ -17,11 +17,15 @@
 #include "reosrunoffhydrographwidget.h"
 #include "reosexportwatershedtovectordialog.h"
 #include "reosgaugedhydrographwidget.h"
+#include "reoshydraulicnetwork.h"
+#include "reoshydrographsource.h"
 
-ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *module, QWidget *parent ) :
+ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *module, ReosHydraulicNetwork *hydraulicNetwork, QWidget *parent ) :
   QWidget( parent ),
   ui( new Ui::ReosWatershedWidget ),
+  mWatershdModule( module ),
   mMap( map ),
+  mHydraulicNetwork( hydraulicNetwork ),
   mActionSelectWatershed( new QAction( QPixmap( QStringLiteral( ":/images/selectWatershed.svg" ) ), tr( "Select watershed on map" ), this ) ),
   mDescriptionKeyWatershed( QStringLiteral( "watershed:delineatingPolygon" ) ),
   mMapToolSelectWatershed( new ReosMapToolSelectMapItem( map, mDescriptionKeyWatershed ) ),
@@ -88,7 +92,7 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   connect( mMapToolSelectWatershed, &ReosMapToolSelectMapItem::found, this, &ReosWatershedWidget::onWatershedSelectedOnMap );
 
   ui->treeView->setContextMenuPolicy( Qt::CustomContextMenu );
-  connect( ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ReosWatershedWidget::onCurrentWatershedChange );
+  connect( ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ReosWatershedWidget::onCurrentWatershedChanges );
   connect( ui->treeView, &QWidget::customContextMenuRequested, this, &ReosWatershedWidget::onTreeViewContextMenu );
 
   std::unique_ptr<ReosMenuPopulator> menuPopulator = std::make_unique<ReosMenuPopulator>();
@@ -137,6 +141,7 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   connect( mActionExportToVectorLayer, &QAction::triggered, this, &ReosWatershedWidget::onExportToVectorLayer );
   connect( mActionZoomToWatershed, &QAction::triggered, this, &ReosWatershedWidget::onZoomToWatershed );
 
+  connect( ui->mAddRemoveHydraulicNetworkButton, &QPushButton::clicked, this, &ReosWatershedWidget::onAddRemoveNetwork );
 }
 
 ReosWatershedWidget::~ReosWatershedWidget()
@@ -176,11 +181,10 @@ void ReosWatershedWidget::onWatershedAdded( const QModelIndex &index )
 
 void ReosWatershedWidget::onWatershedSelectedOnMap( ReosMapItem *item, const QPointF &pos )
 {
+  ui->treeView->setCurrentIndex( QModelIndex() );
+
   if ( !item )
-  {
-    ui->treeView->setCurrentIndex( QModelIndex() );
     return;
-  }
 
   for ( const auto &ws : mMapWatersheds.keys() )
   {
@@ -246,7 +250,7 @@ void ReosWatershedWidget::onRemoveWatershed()
 
 }
 
-void ReosWatershedWidget::onCurrentWatershedChange( const QItemSelection &selected, const QItemSelection &deselected )
+void ReosWatershedWidget::onCurrentWatershedChanges( const QItemSelection &selected, const QItemSelection &deselected )
 {
   ReosWatershed *currentWatershed = nullptr;
   QModelIndex currentIndex;
@@ -281,7 +285,7 @@ void ReosWatershedWidget::onCurrentWatershedChange( const QItemSelection &select
   {
     mMapWatersheds[currentWatershed] = MapWatershed( mMap, currentWatershed->delineating(), currentWatershed->outletPoint() );
     formatMapWatershed( mMapWatersheds[currentWatershed] );
-    onCurrentWatershedChange( selected, deselected );
+    onCurrentWatershedChanges( selected, deselected );
     return;
   }
 
@@ -301,6 +305,7 @@ void ReosWatershedWidget::onCurrentWatershedChange( const QItemSelection &select
   }
 
   emit currentWatershedChanged( currentWatershed );
+  updateNetworkButton();
 }
 
 void ReosWatershedWidget::onTreeViewContextMenu( const QPoint &pos )
@@ -368,6 +373,20 @@ void ReosWatershedWidget::onZoomToWatershed()
     mMap->setExtent( ws->extent() );
 }
 
+void ReosWatershedWidget::onAddRemoveNetwork()
+{
+  if ( !currentWatershed() )
+    return;
+
+  ReosHydrographNodeWatershed *hsw = currentNetworkNode();
+  if ( hsw )
+    mHydraulicNetwork->removeElement( hsw );
+  else
+    mHydraulicNetwork->addElement( new ReosHydrographNodeWatershed( currentWatershed(), mWatershdModule->meteoModelsCollection(), mHydraulicNetwork ) );
+
+  updateNetworkButton();
+}
+
 ReosWatershed *ReosWatershedWidget::currentWatershed() const
 {
   QModelIndex currentIndex = ui->treeView->currentIndex();
@@ -411,4 +430,49 @@ void ReosWatershedWidget::clearSelection()
     formatUnselectedWatershed( it.value() );
     it++;
   }
+}
+
+ReosHydrographNodeWatershed *ReosWatershedWidget::currentNetworkNode()
+{
+  QList<ReosHydraulicNetworkElement *> watershedHydrographSource = mHydraulicNetwork->getElements( ReosHydrographNodeWatershed::staticType() );
+
+  for ( ReosHydraulicNetworkElement *elem : watershedHydrographSource )
+  {
+    ReosHydrographNodeWatershed *hsw = qobject_cast<ReosHydrographNodeWatershed *>( elem );
+    if ( hsw && hsw->watershed() == currentWatershed() )
+    {
+      ui->mAddRemoveHydraulicNetworkButton->setText( tr( "Remove watershed from network" ) );
+      ui->mAddRemoveHydraulicNetworkButton->setEnabled( true );
+      return hsw;
+    }
+  }
+
+  return nullptr;
+}
+
+void ReosWatershedWidget::updateNetworkButton()
+{
+  if ( !mHydraulicNetwork )
+  {
+    ui->mAddRemoveHydraulicNetworkButton->setText( tr( "No Hydraulic Network" ) );
+    ui->mAddRemoveHydraulicNetworkButton->setEnabled( false );
+    return;
+  }
+
+  if ( !currentWatershed() )
+  {
+    ui->mAddRemoveHydraulicNetworkButton->setText( tr( "No Watershed Selected" ) );
+    ui->mAddRemoveHydraulicNetworkButton->setEnabled( false );
+    return;
+  }
+
+  if ( currentNetworkNode() )
+  {
+    ui->mAddRemoveHydraulicNetworkButton->setText( tr( "Remove Watershed from Network" ) );
+    ui->mAddRemoveHydraulicNetworkButton->setEnabled( true );
+    return;
+  }
+
+  ui->mAddRemoveHydraulicNetworkButton->setText( tr( "Add Watershed to Network" ) );
+  ui->mAddRemoveHydraulicNetworkButton->setEnabled( true );
 }

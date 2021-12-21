@@ -30,7 +30,7 @@ class REOSCORE_EXPORT ReosEncodedElement
 {
   public:
     //! Constructor of an empty encoded element with only the description
-    ReosEncodedElement( const QString &description ): mDescription( description )
+    explicit ReosEncodedElement( const QString &description ): mDescription( description )
     {}
 
     //! Contructor of an encoded element from a \a byte array than contains data and description

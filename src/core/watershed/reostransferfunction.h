@@ -27,24 +27,6 @@ class ReosWatershed;
 class ReosHydrograph;
 
 
-//! Process abstract class that handle the calculation of the hydrograph an onother thread
-class REOSCORE_EXPORT ReosTransferFunctionCalculation : public ReosProcess
-{
-    Q_OBJECT
-  public:
-    //! Returns the hydrograph result, has to be call after the process is finished, if \a parent is not specified, the caller need to take ownership
-    ReosHydrograph *getHydrograph( QObject *parent = nullptr );
-
-    //! Returns a pointer to the hydrograph keeping ownership
-    ReosHydrograph hydrograph();
-
-  protected:
-    std::unique_ptr<ReosHydrograph> mHydrograph;
-
-  signals:
-    void hydrographReady( ReosHydrograph *hydrograph );
-};
-
 //! Class that reprsents a transfer function, that is a tranformation from runoff to hydrograph
 class REOSCORE_EXPORT ReosTransferFunction : public ReosDataObject
 {
@@ -72,7 +54,7 @@ class REOSCORE_EXPORT ReosTransferFunction : public ReosDataObject
     virtual ReosEncodedElement encode() const = 0;
 
     //! Returns a calculaton process for hydrograph calculation, the caller take ownership of the return object and keep the one of \a runoff
-    virtual ReosTransferFunctionCalculation *calculationProcess( ReosRunoff *runoff ) = 0;
+    virtual ReosHydrographCalculation *calculationProcess( ReosRunoff *runoff ) = 0;
 
   protected:
     void encodeBase( ReosEncodedElement &element ) const;
@@ -191,7 +173,7 @@ class REOSCORE_EXPORT ReosTransferFunctionLinearReservoir : public ReosTransferF
     ReosHydrograph *applyFunction( ReosRunoff *runoff, QObject *hydrographParent = nullptr ) const override;
 
     ReosEncodedElement encode() const override;
-    virtual ReosTransferFunctionCalculation *calculationProcess( ReosRunoff *runoff ) override;
+    virtual ReosHydrographCalculation *calculationProcess( ReosRunoff *runoff ) override;
 
     static ReosTransferFunctionLinearReservoir *decode( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr );
 
@@ -205,7 +187,7 @@ class REOSCORE_EXPORT ReosTransferFunctionLinearReservoir : public ReosTransferF
     ReosParameterBoolean *mUseConcentrationTime = nullptr;
     ReosParameterDouble *mFactorToLagTime = nullptr;
 
-    class Calculation: public ReosTransferFunctionCalculation
+    class Calculation: public ReosHydrographCalculation
     {
       public:
         Calculation( const QVector<double> runoffData,
@@ -263,14 +245,14 @@ class REOSCORE_EXPORT ReosTransferFunctionGeneralizedRationalMethod : public Reo
 
     ReosHydrograph *applyFunction( ReosRunoff *runoff, QObject *hydrographParent = nullptr ) const override;
     ReosEncodedElement encode() const override;
-    ReosTransferFunctionCalculation *calculationProcess( ReosRunoff *runoff ) override;
+    ReosHydrographCalculation *calculationProcess( ReosRunoff *runoff ) override;
 
     static ReosTransferFunction *decode( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr );
 
   private:
     ReosTransferFunctionGeneralizedRationalMethod( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr );
 
-    class Calculation: public ReosTransferFunctionCalculation
+    class Calculation: public ReosHydrographCalculation
     {
       public:
         Calculation( const QVector<double> runoffData,
@@ -318,7 +300,7 @@ class REOSCORE_EXPORT ReosTransferFunctionSCSUnitHydrograph : public ReosTransfe
 
     ReosHydrograph *applyFunction( ReosRunoff *runoff, QObject *parent = nullptr ) const override;
     ReosEncodedElement encode() const override;
-    ReosTransferFunctionCalculation *calculationProcess( ReosRunoff *runoff ) override;
+    ReosHydrographCalculation *calculationProcess( ReosRunoff *runoff ) override;
 
     static ReosTransferFunction *decode( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr );
 
@@ -337,7 +319,7 @@ class REOSCORE_EXPORT ReosTransferFunctionSCSUnitHydrograph : public ReosTransfe
   private:
     ReosTransferFunctionSCSUnitHydrograph( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr );
 
-    class Calculation: public ReosTransferFunctionCalculation
+    class Calculation: public ReosHydrographCalculation
     {
       public:
         Calculation( const QVector<double> runoffData,
@@ -401,7 +383,7 @@ class REOSCORE_EXPORT ReosTransferFunctionNashUnitHydrograph : public ReosTransf
     QString type() const override {return staticType();}
 
     ReosHydrograph *applyFunction( ReosRunoff *runoff, QObject *parent = nullptr ) const override;
-    ReosEncodedElement encode() const;
+    ReosEncodedElement encode() const override;
 
     static ReosTransferFunction *decode( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr );
 
@@ -409,12 +391,12 @@ class REOSCORE_EXPORT ReosTransferFunctionNashUnitHydrograph : public ReosTransf
     ReosParameterInteger *nParam() const;
     ReosParameterBoolean *useConcentrationTime() const;
 
-    ReosTransferFunctionCalculation *calculationProcess( ReosRunoff *runoff ) override;
+    ReosHydrographCalculation *calculationProcess( ReosRunoff *runoff ) override;
 
   private:
     ReosTransferFunctionNashUnitHydrograph( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr );
 
-    class Calculation: public ReosTransferFunctionCalculation
+    class Calculation: public ReosHydrographCalculation
     {
       public:
         Calculation( const QVector<double> runoffData,

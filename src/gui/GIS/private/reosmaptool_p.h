@@ -51,6 +51,8 @@ class ReosMapTool_p: public QgsMapTool
 
     void setSeachWhenMoving( bool seachWhenMoving );
 
+    void clearHoveredItem();
+
   signals:
     void foundItemWhenMoving( ReosMapItem_p *item );
     void keyPressed( int key );

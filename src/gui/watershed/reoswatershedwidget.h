@@ -25,12 +25,14 @@ class ReosMeteorologicItemModel;
 class ReosMeteorologicModelWidget;
 class ReosRunoffHydrographWidget;
 class ReosGaugedHydrographWidget;
+class ReosHydraulicNetwork;
+class ReosHydrographNodeWatershed;
 
 class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
 {
     Q_OBJECT
   public:
-    explicit ReosWatershedWidget( ReosMap *map, ReosWatershedModule *module, QWidget *parent = nullptr );
+    explicit ReosWatershedWidget( ReosMap *map, ReosWatershedModule *module, ReosHydraulicNetwork *hydraulicNetwork = nullptr, QWidget *parent = nullptr );
     ~ReosWatershedWidget();
 
   signals:
@@ -40,18 +42,20 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
     void onWatershedAdded( const QModelIndex &index );
     void onWatershedSelectedOnMap( ReosMapItem *item, const QPointF &pos );
     void onRemoveWatershed();
-    void onCurrentWatershedChange( const QItemSelection &selected, const QItemSelection &deselected );
+    void onCurrentWatershedChanges( const QItemSelection &selected, const QItemSelection &deselected );
     void onTreeViewContextMenu( const QPoint &pos );
     void onWatershedDataChanged( const QModelIndex &index );
     void onModuleReset();
     void onExportToVectorLayer();
     void onZoomToWatershed();
+    void onAddRemoveNetwork();
 
   private:
     Ui::ReosWatershedWidget *ui;
+    ReosWatershedModule *mWatershdModule = nullptr;
     ReosWatershedItemModel *mModelWatershed = nullptr;
-
     ReosMap *mMap = nullptr;
+    ReosHydraulicNetwork *mHydraulicNetwork = nullptr;
 
     QAction *mActionSelectWatershed = nullptr;
     QString mDescriptionKeyWatershed;
@@ -110,6 +114,8 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
     void setWatershedModel( ReosWatershedItemModel *model );
 
     ReosMapPolygon *mapDelineating( ReosWatershed *ws );
+    void updateNetworkButton();
+    ReosHydrographNodeWatershed *currentNetworkNode();
 };
 
 #endif // REOSWATERSHEDWIDGET_H

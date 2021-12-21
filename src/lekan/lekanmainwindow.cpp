@@ -37,6 +37,8 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reosrainfallregistery.h"
 #include "reosrunoffmanager.h"
 #include "reosrunoffmodel.h"
+#include "reoshydraulicnetwork.h"
+#include "reoshydraulicnetworkwidget.h"
 
 #define PROJECT_FILE_MAGIC_NUMBER 19092014
 
@@ -80,7 +82,16 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
 
   mDockWatershed = new QDockWidget( tr( "Watershed" ), this );
   mWatershedModule = new ReosWatershedModule( rootModule(), mGisEngine );
-  ReosWatershedWidget *watersehdWidget = new  ReosWatershedWidget( mMap, mWatershedModule, mDockWatershed );
+
+  mDockHydraulicNetwork = new QDockWidget( tr( "Hydraulic Network" ), this );
+  mHydraulicNetwork = new ReosHydraulicNetwork( rootModule(), mWatershedModule );
+
+  ReosHydraulicNetworkWidget *networkWidget = new ReosHydraulicNetworkWidget( mHydraulicNetwork, mMap, mWatershedModule, mDockHydraulicNetwork );
+  mDockHydraulicNetwork->setWidget( networkWidget );
+  addDockWidget( Qt::RightDockWidgetArea, mDockHydraulicNetwork );
+  networkWidget->setMeteoModelCollection( mWatershedModule->meteoModelsCollection() );
+
+  ReosWatershedWidget *watersehdWidget = new  ReosWatershedWidget( mMap, mWatershedModule, mHydraulicNetwork, mDockWatershed );
   mDockWatershed->setWidget( watersehdWidget );
   addDockWidget( Qt::RightDockWidgetArea, mDockWatershed );
 
@@ -143,6 +154,8 @@ bool LekanMainWindow::openProject()
 
   mWatershedModule->decode( lekanProject.getEncodedData( QStringLiteral( "watershed-module" ) ) );
 
+  mHydraulicNetwork->decode( lekanProject.getEncodedData( QStringLiteral( "hydaulic-network" ) ) );
+
   return true;
 }
 
@@ -159,6 +172,7 @@ bool LekanMainWindow::saveProject()
   ReosEncodedElement encodedGisEngine = mGisEngine->encode( path, baseName );
   lekanProject.addEncodedData( QStringLiteral( "GIS-engine" ), encodedGisEngine );
   lekanProject.addEncodedData( QStringLiteral( "watershed-module" ), mWatershedModule->encode() );
+  lekanProject.addEncodedData( QStringLiteral( "hydaulic-network" ), mHydraulicNetwork->encode() );
 
   QFileInfo fileInfo( filePath );
   if ( fileInfo.suffix().isEmpty() )

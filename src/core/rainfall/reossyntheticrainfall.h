@@ -153,7 +153,7 @@ class REOSCORE_EXPORT ReosDoubleTriangleRainfall : public ReosSerieRainfall
     //! Sets only the uids of the intensity duration curves, then the uid can be used to retrieve the source of the curve
     void setIntensityDurationUniqueId( const QString &intenseUid, const QString &totalUid );
 
-    //! Returns the uis of the intensity duration curve
+    //! Returns the uris of the intensity duration curve
     QString intensityDurationUniqueIdIntense() const;
     QString intensityDurationUniqueIdTotal() const;
 

@@ -56,6 +56,7 @@ class ReosGaugedHydrographWidget : public ReosActionWidget
     void onStoreChanged();
     void onCurrentHydrographChanged();
     void updatePlotExtent();
+    void backToMainIndex();
 
   private:
     Ui::ReosGaugedHydrographWidget *ui;
@@ -79,7 +80,6 @@ class ReosGaugedHydrographWidget : public ReosActionWidget
 
     void populateProviderActions();
     void showProviderSelector( const QString &providerKey );
-    void backToMainIndex();
 };
 
 #endif // REOSGAUGEDHYDROGRAPHWIDGET_H

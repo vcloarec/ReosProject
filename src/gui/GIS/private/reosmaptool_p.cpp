@@ -359,6 +359,18 @@ void ReosMapTool_p::canvasMoveEvent( QgsMapMouseEvent *e )
     qDebug() << foundItem->base->description();
 }
 
+
+void ReosMapTool_p::clearHoveredItem()
+{
+  if ( mFoundItem )
+  {
+    mFoundItem->isHovered = false;
+    mFoundItem->update();
+    mFoundItem = nullptr;
+  }
+}
+
+
 void ReosMapTool_p::keyPressEvent( QKeyEvent *e )
 {
   emit keyPressed( e->key() );

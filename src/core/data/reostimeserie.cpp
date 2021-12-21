@@ -980,7 +980,6 @@ void ReosTimeSerieVariableTimeStep::addOther( const ReosTimeSerieVariableTimeSte
   {
     ReosDuration thisTimeValue = dataProv->relativeTimeAt( i );
     newValue_1[i] = mProvider->value( i ) + factor * other->valueAtTime( thisTimeValue - offset );
-    //setValue( thisTimeValue, mValues.at( i ) + factor * other.valueAtTime( thisTimeValue - offset ) );
   }
 
   // now add time steps not existing in this instance,

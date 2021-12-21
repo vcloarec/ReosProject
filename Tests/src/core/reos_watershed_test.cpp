@@ -1125,7 +1125,7 @@ void ReosWatersehdTest::runoffConstantCoefficient()
 
 void ReosWatersehdTest::runoffhydrograph()
 {
-  // build a rainfall
+  // build rainfalls
   ReosModule root;
   ReosIdfFormulaRegistery::instantiate( &root );
   ReosIdfFormulaRegistery *idfRegistery = ReosIdfFormulaRegistery::instance();
@@ -1178,7 +1178,7 @@ void ReosWatersehdTest::runoffhydrograph()
   QCOMPARE( rainfall->valueCount(), 12 );
   QCOMPARE( rainfall->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 72.34254782834526 );
 
-  ReosRunoffHydrographStore runoffHydrographStore( &meteoCollection );
+  ReosRunoffHydrographsStore runoffHydrographStore( &meteoCollection );
   runoffHydrographStore.setWatershed( watershed );
   QCOMPARE( runoffHydrographStore.updateCount, 0 );
 

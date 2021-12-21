@@ -249,6 +249,11 @@ void ReosMapToolSelectMapItem::setSearchUnderPoint( bool b )
   d->setSearchUnderPoint( b );
 }
 
+void ReosMapToolSelectMapItem::clearHoveredItem()
+{
+  d->clearHoveredItem();
+}
+
 ReosMapTool_p *ReosMapToolSelectMapItem::tool_p() const
 {
   return d;

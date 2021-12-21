@@ -50,14 +50,14 @@ ReosHydrograph *ReosHydrograph::decode( const ReosEncodedElement &element, QObje
   return ret.release();
 }
 
-void ReosHydrograph::setInputData( ReosDataObject *dataObject )
-{
-  registerUpstreamData( dataObject );
-}
-
 bool ReosHydrograph::hydrographIsObsolete() const
 {
   return isObsolete();
+}
+
+void ReosHydrograph::setHydrographObsolete()
+{
+  setObsolete();
 }
 
 ReosHydrographsStore::ReosHydrographsStore( QObject *parent ): ReosHydrographGroup( parent ) {}
@@ -73,6 +73,7 @@ void ReosHydrographsStore::addHydrograph( ReosHydrograph *hydrograph )
 void ReosHydrographsStore::removeHydrograph( int index )
 {
   delete mHydrographs.takeAt( index );
+  emit hydrographRemoved( index );
   emit dataChanged();
 }
 
@@ -155,22 +156,24 @@ ReosRunoffHydrographsStore::ReosRunoffHydrographsStore( ReosMeteorologicModelsCo
 
 void ReosRunoffHydrographsStore::setWatershed( ReosWatershed *watershed )
 {
+  if ( mWatershed != watershed )
+    mMeteoModelToHydrographCalculationData.clear();
   mWatershed = watershed;
   updateStore();
 }
 
 int ReosRunoffHydrographsStore::hydrographCount() const
 {
-  return mMeteoModelToHydrograph.count();
+  return mMeteoModelToHydrographCalculationData.count();
 }
 
 QPointer<ReosHydrograph> ReosRunoffHydrographsStore::hydrograph( ReosMeteorologicModel *meteoModel )
 {
-  if ( mMeteoModelToHydrograph.contains( meteoModel ) )
+  if ( mMeteoModelToHydrographCalculationData.contains( meteoModel ) )
   {
-    mModelMeteoToUpdate.insert( meteoModel );
-    updateHydrographs( mMeteoModelToHydrograph.value( meteoModel ).hydrograph );
-    return mMeteoModelToHydrograph.value( meteoModel ).hydrograph;
+    mMeteoModelToHydrographCalculationData[meteoModel].hasBeenAsked = true;
+    updateHydrograph( mMeteoModelToHydrographCalculationData.value( meteoModel ).hydrograph );
+    return mMeteoModelToHydrographCalculationData.value( meteoModel ).hydrograph;
   }
 
   return nullptr;
@@ -178,9 +181,9 @@ QPointer<ReosHydrograph> ReosRunoffHydrographsStore::hydrograph( ReosMeteorologi
 
 QPointer<ReosRunoff> ReosRunoffHydrographsStore::runoff( ReosMeteorologicModel *meteoModel )
 {
-  if ( mMeteoModelToHydrograph.contains( meteoModel ) )
+  if ( mMeteoModelToHydrographCalculationData.contains( meteoModel ) )
   {
-    return mMeteoModelToHydrograph.value( meteoModel ).runoff;
+    return mMeteoModelToHydrographCalculationData.value( meteoModel ).runoff;
   }
 
   return nullptr;
@@ -189,32 +192,22 @@ QPointer<ReosRunoff> ReosRunoffHydrographsStore::runoff( ReosMeteorologicModel *
 void ReosRunoffHydrographsStore::updateStore()
 {
   if ( mWatershed.isNull() || mMeteoModelsCollection.isNull() )
-    mMeteoModelToHydrograph.clear();
+    mMeteoModelToHydrographCalculationData.clear();
 
   QList<ReosMeteorologicModel *> allModels;
   QList<ReosMeteorologicModel *> modelToRemove;
   for ( int i = 0; i < mMeteoModelsCollection->modelCount(); ++i )
   {
+    //For each model in the collection
     ReosMeteorologicModel *model = mMeteoModelsCollection->meteorologicModel( i );
     allModels.append( model );
     if ( model->hasRainfall( mWatershed ) )
     {
-      if ( mMeteoModelToHydrograph.contains( model ) )
+      // if this model has a rainfall associated with this watershed
+      if ( !mMeteoModelToHydrographCalculationData.contains( model ) )
       {
-        HydrographData hydData = mMeteoModelToHydrograph.value( model );
-        ReosSerieRainfall *modelRainfall = model->associatedRainfall( mWatershed );
-        if ( modelRainfall != hydData.rainfall )
-        {
-          deregisterInputData( hydData.rainfall, hydData.hydrograph );
-          hydData.rainfall = modelRainfall;
-          registerInputdata( hydData.rainfall, hydData.hydrograph );
-          hydData.runoff->setRainfall( hydData.rainfall );
-        }
-        mMeteoModelToHydrograph[model] = hydData;
-      }
-      else
-      {
-        HydrographData hydData;
+        // if no data exist for this model, create some
+        HydrographCalculationData hydData;
         hydData.rainfall = model->associatedRainfall( mWatershed );
         hydData.hydrograph =  new ReosHydrograph( this );
         if ( model->color().isValid() )
@@ -224,27 +217,46 @@ void ReosRunoffHydrographsStore::updateStore()
         connect( hydData.hydrograph, &ReosHydrograph::colorChanged, model, &ReosMeteorologicModel::setColor );
         hydData.hydrograph->setName( tr( "%1 hydrograph" ).arg( model->name()->value() ) );
         hydData.runoff = new ReosRunoff( mWatershed->runoffModels(), hydData.rainfall );
-        mMeteoModelToHydrograph.insert( model, hydData );
+        mMeteoModelToHydrographCalculationData.insert( model, hydData );
         registerInputdata( model, hydData.hydrograph );
         registerInputdata( hydData.rainfall, hydData.hydrograph );
         registerInputdata( mWatershed, hydData.hydrograph );
       }
+      else
+      {
+        // if there is already some data related to this meteo model
+        HydrographCalculationData hydData = mMeteoModelToHydrographCalculationData.value( model );
+        ReosSerieRainfall *modelRainfall = model->associatedRainfall( mWatershed );
+        if ( modelRainfall != hydData.rainfall ) // first, we check if the rainfall is the same
+        {
+          //if not, deregister the old one and replace it by the new one
+          deregisterInputData( hydData.rainfall, hydData.hydrograph );
+          hydData.rainfall = modelRainfall;
+          registerInputdata( hydData.rainfall, hydData.hydrograph );
+          // do not forget to replace the rainfall in the runoff object, setting it obsolete
+          hydData.runoff->setRainfall( hydData.rainfall );
+
+          // Then, update the map
+          mMeteoModelToHydrographCalculationData[model] = hydData;
+        }
+      }
+
     }
-    else if ( mMeteoModelToHydrograph.contains( model ) )
+    else if ( mMeteoModelToHydrographCalculationData.contains( model ) )
     {
       modelToRemove.append( model );
     }
   }
 
-  for ( ReosMeteorologicModel *model : mMeteoModelToHydrograph.keys() )
+  for ( ReosMeteorologicModel *model : mMeteoModelToHydrographCalculationData.keys() )
     if ( !allModels.contains( model ) && !modelToRemove.contains( model ) )
       modelToRemove.append( model );
 
   for ( ReosMeteorologicModel *model : modelToRemove )
   {
-    delete mMeteoModelToHydrograph.value( model ).hydrograph;
-    delete mMeteoModelToHydrograph.value( model ).runoff;
-    mMeteoModelToHydrograph.remove( model );
+    delete mMeteoModelToHydrographCalculationData.value( model ).hydrograph;
+    delete mMeteoModelToHydrographCalculationData.value( model ).runoff;
+    mMeteoModelToHydrographCalculationData.remove( model );
   }
 }
 
@@ -300,14 +312,14 @@ void ReosHydrographGroup::updateHydrographFromSignal()
       {
         if ( !hydPtr.isNull() )
         {
-          updateHydrographs( hydPtr );
+          updateHydrograph( hydPtr );
         }
       }
     }
   }
 }
 
-void ReosHydrographGroup::updateHydrographs( ReosHydrograph * ) {}
+void ReosHydrographGroup::updateHydrograph( ReosHydrograph * ) {}
 
 void ReosHydrographGroup::onInputDataDestroy()
 {
@@ -318,12 +330,12 @@ void ReosHydrographGroup::onInputDataDestroy()
   }
 }
 
-void ReosRunoffHydrographsStore::updateHydrographs( ReosHydrograph *hyd )
+void ReosRunoffHydrographsStore::updateHydrograph( ReosHydrograph *hyd )
 {
-  const QList<ReosMeteorologicModel *> keys = mMeteoModelToHydrograph.keys();
+  const QList<ReosMeteorologicModel *> keys = mMeteoModelToHydrographCalculationData.keys();
   for ( ReosMeteorologicModel *meteoModel : keys )
   {
-    HydrographData hydData = mMeteoModelToHydrograph.value( meteoModel );
+    HydrographCalculationData hydData = mMeteoModelToHydrographCalculationData.value( meteoModel );
     if ( hyd == hydData.hydrograph )
     {
       //check if the rainfall is still the same
@@ -332,25 +344,36 @@ void ReosRunoffHydrographsStore::updateHydrographs( ReosHydrograph *hyd )
       {
         hydData.runoff->setRainfall( modelRainfall );
         hydData.rainfall = modelRainfall;
-        mMeteoModelToHydrograph[meteoModel] = hydData;
+        mMeteoModelToHydrographCalculationData[meteoModel] = hydData;
       }
 
-      mModelMeteoToUpdate.insert( meteoModel );
 
-      if ( mHydrographCalculation.contains( meteoModel ) )
+      qDebug() << "skip update hydrograph condition " << mHydrographCalculation.contains( meteoModel ) << ! hydData.hasBeenAsked;
+      if ( ! hydData.hasBeenAsked )
         continue;
       else
         mModelMeteoToUpdate.insert( meteoModel );
     }
   }
 
+#ifndef _NDEBUG
+  qDebug() << "update hydrograph " << mCalculationCanBeLaunch << mModelMeteoToUpdate.count();
+#endif
+
   if ( mCalculationCanBeLaunch && !mModelMeteoToUpdate.isEmpty() )
   {
+#ifndef _NDEBUG
+    qDebug() << "prepare hydrograhs calculation ";
+#endif
+
     // first, we invoke a lambda function that prepare the calculation once we come back to the event loop
     // this is because we are sure that all data objects related to the calculation will be set obsolete only when we are back in the event loop
-    // this is due to the propogation of signals
+    // this is due to the propogation of signals/slots and the fact that we don't know the order of the propagation
     QMetaObject::invokeMethod( this, [this]
     {
+#ifndef _NDEBUG
+      qDebug() << "launch hydrograhs calculation " << mModelMeteoToUpdate.count();
+#endif
       ReosTransferFunction *function = nullptr;
       if ( mWatershed )
         function = mWatershed->currentTransferFunction();
@@ -359,49 +382,68 @@ void ReosRunoffHydrographsStore::updateHydrographs( ReosHydrograph *hyd )
 
       for ( ReosMeteorologicModel *model : mModelMeteoToUpdate )
       {
-        HydrographData hydData;
-        if ( mMeteoModelToHydrograph.contains( model ) )
-          hydData = mMeteoModelToHydrograph.value( model );
+        if ( mHydrographCalculation.contains( model ) )
+        {
+#ifndef _NDEBUG
+          qDebug() << "stop hydrograh calculation " << mHydrographCalculation.value( model );
+#endif
+          mHydrographCalculation.value( model )->stop( true );
+          mHydrographCalculation.remove( model );
+        }
+
+        HydrographCalculationData hydData;
+        if ( mMeteoModelToHydrographCalculationData.contains( model ) )
+          hydData = mMeteoModelToHydrographCalculationData.value( model );
 
         ReosHydrograph *hydro = hydData.hydrograph;
 
         if ( !hydro || !hydro->hydrographIsObsolete() )
         {
-          emit hydrographReady( hydro );
+          //emit hydrographReady( hydro );
           continue;
         }
 
         hydro->clear();
 
-        ReosTransferFunctionCalculation *hydrographCalculation = function->calculationProcess( hydData.runoff );
+        ReosHydrographCalculation *hydrographCalculation = function->calculationProcess( hydData.runoff );
         mHydrographCalculation.insert( model, hydrographCalculation );
 
-        connect( hydrographCalculation, &ReosTransferFunctionCalculation::hydrographReady, this, [this, model, hydrographCalculation]( ReosHydrograph * result )
+        connect( hydrographCalculation, &ReosHydrographCalculation::finished, this, [this, model, hydrographCalculation]()
         {
-          if ( mMeteoModelToHydrograph.contains( model ) )
+          if ( mMeteoModelToHydrographCalculationData.contains( model ) && hydrographCalculation->isSuccessful() )
           {
-            mMeteoModelToHydrograph.value( model ).hydrograph->copyFrom( result );
-            emit hydrographReady( mMeteoModelToHydrograph.value( model ).hydrograph );
+            mMeteoModelToHydrographCalculationData.value( model ).hydrograph->copyFrom( hydrographCalculation->hydrograph() );
+            emit hydrographReady( mMeteoModelToHydrographCalculationData.value( model ).hydrograph );
           }
+#ifndef _NDEBUG
+          qDebug() << "finish hydrograh calculation " << hydrographCalculation;
+#endif
           hydrographCalculation->deleteLater();
-
+          if ( mHydrographCalculation.value( model ) == hydrographCalculation )
+            mHydrographCalculation.remove( model );
         } );
       }
 
-      mModelMeteoToUpdate.clear();
-    }, Qt::QueuedConnection );
+//      mModelMeteoToUpdate.clear();
+//    }, Qt::QueuedConnection );
 
-    // second, we invoke a lambda function that will be execute the calculation once we come back to the event loop
-    // this is because we are sure all data object related to the calculation will be set updated only when we are back in the event loop
-    // this is due to the propogation of signals
-    QMetaObject::invokeMethod( this, [this]
-    {
+//    // second, we invoke a lambda function that will be execute the calculation once we come back again in the event loop
+//    // this is because we are sure all data object related to the calculation will be set updated only when we are back in the event loop
+//    // this is due to the propogation of signals
+//    QMetaObject::invokeMethod( this, [this]
+//    {
+
       if ( !mHydrographCalculation.isEmpty() )
       {
-        for ( ReosTransferFunctionCalculation *calculation : mHydrographCalculation )
+        for ( ReosHydrographCalculation *calculation : mHydrographCalculation )
+        {
+#ifndef _NDEBUG
+          qDebug() << "start hydrograh calculation " << calculation;
+#endif
           calculation->startOnOtherThread();
+        }
         updateCount++;
-        mHydrographCalculation.clear();
+        mModelMeteoToUpdate.clear();
       }
 
       mCalculationCanBeLaunch = true;
@@ -412,4 +454,14 @@ void ReosRunoffHydrographsStore::updateHydrographs( ReosHydrograph *hyd )
   }
 }
 
+ReosHydrograph *ReosHydrographCalculation::getHydrograph( QObject *parent )
+{
+  if ( mHydrograph )
+    mHydrograph->setParent( parent );
+  return mHydrograph.release();
+}
 
+ReosHydrograph *ReosHydrographCalculation::hydrograph()
+{
+  return mHydrograph.get();
+}

@@ -63,6 +63,7 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_SOURCE_DIR}/src/core/watershed
   ${CMAKE_SOURCE_DIR}/src/core/rainfall
   ${CMAKE_SOURCE_DIR}/src/core/hydrograph
+  ${CMAKE_SOURCE_DIR}/src/core/hydraulicNetwork
   ${CMAKE_SOURCE_DIR}/src/core/utils
 
   ${CMAKE_SOURCE_DIR}/src/gui/GIS
@@ -97,6 +98,8 @@ SET(TESTS
     src/core/reos_geometry_test.cpp
     src/core/reos_data_test.cpp
     src/core/reos_hubeau_test.cpp
+    src/core/reos_hydrograph_transfer_test.cpp
+
     src/gui/reos_gisGui_test.cpp
     )
 

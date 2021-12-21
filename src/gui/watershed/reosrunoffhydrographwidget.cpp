@@ -32,7 +32,8 @@
 #include "reosprocesscontroler.h"
 #include "reosplotitemlist.h"
 #include "reoshydrographeditingwidget.h"
-
+#include "reoshydrograph.h"
+#include "reoshydrographsource.h"
 
 ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *watershedModule, QWidget *parent ) :
   ReosActionWidget( parent )
@@ -178,7 +179,7 @@ void ReosRunoffHydrographWidget::setCurrentWatershed( ReosWatershed *watershed )
     syncTransferFunction( watershed->currentTransferFunction() );
   }
 
-  mRunoffHydrographStore->setWatershed( mCurrentWatershed );
+  mRunoffHydrographsStore->setWatershed( mCurrentWatershed );
 
   updateRainfall();
 }
@@ -630,7 +631,6 @@ void ReosRunoffHydrographWidget::onTransferFunctionFormulation()
     textBrowser->setMinimumWidth( textBrowser->document()->size().width() );
   }
 }
-
 
 void ReosWatershedRunoffModelsModel::setWatershedRunoffModels( ReosRunoffModelsGroup *watershedRunoffModels )
 {

@@ -32,6 +32,7 @@ class ReosModule;
 class ReosMap;
 class ReosGisEngine;
 class ReosWatershedModule;
+class ReosHydraulicNetwork;
 class ReosDelineatingWatershedWidget;
 class ReosRainfallManager;
 class ReosRunoffManager;
@@ -62,10 +63,12 @@ class LekanMainWindow : public ReosMainWindow
     ReosGisEngine *mGisEngine = nullptr;
     ReosMap *mMap = nullptr;
     ReosWatershedModule *mWatershedModule = nullptr;
+    ReosHydraulicNetwork *mHydraulicNetwork = nullptr;
 
     QDockWidget *mGisDock = nullptr;
     QDockWidget *mDockWatershed = nullptr;
-    QDockWidget *mDockMessageBox;
+    QDockWidget *mDockHydraulicNetwork = nullptr;
+    QDockWidget *mDockMessageBox = nullptr;
 
     QList<QMenu *> specificMenus() override;
 

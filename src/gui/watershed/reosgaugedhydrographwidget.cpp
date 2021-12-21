@@ -67,10 +67,9 @@ ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( ReosMap *map, QWidget *p
 
   connect( ui->mComboBoxHydrographName, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosGaugedHydrographWidget::onCurrentHydrographChanged );
 
-  connect( ui->mButtonBack, &QPushButton::clicked, this, [this]
-  {
-    backToMainIndex();
-  } );
+
+  connect( ui->mButtonBack, &QPushButton::clicked, this, &ReosGaugedHydrographWidget::backToMainIndex );
+  connect( this, &ReosActionWidget::closed, this, &ReosGaugedHydrographWidget::backToMainIndex );
 
   connect( ui->mButtonAddFromProvider, &QPushButton::clicked, this, [this]
   {
