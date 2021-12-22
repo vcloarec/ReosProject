@@ -49,7 +49,10 @@ class ReosHydraulicNetworkElement : public ReosDataObject
     void positionChanged();
 
     ReosParameterString *name() const;
-    QString defaultDisplayName() const {return type();}
+    virtual QString defaultDisplayName() const {return type();}
+
+    ReosParameterDuration *constantTimeStepInTable() const;
+    ReosParameterBoolean *useConstantTimeStepInTable() const;
 
     ReosEncodedElement encode( const ReosHydraulicNetworkContext &context ) const;
 
@@ -72,6 +75,8 @@ class ReosHydraulicNetworkElement : public ReosDataObject
     QPointer<ReosHydraulicNetwork> mNetWork = nullptr;
     QString mUid;
     ReosParameterString *mNameParameter = nullptr;
+    ReosParameterDuration *mConstantTimeStepInTable = nullptr;
+    ReosParameterBoolean *mUseConstantTimeStepInTable = nullptr;
 
 };
 
@@ -108,7 +113,7 @@ class ReosHydraulicNetwork : public ReosModule
     QList<ReosHydraulicNetworkElement *> getElements( const QString &type ) const;
     ReosHydraulicNetworkElement *getElement( const QString &elemId ) const;
 
-    void addElement( ReosHydraulicNetworkElement *elem );
+    ReosHydraulicNetworkElement *addElement( ReosHydraulicNetworkElement *elem );
     void removeElement( ReosHydraulicNetworkElement *elem );
 
     void decode( const ReosEncodedElement &element );

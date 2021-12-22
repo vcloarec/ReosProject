@@ -214,7 +214,10 @@ void ReosRunoffHydrographsStore::updateStore()
         {
           hydData.hydrograph->setColor( model->color() );
         }
-        connect( hydData.hydrograph, &ReosHydrograph::colorChanged, model, &ReosMeteorologicModel::setColor );
+        ReosHydrograph *hyd = hydData.hydrograph;
+        connect( hyd, &ReosHydrograph::colorChanged, model, &ReosMeteorologicModel::setColor );
+        connect( model, &ReosMeteorologicModel::colorChange, hyd, &ReosTimeSerieVariableTimeStep::setCommonColor );
+
         hydData.hydrograph->setName( tr( "%1 hydrograph" ).arg( model->name()->value() ) );
         hydData.runoff = new ReosRunoff( mWatershed->runoffModels(), hydData.rainfall );
         mMeteoModelToHydrographCalculationData.insert( model, hydData );

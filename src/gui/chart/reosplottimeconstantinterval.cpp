@@ -151,7 +151,7 @@ void ReosPlotTimeSerieVariableStep::setTimeSerie( ReosTimeSerieVariableTimeStep 
   {
     disconnect( mTimeSerie->data(), &ReosDataObject::dataChanged, this, &ReosPlotItem::itemChanged );
     disconnect( mTimeSerie->data(), &ReosDataObject::dataChanged, this, &ReosPlotTimeSerieVariableStep::onNameChanged );
-    disconnect( mTimeSerie->data(), &ReosTimeSerieVariableTimeStep::colorChanged, this, &ReosPlotTimeSerieVariableStep::setColor );
+    disconnect( mTimeSerie->data(), &ReosTimeSerieVariableTimeStep::displayColorChanged, this, &ReosPlotTimeSerieVariableStep::setColor );
   }
 
   mTimeSerie = nullptr;
@@ -165,8 +165,8 @@ void ReosPlotTimeSerieVariableStep::setTimeSerie( ReosTimeSerieVariableTimeStep 
   if ( timeSerie )
   {
     connect( timeSerie, &ReosDataObject::dataChanged, this, &ReosPlotItem::itemChanged );
-    connect( timeSerie, &ReosDataObject::dataChanged, this, &ReosPlotTimeSerieVariableStep::onNameChanged );
-    connect( mTimeSerie->data(), &ReosTimeSerieVariableTimeStep::colorChanged, this, &ReosPlotTimeSerieVariableStep::setColor );
+    connect( timeSerie, &ReosDataObject::nameChanged, this, &ReosPlotTimeSerieVariableStep::onNameChanged );
+    connect( mTimeSerie->data(), &ReosTimeSerieVariableTimeStep::displayColorChanged, this, &ReosPlotTimeSerieVariableStep::setColor );
   }
 
   if ( curve()->plot() && replot )
@@ -186,12 +186,19 @@ void ReosPlotTimeSerieVariableStep::setSettings()
     curve()->plot()->setAxisTitle( QwtPlot::yLeft,
                                    mTimeSerie->data()->unitString() );
   }
+
+  if ( mTimeSerie && mTimeSerie->data() )
+    setName( mTimeSerie->data()->name() );
 }
 
 void ReosPlotTimeSerieVariableStep::onNameChanged()
 {
   if ( mTimeSerie )
+  {
     setName( mTimeSerie->data()->name() );
+    if ( curve()->plot() )
+      curve()->plot()->replot();
+  }
 }
 
 QwtPlotCurve *ReosPlotTimeSerieVariableStep::curve() const

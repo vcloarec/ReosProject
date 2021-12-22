@@ -33,8 +33,8 @@ class ReosHydrographTransferTest: public QObject
     void initTestCase();
 
     void test_junction();
-    void test_classicMuskingumRoutine();
-    void test_watershed_and_routine();
+    void test_classicMuskingumRouting();
+    void test_watershed_and_routing();
 
   private:
     ReosHydrographSourceFixed mSource1;
@@ -90,7 +90,7 @@ void ReosHydrographTransferTest::test_junction()
   ReosHydrograph *inputHydrograph_2 = mSource2.outputHydrograph( );
   ReosHydrograph *inputHydrograph_3 = mSource3.outputHydrograph( );
 
-  ReosHydrographRoutineLink transfer1;
+  ReosHydrographRoutingLink transfer1;
   transfer1.setInputHydrographSource( &mSource1 );
   transfer1.setHydrographDestination( &junction );
 
@@ -110,7 +110,7 @@ void ReosHydrographTransferTest::test_junction()
     QVERIFY( junctionHydrograph->timeAt( i ) == inputHydrograph_1->timeAt( i ) );
   }
 
-  ReosHydrographRoutineLink transfer2;
+  ReosHydrographRoutingLink transfer2;
   transfer2.setInputHydrographSource( &mSource2 );
   transfer2.setHydrographDestination( &junction );
 
@@ -138,11 +138,11 @@ void ReosHydrographTransferTest::test_junction()
 
   ReosHydrographJunction junction2{ QPointF()};
 
-  ReosHydrographRoutineLink transfer3;
+  ReosHydrographRoutingLink transfer3;
   transfer3.setInputHydrographSource( &mSource3 );
   transfer3.setHydrographDestination( &junction );
 
-  ReosHydrographRoutineLink transfer4;
+  ReosHydrographRoutingLink transfer4;
   transfer4.setInputHydrographSource( &junction );
   transfer4.setHydrographDestination( &junction2 );
 
@@ -181,23 +181,23 @@ void ReosHydrographTransferTest::test_junction()
   }
 }
 
-void ReosHydrographTransferTest::test_classicMuskingumRoutine()
+void ReosHydrographTransferTest::test_classicMuskingumRouting()
 {
   ReosModule rootModule;
   ReosHydrographRoutingMethodFactories::instantiate( &rootModule );
   ReosCalculationContext context;
 
-  ReosHydrographRoutineLink routine;
-  QVERIFY( routine.setCurrentRoutingMethod( ReosMuskingumClassicRoutine::staticType() ) );
-  QVERIFY( routine.currentRoutingMethod() );
-  QVERIFY( routine.currentRoutingMethod()->type() == ReosMuskingumClassicRoutine::staticType() );
+  ReosHydrographRoutingLink routing;
+  QVERIFY( routing.setCurrentRoutingMethod( ReosMuskingumClassicRoutine::staticType() ) );
+  QVERIFY( routing.currentRoutingMethod() );
+  QVERIFY( routing.currentRoutingMethod()->type() == ReosMuskingumClassicRoutine::staticType() );
 
-  routine.setInputHydrographSource( &mSource1 );
-  routine.updateCalculationContext( context );
-  QVERIFY( routine.outputHydrograph() );
+  routing.setInputHydrographSource( &mSource1 );
+  routing.updateCalculationContext( context );
+  QVERIFY( routing.outputHydrograph() );
 }
 
-void ReosHydrographTransferTest::test_watershed_and_routine()
+void ReosHydrographTransferTest::test_watershed_and_routing()
 {
   // build rainfalls
   ReosModule root;
@@ -337,13 +337,13 @@ void ReosHydrographTransferTest::test_watershed_and_routine()
   ReosHydrographJunction junction3( QPointF( 10, 0 ) );
   junction2.name()->setValue( "junction 3" );
 
-  ReosHydrographRoutineLink link1;
+  ReosHydrographRoutingLink link1;
   link1.setInputHydrographSource( &watershedNode1 );
   link1.setHydrographDestination( &junction1 );
-  ReosHydrographRoutineLink *link2 = new ReosHydrographRoutineLink;
+  ReosHydrographRoutingLink *link2 = new ReosHydrographRoutingLink;
   link2->setInputHydrographSource( &watershedNode2 );
   link2->setHydrographDestination( &junction1 );
-  ReosHydrographRoutineLink link3;
+  ReosHydrographRoutingLink link3;
   link3.setInputHydrographSource( &junction1 );
   link3.setHydrographDestination( &junction2 );
 
@@ -427,7 +427,7 @@ void ReosHydrographTransferTest::test_watershed_and_routine()
   QCOMPARE( junction3.outputHydrograph()->valueCount(), 0 );
 
   // replace the removed link 2 by link 4
-  ReosHydrographRoutineLink link4;
+  ReosHydrographRoutingLink link4;
   link4.setInputHydrographSource( &watershedNode2 );
   link4.setHydrographDestination( &junction1 );
   link1.updateCalculationContext( context );
@@ -479,7 +479,7 @@ void ReosHydrographTransferTest::test_watershed_and_routine()
   QCOMPARE( junction3.outputHydrograph()->valueCount(), 0 );
 
   // Set back the link 3 with direct routine
-  link3.setCurrentRoutingMethod( ReosDirectHydrographRoutine::staticType() );
+  link3.setCurrentRoutingMethod( ReosDirectHydrographRouting::staticType() );
 
   timer.start( 50 );
   loop.exec();

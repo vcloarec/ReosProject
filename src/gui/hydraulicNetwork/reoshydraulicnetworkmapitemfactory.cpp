@@ -90,7 +90,7 @@ static void updateHydrographJunctionItem( ReosHydraulicNetworkElement *elem, Reo
 
 static ReosMapItem *createHydrographRoutingLink( ReosHydraulicNetworkElement *elem, ReosMap *map )
 {
-  ReosHydrographRoutineLink *hr = qobject_cast<ReosHydrographRoutineLink *>( elem );
+  ReosHydrographRoutingLink *hr = qobject_cast<ReosHydrographRoutingLink *>( elem );
   if ( hr )
   {
     std::unique_ptr<ReosMapPolyline> line = std::make_unique<ReosMapPolyline>( map );
@@ -123,7 +123,7 @@ static ReosMapItem *createHydrographRoutingLink( ReosHydraulicNetworkElement *el
 
 static void updateHydrographDirectTransferLink( ReosHydraulicNetworkElement *elem, ReosMapItem *item )
 {
-  ReosHydrographRoutineLink *hr = qobject_cast<ReosHydrographRoutineLink *>( elem );
+  ReosHydrographRoutingLink *hr = qobject_cast<ReosHydrographRoutingLink *>( elem );
   if ( !hr )
     return;
   ReosMapPolyline *line = static_cast<ReosMapPolyline *>( item );
@@ -159,18 +159,18 @@ ReosHydraulicNetworkMapItemFactory::ReosHydraulicNetworkMapItemFactory()
 {
   mCreationFunctions.insert( ReosHydrographNodeWatershed::staticType(), &createHydrographSourceWatershedItem );
   mCreationFunctions.insert( ReosHydrographJunction::staticType(), &createHydrographJunctionItem );
-  mCreationFunctions.insert( ReosHydrographRoutineLink::staticType(), &createHydrographRoutingLink );
+  mCreationFunctions.insert( ReosHydrographRoutingLink::staticType(), &createHydrographRoutingLink );
 
   mUpdateFunctions.insert( ReosHydrographNodeWatershed::staticType(), &updateHydrographSourceWatershedItem );
-  mUpdateFunctions.insert( ReosHydrographRoutineLink::staticType(), &updateHydrographDirectTransferLink );
+  mUpdateFunctions.insert( ReosHydrographRoutingLink::staticType(), &updateHydrographDirectTransferLink );
   mUpdateFunctions.insert( ReosHydrographJunction::staticType(), &updateHydrographJunctionItem );
 
   mSelectFunctions.insert( ReosHydrographNodeWatershed::staticType(), &selectHydrographElement );
   mSelectFunctions.insert( ReosHydrographJunction::staticType(), &selectHydrographElement );
-  mSelectFunctions.insert( ReosHydrographRoutineLink::staticType(), &selectHydrographElement );
+  mSelectFunctions.insert( ReosHydrographRoutingLink::staticType(), &selectHydrographElement );
   mUnselectFunctions.insert( ReosHydrographNodeWatershed::staticType(), &unselectHydrographElement );
   mUnselectFunctions.insert( ReosHydrographJunction::staticType(), &unselectHydrographElement );
-  mUnselectFunctions.insert( ReosHydrographRoutineLink::staticType(), &unselectHydrographElement );
+  mUnselectFunctions.insert( ReosHydrographRoutingLink::staticType(), &unselectHydrographElement );
 }
 
 

@@ -16,6 +16,8 @@
 #include "reoshydraulicnetworkwidget.h"
 #include "ui_reoshydraulicnetworkwidget.h"
 
+#include <QMessageBox>
+
 #include "reoshydrographsource.h"
 #include "reoshydrographtransfer.h"
 #include "reoswatershed.h"
@@ -80,14 +82,13 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
 
   connect( mMapToolAddHydrographJunction, &ReosMapToolDrawPoint::drawn, this, [this]( const QPointF & p )
   {
-    mHydraulicNetwork->addElement( new ReosHydrographJunction( p, mHydraulicNetwork ) );
+    ReosHydraulicNetworkElement *elem = mHydraulicNetwork->addElement( new ReosHydrographJunction( p, mHydraulicNetwork ) );
+    onElementSelected( mMapItems.value( elem ).get() );
   } );
 
   connect( mMapToolAddHydrographRouting, &ReosMapToolDrawHydrographRoutine::finished, this, &ReosHydraulicNetworkWidget::onDrawHydrographRoutingFinish );
 
   connect( mMapToolSelectNetworkElement, &ReosMapToolSelectMapItem::found, this, &ReosHydraulicNetworkWidget::onElementSelected );
-
-  ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosHydrographRoutingFormWidgetFactory() );
 }
 
 ReosHydraulicNetworkWidget::~ReosHydraulicNetworkWidget()
@@ -120,6 +121,7 @@ void ReosHydraulicNetworkWidget::onElementAdded( ReosHydraulicNetworkElement *el
 void ReosHydraulicNetworkWidget::onElementRemoved( ReosHydraulicNetworkElement *elem )
 {
   mMapItems.remove( elem );
+  onElementSelected( nullptr );
 }
 
 void ReosHydraulicNetworkWidget::onElementChanged( ReosHydraulicNetworkElement *elem )
@@ -140,7 +142,9 @@ void ReosHydraulicNetworkWidget::onDrawHydrographRoutingFinish()
   ReosHydrographNode *destination = qobject_cast<ReosHydrographNode *>( mHydraulicNetwork->getElement( itemList.at( 1 )->description() ) );
   Q_ASSERT( destination );
 
-  mHydraulicNetwork->addElement( new ReosHydrographRoutineLink( source, destination, mHydraulicNetwork ) );
+  ReosHydraulicNetworkElement *elem = mHydraulicNetwork->addElement( new ReosHydrographRoutingLink( source, destination, mHydraulicNetwork ) );
+
+  onElementSelected( mMapItems.value( elem ).get() );
 }
 
 void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
@@ -156,7 +160,10 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
   mActionRemoveElement->setEnabled( item != nullptr );
 
   if ( !item )
+  {
+    mElementPropertiesWidget->setCurrentElement( nullptr );
     return;
+  }
 
   ReosHydraulicNetworkElement *elem = mHydraulicNetwork->getElement( item->description() );
   if ( elem )
@@ -170,6 +177,13 @@ void ReosHydraulicNetworkWidget::onSelectedElementRemoved()
 {
   mMapToolSelectNetworkElement->clearHoveredItem();
 
+  if ( !mCurrentSelectedElement )
+    return;
+  if ( QMessageBox::warning( this, tr( "Remove Hydraulic Network Element" ), tr( "This action will remove definitly the element \"%1\"\n"
+                             "Do you want to proceed?" ).arg( mCurrentSelectedElement->name()->value() ),
+                             QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::No )
+    return;
+
   if ( mCurrentSelectedElement )
     mHydraulicNetwork->removeElement( mCurrentSelectedElement );
 
@@ -177,13 +191,3 @@ void ReosHydraulicNetworkWidget::onSelectedElementRemoved()
   mActionRemoveElement->setEnabled( false );
 }
 
-ReosFormWidget *ReosHydrographRoutingFormWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
-{
-  ReosFormWidget *form = new ReosFormWidget( parent );
-  return form;
-}
-
-QString ReosHydrographRoutingFormWidgetFactory::datatype() const
-{
-  return ReosHydrographRoutineLink::staticType();
-}

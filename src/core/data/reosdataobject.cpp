@@ -38,6 +38,7 @@ void ReosDataObject::decode( const ReosEncodedElement &element )
 void ReosDataObject::setName( const QString &name )
 {
   mName = name;
+  emit nameChanged( mName );
 }
 
 void ReosDataObject::registerUpstreamData( ReosDataObject *data )

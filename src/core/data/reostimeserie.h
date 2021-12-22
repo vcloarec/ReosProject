@@ -266,27 +266,15 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
 
     void copyFrom( ReosTimeSerieVariableTimeStep *other );
 
-    bool operator==( ReosTimeSerieVariableTimeStep &other ) const
-    {
-      if ( other.valueCount() != valueCount() )
-        return false;
+    bool operator==( ReosTimeSerieVariableTimeStep &other ) const;
 
-      if ( referenceTime() != other.referenceTime() )
-        return false;
-
-      for ( int i = 0; i < valueCount(); ++i )
-      {
-        if ( valueAt( i ) != other.valueAt( i ) )
-          return false;
-        if ( relativeTimeAt( i ) != other.relativeTimeAt( i ) )
-          return false;
-      }
-
-      return true;
-    }
+  public slots:
+    //! Sets indirectly the color from an object that handle common color for hydrograph
+    void setCommonColor( const QColor &color );
 
   signals:
     void colorChanged( const QColor &color );
+    void displayColorChanged( const QColor &color );
 
   protected:
 

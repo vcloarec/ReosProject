@@ -24,6 +24,7 @@
 
 class ReosHydrographJunction;
 class ReosPlotTimeSerieVariableStep;
+class ReosVariableTimeStepPlotListButton;
 
 namespace Ui
 {
@@ -33,18 +34,20 @@ namespace Ui
 class ReosHydraulicHydrographJunctionPropertiesWidget : public ReosHydraulicElementWidget
 {
     Q_OBJECT
-
   public:
     explicit ReosHydraulicHydrographJunctionPropertiesWidget( ReosHydrographJunction *junctionNode, QWidget *parent = nullptr );
     ~ReosHydraulicHydrographJunctionPropertiesWidget();
 
     void setCurrentCalculationContext( const ReosCalculationContext &calculationContext ) override;
 
+  private slots:
+    void populateHydrographs();
+
   private:
     Ui::ReosHydraulicHydrographJunctionPropertiesWidget *ui;
     ReosHydrographJunction *mJunctionNode = nullptr;
     ReosPlotTimeSerieVariableStep *mOutputCurve = nullptr;
-
+    ReosVariableTimeStepPlotListButton *mInputHydrographButton = nullptr;
 };
 
 

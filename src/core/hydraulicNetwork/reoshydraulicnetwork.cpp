@@ -25,6 +25,9 @@ ReosHydraulicNetworkElement::ReosHydraulicNetworkElement( ReosHydraulicNetwork *
   , mNameParameter( new ReosParameterString( tr( "Name" ), false, this ) )
 {
   mUid = QUuid::createUuid().toString();
+  mConstantTimeStepInTable = new ReosParameterDuration( tr( "Constant time step" ) );
+  mConstantTimeStepInTable->setValue( ReosDuration( 5, ReosDuration::minute ) );
+  mUseConstantTimeStepInTable = new ReosParameterBoolean( tr( "Use constant time step" ) );
 }
 
 ReosHydraulicNetworkElement::ReosHydraulicNetworkElement( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent )
@@ -33,6 +36,21 @@ ReosHydraulicNetworkElement::ReosHydraulicNetworkElement( const ReosEncodedEleme
   , mNameParameter( ReosParameterString::decode( encodedElement.getEncodedData( QStringLiteral( "name-parameter" ) ), false, tr( "Name" ), this ) )
 {
   encodedElement.getData( QStringLiteral( "UID" ), mUid );
+
+  mConstantTimeStepInTable = ReosParameterDuration::decode( encodedElement.getEncodedData( QStringLiteral( "constant-time-step-in-table" ) ),
+                             false,
+                             tr( "Constant time step" ),
+                             this );
+
+  if ( !mConstantTimeStepInTable->isValid() )
+    mConstantTimeStepInTable->setValue( ReosDuration( 5, ReosDuration::minute ) );
+
+  mUseConstantTimeStepInTable = ReosParameterBoolean::decode( encodedElement.getEncodedData( QStringLiteral( "use-constant-time-step-in-table" ) ),
+                                false,
+                                tr( "Use constant time step" ),
+                                this );
+  if ( !mUseConstantTimeStepInTable->isValid() )
+    mUseConstantTimeStepInTable->setValue( false );
 }
 
 
@@ -63,11 +81,23 @@ ReosParameterString *ReosHydraulicNetworkElement::name() const
   return mNameParameter;
 }
 
+ReosParameterDuration *ReosHydraulicNetworkElement::constantTimeStepInTable() const
+{
+  return mConstantTimeStepInTable;
+}
+
+ReosParameterBoolean *ReosHydraulicNetworkElement::useConstantTimeStepInTable() const
+{
+  return mUseConstantTimeStepInTable;
+}
+
 ReosEncodedElement ReosHydraulicNetworkElement::encode( const ReosHydraulicNetworkContext &context ) const
 {
   ReosEncodedElement element( type() );
   element.addData( QStringLiteral( "UID" ), mUid );
   element.addEncodedData( QStringLiteral( "name-parameter" ), mNameParameter->encode() );
+  element.addEncodedData( QStringLiteral( "constant-time-step-in-table" ), mConstantTimeStepInTable->encode() );
+  element.addEncodedData( QStringLiteral( "use-constant-time-step-in-table" ), mUseConstantTimeStepInTable->encode() );
 
   encodeData( element, context );
 
@@ -84,7 +114,7 @@ ReosHydraulicNetwork::ReosHydraulicNetwork( ReosModule *parent, ReosWatershedMod
   mElementFactories.emplace( ReosHydrographNodeWatershed::staticType(), new ReosHydrographNodeWatershedFactory );
   mElementFactories.emplace( ReosHydrographJunction::staticType(), new ReosHydrographJunctionFactory );
 
-  mElementFactories.emplace( ReosHydrographRoutineLink::staticType(), new ReosHydrographRoutineLinkFactory );
+  mElementFactories.emplace( ReosHydrographRoutingLink::staticType(), new ReosHydrographRoutingLinkFactory );
 }
 
 QList<ReosHydraulicNetworkElement *> ReosHydraulicNetwork::getElements( const QString &type ) const
@@ -105,7 +135,7 @@ ReosHydraulicNetworkElement *ReosHydraulicNetwork::getElement( const QString &el
     return nullptr;
 }
 
-void ReosHydraulicNetwork::addElement( ReosHydraulicNetworkElement *elem )
+ReosHydraulicNetworkElement *ReosHydraulicNetwork::addElement( ReosHydraulicNetworkElement *elem )
 {
   mElements.insert( elem->id(), elem );
   if ( !elem->name()->isValid() )
@@ -115,6 +145,8 @@ void ReosHydraulicNetwork::addElement( ReosHydraulicNetworkElement *elem )
     elem->name()->setValue( ( elem->defaultDisplayName() + QStringLiteral( " %1" ) ).arg( index ) );
   }
   emit elementAdded( elem );
+
+  return elem;
 }
 
 void ReosHydraulicNetwork::removeElement( ReosHydraulicNetworkElement *elem )
@@ -132,6 +164,8 @@ void ReosHydraulicNetwork::decode( const ReosEncodedElement &element )
 {
   if ( element.description() != QStringLiteral( "hydraulic-network" ) )
     return;
+
+  element.getData( QStringLiteral( "elements-counter" ), mElementIndexesCounter );
 
   QList<ReosEncodedElement> encodedElements = element.getListEncodedData( QStringLiteral( "hydraulic-element" ) );
 
@@ -166,7 +200,6 @@ ReosEncodedElement ReosHydraulicNetwork::encode() const
   }
 
   element.addListEncodedData( QStringLiteral( "hydraulic-element" ), encodedElements );
-
   element.addData( QStringLiteral( "elements-counter" ), mElementIndexesCounter );
 
   return element;

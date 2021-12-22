@@ -54,6 +54,8 @@ SET(REOS_GUI_SOURCES
 
     data/reosimportfromtextfile.cpp
     data/reosdataprovidergui.cpp
+    data/reostimeseriesvariabletimestepreadonlymodel.cpp
+
     hydrograph/reoshydrographeditingwidget.cpp
     hydrograph/reoshydrographroutingpropertieswidget.cpp
 
@@ -109,6 +111,7 @@ SET(REOS_GUI_HEADERS
 
     data/reosimportfromtextfile.h
     data/reosdataprovidergui.h
+    data/reostimeseriesvariabletimestepreadonlymodel.h
 
     hydrograph/reoshydrographeditingwidget.h
     hydrograph/reoshydrographroutingpropertieswidget.h

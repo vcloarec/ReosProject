@@ -16,8 +16,8 @@
 #include "reosmuskingumclassicroutine.h"
 #include "reoshydrograph.h"
 
-ReosMuskingumClassicRoutine::ReosMuskingumClassicRoutine( ReosHydrographRoutineLink *parent ) :
-  ReosHydrographRoutineMethod( parent )
+ReosMuskingumClassicRoutine::ReosMuskingumClassicRoutine( ReosHydrographRoutingLink *parent ) :
+  ReosHydrographRoutingMethod( parent )
   , mKParameter( new ReosParameterDuration( tr( "K" ), false, this ) )
   , mXParameter( new ReosParameterDouble( tr( "x" ), false, this ) )
 {
@@ -28,8 +28,8 @@ ReosMuskingumClassicRoutine::ReosMuskingumClassicRoutine( ReosHydrographRoutineL
   connect( mXParameter, &ReosParameter::valueChanged, this, &ReosMuskingumClassicRoutine::dataChanged );
 }
 
-ReosMuskingumClassicRoutine::ReosMuskingumClassicRoutine( const ReosEncodedElement &encodedElement, ReosHydrographRoutineLink *parent ):
-  ReosHydrographRoutineMethod( parent )
+ReosMuskingumClassicRoutine::ReosMuskingumClassicRoutine( const ReosEncodedElement &encodedElement, ReosHydrographRoutingLink *parent ):
+  ReosHydrographRoutingMethod( parent )
   , mKParameter( ReosParameterDuration::decode( encodedElement.getEncodedData( QStringLiteral( "K-parameter" ) ), false, tr( "K" ), this ) )
   , mXParameter( ReosParameterDouble::decode( encodedElement.getEncodedData( QStringLiteral( "X-parameter" ) ), false, tr( "x" ), this ) )
 {
@@ -136,10 +136,10 @@ void ReosMuskingumClassicRoutine::calculate( ReosHydrograph *inputHydrograph, Re
   outputHydrograph->copyFrom( tempHyd.get() );
 }
 
-ReosHydrographRoutineMethod *ReosMuskingumClassicRoutineFactory::createRoutingMethod( ReosHydrographRoutineLink *routingLink ) const
+ReosHydrographRoutingMethod *ReosMuskingumClassicRoutineFactory::createRoutingMethod( ReosHydrographRoutingLink *routingLink ) const
 {return new ReosMuskingumClassicRoutine( routingLink );}
 
-ReosHydrographRoutineMethod *ReosMuskingumClassicRoutineFactory::createRoutingMethod( const ReosEncodedElement &encodedElement, ReosHydrographRoutineLink *routingLink ) const
+ReosHydrographRoutingMethod *ReosMuskingumClassicRoutineFactory::createRoutingMethod( const ReosEncodedElement &encodedElement, ReosHydrographRoutingLink *routingLink ) const
 {
   if ( encodedElement.description() != ReosMuskingumClassicRoutine::staticType() )
     return nullptr;

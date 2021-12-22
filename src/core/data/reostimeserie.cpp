@@ -1078,8 +1078,8 @@ QColor ReosTimeSerieVariableTimeStep::color() const
 void ReosTimeSerieVariableTimeStep::setColor( const QColor &color )
 {
   mColor = color;
-
   emit colorChanged( color );
+  emit displayColorChanged( color );
 }
 
 void ReosTimeSerieVariableTimeStep::copyFrom( ReosTimeSerieVariableTimeStep *other )
@@ -1088,6 +1088,31 @@ void ReosTimeSerieVariableTimeStep::copyFrom( ReosTimeSerieVariableTimeStep *oth
     return;
 
   variableTimeStepdataProvider()->copy( other->variableTimeStepdataProvider() );
+}
+
+bool ReosTimeSerieVariableTimeStep::operator==( ReosTimeSerieVariableTimeStep &other ) const
+{
+  if ( other.valueCount() != valueCount() )
+    return false;
+
+  if ( referenceTime() != other.referenceTime() )
+    return false;
+
+  for ( int i = 0; i < valueCount(); ++i )
+  {
+    if ( valueAt( i ) != other.valueAt( i ) )
+      return false;
+    if ( relativeTimeAt( i ) != other.relativeTimeAt( i ) )
+      return false;
+  }
+
+  return true;
+}
+
+void ReosTimeSerieVariableTimeStep::setCommonColor( const QColor &color )
+{
+  mColor = color;
+  emit displayColorChanged( color );
 }
 
 void ReosTimeSerieVariableTimeStep::baseEncode( ReosEncodedElement &element ) const

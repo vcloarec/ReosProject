@@ -27,32 +27,32 @@ namespace Ui
   class ReosHydrographRoutingPropertiesWidget;
 }
 
-class ReosHydrographRoutineLink;
+class ReosHydrographRoutingLink;
 class ReosPlotTimeSerieVariableStep;
 
-class ReosHydrographRoutinePropertiesWidget : public ReosHydraulicElementWidget
+class ReosHydrographRoutingPropertiesWidget : public ReosHydraulicElementWidget
 {
     Q_OBJECT
 
   public:
-    explicit ReosHydrographRoutinePropertiesWidget( ReosHydrographRoutineLink *hydrographRouting, QWidget *parent = nullptr );
-    ~ReosHydrographRoutinePropertiesWidget();
+    explicit ReosHydrographRoutingPropertiesWidget( ReosHydrographRoutingLink *hydrographRouting, QWidget *parent = nullptr );
+    ~ReosHydrographRoutingPropertiesWidget();
 
-    virtual void setCurrentCalculationContext( const ReosCalculationContext &context )
-    {
-      if ( mRoutine )
-      {
-        mRoutine->updateCalculationContext( context );
-      }
-    }
+    virtual void setCurrentCalculationContext( const ReosCalculationContext &context );
+
+  private slots:
+    void onCurrentMethodChange();
 
   private:
     Ui::ReosHydrographRoutingPropertiesWidget *ui;
-    QPointer<ReosHydrographRoutineLink> mRoutine = nullptr;
+    QPointer<ReosHydrographRoutingLink> mRouting = nullptr;
     ReosCalculationContext calculationContext;
+    QWidget *mRoutingWidget = nullptr;
 
     ReosPlotTimeSerieVariableStep *mInputHydrographCurve = nullptr;
     ReosPlotTimeSerieVariableStep *mOutputtHydrographCurve = nullptr;
+
+    void populateHydrographs();
 };
 
 

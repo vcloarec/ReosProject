@@ -17,6 +17,7 @@
 #include "reoshydrograph.h"
 #include "reoscalculationcontext.h"
 #include "reoshydrographtransfer.h"
+#include "reosstyleregistery.h"
 
 ReosHydrographNode::ReosHydrographNode( ReosHydraulicNetwork *parent )
   : ReosHydraulicNode( parent )
@@ -33,11 +34,11 @@ ReosHydrographSource::ReosHydrographSource( const ReosEncodedElement &encodedEle
   : ReosHydrographNode( encodedElement, parent )
 {}
 
-ReosHydrographRoutineLink *ReosHydrographSource::outputHydrographTransfer() const
+ReosHydrographRoutingLink *ReosHydrographSource::outputHydrographTransfer() const
 {
   if ( mLinksBySide1.isEmpty() )
     return nullptr;
-  return qobject_cast<ReosHydrographRoutineLink *>( mLinksBySide1.at( 0 ) );
+  return qobject_cast<ReosHydrographRoutingLink *>( mLinksBySide1.at( 0 ) );
 }
 
 ReosHydrographSourceFixed::ReosHydrographSourceFixed( ReosHydraulicNetwork *parent )
@@ -59,17 +60,33 @@ void ReosHydrographSourceFixed::setHydrograph( ReosHydrograph *hydrograph )
   mHydrograph->setParent( this );
 }
 
+bool ReosHydrographSourceFixed::updateCalculationContextFromDownstream( const ReosCalculationContext &, ReosHydrographRoutingLink * )
+{
+  if ( isObsolete() )
+    QMetaObject::invokeMethod( this, [this] {calculationUpdated();}, Qt::QueuedConnection );
+  return false;
+}
+
+void ReosHydrographSourceFixed::updateCalculationContextFromUpstream( const ReosCalculationContext &, ReosHydrographRoutingLink *, bool )
+{
+  if ( isObsolete() )
+    QMetaObject::invokeMethod( this, [this] {calculationUpdated();}, Qt::QueuedConnection );
+}
+
+void ReosHydrographSourceFixed::updateCalculationContext( const ReosCalculationContext &context )
+{
+  updateCalculationContextFromUpstream( context, nullptr, false );
+}
+
 
 ReosHydrographJunction::ReosHydrographJunction( const QPointF &position, ReosHydraulicNetwork *parent )
   : ReosHydrographSource( parent )
   , mOutputHydrograph( new ReosHydrograph( this ) ),
     mPosition( position )
 {
-  connect( this, &ReosHydraulicNode::dataChanged, this, [this]
-  {
-    mNeedCalculation = true;
-    mOutputHydrograph->setHydrographObsolete();
-  } );
+  mOutputHydrograph->setColor( ReosStyleRegistery::instance()->curveColor() );
+
+  init();
 }
 
 ReosHydrographJunction::ReosHydrographJunction( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent )
@@ -77,6 +94,22 @@ ReosHydrographJunction::ReosHydrographJunction( const ReosEncodedElement &encode
   , mOutputHydrograph( new ReosHydrograph( this ) )
 {
   encodedElement.getData( QStringLiteral( "position" ), mPosition );
+
+  QColor outputColor;
+  encodedElement.getData( QStringLiteral( "output-color" ), outputColor );
+  mOutputHydrograph->setColor( outputColor );
+
+  init();
+}
+
+
+void ReosHydrographJunction::init()
+{
+  mOutputHydrograph->setName( tr( "Output of %1" ).arg( name()->value() ) );
+  connect( name(), &ReosParameterString::valueChanged, mOutputHydrograph, [this]
+  {
+    mOutputHydrograph->setName( tr( "Output of %1" ).arg( name()->value() ) );
+  } );
 
   connect( this, &ReosHydraulicNode::dataChanged, this, [this]
   {
@@ -104,6 +137,13 @@ void ReosHydrographJunction::setPosition( const QPointF &pos )
 void ReosHydrographJunction::encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext & ) const
 {
   element.addData( QStringLiteral( "position" ), mPosition );
+  element.addData( QStringLiteral( "output-color" ), mOutputHydrograph->color() );
+}
+
+bool ReosHydrographJunction::updateInternalHydrographCalculationContext( const ReosCalculationContext & )
+{
+  mInternalHydrographUpdated = true;
+  return false;
 }
 
 
@@ -125,16 +165,16 @@ void ReosHydrographJunction::updateCalculationContext( const ReosCalculationCont
   updateCalculationContextFromUpstream( context, nullptr, false ); //this lead to update all routine lined to this junction and also this junction
 }
 
-void ReosHydrographJunction::updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydrographRoutineLink *upstreamRoutine, bool upstreamWillChange )
+void ReosHydrographJunction::updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *upstreamRoutine, bool upstreamWillChange )
 {
-  QList<ReosHydrographRoutineLink *> upstreamLinks = ReosHydraulicNetworkUtils::upstreamLinkOfType<ReosHydrographRoutineLink>( this );
+  QList<ReosHydrographRoutingLink *> upstreamLinks = ReosHydraulicNetworkUtils::upstreamLinkOfType<ReosHydrographRoutingLink>( this );
 
   upstreamLinks.removeOne( upstreamRoutine );
 
   if ( upstreamWillChange )
     mWaitingForUpstreamLinksUpdated.append( upstreamRoutine->id() );
 
-  for ( ReosHydrographRoutineLink *routine : std::as_const( upstreamLinks ) )
+  for ( ReosHydrographRoutingLink *routine : std::as_const( upstreamLinks ) )
   {
     if ( routine )
     {
@@ -147,7 +187,7 @@ void ReosHydrographJunction::updateCalculationContextFromUpstream( const ReosCal
 
   mNeedCalculation |= updateInternalHydrographCalculationContext( context ) || upstreamWillChange || isObsolete();
 
-  QList<ReosHydrographRoutineLink *> downstreamLinks = ReosHydraulicNetworkUtils::downstreamLinkOfType<ReosHydrographRoutineLink>( this );
+  QList<ReosHydrographRoutingLink *> downstreamLinks = ReosHydraulicNetworkUtils::downstreamLinkOfType<ReosHydrographRoutingLink>( this );
   Q_ASSERT( downstreamLinks.count() < 2 );
   if ( !downstreamLinks.isEmpty() )
     downstreamLinks.at( 0 )->updateCalculationContextFromUpstream( context, mNeedCalculation );
@@ -160,10 +200,10 @@ void ReosHydrographJunction::updateCalculationContextFromUpstream( const ReosCal
 }
 
 
-bool ReosHydrographJunction::updateCalculationContextFromDownstream( const ReosCalculationContext &context, ReosHydrographRoutineLink * )
+bool ReosHydrographJunction::updateCalculationContextFromDownstream( const ReosCalculationContext &context, ReosHydrographRoutingLink * )
 {
-  const QList<ReosHydrographRoutineLink *> upstreamLinks = ReosHydraulicNetworkUtils::upstreamLinkOfType<ReosHydrographRoutineLink>( this );
-  for ( ReosHydrographRoutineLink *routine : upstreamLinks )
+  const QList<ReosHydrographRoutingLink *> upstreamLinks = ReosHydraulicNetworkUtils::upstreamLinkOfType<ReosHydrographRoutingLink>( this );
+  for ( ReosHydrographRoutingLink *routine : upstreamLinks )
   {
     if ( routine )
     {
@@ -184,9 +224,9 @@ bool ReosHydrographJunction::updateCalculationContextFromDownstream( const ReosC
   return mNeedCalculation;
 }
 
-ReosHydrographRoutineLink *ReosHydrographJunction::downstreamRoutine() const
+ReosHydrographRoutingLink *ReosHydrographJunction::downstreamRoutine() const
 {
-  QList<ReosHydrographRoutineLink *> downstreamLinks = ReosHydraulicNetworkUtils::downstreamLinkOfType<ReosHydrographRoutineLink>( this );
+  QList<ReosHydrographRoutingLink *> downstreamLinks = ReosHydraulicNetworkUtils::downstreamLinkOfType<ReosHydrographRoutingLink>( this );
   Q_ASSERT( downstreamLinks.count() < 2 );
   if ( downstreamLinks.isEmpty() )
     return nullptr;
@@ -223,7 +263,7 @@ void ReosHydrographJunction::calculateOuputHydrograph()
 
   for ( const QPointer<ReosHydraulicLink> &link : mLinksBySide2 )
   {
-    ReosHydrographRoutineLink *routing = qobject_cast<ReosHydrographRoutineLink *>( link );
+    ReosHydrographRoutingLink *routing = qobject_cast<ReosHydrographRoutingLink *>( link );
     if ( routing )
     {
       ReosHydrograph *transferhydrograph = routing->outputHydrograph();
@@ -265,11 +305,20 @@ void ReosHydrographJunction::onInternalHydrographChanged()
   calculateIfAllReady();
 }
 
-ReosHydrographNodeWatershed::ReosHydrographNodeWatershed( ReosWatershed *watershed, ReosMeteorologicModelsCollection *meteoModelCollection, ReosHydraulicNetwork *parent )
+ReosHydrograph *ReosHydrographJunction::internalHydrograph() const
+{
+  return mInternalHydrograph;
+}
+
+ReosHydrographNodeWatershed::ReosHydrographNodeWatershed( ReosWatershed *watershed,
+    ReosMeteorologicModelsCollection *meteoModelCollection,
+    ReosHydraulicNetwork *parent )
   : ReosHydrographJunction( QPointF(), parent )
   , mWatershed( watershed )
   , mRunoffHydrographs( new ReosRunoffHydrographsStore( meteoModelCollection, this ) )
 {
+  if ( mWatershed )
+    name()->setValue( mWatershed->watershedName()->value() );
   init();
 }
 
@@ -383,6 +432,7 @@ bool ReosHydrographNodeWatershed::setCurrentWatershedHydrograph( ReosHydrograph 
       disconnect( mInternalHydrograph, &ReosDataObject::dataChanged, this, &ReosHydrographNodeWatershed::onInternalHydrographChanged );
 
     mInternalHydrograph = watershedHydrograph;
+    emit internalHydrographPointerChange();
 
     mNeedCalculation = true;
     calculateInternalHydrograph();

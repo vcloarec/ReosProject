@@ -37,6 +37,7 @@ class ReosSerieRainfall;
 class ReosVariableTimeStepPlotListButton;
 class ReosHydraulicNetwork;
 class ReosHydrographNodeWatershed;
+class ReosTimeSeriesVariableTimeStepReadOnlyModel;
 
 namespace Ui
 {
@@ -102,42 +103,7 @@ class ReosTimeSeriesTableModel: public QAbstractTableModel
     QStringList mHeaderName;
 };
 
-class ReosTimeSeriesVariableTimeStepTabModel: public QAbstractTableModel
-{
-    Q_OBJECT
-  public:
-    ReosTimeSeriesVariableTimeStepTabModel( QObject *parent = nullptr ): QAbstractTableModel( parent ) {}
-    QModelIndex index( int row, int column, const QModelIndex & ) const override;
-    QModelIndex parent( const QModelIndex & ) const override;
-    int rowCount( const QModelIndex & ) const override;
-    int columnCount( const QModelIndex & ) const override;
-    QVariant data( const QModelIndex &index, int role ) const override;
-    QVariant headerData( int section, Qt::Orientation orientation, int role ) const override;
 
-    void addTimeSerie( ReosTimeSerieVariableTimeStep *timeSerie, const QString &name );
-
-    void clearSerie();
-
-    bool isFixedTimeStep() const;
-    void setIsFixedTimeStep( bool isFixedTimeStep );
-
-    ReosDuration timeStep() const;
-    void setTimeStep( const ReosDuration &timeStep );
-
-  private slots:
-    void updateTimeStep();
-
-  private:
-    QList<QPointer<ReosTimeSerieVariableTimeStep>> mTimeSeries;
-    QStringList mHeaderName;
-    bool mIsFixedTimeStep = false;
-    QDateTime mFirstTime;
-    ReosDuration mTimeStep = ReosDuration( 70, ReosDuration::second );
-    int mTimeStepCount = 0;
-
-    QDateTime timeAtRow( int row ) const;
-    QVariant valueAt( int row, int column ) const;
-};
 
 
 class ReosRunoffHydrographWidget : public ReosActionWidget
@@ -172,7 +138,7 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
     ReosWatershed *mCurrentWatershed = nullptr;
     ReosMeteorologicModel *mCurrentMeteoModel = nullptr;
     ReosTimeSeriesTableModel *mRunoffResultTabModel;
-    ReosTimeSeriesVariableTimeStepTabModel *mHydrographResultModel;
+    ReosTimeSeriesVariableTimeStepReadOnlyModel *mHydrographResultModel;
 
     ReosTransferFunction *mCurrentTransferFunction = nullptr; //to remove?
     ReosFormWidget *mCurrentTransferFunctionForm = nullptr;

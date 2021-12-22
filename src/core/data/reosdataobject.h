@@ -48,6 +48,7 @@ class REOSCORE_EXPORT ReosDataObject: public QObject
 
   signals:
     void dataChanged() const;
+    void nameChanged( const QString &name ) const;
     void isSetObsolete() const;
     void settingsChanged();
 

@@ -26,6 +26,7 @@
 #include "reoshydrographtransfer.h"
 #include "reosplotitemlist.h"
 #include "reosplottimeconstantinterval.h"
+#include "reostimeseriesvariabletimestepreadonlymodel.h"
 
 
 ReosHydraulicHydrographJunctionPropertiesWidget::ReosHydraulicHydrographJunctionPropertiesWidget( ReosHydrographJunction *junctionNode, QWidget *parent )
@@ -35,7 +36,8 @@ ReosHydraulicHydrographJunctionPropertiesWidget::ReosHydraulicHydrographJunction
 {
   ui->setupUi( this );
 
-  ui->mPlotWidget->setSettingsContext( QStringLiteral( "hyraulic-network-node-watershed" ) );
+  QString settingsString = QStringLiteral( "hydraulic-network-node-watershed" );
+  ui->mPlotWidget->setSettingsContext( settingsString );
   ui->mPlotWidget->setTitleAxeX( tr( "Time" ) );
   ui->mPlotWidget->setAxeXType( ReosPlotWidget::temporal );
   ui->mPlotWidget->enableAxeYright( false );
@@ -44,19 +46,36 @@ ReosHydraulicHydrographJunctionPropertiesWidget::ReosHydraulicHydrographJunction
 
   mOutputCurve = new ReosPlotTimeSerieVariableStep();
   ui->mPlotWidget->addPlotItem( mOutputCurve );
+  mOutputCurve->setTimeSerie( mJunctionNode->outputHydrograph() );
 
-  QList<ReosHydrographRoutineLink *> upstreamRoutinesList = ReosHydraulicNetworkUtils::upstreamLinkOfType<ReosHydrographRoutineLink> ( junctionNode );
-
-  ReosVariableTimeStepPlotListButton *upstreamHydrographButton = new ReosVariableTimeStepPlotListButton( tr( "Upstream Hydrographs" ), ui->mPlotWidget );
-
-  for ( ReosHydrographRoutineLink *routine : std::as_const( upstreamRoutinesList ) )
-    upstreamHydrographButton->addData( routine->outputHydrograph() );
-
-  upstreamHydrographButton->setEnabled( true );
+  mInputHydrographButton = new ReosVariableTimeStepPlotListButton( tr( "Upstream Hydrographs" ), ui->mPlotWidget );
+  ReosSettings settings;
+  if ( settings.contains( settingsString ) )
+    mInputHydrographButton->setChecked( settings.value( settingsString ).toBool() );
+  else
+    mInputHydrographButton->setChecked( true );
 
   QWidget *nodeWidget = ReosFormWidgetFactories::instance()->createDataFormWidget( junctionNode );
   if ( nodeWidget )
     ui->mGroupBoxParameters->layout()->addWidget( nodeWidget );
+
+  populateHydrographs();
+
+  if ( settings.contains( QStringLiteral( "hydraulic-network-properties-widget/table-visible" ) ) )
+  {
+    if ( settings.value( QStringLiteral( "hydraulic-network-properties-widget/table-visible" ) ).toBool() )
+      ui->mTabResult->setCurrentIndex( 1 );
+    else
+      ui->mTabResult->setCurrentIndex( 0 );
+  }
+
+  connect( ui->mTabResult, &QTabWidget::currentChanged, this, [this]
+  {
+    ReosSettings settings;
+    settings.setValue( QStringLiteral( "hydraulic-network-properties-widget/table-visible" ), ui->mTabResult->currentIndex() == 1 );
+  } );
+
+  connect( mJunctionNode, &ReosHydrographJunction::internalHydrographPointerChange, this, &ReosHydraulicHydrographJunctionPropertiesWidget::populateHydrographs );
 }
 
 ReosHydraulicHydrographJunctionPropertiesWidget::~ReosHydraulicHydrographJunctionPropertiesWidget()
@@ -67,7 +86,48 @@ ReosHydraulicHydrographJunctionPropertiesWidget::~ReosHydraulicHydrographJunctio
 void ReosHydraulicHydrographJunctionPropertiesWidget::setCurrentCalculationContext( const ReosCalculationContext &calculationContext )
 {
   mJunctionNode->updateCalculationContext( calculationContext );
-  mOutputCurve->setTimeSerie( mJunctionNode->outputHydrograph() );
+}
+
+void ReosHydraulicHydrographJunctionPropertiesWidget::populateHydrographs()
+{
+  ui->mHydrographTabsWidget->clearSeries();
+
+  QList<QPointer<ReosHydrograph>> hydrographs;
+
+  mInputHydrographButton->clear();
+  ReosHydrograph *internalHyd = mJunctionNode->internalHydrograph();
+  QList<ReosHydrographRoutingLink *> upstreamRoutinesList = ReosHydraulicNetworkUtils::upstreamLinkOfType<ReosHydrographRoutingLink> ( mJunctionNode );
+
+  for ( ReosHydrographRoutingLink *routine : std::as_const( upstreamRoutinesList ) )
+  {
+    mInputHydrographButton->addData( routine->outputHydrograph() );
+    hydrographs.append( routine->outputHydrograph() );
+  }
+
+  if ( internalHyd )
+  {
+    hydrographs.append( internalHyd );
+    mInputHydrographButton->addData( internalHyd );
+  }
+
+  if ( hydrographs.count() == 1 )
+  {
+    mOutputCurve->setVisible( false );
+    mOutputCurve->setLegendActive( false );
+  }
+  else
+    hydrographs.prepend( mJunctionNode->outputHydrograph() );
+
+  mInputHydrographButton->setEnabled( hydrographs.count() > 1 );
+
+  QList<ReosTimeSerieVariableTimeStep *> tsList;
+
+  for ( ReosHydrograph *hyd : std::as_const( hydrographs ) )
+    tsList.append( hyd );
+
+  ui->mHydrographTabsWidget->setSeries( tsList, QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) );
+  ui->mHydrographTabsWidget->setConstantTimeStepParameter( mJunctionNode->constantTimeStepInTable(), mJunctionNode->useConstantTimeStepInTable() );
+
 }
 
 ReosHydraulicHydrographNodePropertiesWidgetFactory::ReosHydraulicHydrographNodePropertiesWidgetFactory( QObject *parent ): ReosHydraulicElementWidgetFactory( parent ) {}
@@ -125,7 +185,6 @@ ReosFormWatershedNodeWidget::ReosFormWatershedNodeWidget( ReosHydrographNodeWate
   connect( mGaugedHydrographCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), mNode, &ReosHydrographNodeWatershed::setGaugedHydrographIndex );
   connect( mOriginCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this,  &ReosFormWatershedNodeWidget::originChange );
 
-
 }
 
 void ReosFormWatershedNodeWidget::updateGaugedHydrograph()
@@ -148,10 +207,7 @@ void ReosFormWatershedNodeWidget::updateGaugedHydrograph()
       mGaugedHydrographCombo->setVisible( true );
       mGaugedLabel->setVisible( true );
       break;
-
   }
-
-
 }
 
 void ReosFormWatershedNodeWidget::originChange()

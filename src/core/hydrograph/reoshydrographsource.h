@@ -23,10 +23,11 @@
 #include "reoshydrauliclink.h"
 #include "reoshydrograph.h"
 #include "reoswatershedmodule.h"
+#include "reosparameter.h"
 
 class ReosCalculationContext;
 class ReosHydraulicLink;
-class ReosHydrographRoutineLink;
+class ReosHydrographRoutingLink;
 class ReosWatershed;
 class ReosRunoffHydrographsStore;
 class ReosMeteorologicModelsCollection;
@@ -65,7 +66,6 @@ class ReosHydraulicNetworkUtils
 };
 
 
-
 //! Abstract class that represent a node for hydrograph transfer
 class ReosHydrographNode : public ReosHydraulicNode
 {
@@ -78,7 +78,7 @@ class ReosHydrographNode : public ReosHydraulicNode
 
     QPointF position() const override  {return QPointF();}
 
-    virtual void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydrographRoutineLink *upstreamLink, bool upstreamWillChange ) = 0;
+    virtual void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *upstreamLink, bool upstreamWillChange ) = 0;
 
   public slots:
     virtual void onUpstreamRoutineUpdated( const QString &routingId ) = 0;
@@ -98,12 +98,12 @@ class ReosHydrographSource : public ReosHydrographNode
 
     virtual ReosHydrograph *outputHydrograph() = 0;
 
-    ReosHydrographRoutineLink *outputHydrographTransfer() const;
+    ReosHydrographRoutingLink *outputHydrographTransfer() const;
 
     QString type() const override {return staticType(); }
     static QString staticType() {return ReosHydrographNode::staticType() + QString( ':' ) + QStringLiteral( "source" );}
 
-    virtual bool updateCalculationContextFromDownstream( const ReosCalculationContext &context, ReosHydrographRoutineLink *downstreamLink ) = 0;
+    virtual bool updateCalculationContextFromDownstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *downstreamLink ) = 0;
 
 };
 
@@ -124,30 +124,15 @@ class ReosHydrographSourceFixed: public ReosHydrographSource
     //! Sets the hydrographs, take ownership
     void setHydrograph( ReosHydrograph *hydrograph );
 
-    bool updateCalculationContextFromDownstream( const ReosCalculationContext &, ReosHydrographRoutineLink * ) override
-    {
-      if ( isObsolete() )
-        QMetaObject::invokeMethod( this, [this] {calculationUpdated();}, Qt::QueuedConnection );
-      return false;
-    }
-
-    void updateCalculationContextFromUpstream( const ReosCalculationContext &, ReosHydrographRoutineLink *, bool ) override
-    {
-      if ( isObsolete() )
-        QMetaObject::invokeMethod( this, [this] {calculationUpdated();}, Qt::QueuedConnection );
-    }
+    bool updateCalculationContextFromDownstream( const ReosCalculationContext &, ReosHydrographRoutingLink * ) override;
+    void updateCalculationContextFromUpstream( const ReosCalculationContext &, ReosHydrographRoutingLink *, bool ) override;
 
   public slots:
-    virtual void updateCalculationContext( const ReosCalculationContext &context ) override
-    {
-      updateCalculationContextFromUpstream( context, nullptr, false );
-    };
-
+    void updateCalculationContext( const ReosCalculationContext &context ) override;;
     void onUpstreamRoutineUpdated( const QString & )  override {}
 
   protected:
     ReosHydrographSourceFixed( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent = nullptr );
-
 
   private:
     ReosHydrograph *mHydrograph = nullptr;
@@ -171,15 +156,21 @@ class ReosHydrographJunction : public ReosHydrographSource
 
     QPointF position() const override;
     void setPosition( const QPointF &pos ) override;
+    QString defaultDisplayName() const override {return tr( "Junction node" );}
 
     static ReosHydrographJunction *decode( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
 
     virtual void updateCalculationContext( const ReosCalculationContext &context ) override;
+    void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *upstreamLink, bool upstreamWillChange ) override;
+    bool updateCalculationContextFromDownstream( const ReosCalculationContext &context, ReosHydrographRoutingLink * ) override;
 
-    void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydrographRoutineLink *upstreamLink, bool upstreamWillChange ) override;
-    bool updateCalculationContextFromDownstream( const ReosCalculationContext &context, ReosHydrographRoutineLink * ) override;
+    ReosHydrographRoutingLink *downstreamRoutine() const;
 
-    ReosHydrographRoutineLink *downstreamRoutine() const;
+    ReosHydrograph *internalHydrograph() const;
+
+  signals:
+    //! Emitted when the internal hydrograph pointer change
+    void internalHydrographPointerChange();
 
   public slots:
     void onUpstreamRoutineUpdated( const QString &routingId ) override;
@@ -201,7 +192,6 @@ class ReosHydrographJunction : public ReosHydrographSource
     QPointF mPosition;
     QList<QString> mWaitingForUpstreamLinksUpdated;
 
-
     class HydrographSumCalculation: public ReosHydrographCalculation
     {
       public:
@@ -222,12 +212,8 @@ class ReosHydrographJunction : public ReosHydrographSource
 
     HydrographSumCalculation *mSumCalculation = nullptr;
 
-    virtual bool updateInternalHydrographCalculationContext( const ReosCalculationContext & )
-    {
-      mInternalHydrographUpdated = true;
-      return false;
-    }
-
+    virtual bool updateInternalHydrographCalculationContext( const ReosCalculationContext & );
+    void init();
     virtual void calculateInternalHydrograph();
     void calculateOuputHydrograph();
 };
@@ -260,6 +246,7 @@ class ReosHydrographNodeWatershed : public ReosHydrographJunction
     ReosHydrograph *outputHydrograph() override;
     QPointF position() const override;
     void setPosition( const QPointF & ) override {}; // position of this node can't be set because this is the outlet of the watershed
+    QString defaultDisplayName() const override {return tr( "Watershed node" );}
 
     ReosWatershed *watershed() const;
 

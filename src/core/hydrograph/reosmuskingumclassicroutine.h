@@ -19,18 +19,18 @@
 #include "reoshydrographtransfer.h"
 #include "reosparameter.h"
 
-class ReosMuskingumClassicRoutine : public ReosHydrographRoutineMethod
+class ReosMuskingumClassicRoutine : public ReosHydrographRoutingMethod
 {
     Q_OBJECT
   public:
-    ReosMuskingumClassicRoutine( ReosHydrographRoutineLink *parent = nullptr );
-    ReosMuskingumClassicRoutine( const ReosEncodedElement &encodedElement, ReosHydrographRoutineLink *parent = nullptr );
+    ReosMuskingumClassicRoutine( ReosHydrographRoutingLink *parent = nullptr );
+    ReosMuskingumClassicRoutine( const ReosEncodedElement &encodedElement, ReosHydrographRoutingLink *parent = nullptr );
 
     void calculateOutputHydrograph( ReosHydrograph *inputHydrograph, ReosHydrograph *outputHydrograph, const ReosCalculationContext &context ) override;
     ReosHydrographCalculation *calculationProcess( ReosHydrograph *inputHydrograph, const ReosCalculationContext &context ) override;
 
     QString type() const override {return staticType();}
-    static QString staticType() {return ReosHydrographRoutineMethod::staticType() + QString( ':' ) + QStringLiteral( "muskingumClassic" );}
+    static QString staticType() {return ReosHydrographRoutingMethod::staticType() + QString( ':' ) + QStringLiteral( "muskingumClassic" );}
 
     ReosParameterDuration *kParameter() const;
     ReosParameterDouble *xParameter() const;
@@ -70,9 +70,10 @@ class ReosMuskingumClassicRoutine : public ReosHydrographRoutineMethod
 class ReosMuskingumClassicRoutineFactory : public ReosHydrographRoutingMethodFactory
 {
   public:
-    ReosHydrographRoutineMethod *createRoutingMethod( ReosHydrographRoutineLink *routingLink ) const override;
-    ReosHydrographRoutineMethod *createRoutingMethod( const ReosEncodedElement &encodedElement, ReosHydrographRoutineLink *routingLink ) const override;
-    virtual QString type() const override;
+    ReosHydrographRoutingMethod *createRoutingMethod( ReosHydrographRoutingLink *routingLink ) const override;
+    ReosHydrographRoutingMethod *createRoutingMethod( const ReosEncodedElement &encodedElement, ReosHydrographRoutingLink *routingLink ) const override;
+    QString type() const override;
+    QString displayName() const override {return QObject::tr( "Muskingum classic" );}
 };
 
 

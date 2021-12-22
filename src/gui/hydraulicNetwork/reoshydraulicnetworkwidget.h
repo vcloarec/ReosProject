@@ -39,9 +39,7 @@ class ReosHydraulicElementWidget : public QWidget
 {
   public:
     ReosHydraulicElementWidget( QWidget *parent = nullptr ):  QWidget( parent )
-    {
-
-    }
+    {}
 
     virtual void setCurrentCalculationContext( const ReosCalculationContext & ) {}
 };
@@ -101,16 +99,6 @@ class ReosHydraulicNetworkWidget : public QWidget
 
     QAction *mActionRemoveElement = nullptr;
 };
-
-
-
-class ReosHydrographRoutingFormWidgetFactory: public ReosFormWidgetDataFactory
-{
-  public:
-    ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent ) override;
-    QString datatype() const override;
-};
-
 
 
 #endif // REOSHYDRAULICNETWORKWIDGET_H

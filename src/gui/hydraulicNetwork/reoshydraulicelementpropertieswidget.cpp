@@ -37,6 +37,7 @@ ReosHydraulicElementPropertiesWidget::ReosHydraulicElementPropertiesWidget( Reos
 
   QHBoxLayout *headerLayout = new QHBoxLayout( this );
   headerLayout->setContentsMargins( 0, 0, 0, 0 );
+  headerLayout->setSpacing( 6 );
   mainLayout->addItem( headerLayout );
   mNameLayout = new QHBoxLayout( this );
   mNameLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -64,14 +65,21 @@ ReosHydraulicElementPropertiesWidget::~ReosHydraulicElementPropertiesWidget()
 
 void ReosHydraulicElementPropertiesWidget::setCurrentElement( ReosHydraulicNetworkElement *element )
 {
+  ReosHydraulicElementWidget *newWidget = nullptr;
+  QWidget *newNameWidget = nullptr;
   mCurrentElement = element;
   if ( mCurrentElement )
-    setWindowTitle( mCurrentElement->type() );
+  {
+    setWindowTitle( mCurrentElement->name()->value() );
+    newWidget = widgetFactory( element->type() )->createWidget( element, this );
+    newNameWidget = new ReosParameterStringWidget( element->name(), this );
+    mMeteoModelCombo->show();
+  }
   else
+  {
     setWindowTitle( tr( "No Element Selected" ) );
-
-  ReosHydraulicElementWidget *newWidget = widgetFactory( element->type() )->createWidget( element, this );
-  QWidget *newNameWidget = new ReosParameterStringWidget( element->name(), this );
+    mMeteoModelCombo->hide();
+  }
 
 
   if ( newWidget )
@@ -85,8 +93,8 @@ void ReosHydraulicElementPropertiesWidget::setCurrentElement( ReosHydraulicNetwo
       mNameLayout->replaceWidget( mNameParameterWidget, newNameWidget );
     else
       mNameLayout->addWidget( newNameWidget );
-
   }
+
   delete mCurrentWidget;
   delete mNameParameterWidget;
   mCurrentWidget = newWidget;
