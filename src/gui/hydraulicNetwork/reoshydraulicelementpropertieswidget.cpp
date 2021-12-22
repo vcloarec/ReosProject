@@ -17,6 +17,8 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QComboBox>
+#include <QProgressBar>
+#include <QTimer>
 
 #include "reoshydraulicelementpropertieswidget.h"
 #include "reoshydraulicnetwork.h"
@@ -144,4 +146,62 @@ ReosHydraulicElementWidget *ReosHydraulicElementWidgetFactory::createWidget( Reo
   ret->setLayout( new QVBoxLayout );
   ret->layout()->addWidget( new QLabel( tr( "No widget available for the element of type %1" ).arg( element->type() ), ret ) );
   return ret;
+}
+
+ReosHydrauylicNetworkElementCalculationControler::ReosHydrauylicNetworkElementCalculationControler(
+  ReosHydraulicNetworkElement *element,
+  QObject *parent )
+  : QObject( parent )
+  , mElement( element )
+{
+  connect( mElement, &ReosHydraulicNetworkElement::calculationStart, this,
+           &ReosHydrauylicNetworkElementCalculationControler::onCalculationStart );
+
+  connect( mElement, &ReosHydraulicNetworkElement::calculationIsUpdated, this,
+           &ReosHydrauylicNetworkElementCalculationControler::onCalculationStop );
+
+}
+
+void ReosHydrauylicNetworkElementCalculationControler::setProgressBar( QProgressBar *progBar )
+{
+  mProgessBar = progBar;
+
+  if ( mElement->calculationInProgress() )
+    onCalculationStart();
+  else
+    updateState();
+}
+
+void ReosHydrauylicNetworkElementCalculationControler::onCalculationStart()
+{
+  if ( mTimer )
+    return;
+
+  mTimer = new QTimer( this );
+
+  connect( mTimer, &QTimer::timeout, this, &ReosHydrauylicNetworkElementCalculationControler::updateState );
+
+  mTimer->setInterval( 100 );
+  mTimer->start();
+}
+
+void ReosHydrauylicNetworkElementCalculationControler::updateState()
+{
+  if ( mProgessBar.isNull() )
+    return;
+
+  mProgessBar->setMaximum( mElement->calculationMaxProgression() );
+  mProgessBar->setValue( mElement->calculationProgression() );
+}
+
+void ReosHydrauylicNetworkElementCalculationControler::onCalculationStop()
+{
+  mTimer->deleteLater();
+  mTimer = nullptr;
+
+  if ( !mProgessBar.isNull() )
+  {
+    mProgessBar->setMaximum( 100 );
+    mProgessBar->setValue( 100 );
+  }
 }

@@ -46,6 +46,7 @@ class ReosHydrographRoutingMethodFactory
     virtual ReosHydrographRoutingMethod *createRoutingMethod( const ReosEncodedElement &encodedElement, ReosHydrographRoutingLink *routingLink ) const = 0;
     virtual QString type() const = 0;
     virtual QString displayName() const = 0;
+    virtual QString htlmDescription() const {return QString();}
 };
 
 
@@ -111,6 +112,9 @@ class ReosHydrographRoutingLink : public ReosHydraulicLink
     QString type() const override {return staticType();}
     QString static staticType() {return ReosHydraulicLink::staticType() + QString( ':' ) + QStringLiteral( "routine" ); }
     QString defaultDisplayName() const override {return tr( "Hydrograph routine" );}
+    bool calculationInProgress() const override;
+    int calculationMaxProgression() const override;
+    int calculationProgression() const override;
 
     static ReosHydrographRoutingLink *decode( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
 
@@ -137,6 +141,7 @@ class ReosHydrographRoutingLink : public ReosHydraulicLink
     QMap<QString, ReosHydrographRoutingMethod *> mRoutingMethods;
     QString mCurrentRoutingMethod;
     ReosHydrographCalculation *mCalculation = nullptr;
+    bool mCalculationIsInProgress = false;
 
     ReosHydrograph *mOutputHydrograph = nullptr;
 
@@ -180,18 +185,9 @@ class ReosDirectHydrographRouting: public ReosHydrographRoutingMethod
     class Calculation: public ReosHydrographCalculation
     {
       public:
-        Calculation( ReosHydrograph *inputHydrograph )
-        {
-          mInputHydrograph = std::make_unique<ReosHydrograph>();
-          mInputHydrograph->copyFrom( inputHydrograph );
-        }
+        Calculation( ReosHydrograph *inputHydrograph );
 
-        void start()
-        {
-          mHydrograph.reset( new ReosHydrograph );
-          mHydrograph->copyFrom( mInputHydrograph.get() );
-          mIsSuccessful = true;
-        }
+        void start();
       private:
         std::unique_ptr<ReosHydrograph> mInputHydrograph;
     };

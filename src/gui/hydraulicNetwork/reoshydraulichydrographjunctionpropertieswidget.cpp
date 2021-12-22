@@ -44,6 +44,9 @@ ReosHydraulicHydrographJunctionPropertiesWidget::ReosHydraulicHydrographJunction
   ui->mPlotWidget->setTitleAxeYLeft( tr( "Flow rate (%1)" ).arg( QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
   ui->mPlotWidget->setMagnifierType( ReosPlotWidget::positiveMagnifier );
 
+  mProgressControler = new ReosHydrauylicNetworkElementCalculationControler( junctionNode, this );
+  mProgressControler->setProgressBar( ui->mProgressBar );
+
   mOutputCurve = new ReosPlotTimeSerieVariableStep();
   ui->mPlotWidget->addPlotItem( mOutputCurve );
   mOutputCurve->setTimeSerie( mJunctionNode->outputHydrograph() );
@@ -76,6 +79,9 @@ ReosHydraulicHydrographJunctionPropertiesWidget::ReosHydraulicHydrographJunction
   } );
 
   connect( mJunctionNode, &ReosHydrographJunction::internalHydrographPointerChange, this, &ReosHydraulicHydrographJunctionPropertiesWidget::populateHydrographs );
+  connect( mJunctionNode, &ReosHydrographJunction::calculationIsUpdated, this, &ReosHydraulicHydrographJunctionPropertiesWidget::updateInformation );
+
+  updateInformation();
 }
 
 ReosHydraulicHydrographJunctionPropertiesWidget::~ReosHydraulicHydrographJunctionPropertiesWidget()
@@ -128,6 +134,21 @@ void ReosHydraulicHydrographJunctionPropertiesWidget::populateHydrographs()
   ui->mHydrographTabsWidget->setSeries( tsList, QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) );
   ui->mHydrographTabsWidget->setConstantTimeStepParameter( mJunctionNode->constantTimeStepInTable(), mJunctionNode->useConstantTimeStepInTable() );
 
+}
+
+void ReosHydraulicHydrographJunctionPropertiesWidget::updateInformation()
+{
+  if ( ! mJunctionNode->outputHydrograph() || mJunctionNode->outputHydrograph()->valueCount() == 0 )
+  {
+    ui->mLabelPeak->setText( tr( "none" ) );
+    ui->mLabelValueCount->setText( QLocale().toString( 0 ) );
+  }
+  else
+  {
+    ui->mLabelPeak->setText( QStringLiteral( "%1 %2" ).arg( QLocale().toString( mJunctionNode->outputHydrograph()->maximum() ),
+                             QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
+    ui->mLabelValueCount->setText( QLocale().toString( mJunctionNode->outputHydrograph()->valueCount() ) );
+  }
 }
 
 ReosHydraulicHydrographNodePropertiesWidgetFactory::ReosHydraulicHydrographNodePropertiesWidgetFactory( QObject *parent ): ReosHydraulicElementWidgetFactory( parent ) {}

@@ -54,8 +54,9 @@ class ReosMuskingumClassicRoutine : public ReosHydrographRoutingMethod
 
         void start() override
         {
-          calculate( mInputHydrograph.get(), mHydrograph.get(), mK, mX );
-          mIsSuccessful = true;
+          calculate( mInputHydrograph.get(), mHydrograph.get(), mK, mX, this );
+          if ( !isStop() )
+            mIsSuccessful = true;
         }
       private:
         std::unique_ptr<ReosHydrograph> mInputHydrograph;

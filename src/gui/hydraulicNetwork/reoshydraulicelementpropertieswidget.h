@@ -18,10 +18,13 @@
 
 #include <QWidget>
 #include <QMap>
+#include <QPointer>
 
 #include "reosactionwidget.h"
 
 class QComboBox;
+class QProgressBar;
+class QTimer;
 
 class ReosHydraulicNetworkElement;
 class ReosWatershedModule;
@@ -40,6 +43,25 @@ class ReosHydraulicElementWidgetFactory : public QObject
     ReosHydraulicElementWidgetFactory( QObject *parent = nullptr ): QObject( parent ) {}
     virtual ReosHydraulicElementWidget *createWidget( ReosHydraulicNetworkElement *element, QWidget *parent = nullptr );
     virtual QString elementType() {return QString();}
+};
+
+class ReosHydrauylicNetworkElementCalculationControler: public QObject
+{
+    Q_OBJECT
+  public:
+    ReosHydrauylicNetworkElementCalculationControler( ReosHydraulicNetworkElement *element, QObject *parent = nullptr );
+
+    void setProgressBar( QProgressBar *progBar );
+
+  private slots:
+    void onCalculationStart();
+    void updateState();
+    void onCalculationStop();
+
+  private:
+    QPointer<ReosHydraulicNetworkElement> mElement;
+    QPointer<QProgressBar> mProgessBar;
+    QTimer *mTimer = nullptr;
 };
 
 

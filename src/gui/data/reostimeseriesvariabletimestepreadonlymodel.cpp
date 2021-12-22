@@ -307,7 +307,6 @@ void ReosTimeSeriesVariableTimeStepReadOnlyTableView::setTableModel( ReosTimeSer
   connect( mModel, &ReosTimeSeriesVariableTimeStepReadOnlyModel::hasBeenReset, this, [this]
   {
     horizontalHeader()->resizeSections( QHeaderView::ResizeToContents );
-    verticalHeader()->resizeSections( QHeaderView::ResizeToContents );
   } );
 }
 

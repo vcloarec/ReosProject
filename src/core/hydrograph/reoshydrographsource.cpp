@@ -134,6 +134,30 @@ void ReosHydrographJunction::setPosition( const QPointF &pos )
   positionChanged();
 }
 
+bool ReosHydrographJunction::calculationInProgress() const {return mCalculationIsInProgress;}
+
+int ReosHydrographJunction::calculationMaxProgression() const
+{
+  if ( !mCalculationIsInProgress )
+    return 100;
+
+  if ( !mSumCalculation )
+    return 0;
+
+  return mSumCalculation->maxProgression();
+}
+
+int ReosHydrographJunction::calculationProgression() const
+{
+  if ( !mCalculationIsInProgress )
+    return 100;
+
+  if ( !mSumCalculation )
+    return 0;
+
+  return mSumCalculation->currentProgression();
+}
+
 void ReosHydrographJunction::encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext & ) const
 {
   element.addData( QStringLiteral( "position" ), mPosition );
@@ -172,7 +196,7 @@ void ReosHydrographJunction::updateCalculationContextFromUpstream( const ReosCal
   upstreamLinks.removeOne( upstreamRoutine );
 
   if ( upstreamWillChange )
-    mWaitingForUpstreamLinksUpdated.append( upstreamRoutine->id() );
+    mWaitingForUpstreamLinksUpdated.insert( upstreamRoutine->id() );
 
   for ( ReosHydrographRoutingLink *routine : std::as_const( upstreamLinks ) )
   {
@@ -180,12 +204,22 @@ void ReosHydrographJunction::updateCalculationContextFromUpstream( const ReosCal
     {
       bool routineNeedToBeUpdated = routine->updateCalculationContextFromDownstream( context );
       if ( routineNeedToBeUpdated )
-        mWaitingForUpstreamLinksUpdated.append( routine->id() );
+        mWaitingForUpstreamLinksUpdated.insert( routine->id() );
       mNeedCalculation |= routineNeedToBeUpdated;
     }
   }
 
-  mNeedCalculation |= updateInternalHydrographCalculationContext( context ) || upstreamWillChange || isObsolete();
+  bool internalHydrographWillChange = updateInternalHydrographCalculationContext( context );
+
+  mNeedCalculation |= internalHydrographWillChange || upstreamWillChange || isObsolete();
+
+  if ( upstreamWillChange && mSumCalculation )
+  {
+    mSumCalculation->stop( true );
+    mSumCalculation = nullptr;
+  }
+
+  mCalculationIsInProgress = mNeedCalculation;
 
   QList<ReosHydrographRoutingLink *> downstreamLinks = ReosHydraulicNetworkUtils::downstreamLinkOfType<ReosHydrographRoutingLink>( this );
   Q_ASSERT( downstreamLinks.count() < 2 );
@@ -210,7 +244,7 @@ bool ReosHydrographJunction::updateCalculationContextFromDownstream( const ReosC
       bool routineNeedToBeUpdated = routine->updateCalculationContextFromDownstream( context );
       mNeedCalculation |= routineNeedToBeUpdated;
       if ( routineNeedToBeUpdated )
-        mWaitingForUpstreamLinksUpdated.append( routine->id() );
+        mWaitingForUpstreamLinksUpdated.insert( routine->id() );
     }
   }
 
@@ -236,7 +270,7 @@ ReosHydrographRoutingLink *ReosHydrographJunction::downstreamRoutine() const
 
 void ReosHydrographJunction::onUpstreamRoutineUpdated( const QString &routingId )
 {
-  mWaitingForUpstreamLinksUpdated.removeOne( routingId );
+  mWaitingForUpstreamLinksUpdated.remove( routingId );
   mNeedCalculation = true;
   calculateIfAllReady();
 }
@@ -247,15 +281,12 @@ void ReosHydrographJunction::calculateInternalHydrograph() {}
 
 void ReosHydrographJunction::calculateOuputHydrograph()
 {
+  mCalculationIsInProgress = true;
+
   if ( mSumCalculation )
-  {
     mSumCalculation->stop( true );
-  }
 
   HydrographSumCalculation *newCalculation = new HydrographSumCalculation;
-  if ( mSumCalculation )
-    mSumCalculation->stop( true );
-
   mSumCalculation = newCalculation;
 
   if ( !mInternalHydrograph.isNull() )
@@ -283,6 +314,7 @@ void ReosHydrographJunction::calculateOuputHydrograph()
         mNeedCalculation = false;
         calculationUpdated();
       }
+      mCalculationIsInProgress = false;
     }
     newCalculation->deleteLater();
   } );
@@ -565,10 +597,14 @@ void ReosHydrographJunction::HydrographSumCalculation::start()
 
   mHydrograph->copyFrom( mHydrographsToAdd.first() );
 
+  setMaxProgression( mHydrographsToAdd.count() );
+
   for ( int i = 1; i < mHydrographsToAdd.count(); ++i )
   {
     if ( isStop() )
       break;
+
+    setCurrentProgression( i );
 
     mHydrograph->addOther( mHydrographsToAdd.at( i ) );
   }

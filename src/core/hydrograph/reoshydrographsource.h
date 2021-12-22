@@ -157,6 +157,9 @@ class ReosHydrographJunction : public ReosHydrographSource
     QPointF position() const override;
     void setPosition( const QPointF &pos ) override;
     QString defaultDisplayName() const override {return tr( "Junction node" );}
+    bool calculationInProgress() const override;
+    int calculationMaxProgression() const override;
+    int calculationProgression() const override;
 
     static ReosHydrographJunction *decode( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
 
@@ -190,7 +193,8 @@ class ReosHydrographJunction : public ReosHydrographSource
 
   private:
     QPointF mPosition;
-    QList<QString> mWaitingForUpstreamLinksUpdated;
+    QSet<QString> mWaitingForUpstreamLinksUpdated;
+    bool mCalculationIsInProgress = false;
 
     class HydrographSumCalculation: public ReosHydrographCalculation
     {

@@ -642,9 +642,8 @@ void ReosTimeSerie::onDataProviderChanged()
 {
   setActualized();
   if ( mProvider  && mProvider->referenceTime() != mReferenceTimeParameter->value() )
-  {
     mReferenceTimeParameter->setValue( mProvider->referenceTime() );
-  }
+  updateStats();
   emit dataChanged();
 }
 
@@ -824,6 +823,30 @@ bool ReosTimeSerie::decodeBase( const ReosEncodedElement &element )
   }
 
   return true;
+}
+
+double ReosTimeSerie::minimum() const
+{
+  return mMinimum;
+}
+
+double ReosTimeSerie::maximum() const
+{
+  return mMaximum;
+}
+
+void ReosTimeSerie::updateStats()
+{
+  mMaximum = -std::numeric_limits<double>::max();
+  mMinimum = std::numeric_limits<double>::max();
+  for ( int i = 0; i < mProvider->valueCount(); ++i )
+  {
+    double value = mProvider->value( i );
+    if ( value < mMinimum )
+      mMinimum = value;
+    if ( value > mMaximum )
+      mMaximum = value;
+  }
 }
 
 void ReosTimeSerie::connectParameters()

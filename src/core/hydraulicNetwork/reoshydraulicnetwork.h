@@ -16,6 +16,7 @@
 #ifndef REOSHYDRAULICNETWORK_H
 #define REOSHYDRAULICNETWORK_H
 
+#include<memory>
 #include <QPointer>
 #include <QHash>
 
@@ -43,16 +44,29 @@ class ReosHydraulicNetworkElement : public ReosDataObject
     QString type() const override {return staticType();}
     static QString staticType() {return QStringLiteral( "hydraulicNetwork" );}
 
-    //! Destroy the element (the instance will be deleted later).
-    virtual void destroy();
-
-    void positionChanged();
-
     ReosParameterString *name() const;
     virtual QString defaultDisplayName() const {return type();}
 
+    //! Destroy the element (the instance will be deleted later).
+    virtual void destroy();
+
+    //! Called when the position oh the item is changed
+    void positionChanged();
+
+    //! Returns the parameter of duration used as time step in table when constant time step is used
     ReosParameterDuration *constantTimeStepInTable() const;
+
+    //! Returns the parameter whether constant tule step is used in table
     ReosParameterBoolean *useConstantTimeStepInTable() const;
+
+    //! Returns whether calculation is in progress, default implementation returns false
+    virtual bool calculationInProgress() const {return false;}
+
+    //! Returns the maximum progression of calculation
+    virtual int calculationMaxProgression() const {return 0;}
+
+    //! Returns the progression of calculation
+    virtual int calculationProgression() const {return 0;}
 
     ReosEncodedElement encode( const ReosHydraulicNetworkContext &context ) const;
 
@@ -69,6 +83,7 @@ class ReosHydraulicNetworkElement : public ReosDataObject
     virtual void encodeData( ReosEncodedElement &element,  const ReosHydraulicNetworkContext &context ) const = 0;
 
   signals:
+    void calculationStart();
     void calculationIsUpdated( const QString &id, QPrivateSignal );
 
   private:

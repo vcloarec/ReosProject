@@ -45,6 +45,9 @@ ReosHydrographRoutingPropertiesWidget::ReosHydrographRoutingPropertiesWidget( Re
   ui->mPlotsWidget->setTitleAxeYLeft( tr( "Flow rate (%1)" ).arg( QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
   ui->mPlotsWidget->setMagnifierType( ReosPlotWidget::positiveMagnifier );
 
+  mProgressControler = new ReosHydrauylicNetworkElementCalculationControler( hydrographRouting, this );
+  mProgressControler->setProgressBar( ui->mProgressBar );
+
   const QStringList availableTypes = ReosHydrographRoutingMethodFactories::instance()->methodTypes();
 
   for ( const QString &type : availableTypes )
@@ -77,6 +80,9 @@ ReosHydrographRoutingPropertiesWidget::ReosHydrographRoutingPropertiesWidget( Re
   } );
 
   populateHydrographs();
+
+  connect( mRouting, &ReosHydrographJunction::calculationIsUpdated, this, &ReosHydrographRoutingPropertiesWidget::updateInformation );
+  updateInformation();
 }
 
 ReosHydrographRoutingPropertiesWidget::~ReosHydrographRoutingPropertiesWidget()
@@ -111,6 +117,21 @@ void ReosHydrographRoutingPropertiesWidget::onCurrentMethodChange()
   mRoutingWidget = newWidget;
 
   mRouting->calculateRouting();
+}
+
+void ReosHydrographRoutingPropertiesWidget::updateInformation()
+{
+  if ( ! mRouting->outputHydrograph() || mRouting->outputHydrograph()->valueCount() == 0 )
+  {
+    ui->mLabelPeak->setText( tr( "none" ) );
+    ui->mLabelValueCount->setText( QLocale().toString( 0 ) );
+  }
+  else
+  {
+    ui->mLabelPeak->setText( QStringLiteral( "%1 %2" ).arg( QLocale().toString( mRouting->outputHydrograph()->maximum() ),
+                             QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
+    ui->mLabelValueCount->setText( QLocale().toString( mRouting->outputHydrograph()->valueCount() ) );
+  }
 }
 
 void ReosHydrographRoutingPropertiesWidget::populateHydrographs()

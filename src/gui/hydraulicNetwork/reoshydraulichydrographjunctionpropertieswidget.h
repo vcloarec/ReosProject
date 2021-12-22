@@ -42,12 +42,14 @@ class ReosHydraulicHydrographJunctionPropertiesWidget : public ReosHydraulicElem
 
   private slots:
     void populateHydrographs();
+    void updateInformation();
 
   private:
     Ui::ReosHydraulicHydrographJunctionPropertiesWidget *ui;
     ReosHydrographJunction *mJunctionNode = nullptr;
     ReosPlotTimeSerieVariableStep *mOutputCurve = nullptr;
     ReosVariableTimeStepPlotListButton *mInputHydrographButton = nullptr;
+    ReosHydrauylicNetworkElementCalculationControler *mProgressControler = nullptr;
 };
 
 

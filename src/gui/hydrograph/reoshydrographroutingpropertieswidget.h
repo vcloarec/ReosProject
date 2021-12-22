@@ -42,12 +42,14 @@ class ReosHydrographRoutingPropertiesWidget : public ReosHydraulicElementWidget
 
   private slots:
     void onCurrentMethodChange();
+    void updateInformation();
 
   private:
     Ui::ReosHydrographRoutingPropertiesWidget *ui;
     QPointer<ReosHydrographRoutingLink> mRouting = nullptr;
     ReosCalculationContext calculationContext;
     QWidget *mRoutingWidget = nullptr;
+    ReosHydrauylicNetworkElementCalculationControler *mProgressControler = nullptr;
 
     ReosPlotTimeSerieVariableStep *mInputHydrographCurve = nullptr;
     ReosPlotTimeSerieVariableStep *mOutputtHydrographCurve = nullptr;

@@ -84,7 +84,7 @@ class REOSCORE_EXPORT ReosTransferFunctionFactory
     //! Returns the variable descritpion of the transfer function
     virtual QString variablesDescription() const {return QString();}
     //! Returns the path of a image that represent the formulation
-    virtual QString formulationRessource() const {return QString();};
+    virtual QString formulationResource() const {return QString();};
 
 };
 
@@ -144,7 +144,7 @@ class REOSCORE_EXPORT ReosTransferFunctionFactories : public ReosModule
     QPixmap formulation( const QString &type ) const;
 
     //! Returns the path of a image that represent the formulation of the transfer function \a type
-    QString formulationRessource( const QString &type ) const;
+    QString formulationResource( const QString &type ) const;
 
     //! Returns the variable descritpion of the transfer function \a type
     QString variablesDescription( const QString &type ) const;
@@ -228,7 +228,7 @@ class REOSCORE_EXPORT ReosTransferFunctionLinearReservoirFactory: public ReosTra
     ReosTransferFunction *createTransferFunction( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr ) const override;
     QString presentationText() const override;;
     QPixmap formulation() const override;
-    QString formulationRessource() const override;
+    QString formulationResource() const override;
     QString variablesDescription() const override;
 };
 
@@ -281,7 +281,7 @@ class REOSCORE_EXPORT ReosTransferFunctionGeneralizedRationalMethodFactory: publ
     ReosTransferFunction *createTransferFunction( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr ) const override;
     QString presentationText() const override;;
     QPixmap formulation() const override;
-    QString formulationRessource() const override;
+    QString formulationResource() const override;
     QString variablesDescription() const override;
 };
 
@@ -365,7 +365,7 @@ class REOSCORE_EXPORT ReosTransferFunctionSCSUnitHydrographFactory: public ReosT
     ReosTransferFunction *createTransferFunction( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr ) const override;
     QString presentationText() const override;;
     QPixmap formulation() const override;
-    QString formulationRessource() const override;
+    QString formulationResource() const override;
     QString variablesDescription() const override;
 };
 
@@ -434,7 +434,7 @@ class REOSCORE_EXPORT ReosTransferFunctionNashUnitHydrographFactory: public Reos
     ReosTransferFunction *createTransferFunction( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr ) const override;
     QString presentationText() const override;;
     QPixmap formulation() const override;
-    QString formulationRessource() const override;
+    QString formulationResource() const override;
     QString variablesDescription() const override;
 };
 

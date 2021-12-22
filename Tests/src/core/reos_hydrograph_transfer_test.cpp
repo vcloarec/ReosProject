@@ -25,6 +25,8 @@
 #include "reosrunoffmodel.h"
 #include "reosgisengine.h"
 
+#define WAITING_TIME_FOR_LOOP 100
+
 
 class ReosHydrographTransferTest: public QObject
 {
@@ -99,7 +101,7 @@ void ReosHydrographTransferTest::test_junction()
 
   QVERIFY( junctionHydrograph );
 
-  timer.start( 100 );
+  timer.start( WAITING_TIME_FOR_LOOP );
   loop.exec();
 
   QCOMPARE( junctionHydrograph->valueCount(), inputHydrograph_1->valueCount() );
@@ -117,7 +119,7 @@ void ReosHydrographTransferTest::test_junction()
   junction.updateCalculationContext( context );
   junctionHydrograph = junction.outputHydrograph( );
 
-  timer.start( 100 );
+  timer.start( WAITING_TIME_FOR_LOOP );
   loop.exec();
 
   QCOMPARE( junctionHydrograph->valueCount(), 8 );
@@ -148,7 +150,7 @@ void ReosHydrographTransferTest::test_junction()
 
   junction2.updateCalculationContext( context );
 
-  timer.start( 100 );
+  timer.start( WAITING_TIME_FOR_LOOP );
   loop.exec();
 
   ReosHydrograph *junctionHydrograph2 = junction2.outputHydrograph( );
@@ -290,7 +292,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   ReosHydrograph *tempHyd = runoffStore.hydrograph( meteoModel );
   ReosHydrograph *tempHyd2 = runoffStore.hydrograph( meteoModel_2 );
 
-  timer.start( 50 );
+  timer.start( WAITING_TIME_FOR_LOOP );
   loop.exec();
 
   ReosHydrograph expectedHydrograh_watershed1_runoff_model_1;
@@ -304,7 +306,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   tempHyd = runoffStore.hydrograph( meteoModel );
   tempHyd2 = runoffStore.hydrograph( meteoModel_2 );
 
-  timer.start( 50 );
+  timer.start( WAITING_TIME_FOR_LOOP );
   loop.exec();
 
   ReosHydrograph expectedHydrograh_watershed2_runoff_model_1;
@@ -361,7 +363,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   QVERIFY( junction2.outputHydrograph()->valueCount() == 0 );
   QVERIFY( junction3.outputHydrograph()->valueCount() == 0 );
 
-  timer.start( 200 );
+  timer.start( WAITING_TIME_FOR_LOOP );
   loop.exec();
 
   QCOMPARE( watershedNode1.outputHydrograph()->valueCount(), 98 );
@@ -379,7 +381,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   link1.updateCalculationContext( context );
   link2->updateCalculationContext( context );
 
-  timer.start( 50 );
+  timer.start( WAITING_TIME_FOR_LOOP );
   loop.exec();
 
   QCOMPARE( watershedNode1.outputHydrograph()->valueCount(), 98 );
@@ -396,7 +398,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   link1.updateCalculationContext( context ); //test the update of context in a parallel but sharing same network
   junction3.updateCalculationContext( context ); //need to
 
-  timer.start( 50 );
+  timer.start( WAITING_TIME_FOR_LOOP );
   loop.exec();
 
   QCOMPARE( watershedNode1.outputHydrograph()->valueCount(), 98 );
@@ -413,7 +415,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   link2->destroy();
   link1.updateCalculationContext( context );
 
-  timer.start( 50 );
+  timer.start( WAITING_TIME_FOR_LOOP );
   loop.exec();
 
   QCOMPARE( watershedNode1.outputHydrograph()->valueCount(), 98 );
@@ -432,7 +434,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   link4.setHydrographDestination( &junction1 );
   link1.updateCalculationContext( context );
 
-  timer.start( 50 );
+  timer.start( WAITING_TIME_FOR_LOOP );
   loop.exec();
 
   QCOMPARE( watershedNode1.outputHydrograph()->valueCount(), 98 );
@@ -451,7 +453,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   ReosMuskingumClassicRoutine *muskingumRoutine = qobject_cast<ReosMuskingumClassicRoutine *>( link3.currentRoutingMethod() );
   Q_ASSERT( muskingumRoutine );
 
-  timer.start( 50 );
+  timer.start( WAITING_TIME_FOR_LOOP );
   loop.exec();
 
   QCOMPARE( watershedNode1.outputHydrograph()->valueCount(), 98 );
@@ -466,7 +468,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   // change parameter of the routine methos
   muskingumRoutine->kParameter()->setValue( ReosDuration( 0.2, ReosDuration::hour ) );
 
-  timer.start( 50 );
+  timer.start( WAITING_TIME_FOR_LOOP );
   loop.exec();
 
   QCOMPARE( watershedNode1.outputHydrograph()->valueCount(), 98 );
@@ -481,7 +483,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   // Set back the link 3 with direct routine
   link3.setCurrentRoutingMethod( ReosDirectHydrographRouting::staticType() );
 
-  timer.start( 50 );
+  timer.start( WAITING_TIME_FOR_LOOP );
   loop.exec();
 
   QCOMPARE( watershedNode1.outputHydrograph()->valueCount(), 98 );
@@ -503,7 +505,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   watershedNode1.setGaugedHydrographIndex( 0 );
   watershedNode1.setOrigin( ReosHydrographNodeWatershed::GaugedHydrograph );
 
-  timer.start( 50 );
+  timer.start( WAITING_TIME_FOR_LOOP );
   loop.exec();
 
   ReosHydrograph expectedHyd;
@@ -523,7 +525,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   // back with a runoff hydrograph
   watershedNode1.setOrigin( ReosHydrographNodeWatershed::RunoffHydrograph );
 
-  timer.start( 50 );
+  timer.start( WAITING_TIME_FOR_LOOP );
   loop.exec();
 
   QCOMPARE( watershedNode1.outputHydrograph()->valueCount(), 98 );
@@ -540,7 +542,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   context.setMeteorologicModel( meteoModel_2 );
   junction1.updateCalculationContext( context );
 
-  timer.start( 50 );
+  timer.start( WAITING_TIME_FOR_LOOP );
   loop.exec();
 
   QCOMPARE( watershedNode1.outputHydrograph()->valueCount(), 92 );
@@ -556,8 +558,9 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   //change the rainfall of meteo model (set same as first model)
   meteoCollection.meteorologicModel( 1 )->associate( watershed1, &chicagoRainfallItem );
   meteoCollection.meteorologicModel( 1 )->associate( watershed2, &chicagoRainfallItem );
+  junction1.updateCalculationContext( context );
 
-  timer.start( 50 );
+  timer.start( WAITING_TIME_FOR_LOOP );
   loop.exec();
 
   QCOMPARE( watershedNode1.outputHydrograph()->valueCount(), 98 );

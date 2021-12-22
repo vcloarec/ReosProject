@@ -16,6 +16,10 @@
 #include "reosmuskingumclassicroutine.h"
 #include "reoshydrograph.h"
 
+#ifndef _NDEBUG
+#include <QElapsedTimer>
+#endif
+
 ReosMuskingumClassicRoutine::ReosMuskingumClassicRoutine( ReosHydrographRoutingLink *parent ) :
   ReosHydrographRoutingMethod( parent )
   , mKParameter( new ReosParameterDuration( tr( "K" ), false, this ) )
@@ -91,6 +95,13 @@ void ReosMuskingumClassicRoutine::calculate( ReosHydrograph *inputHydrograph, Re
   if ( inputCount < 2 ) //need at least two values
     return;
 
+  if ( process )
+    process->setCurrentProgression( 0 );
+
+  if ( process )
+    process->setMaxProgression( inputCount );
+  int progressStep = std::max( inputCount / 100, 5 );
+
   QDateTime refTime = inputHydrograph->referenceTime();
   ReosDuration t = inputHydrograph->relativeTimeAt( 0 );
   tempHyd->setValue( t, 0 );
@@ -126,11 +137,28 @@ void ReosMuskingumClassicRoutine::calculate( ReosHydrograph *inputHydrograph, Re
                          C2 * inputHydrograph->valueAtTime( t + timeStep ) +
                          C3 * tempHyd->valueAtTime( t ) );
       t = t + timeStep;
+
+      if ( process )
+      {
+        if ( process->isStop() )
+          return;
+      }
     }
     ++i;
 
     if ( i == ( inputCount - 1 ) )
       lastValue = tempHyd->valueAtTime( t - timeStep );
+
+    if ( process )
+    {
+      if ( i % progressStep == 0 )
+      {
+        process->setCurrentProgression( i );
+      }
+
+      if ( process->isStop() )
+        return;
+    }
   }
 
   outputHydrograph->copyFrom( tempHyd.get() );

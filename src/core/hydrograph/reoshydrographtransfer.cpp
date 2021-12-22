@@ -173,6 +173,30 @@ ReosHydrograph *ReosHydrographRoutingLink::outputHydrograph() const
   return mOutputHydrograph;
 }
 
+bool ReosHydrographRoutingLink::calculationInProgress() const {return mCalculationIsInProgress;}
+
+int ReosHydrographRoutingLink::calculationMaxProgression() const
+{
+  if ( !mCalculationIsInProgress )
+    return 100;
+
+  if ( !mCalculation )
+    return 0;
+
+  return mCalculation->maxProgression();
+}
+
+int ReosHydrographRoutingLink::calculationProgression() const
+{
+  if ( !mCalculationIsInProgress )
+    return 100;
+
+  if ( !mCalculation )
+    return 0;
+
+  return mCalculation->currentProgression();
+}
+
 void ReosHydrographRoutingLink::updateCalculationContext( const ReosCalculationContext &context )
 {
   bool upstreamWillBeUpdated = false;
@@ -180,11 +204,22 @@ void ReosHydrographRoutingLink::updateCalculationContext( const ReosCalculationC
   if ( inputHydrographSource() )
     upstreamWillBeUpdated = inputHydrographSource()->updateCalculationContextFromDownstream( context, this );
 
+  if ( upstreamWillBeUpdated && mCalculation )
+  {
+    mCalculation->stop( true );
+    mCalculation = nullptr;
+  }
+
   if ( !upstreamWillBeUpdated && isObsolete() )
   {
     calculateRouting();
     upstreamWillBeUpdated = true;
   }
+
+  mCalculationIsInProgress |= upstreamWillBeUpdated;
+
+  if ( upstreamWillBeUpdated )
+    emit calculationStart();
 
   if ( destinationNode() )
     destinationNode()->updateCalculationContextFromUpstream( context, this, upstreamWillBeUpdated );
@@ -232,6 +267,9 @@ void ReosHydrographRoutingLink::calculateRouting()
     qDebug() << "calculation of link: " << name()->value();
 #endif
 
+    emit calculationStart();
+    mCalculationIsInProgress = true;
+
     if ( mCalculation )
       mCalculation->stop( true );
 
@@ -247,6 +285,7 @@ void ReosHydrographRoutingLink::calculateRouting()
           mOutputHydrograph->copyFrom( calculation->hydrograph() );
           calculationUpdated();
         }
+        mCalculationIsInProgress = false;
       }
       calculation->deleteLater();
     } );
@@ -387,4 +426,17 @@ ReosHydrographRoutingMethodFactories::ReosHydrographRoutingMethodFactories( Reos
 ReosHydraulicNetworkElement *ReosHydrographRoutingLinkFactory::decodeElement( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context ) const
 {
   return ReosHydrographRoutingLink::decode( encodedElement, context );
+}
+
+ReosDirectHydrographRouting::Calculation::Calculation( ReosHydrograph *inputHydrograph )
+{
+  mInputHydrograph = std::make_unique<ReosHydrograph>();
+  mInputHydrograph->copyFrom( inputHydrograph );
+}
+
+void ReosDirectHydrographRouting::Calculation::start()
+{
+  mHydrograph.reset( new ReosHydrograph );
+  mHydrograph->copyFrom( mInputHydrograph.get() );
+  mIsSuccessful = true;
 }
