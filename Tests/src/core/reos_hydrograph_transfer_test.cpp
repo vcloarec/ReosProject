@@ -477,7 +477,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   QVERIFY( *watershedNode2.outputHydrograph() == expectedHydrograh_watershed2_runoff_model_1 );
   QCOMPARE( junction1.outputHydrograph()->valueCount(), 98 );
   QVERIFY( *junction1.outputHydrograph() == sum_model_1 );
-  QCOMPARE( junction2.outputHydrograph()->valueCount(), 106 ); //junction 2 hads now a hydrograph transform by Muskingum method -->more values
+  QCOMPARE( junction2.outputHydrograph()->valueCount(), 107 ); //junction 2 hads now a hydrograph transform by Muskingum method -->more values
   QCOMPARE( junction3.outputHydrograph()->valueCount(), 0 );
 
   // Set back the link 3 with direct routine

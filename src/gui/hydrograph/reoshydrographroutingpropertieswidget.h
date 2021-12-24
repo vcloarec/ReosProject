@@ -29,6 +29,7 @@ namespace Ui
 
 class ReosHydrographRoutingLink;
 class ReosPlotTimeSerieVariableStep;
+class ReosVariableTimeStepPlotListButton;
 
 class ReosHydrographRoutingPropertiesWidget : public ReosHydraulicElementWidget
 {
@@ -43,6 +44,7 @@ class ReosHydrographRoutingPropertiesWidget : public ReosHydraulicElementWidget
   private slots:
     void onCurrentMethodChange();
     void updateInformation();
+    void onMethodDescription();
 
   private:
     Ui::ReosHydrographRoutingPropertiesWidget *ui;
@@ -50,6 +52,7 @@ class ReosHydrographRoutingPropertiesWidget : public ReosHydraulicElementWidget
     ReosCalculationContext calculationContext;
     QWidget *mRoutingWidget = nullptr;
     ReosHydrauylicNetworkElementCalculationControler *mProgressControler = nullptr;
+    ReosVariableTimeStepPlotListButton *mHydrographPlotButton = nullptr;
 
     ReosPlotTimeSerieVariableStep *mInputHydrographCurve = nullptr;
     ReosPlotTimeSerieVariableStep *mOutputtHydrographCurve = nullptr;

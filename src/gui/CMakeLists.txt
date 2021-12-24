@@ -11,6 +11,7 @@ SET(REOS_GUI_SOURCES
     reosprocesscontroler.cpp
     reosmenupopulator.cpp
     reosactionwidget.cpp
+    reosnotificationbutton.cpp
 
 
     GIS/reosdigitalelevationmodelcombobox.cpp
@@ -77,6 +78,7 @@ SET(REOS_GUI_HEADERS
     reosprocesscontroler.h
     reosmenupopulator.h
     reosactionwidget.h
+    reosnotificationbutton.h
 
     GIS/reosdigitalelevationmodelcombobox.h
     GIS/reosmap.h

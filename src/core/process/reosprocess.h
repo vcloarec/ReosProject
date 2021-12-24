@@ -22,6 +22,7 @@ email                : vcloarec at gmail dot com
 #include <QMutex>
 
 #include "reoscore.h"
+#include "reosmodule.h"
 
 #define MAX_THREAD 0u
 
@@ -64,6 +65,10 @@ class REOSCORE_EXPORT ReosProcess : public QObject
 
     static unsigned maximumThreads();
 
+    void notify( ReosModule::Message &message );
+
+    ReosModule::Message message() const;
+
   signals:
     void sendInformation( const QString & );
 
@@ -72,6 +77,7 @@ class REOSCORE_EXPORT ReosProcess : public QObject
 
   protected:
     bool mIsSuccessful = false;
+    ReosModule::Message mMessage;
 
     //! Sets a the current sub process, do not take ownership and caller must set nullptr before deleting the subprocess
     void setSubProcess( ReosProcess *subProcess );

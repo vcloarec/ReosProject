@@ -83,17 +83,46 @@ ReosEncodedElement ReosMuskingumClassicRoutine::encode() const
 
 void ReosMuskingumClassicRoutine::calculate( ReosHydrograph *inputHydrograph, ReosHydrograph *outputHydrograph, const ReosDuration &K, double x, ReosProcess *process )
 {
-  if ( !inputHydrograph || inputHydrograph->valueCount() < 3 )
+  if ( !inputHydrograph )
     return;
+
+  ReosModule::Message message;
+
+  if ( inputHydrograph->valueCount() < 3 ) //need at least two values
+  {
+    if ( process )
+    {
+      message.type = ReosModule::Error;
+      message.addText( tr( "Muskingum routing method need at least to value for input hydograph" ) );
+    }
+    return;
+  }
+
+  if ( x > 0.5 )
+  {
+    if ( process )
+    {
+      message.type = ReosModule::Error;
+      message.addText( tr( "X parameter for Muskingum routing has to be less than 0.5" ) );
+      process->notify( message );
+    }
+    return;
+  }
+
+  if ( x == 0.5 )
+  {
+    if ( process )
+    {
+      message.type = ReosModule::Warning;
+      message.addText( tr( "X parameter for Muskingum routing equal 0.5, there will be no attenuation, consider using Lag routing method instead" ) );
+    }
+  }
 
   std::unique_ptr<ReosHydrograph> tempHyd = std::make_unique<ReosHydrograph>();
   tempHyd->setReferenceTime( inputHydrograph->referenceTime() );
 
   int inputCount = inputHydrograph->valueCount();
   int i = 0;
-
-  if ( inputCount < 2 ) //need at least two values
-    return;
 
   if ( process )
     process->setCurrentProgression( 0 );
@@ -107,6 +136,12 @@ void ReosMuskingumClassicRoutine::calculate( ReosHydrograph *inputHydrograph, Re
   tempHyd->setValue( t, 0 );
   ReosDuration lastTimeStep;
   double lastValue = 0;
+
+  ReosDuration upperTimeStepBound = K * 2 * ( 1 - x ) ;
+  ReosDuration lowerTimeStepBound = K * 2 * ( x ) ;
+
+  bool tooSmallTimeStep = false;
+
   while ( i < ( inputCount - 1 ) || tempHyd->valueAtTime( t ) > lastValue / 100 )
   {
     ReosDuration timeStep;
@@ -115,14 +150,17 @@ void ReosMuskingumClassicRoutine::calculate( ReosHydrograph *inputHydrograph, Re
     else
       timeStep = lastTimeStep;
     int internIteration = 1;
-    if ( timeStep > K )
+    if ( timeStep > upperTimeStepBound )
     {
-      while ( timeStep > K )
+      while ( timeStep > upperTimeStepBound )
       {
         timeStep = timeStep / 2;
         internIteration = internIteration * 2;
       }
     }
+    else if ( timeStep < lowerTimeStepBound )
+      tooSmallTimeStep = true;
+
     lastTimeStep = timeStep;
 
     ReosDuration denom = ( K * 2 * ( 1 - x ) + timeStep );
@@ -133,8 +171,8 @@ void ReosMuskingumClassicRoutine::calculate( ReosHydrograph *inputHydrograph, Re
     for ( int it = 0; it < internIteration; ++it )
     {
       tempHyd->setValue( t + timeStep,
-                         C1 * inputHydrograph->valueAtTime( t ) +
-                         C2 * inputHydrograph->valueAtTime( t + timeStep ) +
+                         C1 * inputHydrograph->valueAtTime( t + timeStep ) +
+                         C2 * inputHydrograph->valueAtTime( t ) +
                          C3 * tempHyd->valueAtTime( t ) );
       t = t + timeStep;
 
@@ -161,6 +199,18 @@ void ReosMuskingumClassicRoutine::calculate( ReosHydrograph *inputHydrograph, Re
     }
   }
 
+  if ( process )
+  {
+    if ( tooSmallTimeStep )
+    {
+      message.type = ReosModule::Warning;
+      message.addText( tr( "The time step of the input hydrograph is too small considering the parameter of the Muskingum routing method" ) );
+    }
+  }
+
+  if ( process && !message.text.isEmpty() )
+    process->notify( message );
+
   outputHydrograph->copyFrom( tempHyd.get() );
 }
 
@@ -178,4 +228,31 @@ ReosHydrographRoutingMethod *ReosMuskingumClassicRoutineFactory::createRoutingMe
 QString ReosMuskingumClassicRoutineFactory::type() const
 {
   return ReosMuskingumClassicRoutine::staticType();
+}
+
+QString ReosMuskingumClassicRoutineFactory::htmlDescription() const
+{
+  QString htmlText = QLatin1String( "<html>\n<body>\n" );
+  htmlText += QLatin1String( "<table class=\"list-view\">\n" );
+  htmlText += QLatin1String( "<h1>" ) + displayName() + QLatin1String( "</h1>\n<hr>\n" );
+  htmlText += QLatin1String( "The Muskingum routing method expresses the output flow of reach depending on the input flow and two parameters K and x. "
+                             "This method has the following formulation:" );
+  htmlText += QLatin1String( "<br>" );
+  htmlText += QLatin1String( "<br>" );
+  htmlText += QLatin1String( "<img src = " ) + QLatin1String( ":/formulas/MuskingumRouting.svg" ) + QLatin1String( "/>" );
+  htmlText += QLatin1String( "<br>" );
+  htmlText += QLatin1String( "&Delta;t is the time step of the input hydrograph. The parameter K can be considered as the travel time through the reach; "
+                             "x, dimensionless, is a parameter that expresses the attenuation of the hydrograph. As the terms C1, C2 and C3 must be non-negative, "
+                             "K and x have to be chosen carefully depending on the time step of the input hydrograph, and must verify the two following conditions:"
+                             "<ul>"
+                             "<li>2.K.(1-x) > &Delta;t</li>"
+                             "<li>&Delta;t > 2.K.x</li>"
+                             "</ul>"
+                             "Lekan ensures the first condition by reducing the time step of the input hydrograph if needed. "
+                             "For the second one, to avoid arbitrarly distorting the input hydrograph, nothing is done except "
+                             "a warning to the user to change either the parameters, the time step, or the method."
+                             "<br>"
+                           );
+
+  return htmlText;
 }

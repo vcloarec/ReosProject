@@ -48,7 +48,7 @@ class ReosHydraulicHydrographJunctionPropertiesWidget : public ReosHydraulicElem
     Ui::ReosHydraulicHydrographJunctionPropertiesWidget *ui;
     ReosHydrographJunction *mJunctionNode = nullptr;
     ReosPlotTimeSerieVariableStep *mOutputCurve = nullptr;
-    ReosVariableTimeStepPlotListButton *mInputHydrographButton = nullptr;
+    ReosVariableTimeStepPlotListButton *mHydrographPlotButton = nullptr;
     ReosHydrauylicNetworkElementCalculationControler *mProgressControler = nullptr;
 };
 
@@ -62,7 +62,19 @@ class ReosHydraulicHydrographNodePropertiesWidgetFactory : public ReosHydraulicE
     virtual QString elementType();
 };
 
+class ReosFormJunctionNodeWidgetFactory: public ReosFormWidgetDataFactory
+{
+  public:
+    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent );
+    virtual QString datatype() const;
+};
 
+class ReosFormJunctionNodeWidget: public ReosFormWidget
+{
+    Q_OBJECT
+  public:
+    ReosFormJunctionNodeWidget( ReosHydrographJunction *junction, QWidget *parent = nullptr );
+};
 
 class ReosFormWatershedNodeWidgetFactory: public ReosFormWidgetDataFactory
 {
@@ -71,7 +83,7 @@ class ReosFormWatershedNodeWidgetFactory: public ReosFormWidgetDataFactory
     virtual QString datatype() const;
 };
 
-class ReosFormWatershedNodeWidget: public ReosFormWidget
+class ReosFormWatershedNodeWidget: public ReosFormJunctionNodeWidget
 {
     Q_OBJECT
   public:

@@ -75,6 +75,7 @@ class ReosMuskingumClassicRoutineFactory : public ReosHydrographRoutingMethodFac
     ReosHydrographRoutingMethod *createRoutingMethod( const ReosEncodedElement &encodedElement, ReosHydrographRoutingLink *routingLink ) const override;
     QString type() const override;
     QString displayName() const override {return QObject::tr( "Muskingum classic" );}
+    QString htmlDescription() const override;
 };
 
 

@@ -29,52 +29,52 @@ ReosMessageBox::~ReosMessageBox()
   delete ui;
 }
 
-void ReosMessageBox::receiveMessage( const QString &mes, ReosModule::MessageType type, bool messageBox )
+void ReosMessageBox::receiveMessage( const ReosModule::Message &message, bool messageBox )
 {
-  QString message;
+  QString messageText;
 
-  switch ( type )
+  switch ( message.type )
   {
     case ReosModule::Error:
-      message.append( QTime::currentTime().toString() );
-      message.append( " : " );
-      message.append( tr( "Error: " ) );
+      messageText.append( QTime::currentTime().toString() );
+      messageText.append( " : " );
+      messageText.append( tr( "Error: " ) );
       ui->textBrowser->setTextColor( Qt::red );
       break;
     case ReosModule::Warning:
-      message.append( QTime::currentTime().toString() );
-      message.append( " : " );
-      message.append( tr( "Warning: " ) );
+      messageText.append( QTime::currentTime().toString() );
+      messageText.append( " : " );
+      messageText.append( tr( "Warning: " ) );
       ui->textBrowser->setTextColor( QColor( 200, 100, 0 ) );
       break;
-    case ReosModule::Message:
-      message.append( QTime::currentTime().toString() );
-      message.append( " : " );
+    case ReosModule::Simple:
+      messageText.append( QTime::currentTime().toString() );
+      messageText.append( " : " );
       ui->textBrowser->setTextColor( QColor( 0, 150, 0 ) );
       break;
     case ReosModule::Order:
-      message.append( "--> " );
+      messageText.append( "--> " );
       ui->textBrowser->setTextColor( Qt::black );
       break;
   }
 
-  message.append( mes );
+  messageText.append( message.text );
 
-  ui->textBrowser->append( message );
+  ui->textBrowser->append( messageText );
 
   if ( messageBox )
   {
-    switch ( type )
+    switch ( message.type )
     {
-      case ReosModule::Message:
+      case ReosModule::Simple:
       case ReosModule::Order:
-        QMessageBox::information( this, QString(), mes );
+        QMessageBox::information( this, QString(), messageText );
         break;
       case ReosModule::Warning:
-        QMessageBox::warning( this, QString(), mes );
+        QMessageBox::warning( this, QString(), messageText );
         break;
       case ReosModule::Error:
-        QMessageBox::critical( this, QString(), mes );
+        QMessageBox::critical( this, QString(), messageText );
         break;
 
     }

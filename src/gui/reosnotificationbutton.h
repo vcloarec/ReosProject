@@ -1,9 +1,10 @@
 /***************************************************************************
-                      reosmessagebox.h
-                     --------------------------------------
-Date                 : 30-12-2018
-Copyright            : (C) 2018 by Vincent Cloarec
-email                : vcloarec at gmail dot com
+  reosnotificationbutton.h - ReosNotificationButton
+
+ ---------------------
+ begin                : 23.12.2021
+ copyright            : (C) 2021 by Vincent Cloarec
+ email                : vcloarec at gmail dot com
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -12,35 +13,22 @@ email                : vcloarec at gmail dot com
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
+#ifndef REOSNOTIFICATIONBUTTON_H
+#define REOSNOTIFICATIONBUTTON_H
 
-#ifndef REOSMESSAGEBOX_H
-#define REOSMESSAGEBOX_H
-
-#include <QWidget>
-#include <QTime>
+#include <QToolButton>
+#include <QTextBrowser>
 
 #include "reosmodule.h"
 
-namespace Ui
+class ReosNotificationButton : public QToolButton
 {
-  class ReosMessageBox;
-}
-
-//! Widget displaying messages for the user
-class ReosMessageBox : public QWidget
-{
-    Q_OBJECT
-
   public:
-    explicit ReosMessageBox( QWidget *parent = nullptr );
-    ~ReosMessageBox();
-
-  public slots:
-    void receiveMessage( const ReosModule::Message &message, bool messageBox = false );
-    void clean();
+    ReosNotificationButton( QWidget *parent );
+    void setMessage( const ReosModule::Message &message );
 
   private:
-    Ui::ReosMessageBox *ui;
+    QTextBrowser *mTextBrowser = nullptr;
 };
 
-#endif // REOSMESSAGEBOX_H
+#endif // REOSNOTIFICATIONBUTTON_H

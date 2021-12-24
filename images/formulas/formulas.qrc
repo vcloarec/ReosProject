@@ -13,6 +13,7 @@
         <file>SCSUnitHydrograph.svg</file>
         <file>concentrationTimeGiandotti.svg</file>
         <file>NashUnitHydrograph.svg</file>
+        <file>MuskingumRouting.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

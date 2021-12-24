@@ -46,7 +46,7 @@ class ReosHydrographRoutingMethodFactory
     virtual ReosHydrographRoutingMethod *createRoutingMethod( const ReosEncodedElement &encodedElement, ReosHydrographRoutingLink *routingLink ) const = 0;
     virtual QString type() const = 0;
     virtual QString displayName() const = 0;
-    virtual QString htlmDescription() const {return QString();}
+    virtual QString htmlDescription() const = 0;
 };
 
 
@@ -67,6 +67,7 @@ class ReosHydrographRoutingMethodFactories : public ReosModule
 
     QString displayName( const QString &type ) const;
     QStringList methodTypes() const;
+    QString htmlDescription( const QString &type );
 
   private:
     ReosHydrographRoutingMethodFactories( ReosModule *parent = nullptr );
@@ -206,6 +207,8 @@ class ReosDirectHydrographRoutingFactory : public ReosHydrographRoutingMethodFac
     {return ReosDirectHydrographRouting::staticType();}
 
     QString displayName() const override {return QObject::tr( "Without distortion" );}
+
+    QString htmlDescription() const override;
 };
 
 

@@ -28,11 +28,42 @@ ReosHydrographNode::ReosHydrographNode( const ReosEncodedElement &encodedElement
 {}
 
 ReosHydrographSource::ReosHydrographSource( ReosHydraulicNetwork *parent ) : ReosHydrographNode( parent )
-{}
+{
+  mUseForceOutputTimeStep = new ReosParameterBoolean( tr( "Force output time step" ), this );
+  mUseForceOutputTimeStep->setValue( false );
+  mForceOutputTimeStep = new ReosParameterDuration( tr( "Output time step" ), this ) ;
+  mForceOutputTimeStep->setValue( ReosDuration( 5, ReosDuration::minute ) );
+}
 
 ReosHydrographSource::ReosHydrographSource( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent )
   : ReosHydrographNode( encodedElement, parent )
-{}
+{
+  mUseForceOutputTimeStep = ReosParameterBoolean::decode(
+                              encodedElement.getEncodedData( QStringLiteral( "use-force-output-time-step" ) ), false, tr( "Force output time step" ), this );
+  if ( !mUseForceOutputTimeStep->isValid() )
+    mUseForceOutputTimeStep->setValue( false );
+
+  mForceOutputTimeStep = ReosParameterDuration::decode(
+                           encodedElement.getEncodedData( QStringLiteral( "output-time-step" ) ), false, tr( "Output time step" ), this );
+  if ( !mForceOutputTimeStep->isValid() )
+    mForceOutputTimeStep->setValue( ReosDuration( 5, ReosDuration::minute ) );
+}
+
+void ReosHydrographSource::encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext & ) const
+{
+  element.addEncodedData( QStringLiteral( "use-force-output-time-step" ), mUseForceOutputTimeStep->encode() );
+  element.addEncodedData( QStringLiteral( "output-time-step" ), mForceOutputTimeStep->encode() );
+}
+
+ReosParameterDuration *ReosHydrographSource::forceOutputTimeStep() const
+{
+  return mForceOutputTimeStep;
+}
+
+ReosParameterBoolean *ReosHydrographSource::useForceOutputTimeStep() const
+{
+  return mUseForceOutputTimeStep;
+}
 
 ReosHydrographRoutingLink *ReosHydrographSource::outputHydrographTransfer() const
 {
@@ -116,6 +147,9 @@ void ReosHydrographJunction::init()
     mNeedCalculation = true;
     mOutputHydrograph->setHydrographObsolete();
   } );
+
+  connect( mUseForceOutputTimeStep, &ReosParameter::valueChanged, this, &ReosHydrographJunction::onTimeStepChange );
+  connect( mForceOutputTimeStep, &ReosParameter::valueChanged, this, &ReosHydrographJunction::onTimeStepChange );
 }
 
 ReosHydrograph *ReosHydrographJunction::outputHydrograph()
@@ -158,10 +192,11 @@ int ReosHydrographJunction::calculationProgression() const
   return mSumCalculation->currentProgression();
 }
 
-void ReosHydrographJunction::encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext & ) const
+void ReosHydrographJunction::encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const
 {
   element.addData( QStringLiteral( "position" ), mPosition );
   element.addData( QStringLiteral( "output-color" ), mOutputHydrograph->color() );
+  ReosHydrographSource::encodeData( element, context );
 }
 
 bool ReosHydrographJunction::updateInternalHydrographCalculationContext( const ReosCalculationContext & )
@@ -303,6 +338,9 @@ void ReosHydrographJunction::calculateOuputHydrograph()
     }
   }
 
+  if ( mUseForceOutputTimeStep->value() )
+    newCalculation->forceOutputTimeStep( mForceOutputTimeStep->value() );
+
   connect( newCalculation, &ReosProcess::finished, this, [this, newCalculation]
   {
     if ( mSumCalculation == newCalculation )
@@ -332,6 +370,12 @@ void ReosHydrographJunction::calculateIfAllReady()
 }
 
 void ReosHydrographJunction::onInternalHydrographChanged()
+{
+  mNeedCalculation = true;
+  calculateIfAllReady();
+}
+
+void ReosHydrographJunction::onTimeStepChange()
 {
   mNeedCalculation = true;
   calculateIfAllReady();
@@ -582,8 +626,16 @@ ReosHydrographJunction::HydrographSumCalculation::HydrographSumCalculation()
 
 void ReosHydrographJunction::HydrographSumCalculation::addHydrograph( ReosHydrograph *hydro )
 {
+  if ( !hydro )
+    return;
   mHydrographsToAdd.append( new ReosHydrograph( this ) );
   mHydrographsToAdd.last()->copyFrom( hydro );
+}
+
+void ReosHydrographJunction::HydrographSumCalculation::forceOutputTimeStep( const ReosDuration &timeStep )
+{
+  mForceOutputTimeStep = true;
+  mTimeStep = timeStep;
 }
 
 void ReosHydrographJunction::HydrographSumCalculation::start()
@@ -607,6 +659,23 @@ void ReosHydrographJunction::HydrographSumCalculation::start()
     setCurrentProgression( i );
 
     mHydrograph->addOther( mHydrographsToAdd.at( i ) );
+  }
+
+  if ( mForceOutputTimeStep &&
+       mTimeStep > ReosDuration() &&
+       mHydrograph->valueCount() > 0 )
+  {
+    std::unique_ptr<ReosHydrograph> hyd = std::make_unique<ReosHydrograph>();
+    hyd->setReferenceTime( mHydrograph->referenceTime() );
+    ReosDuration time( 0, mTimeStep.unit() );
+    ReosDuration lastTime = mHydrograph->relativeTimeAt( mHydrograph->valueCount() - 1 );
+    while ( time <= lastTime )
+    {
+      hyd->setValue( time, mHydrograph->valueAtTime( time ) );
+      time = time + mTimeStep;
+    }
+
+    mHydrograph.reset( hyd.release() );
   }
 
   mIsSuccessful = !isStop();

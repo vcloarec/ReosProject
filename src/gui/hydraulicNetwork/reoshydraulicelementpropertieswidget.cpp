@@ -58,6 +58,7 @@ ReosHydraulicElementPropertiesWidget::ReosHydraulicElementPropertiesWidget( Reos
 
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormMuskingumClassicRoutingWidgetFactory );
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormWatershedNodeWidgetFactory );
+  ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormJunctionNodeWidgetFactory );
 
   connect( mMeteoModelCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosHydraulicElementPropertiesWidget::updateElementCalculation );
 }

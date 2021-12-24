@@ -64,12 +64,31 @@ void ReosModule::error( QString message, bool inMessageBox ) const
 
 void ReosModule::message( QString message, bool inMessageBox ) const
 {
-  sendMessage( message, Message, inMessageBox );
+  sendMessage( message, Simple, inMessageBox );
 }
 
 void ReosModule::order( QString message, bool inMessageBox ) const
 {
   sendMessage( message, Order, inMessageBox );
+}
+
+void ReosModule::message( const ReosModule::Message &messageObject, bool inMessageBox )
+{
+  switch ( messageObject.type )
+  {
+    case ReosModule::Simple:
+      message( messageObject.text, inMessageBox );
+      break;
+    case ReosModule::Order:
+      order( messageObject.text, inMessageBox );
+      break;
+    case ReosModule::Warning:
+      warning( messageObject.text, inMessageBox );
+      break;
+    case ReosModule::Error:
+      error( messageObject.text, inMessageBox );
+      break;
+  }
 }
 
 void ReosModule::onMessageReceived( const QString &message, const ReosModule::MessageType &type, bool inMessageBox )
@@ -82,7 +101,7 @@ void ReosModule::sendMessage( QString mes, MessageType type, bool messageBox ) c
   if ( mReosParent )
     mReosParent->sendMessage( mes, type, messageBox );
   else
-    emit emitMessage( mes, type, messageBox );
+    emit emitMessage( {type, mes}, messageBox );
 }
 
 QList<QAction *> ReosModule::actions() const {return mGroupAction->actions();}
@@ -99,3 +118,19 @@ void ReosModule::undo()
     mUndoStack->undo();
 }
 
+
+void ReosModule::Message::prefixMessage( const QString &prefix )
+{
+  text.prepend( prefix );
+}
+
+void ReosModule::Message::addText( const QString &newText )
+{
+  if ( !text.isEmpty() )
+  {
+    text.append( "\n" );
+    text.append( newText );
+  }
+  else
+    text = newText;
+}

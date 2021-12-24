@@ -94,7 +94,6 @@ class ReosHydrographSource : public ReosHydrographNode
     Q_OBJECT
   public:
     ReosHydrographSource( ReosHydraulicNetwork *parent = nullptr );
-    ReosHydrographSource( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent = nullptr );
 
     virtual ReosHydrograph *outputHydrograph() = 0;
 
@@ -105,6 +104,15 @@ class ReosHydrographSource : public ReosHydrographNode
 
     virtual bool updateCalculationContextFromDownstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *downstreamLink ) = 0;
 
+    ReosParameterBoolean *useForceOutputTimeStep() const;
+    ReosParameterDuration *forceOutputTimeStep() const;
+
+  protected:
+    ReosHydrographSource( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent = nullptr );
+    void encodeData( ReosEncodedElement &element,  const ReosHydraulicNetworkContext & ) const override;
+
+    ReosParameterBoolean *mUseForceOutputTimeStep = nullptr;
+    ReosParameterDuration *mForceOutputTimeStep = nullptr;
 };
 
 //! Class that represent an hydrograph source with a fixed hydrograph
@@ -181,6 +189,7 @@ class ReosHydrographJunction : public ReosHydrographSource
   protected slots:
     void calculateIfAllReady();
     void onInternalHydrographChanged();
+    void onTimeStepChange();
 
   protected:
     mutable ReosHydrograph *mOutputHydrograph;
@@ -189,7 +198,7 @@ class ReosHydrographJunction : public ReosHydrographSource
     bool mNeedCalculation = true;
 
     ReosHydrographJunction( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent = nullptr );
-    void encodeData( ReosEncodedElement &element,  const ReosHydraulicNetworkContext & ) const override;
+    void encodeData( ReosEncodedElement &element,  const ReosHydraulicNetworkContext &context ) const override;
 
   private:
     QPointF mPosition;
@@ -208,10 +217,14 @@ class ReosHydrographJunction : public ReosHydrographSource
          */
         void addHydrograph( ReosHydrograph *hydro );
 
+        void forceOutputTimeStep( const ReosDuration &timeStep );
+
         void start() override;
 
       private:
         QList<ReosHydrograph *> mHydrographsToAdd;
+        bool mForceOutputTimeStep = false;
+        ReosDuration mTimeStep;
     };
 
     HydrographSumCalculation *mSumCalculation = nullptr;

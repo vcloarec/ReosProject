@@ -279,13 +279,15 @@ void ReosHydrographRoutingLink::calculateRouting()
     {
       if ( mCalculation == calculation )
       {
+        notify( calculation->message() );
         mCalculation = nullptr;
+        mCalculationIsInProgress = false;
+
         if ( calculation->isSuccessful() )
         {
           mOutputHydrograph->copyFrom( calculation->hydrograph() );
           calculationUpdated();
         }
-        mCalculationIsInProgress = false;
       }
       calculation->deleteLater();
     } );
@@ -417,6 +419,15 @@ QStringList ReosHydrographRoutingMethodFactories::methodTypes() const
   return ret;
 }
 
+QString ReosHydrographRoutingMethodFactories::htmlDescription( const QString &type )
+{
+  auto it = mFactories.find( type );
+  if ( it != mFactories.end() )
+    return it->second->htmlDescription();
+
+  return QString();
+}
+
 ReosHydrographRoutingMethodFactories::ReosHydrographRoutingMethodFactories( ReosModule *parent ): ReosModule( parent )
 {
   addFactory( new ReosDirectHydrographRoutingFactory );
@@ -439,4 +450,14 @@ void ReosDirectHydrographRouting::Calculation::start()
   mHydrograph.reset( new ReosHydrograph );
   mHydrograph->copyFrom( mInputHydrograph.get() );
   mIsSuccessful = true;
+}
+
+QString ReosDirectHydrographRoutingFactory::htmlDescription() const
+{
+  QString htmlText = QLatin1String( "<html>\n<body>\n" );
+  htmlText += QLatin1String( "<table class=\"list-view\">\n" );
+  htmlText += QLatin1String( "<h1>" ) + displayName() + QLatin1String( "</h1>\n<hr>\n" );
+  htmlText += QObject::tr( "This routing simply copy the input hydrograph to output without any change" );
+
+  return htmlText;
 }

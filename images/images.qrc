@@ -117,5 +117,7 @@
         <file>addHydrographRouting.svg</file>
         <file>hydraulicProperties.svg</file>
         <file>moveHydrographJunction.svg</file>
+        <file>warning.svg</file>
+        <file>error.svg</file>
     </qresource>
 </RCC>

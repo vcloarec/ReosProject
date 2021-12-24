@@ -70,6 +70,10 @@ class ReosHydraulicNetworkElement : public ReosDataObject
 
     ReosEncodedElement encode( const ReosHydraulicNetworkContext &context ) const;
 
+    void notify( const ReosModule::Message &message );
+
+    ReosModule::Message lastMessage() const;
+
   public slots:
     virtual void updateCalculationContext( const ReosCalculationContext &context ) = 0;
 
@@ -92,6 +96,7 @@ class ReosHydraulicNetworkElement : public ReosDataObject
     ReosParameterString *mNameParameter = nullptr;
     ReosParameterDuration *mConstantTimeStepInTable = nullptr;
     ReosParameterBoolean *mUseConstantTimeStepInTable = nullptr;
+    ReosModule::Message mLastMessage;
 
 };
 

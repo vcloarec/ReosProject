@@ -104,6 +104,23 @@ ReosEncodedElement ReosHydraulicNetworkElement::encode( const ReosHydraulicNetwo
   return element;
 }
 
+void ReosHydraulicNetworkElement::notify( const ReosModule::Message &messageObject )
+{
+  mLastMessage = messageObject;
+  if ( !messageObject.text.isEmpty() )
+  {
+    ReosModule::Message sendedMessage = messageObject;
+    sendedMessage.prefixMessage( tr( "Routing %1: " ).arg( name()->value() ) );
+    if ( mNetWork )
+      mNetWork->message( sendedMessage );
+  }
+}
+
+ReosModule::Message ReosHydraulicNetworkElement::lastMessage() const
+{
+  return mLastMessage;
+}
+
 
 ReosHydraulicNetwork::ReosHydraulicNetwork( ReosModule *parent, ReosWatershedModule *watershedModule )
   : ReosModule( parent )

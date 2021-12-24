@@ -65,6 +65,11 @@ unsigned ReosProcess::maximumThreads()
   return maxThread;
 }
 
+void ReosProcess::notify( ReosModule::Message &message )
+{
+  mMessage = message;
+}
+
 void ReosProcess::startOnOtherThread()
 {
   QFutureWatcher<void> *watcher = new QFutureWatcher<void>( this );
@@ -82,6 +87,11 @@ bool ReosProcess::finish()
   }
   mIsFinished = true;
   return mIsSuccessful;
+}
+
+ReosModule::Message ReosProcess::message() const
+{
+  return mMessage;
 }
 
 void ReosProcess::setInformation( const QString &info )

@@ -21,6 +21,8 @@
 #include "reosmuskingumclassicroutine.h"
 #include "reosplottimeconstantinterval.h"
 #include "reoshydrograph.h"
+#include "reosplotitemlist.h"
+#include "reosapplication.h"
 
 ReosHydrographRoutingPropertiesWidget::ReosHydrographRoutingPropertiesWidget( ReosHydrographRoutingLink *hydrographRouting, QWidget *parent )
   :  ReosHydraulicElementWidget( parent )
@@ -29,21 +31,21 @@ ReosHydrographRoutingPropertiesWidget::ReosHydrographRoutingPropertiesWidget( Re
 {
   ui->setupUi( this );
 
-  mInputHydrographCurve = new ReosPlotTimeSerieVariableStep();
-  mInputHydrographCurve->setTimeSerie( hydrographRouting->inputHydrograph() );
-  mOutputtHydrographCurve = new ReosPlotTimeSerieVariableStep();
-  mOutputtHydrographCurve->setTimeSerie( hydrographRouting->outputHydrograph() );
-
   QString settingsString = QStringLiteral( "hydraulic-network-rounting-link" );
   ui->mPlotsWidget->setSettingsContext( settingsString );
-  ui->mPlotsWidget->addPlotItem( mInputHydrographCurve );
-  ui->mPlotsWidget->addPlotItem( mOutputtHydrographCurve );
 
   ui->mPlotsWidget->setTitleAxeX( tr( "Time" ) );
   ui->mPlotsWidget->setAxeXType( ReosPlotWidget::temporal );
-  ui->mPlotsWidget->enableAxeYright( true );
+  ui->mPlotsWidget->enableAxeYright( false );
   ui->mPlotsWidget->setTitleAxeYLeft( tr( "Flow rate (%1)" ).arg( QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
   ui->mPlotsWidget->setMagnifierType( ReosPlotWidget::positiveMagnifier );
+
+  mHydrographPlotButton = new ReosVariableTimeStepPlotListButton( tr( "Hydrographs" ), ui->mPlotsWidget );
+  ReosSettings settings;
+  if ( settings.contains( settingsString ) )
+    mHydrographPlotButton->setChecked( settings.value( settingsString ).toBool() );
+  else
+    mHydrographPlotButton->setChecked( true );
 
   mProgressControler = new ReosHydrauylicNetworkElementCalculationControler( hydrographRouting, this );
   mProgressControler->setProgressBar( ui->mProgressBar );
@@ -64,7 +66,6 @@ ReosHydrographRoutingPropertiesWidget::ReosHydrographRoutingPropertiesWidget( Re
   connect( ui->mRoutingTypeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ),
            this, &ReosHydrographRoutingPropertiesWidget::onCurrentMethodChange );
 
-  ReosSettings settings;
   if ( settings.contains( QStringLiteral( "hydraulic-network-properties-widget/table-visible" ) ) )
   {
     if ( settings.value( QStringLiteral( "hydraulic-network-properties-widget/table-visible" ) ).toBool() )
@@ -82,7 +83,10 @@ ReosHydrographRoutingPropertiesWidget::ReosHydrographRoutingPropertiesWidget( Re
   populateHydrographs();
 
   connect( mRouting, &ReosHydrographJunction::calculationIsUpdated, this, &ReosHydrographRoutingPropertiesWidget::updateInformation );
+  ui->mNotificationButton->setVisible( false );
   updateInformation();
+
+  connect( ui->mRoutingDescriptionButton, &QPushButton::clicked, this, &ReosHydrographRoutingPropertiesWidget::onMethodDescription );
 }
 
 ReosHydrographRoutingPropertiesWidget::~ReosHydrographRoutingPropertiesWidget()
@@ -132,6 +136,55 @@ void ReosHydrographRoutingPropertiesWidget::updateInformation()
                              QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
     ui->mLabelValueCount->setText( QLocale().toString( mRouting->outputHydrograph()->valueCount() ) );
   }
+
+  const ReosModule::Message notification = mRouting->lastMessage();
+  switch ( notification.type )
+  {
+    case ReosModule::Simple:
+    case ReosModule::Order:
+      ui->mNotificationButton->setVisible( false );
+      break;
+    case ReosModule::Warning:
+    case ReosModule::Error:
+      ui->mNotificationButton->setVisible( true );
+      break;
+  }
+
+  ui->mNotificationButton->setMessage( notification );
+}
+
+void ReosHydrographRoutingPropertiesWidget::onMethodDescription()
+{
+  ReosHydrographRoutingMethodFactories *factories = ReosHydrographRoutingMethodFactories::instance();
+
+  if ( mRouting )
+  {
+    QString type = ui->mRoutingTypeCombo->currentData().toString();
+    if ( type.isEmpty() )
+      return;
+
+    QDialog *dial = new QDialog( this );
+
+    dial->setAttribute( Qt::WA_DeleteOnClose );
+    dial->setModal( false );
+
+    QTextBrowser *textBrowser = new QTextBrowser( dial );
+
+    dial->setWindowTitle( ui->mRoutingTypeCombo->currentText() );
+    dial->setLayout( new QVBoxLayout );
+    dial->layout()->addWidget( textBrowser );
+
+    textBrowser->document()->setDefaultStyleSheet( ReosApplication::styleSheet() );
+    textBrowser->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+    textBrowser->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+
+    textBrowser->setText( factories->htmlDescription( type ) );
+
+    dial->show();
+
+    textBrowser->setMinimumHeight( textBrowser->document()->size().height() );
+    textBrowser->setMinimumWidth( textBrowser->document()->size().width() );
+  }
 }
 
 void ReosHydrographRoutingPropertiesWidget::populateHydrographs()
@@ -142,6 +195,9 @@ void ReosHydrographRoutingPropertiesWidget::populateHydrographs()
 
   hydrographs.append( mRouting->inputHydrograph() );
   hydrographs.append( mRouting->outputHydrograph() );
+
+  mHydrographPlotButton->addData( mRouting->inputHydrograph() );
+  mHydrographPlotButton->addData( mRouting->outputHydrograph() );
 
   QList<ReosTimeSerieVariableTimeStep *> tsList;
 
