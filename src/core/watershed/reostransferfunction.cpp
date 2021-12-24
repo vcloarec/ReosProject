@@ -152,7 +152,7 @@ ReosEncodedElement ReosTransferFunctionLinearReservoir::encode() const
   return element;
 }
 
-ReosTransferFunctionCalculation *ReosTransferFunctionLinearReservoir::calculationProcess( ReosRunoff *runoff )
+ReosHydrographCalculation *ReosTransferFunctionLinearReservoir::calculationProcess( ReosRunoff *runoff )
 {
   if ( !runoff )
     return nullptr;
@@ -253,7 +253,7 @@ ReosEncodedElement ReosTransferFunctionGeneralizedRationalMethod::encode() const
   return element;
 }
 
-ReosTransferFunctionCalculation *ReosTransferFunctionGeneralizedRationalMethod::calculationProcess( ReosRunoff *runoff )
+ReosHydrographCalculation *ReosTransferFunctionGeneralizedRationalMethod::calculationProcess( ReosRunoff *runoff )
 {
   if ( !runoff || !runoff->data() )
     return nullptr;
@@ -386,11 +386,11 @@ QPixmap ReosTransferFunctionFactories::formulation( const QString &type ) const
   return QPixmap();
 }
 
-QString ReosTransferFunctionFactories::formulationRessource( const QString &type ) const
+QString ReosTransferFunctionFactories::formulationResource( const QString &type ) const
 {
   for ( const Factory &fact : mFactories )
     if ( fact->type() == type )
-      return fact->formulationRessource();
+      return fact->formulationResource();
 
   return QString();
 }
@@ -480,10 +480,10 @@ QString ReosTransferFunctionGeneralizedRationalMethodFactory::presentationText()
 
 QPixmap ReosTransferFunctionGeneralizedRationalMethodFactory::formulation() const
 {
-  return QPixmap( formulationRessource() );
+  return QPixmap( formulationResource() );
 }
 
-QString ReosTransferFunctionGeneralizedRationalMethodFactory::formulationRessource() const
+QString ReosTransferFunctionGeneralizedRationalMethodFactory::formulationResource() const
 {
   return QStringLiteral( ":/formulas/rationalUnitHydrograph.svg" );
 }
@@ -514,10 +514,10 @@ QString ReosTransferFunctionLinearReservoirFactory::presentationText() const
 
 QPixmap ReosTransferFunctionLinearReservoirFactory::formulation() const
 {
-  return QPixmap( formulationRessource() );
+  return QPixmap( formulationResource() );
 }
 
-QString ReosTransferFunctionLinearReservoirFactory::formulationRessource() const
+QString ReosTransferFunctionLinearReservoirFactory::formulationResource() const
 {
   return  QStringLiteral( ":/formulas/linearReservoirHydrograph.svg" );
 }
@@ -599,35 +599,7 @@ ReosEncodedElement ReosTransferFunctionSCSUnitHydrograph::encode() const
   return element;
 }
 
-ReosTransferFunction *ReosTransferFunctionSCSUnitHydrograph::decode( const ReosEncodedElement &element, ReosWatershed *watershed )
-{
-  if ( element.description() != QStringLiteral( "transfer-function-scs-unit-hydrograph" )  && element.description() != staticType() )
-    return nullptr;
-
-  return new ReosTransferFunctionSCSUnitHydrograph( element, watershed );
-}
-
-ReosParameterDouble *ReosTransferFunctionSCSUnitHydrograph::peakRateFactor() const
-{
-  return mPeakRateFactor;
-}
-
-ReosParameterDouble *ReosTransferFunctionSCSUnitHydrograph::factorToLagTime() const
-{
-  return mFactorToLagTime;
-}
-
-ReosParameterBoolean *ReosTransferFunctionSCSUnitHydrograph::useConcentrationTime() const
-{
-  return mUseConcentrationTime;
-}
-
-ReosParameterDuration *ReosTransferFunctionSCSUnitHydrograph::lagTime() const
-{
-  return mLagTime;
-}
-
-ReosTransferFunctionCalculation *ReosTransferFunctionSCSUnitHydrograph::calculationProcess( ReosRunoff *runoff )
+ReosHydrographCalculation *ReosTransferFunctionSCSUnitHydrograph::calculationProcess( ReosRunoff *runoff )
 {
   if ( !runoff || !runoff->data() )
     return nullptr;
@@ -669,6 +641,36 @@ ReosTransferFunctionCalculation *ReosTransferFunctionSCSUnitHydrograph::calculat
 
   return new Calculation( runoffTimeSerie->constData(), reduceTimeStepFactor, timeStep, referenceTime, peakTime, mPeakRateFactor->value(), area()->value() );
 }
+
+ReosTransferFunction *ReosTransferFunctionSCSUnitHydrograph::decode( const ReosEncodedElement &element, ReosWatershed *watershed )
+{
+  if ( element.description() != QStringLiteral( "transfer-function-scs-unit-hydrograph" )  && element.description() != staticType() )
+    return nullptr;
+
+  return new ReosTransferFunctionSCSUnitHydrograph( element, watershed );
+}
+
+ReosParameterDouble *ReosTransferFunctionSCSUnitHydrograph::peakRateFactor() const
+{
+  return mPeakRateFactor;
+}
+
+ReosParameterDouble *ReosTransferFunctionSCSUnitHydrograph::factorToLagTime() const
+{
+  return mFactorToLagTime;
+}
+
+ReosParameterBoolean *ReosTransferFunctionSCSUnitHydrograph::useConcentrationTime() const
+{
+  return mUseConcentrationTime;
+}
+
+ReosParameterDuration *ReosTransferFunctionSCSUnitHydrograph::lagTime() const
+{
+  return mLagTime;
+}
+
+
 
 ReosTransferFunctionSCSUnitHydrograph::ReosTransferFunctionSCSUnitHydrograph( const ReosEncodedElement &element, ReosWatershed *watershed ):
   ReosTransferFunction( element, watershed )
@@ -785,10 +787,10 @@ QString ReosTransferFunctionSCSUnitHydrographFactory::presentationText() const
 
 QPixmap ReosTransferFunctionSCSUnitHydrographFactory::formulation() const
 {
-  return QPixmap( formulationRessource() );
+  return QPixmap( formulationResource() );
 }
 
-QString ReosTransferFunctionSCSUnitHydrographFactory::formulationRessource() const
+QString ReosTransferFunctionSCSUnitHydrographFactory::formulationResource() const
 {
   return QStringLiteral( ":/formulas/SCSUnitHydrograph.svg" );
 }
@@ -933,6 +935,8 @@ void ReosTransferFunctionSCSUnitHydrograph::Calculation::start()
   QThread::msleep( 10 );
 #endif
 
+  mIsSuccessful = false;
+
   mHydrograph = std::make_unique<ReosHydrograph>();
 
   std::unique_ptr<ReosHydrograph> unitHydrograph = createUnitHydrograph();
@@ -953,7 +957,7 @@ void ReosTransferFunctionSCSUnitHydrograph::Calculation::start()
     setCurrentProgression( i );
   }
 
-  emit hydrographReady( mHydrograph.get() );
+  mIsSuccessful = !isStop();
 }
 
 
@@ -970,6 +974,8 @@ void ReosTransferFunctionLinearReservoir::Calculation::start()
 #ifndef _NDEBUG
   QThread::msleep( 10 );
 #endif
+
+  mIsSuccessful = false;
 
   mHydrograph = std::make_unique<ReosHydrograph>();
 
@@ -1013,15 +1019,10 @@ void ReosTransferFunctionLinearReservoir::Calculation::start()
     }
   }
 
-  emit hydrographReady( mHydrograph.get() );
+  mIsSuccessful = !isStop();
 }
 
-ReosHydrograph *ReosTransferFunctionCalculation::getHydrograph( QObject *parent )
-{
-  if ( mHydrograph )
-    mHydrograph->setParent( parent );
-  return mHydrograph.release();
-}
+
 
 ReosTransferFunctionGeneralizedRationalMethod::Calculation::Calculation( const QVector<double> runoffData,
     const ReosDuration &concentrationTime,
@@ -1040,6 +1041,8 @@ void ReosTransferFunctionGeneralizedRationalMethod::Calculation::start()
 #ifndef _NDEBUG
   QThread::msleep( 10 );
 #endif
+
+  mIsSuccessful = false;
 
   mHydrograph = std::make_unique<ReosHydrograph>();
   ReosDuration::Unit timeUnit = ReosDuration::second;
@@ -1070,7 +1073,7 @@ void ReosTransferFunctionGeneralizedRationalMethod::Calculation::start()
     setCurrentProgression( i );
   }
 
-  emit hydrographReady( mHydrograph.get() );
+  mIsSuccessful = !isStop();
 }
 
 ReosTransferFunctionNashUnitHydrograph::ReosTransferFunctionNashUnitHydrograph( ReosWatershed *watershed ):
@@ -1151,8 +1154,7 @@ ReosParameterBoolean *ReosTransferFunctionNashUnitHydrograph::useConcentrationTi
   return mUseConcentrationTime;
 }
 
-
-ReosTransferFunctionCalculation *ReosTransferFunctionNashUnitHydrograph::calculationProcess( ReosRunoff *runoff )
+ReosHydrographCalculation *ReosTransferFunctionNashUnitHydrograph::calculationProcess( ReosRunoff *runoff )
 {
   if ( !runoff || !runoff->data() )
     return nullptr;
@@ -1168,6 +1170,9 @@ ReosTransferFunctionCalculation *ReosTransferFunctionNashUnitHydrograph::calcula
 
   return new Calculation( runoffTimeSerie->constData(), runoffTimeSerie->timeStepParameter()->value(), referenceTime, K, mNParam->value(), area()->value() );
 }
+
+
+
 
 ReosTransferFunctionNashUnitHydrograph::ReosTransferFunctionNashUnitHydrograph( const ReosEncodedElement &element, ReosWatershed *watershed ):
   ReosTransferFunction( element, watershed )
@@ -1201,19 +1206,29 @@ void ReosTransferFunctionNashUnitHydrograph::Calculation::start()
   QThread::msleep( 10 );
 #endif
 
+  mIsSuccessful = false;
+
   ReosDuration effectiveTimeStep = mTimeStep;
   int timeStepReductionFactor = 1;
-  while ( effectiveTimeStep > mKParam / 4 )  //reduce the effective time step to have a smooth hydrograph
+  while ( effectiveTimeStep > mKParam / 4 && !isStop() ) //reduce the effective time step to have a smooth hydrograph
   {
     timeStepReductionFactor *= 2;
     effectiveTimeStep = mTimeStep / timeStepReductionFactor;
   }
 
+  if ( isStop() )
+  {
+    return;
+  }
+
   std::unique_ptr<ReosHydrograph> unitHydrograph = createUnitHydrograph( effectiveTimeStep );
 
+  if ( isStop() )
+  {
+    return;
+  }
+
   mHydrograph = std::make_unique<ReosHydrograph>();
-
-
   mHydrograph->dataProvider()->setReferenceTime( mReferenceTime );
   int stepCount = mRunoffData.count() * timeStepReductionFactor;
   setMaxProgression( stepCount );
@@ -1230,7 +1245,7 @@ void ReosTransferFunctionNashUnitHydrograph::Calculation::start()
     setCurrentProgression( i );
   }
 
-  emit hydrographReady( mHydrograph.get() );
+  mIsSuccessful = !isStop();
 }
 
 std::unique_ptr<ReosHydrograph> ReosTransferFunctionNashUnitHydrograph::Calculation::createUnitHydrograph( const ReosDuration &timeStep ) const
@@ -1279,10 +1294,10 @@ QString ReosTransferFunctionNashUnitHydrographFactory::presentationText() const
 
 QPixmap ReosTransferFunctionNashUnitHydrographFactory::formulation() const
 {
-  return QPixmap( formulationRessource() );
+  return QPixmap( formulationResource() );
 }
 
-QString ReosTransferFunctionNashUnitHydrographFactory::formulationRessource() const
+QString ReosTransferFunctionNashUnitHydrographFactory::formulationResource() const
 {
   return QStringLiteral( ":/formulas/NashUnitHydrograph.svg" );
 }

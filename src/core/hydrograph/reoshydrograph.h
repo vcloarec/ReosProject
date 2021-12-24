@@ -21,6 +21,7 @@
 
 #include "reostimeserie.h"
 #include "reossyntheticrainfall.h"
+#include "reosprocess.h"
 
 class ReosHydrograph;
 
@@ -37,23 +38,38 @@ class REOSCORE_EXPORT ReosHydrograph : public ReosTimeSerieVariableTimeStep
     ReosEncodedElement encode() const;
     static ReosHydrograph *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
 
-    void setInputData( ReosDataObject *dataObject );
     bool hydrographIsObsolete() const ;
+    void setHydrographObsolete();
 
   protected:
     ReosHydrograph( const ReosEncodedElement &element, QObject *parent = nullptr );
 
     void updateData() const override;
 
-    friend class ReosHydrographSource;
-
+    friend class ReosHydrographGroup;
 };
 
-class ReosHydrographSource: public ReosDataObject
+//! Process abstract class that handle the calculation of the hydrograph an onother thread
+class REOSCORE_EXPORT ReosHydrographCalculation : public ReosProcess
 {
     Q_OBJECT
   public:
-    ReosHydrographSource( QObject *parent = nullptr ) : ReosDataObject( parent )
+    //! Returns the hydrograph result, has to be call after the process is finished, if \a parent is not specified, the caller need to take ownership
+    ReosHydrograph *getHydrograph( QObject *parent = nullptr );
+
+    //! Returns a pointer to the hydrograph keeping ownership
+    ReosHydrograph *hydrograph();
+
+  protected:
+    std::unique_ptr<ReosHydrograph> mHydrograph;
+};
+
+
+class ReosHydrographGroup: public ReosDataObject
+{
+    Q_OBJECT
+  public:
+    ReosHydrographGroup( QObject *parent = nullptr ) : ReosDataObject( parent )
     {}
 
     //! Returns the count of hydrographs stored
@@ -65,7 +81,7 @@ class ReosHydrographSource: public ReosDataObject
 
   protected slots:
     virtual void updateHydrographFromSignal();
-    virtual void updateHydrographs( ReosHydrograph *hydrographs );
+    virtual void updateHydrograph( ReosHydrograph *hydrographs );
 
   private slots:
     virtual void onInputDataDestroy();
@@ -74,11 +90,11 @@ class ReosHydrographSource: public ReosDataObject
     QMap<ReosDataObject *, QList<QPointer<ReosHydrograph>>> mMapInputToHydrographs;
 };
 
-class REOSCORE_EXPORT ReosHydrographStore : public ReosHydrographSource
+class REOSCORE_EXPORT ReosHydrographsStore : public ReosHydrographGroup
 {
     Q_OBJECT
   public:
-    ReosHydrographStore( QObject *parent = nullptr ): ReosHydrographSource( parent ) {}
+    ReosHydrographsStore( QObject *parent = nullptr );
 
     //! Add an hydrograph to the sore, take ownership
     void addHydrograph( ReosHydrograph *hydrograph );
@@ -103,6 +119,9 @@ class REOSCORE_EXPORT ReosHydrographStore : public ReosHydrographSource
     QString type() const override {return staticType();}
     static QString staticType() {return ReosDataObject::staticType() + ':' +  QStringLiteral( "hydrograph-store" );}
 
+  signals:
+    void hydrographRemoved( int index ) const;
+
   private:
     QList<ReosHydrograph *>  mHydrographs;
 };
@@ -116,12 +135,20 @@ class ReosSerieRainfall;
 class ReosRunoffModelsGroup;
 class ReosRunoff;
 
-class ReosRunoffHydrographStore: public ReosHydrographSource
+
+/**
+ * Class that handle the runoff hydrograph of watersheds considering all the meteorological models contains
+ * in a ReosMeteorologicModelsCollection instance.
+ *
+ * The current watershed is set with setWatershed(), then the runoff hydrograph produced by this watershed depending
+ * of a meteoroloical model is obtains by hydrograph( ReosMeteorologicModel *meteoModel )
+ */
+class ReosRunoffHydrographsStore: public ReosHydrographGroup
 {
     Q_OBJECT
   public:
-    ReosRunoffHydrographStore( ReosMeteorologicModelsCollection *meteoModelCollection,
-                               QObject *parent = nullptr );
+    ReosRunoffHydrographsStore( ReosMeteorologicModelsCollection *meteoModelCollection,
+                                QObject *parent = nullptr );
 
     void setWatershed( ReosWatershed *watershed );
 
@@ -131,7 +158,7 @@ class ReosRunoffHydrographStore: public ReosHydrographSource
     /**
      * Return pointer to the hydrograph corresponding to \a meteomodel.
      *
-     * \note  Following even, the hydrograph can be deleted or updated without warning.
+     * \note  Following event, the hydrograph can be deleted or updated without warning.
      * Caller of his method has to care about this and not use the raw pointer being
      * sure there is always controle of the dangling raw pointer
      */
@@ -146,29 +173,29 @@ class ReosRunoffHydrographStore: public ReosHydrographSource
      */
     QPointer<ReosRunoff> runoff( ReosMeteorologicModel *meteoModel );
 
+    void updateHydrograph( ReosHydrograph *hydrograph ) override;
+
   public slots:
     void updateStore();
 
   signals:
     void hydrographReady( ReosHydrograph *hydrograph );
 
-  protected slots:
-    void updateHydrographs( ReosHydrograph *hydrograph ) override;
-
   private:
-    struct HydrographData
+    struct HydrographCalculationData
     {
       QPointer<ReosSerieRainfall> rainfall;
       ReosRunoff *runoff = nullptr;
       ReosHydrograph *hydrograph = nullptr;
+      bool hasBeenAsked = false;
     };
 
-    QMap < ReosMeteorologicModel *, HydrographData> mMeteoModelToHydrograph;
+    QMap < ReosMeteorologicModel *, HydrographCalculationData> mMeteoModelToHydrographCalculationData;
     QPointer<ReosMeteorologicModelsCollection> mMeteoModelsCollection;
     QPointer<ReosWatershed> mWatershed;
 
     QSet<ReosMeteorologicModel *> mModelMeteoToUpdate;
-    QMap<ReosMeteorologicModel *, ReosTransferFunctionCalculation *> mHydrographCalculation;
+    QMap<ReosMeteorologicModel *, ReosHydrographCalculation *> mHydrographCalculation;
 
     bool mCalculationCanBeLaunch = true;
 

@@ -69,6 +69,10 @@ class REOSCORE_EXPORT ReosMeteorologicModel : public ReosDataObject
 
     ReosEncodedElement encode( ReosWatershedTree *watershedTree ) const;
 
+  signals:
+    //! Emitted when the color change
+    void colorChange( const QColor &color );
+
   public slots:
     //! Sets the color used to display curve related to this meteorologic model
     void setColor( const QColor &color );

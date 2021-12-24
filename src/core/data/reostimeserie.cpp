@@ -642,9 +642,8 @@ void ReosTimeSerie::onDataProviderChanged()
 {
   setActualized();
   if ( mProvider  && mProvider->referenceTime() != mReferenceTimeParameter->value() )
-  {
     mReferenceTimeParameter->setValue( mProvider->referenceTime() );
-  }
+  updateStats();
   emit dataChanged();
 }
 
@@ -826,6 +825,30 @@ bool ReosTimeSerie::decodeBase( const ReosEncodedElement &element )
   return true;
 }
 
+double ReosTimeSerie::minimum() const
+{
+  return mMinimum;
+}
+
+double ReosTimeSerie::maximum() const
+{
+  return mMaximum;
+}
+
+void ReosTimeSerie::updateStats()
+{
+  mMaximum = -std::numeric_limits<double>::max();
+  mMinimum = std::numeric_limits<double>::max();
+  for ( int i = 0; i < mProvider->valueCount(); ++i )
+  {
+    double value = mProvider->value( i );
+    if ( value < mMinimum )
+      mMinimum = value;
+    if ( value > mMaximum )
+      mMaximum = value;
+  }
+}
+
 void ReosTimeSerie::connectParameters()
 {
   if ( mProvider )
@@ -980,7 +1003,6 @@ void ReosTimeSerieVariableTimeStep::addOther( const ReosTimeSerieVariableTimeSte
   {
     ReosDuration thisTimeValue = dataProv->relativeTimeAt( i );
     newValue_1[i] = mProvider->value( i ) + factor * other->valueAtTime( thisTimeValue - offset );
-    //setValue( thisTimeValue, mValues.at( i ) + factor * other.valueAtTime( thisTimeValue - offset ) );
   }
 
   // now add time steps not existing in this instance,
@@ -1079,8 +1101,8 @@ QColor ReosTimeSerieVariableTimeStep::color() const
 void ReosTimeSerieVariableTimeStep::setColor( const QColor &color )
 {
   mColor = color;
-
   emit colorChanged( color );
+  emit displayColorChanged( color );
 }
 
 void ReosTimeSerieVariableTimeStep::copyFrom( ReosTimeSerieVariableTimeStep *other )
@@ -1089,6 +1111,31 @@ void ReosTimeSerieVariableTimeStep::copyFrom( ReosTimeSerieVariableTimeStep *oth
     return;
 
   variableTimeStepdataProvider()->copy( other->variableTimeStepdataProvider() );
+}
+
+bool ReosTimeSerieVariableTimeStep::operator==( ReosTimeSerieVariableTimeStep &other ) const
+{
+  if ( other.valueCount() != valueCount() )
+    return false;
+
+  if ( referenceTime() != other.referenceTime() )
+    return false;
+
+  for ( int i = 0; i < valueCount(); ++i )
+  {
+    if ( valueAt( i ) != other.valueAt( i ) )
+      return false;
+    if ( relativeTimeAt( i ) != other.relativeTimeAt( i ) )
+      return false;
+  }
+
+  return true;
+}
+
+void ReosTimeSerieVariableTimeStep::setCommonColor( const QColor &color )
+{
+  mColor = color;
+  emit displayColorChanged( color );
 }
 
 void ReosTimeSerieVariableTimeStep::baseEncode( ReosEncodedElement &element ) const

@@ -182,6 +182,8 @@ class ReosMapToolSelectMapItem : public ReosMapTool
 
     void setSearchUnderPoint( bool b );
 
+    void clearHoveredItem();
+
   signals:
     void found( ReosMapItem *item, const QPointF &point );
 

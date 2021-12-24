@@ -195,7 +195,7 @@ class ReosParameterDurationWidget: public ReosParameterInLineWidget
 {
   public:
     explicit ReosParameterDurationWidget( QWidget *parent = nullptr, const QString &defaultName = QString() );
-    explicit ReosParameterDurationWidget( ReosParameterDuration *area, QWidget *parent = nullptr );
+    explicit ReosParameterDurationWidget( ReosParameterDuration *duration, QWidget *parent = nullptr );
 
     void setDuration( ReosParameterDuration *duration );
     void updateValue();

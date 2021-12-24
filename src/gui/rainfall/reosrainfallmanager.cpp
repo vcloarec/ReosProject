@@ -204,7 +204,7 @@ void ReosRainfallManager::loadDataFile()
   if ( fileName.isEmpty() )
     return;
 
-  if ( mModel->loadFromFile( fileName, QStringLiteral( "Rainfall data" ) ) )
+  if ( mModel->loadFromFile( fileName ) )
   {
     ui->labelFileName->setText( fileName );
     buildMarkers();
@@ -241,7 +241,7 @@ void ReosRainfallManager::onOpenRainfallFile()
   if ( fileName.isEmpty() )
     return;
 
-  if ( mModel->loadFromFile( fileName, QStringLiteral( "rainfall data" ) ) )
+  if ( mModel->loadFromFile( fileName ) )
   {
     ui->labelFileName->setText( fileName );
     settings.setValue( QStringLiteral( "Rainfall/dataFile" ), fileName );
@@ -258,7 +258,7 @@ void ReosRainfallManager::onOpenRainfallFile()
 
 bool ReosRainfallManager::saveOnFile( const QString &fileName )
 {
-  return mModel->saveToFile( fileName, QStringLiteral( "rainfall data" ) );
+  return mModel->saveToFile( fileName );
 }
 
 QList<QAction *> ReosRainfallManager::dataItemActions( ReosRainfallDataItem *dataItem )

@@ -71,14 +71,14 @@ bool ReosWatershedDelineating::setDownstreamLine( const QPolygonF &downstreamLin
          mIsBurningLineUpToDate )
     {
       mCurrentState = WaitingforProceed;
-      sendMessage( tr( "Waiting for proceeding to delineating" ), ReosModule::Message );
+      sendMessage( tr( "Waiting for proceeding to delineating" ), ReosModule::Simple );
       return true;
     }
     else
       mDownstreamWatershed = nullptr;
 
     mCurrentState = WaitingForExtent;
-    sendMessage( tr( "Waiting for predefined extent" ), ReosModule::Message );
+    sendMessage( tr( "Waiting for predefined extent" ), ReosModule::Simple );
     return true;
   }
 
@@ -91,7 +91,7 @@ bool ReosWatershedDelineating::setPreDefinedExtent( const ReosMapExtent &extent 
   {
     mExtent = extent;
     mCurrentState = WaitingforProceed;
-    sendMessage( tr( "Waiting for proceeding to delineating" ), ReosModule::Message );
+    sendMessage( tr( "Waiting for proceeding to delineating" ), ReosModule::Simple );
     return true;
   }
 
@@ -115,7 +115,7 @@ bool ReosWatershedDelineating::prepareDelineating()
   }
 
   connect( mProcess.get(), &ReosProcess::finished, this, &ReosWatershedDelineating::onDelineatingFinished );
-  sendMessage( tr( "Start delineating" ), ReosModule::Message );
+  sendMessage( tr( "Start delineating" ), ReosModule::Simple );
   mCurrentState = Delineating;
   return true;
 }
@@ -202,7 +202,7 @@ ReosWatershed *ReosWatershedDelineating::storeWatershed( bool adjustIfNeeded )
     newWatershed = mWatershedTree->addWatershed( mCurrentWatershed.release(), adjustIfNeeded );
     ReosWatershed *dsws = newWatershed->downstreamWatershed();
     sendMessage( tr( "%1 validated%2" ).arg( newWatershed->watershedName()->value() )
-                 .arg( dsws ? ( tr( " and added to %1" ).arg( newWatershed->downstreamWatershed()->watershedName()->value() ) ) : QString() ), ReosModule::Message );
+                 .arg( dsws ? ( tr( " and added to %1" ).arg( newWatershed->downstreamWatershed()->watershedName()->value() ) ) : QString() ), ReosModule::Simple );
     mCurrentState = WaitingForDownstream;
   }
 
@@ -308,7 +308,7 @@ void ReosWatershedDelineating::testPredefinedExtentValidity()
   }
 
   mCurrentState = WaitingForValidate;
-  sendMessage( tr( "Watershed ready for validation" ), ReosModule::Message );
+  sendMessage( tr( "Watershed ready for validation" ), ReosModule::Simple );
 }
 
 void ReosWatershedDelineating::reset()

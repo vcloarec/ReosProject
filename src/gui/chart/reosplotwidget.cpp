@@ -231,10 +231,10 @@ void ReosPlotWidget::addPlotItem( ReosPlotItem *item )
   connect( item, &ReosPlotItem::itemChanged, this, &ReosPlotWidget::updatePlot );
 
   if ( item->isOnLeftAxe() )
-    mZoomerLeft->setZoomBase();
+    mZoomerLeft->setZoomBase( true );
 
   if ( item->isOnRightAxe() )
-    mZoomerRight->setZoomBase();
+    mZoomerRight->setZoomBase( true );
 
 }
 

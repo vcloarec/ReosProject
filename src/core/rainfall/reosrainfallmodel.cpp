@@ -24,6 +24,9 @@
 
 #include "reosparameter.h"
 #include "reosrainfallitem.h"
+#include "reosversion.h"
+
+#define FILE_MAGIC_NUMBER  1909201401
 
 ReosRainfallModel::ReosRainfallModel( QObject *parent ):
   QAbstractItemModel( parent )
@@ -500,7 +503,7 @@ bool ReosRainfallModel::decode( const ReosEncodedElement &element )
   return true;
 }
 
-bool ReosRainfallModel::saveToFile( const QString &path, const QString &header )
+bool ReosRainfallModel::saveToFile( const QString &path )
 {
   QFileInfo fileInfo( path );
 
@@ -513,9 +516,21 @@ bool ReosRainfallModel::saveToFile( const QString &path, const QString &header )
   QFile file( path );
 
   QDataStream stream( &file );
+
   if ( file.open( QIODevice::WriteOnly ) )
   {
-    stream << header;
+    //**** bytes header
+    qint32 magicNumber = FILE_MAGIC_NUMBER;
+    qint32 serialisationVersion = stream.version();
+    qDebug() << "serialisation version:" << serialisationVersion;
+
+    QByteArray versionBytes = ReosVersion::currentApplicationVersion().bytesVersion();
+
+    stream << magicNumber;
+    stream << serialisationVersion;
+    stream << versionBytes;
+    //*****
+
     stream << encode().bytes();
     file.close();
     emit saved( path );
@@ -525,9 +540,8 @@ bool ReosRainfallModel::saveToFile( const QString &path, const QString &header )
   return false;
 }
 
-bool ReosRainfallModel::loadFromFile( const QString &path, const QString &header )
+bool ReosRainfallModel::loadFromFile( const QString &path )
 {
-  Q_UNUSED( header );
 
   QFileInfo fileInfo( path );
 
@@ -540,8 +554,32 @@ bool ReosRainfallModel::loadFromFile( const QString &path, const QString &header
   if ( !file.open( QIODevice::ReadOnly ) )
     return false;
 
-  QString readenHeader;
-  stream >> readenHeader;
+  ReosVersion version;
+
+  //*** read header
+  qint32 magicNumber;
+  qint32 serialisationVersion;
+  QByteArray bytesVersion;
+  stream >> magicNumber;
+
+  if ( magicNumber == FILE_MAGIC_NUMBER )
+  {
+    // since Lekan 2.2
+    stream >> serialisationVersion;
+    stream >> bytesVersion;
+    QDataStream::Version v = static_cast<QDataStream::Version>( serialisationVersion );
+    ReosEncodedElement::setSerialisationVersion( v );
+    version = ReosVersion( bytesVersion, v );
+  }
+  else
+  {
+    //old version don't have real header but a text header
+    ReosEncodedElement::setSerialisationVersion( QDataStream::Qt_5_12 ); /// TODO : check the Qt version of Lekan 2.0 / 2.1
+    stream.device()->reset();
+
+    QString readenHeader;
+    stream >> readenHeader;
+  }
 
   QByteArray data;
   stream >> data;

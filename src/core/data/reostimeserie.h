@@ -83,11 +83,18 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
     //! Returns a pointer to access directly to the data, can be used only  when need efficient calculation.
     double *data();
 
+    //! Returns the maximum of values of this time serie
+    double maximum() const;
+
+    //! Returns the maximum of values of this time serie
+    double minimum() const;
+
     const QVector<double> &constData() const;
 
     ReosTimeSerieProvider *dataProvider() const;
 
     static QString staticType() {return ReosDataObject::staticType() + ':' + QStringLiteral( "time-serie" );}
+
 
   protected slots:
     virtual void onDataProviderChanged();
@@ -105,6 +112,11 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
   private:
     ReosParameterDateTime *mReferenceTimeParameter = nullptr;
     QString mValueUnit;
+
+    double mMaximum = -std::numeric_limits<double>::max();
+    double mMinimum = std::numeric_limits<double>::max();
+
+    void updateStats();
 };
 
 /**
@@ -266,8 +278,15 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
 
     void copyFrom( ReosTimeSerieVariableTimeStep *other );
 
+    bool operator==( ReosTimeSerieVariableTimeStep &other ) const;
+
+  public slots:
+    //! Sets indirectly the color from an object that handle common color for hydrograph
+    void setCommonColor( const QColor &color );
+
   signals:
     void colorChanged( const QColor &color );
+    void displayColorChanged( const QColor &color );
 
   protected:
 

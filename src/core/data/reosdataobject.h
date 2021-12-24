@@ -44,10 +44,12 @@ class REOSCORE_EXPORT ReosDataObject: public QObject
   public slots:
     //! Sets the name of the data object
     void setName( const QString &name );
-    virtual void updateData() const {}; // to set pure virtual
+    virtual void updateData() const {}; //TODO to set pure virtual
 
   signals:
     void dataChanged() const;
+    void nameChanged( const QString &name ) const;
+    void isSetObsolete() const;
     void settingsChanged();
 
   protected:

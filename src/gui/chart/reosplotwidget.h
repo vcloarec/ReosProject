@@ -177,11 +177,11 @@ class ReosPlotWidget: public QWidget
 
     void enableScaleTypeChoice( bool b );
 
+    void resetZoomBase();
+
     static QString plotEngineName();
     static QString plotEngineVersion();
     static QString plotEngineLink();
-
-    void resetZoomBase();
 
   signals:
     void cursorMoved( const QPointF &pt );

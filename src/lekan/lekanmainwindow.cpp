@@ -37,6 +37,10 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reosrainfallregistery.h"
 #include "reosrunoffmanager.h"
 #include "reosrunoffmodel.h"
+#include "reoshydraulicnetwork.h"
+#include "reoshydraulicnetworkwidget.h"
+
+#define PROJECT_FILE_MAGIC_NUMBER 19092014
 
 
 LekanMainWindow::LekanMainWindow( QWidget *parent ) :
@@ -44,6 +48,8 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   mGisEngine( new ReosGisEngine( rootModule() ) ),
   mMap( new ReosMap( mGisEngine, this ) )
 {
+  ReosVersion::setCurrentApplicationVersion( lekanVersion );
+
   init();
   setWindowIcon( QPixmap( QStringLiteral( ":/images/lekan.svg" ) ) );
 
@@ -76,7 +82,16 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
 
   mDockWatershed = new QDockWidget( tr( "Watershed" ), this );
   mWatershedModule = new ReosWatershedModule( rootModule(), mGisEngine );
-  ReosWatershedWidget *watersehdWidget = new  ReosWatershedWidget( mMap, mWatershedModule, mDockWatershed );
+
+  mDockHydraulicNetwork = new QDockWidget( tr( "Hydraulic Network" ), this );
+  mHydraulicNetwork = new ReosHydraulicNetwork( rootModule(), mWatershedModule );
+
+  ReosHydraulicNetworkWidget *networkWidget = new ReosHydraulicNetworkWidget( mHydraulicNetwork, mMap, mWatershedModule, mDockHydraulicNetwork );
+  mDockHydraulicNetwork->setWidget( networkWidget );
+  addDockWidget( Qt::RightDockWidgetArea, mDockHydraulicNetwork );
+  networkWidget->setMeteoModelCollection( mWatershedModule->meteoModelsCollection() );
+
+  ReosWatershedWidget *watersehdWidget = new  ReosWatershedWidget( mMap, mWatershedModule, mHydraulicNetwork, mDockWatershed );
   mDockWatershed->setWidget( watersehdWidget );
   addDockWidget( Qt::RightDockWidgetArea, mDockWatershed );
 
@@ -97,7 +112,32 @@ bool LekanMainWindow::openProject()
   if ( !file.open( QIODevice::ReadOnly ) )
     return false;
 
+  ReosVersion version;
+
   QDataStream stream( &file );
+
+  //*** read header
+  qint32 magicNumber;
+  qint32 serialisationVersion;
+  QByteArray bytesVersion;
+  stream >> magicNumber;
+
+  if ( magicNumber == PROJECT_FILE_MAGIC_NUMBER )
+  {
+    // since Lekan 2.2
+    stream >> serialisationVersion;
+    stream >> bytesVersion;
+    QDataStream::Version v = static_cast<QDataStream::Version>( serialisationVersion );
+    ReosEncodedElement::setSerialisationVersion( v );
+    version = ReosVersion( bytesVersion, v );
+  }
+  else
+  {
+    //old version don't have header
+    ReosEncodedElement::setSerialisationVersion( QDataStream::Qt_5_12 ); /// TODO : check the Qt version of Lekan 2.0 / 2.1
+    stream.device()->reset();
+  }
+
   QByteArray byteArray;
   stream >> byteArray;
 
@@ -113,6 +153,8 @@ bool LekanMainWindow::openProject()
     return false;
 
   mWatershedModule->decode( lekanProject.getEncodedData( QStringLiteral( "watershed-module" ) ) );
+
+  mHydraulicNetwork->decode( lekanProject.getEncodedData( QStringLiteral( "hydaulic-network" ) ) );
 
   return true;
 }
@@ -130,6 +172,7 @@ bool LekanMainWindow::saveProject()
   ReosEncodedElement encodedGisEngine = mGisEngine->encode( path, baseName );
   lekanProject.addEncodedData( QStringLiteral( "GIS-engine" ), encodedGisEngine );
   lekanProject.addEncodedData( QStringLiteral( "watershed-module" ), mWatershedModule->encode() );
+  lekanProject.addEncodedData( QStringLiteral( "hydaulic-network" ), mHydraulicNetwork->encode() );
 
   QFileInfo fileInfo( filePath );
   if ( fileInfo.suffix().isEmpty() )
@@ -138,8 +181,26 @@ bool LekanMainWindow::saveProject()
   QFile file( filePath );
   if ( !file.open( QIODevice::WriteOnly ) )
     return false;
+
   QDataStream stream( &file );
+
+  //**** header
+  qint32 magicNumber = PROJECT_FILE_MAGIC_NUMBER;
+  qint32 serialisationVersion = stream.version();
+  qDebug() << "serialisation version:" << serialisationVersion;
+
+  QByteArray versionBytes = lekanVersion.bytesVersion();
+
+  Q_ASSERT( versionBytes.size() == 21 );
+
+  stream << magicNumber;
+  stream << serialisationVersion;
+  stream << versionBytes;
+  //*****
+
   stream << lekanProject.bytes();
+
+
   return true;
 }
 

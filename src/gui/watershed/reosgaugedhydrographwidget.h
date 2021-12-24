@@ -27,7 +27,7 @@ namespace Ui
 }
 
 class ReosWatershed;
-class ReosHydrographStore;
+class ReosHydrographsStore;
 class ReosTimeSerieVariableTimeStepModel;
 class ReosPlotTimeSerieVariableStep;
 class ReosHydrographEditingWidget;
@@ -56,12 +56,13 @@ class ReosGaugedHydrographWidget : public ReosActionWidget
     void onStoreChanged();
     void onCurrentHydrographChanged();
     void updatePlotExtent();
+    void backToMainIndex();
 
   private:
     Ui::ReosGaugedHydrographWidget *ui;
     ReosMap *mMap = nullptr;
     ReosWatershed *mCurrentWatershed = nullptr;
-    ReosHydrographStore *mHydrographStore = nullptr;
+    ReosHydrographsStore *mHydrographStore = nullptr;
     ReosTimeSerieVariableTimeStepModel *mTableModel = nullptr;
     QAction *mActionAddHydrograph = nullptr;
     QAction *mActionDeleteHydrograph = nullptr;
@@ -79,7 +80,6 @@ class ReosGaugedHydrographWidget : public ReosActionWidget
 
     void populateProviderActions();
     void showProviderSelector( const QString &providerKey );
-    void backToMainIndex();
 };
 
 #endif // REOSGAUGEDHYDROGRAPHWIDGET_H

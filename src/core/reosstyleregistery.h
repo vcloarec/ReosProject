@@ -22,6 +22,7 @@ class ReosStyleRegistery: public ReosModule
 {
   public:
     ReosStyleRegistery( ReosModule *parent = nullptr );
+    ~ReosStyleRegistery();
 
     static void instantiate( ReosModule *parent );
     static ReosStyleRegistery *instance();

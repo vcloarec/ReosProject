@@ -419,7 +419,7 @@ QPointF ReosPlotVariableStepTimeSerie::sample( size_t i ) const
 
 QRectF ReosPlotVariableStepTimeSerie::boundingRect() const
 {
-  if ( mTimeSerie )
+  if ( mTimeSerie &&  mTimeSerie->valueCount() != 0 )
   {
     QPair<QDateTime, QDateTime> timeExtent = mTimeSerie->timeExtent();
     QPair<double, double> valueExtent = mTimeSerie->valueExent();

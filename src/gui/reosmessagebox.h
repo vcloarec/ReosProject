@@ -36,7 +36,7 @@ class ReosMessageBox : public QWidget
     ~ReosMessageBox();
 
   public slots:
-    void receiveMessage( const QString &mes, ReosModule::MessageType type = ReosModule::Message, bool messageBox = false );
+    void receiveMessage( const ReosModule::Message &message, bool messageBox = false );
     void clean();
 
   private:

@@ -14,6 +14,7 @@ SET(REOS_CORE_SOURCES
   reosexception.cpp
   reosparameter.cpp
   reosstyleregistery.cpp
+  reoscalculationcontext.cpp
 
   GIS/reosdigitalelevationmodel.cpp
   GIS/reosgisengine.cpp
@@ -56,6 +57,14 @@ SET(REOS_CORE_SOURCES
   data/reosdataprovider.cpp
 
   hydrograph/reoshydrograph.cpp
+  hydrograph/reoshydrographsource.cpp
+  hydrograph/reoshydrographtransfer.cpp
+  hydrograph/reosmuskingumclassicroutine.cpp
+
+  hydraulicNetwork/reoshydraulicscheme.cpp
+  hydraulicNetwork/reoshydrauliclink.cpp
+  hydraulicNetwork/reoshydraulicnode.cpp
+  hydraulicNetwork/reoshydraulicnetwork.cpp
 )
 
 SET(REOS_CORE_HEADERS
@@ -70,6 +79,7 @@ SET(REOS_CORE_HEADERS
     reosexception.h
     reosparameter.h
     reosstyleregistery.h
+    reoscalculationcontext.h
 
     GIS/reosdigitalelevationmodel.h
     GIS/reosgisengine.h
@@ -111,6 +121,15 @@ SET(REOS_CORE_HEADERS
     data/reosdataprovider.h
 
     hydrograph/reoshydrograph.h
+    hydrograph/reoshydrographsource.h
+    hydrograph/reoshydrographtransfer.h
+    hydrograph/reosmuskingumclassicroutine.h
+
+    hydraulicNetwork/reoshydraulicscheme.h
+    hydraulicNetwork/reoshydrauliclink.h
+    hydraulicNetwork/reoshydraulicnode.h
+    hydraulicNetwork/reoshydraulicnetwork.h
+
 )
 
 SET(REOS_CORE_HEADERS_PRIVATE
@@ -194,6 +213,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/raster
     ${CMAKE_SOURCE_DIR}/src/core/watershed
     ${CMAKE_SOURCE_DIR}/src/core/hydrograph
+    ${CMAKE_SOURCE_DIR}/src/core/hydraulicNetwork
 
     ${QGIS_INCLUDE_DIR}
 )

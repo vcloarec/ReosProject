@@ -14,6 +14,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "reosstyleregistery.h"
+#include "reossettings.h"
 
 ReosStyleRegistery *ReosStyleRegistery::sInstance = nullptr;
 
@@ -29,6 +30,16 @@ ReosStyleRegistery::ReosStyleRegistery( ReosModule *parent ): ReosModule( parent
               << QColor( "#3fecff" )
               << QColor( "#c9d000" )
               << QColor( "#676767" );
+
+  ReosSettings settings;
+  if ( settings.contains( QStringLiteral( "StyleRegistery/last-index-curve-color" ) ) )
+    mLastCurveColor = settings.value( QStringLiteral( "StyleRegistery/last-index-curve-color" ) ).toInt();
+}
+
+ReosStyleRegistery::~ReosStyleRegistery()
+{
+  ReosSettings settings;
+  settings.setValue( QStringLiteral( "StyleRegistery/last-index-curve-color" ), mLastCurveColor );
 }
 
 void ReosStyleRegistery::instantiate( ReosModule *parent )

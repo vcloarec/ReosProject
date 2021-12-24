@@ -33,10 +33,19 @@ class REOSCORE_EXPORT ReosModule : public QObject
   public:
     enum MessageType
     {
-      Message,
+      Simple,
       Order,
       Warning,
       Error
+    };
+
+    struct Message
+    {
+      void prefixMessage( const QString &prefix );
+      void addText( const QString &newText );
+
+      MessageType type = Simple;
+      QString text = QString();
     };
 
     explicit ReosModule( QObject *parent = nullptr );
@@ -47,7 +56,7 @@ class REOSCORE_EXPORT ReosModule : public QObject
   signals:
     void newCommandToUndoStack( QUndoCommand *command );
     void activeUndoStack( QUndoStack *undoStack );
-    void emitMessage( const QString &message, const MessageType &type, bool messageBox ) const;
+    void emitMessage( const Message &message, bool messageBox ) const;
     void dirtied();
 
   public slots:
@@ -67,6 +76,8 @@ class REOSCORE_EXPORT ReosModule : public QObject
     void error( QString message, bool inMessageBox = false ) const;
     void message( QString message, bool inMessageBox = false ) const;
     void order( QString message, bool inMessageBox = false ) const;
+
+    void message( const Message &messageObject, bool inMessageBox = false );
 
   private slots:
     void onMessageReceived( const QString &message, const MessageType &type, bool inMessageBox = false );

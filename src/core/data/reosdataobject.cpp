@@ -38,16 +38,19 @@ void ReosDataObject::decode( const ReosEncodedElement &element )
 void ReosDataObject::setName( const QString &name )
 {
   mName = name;
+  emit nameChanged( mName );
 }
 
 void ReosDataObject::registerUpstreamData( ReosDataObject *data )
 {
   connect( data, &ReosDataObject::dataChanged, this, &ReosDataObject::setObsolete );
+  connect( data, &ReosDataObject::isSetObsolete, this, &ReosDataObject::setObsolete );
 }
 
 void ReosDataObject::deregisterUpstreamData( ReosDataObject *data )
 {
   disconnect( data, &ReosDataObject::dataChanged, this, &ReosDataObject::setObsolete );
+  disconnect( data, &ReosDataObject::isSetObsolete, this, &ReosDataObject::setObsolete );
 }
 
 void ReosDataObject::setActualized() const
@@ -58,6 +61,7 @@ void ReosDataObject::setActualized() const
 void ReosDataObject::setObsolete()
 {
   mIsObsolete = true;
+  emit isSetObsolete();
 }
 
 bool ReosDataObject::isObsolete() const

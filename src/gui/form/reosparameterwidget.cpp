@@ -646,6 +646,7 @@ ReosParameterBooleanWidget::ReosParameterBooleanWidget( ReosParameterBoolean *bo
   ReosParameterBooleanWidget( parent, booleanParameter ? booleanParameter->name() : QString() )
 {
   setBooleanParameter( booleanParameter );
+  updateValue();
 }
 
 void ReosParameterBooleanWidget::setBooleanParameter( ReosParameterBoolean *boolean )

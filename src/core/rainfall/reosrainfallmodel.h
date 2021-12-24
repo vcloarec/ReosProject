@@ -82,8 +82,8 @@ class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
     ReosEncodedElement encode() const;
     bool decode( const ReosEncodedElement &element );
 
-    bool saveToFile( const QString &path, const QString &header );
-    bool loadFromFile( const QString &path, const QString &header );
+    bool saveToFile( const QString &path );
+    bool loadFromFile( const QString &path );
 
   signals:
     void saved( const QString &file );
