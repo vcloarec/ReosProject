@@ -26,7 +26,7 @@
 #include "reoswatershedmodule.h"
 #include "reoshydrographroutingpropertieswidget.h"
 #include "reoshydraulichydrographjunctionpropertieswidget.h"
-#include "reoshydrographtransfer.h"
+#include "reoshydrographrouting.h"
 #include "reosformwidget.h"
 #include "reoshydraulicnetworkwidget.h"
 

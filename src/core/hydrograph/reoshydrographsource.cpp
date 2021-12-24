@@ -16,7 +16,7 @@
 #include "reoshydrographsource.h"
 #include "reoshydrograph.h"
 #include "reoscalculationcontext.h"
-#include "reoshydrographtransfer.h"
+#include "reoshydrographrouting.h"
 #include "reosstyleregistery.h"
 
 ReosHydrographNode::ReosHydrographNode( ReosHydraulicNetwork *parent )
@@ -221,26 +221,26 @@ ReosHydrographJunction *ReosHydrographJunction::decode( const ReosEncodedElement
 
 void ReosHydrographJunction::updateCalculationContext( const ReosCalculationContext &context )
 {
-  updateCalculationContextFromUpstream( context, nullptr, false ); //this lead to update all routine lined to this junction and also this junction
+  updateCalculationContextFromUpstream( context, nullptr, false ); //this lead to update all routing linked to this junction and also this junction
 }
 
-void ReosHydrographJunction::updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *upstreamRoutine, bool upstreamWillChange )
+void ReosHydrographJunction::updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *upstreamRouting, bool upstreamWillChange )
 {
   QList<ReosHydrographRoutingLink *> upstreamLinks = ReosHydraulicNetworkUtils::upstreamLinkOfType<ReosHydrographRoutingLink>( this );
 
-  upstreamLinks.removeOne( upstreamRoutine );
+  upstreamLinks.removeOne( upstreamRouting );
 
   if ( upstreamWillChange )
-    mWaitingForUpstreamLinksUpdated.insert( upstreamRoutine->id() );
+    mWaitingForUpstreamLinksUpdated.insert( upstreamRouting->id() );
 
-  for ( ReosHydrographRoutingLink *routine : std::as_const( upstreamLinks ) )
+  for ( ReosHydrographRoutingLink *routing : std::as_const( upstreamLinks ) )
   {
-    if ( routine )
+    if ( routing )
     {
-      bool routineNeedToBeUpdated = routine->updateCalculationContextFromDownstream( context );
-      if ( routineNeedToBeUpdated )
-        mWaitingForUpstreamLinksUpdated.insert( routine->id() );
-      mNeedCalculation |= routineNeedToBeUpdated;
+      bool routingNeedToBeUpdated = routing->updateCalculationContextFromDownstream( context );
+      if ( routingNeedToBeUpdated )
+        mWaitingForUpstreamLinksUpdated.insert( routing->id() );
+      mNeedCalculation |= routingNeedToBeUpdated;
     }
   }
 
@@ -272,14 +272,14 @@ void ReosHydrographJunction::updateCalculationContextFromUpstream( const ReosCal
 bool ReosHydrographJunction::updateCalculationContextFromDownstream( const ReosCalculationContext &context, ReosHydrographRoutingLink * )
 {
   const QList<ReosHydrographRoutingLink *> upstreamLinks = ReosHydraulicNetworkUtils::upstreamLinkOfType<ReosHydrographRoutingLink>( this );
-  for ( ReosHydrographRoutingLink *routine : upstreamLinks )
+  for ( ReosHydrographRoutingLink *routing : upstreamLinks )
   {
-    if ( routine )
+    if ( routing )
     {
-      bool routineNeedToBeUpdated = routine->updateCalculationContextFromDownstream( context );
-      mNeedCalculation |= routineNeedToBeUpdated;
-      if ( routineNeedToBeUpdated )
-        mWaitingForUpstreamLinksUpdated.insert( routine->id() );
+      bool routingNeedToBeUpdated = routing->updateCalculationContextFromDownstream( context );
+      mNeedCalculation |= routingNeedToBeUpdated;
+      if ( routingNeedToBeUpdated )
+        mWaitingForUpstreamLinksUpdated.insert( routing->id() );
     }
   }
 
@@ -293,7 +293,7 @@ bool ReosHydrographJunction::updateCalculationContextFromDownstream( const ReosC
   return mNeedCalculation;
 }
 
-ReosHydrographRoutingLink *ReosHydrographJunction::downstreamRoutine() const
+ReosHydrographRoutingLink *ReosHydrographJunction::downstreamRouting() const
 {
   QList<ReosHydrographRoutingLink *> downstreamLinks = ReosHydraulicNetworkUtils::downstreamLinkOfType<ReosHydrographRoutingLink>( this );
   Q_ASSERT( downstreamLinks.count() < 2 );
@@ -303,7 +303,7 @@ ReosHydrographRoutingLink *ReosHydrographJunction::downstreamRoutine() const
   return downstreamLinks.at( 0 );
 }
 
-void ReosHydrographJunction::onUpstreamRoutineUpdated( const QString &routingId )
+void ReosHydrographJunction::onUpstreamRoutingUpdated( const QString &routingId )
 {
   mWaitingForUpstreamLinksUpdated.remove( routingId );
   mNeedCalculation = true;

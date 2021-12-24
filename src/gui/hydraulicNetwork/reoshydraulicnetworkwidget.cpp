@@ -19,7 +19,7 @@
 #include <QMessageBox>
 
 #include "reoshydrographsource.h"
-#include "reoshydrographtransfer.h"
+#include "reoshydrographrouting.h"
 #include "reoswatershed.h"
 #include "reosmaptool.h"
 #include "reoshydraulicelementpropertieswidget.h"
@@ -34,7 +34,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   , mActionAddHydrographJunction( new QAction( QPixmap( QStringLiteral( ":/images/addHydrographJunction.svg" ) ), tr( "Add Hydrograph Junction" ), this ) )
   , mMapToolAddHydrographJunction( new ReosMapToolDrawPoint( mMap ) )
   , mActionAddHydrographRouting( new QAction( QPixmap( QStringLiteral( ":/images/addHydrographRouting.svg" ) ), tr( "Add Hydrograph Routing" ), this ) )
-  , mMapToolAddHydrographRouting( new ReosMapToolDrawHydrographRoutine( mHydraulicNetwork, mMap ) )
+  , mMapToolAddHydrographRouting( new ReosMapToolDrawHydrographRouting( mHydraulicNetwork, mMap ) )
   , mActionHydraulicNetworkProperties( new QAction( QPixmap( QStringLiteral( ":/images/hydraulicProperties.svg" ) ), tr( "Hydraulic Element Properties" ), this ) )
   , mElementPropertiesWidget( new ReosHydraulicElementPropertiesWidget( watershedModule, this ) )
   , mActionMoveHydrographJunction( new QAction( QPixmap( QStringLiteral( ":/images/moveHydrographJunction.svg" ) ),  tr( "Move Hydrograph Junction" ), this ) )
@@ -86,7 +86,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
     onElementSelected( mMapItems.value( elem ).get() );
   } );
 
-  connect( mMapToolAddHydrographRouting, &ReosMapToolDrawHydrographRoutine::finished, this, &ReosHydraulicNetworkWidget::onDrawHydrographRoutingFinish );
+  connect( mMapToolAddHydrographRouting, &ReosMapToolDrawHydrographRouting::finished, this, &ReosHydraulicNetworkWidget::onDrawHydrographRoutingFinish );
 
   connect( mMapToolSelectNetworkElement, &ReosMapToolSelectMapItem::found, this, &ReosHydraulicNetworkWidget::onElementSelected );
 }

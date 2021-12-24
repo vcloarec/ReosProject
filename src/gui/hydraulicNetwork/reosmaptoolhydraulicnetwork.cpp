@@ -15,7 +15,7 @@
  ***************************************************************************/
 
 #include "reosmaptoolhydraulicnetwork.h"
-#include "reoshydrographtransfer.h"
+#include "reoshydrographrouting.h"
 #include "reosmaptool_p.h"
 
 
@@ -86,7 +86,7 @@ ReosMapTool_p *ReosMapToolDrawHydraulicNetworkLink::tool_p() const
   return d;
 }
 
-bool ReosMapToolDrawHydrographRoutine::acceptItem( ReosMapItem *item )
+bool ReosMapToolDrawHydrographRouting::acceptItem( ReosMapItem *item )
 {
   if ( !item )
     return false;
@@ -106,7 +106,7 @@ bool ReosMapToolDrawHydrographRoutine::acceptItem( ReosMapItem *item )
     ReosHydrographJunction *junction = qobject_cast<ReosHydrographJunction *>( mNetwork->getElement( item->description() ) );
     while ( junction )
     {
-      ReosHydraulicLink *downstreamLink = junction->downstreamRoutine();
+      ReosHydraulicLink *downstreamLink = junction->downstreamRouting();
       if ( !downstreamLink )
         return true;
 
@@ -121,7 +121,7 @@ bool ReosMapToolDrawHydrographRoutine::acceptItem( ReosMapItem *item )
   return false;
 }
 
-bool ReosMapToolDrawHydrographRoutine::isFinished() const
+bool ReosMapToolDrawHydrographRouting::isFinished() const
 {
   return itemsCount() == 2;
 }

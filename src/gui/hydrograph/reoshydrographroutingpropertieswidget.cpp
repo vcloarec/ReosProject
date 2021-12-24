@@ -16,9 +16,8 @@
 #include "reoshydrographroutingpropertieswidget.h"
 #include "ui_reoshydrographroutingpropertieswidget.h"
 
-#include "reoshydrographtransfer.h"
+#include "reoshydrographrouting.h"
 #include "reosformwidget.h"
-#include "reosmuskingumclassicroutine.h"
 #include "reosplottimeconstantinterval.h"
 #include "reoshydrograph.h"
 #include "reosplotitemlist.h"
@@ -228,7 +227,7 @@ QString ReosHydrographRoutingPropertiesWidgetFactory::elementType() {return Reos
 
 ReosFormWidget *ReosFormMuskingumClassicRoutingWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
 {
-  ReosMuskingumClassicRoutine *routing = qobject_cast<ReosMuskingumClassicRoutine *>( dataObject );
+  ReosMuskingumClassicRouting *routing = qobject_cast<ReosMuskingumClassicRouting *>( dataObject );
   if ( !routing )
     return nullptr;
 
@@ -239,4 +238,4 @@ ReosFormWidget *ReosFormMuskingumClassicRoutingWidgetFactory::createDataWidget( 
   return form;
 }
 
-QString ReosFormMuskingumClassicRoutingWidgetFactory::datatype() const {return ReosMuskingumClassicRoutine::staticType();}
+QString ReosFormMuskingumClassicRoutingWidgetFactory::datatype() const {return ReosMuskingumClassicRouting::staticType();}

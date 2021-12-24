@@ -89,7 +89,7 @@ class ReosHydraulicNetworkWidget : public QWidget
     ReosMapToolDrawPoint *mMapToolAddHydrographJunction = nullptr;
 
     QAction *mActionAddHydrographRouting = nullptr;
-    ReosMapToolDrawHydrographRoutine *mMapToolAddHydrographRouting = nullptr;
+    ReosMapToolDrawHydrographRouting *mMapToolAddHydrographRouting = nullptr;
 
     QAction *mActionHydraulicNetworkProperties = nullptr;
     ReosHydraulicElementPropertiesWidget *mElementPropertiesWidget = nullptr;

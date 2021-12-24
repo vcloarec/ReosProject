@@ -16,7 +16,7 @@
 #include "reoshydraulicnetwork.h"
 #include "reoshydraulicnode.h"
 #include "reoshydrauliclink.h"
-#include "reoshydrographtransfer.h"
+#include "reoshydrographrouting.h"
 #include <QUuid>
 
 ReosHydraulicNetworkElement::ReosHydraulicNetworkElement( ReosHydraulicNetwork *parent ):

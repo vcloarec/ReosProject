@@ -54,11 +54,11 @@ class ReosMapToolDrawHydraulicNetworkLink: public ReosMapTool
     ReosMapTool_p *tool_p() const;
 };
 
-class ReosMapToolDrawHydrographRoutine: public ReosMapToolDrawHydraulicNetworkLink
+class ReosMapToolDrawHydrographRouting: public ReosMapToolDrawHydraulicNetworkLink
 {
     Q_OBJECT
   public:
-    ReosMapToolDrawHydrographRoutine( ReosHydraulicNetwork *network, ReosMap *map ):
+    ReosMapToolDrawHydrographRouting( ReosHydraulicNetwork *network, ReosMap *map ):
       ReosMapToolDrawHydraulicNetworkLink( network, map ),
       mNetwork( network )
     {

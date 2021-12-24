@@ -58,8 +58,7 @@ SET(REOS_CORE_SOURCES
 
   hydrograph/reoshydrograph.cpp
   hydrograph/reoshydrographsource.cpp
-  hydrograph/reoshydrographtransfer.cpp
-  hydrograph/reosmuskingumclassicroutine.cpp
+  hydrograph/reoshydrographrouting.cpp
 
   hydraulicNetwork/reoshydraulicscheme.cpp
   hydraulicNetwork/reoshydrauliclink.cpp
@@ -122,8 +121,7 @@ SET(REOS_CORE_HEADERS
 
     hydrograph/reoshydrograph.h
     hydrograph/reoshydrographsource.h
-    hydrograph/reoshydrographtransfer.h
-    hydrograph/reosmuskingumclassicroutine.h
+    hydrograph/reoshydrographrouting.h
 
     hydraulicNetwork/reoshydraulicscheme.h
     hydraulicNetwork/reoshydrauliclink.h

@@ -81,7 +81,7 @@ class ReosHydrographNode : public ReosHydraulicNode
     virtual void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *upstreamLink, bool upstreamWillChange ) = 0;
 
   public slots:
-    virtual void onUpstreamRoutineUpdated( const QString &routingId ) = 0;
+    virtual void onUpstreamRoutingUpdated( const QString &routingId ) = 0;
 
   protected:
     ReosHydrographNode( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent = nullptr );
@@ -137,7 +137,7 @@ class ReosHydrographSourceFixed: public ReosHydrographSource
 
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) override;;
-    void onUpstreamRoutineUpdated( const QString & )  override {}
+    void onUpstreamRoutingUpdated( const QString & )  override {}
 
   protected:
     ReosHydrographSourceFixed( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent = nullptr );
@@ -175,7 +175,7 @@ class ReosHydrographJunction : public ReosHydrographSource
     void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *upstreamLink, bool upstreamWillChange ) override;
     bool updateCalculationContextFromDownstream( const ReosCalculationContext &context, ReosHydrographRoutingLink * ) override;
 
-    ReosHydrographRoutingLink *downstreamRoutine() const;
+    ReosHydrographRoutingLink *downstreamRouting() const;
 
     ReosHydrograph *internalHydrograph() const;
 
@@ -184,7 +184,7 @@ class ReosHydrographJunction : public ReosHydrographSource
     void internalHydrographPointerChange();
 
   public slots:
-    void onUpstreamRoutineUpdated( const QString &routingId ) override;
+    void onUpstreamRoutingUpdated( const QString &routingId ) override;
 
   protected slots:
     void calculateIfAllReady();

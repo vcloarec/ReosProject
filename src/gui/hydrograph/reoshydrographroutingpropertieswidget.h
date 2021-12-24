@@ -19,7 +19,7 @@
 #include <QWidget>
 #include "reoshydraulicelementpropertieswidget.h"
 #include "reosformwidget.h"
-#include "reoshydrographtransfer.h"
+#include "reoshydrographrouting.h"
 #include "reoshydraulicnetworkwidget.h"
 
 namespace Ui

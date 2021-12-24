@@ -15,7 +15,7 @@
  ***************************************************************************/
 #include "reoshydraulicnetworkmapitemfactory.h"
 #include "reoshydrographsource.h"
-#include "reoshydrographtransfer.h"
+#include "reoshydrographrouting.h"
 
 #include <QVector2D>
 

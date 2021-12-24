@@ -17,10 +17,9 @@
 #include <QObject>
 
 #include "reos_testutils.h"
-#include "reoshydrographtransfer.h"
+#include "reoshydrographrouting.h"
 #include "reoshydrographsource.h"
 #include "reoshydrograph.h"
-#include "reosmuskingumclassicroutine.h"
 #include "reostransferfunction.h"
 #include "reosrunoffmodel.h"
 #include "reosgisengine.h"
@@ -47,7 +46,6 @@ class ReosHydrographTransferTest: public QObject
 
     QEventLoop loop;
     QTimer timer;
-
 };
 
 void ReosHydrographTransferTest::initTestCase()
@@ -190,9 +188,9 @@ void ReosHydrographTransferTest::test_classicMuskingumRouting()
   ReosCalculationContext context;
 
   ReosHydrographRoutingLink routing;
-  QVERIFY( routing.setCurrentRoutingMethod( ReosMuskingumClassicRoutine::staticType() ) );
+  QVERIFY( routing.setCurrentRoutingMethod( ReosMuskingumClassicRouting::staticType() ) );
   QVERIFY( routing.currentRoutingMethod() );
-  QVERIFY( routing.currentRoutingMethod()->type() == ReosMuskingumClassicRoutine::staticType() );
+  QVERIFY( routing.currentRoutingMethod()->type() == ReosMuskingumClassicRouting::staticType() );
 
   routing.setInputHydrographSource( &mSource1 );
   routing.updateCalculationContext( context );
@@ -447,11 +445,11 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   QVERIFY( *junction2.outputHydrograph() == sum_model_1 );
   QCOMPARE( junction3.outputHydrograph()->valueCount(), 0 );
 
-  // Change the routine methof of link 3
-  link3.setCurrentRoutingMethod( ReosMuskingumClassicRoutine::staticType() );
+  // Change the routing methof of link 3
+  link3.setCurrentRoutingMethod( ReosMuskingumClassicRouting::staticType() );
   link3.name()->setValue( "link 3" );
-  ReosMuskingumClassicRoutine *muskingumRoutine = qobject_cast<ReosMuskingumClassicRoutine *>( link3.currentRoutingMethod() );
-  Q_ASSERT( muskingumRoutine );
+  ReosMuskingumClassicRouting *muskingumRouting = qobject_cast<ReosMuskingumClassicRouting *>( link3.currentRoutingMethod() );
+  Q_ASSERT( muskingumRouting );
 
   timer.start( WAITING_TIME_FOR_LOOP );
   loop.exec();
@@ -465,8 +463,8 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   QCOMPARE( junction2.outputHydrograph()->valueCount(), 142 ); //junction 2 hads now a hydrograph transform by Muskingum method -->more values
   QCOMPARE( junction3.outputHydrograph()->valueCount(), 0 );
 
-  // change parameter of the routine methos
-  muskingumRoutine->kParameter()->setValue( ReosDuration( 0.2, ReosDuration::hour ) );
+  // change parameter of the routing methos
+  muskingumRouting->kParameter()->setValue( ReosDuration( 0.2, ReosDuration::hour ) );
 
   timer.start( WAITING_TIME_FOR_LOOP );
   loop.exec();
@@ -480,8 +478,8 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   QCOMPARE( junction2.outputHydrograph()->valueCount(), 107 ); //junction 2 hads now a hydrograph transform by Muskingum method -->more values
   QCOMPARE( junction3.outputHydrograph()->valueCount(), 0 );
 
-  // Set back the link 3 with direct routine
-  link3.setCurrentRoutingMethod( ReosDirectHydrographRouting::staticType() );
+  // Set back the link 3 with direct routing
+  link3.setCurrentRoutingMethod( ReosHydrographRoutingMethodDirect::staticType() );
 
   timer.start( WAITING_TIME_FOR_LOOP );
   loop.exec();
@@ -572,7 +570,6 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   QCOMPARE( junction2.outputHydrograph()->valueCount(), 98 );
   QVERIFY( *junction2.outputHydrograph() == sum_model_1 );
   QCOMPARE( junction3.outputHydrograph()->valueCount(), 0 );
-
 }
 
 QTEST_MAIN( ReosHydrographTransferTest )

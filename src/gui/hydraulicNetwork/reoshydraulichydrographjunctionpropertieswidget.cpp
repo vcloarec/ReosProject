@@ -23,7 +23,7 @@
 #include <QHBoxLayout>
 
 #include "reoshydrographsource.h"
-#include "reoshydrographtransfer.h"
+#include "reoshydrographrouting.h"
 #include "reosplotitemlist.h"
 #include "reosplottimeconstantinterval.h"
 #include "reostimeseriesvariabletimestepreadonlymodel.h"
@@ -98,12 +98,12 @@ void ReosHydraulicHydrographJunctionPropertiesWidget::populateHydrographs()
 
   mHydrographPlotButton->clear();
   ReosHydrograph *internalHyd = mJunctionNode->internalHydrograph();
-  QList<ReosHydrographRoutingLink *> upstreamRoutinesList = ReosHydraulicNetworkUtils::upstreamLinkOfType<ReosHydrographRoutingLink> ( mJunctionNode );
+  QList<ReosHydrographRoutingLink *> upstreamRoutingList = ReosHydraulicNetworkUtils::upstreamLinkOfType<ReosHydrographRoutingLink> ( mJunctionNode );
 
   hydrographs.append( mJunctionNode->outputHydrograph() );
 
-  for ( ReosHydrographRoutingLink *routine : std::as_const( upstreamRoutinesList ) )
-    hydrographs.append( routine->outputHydrograph() );
+  for ( ReosHydrographRoutingLink *routing : std::as_const( upstreamRoutingList ) )
+    hydrographs.append( routing->outputHydrograph() );
 
   if ( hydrographs.count() > 1 && internalHyd )
     hydrographs.append( internalHyd );
