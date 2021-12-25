@@ -188,9 +188,9 @@ void ReosHydrographTransferTest::test_classicMuskingumRouting()
   ReosCalculationContext context;
 
   ReosHydrographRoutingLink routing;
-  QVERIFY( routing.setCurrentRoutingMethod( ReosMuskingumClassicRouting::staticType() ) );
+  QVERIFY( routing.setCurrentRoutingMethod( ReosHydrographRoutingMethodMuskingum::staticType() ) );
   QVERIFY( routing.currentRoutingMethod() );
-  QVERIFY( routing.currentRoutingMethod()->type() == ReosMuskingumClassicRouting::staticType() );
+  QVERIFY( routing.currentRoutingMethod()->type() == ReosHydrographRoutingMethodMuskingum::staticType() );
 
   routing.setInputHydrographSource( &mSource1 );
   routing.updateCalculationContext( context );
@@ -446,9 +446,9 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   QCOMPARE( junction3.outputHydrograph()->valueCount(), 0 );
 
   // Change the routing methof of link 3
-  link3.setCurrentRoutingMethod( ReosMuskingumClassicRouting::staticType() );
+  link3.setCurrentRoutingMethod( ReosHydrographRoutingMethodMuskingum::staticType() );
   link3.name()->setValue( "link 3" );
-  ReosMuskingumClassicRouting *muskingumRouting = qobject_cast<ReosMuskingumClassicRouting *>( link3.currentRoutingMethod() );
+  ReosHydrographRoutingMethodMuskingum *muskingumRouting = qobject_cast<ReosHydrographRoutingMethodMuskingum *>( link3.currentRoutingMethod() );
   Q_ASSERT( muskingumRouting );
 
   timer.start( WAITING_TIME_FOR_LOOP );

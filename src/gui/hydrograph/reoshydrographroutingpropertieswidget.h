@@ -70,12 +70,20 @@ class ReosHydrographRoutingPropertiesWidgetFactory : public ReosHydraulicElement
     virtual QString elementType();
 };
 
-class ReosFormMuskingumClassicRoutingWidgetFactory: public ReosFormWidgetDataFactory
+class ReosFormHydrographRountingMuskingumWidgetFactory: public ReosFormWidgetDataFactory
 {
   public:
     virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent );
     virtual QString datatype() const;
 };
+
+class ReosFormHydrographRountingLagWidgetFactory: public ReosFormWidgetDataFactory
+{
+  public:
+    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent );
+    virtual QString datatype() const;
+};
+
 
 
 #endif // REOSHYDROGRAPHPROPERTIESWIDGET_H

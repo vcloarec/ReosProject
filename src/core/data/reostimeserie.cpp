@@ -956,6 +956,12 @@ void ReosTimeSerieVariableTimeStep::setValue( const ReosDuration &relativeTime, 
   emit dataChanged();
 }
 
+void ReosTimeSerieVariableTimeStep::setValue( const QDateTime &time, double value )
+{
+  const ReosDuration relativeTime = ReosDuration( referenceTime().msecsTo( time ), ReosDuration::millisecond );
+  setValue( relativeTime, value );
+}
+
 double ReosTimeSerieVariableTimeStep::valueAtTime( const ReosDuration &relativeTime ) const
 {
   ReosTimeSerieVariableTimeStepProvider *dataProv = variableTimeStepdataProvider();

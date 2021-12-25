@@ -54,11 +54,14 @@ ReosHydrographRoutingPropertiesWidget::ReosHydrographRoutingPropertiesWidget( Re
   for ( const QString &type : availableTypes )
     ui->mRoutingTypeCombo->addItem( ReosHydrographRoutingMethodFactories::instance()->displayName( type ), type );
 
-  QString currentMethodeType = hydrographRouting->currentRoutingMethod()->type();
+  ReosHydrographRoutingMethod *method = hydrographRouting->currentRoutingMethod();
+  if ( method )
+  {
+    const QString currentMethodeType = method->type();
+    ui->mRoutingTypeCombo->setCurrentIndex( ui->mRoutingTypeCombo->findData( currentMethodeType ) );
+    mRoutingWidget = ReosFormWidgetFactories::instance()->createDataFormWidget( method );
+  }
 
-  ui->mRoutingTypeCombo->setCurrentIndex( ui->mRoutingTypeCombo->findData( currentMethodeType ) );
-
-  mRoutingWidget = ReosFormWidgetFactories::instance()->createDataFormWidget( hydrographRouting->currentRoutingMethod() );
   if ( mRoutingWidget )
     ui->mRoutingParametersWidget->layout()->addWidget( mRoutingWidget );
 
@@ -225,9 +228,9 @@ ReosHydraulicElementWidget *ReosHydrographRoutingPropertiesWidgetFactory::create
 
 QString ReosHydrographRoutingPropertiesWidgetFactory::elementType() {return ReosHydrographRoutingLink::staticType();}
 
-ReosFormWidget *ReosFormMuskingumClassicRoutingWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+ReosFormWidget *ReosFormHydrographRountingMuskingumWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
 {
-  ReosMuskingumClassicRouting *routing = qobject_cast<ReosMuskingumClassicRouting *>( dataObject );
+  ReosHydrographRoutingMethodMuskingum *routing = qobject_cast<ReosHydrographRoutingMethodMuskingum *>( dataObject );
   if ( !routing )
     return nullptr;
 
@@ -238,4 +241,21 @@ ReosFormWidget *ReosFormMuskingumClassicRoutingWidgetFactory::createDataWidget( 
   return form;
 }
 
-QString ReosFormMuskingumClassicRoutingWidgetFactory::datatype() const {return ReosMuskingumClassicRouting::staticType();}
+QString ReosFormHydrographRountingMuskingumWidgetFactory::datatype() const {return ReosHydrographRoutingMethodMuskingum::staticType();}
+
+ReosFormWidget *ReosFormHydrographRountingLagWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+{
+  ReosHydrographRoutingMethodLag *routing = qobject_cast<ReosHydrographRoutingMethodLag *>( dataObject );
+  if ( !routing )
+    return nullptr;
+
+  ReosFormWidget *form = new ReosFormWidget( parent );
+  form->addParameter( routing->lagParameter() );
+
+  return form;
+}
+
+QString ReosFormHydrographRountingLagWidgetFactory::datatype() const
+{
+  return ReosHydrographRoutingMethodLag::staticType();
+}

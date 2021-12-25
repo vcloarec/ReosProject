@@ -436,7 +436,8 @@ QString ReosHydrographRoutingMethodFactories::htmlDescription( const QString &ty
 ReosHydrographRoutingMethodFactories::ReosHydrographRoutingMethodFactories( ReosModule *parent ): ReosModule( parent )
 {
   addFactory( new ReosHydrographRoutingMethodDirectFactory );
-  addFactory( new ReosMuskingumClassicRoutingFactory );
+  addFactory( new ReosHydrographRoutingMethodMuskingumFactory );
+  addFactory( new ReosHydrographRoutingMethodLagFactory );
 }
 
 ReosHydraulicNetworkElement *ReosHydrographRoutingLinkFactory::decodeElement( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context ) const
@@ -471,7 +472,7 @@ QString ReosHydrographRoutingMethodDirectFactory::htmlDescription() const
 #include <QElapsedTimer>
 #endif
 
-ReosMuskingumClassicRouting::ReosMuskingumClassicRouting( ReosHydrographRoutingLink *parent ) :
+ReosHydrographRoutingMethodMuskingum::ReosHydrographRoutingMethodMuskingum( ReosHydrographRoutingLink *parent ) :
   ReosHydrographRoutingMethod( parent )
   , mKParameter( new ReosParameterDuration( tr( "K" ), false, this ) )
   , mXParameter( new ReosParameterDouble( tr( "x" ), false, this ) )
@@ -479,20 +480,20 @@ ReosMuskingumClassicRouting::ReosMuskingumClassicRouting( ReosHydrographRoutingL
   mKParameter->setValue( ReosDuration( 1.0, ReosDuration::hour ) );
   mXParameter->setValue( 0.2 );
 
-  connect( mKParameter, &ReosParameter::valueChanged, this, &ReosMuskingumClassicRouting::dataChanged );
-  connect( mXParameter, &ReosParameter::valueChanged, this, &ReosMuskingumClassicRouting::dataChanged );
+  connect( mKParameter, &ReosParameter::valueChanged, this, &ReosHydrographRoutingMethodMuskingum::dataChanged );
+  connect( mXParameter, &ReosParameter::valueChanged, this, &ReosHydrographRoutingMethodMuskingum::dataChanged );
 }
 
-ReosMuskingumClassicRouting::ReosMuskingumClassicRouting( const ReosEncodedElement &encodedElement, ReosHydrographRoutingLink *parent ):
+ReosHydrographRoutingMethodMuskingum::ReosHydrographRoutingMethodMuskingum( const ReosEncodedElement &encodedElement, ReosHydrographRoutingLink *parent ):
   ReosHydrographRoutingMethod( parent )
   , mKParameter( ReosParameterDuration::decode( encodedElement.getEncodedData( QStringLiteral( "K-parameter" ) ), false, tr( "K" ), this ) )
   , mXParameter( ReosParameterDouble::decode( encodedElement.getEncodedData( QStringLiteral( "X-parameter" ) ), false, tr( "x" ), this ) )
 {
-  connect( mKParameter, &ReosParameter::valueChanged, this, &ReosMuskingumClassicRouting::dataChanged );
-  connect( mXParameter, &ReosParameter::valueChanged, this, &ReosMuskingumClassicRouting::dataChanged );
+  connect( mKParameter, &ReosParameter::valueChanged, this, &ReosHydrographRoutingMethodMuskingum::dataChanged );
+  connect( mXParameter, &ReosParameter::valueChanged, this, &ReosHydrographRoutingMethodMuskingum::dataChanged );
 }
 
-void ReosMuskingumClassicRouting::calculateOutputHydrograph( ReosHydrograph *inputHydrograph, ReosHydrograph *outputHydrograph, const ReosCalculationContext & )
+void ReosHydrographRoutingMethodMuskingum::calculateOutputHydrograph( ReosHydrograph *inputHydrograph, ReosHydrograph *outputHydrograph, const ReosCalculationContext & )
 {
 #ifndef _NDEBUG
   QElapsedTimer timer;
@@ -508,22 +509,22 @@ void ReosMuskingumClassicRouting::calculateOutputHydrograph( ReosHydrograph *inp
 #endif
 }
 
-ReosHydrographCalculation *ReosMuskingumClassicRouting::calculationProcess( ReosHydrograph *inputHydrograph, const ReosCalculationContext &context )
+ReosHydrographCalculation *ReosHydrographRoutingMethodMuskingum::calculationProcess( ReosHydrograph *inputHydrograph, const ReosCalculationContext &context )
 {
   return new Calculation( inputHydrograph, mKParameter->value(), mXParameter->value() );
 }
 
-ReosParameterDuration *ReosMuskingumClassicRouting::kParameter() const
+ReosParameterDuration *ReosHydrographRoutingMethodMuskingum::kParameter() const
 {
   return mKParameter;
 }
 
-ReosParameterDouble *ReosMuskingumClassicRouting::xParameter() const
+ReosParameterDouble *ReosHydrographRoutingMethodMuskingum::xParameter() const
 {
   return mXParameter;
 }
 
-ReosEncodedElement ReosMuskingumClassicRouting::encode() const
+ReosEncodedElement ReosHydrographRoutingMethodMuskingum::encode() const
 {
   ReosEncodedElement element( type() );
 
@@ -532,7 +533,7 @@ ReosEncodedElement ReosMuskingumClassicRouting::encode() const
   return element;
 }
 
-void ReosMuskingumClassicRouting::calculate( ReosHydrograph *inputHydrograph, ReosHydrograph *outputHydrograph, const ReosDuration &K, double x, ReosProcess *process )
+void ReosHydrographRoutingMethodMuskingum::calculate( ReosHydrograph *inputHydrograph, ReosHydrograph *outputHydrograph, const ReosDuration &K, double x, ReosProcess *process )
 {
   if ( !inputHydrograph )
     return;
@@ -665,23 +666,23 @@ void ReosMuskingumClassicRouting::calculate( ReosHydrograph *inputHydrograph, Re
   outputHydrograph->copyFrom( tempHyd.get() );
 }
 
-ReosHydrographRoutingMethod *ReosMuskingumClassicRoutingFactory::createRoutingMethod( ReosHydrographRoutingLink *routingLink ) const
-{return new ReosMuskingumClassicRouting( routingLink );}
+ReosHydrographRoutingMethod *ReosHydrographRoutingMethodMuskingumFactory::createRoutingMethod( ReosHydrographRoutingLink *routingLink ) const
+{return new ReosHydrographRoutingMethodMuskingum( routingLink );}
 
-ReosHydrographRoutingMethod *ReosMuskingumClassicRoutingFactory::createRoutingMethod( const ReosEncodedElement &encodedElement, ReosHydrographRoutingLink *routingLink ) const
+ReosHydrographRoutingMethod *ReosHydrographRoutingMethodMuskingumFactory::createRoutingMethod( const ReosEncodedElement &encodedElement, ReosHydrographRoutingLink *routingLink ) const
 {
-  if ( encodedElement.description() != ReosMuskingumClassicRouting::staticType() )
+  if ( encodedElement.description() != ReosHydrographRoutingMethodMuskingum::staticType() )
     return nullptr;
 
-  return new ReosMuskingumClassicRouting( encodedElement, routingLink );
+  return new ReosHydrographRoutingMethodMuskingum( encodedElement, routingLink );
 }
 
-QString ReosMuskingumClassicRoutingFactory::type() const
+QString ReosHydrographRoutingMethodMuskingumFactory::type() const
 {
-  return ReosMuskingumClassicRouting::staticType();
+  return ReosHydrographRoutingMethodMuskingum::staticType();
 }
 
-QString ReosMuskingumClassicRoutingFactory::htmlDescription() const
+QString ReosHydrographRoutingMethodMuskingumFactory::htmlDescription() const
 {
   QString htmlText = QLatin1String( "<html>\n<body>\n" );
   htmlText += QLatin1String( "<table class=\"list-view\">\n" );
@@ -708,7 +709,7 @@ QString ReosMuskingumClassicRoutingFactory::htmlDescription() const
   return htmlText;
 }
 
-ReosMuskingumClassicRouting::Calculation::Calculation( ReosHydrograph *inputHydrograph, const ReosDuration &K, double X )
+ReosHydrographRoutingMethodMuskingum::Calculation::Calculation( ReosHydrograph *inputHydrograph, const ReosDuration &K, double X )
   : mK( K )
   , mX( X )
 {
@@ -717,9 +718,94 @@ ReosMuskingumClassicRouting::Calculation::Calculation( ReosHydrograph *inputHydr
   mHydrograph = std::make_unique<ReosHydrograph>();
 }
 
-void ReosMuskingumClassicRouting::Calculation::start()
+void ReosHydrographRoutingMethodMuskingum::Calculation::start()
 {
   calculate( mInputHydrograph.get(), mHydrograph.get(), mK, mX, this );
   if ( !isStop() )
     mIsSuccessful = true;
+}
+
+ReosHydrographRoutingMethodLag::ReosHydrographRoutingMethodLag( ReosHydrographRoutingLink *parent ) :
+  ReosHydrographRoutingMethod( parent )
+  , mLagParameter( new ReosParameterDuration( tr( "Lag" ), false, this ) )
+{
+  mLagParameter->setValue( ReosDuration( 1.0, ReosDuration::hour ) );
+
+  connect( mLagParameter, &ReosParameter::valueChanged, this, &ReosHydrographRoutingMethodMuskingum::dataChanged );
+}
+
+ReosHydrographRoutingMethodLag::ReosHydrographRoutingMethodLag( const ReosEncodedElement &encodedElement, ReosHydrographRoutingLink *parent ):
+  ReosHydrographRoutingMethod( parent )
+  , mLagParameter( ReosParameterDuration::decode( encodedElement.getEncodedData( QStringLiteral( "lag-parameter" ) ), false, tr( "Lag" ), this ) )
+{
+  connect( mLagParameter, &ReosParameter::valueChanged, this, &ReosHydrographRoutingMethodMuskingum::dataChanged );
+}
+
+void ReosHydrographRoutingMethodLag::calculateOutputHydrograph( ReosHydrograph *inputHydrograph, ReosHydrograph *outputHydrograph, const ReosCalculationContext & )
+{
+  calculate( inputHydrograph, outputHydrograph, mLagParameter->value() );
+}
+
+ReosHydrographCalculation *ReosHydrographRoutingMethodLag::calculationProcess( ReosHydrograph *inputHydrograph, const ReosCalculationContext & )
+{
+  return new Calculation( inputHydrograph, mLagParameter->value() );
+}
+
+ReosParameterDuration *ReosHydrographRoutingMethodLag::lagParameter() const
+{
+  return mLagParameter;
+}
+
+ReosEncodedElement ReosHydrographRoutingMethodLag::encode() const
+{
+  ReosEncodedElement element( type() );
+
+  element.addEncodedData( QStringLiteral( "lag-parameter" ), mLagParameter->encode() );
+  return element;
+}
+
+void ReosHydrographRoutingMethodLag::calculate( ReosHydrograph *inputHydrograph, ReosHydrograph *outputHydrograph, const ReosDuration &lag, ReosProcess * )
+{
+  if ( !inputHydrograph )
+    return;
+
+  outputHydrograph->copyFrom( inputHydrograph );
+  outputHydrograph->setReferenceTime( inputHydrograph->referenceTime().addMSecs( lag.valueMilliSecond() ) );
+  if ( inputHydrograph->valueCount() > 0 )
+    outputHydrograph->setValue( inputHydrograph->timeAt( 0 ), inputHydrograph->valueAt( 0 ) );
+}
+
+ReosHydrographRoutingMethodLag::Calculation::Calculation( ReosHydrograph *inputHydrograph, const ReosDuration &lag ):
+  mLag( lag )
+{
+  mInputHydrograph = std::make_unique<ReosHydrograph>();
+  mInputHydrograph->copyFrom( inputHydrograph );
+  mHydrograph = std::make_unique<ReosHydrograph>();
+}
+
+void ReosHydrographRoutingMethodLag::Calculation::start()
+{
+  calculate( mInputHydrograph.get(), mHydrograph.get(), mLag, this );
+  if ( !isStop() )
+    mIsSuccessful = true;
+}
+
+ReosHydrographRoutingMethod *ReosHydrographRoutingMethodLagFactory::createRoutingMethod( ReosHydrographRoutingLink *routingLink ) const
+{
+  return new ReosHydrographRoutingMethodLag( routingLink );
+}
+
+ReosHydrographRoutingMethod *ReosHydrographRoutingMethodLagFactory::createRoutingMethod( const ReosEncodedElement &encodedElement, ReosHydrographRoutingLink *routingLink ) const
+{
+  return new ReosHydrographRoutingMethodLag( encodedElement, routingLink );
+}
+
+QString ReosHydrographRoutingMethodLagFactory::type() const
+{
+  return ReosHydrographRoutingMethodLag::staticType();
+}
+
+QString ReosHydrographRoutingMethodLagFactory::htmlDescription() const
+{
+  return QString();
 }

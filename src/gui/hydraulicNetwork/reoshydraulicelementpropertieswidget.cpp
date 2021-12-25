@@ -56,7 +56,8 @@ ReosHydraulicElementPropertiesWidget::ReosHydraulicElementPropertiesWidget( Reos
   addWidgetFactory( new ReosHydrographRoutingPropertiesWidgetFactory( this ) );
   addWidgetFactory( new ReosHydraulicHydrographNodePropertiesWidgetFactory( this ) );
 
-  ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormMuskingumClassicRoutingWidgetFactory );
+  ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormHydrographRountingMuskingumWidgetFactory );
+  ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormHydrographRountingLagWidgetFactory );
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormWatershedNodeWidgetFactory );
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormJunctionNodeWidgetFactory );
 
