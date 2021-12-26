@@ -72,6 +72,7 @@ void ReosHydraulicElementPropertiesWidget::setCurrentElement( ReosHydraulicNetwo
   ReosHydraulicElementWidget *newWidget = nullptr;
   QWidget *newNameWidget = nullptr;
   mCurrentElement = element;
+
   if ( mCurrentElement )
   {
     setWindowTitle( mCurrentElement->name()->value() );
@@ -83,8 +84,8 @@ void ReosHydraulicElementPropertiesWidget::setCurrentElement( ReosHydraulicNetwo
   {
     setWindowTitle( tr( "No Element Selected" ) );
     mMeteoModelCombo->hide();
+    newNameWidget = new QLabel( tr( "No hydraulic element selected" ), this );
   }
-
 
   if ( newWidget )
   {
@@ -92,12 +93,12 @@ void ReosHydraulicElementPropertiesWidget::setCurrentElement( ReosHydraulicNetwo
       mMainLayout->replaceWidget( mCurrentWidget, newWidget );
     else
       mMainLayout->addWidget( newWidget );
-
-    if ( mNameParameterWidget )
-      mNameLayout->replaceWidget( mNameParameterWidget, newNameWidget );
-    else
-      mNameLayout->addWidget( newNameWidget );
   }
+
+  if ( mNameParameterWidget )
+    mNameLayout->replaceWidget( mNameParameterWidget, newNameWidget );
+  else
+    mNameLayout->addWidget( newNameWidget );
 
   delete mCurrentWidget;
   delete mNameParameterWidget;

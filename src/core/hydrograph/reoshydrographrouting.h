@@ -294,7 +294,7 @@ class ReosHydrographRoutingMethodLagFactory : public ReosHydrographRoutingMethod
     ReosHydrographRoutingMethod *createRoutingMethod( ReosHydrographRoutingLink *routingLink ) const override;
     ReosHydrographRoutingMethod *createRoutingMethod( const ReosEncodedElement &encodedElement, ReosHydrographRoutingLink *routingLink ) const override;
     QString type() const override;
-    QString displayName() const override {return QObject::tr( "Lag" );}
+    QString displayName() const override {return QObject::tr( "Lag routing" );}
     QString htmlDescription() const override;
 };
 

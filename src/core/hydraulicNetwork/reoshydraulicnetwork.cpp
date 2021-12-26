@@ -27,7 +27,7 @@ ReosHydraulicNetworkElement::ReosHydraulicNetworkElement( ReosHydraulicNetwork *
   mUid = QUuid::createUuid().toString();
   mConstantTimeStepInTable = new ReosParameterDuration( tr( "Constant time step" ) );
   mConstantTimeStepInTable->setValue( ReosDuration( 5, ReosDuration::minute ) );
-  mUseConstantTimeStepInTable = new ReosParameterBoolean( tr( "Use constant time step" ) );
+  mUseConstantTimeStepInTable = new ReosParameterBoolean( tr( "Display constant time step" ) );
 }
 
 ReosHydraulicNetworkElement::ReosHydraulicNetworkElement( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent )
@@ -47,7 +47,7 @@ ReosHydraulicNetworkElement::ReosHydraulicNetworkElement( const ReosEncodedEleme
 
   mUseConstantTimeStepInTable = ReosParameterBoolean::decode( encodedElement.getEncodedData( QStringLiteral( "use-constant-time-step-in-table" ) ),
                                 false,
-                                tr( "Use constant time step" ),
+                                tr( "Display constant time step" ),
                                 this );
   if ( !mUseConstantTimeStepInTable->isValid() )
     mUseConstantTimeStepInTable->setValue( false );

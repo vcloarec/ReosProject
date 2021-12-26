@@ -102,7 +102,6 @@ class ReosTimeSeriesVariableTimeStepReadOnlyTablesView : public QWidget
                                        ReosParameterBoolean *useConstantTimeStepParameter );
 
     void setSeries( QList<ReosTimeSerieVariableTimeStep *> series, const QString &unit );
-
     void clearSeries();
 
   private:

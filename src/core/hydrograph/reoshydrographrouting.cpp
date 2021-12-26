@@ -807,5 +807,11 @@ QString ReosHydrographRoutingMethodLagFactory::type() const
 
 QString ReosHydrographRoutingMethodLagFactory::htmlDescription() const
 {
-  return QString();
+  QString htmlText = QLatin1String( "<html>\n<body>\n" );
+  htmlText += QLatin1String( "<table class=\"list-view\">\n" );
+  htmlText += QLatin1String( "<h1>" ) + displayName() + QLatin1String( "</h1>\n<hr>\n" );
+  htmlText += QLatin1String( "The Lag routing method apply a duration offset on the hydrograph:"
+                             "<br>"
+                             "Output ( t + lag ) = Input( t )" );
+  return htmlText;
 }
