@@ -129,7 +129,7 @@ class ReosHubEauServer : public QObject
     ReosHydrograph *createHydrograph( const QString &stationId, const QVariantMap &meta, QObject *parent = nullptr ) const;
 
   signals:
-    //! emitted when stations are updated following a reply of the server
+    //! Emitted when stations are updated following a reply of the server
     void stationsUpdated();
 
   public slots:

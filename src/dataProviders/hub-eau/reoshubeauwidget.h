@@ -90,6 +90,8 @@ class ReosHubEauWidget : public ReosDataProviderSelectorWidget
     QVariantMap mCurrentStationMeta;
 
     void populateMeta( const QVariantMap &meta );
+
+    static void formatMarker( ReosHubEauStationMarker *marker, const QVariantMap &meta, bool currentMarker = false );
 };
 
 class ReosHubEauHydrometryGuiFactory : public ReosDataProviderGuiFactory
