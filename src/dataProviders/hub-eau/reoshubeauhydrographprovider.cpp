@@ -42,6 +42,7 @@ void ReosHubEauHydrographProvider::load()
   {
     mFlowRequestControler = new ReosHubEauConnectionControler( this );
     connect( mFlowRequestControler, &ReosHubEauConnectionControler::resultReady, this, &ReosHubEauHydrographProvider::onResultReady );
+    connect( mFlowRequestControler, &ReosHubEauConnectionControler::errorOccured, this, &ReosHubEauHydrographProvider::onErrorOccured );
     connect( mFlowRequestControler, &ReosHubEauConnectionControler::requestFinished, this, &ReosHubEauHydrographProvider::onLoadingFinished );
   }
 
@@ -82,6 +83,7 @@ void ReosHubEauHydrographProvider::decode( const ReosEncodedElement &element )
   // update the metadata with server
   mMetadataRequestControler = new ReosHubEauConnectionControler( this );
   connect( mMetadataRequestControler, &ReosHubEauConnectionControler::resultReady, this, &ReosHubEauHydrographProvider::onMetadataReady );
+  connect( mMetadataRequestControler, &ReosHubEauConnectionControler::errorOccured, this, &ReosHubEauHydrographProvider::onErrorOccured );
   mMetadataRequestControler->request( QStringLiteral( "referentiel/stations?code_entite=%1&format=json&pretty&page=1&size=1" ).arg( source ) );
 }
 
@@ -125,6 +127,7 @@ void ReosHubEauHydrographProvider::onResultReady( const QVariantMap &result )
   }
 
   emit dataChanged();
+  emit dataReset();
 }
 
 void ReosHubEauHydrographProvider::onLoadingFinished()
@@ -152,6 +155,21 @@ void ReosHubEauHydrographProvider::onMetadataReady( const QVariantMap &result )
   }
 }
 
+void ReosHubEauHydrographProvider::onErrorOccured()
+{
+  mLastMessage = ReosModule::Message();
+  mLastMessage.type = ReosModule::Error;
+  mStatus = Status::NoData;
+
+  if ( mFlowRequestControler && mFlowRequestControler->lastError() != 0 )
+    mLastMessage.text = tr( "Following error occured with Hub-Eau server: %1" ).arg( mFlowRequestControler->lastErrorReason() );
+
+  if ( mFlowRequestControler && mFlowRequestControler->lastError() != 0 )
+    mLastMessage.text = tr( "Following error occured with Hub-Eau server: %1" ).arg( mFlowRequestControler->lastErrorReason() );
+
+  emit errorOccured();
+}
+
 QVariantMap ReosHubEauHydrographProvider::metadata() const
 {
   return mMetadata;
@@ -160,6 +178,11 @@ QVariantMap ReosHubEauHydrographProvider::metadata() const
 void ReosHubEauHydrographProvider::setMetadata( const QVariantMap &metadata )
 {
   mMetadata = metadata;
+}
+
+ReosModule::Message ReosHubEauHydrographProvider::lastMessage() const
+{
+  return mLastMessage;
 }
 
 QString ReosHubEauHydrographProvider::htmlDescription() const

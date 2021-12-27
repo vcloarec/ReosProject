@@ -73,8 +73,10 @@ class ReosHubEauWidget : public ReosDataProviderSelectorWidget
   private slots:
     void onMapExtentChanged();
     void onStationUpdated();
+    void onErrorOccured();
     void onSelectStation( ReosMapItem *item, const QPointF & );
     void onHydrographUpdated();
+    void onError();
 
   private:
     Ui::ReosHubEauWidget *ui;

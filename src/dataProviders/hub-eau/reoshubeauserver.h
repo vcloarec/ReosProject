@@ -21,6 +21,7 @@
 #include <memory>
 
 #include "reosmapextent.h"
+#include "reosmodule.h"
 #include "reostimeserieprovider.h"
 
 
@@ -56,6 +57,9 @@ class ReosHubEauConnection: public QObject
     //! Returns the error code of the last request
     int errorCode() const;
 
+    //! Returns the error reason if any
+    QString errorReason() const;
+
     //! Returns the result of the last request
     QVariantMap result() const;
 
@@ -74,6 +78,7 @@ class ReosHubEauConnection: public QObject
     QString mRequest;
     QVariantMap mResult;
     int mErrorCode = -1;
+    QString mErrorReason;
     bool mRequestInProgress = false;
 };
 
@@ -95,12 +100,18 @@ class ReosHubEauConnectionControler: public QObject
     //! Returns the last error following a requuest
     int lastError() const;
 
+    //! Returns the last error following a requuest
+    QString lastErrorReason() const;
+
   signals:
     //! Emitted when the result of the request is ready and sends it to the rceiver of the slot
     void resultReady( const QVariantMap &result );
 
     //! Emitted when the request is finished, that is all replies have been done.
     void requestFinished();
+
+    //! Emitted when an error occured
+    void errorOccured();
 
   public slots:
     //! Slot called by the connection to inform that the server replied
@@ -128,9 +139,15 @@ class ReosHubEauServer : public QObject
     //! Create a new hydrograph from the \a stationId, caller take ownership
     ReosHydrograph *createHydrograph( const QString &stationId, const QVariantMap &meta, QObject *parent = nullptr ) const;
 
+    //! Returns the last message produce by the server
+    ReosModule::Message lastMessage() const;
+
   signals:
     //! Emitted when stations are updated following a reply of the server
     void stationsUpdated();
+
+    //! Emitted when an error occured with the server
+    void errorOccured();
 
   public slots:
     //! Sets the extent of the area of interest to require stations
@@ -138,12 +155,14 @@ class ReosHubEauServer : public QObject
 
   private slots:
     void addStations( const QVariantMap &requestResult );
+    void onErrorOccured();
 
   private:
     ReosMap *mMap = nullptr;
     ReosHubEauConnectionControler *mStationsRequestControler = nullptr;
     QList<ReosHubEauStation> mStations;
     ReosMapExtent mExtent;
+    ReosModule::Message mLastMessage;
 };
 
 #endif // REOSHUBEAUSERVER_H

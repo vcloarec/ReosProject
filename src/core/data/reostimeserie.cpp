@@ -272,6 +272,7 @@ ReosTimeSerieConstantInterval::ReosTimeSerieConstantInterval( QObject *parent, c
     if ( mProvider )
     {
       connect( mProvider.get(), &ReosTimeSerieProvider::dataChanged, this, &ReosTimeSerieConstantInterval::onDataProviderChanged );
+      connect( mProvider.get(), &ReosTimeSerieProvider::dataReset, this, &ReosTimeSerieConstantInterval::dataReset );
       mProvider->setReferenceTime( QDateTime( QDate( QDate::currentDate().year(), 1, 1 ), QTime( 0, 0, 0 ), Qt::UTC ) );
     }
   }
@@ -705,6 +706,7 @@ ReosTimeSerie::ReosTimeSerie( QObject *parent, const QString &providerKey, const
   {
     mProvider->setReferenceTime( QDateTime( QDate( QDate::currentDate().year(), 1, 1 ), QTime( 0, 0, 0 ), Qt::UTC ) );
     connect( mProvider.get(), &ReosTimeSerieProvider::dataChanged, this, &ReosTimeSerie::onDataProviderChanged );
+    connect( mProvider.get(), &ReosTimeSerieProvider::dataReset, this, &ReosTimeSerie::dataReset );
     mProvider->setDataSource( dataSource );
   }
 }
@@ -806,6 +808,7 @@ bool ReosTimeSerie::decodeBase( const ReosEncodedElement &element )
     if ( mProvider && element.hasEncodedData( QStringLiteral( "provider-data" ) ) )
     {
       connect( mProvider.get(), &ReosTimeSerieProvider::dataChanged, this, &ReosTimeSerie::onDataProviderChanged );
+      connect( mProvider.get(), &ReosTimeSerieProvider::dataReset, this, &ReosTimeSerie::dataReset );
       mProvider->decode( element.getEncodedData( QStringLiteral( "provider-data" ) ) );
       mReferenceTimeParameter->setValue( mProvider->referenceTime() );
       mReferenceTimeParameter->setEditable( mProvider->isEditable() );
@@ -873,6 +876,7 @@ ReosTimeSerieVariableTimeStep::ReosTimeSerieVariableTimeStep(
   {
     mProvider.reset( new ReosTimeSerieVariableTimeStepMemoryProvider( ) );
     connect( mProvider.get(), &ReosTimeSerieProvider::dataChanged, this, &ReosTimeSerieVariableTimeStep::onDataProviderChanged );
+    connect( mProvider.get(), &ReosTimeSerieProvider::dataReset, this, &ReosTimeSerieVariableTimeStep::dataReset );
     mProvider->setReferenceTime( QDateTime( QDate( QDate::currentDate().year(), 1, 1 ), QTime( 0, 0, 0 ), Qt::UTC ) );
   }
   connectParameters();
@@ -1536,9 +1540,13 @@ void ReosTimeSerieVariableTimeStepModel::insertRowsPrivate( const QModelIndex &f
 
 void ReosTimeSerieVariableTimeStepModel::setSerie( ReosTimeSerieVariableTimeStep *serie )
 {
+  if ( mData )
+    disconnect( mData, &ReosDataObject::dataReset, this, &ReosTimeSerieVariableTimeStepModel::updateModel );
   beginResetModel();
   mData = serie;
   endResetModel();
+  if ( mData )
+    connect( mData, &ReosDataObject::dataReset, this, &ReosTimeSerieVariableTimeStepModel::updateModel );
 }
 
 void ReosTimeSerieVariableTimeStepModel::setNewRowWithFixedTimeStep( bool newRowWithFixedTimeStep )

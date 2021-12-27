@@ -98,6 +98,13 @@
           </spacer>
          </item>
          <item>
+          <widget class="ReosNotificationButton" name="mNotificationButton">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QLabel" name="mStationCountLabel">
            <property name="text">
             <string>---</string>
@@ -138,6 +145,11 @@
    <extends>QWidget</extends>
    <header>reosplotwidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ReosNotificationButton</class>
+   <extends>QToolButton</extends>
+   <header>reosnotificationbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources>

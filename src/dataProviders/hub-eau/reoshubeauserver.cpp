@@ -34,7 +34,7 @@ ReosHubEauConnection::ReosHubEauConnection( QObject *parent )
   : QObject( parent )
   , mNetworkAccessManager( new QNetworkAccessManager( this ) )
 {
-  mBaseUri = "https://hubeau.eaufrance.fr/api/v1/hydrometrie/";
+  mBaseUri = QStringLiteral( "https://hubeau.eaufrance.fr/api/v1/hydrometrie/" );
   connect( mNetworkAccessManager, &QNetworkAccessManager::finished, this, &ReosHubEauConnection::onReplied );
 }
 
@@ -66,11 +66,19 @@ void ReosHubEauConnection::onReplied( QNetworkReply *reply )
 
   mErrorCode = reply->error();
 
+  if ( mErrorCode != 0 )
+  {
+    mErrorReason = reply->attribute( QNetworkRequest::HttpReasonPhraseAttribute ).toString();
+  }
+
   QTextStream textStream( reply );
   QJsonDocument mJsonResult = QJsonDocument::fromJson( textStream.readAll().toUtf8() );
   QVariant var = mJsonResult.toVariant();
   if ( var.type() != QVariant::Map )
+  {
+    emit repliedReady();
     return;
+  }
 
   mResult = var.toMap();
 
@@ -83,6 +91,11 @@ void ReosHubEauConnection::onReplied( QNetworkReply *reply )
 int ReosHubEauConnection::errorCode() const
 {
   return mErrorCode;
+}
+
+QString ReosHubEauConnection::errorReason() const
+{
+  return mErrorReason;
 }
 
 QVariantMap ReosHubEauConnection::result() const
@@ -107,6 +120,7 @@ ReosHubEauServer::ReosHubEauServer( QObject *parent )
 {
   mStationsRequestControler = new ReosHubEauConnectionControler( this );
   connect( mStationsRequestControler, &ReosHubEauConnectionControler::resultReady, this, &ReosHubEauServer::addStations );
+  connect( mStationsRequestControler, &ReosHubEauConnectionControler::errorOccured, this, &ReosHubEauServer::onErrorOccured );
 }
 
 ReosHubEauConnectionControler::~ReosHubEauConnectionControler()
@@ -134,6 +148,11 @@ int ReosHubEauConnectionControler::lastError() const
   return mConnection->errorCode();
 }
 
+QString ReosHubEauConnectionControler::lastErrorReason() const
+{
+  return mConnection->errorReason();
+}
+
 void ReosHubEauConnectionControler::onReplied()
 {
   QVariantMap result = mConnection->result();
@@ -143,6 +162,12 @@ void ReosHubEauConnectionControler::onReplied()
     mNextURL = QString();
 
   mError = mConnection->errorCode();
+
+  if ( mError != 0 )
+  {
+    emit errorOccured();
+    return;
+  }
 
   emit resultReady( result );
 
@@ -171,14 +196,21 @@ void ReosHubEauServer::setExtent( const ReosMapExtent &extent )
   double latMin = extent.yMapMin();
   double latMax = extent.yMapMax();
 
-  const QString request = QStringLiteral( "referentiel/stations?bbox=%1,%2,%3,%4&format=json&pretty&page=1&size=2000" ).arg( lontMin ).arg( latMin ).arg( lontMax ).arg( latMax );
+  const QString request = QStringLiteral( "referentiel/stations?bbox=%1,%2,%3,%4&en_service=true&fields=code_station,libelle_station,type_station,longitude_station,latitude_station,en_service,date_ouverture_station,date_fermeture_station,influence_locale_station,commentaire_influence_locale_station,commentaire_station&format=json&pretty&page=1&size=2000" ).arg( lontMin ).arg( latMin ).arg( lontMax ).arg( latMax );
   mStationsRequestControler->request( request );
 }
 
 void ReosHubEauServer::addStations( const QVariantMap &requestResult )
 {
+  mLastMessage = ReosModule::Message();
+
   if ( !requestResult.contains( QStringLiteral( "data" ) ) )
+  {
+    onErrorOccured();
     return;
+  }
+
+  mLastMessage = ReosModule::Message();
 
   const QVariantList stations = requestResult.value( QStringLiteral( "data" ) ).toList();
 
@@ -201,6 +233,18 @@ void ReosHubEauServer::addStations( const QVariantMap &requestResult )
   emit stationsUpdated();
 }
 
+void ReosHubEauServer::onErrorOccured()
+{
+  if ( mStationsRequestControler )
+  {
+    mLastMessage = ReosModule::Message();
+    mLastMessage.type = ReosModule::Error;
+    mLastMessage.text = tr( "Following error occured with Hub-Eau server: %1" ).arg( mStationsRequestControler->lastErrorReason() );
+
+    emit errorOccured();
+  }
+}
+
 QList<ReosHubEauStation> ReosHubEauServer::stations() const
 {
   return mStations;
@@ -216,4 +260,9 @@ ReosHydrograph *ReosHubEauServer::createHydrograph( const QString &stationId, co
   Q_ASSERT( provider );
   provider->setMetadata( meta );
   return hyd.release();
+}
+
+ReosModule::Message ReosHubEauServer::lastMessage() const
+{
+  return mLastMessage;
 }

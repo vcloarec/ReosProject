@@ -17,6 +17,7 @@
 #define REOSHUBEAUHYDROGRAPHPROVIDER_H
 
 #include "reostimeserieprovider.h"
+#include "reosmodule.h"
 
 class ReosHubEauConnectionControler;
 
@@ -48,6 +49,7 @@ class ReosHubEauHydrographProvider : public ReosTimeSerieVariableTimeStepProvide
     void decode( const ReosEncodedElement &element ) override;
     ReosDuration relativeTimeAt( int i ) const override;
     ReosDuration lastRelativeTime() const override;
+    QString htmlDescription() const override;
 
     //! Returns the last status of  loading data
     Status status() const;
@@ -58,16 +60,22 @@ class ReosHubEauHydrographProvider : public ReosTimeSerieVariableTimeStepProvide
     //! Sets the meta data of this provider
     void setMetadata( const QVariantMap &metadata );
 
-    QString htmlDescription() const override;
+    //! Returns the last message produced during loading data
+    ReosModule::Message lastMessage() const;
+
     static QString htmlDescriptionFromMeta( const QVariantMap &metadata );
 
     //! Returns the key of this provider
     static QString staticKey();
 
+  signals:
+    void errorOccured();
+
   private slots:
     void onResultReady( const QVariantMap &result );
     void onLoadingFinished();
     void onMetadataReady( const QVariantMap &result );
+    void onErrorOccured();
 
   private:
     QDateTime mReferenceTime;
@@ -77,6 +85,7 @@ class ReosHubEauHydrographProvider : public ReosTimeSerieVariableTimeStepProvide
     QVector<double> mCachedValues;
     QVector<ReosDuration> mCachedTimeValues;
     Status mStatus = Status::Loaded;
+    ReosModule::Message mLastMessage;
 
 };
 

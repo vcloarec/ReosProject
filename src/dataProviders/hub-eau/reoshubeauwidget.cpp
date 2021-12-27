@@ -55,11 +55,13 @@ ReosHubEauWidget::ReosHubEauWidget( ReosMap *map, QWidget *parent )
   ui->mPlotWidget->setAxesTextSize( 10 );
   ui->mPlotWidget->setMagnifierType( ReosPlotWidget::positiveMagnifier );
   ui->mPlotWidget->setTitleAxeYLeft( tr( "Flow rate (%1)" ).arg( QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
+  ui->mNotificationButton->setVisible( false );
 
   mServer = new ReosHubEauServer( this );
 
   connect( mMap, &ReosMap::extentChanged, this, &ReosHubEauWidget::onMapExtentChanged );
   connect( mServer, &ReosHubEauServer::stationsUpdated, this, &ReosHubEauWidget::onStationUpdated );
+  connect( mServer, &ReosHubEauServer::errorOccured, this, &ReosHubEauWidget::onErrorOccured );
   connect( mSelectStation, &ReosMapToolSelectMapItem::found, this, &ReosHubEauWidget::onSelectStation );
 }
 
@@ -88,11 +90,13 @@ void ReosHubEauWidget::onMapExtentChanged()
   const ReosMapExtent extent = mMap->extent();
   const ReosMapExtent hubEauExtent = mMap->engine()->transformFromProjectExtent( extent, ReosGisEngine::wktEPSGCrs( 4326 ) );
   mServer->setExtent( hubEauExtent );
+  ui->mStationCountLabel->setVisible( true );
   ui->mStationCountLabel->setText( tr( "Loading stations on extent", nullptr, mStations.count() ) );
 }
 
 void ReosHubEauWidget::onStationUpdated()
 {
+  ui->mNotificationButton->setVisible( false );
   mStationsMarker.clear();
   mCurrentMarker = nullptr;
 
@@ -108,7 +112,19 @@ void ReosHubEauWidget::onStationUpdated()
     if ( station.id == mCurrentStationId )
       mCurrentMarker = mStationsMarker.back().get();
   }
+  ui->mStationCountLabel->setVisible( true );
   ui->mStationCountLabel->setText( tr( "%n station displayed", nullptr, mStations.count() ) );
+}
+
+void ReosHubEauWidget::onErrorOccured()
+{
+  const ReosModule::Message serverMessage = mServer->lastMessage();
+  ui->mStationCountLabel->setVisible( false );
+  ui->mNotificationButton->setVisible( true );
+  ui->mNotificationButton->setMessage( serverMessage );
+  ReosModule::Message sendedMessage = serverMessage;
+  sendedMessage.prefixMessage( tr( "Hub-Eau server: " ) );
+  mMap->message( sendedMessage );
 }
 
 void ReosHubEauWidget::onClosed()

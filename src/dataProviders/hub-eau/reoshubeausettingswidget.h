@@ -39,6 +39,7 @@ class ReosHubEauSettingsWidget : public ReosDataProviderSettingsWidget
 
   private slots:
     void onReload();
+    void onErrorOccured();
 
   private:
     Ui::ReosHubEauSettingsWidget *ui;

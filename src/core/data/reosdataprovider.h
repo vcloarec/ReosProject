@@ -33,6 +33,7 @@ class ReosDataProvider : public QObject
 
   signals:
     void dataChanged();
+    void dataReset();
 };
 
 class ReosDataProviderFactory
