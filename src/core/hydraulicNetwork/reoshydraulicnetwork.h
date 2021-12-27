@@ -139,10 +139,15 @@ class ReosHydraulicNetwork : public ReosModule
     void decode( const ReosEncodedElement &element );
     ReosEncodedElement encode() const;
 
+    //! Clears the network
+    void clear();
+
+
   signals:
     void elementAdded( ReosHydraulicNetworkElement *elem );
     void elementRemoved( ReosHydraulicNetworkElement *elem );
     void elementPositionHasChanged( ReosHydraulicNetworkElement *elem );
+    void hasBeenReset();
 
   private:
     ReosWatershedModule *mWatershedModule = nullptr;
@@ -151,15 +156,9 @@ class ReosHydraulicNetwork : public ReosModule
 
     QHash<QString, int> mElementIndexesCounter;
 
-    friend class ReosHydraulicNetworkElement; //TODO ccheck if really necessary
+    friend class ReosHydraulicNetworkElement;
 
-    ReosHydraulicNetworkContext context() const
-    {
-      ReosHydraulicNetworkContext context;
-      context.mWatershedModule = mWatershedModule;
-      context.mNetwork = const_cast<ReosHydraulicNetwork *>( this );
-      return context;
-    }
+    ReosHydraulicNetworkContext context() const;
 
     std::map<QString, std::unique_ptr<ReosHydraulicNetworkElementFactory>> mElementFactories;
     void addEncodedElement( const ReosEncodedElement &element );

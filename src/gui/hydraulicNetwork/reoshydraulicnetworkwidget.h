@@ -71,6 +71,8 @@ class ReosHydraulicNetworkWidget : public QWidget
     void onElementSelected( ReosMapItem *item );
     void onSelectedElementRemoved();
 
+    void onModuleReset();
+
   private:
     Ui::ReosHydraulicNetworkWidget *ui;
     ReosHydraulicNetwork *mHydraulicNetwork = nullptr;

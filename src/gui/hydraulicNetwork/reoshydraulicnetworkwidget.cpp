@@ -75,6 +75,8 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   toolBar->addAction( mActionRemoveElement );
   mActionRemoveElement->setEnabled( false );
 
+  connect( network, &ReosHydraulicNetwork::hasBeenReset, this, &ReosHydraulicNetworkWidget::onModuleReset );
+
   connect( mActionRemoveElement, &QAction::triggered, this, &ReosHydraulicNetworkWidget::onSelectedElementRemoved );
   connect( mHydraulicNetwork, &ReosHydraulicNetwork::elementAdded, this, &ReosHydraulicNetworkWidget::onElementAdded );
   connect( mHydraulicNetwork, &ReosHydraulicNetwork::elementRemoved, this, &ReosHydraulicNetworkWidget::onElementRemoved );
@@ -191,5 +193,12 @@ void ReosHydraulicNetworkWidget::onSelectedElementRemoved()
 
   mCurrentSelectedElement = nullptr;
   mActionRemoveElement->setEnabled( false );
+}
+
+void ReosHydraulicNetworkWidget::onModuleReset()
+{
+  mCurrentSelectedElement = nullptr;
+  mElementPropertiesWidget->setCurrentElement( nullptr );
+  mMapItems.clear();
 }
 

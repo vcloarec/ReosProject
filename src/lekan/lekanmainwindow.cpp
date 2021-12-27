@@ -211,6 +211,9 @@ void LekanMainWindow::clearProject()
 
   if ( mWatershedModule )
     mWatershedModule->clearWatersheds();
+
+  if ( mHydraulicNetwork )
+    mHydraulicNetwork->clear();
 }
 
 void LekanMainWindow::checkExtraProjectToSave()

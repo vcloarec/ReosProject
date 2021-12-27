@@ -179,6 +179,7 @@ void ReosHydraulicNetwork::removeElement( ReosHydraulicNetworkElement *elem )
 
 void ReosHydraulicNetwork::decode( const ReosEncodedElement &element )
 {
+  clear();
   if ( element.description() != QStringLiteral( "hydraulic-network" ) )
     return;
 
@@ -222,9 +223,25 @@ ReosEncodedElement ReosHydraulicNetwork::encode() const
   return element;
 }
 
+void ReosHydraulicNetwork::clear()
+{
+  qDeleteAll( mElements );
+  mElements.clear();
+  mElementIndexesCounter.clear();
+  emit hasBeenReset();
+}
+
 void ReosHydraulicNetwork::elemPositionChangedPrivate( ReosHydraulicNetworkElement *elem )
 {
   emit elementPositionHasChanged( elem );
+}
+
+ReosHydraulicNetworkContext ReosHydraulicNetwork::context() const
+{
+  ReosHydraulicNetworkContext context;
+  context.mWatershedModule = mWatershedModule;
+  context.mNetwork = const_cast<ReosHydraulicNetwork *>( this );
+  return context;
 }
 
 void ReosHydraulicNetwork::addEncodedElement( const ReosEncodedElement &element )
