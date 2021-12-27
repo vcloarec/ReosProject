@@ -32,7 +32,10 @@ ReosHubEauSettingsWidget::ReosHubEauSettingsWidget( ReosDataProvider *provider, 
     populateDescription();
   } );
 
+  connect( mProvider, &ReosHubEauHydrographProvider::errorOccured, this, &ReosHubEauSettingsWidget::onErrorOccured );
+
   enableLoadButton();
+  ui->mNotificationToolButton->setVisible( false );
   connect( ui->mReloadButton, &QPushButton::clicked, this, &ReosHubEauSettingsWidget::onReload );
 }
 
@@ -45,6 +48,16 @@ void ReosHubEauSettingsWidget::onReload()
 {
   if ( mProvider )
     mProvider->load();
+  ui->mNotificationToolButton->setVisible( false );
+  ui->mNotificationToolButton->setMessage( ReosModule::Message() );
+  enableLoadButton();
+}
+
+void ReosHubEauSettingsWidget::onErrorOccured()
+{
+  ReosModule::Message message = mProvider->lastMessage();
+  ui->mNotificationToolButton->setVisible( true );
+  ui->mNotificationToolButton->setMessage( message );
   enableLoadButton();
 }
 
@@ -58,8 +71,7 @@ void ReosHubEauSettingsWidget::populateDescription()
 
 void ReosHubEauSettingsWidget::enableLoadButton()
 {
-
-  if ( mProvider && mProvider->status() != ReosHubEauHydrographProvider::Status::Loaded )
+  if ( mProvider && mProvider->status() == ReosHubEauHydrographProvider::Status::Loading )
   {
     ui->mReloadButton->setEnabled( false );
     ui->mReloadButton->setText( tr( "Loading" ) );

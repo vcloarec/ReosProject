@@ -73,8 +73,10 @@ class ReosHubEauWidget : public ReosDataProviderSelectorWidget
   private slots:
     void onMapExtentChanged();
     void onStationUpdated();
+    void onErrorOccured();
     void onSelectStation( ReosMapItem *item, const QPointF & );
     void onHydrographUpdated();
+    void onError();
 
   private:
     Ui::ReosHubEauWidget *ui;
@@ -90,6 +92,8 @@ class ReosHubEauWidget : public ReosDataProviderSelectorWidget
     QVariantMap mCurrentStationMeta;
 
     void populateMeta( const QVariantMap &meta );
+
+    static void formatMarker( ReosHubEauStationMarker *marker, const QVariantMap &meta, bool currentMarker = false );
 };
 
 class ReosHubEauHydrometryGuiFactory : public ReosDataProviderGuiFactory

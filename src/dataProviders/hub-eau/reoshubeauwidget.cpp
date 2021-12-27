@@ -55,11 +55,13 @@ ReosHubEauWidget::ReosHubEauWidget( ReosMap *map, QWidget *parent )
   ui->mPlotWidget->setAxesTextSize( 10 );
   ui->mPlotWidget->setMagnifierType( ReosPlotWidget::positiveMagnifier );
   ui->mPlotWidget->setTitleAxeYLeft( tr( "Flow rate (%1)" ).arg( QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
+  ui->mNotificationButton->setVisible( false );
 
   mServer = new ReosHubEauServer( this );
 
   connect( mMap, &ReosMap::extentChanged, this, &ReosHubEauWidget::onMapExtentChanged );
   connect( mServer, &ReosHubEauServer::stationsUpdated, this, &ReosHubEauWidget::onStationUpdated );
+  connect( mServer, &ReosHubEauServer::errorOccured, this, &ReosHubEauWidget::onErrorOccured );
   connect( mSelectStation, &ReosMapToolSelectMapItem::found, this, &ReosHubEauWidget::onSelectStation );
 }
 
@@ -85,14 +87,16 @@ ReosHydrograph *ReosHubEauWidget::selectedData() const
 
 void ReosHubEauWidget::onMapExtentChanged()
 {
-  ReosMapExtent extent = mMap->extent();
-  ReosMapExtent hubEauExtent = mMap->engine()->transformFromProjectExtent( extent, ReosGisEngine::wktEPSGCrs( 4326 ) );
+  const ReosMapExtent extent = mMap->extent();
+  const ReosMapExtent hubEauExtent = mMap->engine()->transformFromProjectExtent( extent, ReosGisEngine::wktEPSGCrs( 4326 ) );
   mServer->setExtent( hubEauExtent );
-  ui->mStationCountLabel->setText( tr( "Loading station on extent", nullptr, mStations.count() ) );
+  ui->mStationCountLabel->setVisible( true );
+  ui->mStationCountLabel->setText( tr( "Loading stations on extent", nullptr, mStations.count() ) );
 }
 
 void ReosHubEauWidget::onStationUpdated()
 {
+  ui->mNotificationButton->setVisible( false );
   mStationsMarker.clear();
   mCurrentMarker = nullptr;
 
@@ -104,8 +108,23 @@ void ReosHubEauWidget::onStationUpdated()
     const QPointF pt = mMap->engine()->transformToProjectCoordinates( ReosGisEngine::wktEPSGCrs( 4326 ), QPointF( station.longitude, station.latitude ) );
     mStationsMarker.emplace_back( std::make_unique<ReosHubEauStationMarker>( mMap, pt ) );
     mStationsMarker.back()->stationIndex = i;
+    formatMarker( mStationsMarker.back().get(), station.meta, station.id == mCurrentStationId );
+    if ( station.id == mCurrentStationId )
+      mCurrentMarker = mStationsMarker.back().get();
   }
+  ui->mStationCountLabel->setVisible( true );
   ui->mStationCountLabel->setText( tr( "%n station displayed", nullptr, mStations.count() ) );
+}
+
+void ReosHubEauWidget::onErrorOccured()
+{
+  const ReosModule::Message serverMessage = mServer->lastMessage();
+  ui->mStationCountLabel->setVisible( false );
+  ui->mNotificationButton->setVisible( true );
+  ui->mNotificationButton->setMessage( serverMessage );
+  ReosModule::Message sendedMessage = serverMessage;
+  sendedMessage.prefixMessage( tr( "Hub-Eau server: " ) );
+  mMap->message( sendedMessage );
 }
 
 void ReosHubEauWidget::onClosed()
@@ -128,15 +147,18 @@ void ReosHubEauWidget::onSelectStation( ReosMapItem *item, const QPointF & )
   }
 
   if ( mCurrentMarker )
-    mCurrentMarker->setExternalColor( Qt::black );
+    formatMarker( mCurrentMarker, mCurrentStationMeta, false );
 
   mCurrentHydrograph = nullptr;
   mCurrentMarker = static_cast<ReosHubEauStationMarker *>( item );
   if ( mCurrentMarker )
   {
-    mCurrentStationId = mStations.at( mCurrentMarker->stationIndex ).id;
-    mCurrentStationMeta = mStations.at( mCurrentMarker->stationIndex ).meta;
-    mCurrentMarker->setExternalColor( Qt::red );
+    const ReosHubEauStation &station =  mStations.at( mCurrentMarker->stationIndex );
+    mCurrentStationId = station.id;
+    mCurrentStationMeta = station.meta;
+
+    formatMarker( mCurrentMarker, mCurrentStationMeta, true );
+
     mCurrentHydrograph = mServer->createHydrograph( mCurrentStationId, mCurrentStationMeta, this );
     ui->mCurrentStateLabel->setText( "Loading hydrograph" );
     connect( mCurrentHydrograph, &ReosDataObject::dataChanged, this, &ReosHubEauWidget::onHydrographUpdated );
@@ -198,13 +220,38 @@ void ReosHubEauWidget::populateMeta( const QVariantMap &meta )
   ui->mTextBrowser->setText( ReosHubEauHydrographProvider::htmlDescriptionFromMeta( meta ) );
 }
 
+void ReosHubEauWidget::formatMarker( ReosHubEauStationMarker *marker, const QVariantMap &meta, bool currentMarker )
+{
+  QColor externalColor;
+
+  if ( currentMarker )
+  {
+    externalColor = Qt::red;
+    marker->setWidth( 14 );
+    marker->setExternalWidth( 20 );
+  }
+  else
+  {
+    externalColor = Qt::black;
+    marker->setWidth( 10 );
+    marker->setExternalWidth( 14 );
+  }
+
+  marker->setExternalColor( externalColor );
+
+  if ( !meta.value( QStringLiteral( "en_service" ) ).toBool() )
+  {
+    marker->setColor( QColor( 200, 120, 120 ) );
+  }
+  else
+  {
+    marker->setColor( QColor( 12, 114, 185 ) );
+  }
+}
+
 ReosHubEauStationMarker::ReosHubEauStationMarker( ReosMap *map, const QPointF &point ): ReosMapMarkerFilledCircle( map, point )
 {
-  setColor( QColor( 12, 114, 185 ) );
-  setWidth( 10 );
-  setExternalColor( Qt::black );
   setDescription( QStringLiteral( "hub-eau-station" ) );
-  setExternalWidth( 14 );
 }
 
 ReosDataProviderGuiFactory::GuiCapabilities ReosHubEauHydrometryGuiFactory::capabilities() const

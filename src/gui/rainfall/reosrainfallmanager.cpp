@@ -164,7 +164,12 @@ ReosRainfallManager::ReosRainfallManager( ReosMap *map, ReosRainfallModel *rainf
   connect( ui->mTreeView, &QWidget::customContextMenuRequested, this, &ReosRainfallManager::onTreeViewContextMenu );
 
   connect( this, &ReosActionWidget::opened, this, [this] {setMarkersVisible( true );} );
-  connect( this, &ReosActionWidget::closed, this, [this] {setMarkersVisible( false );} );
+  connect( this, &ReosActionWidget::closed, this, [this]
+  {
+    if ( ui->stackedWidget->currentIndex() == 1 )
+      backToMainIndex();
+    setMarkersVisible( false );
+  } );
 
   connect( ui->mProviderBackButton, &QPushButton::clicked, this, &ReosRainfallManager::backToMainIndex );
   connect( ui->mProviderAddButton, &QPushButton::clicked, this, [this]
@@ -336,7 +341,7 @@ void ReosRainfallManager::populateProviderActions( QToolBar *toolBar )
 
 void ReosRainfallManager::showProviderSelector( const QString &providerKey )
 {
-  const QString dataType = QStringLiteral( "rainfall" );
+  const QString dataType = ReosSerieRainfall::staticType();
   ReosDataProviderGuiRegistery *registery = ReosDataProviderGuiRegistery::instance();
 
   if ( mCurrentProviderSelector )
