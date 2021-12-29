@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
   reoshydraulichydrographnodepropertieswidget.h - ReosHydraulicHydrographNodePropertiesWidget
 
  ---------------------
@@ -21,6 +21,7 @@
 #include "reoshydraulicelementpropertieswidget.h"
 #include "reosformwidget.h"
 #include "reoshydraulicnetworkwidget.h"
+#include "reosguicontext.h"
 
 class ReosHydrographJunction;
 class ReosPlotTimeSerieVariableStep;
@@ -35,7 +36,7 @@ class ReosHydraulicHydrographJunctionPropertiesWidget : public ReosHydraulicElem
 {
     Q_OBJECT
   public:
-    explicit ReosHydraulicHydrographJunctionPropertiesWidget( ReosHydrographJunction *junctionNode, QWidget *parent = nullptr );
+    explicit ReosHydraulicHydrographJunctionPropertiesWidget( ReosHydrographJunction *junctionNode, const ReosGuiContext &context = ReosGuiContext() );
     ~ReosHydraulicHydrographJunctionPropertiesWidget();
 
     void setCurrentCalculationContext( const ReosCalculationContext &calculationContext ) override;
@@ -43,12 +44,14 @@ class ReosHydraulicHydrographJunctionPropertiesWidget : public ReosHydraulicElem
   private slots:
     void populateHydrographs();
     void updateInformation();
+    void updateGaugedHydrograph();
 
   private:
     Ui::ReosHydraulicHydrographJunctionPropertiesWidget *ui;
     ReosHydrographJunction *mJunctionNode = nullptr;
     ReosPlotTimeSerieVariableStep *mOutputCurve = nullptr;
     ReosVariableTimeStepPlotListButton *mHydrographPlotButton = nullptr;
+    ReosVariableTimeStepPlotListButton *mGaugedHydrographPlotButton = nullptr;
     ReosHydrauylicNetworkElementCalculationControler *mProgressControler = nullptr;
 };
 
@@ -58,36 +61,63 @@ class ReosHydraulicHydrographNodePropertiesWidgetFactory : public ReosHydraulicE
   public:
     ReosHydraulicHydrographNodePropertiesWidgetFactory( QObject *parent = nullptr );
 
-    ReosHydraulicElementWidget *createWidget( ReosHydraulicNetworkElement *element, QWidget *parent = nullptr );
+    ReosHydraulicElementWidget *createWidget( ReosHydraulicNetworkElement *element, const ReosGuiContext &context = ReosGuiContext() );
     virtual QString elementType();
+};
+
+class ReosFormBaseJunctionNodeWidget: public ReosFormWidget
+{
+    Q_OBJECT
+  public:
+    ReosFormBaseJunctionNodeWidget( ReosHydrographJunction *junction, QWidget *parent = nullptr );
+
+  protected slots:
+    void updateGaugedHydrograph();
+
+  protected:
+    QComboBox *mGaugedHydrographCombo = nullptr;
+    QLabel *mGaugedLabel = nullptr;
+
+    virtual ReosHydrographJunction *node() const = 0;
 };
 
 class ReosFormJunctionNodeWidgetFactory: public ReosFormWidgetDataFactory
 {
   public:
-    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent );
+    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context = ReosGuiContext() );
     virtual QString datatype() const;
 };
 
-class ReosFormJunctionNodeWidget: public ReosFormWidget
+
+class ReosFormJunctionNodeWidget: public ReosFormBaseJunctionNodeWidget
 {
     Q_OBJECT
   public:
-    ReosFormJunctionNodeWidget( ReosHydrographJunction *junction, QWidget *parent = nullptr );
+    ReosFormJunctionNodeWidget( ReosHydrographJunction *junction, const ReosGuiContext &context = ReosGuiContext() );
+  protected:
+    ReosHydrographJunction *node() const override;
+
+  private:
+    ReosHydrographJunction *mJunctioNode = nullptr;
 };
+
 
 class ReosFormWatershedNodeWidgetFactory: public ReosFormWidgetDataFactory
 {
   public:
-    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent );
+    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context = ReosGuiContext() );
     virtual QString datatype() const;
 };
 
-class ReosFormWatershedNodeWidget: public ReosFormJunctionNodeWidget
+
+class ReosFormWatershedNodeWidget: public ReosFormBaseJunctionNodeWidget
 {
     Q_OBJECT
   public:
     ReosFormWatershedNodeWidget( ReosHydrographNodeWatershed *watershedNode, QWidget *parent = nullptr );
+
+  protected:
+    ReosHydrographJunction *node() const override;
 
   private slots:
     void originChange();
@@ -95,10 +125,6 @@ class ReosFormWatershedNodeWidget: public ReosFormJunctionNodeWidget
   private:
     ReosHydrographNodeWatershed *mNode = nullptr;
     QComboBox *mOriginCombo = nullptr;
-    QComboBox *mGaugedHydrographCombo = nullptr;
-    QLabel *mGaugedLabel = nullptr;
-
-    void updateGaugedHydrograph();
 };
 
 

@@ -39,15 +39,17 @@ class QToolBar;
 
 class ReosHubEauWidget;
 
-class ReosGaugedHydrographWidget : public ReosActionWidget
+
+class ReosGaugedHydrographWidget : public ReosStackedPageWidget
 {
     Q_OBJECT
   public:
     explicit ReosGaugedHydrographWidget( ReosMap *map, QWidget *parent = nullptr );
     ~ReosGaugedHydrographWidget();
 
-  public slots:
-    void setCurrentWatershed( ReosWatershed *watershed );
+    void setHydrographStore( ReosHydrographsStore *store );
+
+    virtual void showBackButton();;
 
   private slots:
     void onAddHydrograph();
@@ -56,12 +58,10 @@ class ReosGaugedHydrographWidget : public ReosActionWidget
     void onStoreChanged();
     void onCurrentHydrographChanged();
     void updatePlotExtent();
-    void backToMainIndex();
 
   private:
     Ui::ReosGaugedHydrographWidget *ui;
     ReosMap *mMap = nullptr;
-    ReosWatershed *mCurrentWatershed = nullptr;
     ReosHydrographsStore *mHydrographStore = nullptr;
     ReosTimeSerieVariableTimeStepModel *mTableModel = nullptr;
     QAction *mActionAddHydrograph = nullptr;
@@ -74,12 +74,25 @@ class ReosGaugedHydrographWidget : public ReosActionWidget
     ReosPlotTimeSerieVariableStep *mHydrographPlot = nullptr;
     QToolBar *mToolBarProvider;
 
-    ReosDataProviderSelectorWidget  *mCurrentDataSelectorWidget = nullptr;
     bool mIsDatasetSelected = false;
     bool mIsDataReady = false;
 
     void populateProviderActions();
     void showProviderSelector( const QString &providerKey );
+};
+
+
+class ReosWatershedGaugedHydrographWidget : public ReosActionStackedWidget
+{
+    Q_OBJECT
+  public:
+    ReosWatershedGaugedHydrographWidget( ReosMap *map, QWidget *parent = nullptr );
+
+  public slots:
+    void setCurrentWatershed( ReosWatershed *watershed );
+
+  private:
+    ReosGaugedHydrographWidget *mGaugedHydrographWidget = nullptr;
 };
 
 #endif // REOSGAUGEDHYDROGRAPHWIDGET_H

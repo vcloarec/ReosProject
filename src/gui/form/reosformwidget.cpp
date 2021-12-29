@@ -87,9 +87,9 @@ void ReosFormWidget::addParameters( QList<ReosParameter *> parameters, ReosParam
       addParameter( p, spacer );
 }
 
-ReosFormWidget *ReosFormWidget::addData( ReosDataObject *data, int position )
+ReosFormWidget *ReosFormWidget::addData( ReosDataObject *data, const ReosGuiContext &context, int position )
 {
-  ReosFormWidget *dataWidget = createDataWidget( data, this );
+  ReosFormWidget *dataWidget = createDataWidget( data, ReosGuiContext( context, this ) );
   if ( dataWidget )
     addWidget( dataWidget, position );
 
@@ -120,12 +120,12 @@ void ReosFormWidget::addLine( int position )
   addWidget( line, position );
 }
 
-ReosFormWidget *ReosFormWidget::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+ReosFormWidget *ReosFormWidget::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &guiContext )
 {
   if ( !dataObject && !ReosFormWidgetFactories::isInstantiate() )
     return nullptr;
 
-  return ReosFormWidgetFactories::instance()->createDataFormWidget( dataObject, parent );
+  return ReosFormWidgetFactories::instance()->createDataFormWidget( dataObject, guiContext );
 }
 
 void ReosFormWidget::setStretch( int i, int stretch )
@@ -156,9 +156,9 @@ void ReosFormDialog::addParameter( ReosParameter *parameter )
   mForm->addParameter( parameter );
 }
 
-ReosFormWidget *ReosFormDialog::addData( ReosDataObject *data )
+ReosFormWidget *ReosFormDialog::addData( ReosDataObject *data, const ReosGuiContext &context )
 {
-  return mForm->addData( data );
+  return mForm->addData( data, context );
 }
 
 void ReosFormDialog::addText( const QString &text )
@@ -200,14 +200,14 @@ void ReosFormWidgetFactories::addDataWidgetFactory( ReosFormWidgetDataFactory *f
   mDataWidgetFactories.emplace_back( fact );
 }
 
-ReosFormWidget *ReosFormWidgetFactories::createDataFormWidget( ReosDataObject *dataObject, QWidget *parent ) const
+ReosFormWidget *ReosFormWidgetFactories::createDataFormWidget( ReosDataObject *dataObject, const ReosGuiContext &guiContext ) const
 {
   if ( !sInstance || !dataObject )
     return nullptr;
 
   for ( const DataWidgetFactory &fact : mDataWidgetFactories )
     if ( dataObject->type().contains( fact->datatype() ) )
-      return fact->createWidget( dataObject, parent );
+      return fact->createWidget( dataObject, guiContext );
 
   return nullptr;
 }
@@ -215,18 +215,18 @@ ReosFormWidget *ReosFormWidgetFactories::createDataFormWidget( ReosDataObject *d
 ReosFormWidgetFactories::ReosFormWidgetFactories( ReosModule *parent ): ReosModule( parent )
 {}
 
-ReosFormWidget *ReosFormWidgetDataFactory::createDataWidget( ReosDataObject *, QWidget * )
+ReosFormWidget *ReosFormWidgetDataFactory::createDataWidget( ReosDataObject *, const ReosGuiContext & )
 {
   return nullptr;
 }
 
-ReosFormWidget *ReosFormWidgetDataFactory::createWidget( ReosDataObject *dataObject, QWidget *parent )
+ReosFormWidget *ReosFormWidgetDataFactory::createWidget( ReosDataObject *dataObject, const ReosGuiContext &guiContext )
 {
   for ( const DataWidgetFactory &currentFact : mSubDataWidgetFactories )
     if ( dataObject->type().contains( currentFact->datatype() ) )
-      return currentFact->createWidget( dataObject, parent );
+      return currentFact->createWidget( dataObject, guiContext );
 
-  return createDataWidget( dataObject, parent );
+  return createDataWidget( dataObject, guiContext );
 }
 
 void ReosFormWidgetDataFactory::addSubFactory( ReosFormWidgetDataFactory *fact )

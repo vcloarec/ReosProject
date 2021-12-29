@@ -49,6 +49,8 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   mMap( new ReosMap( mGisEngine, this ) )
 {
   ReosVersion::setCurrentApplicationVersion( lekanVersion );
+  ReosGuiContext guiContext( this );
+  guiContext.setMap( mMap );
 
   init();
   setWindowIcon( QPixmap( QStringLiteral( ":/images/lekan.svg" ) ) );
@@ -86,7 +88,8 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   mDockHydraulicNetwork = new QDockWidget( tr( "Hydraulic Network" ), this );
   mHydraulicNetwork = new ReosHydraulicNetwork( rootModule(), mWatershedModule );
 
-  ReosHydraulicNetworkWidget *networkWidget = new ReosHydraulicNetworkWidget( mHydraulicNetwork, mMap, mWatershedModule, mDockHydraulicNetwork );
+  ReosGuiContext netWorkContext( guiContext, mDockHydraulicNetwork );
+  ReosHydraulicNetworkWidget *networkWidget = new ReosHydraulicNetworkWidget( mHydraulicNetwork, mWatershedModule, netWorkContext );
   mDockHydraulicNetwork->setWidget( networkWidget );
   addDockWidget( Qt::RightDockWidgetArea, mDockHydraulicNetwork );
   networkWidget->setMeteoModelCollection( mWatershedModule->meteoModelsCollection() );

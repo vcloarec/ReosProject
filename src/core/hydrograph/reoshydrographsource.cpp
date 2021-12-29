@@ -116,7 +116,7 @@ ReosHydrographJunction::ReosHydrographJunction( const QPointF &position, ReosHyd
     mPosition( position )
 {
   mOutputHydrograph->setColor( ReosStyleRegistery::instance()->curveColor() );
-
+  mHydrographsStore = new ReosHydrographsStore( this );
   init();
 }
 
@@ -129,6 +129,13 @@ ReosHydrographJunction::ReosHydrographJunction( const ReosEncodedElement &encode
   QColor outputColor;
   encodedElement.getData( QStringLiteral( "output-color" ), outputColor );
   mOutputHydrograph->setColor( outputColor );
+  mHydrographsStore = new ReosHydrographsStore( this );
+  mHydrographsStore->decode( encodedElement.getEncodedData( QStringLiteral( "gauged-hydrographs" ) ) );
+
+  int origin = 0;
+  encodedElement.getData( QStringLiteral( "hydrograph-origin" ), origin );
+  mInternalHydrographOrigin = static_cast<ReosHydrographNodeWatershed::InternalHydrographOrigin>( origin );
+  encodedElement.getData( QStringLiteral( "gauged-hydrograph-index" ), mGaugedHydrographIndex );
 
   init();
 }
@@ -150,6 +157,35 @@ void ReosHydrographJunction::init()
 
   connect( mUseForceOutputTimeStep, &ReosParameter::valueChanged, this, &ReosHydrographJunction::onTimeStepChange );
   connect( mForceOutputTimeStep, &ReosParameter::valueChanged, this, &ReosHydrographJunction::onTimeStepChange );
+
+  if ( mHydrographsStore )
+  {
+    connect( mHydrographsStore, &ReosHydrographsStore::hydrographRemoved, this, [this]( int hydrographIndex )
+    {
+      if ( mGaugedHydrographIndex == hydrographIndex )
+      {
+        mGaugedHydrographIndex = -1;
+        updateInternalHydrograph();
+      }
+    } );
+  }
+}
+
+bool ReosHydrographJunction::updateInternalHydrograph()
+{
+  ReosHydrograph *newHydrograph = nullptr;
+
+  switch ( mInternalHydrographOrigin )
+  {
+    case ReosHydrographNodeWatershed::None:
+      newHydrograph = nullptr;
+      break;
+    case ReosHydrographNodeWatershed::GaugedHydrograph:
+      newHydrograph = mHydrographsStore->hydrograph( mGaugedHydrographIndex );
+      break;
+  }
+
+  return setCurrentInternalHydrograph( newHydrograph );
 }
 
 ReosHydrograph *ReosHydrographJunction::outputHydrograph()
@@ -196,13 +232,23 @@ void ReosHydrographJunction::encodeData( ReosEncodedElement &element, const Reos
 {
   element.addData( QStringLiteral( "position" ), mPosition );
   element.addData( QStringLiteral( "output-color" ), mOutputHydrograph->color() );
+
+  element.addData( QStringLiteral( "hydrograph-origin" ), int( mInternalHydrographOrigin ) );
+  element.addData( QStringLiteral( "gauged-hydrograph-index" ), mGaugedHydrographIndex );
+
+  if ( mHydrographsStore->parent() == this )
+  {
+    element.addEncodedData( QStringLiteral( "gauged-hydrographs" ), mHydrographsStore->encode() );
+  }
+
   ReosHydrographSource::encodeData( element, context );
 }
 
 bool ReosHydrographJunction::updateInternalHydrographCalculationContext( const ReosCalculationContext & )
 {
-  mInternalHydrographUpdated = true;
-  return false;
+  return updateInternalHydrograph();
+//  mInternalHydrographUpdated = true;
+//  return false;
 }
 
 
@@ -310,9 +356,11 @@ void ReosHydrographJunction::onUpstreamRoutingUpdated( const QString &routingId 
   calculateIfAllReady();
 }
 
-
-void ReosHydrographJunction::calculateInternalHydrograph() {}
-
+void ReosHydrographJunction::calculateInternalHydrograph()
+{
+  mInternalHydrographUpdated = true;
+  calculateIfAllReady();
+}
 
 void ReosHydrographJunction::calculateOuputHydrograph()
 {
@@ -381,6 +429,11 @@ void ReosHydrographJunction::onTimeStepChange()
   calculateIfAllReady();
 }
 
+ReosHydrographsStore *ReosHydrographJunction::gaugedHydrographsStore() const
+{
+  return mHydrographsStore;
+}
+
 ReosHydrograph *ReosHydrographJunction::internalHydrograph() const
 {
   return mInternalHydrograph;
@@ -393,6 +446,7 @@ ReosHydrographNodeWatershed::ReosHydrographNodeWatershed( ReosWatershed *watersh
   , mWatershed( watershed )
   , mRunoffHydrographs( new ReosRunoffHydrographsStore( meteoModelCollection, this ) )
 {
+  mInternalHydrographOrigin = RunoffHydrograph;
   if ( mWatershed )
     name()->setValue( mWatershed->watershedName()->value() );
   init();
@@ -406,11 +460,6 @@ ReosHydrographNodeWatershed::ReosHydrographNodeWatershed( const ReosEncodedEleme
   , mWatershed( watershed )
   , mRunoffHydrographs( new ReosRunoffHydrographsStore( meteoModelCollection, this ) )
 {
-  int origin;
-  encodedElement.getData( QStringLiteral( "hydrograph-origin" ), origin );
-  mOrigin = static_cast<ReosHydrographNodeWatershed::HydrographOrigin>( origin );
-  encodedElement.getData( QStringLiteral( "gauged-hydrograph-index" ), mGaugedHydrographIndex );
-
   init();
 }
 
@@ -426,20 +475,19 @@ void ReosHydrographNodeWatershed::init()
     connect( mWatershed->gaugedHydrographs(), &ReosHydrographsStore::hydrographRemoved, this, [this]( int hydrographIndex )
     {
       if ( mGaugedHydrographIndex == hydrographIndex )
+      {
         mGaugedHydrographIndex = -1;
+        updateInternalHydrograph();
+      }
     } );
   }
 
 
   mRunoffHydrographs->setWatershed( mWatershed );
+  if ( mHydrographsStore )
+    delete mHydrographsStore;
 
-//  //***** not sure necessary????
-//  connect( mRunoffHydrographs, &ReosRunoffHydrographsStore::hydrographReady, this, [this]( ReosHydrograph * updatedHydrograph )
-//  {
-//    if ( mCurrentWatershedHydrograph == updatedHydrograph )
-//      calculationUpdated();
-//  } );
-//  //*****
+  mHydrographsStore = mWatershed->gaugedHydrographs();
 }
 
 ReosHydrograph *ReosHydrographNodeWatershed::outputHydrograph()
@@ -455,37 +503,21 @@ ReosWatershed *ReosHydrographNodeWatershed::watershed() const
     return mWatershed.data();
 }
 
-//bool ReosHydrographNodeWatershed::updateCalculationContext( const ReosCalculationContext &context )
-//{
-//  bool ret = ReosHydrographJunction::updateCalculationContext( context );
-
-//  mLastMeteoModel = context.meteorologicModel();
-
-//  mNeedCalculation = ret | updateWatershedHydrograph();
-
-//  return mNeedCalculation ;
-//}
-
-
 bool ReosHydrographNodeWatershed::updateInternalHydrographCalculationContext( const ReosCalculationContext &context )
 {
   mLastMeteoModel = context.meteorologicModel();
 
-  return updateWatershedHydrograph();
+  return updateInternalHydrograph();
 }
 
-void ReosHydrographNodeWatershed::setGaugedHydrographIndex( int gaugedHydrographIndex )
+void ReosHydrographJunction::setGaugedHydrographIndex( int gaugedHydrographIndex )
 {
   if ( mGaugedHydrographIndex != gaugedHydrographIndex )
   {
     mGaugedHydrographIndex = gaugedHydrographIndex;
   }
 
-  if ( mOrigin == ReosHydrographNodeWatershed::GaugedHydrograph )
-  {
-    setCurrentWatershedHydrograph( mWatershed->gaugedHydrographs()->hydrograph( mGaugedHydrographIndex ) );
-    calculateInternalHydrograph();
-  }
+  updateInternalHydrograph();
 }
 
 void ReosHydrographNodeWatershed::encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const
@@ -494,26 +526,24 @@ void ReosHydrographNodeWatershed::encodeData( ReosEncodedElement &element, const
   if ( context.watershedModule() && context.watershedModule()->watershedTree() )
     watershedUri = context.watershedModule()->watershedTree()->watershedUri( mWatershed );
   element.addData( QStringLiteral( "watershed-uri" ), watershedUri );
-  element.addData( QStringLiteral( "hydrograph-origin" ), int( mOrigin ) );
-  element.addData( QStringLiteral( "gauged-hydrograph-index" ), mGaugedHydrographIndex );
 
   ReosHydrographJunction::encodeData( element, context );
 }
 
-bool ReosHydrographNodeWatershed::setCurrentWatershedHydrograph( ReosHydrograph *watershedHydrograph )
+bool ReosHydrographJunction::setCurrentInternalHydrograph( ReosHydrograph *newHydrograph )
 {
-  if ( mInternalHydrograph != watershedHydrograph )
+  if ( mInternalHydrograph != newHydrograph )
   {
     if ( !mInternalHydrograph.isNull() )
       disconnect( mInternalHydrograph, &ReosDataObject::dataChanged, this, &ReosHydrographNodeWatershed::onInternalHydrographChanged );
 
-    mInternalHydrograph = watershedHydrograph;
+    mInternalHydrograph = newHydrograph;
     emit internalHydrographPointerChange();
 
     mNeedCalculation = true;
     calculateInternalHydrograph();
 
-    if ( watershedHydrograph )
+    if ( newHydrograph )
       connect( mInternalHydrograph, &ReosDataObject::dataChanged, this, &ReosHydrographNodeWatershed::onInternalHydrographChanged );
 
     return true;
@@ -528,7 +558,7 @@ bool ReosHydrographNodeWatershed::setCurrentWatershedHydrograph( ReosHydrograph 
 
 void ReosHydrographNodeWatershed::calculateInternalHydrograph()
 {
-  if ( mOrigin == RunoffHydrograph && !mInternalHydrograph.isNull() && mInternalHydrograph->hydrographIsObsolete() )
+  if ( mInternalHydrographOrigin == RunoffHydrograph && !mInternalHydrograph.isNull() && mInternalHydrograph->hydrographIsObsolete() )
   {
     connect( mRunoffHydrographs, &ReosRunoffHydrographsStore::hydrographReady, this, [this]( ReosHydrograph * updatedHydrograph )
     {
@@ -554,11 +584,11 @@ void ReosHydrographNodeWatershed::calculateInternalHydrograph()
   }
 }
 
-bool ReosHydrographNodeWatershed::updateWatershedHydrograph()
+bool ReosHydrographNodeWatershed::updateInternalHydrograph()
 {
   ReosHydrograph *newHydrograph = nullptr;
 
-  switch ( mOrigin )
+  switch ( mInternalHydrographOrigin )
   {
     case ReosHydrographNodeWatershed::RunoffHydrograph:
       newHydrograph = mRunoffHydrographs->hydrograph( mLastMeteoModel );
@@ -568,10 +598,10 @@ bool ReosHydrographNodeWatershed::updateWatershedHydrograph()
       break;
   }
 
-  return setCurrentWatershedHydrograph( newHydrograph );
+  return setCurrentInternalHydrograph( newHydrograph );
 }
 
-int ReosHydrographNodeWatershed::gaugedHydrographIndex() const
+int ReosHydrographJunction::gaugedHydrographIndex() const
 {
   return mGaugedHydrographIndex;
 }
@@ -595,20 +625,19 @@ ReosHydrographNodeWatershed *ReosHydrographNodeWatershed::decode( const ReosEnco
   return ret.release();
 }
 
-void ReosHydrographNodeWatershed::setOrigin( HydrographOrigin origin )
+void ReosHydrographJunction::setInternalHydrographOrigin( InternalHydrographOrigin origin )
 {
-  if ( origin == mOrigin )
+  if ( origin == mInternalHydrographOrigin )
     return;
 
-  mOrigin = origin;
-  updateWatershedHydrograph();
-
+  mInternalHydrographOrigin = origin;
+  updateInternalHydrograph();
   calculateInternalHydrograph();
 }
 
-ReosHydrographNodeWatershed::HydrographOrigin ReosHydrographNodeWatershed::origin() const
+ReosHydrographJunction::InternalHydrographOrigin ReosHydrographJunction::internalHydrographOrigin() const
 {
-  return mOrigin;
+  return mInternalHydrographOrigin;
 }
 
 
@@ -667,8 +696,8 @@ void ReosHydrographJunction::HydrographSumCalculation::start()
   {
     std::unique_ptr<ReosHydrograph> hyd = std::make_unique<ReosHydrograph>();
     hyd->setReferenceTime( mHydrograph->referenceTime() );
-    ReosDuration time( 0, mTimeStep.unit() );
-    ReosDuration lastTime = mHydrograph->relativeTimeAt( mHydrograph->valueCount() - 1 );
+    ReosDuration time( mHydrograph->relativeTimeAt( 0 ) );
+    ReosDuration lastTime( mHydrograph->relativeTimeAt( mHydrograph->valueCount() - 1 ) );
     while ( time <= lastTime )
     {
       hyd->setValue( time, mHydrograph->valueAtTime( time ) );

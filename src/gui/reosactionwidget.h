@@ -21,6 +21,7 @@
 #include "reosgui.h"
 
 class ReosMapTool;
+class QStackedWidget;
 
 class REOSGUI_EXPORT ReosActionWidget : public QWidget
 {
@@ -45,6 +46,35 @@ class REOSGUI_EXPORT ReosActionWidget : public QWidget
   private:
     QAction *mAction;
     void storeGeometry();
+};
+
+class ReosStackedPageWidget : public QWidget
+{
+    Q_OBJECT
+  public:
+    ReosStackedPageWidget( QWidget *parent = nullptr ): QWidget( parent )
+    {}
+
+    virtual void showBackButton() {};
+
+  signals:
+    void backToPreviousPage();
+    void addOtherPage( ReosStackedPageWidget *page );
+};
+
+class ReosActionStackedWidget: public ReosActionWidget
+{
+    Q_OBJECT
+  public:
+    explicit ReosActionStackedWidget( QWidget *parent = nullptr );
+
+  public slots:
+    void addPage( ReosStackedPageWidget *widget );
+    void backToPrevious();
+    void backToFirstPage();
+
+  private:
+    QStackedWidget *mStackedWidget;
 };
 
 #endif // REOSACTIONWIDGET_H

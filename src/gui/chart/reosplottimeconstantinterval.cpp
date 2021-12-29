@@ -140,9 +140,12 @@ QwtPlotCurve *ReosPlotTimeCumulativeCurve::curve()
 
 ReosPlotTimeSerieVariableStep::ReosPlotTimeSerieVariableStep( const QString &name )
 {
-  mPlotItem = new QwtPlotCurve( name );
+  QwtPlotCurve *curve = new QwtPlotCurve( name );;
+  mPlotItem = curve;
   mPlotItem->setRenderHint( QwtPlotItem::RenderAntialiased, true );
   mPlotItem->setItemAttribute( QwtPlotItem::AutoScale, true );
+  curve->setLegendAttribute( QwtPlotCurve::LegendShowLine );
+  curve->setLegendIconSize( QSize( 20, 5 ) );
 }
 
 void ReosPlotTimeSerieVariableStep::setTimeSerie( ReosTimeSerieVariableTimeStep *timeSerie, bool replot, bool applysettings )
@@ -225,6 +228,8 @@ void ReosPlotTimeSerieVariableStep::setStyle( const Qt::PenStyle penStyle )
   QPen pen = curve()->pen();
   pen.setStyle( penStyle );
   curve()->setPen( pen );
+  if ( penStyle != Qt::SolidLine )
+    curve()->setCurveAttribute( QwtPlotCurve::Fitted, true );
   curve()->plot()->replot();
 }
 

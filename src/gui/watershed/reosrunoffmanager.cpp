@@ -26,6 +26,7 @@
 #include "reosparameter.h"
 #include "reossettings.h"
 #include "reostimeserie.h"
+#include "reosguicontext.h"
 
 ReosRunoffManager::ReosRunoffManager( ReosRunoffModelModel *model, QWidget *parent ) :
   ReosActionWidget( parent ),
@@ -208,7 +209,8 @@ void ReosRunoffManager::onCurrentTreeIndexChanged()
   ReosFormWidget *newForm = nullptr;
   if ( runoffModel && ReosFormWidgetFactories::isInstantiate() )
   {
-    newForm = ReosFormWidgetFactories::instance()->createDataFormWidget( runoffModel, this );
+    ReosGuiContext context( this );
+    newForm = ReosFormWidgetFactories::instance()->createDataFormWidget( runoffModel, context );
   }
   else
   {
@@ -276,13 +278,13 @@ void ReosRunoffManager::selectRunoffModel( ReosRunoffModel *runoffModel )
   ui->treeView->setCurrentIndex( index );
 }
 
-ReosFormWidget *ReosFormRunoffConstantCoefficientWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+ReosFormWidget *ReosFormRunoffConstantCoefficientWidgetFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {
   ReosRunoffConstantCoefficientModel *runoffModel = qobject_cast<ReosRunoffConstantCoefficientModel *>( dataObject );
   if ( !runoffModel )
     return nullptr;
 
-  std::unique_ptr<ReosFormWidget> form = std::make_unique<ReosFormWidget>( parent );
+  std::unique_ptr<ReosFormWidget> form = std::make_unique<ReosFormWidget>( context.parent() );
 
   form->addParameters( runoffModel->parameters() );
 
@@ -291,13 +293,13 @@ ReosFormWidget *ReosFormRunoffConstantCoefficientWidgetFactory::createDataWidget
 
 QString ReosFormRunoffConstantCoefficientWidgetFactory::datatype() const {return ReosRunoffConstantCoefficientModel::staticType();}
 
-ReosFormWidget *ReosFormRunoffGreenAmptWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+ReosFormWidget *ReosFormRunoffGreenAmptWidgetFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {
   ReosRunoffGreenAmptModel *runoffModel = qobject_cast<ReosRunoffGreenAmptModel *>( dataObject );
   if ( !runoffModel )
     return nullptr;
 
-  std::unique_ptr<ReosFormWidget> form = std::make_unique<ReosFormWidget>( parent );
+  std::unique_ptr<ReosFormWidget> form = std::make_unique<ReosFormWidget>( context.parent() );
 
   form->addParameters( runoffModel->parameters() );
 
@@ -306,13 +308,13 @@ ReosFormWidget *ReosFormRunoffGreenAmptWidgetFactory::createDataWidget( ReosData
 
 QString ReosFormRunoffGreenAmptWidgetFactory::datatype() const {return ReosRunoffGreenAmptModel::staticType();}
 
-ReosFormWidget *ReosFormRunofCurveNumberWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+ReosFormWidget *ReosFormRunofCurveNumberWidgetFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {
   ReosRunoffCurveNumberModel *runoffModel = qobject_cast<ReosRunoffCurveNumberModel *>( dataObject );
   if ( !runoffModel )
     return nullptr;
 
-  std::unique_ptr<ReosFormWidget> form = std::make_unique<ReosFormWidget>( parent );
+  std::unique_ptr<ReosFormWidget> form = std::make_unique<ReosFormWidget>( context.parent() );
 
   form->addParameter( runoffModel->curveNumber() );
   form->addParameter( runoffModel->initialRetentionFromS() );

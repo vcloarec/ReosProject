@@ -36,14 +36,14 @@ class ReosTimeSerieConstantIntervalWidget: public ReosFormWidget
 class ReosFormWidgetIntensityDurationCurveFactory : public ReosFormWidgetDataFactory
 {
   public:
-    ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent ) override;
+    ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context ) override;
     QString datatype() const override;
 };
 
 class ReosFormWidgetTimeSerieConstantIntervalFactory : public ReosFormWidgetDataFactory
 {
   public:
-    ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent ) override;
+    ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context ) override;
     QString datatype() const override;
 };
 
@@ -61,7 +61,7 @@ class ReosChicagoRainfallWidget: public ReosTimeSerieConstantIntervalWidget
 class ReosFormWidgetChicagoRainfalFactory : public ReosFormWidgetDataFactory
 {
   public:
-    ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent ) override;
+    ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context ) override;
     QString datatype() const override;
 };
 
@@ -79,7 +79,7 @@ class ReosAlternatingBlockRainfallWidget: public ReosTimeSerieConstantIntervalWi
 class ReosFormWidgetAlternatingBlockRainfalFactory : public ReosFormWidgetDataFactory
 {
   public:
-    ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent ) override;
+    ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context ) override;
     QString datatype() const override;
 };
 
@@ -98,7 +98,7 @@ class ReosDoubleTriangleRainfallWidget: public ReosTimeSerieConstantIntervalWidg
 class ReosFormWidgetDoubleTriangleRainfalFactory : public ReosFormWidgetDataFactory
 {
   public:
-    ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent ) override;
+    ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context ) override;
     QString datatype() const override;
 };
 

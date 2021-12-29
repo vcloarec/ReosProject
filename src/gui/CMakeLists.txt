@@ -12,6 +12,7 @@ SET(REOS_GUI_SOURCES
     reosmenupopulator.cpp
     reosactionwidget.cpp
     reosnotificationbutton.cpp
+    reosguicontext.cpp
 
 
     GIS/reosdigitalelevationmodelcombobox.cpp
@@ -79,6 +80,7 @@ SET(REOS_GUI_HEADERS
     reosmenupopulator.h
     reosactionwidget.h
     reosnotificationbutton.h
+    reosguicontext.h
 
     GIS/reosdigitalelevationmodelcombobox.h
     GIS/reosmap.h
@@ -209,6 +211,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/gui/rainfall
     ${CMAKE_SOURCE_DIR}/src/gui/hydrograph
     ${CMAKE_SOURCE_DIR}/src/gui/hydraulicNetwork
+    ${CMAKE_SOURCE_DIR}/src/gui/watershed
     ${QGIS_INCLUDE_DIR}
     ${QSCISCINTILLA_INCLUDE_DIR}
     ${QWT_INCLUDE}

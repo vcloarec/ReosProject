@@ -25,7 +25,8 @@
 
 ReosHorizontalHeaderView::ReosHorizontalHeaderView( QWidget *parent ) : QHeaderView( Qt::Horizontal, parent )
 {
-  setSectionResizeMode( QHeaderView::ResizeToContents );
+  //setSectionResizeMode( QHeaderView::ResizeToContents );
+  setSectionResizeMode( QHeaderView::Stretch );
   setStretchLastSection( true );
   setCascadingSectionResizes( true );
   setDefaultAlignment( Qt::AlignCenter | ( Qt::Alignment )Qt::TextWordWrap );
@@ -210,7 +211,11 @@ void ReosTimeSerieTableView::copySelectedToClipBoard( bool withHeader )
       QStringList headers;
       // headers
       for ( int w = 0; w < range.width(); ++w )
-        headers.append( model()->headerData( range.left() + w, Qt::Horizontal, Qt::DisplayRole ).toString() );
+      {
+        QString header =   model()->headerData( range.left() + w, Qt::Horizontal, Qt::DisplayRole ).toString();
+        header.replace( QStringLiteral( "\n" ), QString( ' ' ) );
+        headers.append( header );
+      }
       lines.append( headers.join( QStringLiteral( "\t" ) ) );
     }
     for ( int h = 0; h < range.height(); ++h )

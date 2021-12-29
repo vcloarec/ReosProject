@@ -22,6 +22,7 @@
 #include "reoshydrograph.h"
 #include "reosplotitemlist.h"
 #include "reosapplication.h"
+#include "reosguicontext.h"
 
 ReosHydrographRoutingPropertiesWidget::ReosHydrographRoutingPropertiesWidget( ReosHydrographRoutingLink *hydrographRouting, QWidget *parent )
   :  ReosHydraulicElementWidget( parent )
@@ -207,10 +208,9 @@ void ReosHydrographRoutingPropertiesWidget::populateHydrographs()
     tsList.append( hyd );
 
   ui->mTablesWidget->setSeries( tsList, QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) );
-  ui->mTablesWidget->setConstantTimeStepParameter( mRouting->constantTimeStepInTable(), mRouting->useConstantTimeStepInTable() );
 }
 
-ReosHydraulicElementWidget *ReosHydrographRoutingPropertiesWidgetFactory::createWidget( ReosHydraulicNetworkElement *element, QWidget *parent )
+ReosHydraulicElementWidget *ReosHydrographRoutingPropertiesWidgetFactory::createWidget( ReosHydraulicNetworkElement *element, const ReosGuiContext &context )
 {
   if ( !element )
     return nullptr;
@@ -223,18 +223,18 @@ ReosHydraulicElementWidget *ReosHydrographRoutingPropertiesWidgetFactory::create
   if ( !routing )
     return nullptr;
 
-  return new ReosHydrographRoutingPropertiesWidget( routing, parent );
+  return new ReosHydrographRoutingPropertiesWidget( routing, context.parent() );
 }
 
 QString ReosHydrographRoutingPropertiesWidgetFactory::elementType() {return ReosHydrographRoutingLink::staticType();}
 
-ReosFormWidget *ReosFormHydrographRountingMuskingumWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+ReosFormWidget *ReosFormHydrographRountingMuskingumWidgetFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {
   ReosHydrographRoutingMethodMuskingum *routing = qobject_cast<ReosHydrographRoutingMethodMuskingum *>( dataObject );
   if ( !routing )
     return nullptr;
 
-  ReosFormWidget *form = new ReosFormWidget( parent );
+  ReosFormWidget *form = new ReosFormWidget( context.parent() );
   form->addParameter( routing->kParameter() );
   form->addParameter( routing->xParameter() );
 
@@ -243,13 +243,13 @@ ReosFormWidget *ReosFormHydrographRountingMuskingumWidgetFactory::createDataWidg
 
 QString ReosFormHydrographRountingMuskingumWidgetFactory::datatype() const {return ReosHydrographRoutingMethodMuskingum::staticType();}
 
-ReosFormWidget *ReosFormHydrographRountingLagWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+ReosFormWidget *ReosFormHydrographRountingLagWidgetFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {
   ReosHydrographRoutingMethodLag *routing = qobject_cast<ReosHydrographRoutingMethodLag *>( dataObject );
   if ( !routing )
     return nullptr;
 
-  ReosFormWidget *form = new ReosFormWidget( parent );
+  ReosFormWidget *form = new ReosFormWidget( context.parent() );
   form->addParameter( routing->lagParameter() );
 
   return form;

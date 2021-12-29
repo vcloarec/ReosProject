@@ -17,6 +17,7 @@
 #include "ui_reosgaugedhydrographwidget.h"
 
 #include <QMessageBox>
+#include <QPushButton>
 
 #include "reosmap.h"
 #include "reoswatershed.h"
@@ -27,12 +28,11 @@
 #include "reosdataprovidergui.h"
 
 ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( ReosMap *map, QWidget *parent )
-  : ReosActionWidget( parent )
+  : ReosStackedPageWidget( parent )
   , ui( new Ui::ReosGaugedHydrographWidget )
   , mMap( map )
 {
   ui->setupUi( this );
-  setWindowFlag( Qt::Dialog );
 
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosHydrographEditingWidgetFactory );
 
@@ -67,47 +67,10 @@ ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( ReosMap *map, QWidget *p
 
   connect( ui->mComboBoxHydrographName, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosGaugedHydrographWidget::onCurrentHydrographChanged );
 
-  connect( ui->mButtonBack, &QPushButton::clicked, this, &ReosGaugedHydrographWidget::backToMainIndex );
-  connect( this, &ReosActionWidget::closed, this, &ReosGaugedHydrographWidget::backToMainIndex );
-
-  connect( ui->mButtonAddFromProvider, &QPushButton::clicked, this, [this]
-  {
-    if ( !mCurrentDataSelectorWidget )
-      return;
-    std::unique_ptr<ReosHydrograph> hyd;
-    hyd.reset( qobject_cast<ReosHydrograph *>( mCurrentDataSelectorWidget->createData() ) );
-    if ( !hyd )
-      return;
-    mHydrographStore->addHydrograph( hyd.release() );
-    onStoreChanged();
-    backToMainIndex();
-    ui->mComboBoxHydrographName->setCurrentIndex( ui->mComboBoxHydrographName->count() - 1 );
-  } );
-
-  connect( ui->mButtonCopyFromProvider, &QPushButton::clicked, this, [this]
-  {
-    if ( !mCurrentDataSelectorWidget )
-      return;
-    std::unique_ptr<ReosHydrograph> copyHyd = std::make_unique<ReosHydrograph>();
-
-    ReosHydrograph *providerHydrograph = qobject_cast<ReosHydrograph *>( mCurrentDataSelectorWidget->selectedData() );
-
-    if ( providerHydrograph )
-    {
-      copyHyd->setName( providerHydrograph->name() );
-      copyHyd->copyFrom( providerHydrograph );
-      copyHyd->setColor( providerHydrograph->color() );
-      mHydrographStore->addHydrograph( copyHyd.release() );
-      onStoreChanged();
-      ui->mComboBoxHydrographName->setCurrentIndex( ui->mComboBoxHydrographName->count() - 1 );
-    }
-
-    backToMainIndex();
-  } );
+  ui->mBackButton->setVisible( false );
+  connect( ui->mBackButton, &QPushButton::clicked, this, &ReosStackedPageWidget::backToPreviousPage );
 
   onStoreChanged();
-  ui->mStackedWidget->setCurrentIndex( 0 );
-
 }
 
 ReosGaugedHydrographWidget::~ReosGaugedHydrographWidget()
@@ -115,27 +78,24 @@ ReosGaugedHydrographWidget::~ReosGaugedHydrographWidget()
   delete ui;
 }
 
-void ReosGaugedHydrographWidget::setCurrentWatershed( ReosWatershed *watershed )
+void ReosGaugedHydrographWidget::setHydrographStore( ReosHydrographsStore *store )
 {
-  mCurrentWatershed = watershed;
-
-  if ( watershed )
+  mHydrographStore = store;
+  if ( !mHydrographStore )
   {
-    mHydrographStore = watershed->gaugedHydrographs();
-    ui->mLabelNoWatershed->setText( "" );
+    mHydrographPlot->setTimeSerie( nullptr );
+    setEnabled( false );
   }
   else
-  {
-    mHydrographStore = nullptr;
-    ui->mLabelNoWatershed->setText( tr( "Select a watershed to add hydrograhs" ) );
-    mHydrographPlot->setTimeSerie( nullptr );
-  }
-
-  ui->mButtonAddFromProvider->setEnabled( watershed != nullptr && mIsDatasetSelected );
-  ui->mButtonCopyFromProvider->setEnabled( watershed != nullptr && mIsDataReady );
+    setEnabled( true );
 
   onStoreChanged();
   onCurrentHydrographChanged();
+}
+
+void ReosGaugedHydrographWidget::showBackButton()
+{
+  ui->mBackButton->setVisible( true );
 }
 
 void ReosGaugedHydrographWidget::onAddHydrograph()
@@ -312,54 +272,130 @@ void ReosGaugedHydrographWidget::showProviderSelector( const QString &providerKe
 {
   const QString dataType = ReosHydrograph::staticType();
 
-  mCurrentDataSelectorWidget =
-    ReosDataProviderGuiRegistery::instance()->createProviderSelectorWidget( providerKey, dataType, mMap, this );
+  std::unique_ptr<ReosStackedPageWidget> providerPage = std::make_unique<ReosStackedPageWidget>();
+  QVBoxLayout *mainLayout = new QVBoxLayout( providerPage.get() );
+  providerPage->setLayout( mainLayout );
+  mainLayout->setContentsMargins( 0, 0, 0, 0 );
+  QHBoxLayout *buttonLayout = new QHBoxLayout( providerPage.get() );
+  buttonLayout->setContentsMargins( 0, 0, 0, 0 );
+  buttonLayout->setSpacing( 6 );
+  QPushButton *buttonBack = new QPushButton( tr( "Back" ), providerPage.get() );
+  buttonLayout->addWidget( buttonBack );
+  QSpacerItem *headerSpacer = new QSpacerItem( 40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
+  buttonLayout->addSpacerItem( headerSpacer );
 
-  if ( mCurrentDataSelectorWidget )
+  headerSpacer->changeSize( headerSpacer->geometry().width(),
+                            ui->mainHeaderLayout->sizeHint().height(),
+                            QSizePolicy::Expanding );
+
+  QPushButton *addButton = new QPushButton( tr( "Add" ), providerPage.get() );
+  QPushButton *addCopyButton = new QPushButton( tr( "Add Copy" ), providerPage.get() );
+  buttonLayout->addWidget( addButton );
+  buttonLayout->addWidget( addCopyButton );
+  addButton->setEnabled( false );
+  addCopyButton->setEnabled( false );
+
+  QFrame *line = new QFrame( providerPage.get() );
+  line->setObjectName( QString::fromUtf8( "line" ) );
+  line->setFrameShape( QFrame::HLine );
+  line->setFrameShadow( QFrame::Sunken );
+
+  mainLayout->addItem( buttonLayout );
+  mainLayout->addWidget( line );
+
+  ReosDataProviderSelectorWidget *currentDataSelectorWidget =
+    ReosDataProviderGuiRegistery::instance()->createProviderSelectorWidget( providerKey, dataType, mMap, providerPage.get() );
+
+  mainLayout->addWidget( currentDataSelectorWidget );
+
+  mainLayout->setStretch( 2, 1 );
+
+  connect( buttonBack, &QPushButton::clicked, this, &ReosStackedPageWidget::backToPreviousPage );
+
+  connect( addButton, &QPushButton::clicked, this, [this, currentDataSelectorWidget]
   {
-    ui->mProviderWidget->layout()->addWidget( mCurrentDataSelectorWidget );
-    ui->mProviderHeaderSpacer->changeSize( ui->mProviderHeaderSpacer->geometry().width(),
-                                           ui->mainHeaderLayout->sizeHint().height(),
-                                           QSizePolicy::Expanding );
-    ui->mStackedWidget->setCurrentIndex( 1 );
+    if ( !currentDataSelectorWidget )
+      return;
+    std::unique_ptr<ReosHydrograph> hyd;
+    hyd.reset( qobject_cast<ReosHydrograph *>( currentDataSelectorWidget->createData() ) );
+    if ( !hyd )
+      return;
+    mHydrographStore->addHydrograph( hyd.release() );
+    onStoreChanged();
+    emit backToPreviousPage();
+    ui->mComboBoxHydrographName->setCurrentIndex( ui->mComboBoxHydrographName->count() - 1 );
+  } );
 
-    ui->mButtonCopyFromProvider->setEnabled( false );
-    ui->mButtonAddFromProvider->setEnabled( false );
-    // connect selection change
-    connect( mCurrentDataSelectorWidget, &ReosDataProviderSelectorWidget::dataSelectionChanged, this, [this]( bool isDataSelected )
+  connect( addCopyButton, &QPushButton::clicked, this, [this, currentDataSelectorWidget]
+  {
+    if ( !currentDataSelectorWidget )
+      return;
+    std::unique_ptr<ReosHydrograph> copyHyd = std::make_unique<ReosHydrograph>();
+
+    ReosHydrograph *providerHydrograph = qobject_cast<ReosHydrograph *>( currentDataSelectorWidget->selectedData() );
+
+    if ( providerHydrograph )
+    {
+      copyHyd->setName( providerHydrograph->name() );
+      copyHyd->copyFrom( providerHydrograph );
+      copyHyd->setColor( providerHydrograph->color() );
+      mHydrographStore->addHydrograph( copyHyd.release() );
+      onStoreChanged();
+      ui->mComboBoxHydrographName->setCurrentIndex( ui->mComboBoxHydrographName->count() - 1 );
+    }
+
+    emit backToPreviousPage();
+  } );
+
+  if ( currentDataSelectorWidget )
+  {
+    connect( currentDataSelectorWidget, &ReosDataProviderSelectorWidget::dataSelectionChanged, this, [this, addButton, addCopyButton]( bool isDataSelected )
     {
       mIsDatasetSelected = isDataSelected;
-      ui->mButtonAddFromProvider->setEnabled( isDataSelected  && mCurrentWatershed );
+      addButton->setEnabled( isDataSelected  && mHydrographStore );
       if ( !isDataSelected )
       {
         mIsDataReady = false;
-        ui->mButtonAddFromProvider->setEnabled( false );
-        ui->mButtonCopyFromProvider->setEnabled( false );
+        addButton->setEnabled( false );
+        addCopyButton->setEnabled( false );
       }
     } );
 
     // connect loading
-    connect( mCurrentDataSelectorWidget, &ReosDataProviderSelectorWidget::dataIsLoading, this, [this]
+    connect( currentDataSelectorWidget, &ReosDataProviderSelectorWidget::dataIsLoading, this, [this, addCopyButton]
     {
       mIsDataReady = false;
-      ui->mButtonCopyFromProvider->setEnabled( false );
+      addCopyButton->setEnabled( false );
     } );
 
     // connect data is ready
-    connect( mCurrentDataSelectorWidget, &ReosDataProviderSelectorWidget::dataIsReady, this, [this]
+    connect( currentDataSelectorWidget, &ReosDataProviderSelectorWidget::dataIsReady, this, [this, addCopyButton]
     {
       mIsDataReady = true;
-      ui->mButtonCopyFromProvider->setEnabled( mCurrentWatershed != nullptr );
+      addCopyButton->setEnabled( mHydrographStore != nullptr );
     } );
 
-    mCurrentDataSelectorWidget->onOpened();
+    currentDataSelectorWidget->onOpened();
   }
+
+  emit addOtherPage( providerPage.release() );
 }
 
-void ReosGaugedHydrographWidget::backToMainIndex()
+ReosWatershedGaugedHydrographWidget::ReosWatershedGaugedHydrographWidget( ReosMap *map, QWidget *parent )
+  : ReosActionStackedWidget( parent )
+  , mGaugedHydrographWidget( new ReosGaugedHydrographWidget( map, this ) )
 {
-  ui->mStackedWidget->setCurrentIndex( 0 );
-  ui->mProviderWidget->layout()->removeWidget( mCurrentDataSelectorWidget );
-  mCurrentDataSelectorWidget->deleteLater();
-  mCurrentDataSelectorWidget = nullptr;
+  setWindowFlag( Qt::Dialog );
+  setWindowTitle( tr( "Watershed Gauged Hydrograph" ) );
+  addPage( mGaugedHydrographWidget );
+}
+
+void ReosWatershedGaugedHydrographWidget::setCurrentWatershed( ReosWatershed *watershed )
+{
+  mGaugedHydrographWidget->setEnabled( watershed != nullptr );
+
+  if ( watershed )
+    mGaugedHydrographWidget->setHydrographStore( watershed->gaugedHydrographs() );
+  else
+    mGaugedHydrographWidget->setHydrographStore( nullptr );
 }

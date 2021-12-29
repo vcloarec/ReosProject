@@ -58,7 +58,7 @@ class ReosHubEauConnection: public QObject
     int errorCode() const;
 
     //! Returns the error reason if any
-    QString errorReason() const;
+    QString errorString() const;
 
     //! Returns the result of the last request
     QVariantMap result() const;
@@ -78,7 +78,7 @@ class ReosHubEauConnection: public QObject
     QString mRequest;
     QVariantMap mResult;
     int mErrorCode = -1;
-    QString mErrorReason;
+    QString mErrorString;
     bool mRequestInProgress = false;
 };
 

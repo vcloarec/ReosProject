@@ -16,7 +16,7 @@
 #include "reosactionwidget.h"
 #include <QAction>
 #include <QCloseEvent>
-
+#include <QStackedWidget>
 #include "reossettings.h"
 #include "reosmaptool.h"
 #include "QLayout"
@@ -74,4 +74,43 @@ void ReosActionWidget::restore()
 {
   ReosSettings settings;
   restoreGeometry( settings.value( QStringLiteral( "Windows/%1/Geometry" ).arg( objectName() ) ).toByteArray() );
+}
+
+ReosActionStackedWidget::ReosActionStackedWidget( QWidget *parent ): ReosActionWidget( parent )
+{
+  setLayout( new QHBoxLayout );
+  mStackedWidget = new QStackedWidget( this );
+  layout()->addWidget( mStackedWidget );
+
+  connect( this, &ReosActionWidget::closed, this, &ReosActionStackedWidget::backToFirstPage );
+}
+
+void ReosActionStackedWidget::addPage( ReosStackedPageWidget *widget )
+{
+  if ( mStackedWidget->count() > 0 )
+    widget->showBackButton();
+
+  mStackedWidget->addWidget( widget );
+  mStackedWidget->setCurrentWidget( widget );
+  connect( widget, &ReosStackedPageWidget::backToPreviousPage, this, &ReosActionStackedWidget::backToPrevious );
+  connect( widget, &ReosStackedPageWidget::addOtherPage, this, &ReosActionStackedWidget::addPage );
+}
+
+void ReosActionStackedWidget::backToPrevious()
+{
+  if ( mStackedWidget->count() < 2 )
+    close();
+
+  int currentIndex = mStackedWidget->currentIndex();
+  QWidget *currentWidget = mStackedWidget->currentWidget();
+  mStackedWidget->setCurrentIndex( currentIndex - 1 );
+  mStackedWidget->removeWidget( currentWidget );
+  delete currentWidget;
+
+}
+
+void ReosActionStackedWidget::backToFirstPage()
+{
+  while ( mStackedWidget->count() > 1 )
+    backToPrevious();
 }
