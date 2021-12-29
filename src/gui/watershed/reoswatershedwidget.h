@@ -6,6 +6,7 @@ class QItemSelection;
 
 #include "reosgui.h"
 #include "reosmap.h"
+#include "reosdockwidget.h"
 
 namespace Ui
 {
@@ -32,7 +33,7 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
 {
     Q_OBJECT
   public:
-    explicit ReosWatershedWidget( ReosMap *map, ReosWatershedModule *module, ReosHydraulicNetwork *hydraulicNetwork = nullptr, QWidget *parent = nullptr );
+    explicit ReosWatershedWidget( ReosMap *map, ReosWatershedModule *module, ReosHydraulicNetwork *hydraulicNetwork = nullptr, ReosDockWidget *parent = nullptr );
     ~ReosWatershedWidget();
 
   signals:
@@ -49,6 +50,9 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
     void onExportToVectorLayer();
     void onZoomToWatershed();
     void onAddRemoveNetwork();
+
+    void onClosed();
+    void onOpened();
 
   private:
     Ui::ReosWatershedWidget *ui;
@@ -87,11 +91,9 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
     struct MapWatershed
     {
       MapWatershed() {}
-      MapWatershed( ReosMap *map, const QPolygonF &delineat, const QPointF &outletPt )
-      {
-        delineating = std::make_shared<ReosMapPolygon>( map, delineat );
-        outletPoint = std::make_shared<ReosMapMarkerFilledCircle>( map, outletPt );
-      }
+      MapWatershed( ReosMap *map, const QPolygonF &delineat, const QPointF &outletPt );
+
+      void setVisible( bool b );
 
       std::shared_ptr<ReosMapPolygon> delineating;
       std::shared_ptr<ReosMapMarkerFilledCircle> outletPoint;
@@ -116,6 +118,18 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
     ReosMapPolygon *mapDelineating( ReosWatershed *ws );
     void updateNetworkButton();
     ReosHydrographNodeWatershed *currentNetworkNode();
+
+    void setVisibleMapItems( bool visible );
+};
+
+class ReosWatershedDockWidget: public ReosDockWidget
+{
+
+  public:
+    ReosWatershedDockWidget( ReosMap *map, ReosWatershedModule *module, ReosHydraulicNetwork *hydraulicNetwork = nullptr, QWidget *parent = nullptr );;
+
+  private:
+    ReosWatershedWidget *mWatershedWidget = nullptr;
 };
 
 #endif // REOSWATERSHEDWIDGET_H

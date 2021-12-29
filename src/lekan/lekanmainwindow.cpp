@@ -82,20 +82,16 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   mGisDock->setWidget( new ReosGisLayersWidget( mGisEngine, mMap, this ) );
   addDockWidget( Qt::LeftDockWidgetArea, mGisDock );
 
-  mDockWatershed = new QDockWidget( tr( "Watershed" ), this );
   mWatershedModule = new ReosWatershedModule( rootModule(), mGisEngine );
 
-  mDockHydraulicNetwork = new QDockWidget( tr( "Hydraulic Network" ), this );
   mHydraulicNetwork = new ReosHydraulicNetwork( rootModule(), mWatershedModule );
 
-  ReosGuiContext netWorkContext( guiContext, mDockHydraulicNetwork );
-  ReosHydraulicNetworkWidget *networkWidget = new ReosHydraulicNetworkWidget( mHydraulicNetwork, mWatershedModule, netWorkContext );
-  mDockHydraulicNetwork->setWidget( networkWidget );
-  addDockWidget( Qt::RightDockWidgetArea, mDockHydraulicNetwork );
-  networkWidget->setMeteoModelCollection( mWatershedModule->meteoModelsCollection() );
+  mDockHydraulicNetwork = new ReosHydraulicNetworkDockWidget( mHydraulicNetwork, mWatershedModule, guiContext );
 
-  ReosWatershedWidget *watersehdWidget = new  ReosWatershedWidget( mMap, mWatershedModule, mHydraulicNetwork, mDockWatershed );
-  mDockWatershed->setWidget( watersehdWidget );
+  addDockWidget( Qt::RightDockWidgetArea, mDockHydraulicNetwork );
+  mDockHydraulicNetwork->setMeteoModelCollection( mWatershedModule->meteoModelsCollection() );
+
+  mDockWatershed = new  ReosWatershedDockWidget( mMap, mWatershedModule, mHydraulicNetwork, this );
   addDockWidget( Qt::RightDockWidgetArea, mDockWatershed );
 
   mMap->setDefaultMapTool();

@@ -19,8 +19,9 @@
 #include "reosgaugedhydrographwidget.h"
 #include "reoshydraulicnetwork.h"
 #include "reoshydrographsource.h"
+#include "reosdockwidget.h"
 
-ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *module, ReosHydraulicNetwork *hydraulicNetwork, QWidget *parent ) :
+ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *module, ReosHydraulicNetwork *hydraulicNetwork, ReosDockWidget *parent ) :
   QWidget( parent ),
   ui( new Ui::ReosWatershedWidget ),
   mWatershdModule( module ),
@@ -48,6 +49,10 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   mMapToolMoveOutletPoint( new ReosMapToolMoveMapItem( map ) )
 {
   ui->setupUi( this );
+
+  connect( parent, &ReosDockWidget::shown, this, &ReosWatershedWidget::onOpened );
+  connect( parent, &ReosDockWidget::closed, this, &ReosWatershedWidget::onClosed );
+
   setWatershedModel( new ReosWatershedItemModel( module->watershedTree(), this ) );
 
   mMeteorolocicModelWidget = new ReosMeteorologicModelWidget( mModelWatershed, module->meteoModelsCollection(), this );
@@ -387,6 +392,16 @@ void ReosWatershedWidget::onAddRemoveNetwork()
   updateNetworkButton();
 }
 
+void ReosWatershedWidget::onClosed()
+{
+  setVisibleMapItems( false );
+}
+
+void ReosWatershedWidget::onOpened()
+{
+  setVisibleMapItems( true );
+}
+
 ReosWatershed *ReosWatershedWidget::currentWatershed() const
 {
   QModelIndex currentIndex = ui->treeView->currentIndex();
@@ -450,6 +465,12 @@ ReosHydrographNodeWatershed *ReosWatershedWidget::currentNetworkNode()
   return nullptr;
 }
 
+void ReosWatershedWidget::setVisibleMapItems( bool visible )
+{
+  for ( MapWatershed &mw : mMapWatersheds )
+    mw.setVisible( visible );
+}
+
 void ReosWatershedWidget::updateNetworkButton()
 {
   if ( !mHydraulicNetwork )
@@ -475,4 +496,23 @@ void ReosWatershedWidget::updateNetworkButton()
 
   ui->mAddRemoveHydraulicNetworkButton->setText( tr( "Add Watershed to Network" ) );
   ui->mAddRemoveHydraulicNetworkButton->setEnabled( true );
+}
+
+ReosWatershedDockWidget::ReosWatershedDockWidget( ReosMap *map, ReosWatershedModule *module, ReosHydraulicNetwork *hydraulicNetwork, QWidget *parent )
+  : ReosDockWidget( tr( "Watershed" ), parent )
+  , mWatershedWidget( new ReosWatershedWidget( map, module, hydraulicNetwork, this ) )
+{
+  setWidget( mWatershedWidget );
+}
+
+ReosWatershedWidget::MapWatershed::MapWatershed( ReosMap *map, const QPolygonF &delineat, const QPointF &outletPt )
+{
+  delineating = std::make_shared<ReosMapPolygon>( map, delineat );
+  outletPoint = std::make_shared<ReosMapMarkerFilledCircle>( map, outletPt );
+}
+
+void ReosWatershedWidget::MapWatershed::setVisible( bool b )
+{
+  delineating->setVisible( b );
+  outletPoint->setVisible( b );
 }
