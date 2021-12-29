@@ -46,6 +46,7 @@
 #include "reosrainfalldataform.h"
 #include "reosgisengine.h"
 #include "reosdataprovidergui.h"
+#include "reosguicontext.h"
 
 
 class ReosStationMapMarker: public ReosMapMarkerSvg
@@ -394,8 +395,6 @@ void ReosRainfallManager::addDataFromProvider( bool copy )
 
   QVariantMap meta = mCurrentProviderSelector->selectedMetadata();
 
-  QString stationName = meta.value( QStringLiteral( "station" ) ).toString();
-  QString stationDescription = meta.value( QStringLiteral( "station-descritpion" ) ).toString();
   QString providerName = ReosDataProviderGuiRegistery::instance()->providerDisplayText( meta.value( QStringLiteral( "provider-key" ) ).toString() );
 
   QModelIndex index = ui->mTreeView->currentIndex();
@@ -735,7 +734,8 @@ ReosFormWidget *ReosRainfallManager::createForm( ReosRainfallItem *item )
     setupFormForStation( form, stationItem );
   }
 
-  if ( !item->data() ||  !form->addData( item->data() ) )
+  ReosGuiContext context( this );
+  if ( !item->data() ||  !form->addData( item->data(), context ) )
   {
     form->addItem( new QSpacerItem( 20, 40, QSizePolicy::Ignored, QSizePolicy::Expanding ) );
   }
@@ -1226,7 +1226,8 @@ ReosImportRainfallDialog::ReosImportRainfallDialog( ReosRainfallModel *model, QW
   rainfallLayout->setContentsMargins( 9, 9, 9, 9 );
   rainfallLayout->addWidget( new ReosParameterStringWidget( mName, this ) );
   rainfallLayout->addWidget( new ReosParameterStringWidget( mDescription, this ) );
-  rainfallLayout->addWidget( ReosFormWidget::createDataWidget( mImportedRainfall, importedRainfallWidget ) );
+  ReosGuiContext guiContext( importedRainfallWidget );
+  rainfallLayout->addWidget( ReosFormWidget::createDataWidget( mImportedRainfall, guiContext ) );
   mainWidget->addWidget( importedRainfallWidget );
 
   QWidget *stationWidget = new QWidget( this );

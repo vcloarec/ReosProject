@@ -30,6 +30,7 @@
 #include "reosintensitydurationselectedcurvewidget.h"
 #include "reosrainfallintensitydurationwidget.h"
 #include "reosrainfallregistery.h"
+#include "reosguicontext.h"
 
 
 ReosTimeSerieConstantIntervalWidget::ReosTimeSerieConstantIntervalWidget( ReosTimeSerieConstantInterval *timeSerie, QWidget *parent ):
@@ -167,11 +168,11 @@ ReosDoubleTriangleRainfallWidget::ReosDoubleTriangleRainfallWidget( ReosDoubleTr
 }
 
 
-ReosFormWidget *ReosFormWidgetTimeSerieConstantIntervalFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+ReosFormWidget *ReosFormWidgetTimeSerieConstantIntervalFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {
   ReosTimeSerieConstantInterval *object = qobject_cast<ReosTimeSerieConstantInterval *>( dataObject );
   if ( object )
-    return new ReosTimeSerieConstantIntervalWidget( object, parent );
+    return new ReosTimeSerieConstantIntervalWidget( object, context.parent() );
 
   return nullptr;
 }
@@ -179,33 +180,33 @@ ReosFormWidget *ReosFormWidgetTimeSerieConstantIntervalFactory::createDataWidget
 QString ReosFormWidgetTimeSerieConstantIntervalFactory::datatype() const {return ReosTimeSerieConstantInterval::staticType();}
 
 
-ReosFormWidget *ReosFormWidgetChicagoRainfalFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+ReosFormWidget *ReosFormWidgetChicagoRainfalFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {
   ReosChicagoRainfall *object = qobject_cast<ReosChicagoRainfall *>( dataObject );
   if ( object )
-    return new ReosChicagoRainfallWidget( object, parent );
+    return new ReosChicagoRainfallWidget( object, context.parent() );
 
   return nullptr;
 }
 
 QString ReosFormWidgetChicagoRainfalFactory::datatype() const {return ReosChicagoRainfall::staticType();}
 
-ReosFormWidget *ReosFormWidgetDoubleTriangleRainfalFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+ReosFormWidget *ReosFormWidgetDoubleTriangleRainfalFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {
   ReosDoubleTriangleRainfall *object = qobject_cast<ReosDoubleTriangleRainfall *>( dataObject );
   if ( object )
-    return new ReosDoubleTriangleRainfallWidget( object, parent );
+    return new ReosDoubleTriangleRainfallWidget( object, context.parent() );
 
   return nullptr;
 }
 
 QString ReosFormWidgetDoubleTriangleRainfalFactory::datatype() const {return ReosDoubleTriangleRainfall::staticType();}
 
-ReosFormWidget *ReosFormWidgetIntensityDurationCurveFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+ReosFormWidget *ReosFormWidgetIntensityDurationCurveFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {
   ReosIntensityDurationCurve *object = qobject_cast<ReosIntensityDurationCurve *>( dataObject );
   if ( object )
-    return new ReosRainfallIntensityDurationWidget( object, parent );
+    return new ReosRainfallIntensityDurationWidget( object, context.parent() );
 
   return nullptr;
 }
@@ -213,11 +214,11 @@ ReosFormWidget *ReosFormWidgetIntensityDurationCurveFactory::createDataWidget( R
 QString ReosFormWidgetIntensityDurationCurveFactory::datatype() const {return  ReosIntensityDurationCurve::staticType();}
 
 
-ReosFormWidget *ReosFormWidgetAlternatingBlockRainfalFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+ReosFormWidget *ReosFormWidgetAlternatingBlockRainfalFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {
   ReosAlternatingBlockRainfall *object = qobject_cast<ReosAlternatingBlockRainfall *>( dataObject );
   if ( object )
-    return new ReosAlternatingBlockRainfallWidget( object, parent );
+    return new ReosAlternatingBlockRainfallWidget( object, context.parent() );
 
   return nullptr;
 }

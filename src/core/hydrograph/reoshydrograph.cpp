@@ -72,7 +72,7 @@ void ReosHydrographsStore::addHydrograph( ReosHydrograph *hydrograph )
 
 void ReosHydrographsStore::removeHydrograph( int index )
 {
-  delete mHydrographs.takeAt( index );
+  mHydrographs.takeAt( index )->deleteLater();
   emit hydrographRemoved( index );
   emit dataChanged();
 }
@@ -91,7 +91,7 @@ QStringList ReosHydrographsStore::hydrographNames() const
   return ret;
 }
 
-QList<ReosHydrograph *> ReosHydrographsStore::hydrographsForTimeRange( const QDateTime &startTime, const QDateTime &endTime )
+QList<ReosHydrograph *> ReosHydrographsStore::hydrographsForTimeRange( const QDateTime &startTime, const QDateTime &endTime ) const
 {
   QList<ReosHydrograph *> ret;
 
@@ -104,6 +104,11 @@ QList<ReosHydrograph *> ReosHydrographsStore::hydrographsForTimeRange( const QDa
   }
 
   return ret;
+}
+
+QList<ReosHydrograph *> ReosHydrographsStore::allHydrographs() const
+{
+  return mHydrographs;
 }
 
 ReosHydrograph *ReosHydrographsStore::hydrograph( int index ) const

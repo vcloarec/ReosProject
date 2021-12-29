@@ -47,7 +47,7 @@ class ReosHydrographEditingWidgetFactory: public ReosFormWidgetDataFactory
 {
   public:
     QString datatype() const override;
-    ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent ) override;
+    ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context ) override;
 };
 
 

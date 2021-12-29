@@ -84,7 +84,7 @@ void ReosHubEauHydrographProvider::decode( const ReosEncodedElement &element )
   mMetadataRequestControler = new ReosHubEauConnectionControler( this );
   connect( mMetadataRequestControler, &ReosHubEauConnectionControler::resultReady, this, &ReosHubEauHydrographProvider::onMetadataReady );
   connect( mMetadataRequestControler, &ReosHubEauConnectionControler::errorOccured, this, &ReosHubEauHydrographProvider::onErrorOccured );
-  mMetadataRequestControler->request( QStringLiteral( "referentiel/stations?code_entite=%1&format=json&pretty&page=1&size=1" ).arg( source ) );
+  mMetadataRequestControler->request( QStringLiteral( "referentiel/stations?code_entite=%1&fields=code_station,libelle_station,type_station,longitude_station,latitude_station,en_service,date_ouverture_station,date_fermeture_station,influence_locale_station,commentaire_influence_locale_station,commentaire_station&format=json&pretty&page=1&size=1" ).arg( source ) );
 }
 
 ReosDuration ReosHubEauHydrographProvider::relativeTimeAt( int i ) const {return mCachedTimeValues.at( i );}
@@ -162,10 +162,10 @@ void ReosHubEauHydrographProvider::onErrorOccured()
   mStatus = Status::NoData;
 
   if ( mFlowRequestControler && mFlowRequestControler->lastError() != 0 )
-    mLastMessage.text = tr( "Following error occured with Hub-Eau server: %1" ).arg( mFlowRequestControler->lastErrorReason() );
+    mLastMessage.text = tr( "Following error occured with Hubeau server: %1" ).arg( mFlowRequestControler->lastErrorReason() );
 
-  if ( mFlowRequestControler && mFlowRequestControler->lastError() != 0 )
-    mLastMessage.text = tr( "Following error occured with Hub-Eau server: %1" ).arg( mFlowRequestControler->lastErrorReason() );
+  if ( mMetadataRequestControler && mMetadataRequestControler->lastError() != 0 )
+    mLastMessage.text = tr( "Following error occured with Hub-Eau server: %1" ).arg( mMetadataRequestControler->lastErrorReason() );
 
   emit errorOccured();
 }

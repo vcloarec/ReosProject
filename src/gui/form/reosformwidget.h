@@ -26,6 +26,7 @@
 #include "reosmodule.h"
 #include "reosparameterwidget.h"
 #include "reosgui.h"
+#include "reosguicontext.h"
 
 class QLayoutItem;
 class QBoxLayout;
@@ -37,7 +38,7 @@ class ReosChicagoRainfall;
 class ReosAlternatingBlockRainfall;
 class ReosDoubleTriangleRainfall;
 class ReosIntensityDurationSelectedCurveWidget;
-
+class ReosStackedPageWidget;
 
 class ReosFormWidget : public QWidget
 {
@@ -48,12 +49,12 @@ class ReosFormWidget : public QWidget
     void addText( const QString &text, int position = -1 );
     ReosParameterWidget *addParameter( ReosParameter *parameter, int position = -1, ReosParameterWidget::SpacerPosition spacer = ReosParameterWidget::NoSpacer );
     void addParameters( QList<ReosParameter *> parameters, ReosParameterWidget::SpacerPosition spacer = ReosParameterWidget::NoSpacer );
-    ReosFormWidget *addData( ReosDataObject *data, int position = -1 );
+    ReosFormWidget *addData( ReosDataObject *data, const ReosGuiContext &context, int position = -1 );
     void addWidget( QWidget *widget, int position = -1 );
     void addItem( QLayoutItem *item, int position = -1 );
     void addLine( int position = -1 );
 
-    static ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent = nullptr );
+    static ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &guiContext );
 
     void setStretch( int i, int stretch );
 
@@ -62,6 +63,7 @@ class ReosFormWidget : public QWidget
 
   signals:
     void parametersChanged();
+    void stackedPageWidgetOpened( ReosStackedPageWidget *widget );
 
   private:
     int mParamCount = 0;
@@ -76,7 +78,7 @@ class ReosFormDialog : public QDialog
   public:
     explicit ReosFormDialog( QWidget *parent = nullptr );
     void addParameter( ReosParameter *parameter );
-    ReosFormWidget *addData( ReosDataObject *data );
+    ReosFormWidget *addData( ReosDataObject *data, const ReosGuiContext  &context );
     void addText( const QString &text );
 
   private:
@@ -87,10 +89,10 @@ class ReosFormDialog : public QDialog
 class ReosFormWidgetDataFactory
 {
   public:
-    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent ) = 0;
+    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context ) = 0;
     virtual QString datatype() const = 0;
 
-    ReosFormWidget *createWidget( ReosDataObject *dataObject, QWidget *parent );
+    ReosFormWidget *createWidget( ReosDataObject *dataObject, const ReosGuiContext &guiContext );
 
     void addSubFactory( ReosFormWidgetDataFactory *fact );
 
@@ -107,7 +109,7 @@ class REOSGUI_EXPORT ReosFormWidgetFactories: public ReosModule
     static ReosFormWidgetFactories *instance();
 
     void addDataWidgetFactory( ReosFormWidgetDataFactory *fact );
-    ReosFormWidget *createDataFormWidget( ReosDataObject *dataObject, QWidget *parent = nullptr ) const;
+    ReosFormWidget *createDataFormWidget( ReosDataObject *dataObject, const ReosGuiContext &guiContext = ReosGuiContext() ) const;
 
   private:
     ReosFormWidgetFactories( ReosModule *parent );

@@ -21,6 +21,7 @@
 #include <QPointer>
 
 #include "reosactionwidget.h"
+#include "reosguicontext.h"
 
 class QComboBox;
 class QProgressBar;
@@ -41,7 +42,7 @@ class ReosHydraulicElementWidgetFactory : public QObject
 {
   public:
     ReosHydraulicElementWidgetFactory( QObject *parent = nullptr ): QObject( parent ) {}
-    virtual ReosHydraulicElementWidget *createWidget( ReosHydraulicNetworkElement *element, QWidget *parent = nullptr );
+    virtual ReosHydraulicElementWidget *createWidget( ReosHydraulicNetworkElement *element, const ReosGuiContext &context = ReosGuiContext() );
     virtual QString elementType() {return QString();}
 };
 
@@ -65,12 +66,12 @@ class ReosHydrauylicNetworkElementCalculationControler: public QObject
 };
 
 
-class ReosHydraulicElementPropertiesWidget : public ReosActionWidget
+class ReosHydraulicElementPropertiesWidget : public ReosStackedPageWidget
 {
     Q_OBJECT
 
   public:
-    explicit ReosHydraulicElementPropertiesWidget( ReosWatershedModule *watershedModule, QWidget *parent = nullptr );
+    explicit ReosHydraulicElementPropertiesWidget( ReosWatershedModule *watershedModule, const ReosGuiContext &guiContext = ReosGuiContext() );
     ~ReosHydraulicElementPropertiesWidget();
 
   public slots:
@@ -80,7 +81,7 @@ class ReosHydraulicElementPropertiesWidget : public ReosActionWidget
     void updateElementCalculation();
 
   private:
-    Ui::ReosHydraulicElementPropertiesWidget *ui;
+    ReosGuiContext mGuiContext;
     ReosHydraulicNetworkElement *mCurrentElement = nullptr;
     QComboBox *mMeteoModelCombo = nullptr;
     ReosHydraulicElementWidget *mCurrentWidget = nullptr;
@@ -93,10 +94,21 @@ class ReosHydraulicElementPropertiesWidget : public ReosActionWidget
 
     ReosHydraulicElementWidgetFactory *widgetFactory( const QString &elementType );
     void addWidgetFactory( ReosHydraulicElementWidgetFactory *factory );
-
 };
 
+class ReosHydraulicElementPropertiesActionWidget : public ReosActionStackedWidget
+{
+    Q_OBJECT
+  public:
+    ReosHydraulicElementPropertiesActionWidget( ReosWatershedModule *watershedModule, const ReosGuiContext &guiContext );
 
+  public slots:
+    void setCurrentElement( ReosHydraulicNetworkElement *element );
+
+  private:
+    ReosHydraulicElementPropertiesWidget *mainPage = nullptr;
+    ReosHydraulicNetworkElement *mCurrentElement = nullptr;
+};
 
 
 #endif // REOSHYDRAULICELEMENTPROPERTIESWIDGET_H

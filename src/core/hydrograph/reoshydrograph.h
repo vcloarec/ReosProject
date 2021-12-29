@@ -111,7 +111,11 @@ class REOSCORE_EXPORT ReosHydrographsStore : public ReosHydrographGroup
     //! Returns the list of the hydrograph names
     QStringList hydrographNames() const;
 
-    QList<ReosHydrograph *> hydrographsForTimeRange( const QDateTime &startTime, const QDateTime &endTime );
+    //! Returns the hydrographs that are in the time range \a startTime, \a endTime
+    QList<ReosHydrograph *> hydrographsForTimeRange( const QDateTime &startTime, const QDateTime &endTime ) const;
+
+    //! Returns all the hydrographs
+    QList<ReosHydrograph *> allHydrographs() const;
 
     ReosEncodedElement encode() const;
     void decode( const ReosEncodedElement &element );

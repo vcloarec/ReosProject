@@ -35,6 +35,7 @@
 #include "reoshydrograph.h"
 #include "reoshydrographsource.h"
 #include "reostimeseriesvariabletimestepreadonlymodel.h"
+#include "reostableview.h"
 
 ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *watershedModule, QWidget *parent ) :
   ReosActionWidget( parent )
@@ -101,9 +102,12 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *wat
     ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormNashUnithydrographWidgetFactory );
   }
 
+  ui->tableViewRunoffResult->setHorizontalHeader( new ReosHorizontalHeaderView );
   ui->tableViewRunoffResult->setModel( mRunoffResultTabModel );
   ui->tableViewRunoffResult->horizontalHeader()->setStretchLastSection( true );
   ui->tableViewRunoffResult->setContextMenuPolicy( Qt::CustomContextMenu );
+
+  ui->tableViewHydrographResult->setHorizontalHeader( new ReosHorizontalHeaderView );
   ui->tableViewHydrographResult->setModel( mHydrographResultModel );
   ui->tableViewHydrographResult->horizontalHeader()->setStretchLastSection( true );
   ui->tableViewHydrographResult->setContextMenuPolicy( Qt::CustomContextMenu );
@@ -963,13 +967,13 @@ QVariant ReosWatershedRunoffModelsModel::headerData( int section, Qt::Orientatio
   return QAbstractTableModel::headerData( section, orientation, role );
 }
 
-ReosFormWidget *ReosFormLinearReservoirWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+ReosFormWidget *ReosFormLinearReservoirWidgetFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {
   ReosTransferFunctionLinearReservoir *transferFunction = qobject_cast<ReosTransferFunctionLinearReservoir *>( dataObject );
   if ( !transferFunction )
     return nullptr;
 
-  std::unique_ptr<ReosFormWidget> form = std::make_unique<ReosFormWidget>( parent );
+  std::unique_ptr<ReosFormWidget> form = std::make_unique<ReosFormWidget>( context.parent() );
 
   form->addParameter( transferFunction->area(), -1, ReosParameterWidget::SpacerInMiddle );
   form->addParameter( transferFunction->concentrationTime(), -1, ReosParameterWidget::SpacerInMiddle );
@@ -1023,13 +1027,13 @@ ReosFormWidget *ReosFormLinearReservoirWidgetFactory::createDataWidget( ReosData
 
 QString ReosFormLinearReservoirWidgetFactory::datatype() const {return ReosTransferFunctionLinearReservoir::staticType();;}
 
-ReosFormWidget *ReosFormGeneralizedRationalMethodWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+ReosFormWidget *ReosFormGeneralizedRationalMethodWidgetFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {
   ReosTransferFunctionGeneralizedRationalMethod *transferFunction = qobject_cast<ReosTransferFunctionGeneralizedRationalMethod *>( dataObject );
   if ( !transferFunction )
     return nullptr;
 
-  std::unique_ptr<ReosFormWidget> form = std::make_unique<ReosFormWidget>( parent );
+  std::unique_ptr<ReosFormWidget> form = std::make_unique<ReosFormWidget>( context.parent() );
 
   form->addParameter( transferFunction->area(), -1, ReosParameterWidget::SpacerInMiddle );
   form->addParameter( transferFunction->concentrationTime(), -1, ReosParameterWidget::SpacerInMiddle );
@@ -1167,13 +1171,13 @@ void ReosTimeSeriesTableModel::onDataChanged()
   emit dataChanged( index( 0, 0, QModelIndex() ), index( rowCount( QModelIndex() ) - 1, columnCount( QModelIndex() ) - 1, QModelIndex() ) );
 }
 
-ReosFormWidget *ReosFormSCSUnithydrographWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+ReosFormWidget *ReosFormSCSUnithydrographWidgetFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {
   ReosTransferFunctionSCSUnitHydrograph *transferFunction = qobject_cast<ReosTransferFunctionSCSUnitHydrograph *>( dataObject );
   if ( !transferFunction )
     return nullptr;
 
-  std::unique_ptr<ReosFormWidget> form = std::make_unique<ReosFormWidget>( parent );
+  std::unique_ptr<ReosFormWidget> form = std::make_unique<ReosFormWidget>( context.parent() );
 
   form->addParameter( transferFunction->area(), -1, ReosParameterWidget::SpacerInMiddle );
   form->addParameter( transferFunction->concentrationTime(), -1, ReosParameterWidget::SpacerInMiddle );
@@ -1230,13 +1234,13 @@ QString ReosFormSCSUnithydrographWidgetFactory::datatype() const {return ReosTra
 
 
 
-ReosFormWidget *ReosFormNashUnithydrographWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+ReosFormWidget *ReosFormNashUnithydrographWidgetFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {
   ReosTransferFunctionNashUnitHydrograph *transferFunction = qobject_cast<ReosTransferFunctionNashUnitHydrograph *>( dataObject );
   if ( !transferFunction )
     return nullptr;
 
-  std::unique_ptr<ReosFormWidget> form = std::make_unique<ReosFormWidget>( parent );
+  std::unique_ptr<ReosFormWidget> form = std::make_unique<ReosFormWidget>( context.parent() );
 
   form->addParameter( transferFunction->area(), -1, ReosParameterWidget::SpacerInMiddle );
   form->addParameter( transferFunction->concentrationTime(), -1, ReosParameterWidget::SpacerInMiddle );

@@ -25,6 +25,7 @@
 #include "reostableview.h"
 #include "reossettings.h"
 #include "reosplottimeconstantinterval.h"
+#include "reosguicontext.h"
 
 
 ReosHydrographEditingWidget::ReosHydrographEditingWidget( ReosHydrograph *hydrograph, QWidget *parent )
@@ -119,11 +120,11 @@ ReosHydrographEditingWidget::~ReosHydrographEditingWidget()
 
 QString ReosHydrographEditingWidgetFactory::datatype() const {return ReosHydrograph::staticType();}
 
-ReosFormWidget *ReosHydrographEditingWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+ReosFormWidget *ReosHydrographEditingWidgetFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {
   ReosHydrograph *hyd = qobject_cast<ReosHydrograph *>( dataObject );
   if ( hyd )
-    return new ReosHydrographEditingWidget( hyd, parent );
+    return new ReosHydrographEditingWidget( hyd, context.parent() );
   else
     return nullptr;
 }

@@ -21,16 +21,18 @@
 #include <QLayout>
 #include <QLabel>
 #include <QHBoxLayout>
+#include <QCheckBox>
 
 #include "reoshydrographsource.h"
 #include "reoshydrographrouting.h"
 #include "reosplotitemlist.h"
 #include "reosplottimeconstantinterval.h"
 #include "reostimeseriesvariabletimestepreadonlymodel.h"
+#include "reosgaugedhydrographwidget.h"
 
 
-ReosHydraulicHydrographJunctionPropertiesWidget::ReosHydraulicHydrographJunctionPropertiesWidget( ReosHydrographJunction *junctionNode, QWidget *parent )
-  : ReosHydraulicElementWidget( parent )
+ReosHydraulicHydrographJunctionPropertiesWidget::ReosHydraulicHydrographJunctionPropertiesWidget( ReosHydrographJunction *junctionNode, const ReosGuiContext &context )
+  : ReosHydraulicElementWidget( context.parent() )
   , ui( new Ui::ReosHydraulicHydrographJunctionPropertiesWidget )
   , mJunctionNode( junctionNode )
 {
@@ -47,18 +49,30 @@ ReosHydraulicHydrographJunctionPropertiesWidget::ReosHydraulicHydrographJunction
   mProgressControler = new ReosHydrauylicNetworkElementCalculationControler( junctionNode, this );
   mProgressControler->setProgressBar( ui->mProgressBar );
 
-  mHydrographPlotButton = new ReosVariableTimeStepPlotListButton( tr( "Hydrographs" ), ui->mPlotWidget );
   ReosSettings settings;
+  mHydrographPlotButton = new ReosVariableTimeStepPlotListButton( tr( "Calc. Hydrographs" ), ui->mPlotWidget );
   if ( settings.contains( settingsString ) )
-    mHydrographPlotButton->setChecked( settings.value( settingsString ).toBool() );
+    mHydrographPlotButton->setChecked( settings.value( settingsString + QStringLiteral( "/hydrograph-button-checked" ) ).toBool() );
   else
     mHydrographPlotButton->setChecked( true );
 
-  QWidget *nodeWidget = ReosFormWidgetFactories::instance()->createDataFormWidget( junctionNode );
-  if ( nodeWidget )
-    ui->mGroupBoxParameters->layout()->addWidget( nodeWidget );
+  mGaugedHydrographPlotButton = new ReosVariableTimeStepPlotListButton( tr( "Gauged Hydrographs" ), ui->mPlotWidget );
+  if ( settings.contains( settingsString ) )
+    mGaugedHydrographPlotButton->setChecked( settings.value( settingsString + QStringLiteral( "/gauged-button-checked" ) ).toBool() );
+  else
+    mGaugedHydrographPlotButton->setChecked( false );
 
-  populateHydrographs();
+
+  ReosFormWidget *nodeFormWidget = ReosFormWidgetFactories::instance()->createDataFormWidget( junctionNode, context );
+  if ( nodeFormWidget )
+  {
+    ui->mGroupBoxParameters->layout()->addWidget( nodeFormWidget );
+    connect( nodeFormWidget, &ReosFormWidget::stackedPageWidgetOpened, this, &ReosHydraulicElementWidget::stackedPageWidgetOpened );
+  }
+
+  ui->mHydrographTabsWidget->setConstantTimeStepParameter( mJunctionNode->constantTimeStepInTable(), mJunctionNode->useConstantTimeStepInTable() );
+
+
 
   if ( settings.contains( QStringLiteral( "hydraulic-network-properties-widget/table-visible" ) ) )
   {
@@ -76,8 +90,11 @@ ReosHydraulicHydrographJunctionPropertiesWidget::ReosHydraulicHydrographJunction
 
   connect( mJunctionNode, &ReosHydrographJunction::internalHydrographPointerChange, this, &ReosHydraulicHydrographJunctionPropertiesWidget::populateHydrographs );
   connect( mJunctionNode, &ReosHydrographJunction::calculationIsUpdated, this, &ReosHydraulicHydrographJunctionPropertiesWidget::updateInformation );
-
   updateInformation();
+
+  connect( mJunctionNode->outputHydrograph(), &ReosDataObject::dataChanged, this, &ReosHydraulicHydrographJunctionPropertiesWidget::updateGaugedHydrograph );
+
+  populateHydrographs();
 }
 
 ReosHydraulicHydrographJunctionPropertiesWidget::~ReosHydraulicHydrographJunctionPropertiesWidget()
@@ -97,16 +114,18 @@ void ReosHydraulicHydrographJunctionPropertiesWidget::populateHydrographs()
   QList<QPointer<ReosHydrograph>> hydrographs;
 
   mHydrographPlotButton->clear();
+
   ReosHydrograph *internalHyd = mJunctionNode->internalHydrograph();
   QList<ReosHydrographRoutingLink *> upstreamRoutingList = ReosHydraulicNetworkUtils::upstreamLinkOfType<ReosHydrographRoutingLink> ( mJunctionNode );
-
-  hydrographs.append( mJunctionNode->outputHydrograph() );
 
   for ( ReosHydrographRoutingLink *routing : std::as_const( upstreamRoutingList ) )
     hydrographs.append( routing->outputHydrograph() );
 
-  if ( hydrographs.count() > 1 && internalHyd )
+  if ( internalHyd && mJunctionNode->internalHydrographOrigin() == ReosHydrographJunction::GaugedHydrograph )
     hydrographs.append( internalHyd );
+
+  if ( hydrographs.count() > 1 )
+    hydrographs.prepend( mJunctionNode->outputHydrograph() );
 
   QList<ReosTimeSerieVariableTimeStep *> tsList;
 
@@ -117,8 +136,8 @@ void ReosHydraulicHydrographJunctionPropertiesWidget::populateHydrographs()
   }
 
   ui->mHydrographTabsWidget->setSeries( tsList, QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) );
-  ui->mHydrographTabsWidget->setConstantTimeStepParameter( mJunctionNode->constantTimeStepInTable(), mJunctionNode->useConstantTimeStepInTable() );
 
+  updateGaugedHydrograph();
 }
 
 void ReosHydraulicHydrographJunctionPropertiesWidget::updateInformation()
@@ -136,12 +155,38 @@ void ReosHydraulicHydrographJunctionPropertiesWidget::updateInformation()
   }
 }
 
+void ReosHydraulicHydrographJunctionPropertiesWidget::updateGaugedHydrograph()
+{
+  mGaugedHydrographPlotButton->clear();
+  QPair<QDateTime, QDateTime> timeExent = mJunctionNode->outputHydrograph()->timeExtent();
+  QList<ReosHydrograph *> gaugedHyd;
+  if ( !timeExent.first.isValid() || !timeExent.second.isValid() )
+    gaugedHyd = mJunctionNode->gaugedHydrographsStore()->allHydrographs();
+  else
+    gaugedHyd = mJunctionNode->gaugedHydrographsStore()->hydrographsForTimeRange( timeExent.first, timeExent.second );
+
+  for ( ReosHydrograph *hyd : gaugedHyd )
+  {
+    if ( mJunctionNode->internalHydrographOrigin() != ReosHydrographJunction::GaugedHydrograph || hyd != mJunctionNode->internalHydrograph() )
+    {
+      ReosPlotItem *itemPlot = mGaugedHydrographPlotButton->addData( hyd );
+      if ( itemPlot )
+      {
+        itemPlot->setAutoScale( false );
+        itemPlot->setStyle( Qt::DotLine );
+        itemPlot->setWidth( 2 );
+        itemPlot->setZ( 15 );
+      }
+    }
+  }
+}
+
 ReosHydraulicHydrographNodePropertiesWidgetFactory::ReosHydraulicHydrographNodePropertiesWidgetFactory( QObject *parent ): ReosHydraulicElementWidgetFactory( parent ) {}
 
-ReosHydraulicElementWidget *ReosHydraulicHydrographNodePropertiesWidgetFactory::createWidget( ReosHydraulicNetworkElement *element, QWidget *parent )
+ReosHydraulicElementWidget *ReosHydraulicHydrographNodePropertiesWidgetFactory::createWidget( ReosHydraulicNetworkElement *element, const ReosGuiContext &context )
 {
   ReosHydrographJunction *junctionNode = qobject_cast<ReosHydrographJunction *>( element );
-  return new ReosHydraulicHydrographJunctionPropertiesWidget( junctionNode, parent );
+  return new ReosHydraulicHydrographJunctionPropertiesWidget( junctionNode, context );
 }
 
 QString ReosHydraulicHydrographNodePropertiesWidgetFactory::elementType()
@@ -149,13 +194,13 @@ QString ReosHydraulicHydrographNodePropertiesWidgetFactory::elementType()
   return ReosHydrographNode::staticType();
 }
 
-ReosFormWidget *ReosFormWatershedNodeWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+ReosFormWidget *ReosFormWatershedNodeWidgetFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {
   ReosHydrographNodeWatershed *watershedNode = qobject_cast<ReosHydrographNodeWatershed *>( dataObject );
   if ( !watershedNode )
     return nullptr;
 
-  return new ReosFormWatershedNodeWidget( watershedNode, parent );
+  return new ReosFormWatershedNodeWidget( watershedNode, context.parent() );
 }
 
 QString ReosFormWatershedNodeWidgetFactory::datatype() const
@@ -164,25 +209,35 @@ QString ReosFormWatershedNodeWidgetFactory::datatype() const
 }
 
 ReosFormWatershedNodeWidget::ReosFormWatershedNodeWidget( ReosHydrographNodeWatershed *watershedNode, QWidget *parent )
-  : ReosFormJunctionNodeWidget( watershedNode, parent )
+  : ReosFormBaseJunctionNodeWidget( watershedNode, parent )
   , mNode( watershedNode )
 {
+  QWidget *hydWidget = new QWidget( this );
+  hydWidget->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Preferred );
   QGridLayout *gridLayout = new QGridLayout( this );
+  hydWidget->setLayout( gridLayout );
   gridLayout->setContentsMargins( 0, 0, 0, 0 );
   gridLayout->setSpacing( 6 );
-  addItem( gridLayout, 0 );
-  gridLayout->addWidget( new QLabel( tr( "Hydrograph origin" ), this ), 0, 0 );
+  QLabel *labelOri = new QLabel( tr( "Hydrograph origin" ), this );
+  labelOri->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
+  gridLayout->addWidget( labelOri, 0, 0 );
   mOriginCombo = new QComboBox( this );
   gridLayout->addWidget( mOriginCombo, 0, 1 );
   mOriginCombo->addItem( QObject::tr( "Runoff hydrograph calculation" ), ReosHydrographNodeWatershed::RunoffHydrograph );
   mOriginCombo->addItem( QObject::tr( "Gauged hydrograph" ), ReosHydrographNodeWatershed::GaugedHydrograph );
 
   mGaugedLabel = new QLabel( QObject::tr( "Gauged Hydrograph" ), this );
+  mGaugedLabel->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
   gridLayout->addWidget( mGaugedLabel, 1, 0 );
 
   mGaugedHydrographCombo = new QComboBox( this );
   gridLayout->addWidget( mGaugedHydrographCombo, 1, 1 );
-  mOriginCombo->setCurrentIndex( mOriginCombo->findData( watershedNode->origin() ) );
+  mGaugedHydrographCombo->setSizeAdjustPolicy( QComboBox::AdjustToContents );
+  gridLayout->setColumnStretch( 1, 1 );
+
+  mOriginCombo->setCurrentIndex( mOriginCombo->findData( watershedNode->internalHydrographOrigin() ) );
+
+  addWidget( hydWidget, 0 );
 
   addLine( 1 );
 
@@ -191,44 +246,29 @@ ReosFormWatershedNodeWidget::ReosFormWatershedNodeWidget( ReosHydrographNodeWate
   connect( mGaugedHydrographCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), mNode, &ReosHydrographNodeWatershed::setGaugedHydrographIndex );
   connect( mOriginCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this,  &ReosFormWatershedNodeWidget::originChange );
 
+  connect( mNode->gaugedHydrographsStore(), &ReosDataObject::dataChanged, this, &ReosFormWatershedNodeWidget::updateGaugedHydrograph );
+
 }
 
-void ReosFormWatershedNodeWidget::updateGaugedHydrograph()
+ReosHydrographJunction *ReosFormWatershedNodeWidget::node() const
 {
-  switch ( mNode->origin() )
-  {
-    case ReosHydrographNodeWatershed::RunoffHydrograph:
-      mGaugedHydrographCombo->setVisible( false );
-      mGaugedLabel->setVisible( false );
-      break;
-    case ReosHydrographNodeWatershed::GaugedHydrograph:
-      mGaugedHydrographCombo->clear();
-      const QStringList hydrographNames = mNode->watershed()->gaugedHydrographs()->hydrographNames();
-      for ( const QString &name : hydrographNames )
-        mGaugedHydrographCombo->addItem( name );
-
-      if ( mNode->gaugedHydrographIndex() < mGaugedHydrographCombo->count() )
-        mGaugedHydrographCombo->setCurrentIndex( mNode->gaugedHydrographIndex() );
-
-      mGaugedHydrographCombo->setVisible( true );
-      mGaugedLabel->setVisible( true );
-      break;
-  }
+  return mNode;
 }
+
 
 void ReosFormWatershedNodeWidget::originChange()
 {
-  ReosHydrographNodeWatershed::HydrographOrigin origin =
-    static_cast<ReosHydrographNodeWatershed::HydrographOrigin>( mOriginCombo->currentData().toInt() );
+  ReosHydrographNodeWatershed::InternalHydrographOrigin origin =
+    static_cast<ReosHydrographNodeWatershed::InternalHydrographOrigin>( mOriginCombo->currentData().toInt() );
 
-  mNode->setOrigin( origin );
+  mNode->setInternalHydrographOrigin( origin );
   updateGaugedHydrograph();
 }
 
-ReosFormJunctionNodeWidget::ReosFormJunctionNodeWidget( ReosHydrographJunction *junction, QWidget *parent ): ReosFormWidget( parent )
+ReosFormBaseJunctionNodeWidget::ReosFormBaseJunctionNodeWidget( ReosHydrographJunction *junction, QWidget *parent ): ReosFormWidget( parent )
 {
-  addParameter( junction->useForceOutputTimeStep() );
-  ReosParameterWidget *otsw = addParameter( junction->forceOutputTimeStep() );
+  addParameter( junction->useForceOutputTimeStep(), -1, ReosParameterWidget::SpacerAfter );
+  ReosParameterWidget *otsw = addParameter( junction->forceOutputTimeStep(), -1, ReosParameterWidget::SpacerAfter );
   otsw->setVisible( junction->useForceOutputTimeStep()->value() );
   connect( junction->useForceOutputTimeStep(), &ReosParameter::valueChanged, otsw, [otsw, junction]
   {
@@ -236,16 +276,101 @@ ReosFormJunctionNodeWidget::ReosFormJunctionNodeWidget( ReosHydrographJunction *
   } );
 }
 
-ReosFormWidget *ReosFormJunctionNodeWidgetFactory::createDataWidget( ReosDataObject *dataObject, QWidget *parent )
+void ReosFormBaseJunctionNodeWidget::updateGaugedHydrograph()
+{
+  if ( !node() )
+    return;
+
+  switch ( node()->internalHydrographOrigin() )
+  {
+    case ReosHydrographNodeWatershed::None:
+    case ReosHydrographNodeWatershed::RunoffHydrograph:
+      mGaugedHydrographCombo->setVisible( false );
+      mGaugedLabel->setVisible( false );
+      break;
+    case ReosHydrographNodeWatershed::GaugedHydrograph:
+      mGaugedHydrographCombo->blockSignals( true );
+      mGaugedHydrographCombo->clear();
+      const QStringList hydrographNames = node()->gaugedHydrographsStore()->hydrographNames();
+      for ( const QString &name : hydrographNames )
+        mGaugedHydrographCombo->addItem( name );
+
+      if ( node()->gaugedHydrographIndex() < mGaugedHydrographCombo->count() )
+        mGaugedHydrographCombo->setCurrentIndex( node()->gaugedHydrographIndex() );
+
+      mGaugedHydrographCombo->setVisible( true );
+      mGaugedHydrographCombo->blockSignals( false );
+      mGaugedLabel->setVisible( true );
+      break;
+  }
+}
+
+ReosFormWidget *ReosFormJunctionNodeWidgetFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {
   ReosHydrographJunction *junctionNode = qobject_cast<ReosHydrographJunction *>( dataObject );
   if ( !junctionNode )
     return nullptr;
 
-  return new ReosFormJunctionNodeWidget( junctionNode, parent );
+  return new ReosFormJunctionNodeWidget( junctionNode, context );
 }
 
 QString ReosFormJunctionNodeWidgetFactory::datatype() const
 {
   return ReosHydrographJunction::staticType();
+}
+
+ReosFormJunctionNodeWidget::ReosFormJunctionNodeWidget( ReosHydrographJunction *junction, const ReosGuiContext &context )
+  : ReosFormBaseJunctionNodeWidget( junction, context.parent() )
+  , mJunctioNode( junction )
+{
+  QToolButton *gaugedButton = new QToolButton( this );
+  gaugedButton->setToolButtonStyle( Qt::ToolButtonTextBesideIcon );
+  gaugedButton->setAutoRaise( true );
+  gaugedButton->setText( tr( "Gauged Hydrographs Manager" ) );
+  gaugedButton->setIcon( QPixmap( QStringLiteral( ":/images/gaugedHydrograph.svg" ) ) );
+  gaugedButton->setIconSize( QSize( 20, 20 ) );
+  addWidget( gaugedButton, 0 );
+
+  QCheckBox *checkBoxGauged = new QCheckBox( tr( "Inject gauged hydrograph" ), this );
+  checkBoxGauged->setChecked( junction->internalHydrographOrigin() == ReosHydrographJunction::GaugedHydrograph );
+  addWidget( checkBoxGauged, 1 );
+
+  QWidget *gaugedWidget = new QWidget( this );
+  QHBoxLayout *gaugedLayout = new QHBoxLayout ;
+  gaugedLayout->setContentsMargins( 0, 0, 0, 0 );
+  gaugedWidget->setLayout( gaugedLayout );
+  gaugedWidget->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Preferred );
+  mGaugedLabel = new QLabel( QObject::tr( "Hydrograph to inject" ), this );
+  gaugedLayout->addWidget( mGaugedLabel );
+  gaugedLayout->addSpacerItem( new QSpacerItem( 0, 0 ) );
+  mGaugedHydrographCombo = new QComboBox( this );
+  mGaugedHydrographCombo->setSizeAdjustPolicy( QComboBox::AdjustToContents );
+  gaugedLayout->addWidget( mGaugedHydrographCombo );
+  gaugedLayout->setStretch( 2, 1 );
+  addWidget( gaugedWidget, 2 );
+
+  addLine( 3 );
+
+  connect( gaugedButton, &QToolButton::clicked, this, [this, context]
+  {
+    ReosGaugedHydrographWidget *gaugedWidget = new ReosGaugedHydrographWidget( context.map(), this );
+    gaugedWidget->setHydrographStore( mJunctioNode->gaugedHydrographsStore() );
+    emit stackedPageWidgetOpened( gaugedWidget );
+  } );
+
+  connect( checkBoxGauged, &QCheckBox::toggled, this, [this, checkBoxGauged]
+  {
+    mJunctioNode->setInternalHydrographOrigin( checkBoxGauged->isChecked() ? ReosHydrographJunction::GaugedHydrograph : ReosHydrographJunction::None );
+    updateGaugedHydrograph();
+  } );
+
+  updateGaugedHydrograph();
+
+  connect( junction->gaugedHydrographsStore(), &ReosDataObject::dataChanged, this, &ReosFormJunctionNodeWidget::updateGaugedHydrograph );
+  connect( mGaugedHydrographCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), mJunctioNode, &ReosHydrographNodeWatershed::setGaugedHydrographIndex );
+}
+
+ReosHydrographJunction *ReosFormJunctionNodeWidget::node() const
+{
+  return mJunctioNode;
 }

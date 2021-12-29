@@ -31,17 +31,20 @@ namespace Ui
 }
 
 class ReosMapToolDrawPoint;
-class ReosHydraulicElementPropertiesWidget;
+class ReosHydraulicElementPropertiesActionWidget;
 class ReosMeteorologicModelsCollection;
 class ReosWatershedModule;
 
 class ReosHydraulicElementWidget : public QWidget
 {
+    Q_OBJECT
   public:
-    ReosHydraulicElementWidget( QWidget *parent = nullptr ):  QWidget( parent )
-    {}
+    ReosHydraulicElementWidget( QWidget *parent = nullptr );
 
     virtual void setCurrentCalculationContext( const ReosCalculationContext & ) {}
+
+  signals:
+    void stackedPageWidgetOpened( ReosStackedPageWidget *widget );
 };
 
 
@@ -50,9 +53,8 @@ class ReosHydraulicNetworkWidget : public QWidget
     Q_OBJECT
   public:
     explicit ReosHydraulicNetworkWidget( ReosHydraulicNetwork *network,
-                                         ReosMap *map,
                                          ReosWatershedModule *watershedModule,
-                                         QWidget *parent = nullptr );
+                                         const ReosGuiContext &context );
     ~ReosHydraulicNetworkWidget();
 
     // Temporary methods used for implementation
@@ -94,7 +96,7 @@ class ReosHydraulicNetworkWidget : public QWidget
     ReosMapToolDrawHydrographRouting *mMapToolAddHydrographRouting = nullptr;
 
     QAction *mActionHydraulicNetworkProperties = nullptr;
-    ReosHydraulicElementPropertiesWidget *mElementPropertiesWidget = nullptr;
+    ReosHydraulicElementPropertiesActionWidget *mElementPropertiesWidget = nullptr;
 
     QAction *mActionMoveHydrographJunction = nullptr;
     ReosMapToolMoveHydraulicNetworkElement *mMapToolMoveHydrographJunction = nullptr;

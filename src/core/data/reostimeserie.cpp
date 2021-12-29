@@ -704,7 +704,7 @@ ReosTimeSerie::ReosTimeSerie( QObject *parent, const QString &providerKey, const
 
   if ( mProvider )
   {
-    mProvider->setReferenceTime( QDateTime( QDate( QDate::currentDate().year(), 1, 1 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+    //mProvider->setReferenceTime( QDateTime( QDate( QDate::currentDate().year(), 1, 1 ), QTime( 0, 0, 0 ), Qt::UTC ) );
     connect( mProvider.get(), &ReosTimeSerieProvider::dataChanged, this, &ReosTimeSerie::onDataProviderChanged );
     connect( mProvider.get(), &ReosTimeSerieProvider::dataReset, this, &ReosTimeSerie::dataReset );
     mProvider->setDataSource( dataSource );

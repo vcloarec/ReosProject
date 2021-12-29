@@ -501,7 +501,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   watershed1->gaugedHydrographs()->addHydrograph( gaugedHydrograph );
 
   watershedNode1.setGaugedHydrographIndex( 0 );
-  watershedNode1.setOrigin( ReosHydrographNodeWatershed::GaugedHydrograph );
+  watershedNode1.setInternalHydrographOrigin( ReosHydrographNodeWatershed::GaugedHydrograph );
 
   timer.start( WAITING_TIME_FOR_LOOP );
   loop.exec();
@@ -521,7 +521,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   QCOMPARE( junction3.outputHydrograph()->valueCount(), 0 );
 
   // back with a runoff hydrograph
-  watershedNode1.setOrigin( ReosHydrographNodeWatershed::RunoffHydrograph );
+  watershedNode1.setInternalHydrographOrigin( ReosHydrographNodeWatershed::RunoffHydrograph );
 
   timer.start( WAITING_TIME_FOR_LOOP );
   loop.exec();

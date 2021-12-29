@@ -67,10 +67,12 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent )
   mainLayout->addItem( toolBarslayout );
   mToolBarLeft = new QToolBar( this );
   mToolBarLeft->setContentsMargins( 3, 3, 0, 0 );
+  mToolBarLeft->layout()->setSpacing( 5 );
   toolBarslayout->addWidget( mToolBarLeft );
   toolBarslayout->addItem( new QSpacerItem( 10, 0, QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding ) );
   mToolBarRight = new QToolBar( this );
   mToolBarRight->setContentsMargins( 3, 3, 0, 0 );
+  mToolBarRight->layout()->setSpacing( 5 );
 
   mToolBarLeft->addAction( mActionExportAsImage );
   mToolBarLeft->addAction( mActionCopyAsImage );

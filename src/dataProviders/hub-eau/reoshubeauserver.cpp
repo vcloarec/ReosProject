@@ -68,7 +68,9 @@ void ReosHubEauConnection::onReplied( QNetworkReply *reply )
 
   if ( mErrorCode != 0 )
   {
-    mErrorReason = reply->attribute( QNetworkRequest::HttpReasonPhraseAttribute ).toString();
+    mErrorString = reply->attribute( QNetworkRequest::HttpReasonPhraseAttribute ).toString();
+    if ( mErrorString.isEmpty() )
+      mErrorString = reply->errorString();
   }
 
   QTextStream textStream( reply );
@@ -93,9 +95,9 @@ int ReosHubEauConnection::errorCode() const
   return mErrorCode;
 }
 
-QString ReosHubEauConnection::errorReason() const
+QString ReosHubEauConnection::errorString() const
 {
-  return mErrorReason;
+  return mErrorString;
 }
 
 QVariantMap ReosHubEauConnection::result() const
@@ -150,7 +152,7 @@ int ReosHubEauConnectionControler::lastError() const
 
 QString ReosHubEauConnectionControler::lastErrorReason() const
 {
-  return mConnection->errorReason();
+  return mConnection->errorString();
 }
 
 void ReosHubEauConnectionControler::onReplied()

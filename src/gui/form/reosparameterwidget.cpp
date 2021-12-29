@@ -652,6 +652,7 @@ ReosParameterBooleanWidget::ReosParameterBooleanWidget( ReosParameterBoolean *bo
 void ReosParameterBooleanWidget::setBooleanParameter( ReosParameterBoolean *boolean )
 {
   setParameter( boolean );
+  updateValue();
 }
 
 void ReosParameterBooleanWidget::updateValue()

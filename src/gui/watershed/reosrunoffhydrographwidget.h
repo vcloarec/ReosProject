@@ -169,28 +169,28 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
 class ReosFormLinearReservoirWidgetFactory: public ReosFormWidgetDataFactory
 {
   public:
-    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent );
+    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context = ReosGuiContext() );
     virtual QString datatype() const;
 };
 
 class ReosFormGeneralizedRationalMethodWidgetFactory: public ReosFormWidgetDataFactory
 {
   public:
-    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent );
+    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context = ReosGuiContext() );
     virtual QString datatype() const;
 };
 
 class ReosFormSCSUnithydrographWidgetFactory: public ReosFormWidgetDataFactory
 {
   public:
-    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent );
+    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context = ReosGuiContext() );
     virtual QString datatype() const;
 };
 
 class ReosFormNashUnithydrographWidgetFactory: public ReosFormWidgetDataFactory
 {
   public:
-    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, QWidget *parent );
+    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context = ReosGuiContext() );
     virtual QString datatype() const;
 };
 

@@ -155,6 +155,13 @@ class ReosHydrographJunction : public ReosHydrographSource
 {
     Q_OBJECT
   public:
+    enum InternalHydrographOrigin
+    {
+      None,
+      RunoffHydrograph,
+      GaugedHydrograph
+    };
+
     ReosHydrographJunction( const QPointF &position, ReosHydraulicNetwork *parent = nullptr );
 
     ReosHydrograph *outputHydrograph() override;
@@ -179,12 +186,20 @@ class ReosHydrographJunction : public ReosHydrographSource
 
     ReosHydrograph *internalHydrograph() const;
 
+    InternalHydrographOrigin internalHydrographOrigin() const;
+    void setInternalHydrographOrigin( InternalHydrographOrigin origin );
+
+    int gaugedHydrographIndex() const;
+
+    ReosHydrographsStore *gaugedHydrographsStore() const;
+
   signals:
     //! Emitted when the internal hydrograph pointer change
     void internalHydrographPointerChange();
 
   public slots:
     void onUpstreamRoutingUpdated( const QString &routingId ) override;
+    void setGaugedHydrographIndex( int gaugedHydrographIndex );
 
   protected slots:
     void calculateIfAllReady();
@@ -193,12 +208,17 @@ class ReosHydrographJunction : public ReosHydrographSource
 
   protected:
     mutable ReosHydrograph *mOutputHydrograph;
+    ReosHydrographsStore *mHydrographsStore = nullptr;
     QPointer<ReosHydrograph> mInternalHydrograph;
+    InternalHydrographOrigin mInternalHydrographOrigin = None;
+    int mGaugedHydrographIndex = -1;
     bool mInternalHydrographUpdated = false;
     bool mNeedCalculation = true;
 
     ReosHydrographJunction( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent = nullptr );
     void encodeData( ReosEncodedElement &element,  const ReosHydraulicNetworkContext &context ) const override;
+
+    bool setCurrentInternalHydrograph( ReosHydrograph *newHydrograph );
 
   private:
     QPointF mPosition;
@@ -231,6 +251,8 @@ class ReosHydrographJunction : public ReosHydrographSource
 
     virtual bool updateInternalHydrographCalculationContext( const ReosCalculationContext & );
     void init();
+
+    virtual bool updateInternalHydrograph();
     virtual void calculateInternalHydrograph();
     void calculateOuputHydrograph();
 };
@@ -248,12 +270,6 @@ class ReosHydrographNodeWatershed : public ReosHydrographJunction
 {
     Q_OBJECT
   public:
-    enum HydrographOrigin
-    {
-      RunoffHydrograph,
-      GaugedHydrograph
-    };
-
     //! Constructor with \a watershed
     ReosHydrographNodeWatershed( ReosWatershed *watershed, ReosMeteorologicModelsCollection *meteoModelCollection, ReosHydraulicNetwork *parent = nullptr );
 
@@ -267,16 +283,9 @@ class ReosHydrographNodeWatershed : public ReosHydrographJunction
 
     ReosWatershed *watershed() const;
 
-    HydrographOrigin origin() const;
-    void setOrigin( HydrographOrigin origin );
-
-    int gaugedHydrographIndex() const;
-
     static ReosHydrographNodeWatershed *decode( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
 
   public slots:
-    void setGaugedHydrographIndex( int gaugedHydrographIndex );
-
   protected:
     void encodeData( ReosEncodedElement &element,  const ReosHydraulicNetworkContext &context ) const override;
     ReosHydrographNodeWatershed( const ReosEncodedElement &encodedElement, ReosWatershed *watershed, ReosMeteorologicModelsCollection *meteoModelCollection, ReosHydraulicNetwork *parent = nullptr );
@@ -284,8 +293,6 @@ class ReosHydrographNodeWatershed : public ReosHydrographJunction
   private:
     // persitent data
     QPointer<ReosWatershed> mWatershed;
-    HydrographOrigin mOrigin = RunoffHydrograph;
-    int mGaugedHydrographIndex = -1;
 
     // Runtime variable
     ReosRunoffHydrographsStore *mRunoffHydrographs;
@@ -293,11 +300,9 @@ class ReosHydrographNodeWatershed : public ReosHydrographJunction
 
     void init();
 
-    bool setCurrentWatershedHydrograph( ReosHydrograph *watershedHydrograph );
-
     void calculateInternalHydrograph() override;
     bool updateInternalHydrographCalculationContext( const ReosCalculationContext &context ) override;
-    bool updateWatershedHydrograph();
+    bool updateInternalHydrograph() override;
 };
 
 

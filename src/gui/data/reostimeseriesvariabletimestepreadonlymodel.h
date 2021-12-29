@@ -26,6 +26,7 @@ class ReosTimeSerieVariableTimeStep;
 class QHBoxLayout;
 class QCheckBox;
 class ReosParameterDurationWidget;
+class ReosParameterBooleanWidget;
 class ReosParameterDuration;
 class ReosParameterBoolean;
 
@@ -110,7 +111,7 @@ class ReosTimeSeriesVariableTimeStepReadOnlyTablesView : public QWidget
     ReosTimeSeriesVariableTimeStepReadOnlyModel *mModel = nullptr;
     QHBoxLayout *mTimeStepLayout = nullptr;
 
-    QCheckBox *mConstantTimeSteCheckBox = nullptr;
+    ReosParameterBooleanWidget *mConstantTimeStepWidget = nullptr;
     ReosParameterDurationWidget *mTimeStepWidget = nullptr;
 };
 

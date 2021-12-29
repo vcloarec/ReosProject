@@ -24,21 +24,21 @@
 #include "reosmaptool.h"
 #include "reoshydraulicelementpropertieswidget.h"
 
-ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *network, ReosMap *map, ReosWatershedModule *watershedModule, QWidget *parent ) :
-  QWidget( parent )
+ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *network, ReosWatershedModule *watershedModule, const ReosGuiContext &context ) :
+  QWidget( context.parent() )
   , ui( new Ui::ReosHydraulicNetworkWidget )
   , mHydraulicNetwork( network )
-  , mMap( map )
+  , mMap( context.map() )
   , mActionSelectNetworkElement( new QAction( QPixmap( QStringLiteral( ":/images/neutral.svg" ) ), tr( "Select Hydraulic Network Element" ), this ) )
-  , mMapToolSelectNetworkElement( new ReosMapToolSelectMapItem( map, ReosHydraulicNetworkElement::staticType() ) )
+  , mMapToolSelectNetworkElement( new ReosMapToolSelectMapItem( context.map(), ReosHydraulicNetworkElement::staticType() ) )
   , mActionAddHydrographJunction( new QAction( QPixmap( QStringLiteral( ":/images/addHydrographJunction.svg" ) ), tr( "Add Hydrograph Junction" ), this ) )
   , mMapToolAddHydrographJunction( new ReosMapToolDrawPoint( mMap ) )
   , mActionAddHydrographRouting( new QAction( QPixmap( QStringLiteral( ":/images/addHydrographRouting.svg" ) ), tr( "Add Hydrograph Routing" ), this ) )
   , mMapToolAddHydrographRouting( new ReosMapToolDrawHydrographRouting( mHydraulicNetwork, mMap ) )
   , mActionHydraulicNetworkProperties( new QAction( QPixmap( QStringLiteral( ":/images/hydraulicProperties.svg" ) ), tr( "Hydraulic Element Properties" ), this ) )
-  , mElementPropertiesWidget( new ReosHydraulicElementPropertiesWidget( watershedModule, this ) )
+  , mElementPropertiesWidget( new ReosHydraulicElementPropertiesActionWidget( watershedModule, ReosGuiContext( context, this ) ) )
   , mActionMoveHydrographJunction( new QAction( QPixmap( QStringLiteral( ":/images/moveHydrographJunction.svg" ) ),  tr( "Move Hydrograph Junction" ), this ) )
-  , mMapToolMoveHydrographJunction( new ReosMapToolMoveHydraulicNetworkElement( network, map ) )
+  , mMapToolMoveHydrographJunction( new ReosMapToolMoveHydraulicNetworkElement( network, context.map() ) )
   , mActionRemoveElement( new QAction( QPixmap( QStringLiteral( ":/images/remove.svg" ) ), tr( "Remove Hydraulic Element" ), this ) )
 {
   ui->setupUi( this );
@@ -202,3 +202,6 @@ void ReosHydraulicNetworkWidget::onModuleReset()
   mMapItems.clear();
 }
 
+
+ReosHydraulicElementWidget::ReosHydraulicElementWidget( QWidget *parent ):  QWidget( parent )
+{}
