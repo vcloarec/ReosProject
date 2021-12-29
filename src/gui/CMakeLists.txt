@@ -3,6 +3,7 @@
 
 SET(REOS_GUI_SOURCES
     reosaboutwidget.cpp
+    reosdockwidget.cpp
     reoslanguageselectionwidget.cpp
     reosmainwindow.cpp
     reosmessagebox.cpp
@@ -71,6 +72,7 @@ SET(REOS_GUI_SOURCES
 SET(REOS_GUI_HEADERS
     reosgui.h
     reosaboutwidget.h
+    reosdockwidget.h
     reoslanguageselectionwidget.h
     reosmainwindow.h
     reosmessagebox.h

@@ -24,6 +24,7 @@
 #include "reoshydraulicnetworkmapitemfactory.h"
 #include "reosformwidget.h"
 #include "reosmaptoolhydraulicnetwork.h"
+#include "reosdockwidget.h"
 
 namespace Ui
 {
@@ -75,6 +76,9 @@ class ReosHydraulicNetworkWidget : public QWidget
 
     void onModuleReset();
 
+    void onClosed();
+    void onOpened();
+
   private:
     Ui::ReosHydraulicNetworkWidget *ui;
     ReosHydraulicNetwork *mHydraulicNetwork = nullptr;
@@ -102,6 +106,19 @@ class ReosHydraulicNetworkWidget : public QWidget
     ReosMapToolMoveHydraulicNetworkElement *mMapToolMoveHydrographJunction = nullptr;
 
     QAction *mActionRemoveElement = nullptr;
+
+    void setMapItemVisible( bool visible );
+};
+
+class ReosHydraulicNetworkDockWidget: public ReosDockWidget
+{
+    Q_OBJECT
+  public:
+    ReosHydraulicNetworkDockWidget( ReosHydraulicNetwork *network,
+                                    ReosWatershedModule *watershedModule,
+                                    const ReosGuiContext &context );;
+
+    void setMeteoModelCollection( ReosMeteorologicModelsCollection *meteoCollection );
 };
 
 

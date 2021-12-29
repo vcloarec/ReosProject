@@ -36,6 +36,8 @@ class ReosHydraulicNetwork;
 class ReosDelineatingWatershedWidget;
 class ReosRainfallManager;
 class ReosRunoffManager;
+class ReosWatershedDockWidget;
+class ReosHydraulicNetworkDockWidget;
 
 static const ReosVersion lekanVersion( "Lekan", 2, 1, 99 );
 
@@ -66,8 +68,8 @@ class LekanMainWindow : public ReosMainWindow
     ReosHydraulicNetwork *mHydraulicNetwork = nullptr;
 
     QDockWidget *mGisDock = nullptr;
-    QDockWidget *mDockWatershed = nullptr;
-    QDockWidget *mDockHydraulicNetwork = nullptr;
+    ReosWatershedDockWidget *mDockWatershed = nullptr;
+    ReosHydraulicNetworkDockWidget *mDockHydraulicNetwork = nullptr;
     QDockWidget *mDockMessageBox = nullptr;
 
     QList<QMenu *> specificMenus() override;

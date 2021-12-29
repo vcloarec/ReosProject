@@ -43,8 +43,15 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
 {
   ui->setupUi( this );
 
+  ReosHydraulicNetworkDockWidget *dockParent = qobject_cast<ReosHydraulicNetworkDockWidget *>( context.parent() );
+  if ( dockParent )
+  {
+    connect( dockParent, &ReosHydraulicNetworkDockWidget::shown, this, &ReosHydraulicNetworkWidget::onOpened );
+    connect( dockParent, &ReosHydraulicNetworkDockWidget::closed, this, &ReosHydraulicNetworkWidget::onClosed );
+  }
+
   QToolBar *toolBar = new QToolBar( this );
-  layout()->addWidget( toolBar );
+  ui->mainLayout->insertWidget( 1, toolBar );
 
   toolBar->addAction( mActionSelectNetworkElement );
   mActionSelectNetworkElement->setCheckable( true );
@@ -202,6 +209,33 @@ void ReosHydraulicNetworkWidget::onModuleReset()
   mMapItems.clear();
 }
 
+void ReosHydraulicNetworkWidget::onClosed()
+{
+  setMapItemVisible( false );
+}
+
+void ReosHydraulicNetworkWidget::onOpened()
+{
+  setMapItemVisible( true );
+}
+
+void ReosHydraulicNetworkWidget::setMapItemVisible( bool visible )
+{
+  for ( NetworkItem &item : mMapItems )
+    item->setVisible( visible );
+}
+
 
 ReosHydraulicElementWidget::ReosHydraulicElementWidget( QWidget *parent ):  QWidget( parent )
 {}
+
+ReosHydraulicNetworkDockWidget::ReosHydraulicNetworkDockWidget( ReosHydraulicNetwork *network, ReosWatershedModule *watershedModule, const ReosGuiContext &context )
+  : ReosDockWidget( tr( "Hydraulic Network" ), context.parent() )
+{
+  setWidget( new ReosHydraulicNetworkWidget( network, watershedModule, ReosGuiContext( context, this ) ) );
+}
+
+void ReosHydraulicNetworkDockWidget::setMeteoModelCollection( ReosMeteorologicModelsCollection *meteoCollection )
+{
+  static_cast<ReosHydraulicNetworkWidget *>( widget() )->setMeteoModelCollection( meteoCollection );
+}
