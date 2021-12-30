@@ -487,7 +487,10 @@ void ReosHydrographNodeWatershed::init()
   if ( mHydrographsStore )
     delete mHydrographsStore;
 
-  mHydrographsStore = mWatershed->gaugedHydrographs();
+  if ( mWatershed->watershedType() != ReosWatershed::Residual )
+    mHydrographsStore = mWatershed->gaugedHydrographs();
+  else
+    mHydrographsStore = mWatershed->downstreamWatershed()->gaugedHydrographs();
 }
 
 ReosHydrograph *ReosHydrographNodeWatershed::outputHydrograph()

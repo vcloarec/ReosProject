@@ -383,11 +383,63 @@ void ReosWatershedWidget::onAddRemoveNetwork()
   if ( !currentWatershed() )
     return;
 
+  ReosWatershed *ws = currentWatershed();
+
   ReosHydrographNodeWatershed *hsw = currentNetworkNode();
   if ( hsw )
+  {
+    if ( QMessageBox::warning( this,
+                               tr( "Remove Watershed Hydraulic Node" ),
+                               tr( "This will permanently remove the hydraulic node %1. Do you want to proceed? " ).arg( hsw->name()->value() ),
+                               QMessageBox::Yes, QMessageBox::No, QMessageBox::No ) == QMessageBox::No )
+      return;
     mHydraulicNetwork->removeElement( hsw );
+  }
   else
-    mHydraulicNetwork->addElement( new ReosHydrographNodeWatershed( currentWatershed(), mWatershdModule->meteoModelsCollection(), mHydraulicNetwork ) );
+  {
+    const QList<ReosHydraulicNetworkElement *> watershedNodeElements = mHydraulicNetwork->getElements( ReosHydrographNodeWatershed::staticType() );
+    const ReosWatershed *otherWatershed = nullptr;
+    bool otherIsResidual = false;
+    if ( ws->watershedType() == ReosWatershed::Residual )
+    {
+      otherIsResidual = false;
+      otherWatershed = ws->downstreamWatershed();
+    }
+    else
+    {
+      otherIsResidual = true;
+      otherWatershed = ws->residualWatershed();
+    }
+
+    for ( ReosHydraulicNetworkElement *hne : std::as_const( watershedNodeElements ) )
+    {
+      ReosHydrographNodeWatershed *wsn = qobject_cast<ReosHydrographNodeWatershed *>( hne );
+      if ( wsn && wsn->watershed() == otherWatershed )
+      {
+        const QString text1 = tr( "downstream watershed" );
+        const QString text2 = tr( "residual watershed" );
+        QString part1, part2;
+        if ( otherIsResidual )
+        {
+          part1 = text1;
+          part2 = text2;
+        }
+        else
+        {
+          part2 = text1;
+          part1 = text2;
+        }
+        QMessageBox::warning( this,
+                              tr( "Add Watershed Hydraulic Node" ),
+                              tr( "This %1 associated with this %2 has already a hydraulic watershed node linked with.\n\n"
+                                  "It is not possible to have hydraulic watershed node for both downstream watershed and associated residual watershed" ).arg( part1, part2 ),
+                              QMessageBox::Ok );
+        return;
+      }
+    }
+
+    mHydraulicNetwork->addElement( new ReosHydrographNodeWatershed( ws, mWatershdModule->meteoModelsCollection(), mHydraulicNetwork ) );
+  }
 
   updateNetworkButton();
 }
@@ -469,6 +521,8 @@ void ReosWatershedWidget::setVisibleMapItems( bool visible )
 {
   for ( MapWatershed &mw : mMapWatersheds )
     mw.setVisible( visible );
+
+  mCurrentStreamLine.setVisible( false );
 }
 
 void ReosWatershedWidget::updateNetworkButton()
