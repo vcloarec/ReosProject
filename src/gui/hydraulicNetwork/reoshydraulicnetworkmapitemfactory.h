@@ -26,6 +26,8 @@ typedef void ( *ReosHydraulicNetworkMapItemUpdateFunction )( ReosHydraulicNetwor
 typedef void ( *ReosHydraulicNetworkMapItemSelectFunction )( ReosHydraulicNetworkElement *, ReosMapItem * );
 typedef void ( *ReosHydraulicNetworkMapItemUnselectFunction )( ReosHydraulicNetworkElement *, ReosMapItem * );
 
+typedef ReosMapItem *( *ReosMapExtraItemSelectedFunction )( ReosHydraulicNetworkElement *,  ReosMap * );
+
 class ReosHydraulicNetworkMapItemFactory
 {
   public:
@@ -36,11 +38,15 @@ class ReosHydraulicNetworkMapItemFactory
     void selectItem( ReosHydraulicNetworkElement *element, ReosMapItem *item );
     void unselectItem( ReosHydraulicNetworkElement *element, ReosMapItem *item );
 
+    ReosMapItem *createExtraItemSelected( ReosHydraulicNetworkElement *element, ReosMap *map );
+
   private:
     QHash<QString, ReosHydraulicNetworkMapItemCreationFunction> mCreationFunctions;
     QHash<QString, ReosHydraulicNetworkMapItemUpdateFunction> mUpdateFunctions;
     QHash<QString, ReosHydraulicNetworkMapItemSelectFunction> mSelectFunctions;
     QHash<QString, ReosHydraulicNetworkMapItemUnselectFunction> mUnselectFunctions;
+
+    QHash<QString, ReosMapExtraItemSelectedFunction> mExtraItemSelectedFunctions;
 };
 
 #endif // REOSHYDRAULICNETWORKMAPITEMFACTORY_H

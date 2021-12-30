@@ -88,6 +88,8 @@ class ReosHydraulicNetworkWidget : public QWidget
     typedef std::shared_ptr<ReosMapItem> NetworkItem ;
 
     QMap<ReosHydraulicNetworkElement *, NetworkItem> mMapItems;
+    std::unique_ptr<ReosMapItem> mExtraItemSelection;
+
     ReosHydraulicNetworkMapItemFactory mMapItemFactory;
 
     QAction *mActionSelectNetworkElement = nullptr;

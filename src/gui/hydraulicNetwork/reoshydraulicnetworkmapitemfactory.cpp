@@ -51,6 +51,22 @@ static void updateHydrographSourceWatershedItem( ReosHydraulicNetworkElement *el
     link->positionChanged();
 }
 
+static ReosMapItem *createExtraItemSelectedHydrographSourceWatershed( ReosHydraulicNetworkElement *elem, ReosMap *map )
+{
+  ReosHydrographNodeWatershed *hws = qobject_cast<ReosHydrographNodeWatershed *>( elem );
+  if ( hws )
+  {
+    std::unique_ptr<ReosMapPolygon> polygon = std::make_unique<ReosMapPolygon>( map, hws->watershed()->delineating() );
+    polygon->setWidth( 1 );
+    polygon->setColor( Qt::white );
+    polygon->setFillColor( QColor( 250, 175, 100, 100 ) );
+    polygon->setZValue( 9 );
+    return polygon.release();
+  }
+
+  return nullptr;
+}
+
 
 //****************************************************
 // Hydrograph Source junction
@@ -171,6 +187,8 @@ ReosHydraulicNetworkMapItemFactory::ReosHydraulicNetworkMapItemFactory()
   mUnselectFunctions.insert( ReosHydrographNodeWatershed::staticType(), &unselectHydrographElement );
   mUnselectFunctions.insert( ReosHydrographJunction::staticType(), &unselectHydrographElement );
   mUnselectFunctions.insert( ReosHydrographRoutingLink::staticType(), &unselectHydrographElement );
+
+  mExtraItemSelectedFunctions.insert( ReosHydrographNodeWatershed::staticType(), &createExtraItemSelectedHydrographSourceWatershed );
 }
 
 
@@ -194,12 +212,22 @@ void ReosHydraulicNetworkMapItemFactory::selectItem( ReosHydraulicNetworkElement
 {
   auto it = mSelectFunctions.find( element->type() );
   if ( it != mSelectFunctions.end() )
-    return it.value()( element, item );
+    it.value()( element, item );
 }
 
 void ReosHydraulicNetworkMapItemFactory::unselectItem( ReosHydraulicNetworkElement *element, ReosMapItem *item )
 {
   auto it = mUnselectFunctions.find( element->type() );
   if ( it != mUnselectFunctions.end() )
-    return it.value()( element, item );
+    it.value()( element, item );
+}
+
+ReosMapItem *ReosHydraulicNetworkMapItemFactory::createExtraItemSelected( ReosHydraulicNetworkElement *element, ReosMap *map )
+{
+  auto it = mExtraItemSelectedFunctions.find( element->type() );
+  if ( it != mExtraItemSelectedFunctions.end() )
+    return it.value()( element, map );
+
+  return nullptr;
+
 }

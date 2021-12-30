@@ -173,6 +173,7 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
   if ( !item )
   {
     mElementPropertiesWidget->setCurrentElement( nullptr );
+    mExtraItemSelection.reset( );
     return;
   }
 
@@ -182,6 +183,7 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
   mCurrentSelectedElement = elem;
 
   mElementPropertiesWidget->setCurrentElement( elem );
+  mExtraItemSelection.reset( mMapItemFactory.createExtraItemSelected( elem, mMap ) );
 }
 
 void ReosHydraulicNetworkWidget::onSelectedElementRemoved()
@@ -223,6 +225,9 @@ void ReosHydraulicNetworkWidget::setMapItemVisible( bool visible )
 {
   for ( NetworkItem &item : mMapItems )
     item->setVisible( visible );
+
+  if ( mExtraItemSelection )
+    mExtraItemSelection->setVisible( visible );
 }
 
 
