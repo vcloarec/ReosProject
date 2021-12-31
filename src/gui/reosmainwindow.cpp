@@ -55,7 +55,7 @@ ReosMainWindow::ReosMainWindow( QWidget *parent ) :
 
   QWidget *centralWidget = new QWidget( this );
   setCentralWidget( centralWidget );
-  QGridLayout *centralLayout = new QGridLayout( centralWidget );
+  QGridLayout *centralLayout = new QGridLayout;
   centralWidget->setLayout( centralLayout );
   centralLayout->setContentsMargins( 0, 0, 0, 0 );
 

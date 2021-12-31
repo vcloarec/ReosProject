@@ -14,6 +14,9 @@
  *                                                                         *
  ***************************************************************************/
 #include "reostimeserie.h"
+
+#include <QLocale>
+
 #include "reostimeserieprovider.h"
 
 ReosTimeSerieConstantIntervalModel::ReosTimeSerieConstantIntervalModel( QObject *parent ): ReosTimeSerieModel( parent )

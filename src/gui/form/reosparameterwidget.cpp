@@ -34,9 +34,9 @@ ReosParameterWidget::ReosParameterWidget( const QString &defaultName, QWidget *p
   , mDefaultName( defaultName )
 {
   if ( orientation == Qt::Horizontal )
-    mLayout =  new QHBoxLayout( this );
+    mLayout =  new QHBoxLayout;
   else
-    mLayout =  new QVBoxLayout( this );
+    mLayout =  new QVBoxLayout;
 
   setLayout( mLayout );
   layout()->setContentsMargins( 0, 0, 0, 0 );

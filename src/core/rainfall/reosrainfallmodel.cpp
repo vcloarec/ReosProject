@@ -522,8 +522,6 @@ bool ReosRainfallModel::saveToFile( const QString &path )
     //**** bytes header
     qint32 magicNumber = FILE_MAGIC_NUMBER;
     qint32 serialisationVersion = stream.version();
-    qDebug() << "serialisation version:" << serialisationVersion;
-
     QByteArray versionBytes = ReosVersion::currentApplicationVersion().bytesVersion();
 
     stream << magicNumber;

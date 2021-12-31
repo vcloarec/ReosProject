@@ -273,10 +273,10 @@ void ReosGaugedHydrographWidget::showProviderSelector( const QString &providerKe
   const QString dataType = ReosHydrograph::staticType();
 
   std::unique_ptr<ReosStackedPageWidget> providerPage = std::make_unique<ReosStackedPageWidget>();
-  QVBoxLayout *mainLayout = new QVBoxLayout( providerPage.get() );
+  QVBoxLayout *mainLayout = new QVBoxLayout;
   providerPage->setLayout( mainLayout );
   mainLayout->setContentsMargins( 0, 0, 0, 0 );
-  QHBoxLayout *buttonLayout = new QHBoxLayout( providerPage.get() );
+  QHBoxLayout *buttonLayout = new QHBoxLayout;
   buttonLayout->setContentsMargins( 0, 0, 0, 0 );
   buttonLayout->setSpacing( 6 );
   QPushButton *buttonBack = new QPushButton( tr( "Back" ), providerPage.get() );

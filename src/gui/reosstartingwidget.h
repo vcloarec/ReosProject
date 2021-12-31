@@ -18,7 +18,6 @@ email                : vcloarec at gmail dot com
 
 #include <QWidget>
 #include <QDialog>
-#include <QDebug>
 
 #include "reosgui.h"
 #include "reosmainwindow.h"

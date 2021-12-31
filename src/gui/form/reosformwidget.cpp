@@ -38,7 +38,7 @@
 
 ReosFormWidget::ReosFormWidget( QWidget *parent, Qt::Orientation orientation, bool withSpacer ) : QWidget( parent )
 {
-  setLayout( new QVBoxLayout( this ) );
+  setLayout( new QVBoxLayout );
   switch ( orientation )
   {
     case Qt::Horizontal:

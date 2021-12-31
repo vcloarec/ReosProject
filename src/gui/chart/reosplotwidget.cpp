@@ -62,7 +62,7 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent )
   mPlot->setContentsMargins( 5, 5, 5, 5 );
   mPlot->setFrameStyle( QFrame::NoFrame );
 
-  QHBoxLayout *toolBarslayout = new QHBoxLayout( this );
+  QHBoxLayout *toolBarslayout = new QHBoxLayout;
   toolBarslayout->setContentsMargins( 0, 0, 0, 0 );
   mainLayout->addItem( toolBarslayout );
   mToolBarLeft = new QToolBar( this );
@@ -738,7 +738,7 @@ ReosPlotLegendController::ReosPlotLegendController( ReosPlotWidget *plotWidget )
       placementLayout->addWidget( mAlignmentButtons.at( j + i * 3 ), i, j );
     }
 
-  QHBoxLayout *columnSpinLayout = new QHBoxLayout( legendWidget );
+  QHBoxLayout *columnSpinLayout = new QHBoxLayout;
   mColumnSpinBox = new QSpinBox( legendWidget );
   mColumnSpinBox->setMinimum( 1 );
   columnSpinLayout->addWidget( mColumnSpinBox );

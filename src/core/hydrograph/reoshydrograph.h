@@ -18,6 +18,7 @@
 
 #include <QColor>
 #include <QMutex>
+#include <QSet>
 
 #include "reostimeserie.h"
 #include "reossyntheticrainfall.h"

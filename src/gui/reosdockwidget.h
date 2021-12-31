@@ -17,7 +17,6 @@
 #define REOSDOCKWIDGET_H
 
 #include <QDockWidget>
-#include <QDebug>
 
 class ReosDockWidget : public QDockWidget
 {

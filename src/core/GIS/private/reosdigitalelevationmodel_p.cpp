@@ -270,8 +270,6 @@ double ReosDigitalElevationModelRaster::averageElevationOnGrid( const ReosRaster
   if ( static_cast<int>( numThread ) > totalRowsCount )
     numThread = totalRowsCount;
 
-  qDebug() << "thread count: " << numThread;
-
   QVector<AverageElevationJob> jobs;
   QVector<int> counts( numThread );
   QVector<double> sums( numThread );

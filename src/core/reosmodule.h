@@ -19,7 +19,6 @@ email                : vcloarec at gmail dot com
 #include <QObject>
 #include <QUndoCommand>
 #include <QActionGroup>
-#include <QDebug>
 #include <QTime>
 #include <QToolBar>
 

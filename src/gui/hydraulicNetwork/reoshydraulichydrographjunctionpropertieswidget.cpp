@@ -118,14 +118,13 @@ void ReosHydraulicHydrographJunctionPropertiesWidget::populateHydrographs()
   ReosHydrograph *internalHyd = mJunctionNode->internalHydrograph();
   QList<ReosHydrographRoutingLink *> upstreamRoutingList = ReosHydraulicNetworkUtils::upstreamLinkOfType<ReosHydrographRoutingLink> ( mJunctionNode );
 
+  hydrographs.append( mJunctionNode->outputHydrograph() );
+
   for ( ReosHydrographRoutingLink *routing : std::as_const( upstreamRoutingList ) )
     hydrographs.append( routing->outputHydrograph() );
 
-  if ( internalHyd && mJunctionNode->internalHydrographOrigin() == ReosHydrographJunction::GaugedHydrograph )
+  if ( hydrographs.count() > 1 && internalHyd && mJunctionNode->internalHydrographOrigin() != ReosHydrographJunction::None )
     hydrographs.append( internalHyd );
-
-  if ( hydrographs.count() > 1 )
-    hydrographs.prepend( mJunctionNode->outputHydrograph() );
 
   QList<ReosTimeSerieVariableTimeStep *> tsList;
 
@@ -214,7 +213,7 @@ ReosFormWatershedNodeWidget::ReosFormWatershedNodeWidget( ReosHydrographNodeWate
 {
   QWidget *hydWidget = new QWidget( this );
   hydWidget->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Preferred );
-  QGridLayout *gridLayout = new QGridLayout( this );
+  QGridLayout *gridLayout = new QGridLayout;
   hydWidget->setLayout( gridLayout );
   gridLayout->setContentsMargins( 0, 0, 0, 0 );
   gridLayout->setSpacing( 6 );

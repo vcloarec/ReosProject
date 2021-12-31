@@ -340,7 +340,7 @@ void ReosTimeSeriesVariableTimeStepReadOnlyTableView::copySelected( bool withHea
 
 ReosTimeSeriesVariableTimeStepReadOnlyTablesView::ReosTimeSeriesVariableTimeStepReadOnlyTablesView( QWidget *parent ) : QWidget( parent )
 {
-  QVBoxLayout *mainLayout = new QVBoxLayout( this );
+  QVBoxLayout *mainLayout = new QVBoxLayout;
   setLayout( mainLayout );
 
   QHBoxLayout *tableLayout = new QHBoxLayout;

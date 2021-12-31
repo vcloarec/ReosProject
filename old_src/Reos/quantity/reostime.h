@@ -17,7 +17,6 @@ email                :   projetreos@gmail.com
 #define REOSTIME_H
 #include <QDate>
 #include <QTime>
-#include <QDebug>
 
 #include "reosduration.h"
 
@@ -40,7 +39,7 @@ class ReosTime
     bool operator==( const ReosTime &other ) const;
     bool operator!=( const ReosTime &other ) const;
 
-    QString toString(const QString &format="dd/MM/yyyy hh:mm") const;
+    QString toString( const QString &format = "dd/MM/yyyy hh:mm" ) const;
 
     QDateTime getDateTime() const;
 

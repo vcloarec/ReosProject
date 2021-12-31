@@ -26,7 +26,7 @@ ReosDataProviderSelectorWidget *ReosDataProviderGuiFactory::createProviderSelect
   return nullptr;
 }
 
-ReosDataProviderSettingsWidget *ReosDataProviderGuiFactory::createProviderSettingsWidget( ReosDataProvider *provider, QWidget *parent ) const
+ReosDataProviderSettingsWidget *ReosDataProviderGuiFactory::createProviderSettingsWidget( ReosDataProvider *, QWidget * ) const
 {
   return nullptr;
 }

@@ -186,7 +186,6 @@ bool LekanMainWindow::saveProject()
   //**** header
   qint32 magicNumber = PROJECT_FILE_MAGIC_NUMBER;
   qint32 serialisationVersion = stream.version();
-  qDebug() << "serialisation version:" << serialisationVersion;
 
   QByteArray versionBytes = lekanVersion.bytesVersion();
 

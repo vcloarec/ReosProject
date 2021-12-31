@@ -354,9 +354,6 @@ void ReosMapTool_p::canvasMoveEvent( QgsMapMouseEvent *e )
 
   if ( foundItem )
     emit foundItemWhenMoving( foundItem );
-
-  if ( foundItem )
-    qDebug() << foundItem->base->description();
 }
 
 

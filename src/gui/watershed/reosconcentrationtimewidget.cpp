@@ -295,7 +295,7 @@ void ReosConcentrationTimeWidget::onFormulaDisplaying()
 
     for ( const QString &formulaName : registery->formulasList() )
     {
-      QHBoxLayout *lay = new QHBoxLayout( this );
+      QHBoxLayout *lay = new QHBoxLayout;
       vertLayout->addLayout( lay );
       lay->addWidget( new QLabel( formulaName, this ) );
       QLabel *formulaLabel = new QLabel( this );

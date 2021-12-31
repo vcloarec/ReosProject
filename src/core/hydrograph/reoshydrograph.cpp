@@ -355,8 +355,6 @@ void ReosRunoffHydrographsStore::updateHydrograph( ReosHydrograph *hyd )
         mMeteoModelToHydrographCalculationData[meteoModel] = hydData;
       }
 
-
-      qDebug() << "skip update hydrograph condition " << mHydrographCalculation.contains( meteoModel ) << ! hydData.hasBeenAsked;
       if ( ! hydData.hasBeenAsked )
         continue;
       else

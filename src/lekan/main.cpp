@@ -29,7 +29,6 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 
 
 #include <QDir>
-#include <QDebug>
 
 #include "reosapplication.h"
 

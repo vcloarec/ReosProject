@@ -20,7 +20,6 @@ email                :   projetreos@gmail.com
 #include <QHBoxLayout>
 #include <QLineEdit>
 #include <QLabel>
-#include <QDebug>
 #include <QComboBox>
 #include <QCheckBox>
 #include <QAction>

@@ -1214,7 +1214,7 @@ ReosImportRainfallDialog::ReosImportRainfallDialog( ReosRainfallModel *model, QW
   selectionLayout->addWidget( mComboSelectedField );
   mImportButton = new QToolButton( selectionWidget );
   mImportButton->setIcon( QPixmap( QStringLiteral( ":/images/moveRight.svg" ) ) );
-  QHBoxLayout *buttonLayout = new QHBoxLayout( this );
+  QHBoxLayout *buttonLayout = new QHBoxLayout;
   buttonLayout->addWidget( mImportButton );
   selectionLayout->addItem( buttonLayout );
   selectionLayout->addItem( new QSpacerItem( 10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding ) );
@@ -1237,7 +1237,7 @@ ReosImportRainfallDialog::ReosImportRainfallDialog( ReosRainfallModel *model, QW
   mSelectStationButton = new QToolButton( stationWidget );
   mSelectStationButton->setIcon( QPixmap( QStringLiteral( ":/images/station.svg" ) ) );
   stationLayout->addWidget( new QLabel( tr( "Select a Station to Import" ), this ) );
-  QHBoxLayout *finalizeLayout = new QHBoxLayout( this );
+  QHBoxLayout *finalizeLayout = new QHBoxLayout;
   mSelectStationButton->setEnabled( false );
   finalizeLayout->addWidget( mSelectStationButton );
   stationLayout->addItem( finalizeLayout );

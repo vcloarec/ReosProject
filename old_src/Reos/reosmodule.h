@@ -19,7 +19,6 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #include <QObject>
 #include <QUndoCommand>
 #include <QActionGroup>
-#include <QDebug>
 #include <QTime>
 #include <QToolBar>
 

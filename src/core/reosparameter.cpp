@@ -14,7 +14,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "reosparameter.h"
-
+#include <QLocale>
 
 ReosParameter::ReosParameter( const QString &name, bool derivable, QObject *parent ):
   QObject( parent )
@@ -86,17 +86,17 @@ void ReosParameter::decode( const ReosEncodedElement &element, bool isDerivable 
 
 bool ReosParameter::isEditable() const
 {
-    return mIsEditable;
+  return mIsEditable;
 }
 
-void ReosParameter::setEditable(bool isEditable)
+void ReosParameter::setEditable( bool isEditable )
 {
-    mIsEditable = isEditable;
+  mIsEditable = isEditable;
 }
 
 
 ReosParameterArea::ReosParameterArea( const QString &name, bool derivable, QObject *parent ):
-    ReosParameter( name, derivable, parent )
+  ReosParameter( name, derivable, parent )
 {}
 
 ReosParameterArea::ReosParameterArea( const QString &name, QObject *parent ):

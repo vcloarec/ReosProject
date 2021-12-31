@@ -20,7 +20,6 @@ email                : vcloarec at gmail dot com   /  projetreos at gmail dot co
 #include <sstream>
 #include <fstream>
 
-#include <QDebug>
 #include <QFileInfo>
 
 

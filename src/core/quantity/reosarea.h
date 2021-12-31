@@ -21,7 +21,6 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include <QByteArray>
 #include <QDataStream>
 #include <QPolygonF>
-#include <QDebug>
 
 #include "reoscore.h"
 #include "reosencodedelement.h"

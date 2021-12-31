@@ -611,7 +611,6 @@ bool ReosRunoffModelRegistery::saveToFile( const QString &fileName ) const
     //**** bytes header
     qint32 magicNumber = FILE_MAGIC_NUMBER;
     qint32 serialisationVersion = stream.version();
-    qDebug() << "serialisation version:" << serialisationVersion;
 
     QByteArray versionBytes = ReosVersion::currentApplicationVersion().bytesVersion();
 

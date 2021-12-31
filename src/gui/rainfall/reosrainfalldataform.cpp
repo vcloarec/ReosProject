@@ -58,11 +58,11 @@ ReosTimeSerieConstantIntervalWidget::ReosTimeSerieConstantIntervalWidget( ReosTi
   mIntensityUnitComboBox->setCurrentIndex( mIntensityUnitComboBox->findData( timeSerie->intensityTimeUnit() ) );
   mIntensityUnitComboBox->setEnabled( timeSerie->valueMode() == ReosTimeSerieConstantInterval::Intensity );
 
-  QHBoxLayout *layoutIntUnit = new QHBoxLayout( this );
+  QHBoxLayout *layoutIntUnit = new QHBoxLayout;
   layoutIntUnit->addWidget( new QLabel( tr( "Intensity time unit" ), this ) );
   layoutIntUnit->addWidget( mIntensityUnitComboBox );
   addItem( layoutIntUnit );
-  QHBoxLayout *layoutMode = new QHBoxLayout( this );
+  QHBoxLayout *layoutMode = new QHBoxLayout;
   layoutMode->addWidget( new QLabel( tr( "Value type" ), this ) );
   layoutMode->addWidget( mValueModeComboBox );
   addItem( layoutMode );

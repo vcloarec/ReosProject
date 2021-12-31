@@ -34,16 +34,16 @@ ReosHydraulicElementPropertiesWidget::ReosHydraulicElementPropertiesWidget( Reos
   : ReosStackedPageWidget( guiContext.parent() )
   , mGuiContext( guiContext )
 {
-  QVBoxLayout *mainLayout = new QVBoxLayout( this );
+  QVBoxLayout *mainLayout = new QVBoxLayout;
   setLayout( mainLayout );
 
   layout()->setSizeConstraint( QLayout::SetNoConstraint );
 
-  QHBoxLayout *headerLayout = new QHBoxLayout( this );
+  QHBoxLayout *headerLayout = new QHBoxLayout;
   headerLayout->setContentsMargins( 0, 0, 0, 0 );
   headerLayout->setSpacing( 6 );
   mainLayout->addItem( headerLayout );
-  mNameLayout = new QHBoxLayout( this );
+  mNameLayout = new QHBoxLayout;
   mNameLayout->setContentsMargins( 0, 0, 0, 0 );
   headerLayout->addItem( mNameLayout );
 

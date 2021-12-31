@@ -46,7 +46,6 @@ void ReosVersionMessageBox::receiveNetWorkRequest( QNetworkReply *reply )
   QTextStream textStream( reply );
   QString text = textStream.readAll();
   reply->deleteLater();
-  qDebug() << text;
 
   bool newVersion = false;
   if ( text.count() == 0 )
