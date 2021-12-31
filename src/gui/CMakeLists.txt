@@ -34,7 +34,6 @@ SET(REOS_GUI_SOURCES
     watershed/reosrunoffmanager.cpp
     watershed/reosrunoffhydrographwidget.cpp
     watershed/reosexportwatershedtovectordialog.cpp
-    watershed/reosgaugedhydrographwidget.cpp
 
     rainfall/reosrainfallmanager.cpp
     rainfall/reosrainfallintensitydurationwidget.cpp
@@ -61,6 +60,7 @@ SET(REOS_GUI_SOURCES
 
     hydrograph/reoshydrographeditingwidget.cpp
     hydrograph/reoshydrographroutingpropertieswidget.cpp
+    hydrograph/reosgaugedhydrographwidget.cpp
 
     hydraulicNetwork/reoshydraulicnetworkwidget.cpp
     hydraulicNetwork/reoshydraulicnetworkmapitemfactory.cpp
@@ -98,7 +98,6 @@ SET(REOS_GUI_HEADERS
     watershed/reosrunoffmanager.h
     watershed/reosrunoffhydrographwidget.h
     watershed/reosexportwatershedtovectordialog.h
-    watershed/reosgaugedhydrographwidget.h
 
     rainfall/reosrainfallmanager.h
     rainfall/reosrainfallintensitydurationwidget.h
@@ -121,6 +120,7 @@ SET(REOS_GUI_HEADERS
 
     hydrograph/reoshydrographeditingwidget.h
     hydrograph/reoshydrographroutingpropertieswidget.h
+    hydrograph/reosgaugedhydrographwidget.h
 
     hydraulicNetwork/reoshydraulicnetworkwidget.h
     hydraulicNetwork/reosmaptoolhydraulicnetwork.h

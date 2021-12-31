@@ -264,7 +264,8 @@ void ReosFormWatershedNodeWidget::originChange()
   updateGaugedHydrograph();
 }
 
-ReosFormBaseJunctionNodeWidget::ReosFormBaseJunctionNodeWidget( ReosHydrographJunction *junction, QWidget *parent ): ReosFormWidget( parent )
+ReosFormBaseJunctionNodeWidget::ReosFormBaseJunctionNodeWidget( ReosHydrographJunction *junction, const ReosGuiContext &context )
+  : ReosFormWidget( context.parent() )
 {
   addParameter( junction->useForceOutputTimeStep(), -1, ReosParameterWidget::SpacerAfter );
   ReosParameterWidget *otsw = addParameter( junction->forceOutputTimeStep(), -1, ReosParameterWidget::SpacerAfter );
@@ -272,6 +273,21 @@ ReosFormBaseJunctionNodeWidget::ReosFormBaseJunctionNodeWidget( ReosHydrographJu
   connect( junction->useForceOutputTimeStep(), &ReosParameter::valueChanged, otsw, [otsw, junction]
   {
     otsw->setVisible( junction->useForceOutputTimeStep()->value() );
+  } );
+
+  QToolButton *gaugedButton = new QToolButton( this );
+  gaugedButton->setToolButtonStyle( Qt::ToolButtonTextBesideIcon );
+  gaugedButton->setAutoRaise( true );
+  gaugedButton->setText( tr( "Gauged Hydrographs Manager" ) );
+  gaugedButton->setIcon( QPixmap( QStringLiteral( ":/images/gaugedHydrograph.svg" ) ) );
+  gaugedButton->setIconSize( QSize( 20, 20 ) );
+  addWidget( gaugedButton );
+
+  connect( gaugedButton, &QToolButton::clicked, this, [this, context, junction]
+  {
+    ReosGaugedHydrographWidget *gaugedWidget = new ReosGaugedHydrographWidget( context.map(), this );
+    gaugedWidget->setHydrographStore( junction->gaugedHydrographsStore() );
+    emit stackedPageWidgetOpened( gaugedWidget );
   } );
 }
 
@@ -322,17 +338,9 @@ ReosFormJunctionNodeWidget::ReosFormJunctionNodeWidget( ReosHydrographJunction *
   : ReosFormBaseJunctionNodeWidget( junction, context.parent() )
   , mJunctioNode( junction )
 {
-  QToolButton *gaugedButton = new QToolButton( this );
-  gaugedButton->setToolButtonStyle( Qt::ToolButtonTextBesideIcon );
-  gaugedButton->setAutoRaise( true );
-  gaugedButton->setText( tr( "Gauged Hydrographs Manager" ) );
-  gaugedButton->setIcon( QPixmap( QStringLiteral( ":/images/gaugedHydrograph.svg" ) ) );
-  gaugedButton->setIconSize( QSize( 20, 20 ) );
-  addWidget( gaugedButton, 0 );
-
   QCheckBox *checkBoxGauged = new QCheckBox( tr( "Inject gauged hydrograph" ), this );
   checkBoxGauged->setChecked( junction->internalHydrographOrigin() == ReosHydrographJunction::GaugedHydrograph );
-  addWidget( checkBoxGauged, 1 );
+  addWidget( checkBoxGauged, 0 );
 
   QWidget *gaugedWidget = new QWidget( this );
   QHBoxLayout *gaugedLayout = new QHBoxLayout ;
@@ -346,16 +354,9 @@ ReosFormJunctionNodeWidget::ReosFormJunctionNodeWidget( ReosHydrographJunction *
   mGaugedHydrographCombo->setSizeAdjustPolicy( QComboBox::AdjustToContents );
   gaugedLayout->addWidget( mGaugedHydrographCombo );
   gaugedLayout->setStretch( 2, 1 );
-  addWidget( gaugedWidget, 2 );
+  addWidget( gaugedWidget, 1 );
 
-  addLine( 3 );
-
-  connect( gaugedButton, &QToolButton::clicked, this, [this, context]
-  {
-    ReosGaugedHydrographWidget *gaugedWidget = new ReosGaugedHydrographWidget( context.map(), this );
-    gaugedWidget->setHydrographStore( mJunctioNode->gaugedHydrographsStore() );
-    emit stackedPageWidgetOpened( gaugedWidget );
-  } );
+  addLine( 2 );
 
   connect( checkBoxGauged, &QCheckBox::toggled, this, [this, checkBoxGauged]
   {

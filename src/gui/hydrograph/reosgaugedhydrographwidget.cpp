@@ -80,6 +80,9 @@ ReosGaugedHydrographWidget::~ReosGaugedHydrographWidget()
 
 void ReosGaugedHydrographWidget::setHydrographStore( ReosHydrographsStore *store )
 {
+  if ( mHydrographStore )
+    disconnect( mHydrographStore, &ReosDataObject::dataChanged, this, &ReosGaugedHydrographWidget::onStoreChanged );
+
   mHydrographStore = store;
   if ( !mHydrographStore )
   {
@@ -87,7 +90,10 @@ void ReosGaugedHydrographWidget::setHydrographStore( ReosHydrographsStore *store
     setEnabled( false );
   }
   else
+  {
     setEnabled( true );
+    connect( mHydrographStore, &ReosDataObject::dataChanged, this, &ReosGaugedHydrographWidget::onStoreChanged );
+  }
 
   onStoreChanged();
   onCurrentHydrographChanged();
