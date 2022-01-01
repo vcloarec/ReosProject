@@ -32,11 +32,11 @@ ReosHydrographEditingWidget::ReosHydrographEditingWidget( ReosHydrograph *hydrog
   : ReosFormWidget( parent, Qt::Vertical, false )
   , mIsUseConstantTimeStepForNewEntry( new ReosParameterBoolean( tr( "Use constant time step for new entry" ), false, this ) )
   , mConstantTimeStepForNewEntry( new ReosParameterDuration( tr( "Constant time step" ) ) )
-  , mDataModel( new ReosTimeSerieVariableTimeStepModel( this ) )
 {
   ReosSettings settings;
 
-  mDataModel->setSerie( hydrograph );
+  mDataModel = qobject_cast<ReosTimeSerieVariableTimeStepModel *>( hydrograph->model() );
+
   mIsUseConstantTimeStepForNewEntry->setValue( false );
   addParameter( hydrograph->referenceTimeParameter() );
   if ( hydrograph->dataProvider()->isEditable() )

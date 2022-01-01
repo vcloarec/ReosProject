@@ -1198,6 +1198,17 @@ ReosTimeSerieVariableTimeStepProvider *ReosTimeSerieVariableTimeStep::variableTi
   return static_cast<ReosTimeSerieVariableTimeStepProvider *>( mProvider.get() );
 }
 
+QAbstractItemModel *ReosTimeSerieVariableTimeStep::model()
+{
+  if ( !mModel )
+  {
+    mModel = new ReosTimeSerieVariableTimeStepModel( this );
+    mModel->setSerie( this );
+  }
+
+  return mModel;
+}
+
 ReosTimeSerieVariableTimeStepModel::ReosTimeSerieVariableTimeStepModel( QObject *parent ): ReosTimeSerieModel( parent )
 {
   mFixedTimeStep = ReosDuration( 5, ReosDuration::minute );

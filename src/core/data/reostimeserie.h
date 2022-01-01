@@ -95,7 +95,6 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
 
     static QString staticType() {return ReosDataObject::staticType() + ':' + QStringLiteral( "time-serie" );}
 
-
   protected slots:
     virtual void onDataProviderChanged();
 
@@ -235,6 +234,8 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     double convertFromIntensityValue( double v );
 };
 
+class ReosTimeSerieVariableTimeStepModel;
+
 class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
 {
     Q_OBJECT
@@ -283,6 +284,8 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
 
     bool operator==( ReosTimeSerieVariableTimeStep &other ) const;
 
+    QAbstractItemModel *model();
+
   public slots:
     //! Sets indirectly the color from an object that handle common color for hydrograph
     void setCommonColor( const QColor &color );
@@ -302,6 +305,8 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
   private:
     QString mUnitString;
     QColor mColor;
+
+    ReosTimeSerieVariableTimeStepModel *mModel = nullptr;
 
 
     /**
