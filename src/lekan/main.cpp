@@ -26,6 +26,7 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 
 #include "lekanmainwindow.h"
 #include "reossettings.h"
+#include "reosremoteinformation.h"
 
 
 #include <QDir>
@@ -60,8 +61,6 @@ int main( int argc, char *argv[] )
 
   QLocale::setDefault( localeGlobal );
 
-
-
   QLocale localeLanguage;
   if ( settings.contains( QStringLiteral( "Locale-language" ) ) )
     localeLanguage = settings.value( QStringLiteral( "Locale-language" ) ).toLocale();
@@ -82,10 +81,8 @@ int main( int argc, char *argv[] )
   if ( ReosTranslator.load( localeLanguage, i18nPath + QStringLiteral( "/reos" ), "_" ) )
     a.installTranslator( &ReosTranslator );
 
-
   std::unique_ptr<LekanMainWindow> w = std::make_unique<LekanMainWindow>();
-  ReosVersionMessageBox *versionBox = new ReosVersionMessageBox( w.get(), lekanVersion );
-  versionBox->setDefaultWebSite( webSite );
+  new ReosVersionMessageBox( w.get(), lekanVersion );
 
   if ( settings.contains( QStringLiteral( "Windows/MainWindow/geometry" ) ) )
   {

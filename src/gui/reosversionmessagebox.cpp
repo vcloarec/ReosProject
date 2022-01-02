@@ -14,6 +14,7 @@ email                : vcloarec at gmail dot com
  ***************************************************************************/
 
 #include "reosversionmessagebox.h"
+#include "reosremoteinformation.h"
 
 
 ReosVersionMessageBox::ReosVersionMessageBox( QWidget *parent, const ReosVersion &version, bool start ):
@@ -23,78 +24,96 @@ ReosVersionMessageBox::ReosVersionMessageBox( QWidget *parent, const ReosVersion
 {
   setTextFormat( Qt::RichText );
 
-  mNetWorkAccess = new QNetworkAccessManager( this );
-
-  connect( mNetWorkAccess, &QNetworkAccessManager::finished, this, &ReosVersionMessageBox::receiveNetWorkRequest );
-  QString address = serverVersionAddress;
-  address.append( version.getSoftName() ).append( ".txt" );
-  mNetWorkAccess->get( QNetworkRequest( address ) );
+  ReosRemoteInformation *remoteInformation = new ReosRemoteInformation( this );
+  connect( remoteInformation, &ReosRemoteInformation::informationready, this, &ReosVersionMessageBox::onReceiveInformation );
+  remoteInformation->requestInformation();
 }
 
-QString ReosVersionMessageBox::getDefaultWebSite() const
+void ReosVersionMessageBox::onReceiveInformation( const QVariantMap &map )
 {
-  return mDefaultWebSite;
-}
-
-void ReosVersionMessageBox::setDefaultWebSite( const QString &value )
-{
-  mDefaultWebSite = value;
-}
-
-void ReosVersionMessageBox::receiveNetWorkRequest( QNetworkReply *reply )
-{
-  QTextStream textStream( reply );
-  QString text = textStream.readAll();
-  reply->deleteLater();
-
   bool newVersion = false;
-  if ( text.count() == 0 )
+  bool criticalInfo = false;
+
+  QString message;
+
+  QVariantList critical;
+  if ( map.contains( QStringLiteral( "criticalMessage" ) ) )
   {
-    deleteLater();
-    return;
-  }
-
-  QStringList textSplit = text.split( "|" );
-  QString versionText = textSplit.at( 0 );
-
-  QStringList versionSplit = versionText.split( "." );
-
-  if ( versionSplit.count() > 2 )
-  {
-    ReosVersion versionAvailable( mVersion.getSoftName(), versionSplit.at( 0 ).toInt(), versionSplit.at( 1 ).toInt(), versionSplit.at( 2 ).toInt() );
-    newVersion = versionAvailable > mVersion;
-    if ( !newVersion && mStart )
+    QVariant var = map.value( QStringLiteral( "criticalMessage" ) );
+    if ( var.type() == QVariant::List )
     {
-      deleteLater();
-      return;
+      critical = var.toList();
     }
 
+    for ( const QVariant &var : std::as_const( critical ) )
+    {
+      if ( var.type() != QVariant::Map )
+        continue;
+
+      QVariantMap varMap = var.toMap();
+
+      if ( !varMap.contains( QStringLiteral( "version" ) ) )
+        continue;
+
+      QStringList versionSplit = varMap.value( QStringLiteral( "version" ) ).toString().split( QString( '.' ) );
+
+      if ( versionSplit.count() != 3 )
+        continue;
+
+      ReosVersion versionAvailable( mVersion.getSoftName(), versionSplit.at( 0 ).toInt(), versionSplit.at( 1 ).toInt(), versionSplit.at( 2 ).toInt() );
+      if ( versionAvailable == mVersion )
+      {
+        setIcon( QMessageBox::Critical );
+        message.append( varMap.value( QStringLiteral( "message" ) ).toString() );
+        message.append( QStringLiteral( "<br><br>" ) );
+        criticalInfo = true;
+        break;
+      }
+    }
   }
 
-  if ( newVersion )
+  if ( map.contains( QStringLiteral( "availableVersion" ) ) )
   {
-    QString message;
-    message = tr( "A new version is available.\n" );
+    QString versionText = map.value( QStringLiteral( "availableVersion" ) ).toString();
 
-    message.append( tr( "Visit : " ) );
-    message.append( "<a href=\"http://%1\"> %1</a>" );
-    if ( textSplit.count() > 1 )
+    QStringList versionSplit = versionText.split( "." );
+
+    if ( versionSplit.count() > 2 )
     {
-      QString webSite = textSplit.at( 1 );
-      message = message.arg( webSite );
+      ReosVersion versionAvailable( mVersion.getSoftName(), versionSplit.at( 0 ).toInt(), versionSplit.at( 1 ).toInt(), versionSplit.at( 2 ).toInt() );
+      newVersion = versionAvailable > mVersion;
+      if ( !newVersion && !criticalInfo && mStart )
+      {
+        deleteLater();
+        return;
+      }
+    }
+
+    if ( newVersion )
+    {
+      message.append( tr( "A new version is available.\n" ) );
+
+      message.append( tr( "Visit : " ) );
+      message.append( QStringLiteral( "<a href=\"%1\"> %1</a>" ) );
+
+      message = message.arg( map.value( QStringLiteral( "downloadUrl" ) ).toString() );
+
+      setText( message );
+
     }
     else
     {
-      message = message.arg( mDefaultWebSite );
+      message.append( tr( "No new version available." ) );
     }
-    setText( message );
-
   }
   else
   {
-    setText( tr( "No new version available." ) );
+    message.append( tr( "Unable to check new version." ) );
   }
 
+  setText( message );
+
   exec();
+
   deleteLater();
 }

@@ -5,7 +5,6 @@ FIND_PACKAGE(GDAL REQUIRED)
 
 SET(REOS_CORE_SOURCES
   reosapplication.cpp
-  reosdocumentation.cpp
   reosencodedelement.cpp
   reosmemoryraster.cpp
   reosmodule.cpp
@@ -15,6 +14,7 @@ SET(REOS_CORE_SOURCES
   reosparameter.cpp
   reosstyleregistery.cpp
   reoscalculationcontext.cpp
+  reosremoteinformation.cpp
 
   GIS/reosdigitalelevationmodel.cpp
   GIS/reosgisengine.cpp
@@ -69,7 +69,6 @@ SET(REOS_CORE_SOURCES
 SET(REOS_CORE_HEADERS
     reoscore.h
     reosapplication.h
-    reosdocumentation.h
     reosencodedelement.h
     reosmemoryraster.h
     reosmodule.h
@@ -79,6 +78,7 @@ SET(REOS_CORE_HEADERS
     reosparameter.h
     reosstyleregistery.h
     reoscalculationcontext.h
+    reosremoteinformation.h
 
     GIS/reosdigitalelevationmodel.h
     GIS/reosgisengine.h

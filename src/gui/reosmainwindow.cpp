@@ -19,6 +19,7 @@ email                : vcloarec at gmail dot com
 #include <QMenuBar>
 #include <QFileDialog>
 #include <QDockWidget>
+#include <QDesktopServices>
 
 #include <qgsmapcanvas.h>
 
@@ -27,8 +28,8 @@ email                : vcloarec at gmail dot com
 #include "reosmessagebox.h"
 #include "reoslanguageselectionwidget.h"
 #include "reosaboutwidget.h"
-#include "reosdocumentation.h"
 #include "reosversionmessagebox.h"
+#include "reosremoteinformation.h"
 
 #include "reosgisengine.h"
 #include "reosplotwidget.h"
@@ -49,6 +50,7 @@ ReosMainWindow::ReosMainWindow( QWidget *parent ) :
   mActionAbout( new QAction( tr( "About ..." ), this ) ),
   mActionNewVersionAvailable( new QAction( tr( "Check new version" ), this ) ),
   mActionDocumentation( new QAction( tr( "Documentation" ), this ) ),
+  mActionHowToSupport( new QAction( tr( "How to help?" ), this ) ),
   mUndoStack( new QUndoStack( this ) )
 {
   setDockNestingEnabled( true );
@@ -72,6 +74,11 @@ void ReosMainWindow::init()
   addDockWidget( Qt::BottomDockWidgetArea, mDockMessageBox );
   //****************************************************************
 
+  ReosRemoteInformation *remoteInformation = new ReosRemoteInformation( this );
+
+  connect( remoteInformation, &ReosRemoteInformation::informationready, this, &ReosMainWindow::onRemoteInformation );
+  remoteInformation->requestInformation();
+
   mGroupActionFile->addAction( mActionNewProject );
   mGroupActionFile->addAction( mActionOpenFile );
   mGroupActionFile->addAction( mActionSaveFile );
@@ -81,19 +88,6 @@ void ReosMainWindow::init()
   mToolBarFile->addActions( mGroupActionFile->actions() );
   mMenuFile = menuBar()->addMenu( tr( "File" ) );
   mMenuFile->addActions( mGroupActionFile->actions() );
-
-//  QAction *actionUndo = mUndoStack->createUndoAction( this );
-//  actionUndo->setIcon( QPixmap( "://images/mActionUndo.png" ) );
-
-//  mGroupActionEdit->addAction( actionUndo );
-//  QAction *actionRedo = mUndoStack->createRedoAction( this );
-//  actionRedo->setIcon( QPixmap( "://images/mActionRedo.png" ) );
-//  mGroupActionEdit->addAction( actionRedo );
-
-//  mToolBarEdit = addToolBar( tr( "Edit" ) );
-//  mToolBarEdit->addActions( mGroupActionEdit->actions() );
-//  mMenuEdit = menuBar()->addMenu( tr( "Edit" ) );
-//  mMenuEdit->addActions( mGroupActionEdit->actions() );
 
   const QList<QMenu *> &sm = specificMenus();
   for ( QMenu *menu : sm )
@@ -109,11 +103,9 @@ void ReosMainWindow::init()
 
   mGroupActionInterrogation->addAction( mActionAbout );
   mGroupActionInterrogation->addAction( mActionNewVersionAvailable );
-  mGroupActionInterrogation->addAction( mActionDocumentation );
   mMenuInterrogation = menuBar()->addMenu( tr( "?" ) );
   mMenuInterrogation->addActions( mGroupActionInterrogation->actions() );
 
-  mDocumentation = new ReosDocumentation( version(), this );
   //****************************************************************
 
   connect( mRootModule, &ReosModule::newCommandToUndoStack, this, &ReosMainWindow::newUndoCommand );
@@ -126,9 +118,27 @@ void ReosMainWindow::init()
   connect( mActionLanguageSelection, &QAction::triggered, this, &ReosMainWindow::languageSelection );
   connect( mActionAbout, &QAction::triggered, this, &ReosMainWindow::about );
   connect( mActionNewVersionAvailable, &QAction::triggered, this, &ReosMainWindow::newVersionAvailable );
-  connect( mActionDocumentation, &QAction::triggered, mDocumentation, &ReosDocumentation::call );
+  connect( mActionDocumentation, &QAction::triggered, this, [this] { QDesktopServices::openUrl( mDocumentationUrl );} );
+  connect( mActionHowToSupport, &QAction::triggered, this, [this] { QDesktopServices::openUrl( mHowToSupportUrl );} );
 
   connect( mRootModule, &ReosModule::emitMessage, messageBox, &ReosMessageBox::receiveMessage );
+}
+
+void ReosMainWindow::onRemoteInformation( const QVariantMap &information )
+{
+  if ( information.contains( QStringLiteral( "documentationUrl" ) ) )
+  {
+    mDocumentationUrl = information.value( QStringLiteral( "documentationUrl" ) ).toString();
+    mGroupActionInterrogation->addAction( mActionDocumentation );
+    mMenuInterrogation->addAction( mActionDocumentation );
+  }
+
+  if ( information.contains( QStringLiteral( "howToSupportUrl" ) ) )
+  {
+    mHowToSupportUrl = information.value( QStringLiteral( "howToSupportUrl" ) ).toString();
+    mGroupActionInterrogation->addAction( mActionHowToSupport );
+    mMenuInterrogation->addAction( mActionHowToSupport );
+  }
 }
 
 void ReosMainWindow::addActionsFile( const QList<QAction *> actions )

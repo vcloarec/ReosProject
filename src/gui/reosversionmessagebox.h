@@ -35,13 +35,12 @@ class REOSGUI_EXPORT ReosVersionMessageBox: public QMessageBox
     void setDefaultWebSite( const QString &value );
 
   public slots:
-    void receiveNetWorkRequest( QNetworkReply *reply );
+    void onReceiveInformation( const QVariantMap &map );
 
   private:
     ReosVersion mVersion;
     QNetworkAccessManager *mNetWorkAccess = nullptr;
     bool mStart;
-    QString mDefaultWebSite = serverVersionAddress;
 };
 
 #endif // REOSVERSIONMESSAGEBOX_H

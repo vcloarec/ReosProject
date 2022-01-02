@@ -66,12 +66,16 @@ class REOSGUI_EXPORT ReosMainWindow : public QMainWindow
     //! Returns the project file's path. This doesn't include the file name.
     QString currentProjectPath() const;
 
+    QVariantList mCriticalInfo;
+
   private slots:
     void newUndoCommand( QUndoCommand *command );
 
     bool save();
     bool saveAs();
     void newProject();
+
+    void onRemoteInformation( const QVariantMap &information );
 
   private:
     virtual ReosVersion version() const {return ReosVersion();}
@@ -82,6 +86,7 @@ class REOSGUI_EXPORT ReosMainWindow : public QMainWindow
     virtual QByteArray encode() const = 0;
     virtual bool decode( const QByteArray &byteArray ) = 0;
     virtual QString projectFileFilter() const;
+    virtual void onCriticalInfo() {};
 
     void languageSelection();
     void about();
@@ -93,35 +98,38 @@ class REOSGUI_EXPORT ReosMainWindow : public QMainWindow
     bool mProjectIsDirty = false;
 
     ReosMessageBox *messageBox = nullptr;
-    ReosDocumentation *mDocumentation;
 
-    QDockWidget *mDockMessageBox;
+    QDockWidget *mDockMessageBox = nullptr;
 
-    QMenu *mMenuFile;
-    QMenu *mMenuEdit;
-    QMenu *mMenuOption;
-    QMenu *mMenuInterrogation;
+    QMenu *mMenuFile = nullptr;
+    QMenu *mMenuEdit = nullptr;
+    QMenu *mMenuOption = nullptr;
+    QMenu *mMenuInterrogation = nullptr;
 
-    QActionGroup *mGroupActionFile;
-    QActionGroup *mGroupActionEdit;
-    QActionGroup *mGroupActionOption;
-    QActionGroup *mGroupActionInterrogation;
+    QActionGroup *mGroupActionFile = nullptr;
+    QActionGroup *mGroupActionEdit = nullptr;
+    QActionGroup *mGroupActionOption = nullptr;
+    QActionGroup *mGroupActionInterrogation = nullptr;
 
-    QAction *mActionNewProject;
-    QAction *mActionOpenFile;
-    QAction *mActionSaveFile;
-    QAction *mActionSaveFileAs;
+    QAction *mActionNewProject = nullptr;
+    QAction *mActionOpenFile = nullptr;
+    QAction *mActionSaveFile = nullptr;
+    QAction *mActionSaveFileAs = nullptr;
 
-    QAction *mActionLanguageSelection;
+    QAction *mActionLanguageSelection = nullptr;
     QAction *mActionAbout;
-    QAction *mActionNewVersionAvailable;
-    QAction *mActionDocumentation;
+    QAction *mActionNewVersionAvailable = nullptr;
+    QAction *mActionDocumentation = nullptr;
+    QAction *mActionHowToSupport = nullptr;
 
-    QToolBar *mToolBarFile;
-    QToolBar *mToolBarEdit;
+    QToolBar *mToolBarFile = nullptr;
+    QToolBar *mToolBarEdit = nullptr;
 
     QFileInfo mCurrentProjectFileInfo;
-    QUndoStack *mUndoStack;
+    QUndoStack *mUndoStack = nullptr;
+
+    QString mDocumentationUrl;
+    QString mHowToSupportUrl;
 };
 
 #endif // REOSMAINWINDOW_H

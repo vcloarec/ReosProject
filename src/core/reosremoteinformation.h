@@ -1,9 +1,10 @@
 /***************************************************************************
-                      reosdocumentation.h
-                     --------------------------------------
-Date                 : 07-04-2019
-Copyright            : (C) 2018 by Vincent Cloarec
-email                : vcloarec at gmail dot com
+  reosremoteinformation.h - ReosRemoteInformation
+
+ ---------------------
+ begin                : 1.1.2022
+ copyright            : (C) 2022 by Vincent Cloarec
+ email                : vcloarec at gmail dot com
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -12,33 +13,34 @@ email                : vcloarec at gmail dot com
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
+#ifndef REOSREMOTEINFORMATION_H
+#define REOSREMOTEINFORMATION_H
 
-#ifndef REOSDOCUMENTATION_H
-#define REOSDOCUMENTATION_H
+#include <QObject>
+#include <QVariantMap>
 
-#include<QtNetwork/QNetworkAccessManager>
-#include <QDesktopServices>
-#include <QUrl>
+class QNetworkAccessManager;
+class QNetworkReply;
 
-#include "reosversion.h"
+static const QString serverInformationAddress( "https://www.reos.site/" );
 
-
-static const QString serverDocumentationAddress( "https://www.reos.site/availableDocumentation/" );
-
-class REOSCORE_EXPORT ReosDocumentation: public QObject
+class ReosRemoteInformation : public QObject
 {
     Q_OBJECT
   public:
-    ReosDocumentation( const ReosVersion &version, QObject *parent );
+    ReosRemoteInformation( QObject *parent = nullptr );
 
-  public slots:
-    void call();
+    void requestInformation();
+
+  signals:
+    void informationready( const QVariantMap &information );
+
+  private slots:
+    void onReply( QNetworkReply *reply );
 
   private:
-    ReosVersion mVersion;
+    QVariantMap mInformation;
     QNetworkAccessManager *mNetWorkAccess = nullptr;
-  private slots:
-    void launchWebSite( QNetworkReply *reply );
 };
 
-#endif // REOSDOCUMENTATION_H
+#endif // REOSREMOTEINFORMATION_H
