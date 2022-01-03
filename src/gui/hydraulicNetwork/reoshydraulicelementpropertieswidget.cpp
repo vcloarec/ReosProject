@@ -64,6 +64,8 @@ ReosHydraulicElementPropertiesWidget::ReosHydraulicElementPropertiesWidget( Reos
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormJunctionNodeWidgetFactory );
 
   connect( mMeteoModelCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosHydraulicElementPropertiesWidget::updateElementCalculation );
+
+  setCurrentElement( nullptr );
 }
 
 ReosHydraulicElementPropertiesWidget::~ReosHydraulicElementPropertiesWidget()
@@ -96,11 +98,18 @@ void ReosHydraulicElementPropertiesWidget::setCurrentElement( ReosHydraulicNetwo
     else
       mMainLayout->addWidget( newWidget );
   }
+  else if ( mCurrentWidget )
+    mMainLayout->removeWidget( mCurrentWidget );
 
   if ( mNameParameterWidget )
+  {
     mNameLayout->replaceWidget( mNameParameterWidget, newNameWidget );
+    newNameWidget->show();
+  }
   else
+  {
     mNameLayout->addWidget( newNameWidget );
+  }
 
   delete mCurrentWidget;
   delete mNameParameterWidget;
