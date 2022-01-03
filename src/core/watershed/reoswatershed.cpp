@@ -179,11 +179,12 @@ QPointF ReosWatershed::outletPoint() const
 
 void ReosWatershed::setOutletPoint( const QPointF &outletPoint )
 {
-  if ( mType == Residual )
-    return;
+  if ( mType == Residual && mDownstreamWatershed )
+    mDownstreamWatershed->setOutletPoint( outletPoint );
+  else
+    mOutletPoint = outletPoint;
 
-  mOutletPoint = outletPoint;
-  emit dataChanged();
+  emit outletPositionChange();
 }
 
 int ReosWatershed::upstreamWatershedCount() const
@@ -371,8 +372,8 @@ QList<ReosWatershed *> ReosWatershed::allUpstreamWatersheds() const
   QList<ReosWatershed *> list;
   for ( const std::unique_ptr<ReosWatershed> &ws : mUpstreamWatersheds )
   {
-    list.append( ws->allUpstreamWatersheds() );
     list.append( ws.get() );
+    list.append( ws->allUpstreamWatersheds() );
   }
 
   return list;

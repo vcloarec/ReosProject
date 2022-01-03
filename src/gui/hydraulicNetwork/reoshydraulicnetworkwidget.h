@@ -58,13 +58,6 @@ class ReosHydraulicNetworkWidget : public QWidget
                                          const ReosGuiContext &context );
     ~ReosHydraulicNetworkWidget();
 
-    // Temporary methods used for implementation
-    //*******
-    ReosCalculationContext currentContext() const;
-    void setMeteoModelCollection( ReosMeteorologicModelsCollection *meteoCollection );
-    ReosMeteorologicModelsCollection *meteoModelCollection = nullptr;
-    //***
-
   private slots:
     void onElementAdded( ReosHydraulicNetworkElement *elem );
     void onElementRemoved( ReosHydraulicNetworkElement *elem );
@@ -119,8 +112,6 @@ class ReosHydraulicNetworkDockWidget: public ReosDockWidget
     ReosHydraulicNetworkDockWidget( ReosHydraulicNetwork *network,
                                     ReosWatershedModule *watershedModule,
                                     const ReosGuiContext &context );;
-
-    void setMeteoModelCollection( ReosMeteorologicModelsCollection *meteoCollection );
 };
 
 

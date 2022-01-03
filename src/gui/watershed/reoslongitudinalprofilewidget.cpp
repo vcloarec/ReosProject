@@ -127,6 +127,11 @@ ReosLongitudinalProfileWidget::~ReosLongitudinalProfileWidget()
   delete ui;
 }
 
+void ReosLongitudinalProfileWidget::setVisibleStreamLine( bool visible )
+{
+  mCurrentStreamLine.setVisible( visible );
+}
+
 
 void ReosLongitudinalProfileWidget::setCurrentWatershed( ReosWatershed *ws )
 {

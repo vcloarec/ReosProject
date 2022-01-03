@@ -102,6 +102,8 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
     using MapWatersheds = QMap<ReosWatershed *, MapWatershed>;
     MapWatersheds mMapWatersheds;
 
+    void constructMapWatershed( ReosWatershed *watershed );
+
     ReosMapPolyline mCurrentStreamLine;
 
     ReosMapToolEditMapPolygon *mMapToolEditDelineating = nullptr;

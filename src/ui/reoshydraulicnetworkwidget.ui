@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>190</width>
+    <height>91</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,7 +15,28 @@
   </property>
   <layout class="QVBoxLayout" name="mainLayout">
    <item>
-    <widget class="QComboBox" name="comboBoxMeteo"/>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Current Selected Element</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="ReosParameterStringWidget" name="mNameWidget" native="true"/>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
     <spacer name="verticalSpacer">
@@ -32,6 +53,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ReosParameterStringWidget</class>
+   <extends>QWidget</extends>
+   <header>reosparameterwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

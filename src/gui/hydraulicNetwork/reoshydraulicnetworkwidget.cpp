@@ -43,6 +43,8 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
 {
   ui->setupUi( this );
 
+  ui->mNameWidget->setDefaultName( tr( "Name" ) );
+
   ReosHydraulicNetworkDockWidget *dockParent = qobject_cast<ReosHydraulicNetworkDockWidget *>( context.parent() );
   if ( dockParent )
   {
@@ -51,7 +53,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   }
 
   QToolBar *toolBar = new QToolBar( this );
-  ui->mainLayout->insertWidget( 1, toolBar );
+  ui->mainLayout->insertWidget( 0, toolBar );
 
   toolBar->addAction( mActionSelectNetworkElement );
   mActionSelectNetworkElement->setCheckable( true );
@@ -107,20 +109,6 @@ ReosHydraulicNetworkWidget::~ReosHydraulicNetworkWidget()
   delete ui;
 }
 
-ReosCalculationContext ReosHydraulicNetworkWidget::currentContext() const
-{
-  ReosCalculationContext context;
-  context.setMeteorologicModel( meteoModelCollection->meteorologicModel( ui->comboBoxMeteo->currentIndex() ) );
-
-  return context;
-}
-
-void ReosHydraulicNetworkWidget::setMeteoModelCollection( ReosMeteorologicModelsCollection *meteoCollection )
-{
-  meteoModelCollection = meteoCollection;
-  ui->comboBoxMeteo->setModel( meteoCollection );
-}
-
 void ReosHydraulicNetworkWidget::onElementAdded( ReosHydraulicNetworkElement *elem )
 {
   NetworkItem item;
@@ -173,6 +161,7 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
   if ( !item )
   {
     mElementPropertiesWidget->setCurrentElement( nullptr );
+    ui->mNameWidget->setString( nullptr );
     mExtraItemSelection.reset( );
     return;
   }
@@ -183,6 +172,7 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
   mCurrentSelectedElement = elem;
 
   mElementPropertiesWidget->setCurrentElement( elem );
+  ui->mNameWidget->setString( elem->name() );
   mExtraItemSelection.reset( mMapItemFactory.createExtraItemSelected( elem, mMap ) );
 }
 
@@ -238,9 +228,4 @@ ReosHydraulicNetworkDockWidget::ReosHydraulicNetworkDockWidget( ReosHydraulicNet
   : ReosDockWidget( tr( "Hydraulic Network" ), context.parent() )
 {
   setWidget( new ReosHydraulicNetworkWidget( network, watershedModule, ReosGuiContext( context, this ) ) );
-}
-
-void ReosHydraulicNetworkDockWidget::setMeteoModelCollection( ReosMeteorologicModelsCollection *meteoCollection )
-{
-  static_cast<ReosHydraulicNetworkWidget *>( widget() )->setMeteoModelCollection( meteoCollection );
 }

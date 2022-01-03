@@ -467,7 +467,7 @@ void ReosHydrographNodeWatershed::init()
 {
   if ( mWatershed )
   {
-    connect( mWatershed, &ReosWatershed::dataChanged, this, [this]
+    connect( mWatershed, &ReosWatershed::outletPositionChange, this, [this]
     {
       positionChanged();
     } );

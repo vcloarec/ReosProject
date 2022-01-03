@@ -197,8 +197,8 @@ QList<ReosWatershed *> ReosWatershedTree::allWatersheds() const
   QList<ReosWatershed *> list;
   for ( const std::unique_ptr<ReosWatershed> &ws : mWatersheds )
   {
-    list.append( ws->allUpstreamWatersheds() );
     list.append( ws.get() );
+    list.append( ws->allUpstreamWatersheds() );
   }
 
   return list;

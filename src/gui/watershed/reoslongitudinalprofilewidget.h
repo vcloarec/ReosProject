@@ -50,6 +50,8 @@ class ReosLongitudinalProfileWidget : public ReosActionWidget
     explicit ReosLongitudinalProfileWidget( ReosMap *map, QWidget *parent = nullptr );
     ~ReosLongitudinalProfileWidget();
 
+    void setVisibleStreamLine( bool visible );
+
   public slots:
     void setCurrentWatershed( ReosWatershed *ws );
 

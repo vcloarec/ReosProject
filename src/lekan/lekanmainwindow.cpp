@@ -89,7 +89,6 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   mDockHydraulicNetwork = new ReosHydraulicNetworkDockWidget( mHydraulicNetwork, mWatershedModule, guiContext );
 
   addDockWidget( Qt::RightDockWidgetArea, mDockHydraulicNetwork );
-  mDockHydraulicNetwork->setMeteoModelCollection( mWatershedModule->meteoModelsCollection() );
 
   mDockWatershed = new  ReosWatershedDockWidget( mMap, mWatershedModule, mHydraulicNetwork, this );
   addDockWidget( Qt::RightDockWidgetArea, mDockWatershed );
