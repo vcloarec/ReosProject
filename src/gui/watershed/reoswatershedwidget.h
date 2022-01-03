@@ -119,7 +119,8 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
 
     ReosMapPolygon *mapDelineating( ReosWatershed *ws );
     void updateNetworkButton();
-    ReosHydrographNodeWatershed *currentNetworkNode();
+    ReosHydrographNodeWatershed *currentNetworkNode() const;
+    ReosHydrographNodeWatershed *associatedNetworkNode( ReosWatershed *watershed ) const;
 
     void setVisibleMapItems( bool visible );
 };

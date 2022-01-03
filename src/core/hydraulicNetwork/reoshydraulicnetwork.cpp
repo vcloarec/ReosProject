@@ -168,6 +168,8 @@ ReosHydraulicNetworkElement *ReosHydraulicNetwork::addElement( ReosHydraulicNetw
 
 void ReosHydraulicNetwork::removeElement( ReosHydraulicNetworkElement *elem )
 {
+  if ( !elem )
+    return;
   emit elementRemoved( elem );
   ReosHydraulicNode *node = qobject_cast<ReosHydraulicNode *>( elem );
   if ( node )

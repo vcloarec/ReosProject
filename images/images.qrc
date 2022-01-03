@@ -119,5 +119,6 @@
         <file>moveHydrographJunction.svg</file>
         <file>warning.svg</file>
         <file>error.svg</file>
+        <file>selectHydraulicElement.svg</file>
     </qresource>
 </RCC>

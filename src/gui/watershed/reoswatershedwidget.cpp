@@ -193,10 +193,14 @@ void ReosWatershedWidget::onWatershedSelectedOnMap( ReosMapItem *item, const QPo
   if ( !item )
     return;
 
-  for ( const auto &ws : mMapWatersheds.keys() )
+  for ( ReosWatershed *ws : mMapWatersheds.keys() )
   {
     if ( mMapWatersheds.value( ws ).delineating->isItem( item ) )
     {
+      //if the watershed is a residual one, start from its upstream
+      if ( ws->watershedType() == ReosWatershed::Residual )
+        ws = ws->downstreamWatershed();
+
       //Watershed found, return the more upstream under the point pos
       ReosWatershed *uws = ws->upstreamWatershed( pos, true );
       if ( uws )
@@ -231,6 +235,10 @@ void ReosWatershedWidget::onRemoveWatershed()
     downstreamResidualWatershed = downstreamWatershed->residualWatershed(); //store it to update the map delineating later
 
   mMapToolEditDelineating->setMapPolygon( nullptr );
+
+  if ( wsResid )
+    mHydraulicNetwork->removeElement( associatedNetworkNode( wsResid ) );
+
   mHydraulicNetwork->removeElement( currentNetworkNode() );
   mModelWatershed->removeWatershed( currentIndex );
   MapWatersheds::iterator it = mMapWatersheds.find( ws );
@@ -355,7 +363,7 @@ void ReosWatershedWidget::onModuleReset()
   emit currentWatershedChanged( nullptr );
   mMapWatersheds.clear();
 
-  const QList<ReosWatershed *> allWs = mModelWatershed->allWatersheds();
+  const QList<ReosWatershed *> allWs = mModelWatershed->allWatershedsFromDSToUS();
   for ( ReosWatershed *ws : allWs )
   {
     constructMapWatershed( ws );
@@ -366,7 +374,7 @@ void ReosWatershedWidget::onModuleReset()
 
 void ReosWatershedWidget::onExportToVectorLayer()
 {
-  ReosExportWatershedToVectorDialog *dial = new ReosExportWatershedToVectorDialog( mModelWatershed->allWatersheds(), mMap->engine()->crs(), this );
+  ReosExportWatershedToVectorDialog *dial = new ReosExportWatershedToVectorDialog( mModelWatershed->allWatershedsFromUSToDS(), mMap->engine()->crs(), this );
   dial->exec();
 
   dial->deleteLater();
@@ -515,14 +523,19 @@ void ReosWatershedWidget::clearSelection()
   }
 }
 
-ReosHydrographNodeWatershed *ReosWatershedWidget::currentNetworkNode()
+ReosHydrographNodeWatershed *ReosWatershedWidget::currentNetworkNode() const
+{
+  return associatedNetworkNode( currentWatershed() );
+}
+
+ReosHydrographNodeWatershed *ReosWatershedWidget::associatedNetworkNode( ReosWatershed *watershed ) const
 {
   QList<ReosHydraulicNetworkElement *> watershedHydrographSource = mHydraulicNetwork->getElements( ReosHydrographNodeWatershed::staticType() );
 
   for ( ReosHydraulicNetworkElement *elem : watershedHydrographSource )
   {
     ReosHydrographNodeWatershed *hsw = qobject_cast<ReosHydrographNodeWatershed *>( elem );
-    if ( hsw && hsw->watershed() == currentWatershed() )
+    if ( hsw && hsw->watershed() == watershed )
     {
       ui->mAddRemoveHydraulicNetworkButton->setText( tr( "Remove watershed from network" ) );
       ui->mAddRemoveHydraulicNetworkButton->setEnabled( true );

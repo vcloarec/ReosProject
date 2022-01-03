@@ -16,6 +16,7 @@ email                : vcloarec at gmail dot com
 #include <QStack>
 #include "reoswatershedtree.h"
 #include "reoswatershed.h"
+#include "reoswatershedtree.h"
 
 ReosWatershedTree::ReosWatershedTree( ReosGisEngine *gisEngine, QObject *parent ):
   QObject( parent )
@@ -192,13 +193,25 @@ int ReosWatershedTree::masterWatershedPosition( ReosWatershed *watershed ) const
   return -1;
 }
 
-QList<ReosWatershed *> ReosWatershedTree::allWatersheds() const
+QList<ReosWatershed *> ReosWatershedTree::allWatershedsFromUSToDS() const
+{
+  QList<ReosWatershed *> list;
+  for ( const std::unique_ptr<ReosWatershed> &ws : mWatersheds )
+  {
+    list.append( ws->allUpstreamWatershedsFromUSToDS() );
+    list.append( ws.get() );
+  }
+
+  return list;
+}
+
+QList<ReosWatershed *> ReosWatershedTree::allWatershedsFromDSToUS() const
 {
   QList<ReosWatershed *> list;
   for ( const std::unique_ptr<ReosWatershed> &ws : mWatersheds )
   {
     list.append( ws.get() );
-    list.append( ws->allUpstreamWatersheds() );
+    list.append( ws->allUpstreamWatershedsFromUSToDS() );
   }
 
   return list;
@@ -275,7 +288,7 @@ void ReosWatershedTree::decode( const ReosEncodedElement &elem )
     }
   }
 
-  QList<ReosWatershed *> allWs = allWatersheds();
+  QList<ReosWatershed *> allWs = allWatershedsFromUSToDS();
   for ( ReosWatershed *ws : std::as_const( allWs ) )
     connect( ws, &ReosDataObject::dataChanged, this, &ReosWatershedTree::watershedChanged );
 
@@ -364,9 +377,14 @@ QVariant ReosWatershedItemModel::data( const QModelIndex &index, int role ) cons
   return QVariant();
 }
 
-QList<ReosWatershed *> ReosWatershedItemModel::allWatersheds() const
+QList<ReosWatershed *> ReosWatershedItemModel::allWatershedsFromUSToDS() const
 {
-  return mWatershedTree->allWatersheds();
+  return mWatershedTree->allWatershedsFromUSToDS();
+}
+
+QList<ReosWatershed *> ReosWatershedItemModel::allWatershedsFromDSToUS() const
+{
+  return mWatershedTree->allWatershedsFromDSToUS();
 }
 
 void ReosWatershedItemModel::onWatershedWillBeAdded()

@@ -169,8 +169,11 @@ class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
     //! Returns the position in the downstream watershed
     int positionInDownstreamWatershed() const;
 
-    //! Returns a list of all upstream watershed
-    QList<ReosWatershed *> allUpstreamWatersheds() const;
+    //! Returns a list of all upstream watershed sorted from upstream to downstream
+    QList<ReosWatershed *> allUpstreamWatershedsFromUSToDS() const;
+
+    //! Returns a list of all upstream watershed sorted downstream to upstream
+    QList<ReosWatershed *> allUpstreamWatershedsFromDSToUS() const;
 
     //! Cuts the delineating of this delineating to fit in the \a other watershed delineating (cut all that is outside the other and intersect with sub watershed)
     void fitIn( const ReosWatershed &other );

@@ -61,8 +61,11 @@ class REOSCORE_EXPORT ReosWatershedTree: public QObject
     //! Returns the position of the master watershed, if not a master watershed, returns -1
     int masterWatershedPosition( ReosWatershed *watershed ) const;
 
-    //! Returns a list of all the watershed
-    QList<ReosWatershed *> allWatersheds() const;
+    //! Returns a list of all the watershed sorted from upstream to downstream
+    QList<ReosWatershed *> allWatershedsFromUSToDS() const;
+
+    //! Returns a list of all the watershed sorted from downstream to upstream
+    QList<ReosWatershed *> allWatershedsFromDSToUS() const;
 
     //! Removes direction data present in any watershed in the tree
     void removeDirectionData();
@@ -111,8 +114,11 @@ class REOSCORE_EXPORT ReosWatershedItemModel: public QAbstractItemModel
     int columnCount( const QModelIndex &parent ) const override;
     QVariant data( const QModelIndex &index, int role ) const override;
 
-    //! Returns all the watershed contained in the model
-    QList<ReosWatershed *> allWatersheds() const;
+    //! Returns all the watershed contained in the model from upstream to downstream
+    QList<ReosWatershed *> allWatershedsFromUSToDS() const;
+
+    //! Returns all the watershed contained in the model from downstream to upstream
+    QList<ReosWatershed *> allWatershedsFromDSToUS() const;
 
     QModelIndex watershedToIndex( ReosWatershed *watershed ) const;
     static ReosWatershed *indexToWatershed( const QModelIndex &index );

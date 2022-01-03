@@ -367,13 +367,25 @@ int ReosWatershed::positionInDownstreamWatershed() const
 
 }
 
-QList<ReosWatershed *> ReosWatershed::allUpstreamWatersheds() const
+QList<ReosWatershed *> ReosWatershed::allUpstreamWatershedsFromUSToDS() const
+{
+  QList<ReosWatershed *> list;
+  for ( const std::unique_ptr<ReosWatershed> &ws : mUpstreamWatersheds )
+  {
+    list.append( ws->allUpstreamWatershedsFromUSToDS() );
+    list.append( ws.get() );
+  }
+
+  return list;
+}
+
+QList<ReosWatershed *> ReosWatershed::allUpstreamWatershedsFromDSToUS() const
 {
   QList<ReosWatershed *> list;
   for ( const std::unique_ptr<ReosWatershed> &ws : mUpstreamWatersheds )
   {
     list.append( ws.get() );
-    list.append( ws->allUpstreamWatersheds() );
+    list.append( ws->allUpstreamWatershedsFromDSToUS() );
   }
 
   return list;

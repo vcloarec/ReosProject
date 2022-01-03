@@ -29,7 +29,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   , ui( new Ui::ReosHydraulicNetworkWidget )
   , mHydraulicNetwork( network )
   , mMap( context.map() )
-  , mActionSelectNetworkElement( new QAction( QPixmap( QStringLiteral( ":/images/neutral.svg" ) ), tr( "Select Hydraulic Network Element" ), this ) )
+  , mActionSelectNetworkElement( new QAction( QPixmap( QStringLiteral( ":/images/selectHydraulicElement.svg" ) ), tr( "Select Hydraulic Network Element" ), this ) )
   , mMapToolSelectNetworkElement( new ReosMapToolSelectMapItem( context.map(), ReosHydraulicNetworkElement::staticType() ) )
   , mActionAddHydrographJunction( new QAction( QPixmap( QStringLiteral( ":/images/addHydrographJunction.svg" ) ), tr( "Add Hydrograph Junction" ), this ) )
   , mMapToolAddHydrographJunction( new ReosMapToolDrawPoint( mMap ) )
