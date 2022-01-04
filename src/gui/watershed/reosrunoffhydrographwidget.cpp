@@ -598,8 +598,9 @@ void ReosRunoffHydrographWidget::onTransferFunctionFormulation()
 
     dial->show();
 
-    textBrowser->setMinimumHeight( textBrowser->document()->size().height() );
-    textBrowser->setMinimumWidth( textBrowser->document()->size().width() );
+    textBrowser->document()->setTextWidth( 400 );
+    dial->resize( textBrowser->document()->size().width() + dial->contentsMargins().left() + dial->contentsMargins().right() + 20,
+                  textBrowser->document()->size().height() + dial->contentsMargins().top() + dial->contentsMargins().bottom() + 50 );
   }
 }
 

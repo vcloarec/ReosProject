@@ -79,6 +79,7 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   centralWidget()->layout()->addWidget( mMap->mapCanvas() );
 
   mGisDock = new QDockWidget( tr( "GIS Layers" ) );
+  mGisDock->setObjectName( QStringLiteral( "gisDock" ) );
   mGisDock->setWidget( new ReosGisLayersWidget( mGisEngine, mMap, this ) );
   addDockWidget( Qt::LeftDockWidgetArea, mGisDock );
 
@@ -87,15 +88,17 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   mHydraulicNetwork = new ReosHydraulicNetwork( rootModule(), mWatershedModule );
 
   mDockHydraulicNetwork = new ReosHydraulicNetworkDockWidget( mHydraulicNetwork, mWatershedModule, guiContext );
-
+  mDockHydraulicNetwork->setObjectName( QStringLiteral( "hydraulicDock" ) );
   addDockWidget( Qt::RightDockWidgetArea, mDockHydraulicNetwork );
 
   mDockWatershed = new  ReosWatershedDockWidget( mMap, mWatershedModule, mHydraulicNetwork, this );
+  mDockWatershed->setObjectName( QStringLiteral( "watershedDock" ) );
   addDockWidget( Qt::RightDockWidgetArea, mDockWatershed );
 
   mMap->setDefaultMapTool();
 
   addDockWidget( Qt::TopDockWidgetArea, mMap->temporalControllerDockWidget() );
+  mMap->temporalControllerDockWidget()->setObjectName( "temporalDock" );
 
   clearProject();
 }
@@ -249,9 +252,11 @@ QList<QMenu *> LekanMainWindow::specificMenus()
   QMenu *hydrologyMenu = new QMenu( tr( "Hydrology" ), this );
   mActionRainfallManager = hydrologyMenu->addAction( QPixmap( QStringLiteral( ":/images/rainfall.svg" ) ), tr( "Rainfall manager" ) );
   mActionRunoffManager = hydrologyMenu->addAction( QPixmap( QStringLiteral( ":/images/runoff.svg" ) ), tr( "Runoff manager" ) );
+  hydrologyMenu->setObjectName( QStringLiteral( "Hydrology" ) );
 
   QMenu *mapMenu = new QMenu( tr( "Map" ), this );
   mapMenu->addActions( mMap->mapToolActions() );
+  mapMenu->setObjectName( QStringLiteral( "Map" ) );
 
   menusList << hydrologyMenu << mapMenu;
 

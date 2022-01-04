@@ -86,6 +86,7 @@ void ReosMainWindow::init()
 
   mToolBarFile = addToolBar( tr( "File" ) );
   mToolBarFile->addActions( mGroupActionFile->actions() );
+  mToolBarFile->setObjectName( QStringLiteral( "toolBarFile" ) );
   mMenuFile = menuBar()->addMenu( tr( "File" ) );
   mMenuFile->addActions( mGroupActionFile->actions() );
 
@@ -94,6 +95,7 @@ void ReosMainWindow::init()
   {
     menuBar()->addMenu( menu );
     QToolBar *tb = addToolBar( menu->title() );
+    tb->setObjectName( menu->objectName() );
     tb->addActions( menu->actions() );
   }
 

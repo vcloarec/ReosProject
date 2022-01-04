@@ -111,7 +111,7 @@ class REOSGUI_EXPORT ReosHydraulicNetworkDockWidget: public ReosDockWidget
   public:
     ReosHydraulicNetworkDockWidget( ReosHydraulicNetwork *network,
                                     ReosWatershedModule *watershedModule,
-                                    const ReosGuiContext &context );;
+                                    const ReosGuiContext &context );
 };
 
 
