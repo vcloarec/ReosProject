@@ -18,7 +18,7 @@
 
 #include "reosmodule.h"
 
-class ReosStyleRegistery: public ReosModule
+class REOSCORE_EXPORT ReosStyleRegistery: public ReosModule
 {
   public:
     ReosStyleRegistery( ReosModule *parent = nullptr );

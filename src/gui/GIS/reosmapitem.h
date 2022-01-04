@@ -32,7 +32,7 @@ class ReosMapPolygon_p;
 class ReosMapPolyline_p;
 class ReosMapMarkerFilledCircle_p;
 
-class ReosMapItem
+class REOSGUI_EXPORT ReosMapItem
 {
   public:
     //! Construct a map item and link it with a map
@@ -74,7 +74,7 @@ class ReosMapItem
     ReosMapItem_p *d_ = nullptr;
 };
 
-class ReosMapMarker:  public ReosMapItem
+class REOSGUI_EXPORT ReosMapMarker:  public ReosMapItem
 {
   public:
     ReosMapMarker() {}
@@ -95,7 +95,7 @@ class ReosMapMarker:  public ReosMapItem
     bool isEmpty() const;
 };
 
-class ReosMapMarkerFilledCircle : public ReosMapMarker
+class REOSGUI_EXPORT ReosMapMarkerFilledCircle : public ReosMapMarker
 {
   public:
     //! Contructor
@@ -105,7 +105,7 @@ class ReosMapMarkerFilledCircle : public ReosMapMarker
     ~ReosMapMarkerFilledCircle();
 };
 
-class ReosMapMarkerEmptyCircle : public ReosMapMarker
+class REOSGUI_EXPORT ReosMapMarkerEmptyCircle : public ReosMapMarker
 {
   public:
     //! Contructor
@@ -116,7 +116,7 @@ class ReosMapMarkerEmptyCircle : public ReosMapMarker
     ~ReosMapMarkerEmptyCircle();
 };
 
-class ReosMapMarkerEmptySquare : public ReosMapMarker
+class REOSGUI_EXPORT ReosMapMarkerEmptySquare : public ReosMapMarker
 {
   public:
     //! Contructor
@@ -126,7 +126,7 @@ class ReosMapMarkerEmptySquare : public ReosMapMarker
     ~ReosMapMarkerEmptySquare();
 };
 
-class ReosMapMarkerSvg : public ReosMapMarker
+class REOSGUI_EXPORT ReosMapMarkerSvg : public ReosMapMarker
 {
   public:
     //! Contructor

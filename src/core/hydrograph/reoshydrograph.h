@@ -66,7 +66,7 @@ class REOSCORE_EXPORT ReosHydrographCalculation : public ReosProcess
 };
 
 
-class ReosHydrographGroup: public ReosDataObject
+class REOSCORE_EXPORT ReosHydrographGroup: public ReosDataObject
 {
     Q_OBJECT
   public:
@@ -148,7 +148,7 @@ class ReosRunoff;
  * The current watershed is set with setWatershed(), then the runoff hydrograph produced by this watershed depending
  * of a meteoroloical model is obtains by hydrograph( ReosMeteorologicModel *meteoModel )
  */
-class ReosRunoffHydrographsStore: public ReosHydrographGroup
+class REOSCORE_EXPORT ReosRunoffHydrographsStore: public ReosHydrographGroup
 {
     Q_OBJECT
   public:

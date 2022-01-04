@@ -67,7 +67,7 @@ class ReosHydraulicNetworkUtils
 
 
 //! Abstract class that represent a node for hydrograph transfer
-class ReosHydrographNode : public ReosHydraulicNode
+class REOSCORE_EXPORT ReosHydrographNode : public ReosHydraulicNode
 {
     Q_OBJECT
   public:
@@ -89,7 +89,7 @@ class ReosHydrographNode : public ReosHydraulicNode
 };
 
 //! Abstract class that represent a hydrograph source, that is a node that has a hydrograph as output
-class ReosHydrographSource : public ReosHydrographNode
+class REOSCORE_EXPORT ReosHydrographSource : public ReosHydrographNode
 {
     Q_OBJECT
   public:
@@ -116,7 +116,7 @@ class ReosHydrographSource : public ReosHydrographNode
 };
 
 //! Class that represent an hydrograph source with a fixed hydrograph
-class ReosHydrographSourceFixed: public ReosHydrographSource
+class REOSCORE_EXPORT ReosHydrographSourceFixed: public ReosHydrographSource
 {
     Q_OBJECT
   public:
@@ -151,7 +151,7 @@ class ReosHydrographSourceFixed: public ReosHydrographSource
 /**
  * Class that represents an node that can collect and sum hydrograph
  */
-class ReosHydrographJunction : public ReosHydrographSource
+class REOSCORE_EXPORT ReosHydrographJunction : public ReosHydrographSource
 {
     Q_OBJECT
   public:
@@ -266,7 +266,7 @@ class ReosHydrographJunctionFactory : public ReosHydraulicNetworkElementFactory
 
 
 //! Class that represent a node for a specified watershed
-class ReosHydrographNodeWatershed : public ReosHydrographJunction
+class REOSCORE_EXPORT ReosHydrographNodeWatershed : public ReosHydrographJunction
 {
     Q_OBJECT
   public:

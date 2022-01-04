@@ -19,13 +19,14 @@
 #include <QPointer>
 #include <QPointF>
 
+#include "reoscore.h"
 #include "reoshydrographsource.h"
 #include "reoshydrauliclink.h"
 #include "reoscalculationcontext.h"
 
 class ReosHydrographRoutingLink;
 
-class ReosHydrographRoutingMethod : public ReosDataObject
+class REOSCORE_EXPORT ReosHydrographRoutingMethod : public ReosDataObject
 {
   public:
     ReosHydrographRoutingMethod( ReosHydrographRoutingLink *routingLink );
@@ -50,7 +51,7 @@ class ReosHydrographRoutingMethodFactory
 };
 
 
-class ReosHydrographRoutingMethodFactories : public ReosModule
+class REOSCORE_EXPORT ReosHydrographRoutingMethodFactories : public ReosModule
 {
   public:
     ~ReosHydrographRoutingMethodFactories();
@@ -80,7 +81,7 @@ class ReosHydrographRoutingMethodFactories : public ReosModule
 /**
  * Abstract class that can be derived to make hydraulic link thats transfer hydrograph between a hydrograph source to another hydrograph node
  */
-class ReosHydrographRoutingLink : public ReosHydraulicLink
+class REOSCORE_EXPORT ReosHydrographRoutingLink : public ReosHydraulicLink
 {
     Q_OBJECT
   public:
@@ -160,7 +161,7 @@ class ReosHydrographRoutingLinkFactory: public ReosHydraulicNetworkElementFactor
 };
 
 //! Class that transfers hydrograph between node without altering the hydrograph
-class ReosHydrographRoutingMethodDirect: public ReosHydrographRoutingMethod
+class REOSCORE_EXPORT ReosHydrographRoutingMethodDirect: public ReosHydrographRoutingMethod
 {
     Q_OBJECT
   public:
@@ -207,7 +208,7 @@ class ReosHydrographRoutingMethodDirectFactory : public ReosHydrographRoutingMet
     QString htmlDescription() const override;
 };
 
-class ReosHydrographRoutingMethodMuskingum : public ReosHydrographRoutingMethod
+class REOSCORE_EXPORT ReosHydrographRoutingMethodMuskingum : public ReosHydrographRoutingMethod
 {
     Q_OBJECT
   public:
@@ -254,7 +255,7 @@ class ReosHydrographRoutingMethodMuskingumFactory : public ReosHydrographRouting
     QString htmlDescription() const override;
 };
 
-class ReosHydrographRoutingMethodLag : public ReosHydrographRoutingMethod
+class REOSCORE_EXPORT ReosHydrographRoutingMethodLag : public ReosHydrographRoutingMethod
 {
     Q_OBJECT
   public:

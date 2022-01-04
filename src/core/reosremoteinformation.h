@@ -19,12 +19,14 @@
 #include <QObject>
 #include <QVariantMap>
 
+#include "reoscore.h"
+
 class QNetworkAccessManager;
 class QNetworkReply;
 
 static const QString serverInformationAddress( "https://www.reos.site/" );
 
-class ReosRemoteInformation : public QObject
+class REOSCORE_EXPORT ReosRemoteInformation : public QObject
 {
     Q_OBJECT
   public:

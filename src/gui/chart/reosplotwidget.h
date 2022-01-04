@@ -65,7 +65,7 @@ class ReosPlotLegendController : public QToolButton
     QList<QToolButton *> mAlignmentButtons;
 };
 
-class ReosPlotItem: public QObject
+class REOSGUI_EXPORT ReosPlotItem: public QObject
 {
     Q_OBJECT
   public:
@@ -132,7 +132,7 @@ class ReosPlotCurve : public ReosPlotItem
 };
 
 
-class ReosPlotWidget: public QWidget
+class REOSGUI_EXPORT ReosPlotWidget: public QWidget
 {
     Q_OBJECT
   public:

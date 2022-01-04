@@ -20,6 +20,7 @@
 #include <QPointer>
 #include <QHash>
 
+#include "reoscore.h"
 #include "reosmodule.h"
 #include "reosdataobject.h"
 #include "reosparameter.h"
@@ -31,7 +32,7 @@ class ReosCalculationContext;
 class ReosHydraulicNetworkContext;
 class ReosWatershedModule;
 
-class ReosHydraulicNetworkElement : public ReosDataObject
+class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject
 {
     Q_OBJECT
   public:
@@ -100,7 +101,7 @@ class ReosHydraulicNetworkElement : public ReosDataObject
 
 };
 
-class ReosHydraulicNetworkContext
+class REOSCORE_EXPORT ReosHydraulicNetworkContext
 {
   public:
     ReosWatershedModule *watershedModule() const;
@@ -125,7 +126,7 @@ class ReosHydraulicNetworkElementFactory
     virtual ReosHydraulicNetworkElement *decodeElement( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context ) const = 0;
 };
 
-class ReosHydraulicNetwork : public ReosModule
+class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
 {
     Q_OBJECT
   public:

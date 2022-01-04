@@ -125,7 +125,7 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
     void setVisibleMapItems( bool visible );
 };
 
-class ReosWatershedDockWidget: public ReosDockWidget
+class REOSGUI_EXPORT ReosWatershedDockWidget: public ReosDockWidget
 {
 
   public:

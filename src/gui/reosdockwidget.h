@@ -18,7 +18,9 @@
 
 #include <QDockWidget>
 
-class ReosDockWidget : public QDockWidget
+#include "reosgui.h"
+
+class REOSGUI_EXPORT ReosDockWidget : public QDockWidget
 {
     Q_OBJECT
   public:

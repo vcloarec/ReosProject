@@ -20,7 +20,9 @@
 #include <map>
 #include <memory>
 
-class ReosDataProvider : public QObject
+#include "reoscore.h"
+
+class REOSCORE_EXPORT ReosDataProvider : public QObject
 {
     Q_OBJECT
   public:
@@ -36,7 +38,7 @@ class ReosDataProvider : public QObject
     void dataReset();
 };
 
-class ReosDataProviderFactory
+class REOSCORE_EXPORT ReosDataProviderFactory
 {
   public:
     //! Creates and returns a pointer to a provider, the caller has to take ownership
@@ -49,7 +51,7 @@ class ReosDataProviderFactory
 /**
  * Class that stores time serie provider factory
  */
-class ReosDataProviderRegistery
+class REOSCORE_EXPORT ReosDataProviderRegistery
 {
   public:
     ReosDataProviderRegistery();
@@ -65,7 +67,7 @@ class ReosDataProviderRegistery
 
   private:
 #ifdef _MSC_VER
-    std::unique_ptr<ReosConcentrationTimeFormula> dummy; // work arround for MSVC, if not, the line after create an compilation error if this class is exported (REOSCORE_EXPORT)
+    std::unique_ptr<ReosDataProviderFactory> dummy; // work arround for MSVC, if not, the line after create an compilation error if this class is exported (REOSCORE_EXPORT)
 #endif
 
     std::map<QString, std::unique_ptr<ReosDataProviderFactory>> mFactories;

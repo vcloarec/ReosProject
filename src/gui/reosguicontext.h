@@ -16,10 +16,12 @@
 #ifndef REOSGUICONTEXT_H
 #define REOSGUICONTEXT_H
 
+#include "reosgui.h"
+
 class ReosMap;
 class QWidget;
 
-class ReosGuiContext
+class REOSGUI_EXPORT ReosGuiContext
 {
   public:
     ReosGuiContext( QWidget *parent = nullptr );

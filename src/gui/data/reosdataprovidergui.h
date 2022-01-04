@@ -18,14 +18,15 @@
 
 #include <memory>
 #include <map>
-
 #include <QWidget>
+
+#include <reosgui.h>
 
 class ReosMap;
 class ReosDataObject;
 class ReosDataProvider;
 
-class ReosDataProviderSelectorWidget : public QWidget
+class REOSGUI_EXPORT ReosDataProviderSelectorWidget : public QWidget
 {
     Q_OBJECT
   public:
@@ -66,14 +67,14 @@ class ReosDataProviderSelectorWidget : public QWidget
     virtual void onOpened() {};
 };
 
-class ReosDataProviderSettingsWidget : public QWidget
+class REOSGUI_EXPORT ReosDataProviderSettingsWidget : public QWidget
 {
     Q_OBJECT
   public:
     ReosDataProviderSettingsWidget( QWidget *parent = nullptr );
 };
 
-class ReosDataProviderGuiFactory
+class REOSGUI_EXPORT ReosDataProviderGuiFactory
 {
     Q_GADGET
   public:
@@ -115,7 +116,7 @@ class ReosDataProviderGuiFactory
 /**
  * Class that stores time serie provider factory
  */
-class ReosDataProviderGuiRegistery
+class REOSGUI_EXPORT ReosDataProviderGuiRegistery
 {
   public:
     ReosDataProviderGuiRegistery();
@@ -145,7 +146,7 @@ class ReosDataProviderGuiRegistery
 
   private:
 #ifdef _MSC_VER
-    std::unique_ptr<ReosConcentrationTimeFormula> dummy; // work arround for MSVC, if not, the line after create an compilation error if this class is exported (REOSCORE_EXPORT)
+    std::unique_ptr<ReosDataProviderGuiFactory> dummy; // work arround for MSVC, if not, the line after create an compilation error if this class is exported (REOSCORE_EXPORT)
 #endif
 
     std::map<QString, std::unique_ptr<ReosDataProviderGuiFactory>> mFactories;

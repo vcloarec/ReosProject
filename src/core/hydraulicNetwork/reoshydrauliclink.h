@@ -19,10 +19,11 @@
 #include <QObject>
 #include <QPointer>
 
+#include "reoscore.h"
 #include "reoshydraulicnode.h"
 #include "reoshydraulicnetwork.h"
 
-class ReosHydraulicLink : public ReosHydraulicNetworkElement
+class REOSCORE_EXPORT ReosHydraulicLink : public ReosHydraulicNetworkElement
 {
     Q_OBJECT
   public:

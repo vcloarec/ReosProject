@@ -23,7 +23,7 @@
 
 class ReosHydraulicLink;
 
-class ReosHydraulicNode : public ReosHydraulicNetworkElement
+class REOSCORE_EXPORT ReosHydraulicNode : public ReosHydraulicNetworkElement
 {
     Q_OBJECT
   public:

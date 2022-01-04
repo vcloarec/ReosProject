@@ -18,9 +18,10 @@
 
 #include <QPointer>
 
+#include "reoscore.h"
 #include "reosmeteorologicmodel.h"
 
-class ReosCalculationContext
+class REOSCORE_EXPORT ReosCalculationContext
 {
   public:
     ReosCalculationContext();

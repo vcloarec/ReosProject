@@ -27,7 +27,7 @@
 /**
  * Abstract class for time serie provider
  */
-class ReosTimeSerieProvider : public ReosDataProvider
+class REOSCORE_EXPORT ReosTimeSerieProvider : public ReosDataProvider
 {
     Q_OBJECT
   public:
@@ -67,7 +67,7 @@ class ReosTimeSerieProvider : public ReosDataProvider
 /**
  * Abstract class for constant time step time serie provider factory
  */
-class ReosTimeSerieConstantTimeStepProvider : public ReosTimeSerieProvider
+class REOSCORE_EXPORT ReosTimeSerieConstantTimeStepProvider : public ReosTimeSerieProvider
 {
     Q_OBJECT
   public:
@@ -88,7 +88,7 @@ class ReosTimeSerieConstantTimeStepProvider : public ReosTimeSerieProvider
 /**
  * Abstract class for variable time step time serie provider factory
  */
-class ReosTimeSerieVariableTimeStepProvider : public ReosTimeSerieProvider
+class REOSCORE_EXPORT ReosTimeSerieVariableTimeStepProvider : public ReosTimeSerieProvider
 {
   public:
     ReosTimeSerieVariableTimeStepProvider() = default;

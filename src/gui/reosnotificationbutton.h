@@ -19,9 +19,10 @@
 #include <QToolButton>
 #include <QTextBrowser>
 
+#include "reosgui.h"
 #include "reosmodule.h"
 
-class ReosNotificationButton : public QToolButton
+class REOSGUI_EXPORT ReosNotificationButton : public QToolButton
 {
   public:
     ReosNotificationButton( QWidget *parent );

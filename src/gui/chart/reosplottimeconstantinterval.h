@@ -28,7 +28,7 @@ class ReosPlotVariableStepTimeSerie;
 /**
  *  Plot item that can be used to represent time serie with constant time step with histogram
  */
-class ReosPlotTimeHistogram: public ReosPlotItem
+class REOSGUI_EXPORT ReosPlotTimeHistogram: public ReosPlotItem
 {
     Q_OBJECT
   public:
@@ -62,7 +62,7 @@ class ReosPlotTimeHistogram: public ReosPlotItem
 };
 
 //! Plot item that can be used to represent time serie with contant time step with cummulative curve
-class ReosPlotTimeCumulativeCurve: public ReosPlotItem
+class REOSGUI_EXPORT ReosPlotTimeCumulativeCurve: public ReosPlotItem
 {
     Q_OBJECT
   public:
@@ -78,7 +78,7 @@ class ReosPlotTimeCumulativeCurve: public ReosPlotItem
 };
 
 
-class ReosPlotTimeSerieVariableStep: public ReosPlotItem
+class REOSGUI_EXPORT ReosPlotTimeSerieVariableStep: public ReosPlotItem
 {
     Q_OBJECT
   public:

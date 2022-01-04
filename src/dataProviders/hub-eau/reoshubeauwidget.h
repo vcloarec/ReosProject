@@ -76,7 +76,6 @@ class ReosHubEauWidget : public ReosDataProviderSelectorWidget
     void onErrorOccured();
     void onSelectStation( ReosMapItem *item, const QPointF & );
     void onHydrographUpdated();
-    void onError();
 
   private:
     Ui::ReosHubEauWidget *ui;

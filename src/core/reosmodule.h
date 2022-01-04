@@ -38,7 +38,7 @@ class REOSCORE_EXPORT ReosModule : public QObject
       Error
     };
 
-    struct Message
+    struct REOSCORE_EXPORT Message
     {
       void prefixMessage( const QString &prefix );
       void addText( const QString &newText );

@@ -105,7 +105,7 @@ class ReosHydraulicNetworkWidget : public QWidget
     void setMapItemVisible( bool visible );
 };
 
-class ReosHydraulicNetworkDockWidget: public ReosDockWidget
+class REOSGUI_EXPORT ReosHydraulicNetworkDockWidget: public ReosDockWidget
 {
     Q_OBJECT
   public:

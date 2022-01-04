@@ -54,7 +54,7 @@ double ReosDigitalElevationModelRaster::elevationAt( const QPointF &point, const
     {
       pointInDem = transform.transform( QgsPointXY( point.x(), point.y() ) );
     }
-    catch ( QgsCsException &e )
+    catch ( QgsCsException &)
     {
       pointInDem = QgsPointXY( point.x(), point.y() );
     }
@@ -189,7 +189,7 @@ double ReosDigitalElevationModelRaster::averageElevationInPolygon( const QPolygo
     {
       geometry.transform( transform );
     }
-    catch ( QgsCsException &e )
+    catch ( QgsCsException & )
     {
       geometry = QgsGeometry::fromQPolygonF( polygon );
     }

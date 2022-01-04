@@ -236,7 +236,7 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
 
 class ReosTimeSerieVariableTimeStepModel;
 
-class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
+class REOSCORE_EXPORT ReosTimeSerieVariableTimeStep: public ReosTimeSerie
 {
     Q_OBJECT
   public:
@@ -316,7 +316,7 @@ class ReosTimeSerieVariableTimeStep: public ReosTimeSerie
     int timeValueIndex( const ReosDuration &time, bool &exact ) const;
 };
 
-class ReosTimeSerieModel : public QAbstractTableModel
+class REOSCORE_EXPORT ReosTimeSerieModel : public QAbstractTableModel
 {
     Q_OBJECT
   public:

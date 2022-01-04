@@ -18,6 +18,7 @@ email                : vcloarec at gmail dot com
 
 #include <memory>
 
+#include "reosgui.h"
 #include "reosmap.h"
 
 class ReosMapToolEditPolygon_p;
@@ -29,7 +30,7 @@ class ReosMapToolSelectMapItem_p;
 class ReosMapTool_p;
 class ReosMenuPopulator;
 
-class ReosMapTool : public QObject
+class REOSGUI_EXPORT ReosMapTool : public QObject
 {
     Q_OBJECT
   public:
@@ -172,7 +173,7 @@ class ReosMapToolDrawExtent: public ReosMapTool
     ReosMapTool_p *tool_p() const override;
 };
 
-class ReosMapToolSelectMapItem : public ReosMapTool
+class REOSGUI_EXPORT ReosMapToolSelectMapItem : public ReosMapTool
 {
     Q_OBJECT
   public:
