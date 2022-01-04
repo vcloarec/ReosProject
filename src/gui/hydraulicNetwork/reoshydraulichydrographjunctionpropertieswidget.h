@@ -110,7 +110,7 @@ class ReosFormWatershedNodeWidget: public ReosFormBaseJunctionNodeWidget
 {
     Q_OBJECT
   public:
-    ReosFormWatershedNodeWidget( ReosHydrographNodeWatershed *watershedNode, QWidget *parent = nullptr );
+    ReosFormWatershedNodeWidget( ReosHydrographNodeWatershed *watershedNode, const ReosGuiContext &context = ReosGuiContext() );
 
   protected:
     ReosHydrographJunction *node() const override;

@@ -199,7 +199,7 @@ ReosFormWidget *ReosFormWatershedNodeWidgetFactory::createDataWidget( ReosDataOb
   if ( !watershedNode )
     return nullptr;
 
-  return new ReosFormWatershedNodeWidget( watershedNode, context.parent() );
+  return new ReosFormWatershedNodeWidget( watershedNode, context );
 }
 
 QString ReosFormWatershedNodeWidgetFactory::datatype() const
@@ -207,8 +207,8 @@ QString ReosFormWatershedNodeWidgetFactory::datatype() const
   return ReosHydrographNodeWatershed::staticType();
 }
 
-ReosFormWatershedNodeWidget::ReosFormWatershedNodeWidget( ReosHydrographNodeWatershed *watershedNode, QWidget *parent )
-  : ReosFormBaseJunctionNodeWidget( watershedNode, parent )
+ReosFormWatershedNodeWidget::ReosFormWatershedNodeWidget( ReosHydrographNodeWatershed *watershedNode, const ReosGuiContext &context )
+  : ReosFormBaseJunctionNodeWidget( watershedNode, context )
   , mNode( watershedNode )
 {
   QWidget *hydWidget = new QWidget( this );
@@ -335,7 +335,7 @@ QString ReosFormJunctionNodeWidgetFactory::datatype() const
 }
 
 ReosFormJunctionNodeWidget::ReosFormJunctionNodeWidget( ReosHydrographJunction *junction, const ReosGuiContext &context )
-  : ReosFormBaseJunctionNodeWidget( junction, context.parent() )
+  : ReosFormBaseJunctionNodeWidget( junction, context )
   , mJunctioNode( junction )
 {
   QCheckBox *checkBoxGauged = new QCheckBox( tr( "Inject gauged hydrograph" ), this );
