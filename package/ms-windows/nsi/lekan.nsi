@@ -5,8 +5,8 @@
 
 Unicode True
 
-!define LEKAN_VERSION "2.0.0"
-!define PACKAGE_SOURCE "D:\ReosProject-release"
+!define LEKAN_VERSION "2.2.0"
+!define PACKAGE_SOURCE "C:\dev\ReosProject\ReosProject-release"
 
 ;--------------------------------
 ;Include Modern UI
