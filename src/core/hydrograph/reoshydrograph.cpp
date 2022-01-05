@@ -430,14 +430,14 @@ void ReosRunoffHydrographsStore::updateHydrograph( ReosHydrograph *hyd )
         } );
       }
 
-//      mModelMeteoToUpdate.clear();
-//    }, Qt::QueuedConnection );
+      mModelMeteoToUpdate.clear();
+    }, Qt::QueuedConnection );
 
-//    // second, we invoke a lambda function that will be execute the calculation once we come back again in the event loop
-//    // this is because we are sure all data object related to the calculation will be set updated only when we are back in the event loop
-//    // this is due to the propogation of signals
-//    QMetaObject::invokeMethod( this, [this]
-//    {
+    // second, we invoke a lambda function that will be execute the calculation once we come back again in the event loop
+    // this is because we are sure all data object related to the calculation will be set updated only when we are back in the event loop
+    // this is due to the propogation of signals
+    QMetaObject::invokeMethod( this, [this]
+    {
 
       if ( !mHydrographCalculation.isEmpty() )
       {
