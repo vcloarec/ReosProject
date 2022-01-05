@@ -519,13 +519,13 @@ void ReosTimeSerieConstantInterval::onDataProviderChanged()
 
 ReosTimeSerieConstantInterval::ReosTimeSerieConstantInterval( const ReosEncodedElement &element, QObject *parent )
   : ReosTimeSerie( parent )
+  , mTimeStepParameter( new ReosParameterDuration( tr( "Time step" ), this ) )
 {
   decodeBase( element );
 
   if ( constantTimeStepDataProvider() )
   {
     constantTimeStepDataProvider()->decode( element.getEncodedData( QStringLiteral( "data-provider" ) ) );
-    mTimeStepParameter = new ReosParameterDuration( tr( "Time step" ), false, this );
     mTimeStepParameter->setValue( constantTimeStepDataProvider()->timeStep() );
   }
   else
@@ -535,7 +535,8 @@ ReosTimeSerieConstantInterval::ReosTimeSerieConstantInterval( const ReosEncodedE
     element.getData( QStringLiteral( "values" ), values ); //before Lekan 2.2, values were store in this element
     mProvider = std::make_unique < ReosTimeSerieConstantTimeStepMemoryProvider>( values );
     constantTimeStepDataProvider()->setReferenceTime( referenceTimeParameter()->value() );
-    mTimeStepParameter = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "time-step" ) ), false, tr( "Time step" ), this );
+    ReosParameterDuration *encodedTimeStep = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "time-step" ) ), false, tr( "Time step" ), this );
+    mTimeStepParameter->setValue( encodedTimeStep->value() );
     constantTimeStepDataProvider()->setTimeStep( mTimeStepParameter->value() );
   }
 
