@@ -91,7 +91,7 @@ void ReosHubEauWidget::onMapExtentChanged()
   const ReosMapExtent hubEauExtent = mMap->engine()->transformFromProjectExtent( extent, ReosGisEngine::wktEPSGCrs( 4326 ) );
   mServer->setExtent( hubEauExtent );
   ui->mStationCountLabel->setVisible( true );
-  ui->mStationCountLabel->setText( tr( "Loading stations on extent", nullptr, mStations.count() ) );
+  ui->mStationCountLabel->setText( tr( "Loading stations on extent" ) );
 }
 
 void ReosHubEauWidget::onStationUpdated()
@@ -123,7 +123,7 @@ void ReosHubEauWidget::onErrorOccured()
   ui->mNotificationButton->setVisible( true );
   ui->mNotificationButton->setMessage( serverMessage );
   ReosModule::Message sendedMessage = serverMessage;
-  sendedMessage.prefixMessage( tr( "Hub-Eau server: " ) );
+  sendedMessage.prefixMessage( tr( "Hubeau server: " ) );
   mMap->message( sendedMessage );
 }
 

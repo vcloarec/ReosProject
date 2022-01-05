@@ -545,7 +545,7 @@ void ReosHydrographRoutingMethodMuskingum::calculate( ReosHydrograph *inputHydro
     if ( process )
     {
       message.type = ReosModule::Error;
-      message.addText( tr( "Muskingum routing method need at least to value for input hydograph" ) );
+      message.addText( tr( "Muskingum routing method need more than two value for input hydograph" ) );
     }
     return;
   }
@@ -687,24 +687,24 @@ QString ReosHydrographRoutingMethodMuskingumFactory::htmlDescription() const
   QString htmlText = QLatin1String( "<html>\n<body>\n" );
   htmlText += QLatin1String( "<table class=\"list-view\">\n" );
   htmlText += QLatin1String( "<h1>" ) + displayName() + QLatin1String( "</h1>\n<hr>\n" );
-  htmlText += QLatin1String( "The Muskingum routing method expresses the output flow of reach depending on the input flow and two parameters K and x. "
-                             "This method has the following formulation:" );
+  htmlText += QObject::tr( "The Muskingum routing method expresses the output flow of reach depending on the input flow and two parameters K and x. "
+                           "This method has the following formulation:" );
   htmlText += QLatin1String( "<br>" );
   htmlText += QLatin1String( "<br>" );
   htmlText += QLatin1String( "<img src = " ) + QLatin1String( ":/formulas/MuskingumRouting.svg" ) + QLatin1String( "/>" );
   htmlText += QLatin1String( "<br>" );
-  htmlText += QLatin1String( "&Delta;t is the time step of the input hydrograph. The parameter K can be considered as the travel time through the reach; "
-                             "x, dimensionless, is a parameter that expresses the attenuation of the hydrograph. As the terms C1, C2 and C3 must be non-negative, "
-                             "K and x have to be chosen carefully depending on the time step of the input hydrograph, and must verify the two following conditions:"
-                             "<ul>"
-                             "<li>2.K.(1-x) > &Delta;t</li>"
-                             "<li>&Delta;t > 2.K.x</li>"
-                             "</ul>"
-                             "Lekan ensures the first condition by reducing the time step of the input hydrograph if needed. "
-                             "For the second one, to avoid arbitrarly distorting the input hydrograph, nothing is done except "
-                             "a warning to the user to change either the parameters, the time step, or the method."
-                             "<br>"
-                           );
+  htmlText += QObject::tr( "&Delta;t is the time step of the input hydrograph. The parameter K can be considered as the travel time through the reach; "
+                           "x, dimensionless, is a parameter that expresses the attenuation of the hydrograph. As the terms C1, C2 and C3 must be non-negative, "
+                           "K and x have to be chosen carefully depending on the time step of the input hydrograph, and must verify the two following conditions:"
+                           "<ul>"
+                           "<li>2.K.(1-x) > &Delta;t</li>"
+                           "<li>&Delta;t > 2.K.x</li>"
+                           "</ul>"
+                           "Lekan ensures the first condition by reducing the time step of the input hydrograph if needed. "
+                           "For the second one, to avoid arbitrarly distorting the input hydrograph, nothing is done except "
+                           "a warning to the user to change either the parameters, the time step, or the method."
+                           "<br>"
+                         );
 
   return htmlText;
 }
@@ -810,8 +810,8 @@ QString ReosHydrographRoutingMethodLagFactory::htmlDescription() const
   QString htmlText = QLatin1String( "<html>\n<body>\n" );
   htmlText += QLatin1String( "<table class=\"list-view\">\n" );
   htmlText += QLatin1String( "<h1>" ) + displayName() + QLatin1String( "</h1>\n<hr>\n" );
-  htmlText += QLatin1String( "The Lag routing method apply a duration offset on the hydrograph:"
-                             "<br>"
-                             "Output ( t + lag ) = Input( t )" );
+  htmlText += QObject::tr( "The Lag routing method apply a duration offset on the hydrograph:"
+                           "<br>"
+                           "Output ( t + lag ) = Input( t )" );
   return htmlText;
 }

@@ -241,7 +241,7 @@ void ReosHubEauServer::onErrorOccured()
   {
     mLastMessage = ReosModule::Message();
     mLastMessage.type = ReosModule::Error;
-    mLastMessage.text = tr( "Following error occured with Hub-Eau server: %1" ).arg( mStationsRequestControler->lastErrorReason() );
+    mLastMessage.text = tr( "Following error occured with Hubeau server: %1" ).arg( mStationsRequestControler->lastErrorReason() );
 
     emit errorOccured();
   }

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string notr="true">Hubeau</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="leftMargin">
@@ -52,7 +52,7 @@
    <item row="2" column="1">
     <widget class="ReosNotificationButton" name="mNotificationToolButton">
      <property name="text">
-      <string>...</string>
+      <string notr="true">...</string>
      </property>
     </widget>
    </item>

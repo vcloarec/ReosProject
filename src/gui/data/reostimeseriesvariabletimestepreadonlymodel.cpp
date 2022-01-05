@@ -394,7 +394,7 @@ void ReosTimeSeriesVariableTimeStepReadOnlyTablesView::setConstantTimeStepParame
 void ReosTimeSeriesVariableTimeStepReadOnlyTablesView::setSeries( QList < ReosTimeSerieVariableTimeStep *> series, const QString &unit )
 {
   for ( ReosTimeSerieVariableTimeStep *serie : std::as_const( series ) )
-    mModel->addTimeSerie( serie, tr( "%1\n(%2)" ).arg( serie->name(), unit ) );
+    mModel->addTimeSerie( serie, QStringLiteral( "%1\n(%2)" ).arg( serie->name(), unit ) );
 
   mView->horizontalHeader()->resizeSections( QHeaderView::ResizeToContents );
 }

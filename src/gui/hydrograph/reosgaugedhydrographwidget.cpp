@@ -158,9 +158,9 @@ void ReosGaugedHydrographWidget::onRenameHydrograph()
     return;
 
   ReosFormDialog *dial = new ReosFormDialog( this );
-  dial->setWindowTitle( tr( "Rename Meteo Model" ) );
-  dial->addText( tr( "Rename meteorologic model '%1',\nchoose a new name:" ).arg( hydrographToRename->name() ) );
-  ReosParameterString nameParam( tr( "Meteorologic Model name" ) );
+  dial->setWindowTitle( tr( "Rename Gauged Hydrograph" ) );
+  dial->addText( tr( "Rename gauged hydrograph'%1',\nchoose a new name:" ).arg( hydrographToRename->name() ) );
+  ReosParameterString nameParam( tr( "Hydrograph name" ) );
   nameParam.setValue( hydrographToRename->name() );
   dial->addParameter( &nameParam );
 

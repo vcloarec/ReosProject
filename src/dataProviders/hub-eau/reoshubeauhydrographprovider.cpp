@@ -165,7 +165,7 @@ void ReosHubEauHydrographProvider::onErrorOccured()
     mLastMessage.text = tr( "Following error occured with Hubeau server: %1" ).arg( mFlowRequestControler->lastErrorReason() );
 
   if ( mMetadataRequestControler && mMetadataRequestControler->lastError() != 0 )
-    mLastMessage.text = tr( "Following error occured with Hub-Eau server: %1" ).arg( mMetadataRequestControler->lastErrorReason() );
+    mLastMessage.text = tr( "Following error occured with Hubeau server: %1" ).arg( mMetadataRequestControler->lastErrorReason() );
 
   emit errorOccured();
 }

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string notr="true">Delft-FEWS</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <property name="leftMargin">
@@ -52,7 +52,7 @@
          <item>
           <widget class="QToolButton" name="mFileButton">
            <property name="text">
-            <string>...</string>
+            <string notr="true">...</string>
            </property>
           </widget>
          </item>

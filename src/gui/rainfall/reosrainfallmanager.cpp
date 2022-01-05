@@ -516,7 +516,7 @@ void ReosRainfallManager::addRainfallFromProvider( ReosStationItem *stationItem,
   {
     switch ( QMessageBox::warning( this,
                                    tr( "Add a Rainfall" ),
-                                   tr( "The station \"%1\" has already a rainfall with name %2. Do you want to add the rainfall with another name?" ).arg( stationItem->name(), rainfallName ),
+                                   tr( "The station \"%1\" has already a rainfall with name \"%2\". Do you want to add the rainfall with another name?" ).arg( stationItem->name(), rainfallName ),
                                    QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel ) )
     {
       case QMessageBox::Yes:
@@ -687,7 +687,7 @@ ReosSpatialStationWidgetToolbar::ReosSpatialStationWidgetToolbar( ReosMap *map, 
   connect( mActiontRemovePosition, &QAction::triggered, this, [this]
   {
     if ( QMessageBox::warning( this, tr( "Remove spatial position of a rainfall station" ),
-                               tr( "Do you want to remove the spatial position of the station" ), QMessageBox::Yes | QMessageBox::No, QMessageBox::No )
+                               tr( "Do you want to remove the spatial position of the station?" ), QMessageBox::Yes | QMessageBox::No, QMessageBox::No )
          == QMessageBox::Yes )
     {
       mCurrentMarker = nullptr;
