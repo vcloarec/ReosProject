@@ -39,8 +39,6 @@ class ReosRainfallTest: public QObject
 
 };
 
-
-
 void ReosRainfallTest::initTestCase()
 {
   ReosIdfFormulaRegistery::instantiate( &mRootModule );
@@ -274,6 +272,7 @@ void ReosRainfallTest::loadRainfallData()
 
   for ( const std::string &path : std::as_const( paths ) )
   {
+    bool hasFileRainFall = path == "rainfallData.rrf";
 
     QVERIFY( rainfallModel->loadFromFile( test_file( path ).c_str() ) );
     // root, only one region item
@@ -291,7 +290,7 @@ void ReosRainfallTest::loadRainfallData()
     QCOMPARE( subRegionItem->name(), QStringLiteral( "little zone" ) );
 
     //Station item
-    QCOMPARE( rainfallModel->rowCount( rainfallModel->itemToIndex( subRegionItem ) ), 1 );
+    QCOMPARE( rainfallModel->rowCount( rainfallModel->itemToIndex( subRegionItem ) ), hasFileRainFall ? 2 : 1 );
     ReosRainfallItem *stationItem = rainfallModel->indexToItem( rainfallModel->index( 0, 0, rainfallModel->itemToIndex( subRegionItem ) ) );
     Q_ASSERT( stationItem );
     QCOMPARE( stationItem->type(), ReosRainfallItem::Station );
@@ -411,6 +410,19 @@ void ReosRainfallTest::loadRainfallData()
     QCOMPARE( gaugedRainfall->valueAt( 0 ), 4.0 );
     QCOMPARE( gaugedRainfall->valueAt( 1 ), 5.0 );
     QCOMPARE( gaugedRainfall->valueAt( 2 ), 6.0 );
+
+    if ( hasFileRainFall )
+    {
+      stationItem = rainfallModel->indexToItem( rainfallModel->index( 1, 0, rainfallModel->itemToIndex( subRegionItem ) ) );
+      QVERIFY( stationItem );
+      gaugedItem = qobject_cast<ReosRainfallGaugedRainfallItem *>(
+                     rainfallModel->indexToItem( rainfallModel->index( 0, 0, rainfallModel->itemToIndex( stationItem ) ) ) );
+      QVERIFY( gaugedItem );
+      gaugedItem->setupData();
+      ReosSerieRainfall *gaugedRainfall = gaugedItem->data();
+      QVERIFY( gaugedRainfall );
+      QCOMPARE( gaugedRainfall->valueCount(), 39 );
+    }
   }
 }
 
