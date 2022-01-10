@@ -112,6 +112,15 @@ ReosMapPolygon::ReosMapPolygon( const ReosMapPolygon &other ): ReosMapItem( othe
 {
 }
 
+void ReosMapPolygon::setFillStyle( Qt::BrushStyle style )
+{
+  if ( !isMapExist() || !d_ )
+    return;
+
+  d_->brushStyle = style;
+  d_->update();
+}
+
 void ReosMapPolygon::resetPolygon( const QPolygonF &polygon )
 {
   if ( isMapExist() && d_ )
@@ -149,7 +158,6 @@ void ReosMapPolygon::setFillColor( const QColor &color )
     return;
   if ( color.isValid() )
   {
-    d_->brushStyle = Qt::SolidPattern;
     d_->fillColor = color;
   }
   else

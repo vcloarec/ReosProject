@@ -148,6 +148,8 @@ class ReosMapPolygon : public ReosMapItem
 
     ReosMapPolygon( const ReosMapPolygon &other );
 
+    void setFillStyle( Qt::BrushStyle style );
+
     void setFillColor( const QColor &color );
 
     //! Resets the polygon with \a polygon

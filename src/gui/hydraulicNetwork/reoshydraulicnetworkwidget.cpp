@@ -39,6 +39,8 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   , mElementPropertiesWidget( new ReosHydraulicElementPropertiesActionWidget( watershedModule, ReosGuiContext( context, this ) ) )
   , mActionMoveHydrographJunction( new QAction( QPixmap( QStringLiteral( ":/images/moveHydrographJunction.svg" ) ),  tr( "Move Junction" ), this ) )
   , mMapToolMoveHydrographJunction( new ReosMapToolMoveHydraulicNetworkElement( network, context.map() ) )
+  , mActionNewStructure2D( new QAction( tr( "Structure 2D" ), this ) )
+  , mMapToolNewStructure2D( new ReosMapToolNewStructure2D( network, mMap ) )
   , mActionRemoveElement( new QAction( QPixmap( QStringLiteral( ":/images/remove.svg" ) ), tr( "Remove Hydraulic Element" ), this ) )
 {
   ui->setupUi( this );
@@ -70,6 +72,10 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   mMapToolAddHydrographRouting->setAction( mActionAddHydrographRouting );
   mMapToolAddHydrographRouting->setSearchingItemDecription( ReosHydrographSource::staticType() );
   mMapToolAddHydrographRouting->setSearchItemWhenMoving( true );
+
+  toolBar->addAction( mActionNewStructure2D );
+  mActionNewStructure2D->setCheckable( true );
+  mMapToolNewStructure2D->setAction( mActionNewStructure2D );
 
   toolBar->addAction( mActionMoveHydrographJunction );
   mActionMoveHydrographJunction->setCheckable( true );

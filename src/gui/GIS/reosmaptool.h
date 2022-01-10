@@ -121,6 +121,8 @@ class ReosMapToolDrawPolyRubberBand : public ReosMapTool
     void setSecondaryStrokeColor( const QColor &color );
     void setLineStyle( Qt::PenStyle style );
 
+    void enableSnapping( bool enable );
+
   protected:
     QPointer<ReosMapToolDrawPolyline_p> d;
   private:

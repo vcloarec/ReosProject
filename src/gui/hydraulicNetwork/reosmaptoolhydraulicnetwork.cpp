@@ -16,10 +16,12 @@
 
 #include "reosmaptoolhydraulicnetwork.h"
 #include "reoshydrographrouting.h"
+#include "reoshydrauliquestructure2d.h"
 #include "reosmaptool_p.h"
 
 
-ReosMapToolDrawHydraulicNetworkLink::ReosMapToolDrawHydraulicNetworkLink( QObject *parent, ReosMap *map ): ReosMapTool( parent, map )
+ReosMapToolDrawHydraulicNetworkLink::ReosMapToolDrawHydraulicNetworkLink( ReosHydraulicNetwork *network, ReosMap *map )
+  : ReosMapTool( network, map ), ReosMapToolHydraulicElement( network )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolDrawHydraulicNetworkLink_p( canvas );
@@ -86,6 +88,10 @@ ReosMapTool_p *ReosMapToolDrawHydraulicNetworkLink::tool_p() const
   return d;
 }
 
+ReosMapToolDrawHydrographRouting::ReosMapToolDrawHydrographRouting( ReosHydraulicNetwork *network, ReosMap *map ):
+  ReosMapToolDrawHydraulicNetworkLink( network, map )
+{}
+
 bool ReosMapToolDrawHydrographRouting::acceptItem( ReosMapItem *item )
 {
   if ( !item )
@@ -128,7 +134,7 @@ bool ReosMapToolDrawHydrographRouting::isFinished() const
 
 ReosMapToolMoveHydraulicNetworkElement::ReosMapToolMoveHydraulicNetworkElement( ReosHydraulicNetwork *network, ReosMap *map )
   : ReosMapTool( network, map )
-  , mNetwork( network )
+  , ReosMapToolHydraulicElement( network )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolMoveHydraulicNetworkNode_p( canvas );
@@ -152,3 +158,27 @@ ReosMapTool_p *ReosMapToolMoveHydraulicNetworkElement::tool_p() const
   return d;
 }
 
+
+ReosMapToolNewStructure2D::ReosMapToolNewStructure2D( ReosHydraulicNetwork *network, ReosMap *map )
+  : ReosMapToolDrawPolygon( network, map ), ReosMapToolHydraulicElement( network )
+{
+  setStrokeWidth( 2 );
+  setColor( QColor( 0, 155, 242 ) );
+  setSecondaryStrokeColor( Qt::white );
+  setLineStyle( Qt::DotLine );
+  setFillColor( QColor( 0, 155, 242, 100 ) );
+  setCursor( Qt::CrossCursor );
+
+  enableSnapping( true );
+
+  connect( this, &ReosMapToolDrawPolygon::drawn, this, &ReosMapToolNewStructure2D::onDomainDrawn );
+}
+
+void ReosMapToolNewStructure2D::onDomainDrawn( const QPolygonF &polygon )
+{
+  mNetwork->addElement( new ReosHydraulicStructure2D( polygon, mNetwork ) );
+}
+
+ReosMapToolHydraulicElement::ReosMapToolHydraulicElement( ReosHydraulicNetwork *network ):
+  mNetwork( network )
+{}

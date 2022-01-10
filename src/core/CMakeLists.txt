@@ -64,6 +64,7 @@ SET(REOS_CORE_SOURCES
   hydraulicNetwork/reoshydrauliclink.cpp
   hydraulicNetwork/reoshydraulicnode.cpp
   hydraulicNetwork/reoshydraulicnetwork.cpp
+  hydraulicNetwork/reoshydrauliquestructure2d.cpp
 )
 
 SET(REOS_CORE_HEADERS
@@ -127,6 +128,7 @@ SET(REOS_CORE_HEADERS
     hydraulicNetwork/reoshydrauliclink.h
     hydraulicNetwork/reoshydraulicnode.h
     hydraulicNetwork/reoshydraulicnetwork.h
+    hydraulicNetwork/reoshydrauliquestructure2d.h
 
 )
 

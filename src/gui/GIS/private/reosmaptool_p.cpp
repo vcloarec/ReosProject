@@ -86,15 +86,33 @@ void ReosMapToolDrawPolyline_p::deactivate()
   ReosMapTool_p::deactivate();
 }
 
+void ReosMapToolDrawPolyline_p::enableSnapping( bool enable )
+{
+  mSnappingEnabled = enable;
+  if ( mSnappingEnabled )
+    mSnappingIndicator.reset( new QgsSnapIndicator( canvas() ) );
+  else
+    mSnappingIndicator.reset();
+}
+
 void ReosMapToolDrawPolyline_p::canvasMoveEvent( QgsMapMouseEvent *e )
 {
+  if ( mSnappingEnabled )
+  {
+    e->snapPoint();
+    mSnappingIndicator->setMatch( e->mapPointMatch() );
+  }
   mRubberBand->movePoint( e->mapPoint() );
 }
 
 void ReosMapToolDrawPolyline_p::canvasReleaseEvent( QgsMapMouseEvent *e )
 {
   if ( e->button() == Qt::LeftButton )
+  {
+    if ( mSnappingEnabled )
+      e->snapPoint();
     mRubberBand->addPoint( e->mapPoint() );
+  }
 
   if ( e->button() == Qt::RightButton )
   {
@@ -188,7 +206,8 @@ bool ReosMapToolSelectMapItem_p::populateContextMenuWithEvent( QMenu *menu, QgsM
   return ReosMapTool_p::populateContextMenuWithEvent( menu, event );
 }
 
-ReosMapToolDrawPoint_p::ReosMapToolDrawPoint_p( QgsMapCanvas *map ): ReosMapTool_p( map )
+ReosMapToolDrawPoint_p::ReosMapToolDrawPoint_p( QgsMapCanvas *map )
+  : ReosMapTool_p( map )
 {
 }
 

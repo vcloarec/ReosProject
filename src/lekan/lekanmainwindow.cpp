@@ -209,6 +209,9 @@ void LekanMainWindow::clearProject()
   if ( mGisEngine )
     mGisEngine->clearProject();
 
+  if ( mMap )
+    mMap->initialize();
+
   if ( mWatershedModule )
     mWatershedModule->clearWatersheds();
 

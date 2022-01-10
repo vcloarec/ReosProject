@@ -135,6 +135,11 @@ void ReosMapToolDrawPolyRubberBand::setLineStyle( Qt::PenStyle style )
   d->mRubberBand->setLineStyle( style );
 }
 
+void ReosMapToolDrawPolyRubberBand::enableSnapping( bool enable )
+{
+  d->enableSnapping( enable );
+}
+
 ReosMapTool_p *ReosMapToolDrawPolyRubberBand::tool_p() const
 {
   return d;

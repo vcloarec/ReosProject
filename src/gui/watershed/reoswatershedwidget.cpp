@@ -501,6 +501,7 @@ void ReosWatershedWidget::formatMapWatershed( MapWatershed &mapWatershed )
 void ReosWatershedWidget::formatSelectedWatershed( ReosWatershedWidget::MapWatershed &mapWatershed )
 {
   mapWatershed.delineating->setFillColor( QColor( 0, 255, 0, 30 ) );
+  mapWatershed.delineating->setFillStyle( Qt::SolidPattern );
   mapWatershed.outletPoint->setWidth( 8 );
   mapWatershed.outletPoint->setExternalWidth( 12 );
 }

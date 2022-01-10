@@ -22,6 +22,8 @@ email                : vcloarec at gmail dot com
 #include <qgsmapcanvas.h>
 #include <qgsmaptool.h>
 #include <qgsrubberband.h>
+#include <qgssnapindicator.h>
+
 #include <qobjectuniqueptr.h>
 
 #include "reosmap.h"
@@ -85,6 +87,9 @@ class ReosMapToolDrawPoint_p: public ReosMapTool_p
 
   signals:
     void pointDrawn( const QPointF &point ) const;
+
+  private:
+    std::unique_ptr<QgsSnapIndicator> mSnapIndicator;
 };
 
 class ReosMapToolDrawPolyline_p: public ReosMapTool_p
@@ -97,6 +102,8 @@ class ReosMapToolDrawPolyline_p: public ReosMapTool_p
     void deactivate() override;
     QPointer<QgsRubberBand> mRubberBand;
 
+    void enableSnapping( bool enable );
+
     void canvasMoveEvent( QgsMapMouseEvent *e ) override;
     void canvasReleaseEvent( QgsMapMouseEvent *e ) override;
 
@@ -105,6 +112,8 @@ class ReosMapToolDrawPolyline_p: public ReosMapTool_p
 
   private:
     bool mClosed = false;
+    bool mSnappingEnabled = false;
+    std::unique_ptr<QgsSnapIndicator> mSnappingIndicator;
 
 };
 
