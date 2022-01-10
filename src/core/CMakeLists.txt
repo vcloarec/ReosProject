@@ -20,6 +20,7 @@ SET(REOS_CORE_SOURCES
   GIS/reosgisengine.cpp
   GIS/reosmapextent.cpp
   GIS/reosexporttovectorfile.cpp
+  GIS/reospolylinesstructure.cpp
   GIS/private/reosdigitalelevationmodel_p.cpp
 
   process/reosprocess.cpp
@@ -85,6 +86,7 @@ SET(REOS_CORE_HEADERS
     GIS/reosgisengine.h
     GIS/reosmapextent.h
     GIS/reosexporttovectorfile.h
+    GIS/reospolylinesstructure.h
 
     process/reosprocess.h
 

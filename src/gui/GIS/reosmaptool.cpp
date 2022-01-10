@@ -157,6 +157,11 @@ void ReosMapTool::setUp()
   connect( tool_p(), &ReosMapTool_p::deactivated, this, &ReosMapTool::deactivated );
 }
 
+ReosMap *ReosMapTool::map() const
+{
+  return mMap;
+}
+
 void ReosMapTool::keyPressed( int key )
 {
   if ( key == Qt::Key_Escape )

@@ -1,8 +1,8 @@
 /***************************************************************************
-  reoshydrauliquestructure2d.cpp - ReosHydrauliqueStructure2D
+  reospolylinesstructures.h - ReosPolylinesStructures
 
  ---------------------
- begin                : 9.1.2022
+ begin                : 10.1.2022
  copyright            : (C) 2022 by Vincent Cloarec
  email                : vcloarec at gmail dot com
  ***************************************************************************
@@ -13,16 +13,26 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include "reoshydrauliquestructure2d.h"
+#ifndef REOSPOLYLINESSTRUCTURES_H
+#define REOSPOLYLINESSTRUCTURES_H
 
-ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, ReosHydraulicNetwork *parent )
-  : ReosHydraulicNetworkElement( parent )
-  , mPolylinesStructures( crs )
-{
-  mPolylinesStructures.addPolylines( domain, QStringLiteral( "domain" ) );
-}
+#include <QPolygonF>
 
-QPolygonF ReosHydraulicStructure2D::domain() const
+class ReosPolylinesStructure
 {
-  return mPolylinesStructures.polyline( QStringLiteral( "domain" ) );
-}
+  public:
+    ReosPolylinesStructure( const QString &crs );
+
+    //! Adds a \a polyline to the structure with an identifier \a id
+    void addPolylines( const QPolygonF &polyline, const QString &id = QString() );
+
+    //! Returns the polyline with identifier \a id
+    QPolygonF polyline( const QString &id ) const;
+
+  private:
+    QString mCrs;
+    QList<QPolygonF> mPolylines;
+    QStringList mPolylinesId;
+};
+
+#endif // REOSPOLYLINESSTRUCTURES_H

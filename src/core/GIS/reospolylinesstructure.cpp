@@ -1,8 +1,8 @@
 /***************************************************************************
-  reoshydrauliquestructure2d.cpp - ReosHydrauliqueStructure2D
+  reospolylinesstructures.cpp - ReosPolylinesStructures
 
  ---------------------
- begin                : 9.1.2022
+ begin                : 10.1.2022
  copyright            : (C) 2022 by Vincent Cloarec
  email                : vcloarec at gmail dot com
  ***************************************************************************
@@ -13,16 +13,27 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include "reoshydrauliquestructure2d.h"
+#include "reospolylinesstructure.h"
 
-ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, ReosHydraulicNetwork *parent )
-  : ReosHydraulicNetworkElement( parent )
-  , mPolylinesStructures( crs )
+ReosPolylinesStructure::ReosPolylinesStructure( const QString &crs )
+  : mCrs( crs )
 {
-  mPolylinesStructures.addPolylines( domain, QStringLiteral( "domain" ) );
+
 }
 
-QPolygonF ReosHydraulicStructure2D::domain() const
+void ReosPolylinesStructure::addPolylines( const QPolygonF &polylines, const QString &id )
 {
-  return mPolylinesStructures.polyline( QStringLiteral( "domain" ) );
+  mPolylines.append( polylines );
+  mPolylinesId.append( id );
+}
+
+QPolygonF ReosPolylinesStructure::polyline( const QString &id ) const
+{
+  for ( int i = 0; i < mPolylinesId.count(); ++i )
+  {
+    if ( mPolylinesId.at( i ) == id && i < mPolylines.count() )
+      return mPolylines.at( i );
+  }
+
+  return QPolygonF();
 }

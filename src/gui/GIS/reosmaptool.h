@@ -70,6 +70,8 @@ class REOSGUI_EXPORT ReosMapTool : public QObject
     ReosMapTool( QObject *parent, ReosMap *map );
     void setUp();
 
+    ReosMap *map() const;
+
   protected slots:
     virtual void keyPressed( int key );
 

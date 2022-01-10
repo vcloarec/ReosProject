@@ -17,12 +17,13 @@
 #define REOSHYDRAULIQUESTRUCTURE2D_H
 
 #include "reoshydraulicnetwork.h"
+#include "reospolylinesstructure.h"
 
 class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
 {
     Q_OBJECT
   public:
-    ReosHydraulicStructure2D( const QPolygonF &domain, ReosHydraulicNetwork *parent = nullptr );
+    ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, ReosHydraulicNetwork *parent = nullptr );
 
     QString type() const override {return staticType();}
     static QString staticType() {return ReosHydraulicNetworkElement::staticType() + QString( ':' ) + QStringLiteral( "structure2D" );}
@@ -37,7 +38,7 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     void encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const {}
 
   private:
-    QPolygonF mDomain;
+    ReosPolylinesStructure mPolylinesStructures;
 };
 
 #endif // REOSHYDRAULIQUESTRUCTURE2D_H
