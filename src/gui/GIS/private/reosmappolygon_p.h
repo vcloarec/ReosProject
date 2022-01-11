@@ -137,7 +137,13 @@ class ReosMapPolygon_p: public ReosMapItem_p
     void setMarkerDistance( double d );
     void setMarkerArrow( bool b );
 
-    QPolygonF mapPolygon;
+    void setGeometry( const QPolygonF &geom );
+
+    QPolygonF geometry() const;
+
+    void moveVertex( int index, const QPointF &newPosition );
+    void insertVertex( int index, const QPointF &point );
+    void removeVertex( int index );
 
   protected:
     void paint( QPainter *painter ) override;
@@ -148,9 +154,11 @@ class ReosMapPolygon_p: public ReosMapItem_p
     bool mMarkerArrow = false;
     QPointF mMarkerposition;
     QPointF mMarkerPositionOnView;
+    QPolygonF mapPolygon;
 
   private:
     virtual void draw( QPainter *painter );
+
 };
 
 class ReosMapPolyline_p: public ReosMapPolygon_p

@@ -38,7 +38,7 @@ class REOSGUI_EXPORT ReosMapItem
     //! Construct a map item and link it with a map
     ReosMapItem();
     ReosMapItem( ReosMap *map );
-    ReosMapItem( const ReosMapItem &other );
+    ReosMapItem( const ReosMapItem &other ) = delete;
     virtual ~ReosMapItem() = default;
 
     //! Returns whether graphic \a internal item correspond to \a this graphical item
@@ -146,7 +146,7 @@ class ReosMapPolygon : public ReosMapItem
     ReosMapPolygon( ReosMap *map, const QPolygonF &polygon );
     ~ReosMapPolygon();
 
-    ReosMapPolygon( const ReosMapPolygon &other );
+    ReosMapPolygon( const ReosMapPolygon &other ) = delete;
 
     void setFillStyle( Qt::BrushStyle style );
 
@@ -171,7 +171,7 @@ class ReosMapPolyline: public ReosMapItem
     ReosMapPolyline( ReosMap *map, const QPolygonF &polyline );
     ~ReosMapPolyline();
 
-    ReosMapPolyline( const ReosMapPolyline &other );
+    ReosMapPolyline( const ReosMapPolyline &other ) = delete;
 
     //! Rsets the polyline with \a polyline
     void resetPolyline( const QPolygonF &polyline = QPolygonF() );

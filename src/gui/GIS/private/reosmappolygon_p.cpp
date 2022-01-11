@@ -162,6 +162,41 @@ void ReosMapPolygon_p::setMarkerArrow( bool b )
   mMarkerArrow = b;
 }
 
+void ReosMapPolygon_p::setGeometry( const QPolygonF &geom )
+{
+  mapPolygon = geom;
+  if ( mapPolygon.isEmpty() )
+    mSegmentMarker = -1;
+
+  updatePosition();
+}
+
+QPolygonF ReosMapPolygon_p::geometry() const
+{
+  return mapPolygon;
+}
+
+void ReosMapPolygon_p::moveVertex( int index, const QPointF &newPosition )
+{
+  if ( index < 0 || index >= mapPolygon.count() )
+    return;
+
+  mapPolygon.replace( index, newPosition );
+  updatePosition();
+}
+
+void ReosMapPolygon_p::insertVertex( int index, const QPointF &point )
+{
+  mapPolygon.insert( index, point );
+  updatePosition();
+}
+
+void ReosMapPolygon_p::removeVertex( int index )
+{
+  mapPolygon.removeAt( index );
+  updatePosition();
+}
+
 void ReosMapPolygon_p::paint( QPainter *painter )
 {
   painter->save();
