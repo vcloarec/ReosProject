@@ -32,6 +32,7 @@ class ReosMapCursorPosition;
 class ReosGisEngine;
 class ReosMapTool;
 class ReosMapToolDrawExtent;
+class ReosGeometryStructure;
 
 class REOSGUI_EXPORT ReosMap: public ReosModule
 {
@@ -57,6 +58,11 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     QList<QAction *> mapToolActions();
 
     QDockWidget *temporalControllerDockWidget();
+
+    void initialize();
+
+    void addSnappableStructure( ReosGeometryStructure *structure );
+    void removeSnappableStructure( ReosGeometryStructure *structure );
 
   signals:
     //! emitted when the mouse cursor moves on the map cavans.
@@ -84,6 +90,7 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     QAction *mActionPreviousZoom = nullptr;
     QAction *mActionNextZoom = nullptr;
     QAction *mTemporalControllerAction = nullptr;
+    QAction *mEnableSnappingAction = nullptr;
 };
 
 

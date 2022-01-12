@@ -157,15 +157,14 @@ static void updateHydrographDirectTransferLink( ReosHydraulicNetworkElement *ele
 }
 
 //****************************************************
-// Hydrograph routing link
+// Structure 2D
 
 static ReosMapItem *createStructure2D( ReosHydraulicNetworkElement *elem, ReosMap *map )
 {
   ReosHydraulicStructure2D *str2D = qobject_cast<ReosHydraulicStructure2D *>( elem );
   if ( str2D )
   {
-    std::unique_ptr<ReosMapPolygon> poly = std::make_unique<ReosMapPolygon>( map );
-    poly->resetPolygon( str2D->domain() );
+    std::unique_ptr<ReosMapPolygon> poly( new ReosMapPolygon( map, str2D->structure() ) );
     poly->setWidth( 3 );
     poly->setColor( QColor( 0, 155, 242 ) );
     poly->setExternalWidth( 5 );

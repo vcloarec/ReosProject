@@ -1,8 +1,8 @@
 /***************************************************************************
-  reospolylinesstructures.cpp - ReosPolylinesStructures
+  reosmaptoolhydraulicnetwork_p.h - ReosMapToolHydraulicNetwork_p
 
  ---------------------
- begin                : 10.1.2022
+ begin                : 9.1.2022
  copyright            : (C) 2022 by Vincent Cloarec
  email                : vcloarec at gmail dot com
  ***************************************************************************
@@ -13,11 +13,17 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include "reospolylinesstructure.h"
-#include "reospolylinesstructure_p.h"
+#ifndef REOSMAPTOOLHYDRAULICNETWORK_P_H
+#define REOSMAPTOOLHYDRAULICNETWORK_P_H
 
-std::unique_ptr<ReosPolylinesStructure> ReosPolylinesStructure::createPolylineStructure( const QString &crs )
+
+#include "reosmaptool_p.h"
+
+class ReosHydraulicNetWork;
+
+class ReosMapToolHydraulicNetwork_p : public ReosMapTool_p
 {
-  return std::unique_ptr<ReosPolylinesStructure>( new ReosPolylineStructureVectorLayer( crs ) );
-}
 
+};
+
+#endif // REOSMAPTOOLHYDRAULICNETWORK_P_H

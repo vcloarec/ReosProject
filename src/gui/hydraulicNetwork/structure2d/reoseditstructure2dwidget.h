@@ -1,5 +1,5 @@
 /***************************************************************************
-  reospolylinesstructures.cpp - ReosPolylinesStructures
+  reoseditstructure2dwidget.h - ReosEditStructure2DWidget
 
  ---------------------
  begin                : 10.1.2022
@@ -13,11 +13,30 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include "reospolylinesstructure.h"
-#include "reospolylinesstructure_p.h"
+#ifndef REOSEDITSTRUCTURE2DWIDGET_H
+#define REOSEDITSTRUCTURE2DWIDGET_H
 
-std::unique_ptr<ReosPolylinesStructure> ReosPolylinesStructure::createPolylineStructure( const QString &crs )
-{
-  return std::unique_ptr<ReosPolylinesStructure>( new ReosPolylineStructureVectorLayer( crs ) );
+#include <QWidget>
+
+#include "reosactionwidget.h"
+
+namespace Ui {
+class ReosEditStructure2DWidget;
 }
 
+class ReosEditStructure2DWidget : public ReosStackedPageWidget
+{
+    Q_OBJECT
+
+public:
+    explicit ReosEditStructure2DWidget(QWidget *parent = nullptr);
+    ~ReosEditStructure2DWidget();
+
+private:
+    Ui::ReosEditStructure2DWidget *ui;
+
+    QAction *mActionEditLine=nullptr;
+
+};
+
+#endif // REOSEDITSTRUCTURE2DWIDGET_H

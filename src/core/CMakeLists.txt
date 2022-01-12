@@ -22,6 +22,7 @@ SET(REOS_CORE_SOURCES
   GIS/reosexporttovectorfile.cpp
   GIS/reospolylinesstructure.cpp
   GIS/private/reosdigitalelevationmodel_p.cpp
+  GIS/private/reospolylinesstructure_p.cpp
 
   process/reosprocess.cpp
 
@@ -136,6 +137,7 @@ SET(REOS_CORE_HEADERS
 
 SET(REOS_CORE_HEADERS_PRIVATE
     GIS/private/reosdigitalelevationmodel_p.h
+    GIS/private/reospolylinesstructure_p.h
     )
 
 SET(IMAGE_RCCS ${CMAKE_SOURCE_DIR}/images/images.qrc

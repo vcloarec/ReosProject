@@ -31,6 +31,11 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     //! Returns the domain polygon
     QPolygonF domain() const;
 
+    ReosPolylinesStructure *structure() const
+    {
+      return mPolylinesStructures.get();
+    }
+
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) {}
 
@@ -38,7 +43,7 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     void encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const {}
 
   private:
-    ReosPolylinesStructure mPolylinesStructures;
+    std::unique_ptr<ReosPolylinesStructure> mPolylinesStructures;
 };
 
 #endif // REOSHYDRAULIQUESTRUCTURE2D_H

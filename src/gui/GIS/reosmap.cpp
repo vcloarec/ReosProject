@@ -20,11 +20,14 @@ email                : vcloarec at gmail dot com
 #include <qgslayertreemapcanvasbridge.h>
 #include <qgslayertreemodel.h>
 #include <qgstemporalcontrollerwidget.h>
+#include <qgsmapcanvassnappingutils.h>
+#include <qgssnappingconfig.h>
 
 #include "reosmap.h"
 #include "reosgisengine.h"
 #include "reosmaptool.h"
 #include "reosparameter.h"
+#include "reospolylinesstructure.h"
 
 
 ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
@@ -40,6 +43,7 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   , mActionPreviousZoom( new QAction( QPixmap( QStringLiteral( ":/images/zoomPrevious.svg" ) ), tr( "Previous Zoom" ), this ) )
   , mActionNextZoom( new QAction( QPixmap( QStringLiteral( ":/images/zoomNext.svg" ) ), tr( "Next Zoom" ), this ) )
   , mTemporalControllerAction( new QAction( QPixmap( QStringLiteral( ":/images/temporal.svg" ) ), tr( "Temporal controller" ), this ) )
+  , mEnableSnappingAction( new QAction( tr( "Snapping" ), this ) )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
   canvas->setExtent( QgsRectangle( 0, 0, 200, 200 ) );
@@ -124,6 +128,8 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
     mTemporalDockWidget->setVisible( mTemporalControllerAction->isChecked() );
   } );
   mTemporalDockWidget->hide();
+
+  mEnableSnappingAction->setCheckable( true );
 }
 
 ReosMap::~ReosMap()
@@ -207,6 +213,37 @@ QList<QAction *> ReosMap::mapToolActions()
 QDockWidget *ReosMap::temporalControllerDockWidget()
 {
   return mTemporalDockWidget;
+}
+
+void ReosMap::initialize()
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
+  QgsMapCanvasSnappingUtils *snappingUtils = new QgsMapCanvasSnappingUtils( canvas, this );
+  canvas->setSnappingUtils( snappingUtils );
+
+  connect( QgsProject::instance(), &QgsProject::snappingConfigChanged, snappingUtils, &QgsSnappingUtils::setConfig );
+
+  QgsSnappingConfig snappingConfig = QgsProject::instance()->snappingConfig();
+  snappingConfig.setEnabled( true );
+  snappingConfig.setTypeFlag( QgsSnappingConfig::VertexFlag );
+  snappingConfig.setMode( QgsSnappingConfig::AllLayers );
+  QgsProject::instance()->setSnappingConfig( snappingConfig );
+}
+
+void ReosMap::addSnappableStructure( ReosGeometryStructure *structure )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
+  QgsVectorLayer *vl = qobject_cast<QgsVectorLayer *>( structure->data() );
+  if ( canvas && vl )
+    canvas->snappingUtils()->addExtraSnapLayer( vl );
+}
+
+void ReosMap::removeSnappableStructure( ReosGeometryStructure *structure )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
+  QgsVectorLayer *vl = qobject_cast<QgsVectorLayer *>( structure->data() );
+  if ( canvas && vl )
+    canvas->snappingUtils()->removeExtraSnapLayer( vl );
 }
 
 void ReosMap::setCrs( const QString &crsWkt )

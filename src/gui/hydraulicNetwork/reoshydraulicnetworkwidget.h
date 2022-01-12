@@ -35,6 +35,7 @@ class ReosMapToolDrawPoint;
 class ReosHydraulicElementPropertiesActionWidget;
 class ReosMeteorologicModelsCollection;
 class ReosWatershedModule;
+class ReosGeometryStructure;
 
 class ReosHydraulicElementWidget : public QWidget
 {
@@ -106,6 +107,11 @@ class ReosHydraulicNetworkWidget : public QWidget
     QAction *mActionRemoveElement = nullptr;
 
     void setMapItemVisible( bool visible );
+
+
+    QList<ReosGeometryStructure *> mGeometryStructure;
+    void addGeometryStructure( ReosHydraulicNetworkElement *elem );
+    void removeGeometryStructure( ReosHydraulicNetworkElement *elem );
 };
 
 class REOSGUI_EXPORT ReosHydraulicNetworkDockWidget: public ReosDockWidget

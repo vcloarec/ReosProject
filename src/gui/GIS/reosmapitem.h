@@ -32,6 +32,8 @@ class ReosMapPolygon_p;
 class ReosMapPolyline_p;
 class ReosMapMarkerFilledCircle_p;
 
+class ReosPolylinesStructure;
+
 class REOSGUI_EXPORT ReosMapItem
 {
   public:
@@ -144,6 +146,7 @@ class ReosMapPolygon : public ReosMapItem
     ReosMapPolygon();
     ReosMapPolygon( ReosMap *map );
     ReosMapPolygon( ReosMap *map, const QPolygonF &polygon );
+    ReosMapPolygon( ReosMap *map, ReosPolylinesStructure *structure );
     ~ReosMapPolygon();
 
     ReosMapPolygon( const ReosMapPolygon &other ) = delete;

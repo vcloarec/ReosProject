@@ -20,6 +20,7 @@
 
 #include "reoshydrographsource.h"
 #include "reoshydrographrouting.h"
+#include "reoshydrauliquestructure2d.h"
 #include "reoswatershed.h"
 #include "reosmaptool.h"
 #include "reoshydraulicelementpropertieswidget.h"
@@ -121,12 +122,17 @@ void ReosHydraulicNetworkWidget::onElementAdded( ReosHydraulicNetworkElement *el
   item.reset( mMapItemFactory.createMapItem( elem, mMap ) );
   if ( item )
     mMapItems[elem] =  item ;
+
+  addGeometryStructure( elem );
+
 }
 
 void ReosHydraulicNetworkWidget::onElementRemoved( ReosHydraulicNetworkElement *elem )
 {
+  removeGeometryStructure( elem );
   mMapItems.remove( elem );
   onElementSelected( nullptr );
+
 }
 
 void ReosHydraulicNetworkWidget::onElementChanged( ReosHydraulicNetworkElement *elem )
@@ -224,6 +230,40 @@ void ReosHydraulicNetworkWidget::setMapItemVisible( bool visible )
 
   if ( mExtraItemSelection )
     mExtraItemSelection->setVisible( visible );
+
+  if ( visible )
+    for ( ReosGeometryStructure *structure : std::as_const( mGeometryStructure ) )
+      mMap->addSnappableStructure( structure );
+  else
+    for ( ReosGeometryStructure *structure : std::as_const( mGeometryStructure ) )
+      mMap->removeSnappableStructure( structure );
+}
+
+void ReosHydraulicNetworkWidget::addGeometryStructure( ReosHydraulicNetworkElement *elem )
+{
+  if ( elem->type() == ReosHydraulicStructure2D::staticType() )
+  {
+    ReosGeometryStructure *structure = qobject_cast<ReosHydraulicStructure2D *>( elem )->structure();
+    if ( structure )
+    {
+      if ( isVisible() )
+        mMap->addSnappableStructure( structure );
+      mGeometryStructure.append( structure );
+    }
+  }
+}
+
+void ReosHydraulicNetworkWidget::removeGeometryStructure( ReosHydraulicNetworkElement *elem )
+{
+  if ( elem->type() == ReosHydraulicStructure2D::staticType() )
+  {
+    ReosGeometryStructure *structure = qobject_cast<ReosHydraulicStructure2D *>( elem )->structure();
+    if ( structure )
+    {
+      mMap->removeSnappableStructure( qobject_cast<ReosHydraulicStructure2D *>( elem )->structure() );
+    }
+    mGeometryStructure.removeOne( structure );
+  }
 }
 
 

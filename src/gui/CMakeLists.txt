@@ -67,7 +67,10 @@ SET(REOS_GUI_SOURCES
     hydraulicNetwork/reosmaptoolhydraulicnetwork.cpp
     hydraulicNetwork/reoshydraulicelementpropertieswidget.cpp
     hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp
-)
+    hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp
+    hydraulicNetwork/structure2d/reoseditstructure2dwidget.cpp
+    hydraulicNetwork/private/reosmaptoolhydraulicnetwork_p.cpp
+    )
 
 SET(REOS_GUI_HEADERS
     reosgui.h
@@ -127,6 +130,8 @@ SET(REOS_GUI_HEADERS
     hydraulicNetwork/reoshydraulicnetworkmapitemfactory.h
     hydraulicNetwork/reoshydraulicelementpropertieswidget.h
     hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.h
+    hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.h
+    hydraulicNetwork/structure2d/reoseditstructure2dwidget.h
 )
 
 SET(REOS_GUI_HEADERS_PRIVATE
@@ -137,6 +142,8 @@ SET(REOS_GUI_HEADERS_PRIVATE
 
     chart/private/reosplot_p.h
     chart/private/reosidfplot_p.h
+
+    hydraulicNetwork/private/reosmaptoolhydraulicnetwork_p.h
     )
 
 ADD_LIBRARY(reosGui SHARED
@@ -213,6 +220,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/gui/rainfall
     ${CMAKE_SOURCE_DIR}/src/gui/hydrograph
     ${CMAKE_SOURCE_DIR}/src/gui/hydraulicNetwork
+    ${CMAKE_SOURCE_DIR}/src/gui/hydraulicNetwork/structure2d
     ${CMAKE_SOURCE_DIR}/src/gui/watershed
     ${QGIS_INCLUDE_DIR}
     ${QSCISCINTILLA_INCLUDE_DIR}

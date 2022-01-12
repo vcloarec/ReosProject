@@ -29,6 +29,7 @@
 #include "reoshydrographrouting.h"
 #include "reosformwidget.h"
 #include "reoshydraulicnetworkwidget.h"
+#include "reoshydraulicstructure2dproperties.h"
 
 ReosHydraulicElementPropertiesWidget::ReosHydraulicElementPropertiesWidget( ReosWatershedModule *watershedModule, const ReosGuiContext &guiContext )
   : ReosStackedPageWidget( guiContext.parent() )
@@ -57,6 +58,7 @@ ReosHydraulicElementPropertiesWidget::ReosHydraulicElementPropertiesWidget( Reos
 
   addWidgetFactory( new ReosHydrographRoutingPropertiesWidgetFactory( this ) );
   addWidgetFactory( new ReosHydraulicHydrographNodePropertiesWidgetFactory( this ) );
+  addWidgetFactory( new ReosHydraulicStructure2DPropertiesWidgetFactory( this ) );
 
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormHydrographRountingMuskingumWidgetFactory );
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormHydrographRountingLagWidgetFactory );

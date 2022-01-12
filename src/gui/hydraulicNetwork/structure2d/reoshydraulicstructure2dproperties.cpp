@@ -1,5 +1,5 @@
 /***************************************************************************
-  reospolylinesstructures.cpp - ReosPolylinesStructures
+  reoshydraulicstructrure2dproperties.cpp - ReosHydraulicStructrure2DProperties
 
  ---------------------
  begin                : 10.1.2022
@@ -13,11 +13,24 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include "reospolylinesstructure.h"
-#include "reospolylinesstructure_p.h"
+#include "reoshydraulicstructure2dproperties.h"
+#include "ui_reoshydraulicstructure2dproperties.h"
 
-std::unique_ptr<ReosPolylinesStructure> ReosPolylinesStructure::createPolylineStructure( const QString &crs )
+#include "reoseditstructure2dwidget.h"
+
+ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( QWidget *parent ) :
+  ReosHydraulicElementWidget( parent ),
+  ui( new Ui::ReosHydraulicStructure2DProperties )
 {
-  return std::unique_ptr<ReosPolylinesStructure>( new ReosPolylineStructureVectorLayer( crs ) );
+  ui->setupUi( this );
+
+  connect( ui->mEditStructureToolButton, &QToolButton::clicked, this, [this]
+  {
+    emit stackedPageWidgetOpened( new ReosEditStructure2DWidget( this ) );
+  } );
 }
 
+ReosHydraulicStructure2DProperties::~ReosHydraulicStructure2DProperties()
+{
+  delete ui;
+}

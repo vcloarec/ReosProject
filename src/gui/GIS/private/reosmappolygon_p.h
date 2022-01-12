@@ -19,9 +19,11 @@ email                : vcloarec at gmail dot com
 #include <QSvgRenderer>
 
 #include <qgsmapcanvasitem.h>
+#include <qgsvectorlayer.h>
 #include <qgspointxy.h>
 
 class ReosMapItem;
+class ReosPolylinesStructure;
 
 class ReosMapItem_p: public QgsMapCanvasItem
 {
@@ -33,6 +35,8 @@ class ReosMapItem_p: public QgsMapCanvasItem
     virtual void translate( const QPointF &translation ) = 0;
     virtual QPointF mapPos() const = 0;
     virtual void setMapPosition( const QgsPointXY & ) {};
+
+    QString crs() const;
 
     QColor color;
     QColor externalColor;
@@ -112,41 +116,36 @@ class ReosMapMarkerSvg_p: public ReosMapMarker_p
   private:
     QString mFilePath;
     std::unique_ptr<QSvgRenderer> mSvgRenderer;
-
-
-
 };
 
-class ReosMapPolygon_p: public ReosMapItem_p
+
+class ReosMapPolygonBase_p: public ReosMapItem_p
 {
   public:
-    ReosMapPolygon_p( QgsMapCanvas *canvas );
-
-    ReosMapPolygon_p *clone() override;
+    ReosMapPolygonBase_p( QgsMapCanvas *canvas );
     QRectF boundingRect() const override;
     void updatePosition() override;
     QPainterPath shape() const override;
     void setEditing( bool b ) override;
-    void translate( const QPointF &translation ) override;
-    QPointF mapPos() const override;
 
-    // Search a vertex in viex coordinate
+    // Search a vertex in view coordinate
     int findVertexInView( const QRectF &zone ) const;
 
     void activeMarker( bool b );
     void setMarkerDistance( double d );
     void setMarkerArrow( bool b );
 
-    void setGeometry( const QPolygonF &geom );
+    virtual void setGeometry( const QPolygonF &geom ) = 0;
+    virtual void moveVertex( int index, const QPointF &newPosition ) = 0;
+    virtual void insertVertex( int index, const QPointF &point ) = 0;
+    virtual void removeVertex( int index ) = 0;
 
-    QPolygonF geometry() const;
-
-    void moveVertex( int index, const QPointF &newPosition );
-    void insertVertex( int index, const QPointF &point );
-    void removeVertex( int index );
+    virtual QPolygonF geometry() const = 0;
 
   protected:
     void paint( QPainter *painter ) override;
+
+    ReosMapPolygonBase_p( ReosMapPolygonBase_p *other );
     QPolygonF mViewPolygon;
     bool mIsEditing = false;
     bool mIsMarkerActive = false;
@@ -154,11 +153,54 @@ class ReosMapPolygon_p: public ReosMapItem_p
     bool mMarkerArrow = false;
     QPointF mMarkerposition;
     QPointF mMarkerPositionOnView;
-    QPolygonF mapPolygon;
+
+    virtual  void draw( QPainter *painter );
+};
+
+class ReosMapPolygon_p: public ReosMapPolygonBase_p
+{
+  public:
+
+    ReosMapPolygon_p( QgsMapCanvas *canvas );
+
+    ReosMapPolygon_p *clone() override;
+
+    void translate( const QPointF &translation ) override;
+    QPointF mapPos() const override;
+    void setGeometry( const QPolygonF &geom ) override;
+    void moveVertex( int index, const QPointF &newPosition ) override;
+    void insertVertex( int index, const QPointF &point ) override;
+    void removeVertex( int index ) override;
+    QPolygonF geometry() const override;
+
+  protected:
+    QPolygonF mMapPolygon;
+  private:
+    ReosMapPolygon_p( ReosMapPolygon_p *other );
+
+};
+
+class ReosMapPolygonStructured_p: public ReosMapPolygonBase_p
+{
+  public:
+
+    ReosMapPolygonStructured_p( QgsMapCanvas *canvas );
+
+    ReosMapPolygonStructured_p *clone() override;
+
+    void translate( const QPointF &translation ) override;
+    QPointF mapPos() const override;
+    void setGeometry( const QPolygonF &geom ) override;
+    void moveVertex( int index, const QPointF &newPosition ) override;
+    void insertVertex( int index, const QPointF &point ) override;
+    void removeVertex( int index ) override;
+    QPolygonF geometry() const override;
+
+    void setStructrure( ReosPolylinesStructure *structure );
 
   private:
-    virtual void draw( QPainter *painter );
-
+    ReosMapPolygonStructured_p( ReosMapPolygonStructured_p *other );
+    ReosPolylinesStructure *mStructure = nullptr;
 };
 
 class ReosMapPolyline_p: public ReosMapPolygon_p

@@ -103,6 +103,8 @@ void ReosMapToolDrawPolyline_p::canvasMoveEvent( QgsMapMouseEvent *e )
     mSnappingIndicator->setMatch( e->mapPointMatch() );
   }
   mRubberBand->movePoint( e->mapPoint() );
+
+  ReosMapTool_p::canvasMoveEvent( e );
 }
 
 void ReosMapToolDrawPolyline_p::canvasReleaseEvent( QgsMapMouseEvent *e )
@@ -262,11 +264,10 @@ bool ReosMapToolEditPolygon_p::populateContextMenuWithEvent( QMenu *menu, QgsMap
   const QPointF mapPoint = event->mapPoint().toQPointF();
   menu->addAction( tr( "Insert vertex" ), this, [mapPoint, this]
   {
-    int index = ReosGeometryUtils::closestSegment( mapPoint, mPolygon->mapPolygon );
+    int index = ReosGeometryUtils::closestSegment( mapPoint, mPolygon->geometry() );
     if ( index != -1 )
     {
-      mPolygon->mapPolygon.insert( index, mapPoint );
-      mPolygon->updatePosition();
+      mPolygon->insertVertex( index, mapPoint );
       emit this->polygonEdited();
     }
 
@@ -275,9 +276,9 @@ bool ReosMapToolEditPolygon_p::populateContextMenuWithEvent( QMenu *menu, QgsMap
   int existingVertex = mPolygon->findVertexInView( viewSearchZone( event->pos() ) );
   if ( existingVertex >= 0 )
   {
-    menu->addAction( tr( "Remove vertex" ), [existingVertex, this]
+    menu->addAction( tr( "Remove vertex" ), this, [existingVertex, this]
     {
-      mPolygon->mapPolygon.removeAt( existingVertex );
+      mPolygon->removeVertex( existingVertex );
       mPolygon->updatePosition();
       emit this->polygonEdited();
     } );
@@ -299,8 +300,7 @@ void ReosMapToolEditPolygon_p::canvasMoveEvent( QgsMapMouseEvent *e )
   if ( mMovingVertex < 0 || !mPolygon )
     return;
   mIsEdited = true;
-  mPolygon->mapPolygon[mMovingVertex] = e->mapPoint().toQPointF();
-  mPolygon->updatePosition();
+  mPolygon->moveVertex( mMovingVertex, e->mapPoint().toQPointF() );
 
 }
 

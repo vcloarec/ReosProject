@@ -50,7 +50,9 @@ void ReosMapItem::setDescription( const QString &description )
 void ReosMapItem::setVisible( bool visible )
 {
   if ( isMapExist() )
+  {
     d_->setVisible( visible );
+  }
 }
 
 void ReosMapItem::setHovered( bool b )
@@ -90,6 +92,17 @@ ReosMapPolygon::ReosMapPolygon( ReosMap *map, const QPolygonF &polygon ): ReosMa
   }
 }
 
+ReosMapPolygon::ReosMapPolygon( ReosMap *map, ReosPolylinesStructure *structure ): ReosMapItem( map )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  if ( canvas )
+  {
+    d_ = new ReosMapPolygonStructured_p( canvas ); //the owner ship of d pointer is takeny the scene of the map canvas
+    static_cast<ReosMapPolygonStructured_p *>( d_ )->setStructrure( structure );
+    d_->base = this;
+  }
+}
+
 ReosMapPolygon::~ReosMapPolygon()
 {
   if ( isMapExist() && d_ )
@@ -109,14 +122,14 @@ void ReosMapPolygon::resetPolygon( const QPolygonF &polygon )
 {
   if ( isMapExist() && d_ )
   {
-    static_cast<ReosMapPolygon_p *>( d_ )->setGeometry( polygon );
+    static_cast<ReosMapPolygonBase_p *>( d_ )->setGeometry( polygon );
   }
 }
 
 QPolygonF ReosMapPolygon::mapPolygon() const
 {
   if ( isMapExist() && d_ )
-    return static_cast<ReosMapPolygon_p *>( d_ )->geometry();
+    return static_cast<ReosMapPolygonBase_p *>( d_ )->geometry();
 
   return QPolygonF();
 }
@@ -125,7 +138,7 @@ void ReosMapPolygon::movePoint( int pointIndex, const QPointF &p )
 {
   if ( !isMapExist() || !d_ )
     return;
-  static_cast<ReosMapPolygon_p *>( d_ )->moveVertex( pointIndex, p );
+  static_cast<ReosMapPolygonBase_p *>( d_ )->moveVertex( pointIndex, p );
 
 }
 

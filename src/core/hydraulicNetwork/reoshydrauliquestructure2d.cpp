@@ -17,12 +17,12 @@
 
 ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, ReosHydraulicNetwork *parent )
   : ReosHydraulicNetworkElement( parent )
-  , mPolylinesStructures( crs )
+  , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( crs ) )
 {
-  mPolylinesStructures.addPolylines( domain, QStringLiteral( "domain" ) );
+  mPolylinesStructures->addPolylines( domain, crs, QStringLiteral( "domain" ) );
 }
 
 QPolygonF ReosHydraulicStructure2D::domain() const
 {
-  return mPolylinesStructures.polyline( QStringLiteral( "domain" ) );
+  return mPolylinesStructures->polyline( QString(), QStringLiteral( "domain" ) );
 }
