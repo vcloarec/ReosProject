@@ -18,19 +18,29 @@
 
 #include "reoseditstructure2dwidget.h"
 
-ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( QWidget *parent ) :
-  ReosHydraulicElementWidget( parent ),
-  ui( new Ui::ReosHydraulicStructure2DProperties )
+ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context )
+  : ReosHydraulicElementWidget( context.parent() )
+  , ui( new Ui::ReosHydraulicStructure2DProperties )
+  , mStructure2D( structure2D )
 {
   ui->setupUi( this );
 
-  connect( ui->mEditStructureToolButton, &QToolButton::clicked, this, [this]
+  connect( ui->mEditStructureToolButton, &QToolButton::clicked, this, [this, context]
   {
-    emit stackedPageWidgetOpened( new ReosEditStructure2DWidget( this ) );
+    emit stackedPageWidgetOpened( new ReosEditStructure2DWidget( mStructure2D, context ) );
   } );
 }
 
 ReosHydraulicStructure2DProperties::~ReosHydraulicStructure2DProperties()
 {
   delete ui;
+}
+
+ReosHydraulicElementWidget *ReosHydraulicStructure2DPropertiesWidgetFactory::createWidget( ReosHydraulicNetworkElement *element, const ReosGuiContext &context )
+{
+  ReosHydraulicStructure2D *structure2D = qobject_cast<ReosHydraulicStructure2D *>( element );
+  if ( structure2D )
+    return new ReosHydraulicStructure2DProperties( structure2D, context );
+  else
+    return nullptr;
 }

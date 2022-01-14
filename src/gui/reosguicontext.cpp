@@ -14,12 +14,12 @@
  *                                                                         *
  ***************************************************************************/
 #include "reosguicontext.h"
+#include "reosmapitem.h"
+#include "reosmap.h"
 
 ReosGuiContext::ReosGuiContext( QWidget *parent ):
   mParent( parent )
-{
-
-}
+{}
 
 ReosGuiContext::ReosGuiContext( const ReosGuiContext &other, QWidget *parent )
 {
@@ -40,4 +40,20 @@ void ReosGuiContext::setMap( ReosMap *map )
 QWidget *ReosGuiContext::parent() const
 {
   return mParent;
+}
+
+ReosMapItem *ReosGuiContext::mapItems( const QString &description ) const
+{
+  for ( ReosMapItem *mi : std::as_const( mMapItems ) )
+  {
+    if ( mi->description().contains( description ) )
+      return mi;
+  }
+
+  return nullptr;
+}
+
+void ReosGuiContext::addMapItems( ReosMapItem *mapItems )
+{
+  mMapItems.push( mapItems );
 }

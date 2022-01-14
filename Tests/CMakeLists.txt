@@ -66,8 +66,8 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_SOURCE_DIR}/src/core/hydraulicNetwork
   ${CMAKE_SOURCE_DIR}/src/core/utils
 
-  ${CMAKE_SOURCE_DIR}/src/gui/GIS
   ${CMAKE_SOURCE_DIR}/src/gui
+  ${CMAKE_SOURCE_DIR}/src/gui/GIS
 )
 
 MACRO (ADD_REOS_TEST TESTSRC)

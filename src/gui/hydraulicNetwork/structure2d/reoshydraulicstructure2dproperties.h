@@ -19,7 +19,7 @@
 #include <QWidget>
 
 #include "reoshydraulicelementpropertieswidget.h"
-#include "reoshydrauliquestructure2d.h"
+#include "reoshydraulicstructure2d.h"
 #include "reoshydraulicnetworkwidget.h"
 
 namespace Ui
@@ -32,11 +32,12 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
     Q_OBJECT
 
   public:
-    explicit ReosHydraulicStructure2DProperties( QWidget *parent = nullptr );
+    explicit ReosHydraulicStructure2DProperties( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context = ReosGuiContext() );
     ~ReosHydraulicStructure2DProperties();
 
   private:
     Ui::ReosHydraulicStructure2DProperties *ui;
+    ReosHydraulicStructure2D *mStructure2D = nullptr;
 };
 
 
@@ -44,10 +45,7 @@ class ReosHydraulicStructure2DPropertiesWidgetFactory : public ReosHydraulicElem
 {
   public:
     ReosHydraulicStructure2DPropertiesWidgetFactory( QObject *parent = nullptr ): ReosHydraulicElementWidgetFactory( parent ) {}
-    virtual ReosHydraulicElementWidget *createWidget( ReosHydraulicNetworkElement *element, const ReosGuiContext &context = ReosGuiContext() )
-    {
-      return new ReosHydraulicStructure2DProperties( context.parent() );
-    }
+    virtual ReosHydraulicElementWidget *createWidget( ReosHydraulicNetworkElement *element, const ReosGuiContext &context = ReosGuiContext() );
     virtual QString elementType() {return ReosHydraulicStructure2D::staticType();}
 };
 

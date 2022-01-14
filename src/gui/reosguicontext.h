@@ -16,9 +16,13 @@
 #ifndef REOSGUICONTEXT_H
 #define REOSGUICONTEXT_H
 
+#include <QString>
+#include <QStack>
+
 #include "reosgui.h"
 
 class ReosMap;
+class ReosMapItem;
 class QWidget;
 
 class REOSGUI_EXPORT ReosGuiContext
@@ -33,9 +37,14 @@ class REOSGUI_EXPORT ReosGuiContext
 
     QWidget *parent() const;
 
+    ReosMapItem *mapItems( const QString &description ) const;
+    void addMapItems( ReosMapItem *mapItems );
+
   private:
     ReosMap *mMap = nullptr;
     QWidget *mParent = nullptr;
+    QStack<ReosMapItem *> mMapItems;
+
 };
 
 #endif // REOSGUICONTEXT_H

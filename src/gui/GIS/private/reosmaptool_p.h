@@ -55,6 +55,8 @@ class ReosMapTool_p: public QgsMapTool
 
     void clearHoveredItem();
 
+    void enableSnapping( bool enable );
+
   signals:
     void foundItemWhenMoving( ReosMapItem_p *item );
     void keyPressed( int key );
@@ -63,15 +65,18 @@ class ReosMapTool_p: public QgsMapTool
     void canvasMoveEvent( QgsMapMouseEvent *e ) override;
     void keyPressEvent( QKeyEvent *e ) override;
 
+    QString mapCrs() const;
+
     QRectF viewSearchZone( const QPoint &pt );
     ReosMapItem_p *searchItem( const QPointF &p ) const;
     ReosMapItem_p *mFoundItem = nullptr;
+    bool mSnappingEnabled = false;
+    std::unique_ptr<QgsSnapIndicator> mSnappingIndicator;
 
   private:
     std::unique_ptr<ReosMenuPopulator> mContextMenuPopulator;
     QSizeF mSearchZone = QSizeF( 12, 12 );
     bool mSeachWhenMoving = false;
-
     bool mUnderPoint = false;
     QString mTargetDescritpion;
 };
@@ -102,8 +107,6 @@ class ReosMapToolDrawPolyline_p: public ReosMapTool_p
     void deactivate() override;
     QPointer<QgsRubberBand> mRubberBand;
 
-    void enableSnapping( bool enable );
-
     void canvasMoveEvent( QgsMapMouseEvent *e ) override;
     void canvasReleaseEvent( QgsMapMouseEvent *e ) override;
 
@@ -112,8 +115,6 @@ class ReosMapToolDrawPolyline_p: public ReosMapTool_p
 
   private:
     bool mClosed = false;
-    bool mSnappingEnabled = false;
-    std::unique_ptr<QgsSnapIndicator> mSnappingIndicator;
 
 };
 

@@ -1,5 +1,5 @@
 /***************************************************************************
-  reoshydrauliquestructure2d.h - ReosHydrauliqueStructure2D
+  reoshydraulicstructure2d.h - ReosHydraulicStructure2D
 
  ---------------------
  begin                : 9.1.2022
@@ -13,8 +13,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#ifndef REOSHYDRAULIQUESTRUCTURE2D_H
-#define REOSHYDRAULIQUESTRUCTURE2D_H
+#ifndef REOSHYDRAULICSTRUCTURE2D_H
+#define REOSHYDRAULICSTRUCTURE2D_H
 
 #include "reoshydraulicnetwork.h"
 #include "reospolylinesstructure.h"
@@ -29,9 +29,9 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     static QString staticType() {return ReosHydraulicNetworkElement::staticType() + QString( ':' ) + QStringLiteral( "structure2D" );}
 
     //! Returns the domain polygon
-    QPolygonF domain() const;
+    QPolygonF domain( const QString &crs ) const;
 
-    ReosPolylinesStructure *structure() const
+    ReosPolylinesStructure *geometryStructure() const
     {
       return mPolylinesStructures.get();
     }
@@ -46,4 +46,4 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     std::unique_ptr<ReosPolylinesStructure> mPolylinesStructures;
 };
 
-#endif // REOSHYDRAULIQUESTRUCTURE2D_H
+#endif // REOSHYDRAULICSTRUCTURE2D_H

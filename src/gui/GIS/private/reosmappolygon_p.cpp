@@ -634,17 +634,17 @@ void ReosMapMarkerSvg_p::paint( QPainter *painter )
   painter->restore();
 }
 
-ReosMapPolygonStructured_p::ReosMapPolygonStructured_p( QgsMapCanvas *canvas )
+ReosMapStructureEnvelop_p::ReosMapStructureEnvelop_p( QgsMapCanvas *canvas )
   : ReosMapPolygonBase_p( canvas )
 {}
 
-ReosMapPolygonStructured_p *ReosMapPolygonStructured_p::clone()
+ReosMapStructureEnvelop_p *ReosMapStructureEnvelop_p::clone()
 {
-  std::unique_ptr<ReosMapPolygonStructured_p> other( new ReosMapPolygonStructured_p( this ) );
+  std::unique_ptr<ReosMapStructureEnvelop_p> other( new ReosMapStructureEnvelop_p( this ) );
   return other.release();
 }
 
-void ReosMapPolygonStructured_p::translate( const QPointF &translation )
+void ReosMapStructureEnvelop_p::translate( const QPointF &translation )
 {
   if ( mStructure )
     mStructure->translate( translation, mMapCanvas->mapSettings().destinationCrs().toWkt() );
@@ -652,7 +652,7 @@ void ReosMapPolygonStructured_p::translate( const QPointF &translation )
   updatePosition();
 }
 
-QPointF ReosMapPolygonStructured_p::mapPos() const
+QPointF ReosMapStructureEnvelop_p::mapPos() const
 {
   QPolygonF poly = geometry();
   if ( poly.isEmpty() )
@@ -661,17 +661,17 @@ QPointF ReosMapPolygonStructured_p::mapPos() const
   return poly.at( 0 );
 }
 
-void ReosMapPolygonStructured_p::setGeometry( const QPolygonF &geom )
+void ReosMapStructureEnvelop_p::setGeometry( const QPolygonF &geom )
 {
   if ( !mStructure )
     return;
 
   mStructure->removeAll();
-  mStructure->addPolylines( geom, crs() );
+  mStructure->setBoundary( geom, crs() );
   updatePosition();
 }
 
-void ReosMapPolygonStructured_p::moveVertex( int index, const QPointF &newPosition )
+void ReosMapStructureEnvelop_p::moveVertex( int index, const QPointF &newPosition )
 {
   if ( !mStructure )
     return;
@@ -681,7 +681,7 @@ void ReosMapPolygonStructured_p::moveVertex( int index, const QPointF &newPositi
   updatePosition();
 }
 
-void ReosMapPolygonStructured_p::insertVertex( int index, const QPointF &point )
+void ReosMapStructureEnvelop_p::insertVertex( int index, const QPointF &point )
 {
   if ( !mStructure )
     return;
@@ -691,7 +691,7 @@ void ReosMapPolygonStructured_p::insertVertex( int index, const QPointF &point )
   updatePosition();
 }
 
-void ReosMapPolygonStructured_p::removeVertex( int index )
+void ReosMapStructureEnvelop_p::removeVertex( int index )
 {
   if ( !mStructure )
     return;
@@ -701,21 +701,21 @@ void ReosMapPolygonStructured_p::removeVertex( int index )
   updatePosition();
 }
 
-QPolygonF ReosMapPolygonStructured_p::geometry() const
+QPolygonF ReosMapStructureEnvelop_p::geometry() const
 {
   if ( mStructure )
-    return mStructure->polyline( crs() );
+    return mStructure->boundary( crs() );
 
   return QPolygonF();
 }
 
-void ReosMapPolygonStructured_p::setStructrure( ReosPolylinesStructure *structure )
+void ReosMapStructureEnvelop_p::setStructrure( ReosPolylinesStructure *structure )
 {
   mStructure = structure;
   updatePosition();
 }
 
-ReosMapPolygonStructured_p::ReosMapPolygonStructured_p( ReosMapPolygonStructured_p *other )
+ReosMapStructureEnvelop_p::ReosMapStructureEnvelop_p( ReosMapStructureEnvelop_p *other )
   : ReosMapPolygonBase_p( other )
 {
   mStructure = other->mStructure->clone();

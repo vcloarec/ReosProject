@@ -20,7 +20,7 @@
 
 #include "reoshydrographsource.h"
 #include "reoshydrographrouting.h"
-#include "reoshydrauliquestructure2d.h"
+#include "reoshydraulicstructure2d.h"
 #include "reoswatershed.h"
 #include "reosmaptool.h"
 #include "reoshydraulicelementpropertieswidget.h"
@@ -125,14 +125,14 @@ void ReosHydraulicNetworkWidget::onElementAdded( ReosHydraulicNetworkElement *el
 
   addGeometryStructure( elem );
 
+  onElementSelected( item.get() );
 }
 
 void ReosHydraulicNetworkWidget::onElementRemoved( ReosHydraulicNetworkElement *elem )
 {
+  onElementSelected( nullptr );
   removeGeometryStructure( elem );
   mMapItems.remove( elem );
-  onElementSelected( nullptr );
-
 }
 
 void ReosHydraulicNetworkWidget::onElementChanged( ReosHydraulicNetworkElement *elem )
@@ -172,7 +172,7 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
 
   if ( !item )
   {
-    mElementPropertiesWidget->setCurrentElement( nullptr );
+    mElementPropertiesWidget->setCurrentElement( nullptr, ReosGuiContext( this ) );
     ui->mNameWidget->setString( nullptr );
     mExtraItemSelection.reset( );
     return;
@@ -180,12 +180,17 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
 
   ReosHydraulicNetworkElement *elem = mHydraulicNetwork->getElement( item->description() );
   if ( elem )
+  {
     mMapItemFactory.selectItem( elem, item );
+    ui->mNameWidget->setString( elem->name() );
+    mExtraItemSelection.reset( mMapItemFactory.createExtraItemSelected( elem, mMap ) );
+  }
+
   mCurrentSelectedElement = elem;
 
-  mElementPropertiesWidget->setCurrentElement( elem );
-  ui->mNameWidget->setString( elem->name() );
-  mExtraItemSelection.reset( mMapItemFactory.createExtraItemSelected( elem, mMap ) );
+  ReosGuiContext guiContext = createContext();
+  guiContext.addMapItems( item );
+  mElementPropertiesWidget->setCurrentElement( elem, guiContext );
 }
 
 void ReosHydraulicNetworkWidget::onSelectedElementRemoved()
@@ -209,7 +214,7 @@ void ReosHydraulicNetworkWidget::onSelectedElementRemoved()
 void ReosHydraulicNetworkWidget::onModuleReset()
 {
   mCurrentSelectedElement = nullptr;
-  mElementPropertiesWidget->setCurrentElement( nullptr );
+  mElementPropertiesWidget->setCurrentElement( nullptr, createContext() );
   mMapItems.clear();
 }
 
@@ -243,7 +248,7 @@ void ReosHydraulicNetworkWidget::addGeometryStructure( ReosHydraulicNetworkEleme
 {
   if ( elem->type() == ReosHydraulicStructure2D::staticType() )
   {
-    ReosGeometryStructure *structure = qobject_cast<ReosHydraulicStructure2D *>( elem )->structure();
+    ReosGeometryStructure *structure = qobject_cast<ReosHydraulicStructure2D *>( elem )->geometryStructure();
     if ( structure )
     {
       if ( isVisible() )
@@ -257,13 +262,20 @@ void ReosHydraulicNetworkWidget::removeGeometryStructure( ReosHydraulicNetworkEl
 {
   if ( elem->type() == ReosHydraulicStructure2D::staticType() )
   {
-    ReosGeometryStructure *structure = qobject_cast<ReosHydraulicStructure2D *>( elem )->structure();
+    ReosGeometryStructure *structure = qobject_cast<ReosHydraulicStructure2D *>( elem )->geometryStructure();
     if ( structure )
     {
-      mMap->removeSnappableStructure( qobject_cast<ReosHydraulicStructure2D *>( elem )->structure() );
+      mMap->removeSnappableStructure( qobject_cast<ReosHydraulicStructure2D *>( elem )->geometryStructure() );
     }
     mGeometryStructure.removeOne( structure );
   }
+}
+
+ReosGuiContext ReosHydraulicNetworkWidget::createContext()
+{
+  ReosGuiContext context( this );
+  context.setMap( mMap );
+  return context;
 }
 
 

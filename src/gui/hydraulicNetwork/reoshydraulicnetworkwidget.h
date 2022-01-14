@@ -112,6 +112,8 @@ class ReosHydraulicNetworkWidget : public QWidget
     QList<ReosGeometryStructure *> mGeometryStructure;
     void addGeometryStructure( ReosHydraulicNetworkElement *elem );
     void removeGeometryStructure( ReosHydraulicNetworkElement *elem );
+
+    ReosGuiContext createContext();
 };
 
 class REOSGUI_EXPORT ReosHydraulicNetworkDockWidget: public ReosDockWidget

@@ -15,7 +15,7 @@ email                : vcloarec at gmail dot com
 #include<QtTest/QtTest>
 #include <QObject>
 
-#include "reoshydrauliquestructure2d.h"
+#include "reoshydraulicstructure2d.h"
 
 class ReoHydraulicStructure2DTest: public QObject
 {
@@ -29,7 +29,6 @@ class ReoHydraulicStructure2DTest: public QObject
     ReosModule *mRootModule = nullptr;
 
 };
-
 
 void ReoHydraulicStructure2DTest::init()
 {

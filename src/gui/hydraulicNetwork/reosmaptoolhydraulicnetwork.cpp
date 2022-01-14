@@ -16,7 +16,7 @@
 
 #include "reosmaptoolhydraulicnetwork.h"
 #include "reoshydrographrouting.h"
-#include "reoshydrauliquestructure2d.h"
+#include "reoshydraulicstructure2d.h"
 #include "reosmaptool_p.h"
 
 

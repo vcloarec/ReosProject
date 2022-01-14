@@ -19,11 +19,15 @@
 #include <QToolBar>
 #include <QPushButton>
 
+#include "reosmaptooleditgeometrystructure.h"
+#include "reoshydraulicstructure2d.h"
 
-ReosEditStructure2DWidget::ReosEditStructure2DWidget( QWidget *parent )
-  : ReosStackedPageWidget( parent )
+ReosEditStructure2DWidget::ReosEditStructure2DWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context )
+  : ReosStackedPageWidget( context.parent() )
   , ui( new Ui::ReosEditStructure2DWidget )
   , mActionEditLine( new QAction( tr( "Edit Structure Line" ), this ) )
+  , mMapToolEditLine( new ReosMapToolEditGeometryStructure( this, context.map() ) )
+  , mMapStructureItem( context.map(), structure2D->geometryStructure() )
 {
   ui->setupUi( this );
 
@@ -36,9 +40,17 @@ ReosEditStructure2DWidget::ReosEditStructure2DWidget( QWidget *parent )
 
   toolBar->addAction( mActionEditLine );
   mActionEditLine->setCheckable( true );
+  mMapToolEditLine->setAction( mActionEditLine );
+  mMapToolEditLine->setStructure( structure2D->geometryStructure() );
+
+  mInitialMapStructureItem = context.mapItems( ReosHydraulicStructure2D::staticType() );
+  if ( mInitialMapStructureItem )
+    mInitialMapStructureItem->setVisible( false );
 }
 
 ReosEditStructure2DWidget::~ReosEditStructure2DWidget()
 {
   delete ui;
+  if ( mInitialMapStructureItem )
+    mInitialMapStructureItem->setVisible( true );
 }

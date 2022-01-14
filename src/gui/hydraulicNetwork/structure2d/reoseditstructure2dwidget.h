@@ -19,23 +19,34 @@
 #include <QWidget>
 
 #include "reosactionwidget.h"
+#include "reosguicontext.h"
+#include "reosmapitem.h"
 
-namespace Ui {
-class ReosEditStructure2DWidget;
+class ReosMapToolEditGeometryStructure;
+class ReosHydraulicStructure2D;
+
+namespace Ui
+{
+  class ReosEditStructure2DWidget;
 }
 
 class ReosEditStructure2DWidget : public ReosStackedPageWidget
 {
     Q_OBJECT
 
-public:
-    explicit ReosEditStructure2DWidget(QWidget *parent = nullptr);
+  public:
+    explicit ReosEditStructure2DWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context = ReosGuiContext() );
     ~ReosEditStructure2DWidget();
 
-private:
+  private:
     Ui::ReosEditStructure2DWidget *ui;
 
-    QAction *mActionEditLine=nullptr;
+    QAction *mActionEditLine = nullptr;
+    ReosMapToolEditGeometryStructure *mMapToolEditLine = nullptr;
+
+    ReosMapPolylineStructure mMapStructureItem;
+
+    ReosMapItem *mInitialMapStructureItem = nullptr;
 
 };
 

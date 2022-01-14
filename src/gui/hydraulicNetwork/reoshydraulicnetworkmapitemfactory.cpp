@@ -16,7 +16,7 @@
 #include "reoshydraulicnetworkmapitemfactory.h"
 #include "reoshydrographsource.h"
 #include "reoshydrographrouting.h"
-#include "reoshydrauliquestructure2d.h"
+#include "reoshydraulicstructure2d.h"
 
 #include <QVector2D>
 
@@ -164,7 +164,7 @@ static ReosMapItem *createStructure2D( ReosHydraulicNetworkElement *elem, ReosMa
   ReosHydraulicStructure2D *str2D = qobject_cast<ReosHydraulicStructure2D *>( elem );
   if ( str2D )
   {
-    std::unique_ptr<ReosMapPolygon> poly( new ReosMapPolygon( map, str2D->structure() ) );
+    std::unique_ptr<ReosMapPolygon> poly( new ReosMapPolygon( map, str2D->geometryStructure() ) );
     poly->setWidth( 3 );
     poly->setColor( QColor( 0, 155, 242 ) );
     poly->setExternalWidth( 5 );

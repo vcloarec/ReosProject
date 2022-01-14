@@ -86,25 +86,13 @@ void ReosMapToolDrawPolyline_p::deactivate()
   ReosMapTool_p::deactivate();
 }
 
-void ReosMapToolDrawPolyline_p::enableSnapping( bool enable )
-{
-  mSnappingEnabled = enable;
-  if ( mSnappingEnabled )
-    mSnappingIndicator.reset( new QgsSnapIndicator( canvas() ) );
-  else
-    mSnappingIndicator.reset();
-}
+
 
 void ReosMapToolDrawPolyline_p::canvasMoveEvent( QgsMapMouseEvent *e )
 {
-  if ( mSnappingEnabled )
-  {
-    e->snapPoint();
-    mSnappingIndicator->setMatch( e->mapPointMatch() );
-  }
-  mRubberBand->movePoint( e->mapPoint() );
-
   ReosMapTool_p::canvasMoveEvent( e );
+
+  mRubberBand->movePoint( e->mapPoint() );
 }
 
 void ReosMapToolDrawPolyline_p::canvasReleaseEvent( QgsMapMouseEvent *e )
@@ -352,6 +340,12 @@ void ReosMapTool_p::setSeachWhenMoving( bool seachWhenMoving )
 
 void ReosMapTool_p::canvasMoveEvent( QgsMapMouseEvent *e )
 {
+  if ( mSnappingEnabled )
+  {
+    e->snapPoint();
+    mSnappingIndicator->setMatch( e->mapPointMatch() );
+  }
+
   if ( !mSeachWhenMoving )
     return;
 
@@ -386,10 +380,24 @@ void ReosMapTool_p::clearHoveredItem()
   }
 }
 
+void ReosMapTool_p::enableSnapping( bool enable )
+{
+  mSnappingEnabled = enable;
+  if ( mSnappingEnabled )
+    mSnappingIndicator.reset( new QgsSnapIndicator( canvas() ) );
+  else
+    mSnappingIndicator.reset();
+}
+
 
 void ReosMapTool_p::keyPressEvent( QKeyEvent *e )
 {
   emit keyPressed( e->key() );
+}
+
+QString ReosMapTool_p::mapCrs() const
+{
+  return canvas()->mapSettings().destinationCrs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED );
 }
 
 

@@ -180,13 +180,13 @@ class ReosMapPolygon_p: public ReosMapPolygonBase_p
 
 };
 
-class ReosMapPolygonStructured_p: public ReosMapPolygonBase_p
+class ReosMapStructureEnvelop_p: public ReosMapPolygonBase_p
 {
   public:
 
-    ReosMapPolygonStructured_p( QgsMapCanvas *canvas );
+    ReosMapStructureEnvelop_p( QgsMapCanvas *canvas );
 
-    ReosMapPolygonStructured_p *clone() override;
+    ReosMapStructureEnvelop_p *clone() override;
 
     void translate( const QPointF &translation ) override;
     QPointF mapPos() const override;
@@ -199,7 +199,7 @@ class ReosMapPolygonStructured_p: public ReosMapPolygonBase_p
     void setStructrure( ReosPolylinesStructure *structure );
 
   private:
-    ReosMapPolygonStructured_p( ReosMapPolygonStructured_p *other );
+    ReosMapStructureEnvelop_p( ReosMapStructureEnvelop_p *other );
     ReosPolylinesStructure *mStructure = nullptr;
 };
 

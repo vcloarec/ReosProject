@@ -71,17 +71,16 @@ class ReosHydraulicElementPropertiesWidget : public ReosStackedPageWidget
     Q_OBJECT
 
   public:
-    explicit ReosHydraulicElementPropertiesWidget( ReosWatershedModule *watershedModule, const ReosGuiContext &guiContext = ReosGuiContext() );
+    explicit ReosHydraulicElementPropertiesWidget( ReosWatershedModule *watershedModule, const ReosGuiContext &guiContext );
     ~ReosHydraulicElementPropertiesWidget();
 
   public slots:
-    void setCurrentElement( ReosHydraulicNetworkElement *element );
+    void setCurrentElement( ReosHydraulicNetworkElement *element, const ReosGuiContext &guiContext );
 
   private slots:
     void updateElementCalculation();
 
   private:
-    ReosGuiContext mGuiContext;
     ReosHydraulicNetworkElement *mCurrentElement = nullptr;
     QComboBox *mMeteoModelCombo = nullptr;
     ReosHydraulicElementWidget *mCurrentWidget = nullptr;
@@ -103,7 +102,7 @@ class ReosHydraulicElementPropertiesActionWidget : public ReosActionStackedWidge
     ReosHydraulicElementPropertiesActionWidget( ReosWatershedModule *watershedModule, const ReosGuiContext &guiContext );
 
   public slots:
-    void setCurrentElement( ReosHydraulicNetworkElement *element );
+    void setCurrentElement( ReosHydraulicNetworkElement *element, const ReosGuiContext &guiContext );
 
   private:
     ReosHydraulicElementPropertiesWidget *mainPage = nullptr;

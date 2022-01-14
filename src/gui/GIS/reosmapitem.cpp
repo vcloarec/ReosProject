@@ -17,6 +17,7 @@ email                : vcloarec at gmail dot com
 #include "reosmap.h"
 #include <qgsmapcanvas.h>
 #include "reosmappolygon_p.h"
+#include "reosmappolylinesstructure_p.h"
 #include "reosgisengine.h"
 
 ReosMapItem::ReosMapItem() {}
@@ -97,8 +98,8 @@ ReosMapPolygon::ReosMapPolygon( ReosMap *map, ReosPolylinesStructure *structure 
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
   {
-    d_ = new ReosMapPolygonStructured_p( canvas ); //the owner ship of d pointer is takeny the scene of the map canvas
-    static_cast<ReosMapPolygonStructured_p *>( d_ )->setStructrure( structure );
+    d_ = new ReosMapStructureEnvelop_p( canvas ); //the owner ship of d pointer is takeny the scene of the map canvas
+    static_cast<ReosMapStructureEnvelop_p *>( d_ )->setStructrure( structure );
     d_->base = this;
   }
 }
@@ -555,4 +556,21 @@ ReosMapMarkerSvg::~ReosMapMarkerSvg()
 {
   if ( isMapExist() && d_ )
     delete d_; //deleting this will remove it from the map
+}
+
+ReosMapPolylineStructure::ReosMapPolylineStructure( ReosMap *map, ReosPolylinesStructure *structure ): ReosMapItem( map )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  if ( canvas )
+  {
+    d_ = new ReosMapPolylinesStructure_p( canvas ); //the owner ship of d pointer is takeny the scene of the map canvas
+    static_cast<ReosMapPolylinesStructure_p *>( d_ )->setStructure( structure );
+    d_->base = this;
+  }
+}
+
+ReosMapPolylineStructure::~ReosMapPolylineStructure()
+{
+  if ( isMapExist() && d_ )
+    delete d_;
 }

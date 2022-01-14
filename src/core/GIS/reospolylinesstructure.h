@@ -21,10 +21,17 @@
 #include <memory>
 
 class ReosSpatialPosition;
+class ReosMapExtent;
+
+
+class ReosGeometryStructureVertex
+{
+};
 
 class ReosGeometryStructure
 {
   public:
+    virtual ~ReosGeometryStructure() = default;
     virtual QObject *data() = 0;
 };
 
@@ -32,6 +39,14 @@ class ReosGeometryStructure
 class ReosPolylinesStructure : public ReosGeometryStructure
 {
   public:
+
+    struct VertexHandler
+    {
+
+      private:
+        quint64 id;
+        friend class ReosPolylinesStructure;
+    };
 
     virtual ReosPolylinesStructure *clone() = 0;
 
@@ -41,23 +56,38 @@ class ReosPolylinesStructure : public ReosGeometryStructure
     //! Returns the polyline with identifier \a id
     virtual QPolygonF polyline( const QString &destinationCrs = QString(), const QString &id = QString() ) const = 0;
 
+    //! Sets the boundary of the structure
+    virtual void setBoundary( const QPolygonF &polyline, const QString &sourceCrs = QString() ) = 0;
+
+    //! Returns the boundary of the structure in \a destinationCrs cordinate system
+    virtual QPolygonF boundary( const QString &destinationCrs ) const = 0;
+
     //! Creates and returns polylines structure with specified \a crs
     static std::unique_ptr<ReosPolylinesStructure> createPolylineStructure( const QString &crs );
 
     //! Removes all the entities in the structure
     virtual void removeAll() = 0;
 
-    //! Translates the polyline with \a id (first one if void string)
+    //! Translates the polyline with \a id (boundary one if void string)
     virtual void translate( const QPointF &translation, const QString &crs, const QString &id = QString() ) = 0;
 
-    //! Moves vertex at positon \a index in th polyline with \a id (first one if void string) with the new positon \a newPosition
+    //! Moves vertex at positon \a index in th polyline with \a id (boundary one if void string) with the new positon \a newPosition
     virtual void moveVertex( int index, const ReosSpatialPosition &newPosition, const QString &id = QString() ) = 0;
 
-    //! Inserts vertex at positon \a index in th polyline with \a id (first one if void string) with the positon \a newPosition
+    //! Inserts vertex at positon \a index in th polyline with \a id (boundary one if void string) with the positon \a newPosition
     virtual void insertVertex( int index, const ReosSpatialPosition &point, const QString &id = QString() ) = 0;
 
-    //! Removes vertex at positon \a index in th polyline with \a id (first one if void string)
+    //! Removes vertex at positon \a index in th polyline with \a id (boundary one if void string)
     virtual void removeVertex( int index, const QString &id = QString() ) = 0 ;
+
+    //! Returns the extent of the structure in \a crs coordinate system
+    virtual ReosMapExtent extent( const QString &crs ) const = 0;
+
+    //! Search the closest vertex of the center of \a zone and in this zone, returns a pointer to the vertex
+    virtual ReosGeometryStructureVertex *searchForVertex( const ReosMapExtent &zone ) const = 0;
+
+    virtual QPointF vertexPosition( ReosGeometryStructureVertex *vertex, const QString &crs ) const = 0;
+
 };
 
 #endif // REOSPOLYLINESSTRUCTURES_H

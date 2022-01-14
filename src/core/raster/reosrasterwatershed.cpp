@@ -481,7 +481,6 @@ void ReosRasterAverageValueInPolygon::start()
     lastDir = currentDir;
   }
 
-  rasterizedPolygon.createTiffFile( "/home/vincent/rasterized.tif", GDT_Byte, mRasterExtent );
 }
 
 float ReosRasterAverageValueInPolygon::result() const

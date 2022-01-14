@@ -191,7 +191,14 @@ class ReosMapPolyline: public ReosMapItem
     void setMarkerArrow( bool b );
 
     void setExtremityDistance( double d );
+};
 
+class ReosMapPolylineStructure : public ReosMapItem
+{
+  public:
+    ReosMapPolylineStructure(): ReosMapItem() {}
+    ReosMapPolylineStructure( ReosMap *map, ReosPolylinesStructure *structure );
+    ~ReosMapPolylineStructure();
 };
 
 

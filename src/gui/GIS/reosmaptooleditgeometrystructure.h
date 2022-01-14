@@ -1,8 +1,8 @@
 /***************************************************************************
-  reoshydrauliquestructure2d.cpp - ReosHydrauliqueStructure2D
+  reosmaptooleditgeometrystructure.h - ReosMapToolEditGeometryStructure
 
  ---------------------
- begin                : 9.1.2022
+ begin                : 12.1.2022
  copyright            : (C) 2022 by Vincent Cloarec
  email                : vcloarec at gmail dot com
  ***************************************************************************
@@ -13,16 +13,25 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include "reoshydrauliquestructure2d.h"
+#ifndef REOSMAPTOOLEDITGEOMETRYSTRUCTURE_H
+#define REOSMAPTOOLEDITGEOMETRYSTRUCTURE_H
 
-ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, ReosHydraulicNetwork *parent )
-  : ReosHydraulicNetworkElement( parent )
-  , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( crs ) )
-{
-  mPolylinesStructures->addPolylines( domain, crs, QStringLiteral( "domain" ) );
-}
+#include "reosmaptool.h"
 
-QPolygonF ReosHydraulicStructure2D::domain() const
+class ReosMapToolEditPolylineStructure_p;
+class ReosGeometryStructure;
+
+class ReosMapToolEditGeometryStructure : public ReosMapTool
 {
-  return mPolylinesStructures->polyline( QString(), QStringLiteral( "domain" ) );
-}
+  public:
+
+    ReosMapToolEditGeometryStructure( QObject *parent, ReosMap *map );
+    ~ReosMapToolEditGeometryStructure();
+    void setStructure( ReosPolylinesStructure *structure );
+
+  private:
+    QPointer<ReosMapToolEditPolylineStructure_p> d;
+    ReosMapTool_p *tool_p() const;
+};
+
+#endif // REOSMAPTOOLEDITGEOMETRYSTRUCTURE_H
