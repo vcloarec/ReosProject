@@ -147,6 +147,14 @@ SET(IMAGE_RCCS ${CMAKE_SOURCE_DIR}/images/images.qrc
 
 SET(CREDITS_RCCS ${CMAKE_SOURCE_DIR}/credits/credits.qrc)
 
+set(REOS_CORE_SOURCES ${REOS_CORE_SOURCES}
+  ${CMAKE_SOURCE_DIR}/external/poly2tri/common/shapes.cc
+  ${CMAKE_SOURCE_DIR}/external/poly2tri/sweep/advancing_front.cc
+  ${CMAKE_SOURCE_DIR}/external/poly2tri/sweep/cdt.cc
+  ${CMAKE_SOURCE_DIR}/external/poly2tri/sweep/sweep_context.cc
+  ${CMAKE_SOURCE_DIR}/external/poly2tri/sweep/sweep.cc
+)
+
 SET(REOS_CORE_LIBS ${REOS_CORE_LIBS} reosCore)
 ADD_LIBRARY(reosCore SHARED
     ${REOS_CORE_SOURCES}
@@ -221,6 +229,9 @@ INCLUDE_DIRECTORIES(
 
     ${QGIS_INCLUDE_DIR}
 )
+
+
+include_directories(${CMAKE_SOURCE_DIR}/external/poly2tri)
 
 SET(QGIS_PLUGINS_DIR "${QGIS_LIB_PATH}/qgis/plugins/")
 ADD_DEFINITIONS(-DQGIS_PLUGINS="${QGIS_PLUGINS_DIR}")
