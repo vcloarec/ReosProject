@@ -21,8 +21,11 @@ SET(REOS_CORE_SOURCES
   GIS/reosmapextent.cpp
   GIS/reosexporttovectorfile.cpp
   GIS/reospolylinesstructure.cpp
+  GIS/reosmesh.cpp
   GIS/private/reosdigitalelevationmodel_p.cpp
   GIS/private/reospolylinesstructure_p.cpp
+  GIS/private/reosmesh_p.cpp
+  GIS/private/reosmeshdataprovider_p.cpp
 
   process/reosprocess.cpp
 
@@ -67,6 +70,8 @@ SET(REOS_CORE_SOURCES
   hydraulicNetwork/reoshydraulicnode.cpp
   hydraulicNetwork/reoshydraulicnetwork.cpp
   hydraulicNetwork/reoshydraulicstructure2d.cpp
+
+  mesh/reosmeshgenerator.cpp
 )
 
 SET(REOS_CORE_HEADERS
@@ -88,6 +93,7 @@ SET(REOS_CORE_HEADERS
     GIS/reosmapextent.h
     GIS/reosexporttovectorfile.h
     GIS/reospolylinesstructure.h
+    GIS/reosmesh.h
 
     process/reosprocess.h
 
@@ -133,11 +139,15 @@ SET(REOS_CORE_HEADERS
     hydraulicNetwork/reoshydraulicnetwork.h
     hydraulicNetwork/reoshydraulicstructure2d.h
 
+    mesh/reosmeshgenerator.h
+
 )
 
 SET(REOS_CORE_HEADERS_PRIVATE
     GIS/private/reosdigitalelevationmodel_p.h
     GIS/private/reospolylinesstructure_p.h
+    GIS/private/reosmesh_p.h
+    GIS/private/reosmeshdataprovider_p.cpp
     )
 
 SET(IMAGE_RCCS ${CMAKE_SOURCE_DIR}/images/images.qrc
@@ -226,6 +236,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/watershed
     ${CMAKE_SOURCE_DIR}/src/core/hydrograph
     ${CMAKE_SOURCE_DIR}/src/core/hydraulicNetwork
+    ${CMAKE_SOURCE_DIR}/src/core/mesh
 
     ${QGIS_INCLUDE_DIR}
 )

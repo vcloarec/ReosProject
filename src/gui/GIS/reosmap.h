@@ -73,6 +73,7 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
 
   private slots:
     void setCrs( const QString &crs );
+    void drawExtraRendering( QPainter *painter );
 
   private:
     ReosGisEngine *mEngine;

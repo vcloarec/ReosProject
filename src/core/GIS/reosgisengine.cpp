@@ -16,6 +16,7 @@ email                : vcloarec at gmail dot com
 #include "reosgisengine.h"
 #include "reosdigitalelevationmodel.h"
 #include "reosdigitalelevationmodel_p.h"
+#include "reosmeshdataprovider_p.h"
 
 #include <QStandardPaths>
 #include <qmath.h>
@@ -129,6 +130,9 @@ void ReosGisEngine::initGisEngine()
   QgsNetworkAccessManager::instance();
 
   mAbstractLayerTreeModel = new QgsLayerTreeModel( QgsProject::instance()->layerTreeRoot(), this );
+
+  //! Add reos data provider to Qgis instances
+  QgsProviderRegistry::instance()->registerProvider( new ReosMeshProviderMetaData() );
 }
 
 QString ReosGisEngine::addVectorLayer( const QString &uri, const QString &name )
