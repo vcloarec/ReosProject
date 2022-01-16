@@ -72,6 +72,7 @@ SET(REOS_CORE_SOURCES
   hydraulicNetwork/reoshydraulicstructure2d.cpp
 
   mesh/reosmeshgenerator.cpp
+  mesh/reosgmshgenerator.cpp
 )
 
 SET(REOS_CORE_HEADERS
@@ -140,7 +141,7 @@ SET(REOS_CORE_HEADERS
     hydraulicNetwork/reoshydraulicstructure2d.h
 
     mesh/reosmeshgenerator.h
-
+    mesh/reosgmshgenerator.h
 )
 
 SET(REOS_CORE_HEADERS_PRIVATE
@@ -210,6 +211,7 @@ TARGET_LINK_LIBRARIES(reosCore PUBLIC
         ${Qt5Sql_LIBRARIES}
         ${Qt5Concurrent_LIBRARIES}
         ${QGIS_LIBS}
+        ${GMSH_LIB}
 )
 
 
@@ -239,6 +241,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/mesh
 
     ${QGIS_INCLUDE_DIR}
+    ${GMSH_INCLUDE_DIR}
 )
 
 

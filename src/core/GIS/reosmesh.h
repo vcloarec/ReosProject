@@ -46,8 +46,8 @@ class ReosMesh: public ReosRenderedObject
     //! Returns face count
     virtual int faceCount() const = 0;
 
-    //! Clears ans generates a new mesh with \a generator
-    virtual void generateMesh( const ReosMeshGenerator &generator ) = 0;
+    //! Clears ans generates a new mesh with \a generator, if fails returns false
+    virtual bool generateMesh( const ReosMeshGenerator &generator ) = 0;
 
     virtual void addVertex( const QPointF pt, double z, double tolerance ) = 0;
 

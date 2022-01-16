@@ -16,6 +16,7 @@ email                : vcloarec at gmail dot com
 #include <QObject>
 
 #include "reoshydraulicstructure2d.h"
+#include "reosgisengine.h"
 
 class ReoHydraulicStructure2DTest: public QObject
 {
@@ -27,7 +28,7 @@ class ReoHydraulicStructure2DTest: public QObject
   private:
     ReosHydraulicNetwork *mNetwork = nullptr;
     ReosModule *mRootModule = nullptr;
-
+    ReosGisEngine engine;
 };
 
 void ReoHydraulicStructure2DTest::init()

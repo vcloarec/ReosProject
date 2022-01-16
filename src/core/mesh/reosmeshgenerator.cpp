@@ -16,10 +16,14 @@
 #include "reosmeshgenerator.h"
 
 #include<QHash>
+#include<QDebug>
+
 #include "poly2tri.h"
 #include "memory"
 
-ReosMeshFrameData ReosMeshGeneratorPoly2Tri::generatedMesh() const
+#include "reospolylinesstructure.h"
+
+ReosMeshFrameData ReosMeshGeneratorPoly2Tri::generatedMesh( bool *ok ) const
 {
   std::vector<p2t::Point *> polyDomain;
 
@@ -39,7 +43,7 @@ ReosMeshFrameData ReosMeshGeneratorPoly2Tri::generatedMesh() const
       mapPoly2TriPointToVertex.insert( polyDomain[i], i );
 
       ret.vertexCoordinates[i * 3] = pt.x();
-      ret.vertexCoordinates[i * 3 + 1] = pt.x();
+      ret.vertexCoordinates[i * 3 + 1] = pt.y();
       ret.vertexCoordinates[i * 3 + 2] = 0;
     }
     std::unique_ptr<p2t::CDT> cdt( new p2t::CDT( polyDomain ) );
@@ -69,12 +73,14 @@ ReosMeshFrameData ReosMeshGeneratorPoly2Tri::generatedMesh() const
     }
 
     qDeleteAll( polyDomain );
-
+    *ok = true;
     return ret;
   }
   catch ( ... )
   {
+    qDebug() << "Mesh generator poly2tri: Unable to triangulate";
     qDeleteAll( polyDomain );
+    *ok = false;
     return ReosMeshFrameData();
   }
 }
@@ -82,4 +88,9 @@ ReosMeshFrameData ReosMeshGeneratorPoly2Tri::generatedMesh() const
 void ReosMeshGeneratorPoly2Tri::setDomain( const QPolygonF &domain )
 {
   mDomain = domain;
+}
+
+void ReosMeshGeneratorPoly2Tri::setGeometryStructure( ReosPolylinesStructure *structure, const QString &crs )
+{
+  mDomain = structure->boundary( crs );
 }

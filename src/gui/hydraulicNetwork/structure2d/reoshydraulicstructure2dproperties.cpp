@@ -22,6 +22,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   : ReosHydraulicElementWidget( context.parent() )
   , ui( new Ui::ReosHydraulicStructure2DProperties )
   , mStructure2D( structure2D )
+  , mMap( context.map() )
 {
   ui->setupUi( this );
 
@@ -29,10 +30,13 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   {
     emit stackedPageWidgetOpened( new ReosEditStructure2DWidget( mStructure2D, context ) );
   } );
+
+  mMap->addExtraRenderedObject( mStructure2D->mesh() );
 }
 
 ReosHydraulicStructure2DProperties::~ReosHydraulicStructure2DProperties()
 {
+  mMap->removeExtraRenderedObject( mStructure2D->mesh() );
   delete ui;
 }
 

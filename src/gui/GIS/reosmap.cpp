@@ -29,6 +29,8 @@ email                : vcloarec at gmail dot com
 #include "reosparameter.h"
 #include "reospolylinesstructure.h"
 
+#include "reosmesh.h"
+
 
 ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   ReosModule( gisEngine )
@@ -108,7 +110,6 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
     canvas->zoomByFactor( 2 );
   } );
 
-
   connect( mActionPreviousZoom, &QAction::triggered, canvas, &QgsMapCanvas::zoomToPreviousExtent );
   connect( mActionNextZoom, &QAction::triggered, canvas, &QgsMapCanvas::zoomToNextExtent );
   connect( canvas, &QgsMapCanvas::zoomLastStatusChanged, mActionPreviousZoom, &QAction::setEnabled );
@@ -130,6 +131,8 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   mTemporalDockWidget->hide();
 
   mEnableSnappingAction->setCheckable( true );
+
+  connect( canvas, &QgsMapCanvas::renderComplete, this, &ReosMap::drawExtraRendering );
 }
 
 ReosMap::~ReosMap()
@@ -246,11 +249,29 @@ void ReosMap::removeSnappableStructure( ReosGeometryStructure *structure )
     canvas->snappingUtils()->removeExtraSnapLayer( vl );
 }
 
+void ReosMap::addExtraRenderedObject( ReosRenderedObject *obj )
+{
+  mExtraRenderedObjects.append( obj );
+  qobject_cast<QgsMapCanvas *>( mCanvas )->refresh();
+}
+
+void ReosMap::removeExtraRenderedObject( ReosRenderedObject *obj )
+{
+  mExtraRenderedObjects.removeOne( obj );
+  qobject_cast<QgsMapCanvas *>( mCanvas )->refresh();
+}
+
 void ReosMap::setCrs( const QString &crsWkt )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
   canvas->setDestinationCrs( QgsCoordinateReferenceSystem::fromWkt( crsWkt ) );
   emit crsChanged( crsWkt );
+}
+
+void ReosMap::drawExtraRendering( QPainter *painter )
+{
+  for ( ReosRenderedObject *obj : std::as_const( mExtraRenderedObjects ) )
+    obj->render( mCanvas, painter );
 }
 
 ReosMapCursorPosition::ReosMapCursorPosition( ReosMap *map, QWidget *parent ):

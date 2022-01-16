@@ -30,6 +30,8 @@ SET(QGIS_GUI_LIB CACHE FILEPATH "Path to QGIS gui lib")
 SET(QGIS_ANALYSIS_LIB CACHE FILEPATH "Path to QGIS analysis lib")
 SET(QGIS_LIBS ${QGIS_CORE_LIB} ${QGIS_GUI_LIB} ${QGIS_ANALYSIS_LIB})
 SET(QSCISCINTILLA_INCLUDE_DIR CACHE PATH "Path to Qsciscintilla include dir")
+SET(GMSH_INCLUDE_DIR CACHE PATH "Path to the include dir of gmsh")
+SET(GMSH_LIB CACHE FILEPATH "Path to the lib file of gmsh")
 
 FIND_PACKAGE(Qt5 COMPONENTS Core Gui Widgets Network Xml Svg Concurrent Test UiTools Sql REQUIRED)
 

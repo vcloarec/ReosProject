@@ -19,6 +19,7 @@
 #include <qgsmesheditor.h>
 #include <qgsmeshlayerrenderer.h>
 #include <qgsmapcanvas.h>
+#include <qgsrendercontext.h>
 
 #include "reosmeshdataprovider_p.h"
 
@@ -28,11 +29,9 @@ ReosMesh_p::ReosMesh_p()
   mMeshLayer->setCrs( QgsProject::instance()->crs() );
 
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
-  QgsMeshRendererMeshSettings meshSettings = settings.triangularMeshSettings();
+  QgsMeshRendererMeshSettings meshSettings = settings.nativeMeshSettings();
   meshSettings.setEnabled( true );
-  meshSettings.setColor( Qt::red );
-  meshSettings.setLineWidth( 2 );
-  settings.setTriangularMeshSettings( meshSettings );
+  settings.setNativeMeshSettings( meshSettings );
   mMeshLayer->setRendererSettings( settings );
 
   QgsCoordinateTransform transform( QgsProject::instance()->crs(), QgsProject::instance()->crs(), QgsProject::instance() );
@@ -67,7 +66,6 @@ void ReosMesh_p::render( QGraphicsView *canvas, QPainter *painter )
   QgsMapCanvas *mapCanvas = qobject_cast<QgsMapCanvas *>( canvas );
   if ( mapCanvas )
   {
-    qDebug() << "************************ render mesh now !!!";
     QgsRenderContext renderContext = QgsRenderContext::fromMapSettings( mapCanvas->mapSettings() );
     renderContext.setPainter( painter );
     std::unique_ptr<QgsMapLayerRenderer> renderer;
@@ -76,9 +74,12 @@ void ReosMesh_p::render( QGraphicsView *canvas, QPainter *painter )
   }
 }
 
-void ReosMesh_p::generateMesh( const ReosMeshGenerator &generator )
+bool ReosMesh_p::generateMesh( const ReosMeshGenerator &generator )
 {
-  meshProvider()->generateMesh( generator );
+  bool ok = meshProvider()->generateMesh( generator );
+  if ( ok )
+    mMeshLayer->reload();
+  return ok;
 }
 
 ReosMeshDataProvider_p *ReosMesh_p::meshProvider()

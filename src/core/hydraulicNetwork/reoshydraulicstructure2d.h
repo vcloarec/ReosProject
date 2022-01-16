@@ -18,6 +18,7 @@
 
 #include "reoshydraulicnetwork.h"
 #include "reospolylinesstructure.h"
+#include "reosmesh.h"
 
 class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
 {
@@ -31,10 +32,10 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     //! Returns the domain polygon
     QPolygonF domain( const QString &crs ) const;
 
-    ReosPolylinesStructure *geometryStructure() const
-    {
-      return mPolylinesStructures.get();
-    }
+    ReosPolylinesStructure *geometryStructure() const;
+    ReosMesh *mesh() const;
+
+    bool generateMesh();
 
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) {}
@@ -44,6 +45,7 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
 
   private:
     std::unique_ptr<ReosPolylinesStructure> mPolylinesStructures;
+    std::unique_ptr<ReosMesh> mMesh;
 };
 
 #endif // REOSHYDRAULICSTRUCTURE2D_H

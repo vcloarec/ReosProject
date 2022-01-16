@@ -108,7 +108,12 @@ void ReosMapToolDrawPolyline_p::canvasReleaseEvent( QgsMapMouseEvent *e )
   {
     QPolygonF polyline = mRubberBand->asGeometry().asQPolygonF();
     if ( !polyline.isEmpty() )
+    {
       polyline.removeLast();
+      if ( mClosed && !polyline.isEmpty() )
+        polyline.removeLast();
+    }
+
     emit polylineDrawn( polyline );
     mRubberBand->reset( mClosed ? QgsWkbTypes::PolygonGeometry : QgsWkbTypes::LineGeometry );
   }

@@ -18,15 +18,37 @@ email                : vcloarec at gmail dot com
 #include "reosgisengine.h"
 #include "reosmesh.h"
 #include "reosmeshgenerator.h"
+#include "reospolylinesstructure.h"
+#include "reosgmshgenerator.h"
 
 class ReosMeshTest: public QObject
 {
     Q_OBJECT
   private slots:
+    void GmshGenerator();
     void memoryMesh();
   private:
 
 };
+
+
+void ReosMeshTest::GmshGenerator()
+{
+  std::unique_ptr<ReosPolylinesStructure> structure =
+    ReosPolylinesStructure::createPolylineStructure( QString() );
+
+  QPolygonF domain;
+  domain << QPointF( 0, 0 ) << QPointF( 0, 20 ) << QPointF( 20, 20 ) << QPointF( 20, 0 );
+
+  structure->setBoundary( domain );
+
+  ReosGmshGenerator generator;
+  generator.setGeometryStructure( structure.get(), QString() );
+
+  bool ok;
+  ReosMeshFrameData frameData = generator.generatedMesh( &ok );
+  QVERIFY( ok );
+}
 
 void ReosMeshTest::memoryMesh()
 {
@@ -43,7 +65,7 @@ void ReosMeshTest::memoryMesh()
   domain << QPointF( 0, 0 ) << QPointF( 0, 20 ) << QPointF( 20, 20 ) << QPointF( 20, 0 );
   generator.setDomain( domain );
 
-  mesh->generateMesh( generator );
+  QVERIFY( mesh->generateMesh( generator ) );
 
   QCOMPARE( mesh->vertexCount(), 4 );
   QCOMPARE( mesh->faceCount(), 2 );

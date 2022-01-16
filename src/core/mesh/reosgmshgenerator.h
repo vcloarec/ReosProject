@@ -1,5 +1,5 @@
 /***************************************************************************
-  reosmeshgenerator.h - ReosMeshGenerator
+  reosgmshgenerator.h - ReosGmeshGenerator
 
  ---------------------
  begin                : 14.1.2022
@@ -13,50 +13,18 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#ifndef REOSMESHGENERATOR_H
-#define REOSMESHGENERATOR_H
+#ifndef REOSGMSHGENERATOR_H
+#define REOSGMSHGENERATOR_H
 
-#include <QVector>
-#include <QPolygonF>
+#include "reosmeshgenerator.h"
 
-class ReosPolylinesStructure;
-
-//! Structure that contains mesh frame data
-struct ReosMeshFrameData
-{
-  QVector<double> vertexCoordinates;
-  QVector<QVector<int>> facesIndexes;
-};
-
-/**
- * Abstract class used to generate mesh frame
- */
-class ReosMeshGenerator
-{
-  public:
-    virtual ReosMeshFrameData generatedMesh( bool *ok ) const = 0;
-
-    virtual void setGeometryStructure( ReosPolylinesStructure *structure, const QString &crs ) = 0;
-};
-
-
-/**
- * A generator that simply triangulates a domain without internal vertex
- */
-class ReosMeshGeneratorPoly2Tri : public ReosMeshGenerator
+class ReosGmshGenerator : public ReosMeshGenerator
 {
   public:
 
-    virtual ReosMeshFrameData generatedMesh( bool *ok ) const override;
-
-    //! Sets the \a domain to triangulate
-    void setDomain( const QPolygonF &domain );
-
+    ReosMeshFrameData generatedMesh( bool *ok ) const override;
     void setGeometryStructure( ReosPolylinesStructure *structure, const QString &crs ) override;
-
-  private:
-    QPolygonF mDomain;
 };
 
 
-#endif // REOSMESHGENERATOR_H
+#endif // REOSGMSHGENERATOR_H

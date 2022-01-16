@@ -39,7 +39,7 @@ class ReosMesh_p : public ReosMesh
 
     void render( QGraphicsView *canvas, QPainter *painter ) override;
 
-    void generateMesh( const ReosMeshGenerator &generator ) override;
+    bool generateMesh( const ReosMeshGenerator &generator ) override;
 
   private:
 

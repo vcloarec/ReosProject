@@ -31,9 +31,16 @@ void ReosMeshDataProvider_p::populateMesh( QgsMesh *mesh ) const
   *mesh = mCacheMesh;
 }
 
-void ReosMeshDataProvider_p::generateMesh( const ReosMeshGenerator &generator )
+bool ReosMeshDataProvider_p::generateMesh( const ReosMeshGenerator &generator )
 {
-  mCacheMesh = convertFrameFromReos( generator.generatedMesh() );
+  bool ok = true;
+  ReosMeshFrameData data = generator.generatedMesh( &ok );
+  if ( ok )
+  {
+    mCacheMesh = convertFrameFromReos( data );
+    emit dataChanged();
+  }
+  return ok;
 }
 
 QgsMesh ReosMeshDataProvider_p::convertFrameFromReos( const ReosMeshFrameData &reosMesh )
@@ -41,13 +48,12 @@ QgsMesh ReosMeshDataProvider_p::convertFrameFromReos( const ReosMeshFrameData &r
   QgsMesh ret;
 
   ret.vertices.resize( reosMesh.vertexCoordinates.count() / 3 );
-
-  for ( int i = 0; i < ret.vertices.count(); ++i )
-  {
+  for ( int i = 0; i < ret.vertices.size(); ++i )
     ret.vertices[i] = QgsMeshVertex( reosMesh.vertexCoordinates[i * 3],
                                      reosMesh.vertexCoordinates[i * 3 + 1],
                                      reosMesh.vertexCoordinates[i * 3 + 2] );
-  }
+
+  ret.faces.resize( reosMesh.facesIndexes.size() );
 
   ret.faces = reosMesh.facesIndexes;
   return ret;

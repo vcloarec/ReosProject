@@ -33,6 +33,7 @@ class ReosGisEngine;
 class ReosMapTool;
 class ReosMapToolDrawExtent;
 class ReosGeometryStructure;
+class ReosRenderedObject;
 
 class REOSGUI_EXPORT ReosMap: public ReosModule
 {
@@ -64,6 +65,9 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     void addSnappableStructure( ReosGeometryStructure *structure );
     void removeSnappableStructure( ReosGeometryStructure *structure );
 
+    void addExtraRenderedObject( ReosRenderedObject *obj );
+    void removeExtraRenderedObject( ReosRenderedObject *obj );
+
   signals:
     //! emitted when the mouse cursor moves on the map cavans.
     void cursorMoved( const QPointF &point );
@@ -92,6 +96,8 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     QAction *mActionNextZoom = nullptr;
     QAction *mTemporalControllerAction = nullptr;
     QAction *mEnableSnappingAction = nullptr;
+
+    QList<ReosRenderedObject *> mExtraRenderedObjects;
 };
 
 
