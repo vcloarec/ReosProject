@@ -28,16 +28,22 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
 
     void setStructure( ReosPolylinesStructure *structure );
 
-
   protected:
     void canvasMoveEvent( QgsMapMouseEvent *e ) override;
+    void canvasPressEvent( QgsMapMouseEvent *e ) override;
     void canvasReleaseEvent( QgsMapMouseEvent *e ) override;
 
   private:
+    enum State
+    {
+      None,
+      DraggingVertex
+    };
+    State mCurrentState = None;
+
     ReosPolylinesStructure *mStructure;
     QgsVertexMarker *mVertexMarker;
 
-    double mTolerance = 0;
     QString mMapCrs;
     ReosGeometryStructureVertex *mCurrentVertex = nullptr;
 

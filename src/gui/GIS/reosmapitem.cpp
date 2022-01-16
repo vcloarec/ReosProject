@@ -69,6 +69,14 @@ QGraphicsItem *ReosMapItem::graphicItem()
   return d_;
 }
 
+void ReosMapItem::updatePosition()
+{
+  if ( !isMapExist() || !d_ )
+    return;
+
+  d_->updatePosition();
+}
+
 ReosMapPolygon::ReosMapPolygon(): ReosMapItem()
 {}
 

@@ -30,48 +30,98 @@ ReosMapToolEditPolylineStructure_p::ReosMapToolEditPolylineStructure_p( QgsMapCa
   mVertexMarker->setPenWidth( 4 );
   mVertexMarker->setIconType( QgsVertexMarker::ICON_CIRCLE );
 
-  mTolerance = QgsTolerance::vertexSearchRadius( canvas()->mapSettings() );
-
   mMapCrs = mapCrs();
-
 }
 
 void ReosMapToolEditPolylineStructure_p::setStructure( ReosPolylinesStructure *structure )
 {
   mStructure = structure;
+  mMapCrs = mapCrs(); //update the crs if changed
 }
 
 void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
 {
-  if ( mStructure )
+  switch ( mCurrentState )
   {
-    QgsPointXY mapPoint = e->mapPoint();
+    case ReosMapToolEditPolylineStructure_p::None:
+      if ( mStructure )
+      {
+        QgsPointXY mapPoint = e->mapPoint();
+        mCurrentVertex = mStructure->searchForVertex( searchZone( mapPoint ) );
+        if ( mCurrentVertex )
+        {
+          mSnappingIndicator->setMatch( QgsPointLocator::Match() );
+          mVertexMarker->setCenter( mStructure->vertexPosition( mCurrentVertex, mMapCrs ) );
+          mVertexMarker->setVisible( true );
+          return;
+        }
+        else
+          mVertexMarker->setVisible( false );
+      }
+      break;
+    case ReosMapToolEditPolylineStructure_p::DraggingVertex:
+      mVertexMarker->setCenter( e->mapPoint() );
+      break;
+  }
 
-    mCurrentVertex = mStructure->searchForVertex( searchZone( mapPoint ) );
 
-    if ( mCurrentVertex )
-    {
-      mSnappingIndicator->setMatch( QgsPointLocator::Match() );
-      mVertexMarker->setCenter( mStructure->vertexPosition( mCurrentVertex, mapCrs() ) );
-      mVertexMarker->setVisible( true );
-      return;
-    }
-    else
-    {
-      mVertexMarker->setVisible( false );
-      ReosMapTool_p::canvasMoveEvent( e );
-    }
+  ReosMapTool_p::canvasMoveEvent( e );
+}
+
+void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
+{
+  switch ( mCurrentState )
+  {
+    case ReosMapToolEditPolylineStructure_p::None:
+//      if ( mCurrentVertex )
+//      {
+//        if ( e->button() == Qt::LeftButton )
+//        {
+//          mCurrentState = DraggingVertex;
+//          qDebug() << "start drag vertex";
+//        }
+//      }
+      break;
+    case ReosMapToolEditPolylineStructure_p::DraggingVertex:
+      break;
   }
 }
 
 void ReosMapToolEditPolylineStructure_p::canvasReleaseEvent( QgsMapMouseEvent *e )
 {
-
+  switch ( mCurrentState )
+  {
+    case ReosMapToolEditPolylineStructure_p::None:
+      if ( mCurrentVertex )
+      {
+        if ( e->button() == Qt::LeftButton )
+        {
+          mCurrentState = DraggingVertex;
+        }
+      }
+      break;
+    case ReosMapToolEditPolylineStructure_p::DraggingVertex:
+      if ( mCurrentVertex )
+      {
+        if ( e->button() == Qt::LeftButton )
+        {
+          mCurrentState = None;
+          mVertexMarker->setVisible( false );
+          mStructure->moveVertex( mCurrentVertex, ReosSpatialPosition( e->mapPoint().toQPointF(), mMapCrs ) );
+          canvas()->refresh();
+        }
+      }
+      break;
+  }
 }
 
 ReosMapExtent ReosMapToolEditPolylineStructure_p::searchZone( const QgsPointXY &point ) const
 {
-  ReosMapExtent zone( point.x() - mTolerance, point.y() - mTolerance, point.x() + mTolerance, point.y() + mTolerance );
+  const QgsSnappingConfig &snapConfig = QgsProject::instance()->snappingConfig();
+  double tolerance = QgsTolerance::toleranceInProjectUnits( snapConfig.tolerance(),
+                     nullptr, canvas()->mapSettings(), snapConfig.units() );
+
+  ReosMapExtent zone( point.x() - tolerance, point.y() - tolerance, point.x() + tolerance, point.y() + tolerance );
   zone.setCrs( mMapCrs );
 
   return zone;

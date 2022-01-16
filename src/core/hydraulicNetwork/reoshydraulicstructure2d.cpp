@@ -15,7 +15,7 @@
  ***************************************************************************/
 #include "reoshydraulicstructure2d.h"
 #include "reosmeshgenerator.h"
-#include "reosgmeshgenerator.h"
+#include "reosgmshgenerator.h"
 
 ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, ReosHydraulicNetwork *parent )
   : ReosHydraulicNetworkElement( parent )
@@ -23,6 +23,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, con
   , mMesh( ReosMesh::createMemoryMesh() )
 {
   mPolylinesStructures->setBoundary( domain, crs );
+  mPolylinesStructures->undoStack()->clear();
   generateMesh();
 }
 

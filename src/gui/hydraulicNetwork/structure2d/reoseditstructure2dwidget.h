@@ -22,6 +22,7 @@
 #include "reosguicontext.h"
 #include "reosmapitem.h"
 
+class QUndoStack;
 class ReosMapToolEditGeometryStructure;
 class ReosHydraulicStructure2D;
 
@@ -45,8 +46,11 @@ class ReosEditStructure2DWidget : public ReosStackedPageWidget
     ReosMapToolEditGeometryStructure *mMapToolEditLine = nullptr;
 
     ReosMapPolylineStructure mMapStructureItem;
-
     ReosMapItem *mInitialMapStructureItem = nullptr;
+
+    QAction *mActionUndo = nullptr;
+    QAction *mActionRedo = nullptr;
+    QUndoStack *mUndoStack = nullptr;
 
 };
 

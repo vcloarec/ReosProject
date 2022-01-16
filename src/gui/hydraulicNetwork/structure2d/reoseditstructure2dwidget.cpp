@@ -18,6 +18,7 @@
 
 #include <QToolBar>
 #include <QPushButton>
+#include <QDebug>
 
 #include "reosmaptooleditgeometrystructure.h"
 #include "reoshydraulicstructure2d.h"
@@ -43,9 +44,23 @@ ReosEditStructure2DWidget::ReosEditStructure2DWidget( ReosHydraulicStructure2D *
   mMapToolEditLine->setAction( mActionEditLine );
   mMapToolEditLine->setStructure( structure2D->geometryStructure() );
 
+  connect( structure2D->geometryStructure(), &ReosDataObject::dataChanged, structure2D, [this, structure2D, context]
+  {
+    structure2D->generateMesh();
+    mMapStructureItem.updatePosition();
+    mInitialMapStructureItem->updatePosition();
+
+    context.map()->refreshCanvas();
+  } );
+
   mInitialMapStructureItem = context.mapItems( ReosHydraulicStructure2D::staticType() );
   if ( mInitialMapStructureItem )
     mInitialMapStructureItem->setVisible( false );
+
+  mUndoStack = structure2D->geometryStructure()->undoStack();
+  toolBar->addAction( mUndoStack->createUndoAction( this ) );
+  toolBar->addAction( mUndoStack->createRedoAction( this ) );
+
 }
 
 ReosEditStructure2DWidget::~ReosEditStructure2DWidget()

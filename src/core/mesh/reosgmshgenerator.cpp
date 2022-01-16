@@ -36,17 +36,7 @@ ReosMeshFrameData ReosGmshGenerator::generatedMesh( bool *ok ) const
   auto meshSizeCallback = []( int dim, int tag, double x, double y, double z,
                               double lc )
   {
-    if ( dim == 1 || dim == 0 )
-      return lc;
-
-
-    if ( dim == 2 && tag == 1 )
-      return 10.0;
-
-    if ( dim == 2 && tag == 2 )
-      return 5.0;
-
-    return std::min( lc, 1.0 );
+    return lc;
   };
 
   gmsh::model::mesh::setSizeCallback( meshSizeCallback );
@@ -121,28 +111,15 @@ void ReosGmshGenerator::setGeometryStructure( ReosPolylinesStructure *structure,
   }
 
   std::vector<int> surface1;
-  for ( int i = 0; i < boundary.count() / 2 ; ++i )
+  for ( int i = 0; i < boundary.count() ; ++i )
   {
     qDebug() << "line " << i + 1 << ( i + 1 ) % boundary.count() + 1;
     gmsh::model::geo::addLine( i + 1, ( i + 1 ) % boundary.count() + 1, i + 1 );
     surface1.push_back( i + 1 );
   }
-  gmsh::model::geo::addLine( boundary.count() / 2 + 1, 1, boundary.count() + 1 );
-  surface1.push_back( boundary.count() + 1 );
-
-  std::vector<int> surface2;
-  for ( int i =  boundary.count() / 2; i < boundary.count(); ++i )
-  {
-    qDebug() << "line " << i + 1 << ( i + 1 ) % boundary.count() + 1;
-    gmsh::model::geo::addLine( i + 1, ( i + 1 ) % boundary.count() + 1, i + 1 );
-    surface2.push_back( i + 1 );
-  }
-  surface2.push_back( -( boundary.count() + 1 ) );
 
   gmsh::model::geo::addCurveLoop( surface1, 1 );
-  gmsh::model::geo::addCurveLoop( surface2, 2 );
   gmsh::model::geo::addPlaneSurface( {1}, 1 );
-  gmsh::model::geo::addPlaneSurface( {2}, 2 );
 
   gmsh::model::geo::synchronize();
 

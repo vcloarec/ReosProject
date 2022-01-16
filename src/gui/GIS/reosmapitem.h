@@ -67,6 +67,8 @@ class REOSGUI_EXPORT ReosMapItem
 
     QGraphicsItem *graphicItem();
 
+    void updatePosition();
+
   protected:
     bool isMapExist() const;
     QPointer<ReosMap> mMap = nullptr;

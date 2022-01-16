@@ -18,17 +18,21 @@
 
 #include <QPolygonF>
 #include <QObject>
+
 #include <memory>
+
+#include "reosdataobject.h"
 
 class ReosSpatialPosition;
 class ReosMapExtent;
+class QUndoStack;
 
 
 class ReosGeometryStructureVertex
 {
 };
 
-class ReosGeometryStructure
+class ReosGeometryStructure : public ReosDataObject
 {
   public:
     virtual ~ReosGeometryStructure() = default;
@@ -38,8 +42,8 @@ class ReosGeometryStructure
 
 class ReosPolylinesStructure : public ReosGeometryStructure
 {
+    Q_OBJECT
   public:
-
     struct VertexHandler
     {
 
@@ -47,6 +51,9 @@ class ReosPolylinesStructure : public ReosGeometryStructure
         quint64 id;
         friend class ReosPolylinesStructure;
     };
+
+    //! Creates and returns polylines structure with specified \a crs
+    static std::unique_ptr<ReosPolylinesStructure> createPolylineStructure( const QString &crs );
 
     virtual ReosPolylinesStructure *clone() = 0;
 
@@ -62,9 +69,6 @@ class ReosPolylinesStructure : public ReosGeometryStructure
     //! Returns the boundary of the structure in \a destinationCrs cordinate system
     virtual QPolygonF boundary( const QString &destinationCrs ) const = 0;
 
-    //! Creates and returns polylines structure with specified \a crs
-    static std::unique_ptr<ReosPolylinesStructure> createPolylineStructure( const QString &crs );
-
     //! Removes all the entities in the structure
     virtual void removeAll() = 0;
 
@@ -72,7 +76,7 @@ class ReosPolylinesStructure : public ReosGeometryStructure
     virtual void translate( const QPointF &translation, const QString &crs, const QString &id = QString() ) = 0;
 
     //! Moves vertex at positon \a index in th polyline with \a id (boundary one if void string) with the new positon \a newPosition
-    virtual void moveVertex( int index, const ReosSpatialPosition &newPosition, const QString &id = QString() ) = 0;
+    virtual void moveVertex( ReosGeometryStructureVertex *vertex, const ReosSpatialPosition &newPosition ) = 0;
 
     //! Inserts vertex at positon \a index in th polyline with \a id (boundary one if void string) with the positon \a newPosition
     virtual void insertVertex( int index, const ReosSpatialPosition &point, const QString &id = QString() ) = 0;
@@ -87,6 +91,8 @@ class ReosPolylinesStructure : public ReosGeometryStructure
     virtual ReosGeometryStructureVertex *searchForVertex( const ReosMapExtent &zone ) const = 0;
 
     virtual QPointF vertexPosition( ReosGeometryStructureVertex *vertex, const QString &crs ) const = 0;
+
+    virtual QUndoStack *undoStack() const = 0;
 
 };
 

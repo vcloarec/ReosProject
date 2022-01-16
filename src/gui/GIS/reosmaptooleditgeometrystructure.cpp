@@ -21,7 +21,7 @@ ReosMapToolEditGeometryStructure::ReosMapToolEditGeometryStructure( QObject *par
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolEditPolylineStructure_p( canvas );
-  setCursor( Qt::CrossCursor/*QCursor( QPixmap( ":/cursors/moveElement.png" ), 16, 16 )*/ );
+  setCursor( Qt::CrossCursor );
   //connect( d, &ReosMapToolEditGeometryStructure_p::polygonEdited, this, &ReosMapToolEditGeometryStructure::polygonEdited );
 
   setUp();

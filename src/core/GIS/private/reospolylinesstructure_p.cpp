@@ -36,11 +36,30 @@ ReosPolylineStructureVectorLayer::ReosPolylineStructureVectorLayer( const QStrin
 {
   mVectorLayer->startEditing();
   mVectorLayer->extent();
+
+  connect( mVectorLayer->undoStack(), &QUndoStack::indexChanged, this, &ReosDataObject::dataChanged );
 }
 
 bool ReosPolylineStructureVectorLayer::hasPolyline( const QString &id )
 {
   return mReosToQgisId.contains( id );
+}
+
+QgsPointXY ReosPolylineStructureVectorLayer::toLayerCoordinate( const ReosSpatialPosition &position ) const
+{
+  QgsCoordinateReferenceSystem crs;
+  crs.fromWkt( position.crs() );
+
+  QgsCoordinateTransform transform( crs, mVectorLayer->crs(), QgsProject::instance() );
+
+  try
+  {
+    return transform.transform( position.position() );
+  }
+  catch ( ... )
+  {
+    return position.position();
+  }
 }
 
 QgsGeometry ReosPolylineStructureVectorLayer::toGeometry( const QPolygonF &polyline, const QString &sourceCrs ) const
@@ -197,7 +216,7 @@ void ReosPolylineStructureVectorLayer::setBoundary( const QPolygonF &polyline, c
   int i = 0;
   for ( auto it = geom.vertices_begin(); it != geom.vertices_end(); ++it )
   {
-    mBoundariesVertex.append( std::make_shared<ReosStructureVertexHandler_p>( mBoundaryFeature, i ) );
+    mBoundariesVertex.append( std::make_shared<ReosStructureVertexHandler_p>( mVectorLayer.get(), mBoundaryFeature, i ) );
     ++i;
   }
 }
@@ -218,6 +237,12 @@ void ReosPolylineStructureVectorLayer::removeAll()
     mVectorLayer->deleteFeature( feat.id() );
 
   mBoundariesVertex.clear();
+}
+
+void ReosPolylineStructureVectorLayer::moveVertex( ReosGeometryStructureVertex *vertex, const ReosSpatialPosition &newPosition )
+{
+  QgsPointXY newLayerPosition = toLayerCoordinate( newPosition );
+  static_cast<ReosStructureVertexHandler_p *>( vertex )->move( newLayerPosition );
 }
 
 ReosMapExtent ReosPolylineStructureVectorLayer::extent( const QString &destinationCrs ) const
@@ -313,23 +338,29 @@ QPointF ReosPolylineStructureVectorLayer::vertexPosition( ReosGeometryStructureV
   destinationCrs.createFromWkt( crs );
   QgsCoordinateTransform transform( mVectorLayer->crs(), destinationCrs, QgsProject::instance() );
 
-  return static_cast<ReosStructureVertexHandler_p *>( vertex )->position( mVectorLayer.get(), transform );
+  return static_cast<ReosStructureVertexHandler_p *>( vertex )->position( transform );
+}
+
+QUndoStack *ReosPolylineStructureVectorLayer::undoStack() const
+{
+  return mVectorLayer->undoStack();
 }
 
 
-ReosStructureVertexHandler_p::ReosStructureVertexHandler_p( QgsFeatureId fid, int pos )
+ReosStructureVertexHandler_p::ReosStructureVertexHandler_p( QgsVectorLayer *source, QgsFeatureId fid, int pos ):
+  mSource( source )
 {
   mLinkedFeatures.append( PositionInFeature( {fid, pos} ) );
 }
 
-QPointF ReosStructureVertexHandler_p::position( QgsVectorLayer *source, const QgsCoordinateTransform &transform )
+QPointF ReosStructureVertexHandler_p::position( const QgsCoordinateTransform &transform )
 {
-  if ( !source || mLinkedFeatures.isEmpty() )
+  if ( !mSource || mLinkedFeatures.isEmpty() )
     return QPointF();
 
   const PositionInFeature &pf = mLinkedFeatures.at( 0 );
 
-  const QgsPoint &pt = source->getGeometry( pf.fid ).vertexAt( pf.pos );
+  const QgsPoint &pt = mSource->getGeometry( pf.fid ).vertexAt( pf.pos );
 
   if ( transform.isValid() )
   {
@@ -349,4 +380,14 @@ void ReosStructureVertexHandler_p::linkFeature( QgsFeatureId fid, int pos )
   PositionInFeature position( {fid, pos} );
   if ( ! mLinkedFeatures.contains( position ) )
     mLinkedFeatures.append( {fid, pos} );
+}
+
+void ReosStructureVertexHandler_p::move( const QgsPointXY &newPosition )
+{
+  if ( !mSource )
+    return;
+  mSource->beginEditCommand( QObject::tr( "Move vertex in structure" ) );
+  for ( const PositionInFeature &pos : std::as_const( mLinkedFeatures ) )
+    mSource->moveVertex( newPosition.x(), newPosition.y(), pos.fid, pos.pos );
+  mSource->endEditCommand();
 }
