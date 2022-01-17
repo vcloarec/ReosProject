@@ -19,11 +19,9 @@
 
 ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, ReosHydraulicNetwork *parent )
   : ReosHydraulicNetworkElement( parent )
-  , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( crs ) )
+  , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( domain, crs ) )
   , mMesh( ReosMesh::createMemoryMesh() )
 {
-  mPolylinesStructures->setBoundary( domain, crs );
-  mPolylinesStructures->undoStack()->clear();
   generateMesh();
 }
 

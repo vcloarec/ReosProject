@@ -46,9 +46,13 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
 
     QString mMapCrs;
     ReosGeometryStructureVertex *mCurrentVertex = nullptr;
+    QList<QPointF> mNeighborPosition;
 
     ReosMapExtent searchZone( const QgsPointXY &point ) const;
 
+    QgsRubberBand *mMovingLineRubberBand = nullptr;
+    QgsRubberBand *mMovingVertexRubberBand = nullptr;
+    void updateMovingVertexRubberBand( const QgsPointXY &movingPosition );
 };
 
 #endif // REOSMAPTOOLEDITGEOMETRYSTRUCTURE_P_H

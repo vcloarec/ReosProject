@@ -34,13 +34,11 @@ class ReosMeshTest: public QObject
 
 void ReosMeshTest::GmshGenerator()
 {
-  std::unique_ptr<ReosPolylinesStructure> structure =
-    ReosPolylinesStructure::createPolylineStructure( QString() );
-
   QPolygonF domain;
   domain << QPointF( 0, 0 ) << QPointF( 0, 20 ) << QPointF( 20, 20 ) << QPointF( 20, 0 );
 
-  structure->setBoundary( domain );
+  std::unique_ptr<ReosPolylinesStructure> structure =
+    ReosPolylinesStructure::createPolylineStructure( domain, QString() );
 
   ReosGmshGenerator generator;
   generator.setGeometryStructure( structure.get(), QString() );

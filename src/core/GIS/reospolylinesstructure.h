@@ -55,16 +55,14 @@ class ReosPolylinesStructure : public ReosGeometryStructure
     //! Creates and returns polylines structure with specified \a crs
     static std::unique_ptr<ReosPolylinesStructure> createPolylineStructure( const QString &crs );
 
-    virtual ReosPolylinesStructure *clone() = 0;
+    //! Creates and returns polylines structure with specified \a crs
+    static std::unique_ptr<ReosPolylinesStructure> createPolylineStructure( const QPolygonF &boundary, const QString &crs );
 
     //! Adds a \a polyline to the structure with an identifier \a id
     virtual void addPolylines( const QPolygonF &polyline, const QString &sourceCrs = QString(), const QString &id = QString() ) = 0;
 
     //! Returns the polyline with identifier \a id
     virtual QPolygonF polyline( const QString &destinationCrs = QString(), const QString &id = QString() ) const = 0;
-
-    //! Sets the boundary of the structure
-    virtual void setBoundary( const QPolygonF &polyline, const QString &sourceCrs = QString() ) = 0;
 
     //! Returns the boundary of the structure in \a destinationCrs cordinate system
     virtual QPolygonF boundary( const QString &destinationCrs ) const = 0;
@@ -91,6 +89,8 @@ class ReosPolylinesStructure : public ReosGeometryStructure
     virtual ReosGeometryStructureVertex *searchForVertex( const ReosMapExtent &zone ) const = 0;
 
     virtual QPointF vertexPosition( ReosGeometryStructureVertex *vertex, const QString &crs ) const = 0;
+
+    virtual QList<QPointF> neighborsPositions( ReosGeometryStructureVertex *vertex, const QString &crs ) const = 0;
 
     virtual QUndoStack *undoStack() const = 0;
 

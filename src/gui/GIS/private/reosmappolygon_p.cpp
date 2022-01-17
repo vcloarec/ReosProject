@@ -667,7 +667,6 @@ void ReosMapStructureEnvelop_p::setGeometry( const QPolygonF &geom )
     return;
 
   mStructure->removeAll();
-  mStructure->setBoundary( geom, crs() );
   updatePosition();
 }
 
@@ -676,7 +675,7 @@ void ReosMapStructureEnvelop_p::moveVertex( int index, const QPointF &newPositio
   if ( !mStructure )
     return;
 
-  mStructure->moveVertex( index, ReosSpatialPosition( newPosition, crs() ) );
+  //mStructure->moveVertex( index, ReosSpatialPosition( newPosition, crs() ) );
 
   updatePosition();
 }
@@ -718,7 +717,7 @@ void ReosMapStructureEnvelop_p::setStructrure( ReosPolylinesStructure *structure
 ReosMapStructureEnvelop_p::ReosMapStructureEnvelop_p( ReosMapStructureEnvelop_p *other )
   : ReosMapPolygonBase_p( other )
 {
-  mStructure = other->mStructure->clone();
+  mStructure = nullptr;
 }
 
 

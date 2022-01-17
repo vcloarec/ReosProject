@@ -36,7 +36,8 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
 
 ReosHydraulicStructure2DProperties::~ReosHydraulicStructure2DProperties()
 {
-  mMap->removeExtraRenderedObject( mStructure2D->mesh() );
+  if ( !mMap.isNull() )
+    mMap->removeExtraRenderedObject( mStructure2D->mesh() );
   delete ui;
 }
 

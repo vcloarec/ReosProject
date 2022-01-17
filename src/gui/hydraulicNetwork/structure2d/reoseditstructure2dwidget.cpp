@@ -44,7 +44,7 @@ ReosEditStructure2DWidget::ReosEditStructure2DWidget( ReosHydraulicStructure2D *
   mMapToolEditLine->setAction( mActionEditLine );
   mMapToolEditLine->setStructure( structure2D->geometryStructure() );
 
-  connect( structure2D->geometryStructure(), &ReosDataObject::dataChanged, structure2D, [this, structure2D, context]
+  connect( structure2D->geometryStructure(), &ReosDataObject::dataChanged, this, [this, structure2D, context]
   {
     structure2D->generateMesh();
     mMapStructureItem.updatePosition();
@@ -60,7 +60,6 @@ ReosEditStructure2DWidget::ReosEditStructure2DWidget( ReosHydraulicStructure2D *
   mUndoStack = structure2D->geometryStructure()->undoStack();
   toolBar->addAction( mUndoStack->createUndoAction( this ) );
   toolBar->addAction( mUndoStack->createRedoAction( this ) );
-
 }
 
 ReosEditStructure2DWidget::~ReosEditStructure2DWidget()

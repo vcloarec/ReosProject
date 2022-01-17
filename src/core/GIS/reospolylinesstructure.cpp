@@ -21,3 +21,8 @@ std::unique_ptr<ReosPolylinesStructure> ReosPolylinesStructure::createPolylineSt
   return std::unique_ptr<ReosPolylinesStructure>( new ReosPolylineStructureVectorLayer( crs ) );
 }
 
+std::unique_ptr<ReosPolylinesStructure> ReosPolylinesStructure::createPolylineStructure( const QPolygonF &boundary, const QString &crs )
+{
+  return std::unique_ptr<ReosPolylinesStructure>( new ReosPolylineStructureVectorLayer( boundary, crs ) );
+}
+

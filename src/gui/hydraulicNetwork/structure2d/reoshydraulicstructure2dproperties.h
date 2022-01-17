@@ -38,7 +38,7 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
   private:
     Ui::ReosHydraulicStructure2DProperties *ui;
     ReosHydraulicStructure2D *mStructure2D = nullptr;
-    ReosMap *mMap = nullptr;
+    QPointer<ReosMap> mMap = nullptr;
 };
 
 
