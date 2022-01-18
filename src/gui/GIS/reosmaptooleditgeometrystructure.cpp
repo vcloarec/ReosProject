@@ -16,13 +16,18 @@
 #include "reosmaptooleditgeometrystructure.h"
 #include "reosmaptooleditgeometrystructure_p.h"
 
-ReosMapToolEditGeometryStructure::ReosMapToolEditGeometryStructure( QObject *parent, ReosMap *map )
+ReosMapToolEditGeometryStructure::ReosMapToolEditGeometryStructure( ReosPolylinesStructure *structure, QObject *parent, ReosMap *map )
   : ReosMapTool( parent, map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolEditPolylineStructure_p( canvas );
+  d->setStructure( structure );
   setCursor( Qt::CrossCursor );
-  //connect( d, &ReosMapToolEditGeometryStructure_p::polygonEdited, this, &ReosMapToolEditGeometryStructure::polygonEdited );
+
+  std::unique_ptr<ReosEditGeometryStructureMenuPopulator> menuPopulator =
+    std::make_unique<ReosEditGeometryStructureMenuPopulator>( d );
+
+  setContextMenuPopulator( menuPopulator.release() );
 
   setUp();
 }

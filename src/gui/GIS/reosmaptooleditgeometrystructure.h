@@ -25,13 +25,14 @@ class ReosMapToolEditGeometryStructure : public ReosMapTool
 {
   public:
 
-    ReosMapToolEditGeometryStructure( QObject *parent, ReosMap *map );
+    ReosMapToolEditGeometryStructure( ReosPolylinesStructure *structure, QObject *parent, ReosMap *map );
     ~ReosMapToolEditGeometryStructure();
     void setStructure( ReosPolylinesStructure *structure );
 
   private:
     QPointer<ReosMapToolEditPolylineStructure_p> d;
     ReosMapTool_p *tool_p() const;
+
 };
 
 #endif // REOSMAPTOOLEDITGEOMETRYSTRUCTURE_H

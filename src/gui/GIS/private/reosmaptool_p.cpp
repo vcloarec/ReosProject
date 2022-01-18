@@ -13,11 +13,16 @@ email                : vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
+
 #include "reosmaptool_p.h"
-#include "reosmappolygon_p.h"
-#include "reosgeometryutils.h"
+
 #include <QGraphicsScene>
 #include <QMenu>
+
+#include <qgsmapmouseevent.h>
+
+#include "reosmappolygon_p.h"
+#include "reosgeometryutils.h"
 
 ReosMapTool_p::ReosMapTool_p( QgsMapCanvas *canvas ):
   QgsMapTool( canvas ), mContextMenuPopulator( new ReosMenuPopulator )
@@ -36,11 +41,11 @@ void ReosMapTool_p::deactivate()
 }
 
 
-bool ReosMapTool_p::populateContextMenuWithEvent( QMenu *menu,  QgsMapMouseEvent * )
+bool ReosMapTool_p::populateContextMenuWithEvent( QMenu *menu,  QgsMapMouseEvent *e )
 {
   if ( mContextMenuPopulator )
   {
-    mContextMenuPopulator->populate( menu );
+    mContextMenuPopulator->populate( menu, e );
     return true;
   }
   return false;

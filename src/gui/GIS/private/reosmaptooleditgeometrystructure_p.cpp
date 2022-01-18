@@ -14,15 +14,19 @@
  *                                                                         *
  ***************************************************************************/
 #include "reosmaptooleditgeometrystructure_p.h"
-#include "reospolylinesstructure.h"
+
+#include <QMenu>
 
 #include "qgsvertexmarker.h"
 #include "qgsguiutils.h"
 
+#include "reospolylinesstructure.h"
+
 static QColor rubberBandColor = QColor( 0, 155, 242 );
 
-ReosMapToolEditPolylineStructure_p::ReosMapToolEditPolylineStructure_p( QgsMapCanvas *map ):
-  ReosMapTool_p( map )
+ReosMapToolEditPolylineStructure_p::ReosMapToolEditPolylineStructure_p( QgsMapCanvas *map )
+  :  ReosMapTool_p( map )
+  , mActionInsertVertex( new QAction( tr( "Insert Vertex" ), this ) )
 {
   enableSnapping( true );
 
@@ -100,6 +104,8 @@ void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
     case ReosMapToolEditPolylineStructure_p::DraggingVertex:
       break;
   }
+
+  ReosMapTool_p::canvasPressEvent( e );
 }
 
 void ReosMapToolEditPolylineStructure_p::canvasReleaseEvent( QgsMapMouseEvent *e )
@@ -133,6 +139,8 @@ void ReosMapToolEditPolylineStructure_p::canvasReleaseEvent( QgsMapMouseEvent *e
       }
       break;
   }
+
+  ReosMapTool_p::canvasReleaseEvent( e );
 }
 
 void ReosMapToolEditPolylineStructure_p::keyPressEvent( QKeyEvent *e )
@@ -147,6 +155,11 @@ void ReosMapToolEditPolylineStructure_p::keyPressEvent( QKeyEvent *e )
       break;
 
   }
+}
+
+void ReosMapToolEditPolylineStructure_p::insertVertex( const QPointF &mapPoint, qint64 lineId )
+{
+  mStructure->insertVertex( mapPoint, lineId );
 }
 
 ReosMapExtent ReosMapToolEditPolylineStructure_p::searchZone( const QgsPointXY &point ) const
@@ -193,4 +206,26 @@ void ReosMapToolEditPolylineStructure_p::stopDraggingVertex()
   mNeighborPosition.clear();
   mCurrentVertex = nullptr;
   mCurrentState = None;
+}
+
+ReosEditGeometryStructureMenuPopulator::ReosEditGeometryStructureMenuPopulator( ReosMapToolEditPolylineStructure_p *toolMap )
+  : mToolMap( toolMap )
+{}
+
+void ReosEditGeometryStructureMenuPopulator::populate( QMenu *menu, QgsMapMouseEvent *e )
+{
+  if ( !mToolMap )
+    return;
+
+  QPointF nonSnapPos = e->mapPoint().toQPointF();
+  qint64 id = 0;
+  if ( mToolMap->mStructure->searchForLine( mToolMap->searchZone( nonSnapPos ), id ) )
+  {
+    menu->clear();
+    menu->addAction( mToolMap->mActionInsertVertex );
+    QObject::connect( mToolMap->mActionInsertVertex, &QAction::triggered, menu, [this, nonSnapPos, id]
+    {
+      mToolMap->insertVertex( nonSnapPos, id );
+    } );
+  }
 }

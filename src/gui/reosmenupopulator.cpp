@@ -22,7 +22,7 @@
 ReosMenuPopulator::ReosMenuPopulator()
 {}
 
-void ReosMenuPopulator::populate( QMenu *menu )
+void ReosMenuPopulator::populate( QMenu *menu, QgsMapMouseEvent * )
 {
   menu->clear();
   for ( QAction *action : std::as_const( mActions ) )

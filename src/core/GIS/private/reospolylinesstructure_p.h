@@ -21,6 +21,9 @@
 
 #include "reospolylinesstructure.h"
 
+class ReosPolylineStructureVectorLayerUndoCommandRemoveLine;
+class ReosPolylineStructureVectorLayerUndoCommandAddLine;
+
 
 class ReosStructureVertexHandler_p : public ReosGeometryStructureVertex
 {
@@ -30,11 +33,13 @@ class ReosStructureVertexHandler_p : public ReosGeometryStructureVertex
 
     QPointF position( const QgsCoordinateTransform &transform = QgsCoordinateTransform() );
 
-    void linkFeature( QgsFeatureId fid, int pos );
+    void attachLine( QgsFeatureId fid, int pos );
+    void detachLine( QgsFeatureId fid );
+    QgsFeatureIds attachedLines() const;
+    bool hasLineAttached() const;
+    bool oneOtherLine( QgsFeatureId id, QgsFeatureId *otherLine );
 
     void move( const QgsPointXY &newPosition );
-
-    QgsFeatureIds linkedFeatures() const;
 
   private:
 
@@ -42,8 +47,18 @@ class ReosStructureVertexHandler_p : public ReosGeometryStructureVertex
     {
       PositionInFeature() = default;
 
+      //! Contructs a generic position, that is, this instance is equal to all position related to line with \a id
+      PositionInFeature( QgsFeatureId id ): fid( id ) {}
+
+      //! Contructs a position on line with \a id at position \a p on the line
+      PositionInFeature( QgsFeatureId id, int p ): fid( id ), pos( p ) {}
+
       bool operator==( const PositionInFeature &other ) const
       {
+        if ( other.pos == -1 )
+        {
+          return fid == other.fid;
+        }
         return fid == other.fid && pos == other.pos;
       }
 
@@ -76,10 +91,11 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
 
     bool vertexCanBeMoved( ReosGeometryStructureVertex *vertex, const ReosSpatialPosition &newPosition ) const override;
     void moveVertex( ReosGeometryStructureVertex *vertex, const ReosSpatialPosition &newPosition ) override;
-    void insertVertex( int index, const ReosSpatialPosition &point, const QString &id = QString() )override {};
+    void insertVertex( const ReosSpatialPosition &point, qint64 lineId ) override;;
     void removeVertex( int index, const QString &id = QString() )override {}
     ReosMapExtent extent( const QString &destinationCrs ) const override;
     ReosGeometryStructureVertex *searchForVertex( const ReosMapExtent &zone ) const override;
+    bool searchForLine( const ReosMapExtent &zone, qint64 &id ) const override;
     QPointF vertexPosition( ReosGeometryStructureVertex *vertex, const QString &crs ) const override;
     QList<QPointF> neighborsPositions( ReosGeometryStructureVertex *vertex, const QString &crs ) const override;
 
@@ -95,23 +111,67 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
 
     ReosPolylineStructureVectorLayer() = default;
 
-    // Data member defining the structure
+    // Data member defining the structure ********
     std::unique_ptr<QgsVectorLayer> mVectorLayer;
     QMap<QgsFeatureId, Segment> mSegments;
-    QList<VertexH> mBoundariesVertex;
+    QList<VertexP> mBoundariesVertex;
+    // *******************************************
     double mTolerance = 0.01;
 
     VertexH createVertex( QgsFeatureId id, int positionInFeature );
     const QgsCoordinateTransform toLayerTransform( const QString &crs ) const;
     const QgsCoordinateTransform toDestinationTransform( const QString &destinationCrs ) const;
 
+    QgsFeatureIterator closeLines( const ReosMapExtent &zone, QgsRectangle &rect ) const;
     QList<ReosStructureVertexHandler_p *> neighorsVertices( ReosGeometryStructureVertex *vertex, QgsFeatureIds &fids ) const;
 
     QgsPointXY toLayerCoordinates( const QPointF &position, const QgsCoordinateTransform &transform ) const;
     QgsPointXY toLayerCoordinates( const ReosSpatialPosition &position ) const;
-    Segment idToSegment( QgsFeatureId id ) const;
+    Segment idToSegment( SegmentId id ) const;
+    VertexH idToVertex( SegmentId id, int pos );
+    bool idToLinkedSegment( ReosPolylineStructureVectorLayer::SegmentId id, int pos, ReosPolylineStructureVectorLayer::SegmentId *linkedSeg );
 
     VertexP oppositeVertex( VertexP other, SegmentId sid ) const;
+
+    friend class ReosPolylineStructureVectorLayerUndoCommandRemoveLine;
+    friend class ReosPolylineStructureVectorLayerUndoCommandAddLine;
+};
+
+
+
+class ReosPolylineStructureVectorLayerUndoCommandRemoveLine : public QUndoCommand
+{
+  public:
+    ReosPolylineStructureVectorLayerUndoCommandRemoveLine( QgsFeatureId id,  ReosPolylineStructureVectorLayer *structure );
+    void redo() override;
+    void undo() override;
+
+  private:
+    QgsFeatureId mId;
+    ReosPolylineStructureVectorLayer *mStructure = nullptr;
+    ReosPolylineStructureVectorLayer::Segment mSeg;
+
+};
+
+class ReosPolylineStructureVectorLayerUndoCommandAddLine : public QUndoCommand
+{
+  public:
+    ReosPolylineStructureVectorLayerUndoCommandAddLine(
+      QgsFeatureId idLineToAdd,
+      QgsFeatureId idExisting0,
+      QgsFeatureId idExisting1,
+      bool onBoundary,
+      ReosPolylineStructureVectorLayer *structure );
+
+    void redo() override;
+    void undo() override;
+
+  private:
+    QgsFeatureId mIdToAdd;
+    QgsFeatureId mId0;
+    QgsFeatureId mId1;
+    bool mOnBoundary = false;
+    ReosPolylineStructureVectorLayer *mStructure = nullptr;
 };
 
 

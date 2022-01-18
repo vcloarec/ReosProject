@@ -27,7 +27,7 @@ ReosEditStructure2DWidget::ReosEditStructure2DWidget( ReosHydraulicStructure2D *
   : ReosStackedPageWidget( context.parent() )
   , ui( new Ui::ReosEditStructure2DWidget )
   , mActionEditLine( new QAction( tr( "Edit Structure Line" ), this ) )
-  , mMapToolEditLine( new ReosMapToolEditGeometryStructure( this, context.map() ) )
+  , mMapToolEditLine( new ReosMapToolEditGeometryStructure( structure2D->geometryStructure(), this, context.map() ) )
   , mMapStructureItem( context.map(), structure2D->geometryStructure() )
 {
   ui->setupUi( this );
@@ -42,7 +42,6 @@ ReosEditStructure2DWidget::ReosEditStructure2DWidget( ReosHydraulicStructure2D *
   toolBar->addAction( mActionEditLine );
   mActionEditLine->setCheckable( true );
   mMapToolEditLine->setAction( mActionEditLine );
-  mMapToolEditLine->setStructure( structure2D->geometryStructure() );
 
   connect( structure2D->geometryStructure(), &ReosDataObject::dataChanged, this, [this, structure2D, context]
   {

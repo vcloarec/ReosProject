@@ -38,7 +38,7 @@ class ReosMapTool_p: public QgsMapTool
     ReosMapTool_p( QgsMapCanvas *canvas );
     void activate() override;
     void deactivate() override;
-    bool populateContextMenuWithEvent( QMenu *menu,  QgsMapMouseEvent *event ) override;
+    bool populateContextMenuWithEvent( QMenu *menu,  QgsMapMouseEvent *e ) override;
 
     //! Sets context menu populator, take ownership
     void setContextMenuPopulator( ReosMenuPopulator *populator );

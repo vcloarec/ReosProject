@@ -52,36 +52,53 @@ void ReoHydraulicStructure2DTest::createAndAditGeometry()
 
   std::unique_ptr < ReosHydraulicStructure2D> structure2D = std::make_unique<ReosHydraulicStructure2D>( domain, QString(), mNetwork );
 
+  ReosPolylinesStructure *geomStructure = structure2D->geometryStructure();
+
   QCOMPARE( structure2D->domain(), domain );
-  structure2D->geometryStructure()->undoStack()->undo();
+  geomStructure->undoStack()->undo();
   QCOMPARE( structure2D->domain(), domain );
 
   ReosMapExtent searchZone( -0.1, 0.4, -0.1, 0.6 );
-  ReosGeometryStructureVertex *vert = structure2D->geometryStructure()->searchForVertex( searchZone );
+  ReosGeometryStructureVertex *vert = geomStructure->searchForVertex( searchZone );
   QVERIFY( !vert );
 
   searchZone = ReosMapExtent( -0.1, 0.4, 0.1, 0.6 );
-  vert = structure2D->geometryStructure()->searchForVertex( searchZone );
+  vert = geomStructure->searchForVertex( searchZone );
   QVERIFY( vert );
 
-  QVERIFY( !structure2D->geometryStructure()->vertexCanBeMoved( vert, ReosSpatialPosition( QPointF( 0.5, 1.5 ) ) ) ); //lines are crossing
-  QVERIFY( !structure2D->geometryStructure()->vertexCanBeMoved( vert, ReosSpatialPosition( QPointF( 1, 0.495 ) ) ) ); //too close of another vertex
-  QVERIFY( structure2D->geometryStructure()->vertexCanBeMoved( vert, ReosSpatialPosition( QPointF( 0.991, 0.491 ) ) ) ); //just outside the tolerance
-  QVERIFY( structure2D->geometryStructure()->vertexCanBeMoved( vert, ReosSpatialPosition( QPointF( 0.5, 0.5 ) ) ) );
+  QVERIFY( !geomStructure->vertexCanBeMoved( vert, ReosSpatialPosition( QPointF( 0.5, 1.5 ) ) ) ); //lines are crossing
+  QVERIFY( !geomStructure->vertexCanBeMoved( vert, ReosSpatialPosition( QPointF( 1, 0.495 ) ) ) ); //too close of another vertex
+  QVERIFY( geomStructure->vertexCanBeMoved( vert, ReosSpatialPosition( QPointF( 0.991, 0.491 ) ) ) ); //just outside the tolerance
+  QVERIFY( geomStructure->vertexCanBeMoved( vert, ReosSpatialPosition( QPointF( 0.5, 0.5 ) ) ) );
 
-  structure2D->geometryStructure()->moveVertex( vert, ReosSpatialPosition( QPointF( 0.5, 0.5 ) ) );
+  geomStructure->moveVertex( vert, ReosSpatialPosition( QPointF( 0.5, 0.5 ) ) );
   QPolygonF expectded = structure2D->domain();
 
   QVERIFY( domain != structure2D->domain() );
 
-  structure2D->geometryStructure()->undoStack()->undo();
+  geomStructure->undoStack()->undo();
 
   QVERIFY( domain == structure2D->domain() );
 
-  structure2D->geometryStructure()->undoStack()->redo();
+  geomStructure->undoStack()->redo();
 
   domain[1] = QPointF( 0.5, 0.5 );
   expectded = structure2D->domain();
+  QVERIFY( domain == structure2D->domain() );
+
+  qint64 lineId;
+  QVERIFY( geomStructure->searchForLine( ReosMapExtent( 0.70, 0.9, 0.8, 1.1 ), lineId ) );
+
+  geomStructure->insertVertex( ReosSpatialPosition( QPointF( 0.75, 1.0 ) ), lineId );
+  QVERIFY( domain != structure2D->domain() );
+  geomStructure->undoStack()->undo();
+  QVERIFY( domain == structure2D->domain() );
+  geomStructure->undoStack()->redo();
+  domain.insert( 4, QPointF( 0.75, 1.0 ) );
+  QVERIFY( domain == structure2D->domain() );
+  geomStructure->undoStack()->undo();
+  QVERIFY( domain != structure2D->domain() );
+  geomStructure->undoStack()->redo();
   QVERIFY( domain == structure2D->domain() );
 }
 

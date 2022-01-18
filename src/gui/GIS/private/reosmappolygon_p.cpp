@@ -685,7 +685,7 @@ void ReosMapStructureEnvelop_p::insertVertex( int index, const QPointF &point )
   if ( !mStructure )
     return;
 
-  mStructure->insertVertex( index, ReosSpatialPosition( point, crs() ) );
+  //mStructure->insertVertex( index, ReosSpatialPosition( point, crs() ) );
 
   updatePosition();
 }

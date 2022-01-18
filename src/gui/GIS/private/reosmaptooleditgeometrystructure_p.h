@@ -19,6 +19,21 @@
 #include "reosmaptool_p.h"
 
 class ReosGeometryStructureVertex;
+class ReosMapToolEditPolylineStructure_p;
+
+class ReosEditGeometryStructureMenuPopulator: public ReosMenuPopulator
+{
+  public:
+    ReosEditGeometryStructureMenuPopulator( ReosMapToolEditPolylineStructure_p *toolMap );
+
+    void populate( QMenu *menu, QgsMapMouseEvent *e = nullptr ) override;
+
+  private:
+    ReosPolylinesStructure *mStructure = nullptr;
+    ReosMapToolEditPolylineStructure_p *mToolMap = nullptr;
+
+
+};
 
 class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
 {
@@ -28,12 +43,16 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
 
     void setStructure( ReosPolylinesStructure *structure );
 
+    Flags flags() const override { return ShowContextMenu; }
+
   protected:
     void canvasMoveEvent( QgsMapMouseEvent *e ) override;
     void canvasPressEvent( QgsMapMouseEvent *e ) override;
     void canvasReleaseEvent( QgsMapMouseEvent *e ) override;
     void keyPressEvent( QKeyEvent *e ) override;
 
+  private slots:
+    void insertVertex( const QPointF &mapPoint, qint64 lineId );
 
   private:
     enum State
@@ -43,8 +62,8 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
     };
     State mCurrentState = None;
 
-    ReosPolylinesStructure *mStructure;
-    QgsVertexMarker *mVertexMarker;
+    ReosPolylinesStructure *mStructure = nullptr;
+    QgsVertexMarker *mVertexMarker = nullptr;
 
     QString mMapCrs;
     ReosGeometryStructureVertex *mCurrentVertex = nullptr;
@@ -56,6 +75,10 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
     QgsRubberBand *mMovingVertexRubberBand = nullptr;
     void updateMovingVertexRubberBand( const QgsPointXY &movingPosition );
     void stopDraggingVertex();
+
+    QAction *mActionInsertVertex = nullptr;
+
+    friend class ReosEditGeometryStructureMenuPopulator;
 };
 
 #endif // REOSMAPTOOLEDITGEOMETRYSTRUCTURE_P_H

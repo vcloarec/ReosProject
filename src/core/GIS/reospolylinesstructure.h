@@ -69,11 +69,11 @@ class ReosPolylinesStructure : public ReosGeometryStructure
     //! Returns whether the \a vertex can be moves to the new position \a newPosition
     virtual bool vertexCanBeMoved( ReosGeometryStructureVertex *vertex, const ReosSpatialPosition &newPosition ) const = 0;
 
-    //! Moves vertex at positon \a index in th polyline with \a id (boundary one if void string) with the new positon \a newPosition
+    //! Moves \a vertex to the new positon \a newPosition
     virtual void moveVertex( ReosGeometryStructureVertex *vertex, const ReosSpatialPosition &newPosition ) = 0;
 
-    //! Inserts vertex at positon \a index in th polyline with \a id (boundary one if void string) with the positon \a newPosition
-    virtual void insertVertex( int index, const ReosSpatialPosition &point, const QString &id = QString() ) = 0;
+    //! Inserts a vertex in the line with \a lineId at position \a point
+    virtual void insertVertex( const ReosSpatialPosition &point, qint64 lineId ) = 0;
 
     //! Removes vertex at positon \a index in th polyline with \a id (boundary one if void string)
     virtual void removeVertex( int index, const QString &id = QString() ) = 0 ;
@@ -83,6 +83,9 @@ class ReosPolylinesStructure : public ReosGeometryStructure
 
     //! Search the closest vertex of the center of \a zone and in this zone, returns a pointer to the vertex
     virtual ReosGeometryStructureVertex *searchForVertex( const ReosMapExtent &zone ) const = 0;
+
+    //! Search and returns the closest line with \a id of the center of \a zone and in this zone, returns false if nothing found
+    virtual bool searchForLine( const ReosMapExtent &zone, qint64 &id ) const = 0;
 
     //! Returns the \a vertex position in \a crs coordinate or in the strucure coordinate if \a crs is void
     virtual QPointF vertexPosition( ReosGeometryStructureVertex *vertex, const QString &crs ) const = 0;
