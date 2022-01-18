@@ -30,7 +30,7 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     static QString staticType() {return ReosHydraulicNetworkElement::staticType() + QString( ':' ) + QStringLiteral( "structure2D" );}
 
     //! Returns the domain polygon
-    QPolygonF domain( const QString &crs ) const;
+    QPolygonF domain( const QString &crs = QString() ) const;
 
     ReosPolylinesStructure *geometryStructure() const;
     ReosMesh *mesh() const;

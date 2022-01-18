@@ -24,6 +24,8 @@
 
 ReosMeshFrameData ReosGmshGenerator::generatedMesh( bool *ok ) const
 {
+  try
+  {
 
 //  gmsh::option::setNumber( "Mesh.Algorithm", 8 );
 //  gmsh::model::mesh::setRecombine( 2, 1 );
@@ -33,68 +35,74 @@ ReosMeshFrameData ReosGmshGenerator::generatedMesh( bool *ok ) const
 //  gmsh::model::mesh::field::setNumber( 1, "VIn", 10 );
 //  gmsh::model::mesh::field::setAsBackgroundMesh( 1 );
 
-  auto meshSizeCallback = []( int dim, int tag, double x, double y, double z,
-                              double lc )
-  {
-    return lc;
-  };
-
-  gmsh::model::mesh::setSizeCallback( meshSizeCallback );
-
-
-  gmsh::model::mesh::generate( 2 );
-  *ok = true;
-
-  std::vector<std::size_t>nodeTags;
-  std::vector<double>  coord;
-  std::vector<double>  parametricCoord;
-  gmsh::model::mesh::getNodes( nodeTags, coord, parametricCoord, -1, -1, false, true );
-
-  ReosMeshFrameData ret;
-  ret.vertexCoordinates.resize( coord.size() );
-  memcpy( ret.vertexCoordinates.data(), coord.data(), coord.size()*sizeof( double ) );
-
-  QHash<size_t, int> tagToVertexIndex;
-  for ( size_t i = 0; i < nodeTags.size(); ++i )
-    tagToVertexIndex.insert( nodeTags.at( i ), int( i ) );
-
-  std::vector<int> elementTypes;
-  std::vector<std::vector<std::size_t> > elementTags;
-  std::vector<std::vector<std::size_t> > nodeElemTags;
-
-  gmsh::model::mesh::getElements( elementTypes, elementTags, nodeElemTags, 2, -1 );
-
-  for ( size_t type = 0; type < elementTypes.size(); ++type )
-  {
-    int elementType = elementTypes[type];
-    int elementSize = 0;
-    switch ( elementType )
+    auto meshSizeCallback = []( int dim, int tag, double x, double y, double z,
+                                double lc )
     {
-      case 2:
-        elementSize = 3;
-        break;
-      case 3:
-        elementSize = 4;
-        break;
-      default:
-        break;
-    }
-    const std::vector<size_t> &elementsNodes = nodeElemTags.at( type );
+      return lc;
+    };
 
-    if ( elementSize > 2 )
+    gmsh::model::mesh::setSizeCallback( meshSizeCallback );
+
+
+    gmsh::model::mesh::generate( 2 );
+    *ok = true;
+
+    std::vector<std::size_t>nodeTags;
+    std::vector<double>  coord;
+    std::vector<double>  parametricCoord;
+    gmsh::model::mesh::getNodes( nodeTags, coord, parametricCoord, -1, -1, false, true );
+
+    ReosMeshFrameData ret;
+    ret.vertexCoordinates.resize( coord.size() );
+    memcpy( ret.vertexCoordinates.data(), coord.data(), coord.size()*sizeof( double ) );
+
+    QHash<size_t, int> tagToVertexIndex;
+    for ( size_t i = 0; i < nodeTags.size(); ++i )
+      tagToVertexIndex.insert( nodeTags.at( i ), int( i ) );
+
+    std::vector<int> elementTypes;
+    std::vector<std::vector<std::size_t> > elementTags;
+    std::vector<std::vector<std::size_t> > nodeElemTags;
+
+    gmsh::model::mesh::getElements( elementTypes, elementTags, nodeElemTags, 2, -1 );
+
+    for ( size_t type = 0; type < elementTypes.size(); ++type )
     {
-      for ( size_t i = 0; i < elementsNodes.size() / elementSize; ++i )
+      int elementType = elementTypes[type];
+      int elementSize = 0;
+      switch ( elementType )
       {
-        QVector<int> face( elementSize );
-        for ( int j = 0; j < elementSize; ++j )
-          face[j] = tagToVertexIndex.value( elementsNodes.at( static_cast<size_t>( i * elementSize + j ) ) );
-        ret.facesIndexes.append( face );
+        case 2:
+          elementSize = 3;
+          break;
+        case 3:
+          elementSize = 4;
+          break;
+        default:
+          break;
+      }
+      const std::vector<size_t> &elementsNodes = nodeElemTags.at( type );
+
+      if ( elementSize > 2 )
+      {
+        for ( size_t i = 0; i < elementsNodes.size() / elementSize; ++i )
+        {
+          QVector<int> face( elementSize );
+          for ( int j = 0; j < elementSize; ++j )
+            face[j] = tagToVertexIndex.value( elementsNodes.at( static_cast<size_t>( i * elementSize + j ) ) );
+          ret.facesIndexes.append( face );
+        }
       }
     }
+
+
+    return ret;
   }
-
-
-  return ret;
+  catch ( ... )
+  {
+    *ok = false;
+    return ReosMeshFrameData();
+  }
 }
 
 void ReosGmshGenerator::setGeometryStructure( ReosPolylinesStructure *structure, const QString &crs )

@@ -19,6 +19,8 @@
 #include "qgsvertexmarker.h"
 #include "qgsguiutils.h"
 
+static QColor rubberBandColor = QColor( 0, 155, 242 );
+
 ReosMapToolEditPolylineStructure_p::ReosMapToolEditPolylineStructure_p( QgsMapCanvas *map ):
   ReosMapTool_p( map )
 {
@@ -35,14 +37,14 @@ ReosMapToolEditPolylineStructure_p::ReosMapToolEditPolylineStructure_p( QgsMapCa
   mMovingLineRubberBand->setWidth( 1 );
 
   mMovingLineRubberBand->setLineStyle( Qt::DashLine );
-  mMovingLineRubberBand->setStrokeColor( QColor( 0, 155, 242 ) );
+  mMovingLineRubberBand->setStrokeColor( rubberBandColor );
   mMovingLineRubberBand->setSecondaryStrokeColor( Qt::white );
   mMovingLineRubberBand->setZValue( 50 );
 
   mMovingVertexRubberBand = new QgsRubberBand( mCanvas, QgsWkbTypes::PointGeometry );
   mMovingVertexRubberBand->setIcon( QgsRubberBand::ICON_CIRCLE );
   mMovingVertexRubberBand->setWidth( QgsGuiUtils::scaleIconSize( 2 ) );
-  mMovingVertexRubberBand->setColor( QColor( 0, 155, 242 ) );
+  mMovingVertexRubberBand->setColor( rubberBandColor );
   mMovingVertexRubberBand->setSecondaryStrokeColor( Qt::white );
   mMovingVertexRubberBand->setIconSize( QgsGuiUtils::scaleIconSize( 5 ) );
   mMovingVertexRubberBand->setZValue( 51 );
@@ -122,16 +124,28 @@ void ReosMapToolEditPolylineStructure_p::canvasReleaseEvent( QgsMapMouseEvent *e
       {
         if ( e->button() == Qt::LeftButton )
         {
-          mCurrentState = None;
-          mStructure->moveVertex( mCurrentVertex, ReosSpatialPosition( e->snapPoint().toQPointF(), mMapCrs ) );
-          mMovingLineRubberBand->reset( QgsWkbTypes::LineGeometry );
-          mMovingVertexRubberBand->reset( QgsWkbTypes::PointGeometry );
+          if ( mStructure->vertexCanBeMoved( mCurrentVertex, ReosSpatialPosition( e->snapPoint().toQPointF(), mMapCrs ) ) )
+            mStructure->moveVertex( mCurrentVertex, ReosSpatialPosition( e->snapPoint().toQPointF(), mMapCrs ) );
+
+          stopDraggingVertex();
           canvas()->refresh();
-          mNeighborPosition.clear();
-          mCurrentVertex = nullptr;
         }
       }
       break;
+  }
+}
+
+void ReosMapToolEditPolylineStructure_p::keyPressEvent( QKeyEvent *e )
+{
+  switch ( mCurrentState )
+  {
+    case ReosMapToolEditPolylineStructure_p::None:
+      ReosMapTool_p::keyPressEvent( e );
+      break;
+    case ReosMapToolEditPolylineStructure_p::DraggingVertex:
+      stopDraggingVertex();
+      break;
+
   }
 }
 
@@ -152,6 +166,15 @@ void ReosMapToolEditPolylineStructure_p::updateMovingVertexRubberBand( const Qgs
   mMovingLineRubberBand->reset( QgsWkbTypes::LineGeometry );
   mMovingVertexRubberBand->reset( QgsWkbTypes::PointGeometry );
 
+  if ( mStructure->vertexCanBeMoved( mCurrentVertex, ReosSpatialPosition( movingPosition.toQPointF(), mMapCrs ) ) )
+  {
+    mMovingLineRubberBand->setColor( rubberBandColor );
+  }
+  else
+  {
+    mMovingLineRubberBand->setColor( Qt::red );
+  }
+
   for ( const QPointF &np : std::as_const( mNeighborPosition ) )
   {
     const QgsGeometry geom( new QgsLineString( {movingPosition, QgsPointXY( np )} ) );
@@ -161,4 +184,13 @@ void ReosMapToolEditPolylineStructure_p::updateMovingVertexRubberBand( const Qgs
 
   mMovingVertexRubberBand->addPoint( movingPosition );
   mMovingLineRubberBand->updatePosition();
+}
+
+void ReosMapToolEditPolylineStructure_p::stopDraggingVertex()
+{
+  mMovingLineRubberBand->reset( QgsWkbTypes::LineGeometry );
+  mMovingVertexRubberBand->reset( QgsWkbTypes::PointGeometry );
+  mNeighborPosition.clear();
+  mCurrentVertex = nullptr;
+  mCurrentState = None;
 }

@@ -32,6 +32,8 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
     void canvasMoveEvent( QgsMapMouseEvent *e ) override;
     void canvasPressEvent( QgsMapMouseEvent *e ) override;
     void canvasReleaseEvent( QgsMapMouseEvent *e ) override;
+    void keyPressEvent( QKeyEvent *e ) override;
+
 
   private:
     enum State
@@ -53,6 +55,7 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
     QgsRubberBand *mMovingLineRubberBand = nullptr;
     QgsRubberBand *mMovingVertexRubberBand = nullptr;
     void updateMovingVertexRubberBand( const QgsPointXY &movingPosition );
+    void stopDraggingVertex();
 };
 
 #endif // REOSMAPTOOLEDITGEOMETRYSTRUCTURE_P_H

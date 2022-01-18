@@ -24,6 +24,7 @@
 #include <qgsgeometryutils.h>
 
 #include "reosmapextent.h"
+#include "reosexception.h"
 
 
 #define BOUNDARY_ID QStringLiteral("boundary")
@@ -41,6 +42,15 @@ ReosPolylineStructureVectorLayer::ReosPolylineStructureVectorLayer( const QStrin
   connect( mVectorLayer->undoStack(), &QUndoStack::indexChanged, this, &ReosDataObject::dataChanged );
 }
 
+void ReosPolylineStructureVectorLayer::setTolerance( double tolerance, const QString &wktCrs )
+{
+  QgsCoordinateReferenceSystem crs;
+  crs.createFromWkt( wktCrs );
+  QgsUnitTypes::DistanceUnit unitSource = crs.mapUnits();
+  QgsUnitTypes::DistanceUnit structureUnit = mVectorLayer->crs().mapUnits();
+  mTolerance = QgsUnitTypes::fromUnitToUnitFactor( unitSource, structureUnit ) * tolerance;
+}
+
 
 ReosPolylineStructureVectorLayer::ReosPolylineStructureVectorLayer( const QPolygonF &boundary, const QString &wktCrs )
   : ReosPolylineStructureVectorLayer( wktCrs )
@@ -56,16 +66,16 @@ ReosPolylineStructureVectorLayer::ReosPolylineStructureVectorLayer( const QPolyg
   QgsFeature feat;
   feat.setGeometry( geomSegment );
   mVectorLayer->addFeature( feat );
-  Vertex vert0 = createVertex( feat.id(), 0 );
-  Vertex firstVertex = vert0;
+  VertexH vert0 = createVertex( feat.id(), 0 );
+  VertexH firstVertex = vert0;
 
-  Vertex vert1 = createVertex( feat.id(), 1 );
-  QgsPointXY firstPoint( point1 );
+  VertexH vert1 = createVertex( feat.id(), 1 );
+  QgsPointXY firstPoint( point0 );
   mBoundariesVertex.append( vert0 );
   mBoundariesVertex.append( vert1 );
   mSegments.insert( feat.id(), {vert0, vert1} );
 
-  for ( int i = 2; i < boundary.count() - 1; ++i )
+  for ( int i = 2; i < boundary.count() ; ++i )
   {
     vert0 = vert1;
     point0 = point1;
@@ -93,7 +103,7 @@ ReosPolylineStructureVectorLayer::ReosPolylineStructureVectorLayer( const QPolyg
 }
 
 
-ReosPolylineStructureVectorLayer::Vertex ReosPolylineStructureVectorLayer::createVertex( QgsFeatureId id, int positionInFeature )
+ReosPolylineStructureVectorLayer::VertexH ReosPolylineStructureVectorLayer::createVertex( QgsFeatureId id, int positionInFeature )
 {
   return std::make_shared<ReosStructureVertexHandler_p>( mVectorLayer.get(), id, positionInFeature );
 }
@@ -112,6 +122,21 @@ const QgsCoordinateTransform ReosPolylineStructureVectorLayer::toDestinationTran
   qgsCrs.fromWkt( destinationCrs );
 
   return QgsCoordinateTransform( mVectorLayer->crs(), qgsCrs, QgsProject::instance() );
+}
+
+QList<ReosStructureVertexHandler_p *> ReosPolylineStructureVectorLayer::neighorsVertices( ReosGeometryStructureVertex *vertex, QgsFeatureIds &fids ) const
+{
+  QList<VertexP> neighbors;
+
+  VertexP vert = static_cast<ReosStructureVertexHandler_p *>( vertex );
+  fids = vert->linkedFeatures();
+
+  for ( const QgsFeatureId &fid : std::as_const( fids ) )
+  {
+    neighbors.append( oppositeVertex( vert, fid ) );
+  }
+
+  return neighbors;
 }
 
 QgsPointXY ReosPolylineStructureVectorLayer::toLayerCoordinates( const QPointF &position, const QgsCoordinateTransform &transform ) const
@@ -136,6 +161,27 @@ QgsPointXY ReosPolylineStructureVectorLayer::toLayerCoordinates( const ReosSpati
   return toLayerCoordinates( position.position(), toLayerTransform( position.crs() ) );
 }
 
+ReosPolylineStructureVectorLayer::Segment ReosPolylineStructureVectorLayer::idToSegment( QgsFeatureId id ) const
+{
+  auto it = mSegments.find( id );
+  if ( it == mSegments.end() )
+    return Segment();
+
+  return it.value();
+}
+
+ReosPolylineStructureVectorLayer::VertexP ReosPolylineStructureVectorLayer::oppositeVertex( ReosPolylineStructureVectorLayer::VertexP other,
+    ReosPolylineStructureVectorLayer::SegmentId sid ) const
+{
+  const Segment &seg = idToSegment( sid );
+  if ( seg.at( 0 ).get() == other )
+    return seg.at( 1 ).get();
+  else if ( seg.at( 1 ).get() == other )
+    return seg.at( 0 ).get();
+  else
+    throw ReosException( QStringLiteral( "topologic error" ) );
+}
+
 void ReosPolylineStructureVectorLayer::addPolylines( const QPolygonF &polyline, const QString &sourceCrs, const QString &id )
 {
 
@@ -152,7 +198,7 @@ QPolygonF ReosPolylineStructureVectorLayer::boundary( const QString &destination
   const QgsCoordinateTransform transform( toLayerTransform( destinationCrs ) );
   for ( int i = 0; i < mBoundariesVertex.count(); ++i )
   {
-    const Vertex &vert = mBoundariesVertex.at( i );
+    const VertexH &vert = mBoundariesVertex.at( i );
     ret[i] = vert->position( transform );
   }
 
@@ -172,10 +218,75 @@ void ReosPolylineStructureVectorLayer::removeAll()
   mBoundariesVertex.clear();
 }
 
+bool ReosPolylineStructureVectorLayer::vertexCanBeMoved( ReosGeometryStructureVertex *geometryVertex, const ReosSpatialPosition &newPosition ) const
+{
+  VertexP vertex = static_cast<VertexP>( geometryVertex );
+  QgsFeatureIds ids;
+  const QList<ReosStructureVertexHandler_p *> neighbors = neighorsVertices( vertex, ids );
+  QgsPointXY newPosInLayer = toLayerCoordinates( newPosition );
+  double x = newPosInLayer.x();
+  double y = newPosInLayer.y();
+
+  ReosMapExtent searchExtent( x - mTolerance, y - mTolerance, x + mTolerance, y + mTolerance );
+  VertexP closeVertex = static_cast<VertexP >( searchForVertex( searchExtent ) );
+
+  if ( closeVertex )
+  {
+    const QgsPointXY closeVertexPosition = closeVertex->position();
+    if ( closeVertexPosition.distance( newPosInLayer ) < mTolerance )
+      if ( closeVertex->linkedFeatures().count() > 1 || vertex->linkedFeatures().count() > 1 )
+        return false;
+  }
+
+  QgsFeatureIterator fit = mVectorLayer->getFeatures( ids );
+
+  QgsRectangle concernedExtent;
+  concernedExtent.include( newPosInLayer );
+
+  QVector<QgsPointXY> neighborPosition;
+  for ( ReosStructureVertexHandler_p *vert : neighbors )
+  {
+    const QgsPointXY pt =  vert->position();
+    concernedExtent.include( pt );
+    neighborPosition.append( pt );
+  }
+
+  QgsFeatureIterator concernedFeatIt = mVectorLayer->getFeatures( concernedExtent );
+
+  QgsFeature feat;
+  while ( concernedFeatIt.nextFeature( feat ) )
+  {
+    if ( ids.contains( feat.id() ) )
+      continue;
+
+    const Segment &concernedSeg = idToSegment( feat.id() );
+    VertexH vert1 = concernedSeg.at( 0 );
+    VertexH vert2 = concernedSeg.at( 1 );
+    QgsPointXY p1 = vert1->position();
+    QgsPointXY p2 = vert2->position();
+
+    for ( int i = 0; i < neighbors.count(); ++i )
+    {
+      QgsPoint pointIntersect;
+      bool isIntersect;
+      if ( QgsGeometryUtils::segmentIntersection( QgsPoint( p1 ), QgsPoint( p2 ),
+           QgsPoint( newPosInLayer ), QgsPoint( neighborPosition.at( i ) ),
+           pointIntersect, isIntersect ) )
+        return false;
+    }
+
+  }
+
+  return true;
+}
+
 void ReosPolylineStructureVectorLayer::moveVertex( ReosGeometryStructureVertex *vertex, const ReosSpatialPosition &newPosition )
 {
   QgsPointXY newLayerPosition = toLayerCoordinates( newPosition );
-  static_cast<ReosStructureVertexHandler_p *>( vertex )->move( newLayerPosition );
+
+  VertexP vert = static_cast<ReosStructureVertexHandler_p *>( vertex );
+  vert->move( newLayerPosition );
+
 }
 
 ReosMapExtent ReosPolylineStructureVectorLayer::extent( const QString &destinationCrs ) const
@@ -279,24 +390,8 @@ QPointF ReosPolylineStructureVectorLayer::vertexPosition( ReosGeometryStructureV
 
 QList<QPointF> ReosPolylineStructureVectorLayer::neighborsPositions( ReosGeometryStructureVertex *vertex, const QString &crs ) const
 {
-  QList<ReosStructureVertexHandler_p *> neighbors;
-
-  const QgsFeatureIds &fids
-    = static_cast<ReosStructureVertexHandler_p *>( vertex )->linkedFeatures();
-
-  for ( const QgsFeatureId &fid : fids )
-  {
-    auto segIt = mSegments.find( fid );
-    if ( segIt != mSegments.end() )
-    {
-      const Segment &seg = segIt.value();
-      if ( vertex == seg[0].get() )
-        neighbors.append( seg[1].get() );
-      else
-        neighbors.append( seg[0].get() );
-    }
-  }
-
+  QgsFeatureIds ids;
+  QList<ReosStructureVertexHandler_p *> neighbors = neighorsVertices( static_cast<ReosStructureVertexHandler_p *>( vertex ), ids );
 
   QList<QPointF> ret;
   const QgsCoordinateTransform &transform = toDestinationTransform( crs );

@@ -44,13 +44,6 @@ class ReosPolylinesStructure : public ReosGeometryStructure
 {
     Q_OBJECT
   public:
-    struct VertexHandler
-    {
-
-      private:
-        quint64 id;
-        friend class ReosPolylinesStructure;
-    };
 
     //! Creates and returns polylines structure with specified \a crs
     static std::unique_ptr<ReosPolylinesStructure> createPolylineStructure( const QString &crs );
@@ -73,6 +66,9 @@ class ReosPolylinesStructure : public ReosGeometryStructure
     //! Translates the polyline with \a id (boundary one if void string)
     virtual void translate( const QPointF &translation, const QString &crs, const QString &id = QString() ) = 0;
 
+    //! Returns whether the \a vertex can be moves to the new position \a newPosition
+    virtual bool vertexCanBeMoved( ReosGeometryStructureVertex *vertex, const ReosSpatialPosition &newPosition ) const = 0;
+
     //! Moves vertex at positon \a index in th polyline with \a id (boundary one if void string) with the new positon \a newPosition
     virtual void moveVertex( ReosGeometryStructureVertex *vertex, const ReosSpatialPosition &newPosition ) = 0;
 
@@ -88,8 +84,10 @@ class ReosPolylinesStructure : public ReosGeometryStructure
     //! Search the closest vertex of the center of \a zone and in this zone, returns a pointer to the vertex
     virtual ReosGeometryStructureVertex *searchForVertex( const ReosMapExtent &zone ) const = 0;
 
+    //! Returns the \a vertex position in \a crs coordinate or in the strucure coordinate if \a crs is void
     virtual QPointF vertexPosition( ReosGeometryStructureVertex *vertex, const QString &crs ) const = 0;
 
+    //! Returns the neighbor vertices positions of \a vertex in \a crs coordinate or in the strucure coordinate if \a crs is void
     virtual QList<QPointF> neighborsPositions( ReosGeometryStructureVertex *vertex, const QString &crs ) const = 0;
 
     virtual QUndoStack *undoStack() const = 0;

@@ -17,6 +17,8 @@
 #define REOSPOLYLINESSTRUCTURE_P_H
 
 #include <qgsvectorlayer.h>
+#include <qgscoordinatetransform.h>
+
 #include "reospolylinesstructure.h"
 
 
@@ -26,7 +28,7 @@ class ReosStructureVertexHandler_p : public ReosGeometryStructureVertex
 
     ReosStructureVertexHandler_p( QgsVectorLayer *source, QgsFeatureId fid, int pos );
 
-    QPointF position( const QgsCoordinateTransform &transform );
+    QPointF position( const QgsCoordinateTransform &transform = QgsCoordinateTransform() );
 
     void linkFeature( QgsFeatureId fid, int pos );
 
@@ -65,15 +67,17 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
     void addPolylines( const QPolygonF &polyline, const QString &sourceCrs = QString( ), const QString &id = QString() ) override;
     QPolygonF polyline( const QString &destinationCrs = QString(), const QString &id = QString() ) const override;
 
-    virtual QPolygonF boundary( const QString &destinationCrs ) const override;
+    QPolygonF boundary( const QString &destinationCrs ) const override;
 
     QgsVectorLayer *data() override {return mVectorLayer.get();}
 
-    virtual void removeAll() override;
-    virtual void translate( const QPointF &translation, const QString &crs, const QString &id = QString() ) override {};
-    virtual void moveVertex( ReosGeometryStructureVertex *vertex, const ReosSpatialPosition &newPosition ) override;
-    virtual void insertVertex( int index, const ReosSpatialPosition &point, const QString &id = QString() )override {};
-    virtual void removeVertex( int index, const QString &id = QString() )override {}
+    void removeAll() override;
+    void translate( const QPointF &translation, const QString &crs, const QString &id = QString() ) override {};
+
+    bool vertexCanBeMoved( ReosGeometryStructureVertex *vertex, const ReosSpatialPosition &newPosition ) const override;
+    void moveVertex( ReosGeometryStructureVertex *vertex, const ReosSpatialPosition &newPosition ) override;
+    void insertVertex( int index, const ReosSpatialPosition &point, const QString &id = QString() )override {};
+    void removeVertex( int index, const QString &id = QString() )override {}
     ReosMapExtent extent( const QString &destinationCrs ) const override;
     ReosGeometryStructureVertex *searchForVertex( const ReosMapExtent &zone ) const override;
     QPointF vertexPosition( ReosGeometryStructureVertex *vertex, const QString &crs ) const override;
@@ -81,24 +85,33 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
 
     QUndoStack *undoStack() const;
 
+    void setTolerance( double tolerance, const QString &wktCrs = QString() );
+
   private:
-    typedef std::shared_ptr<ReosStructureVertexHandler_p> Vertex;
-    typedef std::array<Vertex, 2> Segment;
+    typedef QgsFeatureId SegmentId;
+    typedef ReosStructureVertexHandler_p *VertexP;
+    typedef std::shared_ptr<ReosStructureVertexHandler_p> VertexH;
+    typedef std::array<VertexH, 2> Segment;
 
     ReosPolylineStructureVectorLayer() = default;
 
     // Data member defining the structure
     std::unique_ptr<QgsVectorLayer> mVectorLayer;
     QMap<QgsFeatureId, Segment> mSegments;
-    QList<Vertex> mBoundariesVertex;
+    QList<VertexH> mBoundariesVertex;
+    double mTolerance = 0.01;
 
-    Vertex createVertex( QgsFeatureId id, int positionInFeature );
+    VertexH createVertex( QgsFeatureId id, int positionInFeature );
     const QgsCoordinateTransform toLayerTransform( const QString &crs ) const;
     const QgsCoordinateTransform toDestinationTransform( const QString &destinationCrs ) const;
 
+    QList<ReosStructureVertexHandler_p *> neighorsVertices( ReosGeometryStructureVertex *vertex, QgsFeatureIds &fids ) const;
 
     QgsPointXY toLayerCoordinates( const QPointF &position, const QgsCoordinateTransform &transform ) const;
     QgsPointXY toLayerCoordinates( const ReosSpatialPosition &position ) const;
+    Segment idToSegment( QgsFeatureId id ) const;
+
+    VertexP oppositeVertex( VertexP other, SegmentId sid ) const;
 };
 
 
