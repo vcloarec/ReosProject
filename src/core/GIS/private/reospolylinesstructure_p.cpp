@@ -305,9 +305,18 @@ void ReosPolylineStructureVectorLayer::moveVertex( ReosGeometryStructureVertex *
 
 void ReosPolylineStructureVectorLayer::insertVertex( const ReosSpatialPosition &point, qint64 lineId )
 {
+  QgsPointXY pointI = toLayerCoordinates( point );
+
   mVectorLayer->beginEditCommand( "Insert vertex" );
 
   QgsFeature oldFeature = mVectorLayer->getFeature( lineId );
+
+  // get the projected point on the line
+  QgsPointXY projPoint;
+  int vi;
+  oldFeature.geometry().closestSegmentWithContext( pointI, projPoint, vi );
+  pointI = projPoint;
+
   QgsFeatureId featIdBefore;
   if ( !idToLinkedSegment( lineId, 0, &featIdBefore ) )
     featIdBefore = std::numeric_limits<qint64>::max();
@@ -318,7 +327,6 @@ void ReosPolylineStructureVectorLayer::insertVertex( const ReosSpatialPosition &
 
   QgsPointXY point0 = oldFeature.geometry().vertexAt( 0 );
   QgsPointXY point1 = oldFeature.geometry().vertexAt( 1 );
-  QgsPointXY pointI = toLayerCoordinates( point );
 
   mVectorLayer->undoStack()->push( //remove the old line
     new ReosPolylineStructureVectorLayerUndoCommandRemoveLine( lineId, this ) );

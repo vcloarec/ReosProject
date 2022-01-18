@@ -91,8 +91,9 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
 
     bool vertexCanBeMoved( ReosGeometryStructureVertex *vertex, const ReosSpatialPosition &newPosition ) const override;
     void moveVertex( ReosGeometryStructureVertex *vertex, const ReosSpatialPosition &newPosition ) override;
-    void insertVertex( const ReosSpatialPosition &point, qint64 lineId ) override;;
+    void insertVertex( const ReosSpatialPosition &point, qint64 lineId ) override;
     void removeVertex( int index, const QString &id = QString() )override {}
+
     ReosMapExtent extent( const QString &destinationCrs ) const override;
     ReosGeometryStructureVertex *searchForVertex( const ReosMapExtent &zone ) const override;
     bool searchForLine( const ReosMapExtent &zone, qint64 &id ) const override;
