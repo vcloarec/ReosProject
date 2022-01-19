@@ -32,6 +32,11 @@ QPointF ReosMapPolylinesStructure_p::mapPos() const
   return QPointF( extent.xMapMin(), extent.yMapMin() );
 }
 
+void ReosMapPolylinesStructure_p::setExteriorBaseWidth( double width )
+{
+  mExterior->setBaseWidth( width );
+}
+
 void ReosMapPolylinesStructure_p::updatePosition()
 {
   prepareGeometryChange();
@@ -68,10 +73,13 @@ void ReosMapStructureExteriorItem::updatePosition( const QPolygonF &poly, ReosMa
     QPointF ptLocal = ptCanvas;
     polyInLocalView.append( ptLocal );
   }
-  mBBox = polyInLocalView.boundingRect();
+  mBBox = polyInLocalView.boundingRect().adjusted( - 5, -5, 5, 5 );
 }
 
-QRectF ReosMapStructureExteriorItem::boundingRect() const {return mBBox;}
+QRectF ReosMapStructureExteriorItem::boundingRect() const
+{
+  return mBBox;
+}
 
 void ReosMapStructureExteriorItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *, QWidget * )
 {
@@ -79,12 +87,12 @@ void ReosMapStructureExteriorItem::paint( QPainter *painter, const QStyleOptionG
   painter->setRenderHint( QPainter::Antialiasing, true );
   QPen pen;
   pen.setColor( QColor( 250, 175, 100 ) );
-  pen.setWidthF( 5 );
+  pen.setWidthF( mBaseWidth );
   painter->setPen( pen );
   painter->drawPolygon( polyInLocalView );
 
   pen.setColor( Qt::gray );
-  pen.setWidthF( 2 );
+  pen.setWidthF( mBaseWidth / 5 * 2 );
   painter->setPen( pen );
   painter->drawPolygon( polyInLocalView );
 
@@ -92,11 +100,17 @@ void ReosMapStructureExteriorItem::paint( QPainter *painter, const QStyleOptionG
   brush.setColor( Qt::gray );
   brush.setStyle( Qt::SolidPattern );
   pen.setColor( QColor( 250, 175, 100 ) );
-  pen.setWidth( 2 );
+  pen.setWidth( mBaseWidth / 5 * 2 );
   painter->setBrush( brush );
   painter->setPen( pen );
   for ( const QPointF pt : std::as_const( polyInLocalView ) )
-    painter->drawEllipse( pt, 4, 4 );
+    painter->drawEllipse( pt,  mBaseWidth / 5 * 4,  mBaseWidth / 5 * 4 );
 
   painter->restore();
+}
+
+void ReosMapStructureExteriorItem::setBaseWidth( double baseWidth )
+{
+  mBaseWidth = baseWidth;
+  update();
 }

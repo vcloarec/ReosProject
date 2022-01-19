@@ -571,7 +571,7 @@ ReosMapPolylineStructure::ReosMapPolylineStructure( ReosMap *map, ReosPolylinesS
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
   {
-    d_ = new ReosMapPolylinesStructure_p( canvas ); //the owner ship of d pointer is takeny the scene of the map canvas
+    d_ = new ReosMapPolylinesStructure_p( canvas ); //the owner ship of d pointer is taken by the scene of the map canvas
     static_cast<ReosMapPolylinesStructure_p *>( d_ )->setStructure( structure );
     d_->base = this;
   }
@@ -581,4 +581,9 @@ ReosMapPolylineStructure::~ReosMapPolylineStructure()
 {
   if ( isMapExist() && d_ )
     delete d_;
+}
+
+void ReosMapPolylineStructure::setDomainBaseWidth( double width )
+{
+  static_cast<ReosMapPolylinesStructure_p *>( d_ )->setExteriorBaseWidth( width );
 }

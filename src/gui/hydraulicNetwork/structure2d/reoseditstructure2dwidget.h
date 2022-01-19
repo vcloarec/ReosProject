@@ -29,24 +29,41 @@ class ReosHydraulicStructure2D;
 namespace Ui
 {
   class ReosEditStructure2DWidget;
+  class ReosEditStructureGeometry2DWidget;
 }
 
 class ReosEditStructure2DWidget : public ReosStackedPageWidget
 {
     Q_OBJECT
-
   public:
-    explicit ReosEditStructure2DWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context = ReosGuiContext() );
+    ReosEditStructure2DWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context );
     ~ReosEditStructure2DWidget();
+  private slots:
+    void onMeshOptionListChanged( int row );
 
   private:
     Ui::ReosEditStructure2DWidget *ui;
 
-    QAction *mActionEditLine = nullptr;
-    ReosMapToolEditGeometryStructure *mMapToolEditLine = nullptr;
-
     ReosMapPolylineStructure mMapStructureItem;
     ReosMapItem *mInitialMapStructureItem = nullptr;
+};
+
+class ReosEditStructureGeometry2DWidget : public QWidget
+{
+    Q_OBJECT
+
+  public:
+    explicit ReosEditStructureGeometry2DWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context = ReosGuiContext() );
+    ~ReosEditStructureGeometry2DWidget();
+
+
+  protected:
+    void hideEvent( QHideEvent *e );
+
+  private:
+    Ui::ReosEditStructureGeometry2DWidget *ui;
+    QAction *mActionEditLine = nullptr;
+    ReosMapToolEditGeometryStructure *mMapToolEditLine = nullptr;
 
     QAction *mActionUndo = nullptr;
     QAction *mActionRedo = nullptr;

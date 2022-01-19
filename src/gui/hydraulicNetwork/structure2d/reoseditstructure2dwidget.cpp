@@ -15,6 +15,7 @@
  ***************************************************************************/
 #include "reoseditstructure2dwidget.h"
 #include "ui_reoseditstructure2dwidget.h"
+#include "ui_reoseditstructuregeometry2dwidget.h"
 
 #include <QToolBar>
 #include <QPushButton>
@@ -23,25 +24,48 @@
 #include "reosmaptooleditgeometrystructure.h"
 #include "reoshydraulicstructure2d.h"
 
-ReosEditStructure2DWidget::ReosEditStructure2DWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context )
-  : ReosStackedPageWidget( context.parent() )
-  , ui( new Ui::ReosEditStructure2DWidget )
+ReosEditStructureGeometry2DWidget::ReosEditStructureGeometry2DWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context )
+  : QWidget( context.parent() )
+  , ui( new Ui::ReosEditStructureGeometry2DWidget )
   , mActionEditLine( new QAction( tr( "Edit Structure Line" ), this ) )
   , mMapToolEditLine( new ReosMapToolEditGeometryStructure( structure2D->geometryStructure(), this, context.map() ) )
-  , mMapStructureItem( context.map(), structure2D->geometryStructure() )
 {
   ui->setupUi( this );
 
-  QPushButton *backButton = new QPushButton( tr( "Back" ), this );
-  layout()->addWidget( backButton );
-  connect( backButton, &QPushButton::clicked, this, &ReosStackedPageWidget::backToPreviousPage );
-
   QToolBar *toolBar = new QToolBar( this );
-  layout()->addWidget( toolBar );
+  ui->mToolBarWidget->layout()->addWidget( toolBar );
 
   toolBar->addAction( mActionEditLine );
   mActionEditLine->setCheckable( true );
   mMapToolEditLine->setAction( mActionEditLine );
+
+  mUndoStack = structure2D->geometryStructure()->undoStack();
+  toolBar->addAction( mUndoStack->createUndoAction( this ) );
+  toolBar->addAction( mUndoStack->createRedoAction( this ) );
+}
+
+ReosEditStructureGeometry2DWidget::~ReosEditStructureGeometry2DWidget()
+{
+  delete ui;
+}
+
+void ReosEditStructureGeometry2DWidget::hideEvent( QHideEvent *e )
+{
+  mMapToolEditLine->quitMap();
+  QWidget::hideEvent( e );
+}
+
+ReosEditStructure2DWidget::ReosEditStructure2DWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context )
+  : ReosStackedPageWidget( context.parent() )
+  , ui( new Ui::ReosEditStructure2DWidget )
+  , mMapStructureItem( context.map(), structure2D->geometryStructure() )
+{
+  ui->setupUi( this );
+  ui->pageMeshStructure->layout()->addWidget( new ReosEditStructureGeometry2DWidget( structure2D, ReosGuiContext( context, this ) ) );
+
+  mInitialMapStructureItem = context.mapItems( ReosHydraulicStructure2D::staticType() );
+  if ( mInitialMapStructureItem )
+    mInitialMapStructureItem->setVisible( false );
 
   connect( structure2D->geometryStructure(), &ReosDataObject::dataChanged, this, [this, structure2D, context]
   {
@@ -52,13 +76,8 @@ ReosEditStructure2DWidget::ReosEditStructure2DWidget( ReosHydraulicStructure2D *
     context.map()->refreshCanvas();
   } );
 
-  mInitialMapStructureItem = context.mapItems( ReosHydraulicStructure2D::staticType() );
-  if ( mInitialMapStructureItem )
-    mInitialMapStructureItem->setVisible( false );
-
-  mUndoStack = structure2D->geometryStructure()->undoStack();
-  toolBar->addAction( mUndoStack->createUndoAction( this ) );
-  toolBar->addAction( mUndoStack->createRedoAction( this ) );
+  connect( ui->mBackButton, &QPushButton::clicked, this, &ReosStackedPageWidget::backToPreviousPage );
+  connect( ui->mOptionListWidget, &QListWidget::currentRowChanged, this, &ReosEditStructure2DWidget::onMeshOptionListChanged );
 }
 
 ReosEditStructure2DWidget::~ReosEditStructure2DWidget()
@@ -66,4 +85,21 @@ ReosEditStructure2DWidget::~ReosEditStructure2DWidget()
   delete ui;
   if ( mInitialMapStructureItem )
     mInitialMapStructureItem->setVisible( true );
+}
+
+void ReosEditStructure2DWidget::onMeshOptionListChanged( int row )
+{
+  ui->mStackedWidget->setCurrentIndex( row );
+
+  switch ( row )
+  {
+    case 0:
+      mMapStructureItem.setDomainBaseWidth( 5 );
+      break;
+    case 1:
+      mMapStructureItem.setDomainBaseWidth( 2 );
+      break;
+    default:
+      break;
+  }
 }

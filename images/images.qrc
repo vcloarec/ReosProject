@@ -120,5 +120,6 @@
         <file>warning.svg</file>
         <file>error.svg</file>
         <file>selectHydraulicElement.svg</file>
+        <file>addHydraulicStructure2D.svg</file>
     </qresource>
 </RCC>

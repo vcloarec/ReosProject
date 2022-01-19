@@ -201,6 +201,8 @@ class ReosMapPolylineStructure : public ReosMapItem
     ReosMapPolylineStructure(): ReosMapItem() {}
     ReosMapPolylineStructure( ReosMap *map, ReosPolylinesStructure *structure );
     ~ReosMapPolylineStructure();
+
+    void setDomainBaseWidth( double width );
 };
 
 

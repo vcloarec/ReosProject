@@ -6,14 +6,99 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>481</width>
-    <height>361</height>
+    <width>662</width>
+    <height>496</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout"/>
+  <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QPushButton" name="mBackButton">
+       <property name="text">
+        <string>Back</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QListWidget" name="mOptionListWidget">
+       <item>
+        <property name="text">
+         <string>Structure</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Element</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Topographie</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Roughness</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Boundary</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Setup</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QStackedWidget" name="mStackedWidget">
+     <widget class="QWidget" name="pageMeshStructure">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="page_2"/>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections/>

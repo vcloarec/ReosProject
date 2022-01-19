@@ -31,6 +31,8 @@ class ReosMapPolylinesStructure_p : public ReosMapItem_p
     void translate( const QPointF &translation ) {}
     QPointF mapPos() const;
 
+    void setExteriorBaseWidth( double width );
+
     void updatePosition() override;
     void setStructure( ReosPolylinesStructure *structure );
 
@@ -42,21 +44,21 @@ class ReosMapPolylinesStructure_p : public ReosMapItem_p
 };
 
 
-
 class ReosMapStructureExteriorItem : public QGraphicsItem
 {
   public:
     ReosMapStructureExteriorItem( ReosMapPolylinesStructure_p *parent );
-
     void updatePosition( const QPolygonF &poly, ReosMapPolylinesStructure_p *parent );
-
     QRectF boundingRect() const override;
-
     void paint( QPainter *painter, const QStyleOptionGraphicsItem *, QWidget * ) override;
+
+    void setBaseWidth( double baseWidth );
 
   private:
     QPolygonF polyInLocalView;
     QRectF mBBox;
+    double mBaseWidth = 5;
 };
+
 
 #endif // REOSMAPPOLYLINESSTRUCTURE_P_H
