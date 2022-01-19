@@ -89,17 +89,32 @@ void ReoHydraulicStructure2DTest::createAndAditGeometry()
   qint64 lineId;
   QVERIFY( geomStructure->searchForLine( ReosMapExtent( 0.70, 0.9, 0.8, 1.1 ), lineId ) );
 
-  geomStructure->insertVertex( ReosSpatialPosition( QPointF( 0.75, 1.0 ) ), lineId );
+  geomStructure->insertVertex( ReosSpatialPosition( QPointF( 0.75, 1.1 ) ), lineId );
   QVERIFY( domain != structure2D->domain() );
   geomStructure->undoStack()->undo();
   QVERIFY( domain == structure2D->domain() );
   geomStructure->undoStack()->redo();
-  domain.insert( 4, QPointF( 0.75, 1.0 ) );
+  domain.insert( 4, QPointF( 0.75, 1.0 ) ); //it is the projected point that is inserted
   QVERIFY( domain == structure2D->domain() );
   geomStructure->undoStack()->undo();
   QVERIFY( domain != structure2D->domain() );
   geomStructure->undoStack()->redo();
   QVERIFY( domain == structure2D->domain() );
+
+  searchZone = ReosMapExtent( -0.1, 0.9, 0.1, 1.1 );
+  vert = geomStructure->searchForVertex( searchZone );
+  QVERIFY( vert );
+
+  geomStructure->removeVertex( vert );
+  QCOMPARE( structure2D->domain().count(), 8 );
+  geomStructure->undoStack()->undo();
+  QCOMPARE( structure2D->domain().count(), 9 );
+  QVERIFY( domain == structure2D->domain() );
+  geomStructure->undoStack()->redo();
+  QVERIFY( domain != structure2D->domain() );
+  domain.removeAt( 2 );
+  QVERIFY( domain == structure2D->domain() );
+
 }
 
 QTEST_MAIN( ReoHydraulicStructure2DTest )

@@ -75,8 +75,8 @@ class ReosPolylinesStructure : public ReosGeometryStructure
     //! Inserts a vertex in the line with \a lineId at position \a point
     virtual void insertVertex( const ReosSpatialPosition &point, qint64 lineId ) = 0;
 
-    //! Removes vertex at positon \a index in th polyline with \a id (boundary one if void string)
-    virtual void removeVertex( int index, const QString &id = QString() ) = 0 ;
+    //! Removes \a vertex
+    virtual void removeVertex( ReosGeometryStructureVertex *vertex ) = 0 ;
 
     //! Returns the extent of the structure in \a crs coordinate system
     virtual ReosMapExtent extent( const QString &crs ) const = 0;

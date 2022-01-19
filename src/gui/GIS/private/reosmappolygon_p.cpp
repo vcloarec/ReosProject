@@ -695,7 +695,7 @@ void ReosMapStructureEnvelop_p::removeVertex( int index )
   if ( !mStructure )
     return;
 
-  mStructure->removeVertex( index );
+  //mStructure->removeVertex( index );
 
   updatePosition();
 }

@@ -27,15 +27,17 @@ static QColor rubberBandColor = QColor( 0, 155, 242 );
 ReosMapToolEditPolylineStructure_p::ReosMapToolEditPolylineStructure_p( QgsMapCanvas *map )
   :  ReosMapTool_p( map )
   , mActionInsertVertex( new QAction( tr( "Insert Vertex" ), this ) )
+  , mActionRemoveVertex( new QAction( tr( "Remove Vertex" ), this ) )
 {
   enableSnapping( true );
 
   mVertexMarker = new QgsVertexMarker( map );
   mVertexMarker->setVisible( false );
-  mVertexMarker->setColor( QColor( 250, 175, 100 ) );
-  mVertexMarker->setIconSize( QgsGuiUtils::scaleIconSize( 13 ) );
-  mVertexMarker->setPenWidth( QgsGuiUtils::scaleIconSize( 2 ) );
+  mVertexMarker->setColor( rubberBandColor );
+  mVertexMarker->setIconSize( QgsGuiUtils::scaleIconSize( 12 ) );
+  mVertexMarker->setPenWidth( QgsGuiUtils::scaleIconSize( 4 ) );
   mVertexMarker->setIconType( QgsVertexMarker::ICON_CIRCLE );
+  mVertexMarker->setZValue( 55 );
 
   mMovingLineRubberBand = new QgsRubberBand( mCanvas, QgsWkbTypes::LineGeometry );
   mMovingLineRubberBand->setWidth( 1 );
@@ -136,6 +138,10 @@ void ReosMapToolEditPolylineStructure_p::canvasReleaseEvent( QgsMapMouseEvent *e
           stopDraggingVertex();
           canvas()->refresh();
         }
+        else if ( e->button() == Qt::RightButton )
+        {
+          stopDraggingVertex();
+        }
       }
       break;
   }
@@ -160,6 +166,11 @@ void ReosMapToolEditPolylineStructure_p::keyPressEvent( QKeyEvent *e )
 void ReosMapToolEditPolylineStructure_p::insertVertex( const QPointF &mapPoint, qint64 lineId )
 {
   mStructure->insertVertex( mapPoint, lineId );
+}
+
+void ReosMapToolEditPolylineStructure_p::removeVertex( ReosGeometryStructureVertex *vertex )
+{
+  mStructure->removeVertex( vertex );
 }
 
 ReosMapExtent ReosMapToolEditPolylineStructure_p::searchZone( const QgsPointXY &point ) const
@@ -218,14 +229,36 @@ void ReosEditGeometryStructureMenuPopulator::populate( QMenu *menu, QgsMapMouseE
     return;
 
   QPointF nonSnapPos = e->mapPoint().toQPointF();
+  ReosMapExtent searchZone = mToolMap->searchZone( e->snapPoint() );
+  QPointF snapPos = e->mapPoint().toQPointF();
+
+
+  ReosGeometryStructureVertex *vertex = mToolMap->mStructure->searchForVertex( searchZone );
+  if ( vertex )
+    populateVertexAction( vertex, menu );
+
   qint64 id = 0;
-  if ( mToolMap->mStructure->searchForLine( mToolMap->searchZone( nonSnapPos ), id ) )
+  if ( !vertex && mToolMap->mStructure->searchForLine( mToolMap->searchZone( nonSnapPos ), id ) )
+    populateLineAction( id, snapPos, menu );
+
+}
+
+void ReosEditGeometryStructureMenuPopulator::populateVertexAction( ReosGeometryStructureVertex *vertex, QMenu *menu )
+{
+  menu->clear();
+  menu->addAction( mToolMap->mActionRemoveVertex );
+  QObject::connect( mToolMap->mActionRemoveVertex, &QAction::triggered, menu, [this, vertex]
   {
-    menu->clear();
-    menu->addAction( mToolMap->mActionInsertVertex );
-    QObject::connect( mToolMap->mActionInsertVertex, &QAction::triggered, menu, [this, nonSnapPos, id]
-    {
-      mToolMap->insertVertex( nonSnapPos, id );
-    } );
-  }
+    mToolMap->removeVertex( vertex );
+  } );
+}
+
+void ReosEditGeometryStructureMenuPopulator::populateLineAction( QgsFeatureId id, const QPointF &point, QMenu *menu )
+{
+  menu->clear();
+  menu->addAction( mToolMap->mActionInsertVertex );
+  QObject::connect( mToolMap->mActionInsertVertex, &QAction::triggered, menu, [this, point, id]
+  {
+    mToolMap->insertVertex( point, id );
+  } );
 }

@@ -32,6 +32,10 @@ class ReosEditGeometryStructureMenuPopulator: public ReosMenuPopulator
     ReosPolylinesStructure *mStructure = nullptr;
     ReosMapToolEditPolylineStructure_p *mToolMap = nullptr;
 
+  private:
+    void populateVertexAction( ReosGeometryStructureVertex *vertex, QMenu *menu );
+    void populateLineAction( QgsFeatureId id, const QPointF &point, QMenu *menu );
+
 
 };
 
@@ -53,6 +57,7 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
 
   private slots:
     void insertVertex( const QPointF &mapPoint, qint64 lineId );
+    void removeVertex( ReosGeometryStructureVertex *vertex );
 
   private:
     enum State
@@ -77,6 +82,7 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
     void stopDraggingVertex();
 
     QAction *mActionInsertVertex = nullptr;
+    QAction *mActionRemoveVertex = nullptr;
 
     friend class ReosEditGeometryStructureMenuPopulator;
 };

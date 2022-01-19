@@ -124,12 +124,12 @@ const QgsCoordinateTransform ReosPolylineStructureVectorLayer::toDestinationTran
   return QgsCoordinateTransform( mVectorLayer->crs(), qgsCrs, QgsProject::instance() );
 }
 
-QList<ReosStructureVertexHandler_p *> ReosPolylineStructureVectorLayer::neighorsVertices( ReosGeometryStructureVertex *vertex, QgsFeatureIds &fids ) const
+QList<ReosStructureVertexHandler_p *> ReosPolylineStructureVectorLayer::neighorsVertices( ReosGeometryStructureVertex *vertex, QList<SegmentId> &fids ) const
 {
   QList<VertexP> neighbors;
 
   VertexP vert = static_cast<ReosStructureVertexHandler_p *>( vertex );
-  fids = vert->attachedLines();
+  fids = vert->attachedLines().toList();
 
   for ( const QgsFeatureId &fid : std::as_const( fids ) )
   {
@@ -176,7 +176,7 @@ ReosPolylineStructureVectorLayer::VertexH ReosPolylineStructureVectorLayer::idTo
   return seg.at( pos );
 }
 
-bool ReosPolylineStructureVectorLayer::idToLinkedSegment( ReosPolylineStructureVectorLayer::SegmentId id, int pos, ReosPolylineStructureVectorLayer::SegmentId *linkedSeg )
+bool ReosPolylineStructureVectorLayer::idToOneLinkedSegment( ReosPolylineStructureVectorLayer::SegmentId id, int pos, ReosPolylineStructureVectorLayer::SegmentId *linkedSeg )
 {
   VertexP vert = idToVertex( id, pos ).get();
   return vert->oneOtherLine( id, linkedSeg );
@@ -194,6 +194,38 @@ ReosPolylineStructureVectorLayer::VertexP ReosPolylineStructureVectorLayer::oppo
     return seg.at( 0 ).get();
   else
     throw ReosException( QStringLiteral( "topologic error" ) );
+}
+
+QPair<ReosPolylineStructureVectorLayer::SegmentId, ReosPolylineStructureVectorLayer::SegmentId> ReosPolylineStructureVectorLayer::boundarieLines( ReosPolylineStructureVectorLayer::VertexP vertex )
+{
+  SegmentId segId0;
+  SegmentId segId1;
+  QList<SegmentId> segs;
+  QList<VertexP> vertices = neighorsVertices( vertex, segs );
+
+  for ( int i = 0; i < segs.count(); ++i )
+  {
+    if ( mBoundariesVertex.contains( vertices.at( i ) ) )
+    {
+      if ( vertices.at( i )->posInLine( segs.at( i ) ) == 0 )
+        segId0 = segs.at( i );
+      else
+        segId1 = segs.at( i );
+    }
+  }
+  return QPair<SegmentId, SegmentId>( segId0, segId1 );
+}
+
+void ReosPolylineStructureVectorLayer::purge()
+{
+  auto it = mBoundariesVertex.begin();
+  while ( it != mBoundariesVertex.end() )
+  {
+    if ( ( *it )->attachedLines().isEmpty() )
+      it = mBoundariesVertex.erase( it );
+    else
+      ++it;
+  }
 }
 
 void ReosPolylineStructureVectorLayer::addPolylines( const QPolygonF &polyline, const QString &sourceCrs, const QString &id )
@@ -235,7 +267,7 @@ void ReosPolylineStructureVectorLayer::removeAll()
 bool ReosPolylineStructureVectorLayer::vertexCanBeMoved( ReosGeometryStructureVertex *geometryVertex, const ReosSpatialPosition &newPosition ) const
 {
   VertexP vertex = static_cast<VertexP>( geometryVertex );
-  QgsFeatureIds ids;
+  QList<SegmentId> ids;
   const QList<ReosStructureVertexHandler_p *> neighbors = neighorsVertices( vertex, ids );
   QgsPointXY newPosInLayer = toLayerCoordinates( newPosition );
   double x = newPosInLayer.x();
@@ -252,7 +284,7 @@ bool ReosPolylineStructureVectorLayer::vertexCanBeMoved( ReosGeometryStructureVe
         return false;
   }
 
-  QgsFeatureIterator fit = mVectorLayer->getFeatures( ids );
+  QgsFeatureIterator fit = mVectorLayer->getFeatures( ids.toSet() );
 
   QgsRectangle concernedExtent;
   concernedExtent.include( newPosInLayer );
@@ -307,10 +339,7 @@ void ReosPolylineStructureVectorLayer::insertVertex( const ReosSpatialPosition &
 {
   QgsPointXY pointI = toLayerCoordinates( point );
 
-  mVectorLayer->beginEditCommand( "Insert vertex" );
-
   QgsFeature oldFeature = mVectorLayer->getFeature( lineId );
-
   // get the projected point on the line
   QgsPointXY projPoint;
   int vi;
@@ -318,18 +347,19 @@ void ReosPolylineStructureVectorLayer::insertVertex( const ReosSpatialPosition &
   pointI = projPoint;
 
   QgsFeatureId featIdBefore;
-  if ( !idToLinkedSegment( lineId, 0, &featIdBefore ) )
+  if ( !idToOneLinkedSegment( lineId, 0, &featIdBefore ) )
     featIdBefore = std::numeric_limits<qint64>::max();
 
   QgsFeatureId featIdAfter;
-  if ( !idToLinkedSegment( lineId, 1, &featIdAfter ) )
+  if ( !idToOneLinkedSegment( lineId, 1, &featIdAfter ) )
     featIdAfter = std::numeric_limits<qint64>::max();
 
   QgsPointXY point0 = oldFeature.geometry().vertexAt( 0 );
   QgsPointXY point1 = oldFeature.geometry().vertexAt( 1 );
 
+  mVectorLayer->beginEditCommand( "Insert vertex" );
   mVectorLayer->undoStack()->push( //remove the old line
-    new ReosPolylineStructureVectorLayerUndoCommandRemoveLine( lineId, this ) );
+    new ReosPolylineStructureVectorLayerUndoCommandRemoveLine( lineId, true, this ) );
   mVectorLayer->deleteFeature( lineId );
 
   QgsFeature feat0;
@@ -353,6 +383,65 @@ void ReosPolylineStructureVectorLayer::insertVertex( const ReosSpatialPosition &
       featIdAfter,
       true,
       this ) );
+
+  mVectorLayer->endEditCommand();
+}
+
+void ReosPolylineStructureVectorLayer::removeVertex( ReosGeometryStructureVertex *vertex )
+{
+  VertexP vert = static_cast<VertexP>( vertex );
+
+  int posInBoundary = mBoundariesVertex.indexOf( vert );
+  bool onBoundary = posInBoundary != -1;
+
+  const QgsFeatureIds attachedLinesIds = vert->attachedLines();
+
+  SegmentId boundaryLineBefore;
+  SegmentId boundaryLineAfter;
+  VertexP boundaryVert0 = nullptr;
+  VertexP boundaryvert1 = nullptr;
+
+  mVectorLayer->beginEditCommand( "Remove vertex" );
+  for ( SegmentId id : attachedLinesIds )
+  {
+    VertexP oppVertex = oppositeVertex( vert, id );
+    if ( onBoundary && mBoundariesVertex.contains( oppVertex ) )
+    {
+      int pos = oppVertex->posInLine( id );
+      if ( pos == -1 )
+        throw ReosException( QStringLiteral( "topologic error" ) );
+      if ( pos == 0 )
+      {
+        boundaryLineBefore = boundarieLines( oppVertex ).first;
+        boundaryVert0 = oppVertex;
+      }
+      else
+      {
+        boundaryLineAfter = boundarieLines( oppVertex ).second;
+        boundaryvert1 = oppVertex;
+      }
+    }
+
+    mVectorLayer->deleteFeature( id );
+    mVectorLayer->undoStack()->push( //remove the old line
+      new ReosPolylineStructureVectorLayerUndoCommandRemoveLine( id, true, this ) );
+  }
+
+  if ( onBoundary )
+  {
+    QgsPointXY pt0 = boundaryVert0->position();
+    QgsPointXY pt1 = boundaryvert1->position();
+    QgsFeature feat;
+    feat.setGeometry( QgsGeometry( new QgsLineString( {pt0, pt1} ) ) );
+    mVectorLayer->addFeature( feat );
+    mVectorLayer->undoStack()->push(
+      new ReosPolylineStructureVectorLayerUndoCommandAddLine(
+        feat.id(),
+        boundaryLineBefore,
+        boundaryLineAfter,
+        true,
+        this ) );
+  }
 
   mVectorLayer->endEditCommand();
 }
@@ -488,7 +577,7 @@ QPointF ReosPolylineStructureVectorLayer::vertexPosition( ReosGeometryStructureV
 
 QList<QPointF> ReosPolylineStructureVectorLayer::neighborsPositions( ReosGeometryStructureVertex *vertex, const QString &crs ) const
 {
-  QgsFeatureIds ids;
+  QList<QgsFeatureId> ids;
   QList<ReosStructureVertexHandler_p *> neighbors = neighorsVertices( static_cast<ReosStructureVertexHandler_p *>( vertex ), ids );
 
   QList<QPointF> ret;
@@ -572,7 +661,7 @@ bool ReosStructureVertexHandler_p::hasLineAttached() const
   return !mLinkedFeatures.empty();
 }
 
-bool ReosStructureVertexHandler_p::oneOtherLine( QgsFeatureId id, QgsFeatureId *otherLine )
+bool ReosStructureVertexHandler_p::oneOtherLine( QgsFeatureId id, QgsFeatureId *otherLine ) const
 {
 
   for ( const PositionInFeature &posFeat : std::as_const( mLinkedFeatures ) )
@@ -585,15 +674,24 @@ bool ReosStructureVertexHandler_p::oneOtherLine( QgsFeatureId id, QgsFeatureId *
   return false;
 }
 
-ReosPolylineStructureVectorLayerUndoCommandRemoveLine::ReosPolylineStructureVectorLayerUndoCommandRemoveLine( QgsFeatureId id, ReosPolylineStructureVectorLayer *structure )
+ReosPolylineStructureVectorLayerUndoCommandRemoveLine::ReosPolylineStructureVectorLayerUndoCommandRemoveLine(
+  QgsFeatureId id,
+  bool onBoundary,
+  ReosPolylineStructureVectorLayer *structure )
   : mId( id ), mStructure( structure )
-{}
+{
+  if ( onBoundary )
+  {
+    mBoundaryPos = mStructure->mBoundariesVertex.indexOf( mStructure->idToSegment( id ).at( 0 ).get() );
+  }
+}
 
 void ReosPolylineStructureVectorLayerUndoCommandRemoveLine::redo()
 {
   mSeg = mStructure->mSegments.take( mId );
   mSeg.at( 0 )->detachLine( mId );
   mSeg.at( 1 )->detachLine( mId );
+  mStructure->purge();
 }
 
 void ReosPolylineStructureVectorLayerUndoCommandRemoveLine::undo()
@@ -601,6 +699,15 @@ void ReosPolylineStructureVectorLayerUndoCommandRemoveLine::undo()
   mSeg.at( 0 )->attachLine( mId, 0 );
   mSeg.at( 1 )->attachLine( mId, 1 );
   mStructure->mSegments.insert( mId, mSeg );
+  if ( mBoundaryPos >= 0 )
+  {
+    if ( !mStructure->mBoundariesVertex.contains( mSeg.at( 0 ).get() ) )
+      mStructure->mBoundariesVertex.insert( mBoundaryPos, mSeg.at( 0 ).get() );
+
+    if ( !mStructure->mBoundariesVertex.contains( mSeg.at( 1 ).get() ) )
+      mStructure->mBoundariesVertex.insert( mBoundaryPos + 1, mSeg.at( 1 ).get() );
+  }
+
 }
 
 ReosPolylineStructureVectorLayerUndoCommandAddLine::ReosPolylineStructureVectorLayerUndoCommandAddLine( QgsFeatureId idLineToAdd, QgsFeatureId idExisting0, QgsFeatureId idExisting1, bool onBoundary, ReosPolylineStructureVectorLayer *structure )
