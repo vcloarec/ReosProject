@@ -21,8 +21,8 @@
 #include "qgsguiutils.h"
 
 #include "reospolylinesstructure.h"
+#include "reosstyleregistery.h"
 
-static QColor rubberBandColor = QColor( 0, 155, 242 );
 
 ReosMapToolEditPolylineStructure_p::ReosMapToolEditPolylineStructure_p( QgsMapCanvas *map )
   :  ReosMapTool_p( map )
@@ -33,7 +33,7 @@ ReosMapToolEditPolylineStructure_p::ReosMapToolEditPolylineStructure_p( QgsMapCa
 
   mVertexMarker = new QgsVertexMarker( map );
   mVertexMarker->setVisible( false );
-  mVertexMarker->setColor( rubberBandColor );
+  mVertexMarker->setColor( ReosStyleRegistery::instance()->blueReos() );
   mVertexMarker->setIconSize( QgsGuiUtils::scaleIconSize( 12 ) );
   mVertexMarker->setPenWidth( QgsGuiUtils::scaleIconSize( 4 ) );
   mVertexMarker->setIconType( QgsVertexMarker::ICON_CIRCLE );
@@ -43,14 +43,14 @@ ReosMapToolEditPolylineStructure_p::ReosMapToolEditPolylineStructure_p( QgsMapCa
   mMovingLineRubberBand->setWidth( 1 );
 
   mMovingLineRubberBand->setLineStyle( Qt::DashLine );
-  mMovingLineRubberBand->setStrokeColor( rubberBandColor );
+  mMovingLineRubberBand->setStrokeColor( ReosStyleRegistery::instance()->blueReos() );
   mMovingLineRubberBand->setSecondaryStrokeColor( Qt::white );
   mMovingLineRubberBand->setZValue( 50 );
 
   mMovingVertexRubberBand = new QgsRubberBand( mCanvas, QgsWkbTypes::PointGeometry );
   mMovingVertexRubberBand->setIcon( QgsRubberBand::ICON_CIRCLE );
   mMovingVertexRubberBand->setWidth( QgsGuiUtils::scaleIconSize( 2 ) );
-  mMovingVertexRubberBand->setColor( rubberBandColor );
+  mMovingVertexRubberBand->setColor( ReosStyleRegistery::instance()->blueReos() );
   mMovingVertexRubberBand->setSecondaryStrokeColor( Qt::white );
   mMovingVertexRubberBand->setIconSize( QgsGuiUtils::scaleIconSize( 5 ) );
   mMovingVertexRubberBand->setZValue( 51 );
@@ -192,11 +192,11 @@ void ReosMapToolEditPolylineStructure_p::updateMovingVertexRubberBand( const Qgs
 
   if ( mStructure->vertexCanBeMoved( mCurrentVertex, ReosSpatialPosition( movingPosition.toQPointF(), mMapCrs ) ) )
   {
-    mMovingLineRubberBand->setColor( rubberBandColor );
+    mMovingLineRubberBand->setColor( ReosStyleRegistery::instance()->blueReos() );
   }
   else
   {
-    mMovingLineRubberBand->setColor( Qt::red );
+    mMovingLineRubberBand->setColor( ReosStyleRegistery::instance()->invalidColor() );
   }
 
   for ( const QPointF &np : std::as_const( mNeighborPosition ) )

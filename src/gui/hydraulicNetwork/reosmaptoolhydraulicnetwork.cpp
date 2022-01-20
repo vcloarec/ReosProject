@@ -18,6 +18,7 @@
 #include "reoshydrographrouting.h"
 #include "reoshydraulicstructure2d.h"
 #include "reosmaptool_p.h"
+#include "reosstyleregistery.h"
 
 
 ReosMapToolDrawHydraulicNetworkLink::ReosMapToolDrawHydraulicNetworkLink( ReosHydraulicNetwork *network, ReosMap *map )
@@ -163,13 +164,15 @@ ReosMapToolNewStructure2D::ReosMapToolNewStructure2D( ReosHydraulicNetwork *netw
   : ReosMapToolDrawPolygon( network, map ), ReosMapToolHydraulicElement( network )
 {
   setStrokeWidth( 2 );
-  setColor( QColor( 0, 155, 242 ) );
+  setColor( ReosStyleRegistery::instance()->blueReos() );
   setSecondaryStrokeColor( Qt::white );
   setLineStyle( Qt::DotLine );
-  setFillColor( QColor( 0, 155, 242, 100 ) );
+  setFillColor( ReosStyleRegistery::instance()->blueReos( 100 ) );
   setCursor( Qt::CrossCursor );
 
   enableSnapping( true );
+
+  setAllowSelfIntersect( false );
 
   connect( this, &ReosMapToolDrawPolygon::drawn, this, &ReosMapToolNewStructure2D::onDomainDrawn );
 }

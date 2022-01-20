@@ -49,6 +49,7 @@ ReosMapToolDrawPolygon::ReosMapToolDrawPolygon( QObject *parent, ReosMap *map ):
 void ReosMapToolDrawPolygon::setFillColor( const QColor &color )
 {
   d->mRubberBand->setFillColor( color );
+  d->setFillColor( color );
 }
 
 void ReosMapTool::setCurrentToolInMap() const
@@ -122,7 +123,7 @@ void ReosMapToolDrawPolyRubberBand::setStrokeWidth( double width )
 
 void ReosMapToolDrawPolyRubberBand::setColor( const QColor &color )
 {
-  d->mRubberBand->setColor( color );
+  d->setColor( color );
 }
 
 void ReosMapToolDrawPolyRubberBand::setSecondaryStrokeColor( const QColor &color )
@@ -138,6 +139,11 @@ void ReosMapToolDrawPolyRubberBand::setLineStyle( Qt::PenStyle style )
 void ReosMapToolDrawPolyRubberBand::enableSnapping( bool enable )
 {
   d->enableSnapping( enable );
+}
+
+void ReosMapToolDrawPolyRubberBand::setAllowSelfIntersect( bool b )
+{
+  d->setAllowSelfIntersect( b );
 }
 
 ReosMapTool_p *ReosMapToolDrawPolyRubberBand::tool_p() const

@@ -13,8 +13,8 @@ email                : vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
-
 #include "reosmaptool_p.h"
+#include "reosstyleregistery.h"
 
 #include <QGraphicsScene>
 #include <QMenu>
@@ -98,6 +98,17 @@ void ReosMapToolDrawPolyline_p::canvasMoveEvent( QgsMapMouseEvent *e )
   ReosMapTool_p::canvasMoveEvent( e );
 
   mRubberBand->movePoint( e->mapPoint() );
+
+  if ( selfIntersect() )
+  {
+    mRubberBand->setColor( ReosStyleRegistery::instance()->invalidColor() );
+    mRubberBand->setFillColor( ReosStyleRegistery::instance()->invalidColor( 100 ) );
+  }
+  else
+  {
+    mRubberBand->setColor( mColor );
+    mRubberBand->setFillColor( mFillColor );
+  }
 }
 
 void ReosMapToolDrawPolyline_p::canvasReleaseEvent( QgsMapMouseEvent *e )
@@ -111,16 +122,61 @@ void ReosMapToolDrawPolyline_p::canvasReleaseEvent( QgsMapMouseEvent *e )
 
   if ( e->button() == Qt::RightButton )
   {
+
     QPolygonF polyline = mRubberBand->asGeometry().asQPolygonF();
-    if ( !polyline.isEmpty() )
+
+    if ( !selfIntersect() )
     {
-      polyline.removeLast();
-      if ( mClosed && !polyline.isEmpty() )
+      if ( !polyline.isEmpty() )
+      {
         polyline.removeLast();
+        if ( mClosed && !polyline.isEmpty() )
+          polyline.removeLast();
+      }
+
+      emit polylineDrawn( polyline );
+      mRubberBand->reset( mClosed ? QgsWkbTypes::PolygonGeometry : QgsWkbTypes::LineGeometry );
+      updateColor();
     }
 
-    emit polylineDrawn( polyline );
-    mRubberBand->reset( mClosed ? QgsWkbTypes::PolygonGeometry : QgsWkbTypes::LineGeometry );
+  }
+}
+
+void ReosMapToolDrawPolyline_p::setColor( const QColor &color )
+{
+  mRubberBand->setColor( color );
+  mColor = color;
+}
+
+void ReosMapToolDrawPolyline_p::setFillColor( const QColor &color )
+{
+  mRubberBand->setFillColor( color );
+  mFillColor = color;
+}
+
+void ReosMapToolDrawPolyline_p::setAllowSelfIntersect( bool allowSelfIntersect )
+{
+  mAllowSelfIntersect = allowSelfIntersect;
+}
+
+bool ReosMapToolDrawPolyline_p::selfIntersect() const
+{
+  QgsGeometry geom = mRubberBand->asGeometry();
+  geom.removeDuplicateNodes();
+  return !geom.isNull() && geom.constGet()->vertexCount() > 3 && !QgsGeometryUtils::selfIntersections( geom.constGet(), 0, 0, 0 ).isEmpty();
+}
+
+void ReosMapToolDrawPolyline_p::updateColor()
+{
+  if ( selfIntersect() )
+  {
+    mRubberBand->setColor( ReosStyleRegistery::instance()->invalidColor() );
+    mRubberBand->setFillColor( ReosStyleRegistery::instance()->invalidColor( 100 ) );
+  }
+  else
+  {
+    mRubberBand->setColor( mColor );
+    mRubberBand->setFillColor( mFillColor );
   }
 }
 

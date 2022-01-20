@@ -125,6 +125,8 @@ class ReosMapToolDrawPolyRubberBand : public ReosMapTool
 
     void enableSnapping( bool enable );
 
+    void setAllowSelfIntersect( bool b );
+
   protected:
     QPointer<ReosMapToolDrawPolyline_p> d;
   private:

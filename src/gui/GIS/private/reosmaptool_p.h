@@ -110,13 +110,24 @@ class ReosMapToolDrawPolyline_p: public ReosMapTool_p
     void canvasMoveEvent( QgsMapMouseEvent *e ) override;
     void canvasReleaseEvent( QgsMapMouseEvent *e ) override;
 
+    void setColor( const QColor &color );
+    void setFillColor( const QColor &color );
+
+    void setAllowSelfIntersect( bool allowSelfIntersect );
+
   signals:
     void polylineDrawn( const QPolygonF &polyline ) const;
 
   private:
     bool mClosed = false;
+    QColor mColor;
+    QColor mFillColor;
+    bool mAllowSelfIntersect = true;
 
+    bool selfIntersect() const;
+    void updateColor();
 };
+
 
 class ReosMapToolDrawExtent_p: public ReosMapTool_p
 {

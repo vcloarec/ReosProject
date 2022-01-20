@@ -47,15 +47,19 @@
         <property name="text">
          <string>Structure</string>
         </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Element</string>
+        <property name="icon">
+         <iconset resource="../../images/images.qrc">
+          <normaloff>:/images/menuStructure.svg</normaloff>:/images/menuStructure.svg</iconset>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Topographie</string>
+         <string>Topography</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Elements</string>
         </property>
        </item>
        <item>
@@ -100,6 +104,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../images/images.qrc"/>
+ </resources>
  <connections/>
 </ui>
