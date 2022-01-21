@@ -57,6 +57,10 @@ void ReoHydraulicStructure2DTest::createAndAditGeometry()
   QCOMPARE( structure2D->domain(), domain );
   geomStructure->undoStack()->undo();
   QCOMPARE( structure2D->domain(), domain );
+  ReosPolylinesStructure::Data data = geomStructure->structuredLinesData();
+  QCOMPARE( data.boundaryPointCount, domain.count() );
+  QCOMPARE( data.boundaryPointCount, data.vertices.count() );
+  QCOMPARE( data.internalLines.count(), 0 );
 
   ReosMapExtent searchZone( -0.1, 0.4, -0.1, 0.6 );
   ReosGeometryStructureVertex *vert = geomStructure->searchForVertex( searchZone );
@@ -75,16 +79,22 @@ void ReoHydraulicStructure2DTest::createAndAditGeometry()
   QPolygonF expectded = structure2D->domain();
 
   QVERIFY( domain != structure2D->domain() );
+  QCOMPARE( data.boundaryPointCount, domain.count() );
+  QCOMPARE( data.boundaryPointCount, data.vertices.count() );
+  QCOMPARE( data.internalLines.count(), 0 );
 
   geomStructure->undoStack()->undo();
 
+  data = geomStructure->structuredLinesData();
   QVERIFY( domain == structure2D->domain() );
+  QCOMPARE( data.boundaryPointCount, domain.count() );
+  QCOMPARE( data.boundaryPointCount, data.vertices.count() );
+  QCOMPARE( data.internalLines.count(), 0 );
 
   geomStructure->undoStack()->redo();
 
   domain[1] = QPointF( 0.5, 0.5 );
   expectded = structure2D->domain();
-  QVERIFY( domain == structure2D->domain() );
 
   qint64 lineId;
   QVERIFY( geomStructure->searchForLine( ReosMapExtent( 0.70, 0.9, 0.8, 1.1 ), lineId ) );
@@ -92,14 +102,24 @@ void ReoHydraulicStructure2DTest::createAndAditGeometry()
   geomStructure->insertVertex( ReosSpatialPosition( QPointF( 0.75, 1.1 ) ), lineId );
   QVERIFY( domain != structure2D->domain() );
   geomStructure->undoStack()->undo();
+  data = geomStructure->structuredLinesData();
   QVERIFY( domain == structure2D->domain() );
+  QCOMPARE( data.boundaryPointCount, domain.count() );
+  QCOMPARE( data.boundaryPointCount, data.vertices.count() );
+  QCOMPARE( data.internalLines.count(), 0 );
+
   geomStructure->undoStack()->redo();
   domain.insert( 4, QPointF( 0.75, 1.0 ) ); //it is the projected point that is inserted
   QVERIFY( domain == structure2D->domain() );
   geomStructure->undoStack()->undo();
   QVERIFY( domain != structure2D->domain() );
+
   geomStructure->undoStack()->redo();
   QVERIFY( domain == structure2D->domain() );
+  data = geomStructure->structuredLinesData();
+  QCOMPARE( data.boundaryPointCount, domain.count() );
+  QCOMPARE( data.boundaryPointCount, data.vertices.count() );
+  QCOMPARE( data.internalLines.count(), 0 );
 
   searchZone = ReosMapExtent( -0.1, 0.9, 0.1, 1.1 );
   vert = geomStructure->searchForVertex( searchZone );
@@ -107,14 +127,35 @@ void ReoHydraulicStructure2DTest::createAndAditGeometry()
 
   geomStructure->removeVertex( vert );
   QCOMPARE( structure2D->domain().count(), 8 );
+  data = geomStructure->structuredLinesData();
+  QCOMPARE( data.boundaryPointCount, 8 );
+  QCOMPARE( data.boundaryPointCount, data.vertices.count() );
+  QCOMPARE( data.internalLines.count(), 0 );
+
   geomStructure->undoStack()->undo();
   QCOMPARE( structure2D->domain().count(), 9 );
   QVERIFY( domain == structure2D->domain() );
+  data = geomStructure->structuredLinesData();
+  QCOMPARE( data.boundaryPointCount, domain.count() );
+  QCOMPARE( data.boundaryPointCount, data.vertices.count() );
+  QCOMPARE( data.internalLines.count(), 0 );
+
   geomStructure->undoStack()->redo();
   QVERIFY( domain != structure2D->domain() );
   domain.removeAt( 2 );
   QVERIFY( domain == structure2D->domain() );
 
+  QPolygonF lines;
+  lines << QPointF( 0.749, 1.01 )
+        << QPointF( 0.8, 0.6 )
+        << QPointF( 0.5, 0.6 );
+  geomStructure->addPolylines( lines );
+
+  QVERIFY( domain == structure2D->domain() );
+  data = geomStructure->structuredLinesData();
+  QCOMPARE( data.boundaryPointCount, domain.count() );
+  QCOMPARE( data.boundaryPointCount, data.vertices.count() - 2 );
+  QCOMPARE( data.internalLines.count(), 2 );
 }
 
 QTEST_MAIN( ReoHydraulicStructure2DTest )

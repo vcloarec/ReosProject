@@ -220,6 +220,8 @@ QDockWidget *ReosMap::temporalControllerDockWidget()
 
 void ReosMap::initialize()
 {
+  mExtraRenderedObjects.clear();
+
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
   QgsMapCanvasSnappingUtils *snappingUtils = new QgsMapCanvasSnappingUtils( canvas, this );
   canvas->setSnappingUtils( snappingUtils );

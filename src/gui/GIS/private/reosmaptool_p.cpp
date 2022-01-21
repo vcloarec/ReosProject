@@ -20,9 +20,64 @@ email                : vcloarec at gmail dot com
 #include <QMenu>
 
 #include <qgsmapmouseevent.h>
+#include <qgsmaptoolidentify.h>
+#include <qgsidentifymenu.h>
 
 #include "reosmappolygon_p.h"
 #include "reosgeometryutils.h"
+
+
+static QList<QgsMapToolIdentify::IdentifyResult> searchFeatureOnMap( QgsMapMouseEvent *e, QgsMapCanvas *canvas, const QList<QgsWkbTypes::GeometryType> &geomType )
+{
+  QList<QgsMapToolIdentify::IdentifyResult> results;
+  const QMap< QString, QString > derivedAttributes;
+
+  QgsPointXY mapPoint = e->mapPoint();
+  double x = mapPoint.x(), y = mapPoint.y();
+  const double sr = QgsMapTool::searchRadiusMU( canvas );
+
+  const QList<QgsMapLayer *> layers = canvas->layers();
+  for ( QgsMapLayer *layer : layers )
+  {
+    if ( layer->type() == QgsMapLayerType::VectorLayer )
+    {
+      QgsVectorLayer *vectorLayer = static_cast<QgsVectorLayer *>( layer );
+
+      bool typeIsSelectable = false;
+      for ( const QgsWkbTypes::GeometryType &type : geomType )
+        if ( vectorLayer->geometryType() == type )
+        {
+          typeIsSelectable = true;
+          break;
+        }
+      if ( typeIsSelectable )
+      {
+        QgsRectangle rect( x - sr, y - sr, x + sr, y + sr );
+        QgsCoordinateTransform transform = canvas->mapSettings().layerTransform( vectorLayer );
+
+        try
+        {
+          rect = transform.transformBoundingBox( rect, Qgis::TransformDirection::Reverse );
+        }
+        catch ( QgsCsException & )
+        {
+          QgsDebugMsg( QStringLiteral( "Could not transform geometry to layer CRS" ) );
+        }
+
+        QgsFeatureIterator fit = vectorLayer->getFeatures( QgsFeatureRequest()
+                                 .setFilterRect( rect )
+                                 .setFlags( QgsFeatureRequest::ExactIntersect ) );
+        QgsFeature f;
+        while ( fit.nextFeature( f ) )
+        {
+          results << QgsMapToolIdentify::IdentifyResult( vectorLayer, f, derivedAttributes );
+        }
+      }
+    }
+  }
+
+  return results;
+}
 
 ReosMapTool_p::ReosMapTool_p( QgsMapCanvas *canvas ):
   QgsMapTool( canvas ), mContextMenuPopulator( new ReosMenuPopulator )
@@ -123,21 +178,29 @@ void ReosMapToolDrawPolyline_p::canvasReleaseEvent( QgsMapMouseEvent *e )
   if ( e->button() == Qt::RightButton )
   {
 
-    QPolygonF polyline = mRubberBand->asGeometry().asQPolygonF();
-
-    if ( !selfIntersect() )
+    if ( mRubberBand->numberOfVertices() < ( mClosed ? 2 : 1 ) )
     {
-      if ( !polyline.isEmpty() )
-      {
-        polyline.removeLast();
-        if ( mClosed && !polyline.isEmpty() )
-          polyline.removeLast();
-      }
-
-      emit polylineDrawn( polyline );
-      mRubberBand->reset( mClosed ? QgsWkbTypes::PolygonGeometry : QgsWkbTypes::LineGeometry );
-      updateColor();
+      selectFeatureOnMap( e );
     }
+    else
+    {
+
+      QPolygonF polyline = mRubberBand->asGeometry().asQPolygonF();
+      if ( !selfIntersect() )
+      {
+        if ( !polyline.isEmpty() )
+        {
+          polyline.removeLast();
+          if ( mClosed && !polyline.isEmpty() )
+            polyline.removeLast();
+        }
+
+        emit polylineDrawn( polyline );
+        mRubberBand->reset( mClosed ? QgsWkbTypes::PolygonGeometry : QgsWkbTypes::LineGeometry );
+        updateColor();
+      }
+    }
+
 
   }
 }
@@ -177,6 +240,37 @@ void ReosMapToolDrawPolyline_p::updateColor()
   {
     mRubberBand->setColor( mColor );
     mRubberBand->setFillColor( mFillColor );
+  }
+}
+
+void ReosMapToolDrawPolyline_p::selectFeatureOnMap( QgsMapMouseEvent *e )
+{
+  const QList<QgsMapToolIdentify::IdentifyResult> &results =
+    searchFeatureOnMap( e, mCanvas, QList<QgsWkbTypes::GeometryType>() << QgsWkbTypes::PolygonGeometry << QgsWkbTypes::LineGeometry );
+
+  QgsIdentifyMenu *menu = new QgsIdentifyMenu( mCanvas );
+  menu->setExecWithSingleResult( true );
+  menu->setAllowMultipleReturn( false );
+  const QPoint globalPos = mCanvas->mapToGlobal( QPoint( e->pos().x() + 5, e->pos().y() + 5 ) );
+  const QList<QgsMapToolIdentify::IdentifyResult> selectedFeatures = menu->exec( results, globalPos );
+  menu->deleteLater();
+
+  if ( !selectedFeatures.empty() && selectedFeatures[0].mFeature.hasGeometry() )
+  {
+    QgsCoordinateTransform transform = mCanvas->mapSettings().layerTransform( selectedFeatures.at( 0 ).mLayer );
+    QgsGeometry geom = selectedFeatures[0].mFeature.geometry();
+    try
+    {
+      geom.transform( transform );
+    }
+    catch ( QgsCsException & )
+    {}
+
+    QPolygonF returnPoly = geom.asQPolygonF();
+    if ( mClosed && !returnPoly.empty() )
+      returnPoly.removeLast();
+
+    emit polylineDrawn( returnPoly );
   }
 }
 

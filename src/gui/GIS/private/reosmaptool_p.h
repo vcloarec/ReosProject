@@ -126,6 +126,8 @@ class ReosMapToolDrawPolyline_p: public ReosMapTool_p
 
     bool selfIntersect() const;
     void updateColor();
+
+    void selectFeatureOnMap( QgsMapMouseEvent *e );
 };
 
 
