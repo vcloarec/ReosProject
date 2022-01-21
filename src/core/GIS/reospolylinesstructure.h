@@ -45,6 +45,13 @@ class ReosPolylinesStructure : public ReosGeometryStructure
     Q_OBJECT
   public:
 
+    struct Data
+    {
+      QVector<QPointF> vertices; //! all the vertics of the structure
+      int boundaryPointCount; //! the count of boundary points that are the first in the array of point \a vertices
+      QVector<std::array<int, 2>> internalLines; //! all internal lines vertices index
+    };
+
     //! Creates and returns polylines structure with specified \a crs
     static std::unique_ptr<ReosPolylinesStructure> createPolylineStructure( const QString &crs );
 
@@ -52,7 +59,7 @@ class ReosPolylinesStructure : public ReosGeometryStructure
     static std::unique_ptr<ReosPolylinesStructure> createPolylineStructure( const QPolygonF &boundary, const QString &crs );
 
     //! Adds a \a polyline to the structure with an identifier \a id
-    virtual void addPolylines( const QPolygonF &polyline, const QString &sourceCrs = QString(), const QString &id = QString() ) = 0;
+    virtual void addPolylines( const QPolygonF &polyline, const QString &sourceCrs = QString() ) = 0;
 
     //! Returns the polyline with identifier \a id
     virtual QPolygonF polyline( const QString &destinationCrs = QString(), const QString &id = QString() ) const = 0;
@@ -92,6 +99,9 @@ class ReosPolylinesStructure : public ReosGeometryStructure
 
     //! Returns the neighbor vertices positions of \a vertex in \a crs coordinate or in the strucure coordinate if \a crs is void
     virtual QList<QPointF> neighborsPositions( ReosGeometryStructureVertex *vertex, const QString &crs ) const = 0;
+
+    //! Returns the structured lines data, that is the posistion and the topology
+    virtual Data structuredLinesData( const QString &destinationCrs = QString() ) const = 0;
 
     virtual QUndoStack *undoStack() const = 0;
 
