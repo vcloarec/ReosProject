@@ -317,9 +317,14 @@ void ReosPolylineStructureVectorLayer::addPolylines( const QPolygonF &polyline, 
   QgsCoordinateTransform transform = toLayerTransform( sourceCrs );
   QgsCoordinateReferenceSystem crs;
   crs.createFromWkt( sourceCrs );
-  QgsUnitTypes::DistanceUnit unitSource = crs.mapUnits();
-  QgsUnitTypes::DistanceUnit structureUnit = mVectorLayer->crs().mapUnits();
-  newVertexTolerance = QgsUnitTypes::fromUnitToUnitFactor( unitSource, structureUnit ) * newVertexTolerance;
+  if ( newVertexTolerance >= 0 )
+  {
+    QgsUnitTypes::DistanceUnit unitSource = crs.mapUnits();
+    QgsUnitTypes::DistanceUnit structureUnit = mVectorLayer->crs().mapUnits();
+    newVertexTolerance = QgsUnitTypes::fromUnitToUnitFactor( unitSource, structureUnit ) * newVertexTolerance;
+  }
+  else
+    newVertexTolerance = mTolerance;
 
   mVectorLayer->beginEditCommand( "Add lines" );
 

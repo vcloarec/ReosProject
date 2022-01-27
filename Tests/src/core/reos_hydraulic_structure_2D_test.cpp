@@ -200,7 +200,7 @@ void ReoHydraulicStructure2DTest::createAndAditGeometry()
   QCOMPARE( data.boundaryPointCount, data.vertices.count() - data.internalLines.count() );
   QCOMPARE( data.internalLines.count(), 4 );
 
-  //link two boundary line by internal link and add a verter in the new line
+  //link two boundary line by internal link and add a vertex in the new line
   lines.clear();
   lines << QPointF( 0.5, 0.5 )
         << QPointF( 1.0, 0.0 );

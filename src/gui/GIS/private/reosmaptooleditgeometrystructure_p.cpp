@@ -145,21 +145,7 @@ void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
 
 void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
 {
-  switch ( mCurrentState )
-  {
-    case ReosMapToolEditPolylineStructure_p::None:
-    case ReosMapToolEditPolylineStructure_p::DraggingVertex:
-    case ReosMapToolEditPolylineStructure_p::AddingLines:
-      break;
-  }
-
-  ReosMapTool_p::canvasPressEvent( e );
-}
-
-void ReosMapToolEditPolylineStructure_p::canvasReleaseEvent( QgsMapMouseEvent *e )
-{
   const QPointF &snapPoint = e->snapPoint().toQPointF();
-
 
   switch ( mCurrentState )
   {
@@ -197,7 +183,7 @@ void ReosMapToolEditPolylineStructure_p::canvasReleaseEvent( QgsMapMouseEvent *e
       {
         QgsGeometry geom = selectFeatureOnMap( e );
         if ( !geom.isNull() )
-          mStructure->addPolylines( geom.asQPolygonF(), tolerance(), mMapCrs );
+          mStructure->addPolylines( geom.asQPolygonF(), -1, mMapCrs );
       }
 
       break;
@@ -247,6 +233,20 @@ void ReosMapToolEditPolylineStructure_p::canvasReleaseEvent( QgsMapMouseEvent *e
   }
 
   ReosMapTool_p::canvasReleaseEvent( e );
+}
+
+void ReosMapToolEditPolylineStructure_p::canvasReleaseEvent( QgsMapMouseEvent *e )
+{
+  switch ( mCurrentState )
+  {
+    case ReosMapToolEditPolylineStructure_p::None:
+    case ReosMapToolEditPolylineStructure_p::DraggingVertex:
+    case ReosMapToolEditPolylineStructure_p::AddingLines:
+      break;
+  }
+
+  ReosMapTool_p::canvasPressEvent( e );
+
 }
 
 void ReosMapToolEditPolylineStructure_p::keyPressEvent( QKeyEvent *e )

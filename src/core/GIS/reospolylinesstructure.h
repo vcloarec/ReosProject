@@ -58,7 +58,10 @@ class ReosPolylinesStructure : public ReosGeometryStructure
     //! Creates and returns polylines structure with specified \a crs
     static std::unique_ptr<ReosPolylinesStructure> createPolylineStructure( const QPolygonF &boundary, const QString &crs );
 
-    //! Adds a \a polyline to the structure with coordinates in \a sourcesCrs and a tolerance for new vertices \a newVertexTolerance in \a sourceCrs unit
+    /**
+     *  Adds a \a polyline to the structure with coordinates in \a sourcesCrs and a tolerance for new vertices \a newVertexTolerance in \a sourceCrs unit
+     *  If the tolerance, is negative, the proper tolerance of the structure will be used
+     */
     virtual void addPolylines( const QPolygonF &polyline, double newVertexTolerance, const QString &sourceCrs = QString() ) = 0;
 
     //! Returns the polyline with identifier \a id
