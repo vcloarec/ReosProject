@@ -26,7 +26,7 @@ class ReosEditGeometryStructureMenuPopulator: public ReosMenuPopulator
   public:
     ReosEditGeometryStructureMenuPopulator( ReosMapToolEditPolylineStructure_p *toolMap );
 
-    void populate( QMenu *menu, QgsMapMouseEvent *e = nullptr ) override;
+    bool populate( QMenu *menu, QgsMapMouseEvent *e = nullptr ) override;
 
   private:
     ReosPolylinesStructure *mStructure = nullptr;
@@ -47,7 +47,9 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
 
     void setStructure( ReosPolylinesStructure *structure );
 
-    Flags flags() const override { return ShowContextMenu; }
+    Flags flags() const override;
+
+    QActionGroup *mainActions() const;
 
   protected:
     void canvasMoveEvent( QgsMapMouseEvent *e ) override;
@@ -58,14 +60,17 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
   private slots:
     void insertVertex( const QPointF &mapPoint, qint64 lineId );
     void removeVertex( ReosGeometryStructureVertex *vertex );
+    void resetTool();
 
   private:
     enum State
     {
       None,
-      DraggingVertex
+      DraggingVertex,
+      AddingLines,
     };
     State mCurrentState = None;
+    QPointF mCurrentPosition;
 
     ReosPolylinesStructure *mStructure = nullptr;
     QgsVertexMarker *mVertexMarker = nullptr;
@@ -74,12 +79,21 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
     ReosGeometryStructureVertex *mCurrentVertex = nullptr;
     QList<QPointF> mNeighborPosition;
 
+    double tolerance() const;
     ReosMapExtent searchZone( const QgsPointXY &point ) const;
 
-    QgsRubberBand *mMovingLineRubberBand = nullptr;
-    QgsRubberBand *mMovingVertexRubberBand = nullptr;
+    QgsRubberBand *mLineRubberBand = nullptr;
+    QgsRubberBand *mVertexRubberBand = nullptr;
     void updateMovingVertexRubberBand( const QgsPointXY &movingPosition );
+    void moveAddingLineRubberBand( const QgsPointXY &movingPosition );
     void stopDraggingVertex();
+    void stopAddingLines();
+
+    QPolygonF mAddingPolyline;
+
+    QActionGroup *mMainActions = nullptr;
+    QAction *mActionAddLines = nullptr;
+    QAction *mActionMoveVertex = nullptr;
 
     QAction *mActionInsertVertex = nullptr;
     QAction *mActionRemoveVertex = nullptr;

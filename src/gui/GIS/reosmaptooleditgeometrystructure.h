@@ -18,6 +18,8 @@
 
 #include "reosmaptool.h"
 
+class QActionGroup;
+
 class ReosMapToolEditPolylineStructure_p;
 class ReosGeometryStructure;
 
@@ -28,6 +30,8 @@ class ReosMapToolEditGeometryStructure : public ReosMapTool
     ReosMapToolEditGeometryStructure( ReosPolylinesStructure *structure, QObject *parent, ReosMap *map );
     ~ReosMapToolEditGeometryStructure();
     void setStructure( ReosPolylinesStructure *structure );
+
+    QActionGroup *mainActions() const;
 
   private:
     QPointer<ReosMapToolEditPolylineStructure_p> d;

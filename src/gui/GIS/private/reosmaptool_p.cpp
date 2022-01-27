@@ -79,6 +79,43 @@ static QList<QgsMapToolIdentify::IdentifyResult> searchFeatureOnMap( QgsMapMouse
   return results;
 }
 
+bool ReosMapTool_p::hasFeatureOnMap( const QPointF &mapPoint ) const
+{
+  double x = mapPoint.x(), y = mapPoint.y();
+  const double sr = QgsMapTool::searchRadiusMU( mCanvas );
+
+  const QList<QgsMapLayer *> layers = mCanvas->layers();
+  for ( QgsMapLayer *layer : layers )
+  {
+    if ( layer->type() == QgsMapLayerType::VectorLayer )
+    {
+      QgsVectorLayer *vectorLayer = static_cast<QgsVectorLayer *>( layer );
+
+      QgsRectangle rect( x - sr, y - sr, x + sr, y + sr );
+      QgsCoordinateTransform transform = mCanvas->mapSettings().layerTransform( vectorLayer );
+
+      try
+      {
+        rect = transform.transformBoundingBox( rect, Qgis::TransformDirection::Reverse );
+      }
+      catch ( QgsCsException & )
+      {
+        QgsDebugMsg( QStringLiteral( "Could not transform geometry to layer CRS" ) );
+      }
+
+      QgsFeatureIterator fit = vectorLayer->getFeatures( QgsFeatureRequest()
+                               .setFilterRect( rect )
+                               .setFlags( QgsFeatureRequest::ExactIntersect ) );
+      QgsFeature feat;
+      if ( fit.nextFeature( feat ) )
+        return true;
+    }
+  }
+
+  return false;
+}
+
+
 ReosMapTool_p::ReosMapTool_p( QgsMapCanvas *canvas ):
   QgsMapTool( canvas ), mContextMenuPopulator( new ReosMenuPopulator )
 {
@@ -99,10 +136,8 @@ void ReosMapTool_p::deactivate()
 bool ReosMapTool_p::populateContextMenuWithEvent( QMenu *menu,  QgsMapMouseEvent *e )
 {
   if ( mContextMenuPopulator )
-  {
-    mContextMenuPopulator->populate( menu, e );
-    return true;
-  }
+    return mContextMenuPopulator->populate( menu, e );
+
   return false;
 }
 
@@ -127,9 +162,9 @@ void ReosMapTool_p::setSearchTargetDescription( const QString &description )
 }
 
 ReosMapToolDrawPolyline_p::ReosMapToolDrawPolyline_p( QgsMapCanvas *map, bool closed ):
-  ReosMapTool_p( map ),
-  mClosed( closed )
+  ReosMapTool_p( map )
 {
+  mClosed = closed;
   mRubberBand = new QgsRubberBand( map, closed ? QgsWkbTypes::PolygonGeometry : QgsWkbTypes::LineGeometry );
 }
 
@@ -177,10 +212,17 @@ void ReosMapToolDrawPolyline_p::canvasReleaseEvent( QgsMapMouseEvent *e )
 
   if ( e->button() == Qt::RightButton )
   {
-
     if ( mRubberBand->numberOfVertices() < ( mClosed ? 2 : 1 ) )
     {
-      selectFeatureOnMap( e );
+      const QgsGeometry geom = selectFeatureOnMap( e );
+      if ( !geom.isNull() )
+      {
+        QPolygonF returnPoly = geom.asQPolygonF();
+        if ( mClosed && !returnPoly.empty() )
+          returnPoly.removeLast();
+
+        emit polylineDrawn( returnPoly );
+      }
     }
     else
     {
@@ -243,36 +285,7 @@ void ReosMapToolDrawPolyline_p::updateColor()
   }
 }
 
-void ReosMapToolDrawPolyline_p::selectFeatureOnMap( QgsMapMouseEvent *e )
-{
-  const QList<QgsMapToolIdentify::IdentifyResult> &results =
-    searchFeatureOnMap( e, mCanvas, QList<QgsWkbTypes::GeometryType>() << QgsWkbTypes::PolygonGeometry << QgsWkbTypes::LineGeometry );
 
-  QgsIdentifyMenu *menu = new QgsIdentifyMenu( mCanvas );
-  menu->setExecWithSingleResult( true );
-  menu->setAllowMultipleReturn( false );
-  const QPoint globalPos = mCanvas->mapToGlobal( QPoint( e->pos().x() + 5, e->pos().y() + 5 ) );
-  const QList<QgsMapToolIdentify::IdentifyResult> selectedFeatures = menu->exec( results, globalPos );
-  menu->deleteLater();
-
-  if ( !selectedFeatures.empty() && selectedFeatures[0].mFeature.hasGeometry() )
-  {
-    QgsCoordinateTransform transform = mCanvas->mapSettings().layerTransform( selectedFeatures.at( 0 ).mLayer );
-    QgsGeometry geom = selectedFeatures[0].mFeature.geometry();
-    try
-    {
-      geom.transform( transform );
-    }
-    catch ( QgsCsException & )
-    {}
-
-    QPolygonF returnPoly = geom.asQPolygonF();
-    if ( mClosed && !returnPoly.empty() )
-      returnPoly.removeLast();
-
-    emit polylineDrawn( returnPoly );
-  }
-}
 
 
 ReosMapToolDrawExtent_p::ReosMapToolDrawExtent_p( QgsMapCanvas *map ): ReosMapTool_p( map )
@@ -491,6 +504,35 @@ ReosMapItem_p *ReosMapTool_p::searchItem( const QPointF &p ) const
   }
 
   return mapItem;
+}
+
+QgsGeometry ReosMapTool_p::selectFeatureOnMap( QgsMapMouseEvent *e )
+{
+  const QList<QgsMapToolIdentify::IdentifyResult> &results =
+    searchFeatureOnMap( e, mCanvas, QList<QgsWkbTypes::GeometryType>() << QgsWkbTypes::PolygonGeometry << QgsWkbTypes::LineGeometry );
+
+  QgsIdentifyMenu *menu = new QgsIdentifyMenu( mCanvas );
+  menu->setExecWithSingleResult( true );
+  menu->setAllowMultipleReturn( false );
+  const QPoint globalPos = mCanvas->mapToGlobal( QPoint( e->pos().x() + 5, e->pos().y() + 5 ) );
+  const QList<QgsMapToolIdentify::IdentifyResult> selectedFeatures = menu->exec( results, globalPos );
+  menu->deleteLater();
+
+  if ( !selectedFeatures.empty() && selectedFeatures[0].mFeature.hasGeometry() )
+  {
+    QgsCoordinateTransform transform = mCanvas->mapSettings().layerTransform( selectedFeatures.at( 0 ).mLayer );
+    QgsGeometry geom = selectedFeatures[0].mFeature.geometry();
+    try
+    {
+      geom.transform( transform );
+    }
+    catch ( QgsCsException & )
+    {}
+
+    return geom;;
+  }
+
+  return QgsGeometry();
 }
 
 void ReosMapTool_p::setSeachWhenMoving( bool seachWhenMoving )

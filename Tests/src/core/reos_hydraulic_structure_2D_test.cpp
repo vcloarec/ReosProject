@@ -148,14 +148,75 @@ void ReoHydraulicStructure2DTest::createAndAditGeometry()
   QPolygonF lines;
   lines << QPointF( 0.749, 1.01 )
         << QPointF( 0.8, 0.6 )
-        << QPointF( 0.5, 0.6 );
-  geomStructure->addPolylines( lines );
+        << QPointF( 0.6, 0.6 );
+  geomStructure->addPolylines( lines, 0.01 );
 
   QVERIFY( domain == structure2D->domain() );
   data = geomStructure->structuredLinesData();
   QCOMPARE( data.boundaryPointCount, domain.count() );
   QCOMPARE( data.boundaryPointCount, data.vertices.count() - 2 );
   QCOMPARE( data.internalLines.count(), 2 );
+
+
+  // insert vertex in internal lines
+  searchZone = ReosMapExtent( 0.74, 0.59, 0.76, 0.61 );
+  geomStructure->searchForLine( searchZone, lineId );
+  geomStructure->insertVertex( ReosSpatialPosition( QPointF( 0.75, 0.59 ) ), lineId );
+
+  QVERIFY( domain == structure2D->domain() );
+  data = geomStructure->structuredLinesData();
+  QCOMPARE( data.boundaryPointCount, domain.count() );
+  QCOMPARE( data.boundaryPointCount, data.vertices.count() - data.internalLines.count() );
+  QCOMPARE( data.internalLines.count(), 3 );
+
+  geomStructure->undoStack()->undo();
+
+  QVERIFY( domain == structure2D->domain() );
+  data = geomStructure->structuredLinesData();
+  QCOMPARE( data.boundaryPointCount, domain.count() );
+  QCOMPARE( data.boundaryPointCount, data.vertices.count() - 2 );
+  QCOMPARE( data.internalLines.count(), 2 );
+
+  geomStructure->undoStack()->redo();
+
+  QVERIFY( domain == structure2D->domain() );
+  data = geomStructure->structuredLinesData();
+  QCOMPARE( data.boundaryPointCount, domain.count() );
+  QCOMPARE( data.boundaryPointCount, data.vertices.count() - data.internalLines.count() );
+  QCOMPARE( data.internalLines.count(), 3 );
+
+  // add new simple line intersecting the boundary with first vertex under tolerance from the boundary line
+  lines.clear();
+  lines << QPointF( 0.995, 0.25 )
+        << QPointF( 0.8, 0.25 );
+  geomStructure->addPolylines( lines, 0.01 );
+
+  QVERIFY( domain != structure2D->domain() );
+  data = geomStructure->structuredLinesData();
+
+  domain.insert( 6, QPointF( 1, 0.25 ) );
+  QVERIFY( domain == structure2D->domain() );
+  QCOMPARE( data.boundaryPointCount, domain.count() );
+  QCOMPARE( data.boundaryPointCount, data.vertices.count() - data.internalLines.count() );
+  QCOMPARE( data.internalLines.count(), 4 );
+
+  //link two boundary line by internal link and add a verter in the new line
+  lines.clear();
+  lines << QPointF( 0.5, 0.5 )
+        << QPointF( 1.0, 0.0 );
+  geomStructure->addPolylines( lines, 0.01 );
+  QVERIFY( geomStructure->searchForLine( ReosMapExtent( 0.74, 0.24, 0.76, 0.26 ), lineId ) );
+  QVERIFY( geomStructure->insertVertex( ReosSpatialPosition( 0.75, 0.25 ), lineId ) );
+
+  QVERIFY( domain == structure2D->domain() );
+  data = geomStructure->structuredLinesData();
+  QCOMPARE( data.boundaryPointCount, domain.count() );
+  QCOMPARE( data.internalLines.count(), 6 );
+
+//test remove vertex if resulting line cross another line
+
+
+
 }
 
 QTEST_MAIN( ReoHydraulicStructure2DTest )

@@ -97,11 +97,12 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
 
     ReosPolylineStructureVectorLayer( const QString &wktCrs );
     ReosPolylineStructureVectorLayer( const QPolygonF &boundary, const QString &wktCrs );
+    ~ReosPolylineStructureVectorLayer();
 
-    void addPolylines( const QPolygonF &polyline, const QString &sourceCrs = QString( ) ) override;
+    void addPolylines( const QPolygonF &polyline, double newVertexTolerance, const QString &sourceCrs = QString( ) ) override;
     QPolygonF polyline( const QString &destinationCrs = QString(), const QString &id = QString() ) const override;
 
-    QPolygonF boundary( const QString &destinationCrs ) const override;
+    QPolygonF boundary( const QString &destinationCrs = QString() ) const override;
 
     QgsVectorLayer *data() override {return mVectorLayer.get();}
 
@@ -110,7 +111,7 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
 
     bool vertexCanBeMoved( ReosGeometryStructureVertex *vertex, const ReosSpatialPosition &newPosition ) const override;
     void moveVertex( ReosGeometryStructureVertex *vertex, const ReosSpatialPosition &newPosition ) override;
-    void insertVertex( const ReosSpatialPosition &point, qint64 lineId ) override;
+    ReosGeometryStructureVertex *insertVertex( const ReosSpatialPosition &point, qint64 lineId ) override;
     void removeVertex( ReosGeometryStructureVertex *vertex ) override;
 
     ReosMapExtent extent( const QString &destinationCrs ) const override;
@@ -119,17 +120,15 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
     QPointF vertexPosition( ReosGeometryStructureVertex *vertex, const QString &crs ) const override;
     QList<QPointF> neighborsPositions( ReosGeometryStructureVertex *vertex, const QString &crs ) const override;
     Data structuredLinesData( const QString &destinationCrs = QString() ) const override;
+    QVector<QLineF> rawLines( const QString &destinationCrs = QString() ) const override;
 
     QUndoStack *undoStack() const override;
 
+    bool isOnBoundary( ReosGeometryStructureVertex *vertex );
+    bool isOnBoundary( const Segment &seg );
     void setTolerance( double tolerance, const QString &wktCrs = QString() );
 
   private:
-    typedef QgsFeatureId SegmentId;
-    typedef ReosStructureVertexHandler_p *VertexP;
-    typedef std::shared_ptr<ReosStructureVertexHandler_p> VertexH;
-    typedef std::array<VertexH, 2> Segment;
-
     ReosPolylineStructureVectorLayer() = default;
 
     // Data member defining the structure ********
@@ -138,13 +137,22 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
     QList<VertexP> mBoundariesVertex;
     // *******************************************
     double mTolerance = 0.01;
+    mutable bool mRawLinesDirty = true;
+    mutable QString mCurrentLineCrs;
+    mutable QVector<QLineF> mRawLines;
 
+    VertexS purposeVertex( const QPointF &point, double toleranceInLayerSystem, const QgsCoordinateTransform &transform );
     VertexS createVertex( QgsFeatureId id, int positionInFeature );
+    VertexS insertVertexPrivate( const QgsPointXY  &point, qint64 lineId );
     const QgsCoordinateTransform toLayerTransform( const QString &crs ) const;
     const QgsCoordinateTransform toDestinationTransform( const QString &destinationCrs ) const;
 
     QgsFeatureIterator closeLines( const ReosMapExtent &zone, QgsRectangle &rect ) const;
     QgsFeatureIterator closeLines( const QgsRectangle &rectSource, QgsRectangle &rectLayer, const QgsCoordinateTransform &transform ) const;
+
+    //! Search for the closest line pointed by \a it and in the extent \a rect and return the distance \a dist
+    bool closestLine( QgsFeatureIterator &it, const QgsRectangle &rect, SegmentId &lineId, double *distance = nullptr ) const;
+
     VertexS searchForVertexPrivate( QgsFeatureIterator &it, const QgsRectangle &rect ) const;
     QList<ReosStructureVertexHandler_p *> neighorsVertices( ReosGeometryStructureVertex *vertex,  QList<SegmentId> &fids ) const;
 

@@ -17,13 +17,14 @@
 
 #include "reospolylinesstructure.h"
 #include "reosmapextent.h"
+#include "reosstyleregistery.h"
 
 ReosMapPolylinesStructure_p::ReosMapPolylinesStructure_p( QgsMapCanvas *canvas ): ReosMapItem_p( canvas )
 {}
 
 ReosMapItem_p *ReosMapPolylinesStructure_p::clone()
 {
-  return new ReosMapPolylinesStructure_p( mMapCanvas );
+  return nullptr;
 }
 
 QPointF ReosMapPolylinesStructure_p::mapPos() const
@@ -41,39 +42,44 @@ void ReosMapPolylinesStructure_p::updatePosition()
 {
   prepareGeometryChange();
   mOriginInView = toCanvasCoordinates( mapPos() );
+  const QString &destCrs = crs();
+
   if ( mExterior )
-    mExterior->updatePosition( mStructure->boundary( crs() ), this );
+    mExterior->updatePosition( mStructure->boundary( destCrs ), this );
+  if ( mLines )
+    mLines->updatePosition( mStructure, this, destCrs );
 }
 
 void ReosMapPolylinesStructure_p::setStructure( ReosPolylinesStructure *structure )
 {
   mStructure = structure;
   mExterior = new ReosMapStructureExteriorItem( this );
+  mLines = new ReosMapStructureLinesItem( this );
+
+  mExterior->setVisible( false );
   updatePosition();
 }
 
 void ReosMapPolylinesStructure_p::paint( QPainter *painter )
-{
-
-}
+{}
 
 ReosMapStructureExteriorItem::ReosMapStructureExteriorItem( ReosMapPolylinesStructure_p *parent ): QGraphicsItem( parent )
 {
-  setZValue( 10 );
+  setZValue( 11 );
 }
 
 void ReosMapStructureExteriorItem::updatePosition( const QPolygonF &poly, ReosMapPolylinesStructure_p *parent )
 {
   prepareGeometryChange();
-  polyInLocalView.clear();
+  mPolyInLocalView.clear();
 
   for ( const QPointF &pt : poly )
   {
     QPointF ptCanvas = parent->toCanvasCoordinates( pt );
     QPointF ptLocal = ptCanvas;
-    polyInLocalView.append( ptLocal );
+    mPolyInLocalView.append( ptLocal );
   }
-  mBBox = polyInLocalView.boundingRect().adjusted( - 5, -5, 5, 5 );
+  mBBox = mPolyInLocalView.boundingRect().adjusted( - 5, -5, 5, 5 );
 }
 
 QRectF ReosMapStructureExteriorItem::boundingRect() const
@@ -84,26 +90,27 @@ QRectF ReosMapStructureExteriorItem::boundingRect() const
 void ReosMapStructureExteriorItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *, QWidget * )
 {
   painter->save();
+
   painter->setRenderHint( QPainter::Antialiasing, true );
   QPen pen;
-  pen.setColor( QColor( 250, 175, 100 ) );
+  pen.setColor( ReosStyleRegistery::instance()->orangeReos() );
   pen.setWidthF( mBaseWidth );
   painter->setPen( pen );
-  painter->drawPolygon( polyInLocalView );
+  painter->drawPolygon( mPolyInLocalView );
 
   pen.setColor( Qt::gray );
   pen.setWidthF( mBaseWidth / 5 * 2 );
   painter->setPen( pen );
-  painter->drawPolygon( polyInLocalView );
+  painter->drawPolygon( mPolyInLocalView );
 
   QBrush brush;
   brush.setColor( Qt::gray );
   brush.setStyle( Qt::SolidPattern );
-  pen.setColor( QColor( 250, 175, 100 ) );
+  pen.setColor( ReosStyleRegistery::instance()->orangeReos( 100 ) );
   pen.setWidth( mBaseWidth / 5 * 2 );
   painter->setBrush( brush );
   painter->setPen( pen );
-  for ( const QPointF pt : std::as_const( polyInLocalView ) )
+  for ( const QPointF pt : std::as_const( mPolyInLocalView ) )
     painter->drawEllipse( pt,  mBaseWidth / 5 * 4,  mBaseWidth / 5 * 4 );
 
   painter->restore();
@@ -113,4 +120,71 @@ void ReosMapStructureExteriorItem::setBaseWidth( double baseWidth )
 {
   mBaseWidth = baseWidth;
   update();
+}
+
+ReosMapStructureLinesItem::ReosMapStructureLinesItem( ReosMapPolylinesStructure_p *parent ): QGraphicsItem( parent )
+{
+  setZValue( 10 );
+}
+
+void ReosMapStructureLinesItem::updatePosition(
+  const ReosPolylinesStructure *structure,
+  ReosMapPolylinesStructure_p *parent,
+  const QString &destinationCrs )
+{
+  prepareGeometryChange();
+  mLinesInLocalView.clear();
+
+  const QVector<QLineF> &mRawLines = structure->rawLines( destinationCrs );
+  QgsRectangle extent;
+
+  for ( const QLineF &line : mRawLines )
+  {
+    mLinesInLocalView.append( QLineF( parent->toCanvasCoordinates( line.p1() ),  parent->toCanvasCoordinates( line.p2() ) ) );
+    extent.include( mLinesInLocalView.last().p1() );
+    extent.include( mLinesInLocalView.last().p2() );
+  }
+  mBBox = extent.toRectF().adjusted( - 5, -5, 5, 5 );
+}
+
+QRectF ReosMapStructureLinesItem::boundingRect() const
+{
+  return mBBox;
+}
+
+void ReosMapStructureLinesItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *, QWidget * )
+{
+  painter->save();
+
+  painter->setRenderHint( QPainter::Antialiasing, true );
+  QPen pen;
+  pen.setColor( ReosStyleRegistery::instance()->orangeReos() );
+  pen.setWidthF( mBaseWidth );
+  painter->setPen( pen );
+  for ( const QLineF &line : std::as_const( mLinesInLocalView ) )
+    painter->drawLine( line );
+
+  pen.setColor( Qt::gray );
+  pen.setWidthF( mBaseWidth / 5 * 2 );
+  painter->setPen( pen );
+  for ( const QLineF &line : std::as_const( mLinesInLocalView ) )
+    painter->drawLine( line );
+
+  QBrush brush;
+  brush.setColor( Qt::gray );
+  brush.setStyle( Qt::SolidPattern );
+  pen.setColor( ReosStyleRegistery::instance()->orangeReos( 100 ) );
+  pen.setWidth( mBaseWidth / 5 * 2 );
+  painter->setBrush( brush );
+  painter->setPen( pen );
+
+  for ( const QLineF &line : std::as_const( mLinesInLocalView ) )
+  {
+    const QPointF &pt1 = line.p1();
+    painter->drawEllipse( pt1,  mBaseWidth / 5 * 4,  mBaseWidth / 5 * 4 );
+    const QPointF &pt2 = line.p2();
+    painter->drawEllipse( pt2,  mBaseWidth / 5 * 4,  mBaseWidth / 5 * 4 );
+  }
+
+  painter->restore();
 }

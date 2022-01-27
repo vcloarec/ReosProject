@@ -39,6 +39,8 @@ ReosEditStructureGeometry2DWidget::ReosEditStructureGeometry2DWidget( ReosHydrau
   mActionEditLine->setCheckable( true );
   mMapToolEditLine->setAction( mActionEditLine );
 
+  toolBar->addActions( mMapToolEditLine->mainActions()->actions() );
+
   mUndoStack = structure2D->geometryStructure()->undoStack();
   toolBar->addAction( mUndoStack->createUndoAction( this ) );
   toolBar->addAction( mUndoStack->createRedoAction( this ) );

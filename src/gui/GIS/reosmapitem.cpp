@@ -40,7 +40,7 @@ bool ReosMapItem::isItem( ReosMapItem *item ) const
 
 bool ReosMapItem::isMapExist() const
 {
-  return ( mMap && mMap->mapCanvas() );
+  return ( !mMap.isNull() && mMap->mapCanvas() );
 }
 
 void ReosMapItem::setDescription( const QString &description )

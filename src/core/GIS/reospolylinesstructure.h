@@ -58,14 +58,14 @@ class ReosPolylinesStructure : public ReosGeometryStructure
     //! Creates and returns polylines structure with specified \a crs
     static std::unique_ptr<ReosPolylinesStructure> createPolylineStructure( const QPolygonF &boundary, const QString &crs );
 
-    //! Adds a \a polyline to the structure with an identifier \a id
-    virtual void addPolylines( const QPolygonF &polyline, const QString &sourceCrs = QString() ) = 0;
+    //! Adds a \a polyline to the structure with coordinates in \a sourcesCrs and a tolerance for new vertices \a newVertexTolerance in \a sourceCrs unit
+    virtual void addPolylines( const QPolygonF &polyline, double newVertexTolerance, const QString &sourceCrs = QString() ) = 0;
 
     //! Returns the polyline with identifier \a id
     virtual QPolygonF polyline( const QString &destinationCrs = QString(), const QString &id = QString() ) const = 0;
 
     //! Returns the boundary of the structure in \a destinationCrs cordinate system
-    virtual QPolygonF boundary( const QString &destinationCrs ) const = 0;
+    virtual QPolygonF boundary( const QString &destinationCrs = QString() ) const = 0;
 
     //! Removes all the entities in the structure
     virtual void removeAll() = 0;
@@ -80,7 +80,7 @@ class ReosPolylinesStructure : public ReosGeometryStructure
     virtual void moveVertex( ReosGeometryStructureVertex *vertex, const ReosSpatialPosition &newPosition ) = 0;
 
     //! Inserts a vertex in the line with \a lineId at position \a point
-    virtual void insertVertex( const ReosSpatialPosition &point, qint64 lineId ) = 0;
+    virtual ReosGeometryStructureVertex *insertVertex( const ReosSpatialPosition &point, qint64 lineId ) = 0;
 
     //! Removes \a vertex
     virtual void removeVertex( ReosGeometryStructureVertex *vertex ) = 0 ;
@@ -102,6 +102,9 @@ class ReosPolylinesStructure : public ReosGeometryStructure
 
     //! Returns the structured lines data, that is the posistion and the topology
     virtual Data structuredLinesData( const QString &destinationCrs = QString() ) const = 0;
+
+    //! Returns the all the lines of the structure in coordintate system \a destination CRS
+    virtual QVector<QLineF> rawLines( const QString &destinationCrs = QString() ) const = 0;
 
     virtual QUndoStack *undoStack() const = 0;
 

@@ -32,7 +32,7 @@ class ReosMenuPopulator
     ReosMenuPopulator();
 
     //! Populates the menu
-    virtual void populate( QMenu *menu, QgsMapMouseEvent *e = nullptr );
+    virtual bool populate( QMenu *menu, QgsMapMouseEvent *e = nullptr );
 
     //! Add an action than will be added to menu
     void addAction( QAction *action );

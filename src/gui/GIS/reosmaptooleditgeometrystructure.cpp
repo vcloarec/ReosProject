@@ -43,6 +43,11 @@ void ReosMapToolEditGeometryStructure::setStructure( ReosPolylinesStructure *str
   d->setStructure( structure );
 }
 
+QActionGroup *ReosMapToolEditGeometryStructure::mainActions() const
+{
+  return d->mainActions();
+}
+
 ReosMapTool_p *ReosMapToolEditGeometryStructure::tool_p() const
 {
   return d;

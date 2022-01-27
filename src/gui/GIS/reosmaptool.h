@@ -77,7 +77,7 @@ class REOSGUI_EXPORT ReosMapTool : public QObject
 
   private:
     virtual ReosMapTool_p *tool_p() const = 0;
-    ReosMap *mMap = nullptr;
+    QPointer<ReosMap> mMap = nullptr;
 };
 
 class ReosMapToolNeutral: public ReosMapTool

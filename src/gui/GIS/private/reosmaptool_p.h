@@ -57,6 +57,8 @@ class ReosMapTool_p: public QgsMapTool
 
     void enableSnapping( bool enable );
 
+    bool hasFeatureOnMap( const QPointF &mapPoint ) const;
+
   signals:
     void foundItemWhenMoving( ReosMapItem_p *item );
     void keyPressed( int key );
@@ -69,9 +71,13 @@ class ReosMapTool_p: public QgsMapTool
 
     QRectF viewSearchZone( const QPoint &pt );
     ReosMapItem_p *searchItem( const QPointF &p ) const;
+
+    QgsGeometry selectFeatureOnMap( QgsMapMouseEvent *e );
+
     ReosMapItem_p *mFoundItem = nullptr;
     bool mSnappingEnabled = false;
     std::unique_ptr<QgsSnapIndicator> mSnappingIndicator;
+    bool mClosed = false;
 
   private:
     std::unique_ptr<ReosMenuPopulator> mContextMenuPopulator;
@@ -119,7 +125,6 @@ class ReosMapToolDrawPolyline_p: public ReosMapTool_p
     void polylineDrawn( const QPolygonF &polyline ) const;
 
   private:
-    bool mClosed = false;
     QColor mColor;
     QColor mFillColor;
     bool mAllowSelfIntersect = true;
@@ -127,7 +132,6 @@ class ReosMapToolDrawPolyline_p: public ReosMapTool_p
     bool selfIntersect() const;
     void updateColor();
 
-    void selectFeatureOnMap( QgsMapMouseEvent *e );
 };
 
 

@@ -26,10 +26,23 @@
 
 ReosMapToolEditPolylineStructure_p::ReosMapToolEditPolylineStructure_p( QgsMapCanvas *map )
   :  ReosMapTool_p( map )
+  , mMainActions( new QActionGroup( this ) )
+  , mActionAddLines( new QAction( tr( "Add lines" ), this ) )
+  , mActionMoveVertex( new QAction( tr( "Move vertex" ), this ) )
   , mActionInsertVertex( new QAction( tr( "Insert Vertex" ), this ) )
   , mActionRemoveVertex( new QAction( tr( "Remove Vertex" ), this ) )
+
 {
   enableSnapping( true );
+
+  mActionAddLines->setCheckable( true );
+  mActionMoveVertex->setCheckable( true );
+  mMainActions->addAction( mActionAddLines );
+  mMainActions->addAction( mActionMoveVertex );
+  mMainActions->setExclusive( true );
+
+  connect( mActionAddLines, &QAction::triggered, this, &ReosMapToolEditPolylineStructure_p::resetTool );
+  connect( mActionMoveVertex, &QAction::triggered, this, &ReosMapToolEditPolylineStructure_p::resetTool );
 
   mVertexMarker = new QgsVertexMarker( map );
   mVertexMarker->setVisible( false );
@@ -39,22 +52,22 @@ ReosMapToolEditPolylineStructure_p::ReosMapToolEditPolylineStructure_p( QgsMapCa
   mVertexMarker->setIconType( QgsVertexMarker::ICON_CIRCLE );
   mVertexMarker->setZValue( 55 );
 
-  mMovingLineRubberBand = new QgsRubberBand( mCanvas, QgsWkbTypes::LineGeometry );
-  mMovingLineRubberBand->setWidth( 1 );
+  mLineRubberBand = new QgsRubberBand( mCanvas, QgsWkbTypes::LineGeometry );
+  mLineRubberBand->setWidth( 1 );
 
-  mMovingLineRubberBand->setLineStyle( Qt::DashLine );
-  mMovingLineRubberBand->setStrokeColor( ReosStyleRegistery::instance()->blueReos() );
-  mMovingLineRubberBand->setSecondaryStrokeColor( Qt::white );
-  mMovingLineRubberBand->setZValue( 50 );
+  mLineRubberBand->setLineStyle( Qt::DashLine );
+  mLineRubberBand->setStrokeColor( ReosStyleRegistery::instance()->blueReos() );
+  mLineRubberBand->setSecondaryStrokeColor( Qt::white );
+  mLineRubberBand->setZValue( 50 );
 
-  mMovingVertexRubberBand = new QgsRubberBand( mCanvas, QgsWkbTypes::PointGeometry );
-  mMovingVertexRubberBand->setIcon( QgsRubberBand::ICON_CIRCLE );
-  mMovingVertexRubberBand->setWidth( QgsGuiUtils::scaleIconSize( 2 ) );
-  mMovingVertexRubberBand->setColor( ReosStyleRegistery::instance()->blueReos() );
-  mMovingVertexRubberBand->setSecondaryStrokeColor( Qt::white );
-  mMovingVertexRubberBand->setIconSize( QgsGuiUtils::scaleIconSize( 5 ) );
-  mMovingVertexRubberBand->setZValue( 51 );
-  mMovingVertexRubberBand->setVisible( true );
+  mVertexRubberBand = new QgsRubberBand( mCanvas, QgsWkbTypes::PointGeometry );
+  mVertexRubberBand->setIcon( QgsRubberBand::ICON_CIRCLE );
+  mVertexRubberBand->setWidth( QgsGuiUtils::scaleIconSize( 2 ) );
+  mVertexRubberBand->setColor( ReosStyleRegistery::instance()->blueReos() );
+  mVertexRubberBand->setSecondaryStrokeColor( Qt::white );
+  mVertexRubberBand->setIconSize( QgsGuiUtils::scaleIconSize( 5 ) );
+  mVertexRubberBand->setZValue( 51 );
+  mVertexRubberBand->setVisible( true );
 
   mMapCrs = mapCrs();
 }
@@ -65,11 +78,35 @@ void ReosMapToolEditPolylineStructure_p::setStructure( ReosPolylinesStructure *s
   mMapCrs = mapCrs(); //update the crs if changed
 }
 
-void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
+QgsMapTool::Flags ReosMapToolEditPolylineStructure_p::flags() const
 {
   switch ( mCurrentState )
   {
+    case ReosMapToolEditPolylineStructure_p::DraggingVertex:
+      return Flags();
+      break;
+    case ReosMapToolEditPolylineStructure_p::AddingLines:
+      return Flags();
+      break;
     case ReosMapToolEditPolylineStructure_p::None:
+      if ( mActionAddLines->isChecked() && hasFeatureOnMap( mCurrentPosition ) )
+        return Flags();
+      return ShowContextMenu;
+      break;
+  }
+
+  return Flags();
+}
+
+void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
+{
+  mCurrentPosition = e->mapPoint().toQPointF();
+
+  switch ( mCurrentState )
+  {
+    case ReosMapToolEditPolylineStructure_p::None:
+    case ReosMapToolEditPolylineStructure_p::AddingLines:
+
       if ( mStructure )
       {
         QgsPointXY mapPoint = e->mapPoint();
@@ -77,10 +114,19 @@ void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
         if ( mCurrentVertex )
         {
           mSnappingIndicator->setMatch( QgsPointLocator::Match() );
-          mVertexMarker->setCenter( mStructure->vertexPosition( mCurrentVertex, mMapCrs ) );
+          const QPointF &position = mStructure->vertexPosition( mCurrentVertex, mMapCrs );
+          mVertexMarker->setCenter( position );
           mVertexMarker->setVisible( true );
+          if ( mCurrentState == AddingLines )
+            moveAddingLineRubberBand( position );
           return;
         }
+        else if ( mCurrentState == AddingLines )
+        {
+          QgsPointXY mapPoint = e->snapPoint();
+          moveAddingLineRubberBand( mapPoint );
+        }
+
       }
 
       mVertexMarker->setVisible( false );
@@ -102,8 +148,8 @@ void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
   switch ( mCurrentState )
   {
     case ReosMapToolEditPolylineStructure_p::None:
-      break;
     case ReosMapToolEditPolylineStructure_p::DraggingVertex:
+    case ReosMapToolEditPolylineStructure_p::AddingLines:
       break;
   }
 
@@ -112,28 +158,56 @@ void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
 
 void ReosMapToolEditPolylineStructure_p::canvasReleaseEvent( QgsMapMouseEvent *e )
 {
+  const QPointF &snapPoint = e->snapPoint().toQPointF();
+
+
   switch ( mCurrentState )
   {
     case ReosMapToolEditPolylineStructure_p::None:
-      if ( mCurrentVertex )
+      if ( e->button() == Qt::LeftButton )
       {
-        if ( e->button() == Qt::LeftButton )
+        if ( mCurrentVertex )
         {
-          mCurrentState = DraggingVertex;
-          mNeighborPosition = mStructure->neighborsPositions( mCurrentVertex, mMapCrs );
-          const QgsPointXY center( mStructure->vertexPosition( mCurrentVertex, mMapCrs ) );
-          updateMovingVertexRubberBand( center );
+          if ( mActionMoveVertex->isChecked() )
+          {
+            mCurrentState = DraggingVertex;
+            mNeighborPosition = mStructure->neighborsPositions( mCurrentVertex, mMapCrs );
+            const QgsPointXY center( mStructure->vertexPosition( mCurrentVertex, mMapCrs ) );
+            updateMovingVertexRubberBand( center );
+          }
+          else if ( mActionAddLines->isChecked() )
+          {
+            mCurrentState = AddingLines;
+          }
           mVertexMarker->setVisible( false );
+
+        }
+        else
+        {
+          if ( mActionAddLines->isChecked() )
+          {
+            mCurrentState = AddingLines;
+            mAddingPolyline.append( snapPoint );
+            mLineRubberBand->addPoint( snapPoint );
+            mVertexRubberBand->addPoint( snapPoint );
+          }
         }
       }
+      else if ( e->button() == Qt::RightButton && mActionAddLines->isChecked() )
+      {
+        QgsGeometry geom = selectFeatureOnMap( e );
+        if ( !geom.isNull() )
+          mStructure->addPolylines( geom.asQPolygonF(), tolerance(), mMapCrs );
+      }
+
       break;
     case ReosMapToolEditPolylineStructure_p::DraggingVertex:
       if ( mCurrentVertex )
       {
         if ( e->button() == Qt::LeftButton )
         {
-          if ( mStructure->vertexCanBeMoved( mCurrentVertex, ReosSpatialPosition( e->snapPoint().toQPointF(), mMapCrs ) ) )
-            mStructure->moveVertex( mCurrentVertex, ReosSpatialPosition( e->snapPoint().toQPointF(), mMapCrs ) );
+          if ( mStructure->vertexCanBeMoved( mCurrentVertex, ReosSpatialPosition( snapPoint, mMapCrs ) ) )
+            mStructure->moveVertex( mCurrentVertex, ReosSpatialPosition( snapPoint, mMapCrs ) );
 
           stopDraggingVertex();
           canvas()->refresh();
@@ -144,6 +218,32 @@ void ReosMapToolEditPolylineStructure_p::canvasReleaseEvent( QgsMapMouseEvent *e
         }
       }
       break;
+    case ReosMapToolEditPolylineStructure_p::AddingLines:
+      if ( e->button() == Qt::LeftButton )
+      {
+        QPointF position;
+
+        if ( mCurrentVertex )
+          position =  mStructure->vertexPosition( mCurrentVertex, mMapCrs );
+        else
+          position = snapPoint;
+
+        mLineRubberBand->addPoint( position );
+        mVertexRubberBand->addPoint( position );
+        mAddingPolyline.append( position );
+      }
+      else if ( e->button() == Qt::RightButton )
+      {
+        if ( !mAddingPolyline.isEmpty() )
+          mStructure->addPolylines( mAddingPolyline, tolerance(), mMapCrs );
+
+        mAddingPolyline.clear();
+        mLineRubberBand->reset( QgsWkbTypes::LineGeometry );
+        mVertexRubberBand->reset( QgsWkbTypes::PointGeometry );
+        canvas()->refresh();
+        mCurrentState = None;
+      }
+      break;
   }
 
   ReosMapTool_p::canvasReleaseEvent( e );
@@ -151,16 +251,7 @@ void ReosMapToolEditPolylineStructure_p::canvasReleaseEvent( QgsMapMouseEvent *e
 
 void ReosMapToolEditPolylineStructure_p::keyPressEvent( QKeyEvent *e )
 {
-  switch ( mCurrentState )
-  {
-    case ReosMapToolEditPolylineStructure_p::None:
-      ReosMapTool_p::keyPressEvent( e );
-      break;
-    case ReosMapToolEditPolylineStructure_p::DraggingVertex:
-      stopDraggingVertex();
-      break;
-
-  }
+  resetTool();
 }
 
 void ReosMapToolEditPolylineStructure_p::insertVertex( const QPointF &mapPoint, qint64 lineId )
@@ -173,13 +264,32 @@ void ReosMapToolEditPolylineStructure_p::removeVertex( ReosGeometryStructureVert
   mStructure->removeVertex( vertex );
 }
 
-ReosMapExtent ReosMapToolEditPolylineStructure_p::searchZone( const QgsPointXY &point ) const
+void ReosMapToolEditPolylineStructure_p::resetTool()
+{
+  switch ( mCurrentState )
+  {
+    case ReosMapToolEditPolylineStructure_p::AddingLines:
+      stopAddingLines();
+      break;
+    case ReosMapToolEditPolylineStructure_p::None:
+      break;
+    case ReosMapToolEditPolylineStructure_p::DraggingVertex:
+      stopDraggingVertex();
+      break;
+  }
+}
+
+double ReosMapToolEditPolylineStructure_p::tolerance() const
 {
   const QgsSnappingConfig &snapConfig = QgsProject::instance()->snappingConfig();
-  double tolerance = QgsTolerance::toleranceInProjectUnits( snapConfig.tolerance(),
-                     nullptr, canvas()->mapSettings(), snapConfig.units() );
+  return QgsTolerance::toleranceInProjectUnits( snapConfig.tolerance(),
+         nullptr, canvas()->mapSettings(), snapConfig.units() );
+}
 
-  ReosMapExtent zone( point.x() - tolerance, point.y() - tolerance, point.x() + tolerance, point.y() + tolerance );
+ReosMapExtent ReosMapToolEditPolylineStructure_p::searchZone( const QgsPointXY &point ) const
+{
+  double tol = tolerance();
+  ReosMapExtent zone( point.x() - tol, point.y() - tol, point.x() + tol, point.y() + tol );
   zone.setCrs( mMapCrs );
 
   return zone;
@@ -187,46 +297,67 @@ ReosMapExtent ReosMapToolEditPolylineStructure_p::searchZone( const QgsPointXY &
 
 void ReosMapToolEditPolylineStructure_p::updateMovingVertexRubberBand( const QgsPointXY &movingPosition )
 {
-  mMovingLineRubberBand->reset( QgsWkbTypes::LineGeometry );
-  mMovingVertexRubberBand->reset( QgsWkbTypes::PointGeometry );
+  mLineRubberBand->reset( QgsWkbTypes::LineGeometry );
+  mVertexRubberBand->reset( QgsWkbTypes::PointGeometry );
 
   if ( mStructure->vertexCanBeMoved( mCurrentVertex, ReosSpatialPosition( movingPosition.toQPointF(), mMapCrs ) ) )
   {
-    mMovingLineRubberBand->setColor( ReosStyleRegistery::instance()->blueReos() );
+    mLineRubberBand->setColor( ReosStyleRegistery::instance()->blueReos() );
   }
   else
   {
-    mMovingLineRubberBand->setColor( ReosStyleRegistery::instance()->invalidColor() );
+    mLineRubberBand->setColor( ReosStyleRegistery::instance()->invalidColor() );
   }
 
   for ( const QPointF &np : std::as_const( mNeighborPosition ) )
   {
     const QgsGeometry geom( new QgsLineString( {movingPosition, QgsPointXY( np )} ) );
-    mMovingLineRubberBand->addGeometry( geom, QgsCoordinateReferenceSystem(), false );
-    mMovingVertexRubberBand->addPoint( np, false );
+    mLineRubberBand->addGeometry( geom, QgsCoordinateReferenceSystem(), false );
+    mVertexRubberBand->addPoint( np, false );
   }
 
-  mMovingVertexRubberBand->addPoint( movingPosition );
-  mMovingLineRubberBand->updatePosition();
+  mVertexRubberBand->addPoint( movingPosition );
+  mLineRubberBand->updatePosition();
+}
+
+void ReosMapToolEditPolylineStructure_p::moveAddingLineRubberBand( const QgsPointXY &movingPosition )
+{
+  mLineRubberBand->movePoint( movingPosition );
 }
 
 void ReosMapToolEditPolylineStructure_p::stopDraggingVertex()
 {
-  mMovingLineRubberBand->reset( QgsWkbTypes::LineGeometry );
-  mMovingVertexRubberBand->reset( QgsWkbTypes::PointGeometry );
+  mLineRubberBand->reset( QgsWkbTypes::LineGeometry );
+  mVertexRubberBand->reset( QgsWkbTypes::PointGeometry );
   mNeighborPosition.clear();
   mCurrentVertex = nullptr;
   mCurrentState = None;
+}
+
+void ReosMapToolEditPolylineStructure_p::stopAddingLines()
+{
+  mLineRubberBand->reset( QgsWkbTypes::LineGeometry );
+  mVertexRubberBand->reset( QgsWkbTypes::PointGeometry );
+  mNeighborPosition.clear();
+  mCurrentVertex = nullptr;
+  mCurrentState = None;
+}
+
+QActionGroup *ReosMapToolEditPolylineStructure_p::mainActions() const
+{
+  return mMainActions;
 }
 
 ReosEditGeometryStructureMenuPopulator::ReosEditGeometryStructureMenuPopulator( ReosMapToolEditPolylineStructure_p *toolMap )
   : mToolMap( toolMap )
 {}
 
-void ReosEditGeometryStructureMenuPopulator::populate( QMenu *menu, QgsMapMouseEvent *e )
+bool ReosEditGeometryStructureMenuPopulator::populate( QMenu *menu, QgsMapMouseEvent *e )
 {
   if ( !mToolMap )
-    return;
+    return false;
+
+  menu->clear();
 
   QPointF nonSnapPos = e->mapPoint().toQPointF();
   ReosMapExtent searchZone = mToolMap->searchZone( e->snapPoint() );
@@ -241,11 +372,23 @@ void ReosEditGeometryStructureMenuPopulator::populate( QMenu *menu, QgsMapMouseE
   if ( !vertex && mToolMap->mStructure->searchForLine( mToolMap->searchZone( nonSnapPos ), id ) )
     populateLineAction( id, snapPos, menu );
 
+
+  switch ( mToolMap->mCurrentState )
+  {
+    case ReosMapToolEditPolylineStructure_p::None:
+      menu->addActions( mToolMap->mainActions()->actions() );
+      break;
+    case ReosMapToolEditPolylineStructure_p::DraggingVertex:
+    case ReosMapToolEditPolylineStructure_p::AddingLines:
+      break;
+  }
+
+  return true;
+
 }
 
 void ReosEditGeometryStructureMenuPopulator::populateVertexAction( ReosGeometryStructureVertex *vertex, QMenu *menu )
 {
-  menu->clear();
   menu->addAction( mToolMap->mActionRemoveVertex );
   QObject::connect( mToolMap->mActionRemoveVertex, &QAction::triggered, menu, [this, vertex]
   {
@@ -255,7 +398,6 @@ void ReosEditGeometryStructureMenuPopulator::populateVertexAction( ReosGeometryS
 
 void ReosEditGeometryStructureMenuPopulator::populateLineAction( QgsFeatureId id, const QPointF &point, QMenu *menu )
 {
-  menu->clear();
   menu->addAction( mToolMap->mActionInsertVertex );
   QObject::connect( mToolMap->mActionInsertVertex, &QAction::triggered, menu, [this, point, id]
   {

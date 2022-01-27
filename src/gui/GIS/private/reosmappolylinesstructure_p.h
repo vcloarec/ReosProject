@@ -19,6 +19,7 @@
 #include "reosmappolygon_p.h"
 
 class ReosMapStructureExteriorItem;
+class ReosMapStructureLinesItem;
 class QgsPointXY;
 
 class ReosMapPolylinesStructure_p : public ReosMapItem_p
@@ -26,10 +27,10 @@ class ReosMapPolylinesStructure_p : public ReosMapItem_p
   public:
     ReosMapPolylinesStructure_p( QgsMapCanvas *canvas );
 
-    ReosMapItem_p *clone();
+    ReosMapItem_p *clone() override;
 
-    void translate( const QPointF &translation ) {}
-    QPointF mapPos() const;
+    void translate( const QPointF &translation ) override {}
+    QPointF mapPos() const override;
 
     void setExteriorBaseWidth( double width );
 
@@ -41,6 +42,7 @@ class ReosMapPolylinesStructure_p : public ReosMapItem_p
     QPointF mOriginInView;
     ReosPolylinesStructure *mStructure = nullptr;
     ReosMapStructureExteriorItem *mExterior = nullptr;
+    ReosMapStructureLinesItem *mLines = nullptr;
 };
 
 
@@ -55,7 +57,23 @@ class ReosMapStructureExteriorItem : public QGraphicsItem
     void setBaseWidth( double baseWidth );
 
   private:
-    QPolygonF polyInLocalView;
+    QPolygonF mPolyInLocalView;
+    QRectF mBBox;
+    double mBaseWidth = 5;
+};
+
+class ReosMapStructureLinesItem : public QGraphicsItem
+{
+  public:
+    ReosMapStructureLinesItem( ReosMapPolylinesStructure_p *parent );
+    void updatePosition( const ReosPolylinesStructure *structure, ReosMapPolylinesStructure_p *parent, const QString &destinationCrs );
+    QRectF boundingRect() const override;
+    void paint( QPainter *painter, const QStyleOptionGraphicsItem *, QWidget * ) override;
+
+    void setBaseWidth( double baseWidth );
+
+  private:
+    QList<QLineF> mLinesInLocalView;
     QRectF mBBox;
     double mBaseWidth = 5;
 };

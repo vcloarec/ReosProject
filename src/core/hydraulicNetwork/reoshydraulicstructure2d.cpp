@@ -44,5 +44,8 @@ bool ReosHydraulicStructure2D::generateMesh()
 {
   ReosGmshGenerator generator;
   generator.setGeometryStructure( mPolylinesStructures.get(), QString() );
-  return mMesh->generateMesh( generator );
+  if ( mMesh )
+    return mMesh->generateMesh( generator );
+  else
+    return false;
 }

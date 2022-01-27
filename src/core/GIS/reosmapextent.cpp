@@ -184,6 +184,9 @@ ReosSpatialPosition::ReosSpatialPosition( const QPointF &position, const QString
   mIsValid = true;
 }
 
+ReosSpatialPosition::ReosSpatialPosition( double x, double y, const QString &crs ): ReosSpatialPosition( QPointF( x, y ), crs )
+{}
+
 QPointF ReosSpatialPosition::position() const
 {
   return mPosition;
