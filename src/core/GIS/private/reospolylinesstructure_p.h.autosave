@@ -100,7 +100,7 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
     ~ReosPolylineStructureVectorLayer();
 
     void addPolylines( const QPolygonF &polyline, double newVertexTolerance, const QString &sourceCrs = QString( ) ) override;
-    void addLine( const QPointF &pt0, const QPointF &pt1, const QString &sourceCrs = QString( ) ) override;
+
     QPolygonF polyline( const QString &destinationCrs = QString(), const QString &id = QString() ) const override;
 
     QPolygonF boundary( const QString &destinationCrs = QString() ) const override;
@@ -109,7 +109,6 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
 
     void removeAll() override;
     void translate( const QPointF &translation, const QString &crs, const QString &id = QString() ) override {};
-
     bool vertexCanBeMoved( ReosGeometryStructureVertex *vertex, const ReosSpatialPosition &newPosition ) const override;
     void moveVertex( ReosGeometryStructureVertex *vertex, const ReosSpatialPosition &newPosition ) override;
     ReosGeometryStructureVertex *insertVertex( const ReosSpatialPosition &point, qint64 lineId ) override;

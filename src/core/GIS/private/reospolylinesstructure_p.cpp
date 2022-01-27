@@ -52,21 +52,20 @@ ReosPolylineStructureVectorLayer::~ReosPolylineStructureVectorLayer()
   disconnect( mVectorLayer->undoStack(), &QUndoStack::indexChanged, this, &ReosDataObject::dataChanged );
 }
 
-VertexS ReosPolylineStructureVectorLayer::purposeVertex( const QPointF &point, double toleranceInLayerSystem, const QgsCoordinateTransform &transform )
+VertexS ReosPolylineStructureVectorLayer::purposeVertex( const QgsPointXY &point, double toleranceInLayerSystem )
 {
-  const QgsRectangle sr0Source( point.x() - toleranceInLayerSystem, point.y() - toleranceInLayerSystem, point.x() + toleranceInLayerSystem, point.y() + toleranceInLayerSystem );
-  QgsRectangle srLayer;
-  QgsFeatureIterator fit0 = closeLines( sr0Source, srLayer, transform );
-  VertexS vert = searchForVertexPrivate( fit0, srLayer );
+  const QgsRectangle sr( point.x() - toleranceInLayerSystem, point.y() - toleranceInLayerSystem, point.x() + toleranceInLayerSystem, point.y() + toleranceInLayerSystem );
+  QgsFeatureIterator fit0 = closeLinesInLayerCoordinate( sr );
+  VertexS vert = searchForVertexPrivate( fit0, sr );
 
   if ( !vert )
   {
     double dist = 0;
     SegmentId closestLineId;
-    fit0 = closeLines( sr0Source, srLayer, transform );
-    if ( closestLine( fit0, srLayer, closestLineId, &dist ) && dist < toleranceInLayerSystem )
+    fit0 = closeLinesInLayerCoordinate( sr );
+    if ( closestLine( fit0, sr, closestLineId, &dist ) && dist < toleranceInLayerSystem )
     {
-      vert = insertVertexPrivate( srLayer.center(), closestLineId );
+      vert = insertVertexPrivate( sr.center(), closestLineId );
     }
   }
 
@@ -337,27 +336,23 @@ void ReosPolylineStructureVectorLayer::addPolylines( const QPolygonF &polyline, 
     QPointF pt0 = polyline.at( i );
     QPointF pt1 = polyline.at( i + 1 );
 
-    VertexS vert0 = purposeVertex( pt0, newVertexTolerance, transform );
+    QgsPointXY pointXY0 = toLayerCoordinates( pt0, transform );
+    QgsPointXY pointXY1 = toLayerCoordinates( pt1, transform );
 
-    VertexS vert1 = purposeVertex( pt1, newVertexTolerance, transform );
+    //first look if we have intersection with existing lines
+    QgsRectangle lineExtent;
+    lineExtent.include( pointXY0 );
+    lineExtent.include( pointXY1 );
+    QgsFeatureIterator it = closeLinesInLayerCoordinate( lineExtent );
 
-//    const QgsRectangle sr1Source( pt1.x() - newVertexTolerance, pt1.y() - newVertexTolerance, pt1.x() + newVertexTolerance, pt1.y() + newVertexTolerance );
-//    QgsRectangle sr1Layer;
-//    QgsFeatureIterator fit1 = closeLines( sr1Source, sr1Layer, transform );
-//    VertexS vert1 = searchForVertexPrivate( fit1, sr1Layer );
+    VertexS vert0 = purposeVertex( pointXY0, newVertexTolerance );
+    VertexS vert1 = purposeVertex( pointXY1, newVertexTolerance );
 
-    QgsPointXY pointXY0;
     if ( vert0 )
       pointXY0 = vert0->position();
-    else
-      pointXY0 = toLayerCoordinates( pt0, transform );
 
-    QgsPointXY pointXY1;
     if ( vert1 )
       pointXY1 = vert1->position();
-    else
-      pointXY1 = toLayerCoordinates( pt1, transform );
-
 
     QgsFeature feature;
     feature.setGeometry( QgsGeometry( new QgsLineString( {pointXY0, pointXY1} ) ) );
@@ -372,6 +367,11 @@ void ReosPolylineStructureVectorLayer::addPolylines( const QPolygonF &polyline, 
   }
 
   mVectorLayer->endEditCommand();
+}
+
+void ReosPolylineStructureVectorLayer::addLine( const QPointF &pt0, const QPointF &pt1, const QString &sourceCrs )
+{
+
 }
 
 QPolygonF ReosPolylineStructureVectorLayer::polyline( const QString &destinationCrs, const QString &id ) const
@@ -569,30 +569,28 @@ QgsFeatureIterator ReosPolylineStructureVectorLayer::closeLines( const ReosMapEx
 {
   QgsCoordinateTransform transform = toLayerTransform( zone.crs() );
 
-  return closeLines( zone.toRectF(), rect, transform );
-}
-
-QgsFeatureIterator ReosPolylineStructureVectorLayer::closeLines( const QgsRectangle &rectSource, QgsRectangle &rectLayer, const QgsCoordinateTransform &transform ) const
-{
-
   if ( transform.isValid() )
   {
     try
     {
-      rectLayer = transform.transform( rectSource );
+      rect = transform.transform( zone.toRectF() );
     }
     catch ( ... )
     {
-      rectLayer = QgsRectangle( rectSource );
+      rect = QgsRectangle( zone.toRectF() );
     }
   }
   else
   {
-    rectLayer = QgsRectangle( rectSource );
+    rect = QgsRectangle( zone.toRectF() );
   }
 
-  QgsFeatureRequest request;
+  return closeLinesInLayerCoordinate( rect );
+}
 
+QgsFeatureIterator ReosPolylineStructureVectorLayer::closeLinesInLayerCoordinate( const QgsRectangle &rectLayer ) const
+{
+  QgsFeatureRequest request;
   request.setFilterRect( rectLayer );
 
   return mVectorLayer->getFeatures( request );
