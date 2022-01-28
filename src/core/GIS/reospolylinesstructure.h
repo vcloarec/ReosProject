@@ -30,6 +30,8 @@ class QUndoStack;
 
 class ReosGeometryStructureVertex
 {
+  public:
+    virtual ~ReosGeometryStructureVertex() = default;
 };
 
 class ReosGeometryStructure : public ReosDataObject
@@ -63,6 +65,15 @@ class ReosPolylinesStructure : public ReosGeometryStructure
      *  If the tolerance, is negative, the proper tolerance of the structure will be used
      */
     virtual void addPolylines( const QPolygonF &polyline, double newVertexTolerance, const QString &sourceCrs = QString() ) = 0;
+
+    //! Returns the geometric line with \a id in the \a destinationCrs coordinate system
+    virtual QLineF line( qint64 lineId, const QString &destinationCrs = QString() ) const = 0;
+
+    //! Returns the structured lines data, that is the posistion and the topology
+    virtual Data structuredLinesData( const QString &destinationCrs = QString() ) const = 0;
+
+    //! Returns the all the lines of the structure in coordintate system \a destination CRS
+    virtual QVector<QLineF> rawLines( const QString &destinationCrs = QString() ) const = 0;
 
     //! Returns the polyline with identifier \a id
     virtual QPolygonF polyline( const QString &destinationCrs = QString(), const QString &id = QString() ) const = 0;
@@ -100,14 +111,14 @@ class ReosPolylinesStructure : public ReosGeometryStructure
     //! Returns the \a vertex position in \a crs coordinate or in the strucure coordinate if \a crs is void
     virtual QPointF vertexPosition( ReosGeometryStructureVertex *vertex, const QString &crs ) const = 0;
 
+    //! Returns a projected point on the line with \a id from the point  \a point;
+    virtual QPointF projectedPoint( const QPointF &point, qint64 lineId, const QString &destinationCrs ) const = 0;
+
     //! Returns the neighbor vertices positions of \a vertex in \a crs coordinate or in the strucure coordinate if \a crs is void
     virtual QList<QPointF> neighborsPositions( ReosGeometryStructureVertex *vertex, const QString &crs ) const = 0;
 
-    //! Returns the structured lines data, that is the posistion and the topology
-    virtual Data structuredLinesData( const QString &destinationCrs = QString() ) const = 0;
-
-    //! Returns the all the lines of the structure in coordintate system \a destination CRS
-    virtual QVector<QLineF> rawLines( const QString &destinationCrs = QString() ) const = 0;
+    //! Returns whether the \a vertex is on boundary
+    virtual bool isOnBoundary( ReosGeometryStructureVertex *vertex ) const = 0;
 
     virtual QUndoStack *undoStack() const = 0;
 

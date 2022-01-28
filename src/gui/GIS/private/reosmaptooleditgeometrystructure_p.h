@@ -84,9 +84,11 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
 
     QgsRubberBand *mLineRubberBand = nullptr;
     QgsRubberBand *mVertexRubberBand = nullptr;
+    QgsRubberBand *mHoveredLineBand = nullptr;
     void updateMovingVertexRubberBand( const QgsPointXY &movingPosition );
     void moveAddingLineRubberBand( const QgsPointXY &movingPosition );
     void stopDraggingVertex();
+    void addVertexForNewLines( const QPointF &point );
     void stopAddingLines();
 
     QPolygonF mAddingPolyline;

@@ -213,9 +213,131 @@ void ReoHydraulicStructure2DTest::createAndAditGeometry()
   QCOMPARE( data.boundaryPointCount, domain.count() );
   QCOMPARE( data.internalLines.count(), 6 );
 
-//test remove vertex if resulting line cross another line
+  while ( geomStructure->undoStack()->canUndo() )
+    geomStructure->undoStack()->undo();
+
+  while ( geomStructure->undoStack()->canRedo() )
+    geomStructure->undoStack()->redo();
+
+  QVERIFY( domain == structure2D->domain() );
+  data = geomStructure->structuredLinesData();
+  QCOMPARE( data.boundaryPointCount, domain.count() );
+  QCOMPARE( data.internalLines.count(), 6 );
 
 
+  geomStructure->removeAll();
+  data = geomStructure->structuredLinesData();
+  QCOMPARE( data.boundaryPointCount, 0 );
+  QCOMPARE( data.internalLines.count(), 0 );
+  QCOMPARE( data.vertices.count(), 0 );
+
+  geomStructure->undoStack()->undo();
+
+  QCOMPARE( data.boundaryPointCount, 0 );
+  QCOMPARE( data.internalLines.count(), 0 );
+  QCOMPARE( data.vertices.count(), 0 );
+
+  // restart with a new structure
+  domain.clear();
+  domain << QPointF( 1, 1 )
+         << QPointF( 0, 1 )
+         << QPointF( 0, 0 )
+         << QPointF( 1, 0 );
+
+  structure2D = std::make_unique<ReosHydraulicStructure2D>( domain, QString(), mNetwork );
+  geomStructure = structure2D->geometryStructure();
+
+  geomStructure->searchForLine( ReosMapExtent( 0.99, 0.4, 1.01, 0.5 ), lineId );
+  geomStructure->insertVertex( QPointF( 1, 0.7 ), lineId );
+
+  geomStructure->searchForLine( ReosMapExtent( 0.99, 0.4, 1.01, 0.5 ), lineId );
+  geomStructure->insertVertex( QPointF( 1, 0.3 ), lineId );
+
+  data = geomStructure->structuredLinesData();
+  QCOMPARE( data.boundaryPointCount, 6 );
+  QCOMPARE( data.internalLines.count(), 0 );
+  QCOMPARE( data.vertices.count(), 6 );
+
+  geomStructure->undoStack()->undo();
+  geomStructure->undoStack()->undo();
+
+  data = geomStructure->structuredLinesData();
+  QCOMPARE( data.boundaryPointCount, 4 );
+  QCOMPARE( data.internalLines.count(), 0 );
+  QCOMPARE( data.vertices.count(), 4 );
+
+  geomStructure->undoStack()->redo();
+  geomStructure->undoStack()->redo();
+
+  domain.clear();
+  domain << QPointF( 1, 1 )
+         << QPointF( 0, 1 )
+         << QPointF( 0, 0 )
+         << QPointF( 1, 0 )
+         << QPointF( 1, 0.3 )
+         << QPointF( 1, 0.7 );
+
+  QVERIFY( domain == structure2D->domain() );
+
+  data = geomStructure->structuredLinesData();
+  QCOMPARE( data.boundaryPointCount, 6 );
+  QCOMPARE( data.internalLines.count(), 0 );
+  QCOMPARE( data.vertices.count(), 6 );
+
+  // restart with a new structure
+  domain.clear();
+  domain << QPointF( 1, 1 )
+         << QPointF( 0.5, 1.0 )
+         << QPointF( 0.0, 1.0 )
+         << QPointF( 0.0, 0.5 )
+         << QPointF( 0.0, 0.0 )
+         << QPointF( 0.5, 0.0 )
+         << QPointF( 1.0, 0.0 )
+         << QPointF( 1.0, 0.5 );
+
+  structure2D = std::make_unique<ReosHydraulicStructure2D>( domain, QString(), mNetwork );
+  geomStructure = structure2D->geometryStructure();
+  QCOMPARE( structure2D->domain(), domain );
+
+  lines.clear();
+  lines << QPointF( 1.0, 1.0 )
+        << QPointF( 0.5, 0.5 )
+        << QPointF( 0.0, 0.0 );
+
+  geomStructure->addPolylines( lines, 0.01 );
+
+  QCOMPARE( structure2D->domain(), domain );
+  data = geomStructure->structuredLinesData();
+  QCOMPARE( data.boundaryPointCount, 8 );
+  QCOMPARE( data.internalLines.count(), 2 );
+  QCOMPARE( data.vertices.count(), 9 );
+
+  lines.clear();
+  lines << QPointF( 1.0, 0.0 )
+        << QPointF( 0.5, 0.5 );
+
+  geomStructure->addPolylines( lines, 0.01 );
+
+  QCOMPARE( structure2D->domain(), domain );
+  data = geomStructure->structuredLinesData();
+  QCOMPARE( data.boundaryPointCount, 8 );
+  QCOMPARE( data.internalLines.count(), 3 );
+  QCOMPARE( data.vertices.count(), 9 );
+
+  geomStructure->removeVertex( geomStructure->searchForVertex( ReosMapExtent( 0.99, -0.01, 1.01, 0.01 ) ) );
+  QVERIFY( structure2D->domain() != domain );
+  data = geomStructure->structuredLinesData();
+  QCOMPARE( data.boundaryPointCount, 7 );
+  QCOMPARE( data.internalLines.count(), 2 );
+  QCOMPARE( data.vertices.count(), 8 );
+
+  geomStructure->undoStack()->undo();
+  data = geomStructure->structuredLinesData();
+  QCOMPARE( structure2D->domain(), domain );
+  data = geomStructure->structuredLinesData();
+  QCOMPARE( data.boundaryPointCount, 8 );
+  QCOMPARE( data.internalLines.count(), 3 );
+  QCOMPARE( data.vertices.count(), 9 );
 
 }
 

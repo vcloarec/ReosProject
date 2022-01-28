@@ -100,8 +100,10 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
     ~ReosPolylineStructureVectorLayer();
 
     void addPolylines( const QPolygonF &polyline, double newVertexTolerance, const QString &sourceCrs = QString( ) ) override;
-    void addLine( const QPointF &pt0, const QPointF &pt1, const QString &sourceCrs = QString( ) ) override;
+
     QPolygonF polyline( const QString &destinationCrs = QString(), const QString &id = QString() ) const override;
+
+    QLineF line( qint64 lineId, const QString &destinationCrs = QString() ) const override;
 
     QPolygonF boundary( const QString &destinationCrs = QString() ) const override;
 
@@ -109,7 +111,6 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
 
     void removeAll() override;
     void translate( const QPointF &translation, const QString &crs, const QString &id = QString() ) override {};
-
     bool vertexCanBeMoved( ReosGeometryStructureVertex *vertex, const ReosSpatialPosition &newPosition ) const override;
     void moveVertex( ReosGeometryStructureVertex *vertex, const ReosSpatialPosition &newPosition ) override;
     ReosGeometryStructureVertex *insertVertex( const ReosSpatialPosition &point, qint64 lineId ) override;
@@ -119,13 +120,14 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
     ReosGeometryStructureVertex *searchForVertex( const ReosMapExtent &zone ) const override;
     bool searchForLine( const ReosMapExtent &zone, qint64 &id ) const override;
     QPointF vertexPosition( ReosGeometryStructureVertex *vertex, const QString &crs ) const override;
+    QPointF projectedPoint( const QPointF &point, qint64 lineId, const QString &destinationCrs ) const override;
     QList<QPointF> neighborsPositions( ReosGeometryStructureVertex *vertex, const QString &crs ) const override;
     Data structuredLinesData( const QString &destinationCrs = QString() ) const override;
     QVector<QLineF> rawLines( const QString &destinationCrs = QString() ) const override;
 
     QUndoStack *undoStack() const override;
 
-    bool isOnBoundary( ReosGeometryStructureVertex *vertex );
+    bool isOnBoundary( ReosGeometryStructureVertex *vertex ) const override;
     bool isOnBoundary( const Segment &seg );
     void setTolerance( double tolerance, const QString &wktCrs = QString() );
 
@@ -157,7 +159,8 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
     VertexS searchForVertexPrivate( QgsFeatureIterator &it, const QgsRectangle &rect ) const;
     QList<ReosStructureVertexHandler_p *> neighorsVertices( ReosGeometryStructureVertex *vertex,  QList<SegmentId> &fids ) const;
 
-    QgsPointXY toLayerCoordinates( const QPointF &position, const QgsCoordinateTransform &transform ) const;
+    QgsPointXY transformCoordinates( const QPointF &position, const QgsCoordinateTransform &transform ) const;
+    QgsPointXY transformCoordinates( const QgsPointXY &position, const QgsCoordinateTransform &transform ) const;
     QgsPointXY toLayerCoordinates( const ReosSpatialPosition &position ) const;
     Segment idToSegment( SegmentId id ) const;
     VertexS idToVertex( SegmentId id, int pos );
@@ -165,6 +168,7 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
 
     VertexP oppositeVertexPointer( VertexP other, SegmentId sid ) const;
     VertexS oppositeVertex( VertexP other, SegmentId sid ) const;
+    VertexS oppositeVertex( VertexP other, const Segment &seg ) const;
 
     //! Returns the boundary lines on each side of \a vertex, order consistent with vertices order
     QPair<SegmentId, SegmentId> boundarieLines( VertexP vertex );
@@ -180,15 +184,24 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
 class ReosPolylineStructureVectorLayerUndoCommandRemoveLine : public QUndoCommand
 {
   public:
-    ReosPolylineStructureVectorLayerUndoCommandRemoveLine( QgsFeatureId id, bool onBoundary, ReosPolylineStructureVectorLayer *structure );
+    ReosPolylineStructureVectorLayerUndoCommandRemoveLine(
+      QgsFeatureId id,
+      ReosPolylineStructureVectorLayer *structure );
     void redo() override;
     void undo() override;
 
   private:
     QgsFeatureId mId;
+
+    SegmentId mExistingLine0 = InvalidSegment;
+    int mPosInExistingLine0 = -1;
+    SegmentId mExistingLine1 = InvalidSegment;
+    int mPosInExistingLine1 = -1;
     ReosPolylineStructureVectorLayer *mStructure = nullptr;
-    Segment mSeg;
-    int mBoundaryPos = -1 ; //if the line is on boundary, position of first vertex
+    VertexW mVert0;
+    VertexW mVert1;
+    int mBoundaryPos0 = -1 ; //if the verte0 is on boundary
+    int mBoundaryPos1 = -1 ; //if the verte1 is on boundary,
 
 };
 
@@ -197,8 +210,8 @@ class ReosPolylineStructureVectorLayerUndoCommandAddLine : public QUndoCommand
   public:
     ReosPolylineStructureVectorLayerUndoCommandAddLine(
       QgsFeatureId idLineToAdd,
-      VertexS vert0,
-      VertexS vert1,
+      const VertexS &vert0,
+      const VertexS &vert1,
       bool onBoundary,
       ReosPolylineStructureVectorLayer *structure );
 
@@ -213,8 +226,10 @@ class ReosPolylineStructureVectorLayerUndoCommandAddLine : public QUndoCommand
     int mPosInExistingLine1 = -1;
     VertexW mVert0 ;
     VertexW mVert1 ;
-    bool mOnBoundary = false;
     ReosPolylineStructureVectorLayer *mStructure = nullptr;
+    int mBoundaryPos0 = -1 ; //if the verte0 is on boundary
+    int mBoundaryPos1 = -1 ; //if the verte1 is on boundary,
+    bool mOnBoundary = false;
 };
 
 
