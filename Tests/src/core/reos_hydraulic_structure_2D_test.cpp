@@ -149,7 +149,7 @@ void ReoHydraulicStructure2DTest::createAndAditGeometry()
   lines << QPointF( 0.749, 1.01 )
         << QPointF( 0.8, 0.6 )
         << QPointF( 0.6, 0.6 );
-  geomStructure->addPolylines( lines, 0.01 );
+  geomStructure->addPolylines( lines );
 
   QVERIFY( domain == structure2D->domain() );
   data = geomStructure->structuredLinesData();
@@ -189,7 +189,7 @@ void ReoHydraulicStructure2DTest::createAndAditGeometry()
   lines.clear();
   lines << QPointF( 0.995, 0.25 )
         << QPointF( 0.8, 0.25 );
-  geomStructure->addPolylines( lines, 0.01 );
+  geomStructure->addPolylines( lines );
 
   QVERIFY( domain != structure2D->domain() );
   data = geomStructure->structuredLinesData();
@@ -204,7 +204,7 @@ void ReoHydraulicStructure2DTest::createAndAditGeometry()
   lines.clear();
   lines << QPointF( 0.5, 0.5 )
         << QPointF( 1.0, 0.0 );
-  geomStructure->addPolylines( lines, 0.01 );
+  geomStructure->addPolylines( lines );
   QVERIFY( geomStructure->searchForLine( ReosMapExtent( 0.74, 0.24, 0.76, 0.26 ), lineId ) );
   QVERIFY( geomStructure->insertVertex( ReosSpatialPosition( 0.75, 0.25 ), lineId ) );
 
@@ -304,7 +304,7 @@ void ReoHydraulicStructure2DTest::createAndAditGeometry()
         << QPointF( 0.5, 0.5 )
         << QPointF( 0.0, 0.0 );
 
-  geomStructure->addPolylines( lines, 0.01 );
+  geomStructure->addPolylines( lines );
 
   QCOMPARE( structure2D->domain(), domain );
   data = geomStructure->structuredLinesData();
@@ -316,7 +316,7 @@ void ReoHydraulicStructure2DTest::createAndAditGeometry()
   lines << QPointF( 1.0, 0.0 )
         << QPointF( 0.5, 0.5 );
 
-  geomStructure->addPolylines( lines, 0.01 );
+  geomStructure->addPolylines( lines );
 
   QCOMPARE( structure2D->domain(), domain );
   data = geomStructure->structuredLinesData();

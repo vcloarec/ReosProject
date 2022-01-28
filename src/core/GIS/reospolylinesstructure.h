@@ -61,10 +61,10 @@ class ReosPolylinesStructure : public ReosGeometryStructure
     static std::unique_ptr<ReosPolylinesStructure> createPolylineStructure( const QPolygonF &boundary, const QString &crs );
 
     /**
-     *  Adds a \a polyline to the structure with coordinates in \a sourcesCrs and a tolerance for new vertices \a newVertexTolerance in \a sourceCrs unit
+     *  Adds a \a polyline to the structure with coordinates in \a sourcesCrs and a tolerance for each vertices \a tolerances in \a sourceCrs unit
      *  If the tolerance, is negative, the proper tolerance of the structure will be used
      */
-    virtual void addPolylines( const QPolygonF &polyline, double newVertexTolerance, const QString &sourceCrs = QString() ) = 0;
+    virtual void addPolylines( const QPolygonF &polyline,  const QList<double> &tolerances = QList<double>(), const QString &sourceCrs = QString() ) = 0;
 
     //! Returns the geometric line with \a id in the \a destinationCrs coordinate system
     virtual QLineF line( qint64 lineId, const QString &destinationCrs = QString() ) const = 0;
@@ -116,6 +116,9 @@ class ReosPolylinesStructure : public ReosGeometryStructure
 
     //! Returns the neighbor vertices positions of \a vertex in \a crs coordinate or in the strucure coordinate if \a crs is void
     virtual QList<QPointF> neighborsPositions( ReosGeometryStructureVertex *vertex, const QString &crs ) const = 0;
+
+    //! Returns the list of intersection points of \a line with the strucure ordered from the closest from firt point of \a line to the farthest
+    virtual  QList<QPointF> intersectionPoints( const QLineF &line, const QString &crs = QString() ) const = 0;
 
     //! Returns whether the \a vertex is on boundary
     virtual bool isOnBoundary( ReosGeometryStructureVertex *vertex ) const = 0;

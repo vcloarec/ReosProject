@@ -190,8 +190,14 @@ void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
       else if ( e->button() == Qt::RightButton && mActionAddLines->isChecked() )
       {
         QgsGeometry geom = selectFeatureOnMap( e );
+        const QPolygonF poly = geom.asQPolygonF();
+        QList<double> tolerances;
+        tolerances.reserve( poly.count() );
+        for ( int i = 0; i < poly.count(); ++i )
+          tolerances.append( -1 );
+
         if ( !geom.isNull() )
-          mStructure->addPolylines( geom.asQPolygonF(), -1, mMapCrs );
+          mStructure->addPolylines( geom.asQPolygonF(), tolerances, mMapCrs );
       }
 
       break;
@@ -220,7 +226,7 @@ void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
       else if ( e->button() == Qt::RightButton )
       {
         if ( mAddingPolyline.count() > 1 )
-          mStructure->addPolylines( mAddingPolyline, tolerance(), mMapCrs );
+          mStructure->addPolylines( mAddingPolyline, mAddingLineTolerance, mMapCrs );
 
         stopAddingLines();
       }
@@ -363,7 +369,22 @@ void ReosMapToolEditPolylineStructure_p::addVertexForNewLines( const QPointF &po
       }
   }
 
+  if ( !mAddingPolyline.isEmpty() )
+  {
+    const QPointF prevPt = mAddingPolyline.last();
+    QList<QPointF> intersections = mStructure->intersectionPoints( QLineF( prevPt, vertexPosition ), mMapCrs );
+    for ( const QPointF &pt : std::as_const( intersections ) )
+    {
+      mAddingPolyline.append( pt );
+      mAddingLineTolerance.append( -1 );
+      mLineRubberBand->movePoint( pt );
+      mLineRubberBand->addPoint( pt );
+      mVertexRubberBand->addPoint( pt );
+    }
+  }
+
   mAddingPolyline.append( vertexPosition );
+  mAddingLineTolerance.append( tolerance() );
   mLineRubberBand->movePoint( vertexPosition );
   mLineRubberBand->addPoint( vertexPosition );
   mVertexRubberBand->addPoint( vertexPosition );
@@ -375,6 +396,7 @@ void ReosMapToolEditPolylineStructure_p::stopAddingLines()
   mVertexRubberBand->reset( QgsWkbTypes::PointGeometry );
   mNeighborPosition.clear();
   mAddingPolyline.clear();
+  mAddingLineTolerance.clear();
   mCurrentVertex = nullptr;
   mCurrentState = None;
 }
@@ -399,7 +421,6 @@ bool ReosEditGeometryStructureMenuPopulator::populate( QMenu *menu, QgsMapMouseE
   ReosMapExtent searchZone = mToolMap->searchZone( e->snapPoint() );
   QPointF snapPos = e->mapPoint().toQPointF();
 
-
   ReosGeometryStructureVertex *vertex = mToolMap->mStructure->searchForVertex( searchZone );
   if ( vertex )
     populateVertexAction( vertex, menu );
@@ -407,7 +428,6 @@ bool ReosEditGeometryStructureMenuPopulator::populate( QMenu *menu, QgsMapMouseE
   qint64 id = 0;
   if ( !vertex && mToolMap->mStructure->searchForLine( mToolMap->searchZone( nonSnapPos ), id ) )
     populateLineAction( id, snapPos, menu );
-
 
   switch ( mToolMap->mCurrentState )
   {
@@ -420,7 +440,6 @@ bool ReosEditGeometryStructureMenuPopulator::populate( QMenu *menu, QgsMapMouseE
   }
 
   return true;
-
 }
 
 void ReosEditGeometryStructureMenuPopulator::populateVertexAction( ReosGeometryStructureVertex *vertex, QMenu *menu )

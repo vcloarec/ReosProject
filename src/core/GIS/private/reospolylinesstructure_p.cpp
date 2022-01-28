@@ -319,19 +319,16 @@ void ReosPolylineStructureVectorLayer::purge()
   }
 }
 
-void ReosPolylineStructureVectorLayer::addPolylines( const QPolygonF &polyline, double newVertexTolerance, const QString &sourceCrs )
+void ReosPolylineStructureVectorLayer::addPolylines( const QPolygonF &polyline, const QList<double> &tolerances, const QString &sourceCrs )
 {
   QgsCoordinateTransform transform = toLayerTransform( sourceCrs );
   QgsCoordinateReferenceSystem crs;
   crs.createFromWkt( sourceCrs );
-  if ( newVertexTolerance >= 0 )
-  {
-    QgsUnitTypes::DistanceUnit unitSource = crs.mapUnits();
-    QgsUnitTypes::DistanceUnit structureUnit = mVectorLayer->crs().mapUnits();
-    newVertexTolerance = QgsUnitTypes::fromUnitToUnitFactor( unitSource, structureUnit ) * newVertexTolerance;
-  }
-  else
-    newVertexTolerance = mTolerance;
+
+  QgsUnitTypes::DistanceUnit unitSource = crs.mapUnits();
+  QgsUnitTypes::DistanceUnit structureUnit = mVectorLayer->crs().mapUnits();
+  double convertToleranceFactor = QgsUnitTypes::fromUnitToUnitFactor( unitSource, structureUnit );
+
 
   mVectorLayer->beginEditCommand( "Add lines" );
 
@@ -344,23 +341,25 @@ void ReosPolylineStructureVectorLayer::addPolylines( const QPolygonF &polyline, 
     QPointF pt0 = polyline.at( i );
     QPointF pt1 = polyline.at( i + 1 );
 
+
     QgsPointXY pointXY0 = transformCoordinates( pt0, transform );
     QgsPointXY pointXY1 = transformCoordinates( pt1, transform );
 
-    //first look if we have intersection with existing lines
-    QgsRectangle lineExtent;
-    lineExtent.include( pointXY0 );
-    lineExtent.include( pointXY1 );
-    QgsFeatureIterator it = closeLinesInLayerCoordinate( lineExtent );
+    double tol = ( !tolerances.empty() && tolerances.at( i ) > 0 ) ?
+                 tolerances.at( i ) * convertToleranceFactor : mTolerance;
 
-    VertexS vert0 = purposeVertex( pointXY0, newVertexTolerance );
-    VertexS vert1 = purposeVertex( pointXY1, newVertexTolerance );
+    VertexS vert0 = purposeVertex( pointXY0, tol );
+    VertexS vert1 = purposeVertex( pointXY1, tol );
 
     if ( vert0 )
       pointXY0 = vert0->position();
 
     if ( vert1 )
       pointXY1 = vert1->position();
+
+    if ( ( !vert0 && !exterior.contains( &pointXY0 ) ) ||
+         ( !vert1 && !exterior.contains( &pointXY1 ) ) )
+      continue;
 
     QgsFeature feature;
     feature.setGeometry( QgsGeometry( new QgsLineString( {pointXY0, pointXY1} ) ) );
@@ -750,11 +749,93 @@ QList<QPointF> ReosPolylineStructureVectorLayer::neighborsPositions( ReosGeometr
   return ret;
 }
 
+QList<QPointF> ReosPolylineStructureVectorLayer::intersectionPoints( const QLineF &line, const QString &crs ) const
+{
+  const QgsCoordinateTransform transform = toLayerTransform( crs );
+  QgsGeometry geom = QgsGeometry::fromPolylineXY( {QgsPointXY( line.p1() ), QgsPointXY( line.p2() )} );
+
+  QList<QgsPointXY> intersectPoint;
+  if ( transform.isValid() )
+  {
+    try
+    {
+      geom.transform( transform );
+    }
+    catch ( QgsCsException &e )
+    {
+      geom = QgsGeometry::fromPolylineXY( {QgsPointXY( line.p1() ), QgsPointXY( line.p2() )} );
+    }
+  }
+
+  QgsFeatureRequest request( geom.boundingBox() );
+
+  QgsFeatureIterator fit = mVectorLayer->getFeatures( request );
+  QgsFeature feat;
+
+  while ( fit.nextFeature( feat ) )
+  {
+    const QgsGeometry &existingGeom = feat.geometry();
+    if ( existingGeom.isEmpty() || existingGeom.isNull() )
+      continue;
+
+    const QgsGeometry intersectGeom = existingGeom.intersection( geom );
+
+    for ( auto vertIt = intersectGeom.vertices_begin(); vertIt != intersectGeom.vertices_end(); ++vertIt )
+      intersectPoint.append( ( *vertIt ) );
+
+    if ( intersectGeom.isNull() || intersectGeom.isEmpty() )
+    {
+      //add eventually point closer than tolerance from the line
+      for ( auto vertIt = existingGeom.vertices_begin(); vertIt != existingGeom.vertices_end(); ++vertIt )
+      {
+        QgsPointXY projPoint;
+        int vi = 0;
+        double dist = geom.closestSegmentWithContext( *vertIt, projPoint, vi );
+        if ( dist > 0 && std::sqrt( dist ) < mTolerance )
+          intersectPoint.append( projPoint );
+      }
+    }
+  }
+
+//sort points
+  const QgsPointXY first = geom.vertexAt( 0 );
+  auto firstLess = [ first ]( const QgsPointXY & pt1, const QgsPointXY & pt2 )
+  {
+    return pt1.distance( first ) < pt2.distance( first );
+  };
+  std::sort( intersectPoint.begin(), intersectPoint.end(), firstLess );
+
+// remove points too close from extremity or from each other
+  int pos = 0;
+  while ( pos < intersectPoint.count() )
+  {
+    const QgsPointXY &pt = intersectPoint.at( pos );
+    if ( pt.distance( geom.vertexAt( 0 ) ) < mTolerance || pt.distance( geom.vertexAt( 1 ) ) < mTolerance )
+      intersectPoint.removeAt( pos );
+    else
+    {
+      int nextPos = pos + 1;
+      while ( nextPos < intersectPoint.count() && pt.distance( intersectPoint.at( nextPos ) ) < mTolerance )
+        intersectPoint.removeAt( nextPos );
+
+      pos++;
+    }
+  }
+
+  QList<QPointF> ret;
+  ret.reserve( intersectPoint.count() );
+  const QgsCoordinateTransform transformToDestination = toDestinationTransform( crs );
+  for ( const QgsPointXY &pt : intersectPoint )
+    ret.append( transformCoordinates( pt, transformToDestination ).toQPointF() );
+
+  return ret;
+}
+
 ReosPolylinesStructure::Data ReosPolylineStructureVectorLayer::structuredLinesData( const QString &destinationCrs ) const
 {
   const QgsCoordinateTransform transform = toDestinationTransform( destinationCrs );
   Data data;
-  QMap<VertexP, int> vertexPointerToIndex;
+  QHash<VertexP, int> vertexPointerToIndex;
 
   data.boundaryPointCount = mBoundariesVertex.count();
 
@@ -844,12 +925,6 @@ ReosStructureVertexHandler_p::ReosStructureVertexHandler_p( QgsVectorLayer *sour
 {
   mLinkedSegments.append( PositionInFeature( {fid, pos} ) );
 }
-
-ReosStructureVertexHandler_p::~ReosStructureVertexHandler_p()
-{
-  qDebug() << "vert: " << this << " desructed";
-}
-
 
 QPointF ReosStructureVertexHandler_p::position( const QgsCoordinateTransform &transform )
 {

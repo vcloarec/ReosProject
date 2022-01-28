@@ -95,7 +95,6 @@ ReosMeshFrameData ReosGmshGenerator::generatedMesh( bool *ok ) const
       }
     }
 
-
     return ret;
   }
   catch ( ... )
@@ -107,28 +106,37 @@ ReosMeshFrameData ReosGmshGenerator::generatedMesh( bool *ok ) const
 
 void ReosGmshGenerator::setGeometryStructure( ReosPolylinesStructure *structure, const QString &crs )
 {
-  const QPolygonF boundary = structure->boundary( crs );
+  const ReosPolylinesStructure::Data structureData = structure->structuredLinesData( crs );
+
   gmsh::initialize();
   gmsh::model::add( "t1" );
 
-  for ( int i = 0; i < boundary.count(); ++i )
+  for ( int i = 0; i < structureData.vertices.count(); ++i )
   {
-    const QPointF &pt = boundary.at( i );
-    qDebug() << "point " << i + 1 ;
+    const QPointF &pt = structureData.vertices.at( i );
     gmsh::model::geo::addPoint( pt.x(), pt.y(), 0, 0, i + 1 );
   }
 
-  std::vector<int> surface1;
-  for ( int i = 0; i < boundary.count() ; ++i )
+  std::vector<int> surface;
+  int boundVertCount = structureData.boundaryPointCount;
+  for ( int i = 0; i < structureData.boundaryPointCount ; ++i )
   {
-    qDebug() << "line " << i + 1 << ( i + 1 ) % boundary.count() + 1;
-    gmsh::model::geo::addLine( i + 1, ( i + 1 ) % boundary.count() + 1, i + 1 );
-    surface1.push_back( i + 1 );
+    gmsh::model::geo::addLine( i + 1, ( i + 1 ) % boundVertCount + 1, i + 1 );
+    surface.push_back( i + 1 );
   }
 
-  gmsh::model::geo::addCurveLoop( surface1, 1 );
+  gmsh::model::geo::addCurveLoop( surface, 1 );
   gmsh::model::geo::addPlaneSurface( {1}, 1 );
 
+  std::vector<int> internalLines( structureData.internalLines.count() );
+  for ( int i = 0; i < structureData.internalLines.count() ; ++i )
+  {
+    const std::array<int, 2> &dataLine = structureData.internalLines.at( i );
+    gmsh::model::geo::addLine( dataLine.at( 0 ) + 1, dataLine.at( 1 ) + 1, boundVertCount + i + 1 );
+    internalLines[i] = boundVertCount + i + 1;
+  }
+
   gmsh::model::geo::synchronize();
+  gmsh::model::mesh::embed( 1, internalLines, 2, 1 );
 
 }

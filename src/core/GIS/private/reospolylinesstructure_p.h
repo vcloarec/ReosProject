@@ -99,7 +99,7 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
     ReosPolylineStructureVectorLayer( const QPolygonF &boundary, const QString &wktCrs );
     ~ReosPolylineStructureVectorLayer();
 
-    void addPolylines( const QPolygonF &polyline, double newVertexTolerance, const QString &sourceCrs = QString( ) ) override;
+    void addPolylines( const QPolygonF &polyline,  const QList<double> &tolerances = QList<double>(), const QString &sourceCrs = QString( ) ) override;
 
     QPolygonF polyline( const QString &destinationCrs = QString(), const QString &id = QString() ) const override;
 
@@ -122,6 +122,8 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
     QPointF vertexPosition( ReosGeometryStructureVertex *vertex, const QString &crs ) const override;
     QPointF projectedPoint( const QPointF &point, qint64 lineId, const QString &destinationCrs ) const override;
     QList<QPointF> neighborsPositions( ReosGeometryStructureVertex *vertex, const QString &crs ) const override;
+    QList<QPointF> intersectionPoints( const QLineF &line, const QString &crs = QString() ) const override;
+
     Data structuredLinesData( const QString &destinationCrs = QString() ) const override;
     QVector<QLineF> rawLines( const QString &destinationCrs = QString() ) const override;
 

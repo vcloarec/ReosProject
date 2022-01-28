@@ -92,6 +92,7 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
     void stopAddingLines();
 
     QPolygonF mAddingPolyline;
+    QList<double> mAddingLineTolerance;
 
     QActionGroup *mMainActions = nullptr;
     QAction *mActionAddLines = nullptr;
