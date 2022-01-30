@@ -25,7 +25,7 @@ class ReoHydraulicStructure2DTest: public QObject
   private slots:
 
     void init();
-    void createAndAditGeometry();
+    void createAndEditGeometry();
   private:
     ReosHydraulicNetwork *mNetwork = nullptr;
     ReosModule *mRootModule = nullptr;
@@ -38,7 +38,7 @@ void ReoHydraulicStructure2DTest::init()
   mNetwork = new ReosHydraulicNetwork( nullptr, nullptr );
 }
 
-void ReoHydraulicStructure2DTest::createAndAditGeometry()
+void ReoHydraulicStructure2DTest::createAndEditGeometry()
 {
   QPolygonF domain;
   domain << QPointF( 0, 0 )
@@ -71,7 +71,6 @@ void ReoHydraulicStructure2DTest::createAndAditGeometry()
   QVERIFY( vert );
 
   QVERIFY( !geomStructure->vertexCanBeMoved( vert, ReosSpatialPosition( QPointF( 0.5, 1.5 ) ) ) ); //lines are crossing
-  QVERIFY( !geomStructure->vertexCanBeMoved( vert, ReosSpatialPosition( QPointF( 1, 0.495 ) ) ) ); //too close of another vertex
   QVERIFY( geomStructure->vertexCanBeMoved( vert, ReosSpatialPosition( QPointF( 0.991, 0.491 ) ) ) ); //just outside the tolerance
   QVERIFY( geomStructure->vertexCanBeMoved( vert, ReosSpatialPosition( QPointF( 0.5, 0.5 ) ) ) );
 
@@ -339,6 +338,29 @@ void ReoHydraulicStructure2DTest::createAndAditGeometry()
   QCOMPARE( data.internalLines.count(), 3 );
   QCOMPARE( data.vertices.count(), 9 );
 
+  lines.clear();
+  lines << QPointF( 0.1, 0.75 )
+        << QPointF( 0.2, 0.75 );
+  geomStructure->addPolylines( lines );
+  data = geomStructure->structuredLinesData();
+  QCOMPARE( data.boundaryPointCount, 8 );
+  QCOMPARE( data.internalLines.count(), 4 );
+  QCOMPARE( data.vertices.count(), 11 );
+
+  vert = geomStructure->searchForVertex( ReosMapExtent( 0.19, 0.74, 0.21, 0.76 ) );
+  geomStructure->moveVertex( vert, QPointF( 0.5, 0.5 ) );
+
+  data = geomStructure->structuredLinesData();
+  QCOMPARE( data.boundaryPointCount, 8 );
+  QCOMPARE( data.internalLines.count(), 4 );
+  QCOMPARE( data.vertices.count(), 10 );
+
+  geomStructure->undoStack()->undo();
+
+  data = geomStructure->structuredLinesData();
+  QCOMPARE( data.boundaryPointCount, 8 );
+  QCOMPARE( data.internalLines.count(), 4 );
+  QCOMPARE( data.vertices.count(), 11 );
 }
 
 QTEST_MAIN( ReoHydraulicStructure2DTest )

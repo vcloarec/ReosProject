@@ -1,4 +1,4 @@
-﻿/***************************************************************************
+/***************************************************************************
   reospolylinesstructure_p.cpp - ReosPolylinesStructure_p
 
  ---------------------
@@ -45,6 +45,31 @@ ReosPolylineStructureVectorLayer::ReosPolylineStructureVectorLayer( const QStrin
     mRawLinesDirty = true;
   } );
   connect( mVectorLayer->undoStack(), &QUndoStack::indexChanged, this, &ReosDataObject::dataChanged );
+
+  mVerticesBoundaryRequest.setMaxCost( 2000 );
+}
+
+VertexP ReosPolylineStructureVectorLayer::boundaryVertex( VertexP vert ) const
+{
+  if ( !vert )
+    return nullptr;
+
+  VertexW *wv = mVerticesBoundaryRequest.object( vert );
+  VertexS vertS = wv ? wv->lock() : nullptr;
+  if ( vertS && vertS.get() == vert )
+    return vert;
+
+  if ( !mBoundariesVertex.contains( vert ) )
+  {
+    mVerticesBoundaryRequest.insert( vert, nullptr );
+    return nullptr;
+  }
+
+  std::unique_ptr<VertexW> newWeak( new VertexW );
+  *newWeak = sharedVertex( vert );
+  mVerticesBoundaryRequest.insert( vert, newWeak.release() );
+
+  return vert;
 }
 
 ReosPolylineStructureVectorLayer::~ReosPolylineStructureVectorLayer()
@@ -266,6 +291,26 @@ bool ReosPolylineStructureVectorLayer::idToOneLinkedSegment( SegmentId id, int p
   return vert->oneOtherLine( id, linkedSeg );
 }
 
+VertexS ReosPolylineStructureVectorLayer::sharedVertex( VertexP vertex ) const
+{
+  if ( !vertex )
+    return VertexS();
+
+  int pos = 0;
+  SegmentId sid = vertex->firstLinkedLine( pos );
+  if ( sid == InvalidSegment )
+  {
+    pos = 1;
+    sid = vertex->firstLinkedLine( pos );
+  }
+
+  if ( sid == InvalidSegment )
+    return ( VertexS() );
+
+  const Segment &seg = mSegments.value( sid );
+  return seg.at( pos );
+}
+
 VertexP ReosPolylineStructureVectorLayer::oppositeVertexPointer( VertexP other, SegmentId sid ) const
 {
   return oppositeVertex( other, sid ).get();
@@ -296,7 +341,7 @@ QPair<SegmentId, SegmentId> ReosPolylineStructureVectorLayer::boundarieLines( Ve
 
   for ( int i = 0; i < segs.count(); ++i )
   {
-    if ( mBoundariesVertex.contains( vertices.at( i ) ) )
+    if ( boundaryVertex( vertices.at( i ) ) )
     {
       if ( vertices.at( i )->posInLine( segs.at( i ) ) == 0 )
         segId0 = segs.at( i );
@@ -305,18 +350,6 @@ QPair<SegmentId, SegmentId> ReosPolylineStructureVectorLayer::boundarieLines( Ve
     }
   }
   return QPair<SegmentId, SegmentId>( segId0, segId1 );
-}
-
-void ReosPolylineStructureVectorLayer::purge()
-{
-  auto it = mBoundariesVertex.begin();
-  while ( it != mBoundariesVertex.end() )
-  {
-    if ( ( *it )->attachedLines().isEmpty() )
-      it = mBoundariesVertex.erase( it );
-    else
-      ++it;
-  }
 }
 
 void ReosPolylineStructureVectorLayer::addPolylines( const QPolygonF &polyline, const QList<double> &tolerances, const QString &sourceCrs )
@@ -332,8 +365,6 @@ void ReosPolylineStructureVectorLayer::addPolylines( const QPolygonF &polyline, 
 
   mVectorLayer->beginEditCommand( "Add lines" );
 
-  bool inside = false;
-  VertexP lastBoundaryVertex = nullptr;
   QgsGeometry exterior( new QgsPolygon( QgsLineString::fromQPolygonF( boundary() ) ) );
 
   for ( int i = 0; i < polyline.count() - 1; ++i )
@@ -448,6 +479,7 @@ void ReosPolylineStructureVectorLayer::removeAll()
 bool ReosPolylineStructureVectorLayer::vertexCanBeMoved( ReosGeometryStructureVertex *geometryVertex, const ReosSpatialPosition &newPosition ) const
 {
   VertexP vertex = static_cast<VertexP>( geometryVertex );
+  bool boundaryVertex = isOnBoundary( vertex );
   QList<SegmentId> ids;
   const QList<ReosStructureVertexHandler_p *> neighbors = neighorsVertices( vertex, ids );
   QgsPointXY newPosInLayer = toLayerCoordinates( newPosition );
@@ -457,7 +489,7 @@ bool ReosPolylineStructureVectorLayer::vertexCanBeMoved( ReosGeometryStructureVe
   ReosMapExtent searchExtent( x - mTolerance, y - mTolerance, x + mTolerance, y + mTolerance );
   VertexP closeVertex = static_cast<VertexP >( searchForVertex( searchExtent ) );
 
-  if ( closeVertex )
+  if ( closeVertex && boundaryVertex  && isOnBoundary( closeVertex ) )
   {
     const QgsPointXY closeVertexPosition = closeVertex->position();
     if ( closeVertexPosition.distance( newPosInLayer ) < mTolerance )
@@ -501,7 +533,30 @@ bool ReosPolylineStructureVectorLayer::vertexCanBeMoved( ReosGeometryStructureVe
            pointIntersect, isIntersect ) )
         return false;
     }
+  }
 
+  if ( boundaryVertex )
+  {
+    int vertesPos = mBoundariesVertex.indexOf( vertex );
+    QPolygonF exteriorF = boundary();
+    exteriorF.replace( vertesPos, newPosInLayer.toQPointF() );
+    QgsGeometry exterior( new QgsPolygon( QgsLineString::fromQPolygonF( exteriorF ) ) );
+
+    QSet<VertexP> checkedVert;
+    for ( const Segment &seg : mSegments )
+    {
+      VertexP vertToCheck = seg.at( 0 ).get();
+      if ( !checkedVert.contains( vertToCheck ) )
+      {
+        if ( !isOnBoundary( vertToCheck ) )
+        {
+          QgsPointXY pt( vertToCheck->position() );
+          if ( !exterior.contains( &pt ) )
+            return false;
+        }
+      }
+      checkedVert.insert( vertToCheck );
+    }
   }
 
   return true;
@@ -512,14 +567,68 @@ void ReosPolylineStructureVectorLayer::moveVertex( ReosGeometryStructureVertex *
   QgsPointXY newLayerPosition = toLayerCoordinates( newPosition );
 
   VertexP vert = static_cast<ReosStructureVertexHandler_p *>( vertex );
-  vert->move( newLayerPosition );
 
+  mVectorLayer->beginEditCommand( tr( "Move structure vertex" ) );
+  VertexS newPos = purposeVertex( newLayerPosition, mTolerance );
+  vert->move( newLayerPosition );
+  if ( newPos )
+  {
+    VertexS vertexToKeep;
+    VertexS vertexToRemove;
+
+    if ( boundaryVertex( vert ) )
+    {
+      vertexToKeep = sharedVertex( vert );
+      vertexToRemove = newPos;
+    }
+    else
+    {
+      vertexToKeep = newPos;
+      vertexToRemove =  sharedVertex( vert );
+    }
+    mVectorLayer->undoStack()->push( new ReosPolylineStructureVectorLayerUndoCommandMergeVertex(
+                                       vertexToRemove, vertexToKeep, this ) );
+  }
+  mVectorLayer->endEditCommand();
 }
 
 ReosGeometryStructureVertex *ReosPolylineStructureVectorLayer::insertVertex( const ReosSpatialPosition &point, qint64 lineId )
 {
   QgsPointXY pointI = toLayerCoordinates( point );
   return insertVertexPrivate( pointI, lineId ).get();
+}
+
+bool ReosPolylineStructureVectorLayer::vertexCanBeRemoved( ReosGeometryStructureVertex *vertex ) const
+{
+  VertexP vert = static_cast<VertexP>( vertex );
+  if ( boundaryVertex( vert ) )
+  {
+    int vertesPos = mBoundariesVertex.indexOf( vert );
+    QPolygonF exteriorF = boundary();
+    exteriorF.removeAt( vertesPos );
+    QgsGeometry exterior( new QgsPolygon( QgsLineString::fromQPolygonF( exteriorF ) ) );
+
+    QSet<VertexP> checkedVert;
+    for ( const Segment &seg : mSegments )
+    {
+      for ( int i = 0; i < 2; ++i )
+      {
+        VertexP vertToCheck = seg.at( i ).get();
+        if ( !checkedVert.contains( vertToCheck ) )
+        {
+          if ( !isOnBoundary( vertToCheck ) )
+          {
+            QgsPointXY pt( vertToCheck->position() );
+            if ( !exterior.contains( &pt ) )
+              return false;
+          }
+        }
+        checkedVert.insert( vertToCheck );
+      }
+    }
+  }
+
+  return true;
 }
 
 void ReosPolylineStructureVectorLayer::removeVertex( ReosGeometryStructureVertex *vertex )
@@ -571,6 +680,19 @@ void ReosPolylineStructureVectorLayer::removeVertex( ReosGeometryStructureVertex
         this ) );
   }
 
+  mVectorLayer->endEditCommand();
+}
+
+bool ReosPolylineStructureVectorLayer::lineCanBeRemoved( qint64 lineId ) const
+{
+  return !isOnBoundary( idToSegment( lineId ) );
+}
+
+void ReosPolylineStructureVectorLayer::removeLine( qint64 lineId )
+{
+  mVectorLayer->beginEditCommand( tr( "Remove line" ) );
+  mVectorLayer->undoStack()->push( new ReosPolylineStructureVectorLayerUndoCommandRemoveLine( lineId, this ) );
+  mVectorLayer->deleteFeature( lineId );
   mVectorLayer->endEditCommand();
 }
 
@@ -903,10 +1025,12 @@ QUndoStack *ReosPolylineStructureVectorLayer::undoStack() const
 
 bool ReosPolylineStructureVectorLayer::isOnBoundary( ReosGeometryStructureVertex *vertex ) const
 {
-  return mBoundariesVertex.contains( static_cast<ReosStructureVertexHandler_p *>( vertex ) );
+  VertexP vert = boundaryVertex( static_cast<VertexP>( vertex ) );
+
+  return vert != nullptr;
 }
 
-bool ReosPolylineStructureVectorLayer::isOnBoundary( const Segment &seg )
+bool ReosPolylineStructureVectorLayer::isOnBoundary( const Segment &seg ) const
 {
   if ( seg.at( 0 ) && seg.at( 1 ) )
   {
@@ -973,11 +1097,10 @@ void ReosStructureVertexHandler_p::move( const QgsPointXY &newPosition )
 {
   if ( !mSource )
     return;
-  mSource->beginEditCommand( QObject::tr( "Move vertex in structure" ) );
   for ( const PositionInFeature &pos : std::as_const( mLinkedSegments ) )
     mSource->moveVertex( newPosition.x(), newPosition.y(), pos.fid, pos.pos );
-  mSource->endEditCommand();
 }
+
 
 QSet<SegmentId> ReosStructureVertexHandler_p::attachedLines() const
 {
@@ -1156,10 +1279,10 @@ void ReosPolylineStructureVectorLayerUndoCommandAddLine::redo()
   vert1->attachLine( mIdToAdd, 1 );
   mStructure->mSegments.insert( mIdToAdd, {vert0, vert1} );
 
-  if ( mBoundaryPos0 != -1 && !mStructure->mBoundariesVertex.contains( vert0.get() ) )
+  if ( mBoundaryPos0 != -1 && !mStructure->isOnBoundary( vert0.get() ) )
     mStructure->mBoundariesVertex.insert( mBoundaryPos0, vert0.get() );
 
-  if ( mBoundaryPos1 != -1 && !mStructure->mBoundariesVertex.contains( vert1.get() ) )
+  if ( mBoundaryPos1 != -1 && !mStructure->isOnBoundary( vert1.get() ) )
     mStructure->mBoundariesVertex.insert( mBoundaryPos1, vert1.get() );
 
   mVert0 = vert0;
@@ -1189,4 +1312,82 @@ void ReosPolylineStructureVectorLayerUndoCommandAddLine::undo()
 
   mVert0 = vert0;
   mVert1 = vert1;
+}
+
+
+ReosPolylineStructureVectorLayerUndoCommandMergeVertex::ReosPolylineStructureVectorLayerUndoCommandMergeVertex( const VertexS &vertexToRemove, const VertexS &vertexToKeep, ReosPolylineStructureVectorLayer *structure )
+  : mVertexToKeep( vertexToKeep )
+  , mVertexToRemove( vertexToRemove )
+  , mStructure( structure )
+{
+  mInitialLinks0 = vertexToKeep->mLinkedSegments;
+  mInitialLinks1 = vertexToRemove->mLinkedSegments;
+}
+
+void ReosPolylineStructureVectorLayerUndoCommandMergeVertex::redo()
+{
+  VertexS vertexToKeep = mVertexToKeep.lock();
+  VertexS vertexToRemove = mVertexToRemove.lock();
+
+  if ( !vertexToKeep )
+  {
+    ReosStructureVertexHandler_p::PositionInFeature existingPosition = mInitialLinks0.first();
+    vertexToKeep = mStructure->idToVertex( existingPosition.fid, existingPosition.pos );
+  }
+
+  if ( !vertexToRemove )
+  {
+    ReosStructureVertexHandler_p::PositionInFeature existingPosition = mInitialLinks1.first();
+    vertexToRemove = mStructure->idToVertex( existingPosition.fid, existingPosition.pos );
+  }
+
+  QList<ReosStructureVertexHandler_p::PositionInFeature> mergedLinks = mInitialLinks0;
+
+  for ( const ReosStructureVertexHandler_p::PositionInFeature &pi : std::as_const( mInitialLinks1 ) )
+  {
+    Segment seg = mStructure->idToSegment( pi.fid );
+    seg.at( pi.pos ) = vertexToKeep;
+    if ( !mergedLinks.contains( pi ) )
+      mergedLinks.append( pi );
+
+    mStructure->mSegments.insert( pi.fid, seg );
+  }
+
+  vertexToKeep->mLinkedSegments = mergedLinks;
+}
+
+void ReosPolylineStructureVectorLayerUndoCommandMergeVertex::undo()
+{
+  VertexS vertexToKeep = mVertexToKeep.lock();
+  VertexS vertexToRemove = mVertexToRemove.lock();
+
+  if ( !vertexToKeep )
+  {
+    ReosStructureVertexHandler_p::PositionInFeature existingPosition = mInitialLinks0.first();
+    vertexToKeep = mStructure->idToVertex( existingPosition.fid, existingPosition.pos );
+  }
+
+  if ( !vertexToRemove )
+  {
+    ReosStructureVertexHandler_p::PositionInFeature existingPosition = mInitialLinks1.first();
+    vertexToRemove = mStructure->createVertex( existingPosition.fid, existingPosition.pos );
+  }
+
+
+  vertexToKeep->mLinkedSegments = mInitialLinks0;
+  vertexToRemove->mLinkedSegments = mInitialLinks1;
+
+  for ( const ReosStructureVertexHandler_p::PositionInFeature &pi : std::as_const( mInitialLinks0 ) )
+  {
+    Segment seg = mStructure->idToSegment( pi.fid );
+    seg.at( pi.pos ) = vertexToKeep;
+    mStructure->mSegments.insert( pi.fid, seg );
+  }
+
+  for ( const ReosStructureVertexHandler_p::PositionInFeature &pi : std::as_const( mInitialLinks1 ) )
+  {
+    Segment seg = mStructure->idToSegment( pi.fid );
+    seg.at( pi.pos ) = vertexToRemove;
+    mStructure->mSegments.insert( pi.fid, seg );
+  }
 }

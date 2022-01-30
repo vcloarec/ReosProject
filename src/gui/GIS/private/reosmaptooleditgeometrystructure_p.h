@@ -48,6 +48,8 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
     void setStructure( ReosPolylinesStructure *structure );
 
     Flags flags() const override;
+    void activate() override;
+    void deactivate() override;
 
     QActionGroup *mainActions() const;
 
@@ -60,6 +62,7 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
   private slots:
     void insertVertex( const QPointF &mapPoint, qint64 lineId );
     void removeVertex( ReosGeometryStructureVertex *vertex );
+    void removeLine( qint64 lineId );
     void resetTool();
 
   private:
@@ -100,6 +103,7 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
 
     QAction *mActionInsertVertex = nullptr;
     QAction *mActionRemoveVertex = nullptr;
+    QAction *mActionRemoveLine = nullptr;
 
     friend class ReosEditGeometryStructureMenuPopulator;
 };

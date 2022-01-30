@@ -96,8 +96,17 @@ class ReosPolylinesStructure : public ReosGeometryStructure
     //! Inserts a vertex in the line with \a lineId at position \a point
     virtual ReosGeometryStructureVertex *insertVertex( const ReosSpatialPosition &point, qint64 lineId ) = 0;
 
+    //! Returns whether the vertex can be removed
+    virtual bool vertexCanBeRemoved( ReosGeometryStructureVertex *vertex ) const = 0;
+
     //! Removes \a vertex
     virtual void removeVertex( ReosGeometryStructureVertex *vertex ) = 0 ;
+
+    //! Returns whether the vertex can be removed
+    virtual bool lineCanBeRemoved( qint64 lineId ) const = 0;
+
+    //! Removes line with id \a lineId
+    virtual void removeLine( qint64 lineId ) = 0;
 
     //! Returns the extent of the structure in \a crs coordinate system
     virtual ReosMapExtent extent( const QString &crs ) const = 0;

@@ -27,10 +27,11 @@
 ReosMapToolEditPolylineStructure_p::ReosMapToolEditPolylineStructure_p( QgsMapCanvas *map )
   :  ReosMapTool_p( map )
   , mMainActions( new QActionGroup( this ) )
-  , mActionAddLines( new QAction( tr( "Add lines" ), this ) )
-  , mActionMoveVertex( new QAction( tr( "Move vertex" ), this ) )
+  , mActionAddLines( new QAction( tr( "Add Lines" ), this ) )
+  , mActionMoveVertex( new QAction( tr( "Move Vertex" ), this ) )
   , mActionInsertVertex( new QAction( tr( "Insert Vertex" ), this ) )
   , mActionRemoveVertex( new QAction( tr( "Remove Vertex" ), this ) )
+  , mActionRemoveLine( new QAction( tr( "Remove Line" ), this ) )
 
 {
   enableSnapping( true );
@@ -40,6 +41,8 @@ ReosMapToolEditPolylineStructure_p::ReosMapToolEditPolylineStructure_p( QgsMapCa
   mMainActions->addAction( mActionAddLines );
   mMainActions->addAction( mActionMoveVertex );
   mMainActions->setExclusive( true );
+  mActionAddLines->setChecked( true );
+  mMainActions->setEnabled( false );
 
   connect( mActionAddLines, &QAction::triggered, this, &ReosMapToolEditPolylineStructure_p::resetTool );
   connect( mActionMoveVertex, &QAction::triggered, this, &ReosMapToolEditPolylineStructure_p::resetTool );
@@ -100,6 +103,18 @@ QgsMapTool::Flags ReosMapToolEditPolylineStructure_p::flags() const
   }
 
   return Flags();
+}
+
+void ReosMapToolEditPolylineStructure_p::activate()
+{
+  mMainActions->setEnabled( true );
+  ReosMapTool_p::activate();
+}
+
+void ReosMapToolEditPolylineStructure_p::deactivate()
+{
+  mMainActions->setEnabled( false );
+  ReosMapTool_p::deactivate();
 }
 
 void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
@@ -263,6 +278,11 @@ void ReosMapToolEditPolylineStructure_p::insertVertex( const QPointF &mapPoint, 
 void ReosMapToolEditPolylineStructure_p::removeVertex( ReosGeometryStructureVertex *vertex )
 {
   mStructure->removeVertex( vertex );
+}
+
+void ReosMapToolEditPolylineStructure_p::removeLine( qint64 lineId )
+{
+  mStructure->removeLine( lineId );
 }
 
 void ReosMapToolEditPolylineStructure_p::resetTool()
@@ -447,6 +467,7 @@ void ReosEditGeometryStructureMenuPopulator::populateVertexAction( ReosGeometryS
   if ( !mToolMap->mStructure->isOnBoundary( vertex ) || mToolMap->mStructure->boundary().count() > 3 )
   {
     menu->addAction( mToolMap->mActionRemoveVertex );
+    mToolMap->mActionRemoveVertex->setEnabled( mToolMap->mStructure->vertexCanBeRemoved( vertex ) );
     QObject::connect( mToolMap->mActionRemoveVertex, &QAction::triggered, menu, [this, vertex]
     {
       mToolMap->removeVertex( vertex );
@@ -457,8 +478,16 @@ void ReosEditGeometryStructureMenuPopulator::populateVertexAction( ReosGeometryS
 void ReosEditGeometryStructureMenuPopulator::populateLineAction( QgsFeatureId id, const QPointF &point, QMenu *menu )
 {
   menu->addAction( mToolMap->mActionInsertVertex );
+
   QObject::connect( mToolMap->mActionInsertVertex, &QAction::triggered, menu, [this, point, id]
   {
     mToolMap->insertVertex( point, id );
+  } );
+
+  menu->addAction( mToolMap->mActionRemoveLine );
+  mToolMap->mActionRemoveLine->setEnabled( mToolMap->mStructure->lineCanBeRemoved( id ) );
+  QObject::connect( mToolMap->mActionRemoveLine, &QAction::triggered, menu, [this, id]
+  {
+    mToolMap->removeLine( id );
   } );
 }
