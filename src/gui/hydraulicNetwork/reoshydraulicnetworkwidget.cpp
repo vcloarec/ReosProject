@@ -24,6 +24,7 @@
 #include "reoswatershed.h"
 #include "reosmaptool.h"
 #include "reoshydraulicelementpropertieswidget.h"
+#include "reosstyleregistery.h"
 
 ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *network, ReosWatershedModule *watershedModule, const ReosGuiContext &context ) :
   QWidget( context.parent() )
@@ -57,6 +58,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
 
   QToolBar *toolBar = new QToolBar( this );
   ui->mainLayout->insertWidget( 0, toolBar );
+  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
 
   toolBar->addAction( mActionSelectNetworkElement );
   mActionSelectNetworkElement->setCheckable( true );

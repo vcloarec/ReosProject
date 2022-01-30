@@ -47,6 +47,7 @@
 #include "reosgisengine.h"
 #include "reosdataprovidergui.h"
 #include "reosguicontext.h"
+#include "reosstyleregistery.h"
 
 
 class ReosStationMapMarker: public ReosMapMarkerSvg
@@ -107,6 +108,7 @@ ReosRainfallManager::ReosRainfallManager( ReosMap *map, ReosRainfallModel *rainf
   toolBar->addAction( mActionAddRootZone );
   toolBar->addAction( mActionImportFromTextFile );
   toolBar->addAction( mActionSelectStationFromMap );
+  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
 
   mMapToolAddStationOnMap = new ReosMapToolDrawPoint( this, map );
   mMapToolAddStationOnMap->setCursor( QCursor( QPixmap( QStringLiteral( ":/images/station.svg" ) ), 12, 12 ) );
@@ -654,6 +656,7 @@ ReosSpatialStationWidgetToolbar::ReosSpatialStationWidgetToolbar( ReosMap *map, 
   setLayout( new QVBoxLayout );
   setContentsMargins( 0, 0, 0, 0 );
   QToolBar *toolBar = new QToolBar( this );
+  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   mActionSetPosition = toolBar->addAction( QPixmap( QStringLiteral( ":/images/station.svg" ) ), tr( "Set Position on Map" ) );
   mActionMovePosition = toolBar->addAction( QPixmap( QStringLiteral( ":/images/moveStation.svg" ) ), tr( "Move Position on Map" ) );
   mActiontRemovePosition = toolBar->addAction( QPixmap( QStringLiteral( ":/images/removeStation.svg" ) ), tr( "Remove Position on Map" ) );

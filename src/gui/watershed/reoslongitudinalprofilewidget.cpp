@@ -28,6 +28,7 @@
 #include "reosmap.h"
 #include "reosmaptool.h"
 #include "reossettings.h"
+#include "reosstyleregistery.h"
 
 ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWidget *parent ) :
   ReosActionWidget( parent ),
@@ -61,6 +62,7 @@ ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWi
   ui->mPlotWidget->addPlotItem( mDemCurve );
 
   QToolBar *profileToolBar = new QToolBar;
+  profileToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   profileToolBar->addActions( mProfile->actionsToolBar() );
   ui->mWidgetToolProfile->layout()->addWidget( profileToolBar );
 
@@ -77,6 +79,7 @@ ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWi
   mActionDrawStreamLine->setCheckable( true );
   streamLineToolBar->addActions( mActionGroupStreamLineMapTool->actions() );
   streamLineToolBar->addAction( mActionZoomOnDEMProfileExtent );
+  streamLineToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   ui->mWidgetToolStreamLine->layout()->addWidget( streamLineToolBar );
   connect( mMapToolDrawStreamLine, &ReosMapToolDrawPolyline::drawn, this, &ReosLongitudinalProfileWidget::onStreamLineChanged );
   mMapToolDrawStreamLine->setColor( QColor( 0, 155, 242 ) );

@@ -26,6 +26,7 @@
 #include "reoshydrographeditingwidget.h"
 #include "reosplottimeconstantinterval.h"
 #include "reosdataprovidergui.h"
+#include "reosstyleregistery.h"
 
 ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( ReosMap *map, QWidget *parent )
   : ReosStackedPageWidget( parent )
@@ -41,6 +42,7 @@ ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( ReosMap *map, QWidget *p
   QToolBar *toolBar = new QToolBar( ui->mWidgetToolBar );
   toolBar->setIconSize( QSize( 16, 16 ) );
   toolBar->layout()->setContentsMargins( 0, 0, 0, 0 );
+  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   ui->mWidgetToolBar->layout()->addWidget( toolBar );
 
   mActionAddHydrograph = toolBar->addAction( QPixmap( QStringLiteral( ":/images/add.svg" ) ), tr( "Add Gauged Hydrograph" ), this, &ReosGaugedHydrographWidget::onAddHydrograph );
@@ -52,6 +54,7 @@ ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( ReosMap *map, QWidget *p
   mToolBarProvider = new QToolBar( ui->mWidgetProviderToolBar );
   mToolBarProvider->setIconSize( QSize( 24, 24 ) );
   mToolBarProvider->layout()->setContentsMargins( 0, 0, 0, 0 );
+  mToolBarProvider->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   ui->mWidgetProviderToolBar->layout()->addWidget( mToolBarProvider );
 
   mHydrographPlot = new ReosPlotTimeSerieVariableStep( tr( "Hydrograph" ) );

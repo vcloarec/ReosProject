@@ -23,11 +23,12 @@
 
 #include "reosmaptooleditgeometrystructure.h"
 #include "reoshydraulicstructure2d.h"
+#include "reosstyleregistery.h"
 
 ReosEditStructureGeometry2DWidget::ReosEditStructureGeometry2DWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context )
   : QWidget( context.parent() )
   , ui( new Ui::ReosEditStructureGeometry2DWidget )
-  , mActionEditLine( new QAction( tr( "Edit Structure Line" ), this ) )
+  , mActionEditLine( new QAction( QPixmap( QStringLiteral( ":/images/editStructureLines.svg" ) ), tr( "Edit Structure Line" ), this ) )
   , mMapToolEditLine( new ReosMapToolEditGeometryStructure( structure2D->geometryStructure(), this, context.map() ) )
 {
   ui->setupUi( this );
@@ -40,6 +41,7 @@ ReosEditStructureGeometry2DWidget::ReosEditStructureGeometry2DWidget( ReosHydrau
   mMapToolEditLine->setAction( mActionEditLine );
 
   toolBar->addActions( mMapToolEditLine->mainActions()->actions() );
+  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
 
   mUndoStack = structure2D->geometryStructure()->undoStack();
   toolBar->addAction( mUndoStack->createUndoAction( this ) );

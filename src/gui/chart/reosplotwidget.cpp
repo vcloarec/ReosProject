@@ -28,6 +28,7 @@
 #include "reosplotidfcurve.h"
 #include "reosplotitemlist.h"
 #include "reossettings.h"
+#include "reosstyleregistery.h"
 
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
@@ -78,6 +79,9 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent )
   mToolBarLeft->addAction( mActionCopyAsImage );
   toolBarslayout->addWidget( mToolBarRight );
   mainLayout->addWidget( mPlot );
+
+  mToolBarLeft->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  mToolBarRight->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
 
   mLegendController = new ReosPlotLegendController( this );
   mActionLegendController = mToolBarLeft->addWidget( mLegendController );

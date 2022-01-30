@@ -43,6 +43,12 @@
      </item>
      <item>
       <widget class="QListWidget" name="mOptionListWidget">
+       <property name="iconSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
        <item>
         <property name="text">
          <string>Structure</string>

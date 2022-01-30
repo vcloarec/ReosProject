@@ -37,6 +37,7 @@ email                : vcloarec at gmail dot com
 #include "reosgisengine.h"
 #include "reossettings.h"
 #include "reosmap.h"
+#include "reosstyleregistery.h"
 
 #include "reoslayertreecontextmenuprovider_p.h"
 
@@ -53,7 +54,7 @@ ReosGisLayersWidget::ReosGisLayersWidget( ReosGisEngine *engine, ReosMap *map, Q
   mActionLoadMeshLayer( new QAction( QPixmap( ":/images/mActionAddMeshLayer.svg" ), tr( "Add Mesh Layer" ), this ) ),
   mActionSetProjectCrs( new QAction( QPixmap( ":/images/CRS.svg" ), tr( "Project coordinate reference system" ), this ) )
 {
-
+  mToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   connect( mGisEngine, &ReosGisEngine::updated, this, &ReosGisLayersWidget::onGISEngineUpdated );
 
   mTreeView->setModel( engine->layerTreeModel() );

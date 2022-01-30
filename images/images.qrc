@@ -122,5 +122,8 @@
         <file>selectHydraulicElement.svg</file>
         <file>addHydraulicStructure2D.svg</file>
         <file>menuStructure.svg</file>
+        <file>editStructureLines.svg</file>
+        <file>addStructureLines.svg</file>
+        <file>moveVertesStructure.svg</file>
     </qresource>
 </RCC>

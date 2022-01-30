@@ -20,6 +20,7 @@ email                : vcloarec at gmail dot com
 #include "reosmap.h"
 #include "reosmaptool.h"
 #include "reossettings.h"
+#include "reosstyleregistery.h"
 
 #include <QBoxLayout>
 #include <QMessageBox>
@@ -55,7 +56,9 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   ReosSettings settings;
 
   mAutomaticToolBar = new QToolBar;
+  mAutomaticToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   mManualToolBar = new QToolBar;
+  mManualToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   qobject_cast<QBoxLayout *>( layout() )->insertWidget( 3, mAutomaticToolBar );
   qobject_cast<QBoxLayout *>( layout() )->insertWidget( 2, mManualToolBar );
   mAutomaticToolBar->addAction( mActionDrawDownstreamLine );

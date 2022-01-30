@@ -26,6 +26,7 @@
 #include "reosrainfallregistery.h"
 #include "reosrainfallmodel.h"
 #include "reoswatershedtree.h"
+#include "reosstyleregistery.h"
 
 
 ReosMeteorologicModelWidget::ReosMeteorologicModelWidget( ReosWatershedItemModel *watershedModel,
@@ -59,6 +60,7 @@ ReosMeteorologicModelWidget::ReosMeteorologicModelWidget( ReosWatershedItemModel
   ui->widgetToolBar->setLayout( new QHBoxLayout );
   ui->widgetToolBar->layout()->setContentsMargins( 0, 0, 0, 0 );
   QToolBar *toolBar = new QToolBar( ui->widgetToolBar );
+  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   ui->widgetToolBar->layout()->addWidget( toolBar );
 
   mActionAddMeteoModel = toolBar->addAction( QPixmap( QStringLiteral( ":/images/add.svg" ) ), tr( "Add Meteorologic Model" ), this, &ReosMeteorologicModelWidget::onAddMeteoModel );

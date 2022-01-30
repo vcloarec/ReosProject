@@ -20,6 +20,7 @@ email                : vcloarec at gmail dot com
 #include <QFileDialog>
 #include <QDockWidget>
 #include <QDesktopServices>
+#include <QStyle>
 
 #include <qgsmapcanvas.h>
 
@@ -33,6 +34,7 @@ email                : vcloarec at gmail dot com
 
 #include "reosgisengine.h"
 #include "reosplotwidget.h"
+#include "reosstyleregistery.h"
 
 
 ReosMainWindow::ReosMainWindow( QWidget *parent ) :
@@ -53,6 +55,7 @@ ReosMainWindow::ReosMainWindow( QWidget *parent ) :
   mActionHowToSupport( new QAction( tr( "How to help?" ), this ) ),
   mUndoStack( new QUndoStack( this ) )
 {
+  setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   setDockNestingEnabled( true );
 
   QWidget *centralWidget = new QWidget( this );
@@ -83,6 +86,7 @@ void ReosMainWindow::init()
   mGroupActionFile->addAction( mActionOpenFile );
   mGroupActionFile->addAction( mActionSaveFile );
   mGroupActionFile->addAction( mActionSaveFileAs );
+
 
   mToolBarFile = addToolBar( tr( "File" ) );
   mToolBarFile->addActions( mGroupActionFile->actions() );
