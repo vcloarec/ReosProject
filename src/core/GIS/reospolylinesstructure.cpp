@@ -26,3 +26,8 @@ std::unique_ptr<ReosPolylinesStructure> ReosPolylinesStructure::createPolylineSt
   return std::unique_ptr<ReosPolylinesStructure>( new ReosPolylineStructureVectorLayer( boundary, crs ) );
 }
 
+std::unique_ptr<ReosPolylinesStructure> ReosPolylinesStructure::createPolylineStructure( const ReosEncodedElement &encodedElement )
+{
+  return std::unique_ptr<ReosPolylinesStructure>( new ReosPolylineStructureVectorLayer( encodedElement ) );
+}
+

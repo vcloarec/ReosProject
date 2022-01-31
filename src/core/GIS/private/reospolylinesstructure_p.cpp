@@ -37,6 +37,11 @@ ReosPolylineStructureVectorLayer::ReosPolylineStructureVectorLayer( const QStrin
                                       , QStringLiteral( "internalLayer" ),
                                       QStringLiteral( "memory" ) ) )
 {
+  init();
+}
+
+void ReosPolylineStructureVectorLayer::init()
+{
   mVectorLayer->startEditing();
   mVectorLayer->extent();
 
@@ -110,13 +115,26 @@ void ReosPolylineStructureVectorLayer::setTolerance( double tolerance, const QSt
 ReosPolylineStructureVectorLayer::ReosPolylineStructureVectorLayer( const QPolygonF &boundary, const QString &wktCrs )
   : ReosPolylineStructureVectorLayer( wktCrs )
 {
-  if ( boundary.count() < 3 )
+
+  Data data;
+  data.vertices = boundary;
+  data.boundaryPointCount = boundary.count();
+
+  buildGeometry( data );
+}
+
+void ReosPolylineStructureVectorLayer::buildGeometry( const ReosPolylinesStructure::Data &data )
+{
+  if ( data.boundaryPointCount < 3 )
     return;
 
   mVectorLayer->undoStack()->blockSignals( true );
 
-  QgsPointXY point0( boundary.at( 0 ) );
-  QgsPointXY point1( boundary.at( 1 ) );
+  const QVector<QPointF> &vertices = data.vertices;
+
+  //create boundary
+  QgsPointXY point0( data.vertices.at( 0 ) );
+  QgsPointXY point1( vertices.at( 1 ) );
   QgsGeometry geomSegment( new QgsLineString( {point0, point1} ) );
   QgsFeature feat;
   feat.setGeometry( geomSegment );
@@ -130,12 +148,12 @@ ReosPolylineStructureVectorLayer::ReosPolylineStructureVectorLayer( const QPolyg
   mBoundariesVertex.append( vert1.get() );
   mSegments.insert( feat.id(), {vert0, vert1} );
 
-  for ( int i = 2; i < boundary.count() ; ++i )
+  for ( int i = 2; i < data.boundaryPointCount ; ++i )
   {
     vert0 = vert1;
     point0 = point1;
-    point1 = QgsPointXY( boundary.at( i ) );
-    QgsGeometry geomSegment( new QgsLineString( {point0, point1} ) );
+    point1 = QgsPointXY( vertices.at( i ) );
+    const QgsGeometry geomSegment( new QgsLineString( {point0, point1} ) );
     QgsFeature feat;
     feat.setGeometry( geomSegment );
     mVectorLayer->addFeature( feat );
@@ -152,10 +170,70 @@ ReosPolylineStructureVectorLayer::ReosPolylineStructureVectorLayer( const QPolyg
   firstVertex->attachLine( feat.id(), 1 );
   mSegments.insert( feat.id(), {vert1, firstVertex} );
 
+  //create internal lines
+  for ( const QVector<int> &line : data.internalLines )
+  {
+    const QgsPointXY point0 = vertices.at( line.at( 0 ) );
+    const QgsPointXY point1 = vertices.at( line.at( 1 ) );
+
+    VertexS vert0 = purposeVertex( point0, mTolerance );
+    VertexS vert1 = purposeVertex( point1, mTolerance );
+
+    const QgsGeometry geomSegment( new QgsLineString( {point0, point1} ) );
+    QgsFeature feat;
+    feat.setGeometry( geomSegment );
+    mVectorLayer->addFeature( feat );
+
+    if ( !vert0 )
+      vert0 = createVertex( feat.id(), 0 );
+    else
+      vert0->attachLine( feat.id(), 0 );
+
+    if ( !vert1 )
+      vert1 = createVertex( feat.id(), 1 );
+    else
+      vert1->attachLine( feat.id(), 1 );
+
+    mSegments.insert( feat.id(), {vert0, vert1} );
+  }
+
   mVectorLayer->undoStack()->clear();
   mVectorLayer->undoStack()->blockSignals( false );
 }
 
+ReosPolylineStructureVectorLayer::ReosPolylineStructureVectorLayer( const ReosEncodedElement &encodedElement )
+{
+
+  QString wktCrs;
+  encodedElement.getData( QStringLiteral( "crs" ), wktCrs );
+
+  mVectorLayer.reset( new QgsVectorLayer( QStringLiteral( "Linestring?crs=" )
+                                          + wktCrs
+                                          + QStringLiteral( "&index=yes" )
+                                          , QStringLiteral( "internalLayer" ),
+                                          QStringLiteral( "memory" ) ) );
+
+  init();
+
+  Data data;
+  encodedElement.getData( "boundary-vertices-count", data.boundaryPointCount );
+  encodedElement.getData( QStringLiteral( "vertices" ), data.vertices );
+  encodedElement.getData( QStringLiteral( "internal-lines" ), data.internalLines );
+  encodedElement.getData( QStringLiteral( "tolerance" ), mTolerance );
+
+  buildGeometry( data );
+}
+
+ReosEncodedElement ReosPolylineStructureVectorLayer::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "polyline-structure-vector-layer" ) );
+  Data data = structuredLinesData();
+  element.addData( "boundary-vertices-count", data.boundaryPointCount );
+  element.addData( QStringLiteral( "vertices" ), data.vertices );
+  element.addData( QStringLiteral( "internal-lines" ), data.internalLines );
+  element.addData( QStringLiteral( "tolerance" ), mTolerance );
+  return element;
+}
 
 VertexS ReosPolylineStructureVectorLayer::createVertex( QgsFeatureId id, int positionInFeature )
 {
@@ -1079,10 +1157,6 @@ QUndoStack *ReosPolylineStructureVectorLayer::undoStack() const
   return mVectorLayer->undoStack();
 }
 
-ReosEncodedElement ReosPolylineStructureVectorLayer::encode() const
-{
-
-}
 
 bool ReosPolylineStructureVectorLayer::isOnBoundary( ReosGeometryStructureVertex *vertex ) const
 {

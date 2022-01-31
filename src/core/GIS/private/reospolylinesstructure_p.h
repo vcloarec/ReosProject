@@ -101,6 +101,7 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
 
     ReosPolylineStructureVectorLayer( const QString &wktCrs );
     ReosPolylineStructureVectorLayer( const QPolygonF &boundary, const QString &wktCrs );
+    ReosPolylineStructureVectorLayer( const ReosEncodedElement &encodedElement );
     ~ReosPolylineStructureVectorLayer();
 
     void addPolylines( const QPolygonF &polyline,  const QList<double> &tolerances = QList<double>(), const QString &sourceCrs = QString( ) ) override;
@@ -189,6 +190,9 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
 
     //! Returns the boundary lines on each side of \a vertex, order consistent with vertices order
     QPair<SegmentId, SegmentId> boundarieLines( VertexP vertex );
+
+    void init();
+    void buildGeometry( const Data &data );
 
     friend class ReosPolylineStructureVectorLayerUndoCommandRemoveLine;
     friend class ReosPolylineStructureVectorLayerUndoCommandAddLine;

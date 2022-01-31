@@ -16,6 +16,7 @@
 #include "reoshydraulicnetwork.h"
 #include "reoshydraulicnode.h"
 #include "reoshydrauliclink.h"
+#include "reoshydraulicstructure2d.h"
 #include "reoshydrographrouting.h"
 #include <QUuid>
 
@@ -132,6 +133,8 @@ ReosHydraulicNetwork::ReosHydraulicNetwork( ReosModule *parent, ReosWatershedMod
   mElementFactories.emplace( ReosHydrographJunction::staticType(), new ReosHydrographJunctionFactory );
 
   mElementFactories.emplace( ReosHydrographRoutingLink::staticType(), new ReosHydrographRoutingLinkFactory );
+
+  mElementFactories.emplace( ReosHydraulicStructure2D::staticType(), new ReosHydraulicStructure2dFactory );
 }
 
 QList<ReosHydraulicNetworkElement *> ReosHydraulicNetwork::getElements( const QString &type ) const
@@ -189,9 +192,19 @@ void ReosHydraulicNetwork::decode( const ReosEncodedElement &element )
 
   QList<ReosEncodedElement> encodedElements = element.getListEncodedData( QStringLiteral( "hydraulic-element" ) );
 
+  //here order of adding element is important (node before links)
+
   for ( const ReosEncodedElement &encodedElement : encodedElements )
   {
     if ( encodedElement.description().contains( ReosHydraulicNode::staticType() ) )
+    {
+      addEncodedElement( encodedElement );
+    }
+  }
+
+  for ( const ReosEncodedElement &encodedElement : encodedElements )
+  {
+    if ( encodedElement.description().contains( ReosHydraulicStructure2D::staticType() ) )
     {
       addEncodedElement( encodedElement );
     }

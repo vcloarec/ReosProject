@@ -25,6 +25,13 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, con
   generateMesh();
 }
 
+
+ReosHydraulicStructure2D::ReosHydraulicStructure2D( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent ):
+  ReosHydraulicNetworkElement( parent ),
+  mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( encodedElement.getEncodedData( QStringLiteral( "structure" ) ) ) )
+  , mMesh( ReosMesh::createMemoryMesh() )
+{}
+
 QPolygonF ReosHydraulicStructure2D::domain( const QString &crs ) const
 {
   return mPolylinesStructures->boundary( crs );
@@ -48,4 +55,27 @@ bool ReosHydraulicStructure2D::generateMesh()
     return mMesh->generateMesh( generator );
   else
     return false;
+}
+
+ReosHydraulicStructure2D *ReosHydraulicStructure2D::create( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent )
+{
+  if ( encodedElement.description() != ReosHydraulicStructure2D::staticType() )
+    return nullptr;
+
+  return new ReosHydraulicStructure2D( encodedElement, parent );
+
+}
+
+void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext & ) const
+{
+  element.addEncodedData( QStringLiteral( "structure" ), mPolylinesStructures->encode() );
+}
+
+
+ReosHydraulicNetworkElement *ReosHydraulicStructure2dFactory::decodeElement( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context ) const
+{
+  if ( encodedElement.description() != ReosHydraulicStructure2D::staticType() )
+    return nullptr;
+
+  return ReosHydraulicStructure2D::create( encodedElement, context.network() );
 }

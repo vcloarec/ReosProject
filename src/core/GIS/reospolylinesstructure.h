@@ -49,9 +49,9 @@ class ReosPolylinesStructure : public ReosGeometryStructure
 
     struct Data
     {
-      QVector<QPointF> vertices; //! all the vertics of the structure
+      QVector<QPointF> vertices; //! all the vertices of the structure
       int boundaryPointCount; //! the count of boundary points that are the first in the array of point \a vertices
-      QVector<std::array<int, 2>> internalLines; //! all internal lines vertices index
+      QVector<QVector<int>> internalLines; //! all internal lines vertices index
     };
 
     //! Creates and returns polylines structure with specified \a crs
@@ -59,6 +59,9 @@ class ReosPolylinesStructure : public ReosGeometryStructure
 
     //! Creates and returns polylines structure with specified \a crs
     static std::unique_ptr<ReosPolylinesStructure> createPolylineStructure( const QPolygonF &boundary, const QString &crs );
+
+    //! Creates and returns polylines structure with encoded \a encodedElement
+    static std::unique_ptr<ReosPolylinesStructure> createPolylineStructure( const ReosEncodedElement &encodedElement );
 
     /**
      *  Adds a \a polyline to the structure with coordinates in \a sourcesCrs and a tolerance for each vertices \a tolerances in \a sourceCrs unit

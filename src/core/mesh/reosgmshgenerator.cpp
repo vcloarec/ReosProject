@@ -131,7 +131,7 @@ void ReosGmshGenerator::setGeometryStructure( ReosPolylinesStructure *structure,
   std::vector<int> internalLines( structureData.internalLines.count() );
   for ( int i = 0; i < structureData.internalLines.count() ; ++i )
   {
-    const std::array<int, 2> &dataLine = structureData.internalLines.at( i );
+    const QVector<int> &dataLine = structureData.internalLines.at( i );
     gmsh::model::geo::addLine( dataLine.at( 0 ) + 1, dataLine.at( 1 ) + 1, boundVertCount + i + 1 );
     internalLines[i] = boundVertCount + i + 1;
   }
