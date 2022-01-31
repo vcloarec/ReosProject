@@ -42,10 +42,6 @@ ReosEditStructureGeometry2DWidget::ReosEditStructureGeometry2DWidget( ReosHydrau
 
   toolBar->addActions( mMapToolEditLine->mainActions()->actions() );
   toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
-
-  mUndoStack = structure2D->geometryStructure()->undoStack();
-  toolBar->addAction( mUndoStack->createUndoAction( this ) );
-  toolBar->addAction( mUndoStack->createRedoAction( this ) );
 }
 
 ReosEditStructureGeometry2DWidget::~ReosEditStructureGeometry2DWidget()

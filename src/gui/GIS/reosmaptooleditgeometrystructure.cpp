@@ -16,6 +16,8 @@
 #include "reosmaptooleditgeometrystructure.h"
 #include "reosmaptooleditgeometrystructure_p.h"
 
+#include "reospolylinesstructure.h"
+
 ReosMapToolEditGeometryStructure::ReosMapToolEditGeometryStructure( ReosPolylinesStructure *structure, QObject *parent, ReosMap *map )
   : ReosMapTool( parent, map )
 {

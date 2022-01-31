@@ -105,6 +105,9 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
     QAction *mActionRemoveVertex = nullptr;
     QAction *mActionRemoveLine = nullptr;
 
+    QAction *mActionUndo = nullptr;
+    QAction *mActionRedo = nullptr;
+
     friend class ReosEditGeometryStructureMenuPopulator;
 };
 

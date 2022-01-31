@@ -126,13 +126,18 @@ class ReosPolylinesStructure : public ReosGeometryStructure
     //! Returns the neighbor vertices positions of \a vertex in \a crs coordinate or in the strucure coordinate if \a crs is void
     virtual QList<QPointF> neighborsPositions( ReosGeometryStructureVertex *vertex, const QString &crs ) const = 0;
 
-    //! Returns the list of intersection points of \a line with the strucure ordered from the closest from firt point of \a line to the farthest
-    virtual  QList<QPointF> intersectionPoints( const QLineF &line, const QString &crs = QString() ) const = 0;
+    /**
+     *  Returns the list of intersection points of \a line with the strucure ordered from the closest from firt point of \a line to the farthest.
+     *  Caller can add another polyline \a otherPoly to also search interection of the \a line with
+     */
+    virtual  QList<QPointF> intersectionPoints( const QLineF &line, const QString &crs = QString(), const QPolygonF &otherPoly = QPolygonF() ) const = 0;
 
     //! Returns whether the \a vertex is on boundary
     virtual bool isOnBoundary( ReosGeometryStructureVertex *vertex ) const = 0;
 
     virtual QUndoStack *undoStack() const = 0;
+
+    virtual ReosEncodedElement encode() const = 0;
 
 };
 

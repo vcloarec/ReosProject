@@ -153,7 +153,6 @@ ReosPolylineStructureVectorLayer::ReosPolylineStructureVectorLayer( const QPolyg
   mSegments.insert( feat.id(), {vert1, firstVertex} );
 
   mVectorLayer->undoStack()->clear();
-
   mVectorLayer->undoStack()->blockSignals( false );
 }
 
@@ -291,6 +290,20 @@ bool ReosPolylineStructureVectorLayer::idToOneLinkedSegment( SegmentId id, int p
   return vert->oneOtherLine( id, linkedSeg );
 }
 
+bool ReosPolylineStructureVectorLayer::isSegmentExisting( VertexP vert0, VertexP vert1 ) const
+{
+  const QSet<SegmentId> ids = vert0->attachedLines();
+  for ( const SegmentId &segId : ids )
+  {
+    Segment seg = idToSegment( segId );
+    for ( int i = 0; i < 2; ++i )
+      if ( seg.at( i ).get() == vert1 )
+        return true;
+  }
+
+  return false;
+}
+
 VertexS ReosPolylineStructureVectorLayer::sharedVertex( VertexP vertex ) const
 {
   if ( !vertex )
@@ -367,6 +380,8 @@ void ReosPolylineStructureVectorLayer::addPolylines( const QPolygonF &polyline, 
 
   QgsGeometry exterior( new QgsPolygon( QgsLineString::fromQPolygonF( boundary() ) ) );
 
+  bool somethingDone = false;
+
   for ( int i = 0; i < polyline.count() - 1; ++i )
   {
     QPointF pt0 = polyline.at( i );
@@ -381,6 +396,9 @@ void ReosPolylineStructureVectorLayer::addPolylines( const QPolygonF &polyline, 
 
     VertexS vert0 = purposeVertex( pointXY0, tol );
     VertexS vert1 = purposeVertex( pointXY1, tol );
+
+    if ( vert0 && vert1 && isSegmentExisting( vert0.get(), vert1.get() ) )
+      continue;
 
     if ( vert0 )
       pointXY0 = vert0->position();
@@ -402,9 +420,16 @@ void ReosPolylineStructureVectorLayer::addPolylines( const QPolygonF &polyline, 
                                        vert1,
                                        false,
                                        this ) );
+    somethingDone = true;
   }
 
-  mVectorLayer->endEditCommand();
+  if ( !somethingDone )
+  {
+    mVectorLayer->destroyEditCommand();
+    mVectorLayer->undoStack()->canRedoChanged( false );
+  }
+  else
+    mVectorLayer->endEditCommand();
 }
 
 QPolygonF ReosPolylineStructureVectorLayer::polyline( const QString &destinationCrs, const QString &id ) const
@@ -481,7 +506,7 @@ bool ReosPolylineStructureVectorLayer::vertexCanBeMoved( ReosGeometryStructureVe
   VertexP vertex = static_cast<VertexP>( geometryVertex );
   bool boundaryVertex = isOnBoundary( vertex );
   QList<SegmentId> ids;
-  const QList<ReosStructureVertexHandler_p *> neighbors = neighorsVertices( vertex, ids );
+  const QList<VertexP> neighbors = neighorsVertices( vertex, ids );
   QgsPointXY newPosInLayer = toLayerCoordinates( newPosition );
   double x = newPosInLayer.x();
   double y = newPosInLayer.y();
@@ -495,6 +520,15 @@ bool ReosPolylineStructureVectorLayer::vertexCanBeMoved( ReosGeometryStructureVe
     if ( closeVertexPosition.distance( newPosInLayer ) < mTolerance )
       if ( closeVertex->attachedLines().count() > 1 || vertex->attachedLines().count() > 1 )
         return false;
+  }
+
+  if ( closeVertex )
+  {
+    for ( VertexP nv : std::as_const( neighbors ) )
+    {
+      if ( isSegmentExisting( nv, closeVertex ) )
+        return false;
+    }
   }
 
   QgsFeatureIterator fit = mVectorLayer->getFeatures( ids.toSet() );
@@ -558,6 +592,12 @@ bool ReosPolylineStructureVectorLayer::vertexCanBeMoved( ReosGeometryStructureVe
       checkedVert.insert( vertToCheck );
     }
   }
+  else
+  {
+    QgsGeometry exterior( new QgsPolygon( QgsLineString::fromQPolygonF( boundary() ) ) );
+    if ( !isOnBoundary( closeVertex ) && !exterior.contains( &newPosInLayer ) )
+      return false;
+  }
 
   return true;
 }
@@ -603,9 +643,14 @@ bool ReosPolylineStructureVectorLayer::vertexCanBeRemoved( ReosGeometryStructure
   VertexP vert = static_cast<VertexP>( vertex );
   if ( boundaryVertex( vert ) )
   {
-    int vertesPos = mBoundariesVertex.indexOf( vert );
+    int vertexPos = mBoundariesVertex.indexOf( vert );
+    int prevIndex = ( vertexPos - 1 + mBoundariesVertex.count() ) % mBoundariesVertex.count();
+    int nextIndex = ( vertexPos + 1 ) % mBoundariesVertex.count();
+    if ( isSegmentExisting( mBoundariesVertex.at( prevIndex ), mBoundariesVertex.at( nextIndex ) ) )
+      return false;
+
     QPolygonF exteriorF = boundary();
-    exteriorF.removeAt( vertesPos );
+    exteriorF.removeAt( vertexPos );
     QgsGeometry exterior( new QgsPolygon( QgsLineString::fromQPolygonF( exteriorF ) ) );
 
     QSet<VertexP> checkedVert;
@@ -871,12 +916,12 @@ QList<QPointF> ReosPolylineStructureVectorLayer::neighborsPositions( ReosGeometr
   return ret;
 }
 
-QList<QPointF> ReosPolylineStructureVectorLayer::intersectionPoints( const QLineF &line, const QString &crs ) const
+QList<QPointF> ReosPolylineStructureVectorLayer::intersectionPoints( const QLineF &line, const QString &crs, const QPolygonF &otherPoly ) const
 {
   const QgsCoordinateTransform transform = toLayerTransform( crs );
   QgsGeometry geom = QgsGeometry::fromPolylineXY( {QgsPointXY( line.p1() ), QgsPointXY( line.p2() )} );
 
-  QList<QgsPointXY> intersectPoint;
+  QVector<QgsPointXY> intersectPoint;
   if ( transform.isValid() )
   {
     try
@@ -894,12 +939,9 @@ QList<QPointF> ReosPolylineStructureVectorLayer::intersectionPoints( const QLine
   QgsFeatureIterator fit = mVectorLayer->getFeatures( request );
   QgsFeature feat;
 
-  while ( fit.nextFeature( feat ) )
-  {
-    const QgsGeometry &existingGeom = feat.geometry();
-    if ( existingGeom.isEmpty() || existingGeom.isNull() )
-      continue;
 
+  auto searchIntersection = [this, &geom, &intersectPoint]( const QgsGeometry & existingGeom )
+  {
     const QgsGeometry intersectGeom = existingGeom.intersection( geom );
 
     for ( auto vertIt = intersectGeom.vertices_begin(); vertIt != intersectGeom.vertices_end(); ++vertIt )
@@ -917,7 +959,21 @@ QList<QPointF> ReosPolylineStructureVectorLayer::intersectionPoints( const QLine
           intersectPoint.append( projPoint );
       }
     }
+
+  };
+
+  while ( fit.nextFeature( feat ) )
+  {
+    const QgsGeometry &existingGeom = feat.geometry();
+    if ( existingGeom.isEmpty() || existingGeom.isNull() )
+      continue;
+
+    searchIntersection( existingGeom );
   }
+
+  //search intersection with other polyline
+  const QgsGeometry &existingGeom = QgsGeometry( QgsLineString::fromQPolygonF( otherPoly ) );
+  searchIntersection( existingGeom );
 
 //sort points
   const QgsPointXY first = geom.vertexAt( 0 );
@@ -1021,6 +1077,11 @@ QVector<QLineF> ReosPolylineStructureVectorLayer::rawLines( const QString &desti
 QUndoStack *ReosPolylineStructureVectorLayer::undoStack() const
 {
   return mVectorLayer->undoStack();
+}
+
+ReosEncodedElement ReosPolylineStructureVectorLayer::encode() const
+{
+
 }
 
 bool ReosPolylineStructureVectorLayer::isOnBoundary( ReosGeometryStructureVertex *vertex ) const

@@ -83,6 +83,14 @@ void ReosMapToolEditPolylineStructure_p::setStructure( ReosPolylinesStructure *s
 {
   mStructure = structure;
   mMapCrs = mapCrs(); //update the crs if changed
+
+  mActionUndo = structure->undoStack()->createUndoAction( this );
+  mActionUndo->setIcon( QPixmap( QStringLiteral( ":/images/undoOrange.svg" ) ) );
+  mActionRedo = structure->undoStack()->createRedoAction( this );
+  mActionRedo->setIcon( QPixmap( QStringLiteral( ":/images/redoOrange.svg" ) ) );
+
+  mMainActions->addAction( mActionUndo );
+  mMainActions->addAction( mActionRedo );
 }
 
 QgsMapTool::Flags ReosMapToolEditPolylineStructure_p::flags() const
@@ -392,7 +400,7 @@ void ReosMapToolEditPolylineStructure_p::addVertexForNewLines( const QPointF &po
   if ( !mAddingPolyline.isEmpty() )
   {
     const QPointF prevPt = mAddingPolyline.last();
-    QList<QPointF> intersections = mStructure->intersectionPoints( QLineF( prevPt, vertexPosition ), mMapCrs );
+    QList<QPointF> intersections = mStructure->intersectionPoints( QLineF( prevPt, vertexPosition ), mMapCrs, mLineRubberBand->asGeometry().asQPolygonF() );
     for ( const QPointF &pt : std::as_const( intersections ) )
     {
       mAddingPolyline.append( pt );

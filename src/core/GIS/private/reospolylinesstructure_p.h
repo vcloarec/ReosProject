@@ -120,7 +120,7 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
     ReosGeometryStructureVertex *insertVertex( const ReosSpatialPosition &point, qint64 lineId ) override;
     bool vertexCanBeRemoved( ReosGeometryStructureVertex *vertex ) const override;
     void removeVertex( ReosGeometryStructureVertex *vertex ) override;
-    bool lineCanBeRemoved( qint64 lineId ) const;
+    bool lineCanBeRemoved( qint64 lineId ) const override;
     void removeLine( qint64 lineId ) override;
 
     ReosMapExtent extent( const QString &destinationCrs ) const override;
@@ -129,12 +129,14 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
     QPointF vertexPosition( ReosGeometryStructureVertex *vertex, const QString &crs ) const override;
     QPointF projectedPoint( const QPointF &point, qint64 lineId, const QString &destinationCrs ) const override;
     QList<QPointF> neighborsPositions( ReosGeometryStructureVertex *vertex, const QString &crs ) const override;
-    QList<QPointF> intersectionPoints( const QLineF &line, const QString &crs = QString() ) const override;
+    QList<QPointF> intersectionPoints( const QLineF &line, const QString &crs = QString(), const QPolygonF &otherPoly = QPolygonF() ) const override;
 
     Data structuredLinesData( const QString &destinationCrs = QString() ) const override;
     QVector<QLineF> rawLines( const QString &destinationCrs = QString() ) const override;
 
     QUndoStack *undoStack() const override;
+
+    ReosEncodedElement encode() const override;
 
     bool isOnBoundary( ReosGeometryStructureVertex *vertex ) const override;
     bool isOnBoundary( const Segment &seg ) const;
@@ -147,8 +149,8 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
     std::unique_ptr<QgsVectorLayer> mVectorLayer;
     QMap<QgsFeatureId, Segment> mSegments;
     QList<VertexP> mBoundariesVertex;
-    // *******************************************
     double mTolerance = 0.01;
+    // *******************************************
     mutable bool mRawLinesDirty = true;
     mutable QString mCurrentLineCrs;
     mutable QVector<QLineF> mRawLines;
@@ -177,6 +179,7 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
     Segment idToSegment( SegmentId id ) const;
     VertexS idToVertex( SegmentId id, int pos );
     bool idToOneLinkedSegment( SegmentId id, int pos, SegmentId *linkedSeg );
+    bool isSegmentExisting( VertexP vert0, VertexP vert1 ) const;
 
     VertexS sharedVertex( VertexP vertex ) const;
 

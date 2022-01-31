@@ -125,5 +125,7 @@
         <file>editStructureLines.svg</file>
         <file>addStructureLines.svg</file>
         <file>moveVertesStructure.svg</file>
+        <file>undoOrange.svg</file>
+        <file>redoOrange.svg</file>
     </qresource>
 </RCC>

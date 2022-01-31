@@ -65,9 +65,7 @@ class ReosEditStructureGeometry2DWidget : public QWidget
     QAction *mActionEditLine = nullptr;
     ReosMapToolEditGeometryStructure *mMapToolEditLine = nullptr;
 
-    QAction *mActionUndo = nullptr;
-    QAction *mActionRedo = nullptr;
-    QUndoStack *mUndoStack = nullptr;
+
 
 };
 
