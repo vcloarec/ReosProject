@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>662</width>
+    <width>643</width>
     <height>496</height>
    </rect>
   </property>
@@ -43,6 +43,12 @@
      </item>
      <item>
       <widget class="QListWidget" name="mOptionListWidget">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="iconSize">
         <size>
          <width>24</width>
@@ -56,6 +62,11 @@
         <property name="icon">
          <iconset resource="../../images/images.qrc">
           <normaloff>:/images/menuStructure.svg</normaloff>:/images/menuStructure.svg</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Mesh Resolution</string>
         </property>
        </item>
        <item>
@@ -89,6 +100,9 @@
    </item>
    <item>
     <widget class="QStackedWidget" name="mStackedWidget">
+     <property name="currentIndex">
+      <number>1</number>
+     </property>
      <widget class="QWidget" name="pageMeshStructure">
       <layout class="QVBoxLayout" name="verticalLayout">
        <property name="leftMargin">
@@ -105,7 +119,9 @@
        </property>
       </layout>
      </widget>
-     <widget class="QWidget" name="page_2"/>
+     <widget class="QWidget" name="pageMeshResolution">
+      <layout class="QVBoxLayout" name="verticalLayout_3"/>
+     </widget>
     </widget>
    </item>
   </layout>

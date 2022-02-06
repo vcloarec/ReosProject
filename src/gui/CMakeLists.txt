@@ -72,6 +72,7 @@ SET(REOS_GUI_SOURCES
     hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp
     hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp
     hydraulicNetwork/structure2d/reoseditstructure2dwidget.cpp
+    hydraulicNetwork/structure2d/reosgmshresolutioncontrollerwidget.cpp
     hydraulicNetwork/private/reosmaptoolhydraulicnetwork_p.cpp
     )
 
@@ -136,6 +137,7 @@ SET(REOS_GUI_HEADERS
     hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.h
     hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.h
     hydraulicNetwork/structure2d/reoseditstructure2dwidget.h
+    hydraulicNetwork/structure2d/reosgmshresolutioncontrollerwidget.h
 )
 
 SET(REOS_GUI_HEADERS_PRIVATE
@@ -214,6 +216,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/data
     ${CMAKE_SOURCE_DIR}/src/core/hydrograph
     ${CMAKE_SOURCE_DIR}/src/core/hydraulicNetwork
+    ${CMAKE_SOURCE_DIR}/src/core/mesh
 
     ${CMAKE_SOURCE_DIR}/src/gui
     ${CMAKE_SOURCE_DIR}/src/gui/data

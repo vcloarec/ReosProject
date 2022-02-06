@@ -116,6 +116,7 @@ QgsMapTool::Flags ReosMapToolEditPolylineStructure_p::flags() const
 void ReosMapToolEditPolylineStructure_p::activate()
 {
   mMainActions->setEnabled( true );
+  mCurrentState = None;
   ReosMapTool_p::activate();
 }
 

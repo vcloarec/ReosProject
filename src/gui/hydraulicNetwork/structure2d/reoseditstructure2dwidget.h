@@ -21,6 +21,7 @@
 #include "reosactionwidget.h"
 #include "reosguicontext.h"
 #include "reosmapitem.h"
+#include "reosparameterwidget.h"
 
 class QUndoStack;
 class ReosMapToolEditGeometryStructure;
@@ -38,12 +39,15 @@ class ReosEditStructure2DWidget : public ReosStackedPageWidget
   public:
     ReosEditStructure2DWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context );
     ~ReosEditStructure2DWidget();
+
   private slots:
     void onMeshOptionListChanged( int row );
+    void autoGenerateMesh();
 
   private:
     Ui::ReosEditStructure2DWidget *ui;
-
+    ReosMap *mMap = nullptr;
+    ReosHydraulicStructure2D *mStructure2D = nullptr;
     ReosMapPolylineStructure mMapStructureItem;
     ReosMapItem *mInitialMapStructureItem = nullptr;
 };
@@ -56,9 +60,9 @@ class ReosEditStructureGeometry2DWidget : public QWidget
     explicit ReosEditStructureGeometry2DWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context = ReosGuiContext() );
     ~ReosEditStructureGeometry2DWidget();
 
-
   protected:
     void hideEvent( QHideEvent *e );
+    void showEvent( QShowEvent *e );
 
   private:
     Ui::ReosEditStructureGeometry2DWidget *ui;
@@ -66,7 +70,7 @@ class ReosEditStructureGeometry2DWidget : public QWidget
     ReosMapToolEditGeometryStructure *mMapToolEditLine = nullptr;
 
 
-
 };
+
 
 #endif // REOSEDITSTRUCTURE2DWIDGET_H

@@ -16,8 +16,11 @@
 #ifndef REOSMESHGENERATOR_H
 #define REOSMESHGENERATOR_H
 
+#include <QObject>
 #include <QVector>
 #include <QPolygonF>
+
+#include "reosdataobject.h"
 
 class ReosPolylinesStructure;
 
@@ -29,6 +32,15 @@ struct ReosMeshFrameData
 };
 
 /**
+ * Base class of object which controle the resolution of a generated mesh
+ */
+class ReosMeshResolutionController : public ReosDataObject
+{
+  public:
+    ReosMeshResolutionController( QObject *parent = nullptr ): ReosDataObject( parent ) {}
+};
+
+/**
  * Abstract class used to generate mesh frame
  */
 class ReosMeshGenerator
@@ -37,6 +49,7 @@ class ReosMeshGenerator
     virtual ReosMeshFrameData generatedMesh( bool *ok ) const = 0;
 
     virtual void setGeometryStructure( ReosPolylinesStructure *structure, const QString &crs ) = 0;
+    virtual void setResolutionController( ReosMeshResolutionController *resolutionControler ) = 0;
 };
 
 
@@ -53,6 +66,7 @@ class ReosMeshGeneratorPoly2Tri : public ReosMeshGenerator
     void setDomain( const QPolygonF &domain );
 
     void setGeometryStructure( ReosPolylinesStructure *structure, const QString &crs ) override;
+    void setResolutionController( ReosMeshResolutionController * ) override {};
 
   private:
     QPolygonF mDomain;

@@ -24,6 +24,7 @@
 #include "reosmaptooleditgeometrystructure.h"
 #include "reoshydraulicstructure2d.h"
 #include "reosstyleregistery.h"
+#include "reosgmshresolutioncontrollerwidget.h"
 
 ReosEditStructureGeometry2DWidget::ReosEditStructureGeometry2DWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context )
   : QWidget( context.parent() )
@@ -42,6 +43,21 @@ ReosEditStructureGeometry2DWidget::ReosEditStructureGeometry2DWidget( ReosHydrau
 
   toolBar->addActions( mMapToolEditLine->mainActions()->actions() );
   toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+
+  ui->mAutoUpdateMesh->setBooleanParameter( structure2D->autoMeshUpdate() );
+
+  connect( ui->mAutoUpdateMesh, &ReosParameterWidget::valueChanged, this, [this]
+  {
+    ui->mGenerateMeshButton->setEnabled( !ui->mAutoUpdateMesh->booleanParameter()->value() );
+  } );
+
+  connect( ui->mGenerateMeshButton, &QToolButton::clicked, structure2D, [structure2D, context]
+  {
+    structure2D->generateMesh();
+    context.map()->refreshCanvas();
+  } );
+
+  ui->mGenerateMeshButton->setEnabled( !ui->mAutoUpdateMesh->booleanParameter()->value() );
 }
 
 ReosEditStructureGeometry2DWidget::~ReosEditStructureGeometry2DWidget()
@@ -55,26 +71,36 @@ void ReosEditStructureGeometry2DWidget::hideEvent( QHideEvent *e )
   QWidget::hideEvent( e );
 }
 
+void ReosEditStructureGeometry2DWidget::showEvent( QShowEvent *e )
+{
+  mMapToolEditLine->activate();
+  mMapToolEditLine->setCurrentToolInMap();
+  QWidget::showEvent( e );
+}
+
 ReosEditStructure2DWidget::ReosEditStructure2DWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context )
   : ReosStackedPageWidget( context.parent() )
   , ui( new Ui::ReosEditStructure2DWidget )
+  , mMap( context.map() )
+  , mStructure2D( structure2D )
   , mMapStructureItem( context.map(), structure2D->geometryStructure() )
 {
   ui->setupUi( this );
   ui->pageMeshStructure->layout()->addWidget( new ReosEditStructureGeometry2DWidget( structure2D, ReosGuiContext( context, this ) ) );
+  ui->pageMeshResolution->layout()->addWidget( new ReosGmshResolutionControllerWidget( structure2D->meshResolutionController(), this ) );
 
   mInitialMapStructureItem = context.mapItems( ReosHydraulicStructure2D::staticType() );
   if ( mInitialMapStructureItem )
     mInitialMapStructureItem->setVisible( false );
 
-  connect( structure2D->geometryStructure(), &ReosDataObject::dataChanged, this, [this, structure2D, context]
+  connect( structure2D->geometryStructure(), &ReosDataObject::dataChanged, this, [this, context]
   {
-    structure2D->generateMesh();
     mMapStructureItem.updatePosition();
     mInitialMapStructureItem->updatePosition();
-
-    context.map()->refreshCanvas();
   } );
+
+  connect( structure2D->geometryStructure(), &ReosDataObject::dataChanged, this, &ReosEditStructure2DWidget::autoGenerateMesh );
+  connect( structure2D->meshResolutionController(), &ReosDataObject::dataChanged, this, &ReosEditStructure2DWidget::autoGenerateMesh );
 
   connect( ui->mBackButton, &QPushButton::clicked, this, &ReosStackedPageWidget::backToPreviousPage );
   connect( ui->mOptionListWidget, &QListWidget::currentRowChanged, this, &ReosEditStructure2DWidget::onMeshOptionListChanged );
@@ -102,4 +128,11 @@ void ReosEditStructure2DWidget::onMeshOptionListChanged( int row )
     default:
       break;
   }
+}
+
+void ReosEditStructure2DWidget::autoGenerateMesh()
+{
+  if ( mStructure2D->autoMeshUpdate()->value() )
+    mStructure2D->generateMesh();
+  mMap->refreshCanvas();
 }

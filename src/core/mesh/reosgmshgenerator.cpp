@@ -26,22 +26,23 @@ ReosMeshFrameData ReosGmshGenerator::generatedMesh( bool *ok ) const
 {
   try
   {
-
-//  gmsh::option::setNumber( "Mesh.Algorithm", 8 );
-//  gmsh::model::mesh::setRecombine( 2, 1 );
-
-//  gmsh::model::mesh::field::add( "Constant", 1 );
-//  gmsh::model::mesh::field::setNumbers( 1, "SurfacesList", {1} );
-//  gmsh::model::mesh::field::setNumber( 1, "VIn", 10 );
-//  gmsh::model::mesh::field::setAsBackgroundMesh( 1 );
-
     auto meshSizeCallback = []( int dim, int tag, double x, double y, double z,
                                 double lc )
     {
       return lc;
     };
 
-    gmsh::model::mesh::setSizeCallback( meshSizeCallback );
+    if ( !mSizeControler )
+      gmsh::model::mesh::setSizeCallback( meshSizeCallback );
+    else
+      gmsh::model::mesh::setSizeCallback( std::bind( &ReosGmshResolutionController::sizeFallBack,
+                                          mSizeControler,
+                                          std::placeholders::_1,
+                                          std::placeholders::_2,
+                                          std::placeholders::_3,
+                                          std::placeholders::_4,
+                                          std::placeholders::_5,
+                                          std::placeholders::_6 ) );
 
 
     gmsh::model::mesh::generate( 2 );
@@ -139,4 +140,10 @@ void ReosGmshGenerator::setGeometryStructure( ReosPolylinesStructure *structure,
   gmsh::model::geo::synchronize();
   gmsh::model::mesh::embed( 1, internalLines, 2, 1 );
 
+}
+
+
+ReosParameterDouble *ReosGmshResolutionController::defaultSize() const
+{
+  return mDefaultSize;
 }

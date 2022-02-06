@@ -18,6 +18,7 @@
 
 #include "reoshydraulicnetwork.h"
 #include "reospolylinesstructure.h"
+#include "reosgmshgenerator.h"
 #include "reosmesh.h"
 
 class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
@@ -33,11 +34,14 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     QPolygonF domain( const QString &crs = QString() ) const;
 
     ReosPolylinesStructure *geometryStructure() const;
+    ReosMeshResolutionController *meshResolutionController() const;
     ReosMesh *mesh() const;
+    ReosParameterBoolean *autoMeshUpdate() const;
 
     bool generateMesh();
 
     static ReosHydraulicStructure2D *create( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent = nullptr );
+
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) {}
 
@@ -48,7 +52,10 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     ReosHydraulicStructure2D( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent );
 
     std::unique_ptr<ReosPolylinesStructure> mPolylinesStructures;
+    ReosGmshResolutionController *mMeshResolutionController = nullptr;
     std::unique_ptr<ReosMesh> mMesh;
+
+    ReosParameterBoolean *mAutoMeshUpdate = nullptr;
 };
 
 class ReosHydraulicStructure2dFactory : public ReosHydraulicNetworkElementFactory
