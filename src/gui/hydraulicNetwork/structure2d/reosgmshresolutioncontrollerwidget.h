@@ -46,7 +46,7 @@ class ReosGmshResolutionControllerWidget : public QWidget
   private:
     Ui::ReosGmshResolutionControllerWidget *ui;
     ReosMap *mMap = nullptr;
-    ReosGmshResolutionController *mController = nullptr;
+    QPointer<ReosGmshResolutionController> mController;
 
     QAction *mActionEditResolutionPolygons = nullptr;
     ReosMapToolEditPolygonStructure *mMapToolEditResolutionPolygon = nullptr;

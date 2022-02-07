@@ -80,14 +80,16 @@ void ReosPolygonStructure_p::addPolygon( const QPolygonF &polygon, const QString
   QgsFeatureIterator fit = mVectorLayer->getFeatures( request );
   QgsFeature intersectingFeature;
 
-  QSet<QgsFeatureId> sameClassIntersecting;
   QSet<QgsFeatureId> featureToRemove;
   while ( fit.nextFeature( intersectingFeature ) )
   {
     if ( intersectingFeature.geometry().intersects( layerGeom ) )
     {
       if ( intersectingFeature.attribute( 0 ) == classId )
-        sameClassIntersecting.insert( intersectingFeature.id() );
+      {
+        layerGeom = layerGeom.combine( intersectingFeature.geometry() );
+        featureToRemove.insert( intersectingFeature.id() );
+      }
       else
       {
         QgsGeometry newGeometry = intersectingFeature.geometry().difference( layerGeom );
@@ -101,7 +103,6 @@ void ReosPolygonStructure_p::addPolygon( const QPolygonF &polygon, const QString
   for ( QgsFeatureId fid : featureToRemove )
   {
     mVectorLayer->deleteFeature( fid );
-    qDebug() << "remove feature " << fid;
   }
 
   const QgsFields fields = mVectorLayer->fields();

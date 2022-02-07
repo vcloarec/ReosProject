@@ -71,12 +71,9 @@ void ReosMapToolEditPolygonStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
   else if ( e->button() == Qt::RightButton )
   {
     const QPolygonF polygon = mPolygonRubberBand->asGeometry().asQPolygonF();
-    mStructure->addPolygon( polygon, QUuid::createUuid().toString() );
+    mStructure->addPolygon( polygon, "class1" );
     resetTool();
   }
-
-  qDebug() << "position " << toCanvasCoordinates( e->snapPoint() );
-
 }
 
 void ReosMapToolEditPolygonStructure_p::keyPressEvent( QKeyEvent *e )

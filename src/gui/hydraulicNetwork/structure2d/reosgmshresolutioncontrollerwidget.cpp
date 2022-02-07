@@ -59,12 +59,14 @@ ReosGmshResolutionControllerWidget::~ReosGmshResolutionControllerWidget()
 
 void ReosGmshResolutionControllerWidget::hideEvent( QHideEvent * )
 {
-  mMap->removeSnappableStructure( mController->resolutionPolygons() );
+  if ( !mController.isNull() )
+    mMap->removeSnappableStructure( mController->resolutionPolygons() );
   mMapStructureItem.setVisible( false );
 }
 
 void ReosGmshResolutionControllerWidget::showEvent( QShowEvent * )
 {
-  mMap->addSnappableStructure( mController->resolutionPolygons() );
+  if ( !mController.isNull() )
+    mMap->addSnappableStructure( mController->resolutionPolygons() );
   mMapStructureItem.setVisible( true );
 }
