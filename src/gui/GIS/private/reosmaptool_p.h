@@ -56,6 +56,7 @@ class ReosMapTool_p: public QgsMapTool
     void clearHoveredItem();
 
     void enableSnapping( bool enable );
+    bool snappingEnabled() const;
 
     bool hasFeatureOnMap( const QPointF &mapPoint ) const;
 
@@ -75,7 +76,6 @@ class ReosMapTool_p: public QgsMapTool
     QgsGeometry selectFeatureOnMap( QgsMapMouseEvent *e );
 
     ReosMapItem_p *mFoundItem = nullptr;
-    bool mSnappingEnabled = false;
     std::unique_ptr<QgsSnapIndicator> mSnappingIndicator;
     bool mClosed = false;
 
@@ -85,6 +85,7 @@ class ReosMapTool_p: public QgsMapTool
     bool mSeachWhenMoving = false;
     bool mUnderPoint = false;
     QString mTargetDescritpion;
+    bool mSnappingEnabled = false;
 };
 
 class ReosMapToolDrawPoint_p: public ReosMapTool_p

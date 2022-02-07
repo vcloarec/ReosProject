@@ -33,6 +33,7 @@ class ReosMapPolyline_p;
 class ReosMapMarkerFilledCircle_p;
 
 class ReosPolylinesStructure;
+class ReosPolygonStructure;
 
 class REOSGUI_EXPORT ReosMapItem
 {
@@ -68,6 +69,8 @@ class REOSGUI_EXPORT ReosMapItem
     QGraphicsItem *graphicItem();
 
     void updatePosition();
+
+    ReosMapItem &operator=( const ReosMapItem &other ) = delete;
 
   protected:
     bool isMapExist() const;
@@ -203,6 +206,14 @@ class ReosMapPolylineStructure : public ReosMapItem
     ~ReosMapPolylineStructure();
 
     void setDomainBaseWidth( double width );
+};
+
+class ReosMapPolygonStructure : public ReosMapItem
+{
+  public:
+    ReosMapPolygonStructure(): ReosMapItem() {}
+    ReosMapPolygonStructure( ReosMap *map, ReosPolygonStructure *structure );
+    ~ReosMapPolygonStructure();
 };
 
 

@@ -16,17 +16,55 @@
 #include "reosgmshresolutioncontrollerwidget.h"
 #include "ui_reosgmshresolutioncontroller.h"
 
-ReosGmshResolutionControllerWidget::ReosGmshResolutionControllerWidget( ReosMeshResolutionController *controller, QWidget *parent ) :
-  QWidget( parent ),
-  ui( new Ui::ReosGmshResolutionControllerWidget )
+#include "reosguicontext.h"
+#include "reosmap.h"
+#include "reosmaptooleditgeometrystructure.h"
+#include "reoshydraulicstructure2d.h"
+#include "reosstyleregistery.h"
+
+ReosGmshResolutionControllerWidget::ReosGmshResolutionControllerWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &guiContext )
+  :  QWidget( guiContext.parent() )
+  ,  ui( new Ui::ReosGmshResolutionControllerWidget )
+  , mMap( guiContext.map() )
+  , mController( static_cast<ReosGmshResolutionController *>( structure2D->meshResolutionController() ) )
+  , mActionEditResolutionPolygons( new QAction( QPixmap( QStringLiteral( ":/images/editStructureLines.svg" ) ), tr( "Edit Resolution Polygons" ), this ) )
+  , mMapStructureItem( mMap, mController->resolutionPolygons() )
 {
   ui->setupUi( this );
 
-  ReosGmshResolutionController *gmshController = static_cast<ReosGmshResolutionController *>( controller );
-  ui->mDefaultSizeParameterWidget->setDouble( gmshController->defaultSize() );
+  QToolBar *toolBar = new QToolBar( this );
+  ui->mToolBarWidget->layout()->addWidget( toolBar );
+
+  ui->mDefaultSizeParameterWidget->setDouble( mController->defaultSize() );
+  mMapToolEditResolutionPolygon = new ReosMapToolEditPolygonStructure( mController->resolutionPolygons(), this, guiContext.map() );
+  mMapToolEditResolutionPolygon->setAction( mActionEditResolutionPolygons );
+  mActionEditResolutionPolygons->setCheckable( true );
+
+  toolBar->addAction( mActionEditResolutionPolygons );
+  toolBar->addActions( mMapToolEditResolutionPolygon->mainActions()->actions() );
+  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+
+  connect( mController->resolutionPolygons(), &ReosDataObject::dataChanged, this, [this]
+  {
+    mMapStructureItem.updatePosition();
+  } );
+
+  mMapStructureItem.setVisible( isVisible() );
 }
 
 ReosGmshResolutionControllerWidget::~ReosGmshResolutionControllerWidget()
 {
   delete ui;
+}
+
+void ReosGmshResolutionControllerWidget::hideEvent( QHideEvent * )
+{
+  mMap->removeSnappableStructure( mController->resolutionPolygons() );
+  mMapStructureItem.setVisible( false );
+}
+
+void ReosGmshResolutionControllerWidget::showEvent( QShowEvent * )
+{
+  mMap->addSnappableStructure( mController->resolutionPolygons() );
+  mMapStructureItem.setVisible( true );
 }

@@ -1,5 +1,5 @@
 /***************************************************************************
-  reosmaptooleditgeometrustructure_p.h - ReosMapToolEditGeometruStructure_p
+  reosmaptooleditpolylinestructure_p.h - ReosMapToolEditPolylineStructure_p
 
  ---------------------
  begin                : 12.1.2022
@@ -13,18 +13,18 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#ifndef REOSMAPTOOLEDITGEOMETRYSTRUCTURE_P_H
-#define REOSMAPTOOLEDITGEOMETRYSTRUCTURE_P_H
+#ifndef REOSMAPTOOLEDITPOLYLINESTRUCTURE_P_H
+#define REOSMAPTOOLEDITPOLYLINESTRUCTURE_P_H
 
 #include "reosmaptool_p.h"
 
 class ReosGeometryStructureVertex;
 class ReosMapToolEditPolylineStructure_p;
 
-class ReosEditGeometryStructureMenuPopulator: public ReosMenuPopulator
+class ReosEditPolylineStructureMenuPopulator: public ReosMenuPopulator
 {
   public:
-    ReosEditGeometryStructureMenuPopulator( ReosMapToolEditPolylineStructure_p *toolMap );
+    ReosEditPolylineStructureMenuPopulator( ReosMapToolEditPolylineStructure_p *toolMap );
 
     bool populate( QMenu *menu, QgsMapMouseEvent *e = nullptr ) override;
 
@@ -108,7 +108,7 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
     QAction *mActionUndo = nullptr;
     QAction *mActionRedo = nullptr;
 
-    friend class ReosEditGeometryStructureMenuPopulator;
+    friend class ReosEditPolylineStructureMenuPopulator;
 };
 
-#endif // REOSMAPTOOLEDITGEOMETRYSTRUCTURE_P_H
+#endif // REOSMAPTOOLEDITPOLYLINESTRUCTURE_P_H

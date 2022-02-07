@@ -19,6 +19,12 @@
 #include <QWidget>
 
 #include "reosgmshgenerator.h"
+#include "reosmapitem.h"
+
+class ReosMapToolEditPolygonStructure;
+class ReosGuiContext;
+class ReosMap;
+class ReosHydraulicStructure2D;
 
 namespace Ui
 {
@@ -30,11 +36,21 @@ class ReosGmshResolutionControllerWidget : public QWidget
     Q_OBJECT
 
   public:
-    explicit ReosGmshResolutionControllerWidget( ReosMeshResolutionController *controller, QWidget *parent = nullptr );
+    explicit ReosGmshResolutionControllerWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &guiContext );
     ~ReosGmshResolutionControllerWidget();
+
+  protected:
+    void hideEvent( QHideEvent *e );
+    void showEvent( QShowEvent *e );
 
   private:
     Ui::ReosGmshResolutionControllerWidget *ui;
+    ReosMap *mMap = nullptr;
+    ReosGmshResolutionController *mController = nullptr;
+
+    QAction *mActionEditResolutionPolygons = nullptr;
+    ReosMapToolEditPolygonStructure *mMapToolEditResolutionPolygon = nullptr;
+    ReosMapPolygonStructure mMapStructureItem;
 };
 
 #endif // REOSGMSHRESOLUTIONCONTROLLERWIDGET_H

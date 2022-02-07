@@ -16,6 +16,7 @@ email                : vcloarec at gmail dot com
 #include <QObject>
 
 #include "reoshydraulicstructure2d.h"
+#include "reospolygonstructure.h"
 #include "reosgisengine.h"
 #include "reosmapextent.h"
 
@@ -25,7 +26,8 @@ class ReoHydraulicStructure2DTest: public QObject
   private slots:
 
     void init();
-    void createAndEditGeometry();
+    void createAndEditPolylineStructure();
+    void createAndEditPolygonStructure();
   private:
     ReosHydraulicNetwork *mNetwork = nullptr;
     ReosModule *mRootModule = nullptr;
@@ -38,7 +40,7 @@ void ReoHydraulicStructure2DTest::init()
   mNetwork = new ReosHydraulicNetwork( nullptr, nullptr );
 }
 
-void ReoHydraulicStructure2DTest::createAndEditGeometry()
+void ReoHydraulicStructure2DTest::createAndEditPolylineStructure()
 {
   QPolygonF domain;
   domain << QPointF( 0, 0 )
@@ -361,6 +363,20 @@ void ReoHydraulicStructure2DTest::createAndEditGeometry()
   QCOMPARE( data.boundaryPointCount, 8 );
   QCOMPARE( data.internalLines.count(), 4 );
   QCOMPARE( data.vertices.count(), 11 );
+}
+
+void ReoHydraulicStructure2DTest::createAndEditPolygonStructure()
+{
+  std::unique_ptr<ReosPolygonStructure> polygonStructure = ReosPolygonStructure::createPolygonStructure();
+
+  QPolygonF polygon;
+  QVariantMap attributes;
+  polygon << QPointF( 15, 5 ) << QPointF( 15, 15 ) << QPointF( 5, 15 );
+  polygonStructure->addPolygon( polygon, "class1" );
+
+  ReosSpatialPosition position( 10, 10 );
+  QCOMPARE( polygonStructure->classIndex( position ), 0 );
+
 }
 
 QTEST_MAIN( ReoHydraulicStructure2DTest )

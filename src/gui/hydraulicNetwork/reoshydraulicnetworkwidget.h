@@ -109,7 +109,7 @@ class ReosHydraulicNetworkWidget : public QWidget
     void setMapItemVisible( bool visible );
 
 
-    QList<ReosGeometryStructure *> mGeometryStructure;
+    QList<ReosGeometryStructure *> mGeometryStructures;
     void addGeometryStructure( ReosHydraulicNetworkElement *elem );
     void removeGeometryStructure( ReosHydraulicNetworkElement *elem );
 

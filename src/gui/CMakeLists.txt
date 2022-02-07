@@ -26,8 +26,10 @@ SET(REOS_GUI_SOURCES
     GIS/private/reosmaptool_p.cpp
     GIS/private/reoslayertreecontextmenuprovider_p.cpp
     GIS/private/reoslayertreeviewdemindicator.cpp
-    GIS/private/reosmaptooleditgeometrystructure_p.cpp
+    GIS/private/reosmaptooleditpolylinestructure_p.cpp
     GIS/private/reosmappolylinesstructure_p.cpp
+    GIS/private/reosmaptooleditpolygonstructure_p.cpp
+    GIS/private/reosmappolygonstructure_p.cpp
 
     watershed/reosdelineatingwatershedwidget.cpp
     watershed/reoswatershedwidget.cpp
@@ -145,8 +147,10 @@ SET(REOS_GUI_HEADERS_PRIVATE
     GIS/private/reosmaptool_p.h
     GIS/private/reoslayertreecontextmenuprovider_p.h
     GIS/private/reoslayertreeviewdemindicator.h
-    GIS/private/reosmaptooleditgeometrystructure_p.h
+    GIS/private/reosmaptooleditpolylinestructure_p.h
     GIS/private/reosmappolylinesstructure_p.h
+    GIS/private/reosmaptooleditpolygonstructure_p.h
+    GIS/private/reosmappolygonstructure_p.h
 
     chart/private/reosplot_p.h
     chart/private/reosidfplot_p.h

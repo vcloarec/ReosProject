@@ -21,28 +21,21 @@
 
 #include "reosmeshgenerator.h"
 #include "reosparameter.h"
+#include "reospolygonstructure.h"
 
 class ReosGmshResolutionController: public ReosMeshResolutionController
 {
   public:
-    ReosGmshResolutionController( QObject *parent )
-      : ReosMeshResolutionController( parent )
-      , mDefaultSize( new ReosParameterDouble( tr( "Default element size" ), false, this ) )
-    {
-      mDefaultSize->setValue( 20 );
-      connect( mDefaultSize, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
-    };
+    ReosGmshResolutionController( QObject *parent = nullptr, const QString &wktCrs = QString() );
 
-
-    double sizeFallBack( int dim, int tag, double x, double y, double z, double lc )
-    {
-      return mDefaultSize->value();
-    }
-
+    double sizeFallBack( int dim, int tag, double x, double y, double z, double lc );
     ReosParameterDouble *defaultSize() const;
+
+    ReosPolygonStructure *resolutionPolygons();
 
   private:
     ReosParameterDouble  *mDefaultSize;
+    std::unique_ptr<ReosPolygonStructure> mPolygonStructure = nullptr;
 
 
 };
@@ -62,7 +55,7 @@ class ReosGmshGenerator : public ReosMeshGenerator
     }
 
   private:
-    ReosGmshResolutionController *mSizeControler;
+    ReosGmshResolutionController *mSizeControler = nullptr;
 };
 
 

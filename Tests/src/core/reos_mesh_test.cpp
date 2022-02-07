@@ -27,6 +27,7 @@ class ReosMeshTest: public QObject
   private slots:
     void GmshGenerator();
     void memoryMesh();
+
   private:
 
 };
@@ -46,6 +47,20 @@ void ReosMeshTest::GmshGenerator()
   bool ok;
   ReosMeshFrameData frameData = generator.generatedMesh( &ok );
   QVERIFY( ok );
+
+  ReosGmshResolutionController controler;
+  generator.setResolutionController( &controler );
+
+  controler.defaultSize()->setValue( 1 );
+  frameData = generator.generatedMesh( &ok );
+  QCOMPARE( frameData.facesIndexes.count(), 832 );
+
+  controler.defaultSize()->setValue( 10 );
+  frameData = generator.generatedMesh( &ok );
+  QCOMPARE( frameData.facesIndexes.count(), 162 );
+
+  QVERIFY( ok );
+
 }
 
 void ReosMeshTest::memoryMesh()

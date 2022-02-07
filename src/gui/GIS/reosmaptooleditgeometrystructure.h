@@ -21,20 +21,37 @@
 class QActionGroup;
 
 class ReosMapToolEditPolylineStructure_p;
+class ReosMapToolEditPolygonStructure_p;
 class ReosGeometryStructure;
+class ReosPolygonStructure;
 
-class ReosMapToolEditGeometryStructure : public ReosMapTool
+
+class ReosMapToolEditPolylineStructure : public ReosMapTool
 {
   public:
 
-    ReosMapToolEditGeometryStructure( ReosPolylinesStructure *structure, QObject *parent, ReosMap *map );
-    ~ReosMapToolEditGeometryStructure();
-    void setStructure( ReosPolylinesStructure *structure );
+    ReosMapToolEditPolylineStructure( ReosPolylinesStructure *structure, QObject *parent, ReosMap *map );
+    ~ReosMapToolEditPolylineStructure();
 
     QActionGroup *mainActions() const;
 
   private:
     QPointer<ReosMapToolEditPolylineStructure_p> d;
+    ReosMapTool_p *tool_p() const;
+
+};
+
+class ReosMapToolEditPolygonStructure : public ReosMapTool
+{
+  public:
+
+    ReosMapToolEditPolygonStructure( ReosPolygonStructure *structure, QObject *parent, ReosMap *map );
+    ~ReosMapToolEditPolygonStructure();
+
+    QActionGroup *mainActions() const;
+
+  private:
+    QPointer<ReosMapToolEditPolygonStructure_p> d;
     ReosMapTool_p *tool_p() const;
 
 };

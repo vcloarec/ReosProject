@@ -24,7 +24,7 @@
 #include "reosparameterwidget.h"
 
 class QUndoStack;
-class ReosMapToolEditGeometryStructure;
+class ReosMapToolEditPolylineStructure;
 class ReosHydraulicStructure2D;
 
 namespace Ui
@@ -67,7 +67,7 @@ class ReosEditStructureGeometry2DWidget : public QWidget
   private:
     Ui::ReosEditStructureGeometry2DWidget *ui;
     QAction *mActionEditLine = nullptr;
-    ReosMapToolEditGeometryStructure *mMapToolEditLine = nullptr;
+    ReosMapToolEditPolylineStructure *mMapToolEditLine = nullptr;
 
 
 };

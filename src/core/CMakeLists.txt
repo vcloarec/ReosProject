@@ -20,9 +20,12 @@ SET(REOS_CORE_SOURCES
   GIS/reosgisengine.cpp
   GIS/reosmapextent.cpp
   GIS/reosexporttovectorfile.cpp
+  GIS/reosgeometrystructure.cpp
+  GIS/reospolygonstructure.cpp
   GIS/reospolylinesstructure.cpp
   GIS/reosmesh.cpp
   GIS/private/reosdigitalelevationmodel_p.cpp
+  GIS/private/reospolygonstructure_p.cpp
   GIS/private/reospolylinesstructure_p.cpp
   GIS/private/reosmesh_p.cpp
   GIS/private/reosmeshdataprovider_p.cpp
@@ -93,6 +96,8 @@ SET(REOS_CORE_HEADERS
     GIS/reosgisengine.h
     GIS/reosmapextent.h
     GIS/reosexporttovectorfile.h
+    GIS/reosgeometrystructure.h
+    GIS/reospolygonstructure.h
     GIS/reospolylinesstructure.h
     GIS/reosmesh.h
 
@@ -147,6 +152,7 @@ SET(REOS_CORE_HEADERS
 SET(REOS_CORE_HEADERS_PRIVATE
     GIS/private/reosdigitalelevationmodel_p.h
     GIS/private/reospolylinesstructure_p.h
+    GIS/private/reospolygonstructure_p.cpp
     GIS/private/reosmesh_p.h
     GIS/private/reosmeshdataprovider_p.cpp
     )

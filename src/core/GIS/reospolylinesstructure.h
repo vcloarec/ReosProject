@@ -21,25 +21,10 @@
 
 #include <memory>
 
-#include "reosdataobject.h"
+#include "reosgeometrystructure.h"
 
 class ReosSpatialPosition;
-class ReosMapExtent;
 class QUndoStack;
-
-
-class ReosGeometryStructureVertex
-{
-  public:
-    virtual ~ReosGeometryStructureVertex() = default;
-};
-
-class ReosGeometryStructure : public ReosDataObject
-{
-  public:
-    virtual ~ReosGeometryStructure() = default;
-    virtual QObject *data() = 0;
-};
 
 
 class ReosPolylinesStructure : public ReosGeometryStructure
@@ -110,9 +95,6 @@ class ReosPolylinesStructure : public ReosGeometryStructure
 
     //! Removes line with id \a lineId
     virtual void removeLine( qint64 lineId ) = 0;
-
-    //! Returns the extent of the structure in \a crs coordinate system
-    virtual ReosMapExtent extent( const QString &crs ) const = 0;
 
     //! Search the closest vertex of the center of \a zone and in this zone, returns a pointer to the vertex
     virtual ReosGeometryStructureVertex *searchForVertex( const ReosMapExtent &zone ) const = 0;

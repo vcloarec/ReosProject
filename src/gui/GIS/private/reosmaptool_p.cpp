@@ -205,7 +205,7 @@ void ReosMapToolDrawPolyline_p::canvasReleaseEvent( QgsMapMouseEvent *e )
 {
   if ( e->button() == Qt::LeftButton )
   {
-    if ( mSnappingEnabled )
+    if ( snappingEnabled() )
       e->snapPoint();
     mRubberBand->addPoint( e->mapPoint() );
   }
@@ -533,6 +533,11 @@ QgsGeometry ReosMapTool_p::selectFeatureOnMap( QgsMapMouseEvent *e )
   }
 
   return QgsGeometry();
+}
+
+bool ReosMapTool_p::snappingEnabled() const
+{
+  return mSnappingEnabled;
 }
 
 void ReosMapTool_p::setSeachWhenMoving( bool seachWhenMoving )

@@ -239,10 +239,10 @@ void ReosHydraulicNetworkWidget::setMapItemVisible( bool visible )
     mExtraItemSelection->setVisible( visible );
 
   if ( visible )
-    for ( ReosGeometryStructure *structure : std::as_const( mGeometryStructure ) )
+    for ( ReosGeometryStructure *structure : std::as_const( mGeometryStructures ) )
       mMap->addSnappableStructure( structure );
   else
-    for ( ReosGeometryStructure *structure : std::as_const( mGeometryStructure ) )
+    for ( ReosGeometryStructure *structure : std::as_const( mGeometryStructures ) )
       mMap->removeSnappableStructure( structure );
 }
 
@@ -255,7 +255,7 @@ void ReosHydraulicNetworkWidget::addGeometryStructure( ReosHydraulicNetworkEleme
     {
       if ( isVisible() )
         mMap->addSnappableStructure( structure );
-      mGeometryStructure.append( structure );
+      mGeometryStructures.append( structure );
     }
   }
 }
@@ -269,7 +269,7 @@ void ReosHydraulicNetworkWidget::removeGeometryStructure( ReosHydraulicNetworkEl
     {
       mMap->removeSnappableStructure( qobject_cast<ReosHydraulicStructure2D *>( elem )->geometryStructure() );
     }
-    mGeometryStructure.removeOne( structure );
+    mGeometryStructures.removeOne( structure );
   }
 }
 

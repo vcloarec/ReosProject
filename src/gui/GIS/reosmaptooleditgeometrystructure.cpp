@@ -14,11 +14,12 @@
  *                                                                         *
  ***************************************************************************/
 #include "reosmaptooleditgeometrystructure.h"
-#include "reosmaptooleditgeometrystructure_p.h"
+#include "reosmaptooleditpolylinestructure_p.h"
+#include "reosmaptooleditpolygonstructure_p.h"
 
 #include "reospolylinesstructure.h"
 
-ReosMapToolEditGeometryStructure::ReosMapToolEditGeometryStructure( ReosPolylinesStructure *structure, QObject *parent, ReosMap *map )
+ReosMapToolEditPolylineStructure::ReosMapToolEditPolylineStructure( ReosPolylinesStructure *structure, QObject *parent, ReosMap *map )
   : ReosMapTool( parent, map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
@@ -26,31 +27,55 @@ ReosMapToolEditGeometryStructure::ReosMapToolEditGeometryStructure( ReosPolyline
   d->setStructure( structure );
   setCursor( Qt::CrossCursor );
 
-  std::unique_ptr<ReosEditGeometryStructureMenuPopulator> menuPopulator =
-    std::make_unique<ReosEditGeometryStructureMenuPopulator>( d );
+  std::unique_ptr<ReosEditPolylineStructureMenuPopulator> menuPopulator =
+    std::make_unique<ReosEditPolylineStructureMenuPopulator>( d );
 
   setContextMenuPopulator( menuPopulator.release() );
 
   setUp();
 }
 
-ReosMapToolEditGeometryStructure::~ReosMapToolEditGeometryStructure()
+ReosMapToolEditPolylineStructure::~ReosMapToolEditPolylineStructure()
 {
   if ( !d.isNull() )
     d->deleteLater();
 }
 
-void ReosMapToolEditGeometryStructure::setStructure( ReosPolylinesStructure *structure )
-{
-  d->setStructure( structure );
-}
 
-QActionGroup *ReosMapToolEditGeometryStructure::mainActions() const
+QActionGroup *ReosMapToolEditPolylineStructure::mainActions() const
 {
   return d->mainActions();
 }
 
-ReosMapTool_p *ReosMapToolEditGeometryStructure::tool_p() const
+ReosMapTool_p *ReosMapToolEditPolylineStructure::tool_p() const
 {
   return d;
 }
+
+ReosMapToolEditPolygonStructure::ReosMapToolEditPolygonStructure( ReosPolygonStructure *structure, QObject *parent, ReosMap *map )
+  : ReosMapTool( parent, map )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  d = new ReosMapToolEditPolygonStructure_p( canvas );
+  d->setStructure( structure );
+  setCursor( Qt::CrossCursor );
+
+}
+
+ReosMapToolEditPolygonStructure::~ReosMapToolEditPolygonStructure()
+{
+  if ( !d.isNull() )
+    d->deleteLater();
+}
+
+QActionGroup *ReosMapToolEditPolygonStructure::mainActions() const
+{
+  return d->mainActions();
+}
+
+ReosMapTool_p *ReosMapToolEditPolygonStructure::tool_p() const
+{
+  return d;
+}
+
+

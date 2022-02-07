@@ -18,6 +18,7 @@ email                : vcloarec at gmail dot com
 #include <qgsmapcanvas.h>
 #include "reosmappolygon_p.h"
 #include "reosmappolylinesstructure_p.h"
+#include "reosmappolygonstructure_p.h"
 #include "reosgisengine.h"
 
 ReosMapItem::ReosMapItem() {}
@@ -586,4 +587,22 @@ ReosMapPolylineStructure::~ReosMapPolylineStructure()
 void ReosMapPolylineStructure::setDomainBaseWidth( double width )
 {
   static_cast<ReosMapPolylinesStructure_p *>( d_ )->setExteriorBaseWidth( width );
+}
+
+
+ReosMapPolygonStructure::ReosMapPolygonStructure( ReosMap *map, ReosPolygonStructure *structure ): ReosMapItem( map )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  if ( canvas )
+  {
+    d_ = new ReosMapPolygonStructure_p( canvas ); //the owner ship of d pointer is taken by the scene of the map canvas
+    static_cast<ReosMapPolygonStructure_p *>( d_ )->setStructure( structure );
+    d_->base = this;
+  }
+}
+
+ReosMapPolygonStructure::~ReosMapPolygonStructure()
+{
+  if ( isMapExist() && d_ )
+    delete d_;
 }

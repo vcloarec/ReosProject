@@ -30,7 +30,7 @@ ReosEditStructureGeometry2DWidget::ReosEditStructureGeometry2DWidget( ReosHydrau
   : QWidget( context.parent() )
   , ui( new Ui::ReosEditStructureGeometry2DWidget )
   , mActionEditLine( new QAction( QPixmap( QStringLiteral( ":/images/editStructureLines.svg" ) ), tr( "Edit Structure Line" ), this ) )
-  , mMapToolEditLine( new ReosMapToolEditGeometryStructure( structure2D->geometryStructure(), this, context.map() ) )
+  , mMapToolEditLine( new ReosMapToolEditPolylineStructure( structure2D->geometryStructure(), this, context.map() ) )
 {
   ui->setupUi( this );
 
@@ -87,13 +87,13 @@ ReosEditStructure2DWidget::ReosEditStructure2DWidget( ReosHydraulicStructure2D *
 {
   ui->setupUi( this );
   ui->pageMeshStructure->layout()->addWidget( new ReosEditStructureGeometry2DWidget( structure2D, ReosGuiContext( context, this ) ) );
-  ui->pageMeshResolution->layout()->addWidget( new ReosGmshResolutionControllerWidget( structure2D->meshResolutionController(), this ) );
+  ui->pageMeshResolution->layout()->addWidget( new ReosGmshResolutionControllerWidget( structure2D, ReosGuiContext( context, this ) ) );
 
   mInitialMapStructureItem = context.mapItems( ReosHydraulicStructure2D::staticType() );
   if ( mInitialMapStructureItem )
     mInitialMapStructureItem->setVisible( false );
 
-  connect( structure2D->geometryStructure(), &ReosDataObject::dataChanged, this, [this, context]
+  connect( structure2D->geometryStructure(), &ReosDataObject::dataChanged, this, [this]
   {
     mMapStructureItem.updatePosition();
     mInitialMapStructureItem->updatePosition();

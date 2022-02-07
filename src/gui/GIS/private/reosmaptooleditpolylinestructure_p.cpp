@@ -1,5 +1,5 @@
 /***************************************************************************
-  reosmaptooleditgeometrustructure_p.cpp - ReosMapToolEditGeometruStructure_p
+  reosmaptooleditpolylinestructure_p.cpp - ReosMapToolEditPolylineStructure_p
 
  ---------------------
  begin                : 12.1.2022
@@ -13,7 +13,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include "reosmaptooleditgeometrystructure_p.h"
+#include "reosmaptooleditpolylinestructure_p.h"
 
 #include <QMenu>
 
@@ -57,7 +57,6 @@ ReosMapToolEditPolylineStructure_p::ReosMapToolEditPolylineStructure_p( QgsMapCa
 
   mLineRubberBand = new QgsRubberBand( mCanvas, QgsWkbTypes::LineGeometry );
   mLineRubberBand->setWidth( 1 );
-
   mLineRubberBand->setLineStyle( Qt::DashLine );
   mLineRubberBand->setStrokeColor( ReosStyleRegistery::instance()->blueReos() );
   mLineRubberBand->setSecondaryStrokeColor( Qt::white );
@@ -276,7 +275,8 @@ void ReosMapToolEditPolylineStructure_p::canvasReleaseEvent( QgsMapMouseEvent *e
 
 void ReosMapToolEditPolylineStructure_p::keyPressEvent( QKeyEvent *e )
 {
-  resetTool();
+  if ( e->key() == Qt::Key_Escape )
+    resetTool();
 }
 
 void ReosMapToolEditPolylineStructure_p::insertVertex( const QPointF &mapPoint, qint64 lineId )
@@ -435,11 +435,11 @@ QActionGroup *ReosMapToolEditPolylineStructure_p::mainActions() const
   return mMainActions;
 }
 
-ReosEditGeometryStructureMenuPopulator::ReosEditGeometryStructureMenuPopulator( ReosMapToolEditPolylineStructure_p *toolMap )
+ReosEditPolylineStructureMenuPopulator::ReosEditPolylineStructureMenuPopulator( ReosMapToolEditPolylineStructure_p *toolMap )
   : mToolMap( toolMap )
 {}
 
-bool ReosEditGeometryStructureMenuPopulator::populate( QMenu *menu, QgsMapMouseEvent *e )
+bool ReosEditPolylineStructureMenuPopulator::populate( QMenu *menu, QgsMapMouseEvent *e )
 {
   if ( !mToolMap )
     return false;
@@ -471,7 +471,7 @@ bool ReosEditGeometryStructureMenuPopulator::populate( QMenu *menu, QgsMapMouseE
   return true;
 }
 
-void ReosEditGeometryStructureMenuPopulator::populateVertexAction( ReosGeometryStructureVertex *vertex, QMenu *menu )
+void ReosEditPolylineStructureMenuPopulator::populateVertexAction( ReosGeometryStructureVertex *vertex, QMenu *menu )
 {
   if ( !mToolMap->mStructure->isOnBoundary( vertex ) || mToolMap->mStructure->boundary().count() > 3 )
   {
@@ -484,7 +484,7 @@ void ReosEditGeometryStructureMenuPopulator::populateVertexAction( ReosGeometryS
   }
 }
 
-void ReosEditGeometryStructureMenuPopulator::populateLineAction( QgsFeatureId id, const QPointF &point, QMenu *menu )
+void ReosEditPolylineStructureMenuPopulator::populateLineAction( QgsFeatureId id, const QPointF &point, QMenu *menu )
 {
   menu->addAction( mToolMap->mActionInsertVertex );
 

@@ -46,14 +46,7 @@ class ReosStructureVertexHandler_p : public ReosGeometryStructureVertex
     QSet<SegmentId> attachedLines() const;
     bool hasLineAttached() const;
     bool oneOtherLine( SegmentId id, SegmentId *otherLine ) const;
-    int posInLine( SegmentId id ) const
-    {
-      int index = mLinkedSegments.indexOf( id );
-      if ( index >= 0 )
-        return mLinkedSegments.at( index ).pos;
-
-      return -1;
-    }
+    int posInLine( SegmentId id ) const;
 
     void move( const QgsPointXY &newPosition );
 
@@ -94,7 +87,23 @@ typedef std::shared_ptr<ReosStructureVertexHandler_p> VertexS;
 typedef std::weak_ptr<ReosStructureVertexHandler_p> VertexW;
 typedef std::array<VertexS, 2> Segment;
 
-class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
+class ReosGeometryStructure_p
+{
+  protected:
+    ReosGeometryStructure_p() = default;
+    ReosGeometryStructure_p( const QString &type, const QString &wktCrs );
+    std::unique_ptr<QgsVectorLayer> mVectorLayer;
+
+    QgsPointXY transformCoordinates( const QPointF &position, const QgsCoordinateTransform &transform ) const;
+    QgsPointXY transformCoordinates( const QgsPointXY &position, const QgsCoordinateTransform &transform ) const;
+    const QgsCoordinateTransform toLayerTransform( const QString &crs ) const;
+    const QgsCoordinateTransform toDestinationTransform( const QString &destinationCrs ) const;
+    ReosMapExtent extent( const QString &destinationCrs ) const;
+
+};
+
+
+class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure, private ReosGeometryStructure_p
 {
     Q_OBJECT
   public:
@@ -124,13 +133,13 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
     bool lineCanBeRemoved( qint64 lineId ) const override;
     void removeLine( qint64 lineId ) override;
 
-    ReosMapExtent extent( const QString &destinationCrs ) const override;
     ReosGeometryStructureVertex *searchForVertex( const ReosMapExtent &zone ) const override;
     bool searchForLine( const ReosMapExtent &zone, qint64 &id ) const override;
     QPointF vertexPosition( ReosGeometryStructureVertex *vertex, const QString &crs ) const override;
     QPointF projectedPoint( const QPointF &point, qint64 lineId, const QString &destinationCrs ) const override;
     QList<QPointF> neighborsPositions( ReosGeometryStructureVertex *vertex, const QString &crs ) const override;
     QList<QPointF> intersectionPoints( const QLineF &line, const QString &crs = QString(), const QPolygonF &otherPoly = QPolygonF() ) const override;
+    ReosMapExtent extent( const QString &crs ) const override;
 
     Data structuredLinesData( const QString &destinationCrs = QString() ) const override;
     QVector<QLineF> rawLines( const QString &destinationCrs = QString() ) const override;
@@ -147,7 +156,6 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
     ReosPolylineStructureVectorLayer() = default;
 
     // Data member defining the structure ********
-    std::unique_ptr<QgsVectorLayer> mVectorLayer;
     QMap<QgsFeatureId, Segment> mSegments;
     QList<VertexP> mBoundariesVertex;
     double mTolerance = 0.01;
@@ -162,8 +170,6 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
     VertexS purposeVertex( const QgsPointXY &point, double toleranceInLayerSystem );
     VertexS createVertex( QgsFeatureId id, int positionInFeature );
     VertexS insertVertexPrivate( const QgsPointXY  &point, qint64 lineId );
-    const QgsCoordinateTransform toLayerTransform( const QString &crs ) const;
-    const QgsCoordinateTransform toDestinationTransform( const QString &destinationCrs ) const;
 
     QgsFeatureIterator closeLines( const ReosMapExtent &zone, QgsRectangle &rect ) const;
     QgsFeatureIterator closeLinesInLayerCoordinate( const QgsRectangle &rectLayer ) const;
@@ -174,8 +180,6 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure
     VertexS searchForVertexPrivate( QgsFeatureIterator &it, const QgsRectangle &rect ) const;
     QList<ReosStructureVertexHandler_p *> neighorsVertices( ReosGeometryStructureVertex *vertex,  QList<SegmentId> &fids ) const;
 
-    QgsPointXY transformCoordinates( const QPointF &position, const QgsCoordinateTransform &transform ) const;
-    QgsPointXY transformCoordinates( const QgsPointXY &position, const QgsCoordinateTransform &transform ) const;
     QgsPointXY toLayerCoordinates( const ReosSpatialPosition &position ) const;
     Segment idToSegment( SegmentId id ) const;
     VertexS idToVertex( SegmentId id, int pos );

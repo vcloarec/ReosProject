@@ -20,7 +20,7 @@
 ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, ReosHydraulicNetwork *parent )
   : ReosHydraulicNetworkElement( parent )
   , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( domain, crs ) )
-  , mMeshResolutionController( new ReosGmshResolutionController( this ) )
+  , mMeshResolutionController( new ReosGmshResolutionController( this, crs ) )
   , mMesh( ReosMesh::createMemoryMesh() )
   , mAutoMeshUpdate( new ReosParameterBoolean( tr( "Auto update mesh" ), false, this ) )
 {

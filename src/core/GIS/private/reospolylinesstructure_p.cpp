@@ -28,14 +28,80 @@
 #include "reosexception.h"
 
 
-#define BOUNDARY_ID QStringLiteral("boundary")
-
-ReosPolylineStructureVectorLayer::ReosPolylineStructureVectorLayer( const QString &wktCrs )
-  : mVectorLayer( new QgsVectorLayer( QStringLiteral( "Linestring?crs=" )
+ReosGeometryStructure_p::ReosGeometryStructure_p( const  QString &type, const QString &wktCrs )
+  : mVectorLayer( new QgsVectorLayer( type
+                                      + QStringLiteral( "?crs=" )
                                       + wktCrs
                                       + QStringLiteral( "&index=yes" )
                                       , QStringLiteral( "internalLayer" ),
                                       QStringLiteral( "memory" ) ) )
+{
+}
+
+QgsPointXY ReosGeometryStructure_p::transformCoordinates( const QPointF &position, const QgsCoordinateTransform &transform ) const
+{
+  return transformCoordinates( QgsPointXY( position ), transform );
+}
+
+
+const QgsCoordinateTransform ReosGeometryStructure_p::toLayerTransform( const QString &crs ) const
+{
+  QgsCoordinateReferenceSystem qgsCrs;
+  qgsCrs.fromWkt( crs );
+
+  return QgsCoordinateTransform( qgsCrs, mVectorLayer->crs(), QgsProject::instance() );
+}
+
+const QgsCoordinateTransform ReosGeometryStructure_p::toDestinationTransform( const QString &destinationCrs ) const
+{
+  QgsCoordinateReferenceSystem qgsCrs;
+  qgsCrs.fromWkt( destinationCrs );
+
+  return QgsCoordinateTransform( mVectorLayer->crs(), qgsCrs, QgsProject::instance() );
+}
+
+ReosMapExtent ReosGeometryStructure_p::extent( const QString &destinationCrs ) const
+{
+  QgsRectangle internalExtent = mVectorLayer->extent();
+  QgsCoordinateReferenceSystem qgsCrs;
+  qgsCrs.createFromString( destinationCrs );
+
+  QgsCoordinateTransform transform( mVectorLayer->crs(), qgsCrs, QgsProject::instance() );
+
+  if ( transform.isValid() )
+  {
+    try
+    {
+      QgsRectangle destExtent;
+      destExtent = transform.transform( internalExtent );
+      ReosMapExtent ret( destExtent.toRectF() );
+      ret.setCrs( destinationCrs );
+      return ret;
+    }
+    catch ( ... )
+    {  }
+  }
+
+  ReosMapExtent ret( internalExtent.toRectF() );
+  return ret;
+}
+
+
+QgsPointXY ReosGeometryStructure_p::transformCoordinates( const QgsPointXY &position, const QgsCoordinateTransform &transform ) const
+{
+  try
+  {
+    return transform.transform( position );
+  }
+  catch ( ... )
+  {
+    return position;
+  }
+}
+
+
+ReosPolylineStructureVectorLayer::ReosPolylineStructureVectorLayer( const QString &wktCrs )
+  : ReosGeometryStructure_p( QStringLiteral( "LineString" ), wktCrs )
 {
   init();
 }
@@ -203,7 +269,6 @@ void ReosPolylineStructureVectorLayer::buildGeometry( const ReosPolylinesStructu
 
 ReosPolylineStructureVectorLayer::ReosPolylineStructureVectorLayer( const ReosEncodedElement &encodedElement )
 {
-
   QString wktCrs;
   encodedElement.getData( QStringLiteral( "crs" ), wktCrs );
 
@@ -289,22 +354,6 @@ VertexS ReosPolylineStructureVectorLayer::insertVertexPrivate( const QgsPointXY 
   return createdVertex;
 }
 
-const QgsCoordinateTransform ReosPolylineStructureVectorLayer::toLayerTransform( const QString &crs ) const
-{
-  QgsCoordinateReferenceSystem qgsCrs;
-  qgsCrs.fromWkt( crs );
-
-  return QgsCoordinateTransform( qgsCrs, mVectorLayer->crs(), QgsProject::instance() );
-}
-
-const QgsCoordinateTransform ReosPolylineStructureVectorLayer::toDestinationTransform( const QString &destinationCrs ) const
-{
-  QgsCoordinateReferenceSystem qgsCrs;
-  qgsCrs.fromWkt( destinationCrs );
-
-  return QgsCoordinateTransform( mVectorLayer->crs(), qgsCrs, QgsProject::instance() );
-}
-
 QList<ReosStructureVertexHandler_p *> ReosPolylineStructureVectorLayer::neighorsVertices( ReosGeometryStructureVertex *vertex, QList<SegmentId> &fids ) const
 {
   QList<VertexP> neighbors;
@@ -318,23 +367,6 @@ QList<ReosStructureVertexHandler_p *> ReosPolylineStructureVectorLayer::neighors
   }
 
   return neighbors;
-}
-
-QgsPointXY ReosPolylineStructureVectorLayer::transformCoordinates( const QPointF &position, const QgsCoordinateTransform &transform ) const
-{
-  return transformCoordinates( QgsPointXY( position ), transform );
-}
-
-QgsPointXY ReosPolylineStructureVectorLayer::transformCoordinates( const QgsPointXY &position, const QgsCoordinateTransform &transform ) const
-{
-  try
-  {
-    return transform.transform( position );
-  }
-  catch ( ... )
-  {
-    return position;
-  }
 }
 
 QgsPointXY ReosPolylineStructureVectorLayer::toLayerCoordinates( const ReosSpatialPosition &position ) const
@@ -819,31 +851,7 @@ void ReosPolylineStructureVectorLayer::removeLine( qint64 lineId )
   mVectorLayer->endEditCommand();
 }
 
-ReosMapExtent ReosPolylineStructureVectorLayer::extent( const QString &destinationCrs ) const
-{
-  QgsRectangle internalExtent = mVectorLayer->extent();
-  QgsCoordinateReferenceSystem qgsCrs;
-  qgsCrs.createFromString( destinationCrs );
 
-  QgsCoordinateTransform transform( mVectorLayer->crs(), qgsCrs, QgsProject::instance() );
-
-  if ( transform.isValid() )
-  {
-    try
-    {
-      QgsRectangle destExtent;
-      destExtent = transform.transform( internalExtent );
-      ReosMapExtent ret( destExtent.toRectF() );
-      ret.setCrs( destinationCrs );
-      return ret;
-    }
-    catch ( ... )
-    {  }
-  }
-
-  ReosMapExtent ret( internalExtent.toRectF() );
-  return ret;
-}
 
 QgsFeatureIterator ReosPolylineStructureVectorLayer::closeLines( const ReosMapExtent &zone, QgsRectangle &rect ) const
 {
@@ -1087,6 +1095,11 @@ QList<QPointF> ReosPolylineStructureVectorLayer::intersectionPoints( const QLine
   return ret;
 }
 
+ReosMapExtent ReosPolylineStructureVectorLayer::extent( const QString &crs ) const
+{
+  return ReosGeometryStructure_p::extent( crs );
+}
+
 ReosPolylinesStructure::Data ReosPolylineStructureVectorLayer::structuredLinesData( const QString &destinationCrs ) const
 {
   const QgsCoordinateTransform transform = toDestinationTransform( destinationCrs );
@@ -1262,6 +1275,15 @@ bool ReosStructureVertexHandler_p::oneOtherLine( QgsFeatureId id, QgsFeatureId *
     }
 
   return false;
+}
+
+int ReosStructureVertexHandler_p::posInLine( SegmentId id ) const
+{
+  int index = mLinkedSegments.indexOf( id );
+  if ( index >= 0 )
+    return mLinkedSegments.at( index ).pos;
+
+  return -1;
 }
 
 ReosPolylineStructureVectorLayerUndoCommandRemoveLine::ReosPolylineStructureVectorLayerUndoCommandRemoveLine( QgsFeatureId id,
@@ -1526,3 +1548,4 @@ void ReosPolylineStructureVectorLayerUndoCommandMergeVertex::undo()
     mStructure->mSegments.insert( pi.fid, seg );
   }
 }
+

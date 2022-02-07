@@ -143,7 +143,29 @@ void ReosGmshGenerator::setGeometryStructure( ReosPolylinesStructure *structure,
 }
 
 
+ReosGmshResolutionController::ReosGmshResolutionController( QObject *parent, const QString &wktCrs )
+  : ReosMeshResolutionController( parent )
+  , mDefaultSize( new ReosParameterDouble( tr( "Default element size" ), false, this ) )
+  , mPolygonStructure( ReosPolygonStructure::createPolygonStructure( wktCrs ) )
+{
+  mDefaultSize->setValue( 20 );
+  connect( mDefaultSize, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+}
+
+double ReosGmshResolutionController::sizeFallBack( int dim, int tag, double x, double y, double z, double lc )
+{
+  if ( mPolygonStructure->classIndex( ReosSpatialPosition( x, y ) ) != -1 )
+    return 5;
+
+  return mDefaultSize->value();
+}
+
 ReosParameterDouble *ReosGmshResolutionController::defaultSize() const
 {
   return mDefaultSize;
+}
+
+ReosPolygonStructure *ReosGmshResolutionController::resolutionPolygons()
+{
+  return mPolygonStructure.get();
 }
