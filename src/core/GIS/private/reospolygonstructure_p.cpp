@@ -51,6 +51,43 @@ QObject *ReosPolygonStructure_p::data()
   return mVectorLayer.get();
 }
 
+double ReosPolygonStructure_p::value( const ReosSpatialPosition &position, bool acceptClose ) const
+{
+  QgsPointXY pt = toLayerCoordinates( position );
+
+  QgsRectangle rect( pt - QgsVector( mTolerance, mTolerance ), pt + QgsVector( mTolerance, mTolerance ) );
+  QgsFeatureIterator it = mVectorLayer->getFeatures( QgsFeatureRequest()
+                          .setFilterRect( rect )
+                          .setFlags( QgsFeatureRequest::ExactIntersect ) );
+
+  QgsFeature feat;
+  double value = 0;
+  int foundValues = 0;
+  while ( it.nextFeature( feat ) )
+  {
+    const QgsGeometry &geom = feat.geometry();
+    const QString classId = feat.attribute( 0 ).toString();
+    if ( acceptClose | ( geom.contains( &pt ) ) )
+    {
+      bool ok = false;
+      double v = mClasses.value( classId ).toDouble( &ok );
+      if ( ok )
+      {
+        foundValues++;
+        value += v;
+        if ( !acceptClose )
+          break;
+      }
+    }
+  }
+
+  if ( foundValues > 0 )
+    return value / foundValues;
+  else
+    return std::numeric_limits<double>::quiet_NaN();
+
+}
+
 void ReosPolygonStructure_p::addPolygon( const QPolygonF &polygon, const QString &classId, const QString &sourceCrs )
 {
   const QgsCoordinateTransform transform = toLayerTransform( sourceCrs );
@@ -105,38 +142,22 @@ void ReosPolygonStructure_p::addPolygon( const QPolygonF &polygon, const QString
     mVectorLayer->deleteFeature( fid );
   }
 
-  const QgsFields fields = mVectorLayer->fields();
-  QgsFeature feat;
-  feat.setGeometry( layerGeom );
-  feat.setFields( fields, true );
-  feat.setAttribute( 0, classId );
-
-  if ( mVectorLayer->addFeature( feat ) )
+  if ( !classId.isEmpty() )
   {
-    addNewClass( classId );
+    const QgsFields fields = mVectorLayer->fields();
+    QgsFeature feat;
+    feat.setGeometry( layerGeom );
+    feat.setFields( fields, true );
+    feat.setAttribute( 0, classId );
+    mVectorLayer->addFeature( feat );
   }
 
   mVectorLayer->endEditCommand();
 }
 
-int ReosPolygonStructure_p::classIndex( const ReosSpatialPosition &position ) const
-{
-  QgsRectangle rect( QgsPointXY( position.position() ), QgsPointXY( position.position() ) );
-  QgsFeatureIterator it = mVectorLayer->getFeatures( rect );
-
-  QgsFeature feat;
-  if ( it.nextFeature( feat ) )
-  {
-    const QString classId = feat.attribute( 0 ).toString();
-    return mClasses.indexOf( classId );
-  }
-
-  return -1;
-}
-
 QStringList ReosPolygonStructure_p::classes() const
 {
-  return mClasses;
+  return mClasses.keys();
 }
 
 ReosMapExtent ReosPolygonStructure_p::extent( const QString &crs ) const
@@ -144,25 +165,59 @@ ReosMapExtent ReosPolygonStructure_p::extent( const QString &crs ) const
   return ReosGeometryStructure_p::extent( crs );
 }
 
+QColor ReosPolygonStructure_p::color( const QString &classId ) const
+{
+  int ind = mRenderer->categoryIndexForValue( classId );
+  const QgsCategoryList &list = mRenderer->categories();
+  if ( ind < 0 || ind >= list.count() )
+    return QColor();
+
+  return symbolColor( list.at( ind ).symbol() );
+}
+
+double ReosPolygonStructure_p::value( const QString &classId ) const
+{
+  QVariant var = mClasses.value( classId );
+  if ( var.isValid() )
+  {
+    bool ok = false;
+    double v = var.toDouble( &ok );
+    if ( ok )
+      return v;
+  }
+
+  return std::numeric_limits<double>::quiet_NaN();
+}
+
 QUndoStack *ReosPolygonStructure_p::undoStack() const
 {
   return mVectorLayer->undoStack();
 }
 
-void ReosPolygonStructure_p::addNewClass( const QString &classId )
+QColor ReosPolygonStructure_p::symbolColor( QgsSymbol *sym ) const
+{
+  const QgsSymbolLayer *lay = sym->symbolLayer( 0 );
+  if ( lay->layerType() != QStringLiteral( "SimpleFill" ) )
+    return sym->color();
+
+  return static_cast<const QgsFillSymbolLayer *>( lay )->fillColor();
+}
+
+void ReosPolygonStructure_p::addClass( const QString &classId, double value )
 {
   if ( mClasses.contains( classId ) )
     return;
 
-  mClasses.append( classId );
+  mClasses.insert( classId, value );
 
   std::unique_ptr<QgsFillSymbol> fillSymbol = std::make_unique<QgsFillSymbol>();
 
   QgsSymbolLayer *symbLayer = fillSymbol->symbolLayers().at( 0 );
+
   if ( symbLayer->layerType() == QStringLiteral( "SimpleFill" ) )
   {
     QgsSimpleFillSymbolLayer *fillLayer = static_cast<QgsSimpleFillSymbolLayer *>( symbLayer );
-    fillLayer->setFillColor( ReosStyleRegistery::instance()->fillColor( 100 ) );
+    fillLayer->setFillColor( ReosStyleRegistery::instance()->fillColor() );
     fillLayer->setStrokeStyle( Qt::DashLine );
     fillLayer->setStrokeColor( Qt::lightGray );
   }
@@ -170,4 +225,6 @@ void ReosPolygonStructure_p::addNewClass( const QString &classId )
   QgsRendererCategory category( classId, fillSymbol.release(), QString() );
 
   mRenderer->addCategory( category );
+
+  emit classesChanged();
 }

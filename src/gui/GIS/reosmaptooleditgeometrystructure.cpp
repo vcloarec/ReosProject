@@ -18,6 +18,7 @@
 #include "reosmaptooleditpolygonstructure_p.h"
 
 #include "reospolylinesstructure.h"
+#include "reosstyleregistery.h"
 
 ReosMapToolEditPolylineStructure::ReosMapToolEditPolylineStructure( ReosPolylinesStructure *structure, QObject *parent, ReosMap *map )
   : ReosMapTool( parent, map )
@@ -68,6 +69,11 @@ ReosMapToolEditPolygonStructure::~ReosMapToolEditPolygonStructure()
     d->deleteLater();
 }
 
+void ReosMapToolEditPolygonStructure::setCurrentClass( const QString &classId )
+{
+  d->setCurrentClassId( classId );
+}
+
 QActionGroup *ReosMapToolEditPolygonStructure::mainActions() const
 {
   return d->mainActions();
@@ -78,4 +84,91 @@ ReosMapTool_p *ReosMapToolEditPolygonStructure::tool_p() const
   return d;
 }
 
+
+
+ReosGeometryStructureClassModelList::ReosGeometryStructureClassModelList( ReosPolygonStructure *structure, QObject *parent )
+  : QAbstractListModel( parent )
+  , mStructure( structure )
+{
+  connect( mStructure, &ReosPolygonStructure::classesChanged, this, &ReosGeometryStructureClassModelList::onClassesChanged );
+}
+
+QModelIndex ReosGeometryStructureClassModelList::index( int row, int column, const QModelIndex & ) const
+{
+  return createIndex( row, column );
+}
+
+QModelIndex ReosGeometryStructureClassModelList::parent( const QModelIndex & ) const
+{
+  return QModelIndex();
+}
+
+int ReosGeometryStructureClassModelList::rowCount( const QModelIndex & ) const
+{
+  return mStructure->classes().count() + 1;
+}
+
+int ReosGeometryStructureClassModelList::columnCount( const QModelIndex & ) const
+{
+  return 1;
+}
+
+QVariant ReosGeometryStructureClassModelList::data( const QModelIndex &index, int role ) const
+{
+  if ( !index.isValid() )
+    return false;
+
+  const QStringList classes = orderedClasses();
+
+  switch ( role )
+  {
+    case Qt::DisplayRole:
+      if ( index.row() < classes.count() )
+        return QLocale().toString( mStructure->value( classes.at( index.row() ) ) );
+      else
+        return tr( "Default" );
+      break;
+    case Qt::DecorationRole:
+      if ( index.row() < classes.count() )
+      {
+        QPixmap pixmap( ReosStyleRegistery::instance()->toolBarIconSize() );
+        pixmap.fill( mStructure->color( classes.at( index.row() ) ) );
+        return pixmap;
+      }
+      break;
+    case Qt::TextAlignmentRole:
+      return Qt::AlignRight;
+      break;
+    default:
+      break;
+  }
+
+  return QVariant();
+}
+
+QString ReosGeometryStructureClassModelList::classId( int index )
+{
+  if ( index < mStructure->classes().count() )
+    return orderedClasses().at( index );
+
+  return QString();
+}
+
+void ReosGeometryStructureClassModelList::onClassesChanged()
+{
+  beginResetModel();
+  endResetModel();
+}
+
+QStringList ReosGeometryStructureClassModelList::orderedClasses() const
+{
+  QStringList classes = mStructure->classes();
+
+  std::sort( classes.begin(), classes.end(), [this]( const QString & classId1, const QString & classId2 )
+  {
+    return mStructure->value( classId1 ) < mStructure->value( classId2 );
+  } );
+
+  return classes;
+}
 

@@ -30,6 +30,8 @@ class ReosMapToolEditPolygonStructure_p : public ReosMapTool_p
     void setStructure( ReosPolygonStructure *structure );
     QActionGroup *mainActions() const;
 
+    void setCurrentClassId( const QString &currentClassId );
+
   protected:
     void canvasMoveEvent( QgsMapMouseEvent *e ) override;
     void canvasPressEvent( QgsMapMouseEvent *e ) override;
@@ -39,12 +41,15 @@ class ReosMapToolEditPolygonStructure_p : public ReosMapTool_p
   private:
     QPointer<ReosPolygonStructure> mStructure;
     QgsRubberBand *mPolygonRubberBand = nullptr;
-    QActionGroup *mMainActionsGroup;
 
+    QActionGroup *mMainActionsGroup = nullptr;
     QAction *mActionRedo = nullptr;
     QAction *mActionUndo = nullptr;
 
+    QString mCurrentClassId;
+
     void resetTool();
+    void addPolygon( const QPolygonF &polygon );
 
 };
 

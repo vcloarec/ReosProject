@@ -22,6 +22,7 @@ SET(REOS_GUI_SOURCES
     GIS/reosmaptool.cpp
     GIS/reosgislayerswidget.cpp
     GIS/reosmaptooleditgeometrystructure.cpp
+    GIS/reoseditpolylinestructurewidget.cpp
     GIS/private/reosmappolygon_p.cpp
     GIS/private/reosmaptool_p.cpp
     GIS/private/reoslayertreecontextmenuprovider_p.cpp
@@ -99,6 +100,7 @@ SET(REOS_GUI_HEADERS
     GIS/reosmaptool.h
     GIS/reosgislayerswidget.h
     GIS/reosmaptooleditgeometrystructure.h
+    GIS/reoseditpolylinestructurewidget.h
 
     watershed/reosdelineatingwatershedwidget.h
     watershed/reoswatershedwidget.h

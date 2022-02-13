@@ -38,6 +38,16 @@ ReosGeometryStructure_p::ReosGeometryStructure_p( const  QString &type, const QS
 {
 }
 
+QgsPointXY ReosGeometryStructure_p::toLayerCoordinates( const ReosSpatialPosition &position ) const
+{
+  QgsCoordinateReferenceSystem crs;
+  crs.fromWkt( position.crs() );
+
+  QgsCoordinateTransform transform( crs, mVectorLayer->crs(), QgsProject::instance() );
+
+  return transformCoordinates( position.position(), toLayerTransform( position.crs() ) );
+}
+
 QgsPointXY ReosGeometryStructure_p::transformCoordinates( const QPointF &position, const QgsCoordinateTransform &transform ) const
 {
   return transformCoordinates( QgsPointXY( position ), transform );
@@ -369,15 +379,7 @@ QList<ReosStructureVertexHandler_p *> ReosPolylineStructureVectorLayer::neighors
   return neighbors;
 }
 
-QgsPointXY ReosPolylineStructureVectorLayer::toLayerCoordinates( const ReosSpatialPosition &position ) const
-{
-  QgsCoordinateReferenceSystem crs;
-  crs.fromWkt( position.crs() );
 
-  QgsCoordinateTransform transform( crs, mVectorLayer->crs(), QgsProject::instance() );
-
-  return transformCoordinates( position.position(), toLayerTransform( position.crs() ) );
-}
 
 Segment ReosPolylineStructureVectorLayer::idToSegment( QgsFeatureId id ) const
 {

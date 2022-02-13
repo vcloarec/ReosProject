@@ -26,18 +26,25 @@ class QUndoStack;
 
 class ReosPolygonStructure : public ReosGeometryStructure
 {
+    Q_OBJECT
   public:
 
     //! Creates and returns polylines structure with specified \a crs
     static std::unique_ptr<ReosPolygonStructure> createPolygonStructure( const QString &crs = QString() );
 
     virtual void addPolygon( const QPolygonF &polygon, const QString &classId, const QString &sourceCrs = QString() ) = 0;
-
-    virtual int classIndex( const ReosSpatialPosition &position ) const = 0;
-
+    virtual double value( const ReosSpatialPosition &position, bool acceptClose = false ) const = 0;
+    virtual void addClass( const QString &classId, double value ) = 0;
     virtual QStringList classes() const = 0;
+    virtual QColor color( const QString &classId ) const = 0;
+    virtual double value( const QString &classId ) const = 0;
 
     virtual QUndoStack *undoStack() const = 0;
+
+
+  signals:
+    void classesChanged();
+
 };
 
 #endif // REOSPOLYGONSTRUCTURE_H

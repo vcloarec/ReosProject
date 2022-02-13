@@ -43,6 +43,9 @@ class ReosGmshResolutionControllerWidget : public QWidget
     void hideEvent( QHideEvent *e );
     void showEvent( QShowEvent *e );
 
+  private slots:
+    void addClass();
+
   private:
     Ui::ReosGmshResolutionControllerWidget *ui;
     ReosMap *mMap = nullptr;

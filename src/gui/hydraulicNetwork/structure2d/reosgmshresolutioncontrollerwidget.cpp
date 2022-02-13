@@ -16,11 +16,14 @@
 #include "reosgmshresolutioncontrollerwidget.h"
 #include "ui_reosgmshresolutioncontroller.h"
 
+#include <QUuid>
+
 #include "reosguicontext.h"
 #include "reosmap.h"
 #include "reosmaptooleditgeometrystructure.h"
 #include "reoshydraulicstructure2d.h"
 #include "reosstyleregistery.h"
+#include "reosformwidget.h"
 
 ReosGmshResolutionControllerWidget::ReosGmshResolutionControllerWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &guiContext )
   :  QWidget( guiContext.parent() )
@@ -49,6 +52,21 @@ ReosGmshResolutionControllerWidget::ReosGmshResolutionControllerWidget( ReosHydr
     mMapStructureItem.updatePosition();
   } );
 
+  ReosGeometryStructureClassModelList *model = new ReosGeometryStructureClassModelList( mController->resolutionPolygons(), this );
+  ui->mPolygonClassView->setModel( model );
+
+  connect( ui->mToolButtonAddClass, &QToolButton::clicked, this, &ReosGmshResolutionControllerWidget::addClass );
+  connect( ui->mPolygonClassView->selectionModel(), &QItemSelectionModel::currentChanged, mMapToolEditResolutionPolygon,
+           [this, model]( const QModelIndex & current, const QModelIndex & )
+  {
+    QString classId;
+    if ( current.isValid() )
+    {
+      classId = model->classId( current.row() );
+    }
+    mMapToolEditResolutionPolygon->setCurrentClass( classId );
+  } );
+
   mMapStructureItem.setVisible( isVisible() );
 }
 
@@ -69,4 +87,21 @@ void ReosGmshResolutionControllerWidget::showEvent( QShowEvent * )
   if ( !mController.isNull() )
     mMap->addSnappableStructure( mController->resolutionPolygons() );
   mMapStructureItem.setVisible( true );
+}
+
+void ReosGmshResolutionControllerWidget::addClass()
+{
+  ReosParameterDouble paramValue( tr( "Element size:" ), false );
+  paramValue.setValue( 10 );
+  ReosFormDialog *dial = new ReosFormDialog( this );
+  dial->setWindowTitle( tr( "New resolution class" ) );
+  dial->addText( tr( "Enter a value for this new resolution class" ) );
+  dial->addParameter( &paramValue );
+
+  if ( dial->exec() )
+  {
+    mController->resolutionPolygons()->addClass( QUuid::createUuid().toString(), paramValue.value() );
+  }
+
+  dial->deleteLater();
 }

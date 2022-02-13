@@ -368,14 +368,14 @@ void ReoHydraulicStructure2DTest::createAndEditPolylineStructure()
 void ReoHydraulicStructure2DTest::createAndEditPolygonStructure()
 {
   std::unique_ptr<ReosPolygonStructure> polygonStructure = ReosPolygonStructure::createPolygonStructure();
-
+  polygonStructure->addClass( "class1", 123 );
   QPolygonF polygon;
   QVariantMap attributes;
   polygon << QPointF( 15, 5 ) << QPointF( 15, 15 ) << QPointF( 5, 15 );
   polygonStructure->addPolygon( polygon, "class1" );
 
   ReosSpatialPosition position( 10, 10 );
-  QCOMPARE( polygonStructure->classIndex( position ), 0 );
+  QCOMPARE( polygonStructure->value( position ), 123 );
 
 }
 

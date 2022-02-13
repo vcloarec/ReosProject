@@ -33,12 +33,12 @@ namespace Ui
   class ReosEditStructureGeometry2DWidget;
 }
 
-class ReosEditStructure2DWidget : public ReosStackedPageWidget
+class ReosEditHydraulicStructure2DWidget : public ReosStackedPageWidget
 {
     Q_OBJECT
   public:
-    ReosEditStructure2DWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context );
-    ~ReosEditStructure2DWidget();
+    ReosEditHydraulicStructure2DWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context );
+    ~ReosEditHydraulicStructure2DWidget();
 
   private slots:
     void onMeshOptionListChanged( int row );
@@ -52,13 +52,13 @@ class ReosEditStructure2DWidget : public ReosStackedPageWidget
     ReosMapItem *mInitialMapStructureItem = nullptr;
 };
 
-class ReosEditStructureGeometry2DWidget : public QWidget
+class ReosEditPolylineStructureWidget : public QWidget
 {
     Q_OBJECT
 
   public:
-    explicit ReosEditStructureGeometry2DWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context = ReosGuiContext() );
-    ~ReosEditStructureGeometry2DWidget();
+    explicit ReosEditPolylineStructureWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context = ReosGuiContext() );
+    ~ReosEditPolylineStructureWidget();
 
   protected:
     void hideEvent( QHideEvent *e );
@@ -68,8 +68,6 @@ class ReosEditStructureGeometry2DWidget : public QWidget
     Ui::ReosEditStructureGeometry2DWidget *ui;
     QAction *mActionEditLine = nullptr;
     ReosMapToolEditPolylineStructure *mMapToolEditLine = nullptr;
-
-
 };
 
 

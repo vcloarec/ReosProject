@@ -94,6 +94,8 @@ class ReosGeometryStructure_p
     ReosGeometryStructure_p( const QString &type, const QString &wktCrs );
     std::unique_ptr<QgsVectorLayer> mVectorLayer;
 
+    QgsPointXY toLayerCoordinates( const ReosSpatialPosition &position ) const;
+
     QgsPointXY transformCoordinates( const QPointF &position, const QgsCoordinateTransform &transform ) const;
     QgsPointXY transformCoordinates( const QgsPointXY &position, const QgsCoordinateTransform &transform ) const;
     const QgsCoordinateTransform toLayerTransform( const QString &crs ) const;
@@ -180,7 +182,6 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure, private R
     VertexS searchForVertexPrivate( QgsFeatureIterator &it, const QgsRectangle &rect ) const;
     QList<ReosStructureVertexHandler_p *> neighorsVertices( ReosGeometryStructureVertex *vertex,  QList<SegmentId> &fids ) const;
 
-    QgsPointXY toLayerCoordinates( const ReosSpatialPosition &position ) const;
     Segment idToSegment( SegmentId id ) const;
     VertexS idToVertex( SegmentId id, int pos );
     bool idToOneLinkedSegment( SegmentId id, int pos, SegmentId *linkedSeg );

@@ -71,7 +71,7 @@ void ReosMapToolEditPolygonStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
   else if ( e->button() == Qt::RightButton )
   {
     const QPolygonF polygon = mPolygonRubberBand->asGeometry().asQPolygonF();
-    mStructure->addPolygon( polygon, "class1" );
+    mStructure->addPolygon( polygon, mCurrentClassId );
     resetTool();
   }
 }
@@ -84,7 +84,17 @@ void ReosMapToolEditPolygonStructure_p::keyPressEvent( QKeyEvent *e )
     ReosMapTool_p::keyPressEvent( e );
 }
 
+void ReosMapToolEditPolygonStructure_p::setCurrentClassId( const QString &currentClassId )
+{
+  mCurrentClassId = currentClassId;
+}
+
 void ReosMapToolEditPolygonStructure_p::resetTool()
 {
   mPolygonRubberBand->reset( QgsWkbTypes::PolygonGeometry );
+}
+
+void ReosMapToolEditPolygonStructure_p::addPolygon( const QPolygonF &polygon )
+{
+
 }

@@ -28,7 +28,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
 
   connect( ui->mEditStructureToolButton, &QToolButton::clicked, this, [this, context]
   {
-    emit stackedPageWidgetOpened( new ReosEditStructure2DWidget( mStructure2D, context ) );
+    emit stackedPageWidgetOpened( new ReosEditHydraulicStructure2DWidget( mStructure2D, context ) );
   } );
 
   mMap->addExtraRenderedObject( mStructure2D->mesh() );

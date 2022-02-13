@@ -16,6 +16,8 @@
 #ifndef REOSMAPTOOLEDITGEOMETRYSTRUCTURE_H
 #define REOSMAPTOOLEDITGEOMETRYSTRUCTURE_H
 
+#include <QAbstractListModel>
+
 #include "reosmaptool.h"
 
 class QActionGroup;
@@ -48,11 +50,38 @@ class ReosMapToolEditPolygonStructure : public ReosMapTool
     ReosMapToolEditPolygonStructure( ReosPolygonStructure *structure, QObject *parent, ReosMap *map );
     ~ReosMapToolEditPolygonStructure();
 
+    void setCurrentClass( const QString &classId );
+
     QActionGroup *mainActions() const;
 
   private:
     QPointer<ReosMapToolEditPolygonStructure_p> d;
     ReosMapTool_p *tool_p() const;
+};
+
+
+class ReosGeometryStructureClassModelList: public QAbstractListModel
+{
+    Q_OBJECT
+  public:
+    ReosGeometryStructureClassModelList( ReosPolygonStructure *structure, QObject *parent = nullptr );
+
+    QModelIndex index( int row, int column, const QModelIndex &parent ) const;
+    QModelIndex parent( const QModelIndex &child ) const;
+    int rowCount( const QModelIndex &parent ) const;
+    int columnCount( const QModelIndex &parent ) const;
+    QVariant data( const QModelIndex &index, int role ) const;
+
+    QString classId( int index );
+
+  private slots:
+    void onClassesChanged();
+
+  private:
+    QPointer<ReosPolygonStructure> mStructure;
+
+
+    QStringList orderedClasses() const;
 
 };
 
