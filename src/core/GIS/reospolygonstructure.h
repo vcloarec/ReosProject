@@ -29,6 +29,8 @@ class ReosPolygonStructure : public ReosGeometryStructure
     Q_OBJECT
   public:
 
+    virtual ReosPolygonStructure *clone() const = 0;
+
     //! Creates and returns polylines structure with specified \a crs
     static std::unique_ptr<ReosPolygonStructure> createPolygonStructure( const QString &crs = QString() );
 
@@ -38,6 +40,8 @@ class ReosPolygonStructure : public ReosGeometryStructure
     virtual QStringList classes() const = 0;
     virtual QColor color( const QString &classId ) const = 0;
     virtual double value( const QString &classId ) const = 0;
+
+    virtual int polygonsCount() const = 0;
 
     virtual QUndoStack *undoStack() const = 0;
 

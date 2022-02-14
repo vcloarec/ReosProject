@@ -90,12 +90,12 @@ typedef std::array<VertexS, 2> Segment;
 class ReosGeometryStructure_p
 {
   protected:
-    ReosGeometryStructure_p() = default;
-    ReosGeometryStructure_p( const QString &type, const QString &wktCrs );
     std::unique_ptr<QgsVectorLayer> mVectorLayer;
 
-    QgsPointXY toLayerCoordinates( const ReosSpatialPosition &position ) const;
+    ReosGeometryStructure_p() = default;
+    ReosGeometryStructure_p( const QString &type, const QString &wktCrs );
 
+    QgsPointXY toLayerCoordinates( const ReosSpatialPosition &position ) const;
     QgsPointXY transformCoordinates( const QPointF &position, const QgsCoordinateTransform &transform ) const;
     QgsPointXY transformCoordinates( const QgsPointXY &position, const QgsCoordinateTransform &transform ) const;
     const QgsCoordinateTransform toLayerTransform( const QString &crs ) const;

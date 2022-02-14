@@ -74,12 +74,10 @@ void ReosMesh_p::render( QGraphicsView *canvas, QPainter *painter )
   }
 }
 
-bool ReosMesh_p::generateMesh( const ReosMeshGenerator &generator )
+void ReosMesh_p::generateMesh( const ReosMeshFrameData &data )
 {
-  bool ok = meshProvider()->generateMesh( generator );
-  if ( ok )
-    mMeshLayer->reload();
-  return ok;
+  meshProvider()->generateMesh( data );
+  mMeshLayer->reload();
 }
 
 ReosMeshDataProvider_p *ReosMesh_p::meshProvider()

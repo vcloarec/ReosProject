@@ -31,16 +31,10 @@ void ReosMeshDataProvider_p::populateMesh( QgsMesh *mesh ) const
   *mesh = mCacheMesh;
 }
 
-bool ReosMeshDataProvider_p::generateMesh( const ReosMeshGenerator &generator )
+void ReosMeshDataProvider_p::generateMesh( const ReosMeshFrameData &data )
 {
-  bool ok = true;
-  ReosMeshFrameData data = generator.generatedMesh( &ok );
-  if ( ok )
-  {
-    mCacheMesh = convertFrameFromReos( data );
-    emit dataChanged();
-  }
-  return ok;
+  mCacheMesh = convertFrameFromReos( data );
+  emit dataChanged();
 }
 
 QgsMesh ReosMeshDataProvider_p::convertFrameFromReos( const ReosMeshFrameData &reosMesh )

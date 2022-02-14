@@ -28,9 +28,11 @@ class ReosPolygonStructure_p : public ReosPolygonStructure, private ReosGeometry
 {
     Q_OBJECT
   public:
+    ReosPolygonStructure_p() = default;
     ReosPolygonStructure_p( const QString &wktCrs );
     ~ReosPolygonStructure_p();
 
+    ReosPolygonStructure *clone() const override;
     QObject *data() override;
     double value( const ReosSpatialPosition &position, bool acceptClose = false ) const override;
     void addPolygon( const QPolygonF &polygon, const QString &classId, const QString &sourceCrs ) override;
@@ -39,16 +41,17 @@ class ReosPolygonStructure_p : public ReosPolygonStructure, private ReosGeometry
     ReosMapExtent extent( const QString &crs ) const override;
     QColor color( const QString &classId ) const override;
     double value( const QString &classId ) const override;
+    int polygonsCount() const override;
 
     QUndoStack *undoStack() const override;
 
   private:
     QVariantMap mClasses;
-    QgsCategorizedSymbolRenderer *mRenderer;
+    QgsCategorizedSymbolRenderer *mRenderer = nullptr;
+    double mTolerance = 0.01;
 
     QColor symbolColor( QgsSymbol *sym ) const;
 
-    double mTolerance = 0.01;
 
 };
 

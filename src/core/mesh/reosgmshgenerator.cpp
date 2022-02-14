@@ -22,40 +22,117 @@
 #include "reospolylinesstructure.h"
 
 
-ReosMeshFrameData ReosGmshGenerator::generatedMesh( bool *ok ) const
+ReosGmshGenerator::ReosGmshGenerator( QObject *parent )
+  : ReosMeshGenerator( parent )
 {
+}
+
+ReosGmshGenerator::ReosGmshGenerator( const ReosEncodedElement &element, QObject *parent )
+  : ReosMeshGenerator( element, parent )
+{
+  int algInt = 5;
+  element.getData( QStringLiteral( "algorithm" ), algInt );
+  mAlgorithm = static_cast<Algorithm>( algInt );
+}
+
+ReosMeshGeneratorProcess *ReosGmshGenerator::generatedMesh(
+  ReosPolylinesStructure *structure,
+  ReosMeshResolutionController *resolutionControler,
+  bool *ok ) const
+{
+  *ok = true;
+  return new ReosMeshGeneratorGmshProcess( structure, resolutionControler, mAlgorithm );
+}
+
+ReosEncodedElement ReosGmshGenerator::encode() const
+{
+  ReosEncodedElement ret = encodeBase();
+  ret.addData( QStringLiteral( "type" ), QStringLiteral( "gmsh" ) );
+  ret.addData( QStringLiteral( "algorithm" ), mAlgorithm );
+
+  return ret;
+}
+
+bool ReosGmshEngine::isBusy() const
+{
+  return mIsBusy;
+}
+
+void ReosGmshEngine::initialize()
+{
+  QMutexLocker locker( &mMutex );
+
+  if ( mIsBusy )
+    return;
+
+  gmsh::initialize();
+}
+
+ReosMeshGeneratorGmshProcess::ReosMeshGeneratorGmshProcess( ReosPolylinesStructure *structure, ReosMeshResolutionController *resolutionControler, ReosGmshGenerator::Algorithm alg )
+{
+  if ( structure )
+    mData = structure->structuredLinesData();
+  if ( resolutionControler )
+    mResolutionControler.reset( resolutionControler->clone() );
+}
+
+void ReosMeshGeneratorGmshProcess::start()
+{
+  gmsh::initialize();
+  gmsh::model::add( "t1" );
+
+  for ( int i = 0; i < mData.vertices.count(); ++i )
+  {
+    const QPointF &pt = mData.vertices.at( i );
+    gmsh::model::geo::addPoint( pt.x(), pt.y(), 0, 0, i + 1 );
+  }
+
+  std::vector<int> surface;
+  int boundVertCount = mData.boundaryPointCount;
+  for ( int i = 0; i < mData.boundaryPointCount ; ++i )
+  {
+    gmsh::model::geo::addLine( i + 1, ( i + 1 ) % boundVertCount + 1, i + 1 );
+    surface.push_back( i + 1 );
+  }
+
+  gmsh::model::geo::addCurveLoop( surface, 1 );
+  gmsh::model::geo::addPlaneSurface( {1}, 1 );
+
+  std::vector<int> internalLines( mData.internalLines.count() );
+  for ( int i = 0; i < mData.internalLines.count() ; ++i )
+  {
+    const QVector<int> &dataLine = mData.internalLines.at( i );
+    gmsh::model::geo::addLine( dataLine.at( 0 ) + 1, dataLine.at( 1 ) + 1, boundVertCount + i + 1 );
+    qDebug() << "line " << boundVertCount + i + 1 << mData.vertices.at( dataLine.at( 0 ) ) << mData.vertices.at( dataLine.at( 1 ) );
+    internalLines[i] = boundVertCount + i + 1;
+  }
+
+  gmsh::model::geo::synchronize();
+  gmsh::model::mesh::embed( 1, internalLines, 2, 1 );
+
+  gmsh::option::setNumber( "Mesh.Algorithm", mAlgorithm + 1 );
+
   try
   {
-    auto meshSizeCallback = []( int dim, int tag, double x, double y, double z,
-                                double lc )
-    {
-      return lc;
-    };
-
-    if ( !mSizeControler )
-      gmsh::model::mesh::setSizeCallback( meshSizeCallback );
-    else
-      gmsh::model::mesh::setSizeCallback( std::bind( &ReosGmshResolutionController::sizeFallBack,
-                                          mSizeControler,
-                                          std::placeholders::_1,
-                                          std::placeholders::_2,
-                                          std::placeholders::_3,
-                                          std::placeholders::_4,
-                                          std::placeholders::_5,
-                                          std::placeholders::_6 ) );
-
+    gmsh::model::mesh::setSizeCallback( std::bind( &ReosMeshGeneratorGmshProcess::sizeFallBack,
+                                        this,
+                                        std::placeholders::_1,
+                                        std::placeholders::_2,
+                                        std::placeholders::_3,
+                                        std::placeholders::_4,
+                                        std::placeholders::_5,
+                                        std::placeholders::_6 ) );
 
     gmsh::model::mesh::generate( 2 );
-    *ok = true;
 
     std::vector<std::size_t>nodeTags;
     std::vector<double>  coord;
     std::vector<double>  parametricCoord;
     gmsh::model::mesh::getNodes( nodeTags, coord, parametricCoord, -1, -1, false, true );
 
-    ReosMeshFrameData ret;
-    ret.vertexCoordinates.resize( coord.size() );
-    memcpy( ret.vertexCoordinates.data(), coord.data(), coord.size()*sizeof( double ) );
+    mResult = ReosMeshFrameData();
+    mResult.vertexCoordinates.resize( coord.size() );
+    memcpy( mResult.vertexCoordinates.data(), coord.data(), coord.size()*sizeof( double ) );
 
     QHash<size_t, int> tagToVertexIndex;
     for ( size_t i = 0; i < nodeTags.size(); ++i )
@@ -91,81 +168,23 @@ ReosMeshFrameData ReosGmshGenerator::generatedMesh( bool *ok ) const
           QVector<int> face( elementSize );
           for ( int j = 0; j < elementSize; ++j )
             face[j] = tagToVertexIndex.value( elementsNodes.at( static_cast<size_t>( i * elementSize + j ) ) );
-          ret.facesIndexes.append( face );
+          mResult.facesIndexes.append( face );
         }
       }
     }
-
-    return ret;
+    mIsSuccessful = true;
   }
   catch ( ... )
   {
-    *ok = false;
-    return ReosMeshFrameData();
+    mIsSuccessful = false;
+    mResult = ReosMeshFrameData();
   }
 }
 
-void ReosGmshGenerator::setGeometryStructure( ReosPolylinesStructure *structure, const QString &crs )
+double ReosMeshGeneratorGmshProcess::sizeFallBack( int dim, int, double x, double y, double, double lc )
 {
-  const ReosPolylinesStructure::Data structureData = structure->structuredLinesData( crs );
+  if ( !mResolutionControler )
+    return lc;
 
-  gmsh::initialize();
-  gmsh::model::add( "t1" );
-
-  for ( int i = 0; i < structureData.vertices.count(); ++i )
-  {
-    const QPointF &pt = structureData.vertices.at( i );
-    gmsh::model::geo::addPoint( pt.x(), pt.y(), 0, 0, i + 1 );
-  }
-
-  std::vector<int> surface;
-  int boundVertCount = structureData.boundaryPointCount;
-  for ( int i = 0; i < structureData.boundaryPointCount ; ++i )
-  {
-    gmsh::model::geo::addLine( i + 1, ( i + 1 ) % boundVertCount + 1, i + 1 );
-    surface.push_back( i + 1 );
-  }
-
-  gmsh::model::geo::addCurveLoop( surface, 1 );
-  gmsh::model::geo::addPlaneSurface( {1}, 1 );
-
-  std::vector<int> internalLines( structureData.internalLines.count() );
-  for ( int i = 0; i < structureData.internalLines.count() ; ++i )
-  {
-    const QVector<int> &dataLine = structureData.internalLines.at( i );
-    gmsh::model::geo::addLine( dataLine.at( 0 ) + 1, dataLine.at( 1 ) + 1, boundVertCount + i + 1 );
-    internalLines[i] = boundVertCount + i + 1;
-  }
-
-  gmsh::model::geo::synchronize();
-  gmsh::model::mesh::embed( 1, internalLines, 2, 1 );
-
-}
-
-
-ReosGmshResolutionController::ReosGmshResolutionController( QObject *parent, const QString &wktCrs )
-  : ReosMeshResolutionController( parent )
-  , mDefaultSize( new ReosParameterDouble( tr( "Default element size" ), false, this ) )
-  , mPolygonStructure( ReosPolygonStructure::createPolygonStructure( wktCrs ) )
-{
-  mDefaultSize->setValue( 20 );
-  connect( mDefaultSize, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
-}
-
-double ReosGmshResolutionController::sizeFallBack( int dim, int tag, double x, double y, double z, double lc )
-{
-  if ( mPolygonStructure->classIndex( ReosSpatialPosition( x, y ) ) != -1 )
-    return 5;
-
-  return mDefaultSize->value();
-}
-
-ReosParameterDouble *ReosGmshResolutionController::defaultSize() const
-{
-  return mDefaultSize;
-}
-
-ReosPolygonStructure *ReosGmshResolutionController::resolutionPolygons()
-{
-  return mPolygonStructure.get();
+  return mResolutionControler->elementSizeAt( x, y, dim == 1 | dim == 0 );
 }

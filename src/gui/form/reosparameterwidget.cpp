@@ -834,3 +834,16 @@ ReosParameterInteger *ReosParameterIntegerWidget::integerParameter()
 
   return nullptr;
 }
+
+ReosParameterWidgetAction::ReosParameterWidgetAction( ReosParameter *parameter, QObject *parent )
+  : QWidgetAction( parent )
+  , mParameter( parameter )
+{}
+
+QWidget *ReosParameterWidgetAction::createWidget( QWidget *parent )
+{
+  if ( mParameter.isNull() )
+    return nullptr;
+
+  return ReosParameterWidget::createWidget( mParameter, parent );
+}

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ReosEditStructureGeometry2DWidget</class>
- <widget class="QWidget" name="ReosEditStructureGeometry2DWidget">
+ <class>ReosEditPolylineStructureWidget</class>
+ <widget class="QWidget" name="ReosEditPolylineStructureWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -59,32 +59,6 @@
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="mGenerateMeshButton">
-       <property name="toolTip">
-        <string>Generate mesh</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="../../images/images.qrc">
-         <normaloff>:/images/generateMesh.svg</normaloff>:/images/generateMesh.svg</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>24</width>
-         <height>24</height>
-        </size>
-       </property>
-       <property name="autoRaise">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="ReosParameterBooleanWidget" name="mAutoUpdateMesh" native="true"/>
-     </item>
-     <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -114,16 +88,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>ReosParameterBooleanWidget</class>
-   <extends>QWidget</extends>
-   <header>reosparameterwidget.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
- <resources>
-  <include location="../../images/images.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

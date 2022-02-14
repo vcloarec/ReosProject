@@ -21,6 +21,7 @@
 #include "reosmesh.h"
 
 class ReosMeshDataProvider_p;
+class ReosMeshFrameData;
 
 /**
  * Implementation of a mesh in Reos environment.
@@ -39,7 +40,7 @@ class ReosMesh_p : public ReosMesh
 
     void render( QGraphicsView *canvas, QPainter *painter ) override;
 
-    bool generateMesh( const ReosMeshGenerator &generator ) override;
+    void generateMesh( const ReosMeshFrameData &data ) override;
 
   private:
 

@@ -43,19 +43,53 @@ class ReosGmshResolutionController: public ReosMeshResolutionController
 class ReosGmshGenerator : public ReosMeshGenerator
 {
   public:
-    ReosGmshGenerator()
-    {
-    }
 
-    ReosMeshFrameData generatedMesh( bool *ok ) const override;
-    void setGeometryStructure( ReosPolylinesStructure *structure, const QString &crs ) override;
-    void setResolutionController( ReosMeshResolutionController *resolutionControler ) override
+    enum Algorithm
     {
-      mSizeControler = static_cast<ReosGmshResolutionController *>( resolutionControler );
-    }
+      MeshAdapt,
+      Automatic,
+      InitialMesh,
+      Delaunay,
+      FrontalDelaunay,
+      BAMG,
+      FrontalDelaunayForQuads,
+      PackingOfParallelograms
+    };
+
+    ReosGmshGenerator( QObject *parent = nullptr );
+    ReosGmshGenerator( const ReosEncodedElement &element, QObject *parent = nullptr );
+
+    ReosMeshGeneratorProcess *generatedMesh(
+      ReosPolylinesStructure *structure,
+      ReosMeshResolutionController *resolutionControler,
+      bool *ok ) const override;
+
+
+    ReosEncodedElement encode() const;
 
   private:
-    ReosGmshResolutionController *mSizeControler = nullptr;
+    Algorithm mAlgorithm = FrontalDelaunay;
+
+};
+
+class ReosMeshGeneratorGmshProcess: public ReosMeshGeneratorProcess
+{
+  public:
+    ReosMeshGeneratorGmshProcess( ReosPolylinesStructure *structure,
+                                  ReosMeshResolutionController *resolutionControler,
+                                  ReosGmshGenerator::Algorithm alg );
+
+    void start();
+
+    ReosMeshFrameData meshResult() const {return mResult;}
+
+  private:
+    ReosMeshFrameData mResult;
+    ReosPolylinesStructure::Data mData;
+    std::unique_ptr<ReosMeshResolutionController> mResolutionControler;
+    ReosGmshGenerator::Algorithm mAlgorithm = ReosGmshGenerator::FrontalDelaunay;
+
+    double sizeFallBack( int dim, int tag, double x, double y, double z, double lc );
 };
 
 

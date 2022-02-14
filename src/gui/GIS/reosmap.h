@@ -43,7 +43,6 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     ~ReosMap();
 
     QWidget *mapCanvas() const;
-    void refreshCanvas();
 
     ReosGisEngine *engine() const;
     QString mapCrs() const;
@@ -67,6 +66,8 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
 
     void addExtraRenderedObject( ReosRenderedObject *obj );
     void removeExtraRenderedObject( ReosRenderedObject *obj );
+
+    void refreshCanvas();
 
   signals:
     //! emitted when the mouse cursor moves on the map cavans.

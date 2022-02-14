@@ -32,7 +32,7 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
   public:
     ReosMeshDataProvider_p(): QgsMeshDataProvider( "mesh", QgsDataProvider::ProviderOptions() ) {}
 
-    bool generateMesh( const ReosMeshGenerator &generator );
+    void generateMesh( const ReosMeshFrameData &data );
 
 //***********************
     // QgsMeshDatasetSourceInterface interface

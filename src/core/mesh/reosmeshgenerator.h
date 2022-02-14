@@ -16,13 +16,19 @@
 #ifndef REOSMESHGENERATOR_H
 #define REOSMESHGENERATOR_H
 
+#include <memory>
+
 #include <QObject>
 #include <QVector>
 #include <QPolygonF>
 
 #include "reosdataobject.h"
+#include "reosprocess.h"
 
 class ReosPolylinesStructure;
+class ReosParameterBoolean;
+class ReosParameterDouble;
+class ReosPolygonStructure;
 
 //! Structure that contains mesh frame data
 struct ReosMeshFrameData
@@ -31,25 +37,76 @@ struct ReosMeshFrameData
   QVector<QVector<int>> facesIndexes;
 };
 
+
+class ReosMeshGeneratorProcess: public ReosProcess
+{
+  public:
+
+    virtual ReosMeshFrameData meshResult() const = 0;
+};
+
 /**
- * Base class of object which controle the resolution of a generated mesh
+ * Class that controls the resolution of a generated mesh
  */
 class ReosMeshResolutionController : public ReosDataObject
 {
+    Q_OBJECT
   public:
-    ReosMeshResolutionController( QObject *parent = nullptr ): ReosDataObject( parent ) {}
+    ReosMeshResolutionController( QObject *parent = nullptr, const QString &wktCrs = QString() );
+
+    ~ReosMeshResolutionController();
+
+    ReosMeshResolutionController *clone() const;
+    double elementSizeAt( double x, double y, bool exact );
+
+    ReosPolygonStructure *resolutionPolygons() const;
+
+    ReosParameterDouble *defaultSize() const;
+
+  private:
+    ReosMeshResolutionController( const ReosMeshResolutionController *other );
+    ReosParameterDouble  *mDefaultSize = nullptr;
+    std::unique_ptr<ReosPolygonStructure> mPolygonStructure;
 };
 
 /**
  * Abstract class used to generate mesh frame
  */
-class ReosMeshGenerator
+class ReosMeshGenerator : public QObject
 {
   public:
-    virtual ReosMeshFrameData generatedMesh( bool *ok ) const = 0;
 
-    virtual void setGeometryStructure( ReosPolylinesStructure *structure, const QString &crs ) = 0;
-    virtual void setResolutionController( ReosMeshResolutionController *resolutionControler ) = 0;
+    virtual ReosMeshGeneratorProcess *generatedMesh(
+      ReosPolylinesStructure *structure,
+      ReosMeshResolutionController *resolutionControler,
+      bool *ok ) const = 0;
+
+    ReosParameterBoolean *autoUpdateParameter() const;
+
+    static ReosMeshGenerator *createMeshGenerator( const ReosEncodedElement &element, QObject *parent = nullptr );
+    virtual ReosEncodedElement encode() const = 0;
+
+  protected:
+    ReosMeshGenerator( QObject *parent = nullptr );
+    ReosMeshGenerator( const ReosEncodedElement &element, QObject *parent = nullptr );
+    ReosEncodedElement encodeBase() const;
+
+  private:
+    ReosParameterBoolean *mAutoUpdateParameter = nullptr;
+};
+
+class ReosMeshGeneratorPoly2TriProcess: public ReosMeshGeneratorProcess
+{
+  public:
+    ReosMeshGeneratorPoly2TriProcess( const QPolygonF &domain );
+
+    void start();
+
+    ReosMeshFrameData meshResult() const {return mResult;}
+
+  private:
+    QPolygonF mDomain;
+    ReosMeshFrameData mResult;
 };
 
 
@@ -60,16 +117,19 @@ class ReosMeshGeneratorPoly2Tri : public ReosMeshGenerator
 {
   public:
 
-    virtual ReosMeshFrameData generatedMesh( bool *ok ) const override;
+    virtual ReosMeshGeneratorProcess *generatedMesh(
+      ReosPolylinesStructure *structure,
+      ReosMeshResolutionController *resolutionControler,
+      bool *ok ) const override;
 
     //! Sets the \a domain to triangulate
     void setDomain( const QPolygonF &domain );
 
-    void setGeometryStructure( ReosPolylinesStructure *structure, const QString &crs ) override;
-    void setResolutionController( ReosMeshResolutionController * ) override {};
+    ReosEncodedElement encode() const override;
 
   private:
     QPolygonF mDomain;
+
 };
 
 

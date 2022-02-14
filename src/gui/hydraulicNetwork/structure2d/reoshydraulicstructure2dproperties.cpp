@@ -16,7 +16,7 @@
 #include "reoshydraulicstructure2dproperties.h"
 #include "ui_reoshydraulicstructure2dproperties.h"
 
-#include "reoseditstructure2dwidget.h"
+#include "reosedithydraulicstructure2dwidget.h"
 
 ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context )
   : ReosHydraulicElementWidget( context.parent() )

@@ -19,14 +19,12 @@
 
 ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, ReosHydraulicNetwork *parent )
   : ReosHydraulicNetworkElement( parent )
+  , mMeshGenerator( new ReosGmshGenerator( this ) )
   , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( domain, crs ) )
-  , mMeshResolutionController( new ReosGmshResolutionController( this, crs ) )
+  , mMeshResolutionController( new ReosMeshResolutionController( this, crs ) )
   , mMesh( ReosMesh::createMemoryMesh() )
-  , mAutoMeshUpdate( new ReosParameterBoolean( tr( "Auto update mesh" ), false, this ) )
 {
-  mAutoMeshUpdate->setValue( true );
-  if ( mAutoMeshUpdate->value() )
-    generateMesh();
+  init();
 }
 
 
@@ -34,23 +32,36 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   const ReosEncodedElement &encodedElement,
   ReosHydraulicNetwork *parent )
   : ReosHydraulicNetworkElement( parent )
+  , mMeshGenerator( ReosMeshGenerator::createMeshGenerator( encodedElement.getEncodedData( QStringLiteral( "mesh-generator" ) ), this ) )
   , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure(
                             encodedElement.getEncodedData( QStringLiteral( "structure" ) ) ) )
-  , mMeshResolutionController( new ReosGmshResolutionController( this ) )
+  , mMeshResolutionController( new ReosMeshResolutionController( this ) )
   , mMesh( ReosMesh::createMemoryMesh() )
-  , mAutoMeshUpdate( ReosParameterBoolean::decode(
-                       encodedElement.getEncodedData( QStringLiteral( "auto-update" ) ),
-                       false,
-                       tr( "Auto update mesh" ),
-                       this ) )
 {
-  if ( mAutoMeshUpdate->value() )
-    generateMesh();
+  init();
 }
 
-ReosParameterBoolean *ReosHydraulicStructure2D::autoMeshUpdate() const
+void ReosHydraulicStructure2D::init()
 {
-  return mAutoMeshUpdate;
+  if ( mMeshGenerator->autoUpdateParameter()->value() )
+    generateMesh();
+
+  connect( mPolylinesStructures.get(), &ReosDataObject::dataChanged, this, [this]
+  {
+    if ( mMeshGenerator->autoUpdateParameter()->value() )
+      generateMesh();
+  } );
+
+  connect( mMeshResolutionController, &ReosDataObject::dataChanged, this, [this]
+  {
+    if ( mMeshGenerator->autoUpdateParameter()->value() )
+      generateMesh();
+  } );
+}
+
+ReosMeshGenerator *ReosHydraulicStructure2D::meshGenerator() const
+{
+  return mMeshGenerator;
 }
 
 QPolygonF ReosHydraulicStructure2D::domain( const QString &crs ) const
@@ -75,11 +86,16 @@ ReosMesh *ReosHydraulicStructure2D::mesh() const
 
 bool ReosHydraulicStructure2D::generateMesh()
 {
-  ReosGmshGenerator generator;
-  generator.setGeometryStructure( mPolylinesStructures.get(), QString() );
-  generator.setResolutionController( mMeshResolutionController );
-  if ( mMesh )
-    return mMesh->generateMesh( generator );
+  bool ok = false;
+  std::unique_ptr<ReosMeshGeneratorProcess> process;
+  process.reset( mMeshGenerator->generatedMesh( mPolylinesStructures.get(), mMeshResolutionController, &ok ) );
+  process->start();
+  if ( mMesh && process->isSuccessful() )
+  {
+    mMesh->generateMesh( process->meshResult() );
+    emit dataChanged();
+    return true;
+  }
   else
     return false;
 }
@@ -96,7 +112,7 @@ ReosHydraulicStructure2D *ReosHydraulicStructure2D::create( const ReosEncodedEle
 void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext & ) const
 {
   element.addEncodedData( QStringLiteral( "structure" ), mPolylinesStructures->encode() );
-  element.addEncodedData( QStringLiteral( "auto-update" ), mAutoMeshUpdate->encode() );
+  element.addEncodedData( QStringLiteral( "mesh-generator" ), mMeshGenerator->encode() );
 }
 
 

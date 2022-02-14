@@ -601,16 +601,21 @@ void ReosPolylineStructureVectorLayer::removeAll()
 {
   if ( !mVectorLayer )
     return;
+
+  mVectorLayer->undoStack()->blockSignals( true );
+
   QgsFeatureIterator it = mVectorLayer->getFeatures();
   QgsFeature feat;
   while ( it.nextFeature( feat ) )
     mVectorLayer->deleteFeature( feat.id() );
 
-  mVectorLayer->undoStack()->clear();
-
   mBoundariesVertex.clear();
   mSegments.clear();
   mRawLinesDirty = true;
+
+  mVectorLayer->undoStack()->blockSignals( false );
+
+  mVectorLayer->undoStack()->clear();
 }
 
 bool ReosPolylineStructureVectorLayer::vertexCanBeMoved( ReosGeometryStructureVertex *geometryVertex, const ReosSpatialPosition &newPosition ) const

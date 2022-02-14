@@ -21,20 +21,135 @@
 #include "poly2tri.h"
 #include "memory"
 
+#include "reosparameter.h"
 #include "reospolylinesstructure.h"
+#include "reospolygonstructure.h"
+#include "reosgmshgenerator.h"
 
-ReosMeshFrameData ReosMeshGeneratorPoly2Tri::generatedMesh( bool *ok ) const
+ReosMeshGeneratorProcess *ReosMeshGeneratorPoly2Tri::generatedMesh(
+  ReosPolylinesStructure *structure,
+  ReosMeshResolutionController *,
+  bool *ok ) const
 {
+  if ( ok )
+    *ok = true;
+
+  return new  ReosMeshGeneratorPoly2TriProcess( structure->boundary() );
+}
+
+void ReosMeshGeneratorPoly2Tri::setDomain( const QPolygonF &domain )
+{
+  mDomain = domain;
+}
+
+ReosEncodedElement ReosMeshGeneratorPoly2Tri::encode() const {return ReosEncodedElement( QString() );}
+
+ReosMeshGenerator::ReosMeshGenerator( QObject *parent )
+  : QObject( parent )
+  , mAutoUpdateParameter( new ReosParameterBoolean( tr( "Auto update mesh" ), false, this ) )
+{
+  mAutoUpdateParameter->setValue( true );
+}
+
+ReosParameterBoolean *ReosMeshGenerator::autoUpdateParameter() const
+{
+  return mAutoUpdateParameter;
+}
+
+ReosMeshGenerator *ReosMeshGenerator::createMeshGenerator( const ReosEncodedElement &element, QObject *parent )
+{
+  if ( element.description() == QStringLiteral( "mesh-generator" ) )
+  {
+    QString type;
+    element.getData( QStringLiteral( "type" ), type );
+
+    if ( type == QStringLiteral( "gmsh" ) )
+      return new ReosGmshGenerator( element, parent );
+  }
+
+  return new ReosGmshGenerator( parent );
+}
+
+ReosMeshGenerator::ReosMeshGenerator( const ReosEncodedElement &element, QObject *parent )
+  : ReosMeshGenerator( parent )
+{
+  if ( element.description() != QStringLiteral( "mesh-generator" ) )
+    return;
+  bool autoUpdate = false;
+  element.getData( QStringLiteral( "auto-update" ), autoUpdate );
+  mAutoUpdateParameter->setValue( autoUpdate );
+}
+
+ReosEncodedElement ReosMeshGenerator::encodeBase() const
+{
+  ReosEncodedElement element( QStringLiteral( "mesh-generator" ) );
+  element.addData( QStringLiteral( "auto-update" ), mAutoUpdateParameter->value() );
+
+  return element;
+}
+
+ReosMeshResolutionController::ReosMeshResolutionController( QObject *parent, const QString &wktCrs )
+  : ReosDataObject( parent )
+  , mDefaultSize( new ReosParameterDouble( tr( "Default element size" ), false, this ) )
+  , mPolygonStructure( ReosPolygonStructure::createPolygonStructure( wktCrs ) )
+{
+  mDefaultSize->setValue( 10 );
+
+  connect( mDefaultSize, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+  connect( mPolygonStructure.get(), &ReosDataObject::dataChanged, this, &ReosDataObject::dataChanged );
+}
+
+ReosMeshResolutionController::~ReosMeshResolutionController()
+{
+}
+
+ReosMeshResolutionController *ReosMeshResolutionController::clone() const
+{
+  return new ReosMeshResolutionController( this );
+}
+
+double ReosMeshResolutionController::elementSizeAt( double x, double y, bool exact )
+{
+  double value = mPolygonStructure->value( ReosSpatialPosition( x, y ), exact );
+
+  if ( !std::isnan( value ) )
+    return value;
+
+  return mDefaultSize->value();
+}
+
+ReosPolygonStructure *ReosMeshResolutionController::resolutionPolygons() const
+{
+  return mPolygonStructure.get();
+}
+
+ReosMeshResolutionController::ReosMeshResolutionController( const ReosMeshResolutionController *other )
+{
+  mPolygonStructure.reset( other->mPolygonStructure->clone() );
+  mDefaultSize = new ReosParameterDouble( other->mDefaultSize->name(), false, this );
+  mDefaultSize->setValue( other->mDefaultSize->value() );
+}
+
+ReosParameterDouble *ReosMeshResolutionController::defaultSize() const
+{
+  return mDefaultSize;
+}
+
+ReosMeshGeneratorPoly2TriProcess::ReosMeshGeneratorPoly2TriProcess( const QPolygonF &domain )
+  : mDomain( domain )
+{}
+
+void ReosMeshGeneratorPoly2TriProcess::start()
+{
+  mIsSuccessful = false;
   std::vector<p2t::Point *> polyDomain;
-
+  mResult = ReosMeshFrameData();
   polyDomain.resize( mDomain.count() );
-
   try
   {
     QHash<p2t::Point *, int> mapPoly2TriPointToVertex;
 
-    ReosMeshFrameData ret;
-    ret.vertexCoordinates.resize( mDomain.count() * 3 );
+    mResult.vertexCoordinates.resize( mDomain.count() * 3 );
 
     for ( int i = 0; i < mDomain.count(); ++i )
     {
@@ -42,9 +157,9 @@ ReosMeshFrameData ReosMeshGeneratorPoly2Tri::generatedMesh( bool *ok ) const
       polyDomain[i] = new p2t::Point( pt.x(), pt.y() );
       mapPoly2TriPointToVertex.insert( polyDomain[i], i );
 
-      ret.vertexCoordinates[i * 3] = pt.x();
-      ret.vertexCoordinates[i * 3 + 1] = pt.y();
-      ret.vertexCoordinates[i * 3 + 2] = 0;
+      mResult.vertexCoordinates[i * 3] = pt.x();
+      mResult.vertexCoordinates[i * 3 + 1] = pt.y();
+      mResult.vertexCoordinates[i * 3 + 2] = 0;
     }
     std::unique_ptr<p2t::CDT> cdt( new p2t::CDT( polyDomain ) );
     cdt->Triangulate();
@@ -56,13 +171,13 @@ ReosMeshFrameData ReosMeshGeneratorPoly2Tri::generatedMesh( bool *ok ) const
 
     int triangleCount = triangles.size();
 
-    ret.facesIndexes.fill( QVector<int>( 3 ), triangleCount );
+    mResult.facesIndexes.fill( QVector<int>( 3 ), triangleCount );
 
     for ( int t = 0; t < triangleCount; ++t )
     {
       p2t::Triangle *triangle = triangles.at( t );
 
-      QVector<int> &reosTriangle = ret.facesIndexes[t];
+      QVector<int> &reosTriangle = mResult.facesIndexes[t];
 
       for ( int s = 0; s < 3; ++s )
       {
@@ -73,24 +188,14 @@ ReosMeshFrameData ReosMeshGeneratorPoly2Tri::generatedMesh( bool *ok ) const
     }
 
     qDeleteAll( polyDomain );
-    *ok = true;
-    return ret;
+    mIsSuccessful = true;
+
   }
   catch ( ... )
   {
-    qDebug() << "Mesh generator poly2tri: Unable to triangulate";
+    emit sendInformation( "Mesh generator poly2tri: Unable to triangulate" );
     qDeleteAll( polyDomain );
-    *ok = false;
-    return ReosMeshFrameData();
+    mIsSuccessful = false;
+    mResult = ReosMeshFrameData();
   }
-}
-
-void ReosMeshGeneratorPoly2Tri::setDomain( const QPolygonF &domain )
-{
-  mDomain = domain;
-}
-
-void ReosMeshGeneratorPoly2Tri::setGeometryStructure( ReosPolylinesStructure *structure, const QString &crs )
-{
-  mDomain = structure->boundary( crs );
 }

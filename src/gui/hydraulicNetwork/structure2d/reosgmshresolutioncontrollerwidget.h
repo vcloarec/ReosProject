@@ -39,6 +39,8 @@ class ReosGmshResolutionControllerWidget : public QWidget
     explicit ReosGmshResolutionControllerWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &guiContext );
     ~ReosGmshResolutionControllerWidget();
 
+    void addToolBarActions( const QList<QAction *> actions );
+
   protected:
     void hideEvent( QHideEvent *e );
     void showEvent( QShowEvent *e );
@@ -49,11 +51,12 @@ class ReosGmshResolutionControllerWidget : public QWidget
   private:
     Ui::ReosGmshResolutionControllerWidget *ui;
     ReosMap *mMap = nullptr;
-    QPointer<ReosGmshResolutionController> mController;
+    QPointer<ReosMeshResolutionController> mController;
 
     QAction *mActionEditResolutionPolygons = nullptr;
     ReosMapToolEditPolygonStructure *mMapToolEditResolutionPolygon = nullptr;
     ReosMapPolygonStructure mMapStructureItem;
+    QToolBar *mToolBar = nullptr;
 };
 
 #endif // REOSGMSHRESOLUTIONCONTROLLERWIDGET_H

@@ -30,21 +30,45 @@ ReosPolygonStructure_p::ReosPolygonStructure_p( const QString &wktCrs ): ReosGeo
 {
   mVectorLayer->startEditing();
   mVectorLayer->extent();
+
+  mVectorLayer->undoStack()->blockSignals( true );
+
   QgsField field;
   field.setType( QVariant::String );
   field.setName( QStringLiteral( "classId" ) );
   mVectorLayer->addAttribute( field );
-
   mRenderer = new QgsCategorizedSymbolRenderer( QStringLiteral( "classId" ) );
+  mVectorLayer->commitChanges( false );
   mVectorLayer->setRenderer( mRenderer );
-
   mVectorLayer->undoStack()->clear();
+
+  mVectorLayer->undoStack()->blockSignals( false );
 
   connect( mVectorLayer->undoStack(), &QUndoStack::indexChanged, this, &ReosDataObject::dataChanged );
 }
 
 ReosPolygonStructure_p::~ReosPolygonStructure_p()
 {}
+
+ReosPolygonStructure *ReosPolygonStructure_p::clone() const
+{
+  std::unique_ptr<ReosPolygonStructure_p> other = std::make_unique<ReosPolygonStructure_p>();
+  other->mVectorLayer.reset( mVectorLayer->clone() );
+  other->mRenderer = static_cast<QgsCategorizedSymbolRenderer *>( other->mVectorLayer->renderer() );
+  other->mClasses = mClasses;
+  other->mTolerance = mTolerance;
+
+  // in editing mode, if the changes are not commited, the feature will bot be clones
+  // If we commit, that will clear the undostack and we don't want, so preferable to copy all features
+  QgsFeatureIterator it = mVectorLayer->getFeatures();
+  other->mVectorLayer->startEditing();
+  QgsFeature feat;
+  while ( it.nextFeature( feat ) )
+    other->mVectorLayer->addFeature( feat );
+  other->mVectorLayer->commitChanges( false );
+
+  return other.release();
+}
 
 QObject *ReosPolygonStructure_p::data()
 {
@@ -67,7 +91,7 @@ double ReosPolygonStructure_p::value( const ReosSpatialPosition &position, bool 
   {
     const QgsGeometry &geom = feat.geometry();
     const QString classId = feat.attribute( 0 ).toString();
-    if ( acceptClose | ( geom.contains( &pt ) ) )
+    if ( acceptClose || ( geom.contains( &pt ) ) )
     {
       bool ok = false;
       double v = mClasses.value( classId ).toDouble( &ok );
@@ -187,6 +211,16 @@ double ReosPolygonStructure_p::value( const QString &classId ) const
   }
 
   return std::numeric_limits<double>::quiet_NaN();
+}
+
+int ReosPolygonStructure_p::polygonsCount() const
+{
+  long long count = mVectorLayer->featureCount();
+
+  if ( count > __INT32_MAX__ )
+    return __INT32_MAX__;
+
+  return int( count );
 }
 
 QUndoStack *ReosPolygonStructure_p::undoStack() const

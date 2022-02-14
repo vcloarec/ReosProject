@@ -29,23 +29,23 @@ ReosGmshResolutionControllerWidget::ReosGmshResolutionControllerWidget( ReosHydr
   :  QWidget( guiContext.parent() )
   ,  ui( new Ui::ReosGmshResolutionControllerWidget )
   , mMap( guiContext.map() )
-  , mController( static_cast<ReosGmshResolutionController *>( structure2D->meshResolutionController() ) )
+  , mController( static_cast<ReosMeshResolutionController *>( structure2D->meshResolutionController() ) )
   , mActionEditResolutionPolygons( new QAction( QPixmap( QStringLiteral( ":/images/editStructureLines.svg" ) ), tr( "Edit Resolution Polygons" ), this ) )
   , mMapStructureItem( mMap, mController->resolutionPolygons() )
 {
   ui->setupUi( this );
 
-  QToolBar *toolBar = new QToolBar( this );
-  ui->mToolBarWidget->layout()->addWidget( toolBar );
+  mToolBar = new QToolBar( this );
+  ui->mToolBarWidget->layout()->addWidget( mToolBar );
 
   ui->mDefaultSizeParameterWidget->setDouble( mController->defaultSize() );
   mMapToolEditResolutionPolygon = new ReosMapToolEditPolygonStructure( mController->resolutionPolygons(), this, guiContext.map() );
   mMapToolEditResolutionPolygon->setAction( mActionEditResolutionPolygons );
   mActionEditResolutionPolygons->setCheckable( true );
 
-  toolBar->addAction( mActionEditResolutionPolygons );
-  toolBar->addActions( mMapToolEditResolutionPolygon->mainActions()->actions() );
-  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  mToolBar->addAction( mActionEditResolutionPolygons );
+  mToolBar->addActions( mMapToolEditResolutionPolygon->mainActions()->actions() );
+  mToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
 
   connect( mController->resolutionPolygons(), &ReosDataObject::dataChanged, this, [this]
   {
@@ -73,6 +73,11 @@ ReosGmshResolutionControllerWidget::ReosGmshResolutionControllerWidget( ReosHydr
 ReosGmshResolutionControllerWidget::~ReosGmshResolutionControllerWidget()
 {
   delete ui;
+}
+
+void ReosGmshResolutionControllerWidget::addToolBarActions( const QList<QAction *> actions )
+{
+  mToolBar->addActions( actions );
 }
 
 void ReosGmshResolutionControllerWidget::hideEvent( QHideEvent * )
