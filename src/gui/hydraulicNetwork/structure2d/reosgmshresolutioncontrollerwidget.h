@@ -25,6 +25,7 @@ class ReosMapToolEditPolygonStructure;
 class ReosGuiContext;
 class ReosMap;
 class ReosHydraulicStructure2D;
+class ReosGeometryStructureClassModelList;
 
 namespace Ui
 {
@@ -53,6 +54,7 @@ class ReosGmshResolutionControllerWidget : public QWidget
     Ui::ReosGmshResolutionControllerWidget *ui;
     ReosMap *mMap = nullptr;
     QPointer<ReosMeshResolutionController> mController;
+    ReosGeometryStructureClassModelList *mModel = nullptr;
 
     QAction *mActionEditResolutionPolygons = nullptr;
     ReosMapToolEditPolygonStructure *mMapToolEditResolutionPolygon = nullptr;

@@ -72,15 +72,14 @@ class ReosGeometryStructureClassModelList: public QAbstractListModel
     int columnCount( const QModelIndex &parent ) const;
     QVariant data( const QModelIndex &index, int role ) const;
 
-    QString classId( int index );
+    QString classId( int index ) const;
+    QModelIndex classToindex( const QString &classId ) const;
 
   private slots:
     void onClassesChanged();
 
   private:
     QPointer<ReosPolygonStructure> mStructure;
-
-
     QStringList orderedClasses() const;
 
 };

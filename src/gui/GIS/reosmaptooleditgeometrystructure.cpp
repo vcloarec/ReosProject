@@ -146,12 +146,21 @@ QVariant ReosGeometryStructureClassModelList::data( const QModelIndex &index, in
   return QVariant();
 }
 
-QString ReosGeometryStructureClassModelList::classId( int index )
+QString ReosGeometryStructureClassModelList::classId( int index ) const
 {
   if ( index < mStructure->classes().count() )
     return orderedClasses().at( index );
 
   return QString();
+}
+
+QModelIndex ReosGeometryStructureClassModelList::classToindex( const QString &classId ) const
+{
+  int ind = orderedClasses().indexOf( classId );
+  if ( ind == -1 )
+    return QModelIndex();
+
+  return createIndex( ind, 0 );
 }
 
 void ReosGeometryStructureClassModelList::onClassesChanged()
