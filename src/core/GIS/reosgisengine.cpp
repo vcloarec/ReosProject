@@ -133,6 +133,8 @@ void ReosGisEngine::initGisEngine()
 
   //! Add reos data provider to Qgis instances
   QgsProviderRegistry::instance()->registerProvider( new ReosMeshProviderMetaData() );
+
+  qRegisterMetaTypeStreamOperators<QgsFeature>( "QgsFeature" ); //necessary to allow the serialisation
 }
 
 QString ReosGisEngine::addVectorLayer( const QString &uri, const QString &name )

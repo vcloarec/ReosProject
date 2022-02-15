@@ -50,12 +50,14 @@ ReosGmshResolutionControllerWidget::ReosGmshResolutionControllerWidget( ReosHydr
   connect( mController->resolutionPolygons(), &ReosDataObject::dataChanged, this, [this]
   {
     mMapStructureItem.updatePosition();
+    mMap->refreshCanvas();
   } );
 
   ReosGeometryStructureClassModelList *model = new ReosGeometryStructureClassModelList( mController->resolutionPolygons(), this );
   ui->mPolygonClassView->setModel( model );
 
   connect( ui->mToolButtonAddClass, &QToolButton::clicked, this, &ReosGmshResolutionControllerWidget::addClass );
+  connect( ui->mToolButtonRemoveClass, &QToolButton::clicked, this, &ReosGmshResolutionControllerWidget::removeCurrentClass );
   connect( ui->mPolygonClassView->selectionModel(), &QItemSelectionModel::currentChanged, mMapToolEditResolutionPolygon,
            [this, model]( const QModelIndex & current, const QModelIndex & )
   {
@@ -65,6 +67,8 @@ ReosGmshResolutionControllerWidget::ReosGmshResolutionControllerWidget( ReosHydr
       classId = model->classId( current.row() );
     }
     mMapToolEditResolutionPolygon->setCurrentClass( classId );
+    mCurrentClass = classId;
+    ui->mToolButtonRemoveClass->setEnabled( !classId.isEmpty() );
   } );
 
   mMapStructureItem.setVisible( isVisible() );
@@ -109,4 +113,12 @@ void ReosGmshResolutionControllerWidget::addClass()
   }
 
   dial->deleteLater();
+}
+
+void ReosGmshResolutionControllerWidget::removeCurrentClass()
+{
+  if ( mCurrentClass.isEmpty() )
+    return;
+
+  mController->resolutionPolygons()->removeClass( mCurrentClass );
 }

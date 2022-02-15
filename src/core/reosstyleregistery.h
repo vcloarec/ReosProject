@@ -30,6 +30,8 @@ class REOSCORE_EXPORT ReosStyleRegistery: public ReosModule
     QColor curveColor() const;
     QColor fillColor( int alpha = 255 ) const;
 
+    QColor fillColor( int &index, int alpha = 255 ) const;
+
     QColor blueReos( int alpha = 255 ) const
     {
       return QColor( 0, 155, 242, alpha );

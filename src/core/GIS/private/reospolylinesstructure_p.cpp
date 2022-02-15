@@ -96,6 +96,11 @@ ReosMapExtent ReosGeometryStructure_p::extent( const QString &destinationCrs ) c
   return ret;
 }
 
+QString ReosGeometryStructure_p::crs() const
+{
+  return mVectorLayer->crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED );
+}
+
 
 QgsPointXY ReosGeometryStructure_p::transformCoordinates( const QgsPointXY &position, const QgsCoordinateTransform &transform ) const
 {
@@ -281,7 +286,6 @@ ReosPolylineStructureVectorLayer::ReosPolylineStructureVectorLayer( const ReosEn
 {
   QString wktCrs;
   encodedElement.getData( QStringLiteral( "crs" ), wktCrs );
-
   mVectorLayer.reset( new QgsVectorLayer( QStringLiteral( "Linestring?crs=" )
                                           + wktCrs
                                           + QStringLiteral( "&index=yes" )
@@ -307,6 +311,7 @@ ReosEncodedElement ReosPolylineStructureVectorLayer::encode() const
   element.addData( QStringLiteral( "vertices" ), data.vertices );
   element.addData( QStringLiteral( "internal-lines" ), data.internalLines );
   element.addData( QStringLiteral( "tolerance" ), mTolerance );
+  element.addData( QStringLiteral( "crs" ), crs() );
   return element;
 }
 

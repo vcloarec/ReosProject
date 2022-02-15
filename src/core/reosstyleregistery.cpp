@@ -63,7 +63,14 @@ QColor ReosStyleRegistery::curveColor() const
 
 QColor ReosStyleRegistery::fillColor( int alpha ) const
 {
-  QColor c = mColors.at( ( ++mLastFillColor ) % ( mColors.count() ) );
+  return fillColor( mLastFillColor, alpha );
+}
+
+QColor ReosStyleRegistery::fillColor( int &index, int alpha ) const
+{
+  index = ( index + 1 ) % ( mColors.count() );
+
+  QColor c = mColors.at( index );
   c.setAlpha( alpha );
   return c;
 }

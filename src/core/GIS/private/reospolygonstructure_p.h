@@ -30,6 +30,7 @@ class ReosPolygonStructure_p : public ReosPolygonStructure, private ReosGeometry
   public:
     ReosPolygonStructure_p() = default;
     ReosPolygonStructure_p( const QString &wktCrs );
+    ReosPolygonStructure_p( const ReosEncodedElement &element );
     ~ReosPolygonStructure_p();
 
     ReosPolygonStructure *clone() const override;
@@ -38,6 +39,7 @@ class ReosPolygonStructure_p : public ReosPolygonStructure, private ReosGeometry
     void addPolygon( const QPolygonF &polygon, const QString &classId, const QString &sourceCrs ) override;
     QStringList classes() const override;
     void addClass( const QString &classId, double value ) override;
+    void removeClass( const QString &classId ) override;
     ReosMapExtent extent( const QString &crs ) const override;
     QColor color( const QString &classId ) const override;
     double value( const QString &classId ) const override;
@@ -45,14 +47,54 @@ class ReosPolygonStructure_p : public ReosPolygonStructure, private ReosGeometry
 
     QUndoStack *undoStack() const override;
 
+    ReosEncodedElement encode() const override;
+
   private:
     QVariantMap mClasses;
     QgsCategorizedSymbolRenderer *mRenderer = nullptr;
     double mTolerance = 0.01;
+    int mLastColorIndex = -1;
 
     QColor symbolColor( QgsSymbol *sym ) const;
 
+    void addClassColor( const QString &classId, const QColor &color );
+    void removeClassColor( const QString &classId );
 
+    void init();
+
+    friend class ReosPolygonStructureUndoCommandAddClass;
+    friend class ReosPolygonStructureUndoCommandRemoveClass;
+};
+
+
+class ReosPolygonStructureUndoCommandAddClass : public QUndoCommand
+{
+  public:
+    ReosPolygonStructureUndoCommandAddClass( ReosPolygonStructure_p *structure, const QString &classId, double value, const QColor &color );
+
+    void redo() override;
+    void undo() override;
+
+  private:
+    ReosPolygonStructure_p *mStructure = nullptr;
+    QString mClassId;
+    double mValue;
+    QColor mColor;
+};
+
+class ReosPolygonStructureUndoCommandRemoveClass : public QUndoCommand
+{
+  public:
+    ReosPolygonStructureUndoCommandRemoveClass( ReosPolygonStructure_p *structure, const QString &classId );
+
+    void redo() override;
+    void undo() override;
+
+  private:
+    ReosPolygonStructure_p *mStructure = nullptr;
+    QString mClassId;
+    double mValue;
+    QColor mColor;
 };
 
 #endif // REOSPOLYGONSTRUCTURE_P_H

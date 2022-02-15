@@ -46,7 +46,6 @@ void ReosMapPolygonStructure_p::updatePosition()
   mBBox = QRectF( tl, br );
   mBBox = mBBox.normalized();
   mBBox = mBBox.adjusted( - 5, -5, 5, 5 );
-  qDebug() << "map polygon structure updated";
 }
 
 QRectF ReosMapPolygonStructure_p::boundingRect() const

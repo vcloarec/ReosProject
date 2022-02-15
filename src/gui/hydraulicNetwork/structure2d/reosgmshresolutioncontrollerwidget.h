@@ -47,6 +47,7 @@ class ReosGmshResolutionControllerWidget : public QWidget
 
   private slots:
     void addClass();
+    void removeCurrentClass();
 
   private:
     Ui::ReosGmshResolutionControllerWidget *ui;
@@ -57,6 +58,8 @@ class ReosGmshResolutionControllerWidget : public QWidget
     ReosMapToolEditPolygonStructure *mMapToolEditResolutionPolygon = nullptr;
     ReosMapPolygonStructure mMapStructureItem;
     QToolBar *mToolBar = nullptr;
+
+    QString mCurrentClass;
 };
 
 #endif // REOSGMSHRESOLUTIONCONTROLLERWIDGET_H

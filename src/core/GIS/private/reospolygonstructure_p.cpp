@@ -28,11 +28,59 @@
 
 ReosPolygonStructure_p::ReosPolygonStructure_p( const QString &wktCrs ): ReosGeometryStructure_p( QStringLiteral( "Polygon" ), wktCrs )
 {
+
+  init();
+  connect( mVectorLayer->undoStack(), &QUndoStack::indexChanged, this, &ReosDataObject::dataChanged );
+}
+
+ReosPolygonStructure_p::ReosPolygonStructure_p( const ReosEncodedElement &element )
+{
+  if ( element.description() != QStringLiteral( "polygon-structure" ) )
+    return;
+  QString wktCrs;
+  element.getData( QStringLiteral( "crs" ), wktCrs );
+  mVectorLayer.reset( new QgsVectorLayer( QStringLiteral( "Polygon?crs=" )
+                                          + wktCrs
+                                          + QStringLiteral( "&index=yes" )
+                                          , QStringLiteral( "internalLayer" ),
+                                          QStringLiteral( "memory" ) ) );
+
+  init();
+
+  element.getData( QStringLiteral( "tolerance" ), mTolerance );
+  element.getData( QStringLiteral( "classes" ), mClasses );
+  element.getData( QStringLiteral( "last-color-index" ), mLastColorIndex );
+
+  QVariantMap colors;
+  element.getData( QStringLiteral( "colors-class" ), colors );
+  for ( const QString &key : colors.keys() )
+    addClassColor( key, colors.value( key ).value<QColor>() );
+
+  QStringList featClass;
+  QVariantList polygons;
+
+  element.getData( QStringLiteral( "polygons-class" ), featClass );
+  element.getData( QStringLiteral( "polygons-geometry" ), polygons );
+
+  mVectorLayer->undoStack()->blockSignals( true );
+  QVariantList varFeatures;
+  element.getData( QStringLiteral( "polygons" ), varFeatures );
+  for ( const QVariant &featVar : std::as_const( varFeatures ) )
+  {
+    QgsFeature feat = featVar.value<QgsFeature>();
+    mVectorLayer->addFeature( feat );
+  }
+  mVectorLayer->undoStack()->clear();
+  mVectorLayer->undoStack()->blockSignals( false );
+}
+
+
+void ReosPolygonStructure_p::init()
+{
   mVectorLayer->startEditing();
   mVectorLayer->extent();
 
   mVectorLayer->undoStack()->blockSignals( true );
-
   QgsField field;
   field.setType( QVariant::String );
   field.setName( QStringLiteral( "classId" ) );
@@ -41,10 +89,41 @@ ReosPolygonStructure_p::ReosPolygonStructure_p( const QString &wktCrs ): ReosGeo
   mVectorLayer->commitChanges( false );
   mVectorLayer->setRenderer( mRenderer );
   mVectorLayer->undoStack()->clear();
-
   mVectorLayer->undoStack()->blockSignals( false );
 
   connect( mVectorLayer->undoStack(), &QUndoStack::indexChanged, this, &ReosDataObject::dataChanged );
+}
+
+ReosEncodedElement ReosPolygonStructure_p::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "polygon-structure" ) );
+
+  element.addData( QStringLiteral( "crs" ), crs() );
+  element.addData( QStringLiteral( "tolerance" ), mTolerance );
+  element.addData( QStringLiteral( "classes" ), mClasses );
+  element.addData( QStringLiteral( "last-color-index" ), mLastColorIndex );
+
+  QVariantMap colors;
+  for ( const QString &key : mClasses.keys() )
+    colors.insert( key, color( key ) );
+
+  element.addData( QStringLiteral( "colors-class" ), colors );
+
+  QgsFeatureIterator it = mVectorLayer->getFeatures();
+
+  QStringList featClass;
+  QVariantList varFeatures;
+
+  QgsFeature feat;
+  while ( it.nextFeature( feat ) )
+  {
+    QVariant var( feat );
+    varFeatures.append( var );
+  }
+
+  element.addData( QStringLiteral( "polygons" ), varFeatures );
+
+  return element;
 }
 
 ReosPolygonStructure_p::~ReosPolygonStructure_p()
@@ -237,28 +316,102 @@ QColor ReosPolygonStructure_p::symbolColor( QgsSymbol *sym ) const
   return static_cast<const QgsFillSymbolLayer *>( lay )->fillColor();
 }
 
-void ReosPolygonStructure_p::addClass( const QString &classId, double value )
+void ReosPolygonStructure_p::addClassColor( const QString &classId, const QColor &color )
 {
-  if ( mClasses.contains( classId ) )
-    return;
-
-  mClasses.insert( classId, value );
-
   std::unique_ptr<QgsFillSymbol> fillSymbol = std::make_unique<QgsFillSymbol>();
-
   QgsSymbolLayer *symbLayer = fillSymbol->symbolLayers().at( 0 );
-
   if ( symbLayer->layerType() == QStringLiteral( "SimpleFill" ) )
   {
     QgsSimpleFillSymbolLayer *fillLayer = static_cast<QgsSimpleFillSymbolLayer *>( symbLayer );
-    fillLayer->setFillColor( ReosStyleRegistery::instance()->fillColor() );
+    fillLayer->setFillColor( color );
     fillLayer->setStrokeStyle( Qt::DashLine );
     fillLayer->setStrokeColor( Qt::lightGray );
   }
 
   QgsRendererCategory category( classId, fillSymbol.release(), QString() );
-
   mRenderer->addCategory( category );
+}
 
-  emit classesChanged();
+void ReosPolygonStructure_p::removeClassColor( const QString &classId )
+{
+  int ind = mRenderer->categoryIndexForValue( classId );
+  mRenderer->deleteCategory( ind );
+}
+
+void ReosPolygonStructure_p::addClass( const QString &classId, double value )
+{
+  if ( mClasses.contains( classId ) )
+    return;
+
+  mVectorLayer->beginEditCommand( tr( "Add class" ) );
+
+  const QColor color = ReosStyleRegistery::instance()->fillColor( mLastColorIndex, 100 );
+  mVectorLayer->undoStack()->push( new ReosPolygonStructureUndoCommandAddClass( this, classId, value, color ) );
+
+  mVectorLayer->endEditCommand();
+}
+
+void ReosPolygonStructure_p::removeClass( const QString &classId )
+{
+  if ( !mClasses.contains( classId ) )
+    return;
+
+  mVectorLayer->beginEditCommand( tr( "Remove class" ) );
+
+  QgsFeatureIterator it = mVectorLayer->getFeatures( QStringLiteral( "mClassId='%1'" ).arg( classId ) );
+  QgsFeatureIds fids;
+
+  QgsFeature feat;
+  while ( it.nextFeature( feat ) )
+    fids.insert( feat.id() );
+
+  mVectorLayer->deleteFeatures( fids );
+  mVectorLayer->undoStack()->push( new ReosPolygonStructureUndoCommandRemoveClass( this, classId ) );
+
+  mVectorLayer->endEditCommand();
+
+}
+
+ReosPolygonStructureUndoCommandAddClass::ReosPolygonStructureUndoCommandAddClass( ReosPolygonStructure_p *structure, const QString &classId, double value, const QColor &color )
+  : mStructure( structure )
+  , mClassId( classId )
+  , mValue( value )
+  , mColor( color )
+{}
+
+void ReosPolygonStructureUndoCommandAddClass::redo()
+{
+  mStructure->mClasses.insert( mClassId, mValue );
+  mStructure->addClassColor( mClassId, mColor );
+  emit mStructure->classesChanged();
+}
+
+void ReosPolygonStructureUndoCommandAddClass::undo()
+{
+  mStructure->mClasses.remove( mClassId );
+  mStructure->removeClassColor( mClassId );
+  emit mStructure->classesChanged();
+}
+
+ReosPolygonStructureUndoCommandRemoveClass::ReosPolygonStructureUndoCommandRemoveClass( ReosPolygonStructure_p *structure, const QString &classId )
+  : mStructure( structure )
+  , mClassId( classId )
+{}
+
+void ReosPolygonStructureUndoCommandRemoveClass::redo()
+{
+  mColor = mStructure->color( mClassId );
+  mValue = mStructure->mClasses.value( mClassId ).toDouble();
+
+  mStructure->mClasses.remove( mClassId );
+  mStructure->removeClassColor( mClassId );
+  emit mStructure->classesChanged();
+}
+
+void ReosPolygonStructureUndoCommandRemoveClass::undo()
+{
+  mStructure->mClasses.insert( mClassId, mValue );
+  mStructure->addClassColor( mClassId, mColor );
+
+  emit mStructure->classesChanged();
 }

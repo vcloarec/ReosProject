@@ -99,6 +99,29 @@ ReosMeshResolutionController::ReosMeshResolutionController( QObject *parent, con
   connect( mPolygonStructure.get(), &ReosDataObject::dataChanged, this, &ReosDataObject::dataChanged );
 }
 
+ReosMeshResolutionController::ReosMeshResolutionController( const ReosEncodedElement &element, QObject *parent )
+  : ReosDataObject( parent )
+  , mDefaultSize( new ReosParameterDouble( tr( "Default element size" ), false, this ) )
+  , mPolygonStructure( ReosPolygonStructure::createPolygonStructure( element.getEncodedData( QStringLiteral( "polygons" ) ) ) )
+{
+  double defaultSize = 10;
+  element.getData( QStringLiteral( "default-size" ), defaultSize );
+  mDefaultSize->setValue( defaultSize );
+
+  if ( !mPolygonStructure )
+    mPolygonStructure = ReosPolygonStructure::createPolygonStructure( QString() );
+}
+
+
+ReosEncodedElement ReosMeshResolutionController::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "mesh-resolution-controller" ) );
+  element.addData( QStringLiteral( "default-size" ), mDefaultSize->value() );
+  element.addEncodedData( QStringLiteral( "polygons" ), mPolygonStructure->encode() );
+
+  return element;
+}
+
 ReosMeshResolutionController::~ReosMeshResolutionController()
 {
 }

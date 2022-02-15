@@ -33,12 +33,17 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   ReosHydraulicNetwork *parent )
   : ReosHydraulicNetworkElement( parent )
   , mMeshGenerator( ReosMeshGenerator::createMeshGenerator( encodedElement.getEncodedData( QStringLiteral( "mesh-generator" ) ), this ) )
-  , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure(
-                            encodedElement.getEncodedData( QStringLiteral( "structure" ) ) ) )
-  , mMeshResolutionController( new ReosMeshResolutionController( this ) )
+  , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( encodedElement.getEncodedData( QStringLiteral( "structure" ) ) ) )
+
   , mMesh( ReosMesh::createMemoryMesh() )
 {
+  if ( encodedElement.hasEncodedData( QStringLiteral( "mesh-resolution-controller" ) ) )
+    mMeshResolutionController = new ReosMeshResolutionController( encodedElement.getEncodedData( QStringLiteral( "mesh-resolution-controller" ) ), this );
+  else
+    mMeshResolutionController = new ReosMeshResolutionController( this );
+
   init();
+
 }
 
 void ReosHydraulicStructure2D::init()
@@ -113,6 +118,7 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
 {
   element.addEncodedData( QStringLiteral( "structure" ), mPolylinesStructures->encode() );
   element.addEncodedData( QStringLiteral( "mesh-generator" ), mMeshGenerator->encode() );
+  element.addEncodedData( QStringLiteral( "mesh-resolution-controller" ), mMeshResolutionController->encode() );
 }
 
 

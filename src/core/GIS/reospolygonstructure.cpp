@@ -21,3 +21,11 @@ std::unique_ptr<ReosPolygonStructure> ReosPolygonStructure::createPolygonStructu
 {
   return std::make_unique<ReosPolygonStructure_p>( crs );
 }
+
+std::unique_ptr<ReosPolygonStructure> ReosPolygonStructure::createPolygonStructure( const ReosEncodedElement &encodedElement )
+{
+  if ( encodedElement.description() != QStringLiteral( "polygon-structure" ) )
+    return nullptr;
+
+  return std::make_unique<ReosPolygonStructure_p>( encodedElement );
+}

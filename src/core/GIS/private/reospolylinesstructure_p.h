@@ -101,7 +101,7 @@ class ReosGeometryStructure_p
     const QgsCoordinateTransform toLayerTransform( const QString &crs ) const;
     const QgsCoordinateTransform toDestinationTransform( const QString &destinationCrs ) const;
     ReosMapExtent extent( const QString &destinationCrs ) const;
-
+    QString crs() const;
 };
 
 

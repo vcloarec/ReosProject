@@ -53,6 +53,7 @@ class ReosMeshResolutionController : public ReosDataObject
     Q_OBJECT
   public:
     ReosMeshResolutionController( QObject *parent = nullptr, const QString &wktCrs = QString() );
+    ReosMeshResolutionController( const ReosEncodedElement &element, QObject *parent = nullptr );
 
     ~ReosMeshResolutionController();
 
@@ -62,6 +63,8 @@ class ReosMeshResolutionController : public ReosDataObject
     ReosPolygonStructure *resolutionPolygons() const;
 
     ReosParameterDouble *defaultSize() const;
+
+    ReosEncodedElement encode() const;
 
   private:
     ReosMeshResolutionController( const ReosMeshResolutionController *other );
