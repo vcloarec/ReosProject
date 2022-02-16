@@ -47,20 +47,20 @@ TEST_F( ReosRasterWatershedTest, RasterFilling )
   ReosRasterMemory<float> dem;
 
   std::unique_ptr<ReosRasterFillingWangLiu> rasterFilling;
-  rasterFilling.reset( new ReosRasterFillingWangLiu( dem, 1.0, 1.0 ) );
+  rasterFilling.reset( new ReosRasterFillingWangLiu( dem, 1.0, 1.0, 100 ) );
 
   rasterFilling->start();
   EXPECT_FALSE( rasterFilling->isSuccessful() );
 
   dem = ReosRasterMemory<float>( 11, 11 );
-  rasterFilling.reset( new ReosRasterFillingWangLiu( dem, 1.0, 1.0 ) );
+  rasterFilling.reset( new ReosRasterFillingWangLiu( dem, 1.0, 1.0, 100 ) );
   rasterFilling->start();
   EXPECT_FALSE( rasterFilling->isSuccessful() );
 
   dem.reserveMemory();
   dem.fill( 5 );
   dem.setValue( 0, 5, 3.0 );
-  rasterFilling.reset( new ReosRasterFillingWangLiu( dem, 1.0, 1.0 ) );
+  rasterFilling.reset( new ReosRasterFillingWangLiu( dem, 1.0, 1.0, 100 ) );
   rasterFilling->start();
   EXPECT_TRUE( rasterFilling->isSuccessful() );
 
@@ -91,7 +91,7 @@ TEST_F( ReosRasterWatershedTest, PlanDEM_1 )
       dem.setValue( i, j, 10.0 - i / 10.0 );
 
   std::unique_ptr<ReosRasterFillingWangLiu> rasterFilling;
-  rasterFilling.reset( new ReosRasterFillingWangLiu( dem, 1.0, 1.0 ) );
+  rasterFilling.reset( new ReosRasterFillingWangLiu( dem, 1.0, 1.0, 100 ) );
 
   rasterFilling->start();
   EXPECT_TRUE( rasterFilling->isSuccessful() );

@@ -28,7 +28,7 @@ class ReosRasterFilling: public ReosProcess
 {
   public:
     //! Constructor with the \a dem to fill
-    ReosRasterFilling( const ReosRasterMemory<float> &dem, double XSize, double YSize );
+    ReosRasterFilling( const ReosRasterMemory<float> &dem, double XSize, double YSize, float maxValue );
     virtual ~ReosRasterFilling();
 
     virtual bool initialize() = 0;
@@ -59,7 +59,7 @@ class ReosRasterFilling: public ReosProcess
 class ReosRasterFillingWangLiu: public ReosRasterFilling
 {
   public:
-    ReosRasterFillingWangLiu( const ReosRasterMemory<float> &dem, double XSize, double YSize );
+    ReosRasterFillingWangLiu( const ReosRasterMemory<float> &dem, double XSize, double YSize, float maxValue );
     ~ReosRasterFillingWangLiu() = default;
 
     bool initialize();

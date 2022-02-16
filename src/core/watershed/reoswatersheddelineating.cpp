@@ -387,7 +387,8 @@ void ReosWatershedDelineatingProcess::start()
     //Extract dem and fill it (burn it if needed)
     setCurrentProgression( 0 );
     setInformation( tr( "Extract digital elevation model" ) );
-    ReosRasterMemory<float> dem( mEntryDem->extractMemoryRasterSimplePrecision( mExtent, mPredefinedRasterExtent, QString(), this ) );
+    float maxValue;
+    ReosRasterMemory<float> dem( mEntryDem->extractMemoryRasterSimplePrecision( mExtent, mPredefinedRasterExtent, maxValue, QString(), this ) );
     if ( isStop() )
     {
       finish();
@@ -396,7 +397,7 @@ void ReosWatershedDelineatingProcess::start()
 
     burnRasterDem( dem, mBurningLines, mPredefinedRasterExtent );
     setCurrentProgression( 0 );
-    std::unique_ptr<ReosRasterFillingWangLiu> fillDemProcess( new ReosRasterFillingWangLiu( dem, fabs( mPredefinedRasterExtent.xCellSize() ), fabs( mPredefinedRasterExtent.yCellSize() ) ) );
+    std::unique_ptr<ReosRasterFillingWangLiu> fillDemProcess( new ReosRasterFillingWangLiu( dem, fabs( mPredefinedRasterExtent.xCellSize() ), fabs( mPredefinedRasterExtent.yCellSize() ), maxValue ) );
     setSubProcess( fillDemProcess.get() );
 
     setInformation( tr( "Filling digital elevation model" ) );
@@ -407,6 +408,9 @@ void ReosWatershedDelineatingProcess::start()
       finish();
       return;
     }
+
+    ReosRasterMemory<float> filledDem = fillDemProcess->filledDEM();
+    filledDem.createTiffFile( "/home/vincent/filledDem.tif", GDT_Float32, ReosRasterExtent( mExtent, filledDem.columnCount(), filledDem.rowCount() ) );
 
     setCurrentProgression( 0 );
     std::unique_ptr<ReosRasterWatershedDirectionCalculation> directionProcess( new ReosRasterWatershedDirectionCalculation( fillDemProcess->filledDEM() ) );
@@ -422,6 +426,8 @@ void ReosWatershedDelineatingProcess::start()
     }
 
     mDirections = directionProcess->directions();
+
+    mDirections.createTiffFile( "/home/vincent/dir.tif", GDT_Byte, ReosRasterExtent( mExtent, mDirections.columnCount(), mDirections.rowCount() ) );
 
     setSubProcess( nullptr );
 

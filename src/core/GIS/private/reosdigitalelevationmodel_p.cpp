@@ -54,7 +54,7 @@ double ReosDigitalElevationModelRaster::elevationAt( const QPointF &point, const
     {
       pointInDem = transform.transform( QgsPointXY( point.x(), point.y() ) );
     }
-    catch ( QgsCsException &)
+    catch ( QgsCsException & )
     {
       pointInDem = QgsPointXY( point.x(), point.y() );
     }
@@ -102,7 +102,8 @@ QPolygonF ReosDigitalElevationModelRaster::elevationOnPolyline( const QPolygonF 
     ReosRasterExtent rasterExtent;
     if ( process )
       process->setInformation( QObject::tr( "Read DEM for segment %1/%2" ).arg( i + 1 ).arg( polyline.count() - 1 ) );
-    ReosRasterMemory<float> segmentDEM = extractMemoryRasterSimplePrecision( segmentExtent, rasterExtent, polylineCrs, process );
+    float maxValue = 0;
+    ReosRasterMemory<float> segmentDEM = extractMemoryRasterSimplePrecision( segmentExtent, rasterExtent,  maxValue, polylineCrs, process );
 
     if ( process && !process->isSuccessful() )
       return ret;
@@ -359,6 +360,7 @@ double ReosDigitalElevationModelRaster::averageElevationOnGrid( const ReosRaster
 ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimplePrecision(
   const ReosMapExtent &destinationExtent,
   ReosRasterExtent &outputRasterExtent,
+  float &maxValue,
   const QString &destinationCrs,
   ReosProcess *process ) const
 {
@@ -423,6 +425,9 @@ ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimp
   std::unique_ptr<QgsRasterBlock> block;
   block.reset( mDataProvider->block( 1, adjustedExtent, xPixCount, yPixCount ) );
 
+  if ( mDataProvider->sourceHasNoDataValue( 1 ) )
+    ret.setNodata( mDataProvider->sourceNoDataValue( 1 ) );
+
   if ( !block->isValid() )
   {
     if ( process )
@@ -439,11 +444,16 @@ ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimp
     process->setMaxProgression( yPixCount );
   }
 
+  maxValue = 0;
   for ( int i = 0; i < yPixCount; ++i )
   {
     for ( int j = 0; j < xPixCount; ++j )
     {
-      ret.setValue( i, j, float( block->value( i, j ) ) );
+      float value =   float( block->value( i, j ) );
+      if ( value != ret.noData() && std::fabs( value ) > maxValue )
+        maxValue = std::fabs( value );
+
+      ret.setValue( i, j, value );
       if ( process && process->isStop() )
       {
         ret.freeMemory();
