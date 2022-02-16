@@ -42,7 +42,8 @@ void ReosDemTesting::raster_DEM()
   QCOMPARE( dem->elevationAt( QPointF( 5, 5 ) ), 5.00054216385 );
 
   ReosRasterExtent rasterExtent;
-  ReosRasterMemory<float> rasterMemory( dem->extractMemoryRasterSimplePrecision( ReosMapExtent( 2, 3, 5, 7 ), rasterExtent ) );
+  float maxValue = 0;
+  ReosRasterMemory<float> rasterMemory( dem->extractMemoryRasterSimplePrecision( ReosMapExtent( 2, 3, 5, 7 ), rasterExtent, maxValue ) );
 
   QVERIFY( rasterExtent.isValid() );
   QCOMPARE( rasterExtent.xCellCount(), 3 );

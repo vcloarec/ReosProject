@@ -75,6 +75,7 @@ class REOSCORE_EXPORT ReosDigitalElevationModel
     virtual ReosRasterMemory<float> extractMemoryRasterSimplePrecision(
       const ReosMapExtent &extent,
       ReosRasterExtent &rasterExtent,
+      float &maxValue,
       const QString &destinationCrs = QString(), ReosProcess *process = nullptr ) const = 0;
 
     /**
