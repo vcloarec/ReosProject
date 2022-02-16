@@ -35,10 +35,10 @@ class ReosDigitalElevationModelRaster: public ReosDigitalElevationModel
     double averageElevationInPolygon( const QPolygonF &polygon, const QString &polygonCrs, ReosProcess *process ) const override;
     double averageElevationOnGrid( const ReosRasterMemory<unsigned char> &grid, const ReosRasterExtent &gridExtent, ReosProcess *process = nullptr ) const override;
 
-    ReosRasterMemory<float> extractMemoryRasterSimplePrecision(
-      const ReosMapExtent &destinationExtent,
-      ReosRasterExtent &outputRasterExtent,
-      const QString &destinationCrs = QString(), ReosProcess *process = nullptr ) const override;
+    ReosRasterMemory<float> extractMemoryRasterSimplePrecision( const ReosMapExtent &destinationExtent,
+        ReosRasterExtent &outputRasterExtent,
+        float &maxValue,
+        const QString &destinationCrs = QString(), ReosProcess *process = nullptr ) const override;
 
     ReosRasterMemory<float> extractMemoryRasterSimplePrecision(
       const ReosRasterExtent &destinationRasterExtent,
