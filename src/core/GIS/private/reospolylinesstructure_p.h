@@ -143,6 +143,12 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure, private R
     QList<QPointF> intersectionPoints( const QLineF &line, const QString &crs = QString(), const QPolygonF &otherPoly = QPolygonF() ) const override;
     ReosMapExtent extent( const QString &crs ) const override;
 
+    QPolygonF searchPolygon( const ReosSpatialPosition &position, bool allowBoundary = true ) const override;
+
+    void addHolePoint( const ReosSpatialPosition &position ) override;
+
+    QList<QPointF> holePoints( const QString &destinationCrs ) const override;
+
     Data structuredLinesData( const QString &destinationCrs = QString() ) const override;
     QVector<QLineF> rawLines( const QString &destinationCrs = QString() ) const override;
 
@@ -160,6 +166,7 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure, private R
     // Data member defining the structure ********
     QMap<QgsFeatureId, Segment> mSegments;
     QList<VertexP> mBoundariesVertex;
+    QList<QgsPointXY> mHolePoints;
     double mTolerance = 0.01;
     // *******************************************
     mutable bool mRawLinesDirty = true;
@@ -199,9 +206,12 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure, private R
     void init();
     void buildGeometry( const Data &data );
 
+    QList<VertexP> searchVerticesPolygon( const QgsPointXY &layerPoint, bool allowBoundary = true ) const;
+
     friend class ReosPolylineStructureVectorLayerUndoCommandRemoveLine;
     friend class ReosPolylineStructureVectorLayerUndoCommandAddLine;
     friend class ReosPolylineStructureVectorLayerUndoCommandMergeVertex;
+    friend class ReosPolylineStructureVectorLayeaddHolePoint;
 };
 
 
@@ -274,6 +284,30 @@ class ReosPolylineStructureVectorLayerUndoCommandMergeVertex : public QUndoComma
     QList<ReosStructureVertexHandler_p::PositionInFeature> mInitialLinks1;
     VertexW mVertexToKeep;
     VertexW mVertexToRemove;
+    ReosPolylineStructureVectorLayer *mStructure = nullptr;
+};
+
+class ReosPolylineStructureVectorLayeaddHolePoint : public QUndoCommand
+{
+  public:
+    ReosPolylineStructureVectorLayeaddHolePoint( const QgsPointXY &point,
+        ReosPolylineStructureVectorLayer *structure )
+      : mPosition( point )
+      , mStructure( structure )
+    {}
+
+    void redo() override
+    {
+      mStructure->mHolePoints.append( mPosition );
+
+    }
+    void undo() override
+    {
+      mStructure->mHolePoints.removeLast();
+    }
+
+  private:
+    QgsPointXY mPosition;
     ReosPolylineStructureVectorLayer *mStructure = nullptr;
 };
 

@@ -19,26 +19,45 @@
 #include <memory>
 #include <functional>
 
+#include <QMutex>
+#include <QThread>
+#include <QDebug>
+
+#include "reosmodule.h"
 #include "reosmeshgenerator.h"
 #include "reosparameter.h"
+#include "reospolylinesstructure.h"
 #include "reospolygonstructure.h"
 
-class ReosGmshResolutionController: public ReosMeshResolutionController
+
+class ReosGmshWorker : public QThread
 {
   public:
-    ReosGmshResolutionController( QObject *parent = nullptr, const QString &wktCrs = QString() );
+    void generate();
+};
 
-    double sizeFallBack( int dim, int tag, double x, double y, double z, double lc );
-    ReosParameterDouble *defaultSize() const;
+class ReosGmshEngine : ReosModule
+{
+  public:
+    ReosGmshEngine *instantiate( QObject *parent )
+    {
+      if ( !sInstance )
+        sInstance = new ReosGmshEngine( parent );
 
-    ReosPolygonStructure *resolutionPolygons();
+      return sInstance;
+    }
+
+    bool isBusy() const;
 
   private:
-    ReosParameterDouble  *mDefaultSize;
-    std::unique_ptr<ReosPolygonStructure> mPolygonStructure = nullptr;
+    ReosGmshEngine( QObject *parent ): ReosModule( parent ) {}
+    static ReosGmshEngine *sInstance;
+    QMutex mMutex;
+    bool mIsBusy;
 
-
+    void initialize();
 };
+
 
 class ReosGmshGenerator : public ReosMeshGenerator
 {

@@ -87,25 +87,39 @@ void ReosMeshGeneratorGmshProcess::start()
     gmsh::model::geo::addPoint( pt.x(), pt.y(), 0, 0, i + 1 );
   }
 
-  std::vector<int> surface;
-  int boundVertCount = mData.boundaryPointCount;
-  for ( int i = 0; i < mData.boundaryPointCount ; ++i )
-  {
-    gmsh::model::geo::addLine( i + 1, ( i + 1 ) % boundVertCount + 1, i + 1 );
-    surface.push_back( i + 1 );
-  }
 
-  gmsh::model::geo::addCurveLoop( surface, 1 );
-  gmsh::model::geo::addPlaneSurface( {1}, 1 );
+  int boundVertCount = mData.boundaryPointCount;
 
   std::vector<int> internalLines( mData.internalLines.count() );
   for ( int i = 0; i < mData.internalLines.count() ; ++i )
   {
     const QVector<int> &dataLine = mData.internalLines.at( i );
     gmsh::model::geo::addLine( dataLine.at( 0 ) + 1, dataLine.at( 1 ) + 1, boundVertCount + i + 1 );
-    qDebug() << "line " << boundVertCount + i + 1 << mData.vertices.at( dataLine.at( 0 ) ) << mData.vertices.at( dataLine.at( 1 ) );
     internalLines[i] = boundVertCount + i + 1;
   }
+
+  std::vector<int> externalBoundary;
+  for ( int i = 0; i < mData.boundaryPointCount ; ++i )
+  {
+    gmsh::model::geo::addLine( i + 1, ( i + 1 ) % boundVertCount + 1, i + 1 );
+    externalBoundary.push_back( i + 1 );
+  }
+
+  gmsh::model::geo::addCurveLoop( externalBoundary, 1 );
+  std::vector<int> surfaces;
+  surfaces.push_back( 1 );
+
+  for ( int i = 0; i < mData.holes.count(); ++i )
+  {
+    std::vector<int> hole( static_cast<size_t>( mData.holes.at( i ).count() ) );
+    for ( size_t j = 0; j < hole.size(); ++j )
+    {
+      hole[j] = mData.holes.at( i ).at( int( j ) ) + boundVertCount + 1;
+    }
+    gmsh::model::geo::addCurveLoop( hole, i + 2, true );
+    surfaces.push_back( i + 2 );
+  }
+  gmsh::model::geo::addPlaneSurface( surfaces, 1 );
 
   gmsh::model::geo::synchronize();
   gmsh::model::mesh::embed( 1, internalLines, 2, 1 );

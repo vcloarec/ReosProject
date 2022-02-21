@@ -17,6 +17,7 @@
 
 #include <QUuid>
 #include <QDebug>
+#include <QStack>
 
 #include <qgsproject.h>
 #include <qgscoordinatetransform.h>
@@ -459,7 +460,9 @@ VertexS ReosPolylineStructureVectorLayer::oppositeVertex( VertexP other, const S
   else if ( seg.at( 1 ).get() == other )
     return seg.at( 0 );
   else
+  {
     throw ReosException( QStringLiteral( "topologic error" ) );
+  }
 }
 
 QPair<SegmentId, SegmentId> ReosPolylineStructureVectorLayer::boundarieLines( VertexP vertex )
@@ -1112,11 +1115,201 @@ ReosMapExtent ReosPolylineStructureVectorLayer::extent( const QString &crs ) con
   return ReosGeometryStructure_p::extent( crs );
 }
 
+static double ccwAngle( const QgsVector &v1, const QgsVector &v2 )
+{
+  return  std::fmod( v1.angle() / M_PI * 180 + 360.0 - v2.angle() / M_PI * 180, 360.0 );
+}
+
+static double cwAngle( const QgsVector &v1, const QgsVector &v2 )
+{
+  return  std::fmod( v2.angle() / M_PI * 180 + 360.0 - v1.angle() / M_PI * 180, 360.0 );
+}
+
+
+QList<VertexP> ReosPolylineStructureVectorLayer::searchVerticesPolygon( const QgsPointXY &layerPoint, bool allowBoundary ) const
+{
+  QgsFeatureIterator it = mVectorLayer->getFeatures();
+  QgsFeature feat;
+
+  std::unique_ptr<QgsLineString> horizontalLine(
+    new QgsLineString( {layerPoint, QgsPointXY( mVectorLayer->extent().xMaximum(),  layerPoint.y() )} ) );
+  QgsGeometry horizontalLineGeom( horizontalLine.release() );
+
+  QVector<QPair<QgsFeatureId, double>> featuresDistance;
+
+  while ( it.nextFeature( feat ) )
+  {
+    QgsGeometry geom = feat.geometry();
+    if ( geom.intersects( horizontalLineGeom ) )
+    {
+      double dist = geom.distance( QgsGeometry( new QgsPoint( layerPoint ) ) );
+      featuresDistance.append( {feat.id(), dist} );
+    }
+  }
+
+  if ( featuresDistance.isEmpty() )
+    return QList<VertexP>();
+
+  QList<VertexP> vertices;
+
+  std::sort( featuresDistance.begin(), featuresDistance.end(),
+  []( const QPair<QgsFeatureId, double> &fd1, const QPair<QgsFeatureId, double> &fd2 ) {return fd1.second < fd2.second;} );
+
+  SegmentId lineId = 0;
+
+  VertexP firstVertex = nullptr;
+  VertexP prevVertex = nullptr;
+  VertexP nextVertex = nullptr;
+
+  bool ccw = false;
+
+  QgsVector v1;
+  QgsVector v2;
+
+  if ( v1.length() > 0 && v2.length() > 0 )
+  {
+    v1 = v1.normalized();
+    v2 = v2.normalized();
+  }
+
+  auto captureFirstLine = [&]
+  {
+    lineId = featuresDistance.takeFirst().first;
+    Segment seg = idToSegment( lineId );
+    firstVertex = seg.at( 0 ).get();
+    nextVertex = seg.at( 1 ).get();
+
+    ccw = ccwAngle( QgsPointXY( nextVertex->position() ) - QgsPointXY( firstVertex->position() ),
+                    layerPoint - QgsPointXY( firstVertex->position() ) ) > 180;
+
+    QgsVector v1 = layerPoint - firstVertex->position();
+    QgsVector v2 = QgsPointXY( nextVertex->position() ) - firstVertex->position();
+
+    if ( v1.length() > 0 && v2.length() > 0 )
+    {
+      v1 = v1.normalized();
+      v2 = v2.normalized();
+    }
+
+    vertices.append( firstVertex );
+  };
+
+  captureFirstLine();
+  if ( !allowBoundary && isOnBoundary( firstVertex ) )
+    return QList<VertexP>();
+
+  auto cmp = [&prevVertex, &nextVertex, this, &ccw]( SegmentId id1, SegmentId id2 )
+  {
+    VertexP other1 = oppositeVertexPointer( nextVertex, id1 );
+    QgsVector v = QgsPointXY( prevVertex->position() ) - nextVertex->position();
+    QgsVector v1 = QgsPointXY( other1->position() ) - nextVertex->position();
+
+    VertexP other2 = oppositeVertexPointer( nextVertex, id2 );
+    QgsVector v2 = QgsPointXY( other2->position() ) - nextVertex->position();
+
+    if ( ccw )
+      return cwAngle( v, v1 ) < cwAngle( v, v2 );
+    else
+      return cwAngle( v, v1 ) >= cwAngle( v, v2 );
+  };
+
+  typedef QPair<SegmentId, VertexP> Line;
+  QStack<Line> lineToThreat;
+
+  QSet<VertexP> threatedVertices;
+  threatedVertices.insert( firstVertex );
+  prevVertex = firstVertex;
+  while ( !threatedVertices.contains( nextVertex ) )
+  {
+    if ( !allowBoundary && isOnBoundary( nextVertex ) )
+      return QList<VertexP>();
+
+    QList<SegmentId> lines = qgis::setToList( nextVertex->attachedLines() );
+    lines.removeOne( lineId );
+    if ( !lines.isEmpty() )
+    {
+      vertices.append( nextVertex );
+      std::sort( lines.begin(), lines.end(), cmp );
+      for ( SegmentId sid : lines )
+        lineToThreat.push( {sid, nextVertex} );
+    }
+
+    if ( !lineToThreat.isEmpty() )
+    {
+      const Line line = lineToThreat.pop();
+      lineId = line.first;
+      if ( !threatedVertices.contains( line.second ) )
+        threatedVertices.insert( line.second );
+
+      while ( vertices.last() != line.second && !vertices.isEmpty() )
+      {
+        threatedVertices.remove( vertices.last() );
+        vertices.removeLast();
+      }
+
+      prevVertex = line.second;
+      nextVertex = oppositeVertexPointer( line.second, line.first );
+    }
+    else
+    {
+      if ( !featuresDistance.isEmpty() )
+      {
+        vertices.clear();
+        threatedVertices.clear();
+        captureFirstLine();
+        prevVertex = firstVertex;
+      }
+      else
+        return QList<VertexP>();
+    }
+  }
+
+  while ( vertices.first() != nextVertex )
+    vertices.removeFirst();
+
+  return vertices;
+
+}
+
+QPolygonF ReosPolylineStructureVectorLayer::searchPolygon( const ReosSpatialPosition &position, bool allowBoundary ) const
+{
+  QgsPointXY layerPoint = toLayerCoordinates( position );
+
+  QList<VertexP> vertices = searchVerticesPolygon( layerPoint, allowBoundary );
+  const QgsCoordinateTransform toDest = toDestinationTransform( position.crs() );
+  QPolygonF ret;
+  for ( VertexP v : std::as_const( vertices ) )
+    ret.append( v->position( toDest ) );
+
+  return ret;
+}
+
+void ReosPolylineStructureVectorLayer::addHolePoint( const ReosSpatialPosition &position )
+{
+
+  mVectorLayer->beginEditCommand( tr( "Add hole" ) );
+  const QgsPointXY pt = toLayerCoordinates( position );
+  mVectorLayer->undoStack()->push( new ReosPolylineStructureVectorLayeaddHolePoint( pt, this ) );
+  mVectorLayer->endEditCommand();
+}
+
+QList<QPointF> ReosPolylineStructureVectorLayer::holePoints( const QString &destinationCrs ) const
+{
+  QList<QPointF> ret;
+  QgsCoordinateTransform transform = toDestinationTransform( destinationCrs );
+  for ( const QgsPointXY &pt : mHolePoints )
+    ret.append( transformCoordinates( pt, transform ).toQPointF() );
+
+  return ret;
+}
+
+
 ReosPolylinesStructure::Data ReosPolylineStructureVectorLayer::structuredLinesData( const QString &destinationCrs ) const
 {
   const QgsCoordinateTransform transform = toDestinationTransform( destinationCrs );
   Data data;
   QHash<VertexP, int> vertexPointerToIndex;
+  QMap<QPair<int, int>, int> lineIndexes;
 
   data.boundaryPointCount = mBoundariesVertex.count();
 
@@ -1151,7 +1344,32 @@ ReosPolylinesStructure::Data ReosPolylineStructureVectorLayer::structuredLinesDa
     }
 
     if ( ind[0] >= data.boundaryPointCount || ind[1] >= data.boundaryPointCount )
+    {
       data.internalLines.append( {ind[0], ind[1]} );
+      lineIndexes.insert( {ind[0], ind[1]}, data.internalLines.count() - 1 );
+    }
+  }
+
+
+  for ( const QgsPointXY &holePoint : mHolePoints )
+  {
+    const QList<VertexP> holeVertices = searchVerticesPolygon( holePoint, false );
+    QVector<int> hole;
+    int size = holeVertices.count();
+    for ( int i = 0; i < size; ++i )
+    {
+      int v1 = vertexPointerToIndex.value( holeVertices.at( i ) );
+      int v2 = vertexPointerToIndex.value( holeVertices.at( ( i + 1 ) % size ) );
+
+      auto it = lineIndexes.find( {v1, v2} );
+      if ( it == lineIndexes.end() )
+        it = lineIndexes.find( {v2, v1} );
+
+      if ( it != lineIndexes.end() )
+        hole.append( it.value() );
+    }
+
+    data.holes.append( hole );
   }
 
   return data;
