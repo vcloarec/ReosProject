@@ -42,25 +42,30 @@ void ReosMeshTest::GmshGenerator()
     ReosPolylinesStructure::createPolylineStructure( domain, QString() );
 
   ReosGmshGenerator generator;
-  generator.setGeometryStructure( structure.get(), QString() );
 
+  std::unique_ptr<ReosMeshGeneratorProcess> process;
   bool ok;
-  ReosMeshFrameData frameData = generator.generatedMesh( &ok );
-  QVERIFY( ok );
+  process.reset( generator.generatedMesh( structure.get(), nullptr, &ok ) );
+  process->start();
+  QVERIFY( process->isSuccessful() );
+  ReosMeshFrameData frameData = process->meshResult();
 
-  ReosGmshResolutionController controler;
-  generator.setResolutionController( &controler );
-
+  ReosMeshResolutionController controler;
   controler.defaultSize()->setValue( 1 );
-  frameData = generator.generatedMesh( &ok );
-  QCOMPARE( frameData.facesIndexes.count(), 832 );
+  process.reset( generator.generatedMesh( structure.get(), &controler, &ok ) );
+  process->start();
+  QVERIFY( process->isSuccessful() );
+  frameData = process->meshResult();
+  QCOMPARE( frameData.facesIndexes.count(), 1026 );
 
   controler.defaultSize()->setValue( 10 );
-  frameData = generator.generatedMesh( &ok );
-  QCOMPARE( frameData.facesIndexes.count(), 162 );
+  process.reset( generator.generatedMesh( structure.get(), &controler, &ok ) );
+  process->start();
+  QVERIFY( process->isSuccessful() );
+  frameData = process->meshResult();
+  QCOMPARE( frameData.facesIndexes.count(), 16 );
 
   QVERIFY( ok );
-
 }
 
 void ReosMeshTest::memoryMesh()
@@ -78,7 +83,14 @@ void ReosMeshTest::memoryMesh()
   domain << QPointF( 0, 0 ) << QPointF( 0, 20 ) << QPointF( 20, 20 ) << QPointF( 20, 0 );
   generator.setDomain( domain );
 
-  QVERIFY( mesh->generateMesh( generator ) );
+  std::unique_ptr<ReosPolylinesStructure> structure = ReosPolylinesStructure::createPolylineStructure( domain, QString() );
+
+  bool ok = false;
+  std::unique_ptr<ReosMeshGeneratorProcess> process;
+  process.reset( generator.generatedMesh( structure.get(), nullptr, &ok ) );
+  process->start();
+  QVERIFY( process->isSuccessful() );
+  mesh->generateMesh( process->meshResult() );
 
   QCOMPARE( mesh->vertexCount(), 4 );
   QCOMPARE( mesh->faceCount(), 2 );

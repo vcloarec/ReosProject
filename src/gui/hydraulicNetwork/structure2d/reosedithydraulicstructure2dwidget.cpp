@@ -18,7 +18,6 @@
 
 #include <QToolBar>
 #include <QPushButton>
-#include <QDebug>
 
 #include "reosmeshgeneratorgui.h"
 #include "reosmaptooleditgeometrystructure.h"
@@ -26,6 +25,7 @@
 #include "reosstyleregistery.h"
 #include "reosgmshresolutioncontrollerwidget.h"
 #include "reoseditpolylinestructurewidget.h"
+#include "reossettings.h"
 
 
 ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context )
@@ -65,6 +65,9 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
   connect( ui->mBackButton, &QPushButton::clicked, this, &ReosStackedPageWidget::backToPreviousPage );
   connect( ui->mOptionListWidget, &QListWidget::currentRowChanged, this, &ReosEditHydraulicStructure2DWidget::onMeshOptionListChanged );
   connect( structure2D, &ReosDataObject::dataChanged, this, [this] {mMap->refreshCanvas();} );
+
+  ReosSettings settings;
+  ui->mOptionListWidget->setCurrentRow( settings.value( QStringLiteral( "/hydraulic-structure/edit-widget/current-row" ) ).toInt() );
 }
 
 ReosEditHydraulicStructure2DWidget::~ReosEditHydraulicStructure2DWidget()
@@ -89,9 +92,8 @@ void ReosEditHydraulicStructure2DWidget::onMeshOptionListChanged( int row )
     default:
       break;
   }
+
+  ReosSettings settings;
+  settings.setValue( QStringLiteral( "/hydraulic-structure/edit-widget/current-row" ), row );
 }
 
-void ReosEditHydraulicStructure2DWidget::autoGenerateMesh()
-{
-  mMap->refreshCanvas();
-}

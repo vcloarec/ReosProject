@@ -42,7 +42,6 @@ class ReosEditHydraulicStructure2DWidget : public ReosStackedPageWidget
 
   private slots:
     void onMeshOptionListChanged( int row );
-    void autoGenerateMesh();
 
   private:
     Ui::ReosEditStructure2DWidget *ui;
