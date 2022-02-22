@@ -552,6 +552,13 @@ void ReosPolylineStructureVectorLayer::addPolylines( const QPolygonF &polyline, 
     if ( vert0 && vert1 && isSegmentExisting( vert0.get(), vert1.get() ) )
       continue;
 
+    if ( vert0 && vert1 && isOnBoundary( vert0.get() ) && isOnBoundary( vert1.get() ) )
+    {
+      QgsPointXY middle( ( pointXY0.x() + pointXY1.x() ) / 2, ( pointXY0.y() + pointXY1.y() ) / 2 );
+      if ( !exterior.contains( &middle ) )
+        continue;
+    }
+
     if ( vert0 )
       pointXY0 = vert0->position();
 
