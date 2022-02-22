@@ -22,7 +22,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -55,9 +55,9 @@
      inkscape:window-height="1051"
      id="namedview50"
      showgrid="false"
-     inkscape:zoom="8.5416666"
-     inkscape:cx="-26.372823"
-     inkscape:cy="0.8146426"
+     inkscape:zoom="17.083333"
+     inkscape:cx="-4.4985516"
+     inkscape:cy="12.397855"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -170,7 +170,7 @@
   </radialGradient>
   <g
      id="g1656-3"
-     transform="matrix(1.9942896,0,0,1.9792026,-24.966973,-549.12762)"
+     transform="matrix(1.9942896,0,0,1.9792026,-21.887628,-549.44157)"
      style="fill:#a7a7a7;fill-opacity:1;stroke:#a7a7a7;stroke-width:0.57071531;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter3091)">
     <path
        inkscape:connector-curvature="0"
@@ -306,7 +306,7 @@
      style="stroke-width:0.8717407" />
   <g
      id="g1656"
-     transform="matrix(1.9942896,0,0,1.9792026,-25.733253,-549.893)"
+     transform="matrix(1.9942896,0,0,1.9792026,-22.653908,-550.20695)"
      style="stroke-width:0.57071531;stroke-miterlimit:4;stroke-dasharray:none">
     <path
        inkscape:connector-curvature="0"
@@ -354,4 +354,10 @@
          inkscape:connector-curvature="0" />
     </g>
   </g>
+  <circle
+     style="opacity:1;vector-effect:none;fill-opacity:1;fill-rule:nonzero;stroke:#faaf64;stroke-width:2;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:fill markers stroke"
+     id="path1464"
+     cx="4.471077"
+     cy="14.117065"
+     r="2" />
 </svg>

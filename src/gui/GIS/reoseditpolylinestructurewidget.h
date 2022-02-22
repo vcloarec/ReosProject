@@ -17,6 +17,7 @@
 #define REOSEDITPOLYLINESTRUCTUREWIDGET_H
 
 #include "reosactionwidget.h"
+#include "reosmaptool.h"
 #include "reosguicontext.h"
 
 class ReosPolylinesStructure;

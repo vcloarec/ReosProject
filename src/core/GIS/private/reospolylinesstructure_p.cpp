@@ -97,6 +97,27 @@ ReosMapExtent ReosGeometryStructure_p::extent( const QString &destinationCrs ) c
   return ret;
 }
 
+QgsRectangle ReosGeometryStructure_p::layerZone( const ReosMapExtent &zone ) const
+{
+  QgsCoordinateTransform transform = toLayerTransform( zone.crs() );
+
+  QgsRectangle rect( zone.toRectF() );
+  QgsRectangle layerRect = rect;
+
+  if ( transform.isValid() )
+  {
+    try
+    {
+      layerRect = transform.transform( rect );
+    }
+    catch ( QgsCsException &e )
+    {
+      layerRect = rect;
+    }
+  }
+  return rect;
+}
+
 QString ReosGeometryStructure_p::crs() const
 {
   return mVectorLayer->crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED );
@@ -301,6 +322,12 @@ ReosPolylineStructureVectorLayer::ReosPolylineStructureVectorLayer( const ReosEn
   encodedElement.getData( QStringLiteral( "internal-lines" ), data.internalLines );
   encodedElement.getData( QStringLiteral( "tolerance" ), mTolerance );
 
+  QVector<QPointF> holePoints;
+  encodedElement.getData( QStringLiteral( "hole-points" ), holePoints );
+  mHolePoints.clear();
+  for ( const QPointF &pt : std::as_const( holePoints ) )
+    mHolePoints.append( QgsPointXY( pt ) );
+
   buildGeometry( data );
 }
 
@@ -313,6 +340,11 @@ ReosEncodedElement ReosPolylineStructureVectorLayer::encode() const
   element.addData( QStringLiteral( "internal-lines" ), data.internalLines );
   element.addData( QStringLiteral( "tolerance" ), mTolerance );
   element.addData( QStringLiteral( "crs" ), crs() );
+
+  QVector<QPointF> holePoints;
+  for ( const QgsPointXY &hpt : mHolePoints )
+    holePoints.append( hpt.toQPointF() );
+  element.addData( QStringLiteral( "hole-points" ), holePoints );
   return element;
 }
 
@@ -870,24 +902,7 @@ void ReosPolylineStructureVectorLayer::removeLine( qint64 lineId )
 
 QgsFeatureIterator ReosPolylineStructureVectorLayer::closeLines( const ReosMapExtent &zone, QgsRectangle &rect ) const
 {
-  QgsCoordinateTransform transform = toLayerTransform( zone.crs() );
-
-  if ( transform.isValid() )
-  {
-    try
-    {
-      rect = transform.transform( zone.toRectF() );
-    }
-    catch ( ... )
-    {
-      rect = QgsRectangle( zone.toRectF() );
-    }
-  }
-  else
-  {
-    rect = QgsRectangle( zone.toRectF() );
-  }
-
+  rect = layerZone( zone );
   return closeLinesInLayerCoordinate( rect );
 }
 
@@ -1286,10 +1301,9 @@ QPolygonF ReosPolylineStructureVectorLayer::searchPolygon( const ReosSpatialPosi
 
 void ReosPolylineStructureVectorLayer::addHolePoint( const ReosSpatialPosition &position )
 {
-
   mVectorLayer->beginEditCommand( tr( "Add hole" ) );
   const QgsPointXY pt = toLayerCoordinates( position );
-  mVectorLayer->undoStack()->push( new ReosPolylineStructureVectorLayeaddHolePoint( pt, this ) );
+  mVectorLayer->undoStack()->push( new ReosPolylineStructureVectorLayeAddHolePoint( pt, this ) );
   mVectorLayer->endEditCommand();
 }
 
@@ -1301,6 +1315,32 @@ QList<QPointF> ReosPolylineStructureVectorLayer::holePoints( const QString &dest
     ret.append( transformCoordinates( pt, transform ).toQPointF() );
 
   return ret;
+}
+
+int ReosPolylineStructureVectorLayer::searchHolePoint( const ReosMapExtent &zone ) const
+{
+  QgsRectangle searchZone = layerZone( zone );
+
+  for ( int i = 0; i < mHolePoints.count(); ++i )
+    if ( searchZone.contains( mHolePoints.at( i ) ) )
+      return i;
+
+  return -1;
+}
+
+void ReosPolylineStructureVectorLayer::moveHolePoint( int index, const ReosSpatialPosition &position )
+{
+  QgsPointXY newPosition = toLayerCoordinates( position );
+  mVectorLayer->beginEditCommand( tr( "Move hole" ) );
+  mVectorLayer->undoStack()->push( new ReosPolylineStructureVectorLayeMoveHolePoint( index, newPosition, this ) );
+  mVectorLayer->endEditCommand();
+}
+
+void ReosPolylineStructureVectorLayer::removeHolePoint( int index )
+{
+  mVectorLayer->beginEditCommand( tr( "Remove hole" ) );
+  mVectorLayer->undoStack()->push( new ReosPolylineStructureVectorLayeRemoveHolePoint( index, this ) );
+  mVectorLayer->endEditCommand();
 }
 
 
@@ -1779,3 +1819,54 @@ void ReosPolylineStructureVectorLayerUndoCommandMergeVertex::undo()
   }
 }
 
+
+ReosPolylineStructureVectorLayeRemoveHolePoint::ReosPolylineStructureVectorLayeRemoveHolePoint( int index, ReosPolylineStructureVectorLayer *structure )
+  : mIndex( index )
+  , mStructure( structure )
+{
+  mPosition = mStructure->mHolePoints.at( index );
+}
+
+void ReosPolylineStructureVectorLayeRemoveHolePoint::redo()
+{
+  mStructure->mHolePoints.removeAt( mIndex );
+}
+
+void ReosPolylineStructureVectorLayeRemoveHolePoint::undo()
+{
+  mStructure->mHolePoints.insert( mIndex, mPosition );
+}
+
+ReosPolylineStructureVectorLayeMoveHolePoint::ReosPolylineStructureVectorLayeMoveHolePoint( int index, const QgsPointXY &point, ReosPolylineStructureVectorLayer *structure )
+  : mIndex( index )
+  , mNewPosition( point )
+  , mStructure( structure )
+{
+  mOldPosition = mStructure->mHolePoints.at( index );
+}
+
+void ReosPolylineStructureVectorLayeMoveHolePoint::redo()
+{
+  mStructure->mHolePoints[mIndex] = mNewPosition;
+}
+
+void ReosPolylineStructureVectorLayeMoveHolePoint::undo()
+{
+  mStructure->mHolePoints[mIndex] = mOldPosition;
+}
+
+ReosPolylineStructureVectorLayeAddHolePoint::ReosPolylineStructureVectorLayeAddHolePoint( const QgsPointXY &point, ReosPolylineStructureVectorLayer *structure )
+  : mPosition( point )
+  , mStructure( structure )
+{}
+
+void ReosPolylineStructureVectorLayeAddHolePoint::redo()
+{
+  mStructure->mHolePoints.append( mPosition );
+
+}
+
+void ReosPolylineStructureVectorLayeAddHolePoint::undo()
+{
+  mStructure->mHolePoints.removeLast();
+}

@@ -21,6 +21,7 @@
 
 #include "reosstyleregistery.h"
 #include "reosmaptooleditgeometrystructure.h"
+#include "reospolylinesstructure.h"
 
 ReosEditPolylineStructureWidget::ReosEditPolylineStructureWidget( ReosPolylinesStructure *structure, const ReosGuiContext &context )
   : QWidget( context.parent() )

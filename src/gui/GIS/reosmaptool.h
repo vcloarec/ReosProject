@@ -61,8 +61,12 @@ class REOSGUI_EXPORT ReosMapTool : public QObject
     //! Sets a description of the item element that have to be search
     void setSearchingItemDecription( const QString &description );
 
+    void activateMovingSignal( bool activate );
+
+    void enableSnapping( bool enable );
   signals:
     void itemFoundWhenMoving( ReosMapItem *item );
+    void move( const QPointF &point );
     void activated();
     void deactivated();
 
@@ -122,8 +126,6 @@ class ReosMapToolDrawPolyRubberBand : public ReosMapTool
     void setColor( const QColor &color );
     void setSecondaryStrokeColor( const QColor &color );
     void setLineStyle( Qt::PenStyle style );
-
-    void enableSnapping( bool enable );
 
     void setAllowSelfIntersect( bool b );
 

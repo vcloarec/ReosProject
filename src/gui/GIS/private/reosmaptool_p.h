@@ -60,8 +60,11 @@ class ReosMapTool_p: public QgsMapTool
 
     bool hasFeatureOnMap( const QPointF &mapPoint ) const;
 
+    void setActivateMovingSignal( bool activateMovingSignal );
+
   signals:
     void foundItemWhenMoving( ReosMapItem_p *item );
+    void move( const QPointF &point );
     void keyPressed( int key );
 
   protected:
@@ -86,6 +89,7 @@ class ReosMapTool_p: public QgsMapTool
     bool mUnderPoint = false;
     QString mTargetDescritpion;
     bool mSnappingEnabled = false;
+    bool mActivateMovingSignal = false;
 };
 
 class ReosMapToolDrawPoint_p: public ReosMapTool_p

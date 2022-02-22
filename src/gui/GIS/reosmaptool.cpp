@@ -90,6 +90,11 @@ void ReosMapTool::setSearchingItemDecription( const QString &description )
   tool_p()->setSearchTargetDescription( description );
 }
 
+void ReosMapTool::activateMovingSignal( bool activate )
+{
+  tool_p()->setActivateMovingSignal( activate );
+}
+
 void ReosMapTool::setSearchItemWhenMoving( bool b )
 {
   tool_p()->setSeachWhenMoving( b );
@@ -137,11 +142,6 @@ void ReosMapToolDrawPolyRubberBand::setLineStyle( Qt::PenStyle style )
   d->mRubberBand->setLineStyle( style );
 }
 
-void ReosMapToolDrawPolyRubberBand::enableSnapping( bool enable )
-{
-  d->enableSnapping( enable );
-}
-
 void ReosMapToolDrawPolyRubberBand::setAllowSelfIntersect( bool b )
 {
   d->setAllowSelfIntersect( b );
@@ -162,6 +162,7 @@ void ReosMapTool::setUp()
   connect( tool_p(), &ReosMapTool_p::keyPressed, this, &ReosMapTool::keyPressed );
   connect( tool_p(), &ReosMapTool_p::activated, this, &ReosMapTool::activated );
   connect( tool_p(), &ReosMapTool_p::deactivated, this, &ReosMapTool::deactivated );
+  connect( tool_p(), &ReosMapTool_p::move, this, &ReosMapTool::move );
 }
 
 ReosMap *ReosMapTool::map() const
@@ -192,6 +193,12 @@ bool ReosMapTool::isActive() const
 {
   return tool_p()->isActive();
 }
+
+void ReosMapTool::enableSnapping( bool enable )
+{
+  tool_p()->enableSnapping( enable );
+}
+
 
 ReosMapToolDrawExtent::ReosMapToolDrawExtent( ReosMap *map ): ReosMapToolDrawExtent( map, map )
 {}

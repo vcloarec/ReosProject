@@ -130,6 +130,15 @@ class ReosPolylinesStructure : public ReosGeometryStructure
     //! Returns position of points defining hole in the structure
     virtual QList<QPointF> holePoints( const QString &destinationCrs ) const = 0;
 
+    //! Searches for an hole point in the \a zone and reyturn indexof this point, -1 if nothing
+    virtual int searchHolePoint( const ReosMapExtent &zone ) const = 0;
+
+    //! Moves the hole point with \a index to \a position
+    virtual void moveHolePoint( int index, const ReosSpatialPosition &position ) = 0;
+
+    //! Removes the hole point with \a index
+    virtual void removeHolePoint( int index ) = 0;
+
     //! Returns whether the \a vertex is on boundary
     virtual bool isOnBoundary( ReosGeometryStructureVertex *vertex ) const = 0;
 

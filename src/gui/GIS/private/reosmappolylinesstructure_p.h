@@ -20,6 +20,7 @@
 
 class ReosMapStructureExteriorItem;
 class ReosMapStructureLinesItem;
+class ReosMapStructureHolePointsItem;
 class QgsPointXY;
 
 class ReosMapPolylinesStructure_p : public ReosMapItem_p
@@ -43,6 +44,7 @@ class ReosMapPolylinesStructure_p : public ReosMapItem_p
     ReosPolylinesStructure *mStructure = nullptr;
     ReosMapStructureExteriorItem *mExterior = nullptr;
     ReosMapStructureLinesItem *mLines = nullptr;
+    ReosMapStructureHolePointsItem *mHolePoints = nullptr;
 };
 
 
@@ -76,6 +78,21 @@ class ReosMapStructureLinesItem : public QGraphicsItem
     QList<QLineF> mLinesInLocalView;
     QRectF mBBox;
     double mBaseWidth = 5;
+};
+
+class ReosMapStructureHolePointsItem : public QGraphicsItem
+{
+  public:
+    ReosMapStructureHolePointsItem( ReosMapPolylinesStructure_p *parent );
+    void updatePosition( const ReosPolylinesStructure *structure, ReosMapPolylinesStructure_p *parent, const QString &destinationCrs );
+
+    QRectF boundingRect() const override;
+    void paint( QPainter *painter, const QStyleOptionGraphicsItem *, QWidget * ) override;
+
+  private:
+    QList<QPointF> mViewPoints;
+    QList<bool> mPointValidity;
+    QRectF mBBox;
 };
 
 

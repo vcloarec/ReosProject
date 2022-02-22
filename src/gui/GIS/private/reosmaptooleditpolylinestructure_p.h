@@ -35,6 +35,7 @@ class ReosEditPolylineStructureMenuPopulator: public ReosMenuPopulator
   private:
     void populateVertexAction( ReosGeometryStructureVertex *vertex, QMenu *menu );
     void populateLineAction( QgsFeatureId id, const QPointF &point, QMenu *menu );
+    void populateHoleAction( int holeIndex, QMenu *menu );
 
 
 };
@@ -71,6 +72,7 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
       None,
       DraggingVertex,
       AddingLines,
+      DraggingHolePoint
     };
     State mCurrentState = None;
     QPointF mCurrentPosition;
@@ -81,6 +83,7 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
     QString mMapCrs;
     ReosGeometryStructureVertex *mCurrentVertex = nullptr;
     QList<QPointF> mNeighborPosition;
+    int mMovingHolePointIndex = -1;
 
     double tolerance() const;
     ReosMapExtent searchZone( const QgsPointXY &point ) const;
@@ -88,6 +91,7 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
     QgsRubberBand *mLineRubberBand = nullptr;
     QgsRubberBand *mVertexRubberBand = nullptr;
     QgsRubberBand *mHoveredLineBand = nullptr;
+    QgsRubberBand *mPolygonHoleBand = nullptr;
     void updateMovingVertexRubberBand( const QgsPointXY &movingPosition );
     void moveAddingLineRubberBand( const QgsPointXY &movingPosition );
     void stopDraggingVertex();
@@ -99,11 +103,13 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
 
     QActionGroup *mMainActions = nullptr;
     QAction *mActionAddLines = nullptr;
+    QAction *mActionAddHole = nullptr;
     QAction *mActionMoveVertex = nullptr;
 
     QAction *mActionInsertVertex = nullptr;
     QAction *mActionRemoveVertex = nullptr;
     QAction *mActionRemoveLine = nullptr;
+    QAction *mActionRemoveHole = nullptr;
 
     QAction *mActionUndo = nullptr;
     QAction *mActionRedo = nullptr;

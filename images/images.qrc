@@ -129,5 +129,6 @@
         <file>redoOrange.svg</file>
         <file>generateMesh.svg</file>
         <file>menuMeshReslution.svg</file>
+        <file>addHole.svg</file>
     </qresource>
 </RCC>

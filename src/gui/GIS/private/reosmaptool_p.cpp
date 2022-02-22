@@ -535,6 +535,11 @@ QgsGeometry ReosMapTool_p::selectFeatureOnMap( QgsMapMouseEvent *e )
   return QgsGeometry();
 }
 
+void ReosMapTool_p::setActivateMovingSignal( bool activateMovingSignal )
+{
+  mActivateMovingSignal = activateMovingSignal;
+}
+
 bool ReosMapTool_p::snappingEnabled() const
 {
   return mSnappingEnabled;
@@ -552,6 +557,9 @@ void ReosMapTool_p::canvasMoveEvent( QgsMapMouseEvent *e )
     e->snapPoint();
     mSnappingIndicator->setMatch( e->mapPointMatch() );
   }
+
+  if ( mActivateMovingSignal )
+    emit move( e->mapPoint().toQPointF() );
 
   if ( !mSeachWhenMoving )
     return;
