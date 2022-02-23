@@ -113,6 +113,8 @@ bool LekanMainWindow::openProject()
   if ( !file.open( QIODevice::ReadOnly ) )
     return false;
 
+  clearProject();
+
   ReosVersion version;
 
   QDataStream stream( &file );

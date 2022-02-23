@@ -70,9 +70,12 @@ void ReosMapToolEditPolygonStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
   }
   else if ( e->button() == Qt::RightButton )
   {
-    const QPolygonF polygon = mPolygonRubberBand->asGeometry().asQPolygonF();
-    mStructure->addPolygon( polygon, mCurrentClassId );
-    resetTool();
+    if ( mPolygonRubberBand->numberOfVertices() > 0 )
+    {
+      const QPolygonF polygon = mPolygonRubberBand->asGeometry().asQPolygonF();
+      mStructure->addPolygon( polygon, mCurrentClassId );
+      resetTool();
+    }
   }
 }
 

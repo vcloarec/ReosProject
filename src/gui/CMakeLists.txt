@@ -68,6 +68,8 @@ SET(REOS_GUI_SOURCES
     hydrograph/reoshydrographroutingpropertieswidget.cpp
     hydrograph/reosgaugedhydrographwidget.cpp
 
+    mesh/reosmeshgeneratorgui.cpp
+
     hydraulicNetwork/reoshydraulicnetworkwidget.cpp
     hydraulicNetwork/reoshydraulicnetworkmapitemfactory.cpp
     hydraulicNetwork/reosmaptoolhydraulicnetwork.cpp
@@ -133,6 +135,8 @@ SET(REOS_GUI_HEADERS
     hydrograph/reoshydrographeditingwidget.h
     hydrograph/reoshydrographroutingpropertieswidget.h
     hydrograph/reosgaugedhydrographwidget.h
+
+    mesh/reosmeshgeneratorgui.h
 
     hydraulicNetwork/reoshydraulicnetworkwidget.h
     hydraulicNetwork/reosmaptoolhydraulicnetwork.h
@@ -237,6 +241,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/gui/hydraulicNetwork
     ${CMAKE_SOURCE_DIR}/src/gui/hydraulicNetwork/structure2d
     ${CMAKE_SOURCE_DIR}/src/gui/watershed
+    ${CMAKE_SOURCE_DIR}/src/gui/mesh
     ${QGIS_INCLUDE_DIR}
     ${QSCISCINTILLA_INCLUDE_DIR}
     ${QWT_INCLUDE}

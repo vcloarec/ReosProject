@@ -27,6 +27,8 @@ class  ReosMeshFrameData;
 class ReosRenderedObject
 {
   public:
+    virtual ~ReosRenderedObject() {}
+
     virtual void render( QGraphicsView *canvas, QPainter *painter ) = 0; ///TODO look to see if painter can be deduced from canvas in QGIS
 };
 
