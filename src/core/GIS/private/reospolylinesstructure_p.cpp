@@ -1198,29 +1198,35 @@ QList<VertexP> ReosPolylineStructureVectorLayer::searchVerticesPolygon( const Qg
 
   auto captureFirstLine = [&]
   {
-    lineId = featuresDistance.takeFirst().first;
-    Segment seg = idToSegment( lineId );
-    firstVertex = seg.at( 0 ).get();
-    nextVertex = seg.at( 1 ).get();
-
-    ccw = ccwAngle( QgsPointXY( nextVertex->position() ) - QgsPointXY( firstVertex->position() ),
-                    layerPoint - QgsPointXY( firstVertex->position() ) ) > 180;
-
-    QgsVector v1 = layerPoint - firstVertex->position();
-    QgsVector v2 = QgsPointXY( nextVertex->position() ) - firstVertex->position();
-
-    if ( v1.length() > 0 && v2.length() > 0 )
+    bool firstFound = false;
+    vertices.clear();
+    firstVertex = nullptr;
+    while ( !featuresDistance.isEmpty() && !firstFound )
     {
-      v1 = v1.normalized();
-      v2 = v2.normalized();
+      lineId = featuresDistance.takeFirst().first;
+      Segment seg = idToSegment( lineId );
+      firstVertex = seg.at( 0 ).get();
+      nextVertex = seg.at( 1 ).get();
+
+      if ( !allowBoundary && ( isOnBoundary( firstVertex ) || isOnBoundary( nextVertex ) ) )
+        continue;
+
+      firstFound = true;
+      ccw = ccwAngle( QgsPointXY( nextVertex->position() ) - QgsPointXY( firstVertex->position() ),
+                      layerPoint - QgsPointXY( firstVertex->position() ) ) > 180;
+
+      QgsVector v1 = layerPoint - firstVertex->position();
+      QgsVector v2 = QgsPointXY( nextVertex->position() ) - firstVertex->position();
+
+      if ( v1.length() > 0 && v2.length() > 0 )
+      {
+        v1 = v1.normalized();
+        v2 = v2.normalized();
+      }
     }
 
     vertices.append( firstVertex );
   };
-
-  captureFirstLine();
-  if ( !allowBoundary && isOnBoundary( firstVertex ) )
-    return QList<VertexP>();
 
   auto cmp = [&prevVertex, &nextVertex, this, &ccw]( SegmentId id1, SegmentId id2 )
   {
@@ -1243,53 +1249,70 @@ QList<VertexP> ReosPolylineStructureVectorLayer::searchVerticesPolygon( const Qg
   QSet<VertexP> threatedVertices;
   threatedVertices.insert( firstVertex );
   prevVertex = firstVertex;
-  while ( !threatedVertices.contains( nextVertex ) )
+  bool found = false;
+  while ( !found && !featuresDistance.isEmpty() )
   {
-    if ( !allowBoundary && isOnBoundary( nextVertex ) )
+    threatedVertices.clear();
+    captureFirstLine();
+    if ( !firstVertex )
       return QList<VertexP>();
+    prevVertex = firstVertex;
 
-    QList<SegmentId> lines = qgis::setToList( nextVertex->attachedLines() );
-    lines.removeOne( lineId );
-    if ( !lines.isEmpty() )
+    while ( !threatedVertices.contains( nextVertex ) )
     {
-      vertices.append( nextVertex );
-      std::sort( lines.begin(), lines.end(), cmp );
-      for ( SegmentId sid : lines )
-        lineToThreat.push( {sid, nextVertex} );
-    }
+      if ( !allowBoundary && isOnBoundary( nextVertex ) )
+        return QList<VertexP>();
 
-    if ( !lineToThreat.isEmpty() )
-    {
-      const Line line = lineToThreat.pop();
-      lineId = line.first;
-      if ( !threatedVertices.contains( line.second ) )
-        threatedVertices.insert( line.second );
-
-      while ( vertices.last() != line.second && !vertices.isEmpty() )
+      QList<SegmentId> lines = qgis::setToList( nextVertex->attachedLines() );
+      lines.removeOne( lineId );
+      if ( !lines.isEmpty() )
       {
-        threatedVertices.remove( vertices.last() );
-        vertices.removeLast();
+        vertices.append( nextVertex );
+        std::sort( lines.begin(), lines.end(), cmp );
+        for ( SegmentId sid : lines )
+          lineToThreat.push( {sid, nextVertex} );
       }
 
-      prevVertex = line.second;
-      nextVertex = oppositeVertexPointer( line.second, line.first );
-    }
-    else
-    {
-      if ( !featuresDistance.isEmpty() )
+      if ( !lineToThreat.isEmpty() )
       {
-        vertices.clear();
-        threatedVertices.clear();
-        captureFirstLine();
-        prevVertex = firstVertex;
+        const Line line = lineToThreat.pop();
+        lineId = line.first;
+        if ( !threatedVertices.contains( line.second ) )
+          threatedVertices.insert( line.second );
+
+        while ( vertices.last() != line.second && !vertices.isEmpty() )
+        {
+          threatedVertices.remove( vertices.last() );
+          vertices.removeLast();
+        }
+
+        prevVertex = line.second;
+        nextVertex = oppositeVertexPointer( line.second, line.first );
       }
       else
-        return QList<VertexP>();
+      {
+        if ( featuresDistance.isEmpty() )
+          return QList<VertexP>();
+        else
+          break;
+      }
+    }
+
+    while ( vertices.first() != nextVertex )
+      vertices.removeFirst();
+
+    if ( vertices.count() > 2 )
+    {
+      QPolygonF points;
+      for ( VertexP vert : std::as_const( vertices ) )
+      {
+        points.append( vert->position() );
+      }
+      points.append( points.first() );
+      QgsGeometry geom = QgsGeometry::fromQPolygonF( points );
+      found = geom.contains( &layerPoint );
     }
   }
-
-  while ( vertices.first() != nextVertex )
-    vertices.removeFirst();
 
   return vertices;
 
