@@ -36,8 +36,6 @@ class ReosEditPolylineStructureMenuPopulator: public ReosMenuPopulator
     void populateVertexAction( ReosGeometryStructureVertex *vertex, QMenu *menu );
     void populateLineAction( QgsFeatureId id, const QPointF &point, QMenu *menu );
     void populateHoleAction( int holeIndex, QMenu *menu );
-
-
 };
 
 class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p

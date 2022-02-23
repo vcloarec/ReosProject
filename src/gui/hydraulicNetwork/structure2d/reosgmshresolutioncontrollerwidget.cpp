@@ -40,6 +40,7 @@ ReosGmshResolutionControllerWidget::ReosGmshResolutionControllerWidget( ReosHydr
 
   ui->mDefaultSizeParameterWidget->setDouble( mController->defaultSize() );
   mMapToolEditResolutionPolygon = new ReosMapToolEditPolygonStructure( mController->resolutionPolygons(), this, guiContext.map() );
+  mMapToolEditResolutionPolygon->addHelperStructure( structure2D->geometryStructure() );
   mMapToolEditResolutionPolygon->setAction( mActionEditResolutionPolygons );
   mActionEditResolutionPolygons->setCheckable( true );
 

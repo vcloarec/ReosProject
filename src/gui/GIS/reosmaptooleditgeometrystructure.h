@@ -52,11 +52,13 @@ class ReosMapToolEditPolygonStructure : public ReosMapTool
 
     void setCurrentClass( const QString &classId );
 
+    void addHelperStructure( ReosGeometryStructure *structure );
+
     QActionGroup *mainActions() const;
 
   private:
     QPointer<ReosMapToolEditPolygonStructure_p> d;
-    ReosMapTool_p *tool_p() const;
+    ReosMapTool_p *tool_p() const override;
 };
 
 

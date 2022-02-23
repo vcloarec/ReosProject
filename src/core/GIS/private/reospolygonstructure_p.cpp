@@ -164,7 +164,7 @@ double ReosPolygonStructure_p::value( const ReosSpatialPosition &position, bool 
                           .setFlags( QgsFeatureRequest::ExactIntersect ) );
 
   QgsFeature feat;
-  double value = 0;
+  double value = std::numeric_limits<double>::max();
   int foundValues = 0;
   while ( it.nextFeature( feat ) )
   {
@@ -177,7 +177,8 @@ double ReosPolygonStructure_p::value( const ReosSpatialPosition &position, bool 
       if ( ok )
       {
         foundValues++;
-        value += v;
+        if ( v < value )
+          value = v;
         if ( !acceptClose )
           break;
       }
@@ -185,7 +186,7 @@ double ReosPolygonStructure_p::value( const ReosSpatialPosition &position, bool 
   }
 
   if ( foundValues > 0 )
-    return value / foundValues;
+    return value;
   else
     return std::numeric_limits<double>::quiet_NaN();
 

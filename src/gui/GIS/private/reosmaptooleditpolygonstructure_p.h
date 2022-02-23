@@ -21,16 +21,33 @@
 #include "reospolygonstructure.h"
 
 class QgsMapCanvas;
+class ReosMapToolEditPolygonStructure_p;
+
+class ReosEditPolygonStructureMenuPopulator: public ReosMenuPopulator
+{
+  public:
+    ReosEditPolygonStructureMenuPopulator( ReosMapToolEditPolygonStructure_p *toolMap );
+
+    bool populate( QMenu *menu, QgsMapMouseEvent *e = nullptr ) override;
+
+  private:
+    ReosMapToolEditPolygonStructure_p *mToolMap = nullptr;
+
+};
 
 class ReosMapToolEditPolygonStructure_p : public ReosMapTool_p
 {
   public:
     ReosMapToolEditPolygonStructure_p( QgsMapCanvas *map );
 
+    Flags flags() const override;
+
     void setStructure( ReosPolygonStructure *structure );
     QActionGroup *mainActions() const;
 
     void setCurrentClassId( const QString &currentClassId );
+
+    void addHelperStructure( ReosGeometryStructure *structure );
 
   protected:
     void canvasMoveEvent( QgsMapMouseEvent *e ) override;
@@ -39,6 +56,14 @@ class ReosMapToolEditPolygonStructure_p : public ReosMapTool_p
     void keyPressEvent( QKeyEvent *e ) override;
 
   private:
+    enum State
+    {
+      None,
+      AddingPolygon,
+    };
+
+    State mCurrentState = None;
+    QPointF mCurrentPosition;
     QPointer<ReosPolygonStructure> mStructure;
     QgsRubberBand *mPolygonRubberBand = nullptr;
 
@@ -50,6 +75,10 @@ class ReosMapToolEditPolygonStructure_p : public ReosMapTool_p
 
     void resetTool();
     void addPolygon( const QPolygonF &polygon );
+
+    QList<QPointer<ReosGeometryStructure>> mHelperStructure;
+
+    friend class ReosEditPolygonStructureMenuPopulator;
 
 };
 

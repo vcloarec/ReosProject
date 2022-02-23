@@ -50,6 +50,8 @@ class ReosPolygonStructure : public ReosGeometryStructure
 
     virtual ReosEncodedElement encode() const = 0;
 
+    QPolygonF searchPolygon( const ReosSpatialPosition &, bool  = true ) const override {return QPolygonF();}
+
   signals:
     void classesChanged();
 

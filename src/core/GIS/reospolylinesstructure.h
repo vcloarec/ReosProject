@@ -118,12 +118,6 @@ class ReosPolylinesStructure : public ReosGeometryStructure
      */
     virtual  QList<QPointF> intersectionPoints( const QLineF &line, const QString &crs = QString(), const QPolygonF &otherPoly = QPolygonF() ) const = 0;
 
-    /**
-     * Searches a closed polygon containing \a position, returns the polygon in \a position coordinate.
-     * If \a allowBoundary is false, return nothing if the polygon has a boundary vertex.
-     */
-    virtual QPolygonF searchPolygon( const ReosSpatialPosition &position, bool allowBoundary = true ) const = 0;
-
     //! Adds a point that represent a hole in the structure at \a position
     virtual void addHolePoint( const ReosSpatialPosition &position ) = 0;
 

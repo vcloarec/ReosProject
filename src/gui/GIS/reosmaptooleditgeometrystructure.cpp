@@ -61,6 +61,11 @@ ReosMapToolEditPolygonStructure::ReosMapToolEditPolygonStructure( ReosPolygonStr
   d->setStructure( structure );
   setCursor( Qt::CrossCursor );
 
+  std::unique_ptr<ReosEditPolygonStructureMenuPopulator> menuPopulator =
+    std::make_unique<ReosEditPolygonStructureMenuPopulator>( d );
+
+  setContextMenuPopulator( menuPopulator.release() );
+
 }
 
 ReosMapToolEditPolygonStructure::~ReosMapToolEditPolygonStructure()
@@ -72,6 +77,11 @@ ReosMapToolEditPolygonStructure::~ReosMapToolEditPolygonStructure()
 void ReosMapToolEditPolygonStructure::setCurrentClass( const QString &classId )
 {
   d->setCurrentClassId( classId );
+}
+
+void ReosMapToolEditPolygonStructure::addHelperStructure( ReosGeometryStructure *structure )
+{
+  d->addHelperStructure( structure );
 }
 
 QActionGroup *ReosMapToolEditPolygonStructure::mainActions() const

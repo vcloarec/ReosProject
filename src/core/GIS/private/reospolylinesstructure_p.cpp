@@ -1298,11 +1298,11 @@ QList<VertexP> ReosPolylineStructureVectorLayer::searchVerticesPolygon( const Qg
       }
     }
 
-    while ( vertices.first() != nextVertex )
-      vertices.removeFirst();
-
     if ( vertices.count() > 2 )
     {
+      while ( vertices.first() != nextVertex )
+        vertices.removeFirst();
+
       QPolygonF points;
       for ( VertexP vert : std::as_const( vertices ) )
       {

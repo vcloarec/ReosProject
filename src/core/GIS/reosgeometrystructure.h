@@ -19,6 +19,7 @@
 #include "reosdataobject.h"
 
 class ReosMapExtent;
+class ReosSpatialPosition;
 
 class ReosGeometryStructureVertex
 {
@@ -34,6 +35,12 @@ class ReosGeometryStructure : public ReosDataObject
 
     //! Returns the extent of the structure in \a crs coordinate system
     virtual ReosMapExtent extent( const QString &crs ) const = 0;
+
+    /**
+     * Searches a closed polygon containing \a position, returns the polygon in \a position coordinate.
+     * If \a allowBoundary is false, return nothing if the polygon has a boundary vertex.
+     */
+    virtual QPolygonF searchPolygon( const ReosSpatialPosition &position, bool allowBoundary = true ) const = 0;
 };
 
 
