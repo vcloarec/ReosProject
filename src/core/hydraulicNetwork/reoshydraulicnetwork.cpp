@@ -128,6 +128,7 @@ ReosHydraulicNetwork::ReosHydraulicNetwork( ReosModule *parent, ReosWatershedMod
   , mWatershedModule( watershedModule )
 {
   ReosHydrographRoutingMethodFactories::instantiate( this );
+  ReosGmshEngine::instantiate( this );
 
   mElementFactories.emplace( ReosHydrographNodeWatershed::staticType(), new ReosHydrographNodeWatershedFactory );
   mElementFactories.emplace( ReosHydrographJunction::staticType(), new ReosHydrographJunctionFactory );

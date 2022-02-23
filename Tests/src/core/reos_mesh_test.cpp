@@ -44,28 +44,25 @@ void ReosMeshTest::GmshGenerator()
   ReosGmshGenerator generator;
 
   std::unique_ptr<ReosMeshGeneratorProcess> process;
-  bool ok;
-  process.reset( generator.generatedMesh( structure.get(), nullptr, &ok ) );
+  process.reset( generator.getGenerateMeshProcess( structure.get(), nullptr ) );
   process->start();
   QVERIFY( process->isSuccessful() );
   ReosMeshFrameData frameData = process->meshResult();
 
   ReosMeshResolutionController controler;
   controler.defaultSize()->setValue( 1 );
-  process.reset( generator.generatedMesh( structure.get(), &controler, &ok ) );
+  process.reset( generator.getGenerateMeshProcess( structure.get(), &controler ) );
   process->start();
   QVERIFY( process->isSuccessful() );
   frameData = process->meshResult();
   QCOMPARE( frameData.facesIndexes.count(), 1026 );
 
   controler.defaultSize()->setValue( 10 );
-  process.reset( generator.generatedMesh( structure.get(), &controler, &ok ) );
+  process.reset( generator.getGenerateMeshProcess( structure.get(), &controler ) );
   process->start();
   QVERIFY( process->isSuccessful() );
   frameData = process->meshResult();
   QCOMPARE( frameData.facesIndexes.count(), 16 );
-
-  QVERIFY( ok );
 }
 
 void ReosMeshTest::memoryMesh()
@@ -85,9 +82,8 @@ void ReosMeshTest::memoryMesh()
 
   std::unique_ptr<ReosPolylinesStructure> structure = ReosPolylinesStructure::createPolylineStructure( domain, QString() );
 
-  bool ok = false;
   std::unique_ptr<ReosMeshGeneratorProcess> process;
-  process.reset( generator.generatedMesh( structure.get(), nullptr, &ok ) );
+  process.reset( generator.getGenerateMeshProcess( structure.get(), nullptr ) );
   process->start();
   QVERIFY( process->isSuccessful() );
   mesh->generateMesh( process->meshResult() );

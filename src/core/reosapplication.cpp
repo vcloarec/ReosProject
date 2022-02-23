@@ -34,12 +34,12 @@ bool ReosApplication::notify( QObject *receiver, QEvent *event )
   catch ( std::exception &e )
   {
     if ( qApp->thread() == QThread::currentThread() )
-      QMessageBox::critical( activeWindow(), tr( "Exception" ), e.what() );
+      QMessageBox::critical( activeWindow(), tr( "Error:" ), e.what() );
   }
   catch ( ... )
   {
     if ( qApp->thread() == QThread::currentThread() )
-      QMessageBox::critical( activeWindow(), tr( "Exception" ), tr( "unknown exception" ) );
+      QMessageBox::critical( activeWindow(), tr( "Exception" ), tr( "Unknown error" ) );
   }
 
   return done;

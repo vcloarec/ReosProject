@@ -584,8 +584,10 @@ void ReosPolylineStructureVectorLayer::addPolylines( const QPolygonF &polyline, 
 
   if ( !somethingDone )
   {
+    mVectorLayer->undoStack()->blockSignals( true );
     mVectorLayer->destroyEditCommand();
     mVectorLayer->undoStack()->canRedoChanged( false );
+    mVectorLayer->undoStack()->blockSignals( false );
   }
   else
     mVectorLayer->endEditCommand();

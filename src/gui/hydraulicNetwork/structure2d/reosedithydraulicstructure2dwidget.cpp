@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
   reosedithydraulicstructure2dwidget.cpp - ReosEditHydraulicStructure2DWidget
 
  ---------------------
@@ -26,6 +26,7 @@
 #include "reosgmshresolutioncontrollerwidget.h"
 #include "reoseditpolylinestructurewidget.h"
 #include "reossettings.h"
+#include "reosprocesscontroler.h"
 
 
 ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context )
@@ -40,7 +41,7 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
   //mesh generation setup
   QList<QAction *> meshGenerationToolBarActions;
   QAction *actionGenerateMesh = new QAction( QPixmap( QStringLiteral( ":/images/generateMesh.svg" ) ), tr( "Generate Mesh" ), this );
-  connect( actionGenerateMesh, &QAction::triggered, structure2D, &ReosHydraulicStructure2D::generateMesh );
+  connect( actionGenerateMesh, &QAction::triggered, this, &ReosEditHydraulicStructure2DWidget::generateMesh );
   meshGenerationToolBarActions.append( actionGenerateMesh );
   meshGenerationToolBarActions.append( new ReosParameterWidgetAction( structure2D->meshGenerator()->autoUpdateParameter(), this ) );
 
@@ -95,5 +96,14 @@ void ReosEditHydraulicStructure2DWidget::onMeshOptionListChanged( int row )
 
   ReosSettings settings;
   settings.setValue( QStringLiteral( "/hydraulic-structure/edit-widget/current-row" ), row );
+}
+
+void ReosEditHydraulicStructure2DWidget::generateMesh()
+{
+  std::unique_ptr<ReosMeshGeneratorProcess> generatorProcess( mStructure2D->getGenerateMeshProcess() );
+
+  ReosProcessControler *controler = new ReosProcessControler( generatorProcess.get(), this );
+  controler->exec();
+
 }
 

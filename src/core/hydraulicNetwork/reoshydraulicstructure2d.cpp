@@ -43,25 +43,27 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
     mMeshResolutionController = new ReosMeshResolutionController( this );
 
   init();
-
 }
 
 void ReosHydraulicStructure2D::init()
 {
-  if ( mMeshGenerator->autoUpdateParameter()->value() )
-    generateMesh();
-
   connect( mPolylinesStructures.get(), &ReosDataObject::dataChanged, this, [this]
   {
     if ( mMeshGenerator->autoUpdateParameter()->value() )
-      generateMesh();
+      generateMeshInPlace();
   } );
 
   connect( mMeshResolutionController, &ReosDataObject::dataChanged, this, [this]
   {
     if ( mMeshGenerator->autoUpdateParameter()->value() )
-      generateMesh();
+      generateMeshInPlace();
   } );
+}
+
+void ReosHydraulicStructure2D::generateMeshInPlace()
+{
+  std::unique_ptr<ReosMeshGeneratorProcess> process( getGenerateMeshProcess() );
+  process->start();
 }
 
 ReosMeshGenerator *ReosHydraulicStructure2D::meshGenerator() const
@@ -89,20 +91,21 @@ ReosMesh *ReosHydraulicStructure2D::mesh() const
   return mMesh.get();
 }
 
-bool ReosHydraulicStructure2D::generateMesh()
+ReosMeshGeneratorProcess *ReosHydraulicStructure2D::getGenerateMeshProcess()
 {
-  bool ok = false;
-  std::unique_ptr<ReosMeshGeneratorProcess> process;
-  process.reset( mMeshGenerator->generatedMesh( mPolylinesStructures.get(), mMeshResolutionController, &ok ) );
-  process->start();
-  if ( mMesh && process->isSuccessful() )
+  std::unique_ptr<ReosMeshGeneratorProcess> process( mMeshGenerator->getGenerateMeshProcess( mPolylinesStructures.get(), mMeshResolutionController ) );
+  ReosMeshGeneratorProcess *processP = process.get();
+
+  connect( processP, &ReosProcess::finished, this, [this, processP]
   {
-    mMesh->generateMesh( process->meshResult() );
-    emit dataChanged();
-    return true;
-  }
-  else
-    return false;
+    if ( mMesh && processP->isSuccessful() )
+    {
+      mMesh->generateMesh( processP->meshResult() );
+      emit dataChanged();
+    }
+  } );
+
+  return process.release();
 }
 
 ReosHydraulicStructure2D *ReosHydraulicStructure2D::create( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent )

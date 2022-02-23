@@ -30,35 +30,6 @@
 #include "reospolygonstructure.h"
 
 
-class ReosGmshWorker : public QThread
-{
-  public:
-    void generate();
-};
-
-class ReosGmshEngine : ReosModule
-{
-  public:
-    ReosGmshEngine *instantiate( QObject *parent )
-    {
-      if ( !sInstance )
-        sInstance = new ReosGmshEngine( parent );
-
-      return sInstance;
-    }
-
-    bool isBusy() const;
-
-  private:
-    ReosGmshEngine( QObject *parent ): ReosModule( parent ) {}
-    static ReosGmshEngine *sInstance;
-    QMutex mMutex;
-    bool mIsBusy;
-
-    void initialize();
-};
-
-
 class ReosGmshGenerator : public ReosMeshGenerator
 {
   public:
@@ -78,18 +49,36 @@ class ReosGmshGenerator : public ReosMeshGenerator
     ReosGmshGenerator( QObject *parent = nullptr );
     ReosGmshGenerator( const ReosEncodedElement &element, QObject *parent = nullptr );
 
-    ReosMeshGeneratorProcess *generatedMesh(
-      ReosPolylinesStructure *structure,
-      ReosMeshResolutionController *resolutionControler,
-      bool *ok ) const override;
+    ReosMeshGeneratorProcess *getGenerateMeshProcess( ReosPolylinesStructure *structure, ReosMeshResolutionController *resolutionControler ) const override;
 
-
-    ReosEncodedElement encode() const;
+    ReosEncodedElement encode() const override;
 
   private:
     Algorithm mAlgorithm = FrontalDelaunay;
 
 };
+
+class ReosGmshEngine : public ReosModule
+{
+    Q_OBJECT
+  public:
+    static ReosGmshEngine *instance();
+
+    ReosMeshFrameData generateMesh( const ReosPolylinesStructure::Data &data,
+                                    ReosMeshResolutionController *resolutionControler,
+                                    ReosGmshGenerator::Algorithm alg );
+
+    static void instantiate( QObject *parent );
+
+  signals:
+    void startGenerate();
+
+  private:
+    ReosGmshEngine( QObject *parent );
+    QMutex mMutex;
+    static ReosGmshEngine *sInstance;
+};
+
 
 class ReosMeshGeneratorGmshProcess: public ReosMeshGeneratorProcess
 {
@@ -107,8 +96,6 @@ class ReosMeshGeneratorGmshProcess: public ReosMeshGeneratorProcess
     ReosPolylinesStructure::Data mData;
     std::unique_ptr<ReosMeshResolutionController> mResolutionControler;
     ReosGmshGenerator::Algorithm mAlgorithm = ReosGmshGenerator::FrontalDelaunay;
-
-    double sizeFallBack( int dim, int tag, double x, double y, double z, double lc );
 };
 
 

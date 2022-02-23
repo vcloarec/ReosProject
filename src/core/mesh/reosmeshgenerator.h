@@ -79,10 +79,9 @@ class ReosMeshGenerator : public QObject
 {
   public:
 
-    virtual ReosMeshGeneratorProcess *generatedMesh(
+    virtual ReosMeshGeneratorProcess *getGenerateMeshProcess(
       ReosPolylinesStructure *structure,
-      ReosMeshResolutionController *resolutionControler,
-      bool *ok ) const = 0;
+      ReosMeshResolutionController *resolutionControler ) const = 0;
 
     ReosParameterBoolean *autoUpdateParameter() const;
 
@@ -120,10 +119,9 @@ class ReosMeshGeneratorPoly2Tri : public ReosMeshGenerator
 {
   public:
 
-    virtual ReosMeshGeneratorProcess *generatedMesh(
+    virtual ReosMeshGeneratorProcess *getGenerateMeshProcess(
       ReosPolylinesStructure *structure,
-      ReosMeshResolutionController *resolutionControler,
-      bool *ok ) const override;
+      ReosMeshResolutionController *resolutionControler ) const override;
 
     //! Sets the \a domain to triangulate
     void setDomain( const QPolygonF &domain );
