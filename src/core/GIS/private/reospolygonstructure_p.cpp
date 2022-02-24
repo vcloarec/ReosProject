@@ -130,7 +130,9 @@ ReosEncodedElement ReosPolygonStructure_p::encode() const
 }
 
 ReosPolygonStructure_p::~ReosPolygonStructure_p()
-{}
+{
+  disconnect( mVectorLayer->undoStack(), &QUndoStack::indexChanged, this, &ReosDataObject::dataChanged );
+}
 
 ReosPolygonStructure *ReosPolygonStructure_p::clone() const
 {

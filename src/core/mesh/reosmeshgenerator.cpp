@@ -109,6 +109,9 @@ ReosMeshResolutionController::ReosMeshResolutionController( const ReosEncodedEle
 
   if ( !mPolygonStructure )
     mPolygonStructure = ReosPolygonStructure::createPolygonStructure( QString() );
+
+  connect( mDefaultSize, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+  connect( mPolygonStructure.get(), &ReosDataObject::dataChanged, this, &ReosDataObject::dataChanged );
 }
 
 

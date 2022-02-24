@@ -48,6 +48,7 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
   ReosEditPolylineStructureWidget *structureWidget = new ReosEditPolylineStructureWidget( structure2D->geometryStructure(), ReosGuiContext( context, this ) );
   structureWidget->addToolBarActions( meshGenerationToolBarActions );
   structureWidget->setSettingsWidget( ReosFormWidgetFactories::instance()->createDataFormWidget( structure2D->meshGenerator(), ReosGuiContext( context, structureWidget ) ) );
+  structureWidget->setInformationWidget( new ReosStructureInformationWidget( structure2D, structureWidget ) );
   ui->pageMeshStructure->layout()->addWidget( structureWidget );
 
   ReosGmshResolutionControllerWidget *resolutionWidget = new ReosGmshResolutionControllerWidget( structure2D, ReosGuiContext( context, this ) );
@@ -108,3 +109,31 @@ void ReosEditHydraulicStructure2DWidget::generateMesh()
 
 }
 
+
+ReosStructureInformationWidget::ReosStructureInformationWidget( ReosHydraulicStructure2D *structure, QWidget *parent )
+  : QWidget( parent )
+  , mHydraulicStructure( structure )
+{
+  QGridLayout *lay = new QGridLayout( this );
+  setLayout( lay );
+
+  lay->addWidget( new QLabel( tr( "Vertices count" ), this ), 0, 0 );
+  mLabelVerticesCount = new QLabel( QString( '-' ), this );
+  lay->addWidget( mLabelVerticesCount, 0, 1 );
+  lay->addWidget( new QLabel( tr( "Faces count" ), this ), 1, 0 );
+  mLabelFacesCount = new QLabel( QString( '-' ), this );
+  lay->addWidget( mLabelFacesCount, 1, 1 );
+
+  connect( mHydraulicStructure, &ReosDataObject::dataChanged, this, &ReosStructureInformationWidget::update );
+
+  update();
+}
+
+void ReosStructureInformationWidget::update()
+{
+  if ( mHydraulicStructure.isNull() )
+    return;
+
+  mLabelVerticesCount->setText( QLocale().toString( mHydraulicStructure->mesh()->vertexCount() ) );
+  mLabelFacesCount->setText( QLocale().toString( mHydraulicStructure->mesh()->faceCount() ) );
+}

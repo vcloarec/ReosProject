@@ -31,12 +31,17 @@ ReosMapItem_p *ReosMapPolygonStructure_p::clone()
 
 QPointF ReosMapPolygonStructure_p::mapPos() const
 {
+  if ( mStructure.isNull() )
+    return QPointF();
   ReosMapExtent extent = mStructure->extent( crs() );
   return QPointF( extent.xMapMin(), extent.yMapMin() );
 }
 
 void ReosMapPolygonStructure_p::updatePosition()
 {
+  if ( mStructure.isNull() )
+    return;
+
   prepareGeometryChange();
   ReosMapExtent extent = mStructure->extent( crs() );
 
@@ -61,6 +66,9 @@ void ReosMapPolygonStructure_p::setStructure( ReosPolygonStructure *structure )
 
 void ReosMapPolygonStructure_p::paint( QPainter *painter )
 {
+  if ( mStructure.isNull() )
+    return;
+
   QgsVectorLayer *vectorLayer = qobject_cast<QgsVectorLayer *>( mStructure->data() );
 
   if ( vectorLayer )

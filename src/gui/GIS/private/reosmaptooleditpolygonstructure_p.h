@@ -76,6 +76,8 @@ class ReosMapToolEditPolygonStructure_p : public ReosMapTool_p
     void resetTool();
     void addPolygon( const QPolygonF &polygon );
 
+    bool hasHelperPolygon() const;
+
     QList<QPointer<ReosGeometryStructure>> mHelperStructure;
 
     friend class ReosEditPolygonStructureMenuPopulator;

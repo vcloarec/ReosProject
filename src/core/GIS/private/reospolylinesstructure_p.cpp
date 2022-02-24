@@ -1280,7 +1280,7 @@ QList<VertexP> ReosPolylineStructureVectorLayer::searchVerticesPolygon( const Qg
         if ( !threatedVertices.contains( line.second ) )
           threatedVertices.insert( line.second );
 
-        while ( vertices.last() != line.second && !vertices.isEmpty() )
+        while ( !vertices.isEmpty() && vertices.last() != line.second )
         {
           threatedVertices.remove( vertices.last() );
           vertices.removeLast();
@@ -1314,8 +1314,10 @@ QList<VertexP> ReosPolylineStructureVectorLayer::searchVerticesPolygon( const Qg
     }
   }
 
-  return vertices;
+  if ( !found )
+    return QList<VertexP>();
 
+  return vertices;
 }
 
 QPolygonF ReosPolylineStructureVectorLayer::searchPolygon( const ReosSpatialPosition &position, bool allowBoundary ) const

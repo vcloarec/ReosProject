@@ -44,6 +44,8 @@ QgsMapTool::Flags ReosMapToolEditPolygonStructure_p::flags() const
     case None:
       if ( hasFeatureOnMap( mCurrentPosition ) )
         return Flags();
+      if ( !hasHelperPolygon() )
+        return Flags();
       return ShowContextMenu;
       break;
   }
@@ -143,6 +145,19 @@ void ReosMapToolEditPolygonStructure_p::addPolygon( const QPolygonF &polygon )
 
 }
 
+bool ReosMapToolEditPolygonStructure_p::hasHelperPolygon() const
+{
+  ReosSpatialPosition position( mCurrentPosition, mapCrs() );
+  for ( const QPointer<ReosGeometryStructure> &str : std::as_const( mHelperStructure ) )
+  {
+    if ( str.isNull() )
+      continue;
+    if ( !str->searchPolygon( position, true ).isEmpty() )
+      return true;
+  }
+  return false;
+}
+
 ReosEditPolygonStructureMenuPopulator::ReosEditPolygonStructureMenuPopulator( ReosMapToolEditPolygonStructure_p *toolMap )
   : mToolMap( toolMap )
 {}
@@ -161,11 +176,18 @@ bool ReosEditPolygonStructureMenuPopulator::populate( QMenu *menu, QgsMapMouseEv
       break;
   }
 
-  if ( structurePolygon.isEmpty() )
-    menu->addAction( "nope" );
-  else
+
+  if ( !structurePolygon.isEmpty() )
   {
-    QAction *actionStructurePoly = menu->addAction( "we've got one" );
+    menu->clear();
+    QString stringValue;
+    double value = mToolMap->mStructure->value( mToolMap->mCurrentClassId );
+    if ( std::isnan( value ) )
+      stringValue = QObject::tr( "default" );
+    else
+      stringValue = QLocale().toString( value );
+
+    QAction *actionStructurePoly = menu->addAction( QObject::tr( "Apply %1 to this polygon" ).arg( stringValue ) );
 
     QgsRubberBand *polyRubberBand = new QgsRubberBand( mToolMap->mCanvas );
     polyRubberBand->reset( QgsWkbTypes::PolygonGeometry );
@@ -190,6 +212,8 @@ bool ReosEditPolygonStructureMenuPopulator::populate( QMenu *menu, QgsMapMouseEv
 
     QObject::connect( actionStructurePoly, &QAction::triggered, mToolMap, [this, structurePolygon]
     {mToolMap->mStructure->addPolygon( structurePolygon, mToolMap->mCurrentClassId );} );
-
+    return true;
   }
+
+  return false;
 }

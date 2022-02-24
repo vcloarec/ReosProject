@@ -57,6 +57,11 @@ void ReosEditPolylineStructureWidget::setSettingsWidget( QWidget *widget )
   ui->mSettingsLayout->addWidget( widget );
 }
 
+void ReosEditPolylineStructureWidget::setInformationWidget( QWidget *widget )
+{
+  ui->mInformationLayout->addWidget( widget );
+}
+
 void ReosEditPolylineStructureWidget::hideEvent( QHideEvent *e )
 {
   mMapToolEditLine->quitMap();

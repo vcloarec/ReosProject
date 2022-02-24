@@ -58,6 +58,12 @@ void ReosHydraulicStructure2D::init()
     if ( mMeshGenerator->autoUpdateParameter()->value() )
       generateMeshInPlace();
   } );
+
+  connect( mMeshGenerator, &ReosDataObject::dataChanged, this, [this]
+  {
+    if ( mMeshGenerator->autoUpdateParameter()->value() )
+      generateMeshInPlace();
+  } );
 }
 
 void ReosHydraulicStructure2D::generateMeshInPlace()

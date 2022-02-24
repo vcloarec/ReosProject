@@ -21,3 +21,6 @@ ReosMesh *ReosMesh::createMemoryMesh()
 {
   return new ReosMesh_p();
 }
+
+ReosMesh::ReosMesh( QObject *parent ): ReosDataObject( parent )
+{}

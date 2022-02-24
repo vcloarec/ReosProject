@@ -23,7 +23,7 @@
 
 #include "reosmeshdataprovider_p.h"
 
-ReosMesh_p::ReosMesh_p()
+ReosMesh_p::ReosMesh_p( QObject *parent ): ReosMesh( parent )
 {
   mMeshLayer.reset( new QgsMeshLayer( "memory mesh", "some tries", QStringLiteral( "ReosMeshMemory" ) ) );
   mMeshLayer->setCrs( QgsProject::instance()->crs() );

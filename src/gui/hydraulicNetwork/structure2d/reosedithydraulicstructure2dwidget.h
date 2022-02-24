@@ -33,6 +33,21 @@ namespace Ui
   class ReosEditStructureGeometry2DWidget;
 }
 
+class ReosStructureInformationWidget : public QWidget
+{
+    Q_OBJECT
+  public:
+    explicit ReosStructureInformationWidget( ReosHydraulicStructure2D *structure, QWidget *parent = nullptr );
+
+  private slots:
+    void update();
+  private:
+    QPointer<ReosHydraulicStructure2D> mHydraulicStructure;
+    QLabel *mLabelVerticesCount = nullptr;
+    QLabel *mLabelFacesCount = nullptr;
+    QLabel *mLabelArea = nullptr;
+};
+
 class ReosEditHydraulicStructure2DWidget : public ReosStackedPageWidget
 {
     Q_OBJECT

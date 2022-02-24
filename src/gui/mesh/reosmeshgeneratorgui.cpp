@@ -15,6 +15,8 @@
  ***************************************************************************/
 #include "reosmeshgeneratorgui.h"
 
+#include <QHBoxLayout>
+#include <QLabel>
 #include "reosgmshgenerator.h"
 
 ReosFormWidget *ReosFormGmshGeneratorWidgetFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
@@ -26,7 +28,12 @@ ReosFormWidget *ReosFormGmshGeneratorWidgetFactory::createDataWidget( ReosDataOb
 
   ReosFormWidget *w = new ReosFormWidget( context.parent() );
 
-  QComboBox *combo = new QComboBox( w );
+  QWidget *algWidget = new QWidget( w );
+  algWidget->setLayout( new QHBoxLayout );
+
+  QComboBox *combo = new QComboBox( algWidget );
+  algWidget->layout()->addWidget( new QLabel( QObject::tr( "Gmsh algoritm" ), algWidget ) );
+  algWidget->layout()->addWidget( combo );
 
   for ( int i = 0; i < ReosGmshGenerator::AlgCount; ++i )
   {
@@ -35,7 +42,7 @@ ReosFormWidget *ReosFormGmshGeneratorWidgetFactory::createDataWidget( ReosDataOb
   }
 
   combo->setCurrentIndex( combo->findData( generator->algorithm() ) );
-  w->addWidget( combo );
+  w->addWidget( algWidget );
 
   QObject::connect( combo, QOverload<int>::of( &QComboBox::currentIndexChanged ), generator, [generator, combo]
   {

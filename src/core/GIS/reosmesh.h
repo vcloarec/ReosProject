@@ -19,6 +19,8 @@
 #include <QPointF>
 #include <QVector>
 
+#include "reosdataobject.h"
+
 class QGraphicsView;
 class QPainter;
 class ReosMeshGenerator;
@@ -32,7 +34,7 @@ class ReosRenderedObject
     virtual void render( QGraphicsView *canvas, QPainter *painter ) = 0; ///TODO look to see if painter can be deduced from canvas in QGIS
 };
 
-class ReosMesh: public ReosRenderedObject
+class ReosMesh: public ReosRenderedObject, public ReosDataObject
 {
   public:
 
@@ -54,6 +56,9 @@ class ReosMesh: public ReosRenderedObject
     virtual void addVertex( const QPointF pt, double z, double tolerance ) = 0;
 
     virtual QString crs() const = 0;
+
+  protected:
+    ReosMesh( QObject *parent = nullptr );
 
 };
 

@@ -42,6 +42,7 @@ class ReosEditPolylineStructureWidget : public QWidget
     void addToolBarActions( const QList<QAction *> actions );
 
     void setSettingsWidget( QWidget *widget );
+    void setInformationWidget( QWidget *widget );
 
   protected:
     void hideEvent( QHideEvent *e );

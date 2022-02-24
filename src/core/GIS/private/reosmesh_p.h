@@ -32,7 +32,7 @@ class ReosMeshFrameData;
 class ReosMesh_p : public ReosMesh
 {
   public:
-    ReosMesh_p();
+    ReosMesh_p( QObject *parent = nullptr );
     bool isValid() const override;
     void addVertex( const QPointF pt, double z, double tolerance ) override;
     int vertexCount() const override;
