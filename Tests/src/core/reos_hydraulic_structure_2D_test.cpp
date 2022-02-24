@@ -374,7 +374,8 @@ void ReoHydraulicStructure2DTest::createAndEditPolygonStructure()
   polygonStructure->addPolygon( polygon, "class1" );
 
   ReosSpatialPosition position( 12, 10 );
-  QCOMPARE( polygonStructure->value( position ), 123 );
+  std::unique_ptr<ReosPolygonStructureValues> values( polygonStructure->values( QString() ) );
+  QCOMPARE( values->value( position.position().x(), position.position().y() ), 123 );
 
 }
 

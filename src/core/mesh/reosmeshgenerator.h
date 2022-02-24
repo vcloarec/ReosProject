@@ -58,7 +58,6 @@ class ReosMeshResolutionController : public ReosDataObject
     ~ReosMeshResolutionController();
 
     ReosMeshResolutionController *clone() const;
-    double elementSizeAt( double x, double y, bool exact );
 
     ReosPolygonStructure *resolutionPolygons() const;
 
@@ -75,18 +74,23 @@ class ReosMeshResolutionController : public ReosDataObject
 /**
  * Abstract class used to generate mesh frame
  */
-class ReosMeshGenerator : public QObject
+class ReosMeshGenerator : public ReosDataObject
 {
+    Q_OBJECT
   public:
 
     virtual ReosMeshGeneratorProcess *getGenerateMeshProcess(
       ReosPolylinesStructure *structure,
-      ReosMeshResolutionController *resolutionControler ) const = 0;
+      ReosMeshResolutionController *resolutionControler,
+      const QString &destinationCrs ) const = 0;
 
     ReosParameterBoolean *autoUpdateParameter() const;
 
     static ReosMeshGenerator *createMeshGenerator( const ReosEncodedElement &element, QObject *parent = nullptr );
     virtual ReosEncodedElement encode() const = 0;
+
+    //! Static method hat return the type of this class
+    static QString staticType() {return QStringLiteral( "mesh-generator" );}
 
   protected:
     ReosMeshGenerator( QObject *parent = nullptr );
@@ -119,13 +123,13 @@ class ReosMeshGeneratorPoly2Tri : public ReosMeshGenerator
 {
   public:
 
-    virtual ReosMeshGeneratorProcess *getGenerateMeshProcess(
-      ReosPolylinesStructure *structure,
-      ReosMeshResolutionController *resolutionControler ) const override;
+    virtual ReosMeshGeneratorProcess *getGenerateMeshProcess( ReosPolylinesStructure *structure,
+        ReosMeshResolutionController *resolutionControler, const QString &crs = QString() ) const override;
 
     //! Sets the \a domain to triangulate
     void setDomain( const QPolygonF &domain );
 
+    QString type() const override {return QStringLiteral( "poly2tri" );}
     ReosEncodedElement encode() const override;
 
   private:

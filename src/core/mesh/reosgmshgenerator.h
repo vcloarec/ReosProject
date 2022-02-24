@@ -32,6 +32,7 @@
 
 class ReosGmshGenerator : public ReosMeshGenerator
 {
+    Q_OBJECT
   public:
 
     enum Algorithm
@@ -42,16 +43,27 @@ class ReosGmshGenerator : public ReosMeshGenerator
       Delaunay,
       FrontalDelaunay,
       BAMG,
-      FrontalDelaunayForQuads,
-      PackingOfParallelograms
+      //FrontalDelaunayForQuads,
+      //PackingOfParallelograms,
+      AlgCount
     };
 
     ReosGmshGenerator( QObject *parent = nullptr );
     ReosGmshGenerator( const ReosEncodedElement &element, QObject *parent = nullptr );
 
-    ReosMeshGeneratorProcess *getGenerateMeshProcess( ReosPolylinesStructure *structure, ReosMeshResolutionController *resolutionControler ) const override;
+    ReosMeshGeneratorProcess *getGenerateMeshProcess( ReosPolylinesStructure *structure,
+        ReosMeshResolutionController *resolutionControler,
+        const QString &destinationCrs = QString() ) const override;
 
+    QString type() const override {return staticType();}
     ReosEncodedElement encode() const override;
+
+    static QString staticType() {return ReosMeshGenerator::staticType() + ':' + QStringLiteral( "gmsh" );}
+
+    Algorithm algorithm() const;
+    void setAlgorithm( const Algorithm &algorithm );
+
+    static QString algorithmName( Algorithm alg );
 
   private:
     Algorithm mAlgorithm = FrontalDelaunay;
@@ -66,7 +78,7 @@ class ReosGmshEngine : public ReosModule
 
     ReosMeshFrameData generateMesh( const ReosPolylinesStructure::Data &data,
                                     ReosMeshResolutionController *resolutionControler,
-                                    ReosGmshGenerator::Algorithm alg );
+                                    ReosGmshGenerator::Algorithm alg, const QString &destinationCrs );
 
     static void instantiate( QObject *parent );
 
@@ -85,7 +97,8 @@ class ReosMeshGeneratorGmshProcess: public ReosMeshGeneratorProcess
   public:
     ReosMeshGeneratorGmshProcess( ReosPolylinesStructure *structure,
                                   ReosMeshResolutionController *resolutionControler,
-                                  ReosGmshGenerator::Algorithm alg );
+                                  ReosGmshGenerator::Algorithm alg,
+                                  const QString &destinationCrs );
 
     void start();
 
@@ -96,6 +109,7 @@ class ReosMeshGeneratorGmshProcess: public ReosMeshGeneratorProcess
     ReosPolylinesStructure::Data mData;
     std::unique_ptr<ReosMeshResolutionController> mResolutionControler;
     ReosGmshGenerator::Algorithm mAlgorithm = ReosGmshGenerator::FrontalDelaunay;
+    QString mDestinationCrs;
 };
 
 

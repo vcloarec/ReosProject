@@ -24,6 +24,15 @@
 
 class QUndoStack;
 
+class ReosPolygonStructureValues
+{
+  public:
+    virtual ~ReosPolygonStructureValues() {}
+
+    virtual double value( double x, double y, bool acceptClose = false ) const = 0;
+
+};
+
 class ReosPolygonStructure : public ReosGeometryStructure
 {
     Q_OBJECT
@@ -37,7 +46,6 @@ class ReosPolygonStructure : public ReosGeometryStructure
     static std::unique_ptr<ReosPolygonStructure> createPolygonStructure( const ReosEncodedElement &encodedElement );
 
     virtual void addPolygon( const QPolygonF &polygon, const QString &classId, const QString &sourceCrs = QString() ) = 0;
-    virtual double value( const ReosSpatialPosition &position, bool acceptClose = false ) const = 0;
     virtual void addClass( const QString &classId, double value ) = 0;
     virtual void removeClass( const QString &classId ) = 0;
     virtual QStringList classes() const = 0;
@@ -49,6 +57,8 @@ class ReosPolygonStructure : public ReosGeometryStructure
     virtual QUndoStack *undoStack() const = 0;
 
     virtual ReosEncodedElement encode() const = 0;
+
+    virtual ReosPolygonStructureValues *values( const QString &destinationCrs ) const = 0;
 
     QPolygonF searchPolygon( const ReosSpatialPosition &, bool  = true ) const override {return QPolygonF();}
 

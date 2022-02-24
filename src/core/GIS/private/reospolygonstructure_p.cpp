@@ -23,6 +23,8 @@
 #include <qgspolygon.h>
 #include <qgsfillsymbol.h>
 #include <qgsfillsymbollayer.h>
+#include <qgsgeometryengine.h>
+#include <qgsspatialindex.h>
 
 #include "reosstyleregistery.h"
 
@@ -123,6 +125,7 @@ ReosEncodedElement ReosPolygonStructure_p::encode() const
 
   element.addData( QStringLiteral( "polygons" ), varFeatures );
 
+  mDirty = false;
   return element;
 }
 
@@ -152,44 +155,6 @@ ReosPolygonStructure *ReosPolygonStructure_p::clone() const
 QObject *ReosPolygonStructure_p::data()
 {
   return mVectorLayer.get();
-}
-
-double ReosPolygonStructure_p::value( const ReosSpatialPosition &position, bool acceptClose ) const
-{
-  QgsPointXY pt = toLayerCoordinates( position );
-
-  QgsRectangle rect( pt - QgsVector( mTolerance, mTolerance ), pt + QgsVector( mTolerance, mTolerance ) );
-  QgsFeatureIterator it = mVectorLayer->getFeatures( QgsFeatureRequest()
-                          .setFilterRect( rect )
-                          .setFlags( QgsFeatureRequest::ExactIntersect ) );
-
-  QgsFeature feat;
-  double value = std::numeric_limits<double>::max();
-  int foundValues = 0;
-  while ( it.nextFeature( feat ) )
-  {
-    const QgsGeometry &geom = feat.geometry();
-    const QString classId = feat.attribute( 0 ).toString();
-    if ( acceptClose || ( geom.contains( &pt ) ) )
-    {
-      bool ok = false;
-      double v = mClasses.value( classId ).toDouble( &ok );
-      if ( ok )
-      {
-        foundValues++;
-        if ( v < value )
-          value = v;
-        if ( !acceptClose )
-          break;
-      }
-    }
-  }
-
-  if ( foundValues > 0 )
-    return value;
-  else
-    return std::numeric_limits<double>::quiet_NaN();
-
 }
 
 void ReosPolygonStructure_p::addPolygon( const QPolygonF &polygon, const QString &classId, const QString &sourceCrs )
@@ -257,6 +222,7 @@ void ReosPolygonStructure_p::addPolygon( const QPolygonF &polygon, const QString
   }
 
   mVectorLayer->endEditCommand();
+  mDirty = true;
 }
 
 QStringList ReosPolygonStructure_p::classes() const
@@ -301,6 +267,37 @@ int ReosPolygonStructure_p::polygonsCount() const
     return __INT32_MAX__;
 
   return int( count );
+}
+
+ReosPolygonStructureValues *ReosPolygonStructure_p::values( const QString &destinationCrs ) const
+{
+  std::unique_ptr<ReosPolygonStructureValues_p> ret( new ReosPolygonStructureValues_p );
+
+  ret->mCacheGeom = nullptr;
+  ret->mCacheValue = std::numeric_limits<double>::quiet_NaN();
+  ret->mTransform = toDestinationTransform( destinationCrs );
+  ret->mTolerance = mTolerance;
+  ret->mSpatialIndex.reset( new QgsSpatialIndex( *mVectorLayer.get() ) );
+
+  QgsFeatureIterator it = mVectorLayer->getFeatures();
+
+  QgsFeature feat;
+  QgsGeometry zoneWithoutPolygon = QgsGeometry::fromRect( mVectorLayer->extent() );
+
+  while ( it.nextFeature( feat ) )
+  {
+    QgsGeometry geom = feat.geometry();
+    ret->mGeomEngines.emplace( feat.id(), QgsGeometry::createGeometryEngine( geom.constGet() ) );
+    ret->mGeomEngines.at( feat.id() )->prepareGeometry();
+    const QString classId = feat.attribute( 0 ).toString();
+    ret->mValues.insert( feat.id(), mClasses.value( classId ).toDouble() );
+    zoneWithoutPolygon = zoneWithoutPolygon.difference( geom );
+  }
+
+  ret->mZoneWithoutPolygon.reset( QgsGeometry::createGeometryEngine( zoneWithoutPolygon.constGet() ) );
+  ret->mZoneWithoutPolygon->prepareGeometry();
+
+  return ret.release();
 }
 
 QUndoStack *ReosPolygonStructure_p::undoStack() const
@@ -350,6 +347,7 @@ void ReosPolygonStructure_p::addClass( const QString &classId, double value )
   mVectorLayer->undoStack()->push( new ReosPolygonStructureUndoCommandAddClass( this, classId, value, color ) );
 
   mVectorLayer->endEditCommand();
+  mDirty = true;
 }
 
 void ReosPolygonStructure_p::removeClass( const QString &classId )
@@ -370,7 +368,7 @@ void ReosPolygonStructure_p::removeClass( const QString &classId )
   mVectorLayer->undoStack()->push( new ReosPolygonStructureUndoCommandRemoveClass( this, classId ) );
 
   mVectorLayer->endEditCommand();
-
+  mDirty = true;
 }
 
 ReosPolygonStructureUndoCommandAddClass::ReosPolygonStructureUndoCommandAddClass( ReosPolygonStructure_p *structure, const QString &classId, double value, const QColor &color )
@@ -415,4 +413,61 @@ void ReosPolygonStructureUndoCommandRemoveClass::undo()
   mStructure->addClassColor( mClassId, mColor );
 
   emit mStructure->classesChanged();
+}
+
+double ReosPolygonStructureValues_p::value( double x, double y, bool acceptClose ) const
+{
+  QgsPointXY pt;
+  try
+  {
+    pt = mTransform.transform( QgsPointXY( x, y ) );
+  }
+  catch ( ... )
+  {
+    pt = QgsPointXY( x, y );
+  }
+
+  QgsPoint point( pt );
+
+  if ( !acceptClose )
+  {
+    if ( mCacheGeom && mCacheGeom->contains( &point ) )
+      return mCacheValue;
+
+    if ( mZoneWithoutPolygon->contains( &point ) )
+      return std::numeric_limits<double>::quiet_NaN();
+  }
+
+  QgsRectangle rect( pt - QgsVector( mTolerance, mTolerance ), pt + QgsVector( mTolerance, mTolerance ) );
+
+  QgsFeature feat;
+  double value = std::numeric_limits<double>::max();
+  int foundValues = 0;
+
+  const QList<QgsFeatureId> featIds = mSpatialIndex->intersects( rect );
+
+  for ( QgsFeatureId fid : featIds )
+  {
+    QgsGeometryEngine *engine = mGeomEngines.at( fid ).get();
+
+    if ( ( acceptClose && engine->distance( &point ) < mTolerance )
+         || ( engine->contains( &point ) ) )
+    {
+      double v = mValues.value( fid );
+      foundValues++;
+      if ( v < value )
+        value = v;
+      if ( !acceptClose )
+      {
+        mCacheGeom = engine;
+        mCacheValue = v;
+        break;
+      }
+    }
+  }
+
+  if ( foundValues > 0 )
+    return value;
+  else
+    return std::numeric_limits<double>::quiet_NaN();
 }

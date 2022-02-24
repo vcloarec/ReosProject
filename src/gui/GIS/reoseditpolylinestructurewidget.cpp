@@ -52,6 +52,11 @@ void ReosEditPolylineStructureWidget::addToolBarActions( const QList<QAction *> 
   mToolBar->addActions( actions );
 }
 
+void ReosEditPolylineStructureWidget::setSettingsWidget( QWidget *widget )
+{
+  ui->mSettingsLayout->addWidget( widget );
+}
+
 void ReosEditPolylineStructureWidget::hideEvent( QHideEvent *e )
 {
   mMapToolEditLine->quitMap();

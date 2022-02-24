@@ -93,7 +93,8 @@ ReosMesh *ReosHydraulicStructure2D::mesh() const
 
 ReosMeshGeneratorProcess *ReosHydraulicStructure2D::getGenerateMeshProcess()
 {
-  std::unique_ptr<ReosMeshGeneratorProcess> process( mMeshGenerator->getGenerateMeshProcess( mPolylinesStructures.get(), mMeshResolutionController ) );
+  std::unique_ptr<ReosMeshGeneratorProcess> process(
+    mMeshGenerator->getGenerateMeshProcess( mPolylinesStructures.get(), mMeshResolutionController, mMesh->crs() ) );
   ReosMeshGeneratorProcess *processP = process.get();
 
   connect( processP, &ReosProcess::finished, this, [this, processP]

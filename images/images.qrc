@@ -130,5 +130,6 @@
         <file>generateMesh.svg</file>
         <file>menuMeshReslution.svg</file>
         <file>addHole.svg</file>
+        <file>editStructurePolygon.svg</file>
     </qresource>
 </RCC>

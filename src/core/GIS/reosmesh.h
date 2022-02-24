@@ -53,6 +53,8 @@ class ReosMesh: public ReosRenderedObject
 
     virtual void addVertex( const QPointF pt, double z, double tolerance ) = 0;
 
+    virtual QString crs() const = 0;
+
 };
 
 #endif // REOSMESH_H

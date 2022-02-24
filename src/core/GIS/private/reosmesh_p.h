@@ -27,7 +27,7 @@ class ReosMeshFrameData;
  * Implementation of a mesh in Reos environment.
  * This class contains a QgsMeshLayer that can be independant from the QgsProject.
  * The data provider of this QGIS layer is a derived class of QgsMeshDataProvider that allow creation of mesh in memory
- *  and custom behaviors, especially mesh generation and editing.
+ * and custom behaviors, especially mesh generation and editing.
  */
 class ReosMesh_p : public ReosMesh
 {
@@ -41,6 +41,8 @@ class ReosMesh_p : public ReosMesh
     void render( QGraphicsView *canvas, QPainter *painter ) override;
 
     void generateMesh( const ReosMeshFrameData &data ) override;
+
+    QString crs() const override;
 
   private:
 

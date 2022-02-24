@@ -23,6 +23,26 @@
 
 class QgsVectorLayer;
 class QgsCategorizedSymbolRenderer;
+class QgsSpatialIndex;
+
+class ReosPolygonStructureValues_p : public ReosPolygonStructureValues
+{
+  public:
+    double value( double x, double y, bool acceptClose = false ) const override;
+
+  private:
+
+    mutable QgsGeometryEngine *mCacheGeom;
+    mutable double mCacheValue;
+    std::unique_ptr<QgsGeometryEngine> mZoneWithoutPolygon;
+    std::unique_ptr<QgsSpatialIndex> mSpatialIndex;
+    std::map<QgsFeatureId, std::unique_ptr<QgsGeometryEngine>> mGeomEngines;
+    QHash<QgsFeatureId, double> mValues;
+    QgsCoordinateTransform mTransform;
+    double mTolerance = 0;
+
+    friend class ReosPolygonStructure_p;
+};
 
 class ReosPolygonStructure_p : public ReosPolygonStructure, private ReosGeometryStructure_p
 {
@@ -35,7 +55,6 @@ class ReosPolygonStructure_p : public ReosPolygonStructure, private ReosGeometry
 
     ReosPolygonStructure *clone() const override;
     QObject *data() override;
-    double value( const ReosSpatialPosition &position, bool acceptClose = false ) const override;
     void addPolygon( const QPolygonF &polygon, const QString &classId, const QString &sourceCrs ) override;
     QStringList classes() const override;
     void addClass( const QString &classId, double value ) override;
@@ -44,6 +63,8 @@ class ReosPolygonStructure_p : public ReosPolygonStructure, private ReosGeometry
     QColor color( const QString &classId ) const override;
     double value( const QString &classId ) const override;
     int polygonsCount() const override;
+
+    ReosPolygonStructureValues *values( const QString &destinationCrs ) const override;
 
     QUndoStack *undoStack() const override;
 
@@ -55,12 +76,16 @@ class ReosPolygonStructure_p : public ReosPolygonStructure, private ReosGeometry
     double mTolerance = 0.01;
     int mLastColorIndex = -1;
 
+    mutable bool mDirty = true;
+
     QColor symbolColor( QgsSymbol *sym ) const;
 
     void addClassColor( const QString &classId, const QColor &color );
     void removeClassColor( const QString &classId );
 
     void init();
+
+    void prepare( const QString &destinationCrs ) const;
 
     friend class ReosPolygonStructureUndoCommandAddClass;
     friend class ReosPolygonStructureUndoCommandRemoveClass;

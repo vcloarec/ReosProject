@@ -30,7 +30,7 @@ ReosGmshResolutionControllerWidget::ReosGmshResolutionControllerWidget( ReosHydr
   ,  ui( new Ui::ReosGmshResolutionControllerWidget )
   , mMap( guiContext.map() )
   , mController( static_cast<ReosMeshResolutionController *>( structure2D->meshResolutionController() ) )
-  , mActionEditResolutionPolygons( new QAction( QPixmap( QStringLiteral( ":/images/editStructureLines.svg" ) ), tr( "Edit Resolution Polygons" ), this ) )
+  , mActionEditResolutionPolygons( new QAction( QPixmap( QStringLiteral( ":/images/editStructurePolygon.svg" ) ), tr( "Edit Resolution Polygons" ), this ) )
   , mMapStructureItem( mMap, mController->resolutionPolygons() )
 {
   ui->setupUi( this );
@@ -85,18 +85,26 @@ void ReosGmshResolutionControllerWidget::addToolBarActions( const QList<QAction 
   mToolBar->addActions( actions );
 }
 
-void ReosGmshResolutionControllerWidget::hideEvent( QHideEvent * )
+void ReosGmshResolutionControllerWidget::hideEvent( QHideEvent *e )
 {
   if ( !mController.isNull() )
     mMap->removeSnappableStructure( mController->resolutionPolygons() );
   mMapStructureItem.setVisible( false );
+
+  mMapToolEditResolutionPolygon->quitMap();
+
+  QWidget::hideEvent( e );
 }
 
-void ReosGmshResolutionControllerWidget::showEvent( QShowEvent * )
+void ReosGmshResolutionControllerWidget::showEvent( QShowEvent *e )
 {
   if ( !mController.isNull() )
     mMap->addSnappableStructure( mController->resolutionPolygons() );
   mMapStructureItem.setVisible( true );
+
+  mMapToolEditResolutionPolygon->activate();
+  mMapToolEditResolutionPolygon->setCurrentToolInMap();
+  QWidget::showEvent( e );
 }
 
 void ReosGmshResolutionControllerWidget::addClass()

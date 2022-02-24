@@ -18,17 +18,13 @@
 
 #include <QList>
 
-class QAction;
-class QWidget;
-class ReosMeshGenerator;
+#include "reosformwidget.h"
 
-class ReosMeshGeneratorGui
+class ReosFormGmshGeneratorWidgetFactory: public ReosFormWidgetDataFactory
 {
   public:
-
-    static QWidget createResolutionControllerWidget( ReosMeshGenerator *meshGenerator, QWidget *parents );
+    ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context = ReosGuiContext() );
+    QString datatype() const;
 };
-
-
 
 #endif // REOSMESHGENERATORGUI_H

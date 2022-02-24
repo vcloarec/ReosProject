@@ -26,8 +26,10 @@
 #include "reospolygonstructure.h"
 #include "reosgmshgenerator.h"
 
-ReosMeshGeneratorProcess *ReosMeshGeneratorPoly2Tri::getGenerateMeshProcess( ReosPolylinesStructure *structure,
-    ReosMeshResolutionController * ) const
+ReosMeshGeneratorProcess *ReosMeshGeneratorPoly2Tri::getGenerateMeshProcess(
+  ReosPolylinesStructure *structure,
+  ReosMeshResolutionController *,
+  const QString & ) const
 {
   return new  ReosMeshGeneratorPoly2TriProcess( structure->boundary() );
 }
@@ -40,7 +42,7 @@ void ReosMeshGeneratorPoly2Tri::setDomain( const QPolygonF &domain )
 ReosEncodedElement ReosMeshGeneratorPoly2Tri::encode() const {return ReosEncodedElement( QString() );}
 
 ReosMeshGenerator::ReosMeshGenerator( QObject *parent )
-  : QObject( parent )
+  : ReosDataObject( parent )
   , mAutoUpdateParameter( new ReosParameterBoolean( tr( "Auto update mesh" ), false, this ) )
 {
   mAutoUpdateParameter->setValue( true );
@@ -58,8 +60,10 @@ ReosMeshGenerator *ReosMeshGenerator::createMeshGenerator( const ReosEncodedElem
     QString type;
     element.getData( QStringLiteral( "type" ), type );
 
-    if ( type == QStringLiteral( "gmsh" ) )
+    if ( type == ReosGmshGenerator::staticType() )
       return new ReosGmshGenerator( element, parent );
+    else
+      return new ReosGmshGenerator( element, parent ); //for now, only one  type available, but in the future if many, gmsh the default
   }
 
   return new ReosGmshGenerator( parent );
@@ -124,16 +128,6 @@ ReosMeshResolutionController::~ReosMeshResolutionController()
 ReosMeshResolutionController *ReosMeshResolutionController::clone() const
 {
   return new ReosMeshResolutionController( this );
-}
-
-double ReosMeshResolutionController::elementSizeAt( double x, double y, bool exact )
-{
-  double value = mPolygonStructure->value( ReosSpatialPosition( x, y ), exact );
-
-  if ( !std::isnan( value ) )
-    return value;
-
-  return mDefaultSize->value();
 }
 
 ReosPolygonStructure *ReosMeshResolutionController::resolutionPolygons() const

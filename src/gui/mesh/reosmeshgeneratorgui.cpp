@@ -15,16 +15,37 @@
  ***************************************************************************/
 #include "reosmeshgeneratorgui.h"
 
-#include <QWidget>
-#include <QAction>
-#include <QWidgetAction>
+#include "reosgmshgenerator.h"
 
-#include "reosmeshgenerator.h"
-#include "reosparameterwidget.h"
-
-
-
-QWidget ReosMeshGeneratorGui::createResolutionControllerWidget( ReosMeshGenerator *meshGenerator, QWidget *parents )
+ReosFormWidget *ReosFormGmshGeneratorWidgetFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {
+  ReosGmshGenerator *generator = qobject_cast<ReosGmshGenerator *>( dataObject );
 
+  if ( !generator )
+    return nullptr;
+
+  ReosFormWidget *w = new ReosFormWidget( context.parent() );
+
+  QComboBox *combo = new QComboBox( w );
+
+  for ( int i = 0; i < ReosGmshGenerator::AlgCount; ++i )
+  {
+    ReosGmshGenerator::Algorithm alg = static_cast<ReosGmshGenerator::Algorithm>( i );
+    combo->addItem( ReosGmshGenerator::algorithmName( alg ), alg );
+  }
+
+  combo->setCurrentIndex( combo->findData( generator->algorithm() ) );
+  w->addWidget( combo );
+
+  QObject::connect( combo, QOverload<int>::of( &QComboBox::currentIndexChanged ), generator, [generator, combo]
+  {
+    generator->setAlgorithm( static_cast<ReosGmshGenerator::Algorithm>( combo->currentData().toInt() ) );
+  } );
+
+  return w;
+}
+
+QString ReosFormGmshGeneratorWidgetFactory::datatype() const
+{
+  return ReosGmshGenerator::staticType();
 }

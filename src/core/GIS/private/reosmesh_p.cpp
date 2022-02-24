@@ -80,6 +80,11 @@ void ReosMesh_p::generateMesh( const ReosMeshFrameData &data )
   mMeshLayer->reload();
 }
 
+QString ReosMesh_p::crs() const
+{
+  return mMeshLayer->crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED_SIMPLIFIED );
+}
+
 ReosMeshDataProvider_p *ReosMesh_p::meshProvider()
 {
   return qobject_cast<ReosMeshDataProvider_p *>( mMeshLayer->dataProvider() );

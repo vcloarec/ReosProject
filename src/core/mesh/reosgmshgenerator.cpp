@@ -38,27 +38,75 @@ ReosGmshGenerator::ReosGmshGenerator( const ReosEncodedElement &element, QObject
 
 ReosMeshGeneratorProcess *ReosGmshGenerator::getGenerateMeshProcess(
   ReosPolylinesStructure *structure,
-  ReosMeshResolutionController *resolutionControler ) const
+  ReosMeshResolutionController *resolutionControler,
+  const QString &destinationCrs ) const
 {
-  return new ReosMeshGeneratorGmshProcess( structure, resolutionControler, mAlgorithm );
+  return new ReosMeshGeneratorGmshProcess( structure, resolutionControler, mAlgorithm, destinationCrs );
 }
 
 ReosEncodedElement ReosGmshGenerator::encode() const
 {
   ReosEncodedElement ret = encodeBase();
-  ret.addData( QStringLiteral( "type" ), QStringLiteral( "gmsh" ) );
+  ret.addData( QStringLiteral( "type" ), type() );
   ret.addData( QStringLiteral( "algorithm" ), mAlgorithm );
 
   return ret;
 }
 
+ReosGmshGenerator::Algorithm ReosGmshGenerator::algorithm() const
+{
+  return mAlgorithm;
+}
+
+void ReosGmshGenerator::setAlgorithm( const Algorithm &algorithm )
+{
+  mAlgorithm = algorithm;
+  emit dataChanged();
+}
+
+QString ReosGmshGenerator::algorithmName( ReosGmshGenerator::Algorithm alg )
+{
+  switch ( alg )
+  {
+    case ReosGmshGenerator::MeshAdapt:
+      return tr( "MeshAdapt" );
+      break;
+    case ReosGmshGenerator::Automatic:
+      return tr( "Automatic" );
+      break;
+    case ReosGmshGenerator::InitialMesh:
+      return tr( "Initial mesh" );
+      break;
+    case ReosGmshGenerator::Delaunay:
+      return tr( "Delaunay" );
+      break;
+    case ReosGmshGenerator::FrontalDelaunay:
+      return tr( "Frontal Delaunay" );
+      break;
+    case ReosGmshGenerator::BAMG:
+      return tr( "BAMG" );
+      break;
+//    case ReosGmshGenerator::FrontalDelaunayForQuads:
+//      return tr( "Frontal Delaunay for Quads" );
+//      break;
+//    case ReosGmshGenerator::PackingOfParallelograms:
+//      return tr( "Packing of Parallelograms" );
+//      break;
+    case ReosGmshGenerator::AlgCount:
+      return QString();
+      break;
+  }
+}
+
 ReosMeshGeneratorGmshProcess::ReosMeshGeneratorGmshProcess( ReosPolylinesStructure *structure,
     ReosMeshResolutionController *resolutionControler,
-    ReosGmshGenerator::Algorithm alg )
+    ReosGmshGenerator::Algorithm alg,
+    const QString &destinationCrs )
   : mAlgorithm( alg )
+  , mDestinationCrs( destinationCrs )
 {
   if ( structure )
-    mData = structure->structuredLinesData();
+    mData = structure->structuredLinesData( destinationCrs );
   if ( resolutionControler )
     mResolutionControler.reset( resolutionControler->clone() );
 }
@@ -67,7 +115,7 @@ void ReosMeshGeneratorGmshProcess::start()
 {
   setMaxProgression( 0 );
   setInformation( tr( "Mesh generation in progress." ) );
-  mResult = ReosGmshEngine::instance()->generateMesh( mData, mResolutionControler.get(), mAlgorithm );
+  mResult = ReosGmshEngine::instance()->generateMesh( mData, mResolutionControler.get(), mAlgorithm, mDestinationCrs );
   mIsSuccessful = true;
   finish();
 }
@@ -79,13 +127,24 @@ ReosGmshEngine *ReosGmshEngine::instance()
   return sInstance;
 }
 
-ReosMeshFrameData ReosGmshEngine::generateMesh( const ReosPolylinesStructure::Data &data, ReosMeshResolutionController *resolutionControler, ReosGmshGenerator::Algorithm alg )
+ReosMeshFrameData ReosGmshEngine::generateMesh(
+  const ReosPolylinesStructure::Data &data,
+  ReosMeshResolutionController *resolutionControler,
+  ReosGmshGenerator::Algorithm alg,
+  const QString &destinationCrs )
 {
   QMutexLocker locker( &mMutex );
   ReosMeshFrameData result;
   try
   {
-    std::unique_ptr<ReosMeshResolutionController> resolController( resolutionControler->clone() );
+    std::unique_ptr<ReosPolygonStructureValues> sizeValues;
+    double defaultSize = 10;
+    if ( resolutionControler )
+    {
+      sizeValues.reset( resolutionControler->resolutionPolygons()->values( destinationCrs ) );
+      defaultSize = resolutionControler->defaultSize()->value();
+    }
+
     gmsh::initialize();
     gmsh::model::add( "t1" );
 
@@ -94,7 +153,6 @@ ReosMeshFrameData ReosGmshEngine::generateMesh( const ReosPolylinesStructure::Da
       const QPointF &pt = data.vertices.at( i );
       gmsh::model::geo::addPoint( pt.x(), pt.y(), 0, 0, i + 1 );
     }
-
 
     int boundVertCount = data.boundaryPointCount;
 
@@ -134,12 +192,17 @@ ReosMeshFrameData ReosGmshEngine::generateMesh( const ReosPolylinesStructure::Da
 
     gmsh::option::setNumber( "Mesh.Algorithm", alg + 1 );
 
-    auto sizeFallBack = [&resolController]( int dim, int, double x, double y, double, double lc )
+    auto sizeFallBack = [&sizeValues, defaultSize]( int dim, int, double x, double y, double, double lc )
     {
-      if ( !resolController )
+      if ( !sizeValues )
         return lc;
 
-      return resolController->elementSizeAt( x, y, dim == 1 | dim == 0 );
+      double sizeValue = sizeValues->value( x, y, dim == 1 | dim == 0 );
+
+      if ( std::isnan( sizeValue ) )
+        sizeValue = defaultSize;
+
+      return sizeValue;
     };
 
     gmsh::model::mesh::setSizeCallback( sizeFallBack );
@@ -193,7 +256,7 @@ ReosMeshFrameData ReosGmshEngine::generateMesh( const ReosPolylinesStructure::Da
       }
     }
   }
-  catch ( std::exception &e )
+  catch ( ... )
   {
     result = ReosMeshFrameData();
   }
