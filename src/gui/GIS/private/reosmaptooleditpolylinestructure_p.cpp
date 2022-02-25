@@ -133,6 +133,12 @@ void ReosMapToolEditPolylineStructure_p::deactivate()
 {
   mMainActions->setEnabled( false );
   ReosMapTool_p::deactivate();
+
+  mVertexMarker->setVisible( false );
+  mLineRubberBand->reset( QgsWkbTypes::LineGeometry );
+  mVertexRubberBand->reset( QgsWkbTypes::PointGeometry );
+  mHoveredLineBand->reset( QgsWkbTypes::LineGeometry );
+  mPolygonHoleBand->reset( QgsWkbTypes::PolygonGeometry );
 }
 
 void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
