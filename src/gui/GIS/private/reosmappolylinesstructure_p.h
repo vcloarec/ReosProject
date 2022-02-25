@@ -33,7 +33,7 @@ class ReosMapPolylinesStructure_p : public ReosMapItem_p
     void translate( const QPointF &translation ) override {}
     QPointF mapPos() const override;
 
-    void setExteriorBaseWidth( double width );
+    void setLineWidth( double width );
 
     void updatePosition() override;
     void setStructure( ReosPolylinesStructure *structure );
@@ -56,12 +56,12 @@ class ReosMapStructureExteriorItem : public QGraphicsItem
     QRectF boundingRect() const override;
     void paint( QPainter *painter, const QStyleOptionGraphicsItem *, QWidget * ) override;
 
-    void setBaseWidth( double baseWidth );
+    void setWidth( double baseWidth );
 
   private:
     QPolygonF mPolyInLocalView;
     QRectF mBBox;
-    double mBaseWidth = 5;
+    double mWidth = 5;
 };
 
 class ReosMapStructureLinesItem : public QGraphicsItem
@@ -72,12 +72,12 @@ class ReosMapStructureLinesItem : public QGraphicsItem
     QRectF boundingRect() const override;
     void paint( QPainter *painter, const QStyleOptionGraphicsItem *, QWidget * ) override;
 
-    void setBaseWidth( double baseWidth );
+    void setWidth( double width );
 
   private:
     QList<QLineF> mLinesInLocalView;
     QRectF mBBox;
-    double mBaseWidth = 5;
+    double mWidth = 5;
 };
 
 class ReosMapStructureHolePointsItem : public QGraphicsItem

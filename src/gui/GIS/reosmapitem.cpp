@@ -584,9 +584,9 @@ ReosMapPolylineStructure::~ReosMapPolylineStructure()
     delete d_;
 }
 
-void ReosMapPolylineStructure::setDomainBaseWidth( double width )
+void ReosMapPolylineStructure::setLineWidth( double width )
 {
-  static_cast<ReosMapPolylinesStructure_p *>( d_ )->setExteriorBaseWidth( width );
+  static_cast<ReosMapPolylinesStructure_p *>( d_ )->setLineWidth( width );
 }
 
 

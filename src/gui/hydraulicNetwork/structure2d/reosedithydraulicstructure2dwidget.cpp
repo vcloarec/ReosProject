@@ -87,10 +87,10 @@ void ReosEditHydraulicStructure2DWidget::onMeshOptionListChanged( int row )
   switch ( row )
   {
     case 0:
-      mMapStructureItem.setDomainBaseWidth( 5 );
+      mMapStructureItem.setLineWidth( 5 );
       break;
     case 1:
-      mMapStructureItem.setDomainBaseWidth( 2 );
+      mMapStructureItem.setLineWidth( 2 );
       break;
     default:
       break;
