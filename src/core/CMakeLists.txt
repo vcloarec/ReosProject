@@ -24,11 +24,13 @@ SET(REOS_CORE_SOURCES
   GIS/reospolygonstructure.cpp
   GIS/reospolylinesstructure.cpp
   GIS/reosmesh.cpp
+  GIS/reostopographycollection.cpp
   GIS/private/reosdigitalelevationmodel_p.cpp
   GIS/private/reospolygonstructure_p.cpp
   GIS/private/reospolylinesstructure_p.cpp
   GIS/private/reosmesh_p.cpp
   GIS/private/reosmeshdataprovider_p.cpp
+  GIS/private/reostopographycollection_p.cpp
 
   process/reosprocess.cpp
 
@@ -100,6 +102,7 @@ SET(REOS_CORE_HEADERS
     GIS/reospolygonstructure.h
     GIS/reospolylinesstructure.h
     GIS/reosmesh.h
+    GIS/reostopographycollection.h
 
     process/reosprocess.h
 
@@ -152,9 +155,10 @@ SET(REOS_CORE_HEADERS
 SET(REOS_CORE_HEADERS_PRIVATE
     GIS/private/reosdigitalelevationmodel_p.h
     GIS/private/reospolylinesstructure_p.h
-    GIS/private/reospolygonstructure_p.cpp
+    GIS/private/reospolygonstructure_p.h
     GIS/private/reosmesh_p.h
-    GIS/private/reosmeshdataprovider_p.cpp
+    GIS/private/reosmeshdataprovider_p.h
+    GIS/private/reostopographycollection_p.h
     )
 
 SET(IMAGE_RCCS ${CMAKE_SOURCE_DIR}/images/images.qrc

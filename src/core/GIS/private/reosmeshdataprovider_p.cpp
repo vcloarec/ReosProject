@@ -15,26 +15,69 @@
  ***************************************************************************/
 #include "reosmeshdataprovider_p.h"
 #include "reosmeshgenerator.h"
+#include "reosdigitalelevationmodel.h"
+#include "reostopographycollection_p.h"
 
 int ReosMeshDataProvider_p::vertexCount() const
 {
-  return mCacheMesh.vertexCount();
+  return mMesh.vertexCount();
 }
 
 int ReosMeshDataProvider_p::faceCount() const
 {
-  return mCacheMesh.faceCount();
+  return mMesh.faceCount();
 }
 
 void ReosMeshDataProvider_p::populateMesh( QgsMesh *mesh ) const
 {
-  *mesh = mCacheMesh;
+  *mesh = mMesh;
 }
 
 void ReosMeshDataProvider_p::generateMesh( const ReosMeshFrameData &data )
 {
-  mCacheMesh = convertFrameFromReos( data );
+  mMesh = convertFrameFromReos( data );
   emit dataChanged();
+}
+
+void ReosMeshDataProvider_p::applyDemOnVertices( ReosDigitalElevationModel *dem )
+{
+  double noDataValue = dem->noDataValue();
+  QString wktCrs = mCrs.toWkt( QgsCoordinateReferenceSystem::WKT2_2019_SIMPLIFIED );
+
+  for ( int i = 0; i < mMesh.vertexCount(); ++i )
+  {
+    QPointF pt( mMesh.vertices.at( i ).toQPointF() );
+    double value = dem->elevationAt( pt, wktCrs );
+    if ( value != noDataValue )
+      mMesh.vertices[i].setZ( value );
+    else
+      mMesh.vertices[i].setZ( std::numeric_limits<double>::quiet_NaN() );
+  }
+  emit dataChanged();
+}
+
+void ReosMeshDataProvider_p::applyTopographyOnVertices( ReosTopographyCollection *topographyCollection )
+{
+  ReosTopographyCollection_p *topoCollection = qobject_cast<ReosTopographyCollection_p *>( topographyCollection );
+
+  if ( !topoCollection )
+    return;
+
+  topoCollection->prepare_p( mCrs );
+  for ( int i = 0; i < mMesh.vertexCount(); ++i )
+  {
+    double value = topoCollection->elevationAt_p( mMesh.vertices.at( i ) );
+    if ( !std::isnan( value ) )
+      mMesh.vertices[i].setZ( value );
+    else
+      mMesh.vertices[i].setZ( std::numeric_limits<double>::quiet_NaN() );
+  }
+  emit dataChanged();
+}
+
+void ReosMeshDataProvider_p::overrideCrs( const QgsCoordinateReferenceSystem &crs )
+{
+  mCrs = crs;
 }
 
 QgsMesh ReosMeshDataProvider_p::convertFrameFromReos( const ReosMeshFrameData &reosMesh )

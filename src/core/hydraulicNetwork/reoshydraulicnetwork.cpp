@@ -123,8 +123,9 @@ ReosModule::Message ReosHydraulicNetworkElement::lastMessage() const
 }
 
 
-ReosHydraulicNetwork::ReosHydraulicNetwork( ReosModule *parent, ReosWatershedModule *watershedModule )
+ReosHydraulicNetwork::ReosHydraulicNetwork( ReosModule *parent, ReosGisEngine *gisEngine, ReosWatershedModule *watershedModule )
   : ReosModule( parent )
+  , mGisEngine( gisEngine )
   , mWatershedModule( watershedModule )
 {
   ReosHydrographRoutingMethodFactories::instantiate( this );
@@ -246,6 +247,12 @@ void ReosHydraulicNetwork::clear()
   mElementIndexesCounter.clear();
   emit hasBeenReset();
 }
+
+ReosGisEngine *ReosHydraulicNetwork::getGisEngine() const
+{
+  return mGisEngine;
+}
+
 
 void ReosHydraulicNetwork::elemPositionChangedPrivate( ReosHydraulicNetworkElement *elem )
 {

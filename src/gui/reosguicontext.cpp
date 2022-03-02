@@ -27,6 +27,11 @@ ReosGuiContext::ReosGuiContext( const ReosGuiContext &other, QWidget *parent )
   mParent = parent;
 }
 
+ReosGuiContext::ReosGuiContext( const ReosGuiContext &other )
+{
+  *this = other;
+}
+
 ReosMap *ReosGuiContext::map() const
 {
   return mMap;

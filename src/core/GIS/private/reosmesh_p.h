@@ -22,6 +22,8 @@
 
 class ReosMeshDataProvider_p;
 class ReosMeshFrameData;
+class QgsMeshDatasetGroup;
+class ReosDigitalElevationModel;
 
 /**
  * Implementation of a mesh in Reos environment.
@@ -32,22 +34,35 @@ class ReosMeshFrameData;
 class ReosMesh_p : public ReosMesh
 {
   public:
-    ReosMesh_p( QObject *parent = nullptr );
+    ReosMesh_p( const QString &crs, QObject *parent = nullptr );
+    ReosMesh_p( const ReosEncodedElement &elem );
     bool isValid() const override;
     void addVertex( const QPointF pt, double z, double tolerance ) override;
     int vertexCount() const override;
     int faceCount() const override;
-
     void render( QGraphicsView *canvas, QPainter *painter ) override;
-
+    QString enableVertexElevationDataset( const QString &name ) override;
+    bool activateDataset( const QString &id ) override;
     void generateMesh( const ReosMeshFrameData &data ) override;
-
     QString crs() const override;
+    QObject *data() const override;
+    int datasetGroupIndex( const QString &id ) const override;
+    void applyTopographyOnVertices( ReosTopographyCollection *topographyCollection ) override;
+
 
   private:
 
     std::unique_ptr<QgsMeshLayer> mMeshLayer;
     ReosMeshDataProvider_p *meshProvider();
+    QMap<QString, int> mDatasetGroupsIndex;
+    QgsMeshDatasetGroup *mZVerticesDatasetGroup = nullptr;
+    int mVerticesElevationDatasetIndex = -1;
+
+
+    void init();
+    void activateVertexZValueDatasetGroup();
+    QString addDatasetGroup( QgsMeshDatasetGroup *group );
+    void firstUpdateOfTerrainScalarSetting();
 };
 
 #endif // REOSMESH_P_H

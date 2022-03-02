@@ -41,27 +41,23 @@ ReosDigitalElevationModelRaster::ReosDigitalElevationModelRaster(
   }
 }
 
-double ReosDigitalElevationModelRaster::elevationAt( const QPointF &point, const QString &pointCrs ) const
+double ReosDigitalElevationModelRaster::elevationAt( const QgsPointXY &point, const QgsCoordinateTransform &transformToDem ) const
 {
-  assert( mDataProvider );
-
-  QgsCoordinateReferenceSystem ptCrs = QgsCoordinateReferenceSystem::fromWkt( pointCrs );
-  QgsCoordinateTransform transform( ptCrs, mCrs, mTransformContext );
   QgsPointXY pointInDem;
-  if ( transform.isValid() )
+  if ( transformToDem.isValid() )
   {
     try
     {
-      pointInDem = transform.transform( QgsPointXY( point.x(), point.y() ) );
+      pointInDem = transformToDem.transform( point );
     }
     catch ( QgsCsException & )
     {
-      pointInDem = QgsPointXY( point.x(), point.y() );
+      pointInDem = point;
     }
   }
   else
   {
-    pointInDem = QgsPointXY( point.x(), point.y() );
+    pointInDem = point;
   }
 
   bool ok = false;
@@ -70,6 +66,20 @@ double ReosDigitalElevationModelRaster::elevationAt( const QPointF &point, const
     return result;
   else
     return mDataProvider->sourceNoDataValue( 1 );
+}
+
+QgsCoordinateTransform ReosDigitalElevationModelRaster::transformToDem( const QgsCoordinateReferenceSystem &sourceCrs ) const
+{
+  return QgsCoordinateTransform( sourceCrs, mCrs, mTransformContext );
+}
+
+double ReosDigitalElevationModelRaster::elevationAt( const QPointF &point, const QString &pointCrs ) const
+{
+  assert( mDataProvider );
+
+  QgsCoordinateReferenceSystem ptCrs = QgsCoordinateReferenceSystem::fromWkt( pointCrs );
+  QgsCoordinateTransform transform( ptCrs, mCrs, mTransformContext );
+  return elevationAt( QgsPointXY( point ), transform );
 }
 
 QPolygonF ReosDigitalElevationModelRaster::elevationOnPolyline( const QPolygonF &polyline, const QString &polylineCrs, ReosProcess *process ) const
@@ -548,6 +558,11 @@ ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimp
 QString ReosDigitalElevationModelRaster::source() const
 {
   return mSourceId;
+}
+
+double ReosDigitalElevationModelRaster::noDataValue() const
+{
+  return mDataProvider->sourceNoDataValue( 1 );
 }
 
 ReosRasterExtent ReosDigitalElevationModelRaster::rasterExtent( const QgsRectangle &originalExtent ) const

@@ -72,6 +72,9 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     //! Returns the name of the layer with \a layerId
     QString layerName( const QString layerId ) const;
 
+    //! Returns whether the layer exists and is valid
+    bool hasValidLayer( const QString layerId ) const;
+
     //! Returns the model containing GIS layers tree
     QAbstractItemModel *layerTreeModel();
 
@@ -152,10 +155,11 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
 
   signals:
     void crsChanged( const QString &wktCrs );
+    void layerRemoved( const QString &layerId );
     void updated();
 
   private slots:
-    void layerRemoved( const QString &layerId );
+    void onLayerRemoved( const QString &layerId );
 
   private:
     QAbstractItemModel *mAbstractLayerTreeModel;

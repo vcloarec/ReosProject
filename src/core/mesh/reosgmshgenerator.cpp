@@ -151,7 +151,7 @@ ReosMeshFrameData ReosGmshEngine::generateMesh(
     for ( int i = 0; i < data.vertices.count(); ++i )
     {
       const QPointF &pt = data.vertices.at( i );
-      gmsh::model::geo::addPoint( pt.x(), pt.y(), 0, 0, i + 1 );
+      gmsh::model::geo::addPoint( pt.x(), pt.y(), 12.3, 0, i + 1 );
     }
 
     int boundVertCount = data.boundaryPointCount;

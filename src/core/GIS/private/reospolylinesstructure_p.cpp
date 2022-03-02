@@ -34,8 +34,8 @@ ReosGeometryStructure_p::ReosGeometryStructure_p( const  QString &type, const QS
                                       + QStringLiteral( "?crs=" )
                                       + wktCrs
                                       + QStringLiteral( "&index=yes" )
-                                      , QStringLiteral( "internalLayer" ),
-                                      QStringLiteral( "memory" ) ) )
+                                      , QStringLiteral( "internalLayer" )
+                                      , QStringLiteral( "memory" ) ) )
 {
 }
 

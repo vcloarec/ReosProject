@@ -23,6 +23,7 @@ SET(REOS_GUI_SOURCES
     GIS/reosgislayerswidget.cpp
     GIS/reosmaptooleditgeometrystructure.cpp
     GIS/reoseditpolylinestructurewidget.cpp
+    GIS/reosmeshscalarrenderingwidget.cpp
     GIS/private/reosmappolygon_p.cpp
     GIS/private/reosmaptool_p.cpp
     GIS/private/reoslayertreecontextmenuprovider_p.cpp
@@ -78,6 +79,7 @@ SET(REOS_GUI_SOURCES
     hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp
     hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.cpp
     hydraulicNetwork/structure2d/reosgmshresolutioncontrollerwidget.cpp
+    hydraulicNetwork/structure2d/reosmeshtopographywidget.cpp
     hydraulicNetwork/private/reosmaptoolhydraulicnetwork_p.cpp
     )
 
@@ -103,6 +105,7 @@ SET(REOS_GUI_HEADERS
     GIS/reosgislayerswidget.h
     GIS/reosmaptooleditgeometrystructure.h
     GIS/reoseditpolylinestructurewidget.h
+    GIS/reosmeshscalarrenderingwidget.h
 
     watershed/reosdelineatingwatershedwidget.h
     watershed/reoswatershedwidget.h
@@ -146,6 +149,7 @@ SET(REOS_GUI_HEADERS
     hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.h
     hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.h
     hydraulicNetwork/structure2d/reosgmshresolutioncontrollerwidget.h
+    hydraulicNetwork/structure2d/reosmeshtopographywidget.h
 )
 
 SET(REOS_GUI_HEADERS_PRIVATE

@@ -53,6 +53,18 @@ void ReosDigitalElevationModelComboBox::setCurrentDemLayer( const QString &layer
   setCurrentIndex( findData( layerId ) );
 }
 
+ReosDigitalElevationModel *ReosDigitalElevationModelComboBox::currentDem() const
+{
+  const QString &id = currentDemLayerId();
+
+  if ( mGisEngine->isDigitalElevationModel( id ) )
+  {
+    return mGisEngine->getDigitalElevationModel( id );
+  }
+
+  return nullptr;
+}
+
 void ReosDigitalElevationModelComboBox::onDemChanged()
 {
   QString currentId = currentData().toString();

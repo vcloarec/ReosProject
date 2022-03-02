@@ -17,10 +17,16 @@
 #include "reosmesh_p.h"
 
 
-ReosMesh *ReosMesh::createMemoryMesh()
+ReosMesh *ReosMesh::createMemoryMesh( const QString &crs )
 {
-  return new ReosMesh_p();
+  return new ReosMesh_p( crs );
 }
+
+ReosMesh *ReosMesh::createMemoryMesh( const ReosEncodedElement &element )
+{
+  return new ReosMesh_p( element );
+}
+
 
 ReosMesh::ReosMesh( QObject *parent ): ReosDataObject( parent )
 {}

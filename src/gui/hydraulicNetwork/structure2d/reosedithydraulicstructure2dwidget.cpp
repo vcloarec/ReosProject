@@ -27,6 +27,8 @@
 #include "reoseditpolylinestructurewidget.h"
 #include "reossettings.h"
 #include "reosprocesscontroler.h"
+#include "reosmeshscalarrenderingwidget.h"
+#include "reosmeshtopographywidget.h"
 
 
 ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context )
@@ -54,6 +56,10 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
   ReosGmshResolutionControllerWidget *resolutionWidget = new ReosGmshResolutionControllerWidget( structure2D, ReosGuiContext( context, this ) );
   resolutionWidget->addToolBarActions( meshGenerationToolBarActions );
   ui->pageMeshResolution->layout()->addWidget( resolutionWidget );
+
+  ReosMeshTopographyStackedWidget *topographyWidget =
+    new ReosMeshTopographyStackedWidget( structure2D->mesh(), structure2D->topographyCollecion(), structure2D->terrainMeshDatasetId(), ReosGuiContext( context, this ) );
+  ui->pageTopography->layout()->addWidget( topographyWidget );
 
   mInitialMapStructureItem = context.mapItems( ReosHydraulicStructure2D::staticType() );
   if ( mInitialMapStructureItem )
@@ -88,10 +94,15 @@ void ReosEditHydraulicStructure2DWidget::onMeshOptionListChanged( int row )
   {
     case 0:
       mMapStructureItem.setLineWidth( 5 );
+      mStructure2D->deactivateMeshScalar();
       break;
     case 1:
       mMapStructureItem.setLineWidth( 2 );
+      mStructure2D->deactivateMeshScalar();
       break;
+    case 2:
+      mMapStructureItem.setLineWidth( 2 );
+      mStructure2D->activateMeshTerrain();
     default:
       break;
   }

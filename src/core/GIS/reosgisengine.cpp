@@ -62,7 +62,7 @@ ReosGisEngine::ReosGisEngine( QObject *parent ): ReosModule( parent )
   mLayerTreeModel->setFlag( QgsLayerTreeModel::UseTextFormatting );
   mLayerTreeModel->setAutoCollapseLegendNodes( 10 );
 
-  connect( QgsProject::instance(), &QgsProject::layerRemoved, this, &ReosGisEngine::layerRemoved );
+  connect( QgsProject::instance(), &QgsProject::layerRemoved, this, &ReosGisEngine::onLayerRemoved );
   connect( QgsProject::instance(), &QgsProject::crsChanged, this, [this]
   {
     QString wktCrs = QgsProject::instance()->crs().toWkt();
@@ -577,9 +577,17 @@ QString ReosGisEngine::layerName( const QString layerId ) const
   return layer->name();
 }
 
-void ReosGisEngine::layerRemoved( const QString &layerId )
+bool ReosGisEngine::hasValidLayer( const QString layerId ) const
+{
+  QgsMapLayer *layer = QgsProject::instance()->mapLayer( layerId );
+
+  return ( layer && layer->isValid() );
+}
+
+void ReosGisEngine::onLayerRemoved( const QString &layerId )
 {
   unRegisterLayerAsDigitalElevationModel( layerId );
+  emit layerRemoved( layerId );
 }
 
 void ReosGisEngine::defaultstyleRasterLayer( QgsRasterLayer *layer )

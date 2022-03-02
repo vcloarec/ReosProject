@@ -21,6 +21,8 @@
 #include "reosgmshgenerator.h"
 #include "reosmesh.h"
 
+class ReosTopographyCollection;
+
 class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
 {
     Q_OBJECT
@@ -40,8 +42,19 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     static ReosHydraulicStructure2D *create( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent = nullptr );
 
     ReosMeshGenerator *meshGenerator() const;
-
     ReosMeshGeneratorProcess *getGenerateMeshProcess();
+
+    //! Sets active the terrain in the mesh
+    void activateMeshTerrain();
+
+    //! Deactivate any
+    void deactivateMeshScalar();
+
+    QString terrainMeshDatasetId() const;
+
+    void runSimulation();
+
+    ReosTopographyCollection *topographyCollecion() const;
 
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) {}
@@ -55,9 +68,14 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     ReosMeshGenerator *mMeshGenerator = nullptr;
     std::unique_ptr<ReosPolylinesStructure> mPolylinesStructures;
     ReosMeshResolutionController *mMeshResolutionController = nullptr;
+    ReosTopographyCollection  *mTopographyCollecion = nullptr;
     std::unique_ptr<ReosMesh> mMesh;
+    QString mTerrainDatasetId;
+
     void init();
     void generateMeshInPlace();
+
+    QString directory() const;
 };
 
 class ReosHydraulicStructure2dFactory : public ReosHydraulicNetworkElementFactory

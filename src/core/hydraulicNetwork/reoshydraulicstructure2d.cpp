@@ -16,13 +16,17 @@
 #include "reoshydraulicstructure2d.h"
 #include "reosmeshgenerator.h"
 #include "reosgmshgenerator.h"
+#include "reostopographycollection.h"
+
+#include <QProcess>
 
 ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, ReosHydraulicNetwork *parent )
   : ReosHydraulicNetworkElement( parent )
   , mMeshGenerator( new ReosGmshGenerator( this ) )
   , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( domain, crs ) )
   , mMeshResolutionController( new ReosMeshResolutionController( this, crs ) )
-  , mMesh( ReosMesh::createMemoryMesh() )
+  , mTopographyCollecion( ReosTopographyCollection::createTopographyCollection( parent->getGisEngine(), this ) )
+  , mMesh( ReosMesh::createMemoryMesh( crs ) )
 {
   init();
 }
@@ -34,8 +38,8 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   : ReosHydraulicNetworkElement( parent )
   , mMeshGenerator( ReosMeshGenerator::createMeshGenerator( encodedElement.getEncodedData( QStringLiteral( "mesh-generator" ) ), this ) )
   , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( encodedElement.getEncodedData( QStringLiteral( "structure" ) ) ) )
-
-  , mMesh( ReosMesh::createMemoryMesh() )
+  , mTopographyCollecion( ReosTopographyCollection::createTopographyCollection( encodedElement.getEncodedData( QStringLiteral( "topography-collection" ) ), parent->getGisEngine(), this ) )
+  , mMesh( ReosMesh::createMemoryMesh( encodedElement.getEncodedData( QStringLiteral( "mesh" ) ) ) )
 {
   if ( encodedElement.hasEncodedData( QStringLiteral( "mesh-resolution-controller" ) ) )
     mMeshResolutionController = new ReosMeshResolutionController( encodedElement.getEncodedData( QStringLiteral( "mesh-resolution-controller" ) ), this );
@@ -45,8 +49,24 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   init();
 }
 
+ReosTopographyCollection *ReosHydraulicStructure2D::topographyCollecion() const
+{
+  return mTopographyCollecion;
+}
+
+QString ReosHydraulicStructure2D::terrainMeshDatasetId() const
+{
+  return mTerrainDatasetId;
+}
+
+void ReosHydraulicStructure2D::runSimulation()
+{
+}
+
 void ReosHydraulicStructure2D::init()
 {
+  mTerrainDatasetId = mMesh->enableVertexElevationDataset( tr( "Terrain elevation" ) );
+
   connect( mPolylinesStructures.get(), &ReosDataObject::dataChanged, this, [this]
   {
     if ( mMeshGenerator->autoUpdateParameter()->value() )
@@ -113,6 +133,16 @@ ReosMeshGeneratorProcess *ReosHydraulicStructure2D::getGenerateMeshProcess()
   } );
 
   return process.release();
+}
+
+void ReosHydraulicStructure2D::activateMeshTerrain()
+{
+  mMesh->activateDataset( mTerrainDatasetId );
+}
+
+void ReosHydraulicStructure2D::deactivateMeshScalar()
+{
+  mMesh->activateDataset( QString() );
 }
 
 ReosHydraulicStructure2D *ReosHydraulicStructure2D::create( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent )

@@ -25,6 +25,8 @@
 
 class ReosMeshGenerator;
 class ReosMeshFrameData;
+class ReosDigitalElevationModel;
+class ReosTopographyCollection;
 
 class ReosMeshDataProvider_p: public QgsMeshDataProvider
 {
@@ -33,6 +35,13 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
     ReosMeshDataProvider_p(): QgsMeshDataProvider( "mesh", QgsDataProvider::ProviderOptions() ) {}
 
     void generateMesh( const ReosMeshFrameData &data );
+
+    void applyDemOnVertices( ReosDigitalElevationModel *dem );
+
+    void applyTopographyOnVertices( ReosTopographyCollection *topographyCollection );
+
+    //! Overrides the crs, used when the mesh provider is created from scratch
+    void overrideCrs( const QgsCoordinateReferenceSystem &crs );
 
 //***********************
     // QgsMeshDatasetSourceInterface interface
@@ -70,7 +79,7 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
 
     // QgsDataProvider interface
   public:
-    QgsCoordinateReferenceSystem crs() const {return QgsCoordinateReferenceSystem();}
+    QgsCoordinateReferenceSystem crs() const {return mCrs;}
     QgsRectangle extent() const {return QgsRectangle( 0, 0, 10, 10 );}
     bool isValid() const {return true;}
     QString name() const {return "ReosMeshMemory";}
@@ -83,8 +92,8 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
 //***********************
 
   private:
-    QgsMesh mCacheMesh;
-
+    QgsMesh mMesh;
+    QgsCoordinateReferenceSystem mCrs;
     static QgsMesh convertFrameFromReos( const ReosMeshFrameData &reosMesh );
 
 };
@@ -93,7 +102,7 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
 class ReosMeshProviderMetaData: public QgsProviderMetadata
 {
   public:
-    ReosMeshProviderMetaData() : QgsProviderMetadata( QStringLiteral( "ReosMeshMemory" ), QStringLiteral( "reos mesh" ) ) {}
+    ReosMeshProviderMetaData() : QgsProviderMetadata( QStringLiteral( "ReosMesh" ), QStringLiteral( "reos mesh" ) ) {}
     QString filters( FilterType type ) override {return QString();}
     QList<QgsMeshDriverMetadata> meshDriversMetadata() override {return QList<QgsMeshDriverMetadata>();}
     ReosMeshDataProvider_p *createProvider( const QString &uri, const QgsDataProvider::ProviderOptions &options, QgsDataProvider::ReadFlags flags = QgsDataProvider::ReadFlags() ) override

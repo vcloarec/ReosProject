@@ -31,6 +31,7 @@ class ReosHydraulicNetwork;
 class ReosCalculationContext;
 class ReosHydraulicNetworkContext;
 class ReosWatershedModule;
+class ReosGisEngine;
 
 class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject
 {
@@ -130,7 +131,7 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
 {
     Q_OBJECT
   public:
-    ReosHydraulicNetwork( ReosModule *parent, ReosWatershedModule *watershedModule );
+    ReosHydraulicNetwork( ReosModule *parent, ReosGisEngine *gisEngine, ReosWatershedModule *watershedModule );
     QList<ReosHydraulicNetworkElement *> getElements( const QString &type ) const;
     ReosHydraulicNetworkElement *getElement( const QString &elemId ) const;
 
@@ -143,6 +144,7 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     //! Clears the network
     void clear();
 
+    ReosGisEngine *getGisEngine() const;
 
   signals:
     void elementAdded( ReosHydraulicNetworkElement *elem );
@@ -151,6 +153,7 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     void hasBeenReset();
 
   private:
+    ReosGisEngine *mGisEngine = nullptr;
     ReosWatershedModule *mWatershedModule = nullptr;
     QHash<QString, ReosHydraulicNetworkElement *> mElements;
     void elemPositionChangedPrivate( ReosHydraulicNetworkElement *elem );

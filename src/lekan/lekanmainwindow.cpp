@@ -85,7 +85,7 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
 
   mWatershedModule = new ReosWatershedModule( rootModule(), mGisEngine );
 
-  mHydraulicNetwork = new ReosHydraulicNetwork( rootModule(), mWatershedModule );
+  mHydraulicNetwork = new ReosHydraulicNetwork( rootModule(), mGisEngine, mWatershedModule );
 
   mDockHydraulicNetwork = new ReosHydraulicNetworkDockWidget( mHydraulicNetwork, mWatershedModule, guiContext );
   mDockHydraulicNetwork->setObjectName( QStringLiteral( "hydraulicDock" ) );

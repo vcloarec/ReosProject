@@ -31,7 +31,13 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
     emit stackedPageWidgetOpened( new ReosEditHydraulicStructure2DWidget( mStructure2D, context ) );
   } );
 
+  connect( ui->mRunSimulationToolButton, &QToolButton::clicked, this, [this]
+  {
+    mStructure2D->runSimulation();
+  } );
+
   mMap->addExtraRenderedObject( mStructure2D->mesh() );
+  connect( mStructure2D->mesh(), &ReosMesh::repaintRequested, this, &ReosHydraulicStructure2DProperties::requestMapRefresh );
 }
 
 ReosHydraulicStructure2DProperties::~ReosHydraulicStructure2DProperties()
@@ -39,6 +45,11 @@ ReosHydraulicStructure2DProperties::~ReosHydraulicStructure2DProperties()
   if ( !mMap.isNull() )
     mMap->removeExtraRenderedObject( mStructure2D->mesh() );
   delete ui;
+}
+
+void ReosHydraulicStructure2DProperties::requestMapRefresh()
+{
+  mMap->refreshCanvas();
 }
 
 ReosHydraulicElementWidget *ReosHydraulicStructure2DPropertiesWidgetFactory::createWidget( ReosHydraulicNetworkElement *element, const ReosGuiContext &context )

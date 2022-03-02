@@ -35,6 +35,9 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
     explicit ReosHydraulicStructure2DProperties( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context = ReosGuiContext() );
     ~ReosHydraulicStructure2DProperties();
 
+  private slots:
+    void requestMapRefresh();
+
   private:
     Ui::ReosHydraulicStructure2DProperties *ui;
     ReosHydraulicStructure2D *mStructure2D = nullptr;

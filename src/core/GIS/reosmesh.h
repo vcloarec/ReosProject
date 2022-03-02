@@ -18,28 +18,35 @@
 
 #include <QPointF>
 #include <QVector>
+#include <QPointer>
 
 #include "reosdataobject.h"
 
 class QGraphicsView;
 class QPainter;
 class ReosMeshGenerator;
-class  ReosMeshFrameData;
+class ReosMeshFrameData;
+class ReosDigitalElevationModel;
+class ReosMap;
+class ReosTopographyCollection;
+
 
 class ReosRenderedObject
 {
   public:
     virtual ~ReosRenderedObject() {}
-
     virtual void render( QGraphicsView *canvas, QPainter *painter ) = 0; ///TODO look to see if painter can be deduced from canvas in QGIS
 };
 
-class ReosMesh: public ReosRenderedObject, public ReosDataObject
+class ReosMesh: public ReosDataObject, public ReosRenderedObject
 {
+    Q_OBJECT
   public:
 
     //! Creates a new void mesh in memory
-    static ReosMesh *createMemoryMesh();
+    static ReosMesh *createMemoryMesh( const QString &crs = QString() );
+
+    static ReosMesh *createMemoryMesh( const ReosEncodedElement &element );
 
     //! Returns whether the mesh is valid
     virtual bool isValid() const = 0;
@@ -56,6 +63,26 @@ class ReosMesh: public ReosRenderedObject, public ReosDataObject
     virtual void addVertex( const QPointF pt, double z, double tolerance ) = 0;
 
     virtual QString crs() const = 0;
+
+    virtual QObject *data() const = 0;
+
+    /**
+     * Activate vertices elevation as a dataset group with \a name, returns a unique id of this dataset group.
+     */
+    virtual QString enableVertexElevationDataset( const QString &name ) = 0;
+
+    //! Activates the dataset with \a id
+    virtual bool activateDataset( const QString &id ) = 0;
+
+    //! Returns an index correspondng to the dataset group with \a id
+    virtual int datasetGroupIndex( const QString &id ) const = 0;
+
+    virtual void applyTopographyOnVertices( ReosTopographyCollection *topographyCollection ) = 0;
+
+    virtual ReosEncodedElement encode( const QString &dataPath ) const = 0;
+
+  signals:
+    void repaintRequested();
 
   protected:
     ReosMesh( QObject *parent = nullptr );

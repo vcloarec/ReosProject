@@ -30,6 +30,7 @@ class REOSGUI_EXPORT ReosGuiContext
   public:
     ReosGuiContext( QWidget *parent = nullptr );
     ReosGuiContext( const ReosGuiContext &other, QWidget *parent );
+    ReosGuiContext( const ReosGuiContext &other );
 
     ReosMap *map() const;
 
