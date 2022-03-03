@@ -46,7 +46,7 @@ class ReosMesh: public ReosDataObject, public ReosRenderedObject
     //! Creates a new void mesh in memory
     static ReosMesh *createMemoryMesh( const QString &crs = QString() );
 
-    static ReosMesh *createMemoryMesh( const ReosEncodedElement &element );
+    static ReosMesh *createMemoryMesh( const ReosEncodedElement &element, const QString &dataPath );
 
     //! Returns whether the mesh is valid
     virtual bool isValid() const = 0;

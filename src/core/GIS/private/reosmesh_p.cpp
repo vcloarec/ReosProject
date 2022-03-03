@@ -20,6 +20,7 @@
 #include <qgsmeshlayerrenderer.h>
 #include <qgsmapcanvas.h>
 #include <qgsrendercontext.h>
+#include <qgsproviderregistry.h>
 
 #include "reosmeshdataprovider_p.h"
 #include "reosencodedelement.h"
@@ -33,9 +34,16 @@ ReosMesh_p::ReosMesh_p( const QString &crs, QObject *parent ): ReosMesh( parent 
   init();
 }
 
-ReosMesh_p::ReosMesh_p( const ReosEncodedElement &elem )
+ReosMesh_p::ReosMesh_p( const ReosEncodedElement &elem, const QString &dataPath )
 {
   mMeshLayer.reset( new QgsMeshLayer( "path", "", QStringLiteral( "ReosMesh" ) ) );
+
+  QDir dir( dataPath );
+  if ( dir.exists() )
+  {
+    meshProvider()->loadMeshFrame( dir.filePath( QStringLiteral( "meshFrame.nc" ) ), QStringLiteral( "Ugrid" ) );
+    mMeshLayer->reload();
+  }
 
   QString docString;
   elem.getData( "qgis-mesh-layer", docString );
@@ -66,8 +74,6 @@ void ReosMesh_p::init()
   connect( mMeshLayer.get(), &QgsMapLayer::repaintRequested, this, &ReosMesh::repaintRequested );
 }
 
-
-
 ReosEncodedElement ReosMesh_p::encode( const QString &dataPath ) const
 {
   QDomDocument doc( QStringLiteral( "mesh-layer" ) );
@@ -79,7 +85,11 @@ ReosEncodedElement ReosMesh_p::encode( const QString &dataPath ) const
   ReosEncodedElement encodedElem( QStringLiteral( "reos-mesh" ) );
   encodedElem.addData( "qgis-mesh-layer", doc.toString() );
 
+  QDir dir( dataPath );
 
+  meshProvider()->setFilePath( dir.filePath( QStringLiteral( "meshFrame.nc" ) ) );
+  meshProvider()->setMDALDriver( QStringLiteral( "Ugrid" ) );
+  meshProvider()->saveMeshFrame( *mMeshLayer->nativeMesh() );
 
   return encodedElem;
 }
@@ -236,7 +246,7 @@ void ReosMesh_p::applyTopographyOnVertices( ReosTopographyCollection *topography
   emit repaintRequested();
 }
 
-ReosMeshDataProvider_p *ReosMesh_p::meshProvider()
+ReosMeshDataProvider_p *ReosMesh_p::meshProvider() const
 {
   return qobject_cast<ReosMeshDataProvider_p *>( mMeshLayer->dataProvider() );
 }

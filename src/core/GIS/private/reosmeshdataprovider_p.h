@@ -34,6 +34,9 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
   public:
     ReosMeshDataProvider_p(): QgsMeshDataProvider( "mesh", QgsDataProvider::ProviderOptions() ) {}
 
+    void setFilePath( const QString &filePath );
+    void setMDALDriver( const QString &driverName );
+
     void generateMesh( const ReosMeshFrameData &data );
 
     void applyDemOnVertices( ReosDigitalElevationModel *dem );
@@ -42,6 +45,8 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
 
     //! Overrides the crs, used when the mesh provider is created from scratch
     void overrideCrs( const QgsCoordinateReferenceSystem &crs );
+
+    void loadMeshFrame( const QString &filePath, const QString &driverName );
 
 //***********************
     // QgsMeshDatasetSourceInterface interface
@@ -75,7 +80,7 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
     int faceCount() const;
     int edgeCount() const {return 0;}
     void populateMesh( QgsMesh *mesh ) const;
-    bool saveMeshFrame( const QgsMesh &mesh ) {return false;}
+    bool saveMeshFrame( const QgsMesh &mesh ) override;
 
     // QgsDataProvider interface
   public:
@@ -94,6 +99,9 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
   private:
     QgsMesh mMesh;
     QgsCoordinateReferenceSystem mCrs;
+    QString mFilePath;
+    QString mMDALDriverName;
+
     static QgsMesh convertFrameFromReos( const ReosMeshFrameData &reosMesh );
 
 };

@@ -19,6 +19,7 @@
 #include "reostopographycollection.h"
 
 #include <QProcess>
+#include <QDir>
 
 ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, ReosHydraulicNetwork *parent )
   : ReosHydraulicNetworkElement( parent )
@@ -34,19 +35,40 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, con
 
 ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   const ReosEncodedElement &encodedElement,
-  ReosHydraulicNetwork *parent )
-  : ReosHydraulicNetworkElement( parent )
+  const ReosHydraulicNetworkContext &context )
+  : ReosHydraulicNetworkElement( encodedElement, context.network() )
   , mMeshGenerator( ReosMeshGenerator::createMeshGenerator( encodedElement.getEncodedData( QStringLiteral( "mesh-generator" ) ), this ) )
   , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( encodedElement.getEncodedData( QStringLiteral( "structure" ) ) ) )
-  , mTopographyCollecion( ReosTopographyCollection::createTopographyCollection( encodedElement.getEncodedData( QStringLiteral( "topography-collection" ) ), parent->getGisEngine(), this ) )
-  , mMesh( ReosMesh::createMemoryMesh( encodedElement.getEncodedData( QStringLiteral( "mesh" ) ) ) )
+  , mTopographyCollecion( ReosTopographyCollection::createTopographyCollection( encodedElement.getEncodedData( QStringLiteral( "topography-collection" ) ), context.network()->getGisEngine(), this ) )
 {
   if ( encodedElement.hasEncodedData( QStringLiteral( "mesh-resolution-controller" ) ) )
     mMeshResolutionController = new ReosMeshResolutionController( encodedElement.getEncodedData( QStringLiteral( "mesh-resolution-controller" ) ), this );
   else
     mMeshResolutionController = new ReosMeshResolutionController( this );
 
+  QString dataPath = context.projectPath() + '/' + context.projectName() + QStringLiteral( "-hydr-struct" ) + '/' + directory();
+
+  mMesh.reset( ReosMesh::createMemoryMesh( encodedElement.getEncodedData( QStringLiteral( "mesh" ) ), dataPath ) );
+
   init();
+}
+
+void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const
+{
+  element.addEncodedData( QStringLiteral( "structure" ), mPolylinesStructures->encode() );
+  element.addEncodedData( QStringLiteral( "mesh-generator" ), mMeshGenerator->encode() );
+  element.addEncodedData( QStringLiteral( "mesh-resolution-controller" ), mMeshResolutionController->encode() );
+  element.addEncodedData( QStringLiteral( "topography-collection" ), mTopographyCollecion->encode() );
+
+  QDir dir( context.projectPath() );
+  QString hydDir = context.projectName() + QStringLiteral( "-hydr-struct" );
+  dir.mkdir( hydDir );
+  dir.cd( hydDir );
+  dir.mkdir( directory() );
+  dir.cd( directory() );
+
+  element.addEncodedData( QStringLiteral( "mesh" ), mMesh->encode( dir.path() ) );
+
 }
 
 ReosTopographyCollection *ReosHydraulicStructure2D::topographyCollecion() const
@@ -90,6 +112,11 @@ void ReosHydraulicStructure2D::generateMeshInPlace()
 {
   std::unique_ptr<ReosMeshGeneratorProcess> process( getGenerateMeshProcess() );
   process->start();
+}
+
+QString ReosHydraulicStructure2D::directory() const
+{
+  return id().split( ':' ).last();
 }
 
 ReosMeshGenerator *ReosHydraulicStructure2D::meshGenerator() const
@@ -145,27 +172,19 @@ void ReosHydraulicStructure2D::deactivateMeshScalar()
   mMesh->activateDataset( QString() );
 }
 
-ReosHydraulicStructure2D *ReosHydraulicStructure2D::create( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent )
+ReosHydraulicStructure2D *ReosHydraulicStructure2D::create( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context )
 {
   if ( encodedElement.description() != ReosHydraulicStructure2D::staticType() )
     return nullptr;
 
-  return new ReosHydraulicStructure2D( encodedElement, parent );
+  return new ReosHydraulicStructure2D( encodedElement, context );
 
 }
-
-void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext & ) const
-{
-  element.addEncodedData( QStringLiteral( "structure" ), mPolylinesStructures->encode() );
-  element.addEncodedData( QStringLiteral( "mesh-generator" ), mMeshGenerator->encode() );
-  element.addEncodedData( QStringLiteral( "mesh-resolution-controller" ), mMeshResolutionController->encode() );
-}
-
 
 ReosHydraulicNetworkElement *ReosHydraulicStructure2dFactory::decodeElement( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context ) const
 {
   if ( encodedElement.description() != ReosHydraulicStructure2D::staticType() )
     return nullptr;
 
-  return ReosHydraulicStructure2D::create( encodedElement, context.network() );
+  return ReosHydraulicStructure2D::create( encodedElement, context );
 }

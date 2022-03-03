@@ -35,7 +35,7 @@ class ReosMesh_p : public ReosMesh
 {
   public:
     ReosMesh_p( const QString &crs, QObject *parent = nullptr );
-    ReosMesh_p( const ReosEncodedElement &elem );
+    ReosMesh_p( const ReosEncodedElement &elem, const QString &dataPath );
     bool isValid() const override;
     void addVertex( const QPointF pt, double z, double tolerance ) override;
     int vertexCount() const override;
@@ -49,11 +49,12 @@ class ReosMesh_p : public ReosMesh
     int datasetGroupIndex( const QString &id ) const override;
     void applyTopographyOnVertices( ReosTopographyCollection *topographyCollection ) override;
 
+    ReosEncodedElement encode( const QString &dataPath ) const override;
 
   private:
 
     std::unique_ptr<QgsMeshLayer> mMeshLayer;
-    ReosMeshDataProvider_p *meshProvider();
+    ReosMeshDataProvider_p *meshProvider() const;
     QMap<QString, int> mDatasetGroupsIndex;
     QgsMeshDatasetGroup *mZVerticesDatasetGroup = nullptr;
     int mVerticesElevationDatasetIndex = -1;

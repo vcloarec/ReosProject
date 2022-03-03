@@ -22,9 +22,9 @@ ReosMesh *ReosMesh::createMemoryMesh( const QString &crs )
   return new ReosMesh_p( crs );
 }
 
-ReosMesh *ReosMesh::createMemoryMesh( const ReosEncodedElement &element )
+ReosMesh *ReosMesh::createMemoryMesh( const ReosEncodedElement &element, const QString &dataPath )
 {
-  return new ReosMesh_p( element );
+  return new ReosMesh_p( element, dataPath );
 }
 
 

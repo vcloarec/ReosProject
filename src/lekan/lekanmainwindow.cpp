@@ -157,7 +157,7 @@ bool LekanMainWindow::openProject()
 
   mWatershedModule->decode( lekanProject.getEncodedData( QStringLiteral( "watershed-module" ) ) );
 
-  mHydraulicNetwork->decode( lekanProject.getEncodedData( QStringLiteral( "hydaulic-network" ) ) );
+  mHydraulicNetwork->decode( lekanProject.getEncodedData( QStringLiteral( "hydaulic-network" ) ), path, baseName );
 
   return true;
 }
@@ -175,7 +175,7 @@ bool LekanMainWindow::saveProject()
   ReosEncodedElement encodedGisEngine = mGisEngine->encode( path, baseName );
   lekanProject.addEncodedData( QStringLiteral( "GIS-engine" ), encodedGisEngine );
   lekanProject.addEncodedData( QStringLiteral( "watershed-module" ), mWatershedModule->encode() );
-  lekanProject.addEncodedData( QStringLiteral( "hydaulic-network" ), mHydraulicNetwork->encode() );
+  lekanProject.addEncodedData( QStringLiteral( "hydaulic-network" ), mHydraulicNetwork->encode( path, baseName ) );
 
   QFileInfo fileInfo( filePath );
   if ( fileInfo.suffix().isEmpty() )

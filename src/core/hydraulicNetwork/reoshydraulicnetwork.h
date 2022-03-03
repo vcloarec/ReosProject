@@ -108,11 +108,16 @@ class REOSCORE_EXPORT ReosHydraulicNetworkContext
     ReosWatershedModule *watershedModule() const;
     ReosHydraulicNetwork *network() const;
 
+    QString projectPath() const;
+    QString projectName() const;
+
   private:
     ReosHydraulicNetworkContext() {}
 
     ReosHydraulicNetwork *mNetwork = nullptr;
     ReosWatershedModule *mWatershedModule;
+    QString mProjectPath;
+    QString mProjectName;
 
     friend class ReosHydraulicNetwork;
 
@@ -138,8 +143,8 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     ReosHydraulicNetworkElement *addElement( ReosHydraulicNetworkElement *elem );
     void removeElement( ReosHydraulicNetworkElement *elem );
 
-    void decode( const ReosEncodedElement &element );
-    ReosEncodedElement encode() const;
+    void decode( const ReosEncodedElement &element, const QString &projectPath, const QString &projectFileName );
+    ReosEncodedElement encode( const QString &projectPath, const QString &projectFileName ) const;
 
     //! Clears the network
     void clear();
@@ -156,6 +161,8 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     ReosGisEngine *mGisEngine = nullptr;
     ReosWatershedModule *mWatershedModule = nullptr;
     QHash<QString, ReosHydraulicNetworkElement *> mElements;
+    mutable QString mProjectPath;
+    mutable QString mProjectName;
     void elemPositionChangedPrivate( ReosHydraulicNetworkElement *elem );
 
     QHash<QString, int> mElementIndexesCounter;

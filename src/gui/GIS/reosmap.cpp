@@ -230,8 +230,8 @@ void ReosMap::initialize()
 
   QgsSnappingConfig snappingConfig = QgsProject::instance()->snappingConfig();
   snappingConfig.setEnabled( true );
-  snappingConfig.setTypeFlag( QgsSnappingConfig::VertexFlag );
-  snappingConfig.setMode( QgsSnappingConfig::AllLayers );
+  snappingConfig.setTypeFlag( Qgis::SnappingType::Vertex );
+  snappingConfig.setMode( Qgis::SnappingMode::AllLayers );
   QgsProject::instance()->setSnappingConfig( snappingConfig );
 }
 

@@ -39,7 +39,7 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     ReosMeshResolutionController *meshResolutionController() const;
     ReosMesh *mesh() const;
 
-    static ReosHydraulicStructure2D *create( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent = nullptr );
+    static ReosHydraulicStructure2D *create( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext  &context );
 
     ReosMeshGenerator *meshGenerator() const;
     ReosMeshGeneratorProcess *getGenerateMeshProcess();
@@ -63,7 +63,7 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     void encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const;
 
   private:
-    ReosHydraulicStructure2D( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent );
+    ReosHydraulicStructure2D( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
 
     ReosMeshGenerator *mMeshGenerator = nullptr;
     std::unique_ptr<ReosPolylinesStructure> mPolylinesStructures;

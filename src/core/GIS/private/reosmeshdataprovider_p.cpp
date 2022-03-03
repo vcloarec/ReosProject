@@ -13,6 +13,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
+#include <qgsproviderregistry.h>
+
 #include "reosmeshdataprovider_p.h"
 #include "reosmeshgenerator.h"
 #include "reosdigitalelevationmodel.h"
@@ -31,6 +33,40 @@ int ReosMeshDataProvider_p::faceCount() const
 void ReosMeshDataProvider_p::populateMesh( QgsMesh *mesh ) const
 {
   *mesh = mMesh;
+}
+
+bool ReosMeshDataProvider_p::saveMeshFrame( const QgsMesh &mesh )
+{
+  QgsProviderMetadata *meta = QgsProviderRegistry::instance()->providerMetadata( QStringLiteral( "mdal" ) );
+  if ( meta )
+    return meta->createMeshData( mesh, mFilePath, mMDALDriverName, mCrs );
+  else
+    return false;
+}
+
+void ReosMeshDataProvider_p::loadMeshFrame( const QString &filePath, const QString &driverName )
+{
+  mMDALDriverName = driverName;
+  mFilePath = filePath;
+  QgsProviderMetadata *meta = QgsProviderRegistry::instance()->providerMetadata( QStringLiteral( "mdal" ) );
+  if ( meta )
+  {
+    QgsDataProvider::ProviderOptions options;
+    std::unique_ptr<QgsMeshDataProvider> dataProvider( qobject_cast<QgsMeshDataProvider *>( meta->createProvider( filePath, options ) ) );
+    dataProvider->populateMesh( &mMesh );
+    emit dataChanged();
+  }
+
+}
+
+void ReosMeshDataProvider_p::setFilePath( const QString &filePath )
+{
+  mFilePath = filePath;
+}
+
+void ReosMeshDataProvider_p::setMDALDriver( const QString &driverName )
+{
+  mMDALDriverName = driverName;
 }
 
 void ReosMeshDataProvider_p::generateMesh( const ReosMeshFrameData &data )

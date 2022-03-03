@@ -184,11 +184,14 @@ void ReosHydraulicNetwork::removeElement( ReosHydraulicNetworkElement *elem )
   elem->destroy();
 }
 
-void ReosHydraulicNetwork::decode( const ReosEncodedElement &element )
+void ReosHydraulicNetwork::decode( const ReosEncodedElement &element, const QString &projectPath, const QString &projectFileName )
 {
   clear();
   if ( element.description() != QStringLiteral( "hydraulic-network" ) )
     return;
+
+  mProjectName = projectFileName;
+  mProjectPath = projectPath;
 
   element.getData( QStringLiteral( "elements-counter" ), mElementIndexesCounter );
 
@@ -222,12 +225,13 @@ void ReosHydraulicNetwork::decode( const ReosEncodedElement &element )
 
 }
 
-ReosEncodedElement ReosHydraulicNetwork::encode() const
+ReosEncodedElement ReosHydraulicNetwork::encode( const QString &projectPath, const QString &projectFileName ) const
 {
   ReosEncodedElement element( QStringLiteral( "hydraulic-network" ) );
 
   QList<ReosEncodedElement> encodedElements;
-
+  mProjectName = projectFileName;
+  mProjectPath = projectPath;
 
   for ( ReosHydraulicNetworkElement *elem : mElements )
   {
@@ -264,6 +268,8 @@ ReosHydraulicNetworkContext ReosHydraulicNetwork::context() const
   ReosHydraulicNetworkContext context;
   context.mWatershedModule = mWatershedModule;
   context.mNetwork = const_cast<ReosHydraulicNetwork *>( this );
+  context.mProjectName = mProjectName;
+  context.mProjectPath = mProjectPath;
   return context;
 }
 
@@ -286,6 +292,16 @@ ReosWatershedModule *ReosHydraulicNetworkContext::watershedModule() const
 ReosHydraulicNetwork *ReosHydraulicNetworkContext::network() const
 {
   return mNetwork;
+}
+
+QString ReosHydraulicNetworkContext::projectPath() const
+{
+  return mProjectPath;
+}
+
+QString ReosHydraulicNetworkContext::projectName() const
+{
+  return mProjectName;
 }
 
 ReosHydraulicNetworkElementFactory::ReosHydraulicNetworkElementFactory()

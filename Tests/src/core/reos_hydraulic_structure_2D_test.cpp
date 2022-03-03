@@ -37,7 +37,7 @@ class ReoHydraulicStructure2DTest: public QObject
 void ReoHydraulicStructure2DTest::init()
 {
   mRootModule = new ReosModule( this );
-  mNetwork = new ReosHydraulicNetwork( nullptr, nullptr );
+  mNetwork = new ReosHydraulicNetwork( nullptr, nullptr, nullptr );
 }
 
 void ReoHydraulicStructure2DTest::createAndEditPolylineStructure()
