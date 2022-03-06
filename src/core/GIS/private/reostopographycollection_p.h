@@ -31,6 +31,7 @@ class ReosTopographyCollection_p : public ReosTopographyCollection
 
     void prepare_p( const QgsCoordinateReferenceSystem &sourceCrs ) const;
     double elevationAt_p( const QgsPointXY &point ) const;
+    void clean_p() const;
 
   private:
 
