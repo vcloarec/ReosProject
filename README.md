@@ -4,30 +4,41 @@ The aim of this project is to provide free and open-source tools for hydrologica
 
 # Lekan
 
-## Presentation
+The aim of Lekan is to assist the user for hydrological or hydraulic studies.
 
-Self installer of this tool can be downloaded [here](https://www.reos.site/en/reos-project/download/) (for Windows).
+The user works in a GIS environment based on QGIS engine.
 
-Documentation (work in progress, help will be appreciated!) is available in the wiki of this repo [here](https://github.com/vcloarec/ReosProject/wiki).
+Self installer of this tool can be downloaded [here](https://www.reos.site/en/reos-project/download/) (for Windows). For other platforms, building yourself the project could be possible.
 
-The aim of Lekan is to assist the user for estimating runoff hydrographs.
+Description and documentation about functionalities provided by the actual release is available in the wiki of this repo [here](https://github.com/vcloarec/ReosProject/wiki).
 
-The user is able to define watershed in the GIS environment (based on QGIS engine) and can evaluate the geometric characteristics from digital terrain models.
-
-GIS environment allow to:
-- load GIS data or open directly QGIS project for base map
-- use raster DEM to automaticly delineate watershed and define longitudinale profile
-
-![](delineate_r.gif)
+<img src="profile.jpg" style="zoom: 40%;" />
 
 
-The tool calculates concentration time with different formulas available and the user can apply runoff model to each watersheds.
 
-With user defined rainfalls or designed rainfalls linked to watersheds following meteorological models, runoff hydrographs are calculated for each watersheds.
+<img src="rainfall.jpg" style="zoom:40%;" />
 
 
-![](profile.jpg)
 
-![](rainfall.jpg)
+<img src="runoff_hydrograph.jpg" style="zoom:40%;" />
 
-![](runoff_hydrograph.jpg)
+<img src="station_onMap.gif" style="zoom:100%;" />
+
+<img src="hydraulique_network.gif" style="zoom:100%;" />
+
+## Development
+
+Lekan is in constant development, that is depending of available time or resources, new feature are regularly added. The only limit to provide new functionalities to help user in hydrological/hydraulic studies are imagination and ... time. Help is very welcome, to contribute, see [here](https://www.reos.site/en/how-to-support/) how to.
+
+## Work in progress
+
+Now, efforts of development are concentrated to allow the user to build 2D hydraulic models directly from Lekan:
+
+- generate and edit mesh structure
+- apply/edit topography on the mesh
+- apply/edit roughness
+- define boundary limit and link them to other part of the actual hydraulic network (watershed/hydrograph nodes, hydraulic routing link) 
+- Launch external calculation engine from Lekan (existing modeling engine).
+- Visualize and post-process result in Lekan.
+
+![](mesh_r.gif)
