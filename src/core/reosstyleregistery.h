@@ -28,12 +28,33 @@ class REOSCORE_EXPORT ReosStyleRegistery: public ReosModule
     static ReosStyleRegistery *instance();
 
     QColor curveColor() const;
+    QColor fillColor( int alpha = 255 ) const;
+
+    QColor fillColor( int &index, int alpha = 255 ) const;
+
+    QColor blueReos( int alpha = 255 ) const
+    {
+      return QColor( 0, 155, 242, alpha );
+    }
+
+    QColor orangeReos( int alpha = 255 ) const
+    {
+      return QColor( 250, 175, 100, alpha );
+    }
+
+    QColor invalidColor( int alpha = 255 ) const
+    {
+      return QColor( 255, 0, 0, alpha );
+    }
+
+    QSize toolBarIconSize() const {return QSize( 24, 24 );}
 
   private:
     static ReosStyleRegistery *sInstance;
 
-    QList<QColor> mCurveColor;
+    QList<QColor> mColors;
     mutable int mLastCurveColor = -1;
+    mutable int mLastFillColor = -1;
 };
 
 #endif // REOSSTYLEREGISTERY_H

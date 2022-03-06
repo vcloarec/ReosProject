@@ -18,29 +18,28 @@ email                : vcloarec at gmail dot com
 #include <QPainter>
 #include <QVector2D>
 #include <qgspoint.h>
+#include <qgsmapcanvas.h>
+#include <qgslinestring.h>
+#include <reosmapextent.h>
+
+#include "reospolylinesstructure.h"
 
 ReosMapPolygon_p::ReosMapPolygon_p( QgsMapCanvas *canvas ):
-  ReosMapItem_p( canvas )
+  ReosMapPolygonBase_p( canvas )
 {
-
 }
 
 ReosMapPolygon_p *ReosMapPolygon_p::clone()
 {
-  ReosMapPolygon_p *other = new ReosMapPolygon_p( mMapCanvas );
-  other->color = color;
-  other->externalColor = externalColor;
-  other->width = width;
-  other->externalWidth = externalWidth;
-  other->style = style;
-  other->brushStyle = brushStyle;
-  other->fillColor = fillColor;
-  other->mapPolygon = mapPolygon;
+  std::unique_ptr<ReosMapPolygon_p> other( new ReosMapPolygon_p( this ) );
   other->updatePosition();
-  return other;
+  return other.release();
 }
 
-QRectF ReosMapPolygon_p::boundingRect() const
+ReosMapPolygonBase_p::ReosMapPolygonBase_p( QgsMapCanvas *canvas ): ReosMapItem_p( canvas )
+{}
+
+QRectF ReosMapPolygonBase_p::boundingRect() const
 {
   QRectF bb = mViewPolygon.boundingRect();
   if ( externalWidth > width )
@@ -49,15 +48,16 @@ QRectF ReosMapPolygon_p::boundingRect() const
     return bb.adjusted( -width, -width, width, width );
 }
 
-void ReosMapPolygon_p::updatePosition()
+void ReosMapPolygonBase_p::updatePosition()
 {
   prepareGeometryChange();
   mViewPolygon.clear();
-  if ( mapPolygon.count() < 1 )
+  const QPolygonF mapPoly = geometry();
+  if ( mapPoly.count() < 1 )
     return;
-  const QPointF pview0 = toCanvasCoordinates( QgsPoint( mapPolygon.at( 0 ) ) );
+  const QPointF pview0 = toCanvasCoordinates( QgsPoint( mapPoly.at( 0 ) ) );
 
-  for ( auto &p : mapPolygon )
+  for ( auto &p : mapPoly )
   {
     const QPointF pview = toCanvasCoordinates( QgsPoint( p ) );
     mViewPolygon.append( QPointF( pview.x() - pview0.x(), pview.y() - pview0.y() ) );
@@ -68,7 +68,7 @@ void ReosMapPolygon_p::updatePosition()
     mMarkerPositionOnView = toCanvasCoordinates( QgsPoint( mMarkerposition ) );
 }
 
-QPainterPath ReosMapPolygon_p::shape() const
+QPainterPath ReosMapPolygonBase_p::shape() const
 {
   QPainterPath path;
   path.addPolygon( mViewPolygon );
@@ -76,32 +76,13 @@ QPainterPath ReosMapPolygon_p::shape() const
   return path ;
 }
 
-void ReosMapPolygon_p::setEditing( bool b )
+void ReosMapPolygonBase_p::setEditing( bool b )
 {
   mIsEditing = b;
   update();
 }
 
-void ReosMapPolygon_p::translate( const QPointF &translation )
-{
-  QPolygonF newPoints( mapPolygon.size() );
-
-  for ( int i = 0; i < mapPolygon.size(); ++i )
-    newPoints[i] = mapPolygon.at( i ) + translation;
-
-  mapPolygon = newPoints;
-  updatePosition();
-}
-
-QPointF ReosMapPolygon_p::mapPos() const
-{
-  if ( mapPolygon.isEmpty() )
-    return QPointF();
-  else
-    return mapPolygon.at( 0 );
-}
-
-int ReosMapPolygon_p::findVertexInView( const QRectF &zone ) const
+int ReosMapPolygonBase_p::findVertexInView( const QRectF &zone ) const
 {
   for ( int i = 0; i < mViewPolygon.size(); ++i )
     if ( zone.contains( mViewPolygon.at( i ) + pos() ) )
@@ -110,14 +91,16 @@ int ReosMapPolygon_p::findVertexInView( const QRectF &zone ) const
   return -1;
 }
 
-void ReosMapPolygon_p::activeMarker( bool b )
+void ReosMapPolygonBase_p::activeMarker( bool b )
 {
   mIsMarkerActive = b;
 }
 
-void ReosMapPolygon_p::setMarkerDistance( double d )
+void ReosMapPolygonBase_p::setMarkerDistance( double d )
 {
-  if ( !mIsMarkerActive || d < 0 || mapPolygon.empty() )
+  const QPolygonF mapPoly = geometry();
+
+  if ( !mIsMarkerActive || d < 0 || mapPoly.empty() )
   {
     mSegmentMarker = -1;
     updatePosition();
@@ -128,11 +111,11 @@ void ReosMapPolygon_p::setMarkerDistance( double d )
   int i = 0;
   do
   {
-    const QPointF &p1 = mapPolygon.at( i );
-    const QPointF &p2 = mapPolygon.at( i + 1 );
+    const QPointF &p1 = mapPoly.at( i );
+    const QPointF &p2 = mapPoly.at( i + 1 );
     distFromBegin += sqrt( pow( p1.x() - p2.x(), 2 ) + pow( p1.y() - p2.y(), 2 ) );
   }
-  while ( d >= distFromBegin && ++i < mapPolygon.count() - 1 );
+  while ( d >= distFromBegin && ++i < mapPoly.count() - 1 );
 
   if ( d > distFromBegin )
   {
@@ -141,15 +124,15 @@ void ReosMapPolygon_p::setMarkerDistance( double d )
     return;
   }
 
-  if ( i >= mapPolygon.count() - 1 )
+  if ( i >= mapPoly.count() - 1 )
   {
     mSegmentMarker = -1;
     updatePosition();
     return;
   }
   mSegmentMarker = i;
-  const QPointF &p1 = mapPolygon.at( i );
-  const QPointF &p2 = mapPolygon.at( i + 1 );
+  const QPointF &p1 = mapPoly.at( i );
+  const QPointF &p2 = mapPoly.at( i + 1 );
   double segDist = sqrt( pow( p1.x() - p2.x(), 2 ) + pow( p1.y() - p2.y(), 2 ) );
   double distFromP2 = distFromBegin - d;
   double ratio = distFromP2 / segDist;
@@ -157,12 +140,12 @@ void ReosMapPolygon_p::setMarkerDistance( double d )
   updatePosition();
 }
 
-void ReosMapPolygon_p::setMarkerArrow( bool b )
+void ReosMapPolygonBase_p::setMarkerArrow( bool b )
 {
   mMarkerArrow = b;
 }
 
-void ReosMapPolygon_p::paint( QPainter *painter )
+void ReosMapPolygonBase_p::paint( QPainter *painter )
 {
   painter->save();
   QPen pen;
@@ -287,9 +270,81 @@ void ReosMapPolygon_p::paint( QPainter *painter )
   painter->restore();
 }
 
-void ReosMapPolygon_p::draw( QPainter *painter )
+ReosMapPolygonBase_p::ReosMapPolygonBase_p( ReosMapPolygonBase_p *other ): ReosMapItem_p( mMapCanvas )
+{
+  color = other->color;
+  externalColor  = other->externalColor;
+  width = other->width;
+  externalWidth = other->externalWidth;
+  style = other->style;
+  brushStyle = other->brushStyle;
+  fillColor = other->fillColor;
+}
+
+void ReosMapPolygonBase_p::draw( QPainter *painter )
 {
   painter->drawPolygon( mViewPolygon );
+}
+
+void ReosMapPolygon_p::translate( const QPointF &translation )
+{
+  QPolygonF newPoints( mMapPolygon.size() );
+
+  for ( int i = 0; i < mMapPolygon.size(); ++i )
+    newPoints[i] = mMapPolygon.at( i ) + translation;
+
+  mMapPolygon = newPoints;
+  updatePosition();
+}
+
+QPointF ReosMapPolygon_p::mapPos() const
+{
+  if ( mMapPolygon.isEmpty() )
+    return QPointF();
+  else
+    return mMapPolygon.at( 0 );
+}
+
+
+void ReosMapPolygon_p::setGeometry( const QPolygonF &geom )
+{
+  mMapPolygon = geom;
+  if ( mMapPolygon.isEmpty() )
+    mSegmentMarker = -1;
+
+  updatePosition();
+}
+
+QPolygonF ReosMapPolygon_p::geometry() const
+{
+  return mMapPolygon;
+}
+
+void ReosMapPolygon_p::moveVertex( int index, const QPointF &newPosition )
+{
+  if ( index < 0 || index >= mMapPolygon.count() )
+    return;
+
+  mMapPolygon.replace( index, newPosition );
+  updatePosition();
+}
+
+void ReosMapPolygon_p::insertVertex( int index, const QPointF &point )
+{
+  mMapPolygon.insert( index, point );
+  updatePosition();
+}
+
+void ReosMapPolygon_p::removeVertex( int index )
+{
+  mMapPolygon.removeAt( index );
+  updatePosition();
+}
+
+ReosMapPolygon_p::ReosMapPolygon_p( ReosMapPolygon_p *other )
+  : ReosMapPolygonBase_p( other )
+{
+  mMapPolygon = other->mMapPolygon;
 }
 
 ReosMapPolyline_p::ReosMapPolyline_p( QgsMapCanvas *canvas ):
@@ -304,7 +359,7 @@ ReosMapPolyline_p *ReosMapPolyline_p::clone()
   other->width = width;
   other->externalWidth = externalWidth;
   other->style = style;
-  other->mapPolygon = mapPolygon;
+  other->mMapPolygon = mMapPolygon;
   other->updatePosition();
   return other;
 }
@@ -577,4 +632,96 @@ void ReosMapMarkerSvg_p::paint( QPainter *painter )
   painter->translate( mViewPoint - QPointF( viewBox.width() / 2, viewBox.height() / 2 ) );
   mSvgRenderer->render( painter, viewBox );
   painter->restore();
+}
+
+ReosMapStructureEnvelop_p::ReosMapStructureEnvelop_p( QgsMapCanvas *canvas )
+  : ReosMapPolygonBase_p( canvas )
+{}
+
+ReosMapStructureEnvelop_p *ReosMapStructureEnvelop_p::clone()
+{
+  std::unique_ptr<ReosMapStructureEnvelop_p> other( new ReosMapStructureEnvelop_p( this ) );
+  return other.release();
+}
+
+void ReosMapStructureEnvelop_p::translate( const QPointF &translation )
+{
+  if ( mStructure )
+    mStructure->translate( translation, mMapCanvas->mapSettings().destinationCrs().toWkt() );
+
+  updatePosition();
+}
+
+QPointF ReosMapStructureEnvelop_p::mapPos() const
+{
+  QPolygonF poly = geometry();
+  if ( poly.isEmpty() )
+    return QPointF();
+
+  return poly.at( 0 );
+}
+
+void ReosMapStructureEnvelop_p::setGeometry( const QPolygonF &geom )
+{
+  if ( !mStructure )
+    return;
+
+  mStructure->removeAll();
+  updatePosition();
+}
+
+void ReosMapStructureEnvelop_p::moveVertex( int index, const QPointF &newPosition )
+{
+  if ( !mStructure )
+    return;
+
+  //mStructure->moveVertex( index, ReosSpatialPosition( newPosition, crs() ) );
+
+  updatePosition();
+}
+
+void ReosMapStructureEnvelop_p::insertVertex( int index, const QPointF &point )
+{
+  if ( !mStructure )
+    return;
+
+  //mStructure->insertVertex( index, ReosSpatialPosition( point, crs() ) );
+
+  updatePosition();
+}
+
+void ReosMapStructureEnvelop_p::removeVertex( int index )
+{
+  if ( !mStructure )
+    return;
+
+  //mStructure->removeVertex( index );
+
+  updatePosition();
+}
+
+QPolygonF ReosMapStructureEnvelop_p::geometry() const
+{
+  if ( mStructure )
+    return mStructure->boundary( crs() );
+
+  return QPolygonF();
+}
+
+void ReosMapStructureEnvelop_p::setStructrure( ReosPolylinesStructure *structure )
+{
+  mStructure = structure;
+  updatePosition();
+}
+
+ReosMapStructureEnvelop_p::ReosMapStructureEnvelop_p( ReosMapStructureEnvelop_p *other )
+  : ReosMapPolygonBase_p( other )
+{
+  mStructure = nullptr;
+}
+
+
+QString ReosMapItem_p::crs() const
+{
+  return mMapCanvas->mapSettings().destinationCrs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED_SIMPLIFIED );
 }

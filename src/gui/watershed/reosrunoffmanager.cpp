@@ -27,6 +27,7 @@
 #include "reossettings.h"
 #include "reostimeserie.h"
 #include "reosguicontext.h"
+#include "reosstyleregistery.h"
 
 ReosRunoffManager::ReosRunoffManager( ReosRunoffModelModel *model, QWidget *parent ) :
   ReosActionWidget( parent ),
@@ -40,6 +41,7 @@ ReosRunoffManager::ReosRunoffManager( ReosRunoffModelModel *model, QWidget *pare
   ui->treeView->setContextMenuPolicy( Qt::CustomContextMenu );
 
   QToolBar *toolBar = new QToolBar( this );
+  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   ui->widgetTools->layout()->addWidget( toolBar );
   toolBar->addAction( QPixmap( QStringLiteral( ":/images/openRunoff.svg" ) ), tr( "Open File" ), this, &ReosRunoffManager::onOpenFile );
   toolBar->addAction( QPixmap( QStringLiteral( ":/images/saveRunoff.svg" ) ), tr( "Save Runoff Models" ), this, &ReosRunoffManager::save );

@@ -27,6 +27,7 @@
 #include "reosmaptool.h"
 #include "reosapplication.h"
 #include "reosdelftfewssettingswidget.h"
+#include "reosstyleregistery.h"
 
 ReosDelftFewsWidget::ReosDelftFewsWidget( ReosMap *map, const QString &dataType, QWidget *parent )
   : ReosDataProviderSelectorWidget( parent )
@@ -51,6 +52,7 @@ ReosDelftFewsWidget::ReosDelftFewsWidget( ReosMap *map, const QString &dataType,
   ui->mPlotWidget->setMagnifierType( ReosPlotWidget::positiveMagnifier );
 
   QToolBar *toolBar = new QToolBar( this );
+  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   ui->mToolBarWidget->setLayout( new QHBoxLayout );
   ui->mToolBarWidget->layout()->addWidget( toolBar );
   mActionSelectOnMap = toolBar->addAction( QPixmap( ":/delft-fews-images/selectOnMap.svg" ), tr( "Select Station" ) );

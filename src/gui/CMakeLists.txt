@@ -21,10 +21,20 @@ SET(REOS_GUI_SOURCES
     GIS/reosmapitem.cpp
     GIS/reosmaptool.cpp
     GIS/reosgislayerswidget.cpp
+    GIS/reosmaptooleditgeometrystructure.cpp
+    GIS/reoseditpolylinestructurewidget.cpp
+    GIS/reosmeshscalarrenderingwidget.cpp
+    GIS/3D/reos3dview.cpp
+    GIS/3D/reoslightwidget.cpp
+
     GIS/private/reosmappolygon_p.cpp
     GIS/private/reosmaptool_p.cpp
     GIS/private/reoslayertreecontextmenuprovider_p.cpp
     GIS/private/reoslayertreeviewdemindicator.cpp
+    GIS/private/reosmaptooleditpolylinestructure_p.cpp
+    GIS/private/reosmappolylinesstructure_p.cpp
+    GIS/private/reosmaptooleditpolygonstructure_p.cpp
+    GIS/private/reosmappolygonstructure_p.cpp
 
     watershed/reosdelineatingwatershedwidget.cpp
     watershed/reoswatershedwidget.cpp
@@ -62,12 +72,19 @@ SET(REOS_GUI_SOURCES
     hydrograph/reoshydrographroutingpropertieswidget.cpp
     hydrograph/reosgaugedhydrographwidget.cpp
 
+    mesh/reosmeshgeneratorgui.cpp
+
     hydraulicNetwork/reoshydraulicnetworkwidget.cpp
     hydraulicNetwork/reoshydraulicnetworkmapitemfactory.cpp
     hydraulicNetwork/reosmaptoolhydraulicnetwork.cpp
     hydraulicNetwork/reoshydraulicelementpropertieswidget.cpp
     hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp
-)
+    hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp
+    hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.cpp
+    hydraulicNetwork/structure2d/reosgmshresolutioncontrollerwidget.cpp
+    hydraulicNetwork/structure2d/reosmeshtopographywidget.cpp
+    hydraulicNetwork/private/reosmaptoolhydraulicnetwork_p.cpp
+    )
 
 SET(REOS_GUI_HEADERS
     reosgui.h
@@ -89,6 +106,11 @@ SET(REOS_GUI_HEADERS
     GIS/reosmapitem.h
     GIS/reosmaptool.h
     GIS/reosgislayerswidget.h
+    GIS/reosmaptooleditgeometrystructure.h
+    GIS/reoseditpolylinestructurewidget.h
+    GIS/reosmeshscalarrenderingwidget.h
+    GIS/3D/reos3dview.h
+    GIS/3D/reoslightwidget.h
 
     watershed/reosdelineatingwatershedwidget.h
     watershed/reoswatershedwidget.h
@@ -122,11 +144,17 @@ SET(REOS_GUI_HEADERS
     hydrograph/reoshydrographroutingpropertieswidget.h
     hydrograph/reosgaugedhydrographwidget.h
 
+    mesh/reosmeshgeneratorgui.h
+
     hydraulicNetwork/reoshydraulicnetworkwidget.h
     hydraulicNetwork/reosmaptoolhydraulicnetwork.h
     hydraulicNetwork/reoshydraulicnetworkmapitemfactory.h
     hydraulicNetwork/reoshydraulicelementpropertieswidget.h
     hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.h
+    hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.h
+    hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.h
+    hydraulicNetwork/structure2d/reosgmshresolutioncontrollerwidget.h
+    hydraulicNetwork/structure2d/reosmeshtopographywidget.h
 )
 
 SET(REOS_GUI_HEADERS_PRIVATE
@@ -134,9 +162,15 @@ SET(REOS_GUI_HEADERS_PRIVATE
     GIS/private/reosmaptool_p.h
     GIS/private/reoslayertreecontextmenuprovider_p.h
     GIS/private/reoslayertreeviewdemindicator.h
+    GIS/private/reosmaptooleditpolylinestructure_p.h
+    GIS/private/reosmappolylinesstructure_p.h
+    GIS/private/reosmaptooleditpolygonstructure_p.h
+    GIS/private/reosmappolygonstructure_p.h
 
     chart/private/reosplot_p.h
     chart/private/reosidfplot_p.h
+
+    hydraulicNetwork/private/reosmaptoolhydraulicnetwork_p.h
     )
 
 ADD_LIBRARY(reosGui SHARED
@@ -158,6 +192,7 @@ TARGET_LINK_LIBRARIES(reosGui PUBLIC
         ${Qt5Charts_LIBRARIES}
         ${Qt5WebKitWidgets_LIBRARIES}
         ${QGIS_LIBS}
+        ${QGIS_APP_LIB}
         ${QWT_LIB}
         reosCore
 )
@@ -201,11 +236,13 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/data
     ${CMAKE_SOURCE_DIR}/src/core/hydrograph
     ${CMAKE_SOURCE_DIR}/src/core/hydraulicNetwork
+    ${CMAKE_SOURCE_DIR}/src/core/mesh
 
     ${CMAKE_SOURCE_DIR}/src/gui
     ${CMAKE_SOURCE_DIR}/src/gui/data
     ${CMAKE_SOURCE_DIR}/src/gui/hydrograph
     ${CMAKE_SOURCE_DIR}/src/gui/GIS
+    ${CMAKE_SOURCE_DIR}/src/gui/GIS/3D
     ${CMAKE_SOURCE_DIR}/src/gui/GIS/private
     ${CMAKE_SOURCE_DIR}/src/gui/chart
     ${CMAKE_SOURCE_DIR}/src/gui/chart/private
@@ -213,10 +250,15 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/gui/rainfall
     ${CMAKE_SOURCE_DIR}/src/gui/hydrograph
     ${CMAKE_SOURCE_DIR}/src/gui/hydraulicNetwork
+    ${CMAKE_SOURCE_DIR}/src/gui/hydraulicNetwork/structure2d
     ${CMAKE_SOURCE_DIR}/src/gui/watershed
+    ${CMAKE_SOURCE_DIR}/src/gui/mesh
     ${QGIS_INCLUDE_DIR}
     ${QSCISCINTILLA_INCLUDE_DIR}
     ${QWT_INCLUDE}
+    ${QGIS_APP_INCLUDE}
+    ${QGIS_3D_EXTRA_HEADER}
+
 )
 
 

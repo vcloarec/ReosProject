@@ -16,6 +16,7 @@
 #include "reoshydraulicnetwork.h"
 #include "reoshydraulicnode.h"
 #include "reoshydrauliclink.h"
+#include "reoshydraulicstructure2d.h"
 #include "reoshydrographrouting.h"
 #include <QUuid>
 
@@ -122,16 +123,20 @@ ReosModule::Message ReosHydraulicNetworkElement::lastMessage() const
 }
 
 
-ReosHydraulicNetwork::ReosHydraulicNetwork( ReosModule *parent, ReosWatershedModule *watershedModule )
+ReosHydraulicNetwork::ReosHydraulicNetwork( ReosModule *parent, ReosGisEngine *gisEngine, ReosWatershedModule *watershedModule )
   : ReosModule( parent )
+  , mGisEngine( gisEngine )
   , mWatershedModule( watershedModule )
 {
   ReosHydrographRoutingMethodFactories::instantiate( this );
+  ReosGmshEngine::instantiate( this );
 
   mElementFactories.emplace( ReosHydrographNodeWatershed::staticType(), new ReosHydrographNodeWatershedFactory );
   mElementFactories.emplace( ReosHydrographJunction::staticType(), new ReosHydrographJunctionFactory );
 
   mElementFactories.emplace( ReosHydrographRoutingLink::staticType(), new ReosHydrographRoutingLinkFactory );
+
+  mElementFactories.emplace( ReosHydraulicStructure2D::staticType(), new ReosHydraulicStructure2dFactory );
 }
 
 QList<ReosHydraulicNetworkElement *> ReosHydraulicNetwork::getElements( const QString &type ) const
@@ -179,19 +184,32 @@ void ReosHydraulicNetwork::removeElement( ReosHydraulicNetworkElement *elem )
   elem->destroy();
 }
 
-void ReosHydraulicNetwork::decode( const ReosEncodedElement &element )
+void ReosHydraulicNetwork::decode( const ReosEncodedElement &element, const QString &projectPath, const QString &projectFileName )
 {
   clear();
   if ( element.description() != QStringLiteral( "hydraulic-network" ) )
     return;
 
+  mProjectName = projectFileName;
+  mProjectPath = projectPath;
+
   element.getData( QStringLiteral( "elements-counter" ), mElementIndexesCounter );
 
   QList<ReosEncodedElement> encodedElements = element.getListEncodedData( QStringLiteral( "hydraulic-element" ) );
 
+  //here order of adding element is important (node before links)
+
   for ( const ReosEncodedElement &encodedElement : encodedElements )
   {
     if ( encodedElement.description().contains( ReosHydraulicNode::staticType() ) )
+    {
+      addEncodedElement( encodedElement );
+    }
+  }
+
+  for ( const ReosEncodedElement &encodedElement : encodedElements )
+  {
+    if ( encodedElement.description().contains( ReosHydraulicStructure2D::staticType() ) )
     {
       addEncodedElement( encodedElement );
     }
@@ -207,12 +225,13 @@ void ReosHydraulicNetwork::decode( const ReosEncodedElement &element )
 
 }
 
-ReosEncodedElement ReosHydraulicNetwork::encode() const
+ReosEncodedElement ReosHydraulicNetwork::encode( const QString &projectPath, const QString &projectFileName ) const
 {
   ReosEncodedElement element( QStringLiteral( "hydraulic-network" ) );
 
   QList<ReosEncodedElement> encodedElements;
-
+  mProjectName = projectFileName;
+  mProjectPath = projectPath;
 
   for ( ReosHydraulicNetworkElement *elem : mElements )
   {
@@ -233,6 +252,12 @@ void ReosHydraulicNetwork::clear()
   emit hasBeenReset();
 }
 
+ReosGisEngine *ReosHydraulicNetwork::getGisEngine() const
+{
+  return mGisEngine;
+}
+
+
 void ReosHydraulicNetwork::elemPositionChangedPrivate( ReosHydraulicNetworkElement *elem )
 {
   emit elementPositionHasChanged( elem );
@@ -243,6 +268,8 @@ ReosHydraulicNetworkContext ReosHydraulicNetwork::context() const
   ReosHydraulicNetworkContext context;
   context.mWatershedModule = mWatershedModule;
   context.mNetwork = const_cast<ReosHydraulicNetwork *>( this );
+  context.mProjectName = mProjectName;
+  context.mProjectPath = mProjectPath;
   return context;
 }
 
@@ -265,6 +292,16 @@ ReosWatershedModule *ReosHydraulicNetworkContext::watershedModule() const
 ReosHydraulicNetwork *ReosHydraulicNetworkContext::network() const
 {
   return mNetwork;
+}
+
+QString ReosHydraulicNetworkContext::projectPath() const
+{
+  return mProjectPath;
+}
+
+QString ReosHydraulicNetworkContext::projectName() const
+{
+  return mProjectName;
 }
 
 ReosHydraulicNetworkElementFactory::ReosHydraulicNetworkElementFactory()

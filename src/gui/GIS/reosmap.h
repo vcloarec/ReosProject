@@ -32,6 +32,8 @@ class ReosMapCursorPosition;
 class ReosGisEngine;
 class ReosMapTool;
 class ReosMapToolDrawExtent;
+class ReosGeometryStructure;
+class ReosRenderedObject;
 
 class REOSGUI_EXPORT ReosMap: public ReosModule
 {
@@ -41,7 +43,6 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     ~ReosMap();
 
     QWidget *mapCanvas() const;
-    void refreshCanvas();
 
     ReosGisEngine *engine() const;
     QString mapCrs() const;
@@ -58,6 +59,16 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
 
     QDockWidget *temporalControllerDockWidget();
 
+    void initialize();
+
+    void addSnappableStructure( ReosGeometryStructure *structure );
+    void removeSnappableStructure( ReosGeometryStructure *structure );
+
+    void addExtraRenderedObject( ReosRenderedObject *obj );
+    void removeExtraRenderedObject( ReosRenderedObject *obj );
+
+    void refreshCanvas();
+
   signals:
     //! emitted when the mouse cursor moves on the map cavans.
     void cursorMoved( const QPointF &point );
@@ -67,6 +78,7 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
 
   private slots:
     void setCrs( const QString &crs );
+    void drawExtraRendering( QPainter *painter );
 
   private:
     ReosGisEngine *mEngine;
@@ -84,6 +96,9 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     QAction *mActionPreviousZoom = nullptr;
     QAction *mActionNextZoom = nullptr;
     QAction *mTemporalControllerAction = nullptr;
+    QAction *mEnableSnappingAction = nullptr;
+
+    QList<ReosRenderedObject *> mExtraRenderedObjects;
 };
 
 

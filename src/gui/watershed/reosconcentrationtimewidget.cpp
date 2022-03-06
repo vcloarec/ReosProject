@@ -25,6 +25,7 @@
 #include "reosparameterwidget.h"
 #include "reoswatershed.h"
 #include "reosconcentrationtimecalculation.h"
+#include "reosstyleregistery.h"
 
 ReosConcentrationTimeWidget::ReosConcentrationTimeWidget( QWidget *parent ) :
   ReosActionWidget( parent )
@@ -57,6 +58,7 @@ ReosConcentrationTimeWidget::ReosConcentrationTimeWidget( QWidget *parent ) :
   toolBar->addAction( QPixmap( QStringLiteral( ":/images/deselectAllFormula.svg" ) ), tr( "Deselect All " ), this, &ReosConcentrationTimeWidget::onDeselectAll );
   toolBar->addAction( QPixmap( QStringLiteral( ":/images/selectValidFormula.svg" ) ), tr( "Select Valid " ), this, &ReosConcentrationTimeWidget::onSelectValid );
   toolBar->addAction( QPixmap( QStringLiteral( ":/images/copySelected.svg" ) ), tr( "Copy values to Clipboard " ), this, &ReosConcentrationTimeWidget::onCopy );
+  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
 
   ui->formulasView->setModel( mFormulasModel );
   ui->groupBoxparameters->layout()->addWidget( mLengthParameterWidget );

@@ -20,7 +20,7 @@
 
 class QMenu;
 class QAction;
-
+class QgsMapMouseEvent;
 /**
  *  Class that populate QMenu, action can be embeded to be used later. This class can be derived to provide more functionnality.
  *  An instance of this clas scan be set in a ReosMapTool instance to provide action to context menu.
@@ -32,7 +32,7 @@ class ReosMenuPopulator
     ReosMenuPopulator();
 
     //! Populates the menu
-    virtual void populate( QMenu *menu );
+    virtual bool populate( QMenu *menu, QgsMapMouseEvent *e = nullptr );
 
     //! Add an action than will be added to menu
     void addAction( QAction *action );

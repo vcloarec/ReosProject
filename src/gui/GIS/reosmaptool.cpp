@@ -49,6 +49,7 @@ ReosMapToolDrawPolygon::ReosMapToolDrawPolygon( QObject *parent, ReosMap *map ):
 void ReosMapToolDrawPolygon::setFillColor( const QColor &color )
 {
   d->mRubberBand->setFillColor( color );
+  d->setFillColor( color );
 }
 
 void ReosMapTool::setCurrentToolInMap() const
@@ -59,7 +60,8 @@ void ReosMapTool::setCurrentToolInMap() const
 
 void ReosMapTool::quitMap()
 {
-  mMap->setDefaultMapTool();
+  if ( !mMap.isNull() )
+    mMap->setDefaultMapTool();
 }
 
 bool ReosMapTool::isCurrentToolInMap() const
@@ -86,6 +88,11 @@ void ReosMapTool::setContextMenuPopulator( ReosMenuPopulator *populator )
 void ReosMapTool::setSearchingItemDecription( const QString &description )
 {
   tool_p()->setSearchTargetDescription( description );
+}
+
+void ReosMapTool::activateMovingSignal( bool activate )
+{
+  tool_p()->setActivateMovingSignal( activate );
 }
 
 void ReosMapTool::setSearchItemWhenMoving( bool b )
@@ -122,7 +129,7 @@ void ReosMapToolDrawPolyRubberBand::setStrokeWidth( double width )
 
 void ReosMapToolDrawPolyRubberBand::setColor( const QColor &color )
 {
-  d->mRubberBand->setColor( color );
+  d->setColor( color );
 }
 
 void ReosMapToolDrawPolyRubberBand::setSecondaryStrokeColor( const QColor &color )
@@ -133,6 +140,11 @@ void ReosMapToolDrawPolyRubberBand::setSecondaryStrokeColor( const QColor &color
 void ReosMapToolDrawPolyRubberBand::setLineStyle( Qt::PenStyle style )
 {
   d->mRubberBand->setLineStyle( style );
+}
+
+void ReosMapToolDrawPolyRubberBand::setAllowSelfIntersect( bool b )
+{
+  d->setAllowSelfIntersect( b );
 }
 
 ReosMapTool_p *ReosMapToolDrawPolyRubberBand::tool_p() const
@@ -150,6 +162,12 @@ void ReosMapTool::setUp()
   connect( tool_p(), &ReosMapTool_p::keyPressed, this, &ReosMapTool::keyPressed );
   connect( tool_p(), &ReosMapTool_p::activated, this, &ReosMapTool::activated );
   connect( tool_p(), &ReosMapTool_p::deactivated, this, &ReosMapTool::deactivated );
+  connect( tool_p(), &ReosMapTool_p::move, this, &ReosMapTool::move );
+}
+
+ReosMap *ReosMapTool::map() const
+{
+  return mMap;
 }
 
 void ReosMapTool::keyPressed( int key )
@@ -175,6 +193,12 @@ bool ReosMapTool::isActive() const
 {
   return tool_p()->isActive();
 }
+
+void ReosMapTool::enableSnapping( bool enable )
+{
+  tool_p()->enableSnapping( enable );
+}
+
 
 ReosMapToolDrawExtent::ReosMapToolDrawExtent( ReosMap *map ): ReosMapToolDrawExtent( map, map )
 {}

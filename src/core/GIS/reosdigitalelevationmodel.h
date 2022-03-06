@@ -86,6 +86,9 @@ class REOSCORE_EXPORT ReosDigitalElevationModel
     virtual ReosRasterMemory<float> extractMemoryRasterSimplePrecision(
       const ReosRasterExtent &destinationRasterExtent,
       ReosProcess *process = nullptr ) const = 0;
+
+    //! Returns the no data value for this DEM
+    virtual double noDataValue() const = 0 ;
 };
 
 //! Process class that extract elevation on a polyline from a digital elevation model

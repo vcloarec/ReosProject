@@ -14,17 +14,22 @@
  *                                                                         *
  ***************************************************************************/
 #include "reosguicontext.h"
+#include "reosmapitem.h"
+#include "reosmap.h"
 
 ReosGuiContext::ReosGuiContext( QWidget *parent ):
   mParent( parent )
-{
-
-}
+{}
 
 ReosGuiContext::ReosGuiContext( const ReosGuiContext &other, QWidget *parent )
 {
   *this = other;
   mParent = parent;
+}
+
+ReosGuiContext::ReosGuiContext( const ReosGuiContext &other )
+{
+  *this = other;
 }
 
 ReosMap *ReosGuiContext::map() const
@@ -40,4 +45,30 @@ void ReosGuiContext::setMap( ReosMap *map )
 QWidget *ReosGuiContext::parent() const
 {
   return mParent;
+}
+
+ReosMapItem *ReosGuiContext::mapItems( const QString &description ) const
+{
+  for ( ReosMapItem *mi : std::as_const( mMapItems ) )
+  {
+    if ( mi->description().contains( description ) )
+      return mi;
+  }
+
+  return nullptr;
+}
+
+void ReosGuiContext::addMapItems( ReosMapItem *mapItems )
+{
+  mMapItems.push( mapItems );
+}
+
+void ReosGuiContext::addAction( QAction *action )
+{
+  mActions.append( action );
+}
+
+QList<QAction *> ReosGuiContext::actions() const
+{
+  return mActions;
 }

@@ -32,13 +32,16 @@ class ReosMapPolygon_p;
 class ReosMapPolyline_p;
 class ReosMapMarkerFilledCircle_p;
 
+class ReosPolylinesStructure;
+class ReosPolygonStructure;
+
 class REOSGUI_EXPORT ReosMapItem
 {
   public:
     //! Construct a map item and link it with a map
     ReosMapItem();
     ReosMapItem( ReosMap *map );
-    ReosMapItem( const ReosMapItem &other );
+    ReosMapItem( const ReosMapItem &other ) = delete;
     virtual ~ReosMapItem() = default;
 
     //! Returns whether graphic \a internal item correspond to \a this graphical item
@@ -64,6 +67,10 @@ class REOSGUI_EXPORT ReosMapItem
     void setHovered( bool b );
 
     QGraphicsItem *graphicItem();
+
+    void updatePosition();
+
+    ReosMapItem &operator=( const ReosMapItem &other ) = delete;
 
   protected:
     bool isMapExist() const;
@@ -144,9 +151,12 @@ class ReosMapPolygon : public ReosMapItem
     ReosMapPolygon();
     ReosMapPolygon( ReosMap *map );
     ReosMapPolygon( ReosMap *map, const QPolygonF &polygon );
+    ReosMapPolygon( ReosMap *map, ReosPolylinesStructure *structure );
     ~ReosMapPolygon();
 
-    ReosMapPolygon( const ReosMapPolygon &other );
+    ReosMapPolygon( const ReosMapPolygon &other ) = delete;
+
+    void setFillStyle( Qt::BrushStyle style );
 
     void setFillColor( const QColor &color );
 
@@ -169,7 +179,7 @@ class ReosMapPolyline: public ReosMapItem
     ReosMapPolyline( ReosMap *map, const QPolygonF &polyline );
     ~ReosMapPolyline();
 
-    ReosMapPolyline( const ReosMapPolyline &other );
+    ReosMapPolyline( const ReosMapPolyline &other ) = delete;
 
     //! Rsets the polyline with \a polyline
     void resetPolyline( const QPolygonF &polyline = QPolygonF() );
@@ -186,7 +196,24 @@ class ReosMapPolyline: public ReosMapItem
     void setMarkerArrow( bool b );
 
     void setExtremityDistance( double d );
+};
 
+class ReosMapPolylineStructure : public ReosMapItem
+{
+  public:
+    ReosMapPolylineStructure(): ReosMapItem() {}
+    ReosMapPolylineStructure( ReosMap *map, ReosPolylinesStructure *structure );
+    ~ReosMapPolylineStructure();
+
+    void setLineWidth( double width );
+};
+
+class ReosMapPolygonStructure : public ReosMapItem
+{
+  public:
+    ReosMapPolygonStructure(): ReosMapItem() {}
+    ReosMapPolygonStructure( ReosMap *map, ReosPolygonStructure *structure );
+    ~ReosMapPolygonStructure();
 };
 
 

@@ -20,7 +20,17 @@ SET(REOS_CORE_SOURCES
   GIS/reosgisengine.cpp
   GIS/reosmapextent.cpp
   GIS/reosexporttovectorfile.cpp
+  GIS/reosgeometrystructure.cpp
+  GIS/reospolygonstructure.cpp
+  GIS/reospolylinesstructure.cpp
+  GIS/reosmesh.cpp
+  GIS/reostopographycollection.cpp
   GIS/private/reosdigitalelevationmodel_p.cpp
+  GIS/private/reospolygonstructure_p.cpp
+  GIS/private/reospolylinesstructure_p.cpp
+  GIS/private/reosmesh_p.cpp
+  GIS/private/reosmeshdataprovider_p.cpp
+  GIS/private/reostopographycollection_p.cpp
 
   process/reosprocess.cpp
 
@@ -64,6 +74,10 @@ SET(REOS_CORE_SOURCES
   hydraulicNetwork/reoshydrauliclink.cpp
   hydraulicNetwork/reoshydraulicnode.cpp
   hydraulicNetwork/reoshydraulicnetwork.cpp
+  hydraulicNetwork/reoshydraulicstructure2d.cpp
+
+  mesh/reosmeshgenerator.cpp
+  mesh/reosgmshgenerator.cpp
 )
 
 SET(REOS_CORE_HEADERS
@@ -84,6 +98,11 @@ SET(REOS_CORE_HEADERS
     GIS/reosgisengine.h
     GIS/reosmapextent.h
     GIS/reosexporttovectorfile.h
+    GIS/reosgeometrystructure.h
+    GIS/reospolygonstructure.h
+    GIS/reospolylinesstructure.h
+    GIS/reosmesh.h
+    GIS/reostopographycollection.h
 
     process/reosprocess.h
 
@@ -127,11 +146,19 @@ SET(REOS_CORE_HEADERS
     hydraulicNetwork/reoshydrauliclink.h
     hydraulicNetwork/reoshydraulicnode.h
     hydraulicNetwork/reoshydraulicnetwork.h
+    hydraulicNetwork/reoshydraulicstructure2d.h
 
+    mesh/reosmeshgenerator.h
+    mesh/reosgmshgenerator.h
 )
 
 SET(REOS_CORE_HEADERS_PRIVATE
     GIS/private/reosdigitalelevationmodel_p.h
+    GIS/private/reospolylinesstructure_p.h
+    GIS/private/reospolygonstructure_p.h
+    GIS/private/reosmesh_p.h
+    GIS/private/reosmeshdataprovider_p.h
+    GIS/private/reostopographycollection_p.h
     )
 
 SET(IMAGE_RCCS ${CMAKE_SOURCE_DIR}/images/images.qrc
@@ -140,6 +167,14 @@ SET(IMAGE_RCCS ${CMAKE_SOURCE_DIR}/images/images.qrc
                ${CMAKE_SOURCE_DIR}/images/flags/flags.qrc)
 
 SET(CREDITS_RCCS ${CMAKE_SOURCE_DIR}/credits/credits.qrc)
+
+set(REOS_CORE_SOURCES ${REOS_CORE_SOURCES}
+  ${CMAKE_SOURCE_DIR}/external/poly2tri/common/shapes.cc
+  ${CMAKE_SOURCE_DIR}/external/poly2tri/sweep/advancing_front.cc
+  ${CMAKE_SOURCE_DIR}/external/poly2tri/sweep/cdt.cc
+  ${CMAKE_SOURCE_DIR}/external/poly2tri/sweep/sweep_context.cc
+  ${CMAKE_SOURCE_DIR}/external/poly2tri/sweep/sweep.cc
+)
 
 SET(REOS_CORE_LIBS ${REOS_CORE_LIBS} reosCore)
 ADD_LIBRARY(reosCore SHARED
@@ -186,6 +221,7 @@ TARGET_LINK_LIBRARIES(reosCore PUBLIC
         ${Qt5Sql_LIBRARIES}
         ${Qt5Concurrent_LIBRARIES}
         ${QGIS_LIBS}
+        ${GMSH_LIB}
 )
 
 
@@ -212,9 +248,14 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/watershed
     ${CMAKE_SOURCE_DIR}/src/core/hydrograph
     ${CMAKE_SOURCE_DIR}/src/core/hydraulicNetwork
+    ${CMAKE_SOURCE_DIR}/src/core/mesh
 
     ${QGIS_INCLUDE_DIR}
+    ${GMSH_INCLUDE_DIR}
 )
+
+
+include_directories(${CMAKE_SOURCE_DIR}/external/poly2tri)
 
 SET(QGIS_PLUGINS_DIR "${QGIS_LIB_PATH}/qgis/plugins/")
 ADD_DEFINITIONS(-DQGIS_PLUGINS="${QGIS_PLUGINS_DIR}")

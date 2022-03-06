@@ -93,7 +93,7 @@ class ReosDelineatingWatershedWidget : public ReosActionWidget
 
     ReosMapPolyline mDownstreamLine;
     ReosMapPolygon mWatershedExtent;
-    QVector<ReosMapPolyline> mBurningLines;
+    QVector<std::shared_ptr<ReosMapPolyline>> mBurningLines;
 
     ReosMapToolDrawPolygon *mMapToolDrawWatershed = nullptr;
     ReosMapToolDrawPoint *mMapToolDrawOutletPoint = nullptr;

@@ -180,7 +180,8 @@ void ReosHydraulicHydrographJunctionPropertiesWidget::updateGaugedHydrograph()
   }
 }
 
-ReosHydraulicHydrographNodePropertiesWidgetFactory::ReosHydraulicHydrographNodePropertiesWidgetFactory( QObject *parent ): ReosHydraulicElementWidgetFactory( parent ) {}
+ReosHydraulicHydrographNodePropertiesWidgetFactory::ReosHydraulicHydrographNodePropertiesWidgetFactory( QObject *parent )
+  : ReosHydraulicElementWidgetFactory( parent ) {}
 
 ReosHydraulicElementWidget *ReosHydraulicHydrographNodePropertiesWidgetFactory::createWidget( ReosHydraulicNetworkElement *element, const ReosGuiContext &context )
 {

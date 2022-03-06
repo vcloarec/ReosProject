@@ -20,11 +20,16 @@ email                : vcloarec at gmail dot com
 #include <qgslayertreemapcanvasbridge.h>
 #include <qgslayertreemodel.h>
 #include <qgstemporalcontrollerwidget.h>
+#include <qgsmapcanvassnappingutils.h>
+#include <qgssnappingconfig.h>
 
 #include "reosmap.h"
 #include "reosgisengine.h"
 #include "reosmaptool.h"
 #include "reosparameter.h"
+#include "reospolylinesstructure.h"
+
+#include "reosmesh.h"
 
 
 ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
@@ -40,6 +45,7 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   , mActionPreviousZoom( new QAction( QPixmap( QStringLiteral( ":/images/zoomPrevious.svg" ) ), tr( "Previous Zoom" ), this ) )
   , mActionNextZoom( new QAction( QPixmap( QStringLiteral( ":/images/zoomNext.svg" ) ), tr( "Next Zoom" ), this ) )
   , mTemporalControllerAction( new QAction( QPixmap( QStringLiteral( ":/images/temporal.svg" ) ), tr( "Temporal controller" ), this ) )
+  , mEnableSnappingAction( new QAction( tr( "Snapping" ), this ) )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
   canvas->setExtent( QgsRectangle( 0, 0, 200, 200 ) );
@@ -104,7 +110,6 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
     canvas->zoomByFactor( 2 );
   } );
 
-
   connect( mActionPreviousZoom, &QAction::triggered, canvas, &QgsMapCanvas::zoomToPreviousExtent );
   connect( mActionNextZoom, &QAction::triggered, canvas, &QgsMapCanvas::zoomToNextExtent );
   connect( canvas, &QgsMapCanvas::zoomLastStatusChanged, mActionPreviousZoom, &QAction::setEnabled );
@@ -124,6 +129,10 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
     mTemporalDockWidget->setVisible( mTemporalControllerAction->isChecked() );
   } );
   mTemporalDockWidget->hide();
+
+  mEnableSnappingAction->setCheckable( true );
+
+  connect( canvas, &QgsMapCanvas::renderComplete, this, &ReosMap::drawExtraRendering );
 }
 
 ReosMap::~ReosMap()
@@ -209,11 +218,64 @@ QDockWidget *ReosMap::temporalControllerDockWidget()
   return mTemporalDockWidget;
 }
 
+void ReosMap::initialize()
+{
+  mExtraRenderedObjects.clear();
+
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
+  QgsMapCanvasSnappingUtils *snappingUtils = new QgsMapCanvasSnappingUtils( canvas, this );
+  canvas->setSnappingUtils( snappingUtils );
+
+  connect( QgsProject::instance(), &QgsProject::snappingConfigChanged, snappingUtils, &QgsSnappingUtils::setConfig );
+
+  QgsSnappingConfig snappingConfig = QgsProject::instance()->snappingConfig();
+  snappingConfig.setEnabled( true );
+  snappingConfig.setTypeFlag( Qgis::SnappingType::Vertex );
+  snappingConfig.setMode( Qgis::SnappingMode::AllLayers );
+  QgsProject::instance()->setSnappingConfig( snappingConfig );
+}
+
+void ReosMap::addSnappableStructure( ReosGeometryStructure *structure )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
+  QgsVectorLayer *vl = qobject_cast<QgsVectorLayer *>( structure->data() );
+  if ( canvas && vl )
+    canvas->snappingUtils()->addExtraSnapLayer( vl );
+}
+
+void ReosMap::removeSnappableStructure( ReosGeometryStructure *structure )
+{
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
+  QgsVectorLayer *vl = qobject_cast<QgsVectorLayer *>( structure->data() );
+  if ( canvas && vl )
+    canvas->snappingUtils()->removeExtraSnapLayer( vl );
+}
+
+void ReosMap::addExtraRenderedObject( ReosRenderedObject *obj )
+{
+  mExtraRenderedObjects.append( obj );
+  if ( mCanvas )
+    qobject_cast<QgsMapCanvas *>( mCanvas )->refresh();
+}
+
+void ReosMap::removeExtraRenderedObject( ReosRenderedObject *obj )
+{
+  mExtraRenderedObjects.removeOne( obj );
+  if ( mCanvas )
+    qobject_cast<QgsMapCanvas *>( mCanvas )->refresh();
+}
+
 void ReosMap::setCrs( const QString &crsWkt )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
   canvas->setDestinationCrs( QgsCoordinateReferenceSystem::fromWkt( crsWkt ) );
   emit crsChanged( crsWkt );
+}
+
+void ReosMap::drawExtraRendering( QPainter *painter )
+{
+  for ( ReosRenderedObject *obj : std::as_const( mExtraRenderedObjects ) )
+    obj->render( mCanvas, painter );
 }
 
 ReosMapCursorPosition::ReosMapCursorPosition( ReosMap *map, QWidget *parent ):

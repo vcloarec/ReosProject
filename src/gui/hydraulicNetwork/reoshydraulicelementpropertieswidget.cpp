@@ -29,10 +29,11 @@
 #include "reoshydrographrouting.h"
 #include "reosformwidget.h"
 #include "reoshydraulicnetworkwidget.h"
+#include "reoshydraulicstructure2dproperties.h"
+#include "reosmeshgeneratorgui.h"
 
 ReosHydraulicElementPropertiesWidget::ReosHydraulicElementPropertiesWidget( ReosWatershedModule *watershedModule, const ReosGuiContext &guiContext )
   : ReosStackedPageWidget( guiContext.parent() )
-  , mGuiContext( guiContext )
 {
   QVBoxLayout *mainLayout = new QVBoxLayout;
   setLayout( mainLayout );
@@ -57,21 +58,23 @@ ReosHydraulicElementPropertiesWidget::ReosHydraulicElementPropertiesWidget( Reos
 
   addWidgetFactory( new ReosHydrographRoutingPropertiesWidgetFactory( this ) );
   addWidgetFactory( new ReosHydraulicHydrographNodePropertiesWidgetFactory( this ) );
+  addWidgetFactory( new ReosHydraulicStructure2DPropertiesWidgetFactory( this ) );
 
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormHydrographRountingMuskingumWidgetFactory );
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormHydrographRountingLagWidgetFactory );
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormWatershedNodeWidgetFactory );
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormJunctionNodeWidgetFactory );
+  ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormGmshGeneratorWidgetFactory );
 
   connect( mMeteoModelCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosHydraulicElementPropertiesWidget::updateElementCalculation );
 
-  setCurrentElement( nullptr );
+  setCurrentElement( nullptr, guiContext );
 }
 
 ReosHydraulicElementPropertiesWidget::~ReosHydraulicElementPropertiesWidget()
 {}
 
-void ReosHydraulicElementPropertiesWidget::setCurrentElement( ReosHydraulicNetworkElement *element )
+void ReosHydraulicElementPropertiesWidget::setCurrentElement( ReosHydraulicNetworkElement *element, const ReosGuiContext &guiContext )
 {
   ReosHydraulicElementWidget *newWidget = nullptr;
   QWidget *newNameWidget = nullptr;
@@ -79,7 +82,7 @@ void ReosHydraulicElementPropertiesWidget::setCurrentElement( ReosHydraulicNetwo
 
   if ( mCurrentElement )
   {
-    newWidget = widgetFactory( element->type() )->createWidget( element, ReosGuiContext( mGuiContext, this ) );
+    newWidget = widgetFactory( element->type() )->createWidget( element, ReosGuiContext( guiContext, this ) );
     connect( newWidget, &ReosHydraulicElementWidget::stackedPageWidgetOpened, this, &ReosStackedPageWidget::addOtherPage );
     newNameWidget = new ReosParameterStringWidget( element->name(), this );
     mMeteoModelCombo->show();
@@ -228,7 +231,7 @@ ReosHydraulicElementPropertiesActionWidget::ReosHydraulicElementPropertiesAction
   addPage( mainPage );
 }
 
-void ReosHydraulicElementPropertiesActionWidget::setCurrentElement( ReosHydraulicNetworkElement *element )
+void ReosHydraulicElementPropertiesActionWidget::setCurrentElement( ReosHydraulicNetworkElement *element, const ReosGuiContext &guiContext )
 {
   if ( element == mCurrentElement )
     return;
@@ -240,5 +243,5 @@ void ReosHydraulicElementPropertiesActionWidget::setCurrentElement( ReosHydrauli
 
   backToFirstPage();
   mCurrentElement = element;
-  mainPage->setCurrentElement( element );
+  mainPage->setCurrentElement( element, guiContext );
 }

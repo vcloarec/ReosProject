@@ -24,11 +24,21 @@
 class ReosMapToolDrawHydraulicNetworkLink_p;
 class ReosMapToolMoveHydraulicNetworkNode_p;
 
-class ReosMapToolDrawHydraulicNetworkLink: public ReosMapTool
+
+class ReosMapToolHydraulicElement
+{
+  public:
+    ReosMapToolHydraulicElement( ReosHydraulicNetwork *network );
+
+  protected:
+    ReosHydraulicNetwork *mNetwork = nullptr;
+};
+
+class ReosMapToolDrawHydraulicNetworkLink: public ReosMapTool, public ReosMapToolHydraulicElement
 {
     Q_OBJECT
   public:
-    ReosMapToolDrawHydraulicNetworkLink( QObject *parent, ReosMap *map );
+    ReosMapToolDrawHydraulicNetworkLink( ReosHydraulicNetwork *network, ReosMap *map );
     ~ReosMapToolDrawHydraulicNetworkLink();
 
     int itemsCount() const;
@@ -58,22 +68,16 @@ class ReosMapToolDrawHydrographRouting: public ReosMapToolDrawHydraulicNetworkLi
 {
     Q_OBJECT
   public:
-    ReosMapToolDrawHydrographRouting( ReosHydraulicNetwork *network, ReosMap *map ):
-      ReosMapToolDrawHydraulicNetworkLink( network, map ),
-      mNetwork( network )
-    {
-    }
+    ReosMapToolDrawHydrographRouting( ReosHydraulicNetwork *network, ReosMap *map );
 
   protected:
     bool acceptItem( ReosMapItem *item ) override;
-
     bool isFinished() const override;
 
   private:
-    ReosHydraulicNetwork *mNetwork;
 };
 
-class ReosMapToolMoveHydraulicNetworkElement : public ReosMapTool
+class ReosMapToolMoveHydraulicNetworkElement : public ReosMapTool, public ReosMapToolHydraulicElement
 {
     Q_OBJECT
   public:
@@ -81,9 +85,19 @@ class ReosMapToolMoveHydraulicNetworkElement : public ReosMapTool
     ~ReosMapToolMoveHydraulicNetworkElement();
 
   private:
-    ReosHydraulicNetwork *mNetwork;
     ReosMapToolMoveHydraulicNetworkNode_p *d = nullptr;
     ReosMapTool_p *tool_p() const;
+};
+
+
+class ReosMapToolNewStructure2D: public ReosMapToolDrawPolygon, public ReosMapToolHydraulicElement
+{
+    Q_OBJECT
+  public:
+    ReosMapToolNewStructure2D( ReosHydraulicNetwork *network, ReosMap *map );
+
+  private slots:
+    void onDomainDrawn( const QPolygonF &polygon );
 
 };
 

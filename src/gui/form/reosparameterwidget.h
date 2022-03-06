@@ -20,6 +20,7 @@
 #include <QWidget>
 #include <QComboBox>
 #include <QTextEdit>
+#include <QWidgetAction>
 
 class QLabel;
 class QLineEdit;
@@ -81,8 +82,19 @@ class ReosParameterWidget : public QWidget
     QSpacerItem *mSpacerMiddle = nullptr;
     QSpacerItem *mSpacerAfter = nullptr;
     QString mDefaultName;
-
 };
+
+class ReosParameterWidgetAction : public QWidgetAction
+{
+  public:
+    ReosParameterWidgetAction( ReosParameter *parameter, QObject *parent = nullptr );
+
+    QWidget *createWidget( QWidget *parent ) override;
+
+  private:
+    QPointer<ReosParameter> mParameter;
+};
+
 
 class ReosParameterInLineWidget : public ReosParameterWidget
 {

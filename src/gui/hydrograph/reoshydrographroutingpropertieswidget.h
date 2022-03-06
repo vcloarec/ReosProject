@@ -67,21 +67,21 @@ class ReosHydrographRoutingPropertiesWidgetFactory : public ReosHydraulicElement
     ReosHydrographRoutingPropertiesWidgetFactory( QObject *parent = nullptr ): ReosHydraulicElementWidgetFactory( parent ) {}
 
     ReosHydraulicElementWidget *createWidget( ReosHydraulicNetworkElement *element, const ReosGuiContext &context = ReosGuiContext() );
-    virtual QString elementType();
+    QString elementType();
 };
 
 class ReosFormHydrographRountingMuskingumWidgetFactory: public ReosFormWidgetDataFactory
 {
   public:
-    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context = ReosGuiContext() );
-    virtual QString datatype() const;
+    ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context = ReosGuiContext() );
+    QString datatype() const;
 };
 
 class ReosFormHydrographRountingLagWidgetFactory: public ReosFormWidgetDataFactory
 {
   public:
-    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context = ReosGuiContext() );
-    virtual QString datatype() const;
+    ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context = ReosGuiContext() );
+    QString datatype() const;
 };
 
 

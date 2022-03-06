@@ -30,6 +30,8 @@ class ReosDigitalElevationModelComboBox: public QComboBox
     QString currentDemLayerId() const;
     void setCurrentDemLayer( const QString &layerId );
 
+    ReosDigitalElevationModel *currentDem() const;
+
   signals:
     void currentDigitalElevationChanged( QString currentId );
 

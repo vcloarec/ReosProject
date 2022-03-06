@@ -16,6 +16,7 @@ email                : vcloarec at gmail dot com
 #include "reosgisengine.h"
 #include "reosdigitalelevationmodel.h"
 #include "reosdigitalelevationmodel_p.h"
+#include "reosmeshdataprovider_p.h"
 
 #include <QStandardPaths>
 #include <qmath.h>
@@ -61,7 +62,7 @@ ReosGisEngine::ReosGisEngine( QObject *parent ): ReosModule( parent )
   mLayerTreeModel->setFlag( QgsLayerTreeModel::UseTextFormatting );
   mLayerTreeModel->setAutoCollapseLegendNodes( 10 );
 
-  connect( QgsProject::instance(), &QgsProject::layerRemoved, this, &ReosGisEngine::layerRemoved );
+  connect( QgsProject::instance(), &QgsProject::layerRemoved, this, &ReosGisEngine::onLayerRemoved );
   connect( QgsProject::instance(), &QgsProject::crsChanged, this, [this]
   {
     QString wktCrs = QgsProject::instance()->crs().toWkt();
@@ -129,6 +130,11 @@ void ReosGisEngine::initGisEngine()
   QgsNetworkAccessManager::instance();
 
   mAbstractLayerTreeModel = new QgsLayerTreeModel( QgsProject::instance()->layerTreeRoot(), this );
+
+  //! Add reos data provider to Qgis instances
+  QgsProviderRegistry::instance()->registerProvider( new ReosMeshProviderMetaData() );
+
+  qRegisterMetaTypeStreamOperators<QgsFeature>( "QgsFeature" ); //necessary to allow the serialisation
 }
 
 QString ReosGisEngine::addVectorLayer( const QString &uri, const QString &name )
@@ -571,9 +577,17 @@ QString ReosGisEngine::layerName( const QString layerId ) const
   return layer->name();
 }
 
-void ReosGisEngine::layerRemoved( const QString &layerId )
+bool ReosGisEngine::hasValidLayer( const QString layerId ) const
+{
+  QgsMapLayer *layer = QgsProject::instance()->mapLayer( layerId );
+
+  return ( layer && layer->isValid() );
+}
+
+void ReosGisEngine::onLayerRemoved( const QString &layerId )
 {
   unRegisterLayerAsDigitalElevationModel( layerId );
+  emit layerRemoved( layerId );
 }
 
 void ReosGisEngine::defaultstyleRasterLayer( QgsRasterLayer *layer )

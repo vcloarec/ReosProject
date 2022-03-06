@@ -20,6 +20,7 @@ email                : vcloarec at gmail dot com
 #include "reosmap.h"
 #include "reosmaptool.h"
 #include "reossettings.h"
+#include "reosstyleregistery.h"
 
 #include <QBoxLayout>
 #include <QMessageBox>
@@ -55,7 +56,9 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   ReosSettings settings;
 
   mAutomaticToolBar = new QToolBar;
+  mAutomaticToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   mManualToolBar = new QToolBar;
+  mManualToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   qobject_cast<QBoxLayout *>( layout() )->insertWidget( 3, mAutomaticToolBar );
   qobject_cast<QBoxLayout *>( layout() )->insertWidget( 2, mManualToolBar );
   mAutomaticToolBar->addAction( mActionDrawDownstreamLine );
@@ -227,7 +230,9 @@ void ReosDelineatingWatershedWidget::onPredefinedExtentDrawn( const QRectF &exte
 
 void ReosDelineatingWatershedWidget::onBurningLineDrawn( const QPolygonF &burningLine )
 {
-  mBurningLines.append( burningLineFormater( ReosMapPolyline( mMap, burningLine ) ) );
+  std::shared_ptr<ReosMapPolyline> bl = std::make_shared<ReosMapPolyline>( mMap, burningLine );
+  burningLineFormater( *bl.get() );
+  mBurningLines.append( bl );
   updateBurningLines();
 }
 
@@ -239,7 +244,7 @@ void ReosDelineatingWatershedWidget::onBurningLineRemoved( ReosMapItem *item )
   bool found = false;
   while ( i < mBurningLines.count() && !found )
   {
-    found = mBurningLines.at( i ).isItem( item );
+    found = mBurningLines.at( i )->isItem( item );
     if ( !found )
       ++i;
   }
@@ -399,8 +404,10 @@ void ReosDelineatingWatershedWidget::onModuleReset()
   const QList<QPolygonF> burningLines = mModule->delineatingModule()->burninglines();
   for ( const QPolygonF &bl : burningLines )
   {
-    mBurningLines.append( burningLineFormater( ReosMapPolyline( mMap, bl ) ) );
-    mBurningLines.last().setVisible( ui->mRadioButtonAutomatic->isChecked() && isVisible() );
+    std::shared_ptr<ReosMapPolyline> mbl = std::make_shared<ReosMapPolyline>( mMap, bl );
+    burningLineFormater( *mbl.get() );
+    mBurningLines.append( mbl );
+    mBurningLines.last()->setVisible( ui->mRadioButtonAutomatic->isChecked() && isVisible() );
   }
 
   mActionRemoveBurningLine->setEnabled( !burningLines.isEmpty() );
@@ -439,7 +446,7 @@ void ReosDelineatingWatershedWidget::showAutomaticDelineating( bool shown )
   mDownstreamLine.setVisible( shown );
   mWatershedExtent.setVisible( shown );
   for ( int i = 0; i < mBurningLines.size(); ++i )
-    mBurningLines[i].setVisible( shown );
+    mBurningLines.at( i )->setVisible( shown );
   mTemporaryAutomaticWatershed.setVisible( shown );
   mTemporaryAutomaticStreamLine.setVisible( shown );
 
@@ -531,7 +538,7 @@ void ReosDelineatingWatershedWidget::updateBurningLines()
   QList<QPolygonF> list;
   for ( int i = 0; i < mBurningLines.size(); ++i )
   {
-    list.append( mBurningLines.at( i ).mapPolyline() );
+    list.append( mBurningLines.at( i )->mapPolyline() );
   }
 
   mModule->delineatingModule()->setBurningLines( list );

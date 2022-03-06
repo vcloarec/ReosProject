@@ -20,6 +20,7 @@
 #include "reoshydraulicnetwork.h"
 #include "reoshydrographsource.h"
 #include "reosdockwidget.h"
+#include "reosstyleregistery.h"
 
 ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *module, ReosHydraulicNetwork *hydraulicNetwork, ReosDockWidget *parent ) :
   QWidget( parent ),
@@ -68,6 +69,7 @@ ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *mod
   mActionRunoffHydrograph->setCheckable( true );
   mActionGaugedHydrograph->setCheckable( true );
   QToolBar *toolBar = new QToolBar( this );
+  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
 
   toolBar->addAction( mActionSelectWatershed );
   toolBar->addAction( mActionDelineateWatershed );
@@ -501,6 +503,7 @@ void ReosWatershedWidget::formatMapWatershed( MapWatershed &mapWatershed )
 void ReosWatershedWidget::formatSelectedWatershed( ReosWatershedWidget::MapWatershed &mapWatershed )
 {
   mapWatershed.delineating->setFillColor( QColor( 0, 255, 0, 30 ) );
+  mapWatershed.delineating->setFillStyle( Qt::SolidPattern );
   mapWatershed.outletPoint->setWidth( 8 );
   mapWatershed.outletPoint->setExternalWidth( 12 );
 }

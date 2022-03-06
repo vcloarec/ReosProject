@@ -22,6 +22,8 @@ email                : vcloarec at gmail dot com
 #include <qgsmapcanvas.h>
 #include <qgsmaptool.h>
 #include <qgsrubberband.h>
+#include <qgssnapindicator.h>
+
 #include <qobjectuniqueptr.h>
 
 #include "reosmap.h"
@@ -36,7 +38,7 @@ class ReosMapTool_p: public QgsMapTool
     ReosMapTool_p( QgsMapCanvas *canvas );
     void activate() override;
     void deactivate() override;
-    bool populateContextMenuWithEvent( QMenu *menu,  QgsMapMouseEvent *event ) override;
+    bool populateContextMenuWithEvent( QMenu *menu,  QgsMapMouseEvent *e ) override;
 
     //! Sets context menu populator, take ownership
     void setContextMenuPopulator( ReosMenuPopulator *populator );
@@ -53,25 +55,41 @@ class ReosMapTool_p: public QgsMapTool
 
     void clearHoveredItem();
 
+    void enableSnapping( bool enable );
+    bool snappingEnabled() const;
+
+    bool hasFeatureOnMap( const QPointF &mapPoint ) const;
+
+    void setActivateMovingSignal( bool activateMovingSignal );
+
   signals:
     void foundItemWhenMoving( ReosMapItem_p *item );
+    void move( const QPointF &point );
     void keyPressed( int key );
 
   protected:
     void canvasMoveEvent( QgsMapMouseEvent *e ) override;
     void keyPressEvent( QKeyEvent *e ) override;
 
+    QString mapCrs() const;
+
     QRectF viewSearchZone( const QPoint &pt );
     ReosMapItem_p *searchItem( const QPointF &p ) const;
+
+    QgsGeometry selectFeatureOnMap( QgsMapMouseEvent *e );
+
     ReosMapItem_p *mFoundItem = nullptr;
+    std::unique_ptr<QgsSnapIndicator> mSnappingIndicator;
+    bool mClosed = false;
 
   private:
     std::unique_ptr<ReosMenuPopulator> mContextMenuPopulator;
     QSizeF mSearchZone = QSizeF( 12, 12 );
     bool mSeachWhenMoving = false;
-
     bool mUnderPoint = false;
     QString mTargetDescritpion;
+    bool mSnappingEnabled = false;
+    bool mActivateMovingSignal = false;
 };
 
 class ReosMapToolDrawPoint_p: public ReosMapTool_p
@@ -85,6 +103,9 @@ class ReosMapToolDrawPoint_p: public ReosMapTool_p
 
   signals:
     void pointDrawn( const QPointF &point ) const;
+
+  private:
+    std::unique_ptr<QgsSnapIndicator> mSnapIndicator;
 };
 
 class ReosMapToolDrawPolyline_p: public ReosMapTool_p
@@ -100,13 +121,24 @@ class ReosMapToolDrawPolyline_p: public ReosMapTool_p
     void canvasMoveEvent( QgsMapMouseEvent *e ) override;
     void canvasReleaseEvent( QgsMapMouseEvent *e ) override;
 
+    void setColor( const QColor &color );
+    void setFillColor( const QColor &color );
+
+    void setAllowSelfIntersect( bool allowSelfIntersect );
+
   signals:
     void polylineDrawn( const QPolygonF &polyline ) const;
 
   private:
-    bool mClosed = false;
+    QColor mColor;
+    QColor mFillColor;
+    bool mAllowSelfIntersect = true;
+
+    bool selfIntersect() const;
+    void updateColor();
 
 };
+
 
 class ReosMapToolDrawExtent_p: public ReosMapTool_p
 {

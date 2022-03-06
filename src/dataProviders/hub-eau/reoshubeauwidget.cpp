@@ -25,6 +25,7 @@
 #include "reosplottimeconstantinterval.h"
 #include "reosapplication.h"
 #include "reoshubeauhydrographprovider.h"
+#include "reosstyleregistery.h"
 
 
 ReosHubEauWidget::ReosHubEauWidget( ReosMap *map, QWidget *parent )
@@ -39,6 +40,7 @@ ReosHubEauWidget::ReosHubEauWidget( ReosMap *map, QWidget *parent )
   ui->mToolWidget->setLayout( new QHBoxLayout );
   ui->mToolWidget->layout()->setContentsMargins( 0, 0, 0, 0 );
   QToolBar *toolBar = new QToolBar( ui->mToolWidget );
+  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   ui->mToolWidget->layout()->addWidget( toolBar );
   QAction *selectStationAction = toolBar->addAction( QPixmap( ":/hub-eau-images/selectOnMap.svg" ), tr( "Select Station" ) );
   selectStationAction->setCheckable( true );

@@ -31,6 +31,7 @@ class ReosHydraulicNetwork;
 class ReosCalculationContext;
 class ReosHydraulicNetworkContext;
 class ReosWatershedModule;
+class ReosGisEngine;
 
 class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject
 {
@@ -107,11 +108,16 @@ class REOSCORE_EXPORT ReosHydraulicNetworkContext
     ReosWatershedModule *watershedModule() const;
     ReosHydraulicNetwork *network() const;
 
+    QString projectPath() const;
+    QString projectName() const;
+
   private:
     ReosHydraulicNetworkContext() {}
 
     ReosHydraulicNetwork *mNetwork = nullptr;
     ReosWatershedModule *mWatershedModule;
+    QString mProjectPath;
+    QString mProjectName;
 
     friend class ReosHydraulicNetwork;
 
@@ -130,19 +136,20 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
 {
     Q_OBJECT
   public:
-    ReosHydraulicNetwork( ReosModule *parent, ReosWatershedModule *watershedModule );
+    ReosHydraulicNetwork( ReosModule *parent, ReosGisEngine *gisEngine, ReosWatershedModule *watershedModule );
     QList<ReosHydraulicNetworkElement *> getElements( const QString &type ) const;
     ReosHydraulicNetworkElement *getElement( const QString &elemId ) const;
 
     ReosHydraulicNetworkElement *addElement( ReosHydraulicNetworkElement *elem );
     void removeElement( ReosHydraulicNetworkElement *elem );
 
-    void decode( const ReosEncodedElement &element );
-    ReosEncodedElement encode() const;
+    void decode( const ReosEncodedElement &element, const QString &projectPath, const QString &projectFileName );
+    ReosEncodedElement encode( const QString &projectPath, const QString &projectFileName ) const;
 
     //! Clears the network
     void clear();
 
+    ReosGisEngine *getGisEngine() const;
 
   signals:
     void elementAdded( ReosHydraulicNetworkElement *elem );
@@ -151,8 +158,11 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     void hasBeenReset();
 
   private:
+    ReosGisEngine *mGisEngine = nullptr;
     ReosWatershedModule *mWatershedModule = nullptr;
     QHash<QString, ReosHydraulicNetworkElement *> mElements;
+    mutable QString mProjectPath;
+    mutable QString mProjectName;
     void elemPositionChangedPrivate( ReosHydraulicNetworkElement *elem );
 
     QHash<QString, int> mElementIndexesCounter;

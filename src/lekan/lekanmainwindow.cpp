@@ -85,7 +85,7 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
 
   mWatershedModule = new ReosWatershedModule( rootModule(), mGisEngine );
 
-  mHydraulicNetwork = new ReosHydraulicNetwork( rootModule(), mWatershedModule );
+  mHydraulicNetwork = new ReosHydraulicNetwork( rootModule(), mGisEngine, mWatershedModule );
 
   mDockHydraulicNetwork = new ReosHydraulicNetworkDockWidget( mHydraulicNetwork, mWatershedModule, guiContext );
   mDockHydraulicNetwork->setObjectName( QStringLiteral( "hydraulicDock" ) );
@@ -112,6 +112,8 @@ bool LekanMainWindow::openProject()
   QFile file( filePath );
   if ( !file.open( QIODevice::ReadOnly ) )
     return false;
+
+  clearProject();
 
   ReosVersion version;
 
@@ -155,7 +157,7 @@ bool LekanMainWindow::openProject()
 
   mWatershedModule->decode( lekanProject.getEncodedData( QStringLiteral( "watershed-module" ) ) );
 
-  mHydraulicNetwork->decode( lekanProject.getEncodedData( QStringLiteral( "hydaulic-network" ) ) );
+  mHydraulicNetwork->decode( lekanProject.getEncodedData( QStringLiteral( "hydaulic-network" ) ), path, baseName );
 
   return true;
 }
@@ -173,7 +175,7 @@ bool LekanMainWindow::saveProject()
   ReosEncodedElement encodedGisEngine = mGisEngine->encode( path, baseName );
   lekanProject.addEncodedData( QStringLiteral( "GIS-engine" ), encodedGisEngine );
   lekanProject.addEncodedData( QStringLiteral( "watershed-module" ), mWatershedModule->encode() );
-  lekanProject.addEncodedData( QStringLiteral( "hydaulic-network" ), mHydraulicNetwork->encode() );
+  lekanProject.addEncodedData( QStringLiteral( "hydaulic-network" ), mHydraulicNetwork->encode( path, baseName ) );
 
   QFileInfo fileInfo( filePath );
   if ( fileInfo.suffix().isEmpty() )
@@ -208,6 +210,9 @@ void LekanMainWindow::clearProject()
 {
   if ( mGisEngine )
     mGisEngine->clearProject();
+
+  if ( mMap )
+    mMap->initialize();
 
   if ( mWatershedModule )
     mWatershedModule->clearWatersheds();
