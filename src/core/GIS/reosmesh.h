@@ -31,14 +31,22 @@ class ReosMap;
 class ReosTopographyCollection;
 
 
-class ReosRenderedObject
+class ReosRenderedObject: public ReosDataObject
 {
+    Q_OBJECT
   public:
-    virtual ~ReosRenderedObject() {}
+    ReosRenderedObject( QObject *parent ) : ReosDataObject( parent ) {}
     virtual void render( QGraphicsView *canvas, QPainter *painter ) = 0; ///TODO look to see if painter can be deduced from canvas in QGIS
+
+    virtual void updateRendering( QGraphicsView *canvas ) = 0;
+
+  signals:
+    void renderingFinished();
+
+
 };
 
-class ReosMesh: public ReosDataObject, public ReosRenderedObject
+class ReosMesh: public ReosRenderedObject
 {
     Q_OBJECT
   public:

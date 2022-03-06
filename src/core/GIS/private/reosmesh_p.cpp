@@ -130,6 +130,21 @@ void ReosMesh_p::render( QGraphicsView *canvas, QPainter *painter )
   }
 }
 
+void ReosMesh_p::updateRendering( QGraphicsView *canvas )
+{
+  QgsMapCanvas *mapCanvas = qobject_cast<QgsMapCanvas *>( canvas );
+  if ( mapCanvas )
+  {
+    QgsRenderContext renderContext = QgsRenderContext::fromMapSettings( mapCanvas->mapSettings() );
+    QImage img;
+    QPainter *painter = new QPainter( &img );
+    renderContext.setPainter( painter );
+    std::unique_ptr<QgsMapLayerRenderer> renderer;
+    renderer.reset( mMeshLayer->createMapRenderer( renderContext ) );
+    renderer->render();
+  }
+}
+
 QString ReosMesh_p::enableVertexElevationDataset( const QString &name )
 {
   std::unique_ptr<QgsMeshDatasetGroup> group( new QgsMeshVerticesElevationDatasetGroup( name, mMeshLayer->nativeMesh() ) );
