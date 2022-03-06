@@ -38,13 +38,6 @@ ReosMesh_p::ReosMesh_p( const ReosEncodedElement &elem, const QString &dataPath 
 {
   mMeshLayer.reset( new QgsMeshLayer( "path", "", QStringLiteral( "ReosMesh" ) ) );
 
-  QDir dir( dataPath );
-  if ( dir.exists() )
-  {
-    meshProvider()->loadMeshFrame( dir.filePath( QStringLiteral( "meshFrame.nc" ) ), QStringLiteral( "Ugrid" ) );
-    mMeshLayer->reload();
-  }
-
   QString docString;
   elem.getData( "qgis-mesh-layer", docString );
 
@@ -54,6 +47,13 @@ ReosMesh_p::ReosMesh_p( const ReosEncodedElement &elem, const QString &dataPath 
     QDomElement domElem = doc.firstChildElement( QStringLiteral( "maplayer" ) );
     QgsReadWriteContext context;
     mMeshLayer->readLayerXml( domElem,  context );
+  }
+
+  QDir dir( dataPath );
+  if ( dir.exists() )
+  {
+    meshProvider()->loadMeshFrame( dir.filePath( QStringLiteral( "meshFrame.nc" ) ), QStringLiteral( "Ugrid" ) );
+    mMeshLayer->reload();
   }
 
   init();
@@ -218,6 +218,7 @@ void ReosMesh_p::generateMesh( const ReosMeshFrameData &data )
 {
   meshProvider()->generateMesh( data );
   mMeshLayer->reload();
+  mMeshLayer->trigger3DUpdate();
 }
 
 QString ReosMesh_p::crs() const
@@ -244,6 +245,7 @@ void ReosMesh_p::applyTopographyOnVertices( ReosTopographyCollection *topography
   firstUpdateOfTerrainScalarSetting();
 
   emit repaintRequested();
+  mMeshLayer->trigger3DUpdate();
 }
 
 ReosMeshDataProvider_p *ReosMesh_p::meshProvider() const

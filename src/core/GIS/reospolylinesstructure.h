@@ -38,6 +38,7 @@ class ReosPolylinesStructure : public ReosGeometryStructure
       int boundaryPointCount; //! the count of boundary points that are the first in the array of point \a vertices
       QVector<QVector<int>> internalLines; //! all internal lines vertices index
       QVector<QVector<int>> holes; //! all holes internal lines index
+      QRectF extent; //! Extent of the data
     };
 
     //! Creates and returns polylines structure with specified \a crs

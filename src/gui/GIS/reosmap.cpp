@@ -254,13 +254,15 @@ void ReosMap::removeSnappableStructure( ReosGeometryStructure *structure )
 void ReosMap::addExtraRenderedObject( ReosRenderedObject *obj )
 {
   mExtraRenderedObjects.append( obj );
-  qobject_cast<QgsMapCanvas *>( mCanvas )->refresh();
+  if ( mCanvas )
+    qobject_cast<QgsMapCanvas *>( mCanvas )->refresh();
 }
 
 void ReosMap::removeExtraRenderedObject( ReosRenderedObject *obj )
 {
   mExtraRenderedObjects.removeOne( obj );
-  qobject_cast<QgsMapCanvas *>( mCanvas )->refresh();
+  if ( mCanvas )
+    qobject_cast<QgsMapCanvas *>( mCanvas )->refresh();
 }
 
 void ReosMap::setCrs( const QString &crsWkt )

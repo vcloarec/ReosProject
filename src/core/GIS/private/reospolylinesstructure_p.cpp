@@ -222,7 +222,7 @@ ReosPolylineStructureVectorLayer::ReosPolylineStructureVectorLayer( const QPolyg
   Data data;
   data.vertices = boundary;
   data.boundaryPointCount = boundary.count();
-
+  data.extent = mVectorLayer->extent().toRectF();
   buildGeometry( data );
 }
 
@@ -1385,9 +1385,10 @@ ReosPolylinesStructure::Data ReosPolylineStructureVectorLayer::structuredLinesDa
   QHash<VertexP, int> vertexPointerToIndex;
   QMap<QPair<int, int>, int> lineIndexes;
 
+  data.extent = extent( destinationCrs ).toRectF();
   data.boundaryPointCount = mBoundariesVertex.count();
-
   data.vertices.resize( data.boundaryPointCount );
+
 
   for ( int i = 0; i < mBoundariesVertex.count(); ++i )
   {

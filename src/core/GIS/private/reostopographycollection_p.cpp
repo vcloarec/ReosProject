@@ -28,8 +28,7 @@ ReosTopographyCollection_p::ReosTopographyCollection_p( const ReosEncodedElement
 
 void ReosTopographyCollection_p::prepare_p( const QgsCoordinateReferenceSystem &sourceCrs ) const
 {
-  mDem.clear();
-  mTransforms.clear();
+  clean_p();
 
   for ( const QString &layerId : mTopographyIds )
   {
@@ -55,4 +54,10 @@ double ReosTopographyCollection_p::elevationAt_p( const QgsPointXY &point ) cons
   }
 
   return std::numeric_limits<double>::quiet_NaN();
+}
+
+void ReosTopographyCollection_p::clean_p() const
+{
+  mDem.clear();
+  mTransforms.clear();
 }

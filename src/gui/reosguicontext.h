@@ -18,12 +18,14 @@
 
 #include <QString>
 #include <QStack>
+#include <QList>
 
 #include "reosgui.h"
 
 class ReosMap;
 class ReosMapItem;
 class QWidget;
+class QAction;
 
 class REOSGUI_EXPORT ReosGuiContext
 {
@@ -41,10 +43,14 @@ class REOSGUI_EXPORT ReosGuiContext
     ReosMapItem *mapItems( const QString &description ) const;
     void addMapItems( ReosMapItem *mapItems );
 
+    void addAction( QAction *action );
+    QList<QAction * > actions() const;
+
   private:
     ReosMap *mMap = nullptr;
     QWidget *mParent = nullptr;
     QStack<ReosMapItem *> mMapItems;
+    QList<QAction *> mActions;
 
 };
 

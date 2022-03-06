@@ -44,6 +44,11 @@ bool ReosMeshDataProvider_p::saveMeshFrame( const QgsMesh &mesh )
     return false;
 }
 
+QgsRectangle ReosMeshDataProvider_p::extent() const
+{
+  return mExtent;
+}
+
 void ReosMeshDataProvider_p::loadMeshFrame( const QString &filePath, const QString &driverName )
 {
   mMDALDriverName = driverName;
@@ -54,6 +59,7 @@ void ReosMeshDataProvider_p::loadMeshFrame( const QString &filePath, const QStri
     QgsDataProvider::ProviderOptions options;
     std::unique_ptr<QgsMeshDataProvider> dataProvider( qobject_cast<QgsMeshDataProvider *>( meta->createProvider( filePath, options ) ) );
     dataProvider->populateMesh( &mMesh );
+    mExtent = dataProvider->extent();
     emit dataChanged();
   }
 
@@ -72,6 +78,7 @@ void ReosMeshDataProvider_p::setMDALDriver( const QString &driverName )
 void ReosMeshDataProvider_p::generateMesh( const ReosMeshFrameData &data )
 {
   mMesh = convertFrameFromReos( data );
+  mExtent = data.extent;
   emit dataChanged();
 }
 
@@ -108,6 +115,7 @@ void ReosMeshDataProvider_p::applyTopographyOnVertices( ReosTopographyCollection
     else
       mMesh.vertices[i].setZ( std::numeric_limits<double>::quiet_NaN() );
   }
+  topoCollection->clean_p();
   emit dataChanged();
 }
 

@@ -27,7 +27,7 @@
     <number>0</number>
    </property>
    <item row="0" column="0">
-    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,1">
      <property name="leftMargin">
       <number>0</number>
      </property>
@@ -35,11 +35,7 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="QPushButton" name="mBackButton">
-       <property name="text">
-        <string>Back</string>
-       </property>
-      </widget>
+      <layout class="QHBoxLayout" name="mPropertiesToolBarLayout"/>
      </item>
      <item>
       <widget class="QListWidget" name="mOptionListWidget">

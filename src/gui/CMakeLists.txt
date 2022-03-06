@@ -24,6 +24,9 @@ SET(REOS_GUI_SOURCES
     GIS/reosmaptooleditgeometrystructure.cpp
     GIS/reoseditpolylinestructurewidget.cpp
     GIS/reosmeshscalarrenderingwidget.cpp
+    GIS/3D/reos3dview.cpp
+    GIS/3D/reoslightwidget.cpp
+
     GIS/private/reosmappolygon_p.cpp
     GIS/private/reosmaptool_p.cpp
     GIS/private/reoslayertreecontextmenuprovider_p.cpp
@@ -106,6 +109,8 @@ SET(REOS_GUI_HEADERS
     GIS/reosmaptooleditgeometrystructure.h
     GIS/reoseditpolylinestructurewidget.h
     GIS/reosmeshscalarrenderingwidget.h
+    GIS/3D/reos3dview.h
+    GIS/3D/reoslightwidget.h
 
     watershed/reosdelineatingwatershedwidget.h
     watershed/reoswatershedwidget.h
@@ -187,6 +192,7 @@ TARGET_LINK_LIBRARIES(reosGui PUBLIC
         ${Qt5Charts_LIBRARIES}
         ${Qt5WebKitWidgets_LIBRARIES}
         ${QGIS_LIBS}
+        ${QGIS_APP_LIB}
         ${QWT_LIB}
         reosCore
 )
@@ -236,6 +242,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/gui/data
     ${CMAKE_SOURCE_DIR}/src/gui/hydrograph
     ${CMAKE_SOURCE_DIR}/src/gui/GIS
+    ${CMAKE_SOURCE_DIR}/src/gui/GIS/3D
     ${CMAKE_SOURCE_DIR}/src/gui/GIS/private
     ${CMAKE_SOURCE_DIR}/src/gui/chart
     ${CMAKE_SOURCE_DIR}/src/gui/chart/private
@@ -249,6 +256,9 @@ INCLUDE_DIRECTORIES(
     ${QGIS_INCLUDE_DIR}
     ${QSCISCINTILLA_INCLUDE_DIR}
     ${QWT_INCLUDE}
+    ${QGIS_APP_INCLUDE}
+    ${QGIS_3D_EXTRA_HEADER}
+
 )
 
 

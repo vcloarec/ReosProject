@@ -85,7 +85,7 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
     // QgsDataProvider interface
   public:
     QgsCoordinateReferenceSystem crs() const {return mCrs;}
-    QgsRectangle extent() const {return QgsRectangle( 0, 0, 10, 10 );}
+    QgsRectangle extent() const;
     bool isValid() const {return true;}
     QString name() const {return "ReosMeshMemory";}
     QString description() const {return "reos mesh";}
@@ -101,6 +101,7 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
     QgsCoordinateReferenceSystem mCrs;
     QString mFilePath;
     QString mMDALDriverName;
+    QgsRectangle mExtent;
 
     static QgsMesh convertFrameFromReos( const ReosMeshFrameData &reosMesh );
 

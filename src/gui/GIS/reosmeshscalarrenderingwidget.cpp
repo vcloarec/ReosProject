@@ -21,6 +21,8 @@
 #include <qgsmeshlayer.h>
 #include <qgsmeshrenderersettings.h>
 
+#include "reosstyleregistery.h"
+
 ReosMeshScalarRenderingWidget::ReosMeshScalarRenderingWidget( ReosMesh *mesh, const QString &datasetId, const ReosGuiContext &guiContext )
   : ReosStackedPageWidget( guiContext.parent() )
   , ui( new Ui::ReosMeshScalarRenderingWidget )
@@ -52,6 +54,7 @@ ReosMeshScalarRenderingWidget::ReosMeshScalarRenderingWidget( ReosMesh *mesh, co
   connect( mMinimumParam, &ReosParameter::valueChanged, this, &ReosMeshScalarRenderingWidget::onMinMaxChanged );
   connect( mMaximumParam, &ReosParameter::valueChanged, this, &ReosMeshScalarRenderingWidget::onMinMaxChanged );
 
+  ui->mBackButton->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   connect( mColorRampShaderWidget, &QgsColorRampShaderWidget::widgetChanged, this, &ReosMeshScalarRenderingWidget::onColorRampChanged );
   connect( ui->mBackButton, &QPushButton::clicked, this, &ReosStackedPageWidget::backToPreviousPage );
 }

@@ -17,24 +17,38 @@
 #include "ui_reoshydraulicstructure2dproperties.h"
 
 #include "reosedithydraulicstructure2dwidget.h"
+#include "reos3dview.h"
 
 ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context )
   : ReosHydraulicElementWidget( context.parent() )
   , ui( new Ui::ReosHydraulicStructure2DProperties )
   , mStructure2D( structure2D )
   , mMap( context.map() )
+  , mAction3DView( new QAction( QPixmap( QStringLiteral( ":/images/view3D.svg" ) ), tr( "3D View" ), this ) )
+  , mGuiContext( context, this )
 {
   ui->setupUi( this );
 
-  connect( ui->mEditStructureToolButton, &QToolButton::clicked, this, [this, context]
+  mGuiContext.addAction( mAction3DView );
+
+  connect( ui->mEditStructureToolButton, &QToolButton::clicked, this, [this]
   {
-    emit stackedPageWidgetOpened( new ReosEditHydraulicStructure2DWidget( mStructure2D, context ) );
+    emit stackedPageWidgetOpened( new ReosEditHydraulicStructure2DWidget( mStructure2D, mGuiContext ) );
   } );
 
   connect( ui->mRunSimulationToolButton, &QToolButton::clicked, this, [this]
   {
     mStructure2D->runSimulation();
   } );
+
+
+  Reos3dView *view3D = new Reos3dView( mStructure2D->mesh(), this );
+  view3D->setAction( mAction3DView );
+  mAction3DView->setCheckable( true );
+
+  QToolBar *toolBar = new QToolBar( this );
+  layout()->addWidget( toolBar );
+  toolBar->addAction( mAction3DView );
 
   mMap->addExtraRenderedObject( mStructure2D->mesh() );
   connect( mStructure2D->mesh(), &ReosMesh::repaintRequested, this, &ReosHydraulicStructure2DProperties::requestMapRefresh );

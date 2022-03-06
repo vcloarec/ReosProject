@@ -42,6 +42,8 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
     Ui::ReosHydraulicStructure2DProperties *ui;
     ReosHydraulicStructure2D *mStructure2D = nullptr;
     QPointer<ReosMap> mMap = nullptr;
+    QAction *mAction3DView = nullptr;
+    ReosGuiContext mGuiContext;
 };
 
 

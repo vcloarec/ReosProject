@@ -40,6 +40,17 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
 {
   ui->setupUi( this );
 
+  QToolBar *propertiesToolBar = new QToolBar( this );
+  propertiesToolBar->layout()->setContentsMargins( 0, 0, 0, 0 );
+  ui->mPropertiesToolBarLayout->addWidget( propertiesToolBar );
+  QPushButton *backButton = new QPushButton( propertiesToolBar );
+  backButton->setIcon( QPixmap( QStringLiteral( ":/images/back.svg" ) ) );
+  backButton->setToolTip( tr( "Back to Previous Page" ) );
+  propertiesToolBar->addWidget( backButton );
+  propertiesToolBar->addActions( context.actions() );
+  propertiesToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  backButton->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+
   //mesh generation setup
   QList<QAction *> meshGenerationToolBarActions;
   QAction *actionGenerateMesh = new QAction( QPixmap( QStringLiteral( ":/images/generateMesh.svg" ) ), tr( "Generate Mesh" ), this );
@@ -71,7 +82,7 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
     mInitialMapStructureItem->updatePosition();
   } );
 
-  connect( ui->mBackButton, &QPushButton::clicked, this, &ReosStackedPageWidget::backToPreviousPage );
+  connect( backButton, &QPushButton::clicked, this, &ReosStackedPageWidget::backToPreviousPage );
   connect( ui->mOptionListWidget, &QListWidget::currentRowChanged, this, &ReosEditHydraulicStructure2DWidget::onMeshOptionListChanged );
   connect( structure2D, &ReosDataObject::dataChanged, this, [this] {mMap->refreshCanvas();} );
 

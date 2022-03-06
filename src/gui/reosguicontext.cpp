@@ -62,3 +62,13 @@ void ReosGuiContext::addMapItems( ReosMapItem *mapItems )
 {
   mMapItems.push( mapItems );
 }
+
+void ReosGuiContext::addAction( QAction *action )
+{
+  mActions.append( action );
+}
+
+QList<QAction *> ReosGuiContext::actions() const
+{
+  return mActions;
+}

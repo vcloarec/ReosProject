@@ -133,5 +133,9 @@
         <file>editStructurePolygon.svg</file>
         <file>layerRaster.svg</file>
         <file>terrainRendering.svg</file>
+        <file>lightSettings.svg</file>
+        <file>zoomFullExtent.svg</file>
+        <file>back.svg</file>
+        <file>view3D.svg</file>
     </qresource>
 </RCC>
