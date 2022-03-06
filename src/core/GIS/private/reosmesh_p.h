@@ -25,6 +25,9 @@ class ReosMeshFrameData;
 class QgsMeshDatasetGroup;
 class ReosDigitalElevationModel;
 
+class QGraphicsView;
+class QgsMapLayerRenderer;
+
 /**
  * Implementation of a mesh in Reos environment.
  * This class contains a QgsMeshLayer that can be independant from the QgsProject.
@@ -41,6 +44,7 @@ class ReosMesh_p : public ReosMesh
     int vertexCount() const override;
     int faceCount() const override;
     void render( QGraphicsView *canvas, QPainter *painter ) override;
+    void updateRendering( QGraphicsView *canvas ) override;
     QString enableVertexElevationDataset( const QString &name ) override;
     bool activateDataset( const QString &id ) override;
     void generateMesh( const ReosMeshFrameData &data ) override;
@@ -64,6 +68,8 @@ class ReosMesh_p : public ReosMesh
     void activateVertexZValueDatasetGroup();
     QString addDatasetGroup( QgsMeshDatasetGroup *group );
     void firstUpdateOfTerrainScalarSetting();
+
+    std::map <QGraphicsView *, std::unique_ptr<QgsMapLayerRenderer>> mRenders;
 };
 
 #endif // REOSMESH_P_H

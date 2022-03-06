@@ -28,5 +28,5 @@ ReosMesh *ReosMesh::createMemoryMesh( const ReosEncodedElement &element, const Q
 }
 
 
-ReosMesh::ReosMesh( QObject *parent ): ReosDataObject( parent )
+ReosMesh::ReosMesh( QObject *parent ): ReosRenderedObject( parent )
 {}
