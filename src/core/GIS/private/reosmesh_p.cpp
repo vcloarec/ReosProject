@@ -94,6 +94,11 @@ ReosEncodedElement ReosMesh_p::encode( const QString &dataPath ) const
   return encodedElem;
 }
 
+ReosObjectRenderer *ReosMesh_p::createRenderer( QGraphicsView *view )
+{
+  return new ReosMeshRenderer_p( view, mMeshLayer.get() );
+}
+
 bool ReosMesh_p::isValid() const
 {
   if ( mMeshLayer )
@@ -115,34 +120,6 @@ int ReosMesh_p::vertexCount() const
 int ReosMesh_p::faceCount() const
 {
   return mMeshLayer->meshFaceCount();
-}
-
-void ReosMesh_p::render( QGraphicsView *canvas, QPainter *painter )
-{
-  QgsMapCanvas *mapCanvas = qobject_cast<QgsMapCanvas *>( canvas );
-  if ( mapCanvas )
-  {
-    QgsRenderContext renderContext = QgsRenderContext::fromMapSettings( mapCanvas->mapSettings() );
-    renderContext.setPainter( painter );
-    std::unique_ptr<QgsMapLayerRenderer> renderer;
-    renderer.reset( mMeshLayer->createMapRenderer( renderContext ) );
-    renderer->render();
-  }
-}
-
-void ReosMesh_p::updateRendering( QGraphicsView *canvas )
-{
-  QgsMapCanvas *mapCanvas = qobject_cast<QgsMapCanvas *>( canvas );
-  if ( mapCanvas )
-  {
-    QgsRenderContext renderContext = QgsRenderContext::fromMapSettings( mapCanvas->mapSettings() );
-    QImage img;
-    QPainter *painter = new QPainter( &img );
-    renderContext.setPainter( painter );
-    std::unique_ptr<QgsMapLayerRenderer> renderer;
-    renderer.reset( mMeshLayer->createMapRenderer( renderContext ) );
-    renderer->render();
-  }
 }
 
 QString ReosMesh_p::enableVertexElevationDataset( const QString &name )
@@ -234,6 +211,7 @@ void ReosMesh_p::generateMesh( const ReosMeshFrameData &data )
   meshProvider()->generateMesh( data );
   mMeshLayer->reload();
   mMeshLayer->trigger3DUpdate();
+  emit repaintRequested();
 }
 
 QString ReosMesh_p::crs() const
@@ -268,3 +246,32 @@ ReosMeshDataProvider_p *ReosMesh_p::meshProvider() const
   return qobject_cast<ReosMeshDataProvider_p *>( mMeshLayer->dataProvider() );
 }
 
+
+ReosMeshRenderer_p::ReosMeshRenderer_p( QGraphicsView *canvas, QgsMeshLayer *layer )
+{
+  QgsMapCanvas *mapCanvas = qobject_cast<QgsMapCanvas *>( canvas );
+  if ( mapCanvas )
+  {
+    const QgsMapSettings &settings = mapCanvas->mapSettings();
+    mImage = QImage( settings.deviceOutputSize(), settings.outputImageFormat() );
+    mImage.setDevicePixelRatio( settings.devicePixelRatio() );
+    mImage.setDotsPerMeterX( static_cast<int>( settings.outputDpi() * 39.37 ) );
+    mImage.setDotsPerMeterY( static_cast<int>( settings.outputDpi() * 39.37 ) );
+    mImage.fill( Qt::transparent );
+
+    mPainter.reset( new QPainter( &mImage ) );
+    mRenderContext = QgsRenderContext::fromMapSettings( settings );
+    mRenderContext.setPainter( mPainter.get() );
+    mLayerRender.reset( layer->createMapRenderer( mRenderContext ) );
+  }
+}
+
+void ReosMeshRenderer_p::render() const
+{
+  mLayerRender->render();
+}
+
+void ReosMeshRenderer_p::stopRendering()
+{
+  mRenderContext.setRenderingStopped( true );
+}

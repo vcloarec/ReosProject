@@ -17,6 +17,7 @@
 #define REOSMESH_P_H
 
 #include <qgsmeshlayer.h>
+#include <qgsrendercontext.h>
 
 #include "reosmesh.h"
 
@@ -43,8 +44,6 @@ class ReosMesh_p : public ReosMesh
     void addVertex( const QPointF pt, double z, double tolerance ) override;
     int vertexCount() const override;
     int faceCount() const override;
-    void render( QGraphicsView *canvas, QPainter *painter ) override;
-    void updateRendering( QGraphicsView *canvas ) override;
     QString enableVertexElevationDataset( const QString &name ) override;
     bool activateDataset( const QString &id ) override;
     void generateMesh( const ReosMeshFrameData &data ) override;
@@ -54,6 +53,8 @@ class ReosMesh_p : public ReosMesh
     void applyTopographyOnVertices( ReosTopographyCollection *topographyCollection ) override;
 
     ReosEncodedElement encode( const QString &dataPath ) const override;
+
+    ReosObjectRenderer *createRenderer( QGraphicsView *view );
 
   private:
 
@@ -70,6 +71,22 @@ class ReosMesh_p : public ReosMesh
     void firstUpdateOfTerrainScalarSetting();
 
     std::map <QGraphicsView *, std::unique_ptr<QgsMapLayerRenderer>> mRenders;
+};
+
+class ReosMeshRenderer_p : public ReosObjectRenderer
+{
+  public:
+    ReosMeshRenderer_p( QGraphicsView *canvas, QgsMeshLayer *layer );
+    void render() const;
+
+  protected:
+    void stopRendering();
+
+  private:
+    std::unique_ptr<QgsMapLayerRenderer> mLayerRender;
+    std::unique_ptr<QPainter> mPainter;
+    QgsRenderContext mRenderContext;
+
 };
 
 #endif // REOSMESH_P_H

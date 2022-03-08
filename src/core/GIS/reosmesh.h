@@ -20,31 +20,13 @@
 #include <QVector>
 #include <QPointer>
 
-#include "reosdataobject.h"
+#include "reosrenderedobject.h"
 
-class QGraphicsView;
-class QPainter;
 class ReosMeshGenerator;
 class ReosMeshFrameData;
 class ReosDigitalElevationModel;
 class ReosMap;
 class ReosTopographyCollection;
-
-
-class ReosRenderedObject: public ReosDataObject
-{
-    Q_OBJECT
-  public:
-    ReosRenderedObject( QObject *parent ) : ReosDataObject( parent ) {}
-    virtual void render( QGraphicsView *canvas, QPainter *painter ) = 0; ///TODO look to see if painter can be deduced from canvas in QGIS
-
-    virtual void updateRendering( QGraphicsView *canvas ) = 0;
-
-  signals:
-    void renderingFinished();
-
-
-};
 
 class ReosMesh: public ReosRenderedObject
 {
@@ -88,9 +70,6 @@ class ReosMesh: public ReosRenderedObject
     virtual void applyTopographyOnVertices( ReosTopographyCollection *topographyCollection ) = 0;
 
     virtual ReosEncodedElement encode( const QString &dataPath ) const = 0;
-
-  signals:
-    void repaintRequested();
 
   protected:
     ReosMesh( QObject *parent = nullptr );

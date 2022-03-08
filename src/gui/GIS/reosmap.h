@@ -20,6 +20,7 @@ email                : vcloarec at gmail dot com
 #include <QDomDocument>
 #include <QGraphicsView>
 #include <QToolButton>
+#include <QMutex>
 
 #include "reosgui.h"
 #include "reosmodule.h"
@@ -34,6 +35,38 @@ class ReosMapTool;
 class ReosMapToolDrawExtent;
 class ReosGeometryStructure;
 class ReosRenderedObject;
+class ReosObjectRenderer;
+
+
+class ReosRendererObjectHandler_p;
+class ReosRendererObjectHandler : public QObject
+{
+    Q_OBJECT
+  public:
+    ReosRendererObjectHandler( QGraphicsView *view );
+    ~ReosRendererObjectHandler();
+
+    void startRender( ReosRenderedObject *renderedObject );
+
+    bool hasCache( ReosRenderedObject *renderedObject );
+
+    QImage image( ReosRenderedObject *renderedObject );
+
+    void clearObject( ReosRenderedObject *renderedObject );
+
+    void stopRendering( ReosRenderedObject *renderedObject );
+
+  private slots:
+    void onRendererFinished();
+    void updateViewParameter();
+
+  private:
+    std::unique_ptr<ReosRendererObjectHandler_p> d;
+
+    ReosRenderedObject *rendererToObject( ReosObjectRenderer *renderer ) const;
+    ReosObjectRenderer *objectToRenderer( ReosRenderedObject *o ) const;
+    QImage transformImage( ReosRenderedObject *renderedObject );
+};
 
 class REOSGUI_EXPORT ReosMap: public ReosModule
 {
@@ -78,7 +111,10 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
 
   private slots:
     void setCrs( const QString &crs );
+    void prepareExtraRenderedObject();
     void drawExtraRendering( QPainter *painter );
+    void onExtraObjectRenderedFinished();
+    void onExtraObjectRequestRepaint();
 
   private:
     ReosGisEngine *mEngine;
@@ -98,6 +134,7 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     QAction *mTemporalControllerAction = nullptr;
     QAction *mEnableSnappingAction = nullptr;
 
+    ReosRendererObjectHandler mExtraRenderedObjectHandler;
     QList<ReosRenderedObject *> mExtraRenderedObjects;
 };
 
@@ -117,7 +154,6 @@ class REOSGUI_EXPORT ReosMapCursorPosition : public QWidget
     QLabel *mCoordinates;
     QLabel *mCrs;
 };
-
 
 
 #endif // REOSMAP_H
