@@ -47,7 +47,7 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     //! Sets active the terrain in the mesh
     void activateMeshTerrain();
 
-    //! Deactivate any
+    //! Deactivate any activated scalar dataset
     void deactivateMeshScalar();
 
     QString terrainMeshDatasetId() const;

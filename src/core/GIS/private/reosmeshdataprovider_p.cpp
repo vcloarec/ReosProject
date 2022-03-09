@@ -129,10 +129,16 @@ QgsMesh ReosMeshDataProvider_p::convertFrameFromReos( const ReosMeshFrameData &r
   QgsMesh ret;
 
   ret.vertices.resize( reosMesh.vertexCoordinates.count() / 3 );
+  bool hasZ = reosMesh.hasZ;
   for ( int i = 0; i < ret.vertices.size(); ++i )
+  {
     ret.vertices[i] = QgsMeshVertex( reosMesh.vertexCoordinates[i * 3],
                                      reosMesh.vertexCoordinates[i * 3 + 1],
                                      reosMesh.vertexCoordinates[i * 3 + 2] );
+    // if Z is NaN, constructor QgsMeshVertex create a 2D point, so need to set Z value to NaN after creation
+    if ( !hasZ )
+      ret.vertices[i].setZ( std::numeric_limits<double>::quiet_NaN() );
+  }
 
   ret.faces.resize( reosMesh.facesIndexes.size() );
 

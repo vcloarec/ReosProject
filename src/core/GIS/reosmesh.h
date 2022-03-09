@@ -34,9 +34,9 @@ class ReosMesh: public ReosRenderedObject
   public:
 
     //! Creates a new void mesh in memory
-    static ReosMesh *createMemoryMesh( const QString &crs = QString() );
+    static ReosMesh *createMeshFrame( const QString &crs = QString() );
 
-    static ReosMesh *createMemoryMesh( const ReosEncodedElement &element, const QString &dataPath );
+    static ReosMesh *createMeshFrameFromFile( const QString &dataPath );
 
     //! Returns whether the mesh is valid
     virtual bool isValid() const = 0;
@@ -69,7 +69,10 @@ class ReosMesh: public ReosRenderedObject
 
     virtual void applyTopographyOnVertices( ReosTopographyCollection *topographyCollection ) = 0;
 
-    virtual ReosEncodedElement encode( const QString &dataPath ) const = 0;
+    virtual void save( const QString &dataPath ) const = 0;
+
+    virtual ReosEncodedElement meshSymbology() const = 0;
+    virtual void setMeshSymbology( const ReosEncodedElement &symbology ) = 0;
 
   protected:
     ReosMesh( QObject *parent = nullptr );

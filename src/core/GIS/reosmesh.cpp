@@ -17,14 +17,14 @@
 #include "reosmesh_p.h"
 
 
-ReosMesh *ReosMesh::createMemoryMesh( const QString &crs )
+ReosMesh *ReosMesh::createMeshFrame( const QString &crs )
 {
-  return new ReosMesh_p( crs );
+  return new ReosMeshFrame_p( crs );
 }
 
-ReosMesh *ReosMesh::createMemoryMesh( const ReosEncodedElement &element, const QString &dataPath )
+ReosMesh *ReosMesh::createMeshFrameFromFile( const QString &dataPath )
 {
-  return new ReosMesh_p( element, dataPath );
+  return new ReosMeshFrame_p( dataPath );
 }
 
 
