@@ -54,6 +54,7 @@ ReosMeshTopographyWidget::ReosMeshTopographyWidget( ReosMesh *mesh, ReosTopograp
   connect( ui->mAddTopographyToolButton, &QToolButton::clicked, this, &ReosMeshTopographyWidget::onAddTopography );
   connect( ui->mApplyTopographyButton, &QToolButton::clicked, this, &ReosMeshTopographyWidget::applyDem );
   connect( ui->mRenderingSettingsButton, &QToolButton::clicked, this, &ReosMeshTopographyWidget::onRenderingSettings );
+  connect( mGuiContext.map(), &ReosMap::cursorMoved, this, &ReosMeshTopographyWidget::onMapCursorMove );
 }
 
 void ReosMeshTopographyWidget::applyDem()
@@ -78,4 +79,14 @@ void ReosMeshTopographyWidget::onAddTopography()
 void ReosMeshTopographyWidget::onRenderingSettings()
 {
   emit addOtherPage( new ReosMeshScalarRenderingWidget( mMesh, mTopographyDatasetId, ReosGuiContext( mGuiContext, this ) ) );
+}
+
+void ReosMeshTopographyWidget::onMapCursorMove( const QPointF &pos )
+{
+  double topographyValue = mMesh->datasetScalarValueAt( mTopographyDatasetId, pos );
+
+  if ( std::isnan( topographyValue ) )
+    ui->mMeshZValueLabel->setText( tr( "No value" ) );
+  else
+    ui->mMeshZValueLabel->setText( QLocale().toString( topographyValue, 'f', 2 ) );
 }

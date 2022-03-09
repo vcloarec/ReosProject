@@ -51,6 +51,7 @@ class ReosMeshFrame_p : public ReosMesh
     QObject *data() const override;
     int datasetGroupIndex( const QString &id ) const override;
     void applyTopographyOnVertices( ReosTopographyCollection *topographyCollection ) override;
+    double datasetScalarValueAt( const QString &datasetId, const QPointF &pos ) const override;
 
     void save( const QString &dataPath ) const override;
     ReosEncodedElement meshSymbology() const;
