@@ -25,7 +25,7 @@
 #include "reosmeshdataprovider_p.h"
 #include "reosencodedelement.h"
 
-ReosMesh_p::ReosMesh_p( const QString &crs, QObject *parent ): ReosMesh( parent )
+ReosMeshFrame_p::ReosMeshFrame_p( const QString &crs, QObject *parent ): ReosMesh( parent )
 {
   mMeshLayer.reset( new QgsMeshLayer( "path", "", QStringLiteral( "ReosMesh" ) ) );
   mMeshLayer->setCrs( QgsProject::instance()->crs() );
@@ -34,20 +34,9 @@ ReosMesh_p::ReosMesh_p( const QString &crs, QObject *parent ): ReosMesh( parent 
   init();
 }
 
-ReosMesh_p::ReosMesh_p( const ReosEncodedElement &elem, const QString &dataPath )
+ReosMeshFrame_p::ReosMeshFrame_p( const QString &dataPath )
 {
   mMeshLayer.reset( new QgsMeshLayer( "path", "", QStringLiteral( "ReosMesh" ) ) );
-
-  QString docString;
-  elem.getData( "qgis-mesh-layer", docString );
-
-  QDomDocument doc( QStringLiteral( "mesh-layer" ) );
-  if ( doc.setContent( docString ) )
-  {
-    QDomElement domElem = doc.firstChildElement( QStringLiteral( "maplayer" ) );
-    QgsReadWriteContext context;
-    mMeshLayer->readLayerXml( domElem,  context );
-  }
 
   QDir dir( dataPath );
   if ( dir.exists() )
@@ -60,7 +49,7 @@ ReosMesh_p::ReosMesh_p( const ReosEncodedElement &elem, const QString &dataPath 
 }
 
 
-void ReosMesh_p::init()
+void ReosMeshFrame_p::init()
 {
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
   QgsMeshRendererMeshSettings meshSettings = settings.nativeMeshSettings();
@@ -74,32 +63,56 @@ void ReosMesh_p::init()
   connect( mMeshLayer.get(), &QgsMapLayer::repaintRequested, this, &ReosMesh::repaintRequested );
 }
 
-ReosEncodedElement ReosMesh_p::encode( const QString &dataPath ) const
+void ReosMeshFrame_p::save( const QString &dataPath ) const
 {
-  QDomDocument doc( QStringLiteral( "mesh-layer" ) );
-  QDomElement elem = doc.createElement( QStringLiteral( "maplayer" ) );
-  QgsReadWriteContext context;
-  mMeshLayer->writeLayerXml( elem, doc, context );
-  doc.appendChild( elem );
-
-  ReosEncodedElement encodedElem( QStringLiteral( "reos-mesh" ) );
-  encodedElem.addData( "qgis-mesh-layer", doc.toString() );
-
   QDir dir( dataPath );
 
   meshProvider()->setFilePath( dir.filePath( QStringLiteral( "meshFrame.nc" ) ) );
   meshProvider()->setMDALDriver( QStringLiteral( "Ugrid" ) );
   meshProvider()->saveMeshFrame( *mMeshLayer->nativeMesh() );
+}
+
+ReosEncodedElement ReosMeshFrame_p::meshSymbology() const
+{
+  QDomDocument doc( QStringLiteral( "mesh-layer" ) );
+  QDomElement elem = doc.createElement( QStringLiteral( "symbology" ) );
+  QgsReadWriteContext context;
+  QString errorMessage;
+  mMeshLayer->writeSymbology( elem, doc, errorMessage, context );
+  doc.appendChild( elem );
+
+  ReosEncodedElement encodedElem( QStringLiteral( "mesh-symbology" ) );
+  encodedElem.addData( "xml-symbology", doc.toString() );
 
   return encodedElem;
 }
 
-ReosObjectRenderer *ReosMesh_p::createRenderer( QGraphicsView *view )
+void ReosMeshFrame_p::setMeshSymbology( const ReosEncodedElement &symbology )
+{
+
+  if ( symbology.description() != QStringLiteral( "mesh-symbology" ) )
+    return;
+
+  QString docString;
+  symbology.getData( "xml-symbology", docString );
+
+  QDomDocument doc( QStringLiteral( "mesh-layer" ) );
+  if ( doc.setContent( docString ) )
+  {
+    QDomElement domElem = doc.firstChildElement( QStringLiteral( "symbology" ) );
+    QgsReadWriteContext context;
+    QString errorMessage;
+    mMeshLayer->readSymbology( domElem, errorMessage, context );
+  }
+
+}
+
+ReosObjectRenderer *ReosMeshFrame_p::createRenderer( QGraphicsView *view )
 {
   return new ReosMeshRenderer_p( view, mMeshLayer.get() );
 }
 
-bool ReosMesh_p::isValid() const
+bool ReosMeshFrame_p::isValid() const
 {
   if ( mMeshLayer )
     return mMeshLayer->isValid();
@@ -107,22 +120,22 @@ bool ReosMesh_p::isValid() const
   return false;
 }
 
-void ReosMesh_p::addVertex( const QPointF pt, double z, double tolerance )
+void ReosMeshFrame_p::addVertex( const QPointF pt, double z, double tolerance )
 {
 
 }
 
-int ReosMesh_p::vertexCount() const
+int ReosMeshFrame_p::vertexCount() const
 {
   return mMeshLayer->meshVertexCount();
 }
 
-int ReosMesh_p::faceCount() const
+int ReosMeshFrame_p::faceCount() const
 {
   return mMeshLayer->meshFaceCount();
 }
 
-QString ReosMesh_p::enableVertexElevationDataset( const QString &name )
+QString ReosMeshFrame_p::enableVertexElevationDataset( const QString &name )
 {
   std::unique_ptr<QgsMeshDatasetGroup> group( new QgsMeshVerticesElevationDatasetGroup( name, mMeshLayer->nativeMesh() ) );
 
@@ -134,19 +147,22 @@ QString ReosMesh_p::enableVertexElevationDataset( const QString &name )
 
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
   QgsMeshRendererScalarSettings scalarSettings = settings.scalarSettings( index );
-  QgsColorRampShader colorRamp = scalarSettings.colorRampShader();
-  colorRamp.setMinimumValue( 0 );
-  colorRamp.setMaximumValue( 0 );
-  scalarSettings.setClassificationMinimumMaximum( 0, 0 );
-  scalarSettings.setColorRampShader( colorRamp );
-  settings.setScalarSettings( index, scalarSettings );
-  mMeshLayer->setRendererSettings( settings );
+  if ( scalarSettings.classificationMinimum() >= scalarSettings.classificationMaximum() )
+  {
+    QgsColorRampShader colorRamp = scalarSettings.colorRampShader();
+    colorRamp.setMinimumValue( 0 );
+    colorRamp.setMaximumValue( 0 );
+    scalarSettings.setClassificationMinimumMaximum( 0, 0 );
+    scalarSettings.setColorRampShader( colorRamp );
+    settings.setScalarSettings( index, scalarSettings );
+    mMeshLayer->setRendererSettings( settings );
+  }
 
   return id;
 }
 
 
-QString ReosMesh_p::addDatasetGroup( QgsMeshDatasetGroup *group )
+QString ReosMeshFrame_p::addDatasetGroup( QgsMeshDatasetGroup *group )
 {
   QString name = group->name();
   QString id = QUuid::createUuid().toString();
@@ -167,7 +183,7 @@ QString ReosMesh_p::addDatasetGroup( QgsMeshDatasetGroup *group )
   return id;
 }
 
-void ReosMesh_p::firstUpdateOfTerrainScalarSetting()
+void ReosMeshFrame_p::firstUpdateOfTerrainScalarSetting()
 {
   if ( !mZVerticesDatasetGroup || mVerticesElevationDatasetIndex == -1 )
     return;
@@ -195,7 +211,7 @@ void ReosMesh_p::firstUpdateOfTerrainScalarSetting()
 }
 
 
-bool ReosMesh_p::activateDataset( const QString &id )
+bool ReosMeshFrame_p::activateDataset( const QString &id )
 {
   int index = mDatasetGroupsIndex.value( id, -1 );
 
@@ -206,42 +222,46 @@ bool ReosMesh_p::activateDataset( const QString &id )
   return true;
 }
 
-void ReosMesh_p::generateMesh( const ReosMeshFrameData &data )
+void ReosMeshFrame_p::generateMesh( const ReosMeshFrameData &data )
 {
   meshProvider()->generateMesh( data );
   mMeshLayer->reload();
+  if ( mZVerticesDatasetGroup )
+    mZVerticesDatasetGroup->setStatisticObsolete();
   mMeshLayer->trigger3DUpdate();
   emit repaintRequested();
 }
 
-QString ReosMesh_p::crs() const
+QString ReosMeshFrame_p::crs() const
 {
   return mMeshLayer->crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED_SIMPLIFIED );
 }
 
-QObject *ReosMesh_p::data() const
+QObject *ReosMeshFrame_p::data() const
 {
   return mMeshLayer.get();
 }
 
-int ReosMesh_p::datasetGroupIndex( const QString &id ) const
+int ReosMeshFrame_p::datasetGroupIndex( const QString &id ) const
 {
   return mDatasetGroupsIndex.value( id, -1 );
 }
 
-void ReosMesh_p::applyTopographyOnVertices( ReosTopographyCollection *topographyCollection )
+void ReosMeshFrame_p::applyTopographyOnVertices( ReosTopographyCollection *topographyCollection )
 {
   meshProvider()->applyTopographyOnVertices( topographyCollection );
   mMeshLayer->reload();
 
-  mZVerticesDatasetGroup->setStatisticObsolete();
+  if ( mZVerticesDatasetGroup )
+    mZVerticesDatasetGroup->setStatisticObsolete();
+
   firstUpdateOfTerrainScalarSetting();
 
   emit repaintRequested();
   mMeshLayer->trigger3DUpdate();
 }
 
-ReosMeshDataProvider_p *ReosMesh_p::meshProvider() const
+ReosMeshDataProvider_p *ReosMeshFrame_p::meshProvider() const
 {
   return qobject_cast<ReosMeshDataProvider_p *>( mMeshLayer->dataProvider() );
 }

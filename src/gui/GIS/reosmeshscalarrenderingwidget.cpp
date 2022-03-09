@@ -49,6 +49,7 @@ ReosMeshScalarRenderingWidget::ReosMeshScalarRenderingWidget( ReosMesh *mesh, co
     mColorRampShaderWidget->setFromShader( scalarSettings.colorRampShader() );
     mMinimumParam->setValue( scalarSettings.classificationMinimum() );
     mMaximumParam->setValue( scalarSettings.classificationMaximum() );
+    mColorRampShaderWidget->setMinimumMaximum( mMinimumParam->value(), mMaximumParam->value() );
   }
 
   connect( mMinimumParam, &ReosParameter::valueChanged, this, &ReosMeshScalarRenderingWidget::onMinMaxChanged );
@@ -57,6 +58,37 @@ ReosMeshScalarRenderingWidget::ReosMeshScalarRenderingWidget( ReosMesh *mesh, co
   ui->mBackButton->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   connect( mColorRampShaderWidget, &QgsColorRampShaderWidget::widgetChanged, this, &ReosMeshScalarRenderingWidget::onColorRampChanged );
   connect( ui->mBackButton, &QPushButton::clicked, this, &ReosStackedPageWidget::backToPreviousPage );
+
+  connect( ui->mOpacitySpinBox, QOverload<int>::of( &QSpinBox::valueChanged ), this, [this]( int value )
+  {
+    ui->mOpacitySlider->blockSignals( true );
+    ui->mOpacitySlider->setValue( value );
+    ui->mOpacitySlider->blockSignals( false );
+    updateMeshSettings();
+  } );
+
+  connect( ui->mOpacitySlider, &QSlider::valueChanged, this, [this]( int value )
+  {
+    ui->mOpacitySpinBox->blockSignals( true );
+    ui->mOpacitySpinBox->setValue( value );
+    ui->mOpacitySpinBox->blockSignals( false );
+    updateMeshSettings();
+  } );
+
+  connect( ui->mReloadButton, &QToolButton::clicked, this, [this]
+  {
+    QgsMeshLayer *meshLayer = qobject_cast<QgsMeshLayer *>( mMesh->data() );
+
+    if ( meshLayer )
+    {
+      QgsMeshDatasetGroupMetadata meta = meshLayer->datasetGroupMetadata( QgsMeshDatasetIndex( mDatasetGroupIndexId ) );
+      if ( meta.minimum() < meta.maximum() )
+      {
+        mMinimumParam->setValue( meta.minimum() );
+        mMaximumParam->setValue( meta.maximum() );
+      }
+    }
+  } );
 }
 
 ReosMeshScalarRenderingWidget::~ReosMeshScalarRenderingWidget()
@@ -83,6 +115,7 @@ void ReosMeshScalarRenderingWidget::updateMeshSettings()
     QgsMeshRendererScalarSettings scalarSettings = settings.scalarSettings( mDatasetGroupIndexId );
     scalarSettings.setClassificationMinimumMaximum( mMinimumParam->value(), mMaximumParam->value() );
     scalarSettings.setColorRampShader( mColorRampShaderWidget->shader() );
+    scalarSettings.setOpacity( ui->mOpacitySpinBox->value() / 100.0 );
     settings.setScalarSettings( mDatasetGroupIndexId, scalarSettings );
     meshLayer->setRendererSettings( settings );
     meshLayer->repaintRequested();

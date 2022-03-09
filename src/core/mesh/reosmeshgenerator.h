@@ -36,6 +36,7 @@ struct ReosMeshFrameData
   QVector<double> vertexCoordinates;
   QVector<QVector<int>> facesIndexes;
   QRectF extent;
+  bool hasZ = false;
 };
 
 

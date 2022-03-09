@@ -32,14 +32,14 @@ class QgsMapLayerRenderer;
 /**
  * Implementation of a mesh in Reos environment.
  * This class contains a QgsMeshLayer that can be independant from the QgsProject.
- * The data provider of this QGIS layer is a derived class of QgsMeshDataProvider that allow creation of mesh in memory
+ * The data provider of this QGIS layer is a derived class of QgsMeshDataProvider that allow creation of mesh frame in memory
  * and custom behaviors, especially mesh generation and editing.
  */
-class ReosMesh_p : public ReosMesh
+class ReosMeshFrame_p : public ReosMesh
 {
   public:
-    ReosMesh_p( const QString &crs, QObject *parent = nullptr );
-    ReosMesh_p( const ReosEncodedElement &elem, const QString &dataPath );
+    ReosMeshFrame_p( const QString &crs, QObject *parent );
+    ReosMeshFrame_p( const QString &dataPath );
     bool isValid() const override;
     void addVertex( const QPointF pt, double z, double tolerance ) override;
     int vertexCount() const override;
@@ -52,7 +52,9 @@ class ReosMesh_p : public ReosMesh
     int datasetGroupIndex( const QString &id ) const override;
     void applyTopographyOnVertices( ReosTopographyCollection *topographyCollection ) override;
 
-    ReosEncodedElement encode( const QString &dataPath ) const override;
+    void save( const QString &dataPath ) const override;
+    ReosEncodedElement meshSymbology() const;
+    void setMeshSymbology( const ReosEncodedElement &symbology );
 
     ReosObjectRenderer *createRenderer( QGraphicsView *view );
 

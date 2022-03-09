@@ -27,7 +27,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, con
   , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( domain, crs ) )
   , mMeshResolutionController( new ReosMeshResolutionController( this, crs ) )
   , mTopographyCollecion( ReosTopographyCollection::createTopographyCollection( parent->getGisEngine(), this ) )
-  , mMesh( ReosMesh::createMemoryMesh( crs ) )
+  , mMesh( ReosMesh::createMeshFrame( crs ) )
 {
   init();
 }
@@ -48,9 +48,9 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
 
   QString dataPath = context.projectPath() + '/' + context.projectName() + QStringLiteral( "-hydr-struct" ) + '/' + directory();
 
-  mMesh.reset( ReosMesh::createMemoryMesh( encodedElement.getEncodedData( QStringLiteral( "mesh" ) ), dataPath ) );
-
+  mMesh.reset( ReosMesh::createMeshFrameFromFile( dataPath ) );
   init();
+  mMesh->setMeshSymbology( encodedElement.getEncodedData( QStringLiteral( "mesh-frame-symbology" ) ) );
 }
 
 void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const
@@ -67,7 +67,8 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
   dir.mkdir( directory() );
   dir.cd( directory() );
 
-  element.addEncodedData( QStringLiteral( "mesh" ), mMesh->encode( dir.path() ) );
+  mMesh->save( dir.path() );
+  element.addEncodedData( QStringLiteral( "mesh-frame-symbology" ), mMesh->meshSymbology() );
 
 }
 

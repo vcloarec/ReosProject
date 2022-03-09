@@ -68,7 +68,7 @@ void ReosMeshTest::GmshGenerator()
 void ReosMeshTest::memoryMesh()
 {
   ReosGisEngine engine;
-  std::unique_ptr<ReosMesh> mesh( ReosMesh::createMemoryMesh() );
+  std::unique_ptr<ReosMesh> mesh( ReosMesh::createMeshFrame() );
   QVERIFY( mesh->isValid() );
 
   QCOMPARE( mesh->vertexCount(), 0 );
