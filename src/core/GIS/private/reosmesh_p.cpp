@@ -28,8 +28,10 @@
 ReosMeshFrame_p::ReosMeshFrame_p( const QString &crs, QObject *parent ): ReosMesh( parent )
 {
   mMeshLayer.reset( new QgsMeshLayer( "path", "", QStringLiteral( "ReosMesh" ) ) );
-  mMeshLayer->setCrs( QgsProject::instance()->crs() );
-  meshProvider()->overrideCrs( QgsProject::instance()->crs() );
+  QgsCoordinateReferenceSystem qgsiCrs;
+  qgsiCrs.createFromWkt( crs );
+  mMeshLayer->setCrs( qgsiCrs );
+  meshProvider()->overrideCrs( qgsiCrs );
 
   init();
 }
@@ -259,6 +261,11 @@ void ReosMeshFrame_p::applyTopographyOnVertices( ReosTopographyCollection *topog
 
   emit repaintRequested();
   mMeshLayer->trigger3DUpdate();
+}
+
+double ReosMeshFrame_p::datasetScalarValueAt( const QString &datasetId, const QPointF &pos ) const
+{
+  return mMeshLayer->datasetValue( QgsMeshDatasetIndex( datasetGroupIndex( datasetId ), 0 ), QgsPointXY( pos ) ).scalar();
 }
 
 ReosMeshDataProvider_p *ReosMeshFrame_p::meshProvider() const

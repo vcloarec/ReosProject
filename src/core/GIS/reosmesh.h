@@ -69,6 +69,9 @@ class ReosMesh: public ReosRenderedObject
 
     virtual void applyTopographyOnVertices( ReosTopographyCollection *topographyCollection ) = 0;
 
+    //! Returns the value of dataset \a datasetId at position \a pos in map coordinates
+    virtual double datasetScalarValueAt( const QString &datasetId, const QPointF &pos ) const = 0;
+
     virtual void save( const QString &dataPath ) const = 0;
 
     virtual ReosEncodedElement meshSymbology() const = 0;
