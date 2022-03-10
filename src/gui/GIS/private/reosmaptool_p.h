@@ -75,8 +75,8 @@ class ReosMapTool_p: public QgsMapTool
 
     QRectF viewSearchZone( const QPoint &pt );
     ReosMapItem_p *searchItem( const QPointF &p ) const;
-
     QgsGeometry selectFeatureOnMap( QgsMapMouseEvent *e );
+    double tolerance() const;
 
     ReosMapItem_p *mFoundItem = nullptr;
     std::unique_ptr<QgsSnapIndicator> mSnappingIndicator;

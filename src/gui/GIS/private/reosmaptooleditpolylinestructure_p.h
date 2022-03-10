@@ -83,7 +83,6 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
     QList<QPointF> mNeighborPosition;
     int mMovingHolePointIndex = -1;
 
-    double tolerance() const;
     ReosMapExtent searchZone( const QgsPointXY &point ) const;
 
     QgsRubberBand *mLineRubberBand = nullptr;

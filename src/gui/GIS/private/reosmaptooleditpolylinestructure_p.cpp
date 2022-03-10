@@ -394,13 +394,6 @@ void ReosMapToolEditPolylineStructure_p::resetTool()
   }
 }
 
-double ReosMapToolEditPolylineStructure_p::tolerance() const
-{
-  const QgsSnappingConfig &snapConfig = QgsProject::instance()->snappingConfig();
-  return QgsTolerance::toleranceInProjectUnits( snapConfig.tolerance(),
-         nullptr, canvas()->mapSettings(), snapConfig.units() );
-}
-
 ReosMapExtent ReosMapToolEditPolylineStructure_p::searchZone( const QgsPointXY &point ) const
 {
   double tol = tolerance();

@@ -49,6 +49,15 @@ QgsRectangle ReosMeshDataProvider_p::extent() const
   return mExtent;
 }
 
+QgsMeshDriverMetadata ReosMeshDataProvider_p::driverMetadata() const
+{
+  return QgsMeshDriverMetadata( QStringLiteral( "ReosMeshMemory" ),
+                                QStringLiteral( "reos mesh" ),
+                                QgsMeshDriverMetadata::CanWriteMeshData, QString(),
+                                QStringLiteral( "*.nc" ),
+                                3 );
+}
+
 void ReosMeshDataProvider_p::loadMeshFrame( const QString &filePath, const QString &driverName )
 {
   mMDALDriverName = driverName;

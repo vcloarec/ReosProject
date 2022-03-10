@@ -29,6 +29,7 @@
 #include "reosprocesscontroler.h"
 #include "reosmeshscalarrenderingwidget.h"
 #include "reosmeshtopographywidget.h"
+#include "reoseditmeshelementwidget.h"
 
 
 ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context )
@@ -71,6 +72,10 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
   ReosMeshTopographyStackedWidget *topographyWidget =
     new ReosMeshTopographyStackedWidget( structure2D->mesh(), structure2D->topographyCollecion(), structure2D->terrainMeshDatasetId(), ReosGuiContext( context, this ) );
   ui->pageTopography->layout()->addWidget( topographyWidget );
+
+  ReosEditMeshElementWidget *editMeshElement =
+    new ReosEditMeshElementWidget( structure2D->mesh(), ReosGuiContext( context, this ) );
+  ui->pageEditElements->layout()->addWidget( editMeshElement );
 
   mInitialMapStructureItem = context.mapItems( ReosHydraulicStructure2D::staticType() );
   if ( mInitialMapStructureItem )

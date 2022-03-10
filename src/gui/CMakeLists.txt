@@ -24,6 +24,7 @@ SET(REOS_GUI_SOURCES
     GIS/reosmaptooleditgeometrystructure.cpp
     GIS/reoseditpolylinestructurewidget.cpp
     GIS/reosmeshscalarrenderingwidget.cpp
+    GIS/reosmaptooleditmeshframe.cpp
     GIS/3D/reos3dview.cpp
     GIS/3D/reoslightwidget.cpp
 
@@ -35,6 +36,7 @@ SET(REOS_GUI_SOURCES
     GIS/private/reosmappolylinesstructure_p.cpp
     GIS/private/reosmaptooleditpolygonstructure_p.cpp
     GIS/private/reosmappolygonstructure_p.cpp
+    GIS/private/reosmaptooleditmeshframe_p.cpp
 
     watershed/reosdelineatingwatershedwidget.cpp
     watershed/reoswatershedwidget.cpp
@@ -83,6 +85,7 @@ SET(REOS_GUI_SOURCES
     hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.cpp
     hydraulicNetwork/structure2d/reosgmshresolutioncontrollerwidget.cpp
     hydraulicNetwork/structure2d/reosmeshtopographywidget.cpp
+    hydraulicNetwork/structure2d/reoseditmeshelementwidget.cpp
     hydraulicNetwork/private/reosmaptoolhydraulicnetwork_p.cpp
     )
 
@@ -109,6 +112,7 @@ SET(REOS_GUI_HEADERS
     GIS/reosmaptooleditgeometrystructure.h
     GIS/reoseditpolylinestructurewidget.h
     GIS/reosmeshscalarrenderingwidget.h
+    GIS/reosmaptooleditmeshframe.h
     GIS/3D/reos3dview.h
     GIS/3D/reoslightwidget.h
 
@@ -155,6 +159,7 @@ SET(REOS_GUI_HEADERS
     hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.h
     hydraulicNetwork/structure2d/reosgmshresolutioncontrollerwidget.h
     hydraulicNetwork/structure2d/reosmeshtopographywidget.h
+    hydraulicNetwork/structure2d/reoseditmeshelementwidget.h
 )
 
 SET(REOS_GUI_HEADERS_PRIVATE
@@ -166,6 +171,7 @@ SET(REOS_GUI_HEADERS_PRIVATE
     GIS/private/reosmappolylinesstructure_p.h
     GIS/private/reosmaptooleditpolygonstructure_p.h
     GIS/private/reosmappolygonstructure_p.h
+    GIS/private/reosmaptooleditmeshframe_p.h
 
     chart/private/reosplot_p.h
     chart/private/reosidfplot_p.h
