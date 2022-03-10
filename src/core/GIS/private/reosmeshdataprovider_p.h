@@ -93,6 +93,7 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
     // QgsMeshDataProvider interface
   public:
     void close() {}
+    virtual QgsMeshDriverMetadata driverMetadata()  const;
 
 //***********************
 

@@ -535,6 +535,13 @@ QgsGeometry ReosMapTool_p::selectFeatureOnMap( QgsMapMouseEvent *e )
   return QgsGeometry();
 }
 
+double ReosMapTool_p::tolerance() const
+{
+  const QgsSnappingConfig &snapConfig = QgsProject::instance()->snappingConfig();
+  return QgsTolerance::toleranceInProjectUnits( snapConfig.tolerance(),
+         nullptr, canvas()->mapSettings(), snapConfig.units() );
+}
+
 void ReosMapTool_p::setActivateMovingSignal( bool activateMovingSignal )
 {
   mActivateMovingSignal = activateMovingSignal;

@@ -80,7 +80,7 @@
        </item>
        <item>
         <property name="text">
-         <string>Elements</string>
+         <string>Edit elements</string>
         </property>
        </item>
        <item>
@@ -105,7 +105,7 @@
    <item row="0" column="1">
     <widget class="QStackedWidget" name="mStackedWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="pageMeshStructure">
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -154,6 +154,9 @@
         <number>0</number>
        </property>
       </layout>
+     </widget>
+     <widget class="QWidget" name="pageEditElements">
+      <layout class="QVBoxLayout" name="verticalLayout_5"/>
      </widget>
     </widget>
    </item>
