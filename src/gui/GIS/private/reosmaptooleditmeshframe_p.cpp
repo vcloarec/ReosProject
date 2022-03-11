@@ -53,7 +53,7 @@ ReosMapToolEditMeshFrame_p::ReosMapToolEditMeshFrame_p( ReosMesh *mesh, QgsMapCa
   mMainActions->addAction( mActionRedo );
   mMainActions->setExclusive( true );
 
-  connect( mMeshLayer->undoStack(), &QUndoStack::indexChanged, this, &ReosMapToolEditMeshFrame_p::clearCanvasHelpers );
+  connect( mMeshLayer->undoStack(), &QUndoStack::indexChanged, this, &ReosMapToolEditMeshFrame_p::onEdit );
   connect( mActionEditMesh, &QAction::triggered, this, &ReosMapToolEditMeshFrame_p::onModeChange );
   connect( mActionSelectElementByPolygon, &QAction::triggered, this, &ReosMapToolEditMeshFrame_p::onModeChange );
 
@@ -201,7 +201,13 @@ bool ReosMapToolEditMeshFrame_p::populateContextMenuWithEvent( QMenu *menu, QgsM
     case SelectingByPolygon:
     {
       if ( !mSelectedVertices.isEmpty() )
+      {
+        if ( mSelectedVertices.count() == 1 )
+          mActionRemoveVertices->setText( tr( "Remove selected vertex" ) );
+        else
+          mActionRemoveVertices->setText( tr( "Remove %n selected vertices", nullptr, mSelectedVertices.count() ) );
         newActions << mActionRemoveVertices;
+      }
     }
     break;
 
@@ -1333,6 +1339,14 @@ void ReosMapToolEditMeshFrame_p::onModeChange()
     clearCanvasHelpers();
     mCurrentState = SelectingByPolygon;
   }
+}
+
+void ReosMapToolEditMeshFrame_p::onEdit()
+{
+  if ( !mKeepSelectionOnEdit )
+    clearSelection();
+  mKeepSelectionOnEdit = false;
+  clearCanvasHelpers();
 }
 
 void ReosMapToolEditMeshFrame_p::clearEdgeHelpers()
