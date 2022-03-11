@@ -49,7 +49,7 @@ class ReosMapToolEditMeshFrame_p : public ReosMapTool_p
   private slots:
     void clearCanvasHelpers();
     void onModeChange();
-
+    void onEdit();
     void removeSelectedVerticesFromMesh();
 
   private:
