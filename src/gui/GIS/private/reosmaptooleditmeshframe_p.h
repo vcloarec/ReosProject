@@ -25,6 +25,7 @@ class QgsMeshEditor;
 
 class ReosMapToolEditMeshFrame_p : public ReosMapTool_p
 {
+    Q_OBJECT
   public:
     ReosMapToolEditMeshFrame_p( ReosMesh *mesh, QgsMapCanvas *canvas );
     ~ReosMapToolEditMeshFrame_p();
@@ -41,6 +42,9 @@ class ReosMapToolEditMeshFrame_p : public ReosMapTool_p
     void canvasDoubleClickEvent( QgsMapMouseEvent *e ) override;
     void keyPressEvent( QKeyEvent *e ) override;
 
+  private slots:
+    void clearCanvasHelpers();
+
   private:
     enum State
     {
@@ -56,7 +60,8 @@ class ReosMapToolEditMeshFrame_p : public ReosMapTool_p
     QPointer<QgsMeshLayer> mMeshLayer;
     QPointer < QgsMeshEditor> mMeshEditor;
     QActionGroup *mMainActions = nullptr;
-    QAction *mActionEditElement = nullptr;
+    QAction *mActionUndo = nullptr;
+    QAction *mActionRedo = nullptr;
 
     int mCurrentFaceIndex = -1;
     int mCurrentVertexIndex = -1;
@@ -130,7 +135,6 @@ class ReosMapToolEditMeshFrame_p : public ReosMapTool_p
     void setMovingRubberBandValidity( bool valid );
 
     void updateSelectecVerticesMarker();
-    void clearCanvasHelpers();
     void clearEdgeHelpers();
 
     void startMeshEditing();

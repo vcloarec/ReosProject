@@ -32,6 +32,15 @@ ReosMapToolEditMeshFrame_p::ReosMapToolEditMeshFrame_p( ReosMesh *mesh, QgsMapCa
   , mMeshLayer( qobject_cast<QgsMeshLayer*>( mesh->data() ) )
   , mMainActions( new QActionGroup( this ) )
 {
+  mActionUndo = mMeshLayer->undoStack()->createUndoAction( this );
+  mActionUndo->setIcon( QPixmap( QStringLiteral( ":/images/undoBlue.svg" ) ) );
+  mActionRedo = mMeshLayer->undoStack()->createRedoAction( this );
+  mActionRedo->setIcon( QPixmap( QStringLiteral( ":/images/redoBlue.svg" ) ) );
+  mMainActions->addAction( mActionUndo );
+  mMainActions->addAction( mActionRedo );
+
+  connect( mMeshLayer->undoStack(), &QUndoStack::indexChanged, this, &ReosMapToolEditMeshFrame_p::clearCanvasHelpers );
+
   mFaceRubberBand = new QgsRubberBand( mCanvas, QgsWkbTypes::PolygonGeometry );
   mFaceRubberBand->setZValue( 5 );
   mFaceRubberBand->setFillColor( ReosStyleRegistery::instance()->blueReos( 100 ) );
@@ -637,6 +646,12 @@ void ReosMapToolEditMeshFrame_p::canvasDoubleClickEvent( QgsMapMouseEvent *e )
 
 void ReosMapToolEditMeshFrame_p::keyPressEvent( QKeyEvent *e )
 {
+  if ( e->matches( QKeySequence::Undo ) )
+    mMeshLayer->undoStack()->undo();
+
+  if ( e->matches( QKeySequence::Redo ) )
+    mMeshLayer->undoStack()->redo();
+
   switch ( mCurrentState )
   {
     case Digitizing:
@@ -762,15 +777,6 @@ void ReosMapToolEditMeshFrame_p::prepareSelection()
     for ( int i : mSelectedVertices.keys() )
       vertexZValue += mapVertex( i ).z();
     vertexZValue /= mSelectedVertices.count();
-
-//    if ( !mZValueWidget )
-//      createZValueWidget();
-
-//    mZValueWidget->setZValue( vertexZValue );
-  }
-  else
-  {
-//      mZValueWidget->setZValue( mUserZValue );
   }
 
   mConcernedFaceBySelection.clear();
@@ -1198,6 +1204,8 @@ void ReosMapToolEditMeshFrame_p::clearCanvasHelpers()
   mVertexBand->reset();
   mSelectFaceMarker->setVisible( false );
   clearEdgeHelpers();
+  updateSelectecVerticesMarker();
+  prepareSelection();
 }
 
 void ReosMapToolEditMeshFrame_p::clearEdgeHelpers()
