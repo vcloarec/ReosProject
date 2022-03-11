@@ -26,10 +26,9 @@
 #include "reospolygonstructure.h"
 #include "reosgmshgenerator.h"
 
-ReosMeshGeneratorProcess *ReosMeshGeneratorPoly2Tri::getGenerateMeshProcess(
-  ReosPolylinesStructure *structure,
-  ReosMeshResolutionController *,
-  const QString & ) const
+ReosMeshGeneratorProcess *ReosMeshGeneratorPoly2Tri::getGenerateMeshProcess( ReosPolylinesStructure *structure,
+    ReosMeshResolutionController *,
+    const QString & ) const
 {
   return new  ReosMeshGeneratorPoly2TriProcess( structure->boundary() );
 }

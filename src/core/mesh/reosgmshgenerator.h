@@ -98,7 +98,7 @@ class ReosMeshGeneratorGmshProcess: public ReosMeshGeneratorProcess
     ReosMeshGeneratorGmshProcess( ReosPolylinesStructure *structure,
                                   ReosMeshResolutionController *resolutionControler,
                                   ReosGmshGenerator::Algorithm alg,
-                                  const QString &destinationCrs );
+                                  const QString &destinationCrs = QString() );
 
     void start();
 

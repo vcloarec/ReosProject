@@ -50,6 +50,7 @@ ReosMeshTopographyWidget::ReosMeshTopographyWidget( ReosMesh *mesh, ReosTopograp
   ui->mDemCombo->setGisEngine( guiContext.map()->engine() );
   ui->mTopographyCollectionView->setModel( mCollectionModel );
   ui->mRenderingSettingsButton->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  ui->mAutoApplyWidget->setBooleanParameter( topographyCollection->autoApply() );
 
   connect( ui->mAddTopographyToolButton, &QToolButton::clicked, this, &ReosMeshTopographyWidget::onAddTopography );
   connect( ui->mApplyTopographyButton, &QToolButton::clicked, this, &ReosMeshTopographyWidget::applyDem );

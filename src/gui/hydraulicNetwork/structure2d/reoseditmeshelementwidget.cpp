@@ -25,7 +25,7 @@ ReosEditMeshElementWidget::ReosEditMeshElementWidget( ReosMesh *mesh, const Reos
   , ui( new Ui::ReosEditMeshElementWidget )
   , mMesh( mesh )
   , mGuiContext( context, this )
-  , mActionEditMeshFrame( new QAction( tr( "Edit Mesh Elements" ), this ) )
+  , mActionEditMeshFrame( new QAction( QPixmap( QStringLiteral( ":/images/editMeshFrameTool.svg" ) ), tr( "Edit Mesh Elements" ), this ) )
   , mMapToolEditMeshFrame( new ReosMapToolEditMeshFrame( mesh, this, mGuiContext.map() ) )
 {
   ui->setupUi( this );
@@ -46,4 +46,17 @@ ReosEditMeshElementWidget::ReosEditMeshElementWidget( ReosMesh *mesh, const Reos
 ReosEditMeshElementWidget::~ReosEditMeshElementWidget()
 {
   delete ui;
+}
+
+void ReosEditMeshElementWidget::hideEvent( QHideEvent *e )
+{
+  mMapToolEditMeshFrame->deactivate();
+  QWidget::hideEvent( e );
+}
+
+void ReosEditMeshElementWidget::showEvent( QShowEvent *e )
+{
+  mMapToolEditMeshFrame->activate();
+  mMapToolEditMeshFrame->setCurrentToolInMap();
+  QWidget::showEvent( e );
 }

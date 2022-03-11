@@ -131,8 +131,20 @@ void ReosMapToolEditMeshFrame_p::activate()
     ReosMapTool_p::activate();
 }
 
+void ReosMapToolEditMeshFrame_p::deactivate()
+{
+  mMeshEditor = nullptr;
+  clearSelection();
+  clearCanvasHelpers();
+  clearEdgeHelpers();
+  ReosMapTool_p::deactivate();
+}
+
 void ReosMapToolEditMeshFrame_p::canvasMoveEvent( QgsMapMouseEvent *e )
 {
+  if ( !mMeshEditor )
+    return;
+
   const QgsPointXY &mapPoint = e->mapPoint();
 
   if ( mLeftButtonPressed && mCurrentState == Digitizing )

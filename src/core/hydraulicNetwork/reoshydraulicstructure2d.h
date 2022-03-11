@@ -59,6 +59,9 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) {}
 
+  signals:
+    void meshGenerated();
+
   protected:
     void encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const;
 

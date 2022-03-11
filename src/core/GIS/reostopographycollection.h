@@ -22,6 +22,7 @@
 #include "reosdataobject.h"
 
 class ReosGisEngine;
+class ReosParameterBoolean;
 
 class ReosTopographyCollection : public ReosDataObject
 {
@@ -46,13 +47,15 @@ class ReosTopographyCollection : public ReosDataObject
 
     ReosEncodedElement encode() const;
 
+    ReosParameterBoolean *autoApply() const;
+
   protected:
     explicit ReosTopographyCollection( ReosGisEngine *gisEngine, QObject *parent = nullptr );
     explicit ReosTopographyCollection( const ReosEncodedElement &element, ReosGisEngine *gisEngine, QObject *parent = nullptr );
 
     ReosGisEngine *mGisEngine = nullptr;
     QStringList mTopographyIds;
-
+    ReosParameterBoolean *mAutoApply;
 
 };
 

@@ -82,6 +82,10 @@
         <property name="text">
          <string>Edit elements</string>
         </property>
+        <property name="icon">
+         <iconset resource="../../images/images.qrc">
+          <normaloff>:/images/editMeshFrame.svg</normaloff>:/images/editMeshFrame.svg</iconset>
+        </property>
        </item>
        <item>
         <property name="text">

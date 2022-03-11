@@ -54,10 +54,12 @@ class ReosMeshFrame_p : public ReosMesh
     double datasetScalarValueAt( const QString &datasetId, const QPointF &pos ) const override;
 
     void save( const QString &dataPath ) const override;
-    ReosEncodedElement meshSymbology() const;
-    void setMeshSymbology( const ReosEncodedElement &symbology );
+    void stopFrameEditing( bool commit ) override;
 
-    ReosObjectRenderer *createRenderer( QGraphicsView *view );
+    ReosEncodedElement meshSymbology() const override;
+    void setMeshSymbology( const ReosEncodedElement &symbology ) override;
+
+    ReosObjectRenderer *createRenderer( QGraphicsView *view ) override;
 
   private:
 
@@ -65,13 +67,15 @@ class ReosMeshFrame_p : public ReosMesh
     ReosMeshDataProvider_p *meshProvider() const;
     QMap<QString, int> mDatasetGroupsIndex;
     QgsMeshDatasetGroup *mZVerticesDatasetGroup = nullptr;
-    int mVerticesElevationDatasetIndex = -1;
+    QString mVerticesElevationDatasetName;
+    QString mVerticesElevationDatasetId;
 
 
     void init();
     void activateVertexZValueDatasetGroup();
-    QString addDatasetGroup( QgsMeshDatasetGroup *group );
+    QString addDatasetGroup( QgsMeshDatasetGroup *group, const QString &id = QString() );
     void firstUpdateOfTerrainScalarSetting();
+    void restoreVertexElevationDataset();
 
     std::map <QGraphicsView *, std::unique_ptr<QgsMapLayerRenderer>> mRenders;
 };

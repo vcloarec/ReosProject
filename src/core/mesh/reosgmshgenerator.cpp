@@ -36,10 +36,9 @@ ReosGmshGenerator::ReosGmshGenerator( const ReosEncodedElement &element, QObject
   mAlgorithm = static_cast<Algorithm>( algInt );
 }
 
-ReosMeshGeneratorProcess *ReosGmshGenerator::getGenerateMeshProcess(
-  ReosPolylinesStructure *structure,
-  ReosMeshResolutionController *resolutionControler,
-  const QString &destinationCrs ) const
+ReosMeshGeneratorProcess *ReosGmshGenerator::getGenerateMeshProcess( ReosPolylinesStructure *structure,
+    ReosMeshResolutionController *resolutionControler,
+    const QString &destinationCrs ) const
 {
   return new ReosMeshGeneratorGmshProcess( structure, resolutionControler, mAlgorithm, destinationCrs );
 }

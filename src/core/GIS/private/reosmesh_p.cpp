@@ -50,7 +50,6 @@ ReosMeshFrame_p::ReosMeshFrame_p( const QString &dataPath )
   init();
 }
 
-
 void ReosMeshFrame_p::init()
 {
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
@@ -59,7 +58,7 @@ void ReosMeshFrame_p::init()
   settings.setNativeMeshSettings( meshSettings );
   mMeshLayer->setRendererSettings( settings );
 
-  QgsCoordinateTransform transform( QgsProject::instance()->crs(), QgsProject::instance()->crs(), QgsProject::instance() );
+  QgsCoordinateTransform transform( mMeshLayer->crs(), QgsProject::instance()->crs(), QgsProject::instance() );
   mMeshLayer->updateTriangularMesh( transform );
 
   connect( mMeshLayer.get(), &QgsMapLayer::repaintRequested, this, &ReosMesh::repaintRequested );
@@ -71,7 +70,28 @@ void ReosMeshFrame_p::save( const QString &dataPath ) const
 
   meshProvider()->setFilePath( dir.filePath( QStringLiteral( "meshFrame.nc" ) ) );
   meshProvider()->setMDALDriver( QStringLiteral( "Ugrid" ) );
-  meshProvider()->saveMeshFrame( *mMeshLayer->nativeMesh() );
+  meshProvider()->saveMeshFrameToFile( *mMeshLayer->nativeMesh() );
+}
+
+void ReosMeshFrame_p::stopFrameEditing( bool commit )
+{
+  int activeScalarDatasetIndex = mMeshLayer->rendererSettings().activeScalarDatasetGroup();
+  QString activeGroupId;
+
+  for ( auto it = mDatasetGroupsIndex.begin(); it != mDatasetGroupsIndex.end(); ++it )
+    if ( it.value() == activeScalarDatasetIndex )
+      activeGroupId = it.key();
+
+  QgsCoordinateTransform transform( mMeshLayer->crs(), QgsProject::instance()->crs(), QgsProject::instance() );
+  if ( commit )
+    mMeshLayer->commitFrameEditing( transform, false );
+  else
+    mMeshLayer->rollBackFrameEditing( transform, false );
+
+  if ( !mVerticesElevationDatasetId.isEmpty() )
+    restoreVertexElevationDataset();
+
+  activateDataset( activeGroupId );
 }
 
 ReosEncodedElement ReosMeshFrame_p::meshSymbology() const
@@ -137,15 +157,21 @@ int ReosMeshFrame_p::faceCount() const
   return mMeshLayer->meshFaceCount();
 }
 
+
+void ReosMeshFrame_p::restoreVertexElevationDataset()
+{
+  std::unique_ptr<QgsMeshDatasetGroup> group( new QgsMeshVerticesElevationDatasetGroup( mVerticesElevationDatasetName, mMeshLayer->nativeMesh() ) );
+  mZVerticesDatasetGroup = group.get();
+  mVerticesElevationDatasetId = addDatasetGroup( group.release(), mVerticesElevationDatasetId );
+}
+
+
 QString ReosMeshFrame_p::enableVertexElevationDataset( const QString &name )
 {
-  std::unique_ptr<QgsMeshDatasetGroup> group( new QgsMeshVerticesElevationDatasetGroup( name, mMeshLayer->nativeMesh() ) );
+  mVerticesElevationDatasetName = name;
+  restoreVertexElevationDataset();
 
-  mZVerticesDatasetGroup = group.get();
-  QString id = addDatasetGroup( group.release() );
-
-  int index = mDatasetGroupsIndex.value( id );
-  mVerticesElevationDatasetIndex = index;
+  int index = mDatasetGroupsIndex.value( mVerticesElevationDatasetId );
 
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
   QgsMeshRendererScalarSettings scalarSettings = settings.scalarSettings( index );
@@ -160,15 +186,20 @@ QString ReosMeshFrame_p::enableVertexElevationDataset( const QString &name )
     mMeshLayer->setRendererSettings( settings );
   }
 
-  return id;
+  return mVerticesElevationDatasetId;
 }
 
 
-QString ReosMeshFrame_p::addDatasetGroup( QgsMeshDatasetGroup *group )
+QString ReosMeshFrame_p::addDatasetGroup( QgsMeshDatasetGroup *group, const QString &id )
 {
   QString name = group->name();
-  QString id = QUuid::createUuid().toString();
+
+  QString effecticeId = id;
+  if ( effecticeId.isEmpty() )
+    effecticeId = QUuid::createUuid().toString();
+
   mMeshLayer->addDatasets( group );
+
   QList<int> groupIndexes = mMeshLayer->datasetGroupsIndexes();
   int index = -1;
   for ( int i : groupIndexes )
@@ -180,18 +211,19 @@ QString ReosMeshFrame_p::addDatasetGroup( QgsMeshDatasetGroup *group )
       break;
     }
   }
-  mDatasetGroupsIndex.insert( id, index );
 
-  return id;
+  mDatasetGroupsIndex[effecticeId] = index;
+
+  return effecticeId;
 }
 
 void ReosMeshFrame_p::firstUpdateOfTerrainScalarSetting()
 {
-  if ( !mZVerticesDatasetGroup || mVerticesElevationDatasetIndex == -1 )
+  if ( !mZVerticesDatasetGroup || mDatasetGroupsIndex.contains( mVerticesElevationDatasetId ) )
     return;
 
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
-  QgsMeshRendererScalarSettings scalarSettings = settings.scalarSettings( mVerticesElevationDatasetIndex );
+  QgsMeshRendererScalarSettings scalarSettings = settings.scalarSettings( mDatasetGroupsIndex.value( mVerticesElevationDatasetId ) );
   QgsColorRampShader colorRamp = scalarSettings.colorRampShader();
 
   if ( colorRamp.colorRampItemList().count() < 2 )
@@ -206,12 +238,11 @@ void ReosMeshFrame_p::firstUpdateOfTerrainScalarSetting()
       colorRamp.classifyColorRamp( 10, -1 );
       scalarSettings.setClassificationMinimumMaximum( min, max );
       scalarSettings.setColorRampShader( colorRamp );
-      settings.setScalarSettings( mVerticesElevationDatasetIndex, scalarSettings );
+      settings.setScalarSettings( mDatasetGroupsIndex.value( mVerticesElevationDatasetId ), scalarSettings );
       mMeshLayer->setRendererSettings( settings );
     }
   }
 }
-
 
 bool ReosMeshFrame_p::activateDataset( const QString &id )
 {
@@ -226,6 +257,10 @@ bool ReosMeshFrame_p::activateDataset( const QString &id )
 
 void ReosMeshFrame_p::generateMesh( const ReosMeshFrameData &data )
 {
+  if ( mMeshLayer->isEditable() )
+    stopFrameEditing( false );
+
+
   meshProvider()->generateMesh( data );
   mMeshLayer->reload();
   if ( mZVerticesDatasetGroup )
@@ -251,6 +286,9 @@ int ReosMeshFrame_p::datasetGroupIndex( const QString &id ) const
 
 void ReosMeshFrame_p::applyTopographyOnVertices( ReosTopographyCollection *topographyCollection )
 {
+  if ( mMeshLayer->isEditable() )
+    stopFrameEditing( true );
+
   meshProvider()->applyTopographyOnVertices( topographyCollection );
   mMeshLayer->reload();
 

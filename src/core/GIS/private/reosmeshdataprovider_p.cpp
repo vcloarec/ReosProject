@@ -35,13 +35,19 @@ void ReosMeshDataProvider_p::populateMesh( QgsMesh *mesh ) const
   *mesh = mMesh;
 }
 
-bool ReosMeshDataProvider_p::saveMeshFrame( const QgsMesh &mesh )
+bool ReosMeshDataProvider_p::saveMeshFrameToFile( const QgsMesh &mesh )
 {
   QgsProviderMetadata *meta = QgsProviderRegistry::instance()->providerMetadata( QStringLiteral( "mdal" ) );
   if ( meta )
     return meta->createMeshData( mesh, mFilePath, mMDALDriverName, mCrs );
   else
     return false;
+}
+
+bool ReosMeshDataProvider_p::saveMeshFrame( const QgsMesh &mesh )
+{
+  mMesh = mesh;
+  return true;
 }
 
 QgsRectangle ReosMeshDataProvider_p::extent() const
