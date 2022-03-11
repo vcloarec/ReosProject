@@ -32,6 +32,7 @@ ReosEditPolylineStructureWidget::ReosEditPolylineStructureWidget( ReosPolylinesS
   ui->setupUi( this );
 
   mToolBar = new QToolBar( this );
+  mToolBar->layout()->setContentsMargins( 0, 0, 0, 0 );
   ui->mToolBarWidget->layout()->addWidget( mToolBar );
 
   mToolBar->addAction( mActionEditLine );

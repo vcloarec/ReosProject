@@ -36,6 +36,7 @@ ReosGmshResolutionControllerWidget::ReosGmshResolutionControllerWidget( ReosHydr
   ui->setupUi( this );
 
   mToolBar = new QToolBar( this );
+  mToolBar->layout()->setContentsMargins( 0, 0, 0, 0 );
   ui->mToolBarWidget->layout()->addWidget( mToolBar );
 
   ui->mDefaultSizeParameterWidget->setDouble( mController->defaultSize() );

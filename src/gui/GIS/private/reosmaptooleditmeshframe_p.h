@@ -44,13 +44,15 @@ class ReosMapToolEditMeshFrame_p : public ReosMapTool_p
 
   private slots:
     void clearCanvasHelpers();
+    void onModeChange();
 
   private:
     enum State
     {
       Digitizing,
       Selecting,
-      MovingSelection
+      MovingSelection,
+      SelectingByPolygon
     };
     typedef QPair<int, int> Edge; //first face index, second the vertex index corresponding to the end extremity (ccw)
 
@@ -60,6 +62,8 @@ class ReosMapToolEditMeshFrame_p : public ReosMapTool_p
     QPointer<QgsMeshLayer> mMeshLayer;
     QPointer < QgsMeshEditor> mMeshEditor;
     QActionGroup *mMainActions = nullptr;
+    QAction *mActionEditMesh = nullptr;
+    QAction *mActionSelectElementByPolygon = nullptr;
     QAction *mActionUndo = nullptr;
     QAction *mActionRedo = nullptr;
 
@@ -103,6 +107,7 @@ class ReosMapToolEditMeshFrame_p : public ReosMapTool_p
 
     QPoint mStartSelectionPos;
     QgsPointXY mStartMovingPoint;
+    QgsPointXY mCurrentPosition;
     bool mLeftButtonPressed = false;
     bool mDoubleClicks = false;
 

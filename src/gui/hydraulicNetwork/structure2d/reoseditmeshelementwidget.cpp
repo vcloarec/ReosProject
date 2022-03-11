@@ -31,7 +31,6 @@ ReosEditMeshElementWidget::ReosEditMeshElementWidget( ReosMesh *mesh, const Reos
   ui->setupUi( this );
 
   mToolBar = new QToolBar( this );
-  mToolBar->setContentsMargins( 0, 0, 0, 0 );
   mToolBar->layout()->setContentsMargins( 0, 0, 0, 0 );
   ui->mToolBarLayout->addWidget( mToolBar );
 
