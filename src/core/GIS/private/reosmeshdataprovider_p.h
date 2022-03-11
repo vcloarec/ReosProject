@@ -80,6 +80,7 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
     int faceCount() const;
     int edgeCount() const {return 0;}
     void populateMesh( QgsMesh *mesh ) const;
+    bool saveMeshFrameToFile( const QgsMesh &mesh );
     bool saveMeshFrame( const QgsMesh &mesh ) override;
 
     // QgsDataProvider interface

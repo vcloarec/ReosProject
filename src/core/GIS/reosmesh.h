@@ -74,6 +74,8 @@ class ReosMesh: public ReosRenderedObject
 
     virtual void save( const QString &dataPath ) const = 0;
 
+    virtual void stopFrameEditing( bool commit ) = 0;
+
     virtual ReosEncodedElement meshSymbology() const = 0;
     virtual void setMeshSymbology( const ReosEncodedElement &symbology ) = 0;
 

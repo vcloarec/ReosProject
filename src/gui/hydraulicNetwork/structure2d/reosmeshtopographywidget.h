@@ -23,6 +23,7 @@ class ReosMeshScalarRenderingWidget;
 class ReosMesh;
 class ReosTopographyCollection;
 class ReosTopographyCollectionListModel;
+class ReosParameterBoolean;
 
 namespace Ui
 {

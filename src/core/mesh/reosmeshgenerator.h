@@ -29,6 +29,7 @@ class ReosPolylinesStructure;
 class ReosParameterBoolean;
 class ReosParameterDouble;
 class ReosPolygonStructure;
+class ReosTopographyCollection;
 
 //! Structure that contains mesh frame data
 struct ReosMeshFrameData
@@ -84,7 +85,7 @@ class ReosMeshGenerator : public ReosDataObject
     virtual ReosMeshGeneratorProcess *getGenerateMeshProcess(
       ReosPolylinesStructure *structure,
       ReosMeshResolutionController *resolutionControler,
-      const QString &destinationCrs ) const = 0;
+      const QString &destinationCrs = QString() ) const = 0;
 
     ReosParameterBoolean *autoUpdateParameter() const;
 

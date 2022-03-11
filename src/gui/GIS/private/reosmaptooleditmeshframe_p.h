@@ -32,6 +32,7 @@ class ReosMapToolEditMeshFrame_p : public ReosMapTool_p
     QActionGroup *mainActions() const;
 
     void activate() override;
+    void deactivate() override;
 
   protected:
     void canvasMoveEvent( QgsMapMouseEvent *e ) override;

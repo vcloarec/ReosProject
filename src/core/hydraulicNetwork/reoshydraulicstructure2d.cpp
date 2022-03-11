@@ -107,6 +107,12 @@ void ReosHydraulicStructure2D::init()
     if ( mMeshGenerator->autoUpdateParameter()->value() )
       generateMeshInPlace();
   } );
+
+  connect( this, &ReosHydraulicStructure2D::meshGenerated, mTopographyCollecion, [this]
+  {
+    if ( mTopographyCollecion->autoApply()->value() )
+      mMesh->applyTopographyOnVertices( mTopographyCollecion );
+  } );
 }
 
 void ReosHydraulicStructure2D::generateMeshInPlace()
@@ -156,6 +162,7 @@ ReosMeshGeneratorProcess *ReosHydraulicStructure2D::getGenerateMeshProcess()
     if ( mMesh && processP->isSuccessful() )
     {
       mMesh->generateMesh( processP->meshResult() );
+      emit meshGenerated();
       emit dataChanged();
     }
   } );

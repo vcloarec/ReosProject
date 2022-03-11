@@ -19,6 +19,7 @@
 
 #include "reostopographycollection_p.h"
 #include "reosgisengine.h"
+#include "reosparameter.h"
 
 ReosTopographyCollection *ReosTopographyCollection::createTopographyCollection( ReosGisEngine *gisEngine, QObject *parent )
 {
@@ -105,15 +106,17 @@ ReosEncodedElement ReosTopographyCollection::encode() const
 {
   ReosEncodedElement element( QStringLiteral( "topography-collection" ) );
 
-  element.addData( "topography-id", mTopographyIds );
-
+  element.addData( QStringLiteral( "topography-id" ), mTopographyIds );
+  element.addEncodedData( QStringLiteral( "auto-apply" ), mAutoApply->encode() );
   return element;
 }
 
 ReosTopographyCollection::ReosTopographyCollection( ReosGisEngine *gisEngine, QObject *parent )
   : ReosDataObject( parent )
   , mGisEngine( gisEngine )
+  , mAutoApply( new ReosParameterBoolean( tr( "Auto apply topographies" ), false, this ) )
 {
+  mAutoApply->setValue( false );
   connect( gisEngine, &ReosGisEngine::layerRemoved, this, [this]( const QString & layerId )
   {
     if ( mTopographyIds.contains( layerId ) )
@@ -127,6 +130,10 @@ ReosTopographyCollection::ReosTopographyCollection( ReosGisEngine *gisEngine, QO
 ReosTopographyCollection::ReosTopographyCollection( const ReosEncodedElement &element, ReosGisEngine *gisEngine, QObject *parent )
   : ReosTopographyCollection( gisEngine, parent )
 {
+  mAutoApply = ReosParameterBoolean::decode( element.getEncodedData( QStringLiteral( "auto-apply" ) ), false, tr( "Auto apply topographies" ), this );
+  if ( !mAutoApply->isValid() )
+    mAutoApply->setValue( false );
+
   if ( element.description() == QStringLiteral( "topography-collection" ) )
   {
     element.getData( "topography-id", mTopographyIds );
@@ -140,6 +147,11 @@ ReosTopographyCollection::ReosTopographyCollection( const ReosEncodedElement &el
         ++i;
     }
   }
+}
+
+ReosParameterBoolean *ReosTopographyCollection::autoApply() const
+{
+  return mAutoApply;
 }
 
 ReosTopographyCollectionListModel::ReosTopographyCollectionListModel( ReosTopographyCollection *collection, QObject *parent )

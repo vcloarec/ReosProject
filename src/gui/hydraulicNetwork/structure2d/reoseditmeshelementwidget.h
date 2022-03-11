@@ -39,6 +39,11 @@ class ReosEditMeshElementWidget : public QWidget
     explicit ReosEditMeshElementWidget( ReosMesh *mesh, const ReosGuiContext &context = ReosGuiContext() );
     ~ReosEditMeshElementWidget();
 
+
+  protected:
+    void hideEvent( QHideEvent *e );
+    void showEvent( QShowEvent *e );
+
   private:
     Ui::ReosEditMeshElementWidget *ui;
     QPointer<ReosMesh> mMesh;

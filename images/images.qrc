@@ -138,5 +138,7 @@
         <file>back.svg</file>
         <file>view3D.svg</file>
         <file>reload.svg</file>
+        <file>editMeshFrame.svg</file>
+        <file>editMeshFrameTool.svg</file>
     </qresource>
 </RCC>
