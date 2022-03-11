@@ -35,6 +35,10 @@ class ReosMapToolEditMeshFrame_p : public ReosMapTool_p
     void activate() override;
     void deactivate() override;
 
+    Flags flags() const override;
+
+    bool populateContextMenuWithEvent( QMenu *menu, QgsMapMouseEvent *event ) override;
+
   protected:
     void canvasMoveEvent( QgsMapMouseEvent *e ) override;
     void canvasPressEvent( QgsMapMouseEvent *e ) override;
@@ -45,6 +49,8 @@ class ReosMapToolEditMeshFrame_p : public ReosMapTool_p
   private slots:
     void clearCanvasHelpers();
     void onModeChange();
+
+    void removeSelectedVerticesFromMesh();
 
   private:
     enum State
@@ -66,6 +72,8 @@ class ReosMapToolEditMeshFrame_p : public ReosMapTool_p
     QAction *mActionSelectElementByPolygon = nullptr;
     QAction *mActionUndo = nullptr;
     QAction *mActionRedo = nullptr;
+
+    QAction *mActionRemoveVertices;
 
     int mCurrentFaceIndex = -1;
     int mCurrentVertexIndex = -1;

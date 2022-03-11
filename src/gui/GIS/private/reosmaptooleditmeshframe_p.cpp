@@ -16,6 +16,8 @@
 #include "reosmaptooleditmeshframe_p.h"
 
 #include <QMessageBox>
+#include <QMenu>
+
 #include <qgsmeshlayer.h>
 #include <qgsmesheditor.h>
 #include <qgsguiutils.h>
@@ -39,6 +41,9 @@ ReosMapToolEditMeshFrame_p::ReosMapToolEditMeshFrame_p( ReosMesh *mesh, QgsMapCa
   mActionSelectElementByPolygon = new QAction( QPixmap( QStringLiteral( ":/images/selectMeshElement.svg" ) ),  tr( "Select element by polygon" ), this );
   mActionSelectElementByPolygon->setCheckable( true );
   mMainActions->addAction( mActionSelectElementByPolygon );
+
+  mActionRemoveVertices = new QAction( tr( "Remove vertices" ), this );
+  connect( mActionRemoveVertices, &QAction::triggered, this, &ReosMapToolEditMeshFrame_p::removeSelectedVerticesFromMesh );
 
   mActionUndo = mMeshLayer->undoStack()->createUndoAction( this );
   mActionUndo->setIcon( QPixmap( QStringLiteral( ":/images/undoBlue.svg" ) ) );
@@ -158,6 +163,60 @@ void ReosMapToolEditMeshFrame_p::deactivate()
   clearCanvasHelpers();
   clearEdgeHelpers();
   ReosMapTool_p::deactivate();
+}
+
+QgsMapTool::Flags ReosMapToolEditMeshFrame_p::flags() const
+{
+  switch ( mCurrentState )
+  {
+    case Digitizing:
+      return ShowContextMenu;
+      break;
+    case ReosMapToolEditMeshFrame_p::Selecting:
+    case ReosMapToolEditMeshFrame_p::MovingSelection:
+      return Flags();
+      break;
+    case ReosMapToolEditMeshFrame_p::SelectingByPolygon:
+      if ( mSelectionBand->numberOfVertices() > 2 ||
+           hasFeatureOnMap( ( mCurrentPosition.toQPointF() ) ) )
+        return Flags();
+      else
+        return ShowContextMenu;
+      break;
+  }
+
+  return Flags();
+}
+
+bool ReosMapToolEditMeshFrame_p::populateContextMenuWithEvent( QMenu *menu, QgsMapMouseEvent *event )
+{
+  Q_UNUSED( event );
+
+  menu->clear();
+
+  QList<QAction *> newActions;
+  switch ( mCurrentState )
+  {
+    case Digitizing:
+    case SelectingByPolygon:
+    {
+      if ( !mSelectedVertices.isEmpty() )
+        newActions << mActionRemoveVertices;
+    }
+    break;
+
+    case Selecting:
+    case MovingSelection:
+      return false;
+  }
+
+  if ( !newActions.isEmpty() )
+    for ( QAction *act : newActions )
+      menu->addAction( act );
+
+  menu->addAction( mActionEditMesh );
+  menu->addAction( mActionSelectElementByPolygon );
+  return true;
 }
 
 void ReosMapToolEditMeshFrame_p::canvasMoveEvent( QgsMapMouseEvent *e )
@@ -672,6 +731,11 @@ void ReosMapToolEditMeshFrame_p::startMeshEditing()
   }
 
   mMeshEditor = mMeshLayer->meshEditor();
+}
+
+void ReosMapToolEditMeshFrame_p::removeSelectedVerticesFromMesh()
+{
+  mMeshEditor->removeVerticesFillHoles( mSelectedVertices.keys() );
 }
 
 void ReosMapToolEditMeshFrame_p::canvasDoubleClickEvent( QgsMapMouseEvent *e )
