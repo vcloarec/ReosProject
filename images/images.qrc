@@ -140,5 +140,7 @@
         <file>reload.svg</file>
         <file>editMeshFrame.svg</file>
         <file>editMeshFrameTool.svg</file>
+        <file>undoBlue.svg</file>
+        <file>redoBlue.svg</file>
     </qresource>
 </RCC>
