@@ -28,6 +28,7 @@
 
 #include "reosmesh.h"
 #include "reosstyleregistery.h"
+#include "reoszvaluemodificationwidget.h"
 
 ReosMapToolEditMeshFrame_p::ReosMapToolEditMeshFrame_p( ReosMesh *mesh, QgsMapCanvas *canvas )
   : ReosMapTool_p( canvas )
@@ -42,8 +43,15 @@ ReosMapToolEditMeshFrame_p::ReosMapToolEditMeshFrame_p( ReosMesh *mesh, QgsMapCa
   mActionSelectElementByPolygon->setCheckable( true );
   mMainActions->addAction( mActionSelectElementByPolygon );
 
-  mActionRemoveVertices = new QAction( tr( "Remove vertices" ), this );
+  mActionRemoveVertices = new QAction( QPixmap( QStringLiteral( ":/images/removeMeshVertex.svg" ) ), tr( "Remove vertices" ), this );
+  mMainActions->addAction( mActionRemoveVertices );
   connect( mActionRemoveVertices, &QAction::triggered, this, &ReosMapToolEditMeshFrame_p::removeSelectedVerticesFromMesh );
+  mActionRemoveVertices->setEnabled( false );
+
+  mActionChangeZValue = new QAction( QPixmap( QStringLiteral( ":/images/changeZValue.svg" ) ), tr( "Change Z value" ), this );
+  mMainActions->addAction( mActionChangeZValue );
+  connect( mActionChangeZValue, &QAction::triggered, this, &ReosMapToolEditMeshFrame_p::changeZValue );
+  mActionChangeZValue->setEnabled( false );
 
   mActionUndo = mMeshLayer->undoStack()->createUndoAction( this );
   mActionUndo->setIcon( QPixmap( QStringLiteral( ":/images/undoBlue.svg" ) ) );
@@ -77,7 +85,7 @@ ReosMapToolEditMeshFrame_p::ReosMapToolEditMeshFrame_p( ReosMesh *mesh, QgsMapCa
   mFaceVerticesBand->setColor( ReosStyleRegistery::instance()->blueReos() );
   mFaceVerticesBand->setWidth( QgsGuiUtils::scaleIconSize( 2 ) );
   mFaceVerticesBand->setBrushStyle( Qt::NoBrush );
-  mFaceVerticesBand->setIconSize( QgsGuiUtils::scaleIconSize( 6 ) );
+  mFaceVerticesBand->setIconSize( QgsGuiUtils::scaleIconSize( 8 ) );
   mFaceVerticesBand->setVisible( false );
   mFaceVerticesBand->setZValue( 5 );
 
@@ -117,6 +125,8 @@ ReosMapToolEditMeshFrame_p::ReosMapToolEditMeshFrame_p( ReosMesh *mesh, QgsMapCa
   mSelectionBand->setZValue( 10 );
 
   mSelectedFacesRubberband = new QgsRubberBand( mCanvas, QgsWkbTypes::PolygonGeometry );
+  mSelectedFacesRubberband->setFillColor( ReosStyleRegistery::instance()->blueReos( 100 ) );
+  mSelectedFacesRubberband->setStrokeColor( ReosStyleRegistery::instance()->blueReos( 200 ) );
   mSelectedFacesRubberband->setZValue( 1 );
 
   mMovingEdgesRubberband = new QgsRubberBand( mCanvas, QgsWkbTypes::LineGeometry );
@@ -152,6 +162,8 @@ void ReosMapToolEditMeshFrame_p::activate()
   else
     mMeshEditor = mMeshLayer->meshEditor();
 
+  mMainActions->setEnabled( true );
+
   if ( mMeshEditor )
     ReosMapTool_p::activate();
 }
@@ -162,6 +174,9 @@ void ReosMapToolEditMeshFrame_p::deactivate()
   clearSelection();
   clearCanvasHelpers();
   clearEdgeHelpers();
+
+  mMainActions->setEnabled( false );
+
   ReosMapTool_p::deactivate();
 }
 
@@ -200,13 +215,10 @@ bool ReosMapToolEditMeshFrame_p::populateContextMenuWithEvent( QMenu *menu, QgsM
     case Digitizing:
     case SelectingByPolygon:
     {
+
       if ( !mSelectedVertices.isEmpty() )
       {
-        if ( mSelectedVertices.count() == 1 )
-          mActionRemoveVertices->setText( tr( "Remove selected vertex" ) );
-        else
-          mActionRemoveVertices->setText( tr( "Remove %n selected vertices", nullptr, mSelectedVertices.count() ) );
-        newActions << mActionRemoveVertices;
+        newActions << mActionChangeZValue << mActionRemoveVertices;
       }
     }
     break;
@@ -217,8 +229,12 @@ bool ReosMapToolEditMeshFrame_p::populateContextMenuWithEvent( QMenu *menu, QgsM
   }
 
   if ( !newActions.isEmpty() )
-    for ( QAction *act : newActions )
+  {
+    for ( QAction *act : std::as_const( newActions ) )
       menu->addAction( act );
+
+    menu->addSeparator();
+  }
 
   menu->addAction( mActionEditMesh );
   menu->addAction( mActionSelectElementByPolygon );
@@ -744,6 +760,40 @@ void ReosMapToolEditMeshFrame_p::removeSelectedVerticesFromMesh()
   mMeshEditor->removeVerticesFillHoles( mSelectedVertices.keys() );
 }
 
+void ReosMapToolEditMeshFrame_p::changeZValue()
+{
+  ReosZValueModificationWidget *w = new ReosZValueModificationWidget( mCanvas );
+
+  if ( w->exec() )
+  {
+    ReosZValueModificationWidget::ModificationType type = w->modificationType();
+    double value = w->value();
+
+    QList<double> newValues;
+    QList<int> vertIndex = mSelectedVertices.keys();
+    newValues.reserve( vertIndex.count() );
+    switch ( type )
+    {
+      case ReosZValueModificationWidget::NewValue:
+        for ( int i = 0; i < vertIndex.count(); ++i )
+          newValues.append( value );
+        break;
+      case ReosZValueModificationWidget::Offset:
+        for ( int i = 0; i < vertIndex.count(); ++i )
+        {
+          double oldVal = mMeshLayer->nativeMesh()->vertex( vertIndex.at( i ) ).z();
+          newValues.append( oldVal + value );
+        }
+        break;
+    }
+
+    mKeepSelectionOnEdit = true;
+    mMeshEditor->changeZValues( vertIndex, newValues );
+  }
+
+  w->deleteLater();
+}
+
 void ReosMapToolEditMeshFrame_p::canvasDoubleClickEvent( QgsMapMouseEvent *e )
 {
   Q_UNUSED( e )
@@ -1002,58 +1052,30 @@ void ReosMapToolEditMeshFrame_p::prepareSelection()
       const QgsGeometry allFaces( geomEngine->combine( otherFaces, &error ) );
       mSelectedFacesRubberband->setToGeometry( allFaces );
     }
-
-    QColor fillColor = canvas()->mapSettings().selectionColor();
-
-    if ( fillColor.alpha() > 100 ) //set alpha to 150 if the transparency is not enough to see the mesh
-      fillColor.setAlpha( 100 );
-
-    mSelectedFacesRubberband->setFillColor( fillColor );
   }
   else
     mSelectedFacesRubberband->reset( QgsWkbTypes::PolygonGeometry );
 
-//  if ( mSelectedVertices.count() == 1 )
-//  {
-//    mActionRemoveVerticesFillingHole->setText( tr( "Remove selected vertex and fill hole" ) );
-//    mActionRemoveVerticesWithoutFillingHole->setText( tr( "Remove selected vertex without filling hole" ) );
-//  }
-//  else if ( mSelectedVertices.count() > 1 )
-//  {
-//    mActionRemoveVerticesFillingHole->setText( tr( "Remove selected vertices and fill hole(s)" ) );
-//    mActionRemoveVerticesWithoutFillingHole->setText( tr( "Remove selected vertices without filling hole(s)" ) );
-//  }
-
-//  if ( mSelectedFaces.count() == 1 )
-//  {
-//    mActionRemoveFaces->setText( tr( "Remove selected face" ) );
-//    mActionFacesRefinement->setText( tr( "Refine selected face" ) );
-//  }
-//  else if ( mSelectedFaces.count() > 1 )
-//  {
-//    mActionRemoveFaces->setText( tr( "Remove %n selected face(s)", nullptr, mSelectedFaces.count() ) );
-//    mActionFacesRefinement->setText( tr( "Refine %n selected face(s)", nullptr, mSelectedFaces.count() ) );
-//  }
-//  else
-//  {
-//    mActionRemoveFaces->setText( tr( "Remove current face" ) );
-//    mActionFacesRefinement->setText( tr( "Refine current face" ) );
-//  }
-
-//  mSplittableFaceCount = 0;
-//  for ( const int faceIndex : std::as_const( mSelectedFaces ) )
-//  {
-//    if ( mCurrentEditor->faceCanBeSplit( faceIndex ) )
-//      mSplittableFaceCount++;
-//  }
-
-//  if ( mSplittableFaceCount == 1 )
-//    mActionSplitFaces->setText( tr( "Split selected face" ) );
-//  else if ( mSplittableFaceCount > 1 )
-//    mActionSplitFaces->setText( tr( "Split %n selected face(s)", nullptr, mSplittableFaceCount ) );
-//  else
-//    mActionSplitFaces->setText( tr( "Split current face" ) );
-
+  if ( mSelectedVertices.count() == 1 )
+  {
+    mActionChangeZValue->setText( tr( "Change Z value of selected vertex" ) );
+    mActionRemoveVertices->setText( tr( "Remove selected vertex" ) );
+    mActionRemoveVertices->setEnabled( true );
+    mActionChangeZValue->setEnabled( true );
+  }
+  else if ( mSelectedVertices.count() > 1 )
+  {
+    mActionChangeZValue->setText( tr( "Change Z value of %n selected vertices", nullptr, mSelectedVertices.count() ) );
+    mActionRemoveVertices->setText( tr( "Remove %n selected vertices", nullptr, mSelectedVertices.count() ) );
+    mActionRemoveVertices->setEnabled( true );
+    mActionChangeZValue->setEnabled( true );
+  }
+  else
+  {
+    mActionRemoveVertices->setText( tr( "None verices selected" ) );
+    mActionRemoveVertices->setEnabled( false );
+    mActionChangeZValue->setEnabled( false );
+  }
 }
 
 void ReosMapToolEditMeshFrame_p::select( const QgsPointXY &mapPoint, Qt::KeyboardModifiers modifiers, double tolerance )
@@ -1142,9 +1164,10 @@ void ReosMapToolEditMeshFrame_p::addNewSelectedVertex( int vertexIndex )
   mSelectedVertices.insert( vertexIndex, SelectedVertexData() );
   QgsVertexMarker *marker = new QgsVertexMarker( canvas() );
   marker->setIconType( QgsVertexMarker::ICON_CIRCLE );
-  marker->setIconSize( QgsGuiUtils::scaleIconSize( 10 ) );
+  marker->setIconSize( QgsGuiUtils::scaleIconSize( 6 ) );
   marker->setPenWidth( QgsGuiUtils::scaleIconSize( 2 ) );
-  marker->setColor( Qt::blue );
+  marker->setColor( ReosStyleRegistery::instance()->blueReos( 200 ) );
+  marker->setFillColor( ReosStyleRegistery::instance()->blueReos() );
   marker->setCenter( mapVertexXY( vertexIndex ) );
   marker->setZValue( 2 );
   mSelectedVerticesMarker[vertexIndex] = marker;
@@ -1300,13 +1323,15 @@ void ReosMapToolEditMeshFrame_p::updateSelectecVerticesMarker()
 {
   qDeleteAll( mSelectedVerticesMarker );
   mSelectedVerticesMarker.clear();
+  QColor color = ReosStyleRegistery::instance()->blueReos( 200 );
   for ( const int vertexIndex : mSelectedVertices.keys() )
   {
     QgsVertexMarker *marker = new QgsVertexMarker( canvas() );
     marker->setIconType( QgsVertexMarker::ICON_CIRCLE );
-    marker->setIconSize( QgsGuiUtils::scaleIconSize( 10 ) );
+    marker->setIconSize( QgsGuiUtils::scaleIconSize( 6 ) );
     marker->setPenWidth( QgsGuiUtils::scaleIconSize( 2 ) );
-    marker->setColor( Qt::blue );
+    marker->setColor( color );
+    marker->setFillColor( color );
     marker->setCenter( mapVertexXY( vertexIndex ) );
     marker->setZValue( 2 );
     mSelectedVerticesMarker[vertexIndex] = marker;

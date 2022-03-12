@@ -86,6 +86,7 @@ SET(REOS_GUI_SOURCES
     hydraulicNetwork/structure2d/reosgmshresolutioncontrollerwidget.cpp
     hydraulicNetwork/structure2d/reosmeshtopographywidget.cpp
     hydraulicNetwork/structure2d/reoseditmeshelementwidget.cpp
+    hydraulicNetwork/structure2d/reoszvaluemodificationwidget.cpp
     hydraulicNetwork/private/reosmaptoolhydraulicnetwork_p.cpp
     )
 
@@ -160,6 +161,7 @@ SET(REOS_GUI_HEADERS
     hydraulicNetwork/structure2d/reosgmshresolutioncontrollerwidget.h
     hydraulicNetwork/structure2d/reosmeshtopographywidget.h
     hydraulicNetwork/structure2d/reoseditmeshelementwidget.h
+    hydraulicNetwork/structure2d/reoszvaluemodificationwidget.h
 )
 
 SET(REOS_GUI_HEADERS_PRIVATE

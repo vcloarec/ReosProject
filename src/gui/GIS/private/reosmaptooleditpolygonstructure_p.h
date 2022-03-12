@@ -46,8 +46,10 @@ class ReosMapToolEditPolygonStructure_p : public ReosMapTool_p
     QActionGroup *mainActions() const;
 
     void setCurrentClassId( const QString &currentClassId );
-
     void addHelperStructure( ReosGeometryStructure *structure );
+
+    void activate() override;
+    void deactivate() override;
 
   protected:
     void canvasMoveEvent( QgsMapMouseEvent *e ) override;

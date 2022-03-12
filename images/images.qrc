@@ -144,5 +144,7 @@
         <file>redoBlue.svg</file>
         <file>editMeshElement.svg</file>
         <file>selectMeshElement.svg</file>
+        <file>changeZValue.svg</file>
+        <file>removeMeshVertex.svg</file>
     </qresource>
 </RCC>

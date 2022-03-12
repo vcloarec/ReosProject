@@ -50,6 +50,7 @@ ReosMeshScalarRenderingWidget::ReosMeshScalarRenderingWidget( ReosMesh *mesh, co
     mMinimumParam->setValue( scalarSettings.classificationMinimum() );
     mMaximumParam->setValue( scalarSettings.classificationMaximum() );
     mColorRampShaderWidget->setMinimumMaximum( mMinimumParam->value(), mMaximumParam->value() );
+    ui->mOpacitySlider->setValue( scalarSettings.opacity() * 100 );
   }
 
   connect( mMinimumParam, &ReosParameter::valueChanged, this, &ReosMeshScalarRenderingWidget::onMinMaxChanged );
