@@ -51,6 +51,7 @@ class ReosMapToolEditMeshFrame_p : public ReosMapTool_p
     void onModeChange();
     void onEdit();
     void removeSelectedVerticesFromMesh();
+    void changeZValue();
 
   private:
     enum State
@@ -73,7 +74,8 @@ class ReosMapToolEditMeshFrame_p : public ReosMapTool_p
     QAction *mActionUndo = nullptr;
     QAction *mActionRedo = nullptr;
 
-    QAction *mActionRemoveVertices;
+    QAction *mActionRemoveVertices = nullptr;
+    QAction *mActionChangeZValue = nullptr;
 
     int mCurrentFaceIndex = -1;
     int mCurrentVertexIndex = -1;

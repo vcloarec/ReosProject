@@ -54,7 +54,7 @@ class ReosParameterWidget : public QWidget
     void enableSpacer( SpacerPosition spacerPosition );
     void setDefaultName( const QString &defaultName );
     void hideWhenVoid( bool b );
-    void canBealwaysHidden();
+    void canBeAlwaysHidden();
 
   public slots:
     //! Updates the dispayed value from the parameter

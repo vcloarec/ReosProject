@@ -134,6 +134,18 @@ void ReosMapToolEditPolygonStructure_p::addHelperStructure( ReosGeometryStructur
   mHelperStructure.append( structure );
 }
 
+void ReosMapToolEditPolygonStructure_p::activate()
+{
+  mMainActionsGroup->setEnabled( true );
+  ReosMapTool_p::activate();
+}
+
+void ReosMapToolEditPolygonStructure_p::deactivate()
+{
+  mMainActionsGroup->setEnabled( false );
+  ReosMapTool_p::deactivate();
+}
+
 void ReosMapToolEditPolygonStructure_p::resetTool()
 {
   mCurrentState = None;
