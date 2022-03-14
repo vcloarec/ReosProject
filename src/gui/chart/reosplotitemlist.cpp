@@ -21,7 +21,6 @@
 #include <QMenu>
 #include <QPainter>
 #include <QMouseEvent>
-#include <QColorDialog>
 
 #include "reosplotwidget.h"
 #include "reostimeserie.h"

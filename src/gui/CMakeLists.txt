@@ -14,6 +14,7 @@ SET(REOS_GUI_SOURCES
     reosactionwidget.cpp
     reosnotificationbutton.cpp
     reosguicontext.cpp
+    reoscolorbutton.cpp
 
 
     GIS/reosdigitalelevationmodelcombobox.cpp
@@ -104,6 +105,7 @@ SET(REOS_GUI_HEADERS
     reosactionwidget.h
     reosnotificationbutton.h
     reosguicontext.h
+    reoscolorbutton.h
 
     GIS/reosdigitalelevationmodelcombobox.h
     GIS/reosmap.h

@@ -23,6 +23,7 @@
 #include <qgsproviderregistry.h>
 
 #include "reosmeshdataprovider_p.h"
+#include "reosparameter.h"
 #include "reosencodedelement.h"
 
 ReosMeshFrame_p::ReosMeshFrame_p( const QString &crs, QObject *parent ): ReosMesh( parent )
@@ -62,6 +63,7 @@ void ReosMeshFrame_p::init()
   mMeshLayer->updateTriangularMesh( transform );
 
   connect( mMeshLayer.get(), &QgsMapLayer::repaintRequested, this, &ReosMesh::repaintRequested );
+  connect( mMeshLayer.get(), &QgsMeshLayer::layerModified, this, &ReosDataObject::dataChanged );
 }
 
 void ReosMeshFrame_p::save( const QString &dataPath ) const
@@ -134,17 +136,22 @@ ReosObjectRenderer *ReosMeshFrame_p::createRenderer( QGraphicsView *view )
   return new ReosMeshRenderer_p( view, mMeshLayer.get() );
 }
 
+ReosMeshQualityChecker *ReosMeshFrame_p::getQualityChecker( ReosMesh::QualityMeshChecks qualitiChecks, const QString &destinatonCrs ) const
+{
+  QgsDistanceArea distanceArea;
+  distanceArea.setSourceCrs( mMeshLayer->crs(), QgsProject::instance()->transformContext() );
+  QgsCoordinateReferenceSystem destCrs;
+  destCrs.createFromWkt( destinatonCrs );
+  QgsCoordinateTransform transform( mMeshLayer->crs(), destCrs, QgsProject::instance() );
+  return new ReosMeshQualityChecker_p( *mMeshLayer->nativeMesh(), mQualityMeshParameters, distanceArea, qualitiChecks, transform );
+}
+
 bool ReosMeshFrame_p::isValid() const
 {
   if ( mMeshLayer )
     return mMeshLayer->isValid();
 
   return false;
-}
-
-void ReosMeshFrame_p::addVertex( const QPointF pt, double z, double tolerance )
-{
-
 }
 
 int ReosMeshFrame_p::vertexCount() const
@@ -267,6 +274,7 @@ void ReosMeshFrame_p::generateMesh( const ReosMeshFrameData &data )
     mZVerticesDatasetGroup->setStatisticObsolete();
   mMeshLayer->trigger3DUpdate();
   emit repaintRequested();
+  emit dataChanged();
 }
 
 QString ReosMeshFrame_p::crs() const
@@ -299,6 +307,7 @@ void ReosMeshFrame_p::applyTopographyOnVertices( ReosTopographyCollection *topog
 
   emit repaintRequested();
   mMeshLayer->trigger3DUpdate();
+  emit dataChanged();
 }
 
 double ReosMeshFrame_p::datasetScalarValueAt( const QString &datasetId, const QPointF &pos ) const
@@ -340,3 +349,292 @@ void ReosMeshRenderer_p::stopRendering()
 {
   mRenderContext.setRenderingStopped( true );
 }
+
+ReosMeshQualityChecker_p::ReosMeshQualityChecker_p( const QgsMesh &mesh,
+    ReosMesh::QualityMeshParameters params,
+    const QgsDistanceArea &distanceArea,
+    ReosMesh::QualityMeshChecks checks, const QgsCoordinateTransform &transform )
+  : mMesh( mesh )
+  , mMinimumAngle( params.minimumAngle->value() )
+  , mMaximumAngle( params.maximumAngle->value() )
+  , mConnectionCount( params.connectionCount->value() )
+  , mConnectionCountBoundary( params.connectionCountBoundary->value() )
+  , mMaximumSlope( params.maximumSlope->value() )
+  , mMinimumArea( params.minimumArea->value().valueM2() )
+  , mMaximumArea( params.maximumArea->value().valueM2() )
+  , mMaximumAreaChange( params.maximumAreaChange->value() )
+  , mDistanceArea( distanceArea )
+  , mChecks( checks )
+  , mTransform( transform )
+{
+}
+
+static double ccwAngle( const QgsVector &v1, const QgsVector &v2 )
+{
+  return  std::fmod( v1.angle() / M_PI * 180 + 360.0 - v2.angle() / M_PI * 180, 360.0 );
+}
+
+void ReosMeshQualityChecker_p::start()
+{
+  mIsSuccessful = false;
+  QgsTopologicalMesh topologicalMesh = QgsTopologicalMesh::createTopologicalMesh( &mMesh, 3, mError );
+  if ( mError != QgsMeshEditingError() )
+    return;
+
+  double areaFactor = QgsUnitTypes::fromUnitToUnitFactor( mDistanceArea.areaUnits(), QgsUnitTypes::AreaSquareMeters );
+  double lenghtFactor = QgsUnitTypes::fromUnitToUnitFactor( mDistanceArea.lengthUnits(), QgsUnitTypes::DistanceMeters );
+  QSet<int> maxAreaChange;
+  QSet<QPair<int, int>> maxSlope;
+  QVector<char> facesChecked;
+  if ( mChecks & ReosMesh::MaximumAreaChange )
+    facesChecked.fill( 0, mMesh.faceCount() );
+
+  setMaxProgression( mMesh.faceCount() );
+  setCurrentProgression( 0 );
+  setInformation( tr( "Check faces" ) );
+  for ( int i = 0; i < mMesh.faceCount(); ++i )
+  {
+    const QgsMeshFace &face =  mMesh.face( i );
+    int size = face.size();
+    const QgsGeometry geom = QgsMeshUtils::toGeometry( face, mMesh.vertices );
+    bool minAreaCheck = false;
+    bool maxAreaCheck = false;
+    bool minAngleCheck = false;
+    bool maxAngleCheck = false;
+    // area check
+    if ( mChecks & ( ReosMesh::MinimumArea | ReosMesh::MaximumArea | ReosMesh::MaximumAreaChange ) )
+    {
+      double area = areaFactor * geom.area();
+      if ( mChecks & ReosMesh::MinimumArea && area < mMinimumArea )
+        minAreaCheck |= true;
+
+      if ( mChecks & ReosMesh::MaximumArea && area > mMaximumArea )
+        maxAreaCheck |= true;
+
+      if ( mChecks & ReosMesh::MaximumAreaChange )
+      {
+        bool change = false;
+        facesChecked[i] = 1;
+        const QVector<int> &neighbors = topologicalMesh.neighborsOfFace( i );
+        for ( int j = 0; j < neighbors.size(); ++j )
+        {
+          if ( neighbors.at( j ) == -1 ||
+               ( facesChecked.at( i ) == 1 && facesChecked.at( neighbors.at( j ) ) == 1 ) )
+            continue;
+
+          const QgsGeometry neighborGeom = QgsMeshUtils::toGeometry( mMesh.face( neighbors.at( j ) ), mMesh.vertices );
+          double neighborArea = areaFactor * neighborGeom.area();
+          if ( fabs( neighborArea - area ) / area > mMaximumAreaChange )
+          {
+            change |= true;
+            maxAreaChange.insert( neighbors.at( j ) );
+          }
+          facesChecked[neighbors.at( j )] = 1;
+        }
+        if ( change )
+          maxAreaChange.insert( i );
+      }
+    }
+
+    // angle and slope checks
+    if ( mChecks & ( ReosMesh::MinimumAngle | ReosMesh::MaximumAngle | ReosMesh::MaximumSlope ) )
+    {
+      for ( int j = 0; j < size; ++j )
+      {
+        int iv1 = face.at( j );
+        int iv2 = face.at( ( j + 1 ) % size );
+        int iv3 =  face.at( ( j + 2 ) % size );
+        const QgsPointXY p1 = mMesh.vertices.at( iv1 );
+        const QgsPointXY p2 = mMesh.vertices.at( iv2 );
+        const QgsPointXY p3 = mMesh.vertices.at( iv3 );
+        const QgsVector v1 = p1 - p2;
+        const QgsVector v2 = p3 - p2;
+
+        double angle = ccwAngle( v1, v2 );
+        if ( mChecks & ReosMesh::MinimumAngle )
+          minAngleCheck |= angle < mMinimumAngle;
+        if ( mChecks & ReosMesh::MaximumAngle )
+          maxAngleCheck |= angle > mMaximumAngle;
+
+        if ( mChecks & ReosMesh::MaximumSlope )
+        {
+          if ( maxSlope.contains( {iv1, iv2} ) || maxSlope.contains( {iv2, iv1} ) )
+            continue;
+
+          double dist = mDistanceArea.measureLine( {p1, p2} )*lenghtFactor;
+          double slope = std::fabs( ( mMesh.vertices.at( iv1 ).z() - mMesh.vertices.at( iv2 ).z() ) / dist );
+          if ( slope > mMaximumSlope )
+          {
+            QPointF pt1;
+            QPointF pt2;
+            if ( mTransform.isValid() )
+            {
+              try
+              {
+                pt1 = mTransform.transform( p1 ).toQPointF();
+                pt2 = mTransform.transform( p2 ).toQPointF();
+              }
+              catch ( QgsCsException &e )
+              {
+                pt1 = p1.toQPointF();
+                pt2 = p2.toQPointF();
+              }
+            }
+            else
+            {
+              pt1 = p1.toQPointF();
+              pt2 = p2.toQPointF();
+            }
+            mResult.maximumSlope.append( QLineF( pt1, pt2 ) );
+            maxSlope.insert( {iv1, iv2} );
+          }
+        }
+      }
+    }
+
+    if ( minAreaCheck || maxAreaCheck || minAngleCheck || maxAngleCheck )
+    {
+      QgsGeometry geomT = geom;
+      if ( mTransform.isValid() )
+      {
+        try
+        {
+          geomT.transform( mTransform );
+        }
+        catch ( QgsCsException &e )
+        {
+          geomT = geom;
+        }
+      }
+
+      QPolygonF poly = geomT.asQPolygonF();
+
+      if ( minAreaCheck )
+        mResult.minimumArea.append( poly );
+      if ( maxAreaCheck )
+        mResult.maximumArea.append( poly );
+      if ( minAngleCheck )
+        mResult.minimumAngle.append( poly );
+      if ( maxAngleCheck )
+        mResult.maximumAngle.append( poly );
+    }
+
+    if ( isStop() )
+      return;
+    setCurrentProgression( i );
+  }
+
+  for ( int i : maxAreaChange )
+  {
+    const QgsMeshFace &face =  mMesh.face( i );
+    QgsGeometry geom = QgsMeshUtils::toGeometry( face, mMesh.vertices );
+    if ( mTransform.isValid() )
+    {
+      try
+      {
+        geom.transform( mTransform );
+      }
+      catch ( QgsCsException &e )
+      {
+        geom = QgsMeshUtils::toGeometry( face, mMesh.vertices );
+      }
+    }
+    mResult.maximumAreaChange.append( geom.asQPolygonF() );
+
+    if ( isStop() )
+      return;
+  }
+
+  setInformation( tr( "Check vertices" ) );
+  setMaxProgression( mMesh.vertices.count() );
+  setCurrentProgression( 0 );
+  if ( mChecks & ( ReosMesh::ConnectionCount | ReosMesh::ConnectionCountBoundary ) )
+  {
+    for ( int i = 0; i < mMesh.vertexCount(); ++i )
+    {
+      bool connCheck = false;
+      bool connBoundCheck = false;
+      QgsMeshVertexCirculator circulator = topologicalMesh.vertexCirculator( i );
+
+      if ( ( mChecks & ( ReosMesh::ConnectionCount ) ) &&
+           circulator.degree() > mConnectionCount )
+        connCheck = true;
+
+      if ( ( mChecks & ( ReosMesh::ConnectionCountBoundary ) ) &&
+           topologicalMesh.isVertexOnBoundary( i ) )
+      {
+        if ( circulator.degree() > mConnectionCountBoundary )
+          connBoundCheck = true;
+      }
+
+      if ( connCheck || connBoundCheck )
+      {
+        QPointF pt;
+        if ( mTransform.isValid() )
+        {
+          try
+          {
+            pt = mTransform.transform( QgsPointXY( mMesh.vertex( i ) ) ).toQPointF();
+          }
+          catch ( QgsCsException &e )
+          {
+            pt = mMesh.vertex( i ).toQPointF();
+          }
+        }
+        else
+        {
+          pt = mMesh.vertex( i ).toQPointF();
+        }
+
+        if ( connCheck )
+          mResult.connectionCount.append( pt );
+        if ( connBoundCheck )
+          mResult.connectionCountBoundary.append( pt );
+      }
+
+      setCurrentProgression( i );
+    }
+  }
+
+  mIsSuccessful = true;
+
+}
+
+ReosMeshQualityChecker::QualityMeshResults ReosMeshQualityChecker_p::result() const
+{
+  if ( mError != QgsMeshEditingError() )
+  {
+    switch ( mError.errorType )
+    {
+      case Qgis::MeshEditingErrorType::NoError:
+        break;
+      case Qgis::MeshEditingErrorType::InvalidFace:
+        mResult.error = QObject::tr( "Invalid face" );
+        mResult.errorFace = mError.elementIndex;
+        break;
+      case Qgis::MeshEditingErrorType::TooManyVerticesInFace:
+        mResult.error = QObject::tr( "Too many vertices" );
+        mResult.errorFace = mError.elementIndex;
+        break;
+      case Qgis::MeshEditingErrorType::FlatFace:
+        mResult.error = QObject::tr( "Flat face" );
+        mResult.errorFace = mError.elementIndex;
+        break;
+      case Qgis::MeshEditingErrorType::UniqueSharedVertex:
+        mResult.error = QObject::tr( "Unique shared vertex" );
+        mResult.errorVertex = mError.elementIndex;
+        break;
+      case Qgis::MeshEditingErrorType::InvalidVertex:
+        mResult.error = QObject::tr( "Invalid vertex" );
+        mResult.errorVertex = mError.elementIndex;
+        break;
+      case Qgis::MeshEditingErrorType::ManifoldFace:
+        mResult.error = QObject::tr( "Manifold face" );
+        mResult.errorFace = mError.elementIndex;
+        break;
+    }
+  }
+
+  return mResult;
+}
+

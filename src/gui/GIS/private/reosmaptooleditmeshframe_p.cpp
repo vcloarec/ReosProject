@@ -73,7 +73,7 @@ ReosMapToolEditMeshFrame_p::ReosMapToolEditMeshFrame_p( ReosMesh *mesh, QgsMapCa
 
   mVertexBand = new QgsRubberBand( mCanvas );
   mVertexBand->setIcon( QgsRubberBand::ICON_CIRCLE );
-  mVertexBand->setColor( ReosStyleRegistery::instance()->blueReos() );
+  mVertexBand->setColor( ReosStyleRegistery::instance()->orangeReos() );
   mVertexBand->setWidth( QgsGuiUtils::scaleIconSize( 2 ) );
   mVertexBand->setBrushStyle( Qt::NoBrush );
   mVertexBand->setIconSize( QgsGuiUtils::scaleIconSize( 15 ) );
@@ -447,8 +447,8 @@ void ReosMapToolEditMeshFrame_p::highlightCurrentHoveredFace( const QgsPointXY &
     double tol = QgsTolerance::vertexSearchRadius( canvas()->mapSettings() );
     if ( mapPoint.distance( mSelectFaceMarker->center() ) < tol )
     {
-      mSelectFaceMarker->setColor( ReosStyleRegistery::instance()->blueReos() );
-      mSelectFaceMarker->setFillColor( ReosStyleRegistery::instance()->blueReos() );
+      mSelectFaceMarker->setColor( ReosStyleRegistery::instance()->orangeReos() );
+      mSelectFaceMarker->setFillColor( ReosStyleRegistery::instance()->orangeReos() );
     }
     else
     {
@@ -581,7 +581,7 @@ void ReosMapToolEditMeshFrame_p::highlightCloseEdge( const QgsPointXY &mapPoint 
   if ( mFlipEdgeMarker->isVisible() )
   {
     if ( mapPoint.distance( mFlipEdgeMarker->center() ) < tolerance )
-      mFlipEdgeMarker->setColor( ReosStyleRegistery::instance()->blueReos() );
+      mFlipEdgeMarker->setColor( ReosStyleRegistery::instance()->orangeReos() );
     else
       mFlipEdgeMarker->setColor( Qt::gray );
   }
@@ -590,8 +590,8 @@ void ReosMapToolEditMeshFrame_p::highlightCloseEdge( const QgsPointXY &mapPoint 
   {
     if ( mapPoint.distance( mSelectEdgeMarker->center() ) < tolerance )
     {
-      mSelectEdgeMarker->setColor( ReosStyleRegistery::instance()->blueReos() );
-      mSelectEdgeMarker->setFillColor( ReosStyleRegistery::instance()->blueReos() );
+      mSelectEdgeMarker->setColor( ReosStyleRegistery::instance()->orangeReos() );
+      mSelectEdgeMarker->setFillColor( ReosStyleRegistery::instance()->orangeReos() );
     }
     else
     {
