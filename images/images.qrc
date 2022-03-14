@@ -146,5 +146,6 @@
         <file>selectMeshElement.svg</file>
         <file>changeZValue.svg</file>
         <file>removeMeshVertex.svg</file>
+        <file>mapOnMeshElement.svg</file>
     </qresource>
 </RCC>

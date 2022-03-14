@@ -51,6 +51,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   mMesh.reset( ReosMesh::createMeshFrameFromFile( dataPath ) );
   init();
   mMesh->setMeshSymbology( encodedElement.getEncodedData( QStringLiteral( "mesh-frame-symbology" ) ) );
+  mMesh->setQualityMeshParameter( encodedElement.getEncodedData( QStringLiteral( "mesh-quality-parameters" ) ) );
 }
 
 void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const
@@ -70,6 +71,7 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
   mMesh->save( dir.path() );
   element.addEncodedData( QStringLiteral( "mesh-frame-symbology" ), mMesh->meshSymbology() );
 
+  element.addEncodedData( QStringLiteral( "mesh-quality-parameters" ), mMesh->qualityMeshParameters().encode() );
 }
 
 ReosTopographyCollection *ReosHydraulicStructure2D::topographyCollecion() const

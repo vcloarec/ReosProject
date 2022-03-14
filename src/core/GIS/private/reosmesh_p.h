@@ -18,6 +18,7 @@
 
 #include <qgsmeshlayer.h>
 #include <qgsrendercontext.h>
+#include <qgsmesheditor.h>
 
 #include "reosmesh.h"
 
@@ -41,7 +42,6 @@ class ReosMeshFrame_p : public ReosMesh
     ReosMeshFrame_p( const QString &crs, QObject *parent );
     ReosMeshFrame_p( const QString &dataPath );
     bool isValid() const override;
-    void addVertex( const QPointF pt, double z, double tolerance ) override;
     int vertexCount() const override;
     int faceCount() const override;
     QString enableVertexElevationDataset( const QString &name ) override;
@@ -60,6 +60,8 @@ class ReosMeshFrame_p : public ReosMesh
     void setMeshSymbology( const ReosEncodedElement &symbology ) override;
 
     ReosObjectRenderer *createRenderer( QGraphicsView *view ) override;
+
+    ReosMeshQualityChecker *getQualityChecker( QualityMeshChecks qualitiChecks, const QString &destinatonCrs ) const override;
 
   private:
 
@@ -94,6 +96,37 @@ class ReosMeshRenderer_p : public ReosObjectRenderer
     std::unique_ptr<QPainter> mPainter;
     QgsRenderContext mRenderContext;
 
+};
+
+
+class ReosMeshQualityChecker_p : public ReosMeshQualityChecker
+{
+  public:
+
+    ReosMeshQualityChecker_p( const QgsMesh &mesh,
+                              ReosMesh::QualityMeshParameters params,
+                              const QgsDistanceArea &distanceArea,
+                              ReosMesh::QualityMeshChecks checks,
+                              const QgsCoordinateTransform &transform );
+
+
+    void start() override;
+    QualityMeshResults result() const override;
+
+  private:
+    QgsMesh mMesh;
+    double mMinimumAngle = 0;
+    double mMaximumAngle = 0;
+    int mConnectionCount = 0;
+    int mConnectionCountBoundary = 0;
+    double mMaximumSlope = 0;
+    double mMinimumArea = 0; //in m2
+    double mMaximumArea = 0; //in m2
+    double mMaximumAreaChange = 0;
+    QgsDistanceArea mDistanceArea;
+    ReosMesh::QualityMeshChecks mChecks;
+    QgsMeshEditingError mError;
+    QgsCoordinateTransform mTransform;
 };
 
 #endif // REOSMESH_P_H

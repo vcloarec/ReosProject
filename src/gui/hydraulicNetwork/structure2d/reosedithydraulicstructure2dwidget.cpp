@@ -133,7 +133,7 @@ void ReosEditHydraulicStructure2DWidget::generateMesh()
 
   ReosProcessControler *controler = new ReosProcessControler( generatorProcess.get(), this );
   controler->exec();
-
+  controler->deleteLater();
 }
 
 

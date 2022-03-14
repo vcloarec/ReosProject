@@ -27,11 +27,72 @@ class ReosMeshFrameData;
 class ReosDigitalElevationModel;
 class ReosMap;
 class ReosTopographyCollection;
+class ReosParameterDouble;
+class ReosParameterInteger;
+class ReosParameterSlope;
+class ReosParameterArea;
+
+
+class ReosMeshQualityChecker : public ReosProcess
+{
+  public:
+    virtual ~ReosMeshQualityChecker() {}
+    struct QualityMeshResults
+    {
+      QString error;
+      int errorVertex = -1;
+      int errorFace = -1;
+      QList<QPolygonF> minimumAngle;
+      QList<QPolygonF> maximumAngle;;
+      QList<QPointF> connectionCount;
+      QList<QPointF> connectionCountBoundary;
+      QList<QLineF> maximumSlope;
+      QList<QPolygonF> minimumArea;
+      QList<QPolygonF> maximumArea;
+      QList<QPolygonF> maximumAreaChange;
+    };
+
+    virtual QualityMeshResults result() const = 0;
+
+  protected:
+    mutable QualityMeshResults mResult;
+};
+
 
 class ReosMesh: public ReosRenderedObject
 {
     Q_OBJECT
   public:
+
+    struct QualityMeshParameters
+    {
+      ReosParameterDouble *minimumAngle = nullptr;
+      ReosParameterDouble *maximumAngle = nullptr;
+      ReosParameterInteger *connectionCount = nullptr;
+      ReosParameterInteger *connectionCountBoundary = nullptr;
+      ReosParameterSlope *maximumSlope = nullptr;
+      ReosParameterArea *minimumArea = nullptr;
+      ReosParameterArea *maximumArea = nullptr;
+      ReosParameterDouble *maximumAreaChange = nullptr;
+
+      ReosEncodedElement encode() const;
+      void decode( const ReosEncodedElement &element, QObject *parent );
+    };
+
+    enum QualityMeshCheck
+    {
+      MinimumAngle = 1 << 0,
+      MaximumAngle = 1 << 1,
+      ConnectionCount = 1 << 2,
+      ConnectionCountBoundary = 1 << 3,
+      MaximumSlope = 1 << 4,
+      MinimumArea = 1 << 5,
+      MaximumArea = 1 << 6,
+      MaximumAreaChange = 1 << 7
+    };
+    Q_ENUM( QualityMeshCheck )
+    Q_DECLARE_FLAGS( QualityMeshChecks, QualityMeshCheck )
+    Q_FLAG( QualityMeshChecks )
 
     //! Creates a new void mesh in memory
     static ReosMesh *createMeshFrame( const QString &crs = QString() );
@@ -49,8 +110,6 @@ class ReosMesh: public ReosRenderedObject
 
     //! Clears ans generates a new mesh with \a data
     virtual void generateMesh( const ReosMeshFrameData &data ) = 0;
-
-    virtual void addVertex( const QPointF pt, double z, double tolerance ) = 0;
 
     virtual QString crs() const = 0;
 
@@ -79,9 +138,16 @@ class ReosMesh: public ReosRenderedObject
     virtual ReosEncodedElement meshSymbology() const = 0;
     virtual void setMeshSymbology( const ReosEncodedElement &symbology ) = 0;
 
+    QualityMeshParameters qualityMeshParameters() const;
+    void setQualityMeshParameter( const ReosEncodedElement &element );
+
+    //! Returns a process that check the quality of the mesh, caller take ownership
+    virtual ReosMeshQualityChecker *getQualityChecker( QualityMeshChecks qualitiChecks, const QString &destinatonCrs ) const = 0;
+
   protected:
     ReosMesh( QObject *parent = nullptr );
 
+    QualityMeshParameters mQualityMeshParameters;
 };
 
 #endif // REOSMESH_H
