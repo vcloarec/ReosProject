@@ -1,8 +1,8 @@
 /***************************************************************************
-  reoslightdirectionwidget.h - ReosLightDirectionWidget
+  reos3dterrainsettingswidget.h - Reos3DTerrainSettingsWidget
 
  ---------------------
- begin                : 3.3.2022
+ begin                : 15.3.2022
  copyright            : (C) 2022 by Vincent Cloarec
  email                : vcloarec at gmail dot com
  ***************************************************************************
@@ -13,37 +13,34 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#ifndef REOSLIGHTWIDGET_H
-#define REOSLIGHTWIDGET_H
+#ifndef REOS3DTERRAINSETTINGSWIDGET_H
+#define REOS3DTERRAINSETTINGSWIDGET_H
 
-#include <QWidget>
-#include <QWidgetAction>
+#include <QWidget>;
+
+class Reos3DTerrainSettings;
 
 namespace Ui
 {
-  class ReosLightWidget;
+  class Reos3DTerrainSettingsWidget;
 }
 
-class ReosLightWidget : public QWidget
+class Reos3DTerrainSettingsWidget : public QWidget
 {
     Q_OBJECT
 
   public:
-    explicit ReosLightWidget( QWidget *parent = nullptr );
-    ~ReosLightWidget();
+    explicit Reos3DTerrainSettingsWidget( QWidget *parent = nullptr );
+    ~Reos3DTerrainSettingsWidget();
 
-    void setDirection( const QVector3D &direction );
-    QVector3D direction() const;
-
-    void setLightIntensity( float intensity );
-    float lightIntensity() const;
+    void setTerrainSettings( const Reos3DTerrainSettings &settings );
+    Reos3DTerrainSettings settings() const;
 
   signals:
-    void lightChanged();
+    void terrainSettingsChanged();
 
   private:
-    Ui::ReosLightWidget *ui;
+    Ui::Reos3DTerrainSettingsWidget *ui;
 };
 
-
-#endif // REOSLIGHTWIDGET_H
+#endif // REOS3DTERRAINSETTINGSWIDGET_H

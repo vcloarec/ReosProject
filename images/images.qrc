@@ -147,5 +147,7 @@
         <file>changeZValue.svg</file>
         <file>removeMeshVertex.svg</file>
         <file>mapOnMeshElement.svg</file>
+        <file>verticalExaggeration.svg</file>
+        <file>terrain3DSettings.svg</file>
     </qresource>
 </RCC>

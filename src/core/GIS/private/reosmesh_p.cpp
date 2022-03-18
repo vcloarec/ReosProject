@@ -131,6 +131,22 @@ void ReosMeshFrame_p::setMeshSymbology( const ReosEncodedElement &symbology )
 
 }
 
+ReosEncodedElement ReosMeshFrame_p::datasetGroupSymbology( const QString &id ) const
+{
+  QDomDocument doc( QStringLiteral( "dataset-symbology" ) );
+
+  QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
+  QgsMeshRendererScalarSettings scalarSettings = settings.scalarSettings( mDatasetGroupsIndex.value( id ) );
+
+  doc.appendChild( scalarSettings.writeXml( doc ) ) ;
+
+  ReosEncodedElement encodedElem( QStringLiteral( "dataset-symbology" ) );
+  QString docString = doc.toString();
+  encodedElem.addData( "symbology", docString );
+
+  return encodedElem;
+}
+
 ReosObjectRenderer *ReosMeshFrame_p::createRenderer( QGraphicsView *view )
 {
   return new ReosMeshRenderer_p( view, mMeshLayer.get() );
@@ -318,6 +334,11 @@ double ReosMeshFrame_p::datasetScalarValueAt( const QString &datasetId, const QP
 ReosMeshDataProvider_p *ReosMeshFrame_p::meshProvider() const
 {
   return qobject_cast<ReosMeshDataProvider_p *>( mMeshLayer->dataProvider() );
+}
+
+QString ReosMeshFrame_p::verticesElevationDatasetId() const
+{
+  return mVerticesElevationDatasetId;
 }
 
 

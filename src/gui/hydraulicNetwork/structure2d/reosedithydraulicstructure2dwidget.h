@@ -26,6 +26,7 @@
 class QUndoStack;
 class ReosMapToolEditPolylineStructure;
 class ReosHydraulicStructure2D;
+class ReosEditMeshElementWidget;
 
 namespace Ui
 {
@@ -65,6 +66,7 @@ class ReosEditHydraulicStructure2DWidget : public ReosStackedPageWidget
     ReosHydraulicStructure2D *mStructure2D = nullptr;
     ReosMapPolylineStructure mMapStructureItem;
     ReosMapItem *mInitialMapStructureItem = nullptr;
+    ReosEditMeshElementWidget *mEditElementWidget = nullptr;
 };
 
 

@@ -58,10 +58,13 @@ class ReosMeshFrame_p : public ReosMesh
 
     ReosEncodedElement meshSymbology() const override;
     void setMeshSymbology( const ReosEncodedElement &symbology ) override;
+    ReosEncodedElement datasetGroupSymbology( const QString &id ) const override;
 
     ReosObjectRenderer *createRenderer( QGraphicsView *view ) override;
 
     ReosMeshQualityChecker *getQualityChecker( QualityMeshChecks qualitiChecks, const QString &destinatonCrs ) const override;
+
+    QString verticesElevationDatasetId() const override;
 
   private:
 

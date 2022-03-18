@@ -39,6 +39,7 @@ class ReosParameterDouble;
 class ReosParameterInteger;
 class ReosParameterSlope;
 class ReosParameterArea;
+class ReosParameterBoolean;
 class ReosMeshQualityChecker;
 class ReosColorButton;
 class ReosParameterWidget;
@@ -52,6 +53,7 @@ class ReosEditMeshElementWidget : public QWidget
     explicit ReosEditMeshElementWidget( ReosMesh *mesh, const ReosGuiContext &context = ReosGuiContext() );
     ~ReosEditMeshElementWidget();
 
+    bool topographyDisplayed() const;
 
   protected:
     void hideEvent( QHideEvent *e );
@@ -73,13 +75,14 @@ class ReosEditMeshElementWidget : public QWidget
     QToolBar *mToolBar = nullptr;
     QAction *mActionEditMeshFrame = nullptr;
     ReosMapToolEditMeshFrame *mMapToolEditMeshFrame = nullptr;
+    ReosParameterBoolean *mDisplayTopograhy = nullptr;
+
+    //*** quality check
     QList<QCheckBox *> mCheckBoxes;
     QList<ReosColorButton *> mColorButton;
     QList<QgsRubberBand *> mRubberBands;
     QList<QToolButton *> mOnMapButtons;
     QList<ReosParameterWidget *> mParamWidgets;
-
-    //*** quality check
     QElapsedTimer mTimer;
     ReosMeshQualityChecker *mChecker = nullptr;
     QPointer<QgsRubberBand> mMinimumAngleRubberBand;

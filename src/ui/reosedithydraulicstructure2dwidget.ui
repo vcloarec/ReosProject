@@ -80,7 +80,7 @@
        </item>
        <item>
         <property name="text">
-         <string>Edit elements</string>
+         <string>Edit elements / Mesh quality</string>
         </property>
         <property name="icon">
          <iconset resource="../../images/images.qrc">
