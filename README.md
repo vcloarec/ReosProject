@@ -42,3 +42,8 @@ Now, efforts of development are concentrated to allow the user to build 2D hydra
 - Visualize and post-process result in Lekan.
 
 ![](mesh_r.gif)
+
+
+
+<img src="3DView.png" style="zoom:100%;" />
+
