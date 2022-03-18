@@ -25,14 +25,20 @@
 #include <qgsmeshterraingenerator.h>
 #include <qgsmeshlayer.h>
 #include <qgs3dmapsettings.h>
+#include <qgs3dmapscene.h>
 
 #include "reosmesh.h"
 #include "reoslightwidget.h"
+#include "reosverticalexaggerationwidget.h"
 #include "reosstyleregistery.h"
+#include "reos3dterrainsettingswidget.h"
+#include "reos3dmapsettings.h"
+#include "reosencodedelement.h"
 
-Reos3dView::Reos3dView( ReosMesh *mesh, QWidget *parent )
+Reos3dView::Reos3dView( ReosMesh *meshTerrain, QWidget *parent )
   : ReosActionWidget( parent )
   , ui( new Ui::Reos3dView )
+  , mMeshTerrain( meshTerrain )
   , mActionZoomExtent( new QAction( QPixmap( QStringLiteral( ":/images/zoomFullExtent.svg" ) ), tr( "Zoom to Full Extent" ), this ) )
 {
   ui->setupUi( this );
@@ -40,10 +46,9 @@ Reos3dView::Reos3dView( ReosMesh *mesh, QWidget *parent )
   setWindowTitle( tr( "3D View" ) );
 
   mCanvas = new Qgs3DMapCanvas( this );
-  mCanvas->setMinimumSize( QSize( 200, 200 ) );
   mCanvas->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 
-  QgsMeshLayer *meshLayer = qobject_cast<QgsMeshLayer *>( mesh->data() );
+  QgsMeshLayer *meshLayer = qobject_cast<QgsMeshLayer *>( meshTerrain->data() );
 
   QgsMeshTerrainGenerator *terrainGenerator = new QgsMeshTerrainGenerator();
   terrainGenerator->setLayer( meshLayer );
@@ -53,8 +58,6 @@ Reos3dView::Reos3dView( ReosMesh *mesh, QWidget *parent )
   settings->setTerrainGenerator( terrainGenerator );
   settings->setCrs( meshLayer->crs() );
   settings->setBackgroundColor( QColor( 119, 181, 254 ) );
-  QgsDirectionalLightSettings lightSettings;
-  settings->setDirectionalLights( {lightSettings} );
 
   QgsRectangle extent = meshLayer->extent();
   float dist = static_cast< float >( std::max( extent.width(), extent.height() ) );
@@ -62,7 +65,6 @@ Reos3dView::Reos3dView( ReosMesh *mesh, QWidget *parent )
   mCanvas->setMap( settings );
   mCanvas->setViewFromTop( extent.center(), dist, 0 );
   mCanvas->setOnScreenNavigationVisibility( false );
-
 
   ui->m3dViewLayout->addWidget( mCanvas );
 
@@ -85,31 +87,136 @@ Reos3dView::Reos3dView( ReosMesh *mesh, QWidget *parent )
   mLightToolButton->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   QMenu *lightMenu = new QMenu( this );
   mLightToolButton->setMenu( lightMenu );
-  ReosLightWidget *lw = new ReosLightWidget( this );
+  mLightWidget = new ReosLightWidget( this );
   QWidgetAction *widgetAction = new QWidgetAction( lightMenu );
-  widgetAction->setDefaultWidget( lw );
+  widgetAction->setDefaultWidget( mLightWidget );
   lightMenu->addAction( widgetAction );
+  connect( mLightWidget, &ReosLightWidget::lightChanged, this, &Reos3dView::onLightChange );
 
-  lw->setDirection( lightSettings.direction().toVector3D() );
+  QToolButton *mExaggerationButton = new QToolButton( this );
+  mExaggerationButton->setPopupMode( QToolButton::InstantPopup );
+  mExaggerationButton->setIcon( QPixmap( QStringLiteral( ":/images/verticalExaggeration.svg" ) ) );
+  toolBar->addWidget( mExaggerationButton );
+  QMenu *exaggerationMenu = new QMenu( this );
+  mExaggerationButton->setMenu( exaggerationMenu );
+  mExagerationWidget = new ReosVerticalExaggerationWidget( this );
+  QWidgetAction *widgetExaggerationAction = new QWidgetAction( exaggerationMenu );
+  widgetExaggerationAction->setDefaultWidget( mExagerationWidget );
+  exaggerationMenu->addAction( widgetExaggerationAction );
+  connect( mExagerationWidget, &ReosVerticalExaggerationWidget::valueChanged, this, &Reos3dView::onExagggerationChange );
 
-  connect( lw, &ReosLightWidget::directionChanged, this, [settings, lw]( const QVector3D & direction )
-  {
-    QgsDirectionalLightSettings lightSettings;
-    lightSettings.setDirection( direction );
-    lightSettings.setIntensity( lw->lightIntensity() );
-    settings->setDirectionalLights( {lightSettings} );
-  } );
+  QToolButton *mTerrainSettingsButton = new QToolButton( this );
+  mTerrainSettingsButton->setIcon( QPixmap( QStringLiteral( ":/images/terrain3DSettings.svg" ) ) );
+  mTerrainSettingsButton->setPopupMode( QToolButton::InstantPopup );
+  toolBar->addWidget( mTerrainSettingsButton );
+  QMenu *terrainSettingsMenu = new QMenu( this );
+  mTerrainSettingsButton->setMenu( terrainSettingsMenu );
 
-  connect( lw, &ReosLightWidget::intensityChanged, this, [settings, lw]( float intensity )
-  {
-    QgsDirectionalLightSettings lightSettings;
-    lightSettings.setIntensity( intensity );
-    lightSettings.setDirection( lw->direction() );
-    settings->setDirectionalLights( {lightSettings} );
-  } );
+  mTerrainSettingsWidget = new Reos3DTerrainSettingsWidget( this );
+  QWidgetAction *widgetWireframeAction = new QWidgetAction( terrainSettingsMenu );
+  widgetWireframeAction->setDefaultWidget( mTerrainSettingsWidget );
+  terrainSettingsMenu->addAction( widgetWireframeAction );
+  connect( mTerrainSettingsWidget, &Reos3DTerrainSettingsWidget::terrainSettingsChanged, this, &Reos3dView::onTerrainSettingsChange );
+
+  mCanvas->setMinimumSize( QSize( 200, 200 ) );
+}
+
+void Reos3dView::setMapSettings( const Reos3DMapSettings &map3DSettings )
+{
+  mLightWidget->setDirection( map3DSettings.lightDirection() );
+  mLightWidget->setLightIntensity( map3DSettings.lightIntensity() );
+  onLightChange();
+
+  mExagerationWidget->setExageration( map3DSettings.verticalExaggeration() );
+  onExagggerationChange();
+}
+
+Reos3DMapSettings Reos3dView::map3DSettings() const
+{
+  Reos3DMapSettings settings;
+
+  settings.setLightDirection( mLightWidget->direction() );
+  settings.setLightIntensity( mLightWidget->lightIntensity() );
+  settings.setVerticalExaggeration( mExagerationWidget->exageration() );
+
+  return settings;
+}
+
+void Reos3dView::setTerrainSettings( const Reos3DTerrainSettings &settings )
+{
+  mTerrainSettingsWidget->setTerrainSettings( settings );
+  onTerrainSettingsChange();
 }
 
 Reos3dView::~Reos3dView()
 {
   delete ui;
-};
+}
+
+void Reos3dView::onExagggerationChange()
+{
+  if ( !mMeshTerrain )
+    return;
+
+  //! For now in QGIS, exaggeration is a terrain settings, so call the method relative to the terrain
+  onTerrainSettingsChange();
+  emit mapSettingsChanged();
+}
+
+void Reos3dView::onLightChange()
+{
+  QgsDirectionalLightSettings lightSettings;
+  lightSettings.setDirection( mLightWidget->direction() );
+  lightSettings.setIntensity( mLightWidget->lightIntensity() );
+  mCanvas->map()->setDirectionalLights( {lightSettings} );
+  emit mapSettingsChanged();
+}
+
+
+void Reos3dView::onTerrainSettingsChange()
+{
+  std::unique_ptr<QgsMesh3DSymbol> terrainSymbol = std::make_unique<QgsMesh3DSymbol>();
+
+  terrainSymbol->setVerticalScale( mExagerationWidget->exageration() );
+  Reos3DTerrainSettings terrainSettings = mTerrainSettingsWidget->settings();
+
+  switch ( terrainSettings.renderingType() )
+  {
+    case Reos3DTerrainSettings::UniqueColor:
+      terrainSymbol->setRenderingStyle( QgsMesh3DSymbol::SingleColor );
+      break;
+    case Reos3DTerrainSettings::ColorRamp:
+      terrainSymbol->setRenderingStyle( QgsMesh3DSymbol::ColorRamp );
+      break;
+  }
+  terrainSymbol->setSingleMeshColor( terrainSettings.uniqueColor() );
+  terrainSymbol->setWireframeEnabled( terrainSettings.isWireframeEnabled() );
+  terrainSymbol->setWireframeLineWidth( terrainSettings.wireframeWidth() );
+  qDebug() << terrainSettings.wireframeWidth();
+  terrainSymbol->setWireframeLineColor( terrainSettings.wireframeColor() );
+  terrainSymbol->setSmoothedTriangles( terrainSettings.isSmoothed() );
+
+  ReosEncodedElement terrainSymbology = mMeshTerrain->datasetGroupSymbology( mMeshTerrain->verticesElevationDatasetId() );
+  if ( terrainSymbology.description() != QStringLiteral( "dataset-symbology" ) )
+    return;
+  QString docString;
+  terrainSymbology.getData( QStringLiteral( "symbology" ), docString );
+  QDomDocument doc( QStringLiteral( "dataset-symbology" ) );
+  if ( doc.setContent( docString ) )
+  {
+    QDomElement domElem = doc.firstChildElement( QStringLiteral( "scalar-settings" ) );
+    const QDomElement elemShader = domElem.firstChildElement( QStringLiteral( "colorrampshader" ) );
+    QgsReadWriteContext context;
+    QgsColorRampShader colorRampShader;
+    colorRampShader.readXml( elemShader, context );
+    terrainSymbol->setColorRampShader( colorRampShader );
+  };
+
+  QgsMeshLayer *meshLayer = qobject_cast<QgsMeshLayer *>( mMeshTerrain->data() );
+  std::unique_ptr<QgsMeshTerrainGenerator> newTerrain = std::make_unique<QgsMeshTerrainGenerator>();
+  newTerrain->setLayer( meshLayer );
+  newTerrain->setSymbol( terrainSymbol.release() );
+  mCanvas->map()->setTerrainGenerator( newTerrain.release() );
+
+  emit mapSettingsChanged();
+}

@@ -34,6 +34,7 @@ ReosEditMeshElementWidget::ReosEditMeshElementWidget( ReosMesh *mesh, const Reos
   , mGuiContext( context, this )
   , mActionEditMeshFrame( new QAction( QPixmap( QStringLiteral( ":/images/editMeshFrameTool.svg" ) ), tr( "Edit Mesh Elements" ), this ) )
   , mMapToolEditMeshFrame( new ReosMapToolEditMeshFrame( mesh, this, mGuiContext.map() ) )
+  , mDisplayTopograhy( new ReosParameterBoolean( tr( "Display topography" ), false, this ) )
 {
   ui->setupUi( this );
 
@@ -47,6 +48,25 @@ ReosEditMeshElementWidget::ReosEditMeshElementWidget( ReosMesh *mesh, const Reos
 
   mToolBar->addActions( mMapToolEditMeshFrame->mainActions()->actions() );
   mToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+
+  ReosSettings settings;
+  if ( settings.contains( QStringLiteral( "/edit-mesh-element/display-topography" ) ) )
+    mDisplayTopograhy->setValue( settings.value( QStringLiteral( "/edit-mesh-element/display-topography" ) ).toBool() );
+  else
+    mDisplayTopograhy->setValue( false );
+
+  ReosParameterBooleanWidget *checkBoxTopography = new ReosParameterBooleanWidget( this );
+  checkBoxTopography->setBooleanParameter( mDisplayTopograhy );
+  mToolBar->addWidget( checkBoxTopography );
+  connect( mDisplayTopograhy, &ReosParameterBoolean::valueChanged, this, [this]
+  {
+    if ( mDisplayTopograhy->value() )
+      mMesh->activateDataset( mMesh->verticesElevationDatasetId() );
+    else
+      mMesh->activateDataset( QString() );
+    ReosSettings settings;
+    settings.setValue( QStringLiteral( "/edit-mesh-element/display-topography" ), mDisplayTopograhy->value() );
+  } );
 
   ui->mParameterMinimumAngle->setDouble( mesh->qualityMeshParameters().minimumAngle );
   ui->mParameterMinimumAngle->enableSpacer( ReosParameterWidget::SpacerInMiddle );
@@ -74,7 +94,7 @@ ReosEditMeshElementWidget::ReosEditMeshElementWidget( ReosMesh *mesh, const Reos
                 << ui->mParameterMaximumArea
                 << ui->mParameterMaximumAreaChange;
 
-  ReosSettings settings;
+
   if ( settings.contains( QStringLiteral( "/edit-mesh-element/minimum-angle-color" ) ) )
     ui->mColorMinimumAngle->setColor( settings.value( QStringLiteral( "/edit-mesh-element/minimum-angle-color" ) ).value<QColor>() );
   else
@@ -250,9 +270,16 @@ ReosEditMeshElementWidget::~ReosEditMeshElementWidget()
   delete ui;
 }
 
+bool ReosEditMeshElementWidget::topographyDisplayed() const
+{
+  return mDisplayTopograhy->value();
+}
+
 void ReosEditMeshElementWidget::hideEvent( QHideEvent *e )
 {
   mMapToolEditMeshFrame->deactivate();
+  for ( int i = 0; i < mRubberBands.count(); ++i )
+    mRubberBands.at( i )->setVisible( false );
   QWidget::hideEvent( e );
 }
 
@@ -260,6 +287,7 @@ void ReosEditMeshElementWidget::showEvent( QShowEvent *e )
 {
   mMapToolEditMeshFrame->activate();
   mMapToolEditMeshFrame->setCurrentToolInMap();
+
   QWidget::showEvent( e );
   if ( ui->mAutoUpdateCheckBox->isChecked() )
     startCheckQualityNonControlled();
@@ -521,4 +549,7 @@ void ReosEditMeshElementWidget::checkQualityFinished()
 
   mChecker->deleteLater();
   mChecker = nullptr;
+
+  for ( int i = 0; i < mRubberBands.count(); ++i )
+    mRubberBands.at( i )->setVisible( isVisible() && ui->mQualityGroupBox->isChecked() && mCheckBoxes.at( i )->isChecked() );
 }

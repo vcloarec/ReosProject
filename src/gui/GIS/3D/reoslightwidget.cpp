@@ -31,7 +31,7 @@ ReosLightWidget::ReosLightWidget( QWidget *parent ) :
     ui->mSpinBoxAzimuth->blockSignals( true );
     ui->mSpinBoxAzimuth->setValue( value );
     ui->mSpinBoxAzimuth->blockSignals( false );
-    emit directionChanged( direction() );
+    emit lightChanged();
   } );
 
   connect( ui->mSpinBoxAzimuth, QOverload<int>::of( &QSpinBox::valueChanged ), this, [this]( int value )
@@ -39,7 +39,7 @@ ReosLightWidget::ReosLightWidget( QWidget *parent ) :
     ui->mDialAzimuth->blockSignals( true );
     ui->mDialAzimuth->setValue( value );
     ui->mDialAzimuth->blockSignals( false );
-    emit directionChanged( direction() );
+    emit lightChanged();
   } );
 
 
@@ -48,7 +48,7 @@ ReosLightWidget::ReosLightWidget( QWidget *parent ) :
     ui->mSpinBoxAltitude->blockSignals( true );
     ui->mSpinBoxAltitude->setValue( value );
     ui->mSpinBoxAltitude->blockSignals( false );
-    emit directionChanged( direction() );
+    emit lightChanged();
   } );
 
   connect( ui->mSpinBoxAltitude, QOverload<int>::of( &QSpinBox::valueChanged ), this, [this]( int value )
@@ -56,12 +56,12 @@ ReosLightWidget::ReosLightWidget( QWidget *parent ) :
     ui->mSliderAltitude->blockSignals( true );
     ui->mSliderAltitude->setValue( value );
     ui->mSliderAltitude->blockSignals( false );
-    emit directionChanged( direction() );
+    emit lightChanged();
   } );
 
-  connect( ui->mIntensitySlider,  &QSlider::valueChanged, this, [this]( int value )
+  connect( ui->mIntensitySlider,  &QSlider::valueChanged, this, [this]
   {
-    emit intensityChanged( float( value / 100.0 ) );
+    emit lightChanged();
   } );
 }
 

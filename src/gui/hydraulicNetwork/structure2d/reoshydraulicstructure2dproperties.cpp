@@ -41,10 +41,15 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
     mStructure2D->runSimulation();
   } );
 
-
-  Reos3dView *view3D = new Reos3dView( mStructure2D->mesh(), this );
-  view3D->setAction( mAction3DView );
+  mView3D = new Reos3dView( mStructure2D->mesh(), context.map()->mapCanvas() );
+  mView3D->setAction( mAction3DView );
   mAction3DView->setCheckable( true );
+  mView3D->setMapSettings( mStructure2D->map3dSettings() );
+  mView3D->setTerrainSettings( mStructure2D->terrain3DSettings() );
+  connect( mView3D, &Reos3dView::mapSettingsChanged, this, [this]
+  {
+    mStructure2D->setMap3dSettings( mView3D->map3DSettings() );
+  } );
 
   QToolBar *toolBar = new QToolBar( this );
   layout()->addWidget( toolBar );
@@ -58,6 +63,12 @@ ReosHydraulicStructure2DProperties::~ReosHydraulicStructure2DProperties()
 {
   if ( !mMap.isNull() )
     mMap->removeExtraRenderedObject( mStructure2D->mesh() );
+
+  if ( !mView3D.isNull() )
+  {
+    mView3D->close();
+    mView3D->deleteLater();
+  }
   delete ui;
 }
 

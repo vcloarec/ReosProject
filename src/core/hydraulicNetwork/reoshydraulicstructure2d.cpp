@@ -40,6 +40,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   , mMeshGenerator( ReosMeshGenerator::createMeshGenerator( encodedElement.getEncodedData( QStringLiteral( "mesh-generator" ) ), this ) )
   , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( encodedElement.getEncodedData( QStringLiteral( "structure" ) ) ) )
   , mTopographyCollecion( ReosTopographyCollection::createTopographyCollection( encodedElement.getEncodedData( QStringLiteral( "topography-collection" ) ), context.network()->getGisEngine(), this ) )
+  , m3dMapSettings( encodedElement.getEncodedData( "3d-map-setings" ) )
 {
   if ( encodedElement.hasEncodedData( QStringLiteral( "mesh-resolution-controller" ) ) )
     mMeshResolutionController = new ReosMeshResolutionController( encodedElement.getEncodedData( QStringLiteral( "mesh-resolution-controller" ) ), this );
@@ -52,6 +53,26 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   init();
   mMesh->setMeshSymbology( encodedElement.getEncodedData( QStringLiteral( "mesh-frame-symbology" ) ) );
   mMesh->setQualityMeshParameter( encodedElement.getEncodedData( QStringLiteral( "mesh-quality-parameters" ) ) );
+}
+
+Reos3DMapSettings ReosHydraulicStructure2D::map3dSettings() const
+{
+  return m3dMapSettings;
+}
+
+void ReosHydraulicStructure2D::setMap3dSettings( const Reos3DMapSettings &value )
+{
+  m3dMapSettings = value;
+}
+
+Reos3DTerrainSettings ReosHydraulicStructure2D::terrain3DSettings() const
+{
+  return m3dTerrainSettings;
+}
+
+void ReosHydraulicStructure2D::setTerrain3DSettings( const Reos3DTerrainSettings &settings )
+{
+  m3dTerrainSettings = settings;
 }
 
 void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const
@@ -70,8 +91,8 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
 
   mMesh->save( dir.path() );
   element.addEncodedData( QStringLiteral( "mesh-frame-symbology" ), mMesh->meshSymbology() );
-
   element.addEncodedData( QStringLiteral( "mesh-quality-parameters" ), mMesh->qualityMeshParameters().encode() );
+  element.addEncodedData( "3d-map-setings", m3dMapSettings.encode() );
 }
 
 ReosTopographyCollection *ReosHydraulicStructure2D::topographyCollecion() const

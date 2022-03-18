@@ -26,6 +26,7 @@ SET(REOS_CORE_SOURCES
   GIS/reosmesh.cpp
   GIS/reostopographycollection.cpp
   GIS/reosrenderedobject.cpp
+  GIS/reos3dmapsettings.cpp
   GIS/private/reosdigitalelevationmodel_p.cpp
   GIS/private/reospolygonstructure_p.cpp
   GIS/private/reospolylinesstructure_p.cpp
@@ -105,6 +106,7 @@ SET(REOS_CORE_HEADERS
     GIS/reosmesh.h
     GIS/reostopographycollection.h
     GIS/reosrenderedobject.h
+    GIS/reos3dmapsettings.h
 
     process/reosprocess.h
 

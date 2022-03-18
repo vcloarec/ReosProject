@@ -120,6 +120,9 @@ class ReosMesh: public ReosRenderedObject
      */
     virtual QString enableVertexElevationDataset( const QString &name ) = 0;
 
+    //! Returns the vertices elevation dataset id
+    virtual QString verticesElevationDatasetId() const = 0;
+
     //! Activates the dataset with \a id
     virtual bool activateDataset( const QString &id ) = 0;
 
@@ -137,6 +140,8 @@ class ReosMesh: public ReosRenderedObject
 
     virtual ReosEncodedElement meshSymbology() const = 0;
     virtual void setMeshSymbology( const ReosEncodedElement &symbology ) = 0;
+
+    virtual ReosEncodedElement datasetGroupSymbology( const QString &id ) const = 0;
 
     QualityMeshParameters qualityMeshParameters() const;
     void setQualityMeshParameter( const ReosEncodedElement &element );

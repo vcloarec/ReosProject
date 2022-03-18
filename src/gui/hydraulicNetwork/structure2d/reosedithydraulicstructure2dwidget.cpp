@@ -73,9 +73,9 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
     new ReosMeshTopographyStackedWidget( structure2D->mesh(), structure2D->topographyCollecion(), structure2D->terrainMeshDatasetId(), ReosGuiContext( context, this ) );
   ui->pageTopography->layout()->addWidget( topographyWidget );
 
-  ReosEditMeshElementWidget *editMeshElement =
+  mEditElementWidget =
     new ReosEditMeshElementWidget( structure2D->mesh(), ReosGuiContext( context, this ) );
-  ui->pageEditElements->layout()->addWidget( editMeshElement );
+  ui->pageEditElements->layout()->addWidget( mEditElementWidget );
 
   mInitialMapStructureItem = context.mapItems( ReosHydraulicStructure2D::staticType() );
   if ( mInitialMapStructureItem )
@@ -119,6 +119,14 @@ void ReosEditHydraulicStructure2DWidget::onMeshOptionListChanged( int row )
     case 2:
       mMapStructureItem.setLineWidth( 2 );
       mStructure2D->activateMeshTerrain();
+      break;
+    case 3:
+      mMapStructureItem.setLineWidth( 3 );
+      if ( mEditElementWidget->topographyDisplayed() )
+        mStructure2D->activateMeshTerrain();
+      else
+        mStructure2D->deactivateMeshScalar();
+      break;
     default:
       break;
   }

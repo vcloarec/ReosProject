@@ -28,6 +28,8 @@ SET(REOS_GUI_SOURCES
     GIS/reosmaptooleditmeshframe.cpp
     GIS/3D/reos3dview.cpp
     GIS/3D/reoslightwidget.cpp
+    GIS/3D/reosverticalexaggerationwidget.cpp
+    GIS/3D/reos3dterrainsettingswidget.cpp
 
     GIS/private/reosmappolygon_p.cpp
     GIS/private/reosmaptool_p.cpp
@@ -118,6 +120,8 @@ SET(REOS_GUI_HEADERS
     GIS/reosmaptooleditmeshframe.h
     GIS/3D/reos3dview.h
     GIS/3D/reoslightwidget.h
+    GIS/3D/reosverticalexaggerationwidget.h
+    GIS/3D/reos3dterrainsettingswidget.h
 
     watershed/reosdelineatingwatershedwidget.h
     watershed/reoswatershedwidget.h

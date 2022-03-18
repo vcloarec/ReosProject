@@ -17,10 +17,13 @@
 #define REOSHYDRAULICSTRUCTURE2DPROPERTIES_H
 
 #include <QWidget>
+#include <QPointer>
 
 #include "reoshydraulicelementpropertieswidget.h"
 #include "reoshydraulicstructure2d.h"
 #include "reoshydraulicnetworkwidget.h"
+
+class Reos3dView;
 
 namespace Ui
 {
@@ -43,6 +46,7 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
     ReosHydraulicStructure2D *mStructure2D = nullptr;
     QPointer<ReosMap> mMap = nullptr;
     QAction *mAction3DView = nullptr;
+    QPointer<Reos3dView> mView3D;
     ReosGuiContext mGuiContext;
 };
 

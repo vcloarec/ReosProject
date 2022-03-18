@@ -20,6 +20,7 @@
 #include "reospolylinesstructure.h"
 #include "reosgmshgenerator.h"
 #include "reosmesh.h"
+#include "reos3dmapsettings.h"
 
 class ReosTopographyCollection;
 
@@ -29,6 +30,7 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
   public:
     ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, ReosHydraulicNetwork *parent = nullptr );
 
+    static ReosHydraulicStructure2D *create( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext  &context );
     QString type() const override {return staticType();}
     static QString staticType() {return ReosHydraulicNetworkElement::staticType() + QString( ':' ) + QStringLiteral( "structure2D" );}
 
@@ -36,25 +38,33 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     QPolygonF domain( const QString &crs = QString() ) const;
 
     ReosPolylinesStructure *geometryStructure() const;
+
     ReosMeshResolutionController *meshResolutionController() const;
+
     ReosMesh *mesh() const;
 
-    static ReosHydraulicStructure2D *create( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext  &context );
-
     ReosMeshGenerator *meshGenerator() const;
+
     ReosMeshGeneratorProcess *getGenerateMeshProcess();
 
     //! Sets active the terrain in the mesh
     void activateMeshTerrain();
 
+    //! Return the id of the terrain dataset
+    QString terrainMeshDatasetId() const;
+
     //! Deactivate any activated scalar dataset
     void deactivateMeshScalar();
-
-    QString terrainMeshDatasetId() const;
 
     void runSimulation();
 
     ReosTopographyCollection *topographyCollecion() const;
+
+    Reos3DMapSettings map3dSettings() const;
+    void setMap3dSettings( const Reos3DMapSettings &value );
+
+    Reos3DTerrainSettings terrain3DSettings() const;
+    void setTerrain3DSettings( const Reos3DTerrainSettings &settings );
 
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) {}
@@ -74,6 +84,8 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     ReosTopographyCollection  *mTopographyCollecion = nullptr;
     std::unique_ptr<ReosMesh> mMesh;
     QString mTerrainDatasetId;
+    Reos3DMapSettings m3dMapSettings;
+    Reos3DTerrainSettings m3dTerrainSettings;
 
     void init();
     void generateMeshInPlace();

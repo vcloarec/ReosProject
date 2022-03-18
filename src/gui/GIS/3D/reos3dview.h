@@ -16,10 +16,19 @@
 #ifndef REOS3DVIEW_H
 #define REOS3DVIEW_H
 
-#include <reosactionwidget.h>
+#include <QPointer>
+
+#include "reosactionwidget.h"
 
 class Qgs3DMapCanvas;
+class QgsMesh3DSymbol;
 class ReosMesh;
+class Reos3DTerrainSettingsWidget;
+class ReosLightWidget;
+class ReosVerticalExaggerationWidget;
+class ReosEncodedElement;
+class Reos3DMapSettings;
+class Reos3DTerrainSettings;
 
 namespace Ui
 {
@@ -31,15 +40,32 @@ class Reos3dView : public ReosActionWidget
     Q_OBJECT
 
   public:
-    explicit Reos3dView( ReosMesh *mesh, QWidget *parent = nullptr );
-
+    explicit Reos3dView( ReosMesh *meshTerrain, QWidget *parent = nullptr );
     ~Reos3dView();
+
+    void setMapSettings( const Reos3DMapSettings &map3DSettings );
+    Reos3DMapSettings map3DSettings() const;
+
+    void setTerrainSettings( const Reos3DTerrainSettings &settings );
+
+  signals:
+    void mapSettingsChanged();
+    void terrainSettingsChanged();
+
+  private:
+    void onExagggerationChange();
+    void onLightChange();
+    void onTerrainSettingsChange();
 
   private:
     Ui::Reos3dView *ui;
-
+    QPointer<ReosMesh> mMeshTerrain;
     Qgs3DMapCanvas *mCanvas = nullptr;
     QAction *mActionZoomExtent = nullptr;
+    ReosLightWidget *mLightWidget = nullptr;
+    ReosVerticalExaggerationWidget *mExagerationWidget = nullptr;
+
+    Reos3DTerrainSettingsWidget *mTerrainSettingsWidget = nullptr;
 };
 
 #endif // REOS3DVIEW_H
