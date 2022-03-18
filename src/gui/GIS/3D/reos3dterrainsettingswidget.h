@@ -16,7 +16,7 @@
 #ifndef REOS3DTERRAINSETTINGSWIDGET_H
 #define REOS3DTERRAINSETTINGSWIDGET_H
 
-#include <QWidget>;
+#include <QWidget>
 
 class Reos3DTerrainSettings;
 
