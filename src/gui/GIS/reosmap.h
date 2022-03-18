@@ -46,9 +46,9 @@ class ReosRendererObjectHandler : public QObject
     ReosRendererObjectHandler( QGraphicsView *view );
     ~ReosRendererObjectHandler();
 
-    void startRender( ReosRenderedObject *renderedObject );
+    void makeObsolete( ReosRenderedObject *renderedObject );
 
-    bool hasCache( ReosRenderedObject *renderedObject );
+    void startRender( ReosRenderedObject *renderedObject );
 
     QImage image( ReosRenderedObject *renderedObject );
 
@@ -66,6 +66,12 @@ class ReosRendererObjectHandler : public QObject
     ReosRenderedObject *rendererToObject( ReosObjectRenderer *renderer ) const;
     ReosObjectRenderer *objectToRenderer( ReosRenderedObject *o ) const;
     QImage transformImage( ReosRenderedObject *renderedObject );
+
+    //! Returns if a cache is present, event if not up to date
+    bool hasCache( ReosRenderedObject *renderedObject );
+
+    //! Returns if a updtodate cache is present
+    bool hasUpToDateCache( ReosRenderedObject *renderedObject );
 };
 
 class REOSGUI_EXPORT ReosMap: public ReosModule
