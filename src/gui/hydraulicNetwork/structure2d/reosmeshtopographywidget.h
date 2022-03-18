@@ -47,6 +47,7 @@ class ReosMeshTopographyWidget: public ReosStackedPageWidget
     void onAddTopography();
     void onRenderingSettings();
     void onMapCursorMove( const QPointF &pos );
+    void onViewContextMenuRequest( const QPoint &pos );
 
   private:
     Ui::ReosMeshTopographyWidget *ui = nullptr;

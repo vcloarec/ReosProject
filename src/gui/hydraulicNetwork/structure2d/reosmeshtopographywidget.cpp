@@ -17,6 +17,7 @@
 #include "ui_reosmeshtopographywidget.h"
 
 #include <QHBoxLayout>
+#include <QMenu>
 #include <QMessageBox>
 
 #include "reosmeshscalarrenderingwidget.h"
@@ -49,6 +50,8 @@ ReosMeshTopographyWidget::ReosMeshTopographyWidget( ReosMesh *mesh, ReosTopograp
   ui->setupUi( this );
   ui->mDemCombo->setGisEngine( guiContext.map()->engine() );
   ui->mTopographyCollectionView->setModel( mCollectionModel );
+  ui->mTopographyCollectionView->setContextMenuPolicy( Qt::ContextMenuPolicy::CustomContextMenu );
+  connect( ui->mTopographyCollectionView, &QWidget::customContextMenuRequested, this, &ReosMeshTopographyWidget::onViewContextMenuRequest );
   ui->mRenderingSettingsButton->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   ui->mAutoApplyWidget->setBooleanParameter( topographyCollection->autoApply() );
 
@@ -90,4 +93,23 @@ void ReosMeshTopographyWidget::onMapCursorMove( const QPointF &pos )
     ui->mMeshZValueLabel->setText( tr( "No value" ) );
   else
     ui->mMeshZValueLabel->setText( QLocale().toString( topographyValue, 'f', 2 ) );
+}
+
+void ReosMeshTopographyWidget::onViewContextMenuRequest( const QPoint &pos )
+{
+  QModelIndex index = ui->mTopographyCollectionView->currentIndex();
+  if ( !index.isValid() )
+    return;
+
+  QMenu *menu = new QMenu( this );
+  int row = index.row();
+  QAction *action = menu->addAction( tr( "Remove selected topography" ), menu, [this, row]
+  {
+    mTopographyCollection->removeTopography( row );
+  } );
+
+  action->setIcon( QPixmap( QStringLiteral( ":/images/remove.svg" ) ) );
+
+  menu->exec( ui->mTopographyCollectionView->viewport()->mapToGlobal( pos ) );
+
 }
