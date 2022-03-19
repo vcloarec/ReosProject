@@ -117,14 +117,18 @@ ReosTopographyCollection::ReosTopographyCollection( ReosGisEngine *gisEngine, QO
   , mAutoApply( new ReosParameterBoolean( tr( "Auto apply topographies" ), false, this ) )
 {
   mAutoApply->setValue( false );
-  connect( gisEngine, &ReosGisEngine::layerRemoved, this, [this]( const QString & layerId )
+  if ( mGisEngine )
   {
-    if ( mTopographyIds.contains( layerId ) )
+    connect( gisEngine, &ReosGisEngine::layerRemoved, this, [this]( const QString & layerId )
     {
-      mTopographyIds.removeOne( layerId );
-      emit dataChanged();
-    }
-  } );
+      if ( mTopographyIds.contains( layerId ) )
+      {
+        mTopographyIds.removeOne( layerId );
+        emit dataChanged();
+      }
+    } );
+  }
+
 }
 
 ReosTopographyCollection::ReosTopographyCollection( const ReosEncodedElement &element, ReosGisEngine *gisEngine, QObject *parent )
@@ -248,7 +252,7 @@ bool ReosTopographyCollectionListModel::canDropMimeData( const QMimeData *data, 
   return ( !parent.isValid() && action == Qt::MoveAction && data->hasFormat( QStringLiteral( "application/vnd.text.list" ) ) );
 }
 
-bool ReosTopographyCollectionListModel::dropMimeData( const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent )
+bool ReosTopographyCollectionListModel::dropMimeData( const QMimeData *data, Qt::DropAction action, int row, int, const QModelIndex &parent )
 {
   if ( parent.isValid() || action != Qt::MoveAction || !data->hasFormat( QStringLiteral( "application/vnd.text.list" ) ) )
     return false;
