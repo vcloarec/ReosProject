@@ -30,6 +30,7 @@
 #include "reosmeshscalarrenderingwidget.h"
 #include "reosmeshtopographywidget.h"
 #include "reoseditmeshelementwidget.h"
+#include "reosroughnesswidget.h"
 
 
 ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context )
@@ -73,9 +74,11 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
     new ReosMeshTopographyStackedWidget( structure2D->mesh(), structure2D->topographyCollecion(), structure2D->terrainMeshDatasetId(), ReosGuiContext( context, this ) );
   ui->pageTopography->layout()->addWidget( topographyWidget );
 
-  mEditElementWidget =
-    new ReosEditMeshElementWidget( structure2D->mesh(), ReosGuiContext( context, this ) );
+  mEditElementWidget = new ReosEditMeshElementWidget( structure2D->mesh(), ReosGuiContext( context, this ) );
   ui->pageEditElements->layout()->addWidget( mEditElementWidget );
+
+  ReosRoughnessWidget *roughnessWidget = new ReosRoughnessWidget( structure2D, ReosGuiContext( context, this ) );
+  ui->pageRoughness->layout()->addWidget( roughnessWidget );
 
   mInitialMapStructureItem = context.mapItems( ReosHydraulicStructure2D::staticType() );
   if ( mInitialMapStructureItem )
@@ -126,6 +129,10 @@ void ReosEditHydraulicStructure2DWidget::onMeshOptionListChanged( int row )
         mStructure2D->activateMeshTerrain();
       else
         mStructure2D->deactivateMeshScalar();
+      break;
+    case 4:
+      mMapStructureItem.setLineWidth( 2 );
+      mStructure2D->deactivateMeshScalar();
       break;
     default:
       break;

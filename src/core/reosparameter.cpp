@@ -555,6 +555,11 @@ ReosParameterDouble *ReosParameterDouble::decode( const ReosEncodedElement &elem
   return ret;
 }
 
+void ReosParameterDouble::setDisplayPrecision( int displayPrecision )
+{
+  mDisplayPrecision = displayPrecision;
+}
+
 bool ReosParameter::isValid() const
 {
   return mIsValid;

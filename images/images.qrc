@@ -149,5 +149,6 @@
         <file>mapOnMeshElement.svg</file>
         <file>verticalExaggeration.svg</file>
         <file>terrain3DSettings.svg</file>
+        <file>roughness.svg</file>
     </qresource>
 </RCC>

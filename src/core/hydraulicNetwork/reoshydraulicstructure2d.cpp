@@ -28,6 +28,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, con
   , mMeshResolutionController( new ReosMeshResolutionController( this, crs ) )
   , mTopographyCollecion( ReosTopographyCollection::createTopographyCollection( parent->getGisEngine(), this ) )
   , mMesh( ReosMesh::createMeshFrame( crs ) )
+  , mRoughnessStructure( new ReosRoughnessStructure( crs ) )
 {
   init();
 }
@@ -40,6 +41,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   , mMeshGenerator( ReosMeshGenerator::createMeshGenerator( encodedElement.getEncodedData( QStringLiteral( "mesh-generator" ) ), this ) )
   , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( encodedElement.getEncodedData( QStringLiteral( "structure" ) ) ) )
   , mTopographyCollecion( ReosTopographyCollection::createTopographyCollection( encodedElement.getEncodedData( QStringLiteral( "topography-collection" ) ), context.network()->getGisEngine(), this ) )
+  , mRoughnessStructure( new ReosRoughnessStructure( encodedElement.getEncodedData( QStringLiteral( "roughness-structure" ) ) ) )
   , m3dMapSettings( encodedElement.getEncodedData( "3d-map-setings" ) )
 {
   if ( encodedElement.hasEncodedData( QStringLiteral( "mesh-resolution-controller" ) ) )
@@ -53,6 +55,11 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   init();
   mMesh->setMeshSymbology( encodedElement.getEncodedData( QStringLiteral( "mesh-frame-symbology" ) ) );
   mMesh->setQualityMeshParameter( encodedElement.getEncodedData( QStringLiteral( "mesh-quality-parameters" ) ) );
+}
+
+ReosRoughnessStructure *ReosHydraulicStructure2D::roughnessStructure() const
+{
+  return mRoughnessStructure.get();
 }
 
 Reos3DMapSettings ReosHydraulicStructure2D::map3dSettings() const
@@ -92,6 +99,8 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
   mMesh->save( dir.path() );
   element.addEncodedData( QStringLiteral( "mesh-frame-symbology" ), mMesh->meshSymbology() );
   element.addEncodedData( QStringLiteral( "mesh-quality-parameters" ), mMesh->qualityMeshParameters().encode() );
+  element.addEncodedData( QStringLiteral( "roughness-structure" ), mRoughnessStructure->encode() );
+
   element.addEncodedData( "3d-map-setings", m3dMapSettings.encode() );
 }
 
@@ -218,4 +227,37 @@ ReosHydraulicNetworkElement *ReosHydraulicStructure2dFactory::decodeElement( con
     return nullptr;
 
   return ReosHydraulicStructure2D::create( encodedElement, context );
+}
+
+ReosRoughnessStructure::ReosRoughnessStructure( const QString &mCrs )
+  : mStructure( ReosPolygonStructure::createPolygonStructure( mCrs ) )
+  , mDefaultRoughness( new ReosParameterDouble( tr( "Default roughness" ) ) )
+{
+  mDefaultRoughness->setDisplayPrecision( 3 );
+  mDefaultRoughness->setValue( 0.03 );
+}
+
+ReosRoughnessStructure::ReosRoughnessStructure( const ReosEncodedElement &encodedElement )
+  : mStructure( ReosPolygonStructure::createPolygonStructure( encodedElement.getEncodedData( QStringLiteral( "structure" ) ) ) )
+  , mDefaultRoughness( ReosParameterDouble::decode( encodedElement.getEncodedData( QStringLiteral( "default-roughness" ) ), false, tr( "Default roughness" ), this ) )
+{}
+
+ReosEncodedElement ReosRoughnessStructure::encode() const
+{
+  ReosEncodedElement encodedElement( QStringLiteral( "roughness-structure" ) );
+
+  encodedElement.addEncodedData( QStringLiteral( "structure" ), mStructure->encode() );
+  encodedElement.addEncodedData( QStringLiteral( "default-roughness" ), mDefaultRoughness->encode() );
+
+  return encodedElement;
+}
+
+ReosParameterDouble *ReosRoughnessStructure::defaultRoughness() const
+{
+  return mDefaultRoughness;
+}
+
+ReosPolygonStructure *ReosRoughnessStructure::structure() const
+{
+  return mStructure.get();
 }

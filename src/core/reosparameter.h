@@ -90,6 +90,8 @@ class REOSCORE_EXPORT ReosParameterDouble: public ReosParameter
     static ReosParameterDouble *decode( const ReosEncodedElement &element, bool isDerivable, QObject *parent );
     static ReosParameterDouble *decode( const ReosEncodedElement &element, bool isDerivable, const QString &name, QObject *parent );
 
+    void setDisplayPrecision( int displayPrecision );
+
   private:
     double mValue = 0;
     int mDisplayPrecision = -1;

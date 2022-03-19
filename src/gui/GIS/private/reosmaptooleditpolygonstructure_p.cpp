@@ -97,7 +97,7 @@ void ReosMapToolEditPolygonStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
       {
         QgsGeometry geom = selectFeatureOnMap( e );
         if ( !geom.isNull() && !geom.isEmpty() )
-          mStructure->addPolygon( geom.asQPolygonF(), mCurrentClassId );
+          mStructure->addPolygon( geom.asQPolygonF(), mCurrentClassId, mapCrs() );
       }
       break;
     case ReosMapToolEditPolygonStructure_p::AddingPolygon:
@@ -108,7 +108,7 @@ void ReosMapToolEditPolygonStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
         if ( mPolygonRubberBand->numberOfVertices() > 0 )
         {
           const QPolygonF polygon = mPolygonRubberBand->asGeometry().asQPolygonF();
-          mStructure->addPolygon( polygon, mCurrentClassId );
+          mStructure->addPolygon( polygon, mCurrentClassId, mapCrs() );
         }
         resetTool();
       }
@@ -223,7 +223,9 @@ bool ReosEditPolygonStructureMenuPopulator::populate( QMenu *menu, QgsMapMouseEv
     {polyRubberBand->deleteLater();} );
 
     QObject::connect( actionStructurePoly, &QAction::triggered, mToolMap, [this, structurePolygon]
-    {mToolMap->mStructure->addPolygon( structurePolygon, mToolMap->mCurrentClassId );} );
+    {
+      mToolMap->mStructure->addPolygon( structurePolygon, mToolMap->mCurrentClassId, mToolMap->mapCrs() );
+    } );
     return true;
   }
 

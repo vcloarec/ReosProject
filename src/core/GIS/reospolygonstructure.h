@@ -51,6 +51,7 @@ class ReosPolygonStructure : public ReosGeometryStructure
     virtual QStringList classes() const = 0;
     virtual QColor color( const QString &classId ) const = 0;
     virtual double value( const QString &classId ) const = 0;
+    virtual QString valueToClass( double value ) const = 0;
 
     virtual int polygonsCount() const = 0;
 
