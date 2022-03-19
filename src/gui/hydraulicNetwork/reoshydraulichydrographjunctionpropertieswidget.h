@@ -68,7 +68,7 @@ class ReosFormBaseJunctionNodeWidget: public ReosFormWidget
 {
     Q_OBJECT
   public:
-    ReosFormBaseJunctionNodeWidget( ReosHydrographJunction *junction, const ReosGuiContext &context = nullptr );
+    ReosFormBaseJunctionNodeWidget( ReosHydrographJunction *junction, const ReosGuiContext &context );
 
   protected slots:
     void updateGaugedHydrograph();

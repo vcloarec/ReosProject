@@ -373,6 +373,17 @@ void ReosPolygonStructure_p::removeClass( const QString &classId )
   mDirty = true;
 }
 
+QString ReosPolygonStructure_p::valueToClass( double value ) const
+{
+  for ( auto it = mClasses.begin(); it != mClasses.end(); ++it )
+  {
+    if ( it.value().toDouble() == value )
+      return it.key();
+  }
+
+  return QString();
+}
+
 ReosPolygonStructureUndoCommandAddClass::ReosPolygonStructureUndoCommandAddClass( ReosPolygonStructure_p *structure, const QString &classId, double value, const QColor &color )
   : mStructure( structure )
   , mClassId( classId )

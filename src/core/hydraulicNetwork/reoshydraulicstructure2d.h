@@ -23,6 +23,7 @@
 #include "reos3dmapsettings.h"
 
 class ReosTopographyCollection;
+class ReosRoughnessStructure;
 
 class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
 {
@@ -66,6 +67,8 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     Reos3DTerrainSettings terrain3DSettings() const;
     void setTerrain3DSettings( const Reos3DTerrainSettings &settings );
 
+    ReosRoughnessStructure *roughnessStructure() const;
+
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) {}
 
@@ -83,6 +86,8 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     ReosMeshResolutionController *mMeshResolutionController = nullptr;
     ReosTopographyCollection  *mTopographyCollecion = nullptr;
     std::unique_ptr<ReosMesh> mMesh;
+    std::unique_ptr<ReosRoughnessStructure > mRoughnessStructure;
+
     QString mTerrainDatasetId;
     Reos3DMapSettings m3dMapSettings;
     Reos3DTerrainSettings m3dTerrainSettings;
@@ -98,6 +103,23 @@ class ReosHydraulicStructure2dFactory : public ReosHydraulicNetworkElementFactor
   public:
     ReosHydraulicStructure2dFactory() = default;
     ReosHydraulicNetworkElement *decodeElement( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context ) const override;
+};
+
+
+class ReosRoughnessStructure : public ReosDataObject
+{
+    Q_OBJECT
+  public:
+    ReosRoughnessStructure( const QString &mCrs );
+    ReosRoughnessStructure( const ReosEncodedElement &encodedElement );
+
+    ReosEncodedElement encode() const;
+    ReosParameterDouble *defaultRoughness() const;
+    ReosPolygonStructure *structure() const;
+
+  private:
+    std::unique_ptr<ReosPolygonStructure> mStructure;
+    ReosParameterDouble *mDefaultRoughness = nullptr;
 };
 
 

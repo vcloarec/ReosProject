@@ -59,6 +59,7 @@ class ReosPolygonStructure_p : public ReosPolygonStructure, private ReosGeometry
     QStringList classes() const override;
     void addClass( const QString &classId, double value ) override;
     void removeClass( const QString &classId ) override;
+    QString valueToClass( double value ) const override;
     ReosMapExtent extent( const QString &crs ) const override;
     QColor color( const QString &classId ) const override;
     double value( const QString &classId ) const override;

@@ -17,6 +17,7 @@
 #include "ui_reosgmshresolutioncontroller.h"
 
 #include <QUuid>
+#include <QMessageBox>
 
 #include "reosguicontext.h"
 #include "reosmap.h"
@@ -119,9 +120,17 @@ void ReosGmshResolutionControllerWidget::addClass()
 
   if ( dial->exec() )
   {
-    QString classId = QUuid::createUuid().toString();
-    mController->resolutionPolygons()->addClass( classId, paramValue.value() );
-    ui->mPolygonClassView->setCurrentIndex( mModel->classToindex( classId ) );
+    double value = paramValue.value();
+    if ( mController->resolutionPolygons()->valueToClass( value ) != QString() )
+    {
+      QMessageBox::information( this, tr( "Add New Size Class" ), tr( "This size value already exists." ) );
+    }
+    else
+    {
+      QString classId = QUuid::createUuid().toString();
+      mController->resolutionPolygons()->addClass( classId, paramValue.value() );
+      ui->mPolygonClassView->setCurrentIndex( mModel->classToindex( classId ) );
+    }
   }
 
   dial->deleteLater();
