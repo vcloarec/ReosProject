@@ -52,7 +52,7 @@ void ReoHydraulicStructure2DTest::createAndEditPolylineStructure()
          << QPointF( 1, 0 )
          << QPointF( 0.5, 0 );
 
-  std::unique_ptr < ReosHydraulicStructure2D> structure2D = std::make_unique<ReosHydraulicStructure2D>( domain, QString(), mNetwork );
+  std::unique_ptr < ReosHydraulicStructure2D> structure2D = std::make_unique<ReosHydraulicStructure2D>( domain, QString(), mNetwork->context() );
 
   ReosPolylinesStructure *geomStructure = structure2D->geometryStructure();
 
@@ -245,7 +245,7 @@ void ReoHydraulicStructure2DTest::createAndEditPolylineStructure()
          << QPointF( 0, 0 )
          << QPointF( 1, 0 );
 
-  structure2D = std::make_unique<ReosHydraulicStructure2D>( domain, QString(), mNetwork );
+  structure2D = std::make_unique<ReosHydraulicStructure2D>( domain, QString(), mNetwork->context() );
   geomStructure = structure2D->geometryStructure();
 
   geomStructure->searchForLine( ReosMapExtent( 0.99, 0.4, 1.01, 0.5 ), lineId );
@@ -296,7 +296,7 @@ void ReoHydraulicStructure2DTest::createAndEditPolylineStructure()
          << QPointF( 1.0, 0.0 )
          << QPointF( 1.0, 0.5 );
 
-  structure2D = std::make_unique<ReosHydraulicStructure2D>( domain, QString(), mNetwork );
+  structure2D = std::make_unique<ReosHydraulicStructure2D>( domain, QString(), mNetwork->context() );
   geomStructure = structure2D->geometryStructure();
   QCOMPARE( structure2D->domain(), domain );
 

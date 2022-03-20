@@ -151,6 +151,8 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
 
     ReosGisEngine *getGisEngine() const;
 
+    ReosHydraulicNetworkContext context() const;
+
   signals:
     void elementAdded( ReosHydraulicNetworkElement *elem );
     void elementRemoved( ReosHydraulicNetworkElement *elem );
@@ -168,8 +170,6 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     QHash<QString, int> mElementIndexesCounter;
 
     friend class ReosHydraulicNetworkElement;
-
-    ReosHydraulicNetworkContext context() const;
 
     std::map<QString, std::unique_ptr<ReosHydraulicNetworkElementFactory>> mElementFactories;
     void addEncodedElement( const ReosEncodedElement &element );

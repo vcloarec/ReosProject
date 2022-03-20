@@ -24,12 +24,13 @@
 
 class ReosTopographyCollection;
 class ReosRoughnessStructure;
+class QDir;
 
 class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
 {
     Q_OBJECT
   public:
-    ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, ReosHydraulicNetwork *parent = nullptr );
+    ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, const ReosHydraulicNetworkContext &context );
 
     static ReosHydraulicStructure2D *create( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext  &context );
     QString type() const override {return staticType();}
@@ -69,6 +70,8 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
 
     ReosRoughnessStructure *roughnessStructure() const;
 
+    QDir structureDirectory();
+
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) {}
 
@@ -91,6 +94,8 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     QString mTerrainDatasetId;
     Reos3DMapSettings m3dMapSettings;
     Reos3DTerrainSettings m3dTerrainSettings;
+
+    ReosHydraulicNetworkContext mHydraulicNetworkContext;
 
     void init();
     void generateMeshInPlace();

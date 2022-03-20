@@ -17,22 +17,23 @@
 #include "reosmeshgenerator.h"
 #include "reosgmshgenerator.h"
 #include "reostopographycollection.h"
+#include "reoshydraulicsimulation.h"
 
 #include <QProcess>
 #include <QDir>
 
-ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, ReosHydraulicNetwork *parent )
-  : ReosHydraulicNetworkElement( parent )
+ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, const ReosHydraulicNetworkContext &context )
+  : ReosHydraulicNetworkElement( context.network() )
   , mMeshGenerator( new ReosGmshGenerator( this ) )
   , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( domain, crs ) )
   , mMeshResolutionController( new ReosMeshResolutionController( this, crs ) )
-  , mTopographyCollecion( ReosTopographyCollection::createTopographyCollection( parent->getGisEngine(), this ) )
+  , mTopographyCollecion( ReosTopographyCollection::createTopographyCollection( context.network()->getGisEngine(), this ) )
   , mMesh( ReosMesh::createMeshFrame( crs ) )
   , mRoughnessStructure( new ReosRoughnessStructure( crs ) )
+  , mHydraulicNetworkContext( context )
 {
   init();
 }
-
 
 ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   const ReosEncodedElement &encodedElement,
@@ -43,15 +44,14 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   , mTopographyCollecion( ReosTopographyCollection::createTopographyCollection( encodedElement.getEncodedData( QStringLiteral( "topography-collection" ) ), context.network()->getGisEngine(), this ) )
   , mRoughnessStructure( new ReosRoughnessStructure( encodedElement.getEncodedData( QStringLiteral( "roughness-structure" ) ) ) )
   , m3dMapSettings( encodedElement.getEncodedData( "3d-map-setings" ) )
+  , mHydraulicNetworkContext( context )
 {
   if ( encodedElement.hasEncodedData( QStringLiteral( "mesh-resolution-controller" ) ) )
     mMeshResolutionController = new ReosMeshResolutionController( encodedElement.getEncodedData( QStringLiteral( "mesh-resolution-controller" ) ), this );
   else
     mMeshResolutionController = new ReosMeshResolutionController( this );
 
-  QString dataPath = context.projectPath() + '/' + context.projectName() + QStringLiteral( "-hydr-struct" ) + '/' + directory();
-
-  mMesh.reset( ReosMesh::createMeshFrameFromFile( dataPath ) );
+  mMesh.reset( ReosMesh::createMeshFrameFromFile( structureDirectory().path() ) );
   init();
   mMesh->setMeshSymbology( encodedElement.getEncodedData( QStringLiteral( "mesh-frame-symbology" ) ) );
   mMesh->setQualityMeshParameter( encodedElement.getEncodedData( QStringLiteral( "mesh-quality-parameters" ) ) );
@@ -60,6 +60,11 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
 ReosRoughnessStructure *ReosHydraulicStructure2D::roughnessStructure() const
 {
   return mRoughnessStructure.get();
+}
+
+QDir ReosHydraulicStructure2D::structureDirectory()
+{
+  return QDir( mHydraulicNetworkContext.projectPath() + '/' + mHydraulicNetworkContext.projectName() + QStringLiteral( "-hydr-struct" ) + '/' + directory() );
 }
 
 Reos3DMapSettings ReosHydraulicStructure2D::map3dSettings() const
@@ -116,6 +121,7 @@ QString ReosHydraulicStructure2D::terrainMeshDatasetId() const
 
 void ReosHydraulicStructure2D::runSimulation()
 {
+  ReosHydraulicSimulation::prepareInput( this );
 }
 
 void ReosHydraulicStructure2D::init()

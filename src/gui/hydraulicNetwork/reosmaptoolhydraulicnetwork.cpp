@@ -179,7 +179,7 @@ ReosMapToolNewStructure2D::ReosMapToolNewStructure2D( ReosHydraulicNetwork *netw
 
 void ReosMapToolNewStructure2D::onDomainDrawn( const QPolygonF &polygon )
 {
-  mNetwork->addElement( new ReosHydraulicStructure2D( polygon, map()->mapCrs(), mNetwork ) );
+  mNetwork->addElement( new ReosHydraulicStructure2D( polygon, map()->mapCrs(), mNetwork->context() ) );
 }
 
 ReosMapToolHydraulicElement::ReosMapToolHydraulicElement( ReosHydraulicNetwork *network ):

@@ -252,6 +252,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/data
     ${CMAKE_SOURCE_DIR}/src/core/hydrograph
     ${CMAKE_SOURCE_DIR}/src/core/hydraulicNetwork
+    ${CMAKE_SOURCE_DIR}/src/core/hydraulicNetwork/simulation/
     ${CMAKE_SOURCE_DIR}/src/core/mesh
 
     ${CMAKE_SOURCE_DIR}/src/gui
