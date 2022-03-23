@@ -150,5 +150,7 @@
         <file>verticalExaggeration.svg</file>
         <file>terrain3DSettings.svg</file>
         <file>roughness.svg</file>
+        <file>zoom.svg</file>
+        <file>addBoundaryCondition.svg</file>
     </qresource>
 </RCC>

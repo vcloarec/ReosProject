@@ -25,6 +25,7 @@ class ReosPolylinesStructure;
 class QUndoStack;
 class QToolBar;
 class ReosMapToolEditPolylineStructure;
+class ReosPolylineStructureClassModelList;
 
 namespace Ui
 {
@@ -44,15 +45,29 @@ class ReosEditPolylineStructureWidget : public QWidget
     void setSettingsWidget( QWidget *widget );
     void setInformationWidget( QWidget *widget );
 
+  signals:
+    void boundaryConditionSelectionChanged();
+
   protected:
     void hideEvent( QHideEvent *e );
     void showEvent( QShowEvent *e );
 
+  private slots:
+    void onRenameBoundary();
+    void onRemoveBoundary();
+    void onZoomOnBoundaryCondition();
+
   private:
     Ui::ReosEditPolylineStructureWidget *ui;
     QAction *mActionEditLine = nullptr;
+    QPointer<ReosPolylinesStructure> mStructure;
     ReosMapToolEditPolylineStructure *mMapToolEditLine = nullptr;
     QToolBar *mToolBar = nullptr;
+    QAction *mActionRemoveBoundary = nullptr;
+    QAction *mActionZoomOnBoundary = nullptr;
+    QAction *mActionRenameBoundary = nullptr;
+    ReosPolylineStructureClassModelList *mBoundaryModel = nullptr;
+    ReosGuiContext mGuiContext;
 };
 
 #endif // REOSEDITPOLYLINESTRUCTUREWIDGET_H

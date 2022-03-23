@@ -212,8 +212,9 @@ ReosMeshFrameData ReosGmshEngine::generateMesh(
     std::vector<std::size_t>nodeTags;
     std::vector<double>  coord;
     std::vector<double>  parametricCoord;
-    gmsh::model::mesh::getNodes( nodeTags, coord, parametricCoord, -1, -1, false, true );
 
+    // get all the vertices
+    gmsh::model::mesh::getNodes( nodeTags, coord, parametricCoord, -1, -1, false, true );
     result.vertexCoordinates.resize( coord.size() );
     memcpy( result.vertexCoordinates.data(), coord.data(), coord.size()*sizeof( double ) );
 
@@ -255,6 +256,56 @@ ReosMeshFrameData ReosGmshEngine::generateMesh(
         }
       }
     }
+
+    //now we have to retrieve the paricular nodes, as boundary
+    std::vector<std::size_t> nodeBoundTags;
+    std::vector<double>  coordBound;
+    std::vector<double>  parametricCoordBound;
+    for ( int i = 0; i < boundVertCount; ++i )
+    {
+      QVector<int> vertexTagBound;
+      int boundLineTag = i + 1;
+      //get the first vertex of the line (dim=0)
+      gmsh::model::mesh::getNodes( nodeBoundTags, coordBound, parametricCoordBound, 0, boundLineTag, false, true );
+      Q_ASSERT( nodeBoundTags.size() == 1 );
+      vertexTagBound.append( tagToVertexIndex.value( nodeBoundTags.at( 0 ) ) );
+      // get the other vertex tags on the line
+      gmsh::model::mesh::getNodes( nodeBoundTags, coordBound, parametricCoordBound, 1, boundLineTag, false, true );
+
+      int iniSize = vertexTagBound.count();
+      vertexTagBound.resize( iniSize + nodeBoundTags.size() );
+      for ( size_t nt = 0; nt < nodeBoundTags.size(); ++nt )
+        vertexTagBound[iniSize + nt] =  tagToVertexIndex.value( nodeBoundTags.at( nt ) );
+
+      result.boundaryVertices.append( vertexTagBound );
+    }
+    //and holes
+    for ( int h = 0; h < data.holes.count(); ++h )
+    {
+      const QVector<int> holeInternalLines = data.holes.at( h );
+      QVector<QVector<int>> holeVertices;
+      for ( int i = 0; i < holeInternalLines.count(); ++i )
+      {
+        QVector<int> vertexTagBound;
+        int lineTag = holeInternalLines.at( i ) + boundVertCount + 1;
+        //get the first vertex of the line (dim=0)
+        gmsh::model::mesh::getNodes( nodeBoundTags, coordBound, parametricCoordBound, 0, lineTag, false, true );
+        Q_ASSERT( nodeBoundTags.size() == 1 );
+        vertexTagBound.append( tagToVertexIndex.value( nodeBoundTags.at( 0 ) ) );
+        // get the other vertex tags on the line
+        gmsh::model::mesh::getNodes( nodeBoundTags, coordBound, parametricCoordBound, 1, lineTag, false, true );
+
+        int iniSize = vertexTagBound.count();
+        vertexTagBound.resize( iniSize + nodeBoundTags.size() );
+        for ( size_t nt = 0; nt < nodeBoundTags.size(); ++nt )
+          vertexTagBound[iniSize + nt] =  tagToVertexIndex.value( nodeBoundTags.at( nt ) );
+
+        holeVertices.append( vertexTagBound );
+      }
+
+      result.holesVertices.append( holeVertices );
+    }
+
   }
   catch ( ... )
   {

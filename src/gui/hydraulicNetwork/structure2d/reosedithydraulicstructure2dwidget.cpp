@@ -65,6 +65,7 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
   structureWidget->setSettingsWidget( ReosFormWidgetFactories::instance()->createDataFormWidget( structure2D->meshGenerator(), ReosGuiContext( context, structureWidget ) ) );
   structureWidget->setInformationWidget( new ReosStructureInformationWidget( structure2D, structureWidget ) );
   ui->pageMeshStructure->layout()->addWidget( structureWidget );
+  connect( structureWidget, &ReosEditPolylineStructureWidget::boundaryConditionSelectionChanged, this, [this] {mMapStructureItem.updatePosition();} );
 
   ReosGmshResolutionControllerWidget *resolutionWidget = new ReosGmshResolutionControllerWidget( structure2D, ReosGuiContext( context, this ) );
   resolutionWidget->addToolBarActions( meshGenerationToolBarActions );

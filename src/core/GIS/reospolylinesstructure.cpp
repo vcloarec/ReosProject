@@ -31,3 +31,13 @@ std::unique_ptr<ReosPolylinesStructure> ReosPolylinesStructure::createPolylineSt
   return std::unique_ptr<ReosPolylinesStructure>( new ReosPolylineStructureVectorLayer( encodedElement ) );
 }
 
+QString ReosPolylinesStructure::selectedClass() const
+{
+  return mSelectedClass;
+}
+
+void ReosPolylinesStructure::setSelectedClass( const QString &selectedClass )
+{
+  mSelectedClass = selectedClass;
+}
+

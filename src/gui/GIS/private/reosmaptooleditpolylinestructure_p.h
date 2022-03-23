@@ -70,7 +70,8 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
       None,
       DraggingVertex,
       AddingLines,
-      DraggingHolePoint
+      DraggingHolePoint,
+      SelectLinesByExtremity
     };
     State mCurrentState = None;
     QPointF mCurrentPosition;
@@ -80,8 +81,10 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
 
     QString mMapCrs;
     ReosGeometryStructureVertex *mCurrentVertex = nullptr;
+    qint64 mCurrentLineId = __INT64_MAX__;
     QList<QPointF> mNeighborPosition;
     int mMovingHolePointIndex = -1;
+    ReosGeometryStructureVertex *mFirstSelectedVertex = nullptr;
 
     ReosMapExtent searchZone( const QgsPointXY &point ) const;
 
@@ -89,6 +92,8 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
     QgsRubberBand *mVertexRubberBand = nullptr;
     QgsRubberBand *mHoveredLineBand = nullptr;
     QgsRubberBand *mPolygonHoleBand = nullptr;
+    QgsRubberBand *mSelectLinesBand = nullptr;
+    QgsRubberBand *mSelectLinesVertexBand = nullptr;
     void updateMovingVertexRubberBand( const QgsPointXY &movingPosition );
     void moveAddingLineRubberBand( const QgsPointXY &movingPosition );
     void stopDraggingVertex();
@@ -102,6 +107,7 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
     QAction *mActionAddLines = nullptr;
     QAction *mActionAddHole = nullptr;
     QAction *mActionMoveVertex = nullptr;
+    QAction *mActionAddBoundary = nullptr;
 
     QAction *mActionInsertVertex = nullptr;
     QAction *mActionRemoveVertex = nullptr;

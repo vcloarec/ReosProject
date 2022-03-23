@@ -62,11 +62,11 @@ class ReosMapToolEditPolygonStructure : public ReosMapTool
 };
 
 
-class ReosGeometryStructureClassModelList: public QAbstractListModel
+class ReosPolygonStructureClassModelList: public QAbstractListModel
 {
     Q_OBJECT
   public:
-    ReosGeometryStructureClassModelList( ReosPolygonStructure *structure, QObject *parent = nullptr );
+    ReosPolygonStructureClassModelList( ReosPolygonStructure *structure, QObject *parent = nullptr );
 
     QModelIndex index( int row, int column, const QModelIndex &parent ) const;
     QModelIndex parent( const QModelIndex &child ) const;
@@ -85,5 +85,31 @@ class ReosGeometryStructureClassModelList: public QAbstractListModel
     QStringList orderedClasses() const;
 
 };
+
+
+class ReosPolylineStructureClassModelList: public QAbstractListModel
+{
+    Q_OBJECT
+  public:
+    ReosPolylineStructureClassModelList( ReosPolylinesStructure *structure, QObject *parent = nullptr );
+
+    QModelIndex index( int row, int column, const QModelIndex &parent ) const;
+    QModelIndex parent( const QModelIndex &child ) const;
+    int rowCount( const QModelIndex &parent ) const;
+    int columnCount( const QModelIndex &parent ) const;
+    QVariant data( const QModelIndex &index, int role ) const;
+
+    QString classId( int index ) const;
+    QModelIndex classToindex( const QString &classId ) const;
+
+  private slots:
+    void onClassesChanged();
+
+  private:
+    QPointer<ReosPolylinesStructure> mStructure;
+    QStringList orderedClasses() const;
+
+};
+
 
 #endif // REOSMAPTOOLEDITGEOMETRYSTRUCTURE_H

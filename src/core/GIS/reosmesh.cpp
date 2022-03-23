@@ -60,6 +60,16 @@ void ReosMesh::setQualityMeshParameter( const ReosEncodedElement &element )
   mQualityMeshParameters.decode( element, this );
 }
 
+bool ReosMesh::vertexIsOnBoundary( int vertexIndex ) const
+{
+  return mBoundaryVerticesSet.contains( vertexIndex );
+}
+
+bool ReosMesh::vertexIsOnHoleBorder( int vertexIndex ) const
+{
+  return mHolesVerticesVerticesSet.contains( vertexIndex );
+}
+
 ReosEncodedElement ReosMesh::QualityMeshParameters::encode() const
 {
   ReosEncodedElement encodedElement( QStringLiteral( "qualtiy-mesh-parameters" ) );

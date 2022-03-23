@@ -19,6 +19,7 @@
 #include <QPointF>
 #include <QVector>
 #include <QPointer>
+#include <QSet>
 
 #include "reosrenderedobject.h"
 
@@ -143,16 +144,21 @@ class ReosMesh: public ReosRenderedObject
 
     virtual ReosEncodedElement datasetGroupSymbology( const QString &id ) const = 0;
 
+    //! Returns a process that check the quality of the mesh, caller take ownership
+    virtual ReosMeshQualityChecker *getQualityChecker( QualityMeshChecks qualitiChecks, const QString &destinatonCrs ) const = 0;
+
     QualityMeshParameters qualityMeshParameters() const;
     void setQualityMeshParameter( const ReosEncodedElement &element );
 
-    //! Returns a process that check the quality of the mesh, caller take ownership
-    virtual ReosMeshQualityChecker *getQualityChecker( QualityMeshChecks qualitiChecks, const QString &destinatonCrs ) const = 0;
+    bool vertexIsOnBoundary( int vertexIndex ) const;
+    bool vertexIsOnHoleBorder( int vertexIndex ) const;
 
   protected:
     ReosMesh( QObject *parent = nullptr );
 
     QualityMeshParameters mQualityMeshParameters;
+    QSet<int> mBoundaryVerticesSet;
+    QSet<int> mHolesVerticesVerticesSet;
 };
 
 #endif // REOSMESH_H

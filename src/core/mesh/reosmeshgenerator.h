@@ -38,6 +38,8 @@ struct ReosMeshFrameData
   QVector<QVector<int>> facesIndexes;
   QRectF extent;
   bool hasZ = false;
+  QVector<QVector<int>> boundaryVertices;
+  QVector<QVector<QVector<int>>> holesVertices;
 };
 
 

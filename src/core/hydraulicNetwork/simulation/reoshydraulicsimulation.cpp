@@ -30,6 +30,11 @@ ReosHydraulicSimulation::ReosHydraulicSimulation()
 
 void ReosHydraulicSimulation::prepareInput( ReosHydraulicStructure2D *hydraulicStructure )
 {
+  createSelafinInputGeometry( hydraulicStructure );
+}
+
+void ReosHydraulicSimulation::createSelafinInputGeometry( ReosHydraulicStructure2D *hydraulicStructure )
+{
   QgsMeshLayer *meshLayer = qobject_cast<QgsMeshLayer *> ( hydraulicStructure->mesh()->data() );
   if ( !meshLayer )
     return;

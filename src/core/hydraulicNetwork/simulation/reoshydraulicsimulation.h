@@ -26,6 +26,9 @@ class ReosHydraulicSimulation
 
     static void prepareInput( ReosHydraulicStructure2D *hydraulicStructure );
 
+
+    static void createSelafinInputGeometry( ReosHydraulicStructure2D *hydraulicStructure );
+
 };
 
 

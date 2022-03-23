@@ -56,7 +56,7 @@ ReosRoughnessWidget::ReosRoughnessWidget( ReosHydraulicStructure2D *structure2D,
     mMap->refreshCanvas();
   } );
 
-  mModel = new ReosGeometryStructureClassModelList( mStructure->structure(), this );
+  mModel = new ReosPolygonStructureClassModelList( mStructure->structure(), this );
   ui->mRoughnessListView->setModel( mModel );
 
   connect( ui->mAddButton, &QToolButton::clicked, this, &ReosRoughnessWidget::addRougness );

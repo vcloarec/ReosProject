@@ -283,6 +283,14 @@ void ReosMeshFrame_p::generateMesh( const ReosMeshFrameData &data )
   if ( mMeshLayer->isEditable() )
     stopFrameEditing( false );
 
+  for ( const QVector<int> &boundLine : data.boundaryVertices )
+    for ( int i : boundLine )
+      mBoundaryVerticesSet.insert( i );
+
+  for ( const QVector<QVector<int>> &hole : data.holesVertices )
+    for ( const QVector<int> &holeLine : hole )
+      for ( int i : holeLine )
+        mBoundaryVerticesSet.insert( i );
 
   meshProvider()->generateMesh( data );
   mMeshLayer->reload();
