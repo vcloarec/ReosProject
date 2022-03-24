@@ -24,6 +24,7 @@
 
 class ReosTopographyCollection;
 class ReosRoughnessStructure;
+class ReosHydraulicStructureBoundaryCondition;
 class QDir;
 
 class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
@@ -81,6 +82,10 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
   protected:
     void encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const;
 
+  private slots:
+    void onBoundaryConditionAdded( const QString &bid );
+    void onBoundaryConditionRemoved( const QString &bid );
+
   private:
     ReosHydraulicStructure2D( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
 
@@ -99,8 +104,8 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
 
     void init();
     void generateMeshInPlace();
-
     QString directory() const;
+    ReosHydraulicStructureBoundaryCondition *boundaryConditionNetWorkElement( const QString boundaryId );
 };
 
 class ReosHydraulicStructure2dFactory : public ReosHydraulicNetworkElementFactory

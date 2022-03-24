@@ -453,7 +453,7 @@ bool ReosGisEngine::canBeRasterDem( const QString &uri ) const
   return canBeRasterDem( rasterLayer.get() );
 }
 
-ReosMapExtent ReosGisEngine::transformToProjectExtent( const ReosMapExtent &extent )
+ReosMapExtent ReosGisEngine::transformToProjectExtent( const ReosMapExtent &extent ) const
 {
   QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( extent.crs() ),
                                     QgsProject::instance()->crs(),
@@ -476,7 +476,7 @@ ReosMapExtent ReosGisEngine::transformToProjectExtent( const ReosMapExtent &exte
   return ret;
 }
 
-ReosMapExtent ReosGisEngine::transformFromProjectExtent( const ReosMapExtent &extent, const QString &wktCrs )
+ReosMapExtent ReosGisEngine::transformFromProjectExtent( const ReosMapExtent &extent, const QString &wktCrs ) const
 {
   QgsCoordinateTransform transform( QgsProject::instance()->crs(),
                                     QgsCoordinateReferenceSystem::fromWkt( wktCrs ),
@@ -499,7 +499,7 @@ ReosMapExtent ReosGisEngine::transformFromProjectExtent( const ReosMapExtent &ex
   return ret;
 }
 
-QPointF ReosGisEngine::transformToProjectCoordinates( const QString &sourceCRS, const QPointF &sourcePoint )
+QPointF ReosGisEngine::transformToProjectCoordinates( const QString &sourceCRS, const QPointF &sourcePoint ) const
 {
   QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( sourceCRS ),
                                     QgsProject::instance()->crs(),
@@ -516,9 +516,26 @@ QPointF ReosGisEngine::transformToProjectCoordinates( const QString &sourceCRS, 
   }
 }
 
-QPointF ReosGisEngine::transformToProjectCoordinates( const ReosSpatialPosition &position )
+QPointF ReosGisEngine::transformToProjectCoordinates( const ReosSpatialPosition &position ) const
 {
   return transformToProjectCoordinates( position.crs(), position.position() );
+}
+
+QPointF ReosGisEngine::transformToCoordinates( const ReosSpatialPosition &position, const QString &destinationCrs ) const
+{
+  QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( position.crs() ),
+                                    QgsCoordinateReferenceSystem::fromWkt( destinationCrs ),
+                                    QgsProject::instance()->transformContext() );
+
+  try
+  {
+    QgsPointXY transformPoint = transform.transform( QgsPointXY( position.position() ) );
+    return transformPoint.toQPointF();
+  }
+  catch ( ... )
+  {
+    return position.position();
+  }
 }
 
 QString ReosGisEngine::gisEngineName()

@@ -22,6 +22,7 @@
 #include "reoshydraulicnetwork.h"
 
 class ReosHydraulicLink;
+class ReosSpatialPosition;
 
 class REOSCORE_EXPORT ReosHydraulicNode : public ReosHydraulicNetworkElement
 {
@@ -38,8 +39,11 @@ class REOSCORE_EXPORT ReosHydraulicNode : public ReosHydraulicNetworkElement
     QList<ReosHydraulicLink *> linksBySide1() const;
     QList<ReosHydraulicLink *> linksBySide2() const;
 
-    virtual QPointF position() const = 0;
-    virtual void setPosition( const QPointF &pos ) = 0;
+    virtual QPointF position( const QString &destinationCrs ) const = 0;
+    virtual void setPosition( const ReosSpatialPosition &pos ) = 0;
+
+    //! Default inmplementation return false
+    virtual bool canAcceptLink( const QString &linkId, int positionInLink );
 
   protected:
     ReosHydraulicNode( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent = nullptr );

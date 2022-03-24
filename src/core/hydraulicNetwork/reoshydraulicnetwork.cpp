@@ -178,8 +178,11 @@ void ReosHydraulicNetwork::removeElement( ReosHydraulicNetworkElement *elem )
   emit elementRemoved( elem );
   ReosHydraulicNode *node = qobject_cast<ReosHydraulicNode *>( elem );
   if ( node )
-    for ( ReosHydraulicLink *link : node->links() )
+  {
+    const QList<ReosHydraulicLink *> links = node->links();
+    for ( ReosHydraulicLink *link :  links )
       removeElement( link );
+  }
 
   elem->destroy();
 }
@@ -201,7 +204,7 @@ void ReosHydraulicNetwork::decode( const ReosEncodedElement &element, const QStr
 
   for ( const ReosEncodedElement &encodedElement : encodedElements )
   {
-    if ( encodedElement.description().contains( ReosHydraulicNode::staticType() ) )
+    if ( encodedElement.description().contains( ReosHydraulicStructure2D::staticType() ) )
     {
       addEncodedElement( encodedElement );
     }
@@ -209,7 +212,7 @@ void ReosHydraulicNetwork::decode( const ReosEncodedElement &element, const QStr
 
   for ( const ReosEncodedElement &encodedElement : encodedElements )
   {
-    if ( encodedElement.description().contains( ReosHydraulicStructure2D::staticType() ) )
+    if ( encodedElement.description().contains( ReosHydraulicNode::staticType() ) )
     {
       addEncodedElement( encodedElement );
     }
@@ -223,6 +226,8 @@ void ReosHydraulicNetwork::decode( const ReosEncodedElement &element, const QStr
     }
   }
 
+  for ( ReosHydraulicNetworkElement *elem : std::as_const( mElements ) )
+    elemPositionChangedPrivate( elem );
 }
 
 ReosEncodedElement ReosHydraulicNetwork::encode( const QString &projectPath, const QString &projectFileName ) const

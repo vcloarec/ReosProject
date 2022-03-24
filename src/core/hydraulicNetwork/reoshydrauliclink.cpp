@@ -39,6 +39,17 @@ ReosHydraulicNode *ReosHydraulicLink::secondNode() const
     return mNode_2;
 }
 
+QPair<QString, QString> ReosHydraulicLink::decodeNodesId( const ReosEncodedElement &element )
+{
+  QString idNode1;
+  QString idNode2;
+
+  element.getData( QStringLiteral( "id-node-1" ), idNode1 );
+  element.getData( QStringLiteral( "id-node-2" ), idNode2 );
+
+  return {idNode1, idNode2};
+}
+
 void ReosHydraulicLink::destroy()
 {
   mNode_1->detachFromSide1( this );
@@ -74,4 +85,10 @@ void ReosHydraulicLink::attachOnSide2( ReosHydraulicNode *node )
     setObsolete();
   }
 
+}
+
+void ReosHydraulicLink::encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext & ) const
+{
+  element.addData( QStringLiteral( "id-node-1" ), mNode_1->id() );
+  element.addData( QStringLiteral( "id-node-2" ), mNode_2->id() );
 }

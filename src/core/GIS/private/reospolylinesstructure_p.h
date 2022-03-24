@@ -167,6 +167,7 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure, private R
     void changeClassValue( const QString &classId, const QVariant &value ) override;
     QStringList classes() const override;
     QRectF classExtent( const QString &classId, const QString &destinationCrs ) const;
+    QPointF boundaryConditionCenter( const QString &clId, const QString &destinationCrs ) const override;
 
     QVariant value( const QString &classId ) const override;
 
@@ -231,6 +232,8 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure, private R
 
     QString classId( SegmentId id ) const;
     QgsFeatureIds classIdToSegments( const QString &classId );
+
+    QList<VertexP> boundaryFromClassId( const QString &clId ) const;
 
     friend class ReosPolylineStructureVectorLayerUndoCommandRemoveLine;
     friend class ReosPolylineStructureVectorLayerUndoCommandAddLine;

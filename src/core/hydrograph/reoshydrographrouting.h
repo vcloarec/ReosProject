@@ -103,7 +103,7 @@ class REOSCORE_EXPORT ReosHydrographRoutingLink : public ReosHydraulicLink
     ReosHydrographNode *destinationNode() const;
 
     //! Sets the destination node
-    void setHydrographDestination( ReosHydrographNode *destination );
+    void setDestination( ReosHydrographNode *destination );
 
     //! Returns the input hydrograph
     virtual ReosHydrograph *inputHydrograph() const;

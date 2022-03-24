@@ -73,7 +73,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   toolBar->addAction( mActionAddHydrographRouting );
   mActionAddHydrographRouting->setCheckable( true );
   mMapToolAddHydrographRouting->setAction( mActionAddHydrographRouting );
-  mMapToolAddHydrographRouting->setSearchingItemDecription( ReosHydrographSource::staticType() );
+  mMapToolAddHydrographRouting->setSearchingItemDecription( ReosHydrographNode::staticType() );
   mMapToolAddHydrographRouting->setSearchItemWhenMoving( true );
 
   toolBar->addAction( mActionMoveHydrographJunction );
@@ -127,12 +127,15 @@ void ReosHydraulicNetworkWidget::onElementAdded( ReosHydraulicNetworkElement *el
 
   addGeometryStructure( elem );
 
-  onElementSelected( item.get() );
+  if ( elem->isAutoSelectable() )
+    onElementSelected( item.get() );
 }
 
 void ReosHydraulicNetworkWidget::onElementRemoved( ReosHydraulicNetworkElement *elem )
 {
-  onElementSelected( nullptr );
+  if ( mCurrentSelectedElement == elem )
+    onElementSelected( nullptr );
+
   removeGeometryStructure( elem );
   mMapItems.remove( elem );
 }
@@ -186,6 +189,7 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
     mMapItemFactory.selectItem( elem, item );
     ui->mNameWidget->setString( elem->name() );
     mExtraItemSelection.reset( mMapItemFactory.createExtraItemSelected( elem, mMap ) );
+    mActionRemoveElement->setEnabled( elem->isRemovable() );
   }
 
   mCurrentSelectedElement = elem;
@@ -201,6 +205,7 @@ void ReosHydraulicNetworkWidget::onSelectedElementRemoved()
 
   if ( !mCurrentSelectedElement )
     return;
+
   if ( QMessageBox::warning( this, tr( "Remove Hydraulic Network Element" ), tr( "This action will remove definitly the element \"%1\"\n"
                              "Do you want to proceed?" ).arg( mCurrentSelectedElement->name()->value() ),
                              QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::No )

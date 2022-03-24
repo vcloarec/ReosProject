@@ -130,8 +130,12 @@ void ReosEditPolylineStructureWidget::onRenameBoundary()
 
 void ReosEditPolylineStructureWidget::onRemoveBoundary()
 {
-  QString classId = mBoundaryModel->classId( ui->mBoundaryListView->currentIndex().row() );
-  mStructure->removeBoundaryCondition( classId );
+  QModelIndex modelIndex = ui->mBoundaryListView->currentIndex();
+  if ( modelIndex.isValid() )
+  {
+    QString classId = mBoundaryModel->classId( ui->mBoundaryListView->currentIndex().row() );
+    mStructure->removeBoundaryCondition( classId );
+  }
 }
 
 void ReosEditPolylineStructureWidget::onZoomOnBoundaryCondition()

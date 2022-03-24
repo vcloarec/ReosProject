@@ -72,6 +72,8 @@ class REOSGUI_EXPORT ReosMapItem
 
     ReosMapItem &operator=( const ReosMapItem &other ) = delete;
 
+    ReosMap *map() const;
+
   protected:
     bool isMapExist() const;
     QPointer<ReosMap> mMap = nullptr;

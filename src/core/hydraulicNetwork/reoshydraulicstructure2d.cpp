@@ -18,6 +18,7 @@
 #include "reosgmshgenerator.h"
 #include "reostopographycollection.h"
 #include "reoshydraulicsimulation.h"
+#include "reoshydraulicstructureboundarycondition.h"
 
 #include <QProcess>
 #include <QDir>
@@ -55,6 +56,14 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   init();
   mMesh->setMeshSymbology( encodedElement.getEncodedData( QStringLiteral( "mesh-frame-symbology" ) ) );
   mMesh->setQualityMeshParameter( encodedElement.getEncodedData( QStringLiteral( "mesh-quality-parameters" ) ) );
+
+  //check if the boundary condition have associated elements in the network, if not creates them
+  const QStringList boundaryClList = mPolylinesStructures->classes();
+  for ( const QString &bcl : boundaryClList )
+  {
+    if ( !boundaryConditionNetWorkElement( bcl ) )
+      mNetWork->addElement( new ReosHydraulicStructureBoundaryCondition( this, bcl, mHydraulicNetworkContext ) );
+  }
 }
 
 ReosRoughnessStructure *ReosHydraulicStructure2D::roughnessStructure() const
@@ -109,6 +118,16 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
   element.addEncodedData( "3d-map-setings", m3dMapSettings.encode() );
 }
 
+void ReosHydraulicStructure2D::onBoundaryConditionAdded( const QString &bid )
+{
+  mNetWork->addElement( new ReosHydraulicStructureBoundaryCondition( this, bid, mNetWork->context() ) );
+}
+
+void ReosHydraulicStructure2D::onBoundaryConditionRemoved( const QString &bid )
+{
+  mNetWork->removeElement( boundaryConditionNetWorkElement( bid ) );
+}
+
 ReosTopographyCollection *ReosHydraulicStructure2D::topographyCollecion() const
 {
   return mTopographyCollecion;
@@ -133,6 +152,9 @@ void ReosHydraulicStructure2D::init()
     if ( mMeshGenerator->autoUpdateParameter()->value() )
       generateMeshInPlace();
   } );
+
+  connect( mPolylinesStructures.get(), &ReosPolylinesStructure::boundaryConditionAdded, this, &ReosHydraulicStructure2D::onBoundaryConditionAdded );
+  connect( mPolylinesStructures.get(), &ReosPolylinesStructure::boundaryConditionRemoved, this, &ReosHydraulicStructure2D::onBoundaryConditionRemoved );
 
   connect( mMeshResolutionController, &ReosDataObject::dataChanged, this, [this]
   {
@@ -162,6 +184,18 @@ void ReosHydraulicStructure2D::generateMeshInPlace()
 QString ReosHydraulicStructure2D::directory() const
 {
   return id().split( ':' ).last();
+}
+
+ReosHydraulicStructureBoundaryCondition *ReosHydraulicStructure2D::boundaryConditionNetWorkElement( const QString boundaryId )
+{
+  const QList<ReosHydraulicNetworkElement *> hydrElems = mNetWork->getElements( ReosHydraulicStructureBoundaryCondition::staticType() );
+  for ( ReosHydraulicNetworkElement *hydrElem : hydrElems )
+  {
+    ReosHydraulicStructureBoundaryCondition *bcElem = qobject_cast<ReosHydraulicStructureBoundaryCondition *>( hydrElem );
+    if ( bcElem && bcElem->boundaryConditionId() == boundaryId )
+      return bcElem;
+  }
+  return nullptr;
 }
 
 ReosMeshGenerator *ReosHydraulicStructure2D::meshGenerator() const

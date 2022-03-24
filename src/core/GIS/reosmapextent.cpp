@@ -15,7 +15,6 @@ email                : vcloarec at gmail dot com
 
 #include "reosmapextent.h"
 
-
 ReosMapExtent::ReosMapExtent( const QRectF &extent )
 {
   QRectF normalizedExtent = extent.normalized();
@@ -231,3 +230,4 @@ ReosEncodedElement ReosSpatialPosition::encode() const
 
   return element;
 }
+

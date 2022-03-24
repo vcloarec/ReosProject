@@ -76,7 +76,7 @@ class REOSCORE_EXPORT ReosHydrographNode : public ReosHydraulicNode
     QString type() const override {return staticType();}
     static QString staticType() {return ReosHydraulicNode::staticType() + QString( ':' ) + QStringLiteral( "hydrograph" );}
 
-    QPointF position() const override  {return QPointF();}
+    QPointF position( const QString &destinationCrs ) const override  {return QPointF();}
 
     virtual void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *upstreamLink, bool upstreamWillChange ) = 0;
 
@@ -127,7 +127,7 @@ class REOSCORE_EXPORT ReosHydrographSourceFixed: public ReosHydrographSource
     QString type() const override {return staticType();}
     static QString staticType() {return ReosHydrographSource::staticType() + QString( ':' ) + QStringLiteral( "fixed" );}
 
-    void setPosition( const QPointF & ) override {};
+    void setPosition( const ReosSpatialPosition & ) override {};
 
     //! Sets the hydrographs, take ownership
     void setHydrograph( ReosHydrograph *hydrograph );
@@ -169,8 +169,8 @@ class REOSCORE_EXPORT ReosHydrographJunction : public ReosHydrographSource
     QString type() const override {return staticType(); }
     static QString staticType() {return ReosHydrographSource::staticType() + QString( ':' ) + QStringLiteral( "junction" );}
 
-    QPointF position() const override;
-    void setPosition( const QPointF &pos ) override;
+    QPointF position( const QString &destinationCrs ) const override;
+    void setPosition( const ReosSpatialPosition &pos ) override;
     QString defaultDisplayName() const override {return tr( "Junction node" );}
     bool calculationInProgress() const override;
     int calculationMaxProgression() const override;
@@ -221,7 +221,7 @@ class REOSCORE_EXPORT ReosHydrographJunction : public ReosHydrographSource
     bool setCurrentInternalHydrograph( ReosHydrograph *newHydrograph );
 
   private:
-    QPointF mPosition;
+    ReosSpatialPosition mPosition;
     QSet<QString> mWaitingForUpstreamLinksUpdated;
     bool mCalculationIsInProgress = false;
 
@@ -277,8 +277,8 @@ class REOSCORE_EXPORT ReosHydrographNodeWatershed : public ReosHydrographJunctio
     static QString staticType() {return ReosHydrographJunction::staticType() + QString( ':' ) + QStringLiteral( "watershed" );}
 
     ReosHydrograph *outputHydrograph() override;
-    QPointF position() const override;
-    void setPosition( const QPointF & ) override {}; // position of this node can't be set because this is the outlet of the watershed
+    QPointF position( const QString &destinationCrs ) const override;
+    void setPosition( const ReosSpatialPosition & ) override {}; // position of this node can't be set because this is the outlet of the watershed
     QString defaultDisplayName() const override {return tr( "Watershed node" );}
 
     ReosWatershed *watershed() const;

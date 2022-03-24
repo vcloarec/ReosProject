@@ -77,6 +77,7 @@ SET(REOS_CORE_SOURCES
   hydraulicNetwork/reoshydraulicnode.cpp
   hydraulicNetwork/reoshydraulicnetwork.cpp
   hydraulicNetwork/reoshydraulicstructure2d.cpp
+  hydraulicNetwork/reoshydraulicstructureboundarycondition.cpp
   hydraulicNetwork/simulation/reoshydraulicsimulation.cpp
 
   mesh/reosmeshgenerator.cpp
@@ -152,6 +153,7 @@ SET(REOS_CORE_HEADERS
     hydraulicNetwork/reoshydraulicnode.h
     hydraulicNetwork/reoshydraulicnetwork.h
     hydraulicNetwork/reoshydraulicstructure2d.h
+    hydraulicNetwork/reoshydraulicstructureboundarycondition.h
     hydraulicNetwork/simulation/reoshydraulicsimulation.h
 
     mesh/reosmeshgenerator.h

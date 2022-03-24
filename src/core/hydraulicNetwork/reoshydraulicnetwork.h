@@ -52,7 +52,7 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject
     //! Destroy the element (the instance will be deleted later).
     virtual void destroy();
 
-    //! Called when the position oh the item is changed
+    //! Called when the position of the item is changed
     void positionChanged();
 
     //! Returns the parameter of duration used as time step in table when constant time step is used
@@ -76,10 +76,16 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject
 
     ReosModule::Message lastMessage() const;
 
+    virtual bool isAutoSelectable() const {return true;}
+
+    virtual bool isRemovable() const {return true;}
+
   public slots:
     virtual void updateCalculationContext( const ReosCalculationContext &context ) = 0;
 
   protected:
+    QPointer<ReosHydraulicNetwork> mNetWork = nullptr;
+
     void calculationUpdated()
     {
       setActualized();
@@ -93,7 +99,6 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject
     void calculationIsUpdated( const QString &id, QPrivateSignal );
 
   private:
-    QPointer<ReosHydraulicNetwork> mNetWork = nullptr;
     QString mUid;
     ReosParameterString *mNameParameter = nullptr;
     ReosParameterDuration *mConstantTimeStepInTable = nullptr;

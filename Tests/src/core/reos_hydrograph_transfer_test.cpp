@@ -92,7 +92,7 @@ void ReosHydrographTransferTest::test_junction()
 
   ReosHydrographRoutingLink transfer1;
   transfer1.setInputHydrographSource( &mSource1 );
-  transfer1.setHydrographDestination( &junction );
+  transfer1.setDestination( &junction );
 
   junction.updateCalculationContext( context );
   ReosHydrograph *junctionHydrograph = junction.outputHydrograph( );
@@ -112,7 +112,7 @@ void ReosHydrographTransferTest::test_junction()
 
   ReosHydrographRoutingLink transfer2;
   transfer2.setInputHydrographSource( &mSource2 );
-  transfer2.setHydrographDestination( &junction );
+  transfer2.setDestination( &junction );
 
   junction.updateCalculationContext( context );
   junctionHydrograph = junction.outputHydrograph( );
@@ -140,11 +140,11 @@ void ReosHydrographTransferTest::test_junction()
 
   ReosHydrographRoutingLink transfer3;
   transfer3.setInputHydrographSource( &mSource3 );
-  transfer3.setHydrographDestination( &junction );
+  transfer3.setDestination( &junction );
 
   ReosHydrographRoutingLink transfer4;
   transfer4.setInputHydrographSource( &junction );
-  transfer4.setHydrographDestination( &junction2 );
+  transfer4.setDestination( &junction2 );
 
   junction2.updateCalculationContext( context );
 
@@ -339,13 +339,13 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
 
   ReosHydrographRoutingLink link1;
   link1.setInputHydrographSource( &watershedNode1 );
-  link1.setHydrographDestination( &junction1 );
+  link1.setDestination( &junction1 );
   ReosHydrographRoutingLink *link2 = new ReosHydrographRoutingLink;
   link2->setInputHydrographSource( &watershedNode2 );
-  link2->setHydrographDestination( &junction1 );
+  link2->setDestination( &junction1 );
   ReosHydrographRoutingLink link3;
   link3.setInputHydrographSource( &junction1 );
-  link3.setHydrographDestination( &junction2 );
+  link3.setDestination( &junction2 );
 
   QVERIFY( junction2.outputHydrograph() );
   QVERIFY( junction2.outputHydrograph()->valueCount() == 0 );
@@ -375,7 +375,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   QCOMPARE( junction3.outputHydrograph()->valueCount(), 0 );
 
   //move the link 2 to junction 3 instead of junction 1
-  link2->setHydrographDestination( &junction3 );
+  link2->setDestination( &junction3 );
   link1.updateCalculationContext( context );
   link2->updateCalculationContext( context );
 
@@ -392,7 +392,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   QVERIFY( *junction3.outputHydrograph() == expectedHydrograh_watershed2_runoff_model_1 );
 
   //back the link 2 to junction 1
-  link2->setHydrographDestination( &junction1 );
+  link2->setDestination( &junction1 );
   link1.updateCalculationContext( context ); //test the update of context in a parallel but sharing same network
   junction3.updateCalculationContext( context ); //need to
 
@@ -429,7 +429,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   // replace the removed link 2 by link 4
   ReosHydrographRoutingLink link4;
   link4.setInputHydrographSource( &watershedNode2 );
-  link4.setHydrographDestination( &junction1 );
+  link4.setDestination( &junction1 );
   link1.updateCalculationContext( context );
 
   timer.start( WAITING_TIME_FOR_LOOP );

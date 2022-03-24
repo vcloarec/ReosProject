@@ -35,7 +35,7 @@ ReosHydrographRoutingLink::ReosHydrographRoutingLink( ReosHydrographSource *hydr
   ReosHydrographRoutingLink( parent )
 {
   setInputHydrographSource( hydrographSource );
-  setHydrographDestination( destination );
+  setDestination( destination );
 }
 
 
@@ -48,7 +48,7 @@ ReosHydrographRoutingLink::ReosHydrographRoutingLink( ReosHydrographSource *hydr
   init();
 
   setInputHydrographSource( hydrographSource );
-  setHydrographDestination( destination );
+  setDestination( destination );
 
   const QList<ReosEncodedElement> encodedRoutings = encodedElement.getListEncodedData( QStringLiteral( "routing-methods" ) );
   for ( const ReosEncodedElement &encodedRouting : encodedRoutings )
@@ -147,7 +147,7 @@ ReosHydrographNode *ReosHydrographRoutingLink::destinationNode() const
     return qobject_cast<ReosHydrographNode *>( mNode_2 );
 }
 
-void ReosHydrographRoutingLink::setHydrographDestination( ReosHydrographNode *destination )
+void ReosHydrographRoutingLink::setDestination( ReosHydrographNode *destination )
 {
   if ( destinationNode() )
   {

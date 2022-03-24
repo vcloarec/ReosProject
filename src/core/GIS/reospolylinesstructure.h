@@ -158,6 +158,9 @@ class ReosPolylinesStructure : public ReosGeometryStructure
     //! Remove the boundary condition identified by \a classId
     virtual void removeBoundaryCondition( const QString &classId ) = 0;
 
+    //! Returns the center of the boundary condition identified by \a classId
+    virtual QPointF boundaryConditionCenter( const QString &classId, const QString &destinationCrs ) const = 0;
+
     //! Chneges the the \a value associated with the class identified by \a classId
     virtual void changeClassValue( const QString &classId, const QVariant &value ) = 0;
 
@@ -182,6 +185,8 @@ class ReosPolylinesStructure : public ReosGeometryStructure
 
   signals:
     void classesChanged();
+    void boundaryConditionAdded( const QString &classId );
+    void boundaryConditionRemoved( const QString &classId );
 
   private:
     QString mSelectedClass;
