@@ -18,6 +18,7 @@
 #include "reoshydrauliclink.h"
 #include "reoshydraulicstructure2d.h"
 #include "reoshydrographrouting.h"
+#include "reoshydraulicstructureboundarycondition.h"
 #include <QUuid>
 
 ReosHydraulicNetworkElement::ReosHydraulicNetworkElement( ReosHydraulicNetwork *parent ):
@@ -137,6 +138,7 @@ ReosHydraulicNetwork::ReosHydraulicNetwork( ReosModule *parent, ReosGisEngine *g
   mElementFactories.emplace( ReosHydrographRoutingLink::staticType(), new ReosHydrographRoutingLinkFactory );
 
   mElementFactories.emplace( ReosHydraulicStructure2D::staticType(), new ReosHydraulicStructure2dFactory );
+  mElementFactories.emplace( ReosHydraulicStructureBoundaryCondition::staticType(), new ReosHydraulicStructureBoundaryConditionFactory );
 }
 
 QList<ReosHydraulicNetworkElement *> ReosHydraulicNetwork::getElements( const QString &type ) const
@@ -157,7 +159,7 @@ ReosHydraulicNetworkElement *ReosHydraulicNetwork::getElement( const QString &el
     return nullptr;
 }
 
-ReosHydraulicNetworkElement *ReosHydraulicNetwork::addElement( ReosHydraulicNetworkElement *elem )
+ReosHydraulicNetworkElement *ReosHydraulicNetwork::addElement( ReosHydraulicNetworkElement *elem, bool select )
 {
   mElements.insert( elem->id(), elem );
   if ( !elem->name()->isValid() )
@@ -166,7 +168,7 @@ ReosHydraulicNetworkElement *ReosHydraulicNetwork::addElement( ReosHydraulicNetw
     mElementIndexesCounter[ elem->type()] = index;
     elem->name()->setValue( ( elem->defaultDisplayName() + QStringLiteral( " %1" ) ).arg( index ) );
   }
-  emit elementAdded( elem );
+  emit elementAdded( elem, select );
 
   return elem;
 }
@@ -200,11 +202,11 @@ void ReosHydraulicNetwork::decode( const ReosEncodedElement &element, const QStr
 
   QList<ReosEncodedElement> encodedElements = element.getListEncodedData( QStringLiteral( "hydraulic-element" ) );
 
-  //here order of adding element is important (node before links)
+  //here order of adding element is important (nodes before structures before links)
 
   for ( const ReosEncodedElement &encodedElement : encodedElements )
   {
-    if ( encodedElement.description().contains( ReosHydraulicStructure2D::staticType() ) )
+    if ( encodedElement.description().contains( ReosHydraulicNode::staticType() ) )
     {
       addEncodedElement( encodedElement );
     }
@@ -212,7 +214,7 @@ void ReosHydraulicNetwork::decode( const ReosEncodedElement &element, const QStr
 
   for ( const ReosEncodedElement &encodedElement : encodedElements )
   {
-    if ( encodedElement.description().contains( ReosHydraulicNode::staticType() ) )
+    if ( encodedElement.description().contains( ReosHydraulicStructure2D::staticType() ) )
     {
       addEncodedElement( encodedElement );
     }
@@ -286,7 +288,7 @@ void ReosHydraulicNetwork::addEncodedElement( const ReosEncodedElement &element 
 
   ReosHydraulicNetworkElement *elem = it->second->decodeElement( element, context() );
   if ( elem )
-    addElement( elem );
+    addElement( elem, false );
 }
 
 ReosWatershedModule *ReosHydraulicNetworkContext::watershedModule() const

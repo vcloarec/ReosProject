@@ -60,7 +60,7 @@ class ReosHydraulicNetworkWidget : public QWidget
     ~ReosHydraulicNetworkWidget();
 
   private slots:
-    void onElementAdded( ReosHydraulicNetworkElement *elem );
+    void onElementAdded( ReosHydraulicNetworkElement *elem, bool select );
     void onElementRemoved( ReosHydraulicNetworkElement *elem );
     void onElementChanged( ReosHydraulicNetworkElement *elem );
 

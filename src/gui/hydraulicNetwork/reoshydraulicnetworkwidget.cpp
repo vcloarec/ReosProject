@@ -118,7 +118,7 @@ ReosHydraulicNetworkWidget::~ReosHydraulicNetworkWidget()
   delete ui;
 }
 
-void ReosHydraulicNetworkWidget::onElementAdded( ReosHydraulicNetworkElement *elem )
+void ReosHydraulicNetworkWidget::onElementAdded( ReosHydraulicNetworkElement *elem, bool select )
 {
   NetworkItem item;
   item.reset( mMapItemFactory.createMapItem( elem, mMap ) );
@@ -127,7 +127,7 @@ void ReosHydraulicNetworkWidget::onElementAdded( ReosHydraulicNetworkElement *el
 
   addGeometryStructure( elem );
 
-  if ( elem->isAutoSelectable() )
+  if ( select && elem->isAutoSelectable() )
     onElementSelected( item.get() );
 }
 

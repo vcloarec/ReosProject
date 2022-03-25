@@ -267,9 +267,6 @@ ReosHydrographJunction *ReosHydrographJunction::decode( const ReosEncodedElement
   if ( encodedElement.description() != ReosHydrographJunction::staticType() )
     return nullptr;
 
-  QPointF position;
-  encodedElement.getData( QStringLiteral( "position" ), position );
-
   std::unique_ptr<ReosHydrographJunction> ret( new ReosHydrographJunction( encodedElement, context.network() ) );
 
   return ret.release();

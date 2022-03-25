@@ -31,7 +31,8 @@ class ReosHydraulicStructureBoundaryCondition : public ReosHydrographJunction
       const ReosHydraulicNetworkContext &context );
 
     QString type() const override {return staticType();}
-    static QString staticType() {return ReosHydrographNode::staticType() + QString( ':' ) + QStringLiteral( "structure-boundary-condition" );}
+    static QString staticType() {return ReosHydrographJunction::staticType() + QString( ':' ) + QStringLiteral( "structure-boundary-condition" );}
+    static ReosHydraulicStructureBoundaryCondition *decode( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
 
     QPointF position( const QString &destinationCrs ) const override;
     void setPosition( const ReosSpatialPosition & ) override {};
@@ -41,6 +42,8 @@ class ReosHydraulicStructureBoundaryCondition : public ReosHydrographJunction
     void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *upstreamLink, bool upstreamWillChange ) {};
 
     QString boundaryConditionId() const;
+
+    void attachStructure( ReosHydraulicStructure2D *structure );
 
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) {}
@@ -56,9 +59,16 @@ class ReosHydraulicStructureBoundaryCondition : public ReosHydrographJunction
     QString mBoundaryConditionId;
 
   protected:
-    void encodeData( ReosEncodedElement &, const ReosHydraulicNetworkContext & ) const {}
+    ReosHydraulicStructureBoundaryCondition( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent = nullptr );
+    void encodeData( ReosEncodedElement &, const ReosHydraulicNetworkContext & ) const;
 
+};
 
+class ReosHydraulicStructureBoundaryConditionFactory : public ReosHydraulicNetworkElementFactory
+{
+  public:
+    ReosHydraulicStructureBoundaryConditionFactory() = default;
+    ReosHydraulicNetworkElement *decodeElement( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context ) const override;
 };
 
 #endif // REOSHYDRAULICSTRUCTUREBOUNDARYCONDITION_H

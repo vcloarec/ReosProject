@@ -57,12 +57,15 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   mMesh->setMeshSymbology( encodedElement.getEncodedData( QStringLiteral( "mesh-frame-symbology" ) ) );
   mMesh->setQualityMeshParameter( encodedElement.getEncodedData( QStringLiteral( "mesh-quality-parameters" ) ) );
 
-  //check if the boundary condition have associated elements in the network, if not creates them
-  const QStringList boundaryClList = mPolylinesStructures->classes();
-  for ( const QString &bcl : boundaryClList )
+  //if the boundary condition have associated elements in the network, attache it, if not creates them
+  const QStringList boundaryIdList = mPolylinesStructures->classes();
+  for ( const QString &bcId : boundaryIdList )
   {
-    if ( !boundaryConditionNetWorkElement( bcl ) )
-      mNetWork->addElement( new ReosHydraulicStructureBoundaryCondition( this, bcl, mHydraulicNetworkContext ) );
+    ReosHydraulicStructureBoundaryCondition *bc = boundaryConditionNetWorkElement( bcId );
+    if ( bc )
+      bc->attachStructure( this );
+    else
+      mNetWork->addElement( new ReosHydraulicStructureBoundaryCondition( this, bcId, mHydraulicNetworkContext ) );
   }
 }
 

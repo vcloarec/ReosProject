@@ -145,7 +145,7 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     QList<ReosHydraulicNetworkElement *> getElements( const QString &type ) const;
     ReosHydraulicNetworkElement *getElement( const QString &elemId ) const;
 
-    ReosHydraulicNetworkElement *addElement( ReosHydraulicNetworkElement *elem );
+    ReosHydraulicNetworkElement *addElement( ReosHydraulicNetworkElement *elem, bool select = true );
     void removeElement( ReosHydraulicNetworkElement *elem );
 
     void decode( const ReosEncodedElement &element, const QString &projectPath, const QString &projectFileName );
@@ -159,7 +159,7 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     ReosHydraulicNetworkContext context() const;
 
   signals:
-    void elementAdded( ReosHydraulicNetworkElement *elem );
+    void elementAdded( ReosHydraulicNetworkElement *elem, bool select );
     void elementRemoved( ReosHydraulicNetworkElement *elem );
     void elementPositionHasChanged( ReosHydraulicNetworkElement *elem );
     void hasBeenReset();
