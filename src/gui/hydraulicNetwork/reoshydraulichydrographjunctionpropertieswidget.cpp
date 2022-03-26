@@ -72,8 +72,6 @@ ReosHydraulicHydrographJunctionPropertiesWidget::ReosHydraulicHydrographJunction
 
   ui->mHydrographTabsWidget->setConstantTimeStepParameter( mJunctionNode->constantTimeStepInTable(), mJunctionNode->useConstantTimeStepInTable() );
 
-
-
   if ( settings.contains( QStringLiteral( "hydraulic-network-properties-widget/table-visible" ) ) )
   {
     if ( settings.value( QStringLiteral( "hydraulic-network-properties-widget/table-visible" ) ).toBool() )

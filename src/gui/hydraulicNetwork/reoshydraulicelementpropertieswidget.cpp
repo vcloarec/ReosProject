@@ -84,7 +84,7 @@ void ReosHydraulicElementPropertiesWidget::setCurrentElement( ReosHydraulicNetwo
   {
     newWidget = widgetFactory( element->type() )->createWidget( element, ReosGuiContext( guiContext, this ) );
     connect( newWidget, &ReosHydraulicElementWidget::stackedPageWidgetOpened, this, &ReosStackedPageWidget::addOtherPage );
-    newNameWidget = new ReosParameterStringWidget( element->name(), this );
+    newNameWidget = new ReosParameterStringWidget( element->elementName(), this );
     mMeteoModelCombo->show();
   }
   else
@@ -237,7 +237,7 @@ void ReosHydraulicElementPropertiesActionWidget::setCurrentElement( ReosHydrauli
     return;
 
   if ( element )
-    setWindowTitle( element->name()->value() );
+    setWindowTitle( element->elementName()->value() );
   else
     setWindowTitle( tr( "No Element Selected" ) );
 

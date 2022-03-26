@@ -187,6 +187,7 @@ class ReosPolylinesStructure : public ReosGeometryStructure
     void classesChanged();
     void boundaryConditionAdded( const QString &classId );
     void boundaryConditionRemoved( const QString &classId );
+    void geometryChanged();
 
   private:
     QString mSelectedClass;

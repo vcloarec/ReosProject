@@ -401,7 +401,7 @@ void ReosWatershedWidget::onAddRemoveNetwork()
   {
     if ( QMessageBox::warning( this,
                                tr( "Remove Watershed Hydraulic Node" ),
-                               tr( "This will permanently remove the hydraulic node %1. Do you want to proceed? " ).arg( hsw->name()->value() ),
+                               tr( "This will permanently remove the hydraulic node %1. Do you want to proceed? " ).arg( hsw->elementName()->value() ),
                                QMessageBox::Yes, QMessageBox::No, QMessageBox::No ) == QMessageBox::No )
       return;
     mHydraulicNetwork->removeElement( hsw );

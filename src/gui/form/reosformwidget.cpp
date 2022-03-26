@@ -156,6 +156,11 @@ void ReosFormDialog::addParameter( ReosParameter *parameter )
   mForm->addParameter( parameter );
 }
 
+void ReosFormDialog::addWidget( QWidget *widget )
+{
+  mForm->addWidget( widget );
+}
+
 ReosFormWidget *ReosFormDialog::addData( ReosDataObject *data, const ReosGuiContext &context )
 {
   return mForm->addData( data, context );

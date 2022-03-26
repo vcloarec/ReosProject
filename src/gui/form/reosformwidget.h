@@ -78,6 +78,7 @@ class ReosFormDialog : public QDialog
   public:
     explicit ReosFormDialog( QWidget *parent = nullptr );
     void addParameter( ReosParameter *parameter );
+    void addWidget( QWidget *widget );
     ReosFormWidget *addData( ReosDataObject *data, const ReosGuiContext  &context );
     void addText( const QString &text );
 

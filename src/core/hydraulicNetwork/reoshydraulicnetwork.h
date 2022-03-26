@@ -46,7 +46,8 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject
     QString type() const override {return staticType();}
     static QString staticType() {return QStringLiteral( "hydraulicNetwork" );}
 
-    ReosParameterString *name() const;
+    ReosParameterString *elementName() const;
+
     virtual QString defaultDisplayName() const {return type();}
 
     //! Destroy the element (the instance will be deleted later).

@@ -25,6 +25,12 @@ class ReosHydraulicStructureBoundaryCondition : public ReosHydrographJunction
 {
     Q_OBJECT
   public:
+    enum class Type
+    {
+      InputFlow,
+      OutputLevel,
+    };
+
     ReosHydraulicStructureBoundaryCondition(
       ReosHydraulicStructure2D *hydStructure,
       const QString &boundaryConditionId,
@@ -39,15 +45,17 @@ class ReosHydraulicStructureBoundaryCondition : public ReosHydrographJunction
     bool isAutoSelectable() const override;
     bool isRemovable() const override {return false;}
     bool canAcceptLink( const QString &linkId, int positionInLink ) override;
-    void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *upstreamLink, bool upstreamWillChange ) {};
+    void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *upstreamLink, bool upstreamWillChange );;
 
     QString boundaryConditionId() const;
 
     void attachStructure( ReosHydraulicStructure2D *structure );
 
+    Type conditionType() const;
+
   public slots:
-    void updateCalculationContext( const ReosCalculationContext &context ) {}
-    virtual void onUpstreamRoutingUpdated( const QString &routingId ) {}
+    void updateCalculationContext( const ReosCalculationContext &context );
+    //virtual void onUpstreamRoutingUpdated( const QString &routingId ) {}
 
   private slots:
     void onBoundaryClassesChange();

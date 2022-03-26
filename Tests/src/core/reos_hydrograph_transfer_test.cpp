@@ -323,19 +323,19 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
 
 
   ReosHydrographNodeWatershed watershedNode1( watershed1, &meteoCollection );
-  watershedNode1.name()->setValue( "watershed node 1" );
+  watershedNode1.elementName()->setValue( "watershed node 1" );
   ReosHydrographNodeWatershed watershedNode2( watershed2, &meteoCollection );
-  watershedNode2.name()->setValue( "watershed node 2" );
+  watershedNode2.elementName()->setValue( "watershed node 2" );
   ReosHydrographNodeWatershed watershedNode3( watershed3, &meteoCollection );
-  watershedNode3.name()->setValue( "watershed node 3" );
+  watershedNode3.elementName()->setValue( "watershed node 3" );
 
   ReosHydrographJunction junction1( QPointF( 0, 0 ) );
-  junction1.name()->setValue( "junction 1" );
+  junction1.elementName()->setValue( "junction 1" );
   ReosHydrographJunction junction2( QPointF( 10, 0 ) );
-  junction2.name()->setValue( "junction 2" );
+  junction2.elementName()->setValue( "junction 2" );
 
   ReosHydrographJunction junction3( QPointF( 10, 0 ) );
-  junction2.name()->setValue( "junction 3" );
+  junction2.elementName()->setValue( "junction 3" );
 
   ReosHydrographRoutingLink link1;
   link1.setInputHydrographSource( &watershedNode1 );

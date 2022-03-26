@@ -365,6 +365,11 @@ int ReosMeteorologicModelsCollection::modelCount() const
   return static_cast<int>( mMeteoModels.size() );
 }
 
+int ReosMeteorologicModelsCollection::modelIndex( ReosMeteorologicModel *model ) const
+{
+  return mMeteoModels.indexOf( model );
+}
+
 void ReosMeteorologicModelsCollection::addMeteorologicModel( const QString &name )
 {
   beginInsertRows( QModelIndex(), modelCount(), modelCount() );

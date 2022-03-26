@@ -2077,6 +2077,8 @@ void ReosPolylineStructureVectorLayerUndoCommandRemoveLine::redo()
 
   if ( mBoundaryPos1 != -1 && !seg.at( 1 )->hasLineAttached() )
     mStructure->mBoundariesVertex.removeOne( seg.at( 1 ).get() );
+
+  emit mStructure->geometryChanged();
 }
 
 void ReosPolylineStructureVectorLayerUndoCommandRemoveLine::undo()
@@ -2113,6 +2115,8 @@ void ReosPolylineStructureVectorLayerUndoCommandRemoveLine::undo()
 
   if ( mBoundaryPos1 != -1 && !mStructure->mBoundariesVertex.contains( vert1.get() ) )
     mStructure->mBoundariesVertex.insert( mBoundaryPos1, vert1.get() );
+
+  emit mStructure->geometryChanged();
 }
 
 ReosPolylineStructureVectorLayerUndoCommandAddLine::ReosPolylineStructureVectorLayerUndoCommandAddLine( QgsFeatureId idLineToAdd, const VertexS &vert0, const VertexS &vert1, bool onBoundary, ReosPolylineStructureVectorLayer *structure )
@@ -2194,6 +2198,8 @@ void ReosPolylineStructureVectorLayerUndoCommandAddLine::redo()
 
   mVert0 = vert0;
   mVert1 = vert1;
+
+  emit mStructure->geometryChanged();
 }
 
 void ReosPolylineStructureVectorLayerUndoCommandAddLine::undo()
@@ -2219,6 +2225,8 @@ void ReosPolylineStructureVectorLayerUndoCommandAddLine::undo()
 
   mVert0 = vert0;
   mVert1 = vert1;
+
+  emit mStructure->geometryChanged();
 }
 
 
@@ -2261,6 +2269,8 @@ void ReosPolylineStructureVectorLayerUndoCommandMergeVertex::redo()
   }
 
   vertexToKeep->mLinkedSegments = mergedLinks;
+
+  emit mStructure->geometryChanged();
 }
 
 void ReosPolylineStructureVectorLayerUndoCommandMergeVertex::undo()
@@ -2280,7 +2290,6 @@ void ReosPolylineStructureVectorLayerUndoCommandMergeVertex::undo()
     vertexToRemove = mStructure->createVertex( existingPosition.fid, existingPosition.pos );
   }
 
-
   vertexToKeep->mLinkedSegments = mInitialLinks0;
   vertexToRemove->mLinkedSegments = mInitialLinks1;
 
@@ -2297,6 +2306,8 @@ void ReosPolylineStructureVectorLayerUndoCommandMergeVertex::undo()
     seg.at( pi.pos ) = vertexToRemove;
     mStructure->mSegments.insert( pi.fid, seg );
   }
+
+  emit mStructure->geometryChanged();
 }
 
 
@@ -2310,11 +2321,15 @@ ReosPolylineStructureVectorLayeRemoveHolePoint::ReosPolylineStructureVectorLayeR
 void ReosPolylineStructureVectorLayeRemoveHolePoint::redo()
 {
   mStructure->mHolePoints.removeAt( mIndex );
+
+  emit mStructure->geometryChanged();
 }
 
 void ReosPolylineStructureVectorLayeRemoveHolePoint::undo()
 {
   mStructure->mHolePoints.insert( mIndex, mPosition );
+
+  emit mStructure->geometryChanged();
 }
 
 ReosPolylineStructureVectorLayeMoveHolePoint::ReosPolylineStructureVectorLayeMoveHolePoint( int index, const QgsPointXY &point, ReosPolylineStructureVectorLayer *structure )
@@ -2328,11 +2343,15 @@ ReosPolylineStructureVectorLayeMoveHolePoint::ReosPolylineStructureVectorLayeMov
 void ReosPolylineStructureVectorLayeMoveHolePoint::redo()
 {
   mStructure->mHolePoints[mIndex] = mNewPosition;
+
+  emit mStructure->geometryChanged();
 }
 
 void ReosPolylineStructureVectorLayeMoveHolePoint::undo()
 {
   mStructure->mHolePoints[mIndex] = mOldPosition;
+
+  emit mStructure->geometryChanged();
 }
 
 ReosPolylineStructureVectorLayeAddHolePoint::ReosPolylineStructureVectorLayeAddHolePoint( const QgsPointXY &point, ReosPolylineStructureVectorLayer *structure )
@@ -2343,11 +2362,15 @@ ReosPolylineStructureVectorLayeAddHolePoint::ReosPolylineStructureVectorLayeAddH
 void ReosPolylineStructureVectorLayeAddHolePoint::redo()
 {
   mStructure->mHolePoints.append( mPosition );
+
+  emit mStructure->geometryChanged();
 }
 
 void ReosPolylineStructureVectorLayeAddHolePoint::undo()
 {
   mStructure->mHolePoints.removeLast();
+
+  emit mStructure->geometryChanged();
 
 }
 

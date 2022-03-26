@@ -187,7 +187,7 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
   if ( elem )
   {
     mMapItemFactory.selectItem( elem, item );
-    ui->mNameWidget->setString( elem->name() );
+    ui->mNameWidget->setString( elem->elementName() );
     mExtraItemSelection.reset( mMapItemFactory.createExtraItemSelected( elem, mMap ) );
     mActionRemoveElement->setEnabled( elem->isRemovable() );
   }
@@ -207,7 +207,7 @@ void ReosHydraulicNetworkWidget::onSelectedElementRemoved()
     return;
 
   if ( QMessageBox::warning( this, tr( "Remove Hydraulic Network Element" ), tr( "This action will remove definitly the element \"%1\"\n"
-                             "Do you want to proceed?" ).arg( mCurrentSelectedElement->name()->value() ),
+                             "Do you want to proceed?" ).arg( mCurrentSelectedElement->elementName()->value() ),
                              QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::No )
     return;
 

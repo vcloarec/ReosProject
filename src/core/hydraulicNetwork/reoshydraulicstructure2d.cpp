@@ -31,6 +31,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, con
   , mTopographyCollecion( ReosTopographyCollection::createTopographyCollection( context.network()->getGisEngine(), this ) )
   , mMesh( ReosMesh::createMeshFrame( crs ) )
   , mRoughnessStructure( new ReosRoughnessStructure( crs ) )
+  , mSimulation( new ReosHydraulicSimulation( this ) )
   , mHydraulicNetworkContext( context )
 {
   init();
@@ -44,6 +45,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( encodedElement.getEncodedData( QStringLiteral( "structure" ) ) ) )
   , mTopographyCollecion( ReosTopographyCollection::createTopographyCollection( encodedElement.getEncodedData( QStringLiteral( "topography-collection" ) ), context.network()->getGisEngine(), this ) )
   , mRoughnessStructure( new ReosRoughnessStructure( encodedElement.getEncodedData( QStringLiteral( "roughness-structure" ) ) ) )
+  , mSimulation( new ReosHydraulicSimulation( this ) )
   , m3dMapSettings( encodedElement.getEncodedData( "3d-map-setings" ) )
   , mHydraulicNetworkContext( context )
 {
@@ -56,6 +58,9 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   init();
   mMesh->setMeshSymbology( encodedElement.getEncodedData( QStringLiteral( "mesh-frame-symbology" ) ) );
   mMesh->setQualityMeshParameter( encodedElement.getEncodedData( QStringLiteral( "mesh-quality-parameters" ) ) );
+
+  encodedElement.getData( QStringLiteral( "boundaries-vertices" ), mBoundaryVertices );
+  encodedElement.getData( QStringLiteral( "hole-vertices" ), mHolesVertices );
 
   //if the boundary condition have associated elements in the network, attache it, if not creates them
   const QStringList boundaryIdList = mPolylinesStructures->classes();
@@ -77,6 +82,27 @@ ReosRoughnessStructure *ReosHydraulicStructure2D::roughnessStructure() const
 QDir ReosHydraulicStructure2D::structureDirectory()
 {
   return QDir( mHydraulicNetworkContext.projectPath() + '/' + mHydraulicNetworkContext.projectName() + QStringLiteral( "-hydr-struct" ) + '/' + directory() );
+}
+
+void ReosHydraulicStructure2D::updateCalculationContext( const ReosCalculationContext &context )
+{
+  const QStringList boundaryIdList = mPolylinesStructures->classes();
+  for ( const QString &bcId : boundaryIdList )
+  {
+    ReosHydraulicStructureBoundaryCondition *bc = boundaryConditionNetWorkElement( bcId );
+    if ( bc )
+    {
+      switch ( bc->conditionType() )
+      {
+        case ReosHydraulicStructureBoundaryCondition::Type::InputFlow:
+          break;
+          bc->updateCalculationContextFromDownstream( context );
+        case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
+          break;
+          bc->updateCalculationContextFromUpstream( context, nullptr, true );
+      }
+    }
+  }
 }
 
 Reos3DMapSettings ReosHydraulicStructure2D::map3dSettings() const
@@ -114,6 +140,9 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
   dir.cd( directory() );
 
   mMesh->save( dir.path() );
+
+  element.addData( QStringLiteral( "boundaries-vertices" ), mBoundaryVertices );
+  element.addData( QStringLiteral( "hole-vertices" ), mHolesVertices );
   element.addEncodedData( QStringLiteral( "mesh-frame-symbology" ), mMesh->meshSymbology() );
   element.addEncodedData( QStringLiteral( "mesh-quality-parameters" ), mMesh->qualityMeshParameters().encode() );
   element.addEncodedData( QStringLiteral( "roughness-structure" ), mRoughnessStructure->encode() );
@@ -131,6 +160,12 @@ void ReosHydraulicStructure2D::onBoundaryConditionRemoved( const QString &bid )
   mNetWork->removeElement( boundaryConditionNetWorkElement( bid ) );
 }
 
+void ReosHydraulicStructure2D::onGeometryStructureChange()
+{
+  mBoundaryVertices.clear();
+  mHolesVertices.clear();
+}
+
 ReosTopographyCollection *ReosHydraulicStructure2D::topographyCollecion() const
 {
   return mTopographyCollecion;
@@ -143,7 +178,7 @@ QString ReosHydraulicStructure2D::terrainMeshDatasetId() const
 
 void ReosHydraulicStructure2D::runSimulation()
 {
-  ReosHydraulicSimulation::prepareInput( this );
+  mSimulation->prepareInput( this );
 }
 
 void ReosHydraulicStructure2D::init()
@@ -189,7 +224,7 @@ QString ReosHydraulicStructure2D::directory() const
   return id().split( ':' ).last();
 }
 
-ReosHydraulicStructureBoundaryCondition *ReosHydraulicStructure2D::boundaryConditionNetWorkElement( const QString boundaryId )
+ReosHydraulicStructureBoundaryCondition *ReosHydraulicStructure2D::boundaryConditionNetWorkElement( const QString boundaryId ) const
 {
   const QList<ReosHydraulicNetworkElement *> hydrElems = mNetWork->getElements( ReosHydraulicStructureBoundaryCondition::staticType() );
   for ( ReosHydraulicNetworkElement *hydrElem : hydrElems )
@@ -236,14 +271,49 @@ ReosMeshGeneratorProcess *ReosHydraulicStructure2D::getGenerateMeshProcess()
   {
     if ( mMesh && processP->isSuccessful() )
     {
-      mMesh->generateMesh( processP->meshResult() );
-      emit meshGenerated();
-      emit dataChanged();
+      onMeshGenerated( processP->meshResult() );
     }
   } );
 
   return process.release();
 }
+
+QVector<ReosHydraulicStructure2D::BoundaryVertices> ReosHydraulicStructure2D::boundaryVertices() const
+{
+  if ( mBoundaryVertices.isEmpty() )
+    return QVector<ReosHydraulicStructure2D::BoundaryVertices>();
+
+  int boundarySegCount = mPolylinesStructures->boundary().count();
+  Q_ASSERT( mBoundaryVertices.count() ==  boundarySegCount );
+
+  QVector<BoundaryVertices> vertexToCondition( boundarySegCount );
+
+  for ( int i = 0; i < boundarySegCount; ++i )
+  {
+    BoundaryVertices boundVert;
+    boundVert.verticesIndex = mBoundaryVertices.at( i );
+    QString bcid = mPolylinesStructures->boundaryClassId( i );
+    boundVert.boundaryCondition = boundaryConditionNetWorkElement( bcid );
+
+    vertexToCondition[i] = boundVert;
+  }
+
+  return vertexToCondition;
+
+}
+
+
+void ReosHydraulicStructure2D::onMeshGenerated( const ReosMeshFrameData &meshData )
+{
+  mMesh->generateMesh( meshData );
+
+  mBoundaryVertices = meshData.boundaryVertices;
+  mHolesVertices = meshData.holesVertices;
+
+  emit meshGenerated();
+  emit dataChanged();
+}
+
 
 void ReosHydraulicStructure2D::activateMeshTerrain()
 {

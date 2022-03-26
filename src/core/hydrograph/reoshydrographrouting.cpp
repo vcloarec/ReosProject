@@ -70,10 +70,10 @@ void ReosHydrographRoutingLink::init()
   mOutputHydrograph = new ReosHydrograph( this );
   mOutputHydrograph->setColor( ReosStyleRegistery::instance()->curveColor() );
 
-  mOutputHydrograph->setName( tr( "Output of %1" ).arg( name()->value() ) );
-  connect( name(), &ReosParameterString::valueChanged, mOutputHydrograph, [this]
+  mOutputHydrograph->setName( tr( "Output of %1" ).arg( elementName()->value() ) );
+  connect( elementName(), &ReosParameterString::valueChanged, mOutputHydrograph, [this]
   {
-    mOutputHydrograph->setName( tr( "Output of %1" ).arg( name()->value() ) );
+    mOutputHydrograph->setName( tr( "Output of %1" ).arg( elementName()->value() ) );
   } );
 }
 
@@ -263,7 +263,7 @@ void ReosHydrographRoutingLink::calculateRouting()
     ReosCalculationContext context;
 //    method->calculateOutputHydrograph( inputHydrographSource()->outputHydrograph(), mOutputHydrograph, context );
 #ifndef _NDEBUG
-    qDebug() << "calculation of link: " << name()->value();
+    qDebug() << "calculation of link: " << elementName()->value();
 #endif
 
     emit calculationStart();

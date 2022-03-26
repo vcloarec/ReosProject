@@ -153,10 +153,10 @@ ReosHydrographJunction::ReosHydrographJunction( const ReosEncodedElement &encode
 
 void ReosHydrographJunction::init()
 {
-  mOutputHydrograph->setName( tr( "Output of %1" ).arg( name()->value() ) );
-  connect( name(), &ReosParameterString::valueChanged, mOutputHydrograph, [this]
+  mOutputHydrograph->setName( tr( "Output of %1" ).arg( elementName()->value() ) );
+  connect( elementName(), &ReosParameterString::valueChanged, mOutputHydrograph, [this]
   {
-    mOutputHydrograph->setName( tr( "Output of %1" ).arg( name()->value() ) );
+    mOutputHydrograph->setName( tr( "Output of %1" ).arg( elementName()->value() ) );
   } );
 
   connect( this, &ReosHydraulicNode::dataChanged, this, [this]
@@ -382,7 +382,7 @@ void ReosHydrographJunction::calculateOuputHydrograph()
   if ( !mInternalHydrograph.isNull() )
     newCalculation->addHydrograph( mInternalHydrograph );
 
-  for ( const QPointer<ReosHydraulicLink> &link : mLinksBySide2 )
+  for ( const QPointer<ReosHydraulicLink> &link : std::as_const( mLinksBySide2 ) )
   {
     ReosHydrographRoutingLink *routing = qobject_cast<ReosHydrographRoutingLink *>( link );
     if ( routing )
@@ -455,7 +455,7 @@ ReosHydrographNodeWatershed::ReosHydrographNodeWatershed( ReosWatershed *watersh
 {
   mInternalHydrographOrigin = RunoffHydrograph;
   if ( mWatershed )
-    name()->setValue( mWatershed->watershedName()->value() );
+    elementName()->setValue( mWatershed->watershedName()->value() );
   init();
 }
 

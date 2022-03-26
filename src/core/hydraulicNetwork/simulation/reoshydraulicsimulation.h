@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
   reoshydraulicsimulation.h - ReosHydraulicSimulation
 
  ---------------------
@@ -16,18 +16,42 @@
 #ifndef REOSHYDRAULICSIMULATION_H
 #define REOSHYDRAULICSIMULATION_H
 
+#include <QObject>
+
 class ReosHydraulicStructure2D;
+class ReosParameterDateTime;
+class ReosParameterDuration;
 
-
-class ReosHydraulicSimulation
+class ReosHydraulicSimulation : public QObject
 {
+    Q_OBJECT
   public:
-    ReosHydraulicSimulation();
+    ReosHydraulicSimulation( QObject *parent = nullptr );
 
-    static void prepareInput( ReosHydraulicStructure2D *hydraulicStructure );
+    void prepareInput( ReosHydraulicStructure2D *hydraulicStructure );
+    void createSelafinInputGeometry( ReosHydraulicStructure2D *hydraulicStructure );
+    void createBoundaryConditionFiles( ReosHydraulicStructure2D *hydraulicStructure );
 
 
-    static void createSelafinInputGeometry( ReosHydraulicStructure2D *hydraulicStructure );
+    void createSteeringFile( ReosHydraulicStructure2D *hydraulicStructure );
+
+    ReosParameterDateTime *startTime() const;
+    ReosParameterDateTime *endTime() const;
+    ReosParameterDuration *timeStep() const;
+
+  private:
+    ReosParameterDateTime *mStartTime;
+    ReosParameterDateTime *mEndTime;
+    ReosParameterDuration *mTimeStep;
+
+
+    QString mDirName = QStringLiteral( "TELEMAC_simulation" );
+    QString mGeomFileName = QStringLiteral( "geom_input.slf" );
+    QString mResultFileName = QStringLiteral( "result.slf" );
+    QString mBoundaryFileName = QStringLiteral( "boundary.bc" );
+    QString mBoundaryConditionFileName = QStringLiteral( "boundaryCondition.sql" );
+    QString mSteeringFileName = QStringLiteral( "simulation.cas" );
+
 
 };
 

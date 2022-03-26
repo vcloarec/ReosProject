@@ -102,7 +102,7 @@ class REOSCORE_EXPORT ReosHydrographSource : public ReosHydrographNode
     QString type() const override {return staticType(); }
     static QString staticType() {return ReosHydrographNode::staticType() + QString( ':' ) + QStringLiteral( "source" );}
 
-    virtual bool updateCalculationContextFromDownstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *downstreamLink ) = 0;
+    virtual bool updateCalculationContextFromDownstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *downstreamLink = nullptr ) = 0;
 
     ReosParameterBoolean *useForceOutputTimeStep() const;
     ReosParameterDuration *forceOutputTimeStep() const;
@@ -180,7 +180,7 @@ class REOSCORE_EXPORT ReosHydrographJunction : public ReosHydrographSource
 
     virtual void updateCalculationContext( const ReosCalculationContext &context ) override;
     void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *upstreamLink, bool upstreamWillChange ) override;
-    bool updateCalculationContextFromDownstream( const ReosCalculationContext &context, ReosHydrographRoutingLink * ) override;
+    bool updateCalculationContextFromDownstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *downstreamLink = nullptr ) override;
 
     ReosHydrographRoutingLink *downstreamRouting() const;
 

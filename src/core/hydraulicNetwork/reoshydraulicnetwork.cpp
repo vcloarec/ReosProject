@@ -19,6 +19,7 @@
 #include "reoshydraulicstructure2d.h"
 #include "reoshydrographrouting.h"
 #include "reoshydraulicstructureboundarycondition.h"
+#include "reoshydraulicscheme.h"
 #include <QUuid>
 
 ReosHydraulicNetworkElement::ReosHydraulicNetworkElement( ReosHydraulicNetwork *parent ):
@@ -78,7 +79,7 @@ void ReosHydraulicNetworkElement::positionChanged()
     mNetWork->elemPositionChangedPrivate( this );
 }
 
-ReosParameterString *ReosHydraulicNetworkElement::name() const
+ReosParameterString *ReosHydraulicNetworkElement::elementName() const
 {
   return mNameParameter;
 }
@@ -112,7 +113,7 @@ void ReosHydraulicNetworkElement::notify( const ReosModule::Message &messageObje
   if ( !messageObject.text.isEmpty() )
   {
     ReosModule::Message sendedMessage = messageObject;
-    sendedMessage.prefixMessage( tr( "Routing %1: " ).arg( name()->value() ) );
+    sendedMessage.prefixMessage( tr( "Routing %1: " ).arg( elementName()->value() ) );
     if ( mNetWork )
       mNetWork->message( sendedMessage );
   }
@@ -128,6 +129,7 @@ ReosHydraulicNetwork::ReosHydraulicNetwork( ReosModule *parent, ReosGisEngine *g
   : ReosModule( parent )
   , mGisEngine( gisEngine )
   , mWatershedModule( watershedModule )
+  , mHydraulicSchemeCollection( new ReosHydraulicSchemeCollection( this ) )
 {
   ReosHydrographRoutingMethodFactories::instantiate( this );
   ReosGmshEngine::instantiate( this );
@@ -139,6 +141,11 @@ ReosHydraulicNetwork::ReosHydraulicNetwork( ReosModule *parent, ReosGisEngine *g
 
   mElementFactories.emplace( ReosHydraulicStructure2D::staticType(), new ReosHydraulicStructure2dFactory );
   mElementFactories.emplace( ReosHydraulicStructureBoundaryCondition::staticType(), new ReosHydraulicStructureBoundaryConditionFactory );
+
+  std::unique_ptr<ReosHydraulicScheme> scheme = std::make_unique<ReosHydraulicScheme>();
+  scheme->schemeName()->setValue( tr( "Hydraulic scheme" ) );
+  scheme->setMeteoModel( mWatershedModule->meteoModelsCollection()->meteorologicModel( 0 ) );
+  mHydraulicSchemeCollection->addScheme( scheme.release() );
 }
 
 QList<ReosHydraulicNetworkElement *> ReosHydraulicNetwork::getElements( const QString &type ) const
@@ -162,11 +169,11 @@ ReosHydraulicNetworkElement *ReosHydraulicNetwork::getElement( const QString &el
 ReosHydraulicNetworkElement *ReosHydraulicNetwork::addElement( ReosHydraulicNetworkElement *elem, bool select )
 {
   mElements.insert( elem->id(), elem );
-  if ( !elem->name()->isValid() )
+  if ( !elem->elementName()->isValid() )
   {
     int index = mElementIndexesCounter.value( elem->type(), 0 ) + 1;
     mElementIndexesCounter[ elem->type()] = index;
-    elem->name()->setValue( ( elem->defaultDisplayName() + QStringLiteral( " %1" ) ).arg( index ) );
+    elem->elementName()->setValue( ( elem->defaultDisplayName() + QStringLiteral( " %1" ) ).arg( index ) );
   }
   emit elementAdded( elem, select );
 
@@ -230,6 +237,16 @@ void ReosHydraulicNetwork::decode( const ReosEncodedElement &element, const QStr
 
   for ( ReosHydraulicNetworkElement *elem : std::as_const( mElements ) )
     elemPositionChangedPrivate( elem );
+
+  mHydraulicSchemeCollection->decode( element.getEncodedData( QStringLiteral( "hydraulic-scheme-collection" ) ) );
+  if ( mHydraulicSchemeCollection->schemeCount() == 0 )
+  {
+    std::unique_ptr<ReosHydraulicScheme> scheme = std::make_unique<ReosHydraulicScheme>();
+    scheme->schemeName()->setValue( tr( "Hydraulic scheme" ) );
+    scheme->setMeteoModel( mWatershedModule->meteoModelsCollection()->meteorologicModel( 0 ) );
+    mHydraulicSchemeCollection->addScheme( scheme.release() );
+  }
+
 }
 
 ReosEncodedElement ReosHydraulicNetwork::encode( const QString &projectPath, const QString &projectFileName ) const
@@ -247,6 +264,8 @@ ReosEncodedElement ReosHydraulicNetwork::encode( const QString &projectPath, con
 
   element.addListEncodedData( QStringLiteral( "hydraulic-element" ), encodedElements );
   element.addData( QStringLiteral( "elements-counter" ), mElementIndexesCounter );
+
+  element.addEncodedData( QStringLiteral( "hydraulic-scheme-collection" ), mHydraulicSchemeCollection->encode() );
 
   return element;
 }
@@ -278,6 +297,11 @@ ReosHydraulicNetworkContext ReosHydraulicNetwork::context() const
   context.mProjectName = mProjectName;
   context.mProjectPath = mProjectPath;
   return context;
+}
+
+ReosHydraulicSchemeCollection *ReosHydraulicNetwork::hydraulicSchemeCollection() const
+{
+  return mHydraulicSchemeCollection;
 }
 
 void ReosHydraulicNetwork::addEncodedElement( const ReosEncodedElement &element )

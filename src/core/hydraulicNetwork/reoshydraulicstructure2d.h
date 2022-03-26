@@ -25,12 +25,20 @@
 class ReosTopographyCollection;
 class ReosRoughnessStructure;
 class ReosHydraulicStructureBoundaryCondition;
+class ReosHydraulicSimulation;
 class QDir;
 
 class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
 {
     Q_OBJECT
   public:
+    struct BoundaryVertices
+    {
+      QVector<int> verticesIndex;
+      QPointer<ReosHydraulicStructureBoundaryCondition> boundaryCondition;
+    };
+
+
     ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, const ReosHydraulicNetworkContext &context );
 
     static ReosHydraulicStructure2D *create( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext  &context );
@@ -49,6 +57,8 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     ReosMeshGenerator *meshGenerator() const;
 
     ReosMeshGeneratorProcess *getGenerateMeshProcess();
+
+    QVector<BoundaryVertices> boundaryVertices() const;
 
     //! Sets active the terrain in the mesh
     void activateMeshTerrain();
@@ -73,8 +83,11 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
 
     QDir structureDirectory();
 
+    void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydraulicStructureBoundaryCondition *boundaryCondition, bool upstreamWillChange ) {}
+    bool updateCalculationContextFromDownstream( const ReosCalculationContext &context ) {}
+
   public slots:
-    void updateCalculationContext( const ReosCalculationContext &context ) {}
+    void updateCalculationContext( const ReosCalculationContext &context );
 
   signals:
     void meshGenerated();
@@ -85,6 +98,7 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
   private slots:
     void onBoundaryConditionAdded( const QString &bid );
     void onBoundaryConditionRemoved( const QString &bid );
+    void onGeometryStructureChange();
 
   private:
     ReosHydraulicStructure2D( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
@@ -95,6 +109,10 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     ReosTopographyCollection  *mTopographyCollecion = nullptr;
     std::unique_ptr<ReosMesh> mMesh;
     std::unique_ptr<ReosRoughnessStructure > mRoughnessStructure;
+    QVector<QVector<int>> mBoundaryVertices;
+    QVector<QVector<QVector<int>>> mHolesVertices;
+
+    ReosHydraulicSimulation *mSimulation = nullptr;
 
     QString mTerrainDatasetId;
     Reos3DMapSettings m3dMapSettings;
@@ -105,7 +123,8 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     void init();
     void generateMeshInPlace();
     QString directory() const;
-    ReosHydraulicStructureBoundaryCondition *boundaryConditionNetWorkElement( const QString boundaryId );
+    ReosHydraulicStructureBoundaryCondition *boundaryConditionNetWorkElement( const QString boundaryId ) const;
+    void onMeshGenerated( const ReosMeshFrameData &meshData );
 };
 
 class ReosHydraulicStructure2dFactory : public ReosHydraulicNetworkElementFactory
