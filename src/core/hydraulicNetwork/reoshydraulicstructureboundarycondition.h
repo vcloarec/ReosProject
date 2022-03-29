@@ -45,7 +45,7 @@ class ReosHydraulicStructureBoundaryCondition : public ReosHydrographJunction
     bool isAutoSelectable() const override;
     bool isRemovable() const override {return false;}
     bool canAcceptLink( const QString &linkId, int positionInLink ) override;
-    void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *upstreamLink, bool upstreamWillChange );;
+    void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *upstreamLink, bool upstreamWillChange ) override;
 
     QString boundaryConditionId() const;
 
@@ -54,7 +54,7 @@ class ReosHydraulicStructureBoundaryCondition : public ReosHydrographJunction
     Type conditionType() const;
 
   public slots:
-    void updateCalculationContext( const ReosCalculationContext &context );
+    //void updateCalculationContext( const ReosCalculationContext &context );
     //virtual void onUpstreamRoutingUpdated( const QString &routingId ) {}
 
   private slots:

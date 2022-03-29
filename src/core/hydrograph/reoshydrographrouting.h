@@ -117,6 +117,8 @@ class REOSCORE_EXPORT ReosHydrographRoutingLink : public ReosHydraulicLink
     bool calculationInProgress() const override;
     int calculationMaxProgression() const override;
     int calculationProgression() const override;
+    void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
+    void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
 
     static ReosHydrographRoutingLink *decode( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
 
@@ -139,9 +141,10 @@ class REOSCORE_EXPORT ReosHydrographRoutingLink : public ReosHydraulicLink
     void onSourceUpdated();
 
   private:
-
     QMap<QString, ReosHydrographRoutingMethod *> mRoutingMethods;
+    //Config attributes
     QString mCurrentRoutingMethod;
+    //**
     ReosHydrographCalculation *mCalculation = nullptr;
     bool mCalculationIsInProgress = false;
 

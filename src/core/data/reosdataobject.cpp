@@ -15,23 +15,37 @@
  ***************************************************************************/
 #include "reosdataobject.h"
 
+#include <QUuid>
+
 #include "reosencodedelement.h"
 
-ReosDataObject::ReosDataObject( QObject *parent ): QObject( parent ) {}
+ReosDataObject::ReosDataObject( QObject *parent ): QObject( parent )
+{
+  mUid = QUuid::createUuid().toString();
+}
 
 QString ReosDataObject::name() const
 {
   return mName;
 }
 
+QString ReosDataObject::id() const
+{
+  return type() + QString( ':' ) + mUid;
+}
+
 void ReosDataObject::encode( ReosEncodedElement &element ) const
 {
   element.addData( QStringLiteral( "object-name" ), mName );
+  element.addData( QStringLiteral( "UID" ), mUid );
 }
 
 void ReosDataObject::decode( const ReosEncodedElement &element )
 {
   element.getData( QStringLiteral( "object-name" ), mName );
+  element.getData( QStringLiteral( "UID" ), mUid );
+  if ( mUid.isEmpty() )
+    QUuid::createUuid().toString();
   mIsObsolete = false;
 }
 

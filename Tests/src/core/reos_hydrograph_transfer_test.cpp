@@ -447,7 +447,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
 
   // Change the routing methof of link 3
   link3.setCurrentRoutingMethod( ReosHydrographRoutingMethodMuskingum::staticType() );
-  link3.name()->setValue( "link 3" );
+  link3.elementName()->setValue( "link 3" );
   ReosHydrographRoutingMethodMuskingum *muskingumRouting = qobject_cast<ReosHydrographRoutingMethodMuskingum *>( link3.currentRoutingMethod() );
   Q_ASSERT( muskingumRouting );
 

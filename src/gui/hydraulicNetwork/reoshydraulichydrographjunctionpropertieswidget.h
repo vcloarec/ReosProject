@@ -95,8 +95,12 @@ class ReosFormJunctionNodeWidget: public ReosFormBaseJunctionNodeWidget
   protected:
     ReosHydrographJunction *node() const override;
 
+  private slots:
+    void syncToNode();
+
   private:
     ReosHydrographJunction *mJunctioNode = nullptr;
+    QCheckBox *mCheckBoxGauged = nullptr;
 };
 
 class ReosFormWatershedNodeWidgetFactory: public ReosFormWidgetDataFactory
@@ -117,6 +121,7 @@ class ReosFormWatershedNodeWidget: public ReosFormBaseJunctionNodeWidget
 
   private slots:
     void originChange();
+    void syncToNode();
 
   private:
     ReosHydrographNodeWatershed *mNode = nullptr;

@@ -32,6 +32,8 @@ class ReosCalculationContext;
 class ReosHydraulicNetworkContext;
 class ReosWatershedModule;
 class ReosGisEngine;
+class ReosHydraulicSchemeCollection;
+class ReosHydraulicScheme;
 
 class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject
 {
@@ -40,8 +42,6 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject
     ReosHydraulicNetworkElement( ReosHydraulicNetwork *parent = nullptr );
     ReosHydraulicNetworkElement( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent = nullptr );
     virtual ~ReosHydraulicNetworkElement();
-
-    QString id() const;
 
     QString type() const override {return staticType();}
     static QString staticType() {return QStringLiteral( "hydraulicNetwork" );}
@@ -81,6 +81,9 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject
 
     virtual bool isRemovable() const {return true;}
 
+    virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const;
+    virtual void restoreConfiguration( ReosHydraulicScheme *scheme );
+
   public slots:
     virtual void updateCalculationContext( const ReosCalculationContext &context ) = 0;
 
@@ -100,7 +103,6 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject
     void calculationIsUpdated( const QString &id, QPrivateSignal );
 
   private:
-    QString mUid;
     ReosParameterString *mNameParameter = nullptr;
     ReosParameterDuration *mConstantTimeStepInTable = nullptr;
     ReosParameterBoolean *mUseConstantTimeStepInTable = nullptr;
@@ -159,18 +161,32 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
 
     ReosHydraulicNetworkContext context() const;
 
+    ReosCalculationContext calculationContext() const;
+
+    ReosHydraulicSchemeCollection *hydraulicSchemeCollection() const;
+
+    int currentSchemeIndex() const;
+
   signals:
     void elementAdded( ReosHydraulicNetworkElement *elem, bool select );
     void elementRemoved( ReosHydraulicNetworkElement *elem );
     void elementPositionHasChanged( ReosHydraulicNetworkElement *elem );
     void hasBeenReset();
+    void schemeChanged();
+    void loaded();
+
+  public slots:
+    void changeScheme( int newSchemeIndex );
 
   private:
     ReosGisEngine *mGisEngine = nullptr;
     ReosWatershedModule *mWatershedModule = nullptr;
+    ReosHydraulicSchemeCollection *mHydraulicSchemeCollection = nullptr;
+    int mCurrentSchemeIndex = 0;
     QHash<QString, ReosHydraulicNetworkElement *> mElements;
     mutable QString mProjectPath;
     mutable QString mProjectName;
+
     void elemPositionChangedPrivate( ReosHydraulicNetworkElement *elem );
 
     QHash<QString, int> mElementIndexesCounter;

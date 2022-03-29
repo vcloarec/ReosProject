@@ -90,6 +90,7 @@ ReosHydrographRoutingPropertiesWidget::ReosHydrographRoutingPropertiesWidget( Re
   updateInformation();
 
   connect( ui->mRoutingDescriptionButton, &QPushButton::clicked, this, &ReosHydrographRoutingPropertiesWidget::onMethodDescription );
+  connect( mRouting, &ReosDataObject::dataChanged, this, &ReosHydrographRoutingPropertiesWidget::syncToLink );
 }
 
 ReosHydrographRoutingPropertiesWidget::~ReosHydrographRoutingPropertiesWidget()
@@ -108,22 +109,7 @@ void ReosHydrographRoutingPropertiesWidget::onCurrentMethodChange()
   QString newType = ui->mRoutingTypeCombo->currentData().toString();
   mRouting->setCurrentRoutingMethod( newType );
 
-  QWidget *newWidget = ReosFormWidgetFactories::instance()->createDataFormWidget( mRouting->currentRoutingMethod() );
-
-  if ( newWidget )
-  {
-    if ( mRoutingWidget )
-      ui->mRoutingParametersWidget->layout()->replaceWidget( mRoutingWidget, newWidget );
-    else
-      ui->mRoutingParametersWidget->layout()->addWidget( newWidget );
-  }
-  else
-    ui->mRoutingParametersWidget->layout()->removeWidget( mRoutingWidget );
-
-  delete mRoutingWidget;
-  mRoutingWidget = newWidget;
-
-  mRouting->calculateRouting();
+  onMethodChange();
 }
 
 void ReosHydrographRoutingPropertiesWidget::updateInformation()
@@ -191,6 +177,19 @@ void ReosHydrographRoutingPropertiesWidget::onMethodDescription()
   }
 }
 
+void ReosHydrographRoutingPropertiesWidget::syncToLink()
+{
+  QString methodType;
+  if ( mRouting->currentRoutingMethod() )
+    methodType = mRouting->currentRoutingMethod()->type();
+
+  if ( ui->mRoutingTypeCombo->currentData().toString() != methodType )
+  {
+    ui->mRoutingTypeCombo->setCurrentIndex( ui->mRoutingTypeCombo->findData( methodType ) );
+    onMethodChange();
+  }
+}
+
 void ReosHydrographRoutingPropertiesWidget::populateHydrographs()
 {
   ui->mTablesWidget->clearSeries();
@@ -209,6 +208,25 @@ void ReosHydrographRoutingPropertiesWidget::populateHydrographs()
     tsList.append( hyd );
 
   ui->mTablesWidget->setSeries( tsList, QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) );
+}
+
+void ReosHydrographRoutingPropertiesWidget::onMethodChange()
+{
+  QWidget *newWidget = ReosFormWidgetFactories::instance()->createDataFormWidget( mRouting->currentRoutingMethod() );
+
+  if ( newWidget )
+  {
+    if ( mRoutingWidget )
+      ui->mRoutingParametersWidget->layout()->replaceWidget( mRoutingWidget, newWidget );
+    else
+      ui->mRoutingParametersWidget->layout()->addWidget( newWidget );
+  }
+  else
+    ui->mRoutingParametersWidget->layout()->removeWidget( mRoutingWidget );
+
+  delete mRoutingWidget;
+  mRoutingWidget = newWidget;
+  mRouting->calculateRouting();
 }
 
 ReosHydraulicElementWidget *ReosHydrographRoutingPropertiesWidgetFactory::createWidget( ReosHydraulicNetworkElement *element, const ReosGuiContext &context )

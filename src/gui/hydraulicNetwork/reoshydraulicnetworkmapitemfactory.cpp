@@ -18,7 +18,7 @@
 #include "reoshydrographrouting.h"
 #include "reoshydraulicstructure2d.h"
 #include "reoshydraulicstructureboundarycondition.h"
-
+#include "reosstyleregistery.h"
 #include <QVector2D>
 
 //****************************************************
@@ -61,7 +61,8 @@ static ReosMapItem *createExtraItemSelectedHydrographSourceWatershed( ReosHydrau
     std::unique_ptr<ReosMapPolygon> polygon = std::make_unique<ReosMapPolygon>( map, hws->watershed()->delineating() );
     polygon->setWidth( 1 );
     polygon->setColor( Qt::white );
-    polygon->setFillColor( QColor( 250, 175, 100, 100 ) );
+    polygon->setFillColor( ReosStyleRegistery::instance()->orangeReos( 100 ) );
+    polygon->setFillStyle( Qt::SolidPattern );
     polygon->setZValue( 9 );
     return polygon.release();
   }

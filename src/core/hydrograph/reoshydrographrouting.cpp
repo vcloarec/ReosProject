@@ -16,6 +16,7 @@
 #include "reoshydrographrouting.h"
 #include "reoshydrograph.h"
 #include "reosstyleregistery.h"
+#include "reoshydraulicscheme.h"
 
 
 ReosHydrographRoutingMethodFactories *ReosHydrographRoutingMethodFactories::sInstance = nullptr;
@@ -62,7 +63,9 @@ ReosHydrographRoutingLink::ReosHydrographRoutingLink( ReosHydrographSource *hydr
     }
   }
 
-  encodedElement.getData( QStringLiteral( "current-routing-methode" ), mCurrentRoutingMethod );
+  // before v 2.3, this data are stored in the element encoded data, so try to retrieve them here
+  if ( encodedElement.hasEncodedData( QStringLiteral( "current-routing-methode" ) ) )
+    encodedElement.getData( QStringLiteral( "current-routing-methode" ), mCurrentRoutingMethod );
 }
 
 void ReosHydrographRoutingLink::init()
@@ -194,6 +197,26 @@ int ReosHydrographRoutingLink::calculationProgression() const
     return 0;
 
   return mCalculation->currentProgression();
+}
+
+void ReosHydrographRoutingLink::saveConfiguration( ReosHydraulicScheme *scheme ) const
+{
+  ReosEncodedElement encodedElement( QStringLiteral( "link-rounting-config" ) );
+  encodedElement.addData( QStringLiteral( "current-method" ), mCurrentRoutingMethod );
+
+  scheme->saveElementConfig( id(), encodedElement );
+}
+
+void ReosHydrographRoutingLink::restoreConfiguration( ReosHydraulicScheme *scheme )
+{
+  ReosEncodedElement encodedElement = scheme->restoreElementConfig( id() );
+
+  if ( encodedElement.description() != QStringLiteral( "link-rounting-config" ) )
+    return;
+
+  encodedElement.getData( QStringLiteral( "current-method" ), mCurrentRoutingMethod );
+
+  emit dataChanged();
 }
 
 void ReosHydrographRoutingLink::updateCalculationContext( const ReosCalculationContext &context )

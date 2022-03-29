@@ -19,6 +19,7 @@
 #include "reoshydrographrouting.h"
 #include "reosstyleregistery.h"
 #include "reosgisengine.h"
+#include "reoshydraulicscheme.h"
 
 ReosHydrographNode::ReosHydrographNode( ReosHydraulicNetwork *parent )
   : ReosHydraulicNode( parent )
@@ -142,10 +143,15 @@ ReosHydrographJunction::ReosHydrographJunction( const ReosEncodedElement &encode
   mHydrographsStore = new ReosHydrographsStore( this );
   mHydrographsStore->decode( encodedElement.getEncodedData( QStringLiteral( "gauged-hydrographs" ) ) );
 
+  // before v 2.3, this data are stored in the element encoded data, so try to retrieve them here
   int origin = 0;
-  encodedElement.getData( QStringLiteral( "hydrograph-origin" ), origin );
-  mInternalHydrographOrigin = static_cast<ReosHydrographNodeWatershed::InternalHydrographOrigin>( origin );
-  encodedElement.getData( QStringLiteral( "gauged-hydrograph-index" ), mGaugedHydrographIndex );
+  if ( encodedElement.hasEncodedData( QStringLiteral( "hydrograph-origin" ) ) )
+  {
+    encodedElement.getData( QStringLiteral( "hydrograph-origin" ), origin );
+    mInternalHydrographOrigin = static_cast<ReosHydrographNodeWatershed::InternalHydrographOrigin>( origin );
+  }
+  if ( encodedElement.hasEncodedData( QStringLiteral( "gauged-hydrograph-index" ) ) )
+    encodedElement.getData( QStringLiteral( "gauged-hydrograph-index" ), mGaugedHydrographIndex );
 
   init();
 }
@@ -242,9 +248,6 @@ void ReosHydrographJunction::encodeData( ReosEncodedElement &element, const Reos
 {
   element.addEncodedData( QStringLiteral( "spatial-position" ), mPosition.encode() );
   element.addData( QStringLiteral( "output-color" ), mOutputHydrograph->color() );
-
-  element.addData( QStringLiteral( "hydrograph-origin" ), int( mInternalHydrographOrigin ) );
-  element.addData( QStringLiteral( "gauged-hydrograph-index" ), mGaugedHydrographIndex );
 
   if ( mHydrographsStore->parent() == this )
   {
@@ -414,7 +417,7 @@ void ReosHydrographJunction::calculateOuputHydrograph()
 
   newCalculation->startOnOtherThread();
 #ifndef _NDEBUG
-  qDebug() << "calculation of junction: " << name()->value();
+  qDebug() << "calculation of junction: " << elementName()->value();
 #endif
 }
 
@@ -440,6 +443,48 @@ ReosHydrographsStore *ReosHydrographJunction::gaugedHydrographsStore() const
 {
   return mHydrographsStore;
 }
+
+void ReosHydrographJunction::saveConfiguration( ReosHydraulicScheme *scheme ) const
+{
+  ReosEncodedElement encodedElement( QStringLiteral( "hydrograph-junction-config" ) );
+  encodedElement.addData( QStringLiteral( "hydrograph-origin" ), int( mInternalHydrographOrigin ) );
+  QString hydrographId;
+  if ( mGaugedHydrographIndex >= 0 && mHydrographsStore->hydrograph( mGaugedHydrographIndex ) )
+    hydrographId = mHydrographsStore->hydrograph( mGaugedHydrographIndex )->id();
+
+  encodedElement.addData( QStringLiteral( "hydrograph-origin-id" ), hydrographId );
+
+  scheme->saveElementConfig( id(), encodedElement );
+}
+
+void ReosHydrographJunction::restoreConfiguration( ReosHydraulicScheme *scheme )
+{
+  ReosEncodedElement encodedElement = scheme->restoreElementConfig( id() );
+
+  if ( encodedElement.description() != QStringLiteral( "hydrograph-junction-config" ) )
+    return;
+
+  QString hydrographId;
+  encodedElement.getData( QStringLiteral( "hydrograph-origin-id" ), hydrographId );
+
+  int hydrographCount = mHydrographsStore->hydrographCount();
+  for ( int i = 0; i < hydrographCount; ++i )
+  {
+    if ( mHydrographsStore->hydrograph( i )->id() == hydrographId )
+    {
+      mGaugedHydrographIndex = i;
+      break;
+    }
+  }
+
+  int origin = 0;
+  encodedElement.getData( QStringLiteral( "hydrograph-origin" ), origin );
+
+  mInternalHydrographOrigin = static_cast<InternalHydrographOrigin>( origin );
+
+  emit dataChanged();
+}
+
 
 ReosHydrograph *ReosHydrographJunction::internalHydrograph() const
 {
@@ -489,7 +534,6 @@ void ReosHydrographNodeWatershed::init()
     } );
   }
 
-
   mRunoffHydrographs->setWatershed( mWatershed );
   if ( mHydrographsStore )
     delete mHydrographsStore;
@@ -500,10 +544,6 @@ void ReosHydrographNodeWatershed::init()
     mHydrographsStore = mWatershed->downstreamWatershed()->gaugedHydrographs();
 }
 
-ReosHydrograph *ReosHydrographNodeWatershed::outputHydrograph()
-{
-  return mOutputHydrograph;
-}
 
 ReosWatershed *ReosHydrographNodeWatershed::watershed() const
 {

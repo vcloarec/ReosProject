@@ -244,8 +244,8 @@ ReosFormWatershedNodeWidget::ReosFormWatershedNodeWidget( ReosHydrographNodeWate
   connect( mGaugedHydrographCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), mNode, &ReosHydrographNodeWatershed::setGaugedHydrographIndex );
   connect( mOriginCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this,  &ReosFormWatershedNodeWidget::originChange );
 
+  connect( mNode, &ReosDataObject::dataChanged, this, &ReosFormWatershedNodeWidget::syncToNode );
   connect( mNode->gaugedHydrographsStore(), &ReosDataObject::dataChanged, this, &ReosFormWatershedNodeWidget::updateGaugedHydrograph );
-
 }
 
 ReosHydrographJunction *ReosFormWatershedNodeWidget::node() const
@@ -260,6 +260,12 @@ void ReosFormWatershedNodeWidget::originChange()
     static_cast<ReosHydrographNodeWatershed::InternalHydrographOrigin>( mOriginCombo->currentData().toInt() );
 
   mNode->setInternalHydrographOrigin( origin );
+  updateGaugedHydrograph();
+}
+
+void ReosFormWatershedNodeWidget::syncToNode()
+{
+  mOriginCombo->setCurrentIndex( mOriginCombo->findData( mNode->internalHydrographOrigin() ) );
   updateGaugedHydrograph();
 }
 
@@ -337,9 +343,9 @@ ReosFormJunctionNodeWidget::ReosFormJunctionNodeWidget( ReosHydrographJunction *
   : ReosFormBaseJunctionNodeWidget( junction, context )
   , mJunctioNode( junction )
 {
-  QCheckBox *checkBoxGauged = new QCheckBox( tr( "Inject gauged hydrograph" ), this );
-  checkBoxGauged->setChecked( junction->internalHydrographOrigin() == ReosHydrographJunction::GaugedHydrograph );
-  addWidget( checkBoxGauged, 0 );
+  mCheckBoxGauged = new QCheckBox( tr( "Inject gauged hydrograph" ), this );
+  mCheckBoxGauged->setChecked( junction->internalHydrographOrigin() == ReosHydrographJunction::GaugedHydrograph );
+  addWidget( mCheckBoxGauged, 0 );
 
   QWidget *gaugedWidget = new QWidget( this );
   QHBoxLayout *gaugedLayout = new QHBoxLayout ;
@@ -357,14 +363,14 @@ ReosFormJunctionNodeWidget::ReosFormJunctionNodeWidget( ReosHydrographJunction *
 
   addLine( 2 );
 
-  connect( checkBoxGauged, &QCheckBox::toggled, this, [this, checkBoxGauged]
+  connect( mCheckBoxGauged, &QCheckBox::toggled, this, [this]
   {
-    mJunctioNode->setInternalHydrographOrigin( checkBoxGauged->isChecked() ? ReosHydrographJunction::GaugedHydrograph : ReosHydrographJunction::None );
+    mJunctioNode->setInternalHydrographOrigin( mCheckBoxGauged->isChecked() ? ReosHydrographJunction::GaugedHydrograph : ReosHydrographJunction::None );
     updateGaugedHydrograph();
   } );
 
   updateGaugedHydrograph();
-
+  connect( mJunctioNode, &ReosDataObject::dataChanged, this, &ReosFormJunctionNodeWidget::syncToNode );
   connect( junction->gaugedHydrographsStore(), &ReosDataObject::dataChanged, this, &ReosFormJunctionNodeWidget::updateGaugedHydrograph );
   connect( mGaugedHydrographCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), mJunctioNode, &ReosHydrographNodeWatershed::setGaugedHydrographIndex );
 }
@@ -372,4 +378,10 @@ ReosFormJunctionNodeWidget::ReosFormJunctionNodeWidget( ReosHydrographJunction *
 ReosHydrographJunction *ReosFormJunctionNodeWidget::node() const
 {
   return mJunctioNode;
+}
+
+void ReosFormJunctionNodeWidget::syncToNode()
+{
+  mCheckBoxGauged->setChecked( mJunctioNode->internalHydrographOrigin() == ReosHydrographJunction::GaugedHydrograph );
+  updateGaugedHydrograph();
 }

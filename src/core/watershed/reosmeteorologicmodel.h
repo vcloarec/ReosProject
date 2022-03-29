@@ -102,6 +102,9 @@ class REOSCORE_EXPORT ReosMeteorologicModelsCollection : public QAbstractListMod
     //! Returns the meteorologic model at position \a i
     ReosMeteorologicModel *meteorologicModel( int i ) const;
 
+    //! Return the meteorological model with id \a modelId
+    ReosMeteorologicModel *meteorologicModel( const QString &modelid ) const;
+
     //! Returns the count of meteorologic models
     int modelCount() const;
 

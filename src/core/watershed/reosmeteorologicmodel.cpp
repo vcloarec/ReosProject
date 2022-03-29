@@ -32,6 +32,8 @@ ReosMeteorologicModel::ReosMeteorologicModel( const ReosEncodedElement &element,
   ReosDataObject( parent )
   , mName( ReosParameterString::decode( element.getEncodedData( QStringLiteral( "name" ) ), false, QObject::tr( "Meteorologic model name" ), nullptr ) )
 {
+  ReosDataObject::decode( element );
+
   if ( element.description() != QStringLiteral( "meteorologic-configuration" ) )
     return;
 
@@ -82,6 +84,8 @@ ReosEncodedElement ReosMeteorologicModel::encode( ReosWatershedTree *watershedTr
   element.addData( QStringLiteral( "associations" ), associations );
   element.addEncodedData( QStringLiteral( "name" ), mName->encode() );
   element.addData( QStringLiteral( "color" ), mColor );
+
+  ReosDataObject::encode( element );
 
   return element;
 }
@@ -358,6 +362,17 @@ ReosMeteorologicModel *ReosMeteorologicModelsCollection::meteorologicModel( int 
     return nullptr;
 
   return mMeteoModels.at( i );
+}
+
+ReosMeteorologicModel *ReosMeteorologicModelsCollection::meteorologicModel( const QString &modelid ) const
+{
+  for ( int i = 0; i < mMeteoModels.count(); ++i )
+  {
+    if ( mMeteoModels.at( i )->id() == modelid )
+      return mMeteoModels.at( i );
+  }
+
+  return nullptr;
 }
 
 int ReosMeteorologicModelsCollection::modelCount() const

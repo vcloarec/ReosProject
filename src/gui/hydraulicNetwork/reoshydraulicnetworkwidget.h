@@ -68,6 +68,10 @@ class ReosHydraulicNetworkWidget : public QWidget
     void onElementSelected( ReosMapItem *item );
     void onSelectedElementRemoved();
 
+    void onAddHydraulicScheme();
+    void onHydraulicSchemeChange( int index );
+    void onNetworkLoaded();
+
     void onModuleReset();
 
     void onClosed();

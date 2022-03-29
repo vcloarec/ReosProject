@@ -114,10 +114,10 @@ ReosHydraulicStructureBoundaryCondition::Type ReosHydraulicStructureBoundaryCond
   return Type::OutputLevel;
 }
 
-void ReosHydraulicStructureBoundaryCondition::updateCalculationContext( const ReosCalculationContext &context )
-{
+//void ReosHydraulicStructureBoundaryCondition::updateCalculationContext( const ReosCalculationContext &context )
+//{
 
-}
+//}
 
 void ReosHydraulicStructureBoundaryCondition::onBoundaryClassesChange()
 {
