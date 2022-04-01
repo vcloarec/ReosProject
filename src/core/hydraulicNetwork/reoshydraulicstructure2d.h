@@ -69,7 +69,9 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     //! Deactivate any activated scalar dataset
     void deactivateMeshScalar();
 
-    void runSimulation();
+    //! Starts the current simulation, return true if the calculation is effectivly started
+    bool startSimulation( const ReosCalculationContext &context );
+
 
     ReosTopographyCollection *topographyCollecion() const;
 
@@ -86,11 +88,20 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydraulicStructureBoundaryCondition *boundaryCondition, bool upstreamWillChange ) {}
     bool updateCalculationContextFromDownstream( const ReosCalculationContext &context ) {}
 
+    ReosHydraulicSimulation *currentSimulation() const;
+    int simulationCount() const {return mSimulations.count();}
+    int currentSimulationIndex() const;
+    QStringList simulationNames() const;
+    void setCurrentSimulation( int index );
+    //! Adds a new simulation with \a key and sets it the current one. Returns true if the simulation is effectivly added
+    bool addSimulation( const QString key );
+
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context );
 
   signals:
     void meshGenerated();
+    void simulationTextAdded( const QString &text );
 
   protected:
     void encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const;
@@ -106,13 +117,16 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     ReosMeshGenerator *mMeshGenerator = nullptr;
     std::unique_ptr<ReosPolylinesStructure> mPolylinesStructures;
     ReosMeshResolutionController *mMeshResolutionController = nullptr;
-    ReosTopographyCollection  *mTopographyCollecion = nullptr;
+    ReosTopographyCollection   *mTopographyCollecion = nullptr;
     std::unique_ptr<ReosMesh> mMesh;
     std::unique_ptr<ReosRoughnessStructure > mRoughnessStructure;
     QVector<QVector<int>> mBoundaryVertices;
     QVector<QVector<QVector<int>>> mHolesVertices;
 
-    ReosHydraulicSimulation *mSimulation = nullptr;
+    QList<ReosHydraulicSimulation *> mSimulations;
+    int mCurrentSimulationIndex = -1;
+
+    std::unique_ptr<ReosSimulationProcess> mSimulationProcess;
 
     QString mTerrainDatasetId;
     Reos3DMapSettings m3dMapSettings;

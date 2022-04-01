@@ -31,6 +31,7 @@
 #include "reosmeshtopographywidget.h"
 #include "reoseditmeshelementwidget.h"
 #include "reosroughnesswidget.h"
+#include "reoshydraulic2dsimulationwidget.h"
 
 
 ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context )
@@ -80,6 +81,9 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
 
   ReosRoughnessWidget *roughnessWidget = new ReosRoughnessWidget( structure2D, ReosGuiContext( context, this ) );
   ui->pageRoughness->layout()->addWidget( roughnessWidget );
+
+  ReosHydraulic2DSimulationWidget *mSimulationWidget = new ReosHydraulic2DSimulationWidget( structure2D, this );
+  ui->pageSimulation->layout()->addWidget( mSimulationWidget );
 
   mInitialMapStructureItem = context.mapItems( ReosHydraulicStructure2D::staticType() );
   if ( mInitialMapStructureItem )

@@ -114,6 +114,10 @@ class ReosMesh: public ReosRenderedObject
 
     virtual QString crs() const = 0;
 
+    virtual QVector<int> face( int faceIndex ) const = 0 ;
+
+    virtual QPointF vertexPosition( int vertexIndex, const QString &destinationCrs = QString() ) = 0;
+
     virtual QObject *data() const = 0;
 
     /**

@@ -299,7 +299,7 @@ class ReosMapToolMoveHydraulicNetworkNode_p: public ReosMapTool_p
     void itemMoved( const QString &decription, const QPointF &position );
 
   private:
-    ReosMapItem_p *mCurrentItem;
+    ReosMapItem_p *mCurrentItem = nullptr;
 };
 
 #endif // REOSMAPTOOL_P_H

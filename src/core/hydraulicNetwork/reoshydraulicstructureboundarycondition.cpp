@@ -108,10 +108,14 @@ void ReosHydraulicStructureBoundaryCondition::attachStructure( ReosHydraulicStru
 
 ReosHydraulicStructureBoundaryCondition::Type ReosHydraulicStructureBoundaryCondition::conditionType() const
 {
-  if ( mLinksBySide1.isEmpty() && !linksBySide2().isEmpty() )
+  if ( ( mLinksBySide1.isEmpty() && !linksBySide2().isEmpty() )
+       || internalHydrograph() )
     return Type::InputFlow;
 
-  return Type::OutputLevel;
+
+  //return Type::OutputLevel;
+
+  return Type::NotDefined;
 }
 
 //void ReosHydraulicStructureBoundaryCondition::updateCalculationContext( const ReosCalculationContext &context )

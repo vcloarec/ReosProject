@@ -175,6 +175,35 @@ int ReosMeshFrame_p::vertexCount() const
   return mMeshLayer->meshVertexCount();
 }
 
+QPointF ReosMeshFrame_p::vertexPosition( int vertexIndex, const QString &destinationCrs )
+{
+  if ( destinationCrs.isEmpty() )
+    return mMeshLayer->nativeMesh()->vertices.at( vertexIndex ).toQPointF();
+
+  QgsCoordinateReferenceSystem crs;
+  crs.fromWkt( destinationCrs );
+  QgsCoordinateTransform transform( mMeshLayer->crs(), crs, QgsProject::instance() );
+  QgsPointXY vert = mMeshLayer->nativeMesh()->vertices.at( vertexIndex );
+  if ( transform.isValid() )
+  {
+    try
+    {
+      return transform.transform( vert ).toQPointF();
+    }
+    catch ( QgsCsException &e )
+    {
+      return vert.toQPointF();
+    }
+  }
+
+  return vert.toQPointF();
+}
+
+QVector<int> ReosMeshFrame_p::face( int faceIndex ) const
+{
+  return mMeshLayer->nativeMesh()->faces.at( faceIndex );
+}
+
 int ReosMeshFrame_p::faceCount() const
 {
   return mMeshLayer->meshFaceCount();

@@ -27,6 +27,7 @@ class ReosHydraulicStructureBoundaryCondition : public ReosHydrographJunction
   public:
     enum class Type
     {
+      NotDefined,
       InputFlow,
       OutputLevel,
     };

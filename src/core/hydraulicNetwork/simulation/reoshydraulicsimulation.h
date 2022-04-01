@@ -16,34 +16,50 @@
 #ifndef REOSHYDRAULICSIMULATION_H
 #define REOSHYDRAULICSIMULATION_H
 
-#include <QObject>
+#include "reosdataobject.h"
+
+#include "reosprocess.h"
+
+class QProcess;
+class QFile;
+class QTextStream;
 
 class ReosHydraulicStructure2D;
 class ReosParameterDateTime;
 class ReosParameterDuration;
+class ReosParameterInteger;
+class ReosCalculationContext;
+class ReosHydraulicStructureBoundaryCondition;
+class ReosSimulationInitialConditions;
 
-class ReosHydraulicSimulation : public QObject
+class ReosSimulationProcess : public ReosProcess
+{
+    Q_OBJECT
+  public:
+    ReosSimulationProcess() = default;
+
+  signals:
+    void solverMessage( const QString &message );
+
+};
+
+class ReosHydraulicSimulation : public ReosDataObject
 {
     Q_OBJECT
   public:
     ReosHydraulicSimulation( QObject *parent = nullptr );
 
-    void prepareInput( ReosHydraulicStructure2D *hydraulicStructure );
-    void createSelafinInputGeometry( ReosHydraulicStructure2D *hydraulicStructure );
-    void createBoundaryConditionFiles( ReosHydraulicStructure2D *hydraulicStructure );
+    virtual QString directoryName() const = 0;
 
+    virtual void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &context ) = 0;
 
-    void createSteeringFile( ReosHydraulicStructure2D *hydraulicStructure );
+    void launch( ReosHydraulicStructure2D *hydraulicStructure );
+    virtual ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *hydraulicStructure ) const = 0;
 
-    ReosParameterDateTime *startTime() const;
-    ReosParameterDateTime *endTime() const;
-    ReosParameterDuration *timeStep() const;
+    virtual QString key() const = 0;
+    virtual ReosEncodedElement encode() const = 0;
 
-  private:
-    ReosParameterDateTime *mStartTime;
-    ReosParameterDateTime *mEndTime;
-    ReosParameterDuration *mTimeStep;
-
+  protected:
 
     QString mDirName = QStringLiteral( "TELEMAC_simulation" );
     QString mGeomFileName = QStringLiteral( "geom_input.slf" );
@@ -51,8 +67,45 @@ class ReosHydraulicSimulation : public QObject
     QString mBoundaryFileName = QStringLiteral( "boundary.bc" );
     QString mBoundaryConditionFileName = QStringLiteral( "boundaryCondition.sql" );
     QString mSteeringFileName = QStringLiteral( "simulation.cas" );
+};
 
 
+class ReosSimulationEngineFactory
+{
+  public:
+    virtual ReosHydraulicSimulation *createSimulation( QObject *parent ) const = 0;
+    virtual ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &element, QObject *parent ) const = 0;
+    virtual QString key() const  = 0;
+    virtual QString displayName() const = 0;
+};
+
+class ReosSimulationEngineRegistery
+{
+  public:
+    ReosSimulationEngineRegistery();
+
+    //! Creates and returns a simuation corresponding to the \a key
+    ReosHydraulicSimulation *createSimulation( const QString &key, QObject *parent ) const ;
+
+    //! Creates and returns a simuation corresponding to the encoded \a element
+    ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &element, QObject *parent )const;
+
+    //! Returns a pointer to the static instance of this registery
+    static ReosSimulationEngineRegistery *instance();
+
+    const QMap<QString, QString> availableEngine();
+
+
+  private:
+#ifdef _MSC_VER
+    std::unique_ptr<ReosSimulationEngineFactory> dummy; // workaround for MSVC, if not, the line after create an compilation error if this class is exported (REOSCORE_EXPORT)
+#endif
+    //! Registers a \a factory
+    void registerEngineFactory( ReosSimulationEngineFactory *factory );
+
+    std::map<QString, std::unique_ptr<ReosSimulationEngineFactory>> mFactories;
+    static ReosSimulationEngineRegistery *sInstance;
+    void loadDynamicLibrary();
 };
 
 

@@ -43,6 +43,8 @@ class ReosMeshFrame_p : public ReosMesh
     ReosMeshFrame_p( const QString &dataPath );
     bool isValid() const override;
     int vertexCount() const override;
+    QPointF vertexPosition( int vertexIndex, const QString &destinationCrs = QString() ) override;
+    QVector<int> face( int faceIndex ) const override;
     int faceCount() const override;
     QString enableVertexElevationDataset( const QString &name ) override;
     bool activateDataset( const QString &id ) override;

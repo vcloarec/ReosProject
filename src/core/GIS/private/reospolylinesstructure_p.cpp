@@ -771,7 +771,11 @@ bool ReosPolylineStructureVectorLayer::vertexCanBeMoved( ReosGeometryStructureVe
     }
   }
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+  QgsFeatureIterator fit = mVectorLayer->getFeatures( ids.toSet() );
+#else
   QgsFeatureIterator fit = mVectorLayer->getFeatures( QSet<SegmentId>( ids.begin(), ids.end() ) );
+#endif
 
   QgsRectangle concernedExtent;
   concernedExtent.include( newPosInLayer );

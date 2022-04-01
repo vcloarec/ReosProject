@@ -19,6 +19,7 @@
 #include "reostopographycollection.h"
 #include "reoshydraulicsimulation.h"
 #include "reoshydraulicstructureboundarycondition.h"
+#include "reoshydraulicsimulation.h"
 
 #include <QProcess>
 #include <QDir>
@@ -31,7 +32,6 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, con
   , mTopographyCollecion( ReosTopographyCollection::createTopographyCollection( context.network()->getGisEngine(), this ) )
   , mMesh( ReosMesh::createMeshFrame( crs ) )
   , mRoughnessStructure( new ReosRoughnessStructure( crs ) )
-  , mSimulation( new ReosHydraulicSimulation( this ) )
   , mHydraulicNetworkContext( context )
 {
   init();
@@ -45,7 +45,6 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( encodedElement.getEncodedData( QStringLiteral( "structure" ) ) ) )
   , mTopographyCollecion( ReosTopographyCollection::createTopographyCollection( encodedElement.getEncodedData( QStringLiteral( "topography-collection" ) ), context.network()->getGisEngine(), this ) )
   , mRoughnessStructure( new ReosRoughnessStructure( encodedElement.getEncodedData( QStringLiteral( "roughness-structure" ) ) ) )
-  , mSimulation( new ReosHydraulicSimulation( this ) )
   , m3dMapSettings( encodedElement.getEncodedData( "3d-map-setings" ) )
   , mHydraulicNetworkContext( context )
 {
@@ -72,6 +71,53 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
     else
       mNetWork->addElement( new ReosHydraulicStructureBoundaryCondition( this, bcId, mHydraulicNetworkContext ) );
   }
+
+  const QList<ReosEncodedElement> encodedSimulations = encodedElement.getListEncodedData( QStringLiteral( "simulations" ) );
+  for ( const ReosEncodedElement &elem : encodedSimulations )
+  {
+    ReosHydraulicSimulation *sim = ReosSimulationEngineRegistery::instance()->createSimulation( elem, this );
+    if ( sim )
+      mSimulations.append( sim );
+  }
+  encodedElement.getData( QStringLiteral( "current-simulation-index" ), mCurrentSimulationIndex );
+  if ( mCurrentSimulationIndex >= mSimulations.count() )
+    mCurrentSimulationIndex = mSimulations.count() - 1;
+}
+
+void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const
+{
+  element.addEncodedData( QStringLiteral( "structure" ), mPolylinesStructures->encode() );
+  element.addEncodedData( QStringLiteral( "mesh-generator" ), mMeshGenerator->encode() );
+  element.addEncodedData( QStringLiteral( "mesh-resolution-controller" ), mMeshResolutionController->encode() );
+  element.addEncodedData( QStringLiteral( "topography-collection" ), mTopographyCollecion->encode() );
+
+  QDir dir( context.projectPath() );
+  QString hydDir = context.projectName() + QStringLiteral( "-hydr-struct" );
+  dir.mkdir( hydDir );
+  dir.cd( hydDir );
+  dir.mkdir( directory() );
+  dir.cd( directory() );
+
+  mMesh->save( dir.path() );
+
+  element.addData( QStringLiteral( "boundaries-vertices" ), mBoundaryVertices );
+  element.addData( QStringLiteral( "hole-vertices" ), mHolesVertices );
+  element.addEncodedData( QStringLiteral( "mesh-frame-symbology" ), mMesh->meshSymbology() );
+  element.addEncodedData( QStringLiteral( "mesh-quality-parameters" ), mMesh->qualityMeshParameters().encode() );
+  element.addEncodedData( QStringLiteral( "roughness-structure" ), mRoughnessStructure->encode() );
+
+  QList<ReosEncodedElement> encodedSimulations;
+  for ( ReosHydraulicSimulation *sim : mSimulations )
+    encodedSimulations.append( sim->encode() );
+  element.addListEncodedData( QStringLiteral( "simulations" ), encodedSimulations );
+  element.addData( QStringLiteral( "current-simulation-index" ), mCurrentSimulationIndex );
+
+  element.addEncodedData( "3d-map-setings", m3dMapSettings.encode() );
+}
+
+QString ReosHydraulicStructure2D::simulationText() const
+{
+  return mSimulationText;
 }
 
 ReosRoughnessStructure *ReosHydraulicStructure2D::roughnessStructure() const
@@ -82,6 +128,48 @@ ReosRoughnessStructure *ReosHydraulicStructure2D::roughnessStructure() const
 QDir ReosHydraulicStructure2D::structureDirectory()
 {
   return QDir( mHydraulicNetworkContext.projectPath() + '/' + mHydraulicNetworkContext.projectName() + QStringLiteral( "-hydr-struct" ) + '/' + directory() );
+}
+
+ReosHydraulicSimulation *ReosHydraulicStructure2D::currentSimulation() const
+{
+  if ( mCurrentSimulationIndex < 0 || mCurrentSimulationIndex >= mSimulations.count() )
+    return nullptr;
+
+  return mSimulations.at( mCurrentSimulationIndex );
+
+}
+
+int ReosHydraulicStructure2D::currentSimulationIndex() const
+{
+  return mCurrentSimulationIndex;
+}
+
+QStringList ReosHydraulicStructure2D::simulationNames() const
+{
+  QStringList names;
+
+  for ( ReosHydraulicSimulation *sim : mSimulations )
+    names.append( sim->name() );
+
+  return names;
+}
+
+void ReosHydraulicStructure2D::setCurrentSimulation( int index )
+{
+  mCurrentSimulationIndex = index;
+}
+
+bool ReosHydraulicStructure2D::addSimulation( const QString key )
+{
+  ReosHydraulicSimulation *sim = ReosSimulationEngineRegistery::instance()->createSimulation( key, this );
+  if ( sim )
+  {
+    mSimulations.append( sim );
+    mCurrentSimulationIndex = mSimulations.count() - 1;
+    return true;
+  }
+
+  return false;
 }
 
 void ReosHydraulicStructure2D::updateCalculationContext( const ReosCalculationContext &context )
@@ -125,31 +213,6 @@ void ReosHydraulicStructure2D::setTerrain3DSettings( const Reos3DTerrainSettings
   m3dTerrainSettings = settings;
 }
 
-void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const
-{
-  element.addEncodedData( QStringLiteral( "structure" ), mPolylinesStructures->encode() );
-  element.addEncodedData( QStringLiteral( "mesh-generator" ), mMeshGenerator->encode() );
-  element.addEncodedData( QStringLiteral( "mesh-resolution-controller" ), mMeshResolutionController->encode() );
-  element.addEncodedData( QStringLiteral( "topography-collection" ), mTopographyCollecion->encode() );
-
-  QDir dir( context.projectPath() );
-  QString hydDir = context.projectName() + QStringLiteral( "-hydr-struct" );
-  dir.mkdir( hydDir );
-  dir.cd( hydDir );
-  dir.mkdir( directory() );
-  dir.cd( directory() );
-
-  mMesh->save( dir.path() );
-
-  element.addData( QStringLiteral( "boundaries-vertices" ), mBoundaryVertices );
-  element.addData( QStringLiteral( "hole-vertices" ), mHolesVertices );
-  element.addEncodedData( QStringLiteral( "mesh-frame-symbology" ), mMesh->meshSymbology() );
-  element.addEncodedData( QStringLiteral( "mesh-quality-parameters" ), mMesh->qualityMeshParameters().encode() );
-  element.addEncodedData( QStringLiteral( "roughness-structure" ), mRoughnessStructure->encode() );
-
-  element.addEncodedData( "3d-map-setings", m3dMapSettings.encode() );
-}
-
 void ReosHydraulicStructure2D::onBoundaryConditionAdded( const QString &bid )
 {
   mNetWork->addElement( new ReosHydraulicStructureBoundaryCondition( this, bid, mNetWork->context() ) );
@@ -176,9 +239,29 @@ QString ReosHydraulicStructure2D::terrainMeshDatasetId() const
   return mTerrainDatasetId;
 }
 
-void ReosHydraulicStructure2D::runSimulation()
+bool ReosHydraulicStructure2D::startSimulation( const ReosCalculationContext &context )
 {
-  mSimulation->prepareInput( this );
+  if ( mSimulationProcess  || !currentSimulation() )
+    return false;
+
+  mSimulationText.clear();
+  currentSimulation()->prepareInput( this, context );
+  mSimulationProcess.reset( currentSimulation()->getProcess( this ) );
+
+  connect( mSimulationProcess.get(), &ReosProcess::finished, mSimulationProcess.get(), [this]
+  {
+    mSimulationProcess->deleteLater();
+    mSimulationProcess.release();
+  } );
+
+  connect( mSimulationProcess.get(), &ReosSimulationProcess::solverMessage, this, [this]( const QString & text )
+  {
+    mSimulationText.append( text );
+    emit simulationTextAdded( text );
+  } );
+  mSimulationProcess->startOnOtherThread();
+
+  return true;
 }
 
 void ReosHydraulicStructure2D::init()
@@ -299,7 +382,6 @@ QVector<ReosHydraulicStructure2D::BoundaryVertices> ReosHydraulicStructure2D::bo
   }
 
   return vertexToCondition;
-
 }
 
 

@@ -158,6 +158,7 @@ void ReosFormDialog::addParameter( ReosParameter *parameter )
 
 void ReosFormDialog::addWidget( QWidget *widget )
 {
+  widget->setParent( mForm );
   mForm->addWidget( widget );
 }
 

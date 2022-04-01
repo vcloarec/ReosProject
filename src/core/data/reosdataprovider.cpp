@@ -82,8 +82,6 @@ void ReosDataProviderRegistery::loadDynamicProvider()
 
 #if defined(Q_OS_WIN) || defined(__CYGWIN__)
   providerDir.setNameFilters( QStringList( "*.dll" ) );
-#elif defined(ANDROID)
-  providerDir.setNameFilters( QStringList( "*provider.so" ) );
 #else
   providerDir.setNameFilters( QStringList( QStringLiteral( "*.so" ) ) );
 #endif

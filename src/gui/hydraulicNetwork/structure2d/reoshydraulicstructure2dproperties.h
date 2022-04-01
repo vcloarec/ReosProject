@@ -22,6 +22,8 @@
 #include "reoshydraulicelementpropertieswidget.h"
 #include "reoshydraulicstructure2d.h"
 #include "reoshydraulicnetworkwidget.h"
+#include "reoscalculationcontext.h"
+
 
 class Reos3dView;
 
@@ -38,8 +40,11 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
     explicit ReosHydraulicStructure2DProperties( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context = ReosGuiContext() );
     ~ReosHydraulicStructure2DProperties();
 
+    void setCurrentCalculationContext( const ReosCalculationContext &context ) override;
+
   private slots:
     void requestMapRefresh();
+    void onLaunchCalculation();
 
   private:
     Ui::ReosHydraulicStructure2DProperties *ui;
@@ -48,6 +53,7 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
     QAction *mAction3DView = nullptr;
     QPointer<Reos3dView> mView3D;
     ReosGuiContext mGuiContext;
+    ReosCalculationContext mCalculationContext;
 };
 
 
