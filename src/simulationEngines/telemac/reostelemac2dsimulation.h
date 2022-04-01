@@ -16,14 +16,17 @@
 #ifndef REOSTELEMAC2DSIMULATION_H
 #define REOSTELEMAC2DSIMULATION_H
 
+#include <QRegularExpression>
+
 #include "reoshydraulicsimulation.h"
 #include "reoscore.h"
+#include "reosduration.h"
 
 class ReosTelemac2DSimulationProcess : public ReosSimulationProcess
 {
     Q_OBJECT
   public:
-    ReosTelemac2DSimulationProcess( QString simulationfilePath );
+    ReosTelemac2DSimulationProcess( const ReosCalculationContext &context, const ReosDuration &timeStep, QString simulationfilePath );
 
     void start() override;
     void stop( bool b ) override;
@@ -31,9 +34,15 @@ class ReosTelemac2DSimulationProcess : public ReosSimulationProcess
   private:
     QString mSimulationFilePath;
     QProcess *mProcess = nullptr;
+    QString mStandartOutputBuffer;
+    QRegularExpression mRegEx;
+    bool mIsPreparation = false;
+    double mCurrentTime = 0;
+    double mTotalTime = 0;
+    ReosDuration mTimeStep;
 
-    QFile *tFile = nullptr;
-    QTextStream *mStre = nullptr;
+    void addToOutput( const QString &txt );
+    void extractCurrentTime( const QString &message );
 };
 
 
@@ -54,11 +63,11 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
     QString key() const override {return ReosTelemac2DSimulation::staticKey();}
     QString directoryName() const override {return  QStringLiteral( "TELEMAC_simulation" );}
     void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &context ) override;
-    virtual ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *hydraulicStructure ) const override;
+    virtual ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const override;
     ReosEncodedElement encode() const override;
 
     ReosParameterDuration *timeStep() const;
-    ReosParameterInteger *outputPeriod() const;
+    ReosParameterInteger *outputResultPeriod() const;
     ReosSimulationInitialConditions *initialCondition() const;
 
     Equation equation() const;
@@ -66,7 +75,7 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
 
   private:
     ReosParameterDuration *mTimeStep = nullptr;
-    ReosParameterInteger *mOutputPeriod = nullptr;
+    ReosParameterInteger *mOutputResultPeriod = nullptr;
     Equation mEquation = Equation::FiniteElement;
     ReosSimulationInitialConditions *mInitialCondition = nullptr;
 

@@ -93,6 +93,8 @@ SET(REOS_GUI_SOURCES
     hydraulicNetwork/structure2d/reosroughnesswidget.cpp
     hydraulicNetwork/structure2d/reoszvaluemodificationwidget.cpp
     hydraulicNetwork/structure2d/reoshydraulic2dsimulationwidget.cpp
+    hydraulicNetwork/structure2d/reoshydraulicsimulationconsole.cpp
+
     hydraulicNetwork/private/reosmaptoolhydraulicnetwork_p.cpp
     )
 
@@ -174,6 +176,7 @@ SET(REOS_GUI_HEADERS
     hydraulicNetwork/structure2d/reoseditmeshelementwidget.h
     hydraulicNetwork/structure2d/reoszvaluemodificationwidget.h    
     hydraulicNetwork/structure2d/reoshydraulic2dsimulationwidget.h
+    hydraulicNetwork/structure2d/reoshydraulicsimulationconsole.h
 )
 
 SET(REOS_GUI_HEADERS_PRIVATE

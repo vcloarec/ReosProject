@@ -79,6 +79,15 @@ ReosSimulationEngineRegistery *ReosSimulationEngineRegistery::instance()
   return sInstance;
 }
 
+const QMap<QString, QString> ReosSimulationEngineRegistery::availableEngine()
+{
+  QMap<QString, QString> ret;
+  for ( auto &it : std::as_const( mFactories ) )
+    ret.insert( it.first, it.second->displayName() );
+
+  return ret;
+}
+
 void ReosSimulationEngineRegistery::loadDynamicLibrary()
 {
   QString enginesPath = QCoreApplication::applicationDirPath();

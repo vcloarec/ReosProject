@@ -31,7 +31,7 @@ ReosTelemac2DSimulation::ReosTelemac2DSimulation( const ReosEncodedElement &elem
 {
   ReosDataObject::decode( element );
   mTimeStep = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "time-step" ) ), false, tr( "Time step" ), this );
-  mOutputPeriod = ReosParameterInteger::decode( element.getEncodedData( "output-period" ), false, tr( "Output period" ), this );
+  mOutputResultPeriod = ReosParameterInteger::decode( element.getEncodedData( "output-period" ), false, tr( "Output period" ), this );
   mInitialCondition = new ReosSimulationInitialConditions( element.getEncodedData( "initial-condition" ), this );
   int equation = 0;
   element.getData( QStringLiteral( "equation" ), equation );
@@ -44,7 +44,7 @@ ReosEncodedElement ReosTelemac2DSimulation::encode() const
   element.addData( QStringLiteral( "key" ), key() );
 
   element.addEncodedData( QStringLiteral( "time-step" ), mTimeStep->encode() );
-  element.addEncodedData( QStringLiteral( "output-period" ), mOutputPeriod->encode() );
+  element.addEncodedData( QStringLiteral( "output-period" ), mOutputResultPeriod->encode() );
   element.addEncodedData( QStringLiteral( "initial-condition" ), mInitialCondition->encode() );
   element.addData( QStringLiteral( "equation" ), static_cast<int>( mEquation ) );
 
@@ -59,8 +59,8 @@ ReosTelemac2DSimulation::ReosTelemac2DSimulation( QObject *parent )
   mTimeStep = new ReosParameterDuration( tr( "Time step" ), false, this );
   mTimeStep->setValue( ReosDuration( 30, ReosDuration::second ) );
 
-  mOutputPeriod = new ReosParameterInteger( tr( "Output period" ), false, this );
-  mOutputPeriod->setValue( 5 );
+  mOutputResultPeriod = new ReosParameterInteger( tr( "Output period" ), false, this );
+  mOutputResultPeriod->setValue( 5 );
 
 
   mInitialCondition = new ReosSimulationInitialConditions( this );
@@ -85,9 +85,9 @@ ReosHydraulicSimulation *ReosTelemac2DSimulationEngineFactory::createSimulation(
     return new ReosTelemac2DSimulation( parent );
 }
 
-ReosParameterInteger *ReosTelemac2DSimulation::outputPeriod() const
+ReosParameterInteger *ReosTelemac2DSimulation::outputResultPeriod() const
 {
-  return mOutputPeriod;
+  return mOutputResultPeriod;
 }
 
 ReosParameterDuration *ReosTelemac2DSimulation::timeStep() const
@@ -121,12 +121,12 @@ void ReosTelemac2DSimulation::prepareInput( ReosHydraulicStructure2D *hydraulicS
   createSteeringFile( hydraulicStructure, boundaryCondition, context );
 }
 
-ReosSimulationProcess *ReosTelemac2DSimulation::getProcess( ReosHydraulicStructure2D *hydraulicStructure ) const
+ReosSimulationProcess *ReosTelemac2DSimulation::getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const
 {
   QDir dir = hydraulicStructure->structureDirectory();
   dir.cd( mDirName );
 
-  return new ReosTelemac2DSimulationProcess( dir.path() );
+  return new ReosTelemac2DSimulationProcess( calculationContext, mTimeStep->value(), dir.path() );
 }
 
 struct TelemacFlowCondition
@@ -566,8 +566,8 @@ void ReosTelemac2DSimulation::createSteeringFile( ReosHydraulicStructure2D *hydr
   stream << QStringLiteral( "INITIAL TIME SET TO ZERO : YES\n" );
   stream << QStringLiteral( "TIME STEP : %1\n" ).arg( QString::number( mTimeStep->value().valueSecond(), 'f', 2 ) );
   stream << QStringLiteral( "NUMBER OF TIME STEPS : %1\n" ).arg( QString::number( timeStepCount ) );
-  stream << QStringLiteral( "GRAPHIC PRINTOUT PERIOD : %1\n" ).arg( QString::number( mOutputPeriod->value() ) );
-  stream << QStringLiteral( "LISTING PRINTOUT PERIOD : %1\n" ).arg( QString::number( mOutputPeriod->value() ) );
+  stream << QStringLiteral( "GRAPHIC PRINTOUT PERIOD : %1\n" ).arg( QString::number( mOutputResultPeriod->value() ) );
+  stream << QStringLiteral( "LISTING PRINTOUT PERIOD : %1\n" ).arg( QString::number( mOutputResultPeriod->value() ) );
 
   //Physical parametres
   stream << QStringLiteral( "LAW OF BOTTOM FRICTION : 3\n" );
@@ -641,11 +641,18 @@ void ReosTelemac2DSimulation::createSteeringFile( ReosHydraulicStructure2D *hydr
 
 
 
+ReosTelemac2DSimulationProcess::ReosTelemac2DSimulationProcess( const ReosCalculationContext &context, const ReosDuration &timeStep, QString simulationfilePath )
+  : mSimulationFilePath( simulationfilePath )
+  , mTimeStep( timeStep )
+{
+  mTotalTime = context.simulationStartTime().msecsTo( context.simulationEndTime() ) / 1000.0;
+}
+
 void ReosTelemac2DSimulationProcess::start()
 {
   mProcess = new QProcess();
   QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-  env.insert( "HOMETEL", "/opt/telemac/" );
+  env.insert( "HOMETE", "/opt/telemac/" );
   env.insert( "PATH", QStringLiteral( "/opt/telemac/scripts/python3:.:%1" ).arg( env.value( "PATH" ) ) );
   env.insert( "SYSTELCFG", "/opt/telemac/configs/systel.vcl-ubuntu.cfg" );
   env.insert( "USETELCFG", "ubugfmpich2" );
@@ -664,37 +671,36 @@ void ReosTelemac2DSimulationProcess::start()
             << QStringLiteral( "simulation.cas" )
             <<  QStringLiteral( "--ncsize=16" );
 
-  tFile = new QFile( "/home/vincent/telemac_out.txt" );
-  mStream = new QTextStream( tFile );
-
-  tFile->open( QIODevice::WriteOnly );
+  mRegEx = QRegularExpression( QStringLiteral( "(ITERATION +[a-zA-Z0-9]+ +TIME:[\\ 0-9a-zA-Z.()]+)" ) );
+  mIsPreparation = true;
+  setMaxProgression( 100 );
+  setCurrentProgression( 0 );
   connect( mProcess, &QProcess::readyReadStandardOutput, mProcess, [this]
   {
     if ( mProcess )
     {
-      emit solverMessage( mProcess->readAll() );
+      addToOutput( mProcess->readAll() );
     }
   } );
-
 
   mProcess->start( script, arguments );
 
   bool resultStart = mProcess->waitForStarted();
-
+  bool finished = false;
   if ( resultStart )
   {
-    bool result = mProcess->waitForFinished( -1 );
+    finished = mProcess->waitForFinished( -1 );
+    setCurrentProgression( 100 );
+    emit sendInformation( mStandartOutputBuffer );
   }
   else
-  {
-    qDebug() << mProcess->readAllStandardError();
-  }
+    emit sendInformation( tr( "Telemac simulation can't start. Check the configuration of the Telemac modele." ) );
 
   if ( mProcess )
     mProcess->deleteLater();
   mProcess = nullptr;
-  tFile->deleteLater();
-  delete  mStream;
+
+  mIsSuccessful = finished;// need to check the output ot search for an error
 }
 
 void ReosTelemac2DSimulationProcess::stop( bool )
@@ -702,5 +708,40 @@ void ReosTelemac2DSimulationProcess::stop( bool )
   if ( mProcess )
   {
     mProcess->terminate();
+  }
+}
+
+void ReosTelemac2DSimulationProcess::addToOutput( const QString &txt )
+{
+  mStandartOutputBuffer.append( txt );
+  QRegularExpressionMatch match;
+  match = mRegEx.match( mStandartOutputBuffer );
+  QString message;
+
+  if ( mIsPreparation )
+    emit sendInformation( txt );
+
+  while ( match.hasMatch() )
+  {
+    mIsPreparation = false;
+    message = match.captured();
+    extractCurrentTime( message );
+    mStandartOutputBuffer = mStandartOutputBuffer.mid( match.capturedEnd() );
+    match = mRegEx.match( mStandartOutputBuffer );
+  }
+}
+
+void ReosTelemac2DSimulationProcess::extractCurrentTime( const QString &message )
+{
+  QStringList splited = message.split( ' ' );
+  double time = 0;
+  if ( splited.count() > 1 && splited.last().contains( 'S' ) )
+    time = splited.at( splited.count() - 2 ).toDouble();
+
+  if ( time - mCurrentTime > mTimeStep.valueSecond() )
+  {
+    setCurrentProgression( int( time * 100.0 / mTotalTime ) );
+    emit sendInformation( message );
+    mCurrentTime = mCurrentTime + mTimeStep.valueSecond();
   }
 }

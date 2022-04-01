@@ -18,6 +18,7 @@
 
 #include "reoshydraulicnetwork.h"
 #include "reospolylinesstructure.h"
+#include "reoshydraulicsimulation.h"
 #include "reosgmshgenerator.h"
 #include "reosmesh.h"
 #include "reos3dmapsettings.h"
@@ -25,7 +26,6 @@
 class ReosTopographyCollection;
 class ReosRoughnessStructure;
 class ReosHydraulicStructureBoundaryCondition;
-class ReosHydraulicSimulation;
 class QDir;
 
 class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
@@ -37,7 +37,6 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
       QVector<int> verticesIndex;
       QPointer<ReosHydraulicStructureBoundaryCondition> boundaryCondition;
     };
-
 
     ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, const ReosHydraulicNetworkContext &context );
 
@@ -70,8 +69,10 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     void deactivateMeshScalar();
 
     //! Starts the current simulation, return true if the calculation is effectivly started
-    bool startSimulation( const ReosCalculationContext &context );
+    ReosSimulationProcess *startSimulation( const ReosCalculationContext &context );
+    ReosSimulationProcess *currentProcess() const;
 
+    bool isSimulationInProgress() const;
 
     ReosTopographyCollection *topographyCollecion() const;
 
@@ -110,6 +111,7 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     void onBoundaryConditionAdded( const QString &bid );
     void onBoundaryConditionRemoved( const QString &bid );
     void onGeometryStructureChange();
+    void onMessageFromSolverReceived( const QString &message );
 
   private:
     ReosHydraulicStructure2D( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );

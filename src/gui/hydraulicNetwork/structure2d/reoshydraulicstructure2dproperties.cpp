@@ -18,6 +18,7 @@
 
 #include "reosedithydraulicstructure2dwidget.h"
 #include "reos3dview.h"
+#include "reoshydraulicsimulationconsole.h"
 
 ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context )
   : ReosHydraulicElementWidget( context.parent() )
@@ -82,8 +83,15 @@ void ReosHydraulicStructure2DProperties::requestMapRefresh()
 
 void ReosHydraulicStructure2DProperties::onLaunchCalculation()
 {
-  mStructure2D->startSimulation( mCalculationContext );
+  ui->mEditStructureToolButton->setEnabled( false );
 
+  if ( !mStructure2D->currentProcess() )
+  {
+    ReosSimulationProcess *process = mStructure2D->startSimulation( mCalculationContext );
+    connect( process, &ReosProcess::finished, ui->mEditStructureToolButton, [this] {ui->mEditStructureToolButton->setEnabled( true );} );
+  }
+
+  emit stackedPageWidgetOpened( new ReosHydraulicSimulationConsole( mStructure2D->currentProcess(), mGuiContext ) );
 }
 
 ReosHydraulicElementWidget *ReosHydraulicStructure2DPropertiesWidgetFactory::createWidget( ReosHydraulicNetworkElement *element, const ReosGuiContext &context )

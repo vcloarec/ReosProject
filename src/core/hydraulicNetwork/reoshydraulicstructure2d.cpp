@@ -115,9 +115,9 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
   element.addEncodedData( "3d-map-setings", m3dMapSettings.encode() );
 }
 
-QString ReosHydraulicStructure2D::simulationText() const
+bool ReosHydraulicStructure2D::isSimulationInProgress() const
 {
-  return mSimulationText;
+  return ( mSimulationProcess && !mSimulationProcess->isFinished() ) ;
 }
 
 ReosRoughnessStructure *ReosHydraulicStructure2D::roughnessStructure() const
@@ -229,6 +229,11 @@ void ReosHydraulicStructure2D::onGeometryStructureChange()
   mHolesVertices.clear();
 }
 
+void ReosHydraulicStructure2D::onMessageFromSolverReceived( const QString &message )
+{
+  emit simulationTextAdded( message );
+}
+
 ReosTopographyCollection *ReosHydraulicStructure2D::topographyCollecion() const
 {
   return mTopographyCollecion;
@@ -239,29 +244,24 @@ QString ReosHydraulicStructure2D::terrainMeshDatasetId() const
   return mTerrainDatasetId;
 }
 
-bool ReosHydraulicStructure2D::startSimulation( const ReosCalculationContext &context )
+ReosSimulationProcess *ReosHydraulicStructure2D::startSimulation( const ReosCalculationContext &context )
 {
   if ( mSimulationProcess  || !currentSimulation() )
-    return false;
+    return nullptr;
 
-  mSimulationText.clear();
   currentSimulation()->prepareInput( this, context );
-  mSimulationProcess.reset( currentSimulation()->getProcess( this ) );
+  mSimulationProcess.reset( currentSimulation()->getProcess( this, context ) );
 
-  connect( mSimulationProcess.get(), &ReosProcess::finished, mSimulationProcess.get(), [this]
-  {
-    mSimulationProcess->deleteLater();
-    mSimulationProcess.release();
-  } );
+  connect( mSimulationProcess.get(), &ReosSimulationProcess::sendInformation, this, &ReosHydraulicStructure2D::onMessageFromSolverReceived );
 
-  connect( mSimulationProcess.get(), &ReosSimulationProcess::solverMessage, this, [this]( const QString & text )
-  {
-    mSimulationText.append( text );
-    emit simulationTextAdded( text );
-  } );
   mSimulationProcess->startOnOtherThread();
 
-  return true;
+  return mSimulationProcess.get();
+}
+
+ReosSimulationProcess *ReosHydraulicStructure2D::currentProcess() const
+{
+  return mSimulationProcess.get();
 }
 
 void ReosHydraulicStructure2D::init()

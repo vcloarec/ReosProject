@@ -1,4 +1,4 @@
-﻿/***************************************************************************
+/***************************************************************************
   reoshydraulicsimulation.h - ReosHydraulicSimulation
 
  ---------------------
@@ -38,9 +38,6 @@ class ReosSimulationProcess : public ReosProcess
   public:
     ReosSimulationProcess() = default;
 
-  signals:
-    void solverMessage( const QString &message );
-
 };
 
 class ReosHydraulicSimulation : public ReosDataObject
@@ -54,7 +51,7 @@ class ReosHydraulicSimulation : public ReosDataObject
     virtual void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &context ) = 0;
 
     void launch( ReosHydraulicStructure2D *hydraulicStructure );
-    virtual ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *hydraulicStructure ) const = 0;
+    virtual ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const = 0;
 
     virtual QString key() const = 0;
     virtual ReosEncodedElement encode() const = 0;
@@ -94,7 +91,6 @@ class ReosSimulationEngineRegistery
     static ReosSimulationEngineRegistery *instance();
 
     const QMap<QString, QString> availableEngine();
-
 
   private:
 #ifdef _MSC_VER
