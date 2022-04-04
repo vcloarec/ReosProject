@@ -32,6 +32,7 @@ class ReosParameterDouble;
 class ReosParameterInteger;
 class ReosParameterSlope;
 class ReosParameterArea;
+class ReosHydraulicSimulationResults;
 
 
 class ReosMeshQualityChecker : public ReosProcess
@@ -150,6 +151,8 @@ class ReosMesh: public ReosRenderedObject
 
     //! Returns a process that check the quality of the mesh, caller take ownership
     virtual ReosMeshQualityChecker *getQualityChecker( QualityMeshChecks qualitiChecks, const QString &destinatonCrs ) const = 0;
+
+    virtual void setSimulationResults( ReosHydraulicSimulationResults *result ) = 0;
 
     QualityMeshParameters qualityMeshParameters() const;
     void setQualityMeshParameter( const ReosEncodedElement &element );

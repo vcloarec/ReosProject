@@ -150,6 +150,12 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     //! Transforms the spatial position \a position to given \a crs
     QPointF transformToCoordinates( const ReosSpatialPosition &position, const QString &destinationCrs ) const;
 
+    //! Sets the temporal range
+    void setTemporalRange( const QDateTime &startTime, const QDateTime &endTime );
+
+    //! Returns the temporal range
+    QPair<QDateTime, QDateTime> temporalRange() const;
+
     static QString gisEngineName();
     static QString gisEngineVersion();
     static QString gisEngineLink();
@@ -160,6 +166,7 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     void crsChanged( const QString &wktCrs );
     void layerRemoved( const QString &layerId );
     void updated();
+    void temporalRangeChanged( const QDateTime &startTime, const QDateTime &endTime );
 
   private slots:
     void onLayerRemoved( const QString &layerId );

@@ -21,6 +21,7 @@
 #include <qgsmapcanvas.h>
 #include <qgsrendercontext.h>
 #include <qgsproviderregistry.h>
+#include <qgsmeshlayertemporalproperties.h>
 
 #include "reosmeshdataprovider_p.h"
 #include "reosparameter.h"
@@ -378,6 +379,15 @@ QString ReosMeshFrame_p::verticesElevationDatasetId() const
   return mVerticesElevationDatasetId;
 }
 
+void ReosMeshFrame_p::setSimulationResults( ReosHydraulicSimulationResults *result )
+{
+  meshProvider()->setDatasetSource( result );
+  mMeshLayer->temporalProperties()->setDefaultsFromDataProviderTemporalCapabilities( meshProvider()->temporalCapabilities() );
+  QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
+  settings.setActiveScalarDatasetGroup( 1 );
+  mMeshLayer->setRendererSettings( settings );
+  mMeshLayer->repaintRequested();
+}
 
 ReosMeshRenderer_p::ReosMeshRenderer_p( QGraphicsView *canvas, QgsMeshLayer *layer )
 {

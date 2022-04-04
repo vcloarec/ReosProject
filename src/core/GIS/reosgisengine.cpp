@@ -42,6 +42,7 @@ email                : vcloarec at gmail dot com
 #include <qgsnetworkaccessmanager.h>
 #include <qgsauthmethodregistry.h>
 #include <qgsauthmanager.h>
+#include <qgsprojecttimesettings.h>
 
 #define  mLayerTreeModel _layerTreeModel(mAbstractLayerTreeModel)
 static QgsLayerTreeModel *_layerTreeModel( QAbstractItemModel *sourceModel )
@@ -536,6 +537,25 @@ QPointF ReosGisEngine::transformToCoordinates( const ReosSpatialPosition &positi
   {
     return position.position();
   }
+}
+
+void ReosGisEngine::setTemporalRange( const QDateTime &startTime, const QDateTime &endTime )
+{
+  QgsProjectTimeSettings *timeSettings = QgsProject::instance()->timeSettings();
+  if ( timeSettings )
+  {
+    timeSettings->setTemporalRange( QgsTemporalRange( startTime, endTime ) );
+    emit temporalRangeChanged( startTime, endTime );
+  }
+}
+
+QPair<QDateTime, QDateTime> ReosGisEngine::temporalRange() const
+{
+  QgsProjectTimeSettings *timeSettings = QgsProject::instance()->timeSettings();
+  if ( timeSettings )
+    return QPair<QDateTime, QDateTime>( {timeSettings->temporalRange().begin(), timeSettings->temporalRange().end()} );
+
+  return QPair<QDateTime, QDateTime>();
 }
 
 QString ReosGisEngine::gisEngineName()

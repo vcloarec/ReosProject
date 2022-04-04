@@ -21,10 +21,13 @@
 #include <qgsmeshlayer.h>
 #include <qgsmeshtriangulation.h>
 
+#include <mdal.h>
+
 #include "reoshydraulicstructure2d.h"
 #include "reossimulationinitialcondition.h"
 #include "reoshydraulicstructureboundarycondition.h"
 #include "reoscalculationcontext.h"
+#include "reostelemac2dsimulationresults.h"
 
 ReosTelemac2DSimulation::ReosTelemac2DSimulation( const ReosEncodedElement &element, QObject *parent )
   : ReosHydraulicSimulation( parent )
@@ -108,6 +111,14 @@ ReosTelemac2DSimulation::Equation ReosTelemac2DSimulation::equation() const
 void ReosTelemac2DSimulation::setEquation( const Equation &equation )
 {
   mEquation = equation;
+}
+
+ReosHydraulicSimulationResults *ReosTelemac2DSimulation::createResults( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext & ) const
+{
+  QDir dir = hydraulicStructure->structureDirectory();
+  if ( !dir.cd( mDirName ) )
+    return nullptr;
+  return new ReosTelemac2DSimulationResults( dir.filePath( mResultFileName ), hydraulicStructure );
 }
 
 void ReosTelemac2DSimulation::prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &context )
@@ -419,6 +430,7 @@ void ReosTelemac2DSimulation::createSelafinInputGeometry( ReosHydraulicStructure
 {
   createSelafinMeshFrame( hydraulicStructure, verticesPosInBoundary );
 
+  // TODO :: replace below by  writing directly on the file without MDAL or QGIS. Indeed, no so much to do more than the method aboce
   QgsMeshLayer *meshLayer = qobject_cast<QgsMeshLayer *> ( hydraulicStructure->mesh()->data() );
   if ( !meshLayer )
     return;
@@ -563,6 +575,10 @@ void ReosTelemac2DSimulation::createSteeringFile( ReosHydraulicStructure2D *hydr
   ReosDuration totalDuration( context.simulationStartTime().msecsTo( context.simulationEndTime() ), ReosDuration::millisecond );
   int timeStepCount = totalDuration.numberOfFullyContainedIntervals( mTimeStep->value() );
   stream << QStringLiteral( "COMPUTATION CONTINUED : NO\n" );
+  QDate startDate = context.simulationStartTime().date();
+  stream << QStringLiteral( "ORIGINAL DATE OF TIME : %1;%2;%3\n" ).arg( QString::number( startDate.year() ),  QString::number( startDate.month() ),  QString::number( startDate.day() ) );
+  QTime startTime = context.simulationStartTime().time();
+  stream << QStringLiteral( "ORIGINAL HOUR OF TIME : %1;%2;%3\n" ).arg( QString::number( startTime.hour() ),  QString::number( startTime.minute() ),  QString::number( startTime.second() ) );
   stream << QStringLiteral( "INITIAL TIME SET TO ZERO : YES\n" );
   stream << QStringLiteral( "TIME STEP : %1\n" ).arg( QString::number( mTimeStep->value().valueSecond(), 'f', 2 ) );
   stream << QStringLiteral( "NUMBER OF TIME STEPS : %1\n" ).arg( QString::number( timeStepCount ) );

@@ -45,6 +45,7 @@ class ReosRendererObjectHandler_p
       QImage image;
       QgsRectangle extent;
       QgsMapToPixel mapToPixel;
+      QgsDateTimeRange timeRange;
       bool obsolete = false;
     };
 
@@ -52,6 +53,7 @@ class ReosRendererObjectHandler_p
     QPointer<QgsMapCanvas> mCanvas;
     QgsMapToPixel currentMapToPixel;
     QgsRectangle currentExtent;
+    QgsDateTimeRange currentTimeRange;
     QMutex mMutex;
     QHash<ReosRenderedObject *, ReosObjectRenderer *> mRenderingObjects;
 };
@@ -60,7 +62,7 @@ class ReosRendererObjectHandler_p
 ReosRendererObjectHandler::ReosRendererObjectHandler( QGraphicsView *view )
   : d( new ReosRendererObjectHandler_p( qobject_cast<QgsMapCanvas*>( view ) ) )
 {
-  connect( qobject_cast<QgsMapCanvas *>( view ), &QgsMapCanvas::extentsChanged, this, &ReosRendererObjectHandler::updateViewParameter );
+
 }
 
 ReosRendererObjectHandler::~ReosRendererObjectHandler() {}
@@ -96,7 +98,9 @@ bool ReosRendererObjectHandler::hasCache( ReosRenderedObject *renderedObject )
   auto it = d->mCacheRenderings.find( renderedObject );
 
   if ( it != d->mCacheRenderings.end() )
-    return it->extent == d->currentExtent && it->mapToPixel == d->currentMapToPixel;
+    return it->extent == d->currentExtent &&
+           it->mapToPixel == d->currentMapToPixel &&
+           it->timeRange == d->currentTimeRange;
 
   return false;
 }
@@ -106,7 +110,10 @@ bool ReosRendererObjectHandler::hasUpToDateCache( ReosRenderedObject *renderedOb
   auto it = d->mCacheRenderings.find( renderedObject );
 
   if ( it != d->mCacheRenderings.end() )
-    return it->extent == d->currentExtent && it->mapToPixel == d->currentMapToPixel && !it->obsolete;
+    return it->extent == d->currentExtent &&
+           it->mapToPixel == d->currentMapToPixel &&
+           it->timeRange == d->currentTimeRange &&
+           !it->obsolete;
 
   return false;
 }
@@ -196,6 +203,7 @@ void ReosRendererObjectHandler::updateViewParameter()
   QMutexLocker locker( &( d->mMutex ) );
   d->currentMapToPixel = d->mCanvas->mapSettings().mapToPixel();
   d->currentExtent = d->mCanvas->mapSettings().visibleExtent();
+  d->currentTimeRange = d->mCanvas->mapSettings().temporalRange();
 
   for ( ReosObjectRenderer *renderer : std::as_const( d->mRenderingObjects ) )
   {
@@ -232,7 +240,7 @@ void ReosRendererObjectHandler::onRendererFinished()
   ReosRenderedObject *object = rendererToObject( renderer );
 
   if ( object )
-    d->mCacheRenderings.insert( object, ReosRendererObjectHandler_p::CacheRendering( {renderer->image(), d->currentExtent, d->currentMapToPixel} ) );
+    d->mCacheRenderings.insert( object, ReosRendererObjectHandler_p::CacheRendering( {renderer->image(), d->currentExtent, d->currentMapToPixel, d->currentTimeRange} ) );
 
   disconnect( renderer, &ReosObjectRenderer::finished, this, &ReosRendererObjectHandler::onRendererFinished );
   renderer->deleteLater();
@@ -331,6 +339,7 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   mActionNextZoom->setEnabled( false );
   emit crsChanged( mapCrs() );
 
+  //*** handle temporal controller
   mTemporalDockWidget = new QDockWidget( tr( "Temporal controller" ), canvas );
   QgsTemporalControllerWidget *temporalControlerWidget = new QgsTemporalControllerWidget( mTemporalDockWidget );
   canvas->setTemporalController( temporalControlerWidget->temporalController() );
@@ -341,11 +350,25 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
     mTemporalDockWidget->setVisible( mTemporalControllerAction->isChecked() );
   } );
   mTemporalDockWidget->hide();
+  QPair<QDateTime, QDateTime> timeRange = gisEngine->temporalRange();
+  temporalControlerWidget->temporalController()->setTemporalExtents( QgsDateTimeRange( {timeRange.first, timeRange.second} ) );
+  connect( mEngine, &ReosGisEngine::temporalRangeChanged, temporalControlerWidget,
+           [temporalControlerWidget]( const QDateTime & startTime, const QDateTime & endTime )
+  {
+    temporalControlerWidget->temporalController()->setTemporalExtents( QgsDateTimeRange( {startTime, endTime} ) );
+  } );
+
+  connect( temporalControlerWidget->temporalController(), &QgsTemporalNavigationObject::updateTemporalRange,
+           this, &ReosMap::refreshCanvas );
+  //****
 
   mEnableSnappingAction->setCheckable( true );
 
   connect( canvas, &QgsMapCanvas::renderStarting, this, &ReosMap::prepareExtraRenderedObject );
   connect( canvas, &QgsMapCanvas::renderComplete, this, &ReosMap::drawExtraRendering );
+
+  mExtraRenderedObjectHandler.init();
+
 }
 
 ReosMap::~ReosMap()
@@ -568,4 +591,11 @@ void ReosMapCursorPosition::setCrs( const QString &crs )
   QString str = qgsCrs.authid();
   mCrs->setText( qgsCrs.authid() );
 
+}
+
+void ReosRendererObjectHandler::init()
+{
+  QObject::connect( d->mCanvas, &QgsMapCanvas::extentsChanged, this, &ReosRendererObjectHandler::updateViewParameter );
+  connect( d->mCanvas->temporalController(), &QgsTemporalController::updateTemporalRange,
+           this, &ReosRendererObjectHandler::updateViewParameter );
 }

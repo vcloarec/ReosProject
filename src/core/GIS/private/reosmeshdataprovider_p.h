@@ -22,6 +22,7 @@
 
 #include "reosmesh.h"
 #include "reosmeshgenerator.h"
+#include "reosmeshdatasetsource.h"
 
 class ReosMeshGenerator;
 class ReosMeshFrameData;
@@ -48,20 +49,23 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
 
     void loadMeshFrame( const QString &filePath, const QString &driverName );
 
-//***********************
-    // QgsMeshDatasetSourceInterface interface
+    bool saveMeshFrameToFile( const QgsMesh &mesh );
+
+    void setDatasetSource( ReosMeshDatasetSource *datasetSource );
+
   public:
-    bool addDataset( const QString &uri ) {return false;}
-    QStringList extraDatasets() const {return QStringList();}
-    int datasetGroupCount() const {return 0;};
-    int datasetCount( int groupIndex ) const {return 0;}
-    QgsMeshDatasetGroupMetadata datasetGroupMetadata( int groupIndex ) const {return QgsMeshDatasetGroupMetadata(); }
-    QgsMeshDatasetMetadata datasetMetadata( QgsMeshDatasetIndex index ) const {return QgsMeshDatasetMetadata();}
-    QgsMeshDatasetValue datasetValue( QgsMeshDatasetIndex index, int valueIndex ) const {return QgsMeshDatasetValue();}
-    QgsMeshDataBlock datasetValues( QgsMeshDatasetIndex index, int valueIndex, int count ) const {return QgsMeshDataBlock();}
-    QgsMesh3dDataBlock dataset3dValues( QgsMeshDatasetIndex index, int faceIndex, int count ) const {return QgsMesh3dDataBlock();}
-    bool isFaceActive( QgsMeshDatasetIndex index, int faceIndex ) const {return false;}
-    QgsMeshDataBlock areFacesActive( QgsMeshDatasetIndex index, int faceIndex, int count ) const {return QgsMeshDataBlock();}
+    bool addDataset( const QString &uri ) override {return false;}
+    QStringList extraDatasets() const override {return QStringList();}
+    int datasetGroupCount() const override;
+    int datasetCount( int groupIndex ) const override;
+    QgsMeshDatasetGroupMetadata datasetGroupMetadata( int groupIndex ) const override;
+    QgsMeshDatasetMetadata datasetMetadata( QgsMeshDatasetIndex index ) const override;
+    QgsMeshDatasetValue datasetValue( QgsMeshDatasetIndex index, int valueIndex ) const override;
+    QgsMeshDataBlock datasetValues( QgsMeshDatasetIndex index, int valueIndex, int count ) const override;
+    QgsMesh3dDataBlock dataset3dValues( QgsMeshDatasetIndex index, int faceIndex, int count ) const override;
+
+    bool isFaceActive( QgsMeshDatasetIndex index, int faceIndex ) const {return true;}
+    QgsMeshDataBlock areFacesActive( QgsMeshDatasetIndex index, int faceIndex, int count ) const;
     bool persistDatasetGroup( const QString &outputFilePath,
                               const QString &outputDriver,
                               const QgsMeshDatasetGroupMetadata &meta,
@@ -74,25 +78,19 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
                               int datasetGroupIndex )
     {return false;}
 
-    // QgsMeshDataSourceInterface interface
-  public:
     int vertexCount() const;
     int faceCount() const;
     int edgeCount() const {return 0;}
     void populateMesh( QgsMesh *mesh ) const;
-    bool saveMeshFrameToFile( const QgsMesh &mesh );
+
     bool saveMeshFrame( const QgsMesh &mesh ) override;
 
-    // QgsDataProvider interface
-  public:
     QgsCoordinateReferenceSystem crs() const {return mCrs;}
     QgsRectangle extent() const;
     bool isValid() const {return true;}
     QString name() const {return "ReosMeshMemory";}
     QString description() const {return "reos mesh";}
 
-    // QgsMeshDataProvider interface
-  public:
     void close() {}
     virtual QgsMeshDriverMetadata driverMetadata()  const;
 
@@ -104,6 +102,7 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
     QString mFilePath;
     QString mMDALDriverName;
     QgsRectangle mExtent;
+    ReosMeshDatasetSource *mDatasetSource = nullptr;
 
     static QgsMesh convertFrameFromReos( const ReosMeshFrameData &reosMesh );
 

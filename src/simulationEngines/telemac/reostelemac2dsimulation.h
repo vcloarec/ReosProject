@@ -22,6 +22,8 @@
 #include "reoscore.h"
 #include "reosduration.h"
 
+class ReosHydraulicSimulationResults;
+
 class ReosTelemac2DSimulationProcess : public ReosSimulationProcess
 {
     Q_OBJECT
@@ -73,6 +75,8 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
     Equation equation() const;
     void setEquation( const Equation &equation );
 
+    ReosHydraulicSimulationResults *createResults( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const override;
+
   private:
     ReosParameterDuration *mTimeStep = nullptr;
     ReosParameterInteger *mOutputResultPeriod = nullptr;
@@ -93,6 +97,7 @@ class ReosTelemac2DSimulationEngineFactory : public ReosSimulationEngineFactory
 
     virtual ReosHydraulicSimulation *createSimulation( QObject *parent ) const;
     virtual ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &element, QObject *parent ) const;
+
     virtual QString key() const {return ReosTelemac2DSimulation::staticKey();}
     QString displayName() const {return QObject::tr( "TELEMAC 2D Simulation" );}
 };

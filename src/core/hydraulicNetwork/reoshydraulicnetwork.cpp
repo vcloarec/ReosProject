@@ -20,6 +20,7 @@
 #include "reoshydrographrouting.h"
 #include "reoshydraulicstructureboundarycondition.h"
 #include "reoshydraulicscheme.h"
+#include "reosgisengine.h"
 #include <QUuid>
 
 ReosHydraulicNetworkElement::ReosHydraulicNetworkElement( ReosHydraulicNetwork *parent ):
@@ -254,6 +255,10 @@ void ReosHydraulicNetwork::decode( const ReosEncodedElement &element, const QStr
   if ( mCurrentSchemeIndex >= mHydraulicSchemeCollection->schemeCount() )
     mCurrentSchemeIndex = mHydraulicSchemeCollection->schemeCount() > 0 ? 0 : -1;
 
+  ReosHydraulicScheme *currentScheme = mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex );
+  if ( currentScheme )
+    mGisEngine->setTemporalRange( currentScheme->startTime()->value(), currentScheme->endTime()->value() );
+
   for ( ReosHydraulicNetworkElement *elem :  std::as_const( mElements ) )
     elem->restoreConfiguration( mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex ) );
 
@@ -346,6 +351,10 @@ void ReosHydraulicNetwork::changeScheme( int newSchemeIndex )
     elem->restoreConfiguration( mHydraulicSchemeCollection->scheme( newSchemeIndex ) );
 
   mCurrentSchemeIndex = newSchemeIndex;
+  ReosHydraulicScheme *currentScheme = mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex );
+  if ( currentScheme )
+    mGisEngine->setTemporalRange( currentScheme->startTime()->value(), currentScheme->endTime()->value() );
+
   emit schemeChanged();
 }
 

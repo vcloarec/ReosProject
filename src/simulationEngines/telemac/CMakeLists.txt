@@ -4,11 +4,13 @@
 SET(REOS_TELEMAC_SOURCES
     reostelemac2dsimulation.cpp
     reostelemacsimulationeditwidget.cpp
+    reostelemac2dsimulationresults.cpp
 )
 
 SET(REOS_TELEMAC_HEADERS
     reostelemac2dsimulation.h
     reostelemacsimulationeditwidget.h
+    reostelemac2dsimulationresults.h
 )
 
 ADD_LIBRARY(telemac_engine MODULE
@@ -28,6 +30,7 @@ TARGET_LINK_LIBRARIES(telemac_engine
         ${Qt5Sql_LIBRARIES}
         ${Qt5Concurrent_LIBRARIES}
         ${QGIS_LIBS}
+        ${MDAL_LIB}
         reosGui
         reosCore
 )
@@ -64,6 +67,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/hydraulicNetwork/simulation
 
     ${QGIS_INCLUDE_DIR}
+    ${MDAL_INCLUDE_DIR}
     )
 
 

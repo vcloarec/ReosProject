@@ -19,8 +19,10 @@
 #include <qgsmeshlayer.h>
 #include <qgsrendercontext.h>
 #include <qgsmesheditor.h>
+#include <qgsmeshdataset.h>
 
 #include "reosmesh.h"
+#include "reoshydraulicsimulationresults.h"
 
 class ReosMeshDataProvider_p;
 class ReosMeshFrameData;
@@ -68,6 +70,8 @@ class ReosMeshFrame_p : public ReosMesh
 
     QString verticesElevationDatasetId() const override;
 
+    void setSimulationResults( ReosHydraulicSimulationResults *result ) override;
+
   private:
 
     std::unique_ptr<QgsMeshLayer> mMeshLayer;
@@ -76,7 +80,6 @@ class ReosMeshFrame_p : public ReosMesh
     QgsMeshDatasetGroup *mZVerticesDatasetGroup = nullptr;
     QString mVerticesElevationDatasetName;
     QString mVerticesElevationDatasetId;
-
 
     void init();
     void activateVertexZValueDatasetGroup();
@@ -113,7 +116,6 @@ class ReosMeshQualityChecker_p : public ReosMeshQualityChecker
                               const QgsDistanceArea &distanceArea,
                               ReosMesh::QualityMeshChecks checks,
                               const QgsCoordinateTransform &transform );
-
 
     void start() override;
     QualityMeshResults result() const override;

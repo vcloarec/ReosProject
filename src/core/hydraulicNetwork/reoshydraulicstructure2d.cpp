@@ -20,6 +20,7 @@
 #include "reoshydraulicsimulation.h"
 #include "reoshydraulicstructureboundarycondition.h"
 #include "reoshydraulicsimulation.h"
+#include "reoscalculationcontext.h"
 
 #include <QProcess>
 #include <QDir>
@@ -249,11 +250,18 @@ ReosSimulationProcess *ReosHydraulicStructure2D::startSimulation( const ReosCalc
   if ( mSimulationProcess  || !currentSimulation() )
     return nullptr;
 
-  currentSimulation()->prepareInput( this, context );
-  mSimulationProcess.reset( currentSimulation()->getProcess( this, context ) );
+  QPointer<ReosHydraulicSimulation> sim = currentSimulation();
+  sim->prepareInput( this, context );
+  mSimulationProcess.reset( sim->getProcess( this, context ) );
 
   connect( mSimulationProcess.get(), &ReosSimulationProcess::sendInformation, this, &ReosHydraulicStructure2D::onMessageFromSolverReceived );
 
+  connect( mSimulationProcess.get(), &ReosProcess::finished, sim, [this, sim, context]
+  {
+    if ( sim.isNull() )
+      return;
+    mesh()->setSimulationResults( sim->createResults( this, context ) );
+  } );
   mSimulationProcess->startOnOtherThread();
 
   return mSimulationProcess.get();

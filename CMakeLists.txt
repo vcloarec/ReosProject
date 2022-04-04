@@ -37,6 +37,9 @@ SET(QSCISCINTILLA_INCLUDE_DIR CACHE PATH "Path to Qsciscintilla include dir")
 SET(GMSH_INCLUDE_DIR CACHE PATH "Path to the include dir of gmsh")
 SET(GMSH_LIB CACHE FILEPATH "Path to the lib file of gmsh")
 
+SET(MDAL_INCLUDE_DIR CACHE PATH "Path to the include dir of MDAL")
+SET(MDAL_LIB CACHE FILEPATH "Path to the lib file of MDAL")
+
 SET(QGIS_APP_LIB CACHE FILEPATH "Path to QGIS app lib")
 SET(QGIS_APP_INCLUDE CACHE PATH "Path to QGIS app header files (in source)")
 
