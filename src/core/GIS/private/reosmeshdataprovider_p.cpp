@@ -142,7 +142,7 @@ QgsMeshDataBlock ReosMeshDataProvider_p::datasetValues( QgsMeshDatasetIndex inde
   bool isScalar = mDatasetSource->groupIsScalar( index.group() );
 
   const QVector<double> values = mDatasetSource->datasetValues( index.group(), index.dataset() );
-  QgsMeshDataBlock ret( isScalar ? QgsMeshDataBlock::ScalarDouble : QgsMeshDataBlock::Vector2DDouble ? QgsMeshDataBlock::ScalarDouble : QgsMeshDataBlock::Vector2DDouble, count );
+  QgsMeshDataBlock ret( isScalar ? QgsMeshDataBlock::ScalarDouble : QgsMeshDataBlock::Vector2DDouble, count );
   QVector<double> buffer;
   int effectiveCount = count * ( isScalar ? 1 : 2 );
   if ( valueIndex == 0 && effectiveCount == values.count() )

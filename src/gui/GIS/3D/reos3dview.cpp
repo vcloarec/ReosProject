@@ -192,11 +192,10 @@ void Reos3dView::onTerrainSettingsChange()
   terrainSymbol->setSingleMeshColor( terrainSettings.uniqueColor() );
   terrainSymbol->setWireframeEnabled( terrainSettings.isWireframeEnabled() );
   terrainSymbol->setWireframeLineWidth( terrainSettings.wireframeWidth() );
-  qDebug() << terrainSettings.wireframeWidth();
   terrainSymbol->setWireframeLineColor( terrainSettings.wireframeColor() );
   terrainSymbol->setSmoothedTriangles( terrainSettings.isSmoothed() );
 
-  ReosEncodedElement terrainSymbology = mMeshTerrain->datasetGroupSymbology( mMeshTerrain->verticesElevationDatasetId() );
+  ReosEncodedElement terrainSymbology = mMeshTerrain->datasetScalarGroupSymbology( mMeshTerrain->verticesElevationDatasetId() );
   if ( terrainSymbology.description() != QStringLiteral( "dataset-symbology" ) )
     return;
   QString docString;

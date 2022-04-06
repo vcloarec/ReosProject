@@ -45,6 +45,7 @@ class ReosMeshScalarRenderingWidget: public ReosStackedPageWidget
     Ui::ReosMeshScalarRenderingWidget *ui;
     ReosMesh *mMesh = nullptr;
     int mDatasetGroupIndexId = -1;
+    QString mDatasetId;
     ReosParameterDouble *mMinimumParam = nullptr;
     ReosParameterDouble *mMaximumParam = nullptr;
 

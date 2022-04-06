@@ -21,11 +21,12 @@
 
 #include "reoshydraulicsimulationresults.h"
 
+class ReosTelemac2DSimulation;
 
 class ReosTelemac2DSimulationResults : public ReosHydraulicSimulationResults
 {
   public:
-    ReosTelemac2DSimulationResults( const QString &fileName, QObject *parent = nullptr );
+    ReosTelemac2DSimulationResults( const ReosTelemac2DSimulation *simulation, const QString &fileName, QObject *parent = nullptr );
     ~ReosTelemac2DSimulationResults();
 
     int groupCount() const override;

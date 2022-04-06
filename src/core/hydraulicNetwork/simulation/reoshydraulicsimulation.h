@@ -54,10 +54,11 @@ class ReosHydraulicSimulation : public ReosDataObject
     void launch( ReosHydraulicStructure2D *hydraulicStructure );
     virtual ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const = 0;
 
-    virtual ReosHydraulicSimulationResults *createResults( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const = 0;
-
     virtual QString key() const = 0;
     virtual ReosEncodedElement encode() const = 0;
+
+    virtual bool hasResult( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const = 0;
+    virtual ReosHydraulicSimulationResults *createResults( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const = 0;
 
   protected:
 

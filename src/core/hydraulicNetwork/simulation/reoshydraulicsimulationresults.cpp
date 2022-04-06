@@ -15,9 +15,17 @@
  ***************************************************************************/
 #include "reoshydraulicsimulationresults.h"
 
-ReosHydraulicSimulationResults::ReosHydraulicSimulationResults( QObject *parent ): ReosMeshDatasetSource( parent )
-{
+#include "reoshydraulicsimulation.h"
 
+ReosHydraulicSimulationResults::ReosHydraulicSimulationResults( const ReosHydraulicSimulation *simulation, QObject *parent )
+  : ReosMeshDatasetSource( parent )
+{
+  mSimulationId = simulation->id();
+}
+
+QString ReosHydraulicSimulationResults::groupId( int groupIndex ) const
+{
+  return mSimulationId + ':' + groupName( groupIndex );
 }
 
 QString ReosHydraulicSimulationResults::groupName( int groupIndex ) const

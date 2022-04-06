@@ -69,7 +69,7 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     void deactivateMeshScalar();
 
     //! Starts the current simulation, return true if the calculation is effectivly started
-    ReosSimulationProcess *startSimulation( const ReosCalculationContext &context );
+    ReosSimulationProcess *startSimulation();
     ReosSimulationProcess *currentProcess() const;
 
     bool isSimulationInProgress() const;
@@ -97,12 +97,22 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     //! Adds a new simulation with \a key and sets it the current one. Returns true if the simulation is effectivly added
     bool addSimulation( const QString key );
 
+    //! Activates the result dataset groups with \a id. If id is void, the current group is reactivated
+    void activateResultDatasetGroup( const QString &id );
+
+    QStringList meshDatasetIds() const;
+
+    QString meshDatasetName( const QString &id ) const;
+
+    QString currentActivatedMeshDataset() const;
+
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context );
 
   signals:
     void meshGenerated();
     void simulationTextAdded( const QString &text );
+    void simulationResultChanged();
 
   protected:
     void encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const;
@@ -130,6 +140,9 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
 
     std::unique_ptr<ReosSimulationProcess> mSimulationProcess;
 
+    ReosHydraulicSimulationResults *mSimulationResults = nullptr;
+    QString mCurrentActivatedMeshDataset;
+
     QString mTerrainDatasetId;
     Reos3DMapSettings m3dMapSettings;
     Reos3DTerrainSettings m3dTerrainSettings;
@@ -141,6 +154,8 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     QString directory() const;
     ReosHydraulicStructureBoundaryCondition *boundaryConditionNetWorkElement( const QString boundaryId ) const;
     void onMeshGenerated( const ReosMeshFrameData &meshData );
+
+    void loadSimulationResults( ReosHydraulicSimulation *simulation,  const ReosCalculationContext &context );
 };
 
 class ReosHydraulicStructure2dFactory : public ReosHydraulicNetworkElementFactory

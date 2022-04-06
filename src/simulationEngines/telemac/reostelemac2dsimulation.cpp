@@ -113,23 +113,42 @@ void ReosTelemac2DSimulation::setEquation( const Equation &equation )
   mEquation = equation;
 }
 
+bool ReosTelemac2DSimulation::hasResult( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext & ) const
+{
+  QDir dir = hydraulicStructure->structureDirectory();
+  if ( !dir.cd( mDirName ) )
+    return false;
+
+  const QFileInfo fileInfo( dir.filePath( mResultFileName ) );
+
+  return fileInfo.exists();
+}
+
 ReosHydraulicSimulationResults *ReosTelemac2DSimulation::createResults( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext & ) const
 {
   QDir dir = hydraulicStructure->structureDirectory();
   if ( !dir.cd( mDirName ) )
     return nullptr;
-  return new ReosTelemac2DSimulationResults( dir.filePath( mResultFileName ), hydraulicStructure );
+  return new ReosTelemac2DSimulationResults( this, dir.filePath( mResultFileName ), hydraulicStructure );
 }
 
 void ReosTelemac2DSimulation::prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &context )
 {
   QDir dir = hydraulicStructure->structureDirectory();
   dir.mkdir( mDirName );
+  dir.cd( mDirName );
   QVector<int> verticesPosInBoundary;
   QList<ReosHydraulicStructureBoundaryCondition *> boundaryCondition = createBoundaryFiles( hydraulicStructure, verticesPosInBoundary );
   createSelafinInputGeometry( hydraulicStructure, verticesPosInBoundary );
   createBoundaryConditionFiles( hydraulicStructure, boundaryCondition, context );
   createSteeringFile( hydraulicStructure, boundaryCondition, context );
+
+  QFileInfo fileInfo( dir.filePath( mResultFileName ) );
+
+  QString fn = dir.filePath( mResultFileName );
+
+  if ( fileInfo.exists() )
+    QFile::remove( dir.filePath( mResultFileName ) );
 }
 
 ReosSimulationProcess *ReosTelemac2DSimulation::getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const

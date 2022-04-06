@@ -18,9 +18,10 @@
 #include <QDateTime>
 
 #include "reosduration.h"
+#include "reostelemac2dsimulation.h"
 
-ReosTelemac2DSimulationResults::ReosTelemac2DSimulationResults( const QString &fileName, QObject *parent )
-  : ReosHydraulicSimulationResults( parent )
+ReosTelemac2DSimulationResults::ReosTelemac2DSimulationResults( const ReosTelemac2DSimulation *simulation, const QString &fileName, QObject *parent )
+  : ReosHydraulicSimulationResults( simulation, parent )
 {
   QByteArray curi = fileName.toUtf8();
   mMeshH = MDAL_LoadMesh( curi.constData() );
@@ -170,10 +171,10 @@ QVector<double> ReosTelemac2DSimulationResults::datasetValues( int groupIndex, i
 
   MDAL_DatasetH dataset = MDAL_G_dataset( group, index );
   bool isScalar = MDAL_G_hasScalarData( group );
-  int valueCount = MDAL_D_valueCount( dataset ) * ( isScalar ? 1 : 2 );
+  int valueCount = MDAL_D_valueCount( dataset );
 
   QVector<double> ret;
-  ret.resize( valueCount );
+  ret.resize( valueCount * ( isScalar ? 1 : 2 ) );
 
   int effectiveValueCount = MDAL_D_data( dataset,
                                          0,

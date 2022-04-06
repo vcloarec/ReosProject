@@ -21,6 +21,7 @@
 #include "reoshydraulicstructureboundarycondition.h"
 #include "reoshydraulicsimulation.h"
 #include "reoscalculationcontext.h"
+#include "reoshydraulicsimulationresults.h"
 
 #include <QProcess>
 #include <QDir>
@@ -83,6 +84,13 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   encodedElement.getData( QStringLiteral( "current-simulation-index" ), mCurrentSimulationIndex );
   if ( mCurrentSimulationIndex >= mSimulations.count() )
     mCurrentSimulationIndex = mSimulations.count() - 1;
+
+  encodedElement.getData( QStringLiteral( "current-mesh-dataset-id" ), mCurrentActivatedMeshDataset );
+}
+
+QString ReosHydraulicStructure2D::currentActivatedMeshDataset() const
+{
+  return mCurrentActivatedMeshDataset;
 }
 
 void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const
@@ -112,6 +120,8 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
     encodedSimulations.append( sim->encode() );
   element.addListEncodedData( QStringLiteral( "simulations" ), encodedSimulations );
   element.addData( QStringLiteral( "current-simulation-index" ), mCurrentSimulationIndex );
+
+  element.addData( QStringLiteral( "current-mesh-dataset-id" ), mCurrentActivatedMeshDataset );
 
   element.addEncodedData( "3d-map-setings", m3dMapSettings.encode() );
 }
@@ -192,6 +202,9 @@ void ReosHydraulicStructure2D::updateCalculationContext( const ReosCalculationCo
       }
     }
   }
+
+  if ( currentSimulation() && currentSimulation()->hasResult( this, context ) )
+    loadSimulationResults( currentSimulation(), context );
 }
 
 Reos3DMapSettings ReosHydraulicStructure2D::map3dSettings() const
@@ -245,12 +258,34 @@ QString ReosHydraulicStructure2D::terrainMeshDatasetId() const
   return mTerrainDatasetId;
 }
 
-ReosSimulationProcess *ReosHydraulicStructure2D::startSimulation( const ReosCalculationContext &context )
+void ReosHydraulicStructure2D::activateResultDatasetGroup( const QString &id )
+{
+  QString effId = id;
+  if ( effId.isEmpty() )
+    effId = mCurrentActivatedMeshDataset;
+  else
+    mCurrentActivatedMeshDataset = id;
+
+  mMesh->activateDataset( effId );
+}
+
+QStringList ReosHydraulicStructure2D::meshDatasetIds() const
+{
+  return mMesh->datasetIds();
+}
+
+QString ReosHydraulicStructure2D::meshDatasetName( const QString &id ) const
+{
+  return mMesh->datasetName( id );
+}
+
+ReosSimulationProcess *ReosHydraulicStructure2D::startSimulation()
 {
   if ( mSimulationProcess  || !currentSimulation() )
     return nullptr;
 
   QPointer<ReosHydraulicSimulation> sim = currentSimulation();
+  ReosCalculationContext context = mNetWork->calculationContext();
   sim->prepareInput( this, context );
   mSimulationProcess.reset( sim->getProcess( this, context ) );
 
@@ -258,10 +293,17 @@ ReosSimulationProcess *ReosHydraulicStructure2D::startSimulation( const ReosCalc
 
   connect( mSimulationProcess.get(), &ReosProcess::finished, sim, [this, sim, context]
   {
-    if ( sim.isNull() )
-      return;
-    mesh()->setSimulationResults( sim->createResults( this, context ) );
+    if ( !sim.isNull() )
+      loadSimulationResults( sim, context );
+
   } );
+
+  if ( mSimulationResults )
+    mSimulationResults->deleteLater();
+
+  mSimulationResults = nullptr;
+  emit simulationResultChanged();
+
   mSimulationProcess->startOnOtherThread();
 
   return mSimulationProcess.get();
@@ -402,6 +444,29 @@ void ReosHydraulicStructure2D::onMeshGenerated( const ReosMeshFrameData &meshDat
 
   emit meshGenerated();
   emit dataChanged();
+}
+
+void ReosHydraulicStructure2D::loadSimulationResults( ReosHydraulicSimulation *simulation, const ReosCalculationContext &context )
+{
+  if ( !simulation )
+    return;
+
+  if ( mSimulationResults )
+    mSimulationResults->deleteLater();
+
+  mSimulationResults = simulation->createResults( this, context );
+  if ( !mSimulationResults )
+    return;
+  mesh()->setSimulationResults( mSimulationResults );
+  if ( mCurrentActivatedMeshDataset.isEmpty() )
+  {
+    QStringList ids = mesh()->datasetIds();
+    if ( ids.count() > 1 )
+      mCurrentActivatedMeshDataset = ids.at( 1 );
+    else if ( ids.count() == 0 )
+      mCurrentActivatedMeshDataset = ids.first();
+  }
+  emit simulationResultChanged();
 }
 
 

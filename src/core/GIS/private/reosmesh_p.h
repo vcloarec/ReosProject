@@ -43,43 +43,43 @@ class ReosMeshFrame_p : public ReosMesh
   public:
     ReosMeshFrame_p( const QString &crs, QObject *parent );
     ReosMeshFrame_p( const QString &dataPath );
+
     bool isValid() const override;
     int vertexCount() const override;
     QPointF vertexPosition( int vertexIndex, const QString &destinationCrs = QString() ) override;
     QVector<int> face( int faceIndex ) const override;
     int faceCount() const override;
     QString enableVertexElevationDataset( const QString &name ) override;
-    bool activateDataset( const QString &id ) override;
     void generateMesh( const ReosMeshFrameData &data ) override;
     QString crs() const override;
     QObject *data() const override;
     int datasetGroupIndex( const QString &id ) const override;
     void applyTopographyOnVertices( ReosTopographyCollection *topographyCollection ) override;
     double datasetScalarValueAt( const QString &datasetId, const QPointF &pos ) const override;
-
     void save( const QString &dataPath ) const override;
     void stopFrameEditing( bool commit ) override;
-
     ReosEncodedElement meshSymbology() const override;
     void setMeshSymbology( const ReosEncodedElement &symbology ) override;
-    ReosEncodedElement datasetGroupSymbology( const QString &id ) const override;
-
+    ReosEncodedElement datasetScalarGroupSymbology( const QString &id ) const override;
+    void setDatasetScalarGroupSymbology( const ReosEncodedElement &encodedElement, const QString &id ) override;
     ReosObjectRenderer *createRenderer( QGraphicsView *view ) override;
-
     ReosMeshQualityChecker *getQualityChecker( QualityMeshChecks qualitiChecks, const QString &destinatonCrs ) const override;
-
-    QString verticesElevationDatasetId() const override;
 
     void setSimulationResults( ReosHydraulicSimulationResults *result ) override;
 
-  private:
+    QString verticesElevationDatasetId() const override;
+    bool activateDataset( const QString &id ) override;
+    QStringList datasetIds() const override;
+    QString datasetName( const QString &id ) const override;
 
+  private:
     std::unique_ptr<QgsMeshLayer> mMeshLayer;
     ReosMeshDataProvider_p *meshProvider() const;
     QMap<QString, int> mDatasetGroupsIndex;
     QgsMeshDatasetGroup *mZVerticesDatasetGroup = nullptr;
     QString mVerticesElevationDatasetName;
     QString mVerticesElevationDatasetId;
+    QString mCurrentdScalarDatasetId;
 
     void init();
     void activateVertexZValueDatasetGroup();

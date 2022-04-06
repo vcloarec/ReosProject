@@ -129,6 +129,12 @@ class ReosMesh: public ReosRenderedObject
     //! Returns the vertices elevation dataset id
     virtual QString verticesElevationDatasetId() const = 0;
 
+    //! Returns all the dataset ids contained in the mesh
+    virtual QStringList datasetIds() const = 0;
+
+    //! Returns the name of the dataset with \a id
+    virtual QString datasetName( const QString &id ) const = 0;
+
     //! Activates the dataset with \a id
     virtual bool activateDataset( const QString &id ) = 0;
 
@@ -147,7 +153,9 @@ class ReosMesh: public ReosRenderedObject
     virtual ReosEncodedElement meshSymbology() const = 0;
     virtual void setMeshSymbology( const ReosEncodedElement &symbology ) = 0;
 
-    virtual ReosEncodedElement datasetGroupSymbology( const QString &id ) const = 0;
+    virtual ReosEncodedElement datasetScalarGroupSymbology( const QString &id ) const = 0;
+
+    virtual void setDatasetScalarGroupSymbology( const ReosEncodedElement &encodedElement, const QString &id ) = 0;
 
     //! Returns a process that check the quality of the mesh, caller take ownership
     virtual ReosMeshQualityChecker *getQualityChecker( QualityMeshChecks qualitiChecks, const QString &destinatonCrs ) const = 0;

@@ -21,6 +21,8 @@
 
 #include "reosmeshdatasetsource.h"
 
+class ReosHydraulicSimulation;
+
 class ReosHydraulicSimulationResults : public ReosMeshDatasetSource
 {
     Q_OBJECT
@@ -32,11 +34,15 @@ class ReosHydraulicSimulationResults : public ReosMeshDatasetSource
       Velocity,
     };
 
-    ReosHydraulicSimulationResults( QObject *parent = nullptr );
+    ReosHydraulicSimulationResults( const ReosHydraulicSimulation *simulation, QObject *parent = nullptr );
 
+    QString groupId( int groupIndex ) const;
     QString groupName( int groupIndex ) const override;
     bool groupIsScalar( int groupIndex ) const override;
     virtual DatasetType datasetType( int groupIndex ) const = 0;
+
+  private:
+    QString mSimulationId;
 
 };
 

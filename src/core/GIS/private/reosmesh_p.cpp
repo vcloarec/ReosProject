@@ -132,7 +132,7 @@ void ReosMeshFrame_p::setMeshSymbology( const ReosEncodedElement &symbology )
 
 }
 
-ReosEncodedElement ReosMeshFrame_p::datasetGroupSymbology( const QString &id ) const
+ReosEncodedElement ReosMeshFrame_p::datasetScalarGroupSymbology( const QString &id ) const
 {
   QDomDocument doc( QStringLiteral( "dataset-symbology" ) );
 
@@ -143,9 +143,31 @@ ReosEncodedElement ReosMeshFrame_p::datasetGroupSymbology( const QString &id ) c
 
   ReosEncodedElement encodedElem( QStringLiteral( "dataset-symbology" ) );
   QString docString = doc.toString();
-  encodedElem.addData( "symbology", docString );
+  encodedElem.addData( QStringLiteral( "symbology" ), docString );
 
   return encodedElem;
+}
+
+void ReosMeshFrame_p::setDatasetScalarGroupSymbology( const ReosEncodedElement &encodedElement, const QString &id )
+{
+  if ( encodedElement.description() != QStringLiteral( "dataset-symbology" ) )
+    return;
+
+  QString docString;
+  encodedElement.getData( QStringLiteral( "symbology" ), docString );
+
+  QDomDocument doc( QStringLiteral( "dataset-symbology" ) );
+
+  if ( doc.setContent( docString ) )
+  {
+    QDomElement domElem = doc.firstChildElement( QStringLiteral( "scalar-settings" ) );
+    QgsReadWriteContext context;
+    QgsMeshRendererScalarSettings scalarSettings;
+    scalarSettings.readXml( domElem );
+    QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
+    settings.setScalarSettings( mDatasetGroupsIndex.value( id ), scalarSettings );
+    mMeshLayer->setRendererSettings( settings );
+  }
 }
 
 ReosObjectRenderer *ReosMeshFrame_p::createRenderer( QGraphicsView *view )
@@ -308,6 +330,22 @@ bool ReosMeshFrame_p::activateDataset( const QString &id )
   return true;
 }
 
+QStringList ReosMeshFrame_p::datasetIds() const
+{
+  QMap<int, QString> mapRet;
+  QStringList ids = mDatasetGroupsIndex.keys();
+  for ( const QString &id : ids )
+    mapRet.insert( mDatasetGroupsIndex.value( id ), id );
+
+  return mapRet.values();
+}
+
+QString ReosMeshFrame_p::datasetName( const QString &id ) const
+{
+  QgsMeshDatasetGroupMetadata meta = mMeshLayer->datasetGroupMetadata( mDatasetGroupsIndex.value( id ) );
+  return meta.name();
+}
+
 void ReosMeshFrame_p::generateMesh( const ReosMeshFrameData &data )
 {
   if ( mMeshLayer->isEditable() )
@@ -383,10 +421,24 @@ void ReosMeshFrame_p::setSimulationResults( ReosHydraulicSimulationResults *resu
 {
   meshProvider()->setDatasetSource( result );
   mMeshLayer->temporalProperties()->setDefaultsFromDataProviderTemporalCapabilities( meshProvider()->temporalCapabilities() );
-  QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
-  settings.setActiveScalarDatasetGroup( 1 );
-  mMeshLayer->setRendererSettings( settings );
-  mMeshLayer->repaintRequested();
+
+  QList<int> groupIndexes = mMeshLayer->datasetGroupsIndexes();
+  int index = -1;
+  for ( int i = 0; i < result->groupCount(); ++i )
+  {
+    for ( int meshIndex : groupIndexes )
+    {
+      QgsMeshDatasetGroupMetadata meta = mMeshLayer->datasetGroupMetadata( QgsMeshDatasetIndex( meshIndex ) );
+      if ( meta.name() == result->groupName( i ) )
+      {
+        index = meshIndex;
+        break;
+      }
+    }
+
+    mDatasetGroupsIndex[result->groupId( i )] = index;
+  }
+
 }
 
 ReosMeshRenderer_p::ReosMeshRenderer_p( QGraphicsView *canvas, QgsMeshLayer *layer )

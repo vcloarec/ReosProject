@@ -45,12 +45,17 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
   private slots:
     void requestMapRefresh();
     void onLaunchCalculation();
+    void updateDatasetMenu();
 
   private:
     Ui::ReosHydraulicStructure2DProperties *ui;
     ReosHydraulicStructure2D *mStructure2D = nullptr;
     QPointer<ReosMap> mMap = nullptr;
+    QAction *mActionEditStructure = nullptr;
+    QAction *mActionRunSimulation = nullptr;
     QAction *mAction3DView = nullptr;
+    QMenu *mScalarDatasetMenu = nullptr;
+    QActionGroup *mScalarDatasetActions = nullptr;
     QPointer<Reos3dView> mView3D;
     ReosGuiContext mGuiContext;
     ReosCalculationContext mCalculationContext;

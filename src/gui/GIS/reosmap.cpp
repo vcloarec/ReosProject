@@ -98,9 +98,14 @@ bool ReosRendererObjectHandler::hasCache( ReosRenderedObject *renderedObject )
   auto it = d->mCacheRenderings.find( renderedObject );
 
   if ( it != d->mCacheRenderings.end() )
+  {
+    bool timeRangeIsValid = it->timeRange.begin().isValid() && it->timeRange.end().isValid() &&
+                            d->currentTimeRange.begin().isValid() && d->currentTimeRange.end().isValid();
+
     return it->extent == d->currentExtent &&
            it->mapToPixel == d->currentMapToPixel &&
-           it->timeRange == d->currentTimeRange;
+           ( it->timeRange == d->currentTimeRange || !timeRangeIsValid ) ;
+  }
 
   return false;
 }
@@ -110,10 +115,15 @@ bool ReosRendererObjectHandler::hasUpToDateCache( ReosRenderedObject *renderedOb
   auto it = d->mCacheRenderings.find( renderedObject );
 
   if ( it != d->mCacheRenderings.end() )
+  {
+    bool timeRangeIsValid = it->timeRange.begin().isValid() && it->timeRange.end().isValid() &&
+                            d->currentTimeRange.begin().isValid() && d->currentTimeRange.end().isValid();
+
     return it->extent == d->currentExtent &&
            it->mapToPixel == d->currentMapToPixel &&
-           it->timeRange == d->currentTimeRange &&
+           ( it->timeRange == d->currentTimeRange || !timeRangeIsValid ) &&
            !it->obsolete;
+  }
 
   return false;
 }
