@@ -384,22 +384,49 @@ int ReosMeshFrame_p::datasetGroupIndex( const QString &id ) const
   return mDatasetGroupsIndex.value( id, -1 );
 }
 
-void ReosMeshFrame_p::applyTopographyOnVertices( ReosTopographyCollection *topographyCollection )
+class ApplyTopopraphyProcess : public ReosProcess
+{
+
+  public:
+    ApplyTopopraphyProcess( ReosTopographyCollection *topographyCollection, ReosMeshDataProvider_p *meshProvider )
+      : mTopographyCollection( topographyCollection )
+      , mProvider( meshProvider )
+    {
+
+    }
+    void start()
+    {
+      mProvider->applyTopographyOnVertices( mTopographyCollection, this );
+    }
+
+  private:
+    ReosTopographyCollection *mTopographyCollection = nullptr;
+    ReosMeshDataProvider_p *mProvider = nullptr;
+};
+
+ReosProcess *ReosMeshFrame_p::applyTopographyOnVertices( ReosTopographyCollection *topographyCollection )
 {
   if ( mMeshLayer->isEditable() )
     stopFrameEditing( true );
 
-  meshProvider()->applyTopographyOnVertices( topographyCollection );
-  mMeshLayer->reload();
 
-  if ( mZVerticesDatasetGroup )
-    mZVerticesDatasetGroup->setStatisticObsolete();
+  std::unique_ptr<ReosProcess> process( new ApplyTopopraphyProcess( topographyCollection, meshProvider() ) );
 
-  firstUpdateOfTerrainScalarSetting();
+  connect( process.get(), &ReosProcess::finished, this, [this]
+  {
+    mMeshLayer->reload();
 
-  emit repaintRequested();
-  mMeshLayer->trigger3DUpdate();
-  emit dataChanged();
+    if ( mZVerticesDatasetGroup )
+      mZVerticesDatasetGroup->setStatisticObsolete();
+
+    firstUpdateOfTerrainScalarSetting();
+
+    emit repaintRequested();
+    mMeshLayer->trigger3DUpdate();
+    emit dataChanged();
+  } );
+
+  return process.release();
 }
 
 double ReosMeshFrame_p::datasetScalarValueAt( const QString &datasetId, const QPointF &pos ) const

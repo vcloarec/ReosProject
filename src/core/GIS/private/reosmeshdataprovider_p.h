@@ -42,7 +42,7 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
 
     void applyDemOnVertices( ReosDigitalElevationModel *dem );
 
-    void applyTopographyOnVertices( ReosTopographyCollection *topographyCollection );
+    void applyTopographyOnVertices( ReosTopographyCollection *topographyCollection, ReosProcess *process = nullptr );
 
     //! Overrides the crs, used when the mesh provider is created from scratch
     void overrideCrs( const QgsCoordinateReferenceSystem &crs );

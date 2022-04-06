@@ -106,7 +106,9 @@ ReosHydraulicScheme *ReosHydraulicScheme::decode( const ReosEncodedElement &elem
 }
 
 ReosHydraulicSchemeCollection::ReosHydraulicSchemeCollection( QObject *parent )
-  : QAbstractListModel( parent ) {}
+  : QAbstractListModel( parent )
+{
+}
 
 
 ReosEncodedElement ReosHydraulicSchemeCollection::encode() const
@@ -114,7 +116,7 @@ ReosEncodedElement ReosHydraulicSchemeCollection::encode() const
   ReosEncodedElement element( QStringLiteral( "hydraulic-scheme-collection" ) );
   QList<ReosEncodedElement> encodedList;
 
-  for ( ReosHydraulicScheme *scheme : mHydraulicScheme )
+  for ( ReosHydraulicScheme *scheme : mHydraulicSchemes )
     encodedList.append( scheme->encode() );
 
   element.addListEncodedData( QStringLiteral( "schemes" ), encodedList );
@@ -132,7 +134,7 @@ void ReosHydraulicSchemeCollection::decode( const ReosEncodedElement &encodedEle
   {
     ReosHydraulicScheme *scheme = ReosHydraulicScheme::decode( elem, this, context );
     if ( scheme )
-      mHydraulicScheme.append( scheme );
+      mHydraulicSchemes.append( scheme );
   }
 }
 
@@ -148,7 +150,7 @@ QModelIndex ReosHydraulicSchemeCollection::parent( const QModelIndex & ) const
 
 int ReosHydraulicSchemeCollection::rowCount( const QModelIndex & ) const
 {
-  return mHydraulicScheme.count();
+  return mHydraulicSchemes.count();
 }
 
 int ReosHydraulicSchemeCollection::columnCount( const QModelIndex & ) const
@@ -161,8 +163,8 @@ QVariant ReosHydraulicSchemeCollection::data( const QModelIndex &index, int role
   if ( !index.isValid() )
     return QVariant();
 
-  if ( role == Qt::DisplayRole && index.row() < mHydraulicScheme.count() )
-    return mHydraulicScheme.at( index.row() )->schemeName()->value();
+  if ( role == Qt::DisplayRole && index.row() < mHydraulicSchemes.count() )
+    return mHydraulicSchemes.at( index.row() )->schemeName()->value();
 
   return QVariant();
 }
@@ -171,34 +173,37 @@ void ReosHydraulicSchemeCollection::addScheme( ReosHydraulicScheme *scheme )
 {
   beginResetModel();
   scheme->setParent( this );
-  mHydraulicScheme.append( scheme );
+  mHydraulicSchemes.append( scheme );
   endResetModel();
 }
 
 void ReosHydraulicSchemeCollection::removeScheme( int index )
 {
   beginResetModel();
-  mHydraulicScheme.at( index )->deleteLater();
-  mHydraulicScheme.removeAt( index );
+  mHydraulicSchemes.at( index )->deleteLater();
+  mHydraulicSchemes.removeAt( index );
   endResetModel();
 }
 
 void ReosHydraulicSchemeCollection::clear()
 {
   beginResetModel();
-  for ( ReosHydraulicScheme *scheme : std::as_const( mHydraulicScheme ) )
+  for ( ReosHydraulicScheme *scheme : std::as_const( mHydraulicSchemes ) )
     scheme->deleteLater();
-  mHydraulicScheme.clear();
+  mHydraulicSchemes.clear();
   endResetModel();
 }
 
 int ReosHydraulicSchemeCollection::schemeCount() const
 {
-  return mHydraulicScheme.count();
+  return mHydraulicSchemes.count();
 }
 
 ReosHydraulicScheme *ReosHydraulicSchemeCollection::scheme( int index )
 {
-  return mHydraulicScheme.at( index );
+  if ( index < 0 || index > mHydraulicSchemes.count() )
+    return nullptr;
+
+  return mHydraulicSchemes.at( index );
 }
 

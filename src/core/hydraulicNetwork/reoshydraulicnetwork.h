@@ -182,7 +182,7 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     ReosGisEngine *mGisEngine = nullptr;
     ReosWatershedModule *mWatershedModule = nullptr;
     ReosHydraulicSchemeCollection *mHydraulicSchemeCollection = nullptr;
-    int mCurrentSchemeIndex = 0;
+    int mCurrentSchemeIndex = -1;
     QHash<QString, ReosHydraulicNetworkElement *> mElements;
     mutable QString mProjectPath;
     mutable QString mProjectName;

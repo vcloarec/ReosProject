@@ -165,7 +165,7 @@ ReosEditMeshElementWidget::ReosEditMeshElementWidget( ReosMesh *mesh, const Reos
 
   connect( ui->mStartCheckButton, &QToolButton::clicked, this, &ReosEditMeshElementWidget::startCheckQualityControlled );
   connect( ui->mAutoUpdateCheckBox, &QCheckBox::stateChanged, this, &ReosEditMeshElementWidget::onQualityCheckBoxChanged );
-  connect( mMesh, &ReosDataObject::dataChanged, this, &ReosEditMeshElementWidget::startCheckQualityNonControlled );
+  connect( mMesh, &ReosDataObject::dataChanged, this, &ReosEditMeshElementWidget::onMeshChanged );
 
   QgsMapCanvas *mapCanvas = qobject_cast<QgsMapCanvas *>( mGuiContext.map()->mapCanvas() );
   if ( mapCanvas )

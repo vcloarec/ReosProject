@@ -245,14 +245,27 @@ void ReosMeshDataProvider_p::applyDemOnVertices( ReosDigitalElevationModel *dem 
   emit dataChanged();
 }
 
-void ReosMeshDataProvider_p::applyTopographyOnVertices( ReosTopographyCollection *topographyCollection )
+void ReosMeshDataProvider_p::applyTopographyOnVertices( ReosTopographyCollection *topographyCollection, ReosProcess *process )
 {
   ReosTopographyCollection_p *topoCollection = qobject_cast<ReosTopographyCollection_p *>( topographyCollection );
 
   if ( !topoCollection )
     return;
 
+  int processStep = mMesh.vertexCount() / 100;
+
+  if ( process )
+  {
+    process->setInformation( tr( "Prepare topography collection" ) );
+    process->setMaxProgression( mMesh.vertexCount() );
+    process->setCurrentProgression( 0 );
+  }
+
   topoCollection->prepare_p( mCrs );
+
+  if ( process )
+    process->setInformation( tr( "Apply topography on Mesh" ) );
+
   for ( int i = 0; i < mMesh.vertexCount(); ++i )
   {
     double value = topoCollection->elevationAt_p( mMesh.vertices.at( i ) );
@@ -260,8 +273,17 @@ void ReosMeshDataProvider_p::applyTopographyOnVertices( ReosTopographyCollection
       mMesh.vertices[i].setZ( value );
     else
       mMesh.vertices[i].setZ( std::numeric_limits<double>::quiet_NaN() );
+
+    if ( process && i % processStep == 0 )
+    {
+      process->setCurrentProgression( i );
+      if ( process->isStop() )
+        break;
+    }
   }
+
   topoCollection->clean_p();
+
   emit dataChanged();
 }
 

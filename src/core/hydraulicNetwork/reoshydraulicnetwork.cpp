@@ -296,6 +296,7 @@ void ReosHydraulicNetwork::clear()
   mElements.clear();
   mHydraulicSchemeCollection->clear();
   mElementIndexesCounter.clear();
+  mCurrentSchemeIndex = -1;
   emit hasBeenReset();
 }
 

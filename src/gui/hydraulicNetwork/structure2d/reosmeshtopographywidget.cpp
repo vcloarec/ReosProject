@@ -26,6 +26,7 @@
 #include "reostopographycollection.h"
 #include "reosguicontext.h"
 #include "reosstyleregistery.h"
+#include "reosprocesscontroler.h"
 
 ReosMeshTopographyStackedWidget::ReosMeshTopographyStackedWidget(
   ReosMesh *mesh,
@@ -63,8 +64,12 @@ ReosMeshTopographyWidget::ReosMeshTopographyWidget( ReosMesh *mesh, ReosTopograp
 
 void ReosMeshTopographyWidget::applyDem()
 {
-  std::unique_ptr<ReosDigitalElevationModel> dem( ui->mDemCombo->currentDem() );
-  mMesh->applyTopographyOnVertices( mTopographyCollection );
+  std::unique_ptr<ReosProcess> process( mMesh->applyTopographyOnVertices( mTopographyCollection ) );
+  ReosProcessControler *controler = new ReosProcessControler( process.get(), this );
+
+  controler->exec();
+
+  controler->deleteLater();
 }
 
 void ReosMeshTopographyWidget::onAddTopography()

@@ -54,7 +54,7 @@ class ReosMeshFrame_p : public ReosMesh
     QString crs() const override;
     QObject *data() const override;
     int datasetGroupIndex( const QString &id ) const override;
-    void applyTopographyOnVertices( ReosTopographyCollection *topographyCollection ) override;
+    ReosProcess *applyTopographyOnVertices( ReosTopographyCollection *topographyCollection ) override;
     double datasetScalarValueAt( const QString &datasetId, const QPointF &pos ) const override;
     void save( const QString &dataPath ) const override;
     void stopFrameEditing( bool commit ) override;

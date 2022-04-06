@@ -87,7 +87,7 @@ class ReosHydraulicSchemeCollection : public QAbstractListModel
     void decode( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
 
   private:
-    QList<ReosHydraulicScheme *> mHydraulicScheme;
+    QList<ReosHydraulicScheme *> mHydraulicSchemes;
 };
 
 

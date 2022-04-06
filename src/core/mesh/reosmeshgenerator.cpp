@@ -44,7 +44,7 @@ ReosMeshGenerator::ReosMeshGenerator( QObject *parent )
   : ReosDataObject( parent )
   , mAutoUpdateParameter( new ReosParameterBoolean( tr( "Auto update mesh" ), false, this ) )
 {
-  mAutoUpdateParameter->setValue( true );
+  mAutoUpdateParameter->setValue( false );
 }
 
 ReosParameterBoolean *ReosMeshGenerator::autoUpdateParameter() const
