@@ -62,6 +62,7 @@ class ReosMeshFrame_p : public ReosMesh
     void setMeshSymbology( const ReosEncodedElement &symbology ) override;
     ReosEncodedElement datasetScalarGroupSymbology( const QString &id ) const override;
     void setDatasetScalarGroupSymbology( const ReosEncodedElement &encodedElement, const QString &id ) override;
+    void activateWireFrame( bool activate ) override;
     ReosObjectRenderer *createRenderer( QGraphicsView *view ) override;
     ReosMeshQualityChecker *getQualityChecker( QualityMeshChecks qualitiChecks, const QString &destinatonCrs ) const override;
 

@@ -57,7 +57,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
 
   mMesh.reset( ReosMesh::createMeshFrameFromFile( structureDirectory().path() ) );
   init();
-  mMesh->setMeshSymbology( encodedElement.getEncodedData( QStringLiteral( "mesh-frame-symbology" ) ) );
+  //mMesh->setMeshSymbology( encodedElement.getEncodedData( QStringLiteral( "mesh-frame-symbology" ) ) );
   mMesh->setQualityMeshParameter( encodedElement.getEncodedData( QStringLiteral( "mesh-quality-parameters" ) ) );
 
   encodedElement.getData( QStringLiteral( "boundaries-vertices" ), mBoundaryVertices );
@@ -85,12 +85,25 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   if ( mCurrentSimulationIndex >= mSimulations.count() )
     mCurrentSimulationIndex = mSimulations.count() - 1;
 
+  encodedElement.getData( QStringLiteral( "terrain-symbology" ), mTerrainSymbology );
+  mMesh->setDatasetScalarGroupSymbology( ReosEncodedElement( mTerrainSymbology ), mTerrainDatasetId );
+  QMap<int, QByteArray> resultSymbol;
+  encodedElement.getData( QStringLiteral( "scalar-results-symbologies" ), resultSymbol );
+  const QList<int> typeKeys = resultSymbol.keys();
+  for ( int type :  typeKeys )
+    mResultScalarDatasetSymbologies.insert( static_cast<ResultType>( type ), resultSymbol.value( type ) );
+
   encodedElement.getData( QStringLiteral( "current-mesh-dataset-id" ), mCurrentActivatedMeshDataset );
 }
 
 QString ReosHydraulicStructure2D::currentActivatedMeshDataset() const
 {
   return mCurrentActivatedMeshDataset;
+}
+
+bool ReosHydraulicStructure2D::hasResults() const
+{
+  return ( mSimulationResults && mSimulationResults->groupCount() > 0 );
 }
 
 void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const
@@ -111,7 +124,6 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
 
   element.addData( QStringLiteral( "boundaries-vertices" ), mBoundaryVertices );
   element.addData( QStringLiteral( "hole-vertices" ), mHolesVertices );
-  element.addEncodedData( QStringLiteral( "mesh-frame-symbology" ), mMesh->meshSymbology() );
   element.addEncodedData( QStringLiteral( "mesh-quality-parameters" ), mMesh->qualityMeshParameters().encode() );
   element.addEncodedData( QStringLiteral( "roughness-structure" ), mRoughnessStructure->encode() );
 
@@ -122,6 +134,14 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
   element.addData( QStringLiteral( "current-simulation-index" ), mCurrentSimulationIndex );
 
   element.addData( QStringLiteral( "current-mesh-dataset-id" ), mCurrentActivatedMeshDataset );
+
+  getSymbologiesFromMesh();
+  element.addData( QStringLiteral( "terrain-symbology" ), mTerrainSymbology );
+  const QList<ResultType> typeKeys = mResultScalarDatasetSymbologies.keys();
+  QMap<int, QByteArray> resultSymbol;
+  for ( ResultType type : typeKeys )
+    resultSymbol.insert( int( type ), mResultScalarDatasetSymbologies.value( type ) );
+  element.addData( QStringLiteral( "scalar-results-symbologies" ), resultSymbol );
 
   element.addEncodedData( "3d-map-setings", m3dMapSettings.encode() );
 }
@@ -204,7 +224,10 @@ void ReosHydraulicStructure2D::updateCalculationContext( const ReosCalculationCo
   }
 
   if ( currentSimulation() && currentSimulation()->hasResult( this, context ) )
+  {
     loadSimulationResults( currentSimulation(), context );
+    activateResultDatasetGroup();
+  }
 }
 
 Reos3DMapSettings ReosHydraulicStructure2D::map3dSettings() const
@@ -295,7 +318,6 @@ ReosSimulationProcess *ReosHydraulicStructure2D::startSimulation()
   {
     if ( !sim.isNull() )
       loadSimulationResults( sim, context );
-
   } );
 
   if ( mSimulationResults )
@@ -446,18 +468,39 @@ void ReosHydraulicStructure2D::onMeshGenerated( const ReosMeshFrameData &meshDat
   emit dataChanged();
 }
 
+void ReosHydraulicStructure2D::getSymbologiesFromMesh() const
+{
+  if ( !mSimulationResults )
+    return;
+
+  mTerrainSymbology = mMesh->datasetScalarGroupSymbology( mMesh->verticesElevationDatasetId() ).bytes();
+
+  for ( int i = 0; i < mSimulationResults->groupCount(); ++i )
+  {
+    const QString id = mSimulationResults->groupId( i );
+    ReosEncodedElement encodedSymb = mMesh->datasetScalarGroupSymbology( id );
+    mResultScalarDatasetSymbologies.insert( mSimulationResults->datasetType( i ), encodedSymb.bytes() );
+  }
+}
+
 void ReosHydraulicStructure2D::loadSimulationResults( ReosHydraulicSimulation *simulation, const ReosCalculationContext &context )
 {
   if ( !simulation )
     return;
 
   if ( mSimulationResults )
+  {
+    //Store the current symbology per data type
+    getSymbologiesFromMesh();
     mSimulationResults->deleteLater();
+  }
 
   mSimulationResults = simulation->createResults( this, context );
   if ( !mSimulationResults )
     return;
+
   mesh()->setSimulationResults( mSimulationResults );
+
   if ( mCurrentActivatedMeshDataset.isEmpty() )
   {
     QStringList ids = mesh()->datasetIds();
@@ -466,6 +509,18 @@ void ReosHydraulicStructure2D::loadSimulationResults( ReosHydraulicSimulation *s
     else if ( ids.count() == 0 )
       mCurrentActivatedMeshDataset = ids.first();
   }
+
+  if ( mSimulationResults )
+  {
+    //Restore the current symbology per data type
+    for ( int i = 0; i < mSimulationResults->groupCount(); ++i )
+    {
+      ResultType type = mSimulationResults->datasetType( i );
+      ReosEncodedElement encodedSymb( mResultScalarDatasetSymbologies.value( type ) );
+      mMesh->setDatasetScalarGroupSymbology( encodedSymb, mSimulationResults->groupId( i ) );
+    }
+  }
+
   emit simulationResultChanged();
 }
 
@@ -473,10 +528,12 @@ void ReosHydraulicStructure2D::loadSimulationResults( ReosHydraulicSimulation *s
 void ReosHydraulicStructure2D::activateMeshTerrain()
 {
   mMesh->activateDataset( mTerrainDatasetId );
+  mMesh->setDatasetScalarGroupSymbology( ReosEncodedElement( mTerrainSymbology ), mTerrainDatasetId );
 }
 
 void ReosHydraulicStructure2D::deactivateMeshScalar()
 {
+  mTerrainSymbology = mMesh->datasetScalarGroupSymbology( mTerrainDatasetId ).bytes();
   mMesh->activateDataset( QString() );
 }
 

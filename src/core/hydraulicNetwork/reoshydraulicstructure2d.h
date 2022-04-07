@@ -22,6 +22,7 @@
 #include "reosgmshgenerator.h"
 #include "reosmesh.h"
 #include "reos3dmapsettings.h"
+#include "reoshydraulicsimulationresults.h"
 
 class ReosTopographyCollection;
 class ReosRoughnessStructure;
@@ -98,13 +99,15 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     bool addSimulation( const QString key );
 
     //! Activates the result dataset groups with \a id. If id is void, the current group is reactivated
-    void activateResultDatasetGroup( const QString &id );
+    void activateResultDatasetGroup( const QString &id = QString() );
 
     QStringList meshDatasetIds() const;
 
     QString meshDatasetName( const QString &id ) const;
 
     QString currentActivatedMeshDataset() const;
+
+    bool hasResults() const;
 
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context );
@@ -115,7 +118,7 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     void simulationResultChanged();
 
   protected:
-    void encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const;
+    void encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const override;
 
   private slots:
     void onBoundaryConditionAdded( const QString &bid );
@@ -142,6 +145,9 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
 
     ReosHydraulicSimulationResults *mSimulationResults = nullptr;
     QString mCurrentActivatedMeshDataset;
+    typedef ReosHydraulicSimulationResults::DatasetType ResultType;
+    mutable QMap<ResultType, QByteArray> mResultScalarDatasetSymbologies;
+    mutable QByteArray mTerrainSymbology;
 
     QString mTerrainDatasetId;
     Reos3DMapSettings m3dMapSettings;
@@ -155,6 +161,7 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     ReosHydraulicStructureBoundaryCondition *boundaryConditionNetWorkElement( const QString boundaryId ) const;
     void onMeshGenerated( const ReosMeshFrameData &meshData );
 
+    void getSymbologiesFromMesh() const;
     void loadSimulationResults( ReosHydraulicSimulation *simulation,  const ReosCalculationContext &context );
 };
 

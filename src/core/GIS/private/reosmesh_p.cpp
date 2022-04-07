@@ -56,7 +56,8 @@ void ReosMeshFrame_p::init()
 {
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
   QgsMeshRendererMeshSettings meshSettings = settings.nativeMeshSettings();
-  meshSettings.setEnabled( true );
+  meshSettings.setLineWidth( 0.1 );
+  meshSettings.setColor( Qt::gray );
   settings.setNativeMeshSettings( meshSettings );
   mMeshLayer->setRendererSettings( settings );
 
@@ -168,6 +169,20 @@ void ReosMeshFrame_p::setDatasetScalarGroupSymbology( const ReosEncodedElement &
     settings.setScalarSettings( mDatasetGroupsIndex.value( id ), scalarSettings );
     mMeshLayer->setRendererSettings( settings );
   }
+}
+
+void ReosMeshFrame_p::activateWireFrame( bool activate )
+{
+  if ( !mMeshLayer )
+    return;
+
+  QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
+  QgsMeshRendererMeshSettings wireframeSettings = settings.nativeMeshSettings();
+  wireframeSettings.setEnabled( activate );
+  settings.setNativeMeshSettings( wireframeSettings );
+  mMeshLayer->setRendererSettings( settings );
+
+  mMeshLayer->triggerRepaint();
 }
 
 ReosObjectRenderer *ReosMeshFrame_p::createRenderer( QGraphicsView *view )

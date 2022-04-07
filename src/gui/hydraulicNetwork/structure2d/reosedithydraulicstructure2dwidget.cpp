@@ -43,6 +43,8 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
 {
   ui->setupUi( this );
 
+  structure2D->mesh()->activateWireFrame( true );
+
   QToolBar *propertiesToolBar = new QToolBar( this );
   propertiesToolBar->layout()->setContentsMargins( 0, 0, 0, 0 );
   ui->mPropertiesToolBarLayout->addWidget( propertiesToolBar );
@@ -106,6 +108,7 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
 ReosEditHydraulicStructure2DWidget::~ReosEditHydraulicStructure2DWidget()
 {
   delete ui;
+  mStructure2D->mesh()->activateWireFrame( false );
   if ( mInitialMapStructureItem )
     mInitialMapStructureItem->setVisible( true );
 }

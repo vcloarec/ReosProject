@@ -152,11 +152,14 @@ class ReosMesh: public ReosRenderedObject
     virtual void stopFrameEditing( bool commit ) = 0;
 
     virtual ReosEncodedElement meshSymbology() const = 0;
+
     virtual void setMeshSymbology( const ReosEncodedElement &symbology ) = 0;
 
     virtual ReosEncodedElement datasetScalarGroupSymbology( const QString &id ) const = 0;
 
     virtual void setDatasetScalarGroupSymbology( const ReosEncodedElement &encodedElement, const QString &id ) = 0;
+
+    virtual void activateWireFrame( bool activate ) = 0;
 
     //! Returns a process that check the quality of the mesh, caller take ownership
     virtual ReosMeshQualityChecker *getQualityChecker( QualityMeshChecks qualitiChecks, const QString &destinatonCrs ) const = 0;

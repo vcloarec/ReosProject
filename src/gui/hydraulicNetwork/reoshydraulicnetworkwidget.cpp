@@ -201,6 +201,11 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
   }
 
   ReosHydraulicNetworkElement *elem = mHydraulicNetwork->getElement( item->description() );
+
+  ReosGuiContext guiContext = createContext();
+  guiContext.addMapItems( item );
+  mElementPropertiesWidget->setCurrentElement( elem, guiContext );
+
   if ( elem )
   {
     mMapItemFactory.selectItem( elem, item );
@@ -210,10 +215,6 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
   }
 
   mCurrentSelectedElement = elem;
-
-  ReosGuiContext guiContext = createContext();
-  guiContext.addMapItems( item );
-  mElementPropertiesWidget->setCurrentElement( elem, guiContext );
 }
 
 void ReosHydraulicNetworkWidget::onSelectedElementRemoved()

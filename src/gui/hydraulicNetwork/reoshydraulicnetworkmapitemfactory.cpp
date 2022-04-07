@@ -181,6 +181,33 @@ static ReosMapItem *createStructure2D( ReosHydraulicNetworkElement *elem, ReosMa
   return nullptr;
 }
 
+static void selectStructure2D( ReosHydraulicNetworkElement *elem, ReosMapItem *item )
+{
+  if ( item )
+  {
+    item->setColor( QColor( 250, 175, 100 ) );
+  }
+
+  ReosHydraulicStructure2D *str2D = qobject_cast<ReosHydraulicStructure2D *>( elem );
+  if ( str2D && item )
+  {
+    qDebug() << str2D->hasResults();
+    if ( str2D->hasResults() )
+      static_cast<ReosMapPolygon *>( item )->setFillStyle( Qt::NoBrush );
+    else
+      static_cast<ReosMapPolygon *>( item )->setFillStyle( Qt::DiagCrossPattern );
+  }
+}
+
+static void unselectStructure2D( ReosHydraulicNetworkElement *, ReosMapItem *item )
+{
+  if ( item )
+  {
+    item->setColor( QColor( 250, 175, 100 ) );
+    static_cast<ReosMapPolygon *>( item )->setFillStyle( Qt::DiagCrossPattern );
+  }
+}
+
 static ReosMapItem *createStructureBoundaryCondition( ReosHydraulicNetworkElement *elem, ReosMap *map )
 {
   ReosHydraulicStructureBoundaryCondition *stdBc = qobject_cast<ReosHydraulicStructureBoundaryCondition *>( elem );
@@ -249,14 +276,14 @@ ReosHydraulicNetworkMapItemFactory::ReosHydraulicNetworkMapItemFactory()
   mSelectFunctions.insert( ReosHydrographNodeWatershed::staticType(), &selectHydraulicElement );
   mSelectFunctions.insert( ReosHydrographJunction::staticType(), &selectHydraulicElement );
   mSelectFunctions.insert( ReosHydrographRoutingLink::staticType(), &selectHydraulicElement );
-  mSelectFunctions.insert( ReosHydraulicStructure2D::staticType(), &selectHydraulicElement );
+  mSelectFunctions.insert( ReosHydraulicStructure2D::staticType(), &selectStructure2D );
   mSelectFunctions.insert( ReosHydraulicStructureBoundaryCondition::staticType(), &selectHydraulicElement );
 
   // unselect function
   mUnselectFunctions.insert( ReosHydrographNodeWatershed::staticType(), &unselectHydrographElement );
   mUnselectFunctions.insert( ReosHydrographJunction::staticType(), &unselectHydrographElement );
   mUnselectFunctions.insert( ReosHydrographRoutingLink::staticType(), &unselectHydrographElement );
-  mUnselectFunctions.insert( ReosHydraulicStructure2D::staticType(), &unselectHydrographElement );
+  mUnselectFunctions.insert( ReosHydraulicStructure2D::staticType(), &unselectStructure2D );
   mUnselectFunctions.insert( ReosHydraulicStructureBoundaryCondition::staticType(), &unselectHydrographElement );
 
   mExtraItemSelectedFunctions.insert( ReosHydrographNodeWatershed::staticType(), &createExtraItemSelectedHydrographSourceWatershed );
