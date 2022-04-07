@@ -273,19 +273,22 @@ void ReosMeshFrame_p::update3DRenderer()
 
 
   symbol->setSmoothedTriangles( false );
-  symbol->setWireframeEnabled( true );
+  symbol->setWireframeEnabled( false );
   symbol->setWireframeLineColor( Qt::white );
   symbol->setWireframeLineWidth( 0.1 );
   symbol->setLevelOfDetailIndex( 0 );
 
   symbol->setVerticalScale( 1 );
-  symbol->setRenderingStyle( static_cast<QgsMesh3DSymbol::RenderingStyle>( QgsMesh3DSymbol::SingleColor ) );
+  symbol->setRenderingStyle( static_cast<QgsMesh3DSymbol::RenderingStyle>( QgsMesh3DSymbol::ColorRamp ) );
   symbol->setSingleMeshColor( Qt::blue );
   symbol->setVerticalDatasetGroupIndex( mDatasetGroupsIndex.value( mVerticalDataset3DId ) );
   symbol->setIsVerticalMagnitudeRelative( false );
 
-//  if ( sym->renderingStyle() == QgsMesh3DSymbol::ColorRamp )
-//    sym->setColorRampShader( mColorRampShaderWidget->shader() );
+  if ( symbol->renderingStyle() == QgsMesh3DSymbol::ColorRamp )
+  {
+    QgsColorRampShader ramp = mMeshLayer->rendererSettings().scalarSettings( mDatasetGroupsIndex.value( mCurrentdScalarDatasetId ) ).colorRampShader();
+    symbol->setColorRampShader( ramp );
+  }
 
 //  sym->setArrowsEnabled( mGroupBoxArrowsSettings->isChecked() );
 //  sym->setArrowsSpacing( mArrowsSpacingSpinBox->value() );
@@ -382,9 +385,12 @@ bool ReosMeshFrame_p::activateDataset( const QString &id )
 {
   int index = mDatasetGroupsIndex.value( id, -1 );
 
+  mCurrentdScalarDatasetId = id;
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
   settings.setActiveScalarDatasetGroup( index );
   mMeshLayer->setRendererSettings( settings );
+
+  update3DRenderer();
 
   return true;
 }

@@ -129,7 +129,7 @@ ReosHydraulicSimulationResults *ReosTelemac2DSimulation::createResults( ReosHydr
   QDir dir = hydraulicStructure->structureDirectory();
   if ( !dir.cd( mDirName ) )
     return nullptr;
-  return new ReosTelemac2DSimulationResults( this, dir.filePath( mResultFileName ), hydraulicStructure );
+  return new ReosTelemac2DSimulationResults( this, hydraulicStructure->mesh(),  dir.filePath( mResultFileName ), hydraulicStructure );
 }
 
 void ReosTelemac2DSimulation::prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &context )
@@ -369,6 +369,23 @@ static void writeStringRecord( QDataStream &stream, const QString &str )
 }
 
 
+static void setCounterClockwise( QVector<int> &triangle, const QPointF &v0, const QPointF &v1, const QPointF &v2 )
+{
+  //To have consistent clock wise orientation of triangles which is necessary for 3D rendering
+  //Check the clock wise, and if it is not counter clock wise, swap indexes to make the oientation counter clock wise
+  double ux = v1.x() - v0.x();
+  double uy = v1.y() - v0.y();
+  double vx = v2.x() - v0.x();
+  double vy = v2.y() - v0.y();
+
+  double crossProduct = ux * vy - uy * vx;
+  if ( crossProduct < 0 ) //CW -->change the orientation
+  {
+    std::swap( triangle[1], triangle[2] );
+  }
+}
+
+
 void ReosTelemac2DSimulation::createSelafinMeshFrame( ReosHydraulicStructure2D *hydraulicStructure, const QVector<int> &verticesPosInBoundary )
 {
   // MDAL does not handle the boundaries. As the parrallel calculation in Telemac need to now about the boundaies vertices,
@@ -420,8 +437,9 @@ void ReosTelemac2DSimulation::createSelafinMeshFrame( ReosHydraulicStructure2D *
 
   for ( int i = 0; i < facesCount; ++i )
   {
-    const QVector<int> &face = rmesh->face( i );
-    for ( int f : face )
+    QVector<int> face = rmesh->face( i );
+    setCounterClockwise( face, rmesh->vertexPosition( face.at( 0 ) ), rmesh->vertexPosition( face.at( 1 ) ), rmesh->vertexPosition( face.at( 2 ) ) );
+    for ( int f : std::as_const( face ) )
       writeInt( stream, f + 1 );
 
   }

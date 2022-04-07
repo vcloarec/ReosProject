@@ -164,14 +164,30 @@ QgsMeshDataBlock ReosMeshDataProvider_p::datasetValues( QgsMeshDatasetIndex inde
 
 QgsMesh3dDataBlock ReosMeshDataProvider_p::dataset3dValues( QgsMeshDatasetIndex, int, int ) const
 {
-
   return QgsMesh3dDataBlock();
 }
 
-QgsMeshDataBlock ReosMeshDataProvider_p::areFacesActive( QgsMeshDatasetIndex, int, int count ) const
+QgsMeshDataBlock ReosMeshDataProvider_p::areFacesActive( QgsMeshDatasetIndex index, int valueIndex, int count ) const
 {
   QgsMeshDataBlock ret( QgsMeshDataBlock::ActiveFlagInteger, count );
   ret.setValid( true );
+  QVector<int> values = mDatasetSource->activeFaces( index.dataset() );
+  QVector<int> buffer;
+  if ( valueIndex == 0 && count == values.count() )
+  {
+    buffer = values;
+  }
+  else
+  {
+    int effectiveCount = std::min( count, values.count() - valueIndex );
+    if ( effectiveCount > 0 )
+    {
+      buffer.resize( effectiveCount );
+      memcpy( buffer.data(), &values[valueIndex], static_cast<size_t>( effectiveCount )*sizeof( int ) );
+    }
+  }
+
+  ret.setActive( buffer );
   return ret;
 }
 

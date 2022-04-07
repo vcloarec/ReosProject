@@ -17,6 +17,7 @@
 #define REOSHYDRAULIC2DSIMULATIONWIDGET_H
 
 #include <QWidget>
+#include <memory>
 
 class ReosHydraulicSimulation;
 class ReosHydraulicStructure2D;

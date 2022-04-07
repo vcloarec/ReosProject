@@ -15,12 +15,15 @@
  ***************************************************************************/
 #include "reostelemac2dsimulationresults.h"
 
+#include <qgsmeshlayer.h>
+
 #include <QDateTime>
 
 #include "reosduration.h"
 #include "reostelemac2dsimulation.h"
+#include "reosmesh.h"
 
-ReosTelemac2DSimulationResults::ReosTelemac2DSimulationResults( const ReosTelemac2DSimulation *simulation, const QString &fileName, QObject *parent )
+ReosTelemac2DSimulationResults::ReosTelemac2DSimulationResults( const ReosTelemac2DSimulation *simulation, const ReosMesh *mesh, const QString &fileName, QObject *parent )
   : ReosHydraulicSimulationResults( simulation, parent )
 {
   QByteArray curi = fileName.toUtf8();
@@ -42,6 +45,12 @@ ReosTelemac2DSimulationResults::ReosTelemac2DSimulationResults( const ReosTelema
     else if ( groupName == QStringLiteral( "free surface    m" ) )
       mTypeToTelemacGroupIndex[DatasetType::WaterLevel] = i;
   }
+
+  mCache.resize( datasetCount( mTypeToTelemacGroupIndex.value( DatasetType::WaterDepth ) ) );
+
+  QgsMeshLayer *meshLayer = qobject_cast<QgsMeshLayer *>( mesh->data() );
+  if ( meshLayer )
+    mFaces = meshLayer->nativeMesh()->faces;
 }
 
 ReosTelemac2DSimulationResults::~ReosTelemac2DSimulationResults()
@@ -159,6 +168,19 @@ void ReosTelemac2DSimulationResults::datasetMinMax( int groupIndex, int datasetI
 QVector<double> ReosTelemac2DSimulationResults::datasetValues( int groupIndex, int index ) const
 {
   DatasetType dt = datasetType( groupIndex );
+
+  switch ( dt )
+  {
+    case ReosHydraulicSimulationResults::DatasetType::WaterLevel:
+      break;
+    case ReosHydraulicSimulationResults::DatasetType::WaterDepth:
+      if ( !mCache.at( index ).waterDepth.isEmpty() )
+        return mCache.at( index ).waterDepth;
+      break;
+    case ReosHydraulicSimulationResults::DatasetType::Velocity:
+      break;
+  }
+
   int telemacIndex = mTypeToTelemacGroupIndex.value( dt );
 
   MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH, telemacIndex );
@@ -184,5 +206,47 @@ QVector<double> ReosTelemac2DSimulationResults::datasetValues( int groupIndex, i
 
   Q_ASSERT( valueCount == effectiveValueCount );
 
+  switch ( dt )
+  {
+    case ReosHydraulicSimulationResults::DatasetType::WaterLevel:
+      break;
+    case ReosHydraulicSimulationResults::DatasetType::WaterDepth:
+      mCache[index].waterDepth = ret;
+      break;
+    case ReosHydraulicSimulationResults::DatasetType::Velocity:
+      break;
+  }
+
   return ret;
+}
+
+QVector<int> ReosTelemac2DSimulationResults::activeFaces( int index ) const
+{
+  if ( mCache.at( index ).activeFaces.isEmpty() )
+  {
+    if ( mCache.at( index ).waterDepth.isEmpty() )
+    {
+      mCache[index].waterDepth = datasetValues( mTypeToTelemacGroupIndex.value( DatasetType::WaterDepth ), index );
+    }
+
+    const QVector<double> &waterDepth = mCache.at( index ).waterDepth;
+    QVector<int> &active = mCache[index].activeFaces;
+    active.resize( mFaces.count() );
+
+    for ( int i = 0; i < active.count(); ++i )
+    {
+      const QVector<int> &face = mFaces.at( i );
+      active[i] = 0;
+      for ( int f : face )
+      {
+        if ( waterDepth.at( f ) > mDryDepthValue )
+        {
+          active[i] = 1;
+          break;
+        }
+      }
+    }
+  }
+
+  return mCache.at( index ).activeFaces;
 }

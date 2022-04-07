@@ -345,8 +345,11 @@ void ReosHydraulicNetwork::changeScheme( int newSchemeIndex )
   if ( newSchemeIndex == mCurrentSchemeIndex )
     return;
 
-  for ( ReosHydraulicNetworkElement *elem : std::as_const( mElements ) )
-    elem->saveConfiguration( mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex ) );
+  if ( mCurrentSchemeIndex >= 0 )
+  {
+    for ( ReosHydraulicNetworkElement *elem : std::as_const( mElements ) )
+      elem->saveConfiguration( mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex ) );
+  }
 
   for ( ReosHydraulicNetworkElement *elem :  std::as_const( mElements ) )
     elem->restoreConfiguration( mHydraulicSchemeCollection->scheme( newSchemeIndex ) );

@@ -22,11 +22,18 @@
 #include "reoshydraulicsimulationresults.h"
 
 class ReosTelemac2DSimulation;
+class ReosMesh;
+
+struct CacheDataset
+{
+  QVector<int> activeFaces;
+  QVector<double> waterDepth;
+};
 
 class ReosTelemac2DSimulationResults : public ReosHydraulicSimulationResults
 {
   public:
-    ReosTelemac2DSimulationResults( const ReosTelemac2DSimulation *simulation, const QString &fileName, QObject *parent = nullptr );
+    ReosTelemac2DSimulationResults( const ReosTelemac2DSimulation *simulation, const ReosMesh *mesh, const QString &fileName, QObject *parent = nullptr );
     ~ReosTelemac2DSimulationResults();
 
     int groupCount() const override;
@@ -38,10 +45,16 @@ class ReosTelemac2DSimulationResults : public ReosHydraulicSimulationResults
     bool datasetIsValid( int groupIndex, int datasetIndex ) const;
     void datasetMinMax( int groupIndex, int datasetIndex, double &min, double &max ) const;
     QVector<double> datasetValues( int groupIndex, int index ) const override;
+    QVector<int> activeFaces( int index ) const override;
 
   private:
     MDAL_MeshH mMeshH = nullptr;
     QMap<DatasetType, int> mTypeToTelemacGroupIndex;
+    double mDryDepthValue = 0.015;
+    QVector<QVector<int>> mFaces;
+    mutable QVector<CacheDataset> mCache;
+
+
 
 };
 
