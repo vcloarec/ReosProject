@@ -22,6 +22,7 @@ email                : vcloarec at gmail dot com
 #include <qgstemporalcontrollerwidget.h>
 #include <qgsmapcanvassnappingutils.h>
 #include <qgssnappingconfig.h>
+#include <qgstemporalcontroller.h>
 
 #include "reosmap.h"
 #include "reosgisengine.h"
@@ -518,6 +519,15 @@ void ReosMap::removeExtraRenderedObject( ReosRenderedObject *obj )
     mapCanvas->refresh();
     disconnect( obj, &ReosRenderedObject::repaintRequested, this, &ReosMap::onExtraObjectRequestRepaint );
   }
+}
+
+const QObject *ReosMap::temporalController() const
+{
+  QgsMapCanvas *mapCanvas = qobject_cast<QgsMapCanvas *>( mCanvas );
+  if ( mapCanvas )
+    return mapCanvas->temporalController();
+
+  return nullptr;
 }
 
 void ReosMap::setCrs( const QString &crsWkt )

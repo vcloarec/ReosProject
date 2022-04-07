@@ -110,6 +110,8 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     void addExtraRenderedObject( ReosRenderedObject *obj );
     void removeExtraRenderedObject( ReosRenderedObject *obj );
 
+    const QObject *temporalController() const;
+
   signals:
     //! emitted when the mouse cursor moves on the map cavans.
     void cursorMoved( const QPointF &point );

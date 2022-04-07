@@ -22,6 +22,7 @@
 #include <qgsrendercontext.h>
 #include <qgsproviderregistry.h>
 #include <qgsmeshlayertemporalproperties.h>
+#include <qgsmeshlayer3drenderer.h>
 
 #include "reosmeshdataprovider_p.h"
 #include "reosparameter.h"
@@ -255,6 +256,49 @@ void ReosMeshFrame_p::restoreVertexElevationDataset()
   mVerticesElevationDatasetId = addDatasetGroup( group.release(), mVerticesElevationDatasetId );
 }
 
+void ReosMeshFrame_p::update3DRenderer()
+{
+  if ( !mMeshLayer )
+    return;
+
+  std::unique_ptr<QgsMeshLayer3DRenderer> renderer;
+  if ( mMeshLayer->renderer3D() )
+    renderer.reset( static_cast<QgsMeshLayer3DRenderer *>( mMeshLayer->renderer3D()->clone() ) );
+
+  std::unique_ptr<QgsMesh3DSymbol> symbol;
+  if ( !renderer )
+    symbol.reset( new QgsMesh3DSymbol() );
+  else
+    symbol.reset( renderer->symbol()->clone() );
+
+
+  symbol->setSmoothedTriangles( false );
+  symbol->setWireframeEnabled( true );
+  symbol->setWireframeLineColor( Qt::white );
+  symbol->setWireframeLineWidth( 0.1 );
+  symbol->setLevelOfDetailIndex( 0 );
+
+  symbol->setVerticalScale( 1 );
+  symbol->setRenderingStyle( static_cast<QgsMesh3DSymbol::RenderingStyle>( QgsMesh3DSymbol::SingleColor ) );
+  symbol->setSingleMeshColor( Qt::blue );
+  symbol->setVerticalDatasetGroupIndex( mDatasetGroupsIndex.value( mVerticalDataset3DId ) );
+  symbol->setIsVerticalMagnitudeRelative( false );
+
+//  if ( sym->renderingStyle() == QgsMesh3DSymbol::ColorRamp )
+//    sym->setColorRampShader( mColorRampShaderWidget->shader() );
+
+//  sym->setArrowsEnabled( mGroupBoxArrowsSettings->isChecked() );
+//  sym->setArrowsSpacing( mArrowsSpacingSpinBox->value() );
+//  sym->setArrowsFixedSize( mArrowsFixedSizeCheckBox->isChecked() );
+
+  if ( !renderer )
+    renderer.reset( new QgsMeshLayer3DRenderer( symbol.release() ) );
+  else
+    renderer->setSymbol( symbol.release() );
+
+  mMeshLayer->setRenderer3D( renderer.release() );
+}
+
 
 QString ReosMeshFrame_p::enableVertexElevationDataset( const QString &name )
 {
@@ -452,6 +496,17 @@ double ReosMeshFrame_p::datasetScalarValueAt( const QString &datasetId, const QP
 ReosMeshDataProvider_p *ReosMeshFrame_p::meshProvider() const
 {
   return qobject_cast<ReosMeshDataProvider_p *>( mMeshLayer->dataProvider() );
+}
+
+QString ReosMeshFrame_p::verticalDataset3DId() const
+{
+  return mVerticalDataset3DId;
+}
+
+void ReosMeshFrame_p::setVerticalDataset3DId( const QString &verticalDataset3DId )
+{
+  mVerticalDataset3DId = verticalDataset3DId;
+  update3DRenderer();
 }
 
 QString ReosMeshFrame_p::verticesElevationDatasetId() const

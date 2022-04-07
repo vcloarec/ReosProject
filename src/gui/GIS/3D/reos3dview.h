@@ -29,6 +29,7 @@ class ReosVerticalExaggerationWidget;
 class ReosEncodedElement;
 class Reos3DMapSettings;
 class Reos3DTerrainSettings;
+class ReosGuiContext;
 
 namespace Ui
 {
@@ -40,8 +41,10 @@ class Reos3dView : public ReosActionWidget
     Q_OBJECT
 
   public:
-    explicit Reos3dView( ReosMesh *meshTerrain, QWidget *parent = nullptr );
+    explicit Reos3dView( ReosMesh *meshTerrain, const ReosGuiContext &guiContext );
     ~Reos3dView();
+
+    void addMesh( ReosMesh *mesh );
 
     void setMapSettings( const Reos3DMapSettings &map3DSettings );
     Reos3DMapSettings map3DSettings() const;
@@ -55,7 +58,7 @@ class Reos3dView : public ReosActionWidget
   private:
     void onExagggerationChange();
     void onLightChange();
-    void onTerrainSettingsChange();
+    void onTerrainSettingsChanged();
 
   private:
     Ui::Reos3dView *ui;

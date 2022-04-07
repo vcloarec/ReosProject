@@ -46,7 +46,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
 
   connect( mActionRunSimulation, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::onLaunchCalculation );
 
-  mView3D = new Reos3dView( mStructure2D->mesh(), context.map()->mapCanvas() );
+  mView3D = new Reos3dView( mStructure2D->mesh(), ReosGuiContext( context, this ) );
   mView3D->setAction( mAction3DView );
   mAction3DView->setCheckable( true );
   mView3D->setMapSettings( mStructure2D->map3dSettings() );
@@ -55,6 +55,8 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   {
     mStructure2D->setMap3dSettings( mView3D->map3DSettings() );
   } );
+
+  mView3D->addMesh( structure2D->mesh() );
 
   QToolBar *toolBar = new QToolBar( this );
   toolBar->addAction( mActionEditStructure );

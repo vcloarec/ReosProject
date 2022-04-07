@@ -78,6 +78,9 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   statusBar()->addPermanentWidget( new ReosMapCursorPosition( mMap, this ) );
   centralWidget()->layout()->addWidget( mMap->mapCanvas() );
 
+  addDockWidget( Qt::TopDockWidgetArea, mMap->temporalControllerDockWidget() );
+  mMap->temporalControllerDockWidget()->setObjectName( "temporalDock" );
+
   mGisDock = new QDockWidget( tr( "GIS Layers" ) );
   mGisDock->setObjectName( QStringLiteral( "gisDock" ) );
   mGisDock->setWidget( new ReosGisLayersWidget( mGisEngine, mMap, this ) );
@@ -96,9 +99,6 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   addDockWidget( Qt::RightDockWidgetArea, mDockWatershed );
 
   mMap->setDefaultMapTool();
-
-  addDockWidget( Qt::TopDockWidgetArea, mMap->temporalControllerDockWidget() );
-  mMap->temporalControllerDockWidget()->setObjectName( "temporalDock" );
 
   clearProject();
 }

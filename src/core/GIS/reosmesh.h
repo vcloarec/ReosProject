@@ -172,6 +172,9 @@ class ReosMesh: public ReosRenderedObject
     bool vertexIsOnBoundary( int vertexIndex ) const;
     bool vertexIsOnHoleBorder( int vertexIndex ) const;
 
+    virtual QString verticalDataset3DId() const = 0;
+    virtual void setVerticalDataset3DId( const QString &verticalDataset3DId ) = 0;
+
   protected:
     ReosMesh( QObject *parent = nullptr );
 

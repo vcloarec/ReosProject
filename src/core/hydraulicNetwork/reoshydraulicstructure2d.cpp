@@ -512,13 +512,21 @@ void ReosHydraulicStructure2D::loadSimulationResults( ReosHydraulicSimulation *s
 
   if ( mSimulationResults )
   {
+    QString waterLevelId;
     //Restore the current symbology per data type
     for ( int i = 0; i < mSimulationResults->groupCount(); ++i )
     {
       ResultType type = mSimulationResults->datasetType( i );
       ReosEncodedElement encodedSymb( mResultScalarDatasetSymbologies.value( type ) );
-      mMesh->setDatasetScalarGroupSymbology( encodedSymb, mSimulationResults->groupId( i ) );
+      QString groupId = mSimulationResults->groupId( i );
+      mMesh->setDatasetScalarGroupSymbology( encodedSymb, groupId );
+
+      if ( type == ResultType::WaterLevel )
+        waterLevelId = groupId;
+
     }
+
+    mMesh->setVerticalDataset3DId( waterLevelId );
   }
 
   emit simulationResultChanged();
