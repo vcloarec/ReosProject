@@ -16,7 +16,6 @@
 #include "reosmeshgenerator.h"
 
 #include<QHash>
-#include<QDebug>
 
 #include "poly2tri.h"
 #include "memory"

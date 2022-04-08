@@ -16,7 +16,6 @@
 #include "reospolylinesstructure_p.h"
 
 #include <QUuid>
-#include <QDebug>
 #include <QStack>
 
 #include <qgsproject.h>
@@ -180,7 +179,8 @@ SegmentId ReosPolylineStructureVectorLayer::addSegmentToVectorLayer( const QgsPo
   feat.setFields( mVectorLayer->fields(), true );
   feat.setAttribute( 0, clId );
   feat.setGeometry( geomSegment );
-  Q_ASSERT( mVectorLayer->addFeature( feat ) );
+  bool success = mVectorLayer->addFeature( feat ) ;
+  Q_ASSERT( success );
 
   return feat.id();
 }

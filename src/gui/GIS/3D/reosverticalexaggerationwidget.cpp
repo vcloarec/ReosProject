@@ -18,8 +18,6 @@
 
 #include <math.h>
 
-#include <QDebug>
-
 ReosVerticalExaggerationWidget::ReosVerticalExaggerationWidget( QWidget *parent ) :
   QWidget( parent ),
   ui( new Ui::ReosVerticalExaggerationWidget )

@@ -21,7 +21,6 @@
 
 #include <QMutex>
 #include <QThread>
-#include <QDebug>
 
 #include "reosmodule.h"
 #include "reosmeshgenerator.h"

@@ -111,12 +111,13 @@ void ReosHydraulicStructure2DProperties::requestMapRefresh()
 
 void ReosHydraulicStructure2DProperties::onLaunchCalculation()
 {
-  mActionEditStructure->setEnabled( false );
-
   if ( !mStructure2D->currentProcess() )
   {
+    mActionEditStructure->setEnabled( false );
     ReosSimulationProcess *process = mStructure2D->startSimulation();
-    connect( process, &ReosProcess::finished, mActionEditStructure, [this] {mActionEditStructure->setEnabled( true );} );
+
+    if ( process )
+      connect( process, &ReosProcess::finished, mActionEditStructure, [this] {mActionEditStructure->setEnabled( true );} );
   }
 
   emit stackedPageWidgetOpened( new ReosHydraulicSimulationConsole( mStructure2D->currentProcess(), mGuiContext ) );

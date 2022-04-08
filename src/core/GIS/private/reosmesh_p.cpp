@@ -504,6 +504,11 @@ ReosMeshDataProvider_p *ReosMeshFrame_p::meshProvider() const
   return qobject_cast<ReosMeshDataProvider_p *>( mMeshLayer->dataProvider() );
 }
 
+QString ReosMeshFrame_p::currentdScalarDatasetId() const
+{
+  return mCurrentdScalarDatasetId;
+}
+
 QString ReosMeshFrame_p::verticalDataset3DId() const
 {
   return mVerticalDataset3DId;
@@ -525,21 +530,23 @@ void ReosMeshFrame_p::setSimulationResults( ReosHydraulicSimulationResults *resu
   meshProvider()->setDatasetSource( result );
   mMeshLayer->temporalProperties()->setDefaultsFromDataProviderTemporalCapabilities( meshProvider()->temporalCapabilities() );
 
-  QList<int> groupIndexes = mMeshLayer->datasetGroupsIndexes();
-  int index = -1;
-  for ( int i = 0; i < result->groupCount(); ++i )
+  if ( result )
   {
-    for ( int meshIndex : groupIndexes )
+    QList<int> groupIndexes = mMeshLayer->datasetGroupsIndexes();
+    int index = -1;
+    for ( int i = 0; i < result->groupCount(); ++i )
     {
-      QgsMeshDatasetGroupMetadata meta = mMeshLayer->datasetGroupMetadata( QgsMeshDatasetIndex( meshIndex ) );
-      if ( meta.name() == result->groupName( i ) )
+      for ( int meshIndex : groupIndexes )
       {
-        index = meshIndex;
-        break;
+        QgsMeshDatasetGroupMetadata meta = mMeshLayer->datasetGroupMetadata( QgsMeshDatasetIndex( meshIndex ) );
+        if ( meta.name() == result->groupName( i ) )
+        {
+          index = meshIndex;
+          break;
+        }
       }
+      mDatasetGroupsIndex[result->groupId( i )] = index;
     }
-
-    mDatasetGroupsIndex[result->groupId( i )] = index;
   }
 
 }

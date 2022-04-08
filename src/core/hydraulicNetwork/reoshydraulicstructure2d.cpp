@@ -308,6 +308,7 @@ ReosSimulationProcess *ReosHydraulicStructure2D::startSimulation()
     return nullptr;
 
   QPointer<ReosHydraulicSimulation> sim = currentSimulation();
+
   ReosCalculationContext context = mNetWork->calculationContext();
   sim->prepareInput( this, context );
   mSimulationProcess.reset( sim->getProcess( this, context ) );
@@ -322,8 +323,9 @@ ReosSimulationProcess *ReosHydraulicStructure2D::startSimulation()
 
   if ( mSimulationResults )
     mSimulationResults->deleteLater();
-
   mSimulationResults = nullptr;
+  mMesh->setSimulationResults( nullptr );
+
   emit simulationResultChanged();
 
   mSimulationProcess->startOnOtherThread();

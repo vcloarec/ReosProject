@@ -15,8 +15,6 @@
  ***************************************************************************/
 #include "reosgmshgenerator.h"
 
-#include<QDebug>
-
 #include <gmsh.h>
 
 #include "reospolylinesstructure.h"

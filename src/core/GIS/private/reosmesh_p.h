@@ -76,6 +76,8 @@ class ReosMeshFrame_p : public ReosMesh
     QString verticalDataset3DId() const override;
     void setVerticalDataset3DId( const QString &verticalDataset3DId ) override;
 
+    QString currentdScalarDatasetId() const override;
+
   private:
     std::unique_ptr<QgsMeshLayer> mMeshLayer;
     ReosMeshDataProvider_p *meshProvider() const;

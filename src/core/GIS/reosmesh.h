@@ -138,6 +138,9 @@ class ReosMesh: public ReosRenderedObject
     //! Activates the dataset with \a id
     virtual bool activateDataset( const QString &id ) = 0;
 
+    //! Returns the current scalar dataset Id
+    virtual QString currentdScalarDatasetId() const = 0;
+
     //! Returns an index correspondng to the dataset group with \a id
     virtual int datasetGroupIndex( const QString &id ) const = 0;
 

@@ -405,15 +405,6 @@ void ReosEditMeshElementWidget::startCheckQuality( bool controled )
 
 void ReosEditMeshElementWidget::checkQualityFinished()
 {
-  qDebug() << "check quality finished " << mChecker->result().error << " in " << mTimer.elapsed();
-  qDebug() << "Minimum area " << mChecker->result().minimumArea.count();
-  qDebug() << "Maximum area " << mChecker->result().maximumArea.count();
-  qDebug() << "Maximum area change " << mChecker->result().maximumAreaChange.count();
-  qDebug() << "Minimum angle " << mChecker->result().minimumAngle.count();
-  qDebug() << "Maximum angle " << mChecker->result().maximumAngle.count();
-  qDebug() << "Connection count" << mChecker->result().connectionCount.count();
-  qDebug() << "Connection count boundary" << mChecker->result().connectionCountBoundary.count();
-  qDebug() << "Maximum slope" << mChecker->result().maximumSlope.count();
   disconnect( mChecker, &ReosProcess::finished, this, &ReosEditMeshElementWidget::checkQualityFinished );
 
   if ( mChecker->isSuccessful() )

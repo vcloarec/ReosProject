@@ -28,14 +28,20 @@ ReosHydraulicSimulationConsole::ReosHydraulicSimulationConsole( ReosSimulationPr
 {
   ui->setupUi( this );
   ui->mProgressBar->setMaximum( 100 );
-  ui->mProgressBar->setValue( process->currentProgression() );
+  if ( process )
+  {
+    ui->mProgressBar->setValue( process->currentProgression() );
+    ui->mStopButton->setEnabled( !mProcess.isNull() && mProcess->isFinished() );
+    connect( process, &ReosProcess::sendInformation, this, &ReosHydraulicSimulationConsole::receiveInformation );
 
-  ui->mStopButton->setEnabled( !mProcess.isNull() && mProcess->isFinished() );
-  connect( process, &ReosProcess::sendInformation, this, &ReosHydraulicSimulationConsole::receiveInformation );
-
-  connect( ui->mStopButton, &QPushButton::clicked, this, &ReosHydraulicSimulationConsole::onStopSimulation );
-  connect( mProcess, &ReosProcess::finished, ui->mStopButton, [this] {ui->mStopButton->setEnabled( false );} );
-  connect( ui->mButtonBack, &QToolButton::clicked, this, &ReosHydraulicSimulationConsole::backToPreviousPage );
+    connect( ui->mStopButton, &QPushButton::clicked, this, &ReosHydraulicSimulationConsole::onStopSimulation );
+    connect( mProcess, &ReosProcess::finished, ui->mStopButton, [this] {ui->mStopButton->setEnabled( false );} );
+    connect( ui->mButtonBack, &QToolButton::clicked, this, &ReosHydraulicSimulationConsole::backToPreviousPage );
+  }
+  else
+  {
+    ui->mProgressBar->setValue( 0 );
+  }
 }
 
 ReosHydraulicSimulationConsole::~ReosHydraulicSimulationConsole()

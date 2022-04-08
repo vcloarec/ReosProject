@@ -15,8 +15,6 @@
  ***************************************************************************/
 #include "reospolygonstructure_p.h"
 
-#include <QDebug>
-
 #include <qgsvectorlayer.h>
 #include <qgscategorizedsymbolrenderer.h>
 #include <qgslinestring.h>
