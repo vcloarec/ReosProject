@@ -26,6 +26,7 @@
 
 
 class Reos3dView;
+class ReosColorButton;
 
 namespace Ui
 {
@@ -70,5 +71,23 @@ class ReosHydraulicStructure2DPropertiesWidgetFactory : public ReosHydraulicElem
     virtual QString elementType() {return ReosHydraulicStructure2D::staticType();}
 };
 
+
+class ReosMeshWireframeSettingsWidget: public QWidget
+{
+    Q_OBJECT
+  public:
+    ReosMeshWireframeSettingsWidget( QWidget *parent = nullptr );
+
+    void setSettings( const ReosMesh::WireFrameSettings &settings );
+    ReosMesh::WireFrameSettings settings() const;
+
+  signals:
+    void changed();
+
+  private:
+    QCheckBox *mEnableWireframeCheckBox = nullptr;
+    ReosColorButton *mColorButton = nullptr;
+    QSlider *mWidthSlider = nullptr;
+};
 
 #endif // REOSHYDRAULICSTRUCTURE2DPROPERTIES_H

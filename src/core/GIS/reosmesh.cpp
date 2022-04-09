@@ -50,6 +50,17 @@ ReosMesh::ReosMesh( QObject *parent )
   mQualityMeshParameters.maximumAreaChange->setValue( 2 );
 }
 
+
+double ReosMesh::verticaleSCale() const
+{
+  return mVerticaleSCale;
+}
+
+void ReosMesh::setVerticaleSCale( double verticaleSCale )
+{
+  mVerticaleSCale = verticaleSCale;
+}
+
 ReosMesh::QualityMeshParameters ReosMesh::qualityMeshParameters() const
 {
   return mQualityMeshParameters;

@@ -56,7 +56,7 @@ class Reos3dView : public ReosActionWidget
     void terrainSettingsChanged();
 
   private:
-    void onExagggerationChange();
+    void onExagggerationChange( double value );
     void onLightChange();
     void onTerrainSettingsChanged();
 
@@ -69,6 +69,8 @@ class Reos3dView : public ReosActionWidget
     ReosVerticalExaggerationWidget *mExagerationWidget = nullptr;
 
     Reos3DTerrainSettingsWidget *mTerrainSettingsWidget = nullptr;
+
+    QList<QPointer<ReosMesh>> mMeshes;
 };
 
 #endif // REOS3DVIEW_H

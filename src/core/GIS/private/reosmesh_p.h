@@ -78,6 +78,11 @@ class ReosMeshFrame_p : public ReosMesh
 
     QString currentdScalarDatasetId() const override;
 
+    void update3DRenderer() override;
+
+    WireFrameSettings wireFrameSettings() const override ;
+    void setWireFrameSettings( const WireFrameSettings &wireFrameSettings ) override;
+
   private:
     std::unique_ptr<QgsMeshLayer> mMeshLayer;
     ReosMeshDataProvider_p *meshProvider() const;
@@ -87,13 +92,14 @@ class ReosMeshFrame_p : public ReosMesh
     QString mVerticesElevationDatasetId;
     QString mCurrentdScalarDatasetId;
     QString mVerticalDataset3DId;
+    WireFrameSettings mWireFrameSettings;
 
     void init();
     void activateVertexZValueDatasetGroup();
     QString addDatasetGroup( QgsMeshDatasetGroup *group, const QString &id = QString() );
     void firstUpdateOfTerrainScalarSetting();
     void restoreVertexElevationDataset();
-    void update3DRenderer();
+    void updateWireFrameSettings();
 
     std::map <QGraphicsView *, std::unique_ptr<QgsMapLayerRenderer>> mRenders;
 };

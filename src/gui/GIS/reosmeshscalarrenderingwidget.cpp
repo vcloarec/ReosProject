@@ -134,5 +134,4 @@ void ReosMeshScalarRenderingWidget::updateMeshSettings()
   QString docString = doc.toString();
   encodedElem.addData( QStringLiteral( "symbology" ), docString );
   mMesh->setDatasetScalarGroupSymbology( encodedElem, mDatasetId );
-
 }

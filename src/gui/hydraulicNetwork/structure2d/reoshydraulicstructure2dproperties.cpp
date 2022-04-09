@@ -17,12 +17,16 @@
 #include "ui_reoshydraulicstructure2dproperties.h"
 
 #include <QMenu>
+#include <QCheckBox>
+#include <QSlider>
 
 #include "reosedithydraulicstructure2dwidget.h"
 #include "reos3dview.h"
 #include "reoshydraulicsimulationconsole.h"
 #include "reosstyleregistery.h"
 #include "reosmeshscalarrenderingwidget.h"
+#include "reoscolorbutton.h"
+
 
 ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context )
   : ReosHydraulicElementWidget( context.parent() )
@@ -146,6 +150,18 @@ void ReosHydraulicStructure2DProperties::updateDatasetMenu()
       }
     } );
   }
+
+  mScalarDatasetMenu->addSeparator();
+  QWidgetAction *wa = new QWidgetAction( mScalarDatasetMenu );
+
+  std::unique_ptr<ReosMeshWireframeSettingsWidget> meshSettingsWidget( new ReosMeshWireframeSettingsWidget );
+  ReosMeshWireframeSettingsWidget *ptr = meshSettingsWidget.get();
+  connect( meshSettingsWidget.get(), &ReosMeshWireframeSettingsWidget::changed, this, [this, ptr]
+  {
+    mStructure2D->mesh()->setWireFrameSettings( ptr->settings() );
+  } );
+  wa->setDefaultWidget( meshSettingsWidget.release() );
+  mScalarDatasetMenu->addAction( wa );
   mScalarDatasetActions->setExclusive( true );
 
 }
@@ -157,4 +173,52 @@ ReosHydraulicElementWidget *ReosHydraulicStructure2DPropertiesWidgetFactory::cre
     return new ReosHydraulicStructure2DProperties( structure2D, context );
   else
     return nullptr;
+}
+
+ReosMeshWireframeSettingsWidget::ReosMeshWireframeSettingsWidget( QWidget *parent )
+  : QWidget( parent )
+  , mEnableWireframeCheckBox( new QCheckBox( tr( "Enable mesh wireFrame" ), this ) )
+  , mColorButton( new ReosColorButton( this ) )
+  , mWidthSlider( new QSlider( Qt::Horizontal, this ) )
+{
+  setLayout( new QVBoxLayout );
+
+  QHBoxLayout *topLayout = new QHBoxLayout( this );
+  topLayout->setContentsMargins( 0, 0, 0, 0 );
+  topLayout->addWidget( mEnableWireframeCheckBox );
+  topLayout->addWidget( mColorButton );
+  layout()->addItem( topLayout );
+
+  mWidthSlider->setMinimum( 1 );
+  mWidthSlider->setMaximum( 20 );
+  layout()->addWidget( mWidthSlider );
+
+  connect( mEnableWireframeCheckBox, &QCheckBox::stateChanged, this, [this]
+  {
+    mColorButton->setEnabled( mEnableWireframeCheckBox->isChecked() );
+    mWidthSlider->setEnabled( mEnableWireframeCheckBox->isChecked() );
+
+    emit changed();
+  } );
+
+  connect( mColorButton, &ReosColorButton::colorChanged, this, &ReosMeshWireframeSettingsWidget::changed );
+  connect( mWidthSlider, &QSlider::valueChanged, this, &ReosMeshWireframeSettingsWidget::changed );
+}
+
+void ReosMeshWireframeSettingsWidget::setSettings( const ReosMesh::WireFrameSettings &settings )
+{
+  mEnableWireframeCheckBox->setChecked( settings.enabled );
+  mColorButton->setColor( settings.color );
+  mWidthSlider->setValue( settings.width * 20 );
+}
+
+ReosMesh::WireFrameSettings ReosMeshWireframeSettingsWidget::settings() const
+{
+  ReosMesh::WireFrameSettings ret;
+
+  ret.enabled = mEnableWireframeCheckBox->isChecked();
+  ret.color = mColorButton->color();
+  ret.width = mWidthSlider->value() / 20.0;
+
+  return ret;
 }

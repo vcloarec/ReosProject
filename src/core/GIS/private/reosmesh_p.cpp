@@ -170,20 +170,14 @@ void ReosMeshFrame_p::setDatasetScalarGroupSymbology( const ReosEncodedElement &
     settings.setScalarSettings( mDatasetGroupsIndex.value( id ), scalarSettings );
     mMeshLayer->setRendererSettings( settings );
   }
+
+  update3DRenderer();
 }
 
 void ReosMeshFrame_p::activateWireFrame( bool activate )
 {
-  if ( !mMeshLayer )
-    return;
-
-  QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
-  QgsMeshRendererMeshSettings wireframeSettings = settings.nativeMeshSettings();
-  wireframeSettings.setEnabled( activate );
-  settings.setNativeMeshSettings( wireframeSettings );
-  mMeshLayer->setRendererSettings( settings );
-
-  mMeshLayer->triggerRepaint();
+  mWireFrameSettings.enabled = activate;
+  updateWireFrameSettings();
 }
 
 ReosObjectRenderer *ReosMeshFrame_p::createRenderer( QGraphicsView *view )
@@ -256,10 +250,33 @@ void ReosMeshFrame_p::restoreVertexElevationDataset()
   mVerticesElevationDatasetId = addDatasetGroup( group.release(), mVerticesElevationDatasetId );
 }
 
+void ReosMeshFrame_p::updateWireFrameSettings()
+{
+  if ( !mMeshLayer )
+    return;
+
+  QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
+  QgsMeshRendererMeshSettings wireframeSettings = settings.nativeMeshSettings();
+  wireframeSettings.setEnabled( mWireFrameSettings.enabled );
+  wireframeSettings.setColor( mWireFrameSettings.color );
+  wireframeSettings.setLineWidth( mWireFrameSettings.width );
+  settings.setNativeMeshSettings( wireframeSettings );
+  mMeshLayer->setRendererSettings( settings );
+
+  mMeshLayer->triggerRepaint();
+  update3DRenderer();
+}
+
 void ReosMeshFrame_p::update3DRenderer()
 {
   if ( !mMeshLayer )
     return;
+
+  const QgsMeshRendererScalarSettings scalarSettings =
+    mMeshLayer->rendererSettings().scalarSettings( mDatasetGroupsIndex.value( mCurrentdScalarDatasetId ) );
+
+  const QgsMeshRendererMeshSettings meshSettings =
+    mMeshLayer->rendererSettings().nativeMeshSettings();
 
   std::unique_ptr<QgsMeshLayer3DRenderer> renderer;
   if ( mMeshLayer->renderer3D() )
@@ -271,14 +288,13 @@ void ReosMeshFrame_p::update3DRenderer()
   else
     symbol.reset( renderer->symbol()->clone() );
 
-
-  symbol->setSmoothedTriangles( false );
-  symbol->setWireframeEnabled( false );
-  symbol->setWireframeLineColor( Qt::white );
-  symbol->setWireframeLineWidth( 0.1 );
+  symbol->setSmoothedTriangles( true );
+  symbol->setWireframeEnabled( meshSettings.isEnabled() );
+  symbol->setWireframeLineColor( meshSettings.color() );
+  symbol->setWireframeLineWidth( meshSettings.lineWidth() * 2 );
   symbol->setLevelOfDetailIndex( 0 );
 
-  symbol->setVerticalScale( 1 );
+  symbol->setVerticalScale( mVerticaleSCale );
   symbol->setRenderingStyle( static_cast<QgsMesh3DSymbol::RenderingStyle>( QgsMesh3DSymbol::ColorRamp ) );
   symbol->setSingleMeshColor( Qt::blue );
   symbol->setVerticalDatasetGroupIndex( mDatasetGroupsIndex.value( mVerticalDataset3DId ) );
@@ -286,7 +302,7 @@ void ReosMeshFrame_p::update3DRenderer()
 
   if ( symbol->renderingStyle() == QgsMesh3DSymbol::ColorRamp )
   {
-    QgsColorRampShader ramp = mMeshLayer->rendererSettings().scalarSettings( mDatasetGroupsIndex.value( mCurrentdScalarDatasetId ) ).colorRampShader();
+    QgsColorRampShader ramp = scalarSettings.colorRampShader();
     symbol->setColorRampShader( ramp );
   }
 
@@ -300,6 +316,18 @@ void ReosMeshFrame_p::update3DRenderer()
     renderer->setSymbol( symbol.release() );
 
   mMeshLayer->setRenderer3D( renderer.release() );
+}
+
+
+ReosMesh::WireFrameSettings ReosMeshFrame_p::wireFrameSettings() const
+{
+  return mWireFrameSettings;
+}
+
+void ReosMeshFrame_p::setWireFrameSettings( const WireFrameSettings &wireFrameSettings )
+{
+  mWireFrameSettings = wireFrameSettings;
+  updateWireFrameSettings();
 }
 
 

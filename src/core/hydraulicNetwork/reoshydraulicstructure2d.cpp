@@ -341,6 +341,7 @@ ReosSimulationProcess *ReosHydraulicStructure2D::currentProcess() const
 void ReosHydraulicStructure2D::init()
 {
   mTerrainDatasetId = mMesh->enableVertexElevationDataset( tr( "Terrain elevation" ) );
+  mMesh->setVerticaleSCale( m3dMapSettings.verticalExaggeration() );
 
   connect( mPolylinesStructures.get(), &ReosDataObject::dataChanged, this, [this]
   {

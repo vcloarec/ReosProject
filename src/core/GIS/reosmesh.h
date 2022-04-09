@@ -96,6 +96,13 @@ class ReosMesh: public ReosRenderedObject
     Q_DECLARE_FLAGS( QualityMeshChecks, QualityMeshCheck )
     Q_FLAG( QualityMeshChecks )
 
+    struct WireFrameSettings
+    {
+      bool enabled = false;
+      QColor color;
+      double width = 0.2;
+    };
+
     //! Creates a new void mesh in memory
     static ReosMesh *createMeshFrame( const QString &crs = QString() );
 
@@ -164,6 +171,12 @@ class ReosMesh: public ReosRenderedObject
 
     virtual void activateWireFrame( bool activate ) = 0;
 
+    virtual WireFrameSettings wireFrameSettings() const = 0 ;
+
+    virtual void setWireFrameSettings( const WireFrameSettings &wireFrameSettings ) = 0;
+
+    virtual void update3DRenderer() = 0;
+
     //! Returns a process that check the quality of the mesh, caller take ownership
     virtual ReosMeshQualityChecker *getQualityChecker( QualityMeshChecks qualitiChecks, const QString &destinatonCrs ) const = 0;
 
@@ -178,12 +191,18 @@ class ReosMesh: public ReosRenderedObject
     virtual QString verticalDataset3DId() const = 0;
     virtual void setVerticalDataset3DId( const QString &verticalDataset3DId ) = 0;
 
+    double verticaleSCale() const;
+    void setVerticaleSCale( double verticaleSCale );
+
   protected:
     ReosMesh( QObject *parent = nullptr );
 
     QualityMeshParameters mQualityMeshParameters;
     QSet<int> mBoundaryVerticesSet;
     QSet<int> mHolesVerticesVerticesSet;
+
+
+    double mVerticaleSCale = 1;
 };
 
 #endif // REOSMESH_H

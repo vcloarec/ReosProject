@@ -27,6 +27,7 @@
 #include <qgs3dmapsettings.h>
 #include <qgs3dmapscene.h>
 #include <qgstemporalcontroller.h>
+#include <qgsmeshlayer3drenderer.h>
 
 #include "reosmesh.h"
 #include "reoslightwidget.h"
@@ -136,7 +137,7 @@ void Reos3dView::setMapSettings( const Reos3DMapSettings &map3DSettings )
   onLightChange();
 
   mExagerationWidget->setExageration( map3DSettings.verticalExaggeration() );
-  onExagggerationChange();
+  onExagggerationChange( map3DSettings.verticalExaggeration() );
 }
 
 Reos3DMapSettings Reos3dView::map3DSettings() const
@@ -163,18 +164,25 @@ Reos3dView::~Reos3dView()
 
 void Reos3dView::addMesh( ReosMesh *mesh )
 {
+  mMeshes.append( mesh );
   QList<QgsMapLayer *> layers = mCanvas->map()->layers();
 
-  QgsMeshLayer *meshLayer = qobject_cast<QgsMeshLayer *>( mesh->data() );
   layers.append( qobject_cast<QgsMapLayer *>( mesh->data() ) );
 
   mCanvas->map()->setLayers( layers );
 }
 
-void Reos3dView::onExagggerationChange()
+void Reos3dView::onExagggerationChange( double value )
 {
   if ( !mMeshTerrain )
     return;
+
+  for ( ReosMesh *mesh : std::as_const( mMeshes ) )
+    if ( mesh )
+    {
+      mesh->setVerticaleSCale( value );
+      mesh->update3DRenderer();
+    }
 
   //! For now in QGIS, exaggeration is a terrain settings, so call the method relative to the terrain
   onTerrainSettingsChanged();
