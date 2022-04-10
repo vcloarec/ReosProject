@@ -758,6 +758,11 @@ void ReosTelemac2DSimulationProcess::start()
 
 void ReosTelemac2DSimulationProcess::stop( bool )
 {
+  emit askToStop();
+}
+
+void ReosTelemac2DSimulationProcess::onStopAsked()
+{
   if ( mProcess )
   {
     mProcess->terminate();

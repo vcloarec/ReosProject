@@ -33,6 +33,12 @@ class ReosTelemac2DSimulationProcess : public ReosSimulationProcess
     void start() override;
     void stop( bool b ) override;
 
+  signals:
+    void askToStop();
+
+  private slots:
+    void onStopAsked();
+
   private:
     QString mSimulationFilePath;
     QProcess *mProcess = nullptr;

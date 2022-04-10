@@ -31,7 +31,7 @@ ReosHydraulicSimulationConsole::ReosHydraulicSimulationConsole( ReosSimulationPr
   if ( process )
   {
     ui->mProgressBar->setValue( process->currentProgression() );
-    ui->mStopButton->setEnabled( !mProcess.isNull() && mProcess->isFinished() );
+    ui->mStopButton->setEnabled( !mProcess.isNull() && !mProcess->isFinished() );
     connect( process, &ReosProcess::sendInformation, this, &ReosHydraulicSimulationConsole::receiveInformation );
 
     connect( ui->mStopButton, &QPushButton::clicked, this, &ReosHydraulicSimulationConsole::onStopSimulation );
