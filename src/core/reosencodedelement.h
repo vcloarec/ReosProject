@@ -29,6 +29,10 @@ email                : vcloarec@gmail.com
 class REOSCORE_EXPORT ReosEncodedElement
 {
   public:
+
+    //! Constructor of an empty encoded element with only the description
+    explicit ReosEncodedElement() = default;
+
     //! Constructor of an empty encoded element with only the description
     explicit ReosEncodedElement( const QString &description ): mDescription( description )
     {}

@@ -1210,6 +1210,26 @@ QAbstractItemModel *ReosTimeSerieVariableTimeStep::model()
   return mModel;
 }
 
+ReosEncodedElement ReosTimeSerieVariableTimeStep::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "time-serie-variable-time-step" ) );
+
+  baseEncode( element );
+
+  return element;
+}
+
+ReosTimeSerieVariableTimeStep *ReosTimeSerieVariableTimeStep::decode( const ReosEncodedElement &element, QObject *parent )
+{
+  if ( element.description() != QStringLiteral( "time-serie-variable-time-step" ) )
+    return nullptr;
+
+  std::unique_ptr<ReosTimeSerieVariableTimeStep> ret = std::make_unique<ReosTimeSerieVariableTimeStep>( parent );
+  ret->decodeBase( element );
+
+  return ret.release();
+}
+
 ReosTimeSerieVariableTimeStepModel::ReosTimeSerieVariableTimeStepModel( QObject *parent ): ReosTimeSerieModel( parent )
 {
   mFixedTimeStep = ReosDuration( 5, ReosDuration::minute );

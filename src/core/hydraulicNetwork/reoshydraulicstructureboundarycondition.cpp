@@ -17,16 +17,16 @@
 
 #include "reoshydraulicstructure2d.h"
 #include "reoshydrographrouting.h"
+#include "reostimeseriesgroup.h"
+#include "reoshydraulicscheme.h"
 
 ReosHydraulicStructureBoundaryCondition::ReosHydraulicStructureBoundaryCondition( ReosHydraulicStructure2D *hydStructure, const QString &boundaryConditionId, const ReosHydraulicNetworkContext &context )
   : ReosHydrographJunction( QPointF(), context.network() )
   , mContext( context )
-  , mStructure( hydStructure )
   , mBoundaryConditionId( boundaryConditionId )
 {
-  elementName()->setValue( mStructure->geometryStructure()->value( mBoundaryConditionId ).toString() );
-  connect( hydStructure->geometryStructure(), &ReosPolylinesStructure::classesChanged, this, &ReosHydraulicStructureBoundaryCondition::onBoundaryClassesChange );
-  connect( elementName(), &ReosParameter::valueChanged, this, &ReosHydraulicStructureBoundaryCondition::onParameterNameChange );
+  init();
+  attachStructure( hydStructure );
 }
 
 
@@ -36,13 +36,32 @@ ReosHydraulicStructureBoundaryCondition::ReosHydraulicStructureBoundaryCondition
   : ReosHydrographJunction( encodedElement, parent )
   , mContext( parent->context() )
 {
+  init();
   encodedElement.getData( QStringLiteral( "boundary-condition-id" ), mBoundaryConditionId );
+  mWaterLevelSeriesGroup->decode( encodedElement.getEncodedData( QStringLiteral( "water-level-series" ) ) );
+}
+
+
+void ReosHydraulicStructureBoundaryCondition::init()
+{
+  mWaterLevelSeriesGroup = new ReosTimeSeriesVariableTimeStepGroup( this );
+  mIsWaterLevelConstant = new ReosParameterBoolean( tr( "Constant level" ), false, this );
+  mConstantWaterLevel = new ReosParameterDouble( tr( "Constant level value" ), false, this );
+  mIsWaterLevelConstant->setValue( true );
+  mConstantWaterLevel->setValue( 0 );
+
+  connect( elementName(), &ReosParameter::valueChanged, this, &ReosHydraulicStructureBoundaryCondition::onParameterNameChange );
+
+  connect( mWaterLevelSeriesGroup, &ReosDataObject::dataChanged, this, &ReosHydraulicStructureBoundaryCondition::dataChanged );
+  connect( mIsWaterLevelConstant, &ReosParameter::valueChanged, this, &ReosHydraulicStructureBoundaryCondition::dataChanged );
+  connect( mConstantWaterLevel, &ReosParameter::valueChanged, this, &ReosHydraulicStructureBoundaryCondition::dataChanged );
 }
 
 void ReosHydraulicStructureBoundaryCondition::encodeData( ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context ) const
 {
   encodedElement.addData( QStringLiteral( "boundary-condition-id" ), mBoundaryConditionId );
 
+  encodedElement.addEncodedData( QStringLiteral( "water-level-series" ), mWaterLevelSeriesGroup->encode() );
   ReosHydrographJunction::encodeData( encodedElement, context );
 }
 
@@ -96,6 +115,53 @@ void ReosHydraulicStructureBoundaryCondition::updateCalculationContextFromUpstre
   }
 }
 
+void ReosHydraulicStructureBoundaryCondition::saveConfiguration( ReosHydraulicScheme *scheme ) const
+{
+  ReosEncodedElement encodedElement = scheme->restoreElementConfig( id() );
+
+  encodedElement.addData( QStringLiteral( "default-condition-type" ), static_cast<int>( mDefaultConditionType ) );
+  encodedElement.addData( QStringLiteral( "is-water-elevation-constant" ), mIsWaterLevelConstant->value() ? 1 : 0 );
+  encodedElement.addEncodedData( QStringLiteral( "constant-water-elevation" ), mConstantWaterLevel->encode() );
+
+  QString waterlevelSeriesId;
+  if ( mWaterLevelSeriesIndex >= 0 && mWaterLevelSeriesIndex < mWaterLevelSeriesGroup->timeSeriesCount() )
+    waterlevelSeriesId = mWaterLevelSeriesGroup->timeSeries( mWaterLevelSeriesIndex )->id();
+  encodedElement.addData( QStringLiteral( "water-level-series-id" ), waterlevelSeriesId );
+
+  scheme->saveElementConfig( id(), encodedElement );
+
+  ReosHydrographJunction::saveConfiguration( scheme );
+
+}
+
+void ReosHydraulicStructureBoundaryCondition::restoreConfiguration( ReosHydraulicScheme *scheme )
+{
+  ReosEncodedElement encodedElement = scheme->restoreElementConfig( id() );
+
+  int defaultCond = 0;
+  int isLevelConstant = 0;
+  double constantLevel = 0;
+  QString waterlevelSeriesId;
+
+  encodedElement.getData( QStringLiteral( "default-condition-type" ), defaultCond );
+  encodedElement.getData( QStringLiteral( "is-water-elevation-constant" ), isLevelConstant );
+  encodedElement.getData( QStringLiteral( "constant-water-elevation" ), constantLevel );
+  encodedElement.getData( QStringLiteral( "water-level-series-id" ), waterlevelSeriesId );
+
+  mDefaultConditionType = static_cast<ReosHydraulicStructureBoundaryCondition::Type>( defaultCond );
+  mIsWaterLevelConstant->setValue( isLevelConstant == 1 );
+  mConstantWaterLevel->setValue( constantLevel );
+  mWaterLevelSeriesIndex = -1;
+  for ( int i = 0; i < mWaterLevelSeriesGroup->timeSeriesCount(); ++i )
+    if ( mWaterLevelSeriesGroup->timeSeries( i )->id() == waterlevelSeriesId )
+    {
+      mWaterLevelSeriesIndex = i;
+      break;
+    }
+
+  ReosHydrographJunction::restoreConfiguration( scheme );
+}
+
 QString ReosHydraulicStructureBoundaryCondition::boundaryConditionId() const
 {
   return mBoundaryConditionId;
@@ -104,24 +170,38 @@ QString ReosHydraulicStructureBoundaryCondition::boundaryConditionId() const
 void ReosHydraulicStructureBoundaryCondition::attachStructure( ReosHydraulicStructure2D *structure )
 {
   mStructure = structure;
+  connect( mStructure->geometryStructure(), &ReosPolylinesStructure::classesChanged, this, &ReosHydraulicStructureBoundaryCondition::onBoundaryClassesChange );
+  elementName()->setValue( mStructure->geometryStructure()->value( mBoundaryConditionId ).toString() );
 }
 
 ReosHydraulicStructureBoundaryCondition::Type ReosHydraulicStructureBoundaryCondition::conditionType() const
 {
-  if ( ( mLinksBySide1.isEmpty() && !linksBySide2().isEmpty() )
-       || internalHydrograph() )
-    return Type::InputFlow;
+  switch ( connetionState() )
+  {
+    case ReosHydraulicStructureBoundaryCondition::ConnectionState::NotConnected:
+      return mDefaultConditionType;
+      break;
+    case ReosHydraulicStructureBoundaryCondition::ConnectionState::ConnectedToUpstreamLink:
+      return Type::OutputLevel;
+      break;
+    case ReosHydraulicStructureBoundaryCondition::ConnectionState::ConnectedToDownstreamLink:
+      return Type::InputFlow;
+      break;
+  }
 
-
-  //return Type::OutputLevel;
-
-  return Type::NotDefined;
+  return mDefaultConditionType;
 }
 
-//void ReosHydraulicStructureBoundaryCondition::updateCalculationContext( const ReosCalculationContext &context )
-//{
+ReosHydraulicStructureBoundaryCondition::ConnectionState ReosHydraulicStructureBoundaryCondition::connetionState() const
+{
+  if ( !linksBySide2().isEmpty() )
+    return ConnectionState::ConnectedToDownstreamLink;
 
-//}
+  if ( !mLinksBySide1.isEmpty() )
+    return ConnectionState::ConnectedToUpstreamLink;
+
+  return ConnectionState::NotConnected;
+}
 
 void ReosHydraulicStructureBoundaryCondition::onBoundaryClassesChange()
 {
@@ -135,6 +215,60 @@ void ReosHydraulicStructureBoundaryCondition::onParameterNameChange()
   disconnect( mStructure->geometryStructure(), &ReosPolylinesStructure::classesChanged, this, &ReosHydraulicStructureBoundaryCondition::onBoundaryClassesChange );
   mStructure->geometryStructure()->changeClassValue( mBoundaryConditionId, elementName()->value() );
   connect( mStructure->geometryStructure(), &ReosPolylinesStructure::classesChanged, this, &ReosHydraulicStructureBoundaryCondition::onBoundaryClassesChange );
+}
+
+void ReosHydraulicStructureBoundaryCondition::setWaterLevelSeriesIndex( int waterLevelSeriesIndex )
+{
+  mWaterLevelSeriesIndex = waterLevelSeriesIndex;
+  emit dataChanged();
+}
+
+int ReosHydraulicStructureBoundaryCondition::waterLevelSeriesIndex() const
+{
+  return mWaterLevelSeriesIndex;
+}
+
+ReosTimeSeriesVariableTimeStepGroup *ReosHydraulicStructureBoundaryCondition::waterLevelSeriesGroup() const
+{
+  return mWaterLevelSeriesGroup;
+}
+
+ReosParameterDouble *ReosHydraulicStructureBoundaryCondition::constantWaterElevation() const
+{
+  return mConstantWaterLevel;
+}
+
+ReosParameterBoolean *ReosHydraulicStructureBoundaryCondition::isWaterLevelConstant() const
+{
+  return mIsWaterLevelConstant;
+}
+
+ReosHydraulicStructureBoundaryCondition::Type ReosHydraulicStructureBoundaryCondition::defaultConditionType() const
+{
+  return mDefaultConditionType;
+}
+
+void ReosHydraulicStructureBoundaryCondition::setDefaultConditionType( const ReosHydraulicStructureBoundaryCondition::Type &defaultConditionType )
+{
+  if ( mDefaultConditionType == defaultConditionType )
+    return;
+
+  mDefaultConditionType = defaultConditionType;
+
+  switch ( mDefaultConditionType )
+  {
+    case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
+      setCurrentInternalHydrograph( nullptr );
+      break;
+    case ReosHydraulicStructureBoundaryCondition::Type::InputFlow:
+      updateInternalHydrograph();
+      break;
+    case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
+      setCurrentInternalHydrograph( nullptr );
+      break;
+  }
+
+  emit dataChanged();
 }
 
 ReosHydraulicNetworkElement *ReosHydraulicStructureBoundaryConditionFactory::decodeElement( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context ) const

@@ -446,7 +446,8 @@ ReosHydrographsStore *ReosHydrographJunction::gaugedHydrographsStore() const
 
 void ReosHydrographJunction::saveConfiguration( ReosHydraulicScheme *scheme ) const
 {
-  ReosEncodedElement encodedElement( QStringLiteral( "hydrograph-junction-config" ) );
+  ReosEncodedElement encodedElement = scheme->restoreElementConfig( id() );
+
   encodedElement.addData( QStringLiteral( "hydrograph-origin" ), int( mInternalHydrographOrigin ) );
   QString hydrographId;
   if ( mGaugedHydrographIndex >= 0 && mHydrographsStore->hydrograph( mGaugedHydrographIndex ) )
@@ -460,9 +461,6 @@ void ReosHydrographJunction::saveConfiguration( ReosHydraulicScheme *scheme ) co
 void ReosHydrographJunction::restoreConfiguration( ReosHydraulicScheme *scheme )
 {
   ReosEncodedElement encodedElement = scheme->restoreElementConfig( id() );
-
-  if ( encodedElement.description() != QStringLiteral( "hydrograph-junction-config" ) )
-    return;
 
   QString hydrographId;
   encodedElement.getData( QStringLiteral( "hydrograph-origin-id" ), hydrographId );

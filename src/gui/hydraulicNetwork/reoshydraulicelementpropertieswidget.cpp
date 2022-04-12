@@ -60,6 +60,7 @@ ReosHydraulicElementPropertiesWidget::ReosHydraulicElementPropertiesWidget( Reos
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormHydrographRountingLagWidgetFactory );
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormWatershedNodeWidgetFactory );
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormJunctionNodeWidgetFactory );
+  ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormJunctionBoundaryConditionWidgetFactory );
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormGmshGeneratorWidgetFactory );
 
   setCurrentElement( nullptr, guiContext );

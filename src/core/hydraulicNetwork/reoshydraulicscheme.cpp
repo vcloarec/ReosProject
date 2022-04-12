@@ -65,7 +65,14 @@ void ReosHydraulicScheme::saveElementConfig( const QString &elementId, const Reo
 
 ReosEncodedElement ReosHydraulicScheme::restoreElementConfig( const QString &elementId )
 {
-  return ReosEncodedElement( mElementsConfig.value( elementId ) );
+  if ( mElementsConfig.contains( elementId ) )
+  {
+    ReosEncodedElement ret( mElementsConfig.value( elementId ) );
+    if ( ret.description() == elementId )
+      return ret;
+  }
+
+  return ReosEncodedElement( elementId );
 }
 
 ReosParameterString *ReosHydraulicScheme::schemeName() const

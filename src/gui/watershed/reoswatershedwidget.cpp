@@ -22,31 +22,31 @@
 #include "reosdockwidget.h"
 #include "reosstyleregistery.h"
 
-ReosWatershedWidget::ReosWatershedWidget( ReosMap *map, ReosWatershedModule *module, ReosHydraulicNetwork *hydraulicNetwork, ReosDockWidget *parent ) :
+ReosWatershedWidget::ReosWatershedWidget( const ReosGuiContext &guiContext, ReosWatershedModule *module, ReosHydraulicNetwork *hydraulicNetwork, ReosDockWidget *parent ) :
   QWidget( parent ),
   ui( new Ui::ReosWatershedWidget ),
   mWatershdModule( module ),
-  mMap( map ),
+  mMap( guiContext.map() ),
   mHydraulicNetwork( hydraulicNetwork ),
   mActionSelectWatershed( new QAction( QPixmap( QStringLiteral( ":/images/selectWatershed.svg" ) ), tr( "Select watershed on map" ), this ) ),
   mDescriptionKeyWatershed( QStringLiteral( "watershed:delineatingPolygon" ) ),
-  mMapToolSelectWatershed( new ReosMapToolSelectMapItem( map, mDescriptionKeyWatershed ) ),
+  mMapToolSelectWatershed( new ReosMapToolSelectMapItem( guiContext.map(), mDescriptionKeyWatershed ) ),
   mActionRemoveWatershed( new QAction( QPixmap( QStringLiteral( ":/images/removeWatershed.svg" ) ), tr( "Remove watershed" ), this ) ),
   mActionDelineateWatershed( new QAction( QPixmap( QStringLiteral( ":/images/delineateWatershed.svg" ) ), tr( "Delineate watershed" ), this ) ),
-  mDelineatingWidget( new ReosDelineatingWatershedWidget( module, map, this ) ),
+  mDelineatingWidget( new ReosDelineatingWatershedWidget( module, guiContext ) ),
   mActionLongitudinalProfile( new QAction( QPixmap( QStringLiteral( ":/images/longProfile.svg" ) ), tr( "Longitudinal profile" ) ) ),
-  mLongitudinalProfileWidget( new ReosLongitudinalProfileWidget( map, this ) ),
+  mLongitudinalProfileWidget( new ReosLongitudinalProfileWidget( guiContext ) ),
   mActionConcentrationTime( new QAction( QPixmap( QStringLiteral( ":/images/concentrationTimeWatershed.svg" ) ), tr( "Concentration time" ), this ) ),
   mConcentrationTimeWidget( new ReosConcentrationTimeWidget( this ) ),
   mActionMeteorologicModel( new QAction( QPixmap( QStringLiteral( ":/images/meteoModel.svg" ) ), tr( "Meteorologic models" ), this ) ),
   mActionRunoffHydrograph( new QAction( QPixmap( QStringLiteral( ":/images/runoffHydrograph.svg" ) ), tr( "Runoff hydrograph" ), this ) ),
   mRunoffHydrographWidget( new ReosRunoffHydrographWidget( module, this ) ),
   mActionGaugedHydrograph( new QAction( QPixmap( QStringLiteral( ":/images/gaugedHydrograph.svg" ) ), tr( "Gauged hydrograph" ), this ) ),
-  mGaugedHydrographWidget( new ReosWatershedGaugedHydrographWidget( map, this ) ),
+  mGaugedHydrographWidget( new ReosWatershedGaugedHydrographWidget( guiContext ) ),
   mActionExportToVectorLayer( new QAction( QPixmap( QStringLiteral( ":/images/exportWatershed.svg" ) ), tr( "Export watershed geometry to vector layer" ), this ) ),
   mActionZoomToWatershed( new QAction( QPixmap( QStringLiteral( ":/images/zoomToWatershed.svg" ) ), tr( "Zoom to watershed" ), this ) ),
-  mMapToolEditDelineating( new ReosMapToolEditMapPolygon( map ) ),
-  mMapToolMoveOutletPoint( new ReosMapToolMoveMapItem( map ) )
+  mMapToolEditDelineating( new ReosMapToolEditMapPolygon( guiContext.map() ) ),
+  mMapToolMoveOutletPoint( new ReosMapToolMoveMapItem( guiContext.map() ) )
 {
   ui->setupUi( this );
 
@@ -584,9 +584,9 @@ void ReosWatershedWidget::updateNetworkButton()
   ui->mAddRemoveHydraulicNetworkButton->setEnabled( true );
 }
 
-ReosWatershedDockWidget::ReosWatershedDockWidget( ReosMap *map, ReosWatershedModule *module, ReosHydraulicNetwork *hydraulicNetwork, QWidget *parent )
-  : ReosDockWidget( tr( "Watershed" ), parent )
-  , mWatershedWidget( new ReosWatershedWidget( map, module, hydraulicNetwork, this ) )
+ReosWatershedDockWidget::ReosWatershedDockWidget( const ReosGuiContext &context, ReosWatershedModule *module, ReosHydraulicNetwork *hydraulicNetwork )
+  : ReosDockWidget( tr( "Watershed" ), context.parent() )
+  , mWatershedWidget( new ReosWatershedWidget( context, module, hydraulicNetwork, this ) )
 {
   setWidget( mWatershedWidget );
 }

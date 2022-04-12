@@ -20,6 +20,7 @@
 #include "reoshydraulicnetwork.h"
 
 class ReosHydraulicStructure2D;
+class ReosTimeSeriesVariableTimeStepGroup;
 
 class ReosHydraulicStructureBoundaryCondition : public ReosHydrographJunction
 {
@@ -30,6 +31,13 @@ class ReosHydraulicStructureBoundaryCondition : public ReosHydrographJunction
       NotDefined,
       InputFlow,
       OutputLevel,
+    };
+
+    enum class ConnectionState
+    {
+      NotConnected,
+      ConnectedToUpstreamLink,
+      ConnectedToDownstreamLink,
     };
 
     ReosHydraulicStructureBoundaryCondition(
@@ -47,6 +55,8 @@ class ReosHydraulicStructureBoundaryCondition : public ReosHydrographJunction
     bool isRemovable() const override {return false;}
     bool canAcceptLink( const QString &linkId, int positionInLink ) override;
     void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *upstreamLink, bool upstreamWillChange ) override;
+    virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
+    void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
 
     QString boundaryConditionId() const;
 
@@ -54,9 +64,26 @@ class ReosHydraulicStructureBoundaryCondition : public ReosHydrographJunction
 
     Type conditionType() const;
 
+    ConnectionState connetionState() const;
+
+    ReosHydraulicStructureBoundaryCondition::Type defaultConditionType() const;
+    void setDefaultConditionType( const ReosHydraulicStructureBoundaryCondition::Type &defaultConditionType );
+
+    ReosParameterBoolean *isWaterLevelConstant() const;
+
+    ReosParameterDouble *constantWaterElevation() const;
+
+    ReosTimeSeriesVariableTimeStepGroup *waterLevelSeriesGroup() const;
+    int waterLevelSeriesIndex() const;
+    void setWaterLevelSeriesIndex( int waterLevelSeriesIndex );
+
   public slots:
     //void updateCalculationContext( const ReosCalculationContext &context );
     //virtual void onUpstreamRoutingUpdated( const QString &routingId ) {}
+
+  protected:
+    ReosHydraulicStructureBoundaryCondition( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent = nullptr );
+    void encodeData( ReosEncodedElement &, const ReosHydraulicNetworkContext & ) const override;
 
   private slots:
     void onBoundaryClassesChange();
@@ -66,11 +93,15 @@ class ReosHydraulicStructureBoundaryCondition : public ReosHydrographJunction
     ReosHydraulicNetworkContext mContext;
     QPointer<ReosHydraulicStructure2D> mStructure;
     QString mBoundaryConditionId;
+    ReosTimeSeriesVariableTimeStepGroup *mWaterLevelSeriesGroup = nullptr;
 
-  protected:
-    ReosHydraulicStructureBoundaryCondition( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent = nullptr );
-    void encodeData( ReosEncodedElement &, const ReosHydraulicNetworkContext & ) const;
-
+    //** config attribute
+    ReosHydraulicStructureBoundaryCondition::Type mDefaultConditionType = ReosHydraulicStructureBoundaryCondition::Type::OutputLevel;
+    ReosParameterBoolean *mIsWaterLevelConstant = nullptr;
+    ReosParameterDouble *mConstantWaterLevel = nullptr;
+    int mWaterLevelSeriesIndex = -1;
+    //**
+    void init();
 };
 
 class ReosHydraulicStructureBoundaryConditionFactory : public ReosHydraulicNetworkElementFactory

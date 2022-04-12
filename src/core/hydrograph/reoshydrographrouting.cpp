@@ -201,7 +201,8 @@ int ReosHydrographRoutingLink::calculationProgression() const
 
 void ReosHydrographRoutingLink::saveConfiguration( ReosHydraulicScheme *scheme ) const
 {
-  ReosEncodedElement encodedElement( QStringLiteral( "link-rounting-config" ) );
+  ReosEncodedElement encodedElement = scheme->restoreElementConfig( id() );
+
   encodedElement.addData( QStringLiteral( "current-method" ), mCurrentRoutingMethod );
 
   scheme->saveElementConfig( id(), encodedElement );

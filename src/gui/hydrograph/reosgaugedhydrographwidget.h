@@ -34,6 +34,7 @@ class ReosHydrographEditingWidget;
 class ReosHydrograph;
 class ReosMap;
 class ReosDataProviderSelectorWidget;
+class ReosGuiContext;
 
 class QToolBar;
 
@@ -44,7 +45,7 @@ class ReosGaugedHydrographWidget : public ReosStackedPageWidget
 {
     Q_OBJECT
   public:
-    explicit ReosGaugedHydrographWidget( ReosMap *map, QWidget *parent = nullptr );
+    explicit ReosGaugedHydrographWidget( const ReosGuiContext &guiContext );
     ~ReosGaugedHydrographWidget();
 
     void setHydrographStore( ReosHydrographsStore *store );
@@ -63,7 +64,6 @@ class ReosGaugedHydrographWidget : public ReosStackedPageWidget
     Ui::ReosGaugedHydrographWidget *ui;
     ReosMap *mMap = nullptr;
     ReosHydrographsStore *mHydrographStore = nullptr;
-    ReosTimeSerieVariableTimeStepModel *mTableModel = nullptr;
     QAction *mActionAddHydrograph = nullptr;
     QAction *mActionDeleteHydrograph = nullptr;
     QAction *mActionRenameHydrograph = nullptr;
@@ -86,7 +86,7 @@ class ReosWatershedGaugedHydrographWidget : public ReosActionStackedWidget
 {
     Q_OBJECT
   public:
-    ReosWatershedGaugedHydrographWidget( ReosMap *map, QWidget *parent = nullptr );
+    ReosWatershedGaugedHydrographWidget( const ReosGuiContext  &guiContext );
 
   public slots:
     void setCurrentWatershed( ReosWatershed *watershed );

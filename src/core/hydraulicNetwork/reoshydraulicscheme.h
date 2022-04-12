@@ -50,7 +50,10 @@ class ReosHydraulicScheme : public ReosDataObject
     ReosMeteorologicModel *meteoModel() const;
     void setMeteoModel( ReosMeteorologicModel *meteoModel );
 
+    //! Saves the configuration of element \a elementid contained in \a encodedelement
     void saveElementConfig( const QString &elementId, const ReosEncodedElement &encodedElement );
+
+    //! Restores the encoded configuration of the element \a elementId, if not exist, creates empty one for the element
     ReosEncodedElement restoreElementConfig( const QString &elementId );
 
   private:

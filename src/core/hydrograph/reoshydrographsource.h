@@ -224,6 +224,7 @@ class REOSCORE_EXPORT ReosHydrographJunction : public ReosHydrographSource
     void encodeData( ReosEncodedElement &element,  const ReosHydraulicNetworkContext &context ) const override;
 
     bool setCurrentInternalHydrograph( ReosHydrograph *newHydrograph );
+    virtual bool updateInternalHydrograph();
 
   private:
     ReosSpatialPosition mPosition;
@@ -257,7 +258,6 @@ class REOSCORE_EXPORT ReosHydrographJunction : public ReosHydrographSource
     virtual bool updateInternalHydrographCalculationContext( const ReosCalculationContext & );
     void init();
 
-    virtual bool updateInternalHydrograph();
     virtual void calculateInternalHydrograph();
     void calculateOuputHydrograph();
 };
