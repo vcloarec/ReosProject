@@ -150,8 +150,12 @@ class ReosFormJunctionBoundaryConditionWidget: public ReosFormWidget
 
     ReosFormJunctionBoundaryConditionWidget( ReosHydraulicStructureBoundaryCondition *boundary, const ReosGuiContext &context = ReosGuiContext() );
 
+    //! Constructor with predefined type, type could be change
+    ReosFormJunctionBoundaryConditionWidget( ReosHydraulicStructureBoundaryCondition *boundary, Type type, const ReosGuiContext &context = ReosGuiContext() );
+
   private slots:
     void syncToNode();
+    void updateWidgetsDisplaying();
 
   private:
     ReosHydraulicStructureBoundaryCondition *mNode = nullptr;
@@ -162,6 +166,11 @@ class ReosFormJunctionBoundaryConditionWidget: public ReosFormWidget
     ReosParameterDoubleWidget *mConstantLevel = nullptr;
     QToolButton *mButtonWaterlevelSeries = nullptr;
     QWidget *mWaterLevelSeriesWidget = nullptr;
+
+    QWidget *mHydrographComboWidget = nullptr;
+    QComboBox *mHydrographCombo = nullptr;
+    QToolButton *mButtonHydrograph = nullptr;
+
 };
 
 
