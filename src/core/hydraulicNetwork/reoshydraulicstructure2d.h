@@ -162,7 +162,8 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     void onMeshGenerated( const ReosMeshFrameData &meshData );
 
     void getSymbologiesFromMesh() const;
-    void loadSimulationResults( ReosHydraulicSimulation *simulation,  const ReosCalculationContext &context );
+    void onSimulationFinished( ReosHydraulicSimulation *simulation,  const ReosCalculationContext &context );
+    void loadResult( ReosHydraulicSimulation *simulation,  const ReosCalculationContext &context );
 };
 
 class ReosHydraulicStructure2dFactory : public ReosHydraulicNetworkElementFactory

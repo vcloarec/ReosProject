@@ -62,7 +62,9 @@ void ReosHydraulicSimulationConsole::onStopSimulation()
   if ( QMessageBox::question( this, tr( "Cancel simulation" ), tr( "Do you want to cancel this simulation" ) ) == QMessageBox::Yes )
   {
     if ( !mProcess.isNull() )
+    {
       mProcess->stop( true );
-    emit backToPreviousPage();
+      ui->mStopButton->setEnabled( false );
+    }
   }
 }

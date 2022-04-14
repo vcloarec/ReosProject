@@ -94,6 +94,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
     mResultScalarDatasetSymbologies.insert( static_cast<ResultType>( type ), resultSymbol.value( type ) );
 
   encodedElement.getData( QStringLiteral( "current-mesh-dataset-id" ), mCurrentActivatedMeshDataset );
+  mMesh->activateDataset( mCurrentActivatedMeshDataset );
 }
 
 QString ReosHydraulicStructure2D::currentActivatedMeshDataset() const
@@ -225,7 +226,7 @@ void ReosHydraulicStructure2D::updateCalculationContext( const ReosCalculationCo
 
   if ( currentSimulation() && currentSimulation()->hasResult( this, context ) )
   {
-    loadSimulationResults( currentSimulation(), context );
+    loadResult( currentSimulation(), context );
     activateResultDatasetGroup();
   }
 }
@@ -304,7 +305,7 @@ QString ReosHydraulicStructure2D::meshDatasetName( const QString &id ) const
 
 ReosSimulationProcess *ReosHydraulicStructure2D::startSimulation()
 {
-  if ( mSimulationProcess  || !currentSimulation() )
+  if ( mSimulationProcess || !currentSimulation() )
     return nullptr;
 
   QPointer<ReosHydraulicSimulation> sim = currentSimulation();
@@ -317,8 +318,10 @@ ReosSimulationProcess *ReosHydraulicStructure2D::startSimulation()
 
   connect( mSimulationProcess.get(), &ReosProcess::finished, sim, [this, sim, context]
   {
+    mSimulationProcess->deleteLater();
+    mSimulationProcess.release();
     if ( !sim.isNull() )
-      loadSimulationResults( sim, context );
+      onSimulationFinished( sim, context );
   } );
 
   if ( mSimulationResults )
@@ -486,19 +489,27 @@ void ReosHydraulicStructure2D::getSymbologiesFromMesh() const
   }
 }
 
-void ReosHydraulicStructure2D::loadSimulationResults( ReosHydraulicSimulation *simulation, const ReosCalculationContext &context )
+void ReosHydraulicStructure2D::onSimulationFinished( ReosHydraulicSimulation *simulation, const ReosCalculationContext &context )
 {
   if ( !simulation )
     return;
 
+  //Store the current symbology per data type
+  getSymbologiesFromMesh();
+
+  loadResult( simulation, context );
+}
+
+void ReosHydraulicStructure2D::loadResult( ReosHydraulicSimulation *simulation, const ReosCalculationContext &context )
+{
   if ( mSimulationResults )
   {
-    //Store the current symbology per data type
-    getSymbologiesFromMesh();
     mSimulationResults->deleteLater();
+    mSimulationResults = nullptr;
   }
 
   mSimulationResults = simulation->createResults( this, context );
+
   if ( !mSimulationResults )
     return;
 

@@ -727,6 +727,7 @@ ReosTelemac2DSimulationProcess::ReosTelemac2DSimulationProcess( const ReosCalcul
   , mTimeStep( timeStep )
 {
   mTotalTime = context.simulationStartTime().msecsTo( context.simulationEndTime() ) / 1000.0;
+  connect( this, &ReosTelemac2DSimulationProcess::askToStop, this, &ReosTelemac2DSimulationProcess::onStopAsked );
 }
 
 void ReosTelemac2DSimulationProcess::start()
@@ -772,20 +773,25 @@ void ReosTelemac2DSimulationProcess::start()
   {
     finished = mProcess->waitForFinished( -1 );
     setCurrentProgression( 100 );
-    emit sendInformation( mStandartOutputBuffer );
+
+    if ( isStop() )
+      emit sendInformation( tr( "Simulation canceled by user" ) );
+    else
+      emit sendInformation( mStandartOutputBuffer );
   }
   else
     emit sendInformation( tr( "Telemac simulation can't start. Check the configuration of the Telemac modele." ) );
 
   if ( mProcess )
-    mProcess->deleteLater();
+    delete mProcess;
   mProcess = nullptr;
 
-  mIsSuccessful = finished;// need to check the output ot search for an error
+  mIsSuccessful = finished;// need to check the output to search for an error
 }
 
 void ReosTelemac2DSimulationProcess::stop( bool )
 {
+  ReosSimulationProcess::stop( true );
   emit askToStop();
 }
 
