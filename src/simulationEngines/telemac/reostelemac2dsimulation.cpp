@@ -159,13 +159,6 @@ ReosSimulationProcess *ReosTelemac2DSimulation::getProcess( ReosHydraulicStructu
   return new ReosTelemac2DSimulationProcess( calculationContext, mTimeStep->value(), dir.path() );
 }
 
-struct TelemacFlowCondition
-{
-  int rank = -1;
-  QVector<double> timeInSeconds;
-  QVector<double> value;
-};
-
 struct TelemacBoundary
 {
   int LIHBOR = 2;
@@ -269,12 +262,13 @@ QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemac2DSimulation::create
             bound.LIVBOR = 5;
             bound.LITBOR = 4;
             break;
-          case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
           case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
             bound.LIHBOR = 5;
             bound.LIUBOR = 4;
             bound.LIVBOR = 4;
             bound.LITBOR = 4;
+            break;
+          case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
             break;
         }
       }
@@ -519,72 +513,106 @@ void ReosTelemac2DSimulation::createSelafinInputGeometry( ReosHydraulicStructure
   ouputMesh->saveDataset( path, 1, QStringLiteral( "SELAFIN" ) );
 }
 
+struct TelemacBoundaryCondition
+{
+  int rank = -1;
+  QString header;
+  QString unit;
+  ReosTimeSerieVariableTimeStep *timeSeries = nullptr;
+};
+
 void ReosTelemac2DSimulation::createBoundaryConditionFiles( ReosHydraulicStructure2D *hydraulicStructure, QList<ReosHydraulicStructureBoundaryCondition *> boundaryConditions, const ReosCalculationContext &context )
 {
-  QDir dir = hydraulicStructure->structureDirectory();
-  dir.cd( mDirName );
-  QString path = dir.filePath( mBoundaryConditionFileName );
-  QFile file( path );
-
-  file.open( QIODevice::WriteOnly );
-  QTextStream stream( &file );
+  QSet<qint64> timeSteps;
+  QList<TelemacBoundaryCondition> boundConds;
+  const QDateTime startTime = context.simulationStartTime();
+  const QDateTime endTime = context.simulationEndTime();
 
   for ( int i = 0; i < boundaryConditions.count(); ++i )
   {
     ReosHydraulicStructureBoundaryCondition *boundCond = boundaryConditions.at( i );
-    QString header;
-    QString unit;
-
-    ReosTimeSerieVariableTimeStep timeSeries;
+    TelemacBoundaryCondition bc;
 
     switch ( boundCond->conditionType() )
     {
       case ReosHydraulicStructureBoundaryCondition::Type::InputFlow:
-        header = QStringLiteral( "Q(%1)" );
-        unit = QStringLiteral( "m3/s" );
-        timeSeries.copyFrom( boundCond->outputHydrograph() );
+        bc.header = QStringLiteral( "Q(%1)" );
+        bc.unit = QStringLiteral( "m3/s" );
+        bc.timeSeries = boundCond->outputHydrograph();
+        bc.rank = i + 1;
         break;
       case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
-        //        header = QStringLiteral( "SL(%1]" );
-        //        unit = QStringLiteral( "m" );
-        continue;
+        bc.header = QStringLiteral( "SL(%1)" );
+        bc.unit = QStringLiteral( "m" );
+        bc.timeSeries = boundCond->waterLevelSeries();
+        bc.rank = i + 1;
         break;
       case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
-        //        header = QStringLiteral( "SL(%1]" );
-        //        unit = QStringLiteral( "m" );
         continue;
         break;
     }
-    stream << "#" << boundCond->elementName()->value() << "\n";
-    stream << "T" << "\t" <<  header.arg( QString::number( i + 1 ) ) << "\n";
-    stream << "s" << "\t" <<  unit << "\n";
 
-    const QDateTime startTime = context.simulationStartTime();
-    const QDateTime endTime = context.simulationEndTime();
-
-    stream << QString::number( 0, 'f', 6 )
-           << "\t"
-           <<  QString::number( timeSeries.valueAtTime( startTime ), 'f', 2 )
-           << "\n";
-
-    for ( int i = 0; i < timeSeries.valueCount(); ++i )
+    if ( bc.timeSeries )
     {
-      const QDateTime time = timeSeries.timeAt( i );
-      if ( time > startTime && time < endTime )
-        stream << QString::number( startTime.msecsTo( time ) / 1000.0, 'f', 6 )
-               << "\t"
-               <<  QString::number( timeSeries.valueAt( i ), 'f', 2 )
-               << "\n";
+      int valueCount = bc.timeSeries->valueCount();
+      int valIndex = 0;
+      while ( valIndex < valueCount && bc.timeSeries->timeAt( valIndex ) < startTime )
+        valIndex++;
+
+      while ( valIndex < valueCount && bc.timeSeries->timeAt( valIndex ) <= endTime )
+      {
+        timeSteps.insert( startTime.msecsTo( bc.timeSeries->timeAt( valIndex ) ) );
+        valIndex++;
+      }
+
+      boundConds.append( bc );
     }
+  }
 
-    stream << QString::number( startTime.msecsTo( endTime ) / 1000.0, 'f', 6 )
-           << "\t"
-           <<  QString::number( timeSeries.valueAtTime( endTime ), 'f', 2 )
-           << "\n";
+  QList<qint64> timeStepsList = timeSteps.values();
+  std::sort( timeStepsList.begin(), timeStepsList.end() );
 
-    stream << "\n";
+  if ( !timeStepsList.isEmpty() && timeStepsList.first() == 0 )
+    timeStepsList.removeFirst();
+
+  if ( !timeStepsList.isEmpty() && timeStepsList.last() == startTime.msecsTo( endTime ) )
+    timeStepsList.removeLast();
+
+  QDir dir = hydraulicStructure->structureDirectory();
+  dir.cd( mDirName );
+  QString path = dir.filePath( mBoundaryConditionFileName );
+  QFile file( path );
+  file.open( QIODevice::WriteOnly );
+  QTextStream stream( &file );
+
+  stream << "T";
+  for ( const TelemacBoundaryCondition &bc : std::as_const( boundConds ) )
+    stream << "\t" <<  bc.header.arg( QString::number( bc.rank ) );
+  stream << "\n";
+
+  stream << "s";
+  for ( const TelemacBoundaryCondition &bc : std::as_const( boundConds ) )
+    stream << "\t" <<  bc.unit;
+  stream << "\n";
+
+  stream << QString::number( 0, 'f', 6 );
+  for ( const TelemacBoundaryCondition &bc : std::as_const( boundConds ) )
+    stream << "\t" << QString::number( bc.timeSeries->valueAtTime( startTime ), 'f', 2 );
+  stream << "\n";
+
+  for ( qint64 tms : std::as_const( timeStepsList ) )
+  {
+    stream << QString::number( tms / 1000.0, 'f', 6 );
+    for ( const TelemacBoundaryCondition &bc : std::as_const( boundConds ) )
+      stream << "\t" <<  QString::number( bc.timeSeries->valueAtTime( startTime.addMSecs( tms ) ), 'f', 2 );
     stream << "\n";
   }
+
+  stream << QString::number( startTime.msecsTo( endTime ) / 1000.0, 'f', 6 );
+  for ( const TelemacBoundaryCondition &bc : std::as_const( boundConds ) )
+    stream <<  "\t" << QString::number( bc.timeSeries->valueAtTime( endTime ), 'f', 2 );
+  stream << "\n";
+
 }
 
 void ReosTelemac2DSimulation::createSteeringFile( ReosHydraulicStructure2D *hydraulicStructure, QList<ReosHydraulicStructureBoundaryCondition *> boundaryConditions, const ReosCalculationContext &context )

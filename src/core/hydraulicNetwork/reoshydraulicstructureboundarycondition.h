@@ -76,6 +76,7 @@ class ReosHydraulicStructureBoundaryCondition : public ReosHydrographJunction
     ReosTimeSeriesVariableTimeStepGroup *waterLevelSeriesGroup() const;
     int waterLevelSeriesIndex() const;
     void setWaterLevelSeriesIndex( int waterLevelSeriesIndex );
+    ReosTimeSerieVariableTimeStep *waterLevelSeries() const;
 
   public slots:
     //void updateCalculationContext( const ReosCalculationContext &context );

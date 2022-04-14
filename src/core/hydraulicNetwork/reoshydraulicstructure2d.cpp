@@ -509,7 +509,7 @@ void ReosHydraulicStructure2D::loadSimulationResults( ReosHydraulicSimulation *s
     QStringList ids = mesh()->datasetIds();
     if ( ids.count() > 1 )
       mCurrentActivatedMeshDataset = ids.at( 1 );
-    else if ( ids.count() == 0 )
+    else if ( ids.count() != 0 )
       mCurrentActivatedMeshDataset = ids.first();
   }
 

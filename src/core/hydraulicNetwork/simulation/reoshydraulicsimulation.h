@@ -51,7 +51,6 @@ class ReosHydraulicSimulation : public ReosDataObject
 
     virtual void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &context ) = 0;
 
-    void launch( ReosHydraulicStructure2D *hydraulicStructure );
     virtual ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const = 0;
 
     virtual QString key() const = 0;
