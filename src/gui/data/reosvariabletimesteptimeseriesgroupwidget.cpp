@@ -127,7 +127,7 @@ void ReosVariableTimeStepTimeSeriesGroupWidget::onAddSeries()
     std::unique_ptr<ReosTimeSerieVariableTimeStep> newSeries = std::make_unique<ReosTimeSerieVariableTimeStep>();
     newSeries->setName( nameParam.value() );
     newSeries->setColor( Qt::blue );
-    newSeries->setReferenceTime( QDateTime( QDate::currentDate(), QTime( 0, 0, 0, Qt::UTC ) ) );
+    newSeries->setReferenceTime( QDateTime( QDate::currentDate(), QTime( 0, 0, 0 ), Qt::UTC ) );
     mGroup->addTimeSeries( newSeries.release() );
 
     ui->mComboBoxTimeSeriesName->setCurrentIndex( ui->mComboBoxTimeSeriesName->count() - 1 );

@@ -28,7 +28,7 @@ class ReosDataTesting: public QObject
 void ReosDataTesting::variable_time_step_time_model()
 {
   ReosTimeSerieVariableTimeStep timeSerie;
-  timeSerie.setReferenceTime( QDateTime( QDate( 2020, 01, 01 ), QTime( 2, 0, 0, Qt::UTC ) ) );
+  timeSerie.setReferenceTime( QDateTime( QDate( 2020, 01, 01 ), QTime( 2, 0, 0 ), Qt::UTC ) );
   ReosTimeSerieVariableTimeStepModel variableTimeStepModel;
   variableTimeStepModel.setSerie( &timeSerie );
 
@@ -56,7 +56,7 @@ void ReosDataTesting::variable_time_step_time_model()
   QVERIFY( variableTimeStepModel.setData( variableTimeStepModel.index( 0, 1, QModelIndex() ), QVariant( "3.5" ), Qt::EditRole ) );
   QCOMPARE( variableTimeStepModel.rowCount( QModelIndex() ), 2 );
   QCOMPARE( timeSerie.valueCount(), 1 );
-  QCOMPARE( QDateTime( QDate( 2020, 01, 01 ), QTime( 2, 3, 30, Qt::UTC ) ), timeSerie.timeAt( 0 ) );
+  QCOMPARE( QDateTime( QDate( 2020, 01, 01 ), QTime( 2, 3, 30 ), Qt::UTC ), timeSerie.timeAt( 0 ) );
   QCOMPARE( 0, timeSerie.valueAt( 0 ) );
 
   QVERIFY( !variableTimeStepModel.setData( variableTimeStepModel.index( 0, 2, QModelIndex() ), QVariant( "dfsdf" ), Qt::EditRole ) );
@@ -72,7 +72,7 @@ void ReosDataTesting::variable_time_step_time_model()
 
   // change the value before
   QVERIFY( variableTimeStepModel.setData( variableTimeStepModel.index( 0, 1, QModelIndex() ), QVariant( "2.5" ), Qt::EditRole ) );
-  QCOMPARE( QDateTime( QDate( 2020, 01, 01 ), QTime( 2, 2, 30, Qt::UTC ) ), timeSerie.timeAt( 0 ) );
+  QCOMPARE( QDateTime( QDate( 2020, 01, 01 ), QTime( 2, 2, 30 ), Qt::UTC ), timeSerie.timeAt( 0 ) );
   QCOMPARE( variableTimeStepModel.rowCount( QModelIndex() ), 2 );
   QCOMPARE( timeSerie.valueCount(), 1 );
 
@@ -84,7 +84,7 @@ void ReosDataTesting::variable_time_step_time_model()
   QVERIFY( variableTimeStepModel.setData( variableTimeStepModel.index( 2, 2, QModelIndex() ), QVariant( "9.99" ), Qt::EditRole ) );
   QCOMPARE( variableTimeStepModel.rowCount( QModelIndex() ), 4 );
   QCOMPARE( timeSerie.valueCount(), 3 );
-  QCOMPARE( QDateTime( QDate( 2020, 01, 01 ), QTime( 2, 3, 30, Qt::UTC ) ), timeSerie.timeAt( 2 ) );
+  QCOMPARE( QDateTime( QDate( 2020, 01, 01 ), QTime( 2, 3, 30 ), Qt::UTC ), timeSerie.timeAt( 2 ) );
 
   QVERIFY( variableTimeStepModel.setData( variableTimeStepModel.index( 1, 2, QModelIndex() ), QVariant( "5.200" ), Qt::EditRole ) );
   QCOMPARE( 5.2, timeSerie.valueAt( 1 ) );
@@ -97,7 +97,7 @@ void ReosDataTesting::variable_time_step_time_model()
   QVERIFY( !variableTimeStepModel.setData( variableTimeStepModel.index( 3, 2, QModelIndex() ), QVariant( "10.99" ), Qt::EditRole ) );
 
   QVERIFY( variableTimeStepModel.setData( variableTimeStepModel.index( 3, 1, QModelIndex() ), QVariant( "10.99" ), Qt::EditRole ) );
-  QCOMPARE( QDateTime( QDate( 2020, 01, 01 ), QTime( 2, 15, 30, Qt::UTC ) ), timeSerie.timeAt( 3 ) );
+  QCOMPARE( QDateTime( QDate( 2020, 01, 01 ), QTime( 2, 15, 30 ), Qt::UTC ), timeSerie.timeAt( 3 ) );
   QCOMPARE( 10.99, timeSerie.valueAt( 3 ) );
   QCOMPARE( 10.99, timeSerie.valueAtTime( ReosDuration( 15.5, ReosDuration::minute ) ) );
 

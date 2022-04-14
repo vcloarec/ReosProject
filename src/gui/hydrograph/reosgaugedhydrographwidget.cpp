@@ -120,7 +120,7 @@ void ReosGaugedHydrographWidget::onAddHydrograph()
     std::unique_ptr<ReosHydrograph> newHydrograph = std::make_unique<ReosHydrograph>();
     newHydrograph->setName( nameParam.value() );
     newHydrograph->setColor( Qt::blue );
-    newHydrograph->setReferenceTime( QDateTime( QDate::currentDate(), QTime( 0, 0, 0, Qt::UTC ) ) );
+    newHydrograph->setReferenceTime( QDateTime( QDate::currentDate(), QTime( 0, 0, 0 ), Qt::UTC ) );
     mHydrographStore->addHydrograph( newHydrograph.release() );
     onStoreChanged();
     ui->mComboBoxHydrographName->setCurrentIndex( ui->mComboBoxHydrographName->count() - 1 );

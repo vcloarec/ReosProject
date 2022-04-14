@@ -88,6 +88,6 @@ void ReosTimeSeriesVariableTimeStepGroup::decode( const ReosEncodedElement &elem
   mTimeSeries.clear();
   QList<ReosEncodedElement> seriesList = element.getListEncodedData( QStringLiteral( "series-list" ) );
 
-  for ( ReosEncodedElement elem : seriesList )
+  for ( ReosEncodedElement elem : std::as_const( seriesList ) )
     mTimeSeries.append( ReosTimeSerieVariableTimeStep::decode( elem, this ) );
 }

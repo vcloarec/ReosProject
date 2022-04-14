@@ -147,7 +147,21 @@ void ReosHydrographsStore::decode( const ReosEncodedElement &element )
 
   mHydrographs.reserve( encodedHydrographs.count() );
   for ( const QByteArray &bytes : std::as_const( encodedHydrographs ) )
+  {
     mHydrographs.append( ReosHydrograph::decode( ReosEncodedElement( bytes ), this ) );
+
+    if ( mHydrographs.last()->dataProvider()->key() == QStringLiteral( "variable-time-step-memory" ) )
+    {
+      // with Lekan 2.2, one extra millisecond is present
+      // Leanding to wrong behavior in certain cases
+      // So, we nne to check end remove this millisecond
+      QDateTime dt = mHydrographs.last()->referenceTime();
+      QTime time = dt.time();
+      time = QTime( time.hour(), time.minute(), time.second(), 0 );
+      dt.setTime( time );
+      mHydrographs.last()->setReferenceTime( dt );
+    }
+  }
 
 }
 
