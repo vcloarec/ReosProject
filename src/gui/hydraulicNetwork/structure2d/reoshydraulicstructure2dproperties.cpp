@@ -26,6 +26,7 @@
 #include "reosstyleregistery.h"
 #include "reosmeshscalarrenderingwidget.h"
 #include "reoscolorbutton.h"
+#include "reosprocesscontroler.h"
 
 
 ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context )
@@ -97,7 +98,6 @@ ReosHydraulicStructure2DProperties::~ReosHydraulicStructure2DProperties()
   if ( !mView3D.isNull() )
   {
     mView3D->close();
-    mView3D->deleteLater();
   }
   delete ui;
 }
@@ -118,6 +118,11 @@ void ReosHydraulicStructure2DProperties::onLaunchCalculation()
   if ( !mStructure2D->currentProcess() )
   {
     mActionEditStructure->setEnabled( false );
+
+    std::unique_ptr<ReosProcess> preparationProcess( mStructure2D->prepareSimulation() );
+    ReosProcessControler *controler = new ReosProcessControler( preparationProcess.get(), this );
+    controler->exec();
+
     ReosSimulationProcess *process = mStructure2D->startSimulation();
 
     if ( process )

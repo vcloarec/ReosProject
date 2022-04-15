@@ -521,7 +521,10 @@ struct TelemacBoundaryCondition
   ReosTimeSerieVariableTimeStep *timeSeries = nullptr;
 };
 
-void ReosTelemac2DSimulation::createBoundaryConditionFiles( ReosHydraulicStructure2D *hydraulicStructure, QList<ReosHydraulicStructureBoundaryCondition *> boundaryConditions, const ReosCalculationContext &context )
+void ReosTelemac2DSimulation::createBoundaryConditionFiles(
+  ReosHydraulicStructure2D *hydraulicStructure,
+  QList<ReosHydraulicStructureBoundaryCondition *> boundaryConditions,
+  const ReosCalculationContext &context )
 {
   QSet<qint64> timeSteps;
   QList<TelemacBoundaryCondition> boundConds;

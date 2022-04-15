@@ -180,6 +180,11 @@ void ReosMeshFrame_p::activateWireFrame( bool activate )
   updateWireFrameSettings();
 }
 
+bool ReosMeshFrame_p::isWireFrameActive() const
+{
+  return mMeshLayer->rendererSettings().nativeMeshSettings().isEnabled();
+}
+
 ReosObjectRenderer *ReosMeshFrame_p::createRenderer( QGraphicsView *view )
 {
   return new ReosMeshRenderer_p( view, mMeshLayer.get() );
@@ -282,6 +287,8 @@ void ReosMeshFrame_p::update3DRenderer()
   if ( mMeshLayer->renderer3D() )
     renderer.reset( static_cast<QgsMeshLayer3DRenderer *>( mMeshLayer->renderer3D()->clone() ) );
 
+  int verticalIndex = mDatasetGroupsIndex.value( mVerticalDataset3DId, -1 );
+
   std::unique_ptr<QgsMesh3DSymbol> symbol;
   if ( !renderer )
     symbol.reset( new QgsMesh3DSymbol() );
@@ -297,7 +304,7 @@ void ReosMeshFrame_p::update3DRenderer()
   symbol->setVerticalScale( mVerticaleSCale );
   symbol->setRenderingStyle( static_cast<QgsMesh3DSymbol::RenderingStyle>( QgsMesh3DSymbol::ColorRamp ) );
   symbol->setSingleMeshColor( Qt::blue );
-  symbol->setVerticalDatasetGroupIndex( mDatasetGroupsIndex.value( mVerticalDataset3DId ) );
+  symbol->setVerticalDatasetGroupIndex( verticalIndex );
   symbol->setIsVerticalMagnitudeRelative( false );
 
   if ( symbol->renderingStyle() == QgsMesh3DSymbol::ColorRamp )
@@ -359,9 +366,9 @@ QString ReosMeshFrame_p::addDatasetGroup( QgsMeshDatasetGroup *group, const QStr
 {
   QString name = group->name();
 
-  QString effecticeId = id;
-  if ( effecticeId.isEmpty() )
-    effecticeId = QUuid::createUuid().toString();
+  QString effectiveId = id;
+  if ( effectiveId.isEmpty() )
+    effectiveId = QUuid::createUuid().toString();
 
   mMeshLayer->addDatasets( group );
 
@@ -377,9 +384,9 @@ QString ReosMeshFrame_p::addDatasetGroup( QgsMeshDatasetGroup *group, const QStr
     }
   }
 
-  mDatasetGroupsIndex[effecticeId] = index;
+  mDatasetGroupsIndex[effectiveId] = index;
 
-  return effecticeId;
+  return effectiveId;
 }
 
 void ReosMeshFrame_p::firstUpdateOfTerrainScalarSetting()
@@ -558,6 +565,14 @@ void ReosMeshFrame_p::setSimulationResults( ReosHydraulicSimulationResults *resu
   meshProvider()->setDatasetSource( result );
   mMeshLayer->temporalProperties()->setDefaultsFromDataProviderTemporalCapabilities( meshProvider()->temporalCapabilities() );
 
+  const QStringList ids = mDatasetGroupsIndex.keys();
+
+  for ( const QString &id : ids )
+  {
+    if ( id != mVerticesElevationDatasetId )
+      mDatasetGroupsIndex.remove( id );
+  }
+
   if ( result )
   {
     QList<int> groupIndexes = mMeshLayer->datasetGroupsIndexes();
@@ -577,6 +592,7 @@ void ReosMeshFrame_p::setSimulationResults( ReosHydraulicSimulationResults *resu
     }
   }
 
+  mMeshLayer->reload();
 }
 
 ReosMeshRenderer_p::ReosMeshRenderer_p( QGraphicsView *canvas, QgsMeshLayer *layer )

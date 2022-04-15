@@ -170,8 +170,12 @@ QgsMesh3dDataBlock ReosMeshDataProvider_p::dataset3dValues( QgsMeshDatasetIndex,
 QgsMeshDataBlock ReosMeshDataProvider_p::areFacesActive( QgsMeshDatasetIndex index, int valueIndex, int count ) const
 {
   QgsMeshDataBlock ret( QgsMeshDataBlock::ActiveFlagInteger, count );
-  ret.setValid( true );
   QVector<int> values = mDatasetSource->activeFaces( index.dataset() );
+
+  if ( values.isEmpty() )
+    return ret;
+
+  ret.setValid( true );
   QVector<int> buffer;
   if ( valueIndex == 0 && count == values.count() )
   {

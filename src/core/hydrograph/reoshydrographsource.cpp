@@ -260,8 +260,6 @@ void ReosHydrographJunction::encodeData( ReosEncodedElement &element, const Reos
 bool ReosHydrographJunction::updateInternalHydrographCalculationContext( const ReosCalculationContext & )
 {
   return updateInternalHydrograph();
-//  mInternalHydrographUpdated = true;
-//  return false;
 }
 
 
@@ -475,9 +473,8 @@ void ReosHydrographJunction::restoreConfiguration( ReosHydraulicScheme *scheme )
     }
   }
 
-  int origin = 0;
+  int origin = static_cast<int>( mInternalHydrographOrigin );
   encodedElement.getData( QStringLiteral( "hydrograph-origin" ), origin );
-
   mInternalHydrographOrigin = static_cast<InternalHydrographOrigin>( origin );
 
   emit dataChanged();

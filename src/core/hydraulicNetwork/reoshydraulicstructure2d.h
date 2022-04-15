@@ -69,6 +69,8 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     //! Deactivate any activated scalar dataset
     void deactivateMeshScalar();
 
+    ReosProcess *prepareSimulation();
+
     //! Starts the current simulation, return true if the calculation is effectivly started
     ReosSimulationProcess *startSimulation();
     ReosSimulationProcess *currentProcess() const;
@@ -86,6 +88,9 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     ReosRoughnessStructure *roughnessStructure() const;
 
     QDir structureDirectory();
+
+    //! Returns all the boundary condition of this stucture
+    QList<ReosHydraulicStructureBoundaryCondition *> boundaryConditions() const;
 
     void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydraulicStructureBoundaryCondition *boundaryCondition, bool upstreamWillChange ) {}
     bool updateCalculationContextFromDownstream( const ReosCalculationContext &context ) {}
@@ -141,7 +146,9 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     QList<ReosHydraulicSimulation *> mSimulations;
     int mCurrentSimulationIndex = -1;
 
-    std::unique_ptr<ReosSimulationProcess> mSimulationProcess;
+    std::unique_ptr<ReosSimulationProcess> mCurrentProcess;
+    bool mIsBoundaryConditionReady = false;
+    bool mBoundarySinceStartingSimulation = false;
 
     ReosHydraulicSimulationResults *mSimulationResults = nullptr;
     QString mCurrentActivatedMeshDataset;

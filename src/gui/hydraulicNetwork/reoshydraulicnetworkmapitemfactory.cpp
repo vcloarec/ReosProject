@@ -191,8 +191,7 @@ static void selectStructure2D( ReosHydraulicNetworkElement *elem, ReosMapItem *i
   ReosHydraulicStructure2D *str2D = qobject_cast<ReosHydraulicStructure2D *>( elem );
   if ( str2D && item )
   {
-    qDebug() << str2D->hasResults();
-    if ( str2D->hasResults() )
+    if ( str2D->mesh()->vertexCount() > 0 && str2D->mesh()->datasetIds().count() > 0 )
       static_cast<ReosMapPolygon *>( item )->setFillStyle( Qt::NoBrush );
     else
       static_cast<ReosMapPolygon *>( item )->setFillStyle( Qt::DiagCrossPattern );
@@ -203,7 +202,7 @@ static void unselectStructure2D( ReosHydraulicNetworkElement *, ReosMapItem *ite
 {
   if ( item )
   {
-    item->setColor( QColor( 250, 175, 100 ) );
+    item->setColor( QColor( 0, 155, 242 ) );
     static_cast<ReosMapPolygon *>( item )->setFillStyle( Qt::DiagCrossPattern );
   }
 }

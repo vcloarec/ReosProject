@@ -57,7 +57,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
 
   mMesh.reset( ReosMesh::createMeshFrameFromFile( structureDirectory().path() ) );
   init();
-  //mMesh->setMeshSymbology( encodedElement.getEncodedData( QStringLiteral( "mesh-frame-symbology" ) ) );
+
   mMesh->setQualityMeshParameter( encodedElement.getEncodedData( QStringLiteral( "mesh-quality-parameters" ) ) );
 
   encodedElement.getData( QStringLiteral( "boundaries-vertices" ), mBoundaryVertices );
@@ -81,6 +81,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
     if ( sim )
       mSimulations.append( sim );
   }
+
   encodedElement.getData( QStringLiteral( "current-simulation-index" ), mCurrentSimulationIndex );
   if ( mCurrentSimulationIndex >= mSimulations.count() )
     mCurrentSimulationIndex = mSimulations.count() - 1;
@@ -149,7 +150,7 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
 
 bool ReosHydraulicStructure2D::isSimulationInProgress() const
 {
-  return ( mSimulationProcess && !mSimulationProcess->isFinished() ) ;
+  return ( mCurrentProcess && !mCurrentProcess->isFinished() ) ;
 }
 
 ReosRoughnessStructure *ReosHydraulicStructure2D::roughnessStructure() const
@@ -160,6 +161,16 @@ ReosRoughnessStructure *ReosHydraulicStructure2D::roughnessStructure() const
 QDir ReosHydraulicStructure2D::structureDirectory()
 {
   return QDir( mHydraulicNetworkContext.projectPath() + '/' + mHydraulicNetworkContext.projectName() + QStringLiteral( "-hydr-struct" ) + '/' + directory() );
+}
+
+QList<ReosHydraulicStructureBoundaryCondition *> ReosHydraulicStructure2D::boundaryConditions() const
+{
+  QList<ReosHydraulicStructureBoundaryCondition *> ret;
+  const QStringList boundaryIdList = mPolylinesStructures->classes();
+  for ( const QString &bcId : boundaryIdList )
+    ret.append( boundaryConditionNetWorkElement( bcId ) );
+
+  return ret;
 }
 
 ReosHydraulicSimulation *ReosHydraulicStructure2D::currentSimulation() const
@@ -206,20 +217,19 @@ bool ReosHydraulicStructure2D::addSimulation( const QString key )
 
 void ReosHydraulicStructure2D::updateCalculationContext( const ReosCalculationContext &context )
 {
-  const QStringList boundaryIdList = mPolylinesStructures->classes();
-  for ( const QString &bcId : boundaryIdList )
+  QList<ReosHydraulicStructureBoundaryCondition *> boundaries = boundaryConditions();
+  for ( ReosHydraulicStructureBoundaryCondition *bc : boundaries )
   {
-    ReosHydraulicStructureBoundaryCondition *bc = boundaryConditionNetWorkElement( bcId );
     if ( bc )
     {
       switch ( bc->conditionType() )
       {
         case ReosHydraulicStructureBoundaryCondition::Type::InputFlow:
-          break;
           bc->updateCalculationContextFromDownstream( context );
-        case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
           break;
+        case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
           bc->updateCalculationContextFromUpstream( context, nullptr, true );
+          break;
       }
     }
   }
@@ -228,6 +238,11 @@ void ReosHydraulicStructure2D::updateCalculationContext( const ReosCalculationCo
   {
     loadResult( currentSimulation(), context );
     activateResultDatasetGroup();
+  }
+  else
+  {
+    activateResultDatasetGroup( mTerrainDatasetId );
+    emit simulationResultChanged();
   }
 }
 
@@ -303,23 +318,33 @@ QString ReosHydraulicStructure2D::meshDatasetName( const QString &id ) const
   return mMesh->datasetName( id );
 }
 
+
+ReosProcess *ReosHydraulicStructure2D::prepareSimulation()
+{
+  if ( !currentSimulation() )
+    return nullptr;
+  ReosCalculationContext context = mNetWork->calculationContext();
+
+  return new ReosSimulationPreparationProcess( this, currentSimulation(), context );
+
+}
+
+
 ReosSimulationProcess *ReosHydraulicStructure2D::startSimulation()
 {
-  if ( mSimulationProcess || !currentSimulation() )
+  if ( mCurrentProcess || !currentSimulation() )
     return nullptr;
 
   QPointer<ReosHydraulicSimulation> sim = currentSimulation();
 
   ReosCalculationContext context = mNetWork->calculationContext();
-  sim->prepareInput( this, context );
-  mSimulationProcess.reset( sim->getProcess( this, context ) );
+  mCurrentProcess.reset( sim->getProcess( this, context ) );
 
-  connect( mSimulationProcess.get(), &ReosSimulationProcess::sendInformation, this, &ReosHydraulicStructure2D::onMessageFromSolverReceived );
-
-  connect( mSimulationProcess.get(), &ReosProcess::finished, sim, [this, sim, context]
+  connect( mCurrentProcess.get(), &ReosSimulationProcess::sendInformation, this, &ReosHydraulicStructure2D::onMessageFromSolverReceived );
+  connect( mCurrentProcess.get(), &ReosProcess::finished, sim, [this, sim, context]
   {
-    mSimulationProcess->deleteLater();
-    mSimulationProcess.release();
+    mCurrentProcess->deleteLater();
+    mCurrentProcess.release();
     if ( !sim.isNull() )
       onSimulationFinished( sim, context );
   } );
@@ -331,14 +356,14 @@ ReosSimulationProcess *ReosHydraulicStructure2D::startSimulation()
 
   emit simulationResultChanged();
 
-  mSimulationProcess->startOnOtherThread();
+  mCurrentProcess->startOnOtherThread();
 
-  return mSimulationProcess.get();
+  return mCurrentProcess.get();
 }
 
 ReosSimulationProcess *ReosHydraulicStructure2D::currentProcess() const
 {
-  return mSimulationProcess.get();
+  return mCurrentProcess.get();
 }
 
 void ReosHydraulicStructure2D::init()

@@ -60,6 +60,10 @@ class ReosEditHydraulicStructure2DWidget : public ReosStackedPageWidget
     void onMeshOptionListChanged( int row );
     void generateMesh();
 
+  protected:
+    void showEvent( QShowEvent *e );
+    void hideEvent( QHideEvent *e );
+
   private:
     Ui::ReosEditStructure2DWidget *ui;
     ReosMap *mMap = nullptr;
@@ -67,6 +71,7 @@ class ReosEditHydraulicStructure2DWidget : public ReosStackedPageWidget
     ReosMapPolylineStructure mMapStructureItem;
     ReosMapItem *mInitialMapStructureItem = nullptr;
     ReosEditMeshElementWidget *mEditElementWidget = nullptr;
+    bool mIsWireFrameActiveBefore = false;
 };
 
 

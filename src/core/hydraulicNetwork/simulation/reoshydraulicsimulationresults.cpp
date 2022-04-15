@@ -25,11 +25,17 @@ ReosHydraulicSimulationResults::ReosHydraulicSimulationResults( const ReosHydrau
 
 QString ReosHydraulicSimulationResults::groupId( int groupIndex ) const
 {
+  if ( groupIndex < 0 || groupIndex >= groupCount() )
+    return QString();
+
   return mSimulationId + ':' + groupName( groupIndex );
 }
 
 QString ReosHydraulicSimulationResults::groupName( int groupIndex ) const
 {
+  if ( groupIndex < 0 || groupIndex >= groupCount() )
+    return QString();
+
   DatasetType dt = datasetType( groupIndex );
 
   switch ( dt )
@@ -48,6 +54,9 @@ QString ReosHydraulicSimulationResults::groupName( int groupIndex ) const
 
 bool ReosHydraulicSimulationResults::groupIsScalar( int groupIndex ) const
 {
+  if ( groupIndex < 0 || groupIndex >= groupCount() )
+    return true;
+
   DatasetType dt = datasetType( groupIndex );
 
   switch ( dt )

@@ -170,6 +170,7 @@ class ReosMesh: public ReosRenderedObject
     virtual void setDatasetScalarGroupSymbology( const ReosEncodedElement &encodedElement, const QString &id ) = 0;
 
     virtual void activateWireFrame( bool activate ) = 0;
+    virtual bool isWireFrameActive() const = 0;
 
     virtual WireFrameSettings wireFrameSettings() const = 0 ;
 

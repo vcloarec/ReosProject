@@ -19,6 +19,7 @@
 #include "reosdataobject.h"
 
 #include "reosprocess.h"
+#include "reoscalculationcontext.h"
 
 class QProcess;
 class QFile;
@@ -28,10 +29,39 @@ class ReosHydraulicStructure2D;
 class ReosParameterDateTime;
 class ReosParameterDuration;
 class ReosParameterInteger;
-class ReosCalculationContext;
 class ReosHydraulicStructureBoundaryCondition;
 class ReosSimulationInitialConditions;
 class ReosHydraulicSimulationResults;
+class ReosHydraulicSimulation;
+
+
+class ReosSimulationPreparationProcess: public ReosProcess
+{
+    Q_OBJECT
+  public:
+
+    ReosSimulationPreparationProcess( ReosHydraulicStructure2D *hydraulicStructure,
+                                      ReosHydraulicSimulation *simulation,
+                                      const ReosCalculationContext &context );
+
+    void start() override;
+
+  signals:
+    void allBoundariesUpdated();
+
+  private slots:
+    void onBoundaryUpdated( const QString &id );
+  private:
+    QPointer<ReosHydraulicStructure2D> mStructure;
+    QPointer<ReosHydraulicSimulation> mSimulation;
+    ReosCalculationContext mContext;
+
+    QStringList mWaitedBoundaryId;
+    int mBoundaryCount;
+
+};
+
+
 
 class ReosSimulationProcess : public ReosProcess
 {

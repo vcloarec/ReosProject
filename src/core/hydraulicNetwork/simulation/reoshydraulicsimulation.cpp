@@ -129,3 +129,68 @@ void ReosSimulationEngineRegistery::loadDynamicLibrary()
   }
 }
 
+
+ReosSimulationPreparationProcess::ReosSimulationPreparationProcess( ReosHydraulicStructure2D *hydraulicStructure, ReosHydraulicSimulation *simulation, const ReosCalculationContext &context )
+  : mStructure( hydraulicStructure )
+  , mSimulation( simulation )
+  , mContext( context )
+{}
+
+void ReosSimulationPreparationProcess::start()
+{
+  emit sendInformation( tr( "Get boundary counditions", nullptr, mWaitedBoundaryId.count() ) );
+
+  if ( mStructure.isNull() || mSimulation.isNull() )
+    return;
+  QList<ReosHydraulicStructureBoundaryCondition *> boundaries = mStructure->boundaryConditions();
+  mBoundaryCount = boundaries.count();
+  setMaxProgression( mBoundaryCount );
+  setCurrentProgression( 0 );
+  for ( ReosHydraulicStructureBoundaryCondition *bc : boundaries )
+  {
+    if ( bc )
+    {
+      switch ( bc->conditionType() )
+      {
+        case ReosHydraulicStructureBoundaryCondition::Type::InputFlow:
+          mWaitedBoundaryId.append( bc->id() );
+          connect( bc, &ReosHydraulicNetworkElement::calculationIsUpdated, this, &ReosSimulationPreparationProcess::onBoundaryUpdated );
+          if ( !bc->updateCalculationContextFromDownstream( mContext ) )
+          {
+            mWaitedBoundaryId.removeOne( bc->id() );
+            disconnect( bc, &ReosHydraulicNetworkElement::calculationIsUpdated, this, &ReosSimulationPreparationProcess::onBoundaryUpdated );
+          }
+          break;
+        case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
+          bc->updateCalculationContextFromUpstream( mContext, nullptr, true );
+          break;
+      }
+    }
+  }
+
+  QEventLoop *eventLoop = new QEventLoop;
+  connect( this, &ReosSimulationPreparationProcess::allBoundariesUpdated, eventLoop, &QEventLoop::quit );
+  emit sendInformation( tr( "Wait for %n boundary condition", nullptr, mWaitedBoundaryId.count() ) );
+  setCurrentProgression( mBoundaryCount - mWaitedBoundaryId.count() );
+
+  if ( !mWaitedBoundaryId.isEmpty() )
+    eventLoop->exec();
+
+  eventLoop->deleteLater();
+
+  mSimulation->prepareInput( mStructure, mContext );
+
+}
+
+void ReosSimulationPreparationProcess::onBoundaryUpdated( const QString &id )
+{
+  if ( mWaitedBoundaryId.contains( id ) )
+  {
+    mWaitedBoundaryId.removeOne( id );
+    emit sendInformation( tr( "Wait for %n boundary condition", nullptr, mWaitedBoundaryId.count() ) );
+    setCurrentProgression( mBoundaryCount - mWaitedBoundaryId.count() );
+
+    if ( mWaitedBoundaryId.isEmpty() )
+      emit allBoundariesUpdated();
+  }
+}

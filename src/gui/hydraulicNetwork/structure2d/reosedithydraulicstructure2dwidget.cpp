@@ -43,8 +43,6 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
 {
   ui->setupUi( this );
 
-  structure2D->mesh()->activateWireFrame( true );
-
   QToolBar *propertiesToolBar = new QToolBar( this );
   propertiesToolBar->layout()->setContentsMargins( 0, 0, 0, 0 );
   ui->mPropertiesToolBarLayout->addWidget( propertiesToolBar );
@@ -88,8 +86,6 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
   ui->pageSimulation->layout()->addWidget( mSimulationWidget );
 
   mInitialMapStructureItem = context.mapItems( ReosHydraulicStructure2D::staticType() );
-  if ( mInitialMapStructureItem )
-    mInitialMapStructureItem->setVisible( false );
 
   connect( structure2D->geometryStructure(), &ReosDataObject::dataChanged, this, [this]
   {
@@ -103,14 +99,13 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
 
   ReosSettings settings;
   ui->mOptionListWidget->setCurrentRow( settings.value( QStringLiteral( "/hydraulic-structure/edit-widget/current-row" ) ).toInt() );
+
+  mIsWireFrameActiveBefore = mStructure2D->mesh()->isWireFrameActive();
 }
 
 ReosEditHydraulicStructure2DWidget::~ReosEditHydraulicStructure2DWidget()
 {
   delete ui;
-  mStructure2D->mesh()->activateWireFrame( false );
-  if ( mInitialMapStructureItem )
-    mInitialMapStructureItem->setVisible( true );
 }
 
 void ReosEditHydraulicStructure2DWidget::onMeshOptionListChanged( int row )
@@ -157,6 +152,26 @@ void ReosEditHydraulicStructure2DWidget::generateMesh()
   ReosProcessControler *controler = new ReosProcessControler( generatorProcess.get(), this );
   controler->exec();
   controler->deleteLater();
+}
+
+void ReosEditHydraulicStructure2DWidget::showEvent( QShowEvent *e )
+{
+  if ( mInitialMapStructureItem )
+    mInitialMapStructureItem->setVisible( false );
+
+  mStructure2D->mesh()->activateWireFrame( true );
+
+  ReosStackedPageWidget::showEvent( e );
+}
+
+void ReosEditHydraulicStructure2DWidget::hideEvent( QHideEvent *e )
+{
+  if ( mInitialMapStructureItem )
+    mInitialMapStructureItem->setVisible( true );
+
+  mStructure2D->mesh()->activateWireFrame( mIsWireFrameActiveBefore );
+
+  ReosStackedPageWidget::hideEvent( e );
 }
 
 

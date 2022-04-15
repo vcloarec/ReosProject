@@ -20,6 +20,7 @@
 #include <QToolBar>
 #include <QToolButton>
 #include <QMenu>
+#include <QTimer>
 
 #include <3d/qgs3dmapcanvas.h>
 #include <qgsmeshterraingenerator.h>
@@ -160,6 +161,16 @@ void Reos3dView::setTerrainSettings( const Reos3DTerrainSettings &settings )
 Reos3dView::~Reos3dView()
 {
   delete ui;
+  // in QGIS, update of terrain is done be recreating a new terrain when mesh change
+  // this creation is defered by a QTimer::singleShot, to happen once back in the main loop
+  // The problem is that some closing widget lead to change the terrain settings, so the creation
+  // of new terrain happens when the 3D view is already deleted and leads to crash the application
+  // The workaround is to defered also the destruction of the 3D map,
+  //  so the destruction will happen after terrain creation
+
+  mCanvas->setParent( nullptr );
+  QTimer::singleShot( 0, mCanvas, &QObject::deleteLater );
+
 }
 
 void Reos3dView::addMesh( ReosMesh *mesh )
