@@ -27,6 +27,7 @@
 
 class Reos3dView;
 class ReosColorButton;
+class ReosVariableTimeStepPlotListButton;
 
 namespace Ui
 {
@@ -47,6 +48,7 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
     void requestMapRefresh();
     void onLaunchCalculation();
     void updateDatasetMenu();
+    void populateHydrograph();
 
   private:
     Ui::ReosHydraulicStructure2DProperties *ui;
@@ -60,6 +62,7 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
     QPointer<Reos3dView> mView3D;
     ReosGuiContext mGuiContext;
     ReosCalculationContext mCalculationContext;
+    ReosVariableTimeStepPlotListButton *mInputHydrographPlotButton = nullptr;
 };
 
 

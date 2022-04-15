@@ -57,6 +57,7 @@ class ReosHydraulicStructureBoundaryCondition : public ReosHydrographJunction
     void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *upstreamLink, bool upstreamWillChange ) override;
     virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
     void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
+    QString outputPrefixName() const override;
 
     QString boundaryConditionId() const;
 

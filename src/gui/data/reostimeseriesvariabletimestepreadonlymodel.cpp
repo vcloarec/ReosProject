@@ -345,11 +345,9 @@ ReosTimeSeriesVariableTimeStepReadOnlyTablesView::ReosTimeSeriesVariableTimeStep
 
   QHBoxLayout *tableLayout = new QHBoxLayout;
   tableLayout->setContentsMargins( 0, 0, 0, 0 );
-  tableLayout->addSpacerItem( new QSpacerItem( 20, 0, QSizePolicy::Preferred ) );
 
   mView = new ReosTimeSeriesVariableTimeStepReadOnlyTableView( this );
   tableLayout->addWidget( mView );
-  tableLayout->addSpacerItem( new QSpacerItem( 20, 0, QSizePolicy::Preferred ) );
   tableLayout->setStretch( 0, 1 );
   tableLayout->setStretch( 2, 1 );
   mainLayout->addItem( tableLayout );

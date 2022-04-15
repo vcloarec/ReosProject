@@ -58,7 +58,7 @@ class ReosPositiveMagnifier : public ReosNormalMagnifier
     virtual void rescale( double factor ) override;
 
   private:
-    bool mIsYMinEnabeled;
+    bool mIsYMinEnabeled = true;
 };
 
 

@@ -66,7 +66,6 @@ ReosHydraulicHydrographJunctionPropertiesWidget::ReosHydraulicHydrographJunction
   else
     mGaugedHydrographPlotButton->setChecked( false );
 
-
   ReosFormWidget *nodeFormWidget = ReosFormWidgetFactories::instance()->createDataFormWidget( junctionNode, context );
   if ( nodeFormWidget )
   {
@@ -166,7 +165,7 @@ void ReosHydraulicHydrographJunctionPropertiesWidget::updateGaugedHydrograph()
   else
     gaugedHyd = mJunctionNode->gaugedHydrographsStore()->hydrographsForTimeRange( timeExent.first, timeExent.second );
 
-  for ( ReosHydrograph *hyd : gaugedHyd )
+  for ( ReosHydrograph *hyd : std::as_const( gaugedHyd ) )
   {
     if ( mJunctionNode->internalHydrographOrigin() != ReosHydrographJunction::GaugedHydrograph || hyd != mJunctionNode->internalHydrograph() )
     {

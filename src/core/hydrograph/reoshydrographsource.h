@@ -195,6 +195,8 @@ class REOSCORE_EXPORT ReosHydrographJunction : public ReosHydrographSource
 
     ReosHydrographsStore *gaugedHydrographsStore() const;
 
+    virtual QString outputPrefixName() const;
+
   signals:
     //! Emitted when the internal hydrograph pointer change
     void internalHydrographPointerChange();

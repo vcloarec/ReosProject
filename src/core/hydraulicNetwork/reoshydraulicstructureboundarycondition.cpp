@@ -162,6 +162,22 @@ void ReosHydraulicStructureBoundaryCondition::restoreConfiguration( ReosHydrauli
   ReosHydrographJunction::restoreConfiguration( scheme );
 }
 
+QString ReosHydraulicStructureBoundaryCondition::outputPrefixName() const
+{
+  switch ( conditionType() )
+  {
+    case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
+      break;
+    case ReosHydraulicStructureBoundaryCondition::Type::InputFlow:
+      return tr( "Input flow" );
+      break;
+    case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
+      break;
+  }
+
+  return QString();
+}
+
 QString ReosHydraulicStructureBoundaryCondition::boundaryConditionId() const
 {
   return mBoundaryConditionId;

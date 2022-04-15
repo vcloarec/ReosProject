@@ -21,51 +21,107 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,1">
-     <property name="leftMargin">
-      <number>0</number>
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
-     <item>
-      <layout class="QGridLayout" name="gridLayout_2">
-       <property name="bottomMargin">
-        <number>10</number>
+     <widget class="QWidget" name="">
+      <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,1">
+       <property name="leftMargin">
+        <number>0</number>
        </property>
-       <item row="0" column="0">
-        <layout class="QHBoxLayout" name="mToolBoxLayout"/>
+       <item>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item row="0" column="0">
+          <layout class="QHBoxLayout" name="mToolBoxLayout"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QWidget" name="mModelInformationWidget" native="true"/>
+         </item>
+        </layout>
        </item>
-       <item row="1" column="0">
-        <widget class="QWidget" name="mModelInformationWidget" native="true"/>
+       <item>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>Calculation Information</string>
+         </property>
+        </widget>
        </item>
       </layout>
-     </item>
-     <item>
-      <widget class="QGroupBox" name="groupBox">
-       <property name="title">
-        <string>Calculation Information</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <widget class="QTabWidget" name="tabWidget">
-     <property name="tabPosition">
-      <enum>QTabWidget::West</enum>
-     </property>
-     <widget class="QWidget" name="tab">
-      <attribute name="title">
-       <string>Tab 1</string>
-      </attribute>
      </widget>
-     <widget class="QWidget" name="tab_2">
-      <attribute name="title">
-       <string>Tab 2</string>
-      </attribute>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="tabPosition">
+       <enum>QTabWidget::West</enum>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Plots</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <property name="leftMargin">
+         <number>5</number>
+        </property>
+        <property name="topMargin">
+         <number>5</number>
+        </property>
+        <property name="rightMargin">
+         <number>5</number>
+        </property>
+        <property name="bottomMargin">
+         <number>5</number>
+        </property>
+        <item>
+         <widget class="ReosPlotWidget" name="mPlotWidget" native="true"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Tables</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="ReosTimeSeriesVariableTimeStepReadOnlyTablesView" name="mHydrographTables" native="true"/>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ReosPlotWidget</class>
+   <extends>QWidget</extends>
+   <header>reosplotwidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ReosTimeSeriesVariableTimeStepReadOnlyTablesView</class>
+   <extends>QWidget</extends>
+   <header>reostimeseriesvariabletimestepreadonlymodel.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

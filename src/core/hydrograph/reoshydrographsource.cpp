@@ -159,10 +159,10 @@ ReosHydrographJunction::ReosHydrographJunction( const ReosEncodedElement &encode
 
 void ReosHydrographJunction::init()
 {
-  mOutputHydrograph->setName( tr( "Output of %1" ).arg( elementName()->value() ) );
+  mOutputHydrograph->setName( outputPrefixName() + QStringLiteral( " %1" ).arg( elementName()->value() ) );
   connect( elementName(), &ReosParameterString::valueChanged, mOutputHydrograph, [this]
   {
-    mOutputHydrograph->setName( tr( "Output of %1" ).arg( elementName()->value() ) );
+    mOutputHydrograph->setName( outputPrefixName() + QStringLiteral( " %1" ).arg( elementName()->value() ) );
   } );
 
   connect( this, &ReosHydraulicNode::dataChanged, this, [this]
@@ -440,6 +440,11 @@ void ReosHydrographJunction::onTimeStepChange()
 ReosHydrographsStore *ReosHydrographJunction::gaugedHydrographsStore() const
 {
   return mHydrographsStore;
+}
+
+QString ReosHydrographJunction::outputPrefixName() const
+{
+  return tr( "Output of" );
 }
 
 void ReosHydrographJunction::saveConfiguration( ReosHydraulicScheme *scheme ) const
