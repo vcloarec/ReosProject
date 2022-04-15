@@ -148,11 +148,6 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
   element.addEncodedData( "3d-map-setings", m3dMapSettings.encode() );
 }
 
-bool ReosHydraulicStructure2D::isSimulationInProgress() const
-{
-  return ( mCurrentProcess && !mCurrentProcess->isFinished() ) ;
-}
-
 ReosRoughnessStructure *ReosHydraulicStructure2D::roughnessStructure() const
 {
   return mRoughnessStructure.get();
@@ -269,11 +264,13 @@ void ReosHydraulicStructure2D::setTerrain3DSettings( const Reos3DTerrainSettings
 void ReosHydraulicStructure2D::onBoundaryConditionAdded( const QString &bid )
 {
   mNetWork->addElement( new ReosHydraulicStructureBoundaryCondition( this, bid, mNetWork->context() ) );
+  emit boundaryChanged();
 }
 
 void ReosHydraulicStructure2D::onBoundaryConditionRemoved( const QString &bid )
 {
   mNetWork->removeElement( boundaryConditionNetWorkElement( bid ) );
+  emit boundaryChanged();
 }
 
 void ReosHydraulicStructure2D::onGeometryStructureChange()
@@ -319,7 +316,7 @@ QString ReosHydraulicStructure2D::meshDatasetName( const QString &id ) const
 }
 
 
-ReosProcess *ReosHydraulicStructure2D::prepareSimulation()
+ReosProcess *ReosHydraulicStructure2D::getPreparationProcessSimulation()
 {
   if ( !currentSimulation() )
     return nullptr;
@@ -361,7 +358,7 @@ ReosSimulationProcess *ReosHydraulicStructure2D::startSimulation()
   return mCurrentProcess.get();
 }
 
-ReosSimulationProcess *ReosHydraulicStructure2D::currentProcess() const
+ReosSimulationProcess *ReosHydraulicStructure2D::currentSimulationProcess() const
 {
   return mCurrentProcess.get();
 }

@@ -107,6 +107,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
     mInputHydrographPlotButton->setChecked( true );
 
   populateHydrograph();
+  connect( mStructure2D, &ReosHydraulicStructure2D::boundaryChanged, this, &ReosHydraulicStructure2DProperties::populateHydrograph );
 }
 
 ReosHydraulicStructure2DProperties::~ReosHydraulicStructure2DProperties()
@@ -134,11 +135,11 @@ void ReosHydraulicStructure2DProperties::requestMapRefresh()
 
 void ReosHydraulicStructure2DProperties::onLaunchCalculation()
 {
-  if ( !mStructure2D->currentProcess() )
+  if ( !mStructure2D->currentSimulationProcess() )
   {
     mActionEditStructure->setEnabled( false );
 
-    std::unique_ptr<ReosProcess> preparationProcess( mStructure2D->prepareSimulation() );
+    std::unique_ptr<ReosProcess> preparationProcess( mStructure2D->getPreparationProcessSimulation() );
     ReosProcessControler *controler = new ReosProcessControler( preparationProcess.get(), this );
     controler->exec();
 
@@ -148,7 +149,7 @@ void ReosHydraulicStructure2DProperties::onLaunchCalculation()
       connect( process, &ReosProcess::finished, mActionEditStructure, [this] {mActionEditStructure->setEnabled( true );} );
   }
 
-  emit stackedPageWidgetOpened( new ReosHydraulicSimulationConsole( mStructure2D->currentProcess(), mGuiContext ) );
+  emit stackedPageWidgetOpened( new ReosHydraulicSimulationConsole( mStructure2D->currentSimulationProcess(), mGuiContext ) );
 }
 
 void ReosHydraulicStructure2DProperties::updateDatasetMenu()

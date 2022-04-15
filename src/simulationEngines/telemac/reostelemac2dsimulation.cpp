@@ -809,8 +809,7 @@ void ReosTelemac2DSimulationProcess::onStopAsked()
 void ReosTelemac2DSimulationProcess::addToOutput( const QString &txt )
 {
   mStandartOutputBuffer.append( txt );
-  QRegularExpressionMatch match;
-  match = mRegEx.match( mStandartOutputBuffer );
+  QRegularExpressionMatch match = mRegEx.match( mStandartOutputBuffer );
   QString message;
 
   if ( mIsPreparation )
