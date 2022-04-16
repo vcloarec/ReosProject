@@ -63,6 +63,7 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
     ReosGuiContext mGuiContext;
     ReosCalculationContext mCalculationContext;
     ReosVariableTimeStepPlotListButton *mInputHydrographPlotButton = nullptr;
+    ReosVariableTimeStepPlotListButton *mOutputHydrographPlotButton = nullptr;
 };
 
 

@@ -56,6 +56,9 @@ class ReosHydraulicScheme : public ReosDataObject
     //! Restores the encoded configuration of the element \a elementId, if not exist, creates empty one for the element
     ReosEncodedElement restoreElementConfig( const QString &elementId );
 
+    QString type() const override {return staticType();}
+    static QString staticType() {return QStringLiteral( "scheme" );}
+
   private:
     ReosHydraulicScheme( const ReosEncodedElement &element, ReosHydraulicSchemeCollection *collection, const ReosHydraulicNetworkContext &context );
 

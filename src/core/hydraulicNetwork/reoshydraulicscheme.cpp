@@ -46,6 +46,8 @@ ReosHydraulicScheme::ReosHydraulicScheme( const ReosEncodedElement &element, Reo
   }
 
   element.getData( QStringLiteral( "elements-config" ), mElementsConfig );
+
+  ReosDataObject::decode( element );
 }
 
 ReosMeteorologicModel *ReosHydraulicScheme::meteoModel() const
@@ -100,6 +102,8 @@ ReosEncodedElement ReosHydraulicScheme::encode() const
   element.addData( QStringLiteral( "meteo-model-id" ), mMeteoModel->id() );
 
   element.addData( QStringLiteral( "elements-config" ), mElementsConfig );
+
+  ReosDataObject::encode( element );
 
   return element;
 }

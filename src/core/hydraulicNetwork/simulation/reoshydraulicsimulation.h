@@ -24,6 +24,7 @@
 class QProcess;
 class QFile;
 class QTextStream;
+class QDir;
 
 class ReosHydraulicStructure2D;
 class ReosParameterDateTime;
@@ -69,6 +70,9 @@ class ReosSimulationProcess : public ReosProcess
   public:
     ReosSimulationProcess() = default;
 
+  signals:
+    void sendBoundaryFlow( const QDateTime &time, const QStringList &boundaryIds, const QList<double> &values );
+
 };
 
 class ReosHydraulicSimulation : public ReosDataObject
@@ -88,6 +92,8 @@ class ReosHydraulicSimulation : public ReosDataObject
 
     virtual bool hasResult( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const = 0;
     virtual ReosHydraulicSimulationResults *createResults( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const = 0;
+
+    QDir simulationDir( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &context ) const;
 
   protected:
 

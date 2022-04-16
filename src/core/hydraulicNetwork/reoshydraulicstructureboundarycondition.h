@@ -103,7 +103,10 @@ class ReosHydraulicStructureBoundaryCondition : public ReosHydrographJunction
     ReosParameterDouble *mConstantWaterLevel = nullptr;
     int mWaterLevelSeriesIndex = -1;
     //**
+
     void init();
+
+    void loadHydrographResult( const ReosCalculationContext &calculationContext );
 };
 
 class ReosHydraulicStructureBoundaryConditionFactory : public ReosHydraulicNetworkElementFactory

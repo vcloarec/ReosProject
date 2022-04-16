@@ -166,6 +166,7 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     void onBoundaryConditionRemoved( const QString &bid );
     void onGeometryStructureChange();
     void onMessageFromSolverReceived( const QString &message );
+    void onFlowsFromSolverReceived( const QDateTime &time, const QStringList &boundId, const QList<double> &values );
 
   private:
     ReosHydraulicStructure2D( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );

@@ -46,6 +46,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
 
   mGuiContext.addAction( mAction3DView );
 
+  mActionEditStructure->setEnabled( mStructure2D->currentSimulationProcess() == nullptr );
   connect( mActionEditStructure, &QAction::triggered, this, [this]
   {
     emit stackedPageWidgetOpened( new ReosEditHydraulicStructure2DWidget( mStructure2D, mGuiContext ) );
@@ -100,11 +101,18 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   ui->mPlotWidget->setTitleAxeYLeft( tr( "Flow rate (%1)" ).arg( QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
 
   mInputHydrographPlotButton = new ReosVariableTimeStepPlotListButton( tr( "Input hydrographs" ), ui->mPlotWidget );
+  mOutputHydrographPlotButton = new ReosVariableTimeStepPlotListButton( tr( "Output hydrographs" ), ui->mPlotWidget );
   ReosSettings settings;
   if ( settings.contains( settingsString ) )
+  {
     mInputHydrographPlotButton->setChecked( settings.value( settingsString + QStringLiteral( "/Input-hydrograph-button-checked" ) ).toBool() );
+    mOutputHydrographPlotButton->setChecked( settings.value( settingsString + QStringLiteral( "/Output-hydrograph-button-checked" ) ).toBool() );
+  }
   else
+  {
     mInputHydrographPlotButton->setChecked( true );
+    mOutputHydrographPlotButton->setChecked( true );
+  }
 
   populateHydrograph();
   connect( mStructure2D, &ReosHydraulicStructure2D::boundaryChanged, this, &ReosHydraulicStructure2DProperties::populateHydrograph );
@@ -200,21 +208,19 @@ void ReosHydraulicStructure2DProperties::populateHydrograph()
 
   for ( ReosHydraulicStructureBoundaryCondition *boundary : boundaries )
   {
+    ReosTimeSerieVariableTimeStep *hyd = boundary->outputHydrograph();
     switch ( boundary->conditionType() )
     {
       case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
         break;
       case ReosHydraulicStructureBoundaryCondition::Type::InputFlow:
-        tsList.append( boundary->outputHydrograph() );
+        mInputHydrographPlotButton->addData( hyd );
         break;
       case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
+        mOutputHydrographPlotButton->addData( hyd );
         break;
     }
   }
-
-  for ( ReosTimeSerieVariableTimeStep *hyd : std::as_const( tsList ) )
-    mInputHydrographPlotButton->addData( hyd );
-
   ui->mHydrographTables->setSeries( tsList, QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) );
 }
 

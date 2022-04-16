@@ -57,6 +57,11 @@ void ReosHydraulicStructureBoundaryCondition::init()
   connect( mConstantWaterLevel, &ReosParameter::valueChanged, this, &ReosHydraulicStructureBoundaryCondition::dataChanged );
 }
 
+void ReosHydraulicStructureBoundaryCondition::loadHydrographResult( const ReosCalculationContext &calculationContext )
+{
+  mOutputHydrograph->clear();
+}
+
 void ReosHydraulicStructureBoundaryCondition::encodeData( ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context ) const
 {
   encodedElement.addData( QStringLiteral( "boundary-condition-id" ), mBoundaryConditionId );
@@ -111,6 +116,8 @@ void ReosHydraulicStructureBoundaryCondition::updateCalculationContextFromUpstre
       mStructure->updateCalculationContextFromUpstream( context, this, upstreamWillChange );
       break;
     case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
+      mOutputHydrograph->clear();
+      mOutputHydrograph->setReferenceTime( context.simulationStartTime() );
       break;
   }
 }
@@ -169,9 +176,10 @@ QString ReosHydraulicStructureBoundaryCondition::outputPrefixName() const
     case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
       break;
     case ReosHydraulicStructureBoundaryCondition::Type::InputFlow:
-      return tr( "Input flow" );
+      return tr( "Input flow from" );
       break;
     case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
+      return tr( "Output flow to" );
       break;
   }
 

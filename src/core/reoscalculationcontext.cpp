@@ -52,3 +52,13 @@ void ReosCalculationContext::setSimulationEndTime(const QDateTime &simulationEnd
 {
     mSimulationEndTime = simulationEndTime;
 }
+
+QString ReosCalculationContext::schemeId() const
+{
+    return mSchemeId;
+}
+
+void ReosCalculationContext::setSchemeId(const QString &schemeId)
+{
+    mSchemeId = schemeId;
+}

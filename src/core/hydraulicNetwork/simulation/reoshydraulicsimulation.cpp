@@ -33,6 +33,25 @@ ReosHydraulicSimulation::ReosHydraulicSimulation( QObject *parent ): ReosDataObj
 {
 }
 
+QDir ReosHydraulicSimulation::simulationDir( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &context ) const
+{
+  QDir dir = hydraulicStructure->structureDirectory();
+  if ( !dir.cd( context.schemeId() ) )
+  {
+    dir.mkdir( context.schemeId() );
+    if ( !dir.cd( context.schemeId() ) )
+      return QDir();
+  }
+
+  if ( !dir.cd( mDirName ) )
+  {
+    dir.mkdir( mDirName );
+    if ( !dir.cd( mDirName ) )
+      return QDir();
+  }
+
+  return dir;
+}
 
 ReosSimulationEngineRegistery *ReosSimulationEngineRegistery::sInstance = nullptr;
 

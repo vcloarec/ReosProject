@@ -284,6 +284,17 @@ void ReosHydraulicStructure2D::onMessageFromSolverReceived( const QString &messa
   emit simulationTextAdded( message );
 }
 
+void ReosHydraulicStructure2D::onFlowsFromSolverReceived( const QDateTime &time, const QStringList &boundId, const QList<double> &values )
+{
+  for ( int i = 0; i < boundId.count(); ++i )
+  {
+    const QString &bId = boundId.at( i );
+    ReosHydraulicStructureBoundaryCondition *bound = boundaryConditionNetWorkElement( bId );
+    if ( bound )
+      bound->outputHydrograph()->setValue( time, values.at( i ) );
+  }
+}
+
 ReosTopographyCollection *ReosHydraulicStructure2D::topographyCollecion() const
 {
   return mTopographyCollecion;
@@ -323,7 +334,6 @@ ReosProcess *ReosHydraulicStructure2D::getPreparationProcessSimulation()
   ReosCalculationContext context = mNetWork->calculationContext();
 
   return new ReosSimulationPreparationProcess( this, currentSimulation(), context );
-
 }
 
 
@@ -338,6 +348,7 @@ ReosSimulationProcess *ReosHydraulicStructure2D::startSimulation()
   mCurrentProcess.reset( sim->getProcess( this, context ) );
 
   connect( mCurrentProcess.get(), &ReosSimulationProcess::sendInformation, this, &ReosHydraulicStructure2D::onMessageFromSolverReceived );
+  connect( mCurrentProcess.get(), &ReosSimulationProcess::sendBoundaryFlow, this, &ReosHydraulicStructure2D::onFlowsFromSolverReceived );
   connect( mCurrentProcess.get(), &ReosProcess::finished, sim, [this, sim, context]
   {
     mCurrentProcess->deleteLater();
