@@ -57,6 +57,11 @@ void ReosHydraulicStructureBoundaryCondition::init()
   connect( mConstantWaterLevel, &ReosParameter::valueChanged, this, &ReosHydraulicStructureBoundaryCondition::dataChanged );
 }
 
+void ReosHydraulicStructureBoundaryCondition::syncHydrographName()
+{
+  mOutputHydrograph->setName( outputPrefixName() + QStringLiteral( " %1" ).arg( elementName()->value() ) );
+}
+
 void ReosHydraulicStructureBoundaryCondition::loadHydrographResult( const ReosCalculationContext &calculationContext )
 {
   mOutputHydrograph->clear();
@@ -116,8 +121,6 @@ void ReosHydraulicStructureBoundaryCondition::updateCalculationContextFromUpstre
       mStructure->updateCalculationContextFromUpstream( context, this, upstreamWillChange );
       break;
     case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
-      mOutputHydrograph->clear();
-      mOutputHydrograph->setReferenceTime( context.simulationStartTime() );
       break;
   }
 }
@@ -167,6 +170,8 @@ void ReosHydraulicStructureBoundaryCondition::restoreConfiguration( ReosHydrauli
     }
 
   ReosHydrographJunction::restoreConfiguration( scheme );
+
+  syncHydrographName();
 }
 
 QString ReosHydraulicStructureBoundaryCondition::outputPrefixName() const
@@ -200,7 +205,7 @@ void ReosHydraulicStructureBoundaryCondition::attachStructure( ReosHydraulicStru
 
 ReosHydraulicStructureBoundaryCondition::Type ReosHydraulicStructureBoundaryCondition::conditionType() const
 {
-  switch ( connetionState() )
+  switch ( connectionState() )
   {
     case ReosHydraulicStructureBoundaryCondition::ConnectionState::NotConnected:
       return mDefaultConditionType;
@@ -216,7 +221,7 @@ ReosHydraulicStructureBoundaryCondition::Type ReosHydraulicStructureBoundaryCond
   return mDefaultConditionType;
 }
 
-ReosHydraulicStructureBoundaryCondition::ConnectionState ReosHydraulicStructureBoundaryCondition::connetionState() const
+ReosHydraulicStructureBoundaryCondition::ConnectionState ReosHydraulicStructureBoundaryCondition::connectionState() const
 {
   if ( !linksBySide2().isEmpty() )
     return ConnectionState::ConnectedToDownstreamLink;
@@ -297,6 +302,7 @@ void ReosHydraulicStructureBoundaryCondition::setDefaultConditionType( const Reo
       break;
   }
 
+  syncHydrographName();
   emit dataChanged();
 }
 

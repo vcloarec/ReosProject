@@ -101,10 +101,10 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     QStringList simulationNames() const;
 
     //! Returns a process that prepare the current simulation, caller take ownership
-    ReosProcess *getPreparationProcessSimulation();
+    ReosProcess *getPreparationProcessSimulation( const ReosCalculationContext &context );
 
     //! Starts the current simulation, return true if the calculation is effectivly started and returns a pointer to the process
-    ReosSimulationProcess *startSimulation();
+    ReosSimulationProcess *startSimulation( const ReosCalculationContext &context );
 
     //! Returns  a pointer to the current simulation process
     ReosSimulationProcess *currentSimulationProcess() const;

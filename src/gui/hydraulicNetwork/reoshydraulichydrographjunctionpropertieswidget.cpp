@@ -396,7 +396,7 @@ ReosFormWidget *ReosFormJunctionBoundaryConditionWidgetFactory::createDataWidget
   if ( !boundary )
     return nullptr;
 
-  switch ( boundary->connetionState() )
+  switch ( boundary->connectionState() )
   {
     case ReosHydraulicStructureBoundaryCondition::ConnectionState::NotConnected:
       return new ReosFormJunctionBoundaryConditionWidget( boundary, context );

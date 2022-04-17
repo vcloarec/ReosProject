@@ -182,6 +182,8 @@ void ReosSimulationPreparationProcess::start()
           break;
         case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
           bc->updateCalculationContextFromUpstream( mContext, nullptr, true );
+          bc->outputHydrograph()->clear();
+          bc->outputHydrograph()->setReferenceTime( mContext.simulationStartTime() );
           break;
       }
     }

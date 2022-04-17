@@ -65,7 +65,7 @@ class ReosHydraulicStructureBoundaryCondition : public ReosHydrographJunction
 
     Type conditionType() const;
 
-    ConnectionState connetionState() const;
+    ConnectionState connectionState() const;
 
     ReosHydraulicStructureBoundaryCondition::Type defaultConditionType() const;
     void setDefaultConditionType( const ReosHydraulicStructureBoundaryCondition::Type &defaultConditionType );
@@ -105,7 +105,7 @@ class ReosHydraulicStructureBoundaryCondition : public ReosHydrographJunction
     //**
 
     void init();
-
+    void syncHydrographName();
     void loadHydrographResult( const ReosCalculationContext &calculationContext );
 };
 

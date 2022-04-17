@@ -327,24 +327,22 @@ QString ReosHydraulicStructure2D::meshDatasetName( const QString &id ) const
 }
 
 
-ReosProcess *ReosHydraulicStructure2D::getPreparationProcessSimulation()
+ReosProcess *ReosHydraulicStructure2D::getPreparationProcessSimulation( const ReosCalculationContext &context )
 {
   if ( !currentSimulation() )
     return nullptr;
-  ReosCalculationContext context = mNetWork->calculationContext();
 
   return new ReosSimulationPreparationProcess( this, currentSimulation(), context );
 }
 
 
-ReosSimulationProcess *ReosHydraulicStructure2D::startSimulation()
+ReosSimulationProcess *ReosHydraulicStructure2D::startSimulation( const ReosCalculationContext &context )
 {
   if ( mCurrentProcess || !currentSimulation() )
     return nullptr;
 
   QPointer<ReosHydraulicSimulation> sim = currentSimulation();
 
-  ReosCalculationContext context = mNetWork->calculationContext();
   mCurrentProcess.reset( sim->getProcess( this, context ) );
 
   connect( mCurrentProcess.get(), &ReosSimulationProcess::sendInformation, this, &ReosHydraulicStructure2D::onMessageFromSolverReceived );

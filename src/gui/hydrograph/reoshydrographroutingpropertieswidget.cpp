@@ -83,6 +83,7 @@ ReosHydrographRoutingPropertiesWidget::ReosHydrographRoutingPropertiesWidget( Re
     settings.setValue( QStringLiteral( "hydraulic-network-properties-widget/table-visible" ), ui->mTabWidget->currentIndex() == 1 );
   } );
 
+  ui->mTablesWidget->setConstantTimeStepParameter( hydrographRouting->constantTimeStepInTable(), hydrographRouting->useConstantTimeStepInTable() );
   populateHydrographs();
 
   connect( mRouting, &ReosHydrographJunction::calculationIsUpdated, this, &ReosHydrographRoutingPropertiesWidget::updateInformation );
