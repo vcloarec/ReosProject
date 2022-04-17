@@ -130,6 +130,12 @@ void ReosMapTool_p::activate()
 void ReosMapTool_p::deactivate()
 {
   QgsMapTool::deactivate();
+  if ( mFoundItem )
+  {
+    mFoundItem->isHovered = false;
+    mFoundItem->update();
+    mFoundItem = nullptr;
+  }
 }
 
 

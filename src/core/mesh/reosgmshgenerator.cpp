@@ -154,19 +154,21 @@ ReosMeshFrameData ReosGmshEngine::generateMesh(
 
     int boundVertCount = data.boundaryPointCount;
 
-    std::vector<int> internalLines( data.internalLines.count() );
-    for ( int i = 0; i < data.internalLines.count() ; ++i )
-    {
-      const QVector<int> &dataLine = data.internalLines.at( i );
-      gmsh::model::geo::addLine( dataLine.at( 0 ) + 1, dataLine.at( 1 ) + 1, boundVertCount + i + 1 );
-      internalLines[i] = boundVertCount + i + 1;
-    }
-
     std::vector<int> externalBoundary;
     for ( int i = 0; i < data.boundaryPointCount ; ++i )
     {
       gmsh::model::geo::addLine( i + 1, ( i + 1 ) % boundVertCount + 1, i + 1 );
       externalBoundary.push_back( i + 1 );
+    }
+
+    int internalLineStartIndex = boundVertCount;
+
+    std::vector<int> internalLines( data.internalLines.count() );
+    for ( int i = 0; i < data.internalLines.count() ; ++i )
+    {
+      const QVector<int> &dataLine = data.internalLines.at( i );
+      gmsh::model::geo::addLine( dataLine.at( 0 ) + 1, dataLine.at( 1 ) + 1, internalLineStartIndex + i + 1 );
+      internalLines[i] = internalLineStartIndex + i + 1;
     }
 
     gmsh::model::geo::addCurveLoop( externalBoundary, 1 );
@@ -186,6 +188,7 @@ ReosMeshFrameData ReosGmshEngine::generateMesh(
     gmsh::model::geo::addPlaneSurface( surfaces, 1 );
 
     gmsh::model::geo::synchronize();
+
     gmsh::model::mesh::embed( 1, internalLines, 2, 1 );
 
     gmsh::option::setNumber( "Mesh.Algorithm", alg + 1 );
@@ -284,26 +287,18 @@ ReosMeshFrameData ReosGmshEngine::generateMesh(
       QVector<QVector<int>> holeVertices;
       for ( int i = 0; i < holeInternalLines.count(); ++i )
       {
-        QVector<int> vertexTagBound;
-        int lineTag = holeInternalLines.at( i ) + boundVertCount + 1;
-        //get the first vertex of the line (dim=0)
-        gmsh::model::mesh::getNodes( nodeBoundTags, coordBound, parametricCoordBound, 0, lineTag, false, true );
-        Q_ASSERT( nodeBoundTags.size() == 1 );
-        vertexTagBound.append( tagToVertexIndex.value( nodeBoundTags.at( 0 ) ) );
-        // get the other vertex tags on the line
-        gmsh::model::mesh::getNodes( nodeBoundTags, coordBound, parametricCoordBound, 1, lineTag, false, true );
+        int lineTag = internalLines.at( holeInternalLines.at( i ) ); // + internalLineStartIndex + 1;
+        gmsh::model::mesh::getNodes( nodeBoundTags, coordBound, parametricCoordBound, 1, lineTag, true, true );
 
-        int iniSize = vertexTagBound.count();
-        vertexTagBound.resize( iniSize + nodeBoundTags.size() );
-        for ( size_t nt = 0; nt < nodeBoundTags.size(); ++nt )
-          vertexTagBound[iniSize + nt] =  tagToVertexIndex.value( nodeBoundTags.at( nt ) );
+        QVector<int> lineVertices( nodeBoundTags.size() - 1 );
+        for ( size_t nt = 0; nt < nodeBoundTags.size() - 1; ++nt )
+          lineVertices[nt] =  tagToVertexIndex.value( nodeBoundTags.at( nt ) );
 
-        holeVertices.append( vertexTagBound );
+        holeVertices.append( lineVertices );
       }
 
       result.holesVertices.append( holeVertices );
     }
-
   }
   catch ( ... )
   {

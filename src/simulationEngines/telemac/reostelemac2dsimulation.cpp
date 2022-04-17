@@ -318,6 +318,72 @@ QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemac2DSimulation::create
     verticesPosInBoundary[bound.vertIndex - 1] = i + 1;
   }
 
+  //holes
+  const QVector<QVector<QVector<int>>> &holesVertices = hydraulicStructure->holesVertices();
+
+  int fileIndex = boundCount + 1;
+  for ( const QVector<QVector<int>> &holeVertices : holesVertices )
+  {
+    int lineCount = holeVertices.count();
+    // first find the vertex with minimum X
+    double minX = std::numeric_limits<double>::max();
+    double minY = std::numeric_limits<double>::max();
+    int minIndex = -1;
+    for ( int i = 0; i < lineCount; ++i )
+    {
+      if ( holeVertices.at( i ).isEmpty() )
+        continue;
+
+      QPointF vert = rmesh->vertexPosition( holeVertices.at( i ).at( 0 ) );
+
+      if ( vert.x() < minX ||
+           ( vert.x() == minX && vert.y() < minY ) )
+      {
+        minX = vert.x();
+        minX = vert.y();
+        minIndex = i;
+      }
+    }
+
+    const QPointF vert = rmesh->vertexPosition( holeVertices.at( minIndex ).at( 0 ) );
+    const QPointF vertPrev = rmesh->vertexPosition( holeVertices.at( ( minIndex - 1 + lineCount ) % lineCount ).last() );
+    QPointF vertNext;
+    if ( holeVertices.at( minIndex ).count() > 1 )
+      vertNext = rmesh->vertexPosition( holeVertices.at( minIndex ).at( 1 ) );
+    else
+      vertNext = rmesh->vertexPosition( holeVertices.at( ( minIndex + 1 ) % lineCount ).at( 0 ) );
+
+    const QPointF vectPrev = vertPrev - vert;
+    const QPointF vectNext = vertNext - vert;
+
+    double crossProduct = vectPrev.x() * vectNext.y() - vectNext.x() * vectPrev.y();
+
+    bool invertDirection = crossProduct < 0;
+
+    QVector<int> telemacHole;
+    for ( int i = 0; i < lineCount; ++i )
+    {
+      const QVector<int> line = holeVertices.at( i );
+      for ( int vertInd : line )
+        telemacHole.append( vertInd + 1 );
+    }
+
+    if ( invertDirection )
+    {
+      for ( int i = 0; i < telemacHole.count() / 2; ++i )
+        std::swap( telemacHole[i], telemacHole[telemacHole.count() - 1 - i] );
+    }
+
+    for ( int i = 0; i < telemacHole.count(); ++i )
+    {
+      stream << templateLine.arg( QString::number( 2 ), QString::number( 2 ), QString::number( 2 ),
+                                  QString::number( 2 ), QString::number( telemacHole.at( i ) ), QString::number( fileIndex ) );
+
+      verticesPosInBoundary[telemacHole.at( i ) - 1] = fileIndex;
+      fileIndex++;
+    }
+  }
+
   return ret;
 }
 

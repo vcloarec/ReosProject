@@ -73,6 +73,9 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     //! Returns the boundary vertices of the structure
     QVector<BoundaryVertices> boundaryVertices() const;
 
+    //! Returns the vertices of the holes classidfied per holes and per lines
+    QVector<QVector<QVector<int> > > holesVertices() const;
+
     //! Returns the topography collection
     ReosTopographyCollection *topographyCollecion() const;
 

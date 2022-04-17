@@ -208,6 +208,8 @@ bool LekanMainWindow::saveProject()
 
 void LekanMainWindow::clearProject()
 {
+  mDockHydraulicNetwork->closePropertieWidget();
+
   if ( mGisEngine )
     mGisEngine->clearProject();
 

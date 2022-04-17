@@ -168,6 +168,7 @@ Reos3dView::~Reos3dView()
   // The workaround is to defered also the destruction of the 3D map,
   //  so the destruction will happen after terrain creation
 
+  mCanvas->map()->setLayers( QList<QgsMapLayer *>() );
   mCanvas->setParent( nullptr );
   QTimer::singleShot( 0, mCanvas, &QObject::deleteLater );
 

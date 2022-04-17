@@ -98,6 +98,11 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   mMesh->activateDataset( mCurrentActivatedMeshDataset );
 }
 
+QVector<QVector<QVector<int> > > ReosHydraulicStructure2D::holesVertices() const
+{
+  return mHolesVertices;
+}
+
 QString ReosHydraulicStructure2D::currentActivatedMeshDataset() const
 {
   return mCurrentActivatedMeshDataset;

@@ -59,6 +59,8 @@ class ReosHydraulicNetworkWidget : public QWidget
                                          const ReosGuiContext &context );
     ~ReosHydraulicNetworkWidget();
 
+    void closePropertiesWidget();
+
   private slots:
     void onElementAdded( ReosHydraulicNetworkElement *elem, bool select );
     void onElementRemoved( ReosHydraulicNetworkElement *elem );
@@ -127,6 +129,11 @@ class REOSGUI_EXPORT ReosHydraulicNetworkDockWidget: public ReosDockWidget
     ReosHydraulicNetworkDockWidget( ReosHydraulicNetwork *network,
                                     ReosWatershedModule *watershedModule,
                                     const ReosGuiContext &context );
+
+    void closePropertieWidget();
+
+  private:
+    ReosHydraulicNetworkWidget *mHydraulicNetworkWidget = nullptr;
 };
 
 

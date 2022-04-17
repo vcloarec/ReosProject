@@ -135,6 +135,12 @@ ReosHydraulicNetworkWidget::~ReosHydraulicNetworkWidget()
   delete ui;
 }
 
+void ReosHydraulicNetworkWidget::closePropertiesWidget()
+{
+  mElementPropertiesWidget->setCurrentElement( nullptr, createContext() );
+  mElementPropertiesWidget->close();
+}
+
 void ReosHydraulicNetworkWidget::onElementAdded( ReosHydraulicNetworkElement *elem, bool select )
 {
   NetworkItem item;
@@ -340,5 +346,11 @@ ReosHydraulicElementWidget::ReosHydraulicElementWidget( QWidget *parent ):  QWid
 ReosHydraulicNetworkDockWidget::ReosHydraulicNetworkDockWidget( ReosHydraulicNetwork *network, ReosWatershedModule *watershedModule, const ReosGuiContext &context )
   : ReosDockWidget( tr( "Hydraulic Network" ), context.parent() )
 {
-  setWidget( new ReosHydraulicNetworkWidget( network, watershedModule, ReosGuiContext( context, this ) ) );
+  mHydraulicNetworkWidget = new ReosHydraulicNetworkWidget( network, watershedModule, ReosGuiContext( context, this ) );
+  setWidget( mHydraulicNetworkWidget );
+}
+
+void ReosHydraulicNetworkDockWidget::closePropertieWidget()
+{
+  mHydraulicNetworkWidget->closePropertiesWidget();
 }

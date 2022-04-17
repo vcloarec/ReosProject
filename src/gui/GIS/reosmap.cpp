@@ -467,6 +467,7 @@ QDockWidget *ReosMap::temporalControllerDockWidget()
 
 void ReosMap::initialize()
 {
+  setDefaultMapTool();
   mExtraRenderedObjects.clear();
 
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
