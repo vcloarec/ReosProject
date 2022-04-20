@@ -83,26 +83,22 @@ class ReosHydraulicSimulation : public ReosDataObject
 
     virtual QString directoryName() const = 0;
 
-    virtual void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &context ) = 0;
+    virtual void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) = 0;
 
     virtual ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const = 0;
 
     virtual QString key() const = 0;
     virtual ReosEncodedElement encode() const = 0;
 
-    virtual bool hasResult( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const = 0;
-    virtual ReosHydraulicSimulationResults *createResults( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const = 0;
+    virtual void saveSimulationResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const = 0;
+    virtual ReosHydraulicSimulationResults *loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const = 0;
 
-    QDir simulationDir( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &context ) const;
+    virtual bool hasResult( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const = 0;
 
-  protected:
+    QDir simulationDir( const ReosHydraulicStructure2D *hydraulicStructure, const QString &schemeId ) const;
 
-    QString mDirName = QStringLiteral( "TELEMAC_simulation" );
-    QString mGeomFileName = QStringLiteral( "geom_input.slf" );
-    QString mResultFileName = QStringLiteral( "result.slf" );
-    QString mBoundaryFileName = QStringLiteral( "boundary.bc" );
-    QString mBoundaryConditionFileName = QStringLiteral( "boundaryCondition.sql" );
-    QString mSteeringFileName = QStringLiteral( "simulation.cas" );
+    virtual QString engineName() const = 0;
+
 };
 
 

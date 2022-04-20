@@ -121,6 +121,7 @@ void ReosHydraulicStructureBoundaryCondition::updateCalculationContextFromUpstre
       mStructure->updateCalculationContextFromUpstream( context, this, upstreamWillChange );
       break;
     case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
+    case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
       break;
   }
 }

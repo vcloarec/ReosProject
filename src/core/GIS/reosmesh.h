@@ -151,6 +151,9 @@ class ReosMesh: public ReosRenderedObject
     //! Returns an index correspondng to the dataset group with \a id
     virtual int datasetGroupIndex( const QString &id ) const = 0;
 
+    //! Returns whether the mesh has a dataset group with \a id
+    virtual bool hasDatasetGroupIndex( const QString &id ) const = 0;
+
     //! Returns a process that apply the topography collection on the mesh, caller take ownership
     virtual ReosProcess *applyTopographyOnVertices( ReosTopographyCollection *topographyCollection ) = 0;
 

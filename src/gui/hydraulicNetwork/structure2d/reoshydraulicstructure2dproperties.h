@@ -44,11 +44,15 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
 
     void setCurrentCalculationContext( const ReosCalculationContext &context ) override;
 
+  public slots:
+    void updateProgress();
+
   private slots:
     void requestMapRefresh();
     void onLaunchCalculation();
     void updateDatasetMenu();
     void populateHydrograph();
+    void onSimulationFinished();
 
   private:
     Ui::ReosHydraulicStructure2DProperties *ui;
@@ -64,6 +68,9 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
     ReosCalculationContext mCalculationContext;
     ReosVariableTimeStepPlotListButton *mInputHydrographPlotButton = nullptr;
     ReosVariableTimeStepPlotListButton *mOutputHydrographPlotButton = nullptr;
+
+    QPointer<ReosSimulationProcess> mCurrentProcess;
+    void setCurrentSimulationProcess( ReosSimulationProcess *process, const ReosCalculationContext &context );
 };
 
 

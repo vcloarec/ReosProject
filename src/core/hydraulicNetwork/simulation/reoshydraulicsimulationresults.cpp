@@ -40,6 +40,8 @@ QString ReosHydraulicSimulationResults::groupName( int groupIndex ) const
 
   switch ( dt )
   {
+    case ReosHydraulicSimulationResults::DatasetType::None:
+      return QStringLiteral( "(None)" );
     case ReosHydraulicSimulationResults::DatasetType::WaterLevel:
       return tr( "Water level" );
       break;

@@ -27,6 +27,7 @@ class ReosParameterString;
 class ReosMeteorologicModel;
 class ReosHydraulicSchemeCollection;
 class ReosHydraulicNetworkContext;
+class ReosCalculationContext;
 
 /**
  * \brief ReosHydraulicScheme is a clas that represent a scheme of hydraulic simulation.
@@ -59,6 +60,8 @@ class ReosHydraulicScheme : public ReosDataObject
     QString type() const override {return staticType();}
     static QString staticType() {return QStringLiteral( "scheme" );}
 
+    ReosCalculationContext calculationContext() const;
+
   private:
     ReosHydraulicScheme( const ReosEncodedElement &element, ReosHydraulicSchemeCollection *collection, const ReosHydraulicNetworkContext &context );
 
@@ -68,6 +71,8 @@ class ReosHydraulicScheme : public ReosDataObject
     ReosParameterDateTime *mEndTime = nullptr;
 
     QHash<QString, QByteArray> mElementsConfig;
+
+    void init();
 };
 
 

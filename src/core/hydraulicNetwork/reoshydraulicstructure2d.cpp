@@ -22,16 +22,18 @@
 #include "reoshydraulicsimulation.h"
 #include "reoscalculationcontext.h"
 #include "reoshydraulicsimulationresults.h"
+#include "reoshydraulicscheme.h"
 
 #include <QProcess>
 #include <QDir>
+#include <QDebug>
 
 ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, const ReosHydraulicNetworkContext &context )
   : ReosHydraulicNetworkElement( context.network() )
   , mMeshGenerator( new ReosGmshGenerator( this ) )
   , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( domain, crs ) )
   , mMeshResolutionController( new ReosMeshResolutionController( this, crs ) )
-  , mTopographyCollecion( ReosTopographyCollection::createTopographyCollection( context.network()->getGisEngine(), this ) )
+  , mTopographyCollection( ReosTopographyCollection::createTopographyCollection( context.network()->getGisEngine(), this ) )
   , mMesh( ReosMesh::createMeshFrame( crs ) )
   , mRoughnessStructure( new ReosRoughnessStructure( crs ) )
   , mHydraulicNetworkContext( context )
@@ -45,7 +47,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   : ReosHydraulicNetworkElement( encodedElement, context.network() )
   , mMeshGenerator( ReosMeshGenerator::createMeshGenerator( encodedElement.getEncodedData( QStringLiteral( "mesh-generator" ) ), this ) )
   , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( encodedElement.getEncodedData( QStringLiteral( "structure" ) ) ) )
-  , mTopographyCollecion( ReosTopographyCollection::createTopographyCollection( encodedElement.getEncodedData( QStringLiteral( "topography-collection" ) ), context.network()->getGisEngine(), this ) )
+  , mTopographyCollection( ReosTopographyCollection::createTopographyCollection( encodedElement.getEncodedData( QStringLiteral( "topography-collection" ) ), context.network()->getGisEngine(), this ) )
   , mRoughnessStructure( new ReosRoughnessStructure( encodedElement.getEncodedData( QStringLiteral( "roughness-structure" ) ) ) )
   , m3dMapSettings( encodedElement.getEncodedData( "3d-map-setings" ) )
   , mHydraulicNetworkContext( context )
@@ -94,8 +96,9 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   for ( int type :  typeKeys )
     mResultScalarDatasetSymbologies.insert( static_cast<ResultType>( type ), resultSymbol.value( type ) );
 
-  encodedElement.getData( QStringLiteral( "current-mesh-dataset-id" ), mCurrentActivatedMeshDataset );
-  mMesh->activateDataset( mCurrentActivatedMeshDataset );
+  QString currentActivatedMeshDataset;
+  encodedElement.getData( QStringLiteral( "current-mesh-dataset-id" ), currentActivatedMeshDataset );
+  mMesh->activateDataset( currentActivatedMeshDataset );
 }
 
 QVector<QVector<QVector<int> > > ReosHydraulicStructure2D::holesVertices() const
@@ -105,12 +108,25 @@ QVector<QVector<QVector<int> > > ReosHydraulicStructure2D::holesVertices() const
 
 QString ReosHydraulicStructure2D::currentActivatedMeshDataset() const
 {
-  return mCurrentActivatedMeshDataset;
+  return mMesh->currentdScalarDatasetId();
 }
 
-bool ReosHydraulicStructure2D::hasResults() const
+ReosHydraulicSimulationResults::DatasetType ReosHydraulicStructure2D::currentActivatedDatasetResultType() const
 {
-  return ( mSimulationResults && mSimulationResults->groupCount() > 0 );
+  const QString currentDatasetId =  mMesh->currentdScalarDatasetId();
+  for ( ReosHydraulicSimulationResults *results : mSimulationResults )
+  {
+    if ( results )
+    {
+      for ( int ri = 0; ri < results->groupCount(); ri++ )
+      {
+        if ( results->groupId( ri ) == currentDatasetId )
+          return results->datasetType( ri );
+      }
+    }
+  }
+
+  return ReosHydraulicSimulationResults::DatasetType::None;
 }
 
 void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const
@@ -118,7 +134,7 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
   element.addEncodedData( QStringLiteral( "structure" ), mPolylinesStructures->encode() );
   element.addEncodedData( QStringLiteral( "mesh-generator" ), mMeshGenerator->encode() );
   element.addEncodedData( QStringLiteral( "mesh-resolution-controller" ), mMeshResolutionController->encode() );
-  element.addEncodedData( QStringLiteral( "topography-collection" ), mTopographyCollecion->encode() );
+  element.addEncodedData( QStringLiteral( "topography-collection" ), mTopographyCollection->encode() );
 
   QDir dir( context.projectPath() );
   QString hydDir = context.projectName() + QStringLiteral( "-hydr-struct" );
@@ -140,9 +156,9 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
   element.addListEncodedData( QStringLiteral( "simulations" ), encodedSimulations );
   element.addData( QStringLiteral( "current-simulation-index" ), mCurrentSimulationIndex );
 
-  element.addData( QStringLiteral( "current-mesh-dataset-id" ), mCurrentActivatedMeshDataset );
+  element.addData( QStringLiteral( "current-mesh-dataset-id" ), mMesh->currentdScalarDatasetId() );
 
-  getSymbologiesFromMesh();
+  getSymbologiesFromMesh( context.network()->calculationContext().schemeId() );
   element.addData( QStringLiteral( "terrain-symbology" ), mTerrainSymbology );
   const QList<ResultType> typeKeys = mResultScalarDatasetSymbologies.keys();
   QMap<int, QByteArray> resultSymbol;
@@ -158,7 +174,7 @@ ReosRoughnessStructure *ReosHydraulicStructure2D::roughnessStructure() const
   return mRoughnessStructure.get();
 }
 
-QDir ReosHydraulicStructure2D::structureDirectory()
+QDir ReosHydraulicStructure2D::structureDirectory() const
 {
   return QDir( mHydraulicNetworkContext.projectPath() + '/' + mHydraulicNetworkContext.projectName() + QStringLiteral( "-hydr-struct" ) + '/' + directory() );
 }
@@ -200,6 +216,7 @@ QStringList ReosHydraulicStructure2D::simulationNames() const
 void ReosHydraulicStructure2D::setCurrentSimulation( int index )
 {
   mCurrentSimulationIndex = index;
+  emit currentSimulationChanged();
 }
 
 bool ReosHydraulicStructure2D::addSimulation( const QString key )
@@ -232,17 +249,6 @@ void ReosHydraulicStructure2D::updateCalculationContext( const ReosCalculationCo
           break;
       }
     }
-  }
-
-  if ( currentSimulation() && currentSimulation()->hasResult( this, context ) )
-  {
-    loadResult( currentSimulation(), context );
-    activateResultDatasetGroup();
-  }
-  else
-  {
-    activateResultDatasetGroup( mTerrainDatasetId );
-    emit simulationResultChanged();
   }
 }
 
@@ -284,11 +290,6 @@ void ReosHydraulicStructure2D::onGeometryStructureChange()
   mHolesVertices.clear();
 }
 
-void ReosHydraulicStructure2D::onMessageFromSolverReceived( const QString &message )
-{
-  emit simulationTextAdded( message );
-}
-
 void ReosHydraulicStructure2D::onFlowsFromSolverReceived( const QDateTime &time, const QStringList &boundId, const QList<double> &values )
 {
   for ( int i = 0; i < boundId.count(); ++i )
@@ -302,7 +303,7 @@ void ReosHydraulicStructure2D::onFlowsFromSolverReceived( const QDateTime &time,
 
 ReosTopographyCollection *ReosHydraulicStructure2D::topographyCollecion() const
 {
-  return mTopographyCollecion;
+  return mTopographyCollection;
 }
 
 QString ReosHydraulicStructure2D::terrainMeshDatasetId() const
@@ -312,13 +313,12 @@ QString ReosHydraulicStructure2D::terrainMeshDatasetId() const
 
 void ReosHydraulicStructure2D::activateResultDatasetGroup( const QString &id )
 {
-  QString effId = id;
-  if ( effId.isEmpty() )
-    effId = mCurrentActivatedMeshDataset;
-  else
-    mCurrentActivatedMeshDataset = id;
+  mMesh->activateDataset( id );
+}
 
-  mMesh->activateDataset( effId );
+void ReosHydraulicStructure2D::activateResultDatasetGroup( ReosHydraulicSimulationResults::DatasetType datasetType )
+{
+
 }
 
 QStringList ReosHydraulicStructure2D::meshDatasetIds() const
@@ -331,7 +331,6 @@ QString ReosHydraulicStructure2D::meshDatasetName( const QString &id ) const
   return mMesh->datasetName( id );
 }
 
-
 ReosProcess *ReosHydraulicStructure2D::getPreparationProcessSimulation( const ReosCalculationContext &context )
 {
   if ( !currentSimulation() )
@@ -340,41 +339,57 @@ ReosProcess *ReosHydraulicStructure2D::getPreparationProcessSimulation( const Re
   return new ReosSimulationPreparationProcess( this, currentSimulation(), context );
 }
 
-
 ReosSimulationProcess *ReosHydraulicStructure2D::startSimulation( const ReosCalculationContext &context )
 {
-  if ( mCurrentProcess || !currentSimulation() )
+  if ( !currentSimulation() )
+    return nullptr;
+
+  QString schemeId = context.schemeId();
+
+  if ( processFromScheme( context.schemeId() ) )
     return nullptr;
 
   QPointer<ReosHydraulicSimulation> sim = currentSimulation();
 
-  mCurrentProcess.reset( sim->getProcess( this, context ) );
+  ReosSimulationProcess *process = mSimulationProcesses.emplace( schemeId, sim->getProcess( this, context ) ).first->second.get();
 
-  connect( mCurrentProcess.get(), &ReosSimulationProcess::sendInformation, this, &ReosHydraulicStructure2D::onMessageFromSolverReceived );
-  connect( mCurrentProcess.get(), &ReosSimulationProcess::sendBoundaryFlow, this, &ReosHydraulicStructure2D::onFlowsFromSolverReceived );
-  connect( mCurrentProcess.get(), &ReosProcess::finished, sim, [this, sim, context]
+  connect( process, &ReosProcess::finished, sim, [this, sim, schemeId]
   {
-    mCurrentProcess->deleteLater();
-    mCurrentProcess.release();
-    if ( !sim.isNull() )
-      onSimulationFinished( sim, context );
+    mSimulationProcesses.erase( mSimulationProcesses.find( schemeId ) );
+    onSimulationFinished( sim, schemeId );
   } );
 
-  if ( mSimulationResults )
-    mSimulationResults->deleteLater();
-  mSimulationResults = nullptr;
+  //Store the current symbology per data type
+  getSymbologiesFromMesh( schemeId );
   mMesh->setSimulationResults( nullptr );
-
   emit simulationResultChanged();
 
-  mCurrentProcess->startOnOtherThread();
+  process->startOnOtherThread();
 
-  return mCurrentProcess.get();
+  return process;
 }
 
-ReosSimulationProcess *ReosHydraulicStructure2D::currentSimulationProcess() const
+ReosSimulationProcess *ReosHydraulicStructure2D::simulationProcess( const ReosCalculationContext &context ) const
 {
-  return mCurrentProcess.get();
+  return processFromScheme( context.schemeId() );
+}
+
+bool ReosHydraulicStructure2D::hasSimulationRunning() const
+{
+  return !mSimulationProcesses.empty();
+}
+
+bool ReosHydraulicStructure2D::hasResult( const ReosCalculationContext &context )
+{
+  return mSimulationResults.contains( context.schemeId() );
+}
+
+QDateTime ReosHydraulicStructure2D::resultDateTime( const ReosCalculationContext &context )
+{
+  if ( mSimulationResults.contains( context.schemeId() ) )
+    return mSimulationResults.value( context.schemeId() )->runDateTime();
+  else
+    return QDateTime();
 }
 
 void ReosHydraulicStructure2D::init()
@@ -403,10 +418,10 @@ void ReosHydraulicStructure2D::init()
       generateMeshInPlace();
   } );
 
-  connect( this, &ReosHydraulicStructure2D::meshGenerated, mTopographyCollecion, [this]
+  connect( this, &ReosHydraulicStructure2D::meshGenerated, mTopographyCollection, [this]
   {
-    if ( mTopographyCollecion->autoApply()->value() )
-      mMesh->applyTopographyOnVertices( mTopographyCollecion );
+    if ( mTopographyCollection->autoApply()->value() )
+      mMesh->applyTopographyOnVertices( mTopographyCollection );
   } );
 }
 
@@ -510,78 +525,133 @@ void ReosHydraulicStructure2D::onMeshGenerated( const ReosMeshFrameData &meshDat
   emit dataChanged();
 }
 
-void ReosHydraulicStructure2D::getSymbologiesFromMesh() const
+void ReosHydraulicStructure2D::getSymbologiesFromMesh( const QString &schemeId ) const
 {
-  if ( !mSimulationResults )
-    return;
-
   mTerrainSymbology = mMesh->datasetScalarGroupSymbology( mMesh->verticesElevationDatasetId() ).bytes();
 
-  for ( int i = 0; i < mSimulationResults->groupCount(); ++i )
+  ReosHydraulicSimulationResults *simulationResults = mSimulationResults.value( schemeId, nullptr );
+
+  if ( !simulationResults )
+    return;
+
+  for ( int i = 0; i < simulationResults->groupCount(); ++i )
   {
-    const QString id = mSimulationResults->groupId( i );
-    ReosEncodedElement encodedSymb = mMesh->datasetScalarGroupSymbology( id );
-    mResultScalarDatasetSymbologies.insert( mSimulationResults->datasetType( i ), encodedSymb.bytes() );
+    const QString id = simulationResults->groupId( i );
+    if ( mMesh->hasDatasetGroupIndex( id ) )
+    {
+      ReosEncodedElement encodedSymb = mMesh->datasetScalarGroupSymbology( id );
+      mResultScalarDatasetSymbologies.insert( simulationResults->datasetType( i ), encodedSymb.bytes() );
+    }
   }
 }
 
-void ReosHydraulicStructure2D::onSimulationFinished( ReosHydraulicSimulation *simulation, const ReosCalculationContext &context )
+void ReosHydraulicStructure2D::onSimulationFinished( ReosHydraulicSimulation *simulation, const QString &schemeId )
 {
+  emit simulationFinished();
+
   if ( !simulation )
     return;
 
-  //Store the current symbology per data type
-  getSymbologiesFromMesh();
+  simulation->saveSimulationResult( this, schemeId );
 
-  loadResult( simulation, context );
+  //! Now we can remove the old one
+  mSimulationResults.remove( schemeId );
+
+  if ( mNetWork->calculationContext().schemeId() == schemeId )
+    updateCurrentResults( schemeId );
 }
 
-void ReosHydraulicStructure2D::loadResult( ReosHydraulicSimulation *simulation, const ReosCalculationContext &context )
+void ReosHydraulicStructure2D::loadResult( ReosHydraulicSimulation *simulation, const QString &schemeId )
 {
-  if ( mSimulationResults )
+  ReosHydraulicSimulationResults *simulationResults = mSimulationResults.value( schemeId, nullptr );
+
+  if ( simulationResults )
   {
-    mSimulationResults->deleteLater();
-    mSimulationResults = nullptr;
+    simulationResults->deleteLater();
+    mSimulationResults.remove( schemeId );
   }
 
-  mSimulationResults = simulation->createResults( this, context );
+  ReosHydraulicSimulationResults *simResults = simulation->loadSimulationResults( this, schemeId );
+  mSimulationResults.insert( schemeId, simResults );
+}
 
-  if ( !mSimulationResults )
+void ReosHydraulicStructure2D::setResultsOnMesh( ReosHydraulicSimulationResults *simResults )
+{
+  QString currentDatasetId = mMesh->currentdScalarDatasetId();
+  ReosHydraulicSimulationResults::DatasetType currentType = currentActivatedDatasetResultType();
+
+  mesh()->setSimulationResults( simResults );
+
+  if ( !simResults )
     return;
 
-  mesh()->setSimulationResults( mSimulationResults );
-
-  if ( mCurrentActivatedMeshDataset.isEmpty() )
+  if ( currentDatasetId.isEmpty() )
   {
     QStringList ids = mesh()->datasetIds();
     if ( ids.count() > 1 )
-      mCurrentActivatedMeshDataset = ids.at( 1 );
+      currentDatasetId = ids.at( 1 );
     else if ( ids.count() != 0 )
-      mCurrentActivatedMeshDataset = ids.first();
+      currentDatasetId = ids.first();
   }
 
-  if ( mSimulationResults )
+  if ( simResults )
   {
     QString waterLevelId;
+    QString currentActivatedId = mMesh->verticesElevationDatasetId();
+
     //Restore the current symbology per data type
-    for ( int i = 0; i < mSimulationResults->groupCount(); ++i )
+    for ( int i = 0; i < simResults->groupCount(); ++i )
     {
-      ResultType type = mSimulationResults->datasetType( i );
+      ResultType type = simResults->datasetType( i );
       ReosEncodedElement encodedSymb( mResultScalarDatasetSymbologies.value( type ) );
-      QString groupId = mSimulationResults->groupId( i );
+      QString groupId = simResults->groupId( i );
       mMesh->setDatasetScalarGroupSymbology( encodedSymb, groupId );
 
       if ( type == ResultType::WaterLevel )
         waterLevelId = groupId;
 
+      if ( type == currentType )
+        currentActivatedId = groupId;
     }
-
     mMesh->setVerticalDataset3DId( waterLevelId );
+    mMesh->activateDataset( currentActivatedId );
+  }
+  else
+  {
+    mMesh->activateDataset( currentDatasetId );
   }
 
   emit simulationResultChanged();
 }
 
+void ReosHydraulicStructure2D::updateCurrentResults( const QString &schemeId )
+{
+  //Store the current symbology per data type
+  getSymbologiesFromMesh( schemeId );
+
+  if ( currentSimulation() && currentSimulation()->hasResult( this, schemeId ) )
+  {
+    if ( !mSimulationResults.contains( schemeId ) )
+      loadResult( currentSimulation(), schemeId );
+
+    setResultsOnMesh( mSimulationResults.value( schemeId ) );
+  }
+  else
+  {
+    mMesh->setSimulationResults( nullptr );
+    activateResultDatasetGroup( mTerrainDatasetId );
+    emit simulationResultChanged();
+  }
+}
+
+ReosSimulationProcess *ReosHydraulicStructure2D::processFromScheme( const QString &schemeId ) const
+{
+  auto it = mSimulationProcesses.find( schemeId );
+  if ( it == mSimulationProcesses.end() )
+    return nullptr;
+
+  return it->second.get();
+}
 
 void ReosHydraulicStructure2D::activateMeshTerrain()
 {
@@ -601,6 +671,34 @@ ReosHydraulicStructure2D *ReosHydraulicStructure2D::create( const ReosEncodedEle
     return nullptr;
 
   return new ReosHydraulicStructure2D( encodedElement, context );
+
+}
+
+void ReosHydraulicStructure2D::saveConfiguration( ReosHydraulicScheme *scheme ) const
+{
+  getSymbologiesFromMesh( scheme->id() );
+
+  ReosEncodedElement encodedElement = scheme->restoreElementConfig( id() );
+  encodedElement.addData( QStringLiteral( "current-simulation-index" ), mCurrentSimulationIndex );
+  scheme->saveElementConfig( id(), encodedElement );
+
+  //stor ethe current symbology from the scheme that will change
+}
+
+void ReosHydraulicStructure2D::restoreConfiguration( ReosHydraulicScheme *scheme )
+{
+  ReosEncodedElement encodedElement = scheme->restoreElementConfig( id() );
+
+  int simulationIndex = -1;
+  encodedElement.getData( QStringLiteral( "current-simulation-index" ), simulationIndex );
+
+  if ( simulationIndex == -1 )
+    return;
+
+  mCurrentSimulationIndex = simulationIndex;
+  updateCurrentResults( scheme->id() );
+
+  emit currentSimulationChanged();
 
 }
 

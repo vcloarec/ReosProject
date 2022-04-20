@@ -73,6 +73,7 @@ class ReosMeshFrame_p : public ReosMesh
     bool activateDataset( const QString &id ) override;
     QStringList datasetIds() const override;
     QString datasetName( const QString &id ) const override;
+    bool hasDatasetGroupIndex( const QString &id ) const override;
 
     QString verticalDataset3DId() const override;
     void setVerticalDataset3DId( const QString &verticalDataset3DId ) override;

@@ -29,6 +29,7 @@ class ReosHydraulicSimulationResults : public ReosMeshDatasetSource
   public:
     enum class DatasetType
     {
+      None,
       WaterLevel,
       WaterDepth,
       Velocity,
@@ -40,6 +41,8 @@ class ReosHydraulicSimulationResults : public ReosMeshDatasetSource
     QString groupName( int groupIndex ) const override;
     bool groupIsScalar( int groupIndex ) const override;
     virtual DatasetType datasetType( int groupIndex ) const = 0;
+
+    virtual QDateTime runDateTime() const = 0;
 
   private:
     QString mSimulationId;

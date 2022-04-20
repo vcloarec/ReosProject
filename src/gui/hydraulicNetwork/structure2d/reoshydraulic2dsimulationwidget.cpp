@@ -35,6 +35,14 @@ ReosHydraulic2DSimulationWidget::ReosHydraulic2DSimulationWidget( ReosHydraulicS
   setCurrentSimulation( mStructure->currentSimulation() );
   connect( ui->mAddSimulationButton, &QToolButton::clicked, this, &ReosHydraulic2DSimulationWidget::onAddSimulation );
   connect( ui->mExistingSimulationCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosHydraulic2DSimulationWidget::onSimulationIndexChanged );
+
+  connect( mStructure, &ReosHydraulicStructure2D::currentSimulationChanged, this, [this]
+  {
+    ui->mExistingSimulationCombo->blockSignals( true );
+    ui->mExistingSimulationCombo->setCurrentIndex( mStructure->currentSimulationIndex() );
+    ui->mExistingSimulationCombo->blockSignals( false );
+    setCurrentSimulation( mStructure->currentSimulation() );
+  } );
 }
 
 ReosHydraulic2DSimulationWidget::~ReosHydraulic2DSimulationWidget()

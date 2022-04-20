@@ -136,6 +136,9 @@ void ReosMeshFrame_p::setMeshSymbology( const ReosEncodedElement &symbology )
 
 ReosEncodedElement ReosMeshFrame_p::datasetScalarGroupSymbology( const QString &id ) const
 {
+  if ( !mDatasetGroupsIndex.contains( id ) )
+    return ReosEncodedElement();
+
   QDomDocument doc( QStringLiteral( "dataset-symbology" ) );
 
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
@@ -446,6 +449,11 @@ QString ReosMeshFrame_p::datasetName( const QString &id ) const
   return meta.name();
 }
 
+bool ReosMeshFrame_p::hasDatasetGroupIndex( const QString &id ) const
+{
+  return mDatasetGroupsIndex.contains( id );
+}
+
 void ReosMeshFrame_p::generateMesh( const ReosMeshFrameData &data )
 {
   if ( mMeshLayer->isEditable() )
@@ -592,7 +600,7 @@ void ReosMeshFrame_p::setSimulationResults( ReosHydraulicSimulationResults *resu
     }
   }
 
-  mMeshLayer->reload();
+  meshProvider()->reloadData();
 }
 
 ReosMeshRenderer_p::ReosMeshRenderer_p( QGraphicsView *canvas, QgsMeshLayer *layer )

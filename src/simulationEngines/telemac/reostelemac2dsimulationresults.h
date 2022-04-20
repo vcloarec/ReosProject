@@ -46,8 +46,10 @@ class ReosTelemac2DSimulationResults : public ReosHydraulicSimulationResults
     void datasetMinMax( int groupIndex, int datasetIndex, double &min, double &max ) const;
     QVector<double> datasetValues( int groupIndex, int index ) const override;
     QVector<int> activeFaces( int index ) const override;
+    QDateTime runDateTime() const override;
 
   private:
+    QString mFileName;
     MDAL_MeshH mMeshH = nullptr;
     QMap<DatasetType, int> mTypeToTelemacGroupIndex;
     double mDryDepthValue = 0.015;

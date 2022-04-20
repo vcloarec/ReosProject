@@ -16,6 +16,7 @@
 #include "reoshydraulicscheme.h"
 #include "reoshydraulicnetwork.h"
 #include "reoswatershedmodule.h"
+#include "reoscalculationcontext.h"
 
 #include "reosmeteorologicmodel.h"
 
@@ -25,6 +26,7 @@ ReosHydraulicScheme::ReosHydraulicScheme( ReosHydraulicSchemeCollection *collect
   , mStartTime( new ReosParameterDateTime( tr( "Start time" ), this ) )
   , mEndTime( new ReosParameterDateTime( tr( "End time" ), this ) )
 {
+  init();
 }
 
 ReosHydraulicScheme::ReosHydraulicScheme( const ReosEncodedElement &element, ReosHydraulicSchemeCollection *collection, const ReosHydraulicNetworkContext &context )
@@ -48,6 +50,14 @@ ReosHydraulicScheme::ReosHydraulicScheme( const ReosEncodedElement &element, Reo
   element.getData( QStringLiteral( "elements-config" ), mElementsConfig );
 
   ReosDataObject::decode( element );
+
+  init();
+}
+
+void ReosHydraulicScheme::init()
+{
+  connect( mStartTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+  connect( mEndTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
 }
 
 ReosMeteorologicModel *ReosHydraulicScheme::meteoModel() const
@@ -58,6 +68,8 @@ ReosMeteorologicModel *ReosHydraulicScheme::meteoModel() const
 void ReosHydraulicScheme::setMeteoModel( ReosMeteorologicModel *meteoModel )
 {
   mMeteoModel = meteoModel;
+
+  emit dataChanged();
 }
 
 void ReosHydraulicScheme::saveElementConfig( const QString &elementId, const ReosEncodedElement &encodedElement )
@@ -75,6 +87,17 @@ ReosEncodedElement ReosHydraulicScheme::restoreElementConfig( const QString &ele
   }
 
   return ReosEncodedElement( elementId );
+}
+
+ReosCalculationContext ReosHydraulicScheme::calculationContext() const
+{
+  ReosCalculationContext context;
+  context.setMeteorologicModel( meteoModel() );
+  context.setSimulationStartTime( startTime()->value() );
+  context.setSimulationEndTime( endTime()->value() );
+  context.setSchemeId( id() );
+
+  return context;
 }
 
 ReosParameterString *ReosHydraulicScheme::schemeName() const

@@ -48,6 +48,8 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     static QString staticType() {return ReosHydraulicNetworkElement::staticType() + QString( ':' ) + QStringLiteral( "structure2D" );}
 
     QString type() const override {return staticType();}
+    virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
+    virtual void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
 
     void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydraulicStructureBoundaryCondition *boundaryCondition, bool upstreamWillChange ) {}
     bool updateCalculationContextFromDownstream( const ReosCalculationContext &context ) {}
@@ -110,7 +112,16 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     ReosSimulationProcess *startSimulation( const ReosCalculationContext &context );
 
     //! Returns  a pointer to the current simulation process
-    ReosSimulationProcess *currentSimulationProcess() const;
+    ReosSimulationProcess *simulationProcess( const ReosCalculationContext &context ) const;
+
+    //! Returns whether a simulation is running
+    bool hasSimulationRunning() const;
+
+    //! Returns whether a result corresponding to \a context is existing
+    bool hasResult( const ReosCalculationContext &context );
+
+    //! Returns whether a result corresponding to \a context is existing
+    QDateTime resultDateTime( const ReosCalculationContext &context );
 
     //! Sets active the terrain in the mesh
     void activateMeshTerrain();
@@ -134,10 +145,13 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     void setTerrain3DSettings( const Reos3DTerrainSettings &settings );
 
     //! Returns the directory where data and simulation will be stored on the disk
-    QDir structureDirectory();
+    QDir structureDirectory() const;
 
     //! Activates the result dataset groups with \a id. If id is void, the current group is reactivated
     void activateResultDatasetGroup( const QString &id = QString() );
+
+    //! Activates the result dataset groups with type \a datasetType.
+    void activateResultDatasetGroup( ReosHydraulicSimulationResults::DatasetType datasetType );
 
     //! Returns the all the dataset ids
     QStringList meshDatasetIds() const;
@@ -148,8 +162,8 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     //! Returns the id of the current dataset
     QString currentActivatedMeshDataset() const;
 
-    //! Returns if the structure has available results
-    bool hasResults() const;
+    //! Returns the id of the current dataset
+    ReosHydraulicSimulationResults::DatasetType currentActivatedDatasetResultType() const;
 
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) override;
@@ -157,8 +171,8 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
   signals:
     void meshGenerated();
     void boundaryChanged();
-
-    void simulationTextAdded( const QString &text );
+    void currentSimulationChanged();
+    void simulationFinished();
     void simulationResultChanged();
 
   protected:
@@ -168,8 +182,8 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     void onBoundaryConditionAdded( const QString &bid );
     void onBoundaryConditionRemoved( const QString &bid );
     void onGeometryStructureChange();
-    void onMessageFromSolverReceived( const QString &message );
     void onFlowsFromSolverReceived( const QDateTime &time, const QStringList &boundId, const QList<double> &values );
+    void onSimulationFinished( ReosHydraulicSimulation *simulation,  const QString &schemeId );
 
   private:
     ReosHydraulicStructure2D( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
@@ -177,21 +191,21 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     ReosMeshGenerator *mMeshGenerator = nullptr;
     std::unique_ptr<ReosPolylinesStructure> mPolylinesStructures;
     ReosMeshResolutionController *mMeshResolutionController = nullptr;
-    ReosTopographyCollection   *mTopographyCollecion = nullptr;
+    ReosTopographyCollection   *mTopographyCollection = nullptr;
     std::unique_ptr<ReosMesh> mMesh;
     std::unique_ptr<ReosRoughnessStructure > mRoughnessStructure;
     QVector<QVector<int>> mBoundaryVertices;
     QVector<QVector<QVector<int>>> mHolesVertices;
 
     QList<ReosHydraulicSimulation *> mSimulations;
+
+    //** configuration
     int mCurrentSimulationIndex = -1;
+    //**
 
-    std::unique_ptr<ReosSimulationProcess> mCurrentProcess;
-    bool mIsBoundaryConditionReady = false;
-    bool mBoundarySinceStartingSimulation = false;
+    std::map<QString, std::unique_ptr<ReosSimulationProcess>> mSimulationProcesses;
+    QMap<QString, ReosHydraulicSimulationResults *> mSimulationResults;
 
-    ReosHydraulicSimulationResults *mSimulationResults = nullptr;
-    QString mCurrentActivatedMeshDataset;
     typedef ReosHydraulicSimulationResults::DatasetType ResultType;
     mutable QMap<ResultType, QByteArray> mResultScalarDatasetSymbologies;
     mutable QByteArray mTerrainSymbology;
@@ -208,9 +222,13 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     ReosHydraulicStructureBoundaryCondition *boundaryConditionNetWorkElement( const QString boundaryId ) const;
     void onMeshGenerated( const ReosMeshFrameData &meshData );
 
-    void getSymbologiesFromMesh() const;
-    void onSimulationFinished( ReosHydraulicSimulation *simulation,  const ReosCalculationContext &context );
-    void loadResult( ReosHydraulicSimulation *simulation,  const ReosCalculationContext &context );
+    void getSymbologiesFromMesh( const QString &schemeId ) const;
+
+    void updateCurrentResults( const QString &schemeId );
+    void loadResult( ReosHydraulicSimulation *simulation, const QString &schemeId );
+    void setResultsOnMesh( ReosHydraulicSimulationResults *simResults );
+
+    ReosSimulationProcess *processFromScheme( const QString &schemeId ) const;
 };
 
 class ReosHydraulicStructure2dFactory : public ReosHydraulicNetworkElementFactory

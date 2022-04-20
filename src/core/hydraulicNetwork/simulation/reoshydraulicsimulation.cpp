@@ -33,20 +33,20 @@ ReosHydraulicSimulation::ReosHydraulicSimulation( QObject *parent ): ReosDataObj
 {
 }
 
-QDir ReosHydraulicSimulation::simulationDir( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &context ) const
+QDir ReosHydraulicSimulation::simulationDir( const ReosHydraulicStructure2D *hydraulicStructure, const QString &schemeId ) const
 {
   QDir dir = hydraulicStructure->structureDirectory();
-  if ( !dir.cd( context.schemeId() ) )
+  if ( !dir.cd( schemeId ) )
   {
-    dir.mkdir( context.schemeId() );
-    if ( !dir.cd( context.schemeId() ) )
+    dir.mkdir( schemeId );
+    if ( !dir.cd( schemeId ) )
       return QDir();
   }
 
-  if ( !dir.cd( mDirName ) )
+  if ( !dir.cd( directoryName() ) )
   {
-    dir.mkdir( mDirName );
-    if ( !dir.cd( mDirName ) )
+    dir.mkdir( directoryName() );
+    if ( !dir.cd( directoryName() ) )
       return QDir();
   }
 
@@ -180,6 +180,7 @@ void ReosSimulationPreparationProcess::start()
             disconnect( bc, &ReosHydraulicNetworkElement::calculationIsUpdated, this, &ReosSimulationPreparationProcess::onBoundaryUpdated );
           }
           break;
+        case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
         case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
           bc->updateCalculationContextFromUpstream( mContext, nullptr, true );
           bc->outputHydrograph()->clear();

@@ -18,6 +18,7 @@
 #include <qgsmeshlayer.h>
 
 #include <QDateTime>
+#include <QFileInfo>
 
 #include "reosduration.h"
 #include "reostelemac2dsimulation.h"
@@ -25,6 +26,7 @@
 
 ReosTelemac2DSimulationResults::ReosTelemac2DSimulationResults( const ReosTelemac2DSimulation *simulation, const ReosMesh *mesh, const QString &fileName, QObject *parent )
   : ReosHydraulicSimulationResults( simulation, parent )
+  , mFileName( fileName )
 {
   QByteArray curi = fileName.toUtf8();
   mMeshH = MDAL_LoadMesh( curi.constData() );
@@ -276,4 +278,10 @@ QVector<int> ReosTelemac2DSimulationResults::activeFaces( int index ) const
   }
 
   return mCache.at( index ).activeFaces;
+}
+
+QDateTime ReosTelemac2DSimulationResults::runDateTime() const
+{
+  const QFileInfo fileInfo( mFileName );
+  return fileInfo.lastModified();
 }

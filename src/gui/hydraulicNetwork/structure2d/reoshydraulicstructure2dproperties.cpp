@@ -46,7 +46,6 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
 
   mGuiContext.addAction( mAction3DView );
 
-  mActionEditStructure->setEnabled( mStructure2D->currentSimulationProcess() == nullptr );
   connect( mActionEditStructure, &QAction::triggered, this, [this]
   {
     emit stackedPageWidgetOpened( new ReosEditHydraulicStructure2DWidget( mStructure2D, mGuiContext ) );
@@ -90,6 +89,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   mMap->addExtraRenderedObject( mStructure2D->mesh() );
   connect( mStructure2D->mesh(), &ReosMesh::repaintRequested, this, &ReosHydraulicStructure2DProperties::requestMapRefresh );
 
+  updateDatasetMenu();
   connect( mStructure2D, &ReosHydraulicStructure2D::simulationResultChanged, this, &ReosHydraulicStructure2DProperties::updateDatasetMenu );
 
   QString settingsString = QStringLiteral( "hydraulic-network-structure-2D" );
@@ -99,6 +99,9 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   ui->mPlotWidget->setAxeXType( ReosPlotWidget::temporal );
   ui->mPlotWidget->enableAxeYright( false );
   ui->mPlotWidget->setTitleAxeYLeft( tr( "Flow rate (%1)" ).arg( QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
+
+  if ( mStructure2D->currentSimulation() )
+    ui->mSimulationEngineName->setText( mStructure2D->currentSimulation()->engineName() );
 
   mInputHydrographPlotButton = new ReosVariableTimeStepPlotListButton( tr( "Input hydrographs" ), ui->mPlotWidget );
   mOutputHydrographPlotButton = new ReosVariableTimeStepPlotListButton( tr( "Output hydrographs" ), ui->mPlotWidget );
@@ -117,6 +120,12 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   ui->mHydrographTables->setConstantTimeStepParameter( mStructure2D->constantTimeStepInTable(), mStructure2D->useConstantTimeStepInTable() );
   populateHydrograph();
   connect( mStructure2D, &ReosHydraulicStructure2D::boundaryChanged, this, &ReosHydraulicStructure2DProperties::populateHydrograph );
+  connect( mStructure2D, &ReosHydraulicStructure2D::simulationFinished, this, &ReosHydraulicStructure2DProperties::onSimulationFinished );
+  connect( mStructure2D, &ReosHydraulicStructure2D::currentSimulationChanged, this, [this]
+  {
+    if ( mStructure2D->currentSimulation() )
+      ui->mSimulationEngineName->setText( mStructure2D->currentSimulation()->engineName() );
+  } );
 }
 
 ReosHydraulicStructure2DProperties::~ReosHydraulicStructure2DProperties()
@@ -125,16 +134,66 @@ ReosHydraulicStructure2DProperties::~ReosHydraulicStructure2DProperties()
     mMap->removeExtraRenderedObject( mStructure2D->mesh() );
 
   if ( !mView3D.isNull() )
-  {
     mView3D->close();
-  }
+
   delete ui;
 }
 
 void ReosHydraulicStructure2DProperties::setCurrentCalculationContext( const ReosCalculationContext &context )
 {
+  mActionEditStructure->setEnabled( !mStructure2D->hasSimulationRunning() );
   mStructure2D->updateCalculationContext( context );
   mCalculationContext = context;
+
+  setCurrentSimulationProcess( mStructure2D->simulationProcess( context ), context );
+
+  if ( mStructure2D->currentSimulation() )
+    ui->mSimulationEngineName->setText( mStructure2D->currentSimulation()->engineName() );
+}
+
+void ReosHydraulicStructure2DProperties::setCurrentSimulationProcess( ReosSimulationProcess *process, const ReosCalculationContext &context )
+{
+  if ( !mCurrentProcess.isNull() )
+    disconnect( mCurrentProcess, &ReosProcess::sendInformation, this, &ReosHydraulicStructure2DProperties::updateProgress );
+
+  mCurrentProcess = process;
+
+  if ( mCurrentProcess.isNull() )
+  {
+    if ( mStructure2D->hasResult( context ) )
+    {
+      ui->mProgressBar->setMaximum( 1 );
+      ui->mProgressBar->setValue( 1 );
+      QDateTime lastRun = mStructure2D->resultDateTime( context );
+      if ( lastRun.isValid() )
+        ui->mLastRunLabel->setText( QLocale().toString( lastRun ) );
+      else
+        ui->mLastRunLabel->setText( "-" );
+    }
+    else
+    {
+      ui->mProgressBar->setMaximum( 1 );
+      ui->mProgressBar->setValue( 0 );
+      ui->mLastRunLabel->setText( tr( "No existing results" ) );
+    }
+  }
+  else
+  {
+    ui->mLastRunLabel->setText( "Simulation run in progress" );
+    ui->mProgressBar->setMaximum( mCurrentProcess->maxProgression() );
+    ui->mProgressBar->setValue( mCurrentProcess->currentProgression() );
+    connect( mCurrentProcess, &ReosProcess::sendInformation, this, &ReosHydraulicStructure2DProperties::updateProgress );
+  }
+}
+
+
+void ReosHydraulicStructure2DProperties::updateProgress()
+{
+  if ( !mCurrentProcess.isNull() )
+  {
+    ui->mProgressBar->setMaximum( mCurrentProcess->maxProgression() );
+    ui->mProgressBar->setValue( mCurrentProcess->currentProgression() );
+  }
 }
 
 void ReosHydraulicStructure2DProperties::requestMapRefresh()
@@ -144,7 +203,7 @@ void ReosHydraulicStructure2DProperties::requestMapRefresh()
 
 void ReosHydraulicStructure2DProperties::onLaunchCalculation()
 {
-  if ( !mStructure2D->currentSimulationProcess() )
+  if ( !mStructure2D->simulationProcess( mCalculationContext ) )
   {
     mActionEditStructure->setEnabled( false );
 
@@ -152,13 +211,10 @@ void ReosHydraulicStructure2DProperties::onLaunchCalculation()
     ReosProcessControler *controler = new ReosProcessControler( preparationProcess.get(), this );
     controler->exec();
 
-    ReosSimulationProcess *process = mStructure2D->startSimulation( mCalculationContext );
-
-    if ( process )
-      connect( process, &ReosProcess::finished, mActionEditStructure, [this] {mActionEditStructure->setEnabled( true );} );
+    setCurrentSimulationProcess( mStructure2D->startSimulation( mCalculationContext ), mCalculationContext );
   }
 
-  emit stackedPageWidgetOpened( new ReosHydraulicSimulationConsole( mStructure2D->currentSimulationProcess(), mGuiContext ) );
+  emit stackedPageWidgetOpened( new ReosHydraulicSimulationConsole( mStructure2D->simulationProcess( mCalculationContext ), mGuiContext ) );
 }
 
 void ReosHydraulicStructure2DProperties::updateDatasetMenu()
@@ -179,9 +235,7 @@ void ReosHydraulicStructure2DProperties::updateDatasetMenu()
     connect( action, &QAction::triggered, this, [id, this]( bool checked )
     {
       if ( checked )
-      {
         mStructure2D->activateResultDatasetGroup( id );
-      }
     } );
   }
 
@@ -229,6 +283,13 @@ void ReosHydraulicStructure2DProperties::populateHydrograph()
   inList.append( outList );
   ui->mHydrographTables->setSeries( inList, QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) );
 }
+
+void ReosHydraulicStructure2DProperties::onSimulationFinished()
+{
+  mActionEditStructure->setEnabled( !mStructure2D->hasSimulationRunning() );
+  setCurrentSimulationProcess( mCurrentProcess, mCalculationContext );
+}
+
 
 ReosHydraulicElementWidget *ReosHydraulicStructure2DPropertiesWidgetFactory::createWidget( ReosHydraulicNetworkElement *element, const ReosGuiContext &context )
 {
