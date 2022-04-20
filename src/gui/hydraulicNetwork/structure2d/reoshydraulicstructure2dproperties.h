@@ -44,6 +44,9 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
 
     void setCurrentCalculationContext( const ReosCalculationContext &context ) override;
 
+  signals:
+    void calculationContextChanged();
+
   public slots:
     void updateProgress();
 

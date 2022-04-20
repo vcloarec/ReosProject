@@ -19,6 +19,7 @@
 #include <QMenu>
 #include <QCheckBox>
 #include <QSlider>
+#include <QMessageBox>
 
 #include "reosedithydraulicstructure2dwidget.h"
 #include "reos3dview.h"
@@ -149,6 +150,8 @@ void ReosHydraulicStructure2DProperties::setCurrentCalculationContext( const Reo
 
   if ( mStructure2D->currentSimulation() )
     ui->mSimulationEngineName->setText( mStructure2D->currentSimulation()->engineName() );
+
+  emit calculationContextChanged();
 }
 
 void ReosHydraulicStructure2DProperties::setCurrentSimulationProcess( ReosSimulationProcess *process, const ReosCalculationContext &context )
@@ -203,6 +206,13 @@ void ReosHydraulicStructure2DProperties::requestMapRefresh()
 
 void ReosHydraulicStructure2DProperties::onLaunchCalculation()
 {
+  if ( mStructure2D->hasResult( mCalculationContext ) )
+  {
+    if ( QMessageBox::warning( this, tr( "Run Simulation" ), tr( "Results exist for this modele and this hydraulic scheme.\nDo you want to overwrite this results?" ),
+                               QMessageBox::Yes | QMessageBox::No ) == QMessageBox::No )
+      return;
+  }
+
   if ( !mStructure2D->simulationProcess( mCalculationContext ) )
   {
     mActionEditStructure->setEnabled( false );
@@ -214,7 +224,9 @@ void ReosHydraulicStructure2DProperties::onLaunchCalculation()
     setCurrentSimulationProcess( mStructure2D->startSimulation( mCalculationContext ), mCalculationContext );
   }
 
-  emit stackedPageWidgetOpened( new ReosHydraulicSimulationConsole( mStructure2D->simulationProcess( mCalculationContext ), mGuiContext ) );
+  ReosHydraulicSimulationConsole *console = new ReosHydraulicSimulationConsole( mStructure2D->simulationProcess( mCalculationContext ), mGuiContext );
+  connect( this, &ReosHydraulicStructure2DProperties::calculationContextChanged, console, &ReosHydraulicSimulationConsole::backToPreviousPage );
+  emit stackedPageWidgetOpened( console );
 }
 
 void ReosHydraulicStructure2DProperties::updateDatasetMenu()
