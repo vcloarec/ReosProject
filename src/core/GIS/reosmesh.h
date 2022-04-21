@@ -143,7 +143,7 @@ class ReosMesh: public ReosRenderedObject
     virtual QString datasetName( const QString &id ) const = 0;
 
     //! Activates the dataset with \a id
-    virtual bool activateDataset( const QString &id ) = 0;
+    virtual bool activateDataset( const QString &id, bool update = true ) = 0;
 
     //! Returns the current scalar dataset Id
     virtual QString currentdScalarDatasetId() const = 0;
@@ -193,7 +193,7 @@ class ReosMesh: public ReosRenderedObject
     bool vertexIsOnHoleBorder( int vertexIndex ) const;
 
     virtual QString verticalDataset3DId() const = 0;
-    virtual void setVerticalDataset3DId( const QString &verticalDataset3DId ) = 0;
+    virtual void setVerticalDataset3DId( const QString &verticalDataset3DId, bool update = true ) = 0;
 
     double verticaleSCale() const;
     void setVerticaleSCale( double verticaleSCale );

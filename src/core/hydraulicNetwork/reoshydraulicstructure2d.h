@@ -162,8 +162,11 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     //! Returns the id of the current dataset
     QString currentActivatedMeshDataset() const;
 
-    //! Returns the id of the current dataset
+    //! Returns the type of the current dataset
     ReosHydraulicSimulationResults::DatasetType currentActivatedDatasetResultType() const;
+
+    //! Return the name of the current dataset
+    QString currentDatasetName() const;
 
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) override;
@@ -183,7 +186,7 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     void onBoundaryConditionRemoved( const QString &bid );
     void onGeometryStructureChange();
     void onFlowsFromSolverReceived( const QDateTime &time, const QStringList &boundId, const QList<double> &values );
-    void onSimulationFinished( ReosHydraulicSimulation *simulation,  const QString &schemeId );
+    void onSimulationFinished( ReosHydraulicSimulation *simulation,  const QString &schemeId, bool success );
 
   private:
     ReosHydraulicStructure2D( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
@@ -226,7 +229,7 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
 
     void updateCurrentResults( const QString &schemeId );
     void loadResult( ReosHydraulicSimulation *simulation, const QString &schemeId );
-    void setResultsOnMesh( ReosHydraulicSimulationResults *simResults );
+    void setResultsOnStructure( ReosHydraulicSimulationResults *simResults );
 
     ReosSimulationProcess *processFromScheme( const QString &schemeId ) const;
 };

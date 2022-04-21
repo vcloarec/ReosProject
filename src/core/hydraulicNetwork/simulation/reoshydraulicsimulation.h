@@ -68,10 +68,18 @@ class ReosSimulationProcess : public ReosProcess
 {
     Q_OBJECT
   public:
-    ReosSimulationProcess() = default;
+    ReosSimulationProcess( const ReosCalculationContext &context, const QList<ReosHydraulicStructureBoundaryCondition *> boundaries );
+
+    QMap<QString, ReosHydrograph *> outputHydrographs() const;
 
   signals:
-    void sendBoundaryFlow( const QDateTime &time, const QStringList &boundaryIds, const QList<double> &values );
+    void sendBoundaryFlow( const QDateTime &time, const QStringList &boundaryIds, const QList<double> &values ) const;
+
+  private slots:
+    void onReceiveFlow( const QDateTime &time, const QStringList &boundaryIds, const QList<double> &values );
+
+  private:
+    QMap<QString, ReosHydrograph *> mOutputHydrographs;
 
 };
 
@@ -90,7 +98,7 @@ class ReosHydraulicSimulation : public ReosDataObject
     virtual QString key() const = 0;
     virtual ReosEncodedElement encode() const = 0;
 
-    virtual void saveSimulationResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const = 0;
+    virtual void saveSimulationResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, bool success ) const = 0;
     virtual ReosHydraulicSimulationResults *loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const = 0;
 
     virtual bool hasResult( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const = 0;

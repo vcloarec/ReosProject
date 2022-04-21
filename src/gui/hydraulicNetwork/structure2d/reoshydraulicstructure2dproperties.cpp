@@ -165,28 +165,63 @@ void ReosHydraulicStructure2DProperties::setCurrentSimulationProcess( ReosSimula
   {
     if ( mStructure2D->hasResult( context ) )
     {
+      fillResultGroupBox( context );
       ui->mProgressBar->setMaximum( 1 );
       ui->mProgressBar->setValue( 1 );
       QDateTime lastRun = mStructure2D->resultDateTime( context );
       if ( lastRun.isValid() )
-        ui->mLastRunLabel->setText( QLocale().toString( lastRun ) );
+        ui->mLastRunLabel->setText( QLocale().toString( lastRun, QLocale::ShortFormat ) );
       else
         ui->mLastRunLabel->setText( "-" );
     }
     else
     {
+      disableResultGroupBox();
       ui->mProgressBar->setMaximum( 1 );
       ui->mProgressBar->setValue( 0 );
       ui->mLastRunLabel->setText( tr( "No existing results" ) );
     }
+
+    ui->mPlotWidget->enableAutoScale( true );
+    ui->mPlotWidget->updatePlot();
   }
   else
   {
+    disableResultGroupBox();
     ui->mLastRunLabel->setText( "Simulation run in progress" );
     ui->mProgressBar->setMaximum( mCurrentProcess->maxProgression() );
     ui->mProgressBar->setValue( mCurrentProcess->currentProgression() );
     connect( mCurrentProcess, &ReosProcess::sendInformation, this, &ReosHydraulicStructure2DProperties::updateProgress );
+
+    ui->mPlotWidget->enableAutoScaleY( true );
+    ui->mPlotWidget->enableAutoScaleX( false );
+    ui->mPlotWidget->setAxeXExtent( mCalculationContext.simulationStartTime(), mCalculationContext.simulationEndTime() );
+    ui->mPlotWidget->updatePlot();
   }
+
+  populateHydrograph();
+}
+
+void ReosHydraulicStructure2DProperties::disableResultGroupBox()
+{
+  ui->mLabelResultStartTime->setText( QString( '-' ) );
+  ui->mLabelResultEndTime->setText( QString( '-' ) );
+  ui->mLabelResultTimeStepCount->setText( QString( '-' ) );
+  ui->mLabelResultValueDisplayed->setText( QString( '-' ) );
+  ui->mLabelResultValueUnderCursor->setText( QString( '-' ) );
+
+  ui->mGroupBoxResultInfo->setEnabled( false );
+}
+
+void ReosHydraulicStructure2DProperties::fillResultGroupBox( const ReosCalculationContext &context )
+{
+  ui->mGroupBoxResultInfo->setEnabled( true );
+
+  ui->mLabelResultStartTime->setText( QLocale().toString( context.simulationStartTime(), QLocale::ShortFormat ) );
+  ui->mLabelResultEndTime->setText( QLocale().toString( context.simulationEndTime(), QLocale::ShortFormat ) );
+  ui->mLabelResultTimeStepCount->setText( QString( '-' ) );
+  ui->mLabelResultValueDisplayed->setText( mStructure2D->currentDatasetName() );
+  ui->mLabelResultValueUnderCursor->setText( QString( '-' ) );
 }
 
 
@@ -206,15 +241,15 @@ void ReosHydraulicStructure2DProperties::requestMapRefresh()
 
 void ReosHydraulicStructure2DProperties::onLaunchCalculation()
 {
-  if ( mStructure2D->hasResult( mCalculationContext ) )
-  {
-    if ( QMessageBox::warning( this, tr( "Run Simulation" ), tr( "Results exist for this modele and this hydraulic scheme.\nDo you want to overwrite this results?" ),
-                               QMessageBox::Yes | QMessageBox::No ) == QMessageBox::No )
-      return;
-  }
-
   if ( !mStructure2D->simulationProcess( mCalculationContext ) )
   {
+    if ( mStructure2D->hasResult( mCalculationContext ) )
+    {
+      if ( QMessageBox::warning( this, tr( "Run Simulation" ), tr( "Results exist for this modele and this hydraulic scheme.\nDo you want to overwrite this results?" ),
+                                 QMessageBox::Yes | QMessageBox::No ) == QMessageBox::No )
+        return;
+    }
+
     mActionEditStructure->setEnabled( false );
 
     std::unique_ptr<ReosProcess> preparationProcess( mStructure2D->getPreparationProcessSimulation( mCalculationContext ) );
@@ -248,6 +283,7 @@ void ReosHydraulicStructure2DProperties::updateDatasetMenu()
     {
       if ( checked )
         mStructure2D->activateResultDatasetGroup( id );
+      fillResultGroupBox( mCalculationContext );
     } );
   }
 
@@ -269,6 +305,8 @@ void ReosHydraulicStructure2DProperties::updateDatasetMenu()
 void ReosHydraulicStructure2DProperties::populateHydrograph()
 {
   ui->mHydrographTables->clearSeries();
+  mOutputHydrographPlotButton->clear();
+  mInputHydrographPlotButton->clear();
 
   QList<ReosTimeSerieVariableTimeStep *> inList;
   QList<ReosTimeSerieVariableTimeStep *> outList;
@@ -286,9 +324,22 @@ void ReosHydraulicStructure2DProperties::populateHydrograph()
         mInputHydrographPlotButton->addData( hyd );
         break;
       case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
-        outList.append( hyd );
-        mOutputHydrographPlotButton->addData( hyd );
+        if ( mCurrentProcess.isNull() )
+        {
+          outList.append( hyd );
+          mOutputHydrographPlotButton->addData( hyd );
+        }
         break;
+    }
+  }
+
+  if ( !mCurrentProcess.isNull() )
+  {
+    const QList<ReosHydrograph *> outHyds = mCurrentProcess->outputHydrographs().values();
+    for ( ReosHydrograph *hyd : outHyds )
+    {
+      outList.append( hyd );
+      mOutputHydrographPlotButton->addData( hyd );
     }
   }
 
@@ -320,7 +371,7 @@ ReosMeshWireframeSettingsWidget::ReosMeshWireframeSettingsWidget( QWidget *paren
 {
   setLayout( new QVBoxLayout );
 
-  QHBoxLayout *topLayout = new QHBoxLayout( this );
+  QHBoxLayout *topLayout = new QHBoxLayout;
   topLayout->setContentsMargins( 0, 0, 0, 0 );
   topLayout->addWidget( mEnableWireframeCheckBox );
   topLayout->addWidget( mColorButton );

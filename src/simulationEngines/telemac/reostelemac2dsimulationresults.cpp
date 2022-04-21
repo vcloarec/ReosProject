@@ -19,6 +19,7 @@
 
 #include <QDateTime>
 #include <QFileInfo>
+#include <QDir>
 
 #include "reosduration.h"
 #include "reostelemac2dsimulation.h"
@@ -53,6 +54,23 @@ ReosTelemac2DSimulationResults::ReosTelemac2DSimulationResults( const ReosTelema
   QgsMeshLayer *meshLayer = qobject_cast<QgsMeshLayer *>( mesh->data() );
   if ( meshLayer )
     mFaces = meshLayer->nativeMesh()->faces;
+
+  QFileInfo fileInfo( fileName );
+  QFile outputHydFile( fileInfo.dir().filePath( QStringLiteral( "outputHydrographs" ) ) );
+  if ( outputHydFile.open( QIODevice::ReadOnly ) )
+  {
+    QMap<QString, QByteArray> encodedHydrographs;
+    QDataStream stream( &outputHydFile );
+    stream >> encodedHydrographs;
+
+    const QStringList keys = encodedHydrographs.keys();
+    for ( const QString &key : keys )
+    {
+      ReosEncodedElement encodedHyd( encodedHydrographs.value( key ) );
+      if ( encodedHyd.description() == QStringLiteral( "hydrograph" ) )
+        mOutputHydrographs.insert( key, ReosHydrograph::decode( encodedHyd, this ) );
+    }
+  }
 }
 
 ReosTelemac2DSimulationResults::~ReosTelemac2DSimulationResults()
@@ -284,4 +302,9 @@ QDateTime ReosTelemac2DSimulationResults::runDateTime() const
 {
   const QFileInfo fileInfo( mFileName );
   return fileInfo.lastModified();
+}
+
+QMap<QString, ReosHydrograph *> ReosTelemac2DSimulationResults::outputHydrographs() const
+{
+  return mOutputHydrographs;
 }

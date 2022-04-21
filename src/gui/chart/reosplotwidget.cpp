@@ -269,6 +269,21 @@ void ReosPlotWidget::enableAxeYright( bool b )
   mPlot->enableAxis( QwtPlot::yRight, b );
 }
 
+void ReosPlotWidget::enableAutoScale( bool b )
+{
+  mPlot->enableAutoScale( b );
+}
+
+void ReosPlotWidget::enableAutoScaleX( bool b )
+{
+  mPlot->enableAutoScaleX( b );
+}
+
+void ReosPlotWidget::enableAutoScaleY( bool b )
+{
+  mPlot->enableAutoScaleY( b );
+}
+
 
 class ReoDateScaleEngine_p : public QwtDateScaleEngine
 {

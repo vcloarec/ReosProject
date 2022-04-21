@@ -129,6 +129,11 @@ ReosHydraulicSimulationResults::DatasetType ReosHydraulicStructure2D::currentAct
   return ReosHydraulicSimulationResults::DatasetType::None;
 }
 
+QString ReosHydraulicStructure2D::currentDatasetName() const
+{
+  return mMesh->datasetName( mMesh->currentdScalarDatasetId() );
+}
+
 void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const
 {
   element.addEncodedData( QStringLiteral( "structure" ), mPolylinesStructures->encode() );
@@ -355,13 +360,34 @@ ReosSimulationProcess *ReosHydraulicStructure2D::startSimulation( const ReosCalc
 
   connect( process, &ReosProcess::finished, sim, [this, sim, schemeId]
   {
-    mSimulationProcesses.erase( mSimulationProcesses.find( schemeId ) );
-    onSimulationFinished( sim, schemeId );
+    auto it = mSimulationProcesses.find( schemeId );
+    bool success = false;
+    if ( it != mSimulationProcesses.end() )
+    {
+      ReosSimulationProcess *process = it->second.get();
+      const QMap<QString, ReosHydrograph *> hydrographs = process->outputHydrographs();
+      const QList<QString> hydIds = hydrographs.keys();
+      for ( const QString &id : hydIds )
+      {
+        const QList<ReosHydraulicStructureBoundaryCondition *> bounds = boundaryConditions();
+        for ( ReosHydraulicStructureBoundaryCondition *bc : bounds )
+        {
+          if ( bc->boundaryConditionId() == id )
+            bc->outputHydrograph()->copyFrom( hydrographs.value( id ) );
+        }
+      }
+
+      success = it->second->isSuccessful();
+
+      mSimulationProcesses.erase( it );
+    }
+
+    onSimulationFinished( sim, schemeId, success );
   } );
 
   //Store the current symbology per data type
   getSymbologiesFromMesh( schemeId );
-  mMesh->setSimulationResults( nullptr );
+  setResultsOnStructure( nullptr );
   emit simulationResultChanged();
 
   process->startOnOtherThread();
@@ -545,20 +571,23 @@ void ReosHydraulicStructure2D::getSymbologiesFromMesh( const QString &schemeId )
   }
 }
 
-void ReosHydraulicStructure2D::onSimulationFinished( ReosHydraulicSimulation *simulation, const QString &schemeId )
+void ReosHydraulicStructure2D::onSimulationFinished( ReosHydraulicSimulation *simulation, const QString &schemeId, bool success )
 {
-  emit simulationFinished();
-
   if ( !simulation )
+  {
+    emit simulationFinished();
     return;
-
-  simulation->saveSimulationResult( this, schemeId );
+  }
+  simulation->saveSimulationResult( this, schemeId, success );
 
   //! Now we can remove the old one
+  mSimulationResults.value( schemeId )->deleteLater();
   mSimulationResults.remove( schemeId );
 
   if ( mNetWork->calculationContext().schemeId() == schemeId )
     updateCurrentResults( schemeId );
+
+  emit simulationFinished();
 }
 
 void ReosHydraulicStructure2D::loadResult( ReosHydraulicSimulation *simulation, const QString &schemeId )
@@ -575,27 +604,45 @@ void ReosHydraulicStructure2D::loadResult( ReosHydraulicSimulation *simulation, 
   mSimulationResults.insert( schemeId, simResults );
 }
 
-void ReosHydraulicStructure2D::setResultsOnMesh( ReosHydraulicSimulationResults *simResults )
+void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationResults *simResults )
 {
-  QString currentDatasetId = mMesh->currentdScalarDatasetId();
-  ReosHydraulicSimulationResults::DatasetType currentType = currentActivatedDatasetResultType();
-
   mesh()->setSimulationResults( simResults );
 
-  if ( !simResults )
-    return;
-
-  if ( currentDatasetId.isEmpty() )
+  const QList<ReosHydraulicStructureBoundaryCondition *> boundaries = boundaryConditions();
+  for ( ReosHydraulicStructureBoundaryCondition *bc : boundaries )
   {
-    QStringList ids = mesh()->datasetIds();
-    if ( ids.count() > 1 )
-      currentDatasetId = ids.at( 1 );
-    else if ( ids.count() != 0 )
-      currentDatasetId = ids.first();
+    switch ( bc->conditionType() )
+    {
+      case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
+      case ReosHydraulicStructureBoundaryCondition::Type::InputFlow:
+        break;
+      case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
+        bc->outputHydrograph()->clear();
+        break;
+    }
+  }
+
+  if ( !simResults )
+  {
+    mMesh->setVerticalDataset3DId( QString(), false );
+    mMesh->activateDataset( QString() );
+    return;
   }
 
   if ( simResults )
   {
+    QString currentDatasetId = mMesh->currentdScalarDatasetId();
+    ReosHydraulicSimulationResults::DatasetType currentType = currentActivatedDatasetResultType();
+
+    if ( currentDatasetId.isEmpty() )
+    {
+      const QStringList ids = mesh()->datasetIds();
+      if ( ids.count() > 1 )
+        currentDatasetId = ids.at( 1 );
+      else if ( ids.count() != 0 )
+        currentDatasetId = ids.first();
+    }
+
     QString waterLevelId;
     QString currentActivatedId = mMesh->verticesElevationDatasetId();
 
@@ -603,8 +650,8 @@ void ReosHydraulicStructure2D::setResultsOnMesh( ReosHydraulicSimulationResults 
     for ( int i = 0; i < simResults->groupCount(); ++i )
     {
       ResultType type = simResults->datasetType( i );
-      ReosEncodedElement encodedSymb( mResultScalarDatasetSymbologies.value( type ) );
-      QString groupId = simResults->groupId( i );
+      const ReosEncodedElement encodedSymb( mResultScalarDatasetSymbologies.value( type ) );
+      const QString groupId = simResults->groupId( i );
       mMesh->setDatasetScalarGroupSymbology( encodedSymb, groupId );
 
       if ( type == ResultType::WaterLevel )
@@ -613,12 +660,21 @@ void ReosHydraulicStructure2D::setResultsOnMesh( ReosHydraulicSimulationResults 
       if ( type == currentType )
         currentActivatedId = groupId;
     }
-    mMesh->setVerticalDataset3DId( waterLevelId );
+    mMesh->setVerticalDataset3DId( waterLevelId, false );
     mMesh->activateDataset( currentActivatedId );
-  }
-  else
-  {
-    mMesh->activateDataset( currentDatasetId );
+
+    const QMap<QString, ReosHydrograph *> outputHydrographs = simResults->outputHydrographs();
+    const QList<ReosHydraulicStructureBoundaryCondition *> boundaries = boundaryConditions();
+
+    for ( ReosHydraulicStructureBoundaryCondition *bc : boundaries )
+    {
+      if ( bc->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::OutputLevel )
+      {
+        bc->outputHydrograph()->clear();
+        if ( outputHydrographs.contains( bc->boundaryConditionId() ) )
+          bc->outputHydrograph()->copyFrom( outputHydrographs.value( bc->boundaryConditionId() ) );
+      }
+    }
   }
 
   emit simulationResultChanged();
@@ -634,11 +690,11 @@ void ReosHydraulicStructure2D::updateCurrentResults( const QString &schemeId )
     if ( !mSimulationResults.contains( schemeId ) )
       loadResult( currentSimulation(), schemeId );
 
-    setResultsOnMesh( mSimulationResults.value( schemeId ) );
+    setResultsOnStructure( mSimulationResults.value( schemeId ) );
   }
   else
   {
-    mMesh->setSimulationResults( nullptr );
+    setResultsOnStructure( nullptr );
     activateResultDatasetGroup( mTerrainDatasetId );
     emit simulationResultChanged();
   }

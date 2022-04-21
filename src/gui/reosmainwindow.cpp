@@ -39,7 +39,7 @@ email                : vcloarec at gmail dot com
 
 ReosMainWindow::ReosMainWindow( QWidget *parent ) :
   QMainWindow( parent ),
-  mRootModule( new ReosModule( this ) ),
+  mRootModule( new ReosModule ),
   mGroupActionFile( new QActionGroup( this ) ),
   mGroupActionEdit( new QActionGroup( this ) ),
   mGroupActionOption( new QActionGroup( this ) ),
@@ -64,7 +64,7 @@ ReosMainWindow::ReosMainWindow( QWidget *parent ) :
   centralWidget->setLayout( centralLayout );
   centralLayout->setContentsMargins( 0, 0, 0, 0 );
 
-  connect( mRootModule, &ReosModule::dirtied, this, [this] {mProjectIsDirty = true;} );
+  connect( mRootModule.get(), &ReosModule::dirtied, this, [this] {mProjectIsDirty = true;} );
 }
 
 void ReosMainWindow::init()
@@ -114,7 +114,7 @@ void ReosMainWindow::init()
 
   //****************************************************************
 
-  connect( mRootModule, &ReosModule::newCommandToUndoStack, this, &ReosMainWindow::newUndoCommand );
+  connect( mRootModule.get(), &ReosModule::newCommandToUndoStack, this, &ReosMainWindow::newUndoCommand );
 
   connect( mActionNewProject, &QAction::triggered, this, &ReosMainWindow::newProject );
   connect( mActionOpenFile, &QAction::triggered, this, &ReosMainWindow::openFile );
@@ -127,7 +127,7 @@ void ReosMainWindow::init()
   connect( mActionDocumentation, &QAction::triggered, this, [this] { QDesktopServices::openUrl( mDocumentationUrl );} );
   connect( mActionHowToSupport, &QAction::triggered, this, [this] { QDesktopServices::openUrl( mHowToSupportUrl );} );
 
-  connect( mRootModule, &ReosModule::emitMessage, messageBox, &ReosMessageBox::receiveMessage );
+  connect( mRootModule.get(), &ReosModule::emitMessage, messageBox, &ReosMessageBox::receiveMessage );
 }
 
 void ReosMainWindow::onRemoteInformation( const QVariantMap &information )
@@ -257,7 +257,7 @@ void ReosMainWindow::newVersionAvailable()
 
 ReosModule *ReosMainWindow::rootModule() const
 {
-  return mRootModule;
+  return mRootModule.get();
 }
 
 QString ReosMainWindow::currentProjectFilePath() const

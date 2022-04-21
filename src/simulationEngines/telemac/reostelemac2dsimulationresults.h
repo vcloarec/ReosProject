@@ -42,11 +42,12 @@ class ReosTelemac2DSimulationResults : public ReosHydraulicSimulationResults
     void groupMinMax( int groupIndex, double &minimum, double &maximum ) const override;
     QDateTime groupReferenceTime( int groupIndex ) const override;
     ReosDuration datasetRelativeTime( int groupIndex, int datasetIndex ) const override;
-    bool datasetIsValid( int groupIndex, int datasetIndex ) const;
-    void datasetMinMax( int groupIndex, int datasetIndex, double &min, double &max ) const;
+    bool datasetIsValid( int groupIndex, int datasetIndex ) const override;
+    void datasetMinMax( int groupIndex, int datasetIndex, double &min, double &max ) const override;
     QVector<double> datasetValues( int groupIndex, int index ) const override;
     QVector<int> activeFaces( int index ) const override;
     QDateTime runDateTime() const override;
+    QMap<QString, ReosHydrograph *> outputHydrographs() const override;
 
   private:
     QString mFileName;
@@ -55,6 +56,7 @@ class ReosTelemac2DSimulationResults : public ReosHydraulicSimulationResults
     double mDryDepthValue = 0.015;
     QVector<QVector<int>> mFaces;
     mutable QVector<CacheDataset> mCache;
+    QMap<QString, ReosHydrograph *> mOutputHydrographs;
 
 
 

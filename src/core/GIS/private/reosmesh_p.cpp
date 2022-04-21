@@ -419,7 +419,7 @@ void ReosMeshFrame_p::firstUpdateOfTerrainScalarSetting()
   }
 }
 
-bool ReosMeshFrame_p::activateDataset( const QString &id )
+bool ReosMeshFrame_p::activateDataset( const QString &id, bool update )
 {
   int index = mDatasetGroupsIndex.value( id, -1 );
 
@@ -428,7 +428,8 @@ bool ReosMeshFrame_p::activateDataset( const QString &id )
   settings.setActiveScalarDatasetGroup( index );
   mMeshLayer->setRendererSettings( settings );
 
-  update3DRenderer();
+  if ( update )
+    update3DRenderer();
 
   return true;
 }
@@ -557,10 +558,11 @@ QString ReosMeshFrame_p::verticalDataset3DId() const
   return mVerticalDataset3DId;
 }
 
-void ReosMeshFrame_p::setVerticalDataset3DId( const QString &verticalDataset3DId )
+void ReosMeshFrame_p::setVerticalDataset3DId( const QString &verticalDataset3DId, bool update )
 {
   mVerticalDataset3DId = verticalDataset3DId;
-  update3DRenderer();
+  if ( update )
+    update3DRenderer();
 }
 
 QString ReosMeshFrame_p::verticesElevationDatasetId() const

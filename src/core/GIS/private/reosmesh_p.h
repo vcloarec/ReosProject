@@ -70,13 +70,13 @@ class ReosMeshFrame_p : public ReosMesh
     void setSimulationResults( ReosHydraulicSimulationResults *result ) override;
 
     QString verticesElevationDatasetId() const override;
-    bool activateDataset( const QString &id ) override;
+    bool activateDataset( const QString &id, bool update = true ) override;
     QStringList datasetIds() const override;
     QString datasetName( const QString &id ) const override;
     bool hasDatasetGroupIndex( const QString &id ) const override;
 
     QString verticalDataset3DId() const override;
-    void setVerticalDataset3DId( const QString &verticalDataset3DId ) override;
+    void setVerticalDataset3DId( const QString &verticalDataset3DId, bool update = true ) override;
 
     QString currentdScalarDatasetId() const override;
 

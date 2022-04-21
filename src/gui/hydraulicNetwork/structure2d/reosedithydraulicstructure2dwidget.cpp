@@ -171,6 +171,8 @@ void ReosEditHydraulicStructure2DWidget::hideEvent( QHideEvent *e )
 
   mStructure2D->mesh()->activateWireFrame( mIsWireFrameActiveBefore );
 
+  mStructure2D->mesh()->stopFrameEditing( true );
+
   ReosStackedPageWidget::hideEvent( e );
 }
 

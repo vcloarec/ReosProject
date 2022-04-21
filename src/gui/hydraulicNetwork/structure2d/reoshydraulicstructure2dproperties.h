@@ -74,6 +74,9 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
 
     QPointer<ReosSimulationProcess> mCurrentProcess;
     void setCurrentSimulationProcess( ReosSimulationProcess *process, const ReosCalculationContext &context );
+
+    void disableResultGroupBox();
+    void fillResultGroupBox( const ReosCalculationContext &context );
 };
 
 

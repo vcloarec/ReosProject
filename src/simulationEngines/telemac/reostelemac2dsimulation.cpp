@@ -124,17 +124,19 @@ bool ReosTelemac2DSimulation::hasResult( ReosHydraulicStructure2D *hydraulicStru
   return fileInfo.exists();
 }
 
-void ReosTelemac2DSimulation::saveSimulationResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const
+void ReosTelemac2DSimulation::saveSimulationResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, bool success ) const
 {
+  if ( !success )
+    return;
+
   QDir dir = simulationDir( hydraulicStructure, shemeId );
 
   const QList<ReosHydraulicStructureBoundaryCondition *> boundaries = hydraulicStructure->boundaryConditions();
-
   QMap<QString, QByteArray> encodedHydrographs;
 
   for ( ReosHydraulicStructureBoundaryCondition *bc : boundaries )
     if ( bc->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::OutputLevel )
-      encodedHydrographs.insert( bc->id(), bc->outputHydrograph()->encode().bytes() );
+      encodedHydrographs.insert( bc->boundaryConditionId(), bc->outputHydrograph()->encode().bytes() );
 
   QFile outputHydFile( dir.filePath( QStringLiteral( "outputHydrographs" ) ) );
 
@@ -150,31 +152,6 @@ ReosHydraulicSimulationResults *ReosTelemac2DSimulation::loadSimulationResults( 
   QDir dir = simulationDir( hydraulicStructure, shemeId );
   if ( !dir.exists() )
     return nullptr;
-
-  QFile outputHydFile( dir.filePath( QStringLiteral( "outputHydrographs" ) ) );
-
-  if ( outputHydFile.open( QIODevice::ReadOnly ) )
-  {
-    QMap<QString, QByteArray> encodedHydrographs;
-    QDataStream stream( &outputHydFile );
-    stream >> encodedHydrographs;
-
-    const QList<ReosHydraulicStructureBoundaryCondition *> boundaries = hydraulicStructure->boundaryConditions();
-
-    for ( ReosHydraulicStructureBoundaryCondition *bc : boundaries )
-    {
-      if ( bc->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::OutputLevel )
-      {
-        bc->outputHydrograph()->clear();
-        if ( encodedHydrographs.contains( bc->id() ) )
-        {
-          ReosEncodedElement encodedHyd( encodedHydrographs.value( bc->id() ) );
-          std::unique_ptr<ReosHydrograph> hyd( ReosHydrograph::decode( encodedHyd ) );
-          bc->outputHydrograph()->copyFrom( hyd.get() );
-        }
-      }
-    }
-  }
 
   return new ReosTelemac2DSimulationResults( this, hydraulicStructure->mesh(),  dir.filePath( mResultFileName ), hydraulicStructure );
 }
@@ -198,20 +175,23 @@ void ReosTelemac2DSimulation::prepareInput( ReosHydraulicStructure2D *hydraulicS
   QString fn = dir.filePath( mResultFileName );
 
   if ( fileInfo.exists() )
+  {
     QFile::remove( dir.filePath( mResultFileName ) );
+    QFile::remove( dir.filePath( QStringLiteral( "outputHydrographs" ) ) );
+  }
 }
 
 ReosSimulationProcess *ReosTelemac2DSimulation::getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const
 {
   QDir dir = simulationDir( hydraulicStructure, calculationContext.schemeId() );
 
-  QMap<int, BoundaryCondition> bounds;
+  QMap<int, BoundaryCondition> telemacBounds;
 
   for ( const TelemacBoundaryCondition &bound : mBoundaries )
     if ( bound.rank > 0 )
-      bounds.insert( bound.rank, bound );
+      telemacBounds.insert( bound.rank, bound );
 
-  return new ReosTelemac2DSimulationProcess( calculationContext, mTimeStep->value(), dir.path(), bounds );
+  return new ReosTelemac2DSimulationProcess( calculationContext, mTimeStep->value(),  dir.path(), hydraulicStructure->boundaryConditions(), telemacBounds );
 }
 
 struct TelemacBoundary
@@ -844,8 +824,11 @@ void ReosTelemac2DSimulation::createSteeringFile( ReosHydraulicStructure2D *hydr
 
 ReosTelemac2DSimulationProcess::ReosTelemac2DSimulationProcess( const ReosCalculationContext &context,
     const ReosDuration &timeStep,
-    const QString &simulationfilePath, const QMap<int, BoundaryCondition> &boundaries )
-  : mSimulationFilePath( simulationfilePath )
+    const QString &simulationfilePath,
+    const QList<ReosHydraulicStructureBoundaryCondition *>boundElem,
+    const QMap<int, BoundaryCondition> &boundaries )
+  : ReosSimulationProcess( context, boundElem )
+  , mSimulationFilePath( simulationfilePath )
   , mTimeStep( timeStep )
   , mBoundaries( boundaries )
 {
@@ -912,11 +895,13 @@ void ReosTelemac2DSimulationProcess::start()
   else
     emit sendInformation( tr( "Telemac simulation can't start. Check the configuration of the Telemac modele." ) );
 
+  finished = finished && mProcess->exitCode() == 0;
+
   if ( mProcess )
     delete mProcess;
   mProcess = nullptr;
 
-  mIsSuccessful = finished;// need to check the output to search for an error
+  mIsSuccessful = finished;
 }
 
 void ReosTelemac2DSimulationProcess::stop( bool )

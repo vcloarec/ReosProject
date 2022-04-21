@@ -22,6 +22,7 @@
 #include "reosmeshdatasetsource.h"
 
 class ReosHydraulicSimulation;
+class ReosHydrograph;
 
 class ReosHydraulicSimulationResults : public ReosMeshDatasetSource
 {
@@ -41,8 +42,9 @@ class ReosHydraulicSimulationResults : public ReosMeshDatasetSource
     QString groupName( int groupIndex ) const override;
     bool groupIsScalar( int groupIndex ) const override;
     virtual DatasetType datasetType( int groupIndex ) const = 0;
-
     virtual QDateTime runDateTime() const = 0;
+
+    virtual QMap<QString, ReosHydrograph *> outputHydrographs() const = 0;
 
   private:
     QString mSimulationId;

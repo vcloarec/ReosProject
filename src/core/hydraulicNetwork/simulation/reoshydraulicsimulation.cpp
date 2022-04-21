@@ -216,3 +216,43 @@ void ReosSimulationPreparationProcess::onBoundaryUpdated( const QString &id )
       emit allBoundariesUpdated();
   }
 }
+
+ReosSimulationProcess::ReosSimulationProcess( const ReosCalculationContext &context, const QList<ReosHydraulicStructureBoundaryCondition *> boundaries )
+{
+  for ( ReosHydraulicStructureBoundaryCondition *bc : boundaries )
+  {
+    if ( bc )
+    {
+      switch ( bc->conditionType() )
+      {
+        case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
+        case ReosHydraulicStructureBoundaryCondition::Type::InputFlow:
+          break;
+        case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
+          mOutputHydrographs.insert( bc->boundaryConditionId(), new ReosHydrograph( this ) );
+          mOutputHydrographs.last()->setName( bc->outputPrefixName()  + QStringLiteral( " %1" ).arg( bc->elementName()->value() ) );
+          mOutputHydrographs.last()->setReferenceTime( context.simulationStartTime() );
+          break;
+      }
+    }
+  }
+
+  connect( this, &ReosSimulationProcess::sendBoundaryFlow, this, &ReosSimulationProcess::onReceiveFlow );
+}
+
+void ReosSimulationProcess::onReceiveFlow( const QDateTime &time, const QStringList &boundaryIds, const QList<double> &values )
+{
+  for ( int i = 0; i < boundaryIds.count(); ++i )
+  {
+    const QString &bId = boundaryIds.at( i );
+    qDebug() << bId << mOutputHydrographs.keys();
+    ReosHydrograph *hyd = mOutputHydrographs.value( bId );
+    if ( hyd )
+      hyd->setValue( time, values.at( i ) );
+  }
+}
+
+QMap<QString, ReosHydrograph *> ReosSimulationProcess::outputHydrographs() const
+{
+  return mOutputHydrographs;
+}

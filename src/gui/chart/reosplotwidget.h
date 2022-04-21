@@ -166,6 +166,10 @@ class REOSGUI_EXPORT ReosPlotWidget: public QWidget
 
     void enableAxeYright( bool b );
 
+    void enableAutoScale( bool b );
+    void enableAutoScaleX( bool b );
+    void enableAutoScaleY( bool b );
+
     void setAxeXType( AxeType type );
     void setAxeXExtent( double min, double max );
     void setAxeXExtent( const QDateTime &timeMin, const QDateTime &timeMax );
