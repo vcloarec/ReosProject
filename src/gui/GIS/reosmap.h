@@ -112,6 +112,8 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
 
     const QObject *temporalController() const;
 
+    QDateTime currentTime() const;
+
   signals:
     //! emitted when the mouse cursor moves on the map cavans.
     void cursorMoved( const QPointF &point );

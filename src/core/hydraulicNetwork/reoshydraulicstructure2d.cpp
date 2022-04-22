@@ -410,12 +410,47 @@ bool ReosHydraulicStructure2D::hasResult( const ReosCalculationContext &context 
   return mSimulationResults.contains( context.schemeId() );
 }
 
-QDateTime ReosHydraulicStructure2D::resultDateTime( const ReosCalculationContext &context )
+QDateTime ReosHydraulicStructure2D::resultsDateTime( const ReosCalculationContext &context ) const
 {
   if ( mSimulationResults.contains( context.schemeId() ) )
     return mSimulationResults.value( context.schemeId() )->runDateTime();
   else
     return QDateTime();
+}
+
+int ReosHydraulicStructure2D::resultsTimeStepCount( const ReosCalculationContext &context ) const
+{
+  if ( mSimulationResults.contains( context.schemeId() ) )
+  {
+    ReosHydraulicSimulationResults *results = mSimulationResults.value( context.schemeId() );
+    if ( results && results->groupCount() > 0 )
+      return mSimulationResults.value( context.schemeId() )->datasetCount( 0 );
+  }
+
+  return 0;
+}
+
+double ReosHydraulicStructure2D::resultsValueAt( const QDateTime &time,
+    const ReosSpatialPosition &position,
+    ReosHydraulicSimulationResults::DatasetType datasetType,
+    const ReosCalculationContext &context )
+{
+  if ( mSimulationResults.contains( context.schemeId() ) )
+  {
+    ReosHydraulicSimulationResults *results = mSimulationResults.value( context.schemeId() );
+    if ( results )
+      return results->interpolateResultOnMesh( mMesh.get(), position, time, datasetType );
+  }
+
+  return std::numeric_limits<double>::quiet_NaN();
+}
+
+QString ReosHydraulicStructure2D::resultsUnits( ReosHydraulicSimulationResults::DatasetType datasetType, const ReosCalculationContext &context )
+{
+  if ( mSimulationResults.contains( context.schemeId() ) )
+    return mSimulationResults.value( context.schemeId() )->unitString( datasetType );
+
+  return QString();
 }
 
 void ReosHydraulicStructure2D::init()

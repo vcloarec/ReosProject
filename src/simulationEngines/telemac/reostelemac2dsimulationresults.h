@@ -18,6 +18,7 @@
 
 #include <mdal.h>
 #include <QMap>
+#include <QDateTime>
 
 #include "reoshydraulicsimulationresults.h"
 
@@ -39,6 +40,7 @@ class ReosTelemac2DSimulationResults : public ReosHydraulicSimulationResults
     int groupCount() const override;
     int datasetCount( int groupIndex ) const override;
     DatasetType datasetType( int groupIndex ) const override;
+    int groupIndex( DatasetType type ) const override;
     void groupMinMax( int groupIndex, double &minimum, double &maximum ) const override;
     QDateTime groupReferenceTime( int groupIndex ) const override;
     ReosDuration datasetRelativeTime( int groupIndex, int datasetIndex ) const override;
@@ -48,17 +50,22 @@ class ReosTelemac2DSimulationResults : public ReosHydraulicSimulationResults
     QVector<int> activeFaces( int index ) const override;
     QDateTime runDateTime() const override;
     QMap<QString, ReosHydrograph *> outputHydrographs() const override;
+    int datasetIndexClosestBeforeTime( int groupIndex, const QDateTime &time ) const override;
+    QString unitString( DatasetType dataType ) const;
 
   private:
     QString mFileName;
     MDAL_MeshH mMeshH = nullptr;
+    mutable QDateTime mReferenceTime;
     QMap<DatasetType, int> mTypeToTelemacGroupIndex;
     double mDryDepthValue = 0.015;
     QVector<QVector<int>> mFaces;
     mutable QVector<CacheDataset> mCache;
     QMap<QString, ReosHydrograph *> mOutputHydrographs;
+    mutable QMap<ReosDuration, int> mTimeToTimeStep;
+    mutable QVector<ReosDuration> mTimeSteps;
 
-
+    void populateTimeStep() const;
 
 };
 

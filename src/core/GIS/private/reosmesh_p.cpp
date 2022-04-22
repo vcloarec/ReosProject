@@ -27,6 +27,7 @@
 #include "reosmeshdataprovider_p.h"
 #include "reosparameter.h"
 #include "reosencodedelement.h"
+#include "reosmapextent.h"
 
 ReosMeshFrame_p::ReosMeshFrame_p( const QString &crs, QObject *parent ): ReosMesh( parent )
 {
@@ -275,6 +276,32 @@ void ReosMeshFrame_p::updateWireFrameSettings()
   update3DRenderer();
 }
 
+QPointF ReosMeshFrame_p::tolayerCoordinates( const ReosSpatialPosition &position ) const
+{
+  QgsCoordinateReferenceSystem sourceCrs;
+  sourceCrs.fromWkt( position.crs() );
+
+  const QgsCoordinateTransform transform( sourceCrs, mMeshLayer->crs(), QgsProject::instance() );
+  QgsPointXY ret;
+  if ( transform.isValid() )
+  {
+    try
+    {
+      ret = transform.transform( position.position() );
+    }
+    catch ( const QgsCsException & )
+    {
+      ret = position.position();
+    }
+  }
+  else
+  {
+    ret = position.position();
+  }
+
+  return ret.toQPointF();
+}
+
 void ReosMeshFrame_p::update3DRenderer()
 {
   if ( !mMeshLayer )
@@ -340,6 +367,136 @@ void ReosMeshFrame_p::setWireFrameSettings( const WireFrameSettings &wireFrameSe
   updateWireFrameSettings();
 }
 
+//from QGIS src/core/mesh/qgsmeshlayerutils.cpp
+static void lamTol( double &lam )
+{
+  const static double eps = 1e-6;
+  if ( ( lam < 0.0 ) && ( lam > -eps ) )
+  {
+    lam = 0.0;
+  }
+}
+
+//from QGIS src/core/mesh/qgsmeshlayerutils.cpp
+static double interpolate( const QgsPointXY &pA, const QgsPointXY &pB, const QgsPointXY &pC, const QgsPointXY &pP, double vA, double vB, double vC, bool &ok )
+{
+  // Compute vectors
+  const double xa = pA.x();
+  const double ya = pA.y();
+  const double v0x = pC.x() - xa ;
+  const double v0y = pC.y() - ya ;
+  const double v1x = pB.x() - xa ;
+  const double v1y = pB.y() - ya ;
+  const double v2x = pP.x() - xa ;
+  const double v2y = pP.y() - ya ;
+
+  // Compute dot products
+  const double dot00 = v0x * v0x + v0y * v0y;
+  const double dot01 = v0x * v1x + v0y * v1y;
+  const double dot02 = v0x * v2x + v0y * v2y;
+  const double dot11 = v1x * v1x + v1y * v1y;
+  const double dot12 = v1x * v2x + v1y * v2y;
+
+  // Compute barycentric coordinates
+  double invDenom =  dot00 * dot11 - dot01 * dot01;
+  if ( invDenom == 0 )
+  {
+    ok = false;
+    return std::numeric_limits<double>::quiet_NaN();
+  }
+  invDenom = 1.0 / invDenom;
+  double lam1 = ( dot11 * dot02 - dot01 * dot12 ) * invDenom;
+  double lam2 = ( dot00 * dot12 - dot01 * dot02 ) * invDenom;
+  double lam3 = 1.0 - lam1 - lam2;
+
+  // Apply some tolerance to lam so we can detect correctly border points
+  lamTol( lam1 );
+  lamTol( lam2 );
+  lamTol( lam3 );
+
+  // Return if POI is outside triangle
+  if ( ( lam1 < 0 ) || ( lam2 < 0 ) || ( lam3 < 0 ) )
+  {
+    ok = false;
+    return std::numeric_limits<double>::quiet_NaN();
+  }
+
+  ok = true;
+  return lam1 * vC + lam2 * vB + lam3 * vA;
+}
+
+
+double ReosMeshFrame_p::interpolateDatasetValueOnPoint(
+  const ReosMeshDatasetSource *datasetSource,
+  const ReosSpatialPosition &position,
+  int sourceGroupindex,
+  int datasetIndex ) const
+{
+  const QVector<double> datasetValues = datasetSource->datasetValues( sourceGroupindex, datasetIndex );
+  const QVector<int> facesActive = datasetSource->activeFaces( datasetIndex );
+
+  bool isScalar = datasetSource->groupIsScalar( sourceGroupindex );
+
+  Q_ASSERT( datasetValues.count() == mMeshLayer->meshVertexCount() * ( isScalar ? 1 : 2 ) );
+
+  QgsPointXY positionInLayer = QgsMeshVertex( tolayerCoordinates( position ) );
+
+  QgsTriangularMesh *triangularMesh = mMeshLayer->triangularMesh();
+  const QgsMeshVertex triVert = triangularMesh->nativeToTriangularCoordinates( QgsMeshVertex( positionInLayer ) );
+  int faceIndex = triangularMesh->faceIndexForPoint_v2( triVert );
+
+  if ( faceIndex < 0 || faceIndex >= triangularMesh->triangles().count() )
+    return std::numeric_limits<double>::quiet_NaN();
+
+  if ( facesActive.at( faceIndex ) == 0 )
+    return std::numeric_limits<double>::quiet_NaN();
+
+  const QgsMeshFace &face = triangularMesh->triangles().at( faceIndex );
+  const QgsMesh nativeMesh = *mMeshLayer->nativeMesh();
+
+  double i0 = face.at( 0 );
+  double i1 = face.at( 1 );
+  double i2 = face.at( 2 );
+  qDebug() << i0 << i1 << i2;
+
+  bool ok = false;
+  double result;
+
+  if ( isScalar )
+    result = interpolate( nativeMesh.vertices.at( i0 ), nativeMesh.vertices.at( i1 ), nativeMesh.vertices.at( i2 ),
+                          positionInLayer,
+                          datasetValues.at( i0 ), datasetValues.at( i1 ), datasetValues.at( i2 ), ok );
+  else
+  {
+    double v0x = datasetValues.at( 2 * i0 );
+    double v0y = datasetValues.at( 2 * i0 + 1 );
+    double v1x = datasetValues.at( 2 * i1 );
+    double v1y = datasetValues.at( 2 * i1 + 1 );
+    double v2x = datasetValues.at( 2 * i2 );
+    double v2y = datasetValues.at( 2 * i2 + 1 );
+
+    double resultX = interpolate( nativeMesh.vertices.at( i0 ), nativeMesh.vertices.at( i1 ), nativeMesh.vertices.at( i2 ),
+                                  positionInLayer,
+                                  v0x, v1x, v2x, ok );
+
+    if ( !ok )
+      return std::numeric_limits<double>::quiet_NaN();
+
+    double resultY = interpolate( nativeMesh.vertices.at( i0 ), nativeMesh.vertices.at( i1 ), nativeMesh.vertices.at( i2 ),
+                                  positionInLayer,
+                                  v0y, v1y, v2y, ok );
+
+    if ( !ok )
+      return std::numeric_limits<double>::quiet_NaN();
+
+    result = std::sqrt( std::pow( resultX, 2 ) + std::pow( resultY, 2 ) );
+  }
+
+  if ( ok )
+    return result;
+
+  return std::numeric_limits<double>::quiet_NaN();
+}
 
 QString ReosMeshFrame_p::enableVertexElevationDataset( const QString &name )
 {

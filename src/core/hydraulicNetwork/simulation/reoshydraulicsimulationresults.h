@@ -23,6 +23,8 @@
 
 class ReosHydraulicSimulation;
 class ReosHydrograph;
+class ReosMesh;
+class ReosSpatialPosition;
 
 class ReosHydraulicSimulationResults : public ReosMeshDatasetSource
 {
@@ -38,13 +40,19 @@ class ReosHydraulicSimulationResults : public ReosMeshDatasetSource
 
     ReosHydraulicSimulationResults( const ReosHydraulicSimulation *simulation, QObject *parent = nullptr );
 
+    QString groupId( DatasetType type );
     QString groupId( int groupIndex ) const;
+    virtual int groupIndex( DatasetType type ) const = 0;
     QString groupName( int groupIndex ) const override;
     bool groupIsScalar( int groupIndex ) const override;
     virtual DatasetType datasetType( int groupIndex ) const = 0;
     virtual QDateTime runDateTime() const = 0;
 
     virtual QMap<QString, ReosHydrograph *> outputHydrographs() const = 0;
+
+    double interpolateResultOnMesh( ReosMesh *mesh, const ReosSpatialPosition &position, const QDateTime &time, DatasetType dataType );
+
+    virtual QString unitString( DatasetType dataType ) const = 0;
 
   private:
     QString mSimulationId;

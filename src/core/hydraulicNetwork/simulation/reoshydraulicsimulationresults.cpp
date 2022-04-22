@@ -14,13 +14,18 @@
  *                                                                         *
  ***************************************************************************/
 #include "reoshydraulicsimulationresults.h"
-
 #include "reoshydraulicsimulation.h"
+#include "reosmesh.h"
 
 ReosHydraulicSimulationResults::ReosHydraulicSimulationResults( const ReosHydraulicSimulation *simulation, QObject *parent )
   : ReosMeshDatasetSource( parent )
 {
   mSimulationId = simulation->id();
+}
+
+QString ReosHydraulicSimulationResults::groupId( ReosHydraulicSimulationResults::DatasetType type )
+{
+  return groupId( groupIndex( type ) );
 }
 
 QString ReosHydraulicSimulationResults::groupId( int groupIndex ) const
@@ -73,4 +78,19 @@ bool ReosHydraulicSimulationResults::groupIsScalar( int groupIndex ) const
       return false;
       break;
   }
+
+  return false;
 }
+
+double ReosHydraulicSimulationResults::interpolateResultOnMesh(
+  ReosMesh *mesh,
+  const ReosSpatialPosition &position,
+  const QDateTime &time,
+  ReosHydraulicSimulationResults::DatasetType dataType )
+{
+  int grInd = groupIndex( dataType );
+  int dsInd = datasetIndexClosestBeforeTime( grInd, time );
+
+  return mesh->interpolateDatasetValueOnPoint( this, position, grInd, dsInd );
+}
+

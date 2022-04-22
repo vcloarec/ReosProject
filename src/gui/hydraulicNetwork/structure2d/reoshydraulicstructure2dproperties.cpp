@@ -127,6 +127,8 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
     if ( mStructure2D->currentSimulation() )
       ui->mSimulationEngineName->setText( mStructure2D->currentSimulation()->engineName() );
   } );
+
+  connect( mMap, &ReosMap::cursorMoved, this, &ReosHydraulicStructure2DProperties::onMapCursorMove );
 }
 
 ReosHydraulicStructure2DProperties::~ReosHydraulicStructure2DProperties()
@@ -168,7 +170,7 @@ void ReosHydraulicStructure2DProperties::setCurrentSimulationProcess( ReosSimula
       fillResultGroupBox( context );
       ui->mProgressBar->setMaximum( 1 );
       ui->mProgressBar->setValue( 1 );
-      QDateTime lastRun = mStructure2D->resultDateTime( context );
+      const QDateTime lastRun = mStructure2D->resultsDateTime( context );
       if ( lastRun.isValid() )
         ui->mLastRunLabel->setText( QLocale().toString( lastRun, QLocale::ShortFormat ) );
       else
@@ -219,7 +221,7 @@ void ReosHydraulicStructure2DProperties::fillResultGroupBox( const ReosCalculati
 
   ui->mLabelResultStartTime->setText( QLocale().toString( context.simulationStartTime(), QLocale::ShortFormat ) );
   ui->mLabelResultEndTime->setText( QLocale().toString( context.simulationEndTime(), QLocale::ShortFormat ) );
-  ui->mLabelResultTimeStepCount->setText( QString( '-' ) );
+  ui->mLabelResultTimeStepCount->setText( QString::number( mStructure2D->resultsTimeStepCount( context ) ) );
   ui->mLabelResultValueDisplayed->setText( mStructure2D->currentDatasetName() );
   ui->mLabelResultValueUnderCursor->setText( QString( '-' ) );
 }
@@ -351,6 +353,31 @@ void ReosHydraulicStructure2DProperties::onSimulationFinished()
 {
   mActionEditStructure->setEnabled( !mStructure2D->hasSimulationRunning() );
   setCurrentSimulationProcess( mCurrentProcess, mCalculationContext );
+}
+
+void ReosHydraulicStructure2DProperties::onMapCursorMove( const QPointF &pos )
+{
+  ReosSpatialPosition position( pos, mMap->mapCrs() );
+
+  ReosHydraulicSimulationResults::DatasetType dt = mStructure2D->currentActivatedDatasetResultType();
+  double value = std::numeric_limits<double>::quiet_NaN();
+  QString unit;
+
+  if ( dt == ReosHydraulicSimulationResults::DatasetType::None )
+  {
+    value = mStructure2D->mesh()->datasetScalarValueAt( mStructure2D->terrainMeshDatasetId(), pos );
+    unit = tr( "m" );
+  }
+  else
+  {
+    value = mStructure2D->resultsValueAt( mMap->currentTime(), position, dt, mCalculationContext );
+    unit = mStructure2D->resultsUnits( dt, mCalculationContext );
+  }
+
+  if ( std::isnan( value ) )
+    ui->mLabelResultValueUnderCursor->setText( tr( "No value" ) );
+  else
+    ui->mLabelResultValueUnderCursor->setText( QLocale().toString( value, 'f', 3 ) + ' ' + unit );
 }
 
 

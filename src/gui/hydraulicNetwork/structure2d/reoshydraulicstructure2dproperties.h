@@ -56,6 +56,7 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
     void updateDatasetMenu();
     void populateHydrograph();
     void onSimulationFinished();
+    void onMapCursorMove( const QPointF &pos );
 
   private:
     Ui::ReosHydraulicStructure2DProperties *ui;

@@ -120,8 +120,20 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     //! Returns whether a result corresponding to \a context is existing
     bool hasResult( const ReosCalculationContext &context );
 
-    //! Returns whether a result corresponding to \a context is existing
-    QDateTime resultDateTime( const ReosCalculationContext &context );
+    //! Returns whether a results corresponding to \a context is existing
+    QDateTime resultsDateTime( const ReosCalculationContext &context ) const;
+
+    //! Returns the time step count of the results corresponding to \a context
+    int resultsTimeStepCount( const ReosCalculationContext &context ) const;
+
+    //! Returns the value of the results with type \a datasetType for the specified \a context, \a position and \a time
+    double resultsValueAt( const QDateTime &time,
+                           const ReosSpatialPosition &position,
+                           ReosHydraulicSimulationResults::DatasetType datasetType,
+                           const ReosCalculationContext &context );
+
+    //! Returns a translated string corresponding to the unit of the results associated with \a context and to the type  \a datasetType
+    QString resultsUnits( ReosHydraulicSimulationResults::DatasetType datasetType, const ReosCalculationContext &context );
 
     //! Sets active the terrain in the mesh
     void activateMeshTerrain();

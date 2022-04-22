@@ -33,6 +33,8 @@ class ReosParameterInteger;
 class ReosParameterSlope;
 class ReosParameterArea;
 class ReosHydraulicSimulationResults;
+class ReosSpatialPosition;
+class ReosMeshDatasetSource;
 
 
 class ReosMeshQualityChecker : public ReosProcess
@@ -185,6 +187,8 @@ class ReosMesh: public ReosRenderedObject
     virtual ReosMeshQualityChecker *getQualityChecker( QualityMeshChecks qualitiChecks, const QString &destinatonCrs ) const = 0;
 
     virtual void setSimulationResults( ReosHydraulicSimulationResults *result ) = 0;
+
+    virtual double interpolateDatasetValueOnPoint( const ReosMeshDatasetSource *datasetSource, const ReosSpatialPosition &position, int sourceGroupindex, int datasetIndex ) const = 0;
 
     QualityMeshParameters qualityMeshParameters() const;
     void setQualityMeshParameter( const ReosEncodedElement &element );

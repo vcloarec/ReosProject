@@ -531,6 +531,15 @@ const QObject *ReosMap::temporalController() const
   return nullptr;
 }
 
+QDateTime ReosMap::currentTime() const
+{
+  QgsMapCanvas *mapCanvas = qobject_cast<QgsMapCanvas *>( mCanvas );
+  if ( mapCanvas )
+    return mapCanvas->mapSettings().temporalRange().begin();
+
+  return QDateTime();
+}
+
 void ReosMap::setCrs( const QString &crsWkt )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );

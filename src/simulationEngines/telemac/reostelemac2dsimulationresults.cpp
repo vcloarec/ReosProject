@@ -130,6 +130,9 @@ QDateTime ReosTelemac2DSimulationResults::groupReferenceTime( int groupIndex ) c
   if ( groupIndex < 0 || groupIndex >= groupCount() )
     return QDateTime();
 
+  if ( mReferenceTime.isValid() )
+    return mReferenceTime;
+
   DatasetType dt = datasetType( groupIndex );
   int telemacIndex = mTypeToTelemacGroupIndex.value( dt );
 
@@ -141,7 +144,9 @@ QDateTime ReosTelemac2DSimulationResults::groupReferenceTime( int groupIndex ) c
   QString referenceTimeString( MDAL_G_referenceTime( group ) );
   if ( !referenceTimeString.isEmpty() )
     referenceTimeString.append( 'Z' );//For now provider doesn't support time zone and return always in local time, force UTC
-  return QDateTime::fromString( referenceTimeString, Qt::ISODate );
+
+  mReferenceTime = QDateTime::fromString( referenceTimeString, Qt::ISODate );
+  return mReferenceTime;
 }
 
 ReosDuration ReosTelemac2DSimulationResults::datasetRelativeTime( int groupIndex, int datasetIndex ) const
@@ -149,19 +154,10 @@ ReosDuration ReosTelemac2DSimulationResults::datasetRelativeTime( int groupIndex
   if ( groupIndex < 0 || groupIndex >= groupCount() )
     return ReosDuration();
 
-  DatasetType dt = datasetType( groupIndex );
-  int telemacIndex = mTypeToTelemacGroupIndex.value( dt );
+  if ( mTimeToTimeStep.isEmpty() )
+    populateTimeStep();
 
-  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH, telemacIndex );
-
-  if ( !group )
-    return ReosDuration();
-
-  MDAL_DatasetH dataset = MDAL_G_dataset( group, datasetIndex );
-  if ( !dataset )
-    return ReosDuration();
-
-  return ReosDuration( MDAL_D_time( dataset ), ReosDuration::hour );
+  return mTimeSteps.at( datasetIndex );
 }
 
 bool ReosTelemac2DSimulationResults::datasetIsValid( int groupIndex, int datasetIndex ) const
@@ -307,4 +303,71 @@ QDateTime ReosTelemac2DSimulationResults::runDateTime() const
 QMap<QString, ReosHydrograph *> ReosTelemac2DSimulationResults::outputHydrographs() const
 {
   return mOutputHydrographs;
+}
+
+int ReosTelemac2DSimulationResults::datasetIndexClosestBeforeTime( int groupIndex, const QDateTime &time ) const
+{
+  ReosDuration relativeTime( groupReferenceTime( groupIndex ).msecsTo( time ) );
+
+  if ( mTimeToTimeStep.isEmpty() )
+    populateTimeStep();
+
+  auto it = mTimeToTimeStep.upperBound( relativeTime );
+
+  if ( it == mTimeToTimeStep.begin() )
+    return -1;
+
+  it--;
+
+  return it.value();
+}
+
+QString ReosTelemac2DSimulationResults::unitString( ReosHydraulicSimulationResults::DatasetType dataType ) const
+{
+  switch ( dataType )
+  {
+    case ReosHydraulicSimulationResults::DatasetType::None:
+      return QString();
+      break;
+    case ReosHydraulicSimulationResults::DatasetType::WaterLevel:
+      return tr( "m" );
+      break;
+    case ReosHydraulicSimulationResults::DatasetType::WaterDepth:
+      return tr( "m" );
+      break;
+    case ReosHydraulicSimulationResults::DatasetType::Velocity:
+      return tr( " m/s" );
+      break;
+  }
+
+  return QString();
+}
+
+void ReosTelemac2DSimulationResults::populateTimeStep() const
+{
+  DatasetType dt = DatasetType::WaterLevel;
+  int telemacIndex = mTypeToTelemacGroupIndex.value( dt );
+
+  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH, telemacIndex );
+
+  if ( !group )
+    return;
+
+  int dsCount = mCache.count();
+  mTimeSteps.resize( dsCount );
+  for ( int i = 0; i < dsCount; ++i )
+  {
+    MDAL_DatasetH dataset = MDAL_G_dataset( group, i );
+    if ( !dataset )
+      continue;
+    ReosDuration relativeTime = ReosDuration( MDAL_D_time( dataset ), ReosDuration::hour );
+    mTimeToTimeStep.insert( relativeTime, i );
+    mTimeSteps[i] = relativeTime;
+  }
+}
+
+int ReosTelemac2DSimulationResults::groupIndex( ReosHydraulicSimulationResults::DatasetType type ) const
+{
+  const QList<DatasetType> &types = mTypeToTelemacGroupIndex.keys();
+  return  types.indexOf( type );
 }

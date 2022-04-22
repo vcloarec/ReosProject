@@ -38,6 +38,7 @@ class ReosMeshDatasetSource : public QObject
     virtual void datasetMinMax( int groupIndex, int datasetIndex, double &min, double &max ) const = 0;
     virtual QVector<double> datasetValues( int groupIndex, int index ) const = 0;
     virtual QVector<int> activeFaces( int index ) const = 0;
+    virtual int datasetIndexClosestBeforeTime( int groupIndex, const QDateTime &time ) const = 0;
 
 };
 

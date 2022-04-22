@@ -85,6 +85,8 @@ class ReosMeshFrame_p : public ReosMesh
     WireFrameSettings wireFrameSettings() const override ;
     void setWireFrameSettings( const WireFrameSettings &wireFrameSettings ) override;
 
+    double interpolateDatasetValueOnPoint( const ReosMeshDatasetSource *datasetSource, const ReosSpatialPosition &position, int sourceGroupindex, int datasetIndex ) const override;
+
   private:
     std::unique_ptr<QgsMeshLayer> mMeshLayer;
     ReosMeshDataProvider_p *meshProvider() const;
@@ -102,6 +104,8 @@ class ReosMeshFrame_p : public ReosMesh
     void firstUpdateOfTerrainScalarSetting();
     void restoreVertexElevationDataset();
     void updateWireFrameSettings();
+
+    QPointF tolayerCoordinates( const ReosSpatialPosition &position ) const;
 
     std::map <QGraphicsView *, std::unique_ptr<QgsMapLayerRenderer>> mRenders;
 };
