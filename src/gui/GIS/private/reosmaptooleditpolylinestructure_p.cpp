@@ -218,7 +218,7 @@ void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
           }
         }
 
-        mCurrentLineId = __INT64_MAX__;
+        mCurrentLineId = INT64_MAX;
         if ( mStructure->searchForLine( sr, mCurrentLineId ) && ( !mActionAddBoundary->isChecked() ) )
         {
           const QLineF line = mStructure->line( mCurrentLineId, mMapCrs );

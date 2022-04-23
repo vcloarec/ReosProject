@@ -81,7 +81,7 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
 
     QString mMapCrs;
     ReosGeometryStructureVertex *mCurrentVertex = nullptr;
-    qint64 mCurrentLineId = __INT64_MAX__;
+    qint64 mCurrentLineId = INT64_MAX;
     QList<QPointF> mNeighborPosition;
     int mMovingHolePointIndex = -1;
     ReosGeometryStructureVertex *mFirstSelectedVertex = nullptr;

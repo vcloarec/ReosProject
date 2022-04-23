@@ -21,7 +21,7 @@
 class ReosParameterDouble;
 class ReosEncodedElement;
 
-class ReosSimulationInitialConditions : public ReosDataObject
+class REOSCORE_EXPORT ReosSimulationInitialConditions : public ReosDataObject
 {
   public:
     enum class Type

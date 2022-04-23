@@ -36,7 +36,7 @@ class ReosCalculationContext;
  * - start and end time of simulation
  */
 
-class ReosHydraulicScheme : public ReosDataObject
+class REOSCORE_EXPORT ReosHydraulicScheme : public ReosDataObject
 {
   public:
     ReosHydraulicScheme( ReosHydraulicSchemeCollection *collection = nullptr );
@@ -76,7 +76,7 @@ class ReosHydraulicScheme : public ReosDataObject
 };
 
 
-class ReosHydraulicSchemeCollection : public QAbstractListModel
+class REOSCORE_EXPORT ReosHydraulicSchemeCollection : public QAbstractListModel
 {
   public:
     ReosHydraulicSchemeCollection( QObject *parent = nullptr );

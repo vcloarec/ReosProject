@@ -36,7 +36,7 @@ class ReosHydraulicSimulationResults;
 class ReosHydraulicSimulation;
 
 
-class ReosSimulationPreparationProcess: public ReosProcess
+class REOSCORE_EXPORT ReosSimulationPreparationProcess: public ReosProcess
 {
     Q_OBJECT
   public:
@@ -68,7 +68,7 @@ class ReosSimulationPreparationProcess: public ReosProcess
 
 
 
-class ReosSimulationProcess : public ReosProcess
+class REOSCORE_EXPORT ReosSimulationProcess : public ReosProcess
 {
     Q_OBJECT
   public:
@@ -87,7 +87,7 @@ class ReosSimulationProcess : public ReosProcess
 
 };
 
-class ReosHydraulicSimulation : public ReosDataObject
+class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject
 {
     Q_OBJECT
   public:
@@ -105,6 +105,7 @@ class ReosHydraulicSimulation : public ReosDataObject
     virtual ReosEncodedElement encode() const = 0;
 
     virtual void saveSimulationResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, bool success ) const = 0;
+
     virtual ReosHydraulicSimulationResults *loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const = 0;
 
     virtual bool hasResult( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const = 0;
@@ -125,7 +126,7 @@ class ReosSimulationEngineFactory
     virtual QString displayName() const = 0;
 };
 
-class ReosSimulationEngineRegistery
+class REOSCORE_EXPORT ReosSimulationEngineRegistery
 {
   public:
     ReosSimulationEngineRegistery();

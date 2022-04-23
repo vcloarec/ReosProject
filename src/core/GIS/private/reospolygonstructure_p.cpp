@@ -263,8 +263,8 @@ int ReosPolygonStructure_p::polygonsCount() const
 {
   long long count = mVectorLayer->featureCount();
 
-  if ( count > __INT32_MAX__ )
-    return __INT32_MAX__;
+  if ( count > _I32_MAX )
+    return _I32_MAX;
 
   return int( count );
 }

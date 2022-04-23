@@ -179,7 +179,7 @@ void ReosMeshGeneratorPoly2TriProcess::start()
 
     const std::vector<p2t::Triangle *> &triangles = cdt->GetTriangles();
 
-    if ( triangles.size() > __INT32_MAX__ )
+    if ( triangles.size() > _I32_MAX )
       throw std::exception();
 
     int triangleCount = triangles.size();

@@ -26,8 +26,8 @@ email                : vcloarec at gmail dot com
 
 #include "reosgui.h"
 #include "reosversion.h"
+#include "reosmodule.h"
 
-class ReosModule;
 class ReosDocumentation;
 class ReosMessageBox;
 

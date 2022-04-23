@@ -26,7 +26,7 @@ class QGraphicsView;
 class QPainter;
 class QgsMapCanvas;
 
-class ReosObjectRenderer: public ReosProcess
+class REOSCORE_EXPORT ReosObjectRenderer: public ReosProcess
 {
     Q_OBJECT
   public:
@@ -44,7 +44,7 @@ class ReosObjectRenderer: public ReosProcess
 
 };
 
-class ReosRenderedObject: public ReosDataObject
+class REOSCORE_EXPORT ReosRenderedObject: public ReosDataObject
 {
     Q_OBJECT
   public:

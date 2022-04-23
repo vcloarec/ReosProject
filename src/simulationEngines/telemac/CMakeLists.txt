@@ -42,6 +42,10 @@ set_target_properties(telemac_engine
     LIBRARY_OUTPUT_DIRECTORY ${REOS_OUTPUT_DIRECTORY}/${REOS_ENGINES_DIR}
     )
 
+IF (MSVC)
+  add_compile_definitions(_USE_MATH_DEFINES)
+ENDIF (MSVC)
+
 INCLUDE_DIRECTORIES(
     ${CMAKE_BINARY_DIR}/src/ui
     ${CMAKE_SOURCE_DIR}/src/gui

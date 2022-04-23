@@ -16,6 +16,8 @@
 #ifndef REOSHYDRAULICSTRUCTURE2D_H
 #define REOSHYDRAULICSTRUCTURE2D_H
 
+#include "reoscore.h"
+
 #include "reoshydraulicnetwork.h"
 #include "reospolylinesstructure.h"
 #include "reoshydraulicsimulation.h"
@@ -29,7 +31,7 @@ class ReosRoughnessStructure;
 class ReosHydraulicStructureBoundaryCondition;
 class QDir;
 
-class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
+class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
 {
     Q_OBJECT
   public:
@@ -52,7 +54,7 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     virtual void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
 
     void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydraulicStructureBoundaryCondition *boundaryCondition, bool upstreamWillChange ) {}
-    bool updateCalculationContextFromDownstream( const ReosCalculationContext &context ) {}
+    bool updateCalculationContextFromDownstream(const ReosCalculationContext& context) { return false; }
 
     //! Returns the domain polygon
     QPolygonF domain( const QString &crs = QString() ) const;
@@ -257,7 +259,7 @@ class ReosHydraulicStructure2dFactory : public ReosHydraulicNetworkElementFactor
 };
 
 
-class ReosRoughnessStructure : public ReosDataObject
+class REOSCORE_EXPORT ReosRoughnessStructure : public ReosDataObject
 {
     Q_OBJECT
   public:

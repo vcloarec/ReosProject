@@ -18,10 +18,11 @@
 
 #include <QVector3D>
 #include <QColor>
+#include "reoscore.h"
 
 class ReosEncodedElement;
 
-class Reos3DMapSettings
+class REOSCORE_EXPORT Reos3DMapSettings
 {
   public:
     Reos3DMapSettings();
@@ -45,7 +46,7 @@ class Reos3DMapSettings
 };
 
 
-class Reos3DTerrainSettings
+class REOSCORE_EXPORT Reos3DTerrainSettings
 {
   public:
     enum RenderingType

@@ -31,9 +31,10 @@ class QBoxLayout;
 class QSpacerItem;
 class QCheckBox;
 
+#include "reosgui.h"
 #include "reosparameter.h"
 
-class ReosParameterWidget : public QWidget
+class REOSGUI_EXPORT ReosParameterWidget : public QWidget
 {
     Q_OBJECT
   public:
@@ -84,7 +85,7 @@ class ReosParameterWidget : public QWidget
     QString mDefaultName;
 };
 
-class ReosParameterWidgetAction : public QWidgetAction
+class REOSGUI_EXPORT ReosParameterWidgetAction : public QWidgetAction
 {
   public:
     ReosParameterWidgetAction( ReosParameter *parameter, QObject *parent = nullptr );
@@ -96,7 +97,7 @@ class ReosParameterWidgetAction : public QWidgetAction
 };
 
 
-class ReosParameterInLineWidget : public ReosParameterWidget
+class REOSGUI_EXPORT ReosParameterInLineWidget : public ReosParameterWidget
 {
   public:
     ReosParameterInLineWidget( QWidget *parent = nullptr, const QString &defaultName = QString() );
@@ -113,7 +114,7 @@ class ReosParameterInLineWidget : public ReosParameterWidget
     mutable QString mCurrentText;
 };
 
-class ReosParameterDoubleWidget : public ReosParameterInLineWidget
+class REOSGUI_EXPORT ReosParameterDoubleWidget : public ReosParameterInLineWidget
 {
   public:
     explicit ReosParameterDoubleWidget( QWidget *parent = nullptr, const QString &defaultName = QString() );
@@ -126,7 +127,7 @@ class ReosParameterDoubleWidget : public ReosParameterInLineWidget
     ReosParameterDouble *doubleParameter();
 };
 
-class ReosParameterIntegerWidget : public ReosParameterInLineWidget
+class REOSGUI_EXPORT ReosParameterIntegerWidget : public ReosParameterInLineWidget
 {
   public:
     explicit ReosParameterIntegerWidget( QWidget *parent = nullptr, const QString &defaultName = QString() );
@@ -139,7 +140,7 @@ class ReosParameterIntegerWidget : public ReosParameterInLineWidget
     ReosParameterInteger *integerParameter();
 };
 
-class ReosParameterStringWidget : public ReosParameterInLineWidget
+class REOSGUI_EXPORT ReosParameterStringWidget : public ReosParameterInLineWidget
 {
   public:
     explicit ReosParameterStringWidget( QWidget *parent = nullptr, const QString &defaultName = QString() );
@@ -153,7 +154,7 @@ class ReosParameterStringWidget : public ReosParameterInLineWidget
     ReosParameterString *stringParameter();
 };
 
-class ReosParameterAreaWidget: public ReosParameterInLineWidget
+class REOSGUI_EXPORT ReosParameterAreaWidget: public ReosParameterInLineWidget
 {
   public:
     explicit ReosParameterAreaWidget( QWidget *parent = nullptr, const QString &defaultName = QString() );
@@ -171,7 +172,7 @@ class ReosParameterAreaWidget: public ReosParameterInLineWidget
     QComboBox *mUnitCombobox = nullptr;
 };
 
-class ReosParameterSlopeWidget: public ReosParameterInLineWidget
+class REOSGUI_EXPORT ReosParameterSlopeWidget: public ReosParameterInLineWidget
 {
   public:
     explicit ReosParameterSlopeWidget( QWidget *parent = nullptr, const QString &defaultName = QString() );
@@ -191,7 +192,7 @@ class ReosParameterSlopeWidget: public ReosParameterInLineWidget
     int mFactor = 100;
 };
 
-class ReosDurationUnitComboBox: public QComboBox
+class REOSGUI_EXPORT ReosDurationUnitComboBox: public QComboBox
 {
   public:
     ReosDurationUnitComboBox( QWidget *parent = nullptr, ReosDuration::Unit timeUnit = ReosDuration::minute );
@@ -203,7 +204,7 @@ class ReosDurationUnitComboBox: public QComboBox
     void setCurrentUnit( ReosDuration::Unit unit );
 };
 
-class ReosParameterDurationWidget: public ReosParameterInLineWidget
+class REOSGUI_EXPORT ReosParameterDurationWidget: public ReosParameterInLineWidget
 {
   public:
     explicit ReosParameterDurationWidget( QWidget *parent = nullptr, const QString &defaultName = QString() );
@@ -222,7 +223,7 @@ class ReosParameterDurationWidget: public ReosParameterInLineWidget
     ReosDurationUnitComboBox *mUnitCombobox = nullptr;
 };
 
-class ReosParameterDateTimeWidget: public ReosParameterWidget
+class REOSGUI_EXPORT ReosParameterDateTimeWidget: public ReosParameterWidget
 {
   public:
     explicit ReosParameterDateTimeWidget( QWidget *parent = nullptr, const QString &defaultName = QString() );
@@ -241,7 +242,7 @@ class ReosParameterDateTimeWidget: public ReosParameterWidget
     QDateTimeEdit *mDateTimeEdit = nullptr;
 };
 
-class ReosParameterBooleanWidget : public ReosParameterWidget
+class REOSGUI_EXPORT ReosParameterBooleanWidget : public ReosParameterWidget
 {
   public:
     explicit ReosParameterBooleanWidget( QWidget *parent = nullptr, const QString &defaultName = QString() );
@@ -261,7 +262,7 @@ class ReosParameterBooleanWidget : public ReosParameterWidget
 };
 
 // Derived from QTextEdit to have a signal editingFinished when the focus go out
-class ReosParameterTextEdit: public QTextEdit
+class REOSGUI_EXPORT ReosParameterTextEdit: public QTextEdit
 {
     Q_OBJECT
   public:
@@ -274,7 +275,7 @@ class ReosParameterTextEdit: public QTextEdit
     void focusOutEvent( QFocusEvent *event ) override;
 };
 
-class ReosParameterLongStringWidget : public ReosParameterWidget
+class REOSGUI_EXPORT ReosParameterLongStringWidget : public ReosParameterWidget
 {
   public:
     explicit ReosParameterLongStringWidget( QWidget *parent = nullptr, const QString &defaultName = QString() );

@@ -22,6 +22,8 @@
 #include <QVector>
 #include <QPolygonF>
 
+#include "reoscore.h"
+
 #include "reosdataobject.h"
 #include "reosprocess.h"
 
@@ -53,7 +55,7 @@ class ReosMeshGeneratorProcess: public ReosProcess
 /**
  * Class that controls the resolution of a generated mesh
  */
-class ReosMeshResolutionController : public ReosDataObject
+class REOSCORE_EXPORT ReosMeshResolutionController : public ReosDataObject
 {
     Q_OBJECT
   public:
@@ -79,7 +81,7 @@ class ReosMeshResolutionController : public ReosDataObject
 /**
  * Abstract class used to generate mesh frame
  */
-class ReosMeshGenerator : public ReosDataObject
+class REOSCORE_EXPORT ReosMeshGenerator : public ReosDataObject
 {
     Q_OBJECT
   public:

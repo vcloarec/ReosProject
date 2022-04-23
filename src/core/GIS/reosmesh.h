@@ -21,6 +21,7 @@
 #include <QPointer>
 #include <QSet>
 
+#include "reoscore.h"
 #include "reosrenderedobject.h"
 
 class ReosMeshGenerator;
@@ -63,7 +64,7 @@ class ReosMeshQualityChecker : public ReosProcess
 };
 
 
-class ReosMesh: public ReosRenderedObject
+class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
 {
     Q_OBJECT
   public:

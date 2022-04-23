@@ -19,6 +19,7 @@
 #include <QObject>
 #include <QVector>
 
+#include "reoscore.h"
 #include "reosmeshdatasetsource.h"
 
 class ReosHydraulicSimulation;
@@ -26,7 +27,7 @@ class ReosHydrograph;
 class ReosMesh;
 class ReosSpatialPosition;
 
-class ReosHydraulicSimulationResults : public ReosMeshDatasetSource
+class REOSCORE_EXPORT ReosHydraulicSimulationResults : public ReosMeshDatasetSource
 {
     Q_OBJECT
   public:

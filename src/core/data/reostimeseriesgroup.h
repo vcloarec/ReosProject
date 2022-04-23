@@ -19,8 +19,8 @@
 #include "reosdataobject.h"
 
 class ReosTimeSerieVariableTimeStep;
-
-class ReosTimeSeriesVariableTimeStepGroup : public ReosDataObject
+ 
+class REOSCORE_EXPORT ReosTimeSeriesVariableTimeStepGroup : public ReosDataObject
 {
   public:
     ReosTimeSeriesVariableTimeStepGroup( QObject *parent = nullptr );

@@ -16,13 +16,14 @@
 #ifndef REOSHYDRAULICSTRUCTUREBOUNDARYCONDITION_H
 #define REOSHYDRAULICSTRUCTUREBOUNDARYCONDITION_H
 
+#include "reoscore.h"
 #include "reoshydrographsource.h"
 #include "reoshydraulicnetwork.h"
 
 class ReosHydraulicStructure2D;
 class ReosTimeSeriesVariableTimeStepGroup;
 
-class ReosHydraulicStructureBoundaryCondition : public ReosHydrographJunction
+class REOSCORE_EXPORT ReosHydraulicStructureBoundaryCondition : public ReosHydrographJunction
 {
     Q_OBJECT
   public:

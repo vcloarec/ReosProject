@@ -21,13 +21,15 @@
 
 #include <memory>
 
+#include "reoscore.h"
+
 #include "reosgeometrystructure.h"
 
 class ReosSpatialPosition;
 class QUndoStack;
 
 
-class ReosPolylinesStructure : public ReosGeometryStructure
+class REOSCORE_EXPORT ReosPolylinesStructure : public ReosGeometryStructure
 {
     Q_OBJECT
   public:
