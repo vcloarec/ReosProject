@@ -15,8 +15,12 @@
  ***************************************************************************/
 #include "reostelemacsimulationeditwidget.h"
 #include "ui_reostelemacsimulationeditwidget.h"
+#include "ui_reostelemacengineconfigurationdialog.h"
+
+#include <QFileDialog>
 
 #include "reossimulationinitialcondition.h"
+#include "reossettings.h"
 
 ReosTelemacSimulationEditWidget::ReosTelemacSimulationEditWidget( ReosTelemac2DSimulation *simulation, QWidget *parent ) :
   QWidget( parent ),
@@ -46,7 +50,60 @@ REOSEXTERN ReosHydraulicSimulationWidgetFactory *simulationWidgetFactory()
   return new ReosTelemacSimulationEditWidgetFactory;
 }
 
-QWidget *ReosTelemacSimulationEditWidgetFactory::simulationSettingsWidget( ReosHydraulicSimulation *simulation, QWidget *parent )
+QWidget *ReosTelemacSimulationEditWidgetFactory::simulationSettingsWidget( ReosHydraulicSimulation *simulation, QWidget *parent ) const
 {
   return new ReosTelemacSimulationEditWidget( qobject_cast<ReosTelemac2DSimulation *>( simulation ), parent );
+}
+
+QDialog *ReosTelemacSimulationEditWidgetFactory::engineConfigurationDialog( QWidget *parent ) const
+{
+  return new ReosTelemacEngineConfigurationDialog( parent );
+}
+
+ReosTelemacEngineConfigurationDialog::ReosTelemacEngineConfigurationDialog( QWidget *parent ):
+  QDialog( parent ),
+  ui( new Ui::ReosTelemacEngineConfigurationDialog )
+{
+  ui->setupUi( this );
+  ReosSettings settings;
+
+  ui->mTelemac2DPythonScriptLineEdit->setText(
+    settings.value( QStringLiteral( "/engine/telemac/telemac-2d-python-script" ) ).toString() );
+
+  ui->mTelemacConfigFileLineEdit->setText(
+    settings.value( QStringLiteral( "/engine/telemac/telemac-config-file" ) ).toString() );
+
+  ui->mLineEditConfig->setText(
+    settings.value( QStringLiteral( "/engine/telemac/telemac-configuration" ) ).toString() );
+
+  if ( settings.contains( QStringLiteral( "/engine/telemac/cpu-usage-count" ) ) )
+    ui->mCPUSpinBox->setValue(
+      settings.value( QStringLiteral( "/engine/telemac/cpu-usage-count" ) ).toInt() );
+  else
+    ui->mCPUSpinBox->setValue( QThread::idealThreadCount() );
+
+  connect( this, &QDialog::accepted, this, &ReosTelemacEngineConfigurationDialog::onAccepted );
+  connect( ui->mTelemac2DPythonScriptButton, &QToolButton::clicked, this, [this]
+  {
+    QFileInfo info( ui->mTelemac2DPythonScriptLineEdit->text() );
+    QString filePath = QFileDialog::getOpenFileName( this, tr( "TELEMAC 2D Python Script" ), info.path() );
+    if ( !filePath.isEmpty() )
+      ui->mTelemac2DPythonScriptLineEdit->setText( filePath );
+  } );
+  connect( ui->mTelemacConfigFileButton, &QToolButton::clicked, this, [this]
+  {
+    QFileInfo info( ui->mTelemacConfigFileLineEdit->text() );
+    QString filePath = QFileDialog::getOpenFileName( this, tr( "TELEMAC Configuration File" ), info.path() );
+    if ( !filePath.isEmpty() )
+      ui->mTelemacConfigFileLineEdit->setText( filePath );
+  } );
+}
+
+void ReosTelemacEngineConfigurationDialog::onAccepted()
+{
+  ReosSettings settings;
+  settings.setValue( QStringLiteral( "/engine/telemac/telemac-2d-python-script" ), ui->mTelemac2DPythonScriptLineEdit->text() );
+  settings.setValue( QStringLiteral( "/engine/telemac/telemac-config-file" ), ui->mTelemacConfigFileLineEdit->text() );
+  settings.setValue( QStringLiteral( "/engine/telemac/telemac-configuration" ), ui->mLineEditConfig->text() );
+  settings.setValue( QStringLiteral( "/engine/telemac/cpu-usage-count" ), ui->mCPUSpinBox->value() );
 }

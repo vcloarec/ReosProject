@@ -155,6 +155,11 @@ ReosSimulationPreparationProcess::ReosSimulationPreparationProcess( ReosHydrauli
   , mContext( context )
 {}
 
+void ReosSimulationPreparationProcess::setDestination( const QDir &destination )
+{
+  mDestinationPath = destination.path();
+}
+
 void ReosSimulationPreparationProcess::start()
 {
   emit sendInformation( tr( "Get boundary counditions", nullptr, mWaitedBoundaryId.count() ) );
@@ -200,7 +205,14 @@ void ReosSimulationPreparationProcess::start()
 
   eventLoop->deleteLater();
 
-  mSimulation->prepareInput( mStructure, mContext );
+  if ( mDestinationPath.isEmpty() )
+    mSimulation->prepareInput( mStructure, mContext );
+  else
+  {
+    const QDir dir( mDestinationPath );
+    if ( dir.exists() )
+      mSimulation->prepareInput( mStructure, mContext, dir );
+  }
 
 }
 

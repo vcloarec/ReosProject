@@ -155,5 +155,7 @@
         <file>settings.svg</file>
         <file>runModel.svg</file>
         <file>scalarContour.svg</file>
+        <file>exportSimulation.svg</file>
+        <file>engineSettings.svg</file>
     </qresource>
 </RCC>

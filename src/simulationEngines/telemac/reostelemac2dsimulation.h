@@ -54,6 +54,7 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
     QString key() const override {return ReosTelemac2DSimulation::staticKey();}
     QString directoryName() const override {return  QStringLiteral( "TELEMAC" );}
     void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) override;
+    void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext, const QDir &directory ) override;
     virtual ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const override;
     ReosEncodedElement encode() const override;
 
@@ -78,33 +79,34 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
     QList<TelemacBoundaryCondition> mBoundaries;
 
     QString mGeomFileName = QStringLiteral( "geom_input.slf" );
-    QString mResultFileName = QStringLiteral( "result.slf" );
-    QString mBoundaryFileName = QStringLiteral( "boundary.bc" );
-    QString mBoundaryConditionFileName = QStringLiteral( "boundaryCondition.sql" );
+    QString mResultFileName = QStringLiteral( "results.slf" );
+    QString mBoundaryFileName = QStringLiteral( "boundary.cli" );
+    QString mBoundaryConditionFileName = QStringLiteral( "boundaryCondition.liq" );
     QString mSteeringFileName = QStringLiteral( "simulation.cas" );
 
-    QList<ReosHydraulicStructureBoundaryCondition *> createBoundaryFiles( ReosHydraulicStructure2D *hydraulicStructure,
-        QVector<int> &verticesPosInBoundary,
-        const QString &schemeId );
+    QList<ReosHydraulicStructureBoundaryCondition *> createBoundaryFiles(
+      ReosHydraulicStructure2D *hydraulicStructure,
+      QVector<int> &verticesPosInBoundary,
+      const QDir &directory );
 
     void createSelafinMeshFrame( ReosHydraulicStructure2D *hydraulicStructure,
                                  const QVector<int> &verticesPosInBoundary,
-                                 const QString &schemeId );
+                                 const QDir &directory );
 
-    void createSelafinInputGeometry(
-      ReosHydraulicStructure2D *hydraulicStructure,
-      const QVector<int> &verticesPosInBoundary,
-      const QString &schemeId );
+    void createSelafinInputGeometry( ReosHydraulicStructure2D *hydraulicStructure,
+                                     const QVector<int> &verticesPosInBoundary,
+                                     const QDir &directory );
 
     QList<TelemacBoundaryCondition> createBoundaryConditionFiles(
-      ReosHydraulicStructure2D *hydraulicStructure,
       QList<ReosHydraulicStructureBoundaryCondition *> boundaryConditions,
-      const ReosCalculationContext &context );
+      const ReosCalculationContext &context,
+      const QDir &directory );
 
     void createSteeringFile(
       ReosHydraulicStructure2D *hydraulicStructure,
       QList<ReosHydraulicStructureBoundaryCondition *> boundaryConditions,
-      const ReosCalculationContext &context );
+      const ReosCalculationContext &context,
+      const QDir &directory );
 };
 
 typedef ReosTelemac2DSimulation::TelemacBoundaryCondition BoundaryCondition;

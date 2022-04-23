@@ -129,6 +129,15 @@ QWidget *ReosHydraulicSimulationWidgetRegistery::createEditingWidget( ReosHydrau
   return it->second->simulationSettingsWidget( simulation, parent );
 }
 
+QDialog *ReosHydraulicSimulationWidgetRegistery::createConfigurationDialog( const QString &key, QWidget *parent )
+{
+  auto it = mFactories.find( key );
+  if ( it == mFactories.end() )
+    return nullptr;
+
+  return it->second->engineConfigurationDialog( parent );
+}
+
 ReosHydraulicSimulationWidgetRegistery *ReosHydraulicSimulationWidgetRegistery::instance()
 {
   if ( !sInstance )

@@ -344,6 +344,16 @@ ReosProcess *ReosHydraulicStructure2D::getPreparationProcessSimulation( const Re
   return new ReosSimulationPreparationProcess( this, currentSimulation(), context );
 }
 
+ReosProcess *ReosHydraulicStructure2D::getPreparationProcessSimulation( const ReosCalculationContext &context, const QDir &directory )
+{
+  if ( !currentSimulation() )
+    return nullptr;
+
+  std::unique_ptr<ReosSimulationPreparationProcess> ret( new ReosSimulationPreparationProcess( this, currentSimulation(), context ) );
+  ret->setDestination( directory );
+  return ret.release();
+}
+
 ReosSimulationProcess *ReosHydraulicStructure2D::startSimulation( const ReosCalculationContext &context )
 {
   if ( !currentSimulation() )

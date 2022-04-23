@@ -20,6 +20,7 @@
 #include <QCheckBox>
 #include <QSlider>
 #include <QMessageBox>
+#include <QFileDialog>
 
 #include "reosedithydraulicstructure2dwidget.h"
 #include "reos3dview.h"
@@ -30,6 +31,7 @@
 #include "reosprocesscontroler.h"
 #include "reoshydraulicstructureboundarycondition.h"
 #include "reosplotitemlist.h"
+#include "reoshydraulic2dsimulationwidget.h"
 
 
 ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context )
@@ -39,6 +41,8 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   , mMap( context.map() )
   , mActionEditStructure( new QAction( QPixmap( QStringLiteral( ":/images/settings.svg" ) ), tr( "Edit Model" ), this ) )
   , mActionRunSimulation( new QAction( QPixmap( QStringLiteral( ":/images/runModel.svg" ) ), tr( "Run Simulation" ), this ) )
+  , mActionExportSimulationFile( new QAction( QPixmap( QStringLiteral( ":/images/exportSimulation.svg" ) ), tr( "Export Simulation" ), this ) )
+  , mActionEngineConfiguration( ( new QAction( QPixmap( QStringLiteral( ":/images/engineSettings.svg" ) ), tr( "Engine Settings" ), this ) ) )
   , mAction3DView( new QAction( QPixmap( QStringLiteral( ":/images/view3D.svg" ) ), tr( "3D View" ), this ) )
   , mScalarDatasetMenu( new QMenu( this ) )
   , mGuiContext( context, this )
@@ -53,6 +57,21 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   } );
 
   connect( mActionRunSimulation, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::onLaunchCalculation );
+  connect( mActionExportSimulationFile, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::onExportSimulation );
+  connect( mActionEngineConfiguration, &QAction::triggered, this, [this]
+  {
+    if ( mStructure2D->currentSimulation() )
+    {
+      QString key = mStructure2D->currentSimulation()->key();
+      QDialog *configDialog = ReosHydraulicSimulationWidgetRegistery::instance()->createConfigurationDialog( key, this );
+      configDialog->exec();
+      configDialog->deleteLater();
+    }
+    else
+    {
+      QMessageBox::warning( this, tr( "Simulation Engine Settings" ), tr( "No simulation selected in the modele settings" ) );
+    }
+  } );
 
   mView3D = new Reos3dView( mStructure2D->mesh(), ReosGuiContext( context, this ) );
   mView3D->setAction( mAction3DView );
@@ -68,7 +87,16 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
 
   QToolBar *toolBar = new QToolBar( this );
   toolBar->addAction( mActionEditStructure );
-  toolBar->addAction( mActionRunSimulation );
+
+  QToolButton *simulationToolButton = new QToolButton( toolBar );
+  simulationToolButton->setPopupMode( QToolButton::MenuButtonPopup );
+  simulationToolButton->setDefaultAction( mActionRunSimulation );
+  QMenu *simulationMenu = new QMenu( toolBar );
+  simulationMenu->addAction( mActionExportSimulationFile );
+  simulationMenu->addAction( mActionEngineConfiguration );
+  simulationToolButton->setMenu( simulationMenu );
+  toolBar->addWidget( simulationToolButton );
+
   toolBar->addSeparator();
 
   QToolButton *datasetSettingsButton = new QToolButton( toolBar );
@@ -264,6 +292,19 @@ void ReosHydraulicStructure2DProperties::onLaunchCalculation()
   ReosHydraulicSimulationConsole *console = new ReosHydraulicSimulationConsole( mStructure2D->simulationProcess( mCalculationContext ), mGuiContext );
   connect( this, &ReosHydraulicStructure2DProperties::calculationContextChanged, console, &ReosHydraulicSimulationConsole::backToPreviousPage );
   emit stackedPageWidgetOpened( console );
+}
+
+void ReosHydraulicStructure2DProperties::onExportSimulation()
+{
+  const QString dirPath = QFileDialog::getExistingDirectory( this, "Export Simulation File", QString(), QFileDialog::ShowDirsOnly );
+
+  const QDir dir( dirPath );
+
+  std::unique_ptr<ReosProcess> preparationProcess( mStructure2D->getPreparationProcessSimulation( mCalculationContext, dir ) );
+  ReosProcessControler *controler = new ReosProcessControler( preparationProcess.get(), this );
+  controler->exec();
+
+  controler->deleteLater();
 }
 
 void ReosHydraulicStructure2DProperties::updateDatasetMenu()

@@ -28,6 +28,7 @@
 #include "reoshydraulicstructureboundarycondition.h"
 #include "reoscalculationcontext.h"
 #include "reostelemac2dsimulationresults.h"
+#include "reossettings.h"
 
 ReosTelemac2DSimulation::ReosTelemac2DSimulation( const ReosEncodedElement &element, QObject *parent )
   : ReosHydraulicSimulation( parent )
@@ -164,14 +165,9 @@ QString ReosTelemac2DSimulation::engineName() const
 void ReosTelemac2DSimulation::prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext )
 {
   QDir dir = simulationDir( hydraulicStructure, calculationContext.schemeId() );
-  QVector<int> verticesPosInBoundary;
-  QList<ReosHydraulicStructureBoundaryCondition *> boundaryCondition = createBoundaryFiles( hydraulicStructure, verticesPosInBoundary, calculationContext.schemeId() );
-  createSelafinInputGeometry( hydraulicStructure, verticesPosInBoundary, calculationContext.schemeId() );
-  mBoundaries = createBoundaryConditionFiles( hydraulicStructure, boundaryCondition, calculationContext );
-  createSteeringFile( hydraulicStructure, boundaryCondition, calculationContext );
+  prepareInput( hydraulicStructure, calculationContext, dir );
 
   QFileInfo fileInfo( dir.filePath( mResultFileName ) );
-
   QString fn = dir.filePath( mResultFileName );
 
   if ( fileInfo.exists() )
@@ -179,6 +175,15 @@ void ReosTelemac2DSimulation::prepareInput( ReosHydraulicStructure2D *hydraulicS
     QFile::remove( dir.filePath( mResultFileName ) );
     QFile::remove( dir.filePath( QStringLiteral( "outputHydrographs" ) ) );
   }
+}
+
+void ReosTelemac2DSimulation::prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext, const QDir &directory )
+{
+  QVector<int> verticesPosInBoundary;
+  QList<ReosHydraulicStructureBoundaryCondition *> boundaryCondition = createBoundaryFiles( hydraulicStructure, verticesPosInBoundary, directory );
+  createSelafinInputGeometry( hydraulicStructure, verticesPosInBoundary, directory );
+  mBoundaries = createBoundaryConditionFiles( boundaryCondition, calculationContext, directory );
+  createSteeringFile( hydraulicStructure, boundaryCondition, calculationContext, directory );
 }
 
 ReosSimulationProcess *ReosTelemac2DSimulation::getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const
@@ -208,7 +213,7 @@ struct TelemacBoundary
 QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemac2DSimulation::createBoundaryFiles(
   ReosHydraulicStructure2D *hydraulicStructure,
   QVector<int> &verticesPosInBoundary,
-  const QString &schemeId )
+  const QDir &directory )
 {
   QVector<ReosHydraulicStructure2D::BoundaryVertices> boundSegments =  hydraulicStructure->boundaryVertices();
   // constraint for TElEMAC:
@@ -333,7 +338,7 @@ QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemac2DSimulation::create
       std::swap( ret[i], ret[ret.count() - 1 - i] );
   }
 
-  QString path = simulationDir( hydraulicStructure, schemeId ).filePath( mBoundaryFileName );
+  QString path = directory.filePath( mBoundaryFileName );
   QFile file( path );
 
   file.open( QIODevice::WriteOnly );
@@ -484,14 +489,13 @@ static void setCounterClockwise( QVector<int> &triangle, const QPointF &v0, cons
 
 void ReosTelemac2DSimulation::createSelafinMeshFrame( ReosHydraulicStructure2D *hydraulicStructure,
     const QVector<int> &verticesPosInBoundary,
-    const QString &schemeId )
+    const QDir &directory )
 {
   // MDAL does not handle the boundaries. As the parrallel calculation in Telemac need to now about the boundaies vertices,
   // wa can't iuse MDAL to create the mesh frame file. Here we use the same logic as MDAL but we add the boundaries vertices indexes
 
   ReosMesh *rmesh = hydraulicStructure->mesh();
-  QDir dir = simulationDir( hydraulicStructure, schemeId );
-  QString path = dir.filePath( mGeomFileName );
+  QString path = directory.filePath( mGeomFileName );
 
   QFile file( path );
   file.open( QIODevice::WriteOnly );
@@ -560,9 +564,12 @@ void ReosTelemac2DSimulation::createSelafinMeshFrame( ReosHydraulicStructure2D *
   file.close();
 }
 
-void ReosTelemac2DSimulation::createSelafinInputGeometry( ReosHydraulicStructure2D *hydraulicStructure, const QVector<int> &verticesPosInBoundary, const QString &schemeId )
+void ReosTelemac2DSimulation::createSelafinInputGeometry(
+  ReosHydraulicStructure2D *hydraulicStructure,
+  const QVector<int> &verticesPosInBoundary,
+  const QDir &directory )
 {
-  createSelafinMeshFrame( hydraulicStructure, verticesPosInBoundary, schemeId );
+  createSelafinMeshFrame( hydraulicStructure, verticesPosInBoundary, directory );
 
   // TODO :: replace below by  writing directly on the file without MDAL or QGIS. Indeed, no so much to do more than the method aboce
   QgsMeshLayer *meshLayer = qobject_cast<QgsMeshLayer *> ( hydraulicStructure->mesh()->data() );
@@ -571,8 +578,7 @@ void ReosTelemac2DSimulation::createSelafinInputGeometry( ReosHydraulicStructure
 
   const QgsMesh &mesh = *meshLayer->nativeMesh();
 
-  QDir dir = simulationDir( hydraulicStructure, schemeId );
-  QString path = dir.filePath( mGeomFileName );
+  QString path = directory.filePath( mGeomFileName );
 
   std::unique_ptr<QgsMeshLayer> ouputMesh = std::make_unique < QgsMeshLayer>(
         path,
@@ -617,9 +623,9 @@ void ReosTelemac2DSimulation::createSelafinInputGeometry( ReosHydraulicStructure
 
 
 QList<ReosTelemac2DSimulation::TelemacBoundaryCondition> ReosTelemac2DSimulation::createBoundaryConditionFiles(
-  ReosHydraulicStructure2D *hydraulicStructure,
   QList<ReosHydraulicStructureBoundaryCondition *> boundaryConditions,
-  const ReosCalculationContext &context )
+  const ReosCalculationContext &context,
+  const QDir &directory )
 {
   QSet<qint64> timeSteps;
   QList<TelemacBoundaryCondition> boundConds;
@@ -677,8 +683,7 @@ QList<ReosTelemac2DSimulation::TelemacBoundaryCondition> ReosTelemac2DSimulation
   if ( !timeStepsList.isEmpty() && timeStepsList.last() == startTime.msecsTo( endTime ) )
     timeStepsList.removeLast();
 
-  QDir dir = simulationDir( hydraulicStructure, context.schemeId() );
-  QString path = dir.filePath( mBoundaryConditionFileName );
+  QString path = directory.filePath( mBoundaryConditionFileName );
   QFile file( path );
   file.open( QIODevice::WriteOnly );
   QTextStream stream( &file );
@@ -716,10 +721,10 @@ QList<ReosTelemac2DSimulation::TelemacBoundaryCondition> ReosTelemac2DSimulation
 
 void ReosTelemac2DSimulation::createSteeringFile( ReosHydraulicStructure2D *hydraulicStructure,
     QList<ReosHydraulicStructureBoundaryCondition *> boundaryConditions,
-    const ReosCalculationContext &context )
+    const ReosCalculationContext &context,
+    const QDir &directory )
 {
-  QDir dir = simulationDir( hydraulicStructure, context.schemeId() );
-  QString path = dir.filePath( mSteeringFileName );
+  QString path = directory.filePath( mSteeringFileName );
   QFile file( path );
 
   file.open( QIODevice::WriteOnly );
@@ -841,24 +846,25 @@ void ReosTelemac2DSimulationProcess::start()
 {
   mProcess = new QProcess();
   QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-  env.insert( "HOMETE", "/opt/telemac/" );
-  env.insert( "PATH", QStringLiteral( "/opt/telemac/scripts/python3:.:%1" ).arg( env.value( "PATH" ) ) );
-  env.insert( "SYSTELCFG", "/opt/telemac/configs/systel.vcl-ubuntu.cfg" );
-  env.insert( "USETELCFG", "ubugfmpich2" );
-  env.insert( "SOURCEFILE", "/opt/telemac/configs/pysource.vcl.sh" );
-  env.insert( "PYTHONUNBUFFERED",  "'true'" );
-  env.insert( "PYTHONPATH", QStringLiteral( "/opt/telemac/scripts/python3:%1" ).arg( env.value( "PYTHONPATH" ) ) );
-  env.insert( "LD_LIBRARY_PATH", QStringLiteral( "/opt/telemac/builds/ubugfmpich2/wrap_api/lib:%1" ).arg( env.value( "LD_LIBRARY_PATH" ) ) );
-  env.insert( "PYTHONPATH", QStringLiteral( "/opt/telemac/builds/ubugfmpich2/wrap_api/lib:%1" ).arg( env.value( "PYTHONPATH" ) ) );
+  ReosSettings settings;
+
+  env.insert( "SYSTELCFG", settings.value( QStringLiteral( "/engine/telemac/telemac-config-file" ) ).toString() );
+  env.insert( "USETELCFG", settings.value( QStringLiteral( "/engine/telemac/telemac-configuration" ) ).toString() );
+
+//  env.insert( "PYTHONUNBUFFERED",  "'true'" );
+//  env.insert( "PYTHONPATH", QStringLiteral( "/opt/telemac/scripts/python3:%1" ).arg( env.value( "PYTHONPATH" ) ) );
+//  env.insert( "PYTHONPATH", QStringLiteral( "/opt/telemac/builds/ubugfmpich2/wrap_api/lib:%1" ).arg( env.value( "PYTHONPATH" ) ) );
+//  env.insert( "LD_LIBRARY_PATH", QStringLiteral( "/opt/telemac/builds/ubugfmpich2/wrap_api/lib:%1" ).arg( env.value( "LD_LIBRARY_PATH" ) ) );
+
   mProcess->setProcessEnvironment( env );
 
   mProcess->setWorkingDirectory( mSimulationFilePath );
 
   QString script( QStringLiteral( "python3" ) );
   QStringList arguments;
-  arguments << QStringLiteral( "/opt/telemac/scripts/python3/telemac2d.py" )
+  arguments << settings.value( QStringLiteral( "/engine/telemac/telemac-2d-python-script" ) ).toString()
             << QStringLiteral( "simulation.cas" )
-            <<  QStringLiteral( "--ncsize=16" );
+            <<  QStringLiteral( "--ncsize=%1" ).arg( settings.value( QStringLiteral( "/engine/telemac/cpu-usage-count" ) ).toInt() );
 
 
   mBlockRegEx = QRegularExpression( QStringLiteral( "(?s).*?((ITERATION.*?)\\n.*?=====)" ) );

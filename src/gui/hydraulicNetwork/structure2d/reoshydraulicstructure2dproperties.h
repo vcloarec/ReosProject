@@ -53,6 +53,7 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
   private slots:
     void requestMapRefresh();
     void onLaunchCalculation();
+    void onExportSimulation();
     void updateDatasetMenu();
     void populateHydrograph();
     void onSimulationFinished();
@@ -64,6 +65,8 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
     QPointer<ReosMap> mMap = nullptr;
     QAction *mActionEditStructure = nullptr;
     QAction *mActionRunSimulation = nullptr;
+    QAction *mActionExportSimulationFile = nullptr;
+    QAction *mActionEngineConfiguration = nullptr;
     QAction *mAction3DView = nullptr;
     QMenu *mScalarDatasetMenu = nullptr;
     QActionGroup *mScalarDatasetActions = nullptr;

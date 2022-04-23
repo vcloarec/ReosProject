@@ -45,6 +45,8 @@ class ReosSimulationPreparationProcess: public ReosProcess
                                       ReosHydraulicSimulation *simulation,
                                       const ReosCalculationContext &context );
 
+    void setDestination( const QDir &destination );
+
     void start() override;
 
   signals:
@@ -59,6 +61,8 @@ class ReosSimulationPreparationProcess: public ReosProcess
 
     QStringList mWaitedBoundaryId;
     int mBoundaryCount;
+
+    QString mDestinationPath;
 
 };
 
@@ -92,6 +96,8 @@ class ReosHydraulicSimulation : public ReosDataObject
     virtual QString directoryName() const = 0;
 
     virtual void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) = 0;
+
+    virtual void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext, const QDir &directory ) = 0;
 
     virtual ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const = 0;
 

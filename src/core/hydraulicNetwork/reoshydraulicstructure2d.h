@@ -108,6 +108,9 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     //! Returns a process that prepare the current simulation, caller take ownership
     ReosProcess *getPreparationProcessSimulation( const ReosCalculationContext &context );
 
+    //! Returns a process that prepare the current simulation files in a specific \a diectory, caller take ownership
+    ReosProcess *getPreparationProcessSimulation( const ReosCalculationContext &context, const QDir &directory );
+
     //! Starts the current simulation, return true if the calculation is effectivly started and returns a pointer to the process
     ReosSimulationProcess *startSimulation( const ReosCalculationContext &context );
 

@@ -17,12 +17,14 @@
 #define REOSTELEMACSIMULATIONEDITWIDGET_H
 
 #include <QWidget>
+#include <QDialog>
 #include "reostelemac2dsimulation.h"
 #include "reoshydraulic2dsimulationwidget.h"
 
 namespace Ui
 {
   class ReosTelemacSimulationEditWidget;
+  class ReosTelemacEngineConfigurationDialog;
 }
 
 class ReosTelemacSimulationEditWidget : public QWidget
@@ -37,12 +39,27 @@ class ReosTelemacSimulationEditWidget : public QWidget
     Ui::ReosTelemacSimulationEditWidget *ui;
 };
 
+class ReosTelemacEngineConfigurationDialog : public QDialog
+{
+    Q_OBJECT
+
+  public:
+    explicit ReosTelemacEngineConfigurationDialog( QWidget *parent = nullptr );
+
+  private slots:
+    void onAccepted();
+
+  private:
+    Ui::ReosTelemacEngineConfigurationDialog *ui;
+};
+
 class ReosTelemacSimulationEditWidgetFactory : public ReosHydraulicSimulationWidgetFactory
 {
   public:
-    QString key() const {return ReosTelemac2DSimulation::staticKey();}
+    QString key() const override {return ReosTelemac2DSimulation::staticKey();}
 
-    QWidget *simulationSettingsWidget( ReosHydraulicSimulation *simulation, QWidget *parent );
+    QWidget *simulationSettingsWidget( ReosHydraulicSimulation *simulation, QWidget *parent ) const override;
+    QDialog *engineConfigurationDialog( QWidget *parent ) const override;
 };
 
 #endif // REOSTELEMACSIMULATIONEDITWIDGET_H

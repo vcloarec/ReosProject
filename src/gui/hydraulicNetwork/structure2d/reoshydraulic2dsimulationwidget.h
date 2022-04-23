@@ -53,7 +53,8 @@ class ReosHydraulicSimulationWidgetFactory
 {
   public:
     virtual QString key() const = 0;
-    virtual QWidget *simulationSettingsWidget( ReosHydraulicSimulation *simulation, QWidget *parent ) = 0;
+    virtual QWidget *simulationSettingsWidget( ReosHydraulicSimulation *simulation, QWidget *parent ) const = 0;
+    virtual QDialog *engineConfigurationDialog( QWidget *parent ) const = 0;
 };
 
 
@@ -64,6 +65,9 @@ class ReosHydraulicSimulationWidgetRegistery
 
     //! Creates and returns a simuation corresponding to the \a key
     QWidget *createEditingWidget( ReosHydraulicSimulation *simulation, QWidget *parent );
+
+    //! Creates and returns an engine configuration dialog corresponding to the \a key
+    QDialog *createConfigurationDialog( const QString &key, QWidget *parent );
 
     //! Returns a pointer to the static instance of this registery
     static ReosHydraulicSimulationWidgetRegistery *instance();

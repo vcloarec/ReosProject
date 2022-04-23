@@ -89,10 +89,14 @@ void ReosMeshFrame_p::stopFrameEditing( bool commit )
       activeGroupId = it.key();
 
   QgsCoordinateTransform transform( mMeshLayer->crs(), QgsProject::instance()->crs(), QgsProject::instance() );
-  if ( commit )
-    mMeshLayer->commitFrameEditing( transform, false );
-  else
-    mMeshLayer->rollBackFrameEditing( transform, false );
+
+  if ( mMeshLayer->isEditable() )
+  {
+    if ( commit )
+      mMeshLayer->commitFrameEditing( transform, false );
+    else
+      mMeshLayer->rollBackFrameEditing( transform, false );
+  }
 
   if ( !mVerticesElevationDatasetId.isEmpty() )
     restoreVertexElevationDataset();
