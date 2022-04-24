@@ -555,7 +555,7 @@ QString ReosMeshFrame_p::addDatasetGroup( QgsMeshDatasetGroup *group, const QStr
 
 void ReosMeshFrame_p::firstUpdateOfTerrainScalarSetting()
 {
-  if ( !mZVerticesDatasetGroup || mDatasetGroupsIndex.contains( mVerticesElevationDatasetId ) )
+  if ( !mZVerticesDatasetGroup || !mDatasetGroupsIndex.contains( mVerticesElevationDatasetId ) )
     return;
 
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
