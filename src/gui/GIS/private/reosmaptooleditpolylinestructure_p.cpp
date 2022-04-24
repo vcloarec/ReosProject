@@ -262,6 +262,7 @@ void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
         mPolygonHoleBand->reset( QgsWkbTypes::PolygonGeometry );
       }
     }
+    break;
     case SelectLinesByExtremity:
     {
       mSelectLinesBand->reset( QgsWkbTypes::LineGeometry );
