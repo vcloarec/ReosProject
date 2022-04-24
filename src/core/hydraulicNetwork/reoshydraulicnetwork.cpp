@@ -147,6 +147,7 @@ ReosHydraulicNetwork::ReosHydraulicNetwork( ReosModule *parent, ReosGisEngine *g
   scheme->schemeName()->setValue( tr( "Hydraulic scheme" ) );
   if ( mWatershedModule && mWatershedModule->meteoModelsCollection()->modelCount() != 0 )
     scheme->setMeteoModel( mWatershedModule->meteoModelsCollection()->meteorologicModel( 0 ) );
+
   mHydraulicSchemeCollection->addScheme( scheme.release() );
 }
 
@@ -260,10 +261,10 @@ void ReosHydraulicNetwork::decode( const ReosEncodedElement &element, const QStr
   {
     mGisEngine->setTemporalRange( currentScheme->startTime()->value(), currentScheme->endTime()->value() );
     connect( currentScheme, &ReosDataObject::dataChanged, this, &ReosHydraulicNetwork::schemeChanged );
-  }
 
-  for ( ReosHydraulicNetworkElement *elem :  std::as_const( mElements ) )
-    elem->restoreConfiguration( mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex ) );
+    for ( ReosHydraulicNetworkElement *elem :  std::as_const( mElements ) )
+      elem->restoreConfiguration( currentScheme );
+  }
 
   emit loaded();
 }
@@ -284,9 +285,13 @@ ReosEncodedElement ReosHydraulicNetwork::encode( const QString &projectPath, con
   element.addListEncodedData( QStringLiteral( "hydraulic-element" ), encodedElements );
   element.addData( QStringLiteral( "elements-counter" ), mElementIndexesCounter );
 
+  ReosHydraulicScheme *currentScheme = mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex );
+  if ( currentScheme )
+  {
+    for ( ReosHydraulicNetworkElement *elem : std::as_const( mElements ) )
+      elem->saveConfiguration( currentScheme );
+  }
 
-  for ( ReosHydraulicNetworkElement *elem : std::as_const( mElements ) )
-    elem->saveConfiguration( mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex ) );
   element.addEncodedData( QStringLiteral( "hydraulic-scheme-collection" ), mHydraulicSchemeCollection->encode() );
   element.addData( QStringLiteral( "current-scheme-index" ), mCurrentSchemeIndex );
 
@@ -297,7 +302,10 @@ void ReosHydraulicNetwork::clear()
 {
   qDeleteAll( mElements );
   mElements.clear();
-  mHydraulicSchemeCollection->clear();
+  ReosMeteorologicModel *meteoModel = nullptr;
+  if ( mWatershedModule->meteoModelsCollection()->modelCount() > 0 )
+    meteoModel = mWatershedModule->meteoModelsCollection()->meteorologicModel( 0 );
+  mHydraulicSchemeCollection->reset( meteoModel );
   mElementIndexesCounter.clear();
   mCurrentSchemeIndex = -1;
   emit hasBeenReset();

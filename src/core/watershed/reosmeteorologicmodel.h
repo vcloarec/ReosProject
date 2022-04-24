@@ -120,7 +120,11 @@ class REOSCORE_EXPORT ReosMeteorologicModelsCollection : public QAbstractListMod
     //! Removes the meteorologic model at position \a i
     void removeMeteorologicModel( int i );
 
+    //! Removes all the models
     void clearModels();
+
+    //! Removes all models and create just a void one
+    void reset();
 
     ReosEncodedElement encode( ReosWatershedTree *watershedTree ) const;
     void decode( const ReosEncodedElement &element, ReosWatershedTree *watershedTree, ReosRainfallRegistery *rainfallregistery );

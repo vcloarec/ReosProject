@@ -217,7 +217,7 @@ void LekanMainWindow::clearProject()
     mMap->initialize();
 
   if ( mWatershedModule )
-    mWatershedModule->clearWatersheds();
+    mWatershedModule->reset();
 
   if ( mHydraulicNetwork )
     mHydraulicNetwork->clear();

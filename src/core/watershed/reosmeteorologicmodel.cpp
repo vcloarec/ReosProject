@@ -322,7 +322,7 @@ ReosRainfallSerieRainfallItem *ReosMeteorologicItemModel::rainfallInMeteorologic
 
 ReosMeteorologicModelsCollection::ReosMeteorologicModelsCollection( QObject *parent ): QAbstractListModel( parent )
 {
-  addMeteorologicModel( tr( "Meteorological Model" ) );
+  reset();
 }
 
 int ReosMeteorologicModelsCollection::rowCount( const QModelIndex & ) const
@@ -414,6 +414,12 @@ void ReosMeteorologicModelsCollection::clearModels()
 {
   while ( !mMeteoModels.isEmpty() )
     mMeteoModels.takeAt( 0 )->deleteLater();
+}
+
+void ReosMeteorologicModelsCollection::reset()
+{
+  clearModels();
+  addMeteorologicModel( tr( "Meteorological Model" ) );
 }
 
 ReosEncodedElement ReosMeteorologicModelsCollection::encode( ReosWatershedTree *watershedTree ) const

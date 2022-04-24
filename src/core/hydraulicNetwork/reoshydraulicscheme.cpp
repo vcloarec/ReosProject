@@ -219,12 +219,15 @@ void ReosHydraulicSchemeCollection::removeScheme( int index )
   endResetModel();
 }
 
-void ReosHydraulicSchemeCollection::clear()
+void ReosHydraulicSchemeCollection::reset( ReosMeteorologicModel *meteoModel )
 {
   beginResetModel();
   for ( ReosHydraulicScheme *scheme : std::as_const( mHydraulicSchemes ) )
     scheme->deleteLater();
   mHydraulicSchemes.clear();
+  mHydraulicSchemes.append( new ReosHydraulicScheme( this ) );
+  mHydraulicSchemes.last()->setMeteoModel( meteoModel );
+  mHydraulicSchemes.last()->schemeName()->setValue( tr( "Hydraulic scheme" ) );
   endResetModel();
 }
 
@@ -235,7 +238,7 @@ int ReosHydraulicSchemeCollection::schemeCount() const
 
 ReosHydraulicScheme *ReosHydraulicSchemeCollection::scheme( int index )
 {
-  if ( index < 0 || index > mHydraulicSchemes.count() )
+  if ( index < 0 || index >= mHydraulicSchemes.count() )
     return nullptr;
 
   return mHydraulicSchemes.at( index );
