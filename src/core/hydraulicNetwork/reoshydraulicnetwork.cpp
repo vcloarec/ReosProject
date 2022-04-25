@@ -302,10 +302,22 @@ void ReosHydraulicNetwork::clear()
 {
   qDeleteAll( mElements );
   mElements.clear();
+  mHydraulicSchemeCollection->clear();
+  mElementIndexesCounter.clear();
+  mCurrentSchemeIndex = -1;
+  emit hasBeenReset();
+}
+
+void ReosHydraulicNetwork::reset()
+{
+  qDeleteAll( mElements );
+  mElements.clear();
   ReosMeteorologicModel *meteoModel = nullptr;
   if ( mWatershedModule->meteoModelsCollection()->modelCount() > 0 )
     meteoModel = mWatershedModule->meteoModelsCollection()->meteorologicModel( 0 );
+
   mHydraulicSchemeCollection->reset( meteoModel );
+
   mElementIndexesCounter.clear();
   mCurrentSchemeIndex = -1;
   emit hasBeenReset();
@@ -363,6 +375,16 @@ void ReosHydraulicNetwork::changeScheme( int newSchemeIndex )
       elem->saveConfiguration( mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex ) );
   }
 
+  setCurrentScheme( newSchemeIndex );
+}
+
+int ReosHydraulicNetwork::currentSchemeIndex() const
+{
+  return mCurrentSchemeIndex;
+}
+
+void ReosHydraulicNetwork::setCurrentScheme( int newSchemeIndex )
+{
   for ( ReosHydraulicNetworkElement *elem :  std::as_const( mElements ) )
     elem->restoreConfiguration( mHydraulicSchemeCollection->scheme( newSchemeIndex ) );
 
@@ -379,11 +401,6 @@ void ReosHydraulicNetwork::changeScheme( int newSchemeIndex )
   }
 
   emit schemeChanged();
-}
-
-int ReosHydraulicNetwork::currentSchemeIndex() const
-{
-  return mCurrentSchemeIndex;
 }
 
 void ReosHydraulicNetwork::addEncodedElement( const ReosEncodedElement &element )

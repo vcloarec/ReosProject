@@ -231,6 +231,15 @@ void ReosHydraulicSchemeCollection::reset( ReosMeteorologicModel *meteoModel )
   endResetModel();
 }
 
+void ReosHydraulicSchemeCollection::clear()
+{
+  beginResetModel();
+  for ( ReosHydraulicScheme *scheme : std::as_const( mHydraulicSchemes ) )
+    scheme->deleteLater();
+  mHydraulicSchemes.clear();
+  endResetModel();
+}
+
 int ReosHydraulicSchemeCollection::schemeCount() const
 {
   return mHydraulicSchemes.count();

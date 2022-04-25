@@ -103,8 +103,6 @@ ReosMapToolEditPolylineStructure_p::ReosMapToolEditPolylineStructure_p( QgsMapCa
   mSelectLinesBand->setWidth( 5 );
   mSelectLinesBand->setZValue( 60 );
 
-
-
   mMapCrs = mapCrs();
 }
 

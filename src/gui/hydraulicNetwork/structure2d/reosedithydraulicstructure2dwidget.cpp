@@ -110,17 +110,16 @@ ReosEditHydraulicStructure2DWidget::~ReosEditHydraulicStructure2DWidget()
 
 void ReosEditHydraulicStructure2DWidget::onMeshOptionListChanged( int row )
 {
-  ui->mStackedWidget->setCurrentIndex( row );
+  mStructure2D->deactivateMeshScalar();
 
+  ui->mStackedWidget->setCurrentIndex( row );
   switch ( row )
   {
     case 0:
       mMapStructureItem.setLineWidth( 5 );
-      mStructure2D->deactivateMeshScalar();
       break;
     case 1:
       mMapStructureItem.setLineWidth( 2 );
-      mStructure2D->deactivateMeshScalar();
       break;
     case 2:
       mMapStructureItem.setLineWidth( 2 );
@@ -130,12 +129,9 @@ void ReosEditHydraulicStructure2DWidget::onMeshOptionListChanged( int row )
       mMapStructureItem.setLineWidth( 3 );
       if ( mEditElementWidget->topographyDisplayed() )
         mStructure2D->activateMeshTerrain();
-      else
-        mStructure2D->deactivateMeshScalar();
       break;
     case 4:
       mMapStructureItem.setLineWidth( 2 );
-      mStructure2D->deactivateMeshScalar();
       break;
     default:
       break;

@@ -165,9 +165,9 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     virtual double datasetScalarValueAt( const QString &datasetId, const QPointF &pos ) const = 0;
 
     //! Save the mesh frame on UGRID file with path \a dataPath
-    virtual void save( const QString &dataPath ) const = 0;
+    virtual void save( const QString &dataPath ) = 0;
 
-    virtual void stopFrameEditing( bool commit ) = 0;
+    virtual void stopFrameEditing( bool commit, bool continueEditing = false ) = 0;
 
     virtual ReosEncodedElement meshSymbology() const = 0;
 

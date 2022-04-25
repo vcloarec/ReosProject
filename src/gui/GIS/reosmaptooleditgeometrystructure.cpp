@@ -269,7 +269,7 @@ QStringList ReosPolylineStructureClassModelList::orderedClasses() const
 
   std::sort( classes.begin(), classes.end(), [this]( const QString & classId1, const QString & classId2 )
   {
-    return mStructure->value( classId1 ) < mStructure->value( classId2 );
+    return mStructure->value( classId1 ).toString() < mStructure->value( classId2 ).toString();
   } );
 
   return classes;

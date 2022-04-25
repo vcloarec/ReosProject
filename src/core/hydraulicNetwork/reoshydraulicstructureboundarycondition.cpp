@@ -201,7 +201,9 @@ void ReosHydraulicStructureBoundaryCondition::attachStructure( ReosHydraulicStru
 {
   mStructure = structure;
   connect( mStructure->geometryStructure(), &ReosPolylinesStructure::classesChanged, this, &ReosHydraulicStructureBoundaryCondition::onBoundaryClassesChange );
+  elementName()->blockSignals( true );
   elementName()->setValue( mStructure->geometryStructure()->value( mBoundaryConditionId ).toString() );
+  elementName()->blockSignals( false );
 }
 
 ReosHydraulicStructureBoundaryCondition::Type ReosHydraulicStructureBoundaryCondition::conditionType() const

@@ -54,7 +54,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     virtual void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
 
     void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydraulicStructureBoundaryCondition *boundaryCondition, bool upstreamWillChange ) {}
-    bool updateCalculationContextFromDownstream(const ReosCalculationContext& context) { return false; }
+    bool updateCalculationContextFromDownstream( const ReosCalculationContext &context ) { return false; }
 
     //! Returns the domain polygon
     QPolygonF domain( const QString &crs = QString() ) const;
@@ -230,7 +230,6 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     mutable QMap<ResultType, QByteArray> mResultScalarDatasetSymbologies;
     mutable QByteArray mTerrainSymbology;
 
-    QString mTerrainDatasetId;
     Reos3DMapSettings m3dMapSettings;
     Reos3DTerrainSettings m3dTerrainSettings;
 

@@ -323,6 +323,9 @@ void ReosMainWindow::closeEvent( QCloseEvent *event )
   ReosSettings settings;
   settings.setValue( QStringLiteral( "Windows/MainWindow/geometry" ), saveGeometry() );
   settings.setValue( QStringLiteral( "Windows/MainWindow/state" ), saveState() );
+
+  clearProject();
+
   QMainWindow::closeEvent( event );
 }
 

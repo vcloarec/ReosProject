@@ -91,7 +91,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
     mCurrentSimulationIndex = mSimulations.count() - 1;
 
   encodedElement.getData( QStringLiteral( "terrain-symbology" ), mTerrainSymbology );
-  mMesh->setDatasetScalarGroupSymbology( ReosEncodedElement( mTerrainSymbology ), mTerrainDatasetId );
+  mMesh->setDatasetScalarGroupSymbology( ReosEncodedElement( mTerrainSymbology ), mMesh->verticesElevationDatasetId() );
   QMap<int, QByteArray> resultSymbol;
   encodedElement.getData( QStringLiteral( "scalar-results-symbologies" ), resultSymbol );
   const QList<int> typeKeys = resultSymbol.keys();
@@ -149,6 +149,8 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
   dir.cd( hydDir );
   dir.mkdir( directory() );
   dir.cd( directory() );
+
+  mMesh->save( dir.path() );
 
   element.addData( QStringLiteral( "boundaries-vertices" ), mBoundaryVertices );
   element.addData( QStringLiteral( "hole-vertices" ), mHolesVertices );
@@ -313,7 +315,7 @@ ReosTopographyCollection *ReosHydraulicStructure2D::topographyCollecion() const
 
 QString ReosHydraulicStructure2D::terrainMeshDatasetId() const
 {
-  return mTerrainDatasetId;
+  return mMesh->verticesElevationDatasetId();
 }
 
 void ReosHydraulicStructure2D::activateResultDatasetGroup( const QString &id )
@@ -465,7 +467,7 @@ QString ReosHydraulicStructure2D::resultsUnits( ReosHydraulicSimulationResults::
 
 void ReosHydraulicStructure2D::init()
 {
-  mTerrainDatasetId = mMesh->enableVertexElevationDataset( tr( "Terrain elevation" ) );
+  mMesh->enableVertexElevationDataset( tr( "Terrain elevation" ) );
   mMesh->setVerticaleSCale( m3dMapSettings.verticalExaggeration() );
 
   connect( mPolylinesStructures.get(), &ReosDataObject::dataChanged, this, [this]
@@ -740,7 +742,7 @@ void ReosHydraulicStructure2D::updateCurrentResults( const QString &schemeId )
   else
   {
     setResultsOnStructure( nullptr );
-    activateResultDatasetGroup( mTerrainDatasetId );
+    activateResultDatasetGroup( mMesh->verticesElevationDatasetId() );
     emit simulationResultChanged();
   }
 }
@@ -756,13 +758,13 @@ ReosSimulationProcess *ReosHydraulicStructure2D::processFromScheme( const QStrin
 
 void ReosHydraulicStructure2D::activateMeshTerrain()
 {
-  mMesh->activateDataset( mTerrainDatasetId );
-  mMesh->setDatasetScalarGroupSymbology( ReosEncodedElement( mTerrainSymbology ), mTerrainDatasetId );
+  mMesh->activateDataset( mMesh->verticesElevationDatasetId() );
+  mMesh->setDatasetScalarGroupSymbology( ReosEncodedElement( mTerrainSymbology ),  mMesh->verticesElevationDatasetId() );
 }
 
 void ReosHydraulicStructure2D::deactivateMeshScalar()
 {
-  mTerrainSymbology = mMesh->datasetScalarGroupSymbology( mTerrainDatasetId ).bytes();
+  mTerrainSymbology = mMesh->datasetScalarGroupSymbology( mMesh->verticesElevationDatasetId() ).bytes();
   mMesh->activateDataset( QString() );
 }
 

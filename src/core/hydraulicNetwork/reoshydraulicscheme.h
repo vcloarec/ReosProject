@@ -93,6 +93,9 @@ class REOSCORE_EXPORT ReosHydraulicSchemeCollection : public QAbstractListModel
     //! Removes all schemes present in the collection and create only one associated with the \a meteomodel
     void reset( ReosMeteorologicModel *meteoModel );
 
+    //! Removes all schemes present in the collection
+    void clear();
+
     int schemeCount() const;
 
     ReosHydraulicScheme *scheme( int index );

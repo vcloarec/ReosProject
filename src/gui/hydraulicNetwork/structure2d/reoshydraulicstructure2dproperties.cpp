@@ -278,6 +278,13 @@ void ReosHydraulicStructure2DProperties::onLaunchCalculation()
       if ( QMessageBox::warning( this, tr( "Run Simulation" ), tr( "Results exist for this modele and this hydraulic scheme.\nDo you want to overwrite this results?" ),
                                  QMessageBox::Yes | QMessageBox::No ) == QMessageBox::No )
         return;
+
+      if ( mStructure2D->currentSimulation() )
+      {
+        QMessageBox::information( this, tr( "Run Simulation" ), "No simulation selected." );
+        return;
+      }
+
     }
 
     mActionEditStructure->setEnabled( false );

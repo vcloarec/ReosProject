@@ -164,8 +164,9 @@ void ReosSimulationPreparationProcess::start()
 {
   emit sendInformation( tr( "Get boundary counditions", nullptr, mWaitedBoundaryId.count() ) );
 
-  if ( mStructure.isNull() || mSimulation.isNull() )
+  if ( mStructure.isNull() || mSimulation.isNull() || mStructure->mesh()->faceCount() == 0 )
     return;
+
   QList<ReosHydraulicStructureBoundaryCondition *> boundaries = mStructure->boundaryConditions();
   mBoundaryCount = boundaries.count();
   setMaxProgression( mBoundaryCount );

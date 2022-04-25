@@ -54,9 +54,14 @@ ReosMeshFrame_p::ReosMeshFrame_p( const QString &dataPath )
   init();
 }
 
-void ReosMeshFrame_p::save( const QString &dataPath ) const
+void ReosMeshFrame_p::save( const QString &dataPath )
 {
   QDir dir( dataPath );
+
+  bool isEditable = mMeshLayer->isEditable();
+
+  if ( isEditable )
+    stopFrameEditing( true, true );
 
   meshProvider()->setFilePath( dir.filePath( QStringLiteral( "meshFrame.nc" ) ) );
   meshProvider()->setMDALDriver( QStringLiteral( "Ugrid" ) );
@@ -79,7 +84,7 @@ void ReosMeshFrame_p::init()
   connect( mMeshLayer.get(), &QgsMeshLayer::layerModified, this, &ReosDataObject::dataChanged );
 }
 
-void ReosMeshFrame_p::stopFrameEditing( bool commit )
+void ReosMeshFrame_p::stopFrameEditing( bool commit, bool continueEditing )
 {
   int activeScalarDatasetIndex = mMeshLayer->rendererSettings().activeScalarDatasetGroup();
   QString activeGroupId;
@@ -93,12 +98,14 @@ void ReosMeshFrame_p::stopFrameEditing( bool commit )
   if ( mMeshLayer->isEditable() )
   {
     if ( commit )
-      mMeshLayer->commitFrameEditing( transform, false );
+      mMeshLayer->commitFrameEditing( transform, continueEditing );
     else
-      mMeshLayer->rollBackFrameEditing( transform, false );
-  }
+      mMeshLayer->rollBackFrameEditing( transform, continueEditing );
 
-  if ( !mVerticesElevationDatasetId.isEmpty() )
+    if ( !continueEditing )
+      restoreVertexElevationDataset();
+  }
+  else if ( !mVerticesElevationDatasetId.isEmpty() )
     restoreVertexElevationDataset();
 
   activateDataset( activeGroupId );

@@ -285,7 +285,6 @@ void ReosEditMeshElementWidget::hideEvent( QHideEvent *e )
 
 void ReosEditMeshElementWidget::showEvent( QShowEvent *e )
 {
-  mMapToolEditMeshFrame->activate();
   mMapToolEditMeshFrame->setCurrentToolInMap();
 
   QWidget::showEvent( e );

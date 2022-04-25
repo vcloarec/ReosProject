@@ -157,6 +157,10 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     //! Clears the network
     void clear();
 
+    //! Reset the network, that is, clear all and create just one hydraulic scheme
+    void reset();
+
+
     ReosGisEngine *getGisEngine() const;
 
     ReosHydraulicNetworkContext context() const;
@@ -166,6 +170,8 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     ReosHydraulicSchemeCollection *hydraulicSchemeCollection() const;
 
     int currentSchemeIndex() const;
+
+    void setCurrentScheme( int newSchemeIndex );
 
   signals:
     void elementAdded( ReosHydraulicNetworkElement *elem, bool select );

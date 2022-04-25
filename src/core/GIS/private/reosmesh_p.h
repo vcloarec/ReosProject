@@ -56,8 +56,8 @@ class ReosMeshFrame_p : public ReosMesh
     int datasetGroupIndex( const QString &id ) const override;
     ReosProcess *applyTopographyOnVertices( ReosTopographyCollection *topographyCollection ) override;
     double datasetScalarValueAt( const QString &datasetId, const QPointF &pos ) const override;
-    void save( const QString &dataPath ) const override;
-    void stopFrameEditing( bool commit ) override;
+    void save( const QString &dataPath ) override;
+    void stopFrameEditing( bool commit, bool continueEditing = false ) override;
     ReosEncodedElement meshSymbology() const override;
     void setMeshSymbology( const ReosEncodedElement &symbology ) override;
     ReosEncodedElement datasetScalarGroupSymbology( const QString &id ) const override;
