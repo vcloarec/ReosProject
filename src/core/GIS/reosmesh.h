@@ -23,6 +23,7 @@
 
 #include "reoscore.h"
 #include "reosrenderedobject.h"
+#include "reosencodedelement.h"
 
 class ReosMeshGenerator;
 class ReosMeshFrameData;
@@ -107,7 +108,7 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     };
 
     //! Creates a new void mesh in memory
-    static ReosMesh *createMeshFrame( const QString &crs = QString() );
+    static ReosMesh *createMeshFrame( const QString &crs = QString(), QObject *parent = nullptr );
 
     static ReosMesh *createMeshFrameFromFile( const QString &dataPath );
 
@@ -163,6 +164,7 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     //! Returns the value of dataset \a datasetId at position \a pos in map coordinates
     virtual double datasetScalarValueAt( const QString &datasetId, const QPointF &pos ) const = 0;
 
+    //! Save the mesh frame on UGRID file with path \a dataPath
     virtual void save( const QString &dataPath ) const = 0;
 
     virtual void stopFrameEditing( bool commit ) = 0;
@@ -194,6 +196,9 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     QualityMeshParameters qualityMeshParameters() const;
     void setQualityMeshParameter( const ReosEncodedElement &element );
 
+    void setBoundariesVertices( const QVector<QVector<int> > &vertices );
+    void setHolesVertices( const QVector<QVector<QVector<int> > > &vertices );
+
     bool vertexIsOnBoundary( int vertexIndex ) const;
     bool vertexIsOnHoleBorder( int vertexIndex ) const;
 
@@ -208,7 +213,7 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
 
     QualityMeshParameters mQualityMeshParameters;
     QSet<int> mBoundaryVerticesSet;
-    QSet<int> mHolesVerticesVerticesSet;
+    QSet<int> mHolesVerticesSet;
 
 
     double mVerticaleSCale = 1;

@@ -64,6 +64,8 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
 
   encodedElement.getData( QStringLiteral( "boundaries-vertices" ), mBoundaryVertices );
   encodedElement.getData( QStringLiteral( "hole-vertices" ), mHolesVertices );
+  mMesh->setBoundariesVertices( mBoundaryVertices );
+  mMesh->setHolesVertices( mHolesVertices );
 
   //if the boundary condition have associated elements in the network, attache it, if not creates them
   const QStringList boundaryIdList = mPolylinesStructures->classes();
@@ -147,8 +149,6 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
   dir.cd( hydDir );
   dir.mkdir( directory() );
   dir.cd( directory() );
-
-  mMesh->save( dir.path() );
 
   element.addData( QStringLiteral( "boundaries-vertices" ), mBoundaryVertices );
   element.addData( QStringLiteral( "hole-vertices" ), mHolesVertices );

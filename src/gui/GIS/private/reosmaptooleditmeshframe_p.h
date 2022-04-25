@@ -66,6 +66,7 @@ class ReosMapToolEditMeshFrame_p : public ReosMapTool_p
     State mCurrentState = Digitizing;
     bool mKeepSelectionOnEdit = false;
 
+    QPointer<ReosMesh> mReosMesh;
     QPointer<QgsMeshLayer> mMeshLayer;
     QPointer < QgsMeshEditor> mMeshEditor;
     QActionGroup *mMainActions = nullptr;

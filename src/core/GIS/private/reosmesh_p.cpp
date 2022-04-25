@@ -54,6 +54,15 @@ ReosMeshFrame_p::ReosMeshFrame_p( const QString &dataPath )
   init();
 }
 
+void ReosMeshFrame_p::save( const QString &dataPath ) const
+{
+  QDir dir( dataPath );
+
+  meshProvider()->setFilePath( dir.filePath( QStringLiteral( "meshFrame.nc" ) ) );
+  meshProvider()->setMDALDriver( QStringLiteral( "Ugrid" ) );
+  meshProvider()->saveMeshFrameToFile( *mMeshLayer->nativeMesh() );
+}
+
 void ReosMeshFrame_p::init()
 {
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
@@ -68,15 +77,6 @@ void ReosMeshFrame_p::init()
 
   connect( mMeshLayer.get(), &QgsMapLayer::repaintRequested, this, &ReosMesh::repaintRequested );
   connect( mMeshLayer.get(), &QgsMeshLayer::layerModified, this, &ReosDataObject::dataChanged );
-}
-
-void ReosMeshFrame_p::save( const QString &dataPath ) const
-{
-  QDir dir( dataPath );
-
-  meshProvider()->setFilePath( dir.filePath( QStringLiteral( "meshFrame.nc" ) ) );
-  meshProvider()->setMDALDriver( QStringLiteral( "Ugrid" ) );
-  meshProvider()->saveMeshFrameToFile( *mMeshLayer->nativeMesh() );
 }
 
 void ReosMeshFrame_p::stopFrameEditing( bool commit )
@@ -621,14 +621,8 @@ void ReosMeshFrame_p::generateMesh( const ReosMeshFrameData &data )
   if ( mMeshLayer->isEditable() )
     stopFrameEditing( false );
 
-  for ( const QVector<int> &boundLine : data.boundaryVertices )
-    for ( int i : boundLine )
-      mBoundaryVerticesSet.insert( i );
-
-  for ( const QVector<QVector<int>> &hole : data.holesVertices )
-    for ( const QVector<int> &holeLine : hole )
-      for ( int i : holeLine )
-        mBoundaryVerticesSet.insert( i );
+  setBoundariesVertices( data.boundaryVertices );
+  setHolesVertices( data.holesVertices );
 
   meshProvider()->generateMesh( data );
   mMeshLayer->reload();

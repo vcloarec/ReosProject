@@ -18,9 +18,9 @@
 
 #include "reosparameter.h"
 
-ReosMesh *ReosMesh::createMeshFrame( const QString &crs )
+ReosMesh *ReosMesh::createMeshFrame( const QString &crs, QObject *parent )
 {
-  return new ReosMeshFrame_p( crs );
+  return new ReosMeshFrame_p( crs, parent );
 }
 
 ReosMesh *ReosMesh::createMeshFrameFromFile( const QString &dataPath )
@@ -71,6 +71,23 @@ void ReosMesh::setQualityMeshParameter( const ReosEncodedElement &element )
   mQualityMeshParameters.decode( element, this );
 }
 
+void ReosMesh::setBoundariesVertices( const QVector<QVector<int>> &vertices )
+{
+  mBoundaryVerticesSet.clear();
+  for ( const QVector<int> &boundLine : vertices )
+    for ( int i : boundLine )
+      mBoundaryVerticesSet.insert( i );
+}
+
+void ReosMesh::setHolesVertices( const QVector<QVector<QVector<int>> > &vertices )
+{
+  mHolesVerticesSet.clear();
+  for ( const QVector<QVector<int>> &hole : vertices )
+    for ( const QVector<int> &holeLine : hole )
+      for ( int i : holeLine )
+        mHolesVerticesSet.insert( i );
+}
+
 bool ReosMesh::vertexIsOnBoundary( int vertexIndex ) const
 {
   return mBoundaryVerticesSet.contains( vertexIndex );
@@ -78,7 +95,7 @@ bool ReosMesh::vertexIsOnBoundary( int vertexIndex ) const
 
 bool ReosMesh::vertexIsOnHoleBorder( int vertexIndex ) const
 {
-  return mHolesVerticesVerticesSet.contains( vertexIndex );
+  return mHolesVerticesSet.contains( vertexIndex );
 }
 
 ReosEncodedElement ReosMesh::QualityMeshParameters::encode() const
