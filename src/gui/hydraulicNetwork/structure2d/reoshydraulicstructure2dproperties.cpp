@@ -193,7 +193,7 @@ void ReosHydraulicStructure2DProperties::setCurrentSimulationProcess( ReosSimula
 
   if ( mCurrentProcess.isNull() )
   {
-    if ( mStructure2D->hasResult( context ) )
+    if ( mStructure2D->hasResults( context ) )
     {
       fillResultGroupBox( context );
       ui->mProgressBar->setMaximum( 1 );
@@ -273,22 +273,20 @@ void ReosHydraulicStructure2DProperties::onLaunchCalculation()
 {
   if ( !mStructure2D->simulationProcess( mCalculationContext ) )
   {
-    if ( mStructure2D->hasResult( mCalculationContext ) )
+    if ( mStructure2D->hasResults( mCalculationContext ) )
     {
       if ( QMessageBox::warning( this, tr( "Run Simulation" ), tr( "Results exist for this modele and this hydraulic scheme.\nDo you want to overwrite this results?" ),
                                  QMessageBox::Yes | QMessageBox::No ) == QMessageBox::No )
         return;
 
-      if ( mStructure2D->currentSimulation() )
+      if ( !mStructure2D->currentSimulation() )
       {
         QMessageBox::information( this, tr( "Run Simulation" ), "No simulation selected." );
         return;
       }
-
     }
 
     mActionEditStructure->setEnabled( false );
-
     std::unique_ptr<ReosProcess> preparationProcess( mStructure2D->getPreparationProcessSimulation( mCalculationContext ) );
     ReosProcessControler *controler = new ReosProcessControler( preparationProcess.get(), this );
     controler->exec();

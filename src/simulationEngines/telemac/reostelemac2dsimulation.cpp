@@ -114,9 +114,9 @@ void ReosTelemac2DSimulation::setEquation( const Equation &equation )
   mEquation = equation;
 }
 
-bool ReosTelemac2DSimulation::hasResult( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const
+bool ReosTelemac2DSimulation::hasResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const
 {
-  QDir dir = simulationDir( hydraulicStructure, shemeId );
+  const QDir dir = simulationDir( hydraulicStructure, shemeId );
   if ( !dir.exists() )
     return false;
 
@@ -130,7 +130,7 @@ void ReosTelemac2DSimulation::saveSimulationResult( const ReosHydraulicStructure
   if ( !success )
     return;
 
-  QDir dir = simulationDir( hydraulicStructure, shemeId );
+  const QDir dir = simulationDir( hydraulicStructure, shemeId );
 
   const QList<ReosHydraulicStructureBoundaryCondition *> boundaries = hydraulicStructure->boundaryConditions();
   QMap<QString, QByteArray> encodedHydrographs;
@@ -150,11 +150,20 @@ void ReosTelemac2DSimulation::saveSimulationResult( const ReosHydraulicStructure
 
 ReosHydraulicSimulationResults *ReosTelemac2DSimulation::loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const
 {
-  QDir dir = simulationDir( hydraulicStructure, shemeId );
+  const QDir dir = simulationDir( hydraulicStructure, shemeId );
   if ( !dir.exists() )
     return nullptr;
 
   return new ReosTelemac2DSimulationResults( this, hydraulicStructure->mesh(),  dir.filePath( mResultFileName ), hydraulicStructure );
+}
+
+void ReosTelemac2DSimulation::removeResults( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const
+{
+  QDir dir = simulationDir( hydraulicStructure, shemeId );
+  if ( !dir.exists() )
+    return;
+
+  dir.removeRecursively();
 }
 
 QString ReosTelemac2DSimulation::engineName() const
@@ -164,11 +173,10 @@ QString ReosTelemac2DSimulation::engineName() const
 
 void ReosTelemac2DSimulation::prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext )
 {
-  QDir dir = simulationDir( hydraulicStructure, calculationContext.schemeId() );
+  const QDir dir = simulationDir( hydraulicStructure, calculationContext.schemeId() );
   prepareInput( hydraulicStructure, calculationContext, dir );
 
-  QFileInfo fileInfo( dir.filePath( mResultFileName ) );
-  QString fn = dir.filePath( mResultFileName );
+  const QFileInfo fileInfo( dir.filePath( mResultFileName ) );
 
   if ( fileInfo.exists() )
   {

@@ -108,7 +108,9 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject
 
     virtual ReosHydraulicSimulationResults *loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const = 0;
 
-    virtual bool hasResult( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const = 0;
+    virtual bool hasResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const = 0;
+
+    virtual void removeResults( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const = 0;
 
     QDir simulationDir( const ReosHydraulicStructure2D *hydraulicStructure, const QString &schemeId ) const;
 

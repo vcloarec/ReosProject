@@ -121,6 +121,9 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     //! Returns face count
     virtual int faceCount() const = 0;
 
+    //! Returns whether the mesh frame is modified
+    virtual bool isFrameModified() const = 0;
+
     //! Clears ans generates a new mesh with \a data
     virtual void generateMesh( const ReosMeshFrameData &data ) = 0;
 

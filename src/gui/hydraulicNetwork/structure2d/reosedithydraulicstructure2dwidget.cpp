@@ -18,6 +18,7 @@
 
 #include <QToolBar>
 #include <QPushButton>
+#include <QMessageBox>
 
 #include "reosmeshgeneratorgui.h"
 #include "reosmaptooleditgeometrystructure.h"
@@ -143,6 +144,24 @@ void ReosEditHydraulicStructure2DWidget::onMeshOptionListChanged( int row )
 
 void ReosEditHydraulicStructure2DWidget::generateMesh()
 {
+
+  if ( mStructure2D->hasResults() )
+  {
+    if ( QMessageBox::warning( this, tr( "Generate Mesh" ),
+                               tr( "If you generate a new mesh, existing results will not be compatible\n"
+                                   "anymore and will be removed.\n"
+                                   "\n"
+                                   "Do you want to continue?" ),
+                               QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::No )
+    {
+      return;
+    }
+  }
+
+  QApplication::setOverrideCursor( Qt::WaitCursor );
+  mStructure2D->removeAllResults();
+  QApplication::restoreOverrideCursor();
+
   std::unique_ptr<ReosMeshGeneratorProcess> generatorProcess( mStructure2D->getGenerateMeshProcess() );
 
   ReosProcessControler *controler = new ReosProcessControler( generatorProcess.get(), this );
@@ -167,7 +186,25 @@ void ReosEditHydraulicStructure2DWidget::hideEvent( QHideEvent *e )
 
   mStructure2D->mesh()->activateWireFrame( mIsWireFrameActiveBefore );
 
-  mStructure2D->mesh()->stopFrameEditing( true );
+  if ( mStructure2D->mesh()->isFrameModified() && mStructure2D->hasResults() )
+  {
+    if ( QMessageBox::warning( this, tr( "Model Structure Modified" ),
+                               tr( "As the frame of the mesh has been modified, if you keep these changes,\n"
+                                   " existing results will not be compatible anymore and will be removed.\n"
+                                   "\n"
+                                   "Do you want to keep the mesh modification and remove results?" ),
+                               QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::Yes )
+    {
+      QApplication::setOverrideCursor( Qt::WaitCursor );
+      mStructure2D->removeAllResults();
+      mStructure2D->mesh()->stopFrameEditing( true );
+      QApplication::restoreOverrideCursor();
+    }
+    else
+    {
+      mStructure2D->mesh()->stopFrameEditing( false );
+    }
+  }
 
   ReosStackedPageWidget::hideEvent( e );
 }

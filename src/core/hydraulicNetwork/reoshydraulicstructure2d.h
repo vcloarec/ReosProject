@@ -122,8 +122,11 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Returns whether a simulation is running
     bool hasSimulationRunning() const;
 
-    //! Returns whether a result corresponding to \a context is existing
-    bool hasResult( const ReosCalculationContext &context );
+    //! Returns whether the structure contain any results
+    bool hasResults() const;
+
+    //! Returns whether a result corresponding to \a context is existing (loaded)
+    bool hasResults( const ReosCalculationContext &context ) const;
 
     //! Returns whether a results corresponding to \a context is existing
     QDateTime resultsDateTime( const ReosCalculationContext &context ) const;
@@ -139,6 +142,8 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 
     //! Returns a translated string corresponding to the unit of the results associated with \a context and to the type  \a datasetType
     QString resultsUnits( ReosHydraulicSimulationResults::DatasetType datasetType, const ReosCalculationContext &context );
+
+    void removeAllResults();
 
     //! Sets active the terrain in the mesh
     void activateMeshTerrain();
@@ -248,6 +253,8 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     void setResultsOnStructure( ReosHydraulicSimulationResults *simResults );
 
     ReosSimulationProcess *processFromScheme( const QString &schemeId ) const;
+
+    int simulationIndexFromId( const QString &simId ) const;
 };
 
 class ReosHydraulicStructure2dFactory : public ReosHydraulicNetworkElementFactory

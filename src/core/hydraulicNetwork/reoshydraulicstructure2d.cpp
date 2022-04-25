@@ -86,10 +86,6 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
       mSimulations.append( sim );
   }
 
-  encodedElement.getData( QStringLiteral( "current-simulation-index" ), mCurrentSimulationIndex );
-  if ( mCurrentSimulationIndex >= mSimulations.count() )
-    mCurrentSimulationIndex = mSimulations.count() - 1;
-
   encodedElement.getData( QStringLiteral( "terrain-symbology" ), mTerrainSymbology );
   mMesh->setDatasetScalarGroupSymbology( ReosEncodedElement( mTerrainSymbology ), mMesh->verticesElevationDatasetId() );
   QMap<int, QByteArray> resultSymbol;
@@ -161,7 +157,6 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
   for ( ReosHydraulicSimulation *sim : mSimulations )
     encodedSimulations.append( sim->encode() );
   element.addListEncodedData( QStringLiteral( "simulations" ), encodedSimulations );
-  element.addData( QStringLiteral( "current-simulation-index" ), mCurrentSimulationIndex );
 
   element.addData( QStringLiteral( "current-mesh-dataset-id" ), mMesh->currentdScalarDatasetId() );
 
@@ -417,13 +412,40 @@ bool ReosHydraulicStructure2D::hasSimulationRunning() const
   return !mSimulationProcesses.empty();
 }
 
-bool ReosHydraulicStructure2D::hasResult( const ReosCalculationContext &context )
+bool ReosHydraulicStructure2D::hasResults() const
+{
+  ReosHydraulicSchemeCollection *schemesCollection = mHydraulicNetworkContext.network()->hydraulicSchemeCollection();
+  int schemeCount = schemesCollection->schemeCount();
+  for ( int i = 0; i < schemeCount; ++i )
+  {
+    ReosHydraulicScheme *scheme = schemesCollection->scheme( i );
+    const ReosEncodedElement encodedElement = scheme->restoreElementConfig( id() );
+    QString simulationId;
+
+    encodedElement.getData( QStringLiteral( "current-simulation-id" ), simulationId );
+
+    int simIndex = simulationIndexFromId( simulationId );
+
+    if ( simIndex == -1 )
+      continue;
+
+    ReosHydraulicSimulation *sim = mSimulations.at( simIndex );
+
+    if ( sim->hasResult( this, scheme->id() ) )
+      return true;
+  }
+
+  return false;
+}
+
+bool ReosHydraulicStructure2D::hasResults( const ReosCalculationContext &context ) const
 {
   return mSimulationResults.contains( context.schemeId() );
 }
 
 QDateTime ReosHydraulicStructure2D::resultsDateTime( const ReosCalculationContext &context ) const
 {
+
   if ( mSimulationResults.contains( context.schemeId() ) )
     return mSimulationResults.value( context.schemeId() )->runDateTime();
   else
@@ -463,6 +485,35 @@ QString ReosHydraulicStructure2D::resultsUnits( ReosHydraulicSimulationResults::
     return mSimulationResults.value( context.schemeId() )->unitString( datasetType );
 
   return QString();
+}
+
+void ReosHydraulicStructure2D::removeAllResults()
+{
+  mMesh->setSimulationResults( nullptr );
+  qDeleteAll( mSimulationResults );
+  mSimulationResults.clear();
+
+  ReosHydraulicSchemeCollection *schemesColection = mHydraulicNetworkContext.network()->hydraulicSchemeCollection();
+  int schemeCount = schemesColection->schemeCount();
+  for ( int i = 0; i < schemeCount; ++i )
+  {
+    ReosHydraulicScheme *scheme = schemesColection->scheme( i );
+    const ReosEncodedElement encodedElement = scheme->restoreElementConfig( id() );
+    QString simulationId;
+
+    encodedElement.getData( QStringLiteral( "current-simulation-id" ), simulationId );
+
+    int simIndex = simulationIndexFromId( simulationId );
+
+    if ( simIndex == -1 )
+      continue;
+
+    ReosHydraulicSimulation *sim = mSimulations.at( simIndex );
+    if ( sim )
+      sim->removeResults( this, scheme->id() );
+
+    updateCurrentResults( scheme->id() );
+  }
 }
 
 void ReosHydraulicStructure2D::init()
@@ -782,23 +833,36 @@ void ReosHydraulicStructure2D::saveConfiguration( ReosHydraulicScheme *scheme ) 
   getSymbologiesFromMesh( scheme->id() );
 
   ReosEncodedElement encodedElement = scheme->restoreElementConfig( id() );
-  encodedElement.addData( QStringLiteral( "current-simulation-index" ), mCurrentSimulationIndex );
+  encodedElement.addData( QStringLiteral( "current-simulation-id" ), currentSimulation()->id() );
   scheme->saveElementConfig( id(), encodedElement );
 
   //stor ethe current symbology from the scheme that will change
+}
+
+
+int ReosHydraulicStructure2D::simulationIndexFromId( const QString simId ) const
+{
+  for ( int i = 0; i < mSimulations.count(); ++i )
+  {
+    const ReosHydraulicSimulation *sim = mSimulations.at( i );
+    if ( sim->id() == simId )
+      return i;
+  }
+
+  return -1;
 }
 
 void ReosHydraulicStructure2D::restoreConfiguration( ReosHydraulicScheme *scheme )
 {
   ReosEncodedElement encodedElement = scheme->restoreElementConfig( id() );
 
-  int simulationIndex = -1;
-  encodedElement.getData( QStringLiteral( "current-simulation-index" ), simulationIndex );
+  QString simulationId;
+  encodedElement.getData( QStringLiteral( "current-simulation-id" ), simulationId );
 
-  if ( simulationIndex == -1 )
+  mCurrentSimulationIndex = simulationIndexFromId( simulationId );
+
+  if ( mCurrentSimulationIndex == -1 )
     return;
-
-  mCurrentSimulationIndex = simulationIndex;
   updateCurrentResults( scheme->id() );
 
   emit currentSimulationChanged();

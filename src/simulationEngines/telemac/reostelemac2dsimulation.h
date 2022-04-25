@@ -65,9 +65,10 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
     Equation equation() const;
     void setEquation( const Equation &equation );
 
-    virtual bool hasResult( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const override;
+    virtual bool hasResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const override;
     void saveSimulationResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, bool success ) const override;
     ReosHydraulicSimulationResults *loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const override;
+    void removeResults( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const override;
 
     QString engineName() const;
 

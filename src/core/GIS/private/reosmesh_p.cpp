@@ -532,6 +532,11 @@ QString ReosMeshFrame_p::enableVertexElevationDataset( const QString &name )
   return mVerticesElevationDatasetId;
 }
 
+bool ReosMeshFrame_p::isFrameModified() const
+{
+  return mMeshLayer->isModified();
+}
+
 
 QString ReosMeshFrame_p::addDatasetGroup( QgsMeshDatasetGroup *group, const QString &id )
 {

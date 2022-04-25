@@ -50,6 +50,7 @@ class ReosMeshFrame_p : public ReosMesh
     QVector<int> face( int faceIndex ) const override;
     int faceCount() const override;
     QString enableVertexElevationDataset( const QString &name ) override;
+    bool isFrameModified() const override;
     void generateMesh( const ReosMeshFrameData &data ) override;
     QString crs() const override;
     QObject *data() const override;
