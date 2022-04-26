@@ -26,7 +26,7 @@ int ReosTimeSeriesVariableTimeStepGroup::addTimeSeries( ReosTimeSerieVariableTim
 {
   mTimeSeries.append( timeSeries );
   timeSeries->setParent( this );
-
+  connect( timeSeries, &ReosDataObject::dataChanged, this, &ReosTimeSeriesVariableTimeStepGroup::serieChanged );
   emit dataChanged();
 
   return mTimeSeries.count() - 1;
@@ -50,7 +50,7 @@ void ReosTimeSeriesVariableTimeStepGroup::removeTimeSeries( int index )
   if ( index < 0 || index >= mTimeSeries.count() )
     return;
 
-  mTimeSeries.removeAt( index );
+  mTimeSeries.takeAt( index )->deleteLater();
 
   emit dataChanged();
 }

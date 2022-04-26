@@ -58,6 +58,9 @@ void ReosHydraulicScheme::init()
 {
   connect( mStartTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
   connect( mEndTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+
+  connect( mStartTime, &ReosParameter::valueChanged, this, &ReosHydraulicScheme::dirtied );
+  connect( mEndTime, &ReosParameter::valueChanged, this, &ReosHydraulicScheme::dirtied );
 }
 
 ReosMeteorologicModel *ReosHydraulicScheme::meteoModel() const
@@ -69,6 +72,7 @@ void ReosHydraulicScheme::setMeteoModel( ReosMeteorologicModel *meteoModel )
 {
   mMeteoModel = meteoModel;
 
+  emit dirtied();
   emit dataChanged();
 }
 
@@ -168,7 +172,10 @@ void ReosHydraulicSchemeCollection::decode( const ReosEncodedElement &encodedEle
   {
     ReosHydraulicScheme *scheme = ReosHydraulicScheme::decode( elem, this, context );
     if ( scheme )
+    {
       mHydraulicSchemes.append( scheme );
+      connect( scheme, &ReosHydraulicScheme::dirtied, this, &ReosHydraulicSchemeCollection::dirtied );
+    }
   }
 }
 
@@ -209,6 +216,10 @@ void ReosHydraulicSchemeCollection::addScheme( ReosHydraulicScheme *scheme )
   scheme->setParent( this );
   mHydraulicSchemes.append( scheme );
   endResetModel();
+
+  connect( scheme, &ReosHydraulicScheme::dirtied, this, &ReosHydraulicSchemeCollection::dirtied );
+
+  emit dirtied();
 }
 
 void ReosHydraulicSchemeCollection::removeScheme( int index )
@@ -217,6 +228,8 @@ void ReosHydraulicSchemeCollection::removeScheme( int index )
   mHydraulicSchemes.at( index )->deleteLater();
   mHydraulicSchemes.removeAt( index );
   endResetModel();
+
+  emit dirtied();
 }
 
 void ReosHydraulicSchemeCollection::reset( ReosMeteorologicModel *meteoModel )

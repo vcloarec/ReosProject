@@ -119,6 +119,8 @@ ReosHydrographJunction::ReosHydrographJunction( const QPointF &position, ReosHyd
 {
   mOutputHydrograph->setColor( ReosStyleRegistery::instance()->curveColor() );
   mHydrographsStore = new ReosHydrographsStore( this );
+  connect( mHydrographsStore, &ReosHydrographsStore::hydrographChanged, this, &ReosHydraulicNetworkElement::dirtied );
+  connect( mHydrographsStore, &ReosHydrographsStore::dataChanged, this, &ReosHydraulicNetworkElement::dirtied );
   init();
 }
 
@@ -142,6 +144,8 @@ ReosHydrographJunction::ReosHydrographJunction( const ReosEncodedElement &encode
   mOutputHydrograph->setColor( outputColor );
   mHydrographsStore = new ReosHydrographsStore( this );
   mHydrographsStore->decode( encodedElement.getEncodedData( QStringLiteral( "gauged-hydrographs" ) ) );
+  connect( mHydrographsStore, &ReosHydrographsStore::hydrographChanged, this, &ReosHydraulicNetworkElement::dirtied );
+  connect( mHydrographsStore, &ReosHydrographsStore::dataChanged, this, &ReosHydraulicNetworkElement::dirtied );
 
   // before v 2.3, this data are stored in the element encoded data, so try to retrieve them here
   int origin = 0;
@@ -565,6 +569,7 @@ void ReosHydrographJunction::setGaugedHydrographIndex( int gaugedHydrographIndex
   if ( mGaugedHydrographIndex != gaugedHydrographIndex )
   {
     mGaugedHydrographIndex = gaugedHydrographIndex;
+    emit dirtied();
   }
 
   updateInternalHydrograph();
@@ -681,6 +686,8 @@ void ReosHydrographJunction::setInternalHydrographOrigin( InternalHydrographOrig
     return;
 
   mInternalHydrographOrigin = origin;
+  emit dirtied();
+
   updateInternalHydrograph();
   calculateInternalHydrograph();
 }

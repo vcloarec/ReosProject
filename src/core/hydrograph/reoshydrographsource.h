@@ -214,7 +214,8 @@ class REOSCORE_EXPORT ReosHydrographJunction : public ReosHydrographSource
     //Config attributes
     InternalHydrographOrigin mInternalHydrographOrigin = None;
     int mGaugedHydrographIndex = -1;
-    //**
+    //****
+
     mutable ReosHydrograph *mOutputHydrograph;
     ReosHydrographsStore *mHydrographsStore = nullptr;
     QPointer<ReosHydrograph> mInternalHydrograph;

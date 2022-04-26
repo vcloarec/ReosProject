@@ -19,9 +19,10 @@
 #include "reosdataobject.h"
 
 class ReosTimeSerieVariableTimeStep;
- 
+
 class REOSCORE_EXPORT ReosTimeSeriesVariableTimeStepGroup : public ReosDataObject
 {
+    Q_OBJECT
   public:
     ReosTimeSeriesVariableTimeStepGroup( QObject *parent = nullptr );
 
@@ -36,6 +37,9 @@ class REOSCORE_EXPORT ReosTimeSeriesVariableTimeStepGroup : public ReosDataObjec
 
     ReosEncodedElement encode() const;
     void decode( const ReosEncodedElement &element );
+
+  signals:
+    void serieChanged();
 
   private:
     QList<ReosTimeSerieVariableTimeStep *> mTimeSeries;

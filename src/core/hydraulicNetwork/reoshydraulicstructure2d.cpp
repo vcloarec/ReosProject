@@ -840,7 +840,7 @@ void ReosHydraulicStructure2D::saveConfiguration( ReosHydraulicScheme *scheme ) 
 }
 
 
-int ReosHydraulicStructure2D::simulationIndexFromId( const QString simId ) const
+int ReosHydraulicStructure2D::simulationIndexFromId( const QString &simId ) const
 {
   for ( int i = 0; i < mSimulations.count(); ++i )
   {

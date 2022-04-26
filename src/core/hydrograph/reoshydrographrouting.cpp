@@ -85,6 +85,8 @@ bool ReosHydrographRoutingLink::setCurrentRoutingMethod( const QString &routingT
   if ( mCurrentRoutingMethod == routingType )
     return true;
 
+  emit dirtied();
+
   if ( mRoutingMethods.contains( routingType ) )
   {
     mCurrentRoutingMethod = routingType;
@@ -101,6 +103,7 @@ bool ReosHydrographRoutingLink::setCurrentRoutingMethod( const QString &routingT
   {
     mRoutingMethods.insert( routingType, method );
     connect( method, &ReosDataObject::dataChanged, this, &ReosHydrographRoutingLink::calculateRouting );
+    connect( method, &ReosDataObject::dataChanged, this, &ReosHydrographRoutingLink::dirtied );
     registerUpstreamData( method );
     mCurrentRoutingMethod = routingType;
     setObsolete();
@@ -206,16 +209,19 @@ void ReosHydrographRoutingLink::saveConfiguration( ReosHydraulicScheme *scheme )
   encodedElement.addData( QStringLiteral( "current-method" ), mCurrentRoutingMethod );
 
   scheme->saveElementConfig( id(), encodedElement );
+
+  for ( ReosHydrographRoutingMethod *met : mRoutingMethods )
+    met->saveConfiguration( scheme );
 }
 
 void ReosHydrographRoutingLink::restoreConfiguration( ReosHydraulicScheme *scheme )
 {
   ReosEncodedElement encodedElement = scheme->restoreElementConfig( id() );
 
-  if ( encodedElement.description() != QStringLiteral( "link-rounting-config" ) )
-    return;
-
   encodedElement.getData( QStringLiteral( "current-method" ), mCurrentRoutingMethod );
+
+  for ( ReosHydrographRoutingMethod *met : std::as_const( mRoutingMethods ) )
+    met->restoreConfiguration( scheme );
 
   emit dataChanged();
 }
@@ -364,6 +370,12 @@ ReosHydrographRoutingMethodDirect::ReosHydrographRoutingMethodDirect( ReosHydrog
 
 }
 
+ReosHydrographRoutingMethodDirect::ReosHydrographRoutingMethodDirect( const ReosEncodedElement &encodedElement, ReosHydrographRoutingLink *parent )
+  : ReosHydrographRoutingMethodDirect( parent )
+{
+  ReosDataObject::decode( encodedElement );
+}
+
 void ReosHydrographRoutingMethodDirect::calculateOutputHydrograph( ReosHydrograph *inputHydrograph, ReosHydrograph *outputHydrograph, const ReosCalculationContext & )
 {
   if ( !inputHydrograph )
@@ -380,6 +392,7 @@ ReosHydrographCalculation *ReosHydrographRoutingMethodDirect::calculationProcess
 ReosEncodedElement ReosHydrographRoutingMethodDirect::encode() const
 {
   ReosEncodedElement element( type() );
+  ReosDataObject::encode( element );
   return element;
 }
 
@@ -482,6 +495,17 @@ void ReosHydrographRoutingMethodDirect::Calculation::start()
   mIsSuccessful = true;
 }
 
+ReosHydrographRoutingMethod *ReosHydrographRoutingMethodDirectFactory::createRoutingMethod( ReosHydrographRoutingLink *routingLink ) const
+{return new ReosHydrographRoutingMethodDirect( routingLink );}
+
+ReosHydrographRoutingMethod *ReosHydrographRoutingMethodDirectFactory::createRoutingMethod( const ReosEncodedElement &encodedElement, ReosHydrographRoutingLink *routingLink ) const
+{
+  return new ReosHydrographRoutingMethodDirect( encodedElement, routingLink );
+}
+
+QString ReosHydrographRoutingMethodDirectFactory::type() const
+{return ReosHydrographRoutingMethodDirect::staticType();}
+
 QString ReosHydrographRoutingMethodDirectFactory::htmlDescription() const
 {
   QString htmlText = QLatin1String( "<html>\n<body>\n" );
@@ -513,6 +537,7 @@ ReosHydrographRoutingMethodMuskingum::ReosHydrographRoutingMethodMuskingum( cons
   , mKParameter( ReosParameterDuration::decode( encodedElement.getEncodedData( QStringLiteral( "K-parameter" ) ), false, tr( "K" ), this ) )
   , mXParameter( ReosParameterDouble::decode( encodedElement.getEncodedData( QStringLiteral( "X-parameter" ) ), false, tr( "x" ), this ) )
 {
+  ReosDataObject::decode( encodedElement );
   connect( mKParameter, &ReosParameter::valueChanged, this, &ReosHydrographRoutingMethodMuskingum::dataChanged );
   connect( mXParameter, &ReosParameter::valueChanged, this, &ReosHydrographRoutingMethodMuskingum::dataChanged );
 }
@@ -538,6 +563,10 @@ ReosHydrographCalculation *ReosHydrographRoutingMethodMuskingum::calculationProc
   return new Calculation( inputHydrograph, mKParameter->value(), mXParameter->value() );
 }
 
+QString ReosHydrographRoutingMethodMuskingum::type() const {return staticType();}
+
+QString ReosHydrographRoutingMethodMuskingum::staticType() {return ReosHydrographRoutingMethod::staticType() + QString( ':' ) + QStringLiteral( "muskingum" );}
+
 ReosParameterDuration *ReosHydrographRoutingMethodMuskingum::kParameter() const
 {
   return mKParameter;
@@ -554,7 +583,34 @@ ReosEncodedElement ReosHydrographRoutingMethodMuskingum::encode() const
 
   element.addEncodedData( QStringLiteral( "K-parameter" ), mKParameter->encode() );
   element.addEncodedData( QStringLiteral( "X-parameter" ), mXParameter->encode() );
+
+  ReosDataObject::encode( element );
+
   return element;
+}
+
+void ReosHydrographRoutingMethodMuskingum::saveConfiguration( ReosHydraulicScheme *scheme ) const
+{
+  ReosDuration k = mKParameter->value();
+  double X = mXParameter->value();
+
+  ReosEncodedElement encoded = scheme->restoreElementConfig( id() );
+  encoded.addEncodedData( QStringLiteral( "k-parameter" ), k.encode() );
+  encoded.addData( QStringLiteral( "X-parameter" ), X );
+
+  scheme->saveElementConfig( id(), encoded );
+}
+
+void ReosHydrographRoutingMethodMuskingum::restoreConfiguration( ReosHydraulicScheme *scheme )
+{
+  const ReosEncodedElement encoded = scheme->restoreElementConfig( id() );
+
+  if ( encoded.hasEncodedData( QStringLiteral( "k-parameter" ) ) )
+    mKParameter->setValue( ReosDuration::decode( encoded.getEncodedData( QStringLiteral( "k-parameter" ) ) ) );
+
+  double X = mXParameter->value();
+  encoded.getData( QStringLiteral( "X-parameter" ), X );
+  mXParameter->setValue( X );
 }
 
 void ReosHydrographRoutingMethodMuskingum::calculate( ReosHydrograph *inputHydrograph, ReosHydrograph *outputHydrograph, const ReosDuration &K, double x, ReosProcess *process )
@@ -762,6 +818,7 @@ ReosHydrographRoutingMethodLag::ReosHydrographRoutingMethodLag( const ReosEncode
   ReosHydrographRoutingMethod( parent )
   , mLagParameter( ReosParameterDuration::decode( encodedElement.getEncodedData( QStringLiteral( "lag-parameter" ) ), false, tr( "Lag" ), this ) )
 {
+  ReosDataObject::decode( encodedElement );
   connect( mLagParameter, &ReosParameter::valueChanged, this, &ReosHydrographRoutingMethodMuskingum::dataChanged );
 }
 
@@ -775,6 +832,10 @@ ReosHydrographCalculation *ReosHydrographRoutingMethodLag::calculationProcess( R
   return new Calculation( inputHydrograph, mLagParameter->value() );
 }
 
+QString ReosHydrographRoutingMethodLag::type() const {return staticType();}
+
+QString ReosHydrographRoutingMethodLag::staticType() {return ReosHydrographRoutingMethod::staticType() + QString( ':' ) + QStringLiteral( "lag" );}
+
 ReosParameterDuration *ReosHydrographRoutingMethodLag::lagParameter() const
 {
   return mLagParameter;
@@ -785,7 +846,27 @@ ReosEncodedElement ReosHydrographRoutingMethodLag::encode() const
   ReosEncodedElement element( type() );
 
   element.addEncodedData( QStringLiteral( "lag-parameter" ), mLagParameter->encode() );
+
+  ReosDataObject::encode( element );
   return element;
+}
+
+void ReosHydrographRoutingMethodLag::saveConfiguration( ReosHydraulicScheme *scheme ) const
+{
+  ReosDuration lag = mLagParameter->value();
+
+  ReosEncodedElement encoded = scheme->restoreElementConfig( id() );
+  encoded.addEncodedData( QStringLiteral( "lag-parameter" ), lag.encode() );
+
+  scheme->saveElementConfig( id(), encoded );
+}
+
+void ReosHydrographRoutingMethodLag::restoreConfiguration( ReosHydraulicScheme *scheme )
+{
+  const ReosEncodedElement encoded = scheme->restoreElementConfig( id() );
+
+  if ( encoded.hasEncodedData( QStringLiteral( "lag-parameter" ) ) )
+    mLagParameter->setValue( ReosDuration::decode( encoded.getEncodedData( QStringLiteral( "lag-parameter" ) ) ) );
 }
 
 void ReosHydrographRoutingMethodLag::calculate( ReosHydrograph *inputHydrograph, ReosHydrograph *outputHydrograph, const ReosDuration &lag, ReosProcess * )

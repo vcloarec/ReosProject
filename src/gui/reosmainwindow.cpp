@@ -64,7 +64,10 @@ ReosMainWindow::ReosMainWindow( QWidget *parent ) :
   centralWidget->setLayout( centralLayout );
   centralLayout->setContentsMargins( 0, 0, 0, 0 );
 
-  connect( mRootModule.get(), &ReosModule::dirtied, this, [this] {mProjectIsDirty = true;} );
+  connect( mRootModule.get(), &ReosModule::dirtied, this, [this]
+  {
+    mProjectIsDirty = true;
+  } );
 }
 
 void ReosMainWindow::init()
@@ -187,6 +190,8 @@ bool ReosMainWindow::openFile()
 
   if ( !result )
     mCurrentProjectFileInfo = QFileInfo();
+
+  mProjectIsDirty = false;
 
   return result;
 }

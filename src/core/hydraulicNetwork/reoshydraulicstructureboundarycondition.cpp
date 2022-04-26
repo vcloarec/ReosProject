@@ -55,6 +55,11 @@ void ReosHydraulicStructureBoundaryCondition::init()
   connect( mWaterLevelSeriesGroup, &ReosDataObject::dataChanged, this, &ReosHydraulicStructureBoundaryCondition::dataChanged );
   connect( mIsWaterLevelConstant, &ReosParameter::valueChanged, this, &ReosHydraulicStructureBoundaryCondition::dataChanged );
   connect( mConstantWaterLevel, &ReosParameter::valueChanged, this, &ReosHydraulicStructureBoundaryCondition::dataChanged );
+
+  connect( mWaterLevelSeriesGroup, &ReosDataObject::dataChanged, this, &ReosHydraulicStructureBoundaryCondition::dirtied );
+  connect( mWaterLevelSeriesGroup, &ReosTimeSeriesVariableTimeStepGroup::serieChanged, this, &ReosHydraulicStructureBoundaryCondition::dirtied );
+  connect( mIsWaterLevelConstant, &ReosParameter::valueChanged, this, &ReosHydraulicStructureBoundaryCondition::dirtied );
+  connect( mConstantWaterLevel, &ReosParameter::valueChanged, this, &ReosHydraulicStructureBoundaryCondition::dirtied );
 }
 
 void ReosHydraulicStructureBoundaryCondition::syncHydrographName()
@@ -252,6 +257,7 @@ void ReosHydraulicStructureBoundaryCondition::onParameterNameChange()
 void ReosHydraulicStructureBoundaryCondition::setWaterLevelSeriesIndex( int waterLevelSeriesIndex )
 {
   mWaterLevelSeriesIndex = waterLevelSeriesIndex;
+  emit dirtied();
   emit dataChanged();
 }
 
@@ -291,6 +297,7 @@ void ReosHydraulicStructureBoundaryCondition::setDefaultConditionType( const Reo
     return;
 
   mDefaultConditionType = defaultConditionType;
+  emit dirtied();
 
   switch ( mDefaultConditionType )
   {

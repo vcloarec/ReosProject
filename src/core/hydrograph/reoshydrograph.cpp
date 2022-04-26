@@ -67,6 +67,8 @@ void ReosHydrographsStore::addHydrograph( ReosHydrograph *hydrograph )
   hydrograph->setParent( this );
   mHydrographs.append( hydrograph );
 
+  connect( hydrograph, &ReosDataObject::dataChanged, this, &ReosHydrographsStore::hydrographChanged );
+
   emit dataChanged();
 }
 
@@ -149,6 +151,8 @@ void ReosHydrographsStore::decode( const ReosEncodedElement &element )
   for ( const QByteArray &bytes : std::as_const( encodedHydrographs ) )
   {
     mHydrographs.append( ReosHydrograph::decode( ReosEncodedElement( bytes ), this ) );
+
+    connect( mHydrographs.last(), &ReosDataObject::dataChanged, this, &ReosHydrographsStore::hydrographChanged );
 
     if ( mHydrographs.last()->dataProvider()->key() == QStringLiteral( "variable-time-step-memory" ) )
     {

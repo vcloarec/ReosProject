@@ -52,7 +52,6 @@ static QgsLayerTreeModel *_layerTreeModel( QAbstractItemModel *sourceModel )
 
 ReosGisEngine::ReosGisEngine( QObject *parent ): ReosModule( parent )
 {
-
   initGisEngine();
 
   mLayerTreeModel->setFlag( QgsLayerTreeModel::AllowNodeReorder );
@@ -69,6 +68,8 @@ ReosGisEngine::ReosGisEngine( QObject *parent ): ReosModule( parent )
     QString wktCrs = QgsProject::instance()->crs().toWkt();
     emit crsChanged( wktCrs );
   } );
+
+  connect( QgsProject::instance(), &QgsProject::dirtySet, this, &ReosModule::dirtied );
 }
 
 ReosGisEngine::~ReosGisEngine()

@@ -101,12 +101,15 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject
   signals:
     void calculationStart();
     void calculationIsUpdated( const QString &id, QPrivateSignal );
+    void dirtied();
 
   private:
     ReosParameterString *mNameParameter = nullptr;
     ReosParameterDuration *mConstantTimeStepInTable = nullptr;
     ReosParameterBoolean *mUseConstantTimeStepInTable = nullptr;
     ReosModule::Message mLastMessage;
+
+    void init();
 
 };
 

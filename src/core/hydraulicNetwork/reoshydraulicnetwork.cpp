@@ -31,6 +31,7 @@ ReosHydraulicNetworkElement::ReosHydraulicNetworkElement( ReosHydraulicNetwork *
   mConstantTimeStepInTable = new ReosParameterDuration( tr( "Constant time step" ) );
   mConstantTimeStepInTable->setValue( ReosDuration( 5, ReosDuration::minute ) );
   mUseConstantTimeStepInTable = new ReosParameterBoolean( tr( "Display constant time step" ) );
+  init();
 }
 
 ReosHydraulicNetworkElement::ReosHydraulicNetworkElement( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent )
@@ -54,14 +55,21 @@ ReosHydraulicNetworkElement::ReosHydraulicNetworkElement( const ReosEncodedEleme
                                 this );
   if ( !mUseConstantTimeStepInTable->isValid() )
     mUseConstantTimeStepInTable->setValue( false );
+
+  init();
+}
+
+void ReosHydraulicNetworkElement::init()
+{
+  connect( mConstantTimeStepInTable, &ReosParameter::valueChanged, this, &ReosHydraulicNetworkElement::dirtied );
+  connect( mUseConstantTimeStepInTable, &ReosParameter::valueChanged, this, &ReosHydraulicNetworkElement::dirtied );
+  connect( mNameParameter, &ReosParameter::valueChanged, this, &ReosHydraulicNetworkElement::dirtied );
 }
 
 
 ReosHydraulicNetworkElement::~ReosHydraulicNetworkElement()
 {
 }
-
-
 
 void ReosHydraulicNetworkElement::destroy()
 {
@@ -149,6 +157,8 @@ ReosHydraulicNetwork::ReosHydraulicNetwork( ReosModule *parent, ReosGisEngine *g
     scheme->setMeteoModel( mWatershedModule->meteoModelsCollection()->meteorologicModel( 0 ) );
 
   mHydraulicSchemeCollection->addScheme( scheme.release() );
+
+  connect( mHydraulicSchemeCollection, &ReosHydraulicSchemeCollection::dirtied, this, &ReosModule::dirtied );
 }
 
 QList<ReosHydraulicNetworkElement *> ReosHydraulicNetwork::getElements( const QString &type ) const
@@ -180,6 +190,8 @@ ReosHydraulicNetworkElement *ReosHydraulicNetwork::addElement( ReosHydraulicNetw
   }
   emit elementAdded( elem, select );
 
+  connect( elem, &ReosHydraulicNetworkElement::dirtied, this, &ReosModule::dirtied );
+
   return elem;
 }
 
@@ -197,6 +209,8 @@ void ReosHydraulicNetwork::removeElement( ReosHydraulicNetworkElement *elem )
   }
 
   elem->destroy();
+
+  emit dirtied();
 }
 
 void ReosHydraulicNetwork::decode( const ReosEncodedElement &element, const QString &projectPath, const QString &projectFileName )
@@ -332,6 +346,7 @@ ReosGisEngine *ReosHydraulicNetwork::getGisEngine() const
 void ReosHydraulicNetwork::elemPositionChangedPrivate( ReosHydraulicNetworkElement *elem )
 {
   emit elementPositionHasChanged( elem );
+  emit dirtied();
 }
 
 ReosHydraulicNetworkContext ReosHydraulicNetwork::context() const
@@ -401,6 +416,7 @@ void ReosHydraulicNetwork::setCurrentScheme( int newSchemeIndex )
   }
 
   emit schemeChanged();
+  emit dirtied();
 }
 
 void ReosHydraulicNetwork::addEncodedElement( const ReosEncodedElement &element )

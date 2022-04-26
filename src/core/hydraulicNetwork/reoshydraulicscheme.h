@@ -38,6 +38,7 @@ class ReosCalculationContext;
 
 class REOSCORE_EXPORT ReosHydraulicScheme : public ReosDataObject
 {
+    Q_OBJECT
   public:
     ReosHydraulicScheme( ReosHydraulicSchemeCollection *collection = nullptr );
 
@@ -62,6 +63,9 @@ class REOSCORE_EXPORT ReosHydraulicScheme : public ReosDataObject
 
     ReosCalculationContext calculationContext() const;
 
+  signals:
+    void dirtied();
+
   private:
     ReosHydraulicScheme( const ReosEncodedElement &element, ReosHydraulicSchemeCollection *collection, const ReosHydraulicNetworkContext &context );
 
@@ -78,6 +82,7 @@ class REOSCORE_EXPORT ReosHydraulicScheme : public ReosDataObject
 
 class REOSCORE_EXPORT ReosHydraulicSchemeCollection : public QAbstractListModel
 {
+    Q_OBJECT
   public:
     ReosHydraulicSchemeCollection( QObject *parent = nullptr );
 
@@ -102,6 +107,9 @@ class REOSCORE_EXPORT ReosHydraulicSchemeCollection : public QAbstractListModel
 
     ReosEncodedElement encode() const;
     void decode( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
+
+  signals:
+    void dirtied();
 
   private:
     QList<ReosHydraulicScheme *> mHydraulicSchemes;
