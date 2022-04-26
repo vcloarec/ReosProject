@@ -606,14 +606,14 @@ void ReosRunoffHydrographWidget::onTransferFunctionFormulation()
 
 void ReosWatershedRunoffModelsModel::setWatershedRunoffModels( ReosRunoffModelsGroup *watershedRunoffModels )
 {
-  if ( mWatershedRunoffModels )
+  if ( !mWatershedRunoffModels.isNull() )
     disconnect( mWatershedRunoffModels, &ReosRunoffModelsGroup::dataChanged, this, &ReosWatershedRunoffModelsModel::modelChanged );
 
   beginResetModel();
   mWatershedRunoffModels = watershedRunoffModels;
   endResetModel();
 
-  if ( mWatershedRunoffModels )
+  if ( !mWatershedRunoffModels.isNull() )
     connect( mWatershedRunoffModels, &ReosRunoffModelsGroup::dataChanged, this, &ReosWatershedRunoffModelsModel::modelChanged );
 }
 
