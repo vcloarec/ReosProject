@@ -32,6 +32,7 @@ class ReosMapToolDrawExtent;
 class ReosMapToolSelectMapItem;
 class ReosMapToolDrawPoint;
 class ReosMap;
+class ReosGuiContext;
 
 namespace Ui
 {
@@ -43,10 +44,7 @@ class ReosDelineatingWatershedWidget : public ReosActionWidget
     Q_OBJECT
 
   public:
-    explicit ReosDelineatingWatershedWidget(
-      ReosWatershedModule *watershedModule,
-      ReosMap *map,
-      QWidget *parent = nullptr );
+    explicit ReosDelineatingWatershedWidget( ReosWatershedModule *watershedModule, const ReosGuiContext &context );
 
     ~ReosDelineatingWatershedWidget();
 

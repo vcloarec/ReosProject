@@ -136,16 +136,25 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     bool canBeRasterDem( const QString &uri ) const;
 
     //! Transforms the map extent in the project coordinates system. It is supposed that \a extent contains the source CRS
-    ReosMapExtent transformToProjectExtent( const ReosMapExtent &extent );
+    ReosMapExtent transformToProjectExtent( const ReosMapExtent &extent ) const;
 
     //! Transforms the \a extent in project coordinates in an extent in \a wktCrs, the returns extent contain the destination CRS reference
-    ReosMapExtent transformFromProjectExtent( const ReosMapExtent &extent, const QString &wktCrs );
+    ReosMapExtent transformFromProjectExtent( const ReosMapExtent &extent, const QString &wktCrs ) const;
 
     //! Transforms the \a sourcePoint from \a sourceCRS to project CRS
-    QPointF transformToProjectCoordinates( const QString &sourceCRS, const QPointF &sourcePoint );
+    QPointF transformToProjectCoordinates( const QString &sourceCRS, const QPointF &sourcePoint ) const;
 
     //! Transforms the spatial position \a position to project CRS
-    QPointF transformToProjectCoordinates( const ReosSpatialPosition &position );
+    QPointF transformToProjectCoordinates( const ReosSpatialPosition &position ) const;
+
+    //! Transforms the spatial position \a position to given \a crs
+    QPointF transformToCoordinates( const ReosSpatialPosition &position, const QString &destinationCrs ) const;
+
+    //! Sets the temporal range
+    void setTemporalRange( const QDateTime &startTime, const QDateTime &endTime );
+
+    //! Returns the temporal range
+    QPair<QDateTime, QDateTime> temporalRange() const;
 
     static QString gisEngineName();
     static QString gisEngineVersion();
@@ -157,6 +166,7 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     void crsChanged( const QString &wktCrs );
     void layerRemoved( const QString &layerId );
     void updated();
+    void temporalRangeChanged( const QDateTime &startTime, const QDateTime &endTime );
 
   private slots:
     void onLayerRemoved( const QString &layerId );

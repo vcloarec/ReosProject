@@ -32,6 +32,7 @@
 
 ReosMapToolEditMeshFrame_p::ReosMapToolEditMeshFrame_p( ReosMesh *mesh, QgsMapCanvas *canvas )
   : ReosMapTool_p( canvas )
+  , mReosMesh( mesh )
   , mMeshLayer( qobject_cast<QgsMeshLayer*>( mesh->data() ) )
   , mMainActions( new QActionGroup( this ) )
 {
@@ -685,7 +686,8 @@ void ReosMapToolEditMeshFrame_p::highlightCloseVertex( const QgsPointXY &mapPoin
     mCurrentVertexIndex = -1;
     mVertexBand->reset( QgsWkbTypes::PointGeometry );
 
-    if ( closeVert >= 0 )
+    if ( closeVert >= 0 &&
+         !( mReosMesh->vertexIsOnBoundary( closeVert )  || mReosMesh->vertexIsOnHoleBorder( closeVert ) ) )
     {
       mCurrentVertexIndex = closeVert;
       mVertexBand->addPoint( mapVertexXY( closeVert ) );
@@ -1142,6 +1144,9 @@ void ReosMapToolEditMeshFrame_p::setSelectedVertices( const QList<int> newSelect
 
   for ( const int vertexIndex : newSelectedVertices )
   {
+    if ( mReosMesh->vertexIsOnBoundary( vertexIndex ) || mReosMesh->vertexIsOnHoleBorder( vertexIndex ) )
+      continue;
+
     bool contained = mSelectedVertices.contains( vertexIndex );
     if ( contained &&  removeVertices )
       removeFromSelection( vertexIndex );

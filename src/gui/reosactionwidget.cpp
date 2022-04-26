@@ -106,7 +106,6 @@ void ReosActionStackedWidget::backToPrevious()
   mStackedWidget->setCurrentIndex( currentIndex - 1 );
   mStackedWidget->removeWidget( currentWidget );
   delete currentWidget;
-
 }
 
 void ReosActionStackedWidget::backToFirstPage()

@@ -286,6 +286,9 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStep: public ReosTimeSerie
 
     QAbstractItemModel *model();
 
+    ReosEncodedElement encode() const;
+    static ReosTimeSerieVariableTimeStep *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
+
   public slots:
     //! Sets indirectly the color from an object that handle common color for hydrograph
     void setCommonColor( const QColor &color );

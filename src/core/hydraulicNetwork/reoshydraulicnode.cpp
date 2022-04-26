@@ -85,5 +85,7 @@ QList<ReosHydraulicLink *> ReosHydraulicNode::linksBySide2() const
   return ret;
 }
 
+bool ReosHydraulicNode::canAcceptLink( const QString &, int ) {return false;}
+
 ReosHydraulicNode::~ReosHydraulicNode() = default;
 

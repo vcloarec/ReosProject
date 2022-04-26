@@ -26,6 +26,7 @@
 class ReosHydrographJunction;
 class ReosPlotTimeSerieVariableStep;
 class ReosVariableTimeStepPlotListButton;
+class ReosHydraulicStructureBoundaryCondition;
 
 namespace Ui
 {
@@ -95,8 +96,12 @@ class ReosFormJunctionNodeWidget: public ReosFormBaseJunctionNodeWidget
   protected:
     ReosHydrographJunction *node() const override;
 
+  private slots:
+    void syncToNode();
+
   private:
     ReosHydrographJunction *mJunctioNode = nullptr;
+    QCheckBox *mCheckBoxGauged = nullptr;
 };
 
 class ReosFormWatershedNodeWidgetFactory: public ReosFormWidgetDataFactory
@@ -117,10 +122,56 @@ class ReosFormWatershedNodeWidget: public ReosFormBaseJunctionNodeWidget
 
   private slots:
     void originChange();
+    void syncToNode();
 
   private:
     ReosHydrographNodeWatershed *mNode = nullptr;
     QComboBox *mOriginCombo = nullptr;
 };
+
+
+class ReosFormJunctionBoundaryConditionWidgetFactory: public ReosFormWidgetDataFactory
+{
+  public:
+    virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context = ReosGuiContext() );
+    virtual QString datatype() const;
+};
+
+
+class ReosFormJunctionBoundaryConditionWidget: public ReosFormWidget
+{
+    Q_OBJECT
+  public:
+    enum Type
+    {
+      WaterLevel,
+      FlowRate
+    };
+
+    ReosFormJunctionBoundaryConditionWidget( ReosHydraulicStructureBoundaryCondition *boundary, const ReosGuiContext &context = ReosGuiContext() );
+
+    //! Constructor with predefined type, type could be change
+    ReosFormJunctionBoundaryConditionWidget( ReosHydraulicStructureBoundaryCondition *boundary, Type type, const ReosGuiContext &context = ReosGuiContext() );
+
+  private slots:
+    void syncToNode();
+    void updateWidgetsDisplaying();
+
+  private:
+    ReosHydraulicStructureBoundaryCondition *mNode = nullptr;
+    QComboBox *mTypeCombo = nullptr;
+    QComboBox *mWaterLevelCombo = nullptr;
+    QWidget *mWaterLevelWidget = nullptr;
+    ReosParameterBooleanWidget *mIsElevationConstant = nullptr;
+    ReosParameterDoubleWidget *mConstantLevel = nullptr;
+    QToolButton *mButtonWaterlevelSeries = nullptr;
+    QWidget *mWaterLevelSeriesWidget = nullptr;
+
+    QWidget *mHydrographComboWidget = nullptr;
+    QComboBox *mHydrographCombo = nullptr;
+    QToolButton *mButtonHydrograph = nullptr;
+
+};
+
 
 #endif // REOSHYDRAULICHYDROGRAPHJUNCTIONPROPERTIESWIDGET_H

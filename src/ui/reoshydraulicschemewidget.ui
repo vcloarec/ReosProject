@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ReosHydraulicSchemeWidget</class>
+ <widget class="QWidget" name="ReosHydraulicSchemeWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>253</width>
+    <height>162</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="ReosParameterStringWidget" name="mWidetName" native="true"/>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="ReosParameterDateTimeWidget" name="mWidgetStartTime" native="true"/>
+     </item>
+     <item>
+      <widget class="ReosParameterDateTimeWidget" name="mWidgetEndTime" native="true"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Meteorological Model</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="mMeteoModelCombo"/>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ReosParameterStringWidget</class>
+   <extends>QWidget</extends>
+   <header>reosparameterwidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ReosParameterDateTimeWidget</class>
+   <extends>QWidget</extends>
+   <header>reosparameterwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

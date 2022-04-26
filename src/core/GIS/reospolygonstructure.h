@@ -33,7 +33,7 @@ class ReosPolygonStructureValues
 
 };
 
-class ReosPolygonStructure : public ReosGeometryStructure
+class REOSCORE_EXPORT ReosPolygonStructure : public ReosGeometryStructure
 {
     Q_OBJECT
   public:

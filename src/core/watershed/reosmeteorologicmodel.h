@@ -102,8 +102,14 @@ class REOSCORE_EXPORT ReosMeteorologicModelsCollection : public QAbstractListMod
     //! Returns the meteorologic model at position \a i
     ReosMeteorologicModel *meteorologicModel( int i ) const;
 
+    //! Return the meteorological model with id \a modelId
+    ReosMeteorologicModel *meteorologicModel( const QString &modelid ) const;
+
     //! Returns the count of meteorologic models
     int modelCount() const;
+
+    //! Returns the index of \a model
+    int modelIndex( ReosMeteorologicModel *model ) const;
 
     //! Adds an empty (no association) meteorologic model with \a name
     void addMeteorologicModel( const QString &name );
@@ -114,7 +120,11 @@ class REOSCORE_EXPORT ReosMeteorologicModelsCollection : public QAbstractListMod
     //! Removes the meteorologic model at position \a i
     void removeMeteorologicModel( int i );
 
+    //! Removes all the models
     void clearModels();
+
+    //! Removes all models and create just a void one
+    void reset();
 
     ReosEncodedElement encode( ReosWatershedTree *watershedTree ) const;
     void decode( const ReosEncodedElement &element, ReosWatershedTree *watershedTree, ReosRainfallRegistery *rainfallregistery );

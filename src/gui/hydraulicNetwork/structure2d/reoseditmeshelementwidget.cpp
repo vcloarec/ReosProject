@@ -165,7 +165,7 @@ ReosEditMeshElementWidget::ReosEditMeshElementWidget( ReosMesh *mesh, const Reos
 
   connect( ui->mStartCheckButton, &QToolButton::clicked, this, &ReosEditMeshElementWidget::startCheckQualityControlled );
   connect( ui->mAutoUpdateCheckBox, &QCheckBox::stateChanged, this, &ReosEditMeshElementWidget::onQualityCheckBoxChanged );
-  connect( mMesh, &ReosDataObject::dataChanged, this, &ReosEditMeshElementWidget::startCheckQualityNonControlled );
+  connect( mMesh, &ReosDataObject::dataChanged, this, &ReosEditMeshElementWidget::onMeshChanged );
 
   QgsMapCanvas *mapCanvas = qobject_cast<QgsMapCanvas *>( mGuiContext.map()->mapCanvas() );
   if ( mapCanvas )
@@ -285,7 +285,6 @@ void ReosEditMeshElementWidget::hideEvent( QHideEvent *e )
 
 void ReosEditMeshElementWidget::showEvent( QShowEvent *e )
 {
-  mMapToolEditMeshFrame->activate();
   mMapToolEditMeshFrame->setCurrentToolInMap();
 
   QWidget::showEvent( e );
@@ -405,15 +404,6 @@ void ReosEditMeshElementWidget::startCheckQuality( bool controled )
 
 void ReosEditMeshElementWidget::checkQualityFinished()
 {
-  qDebug() << "check quality finished " << mChecker->result().error << " in " << mTimer.elapsed();
-  qDebug() << "Minimum area " << mChecker->result().minimumArea.count();
-  qDebug() << "Maximum area " << mChecker->result().maximumArea.count();
-  qDebug() << "Maximum area change " << mChecker->result().maximumAreaChange.count();
-  qDebug() << "Minimum angle " << mChecker->result().minimumAngle.count();
-  qDebug() << "Maximum angle " << mChecker->result().maximumAngle.count();
-  qDebug() << "Connection count" << mChecker->result().connectionCount.count();
-  qDebug() << "Connection count boundary" << mChecker->result().connectionCountBoundary.count();
-  qDebug() << "Maximum slope" << mChecker->result().maximumSlope.count();
   disconnect( mChecker, &ReosProcess::finished, this, &ReosEditMeshElementWidget::checkQualityFinished );
 
   if ( mChecker->isSuccessful() )

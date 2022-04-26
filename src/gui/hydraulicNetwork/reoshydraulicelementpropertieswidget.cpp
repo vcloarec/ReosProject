@@ -22,7 +22,6 @@
 
 #include "reoshydraulicelementpropertieswidget.h"
 #include "reoshydraulicnetwork.h"
-
 #include "reoswatershedmodule.h"
 #include "reoshydrographroutingpropertieswidget.h"
 #include "reoshydraulichydrographjunctionpropertieswidget.h"
@@ -32,8 +31,9 @@
 #include "reoshydraulicstructure2dproperties.h"
 #include "reosmeshgeneratorgui.h"
 
-ReosHydraulicElementPropertiesWidget::ReosHydraulicElementPropertiesWidget( ReosWatershedModule *watershedModule, const ReosGuiContext &guiContext )
+ReosHydraulicElementPropertiesWidget::ReosHydraulicElementPropertiesWidget( ReosHydraulicNetwork *network, const ReosGuiContext &guiContext )
   : ReosStackedPageWidget( guiContext.parent() )
+  , mNetwork( network )
 {
   QVBoxLayout *mainLayout = new QVBoxLayout;
   setLayout( mainLayout );
@@ -48,10 +48,6 @@ ReosHydraulicElementPropertiesWidget::ReosHydraulicElementPropertiesWidget( Reos
   mNameLayout->setContentsMargins( 0, 0, 0, 0 );
   headerLayout->addItem( mNameLayout );
 
-  mMeteoModelCombo = new QComboBox( this );
-  mMeteoModelCombo->setModel( watershedModule->meteoModelsCollection() );
-  headerLayout->addWidget( mMeteoModelCombo );
-
   mMainLayout = mainLayout;
 
   mDefaultWidgetfactory = new ReosHydraulicElementWidgetFactory( this );
@@ -64,11 +60,12 @@ ReosHydraulicElementPropertiesWidget::ReosHydraulicElementPropertiesWidget( Reos
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormHydrographRountingLagWidgetFactory );
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormWatershedNodeWidgetFactory );
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormJunctionNodeWidgetFactory );
+  ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormJunctionBoundaryConditionWidgetFactory );
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormGmshGeneratorWidgetFactory );
 
-  connect( mMeteoModelCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosHydraulicElementPropertiesWidget::updateElementCalculation );
-
   setCurrentElement( nullptr, guiContext );
+
+  connect( network, &ReosHydraulicNetwork::schemeChanged, this, &ReosHydraulicElementPropertiesWidget::updateElementCalculation );
 }
 
 ReosHydraulicElementPropertiesWidget::~ReosHydraulicElementPropertiesWidget()
@@ -84,13 +81,11 @@ void ReosHydraulicElementPropertiesWidget::setCurrentElement( ReosHydraulicNetwo
   {
     newWidget = widgetFactory( element->type() )->createWidget( element, ReosGuiContext( guiContext, this ) );
     connect( newWidget, &ReosHydraulicElementWidget::stackedPageWidgetOpened, this, &ReosStackedPageWidget::addOtherPage );
-    newNameWidget = new ReosParameterStringWidget( element->name(), this );
-    mMeteoModelCombo->show();
+    newNameWidget = new ReosParameterStringWidget( element->elementName(), this );
   }
   else
   {
     setWindowTitle( tr( "No Element Selected" ) );
-    mMeteoModelCombo->hide();
     newNameWidget = new QLabel( tr( "No hydraulic element selected" ), this );
   }
 
@@ -124,16 +119,8 @@ void ReosHydraulicElementPropertiesWidget::setCurrentElement( ReosHydraulicNetwo
 
 void ReosHydraulicElementPropertiesWidget::updateElementCalculation()
 {
-  ReosCalculationContext context;
-  ReosMeteorologicModelsCollection *meteoCollection = qobject_cast<ReosMeteorologicModelsCollection *>( mMeteoModelCombo->model() );
-
-  if ( meteoCollection )
-  {
-    context.setMeteorologicModel( meteoCollection->meteorologicModel( mMeteoModelCombo->currentIndex() ) );
-  }
-
   if ( mCurrentWidget )
-    mCurrentWidget->setCurrentCalculationContext( context );
+    mCurrentWidget->setCurrentCalculationContext( mNetwork->calculationContext() );
 }
 
 ReosHydraulicElementWidgetFactory *ReosHydraulicElementPropertiesWidget::widgetFactory( const QString &elementType )
@@ -223,11 +210,11 @@ void ReosHydrauylicNetworkElementCalculationControler::onCalculationStop()
   }
 }
 
-ReosHydraulicElementPropertiesActionWidget::ReosHydraulicElementPropertiesActionWidget( ReosWatershedModule *watershedModule, const ReosGuiContext &guiContext )
+ReosHydraulicElementPropertiesActionWidget::ReosHydraulicElementPropertiesActionWidget( ReosHydraulicNetwork *network, const ReosGuiContext &guiContext )
   : ReosActionStackedWidget( guiContext.parent() )
 {
   setWindowFlag( Qt::Dialog );
-  mainPage = new ReosHydraulicElementPropertiesWidget( watershedModule, ReosGuiContext( guiContext, this ) );
+  mainPage = new ReosHydraulicElementPropertiesWidget( network, ReosGuiContext( guiContext, this ) );
   addPage( mainPage );
 }
 
@@ -237,7 +224,7 @@ void ReosHydraulicElementPropertiesActionWidget::setCurrentElement( ReosHydrauli
     return;
 
   if ( element )
-    setWindowTitle( element->name()->value() );
+    setWindowTitle( element->elementName()->value() );
   else
     setWindowTitle( tr( "No Element Selected" ) );
 

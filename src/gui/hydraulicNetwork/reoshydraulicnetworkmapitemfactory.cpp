@@ -17,7 +17,8 @@
 #include "reoshydrographsource.h"
 #include "reoshydrographrouting.h"
 #include "reoshydraulicstructure2d.h"
-
+#include "reoshydraulicstructureboundarycondition.h"
+#include "reosstyleregistery.h"
 #include <QVector2D>
 
 //****************************************************
@@ -28,7 +29,7 @@ static ReosMapItem *createHydrographSourceWatershedItem( ReosHydraulicNetworkEle
   ReosHydrographNodeWatershed *hws = qobject_cast<ReosHydrographNodeWatershed *>( elem );
   if ( hws )
   {
-    std::unique_ptr<ReosMapMarkerEmptySquare> marker = std::make_unique<ReosMapMarkerEmptySquare>( map, hws->position() );
+    std::unique_ptr<ReosMapMarkerEmptySquare> marker = std::make_unique<ReosMapMarkerEmptySquare>( map, hws->position( map->mapCrs() ) );
     marker->setWidth( 12 );
     marker->setExternalWidth( 20 );
     marker->setColor( QColor( 0, 155, 242 ) );
@@ -60,7 +61,8 @@ static ReosMapItem *createExtraItemSelectedHydrographSourceWatershed( ReosHydrau
     std::unique_ptr<ReosMapPolygon> polygon = std::make_unique<ReosMapPolygon>( map, hws->watershed()->delineating() );
     polygon->setWidth( 1 );
     polygon->setColor( Qt::white );
-    polygon->setFillColor( QColor( 250, 175, 100, 100 ) );
+    polygon->setFillColor( ReosStyleRegistery::instance()->orangeReos( 100 ) );
+    polygon->setFillStyle( Qt::SolidPattern );
     polygon->setZValue( 9 );
     return polygon.release();
   }
@@ -77,7 +79,7 @@ static ReosMapItem *createHydrographJunctionItem( ReosHydraulicNetworkElement *e
   ReosHydrographJunction *hj = qobject_cast<ReosHydrographJunction *>( elem );
   if ( hj )
   {
-    std::unique_ptr<ReosMapMarkerEmptyCircle> marker = std::make_unique<ReosMapMarkerEmptyCircle>( map, hj->position() );
+    std::unique_ptr<ReosMapMarkerEmptyCircle> marker = std::make_unique<ReosMapMarkerEmptyCircle>( map, hj->position( map->mapCrs() ) );
     marker->setWidth( 12 );
     marker->setExternalWidth( 22 );
     marker->setColor( QColor( 0, 155, 242 ) );
@@ -95,7 +97,7 @@ static void updateHydrographJunctionItem( ReosHydraulicNetworkElement *elem, Reo
   ReosHydrographJunction *hj = qobject_cast<ReosHydrographJunction *>( elem );
   ReosMapMarker *markerItem = static_cast<ReosMapMarker *>( item );
 
-  markerItem->resetPoint( hj->position() );
+  markerItem->resetPoint( hj->position( item->map()->mapCrs() ) );
 
   for ( ReosHydraulicLink *link : hj->links() )
     link->positionChanged();
@@ -111,14 +113,14 @@ static ReosMapItem *createHydrographRoutingLink( ReosHydraulicNetworkElement *el
   if ( hr )
   {
     std::unique_ptr<ReosMapPolyline> line = std::make_unique<ReosMapPolyline>( map );
-
+    const QString mapCrs = map->mapCrs();
     if ( hr->firstNode() && hr->secondNode() )
     {
       QPolygonF mapLine;
-      QVector2D v = QVector2D( hr->firstNode()->position() - hr->secondNode()->position() );
+      QVector2D v = QVector2D( hr->firstNode()->position( mapCrs ) - hr->secondNode()->position( mapCrs ) );
 
-      mapLine.append( hr->firstNode()->position() );
-      mapLine.append( hr->secondNode()->position() );
+      mapLine.append( hr->firstNode()->position( mapCrs ) );
+      mapLine.append( hr->secondNode()->position( mapCrs ) );
       line->resetPolyline( mapLine );
       line->activeMarker( true );
       line->setMarkerArrow( true );
@@ -145,12 +147,13 @@ static void updateHydrographDirectTransferLink( ReosHydraulicNetworkElement *ele
     return;
   ReosMapPolyline *line = static_cast<ReosMapPolyline *>( item );
   QPolygonF mapLine;
+  const QString mapCrs = item->map()->mapCrs();
   if ( hr->firstNode() && hr->secondNode() )
   {
     QPolygonF mapLine;
-    QVector2D v = QVector2D( hr->firstNode()->position() - hr->secondNode()->position() );
-    mapLine.append( hr->firstNode()->position() );
-    mapLine.append( hr->secondNode()->position() );
+    const QVector2D v = QVector2D( hr->firstNode()->position( mapCrs ) - hr->secondNode()->position( mapCrs ) );
+    mapLine.append( hr->firstNode()->position( mapCrs ) );
+    mapLine.append( hr->secondNode()->position( mapCrs ) );
     line->resetPolyline( mapLine );
     line->setMarkerDistance( v.length() / 2 );
   }
@@ -178,6 +181,61 @@ static ReosMapItem *createStructure2D( ReosHydraulicNetworkElement *elem, ReosMa
   return nullptr;
 }
 
+static void selectStructure2D( ReosHydraulicNetworkElement *elem, ReosMapItem *item )
+{
+  if ( item )
+  {
+    item->setColor( QColor( 250, 175, 100 ) );
+  }
+
+  ReosHydraulicStructure2D *str2D = qobject_cast<ReosHydraulicStructure2D *>( elem );
+  if ( str2D && item )
+  {
+    if ( str2D->mesh()->vertexCount() > 0 && str2D->mesh()->datasetIds().count() > 0 )
+      static_cast<ReosMapPolygon *>( item )->setFillStyle( Qt::NoBrush );
+    else
+      static_cast<ReosMapPolygon *>( item )->setFillStyle( Qt::DiagCrossPattern );
+  }
+}
+
+static void unselectStructure2D( ReosHydraulicNetworkElement *, ReosMapItem *item )
+{
+  if ( item )
+  {
+    item->setColor( QColor( 0, 155, 242 ) );
+    static_cast<ReosMapPolygon *>( item )->setFillStyle( Qt::DiagCrossPattern );
+  }
+}
+
+static ReosMapItem *createStructureBoundaryCondition( ReosHydraulicNetworkElement *elem, ReosMap *map )
+{
+  ReosHydraulicStructureBoundaryCondition *stdBc = qobject_cast<ReosHydraulicStructureBoundaryCondition *>( elem );
+  if ( stdBc )
+  {
+    std::unique_ptr<ReosMapMarkerEmptySquare> marker( new ReosMapMarkerEmptySquare( map, stdBc->position( map->mapCrs() ) ) );
+    marker->setWidth( 6 );
+    marker->setExternalWidth( 16 );
+    marker->setColor( QColor( 0, 155, 242 ) );
+    marker->setExternalColor( Qt::white );
+    marker->setZValue( 10 );
+    marker->setDescription( stdBc->id() );
+    return marker.release();
+  }
+
+  return nullptr;
+}
+
+static void updateStructureBoundaryCondition( ReosHydraulicNetworkElement *elem, ReosMapItem *item )
+{
+  ReosHydraulicStructureBoundaryCondition *stdBc = qobject_cast<ReosHydraulicStructureBoundaryCondition *>( elem );
+  ReosMapMarker *markerItem = static_cast<ReosMapMarker *>( item );
+
+  markerItem->resetPoint( stdBc->position( item->map()->mapCrs() ) );
+
+  for ( ReosHydraulicLink *link : stdBc->links() )
+    link->positionChanged();
+}
+
 //****************************************************
 // Common
 
@@ -199,24 +257,33 @@ static void unselectHydrographElement( ReosHydraulicNetworkElement *, ReosMapIte
 
 ReosHydraulicNetworkMapItemFactory::ReosHydraulicNetworkMapItemFactory()
 {
+  // creation function
   mCreationFunctions.insert( ReosHydrographNodeWatershed::staticType(), &createHydrographSourceWatershedItem );
   mCreationFunctions.insert( ReosHydrographJunction::staticType(), &createHydrographJunctionItem );
   mCreationFunctions.insert( ReosHydrographRoutingLink::staticType(), &createHydrographRoutingLink );
   mCreationFunctions.insert( ReosHydraulicStructure2D::staticType(), &createStructure2D );
+  mCreationFunctions.insert( ReosHydraulicStructureBoundaryCondition::staticType(), &createStructureBoundaryCondition );
 
+  // update function
   mUpdateFunctions.insert( ReosHydrographNodeWatershed::staticType(), &updateHydrographSourceWatershedItem );
   mUpdateFunctions.insert( ReosHydrographRoutingLink::staticType(), &updateHydrographDirectTransferLink );
   mUpdateFunctions.insert( ReosHydrographJunction::staticType(), &updateHydrographJunctionItem );
+  // ReosHydraulicStructure2D items are self updated as the itemis directly connected to the geometry
+  mUpdateFunctions.insert( ReosHydraulicStructureBoundaryCondition::staticType(), &updateStructureBoundaryCondition );
 
+  // select function
   mSelectFunctions.insert( ReosHydrographNodeWatershed::staticType(), &selectHydraulicElement );
   mSelectFunctions.insert( ReosHydrographJunction::staticType(), &selectHydraulicElement );
   mSelectFunctions.insert( ReosHydrographRoutingLink::staticType(), &selectHydraulicElement );
-  mSelectFunctions.insert( ReosHydraulicStructure2D::staticType(), &selectHydraulicElement );
+  mSelectFunctions.insert( ReosHydraulicStructure2D::staticType(), &selectStructure2D );
+  mSelectFunctions.insert( ReosHydraulicStructureBoundaryCondition::staticType(), &selectHydraulicElement );
 
+  // unselect function
   mUnselectFunctions.insert( ReosHydrographNodeWatershed::staticType(), &unselectHydrographElement );
   mUnselectFunctions.insert( ReosHydrographJunction::staticType(), &unselectHydrographElement );
   mUnselectFunctions.insert( ReosHydrographRoutingLink::staticType(), &unselectHydrographElement );
-  mUnselectFunctions.insert( ReosHydraulicStructure2D::staticType(), &unselectHydrographElement );
+  mUnselectFunctions.insert( ReosHydraulicStructure2D::staticType(), &unselectStructure2D );
+  mUnselectFunctions.insert( ReosHydraulicStructureBoundaryCondition::staticType(), &unselectHydrographElement );
 
   mExtraItemSelectedFunctions.insert( ReosHydrographNodeWatershed::staticType(), &createExtraItemSelectedHydrographSourceWatershed );
 }

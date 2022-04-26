@@ -19,12 +19,13 @@
 #include <QAbstractListModel>
 #include <QPointer>
 
+#include "reoscore.h"
 #include "reosdataobject.h"
 
 class ReosGisEngine;
 class ReosParameterBoolean;
 
-class ReosTopographyCollection : public ReosDataObject
+class REOSCORE_EXPORT ReosTopographyCollection : public ReosDataObject
 {
     Q_OBJECT
 
@@ -61,7 +62,7 @@ class ReosTopographyCollection : public ReosDataObject
 
 
 
-class ReosTopographyCollectionListModel : public QAbstractListModel
+class REOSCORE_EXPORT ReosTopographyCollectionListModel : public QAbstractListModel
 {
     Q_OBJECT
   public:

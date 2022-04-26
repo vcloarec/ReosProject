@@ -52,7 +52,7 @@ class ReosMapStructureExteriorItem : public QGraphicsItem
 {
   public:
     ReosMapStructureExteriorItem( ReosMapPolylinesStructure_p *parent );
-    void updatePosition( const QPolygonF &poly, ReosMapPolylinesStructure_p *parent );
+    void updatePosition( const ReosPolylinesStructure *structure, ReosMapPolylinesStructure_p *parent, const QString &destinationCrs );
     QRectF boundingRect() const override;
     void paint( QPainter *painter, const QStyleOptionGraphicsItem *, QWidget * ) override;
 
@@ -60,6 +60,8 @@ class ReosMapStructureExteriorItem : public QGraphicsItem
 
   private:
     QPolygonF mPolyInLocalView;
+    QList<bool> mIsCondition;
+    QList<bool> mIsSelected;
     QRectF mBBox;
     double mWidth = 5;
 };

@@ -28,7 +28,7 @@ namespace Ui
 class ReosGuiContext;
 class ReosPolygonStructure;
 class ReosMap;
-class ReosGeometryStructureClassModelList;
+class ReosPolygonStructureClassModelList;
 class ReosMapToolEditPolygonStructure;
 class ReosRoughnessStructure;
 class ReosHydraulicStructure2D;
@@ -53,7 +53,7 @@ class ReosRoughnessWidget : public QWidget
     Ui::ReosRoughnessWidget *ui;
     ReosMap *mMap = nullptr;
     QPointer<ReosRoughnessStructure> mStructure;
-    ReosGeometryStructureClassModelList *mModel = nullptr;
+    ReosPolygonStructureClassModelList *mModel = nullptr;
 
     QAction *mActionEditRoughnessPolygons = nullptr;
     ReosMapToolEditPolygonStructure *mMapToolEditResolutionPolygon = nullptr;

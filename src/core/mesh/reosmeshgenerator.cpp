@@ -16,7 +16,6 @@
 #include "reosmeshgenerator.h"
 
 #include<QHash>
-#include<QDebug>
 
 #include "poly2tri.h"
 #include "memory"
@@ -44,7 +43,7 @@ ReosMeshGenerator::ReosMeshGenerator( QObject *parent )
   : ReosDataObject( parent )
   , mAutoUpdateParameter( new ReosParameterBoolean( tr( "Auto update mesh" ), false, this ) )
 {
-  mAutoUpdateParameter->setValue( true );
+  mAutoUpdateParameter->setValue( false );
 }
 
 ReosParameterBoolean *ReosMeshGenerator::autoUpdateParameter() const
@@ -180,7 +179,7 @@ void ReosMeshGeneratorPoly2TriProcess::start()
 
     const std::vector<p2t::Triangle *> &triangles = cdt->GetTriangles();
 
-    if ( triangles.size() > __INT32_MAX__ )
+    if ( triangles.size() > INT32_MAX )
       throw std::exception();
 
     int triangleCount = triangles.size();

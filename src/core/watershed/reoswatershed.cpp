@@ -804,8 +804,8 @@ void ReosWatershed::init()
   connect( mRunoffModels, &ReosRunoffModelsGroup::dataChanged, this, &ReosDataObject::dataChanged );
 
   mGaugedHydrographs = new ReosHydrographsStore( this );
+  connect( mGaugedHydrographs, &ReosHydrographsStore::hydrographChanged, this, &ReosDataObject::dataChanged );
   connect( mGaugedHydrographs, &ReosHydrographsStore::dataChanged, this, &ReosDataObject::dataChanged );
-
   connectParameters();
 }
 

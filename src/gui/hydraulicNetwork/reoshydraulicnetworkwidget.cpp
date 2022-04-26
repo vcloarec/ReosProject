@@ -17,6 +17,7 @@
 #include "ui_reoshydraulicnetworkwidget.h"
 
 #include <QMessageBox>
+#include <QMenu>
 
 #include "reoshydrographsource.h"
 #include "reoshydrographrouting.h"
@@ -25,6 +26,9 @@
 #include "reosmaptool.h"
 #include "reoshydraulicelementpropertieswidget.h"
 #include "reosstyleregistery.h"
+#include "reoshydraulicscheme.h"
+#include "reoshydraulicschemewidget.h"
+#include "reosparameter.h"
 
 ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *network, ReosWatershedModule *watershedModule, const ReosGuiContext &context ) :
   QWidget( context.parent() )
@@ -38,7 +42,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   , mActionAddHydrographRouting( new QAction( QPixmap( QStringLiteral( ":/images/addHydrographRouting.svg" ) ), tr( "Add Link" ), this ) )
   , mMapToolAddHydrographRouting( new ReosMapToolDrawHydrographRouting( mHydraulicNetwork, mMap ) )
   , mActionHydraulicNetworkProperties( new QAction( QPixmap( QStringLiteral( ":/images/hydraulicProperties.svg" ) ), tr( "Hydraulic Element Properties" ), this ) )
-  , mElementPropertiesWidget( new ReosHydraulicElementPropertiesActionWidget( watershedModule, ReosGuiContext( context, this ) ) )
+  , mElementPropertiesWidget( new ReosHydraulicElementPropertiesActionWidget( network, ReosGuiContext( context, this ) ) )
   , mActionMoveHydrographJunction( new QAction( QPixmap( QStringLiteral( ":/images/moveHydrographJunction.svg" ) ),  tr( "Move Junction" ), this ) )
   , mMapToolMoveHydrographJunction( new ReosMapToolMoveHydraulicNetworkElement( network, context.map() ) )
   , mActionNewStructure2D( new QAction( QPixmap( QStringLiteral( ":/images/addHydraulicStructure2D.svg" ) ), tr( "Structure 2D" ), this ) )
@@ -73,7 +77,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   toolBar->addAction( mActionAddHydrographRouting );
   mActionAddHydrographRouting->setCheckable( true );
   mMapToolAddHydrographRouting->setAction( mActionAddHydrographRouting );
-  mMapToolAddHydrographRouting->setSearchingItemDecription( ReosHydrographSource::staticType() );
+  mMapToolAddHydrographRouting->setSearchingItemDecription( ReosHydrographNode::staticType() );
   mMapToolAddHydrographRouting->setSearchItemWhenMoving( true );
 
   toolBar->addAction( mActionMoveHydrographJunction );
@@ -99,6 +103,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   connect( mHydraulicNetwork, &ReosHydraulicNetwork::elementAdded, this, &ReosHydraulicNetworkWidget::onElementAdded );
   connect( mHydraulicNetwork, &ReosHydraulicNetwork::elementRemoved, this, &ReosHydraulicNetworkWidget::onElementRemoved );
   connect( mHydraulicNetwork, &ReosHydraulicNetwork::elementPositionHasChanged, this, &ReosHydraulicNetworkWidget::onElementChanged );
+  connect( mHydraulicNetwork, &ReosHydraulicNetwork::loaded, this, &ReosHydraulicNetworkWidget::onNetworkLoaded );
 
   connect( mMapToolAddHydrographJunction, &ReosMapToolDrawPoint::drawn, this, [this]( const QPointF & p )
   {
@@ -111,6 +116,20 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   connect( mMapToolSelectNetworkElement, &ReosMapToolSelectMapItem::found, this, &ReosHydraulicNetworkWidget::onElementSelected );
 
   onElementSelected( nullptr );
+
+  ui->mHydraulicSchemeCombo->setModel( mHydraulicNetwork->hydraulicSchemeCollection() );
+  connect( ui->mHydraulicShcemeAddButton, &QToolButton::clicked, this, &ReosHydraulicNetworkWidget::onAddHydraulicScheme );
+  connect( ui->mHydraulicShcemeRemoveButton, &QToolButton::clicked, this, &ReosHydraulicNetworkWidget::onRemoveHydraulicScheme );
+  QMenu *schemeMenu = new QMenu( ui->mHydraulicSchemeSettingsButton );
+  ReosHydraulicSchemeWidgetAction *wa = new ReosHydraulicSchemeWidgetAction( mHydraulicNetwork, schemeMenu );
+  schemeMenu->addAction( wa );
+  ui->mHydraulicSchemeSettingsButton->setMenu( schemeMenu );
+  connect( ui->mHydraulicSchemeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), wa, [wa, this]( int index )
+  {
+    mHydraulicNetwork->changeScheme( index );
+    wa->setCurrentScheme( mHydraulicNetwork->hydraulicSchemeCollection()->scheme( index ) );
+  } );
+  ui->mHydraulicShcemeRemoveButton->setEnabled( mHydraulicNetwork->hydraulicSchemeCollection()->schemeCount() > 1 );
 }
 
 ReosHydraulicNetworkWidget::~ReosHydraulicNetworkWidget()
@@ -118,7 +137,13 @@ ReosHydraulicNetworkWidget::~ReosHydraulicNetworkWidget()
   delete ui;
 }
 
-void ReosHydraulicNetworkWidget::onElementAdded( ReosHydraulicNetworkElement *elem )
+void ReosHydraulicNetworkWidget::closePropertiesWidget()
+{
+  mElementPropertiesWidget->setCurrentElement( nullptr, createContext() );
+  mElementPropertiesWidget->close();
+}
+
+void ReosHydraulicNetworkWidget::onElementAdded( ReosHydraulicNetworkElement *elem, bool select )
 {
   NetworkItem item;
   item.reset( mMapItemFactory.createMapItem( elem, mMap ) );
@@ -127,12 +152,15 @@ void ReosHydraulicNetworkWidget::onElementAdded( ReosHydraulicNetworkElement *el
 
   addGeometryStructure( elem );
 
-  onElementSelected( item.get() );
+  if ( select && elem->isAutoSelectable() )
+    onElementSelected( item.get() );
 }
 
 void ReosHydraulicNetworkWidget::onElementRemoved( ReosHydraulicNetworkElement *elem )
 {
-  onElementSelected( nullptr );
+  if ( mCurrentSelectedElement == elem )
+    onElementSelected( nullptr );
+
   removeGeometryStructure( elem );
   mMapItems.remove( elem );
 }
@@ -181,18 +209,20 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
   }
 
   ReosHydraulicNetworkElement *elem = mHydraulicNetwork->getElement( item->description() );
-  if ( elem )
-  {
-    mMapItemFactory.selectItem( elem, item );
-    ui->mNameWidget->setString( elem->name() );
-    mExtraItemSelection.reset( mMapItemFactory.createExtraItemSelected( elem, mMap ) );
-  }
-
-  mCurrentSelectedElement = elem;
 
   ReosGuiContext guiContext = createContext();
   guiContext.addMapItems( item );
   mElementPropertiesWidget->setCurrentElement( elem, guiContext );
+
+  if ( elem )
+  {
+    mMapItemFactory.selectItem( elem, item );
+    ui->mNameWidget->setString( elem->elementName() );
+    mExtraItemSelection.reset( mMapItemFactory.createExtraItemSelected( elem, mMap ) );
+    mActionRemoveElement->setEnabled( elem->isRemovable() );
+  }
+
+  mCurrentSelectedElement = elem;
 }
 
 void ReosHydraulicNetworkWidget::onSelectedElementRemoved()
@@ -201,8 +231,9 @@ void ReosHydraulicNetworkWidget::onSelectedElementRemoved()
 
   if ( !mCurrentSelectedElement )
     return;
+
   if ( QMessageBox::warning( this, tr( "Remove Hydraulic Network Element" ), tr( "This action will remove definitly the element \"%1\"\n"
-                             "Do you want to proceed?" ).arg( mCurrentSelectedElement->name()->value() ),
+                             "Do you want to proceed?" ).arg( mCurrentSelectedElement->elementName()->value() ),
                              QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::No )
     return;
 
@@ -211,6 +242,69 @@ void ReosHydraulicNetworkWidget::onSelectedElementRemoved()
 
   mCurrentSelectedElement = nullptr;
   mActionRemoveElement->setEnabled( false );
+}
+
+void ReosHydraulicNetworkWidget::onAddHydraulicScheme()
+{
+  ReosFormDialog *dia = new ReosFormDialog( this );
+
+  std::unique_ptr<ReosHydraulicScheme> scheme = std::make_unique<ReosHydraulicScheme>();
+  scheme->schemeName()->setValue( tr( "New Hydraulic Scheme" ) );
+  const ReosHydraulicNetworkContext context = mHydraulicNetwork->context();
+  scheme->setMeteoModel( context.watershedModule()->meteoModelsCollection()->meteorologicModel( 0 ) );
+  ReosHydraulicSchemeWidget *widget = new ReosHydraulicSchemeWidget( scheme.get(), context, dia );
+  dia->addWidget( widget );
+
+  if ( dia->exec() )
+  {
+    mHydraulicNetwork->hydraulicSchemeCollection()->addScheme( scheme.release() );
+    ui->mHydraulicSchemeCombo->setCurrentIndex( mHydraulicNetwork->hydraulicSchemeCollection()->schemeCount() - 1 );
+  }
+
+  dia->deleteLater();
+
+  ui->mHydraulicShcemeRemoveButton->setEnabled( mHydraulicNetwork->hydraulicSchemeCollection()->schemeCount() > 1 );
+}
+
+void ReosHydraulicNetworkWidget::onRemoveHydraulicScheme()
+{
+  int currentSchemeIndex = ui->mHydraulicSchemeCombo->currentIndex();
+  ReosHydraulicScheme *scheme = mHydraulicNetwork->hydraulicSchemeCollection()->scheme( currentSchemeIndex );
+  if ( scheme )
+  {
+    if ( QMessageBox::warning( this, tr( "Remove Hydraulic Scheme" ),
+                               tr( "Do you want to remove the hydraulic scheme: \n\n%1" ).arg( scheme->schemeName()->value() ),
+                               QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::No )
+      return;
+
+    mHydraulicNetwork->hydraulicSchemeCollection()->removeScheme( currentSchemeIndex );
+
+    ui->mHydraulicSchemeCombo->blockSignals( true );
+    if ( mHydraulicNetwork->hydraulicSchemeCollection()->schemeCount() > 0 )
+    {
+      mHydraulicNetwork->setCurrentScheme( 0 );
+      ui->mHydraulicSchemeCombo->setCurrentIndex( 0 );
+    }
+    else
+    {
+      mHydraulicNetwork->setCurrentScheme( -1 );
+      ui->mHydraulicSchemeCombo->setCurrentIndex( -1 );
+    }
+    ui->mHydraulicSchemeCombo->blockSignals( false );
+  }
+
+  ui->mHydraulicShcemeRemoveButton->setEnabled( mHydraulicNetwork->hydraulicSchemeCollection()->schemeCount() > 1 );
+}
+
+void ReosHydraulicNetworkWidget::onHydraulicSchemeChange( int index )
+{
+  ui->mHydraulicSchemeCombo->setCurrentIndex( index );
+}
+
+void ReosHydraulicNetworkWidget::onNetworkLoaded()
+{
+  ui->mHydraulicSchemeCombo->setCurrentIndex( mHydraulicNetwork->currentSchemeIndex() );
+  ui->mHydraulicShcemeRemoveButton->setEnabled( mHydraulicNetwork->hydraulicSchemeCollection()->schemeCount() > 1 );
 }
 
 void ReosHydraulicNetworkWidget::onModuleReset()
@@ -287,5 +381,11 @@ ReosHydraulicElementWidget::ReosHydraulicElementWidget( QWidget *parent ):  QWid
 ReosHydraulicNetworkDockWidget::ReosHydraulicNetworkDockWidget( ReosHydraulicNetwork *network, ReosWatershedModule *watershedModule, const ReosGuiContext &context )
   : ReosDockWidget( tr( "Hydraulic Network" ), context.parent() )
 {
-  setWidget( new ReosHydraulicNetworkWidget( network, watershedModule, ReosGuiContext( context, this ) ) );
+  mHydraulicNetworkWidget = new ReosHydraulicNetworkWidget( network, watershedModule, ReosGuiContext( context, this ) );
+  setWidget( mHydraulicNetworkWidget );
+}
+
+void ReosHydraulicNetworkDockWidget::closePropertieWidget()
+{
+  mHydraulicNetworkWidget->closePropertiesWidget();
 }

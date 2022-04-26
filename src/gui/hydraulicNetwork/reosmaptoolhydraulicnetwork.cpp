@@ -98,9 +98,14 @@ bool ReosMapToolDrawHydrographRouting::acceptItem( ReosMapItem *item )
   if ( !item )
     return false;
 
+  ReosHydrographNode *nodeElem = qobject_cast<ReosHydrographNode *>( mNetwork->getElement( item->description() ) );
+
+  if ( !nodeElem )
+    return false;
+
   if ( itemsCount() == 0 && item->description().contains( ReosHydrographSource::staticType() ) )
   {
-    ReosHydrographSource *source = qobject_cast<ReosHydrographSource *>( mNetwork->getElement( item->description() ) );
+    ReosHydrographSource *source = qobject_cast<ReosHydrographSource *>( nodeElem );
     if ( !source || source->outputHydrographTransfer() )
       return false;
 
@@ -110,7 +115,11 @@ bool ReosMapToolDrawHydrographRouting::acceptItem( ReosMapItem *item )
   if ( itemsCount() == 1 && item->description().contains( ReosHydrographJunction::staticType() ) )
   {
     ReosHydrographJunction *firstJunction = qobject_cast<ReosHydrographJunction *>( mNetwork->getElement( linkedItems().at( 0 )->description() ) );
-    ReosHydrographJunction *junction = qobject_cast<ReosHydrographJunction *>( mNetwork->getElement( item->description() ) );
+    ReosHydrographJunction *junction = qobject_cast<ReosHydrographJunction *>( nodeElem );
+
+    if ( firstJunction == junction )
+      return false;
+
     while ( junction )
     {
       ReosHydraulicLink *downstreamLink = junction->downstreamRouting();
@@ -125,7 +134,7 @@ bool ReosMapToolDrawHydrographRouting::acceptItem( ReosMapItem *item )
     return true;
   }
 
-  return false;
+  return nodeElem != nullptr && nodeElem->canAcceptLink( ReosHydrographRoutingLink::staticType(), itemsCount() );
 }
 
 bool ReosMapToolDrawHydrographRouting::isFinished() const
@@ -179,7 +188,7 @@ ReosMapToolNewStructure2D::ReosMapToolNewStructure2D( ReosHydraulicNetwork *netw
 
 void ReosMapToolNewStructure2D::onDomainDrawn( const QPolygonF &polygon )
 {
-  mNetwork->addElement( new ReosHydraulicStructure2D( polygon, map()->mapCrs(), mNetwork ) );
+  mNetwork->addElement( new ReosHydraulicStructure2D( polygon, map()->mapCrs(), mNetwork->context() ) );
 }
 
 ReosMapToolHydraulicElement::ReosMapToolHydraulicElement( ReosHydraulicNetwork *network ):

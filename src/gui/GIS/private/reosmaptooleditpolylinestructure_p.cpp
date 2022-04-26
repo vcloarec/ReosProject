@@ -22,6 +22,7 @@
 
 #include "reospolylinesstructure.h"
 #include "reosstyleregistery.h"
+#include "reosformwidget.h"
 
 
 ReosMapToolEditPolylineStructure_p::ReosMapToolEditPolylineStructure_p( QgsMapCanvas *map )
@@ -30,6 +31,7 @@ ReosMapToolEditPolylineStructure_p::ReosMapToolEditPolylineStructure_p( QgsMapCa
   , mActionAddLines( new QAction( QPixmap( QStringLiteral( ":/images/addStructureLines.svg" ) ), tr( "Add Lines" ), this ) )
   , mActionAddHole( new QAction( QPixmap( QStringLiteral( ":/images/addHole.svg" ) ), tr( "Add Hole" ), this ) )
   , mActionMoveVertex( new QAction( QPixmap( QStringLiteral( ":/images/moveVertesStructure.svg" ) ), tr( "Move Vertex" ), this ) )
+  , mActionAddBoundary( new QAction( QPixmap( QStringLiteral( ":/images/addBoundaryCondition.svg" ) ), tr( "Add Boundary Condition" ), this ) )
   , mActionInsertVertex( new QAction( tr( "Insert Vertex" ), this ) )
   , mActionRemoveVertex( new QAction( tr( "Remove Vertex" ), this ) )
   , mActionRemoveLine( new QAction( tr( "Remove Line" ), this ) )
@@ -41,9 +43,11 @@ ReosMapToolEditPolylineStructure_p::ReosMapToolEditPolylineStructure_p( QgsMapCa
   mMainActions->addAction( mActionAddLines );
   mMainActions->addAction( mActionAddHole );
   mMainActions->addAction( mActionMoveVertex );
+  mMainActions->addAction( mActionAddBoundary );
   mMainActions->setExclusive( true );
   mActionAddHole->setCheckable( true );
   mActionMoveVertex->setCheckable( true );
+  mActionAddBoundary->setCheckable( true );
   mActionAddLines->setCheckable( true );
   mActionAddLines->setChecked( true );
   mMainActions->setEnabled( false );
@@ -51,6 +55,7 @@ ReosMapToolEditPolylineStructure_p::ReosMapToolEditPolylineStructure_p( QgsMapCa
   connect( mActionAddLines, &QAction::triggered, this, &ReosMapToolEditPolylineStructure_p::resetTool );
   connect( mActionMoveVertex, &QAction::triggered, this, &ReosMapToolEditPolylineStructure_p::resetTool );
   connect( mActionAddHole, &QAction::triggered, this, &ReosMapToolEditPolylineStructure_p::resetTool );
+  connect( mActionAddBoundary, &QAction::triggered, this, &ReosMapToolEditPolylineStructure_p::resetTool );
 
   mVertexMarker = new QgsVertexMarker( map );
   mVertexMarker->setVisible( false );
@@ -84,6 +89,19 @@ ReosMapToolEditPolylineStructure_p::ReosMapToolEditPolylineStructure_p( QgsMapCa
   mPolygonHoleBand->setFillColor( ReosStyleRegistery::instance()->blueReos( 100 ) );
   mPolygonHoleBand->setStrokeColor( ReosStyleRegistery::instance()->blueReos( 200 ) );
   mPolygonHoleBand->setWidth( 1 );
+
+  mSelectLinesVertexBand = new QgsRubberBand( mCanvas, QgsWkbTypes::PointGeometry );
+  mSelectLinesVertexBand->setIcon( QgsRubberBand::ICON_CIRCLE );
+  mSelectLinesVertexBand->setColor( ReosStyleRegistery::instance()->blueReos() );
+  mSelectLinesVertexBand->setSecondaryStrokeColor( Qt::white );
+  mSelectLinesVertexBand->setIconSize( QgsGuiUtils::scaleIconSize( 10 ) );
+  mSelectLinesVertexBand->setZValue( 61 );
+  mSelectLinesVertexBand->setVisible( true );
+
+  mSelectLinesBand = new QgsRubberBand( mCanvas, QgsWkbTypes::LineGeometry );
+  mSelectLinesBand->setColor( ReosStyleRegistery::instance()->blueReos() );
+  mSelectLinesBand->setWidth( 5 );
+  mSelectLinesBand->setZValue( 60 );
 
   mMapCrs = mapCrs();
 }
@@ -139,6 +157,8 @@ void ReosMapToolEditPolylineStructure_p::deactivate()
   mVertexRubberBand->reset( QgsWkbTypes::PointGeometry );
   mHoveredLineBand->reset( QgsWkbTypes::LineGeometry );
   mPolygonHoleBand->reset( QgsWkbTypes::PolygonGeometry );
+  mSelectLinesVertexBand->reset( QgsWkbTypes::PointGeometry );
+  mSelectLinesBand->reset( QgsWkbTypes::LineGeometry );
 }
 
 void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
@@ -147,8 +167,8 @@ void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
 
   switch ( mCurrentState )
   {
-    case ReosMapToolEditPolylineStructure_p::None:
-    case ReosMapToolEditPolylineStructure_p::AddingLines:
+    case None:
+    case AddingLines:
 
       mHoveredLineBand->reset( QgsWkbTypes::LineGeometry );
 
@@ -196,10 +216,10 @@ void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
           }
         }
 
-        qint64 lineId;
-        if ( mStructure->searchForLine( sr, lineId ) )
+        mCurrentLineId = INT64_MAX;
+        if ( mStructure->searchForLine( sr, mCurrentLineId ) && ( !mActionAddBoundary->isChecked() ) )
         {
-          const QLineF line = mStructure->line( lineId, mMapCrs );
+          const QLineF line = mStructure->line( mCurrentLineId, mMapCrs );
           if ( !line.isNull() )
           {
             mHoveredLineBand->addPoint( line.p1() );
@@ -216,14 +236,14 @@ void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
         }
       }
       break;
-    case ReosMapToolEditPolylineStructure_p::DraggingVertex:
+    case DraggingVertex:
     {
       QgsPointXY mapPoint = e->snapPoint();
       mVertexMarker->setCenter( mapPoint );
       updateMovingVertexRubberBand( mapPoint );
     }
     break;
-    case ReosMapToolEditPolylineStructure_p::DraggingHolePoint:
+    case DraggingHolePoint:
     {
       QgsPointXY mapPoint = e->mapPoint();
       mVertexMarker->setCenter( mapPoint );
@@ -241,6 +261,31 @@ void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
       }
     }
     break;
+    case SelectLinesByExtremity:
+    {
+      mSelectLinesBand->reset( QgsWkbTypes::LineGeometry );
+      mSelectLinesVertexBand->reset( QgsWkbTypes::PointGeometry );
+      const ReosMapExtent sr = searchZone( mCurrentPosition );
+      mCurrentVertex = mStructure->searchForVertex( sr );
+      mSelectLinesVertexBand->addPoint( mStructure->vertexPosition( mFirstSelectedVertex, mMapCrs ), true );
+      if ( mCurrentVertex )
+      {
+        const QPolygonF lines = mStructure->linesOnBoundaryFromTo( mFirstSelectedVertex, mCurrentVertex );
+        if ( mStructure->canBoundaryConditionBeAdded( mFirstSelectedVertex, mCurrentVertex ) )
+          mSelectLinesBand->setColor( ReosStyleRegistery::instance()->blueReos() );
+        else
+          mSelectLinesBand->setColor( Qt::red );
+        if ( !lines.empty() )
+        {
+          mSelectLinesBand->setToGeometry( QgsGeometry::fromQPolygonF( lines ) );
+          for ( int i = 1; i < lines.count() - 1; ++i )
+            mSelectLinesVertexBand->addPoint( lines.at( i ), false );
+          mSelectLinesVertexBand->addPoint( lines.last(), false );
+        }
+
+      }
+    }
+    break;
   }
 
   ReosMapTool_p::canvasMoveEvent( e );
@@ -253,7 +298,7 @@ void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
 
   switch ( mCurrentState )
   {
-    case ReosMapToolEditPolylineStructure_p::None:
+    case None:
       if ( e->button() == Qt::LeftButton )
       {
         if ( mActionMoveVertex->isChecked() && mCurrentVertex )
@@ -283,6 +328,17 @@ void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
           if ( !mStructure->searchPolygon( postition, false ).isEmpty() )
             mStructure->addHolePoint( postition );
         }
+
+        if ( mActionAddBoundary->isChecked() )
+        {
+          if ( mCurrentVertex  && mStructure->canBoundaryConditionBeAdded( mCurrentVertex ) )
+          {
+            mCurrentState = SelectLinesByExtremity;
+            mFirstSelectedVertex = mCurrentVertex;
+            mSelectLinesVertexBand->reset( QgsWkbTypes::PointGeometry );
+            mSelectLinesVertexBand->addPoint( mStructure->vertexPosition( mFirstSelectedVertex, mMapCrs ), true );
+          }
+        }
       }
       else if ( e->button() == Qt::RightButton && mActionAddLines->isChecked() )
       {
@@ -298,7 +354,7 @@ void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
       }
 
       break;
-    case ReosMapToolEditPolylineStructure_p::DraggingVertex:
+    case DraggingVertex:
       if ( mCurrentVertex )
       {
         if ( e->button() == Qt::LeftButton )
@@ -315,7 +371,7 @@ void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
         }
       }
       break;
-    case ReosMapToolEditPolylineStructure_p::AddingLines:
+    case AddingLines:
       if ( e->button() == Qt::LeftButton )
       {
         addVertexForNewLines( snapPoint );
@@ -328,7 +384,7 @@ void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
         stopAddingLines();
       }
       break;
-    case ReosMapToolEditPolylineStructure_p::DraggingHolePoint:
+    case DraggingHolePoint:
     {
       mStructure->moveHolePoint( mMovingHolePointIndex, ReosSpatialPosition( e->mapPoint().toQPointF(), mMapCrs ) );
       mCurrentState = None;
@@ -337,6 +393,28 @@ void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
       mPolygonHoleBand->reset( QgsWkbTypes::PolygonGeometry );
     }
     break;
+    case SelectLinesByExtremity:
+    {
+      if ( mFirstSelectedVertex && mCurrentVertex &&
+           mStructure->canBoundaryConditionBeAdded( mFirstSelectedVertex, mCurrentVertex ) )
+      {
+        ReosFormDialog *dial = new ReosFormDialog( mCanvas );
+        ReosParameterString stringParam( tr( "Boundary condition name" ), false );
+        dial->addParameter( &stringParam );
+
+        if ( dial->exec() )
+        {
+          mStructure->addBoundaryCondition( mFirstSelectedVertex, mCurrentVertex, stringParam.value() );
+          mCurrentState = None;
+          mFirstSelectedVertex = nullptr;
+          mSelectLinesBand->reset();
+          mSelectLinesVertexBand->reset();
+          mVertexMarker->setVisible( false );
+        }
+
+        dial->deleteLater();
+      }
+    }
   }
 
   ReosMapTool_p::canvasReleaseEvent( e );
@@ -381,16 +459,23 @@ void ReosMapToolEditPolylineStructure_p::resetTool()
 {
   switch ( mCurrentState )
   {
-    case ReosMapToolEditPolylineStructure_p::AddingLines:
+    case AddingLines:
       stopAddingLines();
       break;
-    case ReosMapToolEditPolylineStructure_p::None:
+    case None:
       break;
-    case ReosMapToolEditPolylineStructure_p::DraggingVertex:
+    case DraggingVertex:
       stopDraggingVertex();
       break;
-    case ReosMapToolEditPolylineStructure_p::DraggingHolePoint:
+    case DraggingHolePoint:
       mPolygonHoleBand->reset();
+      break;
+    case SelectLinesByExtremity:
+      mSelectLinesBand->reset();
+      mSelectLinesVertexBand->reset();
+      mFirstSelectedVertex = nullptr;
+      mCurrentState = None;
+      break;
   }
 }
 

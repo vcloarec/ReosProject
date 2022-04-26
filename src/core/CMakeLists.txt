@@ -67,6 +67,7 @@ SET(REOS_CORE_SOURCES
   data/reostextfiledata.cpp
   data/reosdataobject.cpp
   data/reosdataprovider.cpp
+  data/reostimeseriesgroup.cpp
 
   hydrograph/reoshydrograph.cpp
   hydrograph/reoshydrographsource.cpp
@@ -77,9 +78,14 @@ SET(REOS_CORE_SOURCES
   hydraulicNetwork/reoshydraulicnode.cpp
   hydraulicNetwork/reoshydraulicnetwork.cpp
   hydraulicNetwork/reoshydraulicstructure2d.cpp
+  hydraulicNetwork/reoshydraulicstructureboundarycondition.cpp
+  hydraulicNetwork/simulation/reoshydraulicsimulation.cpp
+  hydraulicNetwork/simulation/reossimulationinitialcondition.cpp
+  hydraulicNetwork/simulation/reoshydraulicsimulationresults.cpp
 
   mesh/reosmeshgenerator.cpp
   mesh/reosgmshgenerator.cpp
+  mesh/reosmeshdatasetsource.cpp
 )
 
 SET(REOS_CORE_HEADERS
@@ -141,6 +147,7 @@ SET(REOS_CORE_HEADERS
     data/reostextfiledata.h
     data/reosdataobject.h
     data/reosdataprovider.h
+    data/reostimeseriesgroup.h
 
     hydrograph/reoshydrograph.h
     hydrograph/reoshydrographsource.h
@@ -151,9 +158,14 @@ SET(REOS_CORE_HEADERS
     hydraulicNetwork/reoshydraulicnode.h
     hydraulicNetwork/reoshydraulicnetwork.h
     hydraulicNetwork/reoshydraulicstructure2d.h
+    hydraulicNetwork/reoshydraulicstructureboundarycondition.h
+    hydraulicNetwork/simulation/reoshydraulicsimulation.h
+    hydraulicNetwork/simulation/reossimulationinitialcondition.h
+    hydraulicNetwork/simulation/reoshydraulicsimulationresults.h
 
     mesh/reosmeshgenerator.h
     mesh/reosgmshgenerator.h
+    mesh/reosmeshdatasetsource.h
 )
 
 SET(REOS_CORE_HEADERS_PRIVATE
@@ -252,6 +264,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/watershed
     ${CMAKE_SOURCE_DIR}/src/core/hydrograph
     ${CMAKE_SOURCE_DIR}/src/core/hydraulicNetwork
+    ${CMAKE_SOURCE_DIR}/src/core/hydraulicNetwork/simulation
     ${CMAKE_SOURCE_DIR}/src/core/mesh
 
     ${QGIS_INCLUDE_DIR}

@@ -71,7 +71,7 @@ class ReosWatershedRunoffModelsModel: public QAbstractTableModel
     void modelChanged();
 
   private:
-    ReosRunoffModelsGroup *mWatershedRunoffModels = nullptr;
+    QPointer<ReosRunoffModelsGroup> mWatershedRunoffModels;
 
     bool portionEditable() const;
     void allDataChanged();

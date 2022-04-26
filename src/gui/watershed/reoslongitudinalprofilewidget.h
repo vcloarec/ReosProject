@@ -40,6 +40,7 @@ class ReosMap;
 class ReosMapToolDrawPoint;
 class ReosMapToolEditMapPolyline;
 class ReosMapToolDrawPolyline;
+class ReosGuiContext;
 
 
 class ReosLongitudinalProfileWidget : public ReosActionWidget
@@ -47,7 +48,7 @@ class ReosLongitudinalProfileWidget : public ReosActionWidget
     Q_OBJECT
 
   public:
-    explicit ReosLongitudinalProfileWidget( ReosMap *map, QWidget *parent = nullptr );
+    explicit ReosLongitudinalProfileWidget( const ReosGuiContext &context );
     ~ReosLongitudinalProfileWidget();
 
     void setVisibleStreamLine( bool visible );

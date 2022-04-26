@@ -18,9 +18,9 @@
 
 #include "reosparameter.h"
 
-ReosMesh *ReosMesh::createMeshFrame( const QString &crs )
+ReosMesh *ReosMesh::createMeshFrame( const QString &crs, QObject *parent )
 {
-  return new ReosMeshFrame_p( crs );
+  return new ReosMeshFrame_p( crs, parent );
 }
 
 ReosMesh *ReosMesh::createMeshFrameFromFile( const QString &dataPath )
@@ -50,6 +50,17 @@ ReosMesh::ReosMesh( QObject *parent )
   mQualityMeshParameters.maximumAreaChange->setValue( 2 );
 }
 
+
+double ReosMesh::verticaleSCale() const
+{
+  return mVerticaleSCale;
+}
+
+void ReosMesh::setVerticaleSCale( double verticaleSCale )
+{
+  mVerticaleSCale = verticaleSCale;
+}
+
 ReosMesh::QualityMeshParameters ReosMesh::qualityMeshParameters() const
 {
   return mQualityMeshParameters;
@@ -58,6 +69,33 @@ ReosMesh::QualityMeshParameters ReosMesh::qualityMeshParameters() const
 void ReosMesh::setQualityMeshParameter( const ReosEncodedElement &element )
 {
   mQualityMeshParameters.decode( element, this );
+}
+
+void ReosMesh::setBoundariesVertices( const QVector<QVector<int>> &vertices )
+{
+  mBoundaryVerticesSet.clear();
+  for ( const QVector<int> &boundLine : vertices )
+    for ( int i : boundLine )
+      mBoundaryVerticesSet.insert( i );
+}
+
+void ReosMesh::setHolesVertices( const QVector<QVector<QVector<int>> > &vertices )
+{
+  mHolesVerticesSet.clear();
+  for ( const QVector<QVector<int>> &hole : vertices )
+    for ( const QVector<int> &holeLine : hole )
+      for ( int i : holeLine )
+        mHolesVerticesSet.insert( i );
+}
+
+bool ReosMesh::vertexIsOnBoundary( int vertexIndex ) const
+{
+  return mBoundaryVerticesSet.contains( vertexIndex );
+}
+
+bool ReosMesh::vertexIsOnHoleBorder( int vertexIndex ) const
+{
+  return mHolesVerticesSet.contains( vertexIndex );
 }
 
 ReosEncodedElement ReosMesh::QualityMeshParameters::encode() const

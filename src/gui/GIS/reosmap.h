@@ -46,6 +46,8 @@ class ReosRendererObjectHandler : public QObject
     ReosRendererObjectHandler( QGraphicsView *view );
     ~ReosRendererObjectHandler();
 
+    void init();
+
     void makeObsolete( ReosRenderedObject *renderedObject );
 
     void startRender( ReosRenderedObject *renderedObject );
@@ -73,6 +75,8 @@ class ReosRendererObjectHandler : public QObject
     //! Returns if a updtodate cache is present
     bool hasUpToDateCache( ReosRenderedObject *renderedObject );
 };
+
+
 
 class REOSGUI_EXPORT ReosMap: public ReosModule
 {
@@ -106,7 +110,9 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     void addExtraRenderedObject( ReosRenderedObject *obj );
     void removeExtraRenderedObject( ReosRenderedObject *obj );
 
-    void refreshCanvas();
+    const QObject *temporalController() const;
+
+    QDateTime currentTime() const;
 
   signals:
     //! emitted when the mouse cursor moves on the map cavans.
@@ -114,6 +120,9 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     void readProject( const QDomDocument &doc );
     void crsChanged( const QString &crs );
     void extentChanged();
+
+  public slots:
+    void refreshCanvas();
 
   private slots:
     void setCrs( const QString &crs );

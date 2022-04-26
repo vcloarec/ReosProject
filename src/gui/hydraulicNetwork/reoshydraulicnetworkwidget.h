@@ -59,14 +59,21 @@ class ReosHydraulicNetworkWidget : public QWidget
                                          const ReosGuiContext &context );
     ~ReosHydraulicNetworkWidget();
 
+    void closePropertiesWidget();
+
   private slots:
-    void onElementAdded( ReosHydraulicNetworkElement *elem );
+    void onElementAdded( ReosHydraulicNetworkElement *elem, bool select );
     void onElementRemoved( ReosHydraulicNetworkElement *elem );
     void onElementChanged( ReosHydraulicNetworkElement *elem );
 
     void onDrawHydrographRoutingFinish();
     void onElementSelected( ReosMapItem *item );
     void onSelectedElementRemoved();
+
+    void onAddHydraulicScheme();
+    void onRemoveHydraulicScheme();
+    void onHydraulicSchemeChange( int index );
+    void onNetworkLoaded();
 
     void onModuleReset();
 
@@ -123,6 +130,11 @@ class REOSGUI_EXPORT ReosHydraulicNetworkDockWidget: public ReosDockWidget
     ReosHydraulicNetworkDockWidget( ReosHydraulicNetwork *network,
                                     ReosWatershedModule *watershedModule,
                                     const ReosGuiContext &context );
+
+    void closePropertieWidget();
+
+  private:
+    ReosHydraulicNetworkWidget *mHydraulicNetworkWidget = nullptr;
 };
 
 

@@ -35,16 +35,7 @@ class REOSCORE_EXPORT ReosHydraulicLink : public ReosHydraulicNetworkElement
     ReosHydraulicNode *firstNode() const;
     ReosHydraulicNode *secondNode() const;
 
-    static QPair<QString, QString> decodeNodesId( const ReosEncodedElement &element )
-    {
-      QString idNode1;
-      QString idNode2;
-
-      element.getData( QStringLiteral( "id-node-1" ), idNode1 );
-      element.getData( QStringLiteral( "id-node-2" ), idNode2 );
-
-      return {idNode1, idNode2};
-    }
+    static QPair<QString, QString> decodeNodesId( const ReosEncodedElement &element );
 
     void destroy() override;
 
@@ -54,11 +45,7 @@ class REOSCORE_EXPORT ReosHydraulicLink : public ReosHydraulicNetworkElement
     void attachOnSide1( ReosHydraulicNode *node );
     void attachOnSide2( ReosHydraulicNode *node );
 
-    void encodeData( ReosEncodedElement &element,  const ReosHydraulicNetworkContext & ) const override
-    {
-      element.addData( QStringLiteral( "id-node-1" ), mNode_1->id() );
-      element.addData( QStringLiteral( "id-node-2" ), mNode_2->id() );
-    }
+    void encodeData( ReosEncodedElement &element,  const ReosHydraulicNetworkContext & ) const override;
 
     QPointer<ReosHydraulicNode> mNode_1;
     QPointer<ReosHydraulicNode> mNode_2;

@@ -32,6 +32,8 @@ class ReosCalculationContext;
 class ReosHydraulicNetworkContext;
 class ReosWatershedModule;
 class ReosGisEngine;
+class ReosHydraulicSchemeCollection;
+class ReosHydraulicScheme;
 
 class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject
 {
@@ -41,18 +43,17 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject
     ReosHydraulicNetworkElement( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent = nullptr );
     virtual ~ReosHydraulicNetworkElement();
 
-    QString id() const;
-
     QString type() const override {return staticType();}
     static QString staticType() {return QStringLiteral( "hydraulicNetwork" );}
 
-    ReosParameterString *name() const;
+    ReosParameterString *elementName() const;
+
     virtual QString defaultDisplayName() const {return type();}
 
     //! Destroy the element (the instance will be deleted later).
     virtual void destroy();
 
-    //! Called when the position oh the item is changed
+    //! Called when the position of the item is changed
     void positionChanged();
 
     //! Returns the parameter of duration used as time step in table when constant time step is used
@@ -76,10 +77,19 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject
 
     ReosModule::Message lastMessage() const;
 
+    virtual bool isAutoSelectable() const {return true;}
+
+    virtual bool isRemovable() const {return true;}
+
+    virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const;
+    virtual void restoreConfiguration( ReosHydraulicScheme *scheme );
+
   public slots:
     virtual void updateCalculationContext( const ReosCalculationContext &context ) = 0;
 
   protected:
+    QPointer<ReosHydraulicNetwork> mNetWork = nullptr;
+
     void calculationUpdated()
     {
       setActualized();
@@ -91,14 +101,15 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject
   signals:
     void calculationStart();
     void calculationIsUpdated( const QString &id, QPrivateSignal );
+    void dirtied();
 
   private:
-    QPointer<ReosHydraulicNetwork> mNetWork = nullptr;
-    QString mUid;
     ReosParameterString *mNameParameter = nullptr;
     ReosParameterDuration *mConstantTimeStepInTable = nullptr;
     ReosParameterBoolean *mUseConstantTimeStepInTable = nullptr;
     ReosModule::Message mLastMessage;
+
+    void init();
 
 };
 
@@ -140,7 +151,7 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     QList<ReosHydraulicNetworkElement *> getElements( const QString &type ) const;
     ReosHydraulicNetworkElement *getElement( const QString &elemId ) const;
 
-    ReosHydraulicNetworkElement *addElement( ReosHydraulicNetworkElement *elem );
+    ReosHydraulicNetworkElement *addElement( ReosHydraulicNetworkElement *elem, bool select = true );
     void removeElement( ReosHydraulicNetworkElement *elem );
 
     void decode( const ReosEncodedElement &element, const QString &projectPath, const QString &projectFileName );
@@ -149,27 +160,47 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     //! Clears the network
     void clear();
 
+    //! Reset the network, that is, clear all and create just one hydraulic scheme
+    void reset();
+
+
     ReosGisEngine *getGisEngine() const;
 
+    ReosHydraulicNetworkContext context() const;
+
+    ReosCalculationContext calculationContext() const;
+
+    ReosHydraulicSchemeCollection *hydraulicSchemeCollection() const;
+
+    int currentSchemeIndex() const;
+
+    void setCurrentScheme( int newSchemeIndex );
+
   signals:
-    void elementAdded( ReosHydraulicNetworkElement *elem );
+    void elementAdded( ReosHydraulicNetworkElement *elem, bool select );
     void elementRemoved( ReosHydraulicNetworkElement *elem );
     void elementPositionHasChanged( ReosHydraulicNetworkElement *elem );
     void hasBeenReset();
+    void schemeChanged();
+    void loaded();
+
+  public slots:
+    void changeScheme( int newSchemeIndex );
 
   private:
     ReosGisEngine *mGisEngine = nullptr;
     ReosWatershedModule *mWatershedModule = nullptr;
+    ReosHydraulicSchemeCollection *mHydraulicSchemeCollection = nullptr;
+    int mCurrentSchemeIndex = -1;
     QHash<QString, ReosHydraulicNetworkElement *> mElements;
     mutable QString mProjectPath;
     mutable QString mProjectName;
+
     void elemPositionChangedPrivate( ReosHydraulicNetworkElement *elem );
 
     QHash<QString, int> mElementIndexesCounter;
 
     friend class ReosHydraulicNetworkElement;
-
-    ReosHydraulicNetworkContext context() const;
 
     std::map<QString, std::unique_ptr<ReosHydraulicNetworkElementFactory>> mElementFactories;
     void addEncodedElement( const ReosEncodedElement &element );

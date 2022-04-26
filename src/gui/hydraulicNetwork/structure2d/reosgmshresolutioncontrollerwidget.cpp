@@ -56,7 +56,7 @@ ReosGmshResolutionControllerWidget::ReosGmshResolutionControllerWidget( ReosHydr
     mMap->refreshCanvas();
   } );
 
-  mModel = new ReosGeometryStructureClassModelList( mController->resolutionPolygons(), this );
+  mModel = new ReosPolygonStructureClassModelList( mController->resolutionPolygons(), this );
   ui->mPolygonClassView->setModel( mModel );
 
   connect( ui->mToolButtonAddClass, &QToolButton::clicked, this, &ReosGmshResolutionControllerWidget::addClass );

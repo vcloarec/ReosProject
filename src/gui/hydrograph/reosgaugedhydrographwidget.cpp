@@ -28,10 +28,10 @@
 #include "reosdataprovidergui.h"
 #include "reosstyleregistery.h"
 
-ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( ReosMap *map, QWidget *parent )
-  : ReosStackedPageWidget( parent )
+ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( const ReosGuiContext &guiContext )
+  : ReosStackedPageWidget( guiContext.parent() )
   , ui( new Ui::ReosGaugedHydrographWidget )
-  , mMap( map )
+  , mMap( guiContext.map() )
 {
   ui->setupUi( this );
 
@@ -120,7 +120,7 @@ void ReosGaugedHydrographWidget::onAddHydrograph()
     std::unique_ptr<ReosHydrograph> newHydrograph = std::make_unique<ReosHydrograph>();
     newHydrograph->setName( nameParam.value() );
     newHydrograph->setColor( Qt::blue );
-    newHydrograph->setReferenceTime( QDateTime( QDate::currentDate(), QTime( 0, 0, 0, Qt::UTC ) ) );
+    newHydrograph->setReferenceTime( QDateTime( QDate::currentDate(), QTime( 0, 0, 0 ), Qt::UTC ) );
     mHydrographStore->addHydrograph( newHydrograph.release() );
     onStoreChanged();
     ui->mComboBoxHydrographName->setCurrentIndex( ui->mComboBoxHydrographName->count() - 1 );
@@ -391,9 +391,9 @@ void ReosGaugedHydrographWidget::showProviderSelector( const QString &providerKe
   emit addOtherPage( providerPage.release() );
 }
 
-ReosWatershedGaugedHydrographWidget::ReosWatershedGaugedHydrographWidget( ReosMap *map, QWidget *parent )
-  : ReosActionStackedWidget( parent )
-  , mGaugedHydrographWidget( new ReosGaugedHydrographWidget( map, this ) )
+ReosWatershedGaugedHydrographWidget::ReosWatershedGaugedHydrographWidget( const ReosGuiContext &guiContext )
+  : ReosActionStackedWidget( guiContext.parent() )
+  , mGaugedHydrographWidget( new ReosGaugedHydrographWidget( guiContext ) )
 {
   setWindowFlag( Qt::Dialog );
   setWindowTitle( tr( "Watershed Gauged Hydrograph" ) );

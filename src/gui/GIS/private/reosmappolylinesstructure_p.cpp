@@ -46,7 +46,7 @@ void ReosMapPolylinesStructure_p::updatePosition()
   const QString &destCrs = crs();
 
   if ( mExterior )
-    mExterior->updatePosition( mStructure->boundary( destCrs ), this );
+    mExterior->updatePosition( mStructure, this, destCrs );
   if ( mLines )
     mLines->updatePosition( mStructure, this, destCrs );
   if ( mHolePoints )
@@ -60,7 +60,10 @@ void ReosMapPolylinesStructure_p::setStructure( ReosPolylinesStructure *structur
   mLines = new ReosMapStructureLinesItem( this );
   mHolePoints = new ReosMapStructureHolePointsItem( this );
 
-  mExterior->setVisible( false );
+  mHolePoints->setZValue( 30 );
+  mExterior->setZValue( 20 );
+  mLines->setZValue( 10 );
+
   updatePosition();
 }
 
@@ -69,20 +72,29 @@ void ReosMapPolylinesStructure_p::paint( QPainter *painter )
 
 ReosMapStructureExteriorItem::ReosMapStructureExteriorItem( ReosMapPolylinesStructure_p *parent ): QGraphicsItem( parent )
 {
-  setZValue( 11 );
+  setZValue( 10 );
 }
 
-void ReosMapStructureExteriorItem::updatePosition( const QPolygonF &poly, ReosMapPolylinesStructure_p *parent )
+void ReosMapStructureExteriorItem::updatePosition( const ReosPolylinesStructure *structure, ReosMapPolylinesStructure_p *parent, const QString &destinationCrs )
 {
   prepareGeometryChange();
   mPolyInLocalView.clear();
+  mIsCondition.clear();
+  mIsSelected.clear();
+  const QPolygonF boundaryPolygon = structure->boundary();
 
-  for ( const QPointF &pt : poly )
+  mIsCondition.reserve( boundaryPolygon.count() );
+  for ( int i = 0; i < boundaryPolygon.count(); ++i )
   {
+    const QPointF &pt = boundaryPolygon.at( i );
     QPointF ptCanvas = parent->toCanvasCoordinates( pt );
     QPointF ptLocal = ptCanvas;
     mPolyInLocalView.append( ptLocal );
+    QString classId = structure->boundaryClassId( i );
+    mIsCondition.append( !classId.isEmpty() );
+    mIsSelected.append( classId == structure->selectedClass() );
   }
+
   mBBox = mPolyInLocalView.boundingRect().adjusted( - 5, -5, 5, 5 );
 }
 
@@ -94,28 +106,48 @@ QRectF ReosMapStructureExteriorItem::boundingRect() const
 void ReosMapStructureExteriorItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *, QWidget * )
 {
   painter->save();
-
   painter->setRenderHint( QPainter::Antialiasing, true );
   QPen pen;
-  pen.setColor( ReosStyleRegistery::instance()->orangeReos() );
-  pen.setWidthF( mWidth );
-  painter->setPen( pen );
-  painter->drawPolygon( mPolyInLocalView );
 
-  pen.setColor( Qt::gray );
-  pen.setWidthF( mWidth / 5 * 2 );
-  painter->setPen( pen );
-  painter->drawPolygon( mPolyInLocalView );
+  int polySize = mPolyInLocalView.count();
+  for ( int i = 0; i < polySize; ++i )
+  {
+    if ( mIsCondition.at( i ) )
+    {
+      QLineF line( mPolyInLocalView.at( i ), mPolyInLocalView.at( ( i + 1 ) % polySize ) );
 
-  QBrush brush;
-  brush.setColor( Qt::gray );
-  brush.setStyle( Qt::SolidPattern );
-  pen.setColor( ReosStyleRegistery::instance()->orangeReos( 100 ) );
-  pen.setWidth( mWidth / 5 * 2 );
-  painter->setBrush( brush );
-  painter->setPen( pen );
-  for ( const QPointF pt : std::as_const( mPolyInLocalView ) )
-    painter->drawEllipse( pt,  mWidth / 5 * 4,  mWidth / 5 * 4 );
+      pen.setColor( ReosStyleRegistery::instance()->blueReos() );
+      pen.setWidthF( mWidth );
+      painter->setPen( pen );
+      painter->drawLine( line );
+
+      pen.setWidthF( mWidth / 5 * 3 );
+      if ( mIsSelected.at( i ) )
+        pen.setColor( Qt::red );
+      else
+        pen.setColor( Qt::gray );
+      painter->setPen( pen );
+
+      painter->drawLine( line );
+      QBrush brush;
+      if ( mIsSelected.at( i ) )
+        brush.setColor( Qt::red );
+      else
+        brush.setColor( Qt::gray );
+
+      brush.setStyle( Qt::SolidPattern );
+      pen.setColor( ReosStyleRegistery::instance()->blueReos() );
+      pen.setWidth( mWidth / 5 * 3 );
+      painter->setBrush( brush );
+      painter->setPen( pen );
+
+      painter->drawEllipse( line.p1(),  mWidth / 5 * 4,  mWidth / 5 * 4 );
+      painter->drawEllipse( line.p2(),  mWidth / 5 * 4,  mWidth / 5 * 4 );
+    }
+    else
+      continue;
+
+  }
 
   painter->restore();
 }

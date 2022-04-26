@@ -21,7 +21,7 @@ class REOSCORE_EXPORT ReosWatershedModule : public ReosModule
     ReosMeteorologicModelsCollection *meteoModelsCollection();
 
     //! Removes all the watersheds
-    void clearWatersheds();
+    void reset();
 
     void decode( const ReosEncodedElement &element );
     ReosEncodedElement encode() const;

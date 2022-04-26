@@ -18,16 +18,24 @@
 
 #include <QAction>
 #include <QToolBar>
+#include <QMessageBox>
 
+#include "reosformwidget.h"
 #include "reosstyleregistery.h"
 #include "reosmaptooleditgeometrystructure.h"
 #include "reospolylinesstructure.h"
+#include "reosmaptooleditgeometrystructure.h"
 
 ReosEditPolylineStructureWidget::ReosEditPolylineStructureWidget( ReosPolylinesStructure *structure, const ReosGuiContext &context )
   : QWidget( context.parent() )
   , ui( new Ui::ReosEditPolylineStructureWidget )
   , mActionEditLine( new QAction( QPixmap( QStringLiteral( ":/images/editStructureLines.svg" ) ), tr( "Edit Structure Line" ), this ) )
+  , mStructure( structure )
   , mMapToolEditLine( new ReosMapToolEditPolylineStructure( structure, this, context.map() ) )
+  , mActionRemoveBoundary( new QAction( QPixmap( QStringLiteral( ":/images/remove.svg" ) ), tr( "Remove Selected boundary" ), this ) )
+  , mActionZoomOnBoundary( new QAction( QPixmap( QStringLiteral( ":/images/zoom.svg" ) ), tr( "Zoom on Selected Boundary" ), this ) )
+  , mActionRenameBoundary( new QAction( QPixmap( QStringLiteral( ":/images/rename.svg" ) ), tr( "Rename Selected Boundary" ), this ) )
+  , mGuiContext( context )
 {
   ui->setupUi( this );
 
@@ -41,6 +49,33 @@ ReosEditPolylineStructureWidget::ReosEditPolylineStructureWidget( ReosPolylinesS
 
   mToolBar->addActions( mMapToolEditLine->mainActions()->actions() );
   mToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+
+  QToolBar *toolBarBoundary = new QToolBar( this );
+  ui->mBoundaryToolBarLayout->addWidget( toolBarBoundary );
+  toolBarBoundary->layout()->setContentsMargins( 0, 0, 0, 0 );
+  toolBarBoundary->addAction( mActionRemoveBoundary );
+  toolBarBoundary->addAction( mActionZoomOnBoundary );
+  toolBarBoundary->addAction( mActionRenameBoundary );
+  toolBarBoundary->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+
+  mBoundaryModel = new ReosPolylineStructureClassModelList( structure, this );
+  ui->mBoundaryListView->setModel( mBoundaryModel );
+
+  mActionRemoveBoundary->setEnabled( ui->mBoundaryListView->currentIndex().isValid() );
+  mActionZoomOnBoundary->setEnabled( ui->mBoundaryListView->currentIndex().isValid() );
+  mActionRenameBoundary->setEnabled( ui->mBoundaryListView->currentIndex().isValid() );
+  connect( ui->mBoundaryListView->selectionModel(), &QItemSelectionModel::currentChanged, this, [this]
+  {
+    mActionRemoveBoundary->setEnabled( ui->mBoundaryListView->currentIndex().isValid() );
+    mActionZoomOnBoundary->setEnabled( ui->mBoundaryListView->currentIndex().isValid() );
+    mActionRenameBoundary->setEnabled( ui->mBoundaryListView->currentIndex().isValid() );
+    mStructure->setSelectedClass( mBoundaryModel->classId( ui->mBoundaryListView->currentIndex().row() ) );
+    emit boundaryConditionSelectionChanged();
+  } );
+
+  connect( mActionRenameBoundary, &QAction::triggered, this, &ReosEditPolylineStructureWidget::onRenameBoundary );
+  connect( mActionRemoveBoundary, &QAction::triggered, this, &ReosEditPolylineStructureWidget::onRemoveBoundary );
+  connect( mActionZoomOnBoundary, &QAction::triggered, this, &ReosEditPolylineStructureWidget::onZoomOnBoundaryCondition );
 }
 
 ReosEditPolylineStructureWidget::~ReosEditPolylineStructureWidget()
@@ -74,4 +109,39 @@ void ReosEditPolylineStructureWidget::showEvent( QShowEvent *e )
   mMapToolEditLine->activate();
   mMapToolEditLine->setCurrentToolInMap();
   QWidget::showEvent( e );
+}
+
+void ReosEditPolylineStructureWidget::onRenameBoundary()
+{
+  ReosFormDialog *dial = new ReosFormDialog( this );
+  dial->setWindowTitle( tr( "Rename Boundary condition" ) );
+  ReosParameterString newName( tr( "New boundary condition name" ), false );
+  QString classId = mBoundaryModel->classId( ui->mBoundaryListView->currentIndex().row() );
+  newName.setValue( mStructure->value( classId ).toString() );
+  dial->addParameter( &newName );
+  if ( dial->exec() )
+  {
+    if ( newName.value() != mStructure->value( classId ).toString() )
+      mStructure->changeClassValue( classId, newName.value() );
+  }
+
+  dial->deleteLater();
+}
+
+void ReosEditPolylineStructureWidget::onRemoveBoundary()
+{
+  QModelIndex modelIndex = ui->mBoundaryListView->currentIndex();
+  if ( modelIndex.isValid() )
+  {
+    QString classId = mBoundaryModel->classId( ui->mBoundaryListView->currentIndex().row() );
+    mStructure->removeBoundaryCondition( classId );
+  }
+}
+
+void ReosEditPolylineStructureWidget::onZoomOnBoundaryCondition()
+{
+  QString classId = mBoundaryModel->classId( ui->mBoundaryListView->currentIndex().row() );
+  QRectF extent = mStructure->classExtent( classId, mGuiContext.map()->mapCrs() );
+  extent.adjust( -extent.width() / 10, -extent.height() / 10, extent.width() / 10, extent.height() / 10 );
+  mGuiContext.map()->setExtent( ReosMapExtent( extent ) );
 }

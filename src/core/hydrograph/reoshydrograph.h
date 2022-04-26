@@ -126,6 +126,7 @@ class REOSCORE_EXPORT ReosHydrographsStore : public ReosHydrographGroup
 
   signals:
     void hydrographRemoved( int index ) const;
+    void hydrographChanged();
 
   private:
     QList<ReosHydrograph *>  mHydrographs;

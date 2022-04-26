@@ -16,67 +16,199 @@
 #ifndef REOSHYDRAULICSTRUCTURE2D_H
 #define REOSHYDRAULICSTRUCTURE2D_H
 
+#include "reoscore.h"
+
 #include "reoshydraulicnetwork.h"
 #include "reospolylinesstructure.h"
+#include "reoshydraulicsimulation.h"
 #include "reosgmshgenerator.h"
 #include "reosmesh.h"
 #include "reos3dmapsettings.h"
+#include "reoshydraulicsimulationresults.h"
 
 class ReosTopographyCollection;
 class ReosRoughnessStructure;
+class ReosHydraulicStructureBoundaryCondition;
+class QDir;
 
-class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
+class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
 {
     Q_OBJECT
   public:
-    ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, ReosHydraulicNetwork *parent = nullptr );
+    struct BoundaryVertices
+    {
+      QVector<int> verticesIndex;
+      QPointer<ReosHydraulicStructureBoundaryCondition> boundaryCondition;
+    };
 
+    //! Contructor from a \a domain, ccordinate system \a crs and a \a context
+    ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, const ReosHydraulicNetworkContext &context );
+
+    //! Create a structure from \a encodedElement and a \a context
     static ReosHydraulicStructure2D *create( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext  &context );
-    QString type() const override {return staticType();}
+
     static QString staticType() {return ReosHydraulicNetworkElement::staticType() + QString( ':' ) + QStringLiteral( "structure2D" );}
+
+    QString type() const override {return staticType();}
+    virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
+    virtual void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
+
+    void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydraulicStructureBoundaryCondition *boundaryCondition, bool upstreamWillChange ) {}
+    bool updateCalculationContextFromDownstream( const ReosCalculationContext &context ) { return false; }
 
     //! Returns the domain polygon
     QPolygonF domain( const QString &crs = QString() ) const;
 
+    //! Returns the geometrical strcuture
     ReosPolylinesStructure *geometryStructure() const;
 
+    //! Returns the mesh resolution controler
     ReosMeshResolutionController *meshResolutionController() const;
 
+    //! Returns the mesh
     ReosMesh *mesh() const;
 
+    //! Returns the mesh generator
     ReosMeshGenerator *meshGenerator() const;
 
+    //! Returns a process that generate the mesh, caller take ownership
     ReosMeshGeneratorProcess *getGenerateMeshProcess();
+
+    //! Returns the boundary vertices of the structure
+    QVector<BoundaryVertices> boundaryVertices() const;
+
+    //! Returns the vertices of the holes classidfied per holes and per lines
+    QVector<QVector<QVector<int> > > holesVertices() const;
+
+    //! Returns the topography collection
+    ReosTopographyCollection *topographyCollecion() const;
+
+    //! Returns the rougness structure
+    ReosRoughnessStructure *roughnessStructure() const;
+
+    //! Returns all the boundary condition of this stucture
+    QList<ReosHydraulicStructureBoundaryCondition *> boundaryConditions() const;
+
+    //! Adds a new simulation with \a key corresponding to a engine and sets it the current one. Returns true if the simulation is effectivly added
+    bool addSimulation( const QString key );
+
+    //! Returns a pointer to the current simulation
+    ReosHydraulicSimulation *currentSimulation() const;
+
+    //! Returns the count of simulation
+    int simulationCount() const {return mSimulations.count();}
+
+    //! Returns the index of the current simulation
+    int currentSimulationIndex() const;
+
+    //! Sets the current simulation with its \a index
+    void setCurrentSimulation( int index );
+
+    //! Returns the name of all the simulations
+    QStringList simulationNames() const;
+
+    //! Returns a process that prepare the current simulation, caller take ownership
+    ReosProcess *getPreparationProcessSimulation( const ReosCalculationContext &context );
+
+    //! Returns a process that prepare the current simulation files in a specific \a diectory, caller take ownership
+    ReosProcess *getPreparationProcessSimulation( const ReosCalculationContext &context, const QDir &directory );
+
+    //! Starts the current simulation, return true if the calculation is effectivly started and returns a pointer to the process
+    ReosSimulationProcess *startSimulation( const ReosCalculationContext &context );
+
+    //! Returns  a pointer to the current simulation process
+    ReosSimulationProcess *simulationProcess( const ReosCalculationContext &context ) const;
+
+    //! Returns whether a simulation is running
+    bool hasSimulationRunning() const;
+
+    //! Returns whether the structure contain any results
+    bool hasResults() const;
+
+    //! Returns whether a result corresponding to \a context is existing (loaded)
+    bool hasResults( const ReosCalculationContext &context ) const;
+
+    //! Returns whether a results corresponding to \a context is existing
+    QDateTime resultsDateTime( const ReosCalculationContext &context ) const;
+
+    //! Returns the time step count of the results corresponding to \a context
+    int resultsTimeStepCount( const ReosCalculationContext &context ) const;
+
+    //! Returns the value of the results with type \a datasetType for the specified \a context, \a position and \a time
+    double resultsValueAt( const QDateTime &time,
+                           const ReosSpatialPosition &position,
+                           ReosHydraulicSimulationResults::DatasetType datasetType,
+                           const ReosCalculationContext &context );
+
+    //! Returns a translated string corresponding to the unit of the results associated with \a context and to the type  \a datasetType
+    QString resultsUnits( ReosHydraulicSimulationResults::DatasetType datasetType, const ReosCalculationContext &context );
+
+    void removeAllResults();
 
     //! Sets active the terrain in the mesh
     void activateMeshTerrain();
 
-    //! Return the id of the terrain dataset
+    //! Returns the id of the terrain dataset
     QString terrainMeshDatasetId() const;
 
-    //! Deactivate any activated scalar dataset
+    //! Deactivates any activated scalar dataset
     void deactivateMeshScalar();
 
-    void runSimulation();
-
-    ReosTopographyCollection *topographyCollecion() const;
-
+    //! Returns the 3D map settings
     Reos3DMapSettings map3dSettings() const;
+
+    //! Sets the 3D map settings
     void setMap3dSettings( const Reos3DMapSettings &value );
 
+    //! Returns the 3D terrain settings
     Reos3DTerrainSettings terrain3DSettings() const;
+
+    //! Sets the 3D terrain settings
     void setTerrain3DSettings( const Reos3DTerrainSettings &settings );
 
-    ReosRoughnessStructure *roughnessStructure() const;
+    //! Returns the directory where data and simulation will be stored on the disk
+    QDir structureDirectory() const;
+
+    //! Activates the result dataset groups with \a id. If id is void, the current group is reactivated
+    void activateResultDatasetGroup( const QString &id = QString() );
+
+    //! Activates the result dataset groups with type \a datasetType.
+    void activateResultDatasetGroup( ReosHydraulicSimulationResults::DatasetType datasetType );
+
+    //! Returns the all the dataset ids
+    QStringList meshDatasetIds() const;
+
+    //! Returns the name of the dataset with \a id
+    QString meshDatasetName( const QString &id ) const;
+
+    //! Returns the id of the current dataset
+    QString currentActivatedMeshDataset() const;
+
+    //! Returns the type of the current dataset
+    ReosHydraulicSimulationResults::DatasetType currentActivatedDatasetResultType() const;
+
+    //! Return the name of the current dataset
+    QString currentDatasetName() const;
 
   public slots:
-    void updateCalculationContext( const ReosCalculationContext &context ) {}
+    void updateCalculationContext( const ReosCalculationContext &context ) override;
 
   signals:
     void meshGenerated();
+    void boundaryChanged();
+    void currentSimulationChanged();
+    void simulationFinished();
+    void simulationResultChanged();
 
   protected:
-    void encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const;
+    void encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const override;
+
+  private slots:
+    void onBoundaryConditionAdded( const QString &bid );
+    void onBoundaryConditionRemoved( const QString &bid );
+    void onGeometryStructureChange();
+    void onFlowsFromSolverReceived( const QDateTime &time, const QStringList &boundId, const QList<double> &values );
+    void onSimulationFinished( ReosHydraulicSimulation *simulation,  const QString &schemeId, bool success );
 
   private:
     ReosHydraulicStructure2D( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
@@ -84,18 +216,45 @@ class ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
     ReosMeshGenerator *mMeshGenerator = nullptr;
     std::unique_ptr<ReosPolylinesStructure> mPolylinesStructures;
     ReosMeshResolutionController *mMeshResolutionController = nullptr;
-    ReosTopographyCollection  *mTopographyCollecion = nullptr;
+    ReosTopographyCollection   *mTopographyCollection = nullptr;
     std::unique_ptr<ReosMesh> mMesh;
     std::unique_ptr<ReosRoughnessStructure > mRoughnessStructure;
+    QVector<QVector<int>> mBoundaryVertices;
+    QVector<QVector<QVector<int>>> mHolesVertices;
 
-    QString mTerrainDatasetId;
+    QList<ReosHydraulicSimulation *> mSimulations;
+
+    //** configuration
+    int mCurrentSimulationIndex = -1;
+    //**
+
+    std::map<QString, std::unique_ptr<ReosSimulationProcess>> mSimulationProcesses;
+    QMap<QString, ReosHydraulicSimulationResults *> mSimulationResults;
+
+    typedef ReosHydraulicSimulationResults::DatasetType ResultType;
+    mutable QMap<ResultType, QByteArray> mResultScalarDatasetSymbologies;
+    mutable QByteArray mTerrainSymbology;
+
     Reos3DMapSettings m3dMapSettings;
     Reos3DTerrainSettings m3dTerrainSettings;
 
+    ReosHydraulicNetworkContext mHydraulicNetworkContext;
+
     void init();
     void generateMeshInPlace();
-
     QString directory() const;
+    ReosHydraulicStructureBoundaryCondition *boundaryConditionNetWorkElement( const QString boundaryId ) const;
+    void onMeshGenerated( const ReosMeshFrameData &meshData );
+
+    void getSymbologiesFromMesh( const QString &schemeId ) const;
+
+    void updateCurrentResults( const QString &schemeId );
+    void loadResult( ReosHydraulicSimulation *simulation, const QString &schemeId );
+    void setResultsOnStructure( ReosHydraulicSimulationResults *simResults );
+
+    ReosSimulationProcess *processFromScheme( const QString &schemeId ) const;
+
+    int simulationIndexFromId( const QString &simId ) const;
 };
 
 class ReosHydraulicStructure2dFactory : public ReosHydraulicNetworkElementFactory
@@ -106,7 +265,7 @@ class ReosHydraulicStructure2dFactory : public ReosHydraulicNetworkElementFactor
 };
 
 
-class ReosRoughnessStructure : public ReosDataObject
+class REOSCORE_EXPORT ReosRoughnessStructure : public ReosDataObject
 {
     Q_OBJECT
   public:

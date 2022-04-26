@@ -21,35 +21,34 @@ email                : vcloarec at gmail dot com
 #include "reosmaptool.h"
 #include "reossettings.h"
 #include "reosstyleregistery.h"
+#include "reosguicontext.h"
 
 #include <QBoxLayout>
 #include <QMessageBox>
 #include <QCloseEvent>
 #include <QFileDialog>
 
-ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedModule *watershedModule,
-    ReosMap *map,
-    QWidget *parent ) :
-  ReosActionWidget( parent ),
+ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedModule *watershedModule, const ReosGuiContext &context ) :
+  ReosActionWidget( context.parent() ),
   ui( new Ui::ReosDelineatingWatershedWidget ),
   mModule( watershedModule ),
-  mMap( map ),
+  mMap( context.map() ),
   mActionDrawDownstreamLine( new QAction( QPixmap( QStringLiteral( ":/images/downStreamSelection.png" ) ), tr( "Draw downstream line" ), this ) ),
   mActionDrawPredefinedExtent( new QAction( QPixmap( QStringLiteral( ":/images/extentWatershedSelection.png" ) ), tr( "Draw predefined extent" ), this ) ),
   mActionDrawAddBurningLine( new QAction( QPixmap( QStringLiteral( ":/images/burningLine.png" ) ), tr( "Add a burning line" ), this ) ),
   mActionRemoveBurningLine( new QAction( QPixmap( QStringLiteral( ":/images/mActionRemoveBurningLine.png" ) ), tr( "Remove a burning line" ), this ) ),
-  mDownstreamLine( map ),
-  mWatershedExtent( map ),
+  mDownstreamLine( context.map() ),
+  mWatershedExtent( context.map() ),
   mActionDrawWatershed( new QAction( QPixmap( QStringLiteral( ":/images/delineateWatershed.svg" ) ), tr( "Draw watershed manually" ), this ) ),
   mActionEditWatershed( new QAction( QPixmap( QStringLiteral( ":/images/editWatershed.svg" ) ), tr( "Edit watershed manually" ), this ) ),
   mActionMoveOutletPoint( new QAction( QPixmap( QStringLiteral( ":/images/moveOutlet.svg" ) ), tr( "Move outlet point" ), this ) ),
-  mTemporaryAutomaticWatershed( map ),
-  mTemporaryAutomaticStreamLine( map ),
-  mTemporaryManualWatershed( map ),
-  mTemporaryManualOutletPoint( map )
+  mTemporaryAutomaticWatershed( context.map() ),
+  mTemporaryAutomaticStreamLine( context.map() ),
+  mTemporaryManualWatershed( context.map() ),
+  mTemporaryManualOutletPoint( context.map() )
 {
   ui->setupUi( this );
-  ui->comboBoxDem->setGisEngine( map->engine() );
+  ui->comboBoxDem->setGisEngine( mMap->engine() );
 
   setWindowFlag( Qt::Dialog );
 
@@ -70,7 +69,7 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   mManualToolBar->addAction( mActionEditWatershed );
   mManualToolBar->addAction( mActionMoveOutletPoint );
 
-  mMapToolDrawDownStreamLine = new ReosMapToolDrawPolyline( map );
+  mMapToolDrawDownStreamLine = new ReosMapToolDrawPolyline( mMap );
   mMapToolDrawDownStreamLine->setAction( mActionDrawDownstreamLine );
   mActionDrawDownstreamLine->setCheckable( true );
   mMapToolDrawDownStreamLine->setStrokeWidth( 2 );
@@ -78,7 +77,7 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   mMapToolDrawDownStreamLine->setLineStyle( Qt::DashLine );
   mMapTools << mMapToolDrawDownStreamLine;
 
-  mMapToolDrawPredefinedExtent = new ReosMapToolDrawExtent( map );
+  mMapToolDrawPredefinedExtent = new ReosMapToolDrawExtent( mMap );
   mMapToolDrawPredefinedExtent->setAction( mActionDrawPredefinedExtent );
   mActionDrawPredefinedExtent->setCheckable( true );
   mMapToolDrawPredefinedExtent->setStrokeWidth( 2 );
@@ -87,7 +86,7 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   mMapToolDrawPredefinedExtent->setLineStyle( Qt::DashLine );
   mMapTools << mMapToolDrawPredefinedExtent;
 
-  mMapToolDrawBurningLine = new ReosMapToolDrawPolyline( map );
+  mMapToolDrawBurningLine = new ReosMapToolDrawPolyline( mMap );
   mMapToolDrawBurningLine->setAction( mActionDrawAddBurningLine );
   mActionDrawAddBurningLine->setCheckable( true );
   mMapToolDrawBurningLine->setStrokeWidth( 2 );
@@ -101,7 +100,7 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   burningLineFormater.setWidth( 2 );
   burningLineFormater.setExternalWidth( 4 );
 
-  mMapToolRemoveBurningLine = new ReosMapToolSelectMapItem( map, burningLineFormater.description() );
+  mMapToolRemoveBurningLine = new ReosMapToolSelectMapItem( mMap, burningLineFormater.description() );
   mMapToolRemoveBurningLine->setAction( mActionRemoveBurningLine );
   mActionRemoveBurningLine->setCheckable( true );
   connect( mMapToolRemoveBurningLine, &ReosMapToolSelectMapItem::found, this, &ReosDelineatingWatershedWidget::onBurningLineRemoved );
@@ -129,7 +128,7 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   mTemporaryAutomaticStreamLine.setExternalWidth( 4 );
   mTemporaryAutomaticStreamLine.setStyle( Qt::DashLine );
 
-  mMapToolDrawWatershed = new ReosMapToolDrawPolygon( map );
+  mMapToolDrawWatershed = new ReosMapToolDrawPolygon( mMap );
   mMapToolDrawWatershed->setAction( mActionDrawWatershed );
   mActionDrawWatershed->setCheckable( true );
   mMapToolDrawWatershed->setStrokeWidth( 2 );
@@ -141,7 +140,7 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   mActionEditWatershed->setCheckable( true );
   mActionMoveOutletPoint->setCheckable( true );
 
-  mMapToolDrawOutletPoint = new ReosMapToolDrawPoint( map );
+  mMapToolDrawOutletPoint = new ReosMapToolDrawPoint( mMap );
   mMapTools << mMapToolDrawOutletPoint;
 
   mTemporaryManualWatershed.setColor( QColor( 50, 250, 50 ) );

@@ -21,7 +21,6 @@
 
 #include <QMutex>
 #include <QThread>
-#include <QDebug>
 
 #include "reosmodule.h"
 #include "reosmeshgenerator.h"
@@ -30,7 +29,7 @@
 #include "reospolygonstructure.h"
 
 
-class ReosGmshGenerator : public ReosMeshGenerator
+class REOSCORE_EXPORT ReosGmshGenerator : public ReosMeshGenerator
 {
     Q_OBJECT
   public:

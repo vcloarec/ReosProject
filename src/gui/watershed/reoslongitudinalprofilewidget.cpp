@@ -29,12 +29,13 @@
 #include "reosmaptool.h"
 #include "reossettings.h"
 #include "reosstyleregistery.h"
+#include "reosguicontext.h"
 
-ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWidget *parent ) :
-  ReosActionWidget( parent ),
+ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( const ReosGuiContext &context ) :
+  ReosActionWidget( context.parent() ),
   ui( new Ui::ReosLongitudinalProfileWidget )
-  , mMap( map )
-  , mCurrentStreamLine( map )
+  , mMap( context.map() )
+  , mCurrentStreamLine( context.map() )
   , mActionDrawStreamLine( new QAction( QPixmap( ":/images/drawStreamLine.svg" ), tr( "Draw Flow Path on Map" ), this ) )
   , mActionEditStreamLine( new QAction( QPixmap( ":/images/editStreamLine.svg" ), tr( "Edit Flow Path on Map" ), this ) )
   , mActionZoomOnDEMProfileExtent( new QAction( QPixmap( ":/images/demProfileExtent.svg" ), tr( "Zoom on DEM Profile Extent" ), this ) )
@@ -67,7 +68,7 @@ ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWi
   ui->mWidgetToolProfile->layout()->addWidget( profileToolBar );
 
 //****** set up stream line tools
-  mMapToolDrawStreamLine = new ReosMapToolDrawPolyline( map );
+  mMapToolDrawStreamLine = new ReosMapToolDrawPolyline( mMap );
   mMapToolDrawStreamLine->setAction( mActionDrawStreamLine );
   mActionGroupStreamLineMapTool->addAction( mActionDrawStreamLine );
   mActionGroupStreamLineMapTool->addAction( mActionEditStreamLine );
@@ -94,7 +95,7 @@ ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWi
 
   connect( ui->mPlotWidget, &ReosPlotWidget::cursorMoved, this, &ReosLongitudinalProfileWidget::onProfileCursorMove );
 
-  mMapToolEditStreamLine = new ReosMapToolEditMapPolyline( map );
+  mMapToolEditStreamLine = new ReosMapToolEditMapPolyline( mMap );
   mActionEditStreamLine->setCheckable( true );
   mMapToolEditStreamLine->setAction( mActionEditStreamLine );
   mMapToolEditStreamLine->setMapPolyline( &mCurrentStreamLine );
@@ -106,7 +107,7 @@ ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( ReosMap *map,  QWi
   mCurrentStreamLine.setExternalColor( Qt::white );
   mCurrentStreamLine.setZValue( 9 );
 
-  mMapToolSelectMapUpstreamPoint = new ReosMapToolDrawPoint( map );
+  mMapToolSelectMapUpstreamPoint = new ReosMapToolDrawPoint( mMap );
   mMapToolSelectMapUpstreamPoint->setAction( mActionDrawStreamLineFromPointToDownstream );
   mActionDrawStreamLineFromPointToDownstream->setCheckable( true );
   mMapTools << mMapToolSelectMapUpstreamPoint;

@@ -72,6 +72,7 @@ SET(REOS_GUI_SOURCES
     data/reosimportfromtextfile.cpp
     data/reosdataprovidergui.cpp
     data/reostimeseriesvariabletimestepreadonlymodel.cpp
+    data/reosvariabletimesteptimeseriesgroupwidget.cpp
 
     hydrograph/reoshydrographeditingwidget.cpp
     hydrograph/reoshydrographroutingpropertieswidget.cpp
@@ -84,6 +85,7 @@ SET(REOS_GUI_SOURCES
     hydraulicNetwork/reosmaptoolhydraulicnetwork.cpp
     hydraulicNetwork/reoshydraulicelementpropertieswidget.cpp
     hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp
+    hydraulicNetwork/reoshydraulicschemewidget.cpp
     hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp
     hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.cpp
     hydraulicNetwork/structure2d/reosgmshresolutioncontrollerwidget.cpp
@@ -91,6 +93,9 @@ SET(REOS_GUI_SOURCES
     hydraulicNetwork/structure2d/reoseditmeshelementwidget.cpp
     hydraulicNetwork/structure2d/reosroughnesswidget.cpp
     hydraulicNetwork/structure2d/reoszvaluemodificationwidget.cpp
+    hydraulicNetwork/structure2d/reoshydraulic2dsimulationwidget.cpp
+    hydraulicNetwork/structure2d/reoshydraulicsimulationconsole.cpp
+
     hydraulicNetwork/private/reosmaptoolhydraulicnetwork_p.cpp
     )
 
@@ -151,6 +156,7 @@ SET(REOS_GUI_HEADERS
     data/reosimportfromtextfile.h
     data/reosdataprovidergui.h
     data/reostimeseriesvariabletimestepreadonlymodel.h
+    data/reosvariabletimesteptimeseriesgroupwidget.h
 
     hydrograph/reoshydrographeditingwidget.h
     hydrograph/reoshydrographroutingpropertieswidget.h
@@ -163,13 +169,16 @@ SET(REOS_GUI_HEADERS
     hydraulicNetwork/reoshydraulicnetworkmapitemfactory.h
     hydraulicNetwork/reoshydraulicelementpropertieswidget.h
     hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.h
+    hydraulicNetwork/reoshydraulicschemewidget.h
     hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.h
     hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.h
     hydraulicNetwork/structure2d/reosgmshresolutioncontrollerwidget.h
     hydraulicNetwork/structure2d/reosroughnesswidget.cpp
     hydraulicNetwork/structure2d/reosmeshtopographywidget.h
     hydraulicNetwork/structure2d/reoseditmeshelementwidget.h
-    hydraulicNetwork/structure2d/reoszvaluemodificationwidget.h
+    hydraulicNetwork/structure2d/reoszvaluemodificationwidget.h    
+    hydraulicNetwork/structure2d/reoshydraulic2dsimulationwidget.h
+    hydraulicNetwork/structure2d/reoshydraulicsimulationconsole.h
 )
 
 SET(REOS_GUI_HEADERS_PRIVATE
@@ -252,6 +261,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/data
     ${CMAKE_SOURCE_DIR}/src/core/hydrograph
     ${CMAKE_SOURCE_DIR}/src/core/hydraulicNetwork
+    ${CMAKE_SOURCE_DIR}/src/core/hydraulicNetwork/simulation/
     ${CMAKE_SOURCE_DIR}/src/core/mesh
 
     ${CMAKE_SOURCE_DIR}/src/gui

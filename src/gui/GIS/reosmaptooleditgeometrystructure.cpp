@@ -42,7 +42,6 @@ ReosMapToolEditPolylineStructure::~ReosMapToolEditPolylineStructure()
     d->deleteLater();
 }
 
-
 QActionGroup *ReosMapToolEditPolylineStructure::mainActions() const
 {
   return d->mainActions();
@@ -96,34 +95,34 @@ ReosMapTool_p *ReosMapToolEditPolygonStructure::tool_p() const
 
 
 
-ReosGeometryStructureClassModelList::ReosGeometryStructureClassModelList( ReosPolygonStructure *structure, QObject *parent )
+ReosPolygonStructureClassModelList::ReosPolygonStructureClassModelList( ReosPolygonStructure *structure, QObject *parent )
   : QAbstractListModel( parent )
   , mStructure( structure )
 {
-  connect( mStructure, &ReosPolygonStructure::classesChanged, this, &ReosGeometryStructureClassModelList::onClassesChanged );
+  connect( mStructure, &ReosPolygonStructure::classesChanged, this, &ReosPolygonStructureClassModelList::onClassesChanged );
 }
 
-QModelIndex ReosGeometryStructureClassModelList::index( int row, int column, const QModelIndex & ) const
+QModelIndex ReosPolygonStructureClassModelList::index( int row, int column, const QModelIndex & ) const
 {
   return createIndex( row, column );
 }
 
-QModelIndex ReosGeometryStructureClassModelList::parent( const QModelIndex & ) const
+QModelIndex ReosPolygonStructureClassModelList::parent( const QModelIndex & ) const
 {
   return QModelIndex();
 }
 
-int ReosGeometryStructureClassModelList::rowCount( const QModelIndex & ) const
+int ReosPolygonStructureClassModelList::rowCount( const QModelIndex & ) const
 {
   return mStructure->classes().count() + 1;
 }
 
-int ReosGeometryStructureClassModelList::columnCount( const QModelIndex & ) const
+int ReosPolygonStructureClassModelList::columnCount( const QModelIndex & ) const
 {
   return 1;
 }
 
-QVariant ReosGeometryStructureClassModelList::data( const QModelIndex &index, int role ) const
+QVariant ReosPolygonStructureClassModelList::data( const QModelIndex &index, int role ) const
 {
   if ( !index.isValid() )
     return false;
@@ -156,7 +155,7 @@ QVariant ReosGeometryStructureClassModelList::data( const QModelIndex &index, in
   return QVariant();
 }
 
-QString ReosGeometryStructureClassModelList::classId( int index ) const
+QString ReosPolygonStructureClassModelList::classId( int index ) const
 {
   if ( index < mStructure->classes().count() )
     return orderedClasses().at( index );
@@ -164,7 +163,7 @@ QString ReosGeometryStructureClassModelList::classId( int index ) const
   return QString();
 }
 
-QModelIndex ReosGeometryStructureClassModelList::classToindex( const QString &classId ) const
+QModelIndex ReosPolygonStructureClassModelList::classToindex( const QString &classId ) const
 {
   int ind = orderedClasses().indexOf( classId );
   if ( ind == -1 )
@@ -173,19 +172,104 @@ QModelIndex ReosGeometryStructureClassModelList::classToindex( const QString &cl
   return createIndex( ind, 0 );
 }
 
-void ReosGeometryStructureClassModelList::onClassesChanged()
+void ReosPolygonStructureClassModelList::onClassesChanged()
 {
   beginResetModel();
   endResetModel();
 }
 
-QStringList ReosGeometryStructureClassModelList::orderedClasses() const
+QStringList ReosPolygonStructureClassModelList::orderedClasses() const
 {
   QStringList classes = mStructure->classes();
 
   std::sort( classes.begin(), classes.end(), [this]( const QString & classId1, const QString & classId2 )
   {
     return mStructure->value( classId1 ) < mStructure->value( classId2 );
+  } );
+
+  return classes;
+}
+
+ReosPolylineStructureClassModelList::ReosPolylineStructureClassModelList( ReosPolylinesStructure *structure, QObject *parent )
+  : QAbstractListModel( parent )
+  , mStructure( structure )
+{
+  connect( mStructure, &ReosPolylinesStructure::classesChanged, this, &ReosPolylineStructureClassModelList::onClassesChanged );
+}
+
+QModelIndex ReosPolylineStructureClassModelList::index( int row, int column, const QModelIndex & ) const
+{
+  return createIndex( row, column );
+}
+
+QModelIndex ReosPolylineStructureClassModelList::parent( const QModelIndex & ) const
+{
+  return QModelIndex();
+}
+
+int ReosPolylineStructureClassModelList::rowCount( const QModelIndex & ) const
+{
+  return mStructure->classes().count();
+}
+
+int ReosPolylineStructureClassModelList::columnCount( const QModelIndex & ) const
+{
+  return 1;
+}
+
+QVariant ReosPolylineStructureClassModelList::data( const QModelIndex &index, int role ) const
+{
+  if ( !index.isValid() )
+    return false;
+
+  const QStringList classes = orderedClasses();
+
+  switch ( role )
+  {
+    case Qt::DisplayRole:
+      if ( index.row() < classes.count() )
+        return mStructure->value( classes.at( index.row() ) );
+      break;
+    case Qt::TextAlignmentRole:
+      return Qt::AlignRight;
+      break;
+    default:
+      break;
+  }
+
+  return QVariant();
+}
+
+QString ReosPolylineStructureClassModelList::classId( int index ) const
+{
+  if ( index < mStructure->classes().count() )
+    return orderedClasses().at( index );
+
+  return QString();
+}
+
+QModelIndex ReosPolylineStructureClassModelList::classToindex( const QString &classId ) const
+{
+  int ind = orderedClasses().indexOf( classId );
+  if ( ind == -1 )
+    return QModelIndex();
+
+  return createIndex( ind, 0 );
+}
+
+void ReosPolylineStructureClassModelList::onClassesChanged()
+{
+  beginResetModel();
+  endResetModel();
+}
+
+QStringList ReosPolylineStructureClassModelList::orderedClasses() const
+{
+  QStringList classes = mStructure->classes();
+
+  std::sort( classes.begin(), classes.end(), [this]( const QString & classId1, const QString & classId2 )
+  {
+    return mStructure->value( classId1 ).toString() < mStructure->value( classId2 ).toString();
   } );
 
   return classes;

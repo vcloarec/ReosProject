@@ -28,6 +28,7 @@ ReosMeshScalarRenderingWidget::ReosMeshScalarRenderingWidget( ReosMesh *mesh, co
   , ui( new Ui::ReosMeshScalarRenderingWidget )
   , mMesh( mesh )
   , mDatasetGroupIndexId( mesh->datasetGroupIndex( datasetId ) )
+  , mDatasetId( datasetId )
   , mMinimumParam( new ReosParameterDouble( tr( "Minimum" ), false, this ) )
   , mMaximumParam( new ReosParameterDouble( tr( "Maximum" ), false, this ) )
 {
@@ -41,16 +42,28 @@ ReosMeshScalarRenderingWidget::ReosMeshScalarRenderingWidget( ReosMesh *mesh, co
   mColorRampShaderWidget = new QgsColorRampShaderWidget( this );
   ui->mColorRampShaderLayout->addWidget( mColorRampShaderWidget );
 
-  QgsMeshLayer *meshLayer = qobject_cast<QgsMeshLayer *>( mesh->data() );
-
-  if ( meshLayer )
+  ReosEncodedElement datasetSymbology = mesh->datasetScalarGroupSymbology( datasetId );
+  if ( datasetSymbology.description() == QStringLiteral( "dataset-symbology" ) )
   {
-    QgsMeshRendererScalarSettings scalarSettings = meshLayer->rendererSettings( ).scalarSettings( mDatasetGroupIndexId );
-    mColorRampShaderWidget->setFromShader( scalarSettings.colorRampShader() );
-    mMinimumParam->setValue( scalarSettings.classificationMinimum() );
-    mMaximumParam->setValue( scalarSettings.classificationMaximum() );
-    mColorRampShaderWidget->setMinimumMaximum( mMinimumParam->value(), mMaximumParam->value() );
-    ui->mOpacitySlider->setValue( scalarSettings.opacity() * 100 );
+
+    QString docString;
+    datasetSymbology.getData( QStringLiteral( "symbology" ), docString );
+
+    QDomDocument doc( QStringLiteral( "dataset-symbology" ) );
+
+    if ( doc.setContent( docString ) )
+    {
+      QDomElement domElem = doc.firstChildElement( QStringLiteral( "scalar-settings" ) );
+      QgsReadWriteContext context;
+      QgsMeshRendererScalarSettings scalarSettings;
+      scalarSettings.readXml( domElem );
+
+      mColorRampShaderWidget->setFromShader( scalarSettings.colorRampShader() );
+      mMinimumParam->setValue( scalarSettings.classificationMinimum() );
+      mMaximumParam->setValue( scalarSettings.classificationMaximum() );
+      mColorRampShaderWidget->setMinimumMaximum( mMinimumParam->value(), mMaximumParam->value() );
+      ui->mOpacitySlider->setValue( scalarSettings.opacity() * 100 );
+    }
   }
 
   connect( mMinimumParam, &ReosParameter::valueChanged, this, &ReosMeshScalarRenderingWidget::onMinMaxChanged );
@@ -109,16 +122,16 @@ void ReosMeshScalarRenderingWidget::onColorRampChanged()
 
 void ReosMeshScalarRenderingWidget::updateMeshSettings()
 {
-  QgsMeshLayer *meshLayer = qobject_cast<QgsMeshLayer *>( mMesh->data() );
-  if ( meshLayer )
-  {
-    QgsMeshRendererSettings settings = meshLayer->rendererSettings();
-    QgsMeshRendererScalarSettings scalarSettings = settings.scalarSettings( mDatasetGroupIndexId );
-    scalarSettings.setClassificationMinimumMaximum( mMinimumParam->value(), mMaximumParam->value() );
-    scalarSettings.setColorRampShader( mColorRampShaderWidget->shader() );
-    scalarSettings.setOpacity( ui->mOpacitySpinBox->value() / 100.0 );
-    settings.setScalarSettings( mDatasetGroupIndexId, scalarSettings );
-    meshLayer->setRendererSettings( settings );
-    meshLayer->repaintRequested();
-  }
+  QgsMeshRendererScalarSettings scalarSettings;
+  scalarSettings.setClassificationMinimumMaximum( mMinimumParam->value(), mMaximumParam->value() );
+  scalarSettings.setColorRampShader( mColorRampShaderWidget->shader() );
+  scalarSettings.setOpacity( ui->mOpacitySpinBox->value() / 100.0 );
+
+  QDomDocument doc( QStringLiteral( "dataset-symbology" ) );
+  doc.appendChild( scalarSettings.writeXml( doc ) ) ;
+
+  ReosEncodedElement encodedElem( QStringLiteral( "dataset-symbology" ) );
+  QString docString = doc.toString();
+  encodedElem.addData( QStringLiteral( "symbology" ), docString );
+  mMesh->setDatasetScalarGroupSymbology( encodedElem, mDatasetId );
 }

@@ -16,8 +16,6 @@
 #include "reos3dterrainsettingswidget.h"
 #include "ui_reos3dterrainsettingswidget.h"
 
-#include <QDebug>
-
 #include "reos3dmapsettings.h"
 
 Reos3DTerrainSettingsWidget::Reos3DTerrainSettingsWidget( QWidget *parent ) :
@@ -72,7 +70,6 @@ Reos3DTerrainSettings Reos3DTerrainSettingsWidget::settings() const
   settings.setUniqueColor( ui->mTerrainColorButton->color() );
   settings.setIsWireframeEnabled( ui->mWireframeCheckBox->isChecked() );
   settings.setWireframeWidth( ui->mWireframeWidthSlider->value() / 10.0 );
-  qDebug() << "width " << settings.wireframeWidth();
   settings.setWireframeColor( ui->mWireframeColorButton->color() );
   settings.setIsSmoothed( ui->mSmoothedCheckBox->isChecked() );
 

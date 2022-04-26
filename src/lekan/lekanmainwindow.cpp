@@ -78,6 +78,9 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   statusBar()->addPermanentWidget( new ReosMapCursorPosition( mMap, this ) );
   centralWidget()->layout()->addWidget( mMap->mapCanvas() );
 
+  addDockWidget( Qt::TopDockWidgetArea, mMap->temporalControllerDockWidget() );
+  mMap->temporalControllerDockWidget()->setObjectName( "temporalDock" );
+
   mGisDock = new QDockWidget( tr( "GIS Layers" ) );
   mGisDock->setObjectName( QStringLiteral( "gisDock" ) );
   mGisDock->setWidget( new ReosGisLayersWidget( mGisEngine, mMap, this ) );
@@ -91,14 +94,11 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   mDockHydraulicNetwork->setObjectName( QStringLiteral( "hydraulicDock" ) );
   addDockWidget( Qt::RightDockWidgetArea, mDockHydraulicNetwork );
 
-  mDockWatershed = new  ReosWatershedDockWidget( mMap, mWatershedModule, mHydraulicNetwork, this );
+  mDockWatershed = new  ReosWatershedDockWidget( guiContext, mWatershedModule, mHydraulicNetwork );
   mDockWatershed->setObjectName( QStringLiteral( "watershedDock" ) );
   addDockWidget( Qt::RightDockWidgetArea, mDockWatershed );
 
   mMap->setDefaultMapTool();
-
-  addDockWidget( Qt::TopDockWidgetArea, mMap->temporalControllerDockWidget() );
-  mMap->temporalControllerDockWidget()->setObjectName( "temporalDock" );
 
   clearProject();
 }
@@ -208,6 +208,8 @@ bool LekanMainWindow::saveProject()
 
 void LekanMainWindow::clearProject()
 {
+  mDockHydraulicNetwork->closePropertieWidget();
+
   if ( mGisEngine )
     mGisEngine->clearProject();
 
@@ -215,7 +217,7 @@ void LekanMainWindow::clearProject()
     mMap->initialize();
 
   if ( mWatershedModule )
-    mWatershedModule->clearWatersheds();
+    mWatershedModule->reset();
 
   if ( mHydraulicNetwork )
     mHydraulicNetwork->clear();

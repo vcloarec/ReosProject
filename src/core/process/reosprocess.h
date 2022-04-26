@@ -70,7 +70,7 @@ class REOSCORE_EXPORT ReosProcess : public QObject
     ReosModule::Message message() const;
 
   signals:
-    void sendInformation( const QString & );
+    void sendInformation( const QString & ) const;
 
   protected slots:
     bool finish();

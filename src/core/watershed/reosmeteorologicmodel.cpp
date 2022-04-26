@@ -32,6 +32,8 @@ ReosMeteorologicModel::ReosMeteorologicModel( const ReosEncodedElement &element,
   ReosDataObject( parent )
   , mName( ReosParameterString::decode( element.getEncodedData( QStringLiteral( "name" ) ), false, QObject::tr( "Meteorologic model name" ), nullptr ) )
 {
+  ReosDataObject::decode( element );
+
   if ( element.description() != QStringLiteral( "meteorologic-configuration" ) )
     return;
 
@@ -82,6 +84,8 @@ ReosEncodedElement ReosMeteorologicModel::encode( ReosWatershedTree *watershedTr
   element.addData( QStringLiteral( "associations" ), associations );
   element.addEncodedData( QStringLiteral( "name" ), mName->encode() );
   element.addData( QStringLiteral( "color" ), mColor );
+
+  ReosDataObject::encode( element );
 
   return element;
 }
@@ -318,7 +322,7 @@ ReosRainfallSerieRainfallItem *ReosMeteorologicItemModel::rainfallInMeteorologic
 
 ReosMeteorologicModelsCollection::ReosMeteorologicModelsCollection( QObject *parent ): QAbstractListModel( parent )
 {
-  addMeteorologicModel( tr( "Meteorological Model" ) );
+  reset();
 }
 
 int ReosMeteorologicModelsCollection::rowCount( const QModelIndex & ) const
@@ -360,9 +364,25 @@ ReosMeteorologicModel *ReosMeteorologicModelsCollection::meteorologicModel( int 
   return mMeteoModels.at( i );
 }
 
+ReosMeteorologicModel *ReosMeteorologicModelsCollection::meteorologicModel( const QString &modelid ) const
+{
+  for ( int i = 0; i < mMeteoModels.count(); ++i )
+  {
+    if ( mMeteoModels.at( i )->id() == modelid )
+      return mMeteoModels.at( i );
+  }
+
+  return nullptr;
+}
+
 int ReosMeteorologicModelsCollection::modelCount() const
 {
   return static_cast<int>( mMeteoModels.size() );
+}
+
+int ReosMeteorologicModelsCollection::modelIndex( ReosMeteorologicModel *model ) const
+{
+  return mMeteoModels.indexOf( model );
 }
 
 void ReosMeteorologicModelsCollection::addMeteorologicModel( const QString &name )
@@ -394,6 +414,12 @@ void ReosMeteorologicModelsCollection::clearModels()
 {
   while ( !mMeteoModels.isEmpty() )
     mMeteoModels.takeAt( 0 )->deleteLater();
+}
+
+void ReosMeteorologicModelsCollection::reset()
+{
+  clearModels();
+  addMeteorologicModel( tr( "Meteorological Model" ) );
 }
 
 ReosEncodedElement ReosMeteorologicModelsCollection::encode( ReosWatershedTree *watershedTree ) const

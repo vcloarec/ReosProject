@@ -26,8 +26,8 @@ email                : vcloarec at gmail dot com
 
 #include "reosgui.h"
 #include "reosversion.h"
+#include "reosmodule.h"
 
-class ReosModule;
 class ReosDocumentation;
 class ReosMessageBox;
 
@@ -94,7 +94,7 @@ class REOSGUI_EXPORT ReosMainWindow : public QMainWindow
 
     virtual QList<QMenu *> specificMenus() {return QList<QMenu *>();}
 
-    ReosModule *mRootModule = nullptr;
+    std::unique_ptr<ReosModule> mRootModule;
     bool mProjectIsDirty = false;
 
     ReosMessageBox *messageBox = nullptr;

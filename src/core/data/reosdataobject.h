@@ -35,6 +35,8 @@ class REOSCORE_EXPORT ReosDataObject: public QObject
     //! Returns the name of the data object
     QString name() const;
 
+    QString id() const;
+
     void encode( ReosEncodedElement &element ) const;
     void decode( const ReosEncodedElement &element );
 
@@ -66,6 +68,7 @@ class REOSCORE_EXPORT ReosDataObject: public QObject
 
   private:
     QString mName;
+    QString mUid;
     mutable bool mIsObsolete = true;
 
 //*** for tests

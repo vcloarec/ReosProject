@@ -15,8 +15,6 @@
  ***************************************************************************/
 #include "reospolygonstructure_p.h"
 
-#include <QDebug>
-
 #include <qgsvectorlayer.h>
 #include <qgscategorizedsymbolrenderer.h>
 #include <qgslinestring.h>
@@ -265,8 +263,8 @@ int ReosPolygonStructure_p::polygonsCount() const
 {
   long long count = mVectorLayer->featureCount();
 
-  if ( count > __INT32_MAX__ )
-    return __INT32_MAX__;
+  if ( count > INT32_MAX )
+    return INT32_MAX;
 
   return int( count );
 }

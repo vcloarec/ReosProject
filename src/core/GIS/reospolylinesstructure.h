@@ -21,13 +21,15 @@
 
 #include <memory>
 
+#include "reoscore.h"
+
 #include "reosgeometrystructure.h"
 
 class ReosSpatialPosition;
 class QUndoStack;
 
 
-class ReosPolylinesStructure : public ReosGeometryStructure
+class REOSCORE_EXPORT ReosPolylinesStructure : public ReosGeometryStructure
 {
     Q_OBJECT
   public:
@@ -59,10 +61,10 @@ class ReosPolylinesStructure : public ReosGeometryStructure
     //! Returns the geometric line with \a id in the \a destinationCrs coordinate system
     virtual QLineF line( qint64 lineId, const QString &destinationCrs = QString() ) const = 0;
 
-    //! Returns the structured lines data, that is the posistion and the topology
+    //! Returns the structured lines data, that is positions of each vertices and the topology
     virtual Data structuredLinesData( const QString &destinationCrs = QString() ) const = 0;
 
-    //! Returns the all the lines of the structure in coordintate system \a destination CRS
+    //! Returns all the lines of the structure in coordintate system \a destination CRS
     virtual QVector<QLineF> rawLines( const QString &destinationCrs = QString() ) const = 0;
 
     //! Returns the polyline with identifier \a id
@@ -70,6 +72,15 @@ class ReosPolylinesStructure : public ReosGeometryStructure
 
     //! Returns the boundary of the structure in \a destinationCrs cordinate system
     virtual QPolygonF boundary( const QString &destinationCrs = QString() ) const = 0;
+
+    //! Returns lines on boundary from the vertex \a vertexFrom to vertex \a vertexTo
+    virtual QPolygonF linesOnBoundaryFromTo(
+      ReosGeometryStructureVertex *vertexFrom,
+      ReosGeometryStructureVertex *vertexTo,
+      const QString &destinationCrs = QString() ) const = 0;
+
+    //! Return the class id of the ith segment returned by boundary()
+    virtual QString boundaryClassId( int i ) const = 0;
 
     //! Removes all the entities in the structure
     virtual void removeAll() = 0;
@@ -137,9 +148,51 @@ class ReosPolylinesStructure : public ReosGeometryStructure
     //! Returns whether the \a vertex is on boundary
     virtual bool isOnBoundary( ReosGeometryStructureVertex *vertex ) const = 0;
 
+    /**
+     * Returns whether a boundary condition can be added between \a vertexFrom and \a vertexTo.
+     * If \a vertexTo is nullptr, tests if the boundary can contains \a
+     */
+    virtual bool canBoundaryConditionBeAdded( ReosGeometryStructureVertex *vertexFrom, ReosGeometryStructureVertex *vertexTo = nullptr ) const = 0;
+
+    //! Adds a boundary condition between \a vertexFrom and \a vertexTo with \a name
+    virtual void addBoundaryCondition( ReosGeometryStructureVertex *vertexFrom, ReosGeometryStructureVertex *vertexTo, const QString &name ) = 0;
+
+    //! Remove the boundary condition identified by \a classId
+    virtual void removeBoundaryCondition( const QString &classId ) = 0;
+
+    //! Returns the center of the boundary condition identified by \a classId
+    virtual QPointF boundaryConditionCenter( const QString &classId, const QString &destinationCrs ) const = 0;
+
+    //! Chneges the the \a value associated with the class identified by \a classId
+    virtual void changeClassValue( const QString &classId, const QVariant &value ) = 0;
+
+    //! Returns the selected class
+    QString selectedClass() const;
+
+    //! Sets the selected class
+    void setSelectedClass( const QString &selectedClass );
+
+    //! Returns the extent of all element that have the class identified by \a classId
+    virtual QRectF classExtent( const QString &classId, const QString &destinationCrs ) const = 0;
+
+    //! Returns all the clasees
+    virtual QStringList classes() const = 0;
+
+    //! Returns the value associated to the class identified by \a classId
+    virtual QVariant value( const QString &classId ) const = 0;
+
     virtual QUndoStack *undoStack() const = 0;
 
     virtual ReosEncodedElement encode() const = 0;
+
+  signals:
+    void classesChanged();
+    void boundaryConditionAdded( const QString &classId );
+    void boundaryConditionRemoved( const QString &classId );
+    void geometryChanged();
+
+  private:
+    QString mSelectedClass;
 
 };
 

@@ -58,7 +58,7 @@ class ReosPositiveMagnifier : public ReosNormalMagnifier
     virtual void rescale( double factor ) override;
 
   private:
-    bool mIsYMinEnabeled;
+    bool mIsYMinEnabeled = true;
 };
 
 
@@ -107,6 +107,8 @@ class ReosPlot_p: public QwtPlot
   public slots:
     void replot() override;
     void enableAutoScale( bool b = true );
+    void enableAutoScaleY( bool b = true );
+    void enableAutoScaleX( bool b = true );
 
   protected:
     void resizeEvent( QResizeEvent *e ) override;
@@ -123,7 +125,7 @@ class ReosPlot_p: public QwtPlot
     QwtPlotZoomer *mZoomerLeft = nullptr;
     QwtPlotZoomer *mZoomerRight = nullptr;
 
-    bool mAutoScale = true;
+    QMap<QwtPlot::Axis, bool> mAutoScalePerAxe;
     bool mUpdateAxeXWhenResize = false;
 };
 

@@ -18,6 +18,7 @@
 
 #include <QToolBar>
 #include <QPushButton>
+#include <QMessageBox>
 
 #include "reosmeshgeneratorgui.h"
 #include "reosmaptooleditgeometrystructure.h"
@@ -31,6 +32,7 @@
 #include "reosmeshtopographywidget.h"
 #include "reoseditmeshelementwidget.h"
 #include "reosroughnesswidget.h"
+#include "reoshydraulic2dsimulationwidget.h"
 
 
 ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context )
@@ -65,6 +67,7 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
   structureWidget->setSettingsWidget( ReosFormWidgetFactories::instance()->createDataFormWidget( structure2D->meshGenerator(), ReosGuiContext( context, structureWidget ) ) );
   structureWidget->setInformationWidget( new ReosStructureInformationWidget( structure2D, structureWidget ) );
   ui->pageMeshStructure->layout()->addWidget( structureWidget );
+  connect( structureWidget, &ReosEditPolylineStructureWidget::boundaryConditionSelectionChanged, this, [this] {mMapStructureItem.updatePosition();} );
 
   ReosGmshResolutionControllerWidget *resolutionWidget = new ReosGmshResolutionControllerWidget( structure2D, ReosGuiContext( context, this ) );
   resolutionWidget->addToolBarActions( meshGenerationToolBarActions );
@@ -80,9 +83,10 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
   ReosRoughnessWidget *roughnessWidget = new ReosRoughnessWidget( structure2D, ReosGuiContext( context, this ) );
   ui->pageRoughness->layout()->addWidget( roughnessWidget );
 
+  ReosHydraulic2DSimulationWidget *mSimulationWidget = new ReosHydraulic2DSimulationWidget( structure2D, this );
+  ui->pageSimulation->layout()->addWidget( mSimulationWidget );
+
   mInitialMapStructureItem = context.mapItems( ReosHydraulicStructure2D::staticType() );
-  if ( mInitialMapStructureItem )
-    mInitialMapStructureItem->setVisible( false );
 
   connect( structure2D->geometryStructure(), &ReosDataObject::dataChanged, this, [this]
   {
@@ -96,28 +100,27 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
 
   ReosSettings settings;
   ui->mOptionListWidget->setCurrentRow( settings.value( QStringLiteral( "/hydraulic-structure/edit-widget/current-row" ) ).toInt() );
+
+  mIsWireFrameActiveBefore = mStructure2D->mesh()->isWireFrameActive();
 }
 
 ReosEditHydraulicStructure2DWidget::~ReosEditHydraulicStructure2DWidget()
 {
   delete ui;
-  if ( mInitialMapStructureItem )
-    mInitialMapStructureItem->setVisible( true );
 }
 
 void ReosEditHydraulicStructure2DWidget::onMeshOptionListChanged( int row )
 {
-  ui->mStackedWidget->setCurrentIndex( row );
+  mStructure2D->deactivateMeshScalar();
 
+  ui->mStackedWidget->setCurrentIndex( row );
   switch ( row )
   {
     case 0:
       mMapStructureItem.setLineWidth( 5 );
-      mStructure2D->deactivateMeshScalar();
       break;
     case 1:
       mMapStructureItem.setLineWidth( 2 );
-      mStructure2D->deactivateMeshScalar();
       break;
     case 2:
       mMapStructureItem.setLineWidth( 2 );
@@ -127,12 +130,9 @@ void ReosEditHydraulicStructure2DWidget::onMeshOptionListChanged( int row )
       mMapStructureItem.setLineWidth( 3 );
       if ( mEditElementWidget->topographyDisplayed() )
         mStructure2D->activateMeshTerrain();
-      else
-        mStructure2D->deactivateMeshScalar();
       break;
     case 4:
       mMapStructureItem.setLineWidth( 2 );
-      mStructure2D->deactivateMeshScalar();
       break;
     default:
       break;
@@ -144,11 +144,69 @@ void ReosEditHydraulicStructure2DWidget::onMeshOptionListChanged( int row )
 
 void ReosEditHydraulicStructure2DWidget::generateMesh()
 {
+
+  if ( mStructure2D->hasResults() )
+  {
+    if ( QMessageBox::warning( this, tr( "Generate Mesh" ),
+                               tr( "If you generate a new mesh, existing results will not be compatible\n"
+                                   "anymore and will be removed.\n"
+                                   "\n"
+                                   "Do you want to continue?" ),
+                               QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::No )
+    {
+      return;
+    }
+  }
+
+  QApplication::setOverrideCursor( Qt::WaitCursor );
+  mStructure2D->removeAllResults();
+  QApplication::restoreOverrideCursor();
+
   std::unique_ptr<ReosMeshGeneratorProcess> generatorProcess( mStructure2D->getGenerateMeshProcess() );
 
   ReosProcessControler *controler = new ReosProcessControler( generatorProcess.get(), this );
   controler->exec();
   controler->deleteLater();
+}
+
+void ReosEditHydraulicStructure2DWidget::showEvent( QShowEvent *e )
+{
+  if ( mInitialMapStructureItem )
+    mInitialMapStructureItem->setVisible( false );
+
+  mStructure2D->mesh()->activateWireFrame( true );
+
+  ReosStackedPageWidget::showEvent( e );
+}
+
+void ReosEditHydraulicStructure2DWidget::hideEvent( QHideEvent *e )
+{
+  if ( mInitialMapStructureItem )
+    mInitialMapStructureItem->setVisible( true );
+
+  mStructure2D->mesh()->activateWireFrame( mIsWireFrameActiveBefore );
+
+  if ( mStructure2D->mesh()->isFrameModified() && mStructure2D->hasResults() )
+  {
+    if ( QMessageBox::warning( this, tr( "Model Structure Modified" ),
+                               tr( "As the frame of the mesh has been modified, if you keep these changes,\n"
+                                   " existing results will not be compatible anymore and will be removed.\n"
+                                   "\n"
+                                   "Do you want to keep the mesh modification and remove results?" ),
+                               QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::Yes )
+    {
+      QApplication::setOverrideCursor( Qt::WaitCursor );
+      mStructure2D->removeAllResults();
+      mStructure2D->mesh()->stopFrameEditing( true );
+      QApplication::restoreOverrideCursor();
+    }
+    else
+    {
+      mStructure2D->mesh()->stopFrameEditing( false );
+    }
+  }
+
+  ReosStackedPageWidget::hideEvent( e );
 }
 
 

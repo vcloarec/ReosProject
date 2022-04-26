@@ -19,6 +19,7 @@ email                : vcloarec at gmail dot com
 #include <math.h>
 #include <qgsrasterlayer.h>
 #include <qgscoordinatetransformcontext.h>
+#include <qgscoordinatetransform.h>
 
 #include "reosdigitalelevationmodel.h"
 
@@ -29,9 +30,11 @@ class ReosDigitalElevationModelRaster: public ReosDigitalElevationModel
 
     //! Implementation details that can be used directly in the core scope
     double elevationAt( const QgsPointXY &point, const QgsCoordinateTransform &transformToDem ) const;
+
+    double elevationAt(const QPointF& point, const QString& pointCrs = QString()) const override;
     QgsCoordinateTransform transformToDem( const QgsCoordinateReferenceSystem &sourceCrs ) const;
 
-    double elevationAt( const QPointF &point, const QString &pointCrs = QString() ) const override;
+
     QPolygonF elevationOnPolyline( const QPolygonF &polyline, const QString &polylineCrs = QString(), ReosProcess *process = nullptr ) const override;
     double averageElevationInPolygon( const QPolygonF &polygon, const QString &polygonCrs, ReosProcess *process ) const override;
     double averageElevationOnGrid( const ReosRasterMemory<unsigned char> &grid, const ReosRasterExtent &gridExtent, ReosProcess *process = nullptr ) const override;
@@ -44,7 +47,6 @@ class ReosDigitalElevationModelRaster: public ReosDigitalElevationModel
       ReosProcess *process = nullptr ) const override;
     QString source() const override;
     double noDataValue() const override;
-
 
   private:
     std::unique_ptr<QgsRasterDataProvider> mDataProvider;

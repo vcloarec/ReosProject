@@ -21,10 +21,13 @@
 #include <qgsmapcanvas.h>
 #include <qgsrendercontext.h>
 #include <qgsproviderregistry.h>
+#include <qgsmeshlayertemporalproperties.h>
+#include <qgsmeshlayer3drenderer.h>
 
 #include "reosmeshdataprovider_p.h"
 #include "reosparameter.h"
 #include "reosencodedelement.h"
+#include "reosmapextent.h"
 
 ReosMeshFrame_p::ReosMeshFrame_p( const QString &crs, QObject *parent ): ReosMesh( parent )
 {
@@ -51,11 +54,26 @@ ReosMeshFrame_p::ReosMeshFrame_p( const QString &dataPath )
   init();
 }
 
+void ReosMeshFrame_p::save( const QString &dataPath )
+{
+  QDir dir( dataPath );
+
+  bool isEditable = mMeshLayer->isEditable();
+
+  if ( isEditable )
+    stopFrameEditing( true, true );
+
+  meshProvider()->setFilePath( dir.filePath( QStringLiteral( "meshFrame.nc" ) ) );
+  meshProvider()->setMDALDriver( QStringLiteral( "Ugrid" ) );
+  meshProvider()->saveMeshFrameToFile( *mMeshLayer->nativeMesh() );
+}
+
 void ReosMeshFrame_p::init()
 {
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
   QgsMeshRendererMeshSettings meshSettings = settings.nativeMeshSettings();
-  meshSettings.setEnabled( true );
+  meshSettings.setLineWidth( 0.1 );
+  meshSettings.setColor( Qt::gray );
   settings.setNativeMeshSettings( meshSettings );
   mMeshLayer->setRendererSettings( settings );
 
@@ -66,16 +84,7 @@ void ReosMeshFrame_p::init()
   connect( mMeshLayer.get(), &QgsMeshLayer::layerModified, this, &ReosDataObject::dataChanged );
 }
 
-void ReosMeshFrame_p::save( const QString &dataPath ) const
-{
-  QDir dir( dataPath );
-
-  meshProvider()->setFilePath( dir.filePath( QStringLiteral( "meshFrame.nc" ) ) );
-  meshProvider()->setMDALDriver( QStringLiteral( "Ugrid" ) );
-  meshProvider()->saveMeshFrameToFile( *mMeshLayer->nativeMesh() );
-}
-
-void ReosMeshFrame_p::stopFrameEditing( bool commit )
+void ReosMeshFrame_p::stopFrameEditing( bool commit, bool continueEditing )
 {
   int activeScalarDatasetIndex = mMeshLayer->rendererSettings().activeScalarDatasetGroup();
   QString activeGroupId;
@@ -85,12 +94,18 @@ void ReosMeshFrame_p::stopFrameEditing( bool commit )
       activeGroupId = it.key();
 
   QgsCoordinateTransform transform( mMeshLayer->crs(), QgsProject::instance()->crs(), QgsProject::instance() );
-  if ( commit )
-    mMeshLayer->commitFrameEditing( transform, false );
-  else
-    mMeshLayer->rollBackFrameEditing( transform, false );
 
-  if ( !mVerticesElevationDatasetId.isEmpty() )
+  if ( mMeshLayer->isEditable() )
+  {
+    if ( commit )
+      mMeshLayer->commitFrameEditing( transform, continueEditing );
+    else
+      mMeshLayer->rollBackFrameEditing( transform, continueEditing );
+
+    if ( !continueEditing )
+      restoreVertexElevationDataset();
+  }
+  else if ( !mVerticesElevationDatasetId.isEmpty() )
     restoreVertexElevationDataset();
 
   activateDataset( activeGroupId );
@@ -131,8 +146,11 @@ void ReosMeshFrame_p::setMeshSymbology( const ReosEncodedElement &symbology )
 
 }
 
-ReosEncodedElement ReosMeshFrame_p::datasetGroupSymbology( const QString &id ) const
+ReosEncodedElement ReosMeshFrame_p::datasetScalarGroupSymbology( const QString &id ) const
 {
+  if ( !mDatasetGroupsIndex.contains( id ) )
+    return ReosEncodedElement();
+
   QDomDocument doc( QStringLiteral( "dataset-symbology" ) );
 
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
@@ -142,9 +160,44 @@ ReosEncodedElement ReosMeshFrame_p::datasetGroupSymbology( const QString &id ) c
 
   ReosEncodedElement encodedElem( QStringLiteral( "dataset-symbology" ) );
   QString docString = doc.toString();
-  encodedElem.addData( "symbology", docString );
+  encodedElem.addData( QStringLiteral( "symbology" ), docString );
 
   return encodedElem;
+}
+
+void ReosMeshFrame_p::setDatasetScalarGroupSymbology( const ReosEncodedElement &encodedElement, const QString &id )
+{
+  if ( encodedElement.description() != QStringLiteral( "dataset-symbology" ) )
+    return;
+
+  QString docString;
+  encodedElement.getData( QStringLiteral( "symbology" ), docString );
+
+  QDomDocument doc( QStringLiteral( "dataset-symbology" ) );
+
+  if ( doc.setContent( docString ) )
+  {
+    QDomElement domElem = doc.firstChildElement( QStringLiteral( "scalar-settings" ) );
+    QgsReadWriteContext context;
+    QgsMeshRendererScalarSettings scalarSettings;
+    scalarSettings.readXml( domElem );
+    QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
+    settings.setScalarSettings( mDatasetGroupsIndex.value( id ), scalarSettings );
+    mMeshLayer->setRendererSettings( settings );
+  }
+
+  update3DRenderer();
+}
+
+void ReosMeshFrame_p::activateWireFrame( bool activate )
+{
+  mWireFrameSettings.enabled = activate;
+  updateWireFrameSettings();
+}
+
+bool ReosMeshFrame_p::isWireFrameActive() const
+{
+  return mMeshLayer->rendererSettings().nativeMeshSettings().isEnabled();
 }
 
 ReosObjectRenderer *ReosMeshFrame_p::createRenderer( QGraphicsView *view )
@@ -175,6 +228,35 @@ int ReosMeshFrame_p::vertexCount() const
   return mMeshLayer->meshVertexCount();
 }
 
+QPointF ReosMeshFrame_p::vertexPosition( int vertexIndex, const QString &destinationCrs )
+{
+  if ( destinationCrs.isEmpty() )
+    return mMeshLayer->nativeMesh()->vertices.at( vertexIndex ).toQPointF();
+
+  QgsCoordinateReferenceSystem crs;
+  crs.fromWkt( destinationCrs );
+  QgsCoordinateTransform transform( mMeshLayer->crs(), crs, QgsProject::instance() );
+  QgsPointXY vert = mMeshLayer->nativeMesh()->vertices.at( vertexIndex );
+  if ( transform.isValid() )
+  {
+    try
+    {
+      return transform.transform( vert ).toQPointF();
+    }
+    catch ( QgsCsException &e )
+    {
+      return vert.toQPointF();
+    }
+  }
+
+  return vert.toQPointF();
+}
+
+QVector<int> ReosMeshFrame_p::face( int faceIndex ) const
+{
+  return mMeshLayer->nativeMesh()->faces.at( faceIndex );
+}
+
 int ReosMeshFrame_p::faceCount() const
 {
   return mMeshLayer->meshFaceCount();
@@ -188,6 +270,244 @@ void ReosMeshFrame_p::restoreVertexElevationDataset()
   mVerticesElevationDatasetId = addDatasetGroup( group.release(), mVerticesElevationDatasetId );
 }
 
+void ReosMeshFrame_p::updateWireFrameSettings()
+{
+  if ( !mMeshLayer )
+    return;
+
+  QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
+  QgsMeshRendererMeshSettings wireframeSettings = settings.nativeMeshSettings();
+  wireframeSettings.setEnabled( mWireFrameSettings.enabled );
+  wireframeSettings.setColor( mWireFrameSettings.color );
+  wireframeSettings.setLineWidth( mWireFrameSettings.width );
+  settings.setNativeMeshSettings( wireframeSettings );
+  mMeshLayer->setRendererSettings( settings );
+
+  mMeshLayer->triggerRepaint();
+  update3DRenderer();
+}
+
+QPointF ReosMeshFrame_p::tolayerCoordinates( const ReosSpatialPosition &position ) const
+{
+  QgsCoordinateReferenceSystem sourceCrs;
+  sourceCrs.fromWkt( position.crs() );
+
+  const QgsCoordinateTransform transform( sourceCrs, mMeshLayer->crs(), QgsProject::instance() );
+  QgsPointXY ret;
+  if ( transform.isValid() )
+  {
+    try
+    {
+      ret = transform.transform( position.position() );
+    }
+    catch ( const QgsCsException & )
+    {
+      ret = position.position();
+    }
+  }
+  else
+  {
+    ret = position.position();
+  }
+
+  return ret.toQPointF();
+}
+
+void ReosMeshFrame_p::update3DRenderer()
+{
+  if ( !mMeshLayer )
+    return;
+
+  const QgsMeshRendererScalarSettings scalarSettings =
+    mMeshLayer->rendererSettings().scalarSettings( mDatasetGroupsIndex.value( mCurrentdScalarDatasetId ) );
+
+  const QgsMeshRendererMeshSettings meshSettings =
+    mMeshLayer->rendererSettings().nativeMeshSettings();
+
+  std::unique_ptr<QgsMeshLayer3DRenderer> renderer;
+  if ( mMeshLayer->renderer3D() )
+    renderer.reset( static_cast<QgsMeshLayer3DRenderer *>( mMeshLayer->renderer3D()->clone() ) );
+
+  int verticalIndex = mDatasetGroupsIndex.value( mVerticalDataset3DId, -1 );
+
+  std::unique_ptr<QgsMesh3DSymbol> symbol;
+  if ( !renderer )
+    symbol.reset( new QgsMesh3DSymbol() );
+  else
+    symbol.reset( renderer->symbol()->clone() );
+
+  symbol->setSmoothedTriangles( true );
+  symbol->setWireframeEnabled( meshSettings.isEnabled() );
+  symbol->setWireframeLineColor( meshSettings.color() );
+  symbol->setWireframeLineWidth( meshSettings.lineWidth() * 2 );
+  symbol->setLevelOfDetailIndex( 0 );
+
+  symbol->setVerticalScale( mVerticaleSCale );
+  symbol->setRenderingStyle( static_cast<QgsMesh3DSymbol::RenderingStyle>( QgsMesh3DSymbol::ColorRamp ) );
+  symbol->setSingleMeshColor( Qt::blue );
+  symbol->setVerticalDatasetGroupIndex( verticalIndex );
+  symbol->setIsVerticalMagnitudeRelative( false );
+
+  if ( symbol->renderingStyle() == QgsMesh3DSymbol::ColorRamp )
+  {
+    QgsColorRampShader ramp = scalarSettings.colorRampShader();
+    symbol->setColorRampShader( ramp );
+  }
+
+//  sym->setArrowsEnabled( mGroupBoxArrowsSettings->isChecked() );
+//  sym->setArrowsSpacing( mArrowsSpacingSpinBox->value() );
+//  sym->setArrowsFixedSize( mArrowsFixedSizeCheckBox->isChecked() );
+
+  if ( !renderer )
+    renderer.reset( new QgsMeshLayer3DRenderer( symbol.release() ) );
+  else
+    renderer->setSymbol( symbol.release() );
+
+  mMeshLayer->setRenderer3D( renderer.release() );
+}
+
+
+ReosMesh::WireFrameSettings ReosMeshFrame_p::wireFrameSettings() const
+{
+  return mWireFrameSettings;
+}
+
+void ReosMeshFrame_p::setWireFrameSettings( const WireFrameSettings &wireFrameSettings )
+{
+  mWireFrameSettings = wireFrameSettings;
+  updateWireFrameSettings();
+}
+
+//from QGIS src/core/mesh/qgsmeshlayerutils.cpp
+static void lamTol( double &lam )
+{
+  const static double eps = 1e-6;
+  if ( ( lam < 0.0 ) && ( lam > -eps ) )
+  {
+    lam = 0.0;
+  }
+}
+
+//from QGIS src/core/mesh/qgsmeshlayerutils.cpp
+static double interpolate( const QgsPointXY &pA, const QgsPointXY &pB, const QgsPointXY &pC, const QgsPointXY &pP, double vA, double vB, double vC, bool &ok )
+{
+  // Compute vectors
+  const double xa = pA.x();
+  const double ya = pA.y();
+  const double v0x = pC.x() - xa ;
+  const double v0y = pC.y() - ya ;
+  const double v1x = pB.x() - xa ;
+  const double v1y = pB.y() - ya ;
+  const double v2x = pP.x() - xa ;
+  const double v2y = pP.y() - ya ;
+
+  // Compute dot products
+  const double dot00 = v0x * v0x + v0y * v0y;
+  const double dot01 = v0x * v1x + v0y * v1y;
+  const double dot02 = v0x * v2x + v0y * v2y;
+  const double dot11 = v1x * v1x + v1y * v1y;
+  const double dot12 = v1x * v2x + v1y * v2y;
+
+  // Compute barycentric coordinates
+  double invDenom =  dot00 * dot11 - dot01 * dot01;
+  if ( invDenom == 0 )
+  {
+    ok = false;
+    return std::numeric_limits<double>::quiet_NaN();
+  }
+  invDenom = 1.0 / invDenom;
+  double lam1 = ( dot11 * dot02 - dot01 * dot12 ) * invDenom;
+  double lam2 = ( dot00 * dot12 - dot01 * dot02 ) * invDenom;
+  double lam3 = 1.0 - lam1 - lam2;
+
+  // Apply some tolerance to lam so we can detect correctly border points
+  lamTol( lam1 );
+  lamTol( lam2 );
+  lamTol( lam3 );
+
+  // Return if POI is outside triangle
+  if ( ( lam1 < 0 ) || ( lam2 < 0 ) || ( lam3 < 0 ) )
+  {
+    ok = false;
+    return std::numeric_limits<double>::quiet_NaN();
+  }
+
+  ok = true;
+  return lam1 * vC + lam2 * vB + lam3 * vA;
+}
+
+
+double ReosMeshFrame_p::interpolateDatasetValueOnPoint(
+  const ReosMeshDatasetSource *datasetSource,
+  const ReosSpatialPosition &position,
+  int sourceGroupindex,
+  int datasetIndex ) const
+{
+  const QVector<double> datasetValues = datasetSource->datasetValues( sourceGroupindex, datasetIndex );
+  const QVector<int> facesActive = datasetSource->activeFaces( datasetIndex );
+
+  bool isScalar = datasetSource->groupIsScalar( sourceGroupindex );
+
+  Q_ASSERT( datasetValues.count() == mMeshLayer->meshVertexCount() * ( isScalar ? 1 : 2 ) );
+
+  QgsPointXY positionInLayer = QgsMeshVertex( tolayerCoordinates( position ) );
+
+  QgsTriangularMesh *triangularMesh = mMeshLayer->triangularMesh();
+  const QgsMeshVertex triVert = triangularMesh->nativeToTriangularCoordinates( QgsMeshVertex( positionInLayer ) );
+  int faceIndex = triangularMesh->faceIndexForPoint_v2( triVert );
+
+  if ( faceIndex < 0 || faceIndex >= triangularMesh->triangles().count() )
+    return std::numeric_limits<double>::quiet_NaN();
+
+  if ( facesActive.at( faceIndex ) == 0 )
+    return std::numeric_limits<double>::quiet_NaN();
+
+  const QgsMeshFace &face = triangularMesh->triangles().at( faceIndex );
+  const QgsMesh nativeMesh = *mMeshLayer->nativeMesh();
+
+  double i0 = face.at( 0 );
+  double i1 = face.at( 1 );
+  double i2 = face.at( 2 );
+  qDebug() << i0 << i1 << i2;
+
+  bool ok = false;
+  double result;
+
+  if ( isScalar )
+    result = interpolate( nativeMesh.vertices.at( i0 ), nativeMesh.vertices.at( i1 ), nativeMesh.vertices.at( i2 ),
+                          positionInLayer,
+                          datasetValues.at( i0 ), datasetValues.at( i1 ), datasetValues.at( i2 ), ok );
+  else
+  {
+    double v0x = datasetValues.at( 2 * i0 );
+    double v0y = datasetValues.at( 2 * i0 + 1 );
+    double v1x = datasetValues.at( 2 * i1 );
+    double v1y = datasetValues.at( 2 * i1 + 1 );
+    double v2x = datasetValues.at( 2 * i2 );
+    double v2y = datasetValues.at( 2 * i2 + 1 );
+
+    double resultX = interpolate( nativeMesh.vertices.at( i0 ), nativeMesh.vertices.at( i1 ), nativeMesh.vertices.at( i2 ),
+                                  positionInLayer,
+                                  v0x, v1x, v2x, ok );
+
+    if ( !ok )
+      return std::numeric_limits<double>::quiet_NaN();
+
+    double resultY = interpolate( nativeMesh.vertices.at( i0 ), nativeMesh.vertices.at( i1 ), nativeMesh.vertices.at( i2 ),
+                                  positionInLayer,
+                                  v0y, v1y, v2y, ok );
+
+    if ( !ok )
+      return std::numeric_limits<double>::quiet_NaN();
+
+    result = std::sqrt( std::pow( resultX, 2 ) + std::pow( resultY, 2 ) );
+  }
+
+  if ( ok )
+    return result;
+
+  return std::numeric_limits<double>::quiet_NaN();
+}
 
 QString ReosMeshFrame_p::enableVertexElevationDataset( const QString &name )
 {
@@ -212,14 +532,19 @@ QString ReosMeshFrame_p::enableVertexElevationDataset( const QString &name )
   return mVerticesElevationDatasetId;
 }
 
+bool ReosMeshFrame_p::isFrameModified() const
+{
+  return mMeshLayer->isModified();
+}
+
 
 QString ReosMeshFrame_p::addDatasetGroup( QgsMeshDatasetGroup *group, const QString &id )
 {
   QString name = group->name();
 
-  QString effecticeId = id;
-  if ( effecticeId.isEmpty() )
-    effecticeId = QUuid::createUuid().toString();
+  QString effectiveId = id;
+  if ( effectiveId.isEmpty() )
+    effectiveId = QUuid::createUuid().toString();
 
   mMeshLayer->addDatasets( group );
 
@@ -235,14 +560,14 @@ QString ReosMeshFrame_p::addDatasetGroup( QgsMeshDatasetGroup *group, const QStr
     }
   }
 
-  mDatasetGroupsIndex[effecticeId] = index;
+  mDatasetGroupsIndex[effectiveId] = index;
 
-  return effecticeId;
+  return effectiveId;
 }
 
 void ReosMeshFrame_p::firstUpdateOfTerrainScalarSetting()
 {
-  if ( !mZVerticesDatasetGroup || mDatasetGroupsIndex.contains( mVerticesElevationDatasetId ) )
+  if ( !mZVerticesDatasetGroup || !mDatasetGroupsIndex.contains( mVerticesElevationDatasetId ) )
     return;
 
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
@@ -267,15 +592,40 @@ void ReosMeshFrame_p::firstUpdateOfTerrainScalarSetting()
   }
 }
 
-bool ReosMeshFrame_p::activateDataset( const QString &id )
+bool ReosMeshFrame_p::activateDataset( const QString &id, bool update )
 {
   int index = mDatasetGroupsIndex.value( id, -1 );
 
+  mCurrentdScalarDatasetId = id;
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
   settings.setActiveScalarDatasetGroup( index );
   mMeshLayer->setRendererSettings( settings );
 
+  if ( update )
+    update3DRenderer();
+
   return true;
+}
+
+QStringList ReosMeshFrame_p::datasetIds() const
+{
+  QMap<int, QString> mapRet;
+  QStringList ids = mDatasetGroupsIndex.keys();
+  for ( const QString &id : ids )
+    mapRet.insert( mDatasetGroupsIndex.value( id ), id );
+
+  return mapRet.values();
+}
+
+QString ReosMeshFrame_p::datasetName( const QString &id ) const
+{
+  QgsMeshDatasetGroupMetadata meta = mMeshLayer->datasetGroupMetadata( mDatasetGroupsIndex.value( id ) );
+  return meta.name();
+}
+
+bool ReosMeshFrame_p::hasDatasetGroupIndex( const QString &id ) const
+{
+  return mDatasetGroupsIndex.contains( id );
 }
 
 void ReosMeshFrame_p::generateMesh( const ReosMeshFrameData &data )
@@ -283,6 +633,8 @@ void ReosMeshFrame_p::generateMesh( const ReosMeshFrameData &data )
   if ( mMeshLayer->isEditable() )
     stopFrameEditing( false );
 
+  setBoundariesVertices( data.boundaryVertices );
+  setHolesVertices( data.holesVertices );
 
   meshProvider()->generateMesh( data );
   mMeshLayer->reload();
@@ -308,22 +660,49 @@ int ReosMeshFrame_p::datasetGroupIndex( const QString &id ) const
   return mDatasetGroupsIndex.value( id, -1 );
 }
 
-void ReosMeshFrame_p::applyTopographyOnVertices( ReosTopographyCollection *topographyCollection )
+class ApplyTopopraphyProcess : public ReosProcess
+{
+
+  public:
+    ApplyTopopraphyProcess( ReosTopographyCollection *topographyCollection, ReosMeshDataProvider_p *meshProvider )
+      : mTopographyCollection( topographyCollection )
+      , mProvider( meshProvider )
+    {
+
+    }
+    void start()
+    {
+      mProvider->applyTopographyOnVertices( mTopographyCollection, this );
+    }
+
+  private:
+    ReosTopographyCollection *mTopographyCollection = nullptr;
+    ReosMeshDataProvider_p *mProvider = nullptr;
+};
+
+ReosProcess *ReosMeshFrame_p::applyTopographyOnVertices( ReosTopographyCollection *topographyCollection )
 {
   if ( mMeshLayer->isEditable() )
     stopFrameEditing( true );
 
-  meshProvider()->applyTopographyOnVertices( topographyCollection );
-  mMeshLayer->reload();
 
-  if ( mZVerticesDatasetGroup )
-    mZVerticesDatasetGroup->setStatisticObsolete();
+  std::unique_ptr<ReosProcess> process( new ApplyTopopraphyProcess( topographyCollection, meshProvider() ) );
 
-  firstUpdateOfTerrainScalarSetting();
+  connect( process.get(), &ReosProcess::finished, this, [this]
+  {
+    mMeshLayer->reload();
 
-  emit repaintRequested();
-  mMeshLayer->trigger3DUpdate();
-  emit dataChanged();
+    if ( mZVerticesDatasetGroup )
+      mZVerticesDatasetGroup->setStatisticObsolete();
+
+    firstUpdateOfTerrainScalarSetting();
+
+    emit repaintRequested();
+    mMeshLayer->trigger3DUpdate();
+    emit dataChanged();
+  } );
+
+  return process.release();
 }
 
 double ReosMeshFrame_p::datasetScalarValueAt( const QString &datasetId, const QPointF &pos ) const
@@ -336,11 +715,62 @@ ReosMeshDataProvider_p *ReosMeshFrame_p::meshProvider() const
   return qobject_cast<ReosMeshDataProvider_p *>( mMeshLayer->dataProvider() );
 }
 
+QString ReosMeshFrame_p::currentdScalarDatasetId() const
+{
+  return mCurrentdScalarDatasetId;
+}
+
+QString ReosMeshFrame_p::verticalDataset3DId() const
+{
+  return mVerticalDataset3DId;
+}
+
+void ReosMeshFrame_p::setVerticalDataset3DId( const QString &verticalDataset3DId, bool update )
+{
+  mVerticalDataset3DId = verticalDataset3DId;
+  if ( update )
+    update3DRenderer();
+}
+
 QString ReosMeshFrame_p::verticesElevationDatasetId() const
 {
   return mVerticesElevationDatasetId;
 }
 
+void ReosMeshFrame_p::setSimulationResults( ReosHydraulicSimulationResults *result )
+{
+  meshProvider()->setDatasetSource( result );
+  mMeshLayer->temporalProperties()->setDefaultsFromDataProviderTemporalCapabilities( meshProvider()->temporalCapabilities() );
+
+  const QStringList ids = mDatasetGroupsIndex.keys();
+
+  for ( const QString &id : ids )
+  {
+    if ( id != mVerticesElevationDatasetId )
+      mDatasetGroupsIndex.remove( id );
+  }
+
+  if ( result )
+  {
+    QList<int> groupIndexes = mMeshLayer->datasetGroupsIndexes();
+    int index = -1;
+    for ( int i = 0; i < result->groupCount(); ++i )
+    {
+      for ( int meshIndex : groupIndexes )
+      {
+        QgsMeshDatasetGroupMetadata meta = mMeshLayer->datasetGroupMetadata( QgsMeshDatasetIndex( meshIndex ) );
+        if ( meta.name() == result->groupName( i ) )
+        {
+          index = meshIndex;
+          break;
+        }
+      }
+      mDatasetGroupsIndex[result->groupId( i )] = index;
+    }
+  }
+
+  meshProvider()->reloadData();
+}
 
 ReosMeshRenderer_p::ReosMeshRenderer_p( QGraphicsView *canvas, QgsMeshLayer *layer )
 {

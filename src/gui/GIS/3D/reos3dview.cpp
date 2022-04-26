@@ -20,12 +20,15 @@
 #include <QToolBar>
 #include <QToolButton>
 #include <QMenu>
+#include <QTimer>
 
 #include <3d/qgs3dmapcanvas.h>
 #include <qgsmeshterraingenerator.h>
 #include <qgsmeshlayer.h>
 #include <qgs3dmapsettings.h>
 #include <qgs3dmapscene.h>
+#include <qgstemporalcontroller.h>
+#include <qgsmeshlayer3drenderer.h>
 
 #include "reosmesh.h"
 #include "reoslightwidget.h"
@@ -34,9 +37,11 @@
 #include "reos3dterrainsettingswidget.h"
 #include "reos3dmapsettings.h"
 #include "reosencodedelement.h"
+#include "reosguicontext.h"
+#include "reosmap.h"
 
-Reos3dView::Reos3dView( ReosMesh *meshTerrain, QWidget *parent )
-  : ReosActionWidget( parent )
+Reos3dView::Reos3dView( ReosMesh *meshTerrain, const ReosGuiContext &context )
+  : ReosActionWidget( context.parent() )
   , ui( new Ui::Reos3dView )
   , mMeshTerrain( meshTerrain )
   , mActionZoomExtent( new QAction( QPixmap( QStringLiteral( ":/images/zoomFullExtent.svg" ) ), tr( "Zoom to Full Extent" ), this ) )
@@ -116,9 +121,14 @@ Reos3dView::Reos3dView( ReosMesh *meshTerrain, QWidget *parent )
   QWidgetAction *widgetWireframeAction = new QWidgetAction( terrainSettingsMenu );
   widgetWireframeAction->setDefaultWidget( mTerrainSettingsWidget );
   terrainSettingsMenu->addAction( widgetWireframeAction );
-  connect( mTerrainSettingsWidget, &Reos3DTerrainSettingsWidget::terrainSettingsChanged, this, &Reos3dView::onTerrainSettingsChange );
+  connect( mTerrainSettingsWidget, &Reos3DTerrainSettingsWidget::terrainSettingsChanged, this, &Reos3dView::onTerrainSettingsChanged );
 
   mCanvas->setMinimumSize( QSize( 200, 200 ) );
+
+  const QgsTemporalController *temporalController = qobject_cast<const QgsTemporalController *> ( context.map()->temporalController() );
+  if ( temporalController )
+    mCanvas->setTemporalController( const_cast< QgsTemporalController *>( temporalController ) );
+
 }
 
 void Reos3dView::setMapSettings( const Reos3DMapSettings &map3DSettings )
@@ -128,7 +138,7 @@ void Reos3dView::setMapSettings( const Reos3DMapSettings &map3DSettings )
   onLightChange();
 
   mExagerationWidget->setExageration( map3DSettings.verticalExaggeration() );
-  onExagggerationChange();
+  onExagggerationChange( map3DSettings.verticalExaggeration() );
 }
 
 Reos3DMapSettings Reos3dView::map3DSettings() const
@@ -145,21 +155,49 @@ Reos3DMapSettings Reos3dView::map3DSettings() const
 void Reos3dView::setTerrainSettings( const Reos3DTerrainSettings &settings )
 {
   mTerrainSettingsWidget->setTerrainSettings( settings );
-  onTerrainSettingsChange();
+  onTerrainSettingsChanged();
 }
 
 Reos3dView::~Reos3dView()
 {
   delete ui;
+  // in QGIS, update of terrain is done be recreating a new terrain when mesh change
+  // this creation is defered by a QTimer::singleShot, to happen once back in the main loop
+  // The problem is that some closing widget lead to change the terrain settings, so the creation
+  // of new terrain happens when the 3D view is already deleted and leads to crash the application
+  // The workaround is to defered also the destruction of the 3D map,
+  //  so the destruction will happen after terrain creation
+
+  mCanvas->map()->setLayers( QList<QgsMapLayer *>() );
+  mCanvas->setParent( nullptr );
+  QTimer::singleShot( 0, mCanvas, &QObject::deleteLater );
+
 }
 
-void Reos3dView::onExagggerationChange()
+void Reos3dView::addMesh( ReosMesh *mesh )
+{
+  mMeshes.append( mesh );
+  QList<QgsMapLayer *> layers = mCanvas->map()->layers();
+
+  layers.append( qobject_cast<QgsMapLayer *>( mesh->data() ) );
+
+  mCanvas->map()->setLayers( layers );
+}
+
+void Reos3dView::onExagggerationChange( double value )
 {
   if ( !mMeshTerrain )
     return;
 
+  for ( ReosMesh *mesh : std::as_const( mMeshes ) )
+    if ( mesh )
+    {
+      mesh->setVerticaleSCale( value );
+      mesh->update3DRenderer();
+    }
+
   //! For now in QGIS, exaggeration is a terrain settings, so call the method relative to the terrain
-  onTerrainSettingsChange();
+  onTerrainSettingsChanged();
   emit mapSettingsChanged();
 }
 
@@ -173,7 +211,7 @@ void Reos3dView::onLightChange()
 }
 
 
-void Reos3dView::onTerrainSettingsChange()
+void Reos3dView::onTerrainSettingsChanged()
 {
   std::unique_ptr<QgsMesh3DSymbol> terrainSymbol = std::make_unique<QgsMesh3DSymbol>();
 
@@ -192,11 +230,10 @@ void Reos3dView::onTerrainSettingsChange()
   terrainSymbol->setSingleMeshColor( terrainSettings.uniqueColor() );
   terrainSymbol->setWireframeEnabled( terrainSettings.isWireframeEnabled() );
   terrainSymbol->setWireframeLineWidth( terrainSettings.wireframeWidth() );
-  qDebug() << terrainSettings.wireframeWidth();
   terrainSymbol->setWireframeLineColor( terrainSettings.wireframeColor() );
   terrainSymbol->setSmoothedTriangles( terrainSettings.isSmoothed() );
 
-  ReosEncodedElement terrainSymbology = mMeshTerrain->datasetGroupSymbology( mMeshTerrain->verticesElevationDatasetId() );
+  ReosEncodedElement terrainSymbology = mMeshTerrain->datasetScalarGroupSymbology( mMeshTerrain->verticesElevationDatasetId() );
   if ( terrainSymbology.description() != QStringLiteral( "dataset-symbology" ) )
     return;
   QString docString;

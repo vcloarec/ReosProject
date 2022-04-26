@@ -28,12 +28,16 @@ class ReosRunoffHydrographWidget;
 class ReosWatershedGaugedHydrographWidget;
 class ReosHydraulicNetwork;
 class ReosHydrographNodeWatershed;
+class ReosGuiContext;
 
 class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
 {
     Q_OBJECT
   public:
-    explicit ReosWatershedWidget( ReosMap *map, ReosWatershedModule *module, ReosHydraulicNetwork *hydraulicNetwork = nullptr, ReosDockWidget *parent = nullptr );
+    explicit ReosWatershedWidget( const ReosGuiContext &guiContext,
+                                  ReosWatershedModule *module,
+                                  ReosHydraulicNetwork *hydraulicNetwork = nullptr,
+                                  ReosDockWidget *parent = nullptr );
     ~ReosWatershedWidget();
 
   signals:
@@ -129,7 +133,7 @@ class REOSGUI_EXPORT ReosWatershedDockWidget: public ReosDockWidget
 {
 
   public:
-    ReosWatershedDockWidget( ReosMap *map, ReosWatershedModule *module, ReosHydraulicNetwork *hydraulicNetwork = nullptr, QWidget *parent = nullptr );;
+    ReosWatershedDockWidget( const ReosGuiContext &context, ReosWatershedModule *module, ReosHydraulicNetwork *hydraulicNetwork = nullptr );;
 
   private:
     ReosWatershedWidget *mWatershedWidget = nullptr;

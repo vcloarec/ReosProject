@@ -61,6 +61,8 @@ ReosPlot_p::ReosPlot_p( QWidget *parent ): QwtPlot( parent )
 
   mPanner = new QwtPlotPanner( canvas() );
   mPanner->setMouseButton( Qt::MiddleButton );
+
+  enableAutoScale( true );
 }
 
 ReosPlot_p::~ReosPlot_p()
@@ -116,7 +118,20 @@ void ReosPlot_p::setZoomer( QwtPlotZoomer *zoomerLeft, QwtPlotZoomer *zoomerRigh
 
 void ReosPlot_p::enableAutoScale( bool b )
 {
-  mAutoScale = b;
+  mAutoScalePerAxe[QwtPlot::xBottom] = b;
+  mAutoScalePerAxe[QwtPlot::yLeft] = b;
+  mAutoScalePerAxe[QwtPlot::yRight] = b;
+}
+
+void ReosPlot_p::enableAutoScaleY( bool b )
+{
+  mAutoScalePerAxe[QwtPlot::yLeft] = b;
+  mAutoScalePerAxe[QwtPlot::yRight] = b;
+}
+
+void ReosPlot_p::enableAutoScaleX( bool b )
+{
+  mAutoScalePerAxe[QwtPlot::xBottom] = b;
 }
 
 void ReosPlot_p::resizeEvent( QResizeEvent *e )
@@ -148,9 +163,9 @@ void ReosPlot_p::setUpdateAxesWhenResize( bool updateAxesWhenresize )
 
 void ReosPlot_p::autoScale()
 {
-  setAxisAutoScale( QwtPlot::xBottom, mAutoScale );
-  setAxisAutoScale( QwtPlot::yLeft, mAutoScale );
-  setAxisAutoScale( QwtPlot::yRight, mAutoScale );
+  setAxisAutoScale( QwtPlot::xBottom, mAutoScalePerAxe.value( QwtPlot::xBottom ) );
+  setAxisAutoScale( QwtPlot::yLeft, mAutoScalePerAxe.value( QwtPlot::yLeft ) );
+  setAxisAutoScale( QwtPlot::yRight, mAutoScalePerAxe.value( QwtPlot::yRight ) );
 }
 
 void ReosPlot_p::replot()

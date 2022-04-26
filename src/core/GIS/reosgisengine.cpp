@@ -42,6 +42,7 @@ email                : vcloarec at gmail dot com
 #include <qgsnetworkaccessmanager.h>
 #include <qgsauthmethodregistry.h>
 #include <qgsauthmanager.h>
+#include <qgsprojecttimesettings.h>
 
 #define  mLayerTreeModel _layerTreeModel(mAbstractLayerTreeModel)
 static QgsLayerTreeModel *_layerTreeModel( QAbstractItemModel *sourceModel )
@@ -51,7 +52,6 @@ static QgsLayerTreeModel *_layerTreeModel( QAbstractItemModel *sourceModel )
 
 ReosGisEngine::ReosGisEngine( QObject *parent ): ReosModule( parent )
 {
-
   initGisEngine();
 
   mLayerTreeModel->setFlag( QgsLayerTreeModel::AllowNodeReorder );
@@ -68,6 +68,8 @@ ReosGisEngine::ReosGisEngine( QObject *parent ): ReosModule( parent )
     QString wktCrs = QgsProject::instance()->crs().toWkt();
     emit crsChanged( wktCrs );
   } );
+
+  connect( QgsProject::instance(), &QgsProject::dirtySet, this, &ReosModule::dirtied );
 }
 
 ReosGisEngine::~ReosGisEngine()
@@ -453,7 +455,7 @@ bool ReosGisEngine::canBeRasterDem( const QString &uri ) const
   return canBeRasterDem( rasterLayer.get() );
 }
 
-ReosMapExtent ReosGisEngine::transformToProjectExtent( const ReosMapExtent &extent )
+ReosMapExtent ReosGisEngine::transformToProjectExtent( const ReosMapExtent &extent ) const
 {
   QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( extent.crs() ),
                                     QgsProject::instance()->crs(),
@@ -476,7 +478,7 @@ ReosMapExtent ReosGisEngine::transformToProjectExtent( const ReosMapExtent &exte
   return ret;
 }
 
-ReosMapExtent ReosGisEngine::transformFromProjectExtent( const ReosMapExtent &extent, const QString &wktCrs )
+ReosMapExtent ReosGisEngine::transformFromProjectExtent( const ReosMapExtent &extent, const QString &wktCrs ) const
 {
   QgsCoordinateTransform transform( QgsProject::instance()->crs(),
                                     QgsCoordinateReferenceSystem::fromWkt( wktCrs ),
@@ -499,7 +501,7 @@ ReosMapExtent ReosGisEngine::transformFromProjectExtent( const ReosMapExtent &ex
   return ret;
 }
 
-QPointF ReosGisEngine::transformToProjectCoordinates( const QString &sourceCRS, const QPointF &sourcePoint )
+QPointF ReosGisEngine::transformToProjectCoordinates( const QString &sourceCRS, const QPointF &sourcePoint ) const
 {
   QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( sourceCRS ),
                                     QgsProject::instance()->crs(),
@@ -516,9 +518,45 @@ QPointF ReosGisEngine::transformToProjectCoordinates( const QString &sourceCRS, 
   }
 }
 
-QPointF ReosGisEngine::transformToProjectCoordinates( const ReosSpatialPosition &position )
+QPointF ReosGisEngine::transformToProjectCoordinates( const ReosSpatialPosition &position ) const
 {
   return transformToProjectCoordinates( position.crs(), position.position() );
+}
+
+QPointF ReosGisEngine::transformToCoordinates( const ReosSpatialPosition &position, const QString &destinationCrs ) const
+{
+  QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( position.crs() ),
+                                    QgsCoordinateReferenceSystem::fromWkt( destinationCrs ),
+                                    QgsProject::instance()->transformContext() );
+
+  try
+  {
+    QgsPointXY transformPoint = transform.transform( QgsPointXY( position.position() ) );
+    return transformPoint.toQPointF();
+  }
+  catch ( ... )
+  {
+    return position.position();
+  }
+}
+
+void ReosGisEngine::setTemporalRange( const QDateTime &startTime, const QDateTime &endTime )
+{
+  QgsProjectTimeSettings *timeSettings = QgsProject::instance()->timeSettings();
+  if ( timeSettings )
+  {
+    timeSettings->setTemporalRange( QgsTemporalRange( startTime, endTime ) );
+    emit temporalRangeChanged( startTime, endTime );
+  }
+}
+
+QPair<QDateTime, QDateTime> ReosGisEngine::temporalRange() const
+{
+  QgsProjectTimeSettings *timeSettings = QgsProject::instance()->timeSettings();
+  if ( timeSettings )
+    return QPair<QDateTime, QDateTime>( {timeSettings->temporalRange().begin(), timeSettings->temporalRange().end()} );
+
+  return QPair<QDateTime, QDateTime>();
 }
 
 QString ReosGisEngine::gisEngineName()

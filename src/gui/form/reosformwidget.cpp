@@ -156,6 +156,12 @@ void ReosFormDialog::addParameter( ReosParameter *parameter )
   mForm->addParameter( parameter );
 }
 
+void ReosFormDialog::addWidget( QWidget *widget )
+{
+  widget->setParent( mForm );
+  mForm->addWidget( widget );
+}
+
 ReosFormWidget *ReosFormDialog::addData( ReosDataObject *data, const ReosGuiContext &context )
 {
   return mForm->addData( data, context );
@@ -190,14 +196,26 @@ void ReosFormWidgetFactories::addDataWidgetFactory( ReosFormWidgetDataFactory *f
 {
   for ( const DataWidgetFactory &currentFact : mDataWidgetFactories )
     if ( currentFact->datatype() == fact->datatype() )
+    {
       return;
+    }
     else if ( fact->datatype().contains( currentFact->datatype() ) )
     {
       currentFact->addSubFactory( fact );
       return;
     }
 
+  //check if already in place factory are sub factory of the new one
+  for ( auto it = mDataWidgetFactories.begin(); it != mDataWidgetFactories.end(); ++it )
+    if ( fact->datatype().contains( ( *it )->datatype() ) )
+    {
+      fact->addSubFactory( it->release() );
+      mDataWidgetFactories.erase( it );
+      break;
+    }
+
   mDataWidgetFactories.emplace_back( fact );
+
 }
 
 ReosFormWidget *ReosFormWidgetFactories::createDataFormWidget( ReosDataObject *dataObject, const ReosGuiContext &guiContext ) const

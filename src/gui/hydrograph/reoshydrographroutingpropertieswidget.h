@@ -45,6 +45,8 @@ class ReosHydrographRoutingPropertiesWidget : public ReosHydraulicElementWidget
     void onCurrentMethodChange();
     void updateInformation();
     void onMethodDescription();
+    void syncToLink();
+    void onMethodChange();
 
   private:
     Ui::ReosHydrographRoutingPropertiesWidget *ui;
