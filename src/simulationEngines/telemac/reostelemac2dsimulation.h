@@ -59,7 +59,8 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
     ReosEncodedElement encode() const override;
 
     ReosParameterDuration *timeStep() const;
-    ReosParameterInteger *outputResultPeriod() const;
+    ReosParameterInteger *outputPeriodResult2D() const;
+    ReosParameterInteger *outputPeriodResultHydrograph() const;
     ReosSimulationInitialConditions *initialCondition() const;
 
     Equation equation() const;
@@ -74,7 +75,8 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
 
   private:
     ReosParameterDuration *mTimeStep = nullptr;
-    ReosParameterInteger *mOutputResultPeriod = nullptr;
+    ReosParameterInteger *mOutputPeriodResult2D = nullptr;
+    ReosParameterInteger *mOutputPeriodResultHyd = nullptr;
     Equation mEquation = Equation::FiniteElement;
     ReosSimulationInitialConditions *mInitialCondition = nullptr;
     QList<TelemacBoundaryCondition> mBoundaries;

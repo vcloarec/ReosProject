@@ -76,7 +76,10 @@
         <widget class="ReosParameterDurationWidget" name="mTimeStepWidget" native="true"/>
        </item>
        <item>
-        <widget class="ReosParameterIntegerWidget" name="mOutputPeriodWidget" native="true"/>
+        <widget class="ReosParameterIntegerWidget" name="mOutputPeriod2DWidget" native="true"/>
+       </item>
+       <item>
+        <widget class="ReosParameterIntegerWidget" name="mOutputPeriodHydWidget" native="true"/>
        </item>
        <item>
         <widget class="QLabel" name="label_4">

@@ -30,12 +30,31 @@
 #include "reostelemac2dsimulationresults.h"
 #include "reossettings.h"
 
+
+
+ReosTelemac2DSimulation::ReosTelemac2DSimulation( QObject *parent )
+  : ReosHydraulicSimulation( parent )
+{
+  mTimeStep = new ReosParameterDuration( tr( "Time step" ), false, this );
+  mTimeStep->setValue( ReosDuration( 30, ReosDuration::second ) );
+
+  mOutputPeriodResult2D = new ReosParameterInteger( tr( "Output period for 2D result" ), false, this );
+  mOutputPeriodResult2D->setValue( 5 );
+
+  mOutputPeriodResultHyd = new ReosParameterInteger( tr( "Output period for hydrograph" ), false, this );
+  mOutputPeriodResultHyd->setValue( 1 );
+
+  mInitialCondition = new ReosSimulationInitialConditions( this );
+}
+
+
 ReosTelemac2DSimulation::ReosTelemac2DSimulation( const ReosEncodedElement &element, QObject *parent )
   : ReosHydraulicSimulation( parent )
 {
   ReosDataObject::decode( element );
   mTimeStep = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "time-step" ) ), false, tr( "Time step" ), this );
-  mOutputResultPeriod = ReosParameterInteger::decode( element.getEncodedData( "output-period" ), false, tr( "Output period" ), this );
+  mOutputPeriodResult2D = ReosParameterInteger::decode( element.getEncodedData( "output-period-2D" ), false, tr( "Output period for 2D result" ), this );
+  mOutputPeriodResultHyd = ReosParameterInteger::decode( element.getEncodedData( "output-period-hydrograph" ), false, tr( "Output period for hydrograph" ), this );
   mInitialCondition = new ReosSimulationInitialConditions( element.getEncodedData( "initial-condition" ), this );
   int equation = 0;
   element.getData( QStringLiteral( "equation" ), equation );
@@ -48,28 +67,14 @@ ReosEncodedElement ReosTelemac2DSimulation::encode() const
   element.addData( QStringLiteral( "key" ), key() );
 
   element.addEncodedData( QStringLiteral( "time-step" ), mTimeStep->encode() );
-  element.addEncodedData( QStringLiteral( "output-period" ), mOutputResultPeriod->encode() );
+  element.addEncodedData( QStringLiteral( "output-period-2D" ), mOutputPeriodResult2D->encode() );
+  element.addEncodedData( QStringLiteral( "output-period-hydrograph" ), mOutputPeriodResultHyd->encode() );
   element.addEncodedData( QStringLiteral( "initial-condition" ), mInitialCondition->encode() );
   element.addData( QStringLiteral( "equation" ), static_cast<int>( mEquation ) );
 
   ReosDataObject::encode( element );
   return element;
 }
-
-
-ReosTelemac2DSimulation::ReosTelemac2DSimulation( QObject *parent )
-  : ReosHydraulicSimulation( parent )
-{
-  mTimeStep = new ReosParameterDuration( tr( "Time step" ), false, this );
-  mTimeStep->setValue( ReosDuration( 30, ReosDuration::second ) );
-
-  mOutputResultPeriod = new ReosParameterInteger( tr( "Output period" ), false, this );
-  mOutputResultPeriod->setValue( 5 );
-
-
-  mInitialCondition = new ReosSimulationInitialConditions( this );
-}
-
 
 REOSEXTERN ReosSimulationEngineFactory *engineSimulationFactory()
 {
@@ -89,9 +94,9 @@ ReosHydraulicSimulation *ReosTelemac2DSimulationEngineFactory::createSimulation(
     return new ReosTelemac2DSimulation( parent );
 }
 
-ReosParameterInteger *ReosTelemac2DSimulation::outputResultPeriod() const
+ReosParameterInteger *ReosTelemac2DSimulation::outputPeriodResult2D() const
 {
-  return mOutputResultPeriod;
+  return mOutputPeriodResult2D;
 }
 
 ReosParameterDuration *ReosTelemac2DSimulation::timeStep() const
@@ -169,6 +174,11 @@ void ReosTelemac2DSimulation::removeResults( const ReosHydraulicStructure2D *hyd
 QString ReosTelemac2DSimulation::engineName() const
 {
   return QStringLiteral( "TELEMAC" );
+}
+
+ReosParameterInteger *ReosTelemac2DSimulation::outputPeriodResultHydrograph() const
+{
+  return mOutputPeriodResultHyd;
 }
 
 void ReosTelemac2DSimulation::prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext )
@@ -760,8 +770,8 @@ void ReosTelemac2DSimulation::createSteeringFile( ReosHydraulicStructure2D *hydr
   stream << QStringLiteral( "INITIAL TIME SET TO ZERO : YES\n" );
   stream << QStringLiteral( "TIME STEP : %1\n" ).arg( QString::number( mTimeStep->value().valueSecond(), 'f', 2 ) );
   stream << QStringLiteral( "NUMBER OF TIME STEPS : %1\n" ).arg( QString::number( timeStepCount ) );
-  stream << QStringLiteral( "GRAPHIC PRINTOUT PERIOD : %1\n" ).arg( QString::number( mOutputResultPeriod->value() ) );
-  stream << QStringLiteral( "LISTING PRINTOUT PERIOD : %1\n" ).arg( QString::number( mOutputResultPeriod->value() ) );
+  stream << QStringLiteral( "GRAPHIC PRINTOUT PERIOD : %1\n" ).arg( QString::number( mOutputPeriodResult2D->value() ) );
+  stream << QStringLiteral( "LISTING PRINTOUT PERIOD : %1\n" ).arg( QString::number( mOutputPeriodResultHyd->value() ) );
 
   //Physical parametres
   stream << QStringLiteral( "LAW OF BOTTOM FRICTION : 3\n" );

@@ -28,7 +28,8 @@ ReosTelemacSimulationEditWidget::ReosTelemacSimulationEditWidget( ReosTelemac2DS
 {
   ui->setupUi( this );
   ui->mTimeStepWidget->setDuration( simulation->timeStep() );
-  ui->mOutputPeriodWidget->setInteger( simulation->outputResultPeriod() );
+  ui->mOutputPeriod2DWidget->setInteger( simulation->outputPeriodResult2D() );
+  ui->mOutputPeriodHydWidget->setInteger( simulation->outputPeriodResultHydrograph() );
   ui->mInitialWaterLevelWidget->setDouble( simulation->initialCondition()->initialWaterLevel() );
 
   ui->mEquationCombo->addItem( tr( "Finite Element" ), int( ReosTelemac2DSimulation::Equation::FiniteElement ) );
