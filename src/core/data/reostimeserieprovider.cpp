@@ -229,7 +229,10 @@ QString ReosTimeSerieVariableTimeStepMemoryProvider::valueUnit() const {return Q
 
 int ReosTimeSerieVariableTimeStepMemoryProvider::valueCount() const {return mValues.count();}
 
-double ReosTimeSerieVariableTimeStepMemoryProvider::value( int i ) const {return mValues.at( i );}
+double ReosTimeSerieVariableTimeStepMemoryProvider::value( int i ) const
+{
+  return mValues.at( i );
+}
 
 double ReosTimeSerieVariableTimeStepMemoryProvider::firstValue() const {return mValues.first();}
 

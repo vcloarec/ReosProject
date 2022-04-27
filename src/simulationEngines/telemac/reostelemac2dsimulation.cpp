@@ -631,7 +631,7 @@ void ReosTelemac2DSimulation::createSelafinInputGeometry(
   roughnessDataset->valid = true;
   roughnessDataset->time = 0;
 
-  std::unique_ptr<QgsMeshMemoryDatasetGroup> roughnessGroup( new QgsMeshMemoryDatasetGroup( "ROUGHNESS", QgsMeshDatasetGroupMetadata::DataOnVertices ) );
+  std::unique_ptr<QgsMeshMemoryDatasetGroup> roughnessGroup( new QgsMeshMemoryDatasetGroup( "BOTTOM FRICTION", QgsMeshDatasetGroupMetadata::DataOnVertices ) );
   roughnessGroup->addDataset( roughnessDataset );
   roughnessGroup->initialize();
 
@@ -686,10 +686,10 @@ QList<ReosTelemac2DSimulation::TelemacBoundaryCondition> ReosTelemac2DSimulation
         timeSteps.insert( startTime.msecsTo( bc.timeSeries->timeAt( valIndex ) ) );
         valIndex++;
       }
-
-      bc.boundaryId = boundCond->boundaryConditionId();
-      boundConds.append( bc );
     }
+
+    bc.boundaryId = boundCond->boundaryConditionId();
+    boundConds.append( bc );
   }
 
   QList<qint64> timeStepsList = timeSteps.values();
@@ -708,30 +708,35 @@ QList<ReosTelemac2DSimulation::TelemacBoundaryCondition> ReosTelemac2DSimulation
 
   stream << "T";
   for ( const TelemacBoundaryCondition &bc : std::as_const( boundConds ) )
-    stream << "\t" <<  bc.header.arg( QString::number( bc.rank ) );
+    if ( bc.timeSeries )
+      stream << "\t" <<  bc.header.arg( QString::number( bc.rank ) );
   stream << "\n";
 
   stream << "s";
   for ( const TelemacBoundaryCondition &bc : std::as_const( boundConds ) )
-    stream << "\t" <<  bc.unit;
+    if ( bc.timeSeries )
+      stream << "\t" <<  bc.unit;
   stream << "\n";
 
   stream << QString::number( 0, 'f', 6 );
   for ( const TelemacBoundaryCondition &bc : std::as_const( boundConds ) )
-    stream << "\t" << QString::number( bc.timeSeries->valueAtTime( startTime ), 'f', 2 );
+    if ( bc.timeSeries )
+      stream << "\t" << QString::number( bc.timeSeries->valueAtTime( startTime ), 'f', 2 );
   stream << "\n";
 
   for ( qint64 tms : std::as_const( timeStepsList ) )
   {
     stream << QString::number( tms / 1000.0, 'f', 6 );
     for ( const TelemacBoundaryCondition &bc : std::as_const( boundConds ) )
-      stream << "\t" <<  QString::number( bc.timeSeries->valueAtTime( startTime.addMSecs( tms ) ), 'f', 2 );
+      if ( bc.timeSeries )
+        stream << "\t" <<  QString::number( bc.timeSeries->valueAtTime( startTime.addMSecs( tms ) ), 'f', 2 );
     stream << "\n";
   }
 
   stream << QString::number( startTime.msecsTo( endTime ) / 1000.0, 'f', 6 );
   for ( const TelemacBoundaryCondition &bc : std::as_const( boundConds ) )
-    stream <<  "\t" << QString::number( bc.timeSeries->valueAtTime( endTime ), 'f', 2 );
+    if ( bc.timeSeries )
+      stream <<  "\t" << QString::number( bc.timeSeries->valueAtTime( endTime ), 'f', 2 );
   stream << "\n";
 
   return boundConds;
@@ -775,7 +780,7 @@ void ReosTelemac2DSimulation::createSteeringFile( ReosHydraulicStructure2D *hydr
 
   //Physical parametres
   stream << QStringLiteral( "LAW OF BOTTOM FRICTION : 3\n" );
-  stream << QStringLiteral( "FRICTION COEFFICIENT : 20\n" );
+  stream << QStringLiteral( "FRICTION COEFFICIENT : 10\n" );
 
   //Boundary condition
   QStringList prescribedFlow;
@@ -797,7 +802,10 @@ void ReosTelemac2DSimulation::createSteeringFile( ReosHydraulicStructure2D *hydr
         break;
       case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
         prescribedFlow.append( QString( '0' ) );
-        prescribedElevation.append( QString( '1' ) );
+        if ( bc->isWaterLevelConstant()->value() )
+          prescribedElevation.append( QStringLiteral( "%1" ).arg( bc->constantWaterElevation()->value() ) );
+        else
+          prescribedElevation.append( QString( '1' ) );
         velocityProfile.append( QString( '1' ) );
         break;
     }

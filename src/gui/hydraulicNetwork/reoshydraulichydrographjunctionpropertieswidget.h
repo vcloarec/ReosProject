@@ -138,7 +138,7 @@ class ReosFormJunctionBoundaryConditionWidgetFactory: public ReosFormWidgetDataF
 };
 
 
-class ReosFormJunctionBoundaryConditionWidget: public ReosFormWidget
+class ReosFormJunctionBoundaryConditionWidget: public ReosFormBaseJunctionNodeWidget
 {
     Q_OBJECT
   public:
@@ -164,13 +164,14 @@ class ReosFormJunctionBoundaryConditionWidget: public ReosFormWidget
     QWidget *mWaterLevelWidget = nullptr;
     ReosParameterBooleanWidget *mIsElevationConstant = nullptr;
     ReosParameterDoubleWidget *mConstantLevel = nullptr;
-    QToolButton *mButtonWaterlevelSeries = nullptr;
+    QToolButton *mButtonWaterLevelSeries = nullptr;
     QWidget *mWaterLevelSeriesWidget = nullptr;
 
     QWidget *mHydrographComboWidget = nullptr;
     QComboBox *mHydrographCombo = nullptr;
     QToolButton *mButtonHydrograph = nullptr;
 
+    ReosHydrographJunction *node() const;
 };
 
 

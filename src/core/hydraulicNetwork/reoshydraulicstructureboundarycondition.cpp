@@ -190,7 +190,7 @@ QString ReosHydraulicStructureBoundaryCondition::outputPrefixName() const
       return tr( "Input flow from" );
       break;
     case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
-      return tr( "Output flow to" );
+      return tr( "Output flow at" );
       break;
   }
 

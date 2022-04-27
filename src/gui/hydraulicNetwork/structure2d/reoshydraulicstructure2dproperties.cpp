@@ -96,6 +96,9 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   simulationMenu->addAction( mActionEngineConfiguration );
   simulationToolButton->setMenu( simulationMenu );
   toolBar->addWidget( simulationToolButton );
+  simulationToolButton->setEnabled( mStructure2D->currentSimulation() != nullptr );
+  connect( mStructure2D, &ReosHydraulicStructure2D::currentSimulationChanged, [this, simulationToolButton]
+  {simulationToolButton->setEnabled( mStructure2D->currentSimulation() != nullptr );} );
 
   toolBar->addSeparator();
 
@@ -278,12 +281,12 @@ void ReosHydraulicStructure2DProperties::onLaunchCalculation()
       if ( QMessageBox::warning( this, tr( "Run Simulation" ), tr( "Results exist for this modele and this hydraulic scheme.\nDo you want to overwrite this results?" ),
                                  QMessageBox::Yes | QMessageBox::No ) == QMessageBox::No )
         return;
+    }
 
-      if ( !mStructure2D->currentSimulation() )
-      {
-        QMessageBox::information( this, tr( "Run Simulation" ), "No simulation selected." );
-        return;
-      }
+    if ( !mStructure2D->currentSimulation() )
+    {
+      QMessageBox::information( this, tr( "Run Simulation" ), "No simulation selected." );
+      return;
     }
 
     mActionEditStructure->setEnabled( false );

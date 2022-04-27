@@ -197,10 +197,10 @@ bool ReosHydrographJunction::updateInternalHydrograph()
 
   switch ( mInternalHydrographOrigin )
   {
-    case ReosHydrographNodeWatershed::None:
+    case ReosHydrographJunction::None:
       newHydrograph = nullptr;
       break;
-    case ReosHydrographNodeWatershed::GaugedHydrograph:
+    case ReosHydrographJunction::GaugedHydrograph:
       newHydrograph = mHydrographsStore->hydrograph( mGaugedHydrographIndex );
       break;
   }
