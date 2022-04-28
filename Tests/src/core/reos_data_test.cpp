@@ -252,7 +252,6 @@ void ReosDataTesting::variable_time_step_time_model()
   QVERIFY( timeSerie.relativeTimeAt( 13 ) == ReosDuration( 45, ReosDuration::minute ) );
   QCOMPARE( timeSerie.valueAt( 13 ), 14.2 );
 
-
   data.clear();
   data << ( QVariantList() << QVariant( "12.0" ) );
   data << ( QVariantList() << QVariant( "14.2" ) );
@@ -372,7 +371,7 @@ void ReosDataTesting::variable_time_step_time_model()
   QVERIFY( timeSerie.relativeTimeAt( 13 ) == ReosDuration( 45, ReosDuration::minute ) );
   QCOMPARE( timeSerie.valueAt( 13 ), 14.2 );
 
-// data tme valid
+// data time valid
   data.clear();
   data << ( QVariantList() <<  QVariant( QString( "1.2" ) ) << QVariant( "2.0" ) );
   data << ( QVariantList() << QVariant( QString( "1.25" ) ) << QVariant( "4.2" ) );
@@ -523,9 +522,46 @@ void ReosDataTesting::variable_time_step_time_model()
   QVERIFY( timeSerie.relativeTimeAt( 8 ) == ReosDuration( 72, ReosDuration::minute ) );
   QCOMPARE( timeSerie.valueAt( 8 ), 0.0 );
 
-  //not possible to insert from start if first time is 0
+  //not possible to insert with no value from start if first existing time time is 0
   variableTimeStepModel.insertRows( variableTimeStepModel.index( 0, 1, QModelIndex() ), 10 );
   QCOMPARE( timeSerie.valueCount(), 9 );
+
+  //same way, not possible to insert only values without time if first existing time is 0
+  data.clear();
+  data << ( QVariantList() << QVariant( QString( "1.0" ) ) );
+  data << ( QVariantList() << QVariant( QString( "2.0" ) ) );
+  data << ( QVariantList() << QVariant( QString( "3.0" ) ) );
+  variableTimeStepModel.insertValues( variableTimeStepModel.index( 0, 1, QModelIndex() ), data );
+  QCOMPARE( timeSerie.valueCount(), 9 );
+
+  //but possible if there is time values
+
+  data.clear();
+  data << ( QVariantList() << QVariant( QString( "-3" ) ) << QVariant( QString( "1.0" ) ) );
+  data << ( QVariantList() << QVariant( QString( "-2" ) ) << QVariant( QString( "2.0" ) ) );
+  data << ( QVariantList() << QVariant( QString( "-1" ) ) << QVariant( QString( "3.0" ) ) );
+  variableTimeStepModel.insertValues( variableTimeStepModel.index( 0, 1, QModelIndex() ), data );
+  QCOMPARE( timeSerie.valueCount(), 12 );
+  QVERIFY( timeSerie.relativeTimeAt( 0 ) == ReosDuration( -180, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 0 ), 1.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 1 ) == ReosDuration( -120, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 1 ), 2.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 2 ) == ReosDuration( -60, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 2 ), 3.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 3 ) == ReosDuration( 0, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 3 ), 0.0 );
+
+  timeSerie.clear();
+  variableTimeStepModel.insertValues( variableTimeStepModel.index( 0, 1, QModelIndex() ), data );
+  QCOMPARE( timeSerie.valueCount(), 3 );
+  QVERIFY( timeSerie.relativeTimeAt( 0 ) == ReosDuration( -180, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 0 ), 1.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 1 ) == ReosDuration( -120, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 1 ), 2.0 );
+  QVERIFY( timeSerie.relativeTimeAt( 2 ) == ReosDuration( -60, ReosDuration::second ) );
+  QCOMPARE( timeSerie.valueAt( 2 ), 3.0 );
+
+
 
 }
 

@@ -348,7 +348,6 @@ bool ReosEditableProfileModel::setData( const QModelIndex &index, const QVariant
           emit pointChanged( index.column() );
           return true;
         }
-
       }
 
       if ( index.column() == 1 )

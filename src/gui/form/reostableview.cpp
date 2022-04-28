@@ -172,17 +172,33 @@ QList<QVariantList> ReosTimeSerieTableView::clipBoardToVariantList()
 
   const QStringList &lines = clipBoardText.split( "\n" );
 
+
   QList<QVariantList> ret;
   for ( const QString &l : lines )
   {
     if ( l == QString() )
       continue;
     QVariantList row;
-    const QStringList &splittedRow = l.split( "\t" );
-    for ( const QString &str : splittedRow )
-      row.append( str );
+    QStringList splittedRow = l.split( "\t" );
 
-    ret.append( row );
+    // if there are 3 columns, data can come from Lekan and
+    // the first one is the absolute time. We remove the first one to keep only the relative time removing unit
+    if ( splittedRow.count() == 3 )
+    {
+      splittedRow.removeFirst();
+      if ( !splittedRow.at( 0 ).isEmpty() )
+        splittedRow[0] = splittedRow.at( 0 ).split( ' ' ).at( 0 );
+    }
+
+    for ( const QString &str : std::as_const( splittedRow ) )
+    {
+      QString repStr = str;
+      repStr.replace( QLocale().decimalPoint(), '.' );
+      row.append( repStr );
+    }
+
+    if ( !row.isEmpty() && !row.first().isNull() )
+      ret.append( row );
   }
 
   return ret;

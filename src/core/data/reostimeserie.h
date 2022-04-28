@@ -251,6 +251,9 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStep: public ReosTimeSerie
     //! Sets the relative time \a relativeTime at postion \a i. If the value is not compatible with previous or next values, do nothing and return false.
     bool setRelativeTimeAt( int i, const ReosDuration &relativeTime );
 
+    //! Sets the relative time \a relativeTime at postion \a i regardless of the value of \a relativeTime and of other time values
+    void setAnyRelativeTimeAt( int i, const ReosDuration &relativeTime );
+
     QPair<QDateTime, QDateTime> timeExtent() const override;
 
     //! Sets the value at \a relative time with \a value, if the \a relative time is not present insert a new couple (time, value)
@@ -368,7 +371,7 @@ class REOSCORE_EXPORT ReosTimeSerieConstantIntervalModel : public ReosTimeSerieM
     double mDefaultValue = 0;
     void setValues( const QModelIndex &fromIndex, const QList<double> &values );
 
-    static QList<double> doubleFromVariant( const QList<QVariantList> &values );
+    static QList<double> doubleFromVariantList( const QList<QVariantList> &values );
 };
 
 //! Model used to handle AND edit time series with variable time step
@@ -412,7 +415,7 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStepModel: public ReosTimeSerieMo
 
     bool checkListValuesValidity( const QModelIndex &index, const QList<QVariantList> &data, bool insert );
     void setValuesPrivate( const QModelIndex &fromIndex, const QList<QVariantList> &data, bool checkValidity );
-    void insertRowsPrivate( const QModelIndex &fromIndex, int count, bool followdBySetValue );
+    bool insertRowsPrivate( const QModelIndex &fromIndex, int count, bool followdBySetValueWithTime );
 };
 
 #endif // REOSTIMESERIE_H

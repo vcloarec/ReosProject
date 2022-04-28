@@ -178,12 +178,12 @@ void ReosTimeSerieConstantIntervalModel::setValues( const QModelIndex &fromIndex
   if ( !fromIndex.isValid() )
     return;
 
-  setValues( fromIndex, doubleFromVariant( values ) );
+  setValues( fromIndex, doubleFromVariantList( values ) );
 }
 
 void ReosTimeSerieConstantIntervalModel::insertValues( const QModelIndex &fromIndex, const QList<QVariantList> &values )
 {
-  const QList<double> doubleValues = doubleFromVariant( values );
+  const QList<double> doubleValues = doubleFromVariantList( values );
   if ( doubleValues.isEmpty() )
     return;
 
@@ -224,7 +224,7 @@ void ReosTimeSerieConstantIntervalModel::setValues( const QModelIndex &fromIndex
   emit dataChanged( index( startRow, 0, QModelIndex() ), index( endRow, 0, QModelIndex() ) );
 }
 
-QList<double> ReosTimeSerieConstantIntervalModel::doubleFromVariant( const QList<QVariantList> &values )
+QList<double> ReosTimeSerieConstantIntervalModel::doubleFromVariantList( const QList<QVariantList> &values )
 {
   QList<double> doubleValues;
   doubleValues.reserve( values.count() );
@@ -905,7 +905,7 @@ bool ReosTimeSerieVariableTimeStep::setRelativeTimeAt( int i, const ReosDuration
   if ( i >= 0 && i < dataProv->valueCount() )
   {
     if ( ( i > 1 &&  dataProv->relativeTimeAt( i - 1 ) >= relativeTime ) ||
-         ( i < dataProv->valueCount() - 1 && dataProv->relativeTimeAt( i + 1 ) <= relativeTime ) )
+         ( ( i < dataProv->valueCount() - 1 ) && dataProv->relativeTimeAt( i + 1 ) <= relativeTime ) )
       return false;
 
     dataProv->setRelativeTimeAt( i, relativeTime );
@@ -913,6 +913,17 @@ bool ReosTimeSerieVariableTimeStep::setRelativeTimeAt( int i, const ReosDuration
   }
 
   return false;
+}
+
+void ReosTimeSerieVariableTimeStep::setAnyRelativeTimeAt( int i, const ReosDuration &relativeTime )
+{
+  ReosTimeSerieVariableTimeStepProvider *dataProv = variableTimeStepdataProvider();
+
+  if ( !dataProv || !dataProv->isEditable() )
+    return;
+
+  if ( i >= 0 && i < dataProv->valueCount() )
+    dataProv->setRelativeTimeAt( i, relativeTime );
 }
 
 QPair<QDateTime, QDateTime> ReosTimeSerieVariableTimeStep::timeExtent() const
@@ -1270,7 +1281,7 @@ QVariant ReosTimeSerieVariableTimeStepModel::data( const QModelIndex &index, int
       else if ( index.column() == valueColumn() )
       {
         if ( index.row() < mData->valueCount() )
-          return mData->valueAt( index.row() );
+          return ReosParameter::doubleToString( mData->valueAt( index.row() ) );
       }
       else if ( !mNewRowWithFixedTimeStep && index.column() == 1 )
       {
@@ -1431,6 +1442,11 @@ void ReosTimeSerieVariableTimeStepModel::setValuesPrivate( const QModelIndex &fr
 
   int colCount = values.at( 0 ).count();
 
+  bool absoluteTime = false;
+
+  if ( !values.empty() && !values.at( 0 ).empty() )
+    absoluteTime =  QLocale().toDateTime( values.at( 0 ).at( 0 ).toString(), QLocale::ShortFormat ).isValid();
+
   int startRow = fromIndex.row();
   int endRow = startRow + values.count() - 1;
   int insertedRowCount = endRow - mData->valueCount() + 1;
@@ -1450,22 +1466,21 @@ void ReosTimeSerieVariableTimeStepModel::setValuesPrivate( const QModelIndex &fr
     }
     else if ( colCount == 2 )
     {
-      if ( varRow.at( 0 ).type() == QVariant::DateTime )
+      if ( absoluteTime )
       {
-        const QDateTime time = varRow.at( 0 ).toDateTime();
+        QDateTime time = QLocale().toDateTime( varRow.at( 0 ).toString(), QLocale::ShortFormat );
+        time.setTimeSpec( Qt::UTC );
         relativeTime = ReosDuration( mData->referenceTime().msecsTo( time ), ReosDuration::millisecond );
       }
       else
-      {
         relativeTime = ReosDuration( varRow.at( 0 ).toDouble(), mVariableTimeStepUnit );
-      }
     }
 
     if ( i + startRow == mData->valueCount() )
       mData->setValue( relativeTime, varRow.last().toDouble() );
     else
     {
-      mData->setRelativeTimeAt( i + startRow, relativeTime );
+      mData->setAnyRelativeTimeAt( i + startRow, relativeTime );
       mData->setValueAt( i + startRow, varRow.last().toDouble() );
     }
   }
@@ -1482,8 +1497,12 @@ void ReosTimeSerieVariableTimeStepModel::insertValues( const QModelIndex &fromIn
   if ( !checkListValuesValidity( fromIndex, values, true ) )
     return;
 
-  insertRowsPrivate( fromIndex, values.count(), true );
-  setValuesPrivate( fromIndex, values, false );
+  bool withTimeValue = false;
+  if ( !values.isEmpty() )
+    withTimeValue = values.at( 0 ).count() > 1;
+
+  if ( insertRowsPrivate( fromIndex, values.count(), withTimeValue ) )
+    setValuesPrivate( fromIndex, values, false );
 }
 
 void ReosTimeSerieVariableTimeStepModel::deleteRows( const QModelIndex &fromIndex, int count )
@@ -1501,16 +1520,16 @@ void ReosTimeSerieVariableTimeStepModel::insertRows( const QModelIndex &fromInde
   insertRowsPrivate( fromIndex, count, false );
 }
 
-void ReosTimeSerieVariableTimeStepModel::insertRowsPrivate( const QModelIndex &fromIndex, int count, bool followdBySetValue )
+bool ReosTimeSerieVariableTimeStepModel::insertRowsPrivate( const QModelIndex &fromIndex, int count, bool followdBySetValueWithTime )
 {
   if ( count <= 0 )
-    return;
+    return false;
 
-  if ( !followdBySetValue &&
-       fromIndex.row() == 0 &&
+  if ( !followdBySetValueWithTime &&
+       fromIndex.row() <= 0 &&
        mData->valueCount() > 0 &&
        mData->relativeTimeAt( 0 ) == ReosDuration() )
-    return;
+    return false;
 
   ReosDuration startInverval;
   ReosDuration endInterval;
@@ -1546,15 +1565,27 @@ void ReosTimeSerieVariableTimeStepModel::insertRowsPrivate( const QModelIndex &f
     endInterval = mData->relativeTimeAt( fromIndex.row() );
 
     ReosDuration diff = endInterval - startInverval;
+    if ( diff == ReosDuration( qint64( 0 ) ) &&  followdBySetValueWithTime )
+      diff = ReosDuration( qint64( 1000 ) );  //the time will be replaced later, we just need a time step that is non zero one
+
     step = diff / ( insertedIntervalCount );
+
     if ( fromIndex.row() != 0 )
       startInverval = startInverval + step;
+    else if ( followdBySetValueWithTime )
+    {
+      step = ReosDuration() - step;
+      startInverval = startInverval + step;
+    }
+
     endInterval = endInterval - step;
     interpolate = true;
+
     if ( fromIndex.row() > 0 )
       startValue = mData->valueAt( fromIndex.row() - 1 );
     else
       startValue = mDefaultValue;
+
     endValue = mData->valueAt( fromIndex.row() );
   }
 
@@ -1571,6 +1602,8 @@ void ReosTimeSerieVariableTimeStepModel::insertRowsPrivate( const QModelIndex &f
     mData->setValue( startInverval + step * i, value );
   }
   endInsertRows();
+
+  return true;
 }
 
 void ReosTimeSerieVariableTimeStepModel::setSerie( ReosTimeSerieVariableTimeStep *serie )
@@ -1637,7 +1670,10 @@ bool ReosTimeSerieVariableTimeStepModel::checkListValuesValidity( const QModelIn
 
   bool absoluteTime = false;
   if ( colCount == 2 )
-    absoluteTime = data.at( 0 ).at( 0 ).type() == QVariant::DateTime;
+  {
+    QDateTime time = QLocale().toDateTime( data.at( 0 ).at( 0 ).toString(), QLocale::ShortFormat );
+    absoluteTime = time.isValid();
+  }
 
   ReosDuration prevRelativeTime;
 
@@ -1656,7 +1692,7 @@ bool ReosTimeSerieVariableTimeStepModel::checkListValuesValidity( const QModelIn
     {
       if ( absoluteTime )
       {
-        const QDateTime time = varList.at( 0 ).toDateTime();
+        const QDateTime time = QLocale().toDateTime( varList.at( 0 ).toString(), QLocale::ShortFormat );
         ok = time.isValid();
         if ( insert )
         {

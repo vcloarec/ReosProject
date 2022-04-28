@@ -243,7 +243,10 @@ void ReosTimeSerieVariableTimeStepMemoryProvider::setValue( int i, double v )
   mValues[i] = v;
 }
 
-ReosDuration ReosTimeSerieVariableTimeStepMemoryProvider::relativeTimeAt( int i ) const {return mTimeValues.at( i );}
+ReosDuration ReosTimeSerieVariableTimeStepMemoryProvider::relativeTimeAt( int i ) const
+{
+  return mTimeValues.at( i );
+}
 
 ReosDuration ReosTimeSerieVariableTimeStepMemoryProvider::lastRelativeTime() const {return mTimeValues.last();}
 
