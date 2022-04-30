@@ -21,7 +21,6 @@
 
 #include "reoshydraulicsimulation.h"
 #include "reoshydraulicstructure2d.h"
-#include "reossimulationinitialcondition.h"
 #include "reosformwidget.h"
 
 ReosHydraulic2DSimulationWidget::ReosHydraulic2DSimulationWidget( ReosHydraulicStructure2D *structure, QWidget *parent )

@@ -1,8 +1,8 @@
 /***************************************************************************
-  reossimulationinitialcondition.h - ReosSimulationInitialCondition
+  reostelemac2dinitialcondition.h - ReosTelemac2DInitialCondition
 
  ---------------------
- begin                : 29.3.2022
+ begin                : 28.4.2022
  copyright            : (C) 2022 by Vincent Cloarec
  email                : vcloarec at gmail dot com
  ***************************************************************************
@@ -13,35 +13,48 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#ifndef REOSSIMULATIONINITIALCONDITION_H
-#define REOSSIMULATIONINITIALCONDITION_H
+#ifndef REOSTELEMAC2DINITIALCONDITION_H
+#define REOSTELEMAC2DINITIALCONDITION_H
 
 #include "reosdataobject.h"
 
 class ReosParameterDouble;
-class ReosEncodedElement;
 
-class REOSCORE_EXPORT ReosSimulationInitialConditions : public ReosDataObject
+class ReosTelemac2DInitialCondition: public ReosDataObject
 {
   public:
     enum class Type
     {
       FromFile,
-      ConstantLevelNoVelocity,
-      HightLevelEmptying
+      ConstantLevelNoVelocity
     };
 
-    ReosSimulationInitialConditions( QObject *parent = nullptr );
-    ReosSimulationInitialConditions( const ReosEncodedElement &element, QObject *parent = nullptr );
+    ReosTelemac2DInitialCondition( QObject *parent = nullptr );
+    ReosTelemac2DInitialCondition( const ReosEncodedElement &element, QObject *parent = nullptr );
 
-    ReosEncodedElement encode() const;
+    virtual Type initialConditionType() const = 0;
 
-    ReosParameterDouble *initialWaterLevel() const;
-  private:
-
-    ReosParameterDouble *mInitialWaterLevel = nullptr;
-
+    virtual ReosEncodedElement encode() const = 0;
 
 };
 
-#endif // REOSSIMULATIONINITIALCONDITION_H
+
+class ReosTelemac2DInitialConstantWaterLevel: public ReosTelemac2DInitialCondition
+{
+    Q_OBJECT
+  public:
+    ReosTelemac2DInitialConstantWaterLevel( QObject *parent = nullptr );
+    ReosTelemac2DInitialConstantWaterLevel( const ReosEncodedElement &element, QObject *parent = nullptr );
+
+    Type initialConditionType() const override {return Type::ConstantLevelNoVelocity;}
+
+    ReosEncodedElement encode() const override;
+
+    ReosParameterDouble *initialWaterLevel() const;
+
+  private:
+
+    ReosParameterDouble *mInitialWaterLevel = nullptr;
+};
+
+#endif // REOSTELEMAC2DINITIALCONDITION_H

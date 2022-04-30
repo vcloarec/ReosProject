@@ -62,4 +62,12 @@ class ReosTelemacSimulationEditWidgetFactory : public ReosHydraulicSimulationWid
     QDialog *engineConfigurationDialog( QWidget *parent ) const override;
 };
 
+
+class ReosTelemac2DInitialConditionWidgetFactory
+{
+  public:
+
+    static QWidget *createWidget( ReosTelemac2DInitialCondition *initialCondition, QWidget *parent );
+};
+
 #endif // REOSTELEMACSIMULATIONEDITWIDGET_H

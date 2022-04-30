@@ -24,6 +24,7 @@
 #include "reosduration.h"
 
 class ReosHydraulicSimulationResults;
+class ReosTelemac2DInitialCondition;
 
 
 class ReosTelemac2DSimulation : public ReosHydraulicSimulation
@@ -61,7 +62,7 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
     ReosParameterDuration *timeStep() const;
     ReosParameterInteger *outputPeriodResult2D() const;
     ReosParameterInteger *outputPeriodResultHydrograph() const;
-    ReosSimulationInitialConditions *initialCondition() const;
+    ReosTelemac2DInitialCondition *initialCondition() const;
 
     Equation equation() const;
     void setEquation( const Equation &equation );
@@ -78,7 +79,7 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
     ReosParameterInteger *mOutputPeriodResult2D = nullptr;
     ReosParameterInteger *mOutputPeriodResultHyd = nullptr;
     Equation mEquation = Equation::FiniteElement;
-    ReosSimulationInitialConditions *mInitialCondition = nullptr;
+    ReosTelemac2DInitialCondition *mInitialCondition = nullptr;
     QList<TelemacBoundaryCondition> mBoundaries;
 
     QString mGeomFileName = QStringLiteral( "geom_input.slf" );

@@ -24,7 +24,7 @@
 #include <mdal.h>
 
 #include "reoshydraulicstructure2d.h"
-#include "reossimulationinitialcondition.h"
+#include "reostelemac2dinitialcondition.h"
 #include "reoshydraulicstructureboundarycondition.h"
 #include "reoscalculationcontext.h"
 #include "reostelemac2dsimulationresults.h"
@@ -44,7 +44,7 @@ ReosTelemac2DSimulation::ReosTelemac2DSimulation( QObject *parent )
   mOutputPeriodResultHyd = new ReosParameterInteger( tr( "Output period for hydrograph" ), false, this );
   mOutputPeriodResultHyd->setValue( 1 );
 
-  mInitialCondition = new ReosSimulationInitialConditions( this );
+  mInitialCondition = new ReosTelemac2DInitialConstantWaterLevel( this );
 }
 
 
@@ -55,7 +55,7 @@ ReosTelemac2DSimulation::ReosTelemac2DSimulation( const ReosEncodedElement &elem
   mTimeStep = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "time-step" ) ), false, tr( "Time step" ), this );
   mOutputPeriodResult2D = ReosParameterInteger::decode( element.getEncodedData( "output-period-2D" ), false, tr( "Output period for 2D result" ), this );
   mOutputPeriodResultHyd = ReosParameterInteger::decode( element.getEncodedData( "output-period-hydrograph" ), false, tr( "Output period for hydrograph" ), this );
-  mInitialCondition = new ReosSimulationInitialConditions( element.getEncodedData( "initial-condition" ), this );
+  mInitialCondition = new ReosTelemac2DInitialConstantWaterLevel( element.getEncodedData( "initial-condition" ), this );
   int equation = 0;
   element.getData( QStringLiteral( "equation" ), equation );
   mEquation = static_cast<ReosTelemac2DSimulation::Equation>( equation );
@@ -104,7 +104,7 @@ ReosParameterDuration *ReosTelemac2DSimulation::timeStep() const
   return mTimeStep;
 }
 
-ReosSimulationInitialConditions *ReosTelemac2DSimulation::initialCondition() const
+ReosTelemac2DInitialCondition *ReosTelemac2DSimulation::initialCondition() const
 {
   return mInitialCondition;
 }
@@ -816,7 +816,18 @@ void ReosTelemac2DSimulation::createSteeringFile( ReosHydraulicStructure2D *hydr
 
   //Initial condition
   stream << QStringLiteral( "INITIAL CONDITIONS : 'CONSTANT ELEVATION'\n" );
-  stream << QStringLiteral( "INITIAL ELEVATION : %1\n" ).arg( QString::number( mInitialCondition->initialWaterLevel()->value(), 'f', 2 ) );
+
+  switch ( mInitialCondition->initialConditionType() )
+  {
+    case ReosTelemac2DInitialCondition::Type::FromFile:
+      break;
+    case ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity:
+    {
+      ReosTelemac2DInitialConstantWaterLevel *ciwl = qobject_cast<ReosTelemac2DInitialConstantWaterLevel *>( mInitialCondition );
+      stream << QStringLiteral( "INITIAL ELEVATION : %1\n" ).arg( QString::number( ciwl->initialWaterLevel()->value(), 'f', 2 ) );
+    }
+    break;
+  }
 
   //Numerical parameters
   switch ( mEquation )

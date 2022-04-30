@@ -19,7 +19,7 @@
 
 #include <QFileDialog>
 
-#include "reossimulationinitialcondition.h"
+#include "reostelemac2dinitialcondition.h"
 #include "reossettings.h"
 
 ReosTelemacSimulationEditWidget::ReosTelemacSimulationEditWidget( ReosTelemac2DSimulation *simulation, QWidget *parent ) :
@@ -30,7 +30,8 @@ ReosTelemacSimulationEditWidget::ReosTelemacSimulationEditWidget( ReosTelemac2DS
   ui->mTimeStepWidget->setDuration( simulation->timeStep() );
   ui->mOutputPeriod2DWidget->setInteger( simulation->outputPeriodResult2D() );
   ui->mOutputPeriodHydWidget->setInteger( simulation->outputPeriodResultHydrograph() );
-  ui->mInitialWaterLevelWidget->setDouble( simulation->initialCondition()->initialWaterLevel() );
+
+  ui->mInitialConditionWidget->addWidget( ReosTelemac2DInitialConditionWidgetFactory::createWidget( simulation->initialCondition(), this ) );
 
   ui->mEquationCombo->addItem( tr( "Finite Element" ), int( ReosTelemac2DSimulation::Equation::FiniteElement ) );
   ui->mEquationCombo->addItem( tr( "Finite Volume" ), int( ReosTelemac2DSimulation::Equation::FiniteVolume ) );
@@ -107,4 +108,24 @@ void ReosTelemacEngineConfigurationDialog::onAccepted()
   settings.setValue( QStringLiteral( "/engine/telemac/telemac-config-file" ), ui->mTelemacConfigFileLineEdit->text() );
   settings.setValue( QStringLiteral( "/engine/telemac/telemac-configuration" ), ui->mLineEditConfig->text() );
   settings.setValue( QStringLiteral( "/engine/telemac/cpu-usage-count" ), ui->mCPUSpinBox->value() );
+}
+
+QWidget *ReosTelemac2DInitialConditionWidgetFactory::createWidget( ReosTelemac2DInitialCondition *initialCondition, QWidget *parent )
+{
+  switch ( initialCondition->initialConditionType() )
+  {
+    case ReosTelemac2DInitialCondition::Type::FromFile:
+      return nullptr;
+      break;
+    case ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity:
+    {
+      ReosTelemac2DInitialConstantWaterLevel *ciwl = qobject_cast<ReosTelemac2DInitialConstantWaterLevel *>( initialCondition );
+      Q_ASSERT( ciwl != nullptr );
+      if ( ciwl )
+        return new ReosParameterDoubleWidget( ciwl->initialWaterLevel(), parent );
+    }
+    break;
+  }
+
+  return nullptr;
 }
