@@ -96,7 +96,7 @@ void ReosHydraulic2DSimulationWidget::setCurrentSimulation( ReosHydraulicSimulat
     mCurrentEditingWidget->deleteLater();
   }
 
-  mCurrentEditingWidget = ReosHydraulicSimulationWidgetRegistery::instance()->createEditingWidget( simulation, this );
+  mCurrentEditingWidget = ReosHydraulicSimulationWidgetRegistery::instance()->createEditingWidget( mStructure, simulation, this );
   if ( mCurrentEditingWidget )
     ui->mEditWidgetLayout->addWidget( mCurrentEditingWidget );
 }
@@ -116,7 +116,7 @@ ReosHydraulicSimulationWidgetRegistery::ReosHydraulicSimulationWidgetRegistery()
 
 }
 
-QWidget *ReosHydraulicSimulationWidgetRegistery::createEditingWidget( ReosHydraulicSimulation *simulation, QWidget *parent )
+QWidget *ReosHydraulicSimulationWidgetRegistery::createEditingWidget( ReosHydraulicStructure2D *structure, ReosHydraulicSimulation *simulation, QWidget *parent )
 {
   if ( !simulation )
     return nullptr;
@@ -125,7 +125,7 @@ QWidget *ReosHydraulicSimulationWidgetRegistery::createEditingWidget( ReosHydrau
   if ( it == mFactories.end() )
     return nullptr;
 
-  return it->second->simulationSettingsWidget( simulation, parent );
+  return it->second->simulationSettingsWidget( structure, simulation, parent );
 }
 
 QDialog *ReosHydraulicSimulationWidgetRegistery::createConfigurationDialog( const QString &key, QWidget *parent )

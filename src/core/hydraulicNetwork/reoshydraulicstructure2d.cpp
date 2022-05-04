@@ -99,6 +99,11 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   mMesh->activateDataset( currentActivatedMeshDataset );
 }
 
+ReosHydraulicNetworkContext ReosHydraulicStructure2D::hydraulicNetworkContext() const
+{
+  return mHydraulicNetworkContext;
+}
+
 QVector<QVector<QVector<int> > > ReosHydraulicStructure2D::holesVertices() const
 {
   return mHolesVertices;
@@ -232,6 +237,20 @@ bool ReosHydraulicStructure2D::addSimulation( const QString key )
   }
 
   return false;
+}
+
+ReosHydraulicSimulation *ReosHydraulicStructure2D::simulation( ReosHydraulicScheme *scheme ) const
+{
+  const ReosEncodedElement elem = scheme->restoreElementConfig( id() );
+
+  QString simulationId;
+  elem.getData( QStringLiteral( "current-simulation-id" ), simulationId );
+
+  int simIndex = simulationIndexFromId( simulationId );
+  if ( simIndex != -1 )
+    return mSimulations.at( simIndex );
+  else
+    return nullptr;
 }
 
 void ReosHydraulicStructure2D::updateCalculationContext( const ReosCalculationContext &context )
@@ -698,7 +717,7 @@ void ReosHydraulicStructure2D::loadResult( ReosHydraulicSimulation *simulation, 
     mSimulationResults.remove( schemeId );
   }
 
-  ReosHydraulicSimulationResults *simResults = simulation->loadSimulationResults( this, schemeId );
+  ReosHydraulicSimulationResults *simResults = simulation->loadSimulationResults( this, schemeId, this );
   mSimulationResults.insert( schemeId, simResults );
 }
 
@@ -836,7 +855,9 @@ void ReosHydraulicStructure2D::saveConfiguration( ReosHydraulicScheme *scheme ) 
   encodedElement.addData( QStringLiteral( "current-simulation-id" ), currentSimulation()->id() );
   scheme->saveElementConfig( id(), encodedElement );
 
-  //stor ethe current symbology from the scheme that will change
+  for ( ReosHydraulicSimulation *sim : mSimulations )
+    sim->saveConfiguration( scheme );
+
 }
 
 
@@ -860,6 +881,8 @@ void ReosHydraulicStructure2D::restoreConfiguration( ReosHydraulicScheme *scheme
   encodedElement.getData( QStringLiteral( "current-simulation-id" ), simulationId );
 
   mCurrentSimulationIndex = simulationIndexFromId( simulationId );
+  for ( ReosHydraulicSimulation *sim : mSimulations )
+    sim->restoreConfiguration( scheme );
 
   if ( mCurrentSimulationIndex == -1 )
     return;

@@ -19,13 +19,14 @@
 #include "reosdataobject.h"
 
 class ReosParameterDouble;
+class ReosHydraulicScheme;
 
 class ReosTelemac2DInitialCondition: public ReosDataObject
 {
   public:
     enum class Type
     {
-      FromFile,
+      FromOtherSimulation,
       ConstantLevelNoVelocity
     };
 
@@ -33,11 +34,12 @@ class ReosTelemac2DInitialCondition: public ReosDataObject
     ReosTelemac2DInitialCondition( const ReosEncodedElement &element, QObject *parent = nullptr );
 
     virtual Type initialConditionType() const = 0;
-
     virtual ReosEncodedElement encode() const = 0;
 
-};
+    virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const = 0;
+    virtual void restoreConfiguration( ReosHydraulicScheme *scheme ) = 0;
 
+};
 
 class ReosTelemac2DInitialConstantWaterLevel: public ReosTelemac2DInitialCondition
 {
@@ -47,14 +49,39 @@ class ReosTelemac2DInitialConstantWaterLevel: public ReosTelemac2DInitialConditi
     ReosTelemac2DInitialConstantWaterLevel( const ReosEncodedElement &element, QObject *parent = nullptr );
 
     Type initialConditionType() const override {return Type::ConstantLevelNoVelocity;}
-
     ReosEncodedElement encode() const override;
 
     ReosParameterDouble *initialWaterLevel() const;
 
-  private:
+    void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
+    void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
 
+  private:
     ReosParameterDouble *mInitialWaterLevel = nullptr;
 };
+
+class ReosTelemac2DInitialConditionFromSimulation: public ReosTelemac2DInitialCondition
+{
+    Q_OBJECT
+  public:
+    ReosTelemac2DInitialConditionFromSimulation( QObject *parent = nullptr );
+    ReosTelemac2DInitialConditionFromSimulation( const ReosEncodedElement &element, QObject *parent = nullptr );
+
+    Type initialConditionType() const override {return Type::FromOtherSimulation;}
+    ReosEncodedElement encode() const override;
+    void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
+    void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
+
+    QString otherSchemeId() const;
+    void setOtherSchemeId( const QString &otherSchemeId );
+
+    int timeStepIndex() const;
+    void setTimeStepIndex( int timeStepIndex );
+
+  private:
+    QString mOtherSchemeId;
+    int mTimeStepIndex = -1;
+};
+
 
 #endif // REOSTELEMAC2DINITIALCONDITION_H

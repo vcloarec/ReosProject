@@ -101,9 +101,14 @@ class REOSCORE_EXPORT ReosHydraulicSchemeCollection : public QAbstractListModel
     //! Removes all schemes present in the collection
     void clear();
 
+    //!
+    void excludeScheme( ReosHydraulicScheme *scheme );
+
     int schemeCount() const;
 
     ReosHydraulicScheme *scheme( int index );
+
+    int schemeIndex( const QString &schemeId ) const;
 
     ReosEncodedElement encode() const;
     void decode( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
@@ -113,6 +118,8 @@ class REOSCORE_EXPORT ReosHydraulicSchemeCollection : public QAbstractListModel
 
   private:
     QList<ReosHydraulicScheme *> mHydraulicSchemes;
+
+
 };
 
 

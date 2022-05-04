@@ -29,7 +29,7 @@
 #include "reoscalculationcontext.h"
 #include "reostelemac2dsimulationresults.h"
 #include "reossettings.h"
-
+#include "reoshydraulicscheme.h"
 
 
 ReosTelemac2DSimulation::ReosTelemac2DSimulation( QObject *parent )
@@ -44,7 +44,7 @@ ReosTelemac2DSimulation::ReosTelemac2DSimulation( QObject *parent )
   mOutputPeriodResultHyd = new ReosParameterInteger( tr( "Output period for hydrograph" ), false, this );
   mOutputPeriodResultHyd->setValue( 1 );
 
-  mInitialCondition = new ReosTelemac2DInitialConstantWaterLevel( this );
+  initInitialCondition();
 }
 
 
@@ -55,10 +55,21 @@ ReosTelemac2DSimulation::ReosTelemac2DSimulation( const ReosEncodedElement &elem
   mTimeStep = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "time-step" ) ), false, tr( "Time step" ), this );
   mOutputPeriodResult2D = ReosParameterInteger::decode( element.getEncodedData( "output-period-2D" ), false, tr( "Output period for 2D result" ), this );
   mOutputPeriodResultHyd = ReosParameterInteger::decode( element.getEncodedData( "output-period-hydrograph" ), false, tr( "Output period for hydrograph" ), this );
-  mInitialCondition = new ReosTelemac2DInitialConstantWaterLevel( element.getEncodedData( "initial-condition" ), this );
   int equation = 0;
   element.getData( QStringLiteral( "equation" ), equation );
   mEquation = static_cast<ReosTelemac2DSimulation::Equation>( equation );
+
+  const QList<ReosEncodedElement> encodedInitialConditions = element.getListEncodedData( QStringLiteral( "initial-conditions" ) );
+  for ( const ReosEncodedElement &elem : encodedInitialConditions )
+  {
+    if ( elem.description() == QStringLiteral( "telemac-2d-initial-condition-constant-water-level" ) )
+      mInitialConditions.append( new ReosTelemac2DInitialConstantWaterLevel( elem, this ) );
+
+    if ( elem.description() == QStringLiteral( "telemac-2d-initial-condition-from-simulation" ) )
+      mInitialConditions.append( new ReosTelemac2DInitialConditionFromSimulation( elem, this ) );
+  }
+
+  initInitialCondition();
 }
 
 ReosEncodedElement ReosTelemac2DSimulation::encode() const
@@ -69,11 +80,34 @@ ReosEncodedElement ReosTelemac2DSimulation::encode() const
   element.addEncodedData( QStringLiteral( "time-step" ), mTimeStep->encode() );
   element.addEncodedData( QStringLiteral( "output-period-2D" ), mOutputPeriodResult2D->encode() );
   element.addEncodedData( QStringLiteral( "output-period-hydrograph" ), mOutputPeriodResultHyd->encode() );
-  element.addEncodedData( QStringLiteral( "initial-condition" ), mInitialCondition->encode() );
   element.addData( QStringLiteral( "equation" ), static_cast<int>( mEquation ) );
+
+  QList<ReosEncodedElement> encodedInitialConditions;
+  for ( ReosTelemac2DInitialCondition *ic : mInitialConditions )
+    encodedInitialConditions.append( ic->encode() );
+
+  element.addListEncodedData( QStringLiteral( "initial-conditions" ), encodedInitialConditions );
 
   ReosDataObject::encode( element );
   return element;
+}
+
+QList<QDateTime> ReosTelemac2DSimulation::theoricalTimeSteps( ReosHydraulicScheme *scheme ) const
+{
+  QList<QDateTime> timeSteps;
+  const ReosCalculationContext context = scheme->calculationContext();
+  QDateTime time = context.simulationStartTime();
+  qint64 ts = timeStepValueFromScheme( scheme ).valueMilliSecond();
+  if ( ts > 0 )
+  {
+    while ( time <= context.simulationEndTime() )
+    {
+      timeSteps.append( time );
+      time = time.addMSecs( ts );
+    }
+  }
+
+  return timeSteps;
 }
 
 REOSEXTERN ReosSimulationEngineFactory *engineSimulationFactory()
@@ -106,7 +140,7 @@ ReosParameterDuration *ReosTelemac2DSimulation::timeStep() const
 
 ReosTelemac2DInitialCondition *ReosTelemac2DSimulation::initialCondition() const
 {
-  return mInitialCondition;
+  return mInitialConditions.at( mCurrentInitialCondition );
 }
 
 ReosTelemac2DSimulation::Equation ReosTelemac2DSimulation::equation() const
@@ -153,13 +187,13 @@ void ReosTelemac2DSimulation::saveSimulationResult( const ReosHydraulicStructure
   }
 }
 
-ReosHydraulicSimulationResults *ReosTelemac2DSimulation::loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const
+ReosHydraulicSimulationResults *ReosTelemac2DSimulation::loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, QObject *parent ) const
 {
   const QDir dir = simulationDir( hydraulicStructure, shemeId );
   if ( !dir.exists() )
     return nullptr;
 
-  return new ReosTelemac2DSimulationResults( this, hydraulicStructure->mesh(),  dir.filePath( mResultFileName ), hydraulicStructure );
+  return new ReosTelemac2DSimulationResults( this, hydraulicStructure->mesh(),  dir.filePath( mResultFileName ), parent );
 }
 
 void ReosTelemac2DSimulation::removeResults( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const
@@ -171,14 +205,88 @@ void ReosTelemac2DSimulation::removeResults( const ReosHydraulicStructure2D *hyd
   dir.removeRecursively();
 }
 
+void ReosTelemac2DSimulation::saveConfiguration( ReosHydraulicScheme *scheme ) const
+{
+  ReosEncodedElement element = scheme->restoreElementConfig( id() );
+
+  element.addEncodedData( QStringLiteral( "time-step" ), mTimeStep->value().encode() );
+  element.addData( QStringLiteral( "output-period-2D" ), mOutputPeriodResult2D->value() );
+  element.addData( QStringLiteral( "output-period-hydrograph" ), mOutputPeriodResultHyd->value() );
+  element.addData( QStringLiteral( "equation" ), static_cast<int>( mEquation ) );
+  element.addData( QStringLiteral( "initial-condition-index" ), mCurrentInitialCondition );
+
+  for ( ReosTelemac2DInitialCondition *ic : mInitialConditions )
+    ic->saveConfiguration( scheme );
+
+  scheme->saveElementConfig( id(), element );
+}
+
+void ReosTelemac2DSimulation::restoreConfiguration( ReosHydraulicScheme *scheme )
+{
+  const ReosEncodedElement element = scheme->restoreElementConfig( id() );
+
+  ReosDuration timeStep = ReosDuration::decode( element.getEncodedData( QStringLiteral( "time-step" ) ) );
+  mTimeStep->setValue( timeStep );
+  int period2D = 5;
+  if ( element.getData( QStringLiteral( "output-period-2D" ), period2D ) )
+    mOutputPeriodResult2D->setValue( period2D );
+
+  int periodHyd = 1;
+  if ( element.getData( QStringLiteral( "output-period-hydrograph" ), periodHyd ) )
+    mOutputPeriodResultHyd->setValue( periodHyd );
+
+  int equation = 0;
+  if ( element.getData( QStringLiteral( "equation" ), equation ) )
+    mEquation = static_cast<Equation>( equation );
+
+  element.getData( QStringLiteral( "initial-condition-index" ), mCurrentInitialCondition );
+
+  for ( ReosTelemac2DInitialCondition *ic : std::as_const( mInitialConditions ) )
+    ic->restoreConfiguration( scheme );
+}
+
 QString ReosTelemac2DSimulation::engineName() const
 {
   return QStringLiteral( "TELEMAC" );
 }
 
+ReosDuration ReosTelemac2DSimulation::timeStepValueFromScheme( ReosHydraulicScheme *scheme ) const
+{
+  ReosDuration timeStep( qint64( 0 ) );
+  if ( scheme )
+  {
+    ReosEncodedElement element = scheme->restoreElementConfig( id() );
+    if ( element.hasEncodedData( QStringLiteral( "time-step" ) ) )
+      timeStep = ReosDuration::decode( element.getEncodedData( QStringLiteral( "time-step" ) ) );
+
+    int period = 1;
+    element.getData( QStringLiteral( "output-period-2D" ), period );
+    timeStep = timeStep * period;
+  }
+
+  return timeStep;
+}
+
+
 ReosParameterInteger *ReosTelemac2DSimulation::outputPeriodResultHydrograph() const
 {
   return mOutputPeriodResultHyd;
+}
+
+void ReosTelemac2DSimulation::setInitialCondition( ReosTelemac2DInitialCondition::Type type )
+{
+  if ( initialCondition()->initialConditionType() == type )
+    return;
+
+  mCurrentInitialCondition = -1;
+  for ( int i = 0; i < mInitialConditions.count(); ++i )
+  {
+    if ( mInitialConditions.at( i )->initialConditionType() == type )
+    {
+      mCurrentInitialCondition = i;
+      return;
+    }
+  }
 }
 
 void ReosTelemac2DSimulation::prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext )
@@ -199,15 +307,14 @@ void ReosTelemac2DSimulation::prepareInput( ReosHydraulicStructure2D *hydraulicS
 {
   QVector<int> verticesPosInBoundary;
   QList<ReosHydraulicStructureBoundaryCondition *> boundaryCondition = createBoundaryFiles( hydraulicStructure, verticesPosInBoundary, directory );
-  createSelafinInputGeometry( hydraulicStructure, verticesPosInBoundary, directory );
+  createSelafinBaseFile( hydraulicStructure, verticesPosInBoundary, directory.filePath( mGeomFileName ) );
   mBoundaries = createBoundaryConditionFiles( boundaryCondition, calculationContext, directory );
-  createSteeringFile( hydraulicStructure, boundaryCondition, calculationContext, directory );
+  createSteeringFile( hydraulicStructure, boundaryCondition, verticesPosInBoundary, calculationContext, directory );
 }
 
 ReosSimulationProcess *ReosTelemac2DSimulation::getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const
 {
   QDir dir = simulationDir( hydraulicStructure, calculationContext.schemeId() );
-
   QMap<int, BoundaryCondition> telemacBounds;
 
   for ( const TelemacBoundaryCondition &bound : mBoundaries )
@@ -505,17 +612,15 @@ static void setCounterClockwise( QVector<int> &triangle, const QPointF &v0, cons
 }
 
 
-void ReosTelemac2DSimulation::createSelafinMeshFrame( ReosHydraulicStructure2D *hydraulicStructure,
-    const QVector<int> &verticesPosInBoundary,
-    const QDir &directory )
+void ReosTelemac2DSimulation::createSelafinMeshFrame(
+  ReosHydraulicStructure2D *hydraulicStructure,
+  const QVector<int> &verticesPosInBoundary,
+  const QString &fileName )
 {
-  // MDAL does not handle the boundaries. As the parrallel calculation in Telemac need to now about the boundaies vertices,
-  // wa can't iuse MDAL to create the mesh frame file. Here we use the same logic as MDAL but we add the boundaries vertices indexes
-
+  // MDAL does not handle the boundaries. As the parrallel calculation in Telemac need to know about the boundaies vertices,
+  // wa can't use MDAL to create the mesh frame file. Here we use the same logic as MDAL but we add the boundaries vertices indexes
   ReosMesh *rmesh = hydraulicStructure->mesh();
-  QString path = directory.filePath( mGeomFileName );
-
-  QFile file( path );
+  QFile file( fileName );
   file.open( QIODevice::WriteOnly );
   QDataStream stream( &file );
 
@@ -582,24 +687,22 @@ void ReosTelemac2DSimulation::createSelafinMeshFrame( ReosHydraulicStructure2D *
   file.close();
 }
 
-void ReosTelemac2DSimulation::createSelafinInputGeometry(
+void ReosTelemac2DSimulation::createSelafinBaseFile(
   ReosHydraulicStructure2D *hydraulicStructure,
   const QVector<int> &verticesPosInBoundary,
-  const QDir &directory )
+  const QString &fileName )
 {
-  createSelafinMeshFrame( hydraulicStructure, verticesPosInBoundary, directory );
+  createSelafinMeshFrame( hydraulicStructure, verticesPosInBoundary, fileName );
 
-  // TODO :: replace below by  writing directly on the file without MDAL or QGIS. Indeed, no so much to do more than the method aboce
   QgsMeshLayer *meshLayer = qobject_cast<QgsMeshLayer *> ( hydraulicStructure->mesh()->data() );
   if ( !meshLayer )
     return;
 
   const QgsMesh &mesh = *meshLayer->nativeMesh();
 
-  QString path = directory.filePath( mGeomFileName );
 
   std::unique_ptr<QgsMeshLayer> ouputMesh = std::make_unique < QgsMeshLayer>(
-        path,
+        fileName,
         QStringLiteral( "temp" ),
         QStringLiteral( "mdal" ) );
 
@@ -607,7 +710,7 @@ void ReosTelemac2DSimulation::createSelafinInputGeometry(
   QgsMeshZValueDatasetGroup *zValueDatasetGroup = new QgsMeshZValueDatasetGroup( "BOTTOM", mesh );
   ouputMesh->addDatasets( zValueDatasetGroup );
 
-  ouputMesh->saveDataset( path, 0, QStringLiteral( "SELAFIN" ) );
+  ouputMesh->saveDataset( fileName, 0, QStringLiteral( "SELAFIN" ) );
 
   //! Roughness
   std::unique_ptr<ReosPolygonStructureValues> roughness(
@@ -636,7 +739,103 @@ void ReosTelemac2DSimulation::createSelafinInputGeometry(
   roughnessGroup->initialize();
 
   ouputMesh->addDatasets( roughnessGroup.release() );
-  ouputMesh->saveDataset( path, 1, QStringLiteral( "SELAFIN" ) );
+  ouputMesh->saveDataset( fileName, 1, QStringLiteral( "SELAFIN" ) );
+}
+
+void ReosTelemac2DSimulation::createSelafinInitialConditionFile( ReosHydraulicStructure2D *hydraulicStructure,
+    const QVector<int> &verticesPosInBoundary,
+    const ReosHydraulicSimulationResults *result,
+    int timeStepIndex,
+    const QDir &directory )
+{
+  QString path = directory.filePath( mInitialConditionFile );
+  createSelafinBaseFile( hydraulicStructure, verticesPosInBoundary, path );
+  std::unique_ptr<QgsMeshLayer> ouputMesh = std::make_unique < QgsMeshLayer>(
+        path,
+        QStringLiteral( "temp" ),
+        QStringLiteral( "mdal" ) );
+
+  QgsMeshLayer *meshLayer = qobject_cast<QgsMeshLayer *> ( hydraulicStructure->mesh()->data() );
+  if ( !meshLayer )
+    return;
+
+  const QgsMesh &mesh = *meshLayer->nativeMesh();
+
+  int size = mesh.vertexCount();
+  // Water level
+  std::shared_ptr<QgsMeshMemoryDataset> waterLevelDataset( new QgsMeshMemoryDataset );
+
+  waterLevelDataset->values.resize( mesh.vertexCount() );
+  const QVector<double> waterlevelValue = result->datasetValues( result->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterLevel ), timeStepIndex );
+
+  if ( waterlevelValue.count() != size )
+    return;
+
+  for ( int i = 0; i < size; ++i )
+    waterLevelDataset->values[i] = waterlevelValue.at( i );
+
+  waterLevelDataset->valid = true;
+  waterLevelDataset->time = 0;
+
+  std::unique_ptr<QgsMeshMemoryDatasetGroup> waterLevelDatasetGroup( new QgsMeshMemoryDatasetGroup( "FREE SURFACE    M", QgsMeshDatasetGroupMetadata::DataOnVertices ) );
+  waterLevelDatasetGroup->addDataset( waterLevelDataset );
+  waterLevelDatasetGroup->initialize();
+  ouputMesh->addDatasets( waterLevelDatasetGroup.release() );
+  ouputMesh->saveDataset( path, 2, QStringLiteral( "SELAFIN" ) );
+
+  // Water depth
+
+  std::shared_ptr<QgsMeshMemoryDataset> waterDepthDataset( new QgsMeshMemoryDataset );
+  waterDepthDataset->values.resize( mesh.vertexCount() );
+  const QVector<double> waterDepthValue = result->datasetValues( result->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterDepth ), timeStepIndex );
+
+  if ( waterDepthValue.count() != size )
+    return;
+
+  for ( int i = 0; i < size; ++i )
+    waterDepthDataset->values[i] = waterDepthValue.at( i );
+
+  waterDepthDataset->valid = true;
+  waterDepthDataset->time = 0;
+
+  std::unique_ptr<QgsMeshMemoryDatasetGroup> waterDepthDatasetGroup( new QgsMeshMemoryDatasetGroup( QStringLiteral( "WATER DEPTH     M" ), QgsMeshDatasetGroupMetadata::DataOnVertices ) );
+  waterDepthDatasetGroup->addDataset( waterDepthDataset );
+  waterDepthDatasetGroup->initialize();
+  ouputMesh->addDatasets( waterDepthDatasetGroup.release() );
+  ouputMesh->saveDataset( path, 3, QStringLiteral( "SELAFIN" ) );
+
+
+  // Velocity
+  std::shared_ptr<QgsMeshMemoryDataset> velocityDatasetU( new QgsMeshMemoryDataset );
+  std::shared_ptr<QgsMeshMemoryDataset> velocityDatasetV( new QgsMeshMemoryDataset );
+  velocityDatasetU->values.resize( mesh.vertexCount() );
+  velocityDatasetV->values.resize( mesh.vertexCount() );
+  const QVector<double>velocityValue = result->datasetValues( result->groupIndex( ReosHydraulicSimulationResults::DatasetType::Velocity ), timeStepIndex );
+
+  if ( velocityValue.count() != size * 2 )
+    return;
+
+  for ( int i = 0; i < size; ++i )
+  {
+    velocityDatasetU->values[i] = velocityValue.at( 2 * i );
+    velocityDatasetV->values[i] = velocityValue.at( 2 * i + 1 );
+  }
+
+  velocityDatasetU->valid = true;
+  velocityDatasetU->time = 0;
+  velocityDatasetV->valid = true;
+  velocityDatasetV->time = 0;
+
+  std::unique_ptr<QgsMeshMemoryDatasetGroup> velocityDatasetGroupU( new QgsMeshMemoryDatasetGroup( QStringLiteral( "VELOCITY U      M/S" ), QgsMeshDatasetGroupMetadata::DataOnVertices ) );
+  std::unique_ptr<QgsMeshMemoryDatasetGroup> velocityDatasetGroupV( new QgsMeshMemoryDatasetGroup( QStringLiteral( "VELOCITY V      M/S" ), QgsMeshDatasetGroupMetadata::DataOnVertices ) );
+  velocityDatasetGroupU->addDataset( velocityDatasetU );
+  velocityDatasetGroupV->addDataset( velocityDatasetV );
+  velocityDatasetGroupU->initialize();
+  velocityDatasetGroupV->initialize();
+  ouputMesh->addDatasets( velocityDatasetGroupU.release() );
+  ouputMesh->saveDataset( path, 4, QStringLiteral( "SELAFIN" ) );
+  ouputMesh->addDatasets( velocityDatasetGroupV.release() );
+  ouputMesh->saveDataset( path, 5, QStringLiteral( "SELAFIN" ) );
 }
 
 
@@ -742,10 +941,12 @@ QList<ReosTelemac2DSimulation::TelemacBoundaryCondition> ReosTelemac2DSimulation
   return boundConds;
 }
 
-void ReosTelemac2DSimulation::createSteeringFile( ReosHydraulicStructure2D *hydraulicStructure,
-    QList<ReosHydraulicStructureBoundaryCondition *> boundaryConditions,
-    const ReosCalculationContext &context,
-    const QDir &directory )
+void ReosTelemac2DSimulation::createSteeringFile(
+  ReosHydraulicStructure2D *hydraulicStructure,
+  QList<ReosHydraulicStructureBoundaryCondition *> boundaryConditions,
+  const QVector<int> &verticesPosInBoundary,
+  const ReosCalculationContext &context,
+  const QDir &directory )
 {
   QString path = directory.filePath( mSteeringFileName );
   QFile file( path );
@@ -767,7 +968,18 @@ void ReosTelemac2DSimulation::createSteeringFile( ReosHydraulicStructure2D *hydr
   // Time parameters
   ReosDuration totalDuration( context.simulationStartTime().msecsTo( context.simulationEndTime() ), ReosDuration::millisecond );
   int timeStepCount = totalDuration.numberOfFullyContainedIntervals( mTimeStep->value() );
-  stream << QStringLiteral( "COMPUTATION CONTINUED : NO\n" );
+
+  switch ( initialCondition()->initialConditionType() )
+  {
+    case ReosTelemac2DInitialCondition::Type::FromOtherSimulation:
+      stream << QStringLiteral( "COMPUTATION CONTINUED : YES\n" );
+      stream << QStringLiteral( "PREVIOUS COMPUTATION FILE : %1\n" ).arg( mInitialConditionFile );
+      break;
+    case ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity:
+      stream << QStringLiteral( "COMPUTATION CONTINUED : NO\n" );
+      break;
+  }
+
   QDate startDate = context.simulationStartTime().date();
   stream << QStringLiteral( "ORIGINAL DATE OF TIME : %1;%2;%3\n" ).arg( QString::number( startDate.year() ),  QString::number( startDate.month() ),  QString::number( startDate.day() ) );
   QTime startTime = context.simulationStartTime().time();
@@ -815,15 +1027,25 @@ void ReosTelemac2DSimulation::createSteeringFile( ReosHydraulicStructure2D *hydr
   stream << QStringLiteral( "PRESCRIBED ELEVATIONS : %1\n" ).arg( prescribedElevation.join( ';' ) );
 
   //Initial condition
-  stream << QStringLiteral( "INITIAL CONDITIONS : 'CONSTANT ELEVATION'\n" );
-
-  switch ( mInitialCondition->initialConditionType() )
+  switch ( initialCondition()->initialConditionType() )
   {
-    case ReosTelemac2DInitialCondition::Type::FromFile:
-      break;
+    case ReosTelemac2DInitialCondition::Type::FromOtherSimulation:
+    {
+
+      ReosTelemac2DInitialConditionFromSimulation *cifs = qobject_cast<ReosTelemac2DInitialConditionFromSimulation *>( initialCondition() );
+      if ( hasResult( hydraulicStructure, cifs->otherSchemeId() ) )
+      {
+        std::unique_ptr<ReosHydraulicSimulationResults> results( loadSimulationResults( hydraulicStructure, cifs->otherSchemeId() ) );
+        int waterlevelGroupIndex = results->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterLevel );
+        if ( results->datasetCount( waterlevelGroupIndex ) >  cifs->timeStepIndex() )
+          createSelafinInitialConditionFile( hydraulicStructure, verticesPosInBoundary, results.get(), cifs->timeStepIndex(), directory );
+      }
+    }
+    break;
     case ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity:
     {
-      ReosTelemac2DInitialConstantWaterLevel *ciwl = qobject_cast<ReosTelemac2DInitialConstantWaterLevel *>( mInitialCondition );
+      stream << QStringLiteral( "INITIAL CONDITIONS : 'CONSTANT ELEVATION'\n" );
+      ReosTelemac2DInitialConstantWaterLevel *ciwl = qobject_cast<ReosTelemac2DInitialConstantWaterLevel *>( initialCondition() );
       stream << QStringLiteral( "INITIAL ELEVATION : %1\n" ).arg( QString::number( ciwl->initialWaterLevel()->value(), 'f', 2 ) );
     }
     break;
@@ -861,7 +1083,37 @@ void ReosTelemac2DSimulation::createSteeringFile( ReosHydraulicStructure2D *hydr
   stream << QStringLiteral( "MATRIX STORAGE : 3\n" );
 }
 
+void ReosTelemac2DSimulation::initInitialCondition()
+{
+  QList<ReosTelemac2DInitialCondition::Type> types;
 
+  types << ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity
+        << ReosTelemac2DInitialCondition::Type::FromOtherSimulation;
+
+  for ( ReosTelemac2DInitialCondition::Type type : std::as_const( types ) )
+  {
+    bool found = false;
+    for ( ReosTelemac2DInitialCondition *bc : std::as_const( mInitialConditions ) )
+      if ( bc->initialConditionType() == type )
+      {
+        found = true;
+        break;
+      }
+
+    if ( !found )
+    {
+      switch ( type )
+      {
+        case ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity:
+          mInitialConditions.append( new ReosTelemac2DInitialConstantWaterLevel( this ) );
+          break;
+        case ReosTelemac2DInitialCondition::Type::FromOtherSimulation:
+          mInitialConditions.append( new ReosTelemac2DInitialConditionFromSimulation( this ) );
+          break;
+      }
+    }
+  }
+}
 
 
 ReosTelemac2DSimulationProcess::ReosTelemac2DSimulationProcess( const ReosCalculationContext &context,

@@ -266,3 +266,15 @@ ReosHydraulicScheme *ReosHydraulicSchemeCollection::scheme( int index )
   return mHydraulicSchemes.at( index );
 }
 
+int ReosHydraulicSchemeCollection::schemeIndex( const QString &schemeId ) const
+{
+  for ( int i = 0; i < mHydraulicSchemes.count(); ++i )
+  {
+    ReosHydraulicScheme *sc = mHydraulicSchemes.at( i );
+    if ( sc->id() == schemeId )
+      return i;
+  }
+
+  return -1;
+}
+
