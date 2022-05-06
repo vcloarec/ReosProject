@@ -1156,7 +1156,7 @@ void ReosTelemac2DSimulationProcess::start()
             <<  QStringLiteral( "--ncsize=%1" ).arg( settings.value( QStringLiteral( "/engine/telemac/cpu-usage-count" ) ).toInt() );
 
 
-  mBlockRegEx = QRegularExpression( QStringLiteral( "(?s).*?((ITERATION.*?)\\n.*?=====)" ) );
+  mBlockRegEx = QRegularExpression( QStringLiteral( "(?s).*?((ITERATION .*?)\\n.*?=====)" ) );
   mBoundaryFlowRegEx = QRegularExpression( QStringLiteral( "(?s).*?FLUX BOUNDARY +([0-9])+: +([\\-0-9.E]+)" ) );
 
   mTimeRegEx = QRegularExpression( QStringLiteral( "(ITERATION +[a-zA-Z0-9]+ +TIME:[\\ 0-9a-zA-Z.()]+)" ) );
@@ -1241,6 +1241,8 @@ void ReosTelemac2DSimulationProcess::addToOutput( const QString &txt )
 void ReosTelemac2DSimulationProcess::extractInformation( const  QRegularExpressionMatch &blockMatch )
 {
   QString timeString = blockMatch.captured( 2 );
+  qDebug() << blockMatch.captured( 1 );
+  qDebug() << "--------------------------";
   QStringList splited = timeString.split( ' ' );
   double time = 0;
   if ( splited.count() > 1 && splited.last().contains( 'S' ) )
