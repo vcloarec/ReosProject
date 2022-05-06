@@ -50,8 +50,8 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     static QString staticType() {return ReosHydraulicNetworkElement::staticType() + QString( ':' ) + QStringLiteral( "structure2D" );}
 
     QString type() const override {return staticType();}
-    virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
-    virtual void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
+    void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
+    void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
 
     void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydraulicStructureBoundaryCondition *boundaryCondition, bool upstreamWillChange ) {}
     bool updateCalculationContextFromDownstream( const ReosCalculationContext &context ) { return false; }
@@ -91,6 +91,9 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 
     //! Adds a new simulation with \a key corresponding to a engine and sets it the current one. Returns true if the simulation is effectivly added
     bool addSimulation( const QString key );
+
+    //! Returns a pointer to the current simulation
+    ReosHydraulicSimulation *simulation( ReosHydraulicScheme *scheme ) const;
 
     //! Returns a pointer to the current simulation
     ReosHydraulicSimulation *currentSimulation() const;
@@ -189,6 +192,8 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 
     //! Return the name of the current dataset
     QString currentDatasetName() const;
+
+    ReosHydraulicNetworkContext hydraulicNetworkContext() const;
 
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) override;

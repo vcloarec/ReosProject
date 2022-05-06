@@ -34,6 +34,7 @@ class ReosHydraulicStructureBoundaryCondition;
 class ReosSimulationInitialConditions;
 class ReosHydraulicSimulationResults;
 class ReosHydraulicSimulation;
+class ReosHydraulicScheme;
 
 
 class REOSCORE_EXPORT ReosSimulationPreparationProcess: public ReosProcess
@@ -93,6 +94,9 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject
   public:
     ReosHydraulicSimulation( QObject *parent = nullptr );
 
+    virtual QString key() const = 0;
+    virtual ReosEncodedElement encode() const = 0;
+
     virtual QString directoryName() const = 0;
 
     virtual void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) = 0;
@@ -101,12 +105,11 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject
 
     virtual ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const = 0;
 
-    virtual QString key() const = 0;
-    virtual ReosEncodedElement encode() const = 0;
+    virtual QList<QDateTime> theoricalTimeSteps( ReosHydraulicScheme *scheme ) const = 0;
 
     virtual void saveSimulationResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, bool success ) const = 0;
 
-    virtual ReosHydraulicSimulationResults *loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const = 0;
+    virtual ReosHydraulicSimulationResults *loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, QObject *parent = nullptr ) const = 0;
 
     virtual bool hasResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const = 0;
 
@@ -115,6 +118,10 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject
     QDir simulationDir( const ReosHydraulicStructure2D *hydraulicStructure, const QString &schemeId ) const;
 
     virtual QString engineName() const = 0;
+
+    virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const = 0;
+
+    virtual void restoreConfiguration( ReosHydraulicScheme *scheme ) = 0;
 
 };
 

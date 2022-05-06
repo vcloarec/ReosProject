@@ -21,6 +21,10 @@
 #include "reostelemac2dsimulation.h"
 #include "reoshydraulic2dsimulationwidget.h"
 
+class QComboBox;
+
+class ReosTelemac2DInitialConditionFromSimulation;
+
 namespace Ui
 {
   class ReosTelemacSimulationEditWidget;
@@ -32,11 +36,17 @@ class ReosTelemacSimulationEditWidget : public QWidget
     Q_OBJECT
 
   public:
-    explicit ReosTelemacSimulationEditWidget( ReosTelemac2DSimulation *simulation, QWidget *parent = nullptr );
+    explicit ReosTelemacSimulationEditWidget( ReosHydraulicStructure2D *structure, ReosTelemac2DSimulation *simulation, QWidget *parent = nullptr );
     ~ReosTelemacSimulationEditWidget();
+
+  private slots:
+    void onInitialConditionChanged();
 
   private:
     Ui::ReosTelemacSimulationEditWidget *ui;
+    ReosTelemac2DSimulation *mSimulation = nullptr;
+    ReosHydraulicStructure2D *mStructure = nullptr;
+    QWidget *mCurrentInitialConditionWidget = nullptr;
 };
 
 class ReosTelemacEngineConfigurationDialog : public QDialog
@@ -58,8 +68,34 @@ class ReosTelemacSimulationEditWidgetFactory : public ReosHydraulicSimulationWid
   public:
     QString key() const override {return ReosTelemac2DSimulation::staticKey();}
 
-    QWidget *simulationSettingsWidget( ReosHydraulicSimulation *simulation, QWidget *parent ) const override;
+    QWidget *simulationSettingsWidget( ReosHydraulicStructure2D *structure, ReosHydraulicSimulation *simulation, QWidget *parent ) const override;
     QDialog *engineConfigurationDialog( QWidget *parent ) const override;
+};
+
+
+class ReosTelemac2DInitialConditionWidgetFactory
+{
+  public:
+
+    static QWidget *createWidget( ReosHydraulicStructure2D *structure, ReosTelemac2DInitialCondition *initialCondition, QWidget *parent );
+};
+
+class ReosTelemac2DInititalConditionFromOtherSimulationWidget : public QWidget
+{
+    Q_OBJECT
+  public:
+    ReosTelemac2DInititalConditionFromOtherSimulationWidget( ReosTelemac2DInitialConditionFromSimulation *initialCondition, ReosHydraulicStructure2D *structure );
+
+  private slots:
+    void onSchemeChange();
+
+  private:
+    QPointer<ReosTelemac2DInitialConditionFromSimulation> mInitialCondition;
+    QPointer<ReosHydraulicStructure2D> mStructure;
+    QComboBox *mSchemeCombo = nullptr;
+    QComboBox *mTimeStepCombo = nullptr;
+
+
 };
 
 #endif // REOSTELEMACSIMULATIONEDITWIDGET_H

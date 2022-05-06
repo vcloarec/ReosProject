@@ -27,7 +27,6 @@
 #include "reosparameter.h"
 #include "reoscalculationcontext.h"
 #include "reoshydrograph.h"
-#include "reossimulationinitialcondition.h"
 
 ReosHydraulicSimulation::ReosHydraulicSimulation( QObject *parent ): ReosDataObject( parent )
 {

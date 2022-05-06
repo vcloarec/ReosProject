@@ -5,12 +5,14 @@ SET(REOS_TELEMAC_SOURCES
     reostelemac2dsimulation.cpp
     reostelemacsimulationeditwidget.cpp
     reostelemac2dsimulationresults.cpp
+    reostelemac2dinitialcondition.cpp
 )
 
 SET(REOS_TELEMAC_HEADERS
     reostelemac2dsimulation.h
     reostelemacsimulationeditwidget.h
     reostelemac2dsimulationresults.h
+    reostelemac2dinitialcondition.h
 )
 
 ADD_LIBRARY(telemac_engine MODULE
