@@ -342,6 +342,7 @@ void ReosHydraulicStructure2DProperties::updateDatasetMenu()
   QWidgetAction *wa = new QWidgetAction( mScalarDatasetMenu );
 
   std::unique_ptr<ReosMeshWireframeSettingsWidget> meshSettingsWidget( new ReosMeshWireframeSettingsWidget );
+  meshSettingsWidget->setSettings( mStructure2D->mesh()->wireFrameSettings() );
   ReosMeshWireframeSettingsWidget *ptr = meshSettingsWidget.get();
   connect( meshSettingsWidget.get(), &ReosMeshWireframeSettingsWidget::changed, this, [this, ptr]
   {
