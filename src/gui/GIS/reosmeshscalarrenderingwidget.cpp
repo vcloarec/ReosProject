@@ -27,7 +27,6 @@ ReosMeshScalarRenderingWidget::ReosMeshScalarRenderingWidget( ReosMesh *mesh, co
   : ReosStackedPageWidget( guiContext.parent() )
   , ui( new Ui::ReosMeshScalarRenderingWidget )
   , mMesh( mesh )
-  , mDatasetGroupIndexId( mesh->datasetGroupIndex( datasetId ) )
   , mDatasetId( datasetId )
   , mMinimumParam( new ReosParameterDouble( tr( "Minimum" ), false, this ) )
   , mMaximumParam( new ReosParameterDouble( tr( "Maximum" ), false, this ) )
@@ -91,18 +90,17 @@ ReosMeshScalarRenderingWidget::ReosMeshScalarRenderingWidget( ReosMesh *mesh, co
 
   connect( ui->mReloadButton, &QToolButton::clicked, this, [this]
   {
-    QgsMeshLayer *meshLayer = qobject_cast<QgsMeshLayer *>( mMesh->data() );
+    double min = 0;
+    double max = 0;
 
-    if ( meshLayer )
+    mMesh->datasetGroupMinimumMaximum( mDatasetId, min, max );
+    if ( min < max )
     {
-      QgsMeshDatasetGroupMetadata meta = meshLayer->datasetGroupMetadata( QgsMeshDatasetIndex( mDatasetGroupIndexId ) );
-      if ( meta.minimum() < meta.maximum() )
-      {
-        mMinimumParam->setValue( meta.minimum() );
-        mMaximumParam->setValue( meta.maximum() );
-      }
+      mMinimumParam->setValue( min );
+      mMaximumParam->setValue( max );
     }
   } );
+
 }
 
 ReosMeshScalarRenderingWidget::~ReosMeshScalarRenderingWidget()

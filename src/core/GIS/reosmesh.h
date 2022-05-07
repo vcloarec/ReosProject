@@ -167,14 +167,13 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     //! Returns the value of dataset \a datasetId at position \a pos in map coordinates
     virtual double datasetScalarValueAt( const QString &datasetId, const QPointF &pos ) const = 0;
 
+    //! Returns by reference the min max for the dataset group corresponding to \a id
+    virtual void datasetGroupMinimumMaximum( const QString &datasetId, double &min, double &max ) const = 0;
+
     //! Save the mesh frame on UGRID file with path \a dataPath
     virtual void save( const QString &dataPath ) = 0;
 
     virtual void stopFrameEditing( bool commit, bool continueEditing = false ) = 0;
-
-    virtual ReosEncodedElement meshSymbology() const = 0;
-
-    virtual void setMeshSymbology( const ReosEncodedElement &symbology ) = 0;
 
     virtual ReosEncodedElement datasetScalarGroupSymbology( const QString &id ) const = 0;
 

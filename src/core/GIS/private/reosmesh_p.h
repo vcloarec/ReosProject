@@ -54,13 +54,11 @@ class ReosMeshFrame_p : public ReosMesh
     void generateMesh( const ReosMeshFrameData &data ) override;
     QString crs() const override;
     QObject *data() const override;
-    int datasetGroupIndex( const QString &id ) const override;
     ReosProcess *applyTopographyOnVertices( ReosTopographyCollection *topographyCollection ) override;
     double datasetScalarValueAt( const QString &datasetId, const QPointF &pos ) const override;
+    void datasetGroupMinimumMaximum( const QString &datasetId, double &min, double &max ) const override;
     void save( const QString &dataPath ) override;
     void stopFrameEditing( bool commit, bool continueEditing = false ) override;
-    ReosEncodedElement meshSymbology() const override;
-    void setMeshSymbology( const ReosEncodedElement &symbology ) override;
     ReosEncodedElement datasetScalarGroupSymbology( const QString &id ) const override;
     void setDatasetScalarGroupSymbology( const ReosEncodedElement &encodedElement, const QString &id ) override;
     void activateWireFrame( bool activate ) override;
@@ -94,17 +92,20 @@ class ReosMeshFrame_p : public ReosMesh
     QMap<QString, int> mDatasetGroupsIndex;
     QgsMeshDatasetGroup *mZVerticesDatasetGroup = nullptr;
     QString mVerticesElevationDatasetName;
-    QString mVerticesElevationDatasetId;
+    const QString mVerticesElevationDatasetId = "vertices-elevation";
     QString mCurrentdScalarDatasetId;
     QString mVerticalDataset3DId;
+    QMap<QString, QByteArray> mDatasetScalarSymbologies;
     WireFrameSettings mWireFrameSettings;
 
     void init();
-    void activateVertexZValueDatasetGroup();
-    QString addDatasetGroup( QgsMeshDatasetGroup *group, const QString &id = QString() );
+    void addDatasetGroup( QgsMeshDatasetGroup *group, const QString &id = QString() );
     void firstUpdateOfTerrainScalarSetting();
     void restoreVertexElevationDataset();
     void updateWireFrameSettings();
+    int datasetGroupIndex( const QString &id ) const;
+    ReosEncodedElement datasetScalarGroupSymbologyPrivate( int i ) const;
+    void applyScalarSymbologyOnMeshDatasetGroup( const QString &id );
 
     QPointF tolayerCoordinates( const ReosSpatialPosition &position ) const;
 
