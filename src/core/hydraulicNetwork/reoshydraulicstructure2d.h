@@ -238,10 +238,6 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     std::map<QString, std::unique_ptr<ReosSimulationProcess>> mSimulationProcesses;
     QMap<QString, ReosHydraulicSimulationResults *> mSimulationResults;
 
-    typedef ReosHydraulicSimulationResults::DatasetType ResultType;
-    mutable QMap<ResultType, QByteArray> mResultScalarDatasetSymbologies;
-    mutable QByteArray mTerrainSymbology;
-
     Reos3DMapSettings m3dMapSettings;
     Reos3DTerrainSettings m3dTerrainSettings;
 
@@ -252,8 +248,6 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     QString directory() const;
     ReosHydraulicStructureBoundaryCondition *boundaryConditionNetWorkElement( const QString boundaryId ) const;
     void onMeshGenerated( const ReosMeshFrameData &meshData );
-
-    void getSymbologiesFromMesh( const QString &schemeId ) const;
 
     void loadResult( ReosHydraulicSimulation *simulation, const QString &schemeId );
     void setResultsOnStructure( ReosHydraulicSimulationResults *simResults );

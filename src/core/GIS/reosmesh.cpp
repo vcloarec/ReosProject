@@ -50,6 +50,16 @@ ReosMesh::ReosMesh( QObject *parent )
   mQualityMeshParameters.maximumAreaChange->setValue( 2 );
 }
 
+QMap<QString, QByteArray> ReosMesh::datasetScalarSymbologies() const
+{
+  return mDatasetScalarSymbologies;
+}
+
+void ReosMesh::setDatasetScalarSymbologies( const QMap<QString, QByteArray> &datasetScalarSymbologies )
+{
+  mDatasetScalarSymbologies = datasetScalarSymbologies;
+}
+
 
 double ReosMesh::verticaleSCale() const
 {

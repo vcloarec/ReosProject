@@ -210,13 +210,16 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     double verticaleSCale() const;
     void setVerticaleSCale( double verticaleSCale );
 
+    QMap<QString, QByteArray> datasetScalarSymbologies() const;
+    void setDatasetScalarSymbologies( const QMap<QString, QByteArray> &datasetScalarSymbologies );
+
   protected:
     ReosMesh( QObject *parent = nullptr );
 
     QualityMeshParameters mQualityMeshParameters;
     QSet<int> mBoundaryVerticesSet;
     QSet<int> mHolesVerticesSet;
-
+    QMap<QString, QByteArray> mDatasetScalarSymbologies;
 
     double mVerticaleSCale = 1;
 };
