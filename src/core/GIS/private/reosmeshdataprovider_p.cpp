@@ -235,6 +235,10 @@ void ReosMeshDataProvider_p::loadMeshFrame( const QString &filePath, const QStri
 
 }
 
+ReosMeshDataProvider_p::ReosMeshDataProvider_p(): QgsMeshDataProvider( "mesh", QgsDataProvider::ProviderOptions() )
+{
+}
+
 void ReosMeshDataProvider_p::setFilePath( const QString &filePath )
 {
   mFilePath = filePath;

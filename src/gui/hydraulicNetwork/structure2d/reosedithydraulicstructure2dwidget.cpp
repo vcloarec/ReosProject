@@ -1,4 +1,4 @@
-﻿/***************************************************************************
+/***************************************************************************
   reosedithydraulicstructure2dwidget.cpp - ReosEditHydraulicStructure2DWidget
 
  ---------------------
@@ -205,7 +205,12 @@ void ReosEditHydraulicStructure2DWidget::hideEvent( QHideEvent *e )
       mStructure2D->mesh()->stopFrameEditing( false );
     }
   }
+  else
+  {
+    mStructure2D->mesh()->stopFrameEditing( false );
+  }
 
+  emit hidden();
   ReosStackedPageWidget::hideEvent( e );
 }
 

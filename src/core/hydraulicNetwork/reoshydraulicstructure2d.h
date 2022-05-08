@@ -125,6 +125,8 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Returns whether a simulation is running
     bool hasSimulationRunning() const;
 
+    void updateResults( const QString &schemeId );
+
     //! Returns whether the structure contain any results
     bool hasResults() const;
 
@@ -253,7 +255,6 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 
     void getSymbologiesFromMesh( const QString &schemeId ) const;
 
-    void updateCurrentResults( const QString &schemeId );
     void loadResult( ReosHydraulicSimulation *simulation, const QString &schemeId );
     void setResultsOnStructure( ReosHydraulicSimulationResults *simResults );
 

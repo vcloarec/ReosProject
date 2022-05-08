@@ -33,7 +33,7 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
 {
     Q_OBJECT
   public:
-    ReosMeshDataProvider_p(): QgsMeshDataProvider( "mesh", QgsDataProvider::ProviderOptions() ) {}
+    ReosMeshDataProvider_p();
 
     void setFilePath( const QString &filePath );
     void setMDALDriver( const QString &driverName );
@@ -105,7 +105,6 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
     ReosMeshDatasetSource *mDatasetSource = nullptr;
 
     static QgsMesh convertFrameFromReos( const ReosMeshFrameData &reosMesh );
-
 };
 
 

@@ -53,7 +53,9 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
 
   connect( mActionEditStructure, &QAction::triggered, this, [this]
   {
-    emit stackedPageWidgetOpened( new ReosEditHydraulicStructure2DWidget( mStructure2D, mGuiContext ) );
+    ReosEditHydraulicStructure2DWidget *editWidget = new ReosEditHydraulicStructure2DWidget( mStructure2D, mGuiContext );
+    connect( editWidget, &ReosEditHydraulicStructure2DWidget::hidden, this, &ReosHydraulicStructure2DProperties::restoreResults );
+    emit stackedPageWidgetOpened( editWidget );
   } );
 
   connect( mActionRunSimulation, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::onLaunchCalculation );
@@ -98,7 +100,9 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   toolBar->addWidget( simulationToolButton );
   simulationToolButton->setEnabled( mStructure2D->currentSimulation() != nullptr );
   connect( mStructure2D, &ReosHydraulicStructure2D::currentSimulationChanged, [this, simulationToolButton]
-  {simulationToolButton->setEnabled( mStructure2D->currentSimulation() != nullptr );} );
+  {
+    simulationToolButton->setEnabled( mStructure2D->currentSimulation() != nullptr );
+  } );
 
   toolBar->addSeparator();
 
@@ -121,8 +125,10 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   mMap->addExtraRenderedObject( mStructure2D->mesh() );
   connect( mStructure2D->mesh(), &ReosMesh::repaintRequested, this, &ReosHydraulicStructure2DProperties::requestMapRefresh );
 
-  updateDatasetMenu();
-  connect( mStructure2D, &ReosHydraulicStructure2D::simulationResultChanged, this, &ReosHydraulicStructure2DProperties::updateDatasetMenu );
+  mCurrentDatasetId = mStructure2D->currentActivatedMeshDataset();
+  updateDatasetMenus();
+
+  connect( mStructure2D, &ReosHydraulicStructure2D::simulationResultChanged, this, &ReosHydraulicStructure2DProperties::updateDatasetMenus );
 
   QString settingsString = QStringLiteral( "hydraulic-network-structure-2D" );
 
@@ -257,7 +263,6 @@ void ReosHydraulicStructure2DProperties::fillResultGroupBox( const ReosCalculati
   ui->mLabelResultValueUnderCursor->setText( QString( '-' ) );
 }
 
-
 void ReosHydraulicStructure2DProperties::updateProgress()
 {
   if ( !mCurrentProcess.isNull() )
@@ -315,7 +320,8 @@ void ReosHydraulicStructure2DProperties::onExportSimulation()
   controler->deleteLater();
 }
 
-void ReosHydraulicStructure2DProperties::updateDatasetMenu()
+
+void ReosHydraulicStructure2DProperties::updateScalarDatasetMenu()
 {
   mScalarDatasetMenu->clear();
   const QStringList datasetIds = mStructure2D->meshDatasetIds();
@@ -333,8 +339,10 @@ void ReosHydraulicStructure2DProperties::updateDatasetMenu()
     connect( action, &QAction::triggered, this, [id, this]( bool checked )
     {
       if ( checked )
-        mStructure2D->activateResultDatasetGroup( id );
-      fillResultGroupBox( mCalculationContext );
+      {
+        mCurrentDatasetId = id;
+        restoreResults();
+      }
     } );
   }
 
@@ -352,6 +360,20 @@ void ReosHydraulicStructure2DProperties::updateDatasetMenu()
   mScalarDatasetMenu->addAction( wa );
   mScalarDatasetActions->setExclusive( true );
 
+
+void ReosHydraulicStructure2DProperties::restoreResults()
+{
+  mStructure2D->updateResults( mCalculationContext.schemeId() );
+  mStructure2D->activateResultDatasetGroup( mCurrentDatasetId );
+  fillResultGroupBox( mCalculationContext );
+  updateDatasetMenus();
+}
+
+
+void ReosHydraulicStructure2DProperties::updateDatasetMenus()
+{
+  updateScalarDatasetMenu();
+  updateVectorDatasetMenu();
 }
 
 void ReosHydraulicStructure2DProperties::populateHydrograph()

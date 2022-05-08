@@ -93,10 +93,10 @@ void ReosMeshFrame_p::stopFrameEditing( bool commit, bool continueEditing )
     if ( it.value() == activeScalarDatasetIndex )
       activeGroupId = it.key();
 
-  QgsCoordinateTransform transform( mMeshLayer->crs(), QgsProject::instance()->crs(), QgsProject::instance() );
-
   if ( mMeshLayer->isEditable() )
   {
+
+    QgsCoordinateTransform transform( mMeshLayer->crs(), QgsProject::instance()->crs(), QgsProject::instance() );
     if ( commit )
       mMeshLayer->commitFrameEditing( transform, continueEditing );
     else
@@ -572,6 +572,8 @@ bool ReosMeshFrame_p::activateDataset( const QString &id, bool update )
 {
   int index = mDatasetGroupsIndex.value( id, -1 );
 
+  applyScalarSymbologyOnMeshDatasetGroup( id );
+
   mCurrentdScalarDatasetId = id;
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
   settings.setActiveScalarDatasetGroup( index );
@@ -594,8 +596,16 @@ QStringList ReosMeshFrame_p::datasetIds() const
 {
   QMap<int, QString> mapRet;
   QStringList ids = mDatasetGroupsIndex.keys();
+  QList<int> indexes = mMeshLayer->datasetGroupsIndexes();
+
   for ( const QString &id : ids )
-    mapRet.insert( mDatasetGroupsIndex.value( id ), id );
+  {
+    int ind = mDatasetGroupsIndex.value( id );
+    if ( indexes.contains( ind ) )
+      mapRet.insert( mDatasetGroupsIndex.value( id ), id );
+  }
+  return mapRet.values();
+}
 
   return mapRet.values();
 }

@@ -531,7 +531,7 @@ void ReosHydraulicStructure2D::removeAllResults()
     if ( sim )
       sim->removeResults( this, scheme->id() );
 
-    updateCurrentResults( scheme->id() );
+    updateResults( scheme->id() );
   }
 }
 
@@ -702,7 +702,7 @@ void ReosHydraulicStructure2D::onSimulationFinished( ReosHydraulicSimulation *si
   mSimulationResults.remove( schemeId );
 
   if ( mNetWork->calculationContext().schemeId() == schemeId )
-    updateCurrentResults( schemeId );
+    updateResults( schemeId );
 
   emit simulationFinished();
 }
@@ -797,10 +797,10 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
   emit simulationResultChanged();
 }
 
-void ReosHydraulicStructure2D::updateCurrentResults( const QString &schemeId )
+void ReosHydraulicStructure2D::updateResults( const QString &schemeId )
 {
   //Store the current symbology per data type
-  getSymbologiesFromMesh( schemeId );
+//  getSymbologiesFromMesh( schemeId );
 
   if ( currentSimulation() && currentSimulation()->hasResult( this, schemeId ) )
   {
@@ -834,7 +834,7 @@ void ReosHydraulicStructure2D::activateMeshTerrain()
 
 void ReosHydraulicStructure2D::deactivateMeshScalar()
 {
-  mTerrainSymbology = mMesh->datasetScalarGroupSymbology( mMesh->verticesElevationDatasetId() ).bytes();
+  //mTerrainSymbology = mMesh->datasetScalarGroupSymbology( mMesh->verticesElevationDatasetId() ).bytes();
   mMesh->activateDataset( QString() );
 }
 
@@ -886,7 +886,7 @@ void ReosHydraulicStructure2D::restoreConfiguration( ReosHydraulicScheme *scheme
 
   if ( mCurrentSimulationIndex == -1 )
     return;
-  updateCurrentResults( scheme->id() );
+  updateResults( scheme->id() );
 
   emit currentSimulationChanged();
 

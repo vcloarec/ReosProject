@@ -54,10 +54,11 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
     void requestMapRefresh();
     void onLaunchCalculation();
     void onExportSimulation();
-    void updateDatasetMenu();
+    void updateDatasetMenus();
     void populateHydrograph();
     void onSimulationFinished();
     void onMapCursorMove( const QPointF &pos );
+    void restoreResults();
 
   private:
     Ui::ReosHydraulicStructure2DProperties *ui;
@@ -81,6 +82,10 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
 
     void disableResultGroupBox();
     void fillResultGroupBox( const ReosCalculationContext &context );
+    void updateScalarDatasetMenu();
+
+    QString mCurrentDatasetId;
+
 };
 
 
