@@ -25,6 +25,7 @@ SET(REOS_GUI_SOURCES
     GIS/reosmaptooleditgeometrystructure.cpp
     GIS/reoseditpolylinestructurewidget.cpp
     GIS/reosmeshscalarrenderingwidget.cpp
+    GIS/reosmeshvectorrenderingwidget.cpp
     GIS/reosmaptooleditmeshframe.cpp
     GIS/3D/reos3dview.cpp
     GIS/3D/reoslightwidget.cpp
@@ -123,6 +124,7 @@ SET(REOS_GUI_HEADERS
     GIS/reosmaptooleditgeometrystructure.h
     GIS/reoseditpolylinestructurewidget.h
     GIS/reosmeshscalarrenderingwidget.h
+    GIS/reosmeshvectorrenderingwidget.h
     GIS/reosmaptooleditmeshframe.h
     GIS/3D/reos3dview.h
     GIS/3D/reoslightwidget.h

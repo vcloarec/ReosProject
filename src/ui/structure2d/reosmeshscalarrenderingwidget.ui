@@ -40,7 +40,7 @@
         <string notr="true"/>
        </property>
        <property name="icon">
-        <iconset resource="../../images/images.qrc">
+        <iconset resource="../../../images/images.qrc">
          <normaloff>:/images/back.svg</normaloff>:/images/back.svg</iconset>
        </property>
       </widget>
@@ -80,7 +80,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset resource="../../images/images.qrc">
+        <iconset resource="../../../images/images.qrc">
          <normaloff>:/images/reload.svg</normaloff>:/images/reload.svg</iconset>
        </property>
       </widget>
@@ -90,7 +90,7 @@
    <item row="2" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="mOpacityLabel">
        <property name="text">
         <string>Opacity</string>
        </property>
@@ -135,7 +135,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../images/images.qrc"/>
+  <include location="../../../images/images.qrc"/>
  </resources>
  <connections/>
 </ui>

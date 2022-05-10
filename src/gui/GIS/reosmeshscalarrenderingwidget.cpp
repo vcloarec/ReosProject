@@ -23,11 +23,12 @@
 
 #include "reosstyleregistery.h"
 
-ReosMeshScalarRenderingWidget::ReosMeshScalarRenderingWidget( ReosMesh *mesh, const QString &datasetId, const ReosGuiContext &guiContext )
+ReosMeshScalarRenderingWidget::ReosMeshScalarRenderingWidget( ReosMesh *mesh, const QString &datasetId, bool isScalar, const ReosGuiContext &guiContext )
   : ReosStackedPageWidget( guiContext.parent() )
   , ui( new Ui::ReosMeshScalarRenderingWidget )
   , mMesh( mesh )
   , mDatasetId( datasetId )
+  , mIsScalar( isScalar )
   , mMinimumParam( new ReosParameterDouble( tr( "Minimum" ), false, this ) )
   , mMaximumParam( new ReosParameterDouble( tr( "Maximum" ), false, this ) )
 {
@@ -41,28 +42,52 @@ ReosMeshScalarRenderingWidget::ReosMeshScalarRenderingWidget( ReosMesh *mesh, co
   mColorRampShaderWidget = new QgsColorRampShaderWidget( this );
   ui->mColorRampShaderLayout->addWidget( mColorRampShaderWidget );
 
-  ReosEncodedElement datasetSymbology = mesh->datasetScalarGroupSymbology( datasetId );
-  if ( datasetSymbology.description() == QStringLiteral( "dataset-symbology" ) )
+  if ( mIsScalar )
   {
-
-    QString docString;
-    datasetSymbology.getData( QStringLiteral( "symbology" ), docString );
-
-    QDomDocument doc( QStringLiteral( "dataset-symbology" ) );
-
-    if ( doc.setContent( docString ) )
+    ReosEncodedElement datasetSymbology = mesh->datasetScalarGroupSymbology( datasetId );
+    if ( datasetSymbology.description() == QStringLiteral( "dataset-symbology" ) )
     {
-      QDomElement domElem = doc.firstChildElement( QStringLiteral( "scalar-settings" ) );
-      QgsReadWriteContext context;
-      QgsMeshRendererScalarSettings scalarSettings;
-      scalarSettings.readXml( domElem );
+      QString docString;
+      datasetSymbology.getData( QStringLiteral( "symbology" ), docString );
 
-      mColorRampShaderWidget->setFromShader( scalarSettings.colorRampShader() );
-      mMinimumParam->setValue( scalarSettings.classificationMinimum() );
-      mMaximumParam->setValue( scalarSettings.classificationMaximum() );
-      mColorRampShaderWidget->setMinimumMaximum( mMinimumParam->value(), mMaximumParam->value() );
-      ui->mOpacitySlider->setValue( scalarSettings.opacity() * 100 );
+      QDomDocument doc( QStringLiteral( "dataset-symbology" ) );
+
+      if ( doc.setContent( docString ) )
+      {
+        QDomElement domElem = doc.firstChildElement( QStringLiteral( "scalar-settings" ) );
+        QgsReadWriteContext context;
+        QgsMeshRendererScalarSettings scalarSettings;
+        scalarSettings.readXml( domElem );
+
+        mColorRampShaderWidget->setFromShader( scalarSettings.colorRampShader() );
+        mMinimumParam->setValue( scalarSettings.classificationMinimum() );
+        mMaximumParam->setValue( scalarSettings.classificationMaximum() );
+        mColorRampShaderWidget->setMinimumMaximum( mMinimumParam->value(), mMaximumParam->value() );
+        ui->mOpacitySlider->setValue( scalarSettings.opacity() * 100 );
+      }
     }
+  }
+  else
+  {
+    const ReosEncodedElement &encodedSymbology( mMesh->datasetVectorGroupSymbology( mDatasetId ) );
+    QString docString;
+    encodedSymbology.getData( QStringLiteral( "symbology" ), docString );
+    QDomDocument docFrom( QStringLiteral( "dataset-vector-symbology" ) );
+
+    QgsMeshRendererVectorSettings vectorSettings;
+    if ( docFrom.setContent( docString ) )
+    {
+      QDomElement domElem = docFrom.firstChildElement( QStringLiteral( "vector-settings" ) );
+      QgsReadWriteContext context;
+      vectorSettings.readXml( domElem );
+    }
+    mColorRampShaderWidget->setFromShader( vectorSettings.colorRampShader() );
+    mMinimumParam->setValue( vectorSettings.colorRampShader().minimumValue() );
+    mMaximumParam->setValue( vectorSettings.colorRampShader().maximumValue() );
+    mColorRampShaderWidget->setMinimumMaximum( mMinimumParam->value(), mMaximumParam->value() );
+    ui->mOpacitySlider->setVisible( false );
+    ui->mOpacityLabel->setVisible( false );
+    ui->mOpacitySpinBox->setVisible( false );
   }
 
   connect( mMinimumParam, &ReosParameter::valueChanged, this, &ReosMeshScalarRenderingWidget::onMinMaxChanged );
@@ -120,16 +145,44 @@ void ReosMeshScalarRenderingWidget::onColorRampChanged()
 
 void ReosMeshScalarRenderingWidget::updateMeshSettings()
 {
-  QgsMeshRendererScalarSettings scalarSettings;
-  scalarSettings.setClassificationMinimumMaximum( mMinimumParam->value(), mMaximumParam->value() );
-  scalarSettings.setColorRampShader( mColorRampShaderWidget->shader() );
-  scalarSettings.setOpacity( ui->mOpacitySpinBox->value() / 100.0 );
+  if ( mIsScalar )
+  {
+    QgsMeshRendererScalarSettings scalarSettings;
+    scalarSettings.setClassificationMinimumMaximum( mMinimumParam->value(), mMaximumParam->value() );
+    scalarSettings.setColorRampShader( mColorRampShaderWidget->shader() );
+    scalarSettings.setOpacity( ui->mOpacitySpinBox->value() / 100.0 );
 
-  QDomDocument doc( QStringLiteral( "dataset-symbology" ) );
-  doc.appendChild( scalarSettings.writeXml( doc ) ) ;
+    QDomDocument doc( QStringLiteral( "dataset-symbology" ) );
+    doc.appendChild( scalarSettings.writeXml( doc ) ) ;
 
-  ReosEncodedElement encodedElem( QStringLiteral( "dataset-symbology" ) );
-  QString docString = doc.toString();
-  encodedElem.addData( QStringLiteral( "symbology" ), docString );
-  mMesh->setDatasetScalarGroupSymbology( encodedElem, mDatasetId );
+    ReosEncodedElement encodedElem( QStringLiteral( "dataset-symbology" ) );
+    QString docString = doc.toString();
+    encodedElem.addData( QStringLiteral( "symbology" ), docString );
+    mMesh->setDatasetScalarGroupSymbology( encodedElem, mDatasetId );
+  }
+  else
+  {
+    const ReosEncodedElement &encodedSymbology( mMesh->datasetVectorGroupSymbology( mDatasetId ) );
+    QString docString;
+    encodedSymbology.getData( QStringLiteral( "symbology" ), docString );
+    QDomDocument docFrom( QStringLiteral( "dataset-vector-symbology" ) );
+
+    QgsMeshRendererVectorSettings vectorSettings;
+    if ( docFrom.setContent( docString ) )
+    {
+      QDomElement domElem = docFrom.firstChildElement( QStringLiteral( "vector-settings" ) );
+      QgsReadWriteContext context;
+      vectorSettings.readXml( domElem );
+    }
+
+    vectorSettings.setColorRampShader( mColorRampShaderWidget->shader() );
+
+    QDomDocument docTo( QStringLiteral( "dataset-vector-symbology" ) );
+    docTo.appendChild( vectorSettings.writeXml( docTo ) ) ;
+
+    ReosEncodedElement encodedElem( QStringLiteral( "dataset-vector-symbology" ) );
+    QString docStringTo = docTo.toString();
+    encodedElem.addData( QStringLiteral( "symbology" ), docStringTo );
+    mMesh->setDatasetVectorGroupSymbology( encodedElem, mDatasetId );
+  }
 }

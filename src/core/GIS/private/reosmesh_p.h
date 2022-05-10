@@ -61,6 +61,8 @@ class ReosMeshFrame_p : public ReosMesh
     void stopFrameEditing( bool commit, bool continueEditing = false ) override;
     ReosEncodedElement datasetScalarGroupSymbology( const QString &id ) const override;
     void setDatasetScalarGroupSymbology( const ReosEncodedElement &encodedElement, const QString &id ) override;
+    ReosEncodedElement datasetVectorGroupSymbology( const QString &id ) const override;
+    void setDatasetVectorGroupSymbology( const ReosEncodedElement &encodedElement, const QString &id ) override;
     void activateWireFrame( bool activate ) override;
     bool isWireFrameActive() const override;
     ReosObjectRenderer *createRenderer( QGraphicsView *view ) override;
@@ -70,7 +72,9 @@ class ReosMeshFrame_p : public ReosMesh
 
     QString verticesElevationDatasetId() const override;
     bool activateDataset( const QString &id, bool update = true ) override;
+    bool activateVectorDataset( const QString &id, bool update = true ) override;
     QStringList datasetIds() const override;
+    QStringList vectorDatasetIds() const override;
     QString datasetName( const QString &id ) const override;
     bool hasDatasetGroupIndex( const QString &id ) const override;
 
@@ -78,6 +82,7 @@ class ReosMeshFrame_p : public ReosMesh
     void setVerticalDataset3DId( const QString &verticalDataset3DId, bool update = true ) override;
 
     QString currentdScalarDatasetId() const override;
+    QString currentdVectorDatasetId() const override;
 
     void update3DRenderer() override;
 
@@ -93,9 +98,9 @@ class ReosMeshFrame_p : public ReosMesh
     QgsMeshDatasetGroup *mZVerticesDatasetGroup = nullptr;
     QString mVerticesElevationDatasetName;
     const QString mVerticesElevationDatasetId = "vertices-elevation";
-    QString mCurrentdScalarDatasetId;
+    QString mCurrentScalarDatasetId;
+    QString mCurrentActiveVectorDatasetId;
     QString mVerticalDataset3DId;
-    QMap<QString, QByteArray> mDatasetScalarSymbologies;
     WireFrameSettings mWireFrameSettings;
 
     void init();
@@ -106,6 +111,7 @@ class ReosMeshFrame_p : public ReosMesh
     int datasetGroupIndex( const QString &id ) const;
     ReosEncodedElement datasetScalarGroupSymbologyPrivate( int i ) const;
     void applyScalarSymbologyOnMeshDatasetGroup( const QString &id );
+    void applyVectorSymbologyOnMeshDatasetGroup( const QString &id );
 
     QPointF tolayerCoordinates( const ReosSpatialPosition &position ) const;
 

@@ -87,7 +87,7 @@ void ReosMeshTopographyWidget::onAddTopography()
 
 void ReosMeshTopographyWidget::onRenderingSettings()
 {
-  emit addOtherPage( new ReosMeshScalarRenderingWidget( mMesh, mTopographyDatasetId, ReosGuiContext( mGuiContext, this ) ) );
+  emit addOtherPage( new ReosMeshScalarRenderingWidget( mMesh, mTopographyDatasetId, true, ReosGuiContext( mGuiContext, this ) ) );
 }
 
 void ReosMeshTopographyWidget::onMapCursorMove( const QPointF &pos )

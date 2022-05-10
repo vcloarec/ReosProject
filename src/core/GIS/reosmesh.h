@@ -146,17 +146,23 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     //! Returns all the dataset ids contained in the mesh
     virtual QStringList datasetIds() const = 0;
 
+    //! Returns all the vector dataset ids contained in the mesh
+    virtual QStringList vectorDatasetIds() const = 0;
+
     //! Returns the name of the dataset with \a id
     virtual QString datasetName( const QString &id ) const = 0;
 
     //! Activates the dataset with \a id
     virtual bool activateDataset( const QString &id, bool update = true ) = 0;
 
+    //! Activates the vector dataset with \a id
+    virtual bool activateVectorDataset( const QString &id, bool update = true ) = 0;
+
     //! Returns the current scalar dataset Id
     virtual QString currentdScalarDatasetId() const = 0;
 
-    //! Returns an index correspondng to the dataset group with \a id
-    virtual int datasetGroupIndex( const QString &id ) const = 0;
+    //! Returns the current vector dataset Id
+    virtual QString currentdVectorDatasetId() const = 0;
 
     //! Returns whether the mesh has a dataset group with \a id
     virtual bool hasDatasetGroupIndex( const QString &id ) const = 0;
@@ -178,6 +184,10 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     virtual ReosEncodedElement datasetScalarGroupSymbology( const QString &id ) const = 0;
 
     virtual void setDatasetScalarGroupSymbology( const ReosEncodedElement &encodedElement, const QString &id ) = 0;
+
+    virtual ReosEncodedElement datasetVectorGroupSymbology( const QString &id ) const = 0;
+
+    virtual void setDatasetVectorGroupSymbology( const ReosEncodedElement &encodedElement, const QString &id ) = 0;
 
     virtual void activateWireFrame( bool activate ) = 0;
     virtual bool isWireFrameActive() const = 0;
@@ -213,6 +223,9 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     QMap<QString, QByteArray> datasetScalarSymbologies() const;
     void setDatasetScalarSymbologies( const QMap<QString, QByteArray> &datasetScalarSymbologies );
 
+    QMap<QString, QByteArray> datasetVectorSymbologies() const;
+    void setDatasetVectorSymbologies( const QMap<QString, QByteArray> &datasetVectorSymbologies );
+
   protected:
     ReosMesh( QObject *parent = nullptr );
 
@@ -220,6 +233,7 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     QSet<int> mBoundaryVerticesSet;
     QSet<int> mHolesVerticesSet;
     QMap<QString, QByteArray> mDatasetScalarSymbologies;
+    QMap<QString, QByteArray> mDatasetVectorSymbologies;
 
     double mVerticaleSCale = 1;
 };

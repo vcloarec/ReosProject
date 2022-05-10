@@ -34,7 +34,7 @@ class QgsMeshLayer;
 class ReosMeshScalarRenderingWidget: public ReosStackedPageWidget
 {
   public:
-    ReosMeshScalarRenderingWidget( ReosMesh *mesh, const QString &datasetId, const ReosGuiContext &guiContext );
+    ReosMeshScalarRenderingWidget( ReosMesh *mesh, const QString &datasetId, bool isScalar, const ReosGuiContext &guiContext );
     ~ReosMeshScalarRenderingWidget();
 
   private slots:
@@ -45,6 +45,7 @@ class ReosMeshScalarRenderingWidget: public ReosStackedPageWidget
     Ui::ReosMeshScalarRenderingWidget *ui;
     ReosMesh *mMesh = nullptr;
     QString mDatasetId;
+    bool mIsScalar;
     ReosParameterDouble *mMinimumParam = nullptr;
     ReosParameterDouble *mMaximumParam = nullptr;
 

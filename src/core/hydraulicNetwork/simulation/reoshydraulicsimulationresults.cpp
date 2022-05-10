@@ -46,6 +46,8 @@ QString ReosHydraulicSimulationResults::groupId( int groupIndex ) const
       return tr( "velocity" );
       break;
   }
+
+  return QString();
 }
 
 QString ReosHydraulicSimulationResults::groupName( int groupIndex ) const

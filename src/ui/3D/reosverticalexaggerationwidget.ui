@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>97</width>
-    <height>111</height>
+    <width>100</width>
+    <height>117</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,7 +15,7 @@
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
-    <widget class="QDoubleSpinBox" name="doubleSpinBox"/>
+    <widget class="ReosParameterDoubleWidget" name="mExaggerationParameter" native="true"/>
    </item>
    <item>
     <widget class="ReosSliderElastic" name="mSlider">
@@ -46,6 +46,12 @@
    <class>ReosSliderElastic</class>
    <extends>QSlider</extends>
    <header>reosverticalexaggerationwidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ReosParameterDoubleWidget</class>
+   <extends>QWidget</extends>
+   <header>reosparameterwidget.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

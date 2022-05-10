@@ -86,13 +86,26 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
       mSimulations.append( sim );
   }
 
-  QMap<QString, QByteArray> symbologies;
-  encodedElement.getData( QStringLiteral( "scalar-results-symbologies" ), symbologies );
-  mMesh->setDatasetScalarSymbologies( symbologies );
+  QMap<QString, QByteArray> scalarSymbologies;
+  encodedElement.getData( QStringLiteral( "scalar-results-symbologies" ), scalarSymbologies );
+  mMesh->setDatasetScalarSymbologies( scalarSymbologies );
+  QMap<QString, QByteArray> vectorSymbologies;
+  encodedElement.getData( QStringLiteral( "vector-results-symbologies" ), vectorSymbologies );
+  mMesh->setDatasetVectorSymbologies( vectorSymbologies );
+
+  ReosMesh::WireFrameSettings wireframeSettings;
+  encodedElement.getData( QStringLiteral( "wire-frame-enabled" ), wireframeSettings.enabled );
+  encodedElement.getData( QStringLiteral( "wire-frame-color" ), wireframeSettings.color );
+  encodedElement.getData( QStringLiteral( "wire-frame-width" ), wireframeSettings.width );
+  mMesh->setWireFrameSettings( wireframeSettings );
 
   QString currentActivatedMeshDataset;
   encodedElement.getData( QStringLiteral( "current-mesh-dataset-id" ), currentActivatedMeshDataset );
   mMesh->activateDataset( currentActivatedMeshDataset );
+
+  QString currentActivatedVectorMeshDataset;
+  encodedElement.getData( QStringLiteral( "current-mesh-vector-dataset-id" ), currentActivatedVectorMeshDataset );
+  mMesh->activateVectorDataset( currentActivatedVectorMeshDataset );
 }
 
 ReosHydraulicNetworkContext ReosHydraulicStructure2D::hydraulicNetworkContext() const
@@ -108,6 +121,11 @@ QVector<QVector<QVector<int> > > ReosHydraulicStructure2D::holesVertices() const
 QString ReosHydraulicStructure2D::currentActivatedMeshDataset() const
 {
   return mMesh->currentdScalarDatasetId();
+}
+
+QString ReosHydraulicStructure2D::currentActivatedVectorMeshDataset() const
+{
+  return  mMesh->currentdVectorDatasetId();
 }
 
 ReosHydraulicSimulationResults::DatasetType ReosHydraulicStructure2D::currentActivatedDatasetResultType() const
@@ -160,8 +178,15 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
   element.addListEncodedData( QStringLiteral( "simulations" ), encodedSimulations );
 
   element.addData( QStringLiteral( "current-mesh-dataset-id" ), mMesh->currentdScalarDatasetId() );
+  element.addData( QStringLiteral( "current-mesh-vector-dataset-id" ), mMesh->currentdVectorDatasetId() );
 
   element.addData( QStringLiteral( "scalar-results-symbologies" ), mMesh->datasetScalarSymbologies() );
+  element.addData( QStringLiteral( "vector-results-symbologies" ), mMesh->datasetVectorSymbologies() );
+
+  ReosMesh::WireFrameSettings wireframeSettings = mMesh->wireFrameSettings();
+  element.addData( QStringLiteral( "wire-frame-enabled" ), wireframeSettings.enabled );
+  element.addData( QStringLiteral( "wire-frame-color" ), wireframeSettings.color );
+  element.addData( QStringLiteral( "wire-frame-width" ), wireframeSettings.width );
 
   element.addEncodedData( "3d-map-setings", m3dMapSettings.encode() );
 }
@@ -327,14 +352,19 @@ void ReosHydraulicStructure2D::activateResultDatasetGroup( const QString &id )
   mMesh->activateDataset( id );
 }
 
-void ReosHydraulicStructure2D::activateResultDatasetGroup( ReosHydraulicSimulationResults::DatasetType datasetType )
+void ReosHydraulicStructure2D::activateResultVectorDatasetGroup( const QString &id )
 {
-
+  mMesh->activateVectorDataset( id );
 }
 
 QStringList ReosHydraulicStructure2D::meshDatasetIds() const
 {
   return mMesh->datasetIds();
+}
+
+QStringList ReosHydraulicStructure2D::meshVectorDatasetIds() const
+{
+  return mMesh->vectorDatasetIds();
 }
 
 QString ReosHydraulicStructure2D::meshDatasetName( const QString &id ) const
@@ -718,6 +748,7 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
   if ( simResults )
   {
     QString currentDatasetId = mMesh->currentdScalarDatasetId();
+    QString currentVectorDatasetId = mMesh->currentdVectorDatasetId();
     ReosHydraulicSimulationResults::DatasetType currentType = currentActivatedDatasetResultType();
 
     if ( currentDatasetId.isEmpty() )
@@ -745,6 +776,7 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
     }
     mMesh->setVerticalDataset3DId( waterLevelId, false );
     mMesh->activateDataset( currentActivatedId );
+    mMesh->activateVectorDataset( currentVectorDatasetId );
 
     const QMap<QString, ReosHydrograph *> outputHydrographs = simResults->outputHydrographs();
     const QList<ReosHydraulicStructureBoundaryCondition *> boundaries = boundaryConditions();
@@ -820,9 +852,7 @@ void ReosHydraulicStructure2D::saveConfiguration( ReosHydraulicScheme *scheme ) 
 
   for ( ReosHydraulicSimulation *sim : mSimulations )
     sim->saveConfiguration( scheme );
-
 }
-
 
 int ReosHydraulicStructure2D::simulationIndexFromId( const QString &simId ) const
 {

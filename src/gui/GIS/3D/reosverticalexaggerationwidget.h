@@ -24,6 +24,8 @@ namespace Ui
   class ReosVerticalExaggerationWidget;
 }
 
+class ReosParameterDouble;
+
 //! Derived clas from QSlider that represent a slider that has the cursor returning to initial position when user release mouse button
 class ReosSliderElastic : public QSlider
 {
@@ -56,6 +58,7 @@ class ReosVerticalExaggerationWidget : public QWidget
   private:
     Ui::ReosVerticalExaggerationWidget *ui;
 
+    ReosParameterDouble *mExaggerationParameter = nullptr;
     double mExaggeration = 1.0;
     double mPreviousValue = 1.0;
 

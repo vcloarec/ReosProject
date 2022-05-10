@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ReosMeshVectorRenderingWidget</class>
+ <widget class="QWidget" name="ReosMeshVectorRenderingWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>439</width>
+    <height>506</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item row="4" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QComboBox" name="mColorModeCombo"/>
+     </item>
+     <item>
+      <widget class="ReosColorButton" name="mUniqueColorButton">
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="mColorRampToolButton">
+       <property name="text">
+        <string>...</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../images/images.qrc">
+         <normaloff>:/images/scalarContour.svg</normaloff>:/images/scalarContour.svg</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="3" column="1">
+    <widget class="QComboBox" name="mSymbologyTypeCombo"/>
+   </item>
+   <item row="2" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QPushButton" name="mBackButton">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../images/images.qrc">
+         <normaloff>:/images/back.svg</normaloff>:/images/back.svg</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Color</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Width</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0" colspan="2">
+    <widget class="QGroupBox" name="mTracesGroupBox">
+     <property name="title">
+      <string>Traces</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string>Particules count</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_10">
+        <property name="text">
+         <string>Maximum tail length</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="ReosParameterDoubleWidget" name="mMaximumTailLengthWidget" native="true"/>
+      </item>
+      <item row="1" column="2">
+       <widget class="QComboBox" name="mTailUnitCombo"/>
+      </item>
+      <item row="0" column="1" colspan="2">
+       <widget class="QSpinBox" name="mTraceParticulesCountSpinBox">
+        <property name="maximum">
+         <number>1000000</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="6" column="0" colspan="2">
+    <widget class="QGroupBox" name="mArrowShapeGroupBox">
+     <property name="title">
+      <string>Arrow shape</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Maximum length</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>Minimum length</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Head width / lenght</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Shaft</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>Head</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0" colspan="2">
+       <widget class="QSlider" name="mShaftHeadSlider">
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="ReosParameterDoubleWidget" name="mMaximumLengthWidget" native="true"/>
+      </item>
+      <item row="3" column="1">
+       <widget class="ReosParameterDoubleWidget" name="mMinimumLengthWidget" native="true"/>
+      </item>
+      <item row="7" column="1">
+       <widget class="QSpinBox" name="mHeadWidthSpinBox">
+        <property name="suffix">
+         <string> %</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="7" column="0" colspan="2">
+    <widget class="QGroupBox" name="mStreamLineGroupBox">
+     <property name="title">
+      <string>Stream line</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="1">
+       <widget class="QComboBox" name="mStreamLineSeedingMethodCombo"/>
+      </item>
+      <item row="0" column="3">
+       <widget class="QSpinBox" name="mStreamLineDensitySpinBox">
+        <property name="suffix">
+         <string> %</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_11">
+        <property name="text">
+         <string>Seeding method</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="label_12">
+        <property name="text">
+         <string>Density</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Symbology type</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="ReosParameterDoubleWidget" name="mWidthWidget" native="true"/>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ReosParameterDoubleWidget</class>
+   <extends>QWidget</extends>
+   <header>reosparameterwidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ReosColorButton</class>
+   <extends>QToolButton</extends>
+   <header>reoscolorbutton.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../../images/images.qrc"/>
+ </resources>
+ <connections/>
+</ui>

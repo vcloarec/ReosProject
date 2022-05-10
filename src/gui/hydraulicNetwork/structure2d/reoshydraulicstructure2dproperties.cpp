@@ -27,6 +27,7 @@
 #include "reoshydraulicsimulationconsole.h"
 #include "reosstyleregistery.h"
 #include "reosmeshscalarrenderingwidget.h"
+#include "reosmeshvectorrenderingwidget.h"
 #include "reoscolorbutton.h"
 #include "reosprocesscontroler.h"
 #include "reoshydraulicstructureboundarycondition.h"
@@ -45,6 +46,9 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   , mActionEngineConfiguration( ( new QAction( QPixmap( QStringLiteral( ":/images/engineSettings.svg" ) ), tr( "Engine Settings" ), this ) ) )
   , mAction3DView( new QAction( QPixmap( QStringLiteral( ":/images/view3D.svg" ) ), tr( "3D View" ), this ) )
   , mScalarDatasetMenu( new QMenu( this ) )
+  , mVectorDatasetMenu( new QMenu( this ) )
+  , mActionScalarSettings( new QAction( QPixmap( QStringLiteral( ":/images/scalarContour.svg" ) ), tr( "Color Ramp" ), this ) )
+  , mActionVectorSettings( new QAction( QPixmap( QStringLiteral( ":/images/vectorSettings.svg" ) ), tr( "Vector Settings" ), this ) )
   , mGuiContext( context, this )
 {
   ui->setupUi( this );
@@ -106,15 +110,30 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
 
   toolBar->addSeparator();
 
-  QToolButton *datasetSettingsButton = new QToolButton( toolBar );
-  datasetSettingsButton->setIcon( QPixmap( QStringLiteral( ":/images/scalarContour.svg" ) ) );
-  datasetSettingsButton->setPopupMode( QToolButton::MenuButtonPopup );
-  datasetSettingsButton->setMenu( mScalarDatasetMenu );
-  toolBar->addWidget( datasetSettingsButton );
-
-  connect( datasetSettingsButton, &QToolButton::clicked, this, [this]
+  QToolButton *datasetScalarSettingsButton = new QToolButton( toolBar );
+  datasetScalarSettingsButton->setIcon( QPixmap( QStringLiteral( ":/images/scalarContour.svg" ) ) );
+  datasetScalarSettingsButton->setPopupMode( QToolButton::InstantPopup );
+  datasetScalarSettingsButton->setMenu( mScalarDatasetMenu );
+  datasetScalarSettingsButton->setToolTip( tr( "Scalar results settings" ) );
+  toolBar->addWidget( datasetScalarSettingsButton );
+  mCurrentDatasetId = mStructure2D->currentActivatedMeshDataset();
+  connect( mActionScalarSettings, &QAction::triggered, this, [this]
   {
-    emit stackedPageWidgetOpened( new ReosMeshScalarRenderingWidget( mStructure2D->mesh(), mStructure2D->currentActivatedMeshDataset(), mGuiContext ) );
+    emit stackedPageWidgetOpened( new ReosMeshScalarRenderingWidget( mStructure2D->mesh(), mStructure2D->currentActivatedMeshDataset(), true, mGuiContext ) );
+  } );
+
+  mDatasetVectorSettingsButton = new QToolButton( toolBar );
+  mDatasetVectorSettingsButton->setIcon( QPixmap( QStringLiteral( ":/images/vectorSettings.svg" ) ) );
+  mDatasetVectorSettingsButton->setPopupMode( QToolButton::InstantPopup );
+  mDatasetVectorSettingsButton->setMenu( mVectorDatasetMenu );
+  mDatasetVectorSettingsButton->setToolTip( tr( "Vector results settings" ) );
+  toolBar->addWidget( mDatasetVectorSettingsButton );
+  mCurrentVectorDatasetId = mStructure2D->currentActivatedVectorMeshDataset();
+  connect( mActionVectorSettings, &QAction::triggered, this, [this]
+  {
+    if ( mStructure2D->currentActivatedMeshDataset().isEmpty() )
+      return;
+    emit stackedPageWidgetOpened( new ReosMeshVectorRenderingWidget( mStructure2D->mesh(), mStructure2D->currentActivatedVectorMeshDataset(), mGuiContext ) );
   } );
 
   toolBar->addAction( mAction3DView );
@@ -125,7 +144,6 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   mMap->addExtraRenderedObject( mStructure2D->mesh() );
   connect( mStructure2D->mesh(), &ReosMesh::repaintRequested, this, &ReosHydraulicStructure2DProperties::requestMapRefresh );
 
-  mCurrentDatasetId = mStructure2D->currentActivatedMeshDataset();
   updateDatasetMenus();
 
   connect( mStructure2D, &ReosHydraulicStructure2D::simulationResultChanged, this, &ReosHydraulicStructure2DProperties::updateDatasetMenus );
@@ -334,7 +352,7 @@ void ReosHydraulicStructure2DProperties::updateScalarDatasetMenu()
   {
     QAction *action = new QAction( mStructure2D->meshDatasetName( id ), mScalarDatasetActions );
     action->setCheckable( true );
-    action->setChecked( mStructure2D->currentActivatedMeshDataset() == id );
+    action->setChecked( mCurrentDatasetId == id );
     mScalarDatasetMenu->addAction( action );
     connect( action, &QAction::triggered, this, [id, this]( bool checked )
     {
@@ -345,7 +363,21 @@ void ReosHydraulicStructure2DProperties::updateScalarDatasetMenu()
       }
     } );
   }
-
+  QAction *actionNone = new QAction( tr( "None" ), mScalarDatasetActions );
+  actionNone->setCheckable( true );
+  actionNone->setChecked( mCurrentDatasetId.isEmpty() );
+  mScalarDatasetMenu->addAction( actionNone );
+  connect( actionNone, &QAction::triggered, this, [ this]( bool checked )
+  {
+    if ( checked )
+    {
+      mCurrentDatasetId = QString();
+      mStructure2D->activateResultDatasetGroup( QString() );
+      mActionScalarSettings->setEnabled( false );
+    }
+  } );
+  mScalarDatasetMenu->addSeparator();
+  mScalarDatasetMenu->addAction( mActionScalarSettings );
   mScalarDatasetMenu->addSeparator();
   QWidgetAction *wa = new QWidgetAction( mScalarDatasetMenu );
 
@@ -360,11 +392,60 @@ void ReosHydraulicStructure2DProperties::updateScalarDatasetMenu()
   mScalarDatasetMenu->addAction( wa );
   mScalarDatasetActions->setExclusive( true );
 
+  mActionScalarSettings->setEnabled( !mCurrentDatasetId.isEmpty() );
+}
+
+void ReosHydraulicStructure2DProperties::updateVectorDatasetMenu()
+{
+  mVectorDatasetMenu->clear();
+  const QStringList datasetIds = mStructure2D->meshVectorDatasetIds();
+
+  if ( mVectorDatasetActions )
+    mVectorDatasetActions->deleteLater();
+
+  mVectorDatasetActions = new QActionGroup( mVectorDatasetMenu );
+  mVectorDatasetActions->setExclusive( true );
+  for ( const QString &id : datasetIds )
+  {
+    QAction *action = new QAction( mStructure2D->meshDatasetName( id ), mVectorDatasetActions );
+    action->setCheckable( true );
+    action->setChecked( mCurrentVectorDatasetId == id );
+    mVectorDatasetMenu->addAction( action );
+    connect( action, &QAction::triggered, this, [id, this]( bool checked )
+    {
+      if ( checked )
+      {
+        mCurrentVectorDatasetId = id;
+        restoreResults();
+        mActionVectorSettings->setEnabled( true );
+      }
+    } );
+  }
+
+  QAction *actionNone = new QAction( tr( "None" ), mVectorDatasetActions );
+  actionNone->setCheckable( true );
+  actionNone->setChecked( mCurrentVectorDatasetId.isEmpty() );
+  mVectorDatasetMenu->addAction( actionNone );
+  connect( actionNone, &QAction::triggered, this, [ this]( bool checked )
+  {
+    if ( checked )
+    {
+      mCurrentVectorDatasetId = QString();
+      mStructure2D->activateResultVectorDatasetGroup( QString() );
+      mActionVectorSettings->setEnabled( false );
+    }
+  } );
+  mVectorDatasetMenu->addSeparator();
+  mVectorDatasetMenu->addAction( mActionVectorSettings );
+
+  mActionVectorSettings->setEnabled( !mCurrentVectorDatasetId.isEmpty() );
+}
 
 void ReosHydraulicStructure2DProperties::restoreResults()
 {
   mStructure2D->updateResults( mCalculationContext.schemeId() );
   mStructure2D->activateResultDatasetGroup( mCurrentDatasetId );
+  mStructure2D->activateResultVectorDatasetGroup( mCurrentVectorDatasetId );
   fillResultGroupBox( mCalculationContext );
   updateDatasetMenus();
 }

@@ -157,5 +157,7 @@
         <file>scalarContour.svg</file>
         <file>exportSimulation.svg</file>
         <file>engineSettings.svg</file>
+        <file>vectorSettings.svg</file>
     </qresource>
+    <qresource prefix="/"/>
 </RCC>

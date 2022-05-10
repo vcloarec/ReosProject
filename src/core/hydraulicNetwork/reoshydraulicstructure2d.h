@@ -177,17 +177,23 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Activates the result dataset groups with \a id. If id is void, the current group is reactivated
     void activateResultDatasetGroup( const QString &id = QString() );
 
-    //! Activates the result dataset groups with type \a datasetType.
-    void activateResultDatasetGroup( ReosHydraulicSimulationResults::DatasetType datasetType );
+    //! Activates the result vector dataset groups with \a id. If id is void, the current group is reactivated
+    void activateResultVectorDatasetGroup( const QString &id );
 
     //! Returns the all the dataset ids
     QStringList meshDatasetIds() const;
+
+    //! Returns the all the vector dataset ids
+    QStringList meshVectorDatasetIds() const;
 
     //! Returns the name of the dataset with \a id
     QString meshDatasetName( const QString &id ) const;
 
     //! Returns the id of the current dataset
     QString currentActivatedMeshDataset() const;
+
+    //! Returns the id of the current vector dataset
+    QString currentActivatedVectorMeshDataset() const;
 
     //! Returns the type of the current dataset
     ReosHydraulicSimulationResults::DatasetType currentActivatedDatasetResultType() const;
