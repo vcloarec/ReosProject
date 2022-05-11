@@ -18,15 +18,17 @@
 
 #include <math.h>
 
+#include "reosparameter.h"
+
 ReosVerticalExaggerationWidget::ReosVerticalExaggerationWidget( QWidget *parent ) :
   QWidget( parent ),
-  ui( new Ui::ReosVerticalExaggerationWidget )
+  ui( new Ui::ReosVerticalExaggerationWidget ),
+  mExaggerationParameter( new ReosParameterDouble( QString(), false, this ) )
 {
 
   ui->setupUi( this );
-
-  ui->doubleSpinBox->setValue( 1 );
-  ui->doubleSpinBox->setLocale( QLocale() );
+  mExaggerationParameter->setValue( 1 );
+  ui->mExaggerationParameter->setDouble( mExaggerationParameter );
 
   connect( ui->mSlider, &QSlider::valueChanged, this, [this]( int value )
   {
@@ -40,11 +42,10 @@ ReosVerticalExaggerationWidget::ReosVerticalExaggerationWidget( QWidget *parent 
   } );
 
 
-  connect( ui->doubleSpinBox, QOverload<double>::of( &QDoubleSpinBox::valueChanged ), [this]( int value )
+  connect( mExaggerationParameter, &ReosParameter::valueChanged, [this]
   {
-    mExaggeration = value;
-    mPreviousValue = mExaggeration;
-    emit valueChanged( value );
+    mExaggeration = mExaggerationParameter->value();
+    emit valueChanged( mExaggeration );
   } );
 }
 
@@ -76,10 +77,7 @@ double ReosVerticalExaggerationWidget::exagerationFromSliderValue( int value ) c
       newValue = 1 / newDivisor;
   }
 
-  ui->doubleSpinBox->blockSignals( true );
-  ui->doubleSpinBox->setValue( newValue );
-  ui->doubleSpinBox->blockSignals( false );
-  emit valueChanged( newValue );
+  mExaggerationParameter->setValue( newValue );
 
   return newValue;
 }
@@ -91,7 +89,7 @@ ReosVerticalExaggerationWidget::~ReosVerticalExaggerationWidget()
 
 void ReosVerticalExaggerationWidget::setExageration( double exageration )
 {
-  ui->doubleSpinBox->setValue( exageration );
+  mExaggerationParameter->setValue( exageration );
   mExaggeration = exageration;
   mPreviousValue = mExaggeration;
 }

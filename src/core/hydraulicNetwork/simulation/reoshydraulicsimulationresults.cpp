@@ -30,10 +30,24 @@ QString ReosHydraulicSimulationResults::groupId( ReosHydraulicSimulationResults:
 
 QString ReosHydraulicSimulationResults::groupId( int groupIndex ) const
 {
-  if ( groupIndex < 0 || groupIndex >= groupCount() )
-    return QString();
+  DatasetType dt = datasetType( groupIndex );
 
-  return mSimulationId + ':' + groupName( groupIndex );
+  switch ( dt )
+  {
+    case ReosHydraulicSimulationResults::DatasetType::None:
+      return QStringLiteral( "none" );
+    case ReosHydraulicSimulationResults::DatasetType::WaterLevel:
+      return tr( "water-level" );
+      break;
+    case ReosHydraulicSimulationResults::DatasetType::WaterDepth:
+      return tr( "water-depth" );
+      break;
+    case ReosHydraulicSimulationResults::DatasetType::Velocity:
+      return tr( "velocity" );
+      break;
+  }
+
+  return QString();
 }
 
 QString ReosHydraulicSimulationResults::groupName( int groupIndex ) const

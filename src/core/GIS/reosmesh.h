@@ -146,17 +146,23 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     //! Returns all the dataset ids contained in the mesh
     virtual QStringList datasetIds() const = 0;
 
+    //! Returns all the vector dataset ids contained in the mesh
+    virtual QStringList vectorDatasetIds() const = 0;
+
     //! Returns the name of the dataset with \a id
     virtual QString datasetName( const QString &id ) const = 0;
 
     //! Activates the dataset with \a id
     virtual bool activateDataset( const QString &id, bool update = true ) = 0;
 
+    //! Activates the vector dataset with \a id
+    virtual bool activateVectorDataset( const QString &id, bool update = true ) = 0;
+
     //! Returns the current scalar dataset Id
     virtual QString currentdScalarDatasetId() const = 0;
 
-    //! Returns an index correspondng to the dataset group with \a id
-    virtual int datasetGroupIndex( const QString &id ) const = 0;
+    //! Returns the current vector dataset Id
+    virtual QString currentdVectorDatasetId() const = 0;
 
     //! Returns whether the mesh has a dataset group with \a id
     virtual bool hasDatasetGroupIndex( const QString &id ) const = 0;
@@ -167,18 +173,21 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     //! Returns the value of dataset \a datasetId at position \a pos in map coordinates
     virtual double datasetScalarValueAt( const QString &datasetId, const QPointF &pos ) const = 0;
 
+    //! Returns by reference the min max for the dataset group corresponding to \a id
+    virtual void datasetGroupMinimumMaximum( const QString &datasetId, double &min, double &max ) const = 0;
+
     //! Save the mesh frame on UGRID file with path \a dataPath
     virtual void save( const QString &dataPath ) = 0;
 
     virtual void stopFrameEditing( bool commit, bool continueEditing = false ) = 0;
 
-    virtual ReosEncodedElement meshSymbology() const = 0;
-
-    virtual void setMeshSymbology( const ReosEncodedElement &symbology ) = 0;
-
     virtual ReosEncodedElement datasetScalarGroupSymbology( const QString &id ) const = 0;
 
     virtual void setDatasetScalarGroupSymbology( const ReosEncodedElement &encodedElement, const QString &id ) = 0;
+
+    virtual ReosEncodedElement datasetVectorGroupSymbology( const QString &id ) const = 0;
+
+    virtual void setDatasetVectorGroupSymbology( const ReosEncodedElement &encodedElement, const QString &id ) = 0;
 
     virtual void activateWireFrame( bool activate ) = 0;
     virtual bool isWireFrameActive() const = 0;
@@ -211,13 +220,20 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     double verticaleSCale() const;
     void setVerticaleSCale( double verticaleSCale );
 
+    QMap<QString, QByteArray> datasetScalarSymbologies() const;
+    void setDatasetScalarSymbologies( const QMap<QString, QByteArray> &datasetScalarSymbologies );
+
+    QMap<QString, QByteArray> datasetVectorSymbologies() const;
+    void setDatasetVectorSymbologies( const QMap<QString, QByteArray> &datasetVectorSymbologies );
+
   protected:
     ReosMesh( QObject *parent = nullptr );
 
     QualityMeshParameters mQualityMeshParameters;
     QSet<int> mBoundaryVerticesSet;
     QSet<int> mHolesVerticesSet;
-
+    QMap<QString, QByteArray> mDatasetScalarSymbologies;
+    QMap<QString, QByteArray> mDatasetVectorSymbologies;
 
     double mVerticaleSCale = 1;
 };

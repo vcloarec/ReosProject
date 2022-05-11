@@ -54,10 +54,11 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
     void requestMapRefresh();
     void onLaunchCalculation();
     void onExportSimulation();
-    void updateDatasetMenu();
+    void updateDatasetMenus();
     void populateHydrograph();
     void onSimulationFinished();
     void onMapCursorMove( const QPointF &pos );
+    void restoreResults();
 
   private:
     Ui::ReosHydraulicStructure2DProperties *ui;
@@ -69,7 +70,12 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
     QAction *mActionEngineConfiguration = nullptr;
     QAction *mAction3DView = nullptr;
     QMenu *mScalarDatasetMenu = nullptr;
+    QMenu *mVectorDatasetMenu = nullptr;
     QActionGroup *mScalarDatasetActions = nullptr;
+    QActionGroup *mVectorDatasetActions = nullptr;
+    QAction *mActionScalarSettings = nullptr;
+    QAction *mActionVectorSettings = nullptr;
+    QToolButton *mDatasetVectorSettingsButton = nullptr;
     QPointer<Reos3dView> mView3D;
     ReosGuiContext mGuiContext;
     ReosCalculationContext mCalculationContext;
@@ -81,6 +87,12 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
 
     void disableResultGroupBox();
     void fillResultGroupBox( const ReosCalculationContext &context );
+    void updateScalarDatasetMenu();
+    void updateVectorDatasetMenu();
+
+    QString mCurrentDatasetId;
+    QString mCurrentVectorDatasetId;
+
 };
 
 

@@ -54,15 +54,15 @@ class ReosMeshFrame_p : public ReosMesh
     void generateMesh( const ReosMeshFrameData &data ) override;
     QString crs() const override;
     QObject *data() const override;
-    int datasetGroupIndex( const QString &id ) const override;
     ReosProcess *applyTopographyOnVertices( ReosTopographyCollection *topographyCollection ) override;
     double datasetScalarValueAt( const QString &datasetId, const QPointF &pos ) const override;
+    void datasetGroupMinimumMaximum( const QString &datasetId, double &min, double &max ) const override;
     void save( const QString &dataPath ) override;
     void stopFrameEditing( bool commit, bool continueEditing = false ) override;
-    ReosEncodedElement meshSymbology() const override;
-    void setMeshSymbology( const ReosEncodedElement &symbology ) override;
     ReosEncodedElement datasetScalarGroupSymbology( const QString &id ) const override;
     void setDatasetScalarGroupSymbology( const ReosEncodedElement &encodedElement, const QString &id ) override;
+    ReosEncodedElement datasetVectorGroupSymbology( const QString &id ) const override;
+    void setDatasetVectorGroupSymbology( const ReosEncodedElement &encodedElement, const QString &id ) override;
     void activateWireFrame( bool activate ) override;
     bool isWireFrameActive() const override;
     ReosObjectRenderer *createRenderer( QGraphicsView *view ) override;
@@ -72,7 +72,9 @@ class ReosMeshFrame_p : public ReosMesh
 
     QString verticesElevationDatasetId() const override;
     bool activateDataset( const QString &id, bool update = true ) override;
+    bool activateVectorDataset( const QString &id, bool update = true ) override;
     QStringList datasetIds() const override;
+    QStringList vectorDatasetIds() const override;
     QString datasetName( const QString &id ) const override;
     bool hasDatasetGroupIndex( const QString &id ) const override;
 
@@ -80,6 +82,7 @@ class ReosMeshFrame_p : public ReosMesh
     void setVerticalDataset3DId( const QString &verticalDataset3DId, bool update = true ) override;
 
     QString currentdScalarDatasetId() const override;
+    QString currentdVectorDatasetId() const override;
 
     void update3DRenderer() override;
 
@@ -94,17 +97,21 @@ class ReosMeshFrame_p : public ReosMesh
     QMap<QString, int> mDatasetGroupsIndex;
     QgsMeshDatasetGroup *mZVerticesDatasetGroup = nullptr;
     QString mVerticesElevationDatasetName;
-    QString mVerticesElevationDatasetId;
-    QString mCurrentdScalarDatasetId;
+    const QString mVerticesElevationDatasetId = "vertices-elevation";
+    QString mCurrentScalarDatasetId;
+    QString mCurrentActiveVectorDatasetId;
     QString mVerticalDataset3DId;
     WireFrameSettings mWireFrameSettings;
 
     void init();
-    void activateVertexZValueDatasetGroup();
-    QString addDatasetGroup( QgsMeshDatasetGroup *group, const QString &id = QString() );
+    void addDatasetGroup( QgsMeshDatasetGroup *group, const QString &id = QString() );
     void firstUpdateOfTerrainScalarSetting();
     void restoreVertexElevationDataset();
     void updateWireFrameSettings();
+    int datasetGroupIndex( const QString &id ) const;
+    ReosEncodedElement datasetScalarGroupSymbologyPrivate( int i ) const;
+    void applyScalarSymbologyOnMeshDatasetGroup( const QString &id );
+    void applyVectorSymbologyOnMeshDatasetGroup( const QString &id );
 
     QPointF tolayerCoordinates( const ReosSpatialPosition &position ) const;
 

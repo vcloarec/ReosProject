@@ -56,6 +56,9 @@ class ReosEditHydraulicStructure2DWidget : public ReosStackedPageWidget
     ReosEditHydraulicStructure2DWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context );
     ~ReosEditHydraulicStructure2DWidget();
 
+  signals:
+    void hidden();
+
   private slots:
     void onMeshOptionListChanged( int row );
     void generateMesh();

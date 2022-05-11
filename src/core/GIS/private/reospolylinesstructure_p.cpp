@@ -168,6 +168,7 @@ void ReosPolylineStructureVectorLayer::init()
     mRawLinesDirty = true;
   } );
   connect( mVectorLayer->undoStack(), &QUndoStack::indexChanged, this, &ReosDataObject::dataChanged );
+  connect( mVectorLayer.get(), &QgsVectorLayer::geometryChanged, this, &ReosPolylinesStructure::geometryChanged );
 
   mVerticesBoundaryRequest.setMaxCost( 2000 );
 }

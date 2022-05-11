@@ -86,17 +86,26 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
       mSimulations.append( sim );
   }
 
-  encodedElement.getData( QStringLiteral( "terrain-symbology" ), mTerrainSymbology );
-  mMesh->setDatasetScalarGroupSymbology( ReosEncodedElement( mTerrainSymbology ), mMesh->verticesElevationDatasetId() );
-  QMap<int, QByteArray> resultSymbol;
-  encodedElement.getData( QStringLiteral( "scalar-results-symbologies" ), resultSymbol );
-  const QList<int> typeKeys = resultSymbol.keys();
-  for ( int type :  typeKeys )
-    mResultScalarDatasetSymbologies.insert( static_cast<ResultType>( type ), resultSymbol.value( type ) );
+  QMap<QString, QByteArray> scalarSymbologies;
+  encodedElement.getData( QStringLiteral( "scalar-results-symbologies" ), scalarSymbologies );
+  mMesh->setDatasetScalarSymbologies( scalarSymbologies );
+  QMap<QString, QByteArray> vectorSymbologies;
+  encodedElement.getData( QStringLiteral( "vector-results-symbologies" ), vectorSymbologies );
+  mMesh->setDatasetVectorSymbologies( vectorSymbologies );
+
+  ReosMesh::WireFrameSettings wireframeSettings;
+  encodedElement.getData( QStringLiteral( "wire-frame-enabled" ), wireframeSettings.enabled );
+  encodedElement.getData( QStringLiteral( "wire-frame-color" ), wireframeSettings.color );
+  encodedElement.getData( QStringLiteral( "wire-frame-width" ), wireframeSettings.width );
+  mMesh->setWireFrameSettings( wireframeSettings );
 
   QString currentActivatedMeshDataset;
   encodedElement.getData( QStringLiteral( "current-mesh-dataset-id" ), currentActivatedMeshDataset );
   mMesh->activateDataset( currentActivatedMeshDataset );
+
+  QString currentActivatedVectorMeshDataset;
+  encodedElement.getData( QStringLiteral( "current-mesh-vector-dataset-id" ), currentActivatedVectorMeshDataset );
+  mMesh->activateVectorDataset( currentActivatedVectorMeshDataset );
 }
 
 ReosHydraulicNetworkContext ReosHydraulicStructure2D::hydraulicNetworkContext() const
@@ -112,6 +121,11 @@ QVector<QVector<QVector<int> > > ReosHydraulicStructure2D::holesVertices() const
 QString ReosHydraulicStructure2D::currentActivatedMeshDataset() const
 {
   return mMesh->currentdScalarDatasetId();
+}
+
+QString ReosHydraulicStructure2D::currentActivatedVectorMeshDataset() const
+{
+  return  mMesh->currentdVectorDatasetId();
 }
 
 ReosHydraulicSimulationResults::DatasetType ReosHydraulicStructure2D::currentActivatedDatasetResultType() const
@@ -164,14 +178,15 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
   element.addListEncodedData( QStringLiteral( "simulations" ), encodedSimulations );
 
   element.addData( QStringLiteral( "current-mesh-dataset-id" ), mMesh->currentdScalarDatasetId() );
+  element.addData( QStringLiteral( "current-mesh-vector-dataset-id" ), mMesh->currentdVectorDatasetId() );
 
-  getSymbologiesFromMesh( context.network()->calculationContext().schemeId() );
-  element.addData( QStringLiteral( "terrain-symbology" ), mTerrainSymbology );
-  const QList<ResultType> typeKeys = mResultScalarDatasetSymbologies.keys();
-  QMap<int, QByteArray> resultSymbol;
-  for ( ResultType type : typeKeys )
-    resultSymbol.insert( int( type ), mResultScalarDatasetSymbologies.value( type ) );
-  element.addData( QStringLiteral( "scalar-results-symbologies" ), resultSymbol );
+  element.addData( QStringLiteral( "scalar-results-symbologies" ), mMesh->datasetScalarSymbologies() );
+  element.addData( QStringLiteral( "vector-results-symbologies" ), mMesh->datasetVectorSymbologies() );
+
+  ReosMesh::WireFrameSettings wireframeSettings = mMesh->wireFrameSettings();
+  element.addData( QStringLiteral( "wire-frame-enabled" ), wireframeSettings.enabled );
+  element.addData( QStringLiteral( "wire-frame-color" ), wireframeSettings.color );
+  element.addData( QStringLiteral( "wire-frame-width" ), wireframeSettings.width );
 
   element.addEncodedData( "3d-map-setings", m3dMapSettings.encode() );
 }
@@ -337,14 +352,19 @@ void ReosHydraulicStructure2D::activateResultDatasetGroup( const QString &id )
   mMesh->activateDataset( id );
 }
 
-void ReosHydraulicStructure2D::activateResultDatasetGroup( ReosHydraulicSimulationResults::DatasetType datasetType )
+void ReosHydraulicStructure2D::activateResultVectorDatasetGroup( const QString &id )
 {
-
+  mMesh->activateVectorDataset( id );
 }
 
 QStringList ReosHydraulicStructure2D::meshDatasetIds() const
 {
   return mMesh->datasetIds();
+}
+
+QStringList ReosHydraulicStructure2D::meshVectorDatasetIds() const
+{
+  return mMesh->vectorDatasetIds();
 }
 
 QString ReosHydraulicStructure2D::meshDatasetName( const QString &id ) const
@@ -412,7 +432,6 @@ ReosSimulationProcess *ReosHydraulicStructure2D::startSimulation( const ReosCalc
   } );
 
   //Store the current symbology per data type
-  getSymbologiesFromMesh( schemeId );
   setResultsOnStructure( nullptr );
   emit simulationResultChanged();
 
@@ -531,7 +550,7 @@ void ReosHydraulicStructure2D::removeAllResults()
     if ( sim )
       sim->removeResults( this, scheme->id() );
 
-    updateCurrentResults( scheme->id() );
+    updateResults( scheme->id() );
   }
 }
 
@@ -668,26 +687,6 @@ void ReosHydraulicStructure2D::onMeshGenerated( const ReosMeshFrameData &meshDat
   emit dataChanged();
 }
 
-void ReosHydraulicStructure2D::getSymbologiesFromMesh( const QString &schemeId ) const
-{
-  mTerrainSymbology = mMesh->datasetScalarGroupSymbology( mMesh->verticesElevationDatasetId() ).bytes();
-
-  ReosHydraulicSimulationResults *simulationResults = mSimulationResults.value( schemeId, nullptr );
-
-  if ( !simulationResults )
-    return;
-
-  for ( int i = 0; i < simulationResults->groupCount(); ++i )
-  {
-    const QString id = simulationResults->groupId( i );
-    if ( mMesh->hasDatasetGroupIndex( id ) )
-    {
-      ReosEncodedElement encodedSymb = mMesh->datasetScalarGroupSymbology( id );
-      mResultScalarDatasetSymbologies.insert( simulationResults->datasetType( i ), encodedSymb.bytes() );
-    }
-  }
-}
-
 void ReosHydraulicStructure2D::onSimulationFinished( ReosHydraulicSimulation *simulation, const QString &schemeId, bool success )
 {
   if ( !simulation )
@@ -702,7 +701,7 @@ void ReosHydraulicStructure2D::onSimulationFinished( ReosHydraulicSimulation *si
   mSimulationResults.remove( schemeId );
 
   if ( mNetWork->calculationContext().schemeId() == schemeId )
-    updateCurrentResults( schemeId );
+    updateResults( schemeId );
 
   emit simulationFinished();
 }
@@ -749,6 +748,7 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
   if ( simResults )
   {
     QString currentDatasetId = mMesh->currentdScalarDatasetId();
+    QString currentVectorDatasetId = mMesh->currentdVectorDatasetId();
     ReosHydraulicSimulationResults::DatasetType currentType = currentActivatedDatasetResultType();
 
     if ( currentDatasetId.isEmpty() )
@@ -763,15 +763,12 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
     QString waterLevelId;
     QString currentActivatedId = mMesh->verticesElevationDatasetId();
 
-    //Restore the current symbology per data type
     for ( int i = 0; i < simResults->groupCount(); ++i )
     {
-      ResultType type = simResults->datasetType( i );
-      const ReosEncodedElement encodedSymb( mResultScalarDatasetSymbologies.value( type ) );
+      ReosHydraulicSimulationResults::DatasetType type = simResults->datasetType( i );
       const QString groupId = simResults->groupId( i );
-      mMesh->setDatasetScalarGroupSymbology( encodedSymb, groupId );
 
-      if ( type == ResultType::WaterLevel )
+      if ( type == ReosHydraulicSimulationResults::DatasetType::WaterLevel )
         waterLevelId = groupId;
 
       if ( type == currentType )
@@ -779,6 +776,7 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
     }
     mMesh->setVerticalDataset3DId( waterLevelId, false );
     mMesh->activateDataset( currentActivatedId );
+    mMesh->activateVectorDataset( currentVectorDatasetId );
 
     const QMap<QString, ReosHydrograph *> outputHydrographs = simResults->outputHydrographs();
     const QList<ReosHydraulicStructureBoundaryCondition *> boundaries = boundaryConditions();
@@ -797,10 +795,10 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
   emit simulationResultChanged();
 }
 
-void ReosHydraulicStructure2D::updateCurrentResults( const QString &schemeId )
+void ReosHydraulicStructure2D::updateResults( const QString &schemeId )
 {
   //Store the current symbology per data type
-  getSymbologiesFromMesh( schemeId );
+//  getSymbologiesFromMesh( schemeId );
 
   if ( currentSimulation() && currentSimulation()->hasResult( this, schemeId ) )
   {
@@ -829,12 +827,11 @@ ReosSimulationProcess *ReosHydraulicStructure2D::processFromScheme( const QStrin
 void ReosHydraulicStructure2D::activateMeshTerrain()
 {
   mMesh->activateDataset( mMesh->verticesElevationDatasetId() );
-  mMesh->setDatasetScalarGroupSymbology( ReosEncodedElement( mTerrainSymbology ),  mMesh->verticesElevationDatasetId() );
 }
 
 void ReosHydraulicStructure2D::deactivateMeshScalar()
 {
-  mTerrainSymbology = mMesh->datasetScalarGroupSymbology( mMesh->verticesElevationDatasetId() ).bytes();
+  //mTerrainSymbology = mMesh->datasetScalarGroupSymbology( mMesh->verticesElevationDatasetId() ).bytes();
   mMesh->activateDataset( QString() );
 }
 
@@ -849,17 +846,13 @@ ReosHydraulicStructure2D *ReosHydraulicStructure2D::create( const ReosEncodedEle
 
 void ReosHydraulicStructure2D::saveConfiguration( ReosHydraulicScheme *scheme ) const
 {
-  getSymbologiesFromMesh( scheme->id() );
-
   ReosEncodedElement encodedElement = scheme->restoreElementConfig( id() );
   encodedElement.addData( QStringLiteral( "current-simulation-id" ), currentSimulation()->id() );
   scheme->saveElementConfig( id(), encodedElement );
 
   for ( ReosHydraulicSimulation *sim : mSimulations )
     sim->saveConfiguration( scheme );
-
 }
-
 
 int ReosHydraulicStructure2D::simulationIndexFromId( const QString &simId ) const
 {
@@ -886,7 +879,7 @@ void ReosHydraulicStructure2D::restoreConfiguration( ReosHydraulicScheme *scheme
 
   if ( mCurrentSimulationIndex == -1 )
     return;
-  updateCurrentResults( scheme->id() );
+  updateResults( scheme->id() );
 
   emit currentSimulationChanged();
 

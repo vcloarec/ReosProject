@@ -93,10 +93,10 @@ void ReosMeshFrame_p::stopFrameEditing( bool commit, bool continueEditing )
     if ( it.value() == activeScalarDatasetIndex )
       activeGroupId = it.key();
 
-  QgsCoordinateTransform transform( mMeshLayer->crs(), QgsProject::instance()->crs(), QgsProject::instance() );
-
   if ( mMeshLayer->isEditable() )
   {
+
+    QgsCoordinateTransform transform( mMeshLayer->crs(), QgsProject::instance()->crs(), QgsProject::instance() );
     if ( commit )
       mMeshLayer->commitFrameEditing( transform, continueEditing );
     else
@@ -105,56 +105,17 @@ void ReosMeshFrame_p::stopFrameEditing( bool commit, bool continueEditing )
     if ( !continueEditing )
       restoreVertexElevationDataset();
   }
-  else if ( !mVerticesElevationDatasetId.isEmpty() )
-    restoreVertexElevationDataset();
 
   activateDataset( activeGroupId );
 }
 
-ReosEncodedElement ReosMeshFrame_p::meshSymbology() const
+
+ReosEncodedElement ReosMeshFrame_p::datasetScalarGroupSymbologyPrivate( int i ) const
 {
-  QDomDocument doc( QStringLiteral( "mesh-layer" ) );
-  QDomElement elem = doc.createElement( QStringLiteral( "symbology" ) );
-  QgsReadWriteContext context;
-  QString errorMessage;
-  mMeshLayer->writeSymbology( elem, doc, errorMessage, context );
-  doc.appendChild( elem );
-
-  ReosEncodedElement encodedElem( QStringLiteral( "mesh-symbology" ) );
-  encodedElem.addData( "xml-symbology", doc.toString() );
-
-  return encodedElem;
-}
-
-void ReosMeshFrame_p::setMeshSymbology( const ReosEncodedElement &symbology )
-{
-
-  if ( symbology.description() != QStringLiteral( "mesh-symbology" ) )
-    return;
-
-  QString docString;
-  symbology.getData( "xml-symbology", docString );
-
-  QDomDocument doc( QStringLiteral( "mesh-layer" ) );
-  if ( doc.setContent( docString ) )
-  {
-    QDomElement domElem = doc.firstChildElement( QStringLiteral( "symbology" ) );
-    QgsReadWriteContext context;
-    QString errorMessage;
-    mMeshLayer->readSymbology( domElem, errorMessage, context );
-  }
-
-}
-
-ReosEncodedElement ReosMeshFrame_p::datasetScalarGroupSymbology( const QString &id ) const
-{
-  if ( !mDatasetGroupsIndex.contains( id ) )
-    return ReosEncodedElement();
-
   QDomDocument doc( QStringLiteral( "dataset-symbology" ) );
 
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
-  QgsMeshRendererScalarSettings scalarSettings = settings.scalarSettings( mDatasetGroupsIndex.value( id ) );
+  QgsMeshRendererScalarSettings scalarSettings = settings.scalarSettings( i );
 
   doc.appendChild( scalarSettings.writeXml( doc ) ) ;
 
@@ -165,13 +126,15 @@ ReosEncodedElement ReosMeshFrame_p::datasetScalarGroupSymbology( const QString &
   return encodedElem;
 }
 
-void ReosMeshFrame_p::setDatasetScalarGroupSymbology( const ReosEncodedElement &encodedElement, const QString &id )
+void ReosMeshFrame_p::applyScalarSymbologyOnMeshDatasetGroup( const QString &id )
 {
-  if ( encodedElement.description() != QStringLiteral( "dataset-symbology" ) )
+  if ( !mDatasetScalarSymbologies.contains( id ) )
     return;
 
+  const ReosEncodedElement &encodedSymbology( mDatasetScalarSymbologies.value( id ) );
+
   QString docString;
-  encodedElement.getData( QStringLiteral( "symbology" ), docString );
+  encodedSymbology.getData( QStringLiteral( "symbology" ), docString );
 
   QDomDocument doc( QStringLiteral( "dataset-symbology" ) );
 
@@ -185,6 +148,88 @@ void ReosMeshFrame_p::setDatasetScalarGroupSymbology( const ReosEncodedElement &
     settings.setScalarSettings( mDatasetGroupsIndex.value( id ), scalarSettings );
     mMeshLayer->setRendererSettings( settings );
   }
+}
+
+void ReosMeshFrame_p::applyVectorSymbologyOnMeshDatasetGroup( const QString &id )
+{
+  if ( !mDatasetVectorSymbologies.contains( id ) )
+    return;
+
+  const ReosEncodedElement &encodedSymbology( mDatasetVectorSymbologies.value( id ) );
+
+  QString docString;
+  encodedSymbology.getData( QStringLiteral( "symbology" ), docString );
+  QDomDocument doc( QStringLiteral( "dataset-vector-symbology" ) );
+
+  if ( doc.setContent( docString ) )
+  {
+    QDomElement domElem = doc.firstChildElement( QStringLiteral( "vector-settings" ) );
+    QgsReadWriteContext context;
+    QgsMeshRendererVectorSettings vectorSettings;
+    vectorSettings.readXml( domElem );
+    QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
+    settings.setVectorSettings( mDatasetGroupsIndex.value( id ), vectorSettings );
+    mMeshLayer->setRendererSettings( settings );
+  }
+}
+
+ReosEncodedElement ReosMeshFrame_p::datasetScalarGroupSymbology( const QString &id ) const
+{
+  if ( !mDatasetGroupsIndex.contains( id ) || !mDatasetScalarSymbologies.contains( id ) )
+  {
+    int dsgi = mDatasetGroupsIndex.value( id );
+    QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
+    QgsMeshRendererScalarSettings scalarSettings = settings.scalarSettings( dsgi );
+    QDomDocument doc( QStringLiteral( "dataset-symbology" ) );
+    doc.appendChild( scalarSettings.writeXml( doc ) ) ;
+
+    ReosEncodedElement encodedElem( QStringLiteral( "dataset-symbology" ) );
+    QString docString = doc.toString();
+    encodedElem.addData( QStringLiteral( "symbology" ), docString );
+
+    return encodedElem;
+  }
+
+  return ReosEncodedElement( mDatasetScalarSymbologies.value( id ) );
+}
+
+void ReosMeshFrame_p::setDatasetScalarGroupSymbology( const ReosEncodedElement &encodedElement, const QString &id )
+{
+  if ( encodedElement.description() != QStringLiteral( "dataset-symbology" ) )
+    return;
+
+  mDatasetScalarSymbologies.insert( id, encodedElement.bytes() );
+  applyScalarSymbologyOnMeshDatasetGroup( id );
+
+  update3DRenderer();
+}
+
+ReosEncodedElement ReosMeshFrame_p::datasetVectorGroupSymbology( const QString &id ) const
+{
+  if ( !mDatasetGroupsIndex.contains( id ) || !mDatasetVectorSymbologies.contains( id ) )
+  {
+    int dsgi = mDatasetGroupsIndex.value( id );
+    const QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
+    QgsMeshRendererVectorSettings vectorSettings = settings.vectorSettings( dsgi );
+    QDomDocument doc( QStringLiteral( "dataset-vector-symbology" ) );
+    doc.appendChild( vectorSettings.writeXml( doc ) ) ;
+
+    ReosEncodedElement encodedElem( QStringLiteral( "dataset-vector-symbology" ) );
+    QString docString = doc.toString();
+    encodedElem.addData( QStringLiteral( "symbology" ), docString );
+    return encodedElem;
+  }
+
+  return ReosEncodedElement( mDatasetVectorSymbologies.value( id ) );
+}
+
+void ReosMeshFrame_p::setDatasetVectorGroupSymbology( const ReosEncodedElement &encodedElement, const QString &id )
+{
+  if ( encodedElement.description() != QStringLiteral( "dataset-vector-symbology" ) )
+    return;
+
+  mDatasetVectorSymbologies.insert( id, encodedElement.bytes() );
+  applyVectorSymbologyOnMeshDatasetGroup( id );
 
   update3DRenderer();
 }
@@ -267,7 +312,7 @@ void ReosMeshFrame_p::restoreVertexElevationDataset()
 {
   std::unique_ptr<QgsMeshDatasetGroup> group( new QgsMeshVerticesElevationDatasetGroup( mVerticesElevationDatasetName, mMeshLayer->nativeMesh() ) );
   mZVerticesDatasetGroup = group.get();
-  mVerticesElevationDatasetId = addDatasetGroup( group.release(), mVerticesElevationDatasetId );
+  addDatasetGroup( group.release(), mVerticesElevationDatasetId );
 }
 
 void ReosMeshFrame_p::updateWireFrameSettings()
@@ -319,7 +364,7 @@ void ReosMeshFrame_p::update3DRenderer()
     return;
 
   const QgsMeshRendererScalarSettings scalarSettings =
-    mMeshLayer->rendererSettings().scalarSettings( mDatasetGroupsIndex.value( mCurrentdScalarDatasetId ) );
+    mMeshLayer->rendererSettings().scalarSettings( mDatasetGroupsIndex.value( mCurrentScalarDatasetId ) );
 
   const QgsMeshRendererMeshSettings meshSettings =
     mMeshLayer->rendererSettings().nativeMeshSettings();
@@ -538,13 +583,9 @@ bool ReosMeshFrame_p::isFrameModified() const
 }
 
 
-QString ReosMeshFrame_p::addDatasetGroup( QgsMeshDatasetGroup *group, const QString &id )
+void ReosMeshFrame_p::addDatasetGroup( QgsMeshDatasetGroup *group, const QString &id )
 {
   QString name = group->name();
-
-  QString effectiveId = id;
-  if ( effectiveId.isEmpty() )
-    effectiveId = QUuid::createUuid().toString();
 
   mMeshLayer->addDatasets( group );
 
@@ -556,13 +597,13 @@ QString ReosMeshFrame_p::addDatasetGroup( QgsMeshDatasetGroup *group, const QStr
     if ( meta.name() == name )
     {
       index = i;
-      break;
+      mDatasetScalarSymbologies.insert( id, datasetScalarGroupSymbology( id ).bytes() );
+      if ( meta.isVector() )
+        break;
     }
   }
 
-  mDatasetGroupsIndex[effectiveId] = index;
-
-  return effectiveId;
+  mDatasetGroupsIndex[id] = index;
 }
 
 void ReosMeshFrame_p::firstUpdateOfTerrainScalarSetting()
@@ -596,9 +637,28 @@ bool ReosMeshFrame_p::activateDataset( const QString &id, bool update )
 {
   int index = mDatasetGroupsIndex.value( id, -1 );
 
-  mCurrentdScalarDatasetId = id;
+  applyScalarSymbologyOnMeshDatasetGroup( id );
+
+  mCurrentScalarDatasetId = id;
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
   settings.setActiveScalarDatasetGroup( index );
+  mMeshLayer->setRendererSettings( settings );
+
+  if ( update )
+    update3DRenderer();
+
+  return true;
+}
+
+bool ReosMeshFrame_p::activateVectorDataset( const QString &id, bool update )
+{
+  int index = mDatasetGroupsIndex.value( id, -1 );
+
+  applyVectorSymbologyOnMeshDatasetGroup( id );
+
+  mCurrentActiveVectorDatasetId = id;
+  QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
+  settings.setActiveVectorDatasetGroup( index );
   mMeshLayer->setRendererSettings( settings );
 
   if ( update )
@@ -611,8 +671,32 @@ QStringList ReosMeshFrame_p::datasetIds() const
 {
   QMap<int, QString> mapRet;
   QStringList ids = mDatasetGroupsIndex.keys();
+  QList<int> indexes = mMeshLayer->datasetGroupsIndexes();
+
   for ( const QString &id : ids )
-    mapRet.insert( mDatasetGroupsIndex.value( id ), id );
+  {
+    int ind = mDatasetGroupsIndex.value( id );
+    if ( indexes.contains( ind ) )
+      mapRet.insert( mDatasetGroupsIndex.value( id ), id );
+  }
+  return mapRet.values();
+}
+
+QStringList ReosMeshFrame_p::vectorDatasetIds() const
+{
+  QMap<int, QString> mapRet;
+  QStringList ids = mDatasetGroupsIndex.keys();
+  QList<int> indexes = mMeshLayer->datasetGroupsIndexes();
+
+  for ( const QString &id : ids )
+  {
+    int datasetGroupIndex =  mDatasetGroupsIndex.value( id );
+    if ( !indexes.contains( datasetGroupIndex ) )
+      continue;
+    const QgsMeshDatasetGroupMetadata meta = mMeshLayer->datasetGroupMetadata( QgsMeshDatasetIndex( datasetGroupIndex, 0 ) );
+    if ( meta.isVector() )
+      mapRet.insert( datasetGroupIndex, id );
+  }
 
   return mapRet.values();
 }
@@ -710,6 +794,17 @@ double ReosMeshFrame_p::datasetScalarValueAt( const QString &datasetId, const QP
   return mMeshLayer->datasetValue( QgsMeshDatasetIndex( datasetGroupIndex( datasetId ), 0 ), QgsPointXY( pos ) ).scalar();
 }
 
+void ReosMeshFrame_p::datasetGroupMinimumMaximum( const QString &datasetId, double &min, double &max ) const
+{
+  int groupIndex = datasetGroupIndex( datasetId );
+  if ( groupIndex == -1 )
+    return;
+
+  const QgsMeshDatasetGroupMetadata meta = mMeshLayer->datasetGroupMetadata( QgsMeshDatasetIndex( groupIndex, 0 ) );
+  min = meta.minimum();
+  max = meta.maximum();
+}
+
 ReosMeshDataProvider_p *ReosMeshFrame_p::meshProvider() const
 {
   return qobject_cast<ReosMeshDataProvider_p *>( mMeshLayer->dataProvider() );
@@ -717,7 +812,12 @@ ReosMeshDataProvider_p *ReosMeshFrame_p::meshProvider() const
 
 QString ReosMeshFrame_p::currentdScalarDatasetId() const
 {
-  return mCurrentdScalarDatasetId;
+  return mCurrentScalarDatasetId;
+}
+
+QString ReosMeshFrame_p::currentdVectorDatasetId() const
+{
+  return mCurrentActiveVectorDatasetId;
 }
 
 QString ReosMeshFrame_p::verticalDataset3DId() const

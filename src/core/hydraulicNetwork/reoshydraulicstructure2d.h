@@ -125,6 +125,8 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Returns whether a simulation is running
     bool hasSimulationRunning() const;
 
+    void updateResults( const QString &schemeId );
+
     //! Returns whether the structure contain any results
     bool hasResults() const;
 
@@ -175,17 +177,23 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Activates the result dataset groups with \a id. If id is void, the current group is reactivated
     void activateResultDatasetGroup( const QString &id = QString() );
 
-    //! Activates the result dataset groups with type \a datasetType.
-    void activateResultDatasetGroup( ReosHydraulicSimulationResults::DatasetType datasetType );
+    //! Activates the result vector dataset groups with \a id. If id is void, the current group is reactivated
+    void activateResultVectorDatasetGroup( const QString &id );
 
     //! Returns the all the dataset ids
     QStringList meshDatasetIds() const;
+
+    //! Returns the all the vector dataset ids
+    QStringList meshVectorDatasetIds() const;
 
     //! Returns the name of the dataset with \a id
     QString meshDatasetName( const QString &id ) const;
 
     //! Returns the id of the current dataset
     QString currentActivatedMeshDataset() const;
+
+    //! Returns the id of the current vector dataset
+    QString currentActivatedVectorMeshDataset() const;
 
     //! Returns the type of the current dataset
     ReosHydraulicSimulationResults::DatasetType currentActivatedDatasetResultType() const;
@@ -236,10 +244,6 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     std::map<QString, std::unique_ptr<ReosSimulationProcess>> mSimulationProcesses;
     QMap<QString, ReosHydraulicSimulationResults *> mSimulationResults;
 
-    typedef ReosHydraulicSimulationResults::DatasetType ResultType;
-    mutable QMap<ResultType, QByteArray> mResultScalarDatasetSymbologies;
-    mutable QByteArray mTerrainSymbology;
-
     Reos3DMapSettings m3dMapSettings;
     Reos3DTerrainSettings m3dTerrainSettings;
 
@@ -251,9 +255,6 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     ReosHydraulicStructureBoundaryCondition *boundaryConditionNetWorkElement( const QString boundaryId ) const;
     void onMeshGenerated( const ReosMeshFrameData &meshData );
 
-    void getSymbologiesFromMesh( const QString &schemeId ) const;
-
-    void updateCurrentResults( const QString &schemeId );
     void loadResult( ReosHydraulicSimulation *simulation, const QString &schemeId );
     void setResultsOnStructure( ReosHydraulicSimulationResults *simResults );
 
