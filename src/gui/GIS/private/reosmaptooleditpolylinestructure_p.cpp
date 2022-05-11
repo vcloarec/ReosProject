@@ -567,11 +567,18 @@ void ReosMapToolEditPolylineStructure_p::addVertexForNewLines( const QPointF &po
     QList<QPointF> intersections = mStructure->intersectionPoints( QLineF( prevPt, vertexPosition ), mMapCrs, mLineRubberBand->asGeometry().asQPolygonF() );
     for ( const QPointF &pt : std::as_const( intersections ) )
     {
-      mAddingPolyline.append( pt );
+      const ReosMapExtent sr = searchZone( pt );
+      ReosGeometryStructureVertex *vert = mStructure->searchForVertex( sr );
+      QPointF effPt;
+      if ( vert )
+        effPt = mStructure->vertexPosition( vert, mMapCrs );
+      else
+        effPt = pt;
+      mAddingPolyline.append( effPt );
       mAddingLineTolerance.append( -1 );
-      mLineRubberBand->movePoint( pt );
-      mLineRubberBand->addPoint( pt );
-      mVertexRubberBand->addPoint( pt );
+      mLineRubberBand->movePoint( effPt );
+      mLineRubberBand->addPoint( effPt );
+      mVertexRubberBand->addPoint( effPt );
     }
   }
 
