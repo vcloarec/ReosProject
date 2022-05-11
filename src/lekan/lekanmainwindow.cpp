@@ -220,7 +220,7 @@ void LekanMainWindow::clearProject()
     mWatershedModule->reset();
 
   if ( mHydraulicNetwork )
-    mHydraulicNetwork->clear();
+    mHydraulicNetwork->reset();
 }
 
 void LekanMainWindow::checkExtraProjectToSave()
