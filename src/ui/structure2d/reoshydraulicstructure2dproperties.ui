@@ -225,7 +225,7 @@
           <item row="0" column="2">
            <widget class="QLabel" name="mSimulationEngineName">
             <property name="text">
-             <string>TextLabel</string>
+             <string>--</string>
             </property>
            </widget>
           </item>
