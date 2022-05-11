@@ -29,6 +29,7 @@
 #include <qgs3dmapscene.h>
 #include <qgstemporalcontroller.h>
 #include <qgsmeshlayer3drenderer.h>
+#include <qgsflatterraingenerator.h>
 
 #include "reosmesh.h"
 #include "reoslightwidget.h"
@@ -167,8 +168,10 @@ Reos3dView::~Reos3dView()
   // of new terrain happens when the 3D view is already deleted and leads to crash the application
   // The workaround is to defered also the destruction of the 3D map,
   //  so the destruction will happen after terrain creation
+  // before launching the defered deletation, we remove reference to the mesh layer
 
   mCanvas->map()->setLayers( QList<QgsMapLayer *>() );
+  mCanvas->map()->setTerrainGenerator( new QgsFlatTerrainGenerator );
   mCanvas->setParent( nullptr );
   QTimer::singleShot( 0, mCanvas, &QObject::deleteLater );
 
