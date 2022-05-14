@@ -847,7 +847,8 @@ ReosHydraulicStructure2D *ReosHydraulicStructure2D::create( const ReosEncodedEle
 void ReosHydraulicStructure2D::saveConfiguration( ReosHydraulicScheme *scheme ) const
 {
   ReosEncodedElement encodedElement = scheme->restoreElementConfig( id() );
-  encodedElement.addData( QStringLiteral( "current-simulation-id" ), currentSimulation()->id() );
+  if (currentSimulation())
+    encodedElement.addData( QStringLiteral( "current-simulation-id" ), currentSimulation()->id() );
   scheme->saveElementConfig( id(), encodedElement );
 
   for ( ReosHydraulicSimulation *sim : mSimulations )
