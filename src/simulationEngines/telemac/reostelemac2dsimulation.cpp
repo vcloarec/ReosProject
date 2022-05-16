@@ -1022,9 +1022,12 @@ void ReosTelemac2DSimulation::createSteeringFile(
         break;
     }
   }
-  stream << QStringLiteral( "PRESCRIBED FLOWRATES : %1\n" ).arg( prescribedFlow.join( ';' ) );
-  stream << QStringLiteral( "VELOCITY PROFILES : %1\n" ).arg( velocityProfile.join( ';' ) );
-  stream << QStringLiteral( "PRESCRIBED ELEVATIONS : %1\n" ).arg( prescribedElevation.join( ';' ) );
+  if (!prescribedFlow.isEmpty())
+    stream << QStringLiteral( "PRESCRIBED FLOWRATES : %1\n" ).arg( prescribedFlow.join( ';' ) );
+  if (!velocityProfile.isEmpty())
+    stream << QStringLiteral( "VELOCITY PROFILES : %1\n" ).arg( velocityProfile.join( ';' ) );
+  if (!prescribedElevation.isEmpty())
+    stream << QStringLiteral( "PRESCRIBED ELEVATIONS : %1\n" ).arg( prescribedElevation.join( ';' ) );
 
   //Initial condition
   switch ( initialCondition()->initialConditionType() )
