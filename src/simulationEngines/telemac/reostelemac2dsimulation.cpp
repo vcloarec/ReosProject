@@ -14,10 +14,11 @@
  *                                                                         *
  ***************************************************************************/
 
-
+#ifdef _MSC_VER
 #include <Windows.h>
 #undef max
 #undef min
+#endif
 
 #include "reostelemac2dsimulation.h"
 
@@ -1158,15 +1159,15 @@ void ReosTelemac2DSimulationProcess::start()
 #ifdef _MSC_VER
   QString script( QStringLiteral( "py" ) );
 #else
-  QString script(QStringLiteral("python3"));
+  QString script( QStringLiteral( "python3" ) );
 #endif
   QStringList arguments;
-  arguments << settings.value(QStringLiteral("/engine/telemac/telemac-2d-python-script")).toString()
-      << QStringLiteral("simulation.cas");
+  arguments << settings.value( QStringLiteral( "/engine/telemac/telemac-2d-python-script" ) ).toString()
+            << QStringLiteral( "simulation.cas" );
 
-  int nbProc = settings.value(QStringLiteral("/engine/telemac/cpu-usage-count")).toInt();
-  if (nbProc>1)
-      arguments <<  QStringLiteral( "--ncsize=%1" ).arg(nbProc);
+  int nbProc = settings.value( QStringLiteral( "/engine/telemac/cpu-usage-count" ) ).toInt();
+  if ( nbProc > 1 )
+    arguments <<  QStringLiteral( "--ncsize=%1" ).arg( nbProc );
 
   mBlockRegEx = QRegularExpression( QStringLiteral( "(?s).*?((ITERATION .*?)\\n.*?=====)" ) );
   mBoundaryFlowRegEx = QRegularExpression( QStringLiteral( "(?s).*?FLUX BOUNDARY +([0-9])+: +([\\-0-9.E]+)" ) );
@@ -1185,7 +1186,7 @@ void ReosTelemac2DSimulationProcess::start()
     }
   } );
 
- mProcess->start( script, arguments );
+  mProcess->start( script, arguments );
 
   bool resultStart = mProcess->waitForStarted();
   bool finished = false;
@@ -1194,22 +1195,22 @@ void ReosTelemac2DSimulationProcess::start()
     finished = mProcess->waitForFinished( -1 );
     setCurrentProgression( 100 );
 
-    if (!finished)
+    if ( !finished )
     {
-        switch(mProcess->error())
-        {
+      switch ( mProcess->error() )
+      {
         case QProcess::FailedToStart:
-            emit sendInformation(tr("Simulation process failed to start"));
-        break;
+          emit sendInformation( tr( "Simulation process failed to start" ) );
+          break;
         case QProcess::Crashed:
-            emit sendInformation(tr("Simulation process crashed"));
-            break;
+          emit sendInformation( tr( "Simulation process crashed" ) );
+          break;
         default:
-            emit sendInformation(tr("Simulation process does not finished for an unknown error"));
-            break;
-        }
+          emit sendInformation( tr( "Simulation process does not finished for an unknown error" ) );
+          break;
+      }
 
-        emit sendInformation(mProcess->readAllStandardError());
+      emit sendInformation( mProcess->readAllStandardError() );
     }
 
     if ( isStop() )
@@ -1217,10 +1218,10 @@ void ReosTelemac2DSimulationProcess::start()
     else
       emit sendInformation( mStandartOutputBuffer );
 
-    if (mProcess->exitCode() != 0)
+    if ( mProcess->exitCode() != 0 )
     {
-        emit sendInformation(tr("Simulation process exit with error code %1").arg(mProcess->exitCode()));
-        emit sendInformation(mProcess->readAllStandardError());
+      emit sendInformation( tr( "Simulation process exit with error code %1" ).arg( mProcess->exitCode() ) );
+      emit sendInformation( mProcess->readAllStandardError() );
     }
   }
   else
@@ -1246,13 +1247,10 @@ void ReosTelemac2DSimulationProcess::onStopAsked()
   if ( mProcess )
   {
 #ifdef _MSC_VER
-      QString killCommand(QStringLiteral("TASKKILL /PID %1 /F /T").arg(mProcess->processId()));
-      system(killCommand.toStdString().c_str());
-      //HANDLE processHandle=OpenProcess(PROCESS_ALL_ACCESS, TRUE, mProcess->processId());
-      //TerminateProcess(processHandle, 0);
-      //CloseHandle(processHandle);
+    QString killCommand( QStringLiteral( "TASKKILL /PID %1 /F /T" ).arg( mProcess->processId() ) );
+    system( killCommand.toStdString().c_str() );
 #else
-      mProcess->terminate();
+    mProcess->terminate();
 #endif
   }
 }
