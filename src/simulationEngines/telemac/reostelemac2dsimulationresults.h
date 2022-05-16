@@ -29,6 +29,8 @@ struct CacheDataset
 {
   QVector<int> activeFaces;
   QVector<double> waterDepth;
+  QVector<double> waterLevel;
+  QVector<double> velocity;
 };
 
 class ReosTelemac2DSimulationResults : public ReosHydraulicSimulationResults
