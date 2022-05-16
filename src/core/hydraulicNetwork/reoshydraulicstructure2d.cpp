@@ -411,24 +411,14 @@ ReosSimulationProcess *ReosHydraulicStructure2D::startSimulation( const ReosCalc
     if ( it != mSimulationProcesses.end() )
     {
       ReosSimulationProcess *process = it->second.get();
-      const QMap<QString, ReosHydrograph *> hydrographs = process->outputHydrographs();
-      const QList<QString> hydIds = hydrographs.keys();
-      for ( const QString &id : hydIds )
-      {
-        const QList<ReosHydraulicStructureBoundaryCondition *> bounds = boundaryConditions();
-        for ( ReosHydraulicStructureBoundaryCondition *bc : bounds )
-        {
-          if ( bc->boundaryConditionId() == id )
-            bc->outputHydrograph()->copyFrom( hydrographs.value( id ) );
-        }
-      }
-
       success = it->second->isSuccessful();
+      onSimulationFinished( sim, schemeId, process, success );
 
       mSimulationProcesses.erase( it );
+
+      emit simulationFinished();
     }
 
-    onSimulationFinished( sim, schemeId, success );
   } );
 
   //Store the current symbology per data type
@@ -447,7 +437,14 @@ ReosSimulationProcess *ReosHydraulicStructure2D::simulationProcess( const ReosCa
 
 bool ReosHydraulicStructure2D::hasSimulationRunning() const
 {
-  return !mSimulationProcesses.empty();
+  if ( mSimulationProcesses.empty() )
+    return false;
+
+  for ( auto &proc : mSimulationProcesses )
+    if ( !proc.second->isFinished() )
+      return true;
+
+  return true;
 }
 
 bool ReosHydraulicStructure2D::hasResults() const
@@ -551,6 +548,24 @@ void ReosHydraulicStructure2D::removeAllResults()
       sim->removeResults( this, scheme->id() );
 
     updateResults( scheme->id() );
+  }
+}
+
+void ReosHydraulicStructure2D::removeResults( const ReosCalculationContext &context )
+{
+  const QString &schemeId = context.schemeId();
+
+  if ( mSimulationResults.contains( schemeId ) )
+  {
+    mSimulationResults.value( schemeId )->deleteLater();
+    mSimulationResults.remove( schemeId );
+
+    ReosHydraulicScheme *scheme = mNetWork->hydraulicSchemeCollection()->scheme( schemeId );
+    if ( scheme )
+    {
+      ReosHydraulicSimulation *sim = simulation( scheme );
+      sim->removeResults( this, schemeId );
+    }
   }
 }
 
@@ -687,23 +702,22 @@ void ReosHydraulicStructure2D::onMeshGenerated( const ReosMeshFrameData &meshDat
   emit dataChanged();
 }
 
-void ReosHydraulicStructure2D::onSimulationFinished( ReosHydraulicSimulation *simulation, const QString &schemeId, bool success )
+void ReosHydraulicStructure2D::onSimulationFinished( ReosHydraulicSimulation *simulation, const QString &schemeId, ReosSimulationProcess *process, bool success )
 {
   if ( !simulation )
   {
-    emit simulationFinished();
     return;
   }
-  simulation->saveSimulationResult( this, schemeId, success );
+  simulation->saveSimulationResult( this, schemeId, process, success );
 
-  //! Now we can remove the old one
-  mSimulationResults.value( schemeId )->deleteLater();
-  mSimulationResults.remove( schemeId );
+  //! Now we can remove the old one if still presents
+  if ( mSimulationResults.contains( schemeId ) )
+  {
+    mSimulationResults.value( schemeId )->deleteLater();
+    mSimulationResults.remove( schemeId );
+  }
 
-  if ( mNetWork->calculationContext().schemeId() == schemeId )
-    updateResults( schemeId );
-
-  emit simulationFinished();
+  updateResults( schemeId );
 }
 
 void ReosHydraulicStructure2D::loadResult( ReosHydraulicSimulation *simulation, const QString &schemeId )
@@ -779,7 +793,6 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
     mMesh->activateVectorDataset( currentVectorDatasetId );
 
     const QMap<QString, ReosHydrograph *> outputHydrographs = simResults->outputHydrographs();
-    const QList<ReosHydraulicStructureBoundaryCondition *> boundaries = boundaryConditions();
 
     for ( ReosHydraulicStructureBoundaryCondition *bc : boundaries )
     {
@@ -797,8 +810,8 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
 
 void ReosHydraulicStructure2D::updateResults( const QString &schemeId )
 {
-  //Store the current symbology per data type
-//  getSymbologiesFromMesh( schemeId );
+  if ( mNetWork->calculationContext().schemeId() != schemeId )
+    return;
 
   if ( currentSimulation() && currentSimulation()->hasResult( this, schemeId ) )
   {
@@ -847,7 +860,7 @@ ReosHydraulicStructure2D *ReosHydraulicStructure2D::create( const ReosEncodedEle
 void ReosHydraulicStructure2D::saveConfiguration( ReosHydraulicScheme *scheme ) const
 {
   ReosEncodedElement encodedElement = scheme->restoreElementConfig( id() );
-  if (currentSimulation())
+  if ( currentSimulation() )
     encodedElement.addData( QStringLiteral( "current-simulation-id" ), currentSimulation()->id() );
   scheme->saveElementConfig( id(), encodedElement );
 
@@ -880,6 +893,7 @@ void ReosHydraulicStructure2D::restoreConfiguration( ReosHydraulicScheme *scheme
 
   if ( mCurrentSimulationIndex == -1 )
     return;
+
   updateResults( scheme->id() );
 
   emit currentSimulationChanged();

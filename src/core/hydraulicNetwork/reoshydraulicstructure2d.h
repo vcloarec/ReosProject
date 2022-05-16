@@ -150,6 +150,8 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 
     void removeAllResults();
 
+    void removeResults( const ReosCalculationContext &context );
+
     //! Sets active the terrain in the mesh
     void activateMeshTerrain();
 
@@ -221,7 +223,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     void onBoundaryConditionRemoved( const QString &bid );
     void onGeometryStructureChange();
     void onFlowsFromSolverReceived( const QDateTime &time, const QStringList &boundId, const QList<double> &values );
-    void onSimulationFinished( ReosHydraulicSimulation *simulation,  const QString &schemeId, bool success );
+    void onSimulationFinished( ReosHydraulicSimulation *simulation,  const QString &schemeId, ReosSimulationProcess *process, bool success );
 
   private:
     ReosHydraulicStructure2D( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );

@@ -103,7 +103,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   simulationToolButton->setMenu( simulationMenu );
   toolBar->addWidget( simulationToolButton );
   simulationToolButton->setEnabled( mStructure2D->currentSimulation() != nullptr );
-  connect( mStructure2D, &ReosHydraulicStructure2D::currentSimulationChanged, [this, simulationToolButton]
+  connect( mStructure2D, &ReosHydraulicStructure2D::currentSimulationChanged, this, [this, simulationToolButton]
   {
     simulationToolButton->setEnabled( mStructure2D->currentSimulation() != nullptr );
   } );
@@ -311,6 +311,9 @@ void ReosHydraulicStructure2DProperties::onLaunchCalculation()
       QMessageBox::information( this, tr( "Run Simulation" ), "No simulation selected." );
       return;
     }
+
+    mStructure2D->removeResults( mCalculationContext );
+    mStructure2D->updateResults( mCalculationContext.schemeId() );
 
     mActionEditStructure->setEnabled( false );
     std::unique_ptr<ReosProcess> preparationProcess( mStructure2D->getPreparationProcessSimulation( mCalculationContext ) );

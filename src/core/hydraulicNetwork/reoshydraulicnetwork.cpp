@@ -400,14 +400,15 @@ int ReosHydraulicNetwork::currentSchemeIndex() const
 
 void ReosHydraulicNetwork::setCurrentScheme( int newSchemeIndex )
 {
-  for ( ReosHydraulicNetworkElement *elem :  std::as_const( mElements ) )
-    elem->restoreConfiguration( mHydraulicSchemeCollection->scheme( newSchemeIndex ) );
-
   ReosHydraulicScheme *currentScheme = mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex );
   if ( currentScheme )
     disconnect( currentScheme, &ReosDataObject::dataChanged, this, &ReosHydraulicNetwork::schemeChanged );
 
   mCurrentSchemeIndex = newSchemeIndex;
+
+  for ( ReosHydraulicNetworkElement *elem :  std::as_const( mElements ) )
+    elem->restoreConfiguration( mHydraulicSchemeCollection->scheme( newSchemeIndex ) );
+
   currentScheme = mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex );
   if ( currentScheme )
   {

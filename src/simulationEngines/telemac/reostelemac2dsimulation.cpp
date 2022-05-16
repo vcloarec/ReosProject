@@ -164,7 +164,7 @@ bool ReosTelemac2DSimulation::hasResult( const ReosHydraulicStructure2D *hydraul
   return fileInfo.exists();
 }
 
-void ReosTelemac2DSimulation::saveSimulationResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, bool success ) const
+void ReosTelemac2DSimulation::saveSimulationResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, ReosSimulationProcess *process, bool success ) const
 {
   if ( !success )
     return;
@@ -174,9 +174,11 @@ void ReosTelemac2DSimulation::saveSimulationResult( const ReosHydraulicStructure
   const QList<ReosHydraulicStructureBoundaryCondition *> boundaries = hydraulicStructure->boundaryConditions();
   QMap<QString, QByteArray> encodedHydrographs;
 
-  for ( ReosHydraulicStructureBoundaryCondition *bc : boundaries )
-    if ( bc->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::OutputLevel )
-      encodedHydrographs.insert( bc->boundaryConditionId(), bc->outputHydrograph()->encode().bytes() );
+  QMap<QString, ReosHydrograph *> hyds = process->outputHydrographs();
+
+  const QStringList ids = hyds.keys();
+  for ( const QString &id : ids )
+    encodedHydrographs.insert( id, hyds.value( id )->encode().bytes() );
 
   QFile outputHydFile( dir.filePath( QStringLiteral( "outputHydrographs" ) ) );
 
@@ -1022,11 +1024,11 @@ void ReosTelemac2DSimulation::createSteeringFile(
         break;
     }
   }
-  if (!prescribedFlow.isEmpty())
+  if ( !prescribedFlow.isEmpty() )
     stream << QStringLiteral( "PRESCRIBED FLOWRATES : %1\n" ).arg( prescribedFlow.join( ';' ) );
-  if (!velocityProfile.isEmpty())
+  if ( !velocityProfile.isEmpty() )
     stream << QStringLiteral( "VELOCITY PROFILES : %1\n" ).arg( velocityProfile.join( ';' ) );
-  if (!prescribedElevation.isEmpty())
+  if ( !prescribedElevation.isEmpty() )
     stream << QStringLiteral( "PRESCRIBED ELEVATIONS : %1\n" ).arg( prescribedElevation.join( ';' ) );
 
   //Initial condition
@@ -1191,7 +1193,7 @@ void ReosTelemac2DSimulationProcess::start()
       emit sendInformation( mStandartOutputBuffer );
   }
   else
-    emit sendInformation( tr( "Telemac simulation can't start. Check the configuration of the Telemac modele." ) );
+    emit sendInformation( tr( "Telemac simulation can't start in folder %1. Check the configuration of the Telemac modele." ).arg( mProcess->workingDirectory() ) );
 
   finished = finished && mProcess->exitCode() == 0;
 

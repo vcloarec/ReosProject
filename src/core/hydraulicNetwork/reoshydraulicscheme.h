@@ -107,6 +107,7 @@ class REOSCORE_EXPORT ReosHydraulicSchemeCollection : public QAbstractListModel
     int schemeCount() const;
 
     ReosHydraulicScheme *scheme( int index );
+    ReosHydraulicScheme *scheme( const QString &schemeId );
 
     int schemeIndex( const QString &schemeId ) const;
 
