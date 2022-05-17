@@ -186,6 +186,9 @@ bool ReosMainWindow::openFile()
     return false;
 
   mCurrentProjectFileInfo = QFileInfo( fileName );
+
+  settings.setValue(QStringLiteral("Path/Project"), mCurrentProjectFileInfo.path());
+
   bool result = openProject();
 
   if ( !result )
