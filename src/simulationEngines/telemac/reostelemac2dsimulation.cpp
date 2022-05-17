@@ -13,6 +13,12 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
+
+
+#include <Windows.h>
+#undef max
+#undef min
+
 #include "reostelemac2dsimulation.h"
 
 #include <QDir>
@@ -1239,7 +1245,15 @@ void ReosTelemac2DSimulationProcess::onStopAsked()
 {
   if ( mProcess )
   {
-    mProcess->terminate();
+#ifdef _MSC_VER
+      QString killCommand(QStringLiteral("TASKKILL /PID %1 /F /T").arg(mProcess->processId()));
+      system(killCommand.toStdString().c_str());
+      //HANDLE processHandle=OpenProcess(PROCESS_ALL_ACCESS, TRUE, mProcess->processId());
+      //TerminateProcess(processHandle, 0);
+      //CloseHandle(processHandle);
+#else
+      mProcess->terminate();
+#endif
   }
 }
 

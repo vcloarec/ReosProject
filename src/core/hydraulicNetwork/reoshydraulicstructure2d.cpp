@@ -557,7 +557,7 @@ void ReosHydraulicStructure2D::removeResults( const ReosCalculationContext &cont
 
   if ( mSimulationResults.contains( schemeId ) )
   {
-    mSimulationResults.value( schemeId )->deleteLater();
+    delete mSimulationResults.value( schemeId );
     mSimulationResults.remove( schemeId );
 
     ReosHydraulicScheme *scheme = mNetWork->hydraulicSchemeCollection()->scheme( schemeId );
