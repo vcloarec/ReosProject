@@ -131,7 +131,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   mCurrentVectorDatasetId = mStructure2D->currentActivatedVectorMeshDataset();
   connect( mActionVectorSettings, &QAction::triggered, this, [this]
   {
-    if ( mStructure2D->currentActivatedMeshDataset().isEmpty() )
+    if ( mStructure2D->currentActivatedVectorMeshDataset().isEmpty() )
       return;
     emit stackedPageWidgetOpened( new ReosMeshVectorRenderingWidget( mStructure2D->mesh(), mStructure2D->currentActivatedVectorMeshDataset(), mGuiContext ) );
   } );

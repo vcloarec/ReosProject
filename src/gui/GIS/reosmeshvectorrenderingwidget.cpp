@@ -38,7 +38,7 @@ ReosMeshVectorRenderingWidget::ReosMeshVectorRenderingWidget( ReosMesh *mesh, co
 {
   ui->setupUi( this );
 
-  ui->mSymbologyTypeCombo->addItem( tr( "Arrow" ), static_cast<int>( QgsMeshRendererVectorSettings::Arrows ) );
+  ui->mSymbologyTypeCombo->addItem( tr( "Arrows" ), static_cast<int>( QgsMeshRendererVectorSettings::Arrows ) );
   ui->mSymbologyTypeCombo->addItem( tr( "Stream lines" ), static_cast<int>( QgsMeshRendererVectorSettings::Streamlines ) );
   ui->mSymbologyTypeCombo->addItem( tr( "Traces" ), static_cast<int>( QgsMeshRendererVectorSettings::Traces ) );
 

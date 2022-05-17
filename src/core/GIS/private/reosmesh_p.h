@@ -121,7 +121,7 @@ class ReosMeshFrame_p : public ReosMesh
 class ReosMeshRenderer_p : public ReosObjectRenderer
 {
   public:
-    ReosMeshRenderer_p( QGraphicsView *canvas, QgsMeshLayer *layer );
+    ReosMeshRenderer_p( QGraphicsView *canvas, QgsMeshLayer *layer, ReosMesh *mesh );
     void render() const;
 
   protected:

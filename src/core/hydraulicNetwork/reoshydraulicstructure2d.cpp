@@ -26,7 +26,6 @@
 
 #include <QProcess>
 #include <QDir>
-#include <QDebug>
 
 ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, const ReosHydraulicNetworkContext &context )
   : ReosHydraulicNetworkElement( context.network() )

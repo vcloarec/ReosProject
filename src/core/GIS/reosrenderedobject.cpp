@@ -15,6 +15,11 @@
  ***************************************************************************/
 #include "reosrenderedobject.h"
 
+ReosObjectRenderer::ReosObjectRenderer( ReosRenderedObject *object )
+  : mObject( object )
+{
+}
+
 void ReosObjectRenderer::start()
 {
   render();
@@ -31,4 +36,30 @@ const QImage ReosObjectRenderer::image() const
   return mImage;
 }
 
+QRectF ReosObjectRenderer::extent() const
+{
+  return mExtent;
+}
+
+void ReosObjectRenderer::setExtent( const QRectF &extent )
+{
+  mExtent = extent;
+}
+
+QDateTime ReosObjectRenderer::startTime() const
+{
+  return mStartTime;
+}
+
+void ReosObjectRenderer::setStartTime( const QDateTime &startTime )
+{
+  mStartTime = startTime;
+}
+
+ReosRenderedObject *ReosObjectRenderer::object()
+{
+  return mObject;
+}
+
 ReosRenderedObject::ReosRenderedObject( QObject *parent ) : ReosDataObject( parent ) {}
+

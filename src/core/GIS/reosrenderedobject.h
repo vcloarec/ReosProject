@@ -25,11 +25,13 @@
 class QGraphicsView;
 class QPainter;
 class QgsMapCanvas;
+class ReosRenderedObject;
 
 class REOSCORE_EXPORT ReosObjectRenderer: public ReosProcess
 {
     Q_OBJECT
   public:
+    ReosObjectRenderer( ReosRenderedObject *object );
 
     void start() override;
     virtual void stop( bool stop ) override;
@@ -37,10 +39,23 @@ class REOSCORE_EXPORT ReosObjectRenderer: public ReosProcess
     virtual void render() const = 0;
     const QImage image() const;
 
+    QRectF extent() const;
+    void setExtent( const QRectF &extent );
+
+    QDateTime startTime() const;
+    void setStartTime( const QDateTime &startTime );
+
+    ReosRenderedObject *object();
+
   protected:
     QImage mImage;
 
     virtual void stopRendering() = 0;
+
+  private:
+    ReosRenderedObject *mObject = nullptr;
+    QRectF mExtent;
+    QDateTime mStartTime;
 
 };
 
@@ -54,6 +69,7 @@ class REOSCORE_EXPORT ReosRenderedObject: public ReosDataObject
   signals:
     void renderingFinished();
     void repaintRequested();
+
 };
 
 

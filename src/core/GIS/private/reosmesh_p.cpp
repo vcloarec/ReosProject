@@ -247,7 +247,7 @@ bool ReosMeshFrame_p::isWireFrameActive() const
 
 ReosObjectRenderer *ReosMeshFrame_p::createRenderer( QGraphicsView *view )
 {
-  return new ReosMeshRenderer_p( view, mMeshLayer.get() );
+  return new ReosMeshRenderer_p( view, mMeshLayer.get(), this );
 }
 
 ReosMeshQualityChecker *ReosMeshFrame_p::getQualityChecker( ReosMesh::QualityMeshChecks qualitiChecks, const QString &destinatonCrs ) const
@@ -513,7 +513,6 @@ double ReosMeshFrame_p::interpolateDatasetValueOnPoint(
   double i0 = face.at( 0 );
   double i1 = face.at( 1 );
   double i2 = face.at( 2 );
-  qDebug() << i0 << i1 << i2;
 
   bool ok = false;
   double result;
@@ -872,7 +871,8 @@ void ReosMeshFrame_p::setSimulationResults( ReosHydraulicSimulationResults *resu
   meshProvider()->reloadData();
 }
 
-ReosMeshRenderer_p::ReosMeshRenderer_p( QGraphicsView *canvas, QgsMeshLayer *layer )
+ReosMeshRenderer_p::ReosMeshRenderer_p( QGraphicsView *canvas, QgsMeshLayer *layer, ReosMesh *mesh ):
+  ReosObjectRenderer( mesh )
 {
   QgsMapCanvas *mapCanvas = qobject_cast<QgsMapCanvas *>( canvas );
   if ( mapCanvas )
@@ -888,6 +888,9 @@ ReosMeshRenderer_p::ReosMeshRenderer_p( QGraphicsView *canvas, QgsMeshLayer *lay
     mRenderContext = QgsRenderContext::fromMapSettings( settings );
     mRenderContext.setPainter( mPainter.get() );
     mLayerRender.reset( layer->createMapRenderer( mRenderContext ) );
+
+    setExtent( settings.visibleExtent().toRectF() );
+    setStartTime( settings.temporalRange().begin() );
   }
 }
 

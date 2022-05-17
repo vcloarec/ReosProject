@@ -56,17 +56,12 @@ class ReosRendererObjectHandler : public QObject
 
     void clearObject( ReosRenderedObject *renderedObject );
 
-    void stopRendering( ReosRenderedObject *renderedObject );
-
   private slots:
     void onRendererFinished();
     void updateViewParameter();
 
   private:
     std::unique_ptr<ReosRendererObjectHandler_p> d;
-
-    ReosRenderedObject *rendererToObject( ReosObjectRenderer *renderer ) const;
-    ReosObjectRenderer *objectToRenderer( ReosRenderedObject *o ) const;
     QImage transformImage( ReosRenderedObject *renderedObject );
 
     //! Returns if a cache is present, event if not up to date
