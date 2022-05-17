@@ -206,10 +206,11 @@ void Reos3dView::onExagggerationChange( double value )
 
 void Reos3dView::onLightChange()
 {
-  QgsDirectionalLightSettings lightSettings;
-  lightSettings.setDirection( mLightWidget->direction() );
-  lightSettings.setIntensity( mLightWidget->lightIntensity() );
-  mCanvas->map()->setDirectionalLights( {lightSettings} );
+  std::unique_ptr<QgsDirectionalLightSettings> lightSettings = std::make_unique<QgsDirectionalLightSettings>();
+  lightSettings->setDirection( mLightWidget->direction() );
+  lightSettings->setIntensity( mLightWidget->lightIntensity() );
+  mCanvas->map()->setLightSources( {lightSettings.release()} );
+
   emit mapSettingsChanged();
 }
 
