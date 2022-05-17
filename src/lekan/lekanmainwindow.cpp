@@ -100,6 +100,10 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
 
   mMap->setDefaultMapTool();
 
+  ReosSettings settings;
+  restoreGeometry( settings.value( QStringLiteral( "Windows/MainWindow/geometry" ) ).toByteArray() );
+  restoreState( settings.value( QStringLiteral( "Windows/MainWindow/state" ) ).toByteArray() );
+
   clearProject();
 }
 
