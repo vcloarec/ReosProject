@@ -1145,21 +1145,22 @@ void ReosTelemac2DSimulationProcess::start()
   env.insert( "SYSTELCFG", settings.value( QStringLiteral( "/engine/telemac/telemac-config-file" ) ).toString() );
   env.insert( "USETELCFG", settings.value( QStringLiteral( "/engine/telemac/telemac-configuration" ) ).toString() );
 
-//  env.insert( "PYTHONUNBUFFERED",  "'true'" );
-//  env.insert( "PYTHONPATH", QStringLiteral( "/opt/telemac/scripts/python3:%1" ).arg( env.value( "PYTHONPATH" ) ) );
-//  env.insert( "PYTHONPATH", QStringLiteral( "/opt/telemac/builds/ubugfmpich2/wrap_api/lib:%1" ).arg( env.value( "PYTHONPATH" ) ) );
-//  env.insert( "LD_LIBRARY_PATH", QStringLiteral( "/opt/telemac/builds/ubugfmpich2/wrap_api/lib:%1" ).arg( env.value( "LD_LIBRARY_PATH" ) ) );
-
   mProcess->setProcessEnvironment( env );
 
   mProcess->setWorkingDirectory( mSimulationFilePath );
 
-  QString script( QStringLiteral( "python3" ) );
+#ifdef _MSC_VER
+  QString script( QStringLiteral( "py" ) );
+#else
+  QString script(QStringLiteral("python3"));
+#endif
   QStringList arguments;
-  arguments << settings.value( QStringLiteral( "/engine/telemac/telemac-2d-python-script" ) ).toString()
-            << QStringLiteral( "simulation.cas" )
-            <<  QStringLiteral( "--ncsize=%1" ).arg( settings.value( QStringLiteral( "/engine/telemac/cpu-usage-count" ) ).toInt() );
+  arguments << settings.value(QStringLiteral("/engine/telemac/telemac-2d-python-script")).toString()
+      << QStringLiteral("simulation.cas");
 
+  int nbProc = settings.value(QStringLiteral("/engine/telemac/cpu-usage-count")).toInt();
+  if (nbProc>1)
+      arguments <<  QStringLiteral( "--ncsize=%1" ).arg(nbProc);
 
   mBlockRegEx = QRegularExpression( QStringLiteral( "(?s).*?((ITERATION .*?)\\n.*?=====)" ) );
   mBoundaryFlowRegEx = QRegularExpression( QStringLiteral( "(?s).*?FLUX BOUNDARY +([0-9])+: +([\\-0-9.E]+)" ) );
@@ -1178,7 +1179,7 @@ void ReosTelemac2DSimulationProcess::start()
     }
   } );
 
-  mProcess->start( script, arguments );
+ mProcess->start( script, arguments );
 
   bool resultStart = mProcess->waitForStarted();
   bool finished = false;
@@ -1187,10 +1188,34 @@ void ReosTelemac2DSimulationProcess::start()
     finished = mProcess->waitForFinished( -1 );
     setCurrentProgression( 100 );
 
+    if (!finished)
+    {
+        switch(mProcess->error())
+        {
+        case QProcess::FailedToStart:
+            emit sendInformation(tr("Simulation process failed to start"));
+        break;
+        case QProcess::Crashed:
+            emit sendInformation(tr("Simulation process crashed"));
+            break;
+        default:
+            emit sendInformation(tr("Simulation process does not finished for an unknown error"));
+            break;
+        }
+
+        emit sendInformation(mProcess->readAllStandardError());
+    }
+
     if ( isStop() )
       emit sendInformation( tr( "Simulation canceled by user" ) );
     else
       emit sendInformation( mStandartOutputBuffer );
+
+    if (mProcess->exitCode() != 0)
+    {
+        emit sendInformation(tr("Simulation process exit with error code %1").arg(mProcess->exitCode()));
+        emit sendInformation(mProcess->readAllStandardError());
+    }
   }
   else
     emit sendInformation( tr( "Telemac simulation can't start in folder %1. Check the configuration of the Telemac modele." ).arg( mProcess->workingDirectory() ) );
@@ -1246,8 +1271,6 @@ void ReosTelemac2DSimulationProcess::addToOutput( const QString &txt )
 void ReosTelemac2DSimulationProcess::extractInformation( const  QRegularExpressionMatch &blockMatch )
 {
   QString timeString = blockMatch.captured( 2 );
-  qDebug() << blockMatch.captured( 1 );
-  qDebug() << "--------------------------";
   QStringList splited = timeString.split( ' ' );
   double time = 0;
   if ( splited.count() > 1 && splited.last().contains( 'S' ) )

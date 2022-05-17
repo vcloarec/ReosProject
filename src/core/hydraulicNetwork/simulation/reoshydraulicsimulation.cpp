@@ -258,15 +258,15 @@ ReosSimulationProcess::ReosSimulationProcess( const ReosCalculationContext &cont
     }
   }
 
+  qRegisterMetaType< QList<double> >("QList<double>");
   connect( this, &ReosSimulationProcess::sendBoundaryFlow, this, &ReosSimulationProcess::onReceiveFlow );
 }
 
-void ReosSimulationProcess::onReceiveFlow( const QDateTime &time, const QStringList &boundaryIds, const QList<double> &values )
+void ReosSimulationProcess::onReceiveFlow( QDateTime time, QStringList boundaryIds, QList<double> values )
 {
   for ( int i = 0; i < boundaryIds.count(); ++i )
   {
     const QString &bId = boundaryIds.at( i );
-    qDebug() << bId << mOutputHydrographs.keys();
     ReosHydrograph *hyd = mOutputHydrographs.value( bId );
     if ( hyd )
       hyd->setValue( time, values.at( i ) );

@@ -78,10 +78,10 @@ class REOSCORE_EXPORT ReosSimulationProcess : public ReosProcess
     QMap<QString, ReosHydrograph *> outputHydrographs() const;
 
   signals:
-    void sendBoundaryFlow( const QDateTime &time, const QStringList &boundaryIds, const QList<double> &values ) const;
+    void sendBoundaryFlow( QDateTime time, QStringList boundaryIds, QList<double> values ) const;
 
   private slots:
-    void onReceiveFlow( const QDateTime &time, const QStringList &boundaryIds, const QList<double> &values );
+    void onReceiveFlow( QDateTime time, QStringList boundaryIds, QList<double> values );
 
   private:
     QMap<QString, ReosHydrograph *> mOutputHydrographs;
