@@ -29,7 +29,7 @@ class ReosMeshTest: public QObject
     void memoryMesh();
 
   private:
-
+    ReosGisEngine engine;
 };
 
 
@@ -67,7 +67,6 @@ void ReosMeshTest::GmshGenerator()
 
 void ReosMeshTest::memoryMesh()
 {
-  ReosGisEngine engine;
   std::unique_ptr<ReosMesh> mesh( ReosMesh::createMeshFrame() );
   QVERIFY( mesh->isValid() );
 
