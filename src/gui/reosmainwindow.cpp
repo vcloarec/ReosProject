@@ -187,7 +187,7 @@ bool ReosMainWindow::openFile()
 
   mCurrentProjectFileInfo = QFileInfo( fileName );
 
-  settings.setValue(QStringLiteral("Path/Project"), mCurrentProjectFileInfo.path());
+  settings.setValue( QStringLiteral( "Path/Project" ), mCurrentProjectFileInfo.path() );
 
   bool result = openProject();
 
@@ -232,16 +232,21 @@ bool ReosMainWindow::saveAs()
 
 void ReosMainWindow::newProject()
 {
-  int returnButton = QMessageBox::warning( this, tr( "New project" ), tr( "Save current project?" ), QMessageBox::Save | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Cancel );
+  if ( mProjectIsDirty )
+  {
+    int returnButton = QMessageBox::warning( this, tr( "New project" ), tr( "Save current project?" ), QMessageBox::Save | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Cancel );
 
-  if ( returnButton == QMessageBox::Cancel )
-    return;
+    if ( returnButton == QMessageBox::Cancel )
+      return;
 
-  if ( returnButton == QMessageBox::Save )
-    save();
+    if ( returnButton == QMessageBox::Save )
+      save();
+  }
 
   mCurrentProjectFileInfo = QFileInfo();
   clearProject();
+
+  mProjectIsDirty = false;
 }
 
 void ReosMainWindow::languageSelection()

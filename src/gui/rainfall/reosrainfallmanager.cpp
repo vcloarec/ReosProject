@@ -970,7 +970,7 @@ void ReosRainfallManager::onCurrentTreeIndexChanged()
   if ( item )
   {
     item->setupData();
-    // First the form to acces parameter
+    // First the form to access parameter
     ReosFormWidget *newForm = createForm( item );
 
     if ( mCurrentForm )
