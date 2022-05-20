@@ -333,7 +333,7 @@ void ReosHydraulicNetwork::reset()
   mHydraulicSchemeCollection->reset( meteoModel );
 
   mElementIndexesCounter.clear();
-  mCurrentSchemeIndex = -1;
+  mCurrentSchemeIndex = 0;
   emit hasBeenReset();
 }
 
