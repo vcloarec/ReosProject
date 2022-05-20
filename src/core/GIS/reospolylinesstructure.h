@@ -109,6 +109,9 @@ class REOSCORE_EXPORT ReosPolylinesStructure : public ReosGeometryStructure
     //! Removes line with id \a lineId
     virtual void removeLine( qint64 lineId ) = 0;
 
+    //! Returns the proper tolerance of the structure in \a wktCrs units. If crs is not provided, returns the raw proper tolerance
+    virtual double tolerance( const QString &wktCrs = QString() ) const = 0;
+
     //! Search the closest vertex of the center of \a zone and in this zone, returns a pointer to the vertex
     virtual ReosGeometryStructureVertex *searchForVertex( const ReosMapExtent &zone ) const = 0;
 

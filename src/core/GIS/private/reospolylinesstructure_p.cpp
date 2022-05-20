@@ -1933,6 +1933,17 @@ bool ReosPolylineStructureVectorLayer::isOnBoundary( ReosGeometryStructureVertex
   return vert != nullptr;
 }
 
+double ReosPolylineStructureVectorLayer::tolerance( const QString &wktCrs ) const
+{
+  QgsCoordinateReferenceSystem destCrs;
+  destCrs.fromWkt( wktCrs );
+
+  QgsUnitTypes::DistanceUnit destUnit = destCrs.mapUnits();
+  QgsUnitTypes::DistanceUnit layerUnit = mVectorLayer->crs().mapUnits();
+
+  return QgsUnitTypes::fromUnitToUnitFactor( layerUnit, destUnit ) * mTolerance;
+}
+
 bool ReosPolylineStructureVectorLayer::isOnBoundary( const Segment &seg ) const
 {
   if ( seg.at( 0 ) && seg.at( 1 ) )

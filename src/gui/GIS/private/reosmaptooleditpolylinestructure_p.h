@@ -86,7 +86,7 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
     int mMovingHolePointIndex = -1;
     ReosGeometryStructureVertex *mFirstSelectedVertex = nullptr;
 
-    ReosMapExtent searchZone( const QgsPointXY &point ) const;
+    ReosMapExtent searchZone( const QgsPointXY &point, bool useMapTolerance = true ) const;
 
     QgsRubberBand *mLineRubberBand = nullptr;
     QgsRubberBand *mVertexRubberBand = nullptr;
@@ -97,7 +97,7 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
     void updateMovingVertexRubberBand( const QgsPointXY &movingPosition );
     void moveAddingLineRubberBand( const QgsPointXY &movingPosition );
     void stopDraggingVertex();
-    void addVertexForNewLines( const QPointF &point );
+    void addVertexForNewLines( const QPointF &point, bool useMapTolerance );
     void stopAddingLines();
 
     QPolygonF mAddingPolyline;

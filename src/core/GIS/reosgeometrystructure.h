@@ -37,7 +37,7 @@ class ReosGeometryStructure : public ReosDataObject
     virtual ReosMapExtent extent( const QString &crs ) const = 0;
 
     /**
-     * Searches a closed polygon containing \a position, returns the polygon in \a position coordinate.
+     * Searches a closed polygon containing \a position, returns the polygon in \a position coordinates.
      * If \a allowBoundary is false, return nothing if the polygon has a boundary vertex.
      */
     virtual QPolygonF searchPolygon( const ReosSpatialPosition &position, bool allowBoundary = true ) const = 0;

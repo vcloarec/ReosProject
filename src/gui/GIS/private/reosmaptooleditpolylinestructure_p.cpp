@@ -319,7 +319,7 @@ void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
         if ( mActionAddLines->isChecked() )
         {
           mCurrentState = AddingLines;
-          addVertexForNewLines( snapPoint );
+          addVertexForNewLines( snapPoint, true );
         }
 
         if ( mActionAddHole->isChecked() )
@@ -343,14 +343,21 @@ void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
       else if ( e->button() == Qt::RightButton && mActionAddLines->isChecked() )
       {
         QgsGeometry geom = selectFeatureOnMap( e );
-        const QPolygonF poly = geom.asQPolygonF();
-        QList<double> tolerances;
-        tolerances.reserve( poly.count() );
-        for ( int i = 0; i < poly.count(); ++i )
-          tolerances.append( -1 );
-
         if ( !geom.isNull() )
-          mStructure->addPolylines( geom.asQPolygonF(), tolerances, mMapCrs );
+        {
+          const QPolygonF poly = geom.asQPolygonF();
+          QList<double> tolerances;
+          tolerances.reserve( poly.count() );
+          for ( int i = 0; i < poly.count(); ++i )
+          {
+            addVertexForNewLines( poly.at( i ), false );
+          }
+
+          if ( mAddingPolyline.count() > 1 )
+            mStructure->addPolylines( mAddingPolyline, mAddingLineTolerance, mMapCrs );
+
+          stopAddingLines();
+        }
       }
 
       break;
@@ -374,7 +381,7 @@ void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
     case AddingLines:
       if ( e->button() == Qt::LeftButton )
       {
-        addVertexForNewLines( snapPoint );
+        addVertexForNewLines( snapPoint, true );
       }
       else if ( e->button() == Qt::RightButton )
       {
@@ -479,9 +486,14 @@ void ReosMapToolEditPolylineStructure_p::resetTool()
   }
 }
 
-ReosMapExtent ReosMapToolEditPolylineStructure_p::searchZone( const QgsPointXY &point ) const
+ReosMapExtent ReosMapToolEditPolylineStructure_p::searchZone( const QgsPointXY &point, bool useMapTolerance ) const
 {
-  double tol = tolerance();
+  double tol = 0;
+  if ( useMapTolerance )
+    tol = tolerance();
+  else
+    tol = mStructure->tolerance( mapCrs() );
+
   ReosMapExtent zone( point.x() - tol, point.y() - tol, point.x() + tol, point.y() + tol );
   zone.setCrs( mMapCrs );
 
@@ -539,12 +551,12 @@ void ReosMapToolEditPolylineStructure_p::stopDraggingVertex()
   mCurrentState = None;
 }
 
-void ReosMapToolEditPolylineStructure_p::addVertexForNewLines( const QPointF &point )
+void ReosMapToolEditPolylineStructure_p::addVertexForNewLines( const QPointF &point, bool useMapTolerance )
 {
   QPointF vertexPosition;
   qint64 lineId;
 
-  ReosMapExtent sr = searchZone( point );
+  ReosMapExtent sr = searchZone( point, useMapTolerance );
 
   if ( mCurrentVertex )
     vertexPosition = mStructure->vertexPosition( mCurrentVertex, mMapCrs );
@@ -567,7 +579,7 @@ void ReosMapToolEditPolylineStructure_p::addVertexForNewLines( const QPointF &po
     QList<QPointF> intersections = mStructure->intersectionPoints( QLineF( prevPt, vertexPosition ), mMapCrs, mLineRubberBand->asGeometry().asQPolygonF() );
     for ( const QPointF &pt : std::as_const( intersections ) )
     {
-      const ReosMapExtent sr = searchZone( pt );
+      const ReosMapExtent sr = searchZone( pt, useMapTolerance );
       ReosGeometryStructureVertex *vert = mStructure->searchForVertex( sr );
       QPointF effPt;
       if ( vert )
@@ -583,7 +595,12 @@ void ReosMapToolEditPolylineStructure_p::addVertexForNewLines( const QPointF &po
   }
 
   mAddingPolyline.append( vertexPosition );
-  mAddingLineTolerance.append( tolerance() );
+
+  if ( useMapTolerance )
+    mAddingLineTolerance.append( tolerance() );
+  else
+    mAddingLineTolerance.append( -1 );
+
   mLineRubberBand->movePoint( vertexPosition );
   mLineRubberBand->addPoint( vertexPosition );
   mVertexRubberBand->addPoint( vertexPosition );

@@ -160,7 +160,7 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     //! Clears the network
     void clear();
 
-    //! Reset the network, that is, clear all and create just one hydraulic scheme
+    //! Reset the network, that is, clear all and creates just one hydraulic scheme
     void reset();
 
 
