@@ -751,13 +751,6 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
     }
   }
 
-  if ( !simResults )
-  {
-    mMesh->setVerticalDataset3DId( QString(), false );
-    mMesh->activateDataset( QString() );
-    return;
-  }
-
   if ( simResults )
   {
     QString currentDatasetId = mMesh->currentdScalarDatasetId();
@@ -788,8 +781,6 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
         currentActivatedId = groupId;
     }
     mMesh->setVerticalDataset3DId( waterLevelId, false );
-    mMesh->activateDataset( currentActivatedId );
-    mMesh->activateVectorDataset( currentVectorDatasetId );
 
     const QMap<QString, ReosHydrograph *> outputHydrographs = simResults->outputHydrographs();
 
@@ -822,8 +813,6 @@ void ReosHydraulicStructure2D::updateResults( const QString &schemeId )
   else
   {
     setResultsOnStructure( nullptr );
-    activateResultDatasetGroup( mMesh->verticesElevationDatasetId() );
-    emit simulationResultChanged();
   }
 }
 

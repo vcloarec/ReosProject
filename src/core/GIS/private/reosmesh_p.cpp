@@ -571,6 +571,15 @@ QString ReosMeshFrame_p::enableVertexElevationDataset( const QString &name )
     scalarSettings.setColorRampShader( colorRamp );
     settings.setScalarSettings( index, scalarSettings );
     mMeshLayer->setRendererSettings( settings );
+
+    QDomDocument doc( QStringLiteral( "dataset-symbology" ) );
+    doc.appendChild( scalarSettings.writeXml( doc ) ) ;
+
+    ReosEncodedElement encodedElem( QStringLiteral( "dataset-symbology" ) );
+    QString docString = doc.toString();
+    encodedElem.addData( QStringLiteral( "symbology" ), docString );
+    mDatasetScalarSymbologies.insert( mVerticesElevationDatasetId, encodedElem.bytes() );
+    applyScalarSymbologyOnMeshDatasetGroup( mVerticesElevationDatasetId );
   }
 
   return mVerticesElevationDatasetId;
@@ -626,8 +635,15 @@ void ReosMeshFrame_p::firstUpdateOfTerrainScalarSetting()
       colorRamp.classifyColorRamp( 10, -1 );
       scalarSettings.setClassificationMinimumMaximum( min, max );
       scalarSettings.setColorRampShader( colorRamp );
-      settings.setScalarSettings( mDatasetGroupsIndex.value( mVerticesElevationDatasetId ), scalarSettings );
-      mMeshLayer->setRendererSettings( settings );
+
+      QDomDocument doc( QStringLiteral( "dataset-symbology" ) );
+      doc.appendChild( scalarSettings.writeXml( doc ) ) ;
+
+      ReosEncodedElement encodedElem( QStringLiteral( "dataset-symbology" ) );
+      QString docString = doc.toString();
+      encodedElem.addData( QStringLiteral( "symbology" ), docString );
+      mDatasetScalarSymbologies.insert( mVerticesElevationDatasetId, encodedElem.bytes() );
+      applyScalarSymbologyOnMeshDatasetGroup( mVerticesElevationDatasetId );
     }
   }
 }

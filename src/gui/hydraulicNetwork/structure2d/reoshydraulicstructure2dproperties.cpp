@@ -351,11 +351,14 @@ void ReosHydraulicStructure2DProperties::updateScalarDatasetMenu()
     mScalarDatasetActions->deleteLater();
 
   mScalarDatasetActions = new QActionGroup( mScalarDatasetMenu );
+  bool hasDatasetChecked = false;
   for ( const QString &id : datasetIds )
   {
     QAction *action = new QAction( mStructure2D->meshDatasetName( id ), mScalarDatasetActions );
     action->setCheckable( true );
-    action->setChecked( mCurrentDatasetId == id );
+    bool hasToBeChecked = mCurrentDatasetId == id;
+    hasDatasetChecked |= hasToBeChecked;
+    action->setChecked( hasToBeChecked );
     mScalarDatasetMenu->addAction( action );
     connect( action, &QAction::triggered, this, [id, this]( bool checked )
     {
@@ -368,7 +371,7 @@ void ReosHydraulicStructure2DProperties::updateScalarDatasetMenu()
   }
   QAction *actionNone = new QAction( tr( "None" ), mScalarDatasetActions );
   actionNone->setCheckable( true );
-  actionNone->setChecked( mCurrentDatasetId.isEmpty() );
+  actionNone->setChecked( ! hasDatasetChecked );
   mScalarDatasetMenu->addAction( actionNone );
   connect( actionNone, &QAction::triggered, this, [ this]( bool checked )
   {

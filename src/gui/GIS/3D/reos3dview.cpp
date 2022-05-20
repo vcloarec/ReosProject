@@ -65,7 +65,7 @@ Reos3dView::Reos3dView( ReosMesh *meshTerrain, const ReosGuiContext &context )
   settings->setCrs( meshLayer->crs() );
   settings->setBackgroundColor( QColor( 119, 181, 254 ) );
 
-  QgsRectangle extent = meshLayer->extent();
+  const QgsRectangle extent = meshLayer->extent();
   float dist = static_cast< float >( std::max( extent.width(), extent.height() ) );
   settings->setOrigin( QgsVector3D( extent.center().x(), extent.center().y(), 0 ) );
   mCanvas->setMap( settings );
