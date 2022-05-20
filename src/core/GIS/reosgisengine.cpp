@@ -580,7 +580,7 @@ void ReosGisEngine::defaultstyleRasterLayer( QgsRasterLayer *layer )
 {
   if ( !canBeRasterDem( layer ) )
     return;
-  QString defaultStylePath = QCoreApplication::applicationDirPath() + QStringLiteral( "/../resources/" );
+  QString defaultStylePath =  QgsApplication::pkgDataPath() + QStringLiteral( "/resources/" );
   bool ok;
   layer->loadNamedStyle( defaultStylePath + QStringLiteral( "dem.qml" ), ok );
 }

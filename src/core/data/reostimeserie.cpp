@@ -282,7 +282,7 @@ ReosTimeSerieConstantInterval::ReosTimeSerieConstantInterval( QObject *parent, c
 
   if ( mTimeStepParameter->value() == ReosDuration() )
   {
-    mTimeStepParameter->setValue( ReosDuration( 5, ReosDuration::minute ) );
+    constantTimeStepDataProvider()->setTimeStep( ReosDuration( 5, ReosDuration::minute ) );
   }
 
   connectParameters();
