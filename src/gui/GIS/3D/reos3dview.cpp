@@ -56,12 +56,7 @@ Reos3dView::Reos3dView( ReosMesh *meshTerrain, const ReosGuiContext &context )
 
   QgsMeshLayer *meshLayer = qobject_cast<QgsMeshLayer *>( meshTerrain->data() );
 
-  QgsMeshTerrainGenerator *terrainGenerator = new QgsMeshTerrainGenerator();
-  terrainGenerator->setLayer( meshLayer );
-
   Qgs3DMapSettings *settings = new Qgs3DMapSettings();
-
-  settings->setTerrainGenerator( terrainGenerator );
   settings->setCrs( meshLayer->crs() );
   settings->setBackgroundColor( QColor( 119, 181, 254 ) );
 
@@ -109,7 +104,7 @@ Reos3dView::Reos3dView( ReosMesh *meshTerrain, const ReosGuiContext &context )
   QWidgetAction *widgetExaggerationAction = new QWidgetAction( exaggerationMenu );
   widgetExaggerationAction->setDefaultWidget( mExagerationWidget );
   exaggerationMenu->addAction( widgetExaggerationAction );
-  connect( mExagerationWidget, &ReosVerticalExaggerationWidget::valueChanged, this, &Reos3dView::onExagggerationChange );
+  connect( mExagerationWidget, &ReosVerticalExaggerationWidget::valueChanged, this, &Reos3dView::onExaggerationChange );
 
   QToolButton *mTerrainSettingsButton = new QToolButton( this );
   mTerrainSettingsButton->setIcon( QPixmap( QStringLiteral( ":/images/terrain3DSettings.svg" ) ) );
@@ -130,16 +125,26 @@ Reos3dView::Reos3dView( ReosMesh *meshTerrain, const ReosGuiContext &context )
   if ( temporalController )
     mCanvas->setTemporalController( const_cast< QgsTemporalController *>( temporalController ) );
 
+  connect( mMeshTerrain, &ReosMesh::datasetSymbologyChanged, this, [this]( const QString & datasetId )
+  {
+    if ( mMeshTerrain->verticesElevationDatasetId() == datasetId )
+      onTerrainSettingsChanged();
+  } );
+
 }
 
-void Reos3dView::setMapSettings( const Reos3DMapSettings &map3DSettings )
+void Reos3dView::setMapSettings( const Reos3DMapSettings &map3DSettings, bool updateView )
 {
   mLightWidget->setDirection( map3DSettings.lightDirection() );
   mLightWidget->setLightIntensity( map3DSettings.lightIntensity() );
   onLightChange();
 
+  mExagerationWidget->blockSignals( true );
   mExagerationWidget->setExageration( map3DSettings.verticalExaggeration() );
-  onExagggerationChange( map3DSettings.verticalExaggeration() );
+  mExagerationWidget->blockSignals( false );
+
+  if ( updateView )
+    onExaggerationChange( map3DSettings.verticalExaggeration() );
 }
 
 Reos3DMapSettings Reos3dView::map3DSettings() const
@@ -153,10 +158,11 @@ Reos3DMapSettings Reos3dView::map3DSettings() const
   return settings;
 }
 
-void Reos3dView::setTerrainSettings( const Reos3DTerrainSettings &settings )
+void Reos3dView::setTerrainSettings( const Reos3DTerrainSettings &settings, bool updateView )
 {
   mTerrainSettingsWidget->setTerrainSettings( settings );
-  onTerrainSettingsChanged();
+  if ( updateView )
+    onTerrainSettingsChanged();
 }
 
 Reos3dView::~Reos3dView()
@@ -187,7 +193,7 @@ void Reos3dView::addMesh( ReosMesh *mesh )
   mCanvas->map()->setLayers( layers );
 }
 
-void Reos3dView::onExagggerationChange( double value )
+void Reos3dView::onExaggerationChange( double value )
 {
   if ( !mMeshTerrain )
     return;
@@ -255,8 +261,8 @@ void Reos3dView::onTerrainSettingsChanged()
 
   QgsMeshLayer *meshLayer = qobject_cast<QgsMeshLayer *>( mMeshTerrain->data() );
   std::unique_ptr<QgsMeshTerrainGenerator> newTerrain = std::make_unique<QgsMeshTerrainGenerator>();
-  newTerrain->setLayer( meshLayer );
   newTerrain->setSymbol( terrainSymbol.release() );
+  newTerrain->setLayer( meshLayer );
   mCanvas->map()->setTerrainGenerator( newTerrain.release() );
 
   emit mapSettingsChanged();

@@ -226,6 +226,10 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     QMap<QString, QByteArray> datasetVectorSymbologies() const;
     void setDatasetVectorSymbologies( const QMap<QString, QByteArray> &datasetVectorSymbologies );
 
+  signals:
+
+    void datasetSymbologyChanged( const QString &datasetId );
+
   protected:
     ReosMesh( QObject *parent = nullptr );
 

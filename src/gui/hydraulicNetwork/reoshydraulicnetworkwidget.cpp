@@ -311,6 +311,7 @@ void ReosHydraulicNetworkWidget::onModuleReset()
 {
   mCurrentSelectedElement = nullptr;
   mElementPropertiesWidget->setCurrentElement( nullptr, createContext() );
+  mGeometryStructures.clear();
   mMapItems.clear();
 }
 

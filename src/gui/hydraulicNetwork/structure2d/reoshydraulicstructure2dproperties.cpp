@@ -82,7 +82,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   mView3D = new Reos3dView( mStructure2D->mesh(), ReosGuiContext( context, this ) );
   mView3D->setAction( mAction3DView );
   mAction3DView->setCheckable( true );
-  mView3D->setMapSettings( mStructure2D->map3dSettings() );
+  mView3D->setMapSettings( mStructure2D->map3dSettings(), false );
   mView3D->setTerrainSettings( mStructure2D->terrain3DSettings() );
   connect( mView3D, &Reos3dView::mapSettingsChanged, this, [this]
   {
@@ -145,6 +145,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   connect( mStructure2D->mesh(), &ReosMesh::repaintRequested, this, &ReosHydraulicStructure2DProperties::requestMapRefresh );
 
   updateDatasetMenus();
+  restoreResults();
 
   connect( mStructure2D, &ReosHydraulicStructure2D::simulationResultChanged, this, &ReosHydraulicStructure2DProperties::updateDatasetMenus );
 

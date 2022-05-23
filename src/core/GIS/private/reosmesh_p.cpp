@@ -147,6 +147,8 @@ void ReosMeshFrame_p::applyScalarSymbologyOnMeshDatasetGroup( const QString &id 
     QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
     settings.setScalarSettings( mDatasetGroupsIndex.value( id ), scalarSettings );
     mMeshLayer->setRendererSettings( settings );
+
+    emit datasetSymbologyChanged( id );
   }
 }
 
@@ -170,6 +172,8 @@ void ReosMeshFrame_p::applyVectorSymbologyOnMeshDatasetGroup( const QString &id 
     QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
     settings.setVectorSettings( mDatasetGroupsIndex.value( id ), vectorSettings );
     mMeshLayer->setRendererSettings( settings );
+
+    emit datasetSymbologyChanged( id );
   }
 }
 
@@ -366,8 +370,7 @@ void ReosMeshFrame_p::update3DRenderer()
   const QgsMeshRendererScalarSettings scalarSettings =
     mMeshLayer->rendererSettings().scalarSettings( mDatasetGroupsIndex.value( mCurrentScalarDatasetId ) );
 
-  const QgsMeshRendererMeshSettings meshSettings =
-    mMeshLayer->rendererSettings().nativeMeshSettings();
+  const QgsMeshRendererMeshSettings frameSettings = mMeshLayer->rendererSettings().nativeMeshSettings();
 
   std::unique_ptr<QgsMeshLayer3DRenderer> renderer;
   if ( mMeshLayer->renderer3D() )
@@ -382,9 +385,9 @@ void ReosMeshFrame_p::update3DRenderer()
     symbol.reset( renderer->symbol()->clone() );
 
   symbol->setSmoothedTriangles( true );
-  symbol->setWireframeEnabled( meshSettings.isEnabled() );
-  symbol->setWireframeLineColor( meshSettings.color() );
-  symbol->setWireframeLineWidth( meshSettings.lineWidth() * 2 );
+  symbol->setWireframeEnabled( frameSettings.isEnabled() );
+  symbol->setWireframeLineColor( frameSettings.color() );
+  symbol->setWireframeLineWidth( frameSettings.lineWidth() * 2 );
   symbol->setLevelOfDetailIndex( 0 );
 
   symbol->setVerticalScale( mVerticaleSCale );
@@ -880,7 +883,15 @@ void ReosMeshFrame_p::setSimulationResults( ReosHydraulicSimulationResults *resu
           break;
         }
       }
-      mDatasetGroupsIndex[result->groupId( i )] = index;
+      const QString groupId = result->groupId( i );
+      mDatasetGroupsIndex[groupId] = index;
+      if ( !mDatasetScalarSymbologies.contains( groupId ) )
+      {
+        if ( result->groupIsScalar( i ) )
+          mDatasetScalarSymbologies.insert( groupId, datasetScalarGroupSymbology( groupId ).bytes() );
+        else
+          mDatasetVectorSymbologies.insert( groupId, datasetVectorGroupSymbology( groupId ).bytes() );
+      }
     }
   }
 

@@ -58,8 +58,6 @@ void Reos3DTerrainSettingsWidget::setTerrainSettings( const Reos3DTerrainSetting
   ui->mWireframeWidthSlider->setValue( settings.wireframeWidth() * 10 );
   ui->mSmoothedCheckBox->setChecked( settings.isSmoothed() );
   blockSignals( false );
-
-  emit terrainSettingsChanged();
 }
 
 Reos3DTerrainSettings Reos3DTerrainSettingsWidget::settings() const

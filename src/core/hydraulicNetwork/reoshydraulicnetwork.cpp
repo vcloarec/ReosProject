@@ -208,6 +208,13 @@ void ReosHydraulicNetwork::removeElement( ReosHydraulicNetworkElement *elem )
       removeElement( link );
   }
 
+  ReosHydraulicStructure2D *structure = qobject_cast<ReosHydraulicStructure2D *>( elem );
+  if ( structure )
+  {
+    for ( ReosHydraulicStructureBoundaryCondition *bc : structure->boundaryConditions() )
+      removeElement( bc );
+  }
+
   elem->destroy();
 
   emit dirtied();

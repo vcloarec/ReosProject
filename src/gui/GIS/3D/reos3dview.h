@@ -46,17 +46,17 @@ class Reos3dView : public ReosActionWidget
 
     void addMesh( ReosMesh *mesh );
 
-    void setMapSettings( const Reos3DMapSettings &map3DSettings );
+    void setMapSettings( const Reos3DMapSettings &map3DSettings, bool updateView = true );
     Reos3DMapSettings map3DSettings() const;
 
-    void setTerrainSettings( const Reos3DTerrainSettings &settings );
+    void setTerrainSettings( const Reos3DTerrainSettings &settings, bool updateView = true );
 
   signals:
     void mapSettingsChanged();
     void terrainSettingsChanged();
 
   private:
-    void onExagggerationChange( double value );
+    void onExaggerationChange( double value );
     void onLightChange();
     void onTerrainSettingsChanged();
 

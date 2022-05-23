@@ -200,8 +200,8 @@ ReosMeshFrameData ReosGmshEngine::generateMesh(
 
       double sizeValue = sizeValues->value( x, y, dim == 1 | dim == 0 );
 
-      if ( std::isnan( sizeValue ) )
-        sizeValue = defaultSize;
+      if ( std::isnan( sizeValue )  || sizeValue <= 0 )
+        return defaultSize;
 
       return sizeValue;
     };

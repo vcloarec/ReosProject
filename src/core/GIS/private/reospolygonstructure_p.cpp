@@ -286,7 +286,7 @@ ReosPolygonStructureValues *ReosPolygonStructure_p::values( const QString &desti
 
   while ( it.nextFeature( feat ) )
   {
-    QgsGeometry geom = feat.geometry();
+    const QgsGeometry geom = feat.geometry();
     ret->mGeomEngines.emplace( feat.id(), QgsGeometry::createGeometryEngine( geom.constGet() ) );
     ret->mGeomEngines.at( feat.id() )->prepareGeometry();
     const QString classId = feat.attribute( 0 ).toString();
@@ -357,7 +357,7 @@ void ReosPolygonStructure_p::removeClass( const QString &classId )
 
   mVectorLayer->beginEditCommand( tr( "Remove class" ) );
 
-  QgsFeatureIterator it = mVectorLayer->getFeatures( QStringLiteral( "mClassId='%1'" ).arg( classId ) );
+  QgsFeatureIterator it = mVectorLayer->getFeatures( QStringLiteral( "classId='%1'" ).arg( classId ) );
   QgsFeatureIds fids;
 
   QgsFeature feat;

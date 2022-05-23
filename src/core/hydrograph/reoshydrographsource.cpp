@@ -448,7 +448,7 @@ ReosHydrographsStore *ReosHydrographJunction::gaugedHydrographsStore() const
 
 QString ReosHydrographJunction::outputPrefixName() const
 {
-  return tr( "Output of" );
+  return tr( "Output of " );
 }
 
 void ReosHydrographJunction::saveConfiguration( ReosHydraulicScheme *scheme ) const
