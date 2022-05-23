@@ -47,6 +47,7 @@ class ReosRendererObjectHandler_p
       QRectF extent;
       QDateTime startTime;
       QgsMapToPixel mapToPixel;
+      qint64 timeStamp;
       bool obsolete = false;
     };
 
@@ -58,6 +59,7 @@ class ReosRendererObjectHandler_p
     QMutex mMutex;
     QList<ReosObjectRenderer *> mRenderers;
     QHash<ReosObjectRenderer *, QgsMapToPixel> mMapToPixels;
+    QHash<ReosObjectRenderer *, qint64> mTimeStamps;
 };
 
 
@@ -93,6 +95,7 @@ void ReosRendererObjectHandler::startRender( ReosRenderedObject *renderedObject 
     std::unique_ptr<ReosObjectRenderer> renderer( renderedObject->createRenderer( d->mCanvas ) );
     connect( renderer.get(), &ReosObjectRenderer::finished, this, &ReosRendererObjectHandler::onRendererFinished );
     d->mMapToPixels.insert( renderer.get(), d->mCanvas->mapSettings().mapToPixel() );
+    d->mTimeStamps.insert( renderer.get(), QDateTime::currentMSecsSinceEpoch() );
     renderer->startOnOtherThread();
     d->mRenderers.append( renderer.release() );
   }
@@ -210,13 +213,8 @@ void ReosRendererObjectHandler::onRendererFinished()
     const QDateTime renderedTime = renderer->startTime();
     if ( d->mCacheRenderings.contains( object ) )
     {
-      qint64 renderedDiff = renderedTime.msecsTo( d->currentStartTime );
       const ReosRendererObjectHandler_p::CacheRendering &prevCach = d->mCacheRenderings.value( object );
-      needUpdate = prevCach.obsolete;
-
-      qint64 prevDiff = prevCach.startTime.msecsTo( d->currentStartTime );
-      needUpdate |= std::abs( renderedDiff ) < std::abs( prevDiff );
-      needUpdate |= prevCach.extent != d->currentExtent && renderedExtent == d->currentExtent;
+      needUpdate = prevCach.obsolete || d->mTimeStamps.value( renderer, 0 ) > prevCach.timeStamp;
     }
     else
     {
@@ -224,14 +222,15 @@ void ReosRendererObjectHandler::onRendererFinished()
     }
 
     if ( needUpdate )
-      d->mCacheRenderings.insert( object, ReosRendererObjectHandler_p::CacheRendering( {renderer->image(), renderedExtent, renderedTime, d->mMapToPixels.value( renderer )} ) );
+      d->mCacheRenderings.insert( object, ReosRendererObjectHandler_p::CacheRendering(
+    {renderer->image(), renderedExtent, renderedTime, d->mMapToPixels.value( renderer ), d->mTimeStamps.value( renderer )} ) );
   }
 
   disconnect( renderer, &ReosObjectRenderer::finished, this, &ReosRendererObjectHandler::onRendererFinished );
   renderer->deleteLater();
   d->mRenderers.removeOne( renderer );
   d->mMapToPixels.remove( renderer );
-
+  d->mTimeStamps.remove( renderer );
   d->mCanvas->refresh();
 }
 
