@@ -885,15 +885,18 @@ void ReosMeshFrame_p::setSimulationResults( ReosHydraulicSimulationResults *resu
       }
       const QString groupId = result->groupId( i );
       mDatasetGroupsIndex[groupId] = index;
+
       if ( !mDatasetScalarSymbologies.contains( groupId ) )
+        mDatasetScalarSymbologies.insert( groupId, datasetScalarGroupSymbology( groupId ).bytes() );
+
+      if ( !result->groupIsScalar( i ) )
       {
-        if ( result->groupIsScalar( i ) )
-          mDatasetScalarSymbologies.insert( groupId, datasetScalarGroupSymbology( groupId ).bytes() );
-        else
+        if ( !mDatasetVectorSymbologies.contains( groupId ) )
           mDatasetVectorSymbologies.insert( groupId, datasetVectorGroupSymbology( groupId ).bytes() );
       }
     }
   }
+
 
   meshProvider()->reloadData();
 }
