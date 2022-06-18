@@ -133,6 +133,8 @@ class ReosSimulationEngineFactory
     virtual ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &element, QObject *parent ) const = 0;
     virtual QString key() const  = 0;
     virtual QString displayName() const = 0;
+
+    virtual void initializeSettings() = 0;
 };
 
 class REOSCORE_EXPORT ReosSimulationEngineRegistery

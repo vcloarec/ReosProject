@@ -70,7 +70,11 @@ ReosSimulationEngineRegistery::ReosSimulationEngineRegistery()
 
 void ReosSimulationEngineRegistery::registerEngineFactory( ReosSimulationEngineFactory *factory )
 {
-  mFactories[factory->key()] = std::unique_ptr<ReosSimulationEngineFactory>( factory );
+    if (factory)
+    {
+        mFactories[factory->key()] = std::unique_ptr<ReosSimulationEngineFactory>( factory );
+        mFactories[factory->key()]->initializeSettings();
+    }
 }
 
 ReosHydraulicSimulation *ReosSimulationEngineRegistery::createSimulation( const QString &key, QObject *parent ) const

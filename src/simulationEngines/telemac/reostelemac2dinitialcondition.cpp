@@ -15,7 +15,6 @@
  ***************************************************************************/
 #include "reostelemac2dinitialcondition.h"
 
-
 #include "reosparameter.h"
 #include "reoshydraulicscheme.h"
 

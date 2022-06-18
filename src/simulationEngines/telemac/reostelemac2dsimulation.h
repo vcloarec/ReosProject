@@ -183,6 +183,8 @@ class ReosTelemac2DSimulationEngineFactory : public ReosSimulationEngineFactory
 
     virtual QString key() const {return ReosTelemac2DSimulation::staticKey();}
     QString displayName() const {return QObject::tr( "TELEMAC 2D Simulation" );}
+
+    void initializeSettings() override;
 };
 
 #endif // REOSTELEMAC2DSIMULATION_H
