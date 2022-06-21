@@ -36,6 +36,8 @@ class ReosMapToolDrawExtent;
 class ReosGeometryStructure;
 class ReosRenderedObject;
 class ReosObjectRenderer;
+class ReosDuration;
+class ReosTemporalController_p;
 
 
 class ReosRendererObjectHandler_p;
@@ -107,6 +109,8 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
 
     const QObject *temporalController() const;
 
+    void setTimeStep( const ReosDuration &timeStep );
+
     QDateTime currentTime() const;
 
   signals:
@@ -130,6 +134,7 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     ReosGisEngine *mEngine;
     QPointer<QGraphicsView> mCanvas = nullptr;
     QDockWidget *mTemporalDockWidget = nullptr;
+    ReosTemporalController_p *mTemporalControler = nullptr;
 
     QAction *mActionNeutral = nullptr;
     ReosMapTool *mDefaultMapTool = nullptr;

@@ -95,7 +95,7 @@ class REOSCORE_EXPORT ReosHydrographSource : public ReosHydrographNode
   public:
     ReosHydrographSource( ReosHydraulicNetwork *parent = nullptr );
 
-    virtual ReosHydrograph *outputHydrograph() = 0;
+    virtual ReosHydrograph *outputHydrograph() const = 0;
 
     ReosHydrographRoutingLink *outputHydrographTransfer() const;
 
@@ -122,7 +122,7 @@ class REOSCORE_EXPORT ReosHydrographSourceFixed: public ReosHydrographSource
   public:
     ReosHydrographSourceFixed( ReosHydraulicNetwork *parent = nullptr );
 
-    ReosHydrograph *outputHydrograph() override;
+    ReosHydrograph *outputHydrograph() const override;
 
     QString type() const override {return staticType();}
     static QString staticType() {return ReosHydrographSource::staticType() + QString( ':' ) + QStringLiteral( "fixed" );}
@@ -164,7 +164,7 @@ class REOSCORE_EXPORT ReosHydrographJunction : public ReosHydrographSource
 
     ReosHydrographJunction( const QPointF &position, ReosHydraulicNetwork *parent = nullptr );
 
-    ReosHydrograph *outputHydrograph() override;
+    ReosHydrograph *outputHydrograph() const override;
 
     QString type() const override {return staticType(); }
     static QString staticType() {return ReosHydrographSource::staticType() + QString( ':' ) + QStringLiteral( "junction" );}

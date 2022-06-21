@@ -258,7 +258,7 @@ int ReosHydraulicSchemeCollection::schemeCount() const
   return mHydraulicSchemes.count();
 }
 
-ReosHydraulicScheme *ReosHydraulicSchemeCollection::scheme( int index )
+ReosHydraulicScheme *ReosHydraulicSchemeCollection::scheme( int index ) const
 {
   if ( index < 0 || index >= mHydraulicSchemes.count() )
     return nullptr;
@@ -266,7 +266,7 @@ ReosHydraulicScheme *ReosHydraulicSchemeCollection::scheme( int index )
   return mHydraulicSchemes.at( index );
 }
 
-ReosHydraulicScheme *ReosHydraulicSchemeCollection::scheme( const QString &schemeId )
+ReosHydraulicScheme *ReosHydraulicSchemeCollection::scheme( const QString &schemeId ) const
 {
   for ( int i = 0; i < mHydraulicSchemes.count(); ++i )
   {

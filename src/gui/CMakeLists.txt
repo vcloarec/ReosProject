@@ -15,7 +15,7 @@ SET(REOS_GUI_SOURCES
     reosnotificationbutton.cpp
     reosguicontext.cpp
     reoscolorbutton.cpp
-
+    reosspeedwidget.cpp
 
     GIS/reosdigitalelevationmodelcombobox.cpp
     GIS/reosmap.cpp
@@ -27,6 +27,7 @@ SET(REOS_GUI_SOURCES
     GIS/reosmeshscalarrenderingwidget.cpp
     GIS/reosmeshvectorrenderingwidget.cpp
     GIS/reosmaptooleditmeshframe.cpp
+    GIS/reostemporalcontrollerwidget.cpp
     GIS/3D/reos3dview.cpp
     GIS/3D/reoslightwidget.cpp
     GIS/3D/reosverticalexaggerationwidget.cpp
@@ -41,6 +42,7 @@ SET(REOS_GUI_SOURCES
     GIS/private/reosmaptooleditpolygonstructure_p.cpp
     GIS/private/reosmappolygonstructure_p.cpp
     GIS/private/reosmaptooleditmeshframe_p.cpp
+    GIS/private/reostemporalcontroller_p.cpp
 
     watershed/reosdelineatingwatershedwidget.cpp
     watershed/reoswatershedwidget.cpp
@@ -115,6 +117,7 @@ SET(REOS_GUI_HEADERS
     reosnotificationbutton.h
     reosguicontext.h
     reoscolorbutton.h
+    reosspeedwidget.h
 
     GIS/reosdigitalelevationmodelcombobox.h
     GIS/reosmap.h
@@ -126,6 +129,7 @@ SET(REOS_GUI_HEADERS
     GIS/reosmeshscalarrenderingwidget.h
     GIS/reosmeshvectorrenderingwidget.h
     GIS/reosmaptooleditmeshframe.h
+    GIS/reostemporalcontrollerwidget.h
     GIS/3D/reos3dview.h
     GIS/3D/reoslightwidget.h
     GIS/3D/reosverticalexaggerationwidget.h
@@ -193,6 +197,7 @@ SET(REOS_GUI_HEADERS_PRIVATE
     GIS/private/reosmaptooleditpolygonstructure_p.h
     GIS/private/reosmappolygonstructure_p.h
     GIS/private/reosmaptooleditmeshframe_p.h
+    GIS/private/reostemporalcontroller_p.h
 
     chart/private/reosplot_p.h
     chart/private/reosidfplot_p.h

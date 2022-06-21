@@ -82,7 +82,7 @@ ReosHydrographSourceFixed::ReosHydrographSourceFixed( const ReosEncodedElement &
   : ReosHydrographSource( encodedElement, parent )
 {}
 
-ReosHydrograph *ReosHydrographSourceFixed::outputHydrograph()
+ReosHydrograph *ReosHydrographSourceFixed::outputHydrograph() const
 {
   return mHydrograph;
 }
@@ -208,7 +208,7 @@ bool ReosHydrographJunction::updateInternalHydrograph()
   return setCurrentInternalHydrograph( newHydrograph );
 }
 
-ReosHydrograph *ReosHydrographJunction::outputHydrograph()
+ReosHydrograph *ReosHydrographJunction::outputHydrograph() const
 {
   return mOutputHydrograph;
 }

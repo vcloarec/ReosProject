@@ -107,6 +107,8 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject
 
     virtual QList<QDateTime> theoricalTimeSteps( ReosHydraulicScheme *scheme ) const = 0;
 
+    virtual ReosDuration representativeTimeStep() const = 0;
+
     virtual void saveSimulationResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, ReosSimulationProcess *process, bool success ) const = 0;
 
     virtual ReosHydraulicSimulationResults *loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, QObject *parent = nullptr ) const = 0;
@@ -122,6 +124,10 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject
     virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const = 0;
 
     virtual void restoreConfiguration( ReosHydraulicScheme *scheme ) = 0;
+
+  signals:
+
+    void timeStepChanged();
 
 };
 

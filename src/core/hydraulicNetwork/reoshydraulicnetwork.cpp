@@ -134,6 +134,11 @@ void ReosHydraulicNetworkElement::saveConfiguration( ReosHydraulicScheme * ) con
 
 void ReosHydraulicNetworkElement::restoreConfiguration( ReosHydraulicScheme * ) {}
 
+ReosDuration ReosHydraulicNetworkElement::currentElementTimeStep() const
+{
+  return ReosDuration( qint64( 0 ) );
+}
+
 ReosHydraulicNetwork::ReosHydraulicNetwork( ReosModule *parent, ReosGisEngine *gisEngine, ReosWatershedModule *watershedModule )
   : ReosModule( parent )
   , mGisEngine( gisEngine )
@@ -191,6 +196,7 @@ ReosHydraulicNetworkElement *ReosHydraulicNetwork::addElement( ReosHydraulicNetw
   emit elementAdded( elem, select );
 
   connect( elem, &ReosHydraulicNetworkElement::dirtied, this, &ReosModule::dirtied );
+  connect( elem, &ReosHydraulicNetworkElement::timeStepChanged, this, &ReosHydraulicNetwork::timeStepChanged );
 
   return elem;
 }
@@ -405,6 +411,11 @@ int ReosHydraulicNetwork::currentSchemeIndex() const
   return mCurrentSchemeIndex;
 }
 
+ReosHydraulicScheme *ReosHydraulicNetwork::currentScheme() const
+{
+  return mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex );
+}
+
 void ReosHydraulicNetwork::setCurrentScheme( int newSchemeIndex )
 {
   ReosHydraulicScheme *currentScheme = mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex );
@@ -425,6 +436,24 @@ void ReosHydraulicNetwork::setCurrentScheme( int newSchemeIndex )
 
   emit schemeChanged();
   emit dirtied();
+}
+
+ReosDuration ReosHydraulicNetwork::currentTimeStep() const
+{
+  ReosDuration ret( qint64( 0 ) );
+
+  ReosHydraulicScheme *scheme = currentScheme();
+  if ( scheme )
+  {
+    for ( ReosHydraulicNetworkElement *elem : mElements )
+    {
+      ReosDuration elemTs = elem->currentElementTimeStep();
+      if ( elemTs != ReosDuration( qint64( 0 ) ) && ( ret > elemTs || ret == ReosDuration( qint64( 0 ) ) ) )
+        ret = elemTs;
+    }
+  }
+
+  return ret;
 }
 
 void ReosHydraulicNetwork::addEncodedElement( const ReosEncodedElement &element )

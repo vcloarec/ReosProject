@@ -158,6 +158,12 @@
         <file>exportSimulation.svg</file>
         <file>engineSettings.svg</file>
         <file>vectorSettings.svg</file>
+        <file>forward.svg</file>
+        <file>pause.svg</file>
+        <file>previous.svg</file>
+        <file>next.svg</file>
+        <file>loop.svg</file>
+        <file>speed.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

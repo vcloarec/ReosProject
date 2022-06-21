@@ -84,6 +84,8 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject
     virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const;
     virtual void restoreConfiguration( ReosHydraulicScheme *scheme );
 
+    virtual ReosDuration currentElementTimeStep() const;
+
   public slots:
     virtual void updateCalculationContext( const ReosCalculationContext &context ) = 0;
 
@@ -101,6 +103,7 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject
   signals:
     void calculationStart();
     void calculationIsUpdated( const QString &id, QPrivateSignal );
+    void timeStepChanged();
     void dirtied();
 
   private:
@@ -174,7 +177,11 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
 
     int currentSchemeIndex() const;
 
+    ReosHydraulicScheme *currentScheme() const;
+
     void setCurrentScheme( int newSchemeIndex );
+
+    ReosDuration currentTimeStep() const;
 
   signals:
     void elementAdded( ReosHydraulicNetworkElement *elem, bool select );
@@ -183,6 +190,7 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     void hasBeenReset();
     void schemeChanged();
     void loaded();
+    void timeStepChanged();
 
   public slots:
     void changeScheme( int newSchemeIndex );

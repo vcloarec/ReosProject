@@ -236,7 +236,16 @@ QStringList ReosHydraulicStructure2D::simulationNames() const
 
 void ReosHydraulicStructure2D::setCurrentSimulation( int index )
 {
+  ReosHydraulicSimulation *currentSim = currentSimulation();
+  if ( currentSim )
+    disconnect( currentSim, &ReosHydraulicSimulation::timeStepChanged, this, &ReosHydraulicStructure2D::timeStepChanged );
+
   mCurrentSimulationIndex = index;
+  currentSim = currentSimulation();
+
+  if ( currentSim )
+    connect( currentSim, &ReosHydraulicSimulation::timeStepChanged, this, &ReosHydraulicStructure2D::timeStepChanged );
+
   emit currentSimulationChanged();
 }
 
@@ -246,7 +255,7 @@ bool ReosHydraulicStructure2D::addSimulation( const QString key )
   if ( sim )
   {
     mSimulations.append( sim );
-    mCurrentSimulationIndex = mSimulations.count() - 1;
+    setCurrentSimulation( mSimulations.count() - 1 );
     return true;
   }
 
@@ -875,17 +884,21 @@ void ReosHydraulicStructure2D::restoreConfiguration( ReosHydraulicScheme *scheme
   QString simulationId;
   encodedElement.getData( QStringLiteral( "current-simulation-id" ), simulationId );
 
-  mCurrentSimulationIndex = simulationIndexFromId( simulationId );
-  for ( ReosHydraulicSimulation *sim : mSimulations )
+  for ( ReosHydraulicSimulation *sim : std::as_const( mSimulations ) )
     sim->restoreConfiguration( scheme );
 
-  if ( mCurrentSimulationIndex == -1 )
-    return;
-
+  setCurrentSimulation( mCurrentSimulationIndex = simulationIndexFromId( simulationId ) );
   updateResults( scheme->id() );
+}
 
-  emit currentSimulationChanged();
+ReosDuration ReosHydraulicStructure2D::currentElementTimeStep() const
+{
+  if ( mCurrentSimulationIndex >= 0 && mSimulations.at( mCurrentSimulationIndex ) )
+  {
+    return  mSimulations.at( mCurrentSimulationIndex )->representativeTimeStep();
+  }
 
+  return ReosDuration( qint64( 0 ) );
 }
 
 ReosHydraulicNetworkElement *ReosHydraulicStructure2dFactory::decodeElement( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context ) const

@@ -29,6 +29,8 @@ email                : vcloarec at gmail dot com
 #include "reosmaptool.h"
 #include "reosparameter.h"
 #include "reospolylinesstructure.h"
+#include "reostemporalcontrollerwidget.h"
+#include "reostemporalcontroller_p.h"
 
 #include "reosmesh.h"
 
@@ -324,26 +326,19 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
 
   //*** handle temporal controller
   mTemporalDockWidget = new QDockWidget( tr( "Temporal controller" ), canvas );
-  QgsTemporalControllerWidget *temporalControlerWidget = new QgsTemporalControllerWidget( mTemporalDockWidget );
-  canvas->setTemporalController( temporalControlerWidget->temporalController() );
+  ReosTemporalControllerWidget *temporalControlerWidget = new ReosTemporalControllerWidget( mTemporalDockWidget );
+
+  mTemporalControler = qobject_cast<ReosTemporalController_p *>( temporalControlerWidget->temporalController() );
+  canvas->setTemporalController( mTemporalControler );
   mTemporalDockWidget->setWidget( temporalControlerWidget );
   mTemporalControllerAction->setCheckable( true );
   connect( mTemporalControllerAction, &QAction::triggered, this, [this]
   {
     mTemporalDockWidget->setVisible( mTemporalControllerAction->isChecked() );
   } );
-  mTemporalDockWidget->hide();
-  QPair<QDateTime, QDateTime> timeRange = gisEngine->temporalRange();
-  temporalControlerWidget->temporalController()->setTemporalExtents( QgsDateTimeRange( {timeRange.first, timeRange.second} ) );
-  connect( mEngine, &ReosGisEngine::temporalRangeChanged, temporalControlerWidget,
-           [temporalControlerWidget]( const QDateTime & startTime, const QDateTime & endTime )
-  {
-    temporalControlerWidget->temporalController()->setTemporalExtents( QgsDateTimeRange( {startTime, endTime} ) );
-  } );
 
-  connect( temporalControlerWidget->temporalController(), &QgsTemporalNavigationObject::updateTemporalRange,
-           this, &ReosMap::refreshCanvas );
-  //****
+  connect( mEngine, &ReosGisEngine::temporalRangeChanged, mTemporalControler, &ReosTemporalController_p::setTemporalExtent );
+  //******
 
   mEnableSnappingAction->setCheckable( true );
 
@@ -501,6 +496,11 @@ const QObject *ReosMap::temporalController() const
     return mapCanvas->temporalController();
 
   return nullptr;
+}
+
+void ReosMap::setTimeStep( const ReosDuration &timeStep )
+{
+  mTemporalControler->setTimeStep( timeStep );
 }
 
 QDateTime ReosMap::currentTime() const

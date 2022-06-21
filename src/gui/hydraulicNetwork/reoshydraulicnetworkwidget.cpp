@@ -127,7 +127,12 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   connect( ui->mHydraulicSchemeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), wa, [wa, this]( int index )
   {
     mHydraulicNetwork->changeScheme( index );
-    wa->setCurrentScheme( mHydraulicNetwork->hydraulicSchemeCollection()->scheme( index ) );
+    wa->setCurrentScheme( mHydraulicNetwork->currentScheme() );
+    mMap->setTimeStep( mHydraulicNetwork->currentTimeStep() );
+  } );
+  connect( mHydraulicNetwork, &ReosHydraulicNetwork::timeStepChanged, this, [this]
+  {
+    mMap->setTimeStep( mHydraulicNetwork->currentTimeStep() );
   } );
   ui->mHydraulicShcemeRemoveButton->setEnabled( mHydraulicNetwork->hydraulicSchemeCollection()->schemeCount() > 1 );
 }

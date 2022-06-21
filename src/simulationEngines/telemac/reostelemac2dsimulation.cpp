@@ -51,7 +51,7 @@ ReosTelemac2DSimulation::ReosTelemac2DSimulation( QObject *parent )
   mOutputPeriodResultHyd = new ReosParameterInteger( tr( "Output period for hydrograph" ), false, this );
   mOutputPeriodResultHyd->setValue( 1 );
 
-  initInitialCondition();
+  init();
 }
 
 
@@ -76,7 +76,7 @@ ReosTelemac2DSimulation::ReosTelemac2DSimulation( const ReosEncodedElement &elem
       mInitialConditions.append( new ReosTelemac2DInitialConditionFromSimulation( elem, this ) );
   }
 
-  initInitialCondition();
+  init();
 }
 
 ReosEncodedElement ReosTelemac2DSimulation::encode() const
@@ -117,6 +117,11 @@ QList<QDateTime> ReosTelemac2DSimulation::theoricalTimeSteps( ReosHydraulicSchem
   return timeSteps;
 }
 
+ReosDuration ReosTelemac2DSimulation::representativeTimeStep() const
+{
+  return mTimeStep->value() * std::min( mOutputPeriodResult2D->value(), mOutputPeriodResultHyd->value() );
+}
+
 REOSEXTERN ReosSimulationEngineFactory *engineSimulationFactory()
 {
   return new ReosTelemac2DSimulationEngineFactory();
@@ -137,58 +142,58 @@ ReosHydraulicSimulation *ReosTelemac2DSimulationEngineFactory::createSimulation(
 
 void ReosTelemac2DSimulationEngineFactory::initializeSettings()
 {
-    ReosSettings settings;
+  ReosSettings settings;
 
 #if 0
-    settings.setValue(QStringLiteral("/engine/telemac/telemac-configuration"), QString());
-    settings.setValue(QStringLiteral("/engine/telemac/telemac-config-file"), QString());
-    settings.setValue(QStringLiteral("/engine/telemac/additional_pathes"), QString());
-    settings.setValue(QStringLiteral("/engine/telemac/telemac-2d-python-script"), QString());
-    settings.setValue(QStringLiteral("/python_path"), QString());
+  settings.setValue( QStringLiteral( "/engine/telemac/telemac-configuration" ), QString() );
+  settings.setValue( QStringLiteral( "/engine/telemac/telemac-config-file" ), QString() );
+  settings.setValue( QStringLiteral( "/engine/telemac/additional_pathes" ), QString() );
+  settings.setValue( QStringLiteral( "/engine/telemac/telemac-2d-python-script" ), QString() );
+  settings.setValue( QStringLiteral( "/python_path" ), QString() );
 #else
-    if (settings.contains(QStringLiteral("/engine/telemac/telemac-config-file")))
-        return;
+  if ( settings.contains( QStringLiteral( "/engine/telemac/telemac-config-file" ) ) )
+    return;
 #endif
 
-    const QString appPath=QCoreApplication::applicationDirPath();
-    QDir telDir(appPath);
-    telDir.cdUp();
-    if (!telDir.cd(QStringLiteral("apps/telemac")))
-        return;
+  const QString appPath = QCoreApplication::applicationDirPath();
+  QDir telDir( appPath );
+  telDir.cdUp();
+  if ( !telDir.cd( QStringLiteral( "apps/telemac" ) ) )
+    return;
 
-    QDir buildsDir(telDir.filePath("builds"));
-    QDir configsDir(telDir.filePath("configs"));
-    QDir depsDir(telDir.filePath("deps"));
-    QDir scriptsDir(telDir.filePath("scripts"));
-    if (scriptsDir.exists())
-        scriptsDir.cd(QStringLiteral("python3"));
+  QDir buildsDir( telDir.filePath( "builds" ) );
+  QDir configsDir( telDir.filePath( "configs" ) );
+  QDir depsDir( telDir.filePath( "deps" ) );
+  QDir scriptsDir( telDir.filePath( "scripts" ) );
+  if ( scriptsDir.exists() )
+    scriptsDir.cd( QStringLiteral( "python3" ) );
 
-    if (buildsDir.exists())
-    {
-        const QStringList builds = buildsDir.entryList(QDir::Dirs| QDir::NoDotAndDotDot);
-        if (!builds.isEmpty())
-            settings.setValue(QStringLiteral("/engine/telemac/telemac-configuration"), builds.first());
-    }
+  if ( buildsDir.exists() )
+  {
+    const QStringList builds = buildsDir.entryList( QDir::Dirs | QDir::NoDotAndDotDot );
+    if ( !builds.isEmpty() )
+      settings.setValue( QStringLiteral( "/engine/telemac/telemac-configuration" ), builds.first() );
+  }
 
-    if (configsDir.exists())
-    {
-        QStringList filters;
-        filters << QStringLiteral("*.cfg");
-        const QStringList configs = configsDir.entryList(filters);
-        if (!configs.isEmpty())
-            settings.setValue(QStringLiteral("/engine/telemac/telemac-config-file"), configsDir.filePath(configs.first()));
-    }
+  if ( configsDir.exists() )
+  {
+    QStringList filters;
+    filters << QStringLiteral( "*.cfg" );
+    const QStringList configs = configsDir.entryList( filters );
+    if ( !configs.isEmpty() )
+      settings.setValue( QStringLiteral( "/engine/telemac/telemac-config-file" ), configsDir.filePath( configs.first() ) );
+  }
 
-    if (depsDir.exists() && !depsDir.entryList().isEmpty())
-        settings.setValue(QStringLiteral("/engine/telemac/additional_pathes"),depsDir.path());
+  if ( depsDir.exists() && !depsDir.entryList().isEmpty() )
+    settings.setValue( QStringLiteral( "/engine/telemac/additional_pathes" ), depsDir.path() );
 
-    if (scriptsDir.exists())
-        settings.setValue(QStringLiteral("/engine/telemac/telemac-2d-python-script"), scriptsDir.filePath(QStringLiteral("telemac2d.py")));
+  if ( scriptsDir.exists() )
+    settings.setValue( QStringLiteral( "/engine/telemac/telemac-2d-python-script" ), scriptsDir.filePath( QStringLiteral( "telemac2d.py" ) ) );
 
-    QDir pythonDir(QCoreApplication::applicationDirPath());
-    pythonDir.cdUp();
-    if (pythonDir.cd(QStringLiteral("apps/python")))
-        settings.setValue(QStringLiteral("/python_path"),pythonDir.path());
+  QDir pythonDir( QCoreApplication::applicationDirPath() );
+  pythonDir.cdUp();
+  if ( pythonDir.cd( QStringLiteral( "apps/python" ) ) )
+    settings.setValue( QStringLiteral( "/python_path" ), pythonDir.path() );
 }
 
 ReosParameterInteger *ReosTelemac2DSimulation::outputPeriodResult2D() const
@@ -1151,6 +1156,14 @@ void ReosTelemac2DSimulation::createSteeringFile(
   stream << QStringLiteral( "MATRIX STORAGE : 3\n" );
 }
 
+void ReosTelemac2DSimulation::init()
+{
+  initInitialCondition();
+  connect( mTimeStep, &ReosParameter::valueChanged, this, &ReosHydraulicSimulation::timeStepChanged );
+  connect( mOutputPeriodResult2D, &ReosParameter::valueChanged, this, &ReosHydraulicSimulation::timeStepChanged );
+  connect( mOutputPeriodResultHyd, &ReosParameter::valueChanged, this, &ReosHydraulicSimulation::timeStepChanged );
+}
+
 void ReosTelemac2DSimulation::initInitialCondition()
 {
   QList<ReosTelemac2DInitialCondition::Type> types;
@@ -1201,41 +1214,41 @@ ReosTelemac2DSimulationProcess::ReosTelemac2DSimulationProcess( const ReosCalcul
 
 void ReosTelemac2DSimulationProcess::start()
 {
-  QThread::msleep(100); //just a bit of time to make the connection with the console (TODO: change the logic of process creation to avoid this)
+  QThread::msleep( 100 ); //just a bit of time to make the connection with the console (TODO: change the logic of process creation to avoid this)
   mProcess = new QProcess();
   QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
   ReosSettings settings;
 
-  env.insert( QStringLiteral("SYSTELCFG"), settings.value( QStringLiteral( "/engine/telemac/telemac-config-file" ) ).toString() );
-  env.insert( QStringLiteral("USETELCFG"), settings.value( QStringLiteral( "/engine/telemac/telemac-configuration" ) ).toString() );
+  env.insert( QStringLiteral( "SYSTELCFG" ), settings.value( QStringLiteral( "/engine/telemac/telemac-config-file" ) ).toString() );
+  env.insert( QStringLiteral( "USETELCFG" ), settings.value( QStringLiteral( "/engine/telemac/telemac-configuration" ) ).toString() );
 
-  QString envPath = env.value(QStringLiteral("PATH"));
+  QString envPath = env.value( QStringLiteral( "PATH" ) );
 
 #ifdef _MSC_VER
-  const QString pythonPath = settings.value(QStringLiteral("/python_path")).toString();
-  env.insert(QStringLiteral("PYTHONHOME"), pythonPath);
-  env.insert(QStringLiteral("PYTHONPATH"), pythonPath + ';' + pythonPath + '/' + QStringLiteral("Scripts"));
-  envPath.append(';');
-  envPath.append(env.value(QStringLiteral("PYTHONPATH")));
-  envPath.append(';');
+  const QString pythonPath = settings.value( QStringLiteral( "/python_path" ) ).toString();
+  env.insert( QStringLiteral( "PYTHONHOME" ), pythonPath );
+  env.insert( QStringLiteral( "PYTHONPATH" ), pythonPath + ';' + pythonPath + '/' + QStringLiteral( "Scripts" ) );
+  envPath.append( ';' );
+  envPath.append( env.value( QStringLiteral( "PYTHONPATH" ) ) );
+  envPath.append( ';' );
 #else
-  if (envPath.back() != QString(':'))
-      envPath.append(':');
+  if ( envPath.back() != QString( ':' ) )
+    envPath.append( ':' );
 #endif
 
-  envPath += settings.value(QStringLiteral("/engine/telemac/additional_pathes")).toString();
-  env.insert(QStringLiteral("PATH"),envPath);
+  envPath += settings.value( QStringLiteral( "/engine/telemac/additional_pathes" ) ).toString();
+  env.insert( QStringLiteral( "PATH" ), envPath );
 
   mProcess->setProcessEnvironment( env );
   mProcess->setWorkingDirectory( mSimulationFilePath );
 
 #ifdef _MSC_VER
-  QString script(pythonPath + '/' + QStringLiteral("python.exe" ) );
+  QString script( pythonPath + '/' + QStringLiteral( "python.exe" ) );
 #else
   QString script( QStringLiteral( "python3" ) );
 #endif
   QStringList arguments;
-  arguments << settings.value(QStringLiteral("/engine/telemac/telemac-2d-python-script")).toString()
+  arguments << settings.value( QStringLiteral( "/engine/telemac/telemac-2d-python-script" ) ).toString()
             << QStringLiteral( "simulation.cas" );
 
   int nbProc = settings.value( QStringLiteral( "/engine/telemac/cpu-usage-count" ) ).toInt();
@@ -1258,12 +1271,12 @@ void ReosTelemac2DSimulationProcess::start()
     }
   } );
 
-  mProcess->start(script, arguments );
+  mProcess->start( script, arguments );
   bool resultStart = mProcess->waitForStarted();
   bool finished = false;
   if ( resultStart )
   {
-    emit sendInformation(tr("Start simulation"));
+    emit sendInformation( tr( "Start simulation" ) );
     finished = mProcess->waitForFinished( -1 );
     setCurrentProgression( 100 );
 
@@ -1272,7 +1285,7 @@ void ReosTelemac2DSimulationProcess::start()
       switch ( mProcess->error() )
       {
         case QProcess::FailedToStart:
-          emit sendInformation( tr( "Simulation process failed to start") );
+          emit sendInformation( tr( "Simulation process failed to start" ) );
           break;
         case QProcess::Crashed:
           emit sendInformation( tr( "Simulation process crashed" ) );
@@ -1298,10 +1311,10 @@ void ReosTelemac2DSimulationProcess::start()
   }
   else
   {
-      emit sendInformation(tr("Telemac simulation can't start in folder \"%1\".\n"
-          "Error: %2\n"
-          "Check the settings of the Telemac engine.")
-          .arg(mProcess->workingDirectory(), QString::number(mProcess->exitCode())));
+    emit sendInformation( tr( "Telemac simulation can't start in folder \"%1\".\n"
+                              "Error: %2\n"
+                              "Check the settings of the Telemac engine." )
+                          .arg( mProcess->workingDirectory(), QString::number( mProcess->exitCode() ) ) );
   }
 
   finished = finished && mProcess->exitCode() == 0;
