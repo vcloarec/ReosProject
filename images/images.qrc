@@ -164,6 +164,7 @@
         <file>next.svg</file>
         <file>loop.svg</file>
         <file>speed.svg</file>
+        <file>temporalLine.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

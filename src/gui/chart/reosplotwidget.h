@@ -43,6 +43,7 @@ class ReosPlot_p;
 class ReosDataObject;
 class ReosTimeSerieConstantInterval;
 class ReosVariableTimeStepPlotListButton;
+class ReosPlotTimeLine;
 
 class ReosPlotWidget;
 
@@ -146,6 +147,7 @@ class REOSGUI_EXPORT ReosPlotWidget: public QWidget
     };
 
     ReosPlotWidget( QWidget *parent = nullptr );
+    ~ReosPlotWidget();
 
     void setSettingsContext( const QString &settingContext );
 
@@ -181,6 +183,9 @@ class REOSGUI_EXPORT ReosPlotWidget: public QWidget
 
     void enableScaleTypeChoice( bool b );
 
+    void enableTimeLine( bool b );
+    void setTime( const QDateTime &time );
+
     void resetZoomBase();
 
     static QString plotEngineName();
@@ -198,6 +203,7 @@ class REOSGUI_EXPORT ReosPlotWidget: public QWidget
     void copyAsImage();
     void receiveMoveFromPicker( const QPointF &pt );
     void setLegendVisible( bool b );
+    void setTimeLineVisible( bool b );
 
   private:
     QString mSettingsContext;
@@ -209,11 +215,16 @@ class REOSGUI_EXPORT ReosPlotWidget: public QWidget
     QAction *mActionExportAsImage = nullptr;
     QAction *mActionCopyAsImage = nullptr;
     QAction *mXAxisFormatCombobox = nullptr;
+    QAction *mActionTimeLine = nullptr;
+
+    AxeType mAxeType = normal;
 
     QwtPlotMagnifier *mMagnifier = nullptr;
     QwtPlotPanner *mPanner = nullptr;
     QwtPlotZoomer *mZoomerLeft = nullptr;
     QwtPlotZoomer *mZoomerRight = nullptr;
+
+    std::unique_ptr<ReosPlotTimeLine> mTimeLine;
 
     ReosPlotLegendController *mLegendController = nullptr;
     QAction *mActionLegendController = nullptr;

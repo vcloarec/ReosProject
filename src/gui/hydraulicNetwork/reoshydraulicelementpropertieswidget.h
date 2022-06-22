@@ -80,8 +80,10 @@ class ReosHydraulicElementPropertiesWidget : public ReosStackedPageWidget
 
   private slots:
     void updateElementCalculation();
+    void setTime( const QDateTime &time );
 
   private:
+    ReosMap *mMap = nullptr;
     ReosHydraulicNetworkElement *mCurrentElement = nullptr;
     ReosHydraulicElementWidget *mCurrentWidget = nullptr;
     QWidget *mNameParameterWidget = nullptr;

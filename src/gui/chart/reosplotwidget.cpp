@@ -29,6 +29,7 @@
 #include "reosplotitemlist.h"
 #include "reossettings.h"
 #include "reosstyleregistery.h"
+#include "reosplottimeline.h"
 
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
@@ -49,6 +50,7 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent )
   : QWidget( parent )
   , mActionExportAsImage( new QAction( QPixmap( ":/images/savePlot.svg" ), tr( "Save as Image" ), this ) )
   , mActionCopyAsImage( new QAction( QPixmap( ":/images/copyPlot.svg" ), tr( "Copy as Image" ), this ) )
+  , mActionTimeLine( new QAction( QPixmap( ":/images/temporalLine.svg" ), tr( "Time Line" ), this ) )
 {
   QVBoxLayout *mainLayout = new QVBoxLayout ;
   setLayout( mainLayout );
@@ -87,6 +89,11 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent )
   mActionLegendController = mToolBarLeft->addWidget( mLegendController );
   connect( mLegendController, &ReosPlotLegendController::legendVisible, this, &ReosPlotWidget::setLegendVisible );
   mLegendController->setChecked( true );
+
+  mToolBarLeft->addAction( mActionTimeLine );
+  mActionTimeLine->setCheckable( true );
+  mActionTimeLine->setVisible( false );
+  connect( mActionTimeLine, &QAction::triggered, this, &ReosPlotWidget::setTimeLineVisible );
 
   setMagnifierType( normalMagnifier );
 
@@ -130,6 +137,9 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent )
   setAxesTitleSize( 10 );
 }
 
+ReosPlotWidget::~ReosPlotWidget()
+{}
+
 void ReosPlotWidget::setSettingsContext( const QString &settingContext )
 {
   mSettingsContext = settingContext;
@@ -155,6 +165,13 @@ void ReosPlotWidget::setSettingsContext( const QString &settingContext )
     mLegendController->setChecked( legendVisible );
     mPlot->setLegendVisible( legendVisible );
   }
+
+  if ( settings.contains( settingsPrefix() + QStringLiteral( "timeLineVisible" ) ) )
+  {
+    bool timeLineVisible = settings.value( settingsPrefix() + QStringLiteral( "timeLineVisible" ) ).toBool();
+    mActionTimeLine->setChecked( timeLineVisible );
+    mTimeLine->setVisible( timeLineVisible );
+  }
 }
 
 void ReosPlotWidget::setLegendEnabled( bool b )
@@ -172,6 +189,17 @@ void ReosPlotWidget::setLegendVisible( bool b )
     mPlot->replot();
     ReosSettings settings;
     settings.setValue( settingsPrefix() + QStringLiteral( "legendVisible" ), b );
+  }
+}
+
+void ReosPlotWidget::setTimeLineVisible( bool b )
+{
+  ReosSettings settings;
+  settings.setValue( settingsPrefix() + QStringLiteral( "timeLineVisible" ), b );
+  if ( mTimeLine )
+  {
+    mTimeLine->setVisible( b );
+    mTimeLine->plot()->replot();
   }
 }
 
@@ -345,6 +373,7 @@ static void setAxeType( ReosPlot_p *plot, QwtPlot::Axis axe, ReosPlotWidget::Axe
 
 void ReosPlotWidget::setAxeXType( ReosPlotWidget::AxeType type )
 {
+  mAxeType = type;
   setAxeType( mPlot, QwtPlot::xBottom, type );
 }
 
@@ -404,6 +433,33 @@ void ReosPlotWidget::setAxesTitleSize( int size )
 void ReosPlotWidget::enableScaleTypeChoice( bool b )
 {
   mXAxisFormatCombobox->setVisible( b );
+}
+
+void ReosPlotWidget::enableTimeLine( bool b )
+{
+  if ( b && !mTimeLine && mAxeType == temporal )
+  {
+    mTimeLine.reset( new ReosPlotTimeLine );
+    mTimeLine->attach( mPlot );
+    mActionTimeLine->setVisible( true );
+    if ( mActionTimeLine->isChecked() )
+      mTimeLine->show();
+    else
+      mTimeLine->hide();
+  }
+
+  if ( ( !b && mTimeLine ) &&  mAxeType != temporal )
+  {
+    mTimeLine->detach();
+    mTimeLine.reset();
+    mActionTimeLine->setVisible( false );
+  }
+}
+
+void ReosPlotWidget::setTime( const QDateTime &time )
+{
+  if ( mTimeLine )
+    mTimeLine->setTime( time );
 }
 
 QString ReosPlotWidget::plotEngineName()

@@ -151,11 +151,12 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
 
   QString settingsString = QStringLiteral( "hydraulic-network-structure-2D" );
 
-  ui->mPlotWidget->setSettingsContext( settingsString );
   ui->mPlotWidget->setTitleAxeX( tr( "Time" ) );
   ui->mPlotWidget->setAxeXType( ReosPlotWidget::temporal );
   ui->mPlotWidget->enableAxeYright( false );
   ui->mPlotWidget->setTitleAxeYLeft( tr( "Flow rate (%1)" ).arg( QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
+  ui->mPlotWidget->enableTimeLine( true );
+  ui->mPlotWidget->setSettingsContext( settingsString );
 
   if ( mStructure2D->currentSimulation() )
     ui->mSimulationEngineName->setText( mStructure2D->currentSimulation()->engineName() );
@@ -210,6 +211,11 @@ void ReosHydraulicStructure2DProperties::setCurrentCalculationContext( const Reo
     ui->mSimulationEngineName->setText( mStructure2D->currentSimulation()->engineName() );
 
   emit calculationContextChanged();
+}
+
+void ReosHydraulicStructure2DProperties::setTime( const QDateTime &time )
+{
+  ui->mPlotWidget->setTime( time );
 }
 
 void ReosHydraulicStructure2DProperties::setCurrentSimulationProcess( ReosSimulationProcess *process, const ReosCalculationContext &context )

@@ -44,6 +44,7 @@ class ReosHydraulicElementWidget : public QWidget
     ReosHydraulicElementWidget( QWidget *parent = nullptr );
 
     virtual void setCurrentCalculationContext( const ReosCalculationContext & ) {}
+    virtual void setTime( const QDateTime & ) {}
 
   signals:
     void stackedPageWidgetOpened( ReosStackedPageWidget *widget );

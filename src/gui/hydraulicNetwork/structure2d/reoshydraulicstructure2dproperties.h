@@ -43,6 +43,7 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
     ~ReosHydraulicStructure2DProperties();
 
     void setCurrentCalculationContext( const ReosCalculationContext &context ) override;
+    void setTime( const QDateTime &time ) override;
 
   signals:
     void calculationContextChanged();

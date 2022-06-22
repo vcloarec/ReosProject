@@ -33,6 +33,7 @@
 
 ReosHydraulicElementPropertiesWidget::ReosHydraulicElementPropertiesWidget( ReosHydraulicNetwork *network, const ReosGuiContext &guiContext )
   : ReosStackedPageWidget( guiContext.parent() )
+  , mMap( guiContext.map() )
   , mNetwork( network )
 {
   QVBoxLayout *mainLayout = new QVBoxLayout;
@@ -66,6 +67,7 @@ ReosHydraulicElementPropertiesWidget::ReosHydraulicElementPropertiesWidget( Reos
   setCurrentElement( nullptr, guiContext );
 
   connect( network, &ReosHydraulicNetwork::schemeChanged, this, &ReosHydraulicElementPropertiesWidget::updateElementCalculation );
+  connect( mMap, &ReosMap::timeChanged, this, &ReosHydraulicElementPropertiesWidget::setTime );
 }
 
 ReosHydraulicElementPropertiesWidget::~ReosHydraulicElementPropertiesWidget()
@@ -120,7 +122,16 @@ void ReosHydraulicElementPropertiesWidget::setCurrentElement( ReosHydraulicNetwo
 void ReosHydraulicElementPropertiesWidget::updateElementCalculation()
 {
   if ( mCurrentWidget )
+  {
     mCurrentWidget->setCurrentCalculationContext( mNetwork->calculationContext() );
+    mCurrentWidget->setTime( mMap->currentTime() );
+  }
+}
+
+void ReosHydraulicElementPropertiesWidget::setTime( const QDateTime &time )
+{
+  if ( mCurrentWidget )
+    mCurrentWidget->setTime( time );
 }
 
 ReosHydraulicElementWidgetFactory *ReosHydraulicElementPropertiesWidget::widgetFactory( const QString &elementType )

@@ -336,6 +336,8 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   {
     mTemporalDockWidget->setVisible( mTemporalControllerAction->isChecked() );
   } );
+  connect( mTemporalControler, &ReosTemporalController_p::updateTemporalRange, this, [this]( const QgsDateTimeRange & timeRange )
+  {emit timeChanged( timeRange.begin() );} );
 
   connect( mEngine, &ReosGisEngine::temporalRangeChanged, mTemporalControler, &ReosTemporalController_p::setTemporalExtent );
   //******

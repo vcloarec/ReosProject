@@ -110,7 +110,6 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     const QObject *temporalController() const;
 
     void setTimeStep( const ReosDuration &timeStep );
-
     QDateTime currentTime() const;
 
   signals:
@@ -119,6 +118,7 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     void readProject( const QDomDocument &doc );
     void crsChanged( const QString &crs );
     void extentChanged();
+    void timeChanged( const QDateTime &time );
 
   public slots:
     void refreshCanvas();
