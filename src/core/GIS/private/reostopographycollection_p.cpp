@@ -49,7 +49,7 @@ double ReosTopographyCollection_p::elevationAt_p( const QgsPointXY &point ) cons
   for ( size_t i = 0; i < mDem.size(); ++i )
   {
     double value = mDem.at( i )->elevationAt( point, mTransforms.at( int( i ) ) );
-    if ( value != mDem.at( i )->noDataValue() )
+    if ( value != mDem.at( i )->noDataValue() && !std::isnan( value ) )
       return value;
   }
 
