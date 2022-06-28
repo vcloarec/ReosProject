@@ -153,7 +153,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
 
   ui->mPlotWidget->setTitleAxeX( tr( "Time" ) );
   ui->mPlotWidget->setAxeXType( ReosPlotWidget::temporal );
-  ui->mPlotWidget->enableAxeYright( false );
+  ui->mPlotWidget->enableAxeYRight( false );
   ui->mPlotWidget->setTitleAxeYLeft( tr( "Flow rate (%1)" ).arg( QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
   ui->mPlotWidget->enableTimeLine( true );
   ui->mPlotWidget->setSettingsContext( settingsString );

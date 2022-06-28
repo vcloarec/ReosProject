@@ -165,6 +165,7 @@
         <file>loop.svg</file>
         <file>speed.svg</file>
         <file>temporalLine.svg</file>
+        <file>cursorCoordinates.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

@@ -80,7 +80,7 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *wat
   ui->widgetPlot->addPlotItem( mHydrographCurve );
   ui->widgetPlot->setTitleAxeX( tr( "Time" ) );
   ui->widgetPlot->setAxeXType( ReosPlotWidget::temporal );
-  ui->widgetPlot->enableAxeYright( true );
+  ui->widgetPlot->enableAxeYRight( true );
   ui->widgetPlot->setTitleAxeYRight( tr( "Flow rate (%1)" ).arg( QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
   ui->widgetPlot->setMagnifierType( ReosPlotWidget::positiveMagnifier );
 

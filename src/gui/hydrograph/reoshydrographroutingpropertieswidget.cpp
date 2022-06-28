@@ -36,7 +36,7 @@ ReosHydrographRoutingPropertiesWidget::ReosHydrographRoutingPropertiesWidget( Re
 
   ui->mPlotsWidget->setTitleAxeX( tr( "Time" ) );
   ui->mPlotsWidget->setAxeXType( ReosPlotWidget::temporal );
-  ui->mPlotsWidget->enableAxeYright( false );
+  ui->mPlotsWidget->enableAxeYRight( false );
   ui->mPlotsWidget->setTitleAxeYLeft( tr( "Flow rate (%1)" ).arg( QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
   ui->mPlotsWidget->setMagnifierType( ReosPlotWidget::positiveMagnifier );
 

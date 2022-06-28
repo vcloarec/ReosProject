@@ -19,6 +19,7 @@
 #include <QToolButton>
 #include <QSpinBox>
 #include <QLabel>
+#include <QMoveEvent>
 
 #include "reosplotwidget.h"
 #include "reosplot_p.h"
@@ -46,16 +47,115 @@
 #include <qwt_scale_widget.h>
 
 
+class CoordinatesWidget: public QWidget
+{
+  public:
+    CoordinatesWidget( QwtPlot *plot )
+      : QWidget( plot->canvas() )
+      , mPlot( plot )
+    {
+      setLayout( new QVBoxLayout );
+      layout()->setContentsMargins( 0, 0, 0, 0 );
+      layout()->setSpacing( 0 );
+      setAttribute( Qt::WA_TransparentForMouseEvents );
+      mLabelX = new QLabel( tr( "X:" ), this );
+      layout()->addWidget( mLabelX );
+      mLabelYLeft = new QLabel( this );
+      layout()->addWidget( mLabelYLeft );
+      mLabelYRight = new QLabel( this );
+      layout()->addWidget( mLabelYRight );
+
+      setStyleSheet( "QLabel{background-color: rgba(255,255,255,127)}" );
+    }
+
+    void enableYRight( bool b )
+    {
+      mIsRightYEnabled = b;
+    }
+
+    bool eventFilter( QObject *obj, QEvent *event )
+    {
+      switch ( event->type() )
+      {
+        case QEvent::Enter:
+          setVisible( isEnabled() );
+          break;
+        case QEvent::Leave:
+          setVisible( false );
+          break;
+        case QEvent::MouseMove:
+          updatePosition( static_cast<QMouseEvent *>( event )->pos() );
+          break;
+        default:
+          break;
+      }
+
+      return false;
+    }
+
+    void updatePosition( const QPoint &pos )
+    {
+      move( pos + QPoint( 15, -15 ) );
+      if ( mXType == ReosPlotWidget::temporal )
+      {
+        const QDateTime time = QwtDate::toDateTime( mPlot->canvasMap( QwtPlot::xBottom ).invTransform( pos.x() ) );
+        mLabelX->setText( tr( "X: " ) + QLocale().toString( time, QLocale::ShortFormat ) );
+      }
+      else
+      {
+        mLabelX->setText( QString::number( mPlot->canvasMap( QwtPlot::xBottom ).invTransform( pos.x() ), 'f', 2 ) );
+      }
+
+      QString prefix;
+      if ( mIsRightYEnabled )
+      {
+        prefix = tr( "Y Left: " );
+        mLabelYRight->setText( tr( "Y Right: " ) +  QString::number( mPlot->canvasMap( QwtPlot::yRight ).invTransform( pos.y() ), 'f', 2 ) );
+      }
+      else
+      {
+        prefix = tr( "Y: " );
+      }
+      mLabelYLeft->setText( prefix + QString::number( mPlot->canvasMap( QwtPlot::yLeft ).invTransform( pos.y() ), 'f', 2 ) );
+
+      adjustSize();
+    }
+
+    void setXType( const ReosPlotWidget::AxeType &xType )
+    {
+      mXType = xType;
+    }
+
+  private:
+    QLabel *mLabelX = nullptr;
+    QLabel *mLabelYLeft = nullptr;
+    QLabel *mLabelYRight = nullptr;
+    QwtPlot *mPlot = nullptr;
+
+    ReosPlotWidget::AxeType mXType;
+    bool mIsRightYEnabled = false;
+};
+
+
 ReosPlotWidget::ReosPlotWidget( QWidget *parent )
   : QWidget( parent )
   , mActionExportAsImage( new QAction( QPixmap( ":/images/savePlot.svg" ), tr( "Save as Image" ), this ) )
   , mActionCopyAsImage( new QAction( QPixmap( ":/images/copyPlot.svg" ), tr( "Copy as Image" ), this ) )
   , mActionTimeLine( new QAction( QPixmap( ":/images/temporalLine.svg" ), tr( "Time Line" ), this ) )
+  , mActionCoordinates( new QAction( QPixmap( ":/images/cursorCoordinates.svg" ), tr( "Display Coordinates on Cursor" ), this ) )
 {
   QVBoxLayout *mainLayout = new QVBoxLayout ;
   setLayout( mainLayout );
   mainLayout->setContentsMargins( 0, 0, 0, 0 );
   mPlot = new ReosPlot_p( this );
+
+  mCoordinatesWidget = new CoordinatesWidget( mPlot );
+  mCoordinatesWidget->setAttribute( Qt::WA_TransparentForMouseEvents );
+  mCoordinatesWidget->setEnabled( false );
+  mActionCoordinates->setCheckable( true );
+  connect( mActionCoordinates, &QAction::triggered, this, &ReosPlotWidget::enableCursorCoordinates );
+
+  mPlot->canvas()->installEventFilter( mCoordinatesWidget );
 
   QFrame *plotCanvasFrame = dynamic_cast<QFrame *>( mPlot->canvas() );
   if ( plotCanvasFrame )
@@ -94,6 +194,8 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent )
   mActionTimeLine->setCheckable( true );
   mActionTimeLine->setVisible( false );
   connect( mActionTimeLine, &QAction::triggered, this, &ReosPlotWidget::setTimeLineVisible );
+
+  mToolBarLeft->addAction( mActionCoordinates );
 
   setMagnifierType( normalMagnifier );
 
@@ -172,6 +274,13 @@ void ReosPlotWidget::setSettingsContext( const QString &settingContext )
     mActionTimeLine->setChecked( timeLineVisible );
     mTimeLine->setVisible( timeLineVisible );
   }
+
+  if ( settings.contains( settingsPrefix() + QStringLiteral( "cursorCoordinates" ) ) )
+  {
+    bool cursorCoordinates = settings.value( settingsPrefix() + QStringLiteral( "cursorCoordinates" ) ).toBool();
+    mActionCoordinates->setChecked( cursorCoordinates );
+    mCoordinatesWidget->setEnabled( cursorCoordinates );
+  }
 }
 
 void ReosPlotWidget::setLegendEnabled( bool b )
@@ -198,8 +307,20 @@ void ReosPlotWidget::setTimeLineVisible( bool b )
   settings.setValue( settingsPrefix() + QStringLiteral( "timeLineVisible" ), b );
   if ( mTimeLine )
   {
+    mActionTimeLine->setChecked( b );
     mTimeLine->setVisible( b );
     mTimeLine->plot()->replot();
+  }
+}
+
+void ReosPlotWidget::enableCursorCoordinates( bool b )
+{
+  ReosSettings settings;
+  settings.setValue( settingsPrefix() + QStringLiteral( "cursorCoordinates" ), b );
+  if ( mCoordinatesWidget )
+  {
+    mActionCoordinates->setChecked( b );
+    mCoordinatesWidget->setEnabled( b );
   }
 }
 
@@ -292,9 +413,10 @@ void ReosPlotWidget::setTitleAxeYRight( const QString &title )
   mPlot->setAxisTitle( QwtPlot::yRight, title );
 }
 
-void ReosPlotWidget::enableAxeYright( bool b )
+void ReosPlotWidget::enableAxeYRight( bool b )
 {
   mPlot->enableAxis( QwtPlot::yRight, b );
+  mCoordinatesWidget->enableYRight( b );
 }
 
 void ReosPlotWidget::enableAutoScale( bool b )
@@ -375,6 +497,7 @@ void ReosPlotWidget::setAxeXType( ReosPlotWidget::AxeType type )
 {
   mAxeType = type;
   setAxeType( mPlot, QwtPlot::xBottom, type );
+  mCoordinatesWidget->setXType( type );
 }
 
 void ReosPlotWidget::setAxeXExtent( double min, double max )
@@ -854,3 +977,5 @@ void ReosPlotLegendController::setCurrentColumnCount( int columnCount )
   mColumnSpinBox->setValue( columnCount );
   mColumnSpinBox->blockSignals( false );
 }
+
+

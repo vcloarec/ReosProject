@@ -1360,7 +1360,7 @@ void ReosPlotItemRainfallSerieFactory::buildPlotItemsAndSetup( ReosPlotWidget *p
 
   if ( _data->valueMode() == ReosTimeSerieConstantInterval::Cumulative || _data->addCumultive() )
   {
-    plotWidget->enableAxeYright( true );
+    plotWidget->enableAxeYRight( true );
     std::unique_ptr<ReosPlotTimeCumulativeCurve> cumulCurve = std::make_unique<ReosPlotTimeCumulativeCurve>( _data->name() + QObject::tr( ", cumulative value" ) );
     cumulCurve->setTimeSerie( _data );
     cumulCurve->setOnRightAxe();

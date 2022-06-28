@@ -44,6 +44,7 @@ class ReosDataObject;
 class ReosTimeSerieConstantInterval;
 class ReosVariableTimeStepPlotListButton;
 class ReosPlotTimeLine;
+class CoordinatesWidget;
 
 class ReosPlotWidget;
 
@@ -166,7 +167,7 @@ class REOSGUI_EXPORT ReosPlotWidget: public QWidget
     void setTitleAxeYLeft( const QString &title );
     void setTitleAxeYRight( const QString &title );
 
-    void enableAxeYright( bool b );
+    void enableAxeYRight( bool b );
 
     void enableAutoScale( bool b );
     void enableAutoScaleX( bool b );
@@ -204,6 +205,7 @@ class REOSGUI_EXPORT ReosPlotWidget: public QWidget
     void receiveMoveFromPicker( const QPointF &pt );
     void setLegendVisible( bool b );
     void setTimeLineVisible( bool b );
+    void enableCursorCoordinates( bool b );
 
   private:
     QString mSettingsContext;
@@ -216,6 +218,7 @@ class REOSGUI_EXPORT ReosPlotWidget: public QWidget
     QAction *mActionCopyAsImage = nullptr;
     QAction *mXAxisFormatCombobox = nullptr;
     QAction *mActionTimeLine = nullptr;
+    QAction *mActionCoordinates = nullptr;
 
     AxeType mAxeType = normal;
 
@@ -223,6 +226,8 @@ class REOSGUI_EXPORT ReosPlotWidget: public QWidget
     QwtPlotPanner *mPanner = nullptr;
     QwtPlotZoomer *mZoomerLeft = nullptr;
     QwtPlotZoomer *mZoomerRight = nullptr;
+
+    CoordinatesWidget *mCoordinatesWidget = nullptr;
 
     std::unique_ptr<ReosPlotTimeLine> mTimeLine;
 
