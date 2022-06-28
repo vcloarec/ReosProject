@@ -86,6 +86,7 @@ class REOSGUI_EXPORT ReosMainWindow : public QMainWindow
     virtual QByteArray encode() const = 0;
     virtual bool decode( const QByteArray &byteArray ) = 0;
     virtual QString projectFileFilter() const;
+    virtual QString projectFileSuffix() const;
     virtual void onCriticalInfo() {};
 
     void languageSelection();

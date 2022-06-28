@@ -59,6 +59,7 @@ class LekanMainWindow : public ReosMainWindow
     void checkExtraProjectToSave() override;
     ReosVersion version() const override {return lekanVersion;}
     QString projectFileFilter()  const override;
+    QString projectFileSuffix() const override;
 
     QFileInfo gisFileInfo() const;
 

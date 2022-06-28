@@ -221,6 +221,12 @@ bool ReosMainWindow::saveAs()
     return false;
 
   mCurrentProjectFileInfo = QFileInfo( filePath );
+  if ( mCurrentProjectFileInfo.suffix() != projectFileSuffix() )
+  {
+    filePath.append( '.' + projectFileSuffix() );
+    mCurrentProjectFileInfo = QFileInfo( filePath );
+  }
+
   settings.setValue( QStringLiteral( "Path/Project" ), mCurrentProjectFileInfo.path() );
 
   bool saved = saveProject();
@@ -360,6 +366,11 @@ void ReosMainWindow::keyPressEvent( QKeyEvent *event )
 }
 
 QString ReosMainWindow::projectFileFilter() const
+{
+  return QString();
+}
+
+QString ReosMainWindow::projectFileSuffix() const
 {
   return QString();
 }

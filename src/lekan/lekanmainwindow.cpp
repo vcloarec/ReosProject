@@ -244,7 +244,12 @@ void LekanMainWindow::checkExtraProjectToSave()
 
 QString LekanMainWindow::projectFileFilter() const
 {
-  return QStringLiteral( "Lekan file (*.lkn)" );
+  return QStringLiteral( "Lekan file (*.%1)" ).arg( projectFileSuffix() );
+}
+
+QString LekanMainWindow::projectFileSuffix() const
+{
+  return QStringLiteral( "lkn" );
 }
 
 QFileInfo LekanMainWindow::gisFileInfo() const
