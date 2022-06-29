@@ -32,6 +32,8 @@ SET(QGIS_GUI_LIB CACHE FILEPATH "Path to QGIS gui lib")
 SET(QGIS_ANALYSIS_LIB CACHE FILEPATH "Path to QGIS analysis lib")
 SET(QGIS_3D_LIB CACHE FILEPATH "Path to QGIS 3D lib")
 SET(QGIS_3D_EXTRA_HEADER CACHE PATH "Path to QGIS 3D EXTRA HEADER lib")
+SET(QGIS_APP_LIB CACHE FILEPATH "Path to QGIS app lib")
+SET(QGIS_APP_INCLUDE CACHE PATH "Path to QGIS app header files (in source)")
 SET(QGIS_LIBS ${QGIS_CORE_LIB} ${QGIS_GUI_LIB} ${QGIS_ANALYSIS_LIB} ${QGIS_3D_LIB})
 SET(QSCISCINTILLA_INCLUDE_DIR CACHE PATH "Path to Qsciscintilla include dir")
 SET(GMSH_INCLUDE_DIR CACHE PATH "Path to the include dir of gmsh")
@@ -39,9 +41,6 @@ SET(GMSH_LIB CACHE FILEPATH "Path to the lib file of gmsh")
 
 SET(MDAL_INCLUDE_DIR CACHE PATH "Path to the include dir of MDAL")
 SET(MDAL_LIB CACHE FILEPATH "Path to the lib file of MDAL")
-
-SET(QGIS_APP_LIB CACHE FILEPATH "Path to QGIS app lib")
-SET(QGIS_APP_INCLUDE CACHE PATH "Path to QGIS app header files (in source)")
 
 FIND_PACKAGE(Qt5 COMPONENTS Core Gui Widgets Network Xml Svg Concurrent Test UiTools Sql REQUIRED)
 

@@ -93,6 +93,8 @@ QString ReosGmshGenerator::algorithmName( ReosGmshGenerator::Algorithm alg )
       return QString();
       break;
   }
+
+  return QString();
 }
 
 ReosMeshGeneratorGmshProcess::ReosMeshGeneratorGmshProcess( ReosPolylinesStructure *structure,
