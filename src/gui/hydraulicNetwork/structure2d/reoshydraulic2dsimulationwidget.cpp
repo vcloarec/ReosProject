@@ -137,6 +137,15 @@ QDialog *ReosHydraulicSimulationWidgetRegistery::createConfigurationDialog( cons
   return it->second->engineConfigurationDialog( parent );
 }
 
+QWidget *ReosHydraulicSimulationWidgetRegistery::createDescription( const QString &key, QWidget *parent )
+{
+  auto it = mFactories.find( key );
+  if ( it == mFactories.end() )
+    return nullptr;
+
+  return it->second->simulationEngineDescription( parent );
+}
+
 ReosHydraulicSimulationWidgetRegistery *ReosHydraulicSimulationWidgetRegistery::instance()
 {
   if ( !sInstance )
@@ -146,6 +155,16 @@ ReosHydraulicSimulationWidgetRegistery *ReosHydraulicSimulationWidgetRegistery::
   }
 
   return sInstance;
+}
+
+QStringList ReosHydraulicSimulationWidgetRegistery::keys() const
+{
+  QStringList ret;
+
+  for ( const auto &it : mFactories )
+    ret.append( it.first );
+
+  return ret;
 }
 
 void ReosHydraulicSimulationWidgetRegistery::registerEngineFactory( ReosHydraulicSimulationWidgetFactory *factory )

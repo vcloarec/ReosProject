@@ -15,6 +15,7 @@ email                : vcloarec at gmail dot com
 
 #include "reosaboutwidget.h"
 #include "ui_reosaboutwidget.h"
+#include "reoshydraulic2dsimulationwidget.h"
 
 #include <QFile>
 
@@ -23,6 +24,11 @@ ReosAboutWidget::ReosAboutWidget( QWidget *parent ) :
   ui( new Ui::ReosAboutWidget )
 {
   ui->setupUi( this );
+
+  const  QStringList keys = ReosHydraulicSimulationWidgetRegistery::instance()->keys();
+
+  for ( const QString &key : keys )
+    ui->mSolverLayout->addWidget( ReosHydraulicSimulationWidgetRegistery::instance()->createDescription( key, this ) );
 }
 
 ReosAboutWidget::~ReosAboutWidget()

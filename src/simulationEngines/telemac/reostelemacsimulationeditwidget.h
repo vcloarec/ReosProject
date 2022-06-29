@@ -70,6 +70,7 @@ class ReosTelemacSimulationEditWidgetFactory : public ReosHydraulicSimulationWid
 
     QWidget *simulationSettingsWidget( ReosHydraulicStructure2D *structure, ReosHydraulicSimulation *simulation, QWidget *parent ) const override;
     QDialog *engineConfigurationDialog( QWidget *parent ) const override;
+    QWidget *simulationEngineDescription( QWidget *parent ) const override;
 };
 
 

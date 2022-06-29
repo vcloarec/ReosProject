@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,1,0">
    <property name="leftMargin">
     <number>0</number>
    </property>
@@ -47,7 +47,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset resource="../../images/images.qrc">
+        <iconset resource="../../../images/images.qrc">
          <normaloff>:/images/add.svg</normaloff>:/images/add.svg</iconset>
        </property>
        <property name="iconSize">
@@ -67,7 +67,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset resource="../../images/images.qrc">
+        <iconset resource="../../../images/images.qrc">
          <normaloff>:/images/remove.svg</normaloff>:/images/remove.svg</iconset>
        </property>
        <property name="iconSize">
@@ -109,7 +109,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../images/images.qrc"/>
+  <include location="../../../images/images.qrc"/>
  </resources>
  <connections/>
 </ui>
