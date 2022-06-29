@@ -297,6 +297,7 @@ void ReosMeshDataProvider_p::applyTopographyOnVertices( ReosTopographyCollection
   for ( int i = 0; i < mMesh.vertexCount(); ++i )
   {
     double value = topoCollection->elevationAt_p( mMesh.vertices.at( i ) );
+
     if ( !std::isnan( value ) )
       mMesh.vertices[i].setZ( value );
     else

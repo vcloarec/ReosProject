@@ -764,7 +764,6 @@ int ReosMeshFrame_p::datasetGroupIndex( const QString &id ) const
 
 class ApplyTopopraphyProcess : public ReosProcess
 {
-
   public:
     ApplyTopopraphyProcess( ReosTopographyCollection *topographyCollection, ReosMeshDataProvider_p *meshProvider )
       : mTopographyCollection( topographyCollection )

@@ -1019,9 +1019,14 @@ void ReosMapToolEditMeshFrame_p::prepareSelection()
       }
   }
 
+  bool removingVerticesAllowed = true;
   // here, we search for border edges that have associate face in the selection and remove it
   for ( QMap<int, SelectedVertexData>::iterator it = mSelectedVertices.begin(); it != mSelectedVertices.end(); ++it )
   {
+    int vertexIndex = it.key();
+    if ( removingVerticesAllowed && ( mReosMesh->vertexIsOnBoundary( vertexIndex ) || mReosMesh->vertexIsOnHoleBorder( vertexIndex ) ) )
+      removingVerticesAllowed = false;
+
     SelectedVertexData &vertexData = it.value();
     int i = 0;
     while ( i < vertexData.borderEdges.count() )
@@ -1061,20 +1066,37 @@ void ReosMapToolEditMeshFrame_p::prepareSelection()
   if ( mSelectedVertices.count() == 1 )
   {
     mActionChangeZValue->setText( tr( "Change Z value of selected vertex" ) );
-    mActionRemoveVertices->setText( tr( "Remove selected vertex" ) );
-    mActionRemoveVertices->setEnabled( true );
     mActionChangeZValue->setEnabled( true );
+    if ( removingVerticesAllowed )
+    {
+      mActionRemoveVertices->setText( tr( "Remove selected vertex" ) );
+      mActionRemoveVertices->setEnabled( true );
+    }
+    else
+    {
+      mActionRemoveVertices->setText( tr( "Selected vertex can't be removed", nullptr, mSelectedVertices.count() ) );
+      mActionRemoveVertices->setEnabled( false );
+    }
+
   }
   else if ( mSelectedVertices.count() > 1 )
   {
     mActionChangeZValue->setText( tr( "Change Z value of %n selected vertices", nullptr, mSelectedVertices.count() ) );
-    mActionRemoveVertices->setText( tr( "Remove %n selected vertices", nullptr, mSelectedVertices.count() ) );
-    mActionRemoveVertices->setEnabled( true );
     mActionChangeZValue->setEnabled( true );
+    if ( removingVerticesAllowed )
+    {
+      mActionRemoveVertices->setText( tr( "Remove %n selected vertices", nullptr, mSelectedVertices.count() ) );
+      mActionRemoveVertices->setEnabled( true );
+    }
+    else
+    {
+      mActionRemoveVertices->setText( tr( "Some selected vertices can't be removed", nullptr, mSelectedVertices.count() ) );
+      mActionRemoveVertices->setEnabled( false );
+    }
   }
   else
   {
-    mActionRemoveVertices->setText( tr( "None verices selected" ) );
+    mActionRemoveVertices->setText( tr( "None vertices selected" ) );
     mActionRemoveVertices->setEnabled( false );
     mActionChangeZValue->setEnabled( false );
   }
@@ -1144,9 +1166,6 @@ void ReosMapToolEditMeshFrame_p::setSelectedVertices( const QList<int> newSelect
 
   for ( const int vertexIndex : newSelectedVertices )
   {
-    if ( mReosMesh->vertexIsOnBoundary( vertexIndex ) || mReosMesh->vertexIsOnHoleBorder( vertexIndex ) )
-      continue;
-
     bool contained = mSelectedVertices.contains( vertexIndex );
     if ( contained &&  removeVertices )
       removeFromSelection( vertexIndex );
@@ -1253,7 +1272,10 @@ void ReosMapToolEditMeshFrame_p::moveSelection( const QgsPointXY &destinationPoi
 
   for ( QMap<int, SelectedVertexData>::const_iterator it = mSelectedVertices.constBegin(); it != mSelectedVertices.constEnd(); ++it )
   {
-    const QgsPointXY &point1 = mapVertexXY( it.key() ) + translation;
+    int vertexIndex = it.key();
+    if ( mIsMovingAllowed && ( mReosMesh->vertexIsOnBoundary( vertexIndex ) || mReosMesh->vertexIsOnHoleBorder( vertexIndex ) ) )
+      mIsMovingAllowed = false;
+    const QgsPointXY &point1 = mapVertexXY( vertexIndex ) + translation;
     const SelectedVertexData &vertexData = it.value();
     for ( int i = 0; i < vertexData.meshFixedEdges.count(); ++i )
     {
@@ -1288,7 +1310,8 @@ void ReosMapToolEditMeshFrame_p::moveSelection( const QgsPointXY &destinationPoi
   };
 
   // we test only the faces that are deformed on the border, moving and not deformed faces are tested later
-  mIsMovingAllowed = mMeshEditor->canBeTransformed( qgis::setToList( borderMovingFace ), transformFunction );
+  if ( mIsMovingAllowed )
+    mIsMovingAllowed = mMeshEditor->canBeTransformed( qgis::setToList( borderMovingFace ), transformFunction );
 
   if ( mIsMovingAllowed )
   {
