@@ -899,7 +899,7 @@ void ReosTelemac2DSimulation::createSelafinInitialConditionFile( ReosHydraulicSt
   velocityDatasetGroupV->initialize();
 
   createSelafinInitialConditionFile( path, hydraulicStructure, verticesPosInBoundary,
-                                     std::move( waterDepthDatasetGroup ),
+                                     std::move( waterLevelDatasetGroup ),
                                      std::move( waterDepthDatasetGroup ),
                                      std::move( velocityDatasetGroupU ),
                                      std::move( velocityDatasetGroupV ) );
