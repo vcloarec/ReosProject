@@ -25,6 +25,7 @@
 #include "reosduration.h"
 
 class ReosHydraulicSimulationResults;
+class QgsMeshDatasetGroup;
 
 class ReosTelemac2DSimulation : public ReosHydraulicSimulation
 {
@@ -120,6 +121,19 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
                                             const ReosHydraulicSimulationResults *result,
                                             int timeStepIndex,
                                             const QDir &directory );
+
+    void createSelafinInitialConditionFile( ReosHydraulicStructure2D *hydraulicStructure,
+                                            const QVector<int> &verticesPosInBoundary,
+                                            const ReosTelemac2DInitialConditionFromInterpolation *interpolation,
+                                            const QDir &directory );
+
+    void createSelafinInitialConditionFile( const QString &path,
+                                            ReosHydraulicStructure2D *hydraulicStructure,
+                                            const QVector<int> &verticesPosInBoundary,
+                                            std::unique_ptr<QgsMeshDatasetGroup> waterLevel,
+                                            std::unique_ptr<QgsMeshDatasetGroup> depth,
+                                            std::unique_ptr<QgsMeshDatasetGroup> velocityU,
+                                            std::unique_ptr<QgsMeshDatasetGroup> velocityV );
 
     QList<TelemacBoundaryCondition> createBoundaryConditionFiles(
       QList<ReosHydraulicStructureBoundaryCondition *> boundaryConditions,

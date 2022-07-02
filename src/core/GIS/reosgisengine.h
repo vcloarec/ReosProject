@@ -147,8 +147,14 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     //! Transforms the spatial position \a position to project CRS
     QPointF transformToProjectCoordinates( const ReosSpatialPosition &position ) const;
 
+    //! Transforms the \a sourcePoint from \a sourceCRS to project CRS
+    QPolygonF transformToProjectCoordinates( const QString &sourceCRS, const QPolygonF &sourcePolygon ) const;
+
     //! Transforms the spatial position \a position to given \a crs
-    QPointF transformToCoordinates( const ReosSpatialPosition &position, const QString &destinationCrs ) const;
+    static QPointF transformToCoordinates( const ReosSpatialPosition &position, const QString &destinationCrs );
+
+    //! Transforms the \a sourcePolygon with crs \a sourceCrs  to given \a crs
+    static QPolygonF transformToCoordinates( const QString &sourceCRS, const QPolygonF &sourcePolygon, const QString &destinationCrs );
 
     //! Sets the temporal range
     void setTemporalRange( const QDateTime &startTime, const QDateTime &endTime );

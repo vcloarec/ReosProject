@@ -19,6 +19,8 @@
 #include <QWidget>
 #include <memory>
 
+#include "reosguicontext.h"
+
 class ReosHydraulicSimulation;
 class ReosHydraulicStructure2D;
 
@@ -32,7 +34,7 @@ class ReosHydraulic2DSimulationWidget : public QWidget
     Q_OBJECT
 
   public:
-    explicit ReosHydraulic2DSimulationWidget( ReosHydraulicStructure2D *structure, QWidget *parent = nullptr );
+    explicit ReosHydraulic2DSimulationWidget( ReosHydraulicStructure2D *structure, const ReosGuiContext &guiContext );
     ~ReosHydraulic2DSimulationWidget();
 
   private slots:
@@ -44,6 +46,7 @@ class ReosHydraulic2DSimulationWidget : public QWidget
     Ui::ReosHydraulic2DSimulationWidget *ui;
     ReosHydraulicStructure2D *mStructure = nullptr;
     QWidget *mCurrentEditingWidget = nullptr;
+    ReosGuiContext mGuiContext;
 
     void setCurrentSimulation( ReosHydraulicSimulation *simulation );
     void updateSimulationCombo();
@@ -54,7 +57,7 @@ class ReosHydraulicSimulationWidgetFactory
 {
   public:
     virtual QString key() const = 0;
-    virtual QWidget *simulationSettingsWidget( ReosHydraulicStructure2D *structure, ReosHydraulicSimulation *simulation, QWidget *parent ) const = 0;
+    virtual QWidget *simulationSettingsWidget( ReosHydraulicStructure2D *structure, ReosHydraulicSimulation *simulation, const ReosGuiContext &guiContext ) const = 0;
     virtual QDialog *engineConfigurationDialog( QWidget *parent ) const = 0;
     virtual QWidget *simulationEngineDescription( QWidget *parent ) const = 0;
 };
@@ -66,7 +69,7 @@ class ReosHydraulicSimulationWidgetRegistery
     ReosHydraulicSimulationWidgetRegistery();
 
     //! Creates and returns a simuation corresponding to the \a key
-    QWidget *createEditingWidget( ReosHydraulicStructure2D *structure,  ReosHydraulicSimulation *simulation, QWidget *parent );
+    QWidget *createEditingWidget( ReosHydraulicStructure2D *structure,  ReosHydraulicSimulation *simulation, const ReosGuiContext &guiContext );
 
     //! Creates and returns an engine configuration dialog corresponding to the \a key
     QDialog *createConfigurationDialog( const QString &key, QWidget *parent );

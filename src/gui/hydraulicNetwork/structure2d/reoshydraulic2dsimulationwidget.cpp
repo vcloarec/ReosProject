@@ -24,10 +24,11 @@
 #include "reoshydraulicstructure2d.h"
 #include "reosformwidget.h"
 
-ReosHydraulic2DSimulationWidget::ReosHydraulic2DSimulationWidget( ReosHydraulicStructure2D *structure, QWidget *parent )
-  : QWidget( parent )
+ReosHydraulic2DSimulationWidget::ReosHydraulic2DSimulationWidget( ReosHydraulicStructure2D *structure, const ReosGuiContext &guiContext )
+  : QWidget( guiContext.parent() )
   , ui( new Ui::ReosHydraulic2DSimulationWidget )
   , mStructure( structure )
+  , mGuiContext( guiContext )
 {
   ui->setupUi( this );
 
@@ -110,7 +111,7 @@ void ReosHydraulic2DSimulationWidget::setCurrentSimulation( ReosHydraulicSimulat
     mCurrentEditingWidget->deleteLater();
   }
 
-  mCurrentEditingWidget = ReosHydraulicSimulationWidgetRegistery::instance()->createEditingWidget( mStructure, simulation, this );
+  mCurrentEditingWidget = ReosHydraulicSimulationWidgetRegistery::instance()->createEditingWidget( mStructure, simulation, ReosGuiContext( mGuiContext, this ) );
   if ( mCurrentEditingWidget )
     ui->mEditWidgetLayout->addWidget( mCurrentEditingWidget );
 }
@@ -130,7 +131,7 @@ ReosHydraulicSimulationWidgetRegistery::ReosHydraulicSimulationWidgetRegistery()
 
 }
 
-QWidget *ReosHydraulicSimulationWidgetRegistery::createEditingWidget( ReosHydraulicStructure2D *structure, ReosHydraulicSimulation *simulation, QWidget *parent )
+QWidget *ReosHydraulicSimulationWidgetRegistery::createEditingWidget( ReosHydraulicStructure2D *structure, ReosHydraulicSimulation *simulation, const ReosGuiContext &guiContext )
 {
   if ( !simulation )
     return nullptr;
@@ -139,7 +140,7 @@ QWidget *ReosHydraulicSimulationWidgetRegistery::createEditingWidget( ReosHydrau
   if ( it == mFactories.end() )
     return nullptr;
 
-  return it->second->simulationSettingsWidget( structure, simulation, parent );
+  return it->second->simulationSettingsWidget( structure, simulation, guiContext );
 }
 
 QDialog *ReosHydraulicSimulationWidgetRegistery::createConfigurationDialog( const QString &key, QWidget *parent )

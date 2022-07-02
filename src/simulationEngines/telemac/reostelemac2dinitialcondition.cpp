@@ -127,3 +127,78 @@ void ReosTelemac2DInitialConditionFromSimulation::setTimeStepIndex( int timeStep
 {
   mTimeStepIndex = timeStepIndex;
 }
+
+ReosTelemac2DInitialConditionFromInterpolation::ReosTelemac2DInitialConditionFromInterpolation( QObject *parent )
+  : ReosTelemac2DInitialCondition( parent )
+{
+  mFirstValue = new ReosParameterDouble( tr( "First water level value" ), false, this );
+  mFirstValue->setValue( 0 );
+  mSecondValue = new ReosParameterDouble( tr( "Second water level value" ), false, this );
+  mSecondValue->setValue( 0 );
+}
+
+ReosTelemac2DInitialConditionFromInterpolation::ReosTelemac2DInitialConditionFromInterpolation( const ReosEncodedElement &element, QObject *parent )
+  :     ReosTelemac2DInitialCondition( element, parent )
+{
+  mFirstValue = new ReosParameterDouble( tr( "First water level value" ), false, this );
+  mSecondValue = new ReosParameterDouble( tr( "Second water level value" ), false, this );
+  ReosDataObject::decode( element );
+}
+
+ReosEncodedElement ReosTelemac2DInitialConditionFromInterpolation::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "telemac-2d-initial-condition-water-level-interpolation" ) );
+  ReosDataObject::encode( element );
+  return element;
+}
+
+void ReosTelemac2DInitialConditionFromInterpolation::saveConfiguration( ReosHydraulicScheme *scheme ) const
+{
+  ReosEncodedElement elem = scheme->restoreElementConfig( id() );
+  elem.addData( QStringLiteral( "first-water-level" ), mFirstValue->value() );
+  elem.addData( QStringLiteral( "second-water-level" ), mSecondValue->value() );
+  elem.addData( QStringLiteral( "line" ), mLine );
+  elem.addData( QStringLiteral( "crs" ), mCrs );
+
+  scheme->saveElementConfig( id(), elem );
+}
+
+void ReosTelemac2DInitialConditionFromInterpolation::restoreConfiguration( ReosHydraulicScheme *scheme )
+{
+  ReosEncodedElement elem = scheme->restoreElementConfig( id() );
+  double fwl = 0;
+  elem.getData( QStringLiteral( "first-water-level" ), fwl );
+  mFirstValue->setValue( fwl );
+  double swl = 0;
+  elem.getData( QStringLiteral( "second-water-level" ), swl );
+  mSecondValue->setValue( swl );
+  mLine.clear();
+  elem.getData( QStringLiteral( "line" ), mLine );
+  elem.getData( QStringLiteral( "crs" ), mCrs );
+}
+
+ReosParameterDouble *ReosTelemac2DInitialConditionFromInterpolation::firstValue() const
+{
+  return mFirstValue;
+}
+
+ReosParameterDouble *ReosTelemac2DInitialConditionFromInterpolation::secondValue() const
+{
+  return mSecondValue;
+}
+
+void ReosTelemac2DInitialConditionFromInterpolation::setLine( const QPolygonF &line, const QString &crs )
+{
+  mLine = line;
+  mCrs = crs;
+}
+
+QPolygonF ReosTelemac2DInitialConditionFromInterpolation::line() const
+{
+  return mLine;
+}
+
+QString ReosTelemac2DInitialConditionFromInterpolation::crs() const
+{
+  return mCrs;
+}

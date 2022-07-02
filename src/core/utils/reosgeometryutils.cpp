@@ -201,3 +201,15 @@ int ReosGeometryUtils::closestSegment( const QPointF &point, const QPolygonF &po
   return secondIndex;
 }
 
+double ReosGeometryUtils::projectedPointDistanceFromBegining( const QPointF &point, const QPolygonF &polyline )
+{
+  QgsGeometry polyGeom = QgsGeometry::fromQPolygonF( polyline );
+  return polyGeom.lineLocatePoint( QgsGeometry::fromQPointF( point ) );
+}
+
+double ReosGeometryUtils::length( const QPolygonF &polyline )
+{
+  QgsGeometry polyGeom = QgsGeometry::fromQPolygonF( polyline );
+  return polyGeom.length();
+}
+

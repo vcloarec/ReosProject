@@ -83,7 +83,7 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
   ReosRoughnessWidget *roughnessWidget = new ReosRoughnessWidget( structure2D, ReosGuiContext( context, this ) );
   ui->pageRoughness->layout()->addWidget( roughnessWidget );
 
-  ReosHydraulic2DSimulationWidget *mSimulationWidget = new ReosHydraulic2DSimulationWidget( structure2D, this );
+  ReosHydraulic2DSimulationWidget *mSimulationWidget = new ReosHydraulic2DSimulationWidget( structure2D, ReosGuiContext( context, this ) );
   ui->pageSimulation->layout()->addWidget( mSimulationWidget );
 
   mInitialMapStructureItem = context.mapItems( ReosHydraulicStructure2D::staticType() );

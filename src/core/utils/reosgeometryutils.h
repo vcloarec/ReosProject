@@ -51,6 +51,10 @@ class REOSCORE_EXPORT ReosGeometryUtils
 
     //! Return the second vertex's index of the closest segment of \a polyline from \a point, returns -1 if none
     static int closestSegment( const QPointF &point, const QPolygonF &polyline );
+
+    static double projectedPointDistanceFromBegining( const QPointF &point, const QPolygonF &polyline );
+
+    static double length( const QPolygonF &polyline );
 };
 
 #endif // REOSGEOMETRYUTILS_H

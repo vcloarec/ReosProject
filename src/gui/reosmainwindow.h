@@ -23,6 +23,7 @@ email                : vcloarec at gmail dot com
 
 #include <QVBoxLayout>
 #include <QPixmap>
+#include <memory>
 
 #include "reosgui.h"
 #include "reosversion.h"

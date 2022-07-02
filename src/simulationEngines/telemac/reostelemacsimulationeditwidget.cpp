@@ -23,12 +23,20 @@
 #include "reoshydraulicstructure2d.h"
 #include "reoshydraulicscheme.h"
 #include "reossettings.h"
+#include "reosstyleregistery.h"
+#include "reosmaptool.h"
+#include "reosguicontext.h"
+#include "reosgisengine.h"
 
-ReosTelemacSimulationEditWidget::ReosTelemacSimulationEditWidget( ReosHydraulicStructure2D *structure, ReosTelemac2DSimulation *simulation, QWidget *parent ) :
-  QWidget( parent ),
+ReosTelemacSimulationEditWidget::ReosTelemacSimulationEditWidget(
+  ReosHydraulicStructure2D *structure,
+  ReosTelemac2DSimulation *simulation,
+  const ReosGuiContext &guiContext ) :
+  QWidget( guiContext.parent() ),
   ui( new Ui::ReosTelemacSimulationEditWidget )
   , mSimulation( simulation )
   , mStructure( structure )
+  , mGuiContext( guiContext )
 {
   ui->setupUi( this );
   ui->mTimeStepWidget->setDuration( simulation->timeStep() );
@@ -39,6 +47,9 @@ ReosTelemacSimulationEditWidget::ReosTelemacSimulationEditWidget( ReosHydraulicS
       static_cast<int>( ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity ) );
   ui->mInitialConditionTypeCombo->addItem( tr( "From other hydraulic scheme" ),
       static_cast<int>( ReosTelemac2DInitialCondition::Type::FromOtherSimulation ) );
+  ui->mInitialConditionTypeCombo->addItem( tr( "Interpolation on line" ),
+      static_cast<int>( ReosTelemac2DInitialCondition::Type::Interpolation ) );
+
 
   ui->mInitialConditionTypeCombo->setCurrentIndex( ui->mInitialConditionTypeCombo->findData(
         static_cast<int>( simulation->initialCondition()->initialConditionType() ) ) );
@@ -73,7 +84,7 @@ void ReosTelemacSimulationEditWidget::onInitialConditionChanged()
 
   mSimulation->setInitialCondition( type );
 
-  mCurrentInitialConditionWidget = ReosTelemac2DInitialConditionWidgetFactory::createWidget( mStructure, mSimulation->initialCondition(), this );
+  mCurrentInitialConditionWidget = ReosTelemac2DInitialConditionWidgetFactory::createWidget( mStructure, mSimulation->initialCondition(), ReosGuiContext( mGuiContext, this ) );
   if ( mCurrentInitialConditionWidget )
     ui->mInitialConditionWidget->addWidget( mCurrentInitialConditionWidget );
 }
@@ -83,9 +94,9 @@ REOSEXTERN ReosHydraulicSimulationWidgetFactory *simulationWidgetFactory()
   return new ReosTelemacSimulationEditWidgetFactory;
 }
 
-QWidget *ReosTelemacSimulationEditWidgetFactory::simulationSettingsWidget( ReosHydraulicStructure2D *structure, ReosHydraulicSimulation *simulation, QWidget *parent ) const
+QWidget *ReosTelemacSimulationEditWidgetFactory::simulationSettingsWidget( ReosHydraulicStructure2D *structure, ReosHydraulicSimulation *simulation, const ReosGuiContext &guiContext ) const
 {
-  return new ReosTelemacSimulationEditWidget( structure, qobject_cast<ReosTelemac2DSimulation *>( simulation ), parent );
+  return new ReosTelemacSimulationEditWidget( structure, qobject_cast<ReosTelemac2DSimulation *>( simulation ), guiContext );
 }
 
 QDialog *ReosTelemacSimulationEditWidgetFactory::engineConfigurationDialog( QWidget *parent ) const
@@ -170,20 +181,31 @@ void ReosTelemacEngineConfigurationDialog::onAccepted()
   settings.setValue( QStringLiteral( "/python_path" ), ui->mPythonPathLineEdit->text() );
 }
 
-QWidget *ReosTelemac2DInitialConditionWidgetFactory::createWidget( ReosHydraulicStructure2D *structure, ReosTelemac2DInitialCondition *initialCondition, QWidget *parent )
+QWidget *ReosTelemac2DInitialConditionWidgetFactory::createWidget(
+  ReosHydraulicStructure2D *structure,
+  ReosTelemac2DInitialCondition *initialCondition,
+  const ReosGuiContext &guiContext )
 {
   switch ( initialCondition->initialConditionType() )
   {
     case ReosTelemac2DInitialCondition::Type::FromOtherSimulation:
       return new  ReosTelemac2DInititalConditionFromOtherSimulationWidget(
-               qobject_cast<ReosTelemac2DInitialConditionFromSimulation *>( initialCondition ), structure );
+               qobject_cast<ReosTelemac2DInitialConditionFromSimulation *>( initialCondition ), structure, guiContext.parent() );
       break;
     case ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity:
     {
       ReosTelemac2DInitialConstantWaterLevel *ciwl = qobject_cast<ReosTelemac2DInitialConstantWaterLevel *>( initialCondition );
       Q_ASSERT( ciwl != nullptr );
       if ( ciwl )
-        return new ReosParameterDoubleWidget( ciwl->initialWaterLevel(), parent );
+        return new ReosParameterDoubleWidget( ciwl->initialWaterLevel(), guiContext.parent() );
+    }
+    break;
+    case ReosTelemac2DInitialCondition::Type::Interpolation:
+    {
+      ReosTelemac2DInitialConditionFromInterpolation *ciinter = qobject_cast<ReosTelemac2DInitialConditionFromInterpolation *>( initialCondition );
+      Q_ASSERT( ciinter != nullptr );
+      return new  ReosTelemac2DInititalConditionInterpolationWidget(
+               qobject_cast<ReosTelemac2DInitialConditionFromInterpolation *>( initialCondition ), guiContext );
     }
     break;
   }
@@ -193,14 +215,16 @@ QWidget *ReosTelemac2DInitialConditionWidgetFactory::createWidget( ReosHydraulic
 
 ReosTelemac2DInititalConditionFromOtherSimulationWidget::ReosTelemac2DInititalConditionFromOtherSimulationWidget(
   ReosTelemac2DInitialConditionFromSimulation *initialCondition,
-  ReosHydraulicStructure2D *structure )
-  : mInitialCondition( initialCondition )
+  ReosHydraulicStructure2D *structure, QWidget *parent )
+  : QWidget( parent )
+  , mInitialCondition( initialCondition )
   , mStructure( structure )
 {
   ReosHydraulicNetwork *network =  structure->hydraulicNetworkContext().network();
 
   QGridLayout *gridLayout = new QGridLayout( this );
   setLayout( gridLayout );
+  layout()->setContentsMargins( 0, 0, 0, 0 );
 
   gridLayout->addWidget( new QLabel( tr( "From hydraulic scheme" ), this ), 0, 0 );
   mSchemeCombo = new QComboBox( this );
@@ -244,7 +268,101 @@ void ReosTelemac2DInititalConditionFromOtherSimulationWidget::onSchemeChange()
   if ( mInitialCondition->timeStepIndex() < mTimeStepCombo->count() )
     mTimeStepCombo->setCurrentIndex( mInitialCondition->timeStepIndex() );
   else
-  {
     mTimeStepCombo->setCurrentIndex( -1 );
+}
+
+ReosTelemac2DInititalConditionInterpolationWidget::ReosTelemac2DInititalConditionInterpolationWidget( ReosTelemac2DInitialConditionFromInterpolation *initialCondition,
+    const ReosGuiContext &guiContext )
+  : QWidget( guiContext.parent() )
+  , mMap( guiContext.map() )
+  , mInitialCondition( initialCondition )
+  , mActionDrawLine( new QAction( QPixmap( QStringLiteral( ":/images/drawProfile.svg" ) ), tr( "Draw intepolation line" ), this ) )
+  , mMapLine( mMap )
+{
+  QVBoxLayout *lay = new QVBoxLayout( this );
+  setLayout( lay );
+  lay->setContentsMargins( 0, 0, 0, 0 );
+
+  ReosParameterDoubleWidget *wf = new ReosParameterDoubleWidget( initialCondition->firstValue(), this );
+  wf->enableSpacer( ReosParameterWidget::SpacerInMiddle );
+  lay->addWidget( wf );
+  ReosParameterDoubleWidget *ws = new ReosParameterDoubleWidget( initialCondition->secondValue(), this );
+  ws->enableSpacer( ReosParameterWidget::SpacerInMiddle );
+  lay->addWidget( ws );
+
+  QToolBar *toolBar = new QToolBar( this );
+  toolBar->setToolButtonStyle( Qt::ToolButtonTextBesideIcon );
+  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  toolBar->addAction( mActionDrawLine );
+  mActionDrawLine->setCheckable( true );
+  mValueLabel = new QLabel( this );
+  toolBar->addSeparator();
+  toolBar->addWidget( mValueLabel );
+  lay->addWidget( toolBar );
+
+  mDrawLineMapTool = new ReosMapToolDrawPolyline( guiContext.map() );
+  mDrawLineMapTool->setAction( mActionDrawLine );
+  mDrawLineMapTool->setColor( ReosStyleRegistery::instance()->redReos() );
+  mDrawLineMapTool->setSecondaryStrokeColor( Qt::white );
+  mDrawLineMapTool->setStrokeWidth( 3 );
+  mDrawLineMapTool->setLineStyle( Qt::DashLine );
+  mDrawLineMapTool->activateMovingSignal( true );
+  connect( mDrawLineMapTool, &ReosMapToolDrawPolyline::drawn, this, &ReosTelemac2DInititalConditionInterpolationWidget::onLineDrawn );
+  connect( mMap, &ReosMap::cursorMoved, this, &ReosTelemac2DInititalConditionInterpolationWidget::onDrawLineMapToolMove );
+
+  mMapLine.setColor( ReosStyleRegistery::instance()->redReos( 200 ) );
+  mMapLine.setExternalColor( Qt::white );
+  mMapLine.setWidth( 2 );
+  mMapLine.setExternalWidth( 4 );
+
+  mLine = mMap->engine()->transformToProjectCoordinates( mInitialCondition->crs(), mInitialCondition->line() );
+  mMapLine.resetPolyline( mLine );
+  mLineLength = ReosGeometryUtils::length( mLine );
+}
+
+void ReosTelemac2DInititalConditionInterpolationWidget::showEvent( QShowEvent *e )
+{
+  mMapLine.setVisible( true );
+  QWidget::showEvent( e );
+}
+
+void ReosTelemac2DInititalConditionInterpolationWidget::hideEvent( QHideEvent *e )
+{
+  mMapLine.setVisible( false );
+  mDrawLineMapTool->quitMap();
+  QWidget::hideEvent( e );
+}
+
+void ReosTelemac2DInititalConditionInterpolationWidget::onLineDrawn( const QPolygonF &line )
+{
+  if ( line.count() > 2 )
+  {
+    mInitialCondition->setLine( line, mMap->mapCrs() );
+    mLine = line;
+    mLineLength = ReosGeometryUtils::length( mLine );
+    mMapLine.resetPolyline( line );
+  }
+  else
+  {
+    mInitialCondition->setLine( QPolygonF(), QString() );
+    mLine = QPolygonF();
+    mLineLength = 0;
+    mMapLine.resetPolyline();
+  }
+}
+
+void ReosTelemac2DInititalConditionInterpolationWidget::onDrawLineMapToolMove( const QPointF &pt )
+{
+  if ( !mLine.empty() )
+  {
+    double dist = ReosGeometryUtils::projectedPointDistanceFromBegining( pt, mLine );
+    double ratio =  dist / mLineLength;
+    double firstValue = mInitialCondition->firstValue()->value();
+    double secondValue = mInitialCondition->secondValue()->value();
+    mValueLabel->setText( tr( "Value under cursor: %1" ).arg( QLocale().toString( firstValue + ( secondValue - firstValue )*ratio, 'f', 2 ) ) );
+  }
+  else
+  {
+    mValueLabel->setText( tr( "No interpolation line" ) );
   }
 }

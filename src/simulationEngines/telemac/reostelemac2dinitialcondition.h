@@ -16,6 +16,8 @@
 #ifndef REOSTELEMAC2DINITIALCONDITION_H
 #define REOSTELEMAC2DINITIALCONDITION_H
 
+#include <QPolygonF>
+
 #include "reosdataobject.h"
 
 class ReosParameterDouble;
@@ -27,7 +29,8 @@ class ReosTelemac2DInitialCondition: public ReosDataObject
     enum class Type
     {
       FromOtherSimulation,
-      ConstantLevelNoVelocity
+      ConstantLevelNoVelocity,
+      Interpolation
     };
 
     ReosTelemac2DInitialCondition( QObject *parent = nullptr );
@@ -81,6 +84,32 @@ class ReosTelemac2DInitialConditionFromSimulation: public ReosTelemac2DInitialCo
   private:
     QString mOtherSchemeId;
     int mTimeStepIndex = -1;
+};
+
+class ReosTelemac2DInitialConditionFromInterpolation: public ReosTelemac2DInitialCondition
+{
+    Q_OBJECT
+  public:
+    ReosTelemac2DInitialConditionFromInterpolation( QObject *parent = nullptr );
+    ReosTelemac2DInitialConditionFromInterpolation( const ReosEncodedElement &element, QObject *parent = nullptr );
+
+    Type initialConditionType() const override {return Type::Interpolation;}
+    ReosEncodedElement encode() const override;
+    void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
+    void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
+
+    ReosParameterDouble *firstValue() const;
+    ReosParameterDouble *secondValue() const;
+
+    void setLine( const QPolygonF &line, const QString &crs );
+    QPolygonF line() const;
+    QString crs() const;
+
+  private:
+    ReosParameterDouble *mFirstValue = nullptr;
+    ReosParameterDouble *mSecondValue = nullptr;
+    QPolygonF mLine;
+    QString mCrs;
 };
 
 

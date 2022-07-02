@@ -131,7 +131,9 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
 
     virtual QVector<int> face( int faceIndex ) const = 0 ;
 
-    virtual QPointF vertexPosition( int vertexIndex, const QString &destinationCrs = QString() ) = 0;
+    virtual QPointF vertexPosition( int vertexIndex, const QString &destinationCrs = QString() ) const = 0;
+
+    virtual double vertexElevation( int vertexIndex ) const = 0 ;
 
     virtual QObject *data() const = 0;
 

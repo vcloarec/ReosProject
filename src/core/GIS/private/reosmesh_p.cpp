@@ -277,7 +277,7 @@ int ReosMeshFrame_p::vertexCount() const
   return mMeshLayer->meshVertexCount();
 }
 
-QPointF ReosMeshFrame_p::vertexPosition( int vertexIndex, const QString &destinationCrs )
+QPointF ReosMeshFrame_p::vertexPosition( int vertexIndex, const QString &destinationCrs ) const
 {
   if ( destinationCrs.isEmpty() )
     return mMeshLayer->nativeMesh()->vertices.at( vertexIndex ).toQPointF();
@@ -299,6 +299,11 @@ QPointF ReosMeshFrame_p::vertexPosition( int vertexIndex, const QString &destina
   }
 
   return vert.toQPointF();
+}
+
+double ReosMeshFrame_p::vertexElevation( int vertexIndex ) const
+{
+  return mMeshLayer->nativeMesh()->vertices.at( vertexIndex ).z();
 }
 
 QVector<int> ReosMeshFrame_p::face( int faceIndex ) const

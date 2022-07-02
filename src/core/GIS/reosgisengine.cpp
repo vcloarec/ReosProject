@@ -523,7 +523,32 @@ QPointF ReosGisEngine::transformToProjectCoordinates( const ReosSpatialPosition 
   return transformToProjectCoordinates( position.crs(), position.position() );
 }
 
-QPointF ReosGisEngine::transformToCoordinates( const ReosSpatialPosition &position, const QString &destinationCrs ) const
+QPolygonF ReosGisEngine::transformToProjectCoordinates( const QString &sourceCRS, const QPolygonF &sourcePolygon ) const
+{
+  QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( sourceCRS ),
+                                    QgsProject::instance()->crs(),
+                                    QgsProject::instance()->transformContext() );
+
+  QgsGeometry geom = QgsGeometry::fromQPolygonF( sourcePolygon );
+  QgsGeometry transformGeom = geom;
+
+  try
+  {
+    transformGeom.transform( transform );
+  }
+  catch ( ... )
+  {
+    transformGeom = geom;
+  }
+
+  QPolygonF ret = transformGeom.asQPolygonF();
+  if ( transformGeom.type() == QgsWkbTypes::PolygonGeometry && ret.count() > 1 )
+    ret.removeLast();
+
+  return ret;
+}
+
+QPointF ReosGisEngine::transformToCoordinates( const ReosSpatialPosition &position, const QString &destinationCrs )
 {
   QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( position.crs() ),
                                     QgsCoordinateReferenceSystem::fromWkt( destinationCrs ),
@@ -538,6 +563,30 @@ QPointF ReosGisEngine::transformToCoordinates( const ReosSpatialPosition &positi
   {
     return position.position();
   }
+}
+
+QPolygonF ReosGisEngine::transformToCoordinates( const QString &sourceCRS, const QPolygonF &sourcePolygon, const QString &destinationCrs )
+{
+  QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( sourceCRS ),
+                                    QgsCoordinateReferenceSystem::fromWkt( destinationCrs ),
+                                    QgsProject::instance()->transformContext() );
+
+  const QgsGeometry geom = QgsGeometry::fromQPolygonF( sourcePolygon );
+  QgsGeometry transfromGeom = geom;
+  if ( transform.isValid() )
+  {
+    try
+    {
+      transfromGeom.transform( transform );
+      return transfromGeom.asQPolygonF();
+    }
+    catch ( ... )
+    {
+      return geom.asQPolygonF();
+    }
+  }
+
+  return geom.asQPolygonF();
 }
 
 void ReosGisEngine::setTemporalRange( const QDateTime &startTime, const QDateTime &endTime )

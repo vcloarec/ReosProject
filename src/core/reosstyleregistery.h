@@ -42,6 +42,11 @@ class REOSCORE_EXPORT ReosStyleRegistery: public ReosModule
       return QColor( 250, 175, 100, alpha );
     }
 
+    QColor redReos( int alpha = 255 ) const
+    {
+      return QColor( 255, 20, 20, alpha );
+    }
+
     QColor invalidColor( int alpha = 255 ) const
     {
       return QColor( 255, 0, 0, alpha );
