@@ -1270,6 +1270,8 @@ void ReosMapToolEditMeshFrame_p::moveSelection( const QgsPointXY &destinationPoi
 
   QSet<int> borderMovingFace;
 
+  mIsMovingAllowed = true;
+
   for ( QMap<int, SelectedVertexData>::const_iterator it = mSelectedVertices.constBegin(); it != mSelectedVertices.constEnd(); ++it )
   {
     int vertexIndex = it.key();
