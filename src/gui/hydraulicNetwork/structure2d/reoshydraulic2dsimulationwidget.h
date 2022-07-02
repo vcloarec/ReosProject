@@ -37,6 +37,7 @@ class ReosHydraulic2DSimulationWidget : public QWidget
 
   private slots:
     void onAddSimulation();
+    void onRemovedSimulation();
     void onSimulationIndexChanged( int newIndex );
 
   private:

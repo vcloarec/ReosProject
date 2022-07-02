@@ -18,6 +18,7 @@
 
 #include <QDir>
 #include <QLibrary>
+#include <QMessageBox>
 
 #include "reoshydraulicsimulation.h"
 #include "reoshydraulicstructure2d.h"
@@ -33,6 +34,7 @@ ReosHydraulic2DSimulationWidget::ReosHydraulic2DSimulationWidget( ReosHydraulicS
   updateSimulationCombo();
   setCurrentSimulation( mStructure->currentSimulation() );
   connect( ui->mAddSimulationButton, &QToolButton::clicked, this, &ReosHydraulic2DSimulationWidget::onAddSimulation );
+  connect( ui->mRemoveSimulationButton, &QToolButton::clicked, this, &ReosHydraulic2DSimulationWidget::onRemovedSimulation );
   connect( ui->mExistingSimulationCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosHydraulic2DSimulationWidget::onSimulationIndexChanged );
 
   connect( mStructure, &ReosHydraulicStructure2D::currentSimulationChanged, this, [this]
@@ -80,6 +82,18 @@ void ReosHydraulic2DSimulationWidget::onAddSimulation()
   }
 
   dial->deleteLater();
+}
+
+void ReosHydraulic2DSimulationWidget::onRemovedSimulation()
+{
+  QString simName = mStructure->currentSimulation()->name();
+  if ( QMessageBox::warning( this, tr( "Remove simulation" ),
+                             tr( "Do you want to remove the simulation \"%1\"?" ).arg( simName ), QMessageBox::Yes | QMessageBox::No )
+       == QMessageBox::Yes )
+  {
+    mStructure->removeSimulation( ui->mExistingSimulationCombo->currentIndex() );
+    updateSimulationCombo();
+  }
 }
 
 void ReosHydraulic2DSimulationWidget::onSimulationIndexChanged( int newIndex )

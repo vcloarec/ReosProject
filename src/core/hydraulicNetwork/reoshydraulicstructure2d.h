@@ -94,6 +94,9 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Adds a new simulation with \a key corresponding to a engine and sets it the current one. Returns true if the simulation is effectivly added
     bool addSimulation( const QString key );
 
+    //! Remove the simulation with \a index
+    void removeSimulation( int index );
+
     //! Returns a pointer to the current simulation
     ReosHydraulicSimulation *simulation( ReosHydraulicScheme *scheme ) const;
 

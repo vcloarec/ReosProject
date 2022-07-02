@@ -262,6 +262,13 @@ bool ReosHydraulicStructure2D::addSimulation( const QString key )
   return false;
 }
 
+void ReosHydraulicStructure2D::removeSimulation( int index )
+{
+  setCurrentSimulation( index - 1 );
+  mSimulations.at( index )->deleteLater();
+  mSimulations.removeAt( index );
+}
+
 ReosHydraulicSimulation *ReosHydraulicStructure2D::simulation( ReosHydraulicScheme *scheme ) const
 {
   const ReosEncodedElement elem = scheme->restoreElementConfig( id() );
