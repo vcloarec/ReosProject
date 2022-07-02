@@ -53,7 +53,13 @@ ReosTelemac2DSimulationResults::ReosTelemac2DSimulationResults( const ReosTelema
 
   QgsMeshLayer *meshLayer = qobject_cast<QgsMeshLayer *>( mesh->data() );
   if ( meshLayer )
+  {
     mFaces = meshLayer->nativeMesh()->faces;
+    const QVector<QgsMeshVertex> &vertices = meshLayer->nativeMesh()->vertices;
+    mBottomValues.resize( vertices.size() );
+    for ( int i = 0; i < vertices.size(); ++i )
+      mBottomValues[i] = vertices.at( i ).z();
+  }
 
   QFileInfo fileInfo( fileName );
   QFile outputHydFile( fileInfo.dir().filePath( QStringLiteral( "outputHydrographs" ) ) );
@@ -253,6 +259,7 @@ QVector<double> ReosTelemac2DSimulationResults::datasetValues( int groupIndex, i
   switch ( dt )
   {
     case ReosHydraulicSimulationResults::DatasetType::WaterLevel:
+      adaptWaterLevel( ret, index );
       mCache[index].waterLevel = ret;
       break;
     case ReosHydraulicSimulationResults::DatasetType::WaterDepth:
@@ -370,6 +377,46 @@ void ReosTelemac2DSimulationResults::populateTimeStep() const
     mTimeToTimeStep.insert( relativeTime, i );
     mTimeSteps[i] = relativeTime;
   }
+}
+
+void ReosTelemac2DSimulationResults::adaptWaterLevel( QVector<double> &waterLevel, int datasetIndex ) const
+{
+  Q_ASSERT( waterLevel.size() == mBottomValues.size() );
+
+  const QVector<int> facesActive = activeFaces( datasetIndex );
+
+  for ( int fi = 0; fi < facesActive.count(); fi++ )
+  {
+    if ( facesActive.at( fi ) == 0 )
+      continue;
+
+    const QVector<int> &face = mFaces.at( fi );
+    QSet<int> vertexToAdapt;
+    double value = 0;
+    int valueCount = 0;
+    for ( int i : face )
+    {
+      double ws = waterLevel.at( i );
+      double bottom = mBottomValues.at( i );
+      if ( ws - bottom > 1e-6 )
+      {
+        value += ws;
+        valueCount++;
+      }
+      else
+      {
+        vertexToAdapt.insert( i );
+      }
+    }
+
+    if ( valueCount > 0 )
+    {
+      value = value / valueCount;
+      for ( int i : vertexToAdapt )
+        waterLevel[i] = value;
+    }
+  }
+
 }
 
 int ReosTelemac2DSimulationResults::groupIndex( ReosHydraulicSimulationResults::DatasetType type ) const

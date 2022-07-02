@@ -63,12 +63,15 @@ class ReosTelemac2DSimulationResults : public ReosHydraulicSimulationResults
     QMap<DatasetType, int> mTypeToTelemacGroupIndex;
     double mDryDepthValue = 0.015;
     QVector<QVector<int>> mFaces;
+    QVector<double> mBottomValues;
     mutable QVector<CacheDataset> mCache;
     QMap<QString, ReosHydrograph *> mOutputHydrographs;
     mutable QMap<ReosDuration, int> mTimeToTimeStep;
     mutable QVector<ReosDuration> mTimeSteps;
 
     void populateTimeStep() const;
+
+    void adaptWaterLevel( QVector<double> &waterLevel, int datasetIndex ) const;
 
 };
 
