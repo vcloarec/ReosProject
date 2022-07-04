@@ -90,6 +90,9 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
 
   mHydraulicNetwork = new ReosHydraulicNetwork( rootModule(), mGisEngine, mWatershedModule );
 
+  QToolBar *networkToolBar = new QToolBar( this );
+  addToolBar( networkToolBar );
+  guiContext.addMainToolBar( QStringLiteral( "hydraulic-network" ), networkToolBar );
   mDockHydraulicNetwork = new ReosHydraulicNetworkDockWidget( mHydraulicNetwork, mWatershedModule, guiContext );
   mDockHydraulicNetwork->setObjectName( QStringLiteral( "hydraulicDock" ) );
   addDockWidget( Qt::RightDockWidgetArea, mDockHydraulicNetwork );

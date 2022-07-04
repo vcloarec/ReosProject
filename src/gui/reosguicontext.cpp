@@ -72,3 +72,14 @@ QList<QAction *> ReosGuiContext::actions() const
 {
   return mActions;
 }
+
+void ReosGuiContext::addActionToMainToolBar( const QString &key, QAction *action ) const
+{
+  if ( mToolBars.contains( key ) )
+    mToolBars.value( key )->addAction( action );
+}
+
+void ReosGuiContext::addMainToolBar( const QString key, QToolBar *toolBar )
+{
+  mToolBars.insert( key, toolBar );
+}

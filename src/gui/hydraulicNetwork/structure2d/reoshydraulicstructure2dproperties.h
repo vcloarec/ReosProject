@@ -28,6 +28,7 @@
 class Reos3dView;
 class ReosColorButton;
 class ReosVariableTimeStepPlotListButton;
+class DatasetSettingsWidgetAction;
 
 namespace Ui
 {
@@ -71,7 +72,9 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
     QAction *mActionEngineConfiguration = nullptr;
     QAction *mAction3DView = nullptr;
     QMenu *mScalarDatasetMenu = nullptr;
+    DatasetSettingsWidgetAction *mScalarWidgetAction = nullptr;
     QMenu *mVectorDatasetMenu = nullptr;
+    DatasetSettingsWidgetAction *mVectorWidgetAction = nullptr;
     QActionGroup *mScalarDatasetActions = nullptr;
     QActionGroup *mVectorDatasetActions = nullptr;
     QAction *mActionScalarSettings = nullptr;

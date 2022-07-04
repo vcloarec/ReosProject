@@ -19,6 +19,7 @@
 #include <QString>
 #include <QStack>
 #include <QList>
+#include <QMap>
 
 #include "reosgui.h"
 
@@ -26,6 +27,7 @@ class ReosMap;
 class ReosMapItem;
 class QWidget;
 class QAction;
+class QToolBar;;
 
 class REOSGUI_EXPORT ReosGuiContext
 {
@@ -46,11 +48,15 @@ class REOSGUI_EXPORT ReosGuiContext
     void addAction( QAction *action );
     QList<QAction * > actions() const;
 
+    void addActionToMainToolBar( const QString &key, QAction *action ) const;
+    void addMainToolBar( const QString key, QToolBar *stylingToolBar );
+
   private:
     ReosMap *mMap = nullptr;
     QWidget *mParent = nullptr;
     QStack<ReosMapItem *> mMapItems;
     QList<QAction *> mActions;
+    QMap<QString, QToolBar *> mToolBars;
 
 };
 

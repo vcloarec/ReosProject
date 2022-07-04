@@ -35,6 +35,40 @@
 #include "reoshydraulic2dsimulationwidget.h"
 
 
+class DatasetSettingsWidgetAction : public QWidgetAction
+{
+  public:
+    DatasetSettingsWidgetAction( QObject *parent, QMenu *datasetMenu )
+      : QWidgetAction( parent )
+      , mMenu( datasetMenu )
+    {}
+
+    void setPixmap( const QPixmap &pm )
+    {
+      mPixMap = pm;
+    }
+    void setToolTip( const QString &toolTip )
+    {
+      mToolTip = toolTip;
+    }
+
+  protected:
+    QWidget *createWidget( QWidget *parent ) override
+    {
+      QToolButton *button = new QToolButton( parent );
+      button->setIcon( mPixMap );
+      button->setPopupMode( QToolButton::InstantPopup );
+      button->setMenu( mMenu );
+      button->setToolTip( mToolTip );
+      return button;
+    }
+
+  private:
+    QMenu *mMenu = nullptr;
+    QPixmap mPixMap;
+    QString mToolTip;
+};
+
 ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context )
   : ReosHydraulicElementWidget( context.parent() )
   , ui( new Ui::ReosHydraulicStructure2DProperties )
@@ -54,13 +88,17 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   ui->setupUi( this );
 
   mGuiContext.addAction( mAction3DView );
+  mGuiContext.addActionToMainToolBar( QStringLiteral( "hydraulic-network" ), mAction3DView );
 
   connect( mActionEditStructure, &QAction::triggered, this, [this]
   {
     ReosEditHydraulicStructure2DWidget *editWidget = new ReosEditHydraulicStructure2DWidget( mStructure2D, mGuiContext );
     connect( editWidget, &ReosEditHydraulicStructure2DWidget::hidden, this, &ReosHydraulicStructure2DProperties::restoreResults );
+    mScalarWidgetAction->setEnabled( false );
+    mVectorWidgetAction->setEnabled( false );
     emit stackedPageWidgetOpened( editWidget );
   } );
+  mGuiContext.addActionToMainToolBar( QStringLiteral( "hydraulic-network" ), mActionEditStructure );
 
   connect( mActionRunSimulation, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::onLaunchCalculation );
   connect( mActionExportSimulationFile, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::onExportSimulation );
@@ -110,31 +148,31 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
 
   toolBar->addSeparator();
 
-  QToolButton *datasetScalarSettingsButton = new QToolButton( toolBar );
-  datasetScalarSettingsButton->setIcon( QPixmap( QStringLiteral( ":/images/scalarContour.svg" ) ) );
-  datasetScalarSettingsButton->setPopupMode( QToolButton::InstantPopup );
-  datasetScalarSettingsButton->setMenu( mScalarDatasetMenu );
-  datasetScalarSettingsButton->setToolTip( tr( "Scalar results settings" ) );
-  toolBar->addWidget( datasetScalarSettingsButton );
-  mCurrentDatasetId = mStructure2D->currentActivatedMeshDataset();
+  mScalarWidgetAction = new DatasetSettingsWidgetAction( this, mScalarDatasetMenu );
+  mScalarWidgetAction->setToolTip( tr( "Scalar results settings" ) );
+  mScalarWidgetAction->setPixmap( QPixmap( QStringLiteral( ":/images/scalarContour.svg" ) ) );
+  toolBar->addAction( mScalarWidgetAction );
   connect( mActionScalarSettings, &QAction::triggered, this, [this]
   {
     emit stackedPageWidgetOpened( new ReosMeshScalarRenderingWidget( mStructure2D->mesh(), mStructure2D->currentActivatedMeshDataset(), true, mGuiContext ) );
+    emit askForShow();
   } );
+  mGuiContext.addActionToMainToolBar( QStringLiteral( "hydraulic-network" ), mScalarWidgetAction );
 
-  mDatasetVectorSettingsButton = new QToolButton( toolBar );
-  mDatasetVectorSettingsButton->setIcon( QPixmap( QStringLiteral( ":/images/vectorSettings.svg" ) ) );
-  mDatasetVectorSettingsButton->setPopupMode( QToolButton::InstantPopup );
-  mDatasetVectorSettingsButton->setMenu( mVectorDatasetMenu );
-  mDatasetVectorSettingsButton->setToolTip( tr( "Vector results settings" ) );
-  toolBar->addWidget( mDatasetVectorSettingsButton );
+
+  mVectorWidgetAction = new DatasetSettingsWidgetAction( this, mVectorDatasetMenu );
+  mVectorWidgetAction->setToolTip( tr( "Vector results settings" ) );
+  mVectorWidgetAction->setPixmap( QPixmap( QStringLiteral( ":/images/vectorSettings.svg" ) ) );
+  toolBar->addAction( mVectorWidgetAction );
   mCurrentVectorDatasetId = mStructure2D->currentActivatedVectorMeshDataset();
   connect( mActionVectorSettings, &QAction::triggered, this, [this]
   {
     if ( mStructure2D->currentActivatedVectorMeshDataset().isEmpty() )
       return;
     emit stackedPageWidgetOpened( new ReosMeshVectorRenderingWidget( mStructure2D->mesh(), mStructure2D->currentActivatedVectorMeshDataset(), mGuiContext ) );
+    emit askForShow();
   } );
+  mGuiContext.addActionToMainToolBar( QStringLiteral( "hydraulic-network" ), mVectorWidgetAction );
 
   toolBar->addAction( mAction3DView );
   toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
@@ -146,6 +184,9 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
 
   updateDatasetMenus();
   restoreResults();
+
+  mGuiContext.addActionToMainToolBar( QStringLiteral( "hydraulic-network" ), mActionEditStructure );
+  mGuiContext.addActionToMainToolBar( QStringLiteral( "hydraulic-network" ), mActionRunSimulation );
 
   connect( mStructure2D, &ReosHydraulicStructure2D::simulationResultChanged, this, &ReosHydraulicStructure2DProperties::updateDatasetMenus );
 
@@ -333,6 +374,7 @@ void ReosHydraulicStructure2DProperties::onLaunchCalculation()
   ReosHydraulicSimulationConsole *console = new ReosHydraulicSimulationConsole( mStructure2D->simulationProcess( mCalculationContext ), mGuiContext );
   connect( this, &ReosHydraulicStructure2DProperties::calculationContextChanged, console, &ReosHydraulicSimulationConsole::backToPreviousPage );
   emit stackedPageWidgetOpened( console );
+  emit askForShow();
 }
 
 void ReosHydraulicStructure2DProperties::onExportSimulation()
@@ -461,6 +503,8 @@ void ReosHydraulicStructure2DProperties::restoreResults()
   mStructure2D->activateResultVectorDatasetGroup( mCurrentVectorDatasetId );
   fillResultGroupBox( mCalculationContext );
   updateDatasetMenus();
+  mScalarWidgetAction->setEnabled( true );
+  mVectorWidgetAction->setEnabled( true );
 }
 
 

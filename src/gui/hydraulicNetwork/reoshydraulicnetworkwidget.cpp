@@ -33,6 +33,7 @@
 ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *network, ReosWatershedModule *watershedModule, const ReosGuiContext &context ) :
   QWidget( context.parent() )
   , ui( new Ui::ReosHydraulicNetworkWidget )
+  , mGuiContext( context )
   , mHydraulicNetwork( network )
   , mMap( context.map() )
   , mActionSelectNetworkElement( new QAction( QPixmap( QStringLiteral( ":/images/selectHydraulicElement.svg" ) ), tr( "Select Hydraulic Network Element" ), this ) )
@@ -144,7 +145,7 @@ ReosHydraulicNetworkWidget::~ReosHydraulicNetworkWidget()
 
 void ReosHydraulicNetworkWidget::closePropertiesWidget()
 {
-  mElementPropertiesWidget->setCurrentElement( nullptr, createContext() );
+  mElementPropertiesWidget->setCurrentElement( nullptr, mGuiContext );
   mElementPropertiesWidget->close();
 }
 
@@ -215,7 +216,7 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
 
   ReosHydraulicNetworkElement *elem = mHydraulicNetwork->getElement( item->description() );
 
-  ReosGuiContext guiContext = createContext();
+  ReosGuiContext guiContext = mGuiContext;
   guiContext.addMapItems( item );
   mElementPropertiesWidget->setCurrentElement( elem, guiContext );
 
@@ -315,7 +316,7 @@ void ReosHydraulicNetworkWidget::onNetworkLoaded()
 void ReosHydraulicNetworkWidget::onModuleReset()
 {
   mCurrentSelectedElement = nullptr;
-  mElementPropertiesWidget->setCurrentElement( nullptr, createContext() );
+  mElementPropertiesWidget->setCurrentElement( nullptr, mGuiContext );
   mGeometryStructures.clear();
   mMapItems.clear();
 }
@@ -372,14 +373,6 @@ void ReosHydraulicNetworkWidget::removeGeometryStructure( ReosHydraulicNetworkEl
     mGeometryStructures.removeOne( structure );
   }
 }
-
-ReosGuiContext ReosHydraulicNetworkWidget::createContext()
-{
-  ReosGuiContext context( this );
-  context.setMap( mMap );
-  return context;
-}
-
 
 ReosHydraulicElementWidget::ReosHydraulicElementWidget( QWidget *parent ):  QWidget( parent )
 {}

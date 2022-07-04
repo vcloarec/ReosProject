@@ -83,6 +83,7 @@ void ReosHydraulicElementPropertiesWidget::setCurrentElement( ReosHydraulicNetwo
   {
     newWidget = widgetFactory( element->type() )->createWidget( element, ReosGuiContext( guiContext, this ) );
     connect( newWidget, &ReosHydraulicElementWidget::stackedPageWidgetOpened, this, &ReosStackedPageWidget::addOtherPage );
+    connect( newWidget, &ReosHydraulicElementWidget::askForShow, this, &ReosStackedPageWidget::askForShow );
     newNameWidget = new ReosParameterStringWidget( element->elementName(), this );
   }
   else
@@ -226,6 +227,7 @@ ReosHydraulicElementPropertiesActionWidget::ReosHydraulicElementPropertiesAction
 {
   setWindowFlag( Qt::Dialog );
   mainPage = new ReosHydraulicElementPropertiesWidget( network, ReosGuiContext( guiContext, this ) );
+  connect( mainPage, &ReosStackedPageWidget::askForShow, this, &QWidget::show );
   addPage( mainPage );
 }
 

@@ -58,6 +58,9 @@ class ReosStackedPageWidget : public QWidget
     virtual void showBackButton() {};
 
   signals:
+    void askForShow();
+
+  signals:
     void backToPreviousPage();
     void addOtherPage( ReosStackedPageWidget *page );
 };

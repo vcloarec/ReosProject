@@ -48,6 +48,7 @@ class ReosHydraulicElementWidget : public QWidget
 
   signals:
     void stackedPageWidgetOpened( ReosStackedPageWidget *widget );
+    void askForShow();
 };
 
 
@@ -83,6 +84,7 @@ class ReosHydraulicNetworkWidget : public QWidget
 
   private:
     Ui::ReosHydraulicNetworkWidget *ui;
+    ReosGuiContext mGuiContext;
     ReosHydraulicNetwork *mHydraulicNetwork = nullptr;
     ReosMap *mMap = nullptr;
     ReosHydraulicNetworkElement *mCurrentSelectedElement = nullptr;
@@ -120,8 +122,6 @@ class ReosHydraulicNetworkWidget : public QWidget
     QList<ReosGeometryStructure *> mGeometryStructures;
     void addGeometryStructure( ReosHydraulicNetworkElement *elem );
     void removeGeometryStructure( ReosHydraulicNetworkElement *elem );
-
-    ReosGuiContext createContext();
 };
 
 class REOSGUI_EXPORT ReosHydraulicNetworkDockWidget: public ReosDockWidget
