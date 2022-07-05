@@ -5,7 +5,7 @@
 
 Unicode True
 
-!define LEKAN_VERSION "2.2.1"
+!define LEKAN_VERSION "2.2.92"
 !define PACKAGE_SOURCE "C:\dev\ReosProject\ReosProject-release"
 
 ;--------------------------------
@@ -55,9 +55,10 @@ FunctionEnd
 ;Pages
 
   Var SMDir
-  !insertmacro MUI_PAGE_LICENSE "..\..\..\LICENSE_LEKAN.txt"
   !insertmacro MUI_PAGE_DIRECTORY
   !insertmacro MUI_PAGE_STARTMENU 0 $SMDir
+  !insertmacro MUI_PAGE_LICENSE "..\..\..\LICENSE_LEKAN.txt"
+  !insertmacro MUI_PAGE_LICENSE "..\..\..\external\telemac\LICENSE.txt"
   !insertmacro MUI_PAGE_INSTFILES
   !insertmacro MUI_PAGE_FINISH
   
