@@ -47,7 +47,7 @@ ReosTelemacSimulationEditWidget::ReosTelemacSimulationEditWidget(
       static_cast<int>( ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity ) );
   ui->mInitialConditionTypeCombo->addItem( tr( "From other hydraulic scheme" ),
       static_cast<int>( ReosTelemac2DInitialCondition::Type::FromOtherSimulation ) );
-  ui->mInitialConditionTypeCombo->addItem( tr( "Interpolation on line" ),
+  ui->mInitialConditionTypeCombo->addItem( tr( "Interpolation line" ),
       static_cast<int>( ReosTelemac2DInitialCondition::Type::Interpolation ) );
 
 
