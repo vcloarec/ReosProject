@@ -64,6 +64,8 @@ class REOSCORE_EXPORT ReosGmshGenerator : public ReosMeshGenerator
 
     static QString algorithmName( Algorithm alg );
 
+    static QString version();
+
   private:
     Algorithm mAlgorithm = FrontalDelaunay;
 

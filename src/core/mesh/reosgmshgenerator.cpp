@@ -97,6 +97,11 @@ QString ReosGmshGenerator::algorithmName( ReosGmshGenerator::Algorithm alg )
   return QString();
 }
 
+QString ReosGmshGenerator::version()
+{
+    return QString(GMSH_API_VERSION);
+}
+
 ReosMeshGeneratorGmshProcess::ReosMeshGeneratorGmshProcess( ReosPolylinesStructure *structure,
     ReosMeshResolutionController *resolutionControler,
     ReosGmshGenerator::Algorithm alg,

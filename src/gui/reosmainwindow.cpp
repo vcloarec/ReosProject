@@ -35,6 +35,7 @@ email                : vcloarec at gmail dot com
 #include "reosgisengine.h"
 #include "reosplotwidget.h"
 #include "reosstyleregistery.h"
+#include "reosgmshgenerator.h"
 
 
 ReosMainWindow::ReosMainWindow( QWidget *parent ) :
@@ -310,6 +311,7 @@ void ReosMainWindow::about()
   about->addLibrary( "Qt", qVersion(), "www.qt.io" );
   about->addLibrary( ReosGisEngine::gisEngineName(), ReosGisEngine::gisEngineVersion(),  ReosGisEngine::gisEngineLink() );
   about->addLibrary( ReosPlotWidget::plotEngineName(),  ReosPlotWidget::plotEngineVersion(),  ReosPlotWidget::plotEngineLink() );
+  about->addLibrary(QStringLiteral("Gmsh"), ReosGmshGenerator::version(), QStringLiteral("gmsh.info/"));
 
   QString licenceTxt;
   QDir dir( QCoreApplication::applicationDirPath() );
