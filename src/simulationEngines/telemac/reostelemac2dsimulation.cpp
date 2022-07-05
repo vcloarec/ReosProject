@@ -168,7 +168,7 @@ void ReosTelemac2DSimulationEngineFactory::initializeSettings()
   QDir buildsDir( telDir.filePath( "builds" ) );
   QDir configsDir( telDir.filePath( "configs" ) );
   QDir depsDir( telDir.filePath( "deps" ) );
-  QDir scriptsDir( telDir.filePath( "scripts" ) );
+  QDir scriptsDir( telDir.filePath( "scripts/python3" ) );
   if ( scriptsDir.exists() )
     scriptsDir.cd( QStringLiteral( "python3" ) );
 

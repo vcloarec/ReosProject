@@ -73,8 +73,7 @@ void ReosHubEauConnection::onReplied( QNetworkReply *reply )
       mErrorString = reply->errorString();
   }
 
-  QTextStream textStream( reply );
-  QJsonDocument mJsonResult = QJsonDocument::fromJson( textStream.readAll().toUtf8() );
+  QJsonDocument mJsonResult = QJsonDocument::fromJson( reply->readAll());
   QVariant var = mJsonResult.toVariant();
   if ( var.type() != QVariant::Map )
   {
