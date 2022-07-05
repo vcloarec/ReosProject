@@ -496,6 +496,9 @@ double ReosMeshFrame_p::interpolateDatasetValueOnPoint(
   int sourceGroupindex,
   int datasetIndex ) const
 {
+  if ( datasetIndex < 0 )
+    return std::numeric_limits<double>::quiet_NaN();
+
   const QVector<double> datasetValues = datasetSource->datasetValues( sourceGroupindex, datasetIndex );
   const QVector<int> facesActive = datasetSource->activeFaces( datasetIndex );
 
