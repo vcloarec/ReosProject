@@ -71,8 +71,8 @@ class ReosTemporalController_p : public QgsTemporalController
     QTimer *mTimer = nullptr;
     ReosDuration mTimeStep;
     double mSpeedFactor = 60;
+    double mTimeStepFactor = 1;
     AnimationState mAnimationState = Idle;
-
 
     void updateTimer();
 };

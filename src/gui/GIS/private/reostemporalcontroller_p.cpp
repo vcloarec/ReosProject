@@ -61,9 +61,9 @@ void ReosTemporalController_p::nextStep()
     }
   }
   else
-    mCurrentTime = mCurrentTime.addMSecs( mTimeStep.valueMilliSecond() );
+    mCurrentTime = mCurrentTime.addMSecs( ( mTimeStep * mTimeStepFactor ).valueMilliSecond() );
 
-  const QgsDateTimeRange timerange( mCurrentTime, mCurrentTime.addMSecs( mTimeStep.valueMilliSecond() ) );
+  const QgsDateTimeRange timerange( mCurrentTime, mCurrentTime.addMSecs( ( mTimeStep * mTimeStepFactor ).valueMilliSecond() ) );
   emit updateTemporalRange( timerange );
 }
 
@@ -81,9 +81,9 @@ void ReosTemporalController_p::prevStep()
     }
   }
   else
-    mCurrentTime = mCurrentTime.addMSecs( -mTimeStep.valueMilliSecond() );
+    mCurrentTime = mCurrentTime.addMSecs( -( mTimeStep * mTimeStepFactor ).valueMilliSecond() );
 
-  const QgsDateTimeRange timerange( mCurrentTime, mCurrentTime.addMSecs( mTimeStep.valueMilliSecond() ) );
+  const QgsDateTimeRange timerange( mCurrentTime, mCurrentTime.addMSecs( ( mTimeStep * mTimeStepFactor ).valueMilliSecond() ) );
   emit updateTemporalRange( timerange );
 }
 
@@ -109,7 +109,15 @@ QDateTime ReosTemporalController_p::startTime() const
 
 void ReosTemporalController_p::updateTimer()
 {
-  const ReosDuration timerStep = mTimeStep / mSpeedFactor;
+  ReosDuration timerStep = mTimeStep / mSpeedFactor;
+
+  if ( timerStep.valueMilliSecond() > 0 && mTimeStep.valueMilliSecond() > 0 && timerStep.valueMilliSecond() < 200 )
+  {
+    mTimeStepFactor = 200 / timerStep.valueMilliSecond();
+    timerStep = ReosDuration( timerStep.valueMilliSecond() / mTimeStepFactor, ReosDuration::millisecond );
+  }
+  else
+    mTimeStepFactor = 1;
 
   switch ( mAnimationState )
   {
