@@ -172,7 +172,7 @@ class ReosMapPolygon : public ReosMapItem
     void movePoint( int pointIndex, const QPointF &p );
 };
 
-class ReosMapPolyline: public ReosMapItem
+class REOSGUI_EXPORT ReosMapPolyline: public ReosMapItem
 {
   public:
     //! Constructor

@@ -114,7 +114,7 @@ class ReosMapToolDrawPoint: public ReosMapTool
 };
 
 
-class ReosMapToolDrawPolyRubberBand : public ReosMapTool
+class REOSGUI_EXPORT ReosMapToolDrawPolyRubberBand : public ReosMapTool
 {
     Q_OBJECT
   public:
@@ -135,7 +135,7 @@ class ReosMapToolDrawPolyRubberBand : public ReosMapTool
     ReosMapTool_p *tool_p() const override;
 };
 
-class ReosMapToolDrawPolyline : public ReosMapToolDrawPolyRubberBand
+class REOSGUI_EXPORT ReosMapToolDrawPolyline : public ReosMapToolDrawPolyRubberBand
 {
     Q_OBJECT
   public:
