@@ -65,6 +65,7 @@ class REOSCORE_EXPORT ReosHydraulicScheme : public ReosDataObject
 
   signals:
     void dirtied();
+    void timeExtentChanged( const QDateTime &startTime, const QDateTime &endTime );
 
   private:
     ReosHydraulicScheme( const ReosEncodedElement &element, ReosHydraulicSchemeCollection *collection, const ReosHydraulicNetworkContext &context );

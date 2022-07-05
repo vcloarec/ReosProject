@@ -288,6 +288,7 @@ void ReosHydraulicNetwork::decode( const ReosEncodedElement &element, const QStr
   {
     mGisEngine->setTemporalRange( currentScheme->startTime()->value(), currentScheme->endTime()->value() );
     connect( currentScheme, &ReosDataObject::dataChanged, this, &ReosHydraulicNetwork::schemeChanged );
+    connect( currentScheme, &ReosHydraulicScheme::timeExtentChanged, mGisEngine, &ReosGisEngine::setTemporalRange );
 
     for ( ReosHydraulicNetworkElement *elem :  std::as_const( mElements ) )
       elem->restoreConfiguration( currentScheme );
@@ -420,7 +421,10 @@ void ReosHydraulicNetwork::setCurrentScheme( int newSchemeIndex )
 {
   ReosHydraulicScheme *currentScheme = mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex );
   if ( currentScheme )
+  {
     disconnect( currentScheme, &ReosDataObject::dataChanged, this, &ReosHydraulicNetwork::schemeChanged );
+    disconnect( currentScheme, &ReosHydraulicScheme::timeExtentChanged, mGisEngine, &ReosGisEngine::setTemporalRange );
+  }
 
   mCurrentSchemeIndex = newSchemeIndex;
 
@@ -432,6 +436,7 @@ void ReosHydraulicNetwork::setCurrentScheme( int newSchemeIndex )
   {
     mGisEngine->setTemporalRange( currentScheme->startTime()->value(), currentScheme->endTime()->value() );
     connect( currentScheme, &ReosDataObject::dataChanged, this, &ReosHydraulicNetwork::schemeChanged );
+    connect( currentScheme, &ReosHydraulicScheme::timeExtentChanged, mGisEngine, &ReosGisEngine::setTemporalRange );
   }
 
   emit schemeChanged();

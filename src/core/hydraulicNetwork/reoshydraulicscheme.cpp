@@ -59,6 +59,16 @@ void ReosHydraulicScheme::init()
   connect( mStartTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
   connect( mEndTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
 
+  connect( mStartTime, &ReosParameter::valueChanged, this, [this]
+  {
+    emit timeExtentChanged( mStartTime->value(), mEndTime->value() );
+  } );
+
+  connect( mEndTime, &ReosParameter::valueChanged, this, [this]
+  {
+    emit timeExtentChanged( mStartTime->value(), mEndTime->value() );
+  } );
+
   connect( mStartTime, &ReosParameter::valueChanged, this, &ReosHydraulicScheme::dirtied );
   connect( mEndTime, &ReosParameter::valueChanged, this, &ReosHydraulicScheme::dirtied );
 }

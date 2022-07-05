@@ -156,9 +156,6 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     //! Transforms the \a sourcePolygon with crs \a sourceCrs  to given \a crs
     static QPolygonF transformToCoordinates( const QString &sourceCRS, const QPolygonF &sourcePolygon, const QString &destinationCrs );
 
-    //! Sets the temporal range
-    void setTemporalRange( const QDateTime &startTime, const QDateTime &endTime );
-
     //! Returns the temporal range
     QPair<QDateTime, QDateTime> temporalRange() const;
 
@@ -167,6 +164,10 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     static QString gisEngineLink();
 
     static QString wktEPSGCrs( int code );
+
+  public slots:
+    //! Sets the temporal range
+    void setTemporalRange( const QDateTime &startTime, const QDateTime &endTime );
 
   signals:
     void crsChanged( const QString &wktCrs );
