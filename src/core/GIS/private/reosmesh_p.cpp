@@ -936,6 +936,11 @@ void ReosMeshRenderer_p::render() const
   mLayerRender->render();
 }
 
+bool ReosMeshRenderer_p::isRenderingStopped() const
+{
+  return mLayerRender->renderContext()->renderingStopped() || isStop();
+}
+
 void ReosMeshRenderer_p::stopRendering()
 {
   mRenderContext.setRenderingStopped( true );

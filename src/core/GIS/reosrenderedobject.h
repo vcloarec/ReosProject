@@ -34,7 +34,9 @@ class REOSCORE_EXPORT ReosObjectRenderer: public ReosProcess
     ReosObjectRenderer( ReosRenderedObject *object );
 
     void start() override;
-    virtual void stop( bool stop ) override;
+    void stop( bool stop ) override;
+
+    virtual bool isRenderingStopped() const = 0;
 
     virtual void render() const = 0;
     const QImage image() const;

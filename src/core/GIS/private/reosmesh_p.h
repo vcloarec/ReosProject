@@ -125,6 +125,8 @@ class ReosMeshRenderer_p : public ReosObjectRenderer
     ReosMeshRenderer_p( QGraphicsView *canvas, QgsMeshLayer *layer, ReosMesh *mesh );
     void render() const;
 
+    bool isRenderingStopped() const override;
+
   protected:
     void stopRendering();
 

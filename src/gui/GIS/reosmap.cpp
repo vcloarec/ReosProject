@@ -98,6 +98,8 @@ void ReosRendererObjectHandler::startRender( ReosRenderedObject *renderedObject 
     connect( renderer.get(), &ReosObjectRenderer::finished, this, &ReosRendererObjectHandler::onRendererFinished );
     d->mMapToPixels.insert( renderer.get(), d->mCanvas->mapSettings().mapToPixel() );
     d->mTimeStamps.insert( renderer.get(), QDateTime::currentMSecsSinceEpoch() );
+    if ( d->mRenderers.count() > 2 )
+      d->mRenderers.at( 1 )->stop( true );
     renderer->startOnOtherThread();
     d->mRenderers.append( renderer.release() );
   }
@@ -125,14 +127,28 @@ bool ReosRendererObjectHandler::hasUpToDateCache( ReosRenderedObject *renderedOb
   return false;
 }
 
+void ReosRendererObjectHandler::destroyRenderer( ReosObjectRenderer *renderer )
+{
+  disconnect( renderer, &ReosObjectRenderer::finished, this, &ReosRendererObjectHandler::onRendererFinished );
+  renderer->deleteLater();
+  d->mRenderers.removeOne( renderer );
+  d->mMapToPixels.remove( renderer );
+  d->mTimeStamps.remove( renderer );
+}
+
 
 QImage ReosRendererObjectHandler::image( ReosRenderedObject *renderedObject )
 {
   QMutexLocker locker( &( d->mMutex ) );
   if ( hasUpToDateCache( renderedObject ) )
+  {
+    d->mCacheRenderings.value( renderedObject ).image.save( "/home/vincent/essai_render/es_updated.png" );
     return d->mCacheRenderings.value( renderedObject ).image;
+  }
   else
+  {
     return transformImage( renderedObject );
+  }
 }
 
 
@@ -152,11 +168,15 @@ QImage ReosRendererObjectHandler::transformImage( ReosRenderedObject *renderedOb
     //from QGIS code, QgsMapRendererCache::transformedCacheImage
     const QgsMapToPixel &mtp = d->currentMapToPixel;
     if ( !qgsDoubleNear( mtp.mapRotation(), it->mapToPixel.mapRotation() ) )
+    {
       return QImage();
+    }
 
     QgsRectangle intersection = QgsRectangle( d->currentExtent ).intersect( it->extent );
     if ( intersection.isNull() )
+    {
       return QImage();
+    }
 
     // Calculate target rect
     const QPointF ulT = _transform( mtp, QgsPointXY( intersection.xMinimum(), intersection.yMaximum() ), 1.0 );
@@ -208,7 +228,7 @@ void ReosRendererObjectHandler::onRendererFinished()
 
   ReosRenderedObject *object = renderer->object();
 
-  if ( object )
+  if ( !renderer->isRenderingStopped() && object )
   {
     bool needUpdate = false;
     const QRectF renderedExtent = renderer->extent();
@@ -223,17 +243,18 @@ void ReosRendererObjectHandler::onRendererFinished()
       needUpdate = true;
     }
 
-    if ( needUpdate )
-      d->mCacheRenderings.insert( object, ReosRendererObjectHandler_p::CacheRendering(
-    {renderer->image(), renderedExtent, renderedTime, d->mMapToPixels.value( renderer ), d->mTimeStamps.value( renderer )} ) );
-  }
+    qDebug() << "rendering finished, updated " << needUpdate;
 
-  disconnect( renderer, &ReosObjectRenderer::finished, this, &ReosRendererObjectHandler::onRendererFinished );
-  renderer->deleteLater();
-  d->mRenderers.removeOne( renderer );
-  d->mMapToPixels.remove( renderer );
-  d->mTimeStamps.remove( renderer );
-  d->mCanvas->refresh();
+    if ( needUpdate )
+    {
+      d->mCacheRenderings.insert( object, ReosRendererObjectHandler_p::CacheRendering(
+      {renderer->image(), renderedExtent, renderedTime, d->mMapToPixels.value( renderer ), d->mTimeStamps.value( renderer )} ) );
+      renderer->image().save( "/home/vincent/essai_render/es" + QString::number( d->mTimeStamps.value( renderer ) )  + ".png" ) ;
+    }
+    d->mCanvas->refresh();
+  }
+  destroyRenderer( renderer );
+
 }
 
 ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):

@@ -71,6 +71,8 @@ class ReosRendererObjectHandler : public QObject
 
     //! Returns if a updtodate cache is present
     bool hasUpToDateCache( ReosRenderedObject *renderedObject );
+
+    void destroyRenderer( ReosObjectRenderer *renderer );
 };
 
 
