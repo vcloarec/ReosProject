@@ -97,6 +97,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
     mScalarWidgetAction->setEnabled( false );
     mVectorWidgetAction->setEnabled( false );
     emit stackedPageWidgetOpened( editWidget );
+    emit askForShow();
   } );
   mGuiContext.addActionToMainToolBar( QStringLiteral( "hydraulic-network" ), mActionEditStructure );
 
