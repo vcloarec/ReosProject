@@ -152,6 +152,8 @@ QgsMeshDataBlock ReosMeshDataProvider_p::datasetValues( QgsMeshDatasetIndex inde
   else
   {
     effectiveCount = std::min( count, values.count() - valueIndex );
+    if ( !isScalar )
+      effectiveCount = effectiveCount * 2;
     if ( effectiveCount > 0 )
     {
       buffer.resize( effectiveCount );

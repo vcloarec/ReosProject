@@ -71,6 +71,7 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
     QAction *mActionExportSimulationFile = nullptr;
     QAction *mActionEngineConfiguration = nullptr;
     QAction *mAction3DView = nullptr;
+    QAction *mActionExportAsMesh = nullptr;
     QMenu *mScalarDatasetMenu = nullptr;
     DatasetSettingsWidgetAction *mScalarWidgetAction = nullptr;
     QMenu *mVectorDatasetMenu = nullptr;

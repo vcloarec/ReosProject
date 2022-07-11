@@ -564,6 +564,18 @@ double ReosMeshFrame_p::interpolateDatasetValueOnPoint(
   return std::numeric_limits<double>::quiet_NaN();
 }
 
+void ReosMeshFrame_p::exportAsMesh( const QString &fileName ) const
+{
+  QgsProviderMetadata *mdalMeta = QgsProviderRegistry::instance()->providerMetadata( QStringLiteral( "mdal" ) );
+
+  mdalMeta->createMeshData( *mMeshLayer->nativeMesh(), fileName, QStringLiteral( "SELAFIN" ), mMeshLayer->crs() );
+
+  const QList<int> groupIndexes = mMeshLayer->datasetGroupsIndexes();
+
+  for ( int index : groupIndexes )
+    mMeshLayer->saveDataset( fileName, index, "SELAFIN" );
+}
+
 QString ReosMeshFrame_p::enableVertexElevationDataset( const QString &name )
 {
   mVerticesElevationDatasetName = name;

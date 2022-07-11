@@ -92,6 +92,8 @@ class ReosMeshFrame_p : public ReosMesh
 
     double interpolateDatasetValueOnPoint( const ReosMeshDatasetSource *datasetSource, const ReosSpatialPosition &position, int sourceGroupindex, int datasetIndex ) const override;
 
+    void exportAsMesh( const QString &fileName ) const;
+
   private:
     std::unique_ptr<QgsMeshLayer> mMeshLayer;
     ReosMeshDataProvider_p *meshProvider() const;
