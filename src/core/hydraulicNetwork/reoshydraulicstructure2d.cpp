@@ -112,6 +112,11 @@ ReosHydraulicNetworkContext ReosHydraulicStructure2D::hydraulicNetworkContext() 
   return mHydraulicNetworkContext;
 }
 
+void ReosHydraulicStructure2D::exportResultAsMesh( const QString &fileName ) const
+{
+  mMesh->exportAsMesh( fileName );
+}
+
 QVector<QVector<QVector<int> > > ReosHydraulicStructure2D::holesVertices() const
 {
   return mHolesVertices;

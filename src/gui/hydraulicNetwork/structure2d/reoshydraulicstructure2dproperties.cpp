@@ -79,6 +79,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   , mActionExportSimulationFile( new QAction( QPixmap( QStringLiteral( ":/images/exportSimulation.svg" ) ), tr( "Export Simulation" ), this ) )
   , mActionEngineConfiguration( ( new QAction( QPixmap( QStringLiteral( ":/images/engineSettings.svg" ) ), tr( "Engine Settings" ), this ) ) )
   , mAction3DView( new QAction( QPixmap( QStringLiteral( ":/images/view3D.svg" ) ), tr( "3D View" ), this ) )
+  , mActionExportAsMesh( new QAction( tr( "Export as Mesh" ), this ) )
   , mScalarDatasetMenu( new QMenu( this ) )
   , mVectorDatasetMenu( new QMenu( this ) )
   , mActionScalarSettings( new QAction( QPixmap( QStringLiteral( ":/images/scalarContour.svg" ) ), tr( "Color Ramp" ), this ) )
@@ -176,6 +177,11 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   mGuiContext.addActionToMainToolBar( QStringLiteral( "hydraulic-network" ), mVectorWidgetAction );
 
   toolBar->addAction( mAction3DView );
+
+  toolBar->addSeparator();
+
+  toolBar->addAction( mActionExportAsMesh );
+
   toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   toolBar->layout()->setContentsMargins( 0, 0, 0, 0 );
   ui->mToolBoxLayout->addWidget( toolBar );
@@ -188,6 +194,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
 
   mGuiContext.addActionToMainToolBar( QStringLiteral( "hydraulic-network" ), mActionEditStructure );
   mGuiContext.addActionToMainToolBar( QStringLiteral( "hydraulic-network" ), mActionRunSimulation );
+  mGuiContext.addActionToMainToolBar( QStringLiteral( "hydraulic-network" ), mActionExportAsMesh );
 
   connect( mStructure2D, &ReosHydraulicStructure2D::simulationResultChanged, this, &ReosHydraulicStructure2DProperties::updateDatasetMenus );
 
@@ -228,6 +235,12 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   } );
 
   connect( mMap, &ReosMap::cursorMoved, this, &ReosHydraulicStructure2DProperties::onMapCursorMove );
+
+
+  connect( mActionExportAsMesh, &QAction::triggered, this, [this]
+  {
+    mStructure2D->exportResultAsMesh( "/home/vincent/es_export.slf" );
+  } );
 }
 
 ReosHydraulicStructure2DProperties::~ReosHydraulicStructure2DProperties()

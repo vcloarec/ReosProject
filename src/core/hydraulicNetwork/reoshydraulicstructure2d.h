@@ -210,6 +210,8 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 
     ReosHydraulicNetworkContext hydraulicNetworkContext() const;
 
+    void exportResultAsMesh( const QString &fileName ) const;
+
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) override;
 
