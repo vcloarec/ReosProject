@@ -1246,3 +1246,113 @@ ReosMeshQualityChecker::QualityMeshResults ReosMeshQualityChecker_p::result() co
   return mResult;
 }
 
+
+ReosResultDataset::ReosResultDataset( ReosMeshDatasetSource *simResult, int groupIndex, int index )
+  : mSimulationResult( simResult )
+  , mGroupIndex( groupIndex )
+  , mDatasetIndex( index )
+{}
+
+QgsMeshDatasetValue ReosResultDataset::datasetValue( int valueIndex ) const
+{
+  if ( mSimulationResult->groupIsScalar( mGroupIndex ) )
+    return QgsMeshDatasetValue( mSimulationResult->datasetValues( mGroupIndex, mDatasetIndex ).at( valueIndex ) );
+  else
+  {
+    const QVector<double> &vals = mSimulationResult->datasetValues( mGroupIndex, mDatasetIndex );
+    return QgsMeshDatasetValue( vals.at( valueIndex * 2 ), vals.at( valueIndex * 2 + 1 ) );
+  }
+}
+
+QgsMeshDataBlock ReosResultDataset::datasetValues( bool isScalar, int valueIndex, int count ) const
+{
+  int valueCount = std::min( count, mSimulationResult->datasetValuesCount( mGroupIndex, mDatasetIndex ) - valueIndex );
+  QgsMeshDataBlock ret( isScalar ? QgsMeshDataBlock::ScalarDouble : QgsMeshDataBlock::Vector2DDouble, valueCount );
+
+  if ( valueCount == mSimulationResult->datasetValuesCount( mGroupIndex, mDatasetIndex ) )
+    ret.setValues( mSimulationResult->datasetValues( mGroupIndex, mDatasetIndex ) );
+  else
+  {
+    QVector<double> values( valueCount );
+    const QVector<double> &sourceValues = mSimulationResult->datasetValues( mGroupIndex, mDatasetIndex );
+    memcpy( values.data(), &( sourceValues[valueIndex] ), count * sizeof( double ) );
+    ret.setValues( values );
+  }
+
+  ret.setValid( true );
+
+  return ret;
+
+}
+
+QgsMeshDataBlock ReosResultDataset::areFacesActive( int faceIndex, int count ) const
+{
+  const QVector<int> &sourceValues = mSimulationResult->activeFaces( mDatasetIndex );
+
+  int valueCount = std::min( count, sourceValues.size() - faceIndex );
+  QVector<int> values( valueCount );
+  memcpy( values.data(), &( sourceValues[faceIndex] ), count * sizeof( int ) );
+  QgsMeshDataBlock ret( QgsMeshDataBlock::ActiveFlagInteger, valueCount );
+  ret.setActive( values );
+
+  ret.setValid( true );
+
+  return ret;
+}
+
+bool ReosResultDataset::isActive( int faceIndex ) const
+{
+  return mSimulationResult->activeFaces( mDatasetIndex ).at( faceIndex ) == 1;
+}
+
+QgsMeshDatasetMetadata ReosResultDataset::metadata() const
+{
+  double time = mSimulationResult->datasetRelativeTime( mGroupIndex, mDatasetIndex ).valueHour();
+  double min, max;
+  mSimulationResult->datasetMinMax( mGroupIndex, mDatasetIndex, min, max );
+  return QgsMeshDatasetMetadata( time, true, min, max, 0 );
+}
+
+int ReosResultDataset::valuesCount() const
+{
+  return mSimulationResult->datasetValuesCount( mGroupIndex, mDatasetIndex );
+}
+
+ReosResultDatasetGroup::ReosResultDatasetGroup( ReosMeshDatasetSource *simResult, int index )
+  : mSimulationResult( simResult )
+  , mGroupIndex( index )
+{
+  mName = simResult->groupName( index );
+  mIsScalar = simResult->groupIsScalar( index );
+  setReferenceTime( simResult->groupReferenceTime( index ) );
+}
+
+void ReosResultDatasetGroup::initialize()
+{
+  int datasetCount = mSimulationResult->datasetCount( mGroupIndex );
+
+  for ( int i = 0; i < datasetCount; ++i )
+  {
+    mDatasets.emplace_back( new ReosResultDataset( mSimulationResult, mGroupIndex, i ) );
+  }
+}
+
+QgsMeshDatasetMetadata ReosResultDatasetGroup::datasetMetadata( int datasetIndex ) const
+{
+  return mDatasets.at( static_cast<size_t>( datasetIndex ) )->metadata();
+}
+
+int ReosResultDatasetGroup::datasetCount() const
+{
+  return static_cast<int>( mDatasets.size() );
+}
+
+QgsMeshDataset *ReosResultDatasetGroup::dataset( int index ) const
+{
+  return mDatasets.at( static_cast<int>( index ) ).get();
+}
+
+QgsMeshDatasetGroup::Type ReosResultDatasetGroup::type() const
+{
+  return QgsMeshDatasetGroup::None;
+}
