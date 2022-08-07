@@ -32,10 +32,10 @@
 ReosMeshFrame_p::ReosMeshFrame_p( const QString &crs, QObject *parent ): ReosMesh( parent )
 {
   mMeshLayer.reset( new QgsMeshLayer( "path", "", QStringLiteral( "ReosMesh" ) ) );
-  QgsCoordinateReferenceSystem qgsiCrs;
-  qgsiCrs.createFromWkt( crs );
-  mMeshLayer->setCrs( qgsiCrs );
-  meshProvider()->overrideCrs( qgsiCrs );
+  QgsCoordinateReferenceSystem qgisCrs;
+  qgisCrs.createFromWkt( crs );
+  mMeshLayer->setCrs( qgisCrs );
+  meshProvider()->overrideCrs( qgisCrs );
 
   init();
 }
@@ -48,6 +48,7 @@ ReosMeshFrame_p::ReosMeshFrame_p( const QString &dataPath )
   if ( dir.exists() )
   {
     meshProvider()->loadMeshFrame( dir.filePath( QStringLiteral( "meshFrame.nc" ) ), QStringLiteral( "Ugrid" ) );
+    mMeshLayer->setCrs( meshProvider()->crs() );
     mMeshLayer->reload();
   }
 
@@ -564,16 +565,71 @@ double ReosMeshFrame_p::interpolateDatasetValueOnPoint(
   return std::numeric_limits<double>::quiet_NaN();
 }
 
-void ReosMeshFrame_p::exportAsMesh( const QString &fileName ) const
+QString ReosMeshFrame_p::exportAsMesh( const QString &fileName ) const
 {
   QgsProviderMetadata *mdalMeta = QgsProviderRegistry::instance()->providerMetadata( QStringLiteral( "mdal" ) );
+  if ( !mdalMeta )
+    return QString();
 
-  mdalMeta->createMeshData( *mMeshLayer->nativeMesh(), fileName, QStringLiteral( "SELAFIN" ), mMeshLayer->crs() );
+  QString effectiveFileName = fileName;
 
-  const QList<int> groupIndexes = mMeshLayer->datasetGroupsIndexes();
+  QFileInfo fileInfo( effectiveFileName );
+  if ( fileInfo.suffix() != QStringLiteral( "nc" ) )
+  {
+    effectiveFileName.append( QStringLiteral( ".nc" ) );
+  }
 
-  for ( int index : groupIndexes )
-    mMeshLayer->saveDataset( fileName, index, "SELAFIN" );
+  if ( mdalMeta->createMeshData( *mMeshLayer->nativeMesh(), effectiveFileName, QStringLiteral( "Ugrid" ), mMeshLayer->crs() ) )
+    return effectiveFileName;
+  else
+    return QString();
+
+}
+
+static int datasetGroupIndexFromName( QgsMeshLayer *mesh, const QString &groupName )
+{
+  const QList<int> groupIndexes = mesh->enabledDatasetGroupsIndexes();
+
+  for ( int gi : groupIndexes )
+  {
+    QgsMeshDatasetGroupMetadata meta = mesh->datasetGroupMetadata( QgsMeshDatasetIndex( gi, 0 ) );
+    if ( meta.name() == groupName )
+      return gi;
+  }
+
+  return -1;
+}
+
+bool ReosMeshFrame_p::exportSimulationResults( ReosHydraulicSimulationResults *result, const QString &fileName ) const
+{
+
+  QString effectiveFileName = exportAsMesh( fileName );
+
+  if ( effectiveFileName.isEmpty() )
+    return false;
+
+  std::unique_ptr<QgsMeshLayer> exportedMesh = std::make_unique<QgsMeshLayer>( fileName, QStringLiteral( "mesh" ), QStringLiteral( "mdal" ) );
+
+  if ( !exportedMesh )
+    return false;
+
+  int groupCount = result->groupCount();
+
+  for ( int gi = 0; gi < groupCount; ++gi )
+  {
+    std::unique_ptr<ReosResultDatasetGroup > dsg = std::make_unique<ReosResultDatasetGroup>( result, gi );
+    dsg->initialize();
+    const QString groupName = dsg->name();
+
+    if ( exportedMesh->addDatasets( dsg.release() ) )
+    {
+      exportedMesh->saveDataset( fileName, datasetGroupIndexFromName( exportedMesh.get(), groupName ), QStringLiteral( "Ugrid" ) );
+    }
+    else
+      return false;
+  }
+
+  return true;
 }
 
 QString ReosMeshFrame_p::enableVertexElevationDataset( const QString &name )

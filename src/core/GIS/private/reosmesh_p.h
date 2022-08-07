@@ -32,6 +32,7 @@ class ReosDigitalElevationModel;
 class QGraphicsView;
 class QgsMapLayerRenderer;
 
+
 /**
  * Implementation of a mesh in Reos environment.
  * This class contains a QgsMeshLayer that can be independant from the QgsProject.
@@ -92,7 +93,9 @@ class ReosMeshFrame_p : public ReosMesh
 
     double interpolateDatasetValueOnPoint( const ReosMeshDatasetSource *datasetSource, const ReosSpatialPosition &position, int sourceGroupindex, int datasetIndex ) const override;
 
-    void exportAsMesh( const QString &fileName ) const;
+    QString exportAsMesh( const QString &fileName ) const override;
+
+    bool exportSimulationResults(ReosHydraulicSimulationResults *result, const QString &fileName) const override;
 
   private:
     std::unique_ptr<QgsMeshLayer> mMeshLayer;

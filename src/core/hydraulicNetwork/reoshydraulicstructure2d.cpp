@@ -115,6 +115,7 @@ ReosHydraulicNetworkContext ReosHydraulicStructure2D::hydraulicNetworkContext() 
 void ReosHydraulicStructure2D::exportResultAsMesh( const QString &fileName ) const
 {
   mMesh->exportAsMesh( fileName );
+  mMesh->exportSimulationResults( mSimulationResults.value( mHydraulicNetworkContext.network()->currentScheme()->id() ), fileName );
 }
 
 QVector<QVector<QVector<int> > > ReosHydraulicStructure2D::holesVertices() const
