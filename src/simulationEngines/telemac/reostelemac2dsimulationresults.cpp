@@ -208,6 +208,18 @@ void ReosTelemac2DSimulationResults::datasetMinMax( int groupIndex, int datasetI
   MDAL_D_minimumMaximum( dataset, &min, &max );
 }
 
+int ReosTelemac2DSimulationResults::datasetValuesCount( int groupIndex, int datasetIndex ) const
+{
+  DatasetType dt = datasetType( groupIndex );
+
+  int telemacIndex = mTypeToTelemacGroupIndex.value( dt );
+
+  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH, telemacIndex );
+  MDAL_DatasetH ds = MDAL_G_dataset( group, datasetIndex );
+
+  return MDAL_D_valueCount( ds );
+}
+
 QVector<double> ReosTelemac2DSimulationResults::datasetValues( int groupIndex, int index ) const
 {
   if ( groupIndex < 0 || groupIndex >= groupCount() )
@@ -228,6 +240,9 @@ QVector<double> ReosTelemac2DSimulationResults::datasetValues( int groupIndex, i
     case ReosHydraulicSimulationResults::DatasetType::Velocity:
       if ( !mCache.at( index ).velocity.isEmpty() )
         return mCache.at( index ).velocity;
+      break;
+    case ReosHydraulicSimulationResults::DatasetType::None:
+      return QVector<double>();
       break;
   }
 
@@ -259,14 +274,21 @@ QVector<double> ReosTelemac2DSimulationResults::datasetValues( int groupIndex, i
   switch ( dt )
   {
     case ReosHydraulicSimulationResults::DatasetType::WaterLevel:
-      adaptWaterLevel( ret, index );
       mCache[index].waterLevel = ret;
+      dryVertices( index );
+      adaptWaterLevel( mCache[index].waterLevel, index );
+      return mCache[index].waterLevel;
       break;
     case ReosHydraulicSimulationResults::DatasetType::WaterDepth:
+      adaptWaterDepth( ret, index );
       mCache[index].waterDepth = ret;
       break;
     case ReosHydraulicSimulationResults::DatasetType::Velocity:
+      adaptVelocity( ret, index );
       mCache[index].velocity = ret;
+      break;
+    case ReosHydraulicSimulationResults::DatasetType::None:
+      return QVector<double>();
       break;
   }
 
@@ -280,28 +302,7 @@ QVector<int> ReosTelemac2DSimulationResults::activeFaces( int index ) const
 
   if ( mCache.at( index ).activeFaces.isEmpty() )
   {
-    if ( mCache.at( index ).waterDepth.isEmpty() )
-    {
-      mCache[index].waterDepth = datasetValues( mTypeToTelemacGroupIndex.value( DatasetType::WaterDepth ), index );
-    }
-
-    const QVector<double> &waterDepth = mCache.at( index ).waterDepth;
-    QVector<int> &active = mCache[index].activeFaces;
-    active.resize( mFaces.count() );
-
-    for ( int i = 0; i < active.count(); ++i )
-    {
-      const QVector<int> &face = mFaces.at( i );
-      active[i] = 0;
-      for ( int f : face )
-      {
-        if ( waterDepth.at( f ) > mDryDepthValue )
-        {
-          active[i] = 1;
-          break;
-        }
-      }
-    }
+    dryVertices( index );
   }
 
   return mCache.at( index ).activeFaces;
@@ -398,7 +399,7 @@ void ReosTelemac2DSimulationResults::adaptWaterLevel( QVector<double> &waterLeve
     {
       double ws = waterLevel.at( i );
       double bottom = mBottomValues.at( i );
-      if ( ws - bottom > 1e-6 )
+      if ( ws - bottom > mDryDepthValue )
       {
         value += ws;
         valueCount++;
@@ -417,6 +418,76 @@ void ReosTelemac2DSimulationResults::adaptWaterLevel( QVector<double> &waterLeve
     }
   }
 
+}
+
+void ReosTelemac2DSimulationResults::adaptWaterDepth( QVector<double> &waterDepth, int datasetIndex ) const
+{
+  if ( mCache.at( datasetIndex ).activeVertices.isEmpty() )
+    dryVertices( datasetIndex );
+
+  const QVector<int> activeVert = mCache.at( datasetIndex ).activeVertices;
+
+  Q_ASSERT( waterDepth.size() == activeVert.size() );
+
+  for ( int i = 0; i < waterDepth.count(); ++i )
+  {
+    if ( activeVert.at( i ) == 0 )
+      waterDepth[i] = std::numeric_limits<double>::quiet_NaN();
+  }
+}
+
+void ReosTelemac2DSimulationResults::adaptVelocity( QVector<double> &velocity, int datasetIndex ) const
+{
+  if ( mCache.at( datasetIndex ).activeVertices.isEmpty() )
+    dryVertices( datasetIndex );
+
+  const QVector<int> activeVert = mCache.at( datasetIndex ).activeVertices;
+
+  Q_ASSERT( velocity.size() == activeVert.size() * 2 );
+
+  for ( int i = 0; i < activeVert.count(); ++i )
+  {
+    if ( activeVert.at( i ) == 0 )
+    {
+      velocity[2 * i] = std::numeric_limits<double>::quiet_NaN();
+      velocity[2 * i + 1] = std::numeric_limits<double>::quiet_NaN();
+    }
+  }
+}
+
+void ReosTelemac2DSimulationResults::dryVertices( int datasetIndex ) const
+{
+  if ( mCache.at( datasetIndex ).waterLevel.isEmpty() )
+    mCache[datasetIndex].waterLevel = datasetValues( mTypeToTelemacGroupIndex.value( DatasetType::WaterLevel ), datasetIndex );
+
+  QVector<double> &waterLevel = mCache[datasetIndex].waterLevel;
+  QVector<int> &active = mCache[datasetIndex].activeFaces;
+  active.resize( mFaces.count() );
+  QVector<int> &activeVert = mCache[datasetIndex].activeVertices;
+  activeVert = QVector<int>( waterLevel.size(), 0 );
+
+  for ( int i = 0; i < active.count(); ++i )
+  {
+    const QVector<int> &face = mFaces.at( i );
+    active[i] = 0;
+    for ( int f : face )
+    {
+      if ( !std::isnan( waterLevel.at( f ) )  && ( waterLevel.at( f ) - mBottomValues.at( f ) > mDryDepthValue ) )
+      {
+        active[i] = 1;
+        break;
+      }
+    }
+
+    if ( active[i] == 1 )
+    {
+      for ( int f : face )
+        activeVert[f] = 1;
+    }
+    else
+      for ( int f : face )
+        waterLevel[f] = std::numeric_limits<double>::quiet_NaN();
+  }
 }
 
 int ReosTelemac2DSimulationResults::groupIndex( ReosHydraulicSimulationResults::DatasetType type ) const
