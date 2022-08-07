@@ -232,6 +232,7 @@ void ReosMeshDataProvider_p::loadMeshFrame( const QString &filePath, const QStri
     std::unique_ptr<QgsMeshDataProvider> dataProvider( qobject_cast<QgsMeshDataProvider *>( meta->createProvider( filePath, options ) ) );
     dataProvider->populateMesh( &mMesh );
     mExtent = dataProvider->extent();
+    overrideCrs( dataProvider->crs() );
     emit dataChanged();
   }
 

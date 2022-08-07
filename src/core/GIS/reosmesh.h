@@ -228,7 +228,8 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     QMap<QString, QByteArray> datasetVectorSymbologies() const;
     void setDatasetVectorSymbologies( const QMap<QString, QByteArray> &datasetVectorSymbologies );
 
-    virtual void exportAsMesh( const QString &fileName ) const = 0;
+    virtual QString exportAsMesh( const QString &fileName ) const = 0;
+    virtual bool exportSimulationResults( ReosHydraulicSimulationResults *result, const QString &fileName ) const = 0;
 
   signals:
 
