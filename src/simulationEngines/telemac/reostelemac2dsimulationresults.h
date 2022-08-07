@@ -28,6 +28,7 @@ class ReosMesh;
 struct CacheDataset
 {
   QVector<int> activeFaces;
+  QVector<int> activeVertices;
   QVector<double> waterDepth;
   QVector<double> waterLevel;
   QVector<double> velocity;
@@ -48,6 +49,7 @@ class ReosTelemac2DSimulationResults : public ReosHydraulicSimulationResults
     ReosDuration datasetRelativeTime( int groupIndex, int datasetIndex ) const override;
     bool datasetIsValid( int groupIndex, int datasetIndex ) const override;
     void datasetMinMax( int groupIndex, int datasetIndex, double &min, double &max ) const override;
+    int datasetValuesCount( int groupIndex, int datasetIndex ) const override;
     QVector<double> datasetValues( int groupIndex, int index ) const override;
     QVector<int> activeFaces( int index ) const override;
     QDateTime runDateTime() const override;
@@ -61,7 +63,7 @@ class ReosTelemac2DSimulationResults : public ReosHydraulicSimulationResults
     MDAL_MeshH mMeshH = nullptr;
     mutable QDateTime mReferenceTime;
     QMap<DatasetType, int> mTypeToTelemacGroupIndex;
-    double mDryDepthValue = 0.015;
+    double mDryDepthValue = 0.00015;
     QVector<QVector<int>> mFaces;
     QVector<double> mBottomValues;
     mutable QVector<CacheDataset> mCache;
@@ -72,6 +74,10 @@ class ReosTelemac2DSimulationResults : public ReosHydraulicSimulationResults
     void populateTimeStep() const;
 
     void adaptWaterLevel( QVector<double> &waterLevel, int datasetIndex ) const;
+    void adaptWaterDepth( QVector<double> &waterDepth, int datasetIndex ) const;
+    void adaptVelocity( QVector<double> &velocity, int datasetIndex ) const;
+
+    void dryVertices( int datasetIndex ) const;
 
 };
 
