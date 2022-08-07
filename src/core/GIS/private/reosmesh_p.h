@@ -169,4 +169,42 @@ class ReosMeshQualityChecker_p : public ReosMeshQualityChecker
     QgsCoordinateTransform mTransform;
 };
 
+
+class ReosResultDatasetGroup : public QgsMeshDatasetGroup
+{
+public:
+    ReosResultDatasetGroup(ReosMeshDatasetSource *simResult, int index);
+
+    void initialize();
+    QgsMeshDatasetMetadata datasetMetadata(int datasetIndex) const;
+    int datasetCount() const;
+    QgsMeshDataset *dataset(int index) const;
+    QgsMeshDatasetGroup::Type type() const;
+    QDomElement writeXml(QDomDocument &doc, const QgsReadWriteContext &context) const {return QDomElement();}
+
+private:
+    ReosMeshDatasetSource *mSimulationResult=nullptr;
+    int mGroupIndex=-1;
+    std::vector<std::unique_ptr<QgsMeshDataset>> mDatasets;
+};
+
+class ReosResultDataset : public QgsMeshDataset
+{
+public:
+    ReosResultDataset(ReosMeshDatasetSource *simResult, int groupIndex, int index);
+
+    QgsMeshDatasetValue datasetValue(int valueIndex) const;
+    QgsMeshDataBlock datasetValues(bool isScalar, int valueIndex, int count) const;
+    QgsMeshDataBlock areFacesActive(int faceIndex, int count) const;
+    bool isActive(int faceIndex) const;
+    QgsMeshDatasetMetadata metadata() const;
+    int valuesCount() const;
+
+private:
+    ReosMeshDatasetSource *mSimulationResult=nullptr;
+    int mGroupIndex=-1;
+    int mDatasetIndex=-1;
+
+};
+
 #endif // REOSMESH_P_H
