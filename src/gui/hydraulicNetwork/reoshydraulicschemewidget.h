@@ -18,6 +18,7 @@
 
 #include <QWidget>
 #include <QWidgetAction>
+#include <QListView>
 
 #include "reoshydraulicnetwork.h"
 
@@ -65,6 +66,20 @@ class ReosHydraulicSchemeWidgetAction : public QWidgetAction
     ReosHydraulicNetwork *mNetwork = nullptr;
     ReosHydraulicScheme *mScheme = nullptr;
     ReosHydraulicSchemeWidget *mWidget = nullptr;
+};
+
+
+class ReosHydraulicSchemeListView : public QListView
+{
+  public:
+    ReosHydraulicSchemeListView( QWidget *parent );
+
+    void setSchemeCollection( ReosHydraulicSchemeCollection *collection );
+
+    ReosHydraulicScheme *currentScheme() const;
+
+  private:
+    ReosHydraulicSchemeCollection *mCollection = nullptr;
 };
 
 #endif // REOSHYDRAULICSCHEMEWIDGET_H

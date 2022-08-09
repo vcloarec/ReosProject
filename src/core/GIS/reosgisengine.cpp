@@ -43,6 +43,7 @@ email                : vcloarec at gmail dot com
 #include <qgsauthmethodregistry.h>
 #include <qgsauthmanager.h>
 #include <qgsprojecttimesettings.h>
+#include <qgsprojectviewsettings.h>
 
 #define  mLayerTreeModel _layerTreeModel(mAbstractLayerTreeModel)
 static QgsLayerTreeModel *_layerTreeModel( QAbstractItemModel *sourceModel )
@@ -606,6 +607,78 @@ QPair<QDateTime, QDateTime> ReosGisEngine::temporalRange() const
     return QPair<QDateTime, QDateTime>( {timeSettings->temporalRange().begin(), timeSettings->temporalRange().end()} );
 
   return QPair<QDateTime, QDateTime>();
+}
+
+bool ReosGisEngine::createProjectFile( const QString &projectFileName )
+{
+  std::unique_ptr<QgsProject> project = std::make_unique<QgsProject>();
+  project->setCrs( QgsProject::instance()->crs() );
+
+  QDomDocument doc( QStringLiteral( "dataset-symbology" ) );
+  QDomElement elem = doc.createElement( "tree-layer" );
+  QgsReadWriteContext readWriteContext;
+  QgsProject::instance()->layerTreeRoot()->writeXml( elem, readWriteContext ) ;
+
+  project->layerTreeRoot()->readXml( elem, readWriteContext );
+
+  return project->write( projectFileName );
+}
+
+bool ReosGisEngine::addMeshLayerToExistingProject( const QString &projectFileName, const QString &uri, const QMap<QString, ReosEncodedElement> &scalarSymbologies, const QMap<QString, ReosEncodedElement> &vectorSymbologies )
+{
+  std::unique_ptr<QgsProject> project = std::make_unique<QgsProject>();
+  project->read( projectFileName );
+  std::unique_ptr<QgsMeshLayer> meshLayer = std::make_unique<QgsMeshLayer>( uri, "mesh layer", "mdal" );
+  project->viewSettings()->setDefaultViewExtent( QgsReferencedRectangle( meshLayer->extent(), meshLayer->crs() ) );
+
+  const QList<int> &indexes = meshLayer->datasetGroupsIndexes();
+  for ( int i : indexes )
+  {
+    QgsMeshDatasetGroupMetadata meta = meshLayer->datasetGroupMetadata( QgsMeshDatasetIndex( i, 0 ) );
+
+    if ( scalarSymbologies.contains( meta.name() ) )
+    {
+      ReosEncodedElement symbology = scalarSymbologies.value( meta.name() );
+      QString docString;
+      symbology.getData( QStringLiteral( "symbology" ), docString );
+
+      QDomDocument doc( QStringLiteral( "dataset-symbology" ) );
+
+      if ( doc.setContent( docString ) )
+      {
+        QDomElement domElem = doc.firstChildElement( QStringLiteral( "scalar-settings" ) );
+        QgsReadWriteContext context;
+        QgsMeshRendererScalarSettings scalarSettings;
+        scalarSettings.readXml( domElem );
+        QgsMeshRendererSettings settings = meshLayer->rendererSettings();
+        settings.setScalarSettings( i, scalarSettings );
+        meshLayer->setRendererSettings( settings );
+      }
+    }
+
+    if ( vectorSymbologies.contains( meta.name() ) )
+    {
+      ReosEncodedElement symbology = vectorSymbologies.value( meta.name() );
+      QString docString;
+      symbology.getData( QStringLiteral( "symbology" ), docString );
+
+      QDomDocument doc( QStringLiteral( "dataset-vector-symbology" ) );
+
+      if ( doc.setContent( docString ) )
+      {
+        QDomElement domElem = doc.firstChildElement( QStringLiteral( "vector-settings" ) );
+        QgsReadWriteContext context;
+        QgsMeshRendererVectorSettings vectorSettings;
+        vectorSettings.readXml( domElem );
+        QgsMeshRendererSettings settings = meshLayer->rendererSettings();
+        settings.setVectorSettings( i, vectorSettings );
+        meshLayer->setRendererSettings( settings );
+      }
+    }
+  }
+
+  project->addMapLayer( meshLayer.release() );
+  return project->write( projectFileName );
 }
 
 QString ReosGisEngine::gisEngineName()

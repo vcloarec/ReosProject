@@ -97,7 +97,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Remove the simulation with \a index
     void removeSimulation( int index );
 
-    //! Returns a pointer to the current simulation
+    //! Returns a pointer to the simulation associated with \a scheme
     ReosHydraulicSimulation *simulation( ReosHydraulicScheme *scheme ) const;
 
     //! Returns a pointer to the current simulation
@@ -136,22 +136,25 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     bool hasResults() const;
 
     //! Returns whether a result corresponding to \a context is existing (loaded)
-    bool hasResults( const ReosCalculationContext &context ) const;
+    bool hasResults( const QString &schemeId ) const;
+
+    //! Returns whether a result corresponding to \a scheme is existing (loaded)
+    bool hasResults( const ReosHydraulicScheme *scheme ) const;
 
     //! Returns whether a results corresponding to \a context is existing
-    QDateTime resultsDateTime( const ReosCalculationContext &context ) const;
+    QDateTime resultsRunDateTime( const QString &schemeId ) const;
 
     //! Returns the time step count of the results corresponding to \a context
-    int resultsTimeStepCount( const ReosCalculationContext &context ) const;
+    int resultsTimeStepCount( const QString &schemeId ) const;
 
     //! Returns the value of the results with type \a datasetType for the specified \a context, \a position and \a time
     double resultsValueAt( const QDateTime &time,
                            const ReosSpatialPosition &position,
                            ReosHydraulicSimulationResults::DatasetType datasetType,
-                           const ReosCalculationContext &context );
+                           const QString &schemeId );
 
     //! Returns a translated string corresponding to the unit of the results associated with \a context and to the type  \a datasetType
-    QString resultsUnits( ReosHydraulicSimulationResults::DatasetType datasetType, const ReosCalculationContext &context );
+    QString resultsUnits( ReosHydraulicSimulationResults::DatasetType datasetType, const QString &schemeId );
 
     void removeAllResults();
 
@@ -211,6 +214,8 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     ReosHydraulicNetworkContext hydraulicNetworkContext() const;
 
     void exportResultAsMesh( const QString &fileName ) const;
+
+    void exportResultAsMeshInGisProject( const QString &fileName );
 
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) override;
