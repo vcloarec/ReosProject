@@ -369,6 +369,8 @@ bool ReosRasterMemory<T>::createTiffFile( const char *fileName, GDALDataType typ
     return false;
 
   GDALDataset *dataSet = driver->Create( fileName, mColumnCount, mRowCount, 1, type, nullptr );
+  if ( !dataSet )
+    return false;
 
   CPLErr err = dataSet->GetRasterBand( 1 )->RasterIO( GF_Write, 0, 0, mColumnCount, mRowCount, mValues.data(), mColumnCount, mRowCount, type, 0, 0 );
   if ( err )
