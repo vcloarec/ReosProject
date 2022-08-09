@@ -57,7 +57,6 @@ class ReosTelemac2DSimulationResults : public ReosHydraulicSimulationResults
     int datasetIndexClosestBeforeTime( int groupIndex, const QDateTime &time ) const override;
     QString unitString( DatasetType dataType ) const override;
 
-
   private:
     QString mFileName;
     MDAL_MeshH mMeshH = nullptr;
@@ -70,6 +69,8 @@ class ReosTelemac2DSimulationResults : public ReosHydraulicSimulationResults
     QMap<QString, ReosHydrograph *> mOutputHydrographs;
     mutable QMap<ReosDuration, int> mTimeToTimeStep;
     mutable QVector<ReosDuration> mTimeSteps;
+
+    int groupIndexToTelemacIndex( int groupIndex ) const;
 
     void populateTimeStep() const;
 
