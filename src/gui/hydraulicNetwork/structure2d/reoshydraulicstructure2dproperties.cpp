@@ -33,6 +33,8 @@
 #include "reoshydraulicstructureboundarycondition.h"
 #include "reosplotitemlist.h"
 #include "reoshydraulic2dsimulationwidget.h"
+#include "reoshydraulicschemewidget.h"
+#include "reoshydraulicstructureresultexport.h"
 
 
 class DatasetSettingsWidgetAction : public QWidgetAction
@@ -239,7 +241,8 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
 
   connect( mActionExportAsMesh, &QAction::triggered, this, [this]
   {
-    mStructure2D->exportResultAsMesh( "/home/vincent/es_export.slf" );
+    QDialog *dial = new ReosHydraulicStructureResultExport( mStructure2D, this );
+    dial->exec();
   } );
 }
 
@@ -282,12 +285,12 @@ void ReosHydraulicStructure2DProperties::setCurrentSimulationProcess( ReosSimula
 
   if ( mCurrentProcess.isNull() )
   {
-    if ( mStructure2D->hasResults( context ) )
+    if ( mStructure2D->hasResults( context.schemeId() ) )
     {
       fillResultGroupBox( context );
       ui->mProgressBar->setMaximum( 1 );
       ui->mProgressBar->setValue( 1 );
-      const QDateTime lastRun = mStructure2D->resultsDateTime( context );
+      const QDateTime lastRun = mStructure2D->resultsRunDateTime( context.schemeId() );
       if ( lastRun.isValid() )
         ui->mLastRunLabel->setText( QLocale().toString( lastRun, QLocale::ShortFormat ) );
       else
@@ -338,7 +341,7 @@ void ReosHydraulicStructure2DProperties::fillResultGroupBox( const ReosCalculati
 
   ui->mLabelResultStartTime->setText( QLocale().toString( context.simulationStartTime(), QLocale::ShortFormat ) );
   ui->mLabelResultEndTime->setText( QLocale().toString( context.simulationEndTime(), QLocale::ShortFormat ) );
-  ui->mLabelResultTimeStepCount->setText( QString::number( mStructure2D->resultsTimeStepCount( context ) ) );
+  ui->mLabelResultTimeStepCount->setText( QString::number( mStructure2D->resultsTimeStepCount( context.schemeId() ) ) );
   ui->mLabelResultValueDisplayed->setText( mStructure2D->currentDatasetName() );
   ui->mLabelResultValueUnderCursor->setText( QString( '-' ) );
 }
@@ -361,7 +364,7 @@ void ReosHydraulicStructure2DProperties::onLaunchCalculation()
 {
   if ( !mStructure2D->simulationProcess( mCalculationContext ) )
   {
-    if ( mStructure2D->hasResults( mCalculationContext ) )
+    if ( mStructure2D->hasResults( mCalculationContext.schemeId() ) )
     {
       if ( QMessageBox::warning( this, tr( "Run Simulation" ), tr( "Results exist for this modele and this hydraulic scheme.\nDo you want to overwrite this results?" ),
                                  QMessageBox::Yes | QMessageBox::No ) == QMessageBox::No )
@@ -594,8 +597,8 @@ void ReosHydraulicStructure2DProperties::onMapCursorMove( const QPointF &pos )
   }
   else
   {
-    value = mStructure2D->resultsValueAt( mMap->currentTime(), position, dt, mCalculationContext );
-    unit = mStructure2D->resultsUnits( dt, mCalculationContext );
+    value = mStructure2D->resultsValueAt( mMap->currentTime(), position, dt, mCalculationContext.schemeId() );
+    unit = mStructure2D->resultsUnits( dt, mCalculationContext.schemeId() );
   }
 
   if ( std::isnan( value ) )

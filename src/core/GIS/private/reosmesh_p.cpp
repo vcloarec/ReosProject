@@ -602,6 +602,8 @@ static int datasetGroupIndexFromName( QgsMeshLayer *mesh, const QString &groupNa
 
 bool ReosMeshFrame_p::exportSimulationResults( ReosHydraulicSimulationResults *result, const QString &fileName ) const
 {
+  if ( !result )
+    return false;
 
   QString effectiveFileName = exportAsMesh( fileName );
 

@@ -74,3 +74,18 @@ QWidget *ReosHydraulicSchemeWidgetAction::createWidget( QWidget *parent )
   mWidget = new ReosHydraulicSchemeWidget( mScheme, mNetwork->context(), parent );
   return mWidget;
 }
+
+ReosHydraulicSchemeListView::ReosHydraulicSchemeListView( QWidget *parent ): QListView( parent )
+{
+}
+
+void ReosHydraulicSchemeListView::setSchemeCollection( ReosHydraulicSchemeCollection *collection )
+{
+  mCollection = collection;
+  setModel( collection );
+}
+
+ReosHydraulicScheme *ReosHydraulicSchemeListView::currentScheme() const
+{
+  return mCollection->scheme( currentIndex().row() );
+}

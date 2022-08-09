@@ -167,7 +167,7 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     void reset();
 
 
-    ReosGisEngine *getGisEngine() const;
+    ReosGisEngine *gisEngine() const;
 
     ReosHydraulicNetworkContext context() const;
 

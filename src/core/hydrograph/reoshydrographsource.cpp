@@ -132,7 +132,7 @@ ReosHydrographJunction::ReosHydrographJunction( const ReosEncodedElement &encode
   {
     QPointF pos;
     encodedElement.getData( QStringLiteral( "position" ), pos );
-    mPosition = ReosSpatialPosition( pos, parent->getGisEngine()->crs() );
+    mPosition = ReosSpatialPosition( pos, parent->gisEngine()->crs() );
   }
   else
   {
@@ -215,7 +215,7 @@ ReosHydrograph *ReosHydrographJunction::outputHydrograph() const
 
 QPointF ReosHydrographJunction::position( const QString &destinationCrs ) const
 {
-  return mNetWork->getGisEngine()->transformToCoordinates( mPosition, destinationCrs );
+  return mNetWork->gisEngine()->transformToCoordinates( mPosition, destinationCrs );
 }
 
 void ReosHydrographJunction::setPosition( const ReosSpatialPosition &pos )

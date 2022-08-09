@@ -351,7 +351,7 @@ void ReosHydraulicNetwork::reset()
   emit hasBeenReset();
 }
 
-ReosGisEngine *ReosHydraulicNetwork::getGisEngine() const
+ReosGisEngine *ReosHydraulicNetwork::gisEngine() const
 {
   return mGisEngine;
 }
