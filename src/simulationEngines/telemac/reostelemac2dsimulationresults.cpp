@@ -95,9 +95,7 @@ int ReosTelemac2DSimulationResults::datasetCount( int groupIndex ) const
   if ( groupIndex < 0 || groupIndex >= groupCount() )
     return 0;
 
-  DatasetType dt = datasetType( groupIndex );
-
-  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH, mTypeToTelemacGroupIndex.value( dt ) );
+  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH, groupIndexToTelemacIndex( groupIndex ) );
 
   if ( group )
     return MDAL_G_datasetCount( group );
@@ -118,12 +116,10 @@ void ReosTelemac2DSimulationResults::groupMinMax( int groupIndex, double &minimu
   if ( groupIndex < 0 || groupIndex >= groupCount() )
     return;
 
-  DatasetType dt = datasetType( groupIndex );
-  int telemacIndex = mTypeToTelemacGroupIndex.value( dt );
   minimum = std::numeric_limits<double>::quiet_NaN();
   maximum = std::numeric_limits<double>::quiet_NaN();
 
-  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH, telemacIndex );
+  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH,  groupIndexToTelemacIndex( groupIndex ) );
 
   if ( !group )
     return;
@@ -139,10 +135,7 @@ QDateTime ReosTelemac2DSimulationResults::groupReferenceTime( int groupIndex ) c
   if ( mReferenceTime.isValid() )
     return mReferenceTime;
 
-  DatasetType dt = datasetType( groupIndex );
-  int telemacIndex = mTypeToTelemacGroupIndex.value( dt );
-
-  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH, telemacIndex );
+  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH,  groupIndexToTelemacIndex( groupIndex ) );
 
   if ( !group )
     return QDateTime();
@@ -171,10 +164,7 @@ bool ReosTelemac2DSimulationResults::datasetIsValid( int groupIndex, int dataset
   if ( groupIndex < 0 || groupIndex >= groupCount() )
     return false;
 
-  DatasetType dt = datasetType( groupIndex );
-  int telemacIndex = mTypeToTelemacGroupIndex.value( dt );
-
-  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH, telemacIndex );
+  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH,  groupIndexToTelemacIndex( groupIndex ) );
 
   if ( !group )
     return false;
@@ -191,12 +181,10 @@ void ReosTelemac2DSimulationResults::datasetMinMax( int groupIndex, int datasetI
   if ( groupIndex < 0 || groupIndex >= groupCount() )
     return;
 
-  DatasetType dt = datasetType( groupIndex );
-  int telemacIndex = mTypeToTelemacGroupIndex.value( dt );
   min = std::numeric_limits<double>::quiet_NaN();
   max = std::numeric_limits<double>::quiet_NaN();
 
-  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH, telemacIndex );
+  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH,  groupIndexToTelemacIndex( groupIndex ) );
 
   if ( !group )
     return;
@@ -210,11 +198,7 @@ void ReosTelemac2DSimulationResults::datasetMinMax( int groupIndex, int datasetI
 
 int ReosTelemac2DSimulationResults::datasetValuesCount( int groupIndex, int datasetIndex ) const
 {
-  DatasetType dt = datasetType( groupIndex );
-
-  int telemacIndex = mTypeToTelemacGroupIndex.value( dt );
-
-  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH, telemacIndex );
+  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH,  groupIndexToTelemacIndex( groupIndex ) );
   MDAL_DatasetH ds = MDAL_G_dataset( group, datasetIndex );
 
   return MDAL_D_valueCount( ds );
@@ -246,9 +230,7 @@ QVector<double> ReosTelemac2DSimulationResults::datasetValues( int groupIndex, i
       break;
   }
 
-  int telemacIndex = mTypeToTelemacGroupIndex.value( dt );
-
-  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH, telemacIndex );
+  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH,  groupIndexToTelemacIndex( groupIndex ) );
 
   if ( !group )
     return QVector<double>();
@@ -357,6 +339,12 @@ QString ReosTelemac2DSimulationResults::unitString( ReosHydraulicSimulationResul
   return QString();
 }
 
+int ReosTelemac2DSimulationResults::groupIndexToTelemacIndex( int groupIndex ) const
+{
+  DatasetType dt = datasetType( groupIndex );
+  return mTypeToTelemacGroupIndex.value( dt );
+}
+
 void ReosTelemac2DSimulationResults::populateTimeStep() const
 {
   DatasetType dt = DatasetType::WaterLevel;
@@ -458,7 +446,7 @@ void ReosTelemac2DSimulationResults::adaptVelocity( QVector<double> &velocity, i
 void ReosTelemac2DSimulationResults::dryVertices( int datasetIndex ) const
 {
   if ( mCache.at( datasetIndex ).waterLevel.isEmpty() )
-    mCache[datasetIndex].waterLevel = datasetValues( mTypeToTelemacGroupIndex.value( DatasetType::WaterLevel ), datasetIndex );
+    mCache[datasetIndex].waterLevel = datasetValues( groupIndex( DatasetType::WaterLevel ), datasetIndex );
 
   QVector<double> &waterLevel = mCache[datasetIndex].waterLevel;
   QVector<int> &active = mCache[datasetIndex].activeFaces;
