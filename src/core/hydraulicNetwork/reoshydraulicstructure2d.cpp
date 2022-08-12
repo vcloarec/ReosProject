@@ -119,10 +119,11 @@ void ReosHydraulicStructure2D::exportResultAsMesh( const QString &fileName ) con
   mMesh->exportSimulationResults( mSimulationResults.value( mHydraulicNetworkContext.network()->currentScheme()->id() ), fileName );
 }
 
-void ReosHydraulicStructure2D::exportResultAsMeshInGisProject( const QString &fileName )
+void ReosHydraulicStructure2D::exportResultAsMeshInGisProject( const QString &fileName, bool keepLayers )
 {
-  QFileInfo fileInfo( fileName );
-  QString meshFileName = fileInfo.dir().filePath( elementName()->value() + '-' + mHydraulicNetworkContext.network()->currentScheme()->schemeName()->value() );
+  const QFileInfo fileInfo( fileName );
+  const QString meshName = elementName()->value() + '-' + mHydraulicNetworkContext.network()->currentScheme()->schemeName()->value();
+  QString meshFileName = fileInfo.dir().filePath( meshName );
 
   meshFileName = mMesh->exportAsMesh( meshFileName );
   mMesh->exportSimulationResults( mSimulationResults.value( mHydraulicNetworkContext.network()->currentScheme()->id() ), meshFileName );
@@ -130,22 +131,24 @@ void ReosHydraulicStructure2D::exportResultAsMeshInGisProject( const QString &fi
   QMap<QString, ReosEncodedElement> scalarSymbologies;
   QMap<QString, ReosEncodedElement> vectorSymbologies;
 
-  for ( const QString &id : mMesh->datasetIds() )
+  const QStringList scalarIds = mMesh->datasetIds();
+  for ( const QString &id : scalarIds )
   {
     const QString groupName = mMesh->datasetName( id );
     ReosEncodedElement symbology = mMesh->datasetScalarGroupSymbology( id );
     scalarSymbologies.insert( groupName, symbology );
   }
 
-  for ( const QString &id : mMesh->vectorDatasetIds() )
+  const QStringList vectorIds = mMesh->vectorDatasetIds();
+  for ( const QString &id : vectorIds )
   {
     const QString groupName = mMesh->datasetName( id );
     ReosEncodedElement symbology = mMesh->datasetVectorGroupSymbology( id );
     vectorSymbologies.insert( groupName, symbology );
   }
 
-  mHydraulicNetworkContext.network()->gisEngine()->createProjectFile( fileName );
-  mHydraulicNetworkContext.network()->gisEngine()->addMeshLayerToExistingProject( fileName, meshFileName, scalarSymbologies, vectorSymbologies );
+  mHydraulicNetworkContext.network()->gisEngine()->createProjectFile( fileName, keepLayers );
+  mHydraulicNetworkContext.network()->gisEngine()->addMeshLayerToExistingProject( fileName, meshName, meshFileName, scalarSymbologies, vectorSymbologies );
 }
 
 QVector<QVector<QVector<int> > > ReosHydraulicStructure2D::holesVertices() const

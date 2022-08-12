@@ -77,6 +77,7 @@ class ReosHydraulicSchemeListView : public QListView
     void setSchemeCollection( ReosHydraulicSchemeCollection *collection );
 
     ReosHydraulicScheme *currentScheme() const;
+    void setCurrentScheme(const QString &schemeId );
 
   private:
     ReosHydraulicSchemeCollection *mCollection = nullptr;

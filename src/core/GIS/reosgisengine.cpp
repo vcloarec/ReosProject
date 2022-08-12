@@ -44,6 +44,9 @@ email                : vcloarec at gmail dot com
 #include <qgsauthmanager.h>
 #include <qgsprojecttimesettings.h>
 #include <qgsprojectviewsettings.h>
+#include <qgslayerdefinition.h>
+#include <qgslayertree.h>
+
 
 #define  mLayerTreeModel _layerTreeModel(mAbstractLayerTreeModel)
 static QgsLayerTreeModel *_layerTreeModel( QAbstractItemModel *sourceModel )
@@ -609,26 +612,32 @@ QPair<QDateTime, QDateTime> ReosGisEngine::temporalRange() const
   return QPair<QDateTime, QDateTime>();
 }
 
-bool ReosGisEngine::createProjectFile( const QString &projectFileName )
+bool ReosGisEngine::createProjectFile( const QString &projectFileName, bool keepLayer )
 {
   std::unique_ptr<QgsProject> project = std::make_unique<QgsProject>();
   project->setCrs( QgsProject::instance()->crs() );
+  project->setTransformContext( QgsProject::instance()->transformContext() );
 
-  QDomDocument doc( QStringLiteral( "dataset-symbology" ) );
-  QDomElement elem = doc.createElement( "tree-layer" );
-  QgsReadWriteContext readWriteContext;
-  QgsProject::instance()->layerTreeRoot()->writeXml( elem, readWriteContext ) ;
+  if ( keepLayer )
+  {
+    QDomDocument doc( QStringLiteral( "layers" ) );
+    QString error;
+    if ( QgsLayerDefinition::exportLayerDefinition( doc, QgsProject::instance()->layerTreeRoot()->children(), error, QgsReadWriteContext() ) )
+    {
+      QgsReadWriteContext readWriteContext;
+      QgsLayerDefinition::loadLayerDefinition( doc, project.get(), project->layerTreeRoot(), error, readWriteContext );
+    }
+  }
 
-  project->layerTreeRoot()->readXml( elem, readWriteContext );
 
   return project->write( projectFileName );
 }
 
-bool ReosGisEngine::addMeshLayerToExistingProject( const QString &projectFileName, const QString &uri, const QMap<QString, ReosEncodedElement> &scalarSymbologies, const QMap<QString, ReosEncodedElement> &vectorSymbologies )
+bool ReosGisEngine::addMeshLayerToExistingProject( const QString &projectFileName, const QString &layerName, const QString &uri, const QMap<QString, ReosEncodedElement> &scalarSymbologies, const QMap<QString, ReosEncodedElement> &vectorSymbologies )
 {
   std::unique_ptr<QgsProject> project = std::make_unique<QgsProject>();
   project->read( projectFileName );
-  std::unique_ptr<QgsMeshLayer> meshLayer = std::make_unique<QgsMeshLayer>( uri, "mesh layer", "mdal" );
+  std::unique_ptr<QgsMeshLayer> meshLayer = std::make_unique<QgsMeshLayer>( uri, layerName, QStringLiteral( "mdal" ) );
   project->viewSettings()->setDefaultViewExtent( QgsReferencedRectangle( meshLayer->extent(), meshLayer->crs() ) );
 
   const QList<int> &indexes = meshLayer->datasetGroupsIndexes();

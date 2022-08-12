@@ -81,7 +81,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   , mActionExportSimulationFile( new QAction( QPixmap( QStringLiteral( ":/images/exportSimulation.svg" ) ), tr( "Export Simulation" ), this ) )
   , mActionEngineConfiguration( ( new QAction( QPixmap( QStringLiteral( ":/images/engineSettings.svg" ) ), tr( "Engine Settings" ), this ) ) )
   , mAction3DView( new QAction( QPixmap( QStringLiteral( ":/images/view3D.svg" ) ), tr( "3D View" ), this ) )
-  , mActionExportAsMesh( new QAction( tr( "Export as Mesh" ), this ) )
+  , mActionExportAsMesh( new QAction( QPixmap( ":/images/exportToQGIS.svg" ), tr( "Export as Mesh to QGIS Project" ), this ) )
   , mScalarDatasetMenu( new QMenu( this ) )
   , mVectorDatasetMenu( new QMenu( this ) )
   , mActionScalarSettings( new QAction( QPixmap( QStringLiteral( ":/images/scalarContour.svg" ) ), tr( "Color Ramp" ), this ) )
@@ -241,7 +241,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
 
   connect( mActionExportAsMesh, &QAction::triggered, this, [this]
   {
-    QDialog *dial = new ReosHydraulicStructureResultExport( mStructure2D, this );
+    QDialog *dial = new ReosHydraulicStructureResultExport( mStructure2D, mCalculationContext.schemeId(), this );
     dial->exec();
   } );
 }

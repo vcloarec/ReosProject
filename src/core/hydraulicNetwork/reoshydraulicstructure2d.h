@@ -215,7 +215,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 
     void exportResultAsMesh( const QString &fileName ) const;
 
-    void exportResultAsMeshInGisProject( const QString &fileName );
+    void exportResultAsMeshInGisProject(const QString &fileName , bool keepLayers);
 
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) override;

@@ -10,13 +10,14 @@ namespace Ui
 
 class ReosHydraulicStructure2D;
 class ReosHydraulicNetwork;
+class ReosHydraulicScheme;
 
 class ReosHydraulicStructureResultExport : public QDialog
 {
     Q_OBJECT
 
   public:
-    explicit ReosHydraulicStructureResultExport( ReosHydraulicStructure2D *structure, QWidget *parent = nullptr );
+    explicit ReosHydraulicStructureResultExport( ReosHydraulicStructure2D *structure, const QString &currentSchemeId, QWidget *parent = nullptr );
     ~ReosHydraulicStructureResultExport();
 
   public slots:

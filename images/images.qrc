@@ -166,6 +166,7 @@
         <file>speed.svg</file>
         <file>temporalLine.svg</file>
         <file>cursorCoordinates.svg</file>
+        <file>exportToQGIS.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

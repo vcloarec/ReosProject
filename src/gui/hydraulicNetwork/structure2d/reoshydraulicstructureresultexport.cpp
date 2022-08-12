@@ -8,7 +8,7 @@
 #include "reoshydraulicscheme.h"
 #include "reoshydraulicnetwork.h"
 
-ReosHydraulicStructureResultExport::ReosHydraulicStructureResultExport( ReosHydraulicStructure2D *structure, QWidget *parent )
+ReosHydraulicStructureResultExport::ReosHydraulicStructureResultExport( ReosHydraulicStructure2D *structure,  const QString &currentSchemeId, QWidget *parent )
   : QDialog( parent ),
     ui( new Ui::ReosHydraulicStructureResultExport )
   , mStructure( structure )
@@ -16,7 +16,12 @@ ReosHydraulicStructureResultExport::ReosHydraulicStructureResultExport( ReosHydr
 {
   ui->setupUi( this );
   if ( structure )
+  {
     ui->mSchemeListView->setSchemeCollection( structure->hydraulicNetworkContext().network()->hydraulicSchemeCollection() );
+    ui->mSchemeListView->setCurrentScheme( currentSchemeId );
+  }
+
+  ui->mKeepLayer->setChecked( true );
 
   connect( ui->mSchemeListView->selectionModel(), &QItemSelectionModel::currentChanged, this, &ReosHydraulicStructureResultExport::onCurrentSchemeChange );
   connect( ui->mQGISFileButton, &QToolButton::clicked, this, &ReosHydraulicStructureResultExport::onFileButtonClicked );
@@ -32,7 +37,7 @@ ReosHydraulicStructureResultExport::~ReosHydraulicStructureResultExport()
 
 void ReosHydraulicStructureResultExport::accept()
 {
-  mStructure->exportResultAsMeshInGisProject( ui->mQGISProjectFileLineEdit->text() );
+  mStructure->exportResultAsMeshInGisProject( ui->mQGISProjectFileLineEdit->text(), ui->mKeepLayer->isChecked() );
 
   QDialog::accept();
 }
