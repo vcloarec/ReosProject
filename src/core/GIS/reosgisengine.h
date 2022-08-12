@@ -159,12 +159,17 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     //! Returns the temporal range
     QPair<QDateTime, QDateTime> temporalRange() const;
 
-    //! Create new project file with the current project, returns true if succefull
-    static bool createProjectFile( const QString &projectFileName );
-    static bool addMeshLayerToExistingProject( const QString &projectFileName,
-                                           const QString &uri,
-                                           const QMap<QString, ReosEncodedElement> &scalarSymbologies,
-                                           const QMap<QString, ReosEncodedElement> &vectorSymbologies );
+    /**
+     *  Creates new project file with the current project, returns true if succefull. if \a keepLayer is true,
+     *  the layers currently prensent in the project will be added to the new project
+     */
+    static bool createProjectFile( const QString &projectFileName, bool keepLayer = false );
+    static bool addMeshLayerToExistingProject(
+      const QString &projectFileName,
+      const QString &layerName,
+      const QString &uri,
+      const QMap<QString, ReosEncodedElement> &scalarSymbologies,
+      const QMap<QString, ReosEncodedElement> &vectorSymbologies );
 
     static QString gisEngineName();
     static QString gisEngineVersion();

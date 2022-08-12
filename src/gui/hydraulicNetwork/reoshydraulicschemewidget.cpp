@@ -89,3 +89,8 @@ ReosHydraulicScheme *ReosHydraulicSchemeListView::currentScheme() const
 {
   return mCollection->scheme( currentIndex().row() );
 }
+
+void ReosHydraulicSchemeListView::setCurrentScheme( const QString &schemeId )
+{
+  setCurrentIndex( mCollection->index( mCollection->schemeIndex( schemeId ), 0, QModelIndex() ) );
+}
