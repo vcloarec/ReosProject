@@ -250,6 +250,19 @@ bool ReosMeshFrame_p::isWireFrameActive() const
   return mMeshLayer->rendererSettings().nativeMeshSettings().isEnabled();
 }
 
+ReosEncodedElement ReosMeshFrame_p::wireFrameSymbology() const
+{
+  const QgsMeshRendererMeshSettings &meshSettings = mMeshLayer->rendererSettings().nativeMeshSettings();
+
+  QDomDocument doc( QStringLiteral( "frame-symbology" ) );
+  doc.appendChild( meshSettings.writeXml( doc ) ) ;
+
+  ReosEncodedElement encodedElem( QStringLiteral( "frame-symbology" ) );
+  QString docString = doc.toString();
+  encodedElem.addData( QStringLiteral( "frame-symbology" ), docString );
+  return encodedElem;
+}
+
 ReosObjectRenderer *ReosMeshFrame_p::createRenderer( QGraphicsView *view )
 {
   return new ReosMeshRenderer_p( view, mMeshLayer.get(), this );

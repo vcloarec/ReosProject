@@ -19,6 +19,7 @@ ReosHydraulicStructureResultExport::ReosHydraulicStructureResultExport( ReosHydr
   {
     ui->mSchemeListView->setSchemeCollection( structure->hydraulicNetworkContext().network()->hydraulicSchemeCollection() );
     ui->mSchemeListView->setCurrentScheme( currentSchemeId );
+    onCurrentSchemeChange();
   }
 
   ui->mKeepLayer->setChecked( true );

@@ -629,16 +629,35 @@ bool ReosGisEngine::createProjectFile( const QString &projectFileName, bool keep
     }
   }
 
-
   return project->write( projectFileName );
 }
 
-bool ReosGisEngine::addMeshLayerToExistingProject( const QString &projectFileName, const QString &layerName, const QString &uri, const QMap<QString, ReosEncodedElement> &scalarSymbologies, const QMap<QString, ReosEncodedElement> &vectorSymbologies )
+bool ReosGisEngine::addMeshLayerToExistingProject(
+  const QString &projectFileName,
+  const QString &layerName,
+  const QString &uri,
+  const ReosEncodedElement &meshFrameSymbology,
+  const QMap<QString, ReosEncodedElement> &scalarSymbologies,
+  const QMap<QString, ReosEncodedElement> &vectorSymbologies )
 {
   std::unique_ptr<QgsProject> project = std::make_unique<QgsProject>();
   project->read( projectFileName );
   std::unique_ptr<QgsMeshLayer> meshLayer = std::make_unique<QgsMeshLayer>( uri, layerName, QStringLiteral( "mdal" ) );
   project->viewSettings()->setDefaultViewExtent( QgsReferencedRectangle( meshLayer->extent(), meshLayer->crs() ) );
+
+  QgsMeshRendererSettings settings = meshLayer->rendererSettings();
+  {
+    QDomDocument doc( QStringLiteral( "frame-symbology" ) );
+    QString docString;
+    meshFrameSymbology.getData( QStringLiteral( "frame-symbology" ), docString );
+    if ( doc.setContent( docString ) )
+    {
+      const QDomElement &domElem = doc.firstChildElement( QStringLiteral( "mesh-settings" ) );
+      QgsMeshRendererMeshSettings meshSettings;
+      meshSettings.readXml( domElem );
+      settings.setNativeMeshSettings( meshSettings );
+    }
+  }
 
   const QList<int> &indexes = meshLayer->datasetGroupsIndexes();
   for ( int i : indexes )
@@ -647,44 +666,38 @@ bool ReosGisEngine::addMeshLayerToExistingProject( const QString &projectFileNam
 
     if ( scalarSymbologies.contains( meta.name() ) )
     {
-      ReosEncodedElement symbology = scalarSymbologies.value( meta.name() );
+      const ReosEncodedElement &symbology = scalarSymbologies.value( meta.name() );
       QString docString;
       symbology.getData( QStringLiteral( "symbology" ), docString );
-
       QDomDocument doc( QStringLiteral( "dataset-symbology" ) );
 
       if ( doc.setContent( docString ) )
       {
-        QDomElement domElem = doc.firstChildElement( QStringLiteral( "scalar-settings" ) );
-        QgsReadWriteContext context;
+        const QDomElement &domElem = doc.firstChildElement( QStringLiteral( "scalar-settings" ) );
         QgsMeshRendererScalarSettings scalarSettings;
         scalarSettings.readXml( domElem );
-        QgsMeshRendererSettings settings = meshLayer->rendererSettings();
         settings.setScalarSettings( i, scalarSettings );
-        meshLayer->setRendererSettings( settings );
       }
     }
 
     if ( vectorSymbologies.contains( meta.name() ) )
     {
-      ReosEncodedElement symbology = vectorSymbologies.value( meta.name() );
+      const ReosEncodedElement &symbology = vectorSymbologies.value( meta.name() );
       QString docString;
       symbology.getData( QStringLiteral( "symbology" ), docString );
-
       QDomDocument doc( QStringLiteral( "dataset-vector-symbology" ) );
 
       if ( doc.setContent( docString ) )
       {
-        QDomElement domElem = doc.firstChildElement( QStringLiteral( "vector-settings" ) );
-        QgsReadWriteContext context;
+        const QDomElement &domElem = doc.firstChildElement( QStringLiteral( "vector-settings" ) );
         QgsMeshRendererVectorSettings vectorSettings;
         vectorSettings.readXml( domElem );
-        QgsMeshRendererSettings settings = meshLayer->rendererSettings();
         settings.setVectorSettings( i, vectorSettings );
-        meshLayer->setRendererSettings( settings );
       }
     }
   }
+
+  meshLayer->setRendererSettings( settings );
 
   project->addMapLayer( meshLayer.release() );
   return project->write( projectFileName );

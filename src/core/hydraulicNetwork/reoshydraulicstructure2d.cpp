@@ -147,8 +147,15 @@ void ReosHydraulicStructure2D::exportResultAsMeshInGisProject( const QString &fi
     vectorSymbologies.insert( groupName, symbology );
   }
 
+
   mHydraulicNetworkContext.network()->gisEngine()->createProjectFile( fileName, keepLayers );
-  mHydraulicNetworkContext.network()->gisEngine()->addMeshLayerToExistingProject( fileName, meshName, meshFileName, scalarSymbologies, vectorSymbologies );
+  mHydraulicNetworkContext.network()->gisEngine()->addMeshLayerToExistingProject(
+    fileName,
+    meshName,
+    meshFileName,
+    mMesh->wireFrameSymbology(),
+    scalarSymbologies,
+    vectorSymbologies );
 }
 
 QVector<QVector<QVector<int> > > ReosHydraulicStructure2D::holesVertices() const
