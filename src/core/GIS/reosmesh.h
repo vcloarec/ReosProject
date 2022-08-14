@@ -194,6 +194,9 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     virtual void activateWireFrame( bool activate ) = 0;
     virtual bool isWireFrameActive() const = 0;
 
+    //! Return the mesh frame symbology with encoded format
+    virtual ReosEncodedElement wireFrameSymbology() const = 0;
+
     virtual WireFrameSettings wireFrameSettings() const = 0 ;
 
     virtual void setWireFrameSettings( const WireFrameSettings &wireFrameSettings ) = 0;
