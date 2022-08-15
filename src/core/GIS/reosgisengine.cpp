@@ -46,6 +46,7 @@ email                : vcloarec at gmail dot com
 #include <qgsprojectviewsettings.h>
 #include <qgslayerdefinition.h>
 #include <qgslayertree.h>
+#include <qgsmeshlayertemporalproperties.h>
 
 
 #define  mLayerTreeModel _layerTreeModel(mAbstractLayerTreeModel)
@@ -638,7 +639,8 @@ bool ReosGisEngine::addMeshLayerToExistingProject(
   const QString &uri,
   const ReosEncodedElement &meshFrameSymbology,
   const QMap<QString, ReosEncodedElement> &scalarSymbologies,
-  const QMap<QString, ReosEncodedElement> &vectorSymbologies )
+  const QMap<QString, ReosEncodedElement> &vectorSymbologies,
+  const ReosDuration &timeStep )
 {
   std::unique_ptr<QgsProject> project = std::make_unique<QgsProject>();
   project->read( projectFileName );
@@ -699,7 +701,41 @@ bool ReosGisEngine::addMeshLayerToExistingProject(
 
   meshLayer->setRendererSettings( settings );
 
+  QgsDateTimeRange timeExtent = static_cast<QgsMeshLayerTemporalProperties *>( meshLayer->temporalProperties() )->timeExtent();
+  timeExtent = QgsDateTimeRange( timeExtent.begin(), timeExtent.end().addMSecs( 1000 ) );
+  project->timeSettings()->setTemporalRange( timeExtent );
+
   project->addMapLayer( meshLayer.release() );
+
+  switch ( timeStep.unit() )
+  {
+    case ReosDuration::millisecond:
+      project->timeSettings()->setTimeStepUnit( QgsUnitTypes::TemporalMilliseconds );
+      break;
+    case ReosDuration::second:
+      project->timeSettings()->setTimeStepUnit( QgsUnitTypes::TemporalSeconds );
+      break;
+    case ReosDuration::minute:
+      project->timeSettings()->setTimeStepUnit( QgsUnitTypes::TemporalMinutes );
+      break;
+    case ReosDuration::hour:
+      project->timeSettings()->setTimeStepUnit( QgsUnitTypes::TemporalHours );
+      break;
+    case ReosDuration::day:
+      project->timeSettings()->setTimeStepUnit( QgsUnitTypes::TemporalDays );
+      break;
+    case ReosDuration::week:
+      project->timeSettings()->setTimeStepUnit( QgsUnitTypes::TemporalWeeks );
+      break;
+    case ReosDuration::month:
+      project->timeSettings()->setTimeStepUnit( QgsUnitTypes::TemporalMonths );
+      break;
+    case ReosDuration::year:
+      project->timeSettings()->setTimeStepUnit( QgsUnitTypes::TemporalYears );
+      break;
+  };
+  project->timeSettings()->setTimeStep( timeStep.valueUnit() );
+
   return project->write( projectFileName );
 }
 

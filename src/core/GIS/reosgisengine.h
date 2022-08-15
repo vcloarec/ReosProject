@@ -24,6 +24,7 @@ email                : vcloarec at gmail dot com
 #include "reosmodule.h"
 #include "reosencodedelement.h"
 #include "reosarea.h"
+#include "reosduration.h"
 
 class ReosDigitalElevationModel;
 class ReosDigitalElevationModelProvider;
@@ -164,12 +165,13 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
      *  the layers currently prensent in the project will be added to the new project
      */
     static bool createProjectFile( const QString &projectFileName, bool keepLayer = false );
-    static bool addMeshLayerToExistingProject(const QString &projectFileName,
-      const QString &layerName,
-      const QString &uri,
-      const ReosEncodedElement &meshFrameSymbology,
-      const QMap<QString, ReosEncodedElement> &scalarSymbologies,
-      const QMap<QString, ReosEncodedElement> &vectorSymbologies );
+    static bool addMeshLayerToExistingProject( const QString &projectFileName,
+        const QString &layerName,
+        const QString &uri,
+        const ReosEncodedElement &meshFrameSymbology,
+        const QMap<QString, ReosEncodedElement> &scalarSymbologies,
+        const QMap<QString, ReosEncodedElement> &vectorSymbologies,
+        const ReosDuration &timeStep );
 
     static QString gisEngineName();
     static QString gisEngineVersion();
