@@ -126,6 +126,11 @@ ReosDuration ReosTelemac2DSimulation::representativeTimeStep() const
   return mTimeStep->value() * std::min( mOutputPeriodResult2D->value(), mOutputPeriodResultHyd->value() );
 }
 
+ReosDuration ReosTelemac2DSimulation::representative2DTimeStep() const
+{
+  return mTimeStep->value() * mOutputPeriodResult2D->value();
+}
+
 REOSEXTERN ReosSimulationEngineFactory *engineSimulationFactory()
 {
   return new ReosTelemac2DSimulationEngineFactory();

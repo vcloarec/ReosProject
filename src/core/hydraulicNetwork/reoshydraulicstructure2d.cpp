@@ -147,6 +147,8 @@ void ReosHydraulicStructure2D::exportResultAsMeshInGisProject( const QString &fi
     vectorSymbologies.insert( groupName, symbology );
   }
 
+  ReosDuration timeStep = simulation( mHydraulicNetworkContext.network()->currentScheme() )->representative2DTimeStep();
+  timeStep.setAdaptedUnit();
 
   mHydraulicNetworkContext.network()->gisEngine()->createProjectFile( fileName, keepLayers );
   mHydraulicNetworkContext.network()->gisEngine()->addMeshLayerToExistingProject(
@@ -155,7 +157,9 @@ void ReosHydraulicStructure2D::exportResultAsMeshInGisProject( const QString &fi
     meshFileName,
     mMesh->wireFrameSymbology(),
     scalarSymbologies,
-    vectorSymbologies );
+    vectorSymbologies,
+    timeStep
+  );
 }
 
 QVector<QVector<QVector<int> > > ReosHydraulicStructure2D::holesVertices() const
