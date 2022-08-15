@@ -163,7 +163,7 @@
      <item row="0" column="0">
       <widget class="QCheckBox" name="mKeepLayer">
        <property name="text">
-        <string>Add layer of this project in the new project</string>
+        <string>Add layer(s) of current project in the new project</string>
        </property>
       </widget>
      </item>
