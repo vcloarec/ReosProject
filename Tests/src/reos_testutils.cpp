@@ -15,6 +15,7 @@ email                : vcloarec at gmail dot com
 
 #include "reos_testutils.h"
 #include "reosprocess.h"
+#include <filesystem>
 
 const char *data_path()
 {
@@ -31,6 +32,9 @@ std::string test_file( std::string basename )
 std::string tmp_file( std::string basename )
 {
   std::string path( data_path() + std::string( "/tmp" ) );
+  std::filesystem::path tmpPath( path );
+  if ( !std::filesystem::exists( path ) )
+    std::filesystem::create_directory( tmpPath );
   path += basename;
   return path;
 }
@@ -55,4 +59,31 @@ void ModuleProcessControler::processFinished()
 bool equal( double a, double b, double precision )
 {
   return std::fabs( a - b ) < precision;
+}
+
+bool equal( const QPolygonF &poly1, const QPolygonF &poly2 )
+{
+  if ( poly1.count() != poly2.count() )
+    return false;
+
+  if ( poly1.empty() )
+    return false;
+
+  int pos2 = 0;
+  int count = poly2.count();
+  while ( pos2 < poly2.count() )
+  {
+    if ( poly1.first() == poly2.at( pos2 ) )
+      break;
+    else
+      pos2++;
+  }
+
+  for ( int i = 0; i < count; ++i )
+  {
+    if ( poly1.at( i ) != poly2.at( ( pos2 + i ) % count ) )
+      return false;
+  }
+
+  return true;
 }

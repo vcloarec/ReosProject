@@ -121,12 +121,12 @@ void ReosWatersehdTest::watershedInteractions()
   QVERIFY( poly2 != watershed_2->delineating() ); //adding watershed 2 has to result to modify is delineating
   poly2.clear();
   poly2 << QPointF( 75, 0 ) << QPointF( 75, 50 ) << QPointF( 100, 50 ) << QPointF( 100, 0 );
-  QCOMPARE( poly2, watershed_2->delineating() );
+  QVERIFY( equal( poly2, watershed_2->delineating() ) );
   ReosWatershed *residual = watershed_1->residualWatershed();
   QVERIFY( residual );
   QPolygonF residualDelineating;
   residualDelineating << QPointF( 0, 0 ) << QPointF( 0, 50 ) << QPointF( 75, 50 ) << QPointF( 75, 0 );
-  QCOMPARE( residualDelineating, residual->delineating() );
+  QVERIFY( equal( residualDelineating, residual->delineating() ) );
   QCOMPARE( residual->outletPoint(), watershed_1->outletPoint() );
 
   QPolygonF poly3;
@@ -137,7 +137,7 @@ void ReosWatersehdTest::watershedInteractions()
   QVERIFY( poly3 != watershed_3->delineating() );
   poly3.clear();
   poly3 << QPointF( 50, 0 ) << QPointF( 50, 50 ) << QPointF( 100, 50 ) << QPointF( 100, 0 );
-  QCOMPARE( poly3, watershed_3->delineating() );
+  QVERIFY( equal( poly3, watershed_3->delineating() ) );
   QCOMPARE( watershed_1->downstreamWatershed(), nullptr );
   QCOMPARE( watershed_2->downstreamWatershed(), watershed_3 );
   QCOMPARE( watershed_1->directUpstreamWatershedCount(), 2 ); //new one + residual watershed
@@ -146,11 +146,11 @@ void ReosWatersehdTest::watershedInteractions()
   QCOMPARE( watershedTree.watershedCount(), 5 );
   residualDelineating.clear();
   residualDelineating << QPointF( 0, 0 ) << QPointF( 0, 50 ) << QPointF( 50, 50 ) << QPointF( 50, 0 );
-  QCOMPARE( residualDelineating, watershed_1->residualWatershed()->delineating() );
+  QVERIFY( equal( residualDelineating, watershed_1->residualWatershed()->delineating() ) );
   residual = watershed_3->residualWatershed();
   residualDelineating.clear();
   residualDelineating << QPointF( 50, 0 ) << QPointF( 50, 50 ) << QPointF( 75, 50 ) << QPointF( 75, 0 );
-  QCOMPARE( residualDelineating, residual->delineating() );
+  QVERIFY( equal( residualDelineating, residual->delineating() ) );
 
 }
 
