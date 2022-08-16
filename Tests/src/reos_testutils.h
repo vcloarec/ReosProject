@@ -31,6 +31,8 @@ std::string tmp_file( std::string basename );
 
 bool equal( double a, double b, double precision );
 
+bool equal( const QPolygonF &poly1, const QPolygonF &poly2 );
+
 class ModuleProcessControler: public QObject
 {
   public:

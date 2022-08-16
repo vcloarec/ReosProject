@@ -23,6 +23,7 @@ email                : vcloarec at gmail dot com
 #include "reos_testutils.h"
 
 #include "fstream"
+#include "filesystem"
 
 using namespace testing;
 
