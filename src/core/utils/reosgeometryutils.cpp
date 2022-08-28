@@ -213,3 +213,71 @@ double ReosGeometryUtils::length( const QPolygonF &polyline )
   return polyGeom.length();
 }
 
+static QVector<QPolygonF> sortMultiPolyline( const QgsGeometry &multiPolyline, const QgsGeometry &basePolyline, QVector<double> *distanceFromBegining )
+{
+  if ( distanceFromBegining )
+    distanceFromBegining->clear();
+
+  if ( multiPolyline.isMultipart() )
+  {
+    const QgsMultiPolylineXY &multiResult = multiPolyline.asMultiPolyline();
+    QMap<double, QPolygonF> sortedResult;
+    for ( const QgsPolylineXY &poly : multiResult )
+    {
+      if ( poly.size() > 1 )
+      {
+        double posFirst = basePolyline.lineLocatePoint( QgsGeometry::fromPointXY( poly.first() ) );
+        double posLast = basePolyline.lineLocatePoint( QgsGeometry::fromPointXY( poly.last() ) );
+
+        if ( posFirst > posLast )
+        {
+          int size = poly.size();
+          QPolygonF reversed( size );
+          for ( int i = 0; i < size; ++i )
+            reversed[i] = poly.at( size - 1 - i ).toQPointF();
+          sortedResult.insert( posLast, reversed );
+        }
+        else
+        {
+          int size = poly.size();
+          QPolygonF polyF( size );
+          for ( int i = 0; i < size; ++i )
+            polyF[i] = poly.at( i ).toQPointF();
+          sortedResult.insert( posFirst, polyF );
+        }
+      }
+    }
+
+    if ( distanceFromBegining )
+      *distanceFromBegining = sortedResult.keys().toVector();
+    return sortedResult.values().toVector();
+  }
+
+  QVector<QPolygonF> ret;
+  ret.append( multiPolyline.asQPolygonF() );
+  if ( distanceFromBegining )
+    distanceFromBegining->append( 0 );
+
+  return ret;
+}
+
+QVector<QPolygonF> ReosGeometryUtils::cutPolylineOutsidePolygon( const QPolygonF &polyline, const QPolygonF &polygon, QVector<double> *distanceFromBegining )
+{
+  const QgsGeometry polylineGeom( createQgsPolyline( polyline ) );
+  const QgsGeometry polygonGeom( createQgsPolygon( polygon ) );
+
+  QgsGeometry resultGeom = polygonGeom.intersection( polylineGeom );
+
+  return sortMultiPolyline( resultGeom, polylineGeom, distanceFromBegining );
+}
+
+QVector<QPolygonF> ReosGeometryUtils::cutPolylineInsidePolygon( const QPolygonF &polyline, const QPolygonF &polygon, QVector<double> *distanceFromBegining )
+{
+  const QgsGeometry polylineGeom( createQgsPolyline( polyline ) );
+  const QgsGeometry polygonGeom( createQgsPolygon( polygon ) );
+
+  QgsGeometry resultGeom = polylineGeom.difference( polygonGeom );
+
+  return sortMultiPolyline( resultGeom, polylineGeom, distanceFromBegining );
+}
+

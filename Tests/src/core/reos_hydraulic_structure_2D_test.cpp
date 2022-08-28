@@ -17,6 +17,7 @@ email                : vcloarec at gmail dot com
 
 #include "reoshydraulicstructure2d.h"
 #include "reospolygonstructure.h"
+#include "reoshydraulicstructureprofile.h"
 #include "reosgisengine.h"
 #include "reosmapextent.h"
 #include "reostopographycollection.h"
@@ -32,6 +33,7 @@ class ReoHydraulicStructure2DTest: public QObject
     void createAndEditPolygonStructure();
 
     void createHydraulicStructure();
+    void profile();
   private:
     ReosHydraulicNetwork *mNetwork = nullptr;
     ReosModule *mRootModule = nullptr;
@@ -432,5 +434,34 @@ void ReoHydraulicStructure2DTest::createHydraulicStructure()
   QVERIFY( std::isnan( mHydraulicStructure->terrainElevationAt( QPointF( 5.0, 5.0 ) ) ) );
   QVERIFY( std::isnan( mHydraulicStructure->terrainElevationAt( QPointF( 15.0, 5.0 ) ) ) );
 }
+
+void ReoHydraulicStructure2DTest::profile()
+{
+  QPolygonF profileGeom;
+  profileGeom << QPointF( -5, 5 )
+              << QPointF( 15, 5 )
+              << QPointF( 15, 5 )
+              << QPointF( 25, 15 );
+
+  ReosHydraulicStructureProfile *profile = new ReosHydraulicStructureProfile( profileGeom, mHydraulicStructure.get() );
+
+  const QList<QPolygonF> partsList = profile->parts().values();
+
+  QCOMPARE( partsList.count(), 3 );
+  QPolygonF part1;
+  part1 << QPointF( 0.0, 5.0 ) << QPointF( 2.5, 5.0 );
+  QCOMPARE( part1, partsList.at( 0 ) );
+  QPolygonF part2;
+  part2 << QPointF( 7.5, 5.0 ) << QPointF( 10.0, 5.0 );
+  QCOMPARE( part2, partsList.at( 1 ) );
+  QPolygonF part3;
+  part3 << QPointF( 20.0, 10.0 ) << QPointF( 25.0, 15.0 );
+  QCOMPARE( part3, partsList.at( 2 ) );
+
+  profile->deleteLater();
+}
+
+
+
 QTEST_MAIN( ReoHydraulicStructure2DTest )
 #include "reos_hydraulic_structure_2D_test.moc"
