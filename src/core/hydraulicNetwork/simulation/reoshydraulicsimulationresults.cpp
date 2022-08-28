@@ -71,6 +71,8 @@ QString ReosHydraulicSimulationResults::groupName( int groupIndex ) const
       return tr( "Velocity" );
       break;
   }
+
+  return QString();
 }
 
 bool ReosHydraulicSimulationResults::groupIsScalar( int groupIndex ) const

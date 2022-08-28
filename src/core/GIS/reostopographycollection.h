@@ -50,7 +50,9 @@ class REOSCORE_EXPORT ReosTopographyCollection : public ReosDataObject
 
     ReosParameterBoolean *autoApply() const;
 
-  protected:
+    ReosGisEngine *gisEngine() const;
+
+protected:
     explicit ReosTopographyCollection( ReosGisEngine *gisEngine, QObject *parent = nullptr );
     explicit ReosTopographyCollection( const ReosEncodedElement &element, ReosGisEngine *gisEngine, QObject *parent = nullptr );
 

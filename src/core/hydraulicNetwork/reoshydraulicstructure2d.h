@@ -166,6 +166,9 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Returns the id of the terrain dataset
     QString terrainMeshDatasetId() const;
 
+    //! Returns the elevation of the terran at \a position in map coordinates
+    double terrainElevationAt( const QPointF &position );
+
     //! Deactivates any activated scalar dataset
     void deactivateMeshScalar();
 
@@ -215,7 +218,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 
     void exportResultAsMesh( const QString &fileName ) const;
 
-    void exportResultAsMeshInGisProject(const QString &fileName , bool keepLayers);
+    void exportResultAsMeshInGisProject( const QString &fileName, bool keepLayers );
 
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) override;

@@ -28,6 +28,7 @@
 #include "reosparameter.h"
 #include "reosencodedelement.h"
 #include "reosmapextent.h"
+#include "reostopographycollection.h"
 
 ReosMeshFrame_p::ReosMeshFrame_p( const QString &crs, QObject *parent ): ReosMesh( parent )
 {
@@ -36,11 +37,11 @@ ReosMeshFrame_p::ReosMeshFrame_p( const QString &crs, QObject *parent ): ReosMes
   qgisCrs.createFromWkt( crs );
   mMeshLayer->setCrs( qgisCrs );
   meshProvider()->overrideCrs( qgisCrs );
-
+  mMeshLayer->updateTriangularMesh();
   init();
 }
 
-ReosMeshFrame_p::ReosMeshFrame_p( const QString &dataPath )
+ReosMeshFrame_p::ReosMeshFrame_p( const QString &dataPath, const QString &destinationCrs )
 {
   mMeshLayer.reset( new QgsMeshLayer( "path", "", QStringLiteral( "ReosMesh" ) ) );
 
@@ -50,7 +51,11 @@ ReosMeshFrame_p::ReosMeshFrame_p( const QString &dataPath )
     meshProvider()->loadMeshFrame( dir.filePath( QStringLiteral( "meshFrame.nc" ) ), QStringLiteral( "Ugrid" ) );
     mMeshLayer->setCrs( meshProvider()->crs() );
     mMeshLayer->reload();
-  }
+    QgsCoordinateReferenceSystem qgisDestinationCrs;
+    qgisDestinationCrs.createFromWkt( destinationCrs );
+    QgsCoordinateTransform transform( meshProvider()->crs(), qgisDestinationCrs, QgsProject::instance() );
+    mMeshLayer->updateTriangularMesh( transform );
+  };
 
   init();
 }
@@ -297,7 +302,7 @@ QPointF ReosMeshFrame_p::vertexPosition( int vertexIndex, const QString &destina
     return mMeshLayer->nativeMesh()->vertices.at( vertexIndex ).toQPointF();
 
   QgsCoordinateReferenceSystem crs;
-  crs.fromWkt( destinationCrs );
+  crs.createFromWkt( destinationCrs );
   QgsCoordinateTransform transform( mMeshLayer->crs(), crs, QgsProject::instance() );
   QgsPointXY vert = mMeshLayer->nativeMesh()->vertices.at( vertexIndex );
   if ( transform.isValid() )
@@ -358,7 +363,7 @@ void ReosMeshFrame_p::updateWireFrameSettings()
 QPointF ReosMeshFrame_p::tolayerCoordinates( const ReosSpatialPosition &position ) const
 {
   QgsCoordinateReferenceSystem sourceCrs;
-  sourceCrs.fromWkt( position.crs() );
+  sourceCrs.createFromWkt( position.crs() );
 
   const QgsCoordinateTransform transform( sourceCrs, mMeshLayer->crs(), QgsProject::instance() );
   QgsPointXY ret;
@@ -859,12 +864,13 @@ class ApplyTopopraphyProcess : public ReosProcess
     ApplyTopopraphyProcess( ReosTopographyCollection *topographyCollection, ReosMeshDataProvider_p *meshProvider )
       : mTopographyCollection( topographyCollection )
       , mProvider( meshProvider )
-    {
+    {}
 
-    }
+
     void start()
     {
       mProvider->applyTopographyOnVertices( mTopographyCollection, this );
+      mIsSuccessful = true;
     }
 
   private:
@@ -877,13 +883,13 @@ ReosProcess *ReosMeshFrame_p::applyTopographyOnVertices( ReosTopographyCollectio
   if ( mMeshLayer->isEditable() )
     stopFrameEditing( true );
 
-
   std::unique_ptr<ReosProcess> process( new ApplyTopopraphyProcess( topographyCollection, meshProvider() ) );
 
-  connect( process.get(), &ReosProcess::finished, this, [this]
+  connect( process.get(), &ReosProcess::finished, this, [this, topographyCollection]
   {
     mMeshLayer->reload();
-
+    QgsCoordinateTransform tranform( mMeshLayer->crs(), QgsCoordinateReferenceSystem::fromWkt( topographyCollection->gisEngine()->crs() ), QgsProject::instance()->transformContext() );
+    mMeshLayer->updateTriangularMesh( tranform );
     if ( mZVerticesDatasetGroup )
       mZVerticesDatasetGroup->setStatisticObsolete();
 

@@ -60,7 +60,7 @@ class REOSCORE_EXPORT ReosDataObject: public QObject
     void deregisterUpstreamData( ReosDataObject *data );
     void setActualized() const;
 
-    //! Return true whether the data need to be calculated ot updated
+    //! Return true whether the data need to be calculated or updated
     bool isObsolete() const;
 
   protected slots:

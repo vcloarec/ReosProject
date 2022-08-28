@@ -41,7 +41,7 @@ ReosGeometryStructure_p::ReosGeometryStructure_p( const  QString &type, const QS
 QgsPointXY ReosGeometryStructure_p::toLayerCoordinates( const ReosSpatialPosition &position ) const
 {
   QgsCoordinateReferenceSystem crs;
-  crs.fromWkt( position.crs() );
+  crs.createFromWkt( position.crs() );
 
   QgsCoordinateTransform transform( crs, mVectorLayer->crs(), QgsProject::instance() );
 
@@ -57,7 +57,7 @@ QgsPointXY ReosGeometryStructure_p::transformCoordinates( const QPointF &positio
 const QgsCoordinateTransform ReosGeometryStructure_p::toLayerTransform( const QString &crs ) const
 {
   QgsCoordinateReferenceSystem qgsCrs;
-  qgsCrs.fromWkt( crs );
+  qgsCrs.createFromWkt( crs );
 
   return QgsCoordinateTransform( qgsCrs, mVectorLayer->crs(), QgsProject::instance() );
 }
@@ -65,7 +65,7 @@ const QgsCoordinateTransform ReosGeometryStructure_p::toLayerTransform( const QS
 const QgsCoordinateTransform ReosGeometryStructure_p::toDestinationTransform( const QString &destinationCrs ) const
 {
   QgsCoordinateReferenceSystem qgsCrs;
-  qgsCrs.fromWkt( destinationCrs );
+  qgsCrs.createFromWkt( destinationCrs );
 
   return QgsCoordinateTransform( mVectorLayer->crs(), qgsCrs, QgsProject::instance() );
 }
@@ -1936,7 +1936,7 @@ bool ReosPolylineStructureVectorLayer::isOnBoundary( ReosGeometryStructureVertex
 double ReosPolylineStructureVectorLayer::tolerance( const QString &wktCrs ) const
 {
   QgsCoordinateReferenceSystem destCrs;
-  destCrs.fromWkt( wktCrs );
+  destCrs.createFromWkt( wktCrs );
 
   QgsUnitTypes::DistanceUnit destUnit = destCrs.mapUnits();
   QgsUnitTypes::DistanceUnit layerUnit = mVectorLayer->crs().mapUnits();

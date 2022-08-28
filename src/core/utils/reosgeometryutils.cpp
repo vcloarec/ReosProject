@@ -180,7 +180,7 @@ QPolygonF ReosGeometryUtils::polygonCutByPolygons( const QPolygonF &polygon1, co
 QPolygonF ReosGeometryUtils::polygonUnion( const QPolygonF &polygon1, const QPolygonF &polygon2 )
 {
   QgsGeometry geom1( createQgsPolygon( polygon1 ) );
-  QgsGeometry geom2( createQgsPolygon( polygon2 ) );
+  const QgsGeometry geom2( createQgsPolygon( polygon2 ) );
 
   QPolygonF ret = geom1.combine( geom2 ).asQPolygonF();
 
@@ -192,7 +192,7 @@ QPolygonF ReosGeometryUtils::polygonUnion( const QPolygonF &polygon1, const QPol
 
 int ReosGeometryUtils::closestSegment( const QPointF &point, const QPolygonF &polyline )
 {
-  QgsGeometry poly( createQgsPolyline( polyline ) );
+  const QgsGeometry poly( createQgsPolyline( polyline ) );
 
   QgsPointXY returnPoint;
   int secondIndex;
@@ -203,7 +203,7 @@ int ReosGeometryUtils::closestSegment( const QPointF &point, const QPolygonF &po
 
 double ReosGeometryUtils::projectedPointDistanceFromBegining( const QPointF &point, const QPolygonF &polyline )
 {
-  QgsGeometry polyGeom = QgsGeometry::fromQPolygonF( polyline );
+  const QgsGeometry polyGeom = QgsGeometry::fromQPolygonF( polyline );
   return polyGeom.lineLocatePoint( QgsGeometry::fromQPointF( point ) );
 }
 

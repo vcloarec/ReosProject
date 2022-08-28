@@ -153,6 +153,11 @@ ReosTopographyCollection::ReosTopographyCollection( const ReosEncodedElement &el
   }
 }
 
+ReosGisEngine *ReosTopographyCollection::gisEngine() const
+{
+    return mGisEngine;
+}
+
 ReosParameterBoolean *ReosTopographyCollection::autoApply() const
 {
   return mAutoApply;
