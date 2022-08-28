@@ -482,6 +482,14 @@ ReosHydraulicNetwork *ReosHydraulicNetworkContext::network() const
   return mNetwork;
 }
 
+QString ReosHydraulicNetworkContext::crs() const
+{
+  if ( mNetwork->gisEngine() )
+    return mNetwork->gisEngine()->crs();
+
+  return QString();
+}
+
 QString ReosHydraulicNetworkContext::projectPath() const
 {
   return mProjectPath;

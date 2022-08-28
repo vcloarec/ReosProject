@@ -43,7 +43,7 @@ class ReosMeshFrame_p : public ReosMesh
 {
   public:
     ReosMeshFrame_p( const QString &crs, QObject *parent );
-    ReosMeshFrame_p( const QString &dataPath );
+    ReosMeshFrame_p( const QString &dataPath, const QString &destinationCrs );
 
     bool isValid() const override;
     int vertexCount() const override;
@@ -56,7 +56,7 @@ class ReosMeshFrame_p : public ReosMesh
     void generateMesh( const ReosMeshFrameData &data ) override;
     QString crs() const override;
     QObject *data() const override;
-    ReosProcess *applyTopographyOnVertices( ReosTopographyCollection *topographyCollection ) override;
+    ReosProcess *applyTopographyOnVertices(ReosTopographyCollection *topographyCollection ) override;
     double datasetScalarValueAt( const QString &datasetId, const QPointF &pos ) const override;
     void datasetGroupMinimumMaximum( const QString &datasetId, double &min, double &max ) const override;
     void save( const QString &dataPath ) override;

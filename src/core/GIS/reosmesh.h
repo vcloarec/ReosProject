@@ -22,13 +22,13 @@
 #include <QSet>
 
 #include "reoscore.h"
+#include "reosgisengine.h"
 #include "reosrenderedobject.h"
 #include "reosencodedelement.h"
 
 class ReosMeshGenerator;
 class ReosMeshFrameData;
 class ReosDigitalElevationModel;
-class ReosMap;
 class ReosTopographyCollection;
 class ReosParameterDouble;
 class ReosParameterInteger;
@@ -37,6 +37,7 @@ class ReosParameterArea;
 class ReosHydraulicSimulationResults;
 class ReosSpatialPosition;
 class ReosMeshDatasetSource;
+class ReosGisEngine;
 
 
 class ReosMeshQualityChecker : public ReosProcess
@@ -110,7 +111,7 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     //! Creates a new void mesh in memory
     static ReosMesh *createMeshFrame( const QString &crs = QString(), QObject *parent = nullptr );
 
-    static ReosMesh *createMeshFrameFromFile( const QString &dataPath );
+    static ReosMesh *createMeshFrameFromFile( const QString &dataPath, const QString &destinationCrs );
 
     //! Returns whether the mesh is valid
     virtual bool isValid() const = 0;

@@ -122,6 +122,8 @@ class REOSCORE_EXPORT ReosHydraulicNetworkContext
     ReosWatershedModule *watershedModule() const;
     ReosHydraulicNetwork *network() const;
 
+    QString crs() const;
+
     QString projectPath() const;
     QString projectName() const;
 

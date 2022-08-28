@@ -57,7 +57,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   else
     mMeshResolutionController = new ReosMeshResolutionController( this );
 
-  mMesh.reset( ReosMesh::createMeshFrameFromFile( structureDirectory().path() ) );
+  mMesh.reset( ReosMesh::createMeshFrameFromFile( structureDirectory().path(), context.crs() ) );
   init();
 
   mMesh->setQualityMeshParameter( encodedElement.getEncodedData( QStringLiteral( "mesh-quality-parameters" ) ) );
@@ -410,6 +410,11 @@ ReosTopographyCollection *ReosHydraulicStructure2D::topographyCollecion() const
 QString ReosHydraulicStructure2D::terrainMeshDatasetId() const
 {
   return mMesh->verticesElevationDatasetId();
+}
+
+double ReosHydraulicStructure2D::terrainElevationAt( const QPointF &position )
+{
+  return mMesh->datasetScalarValueAt( terrainMeshDatasetId(), position );
 }
 
 void ReosHydraulicStructure2D::activateResultDatasetGroup( const QString &id )
