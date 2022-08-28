@@ -55,6 +55,9 @@ class REOSCORE_EXPORT ReosGeometryUtils
     static double projectedPointDistanceFromBegining( const QPointF &point, const QPolygonF &polyline );
 
     static double length( const QPolygonF &polyline );
+
+    static QVector<QPolygonF> cutPolylineOutsidePolygon( const QPolygonF &polyline, const QPolygonF &polygon, QVector<double> *distanceFromBegining = nullptr );
+    static QVector<QPolygonF> cutPolylineInsidePolygon( const QPolygonF &polyline, const QPolygonF &polygon, QVector<double> *distanceFromBegining = nullptr );
 };
 
 #endif // REOSGEOMETRYUTILS_H
