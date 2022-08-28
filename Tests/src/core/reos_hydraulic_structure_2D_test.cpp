@@ -19,6 +19,8 @@ email                : vcloarec at gmail dot com
 #include "reospolygonstructure.h"
 #include "reosgisengine.h"
 #include "reosmapextent.h"
+#include "reostopographycollection.h"
+#include "reos_testutils.h"
 
 class ReoHydraulicStructure2DTest: public QObject
 {
@@ -28,16 +30,20 @@ class ReoHydraulicStructure2DTest: public QObject
     void init();
     void createAndEditPolylineStructure();
     void createAndEditPolygonStructure();
+
+    void createHydraulicStructure();
   private:
     ReosHydraulicNetwork *mNetwork = nullptr;
     ReosModule *mRootModule = nullptr;
-    ReosGisEngine engine;
+    ReosGisEngine mGisEngine;
+
+    std::unique_ptr<ReosHydraulicStructure2D> mHydraulicStructure;
 };
 
 void ReoHydraulicStructure2DTest::init()
 {
   mRootModule = new ReosModule( this );
-  mNetwork = new ReosHydraulicNetwork( nullptr, nullptr, nullptr );
+  mNetwork = new ReosHydraulicNetwork( mRootModule, &mGisEngine, nullptr );
 }
 
 void ReoHydraulicStructure2DTest::createAndEditPolylineStructure()
@@ -379,5 +385,52 @@ void ReoHydraulicStructure2DTest::createAndEditPolygonStructure()
 
 }
 
+void ReoHydraulicStructure2DTest::createHydraulicStructure()
+{
+  QPolygonF domain;
+  domain << QPointF( 0, 0 )
+         << QPointF( 10, 0 )
+         << QPointF( 10, 10 )
+         << QPointF( 20, 10 )
+         << QPointF( 20, 0 )
+         << QPointF( 30, 0 )
+         << QPointF( 30, 20 )
+         << QPointF( 0, 20 );
+
+  mHydraulicStructure = std::make_unique<ReosHydraulicStructure2D>( domain, QString(), mNetwork->context() );
+  mHydraulicStructure->meshResolutionController()->defaultSize()->setValue( 1 );
+
+  std::unique_ptr<ReosMeshGeneratorProcess> meshGenerator( mHydraulicStructure->getGenerateMeshProcess() );
+  meshGenerator->start();
+  Q_ASSERT( meshGenerator->isSuccessful() );
+  QCOMPARE( mHydraulicStructure->mesh()->vertexCount(), 714 );
+
+  QPolygonF hole;
+  hole << QPointF( 2.5, 2.5 )
+       << QPointF( 7.5, 2.5 )
+       << QPointF( 7.5, 7.5 )
+       << QPointF( 2.5, 7.5 )
+       << QPointF( 2.5, 2.5 );
+  mHydraulicStructure->geometryStructure()->addPolylines( hole );
+  mHydraulicStructure->geometryStructure()->addHolePoint( QPointF( 5, 5 ) );
+
+  meshGenerator.reset( mHydraulicStructure->getGenerateMeshProcess() );
+  meshGenerator->start();
+  QVERIFY( meshGenerator->isSuccessful() );
+  QCOMPARE( mHydraulicStructure->mesh()->vertexCount(), 687 );
+
+  QString demId = mGisEngine.addRasterLayer( test_file( "dem_for_mesh.tif" ).c_str() );
+  mGisEngine.registerLayerAsDigitalElevationModel( demId );
+  mHydraulicStructure->topographyCollecion()->insertTopography( 0, demId );
+
+  ModuleProcessControler controler( mHydraulicStructure->mesh()->applyTopographyOnVertices( mHydraulicStructure->topographyCollecion() ) );
+  controler.waitForFinished();
+
+  QVERIFY( equal( mHydraulicStructure->terrainElevationAt( QPointF( 15.0, 15.0 ) ), 1, 0.01 ) );
+  QVERIFY( equal( mHydraulicStructure->terrainElevationAt( QPointF( 10.0, 15.0 ) ), 0.666, 0.01 ) );
+  QVERIFY( equal( mHydraulicStructure->terrainElevationAt( QPointF( 20.0, 15.0 ) ), 1.333, 0.01 ) );
+  QVERIFY( std::isnan( mHydraulicStructure->terrainElevationAt( QPointF( 5.0, 5.0 ) ) ) );
+  QVERIFY( std::isnan( mHydraulicStructure->terrainElevationAt( QPointF( 15.0, 5.0 ) ) ) );
+}
 QTEST_MAIN( ReoHydraulicStructure2DTest )
 #include "reos_hydraulic_structure_2D_test.moc"
