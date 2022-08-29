@@ -162,8 +162,9 @@ bool LekanMainWindow::openProject()
   if ( !mGisEngine->decode( lekanProject.getEncodedData( QStringLiteral( "GIS-engine" ) ), path, baseName ) )
     return false;
 
-  mWatershedModule->decode( lekanProject.getEncodedData( QStringLiteral( "watershed-module" ) ) );
+  mMap->initialize();
 
+  mWatershedModule->decode( lekanProject.getEncodedData( QStringLiteral( "watershed-module" ) ) );
   mHydraulicNetwork->decode( lekanProject.getEncodedData( QStringLiteral( "hydaulic-network" ) ), path, baseName );
 
   return true;

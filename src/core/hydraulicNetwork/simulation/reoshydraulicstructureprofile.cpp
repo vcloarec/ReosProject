@@ -3,12 +3,12 @@
 #include "reoshydraulicstructure2d.h"
 #include "reosgeometryutils.h"
 
-ReosHydraulicStructureProfile::ReosHydraulicStructureProfile( const QPolygonF &geometry, ReosHydraulicStructure2D *structure )
-  : QObject( structure )
+ReosHydraulicStructureProfile::ReosHydraulicStructureProfile( const QString &name, const QPolygonF &geometry, ReosHydraulicStructure2D *structure )
+  : ReosDataObject( structure )
   , mGeometry( geometry )
   , mStructure( structure )
 {
-
+  setName( name );
 }
 
 QMap<double, QPolygonF> ReosHydraulicStructureProfile::parts() const
@@ -67,4 +67,56 @@ void ReosHydraulicStructureProfile::initParts() const
 
     mParts = newParts;
   }
+}
+
+ReosHydraulicStructureProfilesCollection::ReosHydraulicStructureProfilesCollection( QObject *parent ): QAbstractListModel( parent )
+{
+
+}
+
+QModelIndex ReosHydraulicStructureProfilesCollection::index( int row, int column, const QModelIndex & ) const
+{
+  return createIndex( row, column );
+}
+
+QModelIndex ReosHydraulicStructureProfilesCollection::parent( const QModelIndex & ) const
+{return QModelIndex(); }
+
+int ReosHydraulicStructureProfilesCollection::rowCount( const QModelIndex & ) const
+{
+  return mProfiles.count();
+}
+
+int ReosHydraulicStructureProfilesCollection::columnCount( const QModelIndex & ) const
+{
+  return 1;
+}
+
+QVariant ReosHydraulicStructureProfilesCollection::data( const QModelIndex &index, int role ) const
+{
+  if ( !index.isValid() )
+    return QVariant();
+
+  if ( index.row() >= mProfiles.count() )
+    return QVariant();
+
+  if ( role == Qt::DisplayRole )
+    return mProfiles.at( index.row() )->name();
+
+  return QVariant();
+}
+
+void ReosHydraulicStructureProfilesCollection::addProfile( ReosHydraulicStructureProfile *profile )
+{
+  beginInsertRows( QModelIndex(), mProfiles.count(), mProfiles.count() );
+  mProfiles.append( profile );
+  endInsertRows();
+}
+
+ReosHydraulicStructureProfile *ReosHydraulicStructureProfilesCollection::profile( int profileIndex )
+{
+  if ( profileIndex < 0 || profileIndex >= mProfiles.count() )
+    return nullptr;
+
+  return mProfiles.at( profileIndex );
 }

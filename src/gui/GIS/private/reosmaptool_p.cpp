@@ -428,6 +428,9 @@ bool ReosMapToolEditPolygon_p::populateContextMenuWithEvent( QMenu *menu, QgsMap
   // remove QQIS default menu
   menu->clear();
 
+  if ( !mPolygon )
+    return false;
+
   const QPointF mapPoint = event->mapPoint().toQPointF();
   menu->addAction( tr( "Insert vertex" ), this, [mapPoint, this]
   {

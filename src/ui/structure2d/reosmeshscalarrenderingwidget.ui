@@ -26,7 +26,10 @@
    <property name="bottomMargin">
     <number>0</number>
    </property>
-   <item row="1" column="0">
+   <item row="4" column="0" colspan="2">
+    <layout class="QHBoxLayout" name="mColorRampShaderLayout"/>
+   </item>
+   <item row="1" column="0" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <property name="topMargin">
       <number>0</number>
@@ -60,10 +63,7 @@
      </item>
     </layout>
    </item>
-   <item row="4" column="0" colspan="2">
-    <layout class="QHBoxLayout" name="mColorRampShaderLayout"/>
-   </item>
-   <item row="3" column="0">
+   <item row="3" column="0" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <property name="topMargin">
       <number>0</number>
@@ -87,7 +87,7 @@
      </item>
     </layout>
    </item>
-   <item row="2" column="0">
+   <item row="2" column="0" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QLabel" name="mOpacityLabel">

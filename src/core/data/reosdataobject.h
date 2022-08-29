@@ -40,7 +40,7 @@ class REOSCORE_EXPORT ReosDataObject: public QObject
     void encode( ReosEncodedElement &element ) const;
     void decode( const ReosEncodedElement &element );
 
-    //! Static method hat return the type of this class
+    //! Static method that return the type of this class
     static QString staticType() {return QStringLiteral( "data" );}
 
   public slots:

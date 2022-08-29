@@ -64,6 +64,8 @@ class REOSGUI_EXPORT ReosMapTool : public QObject
     void activateMovingSignal( bool activate );
 
     void enableSnapping( bool enable );
+
+    QString crs() const;
   signals:
     void itemFoundWhenMoving( ReosMapItem *item );
     void move( const QPointF &point );
