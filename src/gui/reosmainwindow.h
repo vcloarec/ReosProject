@@ -43,6 +43,9 @@ class REOSGUI_EXPORT ReosMainWindow : public QMainWindow
     explicit ReosMainWindow( QWidget *parent = nullptr );
     bool openFile();
 
+  public slots:
+    void newProject();
+
   protected:
     void closeEvent( QCloseEvent *event ) override;
     void keyPressEvent( QKeyEvent *event ) override;
@@ -74,7 +77,6 @@ class REOSGUI_EXPORT ReosMainWindow : public QMainWindow
 
     bool save();
     bool saveAs();
-    void newProject();
 
     void onRemoteInformation( const QVariantMap &information );
 

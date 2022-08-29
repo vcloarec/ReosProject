@@ -107,7 +107,7 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   restoreGeometry( settings.value( QStringLiteral( "Windows/MainWindow/geometry" ) ).toByteArray() );
   restoreState( settings.value( QStringLiteral( "Windows/MainWindow/state" ) ).toByteArray() );
 
-  clearProject();
+  newProject();
 }
 
 bool LekanMainWindow::openProject()
@@ -228,6 +228,7 @@ void LekanMainWindow::clearProject()
 
   if ( mHydraulicNetwork )
     mHydraulicNetwork->reset();
+
 }
 
 void LekanMainWindow::checkExtraProjectToSave()
