@@ -36,6 +36,8 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, con
   , mTopographyCollection( ReosTopographyCollection::createTopographyCollection( context.network()->gisEngine(), this ) )
   , mMesh( ReosMesh::createMeshFrame( crs ) )
   , mRoughnessStructure( new ReosRoughnessStructure( crs ) )
+  , mProfilesCollection( new ReosHydraulicStructureProfilesCollection( this ) )
+  , mHydraulicNetworkContext( context )
 {
   init();
 }
@@ -48,6 +50,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( encodedElement.getEncodedData( QStringLiteral( "structure" ) ) ) )
   , mTopographyCollection( ReosTopographyCollection::createTopographyCollection( encodedElement.getEncodedData( QStringLiteral( "topography-collection" ) ), context.network()->gisEngine(), this ) )
   , mRoughnessStructure( new ReosRoughnessStructure( encodedElement.getEncodedData( QStringLiteral( "roughness-structure" ) ) ) )
+  , mProfilesCollection( new ReosHydraulicStructureProfilesCollection( this ) )
   , m3dMapSettings( encodedElement.getEncodedData( "3d-map-setings" ) )
 {
   if ( encodedElement.hasEncodedData( QStringLiteral( "mesh-resolution-controller" ) ) )
@@ -107,7 +110,40 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
 
   if ( !encodedElement.getData( QStringLiteral( "mesh-need-to-be-generated" ), mMeshNeedToBeGenerated ) )
     mMeshNeedToBeGenerated = true;
+
 }
+
+ReosHydraulicStructureProfilesCollection *ReosHydraulicStructure2D::profilesCollection() const
+{
+  return mProfilesCollection;
+}
+
+int ReosHydraulicStructure2D::createProfile( const QString &name, const QPolygonF &linesInPlan, const QString &linesCrs )
+{
+  QPolygonF lp = ReosGisEngine::transformToCoordinates( linesCrs, linesInPlan, mMesh->crs() );
+  std::unique_ptr<ReosHydraulicStructureProfile> profile = std::make_unique<ReosHydraulicStructureProfile>( name, lp, this );
+
+  mProfilesCollection->addProfile( profile.release() );
+
+  return mProfilesCollection->rowCount( QModelIndex() ) - 1;
+}
+
+int ReosHydraulicStructure2D::profilesCount() const
+{
+  return mProfilesCollection->rowCount( QModelIndex() );
+}
+
+ReosHydraulicStructureProfile *ReosHydraulicStructure2D::profile( int profileIndex ) const
+{
+  return mProfilesCollection->profile( profileIndex );
+}
+
+ReosHydraulicNetworkContext ReosHydraulicStructure2D::hydraulicNetworkContext() const
+{
+  return mHydraulicNetworkContext;
+}
+
+
 
 void ReosHydraulicStructure2D::exportResultAsMesh( const QString &fileName ) const
 {

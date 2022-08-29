@@ -443,7 +443,11 @@ void ReoHydraulicStructure2DTest::profile()
               << QPointF( 15, 5 )
               << QPointF( 25, 15 );
 
-  ReosHydraulicStructureProfile *profile = new ReosHydraulicStructureProfile( profileGeom, mHydraulicStructure.get() );
+  int profileIndex = mHydraulicStructure->createProfile( QStringLiteral( "profile 1" ), profileGeom, QString() );
+  ReosHydraulicStructureProfile *profile = mHydraulicStructure->profile( profileIndex );
+
+  QCOMPARE( QStringLiteral( "profile 1" ), profile->name() );
+  QCOMPARE( 1, mHydraulicStructure->profilesCount() );
 
   const QList<QPolygonF> partsList = profile->parts().values();
 
@@ -457,8 +461,6 @@ void ReoHydraulicStructure2DTest::profile()
   QPolygonF part3;
   part3 << QPointF( 20.0, 10.0 ) << QPointF( 25.0, 15.0 );
   QCOMPARE( part3, partsList.at( 2 ) );
-
-  profile->deleteLater();
 }
 
 

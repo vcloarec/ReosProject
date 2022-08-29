@@ -25,6 +25,7 @@
 #include "reosmesh.h"
 #include "reos3dmapsettings.h"
 #include "reoshydraulicsimulationresults.h"
+#include "reoshydraulicstructureprofile.h"
 
 class ReosTopographyCollection;
 class ReosRoughnessStructure;
@@ -218,6 +219,15 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 
     void exportResultAsMeshInGisProject( const QString &fileName, bool keepLayers );
 
+    //! Returns a pointer to the profile collection
+    ReosHydraulicStructureProfilesCollection *profilesCollection() const;
+
+    int createProfile( const QString &name, const QPolygonF &linesInPlan, const QString &linesCrs );
+
+    int profilesCount() const;
+
+    ReosHydraulicStructureProfile *profile( int profileIndex ) const;
+
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) override;
 
@@ -252,6 +262,8 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     bool mMeshNeedToBeGenerated = true;
 
     QList<ReosHydraulicSimulation *> mSimulations;
+
+    ReosHydraulicStructureProfilesCollection *mProfilesCollection = nullptr;
 
     //** configuration
     int mCurrentSimulationIndex = -1;

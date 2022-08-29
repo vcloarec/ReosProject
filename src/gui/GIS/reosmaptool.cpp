@@ -199,6 +199,11 @@ void ReosMapTool::enableSnapping( bool enable )
   tool_p()->enableSnapping( enable );
 }
 
+QString ReosMapTool::crs() const
+{
+  return map()->mapCrs();
+}
+
 
 ReosMapToolDrawExtent::ReosMapToolDrawExtent( ReosMap *map ): ReosMapToolDrawExtent( map, map )
 {}

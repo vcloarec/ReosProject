@@ -35,6 +35,7 @@
 #include "reoshydraulic2dsimulationwidget.h"
 #include "reoshydraulicschemewidget.h"
 #include "reoshydraulicstructureresultexport.h"
+#include "reoshydraulicstructureprofileswidget.h"
 
 
 class DatasetSettingsWidgetAction : public QWidgetAction
@@ -81,6 +82,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   , mActionExportSimulationFile( new QAction( QPixmap( QStringLiteral( ":/images/exportSimulation.svg" ) ), tr( "Export Simulation" ), this ) )
   , mActionEngineConfiguration( ( new QAction( QPixmap( QStringLiteral( ":/images/engineSettings.svg" ) ), tr( "Engine Settings" ), this ) ) )
   , mAction3DView( new QAction( QPixmap( QStringLiteral( ":/images/view3D.svg" ) ), tr( "3D View" ), this ) )
+  , mActionProfiles( new QAction( tr( "Profiles" ), this ) )
   , mActionExportAsMesh( new QAction( QPixmap( ":/images/exportToQGIS.svg" ), tr( "Export as Mesh to QGIS Project" ), this ) )
   , mScalarDatasetMenu( new QMenu( this ) )
   , mVectorDatasetMenu( new QMenu( this ) )
@@ -177,6 +179,14 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
     emit askForShow();
   } );
   mGuiContext.addActionToMainToolBar( QStringLiteral( "hydraulic-network" ), mVectorWidgetAction );
+
+  connect( mActionProfiles, &QAction::triggered, this, [this]
+  {
+    emit stackedPageWidgetOpened( new ReosHydraulicStructureProfilesWidget( mStructure2D, mGuiContext ) );
+    emit askForShow();
+  } );
+  toolBar->addAction( mActionProfiles );
+  mGuiContext.addActionToMainToolBar( QStringLiteral( "hydraulic-network" ), mActionProfiles );
 
   toolBar->addAction( mAction3DView );
 
