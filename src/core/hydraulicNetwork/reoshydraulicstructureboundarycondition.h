@@ -80,6 +80,8 @@ class REOSCORE_EXPORT ReosHydraulicStructureBoundaryCondition : public ReosHydro
     void setWaterLevelSeriesIndex( int waterLevelSeriesIndex );
     ReosTimeSerieVariableTimeStep *waterLevelSeries() const;
 
+    ReosHydraulicStructure2D *structure() const;
+
   public slots:
     //void updateCalculationContext( const ReosCalculationContext &context );
     //virtual void onUpstreamRoutingUpdated( const QString &routingId ) {}

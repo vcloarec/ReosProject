@@ -255,6 +255,11 @@ void ReosHydraulicStructureBoundaryCondition::onParameterNameChange()
   connect( mStructure->geometryStructure(), &ReosPolylinesStructure::classesChanged, this, &ReosHydraulicStructureBoundaryCondition::onBoundaryClassesChange );
 }
 
+ReosHydraulicStructure2D *ReosHydraulicStructureBoundaryCondition::structure() const
+{
+  return mStructure;
+}
+
 void ReosHydraulicStructureBoundaryCondition::setWaterLevelSeriesIndex( int waterLevelSeriesIndex )
 {
   mWaterLevelSeriesIndex = waterLevelSeriesIndex;

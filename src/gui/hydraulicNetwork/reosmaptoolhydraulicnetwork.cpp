@@ -19,6 +19,7 @@
 #include "reoshydraulicstructure2d.h"
 #include "reosmaptool_p.h"
 #include "reosstyleregistery.h"
+#include "reoshydraulicstructureboundarycondition.h"
 
 
 ReosMapToolDrawHydraulicNetworkLink::ReosMapToolDrawHydraulicNetworkLink( ReosHydraulicNetwork *network, ReosMap *map )
@@ -108,12 +109,22 @@ bool ReosMapToolDrawHydrographRouting::acceptItem( ReosMapItem *item )
     ReosHydrographSource *source = qobject_cast<ReosHydrographSource *>( nodeElem );
     if ( !source || source->outputHydrographTransfer() )
       return false;
-
-    return true;
   }
 
   if ( itemsCount() == 1 && item->description().contains( ReosHydrographJunction::staticType() ) )
   {
+    if ( item->description().contains( ReosHydraulicStructureBoundaryCondition::staticType() ) )
+    {
+      ReosHydraulicStructureBoundaryCondition *firstBoundary = qobject_cast<ReosHydraulicStructureBoundaryCondition *>
+          ( mNetwork->getElement( linkedItems().at( 0 )->description() ) );
+      if ( firstBoundary ) //first node of the link is a boundary
+      {
+        ReosHydraulicStructureBoundaryCondition *secondBoundary = static_cast<ReosHydraulicStructureBoundaryCondition *>( nodeElem );
+        if ( firstBoundary->structure() == secondBoundary->structure() )
+          return false;
+      }
+    }
+
     ReosHydrographJunction *firstJunction = qobject_cast<ReosHydrographJunction *>( mNetwork->getElement( linkedItems().at( 0 )->description() ) );
     ReosHydrographJunction *junction = qobject_cast<ReosHydrographJunction *>( nodeElem );
 
@@ -131,10 +142,14 @@ bool ReosMapToolDrawHydrographRouting::acceptItem( ReosMapItem *item )
       if ( junction == firstJunction )
         return false;
     }
-    return true;
   }
 
-  return nodeElem != nullptr && nodeElem->canAcceptLink( ReosHydrographRoutingLink::staticType(), itemsCount() );
+  if ( item->description().contains( ReosHydraulicStructureBoundaryCondition::staticType() ) )
+  {
+    return nodeElem != nullptr && nodeElem->canAcceptLink( ReosHydrographRoutingLink::staticType(), itemsCount() );
+  }
+
+  return true;
 }
 
 bool ReosMapToolDrawHydrographRouting::isFinished() const
