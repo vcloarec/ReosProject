@@ -220,7 +220,7 @@ ReosTelemac2DInititalConditionFromOtherSimulationWidget::ReosTelemac2DInititalCo
   , mInitialCondition( initialCondition )
   , mStructure( structure )
 {
-  ReosHydraulicNetwork *network =  structure->hydraulicNetworkContext().network();
+  ReosHydraulicNetwork *network =  structure->network();
 
   QGridLayout *gridLayout = new QGridLayout( this );
   setLayout( gridLayout );
@@ -252,7 +252,7 @@ void ReosTelemac2DInititalConditionFromOtherSimulationWidget::onSchemeChange()
 {
   mTimeStepCombo->clear();
 
-  ReosHydraulicNetwork *network =  mStructure->hydraulicNetworkContext().network();
+  ReosHydraulicNetwork *network =  mStructure->network();
   ReosHydraulicScheme *otherScheme = network->hydraulicSchemeCollection()->scheme( mSchemeCombo->currentIndex() );
 
   ReosHydraulicSimulation *sim = nullptr;

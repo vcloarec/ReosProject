@@ -104,7 +104,20 @@ void ReosModule::sendMessage( QString mes, MessageType type, bool messageBox ) c
     emit emitMessage( {type, mes}, messageBox );
 }
 
+void ReosModule::setProjectFileName( const QString &projectFileName )
+{
+  mProjectFileName = projectFileName;
+}
+
 QList<QAction *> ReosModule::actions() const {return mGroupAction->actions();}
+
+const QString ReosModule::projectFileName()
+{
+  if ( mReosParent )
+    return mReosParent->projectFileName();
+
+  return mProjectFileName;
+}
 
 void ReosModule::redo()
 {

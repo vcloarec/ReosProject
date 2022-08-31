@@ -25,7 +25,7 @@
 
 ReosHydraulicNetworkElement::ReosHydraulicNetworkElement( ReosHydraulicNetwork *parent ):
   ReosDataObject( parent )
-  , mNetWork( parent )
+  , mNetwork( parent )
   , mNameParameter( new ReosParameterString( tr( "Name" ), false, this ) )
 {
   mConstantTimeStepInTable = new ReosParameterDuration( tr( "Constant time step" ) );
@@ -36,7 +36,7 @@ ReosHydraulicNetworkElement::ReosHydraulicNetworkElement( ReosHydraulicNetwork *
 
 ReosHydraulicNetworkElement::ReosHydraulicNetworkElement( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent )
   : ReosDataObject( parent )
-  , mNetWork( parent )
+  , mNetwork( parent )
   , mNameParameter( ReosParameterString::decode( encodedElement.getEncodedData( QStringLiteral( "name-parameter" ) ), false, tr( "Name" ), this ) )
 {
   ReosDataObject::decode( encodedElement );
@@ -73,15 +73,15 @@ ReosHydraulicNetworkElement::~ReosHydraulicNetworkElement()
 
 void ReosHydraulicNetworkElement::destroy()
 {
-  if ( !mNetWork.isNull() )
-    mNetWork->mElements.remove( id() );
+  if ( !mNetwork.isNull() )
+    mNetwork->mElements.remove( id() );
   deleteLater();
 }
 
 void ReosHydraulicNetworkElement::positionChanged()
 {
-  if ( mNetWork )
-    mNetWork->elemPositionChangedPrivate( this );
+  if ( mNetwork )
+    mNetwork->elemPositionChangedPrivate( this );
 }
 
 ReosParameterString *ReosHydraulicNetworkElement::elementName() const
@@ -120,8 +120,8 @@ void ReosHydraulicNetworkElement::notify( const ReosModule::Message &messageObje
   {
     ReosModule::Message sendedMessage = messageObject;
     sendedMessage.prefixMessage( tr( "Routing %1: " ).arg( elementName()->value() ) );
-    if ( mNetWork )
-      mNetWork->message( sendedMessage );
+    if ( mNetwork )
+      mNetwork->message( sendedMessage );
   }
 }
 
@@ -137,6 +137,11 @@ void ReosHydraulicNetworkElement::restoreConfiguration( ReosHydraulicScheme * ) 
 ReosDuration ReosHydraulicNetworkElement::currentElementTimeStep() const
 {
   return ReosDuration( qint64( 0 ) );
+}
+
+ReosHydraulicNetwork *ReosHydraulicNetworkElement::network() const
+{
+  return mNetwork;
 }
 
 ReosHydraulicNetwork::ReosHydraulicNetwork( ReosModule *parent, ReosGisEngine *gisEngine, ReosWatershedModule *watershedModule )

@@ -52,6 +52,10 @@ class REOSCORE_EXPORT ReosModule : public QObject
 
     QList<QAction *> actions() const;
 
+    const QString projectFileName();
+
+    void setProjectFileName( const QString &projectFileName );
+
   signals:
     void newCommandToUndoStack( QUndoCommand *command );
     void activeUndoStack( QUndoStack *undoStack );
@@ -90,6 +94,7 @@ class REOSCORE_EXPORT ReosModule : public QObject
   private:
     ReosModule *mReosParent = nullptr;
     QList<ReosModule *> mReosChildren;
+    QString mProjectFileName;
 };
 
 #endif // REOSMODULE_H

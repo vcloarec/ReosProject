@@ -25,6 +25,7 @@ class ReosMeshDatasetSource : public QObject
 {
     Q_OBJECT
   public:
+
     ReosMeshDatasetSource( QObject *parent = nullptr );
 
     virtual int groupCount() const = 0;

@@ -26,6 +26,7 @@ ReosHydraulicScheme::ReosHydraulicScheme( ReosHydraulicSchemeCollection *collect
   , mStartTime( new ReosParameterDateTime( tr( "Start time" ), this ) )
   , mEndTime( new ReosParameterDateTime( tr( "End time" ), this ) )
 {
+  mEndTime->setValue( mEndTime->value().addSecs( 3600 ) );
   init();
 }
 

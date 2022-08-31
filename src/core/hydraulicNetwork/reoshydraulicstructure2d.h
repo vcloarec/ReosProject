@@ -116,13 +116,13 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     QStringList simulationNames() const;
 
     //! Returns a process that prepare the current simulation, caller take ownership
-    ReosProcess *getPreparationProcessSimulation( const ReosCalculationContext &context );
+    ReosSimulationPreparationProcess *getPreparationProcessSimulation( const ReosCalculationContext &context, QString &error );
 
     //! Returns a process that prepare the current simulation files in a specific \a diectory, caller take ownership
-    ReosProcess *getPreparationProcessSimulation( const ReosCalculationContext &context, const QDir &directory );
+    ReosSimulationPreparationProcess *getPreparationProcessSimulation( const ReosCalculationContext &context, QString &error, const QDir &directory );
 
-    //! Starts the current simulation, return true if the calculation is effectivly started and returns a pointer to the process
-    ReosSimulationProcess *startSimulation( const ReosCalculationContext &context );
+    //! Starts the current simulation, returns a pointer to the process
+    ReosSimulationProcess *startSimulation( const ReosCalculationContext &context, QString &error );
 
     //! Returns  a pointer to the current simulation process
     ReosSimulationProcess *simulationProcess( const ReosCalculationContext &context ) const;
@@ -214,8 +214,6 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Return the name of the current dataset
     QString currentDatasetName() const;
 
-    ReosHydraulicNetworkContext hydraulicNetworkContext() const;
-
     void exportResultAsMesh( const QString &fileName ) const;
 
     void exportResultAsMeshInGisProject( const QString &fileName, bool keepLayers );
@@ -251,6 +249,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     std::unique_ptr<ReosRoughnessStructure > mRoughnessStructure;
     QVector<QVector<int>> mBoundaryVertices;
     QVector<QVector<QVector<int>>> mHolesVertices;
+    bool mMeshNeedToBeGenerated = true;
 
     QList<ReosHydraulicSimulation *> mSimulations;
 
@@ -263,8 +262,6 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 
     Reos3DMapSettings m3dMapSettings;
     Reos3DTerrainSettings m3dTerrainSettings;
-
-    ReosHydraulicNetworkContext mHydraulicNetworkContext;
 
     void init();
     void generateMeshInPlace();
