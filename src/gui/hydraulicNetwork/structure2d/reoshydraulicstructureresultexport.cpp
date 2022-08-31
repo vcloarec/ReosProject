@@ -85,13 +85,17 @@ void ReosHydraulicStructureResultExport::onCurrentSchemeChange()
 void ReosHydraulicStructureResultExport::onFileButtonClicked()
 {
   const QString currentFile = ui->mQGISProjectFileLineEdit->text();
-  const QString newFile = QFileDialog::getSaveFileName( this,
-                          tr( "QGIS project file" ),
-                          currentFile,
-                          tr( "QGIS Project File (*.qgz)" ) );
+  QString newFile = QFileDialog::getSaveFileName( this,
+                    tr( "QGIS project file" ),
+                    currentFile,
+                    tr( "QGIS Project File (*.qgz)" ) );
 
   if ( newFile == currentFile || newFile.isEmpty() )
     return;
+
+  QFileInfo fileInfo( newFile );
+  if ( fileInfo.suffix() != QStringLiteral( "qgz" ) )
+    newFile = fileInfo.dir().filePath( fileInfo.completeBaseName() + QStringLiteral( ".qgz" ) );
 
   ui->mQGISProjectFileLineEdit->setText( newFile );
 }
