@@ -12,12 +12,12 @@ ReosHydraulicStructureResultExport::ReosHydraulicStructureResultExport( ReosHydr
   : QDialog( parent ),
     ui( new Ui::ReosHydraulicStructureResultExport )
   , mStructure( structure )
-  , mNetwork( structure ? structure->hydraulicNetworkContext().network() : nullptr )
+  , mNetwork( structure ? structure->network() : nullptr )
 {
   ui->setupUi( this );
   if ( structure )
   {
-    ui->mSchemeListView->setSchemeCollection( structure->hydraulicNetworkContext().network()->hydraulicSchemeCollection() );
+    ui->mSchemeListView->setSchemeCollection( structure->network()->hydraulicSchemeCollection() );
     ui->mSchemeListView->setCurrentScheme( currentSchemeId );
     onCurrentSchemeChange();
   }

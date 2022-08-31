@@ -34,20 +34,20 @@ ReosHydraulicSimulation::ReosHydraulicSimulation( QObject *parent ): ReosDataObj
 
 QDir ReosHydraulicSimulation::simulationDir( const ReosHydraulicStructure2D *hydraulicStructure, const QString &schemeId ) const
 {
-  if (!hydraulicStructure)
-        return QDir();
+  if ( !hydraulicStructure )
+    return QDir();
 
-  if (schemeId.isEmpty())
-      return QDir();
+  if ( schemeId.isEmpty() )
+    return QDir();
 
   QDir dir = hydraulicStructure->structureDirectory();
-  
-  QString schemeDirName = schemeId.split(':').last();
 
-  if ( !dir.cd(schemeDirName) )
+  QString schemeDirName = schemeId.split( ':' ).last();
+
+  if ( !dir.cd( schemeDirName ) )
   {
-    dir.mkdir(schemeDirName);
-    if ( !dir.cd(schemeDirName) )
+    dir.mkdir( schemeDirName );
+    if ( !dir.cd( schemeDirName ) )
       return QDir();
   }
 
@@ -70,11 +70,11 @@ ReosSimulationEngineRegistery::ReosSimulationEngineRegistery()
 
 void ReosSimulationEngineRegistery::registerEngineFactory( ReosSimulationEngineFactory *factory )
 {
-    if (factory)
-    {
-        mFactories[factory->key()] = std::unique_ptr<ReosSimulationEngineFactory>( factory );
-        mFactories[factory->key()]->initializeSettings();
-    }
+  if ( factory )
+  {
+    mFactories[factory->key()] = std::unique_ptr<ReosSimulationEngineFactory>( factory );
+    mFactories[factory->key()]->initializeSettings();
+  }
 }
 
 ReosHydraulicSimulation *ReosSimulationEngineRegistery::createSimulation( const QString &key, QObject *parent ) const
@@ -157,6 +157,8 @@ void ReosSimulationEngineRegistery::loadDynamicLibrary()
         registerEngineFactory( engineSimulationFactory );
       }
     }
+    else
+      qDebug() << library.errorString();
   }
 }
 
@@ -262,7 +264,7 @@ ReosSimulationProcess::ReosSimulationProcess( const ReosCalculationContext &cont
     }
   }
 
-  qRegisterMetaType< QList<double> >("QList<double>");
+  qRegisterMetaType< QList<double> >( "QList<double>" );
   connect( this, &ReosSimulationProcess::sendBoundaryFlow, this, &ReosSimulationProcess::onReceiveFlow );
 }
 

@@ -373,19 +373,35 @@ void ReosHydraulicStructure2DProperties::onLaunchCalculation()
 
     if ( !mStructure2D->currentSimulation() )
     {
-      QMessageBox::information( this, tr( "Run Simulation" ), "No simulation selected." );
+      QMessageBox::information( this, tr( "Run Simulation" ), tr( "No simulation selected." ) );
       return;
     }
+
+    QString error;
 
     mStructure2D->removeResults( mCalculationContext );
     mStructure2D->updateResults( mCalculationContext.schemeId() );
 
-    mActionEditStructure->setEnabled( false );
-    std::unique_ptr<ReosProcess> preparationProcess( mStructure2D->getPreparationProcessSimulation( mCalculationContext ) );
+    std::unique_ptr<ReosProcess> preparationProcess( mStructure2D->getPreparationProcessSimulation( mCalculationContext, error ) );
+    if ( !preparationProcess )
+    {
+      QMessageBox::warning( this, tr( "Run Simulation" ), tr( "Simulation did not start for following reason:\n\n%1" ).arg( error ) );
+      return;
+    }
+
     ReosProcessControler *controler = new ReosProcessControler( preparationProcess.get(), this );
     controler->exec();
 
-    setCurrentSimulationProcess( mStructure2D->startSimulation( mCalculationContext ), mCalculationContext );
+    ReosSimulationProcess *process = mStructure2D->startSimulation( mCalculationContext, error );
+    if ( process )
+      setCurrentSimulationProcess( process, mCalculationContext );
+    else
+    {
+      QMessageBox::warning( this, tr( "Run Simulation" ), tr( "Simulation did not start for following reason:\n\n%1" ).arg( error ) );
+      return;
+    }
+
+    mActionEditStructure->setEnabled( false );
   }
 
   ReosHydraulicSimulationConsole *console = new ReosHydraulicSimulationConsole( mStructure2D->simulationProcess( mCalculationContext ), mGuiContext );
@@ -400,7 +416,13 @@ void ReosHydraulicStructure2DProperties::onExportSimulation()
 
   const QDir dir( dirPath );
 
-  std::unique_ptr<ReosProcess> preparationProcess( mStructure2D->getPreparationProcessSimulation( mCalculationContext, dir ) );
+  QString error;
+  std::unique_ptr<ReosProcess> preparationProcess( mStructure2D->getPreparationProcessSimulation( mCalculationContext, error, dir ) );
+  if ( !preparationProcess )
+  {
+    QMessageBox::warning( this, tr( "Export Simulation" ), tr( "Simulation can't be exported for following reason:\n\n%1" ).arg( error ) );
+    return;
+  }
   ReosProcessControler *controler = new ReosProcessControler( preparationProcess.get(), this );
   controler->exec();
 

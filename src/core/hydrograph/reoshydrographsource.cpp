@@ -215,7 +215,7 @@ ReosHydrograph *ReosHydrographJunction::outputHydrograph() const
 
 QPointF ReosHydrographJunction::position( const QString &destinationCrs ) const
 {
-  return mNetWork->gisEngine()->transformToCoordinates( mPosition, destinationCrs );
+  return mNetwork->gisEngine()->transformToCoordinates( mPosition, destinationCrs );
 }
 
 void ReosHydrographJunction::setPosition( const ReosSpatialPosition &pos )

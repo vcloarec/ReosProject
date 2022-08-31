@@ -238,7 +238,24 @@ bool ReosTelemac2DSimulation::hasResult( const ReosHydraulicStructure2D *hydraul
 
   const QFileInfo fileInfo( dir.filePath( mResultFileName ) );
 
-  return fileInfo.exists();
+  if ( !fileInfo.exists() )
+    return false;
+
+  // check compatibilty of results with the current mesh
+  QByteArray curi = fileInfo.filePath().toUtf8();
+  MDAL_MeshH meshH = MDAL_LoadMesh( curi.constData() );
+
+  if ( !meshH )
+    return false;
+
+  bool isCompatible = false;
+
+  isCompatible = ( MDAL_M_vertexCount( meshH ) == hydraulicStructure->mesh()->vertexCount() ) &&
+                 ( MDAL_M_faceCount( meshH ) == hydraulicStructure->mesh()->faceCount() );
+
+  MDAL_CloseMesh( meshH );
+
+  return isCompatible;
 }
 
 void ReosTelemac2DSimulation::saveSimulationResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, ReosSimulationProcess *process, bool success ) const

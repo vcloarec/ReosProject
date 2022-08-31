@@ -187,13 +187,16 @@ bool ReosMainWindow::openFile()
     return false;
 
   mCurrentProjectFileInfo = QFileInfo( fileName );
-
+  rootModule()->setProjectFileName( fileName );
   settings.setValue( QStringLiteral( "Path/Project" ), mCurrentProjectFileInfo.path() );
 
   bool result = openProject();
 
   if ( !result )
+  {
     mCurrentProjectFileInfo = QFileInfo();
+    rootModule()->setProjectFileName( QString() );
+  }
 
   mProjectIsDirty = false;
 
@@ -227,7 +230,7 @@ bool ReosMainWindow::saveAs()
     filePath.append( '.' + projectFileSuffix() );
     mCurrentProjectFileInfo = QFileInfo( filePath );
   }
-
+  rootModule()->setProjectFileName( filePath );
   settings.setValue( QStringLiteral( "Path/Project" ), mCurrentProjectFileInfo.path() );
 
   bool saved = saveProject();
@@ -251,6 +254,7 @@ void ReosMainWindow::newProject()
   }
 
   mCurrentProjectFileInfo = QFileInfo();
+  rootModule()->setProjectFileName( QString() );
   clearProject();
 
   mProjectIsDirty = false;
@@ -311,7 +315,7 @@ void ReosMainWindow::about()
   about->addLibrary( "Qt", qVersion(), "www.qt.io" );
   about->addLibrary( ReosGisEngine::gisEngineName(), ReosGisEngine::gisEngineVersion(),  ReosGisEngine::gisEngineLink() );
   about->addLibrary( ReosPlotWidget::plotEngineName(),  ReosPlotWidget::plotEngineVersion(),  ReosPlotWidget::plotEngineLink() );
-  about->addLibrary(QStringLiteral("Gmsh"), ReosGmshGenerator::version(), QStringLiteral("gmsh.info/"));
+  about->addLibrary( QStringLiteral( "Gmsh" ), ReosGmshGenerator::version(), QStringLiteral( "gmsh.info/" ) );
 
   QString licenceTxt;
   QDir dir( QCoreApplication::applicationDirPath() );

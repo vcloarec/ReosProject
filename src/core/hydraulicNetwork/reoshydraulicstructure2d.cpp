@@ -36,7 +36,6 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, con
   , mTopographyCollection( ReosTopographyCollection::createTopographyCollection( context.network()->gisEngine(), this ) )
   , mMesh( ReosMesh::createMeshFrame( crs ) )
   , mRoughnessStructure( new ReosRoughnessStructure( crs ) )
-  , mHydraulicNetworkContext( context )
 {
   init();
 }
@@ -50,7 +49,6 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   , mTopographyCollection( ReosTopographyCollection::createTopographyCollection( encodedElement.getEncodedData( QStringLiteral( "topography-collection" ) ), context.network()->gisEngine(), this ) )
   , mRoughnessStructure( new ReosRoughnessStructure( encodedElement.getEncodedData( QStringLiteral( "roughness-structure" ) ) ) )
   , m3dMapSettings( encodedElement.getEncodedData( "3d-map-setings" ) )
-  , mHydraulicNetworkContext( context )
 {
   if ( encodedElement.hasEncodedData( QStringLiteral( "mesh-resolution-controller" ) ) )
     mMeshResolutionController = new ReosMeshResolutionController( encodedElement.getEncodedData( QStringLiteral( "mesh-resolution-controller" ) ), this );
@@ -75,7 +73,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
     if ( bc )
       bc->attachStructure( this );
     else
-      mNetWork->addElement( new ReosHydraulicStructureBoundaryCondition( this, bcId, mHydraulicNetworkContext ) );
+      mNetwork->addElement( new ReosHydraulicStructureBoundaryCondition( this, bcId, network()->context() ) );
   }
 
   const QList<ReosEncodedElement> encodedSimulations = encodedElement.getListEncodedData( QStringLiteral( "simulations" ) );
@@ -106,27 +104,25 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   QString currentActivatedVectorMeshDataset;
   encodedElement.getData( QStringLiteral( "current-mesh-vector-dataset-id" ), currentActivatedVectorMeshDataset );
   mMesh->activateVectorDataset( currentActivatedVectorMeshDataset );
-}
 
-ReosHydraulicNetworkContext ReosHydraulicStructure2D::hydraulicNetworkContext() const
-{
-  return mHydraulicNetworkContext;
+  if ( !encodedElement.getData( QStringLiteral( "mesh-need-to-be-generated" ), mMeshNeedToBeGenerated ) )
+    mMeshNeedToBeGenerated = true;
 }
 
 void ReosHydraulicStructure2D::exportResultAsMesh( const QString &fileName ) const
 {
   mMesh->exportAsMesh( fileName );
-  mMesh->exportSimulationResults( mSimulationResults.value( mHydraulicNetworkContext.network()->currentScheme()->id() ), fileName );
+  mMesh->exportSimulationResults( mSimulationResults.value( network()->currentScheme()->id() ), fileName );
 }
 
 void ReosHydraulicStructure2D::exportResultAsMeshInGisProject( const QString &fileName, bool keepLayers )
 {
   const QFileInfo fileInfo( fileName );
-  const QString meshName = elementName()->value() + '-' + mHydraulicNetworkContext.network()->currentScheme()->schemeName()->value();
+  const QString meshName = elementName()->value() + '-' + network()->currentScheme()->schemeName()->value();
   QString meshFileName = fileInfo.dir().filePath( meshName );
 
   meshFileName = mMesh->exportAsMesh( meshFileName );
-  mMesh->exportSimulationResults( mSimulationResults.value( mHydraulicNetworkContext.network()->currentScheme()->id() ), meshFileName );
+  mMesh->exportSimulationResults( mSimulationResults.value( network()->currentScheme()->id() ), meshFileName );
 
   QMap<QString, ReosEncodedElement> scalarSymbologies;
   QMap<QString, ReosEncodedElement> vectorSymbologies;
@@ -147,11 +143,11 @@ void ReosHydraulicStructure2D::exportResultAsMeshInGisProject( const QString &fi
     vectorSymbologies.insert( groupName, symbology );
   }
 
-  ReosDuration timeStep = simulation( mHydraulicNetworkContext.network()->currentScheme() )->representative2DTimeStep();
+  ReosDuration timeStep = simulation( mNetwork->currentScheme() )->representative2DTimeStep();
   timeStep.setAdaptedUnit();
 
-  mHydraulicNetworkContext.network()->gisEngine()->createProjectFile( fileName, keepLayers );
-  mHydraulicNetworkContext.network()->gisEngine()->addMeshLayerToExistingProject(
+  mNetwork->gisEngine()->createProjectFile( fileName, keepLayers );
+  mNetwork->gisEngine()->addMeshLayerToExistingProject(
     fileName,
     meshName,
     meshFileName,
@@ -237,7 +233,9 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
   element.addData( QStringLiteral( "wire-frame-color" ), wireframeSettings.color );
   element.addData( QStringLiteral( "wire-frame-width" ), wireframeSettings.width );
 
-  element.addEncodedData( "3d-map-setings", m3dMapSettings.encode() );
+  element.addEncodedData( QStringLiteral( "3d-map-setings" ), m3dMapSettings.encode() );
+
+  element.addData( QStringLiteral( "mesh-need-to-be-generated" ), mMeshNeedToBeGenerated );
 }
 
 ReosRoughnessStructure *ReosHydraulicStructure2D::roughnessStructure() const
@@ -247,7 +245,7 @@ ReosRoughnessStructure *ReosHydraulicStructure2D::roughnessStructure() const
 
 QDir ReosHydraulicStructure2D::structureDirectory() const
 {
-  return QDir( mHydraulicNetworkContext.projectPath() + '/' + mHydraulicNetworkContext.projectName() + QStringLiteral( "-hydr-struct" ) + '/' + directory() );
+  return QDir( mNetwork->context().projectPath() + '/' + mNetwork->context().projectName() + QStringLiteral( "-hydr-struct" ) + '/' + directory() );
 }
 
 QList<ReosHydraulicStructureBoundaryCondition *> ReosHydraulicStructure2D::boundaryConditions() const
@@ -375,13 +373,13 @@ void ReosHydraulicStructure2D::setTerrain3DSettings( const Reos3DTerrainSettings
 
 void ReosHydraulicStructure2D::onBoundaryConditionAdded( const QString &bid )
 {
-  mNetWork->addElement( new ReosHydraulicStructureBoundaryCondition( this, bid, mNetWork->context() ) );
+  mNetwork->addElement( new ReosHydraulicStructureBoundaryCondition( this, bid, mNetwork->context() ) );
   emit boundaryChanged();
 }
 
 void ReosHydraulicStructure2D::onBoundaryConditionRemoved( const QString &bid )
 {
-  mNetWork->removeElement( boundaryConditionNetWorkElement( bid ) );
+  mNetwork->removeElement( boundaryConditionNetWorkElement( bid ) );
   emit boundaryChanged();
 }
 
@@ -442,33 +440,57 @@ QString ReosHydraulicStructure2D::meshDatasetName( const QString &id ) const
   return mMesh->datasetName( id );
 }
 
-ReosProcess *ReosHydraulicStructure2D::getPreparationProcessSimulation( const ReosCalculationContext &context )
+ReosSimulationPreparationProcess *ReosHydraulicStructure2D::getPreparationProcessSimulation( const ReosCalculationContext &context, QString &error )
 {
-  if ( !currentSimulation() )
+  if ( mMeshNeedToBeGenerated )
+  {
+    error = tr( "The mesh need to be regenerated" );
     return nullptr;
+  }
+
+  if ( !currentSimulation() )
+  {
+    error = tr( "Current simulation not defined" );
+    return nullptr;
+  }
+
+  if ( mNetwork->projectFileName().isEmpty() )
+  {
+    error = tr( "Project must be saved at least one time." );
+    return nullptr;
+  }
 
   return new ReosSimulationPreparationProcess( this, currentSimulation(), context );
 }
 
-ReosProcess *ReosHydraulicStructure2D::getPreparationProcessSimulation( const ReosCalculationContext &context, const QDir &directory )
+ReosSimulationPreparationProcess *ReosHydraulicStructure2D::getPreparationProcessSimulation( const ReosCalculationContext &context, QString &error, const QDir &directory )
 {
-  if ( !currentSimulation() )
-    return nullptr;
-
-  std::unique_ptr<ReosSimulationPreparationProcess> ret( new ReosSimulationPreparationProcess( this, currentSimulation(), context ) );
+  std::unique_ptr<ReosSimulationPreparationProcess> ret( getPreparationProcessSimulation( context, error ) );
   ret->setDestination( directory );
   return ret.release();
 }
 
-ReosSimulationProcess *ReosHydraulicStructure2D::startSimulation( const ReosCalculationContext &context )
+ReosSimulationProcess *ReosHydraulicStructure2D::startSimulation( const ReosCalculationContext &context, QString &error )
 {
-  if ( !currentSimulation() )
+  if ( mMeshNeedToBeGenerated )
+  {
+    error = tr( "The mesh need to be regenerated" );
     return nullptr;
+  }
+
+  if ( !currentSimulation() )
+  {
+    error = tr( "Current simulation not defined" );
+    return nullptr;
+  }
 
   QString schemeId = context.schemeId();
 
   if ( processFromScheme( context.schemeId() ) )
+  {
+    error = tr( "A simulation with the current hydraulic scheme is currently running." );
     return nullptr;
+  }
 
   QPointer<ReosHydraulicSimulation> sim = currentSimulation();
 
@@ -519,7 +541,7 @@ bool ReosHydraulicStructure2D::hasSimulationRunning() const
 
 bool ReosHydraulicStructure2D::hasResults() const
 {
-  ReosHydraulicSchemeCollection *schemesCollection = mHydraulicNetworkContext.network()->hydraulicSchemeCollection();
+  ReosHydraulicSchemeCollection *schemesCollection = mNetwork->hydraulicSchemeCollection();
   int schemeCount = schemesCollection->schemeCount();
   for ( int i = 0; i < schemeCount; ++i )
   {
@@ -605,7 +627,7 @@ void ReosHydraulicStructure2D::removeAllResults()
   qDeleteAll( mSimulationResults );
   mSimulationResults.clear();
 
-  ReosHydraulicSchemeCollection *schemesColection = mHydraulicNetworkContext.network()->hydraulicSchemeCollection();
+  ReosHydraulicSchemeCollection *schemesColection = network()->hydraulicSchemeCollection();
   int schemeCount = schemesColection->schemeCount();
   for ( int i = 0; i < schemeCount; ++i )
   {
@@ -634,10 +656,10 @@ void ReosHydraulicStructure2D::removeResults( const ReosCalculationContext &cont
 
   if ( mSimulationResults.contains( schemeId ) )
   {
-    delete mSimulationResults.value( schemeId );
+    delete mSimulationResults.value( schemeId ); // replace be deleteLater() ?
     mSimulationResults.remove( schemeId );
 
-    ReosHydraulicScheme *scheme = mNetWork->hydraulicSchemeCollection()->scheme( schemeId );
+    ReosHydraulicScheme *scheme = mNetwork->hydraulicSchemeCollection()->scheme( schemeId );
     if ( scheme )
     {
       ReosHydraulicSimulation *sim = simulation( scheme );
@@ -653,6 +675,7 @@ void ReosHydraulicStructure2D::init()
 
   connect( mPolylinesStructures.get(), &ReosDataObject::dataChanged, this, [this]
   {
+    mMeshNeedToBeGenerated = true;
     if ( mMeshGenerator->autoUpdateParameter()->value() )
       generateMeshInPlace();
   } );
@@ -662,6 +685,7 @@ void ReosHydraulicStructure2D::init()
 
   connect( mMeshResolutionController, &ReosDataObject::dataChanged, this, [this]
   {
+    mMeshNeedToBeGenerated = true;
     if ( mMeshGenerator->autoUpdateParameter()->value() )
       generateMeshInPlace();
   } );
@@ -692,7 +716,7 @@ QString ReosHydraulicStructure2D::directory() const
 
 ReosHydraulicStructureBoundaryCondition *ReosHydraulicStructure2D::boundaryConditionNetWorkElement( const QString boundaryId ) const
 {
-  const QList<ReosHydraulicNetworkElement *> hydrElems = mNetWork->getElements( ReosHydraulicStructureBoundaryCondition::staticType() );
+  const QList<ReosHydraulicNetworkElement *> hydrElems = mNetwork->getElements( ReosHydraulicStructureBoundaryCondition::staticType() );
   for ( ReosHydraulicNetworkElement *hydrElem : hydrElems )
   {
     ReosHydraulicStructureBoundaryCondition *bcElem = qobject_cast<ReosHydraulicStructureBoundaryCondition *>( hydrElem );
@@ -774,6 +798,7 @@ void ReosHydraulicStructure2D::onMeshGenerated( const ReosMeshFrameData &meshDat
 
   mBoundaryVertices = meshData.boundaryVertices;
   mHolesVertices = meshData.holesVertices;
+  mMeshNeedToBeGenerated = false;
 
   emit meshGenerated();
   emit dataChanged();
@@ -782,9 +807,8 @@ void ReosHydraulicStructure2D::onMeshGenerated( const ReosMeshFrameData &meshDat
 void ReosHydraulicStructure2D::onSimulationFinished( ReosHydraulicSimulation *simulation, const QString &schemeId, ReosSimulationProcess *process, bool success )
 {
   if ( !simulation )
-  {
     return;
-  }
+
   simulation->saveSimulationResult( this, schemeId, process, success );
 
   //! Now we can remove the old one if still presents
@@ -878,7 +902,7 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
 
 void ReosHydraulicStructure2D::updateResults( const QString &schemeId )
 {
-  if ( mNetWork->calculationContext().schemeId() != schemeId )
+  if ( mNetwork->calculationContext().schemeId() != schemeId )
     return;
 
   if ( currentSimulation() && currentSimulation()->hasResult( this, schemeId ) )
