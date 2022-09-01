@@ -39,7 +39,7 @@ class ReosRunoffManager;
 class ReosWatershedDockWidget;
 class ReosHydraulicNetworkDockWidget;
 
-static const ReosVersion lekanVersion( "Lekan", 2, 2, 92 );
+static const ReosVersion lekanVersion( "Lekan", 2, 2, 93 );
 
 class LekanMainWindow : public ReosMainWindow
 {
