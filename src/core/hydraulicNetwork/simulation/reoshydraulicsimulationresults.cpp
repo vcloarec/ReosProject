@@ -110,3 +110,9 @@ double ReosHydraulicSimulationResults::interpolateResultOnMesh(
   return mesh->interpolateDatasetValueOnPoint( this, position, grInd, dsInd );
 }
 
+QVector<double> ReosHydraulicSimulationResults::resultValues( ReosHydraulicSimulationResults::DatasetType datasetType, int index ) const
+{
+  int gi = groupIndex( datasetType );
+  return datasetValues( gi, index );
+}
+

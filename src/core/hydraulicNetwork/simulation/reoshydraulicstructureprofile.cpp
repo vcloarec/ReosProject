@@ -18,6 +18,14 @@ QMap<double, QPolygonF> ReosHydraulicStructureProfile::parts() const
   return mParts;
 }
 
+QMap<double, QList<ReosMeshPointValue> > ReosHydraulicStructureProfile::pointValues() const
+{
+  if ( mPointValues.empty() )
+    buildProfile();
+
+  return mPointValues;
+}
+
 void ReosHydraulicStructureProfile::initParts() const
 {
   const QPolygonF &domain = mStructure->domain();
@@ -34,9 +42,8 @@ void ReosHydraulicStructureProfile::initParts() const
   QVector<QPolygonF> partsValues = ReosGeometryUtils::cutPolylineOutsidePolygon( mGeometry, domain, &distanceFromBegining );
   Q_ASSERT( distanceFromBegining.count() == partsValues.count() );
   for ( int i = 0; i < partsValues.count(); ++i )
-  {
     mParts.insert( distanceFromBegining.at( i ), partsValues.at( i ) );
-  }
+
 
   if ( !holes.isEmpty() )
   {
@@ -67,6 +74,14 @@ void ReosHydraulicStructureProfile::initParts() const
 
     mParts = newParts;
   }
+}
+
+void ReosHydraulicStructureProfile::buildProfile() const
+{
+  const QMap<double, QPolygonF> allParts = parts();
+  mPointValues.clear();
+  for ( auto it = allParts.constBegin(); it != allParts.constEnd(); ++it )
+    mPointValues.insert( it.key(), mStructure->mesh()->drapePolyline( it.value(), 0.0000001 ) );
 }
 
 ReosHydraulicStructureProfilesCollection::ReosHydraulicStructureProfilesCollection( QObject *parent ): QAbstractListModel( parent )

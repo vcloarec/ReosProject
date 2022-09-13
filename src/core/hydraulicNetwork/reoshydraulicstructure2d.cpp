@@ -37,7 +37,6 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, con
   , mMesh( ReosMesh::createMeshFrame( crs ) )
   , mRoughnessStructure( new ReosRoughnessStructure( crs ) )
   , mProfilesCollection( new ReosHydraulicStructureProfilesCollection( this ) )
-  , mHydraulicNetworkContext( context )
 {
   init();
 }
@@ -137,13 +136,6 @@ ReosHydraulicStructureProfile *ReosHydraulicStructure2D::profile( int profileInd
 {
   return mProfilesCollection->profile( profileIndex );
 }
-
-ReosHydraulicNetworkContext ReosHydraulicStructure2D::hydraulicNetworkContext() const
-{
-  return mHydraulicNetworkContext;
-}
-
-
 
 void ReosHydraulicStructure2D::exportResultAsMesh( const QString &fileName ) const
 {
