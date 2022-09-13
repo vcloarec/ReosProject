@@ -22,7 +22,6 @@
 #include "reoshydrographsource.h"
 #include "reoshydrographrouting.h"
 #include "reoshydraulicstructure2d.h"
-#include "reoswatershed.h"
 #include "reosmaptool.h"
 #include "reoshydraulicelementpropertieswidget.h"
 #include "reosstyleregistery.h"
@@ -136,6 +135,8 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
     mMap->setTimeStep( mHydraulicNetwork->currentTimeStep() );
   } );
   ui->mHydraulicShcemeRemoveButton->setEnabled( mHydraulicNetwork->hydraulicSchemeCollection()->schemeCount() > 1 );
+
+  connect( mMap, &ReosMap::crsChanged, this, &ReosHydraulicNetworkWidget::onMapCrsChanged );
 }
 
 ReosHydraulicNetworkWidget::~ReosHydraulicNetworkWidget()
@@ -329,6 +330,12 @@ void ReosHydraulicNetworkWidget::onClosed()
 void ReosHydraulicNetworkWidget::onOpened()
 {
   setMapItemVisible( true );
+}
+
+void ReosHydraulicNetworkWidget::onMapCrsChanged()
+{
+  for ( auto it = mMapItems.begin(); it != mMapItems.end(); ++it )
+    mMapItemFactory.updateMapItem( it.key(), it.value().get() );
 }
 
 void ReosHydraulicNetworkWidget::setMapItemVisible( bool visible )

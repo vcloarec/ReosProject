@@ -75,6 +75,7 @@ void ReosMapPolygonStructure_p::paint( QPainter *painter )
   {
     QgsRenderContext renderContext = QgsRenderContext::fromMapSettings( mMapCanvas->mapSettings() );
     renderContext.setPainter( painter );
+    renderContext.setCoordinateTransform( mMapCanvas->mapSettings().layerTransform( vectorLayer ) );
     std::unique_ptr<QgsMapLayerRenderer> renderer;
     renderer.reset( vectorLayer->createMapRenderer( renderContext ) );
     renderer->render();

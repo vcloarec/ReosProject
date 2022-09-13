@@ -114,7 +114,7 @@ QgsRectangle ReosGeometryStructure_p::layerZone( const ReosMapExtent &zone ) con
       layerRect = rect;
     }
   }
-  return rect;
+  return layerRect;
 }
 
 QString ReosGeometryStructure_p::crs() const
@@ -695,7 +695,7 @@ QPolygonF ReosPolylineStructureVectorLayer::boundary( const QString &destination
   if ( mBoundariesVertex.size() > 0 )
   {
     QPolygonF ret( mBoundariesVertex.size() );
-    const QgsCoordinateTransform transform( toLayerTransform( destinationCrs ) );
+    const QgsCoordinateTransform transform( toDestinationTransform( destinationCrs ) );
     for ( int i = 0; i < mBoundariesVertex.count(); ++i )
     {
       const VertexP &vert = mBoundariesVertex.at( i );
@@ -1649,7 +1649,7 @@ ReosPolylinesStructure::Data ReosPolylineStructureVectorLayer::structuredLinesDa
 
 QVector<QLineF> ReosPolylineStructureVectorLayer::rawLines( const QString &destinationCrs ) const
 {
-  if ( mRawLinesDirty )
+  if ( mRawLinesDirty || destinationCrs != mCurrentLineCrs )
   {
     mRawLines.clear();
     mRawLines.reserve( mSegments.count() );
@@ -1908,7 +1908,7 @@ QPointF ReosPolylineStructureVectorLayer::boundaryConditionCenter( const QString
   QgsGeometry geom( new QgsLineString( points ) );
   double midLength = geom.length() / 2;
 
-  return transformCoordinates( geom.interpolate( midLength ).asPoint(), transform ).toQPointF();
+  return  geom.interpolate( midLength ).asPoint().toQPointF();
 }
 
 QVariant ReosPolylineStructureVectorLayer::value( const QString &classId ) const

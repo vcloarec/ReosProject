@@ -139,6 +139,9 @@ ReosHydrographJunction::ReosHydrographJunction( const ReosEncodedElement &encode
     mPosition = ReosSpatialPosition::decode( encodedElement.getEncodedData( QStringLiteral( "spatial-position" ) ) );
   }
 
+  if ( mPosition.crs().isEmpty() )
+    mPosition = ReosSpatialPosition( mPosition.position(), parent->gisEngine()->crs() );
+
   QColor outputColor;
   encodedElement.getData( QStringLiteral( "output-color" ), outputColor );
   mOutputHydrograph->setColor( outputColor );

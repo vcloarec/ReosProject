@@ -349,7 +349,13 @@ ReosMapToolEditMapPolyline::~ReosMapToolEditMapPolyline()
 
 void ReosMapToolEditMapPolyline::setMapPolyline( ReosMapPolyline *polyline )
 {
-  d->setMapPolygon( static_cast<ReosMapPolyline_p *>( polyline->graphicItem() ) );
+  if ( polyline )
+    d->setMapPolygon( static_cast<ReosMapPolyline_p *>( polyline->graphicItem() ) );
+  else
+  {
+    d->setMapPolygon( nullptr );
+    quitMap();
+  }
 }
 
 ReosMapTool_p *ReosMapToolEditMapPolyline::tool_p() const

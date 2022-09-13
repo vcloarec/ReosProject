@@ -82,6 +82,8 @@ class ReosHydraulicNetworkWidget : public QWidget
     void onClosed();
     void onOpened();
 
+    void onMapCrsChanged();
+
   private:
     Ui::ReosHydraulicNetworkWidget *ui;
     ReosGuiContext mGuiContext;
@@ -91,7 +93,7 @@ class ReosHydraulicNetworkWidget : public QWidget
 
     typedef std::shared_ptr<ReosMapItem> NetworkItem ;
 
-    QMap<ReosHydraulicNetworkElement *, NetworkItem> mMapItems;
+    QHash<ReosHydraulicNetworkElement *, NetworkItem> mMapItems;
     std::unique_ptr<ReosMapItem> mExtraItemSelection;
 
     ReosHydraulicNetworkMapItemFactory mMapItemFactory;
