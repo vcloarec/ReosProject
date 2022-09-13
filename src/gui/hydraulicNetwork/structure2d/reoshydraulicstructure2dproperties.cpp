@@ -393,6 +393,12 @@ void ReosHydraulicStructure2DProperties::onLaunchCalculation()
     ReosProcessControler *controler = new ReosProcessControler( preparationProcess.get(), this );
     controler->exec();
 
+    if ( !preparationProcess->isSuccessful() )
+    {
+      QMessageBox::warning( this, tr( "Run Simulation" ), tr( "Something get wrong during simulation preparation.\nPlease, check the model." ) );
+      return;
+    }
+
     ReosSimulationProcess *process = mStructure2D->startSimulation( mCalculationContext, error );
     if ( process )
       setCurrentSimulationProcess( process, mCalculationContext );
