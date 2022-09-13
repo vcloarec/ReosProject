@@ -38,6 +38,8 @@ class ReosHydraulicSimulationResults;
 class ReosSpatialPosition;
 class ReosMeshDatasetSource;
 class ReosGisEngine;
+class ReosMeshDatasetSource;
+class ReosMesh;
 
 
 class ReosMeshQualityChecker : public ReosProcess
@@ -65,6 +67,112 @@ class ReosMeshQualityChecker : public ReosProcess
     mutable QualityMeshResults mResult;
 };
 
+
+
+class ReosMeshPointValue_p
+{
+  public:
+    ReosMeshPointValue_p( const QPointF &point );
+    virtual ~ReosMeshPointValue_p();
+
+  private:
+    std::atomic_int ref = 0;
+    QPointF mPoint;
+    virtual double interpolateValue( const QVector<double> &values ) const = 0;
+    virtual double interpolateTerrainElevation( ReosMesh *mesh ) const = 0;
+
+    friend class ReosMeshPointValue;
+};
+
+class ReosMeshPointValue
+{
+  public:
+    ReosMeshPointValue();
+    explicit ReosMeshPointValue( ReosMeshPointValue_p *poinValue );
+
+    ~ReosMeshPointValue();
+
+    ReosMeshPointValue( const ReosMeshPointValue &other );
+    ReosMeshPointValue( ReosMeshPointValue &&other );
+
+    ReosMeshPointValue &operator=( const ReosMeshPointValue &other );
+    ReosMeshPointValue &operator=( ReosMeshPointValue &&other );
+
+    QPointF position() const
+    {
+      if ( d )
+        return d->mPoint;
+
+      return QPointF();
+    }
+
+    double value( ReosMeshDatasetSource *source, int groupIndex, int index ) const;
+    double terrainElevation( ReosMesh *mesh ) const;
+
+  private:
+    ReosMeshPointValue_p *d = nullptr;
+};
+
+class ReosMeshPointValueOnVertex : public ReosMeshPointValue_p
+{
+  public:
+    ReosMeshPointValueOnVertex( int vertexIndex, const QPointF &point );
+
+    int vertex() const;
+
+  protected:
+    double interpolateValue( const QVector<double> &values ) const override;
+
+    double interpolateTerrainElevation( ReosMesh *mesh ) const override;
+
+  private:
+    int mVertexIndex = -1;
+
+};
+
+class ReosMeshPointValueOnEdge: public ReosMeshPointValue_p
+{
+  public:
+    ReosMeshPointValueOnEdge( int vertexIndex1, int vertexIndex2, double posInEdge, const QPointF &point );
+
+    int vertex1() const;
+    int vertex2() const;
+
+  protected:
+    double interpolateValue( const QVector<double> &values ) const override;
+    double interpolateTerrainElevation( ReosMesh *mesh ) const override;
+
+    double interpolateValueOnEdge( double value1, double value2 ) const;
+
+  private:
+    int mVertex1 = -1;
+    int mVertex2 = -1;
+    double mPosInEdge = 0;
+
+};
+
+class ReosMeshPointValueOnFace: public ReosMeshPointValue_p
+{
+  public:
+    ReosMeshPointValueOnFace( int vertexIndex1, int vertexIndex2, int vertexIndex3,
+                              double lam1, double lam2, double lam3,
+                              const QPointF &point );
+
+
+  protected:
+    double interpolateValue( const QVector<double> &values ) const override;
+    double interpolateTerrainElevation( ReosMesh *mesh ) const override;
+
+  private:
+    int mVertex1 = -1;
+    int mVertex2 = -1;
+    int mVertex3 = -1;
+    double mLam1 = 0;
+    double mLam2 = 0;
+    double mLam3 = 0;
+
+    double interpolateValueOnFace( double v1, double v2, double v3 ) const;
+};
 
 class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
 {
@@ -137,6 +245,9 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     virtual double vertexElevation( int vertexIndex ) const = 0 ;
 
     virtual QObject *data() const = 0;
+
+    //! Returns the faces that intersect the \a polyline in map coordinates
+    virtual QList<ReosMeshPointValue> drapePolyline( const QPolygonF &polyline, double tolerance ) const = 0;
 
     /**
      * Activate vertices elevation as a dataset group with \a name, returns a unique id of this dataset group.

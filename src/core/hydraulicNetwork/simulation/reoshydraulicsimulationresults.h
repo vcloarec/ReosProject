@@ -55,6 +55,8 @@ class REOSCORE_EXPORT ReosHydraulicSimulationResults : public ReosMeshDatasetSou
 
     virtual QString unitString( DatasetType dataType ) const = 0;
 
+    QVector<double> resultValues( DatasetType datasetType, int index ) const;
+
   private:
     QString mSimulationId;
 

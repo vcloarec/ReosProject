@@ -51,6 +51,7 @@ class ReosMeshFrame_p : public ReosMesh
     double vertexElevation( int vertexIndex ) const override;
     QVector<int> face( int faceIndex ) const override;
     int faceCount() const override;
+    QList<ReosMeshPointValue> drapePolyline( const QPolygonF &polyline, double tolerance ) const override;
     QString enableVertexElevationDataset( const QString &name ) override;
     bool isFrameModified() const override;
     void generateMesh( const ReosMeshFrameData &data ) override;

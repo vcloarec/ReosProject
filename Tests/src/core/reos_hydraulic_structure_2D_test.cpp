@@ -461,6 +461,22 @@ void ReoHydraulicStructure2DTest::profile()
   QPolygonF part3;
   part3 << QPointF( 20.0, 10.0 ) << QPointF( 25.0, 15.0 );
   QCOMPARE( part3, partsList.at( 2 ) );
+
+  const QList<QList<ReosMeshPointValue>> allPointValues = profile->pointValues().values();
+
+  QCOMPARE( allPointValues.count(), 3 );
+
+  for ( const QList<ReosMeshPointValue> &pointValues : std::as_const( allPointValues ) )
+  {
+    int count = pointValues.count();
+    for ( int i = 0; i < count; ++i )
+    {
+      double value1 = pointValues.at( i ).terrainElevation( mHydraulicStructure->mesh() );
+      double value2 = mHydraulicStructure->terrainElevationAt( pointValues.at( i ).position() );
+      QVERIFY( equal( value1, value2, 0.00000001 ) || std::isnan( value2 ) );
+    }
+  }
+
 }
 
 

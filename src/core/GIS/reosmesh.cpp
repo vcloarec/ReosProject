@@ -17,6 +17,7 @@
 #include "reosmesh_p.h"
 
 #include "reosparameter.h"
+#include "reosmeshdatasetsource.h"
 
 ReosMesh *ReosMesh::createMeshFrame( const QString &crs, QObject *parent )
 {
@@ -183,4 +184,178 @@ void ReosMesh::QualityMeshParameters::decode( const ReosEncodedElement &element,
     maximumAreaChange->deleteLater();
     maximumAreaChange = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "maximum-area-change" ) ), false, tr( "Maximum area change" ), parent );
   }
+}
+
+ReosMeshPointValue::ReosMeshPointValue()
+{}
+
+ReosMeshPointValue::ReosMeshPointValue( ReosMeshPointValue_p *poinValue )
+  : d( poinValue )
+{
+  d->ref++;
+}
+
+ReosMeshPointValue::~ReosMeshPointValue()
+{
+  d->ref--;
+  if ( d->ref == 0 )
+    delete d;
+}
+
+ReosMeshPointValue::ReosMeshPointValue( const ReosMeshPointValue &other )
+{
+  d = other.d;
+  d->ref++;
+}
+
+ReosMeshPointValue &ReosMeshPointValue::operator=( const ReosMeshPointValue &other )
+{
+  if ( this != &other )
+  {
+    if ( d )
+    {
+      d->ref--;
+      if ( d->ref == 0 )
+        delete d;
+    }
+    d = other.d;
+    d->ref++;
+  }
+  return *this;
+}
+
+ReosMeshPointValue::ReosMeshPointValue( ReosMeshPointValue &&other )
+{
+  d = other.d;
+  other.d = nullptr;
+}
+
+ReosMeshPointValue &ReosMeshPointValue::operator=( ReosMeshPointValue &&other )
+{
+  if ( this != &other )
+  {
+    if ( d )
+    {
+      d->ref--;
+      if ( d->ref == 0 )
+        delete d;
+    }
+    d = other.d;
+    other.d = nullptr;
+  }
+  return *this;
+}
+
+double ReosMeshPointValue::value( ReosMeshDatasetSource *source, int groupIndex, int index ) const
+{
+  if ( d )
+    return d->interpolateValue( source->datasetValues( groupIndex, index ) );
+
+  return std::numeric_limits<double>::quiet_NaN();
+}
+
+double ReosMeshPointValue::terrainElevation( ReosMesh *mesh ) const
+{
+  if ( d )
+    return d->interpolateTerrainElevation( mesh );
+
+  return std::numeric_limits<double>::quiet_NaN();
+}
+
+ReosMeshPointValue_p::ReosMeshPointValue_p( const QPointF &point )
+  : mPoint( point )
+{}
+
+ReosMeshPointValue_p::~ReosMeshPointValue_p() {}
+
+ReosMeshPointValueOnVertex::ReosMeshPointValueOnVertex( int vertexIndex, const QPointF &point )
+  : ReosMeshPointValue_p( point )
+  , mVertexIndex( vertexIndex )
+{}
+
+int ReosMeshPointValueOnVertex::vertex() const
+{
+  return mVertexIndex;
+}
+
+double ReosMeshPointValueOnVertex::interpolateValue( const QVector<double> &values ) const
+{
+  return values.at( mVertexIndex );
+}
+
+double ReosMeshPointValueOnVertex::interpolateTerrainElevation( ReosMesh *mesh ) const
+{
+  return mesh->vertexElevation( mVertexIndex );
+}
+
+ReosMeshPointValueOnEdge::ReosMeshPointValueOnEdge( int vertexIndex1, int vertexIndex2, double posInEdge, const QPointF &point )
+  : ReosMeshPointValue_p( point )
+  , mVertex1( vertexIndex1 )
+  , mVertex2( vertexIndex2 )
+  , mPosInEdge( posInEdge )
+{
+}
+
+int ReosMeshPointValueOnEdge::vertex1() const
+{
+  return mVertex1;
+}
+
+int ReosMeshPointValueOnEdge::vertex2() const
+{
+  return mVertex2;
+}
+
+double ReosMeshPointValueOnEdge::interpolateValue( const QVector<double> &values ) const
+{
+  double value1 = values.at( mVertex1 );
+  double value2 = values.at( mVertex2 );
+
+  return interpolateValueOnEdge( value1, value2 );
+}
+
+double ReosMeshPointValueOnEdge::interpolateTerrainElevation( ReosMesh *mesh ) const
+{
+  double z1 = mesh->vertexElevation( mVertex1 );
+  double z2 = mesh->vertexElevation( mVertex2 );
+
+  return interpolateValueOnEdge( z1, z2 );
+}
+
+double ReosMeshPointValueOnEdge::interpolateValueOnEdge( double value1, double value2 ) const
+{
+  return value1 + ( value2 - value1 ) * mPosInEdge;
+}
+
+ReosMeshPointValueOnFace::ReosMeshPointValueOnFace( int vertexIndex1, int vertexIndex2, int vertexIndex3, double lam1, double lam2, double lam3, const QPointF &point )
+  : ReosMeshPointValue_p( point )
+  , mVertex1( vertexIndex1 )
+  , mVertex2( vertexIndex2 )
+  , mVertex3( vertexIndex3 )
+  , mLam1( lam1 )
+  , mLam2( lam2 )
+  , mLam3( lam3 )
+{}
+
+double ReosMeshPointValueOnFace::interpolateValue( const QVector<double> &values ) const
+{
+  double value1 = values.at( mVertex1 );
+  double value2 = values.at( mVertex2 );
+  double value3 = values.at( mVertex3 );
+
+  return interpolateValueOnFace( value1, value2, value3 );
+}
+
+double ReosMeshPointValueOnFace::interpolateTerrainElevation( ReosMesh *mesh ) const
+{
+  double value1 = mesh->vertexElevation( mVertex1 );
+  double value2 = mesh->vertexElevation( mVertex2 );
+  double value3 = mesh->vertexElevation( mVertex3 );
+
+  return interpolateValueOnFace( value1, value2, value3 );
+}
+
+double ReosMeshPointValueOnFace::interpolateValueOnFace( double v1, double v2, double v3 ) const
+{
+  return mLam3 * v1 + mLam2 * v2 + mLam1 * v3;
 }

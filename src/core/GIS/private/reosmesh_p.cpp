@@ -23,6 +23,8 @@
 #include <qgsproviderregistry.h>
 #include <qgsmeshlayertemporalproperties.h>
 #include <qgsmeshlayer3drenderer.h>
+#include <qgsgeometryengine.h>
+#include <qgsgeometryutils.h>
 
 #include "reosmeshdataprovider_p.h"
 #include "reosparameter.h"
@@ -345,6 +347,177 @@ int ReosMeshFrame_p::faceCount() const
   return mMeshLayer->meshFaceCount();
 }
 
+static void lamTol( double &lam )
+{
+  const static double eps = 1e-6;
+  if ( ( lam < 0.0 ) && ( lam > -eps ) )
+  {
+    lam = 0.0;
+  }
+}
+
+static bool E3T_physicalToBarycentric( const QgsPointXY &pA, const QgsPointXY &pB, const QgsPointXY &pC, const QgsPointXY &pP,
+                                       double &lam1, double &lam2, double &lam3 )
+{
+  // from QGIS: ./src/core/mesh/qgsmeshlayerutils.cpp
+  // Compute vectors
+  const double xa = pA.x();
+  const double ya = pA.y();
+  const double v0x = pC.x() - xa ;
+  const double v0y = pC.y() - ya ;
+  const double v1x = pB.x() - xa ;
+  const double v1y = pB.y() - ya ;
+  const double v2x = pP.x() - xa ;
+  const double v2y = pP.y() - ya ;
+
+  // Compute dot products
+  const double dot00 = v0x * v0x + v0y * v0y;
+  const double dot01 = v0x * v1x + v0y * v1y;
+  const double dot02 = v0x * v2x + v0y * v2y;
+  const double dot11 = v1x * v1x + v1y * v1y;
+  const double dot12 = v1x * v2x + v1y * v2y;
+
+  // Compute barycentric coordinates
+  double invDenom =  dot00 * dot11 - dot01 * dot01;
+  if ( invDenom == 0 )
+    return false;
+  invDenom = 1.0 / invDenom;
+  lam1 = ( dot11 * dot02 - dot01 * dot12 ) * invDenom;
+  lam2 = ( dot00 * dot12 - dot01 * dot02 ) * invDenom;
+  lam3 = 1.0 - lam1 - lam2;
+
+  // Apply some tolerance to lam so we can detect correctly border points
+  lamTol( lam1 );
+  lamTol( lam2 );
+  lamTol( lam3 );
+
+  // Return if POI is outside triangle
+  if ( ( lam1 < 0 ) || ( lam2 < 0 ) || ( lam3 < 0 ) )
+  {
+    return false;
+  }
+
+  return true;
+}
+
+QList<ReosMeshPointValue> ReosMeshFrame_p::drapePolyline( const QPolygonF &polyline, double tolerance ) const
+{
+  QString localCrs = crs();
+
+  const QgsTriangularMesh *triMesh = mMeshLayer->triangularMesh();
+  const QVector<QgsMeshVertex> vertices = triMesh->vertices();
+
+  QgsGeometry polyGeom = QgsGeometry::fromQPolygonF( polyline );
+
+  QMap<double, ReosMeshPointValue> ret;
+
+  double lenghtFromStart = 0;
+
+  for ( int i = 0; i < polyline.count() - 1; ++i )
+  {
+    const QgsPoint pt1( polyline.at( i ) );
+    const QgsPoint pt2( polyline.at( i + 1 ) );
+
+    QSet <QPair<int, int>> intersectEdges;
+    QSet<int> intersectedVertex;
+
+    QgsGeometry segmentGeom = QgsGeometry::fromPolylineXY( {QgsPointXY( pt1 ), QgsPointXY( pt2 )} );
+    std::unique_ptr<QgsGeometryEngine> segmentEngine( QgsGeometry::createGeometryEngine( segmentGeom.constGet() ) );
+    segmentEngine->prepareGeometry();
+    const QList<int> faces = triMesh->faceIndexesForRectangle( segmentGeom.boundingBox() );
+
+    // Start to check distance from all vertices
+    for ( int fi : faces )
+    {
+      const QgsMeshFace &face = triMesh->triangles().at( fi );
+      for ( int vi : face )
+      {
+        if ( intersectedVertex.contains( vi ) )
+          continue;
+
+        const QgsMeshVertex vert = vertices.at( vi );
+        double minX = 0;
+        double minY = 0;
+        if ( QgsGeometryUtils::sqrDistToLine( vert.x(), vert.y(), pt1.x(), pt1.y(), pt2.x(), pt2.y(), minX, minY, 0 ) < tolerance * tolerance )
+        {
+          double pointDistFromStart = lenghtFromStart + sqrt( pow( pt1.x() - minX, 2 ) + pow( pt1.y() - minY, 2 ) );
+          intersectedVertex.insert( vi );
+          ret.insert( pointDistFromStart, ReosMeshPointValue( new ReosMeshPointValueOnVertex( vi, QPointF( minX, minY ) ) ) );
+        }
+      }
+    }
+
+    // Find intersection with edges
+    for ( int fi : faces )
+    {
+      const QgsMeshFace &face = triMesh->triangles().at( fi );
+      int faceSize = face.size();
+      for ( int vfi = 0; vfi < faceSize; ++vfi )
+      {
+        int vi1 = face.at( vfi );
+        int vi2 = face.at( ( vfi + 1 ) % faceSize );
+
+//        if ( intersectedVertex.contains( vi1 ) || intersectedVertex.contains( vi2 ) )
+//          continue;
+
+        const QgsMeshVertex &vert1 = vertices.at( vi1 );
+        const QgsMeshVertex &vert2 = vertices.at( vi2 );
+
+        QgsPoint intersectPoint;
+        bool isIntersect;
+        if ( QgsGeometryUtils::segmentIntersection( vert1, vert2, pt1, pt2, intersectPoint, isIntersect, tolerance, true ) )
+        {
+          QPair<int, int> edge;
+          if ( vi1 > vi2 )
+            edge = {vi2, vi1};
+          else
+            edge = {vi1, vi2};
+
+          if ( intersectEdges.contains( edge ) )
+            continue;
+
+          intersectEdges.insert( edge );
+          double distTot = vert1.distance( vert2 );
+          double dist1 = vertices.at( edge.first ).distance( intersectPoint );
+
+          ret.insert( pt1.distance( intersectPoint ) + lenghtFromStart,
+                      ReosMeshPointValue( new ReosMeshPointValueOnEdge( edge.first, edge.second, dist1 / distTot, intersectPoint.toQPointF() ) ) );
+        }
+      }
+    }
+
+    // insert point value for the current vertex of the polyline
+    auto faceFunct = [ & ]( const QgsPoint pt )
+    {
+      int includingFace = triMesh->faceIndexForPoint_v2( pt );
+      if ( includingFace != -1 )
+      {
+        const QgsMeshFace &face = triMesh->triangles().at( includingFace );
+
+        double lam1 = 0;
+        double lam2 = 0;
+        double lam3 = 0;
+        E3T_physicalToBarycentric(
+          vertices.at( face.at( 0 ) ), vertices.at( face.at( 1 ) ), vertices.at( face.at( 2 ) ), pt, lam1, lam2, lam3 );
+        ret.insert( lenghtFromStart, ReosMeshPointValue( new ReosMeshPointValueOnFace( face.at( 0 ), face.at( 1 ), face.at( 2 ),
+                    lam1, lam2, lam3, pt.toQPointF() ) ) );
+      }
+    };
+
+    faceFunct( pt1 );
+
+    lenghtFromStart += sqrt( pow( pt1.x() - pt2.x(), 2 ) + pow( pt1.y() - pt2.y(), 2 ) );
+
+    //If the last segment insert point value for the last vertex of the polyline
+    if ( i == polyline.count() - 2 )
+    {
+      faceFunct( QgsPoint( polyline.last() ) );
+    }
+  }
+
+  return ret.values();
+}
+
 
 void ReosMeshFrame_p::restoreVertexElevationDataset()
 {
@@ -462,15 +635,6 @@ void ReosMeshFrame_p::setWireFrameSettings( const WireFrameSettings &wireFrameSe
   updateWireFrameSettings( update );
 }
 
-//from QGIS src/core/mesh/qgsmeshlayerutils.cpp
-static void lamTol( double &lam )
-{
-  const static double eps = 1e-6;
-  if ( ( lam < 0.0 ) && ( lam > -eps ) )
-  {
-    lam = 0.0;
-  }
-}
 
 //from QGIS src/core/mesh/qgsmeshlayerutils.cpp
 static double interpolate( const QgsPointXY &pA, const QgsPointXY &pB, const QgsPointXY &pC, const QgsPointXY &pP, double vA, double vB, double vC, bool &ok )

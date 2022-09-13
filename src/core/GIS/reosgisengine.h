@@ -157,6 +157,8 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     //! Transforms the \a sourcePolygon with crs \a sourceCrs  to given \a crs
     static QPolygonF transformToCoordinates( const QString &sourceCRS, const QPolygonF &sourcePolygon, const QString &destinationCrs );
 
+    static double factorUnitToMeter( const QString &crs );
+
     //! Returns the temporal range
     QPair<QDateTime, QDateTime> temporalRange() const;
 

@@ -594,6 +594,13 @@ QPolygonF ReosGisEngine::transformToCoordinates( const QString &sourceCRS, const
   return geom.asQPolygonF();
 }
 
+double ReosGisEngine::factorUnitToMeter( const QString &crs )
+{
+  QgsUnitTypes::DistanceUnit unit = QgsCoordinateReferenceSystem::fromWkt( crs ).mapUnits();
+
+  return QgsUnitTypes::fromUnitToUnitFactor( unit, QgsUnitTypes::DistanceMeters );
+}
+
 void ReosGisEngine::setTemporalRange( const QDateTime &startTime, const QDateTime &endTime )
 {
   QgsProjectTimeSettings *timeSettings = QgsProject::instance()->timeSettings();
