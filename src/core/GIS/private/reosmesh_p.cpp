@@ -247,7 +247,7 @@ void ReosMeshFrame_p::setDatasetVectorGroupSymbology( const ReosEncodedElement &
 void ReosMeshFrame_p::activateWireFrame( bool activate )
 {
   mWireFrameSettings.enabled = activate;
-  updateWireFrameSettings();
+  updateWireFrameSettings( true );
 }
 
 bool ReosMeshFrame_p::isWireFrameActive() const
@@ -343,7 +343,7 @@ void ReosMeshFrame_p::restoreVertexElevationDataset()
   addDatasetGroup( group.release(), mVerticesElevationDatasetId );
 }
 
-void ReosMeshFrame_p::updateWireFrameSettings()
+void ReosMeshFrame_p::updateWireFrameSettings( bool updateRenderer )
 {
   if ( !mMeshLayer )
     return;
@@ -357,7 +357,9 @@ void ReosMeshFrame_p::updateWireFrameSettings()
   mMeshLayer->setRendererSettings( settings );
 
   mMeshLayer->triggerRepaint();
-  update3DRenderer();
+
+  if ( updateRenderer )
+    update3DRenderer();
 }
 
 QPointF ReosMeshFrame_p::tolayerCoordinates( const ReosSpatialPosition &position ) const
@@ -444,10 +446,10 @@ ReosMesh::WireFrameSettings ReosMeshFrame_p::wireFrameSettings() const
   return mWireFrameSettings;
 }
 
-void ReosMeshFrame_p::setWireFrameSettings( const WireFrameSettings &wireFrameSettings )
+void ReosMeshFrame_p::setWireFrameSettings( const WireFrameSettings &wireFrameSettings, bool update )
 {
   mWireFrameSettings = wireFrameSettings;
-  updateWireFrameSettings();
+  updateWireFrameSettings( update );
 }
 
 //from QGIS src/core/mesh/qgsmeshlayerutils.cpp
@@ -993,8 +995,8 @@ void ReosMeshFrame_p::setSimulationResults( ReosHydraulicSimulationResults *resu
     }
   }
 
-
-  meshProvider()->reloadData();
+  mMeshLayer->triggerRepaint();
+  mMeshLayer->trigger3DUpdate();
 }
 
 ReosMeshRenderer_p::ReosMeshRenderer_p( QGraphicsView *canvas, QgsMeshLayer *layer, ReosMesh *mesh ):

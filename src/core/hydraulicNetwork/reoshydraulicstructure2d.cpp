@@ -95,15 +95,15 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   encodedElement.getData( QStringLiteral( "wire-frame-enabled" ), wireframeSettings.enabled );
   encodedElement.getData( QStringLiteral( "wire-frame-color" ), wireframeSettings.color );
   encodedElement.getData( QStringLiteral( "wire-frame-width" ), wireframeSettings.width );
-  mMesh->setWireFrameSettings( wireframeSettings );
+  mMesh->setWireFrameSettings( wireframeSettings, false );
 
   QString currentActivatedMeshDataset;
   encodedElement.getData( QStringLiteral( "current-mesh-dataset-id" ), currentActivatedMeshDataset );
-  mMesh->activateDataset( currentActivatedMeshDataset );
+  mMesh->activateDataset( currentActivatedMeshDataset, false );
 
   QString currentActivatedVectorMeshDataset;
   encodedElement.getData( QStringLiteral( "current-mesh-vector-dataset-id" ), currentActivatedVectorMeshDataset );
-  mMesh->activateVectorDataset( currentActivatedVectorMeshDataset );
+  mMesh->activateVectorDataset( currentActivatedVectorMeshDataset, true );
 
   if ( !encodedElement.getData( QStringLiteral( "mesh-need-to-be-generated" ), mMeshNeedToBeGenerated ) )
     mMeshNeedToBeGenerated = true;
@@ -882,7 +882,10 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
       if ( type == currentType )
         currentActivatedId = groupId;
     }
-    mMesh->setVerticalDataset3DId( waterLevelId, false );
+
+    mMesh->activateDataset( currentDatasetId, false );
+    mMesh->activateVectorDataset( currentVectorDatasetId, false );
+    mMesh->setVerticalDataset3DId( waterLevelId, true );
 
     const QMap<QString, ReosHydrograph *> outputHydrographs = simResults->outputHydrographs();
 

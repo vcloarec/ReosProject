@@ -90,7 +90,7 @@ class ReosMeshFrame_p : public ReosMesh
     void update3DRenderer() override;
 
     WireFrameSettings wireFrameSettings() const override ;
-    void setWireFrameSettings( const WireFrameSettings &wireFrameSettings ) override;
+    void setWireFrameSettings( const WireFrameSettings &wireFrameSettings, bool update ) override;
 
     double interpolateDatasetValueOnPoint( const ReosMeshDatasetSource *datasetSource, const ReosSpatialPosition &position, int sourceGroupindex, int datasetIndex ) const override;
 
@@ -114,7 +114,7 @@ class ReosMeshFrame_p : public ReosMesh
     void addDatasetGroup( QgsMeshDatasetGroup *group, const QString &id = QString() );
     void firstUpdateOfTerrainScalarSetting();
     void restoreVertexElevationDataset();
-    void updateWireFrameSettings();
+    void updateWireFrameSettings(bool updateRenderer);
     int datasetGroupIndex( const QString &id ) const;
     ReosEncodedElement datasetScalarGroupSymbologyPrivate( int i ) const;
     void applyScalarSymbologyOnMeshDatasetGroup( const QString &id );
@@ -176,38 +176,38 @@ class ReosMeshQualityChecker_p : public ReosMeshQualityChecker
 
 class ReosResultDatasetGroup : public QgsMeshDatasetGroup
 {
-public:
-    ReosResultDatasetGroup(ReosMeshDatasetSource *simResult, int index);
+  public:
+    ReosResultDatasetGroup( ReosMeshDatasetSource *simResult, int index );
 
     void initialize();
-    QgsMeshDatasetMetadata datasetMetadata(int datasetIndex) const;
+    QgsMeshDatasetMetadata datasetMetadata( int datasetIndex ) const;
     int datasetCount() const;
-    QgsMeshDataset *dataset(int index) const;
+    QgsMeshDataset *dataset( int index ) const;
     QgsMeshDatasetGroup::Type type() const;
-    QDomElement writeXml(QDomDocument &doc, const QgsReadWriteContext &context) const {return QDomElement();}
+    QDomElement writeXml( QDomDocument &doc, const QgsReadWriteContext &context ) const {return QDomElement();}
 
-private:
-    ReosMeshDatasetSource *mSimulationResult=nullptr;
-    int mGroupIndex=-1;
+  private:
+    ReosMeshDatasetSource *mSimulationResult = nullptr;
+    int mGroupIndex = -1;
     std::vector<std::unique_ptr<QgsMeshDataset>> mDatasets;
 };
 
 class ReosResultDataset : public QgsMeshDataset
 {
-public:
-    ReosResultDataset(ReosMeshDatasetSource *simResult, int groupIndex, int index);
+  public:
+    ReosResultDataset( ReosMeshDatasetSource *simResult, int groupIndex, int index );
 
-    QgsMeshDatasetValue datasetValue(int valueIndex) const;
-    QgsMeshDataBlock datasetValues(bool isScalar, int valueIndex, int count) const;
-    QgsMeshDataBlock areFacesActive(int faceIndex, int count) const;
-    bool isActive(int faceIndex) const;
+    QgsMeshDatasetValue datasetValue( int valueIndex ) const;
+    QgsMeshDataBlock datasetValues( bool isScalar, int valueIndex, int count ) const;
+    QgsMeshDataBlock areFacesActive( int faceIndex, int count ) const;
+    bool isActive( int faceIndex ) const;
     QgsMeshDatasetMetadata metadata() const;
     int valuesCount() const;
 
-private:
-    ReosMeshDatasetSource *mSimulationResult=nullptr;
-    int mGroupIndex=-1;
-    int mDatasetIndex=-1;
+  private:
+    ReosMeshDatasetSource *mSimulationResult = nullptr;
+    int mGroupIndex = -1;
+    int mDatasetIndex = -1;
 
 };
 

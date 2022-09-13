@@ -200,7 +200,7 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
 
     virtual WireFrameSettings wireFrameSettings() const = 0 ;
 
-    virtual void setWireFrameSettings( const WireFrameSettings &wireFrameSettings ) = 0;
+    virtual void setWireFrameSettings( const WireFrameSettings &wireFrameSettings, bool update = true ) = 0;
 
     virtual void update3DRenderer() = 0;
 

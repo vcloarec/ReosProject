@@ -526,6 +526,11 @@ void ReosMap::setTimeStep( const ReosDuration &timeStep )
   mTemporalControler->setTimeStep( timeStep );
 }
 
+ReosDuration ReosMap::timeStep() const
+{
+  return mTemporalControler->timeStep();
+}
+
 QDateTime ReosMap::currentTime() const
 {
   QgsMapCanvas *mapCanvas = qobject_cast<QgsMapCanvas *>( mCanvas );

@@ -192,7 +192,6 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   connect( mStructure2D->mesh(), &ReosMesh::repaintRequested, this, &ReosHydraulicStructure2DProperties::requestMapRefresh );
 
   updateDatasetMenus();
-  restoreResults();
 
   mGuiContext.addActionToMainToolBar( QStringLiteral( "hydraulic-network" ), mActionEditStructure );
   mGuiContext.addActionToMainToolBar( QStringLiteral( "hydraulic-network" ), mActionRunSimulation );
@@ -261,6 +260,8 @@ void ReosHydraulicStructure2DProperties::setCurrentCalculationContext( const Reo
 {
   mActionEditStructure->setEnabled( !mStructure2D->hasSimulationRunning() );
   mStructure2D->updateCalculationContext( context );
+  mCurrentDatasetId = mStructure2D->currentActivatedMeshDataset();
+  mCurrentVectorDatasetId = mStructure2D->currentActivatedVectorMeshDataset();
   mCalculationContext = context;
 
   setCurrentSimulationProcess( mStructure2D->simulationProcess( context ), context );
@@ -480,7 +481,7 @@ void ReosHydraulicStructure2DProperties::updateScalarDatasetMenu()
   ReosMeshWireframeSettingsWidget *ptr = meshSettingsWidget.get();
   connect( meshSettingsWidget.get(), &ReosMeshWireframeSettingsWidget::changed, this, [this, ptr]
   {
-    mStructure2D->mesh()->setWireFrameSettings( ptr->settings() );
+    mStructure2D->mesh()->setWireFrameSettings( ptr->settings(), true );
   } );
   wa->setDefaultWidget( meshSettingsWidget.release() );
   mScalarDatasetMenu->addAction( wa );

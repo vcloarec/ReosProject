@@ -102,6 +102,11 @@ void ReosTemporalController_p::timerTimeout()
   }
 }
 
+ReosDuration ReosTemporalController_p::timeStep() const
+{
+  return mTimeStep;
+}
+
 QDateTime ReosTemporalController_p::startTime() const
 {
   return mStartTime;

@@ -112,6 +112,7 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     const QObject *temporalController() const;
 
     void setTimeStep( const ReosDuration &timeStep );
+    ReosDuration timeStep() const;
     QDateTime currentTime() const;
 
   signals:

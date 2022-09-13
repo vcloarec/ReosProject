@@ -63,6 +63,13 @@ Reos3dView::Reos3dView( ReosMesh *meshTerrain, const ReosGuiContext &context )
   const QgsRectangle extent = meshLayer->extent();
   float dist = static_cast< float >( std::max( extent.width(), extent.height() ) );
   settings->setOrigin( QgsVector3D( extent.center().x(), extent.center().y(), 0 ) );
+
+  settings->setTemporalRange(
+  {
+    context.map()->currentTime(),
+    context.map()->currentTime().addMSecs( context.map()->timeStep().valueMilliSecond() )
+  } );
+
   mCanvas->setMap( settings );
   mCanvas->setViewFromTop( extent.center(), dist, 0 );
   mCanvas->setOnScreenNavigationVisibility( false );

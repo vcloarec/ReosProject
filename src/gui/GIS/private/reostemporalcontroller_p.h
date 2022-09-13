@@ -40,13 +40,14 @@ class ReosTemporalController_p : public QgsTemporalController
     void setSpeedFactor( double speedFactor );
 
     void setTimeStep( const ReosDuration &timeStep );
+    ReosDuration timeStep() const;
 
     int timeStepCount() const;
     ReosDuration durationExtent() const;
 
     QDateTime startTime() const;
 
-  public slots:
+public slots:
     void setTemporalExtent( const QDateTime &startTime, const QDateTime &endTime );
     void setCurrentTime( const QDateTime &time );
     void setIsLoop( bool isLoop );
