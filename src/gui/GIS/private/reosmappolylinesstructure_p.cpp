@@ -81,7 +81,7 @@ void ReosMapStructureExteriorItem::updatePosition( const ReosPolylinesStructure 
   mPolyInLocalView.clear();
   mIsCondition.clear();
   mIsSelected.clear();
-  const QPolygonF boundaryPolygon = structure->boundary();
+  const QPolygonF boundaryPolygon = structure->boundary( destinationCrs );
 
   mIsCondition.reserve( boundaryPolygon.count() );
   for ( int i = 0; i < boundaryPolygon.count(); ++i )

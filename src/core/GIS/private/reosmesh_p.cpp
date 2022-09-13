@@ -49,10 +49,20 @@ ReosMeshFrame_p::ReosMeshFrame_p( const QString &dataPath, const QString &destin
   if ( dir.exists() )
   {
     meshProvider()->loadMeshFrame( dir.filePath( QStringLiteral( "meshFrame.nc" ) ), QStringLiteral( "Ugrid" ) );
-    mMeshLayer->setCrs( meshProvider()->crs() );
-    mMeshLayer->reload();
+
     QgsCoordinateReferenceSystem qgisDestinationCrs;
     qgisDestinationCrs.createFromWkt( destinationCrs );
+
+    if ( meshProvider()->crs().isValid() )
+      mMeshLayer->setCrs( meshProvider()->crs() );
+    else
+    {
+      mMeshLayer->setCrs( qgisDestinationCrs );
+      meshProvider()->overrideCrs( qgisDestinationCrs );
+    }
+
+    mMeshLayer->reload();
+
     QgsCoordinateTransform transform( meshProvider()->crs(), qgisDestinationCrs, QgsProject::instance() );
     mMeshLayer->updateTriangularMesh( transform );
   };
@@ -1014,6 +1024,7 @@ ReosMeshRenderer_p::ReosMeshRenderer_p( QGraphicsView *canvas, QgsMeshLayer *lay
 
     mPainter.reset( new QPainter( &mImage ) );
     mRenderContext = QgsRenderContext::fromMapSettings( settings );
+    mRenderContext.setCoordinateTransform( mapCanvas->mapSettings().layerTransform( layer ) );
     mRenderContext.setPainter( mPainter.get() );
     mLayerRender.reset( layer->createMapRenderer( mRenderContext ) );
 

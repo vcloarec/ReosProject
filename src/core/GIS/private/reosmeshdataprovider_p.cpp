@@ -321,7 +321,8 @@ void ReosMeshDataProvider_p::applyTopographyOnVertices( ReosTopographyCollection
 
 void ReosMeshDataProvider_p::overrideCrs( const QgsCoordinateReferenceSystem &crs )
 {
-  mCrs = crs;
+  if ( crs.isValid() )
+    mCrs = crs;
 }
 
 QgsMesh ReosMeshDataProvider_p::convertFrameFromReos( const ReosMeshFrameData &reosMesh )

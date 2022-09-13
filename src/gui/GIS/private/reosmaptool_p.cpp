@@ -234,7 +234,7 @@ void ReosMapToolDrawPolyline_p::canvasReleaseEvent( QgsMapMouseEvent *e )
     {
 
       QPolygonF polyline = mRubberBand->asGeometry().asQPolygonF();
-      if ( !selfIntersect() )
+      if ( !selfIntersect() || mAllowSelfIntersect )
       {
         if ( !polyline.isEmpty() )
         {
@@ -279,7 +279,7 @@ bool ReosMapToolDrawPolyline_p::selfIntersect() const
 
 void ReosMapToolDrawPolyline_p::updateColor()
 {
-  if ( selfIntersect() )
+  if ( selfIntersect() && !mAllowSelfIntersect )
   {
     mRubberBand->setColor( ReosStyleRegistery::instance()->invalidColor() );
     mRubberBand->setFillColor( ReosStyleRegistery::instance()->invalidColor( 100 ) );

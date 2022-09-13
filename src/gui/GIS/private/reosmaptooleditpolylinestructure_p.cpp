@@ -102,14 +102,11 @@ ReosMapToolEditPolylineStructure_p::ReosMapToolEditPolylineStructure_p( QgsMapCa
   mSelectLinesBand->setColor( ReosStyleRegistery::instance()->blueReos() );
   mSelectLinesBand->setWidth( 5 );
   mSelectLinesBand->setZValue( 60 );
-
-  mMapCrs = mapCrs();
 }
 
 void ReosMapToolEditPolylineStructure_p::setStructure( ReosPolylinesStructure *structure )
 {
   mStructure = structure;
-  mMapCrs = mapCrs(); //update the crs if changed
 
   mActionUndo = structure->undoStack()->createUndoAction( this );
   mActionUndo->setIcon( QPixmap( QStringLiteral( ":/images/undoOrange.svg" ) ) );
@@ -176,7 +173,7 @@ void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
       {
         if ( mActionAddHole->isChecked() )
         {
-          QPolygonF holePolygon = mStructure->searchPolygon( ReosSpatialPosition( e->mapPoint().toQPointF(), mMapCrs ), false );
+          QPolygonF holePolygon = mStructure->searchPolygon( ReosSpatialPosition( e->mapPoint().toQPointF(), mapCrs() ), false );
           if ( !holePolygon.isEmpty() )
           {
             mPolygonHoleBand->reset( QgsWkbTypes::PolygonGeometry );
@@ -196,7 +193,8 @@ void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
         if ( mCurrentVertex )
         {
           mSnappingIndicator->setMatch( QgsPointLocator::Match() );
-          const QPointF &position = mStructure->vertexPosition( mCurrentVertex, mMapCrs );
+          const QPointF &position = mStructure->vertexPosition( mCurrentVertex, mapCrs() );
+          qDebug() << mCurrentPosition << position;
           if ( mCurrentState == AddingLines )
             moveAddingLineRubberBand( position );
           mVertexMarker->setCenter( position );
@@ -209,7 +207,7 @@ void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
           mMovingHolePointIndex = mStructure->searchHolePoint( sr );
           if ( mMovingHolePointIndex != -1 )
           {
-            const QPointF holePointPosition = mStructure->holePoints( mMapCrs ).at( mMovingHolePointIndex );
+            const QPointF holePointPosition = mStructure->holePoints( mapCrs() ).at( mMovingHolePointIndex );
             mVertexMarker->setCenter( holePointPosition );
             mVertexMarker->setVisible( true );
             return;
@@ -219,7 +217,7 @@ void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
         mCurrentLineId = INT64_MAX;
         if ( mStructure->searchForLine( sr, mCurrentLineId ) && ( !mActionAddBoundary->isChecked() ) )
         {
-          const QLineF line = mStructure->line( mCurrentLineId, mMapCrs );
+          const QLineF line = mStructure->line( mCurrentLineId, mapCrs() );
           if ( !line.isNull() )
           {
             mHoveredLineBand->addPoint( line.p1() );
@@ -248,7 +246,7 @@ void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
       QgsPointXY mapPoint = e->mapPoint();
       mVertexMarker->setCenter( mapPoint );
 
-      QPolygonF holePolygon = mStructure->searchPolygon( ReosSpatialPosition( e->mapPoint().toQPointF(), mMapCrs ), false );
+      QPolygonF holePolygon = mStructure->searchPolygon( ReosSpatialPosition( e->mapPoint().toQPointF(), mapCrs() ), false );
       if ( !holePolygon.isEmpty() )
       {
         mPolygonHoleBand->reset( QgsWkbTypes::PolygonGeometry );
@@ -267,7 +265,7 @@ void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
       mSelectLinesVertexBand->reset( QgsWkbTypes::PointGeometry );
       const ReosMapExtent sr = searchZone( mCurrentPosition );
       mCurrentVertex = mStructure->searchForVertex( sr );
-      mSelectLinesVertexBand->addPoint( mStructure->vertexPosition( mFirstSelectedVertex, mMapCrs ), true );
+      mSelectLinesVertexBand->addPoint( mStructure->vertexPosition( mFirstSelectedVertex, mapCrs() ), true );
       if ( mCurrentVertex )
       {
         const QPolygonF lines = mStructure->linesOnBoundaryFromTo( mFirstSelectedVertex, mCurrentVertex );
@@ -303,9 +301,9 @@ void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
       {
         if ( mActionMoveVertex->isChecked() && mCurrentVertex )
         {
-          const QPointF &vertexPosition = mStructure->vertexPosition( mCurrentVertex, mMapCrs );
+          const QPointF &vertexPosition = mStructure->vertexPosition( mCurrentVertex, mapCrs() );
           mCurrentState = DraggingVertex;
-          mNeighborPosition = mStructure->neighborsPositions( mCurrentVertex, mMapCrs );
+          mNeighborPosition = mStructure->neighborsPositions( mCurrentVertex, mapCrs() );
           const QgsPointXY center( vertexPosition );
           updateMovingVertexRubberBand( center );
         }
@@ -324,7 +322,7 @@ void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
 
         if ( mActionAddHole->isChecked() )
         {
-          const ReosSpatialPosition postition( nonSnapPoint, mMapCrs );
+          const ReosSpatialPosition postition( nonSnapPoint, mapCrs() );
           if ( !mStructure->searchPolygon( postition, false ).isEmpty() )
             mStructure->addHolePoint( postition );
         }
@@ -336,7 +334,7 @@ void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
             mCurrentState = SelectLinesByExtremity;
             mFirstSelectedVertex = mCurrentVertex;
             mSelectLinesVertexBand->reset( QgsWkbTypes::PointGeometry );
-            mSelectLinesVertexBand->addPoint( mStructure->vertexPosition( mFirstSelectedVertex, mMapCrs ), true );
+            mSelectLinesVertexBand->addPoint( mStructure->vertexPosition( mFirstSelectedVertex, mapCrs() ), true );
           }
         }
       }
@@ -354,7 +352,7 @@ void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
           }
 
           if ( mAddingPolyline.count() > 1 )
-            mStructure->addPolylines( mAddingPolyline, mAddingLineTolerance, mMapCrs );
+            mStructure->addPolylines( mAddingPolyline, mAddingLineTolerance, mapCrs() );
 
           stopAddingLines();
         }
@@ -366,8 +364,8 @@ void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
       {
         if ( e->button() == Qt::LeftButton )
         {
-          if ( mStructure->vertexCanBeMoved( mCurrentVertex, ReosSpatialPosition( snapPoint, mMapCrs ) ) )
-            mStructure->moveVertex( mCurrentVertex, ReosSpatialPosition( snapPoint, mMapCrs ) );
+          if ( mStructure->vertexCanBeMoved( mCurrentVertex, ReosSpatialPosition( snapPoint, mapCrs() ) ) )
+            mStructure->moveVertex( mCurrentVertex, ReosSpatialPosition( snapPoint, mapCrs() ) );
 
           stopDraggingVertex();
           canvas()->refresh();
@@ -386,14 +384,14 @@ void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
       else if ( e->button() == Qt::RightButton )
       {
         if ( mAddingPolyline.count() > 1 )
-          mStructure->addPolylines( mAddingPolyline, mAddingLineTolerance, mMapCrs );
+          mStructure->addPolylines( mAddingPolyline, mAddingLineTolerance, mapCrs() );
 
         stopAddingLines();
       }
       break;
     case DraggingHolePoint:
     {
-      mStructure->moveHolePoint( mMovingHolePointIndex, ReosSpatialPosition( e->mapPoint().toQPointF(), mMapCrs ) );
+      mStructure->moveHolePoint( mMovingHolePointIndex, ReosSpatialPosition( e->mapPoint().toQPointF(), mapCrs() ) );
       mCurrentState = None;
       mVertexMarker->setVisible( false );
       enableSnapping( true );
@@ -495,7 +493,7 @@ ReosMapExtent ReosMapToolEditPolylineStructure_p::searchZone( const QgsPointXY &
     tol = mStructure->tolerance( mapCrs() );
 
   ReosMapExtent zone( point.x() - tol, point.y() - tol, point.x() + tol, point.y() + tol );
-  zone.setCrs( mMapCrs );
+  zone.setCrs( mapCrs() );
 
   return zone;
 }
@@ -505,7 +503,7 @@ void ReosMapToolEditPolylineStructure_p::updateMovingVertexRubberBand( const Qgs
   mLineRubberBand->reset( QgsWkbTypes::LineGeometry );
   mVertexRubberBand->reset( QgsWkbTypes::PointGeometry );
 
-  if ( mStructure->vertexCanBeMoved( mCurrentVertex, ReosSpatialPosition( movingPosition.toQPointF(), mMapCrs ) ) )
+  if ( mStructure->vertexCanBeMoved( mCurrentVertex, ReosSpatialPosition( movingPosition.toQPointF(), mapCrs() ) ) )
   {
     mLineRubberBand->setColor( ReosStyleRegistery::instance()->blueReos() );
   }
@@ -559,9 +557,9 @@ void ReosMapToolEditPolylineStructure_p::addVertexForNewLines( const QPointF &po
   ReosMapExtent sr = searchZone( point, useMapTolerance );
 
   if ( mCurrentVertex )
-    vertexPosition = mStructure->vertexPosition( mCurrentVertex, mMapCrs );
+    vertexPosition = mStructure->vertexPosition( mCurrentVertex, mapCrs() );
   else if ( mStructure->searchForLine( sr, lineId ) )
-    vertexPosition = mStructure->projectedPoint( point, lineId, mMapCrs );
+    vertexPosition = mStructure->projectedPoint( point, lineId, mapCrs() );
   else
   {
     vertexPosition = point;
@@ -576,14 +574,14 @@ void ReosMapToolEditPolylineStructure_p::addVertexForNewLines( const QPointF &po
   if ( !mAddingPolyline.isEmpty() )
   {
     const QPointF prevPt = mAddingPolyline.last();
-    QList<QPointF> intersections = mStructure->intersectionPoints( QLineF( prevPt, vertexPosition ), mMapCrs, mLineRubberBand->asGeometry().asQPolygonF() );
+    QList<QPointF> intersections = mStructure->intersectionPoints( QLineF( prevPt, vertexPosition ), mapCrs(), mLineRubberBand->asGeometry().asQPolygonF() );
     for ( const QPointF &pt : std::as_const( intersections ) )
     {
       const ReosMapExtent sr = searchZone( pt, useMapTolerance );
       ReosGeometryStructureVertex *vert = mStructure->searchForVertex( sr );
       QPointF effPt;
       if ( vert )
-        effPt = mStructure->vertexPosition( vert, mMapCrs );
+        effPt = mStructure->vertexPosition( vert, mapCrs() );
       else
         effPt = pt;
       mAddingPolyline.append( effPt );
@@ -635,7 +633,7 @@ bool ReosEditPolylineStructureMenuPopulator::populate( QMenu *menu, QgsMapMouseE
 
   QPointF nonSnapPos = e->mapPoint().toQPointF();
   ReosMapExtent searchZone = mToolMap->searchZone( e->snapPoint() );
-  searchZone.setCrs( mToolMap->mMapCrs );
+  searchZone.setCrs( mToolMap->mapCrs() );
   QPointF snapPos = e->mapPoint().toQPointF();
 
   ReosGeometryStructureVertex *vertex = mToolMap->mStructure->searchForVertex( searchZone );

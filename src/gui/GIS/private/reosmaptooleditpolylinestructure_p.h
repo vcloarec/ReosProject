@@ -79,7 +79,6 @@ class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
     ReosPolylinesStructure *mStructure = nullptr;
     QgsVertexMarker *mVertexMarker = nullptr;
 
-    QString mMapCrs;
     ReosGeometryStructureVertex *mCurrentVertex = nullptr;
     qint64 mCurrentLineId = INT64_MAX;
     QList<QPointF> mNeighborPosition;
