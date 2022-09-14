@@ -232,6 +232,7 @@ void ReosSimulationPreparationProcess::start()
       mSimulation->prepareInput( mStructure, mContext, dir );
   }
 
+  mIsSuccessful = true;
 }
 
 void ReosSimulationPreparationProcess::onBoundaryUpdated( const QString &id )
