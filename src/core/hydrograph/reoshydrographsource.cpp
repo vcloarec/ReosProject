@@ -112,7 +112,7 @@ void ReosHydrographSourceFixed::updateCalculationContext( const ReosCalculationC
 }
 
 
-ReosHydrographJunction::ReosHydrographJunction( const QPointF &position, ReosHydraulicNetwork *parent )
+ReosHydrographJunction::ReosHydrographJunction( const ReosSpatialPosition &position, ReosHydraulicNetwork *parent )
   : ReosHydrographSource( parent )
   , mOutputHydrograph( new ReosHydrograph( this ) ),
     mPosition( position )

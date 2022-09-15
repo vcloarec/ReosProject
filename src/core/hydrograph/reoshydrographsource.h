@@ -162,7 +162,7 @@ class REOSCORE_EXPORT ReosHydrographJunction : public ReosHydrographSource
       GaugedHydrograph
     };
 
-    ReosHydrographJunction( const QPointF &position, ReosHydraulicNetwork *parent = nullptr );
+    ReosHydrographJunction( const ReosSpatialPosition &position, ReosHydraulicNetwork *parent = nullptr );
 
     ReosHydrograph *outputHydrograph() const override;
 
