@@ -167,6 +167,7 @@
         <file>temporalLine.svg</file>
         <file>cursorCoordinates.svg</file>
         <file>exportToQGIS.svg</file>
+        <file>resultsProfile.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

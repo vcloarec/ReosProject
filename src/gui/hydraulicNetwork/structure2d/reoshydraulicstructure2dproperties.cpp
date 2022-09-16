@@ -82,7 +82,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   , mActionExportSimulationFile( new QAction( QPixmap( QStringLiteral( ":/images/exportSimulation.svg" ) ), tr( "Export Simulation" ), this ) )
   , mActionEngineConfiguration( ( new QAction( QPixmap( QStringLiteral( ":/images/engineSettings.svg" ) ), tr( "Engine Settings" ), this ) ) )
   , mAction3DView( new QAction( QPixmap( QStringLiteral( ":/images/view3D.svg" ) ), tr( "3D View" ), this ) )
-  , mActionProfiles( new QAction( tr( "Profiles" ), this ) )
+  , mActionProfiles( new QAction( QPixmap( ":/images/resultsProfile.svg" ), tr( "Profiles" ), this ) )
   , mActionExportAsMesh( new QAction( QPixmap( ":/images/exportToQGIS.svg" ), tr( "Export as Mesh to QGIS Project" ), this ) )
   , mScalarDatasetMenu( new QMenu( this ) )
   , mVectorDatasetMenu( new QMenu( this ) )
