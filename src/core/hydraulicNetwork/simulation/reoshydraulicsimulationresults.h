@@ -41,13 +41,15 @@ class REOSCORE_EXPORT ReosHydraulicSimulationResults : public ReosMeshDatasetSou
 
     ReosHydraulicSimulationResults( const ReosHydraulicSimulation *simulation, QObject *parent = nullptr );
 
+    QString groupName( int groupIndex ) const override;
+    bool groupIsScalar( int groupIndex ) const override;
+
     QString groupId( DatasetType type );
     QString groupId( int groupIndex ) const;
     virtual int groupIndex( DatasetType type ) const = 0;
-    QString groupName( int groupIndex ) const override;
-    bool groupIsScalar( int groupIndex ) const override;
     virtual DatasetType datasetType( int groupIndex ) const = 0;
     virtual QDateTime runDateTime() const = 0;
+    virtual int datasetIndex( int groupIndex, const QDateTime &time ) const = 0;
 
     virtual QMap<QString, ReosHydrograph *> outputHydrographs() const = 0;
 

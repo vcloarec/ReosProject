@@ -249,7 +249,12 @@ ReosMeshPointValue &ReosMeshPointValue::operator=( ReosMeshPointValue &&other )
 double ReosMeshPointValue::value( ReosMeshDatasetSource *source, int groupIndex, int index ) const
 {
   if ( d )
-    return d->interpolateValue( source->datasetValues( groupIndex, index ) );
+  {
+    if ( source->groupIsScalar( groupIndex ) )
+      return d->interpolateValue( source->datasetValues( groupIndex, index ) );
+    else
+      return d->interpolateVectorValueValue( source->datasetValues( groupIndex, index ) );
+  }
 
   return std::numeric_limits<double>::quiet_NaN();
 }
@@ -283,6 +288,11 @@ double ReosMeshPointValueOnVertex::interpolateValue( const QVector<double> &valu
   return values.at( mVertexIndex );
 }
 
+double ReosMeshPointValueOnVertex::interpolateVectorValueValue( const QVector<double> &values ) const
+{
+  return sqrt( pow( values.at( mVertexIndex + 2 ), 2 ) + pow( values.at( mVertexIndex * 2 + 1 ), 2 ) );
+}
+
 double ReosMeshPointValueOnVertex::interpolateTerrainElevation( ReosMesh *mesh ) const
 {
   return mesh->vertexElevation( mVertexIndex );
@@ -314,6 +324,18 @@ double ReosMeshPointValueOnEdge::interpolateValue( const QVector<double> &values
   return interpolateValueOnEdge( value1, value2 );
 }
 
+double ReosMeshPointValueOnEdge::interpolateVectorValueValue( const QVector<double> &values ) const
+{
+  double value11 = values.at( mVertex1 * 2 );
+  double value12 = values.at( mVertex1 * 2 + 1 );
+  double value21 = values.at( mVertex2 * 2 );
+  double value22 = values.at( mVertex2 * 2 + 1 );
+
+  return interpolateValueOnEdge( sqrt( pow( value11, 2 ) + pow( value12, 2 ) ),
+                                 sqrt( pow( value21, 2 ) + pow( value22, 2 ) ) );
+}
+
+
 double ReosMeshPointValueOnEdge::interpolateTerrainElevation( ReosMesh *mesh ) const
 {
   double z1 = mesh->vertexElevation( mVertex1 );
@@ -344,6 +366,20 @@ double ReosMeshPointValueOnFace::interpolateValue( const QVector<double> &values
   double value3 = values.at( mVertex3 );
 
   return interpolateValueOnFace( value1, value2, value3 );
+}
+
+double ReosMeshPointValueOnFace::interpolateVectorValueValue( const QVector<double> &values ) const
+{
+  double value11 = values.at( 2 * mVertex1 );
+  double value12 = values.at( 2 * mVertex1 + 1 );
+  double value21 = values.at( 2 * mVertex2 );
+  double value22 = values.at( 2 * mVertex2 + 1 );
+  double value31 = values.at( 2 * mVertex3 );
+  double value32 = values.at( 2 * mVertex3 + 1 );
+
+  return interpolateValueOnFace( sqrt( pow( value11, 2 ) + pow( value12, 2 ) ),
+                                 sqrt( pow( value21, 2 ) + pow( value22, 2 ) ),
+                                 sqrt( pow( value31, 2 ) + pow( value32, 2 ) ) );
 }
 
 double ReosMeshPointValueOnFace::interpolateTerrainElevation( ReosMesh *mesh ) const

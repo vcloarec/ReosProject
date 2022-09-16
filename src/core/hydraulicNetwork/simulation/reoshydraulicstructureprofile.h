@@ -11,16 +11,37 @@
 #include "reosmesh.h"
 
 class ReosHydraulicStructure2D;
+class ReosHydraulicScheme;
 
 class ReosHydraulicStructureProfile : public ReosDataObject
 {
   public:
     ReosHydraulicStructureProfile( const QString &name, const QPolygonF &geometry, ReosHydraulicStructure2D *structure );
+    ReosHydraulicStructureProfile( const ReosEncodedElement &element, ReosHydraulicStructure2D *structure );
 
+    /**
+     *  Returns the different parts of the geometry intersecting the domain,
+     *  parts are sorted following the distance from beginning of the line
+     */
     QMap<double, QPolygonF> parts() const;
-    QVector<QPolygonF> terrainElevationProfile();
 
+    //! Returns the point values sorted of each parts
     QMap<double, QList<ReosMeshPointValue>> pointValues() const;
+
+    //! Returns the geometry of the profile in the plan in the associate structure coordinate
+    const QPolygonF &geometry() const;
+
+    //! Changes the ceometry in the plan with \a geom that is in \a lineCrs coordinate system
+    void changeGeometry( const QPolygonF &geom, const QString &linesCrs );
+
+    //! Returns the terrain profile
+    QPolygonF terrainProfile() const;
+
+    //! Returns the results profile corresponding to hydraulic \a scheme, for \a time and with type \a result type
+    QPolygonF resultsProfile( ReosHydraulicScheme *scheme, const QDateTime &time, ReosHydraulicSimulationResults::DatasetType resultType ) const;
+
+    ReosEncodedElement encode() const;
+
   private:
     QPolygonF mGeometry;
     ReosHydraulicStructure2D *mStructure = nullptr;
@@ -29,6 +50,8 @@ class ReosHydraulicStructureProfile : public ReosDataObject
 
     void initParts() const;
     void buildProfile() const;
+
+    QPolygonF extractValue( std::function<double( ReosMeshPointValue )> &func ) const;
 };
 
 class ReosHydraulicStructureProfilesCollection : public QAbstractListModel
@@ -43,62 +66,16 @@ class ReosHydraulicStructureProfilesCollection : public QAbstractListModel
     QVariant data( const QModelIndex &index, int role ) const override;
 
     void addProfile( ReosHydraulicStructureProfile *profile );
+    void removeProfile( int index );
+    void renameProfile( int profileIndex, const QString &name );
 
     ReosHydraulicStructureProfile *profile( int profileIndex );
+
+    ReosEncodedElement encode() const;
+    void decode( const ReosEncodedElement &element, ReosHydraulicStructure2D *structure );
 
   private:
     QList<ReosHydraulicStructureProfile *> mProfiles;
 };
-
-//class ReosHydraulicStructureInterpolation
-//{
-//  public:
-//    double getTerrainValue( ReosHydraulicStructure2D *structure ) const = 0;
-//    double getValue( ReosHydraulicSimulationResults *result, ReosHydraulicSimulationResults::DatasetType datasetType, int index ) const;
-//};
-
-
-//class ReosHydraulicStructureEdgeInterpolation: public ReosMeshIntersectionOnEdge
-//{
-//  public:
-
-//    ReosHydraulicStructureEdgeInterpolation( int vertexIndex1, int vertexIndex2, double posInEdge, double posOnPolyline )
-//      : ReosMeshIntersectionOnEdge( vertexIndex1, vertexIndex2, posInEdge, posOnPolyline )
-//    {}
-
-//    double getTerrainValue( ReosHydraulicStructure2D *structure ) const;
-//    double getValue( ReosHydraulicSimulationResults *result, ReosHydraulicSimulationResults::DatasetType datasetType, int index ) const;
-
-//};
-
-//class ReosHydraulicStructureFaceInterpolation: public ReosMeshIntersectionOnEdge
-//{
-//  public:
-
-//    ReosHydraulicStructureEdgeInterpolation( int vertexIndex1, int vertexIndex2, double posInEdge, double posOnPolyline )
-//      : ReosMeshIntersectionOnEdge( vertexIndex1, vertexIndex2, posInEdge, posOnPolyline )
-//    {}
-
-//    double getTerrainValue( ReosHydraulicStructure2D *structure ) const;
-//    double getValue( ReosHydraulicSimulationResults *result, ReosHydraulicSimulationResults::DatasetType datasetType, int index ) const;
-
-//};
-
-
-
-//class  ReosHydraulicStructureIntepolationFactory: ReosMeshIntersectionFactory
-//{
-//  public:
-//    virtual ReosMeshPointValue *createEdgeIntersection( int vertexIndex1, int vertexIndex2, double posInEdge, double posOnPolyline )
-//    {
-//      return new ReosHydraulicStructureEdgeInterpolation( vertexIndex1, vertexIndex2, posInEdge, posOnPolyline );
-//    }
-//    virtual ReosMeshPointValue *createFaceIntersection(
-//      int vertexIndex1, int vertexIndex2, int vertexIndex3,
-//      double lam1, double lam2, double lam3,
-//      double posOnPolyline );
-
-
-//};
 
 #endif // REOSHYDRAULICSTRUCTUREPROFILE_H

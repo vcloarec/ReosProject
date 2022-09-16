@@ -50,6 +50,7 @@ class ReosTelemac2DSimulationResults : public ReosHydraulicSimulationResults
     bool datasetIsValid( int groupIndex, int datasetIndex ) const override;
     void datasetMinMax( int groupIndex, int datasetIndex, double &min, double &max ) const override;
     int datasetValuesCount( int groupIndex, int datasetIndex ) const override;
+    int datasetIndex( int groupIndex, const QDateTime &time ) const override;
     QVector<double> datasetValues( int groupIndex, int index ) const override;
     QVector<int> activeFaces( int index ) const override;
     QDateTime runDateTime() const override;

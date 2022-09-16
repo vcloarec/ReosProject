@@ -132,8 +132,10 @@ class ReosMapPolygonBase_p: public ReosMapItem_p
     int findVertexInView( const QRectF &zone ) const;
 
     void activeMarker( bool b );
+    // Set the position of the marker with distance from begining in meter
     void setMarkerDistance( double d );
     void setMarkerArrow( bool b );
+    void setMarkerAtMid();
 
     virtual void setGeometry( const QPolygonF &geom ) = 0;
     virtual void moveVertex( int index, const QPointF &newPosition ) = 0;

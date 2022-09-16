@@ -570,6 +570,89 @@ QPointF ReosGisEngine::transformToCoordinates( const ReosSpatialPosition &positi
   }
 }
 
+double ReosGisEngine::distance( const QPointF &point1, const QPointF &point2, const QString &pointCrs )
+{
+  QgsCoordinateReferenceSystem qgisCrs = QgsCoordinateReferenceSystem::fromWkt( pointCrs );
+  QgsDistanceArea distanceArea;
+  distanceArea.setSourceCrs( qgisCrs, QgsProject::instance()->transformContext() );
+
+  QgsUnitTypes::DistanceUnit unit = distanceArea.lengthUnits();
+  double factor = QgsUnitTypes::fromUnitToUnitFactor( unit, QgsUnitTypes::DistanceMeters );
+
+  return factor * distanceArea.measureLine( point1, point2 );
+}
+
+double ReosGisEngine::locateOnPolyline( const QPointF &point, const QPolygonF &polyline, const QString &crs )
+{
+  QgsCoordinateReferenceSystem qgisCrs = QgsCoordinateReferenceSystem::fromWkt( crs );
+  QgsDistanceArea distanceArea;
+  distanceArea.setSourceCrs( qgisCrs, QgsProject::instance()->transformContext() );
+
+  QgsUnitTypes::DistanceUnit unit = distanceArea.lengthUnits();
+  double factor = QgsUnitTypes::fromUnitToUnitFactor( unit, QgsUnitTypes::DistanceMeters );
+
+  QgsGeometry geomPoly = QgsGeometry::fromQPolygonF( polyline );
+
+  QgsPointXY minDist;
+  int nextVertex;
+  geomPoly.closestSegmentWithContext( point, minDist, nextVertex );
+
+  double distFromBegin = 0;
+  for ( int i = 0; i < nextVertex - 1; ++i )
+    distFromBegin += distanceArea.measureLine( polyline.at( i ), polyline.at( i + 1 ) );
+
+  if ( nextVertex > 0 )
+    distFromBegin += distanceArea.measureLine( polyline.at( nextVertex - 1 ), minDist );
+
+  return distFromBegin * factor;
+}
+
+QPointF ReosGisEngine::setPointOnPolyline( double distance, const QPolygonF &polyline, const QString &crs, int &segmentVertex )
+{
+  if ( polyline.isEmpty() )
+    return QPointF();
+
+  if ( polyline.count() == 1 )
+    return polyline.first();
+
+  QgsCoordinateReferenceSystem qgisCrs = QgsCoordinateReferenceSystem::fromWkt( crs );
+  QgsDistanceArea distanceArea;
+  distanceArea.setSourceCrs( qgisCrs, QgsProject::instance()->transformContext() );
+
+  QgsUnitTypes::DistanceUnit unit = distanceArea.lengthUnits();
+  double factor = QgsUnitTypes::fromUnitToUnitFactor( unit, QgsUnitTypes::DistanceMeters );
+
+  double distFromBegin = 0;
+  int i = 0;
+  do
+  {
+    const QPointF &p1 = polyline.at( i );
+    const QPointF &p2 = polyline.at( i + 1 );
+    distFromBegin += distanceArea.measureLine( p1, p2 ) * factor;
+  }
+  while ( distance >= distFromBegin && ++i < polyline.count() - 1 );
+
+  if ( distance > distFromBegin )
+  {
+    segmentVertex = -1;
+    return QPointF();
+  }
+
+  if ( i >= polyline.count() - 1 )
+  {
+    segmentVertex = -1;
+    return QPointF();
+  }
+
+  segmentVertex = i;
+  const QPointF &p1 = polyline.at( i );
+  const QPointF &p2 = polyline.at( i + 1 );
+  double segDist = distanceArea.measureLine( p1, p2 ) * factor;
+  double distFromP2 = distFromBegin - distance;
+  double ratio = distFromP2 / segDist;
+  return p2 - ratio * ( p2 - p1 );
+}
+
 QPolygonF ReosGisEngine::transformToCoordinates( const QString &sourceCRS, const QPolygonF &sourcePolygon, const QString &destinationCrs )
 {
   QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( sourceCRS ),

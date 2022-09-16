@@ -57,6 +57,7 @@ class REOSGUI_EXPORT ReosMapItem
     void setStyle( Qt::PenStyle style );
 
     void setZValue( double Z );
+    double ZValue() const;
 
     //! Desscription to describe what is this item, could be convenient to retrieve particular item
     QString description() const;
@@ -196,7 +197,10 @@ class REOSGUI_EXPORT ReosMapPolyline: public ReosMapItem
     void activeMarker( bool b );
     void setMarkerDistance( double d );
     void setMarkerArrow( bool b );
+    // Replaces the marker at the middle of the polyline;
+    void setMarkerAtMid();
 
+    // Sets a distance from extremity that will not be rendered
     void setExtremityDistance( double d );
 };
 

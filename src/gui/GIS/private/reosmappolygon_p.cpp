@@ -17,12 +17,15 @@ email                : vcloarec at gmail dot com
 
 #include <QPainter>
 #include <QVector2D>
+
 #include <qgspoint.h>
 #include <qgsmapcanvas.h>
 #include <qgslinestring.h>
-#include <reosmapextent.h>
 
+#include "reosmapextent.h"
 #include "reospolylinesstructure.h"
+#include "reosgisengine.h"
+#include "reosgeometryutils.h"
 
 ReosMapPolygon_p::ReosMapPolygon_p( QgsMapCanvas *canvas ):
   ReosMapPolygonBase_p( canvas )
@@ -94,6 +97,7 @@ int ReosMapPolygonBase_p::findVertexInView( const QRectF &zone ) const
 void ReosMapPolygonBase_p::activeMarker( bool b )
 {
   mIsMarkerActive = b;
+  updatePosition();
 }
 
 void ReosMapPolygonBase_p::setMarkerDistance( double d )
@@ -107,42 +111,22 @@ void ReosMapPolygonBase_p::setMarkerDistance( double d )
     return;
   }
 
-  double distFromBegin = 0;
-  int i = 0;
-  do
-  {
-    const QPointF &p1 = mapPoly.at( i );
-    const QPointF &p2 = mapPoly.at( i + 1 );
-    distFromBegin += sqrt( pow( p1.x() - p2.x(), 2 ) + pow( p1.y() - p2.y(), 2 ) );
-  }
-  while ( d >= distFromBegin && ++i < mapPoly.count() - 1 );
-
-  if ( d > distFromBegin )
-  {
-    mSegmentMarker = -1;
-    updatePosition();
-    return;
-  }
-
-  if ( i >= mapPoly.count() - 1 )
-  {
-    mSegmentMarker = -1;
-    updatePosition();
-    return;
-  }
-  mSegmentMarker = i;
-  const QPointF &p1 = mapPoly.at( i );
-  const QPointF &p2 = mapPoly.at( i + 1 );
-  double segDist = sqrt( pow( p1.x() - p2.x(), 2 ) + pow( p1.y() - p2.y(), 2 ) );
-  double distFromP2 = distFromBegin - d;
-  double ratio = distFromP2 / segDist;
-  mMarkerposition = p2 - ratio * ( p2 - p1 );
+  mMarkerposition = ReosGisEngine::setPointOnPolyline( d, mapPoly,
+                    mMapCanvas->mapSettings().destinationCrs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED_SIMPLIFIED ), mSegmentMarker );
   updatePosition();
 }
 
 void ReosMapPolygonBase_p::setMarkerArrow( bool b )
 {
   mMarkerArrow = b;
+}
+
+void ReosMapPolygonBase_p::setMarkerAtMid()
+{
+  const QPolygonF &mapPoly = geometry();
+  mMarkerposition = ReosGisEngine::setPointOnPolyline( ReosGeometryUtils::length( mapPoly ) / 2, mapPoly,
+                    mMapCanvas->mapSettings().destinationCrs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED_SIMPLIFIED ), mSegmentMarker );
+  updatePosition();
 }
 
 void ReosMapPolygonBase_p::paint( QPainter *painter )

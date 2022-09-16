@@ -770,9 +770,88 @@ void ReosPlotItem::setName( const QString &name )
     mPlotItem->setTitle( name );
 }
 
+class ReosPlotCurve_p: public QwtPlotCurve
+{
+  public:
+    ReosPlotCurve_p( const QString &name ): QwtPlotCurve( name )
+    {}
+
+    QRectF dataRect() const override
+    {
+      const QwtSeriesData<QPointF> *points = data();
+
+      if ( !points )
+        return QRectF( 1.0, 1.0, -2.0, -2.0 );
+
+      double xMin = std::numeric_limits<double>::max();
+      double yMin = std::numeric_limits<double>::max();
+      double xMax = -std::numeric_limits<double>::max();
+      double yMax = -std::numeric_limits<double>::max();
+
+      for ( size_t i = 0; i < points->size(); ++i )
+      {
+        const QPointF &pt = points->sample( i );
+
+        double x = pt.x();
+        double y = pt.y();
+
+        if ( std::isnan( x ) || std::isnan( y ) )
+          continue;
+
+        if ( x < xMin )
+          xMin = x;
+        if ( x > xMax )
+          xMax = x;
+        if ( y < yMin )
+          yMin = y;
+        if ( pt.y() > yMax )
+          yMax = y;
+      }
+
+      return QRectF( QPointF( xMin, yMin ), QPointF( xMax, yMax ) );
+    }
+
+  protected:
+    void drawCurve( QPainter *painter, int style,
+                    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+                    const QRectF &canvasRect, int from, int to ) const override
+    {
+      const QwtSeriesData<QPointF> *points = data();
+      if ( !points )
+        return;
+
+      int tempFrom = from;
+      int tempTo = from;
+
+      auto validPoint = [ points ]( int i )
+      {
+        const QPointF &pt = points->sample( static_cast<size_t>( i ) );
+        return !std::isnan( pt.x() ) && !std::isnan( pt.y() );
+      };
+
+      while ( tempFrom <= to && tempTo <= to )
+      {
+        while ( !validPoint( tempFrom ) && tempFrom <= to )
+          tempFrom++;
+
+        tempTo = tempFrom;
+        while ( validPoint( tempTo ) && tempTo <= to )
+          tempTo++;
+
+        tempTo--;
+
+        if ( validPoint( tempFrom ) && validPoint( tempTo ) )
+          QwtPlotCurve::drawCurve( painter, style, xMap, yMap, canvasRect, tempFrom, tempTo );
+
+        tempFrom = tempTo + 1;
+      }
+    }
+};
+
 ReosPlotCurve::ReosPlotCurve( const QString &name, const QColor &color, double width ): ReosPlotItem()
 {
-  mPlotItem = new QwtPlotCurve( name );
+  mPlotItem = new ReosPlotCurve_p( name );
+  mPlotItem->setRenderHint( QwtPlotItem::RenderAntialiased, true );
   QPen pen;
   pen.setColor( color );
   pen.setWidthF( width );
@@ -795,9 +874,17 @@ void ReosPlotCurve::zoomOnExtent()
   }
 }
 
-QwtPlotCurve *ReosPlotCurve::curve()
+void ReosPlotCurve::setWidth( double width )
 {
-  return static_cast<QwtPlotCurve *>( mPlotItem );
+  QPen pen = curve()->pen();
+  pen.setWidthF( width );
+  curve()->setPen( pen );
+  curve()->plot()->replot();
+}
+
+ReosPlotCurve_p *ReosPlotCurve::curve()
+{
+  return static_cast<ReosPlotCurve_p *>( mPlotItem );
 }
 
 

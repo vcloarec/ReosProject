@@ -40,6 +40,7 @@
 #include "reosencodedelement.h"
 #include "reosguicontext.h"
 #include "reosmap.h"
+#include "reosduration.h"
 
 Reos3dView::Reos3dView( ReosMesh *meshTerrain, const ReosGuiContext &context )
   : ReosActionWidget( context.parent() )

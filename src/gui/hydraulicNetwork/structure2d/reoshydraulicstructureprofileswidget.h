@@ -24,6 +24,7 @@ class ReosHydraulicStructure2D;
 class ReosMapToolDrawPolyline;
 class ReosHydraulicStructureProfile;
 class ReosMapToolEditMapPolyline;
+class ReosPlotCurve;
 
 namespace Ui
 {
@@ -41,12 +42,22 @@ class ReosHydraulicStructureProfilesWidget : public ReosStackedPageWidget
   private slots:
     void onNewProfileAdded( const QPolygonF &profile );
     void onCurrentProfileChanged();
+    void onRemoveProfile();
+    void onRenameProfile();
+    void onTimeChanged( const QDateTime &time );
+    void onPlotCursorMove( const QPointF &pos );
+    void onCurrentProfileEdited();
 
   private:
     Ui::ReosHydraulicStructureProfilesWidget *ui;
     ReosGuiContext mGuiContext;
     ReosHydraulicStructure2D *mStructure = nullptr;
     ReosMapPolylineStructure mMapStructureItem;
+    ReosHydraulicStructureProfile *mCurrentProfile = nullptr;
+
+    ReosPlotCurve *mTerrainProfileCurve = nullptr;
+    ReosPlotCurve *mWaterLevelProfileCurve = nullptr;
+    ReosPlotCurve *mVelocityProfileCurve = nullptr;
 
     QAction *mActionAddProfile = nullptr;
     ReosMapToolDrawPolyline *mMapToolAddProfile = nullptr;
@@ -56,11 +67,17 @@ class ReosHydraulicStructureProfilesWidget : public ReosStackedPageWidget
     QAction *mActionRenameProfile = nullptr;
 
     using MapProfile = std::shared_ptr<ReosMapPolyline>;
-    using MapProfiles = QMap<ReosHydraulicStructureProfile *, MapProfile>;
+    using MapProfiles = QHash<ReosHydraulicStructureProfile *, MapProfile>;
 
     MapProfiles mMapProfiles;
 
-    MapProfile createMapProfile( const QPolygonF &profile );
+    void syncProfiles();
+    void createMapProfile( int profileIndex, const QPolygonF &profile );
+    void removeMapProfile( ReosHydraulicStructureProfile *profile );
+    void selectProfile( ReosHydraulicStructureProfile *profile );
+    void unselectProfile( ReosHydraulicStructureProfile *profile );
+
+    void updateCurrentProfileValues();
 };
 
 #endif // REOSHYDRAULICSTRUCTUREPROFILESWIDGET_H

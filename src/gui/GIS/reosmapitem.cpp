@@ -219,6 +219,11 @@ void ReosMapItem::setZValue( double Z )
   d_->setZValue( Z );
 }
 
+double ReosMapItem::ZValue() const
+{
+  return d_->zValue();
+}
+
 QString ReosMapItem::description() const {return mDescription;}
 
 ReosMapPolyline::ReosMapPolyline(): ReosMapItem() {}
@@ -285,6 +290,11 @@ void ReosMapPolyline::setMarkerDistance( double d )
 void ReosMapPolyline::setMarkerArrow( bool b )
 {
   static_cast<ReosMapPolyline_p *>( d_ )->setMarkerArrow( b );
+}
+
+void ReosMapPolyline::setMarkerAtMid()
+{
+  static_cast<ReosMapPolyline_p *>( d_ )->setMarkerAtMid();
 }
 
 void ReosMapPolyline::setExtremityDistance( double d )

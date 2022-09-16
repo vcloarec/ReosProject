@@ -22,7 +22,6 @@
 #include <QSet>
 
 #include "reoscore.h"
-#include "reosgisengine.h"
 #include "reosrenderedobject.h"
 #include "reosencodedelement.h"
 
@@ -79,6 +78,7 @@ class ReosMeshPointValue_p
     std::atomic_int ref = 0;
     QPointF mPoint;
     virtual double interpolateValue( const QVector<double> &values ) const = 0;
+    virtual double interpolateVectorValueValue( const QVector<double> &values ) const = 0;
     virtual double interpolateTerrainElevation( ReosMesh *mesh ) const = 0;
 
     friend class ReosMeshPointValue;
@@ -122,7 +122,7 @@ class ReosMeshPointValueOnVertex : public ReosMeshPointValue_p
 
   protected:
     double interpolateValue( const QVector<double> &values ) const override;
-
+    double interpolateVectorValueValue( const QVector<double> &values ) const override;
     double interpolateTerrainElevation( ReosMesh *mesh ) const override;
 
   private:
@@ -140,6 +140,7 @@ class ReosMeshPointValueOnEdge: public ReosMeshPointValue_p
 
   protected:
     double interpolateValue( const QVector<double> &values ) const override;
+    double interpolateVectorValueValue( const QVector<double> &values ) const override;
     double interpolateTerrainElevation( ReosMesh *mesh ) const override;
 
     double interpolateValueOnEdge( double value1, double value2 ) const;
@@ -161,6 +162,7 @@ class ReosMeshPointValueOnFace: public ReosMeshPointValue_p
 
   protected:
     double interpolateValue( const QVector<double> &values ) const override;
+    double interpolateVectorValueValue( const QVector<double> &values ) const override;
     double interpolateTerrainElevation( ReosMesh *mesh ) const override;
 
   private:
