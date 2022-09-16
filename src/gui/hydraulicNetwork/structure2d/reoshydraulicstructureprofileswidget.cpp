@@ -75,7 +75,7 @@ ReosHydraulicStructureProfilesWidget::ReosHydraulicStructureProfilesWidget( Reos
   mWaterLevelProfileCurve = new ReosPlotCurve( tr( "Water Level" ), Qt::blue, 2 );
   ui->mPlotWidget->addPlotItem( mWaterLevelProfileCurve );
 
-  mVelocityProfileCurve = new ReosPlotCurve( tr( "Velocity" ), Qt::green, 2 );
+  mVelocityProfileCurve = new ReosPlotCurve( tr( "Velocity" ), Qt::darkGreen, 2 );
   mVelocityProfileCurve->setOnRightAxe();
   ui->mPlotWidget->addPlotItem( mVelocityProfileCurve );
 
