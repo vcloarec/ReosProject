@@ -249,7 +249,9 @@ static QVector<QPolygonF> sortMultiPolyline( const QgsGeometry &multiPolyline, c
     }
 
     if ( distanceFromBegining )
+    {
       *distanceFromBegining = sortedResult.keys().toVector();
+    }
     return sortedResult.values().toVector();
   }
 

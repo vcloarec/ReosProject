@@ -439,6 +439,7 @@ void ReoHydraulicStructure2DTest::profile()
 {
   QPolygonF profileGeom;
   profileGeom << QPointF( -5, 5 )
+              << QPointF( 5, 5 )
               << QPointF( 15, 5 )
               << QPointF( 15, 5 )
               << QPointF( 25, 15 );
@@ -477,6 +478,20 @@ void ReoHydraulicStructure2DTest::profile()
     }
   }
 
+  QPolygonF terrainProfile = profile->terrainProfile();
+
+  for ( int i = 0; i < terrainProfile.count(); ++i )
+  {
+    if ( i < terrainProfile.count() - 1 )
+      QVERIFY( terrainProfile.at( i ).x() < terrainProfile.at( i + 1 ).x() );
+    double abs = terrainProfile.at( i ).x();
+    if ( abs < 15 )
+    {
+      double zValue = terrainProfile.at( i ).y();
+      double meshValue = mHydraulicStructure->terrainElevationAt( QPointF( abs - 5, 5.0 ) );
+      QVERIFY( equal( zValue, meshValue, 0.00000001 ) || std::isnan( meshValue ) );
+    }
+  }
 }
 
 

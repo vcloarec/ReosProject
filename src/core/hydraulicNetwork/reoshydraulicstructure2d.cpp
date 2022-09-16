@@ -110,6 +110,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   if ( !encodedElement.getData( QStringLiteral( "mesh-need-to-be-generated" ), mMeshNeedToBeGenerated ) )
     mMeshNeedToBeGenerated = true;
 
+  mProfilesCollection->decode( encodedElement.getEncodedData( "profiles-collection" ), this );
 }
 
 ReosHydraulicStructureProfilesCollection *ReosHydraulicStructure2D::profilesCollection() const
@@ -125,6 +126,16 @@ int ReosHydraulicStructure2D::createProfile( const QString &name, const QPolygon
   mProfilesCollection->addProfile( profile.release() );
 
   return mProfilesCollection->rowCount( QModelIndex() ) - 1;
+}
+
+void ReosHydraulicStructure2D::removeProfile( int index )
+{
+  mProfilesCollection->removeProfile( index );
+}
+
+void ReosHydraulicStructure2D::renameProfile( int index, const QString &name )
+{
+  mProfilesCollection->renameProfile( index, name );
 }
 
 int ReosHydraulicStructure2D::profilesCount() const
@@ -264,6 +275,8 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
   element.addEncodedData( QStringLiteral( "3d-map-setings" ), m3dMapSettings.encode() );
 
   element.addData( QStringLiteral( "mesh-need-to-be-generated" ), mMeshNeedToBeGenerated );
+
+  element.addEncodedData( QStringLiteral( "profiles-collection" ), mProfilesCollection->encode() );
 }
 
 ReosRoughnessStructure *ReosHydraulicStructure2D::roughnessStructure() const
@@ -694,6 +707,22 @@ void ReosHydraulicStructure2D::removeResults( const ReosCalculationContext &cont
       sim->removeResults( this, schemeId );
     }
   }
+}
+
+ReosHydraulicSimulationResults *ReosHydraulicStructure2D::results( ReosHydraulicScheme *scheme )
+{
+  ReosHydraulicSimulation *sim = simulation( scheme );
+  if ( !sim )
+    return nullptr;
+
+  if ( !hasResults( scheme ) )
+  {
+    loadResult( sim, scheme->id() );
+    if ( !hasResults() )
+      return nullptr;
+  }
+
+  return mSimulationResults.value( scheme->id() );
 }
 
 void ReosHydraulicStructure2D::init()

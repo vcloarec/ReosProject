@@ -34,7 +34,7 @@
     </widget>
    </item>
    <item row="2" column="0">
-    <widget class="ReosPlotWidget" name="widget" native="true"/>
+    <widget class="ReosPlotWidget" name="mPlotWidget" native="true"/>
    </item>
    <item row="0" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_2">

@@ -154,6 +154,15 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     //! Transforms the spatial position \a position to given \a crs
     static QPointF transformToCoordinates( const ReosSpatialPosition &position, const QString &destinationCrs );
 
+    //! Calculates and returns distance in meters between \a point1 and \a point2 that are in \a pointsCrs coordinates system
+    static double distance( const QPointF &point1, const QPointF &point2, const QString &pointCrs );
+
+    //! Calculates and returns location of \a point from begining of \a polyline in meters, point and polyline are in \a crs coordinates system
+    static double locateOnPolyline( const QPointF &point, const QPolygonF &polyline, const QString &crs );
+
+    //! Sets and returns a point on \a polyline with \a distance from beginning in meters with returned point and \a polyline in \a crs coordinates
+    static QPointF setPointOnPolyline(double distance, const QPolygonF &polyline, const QString &crs , int &segmentVertex);
+
     //! Transforms the \a sourcePolygon with crs \a sourceCrs  to given \a crs
     static QPolygonF transformToCoordinates( const QString &sourceCRS, const QPolygonF &sourcePolygon, const QString &destinationCrs );
 

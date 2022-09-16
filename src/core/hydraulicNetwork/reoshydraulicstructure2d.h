@@ -157,9 +157,14 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Returns a translated string corresponding to the unit of the results associated with \a context and to the type  \a datasetType
     QString resultsUnits( ReosHydraulicSimulationResults::DatasetType datasetType, const QString &schemeId );
 
+    //! Remove all results in the structure
     void removeAllResults();
 
+    //! Remove the result associated with \a context
     void removeResults( const ReosCalculationContext &context );
+
+    //! Returns the results associated with \a scheme
+    ReosHydraulicSimulationResults *results( ReosHydraulicScheme *scheme );
 
     //! Sets active the terrain in the mesh
     void activateMeshTerrain();
@@ -222,10 +227,19 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Returns a pointer to the profile collection
     ReosHydraulicStructureProfilesCollection *profilesCollection() const;
 
+    //! Creates a profile with \a name, a geometry in the plan \a linesInPlan that has \a lineCrs as coordinate system
     int createProfile( const QString &name, const QPolygonF &linesInPlan, const QString &linesCrs );
 
+    //! Removes the profile with \a index
+    void removeProfile( int index );
+
+    //! Renames the profile with \a index with \a name
+    void renameProfile( int index, const QString &name );
+
+    //! Return the count of profile
     int profilesCount() const;
 
+    //! Returns the profile with \a profileIndex
     ReosHydraulicStructureProfile *profile( int profileIndex ) const;
 
   public slots:

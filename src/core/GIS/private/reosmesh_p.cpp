@@ -31,6 +31,8 @@
 #include "reosencodedelement.h"
 #include "reosmapextent.h"
 #include "reostopographycollection.h"
+#include "reosgisengine.h"
+
 
 ReosMeshFrame_p::ReosMeshFrame_p( const QString &crs, QObject *parent ): ReosMesh( parent )
 {
@@ -457,9 +459,6 @@ QList<ReosMeshPointValue> ReosMeshFrame_p::drapePolyline( const QPolygonF &polyl
         int vi1 = face.at( vfi );
         int vi2 = face.at( ( vfi + 1 ) % faceSize );
 
-//        if ( intersectedVertex.contains( vi1 ) || intersectedVertex.contains( vi2 ) )
-//          continue;
-
         const QgsMeshVertex &vert1 = vertices.at( vi1 );
         const QgsMeshVertex &vert2 = vertices.at( vi2 );
 
@@ -478,10 +477,10 @@ QList<ReosMeshPointValue> ReosMeshFrame_p::drapePolyline( const QPolygonF &polyl
 
           intersectEdges.insert( edge );
           double distTot = vert1.distance( vert2 );
-          double dist1 = vertices.at( edge.first ).distance( intersectPoint );
+          double dist = vertices.at( edge.first ).distance( intersectPoint );
 
           ret.insert( pt1.distance( intersectPoint ) + lenghtFromStart,
-                      ReosMeshPointValue( new ReosMeshPointValueOnEdge( edge.first, edge.second, dist1 / distTot, intersectPoint.toQPointF() ) ) );
+                      ReosMeshPointValue( new ReosMeshPointValueOnEdge( edge.first, edge.second, dist / distTot, intersectPoint.toQPointF() ) ) );
         }
       }
     }

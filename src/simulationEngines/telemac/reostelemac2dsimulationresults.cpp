@@ -204,6 +204,17 @@ int ReosTelemac2DSimulationResults::datasetValuesCount( int groupIndex, int data
   return MDAL_D_valueCount( ds );
 }
 
+int ReosTelemac2DSimulationResults::datasetIndex( int, const QDateTime &time ) const
+{
+  for ( int i = 0; i < mTimeSteps.count(); ++i )
+  {
+    if ( time < mReferenceTime.addMSecs( mTimeSteps.at( i ).valueMilliSecond() ) )
+      return i - 1;
+  }
+
+  return mTimeSteps.count() - 1;
+}
+
 QVector<double> ReosTelemac2DSimulationResults::datasetValues( int groupIndex, int index ) const
 {
   if ( groupIndex < 0 || groupIndex >= groupCount() )

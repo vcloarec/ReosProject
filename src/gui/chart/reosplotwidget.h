@@ -38,6 +38,7 @@ class QwtPlotZoomer;
 class QwtPlotPicker;
 class QwtPlotItem;
 class QwtPlotCurve;
+class ReosPlotCurve_p;
 
 class ReosPlot_p;
 class ReosDataObject;
@@ -129,8 +130,9 @@ class ReosPlotCurve : public ReosPlotItem
     void setData( const QPolygonF &data );
 
     void zoomOnExtent();
+    void setWidth( double width ) override;
   private:
-    QwtPlotCurve *curve();
+    ReosPlotCurve_p *curve();
 };
 
 
