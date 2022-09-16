@@ -335,7 +335,7 @@ void ReosTelemac2DInititalConditionInterpolationWidget::hideEvent( QHideEvent *e
 
 void ReosTelemac2DInititalConditionInterpolationWidget::onLineDrawn( const QPolygonF &line )
 {
-  if ( line.count() > 2 )
+  if ( line.count() > 1 )
   {
     mInitialCondition->setLine( line, mMap->mapCrs() );
     mLine = line;

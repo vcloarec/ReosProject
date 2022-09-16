@@ -75,7 +75,6 @@ void ReosHydraulicStructureBoundaryCondition::loadHydrographResult( const ReosCa
 void ReosHydraulicStructureBoundaryCondition::encodeData( ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context ) const
 {
   encodedElement.addData( QStringLiteral( "boundary-condition-id" ), mBoundaryConditionId );
-
   encodedElement.addEncodedData( QStringLiteral( "water-level-series" ), mWaterLevelSeriesGroup->encode() );
   ReosHydrographJunction::encodeData( encodedElement, context );
 }
@@ -137,7 +136,7 @@ void ReosHydraulicStructureBoundaryCondition::saveConfiguration( ReosHydraulicSc
 
   encodedElement.addData( QStringLiteral( "default-condition-type" ), static_cast<int>( mDefaultConditionType ) );
   encodedElement.addData( QStringLiteral( "is-water-elevation-constant" ), mIsWaterLevelConstant->value() ? 1 : 0 );
-  encodedElement.addEncodedData( QStringLiteral( "constant-water-elevation" ), mConstantWaterLevel->encode() );
+  encodedElement.addData( QStringLiteral( "constant-water-elevation" ), mConstantWaterLevel->value() );
 
   QString waterlevelSeriesId;
   if ( mWaterLevelSeriesIndex >= 0 && mWaterLevelSeriesIndex < mWaterLevelSeriesGroup->timeSeriesCount() )
