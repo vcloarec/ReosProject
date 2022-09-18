@@ -38,8 +38,13 @@ ReosHydraulicStructureProfilesWidget::ReosHydraulicStructureProfilesWidget( Reos
   , mMapToolEditProfile( new ReosMapToolEditMapPolyline( this, guiContext.map() ) )
   , mActionRemoveProfile( new QAction( QPixmap( QStringLiteral( ":/images/remove.svg" ) ), tr( "Remove Current Profile" ), this ) )
   , mActionRenameProfile( new QAction( QPixmap( QStringLiteral( ":/images/rename.svg" ) ), tr( "Rename Current Profile" ), this ) )
+  , mActionDisplayVelocity( new QAction( tr( "Display Velocity" ), this ) )
 {
   ui->setupUi( this );
+
+  QString settingsString = QStringLiteral( "hydraulic-structure-profile-widget" );
+  ui->mPlotWidget->setSettingsContext( settingsString );
+  ReosSettings settings;
 
   ui->mProfileComboBox->setModel( mStructure->profilesCollection() );
   connect( ui->mProfileComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosHydraulicStructureProfilesWidget::onCurrentProfileChanged );
@@ -102,10 +107,32 @@ ReosHydraulicStructureProfilesWidget::ReosHydraulicStructureProfilesWidget( Reos
   mFilledWater->setPen( pen );
   mFilledWater->setAutoScale( false );
   ui->mPlotWidget->addPlotItem( mFilledWater );
-  ui->mPlotWidget->enableAxeYRight( true );
   ui->mPlotWidget->setTitleAxeYRight( tr( "Velocity" ) );
   ui->mPlotWidget->setTitleAxeYLeft( tr( "Elevation" ) );
   ui->mPlotWidget->setTitleAxeX( tr( "Distance" ) );
+
+  mActionDisplayVelocity->setCheckable( true );
+  if ( settings.contains( settingsString + QStringLiteral( "/display-velocity" ) ) )
+    mActionDisplayVelocity->setChecked( settings.value( settingsString + QStringLiteral( "/display-velocity" ) ).toBool() );
+  else
+    mActionDisplayVelocity->setChecked( true );
+
+  ui->mPlotWidget->enableAxeYRight( mActionDisplayVelocity->isChecked() );
+  mVelocityProfileCurve->setVisible( mActionDisplayVelocity->isChecked() );
+  mVelocityProfileCurve->setLegendActive( mActionDisplayVelocity->isChecked(), true );
+
+  QList<QAction *> plotActions;
+  plotActions << mActionDisplayVelocity;
+  ui->mPlotWidget->addActions( plotActions );
+
+  connect( mActionDisplayVelocity, &QAction::triggered, this, [this, settingsString]
+  {
+    ui->mPlotWidget->enableAxeYRight( mActionDisplayVelocity->isChecked() );
+    mVelocityProfileCurve->setVisible( mActionDisplayVelocity->isChecked() );
+    mVelocityProfileCurve->setLegendActive( mActionDisplayVelocity->isChecked(), true );
+    ReosSettings settings;
+    settings.setValue( settingsString + QStringLiteral( "/display-velocity" ), mActionDisplayVelocity->isChecked() );
+  } );
 
   syncProfiles();
   onCurrentProfileChanged();

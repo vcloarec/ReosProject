@@ -76,6 +76,8 @@ class ReosHydraulicStructureProfilesWidget : public ReosStackedPageWidget
     QAction *mActionRemoveProfile = nullptr;
     QAction *mActionRenameProfile = nullptr;
 
+    QAction *mActionDisplayVelocity = nullptr;
+
     using MapProfile = std::shared_ptr<ReosMapPolyline>;
     using MapProfiles = QHash<ReosHydraulicStructureProfile *, MapProfile>;
 
