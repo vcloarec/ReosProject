@@ -514,12 +514,17 @@ void ReosHydraulicStructureProfilesCollection::renameProfile( int profileIndex, 
   emit dataChanged( index( profileIndex, 0, QModelIndex() ), index( profileIndex, 0, QModelIndex() ) );
 }
 
-ReosHydraulicStructureProfile *ReosHydraulicStructureProfilesCollection::profile( int profileIndex )
+ReosHydraulicStructureProfile *ReosHydraulicStructureProfilesCollection::profile( int profileIndex ) const
 {
   if ( profileIndex < 0 || profileIndex >= mProfiles.count() )
     return nullptr;
 
   return mProfiles.at( profileIndex );
+}
+
+int ReosHydraulicStructureProfilesCollection::profileIndex( ReosHydraulicStructureProfile *profile ) const
+{
+  return mProfiles.indexOf( profile );
 }
 
 ReosEncodedElement ReosHydraulicStructureProfilesCollection::encode() const

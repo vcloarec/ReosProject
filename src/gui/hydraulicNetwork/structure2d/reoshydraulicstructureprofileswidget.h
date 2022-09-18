@@ -26,6 +26,7 @@ class ReosHydraulicStructureProfile;
 class ReosMapToolEditMapPolyline;
 class ReosPlotCurve;
 class ReosPlotPolygons;
+class ReosMapToolSelectMapItem;
 
 namespace Ui
 {
@@ -40,6 +41,10 @@ class ReosHydraulicStructureProfilesWidget : public ReosStackedPageWidget
     explicit ReosHydraulicStructureProfilesWidget( ReosHydraulicStructure2D *structure, const ReosGuiContext &guiContext );
     ~ReosHydraulicStructureProfilesWidget();
 
+  protected:
+    void showEvent( QShowEvent *e );
+    void hideEvent( QHideEvent *e );
+
   private slots:
     void onNewProfileAdded( const QPolygonF &profile );
     void onCurrentProfileChanged();
@@ -47,6 +52,7 @@ class ReosHydraulicStructureProfilesWidget : public ReosStackedPageWidget
     void onRenameProfile();
     void onTimeChanged( const QDateTime &time );
     void onPlotCursorMove( const QPointF &pos );
+    void onProfileSelected( ReosMapItem *item, const QPointF &point );
     void onCurrentProfileEdited();
 
   private:
@@ -63,6 +69,8 @@ class ReosHydraulicStructureProfilesWidget : public ReosStackedPageWidget
 
     QAction *mActionAddProfile = nullptr;
     ReosMapToolDrawPolyline *mMapToolAddProfile = nullptr;
+    QAction *mActionSelectProfile = nullptr;
+    ReosMapToolSelectMapItem *mMapToolSelectProfile = nullptr;
     QAction *mActionEditProfile = nullptr;
     ReosMapToolEditMapPolyline *mMapToolEditProfile = nullptr;
     QAction *mActionRemoveProfile = nullptr;

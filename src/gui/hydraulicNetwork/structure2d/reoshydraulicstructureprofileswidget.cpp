@@ -22,6 +22,7 @@
 #include "reosmaptool.h"
 #include "reoshydraulicstructure2d.h"
 #include "reosformwidget.h"
+#include "reosstyleregistery.h"
 
 ReosHydraulicStructureProfilesWidget::ReosHydraulicStructureProfilesWidget( ReosHydraulicStructure2D *structure, const ReosGuiContext &guiContext )
   : ReosStackedPageWidget( guiContext.parent() )
@@ -31,6 +32,8 @@ ReosHydraulicStructureProfilesWidget::ReosHydraulicStructureProfilesWidget( Reos
   , mMapStructureItem( guiContext.map(), structure->geometryStructure() )
   , mActionAddProfile( new QAction( QPixmap( QStringLiteral( ":/images/add.svg" ) ), tr( "Add a New Profile" ), this ) )
   , mMapToolAddProfile( new ReosMapToolDrawPolyline( this, guiContext.map() ) )
+  , mActionSelectProfile( new QAction( QPixmap( QStringLiteral( ":/images/neutral.svg" ) ), tr( "Select a Profile" ), this ) )
+  , mMapToolSelectProfile( new ReosMapToolSelectMapItem( guiContext.map(),  QStringLiteral( "hydraulic-structure-profile" ) ) )
   , mActionEditProfile( new QAction( QPixmap( QStringLiteral( ":/images/editProfile.svg" ) ), tr( "Edit Current Profile on Map" ), this ) )
   , mMapToolEditProfile( new ReosMapToolEditMapPolyline( this, guiContext.map() ) )
   , mActionRemoveProfile( new QAction( QPixmap( QStringLiteral( ":/images/remove.svg" ) ), tr( "Remove Current Profile" ), this ) )
@@ -57,9 +60,17 @@ ReosHydraulicStructureProfilesWidget::ReosHydraulicStructureProfilesWidget( Reos
   mMapToolAddProfile->setAllowSelfIntersect( true );
   connect( mMapToolAddProfile, &ReosMapToolDrawPolyline::drawn, this, &ReosHydraulicStructureProfilesWidget::onNewProfileAdded );
 
+  toolBar->addAction( mActionSelectProfile );
+  mActionSelectProfile->setCheckable( true );
+  mMapToolSelectProfile->setAction( mActionSelectProfile );
+  mMapToolSelectProfile->setCursor( Qt::ArrowCursor );
+  mMapToolSelectProfile->setSearchItemWhenMoving( true );
+  connect( mMapToolSelectProfile, &ReosMapToolSelectMapItem::found, this, &ReosHydraulicStructureProfilesWidget::onProfileSelected );
+
   toolBar->addAction( mActionEditProfile );
   mActionEditProfile->setCheckable( true );
   mMapToolEditProfile->setAction( mActionEditProfile );
+
   toolBar->addAction( mActionRemoveProfile );
   toolBar->addAction( mActionRenameProfile );
   ui->mToolBarLayout->addWidget( toolBar );
@@ -107,6 +118,23 @@ ReosHydraulicStructureProfilesWidget::ReosHydraulicStructureProfilesWidget( Reos
 ReosHydraulicStructureProfilesWidget::~ReosHydraulicStructureProfilesWidget()
 {
   delete ui;
+}
+
+void ReosHydraulicStructureProfilesWidget::showEvent( QShowEvent *e )
+{
+  if ( mStructure->profilesCount() == 0 )
+    mMapToolAddProfile->setCurrentToolInMap();
+  else
+    mMapToolSelectProfile->setCurrentToolInMap();
+
+  QWidget::showEvent( e );
+}
+
+void ReosHydraulicStructureProfilesWidget::hideEvent( QHideEvent *e )
+{
+  mGuiContext.map()->setDefaultMapTool();
+
+  QWidget::hideEvent( e );
 }
 
 void ReosHydraulicStructureProfilesWidget::onNewProfileAdded( const QPolygonF &profile )
@@ -196,6 +224,18 @@ void ReosHydraulicStructureProfilesWidget::onPlotCursorMove( const QPointF &pos 
     it.value()->setMarkerDistance( pos.x() );
 }
 
+void ReosHydraulicStructureProfilesWidget::onProfileSelected( ReosMapItem *item, const QPointF & )
+{
+  for ( auto it = mMapProfiles.constBegin(); it != mMapProfiles.constEnd(); ++it )
+  {
+    if ( it.value().get() == item )
+    {
+      ui->mProfileComboBox->setCurrentIndex( mStructure->profileIndex( it.key() ) );
+      break;
+    }
+  }
+}
+
 void ReosHydraulicStructureProfilesWidget::onCurrentProfileEdited()
 {
   if ( mCurrentProfile )
@@ -223,7 +263,8 @@ void ReosHydraulicStructureProfilesWidget::syncProfiles()
 void ReosHydraulicStructureProfilesWidget::createMapProfile( int profileIndex, const QPolygonF &profile )
 {
   MapProfile mapProf = std::make_shared<ReosMapPolyline>( mGuiContext.map(), profile );
-  mapProf->setColor( Qt::black );
+  mapProf->setDescription( QStringLiteral( "hydraulic-structure-profile" ) );
+  mapProf->setColor( ReosStyleRegistery::instance()->greenReos() );
   mapProf->setExternalColor( Qt::white );
   mapProf->setWidth( 3 );
   mapProf->setExternalWidth( 5 );
@@ -245,7 +286,7 @@ void ReosHydraulicStructureProfilesWidget::selectProfile( ReosHydraulicStructure
   if ( mp )
   {
     mp->activeMarker( true );
-    mp->setColor( Qt::red );
+    mp->setColor( ReosStyleRegistery::instance()->redReos() );
     mMapToolEditProfile->setMapPolyline( mp.get() );
     mp->setZValue( mp->ZValue() + 1 );
   }
@@ -257,7 +298,7 @@ void ReosHydraulicStructureProfilesWidget::unselectProfile( ReosHydraulicStructu
   if ( mp )
   {
     mp->activeMarker( false );
-    mp->setColor( Qt::black );
+    mp->setColor( ReosStyleRegistery::instance()->greenReos() );
     mMapToolEditProfile->setMapPolyline( nullptr );
     mp->setMarkerAtMid();
     mp->setZValue( mp->ZValue() - 1 );
