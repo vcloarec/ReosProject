@@ -471,6 +471,7 @@ void ReosMap::initialize()
   snappingConfig.setTypeFlag( Qgis::SnappingType::Vertex );
   snappingConfig.setMode( Qgis::SnappingMode::AllLayers );
   QgsProject::instance()->setSnappingConfig( snappingConfig );
+  snappingUtils->setConfig( snappingConfig );
 }
 
 void ReosMap::addSnappableStructure( ReosGeometryStructure *structure )
