@@ -87,7 +87,8 @@ class ReosHydraulicStructureProfilesCollection : public QAbstractListModel
     void removeProfile( int index );
     void renameProfile( int profileIndex, const QString &name );
 
-    ReosHydraulicStructureProfile *profile( int profileIndex );
+    ReosHydraulicStructureProfile *profile( int profileIndex ) const;
+    int profileIndex( ReosHydraulicStructureProfile *profile ) const;
 
     ReosEncodedElement encode() const;
     void decode( const ReosEncodedElement &element, ReosHydraulicStructure2D *structure );

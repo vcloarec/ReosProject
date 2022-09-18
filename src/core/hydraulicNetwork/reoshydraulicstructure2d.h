@@ -242,6 +242,9 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Returns the profile with \a profileIndex
     ReosHydraulicStructureProfile *profile( int profileIndex ) const;
 
+    //! Returns the index of the \a profile
+    int profileIndex( ReosHydraulicStructureProfile *profile );
+
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) override;
 

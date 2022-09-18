@@ -148,6 +148,11 @@ ReosHydraulicStructureProfile *ReosHydraulicStructure2D::profile( int profileInd
   return mProfilesCollection->profile( profileIndex );
 }
 
+int ReosHydraulicStructure2D::profileIndex( ReosHydraulicStructureProfile *profile )
+{
+  return mProfilesCollection->profileIndex( profile );
+}
+
 void ReosHydraulicStructure2D::exportResultAsMesh( const QString &fileName ) const
 {
   mMesh->exportAsMesh( fileName );

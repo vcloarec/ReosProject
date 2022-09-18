@@ -60,7 +60,7 @@ void ReosMapTool::setCurrentToolInMap() const
 
 void ReosMapTool::quitMap()
 {
-  if ( !mMap.isNull() )
+  if ( !mMap.isNull() && this->isActive() )
     mMap->setDefaultMapTool();
 }
 
