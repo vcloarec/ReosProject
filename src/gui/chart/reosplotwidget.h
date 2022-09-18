@@ -39,6 +39,7 @@ class QwtPlotPicker;
 class QwtPlotItem;
 class QwtPlotCurve;
 class ReosPlotCurve_p;
+class ReosPlotPolygons_p;
 
 class ReosPlot_p;
 class ReosDataObject;
@@ -135,6 +136,19 @@ class ReosPlotCurve : public ReosPlotItem
     ReosPlotCurve_p *curve();
 };
 
+class ReosPlotPolygons : public ReosPlotItem
+{
+  public:
+    ReosPlotPolygons();
+    void setPolygons( const QList<QPolygonF> &polygons );
+
+    void setPen( const QPen &pen );
+    void setBrush( const QBrush &brush );
+
+  private:
+    ReosPlotPolygons_p *plotPolygons();
+};
+
 
 class REOSGUI_EXPORT ReosPlotWidget: public QWidget
 {
@@ -176,6 +190,7 @@ class REOSGUI_EXPORT ReosPlotWidget: public QWidget
     void enableAutoScaleY( bool b );
 
     void setAxeXType( AxeType type );
+    void setExtent( const QRectF &extent );
     void setAxeXExtent( double min, double max );
     void setAxeXExtent( const QDateTime &timeMin, const QDateTime &timeMax );
     void setAxeYLeftExtent( double min, double max );

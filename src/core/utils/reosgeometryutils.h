@@ -58,6 +58,11 @@ class REOSCORE_EXPORT ReosGeometryUtils
 
     static QVector<QPolygonF> cutPolylineOutsidePolygon( const QPolygonF &polyline, const QPolygonF &polygon, QVector<double> *distanceFromBegining = nullptr );
     static QVector<QPolygonF> cutPolylineInsidePolygon( const QPolygonF &polyline, const QPolygonF &polygon, QVector<double> *distanceFromBegining = nullptr );
+
+    static bool segmentIntersect( const QPointF &pta1, const QPointF &pta2, const QPointF &ptb1, const QPointF &ptb2, QPointF &intersect );
+
+    //! Returns the bouding box of \a polygon without take account of NaN value
+    static QRectF boundingBox(const QPolygonF &polygon , bool &ok);
 };
 
 #endif // REOSGEOMETRYUTILS_H

@@ -31,6 +31,7 @@
 #include "reossettings.h"
 #include "reosstyleregistery.h"
 #include "reosplottimeline.h"
+#include "reosplotpolygons_p.h"
 
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
@@ -498,6 +499,14 @@ void ReosPlotWidget::setAxeXType( ReosPlotWidget::AxeType type )
   mAxeType = type;
   setAxeType( mPlot, QwtPlot::xBottom, type );
   mCoordinatesWidget->setXType( type );
+}
+
+void ReosPlotWidget::setExtent( const QRectF &extent )
+{
+  mPlot->setAxisScale( QwtPlot::xBottom, extent.left(), extent.right() );
+  mPlot->setAxisScale( QwtPlot::yLeft, extent.top(), extent.bottom() );
+  mZoomerLeft->setZoomBase();
+  mZoomerRight->setZoomBase();
 }
 
 void ReosPlotWidget::setAxeXExtent( double min, double max )
@@ -1065,4 +1074,28 @@ void ReosPlotLegendController::setCurrentColumnCount( int columnCount )
   mColumnSpinBox->blockSignals( false );
 }
 
+ReosPlotPolygons::ReosPlotPolygons()
+  : ReosPlotItem()
+{
+  mPlotItem = new ReosPlotPolygons_p;
+}
 
+void ReosPlotPolygons::setPolygons( const QList<QPolygonF> &polygons )
+{
+  plotPolygons()->setPolygons( polygons );
+}
+
+void ReosPlotPolygons::setPen( const QPen &pen )
+{
+  plotPolygons()->setPen( pen );
+}
+
+void ReosPlotPolygons::setBrush( const QBrush &brush )
+{
+  plotPolygons()->setBrush( brush );
+}
+
+ReosPlotPolygons_p *ReosPlotPolygons::plotPolygons()
+{
+  return static_cast<ReosPlotPolygons_p *>( mPlotItem );
+}

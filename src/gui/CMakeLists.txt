@@ -68,6 +68,7 @@ SET(REOS_GUI_SOURCES
     chart/private/reosplotpicker_p.cpp
     chart/private/reosidfplot_p.cpp
     chart/private/reosplottimeline.cpp
+    chart/private/reosplotpolygons_p.cpp
 
     form/reosparameterwidget.cpp
     form/reosformwidget.cpp
@@ -207,6 +208,7 @@ SET(REOS_GUI_HEADERS_PRIVATE
     chart/private/reosplot_p.h
     chart/private/reosidfplot_p.h
     chart/private/reosplottimeline.h
+    chart/private/reosplotpolygons_p.h
 
     hydraulicNetwork/private/reosmaptoolhydraulicnetwork_p.h
     )
