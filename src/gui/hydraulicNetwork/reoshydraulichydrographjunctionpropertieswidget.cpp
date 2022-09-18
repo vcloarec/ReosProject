@@ -56,13 +56,13 @@ ReosHydraulicHydrographJunctionPropertiesWidget::ReosHydraulicHydrographJunction
 
   ReosSettings settings;
   mHydrographPlotButton = new ReosVariableTimeStepPlotListButton( tr( "Calc. Hydrographs" ), ui->mPlotWidget );
-  if ( settings.contains( settingsString ) )
+  if ( settings.contains( settingsString + QStringLiteral( "/hydrograph-button-checked" ) ) )
     mHydrographPlotButton->setChecked( settings.value( settingsString + QStringLiteral( "/hydrograph-button-checked" ) ).toBool() );
   else
     mHydrographPlotButton->setChecked( true );
 
   mGaugedHydrographPlotButton = new ReosVariableTimeStepPlotListButton( tr( "Gauged Hydrographs" ), ui->mPlotWidget );
-  if ( settings.contains( settingsString ) )
+  if ( settings.contains( settingsString + QStringLiteral( "/hydrograph-button-checked" ) ) )
     mGaugedHydrographPlotButton->setChecked( settings.value( settingsString + QStringLiteral( "/gauged-button-checked" ) ).toBool() );
   else
     mGaugedHydrographPlotButton->setChecked( false );
