@@ -51,26 +51,246 @@ QPolygonF ReosHydraulicStructureProfile::terrainProfile() const
   };
 
   return extractValue( terrainValue );
-
 }
 
-QPolygonF ReosHydraulicStructureProfile::resultsProfile( ReosHydraulicScheme *scheme, const QDateTime &time, ReosHydraulicSimulationResults::DatasetType resultType ) const
+QPolygonF ReosHydraulicStructureProfile::resultsProfile( ReosHydraulicScheme *scheme, int datasetIndex, ReosHydraulicSimulationResults::DatasetType resultType ) const
 {
+  if ( datasetIndex == -1 )
+    return QPolygonF();
   if ( mPointValues.empty() )
     buildProfile();
 
   ReosHydraulicSimulationResults *results = mStructure->results( scheme );
   int groupIndex = results->groupIndex( resultType );
+
+  std::function<double( ReosMeshPointValue )> resultValue = [results, groupIndex, datasetIndex]( const ReosMeshPointValue & points )
+  {
+    return points.value( results, groupIndex, datasetIndex );
+  };
+
+  return extractValue( resultValue );
+}
+
+QPolygonF ReosHydraulicStructureProfile::resultsProfile( ReosHydraulicScheme *scheme, const QDateTime &time, ReosHydraulicSimulationResults::DatasetType resultType ) const
+{
+  ReosHydraulicSimulationResults *results = mStructure->results( scheme );
+  int groupIndex = results->groupIndex( resultType );
   int datasetindex = results->datasetIndex( groupIndex, time );
-  if ( datasetindex == -1 )
+
+  return resultsProfile( scheme, datasetindex, resultType );
+}
+
+static QPolygonF mergeWaterlevelWithTerrain( const QPolygonF &waterLevel, const QPolygonF &terrain, QPolygonF &correctedWaterSurface )
+{
+  if ( waterLevel.count() < 2 || terrain.count() < 2 )
     return QPolygonF();
 
-  std::function<double( ReosMeshPointValue )> resultValue = [results, groupIndex, datasetindex]( const ReosMeshPointValue & points )
+  QPolygonF wsPart = waterLevel;
+  QPolygonF zPart = terrain;
+
+  bool removeFirst = false;
+  bool removeLast = false;
+
+  if ( wsPart.last().y() < zPart.last().y() )
+  {
+    QPointF intersection;
+    ReosGeometryUtils::segmentIntersect( wsPart.last(), wsPart.at( wsPart.count() - 2 ), zPart.last(), zPart.at( zPart.count() - 2 ), intersection );
+    wsPart.removeLast();
+    wsPart.append( intersection );
+  }
+
+  if ( wsPart.first().y() < zPart.first().y() )
+  {
+    QPointF intersection;
+    ReosGeometryUtils::segmentIntersect( wsPart.first(), wsPart.at( 1 ), zPart.first(), zPart.at( 1 ), intersection );
+    wsPart.removeFirst();
+    wsPart.insert( 0, intersection );
+  }
+
+  if ( removeFirst )
+    zPart.removeFirst();
+
+  if ( removeLast )
+    zPart.removeLast();
+
+  for ( int i = 0; i < wsPart.count(); ++i )
+    zPart.append( wsPart.at( wsPart.size() - 1 - i ) );
+
+  correctedWaterSurface = wsPart;
+  double lastX = correctedWaterSurface.last().x();
+  correctedWaterSurface.append( QPointF( lastX + lastX * 10 * std::numeric_limits<double>::epsilon(), std::numeric_limits<double>::quiet_NaN() ) );
+
+  return zPart;
+}
+
+QList<QPolygonF> ReosHydraulicStructureProfile::resultsFilledByWater( ReosHydraulicScheme *scheme, const QDateTime &time, QPolygonF &totalWaterSurface ) const
+{
+  if ( mPointValues.empty() )
+    buildProfile();
+
+  ReosHydraulicSimulationResults *results = mStructure->results( scheme );
+  int groupIndex = results->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterLevel );
+  int datasetindex = results->datasetIndex( groupIndex, time );
+  if ( datasetindex == -1 )
+    return QList<QPolygonF>();
+
+  QList<QPolygonF> ret;
+  totalWaterSurface.clear();
+
+  std::function<double( ReosMeshPointValue )> waterLevelValue = [results, groupIndex, datasetindex]( const ReosMeshPointValue & points )
   {
     return points.value( results, groupIndex, datasetindex );
   };
 
-  return extractValue( resultValue );
+  std::function<double( ReosMeshPointValue )> terrainValue = [this]( const ReosMeshPointValue & points )
+  {
+    return points.terrainElevation( mStructure->mesh() );
+  };
+
+  const QString &crs = mStructure->mesh()->crs();
+  for ( auto it = mPointValues.constBegin(); it != mPointValues.constEnd(); ++it )
+  {
+    QPolygonF waterSurface;
+    QPolygonF terrain;
+    double posInLine = 0;
+    const QList<ReosMeshPointValue> &values = it.value();
+
+    if ( values.count() < 2 )
+      continue;
+
+    posInLine = ReosGisEngine::locateOnPolyline( values.first().position(), mGeometry, crs );
+
+    bool inWater = false;
+
+    double waterLevel0 = waterLevelValue( values.at( 0 ) );
+    double zTerrain0 = terrainValue( values.at( 0 ) );
+    if ( std::isnan( waterLevel0 ) )
+      waterLevel0 = zTerrain0 - 1;
+
+    if ( waterLevel0 > zTerrain0 )
+    {
+      inWater = true;
+      waterSurface.append( QPointF( posInLine, waterLevel0 ) );
+      terrain.append( QPointF( posInLine, zTerrain0 ) );
+    }
+    else if ( waterLevel0 < zTerrain0 )
+    {
+      inWater = false;
+    }
+    else //water level == terrain
+    {
+      double waterLevel1 = waterLevelValue( values.at( 1 ) );
+      double zTerrain1 = terrainValue( values.at( 1 ) );
+
+      if ( waterLevel1 > zTerrain1 )
+      {
+        inWater = true;
+        waterSurface.append( QPointF( posInLine, waterLevel0 ) );
+        terrain.append( QPointF( posInLine, zTerrain0 ) );
+      }
+      else
+      {
+        inWater = false;
+      }
+    }
+
+    double posInLine0 = posInLine;
+    for ( int i = 1; i < values.count(); ++i )
+    {
+      const ReosMeshPointValue &point = values.at( i );
+      posInLine += ReosGisEngine::distance( point.position(), values.at( i - 1 ).position(), crs );
+
+      double w1 = waterLevelValue( point );
+      double z1 = terrainValue( point );
+      if ( std::isnan( w1 ) )
+        w1 = z1 - 1.0;
+
+      if ( inWater )
+      {
+        waterSurface.append( QPointF( posInLine, w1 ) );
+        terrain.append( QPointF( posInLine, z1 ) );
+
+        if ( z1 > w1 )
+        {
+          inWater = false;
+          QPolygonF corWs;
+          ret.append( mergeWaterlevelWithTerrain( waterSurface, terrain, corWs ) );
+          totalWaterSurface.append( corWs );
+          waterSurface.clear();
+          terrain.clear();
+        }
+        else if ( z1 == w1 )
+        {
+          QPolygonF corWs;
+          ret.append( mergeWaterlevelWithTerrain( waterSurface, terrain, corWs ) );
+          totalWaterSurface.append( corWs );
+          waterSurface.clear();
+          terrain.clear();
+
+          if ( i < values.count() - 1 )
+          {
+            double w2 = waterLevelValue( values.at( i + 1 ) );
+            double z2 = terrainValue( values.at( i + 1 ) );
+            if ( std::isnan( w2 ) )
+              w2 = z2 - 1;
+
+            if ( w2 > z2 )
+            {
+              inWater = true;
+              waterSurface.append( QPointF( posInLine, w1 ) );
+              terrain.append( QPointF( posInLine, z1 ) );
+            }
+            else
+            {
+              inWater = false;
+            }
+          }
+        }
+      }
+      else // not in water
+      {
+        if ( w1 > z1 )
+        {
+          double w0 = waterLevelValue( values.at( i - 1 ) );
+          double z0 = terrainValue( values.at( i - 1 ) );
+          if ( !std::isnan( w0 ) )
+          {
+            waterSurface.append( QPointF( posInLine0, w0 ) );
+            terrain.append( QPointF( posInLine0, z0 ) );
+          }
+          waterSurface.append( QPointF( posInLine, w1 ) );
+          terrain.append( QPointF( posInLine, z1 ) );
+          inWater = true;
+        }
+        else if ( w1 == z1 )
+        {
+          if ( i < values.count() - 1 )
+          {
+            double w2 = waterLevelValue( values.at( i + 1 ) );
+            double z2 = terrainValue( values.at( i + 1 ) );
+            if ( std::isnan( w2 ) )
+              w2 = z2 - 1;
+
+            if ( w2 > z2 )
+            {
+              inWater = true;
+              waterSurface.append( QPointF( posInLine, w1 ) );
+              terrain.append( QPointF( posInLine, z1 ) );
+            }
+          }
+        }
+
+      }
+
+      posInLine0 = posInLine;
+    }
+
+    QPolygonF corWs;
+    ret.append( mergeWaterlevelWithTerrain( waterSurface, terrain, corWs ) );
+    totalWaterSurface.append( corWs );
+  }
+
+  return ret;
 }
 
 void ReosHydraulicStructureProfile::changeGeometry( const QPolygonF &geom, const QString &linesCrs )
@@ -78,6 +298,45 @@ void ReosHydraulicStructureProfile::changeGeometry( const QPolygonF &geom, const
   mParts.clear();
   mPointValues.clear();
   mGeometry = ReosGisEngine::transformToCoordinates( linesCrs, geom, mStructure->mesh()->crs() );
+}
+
+
+QRectF ReosHydraulicStructureProfile::elevationExtent( ReosHydraulicScheme *scheme ) const
+{
+  QRectF ret = terrainExtent();
+
+  ReosHydraulicSimulationResults *results = mStructure->results( scheme );
+  int waterLevelIndex = results->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterLevel );
+  int timeStepCount = results->datasetCount( waterLevelIndex );
+
+  bool ok = false;
+  for ( int i = 0; i < timeStepCount; ++i )
+  {
+    QRectF wsExt = ReosGeometryUtils::boundingBox( resultsProfile( scheme, i, ReosHydraulicSimulationResults::DatasetType::WaterLevel ), ok );
+    if ( ok )
+      ret = ret.united( wsExt );
+  }
+
+  return ret;
+}
+
+QPair<double, double> ReosHydraulicStructureProfile::valueVerticalExtent( ReosHydraulicScheme *scheme, ReosHydraulicSimulationResults::DatasetType resultType )
+{
+  ReosHydraulicSimulationResults *results = mStructure->results( scheme );
+  int waterLevelIndex = results->groupIndex( resultType );
+  int timeStepCount = results->datasetCount( waterLevelIndex );
+
+  QRectF ext;
+
+  bool ok = false;
+  for ( int i = 0; i < timeStepCount; ++i )
+  {
+    QRectF wsExt = ReosGeometryUtils::boundingBox( resultsProfile( scheme, i, resultType ), ok );
+    if ( ok )
+      ext = ext.united( wsExt );
+  }
+
+  return QPair<double, double>( ext.top(), ext.bottom() );
 }
 
 ReosEncodedElement ReosHydraulicStructureProfile::encode() const
@@ -156,7 +415,11 @@ void ReosHydraulicStructureProfile::buildProfile() const
   const QMap<double, QPolygonF> allParts = parts();
   mPointValues.clear();
   for ( auto it = allParts.constBegin(); it != allParts.constEnd(); ++it )
+  {
     mPointValues.insert( it.key(), mStructure->mesh()->drapePolyline( it.value(), 0.0000001 ) );
+  }
+  bool ok = false;
+  mTerrainExtent = ReosGeometryUtils::boundingBox( terrainProfile(), ok );
 }
 
 QPolygonF ReosHydraulicStructureProfile::extractValue( std::function<double ( ReosMeshPointValue )> &func ) const
@@ -183,6 +446,15 @@ QPolygonF ReosHydraulicStructureProfile::extractValue( std::function<double ( Re
   }
 
   return ret;
+}
+
+QRectF ReosHydraulicStructureProfile::terrainExtent() const
+{
+  if ( mPointValues.empty() )
+    buildProfile();
+
+  return mTerrainExtent;
+
 }
 
 ReosHydraulicStructureProfilesCollection::ReosHydraulicStructureProfilesCollection( QObject *parent ): QAbstractListModel( parent )

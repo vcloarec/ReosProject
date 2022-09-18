@@ -18,7 +18,7 @@ email                : vcloarec at gmail dot com
 #include <qgslinestring.h>
 #include <qgspolygon.h>
 #include <qgsdistancearea.h>
-
+#include <qgsgeometryutils.h>
 #include "reosgeometryutils.h"
 
 
@@ -281,5 +281,46 @@ QVector<QPolygonF> ReosGeometryUtils::cutPolylineInsidePolygon( const QPolygonF 
   QgsGeometry resultGeom = polylineGeom.difference( polygonGeom );
 
   return sortMultiPolyline( resultGeom, polylineGeom, distanceFromBegining );
+}
+
+bool ReosGeometryUtils::segmentIntersect( const QPointF &pta1, const QPointF &pta2, const QPointF &ptb1, const QPointF &ptb2, QPointF &intersect )
+{
+  QgsPoint intersection;
+  bool isIntersection = false;
+  bool res = QgsGeometryUtils::segmentIntersection( QgsPoint( pta1 ), QgsPoint( pta2 ), QgsPoint( ptb1 ), QgsPoint( ptb2 ), intersection, isIntersection, 1e-8, true );
+  intersect = intersection.toQPointF();
+
+  return res;
+}
+
+QRectF ReosGeometryUtils::boundingBox( const QPolygonF &polygon, bool &ok )
+{
+  ok = false;
+  double xMin = std::numeric_limits<double>::max();
+  double yMin = std::numeric_limits<double>::max();
+  double xMax = -std::numeric_limits<double>::max();
+  double yMax = -std::numeric_limits<double>::max();
+
+  for ( const QPointF &pt : polygon )
+  {
+    double x = pt.x();
+    double y = pt.y();
+
+    if ( std::isnan( x ) || std::isnan( y ) )
+      continue;
+
+    if ( x < xMin )
+      xMin = x;
+    if ( x > xMax )
+      xMax = x;
+    if ( y < yMin )
+      yMin = y;
+    if ( y > yMax )
+      yMax = y;
+
+    ok = true;
+  }
+
+  return QRectF( xMin, yMin, xMax - xMin, yMax - yMin );
 }
 

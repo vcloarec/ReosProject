@@ -34,11 +34,23 @@ class ReosHydraulicStructureProfile : public ReosDataObject
     //! Changes the ceometry in the plan with \a geom that is in \a lineCrs coordinate system
     void changeGeometry( const QPolygonF &geom, const QString &linesCrs );
 
+    //! Returns the elevation extent (for all variable expressed as an elevation), horizontal and vertical, for the hydraulic \a scheme
+    QRectF elevationExtent( ReosHydraulicScheme *scheme ) const;
+
+    //! Returns the vertical extent of the varianble with type \a resultType ans for the hydraulic \a scheme
+    QPair<double, double> valueVerticalExtent( ReosHydraulicScheme *scheme, ReosHydraulicSimulationResults::DatasetType resultType );
+
+    //! Returns the horizontal extent of the profile
+    QPair<double, double> horizontalExtent() const;
+
     //! Returns the terrain profile
     QPolygonF terrainProfile() const;
 
     //! Returns the results profile corresponding to hydraulic \a scheme, for \a time and with type \a result type
     QPolygonF resultsProfile( ReosHydraulicScheme *scheme, const QDateTime &time, ReosHydraulicSimulationResults::DatasetType resultType ) const;
+
+    //! Returns polygons thet represent the filled water in the profile and the watersurface in \a watersurface
+    QList<QPolygonF> resultsFilledByWater( ReosHydraulicScheme *scheme, const QDateTime &time, QPolygonF &waterSurface ) const;
 
     ReosEncodedElement encode() const;
 
@@ -48,10 +60,16 @@ class ReosHydraulicStructureProfile : public ReosDataObject
     mutable QMap<double, QPolygonF> mParts;
     mutable QMap<double, QList<ReosMeshPointValue>> mPointValues;
 
+    mutable QRectF mTerrainExtent;
+
     void initParts() const;
     void buildProfile() const;
 
     QPolygonF extractValue( std::function<double( ReosMeshPointValue )> &func ) const;
+
+    QRectF terrainExtent() const;
+    QPolygonF resultsProfile( ReosHydraulicScheme *scheme, int datasetIndex, ReosHydraulicSimulationResults::DatasetType resultType ) const;
+
 };
 
 class ReosHydraulicStructureProfilesCollection : public QAbstractListModel

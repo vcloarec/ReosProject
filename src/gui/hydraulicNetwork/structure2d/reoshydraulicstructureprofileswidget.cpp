@@ -70,15 +70,27 @@ ReosHydraulicStructureProfilesWidget::ReosHydraulicStructureProfilesWidget( Reos
   connect( ui->mBackButton, &QPushButton::clicked, this, &ReosStackedPageWidget::backToPreviousPage );
 
   mTerrainProfileCurve = new ReosPlotCurve( tr( "Terrain" ), Qt::black, 2 );
+  mTerrainProfileCurve->setAutoScale( false );
   ui->mPlotWidget->addPlotItem( mTerrainProfileCurve );
 
   mWaterLevelProfileCurve = new ReosPlotCurve( tr( "Water Level" ), Qt::blue, 2 );
+  mWaterLevelProfileCurve->setAutoScale( false );
   ui->mPlotWidget->addPlotItem( mWaterLevelProfileCurve );
 
   mVelocityProfileCurve = new ReosPlotCurve( tr( "Velocity" ), Qt::darkGreen, 2 );
   mVelocityProfileCurve->setOnRightAxe();
+  mVelocityProfileCurve->setAutoScale( false );
   ui->mPlotWidget->addPlotItem( mVelocityProfileCurve );
 
+  QBrush brush( Qt::SolidPattern );
+  brush.setColor( QColor( 0, 100, 250, 150 ) );
+  mFilledWater = new ReosPlotPolygons();
+  mFilledWater->setBrush( brush );
+  QPen pen;
+  pen.setStyle( Qt::NoPen );
+  mFilledWater->setPen( pen );
+  mFilledWater->setAutoScale( false );
+  ui->mPlotWidget->addPlotItem( mFilledWater );
   ui->mPlotWidget->enableAxeYRight( true );
   ui->mPlotWidget->setTitleAxeYRight( tr( "Velocity" ) );
   ui->mPlotWidget->setTitleAxeYLeft( tr( "Elevation" ) );
@@ -123,9 +135,6 @@ void ReosHydraulicStructureProfilesWidget::onCurrentProfileChanged()
   selectProfile( mCurrentProfile );
 
   updateCurrentProfileValues();
-
-  mTerrainProfileCurve->zoomOnExtent();
-
 }
 
 void ReosHydraulicStructureProfilesWidget::onRemoveProfile()
@@ -169,12 +178,14 @@ void ReosHydraulicStructureProfilesWidget::onTimeChanged( const QDateTime &time 
 {
   if ( mCurrentProfile )
   {
-    mWaterLevelProfileCurve->setData( mCurrentProfile->resultsProfile( mStructure->network()->currentScheme(),
-                                      time,
-                                      ReosHydraulicSimulationResults::DatasetType::WaterLevel ) );
     mVelocityProfileCurve->setData( mCurrentProfile->resultsProfile( mStructure->network()->currentScheme(),
                                     time,
                                     ReosHydraulicSimulationResults::DatasetType::Velocity ) );
+    QPolygonF waterSurface;
+    mFilledWater->setPolygons( mCurrentProfile->resultsFilledByWater( mStructure->network()->currentScheme(),
+                               time,
+                               waterSurface ) );
+    mWaterLevelProfileCurve->setData( waterSurface );
   }
 }
 
@@ -257,18 +268,31 @@ void ReosHydraulicStructureProfilesWidget::updateCurrentProfileValues()
 {
   if ( mCurrentProfile )
   {
+    ReosHydraulicScheme *scheme = mStructure->network()->currentScheme();
     mTerrainProfileCurve->setData( mCurrentProfile->terrainProfile() );
-    mWaterLevelProfileCurve->setData(
-      mCurrentProfile->resultsProfile( mStructure->network()->currentScheme(),
-                                       mGuiContext.map()->currentTime(),
-                                       ReosHydraulicSimulationResults::DatasetType::WaterLevel ) );
-    mVelocityProfileCurve->setData( mCurrentProfile->resultsProfile( mStructure->network()->currentScheme(),
+
+    mVelocityProfileCurve->setData( mCurrentProfile->resultsProfile( scheme,
                                     mGuiContext.map()->currentTime(),
                                     ReosHydraulicSimulationResults::DatasetType::Velocity ) );
+
+    QPolygonF waterSurface;
+    mFilledWater->setPolygons( mCurrentProfile->resultsFilledByWater( scheme,
+                               mGuiContext.map()->currentTime(),
+                               waterSurface ) );
+    mWaterLevelProfileCurve->setData( waterSurface );
+
+    if ( mCurrentProfile )
+    {
+      ui->mPlotWidget->setExtent( mCurrentProfile->elevationExtent( scheme ) );
+      QPair<double, double> rightExtent = mCurrentProfile->valueVerticalExtent( scheme, ReosHydraulicSimulationResults::DatasetType::Velocity );
+      ui->mPlotWidget->setAxeYRightExtent( rightExtent.first, rightExtent.second );
+      ui->mPlotWidget->updatePlot();
+    }
   }
   else
   {
     mTerrainProfileCurve->setData( QPolygonF() );
     mWaterLevelProfileCurve->setData( QPolygonF() );
+    mFilledWater->setPolygons( QList<QPolygonF>() );
   }
 }

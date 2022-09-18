@@ -25,6 +25,7 @@ class ReosMapToolDrawPolyline;
 class ReosHydraulicStructureProfile;
 class ReosMapToolEditMapPolyline;
 class ReosPlotCurve;
+class ReosPlotPolygons;
 
 namespace Ui
 {
@@ -58,6 +59,7 @@ class ReosHydraulicStructureProfilesWidget : public ReosStackedPageWidget
     ReosPlotCurve *mTerrainProfileCurve = nullptr;
     ReosPlotCurve *mWaterLevelProfileCurve = nullptr;
     ReosPlotCurve *mVelocityProfileCurve = nullptr;
+    ReosPlotPolygons *mFilledWater = nullptr;
 
     QAction *mActionAddProfile = nullptr;
     ReosMapToolDrawPolyline *mMapToolAddProfile = nullptr;
