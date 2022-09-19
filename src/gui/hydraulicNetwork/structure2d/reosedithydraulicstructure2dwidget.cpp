@@ -96,7 +96,11 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
 
   connect( backButton, &QPushButton::clicked, this, &ReosStackedPageWidget::backToPreviousPage );
   connect( ui->mOptionListWidget, &QListWidget::currentRowChanged, this, &ReosEditHydraulicStructure2DWidget::onMeshOptionListChanged );
-  connect( structure2D, &ReosDataObject::dataChanged, this, [this] {mMap->refreshCanvas();} );
+  connect( structure2D, &ReosDataObject::dataChanged, this, [this]
+  {
+    mMap->refreshCanvas();
+  }
+         );
 
   ReosSettings settings;
   ui->mOptionListWidget->setCurrentRow( settings.value( QStringLiteral( "/hydraulic-structure/edit-widget/current-row" ) ).toInt() );
@@ -159,7 +163,6 @@ void ReosEditHydraulicStructure2DWidget::generateMesh()
   }
 
   QApplication::setOverrideCursor( Qt::WaitCursor );
-  mStructure2D->removeAllResults();
   QApplication::restoreOverrideCursor();
 
   std::unique_ptr<ReosMeshGeneratorProcess> generatorProcess( mStructure2D->getGenerateMeshProcess() );

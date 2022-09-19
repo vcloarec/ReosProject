@@ -823,6 +823,7 @@ ReosMeshGeneratorProcess *ReosHydraulicStructure2D::getGenerateMeshProcess()
   {
     if ( mMesh && processP->isSuccessful() )
     {
+      removeAllResults();
       onMeshGenerated( processP->meshResult() );
     }
   } );
