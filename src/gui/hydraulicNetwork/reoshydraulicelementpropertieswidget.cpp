@@ -225,6 +225,7 @@ void ReosHydrauylicNetworkElementCalculationControler::onCalculationStop()
 ReosHydraulicElementPropertiesActionWidget::ReosHydraulicElementPropertiesActionWidget( ReosHydraulicNetwork *network, const ReosGuiContext &guiContext )
   : ReosActionStackedWidget( guiContext.parent() )
 {
+  setObjectName( QStringLiteral( "ReosHydraulicElementPropertiesActionWidget" ) );
   setWindowFlag( Qt::Dialog );
   mainPage = new ReosHydraulicElementPropertiesWidget( network, ReosGuiContext( guiContext, this ) );
   connect( mainPage, &ReosStackedPageWidget::askForShow, this, &QWidget::show );
