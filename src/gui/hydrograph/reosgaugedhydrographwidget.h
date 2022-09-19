@@ -63,7 +63,7 @@ class ReosGaugedHydrographWidget : public ReosStackedPageWidget
   private:
     Ui::ReosGaugedHydrographWidget *ui;
     ReosMap *mMap = nullptr;
-    ReosHydrographsStore *mHydrographStore = nullptr;
+    QPointer<ReosHydrographsStore> mHydrographStore;
     QAction *mActionAddHydrograph = nullptr;
     QAction *mActionDeleteHydrograph = nullptr;
     QAction *mActionRenameHydrograph = nullptr;
