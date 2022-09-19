@@ -13,7 +13,7 @@
 class ReosHydraulicStructure2D;
 class ReosHydraulicScheme;
 
-class ReosHydraulicStructureProfile : public ReosDataObject
+class REOSCORE_EXPORT ReosHydraulicStructureProfile : public ReosDataObject
 {
   public:
     ReosHydraulicStructureProfile( const QString &name, const QPolygonF &geometry, ReosHydraulicStructure2D *structure );
