@@ -162,7 +162,7 @@ void ReosHydraulicStructure2D::exportResultAsMesh( const QString &fileName ) con
 void ReosHydraulicStructure2D::exportResultAsMeshInGisProject( const QString &fileName, bool keepLayers )
 {
   const QFileInfo fileInfo( fileName );
-  const QString meshName = elementName()->value() + '-' + network()->currentScheme()->schemeName()->value();
+  const QString meshName = elementName()->value().replace( ':', '-' ) + '-' + network()->currentScheme()->schemeName()->value();
   QString meshFileName = fileInfo.dir().filePath( meshName );
 
   meshFileName = mMesh->exportAsMesh( meshFileName );
