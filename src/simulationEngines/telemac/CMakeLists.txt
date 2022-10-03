@@ -20,7 +20,6 @@ ADD_LIBRARY(telemac_engine MODULE
     ${REOS_TELEMAC_HEADERS}
 )
 
-
 TARGET_LINK_LIBRARIES(telemac_engine
         ${Qt5Xml_LIBRARIES}
         ${Qt5Core_LIBRARIES}
