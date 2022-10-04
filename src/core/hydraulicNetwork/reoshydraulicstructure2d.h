@@ -42,6 +42,16 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
       QPointer<ReosHydraulicStructureBoundaryCondition> boundaryCondition;
     };
 
+    enum Structure2DCapability
+    {
+      GeometryEditable = 1 << 0, //!< If the structure have geometry editable (geometry structure, mesh, ...)
+      MultiSimulation = 1 << 1, //!< If the structure can have multiple simulations
+    };
+
+    Q_ENUM( Structure2DCapability )
+    Q_DECLARE_FLAGS( Structure2DCapabilities, Structure2DCapability )
+    Q_FLAG( Structure2DCapabilities )
+
     //! Contructor from a \a domain, ccordinate system \a crs and a \a context
     ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, const ReosHydraulicNetworkContext &context );
 
@@ -245,6 +255,9 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Returns the index of the \a profile
     int profileIndex( ReosHydraulicStructureProfile *profile );
 
+    //! Returns whether the structure supports the \a capability
+    bool hasCapability( Structure2DCapability capability ) const;
+
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) override;
 
@@ -268,6 +281,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
   private:
     ReosHydraulicStructure2D( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
 
+    Structure2DCapabilities mCapabilities;
     ReosMeshGenerator *mMeshGenerator = nullptr;
     std::unique_ptr<ReosPolylinesStructure> mPolylinesStructures;
     ReosMeshResolutionController *mMeshResolutionController = nullptr;

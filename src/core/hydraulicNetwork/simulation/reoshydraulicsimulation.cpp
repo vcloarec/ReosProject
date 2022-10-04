@@ -64,9 +64,7 @@ QDir ReosHydraulicSimulation::simulationDir( const ReosHydraulicStructure2D *hyd
 ReosSimulationEngineRegistery *ReosSimulationEngineRegistery::sInstance = nullptr;
 
 ReosSimulationEngineRegistery::ReosSimulationEngineRegistery()
-{
-
-}
+{}
 
 void ReosSimulationEngineRegistery::registerEngineFactory( ReosSimulationEngineFactory *factory )
 {
@@ -117,6 +115,15 @@ const QMap<QString, QString> ReosSimulationEngineRegistery::availableEngine()
     ret.insert( it.first, it.second->displayName() );
 
   return ret;
+}
+
+bool ReosSimulationEngineRegistery::canImportSrtucture2D() const
+{
+  for ( auto &it : std::as_const( mFactories ) )
+    if ( it.second->hasCapability( ReosSimulationEngineFactory::ImportStructure2D ) )
+      return true;
+
+  return false;
 }
 
 void ReosSimulationEngineRegistery::loadDynamicLibrary()
@@ -286,4 +293,9 @@ void ReosSimulationProcess::onReceiveFlow( QDateTime time, QStringList boundaryI
 QMap<QString, ReosHydrograph *> ReosSimulationProcess::outputHydrographs() const
 {
   return mOutputHydrographs;
+}
+
+bool ReosSimulationEngineFactory::hasCapability( SimulationEngineCapability capability ) const
+{
+  return mCapabilities.testFlag( capability );
 }

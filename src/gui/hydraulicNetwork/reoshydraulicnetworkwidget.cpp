@@ -47,6 +47,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   , mMapToolMoveHydrographJunction( new ReosMapToolMoveHydraulicNetworkElement( network, context.map() ) )
   , mActionNewStructure2D( new QAction( QPixmap( QStringLiteral( ":/images/addHydraulicStructure2D.svg" ) ), tr( "Structure 2D" ), this ) )
   , mMapToolNewStructure2D( new ReosMapToolNewStructure2D( network, mMap ) )
+  , mActionImportStructure2D( new QAction( QPixmap( QStringLiteral( ":/images/importHydraulicStructure2D.svg" ) ), tr( "Import Structure 2D" ), this ) )
   , mActionRemoveElement( new QAction( QPixmap( QStringLiteral( ":/images/remove.svg" ) ), tr( "Remove Hydraulic Element" ), this ) )
 {
   ui->setupUi( this );
@@ -86,9 +87,21 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   mMapToolMoveHydrographJunction->setSearchingItemDecription( ReosHydrographJunction::staticType() );
   mMapToolMoveHydrographJunction->setSearchItemWhenMoving( true );
 
-  toolBar->addAction( mActionNewStructure2D );
   mActionNewStructure2D->setCheckable( true );
-  mMapToolNewStructure2D->setAction( mActionNewStructure2D );
+  if ( !ReosSimulationEngineRegistery::instance()->canImportSrtucture2D() )
+  {
+    toolBar->addAction( mActionNewStructure2D );
+    mMapToolNewStructure2D->setAction( mActionNewStructure2D );
+  }
+  else
+  {
+    QToolButton *mStructure2DButton = new QToolButton( toolBar );
+    mStructure2DButton->setPopupMode( QToolButton::MenuButtonPopup );
+    mStructure2DButton->addAction( mActionNewStructure2D );
+    mStructure2DButton->setDefaultAction( mActionNewStructure2D );
+    mStructure2DButton->addAction( mActionImportStructure2D );
+    toolBar->addWidget( mStructure2DButton );
+  }
 
   toolBar->addAction( mActionHydraulicNetworkProperties );
   mActionHydraulicNetworkProperties->setCheckable( true );
@@ -107,7 +120,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
 
   connect( mMapToolAddHydrographJunction, &ReosMapToolDrawPoint::drawn, this, [this]( const QPointF & p )
   {
-    ReosSpatialPosition sp(p, mMap->mapCrs());
+    ReosSpatialPosition sp( p, mMap->mapCrs() );
     ReosHydraulicNetworkElement *elem = mHydraulicNetwork->addElement( new ReosHydrographJunction( sp, mHydraulicNetwork ) );
     onElementSelected( mMapItems.value( elem ).get() );
   } );

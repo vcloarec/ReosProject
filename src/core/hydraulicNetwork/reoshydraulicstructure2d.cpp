@@ -30,6 +30,7 @@
 
 ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, const ReosHydraulicNetworkContext &context )
   : ReosHydraulicNetworkElement( context.network() )
+  , mCapabilities( GeometryEditable | MultiSimulation )
   , mMeshGenerator( new ReosGmshGenerator( this ) )
   , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( domain, crs ) )
   , mMeshResolutionController( new ReosMeshResolutionController( this, crs ) )
@@ -45,6 +46,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   const ReosEncodedElement &encodedElement,
   const ReosHydraulicNetworkContext &context )
   : ReosHydraulicNetworkElement( encodedElement, context.network() )
+  , mCapabilities( GeometryEditable | MultiSimulation )
   , mMeshGenerator( ReosMeshGenerator::createMeshGenerator( encodedElement.getEncodedData( QStringLiteral( "mesh-generator" ) ), this ) )
   , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( encodedElement.getEncodedData( QStringLiteral( "structure" ) ) ) )
   , mTopographyCollection( ReosTopographyCollection::createTopographyCollection( encodedElement.getEncodedData( QStringLiteral( "topography-collection" ) ), context.network()->gisEngine(), this ) )
@@ -52,6 +54,13 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   , mProfilesCollection( new ReosHydraulicStructureProfilesCollection( this ) )
   , m3dMapSettings( encodedElement.getEncodedData( "3d-map-setings" ) )
 {
+  if ( encodedElement.hasEncodedData( QStringLiteral( "capabilities" ) ) )
+  {
+    int cap = 0;
+    if ( !encodedElement.getData( QStringLiteral( "capabilities" ), mCapabilities ) )
+      mCapabilities = Structure2DCapabilities( GeometryEditable | MultiSimulation ) ;
+  }
+
   if ( encodedElement.hasEncodedData( QStringLiteral( "mesh-resolution-controller" ) ) )
     mMeshResolutionController = new ReosMeshResolutionController( encodedElement.getEncodedData( QStringLiteral( "mesh-resolution-controller" ) ), this );
   else
@@ -151,6 +160,11 @@ ReosHydraulicStructureProfile *ReosHydraulicStructure2D::profile( int profileInd
 int ReosHydraulicStructure2D::profileIndex( ReosHydraulicStructureProfile *profile )
 {
   return mProfilesCollection->profileIndex( profile );
+}
+
+bool ReosHydraulicStructure2D::hasCapability( Structure2DCapability capability ) const
+{
+  return mCapabilities.testFlag( capability );
 }
 
 void ReosHydraulicStructure2D::exportResultAsMesh( const QString &fileName ) const

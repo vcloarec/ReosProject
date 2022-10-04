@@ -193,12 +193,11 @@ class ReosTelemac2DSimulationProcess : public ReosSimulationProcess
 class ReosTelemac2DSimulationEngineFactory : public ReosSimulationEngineFactory
 {
   public:
+    virtual ReosHydraulicSimulation *createSimulation( QObject *parent ) const override;
+    virtual ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &element, QObject *parent ) const override;
 
-    virtual ReosHydraulicSimulation *createSimulation( QObject *parent ) const;
-    virtual ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &element, QObject *parent ) const;
-
-    virtual QString key() const {return ReosTelemac2DSimulation::staticKey();}
-    QString displayName() const {return QObject::tr( "TELEMAC 2D Simulation" );}
+    virtual QString key() const override {return ReosTelemac2DSimulation::staticKey();}
+    QString displayName() const override {return QObject::tr( "TELEMAC 2D Simulation" );}
 
     void initializeSettings() override;
 };

@@ -66,22 +66,27 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
   structureWidget->addToolBarActions( meshGenerationToolBarActions );
   structureWidget->setSettingsWidget( ReosFormWidgetFactories::instance()->createDataFormWidget( structure2D->meshGenerator(), ReosGuiContext( context, structureWidget ) ) );
   structureWidget->setInformationWidget( new ReosStructureInformationWidget( structure2D, structureWidget ) );
+  structureWidget->setEnabled( mStructure2D->hasCapability( ReosHydraulicStructure2D::GeometryEditable ) );
   ui->pageMeshStructure->layout()->addWidget( structureWidget );
   connect( structureWidget, &ReosEditPolylineStructureWidget::boundaryConditionSelectionChanged, this, [this] {mMapStructureItem.updatePosition();} );
 
   ReosGmshResolutionControllerWidget *resolutionWidget = new ReosGmshResolutionControllerWidget( structure2D, ReosGuiContext( context, this ) );
   resolutionWidget->addToolBarActions( meshGenerationToolBarActions );
+  resolutionWidget->setEnabled( mStructure2D->hasCapability( ReosHydraulicStructure2D::GeometryEditable ) );
   ui->pageMeshResolution->layout()->addWidget( resolutionWidget );
 
   ReosMeshTopographyStackedWidget *topographyWidget =
     new ReosMeshTopographyStackedWidget( structure2D->mesh(), structure2D->topographyCollecion(), structure2D->terrainMeshDatasetId(), ReosGuiContext( context, this ) );
   ui->pageTopography->layout()->addWidget( topographyWidget );
+  topographyWidget->setEnabled( mStructure2D->hasCapability( ReosHydraulicStructure2D::GeometryEditable ) );
 
   mEditElementWidget = new ReosEditMeshElementWidget( structure2D->mesh(), ReosGuiContext( context, this ) );
   ui->pageEditElements->layout()->addWidget( mEditElementWidget );
+  mEditElementWidget->setEnabled( mStructure2D->hasCapability( ReosHydraulicStructure2D::GeometryEditable ) );
 
   ReosRoughnessWidget *roughnessWidget = new ReosRoughnessWidget( structure2D, ReosGuiContext( context, this ) );
   ui->pageRoughness->layout()->addWidget( roughnessWidget );
+  roughnessWidget->setEnabled( mStructure2D->hasCapability( ReosHydraulicStructure2D::GeometryEditable ) );
 
   ReosHydraulic2DSimulationWidget *mSimulationWidget = new ReosHydraulic2DSimulationWidget( structure2D, ReosGuiContext( context, this ) );
   ui->pageSimulation->layout()->addWidget( mSimulationWidget );
@@ -99,8 +104,7 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
   connect( structure2D, &ReosDataObject::dataChanged, this, [this]
   {
     mMap->refreshCanvas();
-  }
-         );
+  } );
 
   ReosSettings settings;
   ui->mOptionListWidget->setCurrentRow( settings.value( QStringLiteral( "/hydraulic-structure/edit-widget/current-row" ) ).toInt() );

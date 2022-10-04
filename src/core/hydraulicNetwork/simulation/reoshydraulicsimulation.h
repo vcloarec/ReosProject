@@ -136,13 +136,30 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject
 
 class ReosSimulationEngineFactory
 {
+    Q_GADGET
   public:
+
+    enum SimulationEngineCapability
+    {
+      ImportStructure2D = 1 << 0, //!< If the simulation engine support importing 2D structure
+    };
+
+    Q_ENUM( SimulationEngineCapability )
+    Q_DECLARE_FLAGS( SimulationEngineCapabilities, SimulationEngineCapability )
+    Q_FLAG( SimulationEngineCapabilities )
+
     virtual ReosHydraulicSimulation *createSimulation( QObject *parent ) const = 0;
     virtual ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &element, QObject *parent ) const = 0;
     virtual QString key() const  = 0;
     virtual QString displayName() const = 0;
 
     virtual void initializeSettings() = 0;
+
+    bool hasCapability( SimulationEngineCapability capability ) const;
+
+  protected:
+    SimulationEngineCapabilities mCapabilities = QFlags<SimulationEngineCapability>();
+
 };
 
 class REOSCORE_EXPORT ReosSimulationEngineRegistery
@@ -160,6 +177,8 @@ class REOSCORE_EXPORT ReosSimulationEngineRegistery
     static ReosSimulationEngineRegistery *instance();
 
     const QMap<QString, QString> availableEngine();
+
+    bool canImportSrtucture2D() const;
 
   private:
 #ifdef _MSC_VER

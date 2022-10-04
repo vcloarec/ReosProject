@@ -115,6 +115,7 @@ class ReosHydraulicNetworkWidget : public QWidget
 
     QAction *mActionNewStructure2D = nullptr;
     ReosMapToolNewStructure2D *mMapToolNewStructure2D = nullptr;
+    QAction *mActionImportStructure2D = nullptr;
 
     QAction *mActionRemoveElement = nullptr;
 
