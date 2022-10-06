@@ -16,19 +16,53 @@
 #ifndef REOSHECRASCONTROLLER_H
 #define REOSHECRASCONTROLLER_H
 
-class IDispatch;
+#include <combaseapi.h>
 
 class ReosHecrasController
 {
 public:
-	ReosHecrasController();
+	ReosHecrasController(const QString& version);
 	~ReosHecrasController();
 
 	bool isValid() const;
 
+	QString version() const;
+
+
+	bool openHecrasProject(const QString& projFileName);
+
+	QStringList flowAreas2D(bool& ok) const;
+
+	static QStringList availableVersion();
+
+	int funcCount = 0;
+
 private:
+    class Parameters
+    {
+    public:
+        ~Parameters();
+
+		DISPPARAMS* funcParameters() const;
+
+        void addStringParameter(const QString& string);
+		size_t prepareReturnString();
+		void freeString(size_t index);
+		void prepareReturnLong(LONG& value);
+
+    private:
+		mutable DISPPARAMS mParams;
+        mutable std::vector<VARIANTARG> args;
+		mutable std::vector<DISPID> argsId;
+		mutable std::vector<BSTR> mStringParams;
+
+    };
+
 	bool mIsValid = false;
 	IDispatch* mDispatch = nullptr;
+	QMap<QString, DISPID> mFunctionNames;
+
+	VARIANT invokeFunction(DISPID, const Parameters& params, bool &ok) const;
 };
 
 

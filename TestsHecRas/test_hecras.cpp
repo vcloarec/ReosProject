@@ -20,17 +20,38 @@ email                : vcloarec at gmail dot com
 class ReosHecrasTesting : public QObject
 {
     Q_OBJECT
+
 private slots:
+    void availableVersion();
     void createControllerInstance();
+    void exploreProject();
 
 };
 
-
+void ReosHecrasTesting::availableVersion()
+{
+    QStringList versions = ReosHecrasController::availableVersion();
+    QVERIFY(!versions.isEmpty());
+}
 void ReosHecrasTesting::createControllerInstance()
 {
-    ReosHecrasController controller;
+    QStringList versions = ReosHecrasController::availableVersion();
+    ReosHecrasController controller(versions.last());
 
     QVERIFY(controller.isValid());
+}
+
+void ReosHecrasTesting::exploreProject()
+{
+    QString path("C:/dev/sources/ReosProject/TestsHecRas/testData/simple/simple.prj");
+
+    QStringList versions = ReosHecrasController::availableVersion();
+    ReosHecrasController controller(versions.last());
+
+    QVERIFY(controller.openHecrasProject(path));
+
+    bool ok = false;
+    QStringList flowAreas= controller.flowAreas2D(ok);
 }
 
 QTEST_MAIN(ReosHecrasTesting)
