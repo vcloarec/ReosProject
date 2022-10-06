@@ -18,51 +18,41 @@
 
 #include <combaseapi.h>
 
+#include <QPolygon>
+
 class ReosHecrasController
 {
 public:
+	//! Constructor with \a version of HecRas, \see availableVersion()
 	ReosHecrasController(const QString& version);
 	~ReosHecrasController();
 
-	bool isValid() const;
-
-	QString version() const;
-
-
-	bool openHecrasProject(const QString& projFileName);
-
-	QStringList flowAreas2D(bool& ok) const;
-
+	//! Returns available version of HecRas controller
 	static QStringList availableVersion();
 
-	int funcCount = 0;
+	//! Returns whether the controller is valid
+	bool isValid() const;
+
+	//! Returns the user-friendly string of the controller version of this instance
+	QString version() const;
+
+	//! Opens a project with path \a projFileName
+	bool openHecrasProject(const QString& projFileName);
+
+	//! Returns the plan names of the currently opened project
+	QStringList planNames() const;
+
+	//! Returns the flow 2D area names of the currently opened project
+	QStringList flowAreas2D() const;
+
+	QPolygonF flow2DAreasDomain(const QString &areaName);
 
 private:
-    class Parameters
-    {
-    public:
-        ~Parameters();
-
-		DISPPARAMS* funcParameters() const;
-
-        void addStringParameter(const QString& string);
-		size_t prepareReturnString();
-		void freeString(size_t index);
-		void prepareReturnLong(LONG& value);
-
-    private:
-		mutable DISPPARAMS mParams;
-        mutable std::vector<VARIANTARG> args;
-		mutable std::vector<DISPID> argsId;
-		mutable std::vector<BSTR> mStringParams;
-
-    };
-
 	bool mIsValid = false;
 	IDispatch* mDispatch = nullptr;
 	QMap<QString, DISPID> mFunctionNames;
 
-	VARIANT invokeFunction(DISPID, const Parameters& params, bool &ok) const;
+	bool exitRas() const;
 };
 
 

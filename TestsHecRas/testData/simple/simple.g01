@@ -1,0 +1,42 @@
+Geom Title=geom_simple_1
+Program Version=6.31
+Viewing Rectangle= 654499.825637258 , 655004.894165477 , 1798509.56645584 , 1798222.42837128 
+
+Storage Area=Perimeter 1     ,,
+Storage Area Surface Line= 5 
+654976.5819487481798483.12833383                
+654981.936505103 1798235.4801024                
+654522.7832976321798251.54377146                
+654526.7992148981798496.51472472                
+654976.5819487481798483.12833383                
+Storage Area Type= 1 
+Storage Area Area=
+Storage Area Min Elev=
+Storage Area Is2D=-1
+Storage Area Point Generation Data=,,100,100
+Storage Area 2D Points= 8 
+654572.7832976321798446.51472472654672.7832976321798446.51472472
+654772.7832976321798446.51472472654872.7832976321798446.51472472
+654572.7832976321798346.51472472654672.7832976321798346.51472472
+654772.7832976321798346.51472472654872.7832976321798346.51472472
+Storage Area 2D PointsPerimeterTime=06Oct2022 15:24:12
+Storage Area Mannings=0.06
+2D Cell Volume Filter Tolerance=0.003
+2D Cell Minimum Area Fraction=0.01
+2D Face Profile Filter Tolerance=0.003
+2D Face Area Elevation Profile Filter Tolerance=0.003
+2D Face Area Elevation Conveyance Ratio=0.02
+2D Face Area Laminar Depth=0.06
+2D Multiple Face Mann n=0
+
+LCMann Time=Dec/30/1899 00:00:00
+LCMann Region Time=Dec/30/1899 00:00:00
+LCMann Table=0
+Chan Stop Cuts=-1 
+
+
+
+Use User Specified Reach Order=0
+GIS Ratio Cuts To Invert=-1
+GIS Limit At Bridges=0
+Composite Channel Slope=5

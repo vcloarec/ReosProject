@@ -1,8 +1,10 @@
-Proj Title=
-Current Plan=p01
+Proj Title=simple
+Current Plan=p02
 Default Exp/Contr=0.3,0.1
 SI Units
+Geom File=g01
 Plan File=p01
+Plan File=p02
 Y Axis Title=Elevation
 X Axis Title(PF)=Main Channel Distance
 X Axis Title(XS)=Station

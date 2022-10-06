@@ -1,20 +1,24 @@
 <RASMapper>
   <Version>2.0.0</Version>
   <RASProjectionFilename Filename="..\32620.prj" />
-  <Features Expanded="True">
+  <Features>
     <Layer Name="Profile Lines" Type="PolylineFeatureLayer" Filename=".\Features\Profile Lines.shp">
       <LabelFeatures Checked="True" PercentPosition="0" rows="1" cols="1" r0c0="Name" Position="3" Color="-16777216" FontSize="8.25" />
     </Layer>
   </Features>
   <Geometries Checked="True" Expanded="True">
-    <Layer Name="Geom_1" Type="RASGeometry" Checked="True" Expanded="True" Filename=".\simple.g02.hdf">
+    <Layer Name="geom_simple_1" Type="RASGeometry" Checked="True" Expanded="True" Filename=".\simple.g01.hdf">
       <Layer Type="RASXS" UnitsRiverStation="Feet" RiverStationDecimalPlaces="0" />
-      <Layer Type="RASD2FlowArea" Checked="True" Expanded="True" />
-      <Layer Type="MeshPerimeterLayer" Checked="True" />
-      <Layer Type="MeshPointLayer" Checked="True" />
-      <Layer Type="RASBreakLines" Checked="True" />
-      <Layer Type="MeshRegionLayer" Checked="True" />
-      <Layer Type="StructureLayer" UnitsRiverStation="Feet" RiverStationDecimalPlaces="0" />
+      <Layer Type="RASD2FlowArea" Checked="True" Expanded="True">
+        <DataColumnGroupVisibilities>
+          <DataColumnGroupVisibility DisplayName="Feature Parameters" IsVisible="False" />
+        </DataColumnGroupVisibilities>
+      </Layer>
+      <Layer Type="MeshPerimeterLayer" Checked="True">
+        <DataColumnGroupVisibilities>
+          <DataColumnGroupVisibility DisplayName="Feature Parameters" IsVisible="True" />
+        </DataColumnGroupVisibilities>
+      </Layer>
       <Layer Name="Culvert Groups" Type="VirtualGeometryFeatureLayer" ParentIdentifiers="" />
       <Layer Name="Culvert Barrels" Type="VirtualGeometryFeatureLayer" ParentIdentifiers="Bridges/Culverts" />
       <Layer Name="Gate Groups" Type="VirtualGeometryFeatureLayer" ParentIdentifiers="" />
@@ -35,6 +39,7 @@
       <Layer Name="Culvert Barrels" Type="VirtualGeometryFeatureLayer" ParentIdentifiers="SA/2D Connections" />
       <Layer Name="Rating Curve Outlets" Type="VirtualGeometryFeatureLayer" ParentIdentifiers="SA/2D Connections" />
       <Layer Name="Outlet Time Series" Type="VirtualGeometryFeatureLayer" ParentIdentifiers="SA/2D Connections" />
+      <Layer Type="StructureLayer" UnitsRiverStation="Feet" RiverStationDecimalPlaces="0" />
       <Layer Type="FinalNValueLayer">
         <ResampleMethod>near</ResampleMethod>
         <Surface On="True" />
@@ -62,10 +67,10 @@
   </MapLayers>
   <Terrains />
   <CurrentView>
-    <MaxX>656729.741504129</MaxX>
-    <MinX>650856.107661607</MinX>
-    <MaxY>1799604.10045975</MaxY>
-    <MinY>1795364.98463223</MinY>
+    <MaxX>655340.022295137</MaxX>
+    <MinX>654447.523134183</MinX>
+    <MaxY>1798781.38478322</MaxY>
+    <MinY>1798082.72396695</MinY>
   </CurrentView>
   <VelocitySettings>
     <Density>1.5</Density>
@@ -80,7 +85,8 @@
     <DelayTimer>0</DelayTimer>
   </AnimationSettings>
   <Units>SI Units</Units>
-  <RenderMode>hybrid</RenderMode>
+  <RenderMode>sloping</RenderMode>
+  <ReduceShallowToHorizontal>true</ReduceShallowToHorizontal>
   <MarksWarpMethod>False</MarksWarpMethod>
   <CurrentSettings>
     <ProjectSettings>
@@ -90,11 +96,14 @@
       <VerticalDecimalPlaces>2</VerticalDecimalPlaces>
       <XSMaxPoints>450</XSMaxPoints>
       <LSMaxPoints>1000</LSMaxPoints>
+      <ProfilePointMinCount>0</ProfilePointMinCount>
+      <ShowLegend>True</ShowLegend>
+      <ShowNorthArrow>False</ShowNorthArrow>
+      <ShowScaleBar>True</ShowScaleBar>
+      <ShowGreaterThanInLegend>False</ShowGreaterThanInLegend>
       <MeshTolerance_MinFaceLength>0.05</MeshTolerance_MinFaceLength>
       <MeshTolerance_EnsureCellPoint>False</MeshTolerance_EnsureCellPoint>
     </ProjectSettings>
-    <Folders>
-      <TerrainDestinationFolder>.\Terrain</TerrainDestinationFolder>
-    </Folders>
+    <Folders />
   </CurrentSettings>
 </RASMapper>
