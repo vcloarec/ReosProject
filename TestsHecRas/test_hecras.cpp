@@ -43,15 +43,25 @@ void ReosHecrasTesting::createControllerInstance()
 
 void ReosHecrasTesting::exploreProject()
 {
-    QString path("C:/dev/sources/ReosProject/TestsHecRas/testData/simple/simple.prj");
+    QString path("C:\\dev\\sources\\ReosProject\\TestsHecRas\\testData\\simple\\simple.prj");
 
     QStringList versions = ReosHecrasController::availableVersion();
     ReosHecrasController controller(versions.last());
 
     QVERIFY(controller.openHecrasProject(path));
 
-    bool ok = false;
-    QStringList flowAreas= controller.flowAreas2D(ok);
+    QStringList plans= controller.planNames();
+
+    QCOMPARE(plans.count(), 2);
+    QCOMPARE(plans.at(0), QStringLiteral("plan_simple_1"));
+    QCOMPARE(plans.at(1), QStringLiteral("plan_simple_2"));
+
+    QStringList flow2DAreasNames = controller.flowAreas2D();
+    QCOMPARE(flow2DAreasNames.count(), 1);
+    QCOMPARE(flow2DAreasNames.at(0), QStringLiteral("Perimeter 1     "));
+
+    QPolygonF domain = controller.flow2DAreasDomain(flow2DAreasNames.first());
+    QVERIFY(domain.count(), 4);
 }
 
 QTEST_MAIN(ReosHecrasTesting)

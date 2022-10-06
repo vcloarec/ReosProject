@@ -29,7 +29,7 @@ typedef std::wstring String;
 #endif
 
 
-static QString BSTRToQString(BSTR bstr)
+static QString BSTRToQString(const BSTR &bstr)
 {
     int wslen = SysStringLen(bstr);
 
@@ -55,9 +55,8 @@ static std::wstring qStringToWideString(const QString &qstr)
     std::string str = qstr.toStdString();
     int len = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
     std::wstring ret;
-    ret.resize(static_cast<size_t>(len) + 1);
-
-    MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, ret.data(), ret.size());
+    ret.resize(static_cast<size_t>(len)-1);
+    MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, ret.data(), len);
     return ret;
 }
 
@@ -201,7 +200,10 @@ ReosHecrasController::~ReosHecrasController()
 {
     CoUninitialize();
     if (mDispatch)
+    {
+        exitRas();
         mDispatch->Release();
+    }
 }
 
 bool ReosHecrasController::isValid() const
@@ -209,23 +211,22 @@ bool ReosHecrasController::isValid() const
     return mIsValid;
 }
 
-VARIANT ReosHecrasController::invokeFunction(DISPID id, const Parameters& params, bool &ok) const
+QString ReosHecrasController::version() const
 {
+    DISPID id=mFunctionNames.value(QStringLiteral("HECRASVersion"));
+
+    DISPPARAMS par={nullptr,nullptr,0,0};
+
     VARIANT result;
     EXCEPINFO excepInfo;
     UINT puArgErr;
 
-    HRESULT res = mDispatch->Invoke(id, IID_NULL, 0, DISPATCH_METHOD, params.funcParameters(), &result, &excepInfo, &puArgErr);
-    ok=SUCCEEDED(res);
-    return result;
-}
+    HRESULT res = mDispatch->Invoke(id, IID_NULL, 0, DISPATCH_METHOD, &par, &result, &excepInfo, &puArgErr);
 
-QString ReosHecrasController::version() const
-{
-    DISPID id=mFunctionNames.value(QStringLiteral("HECRASVersion"));
-    
-    bool ok = false;
-    return BSTRToQString(invokeFunction(id, Parameters(),ok).bstrVal);
+    if (SUCCEEDED(res))
+        return BSTRToQString(result.bstrVal);
+    else
+        return QString();
 }
 
 bool ReosHecrasController::openHecrasProject(const QString& projFileName)
@@ -236,24 +237,119 @@ bool ReosHecrasController::openHecrasProject(const QString& projFileName)
 
     DISPID id = mFunctionNames.value(QStringLiteral("Project_Open"));
 
-    Parameters params;
-    params.addStringParameter(projFileName);
-    bool ok = false;
-    invokeFunction(id, params,ok);
+    DISPPARAMS par;
+    std::vector<VARIANTARG> args;
+
+    //*************************************** Arguments
+    VARIANTARG fileNameV;
+    VariantInit(&fileNameV);
+    std::wstring ws = qStringToWideString(projFileName);
+    V_VT(&fileNameV) = VT_BSTR;
+    fileNameV.bstrVal = SysAllocStringLen(ws.c_str(), ws.length());
+
+    //***************************************
+    args.push_back(fileNameV);
+
+    par.cArgs = args.size();
+    par.rgvarg = args.data();
+    par.cNamedArgs = 0;
+
+    VARIANT result;
+    EXCEPINFO excepInfo;
+    UINT puArgErr;
+
+    HRESULT res = mDispatch->Invoke(id, IID_NULL, 0, DISPATCH_METHOD, &par, &result, &excepInfo, &puArgErr);
+
+    bool ok = SUCCEEDED(res);
+
     return ok;
 }
 
-QStringList ReosHecrasController::flowAreas2D(bool &ok) const
+QStringList ReosHecrasController::planNames() const
 {
+    DISPID id = mFunctionNames.value(QStringLiteral("Plan_Names"));
 
-    DISPID dispid[5];
-    dispid[1] = 125;
-    OLECHAR* szMember = L"newProjectName ";
+    VARIANT result;
+    EXCEPINFO excepInfo;
+    UINT puArgErr;
 
-    Parameters params;
-    LONG count;
-    //params.prepareReturnLong(count);
-    size_t strIndex=params.prepareReturnString();
+    DISPPARAMS par;
+    std::vector<VARIANTARG> args;
+
+    //*************************************** Arguments
+    VARIANTARG pCount;
+    VariantInit(&pCount);
+    VARIANTARG pNames;
+    VariantInit(&pNames);
+    VARIANTARG pBool;
+    VariantInit(&pBool);
+
+    SAFEARRAYBOUND saBound;
+    saBound.lLbound = 0;
+    saBound.cElements = 0;
+
+    SAFEARRAY* array = SafeArrayCreate(VT_BSTR, 1, &saBound);
+    V_VT(&pNames) = VT_BSTR | VT_ARRAY | VT_BYREF;
+    pNames.pparray = &array;
+
+    LONG count = 0;
+    V_VT(&pCount) = VT_I4 | VT_BYREF;
+    V_I4REF(&pCount) = &count;
+
+    V_VT(&pBool) = VT_BOOL;
+    V_BOOL(&pBool) = true;
+
+    // Must be in reverse order
+    args.push_back(pBool);
+    args.push_back(pNames);
+    args.push_back(pCount);
+
+    //***************************************
+
+    par.cArgs = args.size();
+    par.rgvarg = args.data();
+    par.cNamedArgs = 0;
+
+    HRESULT res = mDispatch->Invoke(id, IID_NULL, 0, DISPATCH_METHOD, &par, &result, &excepInfo, &puArgErr);
+
+    QStringList ret;
+    if (SUCCEEDED(res))
+    {
+        res = SafeArrayLock(array);
+        if (SUCCEEDED(res))
+        {
+            BSTR* pData = static_cast<BSTR*>(array->pvData);
+            for (LONG i = 0; i < count; ++i)
+            {
+                ret.append(BSTRToQString(pData[static_cast<size_t>(i)]));
+            }
+            SafeArrayUnlock(array);
+        }
+        
+    }
+    
+    SafeArrayDestroy(array);
+
+    return ret;
+}
+
+bool ReosHecrasController::exitRas() const
+{
+    DISPID id = mFunctionNames.value(QStringLiteral("QuitRas"));
+
+    VARIANT result;
+    EXCEPINFO excepInfo;
+    UINT puArgErr;
+
+    DISPPARAMS par = { nullptr,nullptr,0,0 };
+
+    HRESULT res = mDispatch->Invoke(id, IID_NULL, 0, DISPATCH_METHOD, &par, &result, &excepInfo, &puArgErr);
+
+    return SUCCEEDED(res);
+}
+
+QStringList ReosHecrasController::flowAreas2D() const
+{
     DISPID id = mFunctionNames.value(QStringLiteral("Geometry_Get2DFlowAreas"));
 
     VARIANT result;
@@ -262,85 +358,134 @@ QStringList ReosHecrasController::flowAreas2D(bool &ok) const
 
     DISPPARAMS par;
     std::vector<VARIANTARG> args;
-    VARIANTARG p1;
-    VariantInit(&p1);
-    VARIANTARG p2;
-    VariantInit(&p2);
-    BSTR nam= SysAllocString(L"C:/dev/sources/ReosProject/TestsHecRas/testData/simple/simple_v2.prj");
 
-    V_VT(&p1) = VT_BSTR | VT_BYREF;
-    V_BSTRREF(&p1) = &nam;
+    //*************************************** Arguments
+    VARIANTARG pCount;
+    VariantInit(&pCount);
+    VARIANTARG pNames;
+    VariantInit(&pNames);
 
-    V_VT(&p2) = VT_I4 | VT_BYREF;
-    V_I4REF(&p2) = &count;
+    SAFEARRAYBOUND saBound;
+    saBound.lLbound = 0;
+    saBound.cElements = 0;
 
+    SAFEARRAY* array = SafeArrayCreate(VT_BSTR, 1, &saBound);
+    V_VT(&pNames) = VT_BSTR | VT_ARRAY | VT_BYREF;
+    pNames.pparray = &array;
 
-    args.push_back(p1);
-    //args.push_back(p2);
+    LONG count = 0;
+    V_VT(&pCount) = VT_I4 | VT_BYREF;
+    V_I4REF(&pCount) = &count;
+
+    // Must be in reverse order
+    args.push_back(pNames);
+    args.push_back(pCount);
+
+    //***************************************
+
     par.cArgs = args.size();
     par.rgvarg = args.data();
-
-    std::vector<DISPID> argsId;
-
-    DISPPARAMS* pdispparams;
-
-    VARIANTARG varg0;
+    par.cNamedArgs = 0;
 
     HRESULT res = mDispatch->Invoke(id, IID_NULL, 0, DISPATCH_METHOD, &par, &result, &excepInfo, &puArgErr);
 
-    ok = SUCCEEDED(res);
+    QStringList ret;
+    if (SUCCEEDED(res))
+    {
+        res = SafeArrayLock(array);
+        if (SUCCEEDED(res))
+        {
+            BSTR* pData = static_cast<BSTR*>(array->pvData);
+            for (LONG i = 0; i < count; ++i)
+            {
+                ret.append(BSTRToQString(pData[static_cast<size_t>(i)]));
+            }
+            SafeArrayUnlock(array);
+        }
+    }
 
-    invokeFunction(id, params, ok);
-    return QStringList();
+    SafeArrayDestroy(array);
+
+    return ret;
 }
 
-inline ReosHecrasController::Parameters::~Parameters()
+QPolygonF ReosHecrasController::flow2DAreasDomain(const QString &areaName)
 {
-    for (BSTR bstr : mStringParams)
-        SysFreeString(bstr);
-}
+    DISPID id = mFunctionNames.value(QStringLiteral("Schematic_D2FlowAreaPolygon"));
 
-DISPPARAMS* ReosHecrasController::Parameters::funcParameters() const
-{
-    mParams =DISPPARAMS();
-    mParams.rgvarg = args.data();
-    mParams.rgdispidNamedArgs = argsId.data();
-    mParams.cArgs = args.size();
-    mParams.cNamedArgs = argsId.size();
+    VARIANT result;
+    EXCEPINFO excepInfo;
+    UINT puArgErr;
 
-    return &mParams;
-}
+    DISPPARAMS par;
+    std::vector<VARIANTARG> args;
 
-void ReosHecrasController::Parameters::addStringParameter(const QString& string)
-{
-    std::wstring ws = qStringToWideString(string);
-    VARIANT var;
-    VariantInit(&var);
-    args.push_back(var);
-    args[args.size() - 1].bstrVal = SysAllocStringLen(ws.data(), ws.size());
-    mStringParams.push_back(args[args.size() - 1].bstrVal);
-}
+    //*************************************** Arguments
+    VARIANTARG pCount;
+    VariantInit(&pCount);
+    VARIANTARG pX;
+    VariantInit(&pX);
+    VARIANTARG pY;
+    VariantInit(&pY);
 
-size_t ReosHecrasController::Parameters::prepareReturnString()
-{
-    VARIANT var;
-    VariantInit(&var);
-    var.vt = 26;
-    args.push_back(var);
-    return args.size() - 1;
-}
+    VARIANTARG areaNameV;
+    VariantInit(&areaNameV);
 
-void ReosHecrasController::Parameters::freeString(size_t index)
-{
-    SysFreeString(*args.at(index).pbstrVal);
-}
+    SAFEARRAYBOUND saBound;
+    saBound.lLbound = 0;
+    saBound.cElements = 0;
 
-void ReosHecrasController::Parameters::prepareReturnLong(LONG& value)
-{
-    VARIANT var;
-    VariantInit(&var);
-    V_VT(&var) = 26;
-    V_INT(&var) = value;
-    args.push_back(var);
-    args[args.size() - 1].plVal = &value;
+    SAFEARRAY* arrayY = SafeArrayCreate(VT_BSTR, 1, &saBound);
+    V_VT(&pY) = VT_R8 | VT_ARRAY | VT_BYREF;
+    pY.pparray = &arrayY;
+
+    SAFEARRAY* arrayX = SafeArrayCreate(VT_BSTR, 1, &saBound);
+    V_VT(&pX) = VT_R8 | VT_ARRAY | VT_BYREF;
+    pX.pparray = &arrayX;
+
+    LONG count = 0;
+    V_VT(&pCount) = VT_I4 | VT_BYREF;
+    V_I4REF(&pCount) = &count;
+
+    std::wstring ws = qStringToWideString(areaName);
+    V_VT(&areaNameV) = VT_BSTR;
+    areaNameV.bstrVal = SysAllocStringLen(ws.c_str(), ws.length());
+
+    // Must be in reverse order
+    args.push_back(pY);
+    args.push_back(pX);
+    args.push_back(pCount);
+    args.push_back(areaNameV);
+    //***************************************
+
+    par.cArgs = args.size();
+    par.rgvarg = args.data();
+    par.cNamedArgs = 0;
+
+    HRESULT res = mDispatch->Invoke(id, IID_NULL, 0, DISPATCH_METHOD, &par, &result, &excepInfo, &puArgErr);
+
+    QPolygonF ret;
+    if (SUCCEEDED(res))
+    {
+        HRESULT resX = SafeArrayLock(arrayX);
+        HRESULT resY = SafeArrayLock(arrayY);
+        if (SUCCEEDED(res))
+        {
+            double* pDataX = static_cast<double*>(arrayX->pvData);
+            double* pDataY = static_cast<double*>(arrayY->pvData);
+            for (LONG i = 0; i < count; ++i)
+            {
+                double x = pDataX[static_cast<size_t>(i)];
+                double y = pDataY[static_cast<size_t>(i)];
+                ret.append(QPointF(x,y));
+            }
+            SafeArrayUnlock(arrayX);
+            SafeArrayUnlock(arrayY);
+        }
+    }
+
+    SafeArrayDestroy(arrayX);
+    SafeArrayDestroy(arrayY);
+
+    return ret;
 }

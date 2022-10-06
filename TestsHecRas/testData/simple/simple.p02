@@ -1,6 +1,6 @@
-Plan Title=plan_simple_1
+Plan Title=plan_simple_2
 Program Version=6.31
-Short Identifier=PLAN__1                                                         
+Short Identifier=PLAN__2                                                         
 Simulation Date=,,,
 Geom File=g01
 Subcritical Flow
@@ -98,6 +98,7 @@ UNET D1D2 MaxIter= 0
 UNET D1D2 ZTol=0.003
 UNET D1D2 QTol=0.1
 UNET D1D2 MinQTol=0.03
+DSS File=dss
 Write IC File= 0 
 Write IC File at Fixed DateTime=0
 IC Time=,,
