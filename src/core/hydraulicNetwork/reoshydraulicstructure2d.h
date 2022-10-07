@@ -30,6 +30,7 @@
 class ReosTopographyCollection;
 class ReosRoughnessStructure;
 class ReosHydraulicStructureBoundaryCondition;
+class ReosStructureImporter;
 class QDir;
 
 class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
@@ -54,9 +55,13 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 
     //! Contructor from a \a domain, ccordinate system \a crs and a \a context
     ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, const ReosHydraulicNetworkContext &context );
+    ~ReosHydraulicStructure2D();
 
-    //! Create a structure from \a encodedElement and a \a context
+    //! Creates a structure from \a encodedElement and a \a context
     static ReosHydraulicStructure2D *create( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext  &context );
+
+    //! Creates a structure from \a structureImporter
+    static ReosHydraulicStructure2D* create(ReosStructureImporter *structureImporter, const ReosHydraulicNetworkContext& context);
 
     static QString staticType() {return ReosHydraulicNetworkElement::staticType() + QString( ':' ) + QStringLiteral( "structure2D" );}
 
@@ -283,6 +288,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 
   private:
     ReosHydraulicStructure2D( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
+    ReosHydraulicStructure2D(ReosStructureImporter* importer, const ReosHydraulicNetworkContext& context);
 
     Structure2DCapabilities mCapabilities;
     ReosMeshGenerator *mMeshGenerator = nullptr;
@@ -345,6 +351,21 @@ class REOSCORE_EXPORT ReosRoughnessStructure : public ReosDataObject
   private:
     std::unique_ptr<ReosPolygonStructure> mStructure;
     ReosParameterDouble *mDefaultRoughness = nullptr;
+};
+
+class REOSCORE_EXPORT ReosStructureImporter
+{
+public:
+    ReosStructureImporter() = default;
+    ~ReosStructureImporter() = default;
+
+    virtual ReosHydraulicStructure2D::Structure2DCapabilities capabilities() const = 0;
+    virtual QString crs() const = 0;
+    virtual QPolygonF domain() const = 0;
+    virtual ReosMeshGenerator* meshGenerator() const = 0;
+    virtual ReosMeshResolutionController* resolutionController() const = 0;
+    virtual ReosMesh* mesh() const = 0;
+    virtual ReosRoughnessStructure* roughnessStructure() const = 0;
 };
 
 

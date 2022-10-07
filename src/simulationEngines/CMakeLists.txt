@@ -4,7 +4,7 @@
 add_subdirectory(telemac)
 
 IF (ENABLE_HECRAS)
-#add_subdirectory(hecras)
+	add_subdirectory(hecras)
 ENDIF(ENABLE_HECRAS)
 
 

@@ -17,6 +17,8 @@
 #define REOSHECRASSIMULATION_H
 
 #include "reoshydraulicsimulation.h"
+#include "reoshydraulicstructure2d.h"
+#include "reoshecrascontroller.h"
 
 class ReosHecRasSimulation
 {
@@ -25,9 +27,13 @@ public:
 };
 
 
-class ReosTelemac2DSimulationEngineFactory : public ReosSimulationEngineFactory
+class ReosHecRasSimulationEngineFactory : public ReosSimulationEngineFactory
 {
 public:
+    ReosHecRasSimulationEngineFactory()
+    {
+        mCapabilities = SimulationEngineCapability::ImportStructure2D;
+    }
 
     virtual ReosHydraulicSimulation* createSimulation(QObject* parent) const override 
     { return nullptr; }
@@ -38,6 +44,25 @@ public:
     QString displayName() const { return QObject::tr("HEC-RAS Simulation"); }
 
     void initializeSettings() override;
+};
+
+class ReosHecRasStructureImporter: public ReosStructureImporter
+{
+public:
+    ReosHecRasStructureImporter(const QString& version, const QString &file);
+    ~ReosHecRasStructureImporter();
+
+    virtual ReosHydraulicStructure2D::Structure2DCapabilities capabilities() const override;
+    virtual QString crs() const;
+    virtual QPolygonF domain() const;
+    virtual ReosMeshGenerator* meshGenerator() const { return nullptr; };
+    virtual ReosMeshResolutionController* resolutionController() const { return nullptr; };
+    virtual ReosMesh* mesh() const { return nullptr; };
+    virtual ReosRoughnessStructure* roughnessStructure() const { return nullptr; };
+
+private:
+    ReosHecrasController mController;
+    bool mIsValid = false;
 };
 
 

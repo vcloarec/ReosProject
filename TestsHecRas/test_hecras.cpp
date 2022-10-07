@@ -17,6 +17,9 @@ email                : vcloarec at gmail dot com
 
 #include "reoshecrascontroller.h"
 #include "reoshecrassimulation.h"
+#include "reoshydraulicstructure2d.h"
+#include "reosgisengine.h"
+#include "reoswatershedmodule.h"
 
 class ReosHecrasTesting : public QObject
 {
@@ -26,6 +29,8 @@ private slots:
     void availableVersion();
     void createControllerInstance();
     void exploreProject();
+
+    void importStructure();
 
 };
 
@@ -63,6 +68,23 @@ void ReosHecrasTesting::exploreProject()
 
     QPolygonF domain = controller.flow2DAreasDomain(flow2DAreasNames.first());
     QVERIFY(domain.count(), 4);
+}
+
+void ReosHecrasTesting::importStructure()
+{
+    QString path("C:\\dev\\sources\\ReosProject\\TestsHecRas\\testData\\simple\\simple.prj");
+
+    QStringList versions = ReosHecrasController::availableVersion();
+    ReosHecRasStructureImporter importer(versions.last(), path);
+    
+    ReosModule rootModule;
+    ReosGisEngine *gisEngine=new ReosGisEngine(&rootModule);
+    ReosWatershedModule* watershedModule = new ReosWatershedModule(&rootModule, gisEngine);
+    ReosHydraulicNetwork *network=new ReosHydraulicNetwork(&rootModule,gisEngine,watershedModule);
+
+    ReosHydraulicStructure2D* structure=ReosHydraulicStructure2D::create(&importer, network->context());
+    QVERIFY(structure!=nullptr);
+    QVERIFY(structure->domain().count() > 0);
 }
 
 QTEST_MAIN(ReosHecrasTesting)
