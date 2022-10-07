@@ -134,28 +134,6 @@ LekanMainWindow::LekanMainWindow( QWidget *parent )
 
   newProject();
 
-  qDebug() << "******************************************* try COM";
-  HRESULT res=CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
-  if (SUCCEEDED(res))
-      qDebug() << "******************************************* initialize COM is success";
-  else
-      qDebug() << "******************************************* initialize COM fails";
-
-  CLSID ClassID;
-  if (SUCCEEDED(CLSIDFromProgID(OLESTR("RAS507.HECRASController"), &ClassID)))
-      qDebug() << "******************************************* found hecras is success";
-  else
-      qDebug() << "******************************************* found hecras fails";
-
-  IDispatch* pDispatch;
-
-  if (SUCCEEDED(CoCreateInstance(ClassID, nullptr, CLSCTX_ALL,IID_IDispatch, (void**)&pDispatch)))
-      qDebug() << "******************************************* create hecras controler is success";
-  else
-      qDebug() << "******************************************* create hecras controler fails";
-
-  pDispatch->Release();
-
   CoUninitialize();
 }
 

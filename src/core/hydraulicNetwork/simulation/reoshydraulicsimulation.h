@@ -26,7 +26,6 @@ class QFile;
 class QTextStream;
 class QDir;
 
-class ReosHydraulicStructure2D;
 class ReosParameterDateTime;
 class ReosParameterDuration;
 class ReosParameterInteger;
@@ -35,6 +34,7 @@ class ReosSimulationInitialConditions;
 class ReosHydraulicSimulationResults;
 class ReosHydraulicSimulation;
 class ReosHydraulicScheme;
+class ReosHydraulicStructure2D;
 
 
 class REOSCORE_EXPORT ReosSimulationPreparationProcess: public ReosProcess
@@ -66,7 +66,6 @@ class REOSCORE_EXPORT ReosSimulationPreparationProcess: public ReosProcess
     QString mDestinationPath;
 
 };
-
 
 
 class REOSCORE_EXPORT ReosSimulationProcess : public ReosProcess
@@ -148,6 +147,8 @@ class ReosSimulationEngineFactory
     Q_DECLARE_FLAGS( SimulationEngineCapabilities, SimulationEngineCapability )
     Q_FLAG( SimulationEngineCapabilities )
 
+    virtual ~ReosSimulationEngineFactory() = default;
+
     virtual ReosHydraulicSimulation *createSimulation( QObject *parent ) const = 0;
     virtual ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &element, QObject *parent ) const = 0;
     virtual QString key() const  = 0;
@@ -191,6 +192,5 @@ class REOSCORE_EXPORT ReosSimulationEngineRegistery
     static ReosSimulationEngineRegistery *sInstance;
     void loadDynamicLibrary();
 };
-
 
 #endif // REOSHYDRAULICSIMULATION_H

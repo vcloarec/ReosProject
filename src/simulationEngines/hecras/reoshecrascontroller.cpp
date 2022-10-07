@@ -409,7 +409,7 @@ QStringList ReosHecrasController::flowAreas2D() const
     return ret;
 }
 
-QPolygonF ReosHecrasController::flow2DAreasDomain(const QString &areaName)
+QPolygonF ReosHecrasController::flow2DAreasDomain(const QString &areaName) const
 {
     DISPID id = mFunctionNames.value(QStringLiteral("Schematic_D2FlowAreaPolygon"));
 

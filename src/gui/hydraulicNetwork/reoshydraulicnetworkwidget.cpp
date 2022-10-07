@@ -312,6 +312,10 @@ void ReosHydraulicNetworkWidget::onZoomToNetworkExtent()
   mMap->setExtent( mHydraulicNetwork->networkExtent() );
 }
 
+void ReosHydraulicNetworkWidget::onImportStructure2D()
+{
+}
+
 void ReosHydraulicNetworkWidget::onAddHydraulicScheme()
 {
   ReosFormDialog *dia = new ReosFormDialog( this );

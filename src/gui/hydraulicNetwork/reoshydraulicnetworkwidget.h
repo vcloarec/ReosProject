@@ -87,6 +87,8 @@ class REOSGUI_EXPORT ReosHydraulicNetworkWidget : public QWidget
     void onSelectedElementRemoved();
     void onZoomToNetworkExtent();
 
+    void onImportStructure2D();
+
     void onAddHydraulicScheme();
     void onRemoveHydraulicScheme();
     void onNetworkLoaded();

@@ -60,11 +60,13 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
   QAction *actionGenerateMesh = new QAction( QIcon( QStringLiteral( ":/images/generateMesh.svg" ) ), tr( "Generate Mesh" ), this );
   connect( actionGenerateMesh, &QAction::triggered, this, &ReosEditHydraulicStructure2DWidget::generateMesh );
   meshGenerationToolBarActions.append( actionGenerateMesh );
-  meshGenerationToolBarActions.append( new ReosParameterWidgetAction( structure2D->meshGenerator()->autoUpdateParameter(), this ) );
+  if (structure2D->meshGenerator())
+      meshGenerationToolBarActions.append( new ReosParameterWidgetAction( structure2D->meshGenerator()->autoUpdateParameter(), this ) );
 
   ReosEditPolylineStructureWidget *structureWidget = new ReosEditPolylineStructureWidget( structure2D->geometryStructure(), ReosGuiContext( context, this ) );
   structureWidget->addToolBarActions( meshGenerationToolBarActions );
-  structureWidget->setSettingsWidget( ReosFormWidgetFactories::instance()->createDataFormWidget( structure2D->meshGenerator(), ReosGuiContext( context, structureWidget ) ) );
+  if (structure2D->meshGenerator())
+      structureWidget->setSettingsWidget( ReosFormWidgetFactories::instance()->createDataFormWidget( structure2D->meshGenerator(), ReosGuiContext( context, structureWidget ) ) );
   structureWidget->setInformationWidget( new ReosStructureInformationWidget( structure2D, structureWidget ) );
   structureWidget->setEnabled( mStructure2D->hasCapability( ReosHydraulicStructure2D::GeometryEditable ) );
   ui->pageMeshStructure->layout()->addWidget( structureWidget );
