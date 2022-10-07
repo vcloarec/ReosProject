@@ -16,6 +16,7 @@ email                : vcloarec at gmail dot com
 #include <QObject>
 
 #include "reoshecrascontroller.h"
+#include "reoshecrassimulation.h"
 
 class ReosHecrasTesting : public QObject
 {

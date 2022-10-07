@@ -18,6 +18,9 @@
 
 #include <combaseapi.h>
 
+#undef min
+#undef max
+
 #include <QPolygon>
 
 class ReosHecrasController
@@ -45,6 +48,7 @@ public:
 	//! Returns the flow 2D area names of the currently opened project
 	QStringList flowAreas2D() const;
 
+	//! Returns the domain of the flow area with \a areaName
 	QPolygonF flow2DAreasDomain(const QString &areaName);
 
 private:
