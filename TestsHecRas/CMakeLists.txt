@@ -9,10 +9,12 @@ FIND_PACKAGE(Threads REQUIRED)
 
 SET(REOS_HECRAS_SOURCES
      ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras/reoshecrascontroller.cpp
+     ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras/reoshecrassimulation.cpp
 )
 
 SET(REOS_HECRAS_HEADERS
      ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras/reoshecrascontroller.h
+     ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras/reoshecrassimulation.h
 )
 
 
@@ -39,6 +41,29 @@ ADD_TEST(test_hecras ${CMAKE_CURRENT_BINARY_DIR}/test_hecras)
 
 INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras
+
+    ${CMAKE_BINARY_DIR}/src/ui
+    ${CMAKE_SOURCE_DIR}/src/gui
+    ${CMAKE_SOURCE_DIR}/src/gui/chart
+    ${CMAKE_SOURCE_DIR}/src/gui/form
+    ${CMAKE_SOURCE_DIR}/src/gui/data
+    ${CMAKE_SOURCE_DIR}/src/gui/GIS
+    ${CMAKE_SOURCE_DIR}/src/gui/watershed
+    ${CMAKE_SOURCE_DIR}/src/gui/rainfall
+    ${CMAKE_SOURCE_DIR}/src/gui/hydraulicNetwork/structure2d
+    ${CMAKE_SOURCE_DIR}/src/core
+    ${CMAKE_SOURCE_DIR}/src/core/data
+    ${CMAKE_SOURCE_DIR}/src/core/GIS
+    ${CMAKE_SOURCE_DIR}/src/core/mesh
+    ${CMAKE_SOURCE_DIR}/src/core/process
+    ${CMAKE_SOURCE_DIR}/src/core/raster
+    ${CMAKE_SOURCE_DIR}/src/core/quantity
+    ${CMAKE_SOURCE_DIR}/src/core/utils
+    ${CMAKE_SOURCE_DIR}/src/core/watershed
+    ${CMAKE_SOURCE_DIR}/src/core/rainfall
+    ${CMAKE_SOURCE_DIR}/src/core/hydrograph
+    ${CMAKE_SOURCE_DIR}/src/core/hydraulicNetwork
+    ${CMAKE_SOURCE_DIR}/src/core/hydraulicNetwork/simulation
     )
 
 
