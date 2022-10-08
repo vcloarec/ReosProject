@@ -30,6 +30,8 @@
 #include "reosparameter.h"
 #include "reosstructure2dtoolbar.h"
 #include "reoshydraulicstructure2dproperties.h"
+#include "reosimporthydraulicstructuredialog.h"
+
 
 ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *network, ReosWatershedModule *watershedModule, const ReosGuiContext &context ) :
   QWidget( context.parent() )
@@ -161,6 +163,8 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
     emit mapTimeStepChanged();
   } );
   ui->mHydraulicShcemeRemoveButton->setEnabled( mHydraulicNetwork->hydraulicSchemeCollection()->schemeCount() > 1 );
+
+  connect( mActionImportStructure2D, &QAction::triggered, this, &ReosHydraulicNetworkWidget::onImportStructure2D );
 
   connect( mMap, &ReosMap::crsChanged, this, &ReosHydraulicNetworkWidget::onMapCrsChanged );
 }
@@ -314,6 +318,11 @@ void ReosHydraulicNetworkWidget::onZoomToNetworkExtent()
 
 void ReosHydraulicNetworkWidget::onImportStructure2D()
 {
+  ReosImportHydraulicStructureDialog *dial = new ReosImportHydraulicStructureDialog( this );
+
+  dial->exec();
+
+  dial->deleteLater();
 }
 
 void ReosHydraulicNetworkWidget::onAddHydraulicScheme()

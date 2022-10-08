@@ -117,6 +117,16 @@ const QMap<QString, QString> ReosSimulationEngineRegistery::availableEngine()
   return ret;
 }
 
+const QMap<QString, QString> ReosSimulationEngineRegistery::availableEngine( ReosSimulationEngineFactory::SimulationEngineCapability capability )
+{
+  QMap<QString, QString> ret;
+  for ( auto &it : std::as_const( mFactories ) )
+    if ( it.second->hasCapability( capability ) )
+      ret.insert( it.first, it.second->displayName() );
+
+  return ret;
+}
+
 bool ReosSimulationEngineRegistery::canImportSrtucture2D() const
 {
   for ( auto &it : std::as_const( mFactories ) )

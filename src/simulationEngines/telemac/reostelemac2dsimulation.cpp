@@ -136,9 +136,14 @@ REOSEXTERN ReosSimulationEngineFactory *engineSimulationFactory()
   return new ReosTelemac2DSimulationEngineFactory();
 }
 
+ReosTelemac2DSimulationEngineFactory::ReosTelemac2DSimulationEngineFactory()
+{
+    mCapabilities = ReosSimulationEngineFactory::CanBeCreated;
+}
+
 ReosHydraulicSimulation *ReosTelemac2DSimulationEngineFactory::createSimulation( QObject *parent ) const
 {
-  return new ReosTelemac2DSimulation( parent );
+    return new ReosTelemac2DSimulation( parent );
 }
 
 ReosHydraulicSimulation *ReosTelemac2DSimulationEngineFactory::createSimulation( const ReosEncodedElement &element, QObject *parent ) const

@@ -41,8 +41,6 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reoshydraulicnetworkwidget.h"
 #include "reosstructure2dtoolbar.h"
 
-#include <combaseapi.h>
-
 #define PROJECT_FILE_MAGIC_NUMBER 19092014
 
 
@@ -133,8 +131,6 @@ LekanMainWindow::LekanMainWindow( QWidget *parent )
   restoreState( settings.value( QStringLiteral( "Windows/MainWindow/state" ) ).toByteArray() );
 
   newProject();
-
-  CoUninitialize();
 }
 
 bool LekanMainWindow::openProject()

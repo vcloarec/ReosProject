@@ -16,47 +16,50 @@
 #ifndef REOSHECRASCONTROLLER_H
 #define REOSHECRASCONTROLLER_H
 
+#ifdef _WIN32
 #include <combaseapi.h>
-
 #undef min
 #undef max
+#endif
 
 #include <QPolygon>
 
 class ReosHecrasController
 {
-public:
-	//! Constructor with \a version of HecRas, \see availableVersion()
-	ReosHecrasController(const QString& version);
-	~ReosHecrasController();
+  public:
+    //! Constructor with \a version of HecRas, \see availableVersion()
+    ReosHecrasController( const QString &version );
+    ~ReosHecrasController();
 
-	//! Returns available version of HecRas controller
-	static QStringList availableVersion();
+    //! Returns available version of HecRas controller
+    static QStringList availableVersion();
 
-	//! Returns whether the controller is valid
-	bool isValid() const;
+    //! Returns whether the controller is valid
+    bool isValid() const;
 
-	//! Returns the user-friendly string of the controller version of this instance
-	QString version() const;
+    //! Returns the user-friendly string of the controller version of this instance
+    QString version() const;
 
-	//! Opens a project with path \a projFileName
-	bool openHecrasProject(const QString& projFileName);
+    //! Opens a project with path \a projFileName
+    bool openHecrasProject( const QString &projFileName );
 
-	//! Returns the plan names of the currently opened project
-	QStringList planNames() const;
+    //! Returns the plan names of the currently opened project
+    QStringList planNames() const;
 
-	//! Returns the flow 2D area names of the currently opened project
-	QStringList flowAreas2D() const;
+    //! Returns the flow 2D area names of the currently opened project
+    QStringList flowAreas2D() const;
 
-	//! Returns the domain of the flow area with \a areaName
-	QPolygonF flow2DAreasDomain(const QString &areaName) const;
+    //! Returns the domain of the flow area with \a areaName
+    QPolygonF flow2DAreasDomain( const QString &areaName ) const;
 
-private:
-	bool mIsValid = false;
-	IDispatch* mDispatch = nullptr;
-	QMap<QString, DISPID> mFunctionNames;
+  private:
+    bool mIsValid = false;
+#ifdef _WIN32
+    IDispatch *mDispatch = nullptr;
+    QMap<QString, DISPID> mFunctionNames;
+#endif
 
-	bool exitRas() const;
+    bool exitRas() const;
 };
 
 
