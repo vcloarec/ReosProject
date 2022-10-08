@@ -17,6 +17,7 @@
 #include "ui_reosimporthydraulicstructuredialog.h"
 
 #include "reoshydraulicsimulation.h"
+#include "reoshydraulic2dsimulationwidget.h"
 
 ReosImportHydraulicStructureDialog::ReosImportHydraulicStructureDialog( QWidget *parent ) :
   QDialog( parent ),
@@ -31,9 +32,24 @@ ReosImportHydraulicStructureDialog::ReosImportHydraulicStructureDialog( QWidget 
   {
     ui->mComboImportSource->addItem( it.value(), it.key() );
   }
+
+  onEngineChanged();
 }
 
 ReosImportHydraulicStructureDialog::~ReosImportHydraulicStructureDialog()
 {
   delete ui;
+}
+
+void ReosImportHydraulicStructureDialog::onEngineChanged()
+{
+    const QString key = ui->mComboImportSource->currentData().toString();
+
+    if (mCurrentEngineWidget)
+    {
+        ui->mSourceWidget->layout()->removeWidget(mCurrentEngineWidget);
+        delete mCurrentEngineWidget;
+    }
+    mCurrentEngineWidget = ReosHydraulicSimulationWidgetRegistery::instance()->createImportWidget(key, this);
+    ui->mSourceWidget->layout()->addWidget(mCurrentEngineWidget);
 }

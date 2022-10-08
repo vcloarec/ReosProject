@@ -23,6 +23,7 @@
 #endif
 
 #include <QPolygon>
+#include <QMap>
 
 class ReosHecrasController
 {
