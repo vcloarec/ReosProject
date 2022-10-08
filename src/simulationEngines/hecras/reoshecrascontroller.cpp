@@ -15,6 +15,7 @@
  ***************************************************************************/
 
 #include <QFileInfo>
+#include <QDebug>
 
 #include "reoshecrascontroller.h"
 
@@ -97,8 +98,6 @@ QStringList ReosHecrasController::availableVersion()
                                &cbMaxValueData,
                                &cbSecurityDescriptor,
                                &ftLastWriteTime );
-
-  qDebug() << "------------------- keys" << cSubKeys;
 
   if ( cSubKeys )
   {

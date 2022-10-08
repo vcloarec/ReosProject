@@ -32,10 +32,14 @@ class ReosImportHydraulicStructureDialog : public QDialog
     explicit ReosImportHydraulicStructureDialog( QWidget *parent = nullptr );
     ~ReosImportHydraulicStructureDialog();
 
+private slots:
+    void onEngineChanged();
+
   private:
     Ui::ReosImportHydraulicStructureDialog *ui;
 
     QMap<QString, QString> mEngines;
+    QWidget* mCurrentEngineWidget = nullptr;
 };
 
 #endif // REOSIMPORTHYDRAULICSTRUCTUREDIALOG_H
