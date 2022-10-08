@@ -141,6 +141,7 @@ class ReosSimulationEngineFactory
     enum SimulationEngineCapability
     {
       ImportStructure2D = 1 << 0, //!< If the simulation engine support importing 2D structure
+      CanBeCreated = 1 << 1 //!< If simulation of this engine can be created by a factory
     };
 
     Q_ENUM( SimulationEngineCapability )
@@ -177,7 +178,10 @@ class REOSCORE_EXPORT ReosSimulationEngineRegistery
     //! Returns a pointer to the static instance of this registery
     static ReosSimulationEngineRegistery *instance();
 
+    //! Returns all the engine available
     const QMap<QString, QString> availableEngine();
+
+    const QMap<QString, QString> availableEngine(ReosSimulationEngineFactory::SimulationEngineCapability capability );
 
     bool canImportSrtucture2D() const;
 

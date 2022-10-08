@@ -193,6 +193,8 @@ class ReosTelemac2DSimulationProcess : public ReosSimulationProcess
 class ReosTelemac2DSimulationEngineFactory : public ReosSimulationEngineFactory
 {
   public:
+    ReosTelemac2DSimulationEngineFactory();
+
     virtual ReosHydraulicSimulation *createSimulation( QObject *parent ) const override;
     virtual ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &element, QObject *parent ) const override;
 

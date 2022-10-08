@@ -57,7 +57,8 @@ void ReosHydraulic2DSimulationWidget::onAddSimulation()
   ReosFormDialog *dial = new ReosFormDialog( this );
 
   QComboBox *engineCombo = new QComboBox;
-  QMap<QString, QString> engines = ReosSimulationEngineRegistery::instance()->availableEngine();
+  QMap<QString, QString> engines =
+    ReosSimulationEngineRegistery::instance()->availableEngine( ReosSimulationEngineFactory::CanBeCreated );
   for ( auto it = engines.begin(); it != engines.end(); ++it )
     engineCombo->addItem( it.value(), it.key() );
 
