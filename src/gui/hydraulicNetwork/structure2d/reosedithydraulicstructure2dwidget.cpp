@@ -55,43 +55,48 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
   propertiesToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
   backButton->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
 
-  //mesh generation setup
-  QList<QAction *> meshGenerationToolBarActions;
-  QAction *actionGenerateMesh = new QAction( QIcon( QStringLiteral( ":/images/generateMesh.svg" ) ), tr( "Generate Mesh" ), this );
-  connect( actionGenerateMesh, &QAction::triggered, this, &ReosEditHydraulicStructure2DWidget::generateMesh );
-  meshGenerationToolBarActions.append( actionGenerateMesh );
-  if (structure2D->meshGenerator())
-      meshGenerationToolBarActions.append( new ReosParameterWidgetAction( structure2D->meshGenerator()->autoUpdateParameter(), this ) );
+  if (structure2D->mesh())
+  {
+      //mesh generation setup
+      QList<QAction*> meshGenerationToolBarActions;
+      QAction* actionGenerateMesh = new QAction(QPixmap(QStringLiteral(":/images/generateMesh.svg")), tr("Generate Mesh"), this);
+      connect(actionGenerateMesh, &QAction::triggered, this, &ReosEditHydraulicStructure2DWidget::generateMesh);
+      meshGenerationToolBarActions.append(actionGenerateMesh);
+      if (structure2D->meshGenerator())
+          meshGenerationToolBarActions.append(new ReosParameterWidgetAction(structure2D->meshGenerator()->autoUpdateParameter(), this));
 
-  ReosEditPolylineStructureWidget *structureWidget = new ReosEditPolylineStructureWidget( structure2D->geometryStructure(), ReosGuiContext( context, this ) );
-  structureWidget->addToolBarActions( meshGenerationToolBarActions );
-  if (structure2D->meshGenerator())
-      structureWidget->setSettingsWidget( ReosFormWidgetFactories::instance()->createDataFormWidget( structure2D->meshGenerator(), ReosGuiContext( context, structureWidget ) ) );
-  structureWidget->setInformationWidget( new ReosStructureInformationWidget( structure2D, structureWidget ) );
-  structureWidget->setEnabled( mStructure2D->hasCapability( ReosHydraulicStructure2D::GeometryEditable ) );
-  ui->pageMeshStructure->layout()->addWidget( structureWidget );
-  connect( structureWidget, &ReosEditPolylineStructureWidget::boundaryConditionSelectionChanged, this, [this] {mMapStructureItem.updatePosition();} );
+      ReosEditPolylineStructureWidget* structureWidget = new ReosEditPolylineStructureWidget(structure2D->geometryStructure(), ReosGuiContext(context, this));
+      structureWidget->addToolBarActions(meshGenerationToolBarActions);
+      if (structure2D->meshGenerator())
+          structureWidget->setSettingsWidget(ReosFormWidgetFactories::instance()->createDataFormWidget(structure2D->meshGenerator(), ReosGuiContext(context, structureWidget)));
+      structureWidget->setInformationWidget(new ReosStructureInformationWidget(structure2D, structureWidget));
+      structureWidget->setEnabled(mStructure2D->hasCapability(ReosHydraulicStructure2D::GeometryEditable));
+      ui->pageMeshStructure->layout()->addWidget(structureWidget);
+      connect(structureWidget, &ReosEditPolylineStructureWidget::boundaryConditionSelectionChanged, this, [this] {mMapStructureItem.updatePosition(); });
 
-  ReosGmshResolutionControllerWidget *resolutionWidget = new ReosGmshResolutionControllerWidget( structure2D, ReosGuiContext( context, this ) );
-  resolutionWidget->addToolBarActions( meshGenerationToolBarActions );
-  resolutionWidget->setEnabled( mStructure2D->hasCapability( ReosHydraulicStructure2D::GeometryEditable ) );
-  ui->pageMeshResolution->layout()->addWidget( resolutionWidget );
+      ReosGmshResolutionControllerWidget* resolutionWidget = new ReosGmshResolutionControllerWidget(structure2D, ReosGuiContext(context, this));
+      resolutionWidget->addToolBarActions(meshGenerationToolBarActions);
+      resolutionWidget->setEnabled(mStructure2D->hasCapability(ReosHydraulicStructure2D::GeometryEditable));
+      ui->pageMeshResolution->layout()->addWidget(resolutionWidget);
 
-  ReosMeshTopographyStackedWidget *topographyWidget =
-    new ReosMeshTopographyStackedWidget( structure2D->mesh(), structure2D->topographyCollecion(), structure2D->terrainMeshDatasetId(), ReosGuiContext( context, this ) );
-  ui->pageTopography->layout()->addWidget( topographyWidget );
-  topographyWidget->setEnabled( mStructure2D->hasCapability( ReosHydraulicStructure2D::GeometryEditable ) );
+      ReosMeshTopographyStackedWidget* topographyWidget =
+          new ReosMeshTopographyStackedWidget(structure2D->mesh(), structure2D->topographyCollecion(), structure2D->terrainMeshDatasetId(), ReosGuiContext(context, this));
+      ui->pageTopography->layout()->addWidget(topographyWidget);
+      topographyWidget->setEnabled(mStructure2D->hasCapability(ReosHydraulicStructure2D::GeometryEditable));
 
-  mEditElementWidget = new ReosEditMeshElementWidget( structure2D->mesh(), ReosGuiContext( context, this ) );
-  ui->pageEditElements->layout()->addWidget( mEditElementWidget );
-  mEditElementWidget->setEnabled( mStructure2D->hasCapability( ReosHydraulicStructure2D::GeometryEditable ) );
+      mEditElementWidget = new ReosEditMeshElementWidget(structure2D->mesh(), ReosGuiContext(context, this));
+      ui->pageEditElements->layout()->addWidget(mEditElementWidget);
+      mEditElementWidget->setEnabled(mStructure2D->hasCapability(ReosHydraulicStructure2D::GeometryEditable));
 
-  ReosRoughnessWidget *roughnessWidget = new ReosRoughnessWidget( structure2D, ReosGuiContext( context, this ) );
-  ui->pageRoughness->layout()->addWidget( roughnessWidget );
-  roughnessWidget->setEnabled( mStructure2D->hasCapability( ReosHydraulicStructure2D::GeometryEditable ) );
 
-  ReosHydraulic2DSimulationWidget *mSimulationWidget = new ReosHydraulic2DSimulationWidget( structure2D, ReosGuiContext( context, this ) );
-  ui->pageSimulation->layout()->addWidget( mSimulationWidget );
+      ReosRoughnessWidget* roughnessWidget = new ReosRoughnessWidget(structure2D, ReosGuiContext(context, this));
+      ui->pageRoughness->layout()->addWidget(roughnessWidget);
+      roughnessWidget->setEnabled(mStructure2D->hasCapability(ReosHydraulicStructure2D::GeometryEditable));
+
+  }
+
+  ReosHydraulic2DSimulationWidget* mSimulationWidget = new ReosHydraulic2DSimulationWidget(structure2D, ReosGuiContext(context, this));
+  ui->pageSimulation->layout()->addWidget(mSimulationWidget);
 
   mInitialMapStructureItem = context.mapItems( ReosHydraulicStructure2D::staticType() );
 
@@ -111,7 +116,8 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
   ReosSettings settings;
   ui->mOptionListWidget->setCurrentRow( settings.value( QStringLiteral( "/hydraulic-structure/edit-widget/current-row" ) ).toInt() );
 
-  mIsWireFrameActiveBefore = mStructure2D->mesh()->isWireFrameActive();
+  if (mStructure2D->mesh())
+    mIsWireFrameActiveBefore = mStructure2D->mesh()->isWireFrameActive();
 }
 
 ReosEditHydraulicStructure2DWidget::~ReosEditHydraulicStructure2DWidget()
@@ -138,7 +144,7 @@ void ReosEditHydraulicStructure2DWidget::onMeshOptionListChanged( int row )
       break;
     case 3:
       mMapStructureItem.setLineWidth( 3 );
-      if ( mEditElementWidget->topographyDisplayed() )
+      if (mEditElementWidget && mEditElementWidget->topographyDisplayed() )
         mStructure2D->activateMeshTerrain();
       break;
     case 4:
@@ -183,7 +189,8 @@ void ReosEditHydraulicStructure2DWidget::showEvent( QShowEvent *e )
   if ( mInitialMapStructureItem )
     mInitialMapStructureItem->setVisible( false );
 
-  mStructure2D->mesh()->activateWireFrame( true );
+  if (mStructure2D->mesh())
+    mStructure2D->mesh()->activateWireFrame( true );
 
   ReosStackedPageWidget::showEvent( e );
 }
@@ -193,30 +200,33 @@ void ReosEditHydraulicStructure2DWidget::hideEvent( QHideEvent *e )
   if ( mInitialMapStructureItem )
     mInitialMapStructureItem->setVisible( true );
 
-  mStructure2D->mesh()->activateWireFrame( mIsWireFrameActiveBefore );
+  if (mStructure2D->mesh())
+  {
+      mStructure2D->mesh()->activateWireFrame(mIsWireFrameActiveBefore);
 
-  if ( mStructure2D->mesh()->isFrameModified() && mStructure2D->hasResults() )
-  {
-    if ( QMessageBox::warning( this, tr( "Model Structure Modified" ),
-                               tr( "As the frame of the mesh has been modified, if you keep these changes,\n"
-                                   " existing results will not be compatible anymore and will be removed.\n"
-                                   "\n"
-                                   "Do you want to keep the mesh modification and remove results?" ),
-                               QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::Yes )
-    {
-      QApplication::setOverrideCursor( Qt::WaitCursor );
-      mStructure2D->removeAllResults();
-      mStructure2D->mesh()->stopFrameEditing( true );
-      QApplication::restoreOverrideCursor();
-    }
-    else
-    {
-      mStructure2D->mesh()->stopFrameEditing( false );
-    }
-  }
-  else
-  {
-    mStructure2D->mesh()->stopFrameEditing( false );
+      if (mStructure2D->mesh()->isFrameModified() && mStructure2D->hasResults())
+      {
+          if (QMessageBox::warning(this, tr("Model Structure Modified"),
+              tr("As the frame of the mesh has been modified, if you keep these changes,\n"
+                  " existing results will not be compatible anymore and will be removed.\n"
+                  "\n"
+                  "Do you want to keep the mesh modification and remove results?"),
+              QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
+          {
+              QApplication::setOverrideCursor(Qt::WaitCursor);
+              mStructure2D->removeAllResults();
+              mStructure2D->mesh()->stopFrameEditing(true);
+              QApplication::restoreOverrideCursor();
+          }
+          else
+          {
+              mStructure2D->mesh()->stopFrameEditing(false);
+          }
+      }
+      else
+      {
+          mStructure2D->mesh()->stopFrameEditing(false);
+      }
   }
 
   emit hidden();
@@ -245,7 +255,7 @@ ReosStructureInformationWidget::ReosStructureInformationWidget( ReosHydraulicStr
 
 void ReosStructureInformationWidget::update()
 {
-  if ( mHydraulicStructure.isNull() )
+  if ( mHydraulicStructure.isNull() || !mHydraulicStructure->mesh())
     return;
 
   mLabelVerticesCount->setText( QLocale().toString( mHydraulicStructure->mesh()->vertexCount() ) );

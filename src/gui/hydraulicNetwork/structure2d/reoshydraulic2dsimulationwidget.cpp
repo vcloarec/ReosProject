@@ -162,7 +162,7 @@ QWidget *ReosHydraulicSimulationWidgetRegistery::createDescription( const QStrin
   return it->second->simulationEngineDescription( parent );
 }
 
-QWidget* ReosHydraulicSimulationWidgetRegistery::createImportWidget(const QString& key, QWidget* parent)
+ReosImportHydraulicStructureWidget* ReosHydraulicSimulationWidgetRegistery::createImportWidget(const QString& key, QWidget* parent)
 {
     auto it = mFactories.find(key);
     if (it == mFactories.end())

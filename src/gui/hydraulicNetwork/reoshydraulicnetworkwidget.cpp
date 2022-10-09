@@ -320,7 +320,8 @@ void ReosHydraulicNetworkWidget::onImportStructure2D()
 {
   ReosImportHydraulicStructureDialog *dial = new ReosImportHydraulicStructureDialog( this );
 
-  dial->exec();
+ if ( dial->exec())
+     dial->createStructure2d(mHydraulicNetwork->context());
 
   dial->deleteLater();
 }

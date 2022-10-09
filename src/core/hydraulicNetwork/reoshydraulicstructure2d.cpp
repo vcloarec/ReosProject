@@ -126,7 +126,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(ReosStructureImporter* import
     , mCapabilities(importer->capabilities())
     , mMeshGenerator(importer->meshGenerator())
     , mPolylinesStructures(ReosPolylinesStructure::createPolylineStructure(importer->domain(), importer->crs()))
-    , mMeshResolutionController(importer->resolutionController())
+    , mMeshResolutionController(importer->resolutionController(this))
     , mTopographyCollection(ReosTopographyCollection::createTopographyCollection(context.network()->gisEngine(), this))
     , mMesh(importer->mesh())
     , mRoughnessStructure(importer->roughnessStructure())
@@ -237,27 +237,34 @@ QVector<QVector<QVector<int> > > ReosHydraulicStructure2D::holesVertices() const
 
 QString ReosHydraulicStructure2D::currentActivatedMeshDataset() const
 {
+    if (!mMesh)
+        return QString();
   return mMesh->currentdScalarDatasetId();
 }
 
 QString ReosHydraulicStructure2D::currentActivatedVectorMeshDataset() const
 {
+  if (!mMesh)
+    return QString();
   return  mMesh->currentdVectorDatasetId();
 }
 
 ReosHydraulicSimulationResults::DatasetType ReosHydraulicStructure2D::currentActivatedDatasetResultType() const
 {
-  const QString currentDatasetId =  mMesh->currentdScalarDatasetId();
-  for ( ReosHydraulicSimulationResults *results : mSimulationResults )
+  if (mMesh)
   {
-    if ( results )
-    {
-      for ( int ri = 0; ri < results->groupCount(); ri++ )
+      const QString currentDatasetId = mMesh->currentdScalarDatasetId();
+      for (ReosHydraulicSimulationResults* results : mSimulationResults)
       {
-        if ( results->groupId( ri ) == currentDatasetId )
-          return results->datasetType( ri );
+          if (results)
+          {
+              for (int ri = 0; ri < results->groupCount(); ri++)
+              {
+                  if (results->groupId(ri) == currentDatasetId)
+                      return results->datasetType(ri);
+              }
+          }
       }
-    }
   }
 
   return ReosHydraulicSimulationResults::DatasetType::None;
@@ -265,6 +272,8 @@ ReosHydraulicSimulationResults::DatasetType ReosHydraulicStructure2D::currentAct
 
 QString ReosHydraulicStructure2D::currentDatasetName() const
 {
+  if (!mMesh)
+    return QString();
   return mMesh->datasetName( mMesh->currentdScalarDatasetId() );
 }
 
@@ -481,37 +490,52 @@ ReosTopographyCollection *ReosHydraulicStructure2D::topographyCollecion() const
 
 QString ReosHydraulicStructure2D::terrainMeshDatasetId() const
 {
+  if (!mMesh)
+    return QString();
   return mMesh->verticesElevationDatasetId();
 }
 
 double ReosHydraulicStructure2D::terrainElevationAt( const QPointF &position )
 {
+  if (!mMesh)
+    return std::numeric_limits<double>::quiet_NaN();
   return mMesh->datasetScalarValueAt( terrainMeshDatasetId(), position );
 }
 
 void ReosHydraulicStructure2D::activateResultDatasetGroup( const QString &id )
 {
-  mMesh->activateDataset( id );
+  if (mMesh)
+    mMesh->activateDataset( id );
 }
 
 void ReosHydraulicStructure2D::activateResultVectorDatasetGroup( const QString &id )
 {
-  mMesh->activateVectorDataset( id );
+    if (mMesh)
+        mMesh->activateVectorDataset( id );
 }
 
 QStringList ReosHydraulicStructure2D::meshDatasetIds() const
 {
-  return mMesh->datasetIds();
+  if (mMesh)
+    return mMesh->datasetIds();
+
+  return QStringList();
 }
 
 QStringList ReosHydraulicStructure2D::meshVectorDatasetIds() const
 {
-  return mMesh->vectorDatasetIds();
+    if (mMesh)
+        return mMesh->vectorDatasetIds();
+
+    return QStringList();
 }
 
 QString ReosHydraulicStructure2D::meshDatasetName( const QString &id ) const
 {
-  return mMesh->datasetName( id );
+  if (mMesh)
+    return mMesh->datasetName( id );
+
+  return QString();
 }
 
 ReosSimulationPreparationProcess *ReosHydraulicStructure2D::getPreparationProcessSimulation( const ReosCalculationContext &context, QString &error )
@@ -936,6 +960,9 @@ void ReosHydraulicStructure2D::loadResult( ReosHydraulicSimulation *simulation, 
 
 void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationResults *simResults )
 {
+  if (!mesh())
+      return;
+
   mesh()->setSimulationResults( simResults );
 
   const QList<ReosHydraulicStructureBoundaryCondition *> boundaries = boundaryConditions();
@@ -1031,13 +1058,15 @@ ReosSimulationProcess *ReosHydraulicStructure2D::processFromScheme( const QStrin
 
 void ReosHydraulicStructure2D::activateMeshTerrain()
 {
-  mMesh->activateDataset( mMesh->verticesElevationDatasetId() );
+  if (mMesh)
+    mMesh->activateDataset( mMesh->verticesElevationDatasetId() );
 }
 
 void ReosHydraulicStructure2D::deactivateMeshScalar()
 {
   //mTerrainSymbology = mMesh->datasetScalarGroupSymbology( mMesh->verticesElevationDatasetId() ).bytes();
-  mMesh->activateDataset( QString() );
+  if (mMesh)
+    mMesh->activateDataset( QString() );
 }
 
 ReosHydraulicStructure2D::~ReosHydraulicStructure2D() = default;
@@ -1053,7 +1082,7 @@ ReosHydraulicStructure2D *ReosHydraulicStructure2D::create( const ReosEncodedEle
 
 ReosHydraulicStructure2D* ReosHydraulicStructure2D::create(ReosStructureImporter* structureImporter, const ReosHydraulicNetworkContext& context)
 {
-    if (!structureImporter)
+    if (!structureImporter && !structureImporter->isValid())
         return nullptr;
 
     return new ReosHydraulicStructure2D(structureImporter, context);

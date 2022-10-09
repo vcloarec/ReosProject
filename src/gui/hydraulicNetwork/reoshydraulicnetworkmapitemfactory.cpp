@@ -189,7 +189,7 @@ static void selectStructure2D( ReosHydraulicNetworkElement *elem, ReosMapItem *i
   }
 
   ReosHydraulicStructure2D *str2D = qobject_cast<ReosHydraulicStructure2D *>( elem );
-  if ( str2D && item )
+  if ( str2D && str2D->mesh() && item )
   {
     if ( str2D->mesh()->vertexCount() > 0 && str2D->mesh()->datasetIds().count() > 0 )
       static_cast<ReosMapPolygon *>( item )->setFillStyle( Qt::NoBrush );

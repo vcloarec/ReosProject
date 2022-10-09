@@ -183,7 +183,6 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     //! Reset the network, that is, clear all and creates just one hydraulic scheme
     void reset();
 
-
     ReosGisEngine *gisEngine() const;
 
     ReosHydraulicNetworkContext context() const;

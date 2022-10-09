@@ -18,6 +18,11 @@
 
 #include <QDialog>
 #include <QMap>
+#include "reosgui.h"
+
+class ReosHydraulicStructure2D;
+class ReosHydraulicNetworkContext;
+class ReosImportHydraulicStructureWidget;
 
 namespace Ui
 {
@@ -32,6 +37,8 @@ class ReosImportHydraulicStructureDialog : public QDialog
     explicit ReosImportHydraulicStructureDialog( QWidget *parent = nullptr );
     ~ReosImportHydraulicStructureDialog();
 
+    void createStructure2d(const ReosHydraulicNetworkContext& context) const;
+
 private slots:
     void onEngineChanged();
 
@@ -39,7 +46,20 @@ private slots:
     Ui::ReosImportHydraulicStructureDialog *ui;
 
     QMap<QString, QString> mEngines;
-    QWidget* mCurrentEngineWidget = nullptr;
+    ReosImportHydraulicStructureWidget *mCurrentEngineWidget = nullptr;
+};
+
+
+class REOSGUI_EXPORT ReosImportHydraulicStructureWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    ReosImportHydraulicStructureWidget(QWidget* parent = nullptr)
+        : QWidget(parent)
+    {}
+
+    virtual void importStructure2D(const ReosHydraulicNetworkContext& context) const = 0;
+
 };
 
 #endif // REOSIMPORTHYDRAULICSTRUCTUREDIALOG_H

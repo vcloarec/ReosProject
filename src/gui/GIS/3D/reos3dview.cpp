@@ -55,13 +55,18 @@ Reos3dView::Reos3dView( ReosMesh *meshTerrain, const ReosGuiContext &context )
   mCanvas = new Qgs3DMapCanvas( this );
   mCanvas->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 
-  QgsMeshLayer *meshLayer = qobject_cast<QgsMeshLayer *>( meshTerrain->data() );
+  QgsMeshLayer* meshLayer = nullptr;
+  if (meshTerrain)
+      meshLayer=qobject_cast<QgsMeshLayer*>(meshTerrain->data());
 
   Qgs3DMapSettings *settings = new Qgs3DMapSettings();
-  settings->setCrs( meshLayer->crs() );
+  if (meshLayer)
+    settings->setCrs( meshLayer->crs() );
   settings->setBackgroundColor( QColor( 119, 181, 254 ) );
 
-  const QgsRectangle extent = meshLayer->extent();
+  QgsRectangle extent;
+  if (meshLayer) 
+      extent = meshLayer->extent();
   float dist = static_cast< float >( std::max( extent.width(), extent.height() ) );
   settings->setOrigin( QgsVector3D( extent.center().x(), extent.center().y(), 0 ) );
 
@@ -83,7 +88,9 @@ Reos3dView::Reos3dView( ReosMesh *meshTerrain, const ReosGuiContext &context )
   toolBar->addAction( mActionZoomExtent );
   connect( mActionZoomExtent, &QAction::triggered, this, [this, meshLayer, settings]
   {
-    QgsRectangle extent = meshLayer->extent();
+    QgsRectangle extent; 
+    if (meshLayer)
+        extent = meshLayer->extent();
     float dist = static_cast< float >( std::max( extent.width(), extent.height() ) );
     settings->setOrigin( QgsVector3D( extent.center().x(), extent.center().y(), 0 ) );
     mCanvas->setViewFromTop( extent.center(), dist, 0 );
@@ -251,6 +258,8 @@ void Reos3dView::onTerrainSettingsChanged()
   terrainSymbol->setWireframeLineColor( terrainSettings.wireframeColor() );
   terrainSymbol->setSmoothedTriangles( terrainSettings.isSmoothed() );
 
+  if (!mMeshTerrain)
+      return;
   ReosEncodedElement terrainSymbology = mMeshTerrain->datasetScalarGroupSymbology( mMeshTerrain->verticesElevationDatasetId() );
   if ( terrainSymbology.description() != QStringLiteral( "dataset-symbology" ) )
     return;

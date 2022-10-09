@@ -363,9 +363,10 @@ public:
     virtual QString crs() const = 0;
     virtual QPolygonF domain() const = 0;
     virtual ReosMeshGenerator* meshGenerator() const = 0;
-    virtual ReosMeshResolutionController* resolutionController() const = 0;
+    virtual ReosMeshResolutionController* resolutionController(ReosHydraulicStructure2D* structure) const = 0;
     virtual ReosMesh* mesh() const = 0;
     virtual ReosRoughnessStructure* roughnessStructure() const = 0;
+    virtual bool isValid() const = 0;
 };
 
 
