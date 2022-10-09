@@ -18,18 +18,26 @@
 
 #include <QWidget>
 #include "reoshydraulic2dsimulationwidget.h"
+#include "reosimporthydraulicstructuredialog.h"
+
+class ReosHydraulicStructure2D;
 
 namespace Ui
 {
 	class ReosHecRasSimulationImportWidget;
 }
 
-class ReosHecRasSimulationImportWidget : public QWidget
+class ReosHecRasSimulationImportWidget : public ReosImportHydraulicStructureWidget
 {
 	Q_OBJECT
 
 	public:
 		ReosHecRasSimulationImportWidget(QWidget* parent = nullptr);
+
+		void importStructure2D(const ReosHydraulicNetworkContext& context) const override;
+
+private slots:
+	void onProjectFileButtonPressed();
 
 private:
 	Ui::ReosHecRasSimulationImportWidget *ui = nullptr;
@@ -44,7 +52,7 @@ public:
 	QWidget* simulationSettingsWidget(ReosHydraulicStructure2D* structure, ReosHydraulicSimulation* simulation, const ReosGuiContext& guiContext) const override { return nullptr; }
 	QDialog* engineConfigurationDialog(QWidget* parent) const override;
 	QWidget* simulationEngineDescription(QWidget* parent) const override;
-	QWidget* simulationImportWidget(QWidget* parent) const override;
+	ReosImportHydraulicStructureWidget* simulationImportWidget(QWidget* parent) const override;
 };
 
 #endif //REOSHECRASSIMULATIONIMPORTWIDGET_H

@@ -504,16 +504,19 @@ void ReosHydraulicStructure2DProperties::updateScalarDatasetMenu()
   mScalarDatasetMenu->addSeparator();
   QWidgetAction *wa = new QWidgetAction( mScalarDatasetMenu );
 
-  std::unique_ptr<ReosMeshWireframeSettingsWidget> meshSettingsWidget( new ReosMeshWireframeSettingsWidget );
-  meshSettingsWidget->setSettings( mStructure2D->mesh()->wireFrameSettings() );
-  ReosMeshWireframeSettingsWidget *ptr = meshSettingsWidget.get();
-  connect( meshSettingsWidget.get(), &ReosMeshWireframeSettingsWidget::changed, this, [this, ptr]
+  if (mStructure2D->mesh())
   {
-    mStructure2D->mesh()->setWireFrameSettings( ptr->settings(), true );
-  } );
-  wa->setDefaultWidget( meshSettingsWidget.release() );
-  mScalarDatasetMenu->addAction( wa );
-  mScalarDatasetActions->setExclusive( true );
+      std::unique_ptr<ReosMeshWireframeSettingsWidget> meshSettingsWidget(new ReosMeshWireframeSettingsWidget);
+      meshSettingsWidget->setSettings(mStructure2D->mesh()->wireFrameSettings());
+      ReosMeshWireframeSettingsWidget* ptr = meshSettingsWidget.get();
+      connect(meshSettingsWidget.get(), &ReosMeshWireframeSettingsWidget::changed, this, [this, ptr]
+          {
+              mStructure2D->mesh()->setWireFrameSettings(ptr->settings(), true);
+          });
+      wa->setDefaultWidget(meshSettingsWidget.release());
+      mScalarDatasetMenu->addAction(wa);
+      mScalarDatasetActions->setExclusive(true);
+  }
 
   mActionScalarSettings->setEnabled( !mCurrentDatasetId.isEmpty() );
 }
@@ -713,7 +716,7 @@ void ReosHydraulicStructure2DProperties::onMapCursorMove( const QPointF &pos )
   double value = std::numeric_limits<double>::quiet_NaN();
   QString unit;
 
-  if ( dt == ReosHydraulicSimulationResults::DatasetType::None )
+  if ( dt == ReosHydraulicSimulationResults::DatasetType::None && mStructure2D->mesh())
   {
     value = mStructure2D->mesh()->datasetScalarValueAt( mStructure2D->terrainMeshDatasetId(), pos );
     unit = tr( "m" );

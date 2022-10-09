@@ -59,3 +59,8 @@ QPolygonF ReosHecRasStructureImporter::domain() const
 		return mController.flow2DAreasDomain(areas2d.first());
 
 }
+
+ReosMeshResolutionController* ReosHecRasStructureImporter::resolutionController(ReosHydraulicStructure2D* structure) const
+{
+	return new ReosMeshResolutionController(structure,crs());
+}

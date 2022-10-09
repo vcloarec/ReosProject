@@ -77,7 +77,7 @@ class ReosTelemacSimulationEditWidgetFactory : public ReosHydraulicSimulationWid
     QWidget *simulationSettingsWidget( ReosHydraulicStructure2D *structure, ReosHydraulicSimulation *simulation, const ReosGuiContext &guiContext ) const override;
     QDialog *engineConfigurationDialog( QWidget *parent ) const override;
     QWidget *simulationEngineDescription( QWidget *parent ) const override;
-    QWidget* simulationImportWidget(QWidget* parent) const override { return nullptr;}
+    ReosImportHydraulicStructureWidget* simulationImportWidget(QWidget* parent) const override { return nullptr;}
 };
 
 

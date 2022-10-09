@@ -247,7 +247,6 @@ void ReosPolylineStructureVectorLayer::setTolerance( double tolerance, const QSt
 ReosPolylineStructureVectorLayer::ReosPolylineStructureVectorLayer( const QPolygonF &boundary, const QString &wktCrs )
   : ReosPolylineStructureVectorLayer( wktCrs )
 {
-
   Data data;
   data.vertices = boundary;
   data.boundaryPointCount = boundary.count();

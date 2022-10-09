@@ -52,13 +52,15 @@ public:
     ReosHecRasStructureImporter(const QString& version, const QString &file);
     ~ReosHecRasStructureImporter();
 
-    virtual ReosHydraulicStructure2D::Structure2DCapabilities capabilities() const override;
-    virtual QString crs() const;
-    virtual QPolygonF domain() const;
-    virtual ReosMeshGenerator* meshGenerator() const { return nullptr; };
-    virtual ReosMeshResolutionController* resolutionController() const { return nullptr; };
-    virtual ReosMesh* mesh() const { return nullptr; };
-    virtual ReosRoughnessStructure* roughnessStructure() const { return nullptr; };
+    ReosHydraulicStructure2D::Structure2DCapabilities capabilities() const override;
+    QString crs() const;
+    QPolygonF domain() const;
+    ReosMeshGenerator* meshGenerator() const { return nullptr; };
+    ReosMeshResolutionController* resolutionController(ReosHydraulicStructure2D* structure) const;
+    ReosMesh* mesh() const { return nullptr; };
+    ReosRoughnessStructure* roughnessStructure() const { return nullptr; };
+
+    bool isValid() const override{ return mIsValid; }
 
 private:
     ReosHecrasController mController;

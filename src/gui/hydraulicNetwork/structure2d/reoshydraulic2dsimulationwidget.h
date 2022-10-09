@@ -23,6 +23,7 @@
 
 class ReosHydraulicSimulation;
 class ReosHydraulicStructure2D;
+class ReosImportHydraulicStructureWidget;
 
 namespace Ui
 {
@@ -62,7 +63,7 @@ class ReosHydraulicSimulationWidgetFactory
     virtual QWidget *simulationSettingsWidget( ReosHydraulicStructure2D *structure, ReosHydraulicSimulation *simulation, const ReosGuiContext &guiContext ) const = 0;
     virtual QDialog *engineConfigurationDialog( QWidget *parent ) const = 0;
     virtual QWidget *simulationEngineDescription( QWidget *parent ) const = 0;
-    virtual QWidget* simulationImportWidget(QWidget* parent) const = 0;
+    virtual ReosImportHydraulicStructureWidget* simulationImportWidget(QWidget* parent) const = 0;
 };
 
 
@@ -81,7 +82,7 @@ class ReosHydraulicSimulationWidgetRegistery
     QWidget *createDescription( const QString &key, QWidget *parent );
 
     //! Creates and returns an engine descripton widget corresponding to the \a key
-    QWidget* createImportWidget(const QString& key, QWidget* parent);
+    ReosImportHydraulicStructureWidget* createImportWidget(const QString& key, QWidget* parent);
 
     //! Returns a pointer to the static instance of this registery
     static ReosHydraulicSimulationWidgetRegistery *instance();
