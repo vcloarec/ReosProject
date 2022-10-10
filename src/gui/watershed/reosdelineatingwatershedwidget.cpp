@@ -416,7 +416,7 @@ void ReosDelineatingWatershedWidget::onModuleReset()
     mCurrentAutomaticMapTool->quitMap();
 
   if ( mCurrentManualMapTool )
-    mCurrentAutomaticMapTool->quitMap();
+      mCurrentManualMapTool->quitMap();
 }
 
 void ReosDelineatingWatershedWidget::closingWidget()
