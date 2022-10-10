@@ -38,7 +38,7 @@ class REOSGUI_EXPORT ReosActionWidget : public QWidget
     void closeEvent( QCloseEvent *event ) override;
     void restore();
 
-    //! Reemplement this method allow to the dervied class to do what is needed when the widget is closed, default implementation does nothing
+    //! Reimplement this method allow to the dervied class to do what is needed when the widget is closed, default implementation does nothing
     virtual void closingWidget() {}
 
     QList<ReosMapTool *> mMapTools;

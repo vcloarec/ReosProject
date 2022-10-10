@@ -305,15 +305,19 @@ ReosEncodedElement ReosTimeSerieVariableTimeStepMemoryProvider::encode() const
   ReosEncodedElement element( QStringLiteral( "variable-time-step-serie-memory-provider" ) );
 
   element.addData( QStringLiteral( "reference-time" ), mReferenceTime );
+  element.addData( QStringLiteral( "store-duration-millisecond" ), true );
 
   element.addData( QStringLiteral( "values" ), mValues );
-  QList<ReosEncodedElement> encodedTimeValues;
-  encodedTimeValues.reserve( mTimeValues.count() );
+  QList<qint64> timeValuesMs;
+  timeValuesMs.reserve( mTimeValues.count() );
 
   for ( const ReosDuration &time : mTimeValues )
-    encodedTimeValues.append( time.encode() );
+  {
+    time.valueMilliSecond();
+    timeValuesMs.append( time.valueMilliSecond() );
+  }
 
-  element.addListEncodedData( QStringLiteral( "timeValues" ), encodedTimeValues );
+  element.addData( QStringLiteral( "timeValuesMs" ), timeValuesMs );
 
   return element;
 }
@@ -327,6 +331,28 @@ void ReosTimeSerieVariableTimeStepMemoryProvider::decode( const ReosEncodedEleme
 
   mValues.clear();
   element.getData( QStringLiteral( "values" ), mValues );
+
+  if ( element.hasEncodedData( QStringLiteral( "store-duration-millisecond" ) ) )
+  {
+    bool storedMs = false;
+    element.getData( QStringLiteral( "store-duration-millisecond" ), storedMs );
+    if ( storedMs )
+    {
+      QList<qint64> timeValuesMs;
+      if ( element.getData( QStringLiteral( "timeValuesMs" ), timeValuesMs ) )
+      {
+        mTimeValues.clear();
+        mTimeValues.reserve( timeValuesMs.size() );
+        for ( const qint64 tv : std::as_const( timeValuesMs ) )
+          mTimeValues.append( ReosDuration( qint64( tv ) ) );
+
+        return;
+      }
+    }
+  }
+
+  // if we are here, this is surely because that was encoded with version <= 2.2.95
+  // we keep it for backward compatibility
 
   QList<ReosEncodedElement> encodedTimeValues = element.getListEncodedData( QStringLiteral( "timeValues" ) );
   mTimeValues.clear();

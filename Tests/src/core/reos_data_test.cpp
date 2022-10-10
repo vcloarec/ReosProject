@@ -22,6 +22,7 @@ class ReosDataTesting: public QObject
     Q_OBJECT
   private slots:
     void variable_time_step_time_model();
+    void encode_variable_time_step();
 
 };
 
@@ -561,8 +562,80 @@ void ReosDataTesting::variable_time_step_time_model()
   QVERIFY( timeSerie.relativeTimeAt( 2 ) == ReosDuration( -60, ReosDuration::second ) );
   QCOMPARE( timeSerie.valueAt( 2 ), 3.0 );
 
+  ReosEncodedElement elem = timeSerie.encode();
 
+  std::unique_ptr<ReosTimeSerieVariableTimeStep> otherTimeSerie( ReosTimeSerieVariableTimeStep::decode( elem ) );
+  QVERIFY( otherTimeSerie );
+  QCOMPARE( otherTimeSerie->valueCount(), 3 );
+  QVERIFY( otherTimeSerie->relativeTimeAt( 0 ) == ReosDuration( -180, ReosDuration::second ) );
+  QCOMPARE( otherTimeSerie->valueAt( 0 ), 1.0 );
+  QVERIFY( otherTimeSerie->relativeTimeAt( 1 ) == ReosDuration( -120, ReosDuration::second ) );
+  QCOMPARE( otherTimeSerie->valueAt( 1 ), 2.0 );
+  QVERIFY( otherTimeSerie->relativeTimeAt( 2 ) == ReosDuration( -60, ReosDuration::second ) );
+  QCOMPARE( otherTimeSerie->valueAt( 2 ), 3.0 );
+}
 
+void ReosDataTesting::encode_variable_time_step()
+{
+  // build a variable time step serie as old version(<= 2.2.95)
+  ReosEncodedElement providerElement( QStringLiteral( "variable-time-step-serie-memory-provider" ) );
+  providerElement.addData( QStringLiteral( "reference-time" ), QDateTime( QDate( 2020, 01, 01 ), QTime( 2, 0, 0 ), Qt::UTC ) );
+
+  QVector<double> values;
+  QVector<ReosDuration> timeValues;
+  values << 1.23 << 3.45 << 6.78 << 9.12;
+  timeValues << ReosDuration( 0.0, ReosDuration::minute )
+             << ReosDuration( 1.0, ReosDuration::hour )
+             << ReosDuration( 7200, ReosDuration::second )
+             << ReosDuration( 1.0, ReosDuration::day );
+
+  providerElement.addData( QStringLiteral( "values" ), values );
+  QList<ReosEncodedElement> encodedTimeValues;
+  encodedTimeValues.reserve( timeValues.count() );
+
+  for ( const ReosDuration &time : std::as_const( timeValues ) )
+    encodedTimeValues.append( time.encode() );
+
+  providerElement.addListEncodedData( QStringLiteral( "timeValues" ), encodedTimeValues );
+
+  ReosEncodedElement tsElement( QStringLiteral( "time-serie-variable-time-step" ) );
+  tsElement.addData( QStringLiteral( "provider-key" ), QStringLiteral( "variable-time-step-memory" ) );
+  tsElement.addEncodedData( QStringLiteral( "provider-data" ), providerElement );
+
+  std::unique_ptr<ReosTimeSerieVariableTimeStep> timeSerie( ReosTimeSerieVariableTimeStep::decode( tsElement ) );
+
+  QVERIFY( timeSerie );
+  QCOMPARE( timeSerie->valueCount(), 4 );
+  QCOMPARE( timeSerie->timeAt( 0 ), QDateTime( QDate( 2020, 01, 01 ), QTime( 2, 0, 0 ), Qt::UTC ) );
+  QVERIFY( timeSerie->relativeTimeAt( 0 ) == ReosDuration( 0, ReosDuration::second ) );
+  QCOMPARE( timeSerie->valueAt( 0 ), 1.23 );
+  QCOMPARE( timeSerie->timeAt( 1 ), QDateTime( QDate( 2020, 01, 01 ), QTime( 3, 0, 0 ), Qt::UTC ) );
+  QVERIFY( timeSerie->relativeTimeAt( 1 ) == ReosDuration( 3600, ReosDuration::second ) );
+  QCOMPARE( timeSerie->valueAt( 1 ), 3.45 );
+  QCOMPARE( timeSerie->timeAt( 2 ), QDateTime( QDate( 2020, 01, 01 ), QTime( 4, 0, 0 ), Qt::UTC ) );
+  QVERIFY( timeSerie->relativeTimeAt( 2 ) == ReosDuration( 120, ReosDuration::minute ) );
+  QCOMPARE( timeSerie->valueAt( 2 ), 6.78 );
+  QCOMPARE( timeSerie->timeAt( 3 ), QDateTime( QDate( 2020, 01, 02 ), QTime( 2, 0, 0 ), Qt::UTC ) );
+  QVERIFY( timeSerie->relativeTimeAt( 3 ) == ReosDuration( 24, ReosDuration::hour ) );
+  QCOMPARE( timeSerie->valueAt( 3 ), 9.12 );
+
+  ReosEncodedElement elem = timeSerie->encode();
+  std::unique_ptr<ReosTimeSerieVariableTimeStep> otherTimeSerie( ReosTimeSerieVariableTimeStep::decode( elem ) );
+  QVERIFY( otherTimeSerie );
+
+  QCOMPARE( otherTimeSerie->valueCount(), 4 );
+  QCOMPARE( otherTimeSerie->timeAt( 0 ), QDateTime( QDate( 2020, 01, 01 ), QTime( 2, 0, 0 ), Qt::UTC ) );
+  QVERIFY( otherTimeSerie->relativeTimeAt( 0 ) == ReosDuration( 0, ReosDuration::second ) );
+  QCOMPARE( otherTimeSerie->valueAt( 0 ), 1.23 );
+  QCOMPARE( otherTimeSerie->timeAt( 1 ), QDateTime( QDate( 2020, 01, 01 ), QTime( 3, 0, 0 ), Qt::UTC ) );
+  QVERIFY( otherTimeSerie->relativeTimeAt( 1 ) == ReosDuration( 3600, ReosDuration::second ) );
+  QCOMPARE( otherTimeSerie->valueAt( 1 ), 3.45 );
+  QCOMPARE( otherTimeSerie->timeAt( 2 ), QDateTime( QDate( 2020, 01, 01 ), QTime( 4, 0, 0 ), Qt::UTC ) );
+  QVERIFY( otherTimeSerie->relativeTimeAt( 2 ) == ReosDuration( 120, ReosDuration::minute ) );
+  QCOMPARE( otherTimeSerie->valueAt( 2 ), 6.78 );
+  QCOMPARE( otherTimeSerie->timeAt( 3 ), QDateTime( QDate( 2020, 01, 02 ), QTime( 2, 0, 0 ), Qt::UTC ) );
+  QVERIFY( otherTimeSerie->relativeTimeAt( 3 ) == ReosDuration( 24, ReosDuration::hour ) );
+  QCOMPARE( otherTimeSerie->valueAt( 3 ), 9.12 );
 }
 
 QTEST_MAIN( ReosDataTesting )
