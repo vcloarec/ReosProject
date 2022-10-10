@@ -181,7 +181,7 @@ class REOSCORE_EXPORT ReosSimulationEngineRegistery
     //! Returns all the engine available
     const QMap<QString, QString> availableEngine();
 
-    const QMap<QString, QString> availableEngine(ReosSimulationEngineFactory::SimulationEngineCapability capability );
+    const QMap<QString, QString> availableEngine( ReosSimulationEngineFactory::SimulationEngineCapability capability );
 
     bool canImportSrtucture2D() const;
 

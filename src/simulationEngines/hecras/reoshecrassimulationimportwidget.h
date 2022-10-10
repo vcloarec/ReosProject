@@ -24,35 +24,35 @@ class ReosHydraulicStructure2D;
 
 namespace Ui
 {
-	class ReosHecRasSimulationImportWidget;
+  class ReosHecRasSimulationImportWidget;
 }
 
 class ReosHecRasSimulationImportWidget : public ReosImportHydraulicStructureWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 
-	public:
-		ReosHecRasSimulationImportWidget(QWidget* parent = nullptr);
+  public:
+    ReosHecRasSimulationImportWidget( QWidget *parent = nullptr );
 
-		void importStructure2D(const ReosHydraulicNetworkContext& context) const override;
+    void importStructure2D( const ReosHydraulicNetworkContext &context ) const override;
 
-private slots:
-	void onProjectFileButtonPressed();
+  private slots:
+    void onProjectFileButtonPressed();
 
-private:
-	Ui::ReosHecRasSimulationImportWidget *ui = nullptr;
+  private:
+    Ui::ReosHecRasSimulationImportWidget *ui = nullptr;
 };
 
 
 class ReosHecRasSimulationEditWidgetFactory : public ReosHydraulicSimulationWidgetFactory
 {
-public:
-	QString key() const override;
+  public:
+    QString key() const override;
 
-	QWidget* simulationSettingsWidget(ReosHydraulicStructure2D* structure, ReosHydraulicSimulation* simulation, const ReosGuiContext& guiContext) const override { return nullptr; }
-	QDialog* engineConfigurationDialog(QWidget* parent) const override;
-	QWidget* simulationEngineDescription(QWidget* parent) const override;
-	ReosImportHydraulicStructureWidget* simulationImportWidget(QWidget* parent) const override;
+    QWidget *simulationSettingsWidget( ReosHydraulicStructure2D *structure, ReosHydraulicSimulation *simulation, const ReosGuiContext &guiContext ) const override { return nullptr; }
+    QDialog *engineConfigurationDialog( QWidget *parent ) const override;
+    QWidget *simulationEngineDescription( QWidget *parent ) const override;
+    ReosImportHydraulicStructureWidget *simulationImportWidget( QWidget *parent ) const override;
 };
 
 #endif //REOSHECRASSIMULATIONIMPORTWIDGET_H

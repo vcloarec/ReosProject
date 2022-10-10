@@ -22,50 +22,50 @@
 
 class ReosHecRasSimulation
 {
-public:
-    static QString staticKey() { return QStringLiteral("hecras"); }
+  public:
+    static QString staticKey() { return QStringLiteral( "hecras" ); }
 };
 
 
 class ReosHecRasSimulationEngineFactory : public ReosSimulationEngineFactory
 {
-public:
+  public:
     ReosHecRasSimulationEngineFactory()
     {
-        mCapabilities = SimulationEngineCapability::ImportStructure2D;
+      mCapabilities = SimulationEngineCapability::ImportStructure2D;
     }
 
-    virtual ReosHydraulicSimulation* createSimulation(QObject* parent) const override 
+    virtual ReosHydraulicSimulation *createSimulation( QObject *parent ) const override
     { return nullptr; }
-    virtual ReosHydraulicSimulation* createSimulation(const ReosEncodedElement& element, QObject* parent) const override 
+    virtual ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &element, QObject *parent ) const override
     { return nullptr; }
 
-    virtual QString key() const { return ReosHecRasSimulation::staticKey(); }
-    QString displayName() const { return QObject::tr("HEC-RAS Simulation"); }
+    virtual QString key() const override { return ReosHecRasSimulation::staticKey(); }
+    QString displayName() const override { return QObject::tr( "HEC-RAS Simulation" ); }
 
     void initializeSettings() override;
 };
 
 class ReosHecRasStructureImporter: public ReosStructureImporter
 {
-public:
-    ReosHecRasStructureImporter(const QString& version, const QString &file);
+  public:
+    ReosHecRasStructureImporter( const QString &version, const QString &file );
     ~ReosHecRasStructureImporter();
 
     ReosHydraulicStructure2D::Structure2DCapabilities capabilities() const override;
-    QString crs() const;
-    QPolygonF domain() const;
-    ReosMeshGenerator* meshGenerator() const { return nullptr; };
-    ReosMeshResolutionController* resolutionController(ReosHydraulicStructure2D* structure) const;
-    ReosMesh* mesh() const { return nullptr; };
-    ReosRoughnessStructure* roughnessStructure() const { return nullptr; };
+    QString crs() const override;
+    QPolygonF domain() const override;
+    ReosMeshGenerator *meshGenerator() const  override { return nullptr; };
+    ReosMeshResolutionController *resolutionController( ReosHydraulicStructure2D *structure ) const override;
+    ReosMesh *mesh() const override { return nullptr; };
+    ReosRoughnessStructure *roughnessStructure() const override { return nullptr; };
 
-    bool isValid() const override{ return mIsValid; }
+    bool isValid() const override { return mIsValid; }
 
-private:
+  private:
     ReosHecrasController mController;
     bool mIsValid = false;
 };
 
 
-#endif REOSHECRASSIMULATION_H
+#endif //REOSHECRASSIMULATION_H

@@ -42,23 +42,23 @@ ReosImportHydraulicStructureDialog::~ReosImportHydraulicStructureDialog()
   delete ui;
 }
 
-void ReosImportHydraulicStructureDialog::createStructure2d(const ReosHydraulicNetworkContext& context) const
+void ReosImportHydraulicStructureDialog::createStructure2d( const ReosHydraulicNetworkContext &context ) const
 {
-    if (!mCurrentEngineWidget)
-        return;
+  if ( !mCurrentEngineWidget )
+    return;
 
-    mCurrentEngineWidget->importStructure2D(context);
+  mCurrentEngineWidget->importStructure2D( context );
 }
 
 void ReosImportHydraulicStructureDialog::onEngineChanged()
 {
-    const QString key = ui->mComboImportSource->currentData().toString();
+  const QString key = ui->mComboImportSource->currentData().toString();
 
-    if (mCurrentEngineWidget)
-    {
-        ui->mSourceWidget->layout()->removeWidget(mCurrentEngineWidget);
-        delete mCurrentEngineWidget;
-    }
-    mCurrentEngineWidget = ReosHydraulicSimulationWidgetRegistery::instance()->createImportWidget(key, this);
-    ui->mSourceWidget->layout()->addWidget(mCurrentEngineWidget);
+  if ( mCurrentEngineWidget )
+  {
+    ui->mSourceWidget->layout()->removeWidget( mCurrentEngineWidget );
+    delete mCurrentEngineWidget;
+  }
+  mCurrentEngineWidget = ReosHydraulicSimulationWidgetRegistery::instance()->createImportWidget( key, this );
+  ui->mSourceWidget->layout()->addWidget( mCurrentEngineWidget );
 }

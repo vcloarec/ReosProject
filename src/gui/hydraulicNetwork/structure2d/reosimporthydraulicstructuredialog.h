@@ -37,9 +37,9 @@ class ReosImportHydraulicStructureDialog : public QDialog
     explicit ReosImportHydraulicStructureDialog( QWidget *parent = nullptr );
     ~ReosImportHydraulicStructureDialog();
 
-    void createStructure2d(const ReosHydraulicNetworkContext& context) const;
+    void createStructure2d( const ReosHydraulicNetworkContext &context ) const;
 
-private slots:
+  private slots:
     void onEngineChanged();
 
   private:
@@ -53,12 +53,12 @@ private slots:
 class REOSGUI_EXPORT ReosImportHydraulicStructureWidget : public QWidget
 {
     Q_OBJECT
-public:
-    ReosImportHydraulicStructureWidget(QWidget* parent = nullptr)
-        : QWidget(parent)
+  public:
+    ReosImportHydraulicStructureWidget( QWidget *parent = nullptr )
+      : QWidget( parent )
     {}
 
-    virtual void importStructure2D(const ReosHydraulicNetworkContext& context) const = 0;
+    virtual void importStructure2D( const ReosHydraulicNetworkContext &context ) const = 0;
 
 };
 
