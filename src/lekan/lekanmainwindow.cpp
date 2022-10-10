@@ -53,7 +53,7 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   guiContext.setMap( mMap );
 
   init();
-  setWindowIcon( QPixmap( QStringLiteral( ":/images/lekan.svg" ) ) );
+  setWindowIcon( QIcon( QStringLiteral( ":/images/lekan.svg" ) ) );
 
   ReosStyleRegistery::instantiate( rootModule() );
 
@@ -271,8 +271,8 @@ QList<QMenu *> LekanMainWindow::specificMenus()
   QList<QMenu *> menusList;
 
   QMenu *hydrologyMenu = new QMenu( tr( "Hydrology" ), this );
-  mActionRainfallManager = hydrologyMenu->addAction( QPixmap( QStringLiteral( ":/images/rainfall.svg" ) ), tr( "Rainfall manager" ) );
-  mActionRunoffManager = hydrologyMenu->addAction( QPixmap( QStringLiteral( ":/images/runoff.svg" ) ), tr( "Runoff manager" ) );
+  mActionRainfallManager = hydrologyMenu->addAction( QIcon( QStringLiteral( ":/images/rainfall.svg" ) ), tr( "Rainfall manager" ) );
+  mActionRunoffManager = hydrologyMenu->addAction( QIcon( QStringLiteral( ":/images/runoff.svg" ) ), tr( "Runoff manager" ) );
   hydrologyMenu->setObjectName( QStringLiteral( "Hydrology" ) );
 
   QMenu *mapMenu = new QMenu( tr( "Map" ), this );

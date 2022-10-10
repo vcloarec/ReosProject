@@ -45,11 +45,11 @@ void ReosNotificationButton::setMessage( const ReosModule::Message &message )
       break;
     case ReosModule::Warning:
       setText( tr( "Warning" ) );
-      setIcon( QPixmap( QStringLiteral( ":/images/warning.svg" ) ) );
+      setIcon( QIcon( QStringLiteral( ":/images/warning.svg" ) ) );
       break;
     case ReosModule::Error:
       setText( tr( "Error" ) );
-      setIcon( QPixmap( QStringLiteral( ":/images/error.svg" ) ) );
+      setIcon( QIcon( QStringLiteral( ":/images/error.svg" ) ) );
       break;
   }
 

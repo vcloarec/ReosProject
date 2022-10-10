@@ -235,7 +235,7 @@ void ReosParameterWidget::finalizeWidget()
   layout()->addWidget( mDerivationButton );
   connect( mDerivationButton, &QToolButton::clicked, this, &ReosParameterWidget::askDerivation );
   mDerivationButton->setVisible( mParameter && mParameter->isDerivable() );
-  mDerivationButton->setIcon( QPixmap( ":/images/calculation.svg" ) );
+  mDerivationButton->setIcon( QIcon( QStringLiteral( ":/images/calculation.svg" ) ) );
 }
 
 

@@ -24,12 +24,12 @@
 
 ReosEditableProfile::ReosEditableProfile():
   ReosPlotItem()
-  , mActionEditProfile( new QAction( QPixmap( ":/images/editProfile.svg" ), tr( "Edit Profile" ), this ) )
-  , mActionCreateNewProfile( new QAction( QPixmap( ":/images/drawProfile.svg" ), tr( "Create New Profile" ), this ) )
+  , mActionEditProfile( new QAction( QIcon( QStringLiteral( ":/images/editProfile.svg" ) ), tr( "Edit Profile" ), this ) )
+  , mActionCreateNewProfile( new QAction( QIcon( QStringLiteral( ":/images/drawProfile.svg" ) ), tr( "Create New Profile" ), this ) )
   , mActionGroup( new QActionGroup( this ) )
-  , mActionZoomExtent( new QAction( QPixmap( ":/images/profileExtent.svg" ), tr( "Zoom on Defined Profile Extent" ), this ) )
-  , mActionRemovePoint( new QAction( QPixmap( ":/images/profileRemovePoint.svg" ), tr( "Remove Point" ), this ) )
-  , mActionInsertPoint( new QAction( QPixmap( ":/images/profileAddPoint.svg" ), tr( "Insert point" ), this ) )
+  , mActionZoomExtent( new QAction( QIcon( QStringLiteral( ":/images/profileExtent.svg" ) ), tr( "Zoom on Defined Profile Extent" ), this ) )
+  , mActionRemovePoint( new QAction( QIcon( QStringLiteral( ":/images/profileRemovePoint.svg" ) ), tr( "Remove Point" ), this ) )
+  , mActionInsertPoint( new QAction( QIcon( QStringLiteral( ":/images/profileAddPoint.svg" ) ), tr( "Insert point" ), this ) )
 
 
 {

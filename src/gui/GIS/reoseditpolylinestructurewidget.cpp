@@ -29,12 +29,12 @@
 ReosEditPolylineStructureWidget::ReosEditPolylineStructureWidget( ReosPolylinesStructure *structure, const ReosGuiContext &context )
   : QWidget( context.parent() )
   , ui( new Ui::ReosEditPolylineStructureWidget )
-  , mActionEditLine( new QAction( QPixmap( QStringLiteral( ":/images/editStructureLines.svg" ) ), tr( "Edit Structure Line" ), this ) )
+  , mActionEditLine( new QAction( QIcon( QStringLiteral( ":/images/editStructureLines.svg" ) ), tr( "Edit Structure Line" ), this ) )
   , mStructure( structure )
   , mMapToolEditLine( new ReosMapToolEditPolylineStructure( structure, this, context.map() ) )
-  , mActionRemoveBoundary( new QAction( QPixmap( QStringLiteral( ":/images/remove.svg" ) ), tr( "Remove Selected boundary" ), this ) )
-  , mActionZoomOnBoundary( new QAction( QPixmap( QStringLiteral( ":/images/zoom.svg" ) ), tr( "Zoom on Selected Boundary" ), this ) )
-  , mActionRenameBoundary( new QAction( QPixmap( QStringLiteral( ":/images/rename.svg" ) ), tr( "Rename Selected Boundary" ), this ) )
+  , mActionRemoveBoundary( new QAction( QIcon( QStringLiteral( ":/images/remove.svg" ) ), tr( "Remove Selected boundary" ), this ) )
+  , mActionZoomOnBoundary( new QAction( QIcon( QStringLiteral( ":/images/zoom.svg" ) ), tr( "Zoom on Selected Boundary" ), this ) )
+  , mActionRenameBoundary( new QAction( QIcon( QStringLiteral( ":/images/rename.svg" ) ), tr( "Rename Selected Boundary" ), this ) )
   , mGuiContext( context )
 {
   ui->setupUi( this );

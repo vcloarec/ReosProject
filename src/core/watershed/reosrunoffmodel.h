@@ -141,7 +141,7 @@ class REOSCORE_EXPORT ReosRunoffModelCollection
      * \param displayedText the text taht will be displayed to represent this collection
      * \param icon the icon that cill be displyed to represent this collection
      */
-    ReosRunoffModelCollection( const QString &type, const QString &displayedText, const QPixmap &icon = QPixmap() );
+    ReosRunoffModelCollection( const QString &type, const QString &displayedText, const QIcon &icon = QIcon() );
 
     //! Returns the type odf this collection
     QString type() const;
@@ -150,7 +150,7 @@ class REOSCORE_EXPORT ReosRunoffModelCollection
     QString displayedText() const;
 
     //! Returns the icon used to represents this collection
-    QPixmap icon() const {return mIcon;}
+    QIcon icon() const {return mIcon;}
 
     //! Returns the count of models in this collection
     int runoffModelsCount() const;
@@ -182,7 +182,7 @@ class REOSCORE_EXPORT ReosRunoffModelCollection
   private:
     QString mType;
     QString mDisplayedText;
-    QPixmap mIcon;
+    QIcon mIcon;
     QList<ReosRunoffModel *> mRunoffModels;
 };
 
@@ -244,7 +244,7 @@ class REOSCORE_EXPORT ReosRunoffModelModel : public QAbstractItemModel
     bool addModel( ReosRunoffModel *runoffModel );
 
     //! Adds a new empty collection
-    void addCollection( const QString &type, const QString &displayedName, const QPixmap &icon = QPixmap() );
+    void addCollection( const QString &type, const QString &displayedName, const QIcon &icon = QIcon() );
 
     //! Returns the runoff model corresponding to the \a index
     ReosRunoffModel *runoffModel( const QModelIndex &index ) const;
@@ -308,7 +308,7 @@ class REOSCORE_EXPORT ReosRunoffModelRegistery : public ReosModule
     static ReosRunoffModelRegistery *instance();
 
     //! Adds a new empty runoff model singleton
-    void addModelCollection( const QString &type, const QString displayedText, const QPixmap &icon = QPixmap() );
+    void addModelCollection( const QString &type, const QString displayedText, const QIcon &icon = QIcon() );
 
     //! Adds a description (optional) for the collection of type \a type
     void addDescription( const QString &type, const QString desription );

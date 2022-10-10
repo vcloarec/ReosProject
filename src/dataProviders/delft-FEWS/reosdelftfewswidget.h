@@ -123,7 +123,7 @@ class ReosDelftFewsGuiFactory : public ReosDataProviderGuiFactory
     ReosDelftFewsWidget *createProviderSelectorWidget( ReosMap *map, const QString &dataType, QWidget *parent = nullptr ) const override;
     ReosDelftFewsSettingsWidget *createProviderSettingsWidget( ReosDataProvider *provider, QWidget *parent = nullptr ) const override;
     QString dataType() const override;
-    QPixmap icon() const override;
+    QIcon icon() const override;
     QString displayText() const override;
 };
 

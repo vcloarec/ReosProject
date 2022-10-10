@@ -113,7 +113,7 @@ void ReosMeshTopographyWidget::onViewContextMenuRequest( const QPoint &pos )
     mTopographyCollection->removeTopography( row );
   } );
 
-  action->setIcon( QPixmap( QStringLiteral( ":/images/remove.svg" ) ) );
+  action->setIcon( QIcon( QStringLiteral( ":/images/remove.svg" ) ) );
 
   menu->exec( ui->mTopographyCollectionView->viewport()->mapToGlobal( pos ) );
 

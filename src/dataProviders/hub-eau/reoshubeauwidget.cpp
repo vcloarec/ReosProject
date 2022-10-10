@@ -42,7 +42,7 @@ ReosHubEauWidget::ReosHubEauWidget( ReosMap *map, QWidget *parent )
   QToolBar *toolBar = new QToolBar( ui->mToolWidget );
   toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   ui->mToolWidget->layout()->addWidget( toolBar );
-  QAction *selectStationAction = toolBar->addAction( QPixmap( ":/hub-eau-images/selectOnMap.svg" ), tr( "Select Station" ) );
+  QAction *selectStationAction = toolBar->addAction( QIcon( QStringLiteral( ":/hub-eau-images/selectOnMap.svg" ) ), tr( "Select Station" ) );
   selectStationAction->setCheckable( true );
   mSelectStation->setAction( selectStationAction );
   mSelectStation->setSearchUnderPoint( true );
@@ -281,9 +281,9 @@ QString ReosHubEauHydrometryGuiFactory::dataType() const
   return ReosHydrograph::staticType();
 }
 
-QPixmap ReosHubEauHydrometryGuiFactory::icon() const
+QIcon ReosHubEauHydrometryGuiFactory::icon() const
 {
-  return QPixmap( QStringLiteral( ":/hub-eau-images/icon-hubeau-blue.svg" ) );
+  return QIcon( QStringLiteral( ":/hub-eau-images/icon-hubeau-blue.svg" ) );
 }
 
 QString ReosHubEauHydrometryGuiFactory::displayText() const {return QStringLiteral( "Hub'Eau" );}

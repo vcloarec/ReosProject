@@ -70,12 +70,12 @@ QMenu *ReosGisLayerTreeContextMenuProvider::createContextMenu()
       menu->addSeparator();
       if ( mLayerWidget->isLayerDigitalElevationModel( rasterLayer->id() ) )
       {
-        QAction *unRegisterAction = menu->addAction( QPixmap( ":/images/noDem.svg" ), QObject::tr( "Unregister as Digital Elevation Model" ) );
+        QAction *unRegisterAction = menu->addAction( QIcon( QStringLiteral( ":/images/noDem.svg" ) ), QObject::tr( "Unregister as Digital Elevation Model" ) );
         QObject::connect( unRegisterAction, &QAction::triggered, mLayerWidget, &ReosGisLayersWidget::unRegisterCurrentLayerAsDigitalElevationModel );
       }
       else
       {
-        QAction *registerAction = menu->addAction( QPixmap( ":/images/dem.svg" ), QObject::tr( "Register as Digital Elevation Model" ) );
+        QAction *registerAction = menu->addAction( QIcon( QStringLiteral( ":/images/dem.svg" ) ), QObject::tr( "Register as Digital Elevation Model" ) );
         QObject::connect( registerAction, &QAction::triggered, mLayerWidget, &ReosGisLayersWidget::registerCurrentLayerAsDigitalElevationModel );
       }
     }

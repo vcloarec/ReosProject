@@ -43,9 +43,9 @@ ReosRunoffManager::ReosRunoffManager( ReosRunoffModelModel *model, QWidget *pare
   QToolBar *toolBar = new QToolBar( this );
   toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   ui->widgetTools->layout()->addWidget( toolBar );
-  toolBar->addAction( QPixmap( QStringLiteral( ":/images/openRunoff.svg" ) ), tr( "Open File" ), this, &ReosRunoffManager::onOpenFile );
-  toolBar->addAction( QPixmap( QStringLiteral( ":/images/saveRunoff.svg" ) ), tr( "Save Runoff Models" ), this, &ReosRunoffManager::save );
-  toolBar->addAction( QPixmap( QStringLiteral( ":/images/saveRunoffAs.svg" ) ), tr( "Save Runoff Models as ..." ), this, &ReosRunoffManager::onSaveAs );
+  toolBar->addAction( QIcon( QStringLiteral( ":/images/openRunoff.svg" ) ), tr( "Open File" ), this, &ReosRunoffManager::onOpenFile );
+  toolBar->addAction( QIcon( QStringLiteral( ":/images/saveRunoff.svg" ) ), tr( "Save Runoff Models" ), this, &ReosRunoffManager::save );
+  toolBar->addAction( QIcon( QStringLiteral( ":/images/saveRunoffAs.svg" ) ), tr( "Save Runoff Models as ..." ), this, &ReosRunoffManager::onSaveAs );
 
   connect( ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ReosRunoffManager::onCurrentTreeIndexChanged );
   onCurrentTreeIndexChanged();

@@ -48,11 +48,11 @@ ReosGisLayersWidget::ReosGisLayersWidget( ReosGisEngine *engine, ReosMap *map, Q
   mMap( map ),
   mTreeView( new QgsLayerTreeView( this ) ),
   mToolBar( new QToolBar( this ) ),
-  mActionLoadQGISProject( new QAction( QPixmap( ":/images/openQGISProject.svg" ), tr( "Load QGIS Project" ), this ) ),
-  mActionLoadVectorLayer( new QAction( QPixmap( ":/images/mActionAddVectorLayer.svg" ), tr( "Add Vector Layer" ), this ) ),
-  mActionLoadRasterLayer( new QAction( QPixmap( ":/images/mActionAddRasterLayer.svg" ), tr( "Add Raster Layer" ), this ) ),
-  mActionLoadMeshLayer( new QAction( QPixmap( ":/images/mActionAddMeshLayer.svg" ), tr( "Add Mesh Layer" ), this ) ),
-  mActionSetProjectCrs( new QAction( QPixmap( ":/images/CRS.svg" ), tr( "Project coordinate reference system" ), this ) )
+  mActionLoadQGISProject( new QAction( QIcon( QStringLiteral( ":/images/openQGISProject.svg" ) ), tr( "Load QGIS Project" ), this ) ),
+  mActionLoadVectorLayer( new QAction( QIcon( QStringLiteral( ":/images/mActionAddVectorLayer.svg" ) ), tr( "Add Vector Layer" ), this ) ),
+  mActionLoadRasterLayer( new QAction( QIcon( QStringLiteral( ":/images/mActionAddRasterLayer.svg" ) ), tr( "Add Raster Layer" ), this ) ),
+  mActionLoadMeshLayer( new QAction( QIcon( QStringLiteral( ":/images/mActionAddMeshLayer.svg" ) ), tr( "Add Mesh Layer" ), this ) ),
+  mActionSetProjectCrs( new QAction( QIcon( QStringLiteral( ":/images/CRS.svg" ) ), tr( "Project coordinate reference system" ), this ) )
 {
   mToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   connect( mGisEngine, &ReosGisEngine::updated, this, &ReosGisLayersWidget::onGISEngineUpdated );
@@ -76,7 +76,7 @@ ReosGisLayersWidget::ReosGisLayersWidget( ReosGisEngine *engine, ReosMap *map, Q
   mToolBar->addAction( defaulAction->actionRemoveGroupOrLayer( this ) );
 
   mDemIndicator = new QgsLayerTreeViewIndicator( mTreeView );
-  mDemIndicator->setIcon( QPixmap( ":/images/dem.svg" ) );
+  mDemIndicator->setIcon( QIcon( QStringLiteral( ":/images/dem.svg" ) ) );
   mDemIndicator->setToolTip( tr( "Digital Elevation Model" ) );
 
   QgsMapCanvas *mapCanvas = qobject_cast<QgsMapCanvas *>( mMap->mapCanvas() );

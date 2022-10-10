@@ -54,10 +54,10 @@ ReosConcentrationTimeWidget::ReosConcentrationTimeWidget( QWidget *parent ) :
   QToolBar *toolBar = new QToolBar( ui->widgetTools );
   ui->widgetTools->layout()->addWidget( toolBar );
 
-  toolBar->addAction( QPixmap( QStringLiteral( ":/images/selectAllFormula.svg" ) ), tr( "Select All " ), this, &ReosConcentrationTimeWidget::onSelectAll );
-  toolBar->addAction( QPixmap( QStringLiteral( ":/images/deselectAllFormula.svg" ) ), tr( "Deselect All " ), this, &ReosConcentrationTimeWidget::onDeselectAll );
-  toolBar->addAction( QPixmap( QStringLiteral( ":/images/selectValidFormula.svg" ) ), tr( "Select Valid " ), this, &ReosConcentrationTimeWidget::onSelectValid );
-  toolBar->addAction( QPixmap( QStringLiteral( ":/images/copySelected.svg" ) ), tr( "Copy values to Clipboard " ), this, &ReosConcentrationTimeWidget::onCopy );
+  toolBar->addAction( QIcon( QStringLiteral( ":/images/selectAllFormula.svg" ) ), tr( "Select All " ), this, &ReosConcentrationTimeWidget::onSelectAll );
+  toolBar->addAction( QIcon( QStringLiteral( ":/images/deselectAllFormula.svg" ) ), tr( "Deselect All " ), this, &ReosConcentrationTimeWidget::onDeselectAll );
+  toolBar->addAction( QIcon( QStringLiteral( ":/images/selectValidFormula.svg" ) ), tr( "Select Valid " ), this, &ReosConcentrationTimeWidget::onSelectValid );
+  toolBar->addAction( QIcon( QStringLiteral( ":/images/copySelected.svg" ) ), tr( "Copy values to Clipboard " ), this, &ReosConcentrationTimeWidget::onCopy );
   toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
 
   ui->formulasView->setModel( mFormulasModel );

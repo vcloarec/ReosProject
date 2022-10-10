@@ -261,15 +261,15 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   ReosModule( gisEngine )
   , mEngine( gisEngine )
   , mCanvas( new QgsMapCanvas( parentWidget ) )
-  , mActionNeutral( new QAction( QPixmap( QStringLiteral( ":/images/neutral.svg" ) ), tr( "Deactivate Tool" ), this ) )
+  , mActionNeutral( new QAction( QIcon( QStringLiteral( ":/images/neutral.svg" ) ), tr( "Deactivate Tool" ), this ) )
   , mDefaultMapTool( new ReosMapToolNeutral( this ) )
-  , mActionZoom( new QAction( QPixmap( QStringLiteral( ":/images/zoomInExtent.svg" ) ), tr( "Zoom In" ), this ) )
+  , mActionZoom( new QAction( QIcon( QStringLiteral( ":/images/zoomInExtent.svg" ) ), tr( "Zoom In" ), this ) )
   , mZoomMapTool( new ReosMapToolDrawExtent( this ) )
-  , mActionZoomIn( new QAction( QPixmap( QStringLiteral( ":/images/zoomIn.svg" ) ), tr( "Zoom In" ), this ) )
-  , mActionZoomOut( new QAction( QPixmap( QStringLiteral( ":/images/zoomOut.svg" ) ), tr( "Zoom Out" ), this ) )
-  , mActionPreviousZoom( new QAction( QPixmap( QStringLiteral( ":/images/zoomPrevious.svg" ) ), tr( "Previous Zoom" ), this ) )
-  , mActionNextZoom( new QAction( QPixmap( QStringLiteral( ":/images/zoomNext.svg" ) ), tr( "Next Zoom" ), this ) )
-  , mTemporalControllerAction( new QAction( QPixmap( QStringLiteral( ":/images/temporal.svg" ) ), tr( "Temporal controller" ), this ) )
+  , mActionZoomIn( new QAction( QIcon( QStringLiteral( ":/images/zoomIn.svg" ) ), tr( "Zoom In" ), this ) )
+  , mActionZoomOut( new QAction( QIcon( QStringLiteral( ":/images/zoomOut.svg" ) ), tr( "Zoom Out" ), this ) )
+  , mActionPreviousZoom( new QAction( QIcon( QStringLiteral( ":/images/zoomPrevious.svg" ) ), tr( "Previous Zoom" ), this ) )
+  , mActionNextZoom( new QAction( QIcon( QStringLiteral( ":/images/zoomNext.svg" ) ), tr( "Next Zoom" ), this ) )
+  , mTemporalControllerAction( new QAction( QIcon( QStringLiteral( ":/images/temporal.svg" ) ), tr( "Temporal controller" ), this ) )
   , mEnableSnappingAction( new QAction( tr( "Snapping" ), this ) )
   , mExtraRenderedObjectHandler( mCanvas )
 {
@@ -318,7 +318,7 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   mZoomMapTool->setFillColor( QColor( 9, 150, 230, 20 ) );
   mZoomMapTool->setStrokeWidth( 1 );
   mZoomMapTool->setLineStyle( Qt::DotLine );
-  mZoomMapTool->setCursor( QCursor( QPixmap( ":/cursors/zoomInExtent.svg" ), 5, 5 ) );
+  mZoomMapTool->setCursor( QCursor( QStringLiteral( ":/cursors/zoomInExtent.svg" ), 5, 5 ) );
   mActionZoom->setCheckable( true );
 
   connect( mZoomMapTool, &ReosMapToolDrawExtent::extentDrawn, this, [this]( const QRectF & extent )

@@ -107,7 +107,7 @@ class REOSGUI_EXPORT ReosDataProviderGuiFactory
     virtual QString dataType() const = 0;
 
     //! Returns an icon representing this data provider
-    virtual QPixmap icon() const;
+    virtual QIcon icon() const;
 
     //! Returns a text representing this data provider
     virtual QString displayText() const {return QString();}
@@ -136,7 +136,7 @@ class REOSGUI_EXPORT ReosDataProviderGuiRegistery
     bool hasCapability( QString providerKey, ReosDataProviderGuiFactory::GuiCapability capability ) const;
 
     //! Returns the icon that represens the provider with the \a key
-    QPixmap providerIcon( const QString &key ) const;
+    QIcon providerIcon( const QString &key ) const;
 
     //! Returns a text representing this data provider with \a key
     QString providerDisplayText( const QString &key ) const;

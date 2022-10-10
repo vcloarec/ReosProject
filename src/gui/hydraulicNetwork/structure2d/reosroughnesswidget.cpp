@@ -31,7 +31,7 @@ ReosRoughnessWidget::ReosRoughnessWidget( ReosHydraulicStructure2D *structure2D,
   , ui( new Ui::ReosRoughnessWidget )
   , mMap( guiContext.map() )
   , mStructure( structure2D->roughnessStructure() )
-  , mActionEditRoughnessPolygons( new QAction( QPixmap( QStringLiteral( ":/images/editStructurePolygon.svg" ) ), tr( "Edit Roughness Polygons" ), this ) )
+  , mActionEditRoughnessPolygons( new QAction( QIcon( QStringLiteral( ":/images/editStructurePolygon.svg" ) ), tr( "Edit Roughness Polygons" ), this ) )
   , mMapStructureItem( mMap, mStructure->structure() )
 {
   ui->setupUi( this );

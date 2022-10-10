@@ -140,10 +140,10 @@ class CoordinatesWidget: public QWidget
 
 ReosPlotWidget::ReosPlotWidget( QWidget *parent )
   : QWidget( parent )
-  , mActionExportAsImage( new QAction( QPixmap( ":/images/savePlot.svg" ), tr( "Save as Image" ), this ) )
-  , mActionCopyAsImage( new QAction( QPixmap( ":/images/copyPlot.svg" ), tr( "Copy as Image" ), this ) )
-  , mActionTimeLine( new QAction( QPixmap( ":/images/temporalLine.svg" ), tr( "Time Line" ), this ) )
-  , mActionCoordinates( new QAction( QPixmap( ":/images/cursorCoordinates.svg" ), tr( "Display Coordinates on Cursor" ), this ) )
+  , mActionExportAsImage( new QAction( QIcon( QStringLiteral( ":/images/savePlot.svg" ) ), tr( "Save as Image" ), this ) )
+  , mActionCopyAsImage( new QAction( QIcon( QStringLiteral( ":/images/copyPlot.svg" ) ), tr( "Copy as Image" ), this ) )
+  , mActionTimeLine( new QAction( QIcon( QStringLiteral( ":/images/temporalLine.svg" ) ), tr( "Time Line" ), this ) )
+  , mActionCoordinates( new QAction( QIcon( QStringLiteral( ":/images/cursorCoordinates.svg" ) ), tr( "Display Coordinates on Cursor" ), this ) )
 {
   QVBoxLayout *mainLayout = new QVBoxLayout ;
   setLayout( mainLayout );
@@ -962,7 +962,7 @@ ReosPlotLegendController::ReosPlotLegendController( ReosPlotWidget *plotWidget )
   , mPlotWidget( plotWidget )
 {
   setText( tr( "Legend" ) );
-  setIcon( QPixmap( QStringLiteral( ":/images/plotLegend.svg" ) ) );
+  setIcon( QIcon( QStringLiteral( ":/images/plotLegend.svg" ) ) );
   setCheckable( true );
   setPopupMode( QToolButton::MenuButtonPopup );
   connect( this, &QToolButton::toggled, this, &ReosPlotLegendController::legendVisible );
@@ -997,15 +997,15 @@ ReosPlotLegendController::ReosPlotLegendController( ReosPlotWidget *plotWidget )
     mAlignmentButtons << tb;
   }
 
-  mAlignmentButtons.at( 0 )->setIcon( QPixmap( QStringLiteral( ":/images/alignmentTL.svg" ) ) );
-  mAlignmentButtons.at( 1 )->setIcon( QPixmap( QStringLiteral( ":/images/alignmentTC.svg" ) ) );
-  mAlignmentButtons.at( 2 )->setIcon( QPixmap( QStringLiteral( ":/images/alignmentTR.svg" ) ) );
-  mAlignmentButtons.at( 3 )->setIcon( QPixmap( QStringLiteral( ":/images/alignmentCL.svg" ) ) );
-  mAlignmentButtons.at( 4 )->setIcon( QPixmap( QStringLiteral( ":/images/alignmentCC.svg" ) ) );
-  mAlignmentButtons.at( 5 )->setIcon( QPixmap( QStringLiteral( ":/images/alignmentCR.svg" ) ) );
-  mAlignmentButtons.at( 6 )->setIcon( QPixmap( QStringLiteral( ":/images/alignmentBL.svg" ) ) );
-  mAlignmentButtons.at( 7 )->setIcon( QPixmap( QStringLiteral( ":/images/alignmentBC.svg" ) ) );
-  mAlignmentButtons.at( 8 )->setIcon( QPixmap( QStringLiteral( ":/images/alignmentBR.svg" ) ) );
+  mAlignmentButtons.at( 0 )->setIcon( QIcon( QStringLiteral( ":/images/alignmentTL.svg" ) ) );
+  mAlignmentButtons.at( 1 )->setIcon( QIcon( QStringLiteral( ":/images/alignmentTC.svg" ) ) );
+  mAlignmentButtons.at( 2 )->setIcon( QIcon( QStringLiteral( ":/images/alignmentTR.svg" ) ) );
+  mAlignmentButtons.at( 3 )->setIcon( QIcon( QStringLiteral( ":/images/alignmentCL.svg" ) ) );
+  mAlignmentButtons.at( 4 )->setIcon( QIcon( QStringLiteral( ":/images/alignmentCC.svg" ) ) );
+  mAlignmentButtons.at( 5 )->setIcon( QIcon( QStringLiteral( ":/images/alignmentCR.svg" ) ) );
+  mAlignmentButtons.at( 6 )->setIcon( QIcon( QStringLiteral( ":/images/alignmentBL.svg" ) ) );
+  mAlignmentButtons.at( 7 )->setIcon( QIcon( QStringLiteral( ":/images/alignmentBC.svg" ) ) );
+  mAlignmentButtons.at( 8 )->setIcon( QIcon( QStringLiteral( ":/images/alignmentBR.svg" ) ) );
 
   for ( int i = 0; i < 9; ++i )
   {

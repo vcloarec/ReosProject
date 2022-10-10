@@ -36,11 +36,11 @@ ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( const ReosGuiConte
   ui( new Ui::ReosLongitudinalProfileWidget )
   , mMap( context.map() )
   , mCurrentStreamLine( context.map() )
-  , mActionDrawStreamLine( new QAction( QPixmap( ":/images/drawStreamLine.svg" ), tr( "Draw Flow Path on Map" ), this ) )
-  , mActionEditStreamLine( new QAction( QPixmap( ":/images/editStreamLine.svg" ), tr( "Edit Flow Path on Map" ), this ) )
-  , mActionZoomOnDEMProfileExtent( new QAction( QPixmap( ":/images/demProfileExtent.svg" ), tr( "Zoom on DEM Profile Extent" ), this ) )
-  , mActionDrawStreamLineFromDownstream( new QAction( QPixmap( ":/images/drawToUpstream.svg" ), tr( "Draw Longest Flow Path From Downstream" ), this ) )
-  , mActionDrawStreamLineFromPointToDownstream( new QAction( QPixmap( ":/images/drawToDownstream.svg" ), tr( "Draw Flow Path From a Upstream Point on Map" ), this ) )
+  , mActionDrawStreamLine( new QAction( QIcon( QStringLiteral( ":/images/drawStreamLine.svg" ) ), tr( "Draw Flow Path on Map" ), this ) )
+  , mActionEditStreamLine( new QAction( QIcon( QStringLiteral( ":/images/editStreamLine.svg" ) ), tr( "Edit Flow Path on Map" ), this ) )
+  , mActionZoomOnDEMProfileExtent( new QAction( QIcon( QStringLiteral( ":/images/demProfileExtent.svg" ) ), tr( "Zoom on DEM Profile Extent" ), this ) )
+  , mActionDrawStreamLineFromDownstream( new QAction( QIcon( QStringLiteral( ":/images/drawToUpstream.svg" ) ), tr( "Draw Longest Flow Path From Downstream" ), this ) )
+  , mActionDrawStreamLineFromPointToDownstream( new QAction( QIcon( QStringLiteral( ":/images/drawToDownstream.svg" ) ), tr( "Draw Flow Path From a Upstream Point on Map" ), this ) )
   , mActionGroupStreamLineMapTool( new QActionGroup( this ) )
 
 {

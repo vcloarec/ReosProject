@@ -55,7 +55,7 @@ ReosDelftFewsWidget::ReosDelftFewsWidget( ReosMap *map, const QString &dataType,
   toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   ui->mToolBarWidget->setLayout( new QHBoxLayout );
   ui->mToolBarWidget->layout()->addWidget( toolBar );
-  mActionSelectOnMap = toolBar->addAction( QPixmap( ":/delft-fews-images/selectOnMap.svg" ), tr( "Select Station" ) );
+  mActionSelectOnMap = toolBar->addAction( QIcon( QStringLiteral( ":/delft-fews-images/selectOnMap.svg" ) ), tr( "Select Station" ) );
   mActionSelectOnMap->setCheckable( true );
   mMapToolSelectOnMap = new ReosMapToolSelectMapItem( mMap, QStringLiteral( "delft-fews-station" ) );
   mMapToolSelectOnMap->setAction( mActionSelectOnMap );
@@ -423,9 +423,9 @@ QString ReosDelftFewsGuiFactory::dataType() const
   return ReosDelftFewsXMLHydrographProvider::dataType() + QStringLiteral( "::" ) + ReosDelftFewsXMLRainfallProvider::dataType();
 }
 
-QPixmap ReosDelftFewsGuiFactory::icon() const
+QIcon ReosDelftFewsGuiFactory::icon() const
 {
-  return QPixmap();
+  return QIcon();
 }
 
 QString ReosDelftFewsGuiFactory::displayText() const

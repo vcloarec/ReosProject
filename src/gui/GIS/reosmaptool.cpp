@@ -28,7 +28,7 @@ ReosMapToolDrawPolyline::ReosMapToolDrawPolyline( ReosMap *map ): ReosMapToolDra
 
 ReosMapToolDrawPolyline::ReosMapToolDrawPolyline( QObject *parent, ReosMap *map ): ReosMapToolDrawPolyRubberBand( parent, map, false )
 {
-  d->setCursor( QCursor( QPixmap( ":/cursors/linearDrawing.png" ), 3, 3 ) );
+  d->setCursor( QCursor( QStringLiteral( ":/cursors/linearDrawing.png" ), 3, 3 ) );
   connect( d, &ReosMapToolDrawPolyline_p::polylineDrawn, this, &ReosMapToolDrawPolyline::drawn );
 
   setUp();
@@ -40,7 +40,7 @@ ReosMapToolDrawPolygon::ReosMapToolDrawPolygon( ReosMap *map ): ReosMapToolDrawP
 
 ReosMapToolDrawPolygon::ReosMapToolDrawPolygon( QObject *parent, ReosMap *map ): ReosMapToolDrawPolyRubberBand( parent, map, true )
 {
-  d->setCursor( QCursor( QPixmap( ":/cursors/linearDrawing.png" ), 3, 3 ) );
+  d->setCursor( QCursor( QStringLiteral( ":/cursors/linearDrawing.png" ), 3, 3 ) );
   connect( d, &ReosMapToolDrawPolyline_p::polylineDrawn, this, &ReosMapToolDrawPolygon::drawn );
 
   setUp();
@@ -212,7 +212,7 @@ ReosMapToolDrawExtent::ReosMapToolDrawExtent( QObject *parent, ReosMap *map ): R
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolDrawExtent_p( canvas );
-  d->setCursor( QCursor( QPixmap( ":/cursors/rectangularDrawing.png" ), 3, 3 ) );
+  d->setCursor( QCursor( QStringLiteral( ":/cursors/rectangularDrawing.png" ), 3, 3 ) );
   connect( d, &ReosMapToolDrawExtent_p::extentDrawn, this, &ReosMapToolDrawExtent::extentDrawn );
 
   setUp();
@@ -261,7 +261,7 @@ ReosMapToolSelectMapItem::ReosMapToolSelectMapItem( QObject *parent, ReosMap *ma
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolSelectMapItem_p( canvas, targetDescription );
-  d->setCursor( QCursor( QPixmap( ":/cursors/removeItem.png" ), 3, 3 ) );
+  d->setCursor( QCursor( QStringLiteral( ":/cursors/removeItem.png" ), 3, 3 ) );
   connect( d, &ReosMapToolSelectMapItem_p::found, this, &ReosMapToolSelectMapItem::found );
 
   setUp();
@@ -340,7 +340,7 @@ ReosMapToolEditMapPolyline::ReosMapToolEditMapPolyline( QObject *parent, ReosMap
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolEditPolygon_p( canvas );
-  setCursor( QCursor( QPixmap( ":/cursors/moveElement.png" ), 16, 16 ) );
+  setCursor( QCursor( QStringLiteral( ":/cursors/moveElement.png" ), 16, 16 ) );
   connect( d, &ReosMapToolEditPolygon_p::polygonEdited, this, &ReosMapToolEditMapPolyline::polylineEdited );
 
   setUp();
@@ -375,7 +375,7 @@ ReosMapToolEditMapPolygon::ReosMapToolEditMapPolygon( QObject *parent, ReosMap *
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolEditPolygon_p( canvas );
-  setCursor( QCursor( QPixmap( ":/cursors/moveElement.png" ), 16, 16 ) );
+  setCursor( QCursor( QStringLiteral( ":/cursors/moveElement.png" ), 16, 16 ) );
   connect( d, &ReosMapToolEditPolygon_p::polygonEdited, this, &ReosMapToolEditMapPolygon::polygonEdited );
 
   setUp();
@@ -410,7 +410,7 @@ ReosMapToolMoveMapItem::ReosMapToolMoveMapItem( QObject *parent, ReosMap *map ):
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolMoveItem_p( canvas );
-  setCursor( QCursor( QPixmap( ":/cursors/moveElement.png" ), 16, 16 ) );
+  setCursor( QCursor( QStringLiteral( ":/cursors/moveElement.png" ), 16, 16 ) );
   connect( d, &ReosMapToolMoveItem_p::itemMoved, this, &ReosMapToolMoveMapItem::itemMoved );
 
   setUp();

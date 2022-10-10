@@ -48,11 +48,11 @@ ReosVariableTimeStepTimeSeriesGroupWidget::ReosVariableTimeStepTimeSeriesGroupWi
   toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   ui->mWidgetToolBar->layout()->addWidget( toolBar );
 
-  mActionAddSeries = toolBar->addAction( QPixmap( QStringLiteral( ":/images/add.svg" ) ),
+  mActionAddSeries = toolBar->addAction( QIcon( QStringLiteral( ":/images/add.svg" ) ),
                                          tr( "Add %1" ).arg( mGenericSeriesName ), this, &ReosVariableTimeStepTimeSeriesGroupWidget::onAddSeries );
-  mActionDeleteSeries = toolBar->addAction( QPixmap( QStringLiteral( ":/images/remove.svg" ) ),
+  mActionDeleteSeries = toolBar->addAction( QIcon( QStringLiteral( ":/images/remove.svg" ) ),
                         tr( "Delete %1" ).arg( mGenericSeriesName ), this, &ReosVariableTimeStepTimeSeriesGroupWidget::onRemoveSeries );
-  mActionRenameSeries = toolBar->addAction( QPixmap( QStringLiteral( ":/images/rename.svg" ) ),
+  mActionRenameSeries = toolBar->addAction( QIcon( QStringLiteral( ":/images/rename.svg" ) ),
                         tr( "Rename %1" ).arg( mGenericSeriesName ), this, &ReosVariableTimeStepTimeSeriesGroupWidget::onRenameSeries );
 
   ui->mWidgetProviderToolBar->setLayout( new QHBoxLayout );

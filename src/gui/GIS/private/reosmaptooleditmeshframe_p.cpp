@@ -36,28 +36,28 @@ ReosMapToolEditMeshFrame_p::ReosMapToolEditMeshFrame_p( ReosMesh *mesh, QgsMapCa
   , mMeshLayer( qobject_cast<QgsMeshLayer*>( mesh->data() ) )
   , mMainActions( new QActionGroup( this ) )
 {
-  mActionEditMesh = new QAction( QPixmap( QStringLiteral( ":/images/editMeshElement.svg" ) ), tr( "Edit Element" ), this );
+  mActionEditMesh = new QAction( QIcon( QStringLiteral( ":/images/editMeshElement.svg" ) ), tr( "Edit Element" ), this );
   mActionEditMesh->setCheckable( true );
   mActionEditMesh->setChecked( true );
   mMainActions->addAction( mActionEditMesh );
-  mActionSelectElementByPolygon = new QAction( QPixmap( QStringLiteral( ":/images/selectMeshElement.svg" ) ),  tr( "Select element by polygon" ), this );
+  mActionSelectElementByPolygon = new QAction( QIcon( QStringLiteral( ":/images/selectMeshElement.svg" ) ),  tr( "Select element by polygon" ), this );
   mActionSelectElementByPolygon->setCheckable( true );
   mMainActions->addAction( mActionSelectElementByPolygon );
 
-  mActionRemoveVertices = new QAction( QPixmap( QStringLiteral( ":/images/removeMeshVertex.svg" ) ), tr( "Remove vertices" ), this );
+  mActionRemoveVertices = new QAction( QIcon( QStringLiteral( ":/images/removeMeshVertex.svg" ) ), tr( "Remove vertices" ), this );
   mMainActions->addAction( mActionRemoveVertices );
   connect( mActionRemoveVertices, &QAction::triggered, this, &ReosMapToolEditMeshFrame_p::removeSelectedVerticesFromMesh );
   mActionRemoveVertices->setEnabled( false );
 
-  mActionChangeZValue = new QAction( QPixmap( QStringLiteral( ":/images/changeZValue.svg" ) ), tr( "Change Z value" ), this );
+  mActionChangeZValue = new QAction( QIcon( QStringLiteral( ":/images/changeZValue.svg" ) ), tr( "Change Z value" ), this );
   mMainActions->addAction( mActionChangeZValue );
   connect( mActionChangeZValue, &QAction::triggered, this, &ReosMapToolEditMeshFrame_p::changeZValue );
   mActionChangeZValue->setEnabled( false );
 
   mActionUndo = mMeshLayer->undoStack()->createUndoAction( this );
-  mActionUndo->setIcon( QPixmap( QStringLiteral( ":/images/undoBlue.svg" ) ) );
+  mActionUndo->setIcon( QIcon( QStringLiteral( ":/images/undoBlue.svg" ) ) );
   mActionRedo = mMeshLayer->undoStack()->createRedoAction( this );
-  mActionRedo->setIcon( QPixmap( QStringLiteral( ":/images/redoBlue.svg" ) ) );
+  mActionRedo->setIcon( QIcon( QStringLiteral( ":/images/redoBlue.svg" ) ) );
   mMainActions->addAction( mActionUndo );
   mMainActions->addAction( mActionRedo );
   mMainActions->setExclusive( true );

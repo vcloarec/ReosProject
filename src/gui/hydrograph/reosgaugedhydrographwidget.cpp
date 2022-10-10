@@ -45,9 +45,9 @@ ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( const ReosGuiContext &gu
   toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   ui->mWidgetToolBar->layout()->addWidget( toolBar );
 
-  mActionAddHydrograph = toolBar->addAction( QPixmap( QStringLiteral( ":/images/add.svg" ) ), tr( "Add Gauged Hydrograph" ), this, &ReosGaugedHydrographWidget::onAddHydrograph );
-  mActionDeleteHydrograph = toolBar->addAction( QPixmap( QStringLiteral( ":/images/remove.svg" ) ), tr( "Delete Current Hydrograph" ), this, &ReosGaugedHydrographWidget::onRemoveHydrograph );
-  mActionRenameHydrograph = toolBar->addAction( QPixmap( QStringLiteral( ":/images/rename.svg" ) ), tr( "Rename Current Hydrograph" ), this, &ReosGaugedHydrographWidget::onRenameHydrograph );
+  mActionAddHydrograph = toolBar->addAction( QIcon( QStringLiteral( ":/images/add.svg" ) ), tr( "Add Gauged Hydrograph" ), this, &ReosGaugedHydrographWidget::onAddHydrograph );
+  mActionDeleteHydrograph = toolBar->addAction( QIcon( QStringLiteral( ":/images/remove.svg" ) ), tr( "Delete Current Hydrograph" ), this, &ReosGaugedHydrographWidget::onRemoveHydrograph );
+  mActionRenameHydrograph = toolBar->addAction( QIcon( QStringLiteral( ":/images/rename.svg" ) ), tr( "Rename Current Hydrograph" ), this, &ReosGaugedHydrographWidget::onRenameHydrograph );
 
   ui->mWidgetProviderToolBar->setLayout( new QHBoxLayout );
   ui->mWidgetProviderToolBar->layout()->setContentsMargins( 0, 0, 0, 0 );

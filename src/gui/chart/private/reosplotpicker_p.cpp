@@ -184,7 +184,7 @@ QPolygon ReosPlotPickerDrawLines_p::adjustedPoints( const QPolygon & ) const
 
 void ReosPlotPickerDrawLines_p::setCursor()
 {
-  plot()->canvas()->setCursor( QCursor( QPixmap( ":/cursors/linearDrawing.png" ), 4, 4 ) );
+  plot()->canvas()->setCursor( QCursor( QStringLiteral( ":/cursors/linearDrawing.png" ), 4, 4 ) );
 }
 
 ReosPlotPickerEditPoint_p::ReosPlotPickerEditPoint_p( ReosPlot_p *plot ): ReosPlotPicker_p( plot )
