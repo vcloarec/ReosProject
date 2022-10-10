@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>165</height>
+    <width>304</width>
+    <height>140</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -15,18 +15,6 @@
     <horstretch>150</horstretch>
     <verstretch>150</verstretch>
    </sizepolicy>
-  </property>
-  <property name="minimumSize">
-   <size>
-    <width>400</width>
-    <height>165</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>400</width>
-    <height>165</height>
-   </size>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -70,12 +58,6 @@
         <iconset resource="../../images/images.qrc">
          <normaloff>:/images/mActionNew.png</normaloff>:/images/mActionNew.png</iconset>
        </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>29</height>
-        </size>
-       </property>
       </widget>
      </item>
      <item>
@@ -91,12 +73,6 @@
        <property name="icon">
         <iconset resource="../../images/images.qrc">
          <normaloff>:/images/open.svg</normaloff>:/images/open.svg</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>29</width>
-         <height>29</height>
-        </size>
        </property>
       </widget>
      </item>

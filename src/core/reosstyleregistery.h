@@ -57,7 +57,8 @@ class REOSCORE_EXPORT ReosStyleRegistery: public ReosModule
       return QColor( 255, 0, 0, alpha );
     }
 
-    QSize toolBarIconSize() const {return QSize( 24, 24 );}
+    QSize toolBarIconSize(QWidget* widget = nullptr, double ratio=1) const;
+
 
   private:
     static ReosStyleRegistery *sInstance;

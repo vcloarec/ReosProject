@@ -98,12 +98,6 @@
            <enum>Qt::Vertical</enum>
           </property>
           <widget class="QTreeView" name="mTreeView">
-           <property name="iconSize">
-            <size>
-             <width>24</width>
-             <height>24</height>
-            </size>
-           </property>
            <property name="verticalScrollMode">
             <enum>QAbstractItemView::ScrollPerPixel</enum>
            </property>

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
-    <height>123</height>
+    <width>257</width>
+    <height>108</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -72,12 +72,6 @@
         <iconset resource="../../images/images.qrc">
          <normaloff>:/images/settings.svg</normaloff>:/images/settings.svg</iconset>
        </property>
-       <property name="iconSize">
-        <size>
-         <width>24</width>
-         <height>24</height>
-        </size>
-       </property>
        <property name="popupMode">
         <enum>QToolButton::InstantPopup</enum>
        </property>
@@ -98,12 +92,6 @@
         <iconset resource="../../images/images.qrc">
          <normaloff>:/images/add.svg</normaloff>:/images/add.svg</iconset>
        </property>
-       <property name="iconSize">
-        <size>
-         <width>24</width>
-         <height>24</height>
-        </size>
-       </property>
        <property name="autoRaise">
         <bool>true</bool>
        </property>
@@ -117,12 +105,6 @@
        <property name="icon">
         <iconset resource="../../images/images.qrc">
          <normaloff>:/images/remove.svg</normaloff>:/images/remove.svg</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>24</width>
-         <height>24</height>
-        </size>
        </property>
        <property name="autoRaise">
         <bool>true</bool>

@@ -46,9 +46,9 @@ class DatasetSettingsWidgetAction : public QWidgetAction
       , mMenu( datasetMenu )
     {}
 
-    void setPixmap( const QPixmap &pm )
+    void setIcon( const QIcon &pm )
     {
-      mPixMap = pm;
+      mIcon = pm;
     }
     void setToolTip( const QString &toolTip )
     {
@@ -59,7 +59,7 @@ class DatasetSettingsWidgetAction : public QWidgetAction
     QWidget *createWidget( QWidget *parent ) override
     {
       QToolButton *button = new QToolButton( parent );
-      button->setIcon( mPixMap );
+      button->setIcon(mIcon);
       button->setPopupMode( QToolButton::InstantPopup );
       button->setMenu( mMenu );
       button->setToolTip( mToolTip );
@@ -68,7 +68,7 @@ class DatasetSettingsWidgetAction : public QWidgetAction
 
   private:
     QMenu *mMenu = nullptr;
-    QPixmap mPixMap;
+    QIcon mIcon;
     QString mToolTip;
 };
 

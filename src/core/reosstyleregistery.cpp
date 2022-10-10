@@ -15,6 +15,7 @@
  ***************************************************************************/
 #include "reosstyleregistery.h"
 #include "reossettings.h"
+#include <QScreen>
 
 ReosStyleRegistery *ReosStyleRegistery::sInstance = nullptr;
 
@@ -73,4 +74,14 @@ QColor ReosStyleRegistery::fillColor( int &index, int alpha ) const
   QColor c = mColors.at( index );
   c.setAlpha( alpha );
   return c;
+}
+
+QSize ReosStyleRegistery::toolBarIconSize(QWidget* widget,double ratio) const
+{
+    if (!widget || !widget->screen())
+     return QSize();
+
+   int dpiRatio= int(widget->screen()->physicalDotsPerInch()/96 +0.5);
+
+   return QSize(16*dpiRatio, 16 * dpiRatio);
 }
