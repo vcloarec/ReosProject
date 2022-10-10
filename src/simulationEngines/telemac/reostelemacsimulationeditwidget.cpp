@@ -276,7 +276,7 @@ ReosTelemac2DInititalConditionInterpolationWidget::ReosTelemac2DInititalConditio
   : QWidget( guiContext.parent() )
   , mMap( guiContext.map() )
   , mInitialCondition( initialCondition )
-  , mActionDrawLine( new QAction( QPixmap( QStringLiteral( ":/images/drawProfile.svg" ) ), tr( "Draw intepolation line" ), this ) )
+  , mActionDrawLine( new QAction( QIcon( QStringLiteral( ":/images/drawProfile.svg" ) ), tr( "Draw intepolation line" ), this ) )
   , mMapLine( mMap )
 {
   QVBoxLayout *lay = new QVBoxLayout( this );

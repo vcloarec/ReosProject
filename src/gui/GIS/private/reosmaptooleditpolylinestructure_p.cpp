@@ -28,10 +28,10 @@
 ReosMapToolEditPolylineStructure_p::ReosMapToolEditPolylineStructure_p( QgsMapCanvas *map )
   :  ReosMapTool_p( map )
   , mMainActions( new QActionGroup( this ) )
-  , mActionAddLines( new QAction( QPixmap( QStringLiteral( ":/images/addStructureLines.svg" ) ), tr( "Add Lines" ), this ) )
-  , mActionAddHole( new QAction( QPixmap( QStringLiteral( ":/images/addHole.svg" ) ), tr( "Add Hole" ), this ) )
-  , mActionMoveVertex( new QAction( QPixmap( QStringLiteral( ":/images/moveVertesStructure.svg" ) ), tr( "Move Vertex" ), this ) )
-  , mActionAddBoundary( new QAction( QPixmap( QStringLiteral( ":/images/addBoundaryCondition.svg" ) ), tr( "Add Boundary Condition" ), this ) )
+  , mActionAddLines( new QAction( QIcon( QStringLiteral( ":/images/addStructureLines.svg" ) ), tr( "Add Lines" ), this ) )
+  , mActionAddHole( new QAction( QIcon( QStringLiteral( ":/images/addHole.svg" ) ), tr( "Add Hole" ), this ) )
+  , mActionMoveVertex( new QAction( QIcon( QStringLiteral( ":/images/moveVertesStructure.svg" ) ), tr( "Move Vertex" ), this ) )
+  , mActionAddBoundary( new QAction( QIcon( QStringLiteral( ":/images/addBoundaryCondition.svg" ) ), tr( "Add Boundary Condition" ), this ) )
   , mActionInsertVertex( new QAction( tr( "Insert Vertex" ), this ) )
   , mActionRemoveVertex( new QAction( tr( "Remove Vertex" ), this ) )
   , mActionRemoveLine( new QAction( tr( "Remove Line" ), this ) )
@@ -109,9 +109,9 @@ void ReosMapToolEditPolylineStructure_p::setStructure( ReosPolylinesStructure *s
   mStructure = structure;
 
   mActionUndo = structure->undoStack()->createUndoAction( this );
-  mActionUndo->setIcon( QPixmap( QStringLiteral( ":/images/undoOrange.svg" ) ) );
+  mActionUndo->setIcon( QIcon( QStringLiteral( ":/images/undoOrange.svg" ) ) );
   mActionRedo = structure->undoStack()->createRedoAction( this );
-  mActionRedo->setIcon( QPixmap( QStringLiteral( ":/images/redoOrange.svg" ) ) );
+  mActionRedo->setIcon( QIcon( QStringLiteral( ":/images/redoOrange.svg" ) ) );
 
   mMainActions->addAction( mActionUndo );
   mMainActions->addAction( mActionRedo );

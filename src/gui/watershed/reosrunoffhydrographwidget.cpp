@@ -943,7 +943,7 @@ QVariant ReosWatershedRunoffModelsModel::headerData( int section, Qt::Orientatio
         break;
         case Qt::DecorationRole:
           if ( section == 2 )
-            return QPixmap( QStringLiteral( ":/images/lock.svg" ) );
+            return QIcon( QStringLiteral( ":/images/lock.svg" ) );
           break;
         case Qt::TextAlignmentRole:
           return Qt::AlignHCenter;
@@ -958,7 +958,7 @@ QVariant ReosWatershedRunoffModelsModel::headerData( int section, Qt::Orientatio
         return QAbstractTableModel::headerData( section, orientation, role );
 
       if ( section == mWatershedRunoffModels->runoffModelCount() && role == Qt::DecorationRole )
-        return QPixmap( QStringLiteral( ":/images/add.svg" ) );
+        return QIcon( QStringLiteral( ":/images/add.svg" ) );
 
       return QVariant();
     }

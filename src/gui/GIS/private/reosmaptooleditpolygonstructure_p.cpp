@@ -58,9 +58,9 @@ void ReosMapToolEditPolygonStructure_p::setStructure( ReosPolygonStructure *stru
   mStructure = structure;
 
   mActionUndo = structure->undoStack()->createUndoAction( this );
-  mActionUndo->setIcon( QPixmap( QStringLiteral( ":/images/undoOrange.svg" ) ) );
+  mActionUndo->setIcon( QIcon( QStringLiteral( ":/images/undoOrange.svg" ) ) );
   mActionRedo = structure->undoStack()->createRedoAction( this );
-  mActionRedo->setIcon( QPixmap( QStringLiteral( ":/images/redoOrange.svg" ) ) );
+  mActionRedo->setIcon( QIcon( QStringLiteral( ":/images/redoOrange.svg" ) ) );
 
   mMainActionsGroup->addAction( mActionUndo );
   mMainActionsGroup->addAction( mActionRedo );

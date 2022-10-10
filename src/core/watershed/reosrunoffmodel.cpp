@@ -326,7 +326,7 @@ bool ReosRunoffModelModel::addModel( ReosRunoffModel *runoffModel )
   return false;
 }
 
-void ReosRunoffModelModel::addCollection( const QString &type, const QString &displayedName, const QPixmap &icon )
+void ReosRunoffModelModel::addCollection( const QString &type, const QString &displayedName, const QIcon &icon )
 {
   if ( mRunoffCollections.contains( type ) )
     return;
@@ -497,7 +497,7 @@ ReosRunoffModelRegistery *ReosRunoffModelRegistery::instance()
   return sRegisteryInstance;
 }
 
-void ReosRunoffModelRegistery::addModelCollection( const QString &type, const QString displayedText, const QPixmap &icon )
+void ReosRunoffModelRegistery::addModelCollection( const QString &type, const QString displayedText, const QIcon &icon )
 {
   mModel->addCollection( type, displayedText, icon );
 }
@@ -708,24 +708,24 @@ ReosRunoffModelRegistery::ReosRunoffModelRegistery( QObject *parent ):
 {
   addModelCollection( QStringLiteral( "constant-coefficient" ),
                       tr( "Constant coefficient" ),
-                      QPixmap( QStringLiteral( ":/images/runoffConstantCoefficient.svg" ) ) );
+                      QIcon( QStringLiteral( ":/images/runoffConstantCoefficient.svg" ) ) );
 
 
 
   addModelCollection( QStringLiteral( "green-ampt" ),
                       tr( "Green Ampt" ),
-                      QPixmap( QStringLiteral( ":/images/runoffGreenAmpt.svg" ) ) );
+                      QIcon( QStringLiteral( ":/images/runoffGreenAmpt.svg" ) ) );
 
   addModelCollection( QStringLiteral( "curve-number" ),
                       tr( "Curve Number" ),
-                      QPixmap( QStringLiteral( ":/images/runoffCurveNumber.svg" ) ) );
+                      QIcon( QStringLiteral( ":/images/runoffCurveNumber.svg" ) ) );
 
   addDescription( QStringLiteral( "constant-coefficient" ), tr( "A constant coefficient between 0 and 1\nis applied on the rainfall" ) );
   addDescription( QStringLiteral( "green-ampt" ), tr( "The Green Ampt approach for runoff" ) );
   addDescription( QStringLiteral( "curve-number" ), tr( "Curve Number runoff" ) );
 }
 
-ReosRunoffModelCollection::ReosRunoffModelCollection( const QString &type, const QString &displayedText, const QPixmap &icon ):
+ReosRunoffModelCollection::ReosRunoffModelCollection( const QString &type, const QString &displayedText, const QIcon &icon ):
   mType( type )
   , mDisplayedText( displayedText )
   , mIcon( icon )

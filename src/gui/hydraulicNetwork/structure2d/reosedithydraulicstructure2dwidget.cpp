@@ -48,7 +48,7 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
   propertiesToolBar->layout()->setContentsMargins( 0, 0, 0, 0 );
   ui->mPropertiesToolBarLayout->addWidget( propertiesToolBar );
   QPushButton *backButton = new QPushButton( propertiesToolBar );
-  backButton->setIcon( QPixmap( QStringLiteral( ":/images/back.svg" ) ) );
+  backButton->setIcon( QIcon( QStringLiteral( ":/images/back.svg" ) ) );
   backButton->setToolTip( tr( "Back to Previous Page" ) );
   propertiesToolBar->addWidget( backButton );
   propertiesToolBar->addActions( context.actions() );
@@ -57,7 +57,7 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
 
   //mesh generation setup
   QList<QAction *> meshGenerationToolBarActions;
-  QAction *actionGenerateMesh = new QAction( QPixmap( QStringLiteral( ":/images/generateMesh.svg" ) ), tr( "Generate Mesh" ), this );
+  QAction *actionGenerateMesh = new QAction( QIcon( QStringLiteral( ":/images/generateMesh.svg" ) ), tr( "Generate Mesh" ), this );
   connect( actionGenerateMesh, &QAction::triggered, this, &ReosEditHydraulicStructure2DWidget::generateMesh );
   meshGenerationToolBarActions.append( actionGenerateMesh );
   meshGenerationToolBarActions.append( new ReosParameterWidgetAction( structure2D->meshGenerator()->autoUpdateParameter(), this ) );

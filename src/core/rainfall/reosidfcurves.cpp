@@ -865,7 +865,7 @@ QVariant ReosIntensityDurationCurveTableModel::headerData( int section, Qt::Orie
     }
     if ( role == Qt::DecorationRole && section == mCurve->intervalCount() )
     {
-      return QPixmap( QStringLiteral( ":/images/add.svg" ) );
+      return QIcon( QStringLiteral( ":/images/add.svg" ) );
     }
 
     return QVariant();

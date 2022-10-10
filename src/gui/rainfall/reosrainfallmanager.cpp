@@ -70,23 +70,23 @@ ReosRainfallManager::ReosRainfallManager( ReosMap *map, ReosRainfallModel *rainf
   , ui( new Ui::ReosRainfallManager )
   , mMap( map )
   , mModel( rainfallmodel )
-  , mActionOpenRainfallDataFile( new QAction( QPixmap( QStringLiteral( ":/images/openRainfall.svg" ) ), tr( "Open Rainfal Data File" ), this ) )
-  , mActionSaveRainfallDataFile( new QAction( QPixmap( QStringLiteral( ":/images/saveRainfall.svg" ) ), tr( "Save Rainfal Data File" ), this ) )
-  , mActionSaveAsRainfallDataFile( new QAction( QPixmap( QStringLiteral( ":/images/saveAsRainfall.svg" ) ), tr( "Save Rainfal Data File as ..." ), this ) )
-  , mActionAddRootZone( new QAction( QPixmap( QStringLiteral( ":/images/addZone.svg" ) ), tr( "Add New Zone to the Root" ), this ) )
-  , mActionAddZoneToZone( new QAction( QPixmap( QStringLiteral( ":/images/addZone.svg" ) ), tr( "Add New Sub Zone" ), this ) )
-  , mActionAddStation( new QAction( QPixmap( QStringLiteral( ":/images/addStation.svg" ) ), tr( "Add Station" ), this ) )
-  , mActionAddStationFromMap( new QAction( QPixmap( QStringLiteral( ":/images/addStation.svg" ) ), tr( "Add Station from Map" ), this ) )
-  , mActionAddGaugedRainfall( new QAction( QPixmap( QStringLiteral( ":/images/addGaugedRainfall.svg" ) ), tr( "Gauged Rainfall in a Table" ), this ) )
-  , mActionAddChicagoRainfall( new QAction( QPixmap( QStringLiteral( ":/images/chicagoRainfall.svg" ) ), tr( "Add Chicago Rainfall" ), this ) )
-  , mActionAddAlternatingBlockRainfall( new QAction( QPixmap( QStringLiteral( ":/images/alternatingBlockRainfall.svg" ) ), tr( "Add Alternating Block Rainfall" ), this ) )
-  , mActionAddDoubleTriangleRainfall( new QAction( QPixmap( QStringLiteral( ":/images/doubleTriangleRainfall.svg" ) ), tr( "Add Double Triangle Rainfall" ), this ) )
-  , mActionAddIDFCurves( new QAction( QPixmap( QStringLiteral( ":/images/addIntensityDurationCurves.svg" ) ), tr( "Add Intensity Duration Frequency Curves" ), this ) )
-  , mActionAddIDCurve( new QAction( QPixmap( QStringLiteral( ":/images/addIntensityDurationCurve.svg" ) ), tr( "Add Intensity Duration Curve" ), this ) )
+  , mActionOpenRainfallDataFile( new QAction( QIcon( QStringLiteral( ":/images/openRainfall.svg" ) ), tr( "Open Rainfal Data File" ), this ) )
+  , mActionSaveRainfallDataFile( new QAction( QIcon( QStringLiteral( ":/images/saveRainfall.svg" ) ), tr( "Save Rainfal Data File" ), this ) )
+  , mActionSaveAsRainfallDataFile( new QAction( QIcon( QStringLiteral( ":/images/saveAsRainfall.svg" ) ), tr( "Save Rainfal Data File as ..." ), this ) )
+  , mActionAddRootZone( new QAction( QIcon( QStringLiteral( ":/images/addZone.svg" ) ), tr( "Add New Zone to the Root" ), this ) )
+  , mActionAddZoneToZone( new QAction( QIcon( QStringLiteral( ":/images/addZone.svg" ) ), tr( "Add New Sub Zone" ), this ) )
+  , mActionAddStation( new QAction( QIcon( QStringLiteral( ":/images/addStation.svg" ) ), tr( "Add Station" ), this ) )
+  , mActionAddStationFromMap( new QAction( QIcon( QStringLiteral( ":/images/addStation.svg" ) ), tr( "Add Station from Map" ), this ) )
+  , mActionAddGaugedRainfall( new QAction( QIcon( QStringLiteral( ":/images/addGaugedRainfall.svg" ) ), tr( "Gauged Rainfall in a Table" ), this ) )
+  , mActionAddChicagoRainfall( new QAction( QIcon( QStringLiteral( ":/images/chicagoRainfall.svg" ) ), tr( "Add Chicago Rainfall" ), this ) )
+  , mActionAddAlternatingBlockRainfall( new QAction( QIcon( QStringLiteral( ":/images/alternatingBlockRainfall.svg" ) ), tr( "Add Alternating Block Rainfall" ), this ) )
+  , mActionAddDoubleTriangleRainfall( new QAction( QIcon( QStringLiteral( ":/images/doubleTriangleRainfall.svg" ) ), tr( "Add Double Triangle Rainfall" ), this ) )
+  , mActionAddIDFCurves( new QAction( QIcon( QStringLiteral( ":/images/addIntensityDurationCurves.svg" ) ), tr( "Add Intensity Duration Frequency Curves" ), this ) )
+  , mActionAddIDCurve( new QAction( QIcon( QStringLiteral( ":/images/addIntensityDurationCurve.svg" ) ), tr( "Add Intensity Duration Curve" ), this ) )
   , mActionReorderIdVurve( new QAction( tr( "Reorder Intensity Duration Curves" ), this ) )
-  , mActionRemoveItem( new QAction( QPixmap( QStringLiteral( ":/images/remove.svg" ) ), tr( "Remove item" ), this ) )
-  , mActionImportFromTextFile( new QAction( QPixmap( QStringLiteral( ":/images/importRainfall.svg" ) ), tr( "Import Rainfall from Text File" ), this ) )
-  , mActionSelectStationFromMap( new QAction( QPixmap( QStringLiteral( ":/images/selectStationOnMap.svg" ) ), tr( "Select Station from Map" ), this ) )
+  , mActionRemoveItem( new QAction( QIcon( QStringLiteral( ":/images/remove.svg" ) ), tr( "Remove item" ), this ) )
+  , mActionImportFromTextFile( new QAction( QIcon( QStringLiteral( ":/images/importRainfall.svg" ) ), tr( "Import Rainfall from Text File" ), this ) )
+  , mActionSelectStationFromMap( new QAction( QIcon( QStringLiteral( ":/images/selectStationOnMap.svg" ) ), tr( "Select Station from Map" ), this ) )
 {
   ui->setupUi( this );
   setWindowFlag( Qt::Dialog );
@@ -111,7 +111,7 @@ ReosRainfallManager::ReosRainfallManager( ReosMap *map, ReosRainfallModel *rainf
   toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
 
   mMapToolAddStationOnMap = new ReosMapToolDrawPoint( this, map );
-  mMapToolAddStationOnMap->setCursor( QCursor( QPixmap( QStringLiteral( ":/images/station.svg" ) ), 12, 12 ) );
+  mMapToolAddStationOnMap->setCursor( QCursor( QStringLiteral( ":/images/station.svg" ), 12, 12 ) ) ;
   mMapToolAddStationOnMap->setAction( mActionAddStationFromMap );
   mActionAddStationFromMap->setCheckable( true );
   connect( mMapToolAddStationOnMap, &ReosMapTool::activated, this, [this] {ui->mTreeView->setEnabled( false );} );
@@ -657,14 +657,14 @@ ReosSpatialStationWidgetToolbar::ReosSpatialStationWidgetToolbar( ReosMap *map, 
   setContentsMargins( 0, 0, 0, 0 );
   QToolBar *toolBar = new QToolBar( this );
   toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
-  mActionSetPosition = toolBar->addAction( QPixmap( QStringLiteral( ":/images/station.svg" ) ), tr( "Set Position on Map" ) );
-  mActionMovePosition = toolBar->addAction( QPixmap( QStringLiteral( ":/images/moveStation.svg" ) ), tr( "Move Position on Map" ) );
-  mActiontRemovePosition = toolBar->addAction( QPixmap( QStringLiteral( ":/images/removeStation.svg" ) ), tr( "Remove Position on Map" ) );
-  mActionMapOnStation = toolBar->addAction( QPixmap( QStringLiteral( ":/images/mapOnStation.svg" ) ), tr( "Move Map on Station Position" ) );
+  mActionSetPosition = toolBar->addAction( QIcon( QStringLiteral( ":/images/station.svg" ) ), tr( "Set Position on Map" ) );
+  mActionMovePosition = toolBar->addAction( QIcon( QStringLiteral( ":/images/moveStation.svg" ) ), tr( "Move Position on Map" ) );
+  mActiontRemovePosition = toolBar->addAction( QIcon( QStringLiteral( ":/images/removeStation.svg" ) ), tr( "Remove Position on Map" ) );
+  mActionMapOnStation = toolBar->addAction( QIcon( QStringLiteral( ":/images/mapOnStation.svg" ) ), tr( "Move Map on Station Position" ) );
   layout()->addWidget( toolBar );
 
   mSetPositionTool = new ReosMapToolDrawPoint( this, map );
-  mSetPositionTool->setCursor( QCursor( QPixmap( QStringLiteral( ":/images/station.svg" ) ), 12, 12 ) );
+  mSetPositionTool->setCursor( QCursor( QStringLiteral( ":/images/station.svg" ), 12, 12 ) );
   mSetPositionTool->setAction( mActionSetPosition );
   mActionSetPosition->setCheckable( true );
 
@@ -1046,7 +1046,7 @@ void ReosRainfallManager::onTreeViewContextMenu( const QPoint &pos )
         case ReosRainfallItem::Zone:
         {
           menu.addAction( mActionAddZoneToZone );
-          QMenu *addStationMenu = menu.addMenu( QPixmap( QStringLiteral( ":/images/addStation.svg" ) ), tr( "Add station…" ) );
+          QMenu *addStationMenu = menu.addMenu( QIcon( QStringLiteral( ":/images/addStation.svg" ) ), tr( "Add station…" ) );
           for ( QAction *act : std::as_const( mActionsAddStations ) )
             addStationMenu->addAction( act );
         }
@@ -1064,12 +1064,12 @@ void ReosRainfallManager::onTreeViewContextMenu( const QPoint &pos )
           else
           {
             mActionAddGaugedRainfall->setText( tr( "Gauged Rainfall in a Table" ) );
-            QMenu *gaugedMenu = menu.addMenu( QPixmap( QStringLiteral( ":/images/addGaugedRainfall.svg" ) ), tr( "Add Gauged Rainfall…" ) );
+            QMenu *gaugedMenu = menu.addMenu( QIcon( QStringLiteral( ":/images/addGaugedRainfall.svg" ) ), tr( "Add Gauged Rainfall…" ) );
             for ( QAction *act : std::as_const( mActionsAddGaugedRainfall ) )
               gaugedMenu->addAction( act );
           }
 
-          QMenu *syntheticMenu = menu.addMenu( QPixmap( QStringLiteral( ":/images/addSyntheticRainfall.svg" ) ), tr( "Add Synthetic Rainfall…" ) );
+          QMenu *syntheticMenu = menu.addMenu( QIcon( QStringLiteral( ":/images/addSyntheticRainfall.svg" ) ), tr( "Add Synthetic Rainfall…" ) );
           syntheticMenu->addAction( mActionAddChicagoRainfall );
           syntheticMenu->addAction( mActionAddAlternatingBlockRainfall );
           syntheticMenu->addAction( mActionAddDoubleTriangleRainfall );
@@ -1216,7 +1216,7 @@ ReosImportRainfallDialog::ReosImportRainfallDialog( ReosRainfallModel *model, QW
   mComboSelectedField = importWidget->createAvailableFieldComboBox( this );
   selectionLayout->addWidget( mComboSelectedField );
   mImportButton = new QToolButton( selectionWidget );
-  mImportButton->setIcon( QPixmap( QStringLiteral( ":/images/moveRight.svg" ) ) );
+  mImportButton->setIcon( QIcon( QStringLiteral( ":/images/moveRight.svg" ) ) );
   QHBoxLayout *buttonLayout = new QHBoxLayout;
   buttonLayout->addWidget( mImportButton );
   selectionLayout->addItem( buttonLayout );
@@ -1238,7 +1238,7 @@ ReosImportRainfallDialog::ReosImportRainfallDialog( ReosRainfallModel *model, QW
   stationWidget->setLayout( stationLayout );
   stationLayout->addItem( new QSpacerItem( 10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding ) );
   mSelectStationButton = new QToolButton( stationWidget );
-  mSelectStationButton->setIcon( QPixmap( QStringLiteral( ":/images/station.svg" ) ) );
+  mSelectStationButton->setIcon( QIcon( QStringLiteral( ":/images/station.svg" ) ) );
   stationLayout->addWidget( new QLabel( tr( "Select a Station to Import" ), this ) );
   QHBoxLayout *finalizeLayout = new QHBoxLayout;
   mSelectStationButton->setEnabled( false );

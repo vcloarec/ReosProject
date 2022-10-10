@@ -43,7 +43,7 @@ ReosRainfallIntensityDurationWidget::ReosRainfallIntensityDurationWidget( ReosIn
   mComboFormula->addItems( ReosIdfFormulaRegistery::instance()->formulasList() );
   mComboFormula->setCurrentText( curve->currentFormula() );
   comboFormulaLayout->addWidget( mComboFormula );
-  mButtonDisplayFormula->setIcon( QPixmap( QStringLiteral( ":/images/function.svg" ) ) );
+  mButtonDisplayFormula->setIcon( QIcon( QStringLiteral( ":/images/function.svg" ) ) );
   comboFormulaLayout->addWidget( mButtonDisplayFormula );
   layout()->addItem( comboFormulaLayout );
 

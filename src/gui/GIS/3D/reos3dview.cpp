@@ -46,7 +46,7 @@ Reos3dView::Reos3dView( ReosMesh *meshTerrain, const ReosGuiContext &context )
   : ReosActionWidget( context.parent() )
   , ui( new Ui::Reos3dView )
   , mMeshTerrain( meshTerrain )
-  , mActionZoomExtent( new QAction( QPixmap( QStringLiteral( ":/images/zoomFullExtent.svg" ) ), tr( "Zoom to Full Extent" ), this ) )
+  , mActionZoomExtent( new QAction( QIcon( QStringLiteral( ":/images/zoomFullExtent.svg" ) ), tr( "Zoom to Full Extent" ), this ) )
 {
   ui->setupUi( this );
   setWindowFlag( Qt::Dialog );
@@ -92,7 +92,7 @@ Reos3dView::Reos3dView( ReosMesh *meshTerrain, const ReosGuiContext &context )
   QToolButton *mLightToolButton = new QToolButton( this );
   toolBar->addWidget( mLightToolButton );
   mLightToolButton->setPopupMode( QToolButton::InstantPopup );
-  mLightToolButton->setIcon( QPixmap( QStringLiteral( ":/images/lightSettings.svg" ) ) );
+  mLightToolButton->setIcon( QIcon( QStringLiteral( ":/images/lightSettings.svg" ) ) );
   mLightToolButton->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   QMenu *lightMenu = new QMenu( this );
   mLightToolButton->setMenu( lightMenu );
@@ -104,7 +104,7 @@ Reos3dView::Reos3dView( ReosMesh *meshTerrain, const ReosGuiContext &context )
 
   QToolButton *mExaggerationButton = new QToolButton( this );
   mExaggerationButton->setPopupMode( QToolButton::InstantPopup );
-  mExaggerationButton->setIcon( QPixmap( QStringLiteral( ":/images/verticalExaggeration.svg" ) ) );
+  mExaggerationButton->setIcon( QIcon( QStringLiteral( ":/images/verticalExaggeration.svg" ) ) );
   toolBar->addWidget( mExaggerationButton );
   QMenu *exaggerationMenu = new QMenu( this );
   mExaggerationButton->setMenu( exaggerationMenu );
@@ -115,7 +115,7 @@ Reos3dView::Reos3dView( ReosMesh *meshTerrain, const ReosGuiContext &context )
   connect( mExagerationWidget, &ReosVerticalExaggerationWidget::valueChanged, this, &Reos3dView::onExaggerationChange );
 
   QToolButton *mTerrainSettingsButton = new QToolButton( this );
-  mTerrainSettingsButton->setIcon( QPixmap( QStringLiteral( ":/images/terrain3DSettings.svg" ) ) );
+  mTerrainSettingsButton->setIcon( QIcon( QStringLiteral( ":/images/terrain3DSettings.svg" ) ) );
   mTerrainSettingsButton->setPopupMode( QToolButton::InstantPopup );
   toolBar->addWidget( mTerrainSettingsButton );
   QMenu *terrainSettingsMenu = new QMenu( this );

@@ -32,7 +32,7 @@ ReosEditMeshElementWidget::ReosEditMeshElementWidget( ReosMesh *mesh, const Reos
   , ui( new Ui::ReosEditMeshElementWidget )
   , mMesh( mesh )
   , mGuiContext( context, this )
-  , mActionEditMeshFrame( new QAction( QPixmap( QStringLiteral( ":/images/editMeshFrameTool.svg" ) ), tr( "Edit Mesh Elements" ), this ) )
+  , mActionEditMeshFrame( new QAction( QIcon( QStringLiteral( ":/images/editMeshFrameTool.svg" ) ), tr( "Edit Mesh Elements" ), this ) )
   , mMapToolEditMeshFrame( new ReosMapToolEditMeshFrame( mesh, this, mGuiContext.map() ) )
   , mDisplayTopograhy( new ReosParameterBoolean( tr( "Display topography" ), false, this ) )
 {

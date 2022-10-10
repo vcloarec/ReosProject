@@ -31,7 +31,7 @@ ReosGmshResolutionControllerWidget::ReosGmshResolutionControllerWidget( ReosHydr
   ,  ui( new Ui::ReosGmshResolutionControllerWidget )
   , mMap( guiContext.map() )
   , mController( static_cast<ReosMeshResolutionController *>( structure2D->meshResolutionController() ) )
-  , mActionEditResolutionPolygons( new QAction( QPixmap( QStringLiteral( ":/images/editStructurePolygon.svg" ) ), tr( "Edit Resolution Polygons" ), this ) )
+  , mActionEditResolutionPolygons( new QAction( QIcon( QStringLiteral( ":/images/editStructurePolygon.svg" ) ), tr( "Edit Resolution Polygons" ), this ) )
   , mMapStructureItem( mMap, mController->resolutionPolygons() )
 {
   ui->setupUi( this );

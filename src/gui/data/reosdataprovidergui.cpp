@@ -14,6 +14,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "reosdataprovidergui.h"
+#include "qicon.h"
 #include "reosdataprovider.h"
 
 #include <QVariantMap>
@@ -31,9 +32,9 @@ ReosDataProviderSettingsWidget *ReosDataProviderGuiFactory::createProviderSettin
   return nullptr;
 }
 
-QPixmap ReosDataProviderGuiFactory::icon() const
+QIcon ReosDataProviderGuiFactory::icon() const
 {
-  return QPixmap();
+  return QIcon();
 }
 
 ReosDataProviderGuiRegistery *ReosDataProviderGuiRegistery::sInstance = nullptr;
@@ -99,7 +100,7 @@ ReosDataProviderGuiFactory *ReosDataProviderGuiRegistery::guiFactory( const QStr
   return nullptr;
 }
 
-QPixmap ReosDataProviderGuiRegistery::providerIcon( const QString &key ) const
+QIcon ReosDataProviderGuiRegistery::providerIcon( const QString &key ) const
 {
   ReosDataProviderGuiFactory *fact = guiFactory( key );
   if ( fact )

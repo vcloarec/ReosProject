@@ -77,17 +77,17 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   , ui( new Ui::ReosHydraulicStructure2DProperties )
   , mStructure2D( structure2D )
   , mMap( context.map() )
-  , mActionEditStructure( new QAction( QPixmap( QStringLiteral( ":/images/settings.svg" ) ), tr( "Edit Model" ), this ) )
-  , mActionRunSimulation( new QAction( QPixmap( QStringLiteral( ":/images/runModel.svg" ) ), tr( "Run Simulation" ), this ) )
-  , mActionExportSimulationFile( new QAction( QPixmap( QStringLiteral( ":/images/exportSimulation.svg" ) ), tr( "Export Simulation" ), this ) )
-  , mActionEngineConfiguration( ( new QAction( QPixmap( QStringLiteral( ":/images/engineSettings.svg" ) ), tr( "Engine Settings" ), this ) ) )
-  , mAction3DView( new QAction( QPixmap( QStringLiteral( ":/images/view3D.svg" ) ), tr( "3D View" ), this ) )
-  , mActionProfiles( new QAction( QPixmap( ":/images/resultsProfile.svg" ), tr( "Profiles" ), this ) )
-  , mActionExportAsMesh( new QAction( QPixmap( ":/images/exportToQGIS.svg" ), tr( "Export as Mesh to QGIS Project" ), this ) )
+  , mActionEditStructure( new QAction( QIcon( QStringLiteral( ":/images/settings.svg" ) ), tr( "Edit Model" ), this ) )
+  , mActionRunSimulation( new QAction( QIcon( QStringLiteral( ":/images/runModel.svg" ) ), tr( "Run Simulation" ), this ) )
+  , mActionExportSimulationFile( new QAction( QIcon( QStringLiteral( ":/images/exportSimulation.svg" ) ), tr( "Export Simulation" ), this ) )
+  , mActionEngineConfiguration( ( new QAction( QIcon( QStringLiteral( ":/images/engineSettings.svg" ) ), tr( "Engine Settings" ), this ) ) )
+  , mAction3DView( new QAction( QIcon( QStringLiteral( ":/images/view3D.svg" ) ), tr( "3D View" ), this ) )
+  , mActionProfiles( new QAction( QIcon( QStringLiteral( ":/images/resultsProfile.svg" ) ), tr( "Profiles" ), this ) )
+  , mActionExportAsMesh( new QAction( QIcon( QStringLiteral( ":/images/exportToQGIS.svg" ) ), tr( "Export as Mesh to QGIS Project" ), this ) )
   , mScalarDatasetMenu( new QMenu( this ) )
   , mVectorDatasetMenu( new QMenu( this ) )
-  , mActionScalarSettings( new QAction( QPixmap( QStringLiteral( ":/images/scalarContour.svg" ) ), tr( "Color Ramp" ), this ) )
-  , mActionVectorSettings( new QAction( QPixmap( QStringLiteral( ":/images/vectorSettings.svg" ) ), tr( "Vector Settings" ), this ) )
+  , mActionScalarSettings( new QAction( QIcon( QStringLiteral( ":/images/scalarContour.svg" ) ), tr( "Color Ramp" ), this ) )
+  , mActionVectorSettings( new QAction( QIcon( QStringLiteral( ":/images/vectorSettings.svg" ) ), tr( "Vector Settings" ), this ) )
   , mGuiContext( context, this )
 {
   ui->setupUi( this );
@@ -156,7 +156,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
 
   mScalarWidgetAction = new DatasetSettingsWidgetAction( this, mScalarDatasetMenu );
   mScalarWidgetAction->setToolTip( tr( "Scalar results settings" ) );
-  mScalarWidgetAction->setPixmap( QPixmap( QStringLiteral( ":/images/scalarContour.svg" ) ) );
+  mScalarWidgetAction->setIcon( QIcon( QStringLiteral( ":/images/scalarContour.svg" ) ) );
   toolBar->addAction( mScalarWidgetAction );
   connect( mActionScalarSettings, &QAction::triggered, this, [this]
   {
@@ -168,7 +168,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
 
   mVectorWidgetAction = new DatasetSettingsWidgetAction( this, mVectorDatasetMenu );
   mVectorWidgetAction->setToolTip( tr( "Vector results settings" ) );
-  mVectorWidgetAction->setPixmap( QPixmap( QStringLiteral( ":/images/vectorSettings.svg" ) ) );
+  mVectorWidgetAction->setIcon( QIcon( QStringLiteral( ":/images/vectorSettings.svg" ) ) );
   toolBar->addAction( mVectorWidgetAction );
   mCurrentVectorDatasetId = mStructure2D->currentActivatedVectorMeshDataset();
   connect( mActionVectorSettings, &QAction::triggered, this, [this]

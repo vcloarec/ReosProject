@@ -63,10 +63,10 @@ ReosMeteorologicModelWidget::ReosMeteorologicModelWidget( ReosWatershedItemModel
   toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   ui->widgetToolBar->layout()->addWidget( toolBar );
 
-  mActionAddMeteoModel = toolBar->addAction( QPixmap( QStringLiteral( ":/images/add.svg" ) ), tr( "Add Meteorologic Model" ), this, &ReosMeteorologicModelWidget::onAddMeteoModel );
-  mActionDuplicateMeteoModel = toolBar->addAction( QPixmap( QStringLiteral( ":/images/duplicateMeteoModel.svg" ) ), tr( "Duplicate Meteorologic Model" ), this, &ReosMeteorologicModelWidget::onDuplicateMeteoModel );
-  mActionRemoveMeteoModel = toolBar->addAction( QPixmap( QStringLiteral( ":/images/remove.svg" ) ), tr( "Remove Meteorologic Model" ), this, &ReosMeteorologicModelWidget::onRemoveMeteoModel );
-  mActionRenameMeteoModel = toolBar->addAction( QPixmap( QStringLiteral( ":/images/rename.svg" ) ), tr( "Rename Meteorologic Model" ), this, &ReosMeteorologicModelWidget::onRenameMeteoModel );
+  mActionAddMeteoModel = toolBar->addAction( QIcon( QStringLiteral( ":/images/add.svg" ) ), tr( "Add Meteorologic Model" ), this, &ReosMeteorologicModelWidget::onAddMeteoModel );
+  mActionDuplicateMeteoModel = toolBar->addAction( QIcon( QStringLiteral( ":/images/duplicateMeteoModel.svg" ) ), tr( "Duplicate Meteorologic Model" ), this, &ReosMeteorologicModelWidget::onDuplicateMeteoModel );
+  mActionRemoveMeteoModel = toolBar->addAction( QIcon( QStringLiteral( ":/images/remove.svg" ) ), tr( "Remove Meteorologic Model" ), this, &ReosMeteorologicModelWidget::onRemoveMeteoModel );
+  mActionRenameMeteoModel = toolBar->addAction( QIcon( QStringLiteral( ":/images/rename.svg" ) ), tr( "Rename Meteorologic Model" ), this, &ReosMeteorologicModelWidget::onRenameMeteoModel );
 
   connect( ui->comboBoxCurrentModel, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosMeteorologicModelWidget::onCurrentModelChanged );
   onCurrentModelChanged();
@@ -170,7 +170,7 @@ void ReosMeteorologicModelWidget::onCurrentModelChanged()
 void ReosMeteorologicModelWidget::onMeteoTreeViewContextMenu( const QPoint &pos )
 {
   QMenu menu;
-  menu.addAction( QPixmap( QStringLiteral( ":/images/remove.svg" ) ), tr( "Disassociate rainfall" ), &menu, [this, pos]
+  menu.addAction( QIcon( QStringLiteral( ":/images/remove.svg" ) ), tr( "Disassociate rainfall" ), &menu, [this, pos]
   {
     mMeteorologicItemModel->removeAssociation( ui->treeViewMeteorologicModel->indexAt( pos ) );
   } );

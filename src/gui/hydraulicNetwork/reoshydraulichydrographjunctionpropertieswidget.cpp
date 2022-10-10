@@ -291,7 +291,7 @@ ReosFormBaseJunctionNodeWidget::ReosFormBaseJunctionNodeWidget( ReosHydrographJu
   gaugedButton->setToolButtonStyle( Qt::ToolButtonTextBesideIcon );
   gaugedButton->setAutoRaise( true );
   gaugedButton->setText( tr( "Gauged Hydrographs Manager" ) );
-  gaugedButton->setIcon( QPixmap( QStringLiteral( ":/images/gaugedHydrograph.svg" ) ) );
+  gaugedButton->setIcon( QIcon( QStringLiteral( ":/images/gaugedHydrograph.svg" ) ) );
   gaugedButton->setIconSize( QSize( 20, 20 ) );
   addWidget( gaugedButton );
 
@@ -459,7 +459,7 @@ ReosFormJunctionBoundaryConditionWidget::ReosFormJunctionBoundaryConditionWidget
   mButtonWaterLevelSeries->setToolButtonStyle( Qt::ToolButtonTextBesideIcon );
   mButtonWaterLevelSeries->setAutoRaise( true );
   mButtonWaterLevelSeries->setText( tr( "Water Level Series Manager" ) );
-  mButtonWaterLevelSeries->setIcon( QPixmap( QStringLiteral( ":/images/gaugedHydrograph.svg" ) ) );
+  mButtonWaterLevelSeries->setIcon( QIcon( QStringLiteral( ":/images/gaugedHydrograph.svg" ) ) );
   mButtonWaterLevelSeries->setIconSize( QSize( 20, 20 ) );
   addWidget( mButtonWaterLevelSeries, 4 );
 
