@@ -17,22 +17,22 @@
 #include "reoshecrassimulation.h"
 #include "reoscore.h"
 
-REOSEXTERN ReosSimulationEngineFactory* engineSimulationFactory()
+REOSEXTERN ReosSimulationEngineFactory *engineSimulationFactory()
 {
-	return new ReosHecRasSimulationEngineFactory();
+  return new ReosHecRasSimulationEngineFactory();
 }
 
 void ReosHecRasSimulationEngineFactory::initializeSettings()
 {
 }
 
-ReosHecRasStructureImporter::ReosHecRasStructureImporter(const QString& version, const QString& file)
-	: ReosStructureImporter()
-	, mController(version)
+ReosHecRasStructureImporter::ReosHecRasStructureImporter( const QString &version, const QString &file )
+  : ReosStructureImporter()
+  , mController( version )
 {
-	mIsValid = mController.isValid();
-	if (mIsValid)
-		mIsValid=mController.openHecrasProject(file);
+  mIsValid = mController.isValid();
+  if ( mIsValid )
+    mIsValid = mController.openHecrasProject( file );
 }
 
 ReosHecRasStructureImporter::~ReosHecRasStructureImporter() = default;
@@ -40,27 +40,27 @@ ReosHecRasStructureImporter::~ReosHecRasStructureImporter() = default;
 
 ReosHydraulicStructure2D::Structure2DCapabilities ReosHecRasStructureImporter::capabilities() const
 {
-    return 0;
+  return 0;
 }
 
 QString ReosHecRasStructureImporter::crs() const
 {
-	return QString();
+  return QString();
 }
 
 QPolygonF ReosHecRasStructureImporter::domain() const
 {
-	if (!mIsValid || !mController.isValid())
-		return QPolygon();
+  if ( !mIsValid || !mController.isValid() )
+    return QPolygon();
 
-	QStringList areas2d = mController.flowAreas2D();
+  QStringList areas2d = mController.flowAreas2D();
 
-	if (!areas2d.isEmpty())
-		return mController.flow2DAreasDomain(areas2d.first());
+  if ( !areas2d.isEmpty() )
+    return mController.flow2DAreasDomain( areas2d.first() );
 
 }
 
-ReosMeshResolutionController* ReosHecRasStructureImporter::resolutionController(ReosHydraulicStructure2D* structure) const
+ReosMeshResolutionController *ReosHecRasStructureImporter::resolutionController( ReosHydraulicStructure2D *structure ) const
 {
-	return new ReosMeshResolutionController(structure,crs());
+  return new ReosMeshResolutionController( structure, crs() );
 }
