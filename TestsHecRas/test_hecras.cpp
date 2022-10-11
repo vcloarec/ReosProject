@@ -26,13 +26,18 @@ class ReosHecrasTesting : public QObject
     Q_OBJECT
 
   private slots:
+#ifdef _WIN32
     void availableVersion();
     void createControllerInstance();
     void exploreProject();
 
     void importStructure();
+#endif
 
+    void ddsFile();
 };
+
+#ifdef _WIN32
 
 void ReosHecrasTesting::availableVersion()
 {
@@ -85,6 +90,15 @@ void ReosHecrasTesting::importStructure()
   ReosHydraulicStructure2D *structure = ReosHydraulicStructure2D::create( &importer, network->context() );
   QVERIFY( structure != nullptr );
   QVERIFY( structure->domain().count() > 0 );
+}
+#endif
+
+
+
+void ReosHecrasTesting::ddsFile()
+{
+  //ReosDssFile file;
+  QVERIFY( true );
 }
 
 QTEST_MAIN( ReosHecrasTesting )

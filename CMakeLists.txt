@@ -57,6 +57,12 @@ SET(QSCISCINTILLA_INCLUDE_DIR CACHE PATH "Path to Qsciscintilla include dir")
 SET(GMSH_INCLUDE_DIR CACHE PATH "Path to the include dir of gmsh")
 SET(GMSH_LIB CACHE FILEPATH "Path to the lib file of gmsh")
 
+set(WITH_HEC_DSS TRUE CACHE BOOL "With hec-dss")
+IF(WITH_HEC_DSS)
+    SET (HEC_DSS_LIB CACHE FILEPATH "File path to the hec-dss lib")
+    SET (HEC_DSS_INCLUDE CACHE PATH "Path to the hec-dss include dir")
+ENDIF(WITH_HEC_DSS)
+
 SET(MDAL_INCLUDE_DIR CACHE PATH "Path to the include dir of MDAL")
 SET(MDAL_LIB CACHE FILEPATH "Path to the lib file of MDAL")
 
