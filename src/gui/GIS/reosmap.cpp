@@ -142,7 +142,6 @@ QImage ReosRendererObjectHandler::image( ReosRenderedObject *renderedObject )
   QMutexLocker locker( &( d->mMutex ) );
   if ( hasUpToDateCache( renderedObject ) )
   {
-    d->mCacheRenderings.value( renderedObject ).image.save( "/home/vincent/essai_render/es_updated.png" );
     return d->mCacheRenderings.value( renderedObject ).image;
   }
   else
@@ -249,7 +248,6 @@ void ReosRendererObjectHandler::onRendererFinished()
     {
       d->mCacheRenderings.insert( object, ReosRendererObjectHandler_p::CacheRendering(
       {renderer->image(), renderedExtent, renderedTime, d->mMapToPixels.value( renderer ), d->mTimeStamps.value( renderer )} ) );
-      renderer->image().save( "/home/vincent/essai_render/es" + QString::number( d->mTimeStamps.value( renderer ) )  + ".png" ) ;
     }
     d->mCanvas->refresh();
   }

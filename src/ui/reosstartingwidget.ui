@@ -56,7 +56,7 @@
        </property>
        <property name="icon">
         <iconset resource="../../images/images.qrc">
-         <normaloff>:/images/mActionNew.png</normaloff>:/images/mActionNew.png</iconset>
+         <normaloff>:/images/mActionNew.svg</normaloff>:/images/mActionNew.svg</iconset>
        </property>
       </widget>
      </item>

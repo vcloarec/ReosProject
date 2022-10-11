@@ -33,10 +33,10 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   ui( new Ui::ReosDelineatingWatershedWidget ),
   mModule( watershedModule ),
   mMap( context.map() ),
-  mActionDrawDownstreamLine( new QAction( QIcon( QStringLiteral( ":/images/downStreamSelection.png" ) ), tr( "Draw downstream line" ), this ) ),
-  mActionDrawPredefinedExtent( new QAction( QIcon( QStringLiteral( ":/images/extentWatershedSelection.png" ) ), tr( "Draw predefined extent" ), this ) ),
-  mActionDrawAddBurningLine( new QAction( QIcon( QStringLiteral( ":/images/burningLine.png" ) ), tr( "Add a burning line" ), this ) ),
-  mActionRemoveBurningLine( new QAction( QIcon( QStringLiteral( ":/images/mActionRemoveBurningLine.png" ) ), tr( "Remove a burning line" ), this ) ),
+  mActionDrawDownstreamLine( new QAction( QIcon( QStringLiteral( ":/images/downStreamSelection.svg" ) ), tr( "Draw downstream line" ), this ) ),
+  mActionDrawPredefinedExtent( new QAction( QIcon( QStringLiteral( ":/images/extentWatershedSelection.svg" ) ), tr( "Draw predefined extent" ), this ) ),
+  mActionDrawAddBurningLine( new QAction( QIcon( QStringLiteral( ":/images/burningLine.svg" ) ), tr( "Add a burning line" ), this ) ),
+  mActionRemoveBurningLine( new QAction( QIcon( QStringLiteral( ":/images/removeBurningLine.svg" ) ), tr( "Remove a burning line" ), this ) ),
   mDownstreamLine( context.map() ),
   mWatershedExtent( context.map() ),
   mActionDrawWatershed( new QAction( QIcon( QStringLiteral( ":/images/delineateWatershed.svg" ) ), tr( "Draw watershed manually" ), this ) ),
@@ -416,7 +416,7 @@ void ReosDelineatingWatershedWidget::onModuleReset()
     mCurrentAutomaticMapTool->quitMap();
 
   if ( mCurrentManualMapTool )
-      mCurrentManualMapTool->quitMap();
+    mCurrentManualMapTool->quitMap();
 }
 
 void ReosDelineatingWatershedWidget::closingWidget()
