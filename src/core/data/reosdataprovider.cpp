@@ -18,6 +18,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QLibrary>
+#include <QDebug>
 
 #include "reostimeserieprovider.h"
 
@@ -123,7 +124,16 @@ void ReosDataProviderRegistery::loadDynamicProvider()
       {
         ReosDataProviderFactory *providerFactory = func();
         registerProviderFactory( providerFactory );
+        qDebug() << QString("Library %1 loaded and conform").arg(file.baseName());
       }
+      else
+      {
+        qDebug() << QString("Library %1 loaded and not conform").arg(file.baseName());
+      }
+    }
+    else
+    {
+        qDebug() << QString("Library %1 not loaded").arg(file.baseName());
     }
   }
 }
