@@ -24,7 +24,8 @@ TARGET_LINK_LIBRARIES(test_hecras
                       ${CMAKE_THREAD_LIBS_INIT}
                       reosCore
                       reosGui
-                      ${HEC_DSS_LIB})
+                      ${HEC_DSS_ALL_STATIC_LIB}
+)
 
 IF(GDAL_FOUND)
   TARGET_INCLUDE_DIRECTORIES(${TESTNAME} PRIVATE ${GDAL_INCLUDE_DIRS})
@@ -41,7 +42,6 @@ ADD_TEST(test_hecras ${CMAKE_CURRENT_BINARY_DIR}/test_hecras)
 
 INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras
-
     ${CMAKE_BINARY_DIR}/src/ui
     ${CMAKE_SOURCE_DIR}/src/gui
     ${CMAKE_SOURCE_DIR}/src/gui/chart
