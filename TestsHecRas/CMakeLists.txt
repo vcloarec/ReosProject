@@ -3,7 +3,6 @@
 
 FIND_PACKAGE(Threads REQUIRED)
 
-
 SET(REOS_HECRAS_SOURCES
      ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras/reoshecrascontroller.cpp
      ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras/reoshecrassimulation.cpp
@@ -16,6 +15,8 @@ SET(REOS_HECRAS_HEADERS
      ${CMAKE_SOURCE_DIR}/src/dataProviders/hec-dss/reosdssfile.h
 )
 
+SET(TESTHECDATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/testData/")
+ADD_DEFINITIONS(-DTESTHECDATA="${TESTHECDATA_DIR}")
 
 ADD_EXECUTABLE(test_hecras ${REOS_HECRAS_HEADERS} ${REOS_HECRAS_SOURCES} test_hecras.cpp)
 TARGET_LINK_LIBRARIES(test_hecras
@@ -42,6 +43,8 @@ ADD_TEST(test_hecras ${CMAKE_CURRENT_BINARY_DIR}/test_hecras)
 
 INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras
+    ${CMAKE_SOURCE_DIR}/src/dataProviders/hec-dss
+
     ${CMAKE_BINARY_DIR}/src/ui
     ${CMAKE_SOURCE_DIR}/src/gui
     ${CMAKE_SOURCE_DIR}/src/gui/chart
