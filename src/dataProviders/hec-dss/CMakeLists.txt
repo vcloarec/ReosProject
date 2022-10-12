@@ -16,7 +16,6 @@ ADD_LIBRARY(provider_HEC_DSS MODULE
     ${REOS_HEC_DSS_HEADERS}
 )
 
-
 TARGET_LINK_LIBRARIES(provider_HEC_DSS
         ${Qt5Xml_LIBRARIES}
         ${Qt5Core_LIBRARIES}
@@ -29,9 +28,8 @@ TARGET_LINK_LIBRARIES(provider_HEC_DSS
         ${Qt5Concurrent_LIBRARIES}
         reosGui
         reosCore
-        ${HEC_DSS_LIB}
+        ${HEC_DSS_ALL_STATIC_LIB}
 )
-
 
 set_target_properties(provider_HEC_DSS
     PROPERTIES
