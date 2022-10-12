@@ -16,16 +16,38 @@
 #ifndef REOSDSSFILE_H
 #define REOSDSSFILE_H
 
+#include <memory>
 #include <array>
+#include <QString>
+#include <QDateTime>
+
+#include <reosduration.h>
+
+class ReosHydrograph;
 
 class ReosDssFile
 {
   public:
-    ReosDssFile();
+
+    ReosDssFile( const QString &filePath, bool create = false );
+    ~ReosDssFile();
+
+    ReosDssFile &operator=( ReosDssFile &other ) = delete;
+    ReosDssFile &operator=( ReosDssFile &&other );
+
+    bool isValid() const;
+    bool isOpen() const;
+
+    bool addHydrograph( ReosHydrograph *hydrograph, const QDateTime &startTime = QDateTime(), const ReosDuration &interval = ReosDuration() );
+
+    static ReosDuration closestValidInterval( const ReosDuration &interval );
 
   private:
-    std::array<long long, 250> mIfltab;
-    int mStatus = 0;
+    std::unique_ptr<std::array<long long, 250>> mIfltab;
+    int mStatus = -1;
+    bool mIsValid = false;
+    bool mIsOpen = false;
+
 };
 
 #endif // REOSDSSFILE_H

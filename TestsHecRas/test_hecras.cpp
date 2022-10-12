@@ -14,12 +14,27 @@ email                : vcloarec at gmail dot com
  ***************************************************************************/
 #include<QtTest/QtTest>
 #include <QObject>
+#include <filesystem>
 
+#ifdef _WIN32
 #include "reoshecrascontroller.h"
 #include "reoshecrassimulation.h"
 #include "reoshydraulicstructure2d.h"
 #include "reosgisengine.h"
 #include "reoswatershedmodule.h"
+#endif
+
+#include "reosdssfile.h"
+
+QString tmp_file( std::string basename )
+{
+  std::string path( TESTHECDATA + std::string( "/tmp" ) );
+  std::filesystem::path tmpPath( path );
+  if ( !std::filesystem::exists( path ) )
+    std::filesystem::create_directory( tmpPath );
+  path += basename;
+  return QString::fromStdString( path );
+}
 
 class ReosHecrasTesting : public QObject
 {
@@ -34,7 +49,8 @@ class ReosHecrasTesting : public QObject
     void importStructure();
 #endif
 
-    void ddsFile();
+    void validInterval();
+    void createDssFile();
 };
 
 #ifdef _WIN32
@@ -94,11 +110,31 @@ void ReosHecrasTesting::importStructure()
 #endif
 
 
-
-void ReosHecrasTesting::ddsFile()
+void ReosHecrasTesting::validInterval()
 {
-  //ReosDssFile file;
-  QVERIFY( true );
+  QVERIFY( ReosDuration( 1, ReosDuration::minute ) == ReosDssFile::closestValidInterval( ReosDuration( 62, ReosDuration::second ) ) );
+  QVERIFY( ReosDuration::minute == ReosDssFile::closestValidInterval( ReosDuration( 62, ReosDuration::second ) ).unit() );
+
+  QVERIFY( ReosDuration( 1, ReosDuration::hour ) == ReosDssFile::closestValidInterval( ReosDuration( 3662, ReosDuration::second ) ) );
+  QVERIFY( ReosDuration::hour == ReosDssFile::closestValidInterval( ReosDuration( 3662, ReosDuration::second ) ).unit() );
+
+  QVERIFY( ReosDuration( 1, ReosDuration::day ) == ReosDssFile::closestValidInterval( ReosDuration( 72, ReosDuration::hour ) ) );
+  QVERIFY( ReosDuration::day == ReosDssFile::closestValidInterval( ReosDuration( 72, ReosDuration::hour ) ).unit() );
+
+  QVERIFY( ReosDuration( 1, ReosDuration::week ) == ReosDssFile::closestValidInterval( ReosDuration( 120, ReosDuration::hour ) ) );
+  QVERIFY( ReosDuration::week == ReosDssFile::closestValidInterval( ReosDuration( 120, ReosDuration::hour ) ).unit() );
+}
+
+void ReosHecrasTesting::createDssFile()
+{
+  const QString newDssFile = tmp_file( "dss_file_0" );
+  ReosDssFile dssFile( newDssFile );
+  QVERIFY( !dssFile.isValid() );
+
+  dssFile = ReosDssFile( newDssFile, true );
+  QVERIFY( dssFile.isValid() );
+  QVERIFY( dssFile.isOpen() );
+
 }
 
 QTEST_MAIN( ReosHecrasTesting )

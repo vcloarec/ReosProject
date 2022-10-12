@@ -62,18 +62,23 @@ IF(ENABLE_HEC_DSS)
     SET (HEC_DSS_LIBS_PATH CACHE PATH "Path to the hec-dss libraries")
     SET (HEC_DSS_INCLUDE CACHE PATH "Path to the hec-dss include dir")
     IF(MSVC)
-    SET(INTEL_FORTRAN_COMPILER_LIB_PATH "C:\\Program Files (x86)\\Intel\\oneAPI\\compiler\\2022.2.0\\windows\\compiler\\lib\\intel64_win\\")
-    SET(HEC_DSS_ALL_STATIC_LIB 
-    ${HEC_DSS_LIBS_PATH}/heclib_c.lib
-    ${HEC_DSS_LIBS_PATH}/heclib_f.lib
-    ${INTEL_FORTRAN_COMPILER_LIB_PATH}/ifconsol.lib
-    ${INTEL_FORTRAN_COMPILER_LIB_PATH}/libifcoremt.lib
-    ${INTEL_FORTRAN_COMPILER_LIB_PATH}/libifport.lib
-    ${INTEL_FORTRAN_COMPILER_LIB_PATH}/libmmt.lib
-    ${INTEL_FORTRAN_COMPILER_LIB_PATH}/libirc.lib
-    ${INTEL_FORTRAN_COMPILER_LIB_PATH}/svml_dispmt.lib
-    ${INTEL_FORTRAN_COMPILER_LIB_PATH}/ifmodintr.lib
-    ${INTEL_FORTRAN_COMPILER_LIB_PATH}/ifwin.lib
+        SET(INTEL_FORTRAN_COMPILER_LIB_PATH "C:\\Program Files (x86)\\Intel\\oneAPI\\compiler\\2022.2.0\\windows\\compiler\\lib\\intel64_win\\")
+        SET(HEC_DSS_ALL_STATIC_LIB
+        ${HEC_DSS_LIBS_PATH}/heclib_c.lib
+        ${HEC_DSS_LIBS_PATH}/heclib_f.lib
+        ${INTEL_FORTRAN_COMPILER_LIB_PATH}/ifconsol.lib
+        ${INTEL_FORTRAN_COMPILER_LIB_PATH}/libifcoremt.lib
+        ${INTEL_FORTRAN_COMPILER_LIB_PATH}/libifport.lib
+        ${INTEL_FORTRAN_COMPILER_LIB_PATH}/libmmt.lib
+        ${INTEL_FORTRAN_COMPILER_LIB_PATH}/libirc.lib
+        ${INTEL_FORTRAN_COMPILER_LIB_PATH}/svml_dispmt.lib
+        ${INTEL_FORTRAN_COMPILER_LIB_PATH}/ifmodintr.lib
+        ${INTEL_FORTRAN_COMPILER_LIB_PATH}/ifwin.lib
+    )
+    ELSE()
+        SET(HEC_DSS_ALL_STATIC_LIB
+        ${HEC_DSS_LIBS_PATH}/heclib.a
+        gfortran
     )
     ENDIF(MSVC)
 ENDIF(ENABLE_HEC_DSS)
