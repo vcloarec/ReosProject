@@ -20,6 +20,7 @@
 #include "qwt_scale_map.h"
 #include "qwt_plot.h"
 #include "qwt_painter.h"
+#include "qwt_scale_map.h"
 
 #include "reosidfplot_p.h"
 #include "reosidfcurves.h"
@@ -52,8 +53,8 @@ void ReosIdfPlot_p::draw( QPainter *painter, const QwtScaleMap &xMap, const QwtS
 
     double start = timeInter.first.valueUnit( mUnit );
     double end = timeInter.second.valueUnit( mUnit );
-    if ( ( start < canvasRect.x() && end < canvasRect.x() ) ||
-         ( start > canvasRect.x() + canvasRect.width() && end > canvasRect.x() + canvasRect.width() ) )
+    if ( ( start < xMap.s1() && end < xMap.s1() ) ||
+         ( start > xMap.s2() + canvasRect.width() && end > xMap.s2() ) )
       continue;
 
     int pointCount = 20;
@@ -61,11 +62,11 @@ void ReosIdfPlot_p::draw( QPainter *painter, const QwtScaleMap &xMap, const QwtS
     double startPlot = start;
     double endPlot = end;
 
-    if ( startPlot < canvasRect.x() )
-      startPlot = canvasRect.x();
+    if ( startPlot < xMap.s1() )
+      startPlot = xMap.s1();
 
-    if ( endPlot > canvasRect.x() + canvasRect.width() )
-      endPlot = canvasRect.x() + canvasRect.width();
+    if ( endPlot > xMap.s2() )
+      endPlot = xMap.s2();
 
     double x1 = start;
     double y1 = mCurve->firstIntensity( i );
