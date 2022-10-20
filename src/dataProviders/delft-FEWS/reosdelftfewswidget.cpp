@@ -52,7 +52,7 @@ ReosDelftFewsWidget::ReosDelftFewsWidget( ReosMap *map, const QString &dataType,
   ui->mPlotWidget->setMagnifierType( ReosPlotWidget::positiveMagnifier );
 
   QToolBar *toolBar = new QToolBar( this );
-  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
   ui->mToolBarWidget->setLayout( new QHBoxLayout );
   ui->mToolBarWidget->layout()->addWidget( toolBar );
   mActionSelectOnMap = toolBar->addAction( QIcon( QStringLiteral( ":/delft-fews-images/selectOnMap.svg" ) ), tr( "Select Station" ) );

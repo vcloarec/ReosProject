@@ -59,7 +59,7 @@ class DatasetSettingsWidgetAction : public QWidgetAction
     QWidget *createWidget( QWidget *parent ) override
     {
       QToolButton *button = new QToolButton( parent );
-      button->setIcon(mIcon);
+      button->setIcon( mIcon );
       button->setPopupMode( QToolButton::InstantPopup );
       button->setMenu( mMenu );
       button->setToolTip( mToolTip );
@@ -194,7 +194,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
 
   toolBar->addAction( mActionExportAsMesh );
 
-  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
   toolBar->layout()->setContentsMargins( 0, 0, 0, 0 );
   ui->mToolBoxLayout->addWidget( toolBar );
 

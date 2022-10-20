@@ -40,7 +40,7 @@ ReosHubEauWidget::ReosHubEauWidget( ReosMap *map, QWidget *parent )
   ui->mToolWidget->setLayout( new QHBoxLayout );
   ui->mToolWidget->layout()->setContentsMargins( 0, 0, 0, 0 );
   QToolBar *toolBar = new QToolBar( ui->mToolWidget );
-  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
   ui->mToolWidget->layout()->addWidget( toolBar );
   QAction *selectStationAction = toolBar->addAction( QIcon( QStringLiteral( ":/hub-eau-images/selectOnMap.svg" ) ), tr( "Select Station" ) );
   selectStationAction->setCheckable( true );

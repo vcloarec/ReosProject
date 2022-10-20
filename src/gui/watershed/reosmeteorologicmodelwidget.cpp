@@ -60,7 +60,7 @@ ReosMeteorologicModelWidget::ReosMeteorologicModelWidget( ReosWatershedItemModel
   ui->widgetToolBar->setLayout( new QHBoxLayout );
   ui->widgetToolBar->layout()->setContentsMargins( 0, 0, 0, 0 );
   QToolBar *toolBar = new QToolBar( ui->widgetToolBar );
-  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
   ui->widgetToolBar->layout()->addWidget( toolBar );
 
   mActionAddMeteoModel = toolBar->addAction( QIcon( QStringLiteral( ":/images/add.svg" ) ), tr( "Add Meteorologic Model" ), this, &ReosMeteorologicModelWidget::onAddMeteoModel );

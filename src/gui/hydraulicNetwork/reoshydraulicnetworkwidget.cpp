@@ -63,7 +63,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
 
   QToolBar *toolBar = new QToolBar( this );
   ui->mainLayout->insertWidget( 0, toolBar );
-  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
 
   toolBar->addAction( mActionSelectNetworkElement );
   mActionSelectNetworkElement->setCheckable( true );

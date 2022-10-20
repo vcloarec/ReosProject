@@ -52,8 +52,8 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
   backButton->setToolTip( tr( "Back to Previous Page" ) );
   propertiesToolBar->addWidget( backButton );
   propertiesToolBar->addActions( context.actions() );
-  propertiesToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
-  backButton->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  propertiesToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
+  backButton->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
 
   //mesh generation setup
   QList<QAction *> meshGenerationToolBarActions;

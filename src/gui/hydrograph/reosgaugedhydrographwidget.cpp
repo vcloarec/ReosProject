@@ -42,7 +42,7 @@ ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( const ReosGuiContext &gu
   QToolBar *toolBar = new QToolBar( ui->mWidgetToolBar );
   toolBar->setIconSize( QSize( 16, 16 ) );
   toolBar->layout()->setContentsMargins( 0, 0, 0, 0 );
-  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
   ui->mWidgetToolBar->layout()->addWidget( toolBar );
 
   mActionAddHydrograph = toolBar->addAction( QIcon( QStringLiteral( ":/images/add.svg" ) ), tr( "Add Gauged Hydrograph" ), this, &ReosGaugedHydrographWidget::onAddHydrograph );
@@ -54,7 +54,7 @@ ReosGaugedHydrographWidget::ReosGaugedHydrographWidget( const ReosGuiContext &gu
   mToolBarProvider = new QToolBar( ui->mWidgetProviderToolBar );
   mToolBarProvider->setIconSize( QSize( 24, 24 ) );
   mToolBarProvider->layout()->setContentsMargins( 0, 0, 0, 0 );
-  mToolBarProvider->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  mToolBarProvider->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
   ui->mWidgetProviderToolBar->layout()->addWidget( mToolBarProvider );
 
   mHydrographPlot = new ReosPlotTimeSerieVariableStep( tr( "Hydrograph" ) );

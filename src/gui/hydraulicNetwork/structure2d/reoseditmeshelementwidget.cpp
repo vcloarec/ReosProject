@@ -47,7 +47,7 @@ ReosEditMeshElementWidget::ReosEditMeshElementWidget( ReosMesh *mesh, const Reos
   mMapToolEditMeshFrame->setAction( mActionEditMeshFrame );
 
   mToolBar->addActions( mMapToolEditMeshFrame->mainActions()->actions() );
-  mToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  mToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
 
   ReosSettings settings;
   if ( settings.contains( QStringLiteral( "/edit-mesh-element/display-topography" ) ) )

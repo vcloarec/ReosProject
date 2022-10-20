@@ -455,7 +455,7 @@ ReosFormJunctionBoundaryConditionWidget::ReosFormJunctionBoundaryConditionWidget
   addWidget( mWaterLevelSeriesWidget, 3 );
 
   mButtonWaterLevelSeries = new QToolButton( this );
-  mButtonWaterLevelSeries->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  mButtonWaterLevelSeries->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
   mButtonWaterLevelSeries->setToolButtonStyle( Qt::ToolButtonTextBesideIcon );
   mButtonWaterLevelSeries->setAutoRaise( true );
   mButtonWaterLevelSeries->setText( tr( "Water Level Series Manager" ) );

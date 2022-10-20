@@ -56,7 +56,7 @@ ReosMainWindow::ReosMainWindow( QWidget *parent ) :
   mActionHowToSupport( new QAction( tr( "How to help?" ), this ) ),
   mUndoStack( new QUndoStack( this ) )
 {
-  setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
   setDockNestingEnabled( true );
 
   QWidget *centralWidget = new QWidget( this );

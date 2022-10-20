@@ -54,7 +54,7 @@ ReosGisLayersWidget::ReosGisLayersWidget( ReosGisEngine *engine, ReosMap *map, Q
   mActionLoadMeshLayer( new QAction( QIcon( QStringLiteral( ":/images/mActionAddMeshLayer.svg" ) ), tr( "Add Mesh Layer" ), this ) ),
   mActionSetProjectCrs( new QAction( QIcon( QStringLiteral( ":/images/CRS.svg" ) ), tr( "Project coordinate reference system" ), this ) )
 {
-  mToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  mToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
   connect( mGisEngine, &ReosGisEngine::updated, this, &ReosGisLayersWidget::onGISEngineUpdated );
 
   mTreeView->setModel( engine->layerTreeModel() );

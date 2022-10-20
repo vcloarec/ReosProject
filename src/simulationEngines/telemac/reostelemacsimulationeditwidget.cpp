@@ -292,7 +292,7 @@ ReosTelemac2DInititalConditionInterpolationWidget::ReosTelemac2DInititalConditio
 
   QToolBar *toolBar = new QToolBar( this );
   toolBar->setToolButtonStyle( Qt::ToolButtonTextBesideIcon );
-  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
   toolBar->addAction( mActionDrawLine );
   mActionDrawLine->setCheckable( true );
   mValueLabel = new QLabel( this );

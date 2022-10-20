@@ -108,7 +108,7 @@ ReosRainfallManager::ReosRainfallManager( ReosMap *map, ReosRainfallModel *rainf
   toolBar->addAction( mActionAddRootZone );
   toolBar->addAction( mActionImportFromTextFile );
   toolBar->addAction( mActionSelectStationFromMap );
-  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
 
   mMapToolAddStationOnMap = new ReosMapToolDrawPoint( this, map );
   mMapToolAddStationOnMap->setCursor( QCursor( QStringLiteral( ":/images/station.svg" ), 12, 12 ) ) ;
@@ -656,7 +656,7 @@ ReosSpatialStationWidgetToolbar::ReosSpatialStationWidgetToolbar( ReosMap *map, 
   setLayout( new QVBoxLayout );
   setContentsMargins( 0, 0, 0, 0 );
   QToolBar *toolBar = new QToolBar( this );
-  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
   mActionSetPosition = toolBar->addAction( QIcon( QStringLiteral( ":/images/station.svg" ) ), tr( "Set Position on Map" ) );
   mActionMovePosition = toolBar->addAction( QIcon( QStringLiteral( ":/images/moveStation.svg" ) ), tr( "Move Position on Map" ) );
   mActiontRemovePosition = toolBar->addAction( QIcon( QStringLiteral( ":/images/removeStation.svg" ) ), tr( "Remove Position on Map" ) );

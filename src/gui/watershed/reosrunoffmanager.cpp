@@ -41,7 +41,7 @@ ReosRunoffManager::ReosRunoffManager( ReosRunoffModelModel *model, QWidget *pare
   ui->treeView->setContextMenuPolicy( Qt::CustomContextMenu );
 
   QToolBar *toolBar = new QToolBar( this );
-  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
   ui->widgetTools->layout()->addWidget( toolBar );
   toolBar->addAction( QIcon( QStringLiteral( ":/images/openRunoff.svg" ) ), tr( "Open File" ), this, &ReosRunoffManager::onOpenFile );
   toolBar->addAction( QIcon( QStringLiteral( ":/images/saveRunoff.svg" ) ), tr( "Save Runoff Models" ), this, &ReosRunoffManager::save );

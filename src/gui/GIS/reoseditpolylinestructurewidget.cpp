@@ -48,7 +48,7 @@ ReosEditPolylineStructureWidget::ReosEditPolylineStructureWidget( ReosPolylinesS
   mMapToolEditLine->setAction( mActionEditLine );
 
   mToolBar->addActions( mMapToolEditLine->mainActions()->actions() );
-  mToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  mToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
 
   QToolBar *toolBarBoundary = new QToolBar( this );
   ui->mBoundaryToolBarLayout->addWidget( toolBarBoundary );
@@ -56,7 +56,7 @@ ReosEditPolylineStructureWidget::ReosEditPolylineStructureWidget( ReosPolylinesS
   toolBarBoundary->addAction( mActionRemoveBoundary );
   toolBarBoundary->addAction( mActionZoomOnBoundary );
   toolBarBoundary->addAction( mActionRenameBoundary );
-  toolBarBoundary->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  toolBarBoundary->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
 
   mBoundaryModel = new ReosPolylineStructureClassModelList( structure, this );
   ui->mBoundaryListView->setModel( mBoundaryModel );

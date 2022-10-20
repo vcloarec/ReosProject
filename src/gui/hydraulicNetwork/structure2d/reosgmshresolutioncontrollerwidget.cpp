@@ -48,7 +48,7 @@ ReosGmshResolutionControllerWidget::ReosGmshResolutionControllerWidget( ReosHydr
 
   mToolBar->addAction( mActionEditResolutionPolygons );
   mToolBar->addActions( mMapToolEditResolutionPolygon->mainActions()->actions() );
-  mToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  mToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
 
   connect( mController->resolutionPolygons(), &ReosDataObject::dataChanged, this, [this]
   {

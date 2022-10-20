@@ -45,7 +45,7 @@ ReosVariableTimeStepTimeSeriesGroupWidget::ReosVariableTimeStepTimeSeriesGroupWi
   QToolBar *toolBar = new QToolBar( ui->mWidgetToolBar );
   toolBar->setIconSize( QSize( 16, 16 ) );
   toolBar->layout()->setContentsMargins( 0, 0, 0, 0 );
-  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
   ui->mWidgetToolBar->layout()->addWidget( toolBar );
 
   mActionAddSeries = toolBar->addAction( QIcon( QStringLiteral( ":/images/add.svg" ) ),
@@ -60,7 +60,7 @@ ReosVariableTimeStepTimeSeriesGroupWidget::ReosVariableTimeStepTimeSeriesGroupWi
   mToolBarProvider = new QToolBar( ui->mWidgetProviderToolBar );
   mToolBarProvider->setIconSize( QSize( 24, 24 ) );
   mToolBarProvider->layout()->setContentsMargins( 0, 0, 0, 0 );
-  mToolBarProvider->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  mToolBarProvider->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
   ui->mWidgetProviderToolBar->layout()->addWidget( mToolBarProvider );
 
   mSeriesPlot = new ReosPlotTimeSerieVariableStep( mGenericSeriesName );

@@ -55,9 +55,9 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   ReosSettings settings;
 
   mAutomaticToolBar = new QToolBar;
-  mAutomaticToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  mAutomaticToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
   mManualToolBar = new QToolBar;
-  mManualToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  mManualToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
   qobject_cast<QBoxLayout *>( layout() )->insertWidget( 3, mAutomaticToolBar );
   qobject_cast<QBoxLayout *>( layout() )->insertWidget( 2, mManualToolBar );
   mAutomaticToolBar->addAction( mActionDrawDownstreamLine );

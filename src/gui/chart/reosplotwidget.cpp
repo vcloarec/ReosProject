@@ -183,8 +183,8 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent )
   toolBarslayout->addWidget( mToolBarRight );
   mainLayout->addWidget( mPlot );
 
-  mToolBarLeft->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
-  mToolBarRight->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  mToolBarLeft->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
+  mToolBarRight->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
 
   mLegendController = new ReosPlotLegendController( this );
   mActionLegendController = mToolBarLeft->addWidget( mLegendController );

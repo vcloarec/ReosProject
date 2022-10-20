@@ -53,7 +53,7 @@ ReosMeshTopographyWidget::ReosMeshTopographyWidget( ReosMesh *mesh, ReosTopograp
   ui->mTopographyCollectionView->setModel( mCollectionModel );
   ui->mTopographyCollectionView->setContextMenuPolicy( Qt::ContextMenuPolicy::CustomContextMenu );
   connect( ui->mTopographyCollectionView, &QWidget::customContextMenuRequested, this, &ReosMeshTopographyWidget::onViewContextMenuRequest );
-  ui->mRenderingSettingsButton->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  ui->mRenderingSettingsButton->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
   ui->mAutoApplyWidget->setBooleanParameter( topographyCollection->autoApply() );
 
   connect( ui->mAddTopographyToolButton, &QToolButton::clicked, this, &ReosMeshTopographyWidget::onAddTopography );

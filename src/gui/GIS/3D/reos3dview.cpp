@@ -79,7 +79,7 @@ Reos3dView::Reos3dView( ReosMesh *meshTerrain, const ReosGuiContext &context )
 
   QToolBar *toolBar = new QToolBar( this );
   ui->mToolBarLayout->addWidget( toolBar );
-  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
   toolBar->addAction( mActionZoomExtent );
   connect( mActionZoomExtent, &QAction::triggered, this, [this, meshLayer, settings]
   {
@@ -93,7 +93,7 @@ Reos3dView::Reos3dView( ReosMesh *meshTerrain, const ReosGuiContext &context )
   toolBar->addWidget( mLightToolButton );
   mLightToolButton->setPopupMode( QToolButton::InstantPopup );
   mLightToolButton->setIcon( QIcon( QStringLiteral( ":/images/lightSettings.svg" ) ) );
-  mLightToolButton->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  mLightToolButton->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
   QMenu *lightMenu = new QMenu( this );
   mLightToolButton->setMenu( lightMenu );
   mLightWidget = new ReosLightWidget( this );

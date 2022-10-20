@@ -69,7 +69,7 @@ ReosWatershedWidget::ReosWatershedWidget( const ReosGuiContext &guiContext, Reos
   mActionRunoffHydrograph->setCheckable( true );
   mActionGaugedHydrograph->setCheckable( true );
   QToolBar *toolBar = new QToolBar( this );
-  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
 
   toolBar->addAction( mActionSelectWatershed );
   toolBar->addAction( mActionDelineateWatershed );

@@ -48,7 +48,7 @@ ReosRoughnessWidget::ReosRoughnessWidget( ReosHydraulicStructure2D *structure2D,
 
   mToolBar->addAction( mActionEditRoughnessPolygons );
   mToolBar->addActions( mMapToolEditResolutionPolygon->mainActions()->actions() );
-  mToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
+  mToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
 
   connect( mStructure->structure(), &ReosDataObject::dataChanged, this, [this]
   {

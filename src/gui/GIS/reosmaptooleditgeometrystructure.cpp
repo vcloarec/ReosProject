@@ -140,9 +140,9 @@ QVariant ReosPolygonStructureClassModelList::data( const QModelIndex &index, int
     case Qt::DecorationRole:
       if ( index.row() < classes.count() )
       {
-        QPixmap pixmap( ReosStyleRegistery::instance()->toolBarIconSize() );
+        QPixmap pixmap( 16, 16 );
         pixmap.fill( mStructure->color( classes.at( index.row() ) ) );
-        return pixmap;
+        return QIcon( pixmap );
       }
       break;
     case Qt::TextAlignmentRole:
