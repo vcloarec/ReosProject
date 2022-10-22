@@ -47,6 +47,9 @@ class REOSCORE_EXPORT ReosDataProviderFactory
     //! Creates and returns a pointer to a provider, the caller has to take ownership
     virtual ReosDataProvider *createProvider( const QString &dataType = QString() ) const = 0;
 
+    //! Creates a new data source, \a uri has to be conform to the related provider
+    virtual bool createNewDataSource( const QString &uri, const QString &dataType, QString &error ) {return false;};
+
     //! Returns the provider key corresponding to this factory
     virtual QString key() const = 0;
 };
@@ -84,6 +87,8 @@ class REOSCORE_EXPORT ReosDataProviderRegistery
     QList<ReosDataProviderFactory *> mListedFactories;
     static ReosDataProviderRegistery *sInstance;
     void loadDynamicProvider();
+
+    ReosDataProviderFactory *extractFactory( const QString &key, QString &dataType ) const;
 };
 
 

@@ -256,6 +256,9 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStep: public ReosTimeSerie
 
     QPair<QDateTime, QDateTime> timeExtent() const override;
 
+    //! Return the total durarion of the serie
+    ReosDuration totalDuration() const;
+
     //! Sets the value at \a relative time with \a value, if the \a relative time is not present insert a new couple (time, value)
     void setValue( const ReosDuration &relativeTime, double value );
 

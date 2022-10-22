@@ -3,10 +3,12 @@
 
 SET(REOS_HEC_DSS_SOURCES
     reosdssfile.cpp
+    reosdssprovider.cpp
 )
 
 SET(REOS_HEC_DSS_HEADERS
     reosdssfile.h
+    reosdssprovider.h
 )
 
 #SET(LOGO_RCCS ${CMAKE_SOURCE_DIR}/images/providers/delft-fews/delft-fews-images.qrc)
