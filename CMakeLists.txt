@@ -79,6 +79,7 @@ IF(ENABLE_HEC_DSS)
         SET(HEC_DSS_ALL_STATIC_LIB
         ${HEC_DSS_LIBS_PATH}/heclib.a
         gfortran
+        z
     )
     ENDIF(MSVC)
 ENDIF(ENABLE_HEC_DSS)

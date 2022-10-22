@@ -51,18 +51,10 @@ ReosDataProviderRegistery *ReosDataProviderRegistery::instance()
 ReosDataProvider *ReosDataProviderRegistery::createProvider( const QString &key )
 {
   QString dataType;
-  QString providerKey;
-  if ( key.contains( QStringLiteral( "::" ) ) )
-  {
-    providerKey = key.split( QStringLiteral( "::" ) ).at( 0 );
-    dataType = key.split( QStringLiteral( "::" ) ).at( 1 );
-  }
-  else
-    providerKey = key;
+  ReosDataProviderFactory *fact = extractFactory( key, dataType );
 
-  auto it = mFactories.find( providerKey );
-  if ( it != mFactories.end() )
-    return it->second->createProvider( dataType );
+  if ( fact )
+    return fact->createProvider( dataType );
   else
     return nullptr;
 }
@@ -124,16 +116,37 @@ void ReosDataProviderRegistery::loadDynamicProvider()
       {
         ReosDataProviderFactory *providerFactory = func();
         registerProviderFactory( providerFactory );
-        qDebug() << QString("Library %1 loaded and conform").arg(file.baseName());
+        qDebug() << QString( "Library %1 loaded and conform" ).arg( file.baseName() );
       }
       else
       {
-        qDebug() << QString("Library %1 loaded and not conform").arg(file.baseName());
+        qDebug() << QString( "Library %1 loaded and not conform" ).arg( file.baseName() );
       }
     }
     else
     {
-        qDebug() << QString("Library %1 not loaded").arg(file.baseName());
+      qDebug() << QString( "Library %1 not loaded" ).arg( file.baseName() );
     }
   }
+}
+
+ReosDataProviderFactory *ReosDataProviderRegistery::extractFactory( const QString &key, QString &dataType ) const
+{
+  QString providerKey;
+  if ( key.contains( QStringLiteral( "::" ) ) )
+  {
+    providerKey = key.split( QStringLiteral( "::" ) ).at( 0 );
+    dataType = key.split( QStringLiteral( "::" ) ).at( 1 );
+  }
+  else
+  {
+    providerKey = key;
+    dataType = QString();
+  }
+
+  auto it = mFactories.find( providerKey );
+  if ( it != mFactories.end() )
+    return it->second.get();
+  else
+    return nullptr;
 }

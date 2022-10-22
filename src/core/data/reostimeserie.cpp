@@ -898,6 +898,18 @@ ReosDuration ReosTimeSerieVariableTimeStep::relativeTimeAt( int i ) const
   return dataProv->relativeTimeAt( i );
 }
 
+ReosDuration ReosTimeSerieVariableTimeStep::totalDuration() const
+{
+  if ( valueCount() == 0 )
+    return ReosDuration();
+
+  ReosDuration ret = relativeTimeAt( valueCount() - 1 ) - relativeTimeAt( 0 );
+
+  ret.setAdaptedUnit();
+
+  return ret;
+}
+
 bool ReosTimeSerieVariableTimeStep::setRelativeTimeAt( int i, const ReosDuration &relativeTime )
 {
   ReosTimeSerieVariableTimeStepProvider *dataProv = variableTimeStepdataProvider();

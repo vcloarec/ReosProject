@@ -44,8 +44,8 @@ class REOSCORE_EXPORT ReosTimeSerieProvider : public ReosDataProvider
     virtual double firstValue() const = 0;
     virtual double lastValue() const = 0;
 
-    virtual void setValue( int index, double value );;
-    virtual void removeValues( int from, int count );;
+    virtual void setValue( int index, double value );
+    virtual void removeValues( int from, int count );
     virtual void clear();
 
     virtual double *data() = 0;
@@ -59,6 +59,8 @@ class REOSCORE_EXPORT ReosTimeSerieProvider : public ReosDataProvider
     void setDataSource( const QString &dataSource );
 
     virtual QString htmlMetaData() const {return QString();}
+
+    virtual bool persistData( QString & ) {return false;}
 
   private:
     QString mDataSource;
@@ -79,6 +81,7 @@ class REOSCORE_EXPORT ReosTimeSerieConstantTimeStepProvider : public ReosTimeSer
     virtual void prependValue( double value );
     virtual void insertValue( int pos, double value );
 
+    virtual bool isTimeStepCompatible( const ReosDuration & ) const {return true;}
     virtual ReosDuration timeStep() const = 0;
     virtual void setTimeStep( const ReosDuration &timeStep );
 
@@ -98,10 +101,10 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStepProvider : public ReosTimeSer
     virtual ReosDuration lastRelativeTime() const = 0;
     virtual const QVector<ReosDuration> &constTimeData() const = 0;
 
-    virtual void setRelativeTimeAt( int i, const ReosDuration &relativeTime );;
-    virtual void appendValue( const ReosDuration &relativeTime, double v );;
-    virtual void prependValue( const ReosDuration &relativeTime, double v );;
-    virtual void insertValue( int fromPos, const ReosDuration &relativeTime, double v );;
+    virtual void setRelativeTimeAt( int i, const ReosDuration &relativeTime );
+    virtual void appendValue( const ReosDuration &relativeTime, double v );
+    virtual void prependValue( const ReosDuration &relativeTime, double v );
+    virtual void insertValue( int fromPos, const ReosDuration &relativeTime, double v );
 
     virtual void copy( ReosTimeSerieVariableTimeStepProvider *other );
 };

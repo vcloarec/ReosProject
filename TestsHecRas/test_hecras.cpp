@@ -25,6 +25,8 @@ email                : vcloarec at gmail dot com
 #endif
 
 #include "reosdssfile.h"
+#include "reosdssprovider.h"
+#include "reoshydrograph.h"
 
 QString tmp_file( std::string basename )
 {
@@ -51,6 +53,7 @@ class ReosHecrasTesting : public QObject
 
     void validInterval();
     void createDssFile();
+    void createTimeSerie();
 };
 
 #ifdef _WIN32
@@ -123,18 +126,63 @@ void ReosHecrasTesting::validInterval()
 
   QVERIFY( ReosDuration( 1, ReosDuration::week ) == ReosDssFile::closestValidInterval( ReosDuration( 120, ReosDuration::hour ) ) );
   QVERIFY( ReosDuration::week == ReosDssFile::closestValidInterval( ReosDuration( 120, ReosDuration::hour ) ).unit() );
+
+  QString inter = ReosDssFile::getEPart( ReosDuration( 60, ReosDuration::second ) );
+  QCOMPARE( inter, QStringLiteral( "1Minute" ) );
+
+  inter = ReosDssFile::getEPart( ReosDuration( 3600, ReosDuration::second ) );
+  QCOMPARE( inter, QStringLiteral( "1Hour" ) );
 }
 
 void ReosHecrasTesting::createDssFile()
 {
-  const QString newDssFile = tmp_file( "dss_file_0" );
+  const QString newDssFile = tmp_file( "/dss_file_0" );
   ReosDssFile dssFile( newDssFile );
   QVERIFY( !dssFile.isValid() );
 
   dssFile = ReosDssFile( newDssFile, true );
+
   QVERIFY( dssFile.isValid() );
   QVERIFY( dssFile.isOpen() );
+}
 
+void ReosHecrasTesting::createTimeSerie()
+{
+  QString stringPath( QStringLiteral( "/GrouP/LoCation/FLOW/01jan2000/1Hour/ThisVersion/" ) );
+  ReosDssPath path( stringPath );
+  QVERIFY( path.isValid() );
+
+  ReosDssProviderFactory providerFactory;
+  QString error;
+  bool res = providerFactory.createNewDataSource( tmp_file( "/dss_file_1" ), ReosDssProviderTimeSerieConstantTimeStep::dataType(), error );
+  QVERIFY( !res ); //path not present
+  res = providerFactory.createNewDataSource( "\"" + tmp_file( "/dss_file_1" ) + "\"::" + path.string(), ReosDssProviderTimeSerieConstantTimeStep::dataType(), error );
+  QVERIFY( res );
+
+  std::unique_ptr<ReosTimeSerieConstantTimeStepProvider> provider(
+    static_cast<ReosTimeSerieConstantTimeStepProvider *>( providerFactory.createProvider( ReosDssProviderTimeSerieConstantTimeStep::dataType() ) ) );
+  provider->setDataSource( "\"" + tmp_file( "/dss_file_1.dss" ) + "\"::" + path.string() );
+
+  QCOMPARE( provider->valueCount(), 0 );
+  QVERIFY( !provider->referenceTime().isValid() );
+  QVERIFY( provider->timeStep() == ReosDuration() );
+
+  provider->setReferenceTime( QDateTime( QDate( 2021, 02, 03 ), QTime( 05, 12, 45 ), Qt::UTC ) );
+  ReosDuration timeStep( 1.5, ReosDuration::minute );
+  QVERIFY( !provider->isTimeStepCompatible( timeStep ) );
+  provider->setTimeStep( timeStep );
+  QVERIFY( provider->timeStep() == ReosDuration() ); //Time step not compatible, so not changed
+
+  timeStep = ReosDuration( 10, ReosDuration::minute );
+  QVERIFY( provider->isTimeStepCompatible( timeStep ) );
+  provider->setTimeStep( timeStep );
+  QVERIFY( provider->timeStep() == ReosDuration( 600, ReosDuration::second ) );
+
+  provider->appendValue( 1.23 );
+  provider->appendValue( 3.45 );
+  provider->appendValue( 6.78 );
+
+  QVERIFY( provider->persistData( error ) );
 }
 
 QTEST_MAIN( ReosHecrasTesting )
