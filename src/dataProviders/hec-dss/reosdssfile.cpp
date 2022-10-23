@@ -224,8 +224,6 @@ QVector<double> ReosDssFile::values( const ReosDssPath &path ) const
 {
   return QVector<double>();
 }
-  return false;
-}
 
 ReosDuration ReosDssFile::closestValidInterval( const ReosDuration &interval )
 {

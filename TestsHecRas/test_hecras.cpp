@@ -137,13 +137,17 @@ void ReosHecrasTesting::validInterval()
 void ReosHecrasTesting::createDssFile()
 {
   const QString newDssFile = tmp_file( "/dss_file_0" );
-  ReosDssFile dssFile( newDssFile );
-  QVERIFY( !dssFile.isValid() );
+  std::unique_ptr<ReosDssFile> dssFile( new ReosDssFile( newDssFile ) );
+  QVERIFY( !dssFile->isValid() );
 
-  dssFile = ReosDssFile( newDssFile, true );
+  dssFile.reset( new ReosDssFile( newDssFile, true ) );
 
-  QVERIFY( dssFile.isValid() );
-  QVERIFY( dssFile.isOpen() );
+  QVERIFY( dssFile->isValid() );
+  QVERIFY( dssFile->isOpen() );
+
+  dssFile.reset();
+
+  QFile::remove( newDssFile + QStringLiteral( ".dss" ) );
 }
 
 void ReosHecrasTesting::createTimeSerie()
@@ -152,16 +156,18 @@ void ReosHecrasTesting::createTimeSerie()
   ReosDssPath path( stringPath );
   QVERIFY( path.isValid() );
 
+  const QString filePath = tmp_file( "/dss_file_1" );
+
   ReosDssProviderFactory providerFactory;
   QString error;
-  bool res = providerFactory.createNewDataSource( tmp_file( "/dss_file_1" ), ReosDssProviderTimeSerieConstantTimeStep::dataType(), error );
+  bool res = providerFactory.createNewDataSource( filePath, ReosDssProviderTimeSerieConstantTimeStep::dataType(), error );
   QVERIFY( !res ); //path not present
-  res = providerFactory.createNewDataSource( "\"" + tmp_file( "/dss_file_1" ) + "\"::" + path.string(), ReosDssProviderTimeSerieConstantTimeStep::dataType(), error );
+  res = providerFactory.createNewDataSource( "\"" + filePath + "\"::" + path.string(), ReosDssProviderTimeSerieConstantTimeStep::dataType(), error );
   QVERIFY( res );
 
   std::unique_ptr<ReosTimeSerieConstantTimeStepProvider> provider(
     static_cast<ReosTimeSerieConstantTimeStepProvider *>( providerFactory.createProvider( ReosDssProviderTimeSerieConstantTimeStep::dataType() ) ) );
-  provider->setDataSource( "\"" + tmp_file( "/dss_file_1.dss" ) + "\"::" + path.string() );
+  provider->setDataSource( "\"" + filePath + ".dss\"::" + path.string() );
 
   QCOMPARE( provider->valueCount(), 0 );
   QVERIFY( !provider->referenceTime().isValid() );
@@ -183,6 +189,8 @@ void ReosHecrasTesting::createTimeSerie()
   provider->appendValue( 6.78 );
 
   QVERIFY( provider->persistData( error ) );
+
+  QFile::remove( filePath + QStringLiteral( ".dss" ) );
 }
 
 QTEST_MAIN( ReosHecrasTesting )
