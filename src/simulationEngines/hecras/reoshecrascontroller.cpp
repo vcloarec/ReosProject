@@ -501,6 +501,9 @@ QPolygonF ReosHecrasController::flow2DAreasDomain( const QString &areaName ) con
 
   SafeArrayDestroy( arrayX );
   SafeArrayDestroy( arrayY );
+
+  if (ret.count() > 0)
+      ret.removeLast();
 #endif
   return ret;
 }

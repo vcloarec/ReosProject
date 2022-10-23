@@ -1,15 +1,14 @@
 <RASMapper>
   <Version>2.0.0</Version>
-  <RASProjectionFilename Filename="..\32620.prj" />
-  <Features>
-    <Layer Name="Profile Lines" Type="PolylineFeatureLayer" Filename=".\Features\Profile Lines.shp">
-      <LabelFeatures Checked="True" PercentPosition="0" rows="1" cols="1" r0c0="Name" Position="3" Color="-16777216" FontSize="8.25" />
-    </Layer>
+  <RASProjectionFilename Filename="..\building\structure.prj" />
+  <Features Checked="True" Expanded="True">
+    <Layer Name="Profile Lines" Type="PolylineFeatureLayer" Filename=".\Features\Profile Lines.shp" />
+    <Layer Name="structure" Type="PolylineFeatureLayer" Checked="True" Filename="..\building\structure.shp" />
   </Features>
   <Geometries Checked="True" Expanded="True">
-    <Layer Name="geom_simple_1" Type="RASGeometry" Checked="True" Expanded="True" Filename=".\simple.g01.hdf">
+    <Layer Name="simle_2D_geometry" Type="RASGeometry" Checked="True" Expanded="True" Filename=".\simple.g01.hdf">
       <Layer Type="RASXS" UnitsRiverStation="Feet" RiverStationDecimalPlaces="0" />
-      <Layer Type="RASD2FlowArea" Checked="True" Expanded="True">
+      <Layer Type="RASD2FlowArea" Checked="True">
         <DataColumnGroupVisibilities>
           <DataColumnGroupVisibility DisplayName="Feature Parameters" IsVisible="False" />
         </DataColumnGroupVisibilities>
@@ -19,6 +18,8 @@
           <DataColumnGroupVisibility DisplayName="Feature Parameters" IsVisible="True" />
         </DataColumnGroupVisibilities>
       </Layer>
+      <Layer Type="RASBreakLines" Checked="True" />
+      <Layer Type="MeshRegionLayer" Checked="True" />
       <Layer Name="Culvert Groups" Type="VirtualGeometryFeatureLayer" ParentIdentifiers="" />
       <Layer Name="Culvert Barrels" Type="VirtualGeometryFeatureLayer" ParentIdentifiers="Bridges/Culverts" />
       <Layer Name="Gate Groups" Type="VirtualGeometryFeatureLayer" ParentIdentifiers="" />
@@ -40,6 +41,7 @@
       <Layer Name="Rating Curve Outlets" Type="VirtualGeometryFeatureLayer" ParentIdentifiers="SA/2D Connections" />
       <Layer Name="Outlet Time Series" Type="VirtualGeometryFeatureLayer" ParentIdentifiers="SA/2D Connections" />
       <Layer Type="StructureLayer" UnitsRiverStation="Feet" RiverStationDecimalPlaces="0" />
+      <Layer Type="RASBoundaryConditionLines" Checked="True" />
       <Layer Type="FinalNValueLayer">
         <ResampleMethod>near</ResampleMethod>
         <Surface On="True" />
@@ -60,17 +62,21 @@
   </Geometries>
   <EventConditions />
   <Results />
-  <MapLayers Checked="True" Expanded="True">
-    <Layer Name="Google Satellite" Type="WMSLayer" Checked="True" Filename="%LocalAppData%\HEC\Mapping\5.1\XML\Google Satellite.xml">
+  <MapLayers Checked="True" />
+  <Terrains Checked="True" Expanded="True">
+    <Layer Name="Terrain (1)" Type="TerrainLayer" Checked="True" Filename=".\Terrain\Terrain (1).hdf">
+      <Symbology>
+        <SurfaceFill Colors="-10039894,-256,-16744448,-23296,-7667712,-5952982,-8355712,-1286" Values="0,0.474313475390156,0.878822162426614,1.24034111337488,1.56960177475898,1.87373724489796,2.40044642857143,4" Stretched="True" AlphaTag="255" UseDatasetMinMax="False" RegenerateForScreen="False" />
+      </Symbology>
       <ResampleMethod>near</ResampleMethod>
+      <Surface On="True" />
     </Layer>
-  </MapLayers>
-  <Terrains />
+  </Terrains>
   <CurrentView>
-    <MaxX>655340.022295137</MaxX>
-    <MinX>654447.523134183</MinX>
-    <MaxY>1798781.38478322</MaxY>
-    <MinY>1798082.72396695</MinY>
+    <MaxX>653836.643062782</MaxX>
+    <MinX>653092.363604384</MinX>
+    <MaxY>1797443.24202732</MaxY>
+    <MinY>1796860.60966565</MinY>
   </CurrentView>
   <VelocitySettings>
     <Density>1.5</Density>
@@ -104,6 +110,10 @@
       <MeshTolerance_MinFaceLength>0.05</MeshTolerance_MinFaceLength>
       <MeshTolerance_EnsureCellPoint>False</MeshTolerance_EnsureCellPoint>
     </ProjectSettings>
-    <Folders />
+    <Folders>
+      <AddDataFolder>..\building</AddDataFolder>
+      <TerrainDestinationFolder>.\Terrain</TerrainDestinationFolder>
+      <TerrainSourceFolder>..\building</TerrainSourceFolder>
+    </Folders>
   </CurrentSettings>
 </RASMapper>
