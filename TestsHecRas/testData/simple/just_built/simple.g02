@@ -814,6 +814,32 @@ Storage Area Mannings=0.06
 2D Face Area Laminar Depth=0.06
 2D Multiple Face Mann n=0
 
+Storage Area=Storage area 1  ,653269.7715391,1797353.3080819
+Storage Area Surface Line= 8 
+653265.0307652851797394.05206643                
+653181.6286418051797316.26354742                
+653255.4074433451797258.52361578                
+653396.549498465 1797336.3121348                
+653330.7901318751797409.28899284                
+653262.7513823221797449.07337635                
+653195.4119811521797429.41744181                
+653265.0307652851797394.05206643                
+Storage Area Type= 1 
+Storage Area Area=
+Storage Area Min Elev=
+Storage Area Is2D=0
+Storage Area Point Generation Data=0,0,,
+Storage Area 2D Points= 0 
+Storage Area 2D PointsPerimeterTime=24Oct2022 04:54:08
+Storage Area Mannings=0.06
+2D Cell Volume Filter Tolerance=0.003
+2D Cell Minimum Area Fraction=0.01
+2D Face Profile Filter Tolerance=0.003
+2D Face Area Elevation Profile Filter Tolerance=0.003
+2D Face Area Elevation Conveyance Ratio=0.02
+2D Face Area Laminar Depth=0.06
+2D Multiple Face Mann n=0
+
 BreakLine Name=Breakline 1
 BreakLine CellSize Min=
 BreakLine CellSize Max=
