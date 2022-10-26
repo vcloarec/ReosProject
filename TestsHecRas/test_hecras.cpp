@@ -24,11 +24,12 @@ email                : vcloarec at gmail dot com
 #include "reoswatershedmodule.h"
 #endif
 
+#include "reoshecrasproject.h"
 #include "reosdssfile.h"
 #include "reosdssprovider.h"
 #include "reoshydrograph.h"
 
-QString tmp_file( std::string basename )
+static QString tmp_file( std::string basename )
 {
   std::string path( TESTHECDATA + std::string( "/tmp" ) );
   std::filesystem::path tmpPath( path );
@@ -38,18 +39,23 @@ QString tmp_file( std::string basename )
   return QString::fromStdString( path );
 }
 
+static QString test_path()
+{
+  return TESTHECDATA + QString( '/' );
+}
+
 class ReosHecrasTesting : public QObject
 {
     Q_OBJECT
 
   private slots:
-//#ifdef _MSC_VER
+#ifdef _MSC_VER
     void availableVersion();
     void createControllerInstance();
-    void exploreProject();
 
     void importStructure();
-//#endif
+#endif
+    void exploreProject();
 
     void validInterval();
     void createDssFile();
@@ -71,29 +77,6 @@ void ReosHecrasTesting::createControllerInstance()
   QVERIFY( controller.isValid() );
 }
 
-void ReosHecrasTesting::exploreProject()
-{
-  QString path( "C:\\dev\\sources\\ReosProject\\TestsHecRas\\testData\\simple\\simple.prj" );
-
-  QStringList versions = ReosHecrasController::availableVersion();
-  ReosHecrasController controller( versions.last() );
-
-  QVERIFY( controller.openHecrasProject( path ) );
-
-  QStringList plans = controller.planNames();
-
-  QCOMPARE( plans.count(), 0 );
- // QCOMPARE( plans.at( 0 ), QStringLiteral( "plan_simple_1" ) );
-  //QCOMPARE( plans.at( 1 ), QStringLiteral( "plan_simple_2" ) );
-
-  QStringList flow2DAreasNames = controller.flowAreas2D();
-  QCOMPARE( flow2DAreasNames.count(), 1 );
-  QCOMPARE( flow2DAreasNames.at( 0 ), QStringLiteral( "Perimeter 1     " ) );
-
-  QPolygonF domain = controller.flow2DAreasDomain( flow2DAreasNames.first() );
-  QCOMPARE( domain.count(), 4 );
-}
-
 void ReosHecrasTesting::importStructure()
 {
   QString path( "C:\\dev\\sources\\ReosProject\\TestsHecRas\\testData\\simple\\simple.prj" );
@@ -111,6 +94,25 @@ void ReosHecrasTesting::importStructure()
   QVERIFY( structure->domain().count() > 0 );
 }
 #endif
+
+void ReosHecrasTesting::exploreProject()
+{
+  QString path( test_path() + QStringLiteral( "simple/simple.prj" ) );
+  ReosHecRasProject project( path );
+
+  QCOMPARE( project.GeometriesCount(), 2 );
+
+  QStringList geometryIds = project.geometryIds();
+  QCOMPARE( geometryIds.count(), 2 );
+
+  ReosHecRasGeometry geometry = project.geometry( geometryIds.at( 0 ) );
+  QCOMPARE( geometry.title(), QStringLiteral( "simple_2D_geometry" ) );
+  QCOMPARE( geometry.area2dCount(), 1 );
+
+  geometry = project.geometry( geometryIds.at( 1 ) );
+  QCOMPARE( geometry.title(), QStringLiteral( "simle_2D_geometry_other" ) );
+  QCOMPARE( geometry.area2dCount(), 1 );
+}
 
 
 void ReosHecrasTesting::validInterval()
