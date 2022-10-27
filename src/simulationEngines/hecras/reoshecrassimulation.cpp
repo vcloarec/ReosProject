@@ -17,6 +17,8 @@
 #include "reoshecrassimulation.h"
 #include "reoscore.h"
 
+#include <QFileInfo>
+
 REOSEXTERN ReosSimulationEngineFactory *engineSimulationFactory()
 {
   return new ReosHecRasSimulationEngineFactory();
@@ -26,13 +28,22 @@ void ReosHecRasSimulationEngineFactory::initializeSettings()
 {
 }
 
-ReosHecRasStructureImporter::ReosHecRasStructureImporter( const QString &version, const QString &file )
+ReosHecRasStructureImporter::ReosHecRasStructureImporter( const QString &file )
   : ReosStructureImporter()
-  , mController( version )
 {
-  mIsValid = mController.isValid();
+  QFileInfo fileInfo( file );
+  mIsValid = fileInfo.exists();
   if ( mIsValid )
-    mIsValid = mController.openHecrasProject( file );
+  {
+    mProject.reset( new ReosHecRasProject( file ) );
+    mIsValid = mProject->GeometriesCount() > 0;
+    if ( mIsValid )
+    {
+      QStringList geoms = mProject->geometryIds();
+      Q_ASSERT( !geoms.isEmpty() );
+      mIsValid = mProject->geometry( geoms.at( 0 ) ).area2dCount() > 0;
+    }
+  }
 }
 
 ReosHecRasStructureImporter::~ReosHecRasStructureImporter() = default;
@@ -50,14 +61,12 @@ QString ReosHecRasStructureImporter::crs() const
 
 QPolygonF ReosHecRasStructureImporter::domain() const
 {
-  if ( !mIsValid || !mController.isValid() )
-    return QPolygon();
+  if ( mIsValid )
+  {
+    return mProject->geometry( mProject->geometryIds().at( 0 ) ).area2d( 0 ).surface;
+  }
 
-  QStringList areas2d = mController.flowAreas2D();
-
-  if ( !areas2d.isEmpty() )
-    return mController.flow2DAreasDomain( areas2d.first() );
-
+  return QPolygonF();
 }
 
 ReosMeshResolutionController *ReosHecRasStructureImporter::resolutionController( ReosHydraulicStructure2D *structure ) const

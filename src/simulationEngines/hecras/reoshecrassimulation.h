@@ -18,7 +18,7 @@
 
 #include "reoshydraulicsimulation.h"
 #include "reoshydraulicstructure2d.h"
-#include "reoshecrascontroller.h"
+#include "reoshecrasproject.h"
 
 class ReosHecRasSimulation
 {
@@ -49,7 +49,7 @@ class ReosHecRasSimulationEngineFactory : public ReosSimulationEngineFactory
 class ReosHecRasStructureImporter: public ReosStructureImporter
 {
   public:
-    ReosHecRasStructureImporter( const QString &version, const QString &file );
+    ReosHecRasStructureImporter( const QString &file );
     ~ReosHecRasStructureImporter();
 
     ReosHydraulicStructure2D::Structure2DCapabilities capabilities() const override;
@@ -63,8 +63,8 @@ class ReosHecRasStructureImporter: public ReosStructureImporter
     bool isValid() const override { return mIsValid; }
 
   private:
-    ReosHecrasController mController;
     bool mIsValid = false;
+    std::unique_ptr<ReosHecRasProject> mProject;
 };
 
 

@@ -13,17 +13,12 @@ ReosHecRasSimulationImportWidget::ReosHecRasSimulationImportWidget( QWidget *par
 {
   ui->setupUi( this );
 
-  ui->mVersionCombo->addItems( ReosHecrasController::availableVersion() );
-  ui->mVersionCombo->setCurrentIndex( ui->mVersionCombo->count() - 1 );
-
   connect( ui->mProjectFileButton, &QToolButton::clicked, this, &ReosHecRasSimulationImportWidget::onProjectFileButtonPressed );
 }
 
 void ReosHecRasSimulationImportWidget::importStructure2D( const ReosHydraulicNetworkContext &context ) const
 {
-  const QString controllerVersion = ui->mVersionCombo->currentText();
-
-  ReosHecRasStructureImporter importer( controllerVersion, ui->mProjectFileLineEdit->text() );
+  ReosHecRasStructureImporter importer( ui->mProjectFileLineEdit->text() );
 
   context.network()->addElement( ReosHydraulicStructure2D::create( &importer, context ) );
 

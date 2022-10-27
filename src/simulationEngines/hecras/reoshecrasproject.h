@@ -31,6 +31,7 @@ class ReosHecRasGeometry
 
     int area2dCount() const;
     QString area2dName( int i ) const;
+    FlowArea2D area2d( int i ) const;
 
     QList<BoundaryCondition> boundariesCondition( const QString &area2dName ) const;
 
@@ -38,12 +39,12 @@ class ReosHecRasGeometry
     QString mFileName;
     QString mTitle;
 
+    QList<FlowArea2D> mAreas2D;
+    QMap<QString, QList<BoundaryCondition>> mBoundariesConditions;
+
     void parseGeometryFile();
     void parseStorageArea( QTextStream &stream, const QString storageName );
     void parseBoundaryCondition( QTextStream &stream, const QString &bcName );
-
-    QList<FlowArea2D> mAreas2D;
-    QMap<QString, QList<BoundaryCondition>> mBoundariesConditions;
 
 };
 

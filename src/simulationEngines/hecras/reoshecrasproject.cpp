@@ -66,6 +66,11 @@ QString ReosHecRasGeometry::area2dName( int i ) const
   return mAreas2D.at( i ).name;
 }
 
+ReosHecRasGeometry::FlowArea2D ReosHecRasGeometry::area2d( int i ) const
+{
+  return mAreas2D.at( i );
+}
+
 QList<ReosHecRasGeometry::BoundaryCondition> ReosHecRasGeometry::boundariesCondition( const QString &area2dName ) const
 {
   return mBoundariesConditions.value( area2dName );
