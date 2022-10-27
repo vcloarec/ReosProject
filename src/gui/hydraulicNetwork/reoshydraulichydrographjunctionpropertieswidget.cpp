@@ -95,6 +95,7 @@ ReosHydraulicHydrographJunctionPropertiesWidget::ReosHydraulicHydrographJunction
   updateInformation();
 
   connect( mJunctionNode->outputHydrograph(), &ReosDataObject::dataChanged, this, &ReosHydraulicHydrographJunctionPropertiesWidget::updateGaugedHydrograph );
+  connect( mJunctionNode->gaugedHydrographsStore(), &ReosHydrographsStore::hydrographChanged, this, &ReosHydraulicHydrographJunctionPropertiesWidget::updateGaugedHydrograph );
 
   populateHydrographs();
 }
