@@ -33,7 +33,8 @@ class ReosHecRasGeometry
     QString area2dName( int i ) const;
     FlowArea2D area2d( int i ) const;
 
-    QList<BoundaryCondition> boundariesCondition( const QString &area2dName ) const;
+    QList<BoundaryCondition> boundariesConditions( const QString &area2dName ) const;
+    QList<BoundaryCondition> allBoundariesConditions() const;
 
   private:
     QString mFileName;
@@ -57,6 +58,8 @@ class ReosHecRasProject
 
     QStringList geometryIds() const;
     ReosHecRasGeometry geometry( const QString &id ) const;
+
+    ReosHecRasGeometry currentGeometry() const;
 
   private:
     QString mFileName;

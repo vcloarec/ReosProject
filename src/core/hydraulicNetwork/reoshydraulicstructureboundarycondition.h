@@ -46,6 +46,12 @@ class REOSCORE_EXPORT ReosHydraulicStructureBoundaryCondition : public ReosHydro
       const QString &boundaryConditionId,
       const ReosHydraulicNetworkContext &context );
 
+    ReosHydraulicStructureBoundaryCondition(
+      ReosHydraulicStructure2D *hydStructure,
+      const QString &boundaryConditionId,
+      const ReosSpatialPosition &position,
+      const ReosHydraulicNetworkContext &context );
+
     QString type() const override {return staticType();}
     static QString staticType() {return ReosHydrographJunction::staticType() + QString( ':' ) + QStringLiteral( "structure-boundary-condition" );}
     static ReosHydraulicStructureBoundaryCondition *decode( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
@@ -100,6 +106,7 @@ class REOSCORE_EXPORT ReosHydraulicStructureBoundaryCondition : public ReosHydro
     QPointer<ReosHydraulicStructure2D> mStructure;
     QString mBoundaryConditionId;
     ReosTimeSeriesVariableTimeStepGroup *mWaterLevelSeriesGroup = nullptr;
+    bool mPositionOnStructure = true;
 
     //** config attribute
     ReosHydraulicStructureBoundaryCondition::Type mDefaultConditionType = ReosHydraulicStructureBoundaryCondition::Type::OutputLevel;

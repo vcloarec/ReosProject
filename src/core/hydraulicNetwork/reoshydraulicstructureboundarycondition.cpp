@@ -20,13 +20,27 @@
 #include "reostimeseriesgroup.h"
 #include "reoshydraulicscheme.h"
 
-ReosHydraulicStructureBoundaryCondition::ReosHydraulicStructureBoundaryCondition( ReosHydraulicStructure2D *hydStructure, const QString &boundaryConditionId, const ReosHydraulicNetworkContext &context )
+ReosHydraulicStructureBoundaryCondition::ReosHydraulicStructureBoundaryCondition(
+  ReosHydraulicStructure2D *hydStructure,
+  const QString &boundaryConditionId,
+  const ReosHydraulicNetworkContext &context )
   : ReosHydrographJunction( QPointF(), context.network() )
   , mContext( context )
   , mBoundaryConditionId( boundaryConditionId )
 {
   init();
   attachStructure( hydStructure );
+}
+
+ReosHydraulicStructureBoundaryCondition::ReosHydraulicStructureBoundaryCondition(
+  ReosHydraulicStructure2D *hydStructure,
+  const QString &boundaryConditionId,
+  const ReosSpatialPosition &position,
+  const ReosHydraulicNetworkContext &context )
+  : ReosHydraulicStructureBoundaryCondition( hydStructure, boundaryConditionId, context )
+{
+  mPositionOnStructure = false;
+  ReosHydrographJunction::setPosition( position );
 }
 
 
@@ -86,10 +100,13 @@ ReosHydraulicStructureBoundaryCondition *ReosHydraulicStructureBoundaryCondition
 
 QPointF ReosHydraulicStructureBoundaryCondition::position( const QString &destinationCrs ) const
 {
-  if ( !mStructure.isNull() )
-    return mStructure->geometryStructure()->boundaryConditionCenter( mBoundaryConditionId, destinationCrs );
+  if ( mPositionOnStructure )
+  {
+    if ( !mStructure.isNull() )
+      return mStructure->geometryStructure()->boundaryConditionCenter( mBoundaryConditionId, destinationCrs );
+  }
 
-  return QPointF();
+  return ReosHydrographJunction::position( destinationCrs );
 }
 
 ReosSpatialPosition ReosHydraulicStructureBoundaryCondition::spatialPosition() const

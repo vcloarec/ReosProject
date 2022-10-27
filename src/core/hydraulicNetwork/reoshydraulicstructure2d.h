@@ -61,7 +61,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     static ReosHydraulicStructure2D *create( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext  &context );
 
     //! Creates a structure from \a structureImporter
-    static ReosHydraulicStructure2D* create(ReosStructureImporter *structureImporter, const ReosHydraulicNetworkContext& context);
+    static ReosHydraulicStructure2D *create( ReosStructureImporter *structureImporter, const ReosHydraulicNetworkContext &context );
 
     static QString staticType() {return ReosHydraulicNetworkElement::staticType() + QString( ':' ) + QStringLiteral( "structure2D" );}
 
@@ -288,11 +288,12 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 
   private:
     ReosHydraulicStructure2D( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
-    ReosHydraulicStructure2D(ReosStructureImporter* importer, const ReosHydraulicNetworkContext& context);
+    ReosHydraulicStructure2D( ReosStructureImporter *importer, const ReosHydraulicNetworkContext &context );
 
     Structure2DCapabilities mCapabilities;
     ReosMeshGenerator *mMeshGenerator = nullptr;
     std::unique_ptr<ReosPolylinesStructure> mPolylinesStructures;
+    QSet<QString> mBoundaryConditions;
     ReosMeshResolutionController *mMeshResolutionController = nullptr;
     ReosTopographyCollection   *mTopographyCollection = nullptr;
     std::unique_ptr<ReosMesh> mMesh;
@@ -355,17 +356,20 @@ class REOSCORE_EXPORT ReosRoughnessStructure : public ReosDataObject
 
 class REOSCORE_EXPORT ReosStructureImporter
 {
-public:
+  public:
     ReosStructureImporter() = default;
     ~ReosStructureImporter() = default;
 
     virtual ReosHydraulicStructure2D::Structure2DCapabilities capabilities() const = 0;
     virtual QString crs() const = 0;
     virtual QPolygonF domain() const = 0;
-    virtual ReosMeshGenerator* meshGenerator() const = 0;
-    virtual ReosMeshResolutionController* resolutionController(ReosHydraulicStructure2D* structure) const = 0;
-    virtual ReosMesh* mesh() const = 0;
-    virtual ReosRoughnessStructure* roughnessStructure() const = 0;
+    virtual ReosMeshGenerator *meshGenerator() const = 0;
+    virtual ReosMeshResolutionController *resolutionController( ReosHydraulicStructure2D *structure ) const = 0;
+    virtual ReosMesh *mesh() const = 0;
+    virtual ReosRoughnessStructure *roughnessStructure() const = 0;
+    virtual QStringList boundaryConditionsIds() const = 0;
+    virtual QList<QPointF> boundaryConditionMiddlePoint() const = 0;
+
     virtual bool isValid() const = 0;
 };
 

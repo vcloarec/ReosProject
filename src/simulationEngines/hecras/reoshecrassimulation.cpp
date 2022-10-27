@@ -63,7 +63,7 @@ QPolygonF ReosHecRasStructureImporter::domain() const
 {
   if ( mIsValid )
   {
-    return mProject->geometry( mProject->geometryIds().at( 0 ) ).area2d( 0 ).surface;
+    return mProject->currentGeometry().area2d( 0 ).surface;
   }
 
   return QPolygonF();
@@ -72,4 +72,34 @@ QPolygonF ReosHecRasStructureImporter::domain() const
 ReosMeshResolutionController *ReosHecRasStructureImporter::resolutionController( ReosHydraulicStructure2D *structure ) const
 {
   return new ReosMeshResolutionController( structure, crs() );
+}
+
+QStringList ReosHecRasStructureImporter::boundaryConditionsIds() const
+{
+  QStringList ret;
+  if ( mIsValid )
+  {
+    const QList<ReosHecRasGeometry::BoundaryCondition> bcs = mProject->currentGeometry().allBoundariesConditions();
+    for ( const ReosHecRasGeometry::BoundaryCondition &bc : bcs )
+    {
+      ret.append( bc.name );
+    }
+  }
+
+  return ret;
+}
+
+QList<QPointF> ReosHecRasStructureImporter::boundaryConditionMiddlePoint() const
+{
+  QList<QPointF> ret;
+  if ( mIsValid )
+  {
+    const QList<ReosHecRasGeometry::BoundaryCondition> bcs = mProject->currentGeometry().allBoundariesConditions();
+    for ( const ReosHecRasGeometry::BoundaryCondition &bc : bcs )
+    {
+      ret.append( bc.middlePosition );
+    }
+  }
+
+  return ret;
 }

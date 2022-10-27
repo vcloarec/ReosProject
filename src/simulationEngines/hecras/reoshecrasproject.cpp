@@ -26,6 +26,11 @@ ReosHecRasGeometry ReosHecRasProject::geometry( const QString &id ) const
   return mGeometries.value( id );
 }
 
+ReosHecRasGeometry ReosHecRasProject::currentGeometry() const
+{
+  return mGeometries.first();
+}
+
 void ReosHecRasProject::parseProjectFile()
 {
   QFile file( mFileName );
@@ -71,9 +76,18 @@ ReosHecRasGeometry::FlowArea2D ReosHecRasGeometry::area2d( int i ) const
   return mAreas2D.at( i );
 }
 
-QList<ReosHecRasGeometry::BoundaryCondition> ReosHecRasGeometry::boundariesCondition( const QString &area2dName ) const
+QList<ReosHecRasGeometry::BoundaryCondition> ReosHecRasGeometry::boundariesConditions( const QString &area2dName ) const
 {
   return mBoundariesConditions.value( area2dName );
+}
+
+QList<ReosHecRasGeometry::BoundaryCondition> ReosHecRasGeometry::allBoundariesConditions() const
+{
+  QList<ReosHecRasGeometry::BoundaryCondition> ret;
+  for ( const FlowArea2D &area : mAreas2D )
+    ret.append( boundariesConditions( area.name ) );
+
+  return ret;
 }
 
 void ReosHecRasGeometry::parseGeometryFile()
