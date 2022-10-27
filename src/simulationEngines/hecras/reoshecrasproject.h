@@ -12,12 +12,27 @@ class QTextStream;
 class ReosHecRasGeometry
 {
   public:
+    struct FlowArea2D
+    {
+      QString name;
+      QPolygonF surface;
+    };
+
+    struct BoundaryCondition
+    {
+      QString name;
+      QPointF middlePosition;
+    };
+
     ReosHecRasGeometry() = default;
     ReosHecRasGeometry( const QString fileName );
 
     const QString &title() {return mTitle;}
 
     int area2dCount() const;
+    QString area2dName( int i ) const;
+
+    QList<BoundaryCondition> boundariesCondition( const QString &area2dName ) const;
 
   private:
     QString mFileName;
@@ -25,8 +40,10 @@ class ReosHecRasGeometry
 
     void parseGeometryFile();
     void parseStorageArea( QTextStream &stream, const QString storageName );
+    void parseBoundaryCondition( QTextStream &stream, const QString &bcName );
 
-    QList<QPolygonF> m2dDomains;
+    QList<FlowArea2D> mAreas2D;
+    QMap<QString, QList<BoundaryCondition>> mBoundariesConditions;
 
 };
 

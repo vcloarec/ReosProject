@@ -58,7 +58,17 @@ ReosHecRasGeometry::ReosHecRasGeometry( const QString fileName )
 
 int ReosHecRasGeometry::area2dCount() const
 {
-  return m2dDomains.count();
+  return mAreas2D.count();
+}
+
+QString ReosHecRasGeometry::area2dName( int i ) const
+{
+  return mAreas2D.at( i ).name;
+}
+
+QList<ReosHecRasGeometry::BoundaryCondition> ReosHecRasGeometry::boundariesCondition( const QString &area2dName ) const
+{
+  return mBoundariesConditions.value( area2dName );
 }
 
 void ReosHecRasGeometry::parseGeometryFile()
@@ -82,7 +92,14 @@ void ReosHecRasGeometry::parseGeometryFile()
     {
       QString name = line;
       name.remove( QStringLiteral( "Storage Area=" ) );
-      parseStorageArea( stream, name );
+      name = name.split( ',' ).at( 0 );
+      parseStorageArea( stream, name.trimmed() );
+    }
+    if ( line.startsWith( QStringLiteral( "BC Line Name=" ) ) )
+    {
+      QString name = line;
+      name.remove( QStringLiteral( "BC Line Name=" ) );
+      parseBoundaryCondition( stream, name.trimmed() );
     }
   }
 }
@@ -127,6 +144,48 @@ void ReosHecRasGeometry::parseStorageArea( QTextStream &stream, const QString st
 
   if ( is2D )
   {
-    m2dDomains.append( surface );
+    mAreas2D.append( {storageName, surface} );
   }
+}
+
+void ReosHecRasGeometry::parseBoundaryCondition( QTextStream &stream, const QString &bcName )
+{
+  BoundaryCondition bc;
+  bc.name = bcName;
+  QString storageArea;
+  while ( !stream.atEnd() )
+  {
+    const QString line = stream.readLine();
+
+    if ( line.startsWith( QStringLiteral( "BC Line Storage Area=" ) ) )
+    {
+      storageArea = line;
+      storageArea.remove( "BC Line Storage Area=" );
+      storageArea = storageArea.trimmed();
+    }
+
+    if ( line.startsWith( QStringLiteral( "BC Line Middle Position=" ) ) )
+    {
+      QString midPositionString = line;
+      midPositionString.remove( QStringLiteral( "BC Line Middle Position=" ) );
+      midPositionString.remove( ' ' );
+      QStringList coordStr = midPositionString.split( ',' );
+      if ( coordStr.count() != 2 )
+        return;
+      bc.middlePosition = QPointF( coordStr.at( 0 ).toDouble(), coordStr.at( 1 ).toDouble() );
+    }
+
+    if ( line.startsWith( QStringLiteral( "BC Line Text Position=" ) ) )
+      break;
+  }
+
+  if ( mBoundariesConditions.contains( storageArea ) )
+    mBoundariesConditions[storageArea].append( bc );
+  else
+  {
+    QList<BoundaryCondition> bcs;
+    bcs << bc;
+    mBoundariesConditions.insert( storageArea, bcs );
+  }
+
 }
