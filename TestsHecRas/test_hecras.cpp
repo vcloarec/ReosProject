@@ -111,7 +111,7 @@ void ReosHecrasTesting::exploreProject()
 
   QString areaName = geometry.area2dName( 0 );
   QCOMPARE( areaName, QStringLiteral( "Perimeter 1" ) );
-  QList<ReosHecRasGeometry::BoundaryCondition> boundaries = geometry.boundariesCondition( areaName );
+  QList<ReosHecRasGeometry::BoundaryCondition> boundaries = geometry.boundariesConditions( areaName );
   QCOMPARE( boundaries.count(), 2 );
   QCOMPARE( boundaries.at( 0 ).name, QStringLiteral( "Upstream limit" ) );
   QCOMPARE( boundaries.at( 1 ).name, QStringLiteral( "Downstream limit" ) );

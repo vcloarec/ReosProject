@@ -75,9 +75,16 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   mMesh->setBoundariesVertices( mBoundaryVertices );
   mMesh->setHolesVertices( mHolesVertices );
 
-  //if the boundary condition have associated elements in the network, attache it, if not creates them
-  const QStringList boundaryIdList = mPolylinesStructures->classes();
-  for ( const QString &bcId : boundaryIdList )
+  // if the boundary condition have associated elements in the network, attache it, if not creates them
+  if ( encodedElement.hasEncodedData( QStringLiteral( "boundary-condition-ids" ) ) )
+    encodedElement.getData( QStringLiteral( "boundary-condition-ids" ), mBoundaryConditions );
+  else
+  {
+    const QStringList boundaryIdList = mPolylinesStructures->classes();
+    mBoundaryConditions = QSet<QString>( boundaryIdList.constBegin(), boundaryIdList.constEnd() );
+  }
+
+  for ( const QString &bcId : std::as_const( mBoundaryConditions ) )
   {
     ReosHydraulicStructureBoundaryCondition *bc = boundaryConditionNetWorkElement( bcId );
     if ( bc )
@@ -133,6 +140,17 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( ReosStructureImporter *impor
   , mProfilesCollection( new ReosHydraulicStructureProfilesCollection( this ) )
 {
   init();
+
+  const QStringList boundaryConditionsId = importer->boundaryConditionsIds();
+  const QList<QPointF> boundaryConditionsPos = importer->boundaryConditionMiddlePoint();
+  Q_ASSERT( boundaryConditionsId.count() == boundaryConditionsPos.count() );
+  for ( int i = 0; i < boundaryConditionsId.count(); ++i )
+  {
+    mBoundaryConditions.insert( boundaryConditionsId.at( i ) );
+    const ReosSpatialPosition position( boundaryConditionsPos.at( i ), importer->crs() );
+    mNetwork->addElement(
+      new ReosHydraulicStructureBoundaryCondition( this, boundaryConditionsId.at( i ), position, mNetwork->context() ) );
+  }
 }
 
 ReosHydraulicStructureProfilesCollection *ReosHydraulicStructure2D::profilesCollection() const
@@ -319,6 +337,8 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
   element.addData( QStringLiteral( "mesh-need-to-be-generated" ), mMeshNeedToBeGenerated );
 
   element.addEncodedData( QStringLiteral( "profiles-collection" ), mProfilesCollection->encode() );
+
+  element.addData( QStringLiteral( "boundary-condition-ids" ), mBoundaryConditions );
 }
 
 ReosRoughnessStructure *ReosHydraulicStructure2D::roughnessStructure() const
@@ -423,10 +443,10 @@ void ReosHydraulicStructure2D::updateCalculationContext( const ReosCalculationCo
     {
       switch ( bc->conditionType() )
       {
-        case ReosHydraulicBoundaryCondition::Type::InputFlow:
+        case ReosHydraulicStructureBoundaryCondition::Type::InputFlow:
           bc->updateCalculationContextFromDownstream( context );
           break;
-        case ReosHydraulicBoundaryCondition::Type::OutputLevel:
+        case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
           bc->updateCalculationContextFromUpstream( context, nullptr, true );
           break;
       }
@@ -456,12 +476,14 @@ void ReosHydraulicStructure2D::setTerrain3DSettings( const Reos3DTerrainSettings
 
 void ReosHydraulicStructure2D::onBoundaryConditionAdded( const QString &bid )
 {
+  mBoundaryConditions.insert( bid );
   mNetwork->addElement( new ReosHydraulicStructureBoundaryCondition( this, bid, mNetwork->context() ) );
   emit boundaryChanged();
 }
 
 void ReosHydraulicStructure2D::onBoundaryConditionRemoved( const QString &bid )
 {
+  mBoundaryConditions.remove( bid );
   mNetwork->removeElement( boundaryConditionNetWorkElement( bid ) );
   emit boundaryChanged();
 }
@@ -970,10 +992,10 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
   {
     switch ( bc->conditionType() )
     {
-      case ReosHydraulicBoundaryCondition::Type::NotDefined:
-      case ReosHydraulicBoundaryCondition::Type::InputFlow:
+      case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
+      case ReosHydraulicStructureBoundaryCondition::Type::InputFlow:
         break;
-      case ReosHydraulicBoundaryCondition::Type::OutputLevel:
+      case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
         bc->outputHydrograph()->clear();
         break;
     }
@@ -1017,7 +1039,7 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
 
     for ( ReosHydraulicStructureBoundaryCondition *bc : boundaries )
     {
-      if ( bc->conditionType() == ReosHydraulicBoundaryCondition::Type::OutputLevel )
+      if ( bc->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::OutputLevel )
       {
         bc->outputHydrograph()->clear();
         if ( outputHydrographs.contains( bc->boundaryConditionId() ) )
