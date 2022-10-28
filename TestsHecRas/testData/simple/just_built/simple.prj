@@ -1,9 +1,11 @@
 Proj Title=simple
-Current Geom=g01
+Current Plan=p01
 Default Exp/Contr=0.3,0.1
 SI Units
 Geom File=g01
 Geom File=g02
+Unsteady File=u01
+Plan File=p01
 Y Axis Title=Elevation
 X Axis Title(PF)=Main Channel Distance
 X Axis Title(XS)=Station
@@ -14,6 +16,7 @@ DSS Start Date=
 DSS Start Time=
 DSS End Date=
 DSS End Time=
+DSS File=dss
 DSS Export Filename=
 DSS Export Rating Curves= 0 
 DSS Export Rating Curve Sorted= 0 
