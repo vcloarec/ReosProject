@@ -142,14 +142,17 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( ReosStructureImporter *impor
   init();
 
   const QStringList boundaryConditionsId = importer->boundaryConditionsIds();
+  const QStringList boundaryConditionsName = importer->boundaryConditionsNames();
   const QList<QPointF> boundaryConditionsPos = importer->boundaryConditionMiddlePoint();
   Q_ASSERT( boundaryConditionsId.count() == boundaryConditionsPos.count() );
+  Q_ASSERT( boundaryConditionsId.count() == boundaryConditionsName.count() );
   for ( int i = 0; i < boundaryConditionsId.count(); ++i )
   {
     mBoundaryConditions.insert( boundaryConditionsId.at( i ) );
     const ReosSpatialPosition position( boundaryConditionsPos.at( i ), importer->crs() );
-    mNetwork->addElement(
-      new ReosHydraulicStructureBoundaryCondition( this, boundaryConditionsId.at( i ), position, mNetwork->context() ) );
+    std::unique_ptr<ReosHydraulicStructureBoundaryCondition> sbc( new ReosHydraulicStructureBoundaryCondition( this, boundaryConditionsId.at( i ), position, mNetwork->context() ) );
+    sbc->elementName()->setValue( boundaryConditionsName.at( i ) );
+    mNetwork->addElement( sbc.release() );
   }
 }
 
