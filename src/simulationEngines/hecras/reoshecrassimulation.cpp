@@ -89,6 +89,11 @@ QStringList ReosHecRasStructureImporter::boundaryConditionsIds() const
   return ret;
 }
 
+QStringList ReosHecRasStructureImporter::boundaryConditionsNames() const
+{
+  return boundaryConditionsIds();
+}
+
 QList<QPointF> ReosHecRasStructureImporter::boundaryConditionMiddlePoint() const
 {
   QList<QPointF> ret;

@@ -60,6 +60,7 @@ class ReosHecRasStructureImporter: public ReosStructureImporter
     ReosMesh *mesh() const override { return nullptr; };
     ReosRoughnessStructure *roughnessStructure() const override { return nullptr; };
     QStringList boundaryConditionsIds() const override;
+    QStringList boundaryConditionsNames() const override;
     QList<QPointF> boundaryConditionMiddlePoint() const override;
 
     bool isValid() const override { return mIsValid; }

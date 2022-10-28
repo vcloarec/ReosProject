@@ -368,6 +368,7 @@ class REOSCORE_EXPORT ReosStructureImporter
     virtual ReosMesh *mesh() const = 0;
     virtual ReosRoughnessStructure *roughnessStructure() const = 0;
     virtual QStringList boundaryConditionsIds() const = 0;
+    virtual QStringList boundaryConditionsNames() const = 0;
     virtual QList<QPointF> boundaryConditionMiddlePoint() const = 0;
 
     virtual bool isValid() const = 0;

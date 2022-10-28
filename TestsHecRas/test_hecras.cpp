@@ -18,16 +18,17 @@ email                : vcloarec at gmail dot com
 
 #ifdef _WIN32
 #include "reoshecrascontroller.h"
-#include "reoshecrassimulation.h"
-#include "reoshydraulicstructure2d.h"
-#include "reosgisengine.h"
-#include "reoswatershedmodule.h"
 #endif
 
+#include "reosgisengine.h"
+#include "reoswatershedmodule.h"
+#include "reoshecrassimulation.h"
 #include "reoshecrasproject.h"
 #include "reosdssfile.h"
 #include "reosdssprovider.h"
 #include "reoshydrograph.h"
+#include "reoshydraulicstructure2d.h"
+#include "reoshydraulicstructureboundarycondition.h"
 
 static QString tmp_file( std::string basename )
 {
@@ -52,10 +53,9 @@ class ReosHecrasTesting : public QObject
 #ifdef _MSC_VER
     void availableVersion();
     void createControllerInstance();
-
-    void importStructure();
 #endif
     void exploreProject();
+    void importStructure();
 
     void validInterval();
     void createDssFile();
@@ -75,23 +75,6 @@ void ReosHecrasTesting::createControllerInstance()
   ReosHecrasController controller( versions.last() );
 
   QVERIFY( controller.isValid() );
-}
-
-void ReosHecrasTesting::importStructure()
-{
-  QString path( "C:\\dev\\sources\\ReosProject\\TestsHecRas\\testData\\simple\\simple.prj" );
-
-  QStringList versions = ReosHecrasController::availableVersion();
-  ReosHecRasStructureImporter importer( versions.last(), path );
-
-  ReosModule rootModule;
-  ReosGisEngine *gisEngine = new ReosGisEngine( &rootModule );
-  ReosWatershedModule *watershedModule = new ReosWatershedModule( &rootModule, gisEngine );
-  ReosHydraulicNetwork *network = new ReosHydraulicNetwork( &rootModule, gisEngine, watershedModule );
-
-  ReosHydraulicStructure2D *structure = ReosHydraulicStructure2D::create( &importer, network->context() );
-  QVERIFY( structure != nullptr );
-  QVERIFY( structure->domain().count() > 0 );
 }
 #endif
 
@@ -119,6 +102,29 @@ void ReosHecrasTesting::exploreProject()
   geometry = project.geometry( geometryIds.at( 1 ) );
   QCOMPARE( geometry.title(), QStringLiteral( "simle_2D_geometry_other" ) );
   QCOMPARE( geometry.area2dCount(), 1 );
+}
+
+
+void ReosHecrasTesting::importStructure()
+{
+  QString path( test_path() + QStringLiteral( "simple/simple.prj" ) );
+
+  ReosHecRasStructureImporter importer( path );
+
+  ReosModule rootModule;
+  ReosGisEngine *gisEngine = new ReosGisEngine( &rootModule );
+  ReosWatershedModule *watershedModule = new ReosWatershedModule( &rootModule, gisEngine );
+  ReosHydraulicNetwork *network = new ReosHydraulicNetwork( &rootModule, gisEngine, watershedModule );
+
+  ReosHydraulicStructure2D *structure = ReosHydraulicStructure2D::create( &importer, network->context() );
+  QVERIFY( structure != nullptr );
+  QVERIFY( structure->domain().count() > 0 );
+
+  QList<ReosHydraulicStructureBoundaryCondition *> boundaryConditions = structure->boundaryConditions();
+  QCOMPARE( boundaryConditions.count(), 2 );
+  QCOMPARE( boundaryConditions.at( 1 )->boundaryConditionId(), QStringLiteral( "Upstream limit" ) );
+  QCOMPARE( boundaryConditions.at( 0 )->boundaryConditionId(), QStringLiteral( "Downstream limit" ) );
+
 }
 
 
