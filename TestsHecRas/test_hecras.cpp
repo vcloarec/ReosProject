@@ -83,6 +83,13 @@ void ReosHecrasTesting::exploreProject()
   QString path( test_path() + QStringLiteral( "simple/simple.prj" ) );
   ReosHecRasProject project( path );
 
+  QStringList planIds = project.planIds();
+  QCOMPARE( planIds.count(), 1 );
+  QCOMPARE( project.currentPlan(), planIds.at( 0 ) );
+  QCOMPARE( project.planTitle( project.currentPlan() ), QStringLiteral( "plan_test" ) );
+
+  QCOMPARE( project.currentGeometry().title(), QStringLiteral( "simple_2D_geometry" ) );
+
   QCOMPARE( project.GeometriesCount(), 2 );
 
   QStringList geometryIds = project.geometryIds();

@@ -25,7 +25,7 @@ class ReosHecRasGeometry
     };
 
     ReosHecRasGeometry() = default;
-    ReosHecRasGeometry( const QString fileName );
+    ReosHecRasGeometry( const QString &fileName );
 
     const QString &title() {return mTitle;}
 
@@ -46,13 +46,35 @@ class ReosHecRasGeometry
     void parseGeometryFile();
     void parseStorageArea( QTextStream &stream, const QString storageName );
     void parseBoundaryCondition( QTextStream &stream, const QString &bcName );
+};
 
+class ReosHecRasPlan
+{
+  public:
+    ReosHecRasPlan() = default;
+    ReosHecRasPlan( const QString &fileName );
+
+    QString geometryFile() const;
+
+    const QString &title() const;
+
+  private:
+    QString mFileName;
+    QString mTitle;
+    QString mGeometryFile;
+    QString mFlowFile;
+
+    void parsePlanFile();
 };
 
 class ReosHecRasProject
 {
   public:
     ReosHecRasProject( const QString &projectFileName );
+
+    QString currentPlan() const;
+    QStringList planIds() const;
+    QString planTitle( const QString &id ) const;
 
     int GeometriesCount() const;
 
@@ -64,6 +86,8 @@ class ReosHecRasProject
   private:
     QString mFileName;
     QMap<QString, ReosHecRasGeometry> mGeometries;
+    QMap<QString, ReosHecRasPlan> mPlans;
+    QString mCurrentPlan;
 
     void parseProjectFile();
 
