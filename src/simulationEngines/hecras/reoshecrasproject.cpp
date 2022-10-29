@@ -11,6 +11,21 @@ ReosHecRasProject::ReosHecRasProject( const QString &fileName ):
   parseProjectFile();
 }
 
+QString ReosHecRasProject::currentPlan() const
+{
+  return mCurrentPlan;
+}
+
+QStringList ReosHecRasProject::planIds() const
+{
+  return mPlans.keys();
+}
+
+QString ReosHecRasProject::planTitle( const QString &id ) const
+{
+  return mPlans.value( id ).title();
+}
+
 int ReosHecRasProject::GeometriesCount() const
 {
   return mGeometries.count();
@@ -28,7 +43,8 @@ ReosHecRasGeometry ReosHecRasProject::geometry( const QString &id ) const
 
 ReosHecRasGeometry ReosHecRasProject::currentGeometry() const
 {
-  return mGeometries.first();
+  const ReosHecRasPlan &currentPlan = mPlans.value( mCurrentPlan );
+  return mGeometries.value( currentPlan.geometryFile() );
 }
 
 void ReosHecRasProject::parseProjectFile()
@@ -52,10 +68,24 @@ void ReosHecRasProject::parseProjectFile()
       geomFile.remove( QStringLiteral( "Geom File=" ) );
       mGeometries.insert( geomFile, ReosHecRasGeometry( projectDir.filePath( projectName + '.' + geomFile ) ) );
     }
+
+    if ( line.startsWith( QStringLiteral( "Plan File=" ) ) )
+    {
+      QString planFile = line;
+      planFile.remove( QStringLiteral( "Plan File=" ) );
+      mPlans.insert( planFile, ReosHecRasPlan( projectDir.filePath( projectName + '.' + planFile ) ) );
+    }
+
+    if ( line.startsWith( QStringLiteral( "Current Plan=" ) ) )
+    {
+      QString plan = line;
+      plan.remove( QStringLiteral( "Current Plan=" ) );
+      mCurrentPlan = plan.trimmed();
+    }
   }
 }
 
-ReosHecRasGeometry::ReosHecRasGeometry( const QString fileName )
+ReosHecRasGeometry::ReosHecRasGeometry( const QString &fileName )
   : mFileName( fileName )
 {
   parseGeometryFile();
@@ -207,4 +237,53 @@ void ReosHecRasGeometry::parseBoundaryCondition( QTextStream &stream, const QStr
     mBoundariesConditions.insert( storageArea, bcs );
   }
 
+}
+
+ReosHecRasPlan::ReosHecRasPlan( const QString &fileName )
+  : mFileName( fileName )
+{
+  parsePlanFile();
+}
+
+QString ReosHecRasPlan::geometryFile() const
+{
+  return mGeometryFile;
+}
+
+const QString &ReosHecRasPlan::title() const
+{
+  return mTitle;
+}
+
+void ReosHecRasPlan::parsePlanFile()
+{
+  QFile file( mFileName );
+  if ( !file.open( QIODevice::ReadOnly ) )
+    return;
+
+  QTextStream stream( &file );
+
+  while ( !stream.atEnd() )
+  {
+    const QString line = stream.readLine();
+    if ( line.startsWith( QStringLiteral( "Plan Title=" ) ) )
+    {
+      mTitle = line;
+      mTitle.remove( QStringLiteral( "Plan Title=" ) );
+      mTitle = mTitle.trimmed();
+    }
+
+    if ( line.startsWith( QStringLiteral( "Geom File=" ) ) )
+    {
+      mGeometryFile = line;
+      mGeometryFile.remove( QStringLiteral( "Geom File=" ) );
+      mGeometryFile = mGeometryFile.trimmed();
+    }
+    if ( line.startsWith( QStringLiteral( "Flow File=" ) ) )
+    {
+      mFlowFile = line;
+      mFlowFile.remove( QStringLiteral( "Flow File=" ) );
+      mFlowFile = mFlowFile.trimmed();
+    }
+  }
 }
