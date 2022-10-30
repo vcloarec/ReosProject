@@ -38,6 +38,9 @@ ReosHydraulic2DSimulationWidget::ReosHydraulic2DSimulationWidget( ReosHydraulicS
   connect( ui->mRemoveSimulationButton, &QToolButton::clicked, this, &ReosHydraulic2DSimulationWidget::onRemovedSimulation );
   connect( ui->mExistingSimulationCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosHydraulic2DSimulationWidget::onSimulationIndexChanged );
 
+  ui->mAddSimulationButton->setEnabled( structure->hasCapability( ReosHydraulicStructure2D::MultiSimulation ) );
+  ui->mRemoveSimulationButton->setEnabled( structure->hasCapability( ReosHydraulicStructure2D::MultiSimulation ) );
+
   connect( mStructure, &ReosHydraulicStructure2D::currentSimulationChanged, this, [this]
   {
     ui->mExistingSimulationCombo->blockSignals( true );
@@ -162,13 +165,13 @@ QWidget *ReosHydraulicSimulationWidgetRegistery::createDescription( const QStrin
   return it->second->simulationEngineDescription( parent );
 }
 
-ReosImportHydraulicStructureWidget* ReosHydraulicSimulationWidgetRegistery::createImportWidget(const QString& key, QWidget* parent)
+ReosImportHydraulicStructureWidget *ReosHydraulicSimulationWidgetRegistery::createImportWidget( const QString &key, QWidget *parent )
 {
-    auto it = mFactories.find(key);
-    if (it == mFactories.end())
-        return nullptr;
+  auto it = mFactories.find( key );
+  if ( it == mFactories.end() )
+    return nullptr;
 
-    return it->second->simulationImportWidget(parent);
+  return it->second->simulationImportWidget( parent );
 }
 
 ReosHydraulicSimulationWidgetRegistery *ReosHydraulicSimulationWidgetRegistery::instance()

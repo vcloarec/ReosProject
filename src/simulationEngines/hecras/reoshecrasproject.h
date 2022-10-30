@@ -27,7 +27,7 @@ class ReosHecRasGeometry
     ReosHecRasGeometry() = default;
     ReosHecRasGeometry( const QString &fileName );
 
-    const QString &title() {return mTitle;}
+    const QString &title() const {return mTitle;}
 
     int area2dCount() const;
     QString area2dName( int i ) const;
@@ -72,15 +72,17 @@ class ReosHecRasProject
   public:
     ReosHecRasProject( const QString &projectFileName );
 
-    QString currentPlan() const;
+    QString currentPlanId() const;
     QStringList planIds() const;
     QString planTitle( const QString &id ) const;
+
+    ReosHecRasPlan plan( const QString &planId ) const;
 
     int GeometriesCount() const;
 
     QStringList geometryIds() const;
-    ReosHecRasGeometry geometry( const QString &id ) const;
 
+    ReosHecRasGeometry geometry( const QString &id ) const;
     ReosHecRasGeometry currentGeometry() const;
 
   private:

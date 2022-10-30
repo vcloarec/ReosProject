@@ -108,3 +108,31 @@ QList<QPointF> ReosHecRasStructureImporter::boundaryConditionMiddlePoint() const
 
   return ret;
 }
+
+QList<ReosHydraulicSimulation *> ReosHecRasStructureImporter::createSimulations( QObject *parent ) const
+{
+  QList<ReosHydraulicSimulation *> ret;
+  std::unique_ptr<ReosHecRasSimulation> sim( new ReosHecRasSimulation( parent ) );
+  sim->setName( sim->tr( "HECRAS Simulation" ) );
+  sim->setProject( mProject );
+  ret.append( sim.release() );
+  return ret;
+}
+
+ReosHecRasSimulation::ReosHecRasSimulation( QObject *parent )
+  : ReosHydraulicSimulation( parent )
+{}
+
+QString ReosHecRasSimulation::key() const
+{return staticKey();}
+
+void ReosHecRasSimulation::setProject( std::shared_ptr<ReosHecRasProject> newProject )
+{
+  mProject = newProject;
+  mCurrentPlan = newProject->currentPlanId();
+}
+
+ReosHecRasProject *ReosHecRasSimulation::project() const
+{
+  return mProject.get();
+}

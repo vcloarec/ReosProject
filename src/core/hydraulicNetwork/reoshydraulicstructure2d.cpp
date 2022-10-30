@@ -154,6 +154,9 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( ReosStructureImporter *impor
     sbc->elementName()->setValue( boundaryConditionsName.at( i ) );
     mNetwork->addElement( sbc.release() );
   }
+
+  mSimulations.append( importer->createSimulations( this ) );
+  mCurrentSimulationIndex = mSimulations.isEmpty() ? -1 : 0;
 }
 
 ReosHydraulicStructureProfilesCollection *ReosHydraulicStructure2D::profilesCollection() const

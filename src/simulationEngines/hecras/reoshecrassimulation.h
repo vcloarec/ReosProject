@@ -20,10 +20,38 @@
 #include "reoshydraulicstructure2d.h"
 #include "reoshecrasproject.h"
 
-class ReosHecRasSimulation
+class ReosHecRasSimulation : public ReosHydraulicSimulation
 {
+    Q_OBJECT
   public:
+    ReosHecRasSimulation( QObject *parent );
+
+
     static QString staticKey() { return QStringLiteral( "hecras" ); }
+
+    QString key() const override;
+    ReosEncodedElement encode() const {return ReosEncodedElement();}
+    QString directoryName() const {return QString();}
+    void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) {}
+    void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext, const QDir &directory ) {}
+    ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const {return nullptr;}
+    QList<QDateTime> theoricalTimeSteps( ReosHydraulicScheme *scheme ) const {return QList<QDateTime>();}
+    ReosDuration representativeTimeStep() const {return ReosDuration();}
+    ReosDuration representative2DTimeStep() const {return ReosDuration();}
+    void saveSimulationResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, ReosSimulationProcess *process, bool success ) const {}
+    ReosHydraulicSimulationResults *loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, QObject *parent ) const {return nullptr;}
+    bool hasResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const {return false;}
+    void removeResults( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const {}
+    QString engineName() const {return tr( "HECRAS" );}
+    void saveConfiguration( ReosHydraulicScheme *scheme ) const {}
+    void restoreConfiguration( ReosHydraulicScheme *scheme ) {}
+
+    void setProject( std::shared_ptr<ReosHecRasProject> newProject );
+    ReosHecRasProject *project() const;
+
+  private:
+    std::shared_ptr<ReosHecRasProject> mProject;
+    QString mCurrentPlan;
 };
 
 
@@ -63,11 +91,13 @@ class ReosHecRasStructureImporter: public ReosStructureImporter
     QStringList boundaryConditionsNames() const override;
     QList<QPointF> boundaryConditionMiddlePoint() const override;
 
+    QList<ReosHydraulicSimulation *> createSimulations( QObject *parent ) const override;
+
     bool isValid() const override { return mIsValid; }
 
   private:
     bool mIsValid = false;
-    std::unique_ptr<ReosHecRasProject> mProject;
+    std::shared_ptr<ReosHecRasProject> mProject;
 };
 
 

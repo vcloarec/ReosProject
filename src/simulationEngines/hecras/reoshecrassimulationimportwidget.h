@@ -17,7 +17,6 @@
 #define REOSHECRASSIMULATIONIMPORTWIDGET_H
 
 #include <QWidget>
-#include "reoshydraulic2dsimulationwidget.h"
 #include "reosimporthydraulicstructuredialog.h"
 
 class ReosHydraulicStructure2D;
@@ -41,18 +40,6 @@ class ReosHecRasSimulationImportWidget : public ReosImportHydraulicStructureWidg
 
   private:
     Ui::ReosHecRasSimulationImportWidget *ui = nullptr;
-};
-
-
-class ReosHecRasSimulationEditWidgetFactory : public ReosHydraulicSimulationWidgetFactory
-{
-  public:
-    QString key() const override;
-
-    QWidget *simulationSettingsWidget( ReosHydraulicStructure2D *structure, ReosHydraulicSimulation *simulation, const ReosGuiContext &guiContext ) const override { return nullptr; }
-    QDialog *engineConfigurationDialog( QWidget *parent ) const override;
-    QWidget *simulationEngineDescription( QWidget *parent ) const override;
-    ReosImportHydraulicStructureWidget *simulationImportWidget( QWidget *parent ) const override;
 };
 
 #endif //REOSHECRASSIMULATIONIMPORTWIDGET_H

@@ -25,17 +25,6 @@ void ReosHecRasSimulationImportWidget::importStructure2D( const ReosHydraulicNet
   return;
 }
 
-QString ReosHecRasSimulationEditWidgetFactory::key() const { return ReosHecRasSimulation::staticKey(); }
-
-QDialog *ReosHecRasSimulationEditWidgetFactory::engineConfigurationDialog( QWidget *parent ) const { return nullptr; }
-
-QWidget *ReosHecRasSimulationEditWidgetFactory::simulationEngineDescription( QWidget *parent ) const { return nullptr; }
-
-ReosImportHydraulicStructureWidget *ReosHecRasSimulationEditWidgetFactory::simulationImportWidget( QWidget *parent ) const
-{
-  return new ReosHecRasSimulationImportWidget( parent );
-}
-
 void ReosHecRasSimulationImportWidget::onProjectFileButtonPressed()
 {
   ReosSettings settings;
@@ -53,9 +42,4 @@ void ReosHecRasSimulationImportWidget::onProjectFileButtonPressed()
     settings.setValue( QStringLiteral( "ImportFile/directory" ), fileInfo.dir().path() );
   }
 
-}
-
-REOSEXTERN ReosHydraulicSimulationWidgetFactory *simulationWidgetFactory()
-{
-  return new ReosHecRasSimulationEditWidgetFactory;
 }

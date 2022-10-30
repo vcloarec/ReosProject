@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ReosHecRasSimulationImportWidget</class>
- <widget class="QWidget" name="ReosHecRasSimulationImportWidget">
+ <class>ReosHecRasSimulationEditWidget</class>
+ <widget class="QWidget" name="ReosHecRasSimulationEditWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>329</width>
-    <height>134</height>
+    <width>400</width>
+    <height>300</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,7 +26,24 @@
    <property name="bottomMargin">
     <number>0</number>
    </property>
-   <item row="1" column="1">
+   <item row="0" column="1">
+    <widget class="QComboBox" name="mPlansComboBox"/>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Plan</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Geometry Title</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -39,24 +56,10 @@
      </property>
     </spacer>
    </item>
-   <item row="0" column="2">
-    <widget class="QToolButton" name="mProjectFileButton">
+   <item row="1" column="1">
+    <widget class="QLabel" name="mGeometryLabel">
      <property name="text">
-      <string>...</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QLineEdit" name="mProjectFileLineEdit">
-     <property name="readOnly">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>Project File</string>
+      <string>TextLabel</string>
      </property>
     </widget>
    </item>

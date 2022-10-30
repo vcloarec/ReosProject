@@ -370,6 +370,7 @@ class REOSCORE_EXPORT ReosStructureImporter
     virtual QStringList boundaryConditionsIds() const = 0;
     virtual QStringList boundaryConditionsNames() const = 0;
     virtual QList<QPointF> boundaryConditionMiddlePoint() const = 0;
+    virtual QList<ReosHydraulicSimulation *> createSimulations( QObject *parent ) const = 0;
 
     virtual bool isValid() const = 0;
 };
