@@ -6,6 +6,7 @@ Geom File=g01
 Geom File=g02
 Unsteady File=u01
 Plan File=p01
+Plan File=p02
 Y Axis Title=Elevation
 X Axis Title(PF)=Main Channel Distance
 X Axis Title(XS)=Station

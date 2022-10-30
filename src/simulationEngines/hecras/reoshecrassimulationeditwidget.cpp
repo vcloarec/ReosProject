@@ -35,10 +35,15 @@ ReosHecRasSimulationEditWidget::~ReosHecRasSimulationEditWidget()
 void ReosHecRasSimulationEditWidget::onPlanChanged()
 {
   const QString currentPlanId = ui->mPlansComboBox->currentData().toString();
-  const QString currentGeometryId = mSimulation->project()->plan( currentPlanId ).geometryFile();
+  const ReosHecRasPlan &plan = mSimulation->project()->plan( currentPlanId );
+  const QString currentGeometryId = plan.geometryFile();
   const ReosHecRasGeometry &geometry = mSimulation->project()->geometry( currentGeometryId );
 
   ui->mGeometryLabel->setText( geometry.title() );
+  ui->mStartDateLabel->setText( QLocale().toString( plan.startTime().date() ) );
+  ui->mEndDateLabel->setText( QLocale().toString( plan.endTime().date() ) );
+  ui->mStartTimeLabel->setText( QLocale().toString( plan.startTime().time(), QLocale::ShortFormat ) );
+  ui->mEndTimeLabel->setText( QLocale().toString( plan.endTime().time(), QLocale::ShortFormat ) );
 }
 
 ReosImportHydraulicStructureWidget *ReosHecRasSimulationEditWidgetFactory::simulationImportWidget( QWidget *parent ) const

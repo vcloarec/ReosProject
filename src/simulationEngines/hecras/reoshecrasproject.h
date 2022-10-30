@@ -4,6 +4,7 @@
 #include <QString>
 #include <QMap>
 #include <QPolygonF>
+#include <QDateTime>
 #include <memory>
 
 class QTextStream;
@@ -58,11 +59,17 @@ class ReosHecRasPlan
 
     const QString &title() const;
 
+    const QDateTime &startTime() const;
+    const QDateTime &endTime() const;
+
   private:
     QString mFileName;
     QString mTitle;
     QString mGeometryFile;
     QString mFlowFile;
+
+    QDateTime mStartTime;
+    QDateTime mEndTime;
 
     void parsePlanFile();
 };
@@ -84,6 +91,8 @@ class ReosHecRasProject
 
     ReosHecRasGeometry geometry( const QString &id ) const;
     ReosHecRasGeometry currentGeometry() const;
+
+    static QDate hecRasDateToDate( const QString &hecrasDate );
 
   private:
     QString mFileName;
