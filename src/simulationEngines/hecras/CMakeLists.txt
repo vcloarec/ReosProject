@@ -6,6 +6,7 @@ SET(REOS_HECRAS_SOURCES
     reoshecrassimulation.cpp
     reoshecrassimulationimportwidget.cpp
     reoshecrasproject.cpp
+    reoshecrassimulationeditwidget.cpp
 )
 
 SET(REOS_HECRAS_HEADERS
@@ -13,6 +14,7 @@ SET(REOS_HECRAS_HEADERS
     reoshecrassimulation.h
     reoshecrassimulationimportwidget.h
     reoshecrasproject.h
+    reoshecrassimulationeditwidget.h
 )
 
 ADD_LIBRARY(hecras_engine MODULE

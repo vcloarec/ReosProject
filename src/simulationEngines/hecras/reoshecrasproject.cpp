@@ -11,7 +11,7 @@ ReosHecRasProject::ReosHecRasProject( const QString &fileName ):
   parseProjectFile();
 }
 
-QString ReosHecRasProject::currentPlan() const
+QString ReosHecRasProject::currentPlanId() const
 {
   return mCurrentPlan;
 }
@@ -24,6 +24,11 @@ QStringList ReosHecRasProject::planIds() const
 QString ReosHecRasProject::planTitle( const QString &id ) const
 {
   return mPlans.value( id ).title();
+}
+
+ReosHecRasPlan ReosHecRasProject::plan( const QString &planId ) const
+{
+  return mPlans.value( planId );
 }
 
 int ReosHecRasProject::GeometriesCount() const
