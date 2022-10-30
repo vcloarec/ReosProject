@@ -54,6 +54,7 @@ class ReosHecrasTesting : public QObject
     void availableVersion();
     void createControllerInstance();
 #endif
+    void hecRasDate();
     void exploreProject();
     void importStructure();
 
@@ -78,15 +79,37 @@ void ReosHecrasTesting::createControllerInstance()
 }
 #endif
 
+void ReosHecrasTesting::hecRasDate()
+{
+  QCOMPARE( ReosHecRasProject::hecRasDateToDate( "02JAN2001" ), QDate( 2001, 1, 2 ) );
+  QCOMPARE( ReosHecRasProject::hecRasDateToDate( "03Feb2009" ), QDate( 2009, 2, 3 ) );
+  QCOMPARE( ReosHecRasProject::hecRasDateToDate( "04MAR2008" ), QDate( 2008, 3, 4 ) );
+  QCOMPARE( ReosHecRasProject::hecRasDateToDate( "06Apr2007" ), QDate( 2007, 4, 6 ) );
+  QCOMPARE( ReosHecRasProject::hecRasDateToDate( "07may2006" ), QDate( 2006, 5, 7 ) );
+  QCOMPARE( ReosHecRasProject::hecRasDateToDate( "08jun2006" ), QDate( 2006, 6, 8 ) );
+  QCOMPARE( ReosHecRasProject::hecRasDateToDate( "09Jul2005" ), QDate( 2005, 7, 9 ) );
+  QCOMPARE( ReosHecRasProject::hecRasDateToDate( "12AUG2005" ), QDate( 2005, 8, 12 ) );
+  QCOMPARE( ReosHecRasProject::hecRasDateToDate( "19sep2014" ), QDate( 2014, 9, 19 ) );
+  QCOMPARE( ReosHecRasProject::hecRasDateToDate( "24Oct2004" ), QDate( 2004, 10, 24 ) );
+  QCOMPARE( ReosHecRasProject::hecRasDateToDate( "25nov2003" ), QDate( 2003, 11, 25 ) );
+  QCOMPARE( ReosHecRasProject::hecRasDateToDate( "26DEC2002" ), QDate( 2002, 12, 26 ) );
+}
+
 void ReosHecrasTesting::exploreProject()
 {
   QString path( test_path() + QStringLiteral( "simple/simple.prj" ) );
   ReosHecRasProject project( path );
 
   QStringList planIds = project.planIds();
-  QCOMPARE( planIds.count(), 1 );
-  QCOMPARE( project.currentPlan(), planIds.at( 0 ) );
-  QCOMPARE( project.planTitle( project.currentPlan() ), QStringLiteral( "plan_test" ) );
+  QCOMPARE( planIds.count(), 2 );
+  QCOMPARE( project.currentPlanId(), planIds.at( 0 ) );
+  QCOMPARE( project.planTitle( project.currentPlanId() ), QStringLiteral( "plan_test" ) );
+  QCOMPARE( project.planTitle( planIds.at( 1 ) ), QStringLiteral( "plan_test_2" ) );
+
+  QCOMPARE( project.plan( planIds.at( 0 ) ).startTime(), QDateTime( QDate( 2008, 9, 1 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( project.plan( planIds.at( 0 ) ).endTime(), QDateTime( QDate( 2008, 9, 1 ), QTime( 2, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( project.plan( planIds.at( 1 ) ).startTime(), QDateTime( QDate( 2016, 1, 7 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( project.plan( planIds.at( 1 ) ).endTime(), QDateTime( QDate( 2016, 1, 8 ), QTime( 1, 0, 0 ), Qt::UTC ) );
 
   QCOMPARE( project.currentGeometry().title(), QStringLiteral( "simple_2D_geometry" ) );
 
@@ -131,7 +154,6 @@ void ReosHecrasTesting::importStructure()
   QCOMPARE( boundaryConditions.count(), 2 );
   QCOMPARE( boundaryConditions.at( 1 )->boundaryConditionId(), QStringLiteral( "Upstream limit" ) );
   QCOMPARE( boundaryConditions.at( 0 )->boundaryConditionId(), QStringLiteral( "Downstream limit" ) );
-
 }
 
 

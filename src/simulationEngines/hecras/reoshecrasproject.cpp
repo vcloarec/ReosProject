@@ -257,7 +257,17 @@ QString ReosHecRasPlan::geometryFile() const
 
 const QString &ReosHecRasPlan::title() const
 {
-  return mTitle;
+    return mTitle;
+}
+
+const QDateTime &ReosHecRasPlan::startTime() const
+{
+    return mStartTime;
+}
+
+const QDateTime &ReosHecRasPlan::endTime() const
+{
+    return mEndTime;
 }
 
 void ReosHecRasPlan::parsePlanFile()
@@ -284,11 +294,89 @@ void ReosHecRasPlan::parsePlanFile()
       mGeometryFile.remove( QStringLiteral( "Geom File=" ) );
       mGeometryFile = mGeometryFile.trimmed();
     }
+
     if ( line.startsWith( QStringLiteral( "Flow File=" ) ) )
     {
       mFlowFile = line;
       mFlowFile.remove( QStringLiteral( "Flow File=" ) );
       mFlowFile = mFlowFile.trimmed();
     }
+
+    if ( line.startsWith( QStringLiteral( "Simulation Date=" ) ) )
+    {
+      QString dateLine = line;
+      dateLine.remove( QStringLiteral( "Simulation Date=" ) );
+      QStringList splitDates = dateLine.trimmed().split( ',' );
+      if ( splitDates.count() == 4 )
+      {
+        bool ok = true;
+        QDate startDate = ReosHecRasProject::hecRasDateToDate( splitDates.at( 0 ) );
+        ok &= startDate.isValid();
+        QTime startTime = QTime::fromString( splitDates.at( 1 ) );
+        ok &= startTime.isValid();
+        QDate endDate = ReosHecRasProject::hecRasDateToDate( splitDates.at( 2 ) );
+        ok &= endDate.isValid();
+        QTime endTime = QTime::fromString( splitDates.at( 3 ) );
+        ok &= endTime.isValid();
+
+        if ( ok )
+        {
+          mStartTime = QDateTime( startDate, startTime, Qt::UTC );
+          mEndTime = QDateTime( endDate, endTime, Qt::UTC );
+        }
+
+      }
+    }
   }
+}
+
+QDate ReosHecRasProject::hecRasDateToDate( const QString &hecrasDate )
+{
+  if ( hecrasDate.size() != 9 )
+    return QDate();
+
+  QString dayStr = hecrasDate;
+  dayStr.resize( 2 );
+  bool ok = false;
+  int d = dayStr.toInt( &ok );
+  if ( !ok )
+    return QDate();
+
+  QString monthStr = hecrasDate.mid( 2, 3 ).toLower();
+  int m = -1;
+  if ( monthStr == QStringLiteral( "jan" ) )
+    m = 1;
+  if ( monthStr == QStringLiteral( "feb" ) )
+    m = 2;
+  if ( monthStr == QStringLiteral( "mar" ) )
+    m = 3;
+  if ( monthStr == QStringLiteral( "apr" ) )
+    m = 4;
+  if ( monthStr == QStringLiteral( "may" ) )
+    m = 5;
+  if ( monthStr == QStringLiteral( "jun" ) )
+    m = 6;
+  if ( monthStr == QStringLiteral( "jul" ) )
+    m = 7;
+  if ( monthStr == QStringLiteral( "aug" ) )
+    m = 8;
+  if ( monthStr == QStringLiteral( "sep" ) )
+    m = 9;
+  if ( monthStr == QStringLiteral( "oct" ) )
+    m = 10;
+  if ( monthStr == QStringLiteral( "nov" ) )
+    m = 11;
+  if ( monthStr == QStringLiteral( "dec" ) )
+    m = 12;
+
+  if ( m == -1 )
+    return QDate();
+
+  QString yearStr = hecrasDate.mid( 5 );
+  int y = yearStr.toInt( &ok );
+  if ( !ok )
+    return QDate();
+
+  return QDate( y, m, d );
+
 }
