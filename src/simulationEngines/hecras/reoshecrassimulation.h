@@ -87,10 +87,8 @@ class ReosHecRasStructureImporter: public ReosStructureImporter
     ReosMeshResolutionController *resolutionController( ReosHydraulicStructure2D *structure ) const override;
     ReosMesh *mesh() const override { return nullptr; };
     ReosRoughnessStructure *roughnessStructure() const override { return nullptr; };
-    QStringList boundaryConditionsIds() const override;
-    QStringList boundaryConditionsNames() const override;
-    QList<QPointF> boundaryConditionMiddlePoint() const override;
 
+    QList<ReosHydraulicStructureBoundaryCondition *> createBoundaryConditions( ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const override;
     QList<ReosHydraulicSimulation *> createSimulations( QObject *parent ) const override;
 
     bool isValid() const override { return mIsValid; }

@@ -152,6 +152,7 @@ void ReosHydraulicStructureBoundaryCondition::updateCalculationContextFromUpstre
       break;
     case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
     case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
+    case ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally:
       break;
   }
 }
@@ -210,6 +211,7 @@ QString ReosHydraulicStructureBoundaryCondition::outputPrefixName() const
   switch ( conditionType() )
   {
     case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
+    case ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally:
       break;
     case ReosHydraulicStructureBoundaryCondition::Type::InputFlow:
       return tr( "Input flow from" );

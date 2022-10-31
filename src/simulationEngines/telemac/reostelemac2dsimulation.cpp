@@ -138,12 +138,12 @@ REOSEXTERN ReosSimulationEngineFactory *engineSimulationFactory()
 
 ReosTelemac2DSimulationEngineFactory::ReosTelemac2DSimulationEngineFactory()
 {
-    mCapabilities = ReosSimulationEngineFactory::CanBeCreated;
+  mCapabilities = ReosSimulationEngineFactory::CanBeCreated;
 }
 
 ReosHydraulicSimulation *ReosTelemac2DSimulationEngineFactory::createSimulation( QObject *parent ) const
 {
-    return new ReosTelemac2DSimulation( parent );
+  return new ReosTelemac2DSimulation( parent );
 }
 
 ReosHydraulicSimulation *ReosTelemac2DSimulationEngineFactory::createSimulation( const ReosEncodedElement &element, QObject *parent ) const
@@ -539,6 +539,7 @@ QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemac2DSimulation::create
             bound.LITBOR = 4;
             break;
           case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
+          case ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally:
             break;
         }
       }
@@ -1078,6 +1079,7 @@ QList<ReosTelemac2DSimulation::TelemacBoundaryCondition> ReosTelemac2DSimulation
         bc.rank = i + 1;
         break;
       case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
+      case ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally:
         continue;
         break;
     }
@@ -1200,7 +1202,7 @@ void ReosTelemac2DSimulation::createSteeringFile(
   stream << QStringLiteral( "GRAPHIC PRINTOUT PERIOD : %1\n" ).arg( QString::number( mOutputPeriodResult2D->value() ) );
   stream << QStringLiteral( "LISTING PRINTOUT PERIOD : %1\n" ).arg( QString::number( mOutputPeriodResultHyd->value() ) );
 
-  //Physical parametres
+  //Physical parameters
   stream << QStringLiteral( "LAW OF BOTTOM FRICTION : 3\n" );
   stream << QStringLiteral( "FRICTION COEFFICIENT : 10\n" );
 
@@ -1213,6 +1215,7 @@ void ReosTelemac2DSimulation::createSteeringFile(
     switch ( bc->conditionType() )
     {
       case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
+      case ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally:
         prescribedFlow.append( QString( '0' ) );
         prescribedElevation.append( QString( '0' ) );
         velocityProfile.append( QString( '1' ) );

@@ -145,12 +145,13 @@ class ReosFormJunctionBoundaryConditionWidget: public ReosFormBaseJunctionNodeWi
     enum Type
     {
       WaterLevel,
-      FlowRate
+      FlowRate,
+      DefinedExternally,
     };
 
     ReosFormJunctionBoundaryConditionWidget( ReosHydraulicStructureBoundaryCondition *boundary, const ReosGuiContext &context = ReosGuiContext() );
 
-    //! Constructor with predefined type, type could be change
+    //! Constructor with predefined type, type could not be change except for externally defined
     ReosFormJunctionBoundaryConditionWidget( ReosHydraulicStructureBoundaryCondition *boundary, Type type, const ReosGuiContext &context = ReosGuiContext() );
 
   private slots:

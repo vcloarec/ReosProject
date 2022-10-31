@@ -47,6 +47,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     {
       GeometryEditable = 1 << 0, //!< If the structure have geometry editable (geometry structure, mesh, ...)
       MultiSimulation = 1 << 1, //!< If the structure can have multiple simulations
+      DefinedExternally = 1 << 2 //!< If the structure is defined externally
     };
 
     Q_ENUM( Structure2DCapability )
@@ -367,9 +368,8 @@ class REOSCORE_EXPORT ReosStructureImporter
     virtual ReosMeshResolutionController *resolutionController( ReosHydraulicStructure2D *structure ) const = 0;
     virtual ReosMesh *mesh() const = 0;
     virtual ReosRoughnessStructure *roughnessStructure() const = 0;
-    virtual QStringList boundaryConditionsIds() const = 0;
-    virtual QStringList boundaryConditionsNames() const = 0;
-    virtual QList<QPointF> boundaryConditionMiddlePoint() const = 0;
+
+    virtual QList<ReosHydraulicStructureBoundaryCondition *> createBoundaryConditions( ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const = 0;
     virtual QList<ReosHydraulicSimulation *> createSimulations( QObject *parent ) const = 0;
 
     virtual bool isValid() const = 0;
