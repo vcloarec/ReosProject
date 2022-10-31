@@ -226,6 +226,8 @@ void ReosSimulationPreparationProcess::start()
           bc->outputHydrograph()->clear();
           bc->outputHydrograph()->setReferenceTime( mContext.simulationStartTime() );
           break;
+        case ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally:
+          break;
       }
     }
   }
@@ -275,6 +277,7 @@ ReosSimulationProcess::ReosSimulationProcess( const ReosCalculationContext &cont
       {
         case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
         case ReosHydraulicStructureBoundaryCondition::Type::InputFlow:
+        case ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally:
           break;
         case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
           mOutputHydrographs.insert( bc->boundaryConditionId(), new ReosHydrograph( this ) );

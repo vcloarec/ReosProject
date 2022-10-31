@@ -141,19 +141,9 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( ReosStructureImporter *impor
 {
   init();
 
-  const QStringList boundaryConditionsId = importer->boundaryConditionsIds();
-  const QStringList boundaryConditionsName = importer->boundaryConditionsNames();
-  const QList<QPointF> boundaryConditionsPos = importer->boundaryConditionMiddlePoint();
-  Q_ASSERT( boundaryConditionsId.count() == boundaryConditionsPos.count() );
-  Q_ASSERT( boundaryConditionsId.count() == boundaryConditionsName.count() );
-  for ( int i = 0; i < boundaryConditionsId.count(); ++i )
-  {
-    mBoundaryConditions.insert( boundaryConditionsId.at( i ) );
-    const ReosSpatialPosition position( boundaryConditionsPos.at( i ), importer->crs() );
-    std::unique_ptr<ReosHydraulicStructureBoundaryCondition> sbc( new ReosHydraulicStructureBoundaryCondition( this, boundaryConditionsId.at( i ), position, mNetwork->context() ) );
-    sbc->elementName()->setValue( boundaryConditionsName.at( i ) );
-    mNetwork->addElement( sbc.release() );
-  }
+  const QList<ReosHydraulicStructureBoundaryCondition *> bcs = importer->createBoundaryConditions( this, mNetwork->context() );
+  for ( ReosHydraulicStructureBoundaryCondition *bc : bcs )
+    mBoundaryConditions.insert( bc->boundaryConditionId() );
 
   mSimulations.append( importer->createSimulations( this ) );
   mCurrentSimulationIndex = mSimulations.isEmpty() ? -1 : 0;
@@ -454,6 +444,8 @@ void ReosHydraulicStructure2D::updateCalculationContext( const ReosCalculationCo
           break;
         case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
           bc->updateCalculationContextFromUpstream( context, nullptr, true );
+          break;
+        case ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally:
           break;
       }
     }
@@ -1002,7 +994,9 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
       case ReosHydraulicStructureBoundaryCondition::Type::InputFlow:
         break;
       case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
-        bc->outputHydrograph()->clear();
+      case ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally:
+        if ( bc->outputHydrograph() )
+          bc->outputHydrograph()->clear();
         break;
     }
   }

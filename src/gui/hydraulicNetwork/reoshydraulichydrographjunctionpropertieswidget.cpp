@@ -34,6 +34,7 @@
 #include "reosvariabletimesteptimeseriesgroupwidget.h"
 #include "reostimeseriesgroup.h"
 #include "reosstyleregistery.h"
+#include "reoshydraulicstructure2d.h"
 
 
 ReosHydraulicHydrographJunctionPropertiesWidget::ReosHydraulicHydrographJunctionPropertiesWidget( ReosHydrographJunction *junctionNode, const ReosGuiContext &context )
@@ -433,6 +434,9 @@ ReosFormJunctionBoundaryConditionWidget::ReosFormJunctionBoundaryConditionWidget
   mTypeCombo = new QComboBox( this );
   mTypeCombo->addItem( tr( "Water Level" ), WaterLevel );
   mTypeCombo->addItem( tr( "Flow rate" ), FlowRate );
+  if ( boundary->structure()->hasCapability( ReosHydraulicStructure2D::DefinedExternally ) )
+    mTypeCombo->addItem( tr( "Defined externally" ), DefinedExternally );
+
   typeLayout->addWidget( mTypeCombo );
   addItem( typeLayout, 0 );
 
@@ -514,6 +518,11 @@ ReosFormJunctionBoundaryConditionWidget::ReosFormJunctionBoundaryConditionWidget
       mNode->setInternalHydrographOrigin( ReosHydrographJunction::None );
     }
 
+    if ( mTypeCombo->currentData() == DefinedExternally )
+    {
+      mNode->setDefaultConditionType( ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally );
+    }
+
     updateWidgetsDisplaying();
   } );
 
@@ -522,13 +531,27 @@ ReosFormJunctionBoundaryConditionWidget::ReosFormJunctionBoundaryConditionWidget
   connect( mNode->gaugedHydrographsStore(), &ReosDataObject::dataChanged, this, &ReosFormJunctionBoundaryConditionWidget::syncToNode );
 }
 
-ReosFormJunctionBoundaryConditionWidget::ReosFormJunctionBoundaryConditionWidget( ReosHydraulicStructureBoundaryCondition *boundary,
-    ReosFormJunctionBoundaryConditionWidget::Type type,
-    const ReosGuiContext &context )
+ReosFormJunctionBoundaryConditionWidget::ReosFormJunctionBoundaryConditionWidget(
+  ReosHydraulicStructureBoundaryCondition *boundary,
+  ReosFormJunctionBoundaryConditionWidget::Type type,
+  const ReosGuiContext &context )
   : ReosFormJunctionBoundaryConditionWidget( boundary, context )
 {
-  mTypeCombo->setCurrentIndex( mTypeCombo->findData( type ) );
-  mTypeCombo->setEnabled( false );
+  int i = 0;
+  while ( i < mTypeCombo->count() )
+  {
+    if ( mTypeCombo->itemData( i ) != type &&  mTypeCombo->itemData( i ) != DefinedExternally )
+    {
+      if ( mTypeCombo->currentIndex() == i )
+      {
+        mTypeCombo->setCurrentIndex( mTypeCombo->findData( type ) );
+      }
+      mTypeCombo->removeItem( i );
+    }
+    else
+      ++i;
+  }
+
 }
 
 void ReosFormJunctionBoundaryConditionWidget::syncToNode()
@@ -542,6 +565,9 @@ void ReosFormJunctionBoundaryConditionWidget::syncToNode()
     case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
     case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
       mTypeCombo->setCurrentIndex( mTypeCombo->findData( WaterLevel ) );
+      break;
+    case ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally:
+      mTypeCombo->setCurrentIndex( mTypeCombo->findData( DefinedExternally ) );
       break;
   }
   updateWidgetsDisplaying();
@@ -586,6 +612,13 @@ void ReosFormJunctionBoundaryConditionWidget::updateWidgetsDisplaying()
       mConstantLevel->setVisible( mNode->isWaterLevelConstant()->value() );
       mButtonWaterLevelSeries->setVisible( !mNode->isWaterLevelConstant()->value() );
       mWaterLevelSeriesWidget->setVisible( !mNode->isWaterLevelConstant()->value() );
+      mHydrographComboWidget->hide();
+      break;
+    case ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally:
+      mIsElevationConstant->hide();
+      mConstantLevel->setVisible( false );
+      mButtonWaterLevelSeries->setVisible( false );
+      mWaterLevelSeriesWidget->setVisible( false );
       mHydrographComboWidget->hide();
       break;
   }

@@ -29,9 +29,10 @@ class REOSCORE_EXPORT ReosHydraulicStructureBoundaryCondition : public ReosHydro
   public:
     enum class Type
     {
-      NotDefined,
-      InputFlow,
-      OutputLevel,
+      NotDefined, //!< Not Defined,
+      InputFlow, //!< Input flow boundary condition
+      OutputLevel, //!< Water level boundary condition, leading to an ouput flow
+      DefinedExternally, //! Externally defined boundary condition, this condition will depends on the simulation engine
     };
 
     enum class ConnectionState
@@ -67,6 +68,7 @@ class REOSCORE_EXPORT ReosHydraulicStructureBoundaryCondition : public ReosHydro
     void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
     QString outputPrefixName() const override;
 
+    //! Returns the boundary condition Id string that is different than ReosDataObject::id()
     QString boundaryConditionId() const;
 
     void attachStructure( ReosHydraulicStructure2D *structure );

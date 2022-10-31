@@ -15,6 +15,7 @@
  ***************************************************************************/
 
 #include "reoshecrassimulation.h"
+#include "reoshydraulicstructureboundarycondition.h"
 #include "reoscore.h"
 
 #include <QFileInfo>
@@ -51,7 +52,7 @@ ReosHecRasStructureImporter::~ReosHecRasStructureImporter() = default;
 
 ReosHydraulicStructure2D::Structure2DCapabilities ReosHecRasStructureImporter::capabilities() const
 {
-  return 0;
+  return ReosHydraulicStructure2D::DefinedExternally;
 }
 
 QString ReosHecRasStructureImporter::crs() const
@@ -74,36 +75,20 @@ ReosMeshResolutionController *ReosHecRasStructureImporter::resolutionController(
   return new ReosMeshResolutionController( structure, crs() );
 }
 
-QStringList ReosHecRasStructureImporter::boundaryConditionsIds() const
+QList<ReosHydraulicStructureBoundaryCondition *> ReosHecRasStructureImporter::createBoundaryConditions(
+  ReosHydraulicStructure2D *structure,
+  const ReosHydraulicNetworkContext &context ) const
 {
-  QStringList ret;
-  if ( mIsValid )
+  QList<ReosHydraulicStructureBoundaryCondition *> ret;
+  const QList<ReosHecRasGeometry::BoundaryCondition> bcs = mProject->currentGeometry().allBoundariesConditions();
+  for ( const ReosHecRasGeometry::BoundaryCondition &bc : bcs )
   {
-    const QList<ReosHecRasGeometry::BoundaryCondition> bcs = mProject->currentGeometry().allBoundariesConditions();
-    for ( const ReosHecRasGeometry::BoundaryCondition &bc : bcs )
-    {
-      ret.append( bc.name );
-    }
-  }
-
-  return ret;
-}
-
-QStringList ReosHecRasStructureImporter::boundaryConditionsNames() const
-{
-  return boundaryConditionsIds();
-}
-
-QList<QPointF> ReosHecRasStructureImporter::boundaryConditionMiddlePoint() const
-{
-  QList<QPointF> ret;
-  if ( mIsValid )
-  {
-    const QList<ReosHecRasGeometry::BoundaryCondition> bcs = mProject->currentGeometry().allBoundariesConditions();
-    for ( const ReosHecRasGeometry::BoundaryCondition &bc : bcs )
-    {
-      ret.append( bc.middlePosition );
-    }
+    const ReosSpatialPosition position( bc.middlePosition, crs() );
+    std::unique_ptr<ReosHydraulicStructureBoundaryCondition> sbc( new ReosHydraulicStructureBoundaryCondition( structure, bc.name, position, context ) );
+    sbc->elementName()->setValue( bc.name );
+    sbc->setDefaultConditionType( ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally );
+    ret.append( sbc.get() );
+    context.network()->addElement( sbc.release() );
   }
 
   return ret;
