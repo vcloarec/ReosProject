@@ -3,7 +3,7 @@ Program Version=6.31
 Short Identifier=PLAN TEST 2                                                     
 Simulation Date=07JAN2016,00:00,08JAN2016,01:00
 Geom File=g02
-Flow File=u01
+Flow File=u02
 Subcritical Flow
 K Sum by GR= 0 
 Std Step Tol= 0.003 
