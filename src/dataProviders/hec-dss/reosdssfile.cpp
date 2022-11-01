@@ -25,6 +25,7 @@ extern "C" {
 
 #include "reosduration.h"
 #include "reoshydrograph.h"
+#include "reosdssutils.h"
 
 
 ReosDssFile::ReosDssFile( const QString &filePath, bool create )
@@ -215,76 +216,12 @@ QDateTime ReosDssFile::referenceTime( const ReosDssPath &path ) const
   return QDateTime();
 }
 
-ReosDuration ReosDssFile::timeInterval( const ReosDssPath &path ) const
-{
-  return ReosDuration();
-}
-
 QVector<double> ReosDssFile::values( const ReosDssPath &path ) const
 {
   return QVector<double>();
 }
 
-ReosDuration ReosDssFile::closestValidInterval( const ReosDuration &interval )
-{
-  QList<ReosDuration> validInterval;
-  validInterval << ReosDuration( 1, ReosDuration::second )
-                << ReosDuration( 2, ReosDuration::second )
-                << ReosDuration( 3, ReosDuration::second )
-                << ReosDuration( 4, ReosDuration::second )
-                << ReosDuration( 5, ReosDuration::second )
-                << ReosDuration( 6, ReosDuration::second )
-                << ReosDuration( 10, ReosDuration::second )
-                << ReosDuration( 15, ReosDuration::second )
-                << ReosDuration( 20, ReosDuration::second )
-                << ReosDuration( 30, ReosDuration::second )
-                << ReosDuration( 1, ReosDuration::minute )
-                << ReosDuration( 2, ReosDuration::minute )
-                << ReosDuration( 3, ReosDuration::minute )
-                << ReosDuration( 4, ReosDuration::minute )
-                << ReosDuration( 5, ReosDuration::minute )
-                << ReosDuration( 6, ReosDuration::minute )
-                << ReosDuration( 10, ReosDuration::minute )
-                << ReosDuration( 12, ReosDuration::minute )
-                << ReosDuration( 15, ReosDuration::minute )
-                << ReosDuration( 20, ReosDuration::second )
-                << ReosDuration( 30, ReosDuration::second )
-                << ReosDuration( 1, ReosDuration::hour )
-                << ReosDuration( 2, ReosDuration::hour )
-                << ReosDuration( 3, ReosDuration::hour )
-                << ReosDuration( 4, ReosDuration::hour )
-                << ReosDuration( 6, ReosDuration::hour )
-                << ReosDuration( 8, ReosDuration::hour )
-                << ReosDuration( 12, ReosDuration::hour )
-                << ReosDuration( 1, ReosDuration::day )
-                << ReosDuration( 1, ReosDuration::week )
-                << ReosDuration( 10, ReosDuration::day )
-                << ReosDuration( 15, ReosDuration::day )
-                << ReosDuration( 1, ReosDuration::month )
-                << ReosDuration( 1, ReosDuration::year );
 
-  for ( int i = 0; i < validInterval.count() - 1; ++i )
-  {
-    const ReosDuration &vi1 =  validInterval.at( i );
-    const ReosDuration &vi2 =  validInterval.at( i + 1 );
-
-    if ( interval <= vi1 )
-      return vi1;
-
-    if ( interval == vi2 )
-      return vi2;
-
-    if ( interval > vi1 && interval < vi2 )
-    {
-      if ( interval - vi1 < vi2 - interval )
-        return vi1;
-      else
-        return vi2;
-    }
-  }
-
-  return validInterval.last();
-}
 
 QString ReosDssFile::getEPart( const ReosDuration &interval, bool findClosest )
 {
@@ -293,7 +230,7 @@ QString ReosDssFile::getEPart( const ReosDuration &interval, bool findClosest )
 
   int seconds;
   if ( findClosest )
-    seconds = static_cast<int>( closestValidInterval( interval ).valueSecond() + 0.5 );
+    seconds = static_cast<int>( ReosDssUtils::closestValidInterval( interval ).valueSecond() + 0.5 );
   else
     seconds = static_cast<int>( interval.valueSecond() + 0.5 );
 

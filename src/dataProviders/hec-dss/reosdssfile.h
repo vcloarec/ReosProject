@@ -98,7 +98,6 @@ class ReosDssFile
     bool hasData( const ReosDssPath &path ) const;
 
     QDateTime referenceTime( const ReosDssPath &path ) const;
-    ReosDuration timeInterval( const ReosDssPath &path ) const;
     QVector<double> values( const ReosDssPath &path ) const;
 
     //! Create a new series with constant time interval with \a path in the file
@@ -110,8 +109,6 @@ class ReosDssFile
                                       const ReosDuration &timeStep,
                                       const QVector<double> &values,
                                       QString &error );
-
-    static ReosDuration closestValidInterval( const ReosDuration &interval );
 
   private:
     std::unique_ptr<std::array<long long, 250>> mIfltab;

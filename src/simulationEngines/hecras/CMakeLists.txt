@@ -36,6 +36,7 @@ TARGET_LINK_LIBRARIES(hecras_engine
         ${MDAL_LIB}
         reosGui
         reosCore
+        reosHecDss
 )
 
 
@@ -72,6 +73,8 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/hydrograph
     ${CMAKE_SOURCE_DIR}/src/core/hydraulicNetwork
     ${CMAKE_SOURCE_DIR}/src/core/hydraulicNetwork/simulation
+
+    ${CMAKE_SOURCE_DIR}/src/dataProviders/hec-dss
 
     ${QGIS_INCLUDE_DIR}
     ${MDAL_INCLUDE_DIR}

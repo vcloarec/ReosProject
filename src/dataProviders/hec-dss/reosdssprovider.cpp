@@ -17,8 +17,8 @@
 
 #include <QFileInfo>
 
-#include "hecdss7.h"
 #include "reostimeserie.h"
+#include "reosdssutils.h"
 
 ReosDssProviderBase::ReosDssProviderBase()
 {
@@ -133,7 +133,7 @@ ReosDuration ReosDssProviderTimeSerieConstantTimeStep::timeStep() const
 
 bool ReosDssProviderTimeSerieConstantTimeStep::isTimeStepCompatible( const ReosDuration &timeStep ) const
 {
-  return ReosDssFile::closestValidInterval( timeStep ) == timeStep;
+  return ReosDssUtils::closestValidInterval( timeStep ) == timeStep;
 }
 
 void ReosDssProviderTimeSerieConstantTimeStep::setReferenceTime( const QDateTime &referenceTime )

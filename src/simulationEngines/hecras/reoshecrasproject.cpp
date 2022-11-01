@@ -5,6 +5,8 @@
 #include <QFileInfo>
 #include <QDir>
 
+#include "reosdssutils.h"
+
 ReosHecRasProject::ReosHecRasProject( const QString &fileName ):
   mFileName( fileName )
 {
@@ -52,6 +54,22 @@ ReosHecRasGeometry ReosHecRasProject::currentGeometry() const
   return mGeometries.value( currentPlan.geometryFile() );
 }
 
+QStringList ReosHecRasProject::flowIds() const
+{
+  return mFlows.keys();
+}
+
+ReosHecRasFlow ReosHecRasProject::flow( const QString &id ) const
+{
+  return mFlows.value( id );
+}
+
+ReosHecRasFlow ReosHecRasProject::currentFlow() const
+{
+  const ReosHecRasPlan &currentPlan = mPlans.value( mCurrentPlan );
+  return mFlows.value( currentPlan.flowFile() );
+}
+
 void ReosHecRasProject::parseProjectFile()
 {
   QFile file( mFileName );
@@ -79,6 +97,13 @@ void ReosHecRasProject::parseProjectFile()
       QString planFile = line;
       planFile.remove( QStringLiteral( "Plan File=" ) );
       mPlans.insert( planFile, ReosHecRasPlan( projectDir.filePath( projectName + '.' + planFile ) ) );
+    }
+
+    if ( line.startsWith( QStringLiteral( "Unsteady File=" ) ) )
+    {
+      QString flowFile = line;
+      flowFile.remove( QStringLiteral( "Unsteady File=" ) );
+      mFlows.insert( flowFile, ReosHecRasFlow( projectDir.filePath( projectName + '.' + flowFile ) ) );
     }
 
     if ( line.startsWith( QStringLiteral( "Current Plan=" ) ) )
@@ -255,19 +280,24 @@ QString ReosHecRasPlan::geometryFile() const
   return mGeometryFile;
 }
 
+QString ReosHecRasPlan::flowFile() const
+{
+  return mFlowFile;
+}
+
 const QString &ReosHecRasPlan::title() const
 {
-    return mTitle;
+  return mTitle;
 }
 
 const QDateTime &ReosHecRasPlan::startTime() const
 {
-    return mStartTime;
+  return mStartTime;
 }
 
 const QDateTime &ReosHecRasPlan::endTime() const
 {
-    return mEndTime;
+  return mEndTime;
 }
 
 void ReosHecRasPlan::parsePlanFile()
@@ -378,5 +408,171 @@ QDate ReosHecRasProject::hecRasDateToDate( const QString &hecrasDate )
     return QDate();
 
   return QDate( y, m, d );
+
+}
+
+ReosHecRasFlow::ReosHecRasFlow( const QString &fileName )
+  : mFileName( fileName )
+{
+  parseFlowFile();
+}
+
+const QString &ReosHecRasFlow::title() const
+{
+  return mTitle;
+}
+
+int ReosHecRasFlow::boundariesCount() const
+{
+  return mBoundaries.count();
+}
+
+const ReosHecRasFlow::BoundaryFlow &ReosHecRasFlow::boundary( int index ) const
+{
+  return mBoundaries.at( index );
+}
+
+void ReosHecRasFlow::parseFlowFile()
+{
+  QFile file( mFileName );
+  if ( !file.open( QIODevice::ReadOnly ) )
+    return;
+
+  QTextStream stream( &file );
+
+  QString lastReadenLine;
+
+  while ( !stream.atEnd() )
+  {
+    QString line;
+    if ( lastReadenLine.isEmpty() )
+      line = stream.readLine();
+    else
+    {
+      line = lastReadenLine;
+      lastReadenLine.clear();
+    }
+
+    if ( line.startsWith( QStringLiteral( "Flow Title=" ) ) )
+    {
+      mTitle = line;
+      mTitle.remove( QStringLiteral( "Flow Title=" ) );
+      mTitle = mTitle.trimmed();
+    }
+
+    if ( line.startsWith( QStringLiteral( "Boundary Location=" ) ) )
+    {
+      lastReadenLine = parseBoundary( stream, line );
+    }
+  }
+}
+
+QString ReosHecRasFlow::parseBoundary( QTextStream &stream, const QString &firstLine )
+{
+  QString first = firstLine;
+  first.remove( QStringLiteral( "Boundary Location=" ) );
+  QStringList locationParts = first.split( ',' );
+
+  if ( locationParts.count() != 9 )
+    return QString();
+
+  BoundaryFlow boundary;
+  boundary.area = locationParts.at( 5 ).trimmed();
+  boundary.boundaryConditionLine = locationParts.at( 7 ).trimmed();
+
+  QString line;
+  while ( !stream.atEnd() )
+  {
+    line = stream.readLine();
+
+    if ( line.startsWith( QStringLiteral( "Boundary Location=" ) ) ||
+         line.startsWith( QStringLiteral( "Met Point Raster Parameters=" ) ) ) //supposed to be the line after just after the last boundary
+      break;
+
+    if ( line.startsWith( QStringLiteral( "Interval=" ) ) )
+    {
+      QString strInterval = line;
+      strInterval.remove( QStringLiteral( "Interval=" ) );
+      strInterval = strInterval.trimmed();
+      boundary.interval = ReosDssUtils::dssIntervalToDuration( strInterval );
+    }
+
+    // hydrograph or waterlevel boundary condition
+    if ( line.startsWith( QStringLiteral( "Flow Hydrograph=" ) ) )
+    {
+      boundary.type = Type::FlowHydrograph;
+      boundary.values = parseValues( stream, line );
+    }
+
+    if ( line.startsWith( QStringLiteral( "Stage Hydrograph=" ) ) )
+    {
+      boundary.type = Type::StageHydrograph;
+      boundary.values = parseValues( stream, line );
+    }
+
+    if ( line.startsWith( QStringLiteral( "DSS File=" ) ) )
+    {
+      boundary.dssFile = line;
+      boundary.dssFile.remove( QStringLiteral( "DSS File=" ) );
+      boundary.dssFile = boundary.dssFile.trimmed();
+    }
+
+    if ( line.startsWith( QStringLiteral( "DSS Path=" ) ) )
+    {
+      boundary.dssPath = line;
+      boundary.dssPath.remove( QStringLiteral( "DSS File=" ) );
+      boundary.dssPath = boundary.dssPath.trimmed();
+    }
+
+    if ( line.startsWith( QStringLiteral( "Use DSS=" ) ) )
+    {
+      QString value = line.mid( 8 );
+      boundary.isDss = value == QStringLiteral( "True" );
+    }
+
+    // normal depth boundary condition
+    if ( line.startsWith( QStringLiteral( "Friction Slope=" ) ) )
+    {
+      boundary.type = Type::NormalDepth;
+    }
+  }
+
+  mBoundaries.append( boundary );
+
+  return line;
+}
+
+QVector<double> ReosHecRasFlow::parseValues( QTextStream &stream, const QString &firstLine )
+{
+  QVector<double> ret;
+  QStringList parts = firstLine.split( '=' );
+  if ( parts.count() != 2 )
+    return ret;
+
+  QString strCount = parts.at( 1 ).trimmed();
+  bool ok = false;
+  int count = strCount.toInt( &ok );
+  if ( !ok )
+    return ret;
+
+  ret.resize( count );
+  int rowCount = count / 10 + 1;
+  int i = 0;
+  for ( int r = 0; r < rowCount; ++r )
+  {
+    const QString line = stream.readLine();
+    int colCount = std::min( count - i, 10 );
+    for ( int c = 0; c < colCount; ++c )
+    {
+      const QString strVal = line.mid( c * 8, 8 );
+      double val = strVal.toDouble( &ok );
+      if ( !ok )
+        return QVector<double>();
+      ret[i] = val;
+      i++;
+    }
+  }
+
+  return ret;
 
 }

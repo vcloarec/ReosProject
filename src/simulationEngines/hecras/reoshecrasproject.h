@@ -7,6 +7,8 @@
 #include <QDateTime>
 #include <memory>
 
+#include "reosduration.h"
+
 class QTextStream;
 
 
@@ -56,6 +58,7 @@ class ReosHecRasPlan
     ReosHecRasPlan( const QString &fileName );
 
     QString geometryFile() const;
+    QString flowFile() const;
 
     const QString &title() const;
 
@@ -74,6 +77,50 @@ class ReosHecRasPlan
     void parsePlanFile();
 };
 
+class ReosHecRasFlow
+{
+  public:
+
+    enum class Type
+    {
+      None,
+      FlowHydrograph,
+      StageHydrograph,
+      NormalDepth
+    };
+
+    struct BoundaryFlow
+    {
+      QString area;
+      QString boundaryConditionLine;
+      Type type = Type::None;
+      ReosDuration interval;
+      QVector<double> values;
+      bool isDss = false;
+      QString dssFile;
+      QString dssPath;
+    };
+
+    ReosHecRasFlow() = default;
+    ReosHecRasFlow( const QString &fileName );
+
+    const QString &title() const;
+
+    int boundariesCount() const;
+    const BoundaryFlow &boundary( int index ) const;
+
+  private:
+    QString mFileName;
+    QString mTitle;
+
+    void parseFlowFile();
+    QString parseBoundary( QTextStream &stream, const QString &firstLine );
+    QVector<double> parseValues( QTextStream &stream, const QString &firstLine );
+
+    QList<BoundaryFlow> mBoundaries;
+
+};
+
 class ReosHecRasProject
 {
   public:
@@ -88,16 +135,20 @@ class ReosHecRasProject
     int GeometriesCount() const;
 
     QStringList geometryIds() const;
-
     ReosHecRasGeometry geometry( const QString &id ) const;
     ReosHecRasGeometry currentGeometry() const;
+
+    QStringList flowIds() const;
+    ReosHecRasFlow flow( const QString &id ) const;
+    ReosHecRasFlow currentFlow() const;
 
     static QDate hecRasDateToDate( const QString &hecrasDate );
 
   private:
     QString mFileName;
-    QMap<QString, ReosHecRasGeometry> mGeometries;
     QMap<QString, ReosHecRasPlan> mPlans;
+    QMap<QString, ReosHecRasGeometry> mGeometries;
+    QMap<QString, ReosHecRasFlow> mFlows;
     QString mCurrentPlan;
 
     void parseProjectFile();

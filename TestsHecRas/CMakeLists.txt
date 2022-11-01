@@ -8,6 +8,7 @@ SET(REOS_HECRAS_SOURCES
      ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras/reoshecrascontroller.cpp
      ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras/reoshecrassimulation.cpp
      ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras/reoshecrasproject.cpp
+     ${CMAKE_SOURCE_DIR}/src/dataProviders/hec-dss/reosdssutils.cpp
      ${CMAKE_SOURCE_DIR}/src/dataProviders/hec-dss/reosdssfile.cpp
      ${CMAKE_SOURCE_DIR}/src/dataProviders/hec-dss/reosdssprovider.cpp
 )
@@ -16,6 +17,7 @@ SET(REOS_HECRAS_HEADERS
      ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras/reoshecrascontroller.h
      ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras/reoshecrassimulation.h
      ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras/reoshecrasproject.h
+     ${CMAKE_SOURCE_DIR}/src/dataProviders/hec-dss/reosdssutils.h
      ${CMAKE_SOURCE_DIR}/src/dataProviders/hec-dss/reosdssfile.h
      ${CMAKE_SOURCE_DIR}/src/dataProviders/hec-dss/reosdssprovider.h
 )
