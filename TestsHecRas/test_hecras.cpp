@@ -26,6 +26,7 @@ email                : vcloarec at gmail dot com
 #include "reoshecrasproject.h"
 #include "reosdssfile.h"
 #include "reosdssprovider.h"
+#include "reosdssutils.h"
 #include "reoshydrograph.h"
 #include "reoshydraulicstructure2d.h"
 #include "reoshydraulicstructureboundarycondition.h"
@@ -55,10 +56,10 @@ class ReosHecrasTesting : public QObject
     void createControllerInstance();
 #endif
     void hecRasDate();
+    void dssInterval();
     void exploreProject();
     void importStructure();
 
-    void validInterval();
     void createDssFile();
     void createTimeSerie();
 };
@@ -93,6 +94,32 @@ void ReosHecrasTesting::hecRasDate()
   QCOMPARE( ReosHecRasProject::hecRasDateToDate( "24Oct2004" ), QDate( 2004, 10, 24 ) );
   QCOMPARE( ReosHecRasProject::hecRasDateToDate( "25nov2003" ), QDate( 2003, 11, 25 ) );
   QCOMPARE( ReosHecRasProject::hecRasDateToDate( "26DEC2002" ), QDate( 2002, 12, 26 ) );
+}
+
+void ReosHecrasTesting::dssInterval()
+{
+  QVERIFY( ReosDuration( 1, ReosDuration::hour ) == ReosDssUtils::dssIntervalToDuration( QStringLiteral( "1HOUR" ) ) );
+  QVERIFY( ReosDuration( 1, ReosDuration::minute ) == ReosDssUtils::dssIntervalToDuration( QStringLiteral( "1MINUTE" ) ) );
+  QVERIFY( ReosDuration( 6, ReosDuration::minute ) == ReosDssUtils::dssIntervalToDuration( QStringLiteral( "6MINUTES" ) ) );
+  QVERIFY( ReosDuration( 1, ReosDuration::day ) == ReosDssUtils::dssIntervalToDuration( QStringLiteral( "1DAY" ) ) );
+
+  QVERIFY( ReosDuration( 1, ReosDuration::minute ) == ReosDssUtils::closestValidInterval( ReosDuration( 62, ReosDuration::second ) ) );
+  QVERIFY( ReosDuration::minute == ReosDssUtils::closestValidInterval( ReosDuration( 62, ReosDuration::second ) ).unit() );
+
+  QVERIFY( ReosDuration( 1, ReosDuration::hour ) == ReosDssUtils::closestValidInterval( ReosDuration( 3662, ReosDuration::second ) ) );
+  QVERIFY( ReosDuration::hour == ReosDssUtils::closestValidInterval( ReosDuration( 3662, ReosDuration::second ) ).unit() );
+
+  QVERIFY( ReosDuration( 1, ReosDuration::day ) == ReosDssUtils::closestValidInterval( ReosDuration( 72, ReosDuration::hour ) ) );
+  QVERIFY( ReosDuration::day == ReosDssUtils::closestValidInterval( ReosDuration( 72, ReosDuration::hour ) ).unit() );
+
+  QVERIFY( ReosDuration( 1, ReosDuration::week ) == ReosDssUtils::closestValidInterval( ReosDuration( 120, ReosDuration::hour ) ) );
+  QVERIFY( ReosDuration::week == ReosDssUtils::closestValidInterval( ReosDuration( 120, ReosDuration::hour ) ).unit() );
+
+  QString inter = ReosDssFile::getEPart( ReosDuration( 60, ReosDuration::second ) );
+  QCOMPARE( inter, QStringLiteral( "1Minute" ) );
+
+  inter = ReosDssFile::getEPart( ReosDuration( 3600, ReosDuration::second ) );
+  QCOMPARE( inter, QStringLiteral( "1Hour" ) );
 }
 
 void ReosHecrasTesting::exploreProject()
@@ -132,6 +159,18 @@ void ReosHecrasTesting::exploreProject()
   geometry = project.geometry( geometryIds.at( 1 ) );
   QCOMPARE( geometry.title(), QStringLiteral( "simle_2D_geometry_other" ) );
   QCOMPARE( geometry.area2dCount(), 1 );
+
+  ReosHecRasFlow currentFlow = project.currentFlow();
+  QCOMPARE( currentFlow.title(), QStringLiteral( "flow_1" ) );
+  QCOMPARE( currentFlow.boundariesCount(), 2 );
+  QVERIFY( currentFlow.boundary( 0 ).type == ReosHecRasFlow::Type::FlowHydrograph );
+  QVERIFY( currentFlow.boundary( 0 ).isDss );
+  QCOMPARE( currentFlow.boundary( 0 ).area, areaName );
+  QCOMPARE( currentFlow.boundary( 0 ).boundaryConditionLine, boundaries.at( 0 ).name );
+  QVERIFY( currentFlow.boundary( 1 ).type == ReosHecRasFlow::Type::NormalDepth );
+  QVERIFY( !currentFlow.boundary( 1 ).isDss );
+  QCOMPARE( currentFlow.boundary( 1 ).area, areaName );
+  QCOMPARE( currentFlow.boundary( 1 ).boundaryConditionLine, boundaries.at( 1 ).name );
 }
 
 
@@ -154,28 +193,6 @@ void ReosHecrasTesting::importStructure()
   QCOMPARE( boundaryConditions.count(), 2 );
   QCOMPARE( boundaryConditions.at( 1 )->boundaryConditionId(), QStringLiteral( "Upstream limit" ) );
   QCOMPARE( boundaryConditions.at( 0 )->boundaryConditionId(), QStringLiteral( "Downstream limit" ) );
-}
-
-
-void ReosHecrasTesting::validInterval()
-{
-  QVERIFY( ReosDuration( 1, ReosDuration::minute ) == ReosDssFile::closestValidInterval( ReosDuration( 62, ReosDuration::second ) ) );
-  QVERIFY( ReosDuration::minute == ReosDssFile::closestValidInterval( ReosDuration( 62, ReosDuration::second ) ).unit() );
-
-  QVERIFY( ReosDuration( 1, ReosDuration::hour ) == ReosDssFile::closestValidInterval( ReosDuration( 3662, ReosDuration::second ) ) );
-  QVERIFY( ReosDuration::hour == ReosDssFile::closestValidInterval( ReosDuration( 3662, ReosDuration::second ) ).unit() );
-
-  QVERIFY( ReosDuration( 1, ReosDuration::day ) == ReosDssFile::closestValidInterval( ReosDuration( 72, ReosDuration::hour ) ) );
-  QVERIFY( ReosDuration::day == ReosDssFile::closestValidInterval( ReosDuration( 72, ReosDuration::hour ) ).unit() );
-
-  QVERIFY( ReosDuration( 1, ReosDuration::week ) == ReosDssFile::closestValidInterval( ReosDuration( 120, ReosDuration::hour ) ) );
-  QVERIFY( ReosDuration::week == ReosDssFile::closestValidInterval( ReosDuration( 120, ReosDuration::hour ) ).unit() );
-
-  QString inter = ReosDssFile::getEPart( ReosDuration( 60, ReosDuration::second ) );
-  QCOMPARE( inter, QStringLiteral( "1Minute" ) );
-
-  inter = ReosDssFile::getEPart( ReosDuration( 3600, ReosDuration::second ) );
-  QCOMPARE( inter, QStringLiteral( "1Hour" ) );
 }
 
 void ReosHecrasTesting::createDssFile()
