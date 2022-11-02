@@ -117,7 +117,7 @@ void ReosChicagoRainfall::updateRainfall() const
 
     double wantedHeight = mIntensityDurationCurve->height( correctedDuration, true );
 
-    double difH = wantedHeight - cumulativeHeight;
+    double difH = std::max( 0.0, wantedHeight - cumulativeHeight );
 
     if ( ( dnL + dnR ) != 0 )
     {
@@ -161,11 +161,13 @@ void ReosChicagoRainfall::updateRainfall() const
     duration = duration + ts;
   }
 
-  //Need correction if values count not corresponding to total duration
+  //Need correction if values count not corresponding to total duration (but we can't have the last value greater than the before last value
   if ( ( ts * data->valueCount()  < totalDuration ) )
   {
     double hWanted = mIntensityDurationCurve->height( totalDuration, true );
     double hInc = hWanted - cumulativeHeight;
+    if ( data->valueCount() > 0 && hInc > data->lastValue() )
+      hInc = data->lastValue();
     data->appendValue( hInc );
   }
 
