@@ -275,6 +275,7 @@ void ReosHecrasTesting::createTimeSerie()
   provider->appendValue( 3.45 );
   provider->appendValue( 6.78 );
 
+  error.clear();
   QVERIFY( provider->persistData( error ) );
 
   QFile::remove( filePath + QStringLiteral( ".dss" ) );

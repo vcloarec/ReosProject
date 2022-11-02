@@ -17,6 +17,7 @@ SET(REOS_PROVIDER_HEC_DSS_SOURCES
 
 SET(REOS_PROVIDER_HEC_DSS_HEADERS
     reosdssprovider.h
+    reosdsswidget.h
 )
 
 #SET(LOGO_RCCS ${CMAKE_SOURCE_DIR}/images/providers/delft-fews/delft-fews-images.qrc)
