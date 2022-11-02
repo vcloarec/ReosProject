@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
+#include <QTemporaryFile>
 
 #include "reosdssutils.h"
 
@@ -432,6 +433,122 @@ const ReosHecRasFlow::BoundaryFlow &ReosHecRasFlow::boundary( int index ) const
   return mBoundaries.at( index );
 }
 
+ReosHecRasFlow::BoundaryFlow ReosHecRasFlow::boundary( const QString &area, const QString &boundaryLine, bool &found ) const
+{
+  found = false;
+  for ( const BoundaryFlow &bf : mBoundaries )
+  {
+    if ( bf.area == area && bf.boundaryConditionLine == boundaryLine )
+    {
+      found = true;
+      return bf;
+    }
+  }
+  return BoundaryFlow();
+}
+
+bool ReosHecRasFlow::applyBoudaryFlow( const QList<BoundaryFlow> &flows )
+{
+  QFile file( mFileName );
+  if ( !file.open( QIODevice::ReadOnly ) )
+    return false;
+  QTextStream stream( &file );
+
+  QTemporaryFile tempFile;
+  tempFile.open();
+  QTextStream outputStream( &tempFile );
+
+  auto foundFlow = [&]( const QString & area, const QString & boundaryLine, bool & found ) -> const BoundaryFlow
+  {
+    found = false;
+    for ( const BoundaryFlow &bf : flows )
+    {
+      if ( bf.area == area && bf.boundaryConditionLine == boundaryLine )
+      {
+        found = true;
+        return bf;
+      }
+    }
+    return BoundaryFlow();
+  };
+
+  bool isInputInWrittenBoundary = false;
+  while ( !stream.atEnd() )
+  {
+    QString inputLine = stream.readLine();
+
+    if ( inputLine.startsWith( QStringLiteral( "Boundary Location=" ) ) ||
+         inputLine.startsWith( QStringLiteral( "Met Point Raster Parameters=" ) ) )
+      isInputInWrittenBoundary = false;
+
+    if ( inputLine.startsWith( QStringLiteral( "Boundary Location=" ) ) )
+    {
+      QString area;
+      QString boundaryLine;
+      if ( parseLocation( inputLine, area, boundaryLine ) )
+      {
+        bool found = false;
+        const BoundaryFlow &bf = foundFlow( area, boundaryLine, found );
+        isInputInWrittenBoundary = false;
+        if ( found && bf.isDss )
+        {
+          isInputInWrittenBoundary = true;
+          outputStream << inputLine << Qt::endl;
+          switch ( bf.type )
+          {
+            case Type::FlowHydrograph:
+              writeFlowHydrographBoundary( outputStream, bf );
+              break;
+            case Type::StageHydrograph:
+              writeStageHydrographBoundary( outputStream, bf );
+              break;
+            case Type::None:
+            case Type::NormalDepth:
+              break;
+          }
+
+        }
+      }
+    }
+
+    if ( !isInputInWrittenBoundary )
+      outputStream << inputLine << Qt::endl;
+  }
+
+  tempFile.copy( mFileName + '_' );
+
+  return true;
+}
+
+void ReosHecRasFlow::writeFlowHydrographBoundary( QTextStream &outputStream, const BoundaryFlow &bc )
+{
+  outputStream << QStringLiteral( "Interval=1HOUR" ) << Qt::endl; // as we use only DSS, we don't care
+  outputStream << QStringLiteral( "Flow Hydrograph= 0 " ) << Qt::endl;
+  outputStream << QStringLiteral( "Stage Hydrograph TW Check=0" ) << Qt::endl;
+  outputStream << QStringLiteral( "DSS File=%1" ).arg( bc.dssFile ) << Qt::endl;
+  outputStream << QStringLiteral( "DSS Path=%1" ).arg( bc.dssPath ) << Qt::endl;
+  outputStream << QStringLiteral( "Use DSS=True" ) << Qt::endl;
+  outputStream << QStringLiteral( "Use Fixed Start Time=False" ) << Qt::endl;
+  outputStream << QStringLiteral( "Fixed Start Date/Time=," ) << Qt::endl;
+  outputStream << QStringLiteral( "Is Critical Boundary=False" ) << Qt::endl;
+  outputStream << QStringLiteral( "Critical Boundary Flow=" ) << Qt::endl;
+}
+
+void ReosHecRasFlow::writeStageHydrographBoundary( QTextStream &outputStream, const BoundaryFlow &bc )
+{
+  outputStream << QStringLiteral( "Interval=1HOUR" ) << Qt::endl;
+  outputStream << QStringLiteral( "Stage Hydrograph= 0 " ) << Qt::endl;
+  outputStream << QStringLiteral( "Stage Hydrograph Use Initial Stage=-1" ) << Qt::endl;
+  outputStream << QStringLiteral( "Stage Hydrograph TW Check=0" ) << Qt::endl;
+  outputStream << QStringLiteral( "DSS File=%1" ).arg( bc.dssFile ) << Qt::endl;
+  outputStream << QStringLiteral( "DSS Path=%1" ).arg( bc.dssPath ) << Qt::endl;
+  outputStream << QStringLiteral( "Use DSS=True" ) << Qt::endl;
+  outputStream << QStringLiteral( "Use Fixed Start Time=False" ) << Qt::endl;
+  outputStream << QStringLiteral( "Fixed Start Date/Time=," ) << Qt::endl;
+  outputStream << QStringLiteral( "Is Critical Boundary=False" ) << Qt::endl;
+  outputStream << QStringLiteral( "Critical Boundary Flow=" ) << Qt::endl;
+}
+
 void ReosHecRasFlow::parseFlowFile()
 {
   QFile file( mFileName );
@@ -469,16 +586,9 @@ void ReosHecRasFlow::parseFlowFile()
 
 QString ReosHecRasFlow::parseBoundary( QTextStream &stream, const QString &firstLine )
 {
-  QString first = firstLine;
-  first.remove( QStringLiteral( "Boundary Location=" ) );
-  QStringList locationParts = first.split( ',' );
-
-  if ( locationParts.count() != 9 )
-    return QString();
-
   BoundaryFlow boundary;
-  boundary.area = locationParts.at( 5 ).trimmed();
-  boundary.boundaryConditionLine = locationParts.at( 7 ).trimmed();
+  if ( !parseLocation( firstLine, boundary.area, boundary.boundaryConditionLine ) )
+    return QString();
 
   QString line;
   while ( !stream.atEnd() )
@@ -575,4 +685,37 @@ QVector<double> ReosHecRasFlow::parseValues( QTextStream &stream, const QString 
 
   return ret;
 
+}
+
+bool ReosHecRasFlow::parseLocation( const QString &locationLine, QString &area, QString &boundaryLine ) const
+{
+  QString first = locationLine;
+  first.remove( QStringLiteral( "Boundary Location=" ) );
+  QStringList locationParts = first.split( ',' );
+
+  if ( locationParts.count() != 9 )
+    return false;
+
+  area = locationParts.at( 5 ).trimmed();
+  boundaryLine = locationParts.at( 7 ).trimmed();
+
+  return true;
+}
+
+static QString intToString( int value, int stringSize )
+{
+  QString ret = QString::number( value );
+  QString prefix( ' ', stringSize - ret.size() );
+  ret.prepend( prefix );
+
+  return ret;
+}
+
+static QString doubleToString( double value, int stringSize )
+{
+  QString ret = QString::number( value );
+  QString prefix( ' ', stringSize - ret.size() );
+  ret.prepend( prefix );
+
+  return ret;
 }

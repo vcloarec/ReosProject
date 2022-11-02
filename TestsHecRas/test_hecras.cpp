@@ -59,6 +59,7 @@ class ReosHecrasTesting : public QObject
     void dssInterval();
     void exploreProject();
     void importStructure();
+    void changeBoundaryCondition();
 
     void createDssFile();
     void createTimeSerie();
@@ -193,6 +194,31 @@ void ReosHecrasTesting::importStructure()
   QCOMPARE( boundaryConditions.count(), 2 );
   QCOMPARE( boundaryConditions.at( 1 )->boundaryConditionId(), QStringLiteral( "Upstream limit" ) );
   QCOMPARE( boundaryConditions.at( 0 )->boundaryConditionId(), QStringLiteral( "Downstream limit" ) );
+}
+
+void ReosHecrasTesting::changeBoundaryCondition()
+{
+  QString path( test_path() + QStringLiteral( "simple/simple.prj" ) );
+  ReosHecRasProject project( path );
+
+  ReosHecRasFlow currentFlow = project.currentFlow();
+  QVERIFY( currentFlow.boundariesCount() == 2 );
+
+  ReosHecRasFlow::BoundaryFlow bc1 = currentFlow.boundary( 0 );
+  bc1.isDss = true;
+  bc1.dssFile = "/my/dss/file";
+  bc1.dssPath = "/path/dss/FLOW";
+
+  ReosHecRasFlow::BoundaryFlow bc2 = currentFlow.boundary( 1 );
+  bc2.type = ReosHecRasFlow::Type::StageHydrograph;
+  bc2.isDss = true;
+  bc2.dssFile = "/my/dss/file";
+  bc2.dssPath = "/path/dss/STAGE";
+
+  QList<ReosHecRasFlow::BoundaryFlow> bcs;
+  bcs << bc1 << bc2;
+
+  currentFlow.applyBoudaryFlow( bcs );
 }
 
 void ReosHecrasTesting::createDssFile()
