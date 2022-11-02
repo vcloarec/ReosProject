@@ -515,7 +515,8 @@ bool ReosHecRasFlow::applyBoudaryFlow( const QList<BoundaryFlow> &flows )
       outputStream << inputLine << Qt::endl;
   }
 
-  tempFile.copy( mFileName + '_' );
+  QFile::remove( mFileName );
+  tempFile.copy( mFileName );
 
   return true;
 }
@@ -630,7 +631,7 @@ QString ReosHecRasFlow::parseBoundary( QTextStream &stream, const QString &first
     if ( line.startsWith( QStringLiteral( "DSS Path=" ) ) )
     {
       boundary.dssPath = line;
-      boundary.dssPath.remove( QStringLiteral( "DSS File=" ) );
+      boundary.dssPath.remove( QStringLiteral( "DSS Path=" ) );
       boundary.dssPath = boundary.dssPath.trimmed();
     }
 

@@ -46,11 +46,29 @@ static QString test_path()
   return TESTHECDATA + QString( '/' );
 }
 
+static void copyDirectory( const QDir &source, const QString newPath )
+{
+  const QStringList dirEntries = source.entryList( QDir::NoDotAndDotDot | QDir::Dirs );
+  for ( const QString &dir : dirEntries )
+  {
+    QString path = newPath + QDir::separator() + dir;
+    source.mkpath( path );
+    copyDirectory( source.path() + QDir::separator() + dir, path );
+  }
+
+  const QStringList fileEntries = source.entryList( QDir::Files );
+  for ( const QString &file : fileEntries )
+    QFile::copy( source.path() + QDir::separator() + file, newPath + QDir::separator() + file );
+}
+
 class ReosHecrasTesting : public QObject
 {
     Q_OBJECT
 
   private slots:
+    void initTestCase();
+    void cleanupTestCase();
+
 #ifdef _MSC_VER
     void availableVersion();
     void createControllerInstance();
@@ -63,7 +81,34 @@ class ReosHecrasTesting : public QObject
 
     void createDssFile();
     void createTimeSerie();
+
+  private:
+    QString mPathToSimpleToRun;
+
+    void copySimple();
 };
+
+void ReosHecrasTesting::copySimple()
+{
+  QDir dir_( mPathToSimpleToRun );
+  dir_.removeRecursively();
+
+  QDir dir;
+  dir.mkpath( mPathToSimpleToRun );
+  copyDirectory( test_path() + "/simple/just_built", mPathToSimpleToRun );
+}
+
+void ReosHecrasTesting::initTestCase()
+{
+  mPathToSimpleToRun = tmp_file( "/simple" );
+  copySimple();
+}
+
+void ReosHecrasTesting::cleanupTestCase()
+{
+  QDir dir_( mPathToSimpleToRun );
+  dir_.removeRecursively();
+}
 
 #ifdef _MSC_VER
 
@@ -125,7 +170,7 @@ void ReosHecrasTesting::dssInterval()
 
 void ReosHecrasTesting::exploreProject()
 {
-  QString path( test_path() + QStringLiteral( "simple/simple.prj" ) );
+  QString path( mPathToSimpleToRun + QStringLiteral( "/simple.prj" ) );
   ReosHecRasProject project( path );
 
   QStringList planIds = project.planIds();
@@ -177,7 +222,7 @@ void ReosHecrasTesting::exploreProject()
 
 void ReosHecrasTesting::importStructure()
 {
-  QString path( test_path() + QStringLiteral( "simple/simple.prj" ) );
+  QString path( mPathToSimpleToRun + QStringLiteral( "/simple.prj" ) );
 
   ReosHecRasStructureImporter importer( path );
 
@@ -198,7 +243,7 @@ void ReosHecrasTesting::importStructure()
 
 void ReosHecrasTesting::changeBoundaryCondition()
 {
-  QString path( test_path() + QStringLiteral( "simple/simple.prj" ) );
+  QString path( mPathToSimpleToRun + QStringLiteral( "/simple.prj" ) );
   ReosHecRasProject project( path );
 
   ReosHecRasFlow currentFlow = project.currentFlow();
@@ -206,19 +251,38 @@ void ReosHecrasTesting::changeBoundaryCondition()
 
   ReosHecRasFlow::BoundaryFlow bc1 = currentFlow.boundary( 0 );
   bc1.isDss = true;
-  bc1.dssFile = "/my/dss/file";
-  bc1.dssPath = "/path/dss/FLOW";
+  bc1.dssFile = QStringLiteral( "/my/dss/file" );
+  bc1.dssPath = QStringLiteral( "/path/dss/FLOW" );
 
   ReosHecRasFlow::BoundaryFlow bc2 = currentFlow.boundary( 1 );
   bc2.type = ReosHecRasFlow::Type::StageHydrograph;
   bc2.isDss = true;
-  bc2.dssFile = "/my/dss/file";
-  bc2.dssPath = "/path/dss/STAGE";
+  bc2.dssFile = QStringLiteral( "/my/dss/file" );
+  bc2.dssPath = QStringLiteral( "/path/dss/STAGE" );
 
   QList<ReosHecRasFlow::BoundaryFlow> bcs;
   bcs << bc1 << bc2;
 
   currentFlow.applyBoudaryFlow( bcs );
+
+  ReosHecRasProject project2( path );
+  ReosHecRasFlow currentFlow2 = project2.currentFlow();
+  QCOMPARE( currentFlow2.title(), QStringLiteral( "flow_1" ) );
+  QCOMPARE( currentFlow2.boundariesCount(), 2 );
+  QVERIFY( currentFlow2.boundary( 0 ).type == ReosHecRasFlow::Type::FlowHydrograph );
+  QVERIFY( currentFlow2.boundary( 0 ).isDss );
+  QCOMPARE( currentFlow2.boundary( 0 ).dssFile, QStringLiteral( "/my/dss/file" ) );
+  QCOMPARE( currentFlow2.boundary( 0 ).dssPath, QStringLiteral( "/path/dss/FLOW" ) );
+  QCOMPARE( currentFlow2.boundary( 0 ).area, bc1.area );
+  QCOMPARE( currentFlow2.boundary( 0 ).boundaryConditionLine, bc1.boundaryConditionLine );
+  QVERIFY( currentFlow2.boundary( 1 ).type == ReosHecRasFlow::Type::StageHydrograph );
+  QVERIFY( currentFlow2.boundary( 1 ).isDss );
+  QCOMPARE( currentFlow2.boundary( 1 ).dssFile, QStringLiteral( "/my/dss/file" ) );
+  QCOMPARE( currentFlow2.boundary( 1 ).dssPath, QStringLiteral( "/path/dss/STAGE" ) );
+  QCOMPARE( currentFlow2.boundary( 1 ).area, bc2.area );
+  QCOMPARE( currentFlow2.boundary( 1 ).boundaryConditionLine, bc2.boundaryConditionLine );
+
+  copySimple();
 }
 
 void ReosHecrasTesting::createDssFile()
@@ -280,6 +344,7 @@ void ReosHecrasTesting::createTimeSerie()
 
   QFile::remove( filePath + QStringLiteral( ".dss" ) );
 }
+
 
 QTEST_MAIN( ReosHecrasTesting )
 #include "test_hecras.moc"
