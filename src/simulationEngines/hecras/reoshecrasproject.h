@@ -108,6 +108,15 @@ class ReosHecRasFlow
 
     int boundariesCount() const;
     const BoundaryFlow &boundary( int index ) const;
+    BoundaryFlow boundary( const QString &area, const QString &boundaryLine, bool &found ) const;
+
+    /**
+     * Changes the Flow file to apply the flows condition in \a flows
+     *
+     * \note only flows condition defined in a DSS file are considered,
+     * other will be ignored and related lines in the file will be unchanged
+     */
+    bool applyBoudaryFlow( const QList<BoundaryFlow> &flows );
 
   private:
     QString mFileName;
@@ -116,6 +125,11 @@ class ReosHecRasFlow
     void parseFlowFile();
     QString parseBoundary( QTextStream &stream, const QString &firstLine );
     QVector<double> parseValues( QTextStream &stream, const QString &firstLine );
+    bool parseLocation( const QString &locationLine, QString &area, QString &boundaryLine ) const;
+
+    void writeFlowHydrographBoundary( QTextStream &outputStream, const BoundaryFlow &bc );
+    void writeStageHydrographBoundary( QTextStream &outputStream, const BoundaryFlow &bc );
+
 
     QList<BoundaryFlow> mBoundaries;
 
@@ -141,6 +155,8 @@ class ReosHecRasProject
     QStringList flowIds() const;
     ReosHecRasFlow flow( const QString &id ) const;
     ReosHecRasFlow currentFlow() const;
+
+    void applyBoundaryFlows( const QString &planId, const QList<ReosHecRasFlow::BoundaryFlow> &flows );
 
     static QDate hecRasDateToDate( const QString &hecrasDate );
 
