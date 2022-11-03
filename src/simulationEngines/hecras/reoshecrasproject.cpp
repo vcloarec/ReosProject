@@ -494,19 +494,19 @@ bool ReosHecRasFlow::applyBoudaryFlow( const QList<BoundaryFlow> &flows )
         currentFlow = foundFlow( area, boundaryLine, found );
         isInBoundaryToTreat = found && currentFlow.isDss;
       }
-      outputStream << inputLine << Qt::endl;
+      outputStream << inputLine << "\r\n";
 
       if ( currentFlow.type == Type::FlowHydrograph )
       {
-        outputStream << QStringLiteral( "Flow Hydrograph= 0 " ) << Qt::endl;
+        outputStream << QStringLiteral( "Flow Hydrograph= 0 " ) << "\r\n";
         isStageHyd = false;
       }
       else if ( currentFlow.type == Type::StageHydrograph )
       {
-        outputStream << QStringLiteral( "Stage Hydrograph= 0 " ) << Qt::endl;
-        outputStream << QStringLiteral( "DSS File=%1" ).arg( currentFlow.dssFile ) << Qt::endl;
-        outputStream << QStringLiteral( "DSS Path=%1" ).arg( currentFlow.dssPath ) << Qt::endl;
-        outputStream << QStringLiteral( "Use DSS=True" ) << Qt::endl;
+        outputStream << QStringLiteral( "Stage Hydrograph= 0 " ) << "\r\n";
+        outputStream << QStringLiteral( "DSS File=%1" ).arg( currentFlow.dssFile ) << "\r\n";
+        outputStream << QStringLiteral( "DSS Path=%1" ).arg( currentFlow.dssPath ) << "\r\n";
+        outputStream << QStringLiteral( "Use DSS=True" ) << "\r\n";
         isStageHyd = true;
       }
 
@@ -530,16 +530,16 @@ bool ReosHecRasFlow::applyBoudaryFlow( const QList<BoundaryFlow> &flows )
     }
     else if ( isInBoundaryToTreat && inputLine.startsWith( QStringLiteral( "DSS File=" ) ) )
       continue;
-    else if ( isInBoundaryToTreat && inputLine.startsWith( QStringLiteral( "DSS Path=" ) ) && ! isStageHyd )
+    else if ( isInBoundaryToTreat && !isStageHyd && inputLine.startsWith( QStringLiteral( "DSS Path=" ) ) )
     {
-      outputStream << QStringLiteral( "DSS File=%1" ).arg( currentFlow.dssFile ) << Qt::endl;
-      outputStream << QStringLiteral( "DSS Path=%1" ).arg( currentFlow.dssPath ) << Qt::endl;
-      outputStream << QStringLiteral( "Use DSS=True" ) << Qt::endl;
+      outputStream << QStringLiteral( "DSS File=%1" ).arg( currentFlow.dssFile ) << "\r\n";
+      outputStream << QStringLiteral( "DSS Path=%1" ).arg( currentFlow.dssPath ) << "\r\n";
+      outputStream << QStringLiteral( "Use DSS=True" ) << "\r\n";
     }
     else if ( isInBoundaryToTreat && inputLine.startsWith( QStringLiteral( "Use DSS=" ) ) )
       continue;
     else
-      outputStream << inputLine << Qt::endl;
+      outputStream << inputLine << "\r\n";
   }
 
   file.close();

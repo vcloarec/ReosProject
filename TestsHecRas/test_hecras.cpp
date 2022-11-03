@@ -74,14 +74,15 @@ class ReosHecrasTesting : public QObject
     void availableVersion();
     void createControllerInstance();
 #endif
-    void hecRasDate();
-    void dssInterval();
-    void exploreProject();
-    void importStructure();
-    void changeBoundaryCondition();
 
     void createDssFile();
     void createTimeSerie();
+
+    void hecRasDate();
+    void dssInterval();
+    void exploreProject();
+    void changeBoundaryCondition();
+    void importStructure();
 
   private:
     QString mPathToSimpleToRun;
@@ -107,8 +108,8 @@ void ReosHecrasTesting::initTestCase()
 
 void ReosHecrasTesting::cleanupTestCase()
 {
-  QDir dir_( mPathToSimpleToRun );
-  dir_.removeRecursively();
+  QDir dir( mPathToSimpleToRun );
+  //dir.removeRecursively();
 }
 
 #ifdef _MSC_VER
@@ -294,7 +295,7 @@ void ReosHecrasTesting::importStructure()
   QVERIFY( flowAfterPreparation.boundary( 0 ).type == ReosHecRasFlow::Type::FlowHydrograph );
   QVERIFY( flowAfterPreparation.boundary( 0 ).isDss );
   QCOMPARE( flowAfterPreparation.boundary( 0 ).dssFile, mPathToSimpleToRun + QStringLiteral( "/input_p01.dss" ) );
-  QCOMPARE( flowAfterPreparation.boundary( 0 ).dssPath, QStringLiteral( "/Perimeter 1/Upstream limit/Flow//1Minute/INST-VAL/" ) );
+  QCOMPARE( flowAfterPreparation.boundary( 0 ).dssPath, QStringLiteral( "/Perimeter_1/Upstream_limit/Flow//1Minute/INST-VAL/" ) );
 }
 
 void ReosHecrasTesting::changeBoundaryCondition()
