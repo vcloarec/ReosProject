@@ -1,11 +1,12 @@
 Flow Title=flow_1
 Program Version=6.31
 Use Restart= 0 
+Initial Storage Elev=Perimeter 1     ,2
 Boundary Location=                ,                ,        ,        ,                ,Perimeter 1     ,                ,Upstream limit                  ,                                
 Interval=1HOUR
 Flow Hydrograph= 0 
 Stage Hydrograph TW Check=0
-DSS File=/a/dss/file
+Flow Hydrograph Slope= 0.0123 
 DSS Path=/group/location/flow/strtDate/interval/version/
 Use DSS=True
 Use Fixed Start Time=False
