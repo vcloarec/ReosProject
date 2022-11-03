@@ -289,13 +289,18 @@ void ReosHecrasTesting::importStructure()
   simulation->prepareInput( structure, scheme->calculationContext() );
 
   ReosHecRasProject projectAfterPreparation( path );
+  ReosHecRasPlan planAfterPreparation = projectAfterPreparation.currentPlan();
+
+  QCOMPARE( planAfterPreparation.startTime(), scheme->startTime()->value() );
+  QCOMPARE( planAfterPreparation.endTime(), scheme->endTime()->value() );
+
   ReosHecRasFlow flowAfterPreparation = projectAfterPreparation.currentFlow();
   QVERIFY( flowAfterPreparation.boundariesCount() == 2 );
   QCOMPARE( flowAfterPreparation.boundary( 0 ).id(), QStringLiteral( "Perimeter 1-Upstream limit" ) );
   QVERIFY( flowAfterPreparation.boundary( 0 ).type == ReosHecRasFlow::Type::FlowHydrograph );
   QVERIFY( flowAfterPreparation.boundary( 0 ).isDss );
   QCOMPARE( flowAfterPreparation.boundary( 0 ).dssFile, mPathToSimpleToRun + QStringLiteral( "/input_p01.dss" ) );
-  QCOMPARE( flowAfterPreparation.boundary( 0 ).dssPath, QStringLiteral( "/Perimeter_1/Upstream_limit/Flow//1Minute/INST-VAL/" ) );
+  QCOMPARE( flowAfterPreparation.boundary( 0 ).dssPath, QStringLiteral( "/Perimeter 1/Upstream limit/Flow//1Minute/INST-VAL/" ) );
 }
 
 void ReosHecrasTesting::changeBoundaryCondition()

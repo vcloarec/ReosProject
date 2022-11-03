@@ -35,6 +35,11 @@ QDir ReosHecRasProject::directory() const
   return fileInfo.dir();
 }
 
+ReosHecRasPlan ReosHecRasProject::currentPlan() const
+{
+  return mPlans.value( mCurrentPlan );
+}
+
 ReosHecRasPlan ReosHecRasProject::plan( const QString &planId ) const
 {
   return mPlans.value( planId );
@@ -306,6 +311,38 @@ const QDateTime &ReosHecRasPlan::endTime() const
   return mEndTime;
 }
 
+void ReosHecRasPlan::changeSimulationTimeInFile( const QDateTime &startTime, const QDateTime &endTime ) const
+{
+  QFile file( mFileName );
+  if ( !file.open( QIODevice::ReadOnly ) )
+    return;
+  QTextStream stream( &file );
+
+  QTemporaryFile tempFile;
+  tempFile.open();
+  QTextStream outputStream( &tempFile );
+
+  while ( !stream.atEnd() )
+  {
+    QString inputLine = stream.readLine();
+    if ( inputLine.startsWith( "Simulation Date=" ) )
+    {
+      outputStream << QStringLiteral( "Simulation Date=%1,%2,%3,%4" ).
+                   arg( ReosHecRasProject::dateToHecRasDate( startTime.date() ),
+                        startTime.time().toString( QStringLiteral( "HH:mm" ) ),
+                        ReosHecRasProject::dateToHecRasDate( endTime.date() ),
+                        endTime.time().toString( QStringLiteral( "HH:mm" ) ) )
+                   << "\r\n";
+    }
+    else
+      outputStream << inputLine << "\r\n";
+  }
+
+  file.close();
+  QFile::remove( mFileName );
+  tempFile.copy( mFileName );
+}
+
 void ReosHecRasPlan::parsePlanFile()
 {
   QFile file( mFileName );
@@ -414,7 +451,62 @@ QDate ReosHecRasProject::hecRasDateToDate( const QString &hecrasDate )
     return QDate();
 
   return QDate( y, m, d );
+}
 
+QString ReosHecRasProject::dateToHecRasDate( const QDate &date )
+{
+
+  if ( date.isNull() || !date.isValid() )
+    return QString();
+
+  QString monthStr;
+  switch ( date.month() )
+  {
+    case 1:
+      monthStr = QStringLiteral( "jan" );
+      break;
+    case 2:
+      monthStr = QStringLiteral( "feb" );
+      break;
+    case 3:
+      monthStr = QStringLiteral( "mar" );
+      break;
+    case 4:
+      monthStr = QStringLiteral( "apr" );
+      break;
+    case 5:
+      monthStr = QStringLiteral( "may" );
+      break;
+    case 6:
+      monthStr = QStringLiteral( "jun" ) ;
+      break;
+    case 7:
+      monthStr = QStringLiteral( "jul" );
+      break;
+    case 8:
+      monthStr = QStringLiteral( "aug" ) ;
+      break;
+    case 9:
+      monthStr = QStringLiteral( "sep" );
+      break;
+    case 10:
+      monthStr = QStringLiteral( "oct" ) ;
+      break;
+    case 11:
+      monthStr = QStringLiteral( "nov" ) ;
+      break;
+    case 12:
+      monthStr = QStringLiteral( "dec" ) ;
+      break;
+  }
+
+  QString day = QString::number( date.day() );
+  if ( day.count() == 1 )
+    day.prepend( '0' );
+
+  QString year = QString::number( date.year() );
+
+  return day + monthStr + year;
 }
 
 ReosHecRasFlow::ReosHecRasFlow( const QString &fileName )

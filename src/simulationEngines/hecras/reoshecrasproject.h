@@ -72,6 +72,8 @@ class ReosHecRasPlan
     const QDateTime &startTime() const;
     const QDateTime &endTime() const;
 
+    void changeSimulationTimeInFile( const QDateTime &startTime, const QDateTime &endTime ) const;
+
   private:
     QString mFileName;
     QString mTitle;
@@ -153,6 +155,7 @@ class ReosHecRasProject
     QString planTitle( const QString &id ) const;
     QDir directory() const;
 
+    ReosHecRasPlan currentPlan() const;
     ReosHecRasPlan plan( const QString &planId ) const;
 
     int GeometriesCount() const;
@@ -168,6 +171,7 @@ class ReosHecRasProject
     void applyBoundaryFlows( const QString &planId, const QList<ReosHecRasFlow::BoundaryFlow> &flows );
 
     static QDate hecRasDateToDate( const QString &hecrasDate );
+    static QString dateToHecRasDate( const QDate &date );
 
   private:
     QString mFileName;
