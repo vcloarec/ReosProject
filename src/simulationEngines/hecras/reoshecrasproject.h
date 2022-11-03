@@ -5,6 +5,7 @@
 #include <QMap>
 #include <QPolygonF>
 #include <QDateTime>
+#include <QDir>
 #include <memory>
 
 #include "reosduration.h"
@@ -23,8 +24,14 @@ class ReosHecRasGeometry
 
     struct BoundaryCondition
     {
+      QString area;
       QString name;
       QPointF middlePosition;
+
+      QString id() const
+      {
+        return area + '-' + name;
+      }
     };
 
     ReosHecRasGeometry() = default;
@@ -99,6 +106,11 @@ class ReosHecRasFlow
       bool isDss = false;
       QString dssFile;
       QString dssPath;
+
+      QString id() const
+      {
+        return area + '-' + boundaryConditionLine;
+      }
     };
 
     ReosHecRasFlow() = default;
@@ -127,10 +139,6 @@ class ReosHecRasFlow
     QVector<double> parseValues( QTextStream &stream, const QString &firstLine );
     bool parseLocation( const QString &locationLine, QString &area, QString &boundaryLine ) const;
 
-    void writeFlowHydrographBoundary( QTextStream &outputStream, const BoundaryFlow &bc );
-    void writeStageHydrographBoundary( QTextStream &outputStream, const BoundaryFlow &bc );
-
-
     QList<BoundaryFlow> mBoundaries;
 
 };
@@ -143,6 +151,7 @@ class ReosHecRasProject
     QString currentPlanId() const;
     QStringList planIds() const;
     QString planTitle( const QString &id ) const;
+    QDir directory() const;
 
     ReosHecRasPlan plan( const QString &planId ) const;
 

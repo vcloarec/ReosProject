@@ -354,6 +354,11 @@ void ReosTimeSerieConstantInterval::setValueAt( int i, double value )
   }
 }
 
+void ReosTimeSerieConstantInterval::setValues( const QVector<double> vals )
+{
+  static_cast<ReosTimeSerieConstantTimeStepProvider *>( mProvider.get() )->setValues( vals );
+}
+
 void ReosTimeSerieConstantInterval::appendValue( double value )
 {
   ReosTimeSerieConstantTimeStepProvider *dataValues = constantTimeStepDataProvider();
@@ -1003,21 +1008,7 @@ double ReosTimeSerieVariableTimeStep::valueAtTime( const ReosDuration &relativeT
   if ( !dataProv )
     return 0;
 
-  bool exact = false;
-  int index = timeValueIndex( relativeTime, exact );
-
-  if ( exact )
-    return dataProv->value( index );
-
-  if ( index < 0 || index >= dataProv->valueCount() - 1 )
-    return 0;
-
-  const ReosDuration time1 = dataProv->relativeTimeAt( index );
-  const ReosDuration time2 = dataProv->relativeTimeAt( index + 1 );
-
-  double ratio = ( relativeTime - time1 ) / ( time2 - time1 );
-
-  return ( dataProv->value( index + 1 ) - dataProv->value( index ) ) * ratio + dataProv->value( index );
+  return dataProv->valueAtTime( relativeTime );
 }
 
 double ReosTimeSerieVariableTimeStep::valueAtTime( const QDateTime &time ) const
@@ -1082,45 +1073,7 @@ int ReosTimeSerieVariableTimeStep::timeValueIndex( const ReosDuration &time, boo
   if ( !dataProv )
     return 0;
 
-  if ( dataProv->valueCount() == 0 || time < dataProv->relativeTimeAt( 0 ) )
-  {
-    exact = false;
-    return -1;
-  }
-
-  if ( time > dataProv->lastRelativeTime() )
-  {
-    exact = false;
-    return dataProv->valueCount() - 1;
-  }
-
-  int i1 = 0;
-  int i2 = dataProv->valueCount() - 1;
-  while ( true )
-  {
-    if ( dataProv->relativeTimeAt( i1 ) == time )
-    {
-      exact = true;
-      return i1;
-    }
-    if ( dataProv->relativeTimeAt( i2 ) == time )
-    {
-      exact = true;
-      return i2;
-    }
-
-    if ( i1 == i2 || i1 + 1 == i2 )
-    {
-      exact = false;
-      return i1;
-    }
-
-    int inter = ( i1 + i2 ) / 2;
-    if ( time < dataProv->relativeTimeAt( inter ) )
-      i2 = inter;
-    else
-      i1 = inter;
-  }
+  return dataProv->timeValueIndex( time, exact );
 }
 
 QString ReosTimeSerieVariableTimeStep::unitString() const

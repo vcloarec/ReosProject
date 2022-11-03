@@ -29,6 +29,12 @@ QString ReosHecRasProject::planTitle( const QString &id ) const
   return mPlans.value( id ).title();
 }
 
+QDir ReosHecRasProject::directory() const
+{
+  QFileInfo fileInfo( mFileName );
+  return fileInfo.dir();
+}
+
 ReosHecRasPlan ReosHecRasProject::plan( const QString &planId ) const
 {
   return mPlans.value( planId );
@@ -232,16 +238,15 @@ void ReosHecRasGeometry::parseBoundaryCondition( QTextStream &stream, const QStr
 {
   BoundaryCondition bc;
   bc.name = bcName;
-  QString storageArea;
   while ( !stream.atEnd() )
   {
     const QString line = stream.readLine();
 
     if ( line.startsWith( QStringLiteral( "BC Line Storage Area=" ) ) )
     {
-      storageArea = line;
-      storageArea.remove( "BC Line Storage Area=" );
-      storageArea = storageArea.trimmed();
+      bc.area = line;
+      bc.area.remove( "BC Line Storage Area=" );
+      bc.area = bc.area.trimmed();
     }
 
     if ( line.startsWith( QStringLiteral( "BC Line Middle Position=" ) ) )
@@ -259,13 +264,13 @@ void ReosHecRasGeometry::parseBoundaryCondition( QTextStream &stream, const QStr
       break;
   }
 
-  if ( mBoundariesConditions.contains( storageArea ) )
-    mBoundariesConditions[storageArea].append( bc );
+  if ( mBoundariesConditions.contains( bc.area ) )
+    mBoundariesConditions[bc.area].append( bc );
   else
   {
     QList<BoundaryCondition> bcs;
     bcs << bc;
-    mBoundariesConditions.insert( storageArea, bcs );
+    mBoundariesConditions.insert( bc.area, bcs );
   }
 
 }
@@ -472,46 +477,68 @@ bool ReosHecRasFlow::applyBoudaryFlow( const QList<BoundaryFlow> &flows )
     return BoundaryFlow();
   };
 
-  bool isInputInWrittenBoundary = false;
+  BoundaryFlow currentFlow;
+  bool isInBoundaryToTreat = false;
+  bool isStageHyd = false;
   while ( !stream.atEnd() )
   {
     QString inputLine = stream.readLine();
-
-    if ( inputLine.startsWith( QStringLiteral( "Boundary Location=" ) ) ||
-         inputLine.startsWith( QStringLiteral( "Met Point Raster Parameters=" ) ) )
-      isInputInWrittenBoundary = false;
-
     if ( inputLine.startsWith( QStringLiteral( "Boundary Location=" ) ) )
     {
       QString area;
       QString boundaryLine;
+      isInBoundaryToTreat = false;
       if ( parseLocation( inputLine, area, boundaryLine ) )
       {
         bool found = false;
-        const BoundaryFlow &bf = foundFlow( area, boundaryLine, found );
-        isInputInWrittenBoundary = false;
-        if ( found && bf.isDss )
-        {
-          isInputInWrittenBoundary = true;
-          outputStream << inputLine << Qt::endl;
-          switch ( bf.type )
-          {
-            case Type::FlowHydrograph:
-              writeFlowHydrographBoundary( outputStream, bf );
-              break;
-            case Type::StageHydrograph:
-              writeStageHydrographBoundary( outputStream, bf );
-              break;
-            case Type::None:
-            case Type::NormalDepth:
-              break;
-          }
-
-        }
+        currentFlow = foundFlow( area, boundaryLine, found );
+        isInBoundaryToTreat = found && currentFlow.isDss;
       }
-    }
+      outputStream << inputLine << Qt::endl;
 
-    if ( !isInputInWrittenBoundary )
+      if ( currentFlow.type == Type::FlowHydrograph )
+      {
+        outputStream << QStringLiteral( "Flow Hydrograph= 0 " ) << Qt::endl;
+        isStageHyd = false;
+      }
+      else if ( currentFlow.type == Type::StageHydrograph )
+      {
+        outputStream << QStringLiteral( "Stage Hydrograph= 0 " ) << Qt::endl;
+        outputStream << QStringLiteral( "DSS File=%1" ).arg( currentFlow.dssFile ) << Qt::endl;
+        outputStream << QStringLiteral( "DSS Path=%1" ).arg( currentFlow.dssPath ) << Qt::endl;
+        outputStream << QStringLiteral( "Use DSS=True" ) << Qt::endl;
+        isStageHyd = true;
+      }
+
+    }
+    else if ( isInBoundaryToTreat &&
+              ( inputLine.startsWith( QStringLiteral( "Flow Hydrograph=" ) ) ||
+                inputLine.startsWith( QStringLiteral( "Stage Hydrograph=" ) ) ) )
+    {
+      int valueCount = 0;
+      QStringList part = inputLine.split( '=' );
+      if ( part.count() > 1 )
+      {
+        bool ok = false;
+        valueCount = part.at( 1 ).trimmed().toInt( &ok );
+        if ( !ok )
+          valueCount = 0;
+      }
+      int rowCount = valueCount / 10 + 1;
+      for ( int i = 0; i < rowCount; ++i )
+        stream.readLine();
+    }
+    else if ( isInBoundaryToTreat && inputLine.startsWith( QStringLiteral( "DSS File=" ) ) )
+      continue;
+    else if ( isInBoundaryToTreat && inputLine.startsWith( QStringLiteral( "DSS Path=" ) ) && ! isStageHyd )
+    {
+      outputStream << QStringLiteral( "DSS File=%1" ).arg( currentFlow.dssFile ) << Qt::endl;
+      outputStream << QStringLiteral( "DSS Path=%1" ).arg( currentFlow.dssPath ) << Qt::endl;
+      outputStream << QStringLiteral( "Use DSS=True" ) << Qt::endl;
+    }
+    else if ( isInBoundaryToTreat && inputLine.startsWith( QStringLiteral( "Use DSS=" ) ) )
+      continue;
+    else
       outputStream << inputLine << Qt::endl;
   }
 
@@ -519,35 +546,6 @@ bool ReosHecRasFlow::applyBoudaryFlow( const QList<BoundaryFlow> &flows )
   tempFile.copy( mFileName );
 
   return true;
-}
-
-void ReosHecRasFlow::writeFlowHydrographBoundary( QTextStream &outputStream, const BoundaryFlow &bc )
-{
-  outputStream << QStringLiteral( "Interval=1HOUR" ) << Qt::endl; // as we use only DSS, we don't care
-  outputStream << QStringLiteral( "Flow Hydrograph= 0 " ) << Qt::endl;
-  outputStream << QStringLiteral( "Stage Hydrograph TW Check=0" ) << Qt::endl;
-  outputStream << QStringLiteral( "DSS File=%1" ).arg( bc.dssFile ) << Qt::endl;
-  outputStream << QStringLiteral( "DSS Path=%1" ).arg( bc.dssPath ) << Qt::endl;
-  outputStream << QStringLiteral( "Use DSS=True" ) << Qt::endl;
-  outputStream << QStringLiteral( "Use Fixed Start Time=False" ) << Qt::endl;
-  outputStream << QStringLiteral( "Fixed Start Date/Time=," ) << Qt::endl;
-  outputStream << QStringLiteral( "Is Critical Boundary=False" ) << Qt::endl;
-  outputStream << QStringLiteral( "Critical Boundary Flow=" ) << Qt::endl;
-}
-
-void ReosHecRasFlow::writeStageHydrographBoundary( QTextStream &outputStream, const BoundaryFlow &bc )
-{
-  outputStream << QStringLiteral( "Interval=1HOUR" ) << Qt::endl;
-  outputStream << QStringLiteral( "Stage Hydrograph= 0 " ) << Qt::endl;
-  outputStream << QStringLiteral( "Stage Hydrograph Use Initial Stage=-1" ) << Qt::endl;
-  outputStream << QStringLiteral( "Stage Hydrograph TW Check=0" ) << Qt::endl;
-  outputStream << QStringLiteral( "DSS File=%1" ).arg( bc.dssFile ) << Qt::endl;
-  outputStream << QStringLiteral( "DSS Path=%1" ).arg( bc.dssPath ) << Qt::endl;
-  outputStream << QStringLiteral( "Use DSS=True" ) << Qt::endl;
-  outputStream << QStringLiteral( "Use Fixed Start Time=False" ) << Qt::endl;
-  outputStream << QStringLiteral( "Fixed Start Date/Time=," ) << Qt::endl;
-  outputStream << QStringLiteral( "Is Critical Boundary=False" ) << Qt::endl;
-  outputStream << QStringLiteral( "Critical Boundary Flow=" ) << Qt::endl;
 }
 
 void ReosHecRasFlow::parseFlowFile()
@@ -642,7 +640,7 @@ QString ReosHecRasFlow::parseBoundary( QTextStream &stream, const QString &first
     }
 
     // normal depth boundary condition
-    if ( line.startsWith( QStringLiteral( "Friction Slope=" ) ) )
+    if ( line.startsWith( QStringLiteral( "Friction Slope=" ) ) && boundary.type != Type::StageHydrograph )
     {
       boundary.type = Type::NormalDepth;
     }
@@ -667,7 +665,9 @@ QVector<double> ReosHecRasFlow::parseValues( QTextStream &stream, const QString 
     return ret;
 
   ret.resize( count );
-  int rowCount = count / 10 + 1;
+  int rowCount = 0;
+  if ( count != 0 )
+    rowCount = count / 10 + 1;
   int i = 0;
   for ( int r = 0; r < rowCount; ++r )
   {

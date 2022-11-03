@@ -24,7 +24,8 @@
 #    endif
 #  endif
 
-class ReosDuration;
+#include "reosduration.h"
+
 class QString;
 
 class REOSDSS_EXPORT ReosDssUtils
@@ -35,8 +36,18 @@ class REOSDSS_EXPORT ReosDssUtils
     //! Converts a DSS interval string to a ReosDuration instance
     static ReosDuration dssIntervalToDuration( const QString &dssInterval );
 
+    //! Converts a duration interval to a Dss interval string
+    static QString durationToDssInterval( const ReosDuration &interval );
+
     //! Returns the closest valid interval (for DSS) form \a interval
     static ReosDuration closestValidInterval( const ReosDuration &interval );
+
+    static ReosDuration previousValidInterval( const ReosDuration &interval );
+    static ReosDuration nextValidInterval( const ReosDuration &interval );
+
+  private:
+    static QList<ReosDuration> sValidInterval;
+
 };
 
 #endif // REOSDSSUTILS_H

@@ -20,20 +20,22 @@
 #include "reoshydraulicstructure2d.h"
 #include "reoshecrasproject.h"
 
+class ReosDssPath;
+
 class ReosHecRasSimulation : public ReosHydraulicSimulation
 {
     Q_OBJECT
   public:
     ReosHecRasSimulation( QObject *parent );
 
-
     static QString staticKey() { return QStringLiteral( "hecras" ); }
 
     QString key() const override;
     ReosEncodedElement encode() const {return ReosEncodedElement();}
-    QString directoryName() const {return QString();}
-    void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) {}
+
+    void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext );
     void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext, const QDir &directory ) {}
+
     ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const {return nullptr;}
     QList<QDateTime> theoricalTimeSteps( ReosHydraulicScheme *scheme ) const {return QList<QDateTime>();}
     ReosDuration representativeTimeStep() const {return ReosDuration();}
@@ -50,8 +52,14 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
     ReosHecRasProject *project() const;
 
   private:
+    QString mProjectFileName;
     std::shared_ptr<ReosHecRasProject> mProject;
     QString mCurrentPlan;
+
+    ReosParameterDuration *mMinimumInterval = nullptr;
+
+    void transformVariableTimeStepToConstant( ReosTimeSerieVariableTimeStep *variable, ReosTimeSerieConstantInterval *constant ) const;
+    bool writeDssConstantTimeSeries( ReosTimeSerieConstantInterval *series, const QString fileName, const ReosDssPath &path, QString &error ) const;
 };
 
 

@@ -502,6 +502,8 @@ void ReosDataTesting::variable_time_step_time_model()
   QCOMPARE( timeSerie.valueAt( 5 ), 4.2 );
   QVERIFY( timeSerie.relativeTimeAt( 6 ) == ReosDuration( 48, ReosDuration::minute ) );
   QCOMPARE( timeSerie.valueAt( 6 ), 5.0 );
+  //interpolted value
+  QCOMPARE( timeSerie.valueAtTime( ReosDuration( 47.5, ReosDuration::minute ) ), 4.6 );
 
   variableTimeStepModel.insertRows( variableTimeStepModel.index( 7, 1, QModelIndex() ), 2 );
   QCOMPARE( timeSerie.valueCount(), 9 );
