@@ -22,10 +22,11 @@
 #include <QDateTime>
 
 #include <reosduration.h>
+#include "reosdssutils.h"
 
 class ReosHydrograph;
 
-class ReosDssPath
+class REOSDSS_EXPORT ReosDssPath
 {
   public:
     enum Part
@@ -80,7 +81,7 @@ class ReosDssPath
 
 };
 
-class ReosDssFile
+class REOSDSS_EXPORT ReosDssFile
 {
   public:
 
