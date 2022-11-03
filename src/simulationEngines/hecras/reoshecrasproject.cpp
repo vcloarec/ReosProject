@@ -542,6 +542,7 @@ bool ReosHecRasFlow::applyBoudaryFlow( const QList<BoundaryFlow> &flows )
       outputStream << inputLine << Qt::endl;
   }
 
+  file.close();
   QFile::remove( mFileName );
   tempFile.copy( mFileName );
 

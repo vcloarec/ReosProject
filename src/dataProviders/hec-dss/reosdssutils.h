@@ -3,7 +3,7 @@
 
 
 #  if defined _WIN32 || defined __CYGWIN__
-#    ifdef provider_HEC_DSS_EXPORTS
+#    ifdef reosHecDss_EXPORTS
 #      ifdef __GNUC__
 #        define REOSDSS_EXPORT __attribute__ ((dllexport))
 #      else
