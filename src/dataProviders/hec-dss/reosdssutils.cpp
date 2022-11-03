@@ -1,11 +1,14 @@
 #include "reosdssutils.h"
 
+#include <QDate>
+
 extern "C" {
 #include "heclib.h"
 }
 
 
 #include "reosduration.h"
+
 
 ReosDuration ReosDssUtils::dssIntervalToDuration( const QString &dssInterval )
 {

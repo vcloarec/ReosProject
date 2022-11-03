@@ -127,6 +127,11 @@ void ReosHecRasSimulation::prepareInput( ReosHydraulicStructure2D *hydraulicStru
   QList<ReosHecRasFlow::BoundaryFlow> boundaryToModify;
   QString dssFilePath = mProject->directory().filePath( QStringLiteral( "input_%1.dss" ).arg( mCurrentPlan ) );
 
+  const QDateTime startTime = calculationContext.simulationStartTime();
+  const QDateTime endTime = calculationContext.simulationEndTime();
+
+  currentPlan.changeSimulationTimeInFile( startTime, endTime );
+
   for ( ReosHydraulicStructureBoundaryCondition *bc : bcs )
   {
     if ( bc->conditionType() != ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally &&
