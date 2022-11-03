@@ -24,6 +24,9 @@
 #include "reosdataobject.h"
 #include "reosdataprovider.h"
 
+class ReosTimeSerieConstantInterval;
+class ReosTimeSerieVariableTimeStep;
+
 /**
  * Abstract class for time serie provider
  */
@@ -86,6 +89,8 @@ class REOSCORE_EXPORT ReosTimeSerieConstantTimeStepProvider : public ReosTimeSer
     virtual void setTimeStep( const ReosDuration &timeStep );
 
     virtual void copy( ReosTimeSerieConstantTimeStepProvider *other );
+
+    virtual void setValues( const QVector<double> &vals );
 };
 
 /**
@@ -107,6 +112,15 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStepProvider : public ReosTimeSer
     virtual void insertValue( int fromPos, const ReosDuration &relativeTime, double v );
 
     virtual void copy( ReosTimeSerieVariableTimeStepProvider *other );
+
+    /**
+     * Writes \a series to location specified in \a uri, return false if fails.
+     * Default implementation does nothing and return false.
+     */
+    virtual bool writeSeries( ReosTimeSerieVariableTimeStep *series, const QString &uri );
+
+    int timeValueIndex( const ReosDuration &time, bool &exact ) const;
+    double valueAtTime( const ReosDuration &relativeTime ) const;
 };
 
 
@@ -141,6 +155,7 @@ class ReosTimeSerieConstantTimeStepMemoryProvider : public ReosTimeSerieConstant
     ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
     void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) override;
     void copy( ReosTimeSerieConstantTimeStepProvider *other ) override;
+    void setValues( const QVector<double> &vals ) override;
 
   private:
     QDateTime mReferenceTime;

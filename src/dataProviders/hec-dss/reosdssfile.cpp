@@ -121,7 +121,6 @@ bool ReosDssFile::createConstantIntervalSeries( const ReosDssPath &path, QString
 
 bool ReosDssFile::writeConstantIntervalSeriesPrivate(
   const ReosDssPath &path,
-
   const QDateTime &startDateTime,
   const ReosDuration &timeStep,
   const QVector<double> &values,
@@ -371,6 +370,11 @@ const QString ReosDssPath::timeInterval() const
   return toQString( TimeInterval );
 }
 
+void ReosDssPath::setTimeInterval( const ReosDuration &interval )
+{
+  stringToData( ReosDssUtils::durationToDssInterval( interval ), TimeInterval );
+}
+
 void ReosDssPath::setTimeInterval( const QString &newTimeInterval )
 {
   stringToData( newTimeInterval, TimeInterval );
@@ -388,24 +392,7 @@ void ReosDssPath::setVersion( const QString &newVersion )
 
 ReosDuration ReosDssPath::timeIntervalDuration() const
 {
-  int interValSeconds = 0;
-  int flagDirection = 1;
-  const QString timeItervalString = timeInterval();
-  size_t strSize = size( ReosDssPath::TimeInterval );
-  std::vector<char> str( strSize );
-  memcpy( str.data(), const_c_string( ReosDssPath::TimeInterval ), size( ReosDssPath::TimeInterval )*sizeof( char ) );
-
-  if ( !timeItervalString.isEmpty() &&
-       ( ztsGetStandardInterval( 7,
-                                 &interValSeconds,
-                                 str.data(),
-                                 static_cast<size_t>( timeInterval().size() ),
-                                 &flagDirection ) == STATUS_OKAY ) )
-  {
-    return ReosDuration( interValSeconds, ReosDuration::second );
-  }
-
-  return ReosDuration();
+  return ReosDssUtils::dssIntervalToDuration( timeInterval() );
 }
 
 QString ReosDssPath::toQString( Part part ) const
@@ -418,6 +405,9 @@ QString ReosDssPath::toQString( Part part ) const
 
 void ReosDssPath::stringToData( const QString &str, Part part )
 {
+  QString effStr = str;
+  if ( effStr.size() < 64 )
+    effStr.resize( 64 );
   QVector<char> strChar( str.count() + 1 );
   std::string source = str.toStdString();
   memcpy( strChar.data(), source.data(), source.size() );

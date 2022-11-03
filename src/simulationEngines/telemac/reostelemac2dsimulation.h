@@ -53,7 +53,6 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
     static QString staticKey() {return QStringLiteral( "telemac2D" );}
 
     QString key() const override {return ReosTelemac2DSimulation::staticKey();}
-    QString directoryName() const override {return  QStringLiteral( "TELEMAC" );}
 
     void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) override;
     void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext, const QDir &directory ) override;
@@ -82,6 +81,9 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
     void setEquation( const Equation &equation );
 
     QString engineName() const override;
+
+  protected:
+    QString directoryName() const override {return  QStringLiteral( "TELEMAC" );}
 
   private:
     //****** config

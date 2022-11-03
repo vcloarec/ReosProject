@@ -72,8 +72,7 @@ class ReosDssProviderTimeSerieConstantTimeStep : public ReosTimeSerieConstantTim
     ReosEncodedElement encode() const {return ReosEncodedElement();}
     void decode( const ReosEncodedElement &element ) {}
 
-    virtual bool persistData( QString &error ) override;
-
+    bool persistData( QString &error ) override;
     bool createNewSerie( const ReosDssPath &path, ReosDssFile &dssFile, QString &error ) const override;
 
     static QString dataType();
@@ -84,6 +83,7 @@ class ReosDssProviderTimeSerieConstantTimeStep : public ReosTimeSerieConstantTim
     QVector<double> mValues;
     bool mDirty = false;
 };
+
 
 class ReosDssProviderFactory: public ReosDataProviderFactory
 {

@@ -142,6 +142,8 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     double valueAt( int i ) const override;
     void setValueAt( int i, double value ) override;
 
+    void setValues( const QVector<double> vals );
+
     QString type() const override {return staticType();}
     static QString staticType() {return ReosTimeSerie::staticType() + ':' + QStringLiteral( "constant-interval" );}
 

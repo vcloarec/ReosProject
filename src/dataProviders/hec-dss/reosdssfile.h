@@ -60,6 +60,7 @@ class ReosDssPath
     const QString startDate() const;
     void setStartDate( const QString &newStartDate );
     const QString timeInterval() const;
+    void setTimeInterval( const ReosDuration &interval );
     void setTimeInterval( const QString &newTimeInterval );
     const QString version() const;
     void setVersion( const QString &newVersion );
@@ -110,6 +111,8 @@ class ReosDssFile
                                       const QVector<double> &values,
                                       QString &error );
 
+    QList<ReosDssPath> searchRecordsPath( const ReosDssPath &path ) const;
+
   private:
     std::unique_ptr<std::array<long long, 250>> mIfltab;
     QString mFileName;
@@ -119,7 +122,6 @@ class ReosDssFile
 
     static QString getEPart( const ReosDuration &interval, bool findClosest = false );
 
-    QList<ReosDssPath> searchRecordsPath( const ReosDssPath &path ) const;
     void removeDataset( const ReosDssPath &path );
     bool writeConstantIntervalSeriesPrivate(
       const ReosDssPath &path,

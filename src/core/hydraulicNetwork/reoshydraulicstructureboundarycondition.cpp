@@ -247,7 +247,10 @@ ReosHydraulicStructureBoundaryCondition::Type ReosHydraulicStructureBoundaryCond
       return mDefaultConditionType;
       break;
     case ReosHydraulicStructureBoundaryCondition::ConnectionState::ConnectedToUpstreamLink:
-      return Type::OutputLevel;
+      if ( mDefaultConditionType == Type::DefinedExternally )
+        return Type::DefinedExternally;
+      else
+        return Type::OutputLevel;
       break;
     case ReosHydraulicStructureBoundaryCondition::ConnectionState::ConnectedToDownstreamLink:
       return Type::InputFlow;

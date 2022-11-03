@@ -96,8 +96,6 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject
     virtual QString key() const = 0;
     virtual ReosEncodedElement encode() const = 0;
 
-    virtual QString directoryName() const = 0;
-
     virtual void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) = 0;
 
     virtual void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext, const QDir &directory ) = 0;
@@ -118,8 +116,6 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject
 
     virtual void removeResults( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const = 0;
 
-    QDir simulationDir( const ReosHydraulicStructure2D *hydraulicStructure, const QString &schemeId ) const;
-
     virtual QString engineName() const = 0;
 
     virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const = 0;
@@ -129,6 +125,10 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject
   signals:
 
     void timeStepChanged();
+
+  protected:
+    QDir simulationDir( const ReosHydraulicStructure2D *hydraulicStructure, const QString &schemeId ) const;
+    virtual QString directoryName() const {return QString();}
 
 };
 

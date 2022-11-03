@@ -50,6 +50,9 @@ void ReosTimeSerieConstantTimeStepProvider::setTimeStep( const ReosDuration & ) 
 
 void ReosTimeSerieConstantTimeStepProvider::copy( ReosTimeSerieConstantTimeStepProvider * ) {}
 
+void ReosTimeSerieConstantTimeStepProvider::setValues( const QVector<double> &vals )
+{}
+
 ReosTimeSerieConstantTimeStepMemoryProvider::ReosTimeSerieConstantTimeStepMemoryProvider( const QVector<double> &values )
   : mValues( values )
 {}
@@ -188,6 +191,11 @@ void ReosTimeSerieConstantTimeStepMemoryProvider::copy( ReosTimeSerieConstantTim
   emit dataChanged();
 }
 
+void ReosTimeSerieConstantTimeStepMemoryProvider::setValues( const QVector<double> &vals )
+{
+  mValues = vals;
+}
+
 ReosTimeSerieVariableTimeStepProvider::~ReosTimeSerieVariableTimeStepProvider()
 {
 
@@ -202,6 +210,71 @@ void ReosTimeSerieVariableTimeStepProvider::prependValue( const ReosDuration &, 
 void ReosTimeSerieVariableTimeStepProvider::insertValue( int, const ReosDuration &, double ) {}
 
 void ReosTimeSerieVariableTimeStepProvider::copy( ReosTimeSerieVariableTimeStepProvider * ) {}
+
+bool ReosTimeSerieVariableTimeStepProvider::writeSeries( ReosTimeSerieVariableTimeStep *, const QString & ) {return false;}
+
+int ReosTimeSerieVariableTimeStepProvider::timeValueIndex( const ReosDuration &time, bool &exact ) const
+{
+
+  if ( valueCount() == 0 || time < relativeTimeAt( 0 ) )
+  {
+    exact = false;
+    return -1;
+  }
+
+  if ( time > lastRelativeTime() )
+  {
+    exact = false;
+    return valueCount() - 1;
+  }
+
+  int i1 = 0;
+  int i2 = valueCount() - 1;
+  while ( true )
+  {
+    if ( relativeTimeAt( i1 ) == time )
+    {
+      exact = true;
+      return i1;
+    }
+    if ( relativeTimeAt( i2 ) == time )
+    {
+      exact = true;
+      return i2;
+    }
+
+    if ( i1 == i2 || i1 + 1 == i2 )
+    {
+      exact = false;
+      return i1;
+    }
+
+    int inter = ( i1 + i2 ) / 2;
+    if ( time < relativeTimeAt( inter ) )
+      i2 = inter;
+    else
+      i1 = inter;
+  }
+}
+
+double ReosTimeSerieVariableTimeStepProvider::valueAtTime( const ReosDuration &relativeTime ) const
+{
+  bool exact = false;
+  int index = timeValueIndex( relativeTime, exact );
+
+  if ( exact )
+    return value( index );
+
+  if ( index < 0 || index >= valueCount() - 1 )
+    return 0;
+
+  const ReosDuration time1 = relativeTimeAt( index );
+  const ReosDuration time2 = relativeTimeAt( index + 1 );
+
+  double ratio = ( relativeTime - time1 ) / ( time2 - time1 );
+
+  return ( value( index + 1 ) - value( index ) ) * ratio + value( index );
+}
 
 
 ReosTimeSerieVariableTimeStepMemoryProvider::ReosTimeSerieVariableTimeStepMemoryProvider( const QVector<double> &values, const QVector<ReosDuration> &timeValues )
