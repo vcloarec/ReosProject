@@ -49,6 +49,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   , mMapToolNewStructure2D( new ReosMapToolNewStructure2D( network, mMap ) )
   , mActionImportStructure2D( new QAction( QIcon( QStringLiteral( ":/images/importHydraulicStructure2D.svg" ) ), tr( "Import Structure 2D" ), this ) )
   , mActionRemoveElement( new QAction( QIcon( QStringLiteral( ":/images/remove.svg" ) ), tr( "Remove Hydraulic Element" ), this ) )
+  , mActionZoomToNetworkExtent( new QAction( QIcon( QStringLiteral( ":/images/zoomNetworkExtent.svg" ) ), tr( "Zoom to Network Extent" ), this ) )
 {
   ui->setupUi( this );
 
@@ -109,10 +110,12 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
 
   toolBar->addAction( mActionRemoveElement );
   mActionRemoveElement->setEnabled( false );
+  connect( mActionRemoveElement, &QAction::triggered, this, &ReosHydraulicNetworkWidget::onSelectedElementRemoved );
+
+  toolBar->addAction( mActionZoomToNetworkExtent );
+  connect( mActionZoomToNetworkExtent, &QAction::triggered, this, &ReosHydraulicNetworkWidget::onZoomToNetworkExtent );
 
   connect( network, &ReosHydraulicNetwork::hasBeenReset, this, &ReosHydraulicNetworkWidget::onModuleReset );
-
-  connect( mActionRemoveElement, &QAction::triggered, this, &ReosHydraulicNetworkWidget::onSelectedElementRemoved );
   connect( mHydraulicNetwork, &ReosHydraulicNetwork::elementAdded, this, &ReosHydraulicNetworkWidget::onElementAdded );
   connect( mHydraulicNetwork, &ReosHydraulicNetwork::elementRemoved, this, &ReosHydraulicNetworkWidget::onElementRemoved );
   connect( mHydraulicNetwork, &ReosHydraulicNetwork::elementPositionHasChanged, this, &ReosHydraulicNetworkWidget::onElementChanged );
@@ -263,6 +266,11 @@ void ReosHydraulicNetworkWidget::onSelectedElementRemoved()
 
   mCurrentSelectedElement = nullptr;
   mActionRemoveElement->setEnabled( false );
+}
+
+void ReosHydraulicNetworkWidget::onZoomToNetworkExtent()
+{
+  mMap->setExtent( mHydraulicNetwork->networkExtent() );
 }
 
 void ReosHydraulicNetworkWidget::onAddHydraulicScheme()

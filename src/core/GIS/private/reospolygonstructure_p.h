@@ -71,6 +71,8 @@ class ReosPolygonStructure_p : public ReosPolygonStructure, private ReosGeometry
 
     ReosEncodedElement encode() const override;
 
+    QString crs() const override;
+
   private:
     QVariantMap mClasses;
     QgsCategorizedSymbolRenderer *mRenderer = nullptr;

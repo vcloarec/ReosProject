@@ -51,6 +51,7 @@ class REOSCORE_EXPORT ReosHydraulicStructureBoundaryCondition : public ReosHydro
     static ReosHydraulicStructureBoundaryCondition *decode( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
 
     QPointF position( const QString &destinationCrs ) const override;
+    ReosSpatialPosition spatialPosition() const override;
     void setPosition( const ReosSpatialPosition & ) override {};
     bool isAutoSelectable() const override;
     bool isRemovable() const override {return false;}

@@ -160,6 +160,7 @@
         <file>extentWatershedSelection.svg</file>
         <file>mActionNew.svg</file>
         <file>downStreamSelection.svg</file>
+        <file>zoomNetworkExtent.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

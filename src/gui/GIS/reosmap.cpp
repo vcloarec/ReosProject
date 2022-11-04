@@ -409,8 +409,11 @@ void ReosMap::setDefaultMapTool()
 
 void ReosMap::setExtent( const ReosMapExtent &extent )
 {
+  if ( !extent.isValid() )
+    return;
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
-  canvas->setExtent( QgsRectangle( extent.xMapMin(), extent.yMapMin(), extent.xMapMax(), extent.yMapMax() ) );
+  ReosMapExtent mapExtent = mEngine->transformToProjectExtent( extent );
+  canvas->setExtent( QgsRectangle( mapExtent.xMapMin(), mapExtent.yMapMin(), mapExtent.xMapMax(), mapExtent.yMapMax() ) );
   canvas->refresh();
 }
 

@@ -127,6 +127,11 @@ ReosEncodedElement ReosPolygonStructure_p::encode() const
   return element;
 }
 
+QString ReosPolygonStructure_p::crs() const
+{
+  return mVectorLayer->crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED_SIMPLIFIED );
+}
+
 ReosPolygonStructure_p::~ReosPolygonStructure_p()
 {
   disconnect( mVectorLayer->undoStack(), &QUndoStack::indexChanged, this, &ReosDataObject::dataChanged );

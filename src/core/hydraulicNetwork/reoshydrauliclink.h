@@ -39,6 +39,8 @@ class REOSCORE_EXPORT ReosHydraulicLink : public ReosHydraulicNetworkElement
 
     void destroy() override;
 
+    ReosMapExtent extent() const override;
+
   protected:
     ReosHydraulicLink( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent = nullptr );
 

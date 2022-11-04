@@ -221,6 +221,11 @@ QPointF ReosHydrographJunction::position( const QString &destinationCrs ) const
   return mNetwork->gisEngine()->transformToCoordinates( mPosition, destinationCrs );
 }
 
+ReosSpatialPosition ReosHydrographJunction::spatialPosition() const
+{
+  return mPosition;
+}
+
 void ReosHydrographJunction::setPosition( const ReosSpatialPosition &pos )
 {
   mPosition = pos;
@@ -707,6 +712,14 @@ QPointF ReosHydrographNodeWatershed::position( const QString &destinationCrs ) c
     return QPointF();
   else
     return mWatershed->outletPoint();
+}
+
+ReosSpatialPosition ReosHydrographNodeWatershed::spatialPosition() const
+{
+  if ( mWatershed.isNull() )
+    return QPointF();
+  else
+    return ReosSpatialPosition( mWatershed->outletPoint(), QString() );
 }
 
 ReosHydrographJunction::HydrographSumCalculation::HydrographSumCalculation()

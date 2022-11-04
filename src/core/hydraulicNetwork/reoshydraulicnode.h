@@ -40,10 +40,13 @@ class REOSCORE_EXPORT ReosHydraulicNode : public ReosHydraulicNetworkElement
     QList<ReosHydraulicLink *> linksBySide2() const;
 
     virtual QPointF position( const QString &destinationCrs ) const = 0;
+    virtual ReosSpatialPosition spatialPosition() const = 0;
     virtual void setPosition( const ReosSpatialPosition &pos ) = 0;
 
     //! Default inmplementation return false
     virtual bool canAcceptLink( const QString &linkId, int positionInLink );
+
+    ReosMapExtent extent() const override;
 
   protected:
     ReosHydraulicNode( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent = nullptr );

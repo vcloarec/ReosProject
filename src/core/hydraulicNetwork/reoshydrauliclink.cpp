@@ -14,6 +14,8 @@
  *                                                                         *
  ***************************************************************************/
 #include "reoshydrauliclink.h"
+#include "reosmapextent.h"
+#include "reosgisengine.h"
 
 ReosHydraulicLink::ReosHydraulicLink( ReosHydraulicNetwork *parent )
   : ReosHydraulicNetworkElement( parent )
@@ -55,6 +57,11 @@ void ReosHydraulicLink::destroy()
   mNode_1->detachFromSide1( this );
   mNode_2->detachFromSide2( this );
   ReosHydraulicNetworkElement::destroy();
+}
+
+ReosMapExtent ReosHydraulicLink::extent() const
+{
+  return ReosMapExtent( mNode_1->spatialPosition(), mNode_2->spatialPosition() );
 }
 
 void ReosHydraulicLink::attachOnSide1( ReosHydraulicNode *node )

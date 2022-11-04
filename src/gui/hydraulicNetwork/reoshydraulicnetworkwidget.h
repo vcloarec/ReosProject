@@ -71,6 +71,7 @@ class ReosHydraulicNetworkWidget : public QWidget
     void onDrawHydrographRoutingFinish();
     void onElementSelected( ReosMapItem *item );
     void onSelectedElementRemoved();
+    void onZoomToNetworkExtent();
 
     void onAddHydraulicScheme();
     void onRemoveHydraulicScheme();
@@ -118,6 +119,8 @@ class ReosHydraulicNetworkWidget : public QWidget
     QAction *mActionImportStructure2D = nullptr;
 
     QAction *mActionRemoveElement = nullptr;
+
+    QAction *mActionZoomToNetworkExtent = nullptr;
 
     void setMapItemVisible( bool visible );
 

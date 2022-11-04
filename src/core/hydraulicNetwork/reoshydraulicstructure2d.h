@@ -63,6 +63,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     QString type() const override {return staticType();}
     void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
     void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
+    ReosMapExtent extent() const override;
 
     ReosDuration currentElementTimeStep() const override;
 

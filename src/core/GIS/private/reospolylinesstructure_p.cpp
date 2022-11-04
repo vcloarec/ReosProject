@@ -1944,6 +1944,11 @@ double ReosPolylineStructureVectorLayer::tolerance( const QString &wktCrs ) cons
   return QgsUnitTypes::fromUnitToUnitFactor( layerUnit, destUnit ) * mTolerance;
 }
 
+QString ReosPolylineStructureVectorLayer::crs() const
+{
+  return mVectorLayer->crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED_SIMPLIFIED );
+}
+
 bool ReosPolylineStructureVectorLayer::isOnBoundary( const Segment &seg ) const
 {
   if ( seg.at( 0 ) && seg.at( 1 ) )

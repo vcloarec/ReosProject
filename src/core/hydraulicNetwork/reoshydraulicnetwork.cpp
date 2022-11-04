@@ -144,6 +144,11 @@ ReosHydraulicNetwork *ReosHydraulicNetworkElement::network() const
   return mNetwork;
 }
 
+ReosMapExtent ReosHydraulicNetworkElement::extent() const
+{
+  return ReosMapExtent();
+}
+
 ReosHydraulicNetwork::ReosHydraulicNetwork( ReosModule *parent, ReosGisEngine *gisEngine, ReosWatershedModule *watershedModule )
   : ReosModule( parent )
   , mGisEngine( gisEngine )
@@ -464,6 +469,15 @@ ReosDuration ReosHydraulicNetwork::currentTimeStep() const
   }
 
   return ret;
+}
+
+ReosMapExtent ReosHydraulicNetwork::networkExtent() const
+{
+  ReosMapExtent extent;
+  for ( const ReosHydraulicNetworkElement *elem : mElements )
+    extent.expendWithExtent( elem->extent() );
+
+  return extent;
 }
 
 void ReosHydraulicNetwork::addEncodedElement( const ReosEncodedElement &element )

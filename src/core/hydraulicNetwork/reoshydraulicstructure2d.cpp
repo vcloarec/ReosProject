@@ -1064,6 +1064,11 @@ void ReosHydraulicStructure2D::restoreConfiguration( ReosHydraulicScheme *scheme
   updateResults( scheme->id() );
 }
 
+ReosMapExtent ReosHydraulicStructure2D::extent() const
+{
+  return ReosMapExtent( domain(), mPolylinesStructures->crs() );
+}
+
 ReosDuration ReosHydraulicStructure2D::currentElementTimeStep() const
 {
   if ( mCurrentSimulationIndex >= 0 && mSimulations.at( mCurrentSimulationIndex ) )

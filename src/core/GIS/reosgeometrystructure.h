@@ -41,6 +41,8 @@ class ReosGeometryStructure : public ReosDataObject
      * If \a allowBoundary is false, return nothing if the polygon has a boundary vertex.
      */
     virtual QPolygonF searchPolygon( const ReosSpatialPosition &position, bool allowBoundary = true ) const = 0;
+
+    virtual QString crs() const = 0;
 };
 
 

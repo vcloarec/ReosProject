@@ -15,6 +15,7 @@
  ***************************************************************************/
 #include "reoshydraulicnode.h"
 #include "reoshydrauliclink.h"
+#include "reosmapextent.h"
 
 ReosHydraulicNode::ReosHydraulicNode( ReosHydraulicNetwork *parent )
   : ReosHydraulicNetworkElement( parent )
@@ -77,7 +78,6 @@ QList<ReosHydraulicLink *> ReosHydraulicNode::linksBySide2() const
 {
   QList<ReosHydraulicLink *> ret;
 
-
   for ( const QPointer<ReosHydraulicLink> &l : mLinksBySide2 )
     if ( !l.isNull() )
       ret.append( l );
@@ -86,6 +86,11 @@ QList<ReosHydraulicLink *> ReosHydraulicNode::linksBySide2() const
 }
 
 bool ReosHydraulicNode::canAcceptLink( const QString &, int ) {return false;}
+
+ReosMapExtent ReosHydraulicNode::extent() const
+{
+  return ReosMapExtent( spatialPosition(), spatialPosition() );
+}
 
 ReosHydraulicNode::~ReosHydraulicNode() = default;
 

@@ -56,7 +56,8 @@ class REOSCORE_EXPORT ReosMapExtent
     ReosMapExtent( const QRectF &extent );
     ReosMapExtent( double xMapMin, double yMapMin, double xMapMax, double yMapMax );
     //! Construct an extent with the bounding box of the polygon
-    ReosMapExtent( const QPolygonF &polygon );
+    ReosMapExtent( const QPolygonF &polygon, const QString &crs = QString() );
+    ReosMapExtent( const ReosSpatialPosition &pos1, const ReosSpatialPosition &pos2 );
 
     double width() const;
     double height()const;
@@ -72,6 +73,7 @@ class REOSCORE_EXPORT ReosMapExtent
     bool containsPartialy( const  QPolygonF &line ) const;
 
     void addPointToExtent( const QPointF &pt );
+    void expendWithExtent( const ReosMapExtent &other );
 
     QString crs() const;
     void setCrs( const QString &crs );
@@ -87,12 +89,13 @@ class REOSCORE_EXPORT ReosMapExtent
     static ReosMapExtent decode( const ReosEncodedElement &element );
     ReosEncodedElement encode() const;
 
+    bool isValid() const;
+
   protected:
     double mXMin = std::numeric_limits<double>::max();
     double mXMax = -std::numeric_limits<double>::max();
     double mYMin = std::numeric_limits<double>::max();
     double mYMax = -std::numeric_limits<double>::max();
-
 
     QString mCrs;
 };

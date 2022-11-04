@@ -177,6 +177,8 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure, private R
 
     double tolerance( const QString &wktCrs = QString() ) const override;
 
+    QString crs() const override;
+
     bool isOnBoundary( const Segment &seg ) const;
     void setTolerance( double tolerance, const QString &wktCrs = QString() );
 

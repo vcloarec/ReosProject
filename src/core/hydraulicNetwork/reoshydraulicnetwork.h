@@ -34,6 +34,7 @@ class ReosWatershedModule;
 class ReosGisEngine;
 class ReosHydraulicSchemeCollection;
 class ReosHydraulicScheme;
+class ReosMapExtent;
 
 class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject
 {
@@ -87,6 +88,8 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject
     virtual ReosDuration currentElementTimeStep() const;
 
     ReosHydraulicNetwork *network() const;
+
+    virtual ReosMapExtent extent() const = 0;
 
   public slots:
     virtual void updateCalculationContext( const ReosCalculationContext &context ) = 0;
@@ -186,6 +189,8 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     void setCurrentScheme( int newSchemeIndex );
 
     ReosDuration currentTimeStep() const;
+
+    ReosMapExtent networkExtent() const;
 
   signals:
     void elementAdded( ReosHydraulicNetworkElement *elem, bool select );

@@ -92,6 +92,15 @@ QPointF ReosHydraulicStructureBoundaryCondition::position( const QString &destin
   return QPointF();
 }
 
+ReosSpatialPosition ReosHydraulicStructureBoundaryCondition::spatialPosition() const
+{
+  if ( !mStructure.isNull() )
+    return ReosSpatialPosition( mStructure->geometryStructure()->boundaryConditionCenter( mBoundaryConditionId, QString() ),
+                                mStructure->geometryStructure()->crs() );
+
+  return QPointF();
+}
+
 bool ReosHydraulicStructureBoundaryCondition::isAutoSelectable() const
 {
   return false;
