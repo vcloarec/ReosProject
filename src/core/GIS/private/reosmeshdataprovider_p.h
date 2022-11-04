@@ -36,7 +36,6 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
     ReosMeshDataProvider_p();
 
     void setFilePath( const QString &filePath );
-    void setMDALDriver( const QString &driverName );
 
     void generateMesh( const ReosMeshFrameData &data );
 
@@ -47,7 +46,7 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
     //! Overrides the crs, used when the mesh provider is created from scratch
     void overrideCrs( const QgsCoordinateReferenceSystem &crs );
 
-    void loadMeshFrame( const QString &filePath, const QString &driverName );
+    void loadMeshFrame( const QString &filePath );
 
     bool saveMeshFrameToFile( const QgsMesh &mesh );
 
@@ -102,7 +101,6 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
     QgsMesh mMesh;
     QgsCoordinateReferenceSystem mCrs;
     QString mFilePath;
-    QString mMDALDriverName;
     QgsRectangle mExtent;
     ReosMeshDatasetSource *mDatasetSource = nullptr;
 

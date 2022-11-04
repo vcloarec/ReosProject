@@ -115,27 +115,24 @@ ReosMeshFrame_p::ReosMeshFrame_p( const QString &dataPath, const QString &destin
 {
   mMeshLayer.reset( new QgsMeshLayer( "path", "", QStringLiteral( "ReosMesh" ) ) );
 
-  QDir dir( dataPath );
-  if ( dir.exists() )
+  meshProvider()->loadMeshFrame( dataPath );
+
+  QgsCoordinateReferenceSystem qgisDestinationCrs;
+  qgisDestinationCrs.createFromWkt( destinationCrs );
+
+  if ( meshProvider()->crs().isValid() )
+    mMeshLayer->setCrs( meshProvider()->crs() );
+  else
   {
-    meshProvider()->loadMeshFrame( dir.filePath( QStringLiteral( "meshFrame.nc" ) ), QStringLiteral( "Ugrid" ) );
+    mMeshLayer->setCrs( qgisDestinationCrs );
+    meshProvider()->overrideCrs( qgisDestinationCrs );
+  }
 
-    QgsCoordinateReferenceSystem qgisDestinationCrs;
-    qgisDestinationCrs.createFromWkt( destinationCrs );
+  mMeshLayer->reload();
 
-    if ( meshProvider()->crs().isValid() )
-      mMeshLayer->setCrs( meshProvider()->crs() );
-    else
-    {
-      mMeshLayer->setCrs( qgisDestinationCrs );
-      meshProvider()->overrideCrs( qgisDestinationCrs );
-    }
+  QgsCoordinateTransform transform( meshProvider()->crs(), qgisDestinationCrs, QgsProject::instance() );
+  mMeshLayer->updateTriangularMesh( transform );
 
-    mMeshLayer->reload();
-
-    QgsCoordinateTransform transform( meshProvider()->crs(), qgisDestinationCrs, QgsProject::instance() );
-    mMeshLayer->updateTriangularMesh( transform );
-  };
 
   init();
 }
@@ -150,7 +147,6 @@ void ReosMeshFrame_p::save( const QString &dataPath )
     stopFrameEditing( true, true );
 
   meshProvider()->setFilePath( dir.filePath( QStringLiteral( "meshFrame.nc" ) ) );
-  meshProvider()->setMDALDriver( QStringLiteral( "Ugrid" ) );
   meshProvider()->saveMeshFrameToFile( *mMeshLayer->nativeMesh() );
 }
 
