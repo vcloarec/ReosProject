@@ -47,11 +47,23 @@ class ReosHecrasController
     //! Returns the plan names of the currently opened project
     QStringList planNames() const;
 
+    //! Set the current plan
+    bool setCurrentPlan(const QString& planName);
+
+    //! Starts computation of the current plan
+    QStringList computeCurrentPlan();
+
     //! Returns the flow 2D area names of the currently opened project
     QStringList flowAreas2D() const;
 
     //! Returns the domain of the flow area with \a areaName
     QPolygonF flow2DAreasDomain( const QString &areaName ) const;
+
+    bool showRas() const;
+
+    bool showComputationWindow() const;
+
+    bool hideComputationWindow() const;
 
   private:
     bool mIsValid = false;
