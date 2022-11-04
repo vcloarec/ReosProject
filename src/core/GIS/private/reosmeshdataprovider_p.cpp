@@ -42,7 +42,7 @@ bool ReosMeshDataProvider_p::saveMeshFrameToFile( const QgsMesh &mesh )
 {
   QgsProviderMetadata *meta = QgsProviderRegistry::instance()->providerMetadata( QStringLiteral( "mdal" ) );
   if ( meta )
-    return meta->createMeshData( mesh, mFilePath, mMDALDriverName, mCrs );
+    return meta->createMeshData( mesh, mFilePath, "Ugrid", mCrs );
   else
     return false;
 }
@@ -230,9 +230,8 @@ QgsMeshDriverMetadata ReosMeshDataProvider_p::driverMetadata() const
                                 3 );
 }
 
-void ReosMeshDataProvider_p::loadMeshFrame( const QString &filePath, const QString &driverName )
+void ReosMeshDataProvider_p::loadMeshFrame( const QString &filePath )
 {
-  mMDALDriverName = driverName;
   mFilePath = filePath;
   QgsProviderMetadata *meta = QgsProviderRegistry::instance()->providerMetadata( QStringLiteral( "mdal" ) );
   if ( meta )
@@ -253,11 +252,6 @@ ReosMeshDataProvider_p::ReosMeshDataProvider_p(): QgsMeshDataProvider( "mesh", Q
 void ReosMeshDataProvider_p::setFilePath( const QString &filePath )
 {
   mFilePath = filePath;
-}
-
-void ReosMeshDataProvider_p::setMDALDriver( const QString &driverName )
-{
-  mMDALDriverName = driverName;
 }
 
 void ReosMeshDataProvider_p::generateMesh( const ReosMeshFrameData &data )

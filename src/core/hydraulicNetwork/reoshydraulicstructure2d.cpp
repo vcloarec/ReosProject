@@ -46,7 +46,6 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   const ReosEncodedElement &encodedElement,
   const ReosHydraulicNetworkContext &context )
   : ReosHydraulicNetworkElement( encodedElement, context.network() )
-  , mCapabilities( GeometryEditable | MultiSimulation )
   , mMeshGenerator( ReosMeshGenerator::createMeshGenerator( encodedElement.getEncodedData( QStringLiteral( "mesh-generator" ) ), this ) )
   , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( encodedElement.getEncodedData( QStringLiteral( "structure" ) ) ) )
   , mTopographyCollection( ReosTopographyCollection::createTopographyCollection( encodedElement.getEncodedData( QStringLiteral( "topography-collection" ) ), context.network()->gisEngine(), this ) )
@@ -65,7 +64,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   else
     mMeshResolutionController = new ReosMeshResolutionController( this );
 
-  mMesh.reset( ReosMesh::createMeshFrameFromFile( structureDirectory().path(), context.crs() ) );
+  mMesh.reset( ReosMesh::createMeshFrameFromFile( structureDirectory().path() + QStringLiteral( "/meshFrame.nc" ), context.crs() ) );
   init();
 
   mMesh->setQualityMeshParameter( encodedElement.getEncodedData( QStringLiteral( "mesh-quality-parameters" ) ) );
@@ -135,8 +134,9 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( ReosStructureImporter *impor
   , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( importer->domain(), importer->crs() ) )
   , mMeshResolutionController( importer->resolutionController( this ) )
   , mTopographyCollection( ReosTopographyCollection::createTopographyCollection( context.network()->gisEngine(), this ) )
-  , mMesh( importer->mesh() )
+  , mMesh( importer->mesh( context.network()->gisEngine()->crs() ) )
   , mRoughnessStructure( importer->roughnessStructure() )
+  , mImporterKey( importer->importerKey() )
   , mProfilesCollection( new ReosHydraulicStructureProfilesCollection( this ) )
 {
   init();
@@ -305,7 +305,8 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
   dir.mkdir( directory() );
   dir.cd( directory() );
 
-  mMesh->save( dir.path() );
+  if ( !hasCapability( DefinedExternally ) )
+    mMesh->save( dir.path() );
 
   element.addData( QStringLiteral( "boundaries-vertices" ), mBoundaryVertices );
   element.addData( QStringLiteral( "hole-vertices" ), mHolesVertices );

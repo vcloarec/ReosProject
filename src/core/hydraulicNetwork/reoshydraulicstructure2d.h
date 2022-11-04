@@ -45,9 +45,10 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 
     enum Structure2DCapability
     {
-      GeometryEditable = 1 << 0, //!< If the structure have geometry editable (geometry structure, mesh, ...)
+      GeometryEditable = 1 << 0, //!< If the structure have geometry editable (structure or mesh)
       MultiSimulation = 1 << 1, //!< If the structure can have multiple simulations
-      DefinedExternally = 1 << 2 //!< If the structure is defined externally
+      DefinedExternally = 1 << 2, //!< If the structure is defined externally
+
     };
 
     Q_ENUM( Structure2DCapability )
@@ -366,7 +367,7 @@ class REOSCORE_EXPORT ReosStructureImporter
     virtual QPolygonF domain() const = 0;
     virtual ReosMeshGenerator *meshGenerator() const = 0;
     virtual ReosMeshResolutionController *resolutionController( ReosHydraulicStructure2D *structure ) const = 0;
-    virtual ReosMesh *mesh() const = 0;
+    virtual ReosMesh *mesh( const QString &destinationCrs ) const = 0;
     virtual ReosRoughnessStructure *roughnessStructure() const = 0;
 
     virtual QList<ReosHydraulicStructureBoundaryCondition *> createBoundaryConditions( ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const = 0;

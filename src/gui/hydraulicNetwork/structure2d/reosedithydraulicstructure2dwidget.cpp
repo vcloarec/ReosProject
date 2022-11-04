@@ -55,7 +55,7 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
   propertiesToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
   backButton->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
 
-  if ( structure2D->mesh() )
+  if ( structure2D->hasCapability( ReosHydraulicStructure2D::GeometryEditable ) )
   {
     //mesh generation setup
     QList<QAction *> meshGenerationToolBarActions;
