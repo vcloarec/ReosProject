@@ -53,6 +53,11 @@ QPolygonF ReosHydraulicStructureProfile::terrainProfile() const
   return extractValue( terrainValue );
 }
 
+bool ReosHydraulicStructureProfile::hasResults( ReosHydraulicScheme *scheme ) const
+{
+  return mStructure->hasResults( scheme );
+}
+
 QPolygonF ReosHydraulicStructureProfile::resultsProfile( ReosHydraulicScheme *scheme, int datasetIndex, ReosHydraulicSimulationResults::DatasetType resultType ) const
 {
   if ( datasetIndex == -1 )
@@ -305,16 +310,19 @@ QRectF ReosHydraulicStructureProfile::elevationExtent( ReosHydraulicScheme *sche
 {
   QRectF ret = terrainExtent();
 
-  ReosHydraulicSimulationResults *results = mStructure->results( scheme );
-  int waterLevelIndex = results->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterLevel );
-  int timeStepCount = results->datasetCount( waterLevelIndex );
-
-  bool ok = false;
-  for ( int i = 0; i < timeStepCount; ++i )
+  if ( mStructure->hasResults( scheme ) )
   {
-    QRectF wsExt = ReosGeometryUtils::boundingBox( resultsProfile( scheme, i, ReosHydraulicSimulationResults::DatasetType::WaterLevel ), ok );
-    if ( ok )
-      ret = ret.united( wsExt );
+    ReosHydraulicSimulationResults *results = mStructure->results( scheme );
+    int waterLevelIndex = results->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterLevel );
+    int timeStepCount = results->datasetCount( waterLevelIndex );
+
+    bool ok = false;
+    for ( int i = 0; i < timeStepCount; ++i )
+    {
+      QRectF wsExt = ReosGeometryUtils::boundingBox( resultsProfile( scheme, i, ReosHydraulicSimulationResults::DatasetType::WaterLevel ), ok );
+      if ( ok )
+        ret = ret.united( wsExt );
+    }
   }
 
   return ret;

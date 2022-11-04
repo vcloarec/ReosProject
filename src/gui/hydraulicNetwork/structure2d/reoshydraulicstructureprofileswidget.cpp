@@ -339,21 +339,33 @@ void ReosHydraulicStructureProfilesWidget::updateCurrentProfileValues()
     ReosHydraulicScheme *scheme = mStructure->network()->currentScheme();
     mTerrainProfileCurve->setData( mCurrentProfile->terrainProfile() );
 
-    mVelocityProfileCurve->setData( mCurrentProfile->resultsProfile( scheme,
-                                    mGuiContext.map()->currentTime(),
-                                    ReosHydraulicSimulationResults::DatasetType::Velocity ) );
+    if ( mCurrentProfile->hasResults( scheme ) )
+    {
+      mVelocityProfileCurve->setData( mCurrentProfile->resultsProfile( scheme,
+                                      mGuiContext.map()->currentTime(),
+                                      ReosHydraulicSimulationResults::DatasetType::Velocity ) );
 
-    QPolygonF waterSurface;
-    mFilledWater->setPolygons( mCurrentProfile->resultsFilledByWater( scheme,
-                               mGuiContext.map()->currentTime(),
-                               waterSurface ) );
-    mWaterLevelProfileCurve->setData( waterSurface );
+      QPolygonF waterSurface;
+      mFilledWater->setPolygons( mCurrentProfile->resultsFilledByWater( scheme,
+                                 mGuiContext.map()->currentTime(),
+                                 waterSurface ) );
+      mWaterLevelProfileCurve->setData( waterSurface );
+    }
+    else
+    {
+      mVelocityProfileCurve->setData( QPolygonF() );
+      mWaterLevelProfileCurve->setData( QPolygonF() );
+    }
+
 
     if ( mCurrentProfile )
     {
       ui->mPlotWidget->setExtent( mCurrentProfile->elevationExtent( scheme ) );
-      QPair<double, double> rightExtent = mCurrentProfile->valueVerticalExtent( scheme, ReosHydraulicSimulationResults::DatasetType::Velocity );
-      ui->mPlotWidget->setAxeYRightExtent( rightExtent.first, rightExtent.second );
+      if ( mCurrentProfile->hasResults( scheme ) )
+      {
+        QPair<double, double> rightExtent = mCurrentProfile->valueVerticalExtent( scheme, ReosHydraulicSimulationResults::DatasetType::Velocity );
+        ui->mPlotWidget->setAxeYRightExtent( rightExtent.first, rightExtent.second );
+      }
       ui->mPlotWidget->updatePlot();
     }
   }

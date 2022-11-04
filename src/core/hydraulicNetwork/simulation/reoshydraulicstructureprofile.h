@@ -46,6 +46,9 @@ class REOSCORE_EXPORT ReosHydraulicStructureProfile : public ReosDataObject
     //! Returns the terrain profile
     QPolygonF terrainProfile() const;
 
+    //! Return whether there are results available
+    bool hasResults(ReosHydraulicScheme *scheme) const;
+
     //! Returns the results profile corresponding to hydraulic \a scheme, for \a time and with type \a result type
     QPolygonF resultsProfile( ReosHydraulicScheme *scheme, const QDateTime &time, ReosHydraulicSimulationResults::DatasetType resultType ) const;
 
