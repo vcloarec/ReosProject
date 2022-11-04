@@ -342,6 +342,112 @@ QStringList ReosHecrasController::planNames() const
   return ret;
 }
 
+bool ReosHecrasController::setCurrentPlan(const QString& planName)
+{
+    bool ok = false;
+#ifdef _WIN32
+    DISPID id = mFunctionNames.value(QStringLiteral("Plan_SetCurrent"));
+
+    DISPPARAMS par;
+    std::vector<VARIANTARG> args;
+
+    //*************************************** Arguments
+    VARIANTARG planNameV;
+    VariantInit(&planNameV);
+    std::wstring ws = qStringToWideString(planName);
+    V_VT(&planNameV) = VT_BSTR;
+    planNameV.bstrVal = SysAllocStringLen(ws.c_str(), ws.length());
+
+    //***************************************
+    args.push_back(planNameV);
+
+    par.cArgs = args.size();
+    par.rgvarg = args.data();
+    par.cNamedArgs = 0;
+
+    VARIANT result;
+    EXCEPINFO excepInfo;
+    UINT puArgErr;
+
+    HRESULT res = mDispatch->Invoke(id, IID_NULL, 0, DISPATCH_METHOD, &par, &result, &excepInfo, &puArgErr);
+
+    ok = SUCCEEDED(res);
+#endif
+    return ok;
+}
+
+QStringList ReosHecrasController::computeCurrentPlan()
+{
+    QStringList ret;
+#ifdef _WIN32
+    DISPID id = mFunctionNames.value(QStringLiteral("Compute_CurrentPlan"));
+
+    VARIANT result;
+    EXCEPINFO excepInfo;
+    UINT puArgErr;
+
+    DISPPARAMS par;
+    std::vector<VARIANTARG> args;
+
+    //*************************************** Arguments
+    VARIANTARG nMsg;
+    VariantInit(&nMsg);
+    VARIANTARG pMsgs;
+    VariantInit(&pMsgs);
+    VARIANTARG pBlocking;
+    VariantInit(&pBlocking);
+
+    SAFEARRAYBOUND saBound;
+    // if saBound.lLbound == 0, calling the function leads to an internal error throwing an execption "Subscript out of range"
+    // Seen here https://sourceforge.net/p/j-interop/discussion/840678/thread/90f709bd/#a1db
+    // that there this function uses lLbound = 1, so it works with 1...
+    saBound.lLbound = 1; 
+    saBound.cElements = 0;
+
+    SAFEARRAY* array = SafeArrayCreate(VT_BSTR, 1, &saBound);
+    V_VT(&pMsgs) = VT_BSTR | VT_ARRAY | VT_BYREF;
+    pMsgs.pparray = &array;
+
+    LONG count = 0;
+    V_VT(&nMsg) = VT_I4 | VT_BYREF;
+    V_I4REF(&nMsg) = &count;
+
+    V_VT(&pBlocking) = VT_BOOL;
+    V_BOOL(&pBlocking) = true;
+
+    // Must be in reverse order
+    //args.push_back(pBlocking);
+    args.push_back(pMsgs);
+    args.push_back(nMsg);
+
+    //***************************************
+
+    par.cArgs = args.size();
+    par.rgvarg = args.data();
+    par.cNamedArgs = 0;
+
+    HRESULT res = mDispatch->Invoke(id, IID_NULL, 0, DISPATCH_METHOD, &par, &result, &excepInfo, &puArgErr);
+
+    if (SUCCEEDED(res))
+    {
+        res = SafeArrayLock(array);
+        if (SUCCEEDED(res))
+        {
+            BSTR* pData = static_cast<BSTR*>(array->pvData);
+            for (LONG i = 0; i < count; ++i)
+            {
+                ret.append(BSTRToQString(pData[static_cast<size_t>(i)]));
+            }
+            SafeArrayUnlock(array);
+        }
+
+    }
+
+    SafeArrayDestroy(array);
+#endif
+    return ret;
+}
+
 bool ReosHecrasController::exitRas() const
 {
 #ifdef _WIN32
@@ -506,4 +612,49 @@ QPolygonF ReosHecrasController::flow2DAreasDomain( const QString &areaName ) con
       ret.removeLast();
 #endif
   return ret;
+}
+
+bool ReosHecrasController::showRas() const
+{
+    DISPID id = mFunctionNames.value(QStringLiteral("ShowRas"));
+
+    VARIANT result;
+    EXCEPINFO excepInfo;
+    UINT puArgErr;
+
+    DISPPARAMS par = { nullptr, nullptr, 0, 0 };
+
+    HRESULT res = mDispatch->Invoke(id, IID_NULL, 0, DISPATCH_METHOD, &par, &result, &excepInfo, &puArgErr);
+
+    return SUCCEEDED(res);
+}
+
+bool ReosHecrasController::showComputationWindow() const
+{
+    DISPID id = mFunctionNames.value(QStringLiteral("Compute_ShowComputationWindow"));
+
+    VARIANT result;
+    EXCEPINFO excepInfo;
+    UINT puArgErr;
+
+    DISPPARAMS par = { nullptr, nullptr, 0, 0 };
+
+    HRESULT res = mDispatch->Invoke(id, IID_NULL, 0, DISPATCH_METHOD, &par, &result, &excepInfo, &puArgErr);
+
+    return SUCCEEDED(res);
+}
+
+bool ReosHecrasController::hideComputationWindow() const
+{
+    DISPID id = mFunctionNames.value(QStringLiteral("Compute_HideComputationWindow"));
+
+    VARIANT result;
+    EXCEPINFO excepInfo;
+    UINT puArgErr;
+
+    DISPPARAMS par = { nullptr, nullptr, 0, 0 };
+
+    HRESULT res = mDispatch->Invoke(id, IID_NULL, 0, DISPATCH_METHOD, &par, &result, &excepInfo, &puArgErr);
+
+    return SUCCEEDED(res);
 }

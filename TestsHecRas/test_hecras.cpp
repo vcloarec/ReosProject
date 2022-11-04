@@ -73,6 +73,7 @@ class ReosHecrasTesting : public QObject
 #ifdef _MSC_VER
     void availableVersion();
     void createControllerInstance();
+    void getControllerPLans();
 #endif
 
     void createDssFile();
@@ -109,7 +110,7 @@ void ReosHecrasTesting::initTestCase()
 void ReosHecrasTesting::cleanupTestCase()
 {
   QDir dir( mPathToSimpleToRun );
-  //dir.removeRecursively();
+  dir.removeRecursively();
 }
 
 #ifdef _MSC_VER
@@ -125,6 +126,27 @@ void ReosHecrasTesting::createControllerInstance()
   ReosHecrasController controller( versions.last() );
 
   QVERIFY( controller.isValid() );
+}
+void ReosHecrasTesting::getControllerPLans()
+{
+    QStringList versions = ReosHecrasController::availableVersion();
+    ReosHecrasController controller(versions.last());
+
+    QVERIFY(controller.isValid());
+
+    QString path(mPathToSimpleToRun + QStringLiteral("/simple.prj"));
+    QVERIFY(controller.openHecrasProject(path));
+
+    QStringList plans = controller.planNames();
+
+    QCOMPARE(plans.count(), 2);
+    QCOMPARE(plans.at(0), QStringLiteral("plan_test"));
+    QCOMPARE(plans.at(1), QStringLiteral("plan_test_2"));
+
+    QVERIFY(controller.setCurrentPlan(plans.at(1)));
+    QVERIFY(controller.setCurrentPlan(plans.at(0)));
+
+    QVERIFY(!controller.computeCurrentPlan().isEmpty());
 }
 #endif
 
@@ -244,7 +266,7 @@ void ReosHecrasTesting::importStructure()
   ReosHydraulicScheme *scheme = network->currentScheme();
   QVERIFY( scheme );
   scheme->startTime()->setValue( QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ) );
-  scheme->endTime()->setValue( QDateTime( QDate( 2000, 01, 01 ), QTime( 11, 0, 0 ), Qt::UTC ) );
+  scheme->endTime()->setValue( QDateTime( QDate( 2000, 01, 01 ), QTime( 12, 0, 0 ), Qt::UTC ) );
 
   ReosHydraulicStructure2D *structure = ReosHydraulicStructure2D::create( &importer, network->context() );
   QVERIFY( structure != nullptr );
@@ -301,6 +323,24 @@ void ReosHecrasTesting::importStructure()
   QVERIFY( flowAfterPreparation.boundary( 0 ).isDss );
   QCOMPARE( flowAfterPreparation.boundary( 0 ).dssFile, mPathToSimpleToRun + QStringLiteral( "/input_p01.dss" ) );
   QCOMPARE( flowAfterPreparation.boundary( 0 ).dssPath, QStringLiteral( "/Perimeter 1/Upstream limit/Flow//1Minute/INST-VAL/" ) );
+
+  QStringList versions = ReosHecrasController::availableVersion();
+  ReosHecrasController controller(versions.last());
+
+  QVERIFY(controller.isValid());
+
+  QVERIFY(controller.openHecrasProject(path));
+
+  QStringList plans = controller.planNames();
+
+  QCOMPARE(plans.count(), 2);
+  QCOMPARE(plans.at(0), QStringLiteral("plan_test"));
+  QCOMPARE(plans.at(1), QStringLiteral("plan_test_2"));
+
+  QVERIFY(controller.setCurrentPlan(plans.at(1)));
+  QVERIFY(controller.setCurrentPlan(plans.at(0)));
+
+  QVERIFY(!controller.computeCurrentPlan().isEmpty());
 }
 
 void ReosHecrasTesting::changeBoundaryCondition()
