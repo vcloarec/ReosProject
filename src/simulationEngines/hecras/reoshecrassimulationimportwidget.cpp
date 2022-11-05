@@ -18,11 +18,7 @@ ReosHecRasSimulationImportWidget::ReosHecRasSimulationImportWidget( QWidget *par
 
 void ReosHecRasSimulationImportWidget::importStructure2D( const ReosHydraulicNetworkContext &context ) const
 {
-  ReosHecRasStructureImporter importer( ui->mProjectFileLineEdit->text() );
-
-  context.network()->addElement( ReosHydraulicStructure2D::create( &importer, context ) );
-
-  return;
+  ReosHydraulicStructure2D::create( new ReosHecRasStructureImporter( ui->mProjectFileLineEdit->text() ), context );
 }
 
 void ReosHecRasSimulationImportWidget::onProjectFileButtonPressed()

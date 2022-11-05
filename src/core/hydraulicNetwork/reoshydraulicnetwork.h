@@ -160,6 +160,7 @@ class ReosHydraulicNetworkElementFactory
     ReosHydraulicNetworkElementFactory();
     virtual ~ReosHydraulicNetworkElementFactory();
 
+    //! Decodes hydraulic element from \a encodedElement and and it to the network of \a context
     virtual ReosHydraulicNetworkElement *decodeElement( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context ) const = 0;
 };
 

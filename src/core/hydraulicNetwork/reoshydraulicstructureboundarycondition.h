@@ -119,7 +119,6 @@ class REOSCORE_EXPORT ReosHydraulicStructureBoundaryCondition : public ReosHydro
 
     void init();
     void syncHydrographName();
-    void loadHydrographResult( const ReosCalculationContext &calculationContext );
 };
 
 class ReosHydraulicStructureBoundaryConditionFactory : public ReosHydraulicNetworkElementFactory

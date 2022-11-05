@@ -19,8 +19,7 @@ ReosHecRasSimulationEditWidget::ReosHecRasSimulationEditWidget( ReosHecRasSimula
     for ( const QString &id : planIds )
       ui->mPlansComboBox->addItem( sim->project()->planTitle( id ), id );
 
-    const QString currentPlan = sim->project()->currentPlanId();
-    ui->mPlansComboBox->setCurrentIndex( ui->mPlansComboBox->findData( currentPlan ) );
+    ui->mPlansComboBox->setCurrentIndex( ui->mPlansComboBox->findData( simulation->currentPlan() ) );
   }
 
   connect( ui->mPlansComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosHecRasSimulationEditWidget::onPlanChanged );
@@ -38,6 +37,8 @@ void ReosHecRasSimulationEditWidget::onPlanChanged()
   const ReosHecRasPlan &plan = mSimulation->project()->plan( currentPlanId );
   const QString currentGeometryId = plan.geometryFile();
   const ReosHecRasGeometry &geometry = mSimulation->project()->geometry( currentGeometryId );
+
+  mSimulation->setCurrentPlan( currentPlanId );
 
   ui->mGeometryLabel->setText( geometry.title() );
   ui->mStartDateLabel->setText( QLocale().toString( plan.startTime().date() ) );
