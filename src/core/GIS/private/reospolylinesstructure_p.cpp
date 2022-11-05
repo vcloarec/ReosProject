@@ -263,8 +263,11 @@ void ReosPolylineStructureVectorLayer::buildGeometry( const ReosPolylinesStructu
 
   const QVector<QPointF> &vertices = data.vertices;
 
+  if ( vertices.count() < 2 )
+    return;
+
   //create boundary
-  QgsPointXY point0( data.vertices.at( 0 ) );
+  QgsPointXY point0( vertices.at( 0 ) );
   QgsPointXY point1( vertices.at( 1 ) );
   SegmentId sid = addSegmentToVectorLayer( point0, point1 );
   VertexS vert0 = createVertex( sid, 0 );

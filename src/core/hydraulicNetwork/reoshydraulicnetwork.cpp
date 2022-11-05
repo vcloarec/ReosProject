@@ -259,7 +259,7 @@ void ReosHydraulicNetwork::decode( const ReosEncodedElement &element, const QStr
 
   QList<ReosEncodedElement> encodedElements = element.getListEncodedData( QStringLiteral( "hydraulic-element" ) );
 
-  //here order of adding element is important (nodes before structures before links)
+  //here order of adding element is important (nodes before structures before links, links need taht nodes exists before)
 
   for ( const ReosEncodedElement &encodedElement : encodedElements )
   {
@@ -500,9 +500,7 @@ void ReosHydraulicNetwork::addEncodedElement( const ReosEncodedElement &element 
   if ( it == mElementFactories.end() )
     return;
 
-  ReosHydraulicNetworkElement *elem = it->second->decodeElement( element, context() );
-  if ( elem )
-    addElement( elem, false );
+  it->second->decodeElement( element, context() );
 }
 
 ReosWatershedModule *ReosHydraulicNetworkContext::watershedModule() const

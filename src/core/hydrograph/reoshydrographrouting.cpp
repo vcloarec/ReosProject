@@ -367,6 +367,7 @@ ReosHydrographRoutingLink *ReosHydrographRoutingLink::decode( const ReosEncodedE
     return nullptr;
 
   std::unique_ptr<ReosHydrographRoutingLink> ret( new ReosHydrographRoutingLink( source, destination, encodedElement, context.network() ) );
+  context.network()->addElement( ret.get() );
 
   return ret.release();
 }

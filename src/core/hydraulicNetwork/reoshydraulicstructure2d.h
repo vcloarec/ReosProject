@@ -48,7 +48,6 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
       GeometryEditable = 1 << 0, //!< If the structure have geometry editable (structure or mesh)
       MultiSimulation = 1 << 1, //!< If the structure can have multiple simulations
       DefinedExternally = 1 << 2, //!< If the structure is defined externally
-
     };
 
     Q_ENUM( Structure2DCapability )
@@ -62,7 +61,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Creates a structure from \a encodedElement and a \a context
     static ReosHydraulicStructure2D *create( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext  &context );
 
-    //! Creates a structure from \a structureImporter
+    //! Creates a structure from \a structureImporter, the imported structure will have the onership of the importer \a structureImporter
     static ReosHydraulicStructure2D *create( ReosStructureImporter *structureImporter, const ReosHydraulicNetworkContext &context );
 
     static QString staticType() {return ReosHydraulicNetworkElement::staticType() + QString( ':' ) + QStringLiteral( "structure2D" );}
@@ -268,6 +267,9 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Returns whether the structure supports the \a capability
     bool hasCapability( Structure2DCapability capability ) const;
 
+    //! Returns a pointer to the structure importer if exists, else return nullptr
+    ReosStructureImporter *structureImporter() const;
+
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) override;
 
@@ -293,16 +295,24 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     ReosHydraulicStructure2D( ReosStructureImporter *importer, const ReosHydraulicNetworkContext &context );
 
     Structure2DCapabilities mCapabilities;
-    ReosMeshGenerator *mMeshGenerator = nullptr;
+
+    // Base geometry attributes
     std::unique_ptr<ReosPolylinesStructure> mPolylinesStructures;
-    QSet<QString> mBoundaryConditions;
-    ReosMeshResolutionController *mMeshResolutionController = nullptr;
-    ReosTopographyCollection   *mTopographyCollection = nullptr;
     std::unique_ptr<ReosMesh> mMesh;
+    QSet<QString> mBoundaryConditions;
+
+    // Geometry editor helper existing when geometry is editable
+    ReosMeshGenerator *mMeshGenerator = nullptr;
+    ReosMeshResolutionController *mMeshResolutionController = nullptr;
+    ReosTopographyCollection    *mTopographyCollection = nullptr;
     std::unique_ptr<ReosRoughnessStructure > mRoughnessStructure;
+
     QVector<QVector<int>> mBoundaryVertices;
     QVector<QVector<QVector<int>>> mHolesVertices;
+
     bool mMeshNeedToBeGenerated = true;
+
+    std::unique_ptr<ReosStructureImporter> mStructureImporter;
 
     QList<ReosHydraulicSimulation *> mSimulations;
 
@@ -318,7 +328,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     Reos3DMapSettings m3dMapSettings;
     Reos3DTerrainSettings m3dTerrainSettings;
 
-    void init();
+    void initConnection();
     void generateMeshInPlace();
     QString directory() const;
     ReosHydraulicStructureBoundaryCondition *boundaryConditionNetWorkElement( const QString boundaryId ) const;
@@ -360,20 +370,63 @@ class REOSCORE_EXPORT ReosStructureImporter
 {
   public:
     ReosStructureImporter() = default;
-    ~ReosStructureImporter() = default;
+    virtual ~ReosStructureImporter() = default;
+
+    virtual QString importerKey() const = 0;
 
     virtual ReosHydraulicStructure2D::Structure2DCapabilities capabilities() const = 0;
+
     virtual QString crs() const = 0;
     virtual QPolygonF domain() const = 0;
-    virtual ReosMeshGenerator *meshGenerator() const = 0;
-    virtual ReosMeshResolutionController *resolutionController( ReosHydraulicStructure2D *structure ) const = 0;
     virtual ReosMesh *mesh( const QString &destinationCrs ) const = 0;
-    virtual ReosRoughnessStructure *roughnessStructure() const = 0;
 
     virtual QList<ReosHydraulicStructureBoundaryCondition *> createBoundaryConditions( ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const = 0;
     virtual QList<ReosHydraulicSimulation *> createSimulations( QObject *parent ) const = 0;
 
+    //! Updates the boundary condition, returns new ones.
+    virtual void updateBoundaryConditions(
+      QSet<QString> &currentBBoundaryId,
+      ReosHydraulicStructure2D *structure,
+      const ReosHydraulicNetworkContext &context ) const = 0;
+
     virtual bool isValid() const = 0;
+
+    virtual ReosEncodedElement encode( const ReosHydraulicNetworkContext &context ) const = 0;
+};
+
+
+/**
+ *  A dericed class tha tis used as a place holder when the engine registery does not have the related simulation factory.
+ *  An instance of this class contained only the original encoded dta that will be saved if project saving is requested
+ */
+class ReosStructureImporterDummy : public ReosStructureImporter
+{
+  public:
+    ReosStructureImporterDummy( const ReosEncodedElement &element )
+      : mElement( element )
+    {
+    }
+
+    virtual QString importerKey() const override {return QString();}
+
+    virtual ReosHydraulicStructure2D::Structure2DCapabilities capabilities() const override {return ReosHydraulicStructure2D::Structure2DCapabilities();}
+    virtual QString crs() const override {return QString();}
+    virtual QPolygonF domain() const  override {return QPolygonF();}
+    virtual ReosMesh *mesh( const QString & ) const override {return nullptr;}
+
+    virtual QList<ReosHydraulicStructureBoundaryCondition *> createBoundaryConditions( ReosHydraulicStructure2D *, const ReosHydraulicNetworkContext & ) const override
+    {return QList<ReosHydraulicStructureBoundaryCondition *>();}
+
+    virtual QList<ReosHydraulicSimulation *> createSimulations( QObject * ) const override {return QList<ReosHydraulicSimulation *>();}
+
+    virtual void updateBoundaryConditions( QSet<QString> &, ReosHydraulicStructure2D *, const ReosHydraulicNetworkContext & ) const override {};
+
+    virtual bool isValid() const override {return false;}
+
+    virtual ReosEncodedElement encode( const ReosHydraulicNetworkContext & ) const override {return mElement;}
+
+  private:
+    ReosEncodedElement mElement;
 };
 
 

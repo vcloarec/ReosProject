@@ -60,6 +60,11 @@ ReosHecRasGeometry ReosHecRasProject::geometry( const QString &id ) const
   return mGeometries.value( id );
 }
 
+QString ReosHecRasProject::currentGeometryFileName() const
+{
+  return currentGeometry().fileName();
+}
+
 ReosHecRasGeometry ReosHecRasProject::currentGeometry() const
 {
   const ReosHecRasPlan &currentPlan = mPlans.value( mCurrentPlan );
@@ -160,6 +165,11 @@ QList<ReosHecRasGeometry::BoundaryCondition> ReosHecRasGeometry::allBoundariesCo
     ret.append( boundariesConditions( area.name ) );
 
   return ret;
+}
+
+QString ReosHecRasGeometry::fileName() const
+{
+  return mFileName;
 }
 
 void ReosHecRasGeometry::parseGeometryFile()
@@ -507,6 +517,11 @@ QString ReosHecRasProject::dateToHecRasDate( const QDate &date )
   QString year = QString::number( date.year() );
 
   return day + monthStr + year;
+}
+
+const QString &ReosHecRasProject::fileName() const
+{
+  return mFileName;
 }
 
 ReosHecRasFlow::ReosHecRasFlow( const QString &fileName )

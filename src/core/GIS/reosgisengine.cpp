@@ -133,7 +133,7 @@ void ReosGisEngine::initGisEngine()
     }
   }
 
-  //! init the QGIS net work manager to access remote GIS data
+  //! init the QGIS network manager to access remote GIS data
   QgsApplication::authManager()->init( qgisProviderPath, QgsApplication::qgisAuthDatabaseFilePath() );
   QgsAuthMethodRegistry::instance( qgisProviderPath );
   QgsNetworkAccessManager::instance();

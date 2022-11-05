@@ -31,41 +31,77 @@
 ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, const ReosHydraulicNetworkContext &context )
   : ReosHydraulicNetworkElement( context.network() )
   , mCapabilities( GeometryEditable | MultiSimulation )
-  , mMeshGenerator( new ReosGmshGenerator( this ) )
   , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( domain, crs ) )
+  , mMesh( ReosMesh::createMeshFrame( crs ) )
+  , mMeshGenerator( new ReosGmshGenerator( this ) )
   , mMeshResolutionController( new ReosMeshResolutionController( this, crs ) )
   , mTopographyCollection( ReosTopographyCollection::createTopographyCollection( context.network()->gisEngine(), this ) )
-  , mMesh( ReosMesh::createMeshFrame( crs ) )
   , mRoughnessStructure( new ReosRoughnessStructure( crs ) )
   , mProfilesCollection( new ReosHydraulicStructureProfilesCollection( this ) )
 {
-  init();
+  initConnection();
 }
 
 ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   const ReosEncodedElement &encodedElement,
   const ReosHydraulicNetworkContext &context )
   : ReosHydraulicNetworkElement( encodedElement, context.network() )
-  , mMeshGenerator( ReosMeshGenerator::createMeshGenerator( encodedElement.getEncodedData( QStringLiteral( "mesh-generator" ) ), this ) )
-  , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( encodedElement.getEncodedData( QStringLiteral( "structure" ) ) ) )
-  , mTopographyCollection( ReosTopographyCollection::createTopographyCollection( encodedElement.getEncodedData( QStringLiteral( "topography-collection" ) ), context.network()->gisEngine(), this ) )
-  , mRoughnessStructure( new ReosRoughnessStructure( encodedElement.getEncodedData( QStringLiteral( "roughness-structure" ) ) ) )
   , mProfilesCollection( new ReosHydraulicStructureProfilesCollection( this ) )
   , m3dMapSettings( encodedElement.getEncodedData( "3d-map-setings" ) )
 {
-  if ( encodedElement.hasEncodedData( QStringLiteral( "capabilities" ) ) )
+  // Before all, load cababilities
+  if ( !encodedElement.getData( QStringLiteral( "capabilities" ), mCapabilities ) )
+    mCapabilities = Structure2DCapabilities( GeometryEditable | MultiSimulation ) ;
+
+  // Load base geometry (structure line  + mesh)
+  if ( hasCapability( DefinedExternally ) )
   {
-    if ( !encodedElement.getData( QStringLiteral( "capabilities" ), mCapabilities ) )
-      mCapabilities = Structure2DCapabilities( GeometryEditable | MultiSimulation ) ;
+    if ( encodedElement.hasEncodedData( QStringLiteral( "structure-importer" ) ) )
+    {
+      mStructureImporter.reset(
+        ReosSimulationEngineRegistery::instance()->createStructureImporter(
+          encodedElement.getEncodedData( QStringLiteral( "structure-importer" ) ), mNetwork->context() ) );
+    }
+
+    if ( mStructureImporter && mStructureImporter->isValid() )
+    {
+      mPolylinesStructures = ReosPolylinesStructure::createPolylineStructure( mStructureImporter->domain(), mStructureImporter->crs() );
+      mMesh.reset( mStructureImporter->mesh( context.network()->gisEngine()->crs() ) );
+    }
+    else
+    {
+      mPolylinesStructures = ReosPolylinesStructure::createPolylineStructure( QString() );
+      mMesh.reset( ReosMesh::createMeshFrame() );
+    }
   }
+  else
+  {
+    if ( encodedElement.hasEncodedData( QStringLiteral( "structure" ) ) )
+      mPolylinesStructures = ReosPolylinesStructure::createPolylineStructure( encodedElement.getEncodedData( QStringLiteral( "structure" ) ) );
+    mMesh.reset( ReosMesh::createMeshFrameFromFile( structureDirectory().path() + QStringLiteral( "/meshFrame.nc" ), context.crs() ) );
+  }
+
+  // Load geomttry editing helper if exists
+  if ( encodedElement.hasEncodedData( QStringLiteral( "mesh-generator" ) ) )
+    mMeshGenerator = ReosMeshGenerator::createMeshGenerator( encodedElement.getEncodedData( QStringLiteral( "mesh-generator" ) ), this );
+  else if ( hasCapability( GeometryEditable ) )
+    mMeshGenerator = new ReosGmshGenerator( this );
+
+  if ( encodedElement.hasEncodedData( QStringLiteral( "topography-collection" ) ) )
+    mTopographyCollection = ReosTopographyCollection::createTopographyCollection( encodedElement.getEncodedData( QStringLiteral( "topography-collection" ) ),
+                            context.network()->gisEngine(), this );
+  else if ( hasCapability( GeometryEditable ) )
+    mTopographyCollection = ReosTopographyCollection::createTopographyCollection( context.network()->gisEngine(), this );
+
+  if ( encodedElement.hasEncodedData( QStringLiteral( "roughness-structure" ) ) )
+    mRoughnessStructure.reset( new ReosRoughnessStructure( encodedElement.getEncodedData( QStringLiteral( "roughness-structure" ) ) ) );
 
   if ( encodedElement.hasEncodedData( QStringLiteral( "mesh-resolution-controller" ) ) )
     mMeshResolutionController = new ReosMeshResolutionController( encodedElement.getEncodedData( QStringLiteral( "mesh-resolution-controller" ) ), this );
-  else
+  else if ( hasCapability( GeometryEditable ) )
     mMeshResolutionController = new ReosMeshResolutionController( this );
 
-  mMesh.reset( ReosMesh::createMeshFrameFromFile( structureDirectory().path() + QStringLiteral( "/meshFrame.nc" ), context.crs() ) );
-  init();
+  initConnection();
 
   mMesh->setQualityMeshParameter( encodedElement.getEncodedData( QStringLiteral( "mesh-quality-parameters" ) ) );
 
@@ -74,9 +110,17 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   mMesh->setBoundariesVertices( mBoundaryVertices );
   mMesh->setHolesVertices( mHolesVertices );
 
-  // if the boundary condition have associated elements in the network, attache it, if not creates them
+  // if the boundary conditions have associated elements in the network, attache it, if not creates them
   if ( encodedElement.hasEncodedData( QStringLiteral( "boundary-condition-ids" ) ) )
+  {
     encodedElement.getData( QStringLiteral( "boundary-condition-ids" ), mBoundaryConditions );
+    if ( hasCapability( DefinedExternally ) && mStructureImporter )
+    {
+      // If the structure is defined externally (importation), some boundary could not be here anymore,
+      // and some new could be appeared, we need to remove the ones not here anymore and add the new ones
+      mStructureImporter->updateBoundaryConditions( mBoundaryConditions, this, mNetwork->context() );
+    }
+  }
   else
   {
     const QStringList boundaryIdList = mPolylinesStructures->classes();
@@ -122,7 +166,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   mMesh->activateVectorDataset( currentActivatedVectorMeshDataset, true );
 
   if ( !encodedElement.getData( QStringLiteral( "mesh-need-to-be-generated" ), mMeshNeedToBeGenerated ) )
-    mMeshNeedToBeGenerated = true;
+    mMeshNeedToBeGenerated = hasCapability( ReosHydraulicStructure2D::GeometryEditable );;
 
   mProfilesCollection->decode( encodedElement.getEncodedData( "profiles-collection" ), this );
 }
@@ -130,16 +174,12 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
 ReosHydraulicStructure2D::ReosHydraulicStructure2D( ReosStructureImporter *importer, const ReosHydraulicNetworkContext &context )
   : ReosHydraulicNetworkElement( context.network() )
   , mCapabilities( importer->capabilities() )
-  , mMeshGenerator( importer->meshGenerator() )
   , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( importer->domain(), importer->crs() ) )
-  , mMeshResolutionController( importer->resolutionController( this ) )
-  , mTopographyCollection( ReosTopographyCollection::createTopographyCollection( context.network()->gisEngine(), this ) )
   , mMesh( importer->mesh( context.network()->gisEngine()->crs() ) )
-  , mRoughnessStructure( importer->roughnessStructure() )
-  , mImporterKey( importer->importerKey() )
+  , mStructureImporter( importer )
   , mProfilesCollection( new ReosHydraulicStructureProfilesCollection( this ) )
 {
-  init();
+  initConnection();
 
   const QList<ReosHydraulicStructureBoundaryCondition *> bcs = importer->createBoundaryConditions( this, mNetwork->context() );
   for ( ReosHydraulicStructureBoundaryCondition *bc : bcs )
@@ -147,6 +187,8 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( ReosStructureImporter *impor
 
   mSimulations.append( importer->createSimulations( this ) );
   mCurrentSimulationIndex = mSimulations.isEmpty() ? -1 : 0;
+
+  mMeshNeedToBeGenerated = hasCapability( ReosHydraulicStructure2D::GeometryEditable );
 }
 
 ReosHydraulicStructureProfilesCollection *ReosHydraulicStructure2D::profilesCollection() const
@@ -192,6 +234,11 @@ int ReosHydraulicStructure2D::profileIndex( ReosHydraulicStructureProfile *profi
 bool ReosHydraulicStructure2D::hasCapability( Structure2DCapability capability ) const
 {
   return mCapabilities.testFlag( capability );
+}
+
+ReosStructureImporter *ReosHydraulicStructure2D::structureImporter() const
+{
+  return mStructureImporter.get();
 }
 
 void ReosHydraulicStructure2D::exportResultAsMesh( const QString &fileName ) const
@@ -293,10 +340,15 @@ QString ReosHydraulicStructure2D::currentDatasetName() const
 
 void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const
 {
-  element.addEncodedData( QStringLiteral( "structure" ), mPolylinesStructures->encode() );
-  element.addEncodedData( QStringLiteral( "mesh-generator" ), mMeshGenerator->encode() );
-  element.addEncodedData( QStringLiteral( "mesh-resolution-controller" ), mMeshResolutionController->encode() );
-  element.addEncodedData( QStringLiteral( "topography-collection" ), mTopographyCollection->encode() );
+  if ( mPolylinesStructures && !hasCapability( DefinedExternally ) )
+    element.addEncodedData( QStringLiteral( "structure" ), mPolylinesStructures->encode() );
+
+  if ( mMeshGenerator )
+    element.addEncodedData( QStringLiteral( "mesh-generator" ), mMeshGenerator->encode() );
+  if ( mMeshResolutionController )
+    element.addEncodedData( QStringLiteral( "mesh-resolution-controller" ), mMeshResolutionController->encode() );
+  if ( mTopographyCollection )
+    element.addEncodedData( QStringLiteral( "topography-collection" ), mTopographyCollection->encode() );
 
   QDir dir( context.projectPath() );
   QString hydDir = context.projectName() + QStringLiteral( "-hydr-struct" );
@@ -308,10 +360,14 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
   if ( !hasCapability( DefinedExternally ) )
     mMesh->save( dir.path() );
 
-  element.addData( QStringLiteral( "boundaries-vertices" ), mBoundaryVertices );
-  element.addData( QStringLiteral( "hole-vertices" ), mHolesVertices );
-  element.addEncodedData( QStringLiteral( "mesh-quality-parameters" ), mMesh->qualityMeshParameters().encode() );
-  element.addEncodedData( QStringLiteral( "roughness-structure" ), mRoughnessStructure->encode() );
+  if ( hasCapability( GeometryEditable ) )
+  {
+    element.addData( QStringLiteral( "boundaries-vertices" ), mBoundaryVertices );
+    element.addData( QStringLiteral( "hole-vertices" ), mHolesVertices );
+    element.addEncodedData( QStringLiteral( "mesh-quality-parameters" ), mMesh->qualityMeshParameters().encode() );
+    if ( mRoughnessStructure )
+      element.addEncodedData( QStringLiteral( "roughness-structure" ), mRoughnessStructure->encode() );
+  }
 
   QList<ReosEncodedElement> encodedSimulations;
   for ( ReosHydraulicSimulation *sim : mSimulations )
@@ -336,6 +392,13 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
   element.addEncodedData( QStringLiteral( "profiles-collection" ), mProfilesCollection->encode() );
 
   element.addData( QStringLiteral( "boundary-condition-ids" ), mBoundaryConditions );
+
+  element.addData( QStringLiteral( "capabilities" ), mCapabilities );
+
+  if ( mStructureImporter )
+  {
+    element.addEncodedData( QStringLiteral( "structure-importer" ), mStructureImporter->encode( mNetwork->context() ) );
+  }
 }
 
 ReosRoughnessStructure *ReosHydraulicStructure2D::roughnessStructure() const
@@ -350,12 +413,11 @@ QDir ReosHydraulicStructure2D::structureDirectory() const
 
 QList<ReosHydraulicStructureBoundaryCondition *> ReosHydraulicStructure2D::boundaryConditions() const
 {
-  QList<ReosHydraulicStructureBoundaryCondition *> ret;
-  const QStringList boundaryIdList = mPolylinesStructures->classes();
-  for ( const QString &bcId : boundaryIdList )
-    ret.append( boundaryConditionNetWorkElement( bcId ) );
+  QMap<QString, ReosHydraulicStructureBoundaryCondition *> ret;
+  for ( const QString &bcId : mBoundaryConditions )
+    ret.insert( bcId, boundaryConditionNetWorkElement( bcId ) );
 
-  return ret;
+  return ret.values();
 }
 
 ReosHydraulicSimulation *ReosHydraulicStructure2D::currentSimulation() const
@@ -797,7 +859,7 @@ ReosHydraulicSimulationResults *ReosHydraulicStructure2D::results( ReosHydraulic
   return mSimulationResults.value( scheme->id() );
 }
 
-void ReosHydraulicStructure2D::init()
+void ReosHydraulicStructure2D::initConnection()
 {
   if ( mMesh )
   {
@@ -805,10 +867,9 @@ void ReosHydraulicStructure2D::init()
     mMesh->setVerticaleSCale( m3dMapSettings.verticalExaggeration() );
   }
 
-
   connect( mPolylinesStructures.get(), &ReosDataObject::dataChanged, this, [this]
   {
-    mMeshNeedToBeGenerated = true;
+    mMeshNeedToBeGenerated = hasCapability( ReosHydraulicStructure2D::GeometryEditable );
     if ( mMeshGenerator && mMeshGenerator->autoUpdateParameter()->value() )
       generateMeshInPlace();
   } );
@@ -820,7 +881,7 @@ void ReosHydraulicStructure2D::init()
   {
     connect( mMeshResolutionController, &ReosDataObject::dataChanged, this, [this]
     {
-      mMeshNeedToBeGenerated = true;
+      mMeshNeedToBeGenerated = hasCapability( ReosHydraulicStructure2D::GeometryEditable );
       if ( mMeshGenerator && mMeshGenerator->autoUpdateParameter()->value() )
         generateMeshInPlace();
     } );
@@ -835,7 +896,7 @@ void ReosHydraulicStructure2D::init()
     } );
   }
 
-  if ( mMesh )
+  if ( mMesh && mTopographyCollection )
   {
     connect( this, &ReosHydraulicStructure2D::meshGenerated, mTopographyCollection, [this]
     {
@@ -1099,16 +1160,24 @@ ReosHydraulicStructure2D *ReosHydraulicStructure2D::create( const ReosEncodedEle
   if ( encodedElement.description() != ReosHydraulicStructure2D::staticType() )
     return nullptr;
 
-  return new ReosHydraulicStructure2D( encodedElement, context );
+  std::unique_ptr<ReosHydraulicStructure2D> elem( new ReosHydraulicStructure2D( encodedElement, context ) );
+  context.network()->addElement( elem.get(), false );
+
+  return elem.release();
 
 }
 
 ReosHydraulicStructure2D *ReosHydraulicStructure2D::create( ReosStructureImporter *structureImporter, const ReosHydraulicNetworkContext &context )
 {
-  if ( !structureImporter && !structureImporter->isValid() )
+  if ( !structureImporter || !structureImporter->isValid() )
+  {
+    delete structureImporter;
     return nullptr;
+  }
 
-  return new ReosHydraulicStructure2D( structureImporter, context );
+  std::unique_ptr<ReosHydraulicStructure2D> elem( new ReosHydraulicStructure2D( structureImporter, context ) );
+  context.network()->addElement( elem.get(), true );
+  return elem.release();
 }
 
 void ReosHydraulicStructure2D::saveConfiguration( ReosHydraulicScheme *scheme ) const

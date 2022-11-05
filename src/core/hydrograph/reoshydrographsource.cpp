@@ -283,7 +283,7 @@ ReosHydrographJunction *ReosHydrographJunction::decode( const ReosEncodedElement
     return nullptr;
 
   std::unique_ptr<ReosHydrographJunction> ret( new ReosHydrographJunction( encodedElement, context.network() ) );
-
+  context.network()->addElement( ret.get() );
   return ret.release();
 }
 
@@ -706,6 +706,7 @@ ReosHydrographNodeWatershed *ReosHydrographNodeWatershed::decode( const ReosEnco
     return nullptr;
 
   std::unique_ptr<ReosHydrographNodeWatershed> ret( new ReosHydrographNodeWatershed( encodedElement, watershed, context.watershedModule()->meteoModelsCollection(), context.network() ) );
+  context.network()->addElement( ret.get() );
 
   return ret.release();
 }

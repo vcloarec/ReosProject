@@ -16,9 +16,8 @@ email                : vcloarec at gmail dot com
 #include <QObject>
 #include <filesystem>
 
-#ifdef _WIN32
+
 #include "reoshecrascontroller.h"
-#endif
 
 #include "reosgisengine.h"
 #include "reoswatershedmodule.h"
@@ -73,7 +72,7 @@ class ReosHecrasTesting : public QObject
 #ifdef _MSC_VER
     void availableVersion();
     void createControllerInstance();
-    void getControllerPLans();
+    void getControllerPlans();
 #endif
 
     void createDssFile();
@@ -117,36 +116,36 @@ void ReosHecrasTesting::cleanupTestCase()
 
 void ReosHecrasTesting::availableVersion()
 {
-  QStringList versions = ReosHecrasController::availableVersion();
+  QStringList versions = ReosHecRasController::availableVersion();
   QVERIFY( !versions.isEmpty() );
 }
 void ReosHecrasTesting::createControllerInstance()
 {
-  QStringList versions = ReosHecrasController::availableVersion();
-  ReosHecrasController controller( versions.last() );
+  QStringList versions = ReosHecRasController::availableVersion();
+  ReosHecRasController controller( versions.last() );
 
   QVERIFY( controller.isValid() );
 }
-void ReosHecrasTesting::getControllerPLans()
+void ReosHecrasTesting::getControllerPlans()
 {
-    QStringList versions = ReosHecrasController::availableVersion();
-    ReosHecrasController controller(versions.last());
+  QStringList versions = ReosHecRasController::availableVersion();
+  ReosHecRasController controller( versions.last() );
 
-    QVERIFY(controller.isValid());
+  QVERIFY( controller.isValid() );
 
-    QString path(mPathToSimpleToRun + QStringLiteral("/simple.prj"));
-    QVERIFY(controller.openHecrasProject(path));
+  QString path( mPathToSimpleToRun + QStringLiteral( "/simple.prj" ) );
+  QVERIFY( controller.openHecrasProject( path ) );
 
-    QStringList plans = controller.planNames();
+  QStringList plans = controller.planNames();
 
-    QCOMPARE(plans.count(), 2);
-    QCOMPARE(plans.at(0), QStringLiteral("plan_test"));
-    QCOMPARE(plans.at(1), QStringLiteral("plan_test_2"));
+  QCOMPARE( plans.count(), 2 );
+  QCOMPARE( plans.at( 0 ), QStringLiteral( "plan_test" ) );
+  QCOMPARE( plans.at( 1 ), QStringLiteral( "plan_test_2" ) );
 
-    QVERIFY(controller.setCurrentPlan(plans.at(1)));
-    QVERIFY(controller.setCurrentPlan(plans.at(0)));
+  QVERIFY( controller.setCurrentPlan( plans.at( 1 ) ) );
+  QVERIFY( controller.setCurrentPlan( plans.at( 0 ) ) );
 
-    QVERIFY(!controller.computeCurrentPlan().isEmpty());
+  QVERIFY( !controller.computeCurrentPlan().isEmpty() );
 }
 #endif
 
@@ -254,13 +253,12 @@ void ReosHecrasTesting::exploreProject()
 
 void ReosHecrasTesting::importStructure()
 {
-  QString path( mPathToSimpleToRun + QStringLiteral( "/simple.prj" ) );
-
-  ReosHecRasStructureImporter importer( path );
-
   ReosModule rootModule;
   ReosGisEngine *gisEngine = new ReosGisEngine( &rootModule );
   ReosWatershedModule *watershedModule = new ReosWatershedModule( &rootModule, gisEngine );
+
+  QString path( mPathToSimpleToRun + QStringLiteral( "/simple.prj" ) );
+
   ReosHydraulicNetwork *network = new ReosHydraulicNetwork( &rootModule, gisEngine, watershedModule );
   network->setCurrentScheme( 0 );
   ReosHydraulicScheme *scheme = network->currentScheme();
@@ -268,16 +266,22 @@ void ReosHecrasTesting::importStructure()
   scheme->startTime()->setValue( QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ) );
   scheme->endTime()->setValue( QDateTime( QDate( 2000, 01, 01 ), QTime( 12, 0, 0 ), Qt::UTC ) );
 
-  ReosHydraulicStructure2D *structure = ReosHydraulicStructure2D::create( &importer, network->context() );
+  std::unique_ptr<ReosHecRasStructureImporter> importer( new ReosHecRasStructureImporter( path ) );
+  ReosHydraulicStructure2D *structure = ReosHydraulicStructure2D::create( importer.release(), network->context() );
   QVERIFY( structure != nullptr );
   QVERIFY( structure->domain().count() > 0 );
+  QVERIFY( structure->structureImporter() );
+  QVERIFY( structure->structureImporter()->isValid() );
+
+  QVERIFY( structure->mesh() );
+  QCOMPARE( structure->mesh()->vertexCount(), 1900 );
 
   QList<ReosHydraulicStructureBoundaryCondition *> boundaryConditions = structure->boundaryConditions();
   QCOMPARE( boundaryConditions.count(), 2 );
   QCOMPARE( boundaryConditions.at( 1 )->boundaryConditionId(), QStringLiteral( "Perimeter 1-Upstream limit" ) );
   QVERIFY( boundaryConditions.at( 1 )->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally );
   QCOMPARE( boundaryConditions.at( 0 )->boundaryConditionId(), QStringLiteral( "Perimeter 1-Downstream limit" ) );
-  QVERIFY( boundaryConditions.at( 1 )->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally );
+  QVERIFY( boundaryConditions.at( 0 )->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally );
 
   ReosHydraulicStructureBoundaryCondition *upstreamBc = boundaryConditions.at( 1 );
   upstreamBc->setDefaultConditionType( ReosHydraulicStructureBoundaryCondition::Type::InputFlow );
@@ -324,23 +328,47 @@ void ReosHecrasTesting::importStructure()
   QCOMPARE( flowAfterPreparation.boundary( 0 ).dssFile, mPathToSimpleToRun + QStringLiteral( "/input_p01.dss" ) );
   QCOMPARE( flowAfterPreparation.boundary( 0 ).dssPath, QStringLiteral( "/Perimeter 1/Upstream limit/Flow//1Minute/INST-VAL/" ) );
 
-  QStringList versions = ReosHecrasController::availableVersion();
-  ReosHecrasController controller(versions.last());
+  QStringList versions = ReosHecRasController::availableVersion();
+  if ( !versions.isEmpty() )
+  {
+    ReosHecRasController controller( versions.last() );
 
-  QVERIFY(controller.isValid());
+    QVERIFY( controller.isValid() );
 
-  QVERIFY(controller.openHecrasProject(path));
+    QVERIFY( controller.openHecrasProject( path ) );
 
-  QStringList plans = controller.planNames();
+    QStringList plans = controller.planNames();
 
-  QCOMPARE(plans.count(), 2);
-  QCOMPARE(plans.at(0), QStringLiteral("plan_test"));
-  QCOMPARE(plans.at(1), QStringLiteral("plan_test_2"));
+    QCOMPARE( plans.count(), 2 );
+    QCOMPARE( plans.at( 0 ), QStringLiteral( "plan_test" ) );
+    QCOMPARE( plans.at( 1 ), QStringLiteral( "plan_test_2" ) );
 
-  QVERIFY(controller.setCurrentPlan(plans.at(1)));
-  QVERIFY(controller.setCurrentPlan(plans.at(0)));
+    QVERIFY( controller.setCurrentPlan( plans.at( 1 ) ) );
+    QVERIFY( controller.setCurrentPlan( plans.at( 0 ) ) );
 
-  QVERIFY(!controller.computeCurrentPlan().isEmpty());
+    QVERIFY( !controller.computeCurrentPlan().isEmpty() );
+  }
+
+  ReosEncodedElement encodedNetwork = network->encode( QFileInfo( path ).dir().path(), "project.lkn" );
+
+  network->clear();
+  network->decode( encodedNetwork, QFileInfo( path ).dir().path(), "project.lkn" );
+
+  structure = qobject_cast<ReosHydraulicStructure2D *>( network->getElements( ReosHydraulicStructure2D::staticType() ).at( 0 ) );
+  QVERIFY( structure );
+  QVERIFY( structure->boundaryConditions().count() == 2 );
+  QVERIFY( structure->structureImporter() );
+  QVERIFY( structure->structureImporter()->isValid() );
+
+  boundaryConditions = structure->boundaryConditions();
+  QCOMPARE( boundaryConditions.count(), 2 );
+  QCOMPARE( boundaryConditions.at( 1 )->boundaryConditionId(), QStringLiteral( "Perimeter 1-Upstream limit" ) );
+  QVERIFY( boundaryConditions.at( 1 )->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::InputFlow );
+  QCOMPARE( boundaryConditions.at( 0 )->boundaryConditionId(), QStringLiteral( "Perimeter 1-Downstream limit" ) );
+  QVERIFY( boundaryConditions.at( 0 )->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally );
+
+  QVERIFY( structure->mesh() );
+  QCOMPARE( structure->mesh()->vertexCount(), 1900 );
 }
 
 void ReosHecrasTesting::changeBoundaryCondition()

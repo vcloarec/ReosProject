@@ -136,6 +136,19 @@ bool ReosSimulationEngineRegistery::canImportSrtucture2D() const
   return false;
 }
 
+ReosStructureImporter *ReosSimulationEngineRegistery::createStructureImporter( const ReosEncodedElement &element, const ReosHydraulicNetworkContext &context )
+{
+  QString key;
+  if ( !element.getData( QStringLiteral( "engine-key" ), key ) )
+    return nullptr;
+
+  auto it = mFactories.find( key );
+  if ( it != mFactories.end() )
+    return it->second->createImporter( element, context );
+
+  return new ReosStructureImporterDummy( element );
+}
+
 void ReosSimulationEngineRegistery::loadDynamicLibrary()
 {
   QString enginesPath = QCoreApplication::applicationDirPath();

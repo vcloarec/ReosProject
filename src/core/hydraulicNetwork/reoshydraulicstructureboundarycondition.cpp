@@ -53,6 +53,7 @@ ReosHydraulicStructureBoundaryCondition::ReosHydraulicStructureBoundaryCondition
   init();
   encodedElement.getData( QStringLiteral( "boundary-condition-id" ), mBoundaryConditionId );
   mWaterLevelSeriesGroup->decode( encodedElement.getEncodedData( QStringLiteral( "water-level-series" ) ), mContext.encodeContext() );
+  encodedElement.getData( QStringLiteral( "position-on-structure" ), mPositionOnStructure );
 }
 
 
@@ -81,21 +82,19 @@ void ReosHydraulicStructureBoundaryCondition::syncHydrographName()
   mOutputHydrograph->setName( outputPrefixName() + QStringLiteral( " %1" ).arg( elementName()->value() ) );
 }
 
-void ReosHydraulicStructureBoundaryCondition::loadHydrographResult( const ReosCalculationContext &calculationContext )
-{
-  mOutputHydrograph->clear();
-}
-
 void ReosHydraulicStructureBoundaryCondition::encodeData( ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context ) const
 {
   encodedElement.addData( QStringLiteral( "boundary-condition-id" ), mBoundaryConditionId );
   encodedElement.addEncodedData( QStringLiteral( "water-level-series" ), mWaterLevelSeriesGroup->encode( context.encodeContext() ) );
+  encodedElement.addData( QStringLiteral( "position-on-structure" ), mPositionOnStructure );
   ReosHydrographJunction::encodeData( encodedElement, context );
 }
 
 ReosHydraulicStructureBoundaryCondition *ReosHydraulicStructureBoundaryCondition::decode( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context )
 {
-  return new ReosHydraulicStructureBoundaryCondition( encodedElement, context.network() );
+  std::unique_ptr<ReosHydraulicStructureBoundaryCondition> elem( new ReosHydraulicStructureBoundaryCondition( encodedElement, context.network() ) );
+  context.network()->addElement( elem.get(), false );
+  return elem.release();
 }
 
 QPointF ReosHydraulicStructureBoundaryCondition::position( const QString &destinationCrs ) const
@@ -111,11 +110,14 @@ QPointF ReosHydraulicStructureBoundaryCondition::position( const QString &destin
 
 ReosSpatialPosition ReosHydraulicStructureBoundaryCondition::spatialPosition() const
 {
-  if ( !mStructure.isNull() )
-    return ReosSpatialPosition( mStructure->geometryStructure()->boundaryConditionCenter( mBoundaryConditionId, QString() ),
-                                mStructure->geometryStructure()->crs() );
+  if ( mPositionOnStructure )
+  {
+    if ( !mStructure.isNull() )
+      return ReosSpatialPosition( mStructure->geometryStructure()->boundaryConditionCenter( mBoundaryConditionId, QString() ),
+                                  mStructure->geometryStructure()->crs() );
+  }
 
-  return QPointF();
+  return ReosHydrographJunction::spatialPosition();
 }
 
 bool ReosHydraulicStructureBoundaryCondition::isAutoSelectable() const
@@ -232,11 +234,14 @@ QString ReosHydraulicStructureBoundaryCondition::boundaryConditionId() const
 void ReosHydraulicStructureBoundaryCondition::attachStructure( ReosHydraulicStructure2D *structure )
 {
   mStructure = structure;
-  connect( mStructure->geometryStructure(), &ReosPolylinesStructure::classesChanged, this, &ReosHydraulicStructureBoundaryCondition::onBoundaryClassesChange );
-  connect( mStructure->geometryStructure(), &ReosPolylinesStructure::geometryChanged, this, &ReosHydraulicNetworkElement::positionChanged );
-  elementName()->blockSignals( true );
-  elementName()->setValue( mStructure->geometryStructure()->value( mBoundaryConditionId ).toString() );
-  elementName()->blockSignals( false );
+  if ( !structure->hasCapability( ReosHydraulicStructure2D::DefinedExternally ) )
+  {
+    connect( mStructure->geometryStructure(), &ReosPolylinesStructure::classesChanged, this, &ReosHydraulicStructureBoundaryCondition::onBoundaryClassesChange );
+    connect( mStructure->geometryStructure(), &ReosPolylinesStructure::geometryChanged, this, &ReosHydraulicNetworkElement::positionChanged );
+    elementName()->blockSignals( true );
+    elementName()->setValue( mStructure->geometryStructure()->value( mBoundaryConditionId ).toString() );
+    elementName()->blockSignals( false );
+  }
 }
 
 ReosHydraulicStructureBoundaryCondition::Type ReosHydraulicStructureBoundaryCondition::conditionType() const

@@ -46,6 +46,8 @@ class ReosHecRasGeometry
     QList<BoundaryCondition> boundariesConditions( const QString &area2dName ) const;
     QList<BoundaryCondition> allBoundariesConditions() const;
 
+    QString fileName() const;
+
   private:
     QString mFileName;
     QString mTitle;
@@ -162,6 +164,7 @@ class ReosHecRasProject
 
     QStringList geometryIds() const;
     ReosHecRasGeometry geometry( const QString &id ) const;
+    QString currentGeometryFileName() const;
     ReosHecRasGeometry currentGeometry() const;
 
     QStringList flowIds() const;
@@ -172,6 +175,8 @@ class ReosHecRasProject
 
     static QDate hecRasDateToDate( const QString &hecrasDate );
     static QString dateToHecRasDate( const QDate &date );
+
+    const QString &fileName() const;
 
   private:
     QString mFileName;

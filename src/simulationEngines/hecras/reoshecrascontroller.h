@@ -25,12 +25,12 @@
 #include <QPolygon>
 #include <QMap>
 
-class ReosHecrasController
+class ReosHecRasController
 {
   public:
     //! Constructor with \a version of HecRas, \see availableVersion()
-    ReosHecrasController( const QString &version );
-    ~ReosHecrasController();
+    ReosHecRasController( const QString &version );
+    ~ReosHecRasController();
 
     //! Returns available version of HecRas controller
     static QStringList availableVersion();
