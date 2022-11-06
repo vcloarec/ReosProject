@@ -204,6 +204,7 @@ ReosHecRasController::~ReosHecRasController()
 #ifdef _WIN32
   if ( mDispatch )
   {
+    hideComputationWindow();
     exitRas();
     mDispatch->Release();
   }

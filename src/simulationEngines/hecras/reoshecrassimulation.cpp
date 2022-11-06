@@ -533,9 +533,12 @@ void ReosHecRasSimulationProcess::start()
   controller->showComputationWindow();
 
   const QStringList returnedMessages = controller->computeCurrentPlan();
+  emit sendInformation("kjhskfhjkqsgfjhqsdfjqsdjkfgqsdjkgfjgsd");
 
   for (const QString& mes : returnedMessages)
   {
       emit sendInformation(mes);
   }
+
+  mIsSuccessful= !returnedMessages.isEmpty() && returnedMessages.last() == QStringLiteral("Computations Completed");
 }
