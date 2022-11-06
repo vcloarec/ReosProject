@@ -21,6 +21,7 @@
 #include "reosdssutils.h"
 #include "reoshecrascontroller.h"
 #include "reoshydraulicscheme.h"
+#include "reossettings.h"
 
 #include <QFileInfo>
 
@@ -359,12 +360,12 @@ void ReosHecRasSimulation::setCurrentPlan( const QString &planId )
 
 ReosHecRasProject *ReosHecRasSimulation::project() const
 {
-    return mProject.get();
+  return mProject.get();
 }
 
 const QString &ReosHecRasSimulation::currentPlan() const
 {
-    return mCurrentPlan;
+  return mCurrentPlan;
 }
 
 void ReosHecRasSimulation::transformVariableTimeStepToConstant( ReosTimeSerieVariableTimeStep *variable, ReosTimeSerieConstantInterval *constant ) const
@@ -464,6 +465,17 @@ ReosHecRasSimulationProcess::ReosHecRasSimulationProcess(
   : ReosSimulationProcess( context, boundaries )
 {
   QStringList availableVersions = ReosHecRasController::availableVersion();
+  ReosSettings settings;
+  if ( settings.contains( QStringLiteral( "/engine/hecras/version" ) ) )
+  {
+    QString version = settings.value( QStringLiteral( "/engine/hecras/version" ) ).toString();
+    if ( availableVersions.contains( version ) )
+    {
+      mController.reset( new ReosHecRasController( version ) );
+      return;
+    }
+  }
+
   if ( !availableVersions.isEmpty() )
     mController.reset( new ReosHecRasController( availableVersions.last() ) );
 }

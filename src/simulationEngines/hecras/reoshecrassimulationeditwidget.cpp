@@ -1,8 +1,13 @@
 #include "reoshecrassimulationeditwidget.h"
 #include "ui_reoshecrassimulationeditwidget.h"
+#include "ui_reoshecrasengineconfigurationdialog.h"
+
+#include <QPushButton>
 
 #include "reoshecrassimulationimportwidget.h"
 #include "reoshecrassimulation.h"
+#include "reoshecrascontroller.h"
+#include "reossettings.h"
 
 ReosHecRasSimulationEditWidget::ReosHecRasSimulationEditWidget( ReosHecRasSimulation *simulation, QWidget *parent )
   : QWidget( parent )
@@ -59,7 +64,50 @@ QWidget *ReosHecRasSimulationEditWidgetFactory::simulationSettingsWidget( ReosHy
   return new ReosHecRasSimulationEditWidget( qobject_cast<ReosHecRasSimulation *>( simulation ), guiContext.parent() );
 }
 
+QDialog *ReosHecRasSimulationEditWidgetFactory::engineConfigurationDialog( QWidget *parent ) const
+{
+  return new ReosHecrasConfigurationEngineDialog( parent );
+}
+
 REOSEXTERN ReosHydraulicSimulationWidgetFactory *simulationWidgetFactory()
 {
   return new ReosHecRasSimulationEditWidgetFactory;
+}
+
+ReosHecrasConfigurationEngineDialog::ReosHecrasConfigurationEngineDialog( QWidget *parent )
+  : QDialog( parent )
+  , ui( new Ui::ReosHecrasConfigurationEngineDialog )
+{
+  ui->setupUi( this );
+
+  QStringList versions = ReosHecRasController::availableVersion();
+  if ( versions.isEmpty() )
+  {
+    ui->mComboVersion->addItem( tr( "No version found" ) );
+    ui->mComboVersion->setCurrentIndex( 0 );
+    ui->buttonBox->button( QDialogButtonBox::Ok )->setEnabled( false );
+  }
+  else
+  {
+    ui->mComboVersion->addItems( versions );
+    ReosSettings settings;
+    int currentIndex = ui->mComboVersion->findText(
+                         settings.value( QStringLiteral( "/engine/hecras/version" ) ).toString() );
+
+    if ( currentIndex == -1 )
+      ui->mComboVersion->setCurrentIndex( versions.count() - 1 );
+    else
+      ui->mComboVersion->setCurrentIndex( currentIndex );
+  }
+}
+
+ReosHecrasConfigurationEngineDialog::~ReosHecrasConfigurationEngineDialog()
+{
+  delete ui;
+}
+
+void ReosHecrasConfigurationEngineDialog::onAccepted()
+{
+  ReosSettings settings;
+  settings.setValue( QStringLiteral( "/engine/hecras/version" ), ui->mComboVersion->currentText() );
 }
