@@ -37,7 +37,7 @@ IF(GDAL_FOUND)
 ENDIF(GDAL_FOUND)
 ADD_TEST(test_hecras ${CMAKE_CURRENT_BINARY_DIR}/test_hecras)
 
-  set_target_properties(${TESTNAME}
+set_target_properties(test_hecras
       PROPERTIES
       ARCHIVE_OUTPUT_DIRECTORY ${REOS_OUTPUT_DIRECTORY}
       LIBRARY_OUTPUT_DIRECTORY ${REOS_OUTPUT_DIRECTORY}
