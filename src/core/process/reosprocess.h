@@ -54,9 +54,6 @@ class REOSCORE_EXPORT ReosProcess : public QObject
     QString currentInformation() const;
     void setInformation( const QString &info );
 
-    //! Start the process on another thread
-    void startOnOtherThread();
-
     //! Static method used to start a process (used in std::thread API)
     static void processStart( ReosProcess *p );
 
@@ -68,6 +65,10 @@ class REOSCORE_EXPORT ReosProcess : public QObject
     void notify( ReosModule::Message &message );
 
     ReosModule::Message message() const;
+
+  public slots:
+    //! Start the process on another thread
+    void startOnOtherThread();
 
   signals:
     void sendInformation( const QString & ) const;

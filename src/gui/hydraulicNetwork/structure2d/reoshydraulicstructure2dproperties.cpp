@@ -373,6 +373,7 @@ void ReosHydraulicStructure2DProperties::requestMapRefresh()
 
 void ReosHydraulicStructure2DProperties::onLaunchCalculation()
 {
+  ReosSimulationProcess *process = nullptr;
   if ( !mStructure2D->simulationProcess( mCalculationContext ) )
   {
     if ( mStructure2D->hasResults( mCalculationContext.schemeId() ) )
@@ -409,7 +410,7 @@ void ReosHydraulicStructure2DProperties::onLaunchCalculation()
       return;
     }
 
-    ReosSimulationProcess *process = mStructure2D->startSimulation( mCalculationContext, error );
+    process = mStructure2D->createSimulationProcess( mCalculationContext, error );
     if ( process )
       setCurrentSimulationProcess( process, mCalculationContext );
     else
@@ -425,6 +426,8 @@ void ReosHydraulicStructure2DProperties::onLaunchCalculation()
   connect( this, &ReosHydraulicStructure2DProperties::calculationContextChanged, console, &ReosHydraulicSimulationConsole::backToPreviousPage );
   emit stackedPageWidgetOpened( console );
   emit askForShow();
+
+  QMetaObject::invokeMethod( process, "startOnOtherThread", Qt::QueuedConnection );
 }
 
 void ReosHydraulicStructure2DProperties::onExportSimulation()

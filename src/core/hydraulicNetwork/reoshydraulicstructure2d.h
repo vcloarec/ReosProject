@@ -133,8 +133,8 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Returns a process that prepare the current simulation files in a specific \a diectory, caller take ownership
     ReosSimulationPreparationProcess *getPreparationProcessSimulation( const ReosCalculationContext &context, QString &error, const QDir &directory );
 
-    //! Starts the current simulation, returns a pointer to the process
-    ReosSimulationProcess *startSimulation( const ReosCalculationContext &context, QString &error );
+    //! Creates a new simulation process and returns a pointer to the process, the process is not starting
+    ReosSimulationProcess *createSimulationProcess( const ReosCalculationContext &context, QString &error );
 
     //! Returns  a pointer to the current simulation process
     ReosSimulationProcess *simulationProcess( const ReosCalculationContext &context ) const;

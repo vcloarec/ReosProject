@@ -530,7 +530,7 @@ ReosSimulationPreparationProcess *ReosHydraulicStructure2D::getPreparationProces
   return ret.release();
 }
 
-ReosSimulationProcess *ReosHydraulicStructure2D::startSimulation( const ReosCalculationContext &context, QString &error )
+ReosSimulationProcess *ReosHydraulicStructure2D::createSimulationProcess( const ReosCalculationContext &context, QString &error )
 {
   if ( mMeshNeedToBeGenerated )
   {
@@ -572,12 +572,6 @@ ReosSimulationProcess *ReosHydraulicStructure2D::startSimulation( const ReosCalc
     }
 
   } );
-
-  //Store the current symbology per data type
-  setResultsOnStructure( nullptr );
-  emit simulationResultChanged();
-
-  process->startOnOtherThread();
 
   return process;
 }
