@@ -26,11 +26,18 @@ class ReosHecRasController;
 class ReosHecRasSimulationProcess: public ReosSimulationProcess
 {
   public:
-    ReosHecRasSimulationProcess( const ReosCalculationContext &context, const QList<ReosHydraulicStructureBoundaryCondition *> boundaries );
+    ReosHecRasSimulationProcess( 
+        const ReosHecRasProject &hecRasProject,
+        const QString &planId,
+        const ReosCalculationContext &context, 
+        const QList<ReosHydraulicStructureBoundaryCondition *> boundaries );
+    
     void start();
 
   private:
-    std::unique_ptr<ReosHecRasController> mController;
+    QString mControllerVersion;
+    ReosHecRasProject mProject;
+    ReosHecRasPlan mPlan;
 };
 
 class ReosHecRasSimulation : public ReosHydraulicSimulation

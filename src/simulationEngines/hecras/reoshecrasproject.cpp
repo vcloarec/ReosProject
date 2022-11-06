@@ -631,7 +631,12 @@ bool ReosHecRasFlow::applyBoudaryFlow( const QList<BoundaryFlow> &flows )
         if ( !ok )
           valueCount = 0;
       }
-      int rowCount = valueCount / 10 + 1;
+      int rowCount;
+      if (valueCount > 0)
+          rowCount = valueCount / 10 + 1;
+      else
+          rowCount = 0;
+
       for ( int i = 0; i < rowCount; ++i )
         stream.readLine();
     }

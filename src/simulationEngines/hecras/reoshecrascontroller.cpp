@@ -138,6 +138,7 @@ QStringList ReosHecRasController::availableVersion()
 }
 
 ReosHecRasController::ReosHecRasController( const QString &version )
+    : mVersion(version)
 {
 #ifdef _WIN32
   if ( !SUCCEEDED( CoInitializeEx( nullptr, COINIT_APARTMENTTHREADED ) ) )
@@ -201,12 +202,12 @@ ReosHecRasController::ReosHecRasController( const QString &version )
 ReosHecRasController::~ReosHecRasController()
 {
 #ifdef _WIN32
-  CoUninitialize();
   if ( mDispatch )
   {
     exitRas();
     mDispatch->Release();
   }
+  CoUninitialize();
 #endif
 }
 
@@ -217,6 +218,7 @@ bool ReosHecRasController::isValid() const
 
 QString ReosHecRasController::version() const
 {
+  QString ret;
 #ifdef _WIN32
   DISPID id = mFunctionNames.value( QStringLiteral( "HECRASVersion" ) );
 
@@ -229,11 +231,9 @@ QString ReosHecRasController::version() const
   HRESULT res = mDispatch->Invoke( id, IID_NULL, 0, DISPATCH_METHOD, &par, &result, &excepInfo, &puArgErr );
 
   if ( SUCCEEDED( res ) )
-    return BSTRToQString( result.bstrVal );
-  else
+    ret = BSTRToQString( result.bstrVal );
 #endif
-    return QString();
-
+    return ret;
 }
 
 bool ReosHecRasController::openHecrasProject( const QString &projFileName )
@@ -450,6 +450,7 @@ QStringList ReosHecRasController::computeCurrentPlan()
 
 bool ReosHecRasController::exitRas() const
 {
+    bool ok = false;
 #ifdef _WIN32
   DISPID id = mFunctionNames.value( QStringLiteral( "QuitRas" ) );
 
@@ -461,10 +462,9 @@ bool ReosHecRasController::exitRas() const
 
   HRESULT res = mDispatch->Invoke( id, IID_NULL, 0, DISPATCH_METHOD, &par, &result, &excepInfo, &puArgErr );
 
-  return SUCCEEDED( res );
-#else
-  return false;
+  ok= SUCCEEDED( res );
 #endif
+  return ok;
 }
 
 QStringList ReosHecRasController::flowAreas2D() const
