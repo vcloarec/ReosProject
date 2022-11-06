@@ -66,6 +66,7 @@ class ReosHecRasController
     bool hideComputationWindow() const;
 
   private:
+    QString mVersion;
     bool mIsValid = false;
 #ifdef _WIN32
     IDispatch *mDispatch = nullptr;

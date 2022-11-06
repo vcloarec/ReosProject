@@ -323,7 +323,7 @@ ReosSimulationProcess *ReosHecRasSimulation::getProcess(
   ReosHydraulicStructure2D *hydraulicStructure,
   const ReosCalculationContext &calculationContext ) const
 {
-  return new ReosHecRasSimulationProcess( calculationContext, hydraulicStructure->boundaryConditions() );
+  return new ReosHecRasSimulationProcess( *mProject.get(), mCurrentPlan, calculationContext, hydraulicStructure->boundaryConditions());
 }
 
 void ReosHecRasSimulation::saveConfiguration( ReosHydraulicScheme *scheme ) const
@@ -460,32 +460,82 @@ void ReosHecRasSimulation::accordCurrentPlan()
 
 
 ReosHecRasSimulationProcess::ReosHecRasSimulationProcess(
+  const ReosHecRasProject &hecRasProject,
+  const QString &planId,
   const ReosCalculationContext &context,
   const QList<ReosHydraulicStructureBoundaryCondition *> boundaries )
   : ReosSimulationProcess( context, boundaries )
+    , mProject(hecRasProject)
+    , mPlan(hecRasProject.plan(planId))
 {
   QStringList availableVersions = ReosHecRasController::availableVersion();
   ReosSettings settings;
   if ( settings.contains( QStringLiteral( "/engine/hecras/version" ) ) )
   {
-    QString version = settings.value( QStringLiteral( "/engine/hecras/version" ) ).toString();
-    if ( availableVersions.contains( version ) )
-    {
-      mController.reset( new ReosHecRasController( version ) );
-      return;
-    }
+      mControllerVersion = settings.value( QStringLiteral( "/engine/hecras/version" ) ).toString();
+    if ( !availableVersions.contains( mControllerVersion ) )
+        mControllerVersion.clear();
   }
 
-  if ( !availableVersions.isEmpty() )
-    mController.reset( new ReosHecRasController( availableVersions.last() ) );
+  if (mControllerVersion.isEmpty() && !availableVersions.isEmpty())
+      mControllerVersion = availableVersions.last();
 }
 
 void ReosHecRasSimulationProcess::start()
 {
+  setMaxProgression(100);
+  setCurrentProgression(0);
   mIsSuccessful = false;
-  if ( !mController )
+  if ( mControllerVersion.isEmpty() )
   {
     emit sendInformation( tr( "None version of HEC-RAS found, please verify that HEC-RAS is installed." ) );
+    setCurrentProgression(100);
     return;
+  }
+
+  std::unique_ptr<ReosHecRasController> controller(new ReosHecRasController(mControllerVersion));
+
+  if (!controller->isValid())
+  {
+      emit sendInformation(tr("Controller of HEC-RAS found is not valid.\nCalculation cancelled."));
+      return;
+  }
+
+  emit sendInformation(tr("Start HEC-RAS model calculation with %1.").arg(controller->version()));
+
+  QFileInfo fileProjectInfo(mProject.fileName());
+  if (!fileProjectInfo.exists())
+  {
+      emit sendInformation(tr("HEC-RAS project file \"%1\" not found.\nCalculation cancelled.").arg(mProject.fileName()));
+      return;
+  }
+
+  if (!controller->openHecrasProject(mProject.fileName()))
+  {
+      emit sendInformation(tr("UNable to open HEC-RAS project file \"%1\".\nCalculation cancelled.").arg(mProject.fileName()));
+      return;
+  }
+
+  QStringList plans = controller->planNames();
+  
+  if (!plans.contains(mPlan.title()))
+  {
+      emit sendInformation(tr("Plan \"%1\" not found.\nCalculation cancelled.").arg(mPlan.title()));
+      return;
+  }
+
+  if (!controller->setCurrentPlan(mPlan.title()))
+  {
+      emit sendInformation(tr("Unable to set plan \"%1\" as current plan.\nCalculation cancelled.").arg(mPlan.title()));
+      return;
+  }
+
+  controller->showComputationWindow();
+
+  const QStringList returnedMessages = controller->computeCurrentPlan();
+
+  for (const QString& mes : returnedMessages)
+  {
+      emit sendInformation(mes);
   }
 }

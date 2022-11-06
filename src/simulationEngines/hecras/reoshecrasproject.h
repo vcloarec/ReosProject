@@ -171,8 +171,6 @@ class ReosHecRasProject
     ReosHecRasFlow flow( const QString &id ) const;
     ReosHecRasFlow currentFlow() const;
 
-    void applyBoundaryFlows( const QString &planId, const QList<ReosHecRasFlow::BoundaryFlow> &flows );
-
     static QDate hecRasDateToDate( const QString &hecrasDate );
     static QString dateToHecRasDate( const QDate &date );
 
