@@ -30,10 +30,11 @@ QString ReosTimeSerieProvider::dataSource() const
   return mDataSource;
 }
 
-void ReosTimeSerieProvider::setDataSource( const QString &dataSource )
+void ReosTimeSerieProvider::setDataSource( const QString &dataSource, bool loadAfter )
 {
   mDataSource = dataSource;
-  load();
+  if ( loadAfter )
+    load();
 }
 
 ReosTimeSerieConstantTimeStepProvider::~ReosTimeSerieConstantTimeStepProvider() {}

@@ -13,6 +13,7 @@ SET(REOS_HEC_DSS_HEADERS
 
 SET(REOS_PROVIDER_HEC_DSS_SOURCES
     reosdssprovider.cpp
+    reosdsswidget.cpp
 )
 
 SET(REOS_PROVIDER_HEC_DSS_HEADERS

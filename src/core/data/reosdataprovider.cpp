@@ -125,7 +125,7 @@ void ReosDataProviderRegistery::loadDynamicProvider()
     }
     else
     {
-      qDebug() << QString( "Library %1 not loaded" ).arg( file.baseName() );
+      qDebug() << QString( "Library %1 not loaded for following reason: %2" ).arg( file.baseName(), library.errorString() );
     }
   }
 }

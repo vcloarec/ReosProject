@@ -32,6 +32,7 @@ class REOSCORE_EXPORT ReosTransferFunction : public ReosDataObject
 {
   public:
     ReosTransferFunction( ReosWatershed *watershed = nullptr );
+    virtual ~ReosTransferFunction() = default;
 
     static QString staticType() {return ReosDataObject::staticType() + ':' + QStringLiteral( "transfer-function" );}
     QString type() const override {return staticType();}
@@ -71,6 +72,7 @@ class REOSCORE_EXPORT ReosTransferFunction : public ReosDataObject
 class REOSCORE_EXPORT ReosTransferFunctionFactory
 {
   public:
+    virtual ~ReosTransferFunctionFactory() = default;
     virtual QString type() const = 0;
     virtual QString displayText() const = 0;
 

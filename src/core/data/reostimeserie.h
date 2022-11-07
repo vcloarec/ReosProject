@@ -106,6 +106,8 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
     virtual void baseEncode( ReosEncodedElement &element, const ReosEncodeContext &context ) const;
     virtual bool decodeBase( const ReosEncodedElement &element, const ReosEncodeContext &context );
 
+    virtual QString formatKey( const QString &rawKey ) const = 0;
+
     std::unique_ptr<ReosTimeSerieProvider> mProvider;
 
   private:
@@ -223,6 +225,8 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     void connectParameters();
     ReosTimeSerieConstantInterval( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr );
 
+    QString formatKey( const QString &rawKey ) const override;
+
   private:
     ReosParameterDuration *mTimeStepParameter = nullptr;
 
@@ -311,7 +315,9 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStep: public ReosTimeSerie
     virtual void baseEncode( ReosEncodedElement &element, const ReosEncodeContext &context ) const override;
     virtual bool  decodeBase( const ReosEncodedElement &element, const ReosEncodeContext &context ) override;
 
-    ReosTimeSerieVariableTimeStepProvider *variableTimeStepdataProvider() const;
+    QString formatKey( const QString &rawKey ) const override;
+
+    ReosTimeSerieVariableTimeStepProvider *variableTimeStepDataProvider() const;
 
   private:
     QString mUnitString;
@@ -331,8 +337,7 @@ class REOSCORE_EXPORT ReosTimeSerieModel : public QAbstractTableModel
 {
     Q_OBJECT
   public:
-    ReosTimeSerieModel( QObject *parent = nullptr )
-    {}
+    ReosTimeSerieModel( QObject *parent = nullptr );
 
     QModelIndex index( int row, int column, const QModelIndex & ) const override;
     QModelIndex parent( const QModelIndex & ) const override;

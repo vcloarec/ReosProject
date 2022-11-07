@@ -33,6 +33,9 @@ class ReosDssProviderBase
 
     static QString fileNameFromUri( const QString &uri );
     static ReosDssPath dssPathFromUri( const QString &uri );
+    static QString uri( const QString &filePath, const ReosDssPath &dssPath );
+
+    ReosDuration timeStepFromUri( const QString &uri );
 
   protected:
     std::unique_ptr<ReosDssFile> mFile;
@@ -59,15 +62,15 @@ class ReosDssProviderTimeSerieConstantTimeStep : public ReosTimeSerieConstantTim
 
     bool isTimeStepCompatible( const ReosDuration &timeStep ) const override;
 
-    void setReferenceTime( const QDateTime &referenceTime );
+    void setReferenceTime( const QDateTime &referenceTime ) override;
     void setTimeStep( const ReosDuration &timeStep ) override;
     void resize( int size ) override;
     void appendValue( double value ) override;
     void prependValue( double value ) override;
     void insertValue( int pos, double value ) override;
     void setValue( int index, double value ) override;
-    void removeValues( int from, int count );
-    void clear();
+    void removeValues( int from, int count ) override;
+    void clear() override;
 
     ReosEncodedElement encode() const {return ReosEncodedElement();}
     void decode( const ReosEncodedElement &element ) {}
@@ -82,6 +85,43 @@ class ReosDssProviderTimeSerieConstantTimeStep : public ReosTimeSerieConstantTim
     ReosDuration mTimeStep;
     QVector<double> mValues;
     bool mDirty = false;
+};
+
+class ReosDssProviderTimeSerieVariableTimeStep : public ReosTimeSerieVariableTimeStepProvider, public ReosDssProviderBase
+{
+  public:
+
+    // ReosDataProvider interface
+    QString key() const override;
+
+    // ReosTimeSerieProvider interface
+    void load() override;
+    QDateTime referenceTime() const override;
+    QString valueUnit() const {return QString();}
+    int valueCount() const override;
+    double value( int i ) const override;
+    double firstValue() const override;
+    double lastValue() const override;
+    double *data() override;
+    const QVector<double> &constData() const override;
+    ReosEncodedElement encode() const {return ReosEncodedElement();}
+    void decode( const ReosEncodedElement &element ) {}
+
+    // ReosDssProviderBase interface
+    bool createNewSerie( const ReosDssPath &path, ReosDssFile &dssFile, QString &error ) const {return false;}
+
+    // ReosTimeSerieVariableTimeStepProvider interface
+    ReosDuration relativeTimeAt( int i ) const override;
+    ReosDuration lastRelativeTime() const override;
+    const QVector<ReosDuration> &constTimeData() const override;
+
+    static QString dataType();
+
+  private:
+    QDateTime mReferenceTime;
+    QVector<double> mValues;
+    QVector<ReosDuration> mTimeValues;
+
 };
 
 

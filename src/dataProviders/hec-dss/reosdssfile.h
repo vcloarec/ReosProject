@@ -70,9 +70,7 @@ class REOSDSS_EXPORT ReosDssPath
 
   private:
     bool mIsValid = false;
-
     QVector<QVector<char>> mData;
-    std::vector<char> mDataGroup;
 
     QString toQString( Part part ) const;
     void stringToData( const QString &str, Part part );
@@ -96,10 +94,12 @@ class REOSDSS_EXPORT ReosDssFile
     bool isValid() const;
     bool isOpen() const;
 
-    bool pathExist( const ReosDssPath &path ) const;
-    bool hasData( const ReosDssPath &path ) const;
+    void close();
 
-    QDateTime referenceTime( const ReosDssPath &path ) const;
+    bool pathExist( const ReosDssPath &path, bool considerInterval ) const;
+
+    void getSeries( const ReosDssPath &path, QVector<double> &values, ReosDuration &timeStep, QDateTime &startTime );
+
     QVector<double> values( const ReosDssPath &path ) const;
 
     //! Create a new series with constant time interval with \a path in the file
@@ -112,7 +112,7 @@ class REOSDSS_EXPORT ReosDssFile
                                       const QVector<double> &values,
                                       QString &error );
 
-    QList<ReosDssPath> searchRecordsPath( const ReosDssPath &path ) const;
+    QList<ReosDssPath> searchRecordsPath( const ReosDssPath &path, bool considerInterval ) const;
 
   private:
     std::unique_ptr<std::array<long long, 250>> mIfltab;
@@ -122,7 +122,7 @@ class REOSDSS_EXPORT ReosDssFile
     bool mIsOpen = false;
 
     static QString getEPart( const ReosDuration &interval, bool findClosest = false );
-
+    ReosDssPath firstFullPath( const ReosDssPath &path, bool considerInterval ) const;
     void removeDataset( const ReosDssPath &path );
     bool writeConstantIntervalSeriesPrivate(
       const ReosDssPath &path,
