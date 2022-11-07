@@ -59,7 +59,8 @@ class REOSCORE_EXPORT ReosTimeSerieProvider : public ReosDataProvider
 
     virtual void load() {}
     QString dataSource() const;
-    void setDataSource( const QString &dataSource );
+
+    void setDataSource( const QString &dataSource, bool loadAfter = true );
 
     virtual QString htmlMetaData() const {return QString();}
 

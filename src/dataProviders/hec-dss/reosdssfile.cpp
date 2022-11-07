@@ -54,8 +54,7 @@ ReosDssFile::ReosDssFile( ReosDssFile &&other )
 
 ReosDssFile::~ReosDssFile()
 {
-  if ( mIfltab && mIsOpen )
-    zclose( mIfltab->data() );
+  close();
 }
 
 ReosDssFile &ReosDssFile::operator=( ReosDssFile &&other )
@@ -78,37 +77,56 @@ bool ReosDssFile::isOpen() const
   return mIsOpen;
 }
 
-bool ReosDssFile::pathExist( const ReosDssPath &path ) const
+void ReosDssFile::close()
 {
-  if ( hasData( path ) )
-    return true;
-  // maybe the path is presents but dataset contains no valid value, so no record.
-  // we need to search in the catalog
-
-  QList<ReosDssPath> pathes = searchRecordsPath( path );
-  return !pathes.empty();
+  if ( mIfltab && mIsOpen )
+  {
+    zclose( mIfltab->data() );
+    mIfltab.reset();
+    mIsOpen = false;
+    mIsValid = false;
+  }
 }
 
-bool ReosDssFile::hasData( const ReosDssPath &path ) const
+bool ReosDssFile::pathExist( const ReosDssPath &path, bool considerInterval ) const
 {
-  return zcheck( mIfltab->data(), path.c_pathString() ) == STATUS_OKAY;
+  QList<ReosDssPath> pathes = searchRecordsPath( path, considerInterval );
+  return !pathes.empty();
+
+}
+
+void ReosDssFile::getSeries( const ReosDssPath &path, QVector<double> &values, ReosDuration &timeStep, QDateTime &startTime )
+{
+  ReosDssPath allDatapath = path;
+  allDatapath.setStartDate( QString( '*' ) );
+
+  std::unique_ptr<zStructTimeSeries> timeSeries( zstructTsNew( allDatapath.c_pathString() ) );
+  int status = ztsRetrieve( mIfltab->data(), timeSeries.get(), -3, 2, 0 );
+
+  if ( status == STATUS_OKAY )
+  {
+    int valueCount = timeSeries->numberValues;
+    values.resize( valueCount );
+    memcpy( values.data(), timeSeries->doubleValues, static_cast<size_t>( valueCount )*sizeof( double ) );
+
+    int daySince1900 = timeSeries->startJulianDate;
+    int startTimeSeconds = timeSeries->startTimeSeconds;
+
+    QDate date = QDate( 1900, 01, 01 ).addDays( daySince1900 - 1 );
+    QTime time = QTime::fromMSecsSinceStartOfDay( startTimeSeconds * 1000 );
+    startTime = QDateTime( date, time, Qt::UTC );
+
+    timeStep = ReosDuration( timeSeries->timeIntervalSeconds, ReosDuration::second );
+  }
+
+  zstructFree( timeSeries.release() );
 }
 
 bool ReosDssFile::createConstantIntervalSeries( const ReosDssPath &path, QString &error )
 {
-  if ( !mIsOpen || !mIsValid || !mIfltab )
-  {
-    error = QObject::tr( "DSS file \"%1\" is not valid." ).arg( mFileName );
-    return false;
-  }
-
   ReosDuration intervalDuration = path.timeIntervalDuration();
   if ( intervalDuration == ReosDuration() )
-  {
-    error = QObject::tr( "The time interval in the path is not valid." );
-    return false;
-  }
-
+    intervalDuration = ReosDuration( 1.0, ReosDuration::hour );
   QVector<double> values;
   values.append( UNDEFINED_DOUBLE ); //DSS need at leastone value, we give it an undefined one because our time serie is void
 
@@ -116,7 +134,27 @@ bool ReosDssFile::createConstantIntervalSeries( const ReosDssPath &path, QString
   QDate startDate = QDate::currentDate();
   QTime startTime = QTime( 0, 0, 0 );
 
-  return writeConstantIntervalSeriesPrivate( path, QDateTime( startDate, startTime ), intervalDuration, values, error );
+  return writeConstantIntervalSeries( path, QDateTime( startDate, startTime ), intervalDuration, values, error );
+}
+
+bool ReosDssFile::writeConstantIntervalSeries(
+  const ReosDssPath &path,
+  const QDateTime &startTime,
+  const ReosDuration &timeStep,
+  const QVector<double> &values,
+  QString &error )
+{
+  if ( !mIsOpen || !mIsValid || !mIfltab )
+  {
+    error = QObject::tr( "DSS file \"%1\" is not valid." ).arg( mFileName );
+    return false;
+  }
+
+  ReosDssPath pathToRemove = path;
+  pathToRemove.setTimeInterval( QString( '*' ) ); //we need to remove all time interval
+  removeDataset( pathToRemove );
+
+  return writeConstantIntervalSeriesPrivate( path, startTime, timeStep, values, error );
 }
 
 bool ReosDssFile::writeConstantIntervalSeriesPrivate(
@@ -166,62 +204,6 @@ bool ReosDssFile::writeConstantIntervalSeriesPrivate(
   return true;
 }
 
-bool ReosDssFile::writeConstantIntervalSeries(
-  const ReosDssPath &path,
-  const QDateTime &startTime,
-  const ReosDuration &timeStep,
-  const QVector<double> &values,
-  QString &error )
-{
-  if ( !mIsOpen || !mIsValid || !mIfltab )
-  {
-    error = QObject::tr( "DSS file \"%1\" is not valid." ).arg( mFileName );
-    return false;
-  }
-
-  ReosDuration intervalDuration = path.timeIntervalDuration();
-  if ( intervalDuration == ReosDuration() )
-  {
-    error = QObject::tr( "The time interval in the path is not valid." );
-    return false;
-  }
-
-  ReosDssPath pathToRemove = path;
-  pathToRemove.setTimeInterval( QString( '*' ) ); //we need to remove all time interval
-  removeDataset( pathToRemove );
-
-  return writeConstantIntervalSeriesPrivate( path, startTime, timeStep, values, error );
-}
-
-QDateTime ReosDssFile::referenceTime( const ReosDssPath &path ) const
-{
-  if ( !mIsValid || !mIfltab )
-    return QDateTime();
-
-  int startJulian = 0;
-  int startSeconds = 0;
-  int endJulian = 0;
-  int endSeconds = 0;
-  std::string str = path.string().toStdString();
-  const char *pth = str.c_str();
-  int res = ztsGetDateTimeRange( mIfltab->data(), pth, 0,
-                                 &startJulian, &startSeconds, &endJulian, &endSeconds );
-
-  if ( res == STATUS_OKAY )
-  {
-    return QDateTime();
-  }
-
-  return QDateTime();
-}
-
-QVector<double> ReosDssFile::values( const ReosDssPath &path ) const
-{
-  return QVector<double>();
-}
-
-
-
 QString ReosDssFile::getEPart( const ReosDuration &interval, bool findClosest )
 {
   std::vector<char> ret;
@@ -241,13 +223,27 @@ QString ReosDssFile::getEPart( const ReosDuration &interval, bool findClosest )
   return QString::fromStdString( std::string( ret.data() ) );
 }
 
-QList<ReosDssPath> ReosDssFile::searchRecordsPath( const ReosDssPath &path ) const
+ReosDssPath ReosDssFile::firstFullPath( const ReosDssPath &path, bool considerInterval ) const
+{
+  QList<ReosDssPath> pathes = searchRecordsPath( path, considerInterval );
+  if ( pathes.isEmpty() )
+    return ReosDssPath();
+  else
+    return pathes.first();
+}
+
+QList<ReosDssPath> ReosDssFile::searchRecordsPath( const ReosDssPath &path, bool considerInterval ) const
 {
   QList<ReosDssPath> ret;
   std::unique_ptr<zStructCatalog> catStruct( zstructCatalogNew() );
   int status;
   ReosDssPath searchPath = path;
+
   searchPath.setStartDate( QString( '*' ) );
+
+  if ( !considerInterval )
+    searchPath.setTimeInterval( QString( '*' ) );
+
   status = zcatalog( mIfltab->data(), searchPath.c_pathString(), catStruct.get(), 0 );
   if ( status < 0 )
     return ret;
@@ -257,12 +253,14 @@ QList<ReosDssPath> ReosDssFile::searchRecordsPath( const ReosDssPath &path ) con
   for ( int i = 0; i < count; ++i )
     ret.append( ReosDssPath( QString( catStruct->pathnameList[i] ) ) );
 
+  zstructFree( catStruct.release() );
+
   return ret;
 }
 
 void ReosDssFile::removeDataset( const ReosDssPath &path )
 {
-  const QList<ReosDssPath> recordPathes = searchRecordsPath( path );
+  const QList<ReosDssPath> recordPathes = searchRecordsPath( path, false );
 
   for ( const ReosDssPath &rp : recordPathes )
   {
@@ -332,6 +330,7 @@ const QString ReosDssPath::group() const
 
 void ReosDssPath::setGroup( const QString &newGroup )
 {
+  mTempPathString.clear();
   stringToData( newGroup, Group );
 }
 
@@ -342,6 +341,7 @@ const QString ReosDssPath::location() const
 
 void ReosDssPath::setLocation( const QString &newLocation )
 {
+  mTempPathString.clear();
   stringToData( newLocation, Location );
 }
 
@@ -352,6 +352,7 @@ const QString ReosDssPath::parameter() const
 
 void ReosDssPath::setParameter( const QString &newParameter )
 {
+  mTempPathString.clear();
   stringToData( newParameter, Parameter );
 }
 
@@ -362,6 +363,7 @@ const QString ReosDssPath::startDate() const
 
 void ReosDssPath::setStartDate( const QString &newStartDate )
 {
+  mTempPathString.clear();
   stringToData( newStartDate, StartDate );
 }
 
@@ -372,11 +374,13 @@ const QString ReosDssPath::timeInterval() const
 
 void ReosDssPath::setTimeInterval( const ReosDuration &interval )
 {
+  mTempPathString.clear();
   stringToData( ReosDssUtils::durationToDssInterval( interval ), TimeInterval );
 }
 
 void ReosDssPath::setTimeInterval( const QString &newTimeInterval )
 {
+  mTempPathString.clear();
   stringToData( newTimeInterval, TimeInterval );
 }
 
@@ -387,6 +391,7 @@ const QString ReosDssPath::version() const
 
 void ReosDssPath::setVersion( const QString &newVersion )
 {
+  mTempPathString.clear();
   stringToData( newVersion, Version );
 }
 

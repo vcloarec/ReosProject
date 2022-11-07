@@ -23,6 +23,12 @@
 
 #include "reoshydrograph.h"
 
+REOSEXTERN ReosDataProviderFactory *providerFactory()
+{
+  return new ReosDelftFewsXMLProviderFactory();
+}
+
+
 ReosDelftFewsXMLProviderInterface::ReosDelftFewsXMLProviderInterface()
 {}
 
@@ -506,7 +512,3 @@ QString ReosDelftFewsXMLProviderFactory::key() const
   return ReosDelftFewsXMLProviderInterface::staticKey();
 }
 
-REOSEXTERN ReosDataProviderFactory *providerFactory()
-{
-  return new ReosDelftFewsXMLProviderFactory();
-}
