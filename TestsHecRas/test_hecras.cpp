@@ -86,8 +86,11 @@ class ReosHecrasTesting : public QObject
 
   private:
     QString mPathToSimpleToRun;
-
     void copySimple();
+
+    ReosModule mRootModule;
+    ReosGisEngine *mGisEngine = nullptr;
+    ReosWatershedModule *mWatershedModule = nullptr;
 };
 
 void ReosHecrasTesting::copySimple()
@@ -102,6 +105,8 @@ void ReosHecrasTesting::copySimple()
 
 void ReosHecrasTesting::initTestCase()
 {
+  mGisEngine = new ReosGisEngine( &mRootModule );
+  mWatershedModule = new ReosWatershedModule( &mRootModule, mGisEngine );
   mPathToSimpleToRun = tmp_file( "/simple" );
   copySimple();
 }
@@ -251,15 +256,11 @@ void ReosHecrasTesting::exploreProject()
 
 #define WAITING_TIME_FOR_LOOP 100
 
-void ReosHecrasTesting::importStructure()
+void ReosHecrasTesting::importAndLaunchStructure()
 {
-  ReosModule rootModule;
-  ReosGisEngine *gisEngine = new ReosGisEngine( &rootModule );
-  ReosWatershedModule *watershedModule = new ReosWatershedModule( &rootModule, gisEngine );
-
   QString path( mPathToSimpleToRun + QStringLiteral( "/simple.prj" ) );
 
-  ReosHydraulicNetwork *network = new ReosHydraulicNetwork( &rootModule, gisEngine, watershedModule );
+  ReosHydraulicNetwork *network = new ReosHydraulicNetwork( &mRootModule, mGisEngine, mWatershedModule );
   network->setCurrentScheme( 0 );
   ReosHydraulicScheme *scheme = network->currentScheme();
   QVERIFY( scheme );
@@ -433,11 +434,11 @@ void ReosHecrasTesting::createDssFile()
 
 void ReosHecrasTesting::createTimeSerie()
 {
-  QString stringPath( QStringLiteral( "/GrouP/LoCation/FLOW/01jan2000/1Hour/ThisVersion/" ) );
+  QString stringPath( QStringLiteral( "/GrouP/LoCation/FLOW///ThisVersion/" ) );
   ReosDssPath path( stringPath );
   QVERIFY( path.isValid() );
 
-  const QString filePath = tmp_file( "/dss_file_1" );
+  QString filePath = tmp_file( "/dss_file_1" );
 
   ReosDssProviderFactory providerFactory;
   QString error;
@@ -452,13 +453,14 @@ void ReosHecrasTesting::createTimeSerie()
 
   QCOMPARE( provider->valueCount(), 0 );
   QVERIFY( !provider->referenceTime().isValid() );
-  QVERIFY( provider->timeStep() == ReosDuration() );
+  QVERIFY( provider->timeStep() == ReosDuration( 1.0, ReosDuration::hour ) );
 
-  provider->setReferenceTime( QDateTime( QDate( 2021, 02, 03 ), QTime( 05, 12, 45 ), Qt::UTC ) );
+  const QDateTime refTime = QDateTime( QDate( 2021, 02, 03 ), QTime( 05, 12, 45 ), Qt::UTC );
+  provider->setReferenceTime( refTime );
   ReosDuration timeStep( 1.5, ReosDuration::minute );
   QVERIFY( !provider->isTimeStepCompatible( timeStep ) );
   provider->setTimeStep( timeStep );
-  QVERIFY( provider->timeStep() == ReosDuration() ); //Time step not compatible, so not changed
+  QVERIFY( provider->timeStep() == ReosDuration( 1.0, ReosDuration::hour ) ); //Time step not compatible, so not changed
 
   timeStep = ReosDuration( 10, ReosDuration::minute );
   QVERIFY( provider->isTimeStepCompatible( timeStep ) );
@@ -472,7 +474,36 @@ void ReosHecrasTesting::createTimeSerie()
   error.clear();
   QVERIFY( provider->persistData( error ) );
 
-  QFile::remove( filePath + QStringLiteral( ".dss" ) );
+  QCOMPARE( provider->referenceTime(), refTime );
+  QCOMPARE( provider->timeStep(), timeStep );
+  provider.reset();
+
+  filePath = filePath + QStringLiteral( ".dss" );
+
+  ReosTimeSerieConstantInterval newTimeSeries( nullptr, QStringLiteral( "dss" ), "\"" + filePath + "\"::" + path.string() );
+  QCOMPARE( newTimeSeries.referenceTime(), refTime );
+  QCOMPARE( newTimeSeries.timeStep(), ReosDuration( 600, ReosDuration::second ) );
+
+  QCOMPARE( newTimeSeries.valueCount(), 3 );
+  QCOMPARE( newTimeSeries.valueAt( 0 ), 1.23 );
+  QCOMPARE( newTimeSeries.valueAt( 1 ), 3.45 );
+  QCOMPARE( newTimeSeries.valueAt( 2 ), 6.78 );
+
+  ReosTimeSerieVariableTimeStep variableTimeSeries( nullptr, QStringLiteral( "dss" ), "\"" + filePath + "\"::" + path.string() );
+  QCOMPARE( variableTimeSeries.referenceTime(), refTime );
+
+  QCOMPARE( variableTimeSeries.valueCount(), 3 );
+  QCOMPARE( variableTimeSeries.valueAt( 0 ), 1.23 );
+  QCOMPARE( variableTimeSeries.valueAt( 1 ), 3.45 );
+  QCOMPARE( variableTimeSeries.valueAt( 2 ), 6.78 );
+
+  QCOMPARE( variableTimeSeries.relativeTimeAt( 0 ), ReosDuration( 0, ReosDuration::minute ) );
+  QCOMPARE( variableTimeSeries.relativeTimeAt( 1 ), ReosDuration( 10, ReosDuration::minute ) );
+  QCOMPARE( variableTimeSeries.relativeTimeAt( 2 ), ReosDuration( 20, ReosDuration::minute ) );
+
+  QFile::remove( filePath );
+}
+
 }
 
 
