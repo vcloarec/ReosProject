@@ -113,10 +113,10 @@
     </Layer>
   </Terrains>
   <CurrentView>
-    <MaxX>653470.630975061</MaxX>
-    <MinX>653156.923685547</MinX>
-    <MaxY>1797363.75880201</MaxY>
-    <MinY>1797118.18435158</MinY>
+    <MaxX>653277.394300753</MaxX>
+    <MinX>653187.855665072</MinX>
+    <MaxY>1797229.42318115</MaxY>
+    <MinY>1797159.33108579</MinY>
   </CurrentView>
   <VelocitySettings>
     <Density>1.5</Density>
