@@ -8,6 +8,7 @@ extern "C" {
 
 
 #include "reosduration.h"
+#include "reosdssfile.h"
 
 
 ReosDuration ReosDssUtils::dssIntervalToDuration( const QString &dssInterval )
@@ -152,4 +153,12 @@ ReosDuration ReosDssUtils::nextValidInterval( const ReosDuration &interval )
   }
 
   return ReosDuration();
+}
+
+QString ReosDssUtils::uri( const QString &filePath, const ReosDssPath &dssPath )
+{
+  ReosDssPath pathWithoutDate = dssPath;
+  pathWithoutDate.setStartDate( QString() );
+
+  return QStringLiteral( "\"%1\"::%2" ).arg( filePath, dssPath.string() );
 }

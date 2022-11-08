@@ -27,6 +27,7 @@
 #include "reosduration.h"
 
 class QString;
+class ReosDssPath;
 
 class REOSDSS_EXPORT ReosDssUtils
 {
@@ -44,6 +45,8 @@ class REOSDSS_EXPORT ReosDssUtils
 
     static ReosDuration previousValidInterval( const ReosDuration &interval );
     static ReosDuration nextValidInterval( const ReosDuration &interval );
+
+    static QString uri( const QString &filePath, const ReosDssPath &dssPath );
 
   private:
     static QList<ReosDuration> sValidInterval;
