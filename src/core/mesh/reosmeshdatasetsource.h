@@ -26,11 +26,18 @@ class ReosMeshDatasetSource : public QObject
     Q_OBJECT
   public:
 
+    enum class Location
+    {
+      Vertex,
+      Face
+    };
+
     ReosMeshDatasetSource( QObject *parent = nullptr );
 
     virtual int groupCount() const = 0;
     virtual int datasetCount( int groupIndex ) const = 0;
     virtual QString groupName( int groupIndex ) const = 0;
+    virtual Location groupLocation( int groupIndex ) const = 0;
     virtual bool groupIsScalar( int groupIndex ) const = 0;
     virtual void groupMinMax( int groupIndex, double &minimum, double &maximum ) const = 0;
     virtual QDateTime groupReferenceTime( int groupIndex ) const = 0;

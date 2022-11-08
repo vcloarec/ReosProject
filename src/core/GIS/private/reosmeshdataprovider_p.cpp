@@ -92,7 +92,17 @@ QgsMeshDatasetGroupMetadata ReosMeshDataProvider_p::datasetGroupMetadata( int gr
   const QString name = mDatasetSource->groupName( groupIndex );
   const QString uri;
   bool isScalar = mDatasetSource->groupIsScalar( groupIndex );
-  QgsMeshDatasetGroupMetadata::DataType dataType = QgsMeshDatasetGroupMetadata::DataOnVertices;
+  QgsMeshDatasetGroupMetadata::DataType dataType;
+  switch ( mDatasetSource->groupLocation( groupIndex ) )
+  {
+    case ReosMeshDatasetSource::Location::Vertex:
+      dataType = QgsMeshDatasetGroupMetadata::DataOnVertices;
+      break;
+    case ReosMeshDatasetSource::Location::Face:
+      dataType = QgsMeshDatasetGroupMetadata::DataOnFaces;
+      break;
+  }
+
   double minimum;
   double maximum;
   mDatasetSource->groupMinMax( groupIndex, minimum, maximum );
