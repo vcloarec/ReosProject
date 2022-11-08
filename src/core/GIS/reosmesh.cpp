@@ -253,7 +253,7 @@ double ReosMeshPointValue::value( ReosMeshDatasetSource *source, int groupIndex,
     if ( source->groupIsScalar( groupIndex ) )
       return d->interpolateValue( source->datasetValues( groupIndex, index ) );
     else
-      return d->interpolateVectorValueValue( source->datasetValues( groupIndex, index ) );
+      return d->interpolateVectorValue( source->datasetValues( groupIndex, index ) );
   }
 
   return std::numeric_limits<double>::quiet_NaN();
@@ -288,7 +288,7 @@ double ReosMeshPointValueOnVertex::interpolateValue( const QVector<double> &valu
   return values.at( mVertexIndex );
 }
 
-double ReosMeshPointValueOnVertex::interpolateVectorValueValue( const QVector<double> &values ) const
+double ReosMeshPointValueOnVertex::interpolateVectorValue( const QVector<double> &values ) const
 {
   return sqrt( pow( values.at( mVertexIndex + 2 ), 2 ) + pow( values.at( mVertexIndex * 2 + 1 ), 2 ) );
 }
@@ -324,7 +324,7 @@ double ReosMeshPointValueOnEdge::interpolateValue( const QVector<double> &values
   return interpolateValueOnEdge( value1, value2 );
 }
 
-double ReosMeshPointValueOnEdge::interpolateVectorValueValue( const QVector<double> &values ) const
+double ReosMeshPointValueOnEdge::interpolateVectorValue( const QVector<double> &values ) const
 {
   double value11 = values.at( mVertex1 * 2 );
   double value12 = values.at( mVertex1 * 2 + 1 );
@@ -368,7 +368,7 @@ double ReosMeshPointValueOnFace::interpolateValue( const QVector<double> &values
   return interpolateValueOnFace( value1, value2, value3 );
 }
 
-double ReosMeshPointValueOnFace::interpolateVectorValueValue( const QVector<double> &values ) const
+double ReosMeshPointValueOnFace::interpolateVectorValue( const QVector<double> &values ) const
 {
   double value11 = values.at( 2 * mVertex1 );
   double value12 = values.at( 2 * mVertex1 + 1 );
