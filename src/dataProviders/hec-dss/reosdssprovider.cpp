@@ -62,14 +62,6 @@ ReosDssPath ReosDssProviderBase::dssPathFromUri( const QString &uri )
   return ReosDssPath( QString() );
 }
 
-QString ReosDssProviderBase::uri( const QString &filePath, const ReosDssPath &dssPath )
-{
-  ReosDssPath pathWithoutDate = dssPath;
-  pathWithoutDate.setStartDate( QString() );
-
-  return QStringLiteral( "\"%1\"::%2" ).arg( filePath, dssPath.string() );
-}
-
 ReosDuration ReosDssProviderBase::timeStepFromUri( const QString &uri )
 {
   return dssPathFromUri( uri ).timeIntervalDuration();
@@ -252,7 +244,7 @@ bool ReosDssProviderTimeSerieConstantTimeStep::persistData( QString &error )
   QString filePath = fileNameFromUri( uri );
   ReosDssPath newPath = path;
   newPath.setTimeInterval( mTimeStep );
-  setDataSource( ReosDssProviderBase::uri( filePath, newPath ), false );
+  setDataSource( ReosDssUtils::uri( filePath, newPath ), false );
 
   if ( res )
     load();

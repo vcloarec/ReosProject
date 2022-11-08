@@ -33,7 +33,6 @@ class ReosDssProviderBase
 
     static QString fileNameFromUri( const QString &uri );
     static ReosDssPath dssPathFromUri( const QString &uri );
-    static QString uri( const QString &filePath, const ReosDssPath &dssPath );
 
     ReosDuration timeStepFromUri( const QString &uri );
 
