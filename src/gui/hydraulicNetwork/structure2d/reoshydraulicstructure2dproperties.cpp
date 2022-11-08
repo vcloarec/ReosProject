@@ -89,6 +89,8 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   , mActionScalarSettings( new QAction( QIcon( QStringLiteral( ":/images/scalarContour.svg" ) ), tr( "Color Ramp" ), this ) )
   , mActionVectorSettings( new QAction( QIcon( QStringLiteral( ":/images/vectorSettings.svg" ) ), tr( "Vector Settings" ), this ) )
   , mGuiContext( context, this )
+  , mCurrentDatasetId( structure2D ? structure2D->currentActivatedMeshDataset() : QString() )
+  , mCurrentVectorDatasetId( structure2D ? structure2D->currentActivatedVectorMeshDataset() : QString() )
 {
   ui->setupUi( this );
 
