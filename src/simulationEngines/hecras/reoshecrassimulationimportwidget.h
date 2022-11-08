@@ -33,7 +33,7 @@ class ReosHecRasSimulationImportWidget : public ReosImportHydraulicStructureWidg
   public:
     ReosHecRasSimulationImportWidget( QWidget *parent = nullptr );
 
-    void importStructure2D( const ReosHydraulicNetworkContext &context ) const override;
+    ReosHydraulicStructure2D *importStructure2D( const ReosHydraulicNetworkContext &context ) const override;
 
   private slots:
     void onProjectFileButtonPressed();

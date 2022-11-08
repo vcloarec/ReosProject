@@ -19,10 +19,12 @@
 #include <QDialog>
 #include <QMap>
 #include "reosgui.h"
+#include "reosguicontext.h"
 
 class ReosHydraulicStructure2D;
 class ReosHydraulicNetworkContext;
 class ReosImportHydraulicStructureWidget;
+
 
 namespace Ui
 {
@@ -34,7 +36,7 @@ class ReosImportHydraulicStructureDialog : public QDialog
     Q_OBJECT
 
   public:
-    explicit ReosImportHydraulicStructureDialog( QWidget *parent = nullptr );
+    explicit ReosImportHydraulicStructureDialog( const ReosGuiContext &context );
     ~ReosImportHydraulicStructureDialog();
 
     void createStructure2d( const ReosHydraulicNetworkContext &context ) const;
@@ -44,6 +46,7 @@ class ReosImportHydraulicStructureDialog : public QDialog
 
   private:
     Ui::ReosImportHydraulicStructureDialog *ui;
+    const ReosGuiContext mGuiContext;
 
     QMap<QString, QString> mEngines;
     ReosImportHydraulicStructureWidget *mCurrentEngineWidget = nullptr;
@@ -58,7 +61,8 @@ class REOSGUI_EXPORT ReosImportHydraulicStructureWidget : public QWidget
       : QWidget( parent )
     {}
 
-    virtual void importStructure2D( const ReosHydraulicNetworkContext &context ) const = 0;
+    // Create a new 2D structure and return a pointer to it
+    virtual ReosHydraulicStructure2D *importStructure2D( const ReosHydraulicNetworkContext &context ) const = 0;
 
 };
 
