@@ -66,23 +66,33 @@ QPolygonF ReosHydraulicStructureProfile::resultsProfile( ReosHydraulicScheme *sc
     buildProfile();
 
   ReosHydraulicSimulationResults *results = mStructure->results( scheme );
-  int groupIndex = results->groupIndex( resultType );
 
-  std::function<double( ReosMeshPointValue )> resultValue = [results, groupIndex, datasetIndex]( const ReosMeshPointValue & points )
+  if ( results )
   {
-    return points.value( results, groupIndex, datasetIndex );
-  };
+    int groupIndex = results->groupIndex( resultType );
+    std::function<double( ReosMeshPointValue )> resultValue = [results, groupIndex, datasetIndex]( const ReosMeshPointValue & points )
+    {
+      return points.value( results, groupIndex, datasetIndex );
+    };
 
-  return extractValue( resultValue );
+    return extractValue( resultValue );
+  }
+
+  return QPolygonF();
 }
 
 QPolygonF ReosHydraulicStructureProfile::resultsProfile( ReosHydraulicScheme *scheme, const QDateTime &time, ReosHydraulicSimulationResults::DatasetType resultType ) const
 {
   ReosHydraulicSimulationResults *results = mStructure->results( scheme );
-  int groupIndex = results->groupIndex( resultType );
-  int datasetindex = results->datasetIndex( groupIndex, time );
+  if ( results )
+  {
+    int groupIndex = results->groupIndex( resultType );
+    int datasetindex = results->datasetIndex( groupIndex, time );
+    return resultsProfile( scheme, datasetindex, resultType );
+  }
 
-  return resultsProfile( scheme, datasetindex, resultType );
+  return QPolygon();
+
 }
 
 static QPolygonF mergeWaterlevelWithTerrain( const QPolygonF &waterLevel, const QPolygonF &terrain, QPolygonF &correctedWaterSurface )
@@ -133,13 +143,17 @@ QList<QPolygonF> ReosHydraulicStructureProfile::resultsFilledByWater( ReosHydrau
   if ( mPointValues.empty() )
     buildProfile();
 
+  QList<QPolygonF> ret;
   ReosHydraulicSimulationResults *results = mStructure->results( scheme );
+  if ( !results )
+    return ret;
+
   int groupIndex = results->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterLevel );
   int datasetindex = results->datasetIndex( groupIndex, time );
   if ( datasetindex == -1 )
     return QList<QPolygonF>();
 
-  QList<QPolygonF> ret;
+
   totalWaterSurface.clear();
 
   std::function<double( ReosMeshPointValue )> waterLevelValue = [results, groupIndex, datasetindex]( const ReosMeshPointValue & points )
@@ -313,16 +327,20 @@ QRectF ReosHydraulicStructureProfile::elevationExtent( ReosHydraulicScheme *sche
   if ( mStructure->hasResults( scheme ) )
   {
     ReosHydraulicSimulationResults *results = mStructure->results( scheme );
-    int waterLevelIndex = results->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterLevel );
-    int timeStepCount = results->datasetCount( waterLevelIndex );
-
-    bool ok = false;
-    for ( int i = 0; i < timeStepCount; ++i )
+    if ( results )
     {
-      QRectF wsExt = ReosGeometryUtils::boundingBox( resultsProfile( scheme, i, ReosHydraulicSimulationResults::DatasetType::WaterLevel ), ok );
-      if ( ok )
-        ret = ret.united( wsExt );
+      int waterLevelIndex = results->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterLevel );
+      int timeStepCount = results->datasetCount( waterLevelIndex );
+
+      bool ok = false;
+      for ( int i = 0; i < timeStepCount; ++i )
+      {
+        QRectF wsExt = ReosGeometryUtils::boundingBox( resultsProfile( scheme, i, ReosHydraulicSimulationResults::DatasetType::WaterLevel ), ok );
+        if ( ok )
+          ret = ret.united( wsExt );
+      }
     }
+
   }
 
   return ret;
@@ -331,6 +349,10 @@ QRectF ReosHydraulicStructureProfile::elevationExtent( ReosHydraulicScheme *sche
 QPair<double, double> ReosHydraulicStructureProfile::valueVerticalExtent( ReosHydraulicScheme *scheme, ReosHydraulicSimulationResults::DatasetType resultType )
 {
   ReosHydraulicSimulationResults *results = mStructure->results( scheme );
+
+  if ( !results )
+    return QPair<double, double>( 0, 0 );
+
   int waterLevelIndex = results->groupIndex( resultType );
   int timeStepCount = results->datasetCount( waterLevelIndex );
 
