@@ -2,7 +2,7 @@
                                               HEC-RAS - River Analysis System
  
  
-Project File:  C:\dev\sources\ReosProject\TestsHecRas\testData\simple\just_built\simple.prj
+Project File:  C:\dev\sources\ReosProject\TestsHecRas\testData\tmp\simple\simple.prj
  
 Project Name:  simple
  
@@ -12,9 +12,9 @@ Plan Name:     plan_test
 Short ID:      PLAN-1
  
 
-Starting Time:   31Dec2021 2400
+Starting Time:   01Jan2000 1000
 
-Ending Time:     01Jan2022 0600
+Ending Time:     01Jan2000 1200
 
 
                 ################################################
@@ -25,7 +25,7 @@ Ending Time:     01Jan2022 0600
                 #                                              #
                 #          HEC-RAS 6.3.1 October 2022          #
                 #                                              #
-                #             06NOV22 at 19:46:29              #
+                #             07NOV22 at 22:25:54              #
                 #                                              #
                 ################################################
                 
@@ -49,22 +49,22 @@ Ending Time:     01Jan2022 0600
            *******    ************      **********      **********     ***********           *****   *************
  
  
-       Perimeter 1           18.82          0.9847           36.46           54.29        0.000995        0.001832
+       Perimeter 1           18.82          0.9739           71.03           88.88        0.006179        0.006953
 
 
 
                  ***  Total Volume Accounting (for the entire model) in 1000 m^3   ***
 
-Total Boundary Flux of Water In            36.46
-Total Boundary Flux of Water Out           54.29
+Total Boundary Flux of Water In            71.03
+Total Boundary Flux of Water Out           88.88
 
 Starting Volume                            18.82
-Ending Volume                             0.9847
+Ending Volume                             0.9739
 
 
                              Error   Percent Error
                              *****   *************
-                          0.000995        0.001800
+                          0.006179        0.006877
 
 
 

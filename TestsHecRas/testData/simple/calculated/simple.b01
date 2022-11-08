@@ -42,10 +42,10 @@ Job Control Information
   DSS Message Level     =        4
   Write HDF5 File       =        T
   Write DSS File        =        T
-C:\dev\sources\ReosProject\TestsHecRas\testData\simple\just_built\simple.dss
+C:\dev\sources\ReosProject\TestsHecRas\testData\tmp\simple\simple.dss
 Computational Time Window
-  Start Date/Time       = 31Dec2021 2400
-  End Date/Time         = 01Jan2022 0600
+  Start Date/Time       = 01Jan2000 1000
+  End Date/Time         = 01Jan2000 1200
 Initial Conditions (use restart file?)
        F
 Log File Information

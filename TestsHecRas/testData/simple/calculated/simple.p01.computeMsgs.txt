@@ -2,7 +2,7 @@ Message  | Notes generated when writing the computation files:
 Message  | Testing program set the number of cores for 2d flow area: 'Perimeter 1' from 0 to 0
 Message  | 
 Message  | Plan: 'plan_test' (simple.p01)
-Message  | Simulation started at: 06Nov2022 07:46:28 PM
+Message  | Simulation started at: 07Nov2022 10:25:51 PM
 Message  | 
 Message  | PROCESS:RasProcess
 Message  | Writing Geometry...
@@ -32,7 +32,7 @@ Progress | 0.1
 Progress | 0.2
 Progress | 0.3
 Message  |  
-Progress | 1.015625E-02
+Progress | 0.0203125
 Message  | 	
 Message  | Unsteady Input Summary:
 Message  |      2D Unsteady Diffusion Wave Equation Set (fastest)
@@ -41,59 +41,54 @@ Progress | 0.4
 Progress | 0.5
 Progress | 0.6
 Progress | 0.7333333
-Progress | 4.62963E-04
-Progress | 2.083333E-02
-Progress | 0.0412037
-Progress | 6.157407E-02
-Progress | 8.194444E-02
-Progress | 0.1023148
-Progress | 0.1226852
-Progress | 0.1430556
-Progress | 0.1634259
-Progress | 0.1837963
-Progress | 0.2041667
-Progress | 0.224537
-Progress | 0.2449074
-Progress | 0.2652778
-Progress | 0.2856481
-Progress | 0.3060185
-Progress | 0.3263889
-Progress | 0.3467592
-Progress | 0.3671297
-Progress | 0.3875
-Progress | 0.4078704
-Progress | 0.4282407
-Progress | 0.4486111
-Progress | 0.4689815
-Progress | 0.4893519
-Progress | 0.5097222
-Progress | 0.5300926
-Progress | 0.550463
-Progress | 0.5708333
-Progress | 0.5912037
-Progress | 0.6115741
-Progress | 0.6319445
-Progress | 0.6523148
-Progress | 0.6726851
-Progress | 0.6930556
-Progress | 0.7134259
-Progress | 0.7337963
-Progress | 0.7541667
-Progress | 0.774537
-Progress | 0.7949074
-Progress | 0.8152778
-Progress | 0.8356481
-Progress | 0.8560185
-Progress | 0.8763888
-Progress | 0.8967593
-Progress | 0.9171296
-Progress | 0.9375
-Progress | 0.9578704
-Progress | 0.9782407
-Progress | 0.9986112
+Progress | 1.388889E-03
+Progress | 2.361111E-02
+Progress | 4.583333E-02
+Progress | 6.805556E-02
+Progress | 9.027778E-02
+Progress | 0.1125
+Progress | 0.1347222
+Progress | 0.1569444
+Progress | 0.1791667
+Progress | 0.2013889
+Progress | 0.2236111
+Progress | 0.2458333
+Progress | 0.2680556
+Progress | 0.2902778
+Progress | 0.3125
+Progress | 0.3347222
+Progress | 0.3569444
+Progress | 0.3791667
+Progress | 0.4013889
+Progress | 0.4236111
+Progress | 0.4458333
+Progress | 0.4680555
+Progress | 0.4902778
+Progress | 0.5125
+Progress | 0.5347222
+Progress | 0.5569444
+Progress | 0.5791667
+Progress | 0.6013889
+Progress | 0.6236111
+Progress | 0.6458333
+Progress | 0.6680555
+Progress | 0.6902778
+Progress | 0.7125
+Progress | 0.7347222
+Progress | 0.7569444
+Progress | 0.7791666
+Progress | 0.8013889
+Progress | 0.8236111
+Progress | 0.8458334
+Progress | 0.8680556
+Progress | 0.8902778
+Progress | 0.9125
+Progress | 0.9347222
+Progress | 0.9569445
+Progress | 0.9791667
 Message  | 
-Message  | Overall Volume Accounting Error in 1000 m^3:          0.000995
-Message  | Overall Volume Accounting Error as percentage:          0.001800
+Message  | Overall Volume Accounting Error in 1000 m^3:          0.006179
+Message  | Overall Volume Accounting Error as percentage:          0.006877
 Message  | Please review "Computational Log File" output for volume accounting details
 Message  | 
 Message  | Writing Results to DSS
@@ -106,12 +101,12 @@ Message  |
 Message  | Computations Summary
 Message  | 
 Message  | Computation Task	Time(hh:mm:ss)
-Message  | Completing Geometry	<1
+Message  | Completing Geometry	       1
 Message  | Preprocessing Geometry	<1
 Message  | Completing Event Conditions	<1
-Message  | Unsteady Flow Computations	    1:02
-Message  | Complete Process	    1:03
+Message  | Unsteady Flow Computations	       3
+Message  | Complete Process	       6
 Message  | 
 Message  | Computation Speed	Simulation/Runtime
-Message  | Unsteady Flow Computations	348x
-Message  | Complete Process	341x
+Message  | Unsteady Flow Computations	1858x
+Message  | Complete Process	1095x
