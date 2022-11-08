@@ -538,6 +538,13 @@ ReosEncodeContext ReosHydraulicNetworkContext::encodeContext() const
   return context;
 }
 
+QString ReosHydraulicNetworkContext::currentSchemeId() const
+{
+  if ( mNetwork && mNetwork->currentScheme() )
+    return mNetwork->currentScheme()->id();
+  return QString();
+}
+
 ReosHydraulicNetworkElementFactory::ReosHydraulicNetworkElementFactory()
 {
 

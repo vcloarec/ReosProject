@@ -142,6 +142,8 @@ class REOSCORE_EXPORT ReosHydraulicNetworkContext
 
     ReosEncodeContext encodeContext() const;
 
+    QString currentSchemeId() const;
+
   private:
     ReosHydraulicNetworkContext() {}
 

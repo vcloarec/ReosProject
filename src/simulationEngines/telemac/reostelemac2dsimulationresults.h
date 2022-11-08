@@ -40,10 +40,8 @@ class ReosTelemac2DSimulationResults : public ReosHydraulicSimulationResults
     ReosTelemac2DSimulationResults( const ReosTelemac2DSimulation *simulation, const ReosMesh *mesh, const QString &fileName, QObject *parent = nullptr );
     ~ReosTelemac2DSimulationResults();
 
-    int groupCount() const override;
+    Location groupLocation( int groupIndex ) const override;
     int datasetCount( int groupIndex ) const override;
-    DatasetType datasetType( int groupIndex ) const override;
-    int groupIndex( DatasetType type ) const override;
     void groupMinMax( int groupIndex, double &minimum, double &maximum ) const override;
     QDateTime groupReferenceTime( int groupIndex ) const override;
     ReosDuration datasetRelativeTime( int groupIndex, int datasetIndex ) const override;
@@ -62,7 +60,7 @@ class ReosTelemac2DSimulationResults : public ReosHydraulicSimulationResults
     QString mFileName;
     MDAL_MeshH mMeshH = nullptr;
     mutable QDateTime mReferenceTime;
-    QMap<DatasetType, int> mTypeToTelemacGroupIndex;
+    QMap<DatasetType, int> mTypeToSourceGroupIndex;
     double mDryDepthValue = 0.00015;
     QVector<QVector<int>> mFaces;
     QVector<double> mBottomValues;
@@ -71,7 +69,7 @@ class ReosTelemac2DSimulationResults : public ReosHydraulicSimulationResults
     mutable QMap<ReosDuration, int> mTimeToTimeStep;
     mutable QVector<ReosDuration> mTimeSteps;
 
-    int groupIndexToTelemacIndex( int groupIndex ) const;
+    int groupIndexToSourceIndex( int groupIndex ) const;
 
     void populateTimeStep() const;
 

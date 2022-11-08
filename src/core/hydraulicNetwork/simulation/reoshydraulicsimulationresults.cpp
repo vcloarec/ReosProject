@@ -20,34 +20,49 @@
 ReosHydraulicSimulationResults::ReosHydraulicSimulationResults( const ReosHydraulicSimulation *simulation, QObject *parent )
   : ReosMeshDatasetSource( parent )
 {
-  mSimulationId = simulation->id();
 }
 
-QString ReosHydraulicSimulationResults::groupId( ReosHydraulicSimulationResults::DatasetType type )
+int ReosHydraulicSimulationResults::groupCount() const
 {
-  return groupId( groupIndex( type ) );
+  return mGroupIndexToType.count();
 }
 
-QString ReosHydraulicSimulationResults::groupId( int groupIndex ) const
+QString ReosHydraulicSimulationResults::groupId( ReosHydraulicSimulationResults::DatasetType type ) const
 {
-  DatasetType dt = datasetType( groupIndex );
-
-  switch ( dt )
+  switch ( type )
   {
     case ReosHydraulicSimulationResults::DatasetType::None:
       return QStringLiteral( "none" );
     case ReosHydraulicSimulationResults::DatasetType::WaterLevel:
-      return tr( "water-level" );
+      return QStringLiteral( "water-level" );
       break;
     case ReosHydraulicSimulationResults::DatasetType::WaterDepth:
-      return tr( "water-depth" );
+      return QStringLiteral( "water-depth" );
       break;
     case ReosHydraulicSimulationResults::DatasetType::Velocity:
-      return tr( "velocity" );
+      return QStringLiteral( "velocity" );
       break;
   }
 
   return QString();
+}
+
+QString ReosHydraulicSimulationResults::groupId( int groupIndex ) const
+{
+  return groupId( datasetType( groupIndex ) );
+}
+
+ReosHydraulicSimulationResults::DatasetType ReosHydraulicSimulationResults::datasetType( int groupIndex ) const
+{
+  if ( groupIndex < 0 && groupIndex >= mGroupIndexToType.count() )
+    return DatasetType::None;
+
+  return mGroupIndexToType.at( groupIndex );
+}
+
+int ReosHydraulicSimulationResults::groupIndex( DatasetType type ) const
+{
+  return mGroupIndexToType.indexOf( type );
 }
 
 QString ReosHydraulicSimulationResults::groupName( int groupIndex ) const
@@ -60,7 +75,7 @@ QString ReosHydraulicSimulationResults::groupName( int groupIndex ) const
   switch ( dt )
   {
     case ReosHydraulicSimulationResults::DatasetType::None:
-      return QStringLiteral( "(None)" );
+      return tr( "None" );
     case ReosHydraulicSimulationResults::DatasetType::WaterLevel:
       return tr( "Water level" );
       break;
@@ -91,6 +106,7 @@ bool ReosHydraulicSimulationResults::groupIsScalar( int groupIndex ) const
       return true;
       break;
     case ReosHydraulicSimulationResults::DatasetType::Velocity:
+    case ReosHydraulicSimulationResults::DatasetType::None:
       return false;
       break;
   }
@@ -114,5 +130,10 @@ QVector<double> ReosHydraulicSimulationResults::resultValues( ReosHydraulicSimul
 {
   int gi = groupIndex( datasetType );
   return datasetValues( gi, index );
+}
+
+void ReosHydraulicSimulationResults::registerGroups( const QList<DatasetType> &types )
+{
+  mGroupIndexToType = types;
 }
 

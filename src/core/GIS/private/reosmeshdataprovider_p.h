@@ -33,6 +33,7 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
 {
     Q_OBJECT
   public:
+
     ReosMeshDataProvider_p();
 
     void setFilePath( const QString &filePath );
@@ -52,8 +53,9 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
 
     void setDatasetSource( ReosMeshDatasetSource *datasetSource );
 
+    //! Dataset handling
   public:
-    bool addDataset( const QString &uri ) override {return false;}
+    bool addDataset( const QString & ) override {return false;}
     QStringList extraDatasets() const override {return QStringList();}
     int datasetGroupCount() const override;
     int datasetCount( int groupIndex ) const override;

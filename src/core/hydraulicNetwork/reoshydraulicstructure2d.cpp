@@ -189,6 +189,8 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( ReosStructureImporter *impor
   mCurrentSimulationIndex = mSimulations.isEmpty() ? -1 : 0;
 
   mMeshNeedToBeGenerated = hasCapability( ReosHydraulicStructure2D::GeometryEditable );
+
+  updateResults( context.currentSchemeId() );
 }
 
 ReosHydraulicStructureProfilesCollection *ReosHydraulicStructure2D::profilesCollection() const
@@ -1101,7 +1103,8 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
 
     for ( ReosHydraulicStructureBoundaryCondition *bc : boundaries )
     {
-      if ( bc->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::OutputLevel )
+      if ( bc->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::OutputLevel ||
+           bc->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally )
       {
         bc->outputHydrograph()->clear();
         if ( outputHydrographs.contains( bc->boundaryConditionId() ) )
