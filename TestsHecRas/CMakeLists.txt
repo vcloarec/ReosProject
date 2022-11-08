@@ -7,6 +7,7 @@ FIND_PACKAGE(Threads REQUIRED)
 SET(REOS_HECRAS_SOURCES
      ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras/reoshecrascontroller.cpp
      ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras/reoshecrassimulation.cpp
+     ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras/reoshecrassimulationresults.cpp
      ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras/reoshecrasproject.cpp
      ${CMAKE_SOURCE_DIR}/src/dataProviders/hec-dss/reosdssprovider.cpp
 )
@@ -14,6 +15,7 @@ SET(REOS_HECRAS_SOURCES
 SET(REOS_HECRAS_HEADERS
      ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras/reoshecrascontroller.h
      ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras/reoshecrassimulation.h
+     ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras/reoshecrassimulationresults.h
      ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras/reoshecrasproject.h
      ${CMAKE_SOURCE_DIR}/src/dataProviders/hec-dss/reosdssprovider.h
 )
@@ -30,6 +32,7 @@ TARGET_LINK_LIBRARIES(test_hecras
                       reosGui
                       reosHecDss
                       ${HEC_DSS_ALL_STATIC_LIB}
+                      ${MDAL_LIB}
 )
 
 IF(GDAL_FOUND)
@@ -72,6 +75,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/hydraulicNetwork
     ${CMAKE_SOURCE_DIR}/src/core/hydraulicNetwork/simulation
     ${HEC_DSS_INCLUDE}
+    ${MDAL_INCLUDE_DIR}
     )
 
 

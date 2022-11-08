@@ -76,11 +76,16 @@ class ReosHecRasPlan
 
     void changeSimulationTimeInFile( const QDateTime &startTime, const QDateTime &endTime ) const;
 
+    const QString &fileName() const;
+
+    const QString &shortIdentifier() const;
+
   private:
     QString mFileName;
     QString mTitle;
     QString mGeometryFile;
     QString mFlowFile;
+    QString mShortIdentifier;
 
     QDateTime mStartTime;
     QDateTime mEndTime;
@@ -164,11 +169,13 @@ class ReosHecRasProject
 
     QStringList geometryIds() const;
     ReosHecRasGeometry geometry( const QString &id ) const;
+    ReosHecRasGeometry geometryFromPlan( const QString &planId ) const;
     QString currentGeometryFileName() const;
     ReosHecRasGeometry currentGeometry() const;
 
     QStringList flowIds() const;
     ReosHecRasFlow flow( const QString &id ) const;
+    ReosHecRasFlow flowFromPlan( const QString &planId ) const;
     ReosHecRasFlow currentFlow() const;
 
     static QDate hecRasDateToDate( const QString &hecrasDate );
@@ -176,12 +183,17 @@ class ReosHecRasProject
 
     const QString &fileName() const;
 
+    const QString &projectName() const;
+
+    const QString dssResultFile( const QString &planId ) const;
+
   private:
     QString mFileName;
     QMap<QString, ReosHecRasPlan> mPlans;
     QMap<QString, ReosHecRasGeometry> mGeometries;
     QMap<QString, ReosHecRasFlow> mFlows;
     QString mCurrentPlan;
+    QString mProjectName;
 
     void parseProjectFile();
 

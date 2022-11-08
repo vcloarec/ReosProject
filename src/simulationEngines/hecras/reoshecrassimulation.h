@@ -26,12 +26,12 @@ class ReosHecRasController;
 class ReosHecRasSimulationProcess: public ReosSimulationProcess
 {
   public:
-    ReosHecRasSimulationProcess( 
-        const ReosHecRasProject &hecRasProject,
-        const QString &planId,
-        const ReosCalculationContext &context, 
-        const QList<ReosHydraulicStructureBoundaryCondition *> boundaries );
-    
+    ReosHecRasSimulationProcess(
+      const ReosHecRasProject &hecRasProject,
+      const QString &planId,
+      const ReosCalculationContext &context,
+      const QList<ReosHydraulicStructureBoundaryCondition *> boundaries );
+
     void start();
 
   private:
@@ -44,7 +44,7 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
 {
     Q_OBJECT
   public:
-    ReosHecRasSimulation( QObject *parent );
+    ReosHecRasSimulation( QObject *parent = nullptr );
     ReosHecRasSimulation( const ReosEncodedElement &element, QObject *parent = nullptr );
 
     static QString staticKey() { return QStringLiteral( "hecras" ); }
@@ -54,14 +54,14 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
     void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) override;
     void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext, const QDir &directory ) {}
 
-    ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const;
+    ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const override;
     QList<QDateTime> theoricalTimeSteps( ReosHydraulicScheme *scheme ) const {return QList<QDateTime>();}
     ReosDuration representativeTimeStep() const {return ReosDuration();}
     ReosDuration representative2DTimeStep() const {return ReosDuration();}
-    void saveSimulationResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, ReosSimulationProcess *process, bool success ) const {}
-    ReosHydraulicSimulationResults *loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, QObject *parent ) const {return nullptr;}
-    bool hasResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const {return false;}
-    void removeResults( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const {}
+    void saveSimulationResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, ReosSimulationProcess *process, bool success ) const override;
+    ReosHydraulicSimulationResults *loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, QObject *parent ) const;
+    bool hasResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const override;
+    void removeResults( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const override;
     QString engineName() const override {return tr( "HECRAS" );}
     void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
     void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
@@ -74,7 +74,7 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
 
     const QString &currentPlan() const;
 
-private:
+  private:
     QString mProjectFileName;
     std::shared_ptr<ReosHecRasProject> mProject;
 
