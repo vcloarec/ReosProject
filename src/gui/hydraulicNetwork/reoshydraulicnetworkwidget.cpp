@@ -318,10 +318,10 @@ void ReosHydraulicNetworkWidget::onZoomToNetworkExtent()
 
 void ReosHydraulicNetworkWidget::onImportStructure2D()
 {
-  ReosImportHydraulicStructureDialog *dial = new ReosImportHydraulicStructureDialog( this );
+  ReosImportHydraulicStructureDialog *dial = new ReosImportHydraulicStructureDialog( mGuiContext );
 
- if ( dial->exec())
-     dial->createStructure2d(mHydraulicNetwork->context());
+  if ( dial->exec() )
+    dial->createStructure2d( mHydraulicNetwork->context() );
 
   dial->deleteLater();
 }

@@ -19,10 +19,13 @@
 #include "reoshydraulicsimulation.h"
 #include "reoshydraulic2dsimulationwidget.h"
 #include "reoshydraulicnetwork.h"
+#include "reosmap.h"
+#include "reoshydraulicstructure2d.h"
 
-ReosImportHydraulicStructureDialog::ReosImportHydraulicStructureDialog( QWidget *parent ) :
-  QDialog( parent ),
-  ui( new Ui::ReosImportHydraulicStructureDialog )
+ReosImportHydraulicStructureDialog::ReosImportHydraulicStructureDialog( const ReosGuiContext &context )
+  : QDialog( context.parent() )
+  , ui( new Ui::ReosImportHydraulicStructureDialog )
+  , mGuiContext( context )
 {
   ui->setupUi( this );
 
@@ -47,7 +50,9 @@ void ReosImportHydraulicStructureDialog::createStructure2d( const ReosHydraulicN
   if ( !mCurrentEngineWidget )
     return;
 
-  mCurrentEngineWidget->importStructure2D( context );
+  ReosHydraulicStructure2D *structure = mCurrentEngineWidget->importStructure2D( context );
+  if ( structure && mGuiContext.map() )
+    mGuiContext.map()->setExtent( structure->extent() );
 }
 
 void ReosImportHydraulicStructureDialog::onEngineChanged()
