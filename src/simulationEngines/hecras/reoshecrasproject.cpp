@@ -60,6 +60,12 @@ ReosHecRasGeometry ReosHecRasProject::geometry( const QString &id ) const
   return mGeometries.value( id );
 }
 
+ReosHecRasGeometry ReosHecRasProject::geometryFromPlan( const QString &planId ) const
+{
+  const ReosHecRasPlan &currentPlan = mPlans.value( planId );
+  return mGeometries.value( currentPlan.geometryFile() );
+}
+
 QString ReosHecRasProject::currentGeometryFileName() const
 {
   return currentGeometry().fileName();
@@ -67,8 +73,7 @@ QString ReosHecRasProject::currentGeometryFileName() const
 
 ReosHecRasGeometry ReosHecRasProject::currentGeometry() const
 {
-  const ReosHecRasPlan &currentPlan = mPlans.value( mCurrentPlan );
-  return mGeometries.value( currentPlan.geometryFile() );
+  return geometryFromPlan( mCurrentPlan );
 }
 
 QStringList ReosHecRasProject::flowIds() const
@@ -81,10 +86,15 @@ ReosHecRasFlow ReosHecRasProject::flow( const QString &id ) const
   return mFlows.value( id );
 }
 
+ReosHecRasFlow ReosHecRasProject::flowFromPlan( const QString &planId ) const
+{
+  const ReosHecRasPlan &currentPlan = mPlans.value( planId );
+  return mFlows.value( currentPlan.flowFile() );
+}
+
 ReosHecRasFlow ReosHecRasProject::currentFlow() const
 {
-  const ReosHecRasPlan &currentPlan = mPlans.value( mCurrentPlan );
-  return mFlows.value( currentPlan.flowFile() );
+  return flowFromPlan( mCurrentPlan );
 }
 
 void ReosHecRasProject::parseProjectFile()
@@ -94,7 +104,7 @@ void ReosHecRasProject::parseProjectFile()
     return;
 
   QFileInfo fileInfo( mFileName );
-  QString projectName = fileInfo.baseName();
+  mProjectName = fileInfo.baseName();
   QDir projectDir = fileInfo.dir();
 
   QTextStream stream( &file );
@@ -106,21 +116,21 @@ void ReosHecRasProject::parseProjectFile()
     {
       QString geomFile = line;
       geomFile.remove( QStringLiteral( "Geom File=" ) );
-      mGeometries.insert( geomFile, ReosHecRasGeometry( projectDir.filePath( projectName + '.' + geomFile ) ) );
+      mGeometries.insert( geomFile, ReosHecRasGeometry( projectDir.filePath( mProjectName + '.' + geomFile ) ) );
     }
 
     if ( line.startsWith( QStringLiteral( "Plan File=" ) ) )
     {
       QString planFile = line;
       planFile.remove( QStringLiteral( "Plan File=" ) );
-      mPlans.insert( planFile, ReosHecRasPlan( projectDir.filePath( projectName + '.' + planFile ) ) );
+      mPlans.insert( planFile, ReosHecRasPlan( projectDir.filePath( mProjectName + '.' + planFile ) ) );
     }
 
     if ( line.startsWith( QStringLiteral( "Unsteady File=" ) ) )
     {
       QString flowFile = line;
       flowFile.remove( QStringLiteral( "Unsteady File=" ) );
-      mFlows.insert( flowFile, ReosHecRasFlow( projectDir.filePath( projectName + '.' + flowFile ) ) );
+      mFlows.insert( flowFile, ReosHecRasFlow( projectDir.filePath( mProjectName + '.' + flowFile ) ) );
     }
 
     if ( line.startsWith( QStringLiteral( "Current Plan=" ) ) )
@@ -353,6 +363,16 @@ void ReosHecRasPlan::changeSimulationTimeInFile( const QDateTime &startTime, con
   tempFile.copy( mFileName );
 }
 
+const QString &ReosHecRasPlan::fileName() const
+{
+  return mFileName;
+}
+
+const QString &ReosHecRasPlan::shortIdentifier() const
+{
+  return mShortIdentifier;
+}
+
 void ReosHecRasPlan::parsePlanFile()
 {
   QFile file( mFileName );
@@ -369,6 +389,13 @@ void ReosHecRasPlan::parsePlanFile()
       mTitle = line;
       mTitle.remove( QStringLiteral( "Plan Title=" ) );
       mTitle = mTitle.trimmed();
+    }
+
+    if ( line.startsWith( QStringLiteral( "Short Identifier=" ) ) )
+    {
+      mShortIdentifier = line;
+      mShortIdentifier.remove( QStringLiteral( "Short Identifier=" ) );
+      mShortIdentifier = mShortIdentifier.trimmed();
     }
 
     if ( line.startsWith( QStringLiteral( "Geom File=" ) ) )
@@ -524,6 +551,17 @@ const QString &ReosHecRasProject::fileName() const
   return mFileName;
 }
 
+const QString &ReosHecRasProject::projectName() const
+{
+  return mProjectName;
+}
+
+const QString ReosHecRasProject::dssResultFile( const QString &planId ) const
+{
+  Q_UNUSED( planId );
+  return directory().filePath( mProjectName + QStringLiteral( ".dss" ) );
+}
+
 ReosHecRasFlow::ReosHecRasFlow( const QString &fileName )
   : mFileName( fileName )
 {
@@ -632,10 +670,10 @@ bool ReosHecRasFlow::applyBoudaryFlow( const QList<BoundaryFlow> &flows )
           valueCount = 0;
       }
       int rowCount;
-      if (valueCount > 0)
-          rowCount = valueCount / 10 + 1;
+      if ( valueCount > 0 )
+        rowCount = valueCount / 10 + 1;
       else
-          rowCount = 0;
+        rowCount = 0;
 
       for ( int i = 0; i < rowCount; ++i )
         stream.readLine();

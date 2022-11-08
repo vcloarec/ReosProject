@@ -22,6 +22,7 @@
 #include "reoshecrascontroller.h"
 #include "reoshydraulicscheme.h"
 #include "reossettings.h"
+#include "reoshecrassimulationresults.h"
 
 #include <QFileInfo>
 
@@ -323,7 +324,44 @@ ReosSimulationProcess *ReosHecRasSimulation::getProcess(
   ReosHydraulicStructure2D *hydraulicStructure,
   const ReosCalculationContext &calculationContext ) const
 {
-  return new ReosHecRasSimulationProcess( *mProject.get(), mCurrentPlan, calculationContext, hydraulicStructure->boundaryConditions());
+  return new ReosHecRasSimulationProcess( *mProject.get(), mCurrentPlan, calculationContext, hydraulicStructure->boundaryConditions() );
+}
+
+void ReosHecRasSimulation::saveSimulationResult( const ReosHydraulicStructure2D *, const QString &, ReosSimulationProcess *, bool ) const
+{
+  // for HEC-RAS everything is already save, so nothing to do
+}
+
+ReosHydraulicSimulationResults *ReosHecRasSimulation::loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, QObject *parent ) const
+{
+  if ( hasResult( hydraulicStructure, shemeId ) )
+    return new ReosHecRasSimulationResults( this, parent );
+  else
+    return nullptr;
+}
+
+bool ReosHecRasSimulation::hasResult( const ReosHydraulicStructure2D *, const QString & ) const
+{
+  const ReosHecRasPlan currentPlan = mProject->plan( mCurrentPlan );
+
+  const QString meshFile = currentPlan.fileName() + QStringLiteral( ".hdf" );
+  QFileInfo meshInfo( meshFile );
+  if ( !meshInfo.exists() )
+    return false;
+
+  const QString dssFile = mProject->dssResultFile( mCurrentPlan );
+  QFileInfo dssInfo( dssFile );
+  if ( !dssInfo.exists() )
+    return false;
+
+  return true;
+}
+
+void ReosHecRasSimulation::removeResults( const ReosHydraulicStructure2D *, const QString & ) const
+{
+  const ReosHecRasPlan currentPlan = mProject->plan( mCurrentPlan );
+  const QString meshFile = currentPlan.fileName() + QStringLiteral( ".hdf" );
+  QFile::remove( meshFile );
 }
 
 void ReosHecRasSimulation::saveConfiguration( ReosHydraulicScheme *scheme ) const
@@ -465,80 +503,80 @@ ReosHecRasSimulationProcess::ReosHecRasSimulationProcess(
   const ReosCalculationContext &context,
   const QList<ReosHydraulicStructureBoundaryCondition *> boundaries )
   : ReosSimulationProcess( context, boundaries )
-    , mProject(hecRasProject)
-    , mPlan(hecRasProject.plan(planId))
+  , mProject( hecRasProject )
+  , mPlan( hecRasProject.plan( planId ) )
 {
   QStringList availableVersions = ReosHecRasController::availableVersion();
   ReosSettings settings;
   if ( settings.contains( QStringLiteral( "/engine/hecras/version" ) ) )
   {
-      mControllerVersion = settings.value( QStringLiteral( "/engine/hecras/version" ) ).toString();
+    mControllerVersion = settings.value( QStringLiteral( "/engine/hecras/version" ) ).toString();
     if ( !availableVersions.contains( mControllerVersion ) )
-        mControllerVersion.clear();
+      mControllerVersion.clear();
   }
 
-  if (mControllerVersion.isEmpty() && !availableVersions.isEmpty())
-      mControllerVersion = availableVersions.last();
+  if ( mControllerVersion.isEmpty() && !availableVersions.isEmpty() )
+    mControllerVersion = availableVersions.last();
 }
 
 void ReosHecRasSimulationProcess::start()
 {
-  setMaxProgression(100);
-  setCurrentProgression(0);
+  setMaxProgression( 100 );
+  setCurrentProgression( 0 );
   mIsSuccessful = false;
   if ( mControllerVersion.isEmpty() )
   {
     emit sendInformation( tr( "None version of HEC-RAS found, please verify that HEC-RAS is installed." ) );
-    setCurrentProgression(100);
+    setCurrentProgression( 100 );
     return;
   }
 
-  std::unique_ptr<ReosHecRasController> controller(new ReosHecRasController(mControllerVersion));
+  std::unique_ptr<ReosHecRasController> controller( new ReosHecRasController( mControllerVersion ) );
 
-  if (!controller->isValid())
+  if ( !controller->isValid() )
   {
-      emit sendInformation(tr("Controller of HEC-RAS found is not valid.\nCalculation cancelled."));
-      return;
+    emit sendInformation( tr( "Controller of HEC-RAS found is not valid.\nCalculation cancelled." ) );
+    return;
   }
 
-  emit sendInformation(tr("Start HEC-RAS model calculation with %1.").arg(controller->version()));
+  emit sendInformation( tr( "Start HEC-RAS model calculation with %1." ).arg( controller->version() ) );
 
-  QFileInfo fileProjectInfo(mProject.fileName());
-  if (!fileProjectInfo.exists())
+  QFileInfo fileProjectInfo( mProject.fileName() );
+  if ( !fileProjectInfo.exists() )
   {
-      emit sendInformation(tr("HEC-RAS project file \"%1\" not found.\nCalculation cancelled.").arg(mProject.fileName()));
-      return;
+    emit sendInformation( tr( "HEC-RAS project file \"%1\" not found.\nCalculation cancelled." ).arg( mProject.fileName() ) );
+    return;
   }
 
-  if (!controller->openHecrasProject(mProject.fileName()))
+  if ( !controller->openHecrasProject( mProject.fileName() ) )
   {
-      emit sendInformation(tr("UNable to open HEC-RAS project file \"%1\".\nCalculation cancelled.").arg(mProject.fileName()));
-      return;
+    emit sendInformation( tr( "UNable to open HEC-RAS project file \"%1\".\nCalculation cancelled." ).arg( mProject.fileName() ) );
+    return;
   }
 
   QStringList plans = controller->planNames();
-  
-  if (!plans.contains(mPlan.title()))
+
+  if ( !plans.contains( mPlan.title() ) )
   {
-      emit sendInformation(tr("Plan \"%1\" not found.\nCalculation cancelled.").arg(mPlan.title()));
-      return;
+    emit sendInformation( tr( "Plan \"%1\" not found.\nCalculation cancelled." ).arg( mPlan.title() ) );
+    return;
   }
 
-  if (!controller->setCurrentPlan(mPlan.title()))
+  if ( !controller->setCurrentPlan( mPlan.title() ) )
   {
-      emit sendInformation(tr("Unable to set plan \"%1\" as current plan.\nCalculation cancelled.").arg(mPlan.title()));
-      return;
+    emit sendInformation( tr( "Unable to set plan \"%1\" as current plan.\nCalculation cancelled." ).arg( mPlan.title() ) );
+    return;
   }
 
   controller->showComputationWindow();
 
   const QStringList returnedMessages = controller->computeCurrentPlan();
-  emit sendInformation("kjhskfhjkqsgfjhqsdfjqsdjkfgqsdjkgfjgsd");
+  emit sendInformation( "kjhskfhjkqsgfjhqsdfjqsdjkfgqsdjkgfjgsd" );
 
-  for (const QString& mes : returnedMessages)
+  for ( const QString &mes : returnedMessages )
   {
-      emit sendInformation(mes);
+    emit sendInformation( mes );
   }
 
-  mIsSuccessful= !returnedMessages.isEmpty() && returnedMessages.last() == QStringLiteral("Computations Completed");
+  mIsSuccessful = !returnedMessages.isEmpty() && returnedMessages.last() == QStringLiteral( "Computations Completed" );
 }

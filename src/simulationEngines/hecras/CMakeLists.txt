@@ -4,6 +4,7 @@
 SET(REOS_HECRAS_SOURCES
     reoshecrascontroller.cpp
     reoshecrassimulation.cpp
+    reoshecrassimulationresults.cpp
     reoshecrassimulationimportwidget.cpp
     reoshecrasproject.cpp
     reoshecrassimulationeditwidget.cpp
@@ -12,6 +13,7 @@ SET(REOS_HECRAS_SOURCES
 SET(REOS_HECRAS_HEADERS
     reoshecrascontroller.h
     reoshecrassimulation.h
+    reoshecrassimulationresults.h
     reoshecrassimulationimportwidget.h
     reoshecrasproject.h
     reoshecrassimulationeditwidget.h
