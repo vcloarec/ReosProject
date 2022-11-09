@@ -52,7 +52,7 @@ ReosHecRasSimulationResults::ReosHecRasSimulationResults( const ReosHecRasSimula
 
   registerGroups( mTypeToSourceGroupIndex.keys() );
 
-  mCache.resize( datasetCount( mTypeToSourceGroupIndex.value( DatasetType::WaterLevel ) ) );
+  mCache.resize( datasetCount( groupIndex( DatasetType::WaterLevel ) ) );
 }
 
 ReosHecRasSimulationResults::~ReosHecRasSimulationResults()
@@ -166,7 +166,7 @@ QVector<int> ReosHecRasSimulationResults::activeFaces( int index ) const
 
   if ( activeFaces.isEmpty() )
   {
-    const QVector<double> waterLevel = datasetValues( mTypeToSourceGroupIndex.value( DatasetType::WaterLevel ), index );
+    const QVector<double> waterLevel = datasetValues( groupIndex( DatasetType::WaterLevel ), index );
     int count = waterLevel.size() ;
     activeFaces.resize( count );
     for ( int i = 0 ; i < count; ++i )

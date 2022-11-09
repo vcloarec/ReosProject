@@ -51,7 +51,7 @@ ReosTelemac2DSimulationResults::ReosTelemac2DSimulationResults( const ReosTelema
 
   registerGroups( mTypeToSourceGroupIndex.keys() );
 
-  mCache.resize( datasetCount( mTypeToSourceGroupIndex.value( DatasetType::WaterDepth ) ) );
+  mCache.resize( datasetCount( groupIndex( DatasetType::WaterDepth ) ) );
 
   QgsMeshLayer *meshLayer = qobject_cast<QgsMeshLayer *>( mesh->data() );
   if ( meshLayer )
