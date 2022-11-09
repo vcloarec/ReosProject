@@ -30,6 +30,11 @@ ReosHecRasSimulationEditWidget::ReosHecRasSimulationEditWidget( ReosHecRasSimula
   connect( ui->mPlansComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosHecRasSimulationEditWidget::onPlanChanged );
   onPlanChanged();
 
+  ui->mComputeInterval->setConfig( ReosHecRasIntervalComputationCombo::Small );
+  ui->mOutputInterval->setConfig( ReosHecRasIntervalComputationCombo::Big );
+  ui->mDetailedInterval->setConfig( ReosHecRasIntervalComputationCombo::Big );
+  ui->mMappingInterval->setConfig( ReosHecRasIntervalComputationCombo::Big );
+
   ui->mComputeInterval->setInterval( simulation->computeInterval() );
   ui->mOutputInterval->setInterval( simulation->outputInterval() );
   ui->mDetailedInterval->setInterval( simulation->detailedInterval() );
@@ -37,6 +42,10 @@ ReosHecRasSimulationEditWidget::ReosHecRasSimulationEditWidget( ReosHecRasSimula
   ui->mMinInputInterval->setInterval( simulation->minimumInterval() );
 
   connect( ui->mComputeInterval, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosHecRasSimulationEditWidget::onIntervalChanged );
+  connect( ui->mOutputInterval, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosHecRasSimulationEditWidget::onIntervalChanged );
+  connect( ui->mDetailedInterval, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosHecRasSimulationEditWidget::onIntervalChanged );
+  connect( ui->mMappingInterval, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosHecRasSimulationEditWidget::onIntervalChanged );
+  connect( ui->mMinInputInterval, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosHecRasSimulationEditWidget::onIntervalChanged );
 }
 
 ReosHecRasSimulationEditWidget::~ReosHecRasSimulationEditWidget()
@@ -122,4 +131,47 @@ void ReosHecrasConfigurationEngineDialog::onAccepted()
 {
   ReosSettings settings;
   settings.setValue( QStringLiteral( "/engine/hecras/version" ), ui->mComboVersion->currentText() );
+}
+
+ReosHecRasIntervalComputationCombo::ReosHecRasIntervalComputationCombo( QWidget *parent ) : QComboBox( parent )
+{
+  const QList<ReosDuration> durations = ReosHecRasPlan::computationIntervals().keys();
+  for ( int i = 0; i < durations.count(); ++i )
+    addItem( durations.at( i ).toString( 0 ), i );
+}
+
+void ReosHecRasIntervalComputationCombo::setConfig( Configuration config )
+{
+  clear();
+  int start = 0 ;
+  int end = 0;
+  const QList<ReosDuration> durations = ReosHecRasPlan::computationIntervals().keys();
+  switch ( config )
+  {
+    case Small:
+      start = 0;
+      end = durations.count() - 3;
+      break;
+    case Big:
+      start = 5;
+      end = durations.count();
+      break;
+  }
+
+  for ( int i = start; i < end; ++i )
+    addItem( durations.at( i ).toString( 0 ), i );
+}
+
+ReosDuration ReosHecRasIntervalComputationCombo::currentInterval() const
+{
+  const QList<ReosDuration> durations = ReosHecRasPlan::computationIntervals().keys();
+  return ReosDuration( durations.at( currentData().toInt() ) );
+}
+
+void ReosHecRasIntervalComputationCombo::setInterval( const ReosDuration &duration )
+{
+  const QList<ReosDuration> durations = ReosHecRasPlan::computationIntervals().keys();
+  int i = durations.indexOf( duration );
+  int index = findData( i );
+  setCurrentIndex( index );
 }

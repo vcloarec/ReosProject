@@ -3,8 +3,10 @@
 
 #include <QWidget>
 #include <QDialog>
+#include <QComboBox>
 
 #include "reoshydraulic2dsimulationwidget.h"
+#include "reosduration.h"
 
 class ReosHecRasSimulation;
 
@@ -13,6 +15,22 @@ namespace Ui
   class ReosHecRasSimulationEditWidget;
   class ReosHecrasConfigurationEngineDialog;
 }
+
+class ReosHecRasIntervalComputationCombo : public QComboBox
+{
+  public:
+    enum Configuration
+    {
+      Big,
+      Small
+    };
+
+    ReosHecRasIntervalComputationCombo( QWidget *parent = nullptr );
+
+    void setConfig( Configuration config );
+    ReosDuration currentInterval() const;
+    void setInterval( const ReosDuration &duration );
+};
 
 
 class ReosHecRasSimulationEditWidget : public QWidget
