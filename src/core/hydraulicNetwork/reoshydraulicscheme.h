@@ -54,6 +54,8 @@ class REOSCORE_EXPORT ReosHydraulicScheme : public ReosDataObject
     ReosParameterDateTime *startTime() const;
     ReosParameterDateTime *endTime() const;
 
+    ReosDuration timeExtent() const;
+
     ReosEncodedElement encode() const;
     static ReosHydraulicScheme *decode( const ReosEncodedElement &element, ReosHydraulicSchemeCollection *collection, const ReosHydraulicNetworkContext &context );
 

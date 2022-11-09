@@ -7,6 +7,7 @@
 #include <QTemporaryFile>
 
 #include "reosdssutils.h"
+#include "reoshecrassimulation.h"
 
 ReosHecRasProject::ReosHecRasProject( const QString &fileName ):
   mFileName( fileName )
@@ -331,7 +332,27 @@ const QDateTime &ReosHecRasPlan::endTime() const
   return mEndTime;
 }
 
-void ReosHecRasPlan::changeSimulationTimeInFile( const QDateTime &startTime, const QDateTime &endTime ) const
+const ReosDuration ReosHecRasPlan::computeInterval() const
+{
+  return mComputeInterval;
+}
+
+const ReosDuration ReosHecRasPlan::outputIntevall() const
+{
+  return mOutputInterval;
+}
+
+const ReosDuration ReosHecRasPlan::detailedOutputInteval() const
+{
+  return mDetailedInterval;
+}
+
+const ReosDuration ReosHecRasPlan::mappingInteval() const
+{
+  return mMappingInterval;
+}
+
+void ReosHecRasPlan::changeSimulationTimeInFile( const QDateTime &startTime, const QDateTime &endTime, const ReosHecRasSimulation *simulation ) const
 {
   QFile file( mFileName );
   if ( !file.open( QIODevice::ReadOnly ) )
@@ -354,6 +375,18 @@ void ReosHecRasPlan::changeSimulationTimeInFile( const QDateTime &startTime, con
                         endTime.time().toString( QStringLiteral( "HH:mm" ) ) )
                    << "\r\n";
     }
+    else if ( inputLine.startsWith( "Computation Interval=" ) )
+      outputStream << QStringLiteral( "Computation Interval=%1" ).
+                   arg( ReosDssUtils::durationToDssInterval( simulation->computeInterval() ) ) << "\r\n";
+    else if ( inputLine.startsWith( "Output Interval=" ) )
+      outputStream << QStringLiteral( "Output Interval=%1" ).
+                   arg( ReosDssUtils::durationToDssInterval( simulation->outputInterval() ) ) << "\r\n";
+    else if ( inputLine.startsWith( "Instantaneous Interval=" ) )
+      outputStream << QStringLiteral( "Instantaneous Interval=%1" ).
+                   arg( ReosDssUtils::durationToDssInterval( simulation->detailedInterval() ) ) << "\r\n";
+    else if ( inputLine.startsWith( "Mapping Interval=" ) )
+      outputStream << QStringLiteral( "Mapping Interval=%1" ).
+                   arg( ReosDssUtils::durationToDssInterval( simulation->mappingInterval() ) ) << "\r\n";
     else
       outputStream << inputLine << "\r\n";
   }
@@ -434,8 +467,35 @@ void ReosHecRasPlan::parsePlanFile()
           mStartTime = QDateTime( startDate, startTime, Qt::UTC );
           mEndTime = QDateTime( endDate, endTime, Qt::UTC );
         }
-
       }
+    }
+
+    if ( line.startsWith( QStringLiteral( "Computation Interval=" ) ) )
+    {
+      QString str = line;
+      str.remove( QStringLiteral( "Computation Interval=" ) );
+      mComputeInterval = ReosDssUtils::dssIntervalToDuration( str.trimmed() );
+    }
+
+    if ( line.startsWith( QStringLiteral( "Output Interval=" ) ) )
+    {
+      QString str = line;
+      str.remove( QStringLiteral( "Output Interval=" ) );
+      mOutputInterval = ReosDssUtils::dssIntervalToDuration( str.trimmed() );
+    }
+
+    if ( line.startsWith( QStringLiteral( "Instantaneous Interval=" ) ) )
+    {
+      QString str = line;
+      str.remove( QStringLiteral( "Instantaneous Interval=" ) );
+      mDetailedInterval = ReosDssUtils::dssIntervalToDuration( str.trimmed() );
+    }
+
+    if ( line.startsWith( QStringLiteral( "Mapping Interval=" ) ) )
+    {
+      QString str = line;
+      str.remove( QStringLiteral( "Mapping Interval=" ) );
+      mMappingInterval = ReosDssUtils::dssIntervalToDuration( str.trimmed() );
     }
   }
 }

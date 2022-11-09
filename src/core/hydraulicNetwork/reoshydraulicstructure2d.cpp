@@ -191,6 +191,8 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( ReosStructureImporter *impor
   mMeshNeedToBeGenerated = hasCapability( ReosHydraulicStructure2D::GeometryEditable );
 
   updateResults( context.currentSchemeId() );
+
+  saveConfiguration( context.network()->currentScheme() );
 }
 
 ReosHydraulicStructureProfilesCollection *ReosHydraulicStructure2D::profilesCollection() const
@@ -907,6 +909,7 @@ void ReosHydraulicStructure2D::initConnection()
     } );
   }
 
+  connect( this, &ReosHydraulicStructure2D::simulationResultChanged, mNetwork, &ReosHydraulicNetwork::timeStepChanged );
 }
 
 void ReosHydraulicStructure2D::generateMeshInPlace()

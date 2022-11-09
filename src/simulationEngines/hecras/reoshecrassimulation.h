@@ -55,11 +55,11 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
     void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext, const QDir &directory ) {}
 
     ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const override;
-    QList<QDateTime> theoricalTimeSteps( ReosHydraulicScheme *scheme ) const {return QList<QDateTime>();}
-    ReosDuration representativeTimeStep() const {return ReosDuration();}
-    ReosDuration representative2DTimeStep() const {return ReosDuration();}
+    QList<QDateTime> theoricalTimeSteps( ReosHydraulicScheme *scheme ) const override;
+    ReosDuration representativeTimeStep() const;
+    ReosDuration representative2DTimeStep() const;
     void saveSimulationResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, ReosSimulationProcess *process, bool success ) const override;
-    ReosHydraulicSimulationResults *loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, QObject *parent ) const;
+    ReosHydraulicSimulationResults *loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, QObject *parent ) const override;
     bool hasResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const override;
     void removeResults( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const override;
     QString engineName() const override {return tr( "HECRAS" );}
@@ -74,13 +74,32 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
 
     const QString &currentPlan() const;
 
-  private:
+    const ReosDuration &minimumInterval() const;
+    void setMinimumInterval(const ReosDuration &newMinimumInterval);
+
+    const ReosDuration &computeInterval() const;
+    void setComputeInterval(const ReosDuration &newComputeInterval);
+
+    const ReosDuration &outputInterval() const;
+    void setOutputInterval(const ReosDuration &newOutputInterval);
+
+    const ReosDuration &detailedInterval() const;
+    void setDetailledInterval(const ReosDuration &newDetailledInterval);
+
+    const ReosDuration &mappingInterval() const;
+    void setMappingInterval(const ReosDuration &newMappingInterval);
+
+private:
     QString mProjectFileName;
     std::shared_ptr<ReosHecRasProject> mProject;
 
     //*** Configuration attributes
     QString mCurrentPlan;
-    ReosParameterDuration *mMinimumInterval = nullptr;
+    ReosDuration mMinimumInterval = ReosDuration( 1.0, ReosDuration::minute );
+    ReosDuration mComputeInterval = ReosDuration( 10.0, ReosDuration::second );
+    ReosDuration mOutputInterval = ReosDuration( 1.0, ReosDuration::minute );
+    ReosDuration mDetailledInterval = ReosDuration( 5.0, ReosDuration::minute );
+    ReosDuration mMappingInterval = ReosDuration( 5.0, ReosDuration::minute );
     //***
 
     void transformVariableTimeStepToConstant( ReosTimeSerieVariableTimeStep *variable, ReosTimeSerieConstantInterval *constant ) const;

@@ -221,9 +221,7 @@ bool ReosHecRasStructureImporter::isValid() const { return mIsValid; }
 
 ReosHecRasSimulation::ReosHecRasSimulation( QObject *parent )
   : ReosHydraulicSimulation( parent )
-  , mMinimumInterval( new ReosParameterDuration( tr( "Minimum Input time Interval" ), false, this ) )
 {
-  mMinimumInterval->setValue( ReosDuration( 1.0, ReosDuration::minute ) );
 }
 
 ReosHecRasSimulation::ReosHecRasSimulation( const ReosEncodedElement &element, QObject *parent )
@@ -263,7 +261,7 @@ void ReosHecRasSimulation::prepareInput( ReosHydraulicStructure2D *hydraulicStru
   const QDateTime startTime = calculationContext.simulationStartTime();
   const QDateTime endTime = calculationContext.simulationEndTime();
 
-  currentPlan.changeSimulationTimeInFile( startTime, endTime );
+  currentPlan.changeSimulationTimeInFile( startTime, endTime, this );
 
   for ( ReosHydraulicStructureBoundaryCondition *bc : bcs )
   {
@@ -327,6 +325,44 @@ ReosSimulationProcess *ReosHecRasSimulation::getProcess(
   return new ReosHecRasSimulationProcess( *mProject.get(), mCurrentPlan, calculationContext, hydraulicStructure->boundaryConditions() );
 }
 
+QList<QDateTime> ReosHecRasSimulation::theoricalTimeSteps( ReosHydraulicScheme *scheme ) const
+{
+  const QDateTime startTime = scheme->startTime()->value();
+  const QDateTime endTime = scheme->startTime()->value();
+  scheme->restoreElementConfig( id() );
+
+  ReosDuration timeStep;
+  if ( scheme )
+  {
+    ReosEncodedElement element = scheme->restoreElementConfig( id() );
+    if ( element.hasEncodedData( QStringLiteral( "mapping-interval" ) ) )
+      timeStep = ReosDuration::decode( element.getEncodedData( QStringLiteral( "mapping-interval" ) ) );
+  }
+
+  if ( timeStep == ReosDuration() )
+    return QList<QDateTime>();
+
+  QDateTime currentTime = startTime;
+  QList<QDateTime> ret;
+  while ( currentTime < endTime )
+  {
+    ret.append( currentTime );
+    currentTime = currentTime.addMSecs( timeStep.valueMilliSecond() );
+  }
+
+  return ret;
+}
+
+ReosDuration ReosHecRasSimulation::representativeTimeStep() const
+{
+  return std::min( mOutputInterval, mMappingInterval );
+}
+
+ReosDuration ReosHecRasSimulation::representative2DTimeStep() const
+{
+  return mMappingInterval;
+}
+
 void ReosHecRasSimulation::saveSimulationResult( const ReosHydraulicStructure2D *, const QString &, ReosSimulationProcess *, bool ) const
 {
   // for HEC-RAS everything is already save, so nothing to do
@@ -368,8 +404,12 @@ void ReosHecRasSimulation::saveConfiguration( ReosHydraulicScheme *scheme ) cons
 {
   ReosEncodedElement element = scheme->restoreElementConfig( id() );
 
-  element.addEncodedData( QStringLiteral( "minimum-interval" ), mMinimumInterval->value().encode() );
+  element.addEncodedData( QStringLiteral( "minimum-interval" ), mMinimumInterval.encode() );
   element.addData( QStringLiteral( "current-plan-id" ), mCurrentPlan );
+  element.addEncodedData( QStringLiteral( "compute-interval" ), mComputeInterval.encode() );
+  element.addEncodedData( QStringLiteral( "output-interval" ), mOutputInterval.encode() );
+  element.addEncodedData( QStringLiteral( "detailed-interval" ), mDetailledInterval.encode() );
+  element.addEncodedData( QStringLiteral( "mapping-interval" ), mMappingInterval.encode() );
 
   scheme->saveElementConfig( id(), element );
 }
@@ -378,8 +418,12 @@ void ReosHecRasSimulation::restoreConfiguration( ReosHydraulicScheme *scheme )
 {
   const ReosEncodedElement element = scheme->restoreElementConfig( id() );
 
-  mMinimumInterval->setValue( ReosDuration::decode( element.getEncodedData( QStringLiteral( "minimum-interval" ) ) ) );
+  mMinimumInterval = ReosDuration::decode( element.getEncodedData( QStringLiteral( "minimum-interval" ) ) );
   element.getData( QStringLiteral( "current-plan-id" ), mCurrentPlan );
+  mComputeInterval = ReosDuration::decode( element.getEncodedData( QStringLiteral( "compute-interval" ) ) );
+  mOutputInterval = ReosDuration::decode( element.getEncodedData( QStringLiteral( "output-interval" ) ) );
+  mDetailledInterval = ReosDuration::decode( element.getEncodedData( QStringLiteral( "detailed-interval" ) ) );
+  mMappingInterval = ReosDuration::decode( element.getEncodedData( QStringLiteral( "mapping-interval" ) ) );
 
   accordCurrentPlan();
 }
@@ -389,6 +433,12 @@ void ReosHecRasSimulation::setProject( std::shared_ptr<ReosHecRasProject> newPro
   mProject = newProject;
   mProjectFileName = newProject->fileName();
   accordCurrentPlan();
+
+  const ReosHecRasPlan &plan = mProject->plan( mCurrentPlan );
+  mComputeInterval = plan.computeInterval();
+  mOutputInterval = plan.outputIntevall();
+  mDetailledInterval = plan.detailedOutputInteval();
+  mMappingInterval = plan.mappingInteval();
 }
 
 void ReosHecRasSimulation::setCurrentPlan( const QString &planId )
@@ -404,6 +454,56 @@ ReosHecRasProject *ReosHecRasSimulation::project() const
 const QString &ReosHecRasSimulation::currentPlan() const
 {
   return mCurrentPlan;
+}
+
+const ReosDuration &ReosHecRasSimulation::minimumInterval() const
+{
+  return mMinimumInterval;
+}
+
+void ReosHecRasSimulation::setMinimumInterval( const ReosDuration &newMinimumInterval )
+{
+  mMinimumInterval = newMinimumInterval;
+}
+
+const ReosDuration &ReosHecRasSimulation::computeInterval() const
+{
+  return mComputeInterval;
+}
+
+void ReosHecRasSimulation::setComputeInterval( const ReosDuration &newComputeInterval )
+{
+  mComputeInterval = newComputeInterval;
+}
+
+const ReosDuration &ReosHecRasSimulation::outputInterval() const
+{
+  return mOutputInterval;
+}
+
+void ReosHecRasSimulation::setOutputInterval( const ReosDuration &newOutputInterval )
+{
+  mOutputInterval = newOutputInterval;
+}
+
+const ReosDuration &ReosHecRasSimulation::detailedInterval() const
+{
+  return mDetailledInterval;
+}
+
+void ReosHecRasSimulation::setDetailledInterval( const ReosDuration &newDetailledInterval )
+{
+  mDetailledInterval = newDetailledInterval;
+}
+
+const ReosDuration &ReosHecRasSimulation::mappingInterval() const
+{
+  return mMappingInterval;
+}
+
+void ReosHecRasSimulation::setMappingInterval( const ReosDuration &newMappingInterval )
+{
+  mMappingInterval = newMappingInterval;
 }
 
 void ReosHecRasSimulation::transformVariableTimeStepToConstant( ReosTimeSerieVariableTimeStep *variable, ReosTimeSerieConstantInterval *constant ) const
@@ -435,7 +535,7 @@ void ReosHecRasSimulation::transformVariableTimeStepToConstant( ReosTimeSerieVar
   ReosDuration currentIntervaltest = maxInterval;
   ReosDuration betterInterval;
   QVector<double> betterValues;
-  ReosDuration miniInter = mMinimumInterval->value();
+  ReosDuration miniInter = mMinimumInterval;
   double betterVolDiff = std::numeric_limits<double>::max();
   while ( currentIntervaltest >= miniInter )
   {

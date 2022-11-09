@@ -11,7 +11,7 @@
 #include "reosduration.h"
 
 class QTextStream;
-
+class ReosHecRasSimulation;
 
 class ReosHecRasGeometry
 {
@@ -74,7 +74,12 @@ class ReosHecRasPlan
     const QDateTime &startTime() const;
     const QDateTime &endTime() const;
 
-    void changeSimulationTimeInFile( const QDateTime &startTime, const QDateTime &endTime ) const;
+    const ReosDuration computeInterval() const;
+    const ReosDuration outputIntevall() const;
+    const ReosDuration detailedOutputInteval() const;
+    const ReosDuration mappingInteval() const;
+
+    void changeSimulationTimeInFile( const QDateTime &startTime, const QDateTime &endTime, const ReosHecRasSimulation *simulation ) const;
 
     const QString &fileName() const;
 
@@ -89,6 +94,11 @@ class ReosHecRasPlan
 
     QDateTime mStartTime;
     QDateTime mEndTime;
+
+    ReosDuration mComputeInterval;
+    ReosDuration mOutputInterval;
+    ReosDuration mDetailedInterval;
+    ReosDuration mMappingInterval;
 
     void parsePlanFile();
 };
