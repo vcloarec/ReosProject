@@ -678,14 +678,13 @@ void ReosHydraulicStructure2DProperties::populateHydrograph()
         inList.append( hyd );
         mInputHydrographPlotButton->addData( hyd );
         break;
+      case ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally:
       case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
         if ( mCurrentProcess.isNull() )
         {
           outList.append( hyd );
           mOutputHydrographPlotButton->addData( hyd );
         }
-        break;
-      case ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally:
         break;
     }
   }
