@@ -77,6 +77,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/hydraulicNetwork/simulation
 
     ${CMAKE_SOURCE_DIR}/src/dataProviders/hec-dss
+    ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras
 
     ${QGIS_INCLUDE_DIR}
     ${MDAL_INCLUDE_DIR}

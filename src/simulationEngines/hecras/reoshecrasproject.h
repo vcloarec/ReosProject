@@ -85,6 +85,11 @@ class ReosHecRasPlan
 
     const QString &shortIdentifier() const;
 
+    static ReosDuration computationIntervalStringToDuration( const QString &interval );
+    static QString durationToComputationInterval( const ReosDuration &duration );
+
+    static const QMap<ReosDuration, QString> &computationIntervals();
+
   private:
     QString mFileName;
     QString mTitle;
@@ -101,6 +106,8 @@ class ReosHecRasPlan
     ReosDuration mMappingInterval;
 
     void parsePlanFile();
+
+    static QMap<ReosDuration, QString> sIntervals;
 };
 
 class ReosHecRasFlow

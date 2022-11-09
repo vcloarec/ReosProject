@@ -377,16 +377,16 @@ void ReosHecRasPlan::changeSimulationTimeInFile( const QDateTime &startTime, con
     }
     else if ( inputLine.startsWith( "Computation Interval=" ) )
       outputStream << QStringLiteral( "Computation Interval=%1" ).
-                   arg( ReosDssUtils::durationToDssInterval( simulation->computeInterval() ) ) << "\r\n";
+                   arg( durationToComputationInterval( simulation->computeInterval() ) ) << "\r\n";
     else if ( inputLine.startsWith( "Output Interval=" ) )
       outputStream << QStringLiteral( "Output Interval=%1" ).
-                   arg( ReosDssUtils::durationToDssInterval( simulation->outputInterval() ) ) << "\r\n";
+                   arg( durationToComputationInterval( simulation->outputInterval() ) ) << "\r\n";
     else if ( inputLine.startsWith( "Instantaneous Interval=" ) )
       outputStream << QStringLiteral( "Instantaneous Interval=%1" ).
-                   arg( ReosDssUtils::durationToDssInterval( simulation->detailedInterval() ) ) << "\r\n";
+                   arg( durationToComputationInterval( simulation->detailedInterval() ) ) << "\r\n";
     else if ( inputLine.startsWith( "Mapping Interval=" ) )
       outputStream << QStringLiteral( "Mapping Interval=%1" ).
-                   arg( ReosDssUtils::durationToDssInterval( simulation->mappingInterval() ) ) << "\r\n";
+                   arg( durationToComputationInterval( simulation->mappingInterval() ) ) << "\r\n";
     else
       outputStream << inputLine << "\r\n";
   }
@@ -404,6 +404,22 @@ const QString &ReosHecRasPlan::fileName() const
 const QString &ReosHecRasPlan::shortIdentifier() const
 {
   return mShortIdentifier;
+}
+
+ReosDuration ReosHecRasPlan::computationIntervalStringToDuration( const QString &interval )
+{
+  for ( auto it = sIntervals.constBegin(); it != sIntervals.constEnd(); ++it )
+  {
+    if ( interval == it.value() )
+      return it.key();
+  }
+
+  return ReosDuration();
+}
+
+QString ReosHecRasPlan::durationToComputationInterval( const ReosDuration &duration )
+{
+  return sIntervals.value( duration, QString() );
 }
 
 void ReosHecRasPlan::parsePlanFile()
@@ -474,30 +490,78 @@ void ReosHecRasPlan::parsePlanFile()
     {
       QString str = line;
       str.remove( QStringLiteral( "Computation Interval=" ) );
-      mComputeInterval = ReosDssUtils::dssIntervalToDuration( str.trimmed() );
+      mComputeInterval = computationIntervalStringToDuration( str.trimmed() );
     }
 
     if ( line.startsWith( QStringLiteral( "Output Interval=" ) ) )
     {
       QString str = line;
       str.remove( QStringLiteral( "Output Interval=" ) );
-      mOutputInterval = ReosDssUtils::dssIntervalToDuration( str.trimmed() );
+      mOutputInterval = computationIntervalStringToDuration( str.trimmed() );
     }
 
     if ( line.startsWith( QStringLiteral( "Instantaneous Interval=" ) ) )
     {
       QString str = line;
       str.remove( QStringLiteral( "Instantaneous Interval=" ) );
-      mDetailedInterval = ReosDssUtils::dssIntervalToDuration( str.trimmed() );
+      mDetailedInterval = computationIntervalStringToDuration( str.trimmed() );
     }
 
     if ( line.startsWith( QStringLiteral( "Mapping Interval=" ) ) )
     {
       QString str = line;
       str.remove( QStringLiteral( "Mapping Interval=" ) );
-      mMappingInterval = ReosDssUtils::dssIntervalToDuration( str.trimmed() );
+      mMappingInterval = computationIntervalStringToDuration( str.trimmed() );
     }
   }
+}
+
+
+QMap<ReosDuration, QString> ReosHecRasPlan::sIntervals =
+{
+  {ReosDuration( 100, ReosDuration::millisecond ), "0.1SEC"}
+  , { ReosDuration( 200, ReosDuration::millisecond ), "0.2SEC"}
+  , { ReosDuration( 300, ReosDuration::millisecond ), "0.3SEC"}
+  , {ReosDuration( 400, ReosDuration::millisecond ), "0.4SEC"}
+  , {ReosDuration( 500, ReosDuration::millisecond ), "0.5SEC"}
+  , {ReosDuration( 1, ReosDuration::second ), "1SEC"}
+  , {ReosDuration( 2, ReosDuration::second ), "2SEC"}
+  , {ReosDuration( 3, ReosDuration::second ), "3SEC"}
+  , {ReosDuration( 4, ReosDuration::second ), "4SEC"}
+  , {ReosDuration( 5, ReosDuration::second ), "5SEC"}
+  , {ReosDuration( 6, ReosDuration::second ), "6SEC"}
+  , {ReosDuration( 10, ReosDuration::second ), "10SEC"}
+  , { ReosDuration( 12, ReosDuration::second ), "12SEC"}
+  , {ReosDuration( 15, ReosDuration::second ), "15SEC"}
+  , {ReosDuration( 20, ReosDuration::second ), "20SEC"}
+  , {ReosDuration( 30, ReosDuration::second ), "30SEC"}
+  , {ReosDuration( 1, ReosDuration::minute ), "1MIN"}
+  , {ReosDuration( 2, ReosDuration::minute ), "2MIN"}
+  , {ReosDuration( 3, ReosDuration::minute ), "3MIN"}
+  , {ReosDuration( 4, ReosDuration::minute ), "4MIN"}
+  , {ReosDuration( 5, ReosDuration::minute ), "5MIN"}
+  , {ReosDuration( 6, ReosDuration::minute ), "6MIN"}
+  , {ReosDuration( 10, ReosDuration::minute ), "10MIN"}
+  , {ReosDuration( 12, ReosDuration::minute ), "12MIN"}
+  , {ReosDuration( 15, ReosDuration::minute ), "15MIN"}
+  , {ReosDuration( 20, ReosDuration::minute ), "20MIN"}
+  , {ReosDuration( 30, ReosDuration::minute ), "30MIN"}
+  , {ReosDuration( 1, ReosDuration::hour ), "1HOUR"}
+  , {ReosDuration( 2, ReosDuration::hour ), "2HOUR"}
+  , {ReosDuration( 3, ReosDuration::hour ), "3HOUR"}
+  , {ReosDuration( 4, ReosDuration::hour ), "4HOUR"}
+  , {ReosDuration( 6, ReosDuration::hour ), "6HOUR"}
+  , {ReosDuration( 8, ReosDuration::hour ), "8HOUR"}
+  , {ReosDuration( 12, ReosDuration::hour ), "12HOUR"}
+  , {ReosDuration( 1, ReosDuration::day ), "1DAY"}
+  , {ReosDuration( 1, ReosDuration::week ), "1WEEK"}
+  , {ReosDuration( 1, ReosDuration::month ), "1MONTH"}
+  , {ReosDuration( 1, ReosDuration::year ), "1YEAR"}
+};
+
+const QMap<ReosDuration, QString> &ReosHecRasPlan::computationIntervals()
+{
+  return sIntervals;
 }
 
 QDate ReosHecRasProject::hecRasDateToDate( const QString &hecrasDate )
