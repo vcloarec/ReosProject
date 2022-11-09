@@ -56,7 +56,7 @@ class REOSDSS_EXPORT ReosDssUtils
     static QList<ReosDuration> sValidInterval;
 };
 
-class ReosDssIntervalCombo : public QComboBox
+class REOSDSS_EXPORT ReosDssIntervalCombo : public QComboBox
 {
   public:
     ReosDssIntervalCombo( QWidget *parent = nullptr );
