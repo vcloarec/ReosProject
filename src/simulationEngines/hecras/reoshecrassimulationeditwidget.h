@@ -12,8 +12,8 @@ namespace Ui
 {
   class ReosHecRasSimulationEditWidget;
   class ReosHecrasConfigurationEngineDialog;
-
 }
+
 
 class ReosHecRasSimulationEditWidget : public QWidget
 {
@@ -25,6 +25,7 @@ class ReosHecRasSimulationEditWidget : public QWidget
 
   private slots:
     void onPlanChanged();
+    void onIntervalChanged();
 
   private:
     Ui::ReosHecRasSimulationEditWidget *ui;
@@ -45,7 +46,6 @@ class ReosHecrasConfigurationEngineDialog : public QDialog
   private:
     Ui::ReosHecrasConfigurationEngineDialog *ui;
 };
-
 
 
 class ReosHecRasSimulationEditWidgetFactory : public ReosHydraulicSimulationWidgetFactory

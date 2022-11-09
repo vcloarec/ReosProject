@@ -29,6 +29,14 @@ ReosHecRasSimulationEditWidget::ReosHecRasSimulationEditWidget( ReosHecRasSimula
 
   connect( ui->mPlansComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosHecRasSimulationEditWidget::onPlanChanged );
   onPlanChanged();
+
+  ui->mComputeInterval->setInterval( simulation->computeInterval() );
+  ui->mOutputInterval->setInterval( simulation->outputInterval() );
+  ui->mDetailedInterval->setInterval( simulation->detailedInterval() );
+  ui->mMappingInterval->setInterval( simulation->mappingInterval() );
+  ui->mMinInputInterval->setInterval( simulation->minimumInterval() );
+
+  connect( ui->mComputeInterval, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosHecRasSimulationEditWidget::onIntervalChanged );
 }
 
 ReosHecRasSimulationEditWidget::~ReosHecRasSimulationEditWidget()
@@ -44,12 +52,16 @@ void ReosHecRasSimulationEditWidget::onPlanChanged()
   const ReosHecRasGeometry &geometry = mSimulation->project()->geometry( currentGeometryId );
 
   mSimulation->setCurrentPlan( currentPlanId );
-
   ui->mGeometryLabel->setText( geometry.title() );
-  ui->mStartDateLabel->setText( QLocale().toString( plan.startTime().date() ) );
-  ui->mEndDateLabel->setText( QLocale().toString( plan.endTime().date() ) );
-  ui->mStartTimeLabel->setText( QLocale().toString( plan.startTime().time(), QLocale::ShortFormat ) );
-  ui->mEndTimeLabel->setText( QLocale().toString( plan.endTime().time(), QLocale::ShortFormat ) );
+}
+
+void ReosHecRasSimulationEditWidget::onIntervalChanged()
+{
+  mSimulation->setComputeInterval( ui->mComputeInterval->currentInterval() );
+  mSimulation->setOutputInterval( ui->mOutputInterval->currentInterval() );
+  mSimulation->setDetailledInterval( ui->mDetailedInterval->currentInterval() );
+  mSimulation->setMappingInterval( ui->mMappingInterval->currentInterval() );
+  mSimulation->setMinimumInterval( ui->mMinInputInterval->currentInterval() );
 }
 
 ReosImportHydraulicStructureWidget *ReosHecRasSimulationEditWidgetFactory::simulationImportWidget( QWidget *parent ) const

@@ -197,6 +197,11 @@ ReosParameterDateTime *ReosHydraulicScheme::endTime() const
   return mEndTime;
 }
 
+ReosDuration ReosHydraulicScheme::timeExtent() const
+{
+  return ReosDuration( mStartTime->value().msecsTo( mEndTime->value() ) );
+}
+
 ReosEncodedElement ReosHydraulicScheme::encode() const
 {
   ReosEncodedElement element( QStringLiteral( "hydraulic-scheme" ) );

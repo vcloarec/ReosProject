@@ -162,3 +162,28 @@ QString ReosDssUtils::uri( const QString &filePath, const ReosDssPath &dssPath )
 
   return QStringLiteral( "\"%1\"::%2" ).arg( filePath, dssPath.string() );
 }
+
+const QList<ReosDuration> ReosDssUtils::validIntervals()
+{
+  return sValidInterval;
+}
+
+ReosDssIntervalCombo::ReosDssIntervalCombo( QWidget *parent ) : QComboBox( parent )
+{
+  for ( const ReosDuration &interval : ReosDssUtils::validIntervals() )
+  {
+    addItem( interval.toString( 0 ), interval.valueMilliSecond() );
+  }
+}
+
+void ReosDssIntervalCombo::setInterval( const ReosDuration &duration )
+{
+  ReosDuration valid = ReosDssUtils::closestValidInterval( duration );
+  int index = findData( valid.valueMilliSecond() );
+  setCurrentIndex( index );
+}
+
+ReosDuration ReosDssIntervalCombo::currentInterval() const
+{
+  return ReosDuration( currentData().toLongLong(), ReosDuration::millisecond );
+}

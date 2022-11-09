@@ -24,6 +24,8 @@
 #    endif
 #  endif
 
+#include <QComboBox>
+
 #include "reosduration.h"
 
 class QString;
@@ -48,9 +50,18 @@ class REOSDSS_EXPORT ReosDssUtils
 
     static QString uri( const QString &filePath, const ReosDssPath &dssPath );
 
+    static const QList<ReosDuration> validIntervals();
+
   private:
     static QList<ReosDuration> sValidInterval;
+};
 
+class ReosDssIntervalCombo : public QComboBox
+{
+  public:
+    ReosDssIntervalCombo( QWidget *parent = nullptr );
+    void setInterval( const ReosDuration &duration );
+    ReosDuration currentInterval() const;
 };
 
 #endif // REOSDSSUTILS_H

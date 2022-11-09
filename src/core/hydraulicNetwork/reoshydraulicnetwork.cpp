@@ -217,7 +217,7 @@ ReosHydraulicNetworkElement *ReosHydraulicNetwork::addElement( ReosHydraulicNetw
 
   connect( elem, &ReosHydraulicNetworkElement::dirtied, this, &ReosModule::dirtied );
   connect( elem, &ReosHydraulicNetworkElement::timeStepChanged, this, &ReosHydraulicNetwork::timeStepChanged );
-
+  emit timeStepChanged();
   return elem;
 }
 
@@ -242,7 +242,7 @@ void ReosHydraulicNetwork::removeElement( ReosHydraulicNetworkElement *elem )
   }
 
   elem->destroy();
-
+  emit timeStepChanged();
   emit dirtied();
 }
 

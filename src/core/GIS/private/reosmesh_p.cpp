@@ -761,10 +761,14 @@ double ReosMeshFrame_p::interpolateDatasetValueOnPoint(
   if ( datasetIndex < 0 )
     return std::numeric_limits<double>::quiet_NaN();
 
+  if ( datasetSource->groupLocation( sourceGroupindex ) == ReosMeshDatasetSource::Location::Face )
+    return -123456.0;
+
   const QVector<double> datasetValues = datasetSource->datasetValues( sourceGroupindex, datasetIndex );
   const QVector<int> facesActive = datasetSource->activeFaces( datasetIndex );
 
   bool isScalar = datasetSource->groupIsScalar( sourceGroupindex );
+
 
   Q_ASSERT( datasetValues.count() == mMeshLayer->meshVertexCount() * ( isScalar ? 1 : 2 ) );
 

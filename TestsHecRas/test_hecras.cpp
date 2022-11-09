@@ -30,6 +30,7 @@ email                : vcloarec at gmail dot com
 #include "reoshydraulicscheme.h"
 #include "reoshydraulicstructure2d.h"
 #include "reoshydraulicstructureboundarycondition.h"
+#include "reoshydraulicsimulationresults.h"
 
 static QString tmp_file( std::string basename )
 {
@@ -82,7 +83,8 @@ class ReosHecrasTesting : public QObject
     void dssInterval();
     void exploreProject();
     void changeBoundaryCondition();
-    void importStructure();
+    void importAndLaunchStructure();
+    void simulationResults();
 
   private:
     QString mPathToSimpleToRun;
@@ -217,6 +219,11 @@ void ReosHecrasTesting::exploreProject()
   QCOMPARE( project.plan( planIds.at( 1 ) ).startTime(), QDateTime( QDate( 2016, 1, 7 ), QTime( 0, 0, 0 ), Qt::UTC ) );
   QCOMPARE( project.plan( planIds.at( 1 ) ).endTime(), QDateTime( QDate( 2016, 1, 8 ), QTime( 1, 0, 0 ), Qt::UTC ) );
 
+  QCOMPARE( project.plan( planIds.at( 0 ) ).computeInterval(), ReosDuration( 60.0, ReosDuration::second ) );
+  QCOMPARE( project.plan( planIds.at( 0 ) ).outputIntevall(), ReosDuration( 5.0, ReosDuration::minute ) );
+  QCOMPARE( project.plan( planIds.at( 0 ) ).detailedOutputInteval(), ReosDuration( 5.0, ReosDuration::minute ) );
+  QCOMPARE( project.plan( planIds.at( 0 ) ).mappingInteval(), ReosDuration( 5.0, ReosDuration::minute ) );
+
   QCOMPARE( project.currentGeometry().title(), QStringLiteral( "simple_2D_geometry" ) );
 
   QCOMPARE( project.GeometriesCount(), 2 );
@@ -277,6 +284,16 @@ void ReosHecrasTesting::importAndLaunchStructure()
   QVERIFY( structure->mesh() );
   QCOMPARE( structure->mesh()->vertexCount(), 1900 );
 
+  ReosHydraulicSimulation *simulation = structure->currentSimulation();
+  QVERIFY( simulation );
+  ReosHecRasSimulation *hecSim = qobject_cast <ReosHecRasSimulation *>( simulation );
+  QVERIFY( hecSim );
+  QCOMPARE( hecSim->currentPlan(), QStringLiteral( "p01" ) );
+  QCOMPARE( hecSim->computeInterval(), ReosDuration( 60.0, ReosDuration::second ) );
+  QCOMPARE( hecSim->outputInterval(), ReosDuration( 5.0, ReosDuration::minute ) );
+  QCOMPARE( hecSim->detailedInterval(), ReosDuration( 5.0, ReosDuration::minute ) );
+  QCOMPARE( hecSim->mappingInterval(), ReosDuration( 5.0, ReosDuration::minute ) );
+
   QList<ReosHydraulicStructureBoundaryCondition *> boundaryConditions = structure->boundaryConditions();
   QCOMPARE( boundaryConditions.count(), 2 );
   QCOMPARE( boundaryConditions.at( 1 )->boundaryConditionId(), QStringLiteral( "Perimeter 1-Upstream limit" ) );
@@ -311,8 +328,12 @@ void ReosHecrasTesting::importAndLaunchStructure()
   loop.exec();
   //QVERIFY( upstreamBc->outputHydrograph()->valueCount() == 6 );
 
-  ReosHydraulicSimulation *simulation = structure->currentSimulation();
-  QVERIFY( simulation );
+  // set up time interval simulation
+  hecSim->setComputeInterval( ReosDuration( 10, ReosDuration::second ) );
+  hecSim->setOutputInterval( ReosDuration( 1, ReosDuration::minute ) );
+  hecSim->setDetailledInterval( ReosDuration( 1, ReosDuration::minute ) );
+  hecSim->setMappingInterval( ReosDuration( 1, ReosDuration::minute ) );
+
   simulation->prepareInput( structure, scheme->calculationContext() );
 
   ReosHecRasProject projectAfterPreparation( path );
@@ -320,6 +341,10 @@ void ReosHecrasTesting::importAndLaunchStructure()
 
   QCOMPARE( planAfterPreparation.startTime(), scheme->startTime()->value() );
   QCOMPARE( planAfterPreparation.endTime(), scheme->endTime()->value() );
+  QCOMPARE( planAfterPreparation.computeInterval(), ReosDuration( 10.0, ReosDuration::second ) );
+  QCOMPARE( planAfterPreparation.outputIntevall(), ReosDuration( 1.0, ReosDuration::minute ) );
+  QCOMPARE( planAfterPreparation.detailedOutputInteval(), ReosDuration( 1.0, ReosDuration::minute ) );
+  QCOMPARE( planAfterPreparation.mappingInteval(), ReosDuration( 1.0, ReosDuration::minute ) );
 
   ReosHecRasFlow flowAfterPreparation = projectAfterPreparation.currentFlow();
   QVERIFY( flowAfterPreparation.boundariesCount() == 2 );
@@ -504,7 +529,47 @@ void ReosHecrasTesting::createTimeSerie()
   QFile::remove( filePath );
 }
 
+
+void ReosHecrasTesting::simulationResults()
+{
+  QString projectPath = test_path() + QStringLiteral( "/simple/calculated/simple.prj" );
+
+  ReosHydraulicNetwork *network = new ReosHydraulicNetwork( &mRootModule, mGisEngine, mWatershedModule );
+  network->setCurrentScheme( 0 );
+  ReosHydraulicScheme *scheme = network->currentScheme();
+  QVERIFY( scheme );
+
+  std::unique_ptr<ReosHecRasStructureImporter> importer( new ReosHecRasStructureImporter( projectPath ) );
+  ReosHydraulicStructure2D *structure = ReosHydraulicStructure2D::create( importer.release(), network->context() );
+
+  std::shared_ptr<ReosHecRasProject> project = std::make_shared<ReosHecRasProject>( projectPath );
+
+  ReosHydraulicSimulation *simulation = structure->currentSimulation();
+  ReosHydraulicScheme *currentScheme = network->currentScheme();
+
+  QVERIFY( simulation->hasResult( structure, currentScheme->id() ) );
+
+  std::unique_ptr<ReosHydraulicSimulationResults> simResult( simulation->loadSimulationResults( structure, scheme->id() ) );
+
+  QMap<QString, ReosHydrograph *> outputHydrographs = simResult->outputHydrographs();
+  QVERIFY( outputHydrographs.count() == 2 );
+  QVERIFY( outputHydrographs.contains( QStringLiteral( "Perimeter 1-Downstream limit" ) ) );
+  ReosHydrograph *hyd = outputHydrographs.value( QStringLiteral( "Perimeter 1-Downstream limit" ) );
+  QDateTime refTime = hyd->referenceTime();
+  QCOMPARE( refTime, QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ) );
+  QVERIFY( hyd->valueCount() > 0 );
+
+  QCOMPARE( simResult->groupCount(), 2 );
+  QCOMPARE( simResult->datasetCount( 0 ), 121 );
+  QCOMPARE( simResult->datasetType( 0 ), ReosHydraulicSimulationResults::DatasetType::WaterLevel );
+  QCOMPARE( simResult->datasetType( 1 ), ReosHydraulicSimulationResults::DatasetType::Velocity );
+  QCOMPARE( simResult->groupLocation( 0 ), ReosHydraulicSimulationResults::Location::Face );
+  QCOMPARE( simResult->groupLocation( 1 ), ReosHydraulicSimulationResults::Location::Face );
+  QCOMPARE( simResult->groupIsScalar( 1 ), false );
+  QCOMPARE( simResult->datasetValuesCount( 0, 0 ), 1746 ) ;
+  QCOMPARE( simResult->datasetValues( 0, 0 ).at( 1258 ), 2.000097513198853 ) ;
 }
+
 
 
 QTEST_MAIN( ReosHecrasTesting )
