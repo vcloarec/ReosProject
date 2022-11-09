@@ -96,6 +96,8 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
 
   mGuiContext.addAction( mAction3DView );
   mGuiContext.addActionToMainToolBar( QStringLiteral( "hydraulic-network" ), mAction3DView );
+  mAction3DView->setCheckable( true );
+  connect( mAction3DView, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::initialize3DView );
 
   connect( mActionEditStructure, &QAction::triggered, this, [this]
   {
@@ -124,18 +126,6 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
       QMessageBox::warning( this, tr( "Simulation Engine Settings" ), tr( "No simulation selected in the modele settings" ) );
     }
   } );
-
-  mView3D = new Reos3dView( mStructure2D->mesh(), ReosGuiContext( context, this ) );
-  mView3D->setAction( mAction3DView );
-  mAction3DView->setCheckable( true );
-  mView3D->setMapSettings( mStructure2D->map3dSettings(), false );
-  mView3D->setTerrainSettings( mStructure2D->terrain3DSettings() );
-  connect( mView3D, &Reos3dView::mapSettingsChanged, this, [this]
-  {
-    mStructure2D->setMap3dSettings( mView3D->map3DSettings() );
-  } );
-
-  mView3D->addMesh( structure2D->mesh() );
 
   QToolBar *toolBar = new QToolBar( this );
   toolBar->addAction( mActionEditStructure );
@@ -566,6 +556,23 @@ void ReosHydraulicStructure2DProperties::restoreResults()
   updateDatasetMenus();
   mScalarWidgetAction->setEnabled( true );
   mVectorWidgetAction->setEnabled( true );
+}
+
+void ReosHydraulicStructure2DProperties::initialize3DView()
+{
+  mView3D = new Reos3dView( mStructure2D->mesh(), ReosGuiContext( mGuiContext, this ) );
+  mView3D->setAction( mAction3DView );
+  mView3D->showWidgetAction();
+  mView3D->setMapSettings( mStructure2D->map3dSettings(), false );
+  mView3D->setTerrainSettings( mStructure2D->terrain3DSettings() );
+  connect( mView3D, &Reos3dView::mapSettingsChanged, this, [this]
+  {
+    mStructure2D->setMap3dSettings( mView3D->map3DSettings() );
+  } );
+
+  mView3D->addMesh( mStructure2D->mesh() );
+  disconnect( mAction3DView, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::initialize3DView );
+  mView3D->show();
 }
 
 

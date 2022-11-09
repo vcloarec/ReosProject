@@ -30,6 +30,8 @@ class REOSGUI_EXPORT ReosActionWidget : public QWidget
     explicit ReosActionWidget( QWidget *parent = nullptr );
     void setAction( QAction *action );
 
+    void showWidgetAction();
+
   signals:
     void closed();
     void opened();

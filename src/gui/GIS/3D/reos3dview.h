@@ -39,7 +39,6 @@ namespace Ui
 class Reos3dView : public ReosActionWidget
 {
     Q_OBJECT
-
   public:
     explicit Reos3dView( ReosMesh *meshTerrain, const ReosGuiContext &guiContext );
     ~Reos3dView();
@@ -55,7 +54,7 @@ class Reos3dView : public ReosActionWidget
     void mapSettingsChanged();
     void terrainSettingsChanged();
 
-  private:
+  private slots:
     void onExaggerationChange( double value );
     void onLightChange();
     void onTerrainSettingsChanged();

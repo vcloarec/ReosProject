@@ -33,9 +33,7 @@ void ReosActionWidget::setAction( QAction *action )
   {
     if ( mAction->isChecked() )
     {
-      restore();
-      show();
-      emit opened();
+      showWidgetAction();
     }
     else
     {
@@ -43,6 +41,13 @@ void ReosActionWidget::setAction( QAction *action )
       close();
     }
   } );
+}
+
+void ReosActionWidget::showWidgetAction()
+{
+  restore();
+  show();
+  emit opened();
 }
 
 void ReosActionWidget::closeEvent( QCloseEvent *event )

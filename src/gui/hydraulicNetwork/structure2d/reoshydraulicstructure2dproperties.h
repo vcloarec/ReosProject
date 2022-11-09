@@ -61,6 +61,7 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
     void onSimulationFinished();
     void onMapCursorMove( const QPointF &pos );
     void restoreResults();
+    void initialize3DView();
 
   private:
     Ui::ReosHydraulicStructure2DProperties *ui;
