@@ -709,8 +709,6 @@ QString ReosRainfallSerieRainfallItem::rainfallInformation() const
   QString ret;
   ret.append( tr( "Name: %1" ).arg( name() ) );
   ret.append( "\n" );
-  ret.append( tr( "Type: %1" ).arg( dataType() ) );
-  ret.append( "\n" );
   QPair<QDateTime, QDateTime> timeExtent = data()->timeExtent();
   ReosDuration duration( timeExtent.first.msecsTo( timeExtent.second ) );
   duration.setAdaptedUnit();

@@ -288,12 +288,12 @@ void ReosRunoffHydrographWidget::updateRainfall()
   if ( rainfall && rainfall->data() )
   {
     mRainfallHistogram->setTimeSerie( rainfall->data() );
-    ui->labelRainfAllInfo->setText( rainfall->rainfallInformation() );
+    ui->labelRainfallInfo->setText( rainfall->rainfallInformation() );
   }
   else
   {
     mRainfallHistogram->setTimeSerie( nullptr );
-    ui->labelRainfAllInfo->setText( QString() );
+    ui->labelRainfallInfo->setText( QString() );
   }
 
   updateResultData();
