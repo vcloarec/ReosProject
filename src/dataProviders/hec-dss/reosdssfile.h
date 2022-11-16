@@ -25,6 +25,8 @@
 #include "reosdssutils.h"
 
 class ReosHydrograph;
+class ReosGriddedRainfall;
+class ReosMapExtent;
 
 class REOSDSS_EXPORT ReosDssPath
 {
@@ -50,7 +52,6 @@ class REOSDSS_EXPORT ReosDssPath
 
     const QString string() const;
     const char *c_pathString() const;
-
 
     const QString group() const;
     void setGroup( const QString &newGroup );
@@ -98,7 +99,9 @@ class REOSDSS_EXPORT ReosDssFile
 
     bool pathExist( const ReosDssPath &path, bool considerInterval ) const;
 
-    void getSeries( const ReosDssPath &path, QVector<double> &values, ReosDuration &timeStep, QDateTime &startTime );
+    void getSeries( const ReosDssPath &path, QVector<double> &values, ReosDuration &timeStep, QDateTime &startTime ) const;
+
+    void getGrid( const ReosDssPath &path );
 
     QVector<double> values( const ReosDssPath &path ) const;
 
@@ -111,6 +114,11 @@ class REOSDSS_EXPORT ReosDssFile
                                       const ReosDuration &timeStep,
                                       const QVector<double> &values,
                                       QString &error );
+
+    bool writeGriddedData( ReosGriddedRainfall *griddedrainFall,
+                           const ReosDssPath &path,
+                           const ReosMapExtent &destination,
+                           double resolution = -1 );
 
     QList<ReosDssPath> searchRecordsPath( const ReosDssPath &path, bool considerInterval ) const;
 

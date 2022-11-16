@@ -106,8 +106,8 @@ QString ReosGriddedRainfall::staticType() {return QStringLiteral( "gridded-preci
 
 int ReosGriddedRainfall::gridCount() const
 {
-    if ( mProvider )
-        return mProvider->count();
+  if ( mProvider )
+    return mProvider->count();
   else
     return 0;
 }
@@ -219,7 +219,7 @@ ReosGriddedRainfall *ReosGriddedRainfall::transform( const ReosMapExtent &destin
   ReosRasterExtent destinationExtent;
   bool success;
   const ReosRasterExtent sourceExtent = extent();
-  auto convertValues = ReosGisEngine::transformRasterExtent( sourceExtent, destination, destinationExtent, resolX, resolY, success );
+  auto convertValues = ReosGisEngine::transformRasterExtent( sourceExtent, destination, resolX, resolY, destinationExtent, success );
   int sourceXCount = sourceExtent.xCellCount();
 
   std::unique_ptr<ReosGriddedRainfallMemoryProvider> newProvider( new ReosGriddedRainfallMemoryProvider );

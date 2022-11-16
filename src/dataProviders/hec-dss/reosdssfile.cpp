@@ -25,7 +25,10 @@ extern "C" {
 
 #include "reosduration.h"
 #include "reoshydrograph.h"
+#include "reosgriddedrainitem.h"
 #include "reosdssutils.h"
+#include "reosmemoryraster.h"
+#include "reosgisengine.h"
 
 
 ReosDssFile::ReosDssFile( const QString &filePath, bool create )
@@ -95,13 +98,13 @@ bool ReosDssFile::pathExist( const ReosDssPath &path, bool considerInterval ) co
 
 }
 
-void ReosDssFile::getSeries( const ReosDssPath &path, QVector<double> &values, ReosDuration &timeStep, QDateTime &startTime )
+void ReosDssFile::getSeries( const ReosDssPath &path, QVector<double> &values, ReosDuration &timeStep, QDateTime &startTime ) const
 {
   ReosDssPath allDatapath = path;
   allDatapath.setStartDate( QString( '*' ) );
 
-  std::unique_ptr<zStructTimeSeries> timeSeries( zstructTsNew( allDatapath.c_pathString() ) );
-  int status = ztsRetrieve( mIfltab->data(), timeSeries.get(), -3, 2, 0 );
+  zStructTimeSeries *timeSeries( zstructTsNew( allDatapath.c_pathString() ) );
+  int status = ztsRetrieve( mIfltab->data(), timeSeries, -3, 2, 0 );
 
   if ( status == STATUS_OKAY )
   {
@@ -119,7 +122,24 @@ void ReosDssFile::getSeries( const ReosDssPath &path, QVector<double> &values, R
     timeStep = ReosDuration( timeSeries->timeIntervalSeconds, ReosDuration::second );
   }
 
-  zstructFree( timeSeries.release() );
+  zstructFree( timeSeries );
+}
+
+void ReosDssFile::getGrid( const ReosDssPath &path )
+{
+  zStructSpatialGrid *grid = zstructSpatialGridNew( path.c_pathString() );
+  int gridVer = -1;
+  int status = zspatialGridRetrieve( mIfltab->data(), grid, true );
+  STATUS_OKAY;
+
+  int valueCount = grid->_numberOfCellsX * grid->_numberOfCellsY;
+  QVector<float> values( valueCount );
+  for ( int i = 0; i < valueCount; ++i )
+  {
+    values[i] =  static_cast<float *>( grid->_data )[i];
+  }
+
+  zstructFree( grid );
 }
 
 bool ReosDssFile::createConstantIntervalSeries( const ReosDssPath &path, QString &error )
@@ -157,6 +177,157 @@ bool ReosDssFile::writeConstantIntervalSeries(
   return writeConstantIntervalSeriesPrivate( path, startTime, timeStep, values, error );
 }
 
+template<typename T >
+static void *allocValue( T value )
+{
+  void *ptr = malloc( sizeof( T ) * 1 );
+  *( static_cast<T *>( ptr ) ) = value;
+
+  return ptr;
+}
+
+static char *allocCopyString( const QString &string )
+{
+  size_t len = static_cast<size_t>( string.count() );
+  char *str = ( char * )malloc( string.count() + 1 );
+  std::string stdString = string.toStdString();
+  strncpy( str, stdString.c_str(), len + 1 );
+  return str;
+}
+
+static char *utmGridDef( int zone, const char *utmHemi )
+{
+  char *falseNorthing = "0";
+  char _centralMeridian[sizeof( int )];
+  char tens[sizeof( int )];
+  char ones[sizeof( int )];
+  int len = sizeof( UTM_SRC_DEFINITION );
+  char *utm = ( char * )malloc( sizeof( char ) * len );
+
+  if ( strcmp( utmHemi, "S" ) == 0 )
+    falseNorthing = "10000000";
+  int centralMeridian = -183 + zone * 6;
+
+  snprintf( _centralMeridian, sizeof( int ), "%d", centralMeridian );
+  snprintf( tens, sizeof( int ), "%.f", fmodf( zone, 10 ) );
+  snprintf( ones, sizeof( int ), "%d", zone / 10 );
+
+  snprintf( utm, len, UTM_SRC_DEFINITION, ones, tens, _centralMeridian, falseNorthing );
+
+  return utm;
+}
+
+bool ReosDssFile::writeGriddedData(
+  ReosGriddedRainfall *griddedRainFall,
+  const ReosDssPath &path,
+  const ReosMapExtent &destination,
+  double resolution )
+{
+  bool res = true;
+  const ReosRasterExtent extent = griddedRainFall->extent();
+
+  ReosMapExtent destinationFullExtent = ReosGisEngine::transformExtent( extent, destination.crs() );
+  double destResolution = resolution;
+  if ( destResolution < 0 )
+  {
+    double dx = destinationFullExtent.width() / extent.xCellCount();
+    double dy = destinationFullExtent.height() / extent.yCellCount();
+    destResolution = ( dx + dy ) / 2;
+  }
+
+  int xCellBottomLeft = destination.xMapMin() / destResolution ;
+  int ycellBottomLeft = destination.yMapMin() / destResolution ;
+  int xCellTopRight = destination.xMapMax() / destResolution ;
+  int yCellTopRoght = destination.yMapMax() / destResolution ;
+
+  double xMinDestin = xCellBottomLeft * destResolution;
+  double yMinDestin = ycellBottomLeft * destResolution;
+  double xMaxDestin = ( xCellTopRight + 1 ) * destResolution;
+  double yMaxDestin = ( yCellTopRoght + 1 ) * destResolution;
+
+  ReosMapExtent destExtent( xMinDestin, yMinDestin, xMaxDestin, yMaxDestin );
+  destExtent.setCrs( destination.crs() );
+
+  std::unique_ptr<ReosGriddedRainfall> transformedGriddedRainfall(
+    griddedRainFall->transform( destExtent, destResolution, destResolution ) );
+
+  ReosRasterExtent transformedExtent = transformedGriddedRainfall->extent();
+
+  for ( int i = 0; i < transformedGriddedRainfall->gridCount(); ++i )
+  {
+    ReosDssPath effPath = path;
+    const QDateTime startDateTime = transformedGriddedRainfall->startTime( i );
+    const QDateTime endDateTime = transformedGriddedRainfall->endTime( i );
+    effPath.setStartDate( ReosDssUtils::dateToHecRasDate( startDateTime.date() ) + ':' + startDateTime.time().toString( "HHmm" ) );
+    effPath.setTimeInterval( ReosDssUtils::dateToHecRasDate( endDateTime.date() ) + ':' + endDateTime.time().toString( "HHmm" ) );
+    zStructSpatialGrid *grid = zstructSpatialGridNew( effPath.c_pathString() );
+    //grid->_rangeLimitTable = allocValue( float( 0.0 ) );
+    // grid_->_numberEqualOrExceedingRangeLimit
+
+    grid->_type = 430;     //*************************
+    grid->_version = 1;
+    QString units = "MM";  //*************************
+    grid->_dataUnits = allocCopyString( units );
+    grid->_dataType = PER_CUM;
+    QString source = "INTERNAL";
+    grid->_dataSource = allocCopyString( source );
+
+    grid->_compressionMethod = ZLIB_COMPRESSION;
+    grid->_cellSize = std::fabs( transformedExtent.xCellSize() );
+    grid->_isInterval = 1;
+    grid->_isTimeStamped = 1;
+
+    grid->_numberOfCellsX = transformedExtent.xCellCount();
+    grid->_numberOfCellsY = transformedExtent.yCellCount();
+    grid->_lowerLeftCellX = xCellBottomLeft;
+    grid->_lowerLeftCellY = ycellBottomLeft;
+
+    grid->_xCoordOfGridCellZero = 0.0;
+    grid->_yCoordOfGridCellZero = 0.0;
+    grid->_srsDefinitionType = 0;
+    QString crsName = ( "---" );
+    grid->_srsName = allocCopyString( crsName );
+    QString crs = ReosGisEngine::crsEsriWkt( transformedExtent.crs() );;
+    grid->_srsDefinition = allocCopyString( crs );
+//    const char *hemi = "N";
+//    grid->_srsDefinition = utmGridDef( 20, hemi );
+
+    const QVector<double> values = transformedGriddedRainfall->data( i );
+    float min = std::numeric_limits<float>::max();
+    float max = -std::numeric_limits<float>::max();
+    double mean = 0;
+    for ( double val : values )
+    {
+      if ( float( val ) < min )
+        min = val;
+
+      if ( float( val ) > max )
+        max = val;
+
+      mean += val;
+    }
+
+    grid->_minDataValue = allocValue( min );
+    grid->_maxDataValue = allocValue( max );
+    grid->_meanDataValue = allocValue( static_cast<float>( mean / values.count() ) );
+    grid->_data = malloc( sizeof( float ) * values.count() );
+
+    grid->_compressionParameters = malloc( sizeof( float ) * 2 );
+    static_cast<float *>( grid->_compressionParameters )[0] = 0.0;
+    static_cast<float *>( grid->_compressionParameters )[1] = 0.0;
+
+    for ( int di = 0; di < values.count(); ++di )
+      static_cast<float *>( grid->_data )[di] = static_cast<float>( values.at( di ) );
+    res = zspatialGridStore( mIfltab->data(), grid ) == STATUS_OKAY;
+    zstructFree( grid );
+    if ( !res )
+      break;
+
+    //getGrid( effPath );
+  }
+  return res;
+}
+
 bool ReosDssFile::writeConstantIntervalSeriesPrivate(
   const ReosDssPath &path,
   const QDateTime &startDateTime,
@@ -183,7 +354,7 @@ bool ReosDssFile::writeConstantIntervalSeriesPrivate(
   milliSeconds = milliSeconds - seconds * 1000;
   secondsToTimeString( seconds, milliSeconds, 3, strTime.data(), strTime.size() );
 
-  std::unique_ptr<zStructTimeSeries> timeSerie(
+  zStructTimeSeries *timeSerie(
     zstructTsNewRegDoubles( pathToWrite.c_pathString(),
                             const_cast<double *>( values.data() ),
                             values.count(),
@@ -192,8 +363,8 @@ bool ReosDssFile::writeConstantIntervalSeriesPrivate(
                             "", // for now, we do not care about unit
                             "" ) ); // for now, we do not care about type f value
 
-  int res = ztsStore( mIfltab->data(), timeSerie.get(), 0 );
-  zstructFree( timeSerie.release() );
+  int res = ztsStore( mIfltab->data(), timeSerie, 0 );
+  zstructFree( timeSerie );
 
   if ( res != STATUS_OKAY )
   {
@@ -235,7 +406,7 @@ ReosDssPath ReosDssFile::firstFullPath( const ReosDssPath &path, bool considerIn
 QList<ReosDssPath> ReosDssFile::searchRecordsPath( const ReosDssPath &path, bool considerInterval ) const
 {
   QList<ReosDssPath> ret;
-  std::unique_ptr<zStructCatalog> catStruct( zstructCatalogNew() );
+  zStructCatalog *catStruct( zstructCatalogNew() );
   int status;
   ReosDssPath searchPath = path;
 
@@ -244,7 +415,7 @@ QList<ReosDssPath> ReosDssFile::searchRecordsPath( const ReosDssPath &path, bool
   if ( !considerInterval )
     searchPath.setTimeInterval( QString( '*' ) );
 
-  status = zcatalog( mIfltab->data(), searchPath.c_pathString(), catStruct.get(), 0 );
+  status = zcatalog( mIfltab->data(), searchPath.c_pathString(), catStruct, 0 );
   if ( status < 0 )
     return ret;
 
@@ -253,7 +424,7 @@ QList<ReosDssPath> ReosDssFile::searchRecordsPath( const ReosDssPath &path, bool
   for ( int i = 0; i < count; ++i )
     ret.append( ReosDssPath( QString( catStruct->pathnameList[i] ) ) );
 
-  zstructFree( catStruct.release() );
+  zstructFree( catStruct );
 
   return ret;
 }
