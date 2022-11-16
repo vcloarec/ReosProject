@@ -100,7 +100,7 @@ void ReosGeometryTest::gridReprojection()
   ReosRasterExtent projExtent;
   bool success;
   ReosRasterMemory<QList<QPair<double, QPoint>>> result =
-    ReosGisEngine::transformRasterExtent( geoExtent, destinationExtent, 2000, 2000, projExtent, success );
+    ReosGisEngine::transformRasterExtent( geoExtent, destinationExtent, projExtent, 2000, 2000, success );
 
   QCOMPARE( result.rowCount(), 104 );
   QCOMPARE( result.columnCount(), 115 );

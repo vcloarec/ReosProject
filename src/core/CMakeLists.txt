@@ -251,7 +251,10 @@ TARGET_LINK_LIBRARIES(reosCore PUBLIC
         ${Qt5Network_LIBRARIES}
         ${Qt5Sql_LIBRARIES}
         ${Qt5Concurrent_LIBRARIES}
-        ${QGIS_LIBS}
+        ${QGIS_CORE_LIB}
+        ${QGIS_GUI_LIB} ##TODO : Need to make reos_core independant from qgis_gui
+        ${QGIS_ANALYSIS_LIB}
+        ${QGIS_3D_LIB}
         ${GMSH_LIB}
 )
 

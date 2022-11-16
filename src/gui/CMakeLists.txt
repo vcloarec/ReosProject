@@ -227,7 +227,7 @@ ADD_LIBRARY(reosGui SHARED
     ${REOS_GUI_SOURCES}
   )
 
-TARGET_LINK_LIBRARIES(reosGui PUBLIC
+TARGET_LINK_LIBRARIES(reosGui PRIVATE
         ${Qt5Xml_LIBRARIES}
         ${Qt5Core_LIBRARIES}
         ${Qt5Gui_LIBRARIES}
@@ -239,7 +239,11 @@ TARGET_LINK_LIBRARIES(reosGui PUBLIC
         ${Qt5Concurrent_LIBRARIES}
         ${Qt5Charts_LIBRARIES}
         ${Qt5WebKitWidgets_LIBRARIES}
-        ${QGIS_LIBS}
+        ${QGIS_CORE_LIB}
+        ${QGIS_GUI_LIB}
+        ${QGIS_ANALYSIS_LIB}
+        ${QGIS_3D_LIB}
+        ${GMSH_LIB}
         ${QGIS_APP_LIB}
         ${QWT_LIB}
         reosCore
