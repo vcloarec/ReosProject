@@ -115,7 +115,7 @@ class ReosMeshFrame_p : public ReosMesh
     void addDatasetGroup( QgsMeshDatasetGroup *group, const QString &id = QString() );
     void firstUpdateOfTerrainScalarSetting();
     void restoreVertexElevationDataset();
-    void updateWireFrameSettings(bool updateRenderer);
+    void updateWireFrameSettings( bool updateRenderer );
     int datasetGroupIndex( const QString &id ) const;
     ReosEncodedElement datasetScalarGroupSymbologyPrivate( int i ) const;
     void applyScalarSymbologyOnMeshDatasetGroup( const QString &id );
@@ -130,12 +130,12 @@ class ReosMeshRenderer_p : public ReosObjectRenderer
 {
   public:
     ReosMeshRenderer_p( QGraphicsView *canvas, QgsMeshLayer *layer, ReosMesh *mesh );
-    void render() const;
+    void render() const override;
 
     bool isRenderingStopped() const override;
 
   protected:
-    void stopRendering();
+    void stopRendering() override;
 
   private:
     std::unique_ptr<QgsMapLayerRenderer> mLayerRender;

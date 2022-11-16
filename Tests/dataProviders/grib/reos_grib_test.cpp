@@ -26,7 +26,8 @@ class ReosGribTest: public QObject
   private slots:
     void createProvider();
 
-    void griddedRain();
+    void griddedRainInFolder();
+    void griddedRainInFile();
 };
 
 
@@ -63,7 +64,7 @@ void ReosGribTest::createProvider()
   QVERIFY( extent.isValid() );
 }
 
-void ReosGribTest::griddedRain()
+void ReosGribTest::griddedRainInFolder()
 {
   QString gribFile( testFile( QStringLiteral( "grib/arome-antilles" ) ) );
   QString variable( QStringLiteral( "Total precipitation rate [kg/(m^2*s)]" ) );
@@ -81,6 +82,30 @@ void ReosGribTest::griddedRain()
   QCOMPARE( rainfall->endTime( 1 ), QDateTime( QDate( 2022, 11, 12 ), QTime( 14, 0, 0 ), Qt::UTC ) );
   QCOMPARE( rainfall->startTime( 2 ), QDateTime( QDate( 2022, 11, 12 ), QTime( 14, 0, 0 ), Qt::UTC ) );
   QCOMPARE( rainfall->endTime( 2 ), QDateTime( QDate( 2022, 11, 12 ), QTime( 15, 0, 0 ), Qt::UTC ) );
+
+  rainfall->data( 0 );
+  rainfall->data( 1 );
+  rainfall->data( 2 );
+}
+
+void ReosGribTest::griddedRainInFile()
+{
+  QString gribFile( testFile( QStringLiteral( "grib/W_fr-meteofrance,MODEL,AROME+0025+SP1+00H06H_C_LFPW_202211161200--.grib2" ) ) );
+  QString variable( QStringLiteral( "Total precipitation rate [kg/(m^2*s)]" ) );
+  std::unique_ptr<ReosGriddedRainfall> rainfall(
+    new ReosGriddedRainfall( ReosGribGriddedRainfallProvider::uri( gribFile, variable, ReosGriddedRainfallProvider::ValueType::CumulativeHeight ),
+                             ReosGribGriddedRainfallProvider::staticKey() ) );
+
+  QVERIFY( rainfall->isValid() );
+
+  QCOMPARE( rainfall->gridCount(), 6 );
+
+  QCOMPARE( rainfall->startTime( 0 ), QDateTime( QDate( 2022, 11, 16 ), QTime( 12, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 0 ), QDateTime( QDate( 2022, 11, 16 ), QTime( 13, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->startTime( 1 ), QDateTime( QDate( 2022, 11, 16 ), QTime( 13, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 1 ), QDateTime( QDate( 2022, 11, 16 ), QTime( 14, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->startTime( 2 ), QDateTime( QDate( 2022, 11, 16 ), QTime( 14, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 2 ), QDateTime( QDate( 2022, 11, 16 ), QTime( 15, 0, 0 ), Qt::UTC ) );
 
   rainfall->data( 0 );
   rainfall->data( 1 );
