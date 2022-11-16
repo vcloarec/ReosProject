@@ -30,7 +30,7 @@ TARGET_LINK_LIBRARIES(telemac_engine
         ${Qt5Network_LIBRARIES}
         ${Qt5Sql_LIBRARIES}
         ${Qt5Concurrent_LIBRARIES}
-        ${QGIS_LIBS}
+        #${QGIS_LIBS}
         ${MDAL_LIB}
         reosGui
         reosCore
