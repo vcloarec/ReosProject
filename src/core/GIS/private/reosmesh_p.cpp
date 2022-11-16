@@ -32,7 +32,8 @@
 #include "reosmapextent.h"
 #include "reostopographycollection.h"
 #include "reosgisengine.h"
-
+#include "reosrenderedobject.h"
+#include "reosrenderersettings_p.h"
 
 ReosMeshFrame_p::ReosMeshFrame_p( const QString &crs, QObject *parent ): ReosMesh( parent )
 {
@@ -282,9 +283,9 @@ ReosEncodedElement ReosMeshFrame_p::wireFrameSymbology() const
   return encodedElem;
 }
 
-ReosObjectRenderer *ReosMeshFrame_p::createRenderer( QGraphicsView *view )
+ReosObjectRenderer *ReosMeshFrame_p::createRenderer( ReosRendererSettings *settings )
 {
-  return new ReosMeshRenderer_p( view, mMeshLayer.get(), this );
+  return new ReosMeshRenderer_p( settings, mMeshLayer.get(), this );
 }
 
 ReosMeshQualityChecker *ReosMeshFrame_p::getQualityChecker( ReosMesh::QualityMeshChecks qualitiChecks, const QString &destinatonCrs ) const
@@ -1172,13 +1173,14 @@ void ReosMeshFrame_p::setSimulationResults( ReosHydraulicSimulationResults *resu
   mMeshLayer->trigger3DUpdate();
 }
 
-ReosMeshRenderer_p::ReosMeshRenderer_p( QGraphicsView *canvas, QgsMeshLayer *layer, ReosMesh *mesh ):
+ReosMeshRenderer_p::ReosMeshRenderer_p( ReosRendererSettings *settings, QgsMeshLayer *layer, ReosMesh *mesh ):
   ReosObjectRenderer( mesh )
 {
-  QgsMapCanvas *mapCanvas = qobject_cast<QgsMapCanvas *>( canvas );
-  if ( mapCanvas )
+  ReosRendererSettings_p *rendererSettings = dynamic_cast<ReosRendererSettings_p *>( settings );
+
+  if ( rendererSettings )
   {
-    const QgsMapSettings &settings = mapCanvas->mapSettings();
+    const QgsMapSettings &settings = rendererSettings->settings();
     mImage = QImage( settings.deviceOutputSize(), settings.outputImageFormat() );
     mImage.setDevicePixelRatio( settings.devicePixelRatio() );
     mImage.setDotsPerMeterX( static_cast<int>( settings.outputDpi() * 39.37 ) );
@@ -1187,7 +1189,7 @@ ReosMeshRenderer_p::ReosMeshRenderer_p( QGraphicsView *canvas, QgsMeshLayer *lay
 
     mPainter.reset( new QPainter( &mImage ) );
     mRenderContext = QgsRenderContext::fromMapSettings( settings );
-    mRenderContext.setCoordinateTransform( mapCanvas->mapSettings().layerTransform( layer ) );
+    mRenderContext.setCoordinateTransform( rendererSettings->settings().layerTransform( layer ) );
     mRenderContext.setPainter( mPainter.get() );
     mLayerRender.reset( layer->createMapRenderer( mRenderContext ) );
 

@@ -22,9 +22,7 @@
 #include "reosdataobject.h"
 #include "reosprocess.h"
 
-class QGraphicsView;
 class QPainter;
-class QgsMapCanvas;
 class ReosRenderedObject;
 
 class REOSCORE_EXPORT ReosObjectRenderer: public ReosProcess
@@ -61,17 +59,26 @@ class REOSCORE_EXPORT ReosObjectRenderer: public ReosProcess
 
 };
 
+class ReosRendererSettings
+{
+  public:
+    virtual ~ReosRendererSettings() = default;
+
+};
+
 class REOSCORE_EXPORT ReosRenderedObject: public ReosDataObject
 {
     Q_OBJECT
   public:
     ReosRenderedObject( QObject *parent );
-    virtual ReosObjectRenderer *createRenderer( QGraphicsView *view ) = 0;
+
+    static std::unique_ptr<ReosRendererSettings> createRenderSettings( const void *settings );
+
+    virtual ReosObjectRenderer *createRenderer( ReosRendererSettings *settings ) = 0;
 
   signals:
     void renderingFinished();
     void repaintRequested();
-
 };
 
 

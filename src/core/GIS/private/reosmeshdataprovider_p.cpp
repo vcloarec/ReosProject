@@ -235,7 +235,6 @@ void ReosMeshDataProvider_p::loadMeshFrame( const QString &filePath, const QStri
     overrideCrs( dataProvider->crs() );
     emit dataChanged();
   }
-
 }
 
 ReosMeshDataProvider_p::ReosMeshDataProvider_p(): QgsMeshDataProvider( "mesh", QgsDataProvider::ProviderOptions() )

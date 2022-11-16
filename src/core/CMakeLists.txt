@@ -34,6 +34,7 @@ SET(REOS_CORE_SOURCES
   GIS/private/reosmesh_p.cpp
   GIS/private/reosmeshdataprovider_p.cpp
   GIS/private/reostopographycollection_p.cpp
+  GIS/private/reosrenderersettings_p.cpp
 
   process/reosprocess.cpp
 
@@ -181,6 +182,7 @@ SET(REOS_CORE_HEADERS_PRIVATE
     GIS/private/reosmesh_p.h
     GIS/private/reosmeshdataprovider_p.h
     GIS/private/reostopographycollection_p.h
+    GIS/private/reosrenderersettings_p.h
     )
 
 SET(IMAGE_RCCS ${CMAKE_SOURCE_DIR}/images/images.qrc

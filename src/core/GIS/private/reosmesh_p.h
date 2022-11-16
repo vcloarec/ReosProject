@@ -69,7 +69,7 @@ class ReosMeshFrame_p : public ReosMesh
     void activateWireFrame( bool activate ) override;
     bool isWireFrameActive() const override;
     ReosEncodedElement wireFrameSymbology() const override;
-    ReosObjectRenderer *createRenderer( QGraphicsView *view ) override;
+    ReosObjectRenderer *createRenderer( ReosRendererSettings *settings ) override;
     ReosMeshQualityChecker *getQualityChecker( QualityMeshChecks qualitiChecks, const QString &destinatonCrs ) const override;
 
     void setSimulationResults( ReosHydraulicSimulationResults *result ) override;
@@ -129,7 +129,7 @@ class ReosMeshFrame_p : public ReosMesh
 class ReosMeshRenderer_p : public ReosObjectRenderer
 {
   public:
-    ReosMeshRenderer_p( QGraphicsView *canvas, QgsMeshLayer *layer, ReosMesh *mesh );
+    ReosMeshRenderer_p( ReosRendererSettings *settings, QgsMeshLayer *layer, ReosMesh *mesh );
     void render() const override;
 
     bool isRenderingStopped() const override;

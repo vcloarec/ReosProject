@@ -14,6 +14,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "reosrenderedobject.h"
+#include "reosrenderersettings_p.h"
 
 ReosObjectRenderer::ReosObjectRenderer( ReosRenderedObject *object )
   : mObject( object )
@@ -62,4 +63,9 @@ ReosRenderedObject *ReosObjectRenderer::object()
 }
 
 ReosRenderedObject::ReosRenderedObject( QObject *parent ) : ReosDataObject( parent ) {}
+
+std::unique_ptr<ReosRendererSettings> ReosRenderedObject::createRenderSettings( const void *settings )
+{
+  return std::unique_ptr<ReosRendererSettings>( new ReosRendererSettings_p( settings ) );
+}
 

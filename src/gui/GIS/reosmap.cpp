@@ -94,7 +94,9 @@ void ReosRendererObjectHandler::startRender( ReosRenderedObject *renderedObject 
   QMutexLocker locker( &( d->mMutex ) );
   if ( !hasUpToDateCache( renderedObject ) )
   {
-    std::unique_ptr<ReosObjectRenderer> renderer( renderedObject->createRenderer( d->mCanvas ) );
+    const QgsMapSettings &mapSettings = d->mCanvas->mapSettings();
+    std::unique_ptr<ReosRendererSettings> rendererSettings = ReosRenderedObject::createRenderSettings( &mapSettings );
+    std::unique_ptr<ReosObjectRenderer> renderer( renderedObject->createRenderer( rendererSettings.get() ) );
     connect( renderer.get(), &ReosObjectRenderer::finished, this, &ReosRendererObjectHandler::onRendererFinished );
     d->mMapToPixels.insert( renderer.get(), d->mCanvas->mapSettings().mapToPixel() );
     d->mTimeStamps.insert( renderer.get(), QDateTime::currentMSecsSinceEpoch() );
