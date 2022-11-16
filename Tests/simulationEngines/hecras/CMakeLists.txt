@@ -10,7 +10,8 @@ SET(REOS_HECRAS_SOURCES
      ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras/reoshecrassimulationresults.cpp
      ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras/reoshecrasproject.cpp
      ${CMAKE_SOURCE_DIR}/src/dataProviders/hec-dss/reosdssprovider.cpp
-)
+     ${CMAKE_SOURCE_DIR}/Tests/reos_testutils.cpp
+ )
 
 SET(REOS_HECRAS_HEADERS
      ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras/reoshecrascontroller.h
@@ -19,9 +20,6 @@ SET(REOS_HECRAS_HEADERS
      ${CMAKE_SOURCE_DIR}/src/simulationEngines/hecras/reoshecrasproject.h
      ${CMAKE_SOURCE_DIR}/src/dataProviders/hec-dss/reosdssprovider.h
 )
-
-SET(TESTHECDATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/testData")
-ADD_DEFINITIONS(-DTESTHECDATA="${TESTHECDATA_DIR}")
 
 ADD_EXECUTABLE(test_hecras ${REOS_HECRAS_HEADERS} ${REOS_HECRAS_SOURCES} test_hecras.cpp)
 TARGET_LINK_LIBRARIES(test_hecras
