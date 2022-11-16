@@ -529,11 +529,10 @@ void ReosHecrasTesting::writeGridInDss()
   QString projCrs = ReosGisEngine::crsFromEPSG( 32620 );
   rainfall->overrideCrs( ReosGisEngine::crsFromEPSG( 4326 ) );
 
-
-  ReosMapExtent destination( 589751, 1760488, 711509, 1838199 );
+  ReosMapExtent destination( 593806, 1739924, 747444, 1860601 );
   destination.setCrs( projCrs );
 
-  ReosDssFile file( testFile( "/hecras/es_vcl.dss" ), true );
+  ReosDssFile file( tempFile( "/hecras/es_vcl.dss" ), true );
   ReosDssPath path;
   path.setGroup( "METEOFRANCE" );
   path.setLocation( "ANTILLES" );
