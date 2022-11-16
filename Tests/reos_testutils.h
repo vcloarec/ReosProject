@@ -29,6 +29,10 @@ std::string test_file( std::string basename );
 
 std::string tmp_file( std::string basename );
 
+QString testFile( const QString &baseName );
+
+QString tempFile( const QString &baseName );
+
 bool equal( double a, double b, double precision );
 
 bool equal( const QPolygonF &poly1, const QPolygonF &poly2 );

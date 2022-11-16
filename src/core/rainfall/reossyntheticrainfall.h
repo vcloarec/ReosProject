@@ -23,11 +23,11 @@
 
 class ReosParameterDuration;
 
-class REOSCORE_EXPORT ReosSerieRainfall : public ReosTimeSerieConstantInterval
+class REOSCORE_EXPORT ReosSeriesRainfall : public ReosTimeSerieConstantInterval
 {
     Q_OBJECT
   public:
-    ReosSerieRainfall( QObject *parent = nullptr, const QString &providerKey = QString(), const QString &dataSource = QString() );
+    ReosSeriesRainfall( QObject *parent = nullptr, const QString &providerKey = QString(), const QString &dataSource = QString() );
 
     QString type() const override {return staticType();}
     static QString staticType() {return ReosTimeSerieConstantInterval::staticType() + ':' + QStringLiteral( "rainfall" );}
@@ -35,17 +35,17 @@ class REOSCORE_EXPORT ReosSerieRainfall : public ReosTimeSerieConstantInterval
     ReosEncodedElement encode() const;
 
     //! Creates new instance from the encoded element
-    static ReosSerieRainfall *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
+    static ReosSeriesRainfall *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
 
   protected:
-    ReosSerieRainfall( const ReosEncodedElement &element, QObject *parent = nullptr );
+    ReosSeriesRainfall( const ReosEncodedElement &element, QObject *parent = nullptr );
 
   private:
     void setupData();
 
 };
 
-class REOSCORE_EXPORT ReosUniqueIdfCurveSyntheticRainfall : public ReosSerieRainfall
+class REOSCORE_EXPORT ReosUniqueIdfCurveSyntheticRainfall : public ReosSeriesRainfall
 {
     Q_OBJECT
   public:
@@ -93,7 +93,7 @@ class REOSCORE_EXPORT ReosChicagoRainfall : public ReosUniqueIdfCurveSyntheticRa
   public:
     ReosChicagoRainfall( QObject *parent = nullptr );
 
-    static QString staticType() {return ReosSerieRainfall::staticType() + ':' + QStringLiteral( "chicago" );}
+    static QString staticType() {return ReosSeriesRainfall::staticType() + ':' + QStringLiteral( "chicago" );}
     QString type() const override {return staticType();}
 
     ReosEncodedElement encode() const;
@@ -115,7 +115,7 @@ class REOSCORE_EXPORT ReosAlternatingBlockRainfall : public ReosUniqueIdfCurveSy
   public:
     ReosAlternatingBlockRainfall( QObject *parent = nullptr );
 
-    static QString staticType() {return ReosSerieRainfall::staticType() + ':' + QStringLiteral( "alternating-block" );}
+    static QString staticType() {return ReosSeriesRainfall::staticType() + ':' + QStringLiteral( "alternating-block" );}
     QString type() const override {return staticType();}
 
     ReosEncodedElement encode() const;
@@ -129,13 +129,13 @@ class REOSCORE_EXPORT ReosAlternatingBlockRainfall : public ReosUniqueIdfCurveSy
     void updateRainfall() const override ;
 };
 
-class REOSCORE_EXPORT ReosDoubleTriangleRainfall : public ReosSerieRainfall
+class REOSCORE_EXPORT ReosDoubleTriangleRainfall : public ReosSeriesRainfall
 {
     Q_OBJECT
   public:
     ReosDoubleTriangleRainfall( QObject *parent = nullptr );
 
-    static QString staticType() {return ReosSerieRainfall::staticType() + ':' + QStringLiteral( "double-triangle" );}
+    static QString staticType() {return ReosSeriesRainfall::staticType() + ':' + QStringLiteral( "double-triangle" );}
     QString type() const override {return staticType();}
 
     ReosParameterDuration *totalDuration();

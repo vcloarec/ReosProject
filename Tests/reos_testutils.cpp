@@ -15,6 +15,7 @@ email                : vcloarec at gmail dot com
 
 #include "reos_testutils.h"
 #include "reosprocess.h"
+#include "QDir"
 #include <filesystem>
 
 const char *data_path()
@@ -25,7 +26,7 @@ const char *data_path()
 std::string test_file( std::string basename )
 {
   std::string path( data_path() );
-  path += basename;
+  path += '/' + basename;
   return path;
 }
 
@@ -35,9 +36,27 @@ std::string tmp_file( std::string basename )
   std::filesystem::path tmpPath( path );
   if ( !std::filesystem::exists( path ) )
     std::filesystem::create_directory( tmpPath );
-  path += basename;
+  path += '/' + basename;
   return path;
 }
+
+QString testFile( const QString &baseName )
+{
+  QString path( data_path() );
+  path.append( QString( '/' ) + baseName );
+  return path;
+}
+
+QString tempFile( const QString &baseName )
+{
+  QString path( QString( data_path() ) + QStringLiteral( "/tmp" ) );
+  QDir dir( path );
+  if ( !dir.exists() )
+    dir.mkpath( path );
+  path.append( QString( '/' ) + baseName );
+  return path;
+}
+
 
 ModuleProcessControler::ModuleProcessControler( ReosProcess *process ): mProcess( process )
 {

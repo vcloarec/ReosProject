@@ -34,7 +34,7 @@ class ReosHubEauHydrographProvider : public ReosTimeSerieVariableTimeStepProvide
 
     ReosHubEauHydrographProvider() = default;
 
-    QString key() const override;;
+    QString key() const override;
     QDateTime referenceTime() const override;
     QString valueUnit() const override;
     int valueCount() const override;

@@ -56,7 +56,7 @@ class REOSCORE_EXPORT ReosRasterExtent : public ReosMapExtent
      * \param YCellSize size of the cell in X direction, can be negative
      *
      * If cell size is negative, the row or column index will increase when real world coordinate decreases.
-     * So ,if YCellSize < 0 and XCellSize>0, then the origin of the grid raster (0,0) will be at (Xmin,Ymax) of extent.
+     * So, if YCellSize < 0 and XCellSize>0, then the origin of the grid raster (0,0) will be at (Xmin,Ymax) of extent.
      *
      */
     ReosRasterExtent( double xOrigine, double yOrigine, int XCellCount, int YCellCount, double XCellSize, double YCellSize );
@@ -67,7 +67,7 @@ class REOSCORE_EXPORT ReosRasterExtent : public ReosMapExtent
     bool isValid() const;
     //! Returns x map coordinate of the orgin if the raster, x min if XCellSize > 0
     double xMapOrigin() const;
-    //! Returns y map coordinate of the orgin if the raster, x min if XCellSize > 0
+    //! Returns y map coordinate of the orgin if the raster, y min if YCellSize > 0
     double yMapOrigin() const;
     //! Returns cell size in X direction
     double xCellSize() const;
@@ -209,6 +209,10 @@ class ReosRasterMemory
     void setValue( const ReosRasterCellPos &cellPos, T v );
     //! Returns a void pointer to the data
     void *data();
+
+    //! Returns all the values in a 1D array
+    const QVector<T> values() const {return mValues;}
+
     //! Sets the value that is considered as no data
     void setNodata( T nd );
     //! Returns the value that is considered as no data

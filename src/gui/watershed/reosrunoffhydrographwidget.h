@@ -33,7 +33,7 @@ class ReosPlotTimeHistogram;
 class ReosMeteorologicModel;
 class ReosPlotTimeSerieVariableStep;
 class ReosTransferFunction;
-class ReosSerieRainfall;
+class ReosSeriesRainfall;
 class ReosVariableTimeStepPlotListButton;
 class ReosHydraulicNetwork;
 class ReosHydrographNodeWatershed;

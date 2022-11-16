@@ -1039,7 +1039,7 @@ void ReosWatershed::setConcentrationTimeCalculation( const ReosConcentrationTime
   mConcentrationTimeCalculation = concentrationTimeCalculation;
 }
 
-ReosHydrograph *ReosWatershed::createHydrograph( ReosSerieRainfall *rainfall, QObject *hydrographParent )
+ReosHydrograph *ReosWatershed::createHydrograph( ReosSeriesRainfall *rainfall, QObject *hydrographParent )
 {
   if ( !rainfall )
     return nullptr;

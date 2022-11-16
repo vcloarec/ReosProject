@@ -137,7 +137,7 @@ class ReosMeteorologicModelsCollection;
 class ReosMeteorologicModel;
 class ReosWatershed;
 class ReosTransferFunctionCalculation;
-class ReosSerieRainfall;
+class ReosSeriesRainfall;
 class ReosRunoffModelsGroup;
 class ReosRunoff;
 
@@ -190,7 +190,7 @@ class REOSCORE_EXPORT ReosRunoffHydrographsStore: public ReosHydrographGroup
   private:
     struct HydrographCalculationData
     {
-      QPointer<ReosSerieRainfall> rainfall;
+      QPointer<ReosSeriesRainfall> rainfall;
       ReosRunoff *runoff = nullptr;
       ReosHydrograph *hydrograph = nullptr;
       bool hasBeenAsked = false;

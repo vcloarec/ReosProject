@@ -27,6 +27,7 @@ SET(REOS_CORE_SOURCES
   GIS/reostopographycollection.cpp
   GIS/reosrenderedobject.cpp
   GIS/reos3dmapsettings.cpp
+  GIS/reosgdalutils.cpp
   GIS/private/reosdigitalelevationmodel_p.cpp
   GIS/private/reospolygonstructure_p.cpp
   GIS/private/reospolylinesstructure_p.cpp
@@ -58,6 +59,7 @@ SET(REOS_CORE_SOURCES
   rainfall/reosidfcurves.cpp
   rainfall/reossyntheticrainfall.cpp
   rainfall/reosrainfallregistery.cpp
+  rainfall/reosgriddedrainitem.cpp
 
   quantity/reosarea.cpp
   quantity/reosduration.cpp
@@ -68,6 +70,7 @@ SET(REOS_CORE_SOURCES
   data/reosdataobject.cpp
   data/reosdataprovider.cpp
   data/reostimeseriesgroup.cpp
+  data/reosgriddedrainfallprovider.cpp
 
   hydrograph/reoshydrograph.cpp
   hydrograph/reoshydrographsource.cpp
@@ -113,6 +116,7 @@ SET(REOS_CORE_HEADERS
     GIS/reostopographycollection.h
     GIS/reosrenderedobject.h
     GIS/reos3dmapsettings.h
+    GIS/reosgdalutils.h
 
     process/reosprocess.h
 
@@ -138,6 +142,7 @@ SET(REOS_CORE_HEADERS
     rainfall/reosidfcurves.h
     rainfall/reossyntheticrainfall.h
     rainfall/reosrainfallregistery.h
+    rainfall/reosgriddedrainitem.h
 
     quantity/reosarea.h
     quantity/reosduration.h
@@ -148,6 +153,7 @@ SET(REOS_CORE_HEADERS
     data/reosdataobject.h
     data/reosdataprovider.h
     data/reostimeseriesgroup.h
+    data/reosgriddedrainfallprovider.h
 
     hydrograph/reoshydrograph.h
     hydrograph/reoshydrographsource.h

@@ -357,7 +357,7 @@ void ReosDelftFewsXMLRainfallProvider::decode( const ReosEncodedElement &element
 
 ReosDuration ReosDelftFewsXMLRainfallProvider::timeStep() const {return mTimeStep;}
 
-QString ReosDelftFewsXMLRainfallProvider::dataType() {return ReosSerieRainfall::staticType();}
+QString ReosDelftFewsXMLRainfallProvider::dataType() {return ReosSeriesRainfall::staticType();}
 
 ReosEncodedElement ReosDelftFewsXMLHydrographProvider::encode() const
 {

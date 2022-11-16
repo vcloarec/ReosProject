@@ -58,7 +58,7 @@ class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
     //! Add a zone to the hierarchical tree, if \a index is invalid, add to the roots return fals if it fails
     ReosZoneItem *addZone( const QString &name, const QString &description, const QModelIndex &index = QModelIndex() );
     ReosStationItem *addStation( const QString &name, const QString &description, const QModelIndex &index, const ReosSpatialPosition &position = ReosSpatialPosition() );
-    ReosRainfallGaugedRainfallItem *addGaugedRainfall( const QString &name, const QString &description, const QModelIndex &index, ReosSerieRainfall *data = nullptr );
+    ReosRainfallGaugedRainfallItem *addGaugedRainfall( const QString &name, const QString &description, const QModelIndex &index, ReosSeriesRainfall *data = nullptr );
     ReosRainfallChicagoItem *addChicagoRainfall( const QString &name, const QString &description, const QModelIndex &index );
     ReosRainfallAlternatingBlockItem *addAlternatingBlockRainfall( const QString &name, const QString &description, const QModelIndex &index );
     ReosRainfallDoubleTriangleItem *addDoubleTriangleRainfall( const QString &name, const QString &description, const QModelIndex &index );

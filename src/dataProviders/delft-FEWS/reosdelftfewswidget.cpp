@@ -367,12 +367,12 @@ ReosHydrograph *ReosDelftFewsWidget::createHydrograph( QObject *parent ) const
   return hyd.release();
 }
 
-ReosSerieRainfall *ReosDelftFewsWidget::createRainfall( QObject *parent ) const
+ReosSeriesRainfall *ReosDelftFewsWidget::createRainfall( QObject *parent ) const
 {
-  std::unique_ptr<ReosSerieRainfall> rainfall =
-    std::make_unique<ReosSerieRainfall>( parent, ReosDelftFewsXMLHydrographProvider::staticKey()
-                                         + QStringLiteral( "::" )
-                                         + ReosDelftFewsXMLRainfallProvider::dataType(), currentUri() );
+  std::unique_ptr<ReosSeriesRainfall> rainfall =
+    std::make_unique<ReosSeriesRainfall>( parent, ReosDelftFewsXMLHydrographProvider::staticKey()
+                                          + QStringLiteral( "::" )
+                                          + ReosDelftFewsXMLRainfallProvider::dataType(), currentUri() );
 
   rainfall->setValueMode( ReosTimeSerieConstantInterval::Intensity );
   return rainfall.release();

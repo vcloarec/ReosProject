@@ -237,7 +237,7 @@ ReosStationItem *ReosRainfallModel::addStation( const QString &name, const QStri
   return static_cast<ReosStationItem *>( addItem( receiver, newStation.release() ) );
 }
 
-ReosRainfallGaugedRainfallItem *ReosRainfallModel::addGaugedRainfall( const QString &name, const QString &description, const QModelIndex &index, ReosSerieRainfall *data )
+ReosRainfallGaugedRainfallItem *ReosRainfallModel::addGaugedRainfall( const QString &name, const QString &description, const QModelIndex &index, ReosSeriesRainfall *data )
 {
   ReosRainfallItem *receiver = indexToItem( index );
   if ( receiver == nullptr )

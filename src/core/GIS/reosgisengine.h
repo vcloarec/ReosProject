@@ -21,6 +21,7 @@ email                : vcloarec at gmail dot com
 #include <QAbstractItemModel>
 
 #include "reoscore.h"
+#include "reosmemoryraster.h"
 #include "reosmodule.h"
 #include "reosencodedelement.h"
 #include "reosarea.h"
@@ -31,6 +32,7 @@ class ReosDigitalElevationModelProvider;
 class QgsRasterLayer;
 class ReosMapExtent;
 class ReosSpatialPosition;
+class ReosRasterExtent;
 
 /**
  * Reos module class that handles GIS layer
@@ -89,6 +91,15 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     //! Returns the coordinate reference system of the GIS project
     QString crs() const ;
 
+    //! Returns a WKT string of the CRS defined by the EPSG code \a epsgCode
+    static QString crsFromEPSG( int epsgCode );
+
+    //! Return the WKT1 string of the crs defined by watherver WKT string \a crs
+    static QString crsWkt1( const QString &crs );
+
+    //! Return the ESRI WKT string of the crs defined by watherver WKT string \a crs
+    static QString crsEsriWkt( const QString &crs );
+
     //! Sets the coordinate reference system of the GIS project
     void setCrs( const QString &crsString );
 
@@ -136,6 +147,9 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
 
     bool canBeRasterDem( const QString &uri ) const;
 
+    //! Transform the source map extent \a sourceExtent to a map extent with crs \a crs
+    static ReosMapExtent transformExtent( const ReosMapExtent &extent, const QString &crs );
+
     //! Transforms the map extent in the project coordinates system. It is supposed that \a extent contains the source CRS
     ReosMapExtent transformToProjectExtent( const ReosMapExtent &extent ) const;
 
@@ -161,12 +175,24 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     static double locateOnPolyline( const QPointF &point, const QPolygonF &polyline, const QString &crs );
 
     //! Sets and returns a point on \a polyline with \a distance from beginning in meters with returned point and \a polyline in \a crs coordinates
-    static QPointF setPointOnPolyline(double distance, const QPolygonF &polyline, const QString &crs , int &segmentVertex);
+    static QPointF setPointOnPolyline( double distance, const QPolygonF &polyline, const QString &crs, int &segmentVertex );
 
     //! Transforms the \a sourcePolygon with crs \a sourceCrs  to given \a crs
     static QPolygonF transformToCoordinates( const QString &sourceCRS, const QPolygonF &sourcePolygon, const QString &destinationCrs );
 
     static double factorUnitToMeter( const QString &crs );
+
+    /**
+     * Transforms a raster extent \a extent in a destination extent \a destination extent and with resolution \a resolX and \a resolY
+     * Returns a resuling raster extent \a resultingExtent and a memory raster containing pairs (part,index) of the original raster
+     * in each resulting cell.
+     */
+    static ReosRasterMemory<QList<QPair<double, QPoint> > > transformRasterExtent( const ReosRasterExtent &extent,
+        const ReosMapExtent &destination,
+        double resolX,
+        double resolY,
+        ReosRasterExtent &resultingExtent,
+        bool &success );
 
     //! Returns the temporal range
     QPair<QDateTime, QDateTime> temporalRange() const;

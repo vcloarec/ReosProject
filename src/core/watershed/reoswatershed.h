@@ -33,7 +33,7 @@ email                : vcloarec at gmail dot com
 class ReosGisEngine;
 class ReosRunoffModelsGroup;
 class ReosTransferFunction;
-class ReosSerieRainfall;
+class ReosSeriesRainfall;
 class ReosHydrograph;
 
 class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
@@ -215,7 +215,7 @@ class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
     void setConcentrationTimeCalculation( const ReosConcentrationTimeCalculation &concentrationTimeCalculation );
 
     //! Creates a hydrograph from the \a rainfall, caller has to take ownership if \a hydrograph parent is not specified
-    ReosHydrograph *createHydrograph( ReosSerieRainfall *rainfall, QObject *hydrographParent = nullptr );
+    ReosHydrograph *createHydrograph( ReosSeriesRainfall *rainfall, QObject *hydrographParent = nullptr );
 
     ReosEncodedElement encode() const;
     static ReosWatershed *decode( const ReosEncodedElement &element );

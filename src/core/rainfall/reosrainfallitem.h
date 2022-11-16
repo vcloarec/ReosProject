@@ -42,7 +42,8 @@ class REOSCORE_EXPORT ReosRainfallItem : public QObject
       Root,
       Zone,
       Station,
-      Data
+      Data,
+      GriddedData
     };
 
     virtual ~ReosRainfallItem();
@@ -228,7 +229,7 @@ class REOSCORE_EXPORT ReosRainfallSerieRainfallItem: public ReosRainfallDataItem
     ReosRainfallSerieRainfallItem( const QString &name, const QString &description );
     ReosRainfallSerieRainfallItem( const ReosEncodedElement &element );
 
-    ReosSerieRainfall *data() const override = 0;
+    ReosSeriesRainfall *data() const override = 0;
     QString rainfallInformation() const;
     void setupData() override;
 };
@@ -238,18 +239,18 @@ class REOSCORE_EXPORT ReosRainfallGaugedRainfallItem: public ReosRainfallSerieRa
 {
     Q_OBJECT
   public:
-    ReosRainfallGaugedRainfallItem( const QString &name, const QString &description, ReosSerieRainfall *data = nullptr );
+    ReosRainfallGaugedRainfallItem( const QString &name, const QString &description, ReosSeriesRainfall *data = nullptr );
     ReosRainfallGaugedRainfallItem( const ReosEncodedElement &element );
 
     QString dataType() const override {return QStringLiteral( "gauged-rainfall" );}
-    ReosSerieRainfall *data() const override;
+    ReosSeriesRainfall *data() const override;
 
     QIcon icone() const override {return QIcon( QStringLiteral( ":/images/gaugedRainfall.svg" ) );}
     virtual bool accept( ReosRainfallItem *, bool = false ) const override;
     virtual ReosEncodedElement encode() const override;
 
   protected:
-    ReosSerieRainfall *mData = nullptr;
+    ReosSeriesRainfall *mData = nullptr;
 };
 
 class REOSCORE_EXPORT ReosRainfallChicagoItem: public ReosRainfallSerieRainfallItem

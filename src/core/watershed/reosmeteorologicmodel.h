@@ -56,7 +56,7 @@ class REOSCORE_EXPORT ReosMeteorologicModel : public ReosDataObject
     ReosRainfallSerieRainfallItem *associatedRainfallItem( ReosWatershed *watershed ) const;
 
     //! Returns the associated rainfall of \a watershed
-    ReosSerieRainfall *associatedRainfall( ReosWatershed *watershed ) const;
+    ReosSeriesRainfall *associatedRainfall( ReosWatershed *watershed ) const;
 
     //! Returns whether the meteomodel has a associated rainfall for the watershed \a watershed
     bool hasRainfall( ReosWatershed *watershed ) const;

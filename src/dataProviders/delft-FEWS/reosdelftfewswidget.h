@@ -30,7 +30,7 @@
 
 class ReosPlotTimeSerieVariableStep;
 class ReosPlotTimeHistogram;
-class ReosSerieRainfall;
+class ReosSeriesRainfall;
 class ReosMapToolSelectMapItem;
 
 namespace Ui
@@ -103,13 +103,13 @@ class ReosDelftFewsWidget : public ReosDataProviderSelectorWidget
     std::vector < std::unique_ptr<ReosDelftFewsStationMarker>> mStationsMarker;
     ReosDelftFewsStationsModel *mStationsModel = nullptr;
     QPointer<ReosHydrograph> mCurrentHydrograph = nullptr;
-    QPointer<ReosSerieRainfall> mCurrentRainfall = nullptr;
+    QPointer<ReosSeriesRainfall> mCurrentRainfall = nullptr;
     ReosPlotTimeSerieVariableStep *mHydrographPlot = nullptr;
     ReosPlotTimeHistogram *mRainfallPlot = nullptr;
 
     bool parseFile( const QString &fileName );
     ReosHydrograph *createHydrograph( QObject *parent = nullptr ) const;
-    ReosSerieRainfall *createRainfall( QObject *parent = nullptr ) const;
+    ReosSeriesRainfall *createRainfall( QObject *parent = nullptr ) const;
 
     QString currentUri() const;
 };

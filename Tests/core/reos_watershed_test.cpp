@@ -1173,7 +1173,7 @@ void ReosWatersehdTest::runoffhydrograph()
   QCOMPARE( meteoCollection.modelCount(), 1 ); //by default one model is present
   meteoCollection.meteorologicModel( 0 )->associate( watershed, &chicagoRainfallItem );
   ReosMeteorologicModel *meteoModel = meteoCollection.meteorologicModel( 0 );
-  ReosSerieRainfall *rainfall = meteoModel->associatedRainfall( watershed );
+  ReosSeriesRainfall *rainfall = meteoModel->associatedRainfall( watershed );
   QVERIFY( rainfall );
   QCOMPARE( rainfall->valueCount(), 12 );
   QCOMPARE( rainfall->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 72.34254782834526 );

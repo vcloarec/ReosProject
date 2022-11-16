@@ -39,7 +39,9 @@ bool ReosZoneItem::accept( ReosRainfallItem *item, bool acceptSameName ) const
 {
 
   return ( item &&
-           ( item->type() == ReosRainfallItem::Station || item->type() == ReosRainfallItem::Zone ) &&
+           ( item->type() == ReosRainfallItem::Station ||
+             item->type() == ReosRainfallItem::Zone ||
+             item->type() == ReosRainfallItem::GriddedData ) &&
            ReosRainfallItem::accept( item, acceptSameName ) );
 }
 
@@ -369,12 +371,12 @@ ReosRootItem::ReosRootItem( const ReosEncodedElement &element ): ReosRainfallIte
   }
 }
 
-ReosRainfallGaugedRainfallItem::ReosRainfallGaugedRainfallItem( const QString &name, const QString &description, ReosSerieRainfall *data ):
+ReosRainfallGaugedRainfallItem::ReosRainfallGaugedRainfallItem( const QString &name, const QString &description, ReosSeriesRainfall *data ):
   ReosRainfallSerieRainfallItem( name, description )
   , mData( data )
 {
   if ( !mData )
-    mData = new ReosSerieRainfall( this );
+    mData = new ReosSeriesRainfall( this );
   else
     mData->setParent( this );
 }
@@ -385,10 +387,10 @@ ReosRainfallGaugedRainfallItem::ReosRainfallGaugedRainfallItem( const ReosEncode
   if ( element.description() != QStringLiteral( "rainfall-serie-item" ) )
     return;
 
-  mData = ReosSerieRainfall::decode( element.getEncodedData( "data" ), this );
+  mData = ReosSeriesRainfall::decode( element.getEncodedData( "data" ), this );
 }
 
-ReosSerieRainfall *ReosRainfallGaugedRainfallItem::data() const
+ReosSeriesRainfall *ReosRainfallGaugedRainfallItem::data() const
 {
   return mData;
 }

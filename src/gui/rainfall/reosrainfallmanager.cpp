@@ -344,7 +344,7 @@ void ReosRainfallManager::populateProviderActions( QToolBar *toolBar )
 
 void ReosRainfallManager::showProviderSelector( const QString &providerKey )
 {
-  const QString dataType = ReosSerieRainfall::staticType();
+  const QString dataType = ReosSeriesRainfall::staticType();
   ReosDataProviderGuiRegistery *registery = ReosDataProviderGuiRegistery::instance();
 
   if ( mCurrentProviderSelector )
@@ -541,16 +541,16 @@ void ReosRainfallManager::addRainfallFromProvider( ReosStationItem *stationItem,
     }
   }
 
-  std::unique_ptr<ReosSerieRainfall> newRainfall;
+  std::unique_ptr<ReosSeriesRainfall> newRainfall;
 
   if ( copy )
   {
-    newRainfall = std::make_unique<ReosSerieRainfall>();
-    newRainfall->copyFrom( qobject_cast<ReosSerieRainfall *>( mCurrentProviderSelector->selectedData() ) );
+    newRainfall = std::make_unique<ReosSeriesRainfall>();
+    newRainfall->copyFrom( qobject_cast<ReosSeriesRainfall *>( mCurrentProviderSelector->selectedData() ) );
   }
   else
   {
-    newRainfall.reset( qobject_cast<ReosSerieRainfall *>( mCurrentProviderSelector->createData() ) ) ;
+    newRainfall.reset( qobject_cast<ReosSeriesRainfall *>( mCurrentProviderSelector->createData() ) ) ;
   }
 
   selectItem( mModel->addGaugedRainfall( rainfallName,
@@ -1183,7 +1183,7 @@ ReosImportRainfallDialog::ReosImportRainfallDialog( ReosRainfallModel *model, QW
   QDialog( parent )
   , mModel( model )
   , mTextFile( new ReosTextFileData( this ) )
-  , mImportedRainfall( new ReosSerieRainfall )
+  , mImportedRainfall( new ReosSeriesRainfall )
   , mName( new ReosParameterString( tr( "name" ), false, this ) )
   , mDescription( new ReosParameterString( tr( "Description" ), false, this ) )
 {
@@ -1345,7 +1345,7 @@ void ReosPlotItemRainfallIntensityDurationFactory::buildPlotItemsAndSetup( ReosP
   plotWidget->enableScaleTypeChoice( true );
 }
 
-QString ReosPlotItemRainfallSerieFactory::datatype() const {return ReosSerieRainfall::staticType();}
+QString ReosPlotItemRainfallSerieFactory::datatype() const {return ReosSeriesRainfall::staticType();}
 
 void ReosPlotItemRainfallSerieFactory::buildPlotItemsAndSetup( ReosPlotWidget *plotWidget, ReosDataObject *data )
 {

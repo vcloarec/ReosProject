@@ -62,7 +62,7 @@ class ReosRasterFillingWangLiu: public ReosRasterFilling
     ReosRasterFillingWangLiu( const ReosRasterMemory<float> &dem, double XSize, double YSize, float maxValue );
     ~ReosRasterFillingWangLiu() = default;
 
-    bool initialize();
+    bool initialize() override;
 
     void start() override;
 

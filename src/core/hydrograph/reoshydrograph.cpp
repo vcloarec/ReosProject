@@ -252,7 +252,7 @@ void ReosRunoffHydrographsStore::updateStore()
       {
         // if there is already some data related to this meteo model
         HydrographCalculationData hydData = mMeteoModelToHydrographCalculationData.value( model );
-        ReosSerieRainfall *modelRainfall = model->associatedRainfall( mWatershed );
+        ReosSeriesRainfall *modelRainfall = model->associatedRainfall( mWatershed );
         if ( modelRainfall != hydData.rainfall ) // first, we check if the rainfall is the same
         {
           //if not, deregister the old one and replace it by the new one
@@ -365,7 +365,7 @@ void ReosRunoffHydrographsStore::updateHydrograph( ReosHydrograph *hyd )
     if ( hyd == hydData.hydrograph )
     {
       //check if the rainfall is still the same
-      ReosSerieRainfall *modelRainfall = meteoModel->associatedRainfall( mWatershed );
+      ReosSeriesRainfall *modelRainfall = meteoModel->associatedRainfall( mWatershed );
       if ( hydData.rainfall != modelRainfall )
       {
         hydData.runoff->setRainfall( modelRainfall );

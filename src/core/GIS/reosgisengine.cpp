@@ -47,6 +47,7 @@ email                : vcloarec at gmail dot com
 #include <qgslayerdefinition.h>
 #include <qgslayertree.h>
 #include <qgsmeshlayertemporalproperties.h>
+#include <qgsspatialindex.h>
 
 
 #define  mLayerTreeModel _layerTreeModel(mAbstractLayerTreeModel)
@@ -229,6 +230,22 @@ QString ReosGisEngine::meshLayerFilters() const
 QString ReosGisEngine::crs() const
 {
   return QgsProject::instance()->crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED );
+}
+
+QString ReosGisEngine::crsFromEPSG( int epsgCode )
+{
+  return QgsCoordinateReferenceSystem::fromEpsgId( epsgCode ).toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED );
+}
+
+QString ReosGisEngine::crsWkt1( const QString &crs )
+{
+  QgsCoordinateReferenceSystem crs_( crs );
+  return crs_.toWkt();
+}
+
+QString ReosGisEngine::crsEsriWkt( const QString &crs )
+{
+  return QgsCoordinateReferenceSystem( crs ).toWkt( QgsCoordinateReferenceSystem::WKT1_ESRI );
 }
 
 void ReosGisEngine::setCrs( const QString &crsString )
@@ -460,10 +477,10 @@ bool ReosGisEngine::canBeRasterDem( const QString &uri ) const
   return canBeRasterDem( rasterLayer.get() );
 }
 
-ReosMapExtent ReosGisEngine::transformToProjectExtent( const ReosMapExtent &extent ) const
+ReosMapExtent ReosGisEngine::transformExtent( const ReosMapExtent &extent, const QString &crs )
 {
   QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( extent.crs() ),
-                                    QgsProject::instance()->crs(),
+                                    QgsCoordinateReferenceSystem::fromWkt( crs ),
                                     QgsProject::instance()->transformContext() );
 
   QgsRectangle qgsExtent( extent.toRectF() );
@@ -471,9 +488,9 @@ ReosMapExtent ReosGisEngine::transformToProjectExtent( const ReosMapExtent &exte
 
   try
   {
-    QgsRectangle transformExtent = transform.transform( qgsExtent );
+    QgsRectangle transformExtent = transform.transformBoundingBox( qgsExtent );
     ret = ReosMapExtent( transformExtent.toRectF() );
-    ret.setCrs( QgsProject::instance()->crs().toWkt() );
+    ret.setCrs( crs );
   }
   catch ( ... )
   {
@@ -481,6 +498,11 @@ ReosMapExtent ReosGisEngine::transformToProjectExtent( const ReosMapExtent &exte
   }
 
   return ret;
+}
+
+ReosMapExtent ReosGisEngine::transformToProjectExtent( const ReosMapExtent &extent ) const
+{
+  return transformExtent( extent, QgsProject::instance()->crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED ) );
 }
 
 ReosMapExtent ReosGisEngine::transformFromProjectExtent( const ReosMapExtent &extent, const QString &wktCrs ) const
@@ -682,6 +704,140 @@ double ReosGisEngine::factorUnitToMeter( const QString &crs )
   QgsUnitTypes::DistanceUnit unit = QgsCoordinateReferenceSystem::fromWkt( crs ).mapUnits();
 
   return QgsUnitTypes::fromUnitToUnitFactor( unit, QgsUnitTypes::DistanceMeters );
+}
+
+ReosRasterMemory<QList<QPair<double, QPoint>>>  ReosGisEngine::transformRasterExtent(const ReosRasterExtent &extent,
+  const ReosMapExtent &destination,
+  double resolX,
+  double resolY,
+  ReosRasterExtent &resultingExtent,
+  bool &success )
+{
+  ReosRasterMemory<QList<QPair<double, QPoint>>> ret;
+
+  QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( extent.crs() ),
+                                    QgsCoordinateReferenceSystem::fromWkt( destination.crs() ),
+                                    QgsProject::instance()->transformContext() );
+
+  if ( transform.isValid() )
+  {
+    int xCount = extent.xCellCount();
+    int yCount = extent.yCellCount();
+
+    if ( xCount == 0 || yCount == 0 )
+    {
+      success = false;
+      return ret;
+    }
+
+    QVector<QVector<QgsPointXY>> sourceExtentVerticesInDestination( xCount + 1, QVector < QgsPointXY>( yCount + 1 ) );
+    QgsRectangle destExtent;
+
+    double sourceDx = std::fabs( extent.xCellSize() );
+    double sourceDy = std::fabs( extent.yCellSize() );
+
+    destExtent.setMinimal();
+    for ( int iy = 0; iy < yCount + 1; ++iy )
+    {
+      for ( int ix = 0; ix < xCount + 1 ; ++ix )
+      {
+        const QgsPointXY sourcePoint = QgsPointXY( extent.xMapMin() + ix * sourceDx, extent.yMapMax() - iy * sourceDy );
+        QgsPointXY destPoint;
+        try
+        {
+          destPoint = transform.transform( sourcePoint );
+        }
+        catch ( QgsCsException &e )
+        {
+          success = false;
+          return ret;
+        }
+        sourceExtentVerticesInDestination[ix][iy] = destPoint;
+        destExtent.include( destPoint );
+      }
+    }
+
+    int xDestCount = destination.width() / std::fabs( resolX ) + 1;
+    int yDestCount = destination.height() / std::fabs( resolY ) + 1;
+
+    ret.reserveMemory( yDestCount, xDestCount );
+
+    double effWidth = xDestCount * std::fabs( resolX );
+    double effHeight = yDestCount * std::fabs( resolY );
+
+    double xOri = resolX > 0 ? destination.xMapMin() - ( effWidth - destination.width() ) / 2 : destination.xMapMax() + ( effWidth - destination.width() ) / 2;
+    double yOri =  resolY > 0 ? destination.yMapMin() - ( effHeight - destination.height() ) / 2 : destination.yMapMax() + ( effHeight - destination.height() ) / 2;
+    //double xMax = xMin + effWidth;
+    //double yMax = yMin + effHeight;
+
+    resultingExtent = ReosRasterExtent( xOri, yOri, xDestCount, yDestCount, resolX, resolY );
+    resultingExtent.setCrs( destination.crs() );
+    QgsSpatialIndex spatialIndex;
+    QgsFeatureId id = 0;
+    for ( int iy = 0; iy < yCount; ++iy )
+    {
+      for ( int ix = 0; ix < xCount ; ++ix )
+      {
+        QgsRectangle cellBB;
+        cellBB.setMinimal();
+        cellBB.include( sourceExtentVerticesInDestination.at( ix ).at( iy ) );
+        cellBB.include( sourceExtentVerticesInDestination.at( ix + 1 ).at( iy ) );
+        cellBB.include( sourceExtentVerticesInDestination.at( ix + 1 ).at( iy + 1 ) );
+        cellBB.include( sourceExtentVerticesInDestination.at( ix ).at( iy + 1 ) );
+        spatialIndex.addFeature( id, cellBB );
+        id++;
+      }
+    }
+
+    for ( int idy = 0; idy < yDestCount; ++idy )
+    {
+      for ( int idx = 0; idx < xDestCount; ++idx )
+      {
+        QgsRectangle cell( idx * resolX + xOri, ( idy + 1 ) * resolY + yOri,
+                           ( idx + 1 ) * resolX + xOri, idy * resolY + yOri, true );
+        QList<QgsFeatureId> sourceInter = spatialIndex.intersects( cell );
+
+        QgsGeometry destCell = QgsGeometry::fromRect( cell );
+        QList<QPair<double, QPoint>> destIntersect;
+        double areaSum = 0;
+
+        for ( QgsFeatureId id : sourceInter )
+        {
+          int destRow = id /  xCount;
+          int destCol = id - destRow * ( xCount ) ;
+          QgsPolygonXY sourceCell;
+          QgsPolylineXY outer;
+          outer << sourceExtentVerticesInDestination.at( destCol ).at( destRow );
+          outer << sourceExtentVerticesInDestination.at( destCol ).at( destRow + 1 );
+          outer << sourceExtentVerticesInDestination.at( destCol + 1 ).at( destRow + 1 );
+          outer << sourceExtentVerticesInDestination.at( destCol + 1 ).at( destRow );
+          sourceCell << outer;
+          QgsGeometry sourceCellGeom = QgsGeometry::fromPolygonXY( sourceCell );
+
+          QgsGeometry intersect = sourceCellGeom.clipped( cell );
+          if ( !intersect.isNull() )
+          {
+            double area = intersect.area();
+            Q_ASSERT( destRow < yCount && destCol < xCount );
+            destIntersect.append( {area, QPoint( destCol, destRow )} );
+            areaSum += area;
+          }
+        }
+
+        if ( areaSum > 0 )
+        {
+          for ( int i = 0; i < destIntersect.count(); ++i )
+          {
+            destIntersect[i] = {destIntersect.at( i ).first / areaSum, destIntersect.at( i ).second};
+          }
+
+          ret.setValue( idy, idx, destIntersect );
+        }
+      }
+    }
+  }
+  success = true;
+  return ret;
 }
 
 void ReosGisEngine::setTemporalRange( const QDateTime &startTime, const QDateTime &endTime )

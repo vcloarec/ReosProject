@@ -170,7 +170,7 @@ class ReosImportRainfallDialog: public QDialog
     ReosRainfallModel *mModel = nullptr;
     ReosTextFileData *mTextFile = nullptr;
     QComboBox *mComboSelectedField = nullptr;
-    ReosSerieRainfall *mImportedRainfall = nullptr;
+    ReosSeriesRainfall *mImportedRainfall = nullptr;
     QToolButton *mImportButton = nullptr;
     QToolButton *mSelectStationButton = nullptr;
     ReosParameterString *mName = nullptr;

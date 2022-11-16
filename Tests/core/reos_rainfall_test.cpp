@@ -402,7 +402,7 @@ void ReosRainfallTest::loadRainfallData()
     QVERIFY( gaugedItem );
     QCOMPARE( gaugedItem->name(), "gauged one" );
     gaugedItem->setupData();
-    ReosSerieRainfall *gaugedRainfall = gaugedItem->data();
+    ReosSeriesRainfall *gaugedRainfall = gaugedItem->data();
     QVERIFY( gaugedRainfall );
     QCOMPARE( gaugedRainfall->valueCount(), 3 );
     QVERIFY( gaugedRainfall->timeStep() == ReosDuration( 10, ReosDuration::minute ) );
@@ -419,7 +419,7 @@ void ReosRainfallTest::loadRainfallData()
                      rainfallModel->indexToItem( rainfallModel->index( 0, 0, rainfallModel->itemToIndex( stationItem ) ) ) );
       QVERIFY( gaugedItem );
       gaugedItem->setupData();
-      ReosSerieRainfall *gaugedRainfall = gaugedItem->data();
+      ReosSeriesRainfall *gaugedRainfall = gaugedItem->data();
       QVERIFY( gaugedRainfall );
       QCOMPARE( gaugedRainfall->valueCount(), 39 );
     }

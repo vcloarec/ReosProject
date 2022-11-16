@@ -130,7 +130,7 @@ ReosRainfallSerieRainfallItem *ReosMeteorologicModel::associatedRainfallItem( Re
     return nullptr;
 }
 
-ReosSerieRainfall *ReosMeteorologicModel::associatedRainfall( ReosWatershed *watershed ) const
+ReosSeriesRainfall *ReosMeteorologicModel::associatedRainfall( ReosWatershed *watershed ) const
 {
   int watershedIndex = findWatershed( watershed );
 
