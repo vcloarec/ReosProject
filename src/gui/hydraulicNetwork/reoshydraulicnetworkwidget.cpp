@@ -237,7 +237,6 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
   ReosGuiContext guiContext = mGuiContext;
   guiContext.addMapItems( item );
   mElementPropertiesWidget->setCurrentElement( elem, guiContext );
-
   if ( elem )
   {
     mMapItemFactory.selectItem( elem, item );
