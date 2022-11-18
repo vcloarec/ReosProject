@@ -68,6 +68,11 @@ ReosDuration::ReosDuration( double value, ReosDuration::Unit un )
   }
 }
 
+ReosDuration::ReosDuration( const QDateTime &start, const QDateTime &end )
+{
+  mValue = start.msecsTo( end );
+}
+
 
 QString ReosDuration::toString( int precision ) const
 {

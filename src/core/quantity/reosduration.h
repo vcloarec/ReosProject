@@ -13,7 +13,6 @@ email                :   vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
-
 #ifndef REOSDURATION_H
 #define REOSDURATION_H
 
@@ -21,6 +20,7 @@ email                :   vcloarec at gmail dot com
 #include <sstream>
 #include <iostream>
 #include <math.h>
+#include <QDateTime>
 
 #include "reosencodedelement.h"
 
@@ -33,6 +33,7 @@ class REOSCORE_EXPORT ReosDuration
     explicit ReosDuration( double value = 0.0 );
     explicit ReosDuration( qint64 milliseconds );
     explicit ReosDuration( double value, Unit mUnit );
+    explicit ReosDuration( const QDateTime &start, const QDateTime &end );
 
     ReosDuration operator+( const ReosDuration & ) const;
     ReosDuration operator-( const ReosDuration & ) const;

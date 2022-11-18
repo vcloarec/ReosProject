@@ -23,6 +23,7 @@
 
 #include "reosmesh.h"
 #include "reoshydraulicsimulationresults.h"
+#include "reosrenderersettings_p.h"
 
 class ReosMeshDataProvider_p;
 class ReosMeshFrameData;
@@ -31,6 +32,18 @@ class ReosDigitalElevationModel;
 
 class QGraphicsView;
 class QgsMapLayerRenderer;
+
+
+class ReosRendererMeshMapTimeStamp_p: public ReosRendererObjectMapTimeStamp
+{
+  public:
+    ReosRendererMeshMapTimeStamp_p( const QgsMeshDatasetIndex &scalarIndex, const QgsMeshDatasetIndex &vectorIndex );
+    bool equal( ReosRendererObjectMapTimeStamp *other ) override;
+
+  private:
+    QgsMeshDatasetIndex mScalarIndex;
+    QgsMeshDatasetIndex mVectorIndex;
+};
 
 
 /**
@@ -69,6 +82,7 @@ class ReosMeshFrame_p : public ReosMesh
     void activateWireFrame( bool activate ) override;
     bool isWireFrameActive() const override;
     ReosEncodedElement wireFrameSymbology() const override;
+    ReosRendererObjectMapTimeStamp *createMapTimeStamp( ReosRendererSettings *settings ) const override;
     ReosObjectRenderer *createRenderer( ReosRendererSettings *settings ) override;
     ReosMeshQualityChecker *getQualityChecker( QualityMeshChecks qualitiChecks, const QString &destinatonCrs ) const override;
 
@@ -125,25 +139,6 @@ class ReosMeshFrame_p : public ReosMesh
 
     std::map <QGraphicsView *, std::unique_ptr<QgsMapLayerRenderer>> mRenders;
 };
-
-class ReosMeshRenderer_p : public ReosObjectRenderer
-{
-  public:
-    ReosMeshRenderer_p( ReosRendererSettings *settings, QgsMeshLayer *layer, ReosMesh *mesh );
-    void render() const override;
-
-    bool isRenderingStopped() const override;
-
-  protected:
-    void stopRendering() override;
-
-  private:
-    std::unique_ptr<QgsMapLayerRenderer> mLayerRender;
-    std::unique_ptr<QPainter> mPainter;
-    QgsRenderContext mRenderContext;
-
-};
-
 
 class ReosMeshQualityChecker_p : public ReosMeshQualityChecker
 {

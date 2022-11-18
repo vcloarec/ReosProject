@@ -283,9 +283,19 @@ ReosEncodedElement ReosMeshFrame_p::wireFrameSymbology() const
   return encodedElem;
 }
 
+ReosRendererObjectMapTimeStamp *ReosMeshFrame_p::createMapTimeStamp( ReosRendererSettings *settings ) const
+{
+  QDateTime rendererTime = settings->mapTime();
+  QgsDateTimeRange timeRange( rendererTime, rendererTime.addSecs( 1 ) );
+  const QgsMeshDatasetIndex scalarIndex = mMeshLayer->activeScalarDatasetAtTime( timeRange );
+  const QgsMeshDatasetIndex vectorIndex = mMeshLayer->activeVectorDatasetAtTime( timeRange );
+
+  return new ReosRendererMeshMapTimeStamp_p( scalarIndex, vectorIndex );
+}
+
 ReosObjectRenderer *ReosMeshFrame_p::createRenderer( ReosRendererSettings *settings )
 {
-  return new ReosMeshRenderer_p( settings, mMeshLayer.get(), this );
+  return new ReosQgisLayerRenderer_p( settings, mMeshLayer.get(), this );
 }
 
 ReosMeshQualityChecker *ReosMeshFrame_p::getQualityChecker( ReosMesh::QualityMeshChecks qualitiChecks, const QString &destinatonCrs ) const
@@ -1173,46 +1183,6 @@ void ReosMeshFrame_p::setSimulationResults( ReosHydraulicSimulationResults *resu
   mMeshLayer->trigger3DUpdate();
 }
 
-ReosMeshRenderer_p::ReosMeshRenderer_p( ReosRendererSettings *settings, QgsMeshLayer *layer, ReosMesh *mesh ):
-  ReosObjectRenderer( mesh )
-{
-  ReosRendererSettings_p *rendererSettings = dynamic_cast<ReosRendererSettings_p *>( settings );
-
-  if ( rendererSettings )
-  {
-    const QgsMapSettings &settings = rendererSettings->settings();
-    mImage = QImage( settings.deviceOutputSize(), settings.outputImageFormat() );
-    mImage.setDevicePixelRatio( settings.devicePixelRatio() );
-    mImage.setDotsPerMeterX( static_cast<int>( settings.outputDpi() * 39.37 ) );
-    mImage.setDotsPerMeterY( static_cast<int>( settings.outputDpi() * 39.37 ) );
-    mImage.fill( Qt::transparent );
-
-    mPainter.reset( new QPainter( &mImage ) );
-    mRenderContext = QgsRenderContext::fromMapSettings( settings );
-    mRenderContext.setCoordinateTransform( rendererSettings->settings().layerTransform( layer ) );
-    mRenderContext.setPainter( mPainter.get() );
-    mLayerRender.reset( layer->createMapRenderer( mRenderContext ) );
-
-    setExtent( settings.visibleExtent().toRectF() );
-    setStartTime( settings.temporalRange().begin() );
-  }
-}
-
-void ReosMeshRenderer_p::render() const
-{
-  mLayerRender->render();
-}
-
-bool ReosMeshRenderer_p::isRenderingStopped() const
-{
-  return mLayerRender->renderContext()->renderingStopped() || isStop();
-}
-
-void ReosMeshRenderer_p::stopRendering()
-{
-  mRenderContext.setRenderingStopped( true );
-}
-
 ReosMeshQualityChecker_p::ReosMeshQualityChecker_p( const QgsMesh &mesh,
     ReosMesh::QualityMeshParameters params,
     const QgsDistanceArea &distanceArea,
@@ -1610,4 +1580,30 @@ QgsMeshDataset *ReosResultDatasetGroup::dataset( int index ) const
 QgsMeshDatasetGroup::Type ReosResultDatasetGroup::type() const
 {
   return QgsMeshDatasetGroup::None;
+}
+
+ReosRendererMeshMapTimeStamp_p::ReosRendererMeshMapTimeStamp_p(
+  const QgsMeshDatasetIndex &scalarIndex,
+  const QgsMeshDatasetIndex &vectorIndex )
+  : mScalarIndex( scalarIndex )
+  , mVectorIndex( vectorIndex )
+{
+}
+
+bool ReosRendererMeshMapTimeStamp_p::equal( ReosRendererObjectMapTimeStamp *other )
+{
+  ReosRendererMeshMapTimeStamp_p *other_p = dynamic_cast<ReosRendererMeshMapTimeStamp_p *>( other );
+  if ( !other_p )
+    return false;
+  bool testScalar = other_p->mScalarIndex.isValid() || mScalarIndex.isValid();
+
+  if ( testScalar && other_p->mScalarIndex != mScalarIndex )
+    return false;
+
+  bool testVector = other_p->mVectorIndex.isValid() || mVectorIndex.isValid();
+
+  if ( testVector && other_p->mVectorIndex != mVectorIndex )
+    return false;
+
+  return true;
 }

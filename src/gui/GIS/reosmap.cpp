@@ -47,9 +47,17 @@ class ReosRendererObjectHandler_p
     {
       QImage image;
       QRectF extent;
-      QDateTime startTime;
+      std::shared_ptr<ReosRendererObjectMapTimeStamp> mapTimeStamp;
       QgsMapToPixel mapToPixel;
       qint64 timeStamp;
+      bool obsolete = false;
+    };
+
+    struct CurrentProcessing
+    {
+      ReosRenderedObject *renderedObject = nullptr;
+      ReosObjectRenderer *renderer = nullptr;
+      QRectF extent;
       bool obsolete = false;
     };
 
@@ -57,9 +65,10 @@ class ReosRendererObjectHandler_p
     QPointer<QgsMapCanvas> mCanvas;
     QgsMapToPixel currentMapToPixel;
     QRectF currentExtent;
-    QDateTime currentStartTime;
+    std::shared_ptr<ReosRendererObjectMapTimeStamp> currentMapTimeStamp;
     QMutex mMutex;
     QList<ReosObjectRenderer *> mRenderers;
+    QList<CurrentProcessing > mCurrentProcessing;
     QHash<ReosObjectRenderer *, QgsMapToPixel> mMapToPixels;
     QHash<ReosObjectRenderer *, qint64> mTimeStamps;
 };
@@ -72,8 +81,12 @@ ReosRendererObjectHandler::ReosRendererObjectHandler( QGraphicsView *view )
 
 ReosRendererObjectHandler::~ReosRendererObjectHandler()
 {
-  for ( ReosObjectRenderer *renderer : std::as_const( d->mRenderers ) )
-    connect( renderer, &ReosObjectRenderer::finished, renderer, &QObject::deleteLater );
+  QMutexLocker locker( &( d->mMutex ) );
+  for ( ReosRendererObjectHandler_p::CurrentProcessing &curProc :  d->mCurrentProcessing )
+  {
+    connect( curProc.renderer, &ReosObjectRenderer::finished, curProc.renderer, &QObject::deleteLater );
+    curProc.renderer->stop( true );
+  }
 }
 
 void ReosRendererObjectHandler::makeObsolete( ReosRenderedObject *renderedObject )
@@ -87,23 +100,59 @@ void ReosRendererObjectHandler::makeObsolete( ReosRenderedObject *renderedObject
     cache.obsolete = true;
     d->mCacheRenderings[renderedObject] = cache;
   }
+
+  for ( auto &curProc : d->mCurrentProcessing )
+  {
+    if ( renderedObject == curProc.renderedObject )
+    {
+      curProc.obsolete = true;
+      curProc.renderer->stop( true );
+    }
+  }
 }
 
 void ReosRendererObjectHandler::startRender( ReosRenderedObject *renderedObject )
 {
   QMutexLocker locker( &( d->mMutex ) );
-  if ( !hasUpToDateCache( renderedObject ) )
+
+  const QgsMapSettings &mapSettings = d->mCanvas->mapSettings();
+  std::unique_ptr<ReosRendererSettings> rendererSettings = ReosRenderedObject::createRenderSettings( &mapSettings );
+
+  std::unique_ptr<ReosRendererObjectMapTimeStamp> mapTimeStamp( renderedObject->createMapTimeStamp( rendererSettings.get() ) );
+
+  if ( !hasUpToDateCache( renderedObject, mapTimeStamp.get() ) )
   {
-    const QgsMapSettings &mapSettings = d->mCanvas->mapSettings();
-    std::unique_ptr<ReosRendererSettings> rendererSettings = ReosRenderedObject::createRenderSettings( &mapSettings );
+    //there is nothing in the cache, check if there is a renderer still working
+    QRectF extent = d->mCanvas->mapSettings().extent().toRectF();
+    for ( const auto &curProc : std::as_const( d->mCurrentProcessing ) )
+    {
+      if ( !curProc.obsolete &&
+           renderedObject == curProc.renderedObject &&
+           extent == curProc.extent &&
+           mapTimeStamp->equal( curProc.renderer->mapTimeStamp() )
+         )
+        return;
+    }
+
     std::unique_ptr<ReosObjectRenderer> renderer( renderedObject->createRenderer( rendererSettings.get() ) );
+    if ( !renderer )
+      return;
+
+    renderer->setMapTimeStamp( mapTimeStamp.release() );
+
     connect( renderer.get(), &ReosObjectRenderer::finished, this, &ReosRendererObjectHandler::onRendererFinished );
     d->mMapToPixels.insert( renderer.get(), d->mCanvas->mapSettings().mapToPixel() );
     d->mTimeStamps.insert( renderer.get(), QDateTime::currentMSecsSinceEpoch() );
-    if ( d->mRenderers.count() > 2 )
-      d->mRenderers.at( 1 )->stop( true );
-    renderer->startOnOtherThread();
-    d->mRenderers.append( renderer.release() );
+
+    d->mCurrentProcessing.append(
+    {
+      renderedObject,
+      renderer.release(),
+      extent,
+      false
+    } );
+
+    d->mCurrentProcessing.last().renderer->startOnOtherThread();
   }
 }
 
@@ -114,15 +163,14 @@ bool ReosRendererObjectHandler::hasCache( ReosRenderedObject *renderedObject )
   return it != d->mCacheRenderings.end();
 }
 
-bool ReosRendererObjectHandler::hasUpToDateCache( ReosRenderedObject *renderedObject )
+bool ReosRendererObjectHandler::hasUpToDateCache( ReosRenderedObject *renderedObject, ReosRendererObjectMapTimeStamp *mapTimeStamp )
 {
   auto it = d->mCacheRenderings.find( renderedObject );
 
   if ( it != d->mCacheRenderings.end() )
   {
-    bool timeIsValid = it->startTime.isValid() && d->currentStartTime.isValid();
     return it->extent == d->currentExtent &&
-           ( it->startTime == d->currentStartTime || !timeIsValid ) &&
+           ( !mapTimeStamp || it->mapTimeStamp->equal( mapTimeStamp ) ) &&
            !it->obsolete;
   }
 
@@ -132,10 +180,17 @@ bool ReosRendererObjectHandler::hasUpToDateCache( ReosRenderedObject *renderedOb
 void ReosRendererObjectHandler::destroyRenderer( ReosObjectRenderer *renderer )
 {
   disconnect( renderer, &ReosObjectRenderer::finished, this, &ReosRendererObjectHandler::onRendererFinished );
-  renderer->deleteLater();
-  d->mRenderers.removeOne( renderer );
+  for ( int i = 0; i < d->mCurrentProcessing.count(); ++i )
+  {
+    if ( d->mCurrentProcessing.at( i ).renderer == renderer )
+    {
+      d->mCurrentProcessing.removeAt( i );
+      break;
+    }
+  }
   d->mMapToPixels.remove( renderer );
   d->mTimeStamps.remove( renderer );
+  renderer->deleteLater();
 }
 
 
@@ -216,7 +271,6 @@ void ReosRendererObjectHandler::updateViewParameter()
 {
   QMutexLocker locker( &( d->mMutex ) );
   d->currentExtent = d->mCanvas->mapSettings().visibleExtent().toRectF();
-  d->currentStartTime = d->mCanvas->mapSettings().temporalRange().begin();
   d->currentMapToPixel = d->mCanvas->mapSettings().mapToPixel();
 }
 
@@ -233,7 +287,7 @@ void ReosRendererObjectHandler::onRendererFinished()
   {
     bool needUpdate = false;
     const QRectF renderedExtent = renderer->extent();
-    const QDateTime renderedTime = renderer->startTime();
+
     if ( d->mCacheRenderings.contains( object ) )
     {
       const ReosRendererObjectHandler_p::CacheRendering &prevCach = d->mCacheRenderings.value( object );
@@ -244,17 +298,21 @@ void ReosRendererObjectHandler::onRendererFinished()
       needUpdate = true;
     }
 
-    qDebug() << "rendering finished, updated " << needUpdate;
-
     if ( needUpdate )
     {
+      std::shared_ptr<ReosRendererObjectMapTimeStamp> timeStamp;
+      timeStamp.reset( renderer->releaseMapTimeStamp() );
       d->mCacheRenderings.insert( object, ReosRendererObjectHandler_p::CacheRendering(
-      {renderer->image(), renderedExtent, renderedTime, d->mMapToPixels.value( renderer ), d->mTimeStamps.value( renderer )} ) );
+      {
+        renderer->image(),
+        renderedExtent,
+        timeStamp,
+        d->mMapToPixels.value( renderer ),
+        d->mTimeStamps.value( renderer )} ) );
     }
     d->mCanvas->refresh();
   }
   destroyRenderer( renderer );
-
 }
 
 ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):

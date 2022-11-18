@@ -77,7 +77,7 @@ class REOSGUI_EXPORT ReosMapItem
 
   protected:
     bool isMapExist() const;
-    QPointer<ReosMap> mMap = nullptr;
+    QPointer<ReosMap> mMap;
     QString mDescription;
 
     //! Private item that represent the graphic representation on the map, access to it need to check isMapExist()

@@ -38,9 +38,11 @@ class ReosRenderedObject;
 class ReosObjectRenderer;
 class ReosDuration;
 class ReosTemporalController_p;
+class ReosRendererObjectMapTimeStamp;
 
 
 class ReosRendererObjectHandler_p;
+
 class ReosRendererObjectHandler : public QObject
 {
     Q_OBJECT
@@ -70,7 +72,7 @@ class ReosRendererObjectHandler : public QObject
     bool hasCache( ReosRenderedObject *renderedObject );
 
     //! Returns if a updtodate cache is present
-    bool hasUpToDateCache( ReosRenderedObject *renderedObject );
+    bool hasUpToDateCache( ReosRenderedObject *renderedObject, ReosRendererObjectMapTimeStamp *mapTimeStamp = nullptr );
 
     void destroyRenderer( ReosObjectRenderer *renderer );
 };
@@ -81,7 +83,7 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
 {
     Q_OBJECT
   public:
-    ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget );
+    ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget = nullptr );
     ~ReosMap();
 
     QWidget *mapCanvas() const;
@@ -112,6 +114,7 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     const QObject *temporalController() const;
 
     void setTimeStep( const ReosDuration &timeStep );
+    void setTemporalRange( const QDateTime &startTime, const QDateTime &endTime );
     ReosDuration timeStep() const;
     QDateTime currentTime() const;
 

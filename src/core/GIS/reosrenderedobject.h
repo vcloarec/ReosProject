@@ -25,6 +25,14 @@
 class QPainter;
 class ReosRenderedObject;
 
+class ReosRendererObjectMapTimeStamp
+{
+  public:
+    virtual ~ReosRendererObjectMapTimeStamp() = default;
+    virtual bool equal( ReosRendererObjectMapTimeStamp *other ) = 0;
+};
+
+
 class REOSCORE_EXPORT ReosObjectRenderer: public ReosProcess
 {
     Q_OBJECT
@@ -42,8 +50,14 @@ class REOSCORE_EXPORT ReosObjectRenderer: public ReosProcess
     QRectF extent() const;
     void setExtent( const QRectF &extent );
 
-    QDateTime startTime() const;
-    void setStartTime( const QDateTime &startTime );
+    //! Sets the map time stamp for which this object is associted with. Used to recognize identical time step renderer during rendering
+    void setMapTimeStamp( ReosRendererObjectMapTimeStamp *timeStamp );
+
+    //! Returns a pointer to the timeStamp, the caller take onwership of the time stamp.
+    ReosRendererObjectMapTimeStamp *releaseMapTimeStamp();
+
+    //! Returns a pointer to the timeStamp, owner ship is kept by the renderer.
+    ReosRendererObjectMapTimeStamp *mapTimeStamp() const;
 
     ReosRenderedObject *object();
 
@@ -55,7 +69,7 @@ class REOSCORE_EXPORT ReosObjectRenderer: public ReosProcess
   private:
     ReosRenderedObject *mObject = nullptr;
     QRectF mExtent;
-    QDateTime mStartTime;
+    std::unique_ptr<ReosRendererObjectMapTimeStamp> mMapTimeStamp;
 
 };
 
@@ -64,22 +78,41 @@ class ReosRendererSettings
   public:
     virtual ~ReosRendererSettings() = default;
 
+    virtual QDateTime mapTime() const = 0;
+
 };
 
+/**
+ * Base classe of data object rendered on the map (for example mesh)
+ */
 class REOSCORE_EXPORT ReosRenderedObject: public ReosDataObject
 {
     Q_OBJECT
   public:
-    ReosRenderedObject( QObject *parent );
 
+    //! Constructor
+    ReosRenderedObject( QObject *parent = nullptr );
+
+    /**
+     * Creates usable renderer settings from a pointer to external renderer settings (pointer to
+     * an instance of QgsMapSettings with QGIS core library).
+     */
     static std::unique_ptr<ReosRendererSettings> createRenderSettings( const void *settings );
 
+    /**
+     * Creates an instance of a map time stamp that is used to recognize identical time step rendering for the specific rendered object
+     * The caller takes ownership of the instance.
+     */
+    virtual ReosRendererObjectMapTimeStamp *createMapTimeStamp( ReosRendererSettings *settings ) const = 0;
+
+    /**
+     * Creates an instance of an onject renderer, caller take ownership.
+     */
     virtual ReosObjectRenderer *createRenderer( ReosRendererSettings *settings ) = 0;
 
   signals:
     void renderingFinished();
     void repaintRequested();
 };
-
 
 #endif // REOSRENDEREDOBJECT_H

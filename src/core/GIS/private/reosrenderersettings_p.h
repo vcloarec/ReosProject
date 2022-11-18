@@ -17,6 +17,7 @@
 #define REOSRENDERERSETTINGS_P_H
 
 #include <qgsmapsettings.h>
+#include <qgsrasterlayer.h>
 
 #include "reosrenderedobject.h"
 
@@ -25,10 +26,40 @@ class ReosRendererSettings_p : public ReosRendererSettings
   public:
     ReosRendererSettings_p( const void *settings );
 
+    QDateTime mapTime() const override;
+
     const QgsMapSettings &settings() const;
 
   private:
     QgsMapSettings mSettings;
+};
+
+class ReosQgisLayerRenderer_p : public ReosObjectRenderer
+{
+  public:
+    ReosQgisLayerRenderer_p( ReosRendererSettings *settings, QgsMapLayer *layer, ReosRenderedObject *renderedObject );
+    ~ReosQgisLayerRenderer_p();
+
+    void render() const override;
+    bool isRenderingStopped() const override;
+
+  protected:
+    void stopRendering() override;
+
+  private:
+    std::unique_ptr<QgsMapLayerRenderer> mLayerRenderer;
+    std::unique_ptr<QPainter> mPainter;
+    QgsRenderContext mRenderContext;
+};
+
+class ReosRasterRenderer_p: public ReosObjectRenderer
+{
+  public:
+    bool isRenderingStopped() const override;
+    void render() const override;
+
+  protected:
+    void stopRendering() override;
 };
 
 #endif // REOSRENDERERSETTINGS_P_H

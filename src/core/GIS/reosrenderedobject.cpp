@@ -47,19 +47,25 @@ void ReosObjectRenderer::setExtent( const QRectF &extent )
   mExtent = extent;
 }
 
-QDateTime ReosObjectRenderer::startTime() const
+ReosRendererObjectMapTimeStamp *ReosObjectRenderer::releaseMapTimeStamp()
 {
-  return mStartTime;
+    return mMapTimeStamp.release();
 }
 
-void ReosObjectRenderer::setStartTime( const QDateTime &startTime )
+ReosRendererObjectMapTimeStamp *ReosObjectRenderer::mapTimeStamp() const
 {
-  mStartTime = startTime;
+    return mMapTimeStamp.get();
 }
+
+void ReosObjectRenderer::setMapTimeStamp(ReosRendererObjectMapTimeStamp *timeStamp)
+{
+    mMapTimeStamp.reset( timeStamp );
+}
+
 
 ReosRenderedObject *ReosObjectRenderer::object()
 {
-  return mObject;
+    return mObject;
 }
 
 ReosRenderedObject::ReosRenderedObject( QObject *parent ) : ReosDataObject( parent ) {}
