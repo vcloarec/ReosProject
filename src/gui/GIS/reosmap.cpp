@@ -118,6 +118,8 @@ void ReosRendererObjectHandler::startRender( ReosRenderedObject *renderedObject 
 {
   QMutexLocker locker( &( d->mMutex ) );
 
+  if ( !renderedObject )
+    return;
   const QgsMapSettings &mapSettings = d->mCanvas->mapSettings();
   std::unique_ptr<ReosRendererSettings> rendererSettings = ReosRenderedObject::createRenderSettings( &mapSettings );
 
