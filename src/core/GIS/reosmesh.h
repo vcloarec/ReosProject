@@ -39,6 +39,7 @@ class ReosMeshDatasetSource;
 class ReosGisEngine;
 class ReosMeshDatasetSource;
 class ReosMesh;
+class ReosColorShaderSettings;
 
 
 class ReosMeshQualityChecker : public ReosProcess
@@ -297,10 +298,15 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
 
     virtual void stopFrameEditing( bool commit, bool continueEditing = false ) = 0;
 
+    virtual ReosColorShaderSettings *scalarColorShaderSettings() const = 0;
+
+    virtual ReosColorShaderSettings *vectorColorShaderSettings() const = 0;
+
+    virtual ReosColorShaderSettings *terrainColorShaderSettings() const = 0;
+
     virtual ReosEncodedElement datasetScalarGroupSymbology( const QString &id ) const = 0;
 
-    virtual void setDatasetScalarGroupSymbology( const ReosEncodedElement &encodedElement, const QString &id ) = 0;
-
+    //! Needed fo the vector settings widget
     virtual ReosEncodedElement datasetVectorGroupSymbology( const QString &id ) const = 0;
 
     virtual void setDatasetVectorGroupSymbology( const ReosEncodedElement &encodedElement, const QString &id ) = 0;

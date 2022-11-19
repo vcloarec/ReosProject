@@ -22,79 +22,12 @@
 #include <qgsmeshrenderersettings.h>
 
 #include "reosstyleregistery.h"
+#include "reosrenderersettings.h"
 
-static QgsMeshRendererScalarSettings getScalarSettings( ReosMesh *mesh, const QString &datasetId )
-{
-  ReosEncodedElement datasetSymbology = mesh->datasetScalarGroupSymbology( datasetId );
-  if ( datasetSymbology.description() == QStringLiteral( "dataset-symbology" ) )
-  {
-    QString docString;
-    datasetSymbology.getData( QStringLiteral( "symbology" ), docString );
-
-    QDomDocument doc( QStringLiteral( "dataset-symbology" ) );
-
-    if ( doc.setContent( docString ) )
-    {
-      QDomElement domElem = doc.firstChildElement( QStringLiteral( "scalar-settings" ) );
-      QgsReadWriteContext context;
-      QgsMeshRendererScalarSettings scalarSettings;
-      scalarSettings.readXml( domElem );
-
-      return scalarSettings;
-    }
-  }
-  return QgsMeshRendererScalarSettings();
-}
-
-void setScalarSettings( ReosMesh *mesh, const QString &datasetId, const QgsMeshRendererScalarSettings &scalarSettings )
-{
-  QDomDocument doc( QStringLiteral( "dataset-symbology" ) );
-  doc.appendChild( scalarSettings.writeXml( doc ) ) ;
-
-  ReosEncodedElement encodedElem( QStringLiteral( "dataset-symbology" ) );
-  QString docString = doc.toString();
-  encodedElem.addData( QStringLiteral( "symbology" ), docString );
-  mesh->setDatasetScalarGroupSymbology( encodedElem, datasetId );
-}
-
-
-static QgsMeshRendererVectorSettings getVectorSettings( ReosMesh *mesh, const QString &datasetId )
-{
-  const ReosEncodedElement &encodedSymbology( mesh->datasetVectorGroupSymbology( datasetId ) );
-  QString docString;
-  encodedSymbology.getData( QStringLiteral( "symbology" ), docString );
-  QDomDocument docFrom( QStringLiteral( "dataset-vector-symbology" ) );
-
-  QgsMeshRendererVectorSettings vectorSettings;
-  if ( docFrom.setContent( docString ) )
-  {
-    QDomElement domElem = docFrom.firstChildElement( QStringLiteral( "vector-settings" ) );
-    QgsReadWriteContext context;
-    vectorSettings.readXml( domElem );
-    return vectorSettings;
-  }
-
-  return QgsMeshRendererVectorSettings();
-}
-
-void setVectorSettings( ReosMesh *mesh, const QString &datasetId, const QgsMeshRendererVectorSettings &vectorSettings )
-{
-  QDomDocument docTo( QStringLiteral( "dataset-vector-symbology" ) );
-  docTo.appendChild( vectorSettings.writeXml( docTo ) ) ;
-
-  ReosEncodedElement encodedElem( QStringLiteral( "dataset-vector-symbology" ) );
-  QString docStringTo = docTo.toString();
-  encodedElem.addData( QStringLiteral( "symbology" ), docStringTo );
-  mesh->setDatasetVectorGroupSymbology( encodedElem, datasetId );
-}
-
-
-ReosMeshScalarRenderingWidget::ReosMeshScalarRenderingWidget( ReosMesh *mesh, const QString &datasetId, bool isScalar, const ReosGuiContext &guiContext )
+ReosMeshScalarRenderingWidget::ReosMeshScalarRenderingWidget( ReosColorShaderSettings *settings, const ReosGuiContext &guiContext )
   : ReosStackedPageWidget( guiContext.parent() )
   , ui( new Ui::ReosMeshScalarRenderingWidget )
-  , mMesh( mesh )
-  , mDatasetId( datasetId )
-  , mIsScalar( isScalar )
+  , mSettings( settings )
   , mMinimumParam( new ReosParameterDouble( tr( "Minimum" ), false, this ) )
   , mMaximumParam( new ReosParameterDouble( tr( "Maximum" ), false, this ) )
 {
@@ -108,29 +41,7 @@ ReosMeshScalarRenderingWidget::ReosMeshScalarRenderingWidget( ReosMesh *mesh, co
   mColorRampShaderWidget = new QgsColorRampShaderWidget( this );
   ui->mColorRampShaderLayout->addWidget( mColorRampShaderWidget );
 
-  if ( mIsScalar )
-  {
-    QgsMeshRendererScalarSettings scalarSettings = getScalarSettings( mMesh, mDatasetId );
-    mColorRampShaderWidget->setFromShader( scalarSettings.colorRampShader() );
-    mMinimumParam->setValue( scalarSettings.classificationMinimum() );
-    mMaximumParam->setValue( scalarSettings.classificationMaximum() );
-    mColorRampShaderWidget->setMinimumMaximum( mMinimumParam->value(), mMaximumParam->value() );
-    ui->mOpacitySlider->setValue( scalarSettings.opacity() * 100 );
-
-  }
-  else
-  {
-
-    QgsMeshRendererVectorSettings vectorSettings = getVectorSettings( mMesh, mDatasetId );
-
-    mColorRampShaderWidget->setFromShader( vectorSettings.colorRampShader() );
-    mMinimumParam->setValue( vectorSettings.colorRampShader().minimumValue() );
-    mMaximumParam->setValue( vectorSettings.colorRampShader().maximumValue() );
-    mColorRampShaderWidget->setMinimumMaximum( mMinimumParam->value(), mMaximumParam->value() );
-    ui->mOpacitySlider->setVisible( false );
-    ui->mOpacityLabel->setVisible( false );
-    ui->mOpacitySpinBox->setVisible( false );
-  }
+  syncSettings();
 
   connect( mMinimumParam, &ReosParameter::valueChanged, this, &ReosMeshScalarRenderingWidget::onMinMaxChanged );
   connect( mMaximumParam, &ReosParameter::valueChanged, this, &ReosMeshScalarRenderingWidget::onMinMaxChanged );
@@ -144,7 +55,7 @@ ReosMeshScalarRenderingWidget::ReosMeshScalarRenderingWidget( ReosMesh *mesh, co
     ui->mOpacitySlider->blockSignals( true );
     ui->mOpacitySlider->setValue( value );
     ui->mOpacitySlider->blockSignals( false );
-    updateMeshSettings();
+    updateSettings();
   } );
 
   connect( ui->mOpacitySlider, &QSlider::valueChanged, this, [this]( int value )
@@ -152,7 +63,7 @@ ReosMeshScalarRenderingWidget::ReosMeshScalarRenderingWidget( ReosMesh *mesh, co
     ui->mOpacitySpinBox->blockSignals( true );
     ui->mOpacitySpinBox->setValue( value );
     ui->mOpacitySpinBox->blockSignals( false );
-    updateMeshSettings();
+    updateSettings();
   } );
 
   connect( ui->mReloadButton, &QToolButton::clicked, this, [this]
@@ -160,7 +71,8 @@ ReosMeshScalarRenderingWidget::ReosMeshScalarRenderingWidget( ReosMesh *mesh, co
     double min = 0;
     double max = 0;
 
-    mMesh->datasetGroupMinimumMaximum( mDatasetId, min, max );
+    if ( !mSettings.isNull() )
+      mSettings->getSourceMinMax( min, max );
     if ( min < max )
     {
       mMinimumParam->setValue( min );
@@ -168,6 +80,7 @@ ReosMeshScalarRenderingWidget::ReosMeshScalarRenderingWidget( ReosMesh *mesh, co
     }
   } );
 
+  connect( mSettings, &ReosColorShaderSettings::settingsChangedFromObject, this, &ReosMeshScalarRenderingWidget::syncSettings );
 }
 
 ReosMeshScalarRenderingWidget::~ReosMeshScalarRenderingWidget()
@@ -182,25 +95,51 @@ void ReosMeshScalarRenderingWidget::onMinMaxChanged()
 
 void ReosMeshScalarRenderingWidget::onColorRampChanged()
 {
-  updateMeshSettings();
+  updateSettings();
 }
 
-void ReosMeshScalarRenderingWidget::updateMeshSettings()
+void ReosMeshScalarRenderingWidget::syncSettings()
 {
-  if ( mIsScalar )
+  if ( !mSettings.isNull() )
   {
-    QgsMeshRendererScalarSettings scalarSettings = getScalarSettings( mMesh, mDatasetId );
-    scalarSettings.setClassificationMinimumMaximum( mMinimumParam->value(), mMaximumParam->value() );
-    scalarSettings.setColorRampShader( mColorRampShaderWidget->shader() );
-    scalarSettings.setOpacity( ui->mOpacitySpinBox->value() / 100.0 );
+    mMinimumParam->blockSignals( true );
+    mMinimumParam->setValue( mSettings->classificationMinimum() );
+    ui->mParameterMin->updateValue();
+    mMinimumParam->blockSignals( false );
 
-    setScalarSettings( mMesh, mDatasetId, scalarSettings );
+    mMaximumParam->blockSignals( true );
+    mMaximumParam->setValue( mSettings->classificationMaximum() );
+    ui->mParameterMax->updateValue();
+    mMaximumParam->blockSignals( false );
+
+    mColorRampShaderWidget->blockSignals( true );
+    QgsColorRampShader shader;
+    mSettings->getShader( &shader );
+    mColorRampShaderWidget->setFromShader( shader );
+    mColorRampShaderWidget->setMinimumMaximum( mMinimumParam->value(), mMaximumParam->value() );
+    mColorRampShaderWidget->blockSignals( false );
+
+    ui->mOpacitySlider->blockSignals( true );
+    ui->mOpacitySlider->setValue( mSettings->opacity() * 100 );
+    ui->mOpacitySpinBox->setValue( mSettings->opacity() * 100 );
+    ui->mOpacitySlider->blockSignals( false );
+
+    bool opacityAvailable = mSettings->opacity() >= 0;
+    ui->mOpacitySlider->setVisible( opacityAvailable );
+    ui->mOpacitySpinBox->setVisible( opacityAvailable );
+    ui->mOpacityLabel->setVisible( opacityAvailable );
   }
-  else
-  {
-    QgsMeshRendererVectorSettings vectorSettings = getVectorSettings( mMesh, mDatasetId );
-    vectorSettings.setColorRampShader( mColorRampShaderWidget->shader() );
+}
 
-    setVectorSettings( mMesh, mDatasetId, vectorSettings );
+void ReosMeshScalarRenderingWidget::updateSettings()
+{
+  if ( !mSettings.isNull() )
+  {
+    mSettings->setClassificationMinimum( mMinimumParam->value() );
+    mSettings->setClassificationMaximum( mMinimumParam->value() );
+    mSettings->setOpacity( ui->mOpacitySpinBox->value() / 100.0 );
+    QgsColorRampShader shader = mColorRampShaderWidget->shader();
+    mSettings->setShader( &shader );
+    mSettings->onSettingsUpdated();
   }
 }

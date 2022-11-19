@@ -56,7 +56,6 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
 {
   if ( encodedElement.hasEncodedData( QStringLiteral( "capabilities" ) ) )
   {
-    int cap = 0;
     if ( !encodedElement.getData( QStringLiteral( "capabilities" ), mCapabilities ) )
       mCapabilities = Structure2DCapabilities( GeometryEditable | MultiSimulation ) ;
   }

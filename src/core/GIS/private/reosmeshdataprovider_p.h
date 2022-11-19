@@ -64,35 +64,37 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
     QgsMeshDataBlock datasetValues( QgsMeshDatasetIndex index, int valueIndex, int count ) const override;
     QgsMesh3dDataBlock dataset3dValues( QgsMeshDatasetIndex index, int faceIndex, int count ) const override;
 
-    bool isFaceActive( QgsMeshDatasetIndex index, int faceIndex ) const {return true;}
-    QgsMeshDataBlock areFacesActive( QgsMeshDatasetIndex index, int faceIndex, int count ) const;
+    bool isFaceActive( QgsMeshDatasetIndex, int ) const override; //not implemented
+    QgsMeshDataBlock areFacesActive( QgsMeshDatasetIndex index, int faceIndex, int count ) const override;
+
     bool persistDatasetGroup( const QString &outputFilePath,
                               const QString &outputDriver,
                               const QgsMeshDatasetGroupMetadata &meta,
                               const QVector<QgsMeshDataBlock> &datasetValues,
                               const QVector<QgsMeshDataBlock> &datasetActive,
-                              const QVector<double> &times ) {return false;}
+                              const QVector<double> &times ) override; //not implemented
+
+
     bool persistDatasetGroup( const QString &outputFilePath,
                               const QString &outputDriver,
                               QgsMeshDatasetSourceInterface *source,
-                              int datasetGroupIndex )
-    {return false;}
+                              int datasetGroupIndex ) override; // not implemented
 
-    int vertexCount() const;
-    int faceCount() const;
-    int edgeCount() const {return 0;}
-    void populateMesh( QgsMesh *mesh ) const;
+    int vertexCount() const override;
+    int faceCount() const override;
+    int edgeCount() const override; //not implemented
+    void populateMesh( QgsMesh *mesh ) const override;
 
     bool saveMeshFrame( const QgsMesh &mesh ) override;
 
-    QgsCoordinateReferenceSystem crs() const {return mCrs;}
-    QgsRectangle extent() const;
-    bool isValid() const {return true;}
-    QString name() const {return "ReosMeshMemory";}
-    QString description() const {return "reos mesh";}
+    QgsCoordinateReferenceSystem crs() const override {return mCrs;}
+    QgsRectangle extent() const override;
+    bool isValid() const override  {return true;}
+    QString name() const override  {return "ReosMeshMemory";}
+    QString description() const override {return "reos mesh";}
 
-    void close() {}
-    virtual QgsMeshDriverMetadata driverMetadata()  const;
+    void close() override {}
+    virtual QgsMeshDriverMetadata driverMetadata()  const override;
 
 //***********************
 
@@ -111,28 +113,12 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
 class ReosMeshProviderMetaData: public QgsProviderMetadata
 {
   public:
-    ReosMeshProviderMetaData() : QgsProviderMetadata( QStringLiteral( "ReosMesh" ), QStringLiteral( "reos mesh" ) ) {}
-    QString filters( FilterType type ) override {return QString();}
-    QList<QgsMeshDriverMetadata> meshDriversMetadata() override {return QList<QgsMeshDriverMetadata>();}
-    ReosMeshDataProvider_p *createProvider( const QString &uri, const QgsDataProvider::ProviderOptions &options, QgsDataProvider::ReadFlags flags = QgsDataProvider::ReadFlags() ) override
-    {
-      return new ReosMeshDataProvider_p();
-    }
+    ReosMeshProviderMetaData();
 
-    bool createMeshData( const QgsMesh &mesh,
-                         const QString &fileName,
-                         const QString &driverName,
-                         const QgsCoordinateReferenceSystem &crs ) const override {return false;}
+    ReosMeshDataProvider_p *createProvider( const QString &, const QgsDataProvider::ProviderOptions &, QgsDataProvider::ReadFlags ) override;
 
-    bool createMeshData( const QgsMesh &mesh,
-                         const QString &uri,
-                         const QgsCoordinateReferenceSystem &crs ) const override  {return false;}
-
-    QVariantMap decodeUri( const QString &uri ) const override {return QVariantMap();}
-    QString encodeUri( const QVariantMap &parts ) const override {return QString();}
     ProviderCapabilities providerCapabilities() const override {return FileBasedUris;}
     QgsProviderMetadata::ProviderMetadataCapabilities capabilities() const override {return QgsProviderMetadata::LayerTypesForUri;}
-    QList< QgsProviderSublayerDetails > querySublayers( const QString &uri, Qgis::SublayerQueryFlags flags = Qgis::SublayerQueryFlags(), QgsFeedback *feedback = nullptr ) const override {return QList< QgsProviderSublayerDetails >() ;}
 };
 
 #endif // REOSMESHDATAPROVIDER_P_H

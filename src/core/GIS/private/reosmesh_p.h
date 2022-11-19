@@ -33,6 +33,9 @@ class ReosDigitalElevationModel;
 class QGraphicsView;
 class QgsMapLayerRenderer;
 
+class ReosMeshScalarColorShaderSettings_p;
+class ReosMeshVectorColorShaderSettings_p;
+class ReosMeshTerrainColorShaderSettings_p;
 
 class ReosRendererMeshMapTimeStamp_p: public ReosRendererObjectMapTimeStamp
 {
@@ -44,7 +47,6 @@ class ReosRendererMeshMapTimeStamp_p: public ReosRendererObjectMapTimeStamp
     QgsMeshDatasetIndex mScalarIndex;
     QgsMeshDatasetIndex mVectorIndex;
 };
-
 
 /**
  * Implementation of a mesh in Reos environment.
@@ -70,18 +72,26 @@ class ReosMeshFrame_p : public ReosMesh
     void generateMesh( const ReosMeshFrameData &data ) override;
     QString crs() const override;
     QObject *data() const override;
+
     ReosProcess *applyTopographyOnVertices( ReosTopographyCollection *topographyCollection ) override;
     double datasetScalarValueAt( const QString &datasetId, const QPointF &pos ) const override;
     void datasetGroupMinimumMaximum( const QString &datasetId, double &min, double &max ) const override;
     void save( const QString &dataPath ) override;
     void stopFrameEditing( bool commit, bool continueEditing = false ) override;
+
+    ReosColorShaderSettings *scalarColorShaderSettings() const override;
+    ReosColorShaderSettings *vectorColorShaderSettings() const override;
+    ReosColorShaderSettings *terrainColorShaderSettings() const override;
+
     ReosEncodedElement datasetScalarGroupSymbology( const QString &id ) const override;
-    void setDatasetScalarGroupSymbology( const ReosEncodedElement &encodedElement, const QString &id ) override;
     ReosEncodedElement datasetVectorGroupSymbology( const QString &id ) const override;
+    ReosEncodedElement wireFrameSymbology() const override;
+
     void setDatasetVectorGroupSymbology( const ReosEncodedElement &encodedElement, const QString &id ) override;
+
     void activateWireFrame( bool activate ) override;
     bool isWireFrameActive() const override;
-    ReosEncodedElement wireFrameSymbology() const override;
+
     ReosRendererObjectMapTimeStamp *createMapTimeStamp( ReosRendererSettings *settings ) const override;
     ReosObjectRenderer *createRenderer( ReosRendererSettings *settings ) override;
     ReosMeshQualityChecker *getQualityChecker( QualityMeshChecks qualitiChecks, const QString &destinatonCrs ) const override;
@@ -125,19 +135,87 @@ class ReosMeshFrame_p : public ReosMesh
     QString mVerticalDataset3DId;
     WireFrameSettings mWireFrameSettings;
 
+    std::unique_ptr<ReosMeshScalarColorShaderSettings_p> mScalarShaderSettings;
+    std::unique_ptr<ReosMeshTerrainColorShaderSettings_p> mTerrainShaderSettings;
+    std::unique_ptr<ReosMeshVectorColorShaderSettings_p> mVectorShaderSettings;
+
     void init();
     void addDatasetGroup( QgsMeshDatasetGroup *group, const QString &id = QString() );
     void firstUpdateOfTerrainScalarSetting();
     void restoreVertexElevationDataset();
     void updateWireFrameSettings( bool updateRenderer );
     int datasetGroupIndex( const QString &id ) const;
-    ReosEncodedElement datasetScalarGroupSymbologyPrivate( int i ) const;
-    void applyScalarSymbologyOnMeshDatasetGroup( const QString &id );
-    void applyVectorSymbologyOnMeshDatasetGroup( const QString &id );
+    ReosEncodedElement restoreScalarSymbologyOnMeshDatasetGroup( const QString &id );
+    void applySymbologyOnScalarDataSet( const QString &id, QgsMeshRendererScalarSettings settings );
+    ReosEncodedElement restoreVectorSymbologyOnMeshDatasetGroup( const QString &id );
+    void applySymbologyOnVectorDataSet( const QString &id, QgsMeshRendererVectorSettings settings );
 
     QPointF tolayerCoordinates( const ReosSpatialPosition &position ) const;
 
-    std::map <QGraphicsView *, std::unique_ptr<QgsMapLayerRenderer>> mRenders;
+    //! Returns the scalar symbology from the layer, if not exist return the mesh layer default symbology
+    ReosEncodedElement datasetGroupScalarSymbologyfromLayer( const QString &datasetId ) const;
+    ReosEncodedElement datasetGroupVectorSymbologyfromLayer( const QString &datasetId ) const;
+
+    friend class ReosMeshScalarColorShaderSettings_p;
+    friend class ReosMeshVectorColorShaderSettings_p;
+    friend class ReosMeshTerrainColorShaderSettings_p;
+};
+
+class ReosMeshColorShaderSettings_p : public ReosColorShaderSettings_p
+{
+  public:
+    ReosMeshColorShaderSettings_p( ReosMeshFrame_p *mesh );
+
+    void getShader( void *shader ) const override;
+    void setShader( void *shader ) override;
+    double classificationMinimum() const override;
+    void setClassificationMinimum( double newClassificationMinimum ) override;
+    double classificationMaximum() const override;
+    void setClassificationMaximum( double newClassificationMaximum ) override;
+    double opacity() const override;
+    void setOpacity( double opacity ) override;
+
+  protected:
+    QPointer<ReosMeshFrame_p> mMesh;
+    double mMinClassifiction;
+    double mMaxClassification;
+    double mOpacity;
+    QgsColorRampShader mColorShader;
+    bool mIsValid = false;
+};
+
+class ReosMeshScalarColorShaderSettings_p : public ReosMeshColorShaderSettings_p
+{
+  public:
+    ReosMeshScalarColorShaderSettings_p( ReosMeshFrame_p *mesh );
+    void setCurrentSymbology( const ReosEncodedElement &symbology );
+
+    bool isValid() const override;
+    void getSourceMinMax( double &min, double &max ) const override;
+    void onSettingsUpdated() override;
+};
+
+class ReosMeshVectorColorShaderSettings_p : public ReosMeshColorShaderSettings_p
+{
+  public:
+    ReosMeshVectorColorShaderSettings_p( ReosMeshFrame_p *mesh );
+    void setCurrentSymbology( const ReosEncodedElement &symbology );
+
+    bool isValid() const override;
+    void getSourceMinMax( double &min, double &max ) const override;
+    void onSettingsUpdated() override;
+
+};
+
+class ReosMeshTerrainColorShaderSettings_p : public ReosMeshColorShaderSettings_p
+{
+  public:
+    ReosMeshTerrainColorShaderSettings_p( ReosMeshFrame_p *mesh );
+    void setCurrentSymbology( const ReosEncodedElement &symbology );
+
+    bool isValid() const override;
+    void getSourceMinMax( double &min, double &max ) const override;
+    void onSettingsUpdated() override;
 };
 
 class ReosMeshQualityChecker_p : public ReosMeshQualityChecker

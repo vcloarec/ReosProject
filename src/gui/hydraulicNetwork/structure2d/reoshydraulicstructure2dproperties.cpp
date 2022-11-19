@@ -152,7 +152,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   toolBar->addAction( mScalarWidgetAction );
   connect( mActionScalarSettings, &QAction::triggered, this, [this]
   {
-    emit stackedPageWidgetOpened( new ReosMeshScalarRenderingWidget( mStructure2D->mesh(), mStructure2D->currentActivatedMeshDataset(), true, mGuiContext ) );
+    emit stackedPageWidgetOpened( new ReosMeshScalarRenderingWidget( mStructure2D->mesh()->scalarColorShaderSettings(), mGuiContext ) );
     emit askForShow();
   } );
   mGuiContext.addActionToMainToolBar( QStringLiteral( "hydraulic-network" ), mScalarWidgetAction );

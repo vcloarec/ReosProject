@@ -31,7 +31,7 @@ email                : vcloarec at gmail dot com
 #include "reospolylinesstructure.h"
 #include "reostemporalcontrollerwidget.h"
 #include "reostemporalcontroller_p.h"
-
+#include "reosrenderersettings.h"
 #include "reosmesh.h"
 
 

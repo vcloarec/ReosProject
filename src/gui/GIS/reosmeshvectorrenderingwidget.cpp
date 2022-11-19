@@ -76,7 +76,7 @@ ReosMeshVectorRenderingWidget::ReosMeshVectorRenderingWidget( ReosMesh *mesh, co
 
   connect( ui->mColorRampToolButton, &QToolButton::clicked, this, [this]
   {
-    emit addOtherPage( new ReosMeshScalarRenderingWidget( mMesh, mDatasetId, false, ReosGuiContext( mGuiContext, this ) ) );
+    emit addOtherPage( new ReosMeshScalarRenderingWidget( mMesh->vectorColorShaderSettings(), ReosGuiContext( mGuiContext, this ) ) );
   } );
   connect( ui->mShaftHeadSlider, &QSlider::valueChanged, this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
   connect( mWidthParameter, &ReosParameter::valueChanged, this, &ReosMeshVectorRenderingWidget::updateMeshSettings );

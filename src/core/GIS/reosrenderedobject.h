@@ -24,6 +24,7 @@
 
 class QPainter;
 class ReosRenderedObject;
+class ReosRendererSettings;
 
 class ReosRendererObjectMapTimeStamp
 {
@@ -70,15 +71,6 @@ class REOSCORE_EXPORT ReosObjectRenderer: public ReosProcess
     ReosRenderedObject *mObject = nullptr;
     QRectF mExtent;
     std::unique_ptr<ReosRendererObjectMapTimeStamp> mMapTimeStamp;
-
-};
-
-class ReosRendererSettings
-{
-  public:
-    virtual ~ReosRendererSettings() = default;
-
-    virtual QDateTime mapTime() const = 0;
 
 };
 

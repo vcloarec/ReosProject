@@ -29,20 +29,24 @@ namespace Ui
 
 class QgsColorRampShaderWidget;
 class QgsMeshLayer;
+class ReosColorShaderSettings;
 
 
 class ReosMeshScalarRenderingWidget: public ReosStackedPageWidget
 {
   public:
-    ReosMeshScalarRenderingWidget( ReosMesh *mesh, const QString &datasetId, bool isScalar, const ReosGuiContext &guiContext );
+    ReosMeshScalarRenderingWidget( ReosColorShaderSettings *settings, const ReosGuiContext &guiContext );
     ~ReosMeshScalarRenderingWidget();
 
   private slots:
     void onMinMaxChanged();
     void onColorRampChanged();
 
+    void syncSettings();
+
   private:
     Ui::ReosMeshScalarRenderingWidget *ui;
+    QPointer<ReosColorShaderSettings> mSettings;
     ReosMesh *mMesh = nullptr;
     QString mDatasetId;
     bool mIsScalar;
@@ -51,7 +55,7 @@ class ReosMeshScalarRenderingWidget: public ReosStackedPageWidget
 
     QgsColorRampShaderWidget *mColorRampShaderWidget = nullptr;
 
-    void updateMeshSettings();
+    void updateSettings();
 };
 
 #endif // REOSMESHSCALARRENDERINGWIDGET_H
