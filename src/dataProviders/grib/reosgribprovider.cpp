@@ -28,7 +28,7 @@ REOSEXTERN ReosDataProviderFactory *providerFactory()
 
 ReosGribGriddedRainfallProvider::ReosGribGriddedRainfallProvider()
 {
-
+  mCache.setMaxCost( 20000000 );
 }
 
 void ReosGribGriddedRainfallProvider::setDataSource( const QString &dataSource )
@@ -166,15 +166,38 @@ QDateTime ReosGribGriddedRainfallProvider::endTime( int index ) const
 
 const QVector<double> ReosGribGriddedRainfallProvider::data( int index ) const
 {
+  if ( index < 0 )
+    return QVector<double>();
+
+  CacheValues *cache = mCache.object( index );
+
+  if ( cache && cache->typeCalculatedFrom == mSourceValueType )
+    return cache->values;
+
+  if ( cache )
+    mCache.remove( index );
+
   ReosGdalDataset dataset( mFrames.at( index ).file );
+  if ( !dataset.isValid() )
+    return QVector<double>();
+
   ReosRasterMemory<double> raster = dataset.values( mFrames.at( index ).bandNo );
+  ReosDuration duration = intervalDuration( index );
 
   switch ( mSourceValueType )
   {
     case ValueType::CumulativeHeight:
     {
+      QVector<double> ret( raster.values().count() );
+
       if ( index == 0 )
-        return raster.values();
+      {
+        for ( int i = 0; i < ret.count(); ++i )
+        {
+          ret[i] = raster.values().at( i ) / duration.valueHour();
+        }
+        return ret;;
+      }
 
       ReosGdalDataset prevDataset( mFrames.at( index - 1 ).file );
       ReosRasterMemory<double> prevRaster = prevDataset.values( mFrames.at( index - 1 ).bandNo );
@@ -182,10 +205,10 @@ const QVector<double> ReosGribGriddedRainfallProvider::data( int index ) const
       const QVector<double> &currentIndex = raster.values();
       Q_ASSERT( prevIndex.count() == currentIndex.count() );
 
-      QVector<double> ret( prevIndex.count() );
+
       for ( int i = 0; i < ret.count(); ++i )
       {
-        ret[i] = currentIndex.at( i ) - prevIndex.at( i );
+        ret[i] = ( currentIndex.at( i ) - prevIndex.at( i ) ) / duration.valueHour();
       }
 
       return ret;
@@ -209,7 +232,7 @@ QString ReosGribGriddedRainfallProvider::dataType() {return ReosGriddedRainfall:
 
 QString ReosGribGriddedRainfallProvider::staticKey()
 {
-  return QStringLiteral( "grib" ) + QString( "::" ) + dataType();
+  return GRIB_KEY + QString( "::" ) + dataType();
 }
 
 QString ReosGribGriddedRainfallProvider::uri( const QString &sourcePath, const QString &variable, ValueType valueType )
@@ -364,5 +387,5 @@ ReosGriddedRainfallProvider *ReosGribProviderFactory::createProvider( const QStr
 
 QString ReosGribProviderFactory::key() const
 {
-  return QStringLiteral( "grib" );
+  return GRIB_KEY;
 }

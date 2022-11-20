@@ -17,10 +17,13 @@
 #define REOSGRIBPROVIDER_H
 
 #include <QDateTime>
+#include <QCache>
 
 #include "reosmodule.h"
 #include "reosgriddedrainfallprovider.h"
 #include "reosmemoryraster.h"
+
+#define GRIB_KEY QStringLiteral("grib")
 
 class ReosGribGriddedRainfallProvider : public ReosGriddedRainfallProvider
 {
@@ -68,7 +71,15 @@ class ReosGribGriddedRainfallProvider : public ReosGriddedRainfallProvider
     bool mIsValid = false;
     ReosModule::Message mLastMessage;
 
-    bool sourceIsValid( const QString &source, ReosModule::Message &message ) const;
+
+    struct CacheValues
+    {
+      QVector<double> values;
+      ValueType typeCalculatedFrom;
+    };
+
+    mutable QCache<int, CacheValues> mCache;
+
     void parseFile( const QString &fileName,
                     const QString &varName,
                     qint64 &refTime,
