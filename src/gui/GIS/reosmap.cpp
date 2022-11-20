@@ -23,6 +23,7 @@ email                : vcloarec at gmail dot com
 #include <qgsmapcanvassnappingutils.h>
 #include <qgssnappingconfig.h>
 #include <qgstemporalcontroller.h>
+#include <qgsrasterlayer.h>
 
 #include "reosmap.h"
 #include "reosgisengine.h"
@@ -337,7 +338,9 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
 
   connect( canvas, &QgsMapCanvas::extentsChanged, this, &ReosMap::extentChanged );
 
-  QgsLayerTreeModel *layerTreeModel = qobject_cast<QgsLayerTreeModel *>( gisEngine->layerTreeModel() );
+  QgsLayerTreeModel *layerTreeModel = nullptr;
+  if ( mEngine )
+    layerTreeModel = qobject_cast<QgsLayerTreeModel *>( mEngine->layerTreeModel() );
   if ( layerTreeModel )
   {
     auto bridge = new QgsLayerTreeMapCanvasBridge( layerTreeModel->rootGroup(), canvas, this );
@@ -366,7 +369,8 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
     emit cursorMoved( p.toQPointF() );
   } );
 
-  connect( gisEngine, &ReosGisEngine::crsChanged, this, &ReosMap::setCrs );
+  if ( mEngine )
+    connect( mEngine, &ReosGisEngine::crsChanged, this, &ReosMap::setCrs );
 
   mDefaultMapTool->setAction( mActionNeutral );
   mDefaultMapTool->setCurrentToolInMap();
@@ -418,8 +422,8 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   connect( mTemporalControler, &ReosTemporalController_p::updateTemporalRange, this, [this]( const QgsDateTimeRange & timeRange )
   {emit timeChanged( timeRange.begin() );} );
 
-  connect( mEngine, &ReosGisEngine::temporalRangeChanged, mTemporalControler, &ReosTemporalController_p::setTemporalExtent );
-  //******
+  if ( mEngine )
+    connect( mEngine, &ReosGisEngine::temporalRangeChanged, mTemporalControler, &ReosTemporalController_p::setTemporalExtent );
 
   mEnableSnappingAction->setCheckable( true );
 
@@ -472,7 +476,12 @@ void ReosMap::setExtent( const ReosMapExtent &extent )
   if ( !extent.isValid() )
     return;
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
-  ReosMapExtent mapExtent = mEngine->transformToProjectExtent( extent );
+  ReosMapExtent mapExtent;
+  if ( mEngine )
+    mapExtent = mEngine->transformToProjectExtent( extent );
+  else
+    mapExtent = ReosGisEngine::transformExtent( extent, mapCrs() );
+
   canvas->setExtent( QgsRectangle( mapExtent.xMapMin(), mapExtent.yMapMin(), mapExtent.xMapMax(), mapExtent.yMapMax() ) );
   canvas->refresh();
 }
@@ -588,6 +597,11 @@ void ReosMap::setTimeStep( const ReosDuration &timeStep )
   mTemporalControler->setTimeStep( timeStep );
 }
 
+void ReosMap::setTemporalRange( const QDateTime &startTime, const QDateTime &endTime )
+{
+  mTemporalControler->setTemporalExtent( startTime, endTime );
+}
+
 ReosDuration ReosMap::timeStep() const
 {
   return mTemporalControler->timeStep();
@@ -600,6 +614,27 @@ QDateTime ReosMap::currentTime() const
     return mapCanvas->mapSettings().temporalRange().begin();
 
   return QDateTime();
+}
+
+void ReosMap::activateOpenStreetMap()
+{
+  if ( !mEngine )
+  {
+    QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
+
+    QgsRasterLayer *osmLayer = new QgsRasterLayer(
+      QStringLiteral( "type=xyz&url=https://tile.openstreetmap.org/%7Bz%7D/%7Bx%7D/%7By%7D.png&zmax=19&zmin=0&http-header:r" ),
+      tr( "Open Street Map" ),
+      QStringLiteral( "wms" ) );
+
+    osmLayer->setParent( this );
+
+    QList<QgsMapLayer *> layers;
+    layers << osmLayer;
+    canvas->setLayers( layers );
+    canvas->setDestinationCrs( osmLayer->crs() );
+    canvas->zoomToFullExtent();
+  }
 }
 
 void ReosMap::setCrs( const QString &crsWkt )

@@ -118,6 +118,8 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     ReosDuration timeStep() const;
     QDateTime currentTime() const;
 
+    void activateOpenStreetMap();
+
   signals:
     //! emitted when the mouse cursor moves on the map cavans.
     void cursorMoved( const QPointF &point );
