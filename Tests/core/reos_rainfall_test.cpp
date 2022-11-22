@@ -600,7 +600,7 @@ void ReosRainfallTest::griddedRainfall()
 {
   QString filePath = testFile( QStringLiteral( "/grib/arome-antilles/" ) );
   QString variableName = QStringLiteral( "Total precipitation rate [kg/(m^2*s)]" );
-  ReosGriddedRainfall rainfall( filePath + "::" + variableName + "::" + "cumulative", QStringLiteral("grib"), nullptr );
+  ReosGriddedRainfall rainfall( filePath + "::" + variableName + "::" + "cumulative", QStringLiteral( "grib" ), nullptr );
 
   QVERIFY( rainfall.isValid() );
   QCOMPARE( rainfall.gridCount(), 3 );
@@ -611,6 +611,29 @@ void ReosRainfallTest::griddedRainfall()
   QVERIFY( loadedRainFall );
   QVERIFY( loadedRainFall->isValid() );
   QCOMPARE( loadedRainFall->gridCount(), 3 );
+
+  ReosRainfallModel rainfallModel;
+  ReosZoneItem *zoneItem = rainfallModel.addZone( "Zone 1", "a zone for a gridded rain" );
+  ReosGriddedRainItem *griddedItem = rainfallModel.addGriddedRainfall( "Gridded rainfall", " a gridded RAINFALL", rainfallModel.itemToIndex( zoneItem ), loadedRainFall.release() );
+  QVERIFY( griddedItem );
+
+  ReosEncodedElement modelEncoded = rainfallModel.encode();
+
+  ReosRainfallModel otherRainfallModel;
+  otherRainfallModel.decode( modelEncoded );
+
+  QCOMPARE( otherRainfallModel.rootZoneCount(), 1 );
+  zoneItem = otherRainfallModel.rootZone( 0 );
+
+  griddedItem = qobject_cast<ReosGriddedRainItem *>(
+                  otherRainfallModel.indexToItem( otherRainfallModel.index( 0, 0, otherRainfallModel.itemToIndex( zoneItem ) ) ) );
+
+  QVERIFY( griddedItem );
+
+  ReosGriddedRainfall *grf = griddedItem->data();
+
+  QVERIFY( grf->isValid() );
+  QCOMPARE( grf->gridCount(), 3 );
 }
 
 QTEST_MAIN( ReosRainfallTest )
