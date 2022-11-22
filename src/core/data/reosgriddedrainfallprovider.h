@@ -67,6 +67,9 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
 
     virtual void copyFrom( ReosGriddedRainfallProvider * ) {};
 
+    virtual ReosEncodedElement encode() const = 0;
+    virtual void decode( const ReosEncodedElement &element ) = 0;
+
   protected:
     ValueType mSourceValueType = ValueType::Height;
 
@@ -86,6 +89,8 @@ class ReosGriddedRainfallMemoryProvider : public ReosGriddedRainfallProvider
     QDateTime endTime( int index ) const;
     const QVector<double> data( int index ) const;
     ReosRasterExtent extent() const;
+    ReosEncodedElement encode() const override;
+    void decode( const ReosEncodedElement &element ) override;
 
     void addFrame( const ReosRasterMemory<double> &raster, const QDateTime &startTime, const QDateTime &endTime );
 

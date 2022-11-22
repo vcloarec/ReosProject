@@ -32,13 +32,8 @@ ReosGriddedRainfallRendererFactory_p::ReosGriddedRainfallRendererFactory_p( Reos
   : ReosGriddedRainfallRendererFactory( rainfall )
   , mColorRampSettings( new ReosGriddedRainfallColorShaderSettings_p( this ) )
 {
-  ReosMapExtent extent = rainfall->extent();
-  QgsRectangle qgsExt = extent.toRectF();
-  qgsExt.normalize();
-  QString uri( QStringLiteral( "%1::%2" ).arg( qgsExt.asWktPolygon(), extent.crs() ) );
 
-  mRasterLayer.reset( new QgsRasterLayer( uri, QString(), QStringLiteral( "gridded-precipitation" ) ) );
-  mDataProvider = qobject_cast<ReosGriddedRainfallRasterProvider_p *>( mRasterLayer->dataProvider() );
+  init();
 
   QList<QgsGradientStop> stops;
   stops << QgsGradientStop( 0.005, QColor( 200, 200, 255 ) );
@@ -51,6 +46,34 @@ ReosGriddedRainfallRendererFactory_p::ReosGriddedRainfallRendererFactory_p( Reos
   renderer->createShader( colorRamp.release(), QgsColorRampShader::Interpolated, QgsColorRampShader::EqualInterval, 10, false );
   mColorRampSettings->setShader( renderer->shader()->rasterShaderFunction() );
   mRasterLayer->setRenderer( renderer.release() );
+}
+
+void ReosGriddedRainfallRendererFactory_p::init()
+{
+  ReosMapExtent extent = mRainfall->extent();
+  QgsRectangle qgsExt = extent.toRectF();
+  qgsExt.normalize();
+  QString uri( QStringLiteral( "%1::%2" ).arg( qgsExt.asWktPolygon(), extent.crs() ) );
+
+  mRasterLayer.reset( new QgsRasterLayer( uri, QString(), QStringLiteral( "gridded-precipitation" ) ) );
+  mDataProvider = qobject_cast<ReosGriddedRainfallRasterProvider_p *>( mRasterLayer->dataProvider() );
+}
+
+
+ReosGriddedRainfallRendererFactory_p::ReosGriddedRainfallRendererFactory_p( const ReosEncodedElement &element, ReosGriddedRainfall *rainfall )
+  : ReosGriddedRainfallRendererFactory( rainfall )
+  , mColorRampSettings( new ReosGriddedRainfallColorShaderSettings_p( this ) )
+{
+  init();
+  mColorRampSettings->decode( element.getEncodedData( QStringLiteral( "color-ramp-settings" ) ) );
+  mColorRampSettings->onSettingsUpdated();
+}
+
+ReosEncodedElement ReosGriddedRainfallRendererFactory_p::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "gridded-rainfall-renderer" ) );
+  element.addEncodedData( QStringLiteral( "color-ramp-settings" ), mColorRampSettings->encode() );
+  return element;
 }
 
 ReosObjectRenderer *ReosGriddedRainfallRendererFactory_p::createRasterRenderer( ReosRendererSettings *settings )
@@ -72,6 +95,7 @@ ReosColorShaderSettings *ReosGriddedRainfallRendererFactory_p::colorRampShaderSe
 {
   return mColorRampSettings.get();
 }
+
 
 QgsColorRampShader ReosGriddedRainfallRendererFactory_p::colorRampShader() const
 {

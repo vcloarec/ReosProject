@@ -33,32 +33,32 @@ ReosGribGriddedRainfallProvider::ReosGribGriddedRainfallProvider()
 
 void ReosGribGriddedRainfallProvider::setDataSource( const QString &dataSource )
 {
-  QString source = sourcePathFromUri( dataSource );
+  ReosGriddedRainfallProvider::setDataSource( dataSource );
+  QString fileSource = sourcePathFromUri( dataSource );
   QString varName = variableFromUri( dataSource );
   mSourceValueType = valueTypeFromUri( dataSource );
   mIsValid = false;
 
   QMap<qint64, GribFrame> pathes;
 
-  if ( !sourceIsValid( source, mLastMessage ) )
+  if ( !sourceIsValid( fileSource, mLastMessage ) )
     return;
   QDir dir;
-  QFileInfo fileInfo( source );
+  QFileInfo fileInfo( fileSource );
   if ( fileInfo.isDir() )
   {
     QStringList filters;
-    dir = QDir( source );
+    dir = QDir( fileSource );
     filters << QStringLiteral( "*.grib2" );
+    filters << QStringLiteral( "*.grb2" );
     const QStringList files = dir.entryList( filters, QDir::Files );
     for ( const QString &file : files )
-    {
       parseFile( dir.filePath( file ), varName, mReferenceTime, pathes, mExtent );
-    }
 
   }
   else if ( fileInfo.isFile() )
   {
-    parseFile( source, varName, mReferenceTime, pathes, mExtent );
+    parseFile( fileSource, varName, mReferenceTime, pathes, mExtent );
   }
 
   mFrames = pathes.values();
@@ -342,6 +342,23 @@ bool ReosGribGriddedRainfallProvider::sourceIsValid( const QString &source, Reos
 
   return true;
 
+}
+
+ReosEncodedElement ReosGribGriddedRainfallProvider::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "grib-gridded-precipitation" ) );
+  element.addData( QStringLiteral( "data-source" ), dataSource() );
+
+  return element;
+}
+
+void ReosGribGriddedRainfallProvider::decode( const ReosEncodedElement &element )
+{
+  if ( element.description() != QStringLiteral( "grib-gridded-precipitation" ) )
+    return;
+  QString source;
+  if ( element.getData( QStringLiteral( "data-source" ), source ) )
+    setDataSource( source );
 }
 
 void ReosGribGriddedRainfallProvider::parseFile(

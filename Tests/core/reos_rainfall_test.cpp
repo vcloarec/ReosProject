@@ -21,6 +21,7 @@ email                : vcloarec at gmail dot com
 #include "reosrainfallitem.h"
 #include "reosidfcurves.h"
 #include "reosrainfallregistery.h"
+#include "reosgriddedrainitem.h"
 
 class ReosRainfallTest: public QObject
 {
@@ -33,6 +34,8 @@ class ReosRainfallTest: public QObject
     void loadRainfallData();
 
     void syntheticRainfall();
+
+    void griddedRainfall();
 
   private:
     ReosModule mRootModule;
@@ -591,6 +594,23 @@ void ReosRainfallTest::syntheticRainfall()
   QVERIFY( doubleTriangleRainfall.isObsolete() );
   QCOMPARE( doubleTriangleRainfall.valueCount(), 2 );
   QVERIFY( !doubleTriangleRainfall.isObsolete() );
+}
+
+void ReosRainfallTest::griddedRainfall()
+{
+  QString filePath = testFile( QStringLiteral( "/grib/arome-antilles/" ) );
+  QString variableName = QStringLiteral( "Total precipitation rate [kg/(m^2*s)]" );
+  ReosGriddedRainfall rainfall( filePath + "::" + variableName + "::" + "cumulative", QStringLiteral("grib"), nullptr );
+
+  QVERIFY( rainfall.isValid() );
+  QCOMPARE( rainfall.gridCount(), 3 );
+
+  ReosEncodedElement encodedRainfall = rainfall.encode();
+
+  std::unique_ptr<ReosGriddedRainfall> loadedRainFall( ReosGriddedRainfall::decode( encodedRainfall, nullptr ) );
+  QVERIFY( loadedRainFall );
+  QVERIFY( loadedRainFall->isValid() );
+  QCOMPARE( loadedRainFall->gridCount(), 3 );
 }
 
 QTEST_MAIN( ReosRainfallTest )

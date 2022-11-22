@@ -74,6 +74,10 @@ class ReosColorShaderSettings_p : public ReosColorShaderSettings
 
     void setColorRampShader( const QgsColorRampShader &colorRampShader );
 
+    virtual ReosEncodedElement encode() const;
+
+    virtual void decode( ReosEncodedElement element );
+
   protected:
     QgsColorRampShader mColorShader;
 };

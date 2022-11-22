@@ -67,7 +67,7 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
     //! Returns whether the gridded rainfallis valid
     bool isValid() const;
 
-    //! Overrides the coordinates system with the wkt string \a crs of the gridded rainfall without modifying the coordintaes
+    //! Overrides the coordinates system with the wkt string \a crs of the gridded rainfall without modifying the coordinates
     void overrideCrs( const QString &crs );
 
     //! Transform the gridded rain to fit with extent \a destination with resolution \a resolX and \a resolY
@@ -85,10 +85,16 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
       max = 20;
     }
 
+    ReosEncodedElement encode() const;
+
+    //! Creates new instance from the encoded element
+    static ReosGriddedRainfall *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
+
   private:
+    ReosGriddedRainfall( const ReosEncodedElement &element, QObject *parent );
+
     std::unique_ptr<ReosGriddedRainfallProvider> mProvider;
     QString mOverridenCrs;
-
     std::unique_ptr<ReosGriddedRainfallRendererFactory> mRendererFactory;
 };
 
@@ -97,6 +103,7 @@ class REOSCORE_EXPORT ReosGriddedRainItem : public ReosRainfallDataItem
     Q_OBJECT
   public:
     ReosGriddedRainItem( const QString &name, const QString &description,  ReosGriddedRainfall *data );
+    ReosGriddedRainItem( const ReosEncodedElement &element );
 
     QString dataType() const override {return ReosGriddedRainfall::staticType();}
 
@@ -106,7 +113,7 @@ class REOSCORE_EXPORT ReosGriddedRainItem : public ReosRainfallDataItem
     virtual bool accept( ReosRainfallItem *, bool = false ) const override;
     bool canBeSubItem( const ReosRainfallItem *item, bool acceptSameName ) const override;
 
-    ReosEncodedElement encode() const {return ReosEncodedElement();}
+    ReosEncodedElement encode() const override;
 
   private:
     ReosGriddedRainfall *mGriddedRainfall = nullptr;
@@ -123,8 +130,8 @@ class ReosGriddedRainfallRendererFactory
 
     virtual ~ReosGriddedRainfallRendererFactory() = default;
     virtual ReosObjectRenderer *createRasterRenderer( ReosRendererSettings *settings ) = 0;
-
     virtual ReosColorShaderSettings *colorRampShaderSettings() const = 0;
+    virtual ReosEncodedElement encode() const = 0;
 
   protected:
     QPointer<ReosGriddedRainfall> mRainfall;

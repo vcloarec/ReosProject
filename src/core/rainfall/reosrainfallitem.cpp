@@ -356,6 +356,9 @@ ReosZoneItem::ReosZoneItem( const ReosEncodedElement &element ): ReosRainfallIte
 
     if ( childElem.description() == QStringLiteral( "station-item" ) )
       addItem( new ReosStationItem( childElem ) );
+
+    if ( childElem.description() == QStringLiteral( "gridded-rainfall-item" ) )
+      addItem( new ReosGriddedRainItem( childElem ) );
   }
 }
 

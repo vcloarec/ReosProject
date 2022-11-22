@@ -18,6 +18,8 @@
 #include <qgsmaplayerrenderer.h>
 #include <qgscolorrampimpl.h>
 
+#include "reosencodedelement.h"
+
 ReosRendererSettings_p::ReosRendererSettings_p( const void *settings )
 {
   const QgsMapSettings *mapSettings = static_cast<const QgsMapSettings *>( settings );
@@ -231,7 +233,33 @@ void ReosColorShaderSettings_p::setShader( void *shader )
   mColorShader = *static_cast<QgsColorRampShader *>( shader );
 }
 
-void ReosColorShaderSettings_p::setColorRampShader(const QgsColorRampShader &colorRampShader)
+void ReosColorShaderSettings_p::setColorRampShader( const QgsColorRampShader &colorRampShader )
 {
-    mColorShader = colorRampShader;
+  mColorShader = colorRampShader;
+}
+
+ReosEncodedElement ReosColorShaderSettings_p::encode() const
+{
+  ReosEncodedElement encodedElem( QStringLiteral( "color-shader-settings" ) );
+
+  QDomDocument doc( QStringLiteral( "color-ramp-shader" ) );
+  doc.appendChild( mColorShader.writeXml( doc ) ) ;
+  QString docString = doc.toString();
+  encodedElem.addData( QStringLiteral( "color-ramp-shader" ), docString );
+
+  return encodedElem;
+}
+
+void ReosColorShaderSettings_p::decode( ReosEncodedElement element )
+{
+  QString docString;
+  element.getData( QStringLiteral( "color-ramp-shader" ), docString );
+
+  QDomDocument doc( QStringLiteral( "color-ramp-shader" ) );
+
+  if ( doc.setContent( docString ) )
+  {
+    QDomElement domElem = doc.firstChildElement( QStringLiteral( "color-ramp-shader" ) );
+    mColorShader.readXml( domElem );
+  }
 }
