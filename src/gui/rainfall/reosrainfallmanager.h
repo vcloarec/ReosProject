@@ -93,6 +93,7 @@ class REOSGUI_EXPORT ReosRainfallManager : public ReosActionWidget
     QList<QAction *> mActionsAddSyntheticRainfall;
     QList<QAction *> mActionsAddGaugedRainfall;
     QList<QAction *> mActionsAddStations;
+    QList<QAction *> mActionsAddGriddedRainfall;
 
     QAction *mActionOpenRainfallDataFile = nullptr;
     QAction *mActionSaveRainfallDataFile = nullptr;
@@ -118,7 +119,7 @@ class REOSGUI_EXPORT ReosRainfallManager : public ReosActionWidget
     ReosDataProviderSelectorWidget *mCurrentProviderSelector = nullptr;
 
     ReosFormWidget *mCurrentForm = nullptr;
-    ReosPlotWidget *mCurrentPlot = nullptr;
+    QWidget *mCurrentPlot = nullptr;
 
     std::map<ReosStationItem *, std::unique_ptr<ReosStationMapMarker>> mStationsMarker;
     ReosMapItem *addMapItem( ReosRainfallItem *item );
@@ -136,11 +137,15 @@ class REOSGUI_EXPORT ReosRainfallManager : public ReosActionWidget
     void addStation( const QPointF &point = QPointF(), bool isSpattial = false );
 
     void populateProviderActions( QToolBar *toolBar );
-    void showProviderSelector( const QString &providerKey );
+
+    void showProviderSelector( const QString &providerKey, const QString &dataType );
     void addDataFromProvider( bool copy );
+
     void addRainfallFromProvider( ReosZoneItem *destination, const QVariantMap &meta, bool copy );
     void addRainfallFromProvider( ReosStationItem *stationItem, const QVariantMap &meta, bool copy );
     void addRainfallFromProvider( ReosStationItem *stationItem, const QString &rainfallName, bool copy );
+
+    void addGriddedRainFallFromProvider(ReosZoneItem *destination, bool copy );
 
     ReosFormWidget *createForm( ReosRainfallItem *item );
     void setupFormForStation( ReosFormWidget *form, ReosStationItem *stationItem );

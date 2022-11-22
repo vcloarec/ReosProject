@@ -29,6 +29,12 @@
 #include "reosdelftfewssettingswidget.h"
 #include "reosstyleregistery.h"
 
+
+REOSEXTERN ReosDataProviderGuiFactory *providerGuiFactory()
+{
+  return new ReosDelftFewsGuiFactory();
+}
+
 ReosDelftFewsWidget::ReosDelftFewsWidget( ReosMap *map, const QString &dataType, QWidget *parent )
   : ReosDataProviderSelectorWidget( parent )
   , ui( new Ui::ReosDelftFewsWidget )
@@ -131,8 +137,9 @@ QVariantMap ReosDelftFewsWidget::selectedMetadata() const
   const ReosDelftFewsStation  &station = mStationsModel->station( stationIndex );
 
   ret.insert( QStringLiteral( "provider-key" ), station.meta.value( ReosDelftFewsXMLProviderInterface::staticKey() ) );
+  ret.insert( QStringLiteral( "data-type" ), mDataType );
   ret.insert( QStringLiteral( "station" ), station.meta.value( QStringLiteral( "name" ) ) );
-  ret.insert( QStringLiteral( "station-descritpion" ), station.meta.value( QStringLiteral( "locationIdd" ) ) );
+  ret.insert( QStringLiteral( "station-description" ), station.meta.value( QStringLiteral( "locationIdd" ) ) );
   ret.insert( QStringLiteral( "x-coord" ), station.meta.value( QStringLiteral( "longitude" ) ) );
   ret.insert( QStringLiteral( "y-coord" ), station.meta.value( QStringLiteral( "latitude" ) ) );
   ret.insert( QStringLiteral( "crs" ), ReosGisEngine::wktEPSGCrs( 4326 ) );
@@ -206,6 +213,7 @@ void ReosDelftFewsWidget::onStationChanged()
       if ( mCurrentRainfall )
         mRainfallPlot->setTimeSerie( mCurrentRainfall, false );
     }
+
     if ( station.dataType() == mDataType )
     {
       emit dataSelectionChanged( true );
@@ -505,9 +513,4 @@ ReosDelftFewsStationMarker::ReosDelftFewsStationMarker( ReosMap *map, const QPoi
 QString ReosDelftFewsStation::dataType() const
 {
   return meta.value( QStringLiteral( "data-type" ) ).toString();
-}
-
-REOSEXTERN ReosDataProviderGuiFactory *providerGuiFactory()
-{
-  return new ReosDelftFewsGuiFactory();
 }

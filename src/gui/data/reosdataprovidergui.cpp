@@ -21,6 +21,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QLibrary>
+#include <QDebug>
 
 ReosDataProviderSelectorWidget *ReosDataProviderGuiFactory::createProviderSelectorWidget( ReosMap *, const QString &, QWidget * ) const
 {
@@ -169,6 +170,8 @@ void ReosDataProviderGuiRegistery::loadDynamicProvider()
         registerProviderGuiFactory( providerFactory );
       }
     }
+    else
+      qDebug() << library.errorString();
   }
 }
 

@@ -704,6 +704,8 @@ ReosMapStructureEnvelop_p::ReosMapStructureEnvelop_p( ReosMapStructureEnvelop_p 
   mStructure = nullptr;
 }
 
+ReosMapItem_p::ReosMapItem_p( QgsMapCanvas *canvas )
+  : QgsMapCanvasItem( canvas ) {}
 
 QString ReosMapItem_p::crs() const
 {

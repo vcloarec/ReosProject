@@ -66,9 +66,9 @@ void ReosGribGriddedRainfallProvider::setDataSource( const QString &dataSource )
   mIsValid = true;
 }
 
-QStringList ReosGribGriddedRainfallProvider::availableVariables( const QString &source, ReosModule::Message &message ) const
+ReosGriddedRainfallProvider::Details ReosGribGriddedRainfallProvider::details( const QString &source, ReosModule::Message &message ) const
 {
-  QStringList ret;
+  Details ret;
 
   if ( !sourceIsValid( source, message ) )
     return ret;
@@ -81,9 +81,10 @@ QStringList ReosGribGriddedRainfallProvider::availableVariables( const QString &
     QStringList filters;
     dir = QDir( source );
     filters << QStringLiteral( "*.grib2" );
+    filters << QStringLiteral( "*.grb2" );
     files = dir.entryList( filters, QDir::Files );
   }
-  else if ( fileInfo.isFile() && fileInfo.suffix() == QStringLiteral( "grib2" ) )
+  else if ( fileInfo.isFile() )
   {
     files << source;
     dir = fileInfo.dir();
@@ -92,8 +93,10 @@ QStringList ReosGribGriddedRainfallProvider::availableVariables( const QString &
   if ( files.isEmpty() )
   {
     message.type = ReosModule::Error;
-    message.text = tr( "No Grib2 source found." ).arg( source );
+    message.text = tr( "No Grib2 source found in \"%1\"." ).arg( source );
   }
+
+  bool hasExtent = false;
 
   for ( const QString &file : std::as_const( files ) )
   {
@@ -101,21 +104,38 @@ QStringList ReosGribGriddedRainfallProvider::availableVariables( const QString &
 
     int bandCount = dataset.bandCount();
 
+    if ( bandCount == 0 )
+    {
+      message.type = ReosModule::Error;
+      message.text = tr( "No data found in \"%1\"." ).arg( source );
+      return ret;
+    }
+
     for ( int i = 1; i <= bandCount; ++i )
     {
       QMap<QString, QString> metadata = dataset.bandMetadata( i );
-      const auto it = metadata.find( QStringLiteral( "GRIB_COMMENT" ) );
-      if ( it == metadata.constEnd() )
+      auto it = metadata.find( QStringLiteral( "GRIB_COMMENT" ) );
+      if ( it == metadata.end() )
         continue;
 
-      if ( ret.contains( it.value() ) )
+      if ( ret.availableVariables.contains( it.value() ) )
         continue;
-      ret.append( it.value() );
+
+      ret.availableVariables.append( it.value() );
+      if ( !hasExtent )
+        ret.extent = dataset.extent();
     }
   }
 
-  return ret;
+  if ( ret.availableVariables.isEmpty() )
+  {
+    message.type = ReosModule::Error;
+    message.text = tr( "No data found in \"%1\"." ).arg( source );
+  }
 
+  ret.files = files;
+
+  return ret;
 }
 
 bool ReosGribGriddedRainfallProvider::isValid() const

@@ -28,7 +28,7 @@ class ReosPolylinesStructure;
 class ReosMapItem_p: public QgsMapCanvasItem
 {
   public:
-    ReosMapItem_p( QgsMapCanvas *canvas ): QgsMapCanvasItem( canvas ) {}
+    ReosMapItem_p( QgsMapCanvas *canvas );
     virtual ReosMapItem_p *clone() = 0;
 
     virtual void setEditing( bool ) {}

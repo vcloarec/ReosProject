@@ -147,7 +147,7 @@ class REOSGUI_EXPORT ReosMapMarkerSvg : public ReosMapMarker
 };
 
 
-class ReosMapPolygon : public ReosMapItem
+class REOSGUI_EXPORT ReosMapPolygon : public ReosMapItem
 {
   public:
     //! Contructor

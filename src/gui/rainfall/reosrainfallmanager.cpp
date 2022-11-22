@@ -48,6 +48,7 @@
 #include "reosdataprovidergui.h"
 #include "reosguicontext.h"
 #include "reosstyleregistery.h"
+#include "reosgriddedrainitem.h"
 
 
 class ReosStationMapMarker: public ReosMapMarkerSvg
@@ -196,6 +197,7 @@ ReosRainfallManager::ReosRainfallManager( ReosMap *map, ReosRainfallModel *rainf
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormWidgetAlternatingBlockRainfalFactory );
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormWidgetDoubleTriangleRainfalFactory );
   ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormWidgetIntensityDurationCurveFactory );
+  ReosFormWidgetFactories::instance()->addDataWidgetFactory( new ReosFormWidgetGriddedRainfalFactory );
 }
 
 ReosRainfallManager::~ReosRainfallManager()
@@ -312,39 +314,59 @@ void ReosRainfallManager::populateProviderActions( QToolBar *toolBar )
   if ( !toolBar->actions().isEmpty() )
     toolBar->addSeparator();
 
-  const QString dataType = QStringLiteral( "rainfall" );
-
-  ReosDataProviderGuiRegistery *registery = ReosDataProviderGuiRegistery::instance();
-
-  const QStringList providers =
-    registery->providers( dataType, ReosDataProviderGuiFactory::GuiCapability::DataSelector );
-
-  for ( const QString &providerKey : providers )
   {
-    if ( registery->hasCapability( providerKey, ReosDataProviderGuiFactory::GuiCapability::StationIdentification ) )
-    {
-      QAction *actionAddStation = new QAction( registery->providerIcon( providerKey ), tr( "From %1" ).arg( registery->providerDisplayText( providerKey ) ) );
-      mActionsAddStations.append( actionAddStation );
+    // hyetograph data provider
+    const QString dataType = ReosSeriesRainfall::staticType();
+    ReosDataProviderGuiRegistery *registery = ReosDataProviderGuiRegistery::instance();
 
-      connect( actionAddStation, &QAction::triggered, this, [this, providerKey]
+    const QStringList providers =
+      registery->providers( dataType, ReosDataProviderGuiFactory::GuiCapability::DataSelector );
+
+    for ( const QString &providerKey : providers )
+    {
+      if ( registery->hasCapability( providerKey, ReosDataProviderGuiFactory::GuiCapability::StationIdentification ) )
       {
-        showProviderSelector( providerKey );
+        QAction *actionAddStation = new QAction( registery->providerIcon( providerKey ), tr( "From %1" ).arg( registery->providerDisplayText( providerKey ) ) );
+        mActionsAddStations.append( actionAddStation );
+
+        connect( actionAddStation, &QAction::triggered, this, [this, providerKey, dataType]
+        {
+          showProviderSelector( providerKey, dataType );
+        } );
+      }
+
+      QAction *actionAddRainfall = new QAction( registery->providerIcon( providerKey ), tr( "From %1" ).arg( registery->providerDisplayText( providerKey ) ) );
+      mActionsAddGaugedRainfall.append( actionAddRainfall );
+      connect( actionAddRainfall, &QAction::triggered, this, [this, providerKey, dataType]
+      {
+        showProviderSelector( providerKey, dataType );
       } );
     }
+  }
 
-    QAction *actionAddRainfall = new QAction( registery->providerIcon( providerKey ), tr( "From %1" ).arg( registery->providerDisplayText( providerKey ) ) );
-    mActionsAddGaugedRainfall.append( actionAddRainfall );
-    connect( actionAddRainfall, &QAction::triggered, this, [this, providerKey]
+  {
+    // gridded rainfall data provider
+    const QString dataType = ReosGriddedRainfall::staticType();
+    ReosDataProviderGuiRegistery *registery = ReosDataProviderGuiRegistery::instance();
+
+    const QStringList providers =
+      registery->providers( dataType, ReosDataProviderGuiFactory::GuiCapability::DataSelector );
+
+    for ( const QString &providerKey : providers )
     {
-      showProviderSelector( providerKey );
-    } );
+      QAction *actionAddGridded = new QAction( registery->providerIcon( providerKey ), tr( "From %1" ).arg( registery->providerDisplayText( providerKey ) ) );
+      mActionsAddGriddedRainfall.append( actionAddGridded );
+      connect( actionAddGridded, &QAction::triggered, this, [this, providerKey, dataType]
+      {
+        showProviderSelector( providerKey, dataType );
+      } );
 
+    }
   }
 }
 
-void ReosRainfallManager::showProviderSelector( const QString &providerKey )
+void ReosRainfallManager::showProviderSelector( const QString &providerKey, const QString &dataType )
 {
-  const QString dataType = ReosSeriesRainfall::staticType();
   ReosDataProviderGuiRegistery *registery = ReosDataProviderGuiRegistery::instance();
 
   if ( mCurrentProviderSelector )
@@ -396,9 +418,6 @@ void ReosRainfallManager::addDataFromProvider( bool copy )
     return;
 
   QVariantMap meta = mCurrentProviderSelector->selectedMetadata();
-
-  QString providerName = ReosDataProviderGuiRegistery::instance()->providerDisplayText( meta.value( QStringLiteral( "provider-key" ) ).toString() );
-
   QModelIndex index = ui->mTreeView->currentIndex();
   ReosRainfallItem *item = nullptr;
 
@@ -411,18 +430,27 @@ void ReosRainfallManager::addDataFromProvider( bool copy )
     return;
   }
 
-  switch ( item->type() )
+  const QString dataType = meta.value( "data-type" ).toString();
+  if ( dataType == ReosSeriesRainfall::staticType() )
   {
-      break;
-    case ReosRainfallItem::Zone:
-      addRainfallFromProvider( qobject_cast<ReosZoneItem *>( item ), meta, copy );
-      break;
-    case ReosRainfallItem::Station:
-      addRainfallFromProvider( qobject_cast<ReosStationItem *>( item ), meta, copy );
-      break;
-    case ReosRainfallItem::Data:
-    case ReosRainfallItem::Root:
-      break;
+    switch ( item->type() )
+    {
+        break;
+      case ReosRainfallItem::Zone:
+        addRainfallFromProvider( qobject_cast<ReosZoneItem *>( item ), meta, copy );
+        break;
+      case ReosRainfallItem::Station:
+        addRainfallFromProvider( qobject_cast<ReosStationItem *>( item ), meta, copy );
+        break;
+      case ReosRainfallItem::Data:
+      case ReosRainfallItem::Root:
+        break;
+    }
+  }
+  else if ( dataType == ReosGriddedRainfall::staticType() )
+  {
+    ReosZoneItem *destination = qobject_cast<ReosZoneItem *>( item );
+    addGriddedRainFallFromProvider( destination, copy );
   }
 
   backToMainIndex();
@@ -431,7 +459,7 @@ void ReosRainfallManager::addDataFromProvider( bool copy )
 void ReosRainfallManager::addRainfallFromProvider( ReosZoneItem *destination, const QVariantMap &meta, bool copy )
 {
   QString stationName = meta.value( QStringLiteral( "station" ) ).toString();
-  QString stationDescription = meta.value( QStringLiteral( "station-descritpion" ) ).toString();
+  QString stationDescription = meta.value( QStringLiteral( "station-description" ) ).toString();
   QString providerName = ReosDataProviderGuiRegistery::instance()->providerDisplayText( meta.value( QStringLiteral( "provider-key" ) ).toString() );
 
   for ( int i = 0; i < destination->childrenCount(); ++i )
@@ -512,7 +540,7 @@ void ReosRainfallManager::addRainfallFromProvider( ReosStationItem *stationItem,
   if ( !mCurrentProviderSelector )
     return;
 
-  QString descritpion;
+  QString description;
 
   if ( stationItem->hasChildItemName( rainfallName ) )
   {
@@ -526,7 +554,7 @@ void ReosRainfallManager::addRainfallFromProvider( ReosStationItem *stationItem,
         QString otherName = rainfallName;
         otherName.append( '_' + tr( "copy" ) );
 
-        if ( !addSimpleItemDialog( tr( "Add a Rainfall" ), tr( "Rainfall name" ), otherName, descritpion ) )
+        if ( !addSimpleItemDialog( tr( "Add a Rainfall" ), tr( "Rainfall name" ), otherName, description ) )
           return;
         addRainfallFromProvider( stationItem, otherName, copy );
         return;
@@ -554,9 +582,38 @@ void ReosRainfallManager::addRainfallFromProvider( ReosStationItem *stationItem,
   }
 
   selectItem( mModel->addGaugedRainfall( rainfallName,
-                                         descritpion,
+                                         description,
                                          mModel->itemToIndex( stationItem ),
                                          newRainfall.release() ) );
+}
+
+void ReosRainfallManager::addGriddedRainFallFromProvider( ReosZoneItem *destination, bool copy )
+{
+  std::unique_ptr<ReosGriddedRainfall> newGriddedRainfall;
+
+  if ( copy )
+  {
+    ReosGriddedRainfall *providerRainfall = qobject_cast<ReosGriddedRainfall *>( mCurrentProviderSelector->selectedData() );
+    if ( providerRainfall )
+    {
+      newGriddedRainfall = std::make_unique<ReosGriddedRainfall>();
+      newGriddedRainfall->copyFrom( providerRainfall );
+      newGriddedRainfall->setName( providerRainfall->name() );
+    }
+  }
+  else
+  {
+    newGriddedRainfall.reset( qobject_cast<ReosGriddedRainfall *>( mCurrentProviderSelector->createData() ) ) ;
+  }
+
+  if ( newGriddedRainfall )
+  {
+    const QString name = newGriddedRainfall->name();
+    selectItem( mModel->addGriddedRainfall( name,
+                                            QString(),
+                                            mModel->itemToIndex( destination ),
+                                            newGriddedRainfall.release() ) );
+  }
 }
 
 void ReosRainfallManager::onSaveAsRainfallFile()
@@ -898,12 +955,12 @@ void ReosRainfallManager::onAddIDCurve()
     ReosParameterDuration returnPeriod( tr( "Return period" ) );
     returnPeriod.setValue( ReosDuration( 10, ReosDuration::year ) );
     dial->addParameter( &returnPeriod );
-    ReosParameterString descritpion( tr( "Descriprition" ) );
-    dial->addParameter( &descritpion );
+    ReosParameterString description( tr( "Description" ) );
+    dial->addParameter( &description );
     dial->setWindowTitle( tr( "Add new Intensity Duration Curve" ) );
 
     if ( dial->exec() )
-      selectItem( mModel->addIDCurve( returnPeriod.value(), descritpion.value(), index ) );
+      selectItem( mModel->addIDCurve( returnPeriod.value(), description.value(), index ) );
   }
 }
 
@@ -985,24 +1042,46 @@ void ReosRainfallManager::onCurrentTreeIndexChanged()
       ui->mEditorWidget->layout()->addWidget( mCurrentForm );
     }
 
-    // Then the plot to visualize the data
-    if ( item->data() && ReosPlotItemFactories::isInstantiate() )
+    // Then, the widget to visualize the data
+    if ( item->data() )
     {
-      ReosPlotWidget *newPlot = new ReosPlotWidget( this );
-      ReosPlotItemFactories::instance()->buildPlotItemsAndSetup( newPlot, item->data() );
-      newPlot->setSettingsContext( item->data()->type() );
-      if ( mCurrentPlot )
+      const QString dataType = item->data()->type();
+      QWidget *dataVizWidget = nullptr;
+      if ( dataType == ReosGriddedRainfall::staticType() )
       {
-        ui->mPlotWidget->layout()->replaceWidget( mCurrentPlot, newPlot );
-        delete mCurrentPlot;
-        mCurrentPlot = newPlot;
+        ReosGriddedRainItem *griddedRainItem = qobject_cast<ReosGriddedRainItem *>( item );
+        if ( griddedRainItem )
+        {
+          ReosGriddedRainfall *griddedRainfall = griddedRainItem->data();
+          ReosDataVizMapWidget *griddedRainWidget = new ReosDataVizMapWidget( this );
+          griddedRainWidget->addRenderedDataObject( griddedRainfall );
+          griddedRainWidget->setExtent( griddedRainfall->extent() );
+          griddedRainWidget->setTimeExtent( griddedRainfall->timeExtent().first, griddedRainfall->timeExtent().second );
+          griddedRainWidget->setTimeStep( griddedRainfall->minimumTimeStep() );
+          dataVizWidget = griddedRainWidget;
+        }
       }
       else
       {
-        mCurrentPlot = newPlot;
-        ui->mPlotWidget->layout()->addWidget( mCurrentPlot );
+        ReosPlotWidget *newPlot = new ReosPlotWidget( this );
+        ReosPlotItemFactories::instance()->buildPlotItemsAndSetup( newPlot, item->data() );
+        newPlot->setSettingsContext( item->data()->type() );
+
+        dataVizWidget = newPlot;
       }
+
+      if ( mCurrentPlot )
+      {
+        ui->mPlotWidget->layout()->replaceWidget( mCurrentPlot, dataVizWidget );
+        delete mCurrentPlot;
+      }
+      else
+      {
+        ui->mPlotWidget->layout()->addWidget( dataVizWidget );
+      }
+      mCurrentPlot = dataVizWidget;
     }
+
     else
     {
       if ( mCurrentPlot )
@@ -1043,12 +1122,21 @@ void ReosRainfallManager::onTreeViewContextMenu( const QPoint &pos )
     {
       switch ( item->type() )
       {
+        case ReosRainfallItem::Root:
+          break;
         case ReosRainfallItem::Zone:
         {
           menu.addAction( mActionAddZoneToZone );
           QMenu *addStationMenu = menu.addMenu( QIcon( QStringLiteral( ":/images/addStation.svg" ) ), tr( "Add station…" ) );
           for ( QAction *act : std::as_const( mActionsAddStations ) )
             addStationMenu->addAction( act );
+          menu.addSeparator();
+
+          QMenu *griddedMenu = menu.addMenu( QIcon( QStringLiteral( ":/images/addGriddedRainfall.svg" ) ), tr( "Add gridded precipitation…" ) );
+          griddedMenu->setEnabled( !mActionsAddGriddedRainfall.isEmpty() );
+          for ( QAction *act : std::as_const( mActionsAddGriddedRainfall ) )
+            griddedMenu->addAction( act );
+          menu.addSeparator();
         }
         break;
         case ReosRainfallItem::Data:

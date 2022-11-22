@@ -72,6 +72,7 @@ class ReosDelftFewsXMLRainfallProvider: public ReosTimeSerieConstantTimeStepProv
     ReosDuration timeStep() const override;
 
     static QString dataType();
+    static QString oldDataType();
 
   private:
     QDateTime mReferenceTime;

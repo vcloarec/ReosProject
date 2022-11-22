@@ -88,6 +88,11 @@ ReosMeshScalarRenderingWidget::~ReosMeshScalarRenderingWidget()
   delete ui;
 }
 
+void ReosMeshScalarRenderingWidget::hideBackButton()
+{
+  ui->mBackButton->setVisible( false );
+}
+
 void ReosMeshScalarRenderingWidget::onMinMaxChanged()
 {
   mColorRampShaderWidget->setMinimumMaximumAndClassify( mMinimumParam->value(), mMaximumParam->value() );
@@ -136,7 +141,7 @@ void ReosMeshScalarRenderingWidget::updateSettings()
   if ( !mSettings.isNull() )
   {
     mSettings->setClassificationMinimum( mMinimumParam->value() );
-    mSettings->setClassificationMaximum( mMinimumParam->value() );
+    mSettings->setClassificationMaximum( mMaximumParam->value() );
     mSettings->setOpacity( ui->mOpacitySpinBox->value() / 100.0 );
     QgsColorRampShader shader = mColorRampShaderWidget->shader();
     mSettings->setShader( &shader );

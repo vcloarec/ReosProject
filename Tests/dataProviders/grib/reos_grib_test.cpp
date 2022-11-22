@@ -30,23 +30,22 @@ class ReosGribTest: public QObject
     void griddedRainInFile();
 };
 
-
 void ReosGribTest::createProvider()
 {
   QString gribFile( testFile( QStringLiteral( "grib/arome-antilles" ) ) );
   std::unique_ptr<ReosGriddedRainfallProvider> provider( new ReosGribGriddedRainfallProvider );
 
   ReosModule::Message message;
-  QStringList avaiblableVariable = provider->availableVariables( "lkhkjh", message );
+  ReosGriddedRainfallProvider::Details details = provider->details( "lkhkjh", message );
   QVERIFY( message.type == ReosModule::Error );
 
   message = ReosModule::Message();
-  avaiblableVariable = provider->availableVariables( gribFile, message );
+  details = provider->details( gribFile, message );
   QVERIFY( message.type == ReosModule::Simple );
-  QCOMPARE( avaiblableVariable.count(), 15 );
+  QCOMPARE( details.availableVariables.count(), 15 );
 
   QString variable = QStringLiteral( "Total precipitation rate [kg/(m^2*s)]" );
-  QVERIFY( avaiblableVariable.contains( variable ) );
+  QVERIFY( details.availableVariables.contains( variable ) );
 
   provider->setDataSource(
     ReosGribGriddedRainfallProvider::uri( gribFile, variable, ReosGriddedRainfallProvider::ValueType::CumulativeHeight ) );
@@ -83,9 +82,9 @@ void ReosGribTest::griddedRainInFolder()
   QCOMPARE( rainfall->startTime( 2 ), QDateTime( QDate( 2022, 11, 12 ), QTime( 14, 0, 0 ), Qt::UTC ) );
   QCOMPARE( rainfall->endTime( 2 ), QDateTime( QDate( 2022, 11, 12 ), QTime( 15, 0, 0 ), Qt::UTC ) );
 
-  rainfall->data( 0 );
-  rainfall->data( 1 );
-  rainfall->data( 2 );
+  rainfall->intensityValues( 0 );
+  rainfall->intensityValues( 1 );
+  rainfall->intensityValues( 2 );
 }
 
 void ReosGribTest::griddedRainInFile()
@@ -107,9 +106,9 @@ void ReosGribTest::griddedRainInFile()
   QCOMPARE( rainfall->startTime( 2 ), QDateTime( QDate( 2022, 11, 16 ), QTime( 14, 0, 0 ), Qt::UTC ) );
   QCOMPARE( rainfall->endTime( 2 ), QDateTime( QDate( 2022, 11, 16 ), QTime( 15, 0, 0 ), Qt::UTC ) );
 
-  rainfall->data( 0 );
-  rainfall->data( 1 );
-  rainfall->data( 2 );
+  rainfall->intensityValues( 0 );
+  rainfall->intensityValues( 1 );
+  rainfall->intensityValues( 2 );
 }
 
 QTEST_MAIN( ReosGribTest )

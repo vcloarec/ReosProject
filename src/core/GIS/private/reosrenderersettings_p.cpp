@@ -16,6 +16,7 @@
 #include "reosrenderersettings_p.h"
 
 #include <qgsmaplayerrenderer.h>
+#include <qgscolorrampimpl.h>
 
 ReosRendererSettings_p::ReosRendererSettings_p( const void *settings )
 {
@@ -205,8 +206,32 @@ void ReosQgisLayerRenderer_p::stopRendering()
   mRenderContext.setRenderingStopped( true );
 }
 
-
-ReosColorShaderSettings_p::ReosColorShaderSettings_p()
+QLinearGradient ReosColorShaderSettings_p::gradient() const
 {
+  QgsColorRamp *colorRamp = mColorShader.sourceColorRamp();
 
+  QLinearGradient gradient;
+  if ( colorRamp &&
+       ( colorRamp->type() == QgsGradientColorRamp::typeString() || colorRamp->type() == QgsCptCityColorRamp::typeString() ) )
+  {
+    //color ramp gradient
+    QgsGradientColorRamp *gradRamp = static_cast<QgsGradientColorRamp *>( colorRamp );
+    gradRamp->addStopsToGradient( &gradient, 1 );
+  }
+  return gradient;
+}
+
+void ReosColorShaderSettings_p::getShader( void *shader ) const
+{
+  *static_cast<QgsColorRampShader *>( shader ) = mColorShader;
+}
+
+void ReosColorShaderSettings_p::setShader( void *shader )
+{
+  mColorShader = *static_cast<QgsColorRampShader *>( shader );
+}
+
+void ReosColorShaderSettings_p::setColorRampShader(const QgsColorRampShader &colorRampShader)
+{
+    mColorShader = colorRampShader;
 }

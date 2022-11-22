@@ -34,6 +34,7 @@ email                : vcloarec at gmail dot com
 #include "reostemporalcontroller_p.h"
 #include "reosrenderersettings.h"
 #include "reosmesh.h"
+#include "reosmaplegenditem.h"
 
 
 class ReosRendererObjectHandler_p
@@ -431,7 +432,6 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   connect( canvas, &QgsMapCanvas::renderComplete, this, &ReosMap::drawExtraRendering );
 
   mExtraRenderedObjectHandler.init();
-
 }
 
 ReosMap::~ReosMap()
@@ -568,6 +568,17 @@ void ReosMap::addExtraRenderedObject( ReosRenderedObject *obj )
   {
     mapCanvas->refresh();
     connect( obj, &ReosRenderedObject::repaintRequested, this, &ReosMap::onExtraObjectRequestRepaint );
+
+    const QList<ReosColorShaderSettings *> colorRampSettings = obj->colorShaderSettings();
+    for ( ReosColorShaderSettings *settings : colorRampSettings )
+    {
+      std::unique_ptr<ReosColorRampMapLegendItem> legend( new ReosColorRampMapLegendItem( settings ) );
+      mCanvas->scene()->addItem( legend.get() );
+      legend->setHorizontalDistanceFromCanvasBorder( 3 );
+      legend->setVerticalDistanceFromCanvasBorder( 3 );
+      legend->setZValue( std::numeric_limits<double>::max() );
+      mColorRampLegendSettings.insert( settings, legend.release() );
+    }
   }
 }
 
@@ -580,6 +591,15 @@ void ReosMap::removeExtraRenderedObject( ReosRenderedObject *obj )
   {
     mapCanvas->refresh();
     disconnect( obj, &ReosRenderedObject::repaintRequested, this, &ReosMap::onExtraObjectRequestRepaint );
+
+    const QList<ReosColorShaderSettings *> colorRampSettings = obj->colorShaderSettings();
+    for ( ReosColorShaderSettings *settings : colorRampSettings )
+    {
+
+      ReosColorRampMapLegendItem *legendItem = mColorRampLegendSettings.value( settings, nullptr );
+      if ( legendItem )
+        delete legendItem;
+    }
   }
 }
 
@@ -714,9 +734,7 @@ void ReosMapCursorPosition::setPosition( const  QPointF &p )
 void ReosMapCursorPosition::setCrs( const QString &crs )
 {
   QgsCoordinateReferenceSystem qgsCrs = QgsCoordinateReferenceSystem::fromWkt( crs );
-  QString str = qgsCrs.authid();
   mCrs->setText( qgsCrs.authid() );
-
 }
 
 void ReosRendererObjectHandler::init()
@@ -724,4 +742,51 @@ void ReosRendererObjectHandler::init()
   QObject::connect( d->mCanvas, &QgsMapCanvas::extentsChanged, this, &ReosRendererObjectHandler::updateViewParameter );
   connect( d->mCanvas->temporalController(), &QgsTemporalController::updateTemporalRange,
            this, &ReosRendererObjectHandler::updateViewParameter );
+}
+
+ReosDataVizMapWidget::ReosDataVizMapWidget( QWidget *parent )
+  : QWidget( parent )
+  , mMap( new ReosMap( nullptr, this ) )
+{
+  QVBoxLayout *lay = new QVBoxLayout( this );
+  setLayout( lay );
+  lay->addWidget( mMap->mapCanvas() );
+  lay->addWidget( mMap->temporalControllerDockWidget() );
+  mMap->activateOpenStreetMap();
+  lay->setStretch( 1, 0 );
+  mMap->temporalControllerDockWidget()->setFeatures( QDockWidget::NoDockWidgetFeatures );
+}
+
+void ReosDataVizMapWidget::addRenderedDataObject( ReosRenderedObject *object )
+{
+  if ( !object )
+    return;
+  mMap->addExtraRenderedObject( object );
+}
+
+void ReosDataVizMapWidget::removeRenderedObject( ReosRenderedObject *object )
+{
+  if ( !object )
+    return;
+  mMap->removeExtraRenderedObject( object );
+}
+
+void ReosDataVizMapWidget::setTimeExtent( const QDateTime &startTime, const QDateTime &endTime )
+{
+  mMap->setTemporalRange( startTime, endTime );
+}
+
+void ReosDataVizMapWidget::setTimeStep( const ReosDuration &timeStep )
+{
+  mMap->setTimeStep( timeStep );
+}
+
+void ReosDataVizMapWidget::setExtent( const ReosMapExtent &extent )
+{
+  mMap->setExtent( extent );
+}
+
+ReosMap *ReosDataVizMapWidget::map()
+{
+  return mMap;
 }

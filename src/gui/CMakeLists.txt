@@ -28,6 +28,7 @@ SET(REOS_GUI_SOURCES
     GIS/reosmeshvectorrenderingwidget.cpp
     GIS/reosmaptooleditmeshframe.cpp
     GIS/reostemporalcontrollerwidget.cpp
+    GIS/reosmaplegenditem.cpp
     GIS/3D/reos3dview.cpp
     GIS/3D/reoslightwidget.cpp
     GIS/3D/reosverticalexaggerationwidget.cpp
@@ -134,6 +135,7 @@ SET(REOS_GUI_HEADERS
     GIS/reosmeshvectorrenderingwidget.h
     GIS/reosmaptooleditmeshframe.h
     GIS/reostemporalcontrollerwidget.h
+    GIS/reosmaplegenditem.h
     GIS/3D/reos3dview.h
     GIS/3D/reoslightwidget.h
     GIS/3D/reosverticalexaggerationwidget.h

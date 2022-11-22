@@ -3,10 +3,12 @@
 
 SET(REOS_GRIB_SOURCES
     reosgribprovider.cpp
+    reosgribprecipitationwidget.cpp
 )
 
 SET(REOS_GRIB_HEADERS
     reosgribprovider.h
+    reosgribprecipitationwidget.h
 )
 
 

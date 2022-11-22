@@ -28,6 +28,7 @@ SET(REOS_CORE_SOURCES
   GIS/reosrenderedobject.cpp
   GIS/reos3dmapsettings.cpp
   GIS/reosgdalutils.cpp
+  GIS/reosrenderersettings.cpp
   GIS/private/reosdigitalelevationmodel_p.cpp
   GIS/private/reospolygonstructure_p.cpp
   GIS/private/reospolylinesstructure_p.cpp
@@ -35,6 +36,8 @@ SET(REOS_CORE_SOURCES
   GIS/private/reosmeshdataprovider_p.cpp
   GIS/private/reostopographycollection_p.cpp
   GIS/private/reosrenderersettings_p.cpp
+  GIS/private/reosgriddedrainfallrenderer_p.cpp
+
 
   process/reosprocess.cpp
 
@@ -117,6 +120,7 @@ SET(REOS_CORE_HEADERS
     GIS/reostopographycollection.h
     GIS/reosrenderedobject.h
     GIS/reos3dmapsettings.h
+    GIS/reosrenderersettings.h
     GIS/reosgdalutils.h
 
     process/reosprocess.h
@@ -183,6 +187,7 @@ SET(REOS_CORE_HEADERS_PRIVATE
     GIS/private/reosmeshdataprovider_p.h
     GIS/private/reostopographycollection_p.h
     GIS/private/reosrenderersettings_p.h
+    GIS/private/reosgriddedrainfallrenderer_p.h
     )
 
 SET(IMAGE_RCCS ${CMAKE_SOURCE_DIR}/images/images.qrc

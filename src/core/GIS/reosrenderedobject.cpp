@@ -75,4 +75,3 @@ std::unique_ptr<ReosRendererSettings> ReosRenderedObject::createRenderSettings( 
 {
   return std::unique_ptr<ReosRendererSettings>( new ReosRendererSettings_p( settings ) );
 }
-

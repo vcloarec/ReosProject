@@ -21,7 +21,7 @@
 
 #include "reosmemoryraster.h"
 
-class ReosGdalDataset
+class REOSCORE_EXPORT ReosGdalDataset
 {
   public:
     ReosGdalDataset( const QString &fileName, bool readOnly = true );

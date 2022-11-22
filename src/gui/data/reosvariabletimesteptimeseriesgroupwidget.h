@@ -44,7 +44,7 @@ class ReosVariableTimeStepTimeSeriesGroupWidget: public ReosStackedPageWidget
 
     void setTimeSeriesGroup( ReosTimeSeriesVariableTimeStepGroup *group );
 
-    virtual void showBackButton();
+    void showBackButton() override;
 
   private slots:
     void onAddSeries();

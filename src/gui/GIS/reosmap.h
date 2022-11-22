@@ -39,6 +39,8 @@ class ReosObjectRenderer;
 class ReosDuration;
 class ReosTemporalController_p;
 class ReosRendererObjectMapTimeStamp;
+class ReosColorRampMapLegendItem;
+class ReosColorShaderSettings;
 
 
 class ReosRendererObjectHandler_p;
@@ -159,6 +161,9 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
 
     ReosRendererObjectHandler mExtraRenderedObjectHandler;
     QList<ReosRenderedObject *> mExtraRenderedObjects;
+    QHash<ReosColorShaderSettings *, ReosColorRampMapLegendItem *> mColorRampLegendSettings;
+
+    ReosColorRampMapLegendItem *mLegendItem;
 };
 
 
@@ -176,6 +181,24 @@ class REOSGUI_EXPORT ReosMapCursorPosition : public QWidget
   private:
     QLabel *mCoordinates;
     QLabel *mCrs;
+};
+
+class REOSGUI_EXPORT ReosDataVizMapWidget : public QWidget
+{
+  public:
+    ReosDataVizMapWidget( QWidget *parent = nullptr );
+
+    void addRenderedDataObject( ReosRenderedObject *object );
+    void removeRenderedObject( ReosRenderedObject *object );
+
+    void setTimeExtent( const QDateTime &startTime, const QDateTime &endTime );
+    void setTimeStep( const ReosDuration &timeStep );
+    void setExtent( const ReosMapExtent &extent );
+
+    ReosMap *map();
+
+  private:
+    ReosMap *mMap = nullptr;
 };
 
 

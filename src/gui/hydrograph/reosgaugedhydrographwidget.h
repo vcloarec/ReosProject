@@ -50,7 +50,7 @@ class ReosGaugedHydrographWidget : public ReosStackedPageWidget
 
     void setHydrographStore( ReosHydrographsStore *store );
 
-    virtual void showBackButton();
+    void showBackButton() override;
 
   private slots:
     void onAddHydrograph();
