@@ -24,6 +24,7 @@
 
 #include "reosparameter.h"
 #include "reosrainfallitem.h"
+#include "reosgriddedrainitem.h"
 #include "reosversion.h"
 
 #define FILE_MAGIC_NUMBER  1909201401
@@ -356,6 +357,21 @@ ReosRainfallIntensityDurationCurveItem *ReosRainfallModel::addIDCurve( const Reo
     return nullptr;
 
   return static_cast<ReosRainfallIntensityDurationCurveItem *>( idfItem->itemAt( idfItem->placeIdCurveItem( newID.release() ) ) );
+}
+
+ReosGriddedRainItem *ReosRainfallModel::addGriddedRainfall( const QString &name, const QString &description, const QModelIndex &index, ReosGriddedRainfall *data )
+{
+  std::unique_ptr<ReosGriddedRainfall> griddedRainfall( data );
+  ReosRainfallItem *receiver = indexToItem( index );
+  if ( receiver == nullptr )
+    return nullptr;
+
+  std::unique_ptr<ReosGriddedRainItem> item( new ReosGriddedRainItem( name, description, griddedRainfall.release() ) );
+
+  if ( !receiver->accept( item.get() ) )
+    return nullptr;
+
+  return qobject_cast<ReosGriddedRainItem *>( addItem( receiver, item.release() ) );
 }
 
 void ReosRainfallModel::removeItem( ReosRainfallItem *item )

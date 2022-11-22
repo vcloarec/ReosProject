@@ -32,13 +32,16 @@ class ReosGribGriddedRainfallProvider : public ReosGriddedRainfallProvider
 
     QString key() const override {return staticKey();}
     void setDataSource( const QString &dataSource ) override;
-    QStringList availableVariables( const QString &, ReosModule::Message &message ) const override;
+    Details details( const QString &, ReosModule::Message & ) const override;
     bool isValid() const override;
     int count() const override;
+
     QDateTime startTime( int index ) const override;
     QDateTime endTime( int index ) const override;
-    const QVector<double> data( int index ) const override;
+
     ReosRasterExtent extent() const override;
+
+    const QVector<double> data( int index ) const override;
 
     static QString dataType();
 
@@ -50,22 +53,17 @@ class ReosGribGriddedRainfallProvider : public ReosGriddedRainfallProvider
     static QString variableFromUri( const QString &uri );
     static ValueType valueTypeFromUri( const QString &uri );
 
+    bool sourceIsValid( const QString &source, ReosModule::Message &message ) const;
+
   private:
     struct GribFrame
     {
       QString file;
-      int bandNo;
+      int bandNo = 0;
       qint64 validTime;
     };
-
     QList<GribFrame> mFrames;
     ReosRasterExtent mExtent;
-
-    QString mCrs;
-    QPointF mBottomLeftPosition;
-    int mXSize = 0;
-    int mYsize = 0;
-
     qint64 mReferenceTime = -1;
 
     bool mIsValid = false;

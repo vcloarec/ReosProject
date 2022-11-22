@@ -17,17 +17,24 @@
 #define REOSGRIDDEDRAINITEM_H
 
 #include "reosrainfallitem.h"
+#include "reosrenderedobject.h"
 
 class ReosRasterExtent;
 class ReosGriddedRainfallProvider;
+class ReosGriddedRainfallRendererFactory;
+class ReosColorShaderSettings;
 
-class ReosGriddedRainfall : public ReosDataObject
+class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
 {
+    Q_OBJECT
   public:
+    ReosGriddedRainfall( QObject *parent = nullptr );
     ReosGriddedRainfall( const QString &dataSource, const QString &providerKey, QObject *parent = nullptr );
     ~ReosGriddedRainfall();
 
     QString type() const override;
+    ReosObjectRenderer *createRenderer( ReosRendererSettings *settings ) override;
+    ReosRendererObjectMapTimeStamp *createMapTimeStamp( ReosRendererSettings *settings ) const override;
 
     static QString staticType();
 
@@ -40,11 +47,19 @@ class ReosGriddedRainfall : public ReosDataObject
     //! Returns the end time related to the grif with \a index
     const QDateTime endTime( int index ) const;
 
+    //! Returns the time extent of the gridded rainfall
+    virtual QPair<QDateTime, QDateTime> timeExtent() const;
+
+    ReosDuration minimumTimeStep() const;
+
     /**
      * Returns all the values related to \a index, order of values can be deduced from the sign of sizes dx,dy)
      *  of the cell contained in the raster extent (see extent()
      */
-    const QVector<double> data( int index ) const;
+    const QVector<double> intensityValues( int index ) const;
+
+    //! Returns the index corresponding to \a time
+    int dataIndex( const QDateTime &time ) const;
 
     //! Returns the raster extent of all the grids
     ReosRasterExtent extent() const;
@@ -58,22 +73,62 @@ class ReosGriddedRainfall : public ReosDataObject
     //! Transform the gridded rain to fit with extent \a destination with resolution \a resolX and \a resolY
     ReosGriddedRainfall *transform( const ReosMapExtent &destination, double resolX, double resolY, QObject *parent = nullptr ) const;
 
-  private:
-    ReosGriddedRainfall( QObject *parent = nullptr );
-    std::unique_ptr<ReosGriddedRainfallProvider> mProvider;
-    QString mOverridenCrs;
-};
+    void copyFrom( ReosGriddedRainfall *other );
 
-class ReosGriddedRainItem : public ReosRainfallItem
-{
-  public:
-    ReosGriddedRainItem( const QString &name, const QString &description )
-      : ReosRainfallItem( name, description, ReosRainfallItem::GriddedData )
+    ReosColorShaderSettings *colorSetting() const;
+
+    QList<ReosColorShaderSettings *> colorShaderSettings() const override;
+
+    void getMinMaxValue( double &min, double &max ) const
     {
-
+      min = 0;
+      max = 20;
     }
 
-    ReosEncodedElement encode() const {return ReosEncodedElement();}
+  private:
+    std::unique_ptr<ReosGriddedRainfallProvider> mProvider;
+    QString mOverridenCrs;
+
+    std::unique_ptr<ReosGriddedRainfallRendererFactory> mRendererFactory;
 };
+
+class REOSCORE_EXPORT ReosGriddedRainItem : public ReosRainfallDataItem
+{
+    Q_OBJECT
+  public:
+    ReosGriddedRainItem( const QString &name, const QString &description,  ReosGriddedRainfall *data );
+
+    QString dataType() const override {return ReosGriddedRainfall::staticType();}
+
+    ReosGriddedRainfall *data() const override;
+
+    QIcon icone() const override;
+    virtual bool accept( ReosRainfallItem *, bool = false ) const override;
+    bool canBeSubItem( const ReosRainfallItem *item, bool acceptSameName ) const override;
+
+    ReosEncodedElement encode() const {return ReosEncodedElement();}
+
+  private:
+    ReosGriddedRainfall *mGriddedRainfall = nullptr;
+
+};
+
+
+class ReosGriddedRainfallRendererFactory
+{
+  public:
+    ReosGriddedRainfallRendererFactory( ReosGriddedRainfall *rainfall )
+      : mRainfall( rainfall )
+    {}
+
+    virtual ~ReosGriddedRainfallRendererFactory() = default;
+    virtual ReosObjectRenderer *createRasterRenderer( ReosRendererSettings *settings ) = 0;
+
+    virtual ReosColorShaderSettings *colorRampShaderSettings() const = 0;
+
+  protected:
+    QPointer<ReosGriddedRainfall> mRainfall;
+};
+
 
 #endif // REOSGRIDDEDRAINITEM_H

@@ -19,6 +19,7 @@
 #include <qgsmapsettings.h>
 #include <qgsrasterlayer.h>
 
+#include "reosrenderersettings.h"
 #include "reosrenderedobject.h"
 
 class ReosRendererSettings_p : public ReosRendererSettings
@@ -33,6 +34,7 @@ class ReosRendererSettings_p : public ReosRendererSettings
   private:
     QgsMapSettings mSettings;
 };
+
 
 class ReosQgisLayerRenderer_p : public ReosObjectRenderer
 {
@@ -60,6 +62,20 @@ class ReosRasterRenderer_p: public ReosObjectRenderer
 
   protected:
     void stopRendering() override;
+};
+
+class ReosColorShaderSettings_p : public ReosColorShaderSettings
+{
+  public:
+    QLinearGradient gradient() const override;
+
+    void getShader( void *shader ) const override;
+    void setShader( void *shader ) override;
+
+    void setColorRampShader( const QgsColorRampShader &colorRampShader );
+
+  protected:
+    QgsColorRampShader mColorShader;
 };
 
 #endif // REOSRENDERERSETTINGS_P_H

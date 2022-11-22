@@ -78,10 +78,11 @@ QColor ReosStyleRegistery::fillColor( int &index, int alpha ) const
 
 QSize ReosStyleRegistery::toolBarIconSize( QWidget *widget, double ratio ) const
 {
-  if ( !widget || !widget->screen() )
     return QSize();
+  //if ( !widget || !widget->screen() )
+  //  return QSize();
 
-  int dpiRatio = int( ratio * widget->screen()->physicalDotsPerInch() / 96 + 0.5 );
+  //int dpiRatio = int( ratio * widget->screen()->physicalDotsPerInch() / 96 + 0.5 );
 
-  return QSize( 24 * dpiRatio, 24 * dpiRatio );
+  //return QSize( 24 * dpiRatio, 24 * dpiRatio );
 }

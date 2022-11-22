@@ -53,7 +53,7 @@ class REOSGUI_EXPORT ReosDataProviderSelectorWidget : public QWidget
      * crs: wkt coordinate system
      * descritpion: a short text desciption of the data
      * start: start date/time of data if temporal
-     * end:: end date/time of data if temporal
+     * end: end date/time of data if temporal
      */
     virtual QVariantMap selectedMetadata() const;
 
@@ -81,7 +81,7 @@ class REOSGUI_EXPORT ReosDataProviderGuiFactory
     enum class GuiCapability
     {
       DataSelector = 1 << 0, //!< If the provider have a gui data selector
-      ProviderSettings = 1 << 1, //!< If the providr have a settings widget
+      ProviderSettings = 1 << 1, //!< If the provider have a settings widget
       StationIdentification = 1 << 2, //! If the provider can identify station
     };
 
@@ -89,12 +89,14 @@ class REOSGUI_EXPORT ReosDataProviderGuiFactory
     Q_DECLARE_FLAGS( GuiCapabilities, GuiCapability )
     Q_FLAG( GuiCapabilities )
 
+    virtual ~ReosDataProviderGuiFactory() = default;
+
     /**
      * Returns the gui capabilities for this factory
      */
     virtual GuiCapabilities capabilities() const = 0;
 
-    //! Returns the key of the provider corrsponding to this factory
+    //! Returns the key of the provider corresponding to this factory
     virtual QString key() const = 0;
 
     //! Creates and returns a pointer to a new selector widget

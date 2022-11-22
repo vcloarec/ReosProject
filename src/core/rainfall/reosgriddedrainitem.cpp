@@ -16,25 +16,42 @@
 #include "reosgriddedrainitem.h"
 
 #include "reosgriddedrainfallprovider.h"
+#include "reosgriddedrainfallrenderer_p.h"
 #include "reosmemoryraster.h"
 #include "reosgisengine.h"
+#include "reosrenderersettings.h"
 
 ReosGriddedRainfall::ReosGriddedRainfall( const QString &dataSource, const QString &providerKey, QObject *parent )
-  : ReosDataObject( parent )
+  : ReosRenderedObject( parent )
   , mProvider( qobject_cast<ReosGriddedRainfallProvider*>( ReosDataProviderRegistery::instance()->createProvider( providerKey ) ) )
 {
   if ( mProvider )
     mProvider->setDataSource( dataSource );
+
+  // renderer factory must be created after set the datasource because, the factory needs the extent of the provider on creation
+  mRendererFactory.reset( new ReosGriddedRainfallRendererFactory_p( this ) );
 }
 
 ReosGriddedRainfall::~ReosGriddedRainfall()
 {
-
 }
 
 QString ReosGriddedRainfall::type() const {return staticType();}
 
-QString ReosGriddedRainfall::staticType() {return QStringLiteral( "gridded-rainfall" );}
+ReosObjectRenderer *ReosGriddedRainfall::createRenderer( ReosRendererSettings *settings )
+{
+  if ( mRendererFactory )
+    return mRendererFactory->createRasterRenderer( settings );
+
+  return nullptr;
+}
+
+ReosRendererObjectMapTimeStamp *ReosGriddedRainfall::createMapTimeStamp( ReosRendererSettings *settings ) const
+{
+  return new ReosRendererGriddedRainfallMapTimeStamp_p( dataIndex( settings->mapTime() ) );
+}
+
+QString ReosGriddedRainfall::staticType() {return QStringLiteral( "gridded-precipitation" );}
 
 int ReosGriddedRainfall::gridCount() const
 {
@@ -60,12 +77,70 @@ const QDateTime ReosGriddedRainfall::endTime( int index ) const
     return QDateTime();
 }
 
-const QVector<double> ReosGriddedRainfall::data( int index ) const
+QPair<QDateTime, QDateTime> ReosGriddedRainfall::timeExtent() const
+{
+  if ( !mProvider )
+    return QPair<QDateTime, QDateTime>();
+
+  int count = mProvider->count();
+
+  if ( count == 0 )
+    return QPair<QDateTime, QDateTime>();
+
+  return {mProvider->startTime( 0 ), mProvider->endTime( count - 1 )};
+}
+
+ReosDuration ReosGriddedRainfall::minimumTimeStep() const
+{
+  if ( !mProvider )
+    return ReosDuration();
+
+  int count = mProvider->count();
+
+  if ( count == 0 )
+    return ReosDuration();
+
+  ReosDuration ret = ReosDuration( mProvider->startTime( 0 ), mProvider->endTime( 0 ) );
+
+  for ( int i = 1; i < count; ++i )
+  {
+    ReosDuration dt( mProvider->startTime( i ), mProvider->endTime( i ) );
+    if ( dt < ret )
+      ret = dt;
+  }
+
+  return ret;
+}
+
+const QVector<double> ReosGriddedRainfall::intensityValues( int index ) const
 {
   if ( mProvider )
     return mProvider->data( index );
   else
     return QVector<double>();
+}
+
+int ReosGriddedRainfall::dataIndex( const QDateTime &time ) const
+{
+  if ( !mProvider )
+    return  -1;
+
+  int count = mProvider->count();
+
+  if ( count == 0 )
+    return -1;
+
+  for ( int i = 0; i < count; ++i )
+  {
+    if ( time >= mProvider->startTime( i ) &&
+         time < mProvider->endTime( i ) )
+      return  i;
+  }
+
+  if ( time == mProvider->endTime( count - 1 ) )
+    return  count - 1;
+
+  return  -1;
 }
 
 ReosRasterExtent ReosGriddedRainfall::extent() const
@@ -139,9 +214,52 @@ ReosGriddedRainfall *ReosGriddedRainfall::transform( const ReosMapExtent &destin
   return projectedRainfall.release();
 }
 
+void ReosGriddedRainfall::copyFrom( ReosGriddedRainfall *other )
+{
+  mProvider->copyFrom( other->mProvider.get() );
+
+  //! We need to reset the renderer factor tp take account of the new extent
+  mRendererFactory.reset( new ReosGriddedRainfallRendererFactory_p( this ) );
+}
+
+ReosColorShaderSettings *ReosGriddedRainfall::colorSetting() const
+{
+  return mRendererFactory->colorRampShaderSettings();
+}
+
+QList<ReosColorShaderSettings *> ReosGriddedRainfall::colorShaderSettings() const
+{
+  QList<ReosColorShaderSettings *> ret;
+  ret << mRendererFactory->colorRampShaderSettings();
+  return ret;
+}
+
 
 ReosGriddedRainfall::ReosGriddedRainfall( QObject *parent )
-  : ReosDataObject( parent )
+  : ReosRenderedObject( parent )
+  , mProvider( new ReosGriddedRainfallMemoryProvider )
 {
+  mRendererFactory.reset( new ReosGriddedRainfallRendererFactory_p( this ) );
+}
 
+ReosGriddedRainItem::ReosGriddedRainItem( const QString &name, const QString &description, ReosGriddedRainfall *data )
+  : ReosRainfallDataItem( name, description )
+  , mGriddedRainfall( data )
+{
+  if ( data )
+    data->setParent( this );
+}
+
+ReosGriddedRainfall *ReosGriddedRainItem::data() const
+{
+  return mGriddedRainfall;
+}
+
+QIcon ReosGriddedRainItem::icone() const {return QIcon( QStringLiteral( ":/images/griddedRainfall.svg" ) );}
+
+bool ReosGriddedRainItem::accept( ReosRainfallItem *, bool ) const {return false;}
+
+bool ReosGriddedRainItem::canBeSubItem( const ReosRainfallItem *item, bool ) const
+{
+  return item && item->type() == ReosRainfallItem::Zone;
 }

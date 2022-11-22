@@ -102,6 +102,13 @@ class ReosFormWidgetDoubleTriangleRainfalFactory : public ReosFormWidgetDataFact
     QString datatype() const override;
 };
 
+class ReosFormWidgetGriddedRainfalFactory : public ReosFormWidgetDataFactory
+{
+  public:
+    ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context ) override;
+    QString datatype() const override;
+};
+
 
 
 #endif // REOSRAINFALLDATAFORM_H

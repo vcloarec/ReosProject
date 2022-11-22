@@ -58,6 +58,7 @@ class ReosStackedPageWidget : public QWidget
     {}
 
     virtual void showBackButton() {};
+    virtual void hideBackButton() {};
 
   signals:
     void askForShow();

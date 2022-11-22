@@ -42,8 +42,7 @@ class REOSCORE_EXPORT ReosRainfallItem : public QObject
       Root,
       Zone,
       Station,
-      Data,
-      GriddedData
+      Data
     };
 
     virtual ~ReosRainfallItem();
@@ -98,10 +97,13 @@ class REOSCORE_EXPORT ReosRainfallItem : public QObject
     //! Returns whether this item can accept the other \a item
     virtual bool accept( ReosRainfallItem *item, bool acceptSameName = false ) const;
 
+    //! Returns whether the item can be a sub item of other \a item, default implementation return false
+    virtual bool canBeSubItem(const ReosRainfallItem *item, bool acceptSameName = false ) const;
+
     //! removes all children items
     virtual void clear();
 
-    //! Return the data object link to this item, dfault implementation return nullptr
+    //! Return the data object link to this item, default implementation return nullptr
     virtual ReosDataObject *data() const {return nullptr;}
 
     //! Encodes in \a element the base information about the item
@@ -114,7 +116,6 @@ class REOSCORE_EXPORT ReosRainfallItem : public QObject
     virtual void resolveDependencies() {}
 
     void swapChildren( int first, int second );
-
 
     /**
      *  Inserts a child \a item at position \a pos. Take ownership of the new child,

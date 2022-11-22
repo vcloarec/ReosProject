@@ -359,6 +359,11 @@ ReosDuration ReosDelftFewsXMLRainfallProvider::timeStep() const {return mTimeSte
 
 QString ReosDelftFewsXMLRainfallProvider::dataType() {return ReosSeriesRainfall::staticType();}
 
+QString ReosDelftFewsXMLRainfallProvider::oldDataType()
+{
+    return QStringLiteral("rainfall");
+}
+
 ReosEncodedElement ReosDelftFewsXMLHydrographProvider::encode() const
 {
   ReosEncodedElement element( ReosDelftFewsXMLRainfallProvider::staticKey() );
@@ -443,7 +448,10 @@ QDateTime ReosDelftFewsXMLProviderInterface::endTimeFromUri( const QString &uri 
 
 ReosTimeSerieProvider *ReosDelftFewsXMLProviderFactory::createProvider( const QString &dataType ) const
 {
-  if ( dataType == ReosDelftFewsXMLRainfallProvider::dataType() )
+  if ( dataType == ReosDelftFewsXMLRainfallProvider::dataType() ||
+       //after Lekan v2.2.95, the datatype do not contain anymore "rainfall"
+       //we need this to keep backward compatibily
+       dataType == QStringLiteral( "data:time-serie:constant-interval:rainfall" ) )
     return new ReosDelftFewsXMLRainfallProvider;
 
   if ( dataType == ReosDelftFewsXMLHydrographProvider::dataType() )

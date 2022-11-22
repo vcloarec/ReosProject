@@ -123,6 +123,9 @@ class ReosMeshFrame_p : public ReosMesh
 
     bool exportSimulationResults( ReosHydraulicSimulationResults *result, const QString &fileName ) const override;
 
+
+    QList<ReosColorShaderSettings *> colorShaderSettings() const override;
+
   private:
     std::unique_ptr<QgsMeshLayer> mMeshLayer;
     ReosMeshDataProvider_p *meshProvider() const;
@@ -166,8 +169,6 @@ class ReosMeshColorShaderSettings_p : public ReosColorShaderSettings_p
   public:
     ReosMeshColorShaderSettings_p( ReosMeshFrame_p *mesh );
 
-    void getShader( void *shader ) const override;
-    void setShader( void *shader ) override;
     double classificationMinimum() const override;
     void setClassificationMinimum( double newClassificationMinimum ) override;
     double classificationMaximum() const override;
@@ -180,7 +181,6 @@ class ReosMeshColorShaderSettings_p : public ReosColorShaderSettings_p
     double mMinClassifiction;
     double mMaxClassification;
     double mOpacity;
-    QgsColorRampShader mColorShader;
     bool mIsValid = false;
 };
 

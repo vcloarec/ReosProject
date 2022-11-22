@@ -20,6 +20,7 @@
 #include "reosparameter.h"
 #include "reosrainfallregistery.h"
 #include "reosrainfallmodel.h"
+#include "reosgriddedrainitem.h"
 
 bool ReosRootItem::accept( ReosRainfallItem *item, bool acceptSameName ) const
 {
@@ -37,11 +38,10 @@ ReosEncodedElement ReosRootItem::encode() const
 
 bool ReosZoneItem::accept( ReosRainfallItem *item, bool acceptSameName ) const
 {
-
   return ( item &&
            ( item->type() == ReosRainfallItem::Station ||
              item->type() == ReosRainfallItem::Zone ||
-             item->type() == ReosRainfallItem::GriddedData ) &&
+             item->canBeSubItem( this, false ) ) &&
            ReosRainfallItem::accept( item, acceptSameName ) );
 }
 
@@ -56,6 +56,7 @@ bool ReosStationItem::accept( ReosRainfallItem *item, bool acceptSameName ) cons
 {
   return ( item &&
            item->type() == ReosRainfallItem::Data &&
+           item->canBeSubItem( this, acceptSameName ) &&
            ReosRainfallItem::accept( item, acceptSameName ) );
 }
 
@@ -180,6 +181,11 @@ int ReosRainfallItem::positionInParent() const
 bool ReosRainfallItem::accept( ReosRainfallItem *item, bool acceptSameName ) const
 {
   return ( acceptSameName || ! hasChildItemName( item->name() ) ) ;
+}
+
+bool ReosRainfallItem::canBeSubItem( const ReosRainfallItem *, bool ) const
+{
+  return false ;
 }
 
 void ReosRainfallItem::clear()

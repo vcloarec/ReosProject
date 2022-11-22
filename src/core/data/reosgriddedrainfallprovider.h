@@ -19,8 +19,11 @@
 #include "reosmodule.h"
 #include "reosdataprovider.h"
 #include "reosmemoryraster.h"
+#include "reoscore.h"
 
-class ReosGriddedRainfallProvider : public ReosDataProvider
+class ReosDuration;
+
+class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
 {
     Q_OBJECT
   public:
@@ -31,13 +34,20 @@ class ReosGriddedRainfallProvider : public ReosDataProvider
       CumulativeHeight
     };
 
+    struct Details
+    {
+      QStringList availableVariables;
+      ReosMapExtent extent;
+      QStringList files;
+    };
+
     ~ReosGriddedRainfallProvider();
 
     QString dataSource() const;
 
     virtual void setDataSource( const QString &uri );
 
-    virtual QStringList availableVariables( const QString &, ReosModule::Message & ) const = 0;
+    virtual Details details( const QString &, ReosModule::Message & ) const {return Details();}
 
     virtual bool isValid() const = 0;
 
@@ -45,12 +55,17 @@ class ReosGriddedRainfallProvider : public ReosDataProvider
 
     virtual QDateTime startTime( int index ) const = 0;
     virtual QDateTime endTime( int index ) const = 0;
+    ReosDuration intervalDuration( int index ) const;
 
     void setSourceValueType( ValueType valueType );
 
     virtual const QVector<double> data( int index ) const = 0;
 
     virtual ReosRasterExtent extent() const = 0;
+
+    virtual bool canReadUri( const QString & ) const {return false;}
+
+    virtual void copyFrom( ReosGriddedRainfallProvider * ) {};
 
   protected:
     ValueType mSourceValueType = ValueType::Height;
@@ -66,16 +81,13 @@ class ReosGriddedRainfallMemoryProvider : public ReosGriddedRainfallProvider
 
     QStringList availableVariables( const QString &, ReosModule::Message & ) const {return QStringList();}
     bool isValid() const {return true;}
-    int count() const {return mRasters.count();}
-    QDateTime startTime( int index ) const {return mRasters.at( index ).startTime;}
-    QDateTime endTime( int index ) const {return mRasters.at( index ).endTime;}
-    const QVector<double> data( int index ) const {return mRasters.at( index ).raster.values();}
-    ReosRasterExtent extent() const {return mExtent;}
+    int count() const;
+    QDateTime startTime( int index ) const;
+    QDateTime endTime( int index ) const;
+    const QVector<double> data( int index ) const;
+    ReosRasterExtent extent() const;
 
-    void addFrame( const ReosRasterMemory<double> &raster, const QDateTime &startTime, const QDateTime &endTime )
-    {
-      mRasters.append( {startTime, endTime, raster} );
-    }
+    void addFrame( const ReosRasterMemory<double> &raster, const QDateTime &startTime, const QDateTime &endTime );
 
     static QString dataType();
 
@@ -83,6 +95,8 @@ class ReosGriddedRainfallMemoryProvider : public ReosGriddedRainfallProvider
     static QString staticKey();
 
     void setExtent( const ReosRasterExtent &newExtent );
+
+    void copyFrom( ReosGriddedRainfallProvider *other );
 
   private:
     struct Frame

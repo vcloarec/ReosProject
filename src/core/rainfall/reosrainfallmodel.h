@@ -34,6 +34,8 @@ class ReosRainfallGaugedRainfallItem;
 class ReosTimeSerieConstantInterval;
 class ReosRainfallIdfCurvesItem;
 class ReosRainfallIntensityDurationCurveItem;
+class ReosGriddedRainfall;
+class ReosGriddedRainItem;
 
 class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
 {
@@ -53,7 +55,7 @@ class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
     QMimeData *mimeData( const QModelIndexList &indexes ) const override;
     Qt::DropActions supportedDropActions() const override {return Qt::MoveAction;}
     Qt::DropActions supportedDragActions() const override {return Qt::MoveAction | Qt::CopyAction;}
-    QStringList mimeTypes() const;
+    QStringList mimeTypes() const override;
 
     //! Add a zone to the hierarchical tree, if \a index is invalid, add to the roots return fals if it fails
     ReosZoneItem *addZone( const QString &name, const QString &description, const QModelIndex &index = QModelIndex() );
@@ -64,6 +66,7 @@ class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
     ReosRainfallDoubleTriangleItem *addDoubleTriangleRainfall( const QString &name, const QString &description, const QModelIndex &index );
     ReosRainfallIdfCurvesItem *addIDFCurves( const QString &name, const QString &description, const QModelIndex &index );
     ReosRainfallIntensityDurationCurveItem *addIDCurve( const ReosDuration &duration, const QString &description, const QModelIndex &index );
+    ReosGriddedRainItem *addGriddedRainfall( const QString &name, const QString &description, const QModelIndex &index, ReosGriddedRainfall *data );
     void removeItem( ReosRainfallItem *item );
 
     int rootZoneCount() const;

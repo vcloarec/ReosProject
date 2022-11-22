@@ -25,6 +25,7 @@
 class QPainter;
 class ReosRenderedObject;
 class ReosRendererSettings;
+class ReosColorShaderSettings;
 
 class ReosRendererObjectMapTimeStamp
 {
@@ -32,7 +33,6 @@ class ReosRendererObjectMapTimeStamp
     virtual ~ReosRendererObjectMapTimeStamp() = default;
     virtual bool equal( ReosRendererObjectMapTimeStamp *other ) = 0;
 };
-
 
 class REOSCORE_EXPORT ReosObjectRenderer: public ReosProcess
 {
@@ -101,6 +101,9 @@ class REOSCORE_EXPORT ReosRenderedObject: public ReosDataObject
      * Creates an instance of an onject renderer, caller take ownership.
      */
     virtual ReosObjectRenderer *createRenderer( ReosRendererSettings *settings ) = 0;
+
+    //! Returns all the color shader settings handled by this object
+    virtual QList<ReosColorShaderSettings *> colorShaderSettings() const = 0;
 
   signals:
     void renderingFinished();

@@ -40,6 +40,8 @@ void ReosNotificationButton::setMessage( const ReosModule::Message &message )
   switch ( message.type )
   {
     case ReosModule::Simple:
+      setText( QString() );
+      setIcon( QIcon() );
       break;
     case ReosModule::Order:
       break;

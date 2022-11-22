@@ -17,6 +17,7 @@ email                : vcloarec at gmail dot com
 #include "reosdigitalelevationmodel.h"
 #include "reosdigitalelevationmodel_p.h"
 #include "reosmeshdataprovider_p.h"
+#include "reosgriddedrainfallrenderer_p.h"
 
 #include <QStandardPaths>
 #include <qmath.h>
@@ -141,6 +142,7 @@ void ReosGisEngine::initGisEngine()
 
   //! Add reos data provider to Qgis instances
   QgsProviderRegistry::instance()->registerProvider( new ReosMeshProviderMetaData() );
+  QgsProviderRegistry::instance()->registerProvider( new ReosGriddedRainfallProviderMetaData() );
 
   qRegisterMetaTypeStreamOperators<QgsFeature>( "QgsFeature" ); //necessary to allow the serialisation
 }
@@ -706,7 +708,8 @@ double ReosGisEngine::factorUnitToMeter( const QString &crs )
   return QgsUnitTypes::fromUnitToUnitFactor( unit, QgsUnitTypes::DistanceMeters );
 }
 
-ReosRasterMemory<QList<QPair<double, QPoint>>>  ReosGisEngine::transformRasterExtent(const ReosRasterExtent &extent,
+ReosRasterMemory<QList<QPair<double, QPoint>>>  ReosGisEngine::transformRasterExtent(
+  const ReosRasterExtent &extent,
   const ReosMapExtent &destination,
   double resolX,
   double resolY,
@@ -797,7 +800,6 @@ ReosRasterMemory<QList<QPair<double, QPoint>>>  ReosGisEngine::transformRasterEx
                            ( idx + 1 ) * resolX + xOri, idy * resolY + yOri, true );
         QList<QgsFeatureId> sourceInter = spatialIndex.intersects( cell );
 
-        QgsGeometry destCell = QgsGeometry::fromRect( cell );
         QList<QPair<double, QPoint>> destIntersect;
         double areaSum = 0;
 

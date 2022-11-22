@@ -21,6 +21,7 @@
 #include "reoscore.h"
 
 class QDateTime;
+class QLinearGradient;
 
 class ReosRendererSettings
 {
@@ -31,7 +32,7 @@ class ReosRendererSettings
 };
 
 
-class ReosColorShaderSettings : public QObject
+class REOSCORE_EXPORT ReosColorShaderSettings : public QObject
 {
     Q_OBJECT
   public:
@@ -55,6 +56,8 @@ class ReosColorShaderSettings : public QObject
     virtual void getSourceMinMax( double &min, double &max ) const = 0;
 
     virtual void onSettingsUpdated() = 0 ;
+
+    virtual QLinearGradient gradient() const = 0;
 
   signals:
     void settingsChangedFromObject();

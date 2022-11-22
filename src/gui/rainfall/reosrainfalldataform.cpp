@@ -22,6 +22,8 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QClipboard>
+#include <QToolButton>
+#include <QDialogButtonBox>
 
 #include "reosrainfalldataform.h"
 #include "reostimeserie.h"
@@ -31,6 +33,8 @@
 #include "reosrainfallintensitydurationwidget.h"
 #include "reosrainfallregistery.h"
 #include "reosguicontext.h"
+#include "reosgriddedrainitem.h"
+#include "reosmeshscalarrenderingwidget.h"
 
 
 ReosTimeSerieConstantIntervalWidget::ReosTimeSerieConstantIntervalWidget( ReosTimeSerieConstantInterval *timeSerie, QWidget *parent ):
@@ -249,4 +253,42 @@ ReosAlternatingBlockRainfallWidget::ReosAlternatingBlockRainfallWidget( ReosAlte
 
   addWidget( mIdfWidget, 3 );
   addParameter( rainfall->centerCoefficient() );
+}
+
+ReosFormWidget *ReosFormWidgetGriddedRainfalFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
+{
+  ReosGriddedRainfall *griddedRainFall = qobject_cast<ReosGriddedRainfall *>( dataObject );
+  if ( !griddedRainFall )
+    return nullptr;
+
+  ReosFormWidget *formWidget = new ReosFormWidget( context.parent() );
+
+  QToolButton *button = new QToolButton( formWidget );
+  formWidget->addWidget( button );
+  button->setText( QObject::tr( "Color ramp" ) );
+  button->setIcon( QIcon( QStringLiteral( ":/images/scalarContour.svg" ) ) );
+  button->setToolButtonStyle( Qt::ToolButtonStyle::ToolButtonTextBesideIcon );
+  button->setSizePolicy( QSizePolicy::MinimumExpanding, button->sizePolicy().verticalPolicy() );
+  button->setAutoRaise( true );
+
+  QObject::connect( button, &QToolButton::clicked, formWidget, [formWidget, griddedRainFall, context]
+  {
+    QDialog *dial = new QDialog( formWidget );
+    dial->setLayout( new QVBoxLayout );
+    ReosMeshScalarRenderingWidget *colorShaderWidget = new ReosMeshScalarRenderingWidget( griddedRainFall->colorSetting(), ReosGuiContext( context, dial ) );
+    colorShaderWidget->hideBackButton();
+    dial->layout()->addWidget( colorShaderWidget );
+    QDialogButtonBox *buttonBox = new QDialogButtonBox( QDialogButtonBox::Close, dial );
+    dial->layout()->addWidget( buttonBox );
+    QObject::connect( buttonBox, &QDialogButtonBox::rejected, dial, &QDialog::close );
+    dial->exec();
+  } );
+
+  return formWidget;
+
+}
+
+QString ReosFormWidgetGriddedRainfalFactory::datatype() const
+{
+  return ReosGriddedRainfall::staticType();
 }

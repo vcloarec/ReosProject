@@ -35,7 +35,6 @@
 #include "reosrenderedobject.h"
 #include "reosrenderersettings_p.h"
 
-
 static QgsMeshRendererScalarSettings getScalarSettingsFromEncoded( const ReosEncodedElement &elem )
 {
   if ( elem.description() == QStringLiteral( "dataset-symbology" ) )
@@ -900,6 +899,14 @@ bool ReosMeshFrame_p::exportSimulationResults( ReosHydraulicSimulationResults *r
   return true;
 }
 
+QList<ReosColorShaderSettings *> ReosMeshFrame_p::colorShaderSettings() const
+{
+  QList<ReosColorShaderSettings *> ret;
+  ret << mScalarShaderSettings.get();
+
+  return ret;
+}
+
 QString ReosMeshFrame_p::enableVertexElevationDataset( const QString &name )
 {
   mVerticesElevationDatasetName = name;
@@ -1696,15 +1703,6 @@ bool ReosMeshScalarColorShaderSettings_p::isValid() const
   return mMesh->mCurrentScalarDatasetId != QString();
 }
 
-void ReosMeshColorShaderSettings_p::getShader( void *shader ) const
-{
-  *static_cast<QgsColorRampShader *>( shader ) = mColorShader;
-}
-
-void ReosMeshColorShaderSettings_p::setShader( void *shader )
-{
-  mColorShader = *static_cast<QgsColorRampShader *>( shader );
-}
 
 double ReosMeshColorShaderSettings_p::classificationMinimum() const
 {

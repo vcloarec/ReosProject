@@ -38,6 +38,8 @@ class ReosMeshScalarRenderingWidget: public ReosStackedPageWidget
     ReosMeshScalarRenderingWidget( ReosColorShaderSettings *settings, const ReosGuiContext &guiContext );
     ~ReosMeshScalarRenderingWidget();
 
+    void hideBackButton() override;
+
   private slots:
     void onMinMaxChanged();
     void onColorRampChanged();

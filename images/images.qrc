@@ -161,6 +161,8 @@
         <file>mActionNew.svg</file>
         <file>downStreamSelection.svg</file>
         <file>zoomNetworkExtent.svg</file>
+        <file>griddedRainfall.svg</file>
+        <file>addGriddedRainfall.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>
