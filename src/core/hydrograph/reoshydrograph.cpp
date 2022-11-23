@@ -412,6 +412,8 @@ void ReosRunoffHydrographsStore::updateHydrograph( ReosHydrograph *hyd )
         hydro->clear();
 
         ReosHydrographCalculation *hydrographCalculation = function->calculationProcess( hydData.runoff );
+        if ( !hydrographCalculation )
+          continue;
         mHydrographCalculation.insert( model, hydrographCalculation );
 
         connect( hydrographCalculation, &ReosHydrographCalculation::finished, this, [this, model, hydrographCalculation]()
