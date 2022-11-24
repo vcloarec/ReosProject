@@ -21,6 +21,7 @@ email                : vcloarec at gmail dot com
 #include <QPolygonF>
 
 #include "reoscore.h"
+#include "reosmemoryraster.h"
 
 enum class ReosInclusionType
 {
@@ -62,7 +63,14 @@ class REOSCORE_EXPORT ReosGeometryUtils
     static bool segmentIntersect( const QPointF &pta1, const QPointF &pta2, const QPointF &ptb1, const QPointF &ptb2, QPointF &intersect );
 
     //! Returns the bouding box of \a polygon without take account of NaN value
-    static QRectF boundingBox(const QPolygonF &polygon , bool &ok);
+    static QRectF boundingBox( const QPolygonF &polygon, bool &ok );
+
+    static ReosRasterMemory<double> rasterizePolygon( const QPolygonF &polygon,
+        const ReosRasterExtent &rasterExtent,
+        ReosRasterExtent &finalRasterExtent,
+        int &xOri,
+        int &yOri,
+        bool precise );
 };
 
 #endif // REOSGEOMETRYUTILS_H

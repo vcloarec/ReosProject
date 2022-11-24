@@ -22,6 +22,8 @@ email                : vcloarec at gmail dot com
 #include "reosidfcurves.h"
 #include "reosrainfallregistery.h"
 #include "reosgriddedrainitem.h"
+#include "reoswatershed.h"
+#include "reosgisengine.h"
 
 class ReosRainfallTest: public QObject
 {
@@ -36,15 +38,18 @@ class ReosRainfallTest: public QObject
     void syntheticRainfall();
 
     void griddedRainfall();
+    void griddedRainfallOnSmallWatershed();
 
   private:
     ReosModule mRootModule;
+    ReosGisEngine *mGisEngine;
 
 };
 
 void ReosRainfallTest::initTestCase()
 {
   ReosIdfFormulaRegistery::instantiate( &mRootModule );
+  mGisEngine = new ReosGisEngine( &mRootModule );
 }
 
 void ReosRainfallTest::addingItem()
@@ -634,6 +639,52 @@ void ReosRainfallTest::griddedRainfall()
 
   QVERIFY( grf->isValid() );
   QCOMPARE( grf->gridCount(), 3 );
+}
+
+void ReosRainfallTest::griddedRainfallOnSmallWatershed()
+{
+  mGisEngine->setCrs( ReosGisEngine::crsFromProj(
+                        QStringLiteral( "+proj=lcc +lat_0=46.5 +lon_0=3 +lat_1=44 +lat_2=49 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs" ) ) );
+
+  QPolygonF watershedDelineating;
+
+  watershedDelineating << QPointF( 268695, 6838518 )
+                       << QPointF( 264571, 6825798 )
+                       << QPointF( 261784, 6810809 )
+                       << QPointF( 275034, 6809614 )
+                       << QPointF( 279327, 6825909 )
+                       << QPointF( 273422, 6827206 )
+                       << QPointF( 268695, 6838518 );
+
+  ReosWatershed watershed;
+  watershed.setDelineating( watershedDelineating );
+  watershed.setGeographicalContext( mGisEngine );
+
+  QString filePath = testFile( QStringLiteral( "/grib/W_fr-meteofrance,MODEL,AROME+0025+SP1+00H06H_C_LFPW_202211161200--.grib2" ) );
+  QString variableName = QStringLiteral( "Total precipitation rate [kg/(m^2*s)]" );
+  ReosGriddedRainfall rainfall( filePath + "::" + variableName + "::" + "cumulative", QStringLiteral( "grib" ), nullptr );
+
+  QVERIFY( rainfall.isValid() );
+  QCOMPARE( rainfall.gridCount(), 6 );
+
+  ReosSeriesRainfallFromGriddedOnWatershed rainfallSeries( &watershed, &rainfall );
+
+  QCOMPARE( rainfallSeries.referenceTime(), QDateTime( QDate( 2022, 11, 16 ), QTime( 12, 0, 0 ), Qt::UTC ) );
+
+  QCOMPARE( rainfallSeries.valueCount(), 6 );
+
+  double val = rainfallSeries.valueAt( 0 );
+  QVERIFY( equal( val, 1.46555, 0.001 ) );
+  val = rainfallSeries.valueAt( 1 );
+  QVERIFY( equal( val, 2.1354, 0.001 ) );
+  val = rainfallSeries.valueAt( 2 );
+  QVERIFY( equal( val, 3.7026, 0.001 ) );
+  val = rainfallSeries.valueAt( 3 );
+  QVERIFY( equal( val, 1.3700, 0.001 ) );
+  val = rainfallSeries.valueAt( 4 );
+  QVERIFY( equal( val, 0.3918, 0.001 ) );
+  val = rainfallSeries.valueAt( 5 );
+  QVERIFY( equal( val, 0.6850, 0.001 ) );
 }
 
 QTEST_MAIN( ReosRainfallTest )

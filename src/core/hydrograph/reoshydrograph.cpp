@@ -403,7 +403,7 @@ void ReosRunoffHydrographsStore::updateHydrograph( ReosHydrograph *hyd )
       if ( !function )
         return;
 
-      for ( ReosMeteorologicModel *model : mModelMeteoToUpdate )
+      for ( ReosMeteorologicModel *model : std::as_const( mModelMeteoToUpdate ) )
       {
         if ( mHydrographCalculation.contains( model ) )
         {
@@ -429,6 +429,8 @@ void ReosRunoffHydrographsStore::updateHydrograph( ReosHydrograph *hyd )
         hydro->clear();
 
         ReosHydrographCalculation *hydrographCalculation = function->calculationProcess( hydData.runoff );
+        if ( !hydrographCalculation )
+          continue;
         mHydrographCalculation.insert( model, hydrographCalculation );
 
         connect( hydrographCalculation, &ReosHydrographCalculation::finished, this, [this, model, hydrographCalculation]()
@@ -458,7 +460,7 @@ void ReosRunoffHydrographsStore::updateHydrograph( ReosHydrograph *hyd )
 
       if ( !mHydrographCalculation.isEmpty() )
       {
-        for ( ReosHydrographCalculation *calculation : mHydrographCalculation )
+        for ( ReosHydrographCalculation *calculation : std::as_const( mHydrographCalculation ) )
         {
 #ifndef _NDEBUG
           qDebug() << "start hydrograh calculation " << calculation;

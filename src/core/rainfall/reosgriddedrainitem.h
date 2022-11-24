@@ -16,6 +16,7 @@
 #ifndef REOSGRIDDEDRAINITEM_H
 #define REOSGRIDDEDRAINITEM_H
 
+#include "reosmemoryraster.h"
 #include "reosrainfallitem.h"
 #include "reosrenderedobject.h"
 
@@ -57,6 +58,9 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
      *  of the cell contained in the raster extent (see extent()
      */
     const QVector<double> intensityValues( int index ) const;
+
+    //! Returns a raster stored in memory containing the intensity values of the rain fall( unit: mm / h ) for the index \a index
+    ReosRasterMemory<double> intensityRaster( int index ) const;
 
     //! Returns the index corresponding to \a time
     int dataIndex( const QDateTime &time ) const;
@@ -106,8 +110,8 @@ class REOSCORE_EXPORT ReosGriddedRainItem : public ReosRainfallDataItem
     ReosGriddedRainItem( const ReosEncodedElement &element );
 
     QString dataType() const override {return ReosGriddedRainfall::staticType();}
-
     ReosGriddedRainfall *data() const override;
+    QString information() const override {return QObject::tr( "Gridded precipitation" );}
 
     QIcon icone() const override;
     virtual bool accept( ReosRainfallItem *, bool = false ) const override;

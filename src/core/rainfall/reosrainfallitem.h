@@ -98,7 +98,7 @@ class REOSCORE_EXPORT ReosRainfallItem : public QObject
     virtual bool accept( ReosRainfallItem *item, bool acceptSameName = false ) const;
 
     //! Returns whether the item can be a sub item of other \a item, default implementation return false
-    virtual bool canBeSubItem(const ReosRainfallItem *item, bool acceptSameName = false ) const;
+    virtual bool canBeSubItem( const ReosRainfallItem *item, bool acceptSameName = false ) const;
 
     //! removes all children items
     virtual void clear();
@@ -169,6 +169,8 @@ class REOSCORE_EXPORT ReosRainfallDataItem: public ReosRainfallItem
     ReosRainfallDataItem( const QString &name, const QString &description );
     ReosRainfallDataItem( const ReosEncodedElement &elem ): ReosRainfallItem( elem, Data ) {}
 
+    virtual QString information() const {return QString();}
+
     virtual QString dataType() const = 0;
 };
 
@@ -231,7 +233,7 @@ class REOSCORE_EXPORT ReosRainfallSerieRainfallItem: public ReosRainfallDataItem
     ReosRainfallSerieRainfallItem( const ReosEncodedElement &element );
 
     ReosSeriesRainfall *data() const override = 0;
-    QString rainfallInformation() const;
+    QString information() const override;
     void setupData() override;
 };
 

@@ -165,6 +165,15 @@ const QVector<double> ReosGriddedRainfall::intensityValues( int index ) const
     return QVector<double>();
 }
 
+ReosRasterMemory<double> ReosGriddedRainfall::intensityRaster( int index ) const
+{
+  ReosRasterExtent extent = mProvider->extent();
+  ReosRasterMemory<double> ret( extent.yCellCount(), extent.xCellCount() );
+  ret.setValues( mProvider->data( index ) );
+
+  return ret;
+}
+
 int ReosGriddedRainfall::dataIndex( const QDateTime &time ) const
 {
   if ( !mProvider )

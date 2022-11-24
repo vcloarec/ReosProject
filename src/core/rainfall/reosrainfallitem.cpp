@@ -715,7 +715,7 @@ ReosRainfallSerieRainfallItem::ReosRainfallSerieRainfallItem( const ReosEncodedE
   ReosRainfallDataItem( element )
 {}
 
-QString ReosRainfallSerieRainfallItem::rainfallInformation() const
+QString ReosRainfallSerieRainfallItem::information() const
 {
   QString ret;
   ret.append( tr( "Name: %1" ).arg( name() ) );

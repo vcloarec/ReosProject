@@ -608,6 +608,8 @@ void ReosTimeSerieConstantInterval::syncWith( ReosTimeSerieConstantInterval *oth
 
 void ReosTimeSerieConstantInterval::copyAttribute( ReosTimeSerieConstantInterval *other )
 {
+  if ( !other )
+    return;
   timeStepParameter()->setValue( other->timeStepParameter()->value() );
   setReferenceTime( other->referenceTime() );
   setValueMode( other->valueMode() );
@@ -722,6 +724,7 @@ void ReosTimeSerie::setReferenceTime( const QDateTime &dateTime )
 
 QDateTime ReosTimeSerie::referenceTime() const
 {
+  updateData();
   return dataProvider()->referenceTime();
 }
 

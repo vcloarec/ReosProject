@@ -1068,6 +1068,18 @@ ReosHydrographsStore *ReosWatershed::gaugedHydrographs() const
   return mGaugedHydrographs;
 }
 
+QString ReosWatershed::crs() const
+{
+  /// TODO : we need to make the watershed crs independant from the general crs.
+  if ( mGisEngine )
+    return mGisEngine->crs();
+
+  if ( mDownstreamWatershed )
+    return mDownstreamWatershed->geographicalContext()->crs();
+
+  return QString();
+}
+
 ReosDuration ReosWatershed::timeStepForOutputHydrograph() const
 {
   return mTimeStepForOutputHydrograph;

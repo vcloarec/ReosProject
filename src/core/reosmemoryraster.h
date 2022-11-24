@@ -186,7 +186,7 @@ class REOSCORE_EXPORT ReosRasterCellPos
  * Class that stores a raster of type T in memory
  */
 template <typename T>
-class ReosRasterMemory
+class REOSCORE_EXPORT ReosRasterMemory
 {
   public:
     //! Default constructor, empty raster
@@ -212,6 +212,11 @@ class ReosRasterMemory
 
     //! Returns all the values in a 1D array
     const QVector<T> values() const {return mValues;}
+
+    /**
+     * Sets all values with implicit shared data. The copy is effective only if the count of values is the same as row * columns
+     */
+    bool setValues( const QVector<T> values );
 
     //! Sets the value that is considered as no data
     void setNodata( T nd );
@@ -264,9 +269,7 @@ T ReosRasterMemory<T>::noData() const {return mNoData;}
 template<typename T>
 ReosRasterMemory<T>::ReosRasterMemory( int nb_row, int nb_col ):
   mRowCount( nb_row ), mColumnCount( nb_col )
-{
-
-}
+{}
 
 template<typename T>
 bool ReosRasterMemory<T>::reserveMemory()
@@ -460,14 +463,28 @@ bool ReosRasterMemory<T>::operator==( const ReosRasterMemory<T> &rhs ) const
   return true;
 }
 
-
-
 template<typename T>
 bool ReosRasterMemory<T>::isValid() const
 {
   return !mValues.empty() && mValues.size() == mRowCount * mColumnCount;
 }
 
+template<typename T>
+bool ReosRasterMemory<T>::setValues( const QVector<T> values )
+{
+  if ( values.count() == mRowCount * mColumnCount )
+  {
+    mValues = values;
+    return true;
+  }
+  return false;
+}
+
+template<typename T>
+bool ReosRasterMemory<T>::isInRaster( const ReosRasterCellPos &pos ) const
+{
+  return ( pos.row() >= 0 && pos.column() >= 0 && pos.row() < mRowCount && pos.column() < mColumnCount );
+}
 
 /**
  * Convenient class used to navigate in a raster and can hande the raser value at corresponding position

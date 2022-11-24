@@ -57,7 +57,7 @@ class REOSCORE_EXPORT ReosDigitalElevationModel
      *
      * \param grid the grid represented by a raster memory of byte, 0 : do not take account the elevation, 1 : take account
      * \param rasterExtent the raster extent of the grid used to retrieve the world world coordinates
-     * \return a doublevalue corresponding to the average elevation
+     * \return a double value corresponding to the average elevation
      */
     virtual double averageElevationOnGrid( const ReosRasterMemory<unsigned char> &grid, const ReosRasterExtent &gridExtent, ReosProcess *process = nullptr ) const = 0;
 

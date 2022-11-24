@@ -94,6 +94,9 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     //! Returns a WKT string of the CRS defined by the EPSG code \a epsgCode
     static QString crsFromEPSG( int epsgCode );
 
+    //! Returns a WKT string of the CRS defined by a Proj string \a epsgCode
+    static QString crsFromProj( const QString &projtring );
+
     //! Return the WKT1 string of the crs defined by watherver WKT string \a crs
     static QString crsWkt1( const QString &crs );
 
@@ -130,8 +133,11 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     //! Returns the list of layer Ids that are registered as Digital Elevation
     QStringList digitalElevationModelIds() const;
 
-    //! Returns area of \a polygon cosidering the coordinate reference system \a crs. If no crs is provided, the crs of the project is used
+    //! Returns area of \a polygon considering the coordinate reference system \a crs. If no crs is provided, the crs of the project is used
     ReosArea polygonArea( const QPolygonF &polygon, const QString &crs = QString() ) const;
+
+    //! Returns area of \a polygon considering the coordinate reference system \a crs.
+    static ReosArea polygonAreaWithCrs( const QPolygonF &polygon, const QString &crs );
 
     //! Convert a length from meter to map unit considering the coordinate reference system
     double convertLengthFromMeterToMapunit( double length );

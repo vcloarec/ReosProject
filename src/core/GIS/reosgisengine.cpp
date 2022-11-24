@@ -239,6 +239,11 @@ QString ReosGisEngine::crsFromEPSG( int epsgCode )
   return QgsCoordinateReferenceSystem::fromEpsgId( epsgCode ).toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED );
 }
 
+QString ReosGisEngine::crsFromProj( const QString &projtring )
+{
+  return QgsCoordinateReferenceSystem::fromProj( projtring ).toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED );;
+}
+
 QString ReosGisEngine::crsWkt1( const QString &crs )
 {
   QgsCoordinateReferenceSystem crs_( crs );
@@ -396,10 +401,18 @@ QStringList ReosGisEngine::digitalElevationModelIds() const
 
 ReosArea ReosGisEngine::polygonArea( const QPolygonF &polygon, const QString &crs ) const
 {
+  QString effCrs = crs;
+  if ( effCrs.isEmpty() )
+    effCrs = this->crs();
 
+  return polygonAreaWithCrs( polygon, effCrs );
+}
+
+ReosArea ReosGisEngine::polygonAreaWithCrs( const QPolygonF &polygon, const QString &crs )
+{
   QgsCoordinateReferenceSystem qgsCrs;
   if ( crs.isEmpty() )
-    qgsCrs = QgsProject::instance()->crs();
+    return ReosArea();
   else
     qgsCrs = QgsCoordinateReferenceSystem::fromWkt( crs );
 
