@@ -329,7 +329,6 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   , mActionZoomOut( new QAction( QIcon( QStringLiteral( ":/images/zoomOut.svg" ) ), tr( "Zoom Out" ), this ) )
   , mActionPreviousZoom( new QAction( QIcon( QStringLiteral( ":/images/zoomPrevious.svg" ) ), tr( "Previous Zoom" ), this ) )
   , mActionNextZoom( new QAction( QIcon( QStringLiteral( ":/images/zoomNext.svg" ) ), tr( "Next Zoom" ), this ) )
-  , mTemporalControllerAction( new QAction( QIcon( QStringLiteral( ":/images/temporal.svg" ) ), tr( "Temporal controller" ), this ) )
   , mEnableSnappingAction( new QAction( tr( "Snapping" ), this ) )
   , mExtraRenderedObjectHandler( mCanvas )
 {
@@ -409,19 +408,21 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   emit crsChanged( mapCrs() );
 
   //*** handle temporal controller
-  mTemporalDockWidget = new QDockWidget( tr( "Temporal controller" ), canvas );
+  mTemporalDockWidget = new QDockWidget( tr( "Temporal Controller" ), canvas );
   ReosTemporalControllerWidget *temporalControlerWidget = new ReosTemporalControllerWidget( mTemporalDockWidget );
 
   mTemporalControler = qobject_cast<ReosTemporalController_p *>( temporalControlerWidget->temporalController() );
   canvas->setTemporalController( mTemporalControler );
   mTemporalDockWidget->setWidget( temporalControlerWidget );
-  mTemporalControllerAction->setCheckable( true );
-  connect( mTemporalControllerAction, &QAction::triggered, this, [this]
+  mTemporalControllerAction = mTemporalDockWidget->toggleViewAction();
+  mTemporalControllerAction->setIcon( QIcon( QStringLiteral( ":/images/temporal.svg" ) ) );
+
+  connect( mTemporalControler,
+           &ReosTemporalController_p::updateTemporalRange, this,
+           [this]( const QgsDateTimeRange & timeRange )
   {
-    mTemporalDockWidget->setVisible( mTemporalControllerAction->isChecked() );
+    emit timeChanged( timeRange.begin() );
   } );
-  connect( mTemporalControler, &ReosTemporalController_p::updateTemporalRange, this, [this]( const QgsDateTimeRange & timeRange )
-  {emit timeChanged( timeRange.begin() );} );
 
   if ( mEngine )
     connect( mEngine, &ReosGisEngine::temporalRangeChanged, mTemporalControler, &ReosTemporalController_p::setTemporalExtent );
