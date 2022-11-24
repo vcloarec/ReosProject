@@ -64,6 +64,7 @@ SET(REOS_CORE_SOURCES
   rainfall/reossyntheticrainfall.cpp
   rainfall/reosrainfallregistery.cpp
   rainfall/reosgriddedrainitem.cpp
+  rainfall/reosseriesrainfall.cpp
 
   quantity/reosarea.cpp
   quantity/reosduration.cpp
@@ -148,6 +149,7 @@ SET(REOS_CORE_HEADERS
     rainfall/reossyntheticrainfall.h
     rainfall/reosrainfallregistery.h
     rainfall/reosgriddedrainitem.h
+    rainfall/reosseriesrainfall.h
 
     quantity/reosarea.h
     quantity/reosduration.h

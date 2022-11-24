@@ -519,8 +519,3 @@ bool ReosRasterTestingCell::testCell( const ReosRasterCellPos &cell ) const
   return true;
 }
 
-template<typename T>
-bool ReosRasterMemory<T>::isInRaster( const ReosRasterCellPos &pos ) const
-{
-  return ( pos.row() >= 0 && pos.column() >= 0 && pos.row() < mRowCount && pos.column() < mColumnCount );
-}

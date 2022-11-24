@@ -280,15 +280,20 @@ void ReosRunoffHydrographWidget::updateRainfall()
   if ( !isVisible() )
     return;
 
-  ReosRainfallSerieRainfallItem *rainfall = nullptr;
+  ReosRainfallDataItem *rainfallItem = nullptr;
+  ReosSeriesRainfall *rainfallSeries = nullptr;
 
   if ( mCurrentMeteoModel && mCurrentWatershed )
-    rainfall = mCurrentMeteoModel->associatedRainfallItem( mCurrentWatershed );
-
-  if ( rainfall && rainfall->data() )
   {
-    mRainfallHistogram->setTimeSerie( rainfall->data() );
-    ui->labelRainfallInfo->setText( rainfall->rainfallInformation() );
+    rainfallItem = mCurrentMeteoModel->associatedRainfallItem( mCurrentWatershed );
+    rainfallSeries = mCurrentMeteoModel->associatedRainfall( mCurrentWatershed );
+  }
+
+
+  if ( rainfallItem && rainfallSeries )
+  {
+    mRainfallHistogram->setTimeSerie( rainfallSeries );
+    ui->labelRainfallInfo->setText( rainfallItem->information() );
   }
   else
   {
@@ -310,12 +315,12 @@ void ReosRunoffHydrographWidget::updateResultData()
 
   mRunoffResultTabModel->clearSerie();
 
-  ReosRainfallSerieRainfallItem *rainfall = nullptr;
+  ReosSeriesRainfall *rainfall = nullptr;
   if ( mCurrentMeteoModel && mCurrentWatershed )
   {
-    rainfall = mCurrentMeteoModel->associatedRainfallItem( mCurrentWatershed );
+    rainfall = mCurrentMeteoModel->associatedRainfall( mCurrentWatershed );
     if ( rainfall && rainfall->data() )
-      mRunoffResultTabModel->addTimeSerie( rainfall->data(), tr( "Rainfall %1" ).arg( rainfall->data()->unitStringCurrentMode() ) );
+      mRunoffResultTabModel->addTimeSerie( rainfall, tr( "Rainfall %1" ).arg( rainfall->unitStringCurrentMode() ) );
   }
 
   if ( mCurrentRunoff )

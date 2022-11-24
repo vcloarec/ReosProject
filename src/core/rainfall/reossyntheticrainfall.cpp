@@ -423,41 +423,7 @@ ReosDoubleTriangleRainfall::ReosDoubleTriangleRainfall( QObject *parent ) :
   connectParameters();
 }
 
-ReosSeriesRainfall::ReosSeriesRainfall( QObject *parent, const QString &providerKey, const QString &dataSource ):
-  ReosTimeSerieConstantInterval( parent, providerKey, dataSource )
-{
-  setupData();
-}
 
-ReosEncodedElement ReosSeriesRainfall::encode() const
-{
-  return ReosTimeSerieConstantInterval::encode( QStringLiteral( "serie-rainfall-data" ) );
-}
-
-ReosSeriesRainfall *ReosSeriesRainfall::decode( const ReosEncodedElement &element, QObject *parent )
-{
-  if ( element.description() != QStringLiteral( "serie-rainfall-data" ) )
-    return nullptr;
-
-  return new ReosSeriesRainfall( element, parent );
-}
-
-ReosSeriesRainfall::ReosSeriesRainfall( const ReosEncodedElement &element, QObject *parent ):
-  ReosTimeSerieConstantInterval( element, parent )
-{
-  setupData();
-}
-
-void ReosSeriesRainfall::setupData()
-{
-  setValueUnit( tr( "mm" ) );
-  setValueModeName( ReosTimeSerieConstantInterval::Value, tr( "Height per time step" ) );
-  setValueModeName( ReosTimeSerieConstantInterval::Cumulative, tr( "Total height" ) );
-  setValueModeName( ReosTimeSerieConstantInterval::Intensity, tr( "Rainfall intensity" ) );
-  setValueModeColor( ReosTimeSerieConstantInterval::Value, QColor( 0, 0, 200, 200 ) );
-  setValueModeColor( ReosTimeSerieConstantInterval::Intensity, QColor( 50, 100, 255, 200 ) );
-  setValueModeColor( ReosTimeSerieConstantInterval::Cumulative, QColor( 255, 50, 0 ) );
-}
 
 ReosAlternatingBlockRainfall::ReosAlternatingBlockRainfall( QObject *parent ): ReosUniqueIdfCurveSyntheticRainfall( parent )
 {

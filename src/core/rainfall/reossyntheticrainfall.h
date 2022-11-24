@@ -18,32 +18,10 @@
 
 #include <QPointer>
 
-#include "reostimeserie.h"
+#include "reosseriesrainfall.h"
 #include "reosidfcurves.h"
 
 class ReosParameterDuration;
-
-class REOSCORE_EXPORT ReosSeriesRainfall : public ReosTimeSerieConstantInterval
-{
-    Q_OBJECT
-  public:
-    ReosSeriesRainfall( QObject *parent = nullptr, const QString &providerKey = QString(), const QString &dataSource = QString() );
-
-    QString type() const override {return staticType();}
-    static QString staticType() {return ReosTimeSerieConstantInterval::staticType() + ':' + QStringLiteral( "hyetograph" );}
-
-    ReosEncodedElement encode() const;
-
-    //! Creates new instance from the encoded element
-    static ReosSeriesRainfall *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
-
-  protected:
-    ReosSeriesRainfall( const ReosEncodedElement &element, QObject *parent = nullptr );
-
-  private:
-    void setupData();
-
-};
 
 class REOSCORE_EXPORT ReosUniqueIdfCurveSyntheticRainfall : public ReosSeriesRainfall
 {

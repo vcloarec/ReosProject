@@ -71,8 +71,8 @@ ReosRunoff::ReosRunoff( ReosRunoffModelsGroup *runoffModels, ReosTimeSerieConsta
   , mRunoffModelsGroups( runoffModels )
   , mData( new ReosTimeSerieConstantInterval( this ) )
 {
-  mData->copyAttribute( rainfall );
-  mData->syncWith( rainfall );
+  mData->copyAttribute( mRainfall );
+  mData->syncWith( mRainfall );
 
   registerUpstreamData( mRainfall );
   registerUpstreamData( mRunoffModelsGroups );

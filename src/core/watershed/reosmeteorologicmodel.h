@@ -26,6 +26,7 @@
 class ReosWatershedTree;
 class ReosRainfallRegistery;
 class ReosWatershedItemModel;
+class ReosSeriesRainfall;
 
 //! Class that handle association between watesheds and rainfalls
 class REOSCORE_EXPORT ReosMeteorologicModel : public ReosDataObject
@@ -47,13 +48,13 @@ class REOSCORE_EXPORT ReosMeteorologicModel : public ReosDataObject
     //! Returns the name parameter
     ReosParameterString *name() const;
     //! Associates a \a rainfall with the \a watershed
-    void associate( ReosWatershed *watershed, ReosRainfallSerieRainfallItem *rainfall );
+    void associate( ReosWatershed *watershed, ReosRainfallDataItem *rainfall );
 
     //! Disassociation the rainfall associated with the \a watershd
     void disassociate( ReosWatershed *watershed );
 
     //! Returns the associated rainfall item of \a watershed
-    ReosRainfallSerieRainfallItem *associatedRainfallItem( ReosWatershed *watershed ) const;
+    ReosRainfallDataItem *associatedRainfallItem( ReosWatershed *watershed ) const;
 
     //! Returns the associated rainfall of \a watershed
     ReosSeriesRainfall *associatedRainfall( ReosWatershed *watershed ) const;
@@ -79,7 +80,13 @@ class REOSCORE_EXPORT ReosMeteorologicModel : public ReosDataObject
 
   private:
     std::unique_ptr<ReosParameterString> mName;
-    using WatershedRainfallAssociation = QPair<QPointer<ReosWatershed>, QPointer<ReosRainfallSerieRainfallItem>>;
+    struct WatershedRainfallAssociation
+    {
+      QPointer<ReosWatershed> watershed;
+      QPointer<ReosRainfallDataItem> rainfallDataItem;
+      std::shared_ptr<ReosSeriesRainfall> resultingRainfall;
+    };
+
     mutable QList<WatershedRainfallAssociation> mAssociations;
     QColor mColor;
 
@@ -165,8 +172,8 @@ class REOSCORE_EXPORT ReosMeteorologicItemModel: public QIdentityProxyModel
 
     ReosMeteorologicModel *mCurrentMeteoModel = nullptr;
 
-    ReosRainfallSerieRainfallItem *rainfallInMeteorologicModel( const QModelIndex &index );
-    ReosRainfallSerieRainfallItem *rainfallInRainfallModel( const QString &uri ) const;
+    ReosRainfallDataItem *rainfallDataInMeteorologicModel( const QModelIndex &index );
+    ReosRainfallDataItem *rainfallDataInRainfallModel( const QString &uri ) const;
 };
 
 #endif // REOSMETEOROLOGICMODEL_H

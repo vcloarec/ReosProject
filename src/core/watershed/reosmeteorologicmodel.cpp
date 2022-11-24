@@ -17,6 +17,8 @@
 #include "reoswatershedtree.h"
 #include "reosrainfallregistery.h"
 #include "reosstyleregistery.h"
+#include "reosgriddedrainitem.h"
+#include "reosseriesrainfall.h"
 
 ReosMeteorologicModel::ReosMeteorologicModel( const QString &name, QObject *parent ):
   ReosDataObject( parent )
@@ -44,14 +46,15 @@ ReosMeteorologicModel::ReosMeteorologicModel( const ReosEncodedElement &element,
   if ( !mColor.isValid() )
     mColor = ReosStyleRegistery::instance()->curveColor();
 
-  for ( const QString &watershedUri : associations.keys() )
+  const QList<QString> keys = associations.keys();
+  for ( const QString &watershedUri : keys )
   {
     ReosWatershed *ws = watershedTree->uriToWatershed( watershedUri );
-    ReosRainfallSerieRainfallItem *rainfall = qobject_cast<ReosRainfallSerieRainfallItem *>
-        ( rainfallregistery->itemByUniqueId( associations.value( watershedUri ) ) );
+    ReosRainfallDataItem *rainfall = qobject_cast<ReosRainfallDataItem *>
+                                     ( rainfallregistery->itemByUniqueId( associations.value( watershedUri ) ) );
 
     if ( ws && rainfall )
-      mAssociations.append( {QPointer<ReosWatershed>( ws ), QPointer<ReosRainfallSerieRainfallItem>( rainfall )} );
+      mAssociations.append( {QPointer<ReosWatershed>( ws ), QPointer<ReosRainfallDataItem>( rainfall ), nullptr} );
   }
 }
 
@@ -70,12 +73,12 @@ ReosParameterString *ReosMeteorologicModel::name() const
 ReosEncodedElement ReosMeteorologicModel::encode( ReosWatershedTree *watershedTree ) const
 {
   QMap<QString, QString> associations;
-  for ( const WatershedRainfallAssociation &association : mAssociations )
+  for ( const WatershedRainfallAssociation &association : std::as_const( mAssociations ) )
   {
-    if ( association.first.isNull() || association.second.isNull() )
+    if ( association.watershed.isNull() || association.rainfallDataItem.isNull() )
       continue;
-    QString watershedUri = watershedTree->watershedUri( association.first );
-    QString rainfallUid = association.second->uniqueId();
+    const QString watershedUri = watershedTree->watershedUri( association.watershed );
+    const QString rainfallUid = association.rainfallDataItem->uniqueId();
     associations[watershedUri] = rainfallUid;
   }
 
@@ -96,14 +99,17 @@ void ReosMeteorologicModel::setColor( const QColor &color )
   emit colorChange( color );
 }
 
-void ReosMeteorologicModel::associate( ReosWatershed *watershed, ReosRainfallSerieRainfallItem *rainfall )
+void ReosMeteorologicModel::associate( ReosWatershed *watershed, ReosRainfallDataItem *rainfall )
 {
   int index = findWatershed( watershed );
 
   if ( index >= 0 )
-    mAssociations[index].second = rainfall;
+  {
+    mAssociations[index].rainfallDataItem = rainfall;
+    mAssociations[index].resultingRainfall.reset();
+  }
   else
-    mAssociations.append( {QPointer<ReosWatershed>( watershed ), QPointer<ReosRainfallSerieRainfallItem>( rainfall )} );
+    mAssociations.append( {QPointer<ReosWatershed>( watershed ), QPointer<ReosRainfallDataItem>( rainfall ), nullptr} );
 
   purge();
 
@@ -120,12 +126,12 @@ void ReosMeteorologicModel::disassociate( ReosWatershed *watershed )
   emit dataChanged();
 }
 
-ReosRainfallSerieRainfallItem *ReosMeteorologicModel::associatedRainfallItem( ReosWatershed *watershed ) const
+ReosRainfallDataItem *ReosMeteorologicModel::associatedRainfallItem( ReosWatershed *watershed ) const
 {
   int watershedIndex = findWatershed( watershed );
 
   if ( watershedIndex >= 0 )
-    return mAssociations.at( watershedIndex ).second;
+    return mAssociations.at( watershedIndex ).rainfallDataItem;
   else
     return nullptr;
 }
@@ -136,9 +142,25 @@ ReosSeriesRainfall *ReosMeteorologicModel::associatedRainfall( ReosWatershed *wa
 
   if ( watershedIndex >= 0 )
   {
-    ReosRainfallSerieRainfallItem *rainfallItem = mAssociations.at( watershedIndex ).second;
-    if ( rainfallItem )
-      return rainfallItem->data();
+    ReosRainfallDataItem *rainfallItem = mAssociations.at( watershedIndex ).rainfallDataItem;
+    if ( rainfallItem->data() )
+    {
+      const QString dataType = rainfallItem->data()->type();
+
+      if ( dataType.contains( ReosSeriesRainfall::staticType() ) )
+      {
+        return qobject_cast<ReosSeriesRainfall *>( rainfallItem->data() );
+      }
+      else if ( dataType.contains( ReosGriddedRainfall::staticType() ) )
+      {
+        if ( !mAssociations.at( watershedIndex ).resultingRainfall )
+        {
+          ReosGriddedRainfall *griddedRainfall = qobject_cast<ReosGriddedRainfall *>( rainfallItem->data() );
+          mAssociations[watershedIndex].resultingRainfall.reset( new ReosSeriesRainfallFromGriddedOnWatershed( watershed, griddedRainfall ) );
+        }
+        return mAssociations[watershedIndex].resultingRainfall.get();
+      }
+    }
   }
 
   return nullptr;
@@ -149,8 +171,8 @@ bool ReosMeteorologicModel::hasRainfall( ReosWatershed *watershed ) const
   if ( !watershed )
     return false;
 
-  for ( const WatershedRainfallAssociation &as : mAssociations )
-    if ( as.first.data() == watershed && !as.second.isNull() )
+  for ( const WatershedRainfallAssociation &as : std::as_const( mAssociations ) )
+    if ( as.watershed.data() == watershed && !as.rainfallDataItem.isNull() )
       return true;
 
   return false;
@@ -160,7 +182,7 @@ int ReosMeteorologicModel::findWatershed( ReosWatershed *watershed ) const
 {
   for ( int i = 0; i < mAssociations.count(); ++i )
   {
-    if ( !mAssociations.at( i ).first.isNull() && mAssociations.at( i ).first == watershed )
+    if ( !mAssociations.at( i ).watershed.isNull() && mAssociations.at( i ).watershed == watershed )
       return i;
   }
 
@@ -172,7 +194,7 @@ void ReosMeteorologicModel::purge() const
   int i = 0;
   while ( i < mAssociations.count() )
   {
-    if ( mAssociations.at( i ).first.isNull() || mAssociations.at( i ).second.isNull() )
+    if ( mAssociations.at( i ).watershed.isNull() || mAssociations.at( i ).rainfallDataItem.isNull() )
       mAssociations.removeAt( i );
     else
       ++i;
@@ -207,17 +229,17 @@ QVariant ReosMeteorologicItemModel::data( const QModelIndex &index, int role ) c
   if ( index.column() == 1 )
   {
     ReosWatershed *ws = mWatershedModel->indexToWatershed( mapToSource( index ) );
-    ReosRainfallSerieRainfallItem *rainfall = mCurrentMeteoModel->associatedRainfallItem( ws );
+    ReosRainfallDataItem *rainfallData = mCurrentMeteoModel->associatedRainfallItem( ws );
     if ( role == Qt::DisplayRole )
     {
-      if ( rainfall )
-        return rainfall->name();
+      if ( rainfallData )
+        return rainfallData->name();
     }
 
     if ( role == Qt::DecorationRole )
     {
-      if ( rainfall )
-        return rainfall->icone();
+      if ( rainfallData )
+        return rainfallData->icone();
     }
   }
 
@@ -227,7 +249,7 @@ QVariant ReosMeteorologicItemModel::data( const QModelIndex &index, int role ) c
 
 bool ReosMeteorologicItemModel::canDropMimeData( const QMimeData *data, Qt::DropAction, int, int, const QModelIndex &parent ) const
 {
-  if ( rainfallInRainfallModel( data->text() ) && parent.isValid() )
+  if ( rainfallDataInRainfallModel( data->text() ) && parent.isValid() )
     return true;
 
   return false;
@@ -235,14 +257,14 @@ bool ReosMeteorologicItemModel::canDropMimeData( const QMimeData *data, Qt::Drop
 
 bool ReosMeteorologicItemModel::dropMimeData( const QMimeData *data, Qt::DropAction, int, int, const QModelIndex &parent )
 {
-  ReosRainfallSerieRainfallItem *rainfall = rainfallInRainfallModel( data->text() );
+  ReosRainfallDataItem *rainfallData = rainfallDataInRainfallModel( data->text() );
 
-  if ( rainfall && parent.isValid() && mCurrentMeteoModel )
+  if ( rainfallData && parent.isValid() && mCurrentMeteoModel )
   {
     ReosWatershed *ws = mWatershedModel->indexToWatershed( mapToSource( parent ) );
     if ( ws )
     {
-      mCurrentMeteoModel->associate( ws, rainfall );
+      mCurrentMeteoModel->associate( ws, rainfallData );
       emit dataChanged( parent, parent );
       return true;
     }
@@ -304,15 +326,15 @@ void ReosMeteorologicItemModel::removeAssociation( const QModelIndex &index )
   dataChanged( index, index.siblingAtColumn( 1 ) );
 }
 
-ReosRainfallSerieRainfallItem *ReosMeteorologicItemModel::rainfallInRainfallModel( const QString &uri ) const
+ReosRainfallDataItem *ReosMeteorologicItemModel::rainfallDataInRainfallModel( const QString &uri ) const
 {
   if ( ReosRainfallRegistery::isInstantiate() )
-    return qobject_cast<ReosRainfallSerieRainfallItem *>( ReosRainfallRegistery::instance()->itemByUri( uri ) );
+    return  qobject_cast<ReosRainfallDataItem *>( ReosRainfallRegistery::instance()->itemByUri( uri ) ) ;
 
   return nullptr;
 }
 
-ReosRainfallSerieRainfallItem *ReosMeteorologicItemModel::rainfallInMeteorologicModel( const QModelIndex &index )
+ReosRainfallDataItem *ReosMeteorologicItemModel::rainfallDataInMeteorologicModel( const QModelIndex &index )
 {
   if ( !mCurrentMeteoModel )
     return nullptr;

@@ -236,6 +236,8 @@ class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
     //! Return a pointer to the gauged hydrographs store of this watershed
     ReosHydrographsStore *gaugedHydrographs() const;
 
+    QString crs() const;
+
   signals:
     void outletPositionChange();
 

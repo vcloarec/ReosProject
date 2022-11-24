@@ -16,6 +16,7 @@ email                : vcloarec at gmail dot com
 #include <QObject>
 
 #include "reostimeserie.h"
+#include "reosmemoryraster.h"
 
 class ReosDataTesting: public QObject
 {

@@ -19,6 +19,7 @@ email                : vcloarec at gmail dot com
 #include <qgspolygon.h>
 #include <qgsdistancearea.h>
 #include <qgsgeometryutils.h>
+#include <qgsgeometryengine.h>
 #include "reosgeometryutils.h"
 
 
@@ -322,5 +323,91 @@ QRectF ReosGeometryUtils::boundingBox( const QPolygonF &polygon, bool &ok )
   }
 
   return QRectF( xMin, yMin, xMax - xMin, yMax - yMin );
+}
+
+ReosRasterMemory<double> ReosGeometryUtils::rasterizePolygon(
+  const QPolygonF &polygon,
+  const ReosRasterExtent &rasterExtent,
+  ReosRasterExtent &finalRasterExtent,
+  int &xOri,
+  int &yOri,
+  bool precise )
+{
+  ReosRasterMemory<double> ret;
+
+  QgsGeometry polygeom( createQgsPolygon( polygon ) );
+  QgsRectangle bbox = polygeom.boundingBox();
+
+  std::unique_ptr< QgsGeometryEngine > polyEngine( QgsGeometry::createGeometryEngine( polygeom.constGet( ) ) );
+  if ( !polyEngine )
+    return ret;
+  polyEngine->prepareGeometry();
+
+  QPoint minXminY = rasterExtent.mapToCell( QPointF( bbox.xMinimum(), bbox.yMinimum() ) );
+  QPoint maxXmaxY = rasterExtent.mapToCell( QPointF( bbox.xMaximum(), bbox.yMaximum() ) );
+
+  xOri = std::clamp( rasterExtent.xCellSize() > 0 ? minXminY.x() : maxXmaxY.x(), 0, rasterExtent.xCellCount() - 1 );;
+  yOri = std::clamp( rasterExtent.yCellSize() > 0 ? minXminY.y() : maxXmaxY.y(), 0, rasterExtent.yCellCount() - 1 );;
+
+  int xEnd =  std::clamp( rasterExtent.xCellSize() < 0 ? minXminY.x() : maxXmaxY.x(), 0, rasterExtent.xCellCount() - 1 );
+  int yEnd =  std::clamp( rasterExtent.yCellSize() < 0 ? minXminY.y() : maxXmaxY.y(), 0, rasterExtent.yCellCount() - 1 );
+
+  int colCount =  std::abs( xEnd - xOri )  + 1;
+  int rowCount =  std::abs( yEnd - yOri )  + 1;
+
+  double destXOri = rasterExtent.xMapOrigin() + xOri * rasterExtent.xCellSize();
+  double destYOri = rasterExtent.yMapOrigin() + yOri * rasterExtent.yCellSize();
+
+  finalRasterExtent = ReosRasterExtent( destXOri, destYOri, colCount, rowCount, rasterExtent.xCellSize(), rasterExtent.yCellSize() );
+
+  ret = ReosRasterMemory<double>( rowCount, colCount );
+  ret.reserveMemory();
+  ret.fill( 0 );
+
+  double cellArea = std::fabs( rasterExtent.xCellSize() * rasterExtent.yCellSize() );
+
+  QgsGeometry pixelRectGeometry;
+  for ( int xi = 0; xi < colCount; ++xi )
+  {
+    for ( int yi = 0; yi < rowCount; ++yi )
+    {
+      QgsPoint cellCenter( finalRasterExtent.cellCenterToMap( QPoint( xi, yi ) ) );
+      if ( precise )
+      {
+        //from QGIS code ( QgsRasterAnalysisUtils::statisticsFromPreciseIntersection() )
+        QgsRectangle cellRect( cellCenter.x() - rasterExtent.xCellSize() * 0.5,
+                               cellCenter.y() - rasterExtent.yCellSize() * 0.5,
+                               cellCenter.x() + rasterExtent.xCellSize() * 0.5,
+                               cellCenter.y() + rasterExtent.yCellSize() * 0.5 );
+        cellRect.normalize();
+        pixelRectGeometry = QgsGeometry::fromRect( cellRect );
+        QPolygonF polyTest = polygeom.asQPolygonF();
+        QPolygonF rectTest = pixelRectGeometry.asQPolygonF();
+        if ( !pixelRectGeometry.isNull() && polyEngine->intersects( pixelRectGeometry.constGet() ) )
+        {
+          //intersection
+          const QgsGeometry intersectGeometry = pixelRectGeometry.intersection( polygeom );
+          if ( !intersectGeometry.isEmpty() )
+          {
+            const double intersectionArea = intersectGeometry.area();
+            if ( intersectionArea > 0.0 )
+            {
+              ret.setValue( yi, xi, intersectionArea / cellArea );
+            }
+          }
+        }
+      }
+      else
+      {
+        if ( polyEngine->contains( &cellCenter ) )
+        {
+          ret.setValue( yi, xi, 1 );
+        }
+      }
+
+    }
+  }
+
+  return ret;
 }
 

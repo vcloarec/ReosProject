@@ -29,6 +29,8 @@ class ReosGeometryTest: public QObject
     void polygonPolylineInteractions();
     void gridReprojection();
 
+    void rasterizePolygon();
+
   private:
     ReosModule mRootModule;
     ReosGisEngine *mGisEngine = nullptr;
@@ -120,6 +122,89 @@ void ReosGeometryTest::gridReprojection()
       }
     }
   }
+}
+
+void ReosGeometryTest::rasterizePolygon()
+{
+  ReosRasterExtent rasterExtent( 0, 100, 100, 100, 1, -1 );
+  QPolygonF poly;
+  poly << QPointF( 10, 0.5 );
+  poly << QPointF( 88, 2 );
+  poly << QPointF( 90.25, 50.5 );
+  poly << QPointF( 0.5, 0.5 );
+
+  ReosRasterExtent finalExtent;
+  int xOri, yOri;
+  ReosRasterMemory<double> rasterized = ReosGeometryUtils::rasterizePolygon( poly, rasterExtent, finalExtent, xOri, yOri, false );
+
+  QVERIFY( equal( finalExtent.xMapOrigin(), 0.0, 0.001 ) );
+  QVERIFY( equal( finalExtent.yMapOrigin(), 51.0, 0.001 ) );
+  QCOMPARE( finalExtent.xCellCount(), 91 );
+  QCOMPARE( finalExtent.yCellCount(), 51 );
+
+  int validCount = 0;
+  QVector<double> values = rasterized.values();
+
+  for ( double v : std::as_const( values ) )
+  {
+    if ( v == 1.0 )
+      validCount++;
+  }
+
+  QCOMPARE( validCount, 2116 );
+
+  rasterized = ReosGeometryUtils::rasterizePolygon( poly, rasterExtent, finalExtent, xOri, yOri, true );
+  QVERIFY( equal( finalExtent.xMapOrigin(), 0.0, 0.001 ) );
+  QVERIFY( equal( finalExtent.yMapOrigin(), 51.0, 0.001 ) );
+  QCOMPARE( finalExtent.xCellCount(), 91 );
+  QCOMPARE( finalExtent.yCellCount(), 51 );
+
+  int fullCount = 0;
+  int partialCount = 0;
+  values = rasterized.values();
+
+  for ( double v : std::as_const( values ) )
+  {
+    if ( equal( v, 1.0, 0.000001 ) )
+      fullCount++;
+    else if ( v > 0.0 )
+      partialCount++;
+  }
+
+  QCOMPARE( fullCount, 1999 );
+  QCOMPARE( partialCount, 277 );
+
+  rasterExtent = ReosRasterExtent( 100, 0, 100, 100, 1, -1 );
+
+/// Attempt with a raster extent taht do not ontersect the polygon
+  rasterized = ReosGeometryUtils::rasterizePolygon( poly, rasterExtent, finalExtent, xOri, yOri, false );
+  QCOMPARE( finalExtent.xCellCount(), 1 );
+  QCOMPARE( finalExtent.yCellCount(), 1 );
+  validCount = 0;
+  values = rasterized.values();
+
+  for ( double v : std::as_const( values ) )
+  {
+    if ( v == 1.0 )
+      validCount++;
+  }
+  QCOMPARE( validCount, 0 );
+
+  rasterized = ReosGeometryUtils::rasterizePolygon( poly, rasterExtent, finalExtent, xOri, yOri, true );
+  fullCount = 0;
+  partialCount = 0;
+  values = rasterized.values();
+
+  for ( double v : std::as_const( values ) )
+  {
+    if ( equal( v, 1.0, 0.000001 ) )
+      fullCount++;
+    else if ( v > 0.0 )
+      partialCount++;
+  }
+
+  QCOMPARE( fullCount, 0 );
+  QCOMPARE( partialCount, 0 );
 }
 
 
