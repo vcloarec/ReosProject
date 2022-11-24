@@ -96,7 +96,7 @@ ReosEncodedElement ReosMeteorologicModel::encode( ReosWatershedTree *watershedTr
 void ReosMeteorologicModel::setColor( const QColor &color )
 {
   mColor = color;
-  emit colorChange( color );
+  emit colorChanged( color );
 }
 
 void ReosMeteorologicModel::associate( ReosWatershed *watershed, ReosRainfallDataItem *rainfall )
