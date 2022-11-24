@@ -100,8 +100,7 @@ QList<ReosHydrograph *> ReosHydrographsStore::hydrographsForTimeRange( const QDa
   for ( ReosHydrograph *hyd : std::as_const( mHydrographs ) )
   {
     QPair<QDateTime, QDateTime> timeExtent = hyd->timeExtent();
-    if ( ( timeExtent.first >= startTime && timeExtent.first <= endTime ) ||
-         ( timeExtent.second >= startTime && timeExtent.second <= endTime ) )
+    if ( timeExtent.second > startTime && timeExtent.first < endTime )
       ret.append( hyd );
   }
 
