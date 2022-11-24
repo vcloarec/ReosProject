@@ -1039,19 +1039,6 @@ void ReosWatershed::setConcentrationTimeCalculation( const ReosConcentrationTime
   mConcentrationTimeCalculation = concentrationTimeCalculation;
 }
 
-ReosHydrograph *ReosWatershed::createHydrograph( ReosSeriesRainfall *rainfall, QObject *hydrographParent )
-{
-  if ( !rainfall )
-    return nullptr;
-
-  std::unique_ptr<ReosRunoff> runoff = std::make_unique<ReosRunoff>( mRunoffModels, rainfall );
-
-  std::unique_ptr<ReosHydrograph> hydrograph;
-  hydrograph.reset( currentTransferFunction()->applyFunction( runoff.get(), hydrographParent ) );
-
-  return hydrograph.release();
-}
-
 ReosGisEngine *ReosWatershed::geographicalContext() const
 {
   if ( mGisEngine )

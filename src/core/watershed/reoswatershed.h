@@ -214,9 +214,6 @@ class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
     ReosConcentrationTimeCalculation concentrationTimeCalculation() const;
     void setConcentrationTimeCalculation( const ReosConcentrationTimeCalculation &concentrationTimeCalculation );
 
-    //! Creates a hydrograph from the \a rainfall, caller has to take ownership if \a hydrograph parent is not specified
-    ReosHydrograph *createHydrograph( ReosSeriesRainfall *rainfall, QObject *hydrographParent = nullptr );
-
     ReosEncodedElement encode() const;
     static ReosWatershed *decode( const ReosEncodedElement &element );
 
