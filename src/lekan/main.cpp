@@ -21,6 +21,7 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include <QDesktopWidget>
 #include <QMainWindow>
 #include <QStandardPaths>
+#include <QScreen>
 
 #include "reosstartingwidget.h"
 
@@ -36,7 +37,7 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 int main( int argc, char *argv[] )
 {
 #ifdef _MSC_VER
-    qputenv("PATH", "C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\system32\\WBem");
+  qputenv( "PATH", "C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\system32\\WBem" );
 #endif
 
   ReosApplication a( argc, argv );
@@ -90,7 +91,7 @@ int main( int argc, char *argv[] )
   }
 
   ReosStartingWidget *starting = new ReosStartingWidget( w.get() );
-  starting->move( QApplication::desktop()->screenGeometry().center() - starting->rect().center() );
+  starting->move( w->screen()->geometry().center() - starting->rect().center() );
   starting->setBan( QPixmap( ":/images/lekan.svg" ) );
 
   QTimer::singleShot( 1, starting, [starting]
