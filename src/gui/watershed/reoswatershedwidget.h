@@ -29,6 +29,7 @@ class ReosWatershedGaugedHydrographWidget;
 class ReosHydraulicNetwork;
 class ReosHydrographNodeWatershed;
 class ReosGuiContext;
+class ReosTimeWindow;
 
 class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
 {
@@ -40,8 +41,13 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
                                   ReosDockWidget *parent = nullptr );
     ~ReosWatershedWidget();
 
+    ReosTimeWindow timeWindow() const;
+    ReosDuration mapTimeStep() const;
+
   signals:
     void currentWatershedChanged( ReosWatershed *ws );
+    void timeWindowChanged();
+    void mapTimeStepChanged();
 
   private slots:
     void onWatershedAdded( const QModelIndex &index );
@@ -134,6 +140,8 @@ class REOSGUI_EXPORT ReosWatershedDockWidget: public ReosDockWidget
 
   public:
     ReosWatershedDockWidget( const ReosGuiContext &context, ReosWatershedModule *module, ReosHydraulicNetwork *hydraulicNetwork = nullptr );;
+
+    ReosWatershedWidget *watershedWidget() const;
 
   private:
     ReosWatershedWidget *mWatershedWidget = nullptr;

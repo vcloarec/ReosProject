@@ -24,6 +24,8 @@ class ReosMeteorologicItemModel;
 class ReosMeteorologicModel;
 class ReosWatershedItemModel;
 class ReosMeteorologicModelsCollection;
+class ReosTimeWindow;
+class ReosDuration;
 
 namespace Ui
 {
@@ -43,8 +45,13 @@ class ReosMeteorologicModelWidget : public ReosActionWidget
 
     ~ReosMeteorologicModelWidget();
 
+    ReosTimeWindow timeWindow() const;
+    ReosDuration mapTimeStep() const;
+
   signals:
     void currentModelChanged( int index );
+    void timeWindowChanged();
+    void mapTimeStepChanged();
 
   private slots:
     void onAddMeteoModel();
@@ -57,6 +64,7 @@ class ReosMeteorologicModelWidget : public ReosActionWidget
 
   private:
     ReosMeteorologicItemModel *mMeteorologicItemModel = nullptr;
+    ReosMeteorologicModel *mCurrentModel = nullptr;
     ReosMeteorologicModelsCollection *mModelsCollections = nullptr;
     Ui::ReosMeteorologicModelWidget *ui;
 

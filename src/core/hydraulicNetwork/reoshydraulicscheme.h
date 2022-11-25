@@ -40,6 +40,14 @@ class REOSCORE_EXPORT ReosHydraulicScheme : public ReosDataObject
 {
     Q_OBJECT
   public:
+    enum class TimeWindowType
+    {
+      FromMeteorologicalModel, //!< The time window is defined from the meteorological model assocaiyted to the scheme
+      UserDefined, //!< The time window isdefined by the user
+      //FromNetworkInputTime, //!< The time window is equal to tje union of all the input of the network
+    };
+
+
     ReosHydraulicScheme( ReosHydraulicSchemeCollection *collection = nullptr );
 
     ReosParameterString *schemeName() const;
@@ -63,6 +71,11 @@ class REOSCORE_EXPORT ReosHydraulicScheme : public ReosDataObject
 
     ReosCalculationContext calculationContext() const;
 
+    ReosTimeWindow timeWindow() const;
+
+    TimeWindowType timeWindowType() const;
+    void setTimeWindowType( TimeWindowType newTimeWindowType );
+
   signals:
     void dirtied();
     void timeExtentChanged( const QDateTime &startTime, const QDateTime &endTime );
@@ -74,10 +87,18 @@ class REOSCORE_EXPORT ReosHydraulicScheme : public ReosDataObject
     ReosParameterString *mSchemeName = nullptr;
     ReosParameterDateTime *mStartTime = nullptr;
     ReosParameterDateTime *mEndTime = nullptr;
+    QDateTime mUserStartTime;
+    QDateTime mUserEndTime;
+
+    TimeWindowType mTimeWindowType = TimeWindowType::FromMeteorologicalModel;
 
     QHash<QString, QByteArray> mElementsConfig;
 
     void init();
+    void updateTimeWindow();
+    void updateTimeFromMeteoModel();
+    //void updateTimeFromNetwork();
+    void updateFromUserDefined();
 };
 
 

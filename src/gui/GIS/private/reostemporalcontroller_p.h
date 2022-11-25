@@ -47,7 +47,7 @@ class ReosTemporalController_p : public QgsTemporalController
 
     QDateTime startTime() const;
 
-public slots:
+  public slots:
     void setTemporalExtent( const QDateTime &startTime, const QDateTime &endTime );
     void setCurrentTime( const QDateTime &time );
     void setIsLoop( bool isLoop );
@@ -58,8 +58,12 @@ public slots:
     void nextStep();
     void prevStep();
 
+    void timerNextStep();
+    void timerPrevStep();
+
   signals:
     void stopped() const;
+    void timeStepChanged();
 
   private slots:
     void timerTimeout();
@@ -71,11 +75,15 @@ public slots:
     bool mIsLoop = false;
     QTimer *mTimer = nullptr;
     ReosDuration mTimeStep;
+    ReosDuration mTimerTimeStep = ReosDuration( qint64( 100 ) );
     double mSpeedFactor = 60;
     double mTimeStepFactor = 1;
     AnimationState mAnimationState = Idle;
 
     void updateTimer();
+
+    void goForward( qint64 ms );
+    void goBackward( qint64 ms );
 };
 
 #endif // REOSTEMPORALCONTROLLER_P_H

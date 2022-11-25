@@ -16,6 +16,7 @@
 #include "reostemporalcontroller_p.h"
 
 #include <QTimer>
+#include <QDebug>
 
 ReosTemporalController_p::ReosTemporalController_p( QObject *parent )
   : QgsTemporalController( parent )
@@ -49,42 +50,22 @@ void ReosTemporalController_p::playBack()
 
 void ReosTemporalController_p::nextStep()
 {
-  if ( mCurrentTime >= mEndTime )
-  {
-    if ( mIsLoop )
-      mCurrentTime = mStartTime;
-    else
-    {
-      pause();
-      mCurrentTime = mEndTime;
-      emit stopped();
-    }
-  }
-  else
-    mCurrentTime = mCurrentTime.addMSecs( ( mTimeStep * mTimeStepFactor ).valueMilliSecond() );
-
-  const QgsDateTimeRange timerange( mCurrentTime, mCurrentTime.addMSecs( ( mTimeStep * mTimeStepFactor ).valueMilliSecond() ) );
-  emit updateTemporalRange( timerange );
+  goForward( mTimeStep.valueMilliSecond() );
 }
 
 void ReosTemporalController_p::prevStep()
 {
-  if ( mCurrentTime <= mStartTime )
-  {
-    if ( mIsLoop )
-      mCurrentTime = mEndTime;
-    else
-    {
-      pause();
-      mCurrentTime = mStartTime;
-      emit stopped();
-    }
-  }
-  else
-    mCurrentTime = mCurrentTime.addMSecs( -( mTimeStep * mTimeStepFactor ).valueMilliSecond() );
+  goBackward( mTimeStep.valueMilliSecond() );
+}
 
-  const QgsDateTimeRange timerange( mCurrentTime, mCurrentTime.addMSecs( ( mTimeStep * mTimeStepFactor ).valueMilliSecond() ) );
-  emit updateTemporalRange( timerange );
+void ReosTemporalController_p::timerNextStep()
+{
+  goForward( ( mTimerTimeStep * mSpeedFactor ).valueMilliSecond() );
+}
+
+void ReosTemporalController_p::timerPrevStep()
+{
+  goBackward( ( mTimerTimeStep * mSpeedFactor ).valueMilliSecond() );
 }
 
 void ReosTemporalController_p::timerTimeout()
@@ -92,10 +73,10 @@ void ReosTemporalController_p::timerTimeout()
   switch ( mAnimationState )
   {
     case ReosTemporalController_p::Forward:
-      nextStep();
+      timerNextStep();
       break;
     case ReosTemporalController_p::Reverse:
-      prevStep();
+      timerPrevStep();
       break;
     case ReosTemporalController_p::Idle:
       break;
@@ -114,32 +95,63 @@ QDateTime ReosTemporalController_p::startTime() const
 
 void ReosTemporalController_p::updateTimer()
 {
-  ReosDuration timerStep = mTimeStep / mSpeedFactor;
-
-  if ( timerStep.valueMilliSecond() > 0 && mTimeStep.valueMilliSecond() > 0 && timerStep.valueMilliSecond() < 200 )
-  {
-    mTimeStepFactor = 200 / timerStep.valueMilliSecond();
-    timerStep = ReosDuration( timerStep.valueMilliSecond() / mTimeStepFactor, ReosDuration::millisecond );
-  }
-  else
-    mTimeStepFactor = 1;
-
   switch ( mAnimationState )
   {
     case ReosTemporalController_p::Forward:
     case ReosTemporalController_p::Reverse:
       mTimer->stop();
-      mTimer->start( timerStep.valueMilliSecond() );
+      mTimer->start( mTimerTimeStep.valueMilliSecond() );
       break;
     case ReosTemporalController_p::Idle:
       break;
   }
 }
 
+void ReosTemporalController_p::goForward( qint64 ms )
+{
+  mCurrentTime = mCurrentTime.addMSecs( ms );
+
+  if ( mCurrentTime >= mEndTime )
+  {
+    if ( mIsLoop )
+      mCurrentTime = mStartTime;
+    else
+    {
+      pause();
+      mCurrentTime = mEndTime;
+      emit stopped();
+    }
+  }
+
+  const QgsDateTimeRange timerange( mCurrentTime, mCurrentTime.addMSecs( ( mTimeStep ).valueMilliSecond() ) );
+  emit updateTemporalRange( timerange );
+}
+
+void ReosTemporalController_p::goBackward( qint64 ms )
+{
+  mCurrentTime = mCurrentTime.addMSecs( -ms );
+
+  if ( mCurrentTime <= mStartTime )
+  {
+    if ( mIsLoop )
+      mCurrentTime = mEndTime;
+    else
+    {
+      pause();
+      mCurrentTime = mStartTime;
+      emit stopped();
+    }
+  }
+
+  const QgsDateTimeRange timerange( mCurrentTime, mCurrentTime.addMSecs( ( mTimeStep ).valueMilliSecond() ) );
+  emit updateTemporalRange( timerange );
+}
+
 void ReosTemporalController_p::setTimeStep( const ReosDuration &timeStep )
 {
   mTimeStep = timeStep;
   updateTimer();
+  emit timeStepChanged();
 }
 
 int ReosTemporalController_p::timeStepCount() const

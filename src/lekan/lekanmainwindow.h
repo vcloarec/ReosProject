@@ -38,6 +38,8 @@ class ReosRainfallManager;
 class ReosRunoffManager;
 class ReosWatershedDockWidget;
 class ReosHydraulicNetworkDockWidget;
+class ReosWatershedWidget;
+class ReosHydraulicNetworkWidget;
 
 static const ReosVersion lekanVersion( "Lekan", 2, 2, 95 );
 
@@ -53,6 +55,9 @@ class LekanMainWindow : public ReosMainWindow
     QByteArray encode() const override {return QByteArray();}
     bool decode( const QByteArray &byteArray ) override { return false; }
 
+    void onTimeWindowChanged();
+    void onMapTimeStepChanged();
+
   private:
     bool saveProject() override;
     void clearProject() override;
@@ -66,7 +71,9 @@ class LekanMainWindow : public ReosMainWindow
     ReosGisEngine *mGisEngine = nullptr;
     ReosMap *mMap = nullptr;
     ReosWatershedModule *mWatershedModule = nullptr;
+    ReosWatershedWidget *mWatershedWidget = nullptr;
     ReosHydraulicNetwork *mHydraulicNetwork = nullptr;
+    ReosHydraulicNetworkWidget *mHydraulicNetworkWidget = nullptr;
 
     QDockWidget *mGisDock = nullptr;
     ReosWatershedDockWidget *mDockWatershed = nullptr;

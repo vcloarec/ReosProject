@@ -139,6 +139,16 @@ ReosDuration ReosHydraulicNetworkElement::currentElementTimeStep() const
   return ReosDuration( qint64( 0 ) );
 }
 
+ReosTimeWindow ReosHydraulicNetworkElement::timeWindow() const
+{
+  return ReosTimeWindow();
+}
+
+ReosDuration ReosHydraulicNetworkElement::mapTimeStep() const
+{
+  return ReosDuration();
+}
+
 ReosHydraulicNetwork *ReosHydraulicNetworkElement::network() const
 {
   return mNetwork;
@@ -411,7 +421,11 @@ void ReosHydraulicNetwork::changeScheme( int newSchemeIndex )
   if ( mCurrentSchemeIndex >= 0 )
   {
     for ( ReosHydraulicNetworkElement *elem : std::as_const( mElements ) )
-      elem->saveConfiguration( mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex ) );
+    {
+      ReosHydraulicScheme *scheme = mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex );
+      if ( scheme )
+        elem->saveConfiguration( scheme );
+    }
   }
 
   setCurrentScheme( newSchemeIndex );

@@ -40,7 +40,7 @@ ReosWatershedWidget::ReosWatershedWidget( const ReosGuiContext &guiContext, Reos
   mConcentrationTimeWidget( new ReosConcentrationTimeWidget( this ) ),
   mActionMeteorologicModel( new QAction( QIcon( QStringLiteral( ":/images/meteoModel.svg" ) ), tr( "Meteorologic models" ), this ) ),
   mActionRunoffHydrograph( new QAction( QIcon( QStringLiteral( ":/images/runoffHydrograph.svg" ) ), tr( "Runoff hydrograph" ), this ) ),
-  mRunoffHydrographWidget( new ReosRunoffHydrographWidget( module, this ) ),
+  mRunoffHydrographWidget( new ReosRunoffHydrographWidget( module, ReosGuiContext( guiContext, this ) ) ),
   mActionGaugedHydrograph( new QAction( QIcon( QStringLiteral( ":/images/gaugedHydrograph.svg" ) ), tr( "Gauged hydrograph" ), this ) ),
   mGaugedHydrographWidget( new ReosWatershedGaugedHydrographWidget( guiContext ) ),
   mActionExportToVectorLayer( new QAction( QIcon( QStringLiteral( ":/images/exportWatershed.svg" ) ), tr( "Export watershed geometry to vector layer" ), this ) ),
@@ -125,6 +125,10 @@ ReosWatershedWidget::ReosWatershedWidget( const ReosGuiContext &guiContext, Reos
   connect( mMeteorolocicModelWidget, &ReosMeteorologicModelWidget::currentModelChanged,
            mRunoffHydrographWidget, &ReosRunoffHydrographWidget::setCurrentMeteorologicModel );
 
+  connect( mMeteorolocicModelWidget, &ReosMeteorologicModelWidget::timeWindowChanged, this, &ReosWatershedWidget::timeWindowChanged );
+  connect( mMeteorolocicModelWidget, &ReosMeteorologicModelWidget::mapTimeStepChanged, this, &ReosWatershedWidget::mapTimeStepChanged );
+
+
   mMapToolMoveOutletPoint->setMovingColor( QColor( 255, 0, 0, 150 ) );
   connect( mMapToolEditDelineating, &ReosMapToolEditMapPolygon::polygonEdited, this, [this]
   {
@@ -149,11 +153,29 @@ ReosWatershedWidget::ReosWatershedWidget( const ReosGuiContext &guiContext, Reos
   connect( mActionZoomToWatershed, &QAction::triggered, this, &ReosWatershedWidget::onZoomToWatershed );
 
   connect( ui->mAddRemoveHydraulicNetworkButton, &QPushButton::clicked, this, &ReosWatershedWidget::onAddRemoveNetwork );
+
+  connect( mRunoffHydrographWidget, &ReosRunoffHydrographWidget::timeWindowChanged, this, &ReosWatershedWidget::timeWindowChanged );
+  connect( mActionRunoffHydrograph, &QAction::toggled, this, &ReosWatershedWidget::timeWindowChanged );
 }
 
 ReosWatershedWidget::~ReosWatershedWidget()
 {
   delete ui;
+}
+
+ReosTimeWindow ReosWatershedWidget::timeWindow() const
+{
+  ReosTimeWindow ret = mMeteorolocicModelWidget->timeWindow();
+
+  if ( mRunoffHydrographWidget->isVisible() )
+    ret = ret.unite( mRunoffHydrographWidget->timeWindow() );
+
+  return ret;
+}
+
+ReosDuration ReosWatershedWidget::mapTimeStep() const
+{
+  return mMeteorolocicModelWidget->mapTimeStep();
 }
 
 void ReosWatershedWidget::setWatershedModel( ReosWatershedItemModel *model )
@@ -167,7 +189,7 @@ void ReosWatershedWidget::setWatershedModel( ReosWatershedItemModel *model )
 
 ReosMapPolygon *ReosWatershedWidget::mapDelineating( ReosWatershed *ws )
 {
-  MapWatersheds::const_iterator it = mMapWatersheds.find( ws );
+  MapWatersheds::iterator it = mMapWatersheds.find( ws );
   if ( it != mMapWatersheds.end() )
     return it.value().delineating.get();
   else
@@ -589,6 +611,11 @@ ReosWatershedDockWidget::ReosWatershedDockWidget( const ReosGuiContext &context,
   , mWatershedWidget( new ReosWatershedWidget( context, module, hydraulicNetwork, this ) )
 {
   setWidget( mWatershedWidget );
+}
+
+ReosWatershedWidget *ReosWatershedDockWidget::watershedWidget() const
+{
+  return mWatershedWidget;
 }
 
 ReosWatershedWidget::MapWatershed::MapWatershed( ReosMap *map, const QPolygonF &delineat, const QPointF &outletPt )

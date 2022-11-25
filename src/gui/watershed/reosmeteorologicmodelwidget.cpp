@@ -82,6 +82,22 @@ ReosMeteorologicModelWidget::~ReosMeteorologicModelWidget()
   delete ui;
 }
 
+ReosTimeWindow ReosMeteorologicModelWidget::timeWindow() const
+{
+  if ( mCurrentModel )
+    return mCurrentModel->timeWindow();
+
+  return ReosTimeWindow();
+}
+
+ReosDuration ReosMeteorologicModelWidget::mapTimeStep() const
+{
+  if ( mCurrentModel )
+    return mCurrentModel->mapTimeStep();
+
+  return ReosDuration();
+}
+
 void ReosMeteorologicModelWidget::onAddMeteoModel()
 {
   ReosFormDialog *dial = new ReosFormDialog( this );
@@ -158,13 +174,30 @@ void ReosMeteorologicModelWidget::onRenameMeteoModel()
 
 void ReosMeteorologicModelWidget::onCurrentModelChanged()
 {
+  if ( mCurrentModel )
+  {
+    disconnect( mCurrentModel, &ReosMeteorologicModel::timeWindowChanged, this, &ReosMeteorologicModelWidget::timeWindowChanged );
+    disconnect( mCurrentModel, &ReosMeteorologicModel::mapTimeStepChanged, this, &ReosMeteorologicModelWidget::mapTimeStepChanged );
+  }
+
   ReosMeteorologicModel *current = currentModel();
+
   mMeteorologicItemModel->setCurrentMeteorologicalModel( currentModel() );
   mActionDuplicateMeteoModel->setEnabled( current != nullptr );
   mActionRemoveMeteoModel->setEnabled( current != nullptr );
   mActionRenameMeteoModel->setEnabled( current != nullptr );
 
+  mCurrentModel = current;
   emit currentModelChanged( ui->comboBoxCurrentModel->currentIndex() );
+
+  emit timeWindowChanged();
+  emit mapTimeStepChanged();
+
+  if ( mCurrentModel )
+  {
+    connect( mCurrentModel, &ReosMeteorologicModel::timeWindowChanged, this, &ReosMeteorologicModelWidget::timeWindowChanged );
+    connect( mCurrentModel, &ReosMeteorologicModel::mapTimeStepChanged, this, &ReosMeteorologicModelWidget::mapTimeStepChanged );
+  }
 }
 
 void ReosMeteorologicModelWidget::onMeteoTreeViewContextMenu( const QPoint &pos )

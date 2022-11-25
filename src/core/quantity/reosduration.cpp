@@ -336,3 +336,71 @@ void ReosDuration::setAdaptedUnit()
   if ( mValue > YEAR_IN_MILLISECOND )
     mUnit = ReosDuration::year;
 }
+
+ReosTimeWindow::ReosTimeWindow( const QDateTime &startTime, const QDateTime &endTime )
+  : mStart( startTime )
+  , mEnd( endTime )
+{}
+
+ReosTimeWindow::ReosTimeWindow( const QPair<QDateTime, QDateTime> &timeExtent )
+  : mStart( timeExtent.first )
+  , mEnd( timeExtent.second )
+{}
+
+
+const QDateTime &ReosTimeWindow::start() const
+{
+  return mStart;
+}
+
+void ReosTimeWindow::setStart( const QDateTime &newStart )
+{
+  mStart = newStart;
+}
+
+const QDateTime &ReosTimeWindow::end() const
+{
+  return mEnd;
+}
+
+void ReosTimeWindow::setEnd( const QDateTime &newEnd )
+{
+  mEnd = newEnd;
+}
+
+ReosTimeWindow ReosTimeWindow::unite( const ReosTimeWindow &other ) const
+{
+  ReosTimeWindow ret;
+
+  if ( !isValid() )
+    return other;
+
+  if ( ! other.isValid() )
+    return *this;
+
+  ret.mStart = std::min( mStart, other.mStart );
+  ret.mEnd = std::max( mEnd, other.mEnd );
+
+  return ret;
+}
+
+ReosTimeWindow ReosTimeWindow::intersection( const ReosTimeWindow &other ) const
+{
+  ReosTimeWindow ret;
+
+  if ( !isValid() || ! other.isValid() )
+    return ret;
+
+  ret.mStart = std::max( mStart, other.mStart );
+  ret.mEnd = std::min( mEnd, other.mEnd );
+
+  if ( ret.mStart > ret.mEnd )
+    return ReosTimeWindow();
+
+  return ret;
+}
+
+bool ReosTimeWindow::isValid() const
+{
+  return mStart.isValid() && mEnd.isValid();
+}

@@ -63,6 +63,13 @@ class ReosHydraulicNetworkWidget : public QWidget
 
     void closePropertiesWidget();
 
+    ReosTimeWindow timeWindow() const;
+    ReosDuration mapTimeStep() const;
+
+  signals:
+    void timeWindowChanged();
+    void mapTimeStepChanged();
+
   private slots:
     void onElementAdded( ReosHydraulicNetworkElement *elem, bool select );
     void onElementRemoved( ReosHydraulicNetworkElement *elem );
@@ -75,7 +82,6 @@ class ReosHydraulicNetworkWidget : public QWidget
 
     void onAddHydraulicScheme();
     void onRemoveHydraulicScheme();
-    void onHydraulicSchemeChange( int index );
     void onNetworkLoaded();
 
     void onModuleReset();
@@ -85,12 +91,15 @@ class ReosHydraulicNetworkWidget : public QWidget
 
     void onMapCrsChanged();
 
+    void updateSchemeInfo();
+
   private:
     Ui::ReosHydraulicNetworkWidget *ui;
     ReosGuiContext mGuiContext;
     ReosHydraulicNetwork *mHydraulicNetwork = nullptr;
     ReosMap *mMap = nullptr;
     ReosHydraulicNetworkElement *mCurrentSelectedElement = nullptr;
+    ReosHydraulicScheme *mCurrentHydraulicScheme = nullptr;
 
     typedef std::shared_ptr<ReosMapItem> NetworkItem ;
 
@@ -128,6 +137,8 @@ class ReosHydraulicNetworkWidget : public QWidget
     QList<ReosGeometryStructure *> mGeometryStructures;
     void addGeometryStructure( ReosHydraulicNetworkElement *elem );
     void removeGeometryStructure( ReosHydraulicNetworkElement *elem );
+
+    void changeCurrentScheme( ReosHydraulicScheme *scheme );
 };
 
 class REOSGUI_EXPORT ReosHydraulicNetworkDockWidget: public ReosDockWidget
@@ -139,6 +150,8 @@ class REOSGUI_EXPORT ReosHydraulicNetworkDockWidget: public ReosDockWidget
                                     const ReosGuiContext &context );
 
     void closePropertieWidget();
+
+    ReosHydraulicNetworkWidget *hydraulicNetworkWidget() const;
 
   private:
     ReosHydraulicNetworkWidget *mHydraulicNetworkWidget = nullptr;

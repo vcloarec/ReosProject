@@ -51,6 +51,12 @@ ReosTemporalControllerWidget::ReosTemporalControllerWidget( QWidget *parent ) :
     setCurrentTime( range.begin() );
   } );
 
+  connect( mTemporalController, &ReosTemporalController_p::timeStepChanged, this, [this]
+  {
+    ui->mNextToolButton->setEnabled( mTemporalController->timeStep() != ReosDuration() );
+    ui->mPreviousToolButton->setEnabled( mTemporalController->timeStep() != ReosDuration() );
+  } );
+
   connect( mTemporalController, &ReosTemporalController_p::stopped, this, [this]
   {
     ui->mPauseButton->setChecked( true );

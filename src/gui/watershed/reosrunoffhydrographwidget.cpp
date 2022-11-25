@@ -36,9 +36,10 @@
 #include "reoshydrographsource.h"
 #include "reostimeseriesvariabletimestepreadonlymodel.h"
 #include "reostableview.h"
+#include "reosmap.h"
 
-ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *watershedModule, QWidget *parent ) :
-  ReosActionWidget( parent )
+ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *watershedModule, const ReosGuiContext &guiContext ) :
+  ReosActionWidget( guiContext.parent() )
   , ui( new Ui::ReosRunoffHydrographWidget )
   , mWatershedModule( watershedModule )
   , mWatershedRunoffModelsModel( new ReosWatershedRunoffModelsModel( this ) )
@@ -74,15 +75,17 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *wat
   mHydrographCurve->setOnRightAxe();
   mHydrographCurve->setColor( Qt::red );
   mHydrographCurve->setZ( 35 );
-  ui->widgetPlot->setSettingsContext( QStringLiteral( "runoff-hydrograph" ) );
   ui->widgetPlot->addPlotItem( mRainfallHistogram );
   ui->widgetPlot->addPlotItem( mRunoffHistogram );
   ui->widgetPlot->addPlotItem( mHydrographCurve );
   ui->widgetPlot->setTitleAxeX( tr( "Time" ) );
   ui->widgetPlot->setAxeXType( ReosPlotWidget::temporal );
+  ui->widgetPlot->enableTimeLine( true );
   ui->widgetPlot->enableAxeYRight( true );
   ui->widgetPlot->setTitleAxeYRight( tr( "Flow rate (%1)" ).arg( QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
   ui->widgetPlot->setMagnifierType( ReosPlotWidget::positiveMagnifier );
+  ui->widgetPlot->setSettingsContext( QStringLiteral( "runoff-hydrograph" ) );
+  connect( guiContext.map(), &ReosMap::timeChanged, ui->widgetPlot, &ReosPlotWidget::setTime );
 
   ui->comboBoxMeteoModel->setModel( mWatershedModule->meteoModelsCollection() );
   connect( ui->comboBoxMeteoModel, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosRunoffHydrographWidget::onModelMeteoChanged );
@@ -158,6 +161,17 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *wat
 ReosRunoffHydrographWidget::~ReosRunoffHydrographWidget()
 {
   delete ui;
+}
+
+ReosTimeWindow ReosRunoffHydrographWidget::timeWindow() const
+{
+  if ( mCurrentHydrograph )
+  {
+    const auto &timeExtent = mCurrentHydrograph->timeExtent();
+    return ReosTimeWindow( timeExtent.first, timeExtent.second );
+  }
+
+  return ReosTimeWindow();
 }
 
 void ReosRunoffHydrographWidget::setCurrentWatershed( ReosWatershed *watershed )
@@ -311,6 +325,10 @@ void ReosRunoffHydrographWidget::updateResultData()
     return;
 
   mCurrentRunoff = mRunoffHydrographsStore->runoff( mCurrentMeteoModel );
+
+  if ( mCurrentHydrograph )
+    disconnect( mCurrentHydrograph, &ReosHydrograph::dataChanged, this, &ReosRunoffHydrographWidget::timeWindowChanged );
+
   mCurrentHydrograph = mRunoffHydrographsStore->hydrograph( mCurrentMeteoModel );
 
   mRunoffResultTabModel->clearSerie();
@@ -335,6 +353,11 @@ void ReosRunoffHydrographWidget::updateResultData()
 
   if ( mCurrentHydrograph )
     mHydrographCurve->setName( mCurrentHydrograph->name() );
+
+  if ( mCurrentHydrograph )
+    connect( mCurrentHydrograph, &ReosHydrograph::dataChanged, this, &ReosRunoffHydrographWidget::timeWindowChanged );
+  else
+    emit timeWindowChanged();
 
   mHydrographCurve->setTimeSerie( mCurrentHydrograph, false, false );
 }
@@ -488,7 +511,7 @@ void ReosRunoffHydrographWidget::updateGaugedHydrograph()
       {
         itemPlot->setAutoScale( false );
         itemPlot->setOnRightAxe();
-        itemPlot->setStyle( Qt::DotLine );
+        //itemPlot->setStyle( Qt::DotLine );
         itemPlot->setWidth( 2 );
         itemPlot->setZ( 15 );
       }

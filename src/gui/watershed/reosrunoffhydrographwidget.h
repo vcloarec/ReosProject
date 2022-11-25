@@ -110,12 +110,17 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
 {
     Q_OBJECT
   public:
-    explicit ReosRunoffHydrographWidget( ReosWatershedModule *watershedModule, QWidget *parent = nullptr );
+    explicit ReosRunoffHydrographWidget( ReosWatershedModule *watershedModule, const ReosGuiContext &guiContext );
     ~ReosRunoffHydrographWidget();
+
+    ReosTimeWindow timeWindow() const;
 
   public slots:
     void setCurrentWatershed( ReosWatershed *watershed );
     void setCurrentMeteorologicModel( int index );
+
+  signals:
+    void timeWindowChanged();
 
   private slots:
     void onModelMeteoChanged();

@@ -421,6 +421,7 @@ void ReosHydrographJunction::calculateOuputHydrograph()
         calculationUpdated();
       }
       mCalculationIsInProgress = false;
+      emit timeWindowChanged();
     }
     newCalculation->deleteLater();
   } );
@@ -495,6 +496,14 @@ void ReosHydrographJunction::restoreConfiguration( ReosHydraulicScheme *scheme )
   mInternalHydrographOrigin = static_cast<InternalHydrographOrigin>( origin );
 
   emit dataChanged();
+}
+
+ReosTimeWindow ReosHydrographJunction::timeWindow() const
+{
+  if ( mOutputHydrograph )
+    return mOutputHydrograph->timeExtent();
+
+  return ReosTimeWindow();
 }
 
 

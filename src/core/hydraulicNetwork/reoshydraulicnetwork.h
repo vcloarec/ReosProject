@@ -87,12 +87,20 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject
 
     virtual ReosDuration currentElementTimeStep() const;
 
+    virtual ReosTimeWindow timeWindow() const;
+
+    virtual ReosDuration mapTimeStep() const;
+
     ReosHydraulicNetwork *network() const;
 
     virtual ReosMapExtent extent() const = 0;
 
   public slots:
     virtual void updateCalculationContext( const ReosCalculationContext &context ) = 0;
+
+  signals:
+    void timeWindowChanged();
+    void mapTimeStepChanged();
 
   protected:
     QPointer<ReosHydraulicNetwork> mNetwork = nullptr;
