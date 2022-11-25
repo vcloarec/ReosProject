@@ -226,6 +226,14 @@ void ReosHydrographRoutingLink::restoreConfiguration( ReosHydraulicScheme *schem
   emit dataChanged();
 }
 
+ReosTimeWindow ReosHydrographRoutingLink::timeWindow() const
+{
+  if ( mOutputHydrograph )
+    return mOutputHydrograph->timeExtent();
+
+  return ReosTimeWindow();
+}
+
 void ReosHydrographRoutingLink::updateCalculationContext( const ReosCalculationContext &context )
 {
   bool upstreamWillBeUpdated = false;
@@ -318,6 +326,7 @@ void ReosHydrographRoutingLink::calculateRouting()
           calculationUpdated();
         }
       }
+      emit timeWindowChanged();
       calculation->deleteLater();
     } );
 

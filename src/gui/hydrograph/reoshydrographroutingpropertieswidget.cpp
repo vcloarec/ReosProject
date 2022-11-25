@@ -24,21 +24,21 @@
 #include "reosapplication.h"
 #include "reosguicontext.h"
 
-ReosHydrographRoutingPropertiesWidget::ReosHydrographRoutingPropertiesWidget( ReosHydrographRoutingLink *hydrographRouting, QWidget *parent )
-  :  ReosHydraulicElementWidget( parent )
+ReosHydrographRoutingPropertiesWidget::ReosHydrographRoutingPropertiesWidget( ReosHydrographRoutingLink *hydrographRouting, const ReosGuiContext &guiContext )
+  :  ReosHydraulicElementWidget( guiContext.parent() )
   ,  ui( new Ui::ReosHydrographRoutingPropertiesWidget )
   , mRouting( hydrographRouting )
 {
   ui->setupUi( this );
 
-  QString settingsString = QStringLiteral( "hydraulic-network-rounting-link" );
-  ui->mPlotsWidget->setSettingsContext( settingsString );
-
   ui->mPlotsWidget->setTitleAxeX( tr( "Time" ) );
   ui->mPlotsWidget->setAxeXType( ReosPlotWidget::temporal );
+  ui->mPlotsWidget->enableTimeLine( true );
   ui->mPlotsWidget->enableAxeYRight( false );
   ui->mPlotsWidget->setTitleAxeYLeft( tr( "Flow rate (%1)" ).arg( QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
   ui->mPlotsWidget->setMagnifierType( ReosPlotWidget::positiveMagnifier );
+  QString settingsString = QStringLiteral( "hydraulic-network-rounting-link" );
+  ui->mPlotsWidget->setSettingsContext( settingsString );
 
   mHydrographPlotButton = new ReosVariableTimeStepPlotListButton( tr( "Hydrographs" ), ui->mPlotsWidget );
   ReosSettings settings;
@@ -92,6 +92,9 @@ ReosHydrographRoutingPropertiesWidget::ReosHydrographRoutingPropertiesWidget( Re
 
   connect( ui->mRoutingDescriptionButton, &QPushButton::clicked, this, &ReosHydrographRoutingPropertiesWidget::onMethodDescription );
   connect( mRouting, &ReosDataObject::dataChanged, this, &ReosHydrographRoutingPropertiesWidget::syncToLink );
+
+  if ( guiContext.map() )
+    connect( guiContext.map(), &ReosMap::timeChanged, ui->mPlotsWidget, &ReosPlotWidget::setTime );
 }
 
 ReosHydrographRoutingPropertiesWidget::~ReosHydrographRoutingPropertiesWidget()
@@ -243,7 +246,7 @@ ReosHydraulicElementWidget *ReosHydrographRoutingPropertiesWidgetFactory::create
   if ( !routing )
     return nullptr;
 
-  return new ReosHydrographRoutingPropertiesWidget( routing, context.parent() );
+  return new ReosHydrographRoutingPropertiesWidget( routing, context );
 }
 
 QString ReosHydrographRoutingPropertiesWidgetFactory::elementType() {return ReosHydrographRoutingLink::staticType();}

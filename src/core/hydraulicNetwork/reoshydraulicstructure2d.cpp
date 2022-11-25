@@ -1072,6 +1072,22 @@ ReosDuration ReosHydraulicStructure2D::currentElementTimeStep() const
   return ReosDuration( qint64( 0 ) );
 }
 
+ReosDuration ReosHydraulicStructure2D::mapTimeStep() const
+{
+  if ( mCurrentSimulationIndex >= 0 && mSimulations.at( mCurrentSimulationIndex ) )
+  {
+    return  mSimulations.at( mCurrentSimulationIndex )->representative2DTimeStep();
+  }
+
+  return ReosDuration();
+}
+
+ReosTimeWindow ReosHydraulicStructure2D::timeWindow() const
+{
+  // As the time windo depends of hte hydraulic scheme, we can't have it here
+  return ReosTimeWindow();
+}
+
 ReosHydraulicNetworkElement *ReosHydraulicStructure2dFactory::decodeElement( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context ) const
 {
   if ( encodedElement.description() != ReosHydraulicStructure2D::staticType() )

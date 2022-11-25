@@ -179,6 +179,7 @@ class REOSCORE_EXPORT ReosHydrographJunction : public ReosHydrographSource
     int calculationProgression() const override;
     virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
     void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
+    ReosTimeWindow timeWindow() const override;
 
     static ReosHydrographJunction *decode( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
 

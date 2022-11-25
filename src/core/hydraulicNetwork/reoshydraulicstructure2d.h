@@ -66,6 +66,8 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     ReosMapExtent extent() const override;
 
     ReosDuration currentElementTimeStep() const override;
+    ReosDuration mapTimeStep() const override;
+    ReosTimeWindow timeWindow() const override;
 
     void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydraulicStructureBoundaryCondition *boundaryCondition, bool upstreamWillChange ) {}
     bool updateCalculationContextFromDownstream( const ReosCalculationContext &context ) { return false; }

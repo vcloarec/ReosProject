@@ -68,11 +68,19 @@ class REOSCORE_EXPORT ReosMeteorologicModel : public ReosDataObject
     //! Returns the color used to display curve related to this meteorologic model
     QColor color() const;
 
+    //! Returns the time window of the meteo model
+    ReosTimeWindow timeWindow() const;
+
+    //! Returns the minimal time step that can be related to the map
+    ReosDuration mapTimeStep() const;
+
     ReosEncodedElement encode( ReosWatershedTree *watershedTree ) const;
 
   signals:
     //! Emitted when the color change
-    void colorChange( const QColor &color );
+    void colorChanged( const QColor &color );
+    void timeWindowChanged();
+    void mapTimeStepChanged();
 
   public slots:
     //! Sets the color used to display curve related to this meteorologic model

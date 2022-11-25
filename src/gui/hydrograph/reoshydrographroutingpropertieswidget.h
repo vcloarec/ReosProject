@@ -36,7 +36,7 @@ class ReosHydrographRoutingPropertiesWidget : public ReosHydraulicElementWidget
     Q_OBJECT
 
   public:
-    explicit ReosHydrographRoutingPropertiesWidget( ReosHydrographRoutingLink *hydrographRouting, QWidget *parent = nullptr );
+    explicit ReosHydrographRoutingPropertiesWidget( ReosHydrographRoutingLink *hydrographRouting, const ReosGuiContext &guiContext );
     ~ReosHydrographRoutingPropertiesWidget();
 
     virtual void setCurrentCalculationContext( const ReosCalculationContext &context );

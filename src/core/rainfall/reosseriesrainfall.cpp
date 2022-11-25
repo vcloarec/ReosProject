@@ -30,7 +30,7 @@ QString ReosSeriesRainfall::staticType() {return ReosTimeSerieConstantInterval::
 
 ReosEncodedElement ReosSeriesRainfall::encode() const
 {
-    return ReosTimeSerieConstantInterval::encode( QStringLiteral( "serie-rainfall-data" ) );
+  return ReosTimeSerieConstantInterval::encode( QStringLiteral( "serie-rainfall-data" ) );
 }
 
 ReosSeriesRainfall *ReosSeriesRainfall::decode( const ReosEncodedElement &element, QObject *parent )

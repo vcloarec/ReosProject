@@ -113,6 +113,8 @@ void ReosMeteorologicModel::associate( ReosWatershed *watershed, ReosRainfallDat
 
   purge();
 
+  emit timeWindowChanged();
+  emit mapTimeStepChanged();
   emit dataChanged();
 }
 
@@ -123,6 +125,8 @@ void ReosMeteorologicModel::disassociate( ReosWatershed *watershed )
   if ( index >= 0 )
     mAssociations.removeAt( index );
 
+  emit timeWindowChanged();
+  emit mapTimeStepChanged();
   emit dataChanged();
 }
 
@@ -204,6 +208,55 @@ void ReosMeteorologicModel::purge() const
 QColor ReosMeteorologicModel::color() const
 {
   return mColor;
+}
+
+ReosTimeWindow ReosMeteorologicModel::timeWindow() const
+{
+  ReosTimeWindow globalTw;
+  for ( const WatershedRainfallAssociation &asso : std::as_const( mAssociations ) )
+  {
+    ReosTimeWindow tw;
+    if ( asso.rainfallDataItem && asso.watershed )
+    {
+      QPair<QDateTime, QDateTime> timeExtent;
+      if ( ReosSeriesRainfall *sr = qobject_cast<ReosSeriesRainfall *>( asso.rainfallDataItem->data() ) )
+        timeExtent = sr->timeExtent();
+      else if ( ReosGriddedRainfall *gr = qobject_cast<ReosGriddedRainfall *>( asso.rainfallDataItem->data() ) )
+        timeExtent = gr->timeExtent();
+
+      tw = ReosTimeWindow( timeExtent.first, timeExtent.second );
+    }
+    globalTw = globalTw.unite( tw );
+  }
+
+  return globalTw;
+}
+
+ReosDuration ReosMeteorologicModel::mapTimeStep() const
+{
+  ReosDuration minTimeStep;
+  for ( const WatershedRainfallAssociation &asso : std::as_const( mAssociations ) )
+  {
+    ReosTimeWindow tw;
+    if ( asso.rainfallDataItem && asso.watershed )
+    {
+      if ( ReosGriddedRainfall *gr = qobject_cast<ReosGriddedRainfall *>( asso.rainfallDataItem->data() ) )
+      {
+        if ( minTimeStep != ReosDuration() )
+        {
+          ReosDuration grTs = gr->minimumTimeStep();
+          if ( grTs < minTimeStep )
+            minTimeStep = grTs;
+        }
+        else
+        {
+          minTimeStep = gr->minimumTimeStep();
+        }
+      }
+    }
+  }
+
+  return minTimeStep;
 }
 
 

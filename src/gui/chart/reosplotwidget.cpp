@@ -269,7 +269,7 @@ void ReosPlotWidget::setSettingsContext( const QString &settingContext )
     mPlot->setLegendVisible( legendVisible );
   }
 
-  if ( settings.contains( settingsPrefix() + QStringLiteral( "timeLineVisible" ) ) )
+  if ( settings.contains( settingsPrefix() + QStringLiteral( "timeLineVisible" ) ) && mTimeLine )
   {
     bool timeLineVisible = settings.value( settingsPrefix() + QStringLiteral( "timeLineVisible" ) ).toBool();
     mActionTimeLine->setChecked( timeLineVisible );

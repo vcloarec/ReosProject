@@ -24,6 +24,30 @@ email                :   vcloarec at gmail dot com
 
 #include "reosencodedelement.h"
 
+class REOSCORE_EXPORT ReosTimeWindow
+{
+  public:
+    ReosTimeWindow() = default;
+    ReosTimeWindow( const QDateTime &startTime, const QDateTime &endTime );
+    ReosTimeWindow( const QPair< QDateTime, QDateTime> &timeExtent );
+
+    const QDateTime &start() const;
+    void setStart( const QDateTime &newStart );
+
+    const QDateTime &end() const;
+    void setEnd( const QDateTime &newEnd );
+
+    ReosTimeWindow unite( const ReosTimeWindow &other ) const;
+
+    ReosTimeWindow intersection( const ReosTimeWindow &other ) const;
+
+    bool isValid() const;
+
+  private:
+    QDateTime mStart;
+    QDateTime mEnd;
+};
+
 class REOSCORE_EXPORT ReosDuration
 {
   public:

@@ -141,15 +141,20 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   ReosHydraulicSchemeWidgetAction *wa = new ReosHydraulicSchemeWidgetAction( mHydraulicNetwork, schemeMenu );
   schemeMenu->addAction( wa );
   ui->mHydraulicSchemeSettingsButton->setMenu( schemeMenu );
+
   connect( ui->mHydraulicSchemeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), wa, [wa, this]( int index )
   {
     mHydraulicNetwork->changeScheme( index );
     wa->setCurrentScheme( mHydraulicNetwork->currentScheme() );
-    mMap->setTimeStep( mHydraulicNetwork->currentTimeStep() );
+    changeCurrentScheme( mHydraulicNetwork->currentScheme() );
+    emit timeWindowChanged();
+    emit mapTimeStepChanged();
   } );
+
   connect( mHydraulicNetwork, &ReosHydraulicNetwork::timeStepChanged, this, [this]
   {
-    mMap->setTimeStep( mHydraulicNetwork->currentTimeStep() );
+    emit timeWindowChanged();
+    emit mapTimeStepChanged();
   } );
   ui->mHydraulicShcemeRemoveButton->setEnabled( mHydraulicNetwork->hydraulicSchemeCollection()->schemeCount() > 1 );
 
@@ -165,6 +170,27 @@ void ReosHydraulicNetworkWidget::closePropertiesWidget()
 {
   mElementPropertiesWidget->setCurrentElement( nullptr, mGuiContext );
   mElementPropertiesWidget->close();
+}
+
+ReosTimeWindow ReosHydraulicNetworkWidget::timeWindow() const
+{
+  ReosTimeWindow timeWindow;
+
+  if ( mCurrentSelectedElement )
+    timeWindow = mCurrentSelectedElement->timeWindow();
+
+  if ( mHydraulicNetwork->currentScheme() )
+    timeWindow = timeWindow.unite( mHydraulicNetwork->currentScheme()->timeWindow() );
+
+  return timeWindow;
+}
+
+ReosDuration ReosHydraulicNetworkWidget::mapTimeStep() const
+{
+  if ( mCurrentSelectedElement )
+    mCurrentSelectedElement->mapTimeStep();
+
+  return ReosDuration();
 }
 
 void ReosHydraulicNetworkWidget::onElementAdded( ReosHydraulicNetworkElement *elem, bool select )
@@ -216,6 +242,8 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
 {
   if ( mCurrentSelectedElement )
   {
+    disconnect( mCurrentSelectedElement, &ReosHydraulicNetworkElement::timeWindowChanged, this, &ReosHydraulicNetworkWidget::timeWindowChanged );
+    disconnect( mCurrentSelectedElement, &ReosHydraulicNetworkElement::mapTimeStepChanged, this, &ReosHydraulicNetworkWidget::mapTimeStepChanged );
     auto it = mMapItems.constFind( mCurrentSelectedElement );
     if ( it != mMapItems.constEnd() )
       mMapItemFactory.unselectItem( mCurrentSelectedElement, it.value().get() );
@@ -229,23 +257,32 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
     mElementPropertiesWidget->setCurrentElement( nullptr, ReosGuiContext( this ) );
     ui->mNameWidget->setString( nullptr );
     mExtraItemSelection.reset( );
+    emit timeWindowChanged();
+    emit mapTimeStepChanged();
     return;
   }
 
   ReosHydraulicNetworkElement *elem = mHydraulicNetwork->getElement( item->description() );
-
   ReosGuiContext guiContext = mGuiContext;
   guiContext.addMapItems( item );
-  mElementPropertiesWidget->setCurrentElement( elem, guiContext );
+
   if ( elem )
   {
     mMapItemFactory.selectItem( elem, item );
     ui->mNameWidget->setString( elem->elementName() );
     mExtraItemSelection.reset( mMapItemFactory.createExtraItemSelected( elem, mMap ) );
     mActionRemoveElement->setEnabled( elem->isRemovable() );
+
+    connect( elem, &ReosHydraulicNetworkElement::timeWindowChanged, this, &ReosHydraulicNetworkWidget::timeWindowChanged );
+    connect( elem, &ReosHydraulicNetworkElement::mapTimeStepChanged, this, &ReosHydraulicNetworkWidget::mapTimeStepChanged );
   }
 
+  mElementPropertiesWidget->setCurrentElement( elem, guiContext );
+
   mCurrentSelectedElement = elem;
+
+  emit timeWindowChanged();
+  emit mapTimeStepChanged();
 }
 
 void ReosHydraulicNetworkWidget::onSelectedElementRemoved()
@@ -324,11 +361,6 @@ void ReosHydraulicNetworkWidget::onRemoveHydraulicScheme()
   ui->mHydraulicShcemeRemoveButton->setEnabled( mHydraulicNetwork->hydraulicSchemeCollection()->schemeCount() > 1 );
 }
 
-void ReosHydraulicNetworkWidget::onHydraulicSchemeChange( int index )
-{
-  ui->mHydraulicSchemeCombo->setCurrentIndex( index );
-}
-
 void ReosHydraulicNetworkWidget::onNetworkLoaded()
 {
   ui->mHydraulicSchemeCombo->setCurrentIndex( mHydraulicNetwork->currentSchemeIndex() );
@@ -357,6 +389,25 @@ void ReosHydraulicNetworkWidget::onMapCrsChanged()
 {
   for ( auto it = mMapItems.begin(); it != mMapItems.end(); ++it )
     mMapItemFactory.updateMapItem( it.key(), it.value().get() );
+}
+
+void ReosHydraulicNetworkWidget::updateSchemeInfo()
+{
+  if ( mCurrentHydraulicScheme && mCurrentHydraulicScheme->meteoModel() )
+    ui->mLabelMeteoModel->setText( mCurrentHydraulicScheme->meteoModel()->name()->value() );
+  else
+    ui->mLabelMeteoModel->setText( tr( "None" ) );
+
+  if ( mCurrentHydraulicScheme )
+  {
+    ui->mLabelStartTime->setText( QLocale().toString( mCurrentHydraulicScheme->startTime()->value(), QLocale::LongFormat ) );
+    ui->mLabelEndTime->setText( QLocale().toString( mCurrentHydraulicScheme->endTime()->value(), QLocale::LongFormat ) );
+  }
+  else
+  {
+    ui->mLabelStartTime->setText( tr( "Time not defined" ) );
+    ui->mLabelEndTime->setText( tr( "Time not defined" ) );
+  }
 }
 
 void ReosHydraulicNetworkWidget::setMapItemVisible( bool visible )
@@ -402,6 +453,19 @@ void ReosHydraulicNetworkWidget::removeGeometryStructure( ReosHydraulicNetworkEl
   }
 }
 
+void ReosHydraulicNetworkWidget::changeCurrentScheme( ReosHydraulicScheme *scheme )
+{
+  if ( mCurrentHydraulicScheme )
+    disconnect( mCurrentHydraulicScheme, &ReosDataObject::dataChanged, this, &ReosHydraulicNetworkWidget::updateSchemeInfo );
+
+  mCurrentHydraulicScheme = scheme;
+
+  updateSchemeInfo();
+
+  if ( mCurrentHydraulicScheme )
+    connect( mCurrentHydraulicScheme, &ReosDataObject::dataChanged, this, &ReosHydraulicNetworkWidget::updateSchemeInfo );
+}
+
 ReosHydraulicElementWidget::ReosHydraulicElementWidget( QWidget *parent ):  QWidget( parent )
 {}
 
@@ -415,4 +479,9 @@ ReosHydraulicNetworkDockWidget::ReosHydraulicNetworkDockWidget( ReosHydraulicNet
 void ReosHydraulicNetworkDockWidget::closePropertieWidget()
 {
   mHydraulicNetworkWidget->closePropertiesWidget();
+}
+
+ReosHydraulicNetworkWidget *ReosHydraulicNetworkDockWidget::hydraulicNetworkWidget() const
+{
+  return mHydraulicNetworkWidget;
 }

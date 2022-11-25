@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>253</width>
-    <height>162</height>
+    <width>301</width>
+    <height>220</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,16 +16,6 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="ReosParameterStringWidget" name="mWidetName" native="true"/>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="ReosParameterDateTimeWidget" name="mWidgetStartTime" native="true"/>
-     </item>
-     <item>
-      <widget class="ReosParameterDateTimeWidget" name="mWidgetEndTime" native="true"/>
-     </item>
-    </layout>
    </item>
    <item>
     <widget class="Line" name="line">
@@ -43,6 +33,51 @@
    </item>
    <item>
     <widget class="QComboBox" name="mMeteoModelCombo"/>
+   </item>
+   <item>
+    <widget class="Line" name="line_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Time Window</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QRadioButton" name="mRadioButtonMeteoTime">
+       <property name="text">
+        <string>Use meteorological model time</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QRadioButton" name="mRadioButtonUserDefinedTime">
+       <property name="text">
+        <string>User defined</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="ReosParameterDateTimeWidget" name="mWidgetStartTime" native="true"/>
+     </item>
+     <item>
+      <widget class="ReosParameterDateTimeWidget" name="mWidgetEndTime" native="true"/>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

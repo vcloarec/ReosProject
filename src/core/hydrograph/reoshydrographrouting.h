@@ -122,6 +122,7 @@ class REOSCORE_EXPORT ReosHydrographRoutingLink : public ReosHydraulicLink
     int calculationProgression() const override;
     void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
     void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
+    ReosTimeWindow timeWindow() const override;
 
     static ReosHydrographRoutingLink *decode( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
 

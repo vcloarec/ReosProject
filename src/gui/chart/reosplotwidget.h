@@ -202,7 +202,6 @@ class REOSGUI_EXPORT ReosPlotWidget: public QWidget
     void enableScaleTypeChoice( bool b );
 
     void enableTimeLine( bool b );
-    void setTime( const QDateTime &time );
 
     void resetZoomBase();
 
@@ -215,6 +214,7 @@ class REOSGUI_EXPORT ReosPlotWidget: public QWidget
 
   public slots:
     void updatePlot();
+    void setTime( const QDateTime &time );
 
   private slots:
     void exportAsImage();

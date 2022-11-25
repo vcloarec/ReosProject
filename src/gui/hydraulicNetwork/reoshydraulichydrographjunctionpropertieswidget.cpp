@@ -44,12 +44,13 @@ ReosHydraulicHydrographJunctionPropertiesWidget::ReosHydraulicHydrographJunction
   ui->setupUi( this );
 
   QString settingsString = QStringLiteral( "hydraulic-network-node-watershed" );
-  ui->mPlotWidget->setSettingsContext( settingsString );
   ui->mPlotWidget->setTitleAxeX( tr( "Time" ) );
   ui->mPlotWidget->setAxeXType( ReosPlotWidget::temporal );
+  ui->mPlotWidget->enableTimeLine( true );
   ui->mPlotWidget->enableAxeYRight( false );
   ui->mPlotWidget->setTitleAxeYLeft( tr( "Flow rate (%1)" ).arg( QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
   ui->mPlotWidget->setMagnifierType( ReosPlotWidget::positiveMagnifier );
+  ui->mPlotWidget->setSettingsContext( settingsString );
 
   mProgressControler = new ReosHydrauylicNetworkElementCalculationControler( junctionNode, this );
   mProgressControler->setProgressBar( ui->mProgressBar );
@@ -96,6 +97,9 @@ ReosHydraulicHydrographJunctionPropertiesWidget::ReosHydraulicHydrographJunction
 
   connect( mJunctionNode->outputHydrograph(), &ReosDataObject::dataChanged, this, &ReosHydraulicHydrographJunctionPropertiesWidget::updateGaugedHydrograph );
   connect( mJunctionNode->gaugedHydrographsStore(), &ReosHydrographsStore::hydrographChanged, this, &ReosHydraulicHydrographJunctionPropertiesWidget::updateGaugedHydrograph );
+
+  if ( context.map() )
+    connect( context.map(), &ReosMap::timeChanged, ui->mPlotWidget, &ReosPlotWidget::setTime );
 
   populateHydrographs();
 }
