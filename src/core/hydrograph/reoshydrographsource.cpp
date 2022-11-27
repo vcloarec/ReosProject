@@ -563,8 +563,18 @@ void ReosHydrographNodeWatershed::init()
     mHydrographsStore = mWatershed->gaugedHydrographs();
   else
     mHydrographsStore = mWatershed->downstreamWatershed()->gaugedHydrographs();
-}
 
+  connect( mRunoffHydrographs, &ReosRunoffHydrographsStore::hydrographRemoved, this, [this]( const ReosMeteorologicModel * model )
+  {
+    if ( model == mLastMeteoModel )
+    {
+      mNeedCalculation = true;
+      mInternalHydrographUpdated = true;
+      emit internalHydrographPointerChange();
+      calculateIfAllReady();
+    }
+  } );
+}
 
 ReosWatershed *ReosHydrographNodeWatershed::watershed() const
 {
@@ -642,18 +652,12 @@ void ReosHydrographNodeWatershed::calculateInternalHydrograph()
       }
     }, Qt::QueuedConnection ); //specify queued connection should be NOT necessary because mRunoffHydrographs emit the signal from an other thread
 
-    mRunoffHydrographs->updateHydrograph( mInternalHydrograph );
     mInternalHydrographUpdated = false;
+    mRunoffHydrographs->updateHydrograph( mInternalHydrograph );
   }
-  else if ( mInternalHydrograph )
-  {
-    mInternalHydrographUpdated = true;
-    calculateIfAllReady();
-  }
-  else
-  {
-    mInternalHydrographUpdated = true;
-  }
+
+  mInternalHydrographUpdated = true;
+  calculateIfAllReady();
 }
 
 bool ReosHydrographNodeWatershed::updateInternalHydrograph()
@@ -662,6 +666,8 @@ bool ReosHydrographNodeWatershed::updateInternalHydrograph()
 
   switch ( mInternalHydrographOrigin )
   {
+    case ReosHydrographNodeWatershed::None:
+      break;
     case ReosHydrographNodeWatershed::RunoffHydrograph:
       newHydrograph = mRunoffHydrographs->hydrograph( mLastMeteoModel );
       break;
@@ -692,7 +698,6 @@ ReosHydrographNodeWatershed *ReosHydrographNodeWatershed::decode( const ReosEnco
     return nullptr;
 
   std::unique_ptr<ReosHydrographNodeWatershed> ret( new ReosHydrographNodeWatershed( encodedElement, watershed, context.watershedModule()->meteoModelsCollection(), context.network() ) );
-
 
   return ret.release();
 }

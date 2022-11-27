@@ -131,9 +131,8 @@ class ReosHydraulicNetworkWidget : public QWidget
 
     QAction *mActionZoomToNetworkExtent = nullptr;
 
+    void unselectCurrentElement();
     void setMapItemVisible( bool visible );
-
-
     QList<ReosGeometryStructure *> mGeometryStructures;
     void addGeometryStructure( ReosHydraulicNetworkElement *elem );
     void removeGeometryStructure( ReosHydraulicNetworkElement *elem );
