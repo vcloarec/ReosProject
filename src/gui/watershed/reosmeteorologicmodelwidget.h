@@ -19,6 +19,7 @@
 #include <QWidget>
 
 #include "reosactionwidget.h"
+#include "reosguicontext.h"
 
 class ReosMeteorologicItemModel;
 class ReosMeteorologicModel;
@@ -26,6 +27,8 @@ class ReosWatershedItemModel;
 class ReosMeteorologicModelsCollection;
 class ReosTimeWindow;
 class ReosDuration;
+class ReosRenderedObject;
+class ReosMap;
 
 namespace Ui
 {
@@ -39,7 +42,7 @@ class ReosMeteorologicModelWidget : public ReosActionWidget
   public:
     explicit ReosMeteorologicModelWidget( ReosWatershedItemModel *watershedModel,
                                           ReosMeteorologicModelsCollection *meteoModelsCollection,
-                                          QWidget *parent = nullptr );
+                                          const ReosGuiContext &guiContext );
 
     void setCurrentMeteorologicalModel( int index );
 
@@ -60,18 +63,21 @@ class ReosMeteorologicModelWidget : public ReosActionWidget
     void onRenameMeteoModel();
     void onCurrentModelChanged();
     void onMeteoTreeViewContextMenu( const QPoint &pos );
-
+    void handleRenderedObject();
 
   private:
     ReosMeteorologicItemModel *mMeteorologicItemModel = nullptr;
     ReosMeteorologicModel *mCurrentModel = nullptr;
     ReosMeteorologicModelsCollection *mModelsCollections = nullptr;
+    ReosMap *mMap = nullptr;
     Ui::ReosMeteorologicModelWidget *ui;
 
     QAction *mActionAddMeteoModel = nullptr;
     QAction *mActionDuplicateMeteoModel = nullptr;
     QAction *mActionRemoveMeteoModel = nullptr;
     QAction *mActionRenameMeteoModel = nullptr;
+
+    QHash<QString, ReosRenderedObject *> mActiveRenderedObject;
 
     ReosMeteorologicModel *currentModel() const;
 };

@@ -65,6 +65,10 @@ ReosGriddedRainfallRendererFactory_p::ReosGriddedRainfallRendererFactory_p( cons
   , mColorRampSettings( new ReosGriddedRainfallColorShaderSettings_p( this ) )
 {
   init();
+
+  std::unique_ptr<QgsSingleBandPseudoColorRenderer> renderer( new QgsSingleBandPseudoColorRenderer( mRasterLayer->dataProvider(), 1 ) );
+  renderer->createShader();
+  mRasterLayer->setRenderer( renderer.release() );
   mColorRampSettings->decode( element.getEncodedData( QStringLiteral( "color-ramp-settings" ) ) );
   mColorRampSettings->onSettingsUpdated();
 }

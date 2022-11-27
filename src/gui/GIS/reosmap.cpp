@@ -585,23 +585,25 @@ void ReosMap::addExtraRenderedObject( ReosRenderedObject *obj )
 
 void ReosMap::removeExtraRenderedObject( ReosRenderedObject *obj )
 {
-  mExtraRenderedObjects.removeOne( obj );
-  mExtraRenderedObjectHandler.clearObject( obj );
-  QgsMapCanvas *mapCanvas = qobject_cast<QgsMapCanvas *>( mCanvas );
-  if ( mapCanvas )
+  if ( mExtraRenderedObjects.removeOne( obj ) )
   {
-    mapCanvas->refresh();
-    disconnect( obj, &ReosRenderedObject::repaintRequested, this, &ReosMap::onExtraObjectRequestRepaint );
-
-    const QList<ReosColorShaderSettings *> colorRampSettings = obj->colorShaderSettings();
-    for ( ReosColorShaderSettings *settings : colorRampSettings )
+    mExtraRenderedObjectHandler.clearObject( obj );
+    QgsMapCanvas *mapCanvas = qobject_cast<QgsMapCanvas *>( mCanvas );
+    if ( mapCanvas )
     {
+      mapCanvas->refresh();
+      disconnect( obj, &ReosRenderedObject::repaintRequested, this, &ReosMap::onExtraObjectRequestRepaint );
 
-      ReosColorRampMapLegendItem *legendItem = mColorRampLegendSettings.value( settings, nullptr );
-      if ( legendItem )
-        delete legendItem;
+      const QList<ReosColorShaderSettings *> colorRampSettings = obj->colorShaderSettings();
+      for ( ReosColorShaderSettings *settings : colorRampSettings )
+      {
+        ReosColorRampMapLegendItem *legendItem = mColorRampLegendSettings.value( settings, nullptr );
+        if ( legendItem )
+          delete legendItem;
+      }
     }
   }
+
 }
 
 const QObject *ReosMap::temporalController() const

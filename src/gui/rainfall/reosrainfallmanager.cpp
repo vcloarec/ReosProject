@@ -1010,7 +1010,7 @@ void ReosRainfallManager::onRemoveItem()
 
   if ( QMessageBox::question( this, tr( "Remove item" ), tr( "Remove: %1" ).arg( item->name() ) ) == QMessageBox::Yes )
   {
-    removeMarker( item );
+    removeFromMap( item );
     mModel->removeItem( item );
   }
 }
@@ -1200,6 +1200,18 @@ ReosMapItem *ReosRainfallManager::addMapItem( ReosRainfallItem *item )
   }
 
   return nullptr;
+}
+
+void ReosRainfallManager::removeFromMap( ReosRainfallItem *item )
+{
+  removeMarker( item );
+  if ( item && item->type() == ReosRainfallItem::Data )
+  {
+    ReosRainfallDataItem *dataItem = qobject_cast<ReosRainfallDataItem *>( item );
+
+    if ( ReosRenderedObject *renderedObj = qobject_cast<ReosRenderedObject *>( dataItem->data() ) )
+      mMap->removeExtraRenderedObject( renderedObj );
+  }
 }
 
 void ReosRainfallManager::removeMarker( ReosRainfallItem *item )

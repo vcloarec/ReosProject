@@ -52,6 +52,7 @@ ReosGriddedRainfall *ReosGriddedRainfall::decode( const ReosEncodedElement &elem
 ReosGriddedRainfall::ReosGriddedRainfall( const ReosEncodedElement &element, QObject *parent )
   : ReosRenderedObject( parent )
 {
+  ReosDataObject::decode( element );
   element.getData( QStringLiteral( "overriden-crs" ), mOverridenCrs );
 
   QString providerKey;
@@ -61,15 +62,15 @@ ReosGriddedRainfall::ReosGriddedRainfall( const ReosEncodedElement &element, QOb
     mProvider->decode( element.getEncodedData( QStringLiteral( "provider" ) ) );
 
   // renderer factory must be created after set the datasource because, the factory needs the extent of the provider on creation
-  mRendererFactory.reset( new ReosGriddedRainfallRendererFactory_p( this ) );
+  mRendererFactory.reset( new ReosGriddedRainfallRendererFactory_p( element.getEncodedData( QStringLiteral( "renderer" ) ), this ) );
 }
 
 ReosEncodedElement ReosGriddedRainfall::encode() const
 {
   ReosEncodedElement element( QStringLiteral( "gridded-precipitaton" ) );
-
+  ReosDataObject::encode( element );
   element.addData( QStringLiteral( "overriden-crs" ), mOverridenCrs );
-  element.addEncodedData( "renderer", mRendererFactory->encode() );
+  element.addEncodedData( QStringLiteral( "renderer" ), mRendererFactory->encode() );
 
   element.addData( QStringLiteral( "provider-key" ), mProvider->key() );
   element.addEncodedData( QStringLiteral( "provider" ), mProvider->encode() );
