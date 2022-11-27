@@ -259,7 +259,7 @@ void ReosColorShaderSettings_p::decode( ReosEncodedElement element )
 
   if ( doc.setContent( docString ) )
   {
-    QDomElement domElem = doc.firstChildElement( QStringLiteral( "color-ramp-shader" ) );
+    QDomElement domElem = doc.firstChildElement( QStringLiteral( "colorrampshader" ) );
     mColorShader.readXml( domElem );
   }
 }

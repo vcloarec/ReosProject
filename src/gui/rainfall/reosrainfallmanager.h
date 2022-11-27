@@ -123,6 +123,7 @@ class REOSGUI_EXPORT ReosRainfallManager : public ReosActionWidget
 
     std::map<ReosStationItem *, std::unique_ptr<ReosStationMapMarker>> mStationsMarker;
     ReosMapItem *addMapItem( ReosRainfallItem *item );
+    void removeFromMap( ReosRainfallItem *item );
     void removeMarker( ReosRainfallItem *item );
     void buildMarkers();
     void clearMarkers();
@@ -145,7 +146,7 @@ class REOSGUI_EXPORT ReosRainfallManager : public ReosActionWidget
     void addRainfallFromProvider( ReosStationItem *stationItem, const QVariantMap &meta, bool copy );
     void addRainfallFromProvider( ReosStationItem *stationItem, const QString &rainfallName, bool copy );
 
-    void addGriddedRainFallFromProvider(ReosZoneItem *destination, bool copy );
+    void addGriddedRainFallFromProvider( ReosZoneItem *destination, bool copy );
 
     ReosFormWidget *createForm( ReosRainfallItem *item );
     void setupFormForStation( ReosFormWidget *form, ReosStationItem *stationItem );

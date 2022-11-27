@@ -76,6 +76,8 @@ class REOSCORE_EXPORT ReosMeteorologicModel : public ReosDataObject
 
     ReosEncodedElement encode( ReosWatershedTree *watershedTree ) const;
 
+    QHash<QString, ReosDataObject *> allRainfall() const;
+
   signals:
     //! Emitted when the color change
     void colorChanged( const QColor &color );

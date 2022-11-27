@@ -27,14 +27,17 @@
 #include "reosrainfallmodel.h"
 #include "reoswatershedtree.h"
 #include "reosstyleregistery.h"
+#include "reosrenderedobject.h"
+#include "reosmap.h"
 
 
 ReosMeteorologicModelWidget::ReosMeteorologicModelWidget( ReosWatershedItemModel *watershedModel,
     ReosMeteorologicModelsCollection *meteoModelsCollection,
-    QWidget *parent ) :
-  ReosActionWidget( parent )
+    const ReosGuiContext &guiContext ) :
+  ReosActionWidget( guiContext.parent() )
   , mMeteorologicItemModel( new ReosMeteorologicItemModel( watershedModel ) )
   , mModelsCollections( meteoModelsCollection )
+  , mMap( guiContext.map() )
   , ui( new Ui::ReosMeteorologicModelWidget )
 {
   ui->setupUi( this );
@@ -70,6 +73,8 @@ ReosMeteorologicModelWidget::ReosMeteorologicModelWidget( ReosWatershedItemModel
 
   connect( ui->comboBoxCurrentModel, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosMeteorologicModelWidget::onCurrentModelChanged );
   onCurrentModelChanged();
+
+  handleRenderedObject();
 }
 
 void ReosMeteorologicModelWidget::setCurrentMeteorologicalModel( int index )
@@ -178,6 +183,7 @@ void ReosMeteorologicModelWidget::onCurrentModelChanged()
   {
     disconnect( mCurrentModel, &ReosMeteorologicModel::timeWindowChanged, this, &ReosMeteorologicModelWidget::timeWindowChanged );
     disconnect( mCurrentModel, &ReosMeteorologicModel::mapTimeStepChanged, this, &ReosMeteorologicModelWidget::mapTimeStepChanged );
+    disconnect( mCurrentModel, &ReosMeteorologicModel::dataChanged, this, &ReosMeteorologicModelWidget::handleRenderedObject );
   }
 
   ReosMeteorologicModel *current = currentModel();
@@ -197,7 +203,10 @@ void ReosMeteorologicModelWidget::onCurrentModelChanged()
   {
     connect( mCurrentModel, &ReosMeteorologicModel::timeWindowChanged, this, &ReosMeteorologicModelWidget::timeWindowChanged );
     connect( mCurrentModel, &ReosMeteorologicModel::mapTimeStepChanged, this, &ReosMeteorologicModelWidget::mapTimeStepChanged );
+    connect( mCurrentModel, &ReosMeteorologicModel::dataChanged, this, &ReosMeteorologicModelWidget::handleRenderedObject );
   }
+
+  handleRenderedObject();
 }
 
 void ReosMeteorologicModelWidget::onMeteoTreeViewContextMenu( const QPoint &pos )
@@ -215,5 +224,55 @@ ReosMeteorologicModel *ReosMeteorologicModelWidget::currentModel() const
 {
   int currentIndex = ui->comboBoxCurrentModel->currentIndex();
   return mModelsCollections->meteorologicModel( currentIndex );
+}
+
+void ReosMeteorologicModelWidget::handleRenderedObject()
+{
+  if ( mCurrentModel )
+  {
+    const QHash<QString, ReosDataObject *> newActiveObjects = mCurrentModel->allRainfall();
+    QList<ReosRenderedObject *> renderedObjectToRemove;
+    QList<ReosRenderedObject *> renderedObjectToAdd;
+
+    for ( ReosDataObject *objCurrent : std::as_const( mActiveRenderedObject ) )
+    {
+      auto itNew = newActiveObjects.find( objCurrent->id() );
+      if ( itNew == newActiveObjects.end() )
+      {
+        if ( ReosRenderedObject *rendObj = qobject_cast<ReosRenderedObject *>( objCurrent ) )
+          renderedObjectToRemove.append( rendObj );
+      }
+    }
+
+    for ( ReosRenderedObject *rendObj : std::as_const( renderedObjectToRemove ) )
+    {
+      if ( mMap )
+        mMap->removeExtraRenderedObject( rendObj );
+      mActiveRenderedObject.remove( rendObj->id() );
+    }
+
+    for ( ReosDataObject *objNew : newActiveObjects )
+    {
+      auto itCurrent = mActiveRenderedObject.find( objNew->id() );
+      if ( itCurrent == mActiveRenderedObject.end() )
+      {
+        if ( ReosRenderedObject *rendObj = qobject_cast<ReosRenderedObject *>( objNew ) )
+          renderedObjectToAdd.append( rendObj );
+      }
+    }
+
+    for ( ReosRenderedObject *rendObj : std::as_const( renderedObjectToAdd ) )
+    {
+      if ( mMap )
+        mMap->addExtraRenderedObject( rendObj );
+      mActiveRenderedObject.insert( rendObj->id(), rendObj );
+    }
+
+  }
+  else
+  {
+    for ( ReosRenderedObject *objCurrent : std::as_const( mActiveRenderedObject ) )
+      mMap->removeExtraRenderedObject( objCurrent );
+  }
 }
 

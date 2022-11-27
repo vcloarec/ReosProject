@@ -55,7 +55,7 @@ ReosWatershedWidget::ReosWatershedWidget( const ReosGuiContext &guiContext, Reos
 
   setWatershedModel( new ReosWatershedItemModel( module->watershedTree(), this ) );
 
-  mMeteorolocicModelWidget = new ReosMeteorologicModelWidget( mModelWatershed, module->meteoModelsCollection(), this );
+  mMeteorolocicModelWidget = new ReosMeteorologicModelWidget( mModelWatershed, module->meteoModelsCollection(), ReosGuiContext( guiContext, this ) );
 
   ui->mParameterAreaWidget->setDefaultName( tr( "Area" ) );
   ui->mParameterSlopeWidget->setDefaultName( tr( "Average Slope" ) );

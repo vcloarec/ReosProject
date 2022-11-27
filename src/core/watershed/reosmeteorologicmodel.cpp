@@ -93,6 +93,18 @@ ReosEncodedElement ReosMeteorologicModel::encode( ReosWatershedTree *watershedTr
   return element;
 }
 
+QHash<QString, ReosDataObject *> ReosMeteorologicModel::allRainfall() const
+{
+  QHash<QString, ReosDataObject *> ret;
+  for ( const WatershedRainfallAssociation &association : std::as_const( mAssociations ) )
+  {
+    if ( association.rainfallDataItem.isNull() || !association.rainfallDataItem->data() )
+      continue;
+    ret.insert( association.rainfallDataItem->data()->id(), association.rainfallDataItem->data() );
+  }
+  return ret;
+}
+
 void ReosMeteorologicModel::setColor( const QColor &color )
 {
   mColor = color;
