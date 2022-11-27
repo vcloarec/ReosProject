@@ -194,8 +194,8 @@ QPointer<ReosHydrograph> ReosRunoffHydrographsStore::hydrograph( ReosMeteorologi
   if ( mMeteoModelToHydrographCalculationData.contains( meteoModel ) )
   {
     mMeteoModelToHydrographCalculationData[meteoModel].hasBeenAsked = true;
-    updateHydrograph( mMeteoModelToHydrographCalculationData.value( meteoModel ).hydrograph );
-    return mMeteoModelToHydrographCalculationData.value( meteoModel ).hydrograph;
+    updateHydrograph( mMeteoModelToHydrographCalculationData.value( meteoModel ).hydrograph.get() );
+    return mMeteoModelToHydrographCalculationData.value( meteoModel ).hydrograph.get();
   }
 
   return nullptr;
@@ -205,7 +205,7 @@ QPointer<ReosRunoff> ReosRunoffHydrographsStore::runoff( ReosMeteorologicModel *
 {
   if ( mMeteoModelToHydrographCalculationData.contains( meteoModel ) )
   {
-    return mMeteoModelToHydrographCalculationData.value( meteoModel ).runoff;
+    return mMeteoModelToHydrographCalculationData.value( meteoModel ).runoff.get();
   }
 
   return nullptr;
@@ -231,21 +231,21 @@ void ReosRunoffHydrographsStore::updateStore()
         // if no data exist for this model, create some
         HydrographCalculationData hydData;
         hydData.rainfall = model->associatedRainfall( mWatershed );
-        hydData.hydrograph =  new ReosHydrograph( this );
+        hydData.hydrograph.reset( new ReosHydrograph( this ) );
         if ( model->color().isValid() )
         {
           hydData.hydrograph->setColor( model->color() );
         }
-        ReosHydrograph *hyd = hydData.hydrograph;
+        ReosHydrograph *hyd = hydData.hydrograph.get();
         connect( hyd, &ReosHydrograph::colorChanged, model, &ReosMeteorologicModel::setColor );
         connect( model, &ReosMeteorologicModel::colorChanged, hyd, &ReosTimeSerieVariableTimeStep::setCommonColor );
 
         hydData.hydrograph->setName( tr( "%1 hydrograph" ).arg( model->name()->value() ) );
-        hydData.runoff = new ReosRunoff( mWatershed->runoffModels(), hydData.rainfall );
+        hydData.runoff.reset( new ReosRunoff( mWatershed->runoffModels(), hydData.rainfall ) );
         mMeteoModelToHydrographCalculationData.insert( model, hydData );
-        registerInputdata( model, hydData.hydrograph );
-        registerInputdata( hydData.rainfall, hydData.hydrograph );
-        registerInputdata( mWatershed, hydData.hydrograph );
+        registerInputdata( model, hydData.hydrograph.get() );
+        registerInputdata( hydData.rainfall, hydData.hydrograph.get() );
+        registerInputdata( mWatershed, hydData.hydrograph.get() );
       }
       else
       {
@@ -255,9 +255,9 @@ void ReosRunoffHydrographsStore::updateStore()
         if ( modelRainfall != hydData.rainfall ) // first, we check if the rainfall is the same
         {
           //if not, deregister the old one and replace it by the new one
-          deregisterInputData( hydData.rainfall, hydData.hydrograph );
+          deregisterInputData( hydData.rainfall, hydData.hydrograph.get() );
           hydData.rainfall = modelRainfall;
-          registerInputdata( hydData.rainfall, hydData.hydrograph );
+          registerInputdata( hydData.rainfall, hydData.hydrograph.get() );
           // do not forget to replace the rainfall in the runoff object, setting it obsolete
           hydData.runoff->setRainfall( hydData.rainfall );
 
@@ -273,15 +273,15 @@ void ReosRunoffHydrographsStore::updateStore()
     }
   }
 
-  for ( ReosMeteorologicModel *model : mMeteoModelToHydrographCalculationData.keys() )
+  const QList<ReosMeteorologicModel *> models = mMeteoModelToHydrographCalculationData.keys();
+  for ( ReosMeteorologicModel *model : models )
     if ( !allModels.contains( model ) && !modelToRemove.contains( model ) )
       modelToRemove.append( model );
 
   for ( ReosMeteorologicModel *model : modelToRemove )
   {
-    delete mMeteoModelToHydrographCalculationData.value( model ).hydrograph;
-    delete mMeteoModelToHydrographCalculationData.value( model ).runoff;
     mMeteoModelToHydrographCalculationData.remove( model );
+    emit hydrographRemoved( model );
   }
 }
 
@@ -361,7 +361,7 @@ void ReosRunoffHydrographsStore::updateHydrograph( ReosHydrograph *hyd )
   for ( ReosMeteorologicModel *meteoModel : keys )
   {
     HydrographCalculationData hydData = mMeteoModelToHydrographCalculationData.value( meteoModel );
-    if ( hyd == hydData.hydrograph )
+    if ( hyd == hydData.hydrograph.get() )
     {
       //check if the rainfall is still the same
       ReosSeriesRainfall *modelRainfall = meteoModel->associatedRainfall( mWatershed );
@@ -418,7 +418,7 @@ void ReosRunoffHydrographsStore::updateHydrograph( ReosHydrograph *hyd )
         if ( mMeteoModelToHydrographCalculationData.contains( model ) )
           hydData = mMeteoModelToHydrographCalculationData.value( model );
 
-        ReosHydrograph *hydro = hydData.hydrograph;
+        ReosHydrograph *hydro = hydData.hydrograph.get();
 
         if ( !hydro || !hydro->hydrographIsObsolete() )
         {
@@ -428,7 +428,7 @@ void ReosRunoffHydrographsStore::updateHydrograph( ReosHydrograph *hyd )
 
         hydro->clear();
 
-        ReosHydrographCalculation *hydrographCalculation = function->calculationProcess( hydData.runoff );
+        ReosHydrographCalculation *hydrographCalculation = function->calculationProcess( hydData.runoff.get() );
         if ( !hydrographCalculation )
           continue;
         mHydrographCalculation.insert( model, hydrographCalculation );
@@ -438,7 +438,7 @@ void ReosRunoffHydrographsStore::updateHydrograph( ReosHydrograph *hyd )
           if ( mMeteoModelToHydrographCalculationData.contains( model ) && hydrographCalculation->isSuccessful() )
           {
             mMeteoModelToHydrographCalculationData.value( model ).hydrograph->copyFrom( hydrographCalculation->hydrograph() );
-            emit hydrographReady( mMeteoModelToHydrographCalculationData.value( model ).hydrograph );
+            emit hydrographReady( mMeteoModelToHydrographCalculationData.value( model ).hydrograph.get() );
           }
 #ifndef _NDEBUG
           qDebug() << "finish hydrograh calculation " << hydrographCalculation;

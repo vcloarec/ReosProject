@@ -306,7 +306,7 @@ class REOSCORE_EXPORT ReosHydrographNodeWatershed : public ReosHydrographJunctio
     QPointer<ReosWatershed> mWatershed;
 
     // Runtime variable
-    ReosRunoffHydrographsStore *mRunoffHydrographs;
+    ReosRunoffHydrographsStore *mRunoffHydrographs = nullptr;
     ReosMeteorologicModel *mLastMeteoModel = nullptr;
 
     void init();

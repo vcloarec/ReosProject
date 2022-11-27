@@ -125,7 +125,7 @@ class REOSCORE_EXPORT ReosHydrographsStore : public ReosHydrographGroup
     static QString staticType() {return ReosDataObject::staticType() + ':' +  QStringLiteral( "hydrograph-store" );}
 
   signals:
-    void hydrographRemoved( int index ) const;
+    void hydrographRemoved( int index );
     void hydrographChanged();
 
   private:
@@ -153,8 +153,8 @@ class REOSCORE_EXPORT ReosRunoffHydrographsStore: public ReosHydrographGroup
 {
     Q_OBJECT
   public:
-    ReosRunoffHydrographsStore( ReosMeteorologicModelsCollection *meteoModelCollection,
-                                QObject *parent = nullptr );
+    explicit ReosRunoffHydrographsStore( ReosMeteorologicModelsCollection *meteoModelCollection,
+                                         QObject *parent = nullptr );
 
     void setWatershed( ReosWatershed *watershed );
 
@@ -163,6 +163,10 @@ class REOSCORE_EXPORT ReosRunoffHydrographsStore: public ReosHydrographGroup
 
     /**
      * Return pointer to the hydrograph corresponding to \a meteomodel.
+     * Calculation of values of this hydrograph is launch on another thread after returning the pointer and nack in the event loop.
+     * The values are updated once the calculation is finished. So values of this hydrograph can't be used just after
+     * calling this function. Values are updated when the signal signal hydrographReady()
+     * is emmited.
      *
      * \note  Following event, the hydrograph can be deleted or updated without warning.
      * Caller of his method has to care about this and not use the raw pointer being
@@ -185,14 +189,18 @@ class REOSCORE_EXPORT ReosRunoffHydrographsStore: public ReosHydrographGroup
     void updateStore();
 
   signals:
+    //! Emitted when the \a hydrograph is updated and ready to used
     void hydrographReady( ReosHydrograph *hydrograph );
+
+    //! Emitted when the hydrograph associated to \a meteoModel is removed
+    void hydrographRemoved( ReosMeteorologicModel *meteoModel );
 
   private:
     struct HydrographCalculationData
     {
       QPointer<ReosSeriesRainfall> rainfall;
-      ReosRunoff *runoff = nullptr;
-      ReosHydrograph *hydrograph = nullptr;
+      std::shared_ptr<ReosRunoff> runoff;
+      std::shared_ptr<ReosHydrograph> hydrograph;
       bool hasBeenAsked = false;
     };
 

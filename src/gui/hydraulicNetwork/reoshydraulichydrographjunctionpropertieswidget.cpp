@@ -179,7 +179,7 @@ void ReosHydraulicHydrographJunctionPropertiesWidget::updateGaugedHydrograph()
       if ( itemPlot )
       {
         itemPlot->setAutoScale( false );
-        itemPlot->setStyle( Qt::DotLine );
+        //itemPlot->setStyle( Qt::DotLine );  //create weird plot trying to simplify the curve
         itemPlot->setWidth( 2 );
         itemPlot->setZ( 15 );
       }

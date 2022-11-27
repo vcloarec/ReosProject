@@ -168,6 +168,7 @@ ReosHydraulicNetworkWidget::~ReosHydraulicNetworkWidget()
 
 void ReosHydraulicNetworkWidget::closePropertiesWidget()
 {
+  unselectCurrentElement();
   mElementPropertiesWidget->setCurrentElement( nullptr, mGuiContext );
   mElementPropertiesWidget->close();
 }
@@ -240,15 +241,7 @@ void ReosHydraulicNetworkWidget::onDrawHydrographRoutingFinish()
 
 void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
 {
-  if ( mCurrentSelectedElement )
-  {
-    disconnect( mCurrentSelectedElement, &ReosHydraulicNetworkElement::timeWindowChanged, this, &ReosHydraulicNetworkWidget::timeWindowChanged );
-    disconnect( mCurrentSelectedElement, &ReosHydraulicNetworkElement::mapTimeStepChanged, this, &ReosHydraulicNetworkWidget::mapTimeStepChanged );
-    auto it = mMapItems.constFind( mCurrentSelectedElement );
-    if ( it != mMapItems.constEnd() )
-      mMapItemFactory.unselectItem( mCurrentSelectedElement, it.value().get() );
-    mCurrentSelectedElement = nullptr;
-  }
+  unselectCurrentElement();
 
   mActionRemoveElement->setEnabled( item != nullptr );
 
@@ -407,6 +400,19 @@ void ReosHydraulicNetworkWidget::updateSchemeInfo()
   {
     ui->mLabelStartTime->setText( tr( "Time not defined" ) );
     ui->mLabelEndTime->setText( tr( "Time not defined" ) );
+  }
+}
+
+void ReosHydraulicNetworkWidget::unselectCurrentElement()
+{
+  if ( mCurrentSelectedElement )
+  {
+    disconnect( mCurrentSelectedElement, &ReosHydraulicNetworkElement::timeWindowChanged, this, &ReosHydraulicNetworkWidget::timeWindowChanged );
+    disconnect( mCurrentSelectedElement, &ReosHydraulicNetworkElement::mapTimeStepChanged, this, &ReosHydraulicNetworkWidget::mapTimeStepChanged );
+    auto it = mMapItems.constFind( mCurrentSelectedElement );
+    if ( it != mMapItems.constEnd() )
+      mMapItemFactory.unselectItem( mCurrentSelectedElement, it.value().get() );
+    mCurrentSelectedElement = nullptr;
   }
 }
 
