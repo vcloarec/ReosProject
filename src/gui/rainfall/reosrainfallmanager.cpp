@@ -379,6 +379,11 @@ void ReosRainfallManager::showProviderSelector( const QString &providerKey, cons
   if ( !mCurrentProviderSelector )
     return;
 
+  //********* gridded precipitation does not support copy to memory rainfall for now
+  if ( dataType.contains( ReosGriddedRainfall::staticType() ) )
+    ui->mProviderAddCopyButton->setVisible( false );
+  //********************* To remove when it will support
+
   ui->mProviderLayout->addWidget( mCurrentProviderSelector );
   ui->stackedWidget->setCurrentIndex( 1 );
 
