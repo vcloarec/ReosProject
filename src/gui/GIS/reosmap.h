@@ -33,6 +33,7 @@ class ReosMapCursorPosition;
 class ReosGisEngine;
 class ReosMapTool;
 class ReosMapToolDrawExtent;
+class ReosMapToolSelectMapItem;
 class ReosGeometryStructure;
 class ReosRenderedObject;
 class ReosObjectRenderer;
@@ -49,7 +50,7 @@ class ReosRendererObjectHandler : public QObject
 {
     Q_OBJECT
   public:
-    ReosRendererObjectHandler( QGraphicsView *view );
+    explicit ReosRendererObjectHandler( QGraphicsView *view );
     ~ReosRendererObjectHandler();
 
     void init();
@@ -85,7 +86,7 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
 {
     Q_OBJECT
   public:
-    ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget = nullptr );
+    explicit ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget = nullptr );
     ~ReosMap();
 
     QWidget *mapCanvas() const;
@@ -122,6 +123,10 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
 
     void activateOpenStreetMap();
 
+    void addSelectToolTarget( const QString &targetDescription );
+
+    ReosMapToolSelectMapItem *defaultMapTool() const;
+
   signals:
     //! emitted when the mouse cursor moves on the map cavans.
     void cursorMoved( const QPointF &point );
@@ -129,6 +134,8 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     void crsChanged( const QString &crs );
     void extentChanged();
     void timeChanged( const QDateTime &time );
+
+    void mapItemFound( ReosMapItem *item, const QPointF &point );
 
   public slots:
     void refreshCanvas();
@@ -147,7 +154,7 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     ReosTemporalController_p *mTemporalControler = nullptr;
 
     QAction *mActionNeutral = nullptr;
-    ReosMapTool *mDefaultMapTool = nullptr;
+    ReosMapToolSelectMapItem *mDefaultMapTool = nullptr;
 
     QAction *mActionZoom = nullptr;
     ReosMapToolDrawExtent *mZoomMapTool = nullptr;
@@ -171,7 +178,7 @@ class REOSGUI_EXPORT ReosMapCursorPosition : public QWidget
 {
     Q_OBJECT
   public:
-    ReosMapCursorPosition( ReosMap *map, QWidget *parent = nullptr );
+    explicit ReosMapCursorPosition( ReosMap *map, QWidget *parent = nullptr );
     ~ReosMapCursorPosition();
 
   private slots:

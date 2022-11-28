@@ -322,7 +322,7 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   , mEngine( gisEngine )
   , mCanvas( new QgsMapCanvas( parentWidget ) )
   , mActionNeutral( new QAction( QIcon( QStringLiteral( ":/images/neutral.svg" ) ), tr( "Deactivate Tool" ), this ) )
-  , mDefaultMapTool( new ReosMapToolNeutral( this ) )
+  , mDefaultMapTool( new ReosMapToolSelectMapItem( this ) )
   , mActionZoom( new QAction( QIcon( QStringLiteral( ":/images/zoomInExtent.svg" ) ), tr( "Zoom In" ), this ) )
   , mZoomMapTool( new ReosMapToolDrawExtent( this ) )
   , mActionZoomIn( new QAction( QIcon( QStringLiteral( ":/images/zoomIn.svg" ) ), tr( "Zoom In" ), this ) )
@@ -372,6 +372,7 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   if ( mEngine )
     connect( mEngine, &ReosGisEngine::crsChanged, this, &ReosMap::setCrs );
 
+  mActionNeutral->setCheckable( true );
   mDefaultMapTool->setAction( mActionNeutral );
   mDefaultMapTool->setCurrentToolInMap();
 
@@ -433,6 +434,11 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   connect( canvas, &QgsMapCanvas::renderComplete, this, &ReosMap::drawExtraRendering );
 
   mExtraRenderedObjectHandler.init();
+
+  mDefaultMapTool->setCursor( Qt::ArrowCursor );
+  //mDefaultMapTool->setSearchUnderPoint( true );
+  mDefaultMapTool->setSearchItemWhenMoving( true );
+  connect( mDefaultMapTool, &ReosMapToolSelectMapItem::found, this, &ReosMap::mapItemFound );
 }
 
 ReosMap::~ReosMap()
@@ -660,6 +666,11 @@ void ReosMap::activateOpenStreetMap()
   }
 }
 
+void ReosMap::addSelectToolTarget( const QString &targetDescription )
+{
+  mDefaultMapTool->addSearchingItemDescription( targetDescription );
+}
+
 void ReosMap::setCrs( const QString &crsWkt )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
@@ -696,6 +707,11 @@ void ReosMap::onExtraObjectRequestRepaint()
     }
     canvas->refresh();
   }
+}
+
+ReosMapToolSelectMapItem *ReosMap::defaultMapTool() const
+{
+  return mDefaultMapTool;
 }
 
 ReosMapCursorPosition::ReosMapCursorPosition( ReosMap *map, QWidget *parent ):

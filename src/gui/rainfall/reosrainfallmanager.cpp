@@ -118,7 +118,7 @@ ReosRainfallManager::ReosRainfallManager( ReosMap *map, ReosRainfallModel *rainf
   connect( mMapToolAddStationOnMap, &ReosMapTool::activated, this, [this] {ui->mTreeView->setEnabled( false );} );
   connect( mMapToolAddStationOnMap, &ReosMapTool::deactivated, this, [this] {ui->mTreeView->setEnabled( true );} );
 
-  mMapToolSelectStation = new ReosMapToolSelectMapItem( this, map, ReosStationMapMarker::staticDescritpion() );
+  mMapToolSelectStation = new ReosMapToolSelectMapItem( map, ReosStationMapMarker::staticDescritpion() );
   mMapToolSelectStation->setAction( mActionSelectStationFromMap );
   mActionSelectStationFromMap->setCheckable( true );
   mMapToolSelectStation->setCursor( Qt::ArrowCursor );

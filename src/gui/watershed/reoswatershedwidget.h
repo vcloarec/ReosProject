@@ -47,6 +47,8 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
     QAction *meteorologicalModelAction() const;
     QAction *displayGriddedPrecipitationOnMap() const;
 
+    const QString &descriptionKeyWatershed() const;
+
   signals:
     void currentWatershedChanged( ReosWatershed *ws );
     void timeWindowChanged();
@@ -112,7 +114,7 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
       std::shared_ptr<ReosMapMarkerFilledCircle> outletPoint;
     };
 
-    using MapWatersheds = QMap<ReosWatershed *, MapWatershed>;
+    using MapWatersheds = QHash<ReosWatershed *, MapWatershed>;
     MapWatersheds mMapWatersheds;
 
     void constructMapWatershed( ReosWatershed *watershed );

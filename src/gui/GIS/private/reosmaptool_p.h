@@ -49,7 +49,7 @@ class ReosMapTool_p: public QgsMapTool
     //! Sets the size of the search zone
     void setSearchZoneSize( const QSizeF &size );
 
-    void setSearchTargetDescription( const QString &description );
+    void addSearchTargetDescription( const QString &description );
 
     void setSeachWhenMoving( bool seachWhenMoving );
 
@@ -87,9 +87,11 @@ class ReosMapTool_p: public QgsMapTool
     QSizeF mSearchZone = QSizeF( 12, 12 );
     bool mSeachWhenMoving = false;
     bool mUnderPoint = false;
-    QString mTargetDescritpion;
+    QList<QString> mTargetDescritpion;
     bool mSnappingEnabled = false;
     bool mActivateMovingSignal = false;
+
+    bool isRecognized( const QString &candidateDescription ) const;
 };
 
 class ReosMapToolDrawPoint_p: public ReosMapTool_p
