@@ -459,7 +459,7 @@ void ReosTelemac2DSimulationResults::dryVertices( int datasetIndex ) const
   if ( mCache.at( datasetIndex ).waterLevel.isEmpty() )
     mCache[datasetIndex].waterLevel = datasetValues( groupIndex( DatasetType::WaterLevel ), datasetIndex );
 
-  QVector<double> &waterLevel = mCache[datasetIndex].waterLevel;
+  const QVector<double> &waterLevel = mCache[datasetIndex].waterLevel;
   QVector<int> &active = mCache[datasetIndex].activeFaces;
   active.resize( mFaces.count() );
   QVector<int> &activeVert = mCache[datasetIndex].activeVertices;
@@ -483,9 +483,6 @@ void ReosTelemac2DSimulationResults::dryVertices( int datasetIndex ) const
       for ( int f : face )
         activeVert[f] = 1;
     }
-    else
-      for ( int f : face )
-        waterLevel[f] = std::numeric_limits<double>::quiet_NaN();
   }
 }
 

@@ -513,7 +513,7 @@ QList<ReosMeshPointValue> ReosMeshFrame_p::drapePolyline( const QPolygonF &polyl
 
         QgsPoint intersectPoint;
         bool isIntersect;
-        if ( QgsGeometryUtils::segmentIntersection( vert1, vert2, pt1, pt2, intersectPoint, isIntersect, tolerance, true ) )
+        if ( QgsGeometryUtils::segmentIntersection( vert1, vert2, pt1, pt2, intersectPoint, isIntersect, tolerance, false ) )
         {
           QPair<int, int> edge;
           if ( vi1 > vi2 )
