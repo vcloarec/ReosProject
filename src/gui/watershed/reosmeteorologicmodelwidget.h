@@ -51,6 +51,8 @@ class ReosMeteorologicModelWidget : public ReosActionWidget
     ReosTimeWindow timeWindow() const;
     ReosDuration mapTimeStep() const;
 
+    QAction *displayGriddedPrecipitationOnMapAction() const;
+
   signals:
     void currentModelChanged( int index );
     void timeWindowChanged();
@@ -64,6 +66,7 @@ class ReosMeteorologicModelWidget : public ReosActionWidget
     void onCurrentModelChanged();
     void onMeteoTreeViewContextMenu( const QPoint &pos );
     void handleRenderedObject();
+    void displayRenderedObject( bool display );
 
   private:
     ReosMeteorologicItemModel *mMeteorologicItemModel = nullptr;
@@ -76,6 +79,7 @@ class ReosMeteorologicModelWidget : public ReosActionWidget
     QAction *mActionDuplicateMeteoModel = nullptr;
     QAction *mActionRemoveMeteoModel = nullptr;
     QAction *mActionRenameMeteoModel = nullptr;
+    QAction *mActionDisplayGriddedOnMap = nullptr;
 
     QHash<QString, ReosRenderedObject *> mActiveRenderedObject;
 

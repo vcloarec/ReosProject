@@ -160,7 +160,7 @@ class REOSCORE_EXPORT ReosMeteorologicItemModel: public QIdentityProxyModel
     Q_OBJECT
   public:
 
-    ReosMeteorologicItemModel( ReosWatershedItemModel *watershedModel, QObject *parent = nullptr );
+    explicit ReosMeteorologicItemModel( ReosWatershedItemModel *watershedModel, QObject *parent = nullptr );
 
     QVariant data( const QModelIndex &index, int role )  const override;
     int columnCount( const QModelIndex & ) const override;

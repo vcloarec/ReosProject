@@ -39,9 +39,12 @@ ReosMeteorologicModelWidget::ReosMeteorologicModelWidget( ReosWatershedItemModel
   , mModelsCollections( meteoModelsCollection )
   , mMap( guiContext.map() )
   , ui( new Ui::ReosMeteorologicModelWidget )
+  , mActionDisplayGriddedOnMap( new QAction( QIcon( QStringLiteral( ":/images/griddedRainfallDisplay.svg" ) ), tr( "Display Gridded Precipitation on Map" ), this ) )
 {
   ui->setupUi( this );
   setWindowFlag( Qt::Dialog );
+
+  mActionDisplayGriddedOnMap->setCheckable( true );
 
   if ( ReosRainfallRegistery::isInstantiate() )
     ui->treeViewRainfall->setModel( ReosRainfallRegistery::instance()->rainfallModel() );
@@ -73,6 +76,7 @@ ReosMeteorologicModelWidget::ReosMeteorologicModelWidget( ReosWatershedItemModel
 
   connect( ui->comboBoxCurrentModel, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosMeteorologicModelWidget::onCurrentModelChanged );
   onCurrentModelChanged();
+  connect( mActionDisplayGriddedOnMap, &QAction::toggled, this, &ReosMeteorologicModelWidget::displayRenderedObject );
 
   handleRenderedObject();
 }
@@ -101,6 +105,11 @@ ReosDuration ReosMeteorologicModelWidget::mapTimeStep() const
     return mCurrentModel->mapTimeStep();
 
   return ReosDuration();
+}
+
+QAction *ReosMeteorologicModelWidget::displayGriddedPrecipitationOnMapAction() const
+{
+  return mActionDisplayGriddedOnMap;
 }
 
 void ReosMeteorologicModelWidget::onAddMeteoModel()
@@ -246,8 +255,6 @@ void ReosMeteorologicModelWidget::handleRenderedObject()
 
     for ( ReosRenderedObject *rendObj : std::as_const( renderedObjectToRemove ) )
     {
-      if ( mMap )
-        mMap->removeExtraRenderedObject( rendObj );
       mActiveRenderedObject.remove( rendObj->id() );
     }
 
@@ -263,11 +270,23 @@ void ReosMeteorologicModelWidget::handleRenderedObject()
 
     for ( ReosRenderedObject *rendObj : std::as_const( renderedObjectToAdd ) )
     {
-      if ( mMap )
-        mMap->addExtraRenderedObject( rendObj );
       mActiveRenderedObject.insert( rendObj->id(), rendObj );
     }
+  }
+  else
+  {
+    mActiveRenderedObject.clear();
+  }
 
+  displayRenderedObject( mActionDisplayGriddedOnMap->isChecked() );
+}
+
+void ReosMeteorologicModelWidget::displayRenderedObject( bool display )
+{
+  if ( display )
+  {
+    for ( ReosRenderedObject *objCurrent : std::as_const( mActiveRenderedObject ) )
+      mMap->addExtraRenderedObject( objCurrent );
   }
   else
   {
@@ -275,4 +294,5 @@ void ReosMeteorologicModelWidget::handleRenderedObject()
       mMap->removeExtraRenderedObject( objCurrent );
   }
 }
+
 

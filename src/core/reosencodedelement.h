@@ -38,7 +38,7 @@ class REOSCORE_EXPORT ReosEncodedElement
     {}
 
     //! Contructor of an encoded element from a \a byte array than contains data and description
-    ReosEncodedElement( const QByteArray &byteArray );
+    explicit ReosEncodedElement( const QByteArray &byteArray );
 
     //! Returns the desctiption of the encoded element
     QString description() const {return mDescription;}
@@ -82,7 +82,6 @@ class REOSCORE_EXPORT ReosEncodedElement
     bool hasEncodedData( const QString &key ) const;
 
     static void setSerialisationVersion( QDataStream::Version version );
-
 
   private:
     QMap<QString, QByteArray> mData;

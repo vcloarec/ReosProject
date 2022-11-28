@@ -44,6 +44,9 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
     ReosTimeWindow timeWindow() const;
     ReosDuration mapTimeStep() const;
 
+    QAction *meteorologicalModelAction() const;
+    QAction *displayGriddedPrecipitationOnMap() const;
+
   signals:
     void currentWatershedChanged( ReosWatershed *ws );
     void timeWindowChanged();

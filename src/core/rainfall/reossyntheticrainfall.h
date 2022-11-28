@@ -79,7 +79,7 @@ class REOSCORE_EXPORT ReosChicagoRainfall : public ReosUniqueIdfCurveSyntheticRa
     static ReosChicagoRainfall *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
 
   protected:
-    ReosChicagoRainfall( const ReosEncodedElement &element, QObject *parent = nullptr );
+    explicit ReosChicagoRainfall( const ReosEncodedElement &element, QObject *parent = nullptr );
 
   private:
     void updateRainfall() const override ;
@@ -101,7 +101,7 @@ class REOSCORE_EXPORT ReosAlternatingBlockRainfall : public ReosUniqueIdfCurveSy
     static ReosAlternatingBlockRainfall *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
 
   protected:
-    ReosAlternatingBlockRainfall( const ReosEncodedElement &element, QObject *parent = nullptr );
+    explicit ReosAlternatingBlockRainfall( const ReosEncodedElement &element, QObject *parent = nullptr );
 
   private:
     void updateRainfall() const override ;
@@ -143,7 +143,7 @@ class REOSCORE_EXPORT ReosDoubleTriangleRainfall : public ReosSeriesRainfall
     void newIntensityDuration( const QString &intensityDurationUniqueIdIntense, const QString &intensityDurationUniqueIdTotal );
 
   protected:
-    ReosDoubleTriangleRainfall( const ReosEncodedElement &element, QObject *parent = nullptr );
+    explicit ReosDoubleTriangleRainfall( const ReosEncodedElement &element, QObject *parent = nullptr );
     void updateData() const override;
 
   private:
