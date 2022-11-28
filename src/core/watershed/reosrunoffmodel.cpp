@@ -675,7 +675,7 @@ bool ReosRunoffModelRegistery::loadFromFile( const QString &fileName )
 
   ReosEncodedElement dataElement( data );
 
-  bool result = decode( data );
+  bool result = decode( dataElement );
 
   if ( result )
     message( tr( "Runoff data loaded from file: %1" ).arg( fileName ) );

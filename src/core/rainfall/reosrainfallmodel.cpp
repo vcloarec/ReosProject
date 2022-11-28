@@ -529,6 +529,8 @@ bool ReosRainfallModel::saveToFile( const QString &path )
     file.copy( path + QStringLiteral( ".bck" ) );
   }
 
+  QByteArray data = encode().bytes();
+
   QFile file( path );
 
   QDataStream stream( &file );
@@ -545,7 +547,7 @@ bool ReosRainfallModel::saveToFile( const QString &path )
     stream << versionBytes;
     //*****
 
-    stream << encode().bytes();
+    stream << data;
     file.close();
     emit saved( path );
     return true;

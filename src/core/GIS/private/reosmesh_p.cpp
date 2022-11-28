@@ -218,7 +218,7 @@ ReosEncodedElement ReosMeshFrame_p::restoreScalarSymbologyOnMeshDatasetGroup( co
 {
   ReosEncodedElement symbology;
   if ( mDatasetScalarSymbologies.contains( id ) )
-    symbology = mDatasetScalarSymbologies.value( id );
+    symbology = ReosEncodedElement( mDatasetScalarSymbologies.value( id ) );
   else if ( !id.isEmpty() )
   {
     symbology = datasetGroupScalarSymbologyfromLayer( id );
@@ -244,7 +244,7 @@ ReosEncodedElement ReosMeshFrame_p::restoreVectorSymbologyOnMeshDatasetGroup( co
 {
   ReosEncodedElement symbology;
   if ( mDatasetVectorSymbologies.contains( id ) )
-    symbology = mDatasetVectorSymbologies.value( id );
+    symbology = ReosEncodedElement( mDatasetVectorSymbologies.value( id ) );
   else if ( !id.isEmpty() )
   {
     symbology = datasetGroupVectorSymbologyfromLayer( id );

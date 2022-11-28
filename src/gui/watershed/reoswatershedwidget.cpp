@@ -178,6 +178,16 @@ ReosDuration ReosWatershedWidget::mapTimeStep() const
   return mMeteorolocicModelWidget->mapTimeStep();
 }
 
+QAction *ReosWatershedWidget::meteorologicalModelAction() const
+{
+  return mActionMeteorologicModel;
+}
+
+QAction *ReosWatershedWidget::displayGriddedPrecipitationOnMap() const
+{
+  return mMeteorolocicModelWidget->displayGriddedPrecipitationOnMapAction();
+}
+
 void ReosWatershedWidget::setWatershedModel( ReosWatershedItemModel *model )
 {
   ui->treeView->setModel( model );

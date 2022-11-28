@@ -31,7 +31,7 @@ class REOSCORE_EXPORT ReosWatershedTree: public QObject
 {
     Q_OBJECT
   public:
-    ReosWatershedTree( ReosGisEngine *gisEngine, QObject *parent = nullptr );
+    explicit ReosWatershedTree( ReosGisEngine *gisEngine, QObject *parent = nullptr );
 
     //! Purpose to add a watershed to the tree. Returns whether the delineating of the purposed watershed intersect other delineating
     bool isWatershedIntersectExisting( ReosWatershed *purposedWatershed );
@@ -106,7 +106,7 @@ class REOSCORE_EXPORT ReosWatershedItemModel: public QAbstractItemModel
 {
     Q_OBJECT
   public:
-    ReosWatershedItemModel( ReosWatershedTree *watershedTree, QObject *parent = nullptr );
+    explicit ReosWatershedItemModel( ReosWatershedTree *watershedTree, QObject *parent = nullptr );
 
     QModelIndex index( int row, int column, const QModelIndex &parent ) const override;
     QModelIndex parent( const QModelIndex &child ) const override;

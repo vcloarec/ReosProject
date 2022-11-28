@@ -43,16 +43,17 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #define PROJECT_FILE_MAGIC_NUMBER 19092014
 
 
-LekanMainWindow::LekanMainWindow( QWidget *parent ) :
-  ReosMainWindow( parent ),
-  mGisEngine( new ReosGisEngine( rootModule() ) ),
-  mMap( new ReosMap( mGisEngine, this ) )
+LekanMainWindow::LekanMainWindow( QWidget *parent )
+  : ReosMainWindow( parent )
+  , mGisEngine( new ReosGisEngine( rootModule() ) )
+  , mMap( new ReosMap( mGisEngine, this ) )
+  , mActionRainfallManager( new QAction( QIcon( QStringLiteral( ":/images/rainfall.svg" ) ), tr( "Rainfall manager" ), this ) )
+  , mActionRunoffManager( new QAction( QIcon( QStringLiteral( ":/images/runoff.svg" ) ), tr( "Runoff manager" ), this ) )
 {
   ReosVersion::setCurrentApplicationVersion( lekanVersion );
   ReosGuiContext guiContext( this );
   guiContext.setMap( mMap );
 
-  init();
   setWindowIcon( QIcon( QStringLiteral( ":/images/lekan.svg" ) ) );
 
   ReosStyleRegistery::instantiate( rootModule() );
@@ -112,6 +113,8 @@ LekanMainWindow::LekanMainWindow( QWidget *parent ) :
   ReosSettings settings;
   restoreGeometry( settings.value( QStringLiteral( "Windows/MainWindow/geometry" ) ).toByteArray() );
   restoreState( settings.value( QStringLiteral( "Windows/MainWindow/state" ) ).toByteArray() );
+
+  init();
 
   newProject();
 }
@@ -295,12 +298,14 @@ QList<QMenu *> LekanMainWindow::specificMenus()
   QList<QMenu *> menusList;
 
   QMenu *hydrologyMenu = new QMenu( tr( "Hydrology" ), this );
-  mActionRainfallManager = hydrologyMenu->addAction( QIcon( QStringLiteral( ":/images/rainfall.svg" ) ), tr( "Rainfall manager" ) );
-  mActionRunoffManager = hydrologyMenu->addAction( QIcon( QStringLiteral( ":/images/runoff.svg" ) ), tr( "Runoff manager" ) );
+  hydrologyMenu->addAction( mActionRainfallManager );
+  hydrologyMenu->addAction( mActionRunoffManager );
+  hydrologyMenu->addAction( mWatershedWidget->meteorologicalModelAction() );
   hydrologyMenu->setObjectName( QStringLiteral( "Hydrology" ) );
 
   QMenu *mapMenu = new QMenu( tr( "Map" ), this );
   mapMenu->addActions( mMap->mapToolActions() );
+  mapMenu->addAction( mWatershedWidget->displayGriddedPrecipitationOnMap() );
   mapMenu->setObjectName( QStringLiteral( "Map" ) );
 
   menusList << hydrologyMenu << mapMenu;

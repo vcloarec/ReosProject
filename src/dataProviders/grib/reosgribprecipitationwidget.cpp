@@ -97,7 +97,6 @@ QVariantMap ReosGribPrecipitationWidget::selectedMetadata() const
 ReosDataObject *ReosGribPrecipitationWidget::createData( QObject *parent ) const
 {
   std::unique_ptr<ReosGriddedRainfall> ret( new ReosGriddedRainfall( mCurrentDataUri, mProvider->key(), parent ) );
-
   ret->setName( giveName() );
 
   return ret.release();
