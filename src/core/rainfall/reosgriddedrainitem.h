@@ -37,6 +37,8 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
     ReosObjectRenderer *createRenderer( ReosRendererSettings *settings ) override;
     ReosRendererObjectMapTimeStamp *createMapTimeStamp( ReosRendererSettings *settings ) const override;
 
+    ReosGriddedRainfallProvider *dataProvider() const;
+
     static QString staticType();
 
     //! Returns the count of grids (e.g. time steps)
@@ -107,7 +109,7 @@ class REOSCORE_EXPORT ReosGriddedRainItem : public ReosRainfallDataItem
     Q_OBJECT
   public:
     ReosGriddedRainItem( const QString &name, const QString &description,  ReosGriddedRainfall *data );
-    ReosGriddedRainItem( const ReosEncodedElement &element );
+    explicit ReosGriddedRainItem( const ReosEncodedElement &element );
 
     QString dataType() const override {return ReosGriddedRainfall::staticType();}
     ReosGriddedRainfall *data() const override;

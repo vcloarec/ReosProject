@@ -43,6 +43,8 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
 
     ~ReosGriddedRainfallProvider();
 
+    virtual ReosGriddedRainfallProvider *clone() const = 0;
+
     QString dataSource() const;
 
     virtual void setDataSource( const QString &uri );
@@ -70,6 +72,8 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
     virtual ReosEncodedElement encode() const = 0;
     virtual void decode( const ReosEncodedElement &element ) = 0;
 
+    virtual int dataIndex( const QDateTime &time ) const;
+
   protected:
     ValueType mSourceValueType = ValueType::Height;
 
@@ -80,15 +84,16 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
 class ReosGriddedRainfallMemoryProvider : public ReosGriddedRainfallProvider
 {
   public:
-    QString key() const;
+    ReosGriddedRainfallProvider *clone() const override;
 
-    QStringList availableVariables( const QString &, ReosModule::Message & ) const {return QStringList();}
-    bool isValid() const {return true;}
-    int count() const;
-    QDateTime startTime( int index ) const;
-    QDateTime endTime( int index ) const;
-    const QVector<double> data( int index ) const;
-    ReosRasterExtent extent() const;
+    QString key() const override;
+
+    bool isValid() const override {return true;}
+    int count() const override;
+    QDateTime startTime( int index ) const  override;
+    QDateTime endTime( int index ) const  override;
+    const QVector<double> data( int index ) const  override;
+    ReosRasterExtent extent() const  override;
     ReosEncodedElement encode() const override;
     void decode( const ReosEncodedElement &element ) override;
 

@@ -97,6 +97,11 @@ ReosRendererObjectMapTimeStamp *ReosGriddedRainfall::createMapTimeStamp( ReosRen
   return new ReosRendererGriddedRainfallMapTimeStamp_p( dataIndex( settings->mapTime() ) );
 }
 
+ReosGriddedRainfallProvider *ReosGriddedRainfall::dataProvider() const
+{
+  return mProvider.get();
+}
+
 QString ReosGriddedRainfall::staticType() {return QStringLiteral( "gridded-precipitation" );}
 
 int ReosGriddedRainfall::gridCount() const
@@ -180,22 +185,7 @@ int ReosGriddedRainfall::dataIndex( const QDateTime &time ) const
   if ( !mProvider )
     return  -1;
 
-  int count = mProvider->count();
-
-  if ( count == 0 )
-    return -1;
-
-  for ( int i = 0; i < count; ++i )
-  {
-    if ( time >= mProvider->startTime( i ) &&
-         time < mProvider->endTime( i ) )
-      return  i;
-  }
-
-  if ( time == mProvider->endTime( count - 1 ) )
-    return  count - 1;
-
-  return  -1;
+  return mProvider->dataIndex( time );
 }
 
 ReosRasterExtent ReosGriddedRainfall::extent() const

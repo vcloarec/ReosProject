@@ -21,6 +21,7 @@ email                : vcloarec at gmail dot com
 #include <qgsgeometryutils.h>
 #include <qgsgeometryengine.h>
 #include "reosgeometryutils.h"
+#include "reosprocess.h"
 
 
 static QgsPolygon *createQgsPolygon( const QPolygonF &polygon )
@@ -325,13 +326,13 @@ QRectF ReosGeometryUtils::boundingBox( const QPolygonF &polygon, bool &ok )
   return QRectF( xMin, yMin, xMax - xMin, yMax - yMin );
 }
 
-ReosRasterMemory<double> ReosGeometryUtils::rasterizePolygon(
-  const QPolygonF &polygon,
-  const ReosRasterExtent &rasterExtent,
-  ReosRasterExtent &finalRasterExtent,
-  int &xOri,
-  int &yOri,
-  bool precise )
+ReosRasterMemory<double> ReosGeometryUtils::rasterizePolygon( const QPolygonF &polygon,
+    const ReosRasterExtent &rasterExtent,
+    ReosRasterExtent &finalRasterExtent,
+    int &xOri,
+    int &yOri,
+    bool precise,
+    ReosProcess *process )
 {
   ReosRasterMemory<double> ret;
 
@@ -371,6 +372,8 @@ ReosRasterMemory<double> ReosGeometryUtils::rasterizePolygon(
   {
     for ( int yi = 0; yi < rowCount; ++yi )
     {
+      if ( process && process->isStop() )
+        return ret;
       QgsPoint cellCenter( finalRasterExtent.cellCenterToMap( QPoint( xi, yi ) ) );
       if ( precise )
       {

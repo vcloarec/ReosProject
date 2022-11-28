@@ -19,6 +19,7 @@
 #include "reosmemoryraster.h"
 #include "reoswatershed.h"
 #include "reosgisengine.h"
+#include "reosgriddedrainfallprovider.h"
 
 ReosSeriesRainfall::ReosSeriesRainfall( QObject *parent, const QString &providerKey, const QString &dataSource ):
   ReosTimeSerieConstantInterval( parent, providerKey, dataSource )
@@ -66,24 +67,48 @@ ReosSeriesRainfallFromGriddedOnWatershed::ReosSeriesRainfallFromGriddedOnWatersh
   , mWatershed( watershed )
   , mGriddedRainfall( griddedRainfall )
 {
-  setObsolete();
+  registerUpstreamData( watershed );
+  registerUpstreamData( griddedRainfall );
+  launchCalculation();
 }
 
 void ReosSeriesRainfallFromGriddedOnWatershed::updateData() const
 {
   if ( isObsolete() )
-    updateAverageRainfallCalculation();
+  {
+    const_cast<ReosSeriesRainfallFromGriddedOnWatershed *>( this )->launchCalculation();
+  }
 }
 
-void ReosSeriesRainfallFromGriddedOnWatershed::updateAverageRainfallCalculation() const
+void ReosSeriesRainfallFromGriddedOnWatershed::launchCalculation()
 {
-  QElapsedTimer timer;
-  timer.start();
-  ReosTimeSerieConstantTimeStepProvider *data = constantTimeStepDataProvider();
-  if ( !data )
-    return;
+  AverageCalculation *newCalc = getCalculationProcess();
 
-  data->clear();
+  connect( newCalc, &ReosProcess::finished, this, [newCalc, this]
+  {
+    if ( mCurrentCalculation == newCalc )
+    {
+      if ( newCalc->isSuccessful() )
+      {
+        constantTimeStepDataProvider()->copy( newCalc->result.constantTimeStepDataProvider() );
+        mCurrentCalculation = nullptr;
+        emit calculationFinished();
+      }
+    }
+    newCalc->deleteLater();
+  } );
+  setActualized();
+  mCurrentCalculation = newCalc;
+
+  newCalc->startOnOtherThread();
+}
+
+ReosSeriesRainfallFromGriddedOnWatershed::AverageCalculation *ReosSeriesRainfallFromGriddedOnWatershed::getCalculationProcess() const
+{
+  if ( mCurrentCalculation )
+    mCurrentCalculation->stop( true );
+
+  constantTimeStepDataProvider()->clear();
 
   if ( mWatershed.isNull()
        || mGriddedRainfall.isNull()
@@ -91,54 +116,77 @@ void ReosSeriesRainfallFromGriddedOnWatershed::updateAverageRainfallCalculation(
   {
     setActualized();
     emit dataChanged();
-    return;
+    return nullptr;
   }
 
-  ReosRasterExtent rainExtent = mGriddedRainfall->extent();
   ReosArea watershedArea = mWatershed->area()->value();
+  ReosRasterExtent rainExtent = mGriddedRainfall->extent();
   QRectF cellRect( rainExtent.xMapOrigin(),
                    rainExtent.yMapOrigin(),
                    std::fabs( rainExtent.xCellSize() ),
                    std::fabs( rainExtent.yCellSize() ) );
-
   ReosArea cellArea = ReosGisEngine::polygonAreaWithCrs( cellRect, rainExtent.crs() );
 
-  bool usePrecision = watershedArea < cellArea * 100;
+  AverageCalculation *newCalc = new AverageCalculation;
 
-  QPolygonF watershedPolygon = ReosGisEngine::transformToCoordinates( mWatershed->crs(), mWatershed->delineating(), rainExtent.crs() );
+  newCalc->griddedRainfallProvider.reset( mGriddedRainfall->dataProvider()->clone() );
+  newCalc->timeStep = mGriddedRainfall->minimumTimeStep();
+  newCalc->usePrecision = watershedArea < cellArea * 30;
+  newCalc->watershedPolygon = ReosGisEngine::transformToCoordinates( mWatershed->crs(), mWatershed->delineating(), rainExtent.crs() );
+
+  return newCalc;
+}
+
+void ReosSeriesRainfallFromGriddedOnWatershed::AverageCalculation::start()
+{
+  mIsSuccessful = false;
+  QElapsedTimer timer;
+  timer.start();
+
+  result.clear();
+
+  ReosRasterExtent rainExtent = griddedRainfallProvider->extent();
 
   ReosRasterExtent rasterizedExtent;
   int xOri = -1;
   int yOri = -1;
   ReosRasterMemory<double> rasterizedWatershed = ReosGeometryUtils::rasterizePolygon(
-        watershedPolygon, rainExtent, rasterizedExtent, xOri, yOri, usePrecision );
+        watershedPolygon, rainExtent, rasterizedExtent, xOri, yOri, usePrecision, this );
 
   int rasterizedXCount = rasterizedExtent.xCellCount();
   int rasterizedYCount = rasterizedExtent.yCellCount();
 
-  int gridCount = mGriddedRainfall->gridCount();
-  ReosDuration timeStep = mGriddedRainfall->minimumTimeStep();
-  QDateTime referenceTime = mGriddedRainfall->startTime( 0 );
-  QDateTime endTime = mGriddedRainfall->endTime( gridCount - 1 );
+  int gridCount = griddedRainfallProvider->count();
+
+  QDateTime referenceTime = griddedRainfallProvider->startTime( 0 );
+  QDateTime endTime = griddedRainfallProvider->endTime( gridCount - 1 );
   QDateTime currentTime = referenceTime;
 
-  data->setReferenceTime( referenceTime );
-  data->setTimeStep( timeStep );
+  result.setReferenceTime( referenceTime );
+  result.setTimeStep( timeStep );
 
   int currentGriddedIndex = 0;
   int prevGriddedIndex = -1;
   double averageIntensity = 0;
+
   while ( currentTime < endTime && currentGriddedIndex < gridCount )
   {
     if ( prevGriddedIndex != currentGriddedIndex )
     {
-      const ReosRasterMemory<double> rainValues = mGriddedRainfall->intensityRaster( currentGriddedIndex );
+      ReosRasterMemory<double> rainValues( rainExtent.yCellCount(), rainExtent.xCellCount() );
+      rainValues.setValues( griddedRainfallProvider->data( currentGriddedIndex ) );
       averageIntensity = 0;
       double totalSurf = 0;
       for ( int xi = 0; xi < rasterizedXCount; ++xi )
       {
         for ( int yi = 0; yi < rasterizedYCount; ++yi )
         {
+          if ( isStop() )
+          {
+            qDebug() << "Average gridded rainfall on watershed stop after: " << timer.elapsed();
+            return;
+          }
+
           double surf = rasterizedWatershed.value( yi, xi );
           averageIntensity += surf * rainValues.value( yi + yOri, xi + xOri );
           totalSurf += rasterizedWatershed.value( yi, xi );
@@ -147,14 +195,14 @@ void ReosSeriesRainfallFromGriddedOnWatershed::updateAverageRainfallCalculation(
       averageIntensity = averageIntensity / totalSurf;
     }
 
-    ReosDuration interval( mGriddedRainfall->startTime( currentGriddedIndex ), mGriddedRainfall->endTime( currentGriddedIndex ) );
-    data->appendValue( averageIntensity * interval.valueHour() );
+    ReosDuration interval( griddedRainfallProvider->startTime( currentGriddedIndex ), griddedRainfallProvider->endTime( currentGriddedIndex ) );
+    result.appendValue( averageIntensity * interval.valueHour() );
     currentTime = currentTime.addMSecs( timeStep.valueMilliSecond() );
     prevGriddedIndex = currentGriddedIndex;
-    currentGriddedIndex = mGriddedRainfall->dataIndex( currentTime );
+    currentGriddedIndex = griddedRainfallProvider->dataIndex( currentTime );
   }
 
-  qDebug() << QString( "average gridded precipitation %1 on watershed %2 :" ).arg( usePrecision ? "with precision" : "without precition", mWatershed->name() ) << timer.elapsed();
-  setActualized();
-  emit dataChanged();
+  mIsSuccessful = true;
+
+  qDebug() << QString( "average gridded precipitation %1 on watershed:" ).arg( usePrecision ? "with precision" : "without precition" ) << timer.elapsed();
 }
