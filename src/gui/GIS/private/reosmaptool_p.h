@@ -127,7 +127,7 @@ class ReosMapToolDrawPolyline_p: public ReosMapTool_p
     void setAllowSelfIntersect( bool allowSelfIntersect );
 
   signals:
-    void polylineDrawn( const QPolygonF &polyline ) const;
+    void polylineDrawn( const QPolygonF &polyline );
 
   private:
     QColor mColor;
