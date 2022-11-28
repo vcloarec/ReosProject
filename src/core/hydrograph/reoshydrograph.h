@@ -195,6 +195,10 @@ class REOSCORE_EXPORT ReosRunoffHydrographsStore: public ReosHydrographGroup
     //! Emitted when the hydrograph associated to \a meteoModel is removed
     void hydrographRemoved( ReosMeteorologicModel *meteoModel );
 
+    //! Emitted when a hydrograph associated to \a meteoModel is added
+    void hydrographAdded( ReosMeteorologicModel *meteoModel );
+
+
   private:
     struct HydrographCalculationData
     {

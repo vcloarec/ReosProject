@@ -566,13 +566,19 @@ void ReosHydrographNodeWatershed::init()
 
   connect( mRunoffHydrographs, &ReosRunoffHydrographsStore::hydrographRemoved, this, [this]( const ReosMeteorologicModel * model )
   {
-    if ( model == mLastMeteoModel )
+    if ( model == mLastMeteoModel && mInternalHydrographOrigin == InternalHydrographOrigin::RunoffHydrograph )
     {
       mNeedCalculation = true;
       mInternalHydrographUpdated = true;
       emit internalHydrographPointerChange();
       calculateIfAllReady();
     }
+  } );
+
+  connect( mRunoffHydrographs, &ReosRunoffHydrographsStore::hydrographAdded, this, [this]( const ReosMeteorologicModel * model )
+  {
+    if ( model == mLastMeteoModel && mInternalHydrographOrigin == InternalHydrographOrigin::RunoffHydrograph )
+      updateInternalHydrograph();
   } );
 }
 

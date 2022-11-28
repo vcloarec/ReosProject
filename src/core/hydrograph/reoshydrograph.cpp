@@ -246,6 +246,7 @@ void ReosRunoffHydrographsStore::updateStore()
         registerInputdata( model, hydData.hydrograph.get() );
         registerInputdata( hydData.rainfall, hydData.hydrograph.get() );
         registerInputdata( mWatershed, hydData.hydrograph.get() );
+        emit hydrographAdded( model );
       }
       else
       {
