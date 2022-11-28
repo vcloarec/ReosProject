@@ -79,13 +79,13 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   toolBar->addAction( mActionAddHydrographRouting );
   mActionAddHydrographRouting->setCheckable( true );
   mMapToolAddHydrographRouting->setAction( mActionAddHydrographRouting );
-  mMapToolAddHydrographRouting->setSearchingItemDecription( ReosHydrographNode::staticType() );
+  mMapToolAddHydrographRouting->addSearchingItemDescription( ReosHydrographNode::staticType() );
   mMapToolAddHydrographRouting->setSearchItemWhenMoving( true );
 
   toolBar->addAction( mActionMoveHydrographJunction );
   mActionMoveHydrographJunction->setCheckable( true );
   mMapToolMoveHydrographJunction->setAction( mActionMoveHydrographJunction );
-  mMapToolMoveHydrographJunction->setSearchingItemDecription( ReosHydrographJunction::staticType() );
+  mMapToolMoveHydrographJunction->addSearchingItemDescription( ReosHydrographJunction::staticType() );
   mMapToolMoveHydrographJunction->setSearchItemWhenMoving( true );
 
   mActionNewStructure2D->setCheckable( true );
@@ -131,6 +131,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   connect( mMapToolAddHydrographRouting, &ReosMapToolDrawHydrographRouting::finished, this, &ReosHydraulicNetworkWidget::onDrawHydrographRoutingFinish );
 
   connect( mMapToolSelectNetworkElement, &ReosMapToolSelectMapItem::found, this, &ReosHydraulicNetworkWidget::onElementSelected );
+  connect( mMap, &ReosMap::mapItemFound, this, &ReosHydraulicNetworkWidget::onElementSelected );
 
   onElementSelected( nullptr );
 
@@ -241,6 +242,9 @@ void ReosHydraulicNetworkWidget::onDrawHydrographRoutingFinish()
 
 void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
 {
+  if ( item && !item->description().contains( ReosHydraulicNetworkElement::staticType() ) )
+    return;
+
   unselectCurrentElement();
 
   mActionRemoveElement->setEnabled( item != nullptr );
@@ -281,6 +285,7 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
 void ReosHydraulicNetworkWidget::onSelectedElementRemoved()
 {
   mMapToolSelectNetworkElement->clearHoveredItem();
+  mMap->defaultMapTool()->clearHoveredItem();
 
   if ( !mCurrentSelectedElement )
     return;

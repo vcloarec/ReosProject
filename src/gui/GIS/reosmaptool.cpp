@@ -85,9 +85,9 @@ void ReosMapTool::setContextMenuPopulator( ReosMenuPopulator *populator )
   tool_p()->setContextMenuPopulator( populator );
 }
 
-void ReosMapTool::setSearchingItemDecription( const QString &description )
+void ReosMapTool::addSearchingItemDescription( const QString &description )
 {
-  tool_p()->setSearchTargetDescription( description );
+  tool_p()->addSearchTargetDescription( description );
 }
 
 void ReosMapTool::activateMovingSignal( bool activate )
@@ -254,10 +254,8 @@ void ReosMapToolDrawExtent::setLineStyle( Qt::PenStyle style )
   d->mRubberBand->setLineStyle( style );
 }
 
-ReosMapToolSelectMapItem::ReosMapToolSelectMapItem( ReosMap *map, const QString &targetDescription ): ReosMapToolSelectMapItem( map, map, targetDescription )
-{}
-
-ReosMapToolSelectMapItem::ReosMapToolSelectMapItem( QObject *parent, ReosMap *map, const QString &targetDescription ): ReosMapTool( parent, map )
+ReosMapToolSelectMapItem::ReosMapToolSelectMapItem( ReosMap *map, const QString &targetDescription )
+  : ReosMapTool( map, map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolSelectMapItem_p( canvas, targetDescription );

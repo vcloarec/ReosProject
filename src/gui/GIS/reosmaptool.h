@@ -59,7 +59,7 @@ class REOSGUI_EXPORT ReosMapTool : public QObject
     void setSearchItemWhenMoving( bool b );
 
     //! Sets a description of the item element that have to be search
-    void setSearchingItemDecription( const QString &description );
+    void addSearchingItemDescription( const QString &description );
 
     void activateMovingSignal( bool activate );
 
@@ -187,7 +187,7 @@ class REOSGUI_EXPORT ReosMapToolSelectMapItem : public ReosMapTool
 {
     Q_OBJECT
   public:
-    ReosMapToolSelectMapItem( ReosMap *map, const QString &targetDescription );
+    explicit ReosMapToolSelectMapItem( ReosMap *map, const QString &targetDescription = QString() );
     ReosMapToolSelectMapItem( QObject *parent, ReosMap *map, const QString &targetDescription );
     ~ReosMapToolSelectMapItem();
 

@@ -96,6 +96,7 @@ ReosWatershedWidget::ReosWatershedWidget( const ReosGuiContext &guiContext, Reos
   mMapToolSelectWatershed->setSearchUnderPoint( true );
   mMapToolSelectWatershed->setCursor( Qt::ArrowCursor );
   connect( mMapToolSelectWatershed, &ReosMapToolSelectMapItem::found, this, &ReosWatershedWidget::onWatershedSelectedOnMap );
+  connect( mMap, &ReosMap::mapItemFound, this, &ReosWatershedWidget::onWatershedSelectedOnMap );
 
   ui->treeView->setContextMenuPolicy( Qt::CustomContextMenu );
   connect( ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ReosWatershedWidget::onCurrentWatershedChanges );
@@ -222,12 +223,16 @@ void ReosWatershedWidget::onWatershedAdded( const QModelIndex &index )
 
 void ReosWatershedWidget::onWatershedSelectedOnMap( ReosMapItem *item, const QPointF &pos )
 {
+  if ( item && !item->description().contains( mDescriptionKeyWatershed ) )
+    return;
+
   ui->treeView->setCurrentIndex( QModelIndex() );
 
   if ( !item )
     return;
 
-  for ( ReosWatershed *ws : mMapWatersheds.keys() )
+  const QList<ReosWatershed *> keys = mMapWatersheds.keys();
+  for ( ReosWatershed *ws : keys )
   {
     if ( mMapWatersheds.value( ws ).delineating->isItem( item ) )
     {
@@ -497,6 +502,11 @@ void ReosWatershedWidget::onOpened()
   setVisibleMapItems( true );
 }
 
+const QString &ReosWatershedWidget::descriptionKeyWatershed() const
+{
+  return mDescriptionKeyWatershed;
+}
+
 void ReosWatershedWidget::constructMapWatershed( ReosWatershed *watershed )
 {
   MapWatershed mapWs( mMap, watershed->delineating(), watershed->outletPoint() );
@@ -524,12 +534,13 @@ void ReosWatershedWidget::formatMapWatershed( MapWatershed &mapWatershed )
   mapWatershed.delineating->setWidth( 3 );
   mapWatershed.delineating->setColor( QColor( 0, 200, 100 ) );
   mapWatershed.delineating->setExternalWidth( 5 );
+  mapWatershed.delineating->setZValue( 0 );
 
   mapWatershed.outletPoint->setWidth( 4 );
   mapWatershed.outletPoint->setExternalWidth( 6 );
   mapWatershed.outletPoint->setColor( QColor( 0, 155, 242 ) );
   mapWatershed.outletPoint->setExternalColor( Qt::white );
-  mapWatershed.outletPoint->setZValue( 10 );
+  mapWatershed.outletPoint->setZValue( 2 );
 }
 
 void ReosWatershedWidget::formatSelectedWatershed( ReosWatershedWidget::MapWatershed &mapWatershed )

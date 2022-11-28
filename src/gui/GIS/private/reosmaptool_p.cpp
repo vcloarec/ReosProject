@@ -162,16 +162,17 @@ void ReosMapTool_p::setSearchZoneSize( const QSizeF &size )
   mSearchZone = size;
 }
 
-void ReosMapTool_p::setSearchTargetDescription( const QString &description )
+void ReosMapTool_p::addSearchTargetDescription( const QString &description )
 {
-  mTargetDescritpion = description;
+  if ( !description.isEmpty() )
+    mTargetDescritpion.append( description );
 }
 
-ReosMapToolDrawPolyline_p::ReosMapToolDrawPolyline_p( QgsMapCanvas *map, bool closed ):
-  ReosMapTool_p( map )
+ReosMapToolDrawPolyline_p::ReosMapToolDrawPolyline_p( QgsMapCanvas *map, bool closed )
+  : ReosMapTool_p( map )
+  , mRubberBand( new QgsRubberBand( map, closed ? QgsWkbTypes::PolygonGeometry : QgsWkbTypes::LineGeometry ) )
 {
   mClosed = closed;
-  mRubberBand = new QgsRubberBand( map, closed ? QgsWkbTypes::PolygonGeometry : QgsWkbTypes::LineGeometry );
 }
 
 ReosMapToolDrawPolyline_p::~ReosMapToolDrawPolyline_p()
@@ -352,7 +353,7 @@ void ReosMapToolDrawExtent_p::drawExtent()
 ReosMapToolSelectMapItem_p::ReosMapToolSelectMapItem_p( QgsMapCanvas *map, const QString &targetDescription ):
   ReosMapTool_p( map )
 {
-  setSearchTargetDescription( targetDescription );
+  addSearchTargetDescription( targetDescription );
   setSearchZoneSize( QSizeF( 5, 5 ) );
 }
 
@@ -507,7 +508,7 @@ ReosMapItem_p *ReosMapTool_p::searchItem( const QPointF &p ) const
   {
     item = listItems.at( i );
     mapItem = dynamic_cast<ReosMapItem_p *>( item );
-    if ( mapItem && !mTargetDescritpion.isEmpty() && !mapItem->base->description().contains( mTargetDescritpion ) )
+    if ( mapItem && !isRecognized( mapItem->base->description() ) )
       mapItem = nullptr;
     ++i;
   }
@@ -549,6 +550,18 @@ double ReosMapTool_p::tolerance() const
   const QgsSnappingConfig &snapConfig = QgsProject::instance()->snappingConfig();
   return QgsTolerance::toleranceInProjectUnits( snapConfig.tolerance(),
          nullptr, canvas()->mapSettings(), snapConfig.units() );
+}
+
+bool ReosMapTool_p::isRecognized( const QString &candidateDescription ) const
+{
+  if ( mTargetDescritpion.isEmpty() )
+    return true; //if empty, all item are recognized
+
+  for ( const QString &description : mTargetDescritpion )
+    if ( candidateDescription.contains( description ) )
+      return true;
+
+  return false;
 }
 
 void ReosMapTool_p::setActivateMovingSignal( bool activateMovingSignal )
@@ -594,10 +607,8 @@ void ReosMapTool_p::canvasMoveEvent( QgsMapMouseEvent *e )
     mFoundItem = foundItem;
     mFoundItem->isHovered = true;
     mFoundItem->update();
-  }
-
-  if ( foundItem )
     emit foundItemWhenMoving( foundItem );
+  }
 }
 
 
