@@ -30,6 +30,8 @@ class ReosGribGriddedRainfallProvider : public ReosGriddedRainfallProvider
   public:
     ReosGribGriddedRainfallProvider();
 
+    ReosGriddedRainfallProvider *clone() const override;
+
     QString key() const override {return staticKey();}
     void setDataSource( const QString &dataSource ) override;
     Details details( const QString &, ReosModule::Message & ) const override;

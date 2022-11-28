@@ -91,7 +91,7 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
 
     const QVector<double> &constData() const;
 
-    ReosTimeSerieProvider *dataProvider() const;
+    virtual ReosTimeSerieProvider *dataProvider() const;
 
     static QString staticType() {return ReosDataObject::staticType() + ':' + QStringLiteral( "time-serie" );}
 
@@ -140,7 +140,7 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     ReosDuration relativeTimeAt( int i ) const override;
     QPair<QDateTime, QDateTime> timeExtent() const override;
     double valueAt( int i ) const override;
-    virtual void setValueAt( int i, double value ) override;
+    void setValueAt( int i, double value ) override;
 
     QString type() const override {return staticType();}
     static QString staticType() {return ReosTimeSerie::staticType() + ':' + QStringLiteral( "constant-interval" );}

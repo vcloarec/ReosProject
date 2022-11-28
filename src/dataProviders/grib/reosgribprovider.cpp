@@ -31,6 +31,14 @@ ReosGribGriddedRainfallProvider::ReosGribGriddedRainfallProvider()
   mCache.setMaxCost( 20000000 );
 }
 
+ReosGriddedRainfallProvider *ReosGribGriddedRainfallProvider::clone() const
+{
+  std::unique_ptr<ReosGribGriddedRainfallProvider> other = std::make_unique<ReosGribGriddedRainfallProvider>();
+  other->setDataSource( dataSource() );
+
+  return other.release();
+}
+
 void ReosGribGriddedRainfallProvider::setDataSource( const QString &dataSource )
 {
   ReosGriddedRainfallProvider::setDataSource( dataSource );

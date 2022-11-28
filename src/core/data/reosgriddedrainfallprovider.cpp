@@ -21,12 +21,12 @@ ReosGriddedRainfallProvider::~ReosGriddedRainfallProvider()
 
 QString ReosGriddedRainfallProvider::dataSource() const
 {
-    return mDataSource;
+  return mDataSource;
 }
 
 void ReosGriddedRainfallProvider::setDataSource( const QString &uri )
 {
-    mDataSource = uri;
+  mDataSource = uri;
 }
 
 ReosDuration ReosGriddedRainfallProvider::intervalDuration( int index ) const
@@ -39,6 +39,37 @@ void ReosGriddedRainfallProvider::setSourceValueType( ValueType valueType )
   mSourceValueType = valueType;
 }
 
+int ReosGriddedRainfallProvider::dataIndex( const QDateTime &time ) const
+{
+  int frameCount = count();
+
+  if ( frameCount == 0 )
+    return -1;
+
+  for ( int i = 0; i < frameCount; ++i )
+  {
+    if ( time >= startTime( i ) &&
+         time < endTime( i ) )
+      return  i;
+  }
+
+  if ( time == endTime( frameCount - 1 ) )
+    return  frameCount - 1;
+
+  return  -1;
+}
+
+
+ReosGriddedRainfallProvider *ReosGriddedRainfallMemoryProvider::clone() const
+{
+  std::unique_ptr<ReosGriddedRainfallMemoryProvider> other = std::make_unique<ReosGriddedRainfallMemoryProvider>();
+
+  other->mExtent = mExtent;
+  other->mRasters = mRasters;
+  other->mSourceValueType = mSourceValueType;
+  other->setDataSource( dataSource() );
+  return other.release();
+}
 
 QString ReosGriddedRainfallMemoryProvider::key() const
 {
@@ -69,10 +100,10 @@ ReosRasterExtent ReosGriddedRainfallMemoryProvider::extent() const
 
 ReosEncodedElement ReosGriddedRainfallMemoryProvider::encode() const
 {
-    return ReosEncodedElement();
+  return ReosEncodedElement();
 }
 
-void ReosGriddedRainfallMemoryProvider::decode(const ReosEncodedElement &element)
+void ReosGriddedRainfallMemoryProvider::decode( const ReosEncodedElement &element )
 {
 
 }

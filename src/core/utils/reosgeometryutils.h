@@ -30,6 +30,8 @@ enum class ReosInclusionType
   Total
 };
 
+class ReosProcess;
+
 class REOSCORE_EXPORT ReosGeometryUtils
 {
   public:
@@ -70,7 +72,8 @@ class REOSCORE_EXPORT ReosGeometryUtils
         ReosRasterExtent &finalRasterExtent,
         int &xOri,
         int &yOri,
-        bool precise );
+        bool precise,
+        ReosProcess *process = nullptr );
 };
 
 #endif // REOSGEOMETRYUTILS_H

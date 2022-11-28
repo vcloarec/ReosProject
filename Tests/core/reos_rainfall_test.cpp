@@ -44,12 +44,17 @@ class ReosRainfallTest: public QObject
     ReosModule mRootModule;
     ReosGisEngine *mGisEngine;
 
+    QEventLoop loop;
+    QTimer timer;
+
 };
 
 void ReosRainfallTest::initTestCase()
 {
   ReosIdfFormulaRegistery::instantiate( &mRootModule );
   mGisEngine = new ReosGisEngine( &mRootModule );
+
+  connect( &timer, &QTimer::timeout, &loop, &QEventLoop::quit );
 }
 
 void ReosRainfallTest::addingItem()
@@ -668,11 +673,12 @@ void ReosRainfallTest::griddedRainfallOnSmallWatershed()
   QCOMPARE( rainfall.gridCount(), 6 );
 
   ReosSeriesRainfallFromGriddedOnWatershed rainfallSeries( &watershed, &rainfall );
+  connect( &rainfallSeries, &ReosSeriesRainfallFromGriddedOnWatershed::calculationFinished, &loop, &QEventLoop::quit );
+  loop.exec();
 
   QCOMPARE( rainfallSeries.referenceTime(), QDateTime( QDate( 2022, 11, 16 ), QTime( 12, 0, 0 ), Qt::UTC ) );
 
   QCOMPARE( rainfallSeries.valueCount(), 6 );
-
   double val = rainfallSeries.valueAt( 0 );
   QVERIFY( equal( val, 1.46555, 0.001 ) );
   val = rainfallSeries.valueAt( 1 );

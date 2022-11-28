@@ -18,9 +18,11 @@
 
 #include "reoscore.h"
 #include "reostimeserie.h"
+#include "reosprocess.h"
 
 class ReosWatershed;
 class ReosGriddedRainfall;
+class ReosGriddedRainfallProvider;
 
 class REOSCORE_EXPORT ReosSeriesRainfall : public ReosTimeSerieConstantInterval
 {
@@ -37,7 +39,7 @@ class REOSCORE_EXPORT ReosSeriesRainfall : public ReosTimeSerieConstantInterval
     static QString staticType();
 
   protected:
-    ReosSeriesRainfall( const ReosEncodedElement &element, QObject *parent = nullptr );
+    explicit ReosSeriesRainfall( const ReosEncodedElement &element, QObject *parent = nullptr );
 
   private:
     void setupData();
@@ -51,14 +53,32 @@ class ReosSeriesRainfallFromGriddedOnWatershed : public ReosSeriesRainfall
   public:
     ReosSeriesRainfallFromGriddedOnWatershed( ReosWatershed *watershed, ReosGriddedRainfall *griddedRainfall, QObject *parent = nullptr );
 
+  signals:
+    void calculationFinished() const;
+
   protected:
     void updateData() const override;
 
   private:
+
+    class AverageCalculation : public ReosProcess
+    {
+      public:
+        std::unique_ptr<ReosGriddedRainfallProvider> griddedRainfallProvider;
+        QPolygonF watershedPolygon;
+        ReosTimeSerieConstantInterval result;
+        ReosDuration timeStep;
+        bool usePrecision = false;
+        void start() override;
+    };
+
+    mutable AverageCalculation *mCurrentCalculation = nullptr;
+
     QPointer<ReosWatershed> mWatershed;
     QPointer<ReosGriddedRainfall> mGriddedRainfall;
 
-    void updateAverageRainfallCalculation() const;
+    void launchCalculation();
+    AverageCalculation *getCalculationProcess() const;
 
 };
 
