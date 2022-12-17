@@ -25,7 +25,7 @@ $SDK_PATH=$(Get-Item "hklm:\SOFTWARE\Microsoft\Windows Kits\Installed Roots").Ge
 $SDK_VERSION=$(Get-childItem -Name "hklm:\SOFTWARE\Microsoft\Windows Kits\Installed Roots" | Select-Object -last 1)
 
 md $env:QGIS_BUILDING
-md $env:QGIS_INSTALL
+md $env:QGIS_BUILT
 cd $env:QGIS_BUILDING
 
 cmake   -S $env:QGIS_SRC `
@@ -68,7 +68,7 @@ cmake   -S $env:QGIS_SRC `
 		-D QT_LIBRARY_DIR=$OSGEO_DIR/lib `
 		-D QT_HEADERS_DIR=$OSGEO_DIR/apps/qt5/include `
 		-D Qt5_DIR=$OSGEO_DIR/apps/qt5/lib/cmake/Qt5 `
-		-D CMAKE_INSTALL_PREFIX=$env:QGIS_INSTALL `
+		-D CMAKE_INSTALL_PREFIX=QGIS_BUILT `
 		-D CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS=TRUE `
 		-D FCGI_INCLUDE_DIR=$OSGEO_DIR/include `
 		-D FCGI_LIBRARY=$OSGEO_DIR/lib/libfcgi.lib `
