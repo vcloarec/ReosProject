@@ -126,7 +126,7 @@ class ReosMeshGeneratorPoly2TriProcess: public ReosMeshGeneratorProcess
 /**
  * A generator that simply triangulates a domain without internal vertex
  */
-class ReosMeshGeneratorPoly2Tri : public ReosMeshGenerator
+class REOSCORE_EXPORT ReosMeshGeneratorPoly2Tri : public ReosMeshGenerator
 {
   public:
 

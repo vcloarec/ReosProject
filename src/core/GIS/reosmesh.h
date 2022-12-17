@@ -26,7 +26,7 @@
 #include "reosencodedelement.h"
 
 class ReosMeshGenerator;
-class ReosMeshFrameData;
+struct ReosMeshFrameData;
 class ReosDigitalElevationModel;
 class ReosTopographyCollection;
 class ReosParameterDouble;
@@ -85,7 +85,7 @@ class ReosMeshPointValue_p
     friend class ReosMeshPointValue;
 };
 
-class ReosMeshPointValue
+class REOSCORE_EXPORT ReosMeshPointValue
 {
   public:
     ReosMeshPointValue();

@@ -29,7 +29,8 @@ ReosUniqueIdfCurveSyntheticRainfall::ReosUniqueIdfCurveSyntheticRainfall( QObjec
 
 }
 
-ReosUniqueIdfCurveSyntheticRainfall::ReosUniqueIdfCurveSyntheticRainfall( const ReosEncodedElement &element, QObject *parent ): ReosSeriesRainfall( element, parent )
+ReosUniqueIdfCurveSyntheticRainfall::ReosUniqueIdfCurveSyntheticRainfall( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent )
+  : ReosSeriesRainfall( element, context, parent )
 {
   mTotalDuration = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "total-duration" ) ), false, tr( "Total Duration" ), this );
   mCenterCoefficient = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "eccentry-coefficient" ) ), false, tr( "Eccentricity" ), this );
@@ -175,7 +176,8 @@ void ReosChicagoRainfall::updateRainfall() const
   emit dataChanged();
 }
 
-ReosChicagoRainfall::ReosChicagoRainfall( const ReosEncodedElement &element, QObject *parent ): ReosUniqueIdfCurveSyntheticRainfall( element, parent )
+ReosChicagoRainfall::ReosChicagoRainfall( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent )
+  : ReosUniqueIdfCurveSyntheticRainfall( element, context, parent )
 {
   connectParameters();
 }
@@ -195,7 +197,7 @@ QString ReosUniqueIdfCurveSyntheticRainfall::intensityDurationUid() const
   return mIntensityDurationUid;
 }
 
-void ReosUniqueIdfCurveSyntheticRainfall::encodeBase( ReosEncodedElement &element ) const
+void ReosUniqueIdfCurveSyntheticRainfall::encodeBase( ReosEncodedElement &element, const ReosEncodeContext & ) const
 {
   element.addEncodedData( QStringLiteral( "total-duration" ), mTotalDuration->encode() );
   element.addEncodedData( QStringLiteral( "eccentry-coefficient" ), mCenterCoefficient->encode() );
@@ -207,19 +209,19 @@ void ReosUniqueIdfCurveSyntheticRainfall::updateData() const
     updateRainfall();
 }
 
-ReosEncodedElement ReosChicagoRainfall::encode() const
+ReosEncodedElement ReosChicagoRainfall::encode( const ReosEncodeContext &context ) const
 {
-  ReosEncodedElement element = ReosTimeSerieConstantInterval::encode( QStringLiteral( "chicago-rainfall-data" ) );
-  encodeBase( element );
+  ReosEncodedElement element = ReosTimeSerieConstantInterval::encode( context, QStringLiteral( "chicago-rainfall-data" ) );
+  encodeBase( element, context );
   return element;
 }
 
-ReosChicagoRainfall *ReosChicagoRainfall::decode( const ReosEncodedElement &element, QObject *parent )
+ReosChicagoRainfall *ReosChicagoRainfall::decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent )
 {
   if ( element.description() != QStringLiteral( "chicago-rainfall-data" ) )
     return nullptr;
 
-  return new ReosChicagoRainfall( element, parent );
+  return new ReosChicagoRainfall( element, context, parent );
 }
 
 ReosParameterDuration *ReosDoubleTriangleRainfall::totalDuration()
@@ -294,12 +296,12 @@ QString ReosDoubleTriangleRainfall::intensityDurationUniqueIdTotal() const
   return mIntensityDurationUniqueIdTotal;
 }
 
-ReosDoubleTriangleRainfall *ReosDoubleTriangleRainfall::decode( const ReosEncodedElement &element, QObject *parent )
+ReosDoubleTriangleRainfall *ReosDoubleTriangleRainfall::decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent )
 {
   if ( element.description() != QStringLiteral( "double-triangle-rainfall-data" ) )
     return nullptr;
 
-  return new ReosDoubleTriangleRainfall( element, parent );
+  return new ReosDoubleTriangleRainfall( element, context, parent );
 }
 
 void ReosDoubleTriangleRainfall::updateRainfall() const
@@ -372,9 +374,9 @@ void ReosDoubleTriangleRainfall::updateRainfall() const
 
 }
 
-ReosEncodedElement ReosDoubleTriangleRainfall::encode() const
+ReosEncodedElement ReosDoubleTriangleRainfall::encode( const ReosEncodeContext &context ) const
 {
-  ReosEncodedElement element = ReosTimeSerieConstantInterval::encode( QStringLiteral( "double-triangle-rainfall-data" ) );
+  ReosEncodedElement element = ReosTimeSerieConstantInterval::encode( context, QStringLiteral( "double-triangle-rainfall-data" ) );
 
   element.addEncodedData( QStringLiteral( "intense-duration" ), mIntenseDuration->encode() );
   element.addEncodedData( QStringLiteral( "total-duration" ), mTotalDuration->encode() );
@@ -383,8 +385,8 @@ ReosEncodedElement ReosDoubleTriangleRainfall::encode() const
   return element;
 }
 
-ReosDoubleTriangleRainfall::ReosDoubleTriangleRainfall( const ReosEncodedElement &element, QObject *parent ):
-  ReosSeriesRainfall( element, parent )
+ReosDoubleTriangleRainfall::ReosDoubleTriangleRainfall( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent ):
+  ReosSeriesRainfall( element, context, parent )
 {
   mTotalDuration = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "total-duration" ) ), false, tr( "Total Duration" ), this );
   mIntenseDuration = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "intense-duration" ) ), false, tr( "Intense Duration" ), this );
@@ -432,19 +434,19 @@ ReosAlternatingBlockRainfall::ReosAlternatingBlockRainfall( QObject *parent ): R
   mTotalDuration->setValue( ReosDuration( 60, ReosDuration::minute ) );
 }
 
-ReosEncodedElement ReosAlternatingBlockRainfall::encode() const
+ReosEncodedElement ReosAlternatingBlockRainfall::encode( const ReosEncodeContext &context ) const
 {
-  ReosEncodedElement element = ReosTimeSerieConstantInterval::encode( QStringLiteral( "alternating-block-data" ) );
-  encodeBase( element );
+  ReosEncodedElement element = ReosTimeSerieConstantInterval::encode( context, QStringLiteral( "alternating-block-data" ) );
+  encodeBase( element, context );
   return element;
 }
 
-ReosAlternatingBlockRainfall *ReosAlternatingBlockRainfall::decode( const ReosEncodedElement &element, QObject *parent )
+ReosAlternatingBlockRainfall *ReosAlternatingBlockRainfall::decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent )
 {
   if ( element.description() != QStringLiteral( "alternating-block-data" ) )
     return nullptr;
 
-  return new ReosAlternatingBlockRainfall( element, parent );
+  return new ReosAlternatingBlockRainfall( element, context, parent );
 }
 
 void ReosAlternatingBlockRainfall::updateRainfall() const
@@ -522,8 +524,8 @@ void ReosAlternatingBlockRainfall::updateRainfall() const
   emit dataChanged();
 }
 
-ReosAlternatingBlockRainfall::ReosAlternatingBlockRainfall( const ReosEncodedElement &element, QObject *parent ):
-  ReosUniqueIdfCurveSyntheticRainfall( element, parent )
+ReosAlternatingBlockRainfall::ReosAlternatingBlockRainfall( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent ):
+  ReosUniqueIdfCurveSyntheticRainfall( element, context, parent )
 {
   connectParameters();
 }

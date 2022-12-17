@@ -109,7 +109,7 @@ QgsRectangle ReosGeometryStructure_p::layerZone( const ReosMapExtent &zone ) con
     {
       layerRect = transform.transform( rect );
     }
-    catch ( QgsCsException &e )
+    catch ( QgsCsException & )
     {
       layerRect = rect;
     }
@@ -675,7 +675,7 @@ QLineF ReosPolylineStructureVectorLayer::line( qint64 lineId, const QString &des
     {
       geom.transform( transform );
     }
-    catch ( QgsCsException &e )
+    catch ( QgsCsException & )
     {
       geom = mVectorLayer->getFeature( lineId ).geometry();
     }
@@ -1160,7 +1160,7 @@ QList<QPointF> ReosPolylineStructureVectorLayer::intersectionPoints( const QLine
     {
       geom.transform( transform );
     }
-    catch ( QgsCsException &e )
+    catch ( QgsCsException & )
     {
       geom = QgsGeometry::fromPolylineXY( {QgsPointXY( line.p1() ), QgsPointXY( line.p2() )} );
     }
@@ -1887,7 +1887,7 @@ QRectF ReosPolylineStructureVectorLayer::classExtent( const QString &classId, co
       ret = rect.toRectF();
       return ret;
     }
-    catch ( QgsCsException &e )
+    catch ( QgsCsException & )
     {
       return ret;
     }

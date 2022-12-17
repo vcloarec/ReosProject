@@ -73,8 +73,15 @@ void ReosDataProviderRegistery::loadDynamicProvider()
     providerPath = providerDir.absolutePath();
   else
   {
-    providerPath = REOS_PROVIDERS;
-    providerDir = QDir( providerPath );
+    providerPath = REOS_BUILDING_OUTPUT;
+    providerDir = QDir(providerPath);
+    if ( providerDir.cd( QStringLiteral( REOS_PROVIDERS ) ) )
+        providerPath = providerDir.absolutePath();
+    else
+    {
+        providerPath = REOS_PROVIDERS;
+        providerDir = QDir(providerPath);
+    }
   }
 
   providerDir.setSorting( QDir::Name | QDir::IgnoreCase );

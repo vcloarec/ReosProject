@@ -73,8 +73,10 @@ ReosTelemac2DSimulationResults::ReosTelemac2DSimulationResults( const ReosTelema
     for ( const QString &key : keys )
     {
       ReosEncodedElement encodedHyd( encodedHydrographs.value( key ) );
+      ReosEncodeContext encodeContext;
+      encodeContext.setBaseDir( fileInfo.dir() );
       if ( encodedHyd.description() == QStringLiteral( "hydrograph" ) )
-        mOutputHydrographs.insert( key, ReosHydrograph::decode( encodedHyd, this ) );
+        mOutputHydrographs.insert( key, ReosHydrograph::decode( encodedHyd, encodeContext, this ) );
     }
   }
 }

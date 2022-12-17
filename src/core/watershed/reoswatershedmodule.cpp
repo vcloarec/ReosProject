@@ -42,12 +42,12 @@ ReosWatershedDelineating *ReosWatershedModule::delineatingModule() const
   return mDelineatingModule;
 }
 
-void ReosWatershedModule::decode( const ReosEncodedElement &element )
+void ReosWatershedModule::decode( const ReosEncodedElement &element, const ReosEncodeContext &context )
 {
   if ( element.description() != QStringLiteral( "watershed-module" ) )
     return;
 
-  mWatershedTree->decode( element.getEncodedData( QStringLiteral( "watershed-tree" ) ) );
+  mWatershedTree->decode( element.getEncodedData( QStringLiteral( "watershed-tree" ) ), context );
   mDelineatingModule->decode( element.getEncodedData( QStringLiteral( "delineating-module" ) ) );
 
   if ( ReosRainfallRegistery::isInstantiate() )
@@ -58,10 +58,10 @@ void ReosWatershedModule::decode( const ReosEncodedElement &element )
   emit hasBeenReset();
 }
 
-ReosEncodedElement ReosWatershedModule::encode() const
+ReosEncodedElement ReosWatershedModule::encode( const ReosEncodeContext &context ) const
 {
   ReosEncodedElement ret( QStringLiteral( "watershed-module" ) );
-  ret.addEncodedData( QStringLiteral( "watershed-tree" ), mWatershedTree->encode() );
+  ret.addEncodedData( QStringLiteral( "watershed-tree" ), mWatershedTree->encode( context ) );
   ret.addEncodedData( QStringLiteral( "delineating-module" ), mDelineatingModule->encode() );
   ret.addEncodedData( QStringLiteral( "meteo-models-collection" ), mMeteorologicModelsCollection->encode( mWatershedTree ) );
 

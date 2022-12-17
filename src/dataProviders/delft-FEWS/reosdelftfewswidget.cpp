@@ -394,12 +394,11 @@ QString ReosDelftFewsWidget::currentUri() const
 
   const ReosDelftFewsStation &station = mStationsModel->station( stationIndex );
 
-  QString uri = QStringLiteral( "\"" ) + ui->mLineEditFileName->text() + QStringLiteral( "\"::" )
-                + station.meta.value( QStringLiteral( "location-id" ) ).toString() + QStringLiteral( "::" )
-                + station.meta.value( QStringLiteral( "start-time" ) ).toDateTime().toString( Qt::ISODate ) + QStringLiteral( "::" )
-                + station.meta.value( QStringLiteral( "end-time" ) ).toDateTime().toString( Qt::ISODate );
-
-  return uri;
+  return ReosDelftFewsXMLProviderInterface::buildUri(
+           ui->mLineEditFileName->text(),
+           station.meta.value( QStringLiteral( "location-id" ) ).toString(),
+           station.meta.value( QStringLiteral( "start-time" ) ).toDateTime(),
+           station.meta.value( QStringLiteral( "end-time" ) ).toDateTime() );
 }
 
 ReosDataProviderGuiFactory::GuiCapabilities ReosDelftFewsGuiFactory::capabilities() const

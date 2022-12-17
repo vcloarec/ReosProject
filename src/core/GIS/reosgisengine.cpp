@@ -763,7 +763,7 @@ ReosRasterMemory<QList<QPair<double, QPoint>>>  ReosGisEngine::transformRasterEx
         {
           destPoint = transform.transform( sourcePoint );
         }
-        catch ( QgsCsException &e )
+        catch ( QgsCsException & )
         {
           success = false;
           return ret;
@@ -851,7 +851,7 @@ ReosRasterMemory<QList<QPair<double, QPoint>>>  ReosGisEngine::transformRasterEx
       }
     }
   }
-  success = true;
+
   return ret;
 }
 

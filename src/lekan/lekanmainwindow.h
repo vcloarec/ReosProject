@@ -41,8 +41,6 @@ class ReosHydraulicNetworkDockWidget;
 class ReosWatershedWidget;
 class ReosHydraulicNetworkWidget;
 
-static const ReosVersion lekanVersion( "Lekan", 2, 2, 95 );
-
 class LekanMainWindow : public ReosMainWindow
 {
     Q_OBJECT
@@ -62,7 +60,7 @@ class LekanMainWindow : public ReosMainWindow
     bool saveProject() override;
     void clearProject() override;
     void checkExtraProjectToSave() override;
-    ReosVersion version() const override {return lekanVersion;}
+    ReosVersion version() const override {return ReosVersion::currentApplicationVersion();}
     QString projectFileFilter()  const override;
     QString projectFileSuffix() const override;
 

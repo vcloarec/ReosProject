@@ -161,7 +161,7 @@ class ReosMapToolDrawPolygon : public ReosMapToolDrawPolyRubberBand
     void drawn( const QPolygonF &polygon );
 };
 
-class ReosMapToolDrawExtent: public ReosMapTool
+class REOSGUI_EXPORT ReosMapToolDrawExtent: public ReosMapTool
 {
     Q_OBJECT
   public:

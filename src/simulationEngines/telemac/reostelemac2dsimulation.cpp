@@ -265,14 +265,15 @@ void ReosTelemac2DSimulation::saveSimulationResult( const ReosHydraulicStructure
 
   const QDir dir = simulationDir( hydraulicStructure, shemeId );
 
-  const QList<ReosHydraulicStructureBoundaryCondition *> boundaries = hydraulicStructure->boundaryConditions();
   QMap<QString, QByteArray> encodedHydrographs;
 
   QMap<QString, ReosHydrograph *> hyds = process->outputHydrographs();
+  ReosEncodeContext encodeContext;
+  encodeContext.setBaseDir( dir );
 
   const QStringList ids = hyds.keys();
   for ( const QString &id : ids )
-    encodedHydrographs.insert( id, hyds.value( id )->encode().bytes() );
+    encodedHydrographs.insert( id, hyds.value( id )->encode( encodeContext ).bytes() );
 
   QFile outputHydFile( dir.filePath( QStringLiteral( "outputHydrographs" ) ) );
 

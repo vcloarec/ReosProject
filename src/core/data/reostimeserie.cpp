@@ -476,7 +476,7 @@ void ReosTimeSerie::setValueAt( int i, double value )
   }
 }
 
-ReosEncodedElement ReosTimeSerieConstantInterval::encode( const QString &descritpion ) const
+ReosEncodedElement ReosTimeSerieConstantInterval::encode( const ReosEncodeContext &context, const QString &descritpion ) const
 {
   updateData();
   QString descript = descritpion;
@@ -484,17 +484,17 @@ ReosEncodedElement ReosTimeSerieConstantInterval::encode( const QString &descrit
     descript = QStringLiteral( "time-serie-constant-interval" );
 
   ReosEncodedElement element( descript );
-  ReosTimeSerie::baseEncode( element );
+  ReosTimeSerie::baseEncode( element, context );
 
   return element;
 }
 
-ReosTimeSerieConstantInterval *ReosTimeSerieConstantInterval::decode( const ReosEncodedElement &element, QObject *parent )
+ReosTimeSerieConstantInterval *ReosTimeSerieConstantInterval::decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent )
 {
   if ( element.description() != QStringLiteral( "time-serie-constant-interval" ) )
     return nullptr;
 
-  return new ReosTimeSerieConstantInterval( element, parent );
+  return new ReosTimeSerieConstantInterval( element, context, parent );
 }
 
 ReosTimeSerieConstantTimeStepProvider *ReosTimeSerieConstantInterval::constantTimeStepDataProvider() const
@@ -517,15 +517,15 @@ void ReosTimeSerieConstantInterval::onDataProviderChanged()
     mTimeStepParameter->setValue( constantTimeStepDataProvider()->timeStep() );
 }
 
-ReosTimeSerieConstantInterval::ReosTimeSerieConstantInterval( const ReosEncodedElement &element, QObject *parent )
+ReosTimeSerieConstantInterval::ReosTimeSerieConstantInterval( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent )
   : ReosTimeSerie( parent )
   , mTimeStepParameter( new ReosParameterDuration( tr( "Time step" ), this ) )
 {
-  decodeBase( element );
+  decodeBase( element, context );
 
   if ( constantTimeStepDataProvider() )
   {
-    constantTimeStepDataProvider()->decode( element.getEncodedData( QStringLiteral( "data-provider" ) ) );
+    constantTimeStepDataProvider()->decode( element.getEncodedData( QStringLiteral( "data-provider" ) ), context );
     mTimeStepParameter->setValue( constantTimeStepDataProvider()->timeStep() );
   }
   else
@@ -791,18 +791,18 @@ QPair<double, double> ReosTimeSerie::valueExent( bool withZero ) const
   return QPair<double, double>( min, max );
 }
 
-void ReosTimeSerie::baseEncode( ReosEncodedElement &element ) const
+void ReosTimeSerie::baseEncode( ReosEncodedElement &element, const ReosEncodeContext &context ) const
 {
   updateData();
   ReosDataObject::encode( element );
   if ( mProvider )
   {
     element.addData( QStringLiteral( "provider-key" ), mProvider->key() );
-    element.addEncodedData( QStringLiteral( "provider-data" ), mProvider->encode() );
+    element.addEncodedData( QStringLiteral( "provider-data" ), mProvider->encode( context ) );
   }
 }
 
-bool ReosTimeSerie::decodeBase( const ReosEncodedElement &element )
+bool ReosTimeSerie::decodeBase( const ReosEncodedElement &element, const ReosEncodeContext &context )
 {
   ReosDataObject::decode( element );
 
@@ -816,7 +816,7 @@ bool ReosTimeSerie::decodeBase( const ReosEncodedElement &element )
     {
       connect( mProvider.get(), &ReosTimeSerieProvider::dataChanged, this, &ReosTimeSerie::onDataProviderChanged );
       connect( mProvider.get(), &ReosTimeSerieProvider::dataReset, this, &ReosTimeSerie::dataReset );
-      mProvider->decode( element.getEncodedData( QStringLiteral( "provider-data" ) ) );
+      mProvider->decode( element.getEncodedData( QStringLiteral( "provider-data" ) ), context );
       mReferenceTimeParameter->setValue( mProvider->referenceTime() );
       mReferenceTimeParameter->setEditable( mProvider->isEditable() );
     }
@@ -1166,18 +1166,18 @@ void ReosTimeSerieVariableTimeStep::setCommonColor( const QColor &color )
   emit displayColorChanged( color );
 }
 
-void ReosTimeSerieVariableTimeStep::baseEncode( ReosEncodedElement &element ) const
+void ReosTimeSerieVariableTimeStep::baseEncode( ReosEncodedElement &element, const ReosEncodeContext &context ) const
 {
-  ReosTimeSerie::baseEncode( element );
+  ReosTimeSerie::baseEncode( element, context );
 
   element.addData( QStringLiteral( "unit-string" ), mUnitString );
   element.addData( QStringLiteral( "color" ), mColor );
 
 }
 
-bool ReosTimeSerieVariableTimeStep::decodeBase( const ReosEncodedElement &element )
+bool ReosTimeSerieVariableTimeStep::decodeBase( const ReosEncodedElement &element, const ReosEncodeContext &context )
 {
-  ReosTimeSerie::decodeBase( element );
+  ReosTimeSerie::decodeBase( element, context );
 
   if ( !element.getData( QStringLiteral( "unit-string" ), mUnitString ) )
     return false;
@@ -1224,22 +1224,22 @@ QAbstractItemModel *ReosTimeSerieVariableTimeStep::model()
   return mModel;
 }
 
-ReosEncodedElement ReosTimeSerieVariableTimeStep::encode() const
+ReosEncodedElement ReosTimeSerieVariableTimeStep::encode( const ReosEncodeContext &context ) const
 {
   ReosEncodedElement element( QStringLiteral( "time-serie-variable-time-step" ) );
 
-  baseEncode( element );
+  baseEncode( element, context );
 
   return element;
 }
 
-ReosTimeSerieVariableTimeStep *ReosTimeSerieVariableTimeStep::decode( const ReosEncodedElement &element, QObject *parent )
+ReosTimeSerieVariableTimeStep *ReosTimeSerieVariableTimeStep::decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent )
 {
   if ( element.description() != QStringLiteral( "time-serie-variable-time-step" ) )
     return nullptr;
 
   std::unique_ptr<ReosTimeSerieVariableTimeStep> ret = std::make_unique<ReosTimeSerieVariableTimeStep>( parent );
-  ret->decodeBase( element );
+  ret->decodeBase( element, context );
 
   return ret.release();
 }

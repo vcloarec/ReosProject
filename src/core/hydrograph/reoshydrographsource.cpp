@@ -124,7 +124,9 @@ ReosHydrographJunction::ReosHydrographJunction( const ReosSpatialPosition &posit
   init();
 }
 
-ReosHydrographJunction::ReosHydrographJunction( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent )
+ReosHydrographJunction::ReosHydrographJunction(
+  const ReosEncodedElement &encodedElement,
+  ReosHydraulicNetwork *parent )
   : ReosHydrographSource( encodedElement, parent )
   , mOutputHydrograph( new ReosHydrograph( this ) )
 {
@@ -146,7 +148,7 @@ ReosHydrographJunction::ReosHydrographJunction( const ReosEncodedElement &encode
   encodedElement.getData( QStringLiteral( "output-color" ), outputColor );
   mOutputHydrograph->setColor( outputColor );
   mHydrographsStore = new ReosHydrographsStore( this );
-  mHydrographsStore->decode( encodedElement.getEncodedData( QStringLiteral( "gauged-hydrographs" ) ) );
+  mHydrographsStore->decode( encodedElement.getEncodedData( QStringLiteral( "gauged-hydrographs" ) ), parent->context().encodeContext() );
   connect( mHydrographsStore, &ReosHydrographsStore::hydrographChanged, this, &ReosHydraulicNetworkElement::dirtied );
   connect( mHydrographsStore, &ReosHydrographsStore::dataChanged, this, &ReosHydraulicNetworkElement::dirtied );
 
@@ -263,7 +265,7 @@ void ReosHydrographJunction::encodeData( ReosEncodedElement &element, const Reos
 
   if ( mHydrographsStore->parent() == this )
   {
-    element.addEncodedData( QStringLiteral( "gauged-hydrographs" ), mHydrographsStore->encode() );
+    element.addEncodedData( QStringLiteral( "gauged-hydrographs" ), mHydrographsStore->encode( context.encodeContext() ) );
   }
 
   ReosHydrographSource::encodeData( element, context );

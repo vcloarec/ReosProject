@@ -26,7 +26,7 @@ email                : vcloarec@gmail.com
 /**
  * A class that create trace between cells in a raster, tracing is done following criteria define in the virtual method defineDirection()
  */
-class ReosRasterTraceBetweenCells
+class REOSCORE_EXPORT ReosRasterTraceBetweenCells
 {
   public:
     //! Starts the tracing

@@ -1,0 +1,41 @@
+!                    ****************
+                     MODULE GRACESTOP
+!                    ****************
+!
+!
+!***********************************************************************
+! SPECIAL
+!***********************************************************************
+!
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!
+      LOGICAL :: BREAKER = .FALSE.
+!SGI      INTEGER, PARAMETER :: SIGUSR1=16
+!LINUX    INTEGER, PARAMETER :: SIGUSR1=10
+!IBM      INTEGER, PARAMETER :: SIGUSR1=30
+      INTEGER, PARAMETER :: SIGUSR1=10
+      CONTAINS
+
+      SUBROUTINE HANDLER
+!!!        WRITE(*,*) 'SIGNAL ',SIGUSR1,' CAUGHT'
+        BREAKER = .TRUE.
+      END SUBROUTINE HANDLER
+
+      SUBROUTINE GRACE
+        WRITE(*,*) 'I STOP GRACEFULLY'
+        STOP
+      END SUBROUTINE GRACE
+
+      SUBROUTINE TRAPSIG
+      INTEGER ISIGNAL, SIGNAL
+
+!SGI        ISIGNAL = SIGNAL(SIGUSR1, HANDLER, -1)
+!LINUX      ISIGNAL = SIGNAL(SIGUSR1, HANDLER)
+!IBM        CALL SIGNAL(SIGUSR1, HANDLER)
+
+      ISIGNAL = SIGNAL(SIGUSR1, HANDLER)
+      END SUBROUTINE TRAPSIG
+
+      END MODULE GRACESTOP
+

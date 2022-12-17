@@ -1,0 +1,57 @@
+[general]
+path: <root>|sources|utils|partel
+module: partel
+liborder: special parallel bief partel
+name: partel_para
+
+[bief]
+path: <root>|sources|utils|bief
+files: bief_def.f
+  bief.f
+  elebd.f
+  front2.f
+  voisin.f
+
+[parallel]
+path: <root>|sources|utils|parallel
+files: declarations_parallel.F
+  p_dmax.F
+  p_dmax_array.F
+  p_dmin.F
+  p_dread.F
+  p_dsum.F
+  p_dwrit.F
+  p_imax.F
+  p_imax_array.F
+  p_imin.F
+  p_iread.F
+  p_ireadi.F
+  p_ireadi8.F
+  p_isum.F
+  p_iwrit.F
+  p_iwriti.F
+  p_iwriti8.F
+  p_mpi_alltoallv_alg.F
+  p_mpi_alltoallv_charac.F
+  p_mpi_alltoallv_i.F
+  p_mpi_alltoallv_oil.F
+  interface_parallel.f
+  p_allgatherv_i.F
+  p_exit.F
+  p_init.F
+  p_isum_array.F
+  p_sync.F
+  p_time.F
+
+[partel]
+path: <root>|sources|utils|partel
+files: partitioner_para.F
+  partel_para.F
+
+[special]
+path: <root>|sources|utils|special
+files: declarations_special.F
+  plante.F
+  check_allocate.f
+  extens.f
+  get_free_id.f

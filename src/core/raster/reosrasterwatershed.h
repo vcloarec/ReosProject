@@ -48,7 +48,7 @@ namespace ReosRasterWatershed
 
 class ReosRasterWatershedFromDirectionAndDownStreamLine;
 
-class ReosRasterWatershedDirectionCalculation: public ReosProcess
+class REOSCORE_EXPORT ReosRasterWatershedDirectionCalculation: public ReosProcess
 {
   public:
     ReosRasterWatershedDirectionCalculation( const ReosRasterWatershed::Dem &dem );

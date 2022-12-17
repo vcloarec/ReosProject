@@ -156,7 +156,7 @@ void ReosTimeSerieConstantTimeStepMemoryProvider::clear()
   mValues.clear();
 }
 
-ReosEncodedElement ReosTimeSerieConstantTimeStepMemoryProvider::encode() const
+ReosEncodedElement ReosTimeSerieConstantTimeStepMemoryProvider::encode( const ReosEncodeContext & ) const
 {
   ReosEncodedElement element( QStringLiteral( "constant-time-step-serie-memory-provider" ) );
   element.addData( QStringLiteral( "values" ), mValues );
@@ -167,7 +167,7 @@ ReosEncodedElement ReosTimeSerieConstantTimeStepMemoryProvider::encode() const
   return element;
 }
 
-void ReosTimeSerieConstantTimeStepMemoryProvider::decode( const ReosEncodedElement &element )
+void ReosTimeSerieConstantTimeStepMemoryProvider::decode( const ReosEncodedElement &element, const ReosEncodeContext & )
 {
   if ( element.description() != QStringLiteral( "constant-time-step-serie-memory-provider" ) )
     return;
@@ -300,7 +300,7 @@ void ReosTimeSerieVariableTimeStepMemoryProvider::copy( ReosTimeSerieVariableTim
   emit dataChanged();
 }
 
-ReosEncodedElement ReosTimeSerieVariableTimeStepMemoryProvider::encode() const
+ReosEncodedElement ReosTimeSerieVariableTimeStepMemoryProvider::encode( const ReosEncodeContext & ) const
 {
   ReosEncodedElement element( QStringLiteral( "variable-time-step-serie-memory-provider" ) );
 
@@ -322,7 +322,7 @@ ReosEncodedElement ReosTimeSerieVariableTimeStepMemoryProvider::encode() const
   return element;
 }
 
-void ReosTimeSerieVariableTimeStepMemoryProvider::decode( const ReosEncodedElement &element )
+void ReosTimeSerieVariableTimeStepMemoryProvider::decode( const ReosEncodedElement &element, const ReosEncodeContext & )
 {
   if ( element.description() != QStringLiteral( "variable-time-step-serie-memory-provider" ) )
     return;

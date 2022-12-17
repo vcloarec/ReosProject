@@ -98,12 +98,12 @@ ReosRasterExtent ReosGriddedRainfallMemoryProvider::extent() const
   return mExtent;
 }
 
-ReosEncodedElement ReosGriddedRainfallMemoryProvider::encode() const
+ReosEncodedElement ReosGriddedRainfallMemoryProvider::encode( const ReosEncodeContext & ) const
 {
   return ReosEncodedElement();
 }
 
-void ReosGriddedRainfallMemoryProvider::decode( const ReosEncodedElement &element )
+void ReosGriddedRainfallMemoryProvider::decode( const ReosEncodedElement &, const ReosEncodeContext & )
 {
 
 }

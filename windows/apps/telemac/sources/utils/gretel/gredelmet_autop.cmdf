@@ -1,0 +1,25 @@
+[general]
+path: <root>|sources|utils|gretel
+module: gretel
+liborder: special bief gretel
+name: gredelmet_autop
+
+[bief]
+path: <root>|sources|utils|bief
+files: bief_def.f
+  bief.f
+  elebd.f
+  stoseg.f
+  voisin.f
+
+[gretel]
+path: <root>|sources|utils|gretel
+files: gredel_fdnrst.f
+  gredelmet_autop.f
+
+[special]
+path: <root>|sources|utils|special
+files: declarations_special.F
+  plante.F
+  check_allocate.f
+  extens.f

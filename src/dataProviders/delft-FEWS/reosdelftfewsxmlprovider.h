@@ -34,12 +34,16 @@ class ReosDelftFewsXMLProviderInterface
     static QString valueStringFromElement( const QDomElement &element );
     static QString htmlDescriptionFromMetada( const QVariantMap &metadata );
 
+    static QString buildUri( const QString &fileName, const QString &stationId, const QDateTime &startTime, const QDateTime &endTime );
+
   protected:
     ReosDelftFewsXMLProviderInterface();
     static QString fileNameFromUri( const QString &uri );
     static QString stationIdFromUri( const QString &uri );
     static QDateTime endTimeFromUri( const QString &uri );
     static QDateTime startTimeFromUri( const QString &uri );
+
+    static QString changeFileNameInUri( const QString &uri, const QString &fileName );
 
     QDomElement seriesElement( const QString &uri, QDomDocument &document ) const;
 
@@ -65,8 +69,8 @@ class ReosDelftFewsXMLRainfallProvider: public ReosTimeSerieConstantTimeStepProv
     double lastValue() const override;
     double *data() override;
     const QVector<double> &constData() const override;
-    ReosEncodedElement encode() const override;
-    void decode( const ReosEncodedElement &element ) override;
+    ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
+    void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) override;
 
     // ReosTimeSerieConstantTimeStepProvider interface
     ReosDuration timeStep() const override;
@@ -97,8 +101,8 @@ class ReosDelftFewsXMLHydrographProvider: public ReosTimeSerieVariableTimeStepPr
     double *data() override;
     const QVector<double> &constData() const override;
     const QVector<ReosDuration> &constTimeData() const override;
-    ReosEncodedElement encode() const override;
-    void decode( const ReosEncodedElement &element ) override;
+    ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
+    void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) override;
 
     // ReosTimeSerieVariableTimeStepProvider interface
     ReosDuration relativeTimeAt( int i ) const override;

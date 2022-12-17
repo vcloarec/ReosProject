@@ -94,3 +94,36 @@ void ReosEncodedElement::setSerialisationVersion( QDataStream::Version version )
   sVersion = version;
 }
 
+QString ReosEncodeContext::pathToEncode( const QString &filePath ) const
+{
+  if ( mEncodeRelativePath )
+  {
+    return mBaseDir.relativeFilePath( filePath );
+  }
+  else
+  {
+    QFileInfo fileInfo( mBaseDir.filePath( filePath ) );
+    return fileInfo.absolutePath();
+  }
+}
+
+QString ReosEncodeContext::resolvePath( const QString &path ) const
+{
+  QFileInfo fileInfo( path );
+  if ( fileInfo.isRelative() && mEncodeRelativePath )
+  {
+    return mBaseDir.filePath( path );
+  }
+  else
+    return path;
+}
+
+void ReosEncodeContext::setBaseDir( const QDir &newBaseDir )
+{
+  mBaseDir = newBaseDir;
+}
+
+void ReosEncodeContext::setEncodeRelativePath( bool isrelative )
+{
+  mEncodeRelativePath = isrelative;
+}

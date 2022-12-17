@@ -1,0 +1,49 @@
+      SUBROUTINE READ_REF_DATE(LINE, DATE)
+
+        USE DECLARATIONS_SPECIAL
+        IMPLICIT NONE
+
+        CHARACTER(LEN=*), INTENT(IN) :: LINE
+        INTEGER, INTENT(OUT) :: DATE(6)
+
+        INTEGER IERR
+
+        ! Format of date 2012-12-31 12:00:00
+        READ(LINE(10:13),*,IOSTAT=IERR) DATE(1)
+        IF (IERR.NE.0) THEN
+          WRITE(LU,*) 'COULD NOT READ REFERENCE YEAR', LINE
+          CALL PLANTE(1)
+          STOP
+        ENDIF
+        READ(LINE(15:16),*,IOSTAT=IERR) DATE(2)
+        IF (IERR.NE.0) THEN
+          WRITE(LU,*) 'COULD NOT READ REFERENCE MONTH'
+          CALL PLANTE(1)
+          STOP
+        ENDIF
+        READ(LINE(18:19),*,IOSTAT=IERR) DATE(3)
+        IF (IERR.NE.0) THEN
+          WRITE(LU,*) 'COULD NOT READ REFERENCE DAY'
+          CALL PLANTE(1)
+          STOP
+        ENDIF
+        READ(LINE(21:22),*,IOSTAT=IERR) DATE(4)
+        IF (IERR.NE.0) THEN
+          WRITE(LU,*) 'COULD NOT READ REFERENCE HOUR'
+          CALL PLANTE(1)
+          STOP
+        ENDIF
+        READ(LINE(24:25),*,IOSTAT=IERR) DATE(5)
+        IF (IERR.NE.0) THEN
+          WRITE(LU,*) 'COULD NOT READ REFERENCE MINUTE'
+          CALL PLANTE(1)
+          STOP
+        ENDIF
+        READ(LINE(27:28),*,IOSTAT=IERR) DATE(6)
+        IF (IERR.NE.0) THEN
+          WRITE(LU,*) 'COULD NOT READ REFERENCE SECONDS'
+          CALL PLANTE(1)
+          STOP
+        ENDIF
+
+      END SUBROUTINE READ_REF_DATE

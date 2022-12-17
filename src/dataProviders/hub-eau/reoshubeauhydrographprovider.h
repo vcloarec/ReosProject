@@ -45,8 +45,8 @@ class ReosHubEauHydrographProvider : public ReosTimeSerieVariableTimeStepProvide
     double *data() override;
     const QVector<ReosDuration> &constTimeData() const override;
     const QVector<double> &constData() const override;
-    ReosEncodedElement encode() const override;
-    void decode( const ReosEncodedElement &element ) override;
+    ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
+    void decode( const ReosEncodedElement &element, const ReosEncodeContext & ) override;
     ReosDuration relativeTimeAt( int i ) const override;
     ReosDuration lastRelativeTime() const override;
     QString htmlDescription() const override;

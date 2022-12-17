@@ -374,7 +374,7 @@ QPointF ReosMeshFrame_p::vertexPosition( int vertexIndex, const QString &destina
     {
       return transform.transform( vert ).toQPointF();
     }
-    catch ( QgsCsException &e )
+    catch ( QgsCsException & )
     {
       return vert.toQPointF();
     }
@@ -1374,7 +1374,7 @@ void ReosMeshQualityChecker_p::start()
                 pt1 = mTransform.transform( p1 ).toQPointF();
                 pt2 = mTransform.transform( p2 ).toQPointF();
               }
-              catch ( QgsCsException &e )
+              catch ( QgsCsException & )
               {
                 pt1 = p1.toQPointF();
                 pt2 = p2.toQPointF();
@@ -1401,7 +1401,7 @@ void ReosMeshQualityChecker_p::start()
         {
           geomT.transform( mTransform );
         }
-        catch ( QgsCsException &e )
+        catch ( QgsCsException & )
         {
           geomT = geom;
         }
@@ -1434,7 +1434,7 @@ void ReosMeshQualityChecker_p::start()
       {
         geom.transform( mTransform );
       }
-      catch ( QgsCsException &e )
+      catch ( QgsCsException & )
       {
         geom = QgsMeshUtils::toGeometry( face, mMesh.vertices );
       }
@@ -1476,7 +1476,7 @@ void ReosMeshQualityChecker_p::start()
           {
             pt = mTransform.transform( QgsPointXY( mMesh.vertex( i ) ) ).toQPointF();
           }
-          catch ( QgsCsException &e )
+          catch ( QgsCsException & )
           {
             pt = mMesh.vertex( i ).toQPointF();
           }

@@ -40,6 +40,8 @@ class REOSCORE_EXPORT ReosGdalDataset
 
   private:
     GDALDatasetH mHDataset = nullptr;
+
+    static bool sRegistered;
 };
 
 

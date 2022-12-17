@@ -29,21 +29,21 @@ ReosSeriesRainfall::ReosSeriesRainfall( QObject *parent, const QString &provider
 
 QString ReosSeriesRainfall::staticType() {return ReosTimeSerieConstantInterval::staticType() + ':' + QStringLiteral( "hyetograph" );}
 
-ReosEncodedElement ReosSeriesRainfall::encode() const
+ReosEncodedElement ReosSeriesRainfall::encode( const ReosEncodeContext &context ) const
 {
-  return ReosTimeSerieConstantInterval::encode( QStringLiteral( "serie-rainfall-data" ) );
+  return ReosTimeSerieConstantInterval::encode( context, QStringLiteral( "serie-rainfall-data" ) );
 }
 
-ReosSeriesRainfall *ReosSeriesRainfall::decode( const ReosEncodedElement &element, QObject *parent )
+ReosSeriesRainfall *ReosSeriesRainfall::decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent )
 {
   if ( element.description() != QStringLiteral( "serie-rainfall-data" ) )
     return nullptr;
 
-  return new ReosSeriesRainfall( element, parent );
+  return new ReosSeriesRainfall( element, context, parent );
 }
 
-ReosSeriesRainfall::ReosSeriesRainfall( const ReosEncodedElement &element, QObject *parent ):
-  ReosTimeSerieConstantInterval( element, parent )
+ReosSeriesRainfall::ReosSeriesRainfall( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent ):
+  ReosTimeSerieConstantInterval( element, context, parent )
 {
   setupData();
 }

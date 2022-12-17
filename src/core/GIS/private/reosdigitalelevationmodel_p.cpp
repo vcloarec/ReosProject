@@ -389,7 +389,7 @@ ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimp
     {
       extentInDEMCoordinates = transform.transform( destExtent, Qgis::TransformDirection::Reverse );
     }
-    catch ( QgsCsException &e )
+    catch ( QgsCsException & )
     {
       extentInDEMCoordinates = destExtent;
     }
@@ -414,7 +414,7 @@ ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimp
     {
       adjustedExtentInDestinationCoordinates = transform.transform( adjustedExtent );
     }
-    catch ( QgsCsException &e )
+    catch ( QgsCsException & )
     {
       adjustedExtentInDestinationCoordinates = adjustedExtent;
     }
@@ -500,7 +500,7 @@ ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimp
     {
       extentInDEMCoordinates = transform.transform( destExtent, Qgis::TransformDirection::Reverse );
     }
-    catch ( QgsCsException &e )
+    catch ( QgsCsException & )
     {
       extentInDEMCoordinates = destExtent;
     }

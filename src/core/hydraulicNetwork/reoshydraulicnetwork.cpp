@@ -533,6 +533,13 @@ QString ReosHydraulicNetworkContext::projectName() const
   return mProjectName;
 }
 
+ReosEncodeContext ReosHydraulicNetworkContext::encodeContext() const
+{
+  ReosEncodeContext context;
+  context.setBaseDir( QDir( mProjectPath ) );
+  return context;
+}
+
 ReosHydraulicNetworkElementFactory::ReosHydraulicNetworkElementFactory()
 {
 

@@ -57,8 +57,8 @@ class ReosGribGriddedRainfallProvider : public ReosGriddedRainfallProvider
 
     bool sourceIsValid( const QString &source, ReosModule::Message &message ) const;
 
-    ReosEncodedElement encode() const override;
-    void decode( const ReosEncodedElement &element ) override;
+    ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
+    void decode(const ReosEncodedElement &element , const ReosEncodeContext &context) override;
 
   private:
     struct GribFrame

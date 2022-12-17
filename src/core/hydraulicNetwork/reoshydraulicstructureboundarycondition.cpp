@@ -38,7 +38,7 @@ ReosHydraulicStructureBoundaryCondition::ReosHydraulicStructureBoundaryCondition
 {
   init();
   encodedElement.getData( QStringLiteral( "boundary-condition-id" ), mBoundaryConditionId );
-  mWaterLevelSeriesGroup->decode( encodedElement.getEncodedData( QStringLiteral( "water-level-series" ) ) );
+  mWaterLevelSeriesGroup->decode( encodedElement.getEncodedData( QStringLiteral( "water-level-series" ) ), mContext.encodeContext() );
 }
 
 
@@ -75,7 +75,7 @@ void ReosHydraulicStructureBoundaryCondition::loadHydrographResult( const ReosCa
 void ReosHydraulicStructureBoundaryCondition::encodeData( ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context ) const
 {
   encodedElement.addData( QStringLiteral( "boundary-condition-id" ), mBoundaryConditionId );
-  encodedElement.addEncodedData( QStringLiteral( "water-level-series" ), mWaterLevelSeriesGroup->encode() );
+  encodedElement.addEncodedData( QStringLiteral( "water-level-series" ), mWaterLevelSeriesGroup->encode( context.encodeContext() ) );
   ReosHydrographJunction::encodeData( encodedElement, context );
 }
 

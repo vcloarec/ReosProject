@@ -51,8 +51,8 @@ class REOSCORE_EXPORT ReosTimeSerieProvider : public ReosDataProvider
     virtual double *data() = 0;
     virtual const QVector<double> &constData() const = 0;
 
-    virtual ReosEncodedElement encode() const = 0;
-    virtual void decode( const ReosEncodedElement &element ) = 0;
+    virtual ReosEncodedElement encode( const ReosEncodeContext &context ) const = 0;
+    virtual void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) = 0;
 
     virtual void load() {}
     QString dataSource() const;
@@ -135,8 +135,8 @@ class ReosTimeSerieConstantTimeStepMemoryProvider : public ReosTimeSerieConstant
     const QVector<double> &constData() const override;
     void removeValues( int fromPos, int count ) override;
     void clear() override;
-    ReosEncodedElement encode() const override;
-    void decode( const ReosEncodedElement &element ) override;
+    ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
+    void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) override;
     void copy( ReosTimeSerieConstantTimeStepProvider *other ) override;
 
   private:
@@ -185,8 +185,8 @@ class ReosTimeSerieVariableTimeStepMemoryProvider : public ReosTimeSerieVariable
     void clear() override;
     void copy( ReosTimeSerieVariableTimeStepProvider *other ) override;
 
-    ReosEncodedElement encode() const override;
-    void decode( const ReosEncodedElement &element ) override;
+    ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
+    void decode( const ReosEncodedElement &element, const ReosEncodeContext & ) override;
 
   private:
     QDateTime mReferenceTime;

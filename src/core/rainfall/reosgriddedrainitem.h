@@ -91,13 +91,13 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
       max = 20;
     }
 
-    ReosEncodedElement encode() const;
+    ReosEncodedElement encode( const ReosEncodeContext &context ) const;
 
     //! Creates new instance from the encoded element
-    static ReosGriddedRainfall *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
+    static ReosGriddedRainfall *decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr );
 
   private:
-    ReosGriddedRainfall( const ReosEncodedElement &element, QObject *parent );
+    ReosGriddedRainfall( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent );
 
     std::unique_ptr<ReosGriddedRainfallProvider> mProvider;
     QString mOverridenCrs;
@@ -109,7 +109,7 @@ class REOSCORE_EXPORT ReosGriddedRainItem : public ReosRainfallDataItem
     Q_OBJECT
   public:
     ReosGriddedRainItem( const QString &name, const QString &description,  ReosGriddedRainfall *data );
-    explicit ReosGriddedRainItem( const ReosEncodedElement &element );
+    explicit ReosGriddedRainItem( const ReosEncodedElement &element, const ReosEncodeContext &context );
 
     QString dataType() const override {return ReosGriddedRainfall::staticType();}
     ReosGriddedRainfall *data() const override;
@@ -119,7 +119,7 @@ class REOSCORE_EXPORT ReosGriddedRainItem : public ReosRainfallDataItem
     virtual bool accept( ReosRainfallItem *, bool = false ) const override;
     bool canBeSubItem( const ReosRainfallItem *item, bool acceptSameName ) const override;
 
-    ReosEncodedElement encode() const override;
+    ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
 
   private:
     ReosGriddedRainfall *mGriddedRainfall = nullptr;

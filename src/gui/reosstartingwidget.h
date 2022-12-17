@@ -21,7 +21,6 @@ email                : vcloarec at gmail dot com
 
 #include "reosgui.h"
 #include "reosmainwindow.h"
-#include "ui_reosstartingwidget.h"
 
 namespace Ui
 {

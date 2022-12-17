@@ -32,7 +32,7 @@ class ReosIntensityDurationInterval;
  *  Class that contains double parameters needed by a formula that calculates rainfall height depending of its duration
  *  The parameters count depends of the formula
  */
-class ReosIdfParameters: public QObject
+class REOSCORE_EXPORT ReosIdfParameters: public QObject
 {
     Q_OBJECT
   public:

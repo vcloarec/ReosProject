@@ -501,7 +501,7 @@ ReosParameterDuration *ReosWatershed::concentrationTime() const
   return mConcentrationTimeValue;
 }
 
-ReosEncodedElement ReosWatershed::encode() const
+ReosEncodedElement ReosWatershed::encode( const ReosEncodeContext &context ) const
 {
   ReosEncodedElement ret( QStringLiteral( "watershed" ) );
 
@@ -547,7 +547,7 @@ ReosEncodedElement ReosWatershed::encode() const
 
   QList<QByteArray> upstreamWatersheds;
   for ( const std::unique_ptr<ReosWatershed> &ws : mUpstreamWatersheds )
-    upstreamWatersheds.append( ws->encode().bytes() );
+    upstreamWatersheds.append( ws->encode( context ).bytes() );
 
   ret.addData( QStringLiteral( "upstream-watersheds" ), upstreamWatersheds );
 
@@ -575,12 +575,12 @@ ReosEncodedElement ReosWatershed::encode() const
   ret.addData( QStringLiteral( "used-fixed-time-step-output-hydrograph" ), mUsedConstantTimeStepForOutputHydrograph );
   ret.addEncodedData( QStringLiteral( "time-step-for-output-hydrograph" ), mTimeStepForOutputHydrograph.encode() );
 
-  ret.addEncodedData( QStringLiteral( "gauged-hydrographs" ), mGaugedHydrographs->encode() );
+  ret.addEncodedData( QStringLiteral( "gauged-hydrographs" ), mGaugedHydrographs->encode( context ) );
 
   return ret;
 }
 
-ReosWatershed *ReosWatershed::decode( const ReosEncodedElement &element )
+ReosWatershed *ReosWatershed::decode( const ReosEncodedElement &element, const ReosEncodeContext &context )
 {
   if ( element.description() != QStringLiteral( "watershed" ) )
     return nullptr;
@@ -655,7 +655,7 @@ ReosWatershed *ReosWatershed::decode( const ReosEncodedElement &element )
 
   for ( const QByteArray &ba : upstreamWatersheds )
   {
-    std::unique_ptr<ReosWatershed> uws( ReosWatershed::decode( ReosEncodedElement( ba ) ) );
+    std::unique_ptr<ReosWatershed> uws( ReosWatershed::decode( ReosEncodedElement( ba ), context ) );
     if ( uws )
     {
       uws->mDownstreamWatershed = ws.get();
@@ -739,7 +739,7 @@ ReosWatershed *ReosWatershed::decode( const ReosEncodedElement &element )
   element.getData( QStringLiteral( "used-fixed-time-step-output-hydrograph" ), ws->mUsedConstantTimeStepForOutputHydrograph );
   ws->mTimeStepForOutputHydrograph = ReosDuration::decode( element.getEncodedData( QStringLiteral( "time-step-for-output-hydrograph" ) ) );
 
-  ws->mGaugedHydrographs->decode( element.getEncodedData( QStringLiteral( "gauged-hydrographs" ) ) );
+  ws->mGaugedHydrographs->decode( element.getEncodedData( QStringLiteral( "gauged-hydrographs" ) ), context );
 
   ws->connectParameters();
 

@@ -1,0 +1,11 @@
+      SUBROUTINE AD_TELEMAC3D_END
+  
+        USE DECLARATIONS_SPECIAL
+        
+        IMPLICIT NONE
+
+        
+!!        WRITE(LU,*) 'AD_TELEMAC3D_END [lib]'
+!!        IF(DEBUG.GT.0) WRITE(LU,*) 'AD_TELEMAC3D_END [lib]'
+
+      END SUBROUTINE AD_TELEMAC3D_END
