@@ -39,6 +39,7 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reosrunoffmodel.h"
 #include "reoshydraulicnetwork.h"
 #include "reoshydraulicnetworkwidget.h"
+#include "reosstructure2dtoolbar.h"
 
 #define PROJECT_FILE_MAGIC_NUMBER 19092014
 
@@ -102,9 +103,6 @@ LekanMainWindow::LekanMainWindow( QWidget *parent )
 
   mHydraulicNetwork = new ReosHydraulicNetwork( rootModule(), mGisEngine, mWatershedModule );
 
-  QToolBar *networkToolBar = new QToolBar( this );
-  addToolBar( networkToolBar );
-  guiContext.addMainToolBar( QStringLiteral( "hydraulic-network" ), networkToolBar );
   mDockHydraulicNetwork = new ReosHydraulicNetworkDockWidget( mHydraulicNetwork, mWatershedModule, guiContext );
   mDockHydraulicNetwork->setObjectName( QStringLiteral( "hydraulicDock" ) );
   addDockWidget( Qt::RightDockWidgetArea, mDockHydraulicNetwork );
@@ -112,6 +110,7 @@ LekanMainWindow::LekanMainWindow( QWidget *parent )
   connect( mHydraulicNetworkWidget, &ReosHydraulicNetworkWidget::timeWindowChanged, this, &LekanMainWindow::onTimeWindowChanged );
   connect( mHydraulicNetworkWidget, &ReosHydraulicNetworkWidget::mapTimeStepChanged, this, &LekanMainWindow::onMapTimeStepChanged );
   mMap->addSelectToolTarget( ReosHydraulicNetworkElement::staticType() );
+  addToolBar( mHydraulicNetworkWidget->structure2dToolBar() );
 
   mDockWatershed = new  ReosWatershedDockWidget( guiContext, mWatershedModule, mHydraulicNetwork );
   mDockWatershed->setObjectName( QStringLiteral( "watershedDock" ) );
@@ -123,11 +122,11 @@ LekanMainWindow::LekanMainWindow( QWidget *parent )
 
   mMap->setDefaultMapTool();
 
+  init();
+
   ReosSettings settings;
   restoreGeometry( settings.value( QStringLiteral( "Windows/MainWindow/geometry" ) ).toByteArray() );
   restoreState( settings.value( QStringLiteral( "Windows/MainWindow/state" ) ).toByteArray() );
-
-  init();
 
   newProject();
 }

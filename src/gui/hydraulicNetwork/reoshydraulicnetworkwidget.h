@@ -36,6 +36,7 @@ class ReosHydraulicElementPropertiesActionWidget;
 class ReosMeteorologicModelsCollection;
 class ReosWatershedModule;
 class ReosGeometryStructure;
+class ReosStructure2dToolBar;
 
 class REOSGUI_EXPORT ReosHydraulicElementWidget : public QWidget
 {
@@ -66,7 +67,9 @@ class REOSGUI_EXPORT ReosHydraulicNetworkWidget : public QWidget
     ReosTimeWindow timeWindow() const;
     ReosDuration mapTimeStep() const;
 
-  signals:
+    ReosStructure2dToolBar *structure2dToolBar() const;
+
+signals:
     void timeWindowChanged();
     void mapTimeStepChanged();
 
@@ -100,6 +103,7 @@ class REOSGUI_EXPORT ReosHydraulicNetworkWidget : public QWidget
     ReosMap *mMap = nullptr;
     ReosHydraulicNetworkElement *mCurrentSelectedElement = nullptr;
     ReosHydraulicScheme *mCurrentHydraulicScheme = nullptr;
+    ReosStructure2dToolBar *mStructure2dToolBar = nullptr;
 
     typedef std::shared_ptr<ReosMapItem> NetworkItem ;
 

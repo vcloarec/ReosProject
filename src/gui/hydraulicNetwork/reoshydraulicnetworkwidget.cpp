@@ -28,6 +28,8 @@
 #include "reoshydraulicscheme.h"
 #include "reoshydraulicschemewidget.h"
 #include "reosparameter.h"
+#include "reosstructure2dtoolbar.h"
+#include "reoshydraulicstructure2dproperties.h"
 
 ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *network, ReosWatershedModule *watershedModule, const ReosGuiContext &context ) :
   QWidget( context.parent() )
@@ -35,6 +37,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   , mGuiContext( context )
   , mHydraulicNetwork( network )
   , mMap( context.map() )
+  , mStructure2dToolBar( new ReosStructure2dToolBar )
   , mActionSelectNetworkElement( new QAction( QIcon( QStringLiteral( ":/images/selectHydraulicElement.svg" ) ), tr( "Select Hydraulic Network Element" ), this ) )
   , mMapToolSelectNetworkElement( new ReosMapToolSelectMapItem( context.map(), ReosHydraulicNetworkElement::staticType() ) )
   , mActionAddHydrographJunction( new QAction( QIcon( QStringLiteral( ":/images/addHydrographJunction.svg" ) ), tr( "Add Junction" ), this ) )
@@ -254,6 +257,7 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
     mElementPropertiesWidget->setCurrentElement( nullptr, ReosGuiContext( this ) );
     ui->mNameWidget->setString( nullptr );
     mExtraItemSelection.reset( );
+    mStructure2dToolBar->setCurrentStructure2DPropertiesWidget( nullptr );
     emit timeWindowChanged();
     emit mapTimeStepChanged();
     return;
@@ -275,6 +279,8 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
   }
 
   mElementPropertiesWidget->setCurrentElement( elem, guiContext );
+  mStructure2dToolBar->setCurrentStructure2DPropertiesWidget(
+    qobject_cast<ReosHydraulicStructure2DProperties *>( mElementPropertiesWidget->currentElementWidget() ) );
 
   mCurrentSelectedElement = elem;
 
@@ -406,6 +412,11 @@ void ReosHydraulicNetworkWidget::updateSchemeInfo()
     ui->mLabelStartTime->setText( tr( "Time not defined" ) );
     ui->mLabelEndTime->setText( tr( "Time not defined" ) );
   }
+}
+
+ReosStructure2dToolBar *ReosHydraulicNetworkWidget::structure2dToolBar() const
+{
+  return mStructure2dToolBar;
 }
 
 void ReosHydraulicNetworkWidget::unselectCurrentElement()

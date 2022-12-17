@@ -75,6 +75,8 @@ class ReosHydraulicElementPropertiesWidget : public ReosStackedPageWidget
     explicit ReosHydraulicElementPropertiesWidget( ReosHydraulicNetwork *network, const ReosGuiContext &guiContext );
     ~ReosHydraulicElementPropertiesWidget();
 
+    ReosHydraulicElementWidget *currentWidget() const;
+
   public slots:
     void setCurrentElement( ReosHydraulicNetworkElement *element, const ReosGuiContext &guiContext );
 
@@ -103,6 +105,8 @@ class ReosHydraulicElementPropertiesActionWidget : public ReosActionStackedWidge
     Q_OBJECT
   public:
     ReosHydraulicElementPropertiesActionWidget( ReosHydraulicNetwork *network, const ReosGuiContext &guiContext );
+
+    ReosHydraulicElementWidget *currentElementWidget() const;
 
   public slots:
     void setCurrentElement( ReosHydraulicNetworkElement *element, const ReosGuiContext &guiContext );

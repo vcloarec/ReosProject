@@ -135,6 +135,11 @@ void ReosHydraulicElementPropertiesWidget::setTime( const QDateTime &time )
     mCurrentWidget->setTime( time );
 }
 
+ReosHydraulicElementWidget *ReosHydraulicElementPropertiesWidget::currentWidget() const
+{
+  return mCurrentWidget;
+}
+
 ReosHydraulicElementWidgetFactory *ReosHydraulicElementPropertiesWidget::widgetFactory( const QString &elementType )
 {
   if ( mWidgetFactories.contains( elementType ) )
@@ -230,6 +235,13 @@ ReosHydraulicElementPropertiesActionWidget::ReosHydraulicElementPropertiesAction
   mainPage = new ReosHydraulicElementPropertiesWidget( network, ReosGuiContext( guiContext, this ) );
   connect( mainPage, &ReosStackedPageWidget::askForShow, this, &QWidget::show );
   addPage( mainPage );
+}
+
+ReosHydraulicElementWidget *ReosHydraulicElementPropertiesActionWidget::currentElementWidget() const
+{
+  if ( mainPage )
+    return mainPage->currentWidget();
+  return nullptr;
 }
 
 void ReosHydraulicElementPropertiesActionWidget::setCurrentElement( ReosHydraulicNetworkElement *element, const ReosGuiContext &guiContext )
