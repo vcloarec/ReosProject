@@ -133,7 +133,7 @@ jobs:
     - name: Archive installer
       uses: actions/upload-artifact@v3
       with:
-        name: installer
+        name: Lekan Windows Installer
         path: ${{env.NSI_DESTINATION}}\Lekan-${{env.LEKAN_EXPERIMENTAL_VERSION}}-install-win64.exe
       
       
