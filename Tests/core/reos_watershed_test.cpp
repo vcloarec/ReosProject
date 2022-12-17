@@ -32,6 +32,7 @@ class ReosWatersehdTest: public QObject
 {
     Q_OBJECT
   private slots:
+    void initTestCase();
     void inclusion();
     void watershedInteractions();
     void watershedDelineating();
@@ -47,6 +48,10 @@ class ReosWatersehdTest: public QObject
     ReosGisEngine gisEngine;
 };
 
+void ReosWatersehdTest::initTestCase()
+{
+    ReosIdfFormulaRegistery::instantiate(&rootModule);
+}
 
 void ReosWatersehdTest::inclusion()
 {
@@ -670,9 +675,10 @@ void ReosWatersehdTest::watershdDelineatingMultiWatershed()
   QCOMPARE( itemModel.rowCount( itemModel.index( 1, 0, itemModel.index( 0, 0, QModelIndex() ) ) ), 2 );
 
   // Test encoding
-  ReosEncodedElement elem = watershedStore.encode();
+  ReosEncodeContext context;
+  ReosEncodedElement elem = watershedStore.encode( context );
   ReosWatershedTree newTree( &gisEngine );
-  newTree.decode( elem );
+  newTree.decode( elem, context );
   QCOMPARE( newTree.masterWatershedCount(), 1 );
   QCOMPARE( newTree.watershedCount(), 6 );
   QVERIFY( *newTree.masterWatershed( 0 ) == *watershedStore.masterWatershed( 0 ) );
@@ -756,7 +762,6 @@ void ReosWatersehdTest::runoffConstantCoefficient()
 {
 // build a rainfall
   ReosModule root;
-  ReosIdfFormulaRegistery::instantiate( &root );
   ReosIdfFormulaRegistery *idfRegistery = ReosIdfFormulaRegistery::instance();
   idfRegistery->registerFormula( new ReosIdfFormulaMontana );
 
@@ -1127,7 +1132,6 @@ void ReosWatersehdTest::runoffhydrograph()
 {
   // build rainfalls
   ReosModule root;
-  ReosIdfFormulaRegistery::instantiate( &root );
   ReosIdfFormulaRegistery *idfRegistery = ReosIdfFormulaRegistery::instance();
   idfRegistery->registerFormula( new ReosIdfFormulaMontana );
   ReosTransferFunctionFactories::instantiate( &root );

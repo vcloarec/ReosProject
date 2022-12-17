@@ -563,9 +563,10 @@ void ReosDataTesting::variable_time_step_time_model()
   QVERIFY( timeSerie.relativeTimeAt( 2 ) == ReosDuration( -60, ReosDuration::second ) );
   QCOMPARE( timeSerie.valueAt( 2 ), 3.0 );
 
-  ReosEncodedElement elem = timeSerie.encode();
+  ReosEncodeContext encodeContext;
+  ReosEncodedElement elem = timeSerie.encode( encodeContext );
 
-  std::unique_ptr<ReosTimeSerieVariableTimeStep> otherTimeSerie( ReosTimeSerieVariableTimeStep::decode( elem ) );
+  std::unique_ptr<ReosTimeSerieVariableTimeStep> otherTimeSerie( ReosTimeSerieVariableTimeStep::decode( elem, encodeContext ) );
   QVERIFY( otherTimeSerie );
   QCOMPARE( otherTimeSerie->valueCount(), 3 );
   QVERIFY( otherTimeSerie->relativeTimeAt( 0 ) == ReosDuration( -180, ReosDuration::second ) );
@@ -602,8 +603,9 @@ void ReosDataTesting::encode_variable_time_step()
   ReosEncodedElement tsElement( QStringLiteral( "time-serie-variable-time-step" ) );
   tsElement.addData( QStringLiteral( "provider-key" ), QStringLiteral( "variable-time-step-memory" ) );
   tsElement.addEncodedData( QStringLiteral( "provider-data" ), providerElement );
+  ReosEncodeContext encodeContext;
 
-  std::unique_ptr<ReosTimeSerieVariableTimeStep> timeSerie( ReosTimeSerieVariableTimeStep::decode( tsElement ) );
+  std::unique_ptr<ReosTimeSerieVariableTimeStep> timeSerie( ReosTimeSerieVariableTimeStep::decode( tsElement, encodeContext ) );
 
   QVERIFY( timeSerie );
   QCOMPARE( timeSerie->valueCount(), 4 );
@@ -620,8 +622,8 @@ void ReosDataTesting::encode_variable_time_step()
   QVERIFY( timeSerie->relativeTimeAt( 3 ) == ReosDuration( 24, ReosDuration::hour ) );
   QCOMPARE( timeSerie->valueAt( 3 ), 9.12 );
 
-  ReosEncodedElement elem = timeSerie->encode();
-  std::unique_ptr<ReosTimeSerieVariableTimeStep> otherTimeSerie( ReosTimeSerieVariableTimeStep::decode( elem ) );
+  ReosEncodedElement elem = timeSerie->encode( encodeContext );
+  std::unique_ptr<ReosTimeSerieVariableTimeStep> otherTimeSerie( ReosTimeSerieVariableTimeStep::decode( elem, encodeContext ) );
   QVERIFY( otherTimeSerie );
 
   QCOMPARE( otherTimeSerie->valueCount(), 4 );

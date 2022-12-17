@@ -23,8 +23,8 @@ class REOSCORE_EXPORT ReosWatershedModule : public ReosModule
     //! Removes all the watersheds
     void reset();
 
-    void decode( const ReosEncodedElement &element );
-    ReosEncodedElement encode() const;
+    void decode(const ReosEncodedElement &element , const ReosEncodeContext &context);
+    ReosEncodedElement encode( const ReosEncodeContext &context ) const;
 
   signals:
     void hasBeenReset();

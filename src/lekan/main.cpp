@@ -41,6 +41,14 @@ int main( int argc, char *argv[] )
 #endif
 
   ReosApplication a( argc, argv );
+
+#ifdef _MSC_VER
+  qputenv( "PATH", "C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\system32\\WBem" );
+  QString gdalData = QCoreApplication::applicationDirPath();
+  gdalData.append( "\\..\\share\\gdal" );
+  qputenv( "GDAL_DATA", gdalData.toUtf8().constData() );
+#endif
+
   QCoreApplication::setOrganizationName( QStringLiteral( "ReosProject" ) );
   QCoreApplication::setApplicationName( QStringLiteral( "Lekan" ) );
 
@@ -78,7 +86,7 @@ int main( int argc, char *argv[] )
     a.installTranslator( &ReosTranslator );
 
   std::unique_ptr<LekanMainWindow> w = std::make_unique<LekanMainWindow>();
-  new ReosVersionMessageBox( w.get(), lekanVersion );
+  new ReosVersionMessageBox( w.get(), ReosVersion::currentApplicationVersion() );
 
   if ( settings.contains( QStringLiteral( "Windows/MainWindow/geometry" ) ) )
   {

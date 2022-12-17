@@ -186,29 +186,71 @@ class REOSCORE_EXPORT ReosRasterCellPos
  * Class that stores a raster of type T in memory
  */
 template <typename T>
-class REOSCORE_EXPORT ReosRasterMemory
+class ReosRasterMemory
 {
   public:
     //! Default constructor, empty raster
     ReosRasterMemory() = default;
     //! Constructor with  \a nb_row, and \a nb_col, the row count and the column count, do not reserve memory
-    ReosRasterMemory( int nb_row, int nb_col );
+    ReosRasterMemory(int nb_row, int nb_col) :
+        mRowCount(nb_row), mColumnCount(nb_col)
+    {}
     //! Reserves memory with dimension used in constructor, returns true if successful
-    bool reserveMemory();
+    bool reserveMemory()
+    {
+        if (mRowCount * mColumnCount == 0)
+            return false;
+
+        mValues.clear();
+        try
+        {
+            mValues.resize(mRowCount * mColumnCount);
+        }
+        catch (std::bad_alloc)
+        {
+            return false;
+        }
+        return true;
+    }
     //! Reserves memory with dimension \a nb_row and \a nb_col, returns true if successful
-    bool reserveMemory( int nb_row, int nb_col );
+    bool reserveMemory(int nb_row, int nb_col)
+    {
+        mRowCount = nb_row;
+        mColumnCount = nb_col;
+        return reserveMemory();
+    }
     //! Clears and frees memory
-    bool freeMemory();
+    bool freeMemory()
+    {
+        mValues.clear();
+        return true;
+    }
     //! Returns the value at position \a i,j
-    T value( int row, int col ) const;
+    T value(int row, int col) const
+    {
+        if ((row < 0) || (row >= mRowCount) || (col < 0) || (col >= mColumnCount))
+            return noData();
+
+        return mValues.at(row * mColumnCount + col);
+    }
     //! Returns the value at position \a pos
-    T value( const ReosRasterCellPos &cellPos ) const;
+    T value(const ReosRasterCellPos& cellPos) const
+    {
+        return value(cellPos.row(), cellPos.column());
+    }
     //! Sets the value at position \a i,j
-    void setValue( int row, int col, T v );
+    void setValue(int row, int col, T v)
+    {
+        if ((row < mRowCount) && (col < mColumnCount) && (row >= 0) && (col >= 0))
+            mValues[row * mColumnCount + col] = v;
+    }
     //! Sets the value at position \a cellPos
-    void setValue( const ReosRasterCellPos &cellPos, T v );
+    void setValue(const ReosRasterCellPos& cellPos, T v)
+    {
+        setValue(cellPos.row(), cellPos.column(), v);
+    }
     //! Returns a void pointer to the data
-    void *data();
+    void* data() { return mValues.data(); }
 
     //! Returns all the values in a 1D array
     const QVector<T> values() const {return mValues;}
@@ -216,38 +258,159 @@ class REOSCORE_EXPORT ReosRasterMemory
     /**
      * Sets all values with implicit shared data. The copy is effective only if the count of values is the same as row * columns
      */
-    bool setValues( const QVector<T> values );
+    bool setValues(const QVector<T> values)
+    {
+        if (values.count() == mRowCount * mColumnCount)
+        {
+            mValues = values;
+            return true;
+        }
+        return false;
+    }
 
     //! Sets the value that is considered as no data
-    void setNodata( T nd );
+    void setNodata(T nd) { mNoData = nd; }
     //! Returns the value that is considered as no data
-    T noData() const;
+    T noData() const { return mNoData; }
     //! Returns the row count
     int rowCount() const {return mRowCount;}
     //! Returns the columns count
     int columnCount() const {return mColumnCount;}
     //! Fill the raster with \a val
-    void fill( T val );
+    void fill(T val)
+    {
+        for (int i = 0; i < mRowCount; ++i)
+            for (int j = 0; j < mColumnCount; ++j)
+                setValue(i, j, val);
+    }
 
     //! Load the data from a Tiff file using GDAL
-    bool loadDataFromTiffFile( const char *fileName, GDALDataType type );
+    bool loadDataFromTiffFile(const char* fileName, GDALDataType type)
+    {
+        GDALDataset* Dataset;
+        GDALRasterBand* Band;
+        Dataset = static_cast<GDALDataset*>(GDALOpen(fileName, GA_ReadOnly));
+
+        if (Dataset == nullptr)
+        {
+            return false;
+        }
+
+        Band = Dataset->GetRasterBand(1);
+        reserveMemory(Band->GetYSize(), Band->GetXSize());
+
+        CPLErr err = Band->RasterIO(GF_Read, 0, 0, mColumnCount, mRowCount, mValues.data(), mColumnCount, mRowCount, type, 0, 0);
+        if (err)
+            return false;
+        mNoData = Band->GetNoDataValue();
+
+        GDALClose(static_cast<GDALDatasetH>(Dataset));
+
+        return true;
+    }
     //! Creates a Tiff file with data using GDAL
-    bool createTiffFile( const char *fileName, GDALDataType type, double *geoTrans, OGRSpatialReference *crs = nullptr );
+    bool createTiffFile(const char* fileName, GDALDataType type, double* geoTrans, OGRSpatialReference* crs = nullptr)
+    {
+        GDALDriver* driver = GetGDALDriverManager()->GetDriverByName("GTiff");
+
+        if (!driver)
+            return false;
+
+        GDALDataset* dataSet = driver->Create(fileName, mColumnCount, mRowCount, 1, type, nullptr);
+        if (!dataSet)
+            return false;
+
+        CPLErr err = dataSet->GetRasterBand(1)->RasterIO(GF_Write, 0, 0, mColumnCount, mRowCount, mValues.data(), mColumnCount, mRowCount, type, 0, 0);
+        if (err)
+            return false;
+
+        dataSet->GetRasterBand(1)->SetNoDataValue(mNoData);
+
+        dataSet->SetGeoTransform(geoTrans);
+        if (crs)
+        {
+            char* proj_WKT = nullptr;
+            crs->exportToWkt(&proj_WKT);
+            dataSet->SetProjection(proj_WKT);
+            CPLFree(proj_WKT);
+        }
+
+        GDALClose(static_cast<GDALDatasetH>(dataSet));
+
+        return true;
+    }
     //! Creates a Tiff file with data using GDAL
-    bool createTiffFile( const char *fileName, GDALDataType type, const ReosRasterExtent &emprise, OGRSpatialReference *crs = nullptr );
+    bool createTiffFile(const char* fileName, GDALDataType type, const ReosRasterExtent& emprise, OGRSpatialReference* crs = nullptr)
+    {
+        double geoTrans[6] = { emprise.xMapOrigin(), emprise.xCellSize(), 0, emprise.yMapOrigin(), 0, emprise.yCellSize() };
+        return createTiffFile(fileName, type, geoTrans, crs);
+    }
 
     //! Copies the data from \a other
-    bool copy( ReosRasterMemory<T> *other );
+    bool copy(ReosRasterMemory<T>* other)
+    {
+        if (!other)
+            return false;
+
+        mRowCount = other->mRowCount;
+        mColumnCount = other->mColumnCount;
+
+        try
+        {
+            mValues = other->mValues;
+            return true;
+        }
+        catch (std::bad_alloc& )
+        {
+            return false;
+        }
+    }
 
     //! Returns whether the raster is valid
-    bool isValid() const;
+    bool isValid() const
+    {
+        return !mValues.empty() && mValues.size() == mRowCount * mColumnCount;
+    }
 
     //! Returns a new raster in memory from \a this with reduced column and row count
-    ReosRasterMemory<T> reduceRaster( int rowMin, int rowMax, int columnMin, int columnMax );
+    ReosRasterMemory<T> reduceRaster(int rowMin, int rowMax, int columnMin, int columnMax)
+    {
+        if ((rowMax < rowMin) || (columnMax < columnMin))
+            return ReosRasterMemory<T>();
+        ReosRasterMemory<T> returnRaster(rowMax - rowMin + 1, columnMax - columnMin + 1);
+        returnRaster.reserveMemory();
 
-    bool isInRaster( const ReosRasterCellPos &pos ) const;
+        for (int row = rowMin; row <= rowMax; ++row)
+            for (int col = columnMin; col <= columnMax; ++col)
+            {
+                returnRaster.setValue(row - rowMin, col - columnMin, value(row, col));
+            }
 
-    bool operator==( const ReosRasterMemory<T> &rhs ) const;
+        return returnRaster;
+    }
+
+    bool isInRaster(const ReosRasterCellPos& pos) const
+    {
+        return (pos.row() >= 0 && pos.column() >= 0 && pos.row() < mRowCount && pos.column() < mColumnCount);
+    }
+
+    bool operator==( const ReosRasterMemory<T> &rhs ) const
+    {
+        if (!isValid() || !rhs.isValid())
+            return false;
+
+        if (mRowCount != rhs.mRowCount || mColumnCount != rhs.mColumnCount)
+            return false;
+
+        for (int i = 0; i < mRowCount; ++i)
+            for (int j = 0; j < mColumnCount; ++j)
+            {
+                if (value(i, j) != rhs.value(i, j))
+                    return false;
+            }
+
+        return true;
+    }
 
   private:
     int mRowCount = 0;
@@ -256,241 +419,12 @@ class REOSCORE_EXPORT ReosRasterMemory
     T mNoData = std::numeric_limits<T>::quiet_NaN();
 };
 
-template<typename T>
-void *ReosRasterMemory<T>::data() {return mValues.data();}
-
-template<typename T>
-void ReosRasterMemory<T>::setNodata( T nd ) {mNoData = nd;}
-
-template<typename T>
-T ReosRasterMemory<T>::noData() const {return mNoData;}
-
-
-template<typename T>
-ReosRasterMemory<T>::ReosRasterMemory( int nb_row, int nb_col ):
-  mRowCount( nb_row ), mColumnCount( nb_col )
-{}
-
-template<typename T>
-bool ReosRasterMemory<T>::reserveMemory()
-{
-  if ( mRowCount * mColumnCount == 0 )
-    return false;
-
-  mValues.clear();
-  try
-  {
-    mValues.resize( mRowCount * mColumnCount );
-  }
-  catch ( std::bad_alloc )
-  {
-    return false;
-  }
-  return true;
-}
-
-template<typename T>
-bool ReosRasterMemory<T>::reserveMemory( int nb_row, int nb_col )
-{
-  mRowCount  = nb_row;
-  mColumnCount = nb_col;
-  return reserveMemory();
-}
-
-template<typename T>
-bool ReosRasterMemory<T>::freeMemory()
-{
-  mValues.clear();
-  return true;
-}
-
-template<typename T>
-T ReosRasterMemory<T>::value( int row, int col ) const
-{
-  if ( ( row < 0 ) || ( row >= mRowCount ) || ( col < 0 ) || ( col >= mColumnCount ) )
-    return noData();
-
-  return mValues.at( row * mColumnCount + col );
-}
-
-template<typename T>
-T ReosRasterMemory<T>::value( const ReosRasterCellPos &cellPos ) const
-{
-  return value( cellPos.row(), cellPos.column() );
-}
-
-
-template<typename T>
-void ReosRasterMemory<T>::setValue( int row, int col, T v )
-{
-  if ( ( row < mRowCount ) && ( col < mColumnCount ) && ( row >= 0 ) && ( col >= 0 ) )
-    mValues[row * mColumnCount  + col] = v;
-}
-
-template<typename T>
-void ReosRasterMemory<T>::setValue( const ReosRasterCellPos &cellPos, T v )
-{
-  setValue( cellPos.row(), cellPos.column(), v );
-}
-
-template<typename T>
-void ReosRasterMemory<T>::fill( T val )
-{
-  for ( int i = 0; i < mRowCount; ++i )
-    for ( int j = 0; j < mColumnCount; ++j )
-      setValue( i, j, val );
-}
-
-
-template<typename T>
-bool ReosRasterMemory<T>::loadDataFromTiffFile( const char *fileName, GDALDataType type )
-{
-  GDALDataset  *Dataset;
-  GDALRasterBand *Band;
-  Dataset = static_cast<GDALDataset *>( GDALOpen( fileName, GA_ReadOnly ) );
-
-  if ( Dataset == nullptr )
-  {
-    return false;
-  }
-
-  Band = Dataset->GetRasterBand( 1 );
-  reserveMemory( Band->GetYSize(), Band->GetXSize() );
-
-  CPLErr err = Band->RasterIO( GF_Read, 0, 0, mColumnCount, mRowCount, mValues.data(), mColumnCount, mRowCount, type, 0, 0 );
-  if ( err )
-    return false;
-  mNoData = Band->GetNoDataValue();
-
-  GDALClose( static_cast<GDALDatasetH>( Dataset ) );
-
-  return true;
-}
-
-template<typename T>
-bool ReosRasterMemory<T>::createTiffFile( const char *fileName, GDALDataType type, double *geoTrans, OGRSpatialReference *crs )
-{
-  GDALDriver *driver = GetGDALDriverManager()->GetDriverByName( "GTiff" );
-
-  if ( !driver )
-    return false;
-
-  GDALDataset *dataSet = driver->Create( fileName, mColumnCount, mRowCount, 1, type, nullptr );
-  if ( !dataSet )
-    return false;
-
-  CPLErr err = dataSet->GetRasterBand( 1 )->RasterIO( GF_Write, 0, 0, mColumnCount, mRowCount, mValues.data(), mColumnCount, mRowCount, type, 0, 0 );
-  if ( err )
-    return false;
-
-  dataSet->GetRasterBand( 1 )->SetNoDataValue( mNoData );
-
-  dataSet->SetGeoTransform( geoTrans );
-  if ( crs )
-  {
-    char *proj_WKT = nullptr;
-    crs->exportToWkt( &proj_WKT );
-    dataSet->SetProjection( proj_WKT );
-    CPLFree( proj_WKT );
-  }
-
-  GDALClose( static_cast<GDALDatasetH>( dataSet ) );
-
-  return true;
-}
-
-template<typename T>
-bool ReosRasterMemory<T>::createTiffFile( const char *fileName, GDALDataType type, const ReosRasterExtent &emprise, OGRSpatialReference *crs )
-{
-  double geoTrans[6] = {emprise.xMapOrigin(), emprise.xCellSize(), 0, emprise.yMapOrigin(), 0, emprise.yCellSize()};
-  return createTiffFile( fileName, type, geoTrans, crs );
-}
-
-
-template<typename T>
-bool ReosRasterMemory<T>::copy( ReosRasterMemory<T> *other )
-{
-  if ( !other )
-    return false;
-
-  mRowCount = other->mRowCount;
-  mColumnCount = other->mColumnCount;
-
-  try
-  {
-    mValues = other->mValues;
-    return true;
-  }
-  catch ( std::bad_alloc &e )
-  {
-    return false;
-  }
-}
-
-template<typename T>
-ReosRasterMemory<T> ReosRasterMemory<T>::reduceRaster( int rowMin, int rowMax, int columnMin, int columnMax )
-{
-  if ( ( rowMax < rowMin ) || ( columnMax < columnMin ) )
-    return ReosRasterMemory<T>();
-  ReosRasterMemory<T> returnRaster( rowMax - rowMin + 1, columnMax - columnMin + 1 );
-  returnRaster.reserveMemory();
-
-  for ( int row = rowMin; row <= rowMax; ++row )
-    for ( int col = columnMin; col <= columnMax; ++col )
-    {
-      returnRaster.setValue( row - rowMin, col - columnMin, value( row, col ) );
-    }
-
-  return returnRaster;
-}
-
-template<typename T>
-bool ReosRasterMemory<T>::operator==( const ReosRasterMemory<T> &rhs ) const
-{
-  if ( !isValid() || !rhs.isValid() )
-    return false;
-
-  if ( mRowCount != rhs.mRowCount || mColumnCount != rhs.mColumnCount )
-    return false;
-
-  for ( int i = 0; i < mRowCount; ++i )
-    for ( int j = 0; j < mColumnCount; ++j )
-    {
-      if ( value( i, j ) != rhs.value( i, j ) )
-        return false;
-    }
-
-  return true;
-}
-
-template<typename T>
-bool ReosRasterMemory<T>::isValid() const
-{
-  return !mValues.empty() && mValues.size() == mRowCount * mColumnCount;
-}
-
-template<typename T>
-bool ReosRasterMemory<T>::setValues( const QVector<T> values )
-{
-  if ( values.count() == mRowCount * mColumnCount )
-  {
-    mValues = values;
-    return true;
-  }
-  return false;
-}
-
-template<typename T>
-bool ReosRasterMemory<T>::isInRaster( const ReosRasterCellPos &pos ) const
-{
-  return ( pos.row() >= 0 && pos.column() >= 0 && pos.row() < mRowCount && pos.column() < mColumnCount );
-}
 
 /**
  * Convenient class used to navigate in a raster and can hande the raser value at corresponding position
  */
 template <typename T>
-class REOSCORE_EXPORT ReosRasterCellValue: public ReosRasterCellPos
+class ReosRasterCellValue: public ReosRasterCellPos
 {
   public:
 
@@ -565,7 +499,6 @@ class REOSCORE_EXPORT ReosRasterCellValue: public ReosRasterCellPos
 
   private:
     ReosRasterMemory<T> &mRaster;
-
 };
 
 /**

@@ -180,7 +180,7 @@ void ReosPolygonStructure_p::addPolygon( const QPolygonF &polygon, const QString
     {
       layerGeom.transform( transform );
     }
-    catch ( QgsCsException &e )
+    catch ( QgsCsException & )
     {
       layerGeom = geom;
     }

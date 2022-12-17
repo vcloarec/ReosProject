@@ -1,0 +1,31 @@
+[general]
+path: <root>|sources|utils|damocles
+module: damocles
+liborder: special damocles
+name: damocles
+
+[damocles]
+path: <root>|sources|utils|damocles
+files: declarations_damocles.f
+  next.f
+  preval.f
+  intlu.f
+  precar.f
+  myaidelu.f
+  longlu.f
+  mycarlu.f
+  prev.f
+  dico_data.f
+  utils_cata.f
+  shell_string.f
+  utils_latex.f
+  homere_damocles.f
+
+[special]
+path: <root>|sources|utils|special
+files: declarations_special.F
+  plante.F
+  check_allocate.f
+  write_error.f
+  check_call.f
+  i2str.f

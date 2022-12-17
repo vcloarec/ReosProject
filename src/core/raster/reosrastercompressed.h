@@ -23,7 +23,7 @@ email                : vcloarec@gmail.com
  * Class used to store unsigned char raser that has value unde 128 by a compress way
  *
  */
-class ReosRasterByteCompressed
+class REOSCORE_EXPORT ReosRasterByteCompressed
 {
   public:
     ReosRasterByteCompressed() = default;

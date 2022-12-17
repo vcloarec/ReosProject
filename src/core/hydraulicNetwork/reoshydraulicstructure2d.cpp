@@ -169,7 +169,8 @@ bool ReosHydraulicStructure2D::hasCapability( Structure2DCapability capability )
 void ReosHydraulicStructure2D::exportResultAsMesh( const QString &fileName ) const
 {
   mMesh->exportAsMesh( fileName );
-  mMesh->exportSimulationResults( mSimulationResults.value( network()->currentScheme()->id() ), fileName );
+  if (network() && network()->currentScheme())
+    mMesh->exportSimulationResults( mSimulationResults.value( network()->currentScheme()->id() ), fileName );
 }
 
 void ReosHydraulicStructure2D::exportResultAsMeshInGisProject( const QString &fileName, bool keepLayers )

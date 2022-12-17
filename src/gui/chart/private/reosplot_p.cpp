@@ -269,10 +269,10 @@ QwtIntervalSample ReosPlotConstantIntervalTimeIntervalSerie::sample( size_t i ) 
 {
   if ( !mTimeSerie )
     return QwtIntervalSample();
-
-  double y = mTimeSerie->valueAt( i );
-  double x1 = QwtDate::toDouble( mTimeSerie->timeAt( i ) );
-  double x2 = QwtDate::toDouble( mTimeSerie->timeAt( i ).addMSecs( mTimeSerie->timeStepParameter()->value().valueMilliSecond() ) );
+  int index = static_cast<int>(i);
+  double y = mTimeSerie->valueAt(index);
+  double x1 = QwtDate::toDouble( mTimeSerie->timeAt(index) );
+  double x2 = QwtDate::toDouble( mTimeSerie->timeAt(index).addMSecs( mTimeSerie->timeStepParameter()->value().valueMilliSecond() ) );
 
   return QwtIntervalSample( y, x1, x2 );
 }
@@ -348,18 +348,19 @@ size_t ReosPlotConstantIntervalTimePointSerie::size() const
 
 QPointF ReosPlotConstantIntervalTimePointSerie::sample( size_t i ) const
 {
+  int index = static_cast<int>(i);
   if ( mIsCumulative )
   {
     double x;
-    if ( i == 0 )
+    if ( index == 0 )
       x = QwtDate::toDouble( mTimeSerie->timeAt( 0 ) );
     else
-      x = QwtDate::toDouble( mTimeSerie->timeAt( i - 1 ).addMSecs( mTimeSerie->timeStepParameter()->value().valueMilliSecond() ) );
+      x = QwtDate::toDouble( mTimeSerie->timeAt( index - 1 ).addMSecs( mTimeSerie->timeStepParameter()->value().valueMilliSecond() ) );
 
-    return QPointF( x, mTimeSerie->valueWithMode( i, mValueMode ) );
+    return QPointF( x, mTimeSerie->valueWithMode( index, mValueMode ) );
   }
   else
-    return QPointF( QwtDate::toDouble( mTimeSerie->timeAt( i ) ), mTimeSerie->valueWithMode( i, mValueMode ) );
+    return QPointF( QwtDate::toDouble( mTimeSerie->timeAt( index) ), mTimeSerie->valueWithMode( index, mValueMode ) );
 }
 
 QRectF ReosPlotConstantIntervalTimePointSerie::boundingRect() const
@@ -426,8 +427,9 @@ size_t ReosPlotVariableStepTimeSerie::size() const
 
 QPointF ReosPlotVariableStepTimeSerie::sample( size_t i ) const
 {
-  double x = QwtDate::toDouble( mTimeSerie->timeAt( i ) );
-  double y = mTimeSerie->valueAt( i );
+  int index = static_cast<int>(i);
+  double x = QwtDate::toDouble( mTimeSerie->timeAt( index ) );
+  double y = mTimeSerie->valueAt( index );
 
   return QPointF( x, y );
 }

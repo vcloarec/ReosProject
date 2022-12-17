@@ -409,7 +409,7 @@ void ReosRainfallTest::loadRainfallData()
     QVERIFY( alternateRainfall->centerCoefficient()->value() == 0.5 );
     QVERIFY( alternateRainfall->referenceTime() == QDateTime( QDate( 2021, 01, 01 ), QTime( 0, 0, 0 ), Qt::UTC ) );
 
-    //****** Aletrnate rainfall
+    //****** Alternate rainfall
     ReosRainfallGaugedRainfallItem *gaugedItem = qobject_cast<ReosRainfallGaugedRainfallItem *>(
           rainfallModel->indexToItem( rainfallModel->index( 3, 0, rainfallModel->itemToIndex( stationItem ) ) ) );
     QVERIFY( gaugedItem );
@@ -615,9 +615,10 @@ void ReosRainfallTest::griddedRainfall()
   QVERIFY( rainfall.isValid() );
   QCOMPARE( rainfall.gridCount(), 3 );
 
-  ReosEncodedElement encodedRainfall = rainfall.encode();
+  ReosEncodeContext context;
+  ReosEncodedElement encodedRainfall = rainfall.encode( context );
 
-  std::unique_ptr<ReosGriddedRainfall> loadedRainFall( ReosGriddedRainfall::decode( encodedRainfall, nullptr ) );
+  std::unique_ptr<ReosGriddedRainfall> loadedRainFall( ReosGriddedRainfall::decode( encodedRainfall, context, nullptr ) );
   QVERIFY( loadedRainFall );
   QVERIFY( loadedRainFall->isValid() );
   QCOMPARE( loadedRainFall->gridCount(), 3 );
@@ -627,10 +628,10 @@ void ReosRainfallTest::griddedRainfall()
   ReosGriddedRainItem *griddedItem = rainfallModel.addGriddedRainfall( "Gridded rainfall", " a gridded RAINFALL", rainfallModel.itemToIndex( zoneItem ), loadedRainFall.release() );
   QVERIFY( griddedItem );
 
-  ReosEncodedElement modelEncoded = rainfallModel.encode();
+  ReosEncodedElement modelEncoded = rainfallModel.encode( context );
 
   ReosRainfallModel otherRainfallModel;
-  otherRainfallModel.decode( modelEncoded );
+  otherRainfallModel.decode( modelEncoded, context );
 
   QCOMPARE( otherRainfallModel.rootZoneCount(), 1 );
   zoneItem = otherRainfallModel.rootZone( 0 );

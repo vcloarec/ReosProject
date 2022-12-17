@@ -331,23 +331,32 @@ double *ReosDelftFewsXMLRainfallProvider::data() {return mCacheValues.data();}
 
 const QVector<double> &ReosDelftFewsXMLRainfallProvider::constData() const {return mCacheValues;}
 
-ReosEncodedElement ReosDelftFewsXMLRainfallProvider::encode() const
+ReosEncodedElement ReosDelftFewsXMLRainfallProvider::encode( const ReosEncodeContext &context ) const
 {
   ReosEncodedElement element( ReosDelftFewsXMLRainfallProvider::staticKey() );
 
-  element.addData( QStringLiteral( "source" ), dataSource() );
+  QString uri = dataSource();
+  QString fileName = fileNameFromUri( uri );
+  fileName = context.pathToEncode( fileName );
+
+  uri = changeFileNameInUri( uri, fileName );
+  element.addData( QStringLiteral( "source" ), uri );
+
   element.addData( QStringLiteral( "metadata" ), metadata() );
 
   return element;
 }
 
-void ReosDelftFewsXMLRainfallProvider::decode( const ReosEncodedElement &element )
+void ReosDelftFewsXMLRainfallProvider::decode( const ReosEncodedElement &element, const ReosEncodeContext &context )
 {
   if ( element.description() != ReosDelftFewsXMLRainfallProvider::staticKey() )
     return;
 
   QString source;
   element.getData( QStringLiteral( "source" ), source );
+  QString fileName = fileNameFromUri( source );
+  fileName = context.resolvePath( fileName );
+  source = changeFileNameInUri( source, fileName );
   setDataSource( source );
 
   QVariantMap meta;
@@ -361,26 +370,36 @@ QString ReosDelftFewsXMLRainfallProvider::dataType() {return ReosSeriesRainfall:
 
 QString ReosDelftFewsXMLRainfallProvider::oldDataType()
 {
-    return QStringLiteral("rainfall");
+  return QStringLiteral( "rainfall" );
 }
 
-ReosEncodedElement ReosDelftFewsXMLHydrographProvider::encode() const
+ReosEncodedElement ReosDelftFewsXMLHydrographProvider::encode( const ReosEncodeContext &context ) const
 {
   ReosEncodedElement element( ReosDelftFewsXMLRainfallProvider::staticKey() );
 
-  element.addData( QStringLiteral( "source" ), dataSource() );
+  QString uri = dataSource();
+  QString fileName = fileNameFromUri( uri );
+  fileName = context.pathToEncode( fileName );
+
+  uri = changeFileNameInUri( uri, fileName );
+
+  element.addData( QStringLiteral( "source" ), uri );
   element.addData( QStringLiteral( "metadata" ), metadata() );
 
   return element;
 }
 
-void ReosDelftFewsXMLHydrographProvider::decode( const ReosEncodedElement &element )
+void ReosDelftFewsXMLHydrographProvider::decode( const ReosEncodedElement &element, const ReosEncodeContext &context )
 {
   if ( element.description() != ReosDelftFewsXMLRainfallProvider::staticKey() )
     return;
 
   QString source;
   element.getData( QStringLiteral( "source" ), source );
+  QString fileName = fileNameFromUri( source );
+  fileName = context.resolvePath( fileName );
+  source = changeFileNameInUri( source, fileName );
+
   setDataSource( source );
 
   QVariantMap meta;
@@ -431,6 +450,28 @@ QDateTime ReosDelftFewsXMLProviderInterface::startTimeFromUri( const QString &ur
     return QDateTime();
 
   return QDateTime::fromString( splitSecondPart.at( 1 ), Qt::ISODate );
+}
+
+QString ReosDelftFewsXMLProviderInterface::changeFileNameInUri( const QString &uri, const QString &fileName )
+{
+
+  QString stationId = stationIdFromUri( uri );
+  QDateTime startTime = startTimeFromUri( uri );
+  QDateTime endTime = endTimeFromUri( uri );
+
+  return buildUri( fileName, stationId, startTime, endTime );
+}
+
+QString ReosDelftFewsXMLProviderInterface::buildUri(
+  const QString &fileName,
+  const QString &stationId,
+  const QDateTime &startTime,
+  const QDateTime &endTime )
+{
+  return QStringLiteral( "\"" ) + fileName + QStringLiteral( "\"::" )
+         + stationId + QStringLiteral( "::" )
+         + startTime.toString( Qt::ISODate ) + QStringLiteral( "::" )
+         + endTime.toString( Qt::ISODate );
 }
 
 QDateTime ReosDelftFewsXMLProviderInterface::endTimeFromUri( const QString &uri )

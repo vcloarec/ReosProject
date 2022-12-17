@@ -352,21 +352,33 @@ bool ReosGribGriddedRainfallProvider::sourceIsValid( const QString &source, Reos
 
 }
 
-ReosEncodedElement ReosGribGriddedRainfallProvider::encode() const
+ReosEncodedElement ReosGribGriddedRainfallProvider::encode( const ReosEncodeContext &context ) const
 {
   ReosEncodedElement element( QStringLiteral( "grib-gridded-precipitation" ) );
-  element.addData( QStringLiteral( "data-source" ), dataSource() );
+
+  QString uriToEncode = dataSource();
+
+  QString sourcePath = sourcePathFromUri( uriToEncode );
+  sourcePath = context.pathToEncode( sourcePath );
+  uriToEncode = uri( sourcePath, variableFromUri( uriToEncode ), valueTypeFromUri( uriToEncode ) );
+  element.addData( QStringLiteral( "data-source" ), uriToEncode );
 
   return element;
 }
 
-void ReosGribGriddedRainfallProvider::decode( const ReosEncodedElement &element )
+void ReosGribGriddedRainfallProvider::decode( const ReosEncodedElement &element, const ReosEncodeContext &context )
 {
   if ( element.description() != QStringLiteral( "grib-gridded-precipitation" ) )
     return;
   QString source;
   if ( element.getData( QStringLiteral( "data-source" ), source ) )
+  {
+    QString sourcePath = sourcePathFromUri( source );
+    sourcePath = context.resolvePath( sourcePath );
+    source = uri( sourcePath, variableFromUri( source ), valueTypeFromUri( source ) );
     setDataSource( source );
+  }
+
 }
 
 void ReosGribGriddedRainfallProvider::parseFile(

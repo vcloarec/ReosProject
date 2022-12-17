@@ -14,6 +14,7 @@ email                : vcloarec at gmail dot com
  ***************************************************************************/
 
 #include "reosstartingwidget.h"
+#include "ui_reosstartingwidget.h"
 
 ReosStartingWidget::ReosStartingWidget( ReosMainWindow *parent ) :
   QDialog( parent ),

@@ -214,8 +214,8 @@ class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
     ReosConcentrationTimeCalculation concentrationTimeCalculation() const;
     void setConcentrationTimeCalculation( const ReosConcentrationTimeCalculation &concentrationTimeCalculation );
 
-    ReosEncodedElement encode() const;
-    static ReosWatershed *decode( const ReosEncodedElement &element );
+    ReosEncodedElement encode(const ReosEncodeContext &context) const;
+    static ReosWatershed *decode(const ReosEncodedElement &element , const ReosEncodeContext &context);
 
     bool operator==( const ReosWatershed &other ) const;
 

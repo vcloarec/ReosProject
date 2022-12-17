@@ -26,7 +26,7 @@
 #include "reosrenderersettings_p.h"
 
 class ReosMeshDataProvider_p;
-class ReosMeshFrameData;
+struct ReosMeshFrameData;
 class QgsMeshDatasetGroup;
 class ReosDigitalElevationModel;
 

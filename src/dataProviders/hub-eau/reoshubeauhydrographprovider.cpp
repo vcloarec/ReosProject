@@ -60,7 +60,7 @@ const QVector<ReosDuration> &ReosHubEauHydrographProvider::constTimeData() const
 
 const QVector<double> &ReosHubEauHydrographProvider::constData() const {return mCachedValues;}
 
-ReosEncodedElement ReosHubEauHydrographProvider::encode() const
+ReosEncodedElement ReosHubEauHydrographProvider::encode( const ReosEncodeContext &context ) const
 {
   ReosEncodedElement element( ReosHubEauHydrographProvider::staticKey() );
   element.addData( QStringLiteral( "source" ), dataSource() );
@@ -70,7 +70,7 @@ ReosEncodedElement ReosHubEauHydrographProvider::encode() const
   return element;
 }
 
-void ReosHubEauHydrographProvider::decode( const ReosEncodedElement &element )
+void ReosHubEauHydrographProvider::decode( const ReosEncodedElement &element, const ReosEncodeContext & )
 {
   if ( element.description() != ReosHubEauHydrographProvider::staticKey() )
     return;

@@ -151,7 +151,8 @@ ReosMeshFrameData ReosGmshEngine::generateMesh(
     }
 
     gmsh::initialize();
-    gmsh::model::add( "t1" );
+    std::string t1 = "t1";
+    gmsh::model::add( t1 );
 
     for ( int i = 0; i < data.vertices.count(); ++i )
     {
@@ -205,7 +206,7 @@ ReosMeshFrameData ReosGmshEngine::generateMesh(
       if ( !sizeValues )
         return lc;
 
-      double sizeValue = sizeValues->value( x, y, dim == 1 | dim == 0 );
+      double sizeValue = sizeValues->value( x, y, dim == 1 || dim == 0 );
 
       if ( std::isnan( sizeValue )  || sizeValue <= 0 )
         return defaultSize;
@@ -223,7 +224,7 @@ ReosMeshFrameData ReosGmshEngine::generateMesh(
 
     // get all the vertices
     gmsh::model::mesh::getNodes( nodeTags, coord, parametricCoord, -1, -1, false, true );
-    result.vertexCoordinates.resize( coord.size() );
+    result.vertexCoordinates.resize( static_cast<int>( coord.size() ));
     memcpy( result.vertexCoordinates.data(), coord.data(), coord.size()*sizeof( double ) );
 
     QHash<size_t, int> tagToVertexIndex;
@@ -281,8 +282,8 @@ ReosMeshFrameData ReosGmshEngine::generateMesh(
       gmsh::model::mesh::getNodes( nodeBoundTags, coordBound, parametricCoordBound, 1, boundLineTag, false, true );
 
       int iniSize = vertexTagBound.count();
-      vertexTagBound.resize( iniSize + nodeBoundTags.size() );
-      for ( size_t nt = 0; nt < nodeBoundTags.size(); ++nt )
+      vertexTagBound.resize( iniSize + static_cast<int>(nodeBoundTags.size() ));
+      for ( int nt = 0; nt < static_cast<int>(nodeBoundTags.size()); ++nt )
         vertexTagBound[iniSize + nt] =  tagToVertexIndex.value( nodeBoundTags.at( nt ) );
 
       result.boundaryVertices.append( vertexTagBound );
@@ -297,9 +298,9 @@ ReosMeshFrameData ReosGmshEngine::generateMesh(
         int lineTag = internalLines.at( holeInternalLines.at( i ) ); // + internalLineStartIndex + 1;
         gmsh::model::mesh::getNodes( nodeBoundTags, coordBound, parametricCoordBound, 1, lineTag, true, true );
 
-        QVector<int> lineVertices( nodeBoundTags.size() - 1 );
-        for ( size_t nt = 0; nt < nodeBoundTags.size() - 1; ++nt )
-          lineVertices[nt] =  tagToVertexIndex.value( nodeBoundTags.at( nt ) );
+        QVector<int> lineVertices( static_cast<int>(nodeBoundTags.size()) - 1 );
+        for ( int nt = 0; nt < static_cast<int>(nodeBoundTags.size()) - 1; ++nt )
+          lineVertices[nt] =  tagToVertexIndex.value( nodeBoundTags.at( nt));
 
         holeVertices.append( lineVertices );
       }

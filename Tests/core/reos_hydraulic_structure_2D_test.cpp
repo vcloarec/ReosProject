@@ -405,7 +405,11 @@ void ReoHydraulicStructure2DTest::createHydraulicStructure()
   std::unique_ptr<ReosMeshGeneratorProcess> meshGenerator( mHydraulicStructure->getGenerateMeshProcess() );
   meshGenerator->start();
   Q_ASSERT( meshGenerator->isSuccessful() );
+#ifdef _MSC_VER
+  QCOMPARE( mHydraulicStructure->mesh()->vertexCount(), 715 );
+#else
   QCOMPARE( mHydraulicStructure->mesh()->vertexCount(), 714 );
+#endif
 
   QPolygonF hole;
   hole << QPointF( 2.5, 2.5 )
@@ -419,7 +423,12 @@ void ReoHydraulicStructure2DTest::createHydraulicStructure()
   meshGenerator.reset( mHydraulicStructure->getGenerateMeshProcess() );
   meshGenerator->start();
   QVERIFY( meshGenerator->isSuccessful() );
+
+#ifdef _MSC_VER
+  QCOMPARE( mHydraulicStructure->mesh()->vertexCount(), 685 );
+#else
   QCOMPARE( mHydraulicStructure->mesh()->vertexCount(), 687 );
+#endif
 
   QString demId = mGisEngine.addRasterLayer( test_file( "dem_for_mesh.tif" ).c_str() );
   mGisEngine.registerLayerAsDigitalElevationModel( demId );

@@ -22,7 +22,9 @@ TARGET_LINK_LIBRARIES(test_grib
                       reosCore
 )
 
-ADD_TEST(test_grib ${CMAKE_CURRENT_BINARY_DIR}/test_grib)
+ADD_TEST(NAME test_grib
+         COMMAND "test_grib"
+         WORKING_DIRECTORY ${REOS_OUTPUT_DIRECTORY})
 
 set_target_properties(test_grib
       PROPERTIES

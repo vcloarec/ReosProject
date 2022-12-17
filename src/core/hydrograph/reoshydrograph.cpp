@@ -32,20 +32,20 @@ void ReosHydrograph::updateData() const
 }
 
 
-ReosEncodedElement ReosHydrograph::encode() const
+ReosEncodedElement ReosHydrograph::encode( const ReosEncodeContext &context ) const
 {
   ReosEncodedElement element( QStringLiteral( "hydrograph" ) );
-  ReosTimeSerieVariableTimeStep::baseEncode( element );
+  ReosTimeSerieVariableTimeStep::baseEncode( element, context );
   return element;
 }
 
-ReosHydrograph *ReosHydrograph::decode( const ReosEncodedElement &element, QObject *parent )
+ReosHydrograph *ReosHydrograph::decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent )
 {
   if ( element.description() != QStringLiteral( "hydrograph" ) )
     return nullptr;
 
   std::unique_ptr<ReosHydrograph> ret = std::make_unique<ReosHydrograph>( parent );
-  ret->decodeBase( element );
+  ret->decodeBase( element, context );
 
   return ret.release();
 }
@@ -120,21 +120,21 @@ ReosHydrograph *ReosHydrographsStore::hydrograph( int index ) const
   return nullptr;
 }
 
-ReosEncodedElement ReosHydrographsStore::encode() const
+ReosEncodedElement ReosHydrographsStore::encode( const ReosEncodeContext &context ) const
 {
   ReosEncodedElement element( QStringLiteral( "hydrograph-store" ) );
 
   QList<QByteArray> encodedHydrographs;
   encodedHydrographs.reserve( mHydrographs.count() );
   for ( const ReosHydrograph *hyd : mHydrographs )
-    encodedHydrographs.append( hyd->encode().bytes() );
+    encodedHydrographs.append( hyd->encode( context ).bytes() );
 
   element.addData( "hydrographs", encodedHydrographs );
 
   return element;
 }
 
-void ReosHydrographsStore::decode( const ReosEncodedElement &element )
+void ReosHydrographsStore::decode( const ReosEncodedElement &element, const ReosEncodeContext &context )
 {
   qDeleteAll( mHydrographs );
   mHydrographs.clear();
@@ -149,7 +149,7 @@ void ReosHydrographsStore::decode( const ReosEncodedElement &element )
   mHydrographs.reserve( encodedHydrographs.count() );
   for ( const QByteArray &bytes : std::as_const( encodedHydrographs ) )
   {
-    mHydrographs.append( ReosHydrograph::decode( ReosEncodedElement( bytes ), this ) );
+    mHydrographs.append( ReosHydrograph::decode( ReosEncodedElement( bytes ), context, this ) );
 
     connect( mHydrographs.last(), &ReosDataObject::dataChanged, this, &ReosHydrographsStore::hydrographChanged );
 

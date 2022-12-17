@@ -40,7 +40,7 @@ class REOSCORE_EXPORT Reos3DMapSettings
     ReosEncodedElement encode() const;
 
   private:
-    QVector3D mLightDirection = { -0.32, -0.91, -0.27 };
+    QVector3D mLightDirection = { -0.32f, -0.91f, -0.27f };
     double mLightIntensity = 1;
     double mVerticalExaggeration = 1;
 };

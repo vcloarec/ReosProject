@@ -252,11 +252,11 @@ ReosWatershed *ReosWatershedTree::extractWatershed( ReosWatershed *ws )
   return nullptr;
 }
 
-ReosEncodedElement ReosWatershedTree::encode() const
+ReosEncodedElement ReosWatershedTree::encode( const ReosEncodeContext &context ) const
 {
   QList<QByteArray> watersheds;
   for ( const std::unique_ptr<ReosWatershed> &ws : mWatersheds )
-    watersheds.append( ws->encode().bytes() );
+    watersheds.append( ws->encode( context ).bytes() );
 
   ReosEncodedElement ret( QStringLiteral( "watershed-tree" ) );
   ret.addData( QStringLiteral( "watersheds" ), watersheds );
@@ -264,7 +264,7 @@ ReosEncodedElement ReosWatershedTree::encode() const
   return ret;
 }
 
-void ReosWatershedTree::decode( const ReosEncodedElement &elem )
+void ReosWatershedTree::decode( const ReosEncodedElement &elem, const ReosEncodeContext &context )
 {
   emit treeWillBeReset();
   mWatersheds.clear();
@@ -276,7 +276,7 @@ void ReosWatershedTree::decode( const ReosEncodedElement &elem )
       std::vector<std::unique_ptr<ReosWatershed>> watersheds;
       for ( const QByteArray &wsba : watershedsList )
       {
-        std::unique_ptr<ReosWatershed> uws( ReosWatershed::decode( ReosEncodedElement( wsba ) ) );
+        std::unique_ptr<ReosWatershed> uws( ReosWatershed::decode( ReosEncodedElement( wsba ), context ) );
         if ( uws )
         {
           uws->setGeographicalContext( mGisEngine );

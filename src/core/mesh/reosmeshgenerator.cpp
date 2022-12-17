@@ -182,7 +182,7 @@ void ReosMeshGeneratorPoly2TriProcess::start()
     if ( triangles.size() > INT32_MAX )
       throw std::exception();
 
-    int triangleCount = triangles.size();
+    int triangleCount = static_cast<int>(triangles.size());
 
     mResult.facesIndexes.fill( QVector<int>( 3 ), triangleCount );
 

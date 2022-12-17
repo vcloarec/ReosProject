@@ -29,10 +29,10 @@ bool ReosRootItem::accept( ReosRainfallItem *item, bool acceptSameName ) const
            ReosRainfallItem::accept( item, acceptSameName ) );
 }
 
-ReosEncodedElement ReosRootItem::encode() const
+ReosEncodedElement ReosRootItem::encode( const ReosEncodeContext &context ) const
 {
   ReosEncodedElement element( QStringLiteral( "root-item" ) );
-  ReosRainfallItem::encodeBase( element );
+  ReosRainfallItem::encodeBase( element, context );
   return element;
 }
 
@@ -45,10 +45,10 @@ bool ReosZoneItem::accept( ReosRainfallItem *item, bool acceptSameName ) const
            ReosRainfallItem::accept( item, acceptSameName ) );
 }
 
-ReosEncodedElement ReosZoneItem::encode() const
+ReosEncodedElement ReosZoneItem::encode( const ReosEncodeContext &context ) const
 {
   ReosEncodedElement element( QStringLiteral( "zone-item" ) );
-  ReosRainfallItem::encodeBase( element );
+  ReosRainfallItem::encodeBase( element, context );
   return element;
 }
 
@@ -60,11 +60,11 @@ bool ReosStationItem::accept( ReosRainfallItem *item, bool acceptSameName ) cons
            ReosRainfallItem::accept( item, acceptSameName ) );
 }
 
-ReosEncodedElement ReosStationItem::encode() const
+ReosEncodedElement ReosStationItem::encode( const ReosEncodeContext &context ) const
 {
   ReosEncodedElement element( QStringLiteral( "station-item" ) );
 
-  ReosRainfallItem::encodeBase( element );
+  ReosRainfallItem::encodeBase( element, context );
   element.addEncodedData( QStringLiteral( "position" ), mPosition.encode() );
   return element;
 }
@@ -193,7 +193,7 @@ void ReosRainfallItem::clear()
   mChildItems.clear();
 }
 
-void ReosRainfallItem::encodeBase( ReosEncodedElement &element ) const
+void ReosRainfallItem::encodeBase( ReosEncodedElement &element, const ReosEncodeContext &context ) const
 {
   element.addEncodedData( QStringLiteral( "name" ), mName->encode() );
   element.addEncodedData( QStringLiteral( "description" ), mDescription->encode() );
@@ -202,7 +202,7 @@ void ReosRainfallItem::encodeBase( ReosEncodedElement &element ) const
   QList<ReosEncodedElement> encodedChildren;
 
   for ( const std::unique_ptr<ReosRainfallItem> &ri : mChildItems )
-    encodedChildren.append( ri->encode() );
+    encodedChildren.append( ri->encode( context ) );
 
   element.addListEncodedData( QStringLiteral( "children" ), encodedChildren );
 }
@@ -304,7 +304,7 @@ ReosStationItem::ReosStationItem( const QString &name, const QString &descriptio
   , mPosition( position )
 {}
 
-ReosStationItem::ReosStationItem( const ReosEncodedElement &element ): ReosRainfallItem( element, Station )
+ReosStationItem::ReosStationItem( const ReosEncodedElement &element, const ReosEncodeContext &context ): ReosRainfallItem( element, Station )
 {
   if ( element.description() != QStringLiteral( "station-item" ) )
     return;
@@ -316,19 +316,19 @@ ReosStationItem::ReosStationItem( const ReosEncodedElement &element ): ReosRainf
   for ( const ReosEncodedElement &childElem : std::as_const( encodedChildren ) )
   {
     if ( childElem.description() == QStringLiteral( "rainfall-serie-item" ) )
-      addItem( new ReosRainfallGaugedRainfallItem( childElem ) );
+      addItem( new ReosRainfallGaugedRainfallItem( childElem, context ) );
 
     if ( childElem.description() == QStringLiteral( "idf-item" ) )
       addItem( new ReosRainfallIdfCurvesItem( childElem ) );
 
     if ( childElem.description() == QStringLiteral( "chicago-rainfall-item" ) )
-      addItem( new ReosRainfallChicagoItem( childElem ) );
+      addItem( new ReosRainfallChicagoItem( childElem, context ) );
 
     if ( childElem.description() == QStringLiteral( "alternating-block-rainfall-item" ) )
-      addItem( new ReosRainfallAlternatingBlockItem( childElem ) );
+      addItem( new ReosRainfallAlternatingBlockItem( childElem, context ) );
 
     if ( childElem.description() == QStringLiteral( "double-triangle-rainfall-item" ) )
-      addItem( new ReosRainfallDoubleTriangleItem( childElem ) );
+      addItem( new ReosRainfallDoubleTriangleItem( childElem, context ) );
   }
 }
 
@@ -343,7 +343,7 @@ ReosRainfallItem *ReosRainfallItem::addItem( ReosRainfallItem *item )
 ReosZoneItem::ReosZoneItem( const QString &name, const QString &descritpion ): ReosRainfallItem( name, descritpion, Zone )
 {}
 
-ReosZoneItem::ReosZoneItem( const ReosEncodedElement &element ): ReosRainfallItem( element, Zone )
+ReosZoneItem::ReosZoneItem( const ReosEncodedElement &element, const ReosEncodeContext &context ): ReosRainfallItem( element, Zone )
 {
   if ( element.description() != QStringLiteral( "zone-item" ) )
     return;
@@ -352,19 +352,19 @@ ReosZoneItem::ReosZoneItem( const ReosEncodedElement &element ): ReosRainfallIte
   for ( const ReosEncodedElement &childElem : std::as_const( encodedChildren ) )
   {
     if ( childElem.description() == QStringLiteral( "zone-item" ) )
-      addItem( new ReosZoneItem( childElem ) );
+      addItem( new ReosZoneItem( childElem, context ) );
 
     if ( childElem.description() == QStringLiteral( "station-item" ) )
-      addItem( new ReosStationItem( childElem ) );
+      addItem( new ReosStationItem( childElem, context ) );
 
     if ( childElem.description() == QStringLiteral( "gridded-rainfall-item" ) )
-      addItem( new ReosGriddedRainItem( childElem ) );
+      addItem( new ReosGriddedRainItem( childElem, context ) );
   }
 }
 
 ReosRootItem::ReosRootItem(): ReosRainfallItem( QString(), QString(), Root ) {}
 
-ReosRootItem::ReosRootItem( const ReosEncodedElement &element ): ReosRainfallItem( element, Root )
+ReosRootItem::ReosRootItem( const ReosEncodedElement &element, const ReosEncodeContext &context ): ReosRainfallItem( element, Root )
 {
   if ( element.description() != QStringLiteral( "root-item" ) )
     return;
@@ -373,10 +373,10 @@ ReosRootItem::ReosRootItem( const ReosEncodedElement &element ): ReosRainfallIte
   for ( const ReosEncodedElement &childElem : encodedChildren )
   {
     if ( childElem.description() == QStringLiteral( "zone-item" ) )
-      addItem( new ReosZoneItem( childElem ) );
+      addItem( new ReosZoneItem( childElem, context ) );
 
     if ( childElem.description() == QStringLiteral( "rainfall-station-item" ) )
-      addItem( new ReosStationItem( childElem ) );
+      addItem( new ReosStationItem( childElem, context ) );
   }
 }
 
@@ -390,13 +390,13 @@ ReosRainfallGaugedRainfallItem::ReosRainfallGaugedRainfallItem( const QString &n
     mData->setParent( this );
 }
 
-ReosRainfallGaugedRainfallItem::ReosRainfallGaugedRainfallItem( const ReosEncodedElement &element ):
+ReosRainfallGaugedRainfallItem::ReosRainfallGaugedRainfallItem( const ReosEncodedElement &element, const ReosEncodeContext &context ):
   ReosRainfallSerieRainfallItem( element )
 {
   if ( element.description() != QStringLiteral( "rainfall-serie-item" ) )
     return;
 
-  mData = ReosSeriesRainfall::decode( element.getEncodedData( "data" ), this );
+  mData = ReosSeriesRainfall::decode( element.getEncodedData( "data" ), context, this );
 }
 
 ReosSeriesRainfall *ReosRainfallGaugedRainfallItem::data() const
@@ -404,12 +404,12 @@ ReosSeriesRainfall *ReosRainfallGaugedRainfallItem::data() const
   return mData;
 }
 
-ReosEncodedElement ReosRainfallGaugedRainfallItem::encode() const
+ReosEncodedElement ReosRainfallGaugedRainfallItem::encode( const ReosEncodeContext &context ) const
 {
   ReosEncodedElement element( QStringLiteral( "rainfall-serie-item" ) );
-  ReosRainfallItem::encodeBase( element );
+  ReosRainfallItem::encodeBase( element, context );
 
-  element.addEncodedData( QStringLiteral( "data" ), mData->encode() );
+  element.addEncodedData( QStringLiteral( "data" ), mData->encode( context ) );
   return element;
 }
 
@@ -449,10 +449,10 @@ ReosIntensityDurationFrequencyCurves *ReosRainfallIdfCurvesItem::data() const
   return mData;
 }
 
-ReosEncodedElement ReosRainfallIdfCurvesItem::encode() const
+ReosEncodedElement ReosRainfallIdfCurvesItem::encode( const ReosEncodeContext &context ) const
 {
   ReosEncodedElement element( QStringLiteral( "idf-item" ) );
-  ReosRainfallItem::encodeBase( element );
+  ReosRainfallItem::encodeBase( element, context );
   return element;
 }
 
@@ -549,10 +549,10 @@ ReosIntensityDurationCurve *ReosRainfallIntensityDurationCurveItem::data() const
   return mIntensityDurationCurve;
 }
 
-ReosEncodedElement ReosRainfallIntensityDurationCurveItem::encode() const
+ReosEncodedElement ReosRainfallIntensityDurationCurveItem::encode( const ReosEncodeContext &context ) const
 {
   ReosEncodedElement element( QStringLiteral( "intensity-duration-item" ) );
-  ReosRainfallItem::encodeBase( element );
+  ReosRainfallItem::encodeBase( element, context );
   element.addEncodedData( QStringLiteral( "curve" ), mIntensityDurationCurve->encode() );
   return element;
 }
@@ -565,9 +565,9 @@ ReosRainfallChicagoItem::ReosRainfallChicagoItem( const QString &name, const QSt
   connectParameters();
 }
 
-ReosRainfallChicagoItem::ReosRainfallChicagoItem( const ReosEncodedElement &element ): ReosRainfallSerieRainfallItem( element )
+ReosRainfallChicagoItem::ReosRainfallChicagoItem( const ReosEncodedElement &element, const ReosEncodeContext &context ): ReosRainfallSerieRainfallItem( element )
 {
-  mData = ReosChicagoRainfall::decode( element.getEncodedData( QStringLiteral( "chicago-rainfall-data" ) ) );
+  mData = ReosChicagoRainfall::decode( element.getEncodedData( QStringLiteral( "chicago-rainfall-data" ) ), context );
   QString curveItemUniqueId;
   if ( element.getData( QStringLiteral( "curve-item-unique-id" ), curveItemUniqueId ) )
   {
@@ -580,18 +580,18 @@ ReosRainfallChicagoItem::ReosRainfallChicagoItem( const ReosEncodedElement &elem
 
 QString ReosRainfallChicagoItem::dataType() const {return ReosChicagoRainfall::staticType();}
 
-ReosEncodedElement ReosRainfallChicagoItem::encode() const
+ReosEncodedElement ReosRainfallChicagoItem::encode( const ReosEncodeContext &context ) const
 {
   ReosEncodedElement element( QStringLiteral( "chicago-rainfall-item" ) );
 
-  encodeBase( element );
+  encodeBase( element, context );
 
   QString curveItemUniqueId;
   if ( !mCurveItem.isNull() )
     curveItemUniqueId = mCurveItem->uniqueId();
   element.addData( QStringLiteral( "curve-item-unique-id" ), curveItemUniqueId );
 
-  element.addEncodedData( QStringLiteral( "chicago-rainfall-data" ), mData->encode() );
+  element.addEncodedData( QStringLiteral( "chicago-rainfall-data" ), mData->encode( context ) );
 
   return element;
 }
@@ -638,9 +638,10 @@ ReosRainfallDoubleTriangleItem::ReosRainfallDoubleTriangleItem( const QString &n
   connectParameters();
 }
 
-ReosRainfallDoubleTriangleItem::ReosRainfallDoubleTriangleItem( const ReosEncodedElement &element ): ReosRainfallSerieRainfallItem( element )
+ReosRainfallDoubleTriangleItem::ReosRainfallDoubleTriangleItem( const ReosEncodedElement &element, const ReosEncodeContext &context )
+  : ReosRainfallSerieRainfallItem( element )
 {
-  mData = ReosDoubleTriangleRainfall::decode( element.getEncodedData( QStringLiteral( "double-triangle-rainfall-data" ) ) );
+  mData = ReosDoubleTriangleRainfall::decode( element.getEncodedData( QStringLiteral( "double-triangle-rainfall-data" ) ), context );
   QString curveItemIntenseUid;
   QString curveItemTotalUid;
   if ( element.getData( QStringLiteral( "intense-curve-item-unique-id" ), curveItemIntenseUid ) &&
@@ -654,11 +655,11 @@ ReosRainfallDoubleTriangleItem::ReosRainfallDoubleTriangleItem( const ReosEncode
 
 QString ReosRainfallDoubleTriangleItem::dataType() const {return ReosDoubleTriangleRainfall::staticType();}
 
-ReosEncodedElement ReosRainfallDoubleTriangleItem::encode() const
+ReosEncodedElement ReosRainfallDoubleTriangleItem::encode( const ReosEncodeContext &context ) const
 {
   ReosEncodedElement element( QStringLiteral( "double-triangle-rainfall-item" ) );
 
-  encodeBase( element );
+  encodeBase( element, context );
 
   QString curveItemIntenseUniqueId;
   QString curveItemTotalUniqueId;
@@ -669,7 +670,7 @@ ReosEncodedElement ReosRainfallDoubleTriangleItem::encode() const
 
   element.addData( QStringLiteral( "intense-curve-item-unique-id" ), curveItemIntenseUniqueId );
   element.addData( QStringLiteral( "total-curve-item-unique-id" ), curveItemTotalUniqueId );
-  element.addEncodedData( QStringLiteral( "double-triangle-rainfall-data" ), mData->encode() );
+  element.addEncodedData( QStringLiteral( "double-triangle-rainfall-data" ), mData->encode( context ) );
 
   return element;
 }
@@ -755,9 +756,10 @@ ReosRainfallAlternatingBlockItem::ReosRainfallAlternatingBlockItem( const QStrin
   connectParameters();
 }
 
-ReosRainfallAlternatingBlockItem::ReosRainfallAlternatingBlockItem( const ReosEncodedElement &element ): ReosRainfallSerieRainfallItem( element )
+ReosRainfallAlternatingBlockItem::ReosRainfallAlternatingBlockItem( const ReosEncodedElement &element, const ReosEncodeContext &context )
+  : ReosRainfallSerieRainfallItem( element )
 {
-  mData = ReosAlternatingBlockRainfall::decode( element.getEncodedData( QStringLiteral( "alternating-rainfall-data" ) ) );
+  mData = ReosAlternatingBlockRainfall::decode( element.getEncodedData( QStringLiteral( "alternating-rainfall-data" ) ), context );
   QString curveItemUniqueId;
   if ( element.getData( QStringLiteral( "curve-item-unique-id" ), curveItemUniqueId ) )
   {
@@ -770,18 +772,18 @@ ReosRainfallAlternatingBlockItem::ReosRainfallAlternatingBlockItem( const ReosEn
 
 QString ReosRainfallAlternatingBlockItem::dataType() const {return ReosAlternatingBlockRainfall::staticType();}
 
-ReosEncodedElement ReosRainfallAlternatingBlockItem::encode() const
+ReosEncodedElement ReosRainfallAlternatingBlockItem::encode( const ReosEncodeContext &context ) const
 {
   ReosEncodedElement element( QStringLiteral( "alternating-block-rainfall-item" ) );
 
-  encodeBase( element );
+  encodeBase( element, context );
 
   QString curveItemUniqueId;
   if ( !mCurveItem.isNull() )
     curveItemUniqueId = mCurveItem->uniqueId();
   element.addData( QStringLiteral( "curve-item-unique-id" ), curveItemUniqueId );
 
-  element.addEncodedData( QStringLiteral( "alternating-rainfall-data" ), mData->encode() );
+  element.addEncodedData( QStringLiteral( "alternating-rainfall-data" ), mData->encode( context ) );
 
   return element;
 }

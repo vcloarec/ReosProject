@@ -65,7 +65,7 @@ QStringList ReosTimeSeriesVariableTimeStepGroup::seriesNames() const
   return ret;
 }
 
-ReosEncodedElement ReosTimeSeriesVariableTimeStepGroup::encode() const
+ReosEncodedElement ReosTimeSeriesVariableTimeStepGroup::encode( const ReosEncodeContext &context ) const
 {
   ReosEncodedElement element( QStringLiteral( "time-series-variable-time-step-group" ) );
 
@@ -73,7 +73,7 @@ ReosEncodedElement ReosTimeSeriesVariableTimeStepGroup::encode() const
 
   for ( ReosTimeSerieVariableTimeStep *series : mTimeSeries )
   {
-    seriesList.append( series->encode() );
+    seriesList.append( series->encode( context ) );
   }
 
   element.addListEncodedData( QStringLiteral( "series-list" ), seriesList );
@@ -81,13 +81,13 @@ ReosEncodedElement ReosTimeSeriesVariableTimeStepGroup::encode() const
   return element;
 }
 
-void ReosTimeSeriesVariableTimeStepGroup::decode( const ReosEncodedElement &element )
+void ReosTimeSeriesVariableTimeStepGroup::decode( const ReosEncodedElement &element, const ReosEncodeContext &context )
 {
   qDeleteAll( mTimeSeries );
 
   mTimeSeries.clear();
   QList<ReosEncodedElement> seriesList = element.getListEncodedData( QStringLiteral( "series-list" ) );
 
-  for ( ReosEncodedElement elem : std::as_const( seriesList ) )
-    mTimeSeries.append( ReosTimeSerieVariableTimeStep::decode( elem, this ) );
+  for ( const ReosEncodedElement &elem : std::as_const( seriesList ) )
+    mTimeSeries.append( ReosTimeSerieVariableTimeStep::decode( elem, context, this ) );
 }

@@ -19,9 +19,17 @@
 #include <QMap>
 #include <reosmemoryraster.h>
 
+
+bool ReosGdalDataset::sRegistered = false;
+
 ReosGdalDataset::ReosGdalDataset( const QString &fileName, bool readOnly )
 {
-  GDALAllRegister();
+    if (!sRegistered)
+    {
+        GDALAllRegister();
+        sRegistered = true;
+    }
+
   mHDataset = GDALOpen( fileName.toStdString().c_str(), readOnly ? GA_ReadOnly : GA_Update );
 }
 

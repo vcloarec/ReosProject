@@ -82,11 +82,14 @@ class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
     ReosRainfallItem *uriToItem( const QString &uri ) const;
     ReosRainfallItem *uniqueIdToItem( const QString &uid ) const;
 
-    ReosEncodedElement encode() const;
-    bool decode( const ReosEncodedElement &element );
+    ReosEncodedElement encode( const ReosEncodeContext &context ) const;
+    bool decode( const ReosEncodedElement &element, const ReosEncodeContext &context );
 
     bool saveToFile( const QString &path );
     bool loadFromFile( const QString &path );
+
+    bool isPathRelative() const;
+    void setIsPathRelative( bool newIsPathRelative );
 
   signals:
     void saved( const QString &file );
@@ -103,6 +106,8 @@ class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
   private:
     std::unique_ptr<ReosRootItem> mRootZone;
     ReosRainfallItem *addItem( ReosRainfallItem *receiver, ReosRainfallItem *newItem );
+
+    bool mIsPathRelative = true;
 
     //! Connects item and all the children
     void connectItem( ReosRainfallItem *item );

@@ -1,0 +1,74 @@
+[general]
+path: <root>|sources|utils|gretel
+module: gretel
+liborder: special hermes bief partel gretel
+name: gretel
+
+[bief]
+path: <root>|sources|utils|bief
+files: bief_def.f
+  bief.f
+  read_mesh_conn.f
+  read_mesh_info.f
+
+[gretel]
+path: <root>|sources|utils|gretel
+files: merge_data.f
+  gretel_autop.f
+  homere_gretel.f
+
+[hermes]
+path: <root>|sources|utils|hermes
+files: interface_hermes.f
+  hash_table.f
+  utils_cgns.F
+  hermes_index_file.f
+  utils_med.F
+  utils_serafin.F
+  close_bnd.f
+  lib_vtk_io.F
+  utils_vtk.F
+  close_mesh.f
+  get_bnd_connectivity.f
+  get_data_ntimestep.f
+  get_data_nvar.f
+  get_data_value.f
+  get_data_var_list.f
+  get_mesh_coord.f
+  get_mesh_date.f
+  get_mesh_l2g_numbering.f
+  get_mesh_nplan.f
+  get_mesh_npoin.f
+  get_mesh_title.f
+  add_data.f
+  get_data_time.f
+  open_mesh.f
+  open_bnd.f
+  get_bnd_ipobo.f
+  get_mesh_connectivity.f
+  get_bnd_nelem.f
+  get_bnd_npoin.f
+  get_mesh_dimension.f
+  get_mesh_nelem.f
+  get_mesh_npoin_per_element.f
+  get_mesh_nptir.f
+  get_mesh_orig.f
+  set_header.f
+  set_mesh.f
+  transfer_group_info.f
+
+[partel]
+path: <root>|sources|utils|partel
+files: declarations_partel.f
+
+[special]
+path: <root>|sources|utils|special
+files: declarations_special.F
+  plante.F
+  check_allocate.f
+  write_error.f
+  check_call.f
+  get_free_id.f
+  get_nodes_per_element.f
+  blanc2uscore.f
+  extens.f

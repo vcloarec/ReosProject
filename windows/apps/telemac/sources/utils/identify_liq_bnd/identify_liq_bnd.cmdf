@@ -1,0 +1,67 @@
+[general]
+path: <root>|sources|utils|identify_liq_bnd
+module: identify_liq_bnd
+liborder: special hermes bief partel identify_liq_bnd
+name: identify_liq_bnd
+
+[bief]
+path: <root>|sources|utils|bief
+files: bief_def.f
+  bief.f
+  elebd.f
+  front2.f
+  voisin.f
+  read_mesh_info.f
+
+[hermes]
+path: <root>|sources|utils|hermes
+files: interface_hermes.f
+  hash_table.f
+  utils_cgns.F
+  hermes_index_file.f
+  utils_med.F
+  utils_serafin.F
+  close_bnd.f
+  lib_vtk_io.F
+  utils_vtk.F
+  close_mesh.f
+  get_bnd_color.f
+  get_bnd_connectivity.f
+  get_bnd_nelem.f
+  get_bnd_npoin.f
+  get_bnd_numbering.f
+  get_bnd_value.f
+  get_mesh_connectivity.f
+  get_mesh_coord.f
+  get_mesh_date.f
+  open_bnd.f
+  open_mesh.f
+  get_data_nvar.f
+  get_mesh_dimension.f
+  get_mesh_nelem.f
+  get_mesh_nplan.f
+  get_mesh_npoin.f
+  get_mesh_npoin_per_element.f
+  get_mesh_nptir.f
+  get_mesh_orig.f
+  get_mesh_title.f
+
+[identify_liq_bnd]
+path: <root>|sources|utils|identify_liq_bnd
+files: identify_liq_bnd.f
+
+[partel]
+path: <root>|sources|utils|partel
+files: declarations_partel.f
+  mod_numbering_open_boundaries.f
+
+[special]
+path: <root>|sources|utils|special
+files: declarations_special.F
+  plante.F
+  check_allocate.f
+  get_free_id.f
+  write_error.f
+  check_call.f
+  get_nodes_per_element.f
+  blanc2uscore.f

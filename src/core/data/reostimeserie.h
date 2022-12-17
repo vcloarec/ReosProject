@@ -103,8 +103,8 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
     void connectParameters();
 
     //! Encodes/Decodes base information in the \a element
-    virtual void baseEncode( ReosEncodedElement &element ) const;
-    virtual bool decodeBase( const ReosEncodedElement &element );
+    virtual void baseEncode( ReosEncodedElement &element, const ReosEncodeContext &context ) const;
+    virtual bool decodeBase( const ReosEncodedElement &element, const ReosEncodeContext &context );
 
     std::unique_ptr<ReosTimeSerieProvider> mProvider;
 
@@ -204,10 +204,10 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     void copyAttribute( ReosTimeSerieConstantInterval *other );
 
     //! Returns a encoded element corresponding to this serie
-    ReosEncodedElement encode( const QString &descritpion = QString() ) const;
+    ReosEncodedElement encode( const ReosEncodeContext &context, const QString &descritpion = QString() ) const;
 
     //! Creates new instance from the encoded element
-    static ReosTimeSerieConstantInterval *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
+    static ReosTimeSerieConstantInterval *decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr );
 
     ReosTimeSerieConstantTimeStepProvider *constantTimeStepDataProvider() const;
 
@@ -219,7 +219,7 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
 
   protected:
     void connectParameters();
-    ReosTimeSerieConstantInterval( const ReosEncodedElement &element, QObject *parent = nullptr );
+    ReosTimeSerieConstantInterval( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr );
 
   private:
     ReosParameterDuration *mTimeStepParameter = nullptr;
@@ -289,8 +289,8 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStep: public ReosTimeSerie
 
     QAbstractItemModel *model();
 
-    ReosEncodedElement encode() const;
-    static ReosTimeSerieVariableTimeStep *decode( const ReosEncodedElement &element, QObject *parent = nullptr );
+    ReosEncodedElement encode( const ReosEncodeContext &context ) const;
+    static ReosTimeSerieVariableTimeStep *decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr );
 
   public slots:
     //! Sets indirectly the color from an object that handle common color for time series
@@ -303,8 +303,8 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStep: public ReosTimeSerie
   protected:
 
     //! Encodes/Decodes base information in/from the \a element
-    virtual void baseEncode( ReosEncodedElement &element ) const override;
-    virtual bool  decodeBase( const ReosEncodedElement &element ) override;
+    virtual void baseEncode( ReosEncodedElement &element, const ReosEncodeContext &context ) const override;
+    virtual bool  decodeBase( const ReosEncodedElement &element, const ReosEncodeContext &context ) override;
 
     ReosTimeSerieVariableTimeStepProvider *variableTimeStepdataProvider() const;
 

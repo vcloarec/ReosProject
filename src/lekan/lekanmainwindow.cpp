@@ -50,7 +50,18 @@ LekanMainWindow::LekanMainWindow( QWidget *parent )
   , mActionRainfallManager( new QAction( QIcon( QStringLiteral( ":/images/rainfall.svg" ) ), tr( "Rainfall manager" ), this ) )
   , mActionRunoffManager( new QAction( QIcon( QStringLiteral( ":/images/runoff.svg" ) ), tr( "Runoff manager" ), this ) )
 {
-  ReosVersion::setCurrentApplicationVersion( lekanVersion );
+  int verMaj = QString( MAJ_VER_LEKAN ).toInt();
+  int verMin = QString( MIN_VER_LEKAN ).toInt();
+#ifdef LEKAN_EXP
+  bool ok = true;
+  QString ps = QString( PAT_VER_LEKAN );
+  int verPatch = QString( PAT_VER_LEKAN ).toInt( &ok, 16 );
+#else
+  int verPatch = QString( PAT_VER_LEKAN ).toInt();
+#endif
+  ReosVersion version( "Lekan", verMaj, verMin, verPatch );
+
+  ReosVersion::setCurrentApplicationVersion( version );
   ReosGuiContext guiContext( this );
   guiContext.setMap( mMap );
 
@@ -134,6 +145,8 @@ bool LekanMainWindow::openProject()
   clearProject();
 
   ReosVersion version;
+  ReosEncodeContext encodeContext;
+  encodeContext.setBaseDir( QDir( path ) );
 
   QDataStream stream( &file );
 
@@ -175,7 +188,7 @@ bool LekanMainWindow::openProject()
 
   mMap->initialize();
 
-  mWatershedModule->decode( lekanProject.getEncodedData( QStringLiteral( "watershed-module" ) ) );
+  mWatershedModule->decode( lekanProject.getEncodedData( QStringLiteral( "watershed-module" ) ), encodeContext );
   mHydraulicNetwork->decode( lekanProject.getEncodedData( QStringLiteral( "hydaulic-network" ) ), path, baseName );
 
   return true;
@@ -208,10 +221,12 @@ bool LekanMainWindow::saveProject()
   mRainFallManagerWidget->saveRainfallFile();
   mRunoffManagerWidget->save();
 
+  ReosEncodeContext context;
+  context.setBaseDir( QDir( currentProjectPath() ) );
   ReosEncodedElement lekanProject( QStringLiteral( "Lekan-project" ) );
   ReosEncodedElement encodedGisEngine = mGisEngine->encode( path, baseName );
   lekanProject.addEncodedData( QStringLiteral( "GIS-engine" ), encodedGisEngine );
-  lekanProject.addEncodedData( QStringLiteral( "watershed-module" ), mWatershedModule->encode() );
+  lekanProject.addEncodedData( QStringLiteral( "watershed-module" ), mWatershedModule->encode( context ) );
   lekanProject.addEncodedData( QStringLiteral( "hydaulic-network" ), mHydraulicNetwork->encode( path, baseName ) );
 
   QFileInfo fileInfo( filePath );
@@ -228,7 +243,7 @@ bool LekanMainWindow::saveProject()
   qint32 magicNumber = PROJECT_FILE_MAGIC_NUMBER;
   qint32 serialisationVersion = stream.version();
 
-  QByteArray versionBytes = lekanVersion.bytesVersion();
+  QByteArray versionBytes = ReosVersion::currentApplicationVersion().bytesVersion();
 
   Q_ASSERT( versionBytes.size() == 21 );
 

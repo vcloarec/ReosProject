@@ -5,8 +5,9 @@
 
 Unicode True
 
-!define LEKAN_VERSION "2.2.95"
-!define PACKAGE_SOURCE "C:\dev\ReosProject\ReosProject-release"
+!define LEKAN_VERSION "$%LEKAN_EXPERIMENTAL_VERSION%"
+!define PACKAGE_SOURCE "$%NSI_DESTINATION%"
+!define PATH_TO_FILES "$%REOS_INSTALL%"
 
 ;--------------------------------
 ;Include Modern UI
@@ -20,11 +21,11 @@ Unicode True
   SetCompressor /SOLID lzma
 
   ;Name and file
-  Name "Lekan"
+  Name "Lekan exp"
   OutFile "${PACKAGE_SOURCE}\Lekan-${LEKAN_VERSION}-install-win64.exe"
 
   ;Default installation folder
-  InstallDir "$PROGRAMFILES64\ReosProject"
+  InstallDir "$PROGRAMFILES64\ReosProject-exp"
   
   ;Get installation folder from registry if available
   ;InstallDirRegKey HKCU "Software\Modern UI Test" ""
@@ -79,16 +80,16 @@ Section "Install" SecInstall
   SetOutPath "$INSTDIR"
   
   ;Path to file
-  File /r "${PACKAGE_SOURCE}\${LEKAN_VERSION}\*.*"
+  File /r "${PATH_TO_FILES}\*.*"
 
   ;Store installation folder
-  WriteRegStr HKLM "Lekan 2" "" $INSTDIR
+  WriteRegStr HKLM "Lekan exp 2" "" $INSTDIR
   
   ;Create uninstaller
   WriteUninstaller "$INSTDIR\Uninstall.exe"
   
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Lekan2" \
-                 "DisplayName" "Lekan 2"
+                 "DisplayName" "Lekan exp 2"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Lekan2" \
                  "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
   
@@ -96,7 +97,7 @@ Section "Install" SecInstall
 !insertmacro MUI_STARTMENU_WRITE_BEGIN 0 ;This macro sets $SMDir and skips to MUI_STARTMENU_WRITE_END if the "Don't create shortcuts" checkbox is checked... 
 CreateDirectory "$SMPROGRAMS\$SMDir"
 SetOutPath "$INSTDIR\bin"
-CreateShortCut "$SMPROGRAMS\$SMDir\Lekan.lnk" "$INSTDIR\bin\Lekan.exe"
+CreateShortCut "$SMPROGRAMS\$SMDir\Lekan exp.lnk" "$INSTDIR\bin\Lekan.exe"
 !insertmacro MUI_STARTMENU_WRITE_END
 
 SectionEnd
@@ -115,7 +116,7 @@ Section "Uninstall"
   
   RMDir "$INSTDIR"
     
-  Delete "$SMPROGRAMS\$SMDir\Lekan.lnk"
+  Delete "$SMPROGRAMS\$SMDir\Lekan exp.lnk"
   RMDir "$SMPROGRAMS\$SMDir"
 
   DeleteRegKey /ifempty HKCU "Lekan"

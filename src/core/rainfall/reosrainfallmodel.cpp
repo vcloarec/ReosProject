@@ -482,16 +482,16 @@ ReosRainfallItem *ReosRainfallModel::uniqueIdToItem( const QString &uid ) const
   return mRootZone->searchForChildWithUniqueId( uid );
 }
 
-ReosEncodedElement ReosRainfallModel::encode() const
+ReosEncodedElement ReosRainfallModel::encode( const ReosEncodeContext &context ) const
 {
   ReosEncodedElement element( QStringLiteral( "rainfall-data" ) );
   if ( mRootZone )
-    element.addEncodedData( QStringLiteral( "rainfall-tree" ), mRootZone->encode() );
+    element.addEncodedData( QStringLiteral( "rainfall-tree" ), mRootZone->encode( context ) );
 
   return element;
 }
 
-bool ReosRainfallModel::decode( const ReosEncodedElement &element )
+bool ReosRainfallModel::decode( const ReosEncodedElement &element, const ReosEncodeContext &context )
 {
   if ( element.description() != QStringLiteral( "rainfall-data" ) )
     return false;
@@ -513,7 +513,7 @@ bool ReosRainfallModel::decode( const ReosEncodedElement &element )
     return false;
   }
 
-  mRootZone.reset( new ReosRootItem( encodedRootItem ) );
+  mRootZone.reset( new ReosRootItem( encodedRootItem, context ) );
   connectItem( mRootZone.get() );
   endResetModel();
   return true;
@@ -529,7 +529,9 @@ bool ReosRainfallModel::saveToFile( const QString &path )
     file.copy( path + QStringLiteral( ".bck" ) );
   }
 
-  QByteArray data = encode().bytes();
+  ReosEncodeContext context;
+  context.setBaseDir( fileInfo.dir() );
+  QByteArray data = encode( context ).bytes();
 
   QFile file( path );
 
@@ -605,7 +607,10 @@ bool ReosRainfallModel::loadFromFile( const QString &path )
   file.close();
   emit loaded( path );
 
-  return decode( dataElement );
+  ReosEncodeContext context;
+  context.setEncodeRelativePath( mIsPathRelative );
+  context.setBaseDir( fileInfo.dir() );
+  return decode( dataElement, context );
 }
 
 void ReosRainfallModel::onItemChanged( ReosRainfallItem *item )
@@ -654,6 +659,16 @@ ReosRainfallItem *ReosRainfallModel::addItem( ReosRainfallItem *receiver, ReosRa
 
   connectItem( ret );
   return ret;
+}
+
+bool ReosRainfallModel::isPathRelative() const
+{
+  return mIsPathRelative;
+}
+
+void ReosRainfallModel::setIsPathRelative( bool newIsPathRelative )
+{
+  mIsPathRelative = newIsPathRelative;
 }
 
 

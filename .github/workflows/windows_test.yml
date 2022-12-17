@@ -1,0 +1,140 @@
+name: test_cache
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  BUILD_TYPE: Release
+  WINDIR: C:\Windows
+  CMAKE_PATH: C:\Program Files\CMake\bin
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: config env variables
+      run: |
+          echo "CYGWIN_ROOT=${{github.workspace}}\cygwin64" >> $env:GITHUB_ENV
+          echo "OSGEO4W_ROOT=${{github.workspace}}\OSGEO4W" >> $env:GITHUB_ENV
+          echo "GDAL_ROOT=${{github.workspace}}\OSGEO4W\apps\gdal-dev" >> $env:GITHUB_ENV
+          echo "MDAL_ROOT=${{github.workspace}}\MDAL_Install" >> $env:GITHUB_ENV
+          echo "GMSH_BUILT=${{github.workspace}}\GMSH_Built" >> $env:GITHUB_ENV
+          echo "QGIS_SRC=${{github.workspace}}\QGIS" >> $env:GITHUB_ENV
+          echo "QGIS_BUILDING=${{github.workspace}}\QGIS_building" >> $env:GITHUB_ENV
+          echo "QGIS_BUILT=${{github.workspace}}\QGIS_install" >> $env:GITHUB_ENV
+          echo "REOS_SOURCE=${{github.workspace}}" >> $env:GITHUB_ENV
+          echo "REOS_BUILDING=${{github.workspace}}\REOS_build" >> $env:GITHUB_ENV
+          echo "REOS_INSTALL=${{github.workspace}}\REOS_Install" >> $env:GITHUB_ENV
+          echo "NSI_DESTINATION=${{github.workspace}}" >> $env:GITHUB_ENV
+          echo "LEKAN_EXPERIMENTAL_VERSION=$(git rev-parse --short HEAD)" >> $env:GITHUB_ENV
+          
+    - name: Cache GMSH
+      id: cache-gmsh
+      uses: actions/cache@v3
+      with:
+        path: ${{env.GMSH_BUILT}}
+        key: ${{ runner.os }}-gmsh
+        
+    - name: build GMSH
+      if: steps.cache-gmsh.outputs.cache-hit != 'true'
+      run: ./windows/load_build_gmsh.ps1
+        
+    - name: Cache CYGWIN
+      id: cache-cygwin
+      uses: actions/cache@v3
+      with:
+        path: ${{env.CYGWIN_ROOT}}
+        key: ${{ runner.os }}-cygwin
+        
+    - name: load CYGWIN
+      if: steps.cache-cygwin.outputs.cache-hit != 'true'
+      run: ./windows/load_cygwin.ps1
+      
+    - name: Cache OSGEO
+      id: cache-osgeo
+      uses: actions/cache@v3
+      with:
+        path: ${{env.OSGEO4W_ROOT}}
+        key: ${{ runner.os }}-osgeo4w
+        
+    - name: load OSGEO dependencies
+      if: steps.cache-osgeo.outputs.cache-hit != 'true'
+      run: ./windows/load_osgeo.ps1
+      
+    - name: clone QGIS
+      uses: actions/checkout@v3
+      with:
+        repository: vcloarec/QGIS
+        path: QGIS
+        ref: forLekan
+    
+    - name: check QGIS hash
+      id: getQgisHash
+      run: |
+          cd QGIS
+          $QGIS_HASH=git rev-parse HEAD
+          echo "qgis_hash=$QGIS_HASH" >> $env:GITHUB_ENV
+          
+    - name: clone MDAL
+      uses: actions/checkout@v3
+      with:
+        repository: lutraconsulting/MDAL
+        path: MDAL
+    
+    - name: check MDAL hash
+      id: getMdalHash
+      run: |
+          cd MDAL
+          $MDAL_HASH=git rev-parse HEAD
+          echo "mdal_hash=$MDAL_HASH" >> $env:GITHUB_ENV
+      
+    - name: Cache QGIS
+      id: cache-qgis
+      uses: actions/cache@v3
+      with:
+        path: ${{env.QGIS_BUILT}}
+        key: ${{ runner.os }}-qgis-${{env.qgis_hash}}
+        
+    - name: build QGIS
+      if: steps.cache-qgis.outputs.cache-hit != 'true'
+      run: ./windows/qgis_env_before_powershell.bat "./windows/build_QGIS.ps1"
+      
+    - name: Cache MDAL
+      id: cache-mdal
+      uses: actions/cache@v3
+      with:
+        path: ${{env.MDAL_ROOT}}
+        key: ${{ runner.os }}-mdal-${{env.mdal_hash}}
+        
+    - name: build MDAL
+      if: steps.cache-mdal.outputs.cache-hit != 'true'
+      run: ./windows/qgis_env_before_powershell.bat "./windows/build_MDAL.ps1"
+      
+    - name: build and test REOS
+      run:  ./windows/build_tests_REOS.bat
+          
+    - name: Create installer
+      uses: joncloud/makensis-action@v3.7
+      with:
+          script-file: ${{github.workspace}}/package/ms-windows/nsi/lekan.nsi
+          arguments: "/V4"
+          
+    - name: Check installer
+      run:  |
+          ls
+          ls ${{env.NSI_DESTINATION}}
+          
+    - name: Archive installer
+      uses: actions/upload-artifact@v3
+      with:
+        name: installer
+        path: ${{env.NSI_DESTINATION}}\Lekan-${{env.LEKAN_EXPERIMENTAL_VERSION}}-install-win64.exe
+      
+      
+      

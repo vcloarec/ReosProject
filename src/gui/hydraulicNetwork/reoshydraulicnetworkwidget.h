@@ -37,7 +37,7 @@ class ReosMeteorologicModelsCollection;
 class ReosWatershedModule;
 class ReosGeometryStructure;
 
-class ReosHydraulicElementWidget : public QWidget
+class REOSGUI_EXPORT ReosHydraulicElementWidget : public QWidget
 {
     Q_OBJECT
   public:
@@ -52,7 +52,7 @@ class ReosHydraulicElementWidget : public QWidget
 };
 
 
-class ReosHydraulicNetworkWidget : public QWidget
+class REOSGUI_EXPORT ReosHydraulicNetworkWidget : public QWidget
 {
     Q_OBJECT
   public:

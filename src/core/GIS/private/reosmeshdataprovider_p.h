@@ -25,7 +25,7 @@
 #include "reosmeshdatasetsource.h"
 
 class ReosMeshGenerator;
-class ReosMeshFrameData;
+struct ReosMeshFrameData;
 class ReosDigitalElevationModel;
 class ReosTopographyCollection;
 

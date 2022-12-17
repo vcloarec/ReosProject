@@ -140,6 +140,8 @@ class REOSCORE_EXPORT ReosHydraulicNetworkContext
     QString projectPath() const;
     QString projectName() const;
 
+    ReosEncodeContext encodeContext() const;
+
   private:
     ReosHydraulicNetworkContext() {}
 

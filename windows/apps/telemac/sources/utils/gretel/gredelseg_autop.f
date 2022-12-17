@@ -1,0 +1,723 @@
+!                   ***********************
+                    PROGRAM GREDELSEG_AUTOP
+!                   ***********************
+!
+!
+!***********************************************************************
+! PARALLEL   V7P0                                   27/03/2014
+!***********************************************************************
+!
+!brief    MERGES THE RESULTS OF A PARALLEL COMPUTATION (COUPLING
+!+                WITH DELWAQ) TO WRITE A SINGLE FILE IN DELWAQ FORMAT.
+!
+!history  JAJ
+!+        2001/2
+!+
+!+   SLIGHTLY CHANGED TO DEAL WITH:
+!
+!history  HW, BAW-HAMBURG
+!+        20/02/2003
+!+
+!+   IMPROVED READING OF DATASETS
+!
+!history  JAJ
+!+        14/03/2003
+!+
+!+   ADDED EXIT CODES
+!
+!history  N.DURAND (HRW), S.E.BOURBAN (HRW)
+!+        13/07/2010
+!+        V6P0
+!+   Translation of French comments within the FORTRAN sources into
+!+   English comments
+!
+!history  N.DURAND (HRW), S.E.BOURBAN (HRW)
+!+        21/08/2010
+!+        V6P0
+!+   Creation of DOXYGEN tags for automated documentation and
+!+   cross-referencing of the FORTRAN sources
+!
+!history  J-M HERVOUET (EDF LAB, LNHE)
+!+        27/03/2014
+!+        V7P0
+!+   Calls of stoseg and elebd modified.
+!
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!
+      USE BIEF, ONLY : NCSIZE
+      USE DECLARATIONS_SPECIAL
+      IMPLICIT NONE
+!
+      CHARACTER(LEN=30) GEO
+!
+      INTEGER IPID,ERR,FU
+      INTEGER NELEM,ECKEN,NDUM,I,J,K,NBV1,NBV2,PARAM(10)
+      INTEGER NPLAN,NPOIN2,NPOIN2LOC,NOQ2,NPLANLOC,NSEG2LOC,NOQ2LOC
+      INTEGER MBNDLOC,NPTFRLOC
+      INTEGER NPROC,NRESU,NPOINMAX,NSEGMAX,NOQMAX,NPTFRMAX
+      INTEGER I_S, I_SP, I_LEN
+      INTEGER IT
+      INTEGER IDUM, NPTFR
+      INTEGER IELM,NELEM2,NELMAX2,NPTFR2,NSEG2,KLOG,MBND2
+      INTEGER MAXNVOIS,ISEG,IG1,IG2,IGTEMP,IVOIS,IL1,IL2
+!
+      INTEGER, DIMENSION(:)  , ALLOCATABLE :: NPOIN,VERIF,NOQ,NSEG
+      INTEGER, DIMENSION(:)  , ALLOCATABLE :: MBND,NODENRS,NPTFRL
+      INTEGER, DIMENSION(:,:), ALLOCATABLE :: KNOLG,KSEGLG
+      INTEGER, DIMENSION(:,:), ALLOCATABLE :: NODENRSLOC,NBORLOC
+      INTEGER, DIMENSION(:,:), ALLOCATABLE :: LIHBORLOC
+      INTEGER, DIMENSION(:,:), ALLOCATABLE :: IKLESA
+      INTEGER, DIMENSION(:,:), ALLOCATABLE :: NACHB,IFANUM
+      INTEGER, DIMENSION(:), ALLOCATABLE :: ISEGF
+!
+!
+      REAL   , DIMENSION(:)  , ALLOCATABLE :: GLOBAL_VALUE
+      REAL   , DIMENSION(:)  , ALLOCATABLE :: LOCAL_VALUE
+!
+      INTEGER, DIMENSION(:,:), ALLOCATABLE :: IKLE       ! IKLE(SIZIKL,*) OU IKLE(NELMAX,*)
+      INTEGER, DIMENSION(:,:), ALLOCATABLE :: IFABOR     ! IFABOR(NELMAX,*) OU IFABOR(NELMAX2,*)
+      INTEGER, DIMENSION(:)  , ALLOCATABLE :: NVOIS,IADR ! NVOIS(NPOIN),IADR(NPOIN)
+!
+      INTEGER, DIMENSION(:)  , ALLOCATABLE :: NELBOR,LIHBOR      ! NELBOR(NPTFR),LIHBOR(NPTFR)
+      INTEGER, DIMENSION(:,:), ALLOCATABLE :: NULONE             ! NULONE(NPTFR,2) OU NULONE(NPTFR)
+      INTEGER, DIMENSION(:,:), ALLOCATABLE :: KP1BOR             ! KP1BOR(NPTFR,2) OU KP1BOR(NPTFR)
+      INTEGER, DIMENSION(:)  , ALLOCATABLE :: NBOR               ! NBOR(*)
+      INTEGER, DIMENSION(:,:), ALLOCATABLE :: IKLBOR             ! IKLBOR(NPTFR,2)
+      INTEGER, DIMENSION(:)  , ALLOCATABLE :: T3                 ! T3(NPOIN)
+      INTEGER, DIMENSION(:)  , ALLOCATABLE :: NBOR0,LIHBOR0      ! NBOR0(NPTFR),LIHBOR0(NPTFR)
+!
+      INTEGER, DIMENSION(:,:), ALLOCATABLE :: GLOSEG         ! GLOSEG(MAXSEG,2)
+      INTEGER, DIMENSION(:,:), ALLOCATABLE :: ELTSEG,ORISEG  ! ELTSEG(NELMAX,*),ORISEG(NELMAX,3)
+!
+      INTEGER, DIMENSION(:,:,:), ALLOCATABLE :: GLOSEGLOC
+      INTEGER, DIMENSION(:,:,:), ALLOCATABLE :: SEGMENT
+!
+      REAL RDUM
+!
+      LOGICAL IS,ENDE
+!
+      CHARACTER(LEN=30) RES
+      CHARACTER(LEN=50) RESPAR
+      CHARACTER(LEN=11) EXTENS
+      CHARACTER(LEN=30) CONLIM
+      CHARACTER(LEN=7)  FILETYPE
+      EXTERNAL    EXTENS
+      INTRINSIC MAXVAL
+!
+      LI=5
+      LU=6
+      LNG=2
+!HW
+!JAJ INTRODUCE YOURSELF WITH THE RELEASE DATE
+!
+      WRITE(LU,*) 'I AM GREDELSEG, COUSIN OF GRETEL FROM BAW HAMBURG'
+      WRITE(LU,*)
+!
+! READS FILENAMES AND THE NUMBER OF PROCESSORS / PARTITIONS
+!
+      WRITE (LU, ADVANCE='NO',
+     &    FMT='(/,'' GLOBAL GEOMETRY FILE: '')')
+!      REWIND(LI)
+      READ(LI,*) GEO
+      WRITE(LU,*) GEO
+!
+      WRITE (LU, ADVANCE='NO', FMT='(/,'' RESULT FILE: '')')
+      READ(LI,*) RES
+      WRITE(LU,*) RES
+!
+      WRITE (LU,ADVANCE='NO',FMT='(/,'' NUMBER OF PROCESSORS: '')')
+      READ (LI,*) NPROC
+      WRITE(LU,*) NPROC
+!
+      INQUIRE (FILE=GEO,EXIST=IS)
+      IF (.NOT.IS) THEN
+        WRITE (LU,*) 'FILE DOES NOT EXIST: ', GEO
+        CALL PLANTE(1)
+        STOP
+      END IF
+!
+      I_S  = LEN (RES)
+      I_SP = I_S + 1
+      DO I=1,I_S
+        IF(RES(I_SP-I:I_SP-I) .NE. ' ') EXIT
+      ENDDO
+      I_LEN=I_SP - I
+!
+!     GEOMETRY FILE, READ UNTIL 10 PARAMETERS:
+!
+      OPEN(2,FILE=GEO,FORM='UNFORMATTED',STATUS='OLD',ERR=990)
+      READ(2,ERR=990)
+      READ(2,ERR=990) NBV1,NBV2
+      DO I=1,NBV1+NBV2
+        READ(2,ERR=990)
+      ENDDO ! I
+      GO TO 992
+990   WRITE(LU,*) 'ERROR WHEN OPENING OR READING FILE: ',GEO
+      CALL PLANTE(1)
+      STOP
+992   CONTINUE
+!     READS THE 10 PARAMETERS AND THE DATE
+      READ(2) (PARAM(I),I=1,10)
+      IF(PARAM(10).EQ.1) READ(2) (PARAM(I),I=1,6)
+!
+!     RESULTS FILE:
+!
+      OPEN(3,FILE=RES,FORM='UNFORMATTED',ERR=991)
+      GO TO 993
+991   WRITE(LU,*) 'ERROR WHEN OPENING FILE: ',RES
+      CALL PLANTE(1)
+      STOP
+993   CONTINUE
+!
+!     1) READS THE BEGINNING OF THE FIRST RESULTS FILE
+!
+!CC      RESPAR=RES // EXTENS(2**IDIMS-1,0)
+!
+      RESPAR=RES(1:I_LEN) // EXTENS(NPROC-1,0)
+!
+      INQUIRE (FILE=RESPAR,EXIST=IS)
+      IF (.NOT.IS) THEN
+        WRITE (LU,*) 'FILE DOES NOT EXIST: ', RESPAR
+        WRITE (LU,*) 'CHECK THE NUMBER OF PROCESSORS'
+        WRITE (LU,*) 'AND THE RESULT FILE CORE NAME'
+        CALL PLANTE(1)
+        STOP
+      END IF
+!
+      OPEN(4,FILE=RESPAR,FORM='UNFORMATTED',ERR=994)
+      GO TO 995
+994   WRITE(LU,*) 'ERROR WHEN OPENING FILE: ',RESPAR
+      CALL PLANTE(1)
+      STOP
+995   CONTINUE
+!
+      READ(4) FILETYPE
+      READ(4) NPOIN2
+      READ(4) NSEG2LOC
+      READ(4) MBNDLOC
+      READ(4) NOQ2LOC
+      READ(4) NPLAN
+      IF(NPLAN.EQ.1) NPLAN = 0
+!
+      CLOSE(4)
+!
+!  5 : 4 PARAMETERS
+!
+      READ(2) NELEM,NPOIN2,ECKEN,NDUM
+      WRITE(LU,*) '4 PARAMETERS IN GEOMETRY FILE'
+      WRITE(LU,*) 'NELEM=',  NELEM
+      WRITE(LU,*) 'NPOIN2=', NPOIN2
+      WRITE(LU,*) 'ECKEN=',  ECKEN
+      WRITE(LU,*) 'NDUM=',   NDUM
+!
+!  DYNAMICALLY ALLOCATES THE ARRAYS
+!
+      ALLOCATE(NPOIN(NPROC),STAT=ERR)
+      CALL CHECK_ALLOCATE(ERR, 'NPOIN')
+      ALLOCATE(NOQ(NPROC),STAT=ERR)
+      CALL CHECK_ALLOCATE(ERR, 'NOQ')
+      ALLOCATE(NSEG(NPROC),STAT=ERR)
+      CALL CHECK_ALLOCATE(ERR, 'NSEG')
+      ALLOCATE(MBND(NPROC),STAT=ERR)
+      CALL CHECK_ALLOCATE(ERR, 'MBND')
+      ALLOCATE(IKLESA(3,NELEM),STAT=ERR)
+      CALL CHECK_ALLOCATE(ERR, 'IKLESA')
+      ALLOCATE(NODENRS(NPOIN2),STAT=ERR)
+      CALL CHECK_ALLOCATE(ERR, 'NODENRS')
+      ALLOCATE(NPTFRL(NPROC),STAT=ERR)
+      CALL CHECK_ALLOCATE(ERR, 'NPTFR2LOC')
+!
+      ALLOCATE(IFABOR(NELEM,3),STAT=ERR)
+      CALL CHECK_ALLOCATE(ERR, 'IFABOR')
+      ALLOCATE(IKLE(NELEM,3),STAT=ERR)
+      CALL CHECK_ALLOCATE(ERR, 'IKLE')
+      ALLOCATE(IADR(NPOIN2),STAT=ERR)
+      CALL CHECK_ALLOCATE(ERR, 'IADR')
+      ALLOCATE(NVOIS(NPOIN2),STAT=ERR)
+      CALL CHECK_ALLOCATE(ERR, 'NVOIS')
+      ALLOCATE(T3(NPOIN2),STAT=ERR)
+      CALL CHECK_ALLOCATE(ERR, 'T3')
+!
+!  END OF ALLOCATION ...
+!
+!  6 : IKLE
+!
+      READ(2)  ((IKLESA(I,J),I=1,ECKEN),J=1,NELEM)
+!
+!----------------------------------------------------------------------
+!
+!
+      IF(NPLAN.LE.1) THEN
+        CONLIM = "T2DCLI"
+      ELSE
+        CONLIM = "T3DCLI"
+      ENDIF
+!
+      OPEN(4,FILE=CONLIM,FORM='FORMATTED',ERR=996)
+      GO TO 997
+ 996  WRITE(LU,*) 'ERROR WHEN OPENING FILE: ',CONLIM
+      CALL PLANTE(1)
+      STOP
+ 997  CONTINUE
+!
+      ALLOCATE(LIHBOR0(NPOIN2),STAT=ERR)
+      CALL CHECK_ALLOCATE(ERR, 'LIHBOR')
+      ALLOCATE(NBOR0(NPOIN2),STAT=ERR)
+      CALL CHECK_ALLOCATE(ERR, 'NBOR')
+      DO I=1,NPOIN2
+        READ(4,*,END=989) LIHBOR0(I),IDUM,IDUM,RDUM,RDUM,RDUM,RDUM,
+     &                    IDUM,RDUM,RDUM,RDUM,NBOR0(I),IDUM
+      ENDDO
+!
+      CLOSE(4)
+ 989  NPTFR=I-1
+!
+      ALLOCATE(LIHBOR(NPTFR),STAT=ERR)
+      CALL CHECK_ALLOCATE(ERR, 'LIHBOR')
+      ALLOCATE(NBOR(NPTFR),STAT=ERR)
+      CALL CHECK_ALLOCATE(ERR, 'NBOR')
+      ALLOCATE(NELBOR(NPTFR),STAT=ERR)
+      CALL CHECK_ALLOCATE(ERR, 'NELBOR')
+      ALLOCATE(NULONE(NPTFR,2),STAT=ERR)
+      CALL CHECK_ALLOCATE(ERR, 'NULONE')
+      ALLOCATE(KP1BOR(NPTFR,2),STAT=ERR)
+      CALL CHECK_ALLOCATE(ERR, 'KP1BOR')
+      ALLOCATE(IKLBOR(NPTFR,2),STAT=ERR)
+      CALL CHECK_ALLOCATE(ERR, 'IKLBOR')
+      ALLOCATE(ELTSEG(NELEM,3),STAT=ERR)
+      CALL CHECK_ALLOCATE(ERR, 'ELTSEG')
+      ALLOCATE(ORISEG(NELEM,3),STAT=ERR)
+      CALL CHECK_ALLOCATE(ERR, 'ORISEG')
+!
+      MBND2=0
+!
+      DO I=1,NPOIN2
+        NODENRS(I) = I
+      ENDDO
+!
+      DO I=1,NPTFR
+        NBOR(I)   = NBOR0(I)
+        LIHBOR(I) = LIHBOR0(I)
+        IF (LIHBOR(I).NE.2) THEN
+          MBND2 = MBND2 + 1
+          NODENRS(NBOR(I)) = -MBND2
+        ENDIF
+      ENDDO
+!
+!------------------------------------------------------------------------------
+!
+! LOCAL CONSTRUCTION OF GLOSEG
+!
+!------------------------------------------------------------------------------
+!
+!     WITH PRISMS, DIFFERENT FROM 2D VALUES, OTHERWISE
+!
+      IELM = 11 ! WARNING: IS HARD-CODED !!!
+      NELEM2  =NELEM
+      NELMAX2 =NELEM
+      NPTFR2  =NPTFR
+!
+!     NEIGHBOURS OF THE BOUNDARY SIDES FOR TRIANGULAR MESH
+!
+      DO J=1,NELEM
+        DO I=1,3
+          IKLE(J,I)=IKLESA(I,J)
+        ENDDO
+      ENDDO
+      NCSIZE = 1
+      IF(IELM.EQ.11.OR.IELM.EQ.41.OR.IELM.EQ.51) THEN
+        ! DUMMY ARRAY
+        ALLOCATE(NACHB(1,1),STAT=ERR)
+        CALL CHECK_ALLOCATE(ERR, 'NACHB')
+!
+        CALL VOISIN(IFABOR,NELEM2,NELEM,IELM,IKLE,
+     &              NELEM,
+     &              NPOIN2,NACHB,NBOR,NPTFR,IADR,NVOIS)
+!
+        DEALLOCATE(NACHB)
+        MAXNVOIS = MAXVAL(NVOIS)/2
+      ELSE
+        WRITE(LU,*) 'UNEXPECTED ELEMENT IN INBIEF:',IELM
+        CALL PLANTE(1)
+        STOP
+      ENDIF
+      KLOG = 2 ! SOLID BOUNDARY CONDITION: IS HARD-CODED !!!
+      IF(IELM.EQ.11.OR.IELM.EQ.41.OR.IELM.EQ.51) THEN
+        ! Dummy arrays
+        ALLOCATE(IFANUM(1,1),STAT=ERR)
+        CALL CHECK_ALLOCATE(ERR, 'IFANUM')
+        ALLOCATE(ISEGF(NPTFR),STAT=ERR)
+        CALL CHECK_ALLOCATE(ERR, 'ISEG')
+!
+        CALL ELEBD(NELBOR,NULONE,KP1BOR,
+     &             IFABOR,NBOR,IKLE,NELEM,
+     &             IKLBOR,NELEM2,NELMAX2,
+     &             NPOIN2,NPTFR2,IELM,
+     &             LIHBOR,KLOG,
+     &             ISEGF,
+     &             IADR,NVOIS,T3,NPTFR2,IDUM)
+!                                NELEBX,NELEB (HERE EQUAL TO NPTFR2)
+!                                       NELEB IS INOUT => DUMMY
+        DEALLOCATE(IFANUM)
+        DEALLOCATE(ISEGF)
+      ELSE
+        WRITE(LU,*) 'UNEXPECTED ELEMENT IN INBIEF:',IELM
+        CALL PLANTE(1)
+        STOP
+      ENDIF
+!
+!-----------------------------------------------------------------------
+!
+!  DATA STRUCTURE FOR EDGE-BASED STORAGE (FROM 5.9 ON ALWAYS DONE IN 2D)
+!  SEE CALL TO COMP_SEG BELOW FOR COMPLETING THE STRUCTURE
+!
+      IF(IELM.EQ.11) THEN
+!
+        NSEG2 = (3*NELEM+NPTFR)/2
+        NOQ2=NPLAN*(NSEG2+MBND2)+(NPLAN-1)*NPOIN2
+        IF(NPLAN.EQ.0) THEN
+          ALLOCATE(VERIF(NSEG2+MBND2),STAT=ERR)
+        ELSE
+          ALLOCATE(VERIF(NOQ2) ,STAT=ERR)
+        ENDIF
+        CALL CHECK_ALLOCATE(ERR, 'VERIFSEG')
+!
+!  GLOBAL_VALUES, STORES THE WHOLE DATASET (NBV1-VALUES)
+        IF(NPLAN.EQ.0) THEN
+          ALLOCATE(GLOBAL_VALUE(NSEG2+MBND2),STAT=ERR)
+        ELSE
+          ALLOCATE(GLOBAL_VALUE(NOQ2),STAT=ERR)
+        ENDIF
+        CALL CHECK_ALLOCATE(ERR, 'GLOBAL_VALUE')
+!
+        ALLOCATE(GLOSEG(NSEG2,2),STAT=ERR)
+        CALL CHECK_ALLOCATE(ERR, 'GLOSEG')
+!
+      ! DUMMY ARRAY
+        ALLOCATE(KNOLG(1,1),STAT=ERR)
+        CALL CHECK_ALLOCATE(ERR, 'KNOLG')
+
+        CALL STOSEG(IFABOR,NELEM,NELMAX2,NELMAX2,IELM,IKLE,
+     &            NBOR,NPTFR,
+     &            GLOSEG,NSEG2,    ! GLOSEG%MAXDIM1,
+     &            ELTSEG,ORISEG,NSEG2,
+     &            NELBOR,NULONE,KNOLG(:,1),IKLBOR,NPTFR,NPTFR)
+        DEALLOCATE(KNOLG)
+      ENDIF
+!
+      ALLOCATE(SEGMENT(NPOIN2,MAXNVOIS,2),STAT=ERR)
+      CALL CHECK_ALLOCATE(ERR, 'SEGMENT')
+!
+! INITIALISES SEGMENT
+      DO K=1,2
+        DO J=1,MAXNVOIS
+          DO I=1,NPOIN2
+            SEGMENT(I,J,K) = 0
+          ENDDO
+        ENDDO
+      ENDDO
+!
+      DO ISEG=1,NSEG2
+        IG1 = GLOSEG(ISEG,1)
+        IG2 = GLOSEG(ISEG,2)
+! GLOBAL NUMBERS IN INCREASING ORDER
+        IF(IG1.GT.IG2) THEN
+          IGTEMP = IG1
+          IG1 = IG2
+          IG2 = IGTEMP
+        ENDIF
+        IVOIS=1
+        DO WHILE ((SEGMENT(IG1,IVOIS,1).NE.0).AND.(IVOIS.LE.MAXNVOIS))
+          IVOIS = IVOIS + 1
+        ENDDO
+        SEGMENT(IG1,IVOIS,1) = IG2
+        SEGMENT(IG1,IVOIS,2) = ISEG
+      ENDDO
+!
+! OPENS FILES AND READS/SKIPS HEADERS -> NPOIN(NPROC), NPOINMAX
+!
+      DO IPID = 0,NPROC-1
+        FU = IPID +10
+        RESPAR=RES(1:I_LEN) // EXTENS(NPROC-1,IPID)
+        OPEN (FU,FILE=RESPAR,FORM='UNFORMATTED',ERR=998)
+        GO TO 999
+998     WRITE(LU,*) 'ERROR WHEN OPENING FILE: ',RESPAR,
+     &                     ' USING FILE UNIT: ', FU
+        CALL PLANTE(1)
+        STOP
+999     REWIND(FU)
+        READ(FU) FILETYPE
+        READ(FU) NPOIN(IPID+1)
+        READ(FU) NSEG(IPID+1)
+        READ(FU) MBND(IPID+1)
+        READ(FU) NOQ(IPID+1)
+        READ(FU) NPLANLOC
+        READ(FU) NPTFRL(IPID+1)
+      END DO
+!
+      NPOINMAX = MAXVAL(NPOIN)
+      NSEGMAX = MAXVAL(NSEG)
+      NOQMAX = MAXVAL(NOQ)
+      NPTFRMAX = MAXVAL(NPTFRL)
+!     ARRAY FOR LOCAL-GLOBAL NUMBERS, 2D-FIELD
+      ALLOCATE (GLOSEGLOC(NSEGMAX,2,NPROC),STAT=ERR)
+      IF(NPLAN.EQ.0) THEN
+        ALLOCATE(KNOLG(NPOINMAX,NPROC),STAT=ERR)
+        ALLOCATE(KSEGLG(NSEGMAX,NPROC),STAT=ERR)
+        ALLOCATE(NODENRSLOC(NPOINMAX,NPROC),STAT=ERR)
+        ALLOCATE(NBORLOC(NPTFRMAX,NPROC),STAT=ERR)
+        ALLOCATE(LIHBORLOC(NPTFRMAX,NPROC),STAT=ERR)
+      ELSE
+        ALLOCATE(KNOLG(NPOINMAX/NPLAN,NPROC),STAT=ERR)
+        ALLOCATE(KSEGLG(NOQMAX,NPROC),STAT=ERR)
+        ALLOCATE(NODENRSLOC(NPOINMAX/NPLAN,NPROC),STAT=ERR)
+        ALLOCATE(NBORLOC(NPTFRMAX,NPROC),STAT=ERR)
+        ALLOCATE(LIHBORLOC(NPTFRMAX,NPROC),STAT=ERR)
+      ENDIF
+      CALL CHECK_ALLOCATE(ERR, 'KNOLG')
+      CALL CHECK_ALLOCATE(ERR, 'KSEGLG')
+      CALL CHECK_ALLOCATE(ERR, 'NODENRSLOC')
+      CALL CHECK_ALLOCATE(ERR, 'NBORLOC')
+!  LOCAL_VALUES, STORES THE WHOLE DATASET (NBV1-VALUES)
+      ALLOCATE(LOCAL_VALUE(NOQMAX),STAT=ERR)
+      CALL CHECK_ALLOCATE(ERR, 'LOCAL_VALUE')
+!
+! READS KNOLG(NPOIN,NPROC)
+!
+      IF(NPLAN.EQ.0) THEN
+        DO I=1,NSEG2+MBND2
+          VERIF(I)=0
+        ENDDO
+      ELSE
+        DO I=1,NOQ2
+          VERIF(I)=0
+        ENDDO
+      ENDIF
+!
+      DO IPID = 0,NPROC-1
+        FU = IPID +10
+! CHECKS
+        IF(NPLAN.EQ.0) THEN
+          READ(FU) (KNOLG(I,IPID+1),I=1,NPOIN(IPID+1))
+          READ(FU) ((GLOSEGLOC(I,J,IPID+1),J=1,2),I=1,NSEG(IPID+1))
+          READ(FU) (NODENRSLOC(I,IPID+1),I=1,NPOIN(IPID+1))
+          READ(FU) (NBORLOC(I,IPID+1),I=1,NPTFRL(IPID+1))
+          READ(FU) (LIHBORLOC(I,IPID+1),I=1,NPTFRL(IPID+1))
+        ELSE
+          READ(FU) (KNOLG(I,IPID+1),I=1,NPOIN(IPID+1)/NPLAN)
+          READ(FU) ((GLOSEGLOC(I,J,IPID+1),J=1,2),I=1,NSEG(IPID+1))
+          READ(FU) (NODENRSLOC(I,IPID+1),I=1,NPOIN(IPID+1)/NPLAN)
+          READ(FU) (NBORLOC(I,IPID+1),I=1,NPTFRL(IPID+1))
+          READ(FU) (LIHBORLOC(I,IPID+1),I=1,NPTFRL(IPID+1))
+        ENDIF
+!
+! INITIALISES SEGMENT
+!
+        DO ISEG=1,NSEG(IPID+1)
+          IL1 = GLOSEGLOC(ISEG,1,IPID+1)
+          IL2 = GLOSEGLOC(ISEG,2,IPID+1)
+          IG1 = KNOLG(IL1,IPID+1)
+          IG2 = KNOLG(IL2,IPID+1)
+!         GLOBAL NUMBER IN INCREASING ORDER
+          IF(IG1.GT.IG2) THEN
+            IGTEMP = IG1
+            IG1 = IG2
+            IG2 = IGTEMP
+          ENDIF
+          IVOIS=1
+          DO WHILE ((SEGMENT(IG1,IVOIS,1).NE.IG2)
+     &              .AND.(IVOIS.LE.MAXNVOIS))
+            IVOIS = IVOIS + 1
+          ENDDO
+          IF(IVOIS.LE.MAXNVOIS) THEN
+            KSEGLG(ISEG,IPID+1) = SEGMENT(IG1,IVOIS,2)
+          ENDIF
+        ENDDO
+!
+      ENDDO
+!
+! FURTHER VERIFICATIONS
+!
+! READS DATASETS
+!
+      NRESU = 0
+!
+2000  NRESU = NRESU + 1
+!
+      IF(NPLAN.EQ.0) THEN
+        DO I=1,NSEG2+MBND2
+          VERIF(I)=0
+        ENDDO
+      ELSE
+        DO I=1,NOQ2
+          VERIF(I)=0
+        ENDDO
+      ENDIF
+!
+      WRITE(LU,*)'TRY TO READ DATASET NO.',NRESU
+!
+      IF(NPLAN.EQ.0) THEN
+        DO I=1,NSEG2+MBND2
+          GLOBAL_VALUE(I) = 0.D0
+        ENDDO
+      ELSE
+        DO I=1,NOQ2
+          GLOBAL_VALUE(I) = 0.D0
+        ENDDO
+      ENDIF
+!
+      DO IPID = 0,NPROC-1
+        FU = IPID +10
+!       READS LOCAL X INSTEAD OF GREDELSEG_READ_DATASET
+        CALL GREDELPTS_READ_DATASET
+     &  (LOCAL_VALUE,NOQMAX,NOQ(IPID+1),IT,FU,ENDE)
+        IF (ENDE) GOTO 3000
+!       STORES EACH DATASET
+        IF(NPLAN.EQ.0) THEN
+          NSEG2LOC  = NSEG(IPID+1)
+          NPTFRLOC  = NPTFRL(IPID+1)
+          DO I=1,NSEG2LOC
+            GLOBAL_VALUE(KSEGLG(I,IPID+1)) =
+     &      GLOBAL_VALUE(KSEGLG(I,IPID+1)) + LOCAL_VALUE(I)
+            VERIF(KSEGLG(I,IPID+1)) =   VERIF(KSEGLG(I,IPID+1))
+     &                                   + 1
+          ENDDO
+!
+          DO I=1,NPTFRLOC
+            IF(LIHBORLOC(I,IPID+1).NE.2) THEN
+              IF(FILETYPE(1:7).EQ.'SUMAREA') THEN
+                GLOBAL_VALUE(-NODENRS(KNOLG(NBORLOC(I,IPID+1),IPID+1))
+     &                       + NSEG2) =
+     &          LOCAL_VALUE(-NODENRSLOC(NBORLOC(I,IPID+1),IPID+1)
+     &                      + NSEG2LOC)
+                VERIF( -NODENRS(KNOLG(NBORLOC(I,IPID+1),IPID+1))
+     &                + NSEG2) = 1
+              ELSEIF(FILETYPE(1:7).EQ.'SUMFLOW') THEN
+                GLOBAL_VALUE(-NODENRS(KNOLG(NBORLOC(I,IPID+1),IPID+1))
+     &                       + NSEG2) =
+     &          GLOBAL_VALUE(-NODENRS(KNOLG(NBORLOC(I,IPID+1),IPID+1))
+     &                       + NSEG2) +
+     &          LOCAL_VALUE(-NODENRSLOC(NBORLOC(I,IPID+1),IPID+1)
+     &                      + NSEG2LOC)
+                VERIF( -NODENRS(KNOLG(NBORLOC(I,IPID+1),IPID+1))
+     &                + NSEG2) =
+     &          VERIF( -NODENRS(KNOLG(NBORLOC(I,IPID+1),IPID+1))
+     &                + NSEG2) + 1
+              ELSE
+                WRITE(LU,*) 'CAS NON PREVU'
+                CALL PLANTE(1)
+                STOP
+              ENDIF
+            ENDIF
+          ENDDO
+!
+        ELSE
+          NPOIN2LOC = NPOIN(IPID+1)/NPLAN
+          NSEG2LOC  = NSEG(IPID+1)
+          MBNDLOC   = MBND(IPID+1)
+          NPTFRLOC  = NPTFRL(IPID+1)
+          DO I=1,NSEG2LOC
+            DO J=1,NPLAN
+              GLOBAL_VALUE(KSEGLG(I,IPID+1) + (NSEG2+MBND2)*(J-1)) =
+     &        GLOBAL_VALUE(KSEGLG(I,IPID+1) + (NSEG2+MBND2)*(J-1)) +
+     &        LOCAL_VALUE(       I      + (NSEG2LOC+MBNDLOC)*(J-1))
+              VERIF(KSEGLG(I,IPID+1) + (NSEG2+MBND2)*(J-1)) =
+     &      + VERIF(KSEGLG(I,IPID+1) + (NSEG2+MBND2)*(J-1)) + 1
+            END DO
+          END DO
+!
+          DO I=1,NPTFRLOC
+            IF(LIHBORLOC(I,IPID+1).NE.2) THEN
+              DO J=1,NPLAN
+                IF(FILETYPE(1:7).EQ.'SUMAREA') THEN
+                  GLOBAL_VALUE(-NODENRS(KNOLG(NBORLOC(I,IPID+1),IPID+1))
+     &                        + NSEG2 + (NSEG2+MBND2)*(J-1)) =
+     &            LOCAL_VALUE(-NODENRSLOC(NBORLOC(I,IPID+1),IPID+1)
+     &                        + NSEG2LOC + (NSEG2LOC+MBNDLOC)*(J-1))
+                  VERIF( -NODENRS(KNOLG(NBORLOC(I,IPID+1),IPID+1))
+     &                  + NSEG2 + (NSEG2+MBND2)*(J-1)) = 1
+                ELSEIF(FILETYPE(1:7).EQ.'SUMFLOW') THEN
+                  GLOBAL_VALUE(-NODENRS(KNOLG(NBORLOC(I,IPID+1),IPID+1))
+     &                        + NSEG2 + (NSEG2+MBND2)*(J-1)) =
+     &            GLOBAL_VALUE(-NODENRS(KNOLG(NBORLOC(I,IPID+1),IPID+1))
+     &                        + NSEG2 + (NSEG2+MBND2)*(J-1)) +
+     &            LOCAL_VALUE(-NODENRSLOC(NBORLOC(I,IPID+1),IPID+1)
+     &                        + NSEG2LOC + (NSEG2LOC+MBNDLOC)*(J-1))
+                  VERIF( -NODENRS(KNOLG(NBORLOC(I,IPID+1),IPID+1))
+     &                  + NSEG2 + (NSEG2+MBND2)*(J-1)) =
+     &            VERIF( -NODENRS(KNOLG(NBORLOC(I,IPID+1),IPID+1))
+     &                  + NSEG2 + (NSEG2+MBND2)*(J-1)) + 1
+                ELSE
+                  WRITE(LU,*) 'CAS NON PREVU'
+                  CALL PLANTE(1)
+                  STOP
+                ENDIF
+              ENDDO
+            ENDIF
+          ENDDO
+!
+          DO I=1,NPOIN2LOC
+            DO J=1,NPLAN-1
+              IF(FILETYPE(1:7).EQ.'SUMAREA') THEN
+                GLOBAL_VALUE(  KNOLG(I,IPID+1) + NPOIN2*(J-1)
+     &                       + (NSEG2+MBND2)*NPLAN) =
+     &        LOCAL_VALUE(I+NPOIN2LOC*(J-1)+(NSEG2LOC+MBNDLOC)*NPLAN)
+                VERIF( KNOLG(I,IPID+1) + NPOIN2*(J-1)
+     &              + (NSEG2+MBND2)*NPLAN) = 1
+              ELSEIF(FILETYPE(1:7).EQ.'SUMFLOW') THEN
+                GLOBAL_VALUE( KNOLG(I,IPID+1) + NPOIN2*(J-1)
+     &                       + (NSEG2+MBND2)*NPLAN) =
+     &          GLOBAL_VALUE( KNOLG(I,IPID+1) + NPOIN2*(J-1)
+     &                       + (NSEG2+MBND2)*NPLAN) +
+     &        LOCAL_VALUE(I+NPOIN2LOC*(J-1)+(NSEG2LOC+MBNDLOC)*NPLAN)
+                VERIF( KNOLG(I,IPID+1) + NPOIN2*(J-1)
+     &              + (NSEG2+MBND2)*NPLAN) =
+     &          VERIF( KNOLG(I,IPID+1) + NPOIN2*(J-1)
+     &              + (NSEG2+MBND2)*NPLAN) + 1
+              ELSE
+                WRITE(LU,*) 'CAS NON PREVU'
+                CALL PLANTE(1)
+                STOP
+              ENDIF
+            ENDDO
+          ENDDO
+        ENDIF
+      ENDDO
+! WRITES GLOBAL DATASET
+      WRITE(LU,*)'WRITING DATASET NO.',NRESU,' TIME =',IT
+!
+      IF(NPLAN.EQ.0) THEN
+        WRITE(3) IT, (GLOBAL_VALUE(I),I=1,NSEG2+MBND2)
+      ELSE
+        WRITE(3) IT, (GLOBAL_VALUE(I),I=1,NOQ2)
+      ENDIF
+! CHECKS ...
+      IF(NPLAN.EQ.0) THEN
+        DO I=1,NSEG2+MBND2
+          IF(VERIF(I).EQ.0) THEN
+            WRITE(LU,*) 'ERROR, SEGMENT I=',I,' FALSE FOR NRESU=',NRESU
+          ENDIF
+        ENDDO
+      ELSE
+        DO I=1,NOQ2
+          IF(VERIF(I).EQ.0) THEN
+            WRITE(LU,*) 'ERROR, SEGMENT I=',I,' FALSE FOR NRESU=',NRESU
+          ENDIF
+        ENDDO
+      ENDIF
+!
+      GO TO 2000
+!
+3000  WRITE(LU,*) 'END OF PROGRAM, ',NRESU-1,' DATASETS FOUND'
+!
+      CLOSE(2)
+      CLOSE(3)
+!
+      DO IPID = 0,NPROC-1
+        FU = IPID +10
+        CLOSE (FU)
+      ENDDO
+!
+      STOP 0
+      END PROGRAM GREDELSEG_AUTOP
