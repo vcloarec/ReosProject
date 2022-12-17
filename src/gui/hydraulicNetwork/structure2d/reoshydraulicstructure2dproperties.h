@@ -46,6 +46,14 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
     void setCurrentCalculationContext( const ReosCalculationContext &context ) override;
     void setTime( const QDateTime &time ) override;
 
+    QAction *action3DView() const;
+    QAction *actionEditStructure() const;
+    QAction *actionRunSimulation() const;
+    QAction *scalarWidgetAction() const;
+    QAction *vectorWidgetAction() const;
+    QAction *actionProfiles() const;
+    QAction *actionExportAsMesh() const;
+
   signals:
     void calculationContextChanged();
 

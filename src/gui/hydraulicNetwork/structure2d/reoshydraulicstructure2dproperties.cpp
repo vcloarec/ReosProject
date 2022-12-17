@@ -94,8 +94,6 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
 {
   ui->setupUi( this );
 
-  mGuiContext.addAction( mAction3DView );
-  mGuiContext.addActionToMainToolBar( QStringLiteral( "hydraulic-network" ), mAction3DView );
   mAction3DView->setCheckable( true );
   connect( mAction3DView, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::initialize3DView );
 
@@ -108,13 +106,12 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
     emit stackedPageWidgetOpened( editWidget );
     emit askForShow();
   } );
-  mGuiContext.addActionToMainToolBar( QStringLiteral( "hydraulic-network" ), mActionEditStructure );
 
   connect( mActionRunSimulation, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::onLaunchCalculation );
   connect( mActionExportSimulationFile, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::onExportSimulation );
   connect( mActionEngineConfiguration, &QAction::triggered, this, [this]
   {
-    if ( mStructure2D->currentSimulation() )
+    if ( mStructure2D && mStructure2D->currentSimulation() )
     {
       QString key = mStructure2D->currentSimulation()->key();
       QDialog *configDialog = ReosHydraulicSimulationWidgetRegistery::instance()->createConfigurationDialog( key, this );
@@ -138,11 +135,15 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   simulationMenu->addAction( mActionEngineConfiguration );
   simulationToolButton->setMenu( simulationMenu );
   toolBar->addWidget( simulationToolButton );
-  simulationToolButton->setEnabled( mStructure2D->currentSimulation() != nullptr );
-  connect( mStructure2D, &ReosHydraulicStructure2D::currentSimulationChanged, this, [this, simulationToolButton]
+  if ( mStructure2D )
   {
     simulationToolButton->setEnabled( mStructure2D->currentSimulation() != nullptr );
-  } );
+    connect( mStructure2D, &ReosHydraulicStructure2D::currentSimulationChanged, this, [this, simulationToolButton]
+    {
+      simulationToolButton->setEnabled( mStructure2D->currentSimulation() != nullptr );
+    } );
+  }
+
 
   toolBar->addSeparator();
 
@@ -150,27 +151,28 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   mScalarWidgetAction->setToolTip( tr( "Scalar results settings" ) );
   mScalarWidgetAction->setIcon( QIcon( QStringLiteral( ":/images/scalarContour.svg" ) ) );
   toolBar->addAction( mScalarWidgetAction );
-  connect( mActionScalarSettings, &QAction::triggered, this, [this]
+  if ( mStructure2D )
+    connect( mActionScalarSettings, &QAction::triggered, this, [this]
   {
     emit stackedPageWidgetOpened( new ReosMeshScalarRenderingWidget( mStructure2D->mesh()->scalarColorShaderSettings(), mGuiContext ) );
     emit askForShow();
   } );
-  mGuiContext.addActionToMainToolBar( QStringLiteral( "hydraulic-network" ), mScalarWidgetAction );
-
 
   mVectorWidgetAction = new DatasetSettingsWidgetAction( this, mVectorDatasetMenu );
   mVectorWidgetAction->setToolTip( tr( "Vector results settings" ) );
   mVectorWidgetAction->setIcon( QIcon( QStringLiteral( ":/images/vectorSettings.svg" ) ) );
   toolBar->addAction( mVectorWidgetAction );
-  mCurrentVectorDatasetId = mStructure2D->currentActivatedVectorMeshDataset();
-  connect( mActionVectorSettings, &QAction::triggered, this, [this]
+  if ( mStructure2D )
   {
-    if ( mStructure2D->currentActivatedVectorMeshDataset().isEmpty() )
-      return;
-    emit stackedPageWidgetOpened( new ReosMeshVectorRenderingWidget( mStructure2D->mesh(), mStructure2D->currentActivatedVectorMeshDataset(), mGuiContext ) );
-    emit askForShow();
-  } );
-  mGuiContext.addActionToMainToolBar( QStringLiteral( "hydraulic-network" ), mVectorWidgetAction );
+    mCurrentVectorDatasetId = mStructure2D->currentActivatedVectorMeshDataset();
+    connect( mActionVectorSettings, &QAction::triggered, this, [this]
+    {
+      if ( mStructure2D->currentActivatedVectorMeshDataset().isEmpty() )
+        return;
+      emit stackedPageWidgetOpened( new ReosMeshVectorRenderingWidget( mStructure2D->mesh(), mStructure2D->currentActivatedVectorMeshDataset(), mGuiContext ) );
+      emit askForShow();
+    } );
+  }
 
   connect( mActionProfiles, &QAction::triggered, this, [this]
   {
@@ -178,7 +180,6 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
     emit askForShow();
   } );
   toolBar->addAction( mActionProfiles );
-  mGuiContext.addActionToMainToolBar( QStringLiteral( "hydraulic-network" ), mActionProfiles );
 
   toolBar->addAction( mAction3DView );
 
@@ -190,14 +191,14 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   toolBar->layout()->setContentsMargins( 0, 0, 0, 0 );
   ui->mToolBoxLayout->addWidget( toolBar );
 
-  mMap->addExtraRenderedObject( mStructure2D->mesh() );
-  connect( mStructure2D->mesh(), &ReosMesh::repaintRequested, this, &ReosHydraulicStructure2DProperties::requestMapRefresh );
+  if ( mStructure2D && !mMap.isNull() )
+  {
+    mMap->addExtraRenderedObject( mStructure2D->mesh() );
+    connect( mStructure2D->mesh(), &ReosMesh::repaintRequested, this, &ReosHydraulicStructure2DProperties::requestMapRefresh );
+  }
 
-  updateDatasetMenus();
-
-  mGuiContext.addActionToMainToolBar( QStringLiteral( "hydraulic-network" ), mActionEditStructure );
-  mGuiContext.addActionToMainToolBar( QStringLiteral( "hydraulic-network" ), mActionRunSimulation );
-  mGuiContext.addActionToMainToolBar( QStringLiteral( "hydraulic-network" ), mActionExportAsMesh );
+  if ( mStructure2D )
+    updateDatasetMenus();
 
   connect( mStructure2D, &ReosHydraulicStructure2D::simulationResultChanged, this, &ReosHydraulicStructure2DProperties::updateDatasetMenus );
 
@@ -210,7 +211,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   ui->mPlotWidget->enableTimeLine( true );
   ui->mPlotWidget->setSettingsContext( settingsString );
 
-  if ( mStructure2D->currentSimulation() )
+  if ( mStructure2D && mStructure2D->currentSimulation() )
     ui->mSimulationEngineName->setText( mStructure2D->currentSimulation()->engineName() );
 
   mInputHydrographPlotButton = new ReosVariableTimeStepPlotListButton( tr( "Input hydrographs" ), ui->mPlotWidget );
@@ -227,24 +228,37 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
     mOutputHydrographPlotButton->setChecked( true );
   }
 
-  ui->mHydrographTables->setConstantTimeStepParameter( mStructure2D->constantTimeStepInTable(), mStructure2D->useConstantTimeStepInTable() );
-  populateHydrograph();
-  connect( mStructure2D, &ReosHydraulicStructure2D::boundaryChanged, this, &ReosHydraulicStructure2DProperties::populateHydrograph );
-  connect( mStructure2D, &ReosHydraulicStructure2D::simulationFinished, this, &ReosHydraulicStructure2DProperties::onSimulationFinished );
-  connect( mStructure2D, &ReosHydraulicStructure2D::currentSimulationChanged, this, [this]
+  if ( mStructure2D )
   {
-    if ( mStructure2D->currentSimulation() )
-      ui->mSimulationEngineName->setText( mStructure2D->currentSimulation()->engineName() );
-  } );
+    ui->mHydrographTables->setConstantTimeStepParameter( mStructure2D->constantTimeStepInTable(), mStructure2D->useConstantTimeStepInTable() );
+    populateHydrograph();
+    connect( mStructure2D, &ReosHydraulicStructure2D::boundaryChanged, this, &ReosHydraulicStructure2DProperties::populateHydrograph );
+    connect( mStructure2D, &ReosHydraulicStructure2D::simulationFinished, this, &ReosHydraulicStructure2DProperties::onSimulationFinished );
+    connect( mStructure2D, &ReosHydraulicStructure2D::currentSimulationChanged, this, [this]
+    {
+      if ( mStructure2D && mStructure2D->currentSimulation() )
+        ui->mSimulationEngineName->setText( mStructure2D->currentSimulation()->engineName() );
+    } );
+  }
 
-  connect( mMap, &ReosMap::cursorMoved, this, &ReosHydraulicStructure2DProperties::onMapCursorMove );
-
+  if ( !mMap.isNull() )
+    connect( mMap, &ReosMap::cursorMoved, this, &ReosHydraulicStructure2DProperties::onMapCursorMove );
 
   connect( mActionExportAsMesh, &QAction::triggered, this, [this]
   {
     QDialog *dial = new ReosHydraulicStructureResultExport( mStructure2D, mCalculationContext.schemeId(), this );
     dial->exec();
   } );
+
+  mActionEditStructure->setEnabled( mStructure2D );
+  mActionRunSimulation->setEnabled( mStructure2D );
+  mActionExportSimulationFile->setEnabled( mStructure2D );
+  mActionEngineConfiguration->setEnabled( mStructure2D );
+  mAction3DView->setEnabled( mStructure2D );
+  mScalarDatasetActions->setEnabled( mStructure2D );
+  mVectorDatasetActions->setEnabled( mStructure2D );
+  mActionProfiles->setEnabled( mStructure2D );
+  mActionExportAsMesh->setEnabled( mStructure2D );
 }
 
 ReosHydraulicStructure2DProperties::~ReosHydraulicStructure2DProperties()
@@ -573,6 +587,41 @@ void ReosHydraulicStructure2DProperties::initialize3DView()
   mView3D->addMesh( mStructure2D->mesh() );
   disconnect( mAction3DView, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::initialize3DView );
   mView3D->show();
+}
+
+QAction *ReosHydraulicStructure2DProperties::actionExportAsMesh() const
+{
+  return mActionExportAsMesh;
+}
+
+QAction *ReosHydraulicStructure2DProperties::actionRunSimulation() const
+{
+  return mActionRunSimulation;
+}
+
+QAction *ReosHydraulicStructure2DProperties::actionProfiles() const
+{
+  return mActionProfiles;
+}
+
+QAction *ReosHydraulicStructure2DProperties::vectorWidgetAction() const
+{
+  return mVectorWidgetAction;
+}
+
+QAction *ReosHydraulicStructure2DProperties::scalarWidgetAction() const
+{
+  return mScalarWidgetAction;
+}
+
+QAction *ReosHydraulicStructure2DProperties::actionEditStructure() const
+{
+  return mActionEditStructure;
+}
+
+QAction *ReosHydraulicStructure2DProperties::action3DView() const
+{
+  return mAction3DView;
 }
 
 
