@@ -292,7 +292,7 @@ bool ReosDssFile::writeGriddedData(
 //    const char *hemi = "N";
 //    grid->_srsDefinition = utmGridDef( 20, hemi );
 
-    const QVector<double> values = transformedGriddedRainfall->data( i );
+    const QVector<double> values = transformedGriddedRainfall->intensityValues( i );
     float min = std::numeric_limits<float>::max();
     float max = -std::numeric_limits<float>::max();
     double mean = 0;
