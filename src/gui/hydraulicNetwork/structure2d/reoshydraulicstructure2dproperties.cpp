@@ -266,9 +266,6 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   mVectorWidgetAction->setButtonEnable( mStructure2D );
   mActionProfiles->setEnabled( mStructure2D );
   mActionExportAsMesh->setEnabled( mStructure2D );
-
-  QWidget *w = nullptr;
-  w->setEnabled( true );
 }
 
 ReosHydraulicStructure2DProperties::~ReosHydraulicStructure2DProperties()
