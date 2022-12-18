@@ -62,7 +62,7 @@ IF(ENABLE_HEC_DSS)
     SET (HEC_DSS_LIBS_PATH CACHE PATH "Path to the hec-dss libraries")
     SET (HEC_DSS_INCLUDE CACHE PATH "Path to the hec-dss include dir")
     IF(MSVC)
-        SET(INTEL_FORTRAN_COMPILER_LIB_PATH "C:\\Program Files (x86)\\Intel\\oneAPI\\compiler\\2022.2.0\\windows\\compiler\\lib\\intel64_win\\")
+        SET(INTEL_FORTRAN_COMPILER_LIB_PATH CACHE PATH "C:\\Program Files (x86)\\Intel\\oneAPI\\compiler\\2022.2.0\\windows\\compiler\\lib\\intel64_win\\")
         SET(HEC_DSS_ALL_STATIC_LIB
         ${HEC_DSS_LIBS_PATH}/heclib_c.lib
         ${HEC_DSS_LIBS_PATH}/heclib_f.lib

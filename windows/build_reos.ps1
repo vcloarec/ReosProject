@@ -84,7 +84,7 @@ cmake   -S $env:REOS_SOURCE `
         -D ENABLE_HEC_DSS=TRUE `
         -D HEC_DSS_INCLUDE=$env:REOS_SOURCE/external/heclib_win/heclib-7-IP-10-win-x86_64/headers
         -D HEC_DSS_LIBS_PATH=$env:REOS_SOURCE/external/heclib_win/heclib-7-IP-10-win-x86_64/Release64
-        -D INTEL_FORTRAN_COMPILER_LIB_PATH=$env:FORTRAN_COMPILER_PATH\compiler\lib\intel64_win
+        -D INTEL_FORTRAN_COMPILER_LIB_PATH=$env:FORTRAN_COMPILER_PATH\windows\compiler\lib\intel64_win
 
 cmake --build .  --config $env:BUILD_TYPE --parallel
 
