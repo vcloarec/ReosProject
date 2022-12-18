@@ -24,6 +24,11 @@ set GDAL_DATA=%REOS_INSTALL%\share\gdal
 cd %REOS_BUILDING%
 ctest -C %BUILD_TYPE% -VV
 if %ERRORLEVEL% NEQ 0 exit %ERRORLEVEL%
+
+rem try to launch the app
+%REOS_INSTALL%\bin\lekan.exe
+if %ERRORLEVEL% NEQ 0 exit %ERRORLEVEL%
+
 endlocal
 
 echo off
