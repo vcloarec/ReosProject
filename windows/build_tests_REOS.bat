@@ -26,8 +26,15 @@ ctest -C %BUILD_TYPE% -VV
 if %ERRORLEVEL% NEQ 0 exit %ERRORLEVEL%
 
 rem try to launch the app
+
 %REOS_INSTALL%\bin\lekan.exe
-if %ERRORLEVEL% NEQ 0 exit %ERRORLEVEL%
+if %ERRORLEVEL% NEQ 0 (
+echo "///////////////////// Test launch Lekan application fails
+exit %ERRORLEVEL%
+)
+else(
+echo "///////////////////// Test launch Lekan application success
+)
 
 endlocal
 

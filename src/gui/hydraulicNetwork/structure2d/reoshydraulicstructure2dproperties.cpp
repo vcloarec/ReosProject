@@ -255,8 +255,8 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   mActionExportSimulationFile->setEnabled( mStructure2D );
   mActionEngineConfiguration->setEnabled( mStructure2D );
   mAction3DView->setEnabled( mStructure2D );
-  mScalarDatasetActions->setEnabled( mStructure2D );
-  mVectorDatasetActions->setEnabled( mStructure2D );
+  mScalarWidgetAction->setEnabled( mStructure2D );
+  mVectorWidgetAction->setEnabled( mStructure2D );
   mActionProfiles->setEnabled( mStructure2D );
   mActionExportAsMesh->setEnabled( mStructure2D );
 }
