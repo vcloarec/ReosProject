@@ -29,7 +29,7 @@ rem try to launch the app
 
 echo "///////////////////// Test launch Lekan application, start it and wait 30s
 start %REOS_INSTALL%\bin\Lekan.exe
-timout 30
+timeout 30
 tasklist /fi "ImageName eq Lekan.exe" /fo csv 2>NUL | find /I "Lekan.exe">NUL
 if %ERRORLEVEL% NEQ 0 (
 echo "///////////////////// Test launch Lekan application fails
