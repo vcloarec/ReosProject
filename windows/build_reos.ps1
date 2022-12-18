@@ -80,7 +80,11 @@ cmake   -S $env:REOS_SOURCE `
         -D QTKEYCHAIN_LIBRARY=$OSGEO_DIR/apps/Qt5/lib/qt5keychain.lib `
         -D QWT_INCLUDE=$OSGEO_DIR/apps/Qt5/include/qwt6 `
         -D QWT_LIB=$OSGEO_DIR/apps/Qt5/lib/qwt.lib `
-        -D WITH_QTWEBKIT:BOOL=FALSE
+        -D WITH_QTWEBKIT:BOOL=FALSE `
+        -D ENABLE_HEC_DSS=TRUE `
+        -D HEC_DSS_INCLUDE=$env:REOS_SOURCE/external/heclib_win/heclib-7-IP-10-win-x86_64/headers
+        -D HEC_DSS_LIBS_PATH=$env:REOS_SOURCE/external/heclib_win/heclib-7-IP-10-win-x86_64/Release64
+        -D INTEL_FORTRAN_COMPILER_LIB_PATH=$env:FORTRAN_COMPILER_PATH\compiler\lib\intel64_win
 
 cmake --build .  --config $env:BUILD_TYPE --parallel
 
