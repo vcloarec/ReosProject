@@ -27,13 +27,17 @@ if %ERRORLEVEL% NEQ 0 exit %ERRORLEVEL%
 
 rem try to launch the app
 
-%REOS_INSTALL%\bin\lekan.exe
+echo "///////////////////// Test launch Lekan application, start it and wait 30s
+start %REOS_INSTALL%\bin\Lekan.exe
+timout 30
+tasklist /fi "ImageName eq Lekan.exe" /fo csv 2>NUL | find /I "Lekan.exe">NUL
 if %ERRORLEVEL% NEQ 0 (
 echo "///////////////////// Test launch Lekan application fails
 exit %ERRORLEVEL%
 )
 else(
 echo "///////////////////// Test launch Lekan application success
+taskkill /F /IM Lekan.exe
 )
 
 endlocal

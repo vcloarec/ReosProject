@@ -55,6 +55,11 @@ class DatasetSettingsWidgetAction : public QWidgetAction
       mToolTip = toolTip;
     }
 
+    void setButtonEnable( bool b )
+    {
+      mButtonEnable = b;
+    }
+
   protected:
     QWidget *createWidget( QWidget *parent ) override
     {
@@ -63,6 +68,7 @@ class DatasetSettingsWidgetAction : public QWidgetAction
       button->setPopupMode( QToolButton::InstantPopup );
       button->setMenu( mMenu );
       button->setToolTip( mToolTip );
+      button->setEnabled( mButtonEnable );
       return button;
     }
 
@@ -70,6 +76,7 @@ class DatasetSettingsWidgetAction : public QWidgetAction
     QMenu *mMenu = nullptr;
     QIcon mIcon;
     QString mToolTip;
+    bool mButtonEnable = true;
 };
 
 ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context )
@@ -255,8 +262,8 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   mActionExportSimulationFile->setEnabled( mStructure2D );
   mActionEngineConfiguration->setEnabled( mStructure2D );
   mAction3DView->setEnabled( mStructure2D );
-  mScalarWidgetAction->setEnabled( mStructure2D );
-  mVectorWidgetAction->setEnabled( mStructure2D );
+  mScalarWidgetAction->setButtonEnable( mStructure2D );
+  mVectorWidgetAction->setButtonEnable( mStructure2D );
   mActionProfiles->setEnabled( mStructure2D );
   mActionExportAsMesh->setEnabled( mStructure2D );
 }
