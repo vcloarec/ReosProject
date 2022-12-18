@@ -71,8 +71,8 @@ class ReosDssProviderTimeSerieConstantTimeStep : public ReosTimeSerieConstantTim
     void removeValues( int from, int count ) override;
     void clear() override;
 
-    ReosEncodedElement encode() const {return ReosEncodedElement();}
-    void decode( const ReosEncodedElement &element ) {}
+    ReosEncodedElement encode( const ReosEncodeContext &context ) const {return ReosEncodedElement();}
+    void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) {}
 
     bool persistData( QString &error ) override;
     bool createNewSerie( const ReosDssPath &path, ReosDssFile &dssFile, QString &error ) const override;
@@ -103,8 +103,8 @@ class ReosDssProviderTimeSerieVariableTimeStep : public ReosTimeSerieVariableTim
     double lastValue() const override;
     double *data() override;
     const QVector<double> &constData() const override;
-    ReosEncodedElement encode() const {return ReosEncodedElement();}
-    void decode( const ReosEncodedElement &element ) {}
+    ReosEncodedElement encode( const ReosEncodeContext &context ) const {return ReosEncodedElement();}
+    void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) {}
 
     // ReosDssProviderBase interface
     bool createNewSerie( const ReosDssPath &path, ReosDssFile &dssFile, QString &error ) const {return false;}
