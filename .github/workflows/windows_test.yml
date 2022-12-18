@@ -12,7 +12,7 @@ env:
   CMAKE_PATH: C:\Program Files\CMake\bin
 
 jobs:
-  build:
+  build-test-package:
     runs-on: windows-latest
     
     steps:
