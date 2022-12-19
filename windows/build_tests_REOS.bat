@@ -22,6 +22,12 @@ set PATH=%PATH%;%REOS_INSTALL%\bin
 set PATH=%PATH%;%OSGEO4W_ROOT%\apps\Qt5\bin;
 set GDAL_DATA=%REOS_INSTALL%\share\gdal
 cd %REOS_BUILDING%
+
+echo "--------------- PATH for test is"
+echo %PATH%
+
+echo "--------------- dir in bin:"
+dir %REOS_INSTALL%\bin
 ctest -C %BUILD_TYPE% -VV
 if %ERRORLEVEL% NEQ 0 exit %ERRORLEVEL%
 endlocal
