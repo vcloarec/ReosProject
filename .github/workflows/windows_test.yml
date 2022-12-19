@@ -13,7 +13,7 @@ env:
 
 jobs:
   build-test-package:
-    runs-on: windows-latest
+    runs-on: windows-2019
     
     steps:
     - uses: actions/checkout@v3
@@ -33,6 +33,7 @@ jobs:
           echo "REOS_INSTALL=${{github.workspace}}\REOS_Install" >> $env:GITHUB_ENV
           echo "NSI_DESTINATION=${{github.workspace}}" >> $env:GITHUB_ENV
           echo "LEKAN_EXPERIMENTAL_VERSION=$(git rev-parse --short HEAD)" >> $env:GITHUB_ENV
+          echo "FORTRAN_COMPILER_PATH=C:\Program Files (x86)\Intel\oneAPI\compiler\2021.2.0\windows" >> $env:GITHUB_ENV
           
     - name: Cache GMSH
       id: cache-gmsh
@@ -116,6 +117,12 @@ jobs:
       if: steps.cache-mdal.outputs.cache-hit != 'true'
       run: ./windows/qgis_env_before_powershell.bat "./windows/build_MDAL.ps1"
       
+    - name: Setup Intel Fortran
+      uses: modflowpy/install-intelfortran-action@v1
+
+    - name: config FORTRAN path
+      run: echo "FORTRAN_COMPILER_PATH=${{env.INTEL_HPCKIT_INSTALL_PATH}}\compiler\${{env.INTEL_COMPILER_VERSION}}" >> $env:GITHUB_ENV
+
     - name: build and test REOS
       run:  ./windows/build_tests_REOS.bat
           
