@@ -118,6 +118,8 @@ jobs:
 
     - name: Setup Intel Fortran
       uses: modflowpy/install-intelfortran-action@v1
+      with:
+        cache: false
 
     - name: config FORTRAN path
       run: echo "FORTRAN_COMPILER_PATH=${{env.INTEL_HPCKIT_INSTALL_PATH}}\compiler\${{env.INTEL_COMPILER_VERSION}}" >> $env:GITHUB_ENV
