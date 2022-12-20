@@ -90,15 +90,31 @@ ReosActionStackedWidget::ReosActionStackedWidget( QWidget *parent ): ReosActionW
   connect( this, &ReosActionWidget::closed, this, &ReosActionStackedWidget::backToFirstPage );
 }
 
-void ReosActionStackedWidget::addPage( ReosStackedPageWidget *widget )
+int ReosActionStackedWidget::indexOf( ReosStackedPageWidget *page )
 {
+  return mStackedWidget->indexOf( page );
+}
+
+void ReosActionStackedWidget::addPage( ReosStackedPageWidget *widget, int index )
+{
+  if ( index >= 0 )
+  {
+    //remove all page with index greater or equal with coming index
+    for ( int i = mStackedWidget->count() - 1; i >= index; --i )
+    {
+      QWidget *w = mStackedWidget->widget( i );
+      mStackedWidget->removeWidget( w );
+      w->deleteLater();
+    }
+  }
+
   if ( mStackedWidget->count() > 0 )
     widget->showBackButton();
 
   mStackedWidget->addWidget( widget );
   mStackedWidget->setCurrentWidget( widget );
   connect( widget, &ReosStackedPageWidget::backToPreviousPage, this, &ReosActionStackedWidget::backToPrevious );
-  connect( widget, &ReosStackedPageWidget::addOtherPage, this, &ReosActionStackedWidget::addPage );
+  widget->setStackedWidget( this );
 }
 
 void ReosActionStackedWidget::backToPrevious()
@@ -117,4 +133,18 @@ void ReosActionStackedWidget::backToFirstPage()
 {
   while ( mStackedWidget->count() > 1 )
     backToPrevious();
+}
+
+void ReosStackedPageWidget::addOtherPage( ReosStackedPageWidget *page )
+{
+  if ( mStackedWidget )
+  {
+    int index = mStackedWidget->indexOf( this );
+    mStackedWidget->addPage( page, index + 1 );
+  }
+}
+
+void ReosStackedPageWidget::setStackedWidget( ReosActionStackedWidget *newStackedWidget )
+{
+  mStackedWidget = newStackedWidget;
 }

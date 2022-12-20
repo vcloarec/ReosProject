@@ -22,6 +22,7 @@
 
 class ReosMapTool;
 class QStackedWidget;
+class ReosActionStackedWidget;
 
 class REOSGUI_EXPORT ReosActionWidget : public QWidget
 {
@@ -60,12 +61,19 @@ class ReosStackedPageWidget : public QWidget
     virtual void showBackButton() {};
     virtual void hideBackButton() {};
 
+    void setStackedWidget( ReosActionStackedWidget *newStackedWidget );
+
+  public slots:
+    void addOtherPage( ReosStackedPageWidget *page );
+
   signals:
     void askForShow();
 
   signals:
     void backToPreviousPage();
-    void addOtherPage( ReosStackedPageWidget *page );
+
+  private:
+    ReosActionStackedWidget *mStackedWidget = nullptr;
 };
 
 class ReosActionStackedWidget: public ReosActionWidget
@@ -74,8 +82,10 @@ class ReosActionStackedWidget: public ReosActionWidget
   public:
     explicit ReosActionStackedWidget( QWidget *parent = nullptr );
 
+    int indexOf( ReosStackedPageWidget *page );
+
   public slots:
-    void addPage( ReosStackedPageWidget *widget );
+    void addPage( ReosStackedPageWidget *widget, int index );
     void backToPrevious();
     void backToFirstPage();
 
