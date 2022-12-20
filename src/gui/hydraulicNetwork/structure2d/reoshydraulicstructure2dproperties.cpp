@@ -183,7 +183,9 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
 
   connect( mActionProfiles, &QAction::triggered, this, [this]
   {
-    emit stackedPageWidgetOpened( new ReosHydraulicStructureProfilesWidget( mStructure2D, mGuiContext ) );
+    std::unique_ptr<ReosHydraulicStructureProfilesWidget> profWidget( new ReosHydraulicStructureProfilesWidget( mStructure2D, mGuiContext ) );
+    profWidget->setAction( mActionProfiles );
+    emit stackedPageWidgetOpened( profWidget.release() );
     emit askForShow();
   } );
   toolBar->addAction( mActionProfiles );
