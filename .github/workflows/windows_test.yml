@@ -120,7 +120,7 @@ jobs:
       uses: modflowpy/install-intelfortran-action@v1
 
     - name: config FORTRAN path
-      run: echo "FORTRAN_COMPILER_PATH=${{env.INTEL_HPCKIT_INSTALL_PATH}}\compiler\${{env.INTEL_HPCKIT_VERSION}}" >> $env:GITHUB_ENV
+      run: echo "FORTRAN_COMPILER_PATH=${{env.INTEL_HPCKIT_INSTALL_PATH}}\compiler\${{env.INTEL_COMPILER_VERSION}}" >> $env:GITHUB_ENV
 
     - name: build and test REOS
       run:  ./windows/build_tests_REOS.bat

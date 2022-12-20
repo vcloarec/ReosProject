@@ -4,6 +4,6 @@
 #########################################################################
 #########################################################################
 
-ADD_SUBDIRECTORY(hecras)
-
-
+IF (ENABLE_HECRAS AND ENABLE_HEC_DSS)
+	ADD_SUBDIRECTORY(hecras)
+ENDIF(ENABLE_HECRAS AND ENABLE_HEC_DSS)

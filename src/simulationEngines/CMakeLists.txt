@@ -3,8 +3,8 @@
 
 add_subdirectory(telemac)
 
-IF (ENABLE_HECRAS)
+IF (ENABLE_HECRAS AND ENABLE_HEC_DSS)
 	add_subdirectory(hecras)
-ENDIF(ENABLE_HECRAS)
+ENDIF(ENABLE_HECRAS AND ENABLE_HEC_DSS)
 
 

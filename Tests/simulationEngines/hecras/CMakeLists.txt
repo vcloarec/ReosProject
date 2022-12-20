@@ -36,7 +36,10 @@ TARGET_LINK_LIBRARIES(test_hecras
 IF(GDAL_FOUND)
   TARGET_INCLUDE_DIRECTORIES(${TESTNAME} PRIVATE ${GDAL_INCLUDE_DIRS})
 ENDIF(GDAL_FOUND)
-ADD_TEST(test_hecras ${CMAKE_CURRENT_BINARY_DIR}/test_hecras)
+
+ADD_TEST(NAME test_hecras
+         COMMAND "test_hecras"
+         WORKING_DIRECTORY ${REOS_OUTPUT_DIRECTORY})
 
 set_target_properties(test_hecras
       PROPERTIES
