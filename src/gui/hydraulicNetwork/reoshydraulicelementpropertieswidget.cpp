@@ -234,7 +234,7 @@ ReosHydraulicElementPropertiesActionWidget::ReosHydraulicElementPropertiesAction
   setWindowFlag( Qt::Dialog );
   mainPage = new ReosHydraulicElementPropertiesWidget( network, ReosGuiContext( guiContext, this ) );
   connect( mainPage, &ReosStackedPageWidget::askForShow, this, &QWidget::show );
-  addPage( mainPage );
+  addPage( mainPage, 0 );
 }
 
 ReosHydraulicElementWidget *ReosHydraulicElementPropertiesActionWidget::currentElementWidget() const
