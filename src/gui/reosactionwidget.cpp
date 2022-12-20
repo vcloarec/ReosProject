@@ -29,6 +29,8 @@ ReosActionWidget::ReosActionWidget( QWidget *parent ) : QWidget( parent )
 void ReosActionWidget::setAction( QAction *action )
 {
   mAction = action;
+  action->setCheckable( true );
+  action->setChecked( isVisible() );
   connect( action, &QAction::triggered, this, [this]
   {
     if ( mAction->isChecked() )
@@ -95,8 +97,35 @@ int ReosActionStackedWidget::indexOf( ReosStackedPageWidget *page )
   return mStackedWidget->indexOf( page );
 }
 
+void ReosActionStackedWidget::removePage( ReosStackedPageWidget *page )
+{
+  mStackedWidget->removeWidget( page );
+  page->setStackedWidget( nullptr );
+}
+
+void ReosActionStackedWidget::setCurrentPage( ReosStackedPageWidget *page )
+{
+  mStackedWidget->setCurrentWidget( page );
+}
+
+void ReosActionStackedWidget::detachedPage( ReosStackedPageWidget *page )
+{
+  mDetachedPages.append( page );
+  removePage( page );
+}
+
 void ReosActionStackedWidget::addPage( ReosStackedPageWidget *widget, int index )
 {
+  for ( ReosStackedPageWidget *detachedPage : std::as_const( mDetachedPages ) )
+  {
+    if ( detachedPage->objectName() == widget->objectName() )
+    {
+      widget->deleteLater();
+      detachedPage->showPage();
+      return;
+    }
+  }
+
   if ( index >= 0 )
   {
     //remove all page with index greater or equal with coming index
@@ -142,6 +171,30 @@ void ReosStackedPageWidget::addOtherPage( ReosStackedPageWidget *page )
     int index = mStackedWidget->indexOf( this );
     mStackedWidget->addPage( page, index + 1 );
   }
+}
+
+void ReosStackedPageWidget::detach( QWidget *newPArent )
+{
+  mStackedWidget->detachedPage( this );
+  ReosActionStackedWidget *newStacked = new ReosActionStackedWidget( mStackedWidget );
+  newStacked->setWindowFlag( Qt::Dialog );
+  newStacked->addPage( this, 0 );
+  newStacked->show();
+  newStacked->setAction( mAction );
+  hideBackButton();
+  hideDetachButton();
+}
+
+void ReosStackedPageWidget::showPage()
+{
+  mStackedWidget->setCurrentPage( this );
+  mStackedWidget->show();
+  raise();
+}
+
+void ReosStackedPageWidget::setAction( QAction *newAction )
+{
+  mAction = newAction;
 }
 
 void ReosStackedPageWidget::setStackedWidget( ReosActionStackedWidget *newStackedWidget )

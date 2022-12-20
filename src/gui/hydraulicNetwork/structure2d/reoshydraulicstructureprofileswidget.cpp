@@ -41,6 +41,7 @@ ReosHydraulicStructureProfilesWidget::ReosHydraulicStructureProfilesWidget( Reos
   , mActionDisplayVelocity( new QAction( tr( "Display Velocity" ), this ) )
 {
   ui->setupUi( this );
+  setObjectName( QStringLiteral( "hydraulic-structure-orofile-widget" ) );
 
   QString settingsString = QStringLiteral( "hydraulic-structure-profile-widget" );
   ui->mPlotWidget->setSettingsContext( settingsString );
@@ -139,12 +140,32 @@ ReosHydraulicStructureProfilesWidget::ReosHydraulicStructureProfilesWidget( Reos
 
   connect( guiContext.map(), &ReosMap::timeChanged, this, &ReosHydraulicStructureProfilesWidget::onTimeChanged );
   connect( ui->mPlotWidget, &ReosPlotWidget::cursorMoved, this, &ReosHydraulicStructureProfilesWidget::onPlotCursorMove );
+
+  connect( ui->mDetachButton, &QPushButton::clicked, this, [this]
+  {
+    detach( mGuiContext.parent() );
+  } );
 }
 
 
 ReosHydraulicStructureProfilesWidget::~ReosHydraulicStructureProfilesWidget()
 {
   delete ui;
+}
+
+void ReosHydraulicStructureProfilesWidget::showBackButton()
+{
+  ui->mBackButton->show();
+}
+
+void ReosHydraulicStructureProfilesWidget::hideBackButton()
+{
+  ui->mBackButton->hide();
+}
+
+void ReosHydraulicStructureProfilesWidget::hideDetachButton()
+{
+  ui->mDetachButton->hide();
 }
 
 void ReosHydraulicStructureProfilesWidget::showEvent( QShowEvent *e )

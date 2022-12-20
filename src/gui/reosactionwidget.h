@@ -47,8 +47,8 @@ class REOSGUI_EXPORT ReosActionWidget : public QWidget
     QList<ReosMapTool *> mMapTools;
 
   private:
-    QAction *mAction;
     void storeGeometry();
+    QAction *mAction = nullptr;
 };
 
 class ReosStackedPageWidget : public QWidget
@@ -61,10 +61,22 @@ class ReosStackedPageWidget : public QWidget
     virtual void showBackButton() {};
     virtual void hideBackButton() {};
 
+    virtual bool canBeDetached() const {return false;}
+    virtual void hideDetachButton() {};
+
     void setStackedWidget( ReosActionStackedWidget *newStackedWidget );
+
+    void setAction( QAction *newAction );
 
   public slots:
     void addOtherPage( ReosStackedPageWidget *page );
+
+    /**
+     * Creates a new floatable stacked widget and set this page at first one.
+     */
+    void detach( QWidget *newPArent );
+
+    void showPage();
 
   signals:
     void askForShow();
@@ -74,6 +86,7 @@ class ReosStackedPageWidget : public QWidget
 
   private:
     ReosActionStackedWidget *mStackedWidget = nullptr;
+    QAction *mAction = nullptr;
 };
 
 class ReosActionStackedWidget: public ReosActionWidget
@@ -83,6 +96,10 @@ class ReosActionStackedWidget: public ReosActionWidget
     explicit ReosActionStackedWidget( QWidget *parent = nullptr );
 
     int indexOf( ReosStackedPageWidget *page );
+    void removePage( ReosStackedPageWidget *page );
+    void setCurrentPage( ReosStackedPageWidget *page );
+
+    void detachedPage( ReosStackedPageWidget *page );
 
   public slots:
     void addPage( ReosStackedPageWidget *widget, int index );
@@ -91,6 +108,7 @@ class ReosActionStackedWidget: public ReosActionWidget
 
   private:
     QStackedWidget *mStackedWidget;
+    QList < QPointer<ReosStackedPageWidget>> mDetachedPages;
 };
 
 #endif // REOSACTIONWIDGET_H
