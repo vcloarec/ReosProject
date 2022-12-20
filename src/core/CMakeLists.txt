@@ -254,6 +254,7 @@ TARGET_LINK_LIBRARIES(reosCore PUBLIC
         ${QGIS_CORE_LIB}
         ${QGIS_ANALYSIS_LIB}
         ${QGIS_3D_LIB}
+        ${QGIS_GUI_LIB}
         ${GMSH_LIB}
 )
 

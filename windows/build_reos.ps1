@@ -34,6 +34,14 @@ $GMSH_INSTALL
 ls $GMSH_INSTALL
 ls $GMSH_INSTALL\lib
 
+Write-Host "=== FORTRAN COMPILER:"
+$env:FORTRAN_COMPILER_PATH
+ls $env:FORTRAN_COMPILER_PATH
+ls $env:FORTRAN_COMPILER_PATH\windows
+ls $env:FORTRAN_COMPILER_PATH\windows\compiler
+ls $env:FORTRAN_COMPILER_PATH\windows\compiler\lib
+ls $env:FORTRAN_COMPILER_PATH\windows\compiler\lib\intel64_win
+
 if (Test-Path -Path $REOS_BUILD)
 {
     "Path $REOS_BUILD exists"
@@ -81,7 +89,8 @@ cmake   -S $env:REOS_SOURCE `
         -D QWT_INCLUDE=$OSGEO_DIR/apps/Qt5/include/qwt6 `
         -D QWT_LIB=$OSGEO_DIR/apps/Qt5/lib/qwt.lib `
         -D WITH_QTWEBKIT:BOOL=FALSE `
-        -D ENABLE_HEC_DSS=TRUE `
+		-D ENABLE_HECRAS=FALSE `
+        -D ENABLE_HEC_DSS=FALSE `
         -D HEC_DSS_INCLUDE=$env:REOS_SOURCE/external/heclib_win/heclib-7-IP-10-win-x86_64/headers `
         -D HEC_DSS_LIBS_PATH=$env:REOS_SOURCE/external/heclib_win/heclib-7-IP-10-win-x86_64/Release64 `
         -D INTEL_FORTRAN_COMPILER_LIB_PATH=$env:FORTRAN_COMPILER_PATH\windows\compiler\lib\intel64_win
