@@ -22,7 +22,7 @@ jobs:
       run: |
           echo "CYGWIN_ROOT=${{github.workspace}}\cygwin64" >> $env:GITHUB_ENV
           echo "OSGEO4W_ROOT=${{github.workspace}}\OSGEO4W" >> $env:GITHUB_ENV
-          echo "GDAL_ROOT=${{github.workspace}}\OSGEO4W\apps\gdal-dev" >> $env:GITHUB_ENV
+          echo "GDAL_ROOT=${{github.workspace}}\OSGEO4W" >> $env:GITHUB_ENV
           echo "MDAL_ROOT=${{github.workspace}}\MDAL_Install" >> $env:GITHUB_ENV
           echo "GMSH_BUILT=${{github.workspace}}\GMSH_Built" >> $env:GITHUB_ENV
           echo "QGIS_SRC=${{github.workspace}}\QGIS" >> $env:GITHUB_ENV

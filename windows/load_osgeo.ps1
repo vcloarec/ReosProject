@@ -37,7 +37,7 @@ Write-Host "================================================="
     --local-package-dir "$env:APPDATA/OSGeo4W-Packages" `
     --menu-name "QGIS LTR" `
     --no-desktop `
-    --packages qgis-dev-deps,gdal `
+    --packages qgis-deps `
     --root $osgeo_root_install `
     --quiet-mode `
     --site "http://download.osgeo.org/osgeo4w/v2" `

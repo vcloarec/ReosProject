@@ -53,8 +53,8 @@ cmake   -S $env:QGIS_SRC `
 		-D BISON_EXECUTABLE=$env:CYGWIN_ROOT/bin/bison.exe `
 		-D CMAKE_BUILD_TYPE=$BUILDCONF `
 		-D CMAKE_CONFIGURATION_TYPES=$BUILDCONF `
-		-D GDAL_LIBRARY=$OSGEO_DIR/apps/gdal-dev/lib/gdal_i.lib `
-		-D GDAL_INCLUDE_DIR=$OSGEO_DIR/apps/gdal-dev/include `
+		-D GDAL_LIBRARY=$env:GDAL_ROOT/lib/gdal_i.lib `
+		-D GDAL_INCLUDE_DIR=$env:GDAL_ROOT/include `
 		-D PROJ_INCLUDE_DIR=$OSGEO_DIR/include `
 		-D GEOS_LIBRARY=$OSGEO_DIR/lib/geos_c.lib `
 		-D SQLITE3_LIBRARY=$OSGEO_DIR/lib/sqlite3_i.lib `
