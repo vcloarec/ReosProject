@@ -20,8 +20,10 @@
 #include "reossettings.h"
 #include "reosmaptool.h"
 #include "QLayout"
+#include <QDebug>
 
-ReosActionWidget::ReosActionWidget( QWidget *parent ) : QWidget( parent )
+ReosActionWidget::ReosActionWidget( QWidget *parent )
+  : QWidget( parent )
 {
   connect( this, &QObject::destroyed, this, &ReosActionWidget::storeGeometry );
 }
@@ -100,6 +102,7 @@ int ReosActionStackedWidget::indexOf( ReosStackedPageWidget *page )
 void ReosActionStackedWidget::removePage( ReosStackedPageWidget *page )
 {
   mStackedWidget->removeWidget( page );
+  page->setParent( nullptr );
   page->setStackedWidget( nullptr );
 }
 
@@ -108,7 +111,7 @@ void ReosActionStackedWidget::setCurrentPage( ReosStackedPageWidget *page )
   mStackedWidget->setCurrentWidget( page );
 }
 
-void ReosActionStackedWidget::detachedPage( ReosStackedPageWidget *page )
+void ReosActionStackedWidget::detachePage( ReosStackedPageWidget *page )
 {
   mDetachedPages.append( page );
   removePage( page );
@@ -175,8 +178,8 @@ void ReosStackedPageWidget::addOtherPage( ReosStackedPageWidget *page )
 
 void ReosStackedPageWidget::detach( QWidget *newPArent )
 {
-  mStackedWidget->detachedPage( this );
-  ReosActionStackedWidget *newStacked = new ReosActionStackedWidget( mStackedWidget );
+  mStackedWidget->detachePage( this );
+  ReosActionStackedWidget *newStacked = new ReosActionStackedWidget( newPArent );
   newStacked->setWindowFlag( Qt::Dialog );
   newStacked->addPage( this, 0 );
   newStacked->show();
