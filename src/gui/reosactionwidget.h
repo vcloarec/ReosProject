@@ -106,6 +106,9 @@ class ReosActionStackedWidget: public ReosActionWidget
     void backToPrevious();
     void backToFirstPage();
 
+  private slots:
+    void purgeDetachedPages();
+
   private:
     QStackedWidget *mStackedWidget;
     QList < QPointer<ReosStackedPageWidget>> mDetachedPages;

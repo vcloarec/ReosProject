@@ -90,9 +90,6 @@
        <property name="toolTip">
         <string>Detach</string>
        </property>
-       <property name="text">
-        <string/>
-       </property>
        <property name="icon">
         <iconset resource="../../../images/images.qrc">
          <normaloff>:/images/detach.svg</normaloff>:/images/detach.svg</iconset>
