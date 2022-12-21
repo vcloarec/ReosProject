@@ -99,7 +99,7 @@ class ReosActionStackedWidget: public ReosActionWidget
     void removePage( ReosStackedPageWidget *page );
     void setCurrentPage( ReosStackedPageWidget *page );
 
-    void detachedPage( ReosStackedPageWidget *page );
+    void detachePage( ReosStackedPageWidget *page );
 
   public slots:
     void addPage( ReosStackedPageWidget *widget, int index );

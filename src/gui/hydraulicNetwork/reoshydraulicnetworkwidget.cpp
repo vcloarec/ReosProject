@@ -488,7 +488,8 @@ void ReosHydraulicNetworkWidget::changeCurrentScheme( ReosHydraulicScheme *schem
     connect( mCurrentHydraulicScheme, &ReosDataObject::dataChanged, this, &ReosHydraulicNetworkWidget::updateSchemeInfo );
 }
 
-ReosHydraulicElementWidget::ReosHydraulicElementWidget( QWidget *parent ):  QWidget( parent )
+ReosHydraulicElementWidget::ReosHydraulicElementWidget( QWidget *parent )
+  : QWidget( parent )
 {}
 
 ReosHydraulicNetworkDockWidget::ReosHydraulicNetworkDockWidget( ReosHydraulicNetwork *network, ReosWatershedModule *watershedModule, const ReosGuiContext &context )
