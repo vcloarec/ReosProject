@@ -115,16 +115,17 @@ void ReosActionStackedWidget::detachePage( ReosStackedPageWidget *page )
 {
   mDetachedPages.append( page );
   removePage( page );
+  connect( page, &QObject::destroyed, this, &ReosActionStackedWidget::purgeDetachedPages );
 }
 
 void ReosActionStackedWidget::addPage( ReosStackedPageWidget *widget, int index )
 {
-  for ( ReosStackedPageWidget *detachedPage : std::as_const( mDetachedPages ) )
+  for ( ReosStackedPageWidget *detachePage : std::as_const( mDetachedPages ) )
   {
-    if ( detachedPage->objectName() == widget->objectName() )
+    if ( detachePage && detachePage->objectName() == widget->objectName() )
     {
       widget->deleteLater();
-      detachedPage->showPage();
+      detachePage->showPage();
       return;
     }
   }
@@ -167,6 +168,19 @@ void ReosActionStackedWidget::backToFirstPage()
     backToPrevious();
 }
 
+void ReosActionStackedWidget::purgeDetachedPages()
+{
+  int i = 0;
+  while ( i < mDetachedPages.count() )
+  {
+    ReosStackedPageWidget *detachePage = mDetachedPages.at( i );
+    if ( !detachePage )
+      mDetachedPages.removeAt( i );
+    else
+      ++i;
+  }
+}
+
 void ReosStackedPageWidget::addOtherPage( ReosStackedPageWidget *page )
 {
   if ( mStackedWidget )
@@ -180,6 +194,7 @@ void ReosStackedPageWidget::detach( QWidget *newPArent )
 {
   mStackedWidget->detachePage( this );
   ReosActionStackedWidget *newStacked = new ReosActionStackedWidget( newPArent );
+  newStacked->setAttribute( Qt::WA_DeleteOnClose );
   newStacked->setWindowFlag( Qt::Dialog );
   newStacked->addPage( this, 0 );
   newStacked->show();
