@@ -381,6 +381,7 @@ void ReosHydraulicNetworkWidget::onModuleReset()
 
 void ReosHydraulicNetworkWidget::onClosed()
 {
+  mElementPropertiesWidget->close();
   setMapItemVisible( false );
 }
 
