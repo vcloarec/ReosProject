@@ -304,7 +304,7 @@ ReosFormBaseJunctionNodeWidget::ReosFormBaseJunctionNodeWidget( ReosHydrographJu
   {
     ReosGaugedHydrographWidget *gaugedWidget = new ReosGaugedHydrographWidget( ReosGuiContext( context, this ) );
     gaugedWidget->setHydrographStore( junction->gaugedHydrographsStore() );
-    emit stackedPageWidgetOpened( gaugedWidget );
+    emit stackedPageWidgetOpened( gaugedWidget, true );
   } );
 }
 
@@ -482,7 +482,7 @@ ReosFormJunctionBoundaryConditionWidget::ReosFormJunctionBoundaryConditionWidget
     ReosVariableTimeStepTimeSeriesGroupWidget *waterLevelWidget =
     new ReosVariableTimeStepTimeSeriesGroupWidget( ReosGuiContext( context, this ), tr( "Water Level Series" ), tr( "meter" ), mNode->waterLevelSeriesIndex() );
     waterLevelWidget->setTimeSeriesGroup( mNode->waterLevelSeriesGroup() );
-    emit stackedPageWidgetOpened( waterLevelWidget );
+    emit stackedPageWidgetOpened( waterLevelWidget, true );
   } );
 
   //*** flow rate widget

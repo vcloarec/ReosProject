@@ -110,7 +110,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
     connect( editWidget, &ReosEditHydraulicStructure2DWidget::hidden, this, &ReosHydraulicStructure2DProperties::restoreResults );
     mScalarWidgetAction->setEnabled( false );
     mVectorWidgetAction->setEnabled( false );
-    emit stackedPageWidgetOpened( editWidget );
+    emit stackedPageWidgetOpened( editWidget, true );
     emit askForShow();
   } );
 
@@ -151,7 +151,6 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
     } );
   }
 
-
   toolBar->addSeparator();
 
   mScalarWidgetAction = new DatasetSettingsWidgetAction( this, mScalarDatasetMenu );
@@ -161,7 +160,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   if ( mStructure2D )
     connect( mActionScalarSettings, &QAction::triggered, this, [this]
   {
-    emit stackedPageWidgetOpened( new ReosMeshScalarRenderingWidget( mStructure2D->mesh()->scalarColorShaderSettings(), mGuiContext ) );
+    emit stackedPageWidgetOpened( new ReosMeshScalarRenderingWidget( mStructure2D->mesh()->scalarColorShaderSettings(), mGuiContext ), true );
     emit askForShow();
   } );
 
@@ -176,18 +175,13 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
     {
       if ( mStructure2D->currentActivatedVectorMeshDataset().isEmpty() )
         return;
-      emit stackedPageWidgetOpened( new ReosMeshVectorRenderingWidget( mStructure2D->mesh(), mStructure2D->currentActivatedVectorMeshDataset(), mGuiContext ) );
+      emit stackedPageWidgetOpened( new ReosMeshVectorRenderingWidget( mStructure2D->mesh(), mStructure2D->currentActivatedVectorMeshDataset(), mGuiContext ), true );
       emit askForShow();
     } );
   }
 
-  connect( mActionProfiles, &QAction::triggered, this, [this]
-  {
-    std::unique_ptr<ReosHydraulicStructureProfilesWidget> profWidget( new ReosHydraulicStructureProfilesWidget( mStructure2D, mGuiContext ) );
-    profWidget->setAction( mActionProfiles );
-    emit stackedPageWidgetOpened( profWidget.release() );
-    emit askForShow();
-  } );
+  connect( mActionProfiles, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::onProfileRequested );
+
   toolBar->addAction( mActionProfiles );
 
   toolBar->addAction( mAction3DView );
@@ -439,7 +433,7 @@ void ReosHydraulicStructure2DProperties::onLaunchCalculation()
 
   ReosHydraulicSimulationConsole *console = new ReosHydraulicSimulationConsole( mStructure2D->simulationProcess( mCalculationContext ), mGuiContext );
   connect( this, &ReosHydraulicStructure2DProperties::calculationContextChanged, console, &ReosHydraulicSimulationConsole::backToPreviousPage );
-  emit stackedPageWidgetOpened( console );
+  emit stackedPageWidgetOpened( console, true );
   emit askForShow();
 
   QMetaObject::invokeMethod( process, "startOnOtherThread", Qt::QueuedConnection );
@@ -596,6 +590,26 @@ void ReosHydraulicStructure2DProperties::initialize3DView()
   mView3D->addMesh( mStructure2D->mesh() );
   disconnect( mAction3DView, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::initialize3DView );
   mView3D->show();
+}
+
+void ReosHydraulicStructure2DProperties::onProfileRequested()
+{
+  std::unique_ptr<ReosHydraulicStructureProfilesWidget> profWidget( new ReosHydraulicStructureProfilesWidget( mStructure2D, mGuiContext ) );
+  profWidget->setAction( mActionProfiles );
+
+  // If the profile is detached, we diconnect the action and the profile request
+  connect( profWidget.get(), &ReosStackedPageWidget::detached, this, [this]
+  {
+    disconnect( mActionProfiles, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::onProfileRequested );
+  } );
+
+  // until is not detached anymore (associated stacked widget close, or reattach)
+  connect( profWidget.get(), &ReosStackedPageWidget::undetached, this, [this]
+  {
+    connect( mActionProfiles, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::onProfileRequested );
+  } );
+
+  emit stackedPageWidgetOpened( profWidget.release(), true );
 }
 
 QAction *ReosHydraulicStructure2DProperties::actionExportAsMesh() const

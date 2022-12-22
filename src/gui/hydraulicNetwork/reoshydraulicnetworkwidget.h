@@ -48,7 +48,7 @@ class REOSGUI_EXPORT ReosHydraulicElementWidget : public QWidget
     virtual void setTime( const QDateTime & ) {}
 
   signals:
-    void stackedPageWidgetOpened( ReosStackedPageWidget *widget );
+    void stackedPageWidgetOpened( ReosStackedPageWidget *widget, bool show );
     void askForShow();
 };
 
@@ -69,7 +69,11 @@ class REOSGUI_EXPORT ReosHydraulicNetworkWidget : public QWidget
 
     ReosStructure2dToolBar *structure2dToolBar() const;
 
-signals:
+  public slots:
+    void onClosed();
+    void onOpened();
+
+  signals:
     void timeWindowChanged();
     void mapTimeStepChanged();
 
@@ -88,9 +92,6 @@ signals:
     void onNetworkLoaded();
 
     void onModuleReset();
-
-    void onClosed();
-    void onOpened();
 
     void onMapCrsChanged();
 

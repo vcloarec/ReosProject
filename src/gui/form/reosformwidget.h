@@ -63,7 +63,7 @@ class ReosFormWidget : public QWidget
 
   signals:
     void parametersChanged();
-    void stackedPageWidgetOpened( ReosStackedPageWidget *widget );
+    void stackedPageWidgetOpened( ReosStackedPageWidget *widget, bool show );
 
   private:
     int mParamCount = 0;

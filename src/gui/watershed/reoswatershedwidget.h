@@ -147,9 +147,11 @@ class REOSGUI_EXPORT ReosWatershedDockWidget: public ReosDockWidget
     ReosWatershedDockWidget( const ReosGuiContext &context, ReosWatershedModule *module, ReosHydraulicNetwork *hydraulicNetwork = nullptr );;
 
     ReosWatershedWidget *watershedWidget() const;
+    QAction *actionToggle() const;
 
   private:
     ReosWatershedWidget *mWatershedWidget = nullptr;
+    QAction *mActionToggle = nullptr;
 };
 
 #endif // REOSWATERSHEDWIDGET_H

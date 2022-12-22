@@ -91,21 +91,18 @@ LekanMainWindow::LekanMainWindow( QWidget *parent )
   statusBar()->addPermanentWidget( new ReosMapCursorPosition( mMap, this ) );
   centralWidget()->layout()->addWidget( mMap->mapCanvas() );
 
-  addDockWidget( Qt::TopDockWidgetArea, mMap->temporalControllerDockWidget() );
   mMap->temporalControllerDockWidget()->setObjectName( "temporalDock" );
 
   mGisDock = new QDockWidget( tr( "GIS Layers" ) );
   mGisDock->setObjectName( QStringLiteral( "gisDock" ) );
   mGisDock->setWidget( new ReosGisLayersWidget( mGisEngine, mMap, this ) );
-  addDockWidget( Qt::LeftDockWidgetArea, mGisDock );
 
   mWatershedModule = new ReosWatershedModule( rootModule(), mGisEngine );
-
   mHydraulicNetwork = new ReosHydraulicNetwork( rootModule(), mGisEngine, mWatershedModule );
 
   mDockHydraulicNetwork = new ReosHydraulicNetworkDockWidget( mHydraulicNetwork, mWatershedModule, guiContext );
   mDockHydraulicNetwork->setObjectName( QStringLiteral( "hydraulicDock" ) );
-  addDockWidget( Qt::RightDockWidgetArea, mDockHydraulicNetwork );
+
   mHydraulicNetworkWidget = mDockHydraulicNetwork->hydraulicNetworkWidget();
   connect( mHydraulicNetworkWidget, &ReosHydraulicNetworkWidget::timeWindowChanged, this, &LekanMainWindow::onTimeWindowChanged );
   connect( mHydraulicNetworkWidget, &ReosHydraulicNetworkWidget::mapTimeStepChanged, this, &LekanMainWindow::onMapTimeStepChanged );
@@ -114,11 +111,16 @@ LekanMainWindow::LekanMainWindow( QWidget *parent )
 
   mDockWatershed = new  ReosWatershedDockWidget( guiContext, mWatershedModule, mHydraulicNetwork );
   mDockWatershed->setObjectName( QStringLiteral( "watershedDock" ) );
-  addDockWidget( Qt::RightDockWidgetArea, mDockWatershed );
+
   mWatershedWidget = mDockWatershed->watershedWidget();
   connect( mWatershedWidget, &ReosWatershedWidget::timeWindowChanged, this, &LekanMainWindow::onTimeWindowChanged );
   connect( mWatershedWidget, &ReosWatershedWidget::mapTimeStepChanged, this, &LekanMainWindow::onMapTimeStepChanged );
   mMap->addSelectToolTarget( mWatershedWidget->descriptionKeyWatershed() );
+
+  addDockWidget( Qt::LeftDockWidgetArea, mGisDock );
+  addDockWidget( Qt::RightDockWidgetArea, mDockWatershed );
+  addDockWidget( Qt::RightDockWidgetArea, mDockHydraulicNetwork );
+  addDockWidget( Qt::TopDockWidgetArea, mMap->temporalControllerDockWidget() );
 
   mMap->setDefaultMapTool();
 
@@ -317,6 +319,7 @@ QList<QMenu *> LekanMainWindow::specificMenus()
   hydrologyMenu->addAction( mActionRainfallManager );
   hydrologyMenu->addAction( mActionRunoffManager );
   hydrologyMenu->addAction( mWatershedWidget->meteorologicalModelAction() );
+  hydrologyMenu->addAction( mDockWatershed->actionToggle() );
   hydrologyMenu->setObjectName( QStringLiteral( "Hydrology" ) );
 
   QMenu *mapMenu = new QMenu( tr( "Map" ), this );

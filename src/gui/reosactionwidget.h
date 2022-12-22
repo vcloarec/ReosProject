@@ -17,6 +17,7 @@
 #define REOSACTIONWIDGET_H
 
 #include <QWidget>
+#include <QPointer>
 
 #include "reosgui.h"
 
@@ -55,38 +56,53 @@ class ReosStackedPageWidget : public QWidget
 {
     Q_OBJECT
   public:
-    ReosStackedPageWidget( QWidget *parent = nullptr ): QWidget( parent )
-    {}
+    ReosStackedPageWidget( QWidget *parent = nullptr );
+    ~ReosStackedPageWidget();
 
     virtual void showBackButton() {};
     virtual void hideBackButton() {};
 
     virtual bool canBeDetached() const {return false;}
-    virtual void hideDetachButton() {};
+    virtual void switchDetachButton() {};
 
     void setStackedWidget( ReosActionStackedWidget *newStackedWidget );
 
     void setAction( QAction *newAction );
+    QAction *action() const;
+
+    bool isDetached() const;
 
   public slots:
-    void addOtherPage( ReosStackedPageWidget *page );
+    void addOtherPage( ReosStackedPageWidget *page, bool show );
 
     /**
      * Creates a new floatable stacked widget and set this page at first one.
+     * A new ReosActionStackedWidget instance is created with a parent \a newParent and returned.
      */
-    void detach( QWidget *newPArent );
+    ReosActionStackedWidget *detach( QWidget *newParent );
+
+    //! Reattaches the page widget to its original stacked widget
+    void reattach();
+
+    //! Restores the detached state if required, \see detach()
+    ReosActionStackedWidget *restoreDetach( QWidget *newParent );
 
     void showPage();
 
   signals:
     void askForShow();
+    void undetached();
+    void detached();
 
   signals:
     void backToPreviousPage();
 
   private:
     ReosActionStackedWidget *mStackedWidget = nullptr;
-    QAction *mAction = nullptr;
+    ReosActionStackedWidget *mOriginalStackedWidget = nullptr;
+    int mOriginalIndex = -1;
+    QPointer<QAction> mAction;
+    bool mIsDetached = false;
 };
 
 class ReosActionStackedWidget: public ReosActionWidget
@@ -100,9 +116,10 @@ class ReosActionStackedWidget: public ReosActionWidget
     void setCurrentPage( ReosStackedPageWidget *page );
 
     void detachePage( ReosStackedPageWidget *page );
+    void reattachPage( ReosStackedPageWidget *page, int index );
 
   public slots:
-    void addPage( ReosStackedPageWidget *widget, int index );
+    void addPage( ReosStackedPageWidget *widget, int index, bool show );
     void backToPrevious();
     void backToFirstPage();
 

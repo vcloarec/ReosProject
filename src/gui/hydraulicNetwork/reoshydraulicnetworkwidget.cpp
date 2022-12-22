@@ -257,7 +257,6 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
     mElementPropertiesWidget->setCurrentElement( nullptr, ReosGuiContext( this ) );
     ui->mNameWidget->setString( nullptr );
     mExtraItemSelection.reset( );
-    mStructure2dToolBar->setCurrentStructure2DPropertiesWidget( nullptr );
     emit timeWindowChanged();
     emit mapTimeStepChanged();
     return;
@@ -381,7 +380,8 @@ void ReosHydraulicNetworkWidget::onModuleReset()
 
 void ReosHydraulicNetworkWidget::onClosed()
 {
-  mElementPropertiesWidget->close();
+  unselectCurrentElement();
+  closePropertiesWidget();
   setMapItemVisible( false );
 }
 
@@ -430,6 +430,7 @@ void ReosHydraulicNetworkWidget::unselectCurrentElement()
     if ( it != mMapItems.constEnd() )
       mMapItemFactory.unselectItem( mCurrentSelectedElement, it.value().get() );
     mCurrentSelectedElement = nullptr;
+    mStructure2dToolBar->setCurrentStructure2DPropertiesWidget( nullptr );
   }
 }
 
@@ -496,6 +497,9 @@ ReosHydraulicElementWidget::ReosHydraulicElementWidget( QWidget *parent )
 ReosHydraulicNetworkDockWidget::ReosHydraulicNetworkDockWidget( ReosHydraulicNetwork *network, ReosWatershedModule *watershedModule, const ReosGuiContext &context )
   : ReosDockWidget( tr( "Hydraulic Network" ), context.parent() )
 {
+  DockWidgetFeatures feat = features();
+  feat.setFlag( DockWidgetFeature::DockWidgetClosable, false );
+  setFeatures( feat );
   mHydraulicNetworkWidget = new ReosHydraulicNetworkWidget( network, watershedModule, ReosGuiContext( context, this ) );
   setWidget( mHydraulicNetworkWidget );
 }

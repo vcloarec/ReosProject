@@ -165,6 +165,8 @@
         <file>addGriddedRainfall.svg</file>
         <file>griddedRainfallDisplay.svg</file>
         <file>detach.svg</file>
+        <file>watershed.svg</file>
+        <file>reattach.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>
