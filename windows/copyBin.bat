@@ -10,7 +10,7 @@ xcopy /s /Y /D /I %QGIS_BUILT%\plugins  "%REOS_INSTALL%\bin\qgisProvider"
 copy /v /y %GDAL_ROOT%\bin\gdal*.dll "%REOS_INSTALL%\bin"
 
 copy /v /y  %GMSH_BUILT%\lib\gmsh.dll "%REOS_INSTALL%\bin\gmsh.dll"
-copy /v /y %MDAL_ROOT%\lib\mdal.dll  "%REOS_INSTALL%\bin\engines\mdal.dll"
+copy /v /y %MDAL_ROOT%\lib\mdal.dll  "%REOS_INSTALL%\bin\mdal.dll"
 
 rem OSGEO Dependencies
 for /f "tokens=*" %%i in (%REOS_SOURCE%\windows\osgeo_dependencies_bin.txt) DO (
