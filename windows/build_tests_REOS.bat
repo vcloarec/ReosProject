@@ -37,7 +37,7 @@ xcopy /S/E %OSGEO4W_ROOT%\apps\Qt5\plugins\iconengines\*.* %REOS_INSTALL%\bin\ic
 xcopy /S/E %OSGEO4W_ROOT%\apps\Qt5\plugins\styles\qwindowsvistastyle.dll %REOS_INSTALL%\bin\styles\
 
 echo "///////////////////// Test launch Lekan application, start it and wait 30s
-start %REOS_INSTALL%\bin\Lekan.exe
+start %REOS_INSTALL%\bin\Lekan.exe test
 ping -n 30 127.0.0.1
 tasklist /fi "ImageName eq Lekan.exe" /fo csv 2>NUL | find /I "Lekan.exe">NUL
 if %ERRORLEVEL% NEQ 0 (
