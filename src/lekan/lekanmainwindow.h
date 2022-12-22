@@ -50,8 +50,6 @@ class LekanMainWindow : public ReosMainWindow
     bool openProject() override;
 
   private slots:
-    QByteArray encode() const override {return QByteArray();}
-    bool decode( const QByteArray &byteArray ) override { return false; }
 
     void onTimeWindowChanged();
     void onMapTimeStepChanged();

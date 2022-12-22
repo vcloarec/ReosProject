@@ -388,7 +388,7 @@ void ReosGaugedHydrographWidget::showProviderSelector( const QString &providerKe
     currentDataSelectorWidget->onOpened();
   }
 
-  addOtherPage( providerPage.release() );
+  addOtherPage( providerPage.release(), true );
 }
 
 ReosWatershedGaugedHydrographWidget::ReosWatershedGaugedHydrographWidget( const ReosGuiContext &guiContext )
@@ -397,7 +397,7 @@ ReosWatershedGaugedHydrographWidget::ReosWatershedGaugedHydrographWidget( const 
 {
   setWindowFlag( Qt::Dialog );
   setWindowTitle( tr( "Watershed Gauged Hydrograph" ) );
-  addPage( mGaugedHydrographWidget, 0 );
+  addPage( mGaugedHydrographWidget, 0, false );
 }
 
 void ReosWatershedGaugedHydrographWidget::setCurrentWatershed( ReosWatershed *watershed )

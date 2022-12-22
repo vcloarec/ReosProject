@@ -86,8 +86,6 @@ class REOSGUI_EXPORT ReosMainWindow : public QMainWindow
     virtual void clearProject() = 0;
     virtual bool openProject() = 0;
     virtual void checkExtraProjectToSave() = 0;
-    virtual QByteArray encode() const = 0;
-    virtual bool decode( const QByteArray &byteArray ) = 0;
     virtual QString projectFileFilter() const;
     virtual QString projectFileSuffix() const;
     virtual void onCriticalInfo() {};
@@ -107,6 +105,7 @@ class REOSGUI_EXPORT ReosMainWindow : public QMainWindow
 
     QMenu *mMenuFile = nullptr;
     QMenu *mMenuEdit = nullptr;
+
     QMenu *mMenuOption = nullptr;
     QMenu *mMenuInterrogation = nullptr;
 

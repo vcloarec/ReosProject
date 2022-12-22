@@ -36,7 +36,7 @@ ReosMeshTopographyStackedWidget::ReosMeshTopographyStackedWidget(
   : ReosActionStackedWidget( guiContext.parent() )
 {
   layout()->setContentsMargins( 0, 0, 0, 0 );
-  addPage( new ReosMeshTopographyWidget( mesh, topographyCollection, topographyDatasetId, ReosGuiContext( guiContext, this ) ), 0 );
+  addPage( new ReosMeshTopographyWidget( mesh, topographyCollection, topographyDatasetId, ReosGuiContext( guiContext, this ) ), 0, false );
 }
 
 ReosMeshTopographyWidget::ReosMeshTopographyWidget( ReosMesh *mesh, ReosTopographyCollection *topographyCollection, const QString &topographyDatasetId, const ReosGuiContext &guiContext )
@@ -87,7 +87,7 @@ void ReosMeshTopographyWidget::onAddTopography()
 
 void ReosMeshTopographyWidget::onRenderingSettings()
 {
-  addOtherPage( new ReosMeshScalarRenderingWidget( mMesh->terrainColorShaderSettings(), ReosGuiContext( mGuiContext, this ) ) );
+  addOtherPage( new ReosMeshScalarRenderingWidget( mMesh->terrainColorShaderSettings(), ReosGuiContext( mGuiContext, this ) ), true );
 }
 
 void ReosMeshTopographyWidget::onMapCursorMove( const QPointF &pos )

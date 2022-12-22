@@ -632,11 +632,19 @@ ReosWatershedDockWidget::ReosWatershedDockWidget( const ReosGuiContext &context,
   , mWatershedWidget( new ReosWatershedWidget( context, module, hydraulicNetwork, this ) )
 {
   setWidget( mWatershedWidget );
+
+  mActionToggle = toggleViewAction();
+  mActionToggle->setIcon( QIcon( QStringLiteral( ":/images/watershed.svg" ) ) );
 }
 
 ReosWatershedWidget *ReosWatershedDockWidget::watershedWidget() const
 {
-  return mWatershedWidget;
+    return mWatershedWidget;
+}
+
+QAction *ReosWatershedDockWidget::actionToggle() const
+{
+    return mActionToggle;
 }
 
 ReosWatershedWidget::MapWatershed::MapWatershed( ReosMap *map, const QPolygonF &delineat, const QPointF &outletPt )

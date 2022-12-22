@@ -41,11 +41,11 @@ class ReosHydraulicStructureProfilesWidget : public ReosStackedPageWidget
     explicit ReosHydraulicStructureProfilesWidget( ReosHydraulicStructure2D *structure, const ReosGuiContext &guiContext );
     ~ReosHydraulicStructureProfilesWidget();
 
-    virtual void showBackButton();
-    virtual void hideBackButton();
+    void showBackButton();
+    void hideBackButton();
 
-    virtual bool canBeDetached() const {return false;}
-    virtual void hideDetachButton();
+    bool canBeDetached() const {return true;}
+    void switchDetachButton();
 
   protected:
     void showEvent( QShowEvent *e );
