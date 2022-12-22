@@ -23,6 +23,13 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include <QStandardPaths>
 #include <QScreen>
 
+#ifdef _MSC_VER
+#include <Windows.h>
+#include <errhandlingapi.h>
+#undef max
+#undef min
+#endif
+
 #include "reosstartingwidget.h"
 
 #include "lekanmainwindow.h"
@@ -34,10 +41,29 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 
 #include "reosapplication.h"
 
+#ifdef _MSC_VER
+LONG WINAPI handleCrash(LPEXCEPTION_POINTERS exception)
+{
+    QMessageBox messBox(QMessageBox::Critical, QObject::tr("Lekan Crashes"), "", QMessageBox::Close);
+    messBox.setTextFormat(Qt::RichText);
+    messBox.setText( QObject::tr(  "Lekan just crahes....<br>"
+                                   "Hopping you don't loose your work...<br><br>"
+                                   "If you are not too angry, and if you manage to reproduce this crash,<br>"
+                                   "you are cordially invited to report it (see <a href = \"https://www.reos.site/en/how-to-support/\"> here </a> how to).<br><br>"
+                                   "By this, you participate to improve this software and also your future uses."));
+    messBox.exec();
+    return TRUE;
+}
+#endif
+
 int main( int argc, char *argv[] )
 {
 #ifdef _MSC_VER
   qputenv( "PATH", "C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\system32\\WBem" );
+
+  QString arg(argv[1]);
+  if (arg!="test")
+    SetUnhandledExceptionFilter(handleCrash);
 #endif
 
   ReosApplication a( argc, argv );
@@ -70,7 +96,6 @@ int main( int argc, char *argv[] )
     localeLanguage = settings.value( QStringLiteral( "Locale-language" ) ).toLocale();
   else
     localeLanguage = QLocale::system();
-
 
   QTranslator ReosTranslator;
   QTranslator QtTranslator;
