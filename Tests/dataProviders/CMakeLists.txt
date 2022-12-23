@@ -5,5 +5,6 @@
 #########################################################################
 
 ADD_SUBDIRECTORY(grib)
+ADD_SUBDIRECTORY(comephores)
 
 

@@ -4,3 +4,4 @@
 add_subdirectory(hub-eau)
 add_subdirectory(delft-FEWS)
 add_subdirectory(grib)
+add_subdirectory(comephores)
