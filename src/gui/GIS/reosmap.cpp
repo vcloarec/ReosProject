@@ -609,7 +609,12 @@ void ReosMap::removeExtraRenderedObject( ReosRenderedObject *obj )
       }
     }
   }
+}
 
+void ReosMap::removeAllExtraRendererObjects()
+{
+  while ( !mExtraRenderedObjects.empty() )
+    removeExtraRenderedObject( mExtraRenderedObjects.takeFirst() );
 }
 
 const QObject *ReosMap::temporalController() const
@@ -714,6 +719,13 @@ ReosMapToolSelectMapItem *ReosMap::defaultMapTool() const
   return mDefaultMapTool;
 }
 
+void ReosMap::deactivateCurrentTool()
+{
+  QgsMapTool *currentTool = qobject_cast<QgsMapCanvas *>( mCanvas )->mapTool();
+  if ( currentTool )
+    currentTool->deactivate();
+}
+
 ReosMapCursorPosition::ReosMapCursorPosition( ReosMap *map, QWidget *parent ):
   QWidget( parent )
   , mCoordinates( new QLabel( this ) )
@@ -776,6 +788,11 @@ ReosDataVizMapWidget::ReosDataVizMapWidget( QWidget *parent )
   mMap->temporalControllerDockWidget()->setFeatures( QDockWidget::NoDockWidgetFeatures );
 }
 
+ReosDataVizMapWidget::~ReosDataVizMapWidget()
+{
+  mMap->deactivateCurrentTool();
+}
+
 void ReosDataVizMapWidget::addRenderedDataObject( ReosRenderedObject *object )
 {
   if ( !object )
@@ -788,6 +805,11 @@ void ReosDataVizMapWidget::removeRenderedObject( ReosRenderedObject *object )
   if ( !object )
     return;
   mMap->removeExtraRenderedObject( object );
+}
+
+void ReosDataVizMapWidget::removeAllRenderedObjects()
+{
+  mMap->removeAllExtraRendererObjects();
 }
 
 void ReosDataVizMapWidget::setTimeExtent( const QDateTime &startTime, const QDateTime &endTime )

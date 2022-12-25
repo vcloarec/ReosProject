@@ -49,6 +49,7 @@
 #include "reosguicontext.h"
 #include "reosstyleregistery.h"
 #include "reosgriddedrainitem.h"
+#include "reosgriddedrainfallselectorwidget.h"
 
 
 class ReosStationMapMarker: public ReosMapMarkerSvg
@@ -88,6 +89,7 @@ ReosRainfallManager::ReosRainfallManager( ReosMap *map, ReosRainfallModel *rainf
   , mActionRemoveItem( new QAction( QIcon( QStringLiteral( ":/images/remove.svg" ) ), tr( "Remove item" ), this ) )
   , mActionImportFromTextFile( new QAction( QIcon( QStringLiteral( ":/images/importRainfall.svg" ) ), tr( "Import Rainfall from Text File" ), this ) )
   , mActionSelectStationFromMap( new QAction( QIcon( QStringLiteral( ":/images/selectStationOnMap.svg" ) ), tr( "Select Station from Map" ), this ) )
+  , mActionAddGriddedRainfall( new QAction( QIcon( QStringLiteral( ":/images/addGriddedRainfall.svg" ) ), tr( "Add gridded precipitation" ), this ) )
 {
   ui->setupUi( this );
   setWindowFlag( Qt::Dialog );
@@ -345,23 +347,12 @@ void ReosRainfallManager::populateProviderActions( QToolBar *toolBar )
   }
 
   {
-    // gridded rainfall data provider
+    // gridded rainfall
     const QString dataType = ReosGriddedRainfall::staticType();
-    ReosDataProviderGuiRegistery *registery = ReosDataProviderGuiRegistery::instance();
-
-    const QStringList providers =
-      registery->providers( dataType, ReosDataProviderGuiFactory::GuiCapability::DataSelector );
-
-    for ( const QString &providerKey : providers )
+    connect( mActionAddGriddedRainfall, &QAction::triggered, this, [this]
     {
-      QAction *actionAddGridded = new QAction( registery->providerIcon( providerKey ), tr( "From %1" ).arg( registery->providerDisplayText( providerKey ) ) );
-      mActionsAddGriddedRainfall.append( actionAddGridded );
-      connect( actionAddGridded, &QAction::triggered, this, [this, providerKey, dataType]
-      {
-        showProviderSelector( providerKey, dataType );
-      } );
-
-    }
+      showProviderSelector( QString(), ReosGriddedRainfall::staticType() );
+    } );
   }
 }
 
@@ -375,14 +366,21 @@ void ReosRainfallManager::showProviderSelector( const QString &providerKey, cons
     delete mCurrentProviderSelector;
   }
 
-  mCurrentProviderSelector = registery->createProviderSelectorWidget( providerKey, dataType, mMap, this );
+  if ( dataType.contains( ReosGriddedRainfall::staticType() ) )
+  {
+    ui->mProviderAddCopyButton->setVisible( false );
+    ReosGuiContext context( this );
+    context.setMap( mMap );
+    mCurrentProviderSelector = new ReosGriddedRainfallSelectorWidget( context );
+  }
+  else
+  {
+    mCurrentProviderSelector = registery->createProviderSelectorWidget( providerKey, dataType, mMap, this );
+  }
+
   if ( !mCurrentProviderSelector )
     return;
 
-  //********* gridded precipitation does not support copy to memory rainfall for now
-  if ( dataType.contains( ReosGriddedRainfall::staticType() ) )
-    ui->mProviderAddCopyButton->setVisible( false );
-  //********************* To remove when it will support
 
   ui->mProviderLayout->addWidget( mCurrentProviderSelector );
   ui->stackedWidget->setCurrentIndex( 1 );
@@ -1136,11 +1134,7 @@ void ReosRainfallManager::onTreeViewContextMenu( const QPoint &pos )
           for ( QAction *act : std::as_const( mActionsAddStations ) )
             addStationMenu->addAction( act );
           menu.addSeparator();
-
-          QMenu *griddedMenu = menu.addMenu( QIcon( QStringLiteral( ":/images/addGriddedRainfall.svg" ) ), tr( "Add gridded precipitation…" ) );
-          griddedMenu->setEnabled( !mActionsAddGriddedRainfall.isEmpty() );
-          for ( QAction *act : std::as_const( mActionsAddGriddedRainfall ) )
-            griddedMenu->addAction( act );
+          menu.addAction( mActionAddGriddedRainfall );
           menu.addSeparator();
         }
         break;

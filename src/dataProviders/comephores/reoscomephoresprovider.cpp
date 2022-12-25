@@ -18,6 +18,11 @@
 #include "reosgriddedrainitem.h"
 #include "reosgdalutils.h"
 
+REOSEXTERN ReosDataProviderFactory *providerFactory()
+{
+  return new ReosComephoresProviderFactory();
+}
+
 ReosComephoresProvider::ReosComephoresProvider()
 {
   mCache.setMaxCost( 20000000 );
@@ -115,14 +120,68 @@ ReosRasterExtent ReosComephoresProvider::extent() const
   return mExtent;
 }
 
+bool ReosComephoresProvider::canReadUri( const QString &uri ) const
+{
+  if ( ReosComephoresTiffFilesReader::canReadFile( uri ) )
+    return true;
+
+  return false;
+}
+
+static QFileInfoList tiffFiles( const QString &folderPath )
+{
+  QFileInfoList ret;
+  QFileInfo sourceInfo( folderPath );
+  if ( !sourceInfo.isDir() )
+    return ret;
+
+  QDir sourceDir( folderPath );
+
+  if ( !sourceDir.cd( QStringLiteral( "RR" ) ) )
+    return ret;
+
+  QStringList filters;
+  filters << QStringLiteral( "*_RR.gtif" );
+  filters << QStringLiteral( "*_RR.tif" );
+  filters << QStringLiteral( "*_RR.tiff" );
+  const QFileInfoList fileInfoList = sourceDir.entryInfoList( filters, QDir::Files );
+
+  return fileInfoList;
+}
+
+ReosGriddedRainfallProvider::Details ReosComephoresProvider::details( const QString &source, ReosModule::Message &message ) const
+{
+  Details ret;
+
+  bool ok = false;
+  ret = ReosComephoresTiffFilesReader::details( source, &ok );
+  if ( ok )
+    return ret;
+
+  return Details();
+}
+
 ReosEncodedElement ReosComephoresProvider::encode( const ReosEncodeContext &context ) const
 {
+  ReosEncodedElement element( QStringLiteral( "comephores-gridded-precipitation" ) );
 
+  QString sourcePath = dataSource();
+  sourcePath = context.pathToEncode( sourcePath );
+  element.addData( QStringLiteral( "data-source" ), sourcePath );
+
+  return element;
 }
 
 void ReosComephoresProvider::decode( const ReosEncodedElement &element, const ReosEncodeContext &context )
 {
-
+  if ( element.description() != QStringLiteral( "comephores-gridded-precipitation" ) )
+    return;
+  QString source;
+  if ( element.getData( QStringLiteral( "data-source" ), source ) )
+  {
+    const QString sourcePath =  context.resolvePath( source );
+    setDataSource( sourcePath );
+  }
 }
 
 QString ReosComephoresProvider::dataType() {return ReosGriddedRainfall::staticType();}
@@ -134,20 +193,7 @@ QString ReosComephoresProvider::staticKey()
 
 ReosComephoresTiffFilesReader::ReosComephoresTiffFilesReader( const QString &folderPath )
 {
-  QFileInfo sourceInfo( folderPath );
-  if ( !sourceInfo.isDir() )
-    return;
-
-  QDir sourceDir( folderPath );
-
-  if ( !sourceDir.cd( QStringLiteral( "RR" ) ) )
-    return;
-
-  QStringList filters;
-  filters << QStringLiteral( "*_RR.gtif" );
-  filters << QStringLiteral( "*_RR.tif" );
-  filters << QStringLiteral( "*_RR.tiff" );
-  const QFileInfoList fileInfoList = sourceDir.entryInfoList( filters, QDir::Files );
+  const QFileInfoList fileInfoList = tiffFiles( folderPath );
 
   for ( const QFileInfo &fi : fileInfoList )
   {
@@ -198,4 +244,41 @@ ReosRasterExtent ReosComephoresTiffFilesReader::extent() const
   return dataset.extent();
 }
 
+bool ReosComephoresTiffFilesReader::canReadFile( const QString &uri )
+{
+  return !tiffFiles( uri ).isEmpty();
+}
+
+ReosGriddedRainfallProvider::Details ReosComephoresTiffFilesReader::details( const QString &source, bool *ok )
+{
+  ReosGriddedRainfallProvider::Details ret;
+
+  ReosComephoresTiffFilesReader fileReader( source );
+  if ( fileReader.frameCount() == 0 )
+  {
+    *ok = false;
+    return ret;
+  }
+
+  ret.extent = fileReader.extent();
+  ret.files = fileReader.mFilesNames.values();
+
+  QDir dir( source );
+  ret.deducedName = dir.dirName();
+
+  *ok = true;
+
+  return ret;
+}
+
 ReosComephoresTiffFilesReader::~ReosComephoresTiffFilesReader() = default;
+
+ReosGriddedRainfallProvider *ReosComephoresProviderFactory::createProvider( const QString &dataType ) const
+{
+  return new ReosComephoresProvider;
+}
+
+QString ReosComephoresProviderFactory::key() const
+{
+  return COMEPHORES_KEY;
+}

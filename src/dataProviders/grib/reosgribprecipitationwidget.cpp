@@ -21,7 +21,6 @@
 #include "QDockWidget"
 
 #include "reosmap.h"
-#include "reosgisengine.h"
 #include "reosgriddedrainitem.h"
 #include "reossettings.h"
 
@@ -32,29 +31,18 @@ REOSEXTERN ReosDataProviderGuiFactory *providerGuiFactory()
 }
 
 ReosGribPrecipitationWidget::ReosGribPrecipitationWidget( QWidget *parent )
-  : ReosDataProviderSelectorWidget( parent )
+  : ReosGriddedRainDataProviderSelectorWidget( parent )
   , ui( new Ui::ReosGribPrecipitationWidget )
   ,  mProvider( new ReosGribGriddedRainfallProvider )
 {
   ui->setupUi( this );
 
-  mDataExtent.reset( new ReosMapPolygon( ui->mDataVizMap->map() ) );
-
-  connect( ui->mPathToolButton, &QToolButton::clicked, this, &ReosGribPrecipitationWidget::onPathButtonClicked );
-  connect( ui->mPathLineEdit, &QLineEdit::textEdited, this, &ReosGribPrecipitationWidget::onPathChanged );
-  connect( ui->mVariablesCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosGribPrecipitationWidget::updateDataOnMap );
-
-  mDataExtent->setColor( Qt::red );
-  mDataExtent->setStyle( Qt::DashLine );
-  mDataExtent->setWidth( 3 );
-  mDataExtent->setExternalColor( Qt::white );
-  mDataExtent->setExternalWidth( 5 );
+  connect( ui->mVariablesCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosGribPrecipitationWidget::updateRainfall );
 
   ui->mValueTypeCombo->addItem( tr( "Intensity" ), static_cast<int>( ReosGriddedRainfallProvider::ValueType::Intensity ) );
   ui->mValueTypeCombo->addItem( tr( "Height during time step" ), static_cast<int>( ReosGriddedRainfallProvider::ValueType::Height ) );
   ui->mValueTypeCombo->addItem( tr( "Cumulative height from start" ), static_cast<int>( ReosGriddedRainfallProvider::ValueType::CumulativeHeight ) );
-  connect( ui->mValueTypeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosGribPrecipitationWidget::updateDataOnMap );
-
+  connect( ui->mValueTypeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosGribPrecipitationWidget::updateRainfall );
 
   onPathChanged();
 }
@@ -67,20 +55,6 @@ ReosGribPrecipitationWidget::~ReosGribPrecipitationWidget()
 QVariantMap ReosGribPrecipitationWidget::selectedMetadata() const
 {
   QVariantMap ret;
-  /**
-   * Returns metadata of the data, must contains map following the Reos convention of the the datatype instead the provider convention:
-   *
-   * provider-key: provider key
-   * station: if the data is associated with a station, the name of the station
-   * station-description: a short text desciption of the station
-   * x-coord: x coordinate (or longitude)
-   * y-coord: y coordinate (or longitude)
-   * crs: wkt coordinate system
-   * description: a short text desciption of the data
-   * start: start date/time of data if temporal
-   * end: end date/time of data if temporal
-   */
-
   ret.insert( QStringLiteral( "provider-key" ), GRIB_KEY );
   ret.insert( QStringLiteral( "data-type" ), ReosGriddedRainfall::staticType() );
 
@@ -96,55 +70,19 @@ QVariantMap ReosGribPrecipitationWidget::selectedMetadata() const
 
 ReosDataObject *ReosGribPrecipitationWidget::createData( QObject *parent ) const
 {
-  std::unique_ptr<ReosGriddedRainfall> ret( new ReosGriddedRainfall( mCurrentDataUri, mProvider->key(), parent ) );
-  ret->setName( giveName() );
-
-  return ret.release();
+  return new ReosGriddedRainfall( mCurrentDataUri, mProvider->key(), parent );
 }
 
 ReosDataObject *ReosGribPrecipitationWidget::selectedData() const
 {
-  mCurrentRainfall->setName( giveName() );
   return mCurrentRainfall.get();
 }
 
-void ReosGribPrecipitationWidget::onPathButtonClicked()
+ReosGriddedRainfallProvider::Details  ReosGribPrecipitationWidget::setSource( const QString &source )
 {
-  ReosSettings settings;
-  QString path;
-  if ( settings.contains( QStringLiteral( "Rainfall/fileDirectory" ) ) )
-    path = settings.value( QStringLiteral( "Rainfall/fileDirectory" ) ).toString();
-
-  QFileDialog *dial = new QFileDialog( this );
-
-  dial->setDirectory( path );
-
-  dial->setOptions( QFileDialog::DontUseNativeDialog );
-  dial->setFileMode( QFileDialog::AnyFile );
-
-  connect( dial, &QFileDialog::currentChanged, this, [dial]( const QString & str )
-  {
-    QStringList fileNames = dial->selectedFiles();
-    if ( str.isEmpty() )
-      return;
-    QFileInfo info( str );
-    if ( info.isFile() )
-      dial->setFileMode( QFileDialog::ExistingFile );
-    else if ( info.isDir() )
-      dial->setFileMode( QFileDialog::Directory );
-
-  } );
-
-  dial->exec();
-
-  QStringList fileNames = dial->selectedFiles();
-
-  if ( !fileNames.isEmpty() )
-  {
-    settings.setValue( QStringLiteral( "Rainfall/fileDirectory" ), dial->directory().path() );
-    ui->mPathLineEdit->setText( fileNames.first() );
-    onPathChanged();
-  }
+  mSource = source;
+  onPathChanged();
+  return mDetails;
 }
 
 void ReosGribPrecipitationWidget::onPathChanged()
@@ -157,134 +95,43 @@ void ReosGribPrecipitationWidget::onPathChanged()
   mCurrentSourceIsValid = false;
 
   ReosModule::Message message;
-  mDetails = mProvider->details( ui->mPathLineEdit->text(), message );
-  if ( message.type == ReosModule::Error && !ui->mPathLineEdit->text().isEmpty() )
+  mDetails = mProvider->details( mSource, message );
+
+  if ( message.type == ReosModule::Simple )
   {
-    ui->mNotificationButton->setMessage( message );
-    ui->mNotificationButton->show();
+    ui->mVariablesCombo->addItems( mDetails.availableVariables );
+    int currentIndex = ui->mVariablesCombo->findText( mCurrentVariable );
+    if ( currentIndex >= 0 )
+      ui->mVariablesCombo->setCurrentIndex( currentIndex );
+    mCurrentSourceIsValid = true;
   }
 
-  if ( message.type == ReosModule::Simple || ui->mPathLineEdit->text().isEmpty() )
-  {
-    ui->mNotificationButton->setMessage( ReosModule::Message() );
-    ui->mNotificationButton->hide();
-
-    if ( message.type == ReosModule::Simple )
-    {
-      QPolygonF extent = mDetails.extent.toPolygon();
-      mDataExtent->resetPolygon( ReosGisEngine::transformToCoordinates( mDetails.extent.crs(), extent, ui->mDataVizMap->map()->mapCrs() ) );
-      ui->mDataVizMap->setExtent( mDetails.extent );
-
-      ui->mVariablesCombo->addItems( mDetails.availableVariables );
-      int currentIndex = ui->mVariablesCombo->findText( mCurrentVariable );
-      if ( currentIndex >= 0 )
-        ui->mVariablesCombo->setCurrentIndex( currentIndex );
-      mCurrentSourceIsValid = true;
-    }
-  }
   ui->mVariablesCombo->blockSignals( false );
-  updateDataOnMap();
+  updateRainfall();
   emit dataSelectionChanged( mCurrentSourceIsValid );
 }
 
-void ReosGribPrecipitationWidget::updateDataOnMap()
+void ReosGribPrecipitationWidget::updateRainfall()
 {
-  QString source = ui->mPathLineEdit->text();
   QString variable = ui->mVariablesCombo->currentText();
   ReosGriddedRainfallProvider::ValueType valueType = static_cast<ReosGriddedRainfallProvider::ValueType>( ui->mValueTypeCombo->currentData().toInt() );
 
-  QString candidateUri = ReosGribGriddedRainfallProvider::uri( source, variable, valueType );
+  QString candidateUri = ReosGribGriddedRainfallProvider::uri( mSource, variable, valueType );
 
   if ( mCurrentDataUri == candidateUri )
     return;
 
   mCurrentDataUri = candidateUri;
-  ui->mDataVizMap->removeRenderedObject( mCurrentRainfall.get() );
   mCurrentRainfall.reset();
 
   if ( mCurrentSourceIsValid )
-  {
     mCurrentRainfall.reset( new ReosGriddedRainfall( mCurrentDataUri, mProvider->key() ) );
-    QPair<QDateTime, QDateTime> temporalRange = mCurrentRainfall->timeExtent();
-    ReosDuration timeStep = mCurrentRainfall->minimumTimeStep();
-    ui->mDataVizMap->setTimeExtent( temporalRange.first, temporalRange.second );
-    ui->mDataVizMap->setTimeStep( timeStep );
-    ui->mDataVizMap->addRenderedDataObject( mCurrentRainfall.get() );
-  }
+
+
+  emit dataSelectionChanged( mCurrentSourceIsValid );
 }
 
-QString ReosGribPrecipitationWidget::giveName() const
-{
-  QString name = ui->mNameLineEdit->text();
 
-  if ( name.isEmpty() )
-  {
-    auto baseName = []( const QString & string )->QString
-    {
-      QFileInfo fileInfo( string );
-      return fileInfo.baseName();
-    };
-    const QStringList &files = mDetails.files;
-
-    if ( files.count() == 1 )
-      name = baseName( files.first() );
-    else
-    {
-      QString fileName1 = baseName( files.at( 0 ) );
-      QString commonPart;
-      for ( int i = 0; i < files.count() - 1; ++i )
-      {
-        commonPart.clear();
-        const QString fileName2 = baseName( files.at( i + 1 ) );
-        int cp2 = 0;
-        QChar c2;
-        bool common = false;
-        for ( int cp1 = 0; cp1 < fileName1.count(); cp1++ )
-        {
-          const QChar c1 = fileName1.at( cp1 );
-          c2 = fileName2.at( cp2 );
-
-          if ( common && c1 != c2 )
-            break;
-
-          while ( c1 != c2 && cp2 < fileName2.count() - 1 )
-          {
-            cp2++;
-            c2 = fileName2.at( cp2 );
-          }
-
-          common = c1 == c2;
-          if ( !common )
-          {
-            if ( c2 == fileName2.count() )
-            {
-              if ( c1 == fileName1.count() )
-                break;
-              else
-                cp2 = 0;
-            }
-          }
-          else
-          {
-            commonPart.append( c1 );
-            cp2++;
-          }
-          if ( cp2 == fileName2.count() )
-            break;
-        }
-        if ( !commonPart.isEmpty() )
-          fileName1 = commonPart;
-      }
-
-      if ( fileName1.isEmpty() )
-        name = ui->mPathLineEdit->text();
-      else
-        name = commonPart;
-    }
-  }
-
-  return name;
-}
 
 ReosDataProviderGuiFactory::GuiCapabilities ReosGribGuiFactory::capabilities() const
 {

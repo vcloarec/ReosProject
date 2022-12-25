@@ -33,6 +33,9 @@ class REOSCORE_EXPORT ReosDataProvider : public QObject
     //! Returns a html description of the data
     virtual QString htmlDescription() const {return QString();}
 
+    //! Returns whether the provider can read the \a uri
+    virtual bool canReadUri( const QString &uri ) const {return false;}
+
   signals:
     void dataChanged();
     void dataReset();
@@ -59,8 +62,11 @@ class REOSCORE_EXPORT ReosDataProviderRegistery
     //! Registers a \a factory
     void registerProviderFactory( ReosDataProviderFactory *factory );
 
-    //! Creates and returns a provider corresponding to the \a key
+    //! Creates and returns a provider corresponding to the \a key. Caller takes ownership
     ReosDataProvider *createProvider( const QString &key );
+
+    //! Creates a provider that can read the data pointed by \a uri
+    ReosDataProvider *createCompatibleProvider( const QString &uri, const QString &dataType ) const;
 
     //! Returns a pointer to the static instance of this registery
     static ReosDataProviderRegistery *instance();
@@ -71,6 +77,11 @@ class REOSCORE_EXPORT ReosDataProviderRegistery
 #endif
 
     std::map<QString, std::unique_ptr<ReosDataProviderFactory>> mFactories;
+
+    // List aof providers used to retrieve the compatible providers following an order
+    // For now, providers are ordered following the order of the library files in the folder
+    // TODO: implement an order for providers (1: priority, 2: lower priority,..).
+    QList<ReosDataProviderFactory *> mListedFactories;
     static ReosDataProviderRegistery *sInstance;
     void loadDynamicProvider();
 };

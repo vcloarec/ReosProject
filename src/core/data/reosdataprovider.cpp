@@ -33,6 +33,7 @@ ReosDataProviderRegistery::ReosDataProviderRegistery()
 void ReosDataProviderRegistery::registerProviderFactory( ReosDataProviderFactory *factory )
 {
   mFactories[factory->key()] = std::unique_ptr<ReosDataProviderFactory>( factory );
+  mListedFactories.append( mFactories.at( factory->key() ).get() );
 }
 
 ReosDataProviderRegistery *ReosDataProviderRegistery::instance()
@@ -65,6 +66,20 @@ ReosDataProvider *ReosDataProviderRegistery::createProvider( const QString &key 
     return nullptr;
 }
 
+ReosDataProvider *ReosDataProviderRegistery::createCompatibleProvider( const QString &uri, const QString &dataType ) const
+{
+  for ( ReosDataProviderFactory *fact : mListedFactories )
+  {
+    std::unique_ptr<ReosDataProvider> provider( fact->createProvider( dataType ) );
+    if ( provider && provider->canReadUri( uri ) )
+    {
+      return provider.release();
+    }
+  }
+
+  return nullptr;
+}
+
 void ReosDataProviderRegistery::loadDynamicProvider()
 {
   QString providerPath = QCoreApplication::applicationDirPath();
@@ -74,13 +89,13 @@ void ReosDataProviderRegistery::loadDynamicProvider()
   else
   {
     providerPath = REOS_BUILDING_OUTPUT;
-    providerDir = QDir(providerPath);
+    providerDir = QDir( providerPath );
     if ( providerDir.cd( QStringLiteral( REOS_PROVIDERS ) ) )
-        providerPath = providerDir.absolutePath();
+      providerPath = providerDir.absolutePath();
     else
     {
-        providerPath = REOS_PROVIDERS;
-        providerDir = QDir(providerPath);
+      providerPath = REOS_PROVIDERS;
+      providerDir = QDir( providerPath );
     }
   }
 

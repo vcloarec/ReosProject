@@ -58,6 +58,7 @@ SET(REOS_GUI_SOURCES
     rainfall/reosrainfallintensitydurationwidget.cpp
     rainfall/reosintensitydurationselectedcurvewidget.cpp
     rainfall/reosrainfalldataform.cpp
+    rainfall/reosgriddedrainfallselectorwidget.cpp
 
     chart/reosplotwidget.cpp
     chart/reoseditableprofile.cpp
@@ -155,6 +156,7 @@ SET(REOS_GUI_HEADERS
     rainfall/reosrainfallintensitydurationwidget.h
     rainfall/reosintensitydurationselectedcurvewidget.h
     rainfall/reosrainfalldataform.h
+    rainfall/reosgriddedrainfallselectorwidget.h
 
     chart/reosplotwidget.h
     chart/reoseditableprofile.h
