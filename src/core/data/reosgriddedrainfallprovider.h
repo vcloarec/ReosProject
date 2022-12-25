@@ -39,6 +39,8 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
       QStringList availableVariables;
       ReosMapExtent extent;
       QStringList files;
+      ReosModule::Message status;
+      QString deducedName;
     };
 
     ~ReosGriddedRainfallProvider();
@@ -64,8 +66,6 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
     virtual const QVector<double> data( int index ) const = 0;
 
     virtual ReosRasterExtent extent() const = 0;
-
-    virtual bool canReadUri( const QString & ) const {return false;}
 
     virtual void copyFrom( ReosGriddedRainfallProvider * ) {};
 

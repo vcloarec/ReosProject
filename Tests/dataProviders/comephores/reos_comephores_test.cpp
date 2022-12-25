@@ -17,7 +17,7 @@ email                : vcloarec at gmail dot com
 
 #include "reos_testutils.h"
 #include "reosgriddedrainitem.h"
-#include "reoscomephoresprovider.h"
+#include "reosgriddedrainfallprovider.h"
 
 class ReosComephoresbTest: public QObject
 {
@@ -29,7 +29,15 @@ class ReosComephoresbTest: public QObject
 
 void ReosComephoresbTest::createProvider()
 {
-  std::unique_ptr<ReosGriddedRainfallProvider> provider( new ReosComephoresProvider );
+  std::unique_ptr<ReosDataProvider> compatibleProvider( ReosDataProviderRegistery::instance()->createCompatibleProvider(
+        testFile( QStringLiteral( "comephores/tif.tif" ) ), ReosGriddedRainfall::staticType() ) );
+  QVERIFY( !compatibleProvider );
+
+  compatibleProvider.reset( ReosDataProviderRegistery::instance()->createCompatibleProvider(
+                              testFile( QStringLiteral( "comephores/tif" ) ), ReosGriddedRainfall::staticType() ) );
+  QVERIFY( compatibleProvider );
+
+  ReosGriddedRainfallProvider *provider = qobject_cast<ReosGriddedRainfallProvider *>( compatibleProvider.get() );
 
   QString comephoresPath( testFile( QStringLiteral( "comephores/tif.tif" ) ) );
   provider->setDataSource( comephoresPath );

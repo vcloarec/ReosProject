@@ -19,6 +19,7 @@
 #include "reosdataprovidergui.h"
 #include "reosmapitem.h"
 #include "reosgribprovider.h"
+#include "reosgriddedrainfallselectorwidget.h"
 
 class ReosGriddedRainfall;
 class ReosGribGriddedRainfallProvider;
@@ -28,7 +29,7 @@ namespace Ui
   class ReosGribPrecipitationWidget;
 }
 
-class ReosGribPrecipitationWidget :  public ReosDataProviderSelectorWidget
+class ReosGribPrecipitationWidget :  public ReosGriddedRainDataProviderSelectorWidget
 {
     Q_OBJECT
 
@@ -48,23 +49,23 @@ class ReosGribPrecipitationWidget :  public ReosDataProviderSelectorWidget
     //! Returns a pointer to the current selected object, default implementation return a null pointer.
     virtual ReosDataObject *selectedData() const override;
 
+    ReosGriddedRainfallProvider::Details setSource( const QString &source ) override;
+
   private slots:
     void onPathButtonClicked();
     void onPathChanged();
 
-    void updateDataOnMap();
+    void updateRainfall();
 
   private:
     Ui::ReosGribPrecipitationWidget *ui;
-    std::unique_ptr<ReosMapPolygon> mDataExtent;
+    QString mSource;
     QString mCurrentVariable;
     ReosGriddedRainfallProvider::Details mDetails;
     std::unique_ptr<ReosGriddedRainfall> mCurrentRainfall;
     std::unique_ptr<ReosGribGriddedRainfallProvider> mProvider;
     bool mCurrentSourceIsValid = false;
     QString mCurrentDataUri;
-
-    QString giveName() const;
 };
 
 

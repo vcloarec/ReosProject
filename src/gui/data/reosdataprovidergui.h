@@ -135,7 +135,7 @@ class REOSGUI_EXPORT ReosDataProviderGuiRegistery
     //! Creates and returns a pointer to a new settings widget for the data provider \a dataProvider
     ReosDataProviderSettingsWidget *createProviderSettingsWidget( ReosDataProvider *dataProvider, QWidget *parent = nullptr );
 
-    bool hasCapability( QString providerKey, ReosDataProviderGuiFactory::GuiCapability capability ) const;
+    bool hasCapability( const QString &providerKey, ReosDataProviderGuiFactory::GuiCapability capability ) const;
 
     //! Returns the icon that represens the provider with the \a key
     QIcon providerIcon( const QString &key ) const;

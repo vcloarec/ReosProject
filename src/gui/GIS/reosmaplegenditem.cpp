@@ -60,7 +60,7 @@ void ReosColorRampMapLegendItem::paint( QPainter *painter, const QStyleOptionGra
   int phyDpiX = painter->device()->physicalDpiX();
   int phyDpiY = painter->device()->physicalDpiY();
 
-  if ( !mSettings->isValid() )
+  if ( mSettings .isNull() || !mSettings->isValid() )
     return;
 
   painter->save();

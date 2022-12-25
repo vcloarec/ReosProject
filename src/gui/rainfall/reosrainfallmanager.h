@@ -112,6 +112,7 @@ class REOSGUI_EXPORT ReosRainfallManager : public ReosActionWidget
     QAction *mActionRemoveItem = nullptr;
     QAction *mActionImportFromTextFile = nullptr;
     QAction *mActionSelectStationFromMap = nullptr;
+    QAction *mActionAddGriddedRainfall = nullptr;
 
     ReosMapToolDrawPoint *mMapToolAddStationOnMap = nullptr;
     ReosMapToolSelectMapItem *mMapToolSelectStation = nullptr;

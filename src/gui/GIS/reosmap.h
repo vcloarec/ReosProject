@@ -113,6 +113,7 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
 
     void addExtraRenderedObject( ReosRenderedObject *obj );
     void removeExtraRenderedObject( ReosRenderedObject *obj );
+    void removeAllExtraRendererObjects();
 
     const QObject *temporalController() const;
 
@@ -126,6 +127,8 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     void addSelectToolTarget( const QString &targetDescription );
 
     ReosMapToolSelectMapItem *defaultMapTool() const;
+
+    void deactivateCurrentTool();
 
   signals:
     //! emitted when the mouse cursor moves on the map cavans.
@@ -194,9 +197,11 @@ class REOSGUI_EXPORT ReosDataVizMapWidget : public QWidget
 {
   public:
     ReosDataVizMapWidget( QWidget *parent = nullptr );
+    ~ReosDataVizMapWidget();
 
     void addRenderedDataObject( ReosRenderedObject *object );
     void removeRenderedObject( ReosRenderedObject *object );
+    void removeAllRenderedObjects();
 
     void setTimeExtent( const QDateTime &startTime, const QDateTime &endTime );
     void setTimeStep( const ReosDuration &timeStep );

@@ -32,7 +32,6 @@ class ReosComephoresFilesReader
     virtual QDateTime time( int i ) const = 0;
     virtual QVector<double> data( int index ) const = 0;
     virtual ReosRasterExtent extent() const = 0;
-
 };
 
 class ReosComephoresTiffFilesReader : public ReosComephoresFilesReader
@@ -49,6 +48,9 @@ class ReosComephoresTiffFilesReader : public ReosComephoresFilesReader
     QVector<double> data( int index ) const override;
 
     ReosRasterExtent extent() const override;
+
+    static bool canReadFile( const QString &uri );
+    static ReosGriddedRainfallProvider::Details details( const QString &source, bool *ok );
 
   private:
     ReosComephoresTiffFilesReader() = default;
@@ -72,6 +74,8 @@ class ReosComephoresProvider : public ReosGriddedRainfallProvider
     QDateTime endTime( int index ) const override;
     const QVector<double> data( int index ) const override;
     ReosRasterExtent extent() const override;
+    bool canReadUri( const QString &uri ) const override;
+    Details details( const QString &source, ReosModule::Message &message ) const override;
     ReosEncodedElement encode( const ReosEncodeContext &context ) const;
     void decode( const ReosEncodedElement &element, const ReosEncodeContext &context );
 
@@ -83,6 +87,13 @@ class ReosComephoresProvider : public ReosGriddedRainfallProvider
     std::unique_ptr<ReosComephoresFilesReader> mFileReader;
     ReosRasterExtent mExtent;
     mutable QCache<int, QVector<double>> mCache;
+};
+
+class ReosComephoresProviderFactory: public ReosDataProviderFactory
+{
+  public:
+    ReosGriddedRainfallProvider *createProvider( const QString &dataType ) const override;
+    QString key() const override;
 };
 
 #endif // REOSCOMEPHORESPROVIDER_H

@@ -37,6 +37,7 @@ class ReosGribGriddedRainfallProvider : public ReosGriddedRainfallProvider
     Details details( const QString &, ReosModule::Message & ) const override;
     bool isValid() const override;
     int count() const override;
+    bool canReadUri( const QString &path ) const override;
 
     QDateTime startTime( int index ) const override;
     QDateTime endTime( int index ) const override;
@@ -58,7 +59,7 @@ class ReosGribGriddedRainfallProvider : public ReosGriddedRainfallProvider
     bool sourceIsValid( const QString &source, ReosModule::Message &message ) const;
 
     ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
-    void decode(const ReosEncodedElement &element , const ReosEncodeContext &context) override;
+    void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) override;
 
   private:
     struct GribFrame
@@ -88,6 +89,10 @@ class ReosGribGriddedRainfallProvider : public ReosGriddedRainfallProvider
                     qint64 &refTime,
                     QMap<qint64, GribFrame> &pathes,
                     ReosRasterExtent &extent ) const;
+
+    QStringList getFiles( const QString &path, QDir &dir ) const;
+
+    static void giveName( Details &details );
 };
 
 class ReosGribProviderFactory: public ReosDataProviderFactory

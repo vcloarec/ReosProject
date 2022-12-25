@@ -77,26 +77,12 @@ void ReosGribGriddedRainfallProvider::setDataSource( const QString &dataSource )
 ReosGriddedRainfallProvider::Details ReosGribGriddedRainfallProvider::details( const QString &source, ReosModule::Message &message ) const
 {
   Details ret;
+  QDir dir;
 
   if ( !sourceIsValid( source, message ) )
     return ret;
 
-  QStringList files;
-  QDir dir;
-  QFileInfo fileInfo( source );
-  if ( fileInfo.isDir() )
-  {
-    QStringList filters;
-    dir = QDir( source );
-    filters << QStringLiteral( "*.grib2" );
-    filters << QStringLiteral( "*.grb2" );
-    files = dir.entryList( filters, QDir::Files );
-  }
-  else if ( fileInfo.isFile() )
-  {
-    files << source;
-    dir = fileInfo.dir();
-  }
+  QStringList files = getFiles( source, dir );
 
   if ( files.isEmpty() )
   {
@@ -143,6 +129,7 @@ ReosGriddedRainfallProvider::Details ReosGribGriddedRainfallProvider::details( c
 
   ret.files = files;
 
+  giveName( ret );
   return ret;
 }
 
@@ -154,7 +141,18 @@ bool ReosGribGriddedRainfallProvider::isValid() const
 int ReosGribGriddedRainfallProvider::count() const
 {
   return mFrames.count();
+}
 
+bool ReosGribGriddedRainfallProvider::canReadUri( const QString &path ) const
+{
+  QDir dir;
+  ReosModule::Message message;
+  if ( !sourceIsValid( path, message ) )
+    return false;
+
+  QStringList files = getFiles( path, dir );
+
+  return !files.empty() && dir.exists();
 }
 
 QDateTime ReosGribGriddedRainfallProvider::startTime( int index ) const
@@ -435,6 +433,96 @@ void ReosGribGriddedRainfallProvider::parseFile(
       pathes.insert( path.validTime, path );
     }
   }
+}
+
+QStringList ReosGribGriddedRainfallProvider::getFiles( const QString &path, QDir &dir ) const
+{
+  QStringList files;
+  QFileInfo fileInfo( path );
+  if ( fileInfo.isDir() )
+  {
+    QStringList filters;
+    dir = QDir( path );
+    filters << QStringLiteral( "*.grib2" );
+    filters << QStringLiteral( "*.grb2" );
+    files = dir.entryList( filters, QDir::Files );
+  }
+  else if ( fileInfo.isFile() &&
+            ( fileInfo.suffix() == QStringLiteral( "grib2" ) ||
+              fileInfo.suffix() == QStringLiteral( "grb2" ) ) )
+  {
+    files << path;
+    dir = fileInfo.dir();
+  }
+
+  return files;
+}
+
+void ReosGribGriddedRainfallProvider::giveName( Details &details )
+{
+  QString name;
+  auto baseName = []( const QString & string )->QString
+  {
+    QFileInfo fileInfo( string );
+    return fileInfo.baseName();
+  };
+  const QStringList &files = details.files;
+
+  if ( files.count() == 1 )
+    name = baseName( files.first() );
+  else
+  {
+    QString fileName1 = baseName( files.at( 0 ) );
+    QString commonPart;
+    for ( int i = 0; i < files.count() - 1; ++i )
+    {
+      commonPart.clear();
+      const QString fileName2 = baseName( files.at( i + 1 ) );
+      int cp2 = 0;
+      QChar c2;
+      bool common = false;
+      for ( int cp1 = 0; cp1 < fileName1.count(); cp1++ )
+      {
+        const QChar c1 = fileName1.at( cp1 );
+        c2 = fileName2.at( cp2 );
+
+        if ( common && c1 != c2 )
+          break;
+
+        while ( c1 != c2 && cp2 < fileName2.count() - 1 )
+        {
+          cp2++;
+          c2 = fileName2.at( cp2 );
+        }
+
+        common = c1 == c2;
+        if ( !common )
+        {
+          if ( c2 == fileName2.count() )
+          {
+            if ( c1 == fileName1.count() )
+              break;
+            else
+              cp2 = 0;
+          }
+        }
+        else
+        {
+          commonPart.append( c1 );
+          cp2++;
+        }
+        if ( cp2 == fileName2.count() )
+          break;
+      }
+      if ( !commonPart.isEmpty() )
+        fileName1 = commonPart;
+    }
+
+    if ( ! fileName1.isEmpty() )
+      name = commonPart;
+  }
+
+  details.deducedName = name;
 }
 
 ReosGriddedRainfallProvider *ReosGribProviderFactory::createProvider( const QString & ) const

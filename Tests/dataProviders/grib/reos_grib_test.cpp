@@ -33,10 +33,12 @@ class ReosGribTest: public QObject
 void ReosGribTest::createProvider()
 {
   QString gribFile( testFile( QStringLiteral( "grib/arome-antilles" ) ) );
-  std::unique_ptr<ReosGriddedRainfallProvider> provider( new ReosGribGriddedRainfallProvider );
+  std::unique_ptr<ReosGriddedRainfallProvider> provider(
+    qobject_cast<ReosGriddedRainfallProvider *>( ReosDataProviderRegistery::instance()->createCompatibleProvider( gribFile, ReosGriddedRainfall::staticType() ) ) );
 
   ReosModule::Message message;
   ReosGriddedRainfallProvider::Details details = provider->details( "lkhkjh", message );
+  QVERIFY( details.availableVariables.isEmpty() );
   QVERIFY( message.type == ReosModule::Error );
 
   message = ReosModule::Message();

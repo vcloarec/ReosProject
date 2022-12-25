@@ -83,7 +83,7 @@ ReosDataProviderSettingsWidget *ReosDataProviderGuiRegistery::createProviderSett
   return nullptr;
 }
 
-bool ReosDataProviderGuiRegistery::hasCapability( QString providerKey, ReosDataProviderGuiFactory::GuiCapability capability ) const
+bool ReosDataProviderGuiRegistery::hasCapability( const  QString &providerKey, ReosDataProviderGuiFactory::GuiCapability capability ) const
 {
   ReosDataProviderGuiFactory *fact = guiFactory( providerKey );
   if ( !fact )
@@ -94,7 +94,15 @@ bool ReosDataProviderGuiRegistery::hasCapability( QString providerKey, ReosDataP
 
 ReosDataProviderGuiFactory *ReosDataProviderGuiRegistery::guiFactory( const QString &key ) const
 {
-  auto itFact = mFactories.find( key );
+  QString providerKey;
+  if ( key.contains( QStringLiteral( "::" ) ) )
+  {
+    providerKey = key.split( QStringLiteral( "::" ) ).at( 0 );
+  }
+  else
+    providerKey = key;
+
+  auto itFact = mFactories.find( providerKey );
   if ( itFact != mFactories.end() )
     return itFact->second.get();
 
