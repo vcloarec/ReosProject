@@ -60,7 +60,6 @@ class ReosHecrasTesting : public QObject
 
 //#ifdef _MSC_VER
     void availableVersion();
-#if 0
     void createControllerInstance();
     void getControllerPlans();
 //#endif
@@ -75,7 +74,6 @@ class ReosHecrasTesting : public QObject
     void changeBoundaryCondition();
     void importAndLaunchStructure();
     void simulationResults();
-#endif
 
   private:
     QString mPathToSimpleToRun;
@@ -118,7 +116,7 @@ void ReosHecrasTesting::availableVersion()
   QStringList versions = ReosHecRasController::availableVersion();
   QVERIFY( !versions.isEmpty() );
 }
-#if 0
+
 void ReosHecrasTesting::createControllerInstance()
 {
   qDebug() << "!!!!!!!!!!!!!!  Test: createControllerInstance";
@@ -127,6 +125,7 @@ void ReosHecrasTesting::createControllerInstance()
 
   QVERIFY( controller.isValid() );
 }
+
 void ReosHecrasTesting::getControllerPlans()
 {
   qDebug() << "!!!!!!!!!!!!!!  Test: createControllerInstance";
@@ -598,7 +597,6 @@ void ReosHecrasTesting::simulationResults()
   QCOMPARE( simResult->datasetValuesCount( 0, 0 ), 1746 ) ;
   QCOMPARE( simResult->datasetValues( 0, 0 ).at( 1258 ), 2.000097513198853 ) ;
 }
-#endif
 
 QTEST_MAIN( ReosHecrasTesting )
 #include "test_hecras.moc"
