@@ -124,6 +124,12 @@ jobs:
     - name: config FORTRAN path
       run: echo "FORTRAN_COMPILER_PATH=${{env.INTEL_HPCKIT_INSTALL_PATH}}\compiler\${{env.INTEL_COMPILER_VERSION}}" >> $env:GITHUB_ENV
 
+    - name: install hecras
+      run:  |
+          Invoke-WebRequest -Uri "https://github.com/HydrologicEngineeringCenter/hec-downloads/releases/download/1.0.26/HEC-RAS_631_Setup.exe" -OutFile "hec_inst.exe"
+          ./hec_inst.exe /S /v/qn
+          ls "C:/Program Files (x86)/"
+    
     - name: build and test REOS
       run:  ./windows/build_tests_REOS.bat
           
