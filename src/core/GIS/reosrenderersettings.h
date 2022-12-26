@@ -61,6 +61,7 @@ class REOSCORE_EXPORT ReosColorShaderSettings : public QObject
 
   signals:
     void settingsChangedFromObject();
+    void changed();
 };
 
 #endif // REOSRENDERERSETTINGS_H

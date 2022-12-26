@@ -233,11 +233,6 @@ void ReosColorShaderSettings_p::setShader( void *shader )
   mColorShader = *static_cast<QgsColorRampShader *>( shader );
 }
 
-void ReosColorShaderSettings_p::setColorRampShader( const QgsColorRampShader &colorRampShader )
-{
-  mColorShader = colorRampShader;
-}
-
 ReosEncodedElement ReosColorShaderSettings_p::encode() const
 {
   ReosEncodedElement encodedElem( QStringLiteral( "color-shader-settings" ) );

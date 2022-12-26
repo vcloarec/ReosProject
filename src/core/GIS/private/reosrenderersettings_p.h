@@ -72,8 +72,6 @@ class ReosColorShaderSettings_p : public ReosColorShaderSettings
     void getShader( void *shader ) const override;
     void setShader( void *shader ) override;
 
-    void setColorRampShader( const QgsColorRampShader &colorRampShader );
-
     virtual ReosEncodedElement encode() const;
 
     virtual void decode( ReosEncodedElement element );
