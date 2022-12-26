@@ -19,7 +19,7 @@ email                : vcloarec at gmail dot com
 #include "reosgriddedrainitem.h"
 #include "reosgriddedrainfallprovider.h"
 
-class ReosComephoresbTest: public QObject
+class ReosComephoreTest: public QObject
 {
     Q_OBJECT
 
@@ -28,23 +28,23 @@ class ReosComephoresbTest: public QObject
     void createRainfall();
 };
 
-void ReosComephoresbTest::createProvider()
+void ReosComephoreTest::createProvider()
 {
   std::unique_ptr<ReosDataProvider> compatibleProvider( ReosDataProviderRegistery::instance()->createCompatibleProvider(
-        testFile( QStringLiteral( "comephores/tif.tif" ) ), ReosGriddedRainfall::staticType() ) );
+        COMEPHORE_FILES_PATH + QStringLiteral( "/tif.tif" ), ReosGriddedRainfall::staticType() ) );
   QVERIFY( !compatibleProvider );
 
   compatibleProvider.reset( ReosDataProviderRegistery::instance()->createCompatibleProvider(
-                              testFile( QStringLiteral( "comephores/tif" ) ), ReosGriddedRainfall::staticType() ) );
+                              COMEPHORE_FILES_PATH + QStringLiteral( "/tif" ), ReosGriddedRainfall::staticType() ) );
   QVERIFY( compatibleProvider );
 
   ReosGriddedRainfallProvider *provider = qobject_cast<ReosGriddedRainfallProvider *>( compatibleProvider.get() );
 
-  QString comephoresPath( testFile( QStringLiteral( "comephores/tif.tif" ) ) );
+  QString comephoresPath( COMEPHORE_FILES_PATH + QStringLiteral( "/tif.tif" ) );
   provider->setDataSource( comephoresPath );
   QVERIFY( !provider->isValid() );
 
-  comephoresPath = QString( testFile( QStringLiteral( "comephores/tif" ) ) );
+  comephoresPath = QString( COMEPHORE_FILES_PATH + QStringLiteral( "/tif" ) );
   provider->setDataSource( comephoresPath );
   QVERIFY( provider->isValid() );
 
@@ -67,12 +67,18 @@ void ReosComephoresbTest::createProvider()
   QCOMPARE( values.at( 8581 ), 2.2 );
   QCOMPARE( values.at( 8584 ), 3.0 );
   QVERIFY( std::isnan( values.last() ) );
+
+  double min = 0, max = 0;
+  QVERIFY( !provider->getDirectMinMax( min, max ) );
+  provider->calculateMinMax( min, max );
+  QCOMPARE( min, 0.1 );
+  QCOMPARE( max, 12.4 );
 }
 
-void ReosComephoresbTest::createRainfall()
+void ReosComephoreTest::createRainfall()
 {
   std::unique_ptr<ReosGriddedRainfall> rainfall =
-    std::make_unique<ReosGriddedRainfall>( testFile( QStringLiteral( "comephores/tif" ) ), QStringLiteral( "comephores" ) );
+    std::make_unique<ReosGriddedRainfall>( COMEPHORE_FILES_PATH + QStringLiteral( "/tif" ), QStringLiteral( "comephore" ) );
 
   QCOMPARE( rainfall->gridCount(), 73 );
   QCOMPARE( rainfall->startTime( 0 ), QDateTime( QDate( 2018, 02, 18 ), QTime( 0, 0, 0 ), Qt::UTC ) );
@@ -93,8 +99,14 @@ void ReosComephoresbTest::createRainfall()
   QCOMPARE( values.at( 8581 ), 2.2 );
   QCOMPARE( values.at( 8584 ), 3.0 );
   QVERIFY( std::isnan( values.last() ) );
+
+  double min, max;
+  QVERIFY( !rainfall->getDirectMinMaxValue( min, max ) );
+  rainfall->calculateMinMaxValue( min, max );
+  QCOMPARE( min, 0.1 );
+  QCOMPARE( max, 12.4 );
 }
 
 
-QTEST_MAIN( ReosComephoresbTest )
+QTEST_MAIN( ReosComephoreTest )
 #include "reos_comephores_test.moc"

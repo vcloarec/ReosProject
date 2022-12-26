@@ -38,13 +38,12 @@ class ReosGribGriddedRainfallProvider : public ReosGriddedRainfallProvider
     bool isValid() const override;
     int count() const override;
     bool canReadUri( const QString &path ) const override;
-
     QDateTime startTime( int index ) const override;
     QDateTime endTime( int index ) const override;
-
     ReosRasterExtent extent() const override;
-
     const QVector<double> data( int index ) const override;
+    bool getDirectMinMax( double &min, double &max ) const override;
+    void calculateMinMax( double &min, double &max ) const override;
 
     static QString dataType();
 

@@ -235,7 +235,9 @@ const QVector<double> ReosGribGriddedRainfallProvider::data( int index ) const
 
       for ( int i = 0; i < ret.count(); ++i )
       {
-        ret[i] = ( currentIndex.at( i ) - prevIndex.at( i ) ) / duration.valueHour();
+        double val =  std::max( ( currentIndex.at( i ) - prevIndex.at( i ) ) / duration.valueHour(), 0.0 );
+        if ( val != 0.0 )
+          ret[i] = val;
       }
 
       return ret;
@@ -256,6 +258,31 @@ const QVector<double> ReosGribGriddedRainfallProvider::data( int index ) const
   }
 
   return QVector<double>();
+}
+
+bool ReosGribGriddedRainfallProvider::getDirectMinMax( double &, double & ) const
+{
+  return false;
+}
+
+void ReosGribGriddedRainfallProvider::calculateMinMax( double &min, double &max ) const
+{
+  min = std::numeric_limits<double>::max();
+  max = -std::numeric_limits<double>::max();
+
+  int gridCount = count();
+
+  for ( int i = 0; i < gridCount; ++i )
+  {
+    const QVector<double> vals = data( i );
+    for ( const double &v : vals )
+    {
+      if ( v < min )
+        min = v;
+      if ( v > max )
+        max = v;
+    }
+  }
 }
 
 ReosRasterExtent ReosGribGriddedRainfallProvider::extent() const

@@ -34,11 +34,6 @@ ReosDuration ReosGriddedRainfallProvider::intervalDuration( int index ) const
   return ReosDuration( startTime( index ), endTime( index ) );
 }
 
-void ReosGriddedRainfallProvider::setSourceValueType( ValueType valueType )
-{
-  mSourceValueType = valueType;
-}
-
 int ReosGriddedRainfallProvider::dataIndex( const QDateTime &time ) const
 {
   int frameCount = count();

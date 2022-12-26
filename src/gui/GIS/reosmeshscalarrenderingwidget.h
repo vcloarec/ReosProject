@@ -51,7 +51,7 @@ class ReosMeshScalarRenderingWidget: public ReosStackedPageWidget
     QPointer<ReosColorShaderSettings> mSettings;
     ReosMesh *mMesh = nullptr;
     QString mDatasetId;
-    bool mIsScalar;
+    bool mIsScalar = true;
     ReosParameterDouble *mMinimumParam = nullptr;
     ReosParameterDouble *mMaximumParam = nullptr;
 

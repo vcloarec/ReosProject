@@ -61,8 +61,6 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
     virtual QDateTime endTime( int index ) const = 0;
     ReosDuration intervalDuration( int index ) const;
 
-    void setSourceValueType( ValueType valueType );
-
     virtual const QVector<double> data( int index ) const = 0;
 
     virtual ReosRasterExtent extent() const = 0;
@@ -73,6 +71,10 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
     virtual void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) = 0;
 
     virtual int dataIndex( const QDateTime &time ) const;
+
+    virtual bool getDirectMinMax( double &min, double &max ) const {return false;}
+
+    virtual void calculateMinMax( double &min, double &max ) const {};
 
   protected:
     ValueType mSourceValueType = ValueType::Height;

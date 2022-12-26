@@ -63,6 +63,12 @@ void ReosGribTest::createProvider()
 
   ReosRasterExtent extent = provider->extent();
   QVERIFY( extent.isValid() );
+
+  double min = 0, max = 0;
+  QVERIFY( !provider->getDirectMinMax( min, max ) );
+  provider->calculateMinMax( min, max );
+  QCOMPARE( min, 0.0009765625 );
+  QCOMPARE( max, 63.595703125 );
 }
 
 void ReosGribTest::griddedRainInFolder()
@@ -87,6 +93,12 @@ void ReosGribTest::griddedRainInFolder()
   rainfall->intensityValues( 0 );
   rainfall->intensityValues( 1 );
   rainfall->intensityValues( 2 );
+
+  double min = 0, max = 0;
+  QVERIFY( !rainfall->getDirectMinMaxValue( min, max ) );
+  rainfall->calculateMinMaxValue( min, max );
+  QCOMPARE( min, 0.0009765625 );
+  QCOMPARE( max, 63.595703125 );
 }
 
 void ReosGribTest::griddedRainInFile()
