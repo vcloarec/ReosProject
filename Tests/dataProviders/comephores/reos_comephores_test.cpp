@@ -25,6 +25,7 @@ class ReosComephoresbTest: public QObject
 
   private slots:
     void createProvider();
+    void createRainfall();
 };
 
 void ReosComephoresbTest::createProvider()
@@ -63,6 +64,32 @@ void ReosComephoresbTest::createProvider()
   QCOMPARE( extent.yCellCount(), 170 );
 
   QVector<double> values = provider->data( 70 );
+  QCOMPARE( values.at( 8581 ), 2.2 );
+  QCOMPARE( values.at( 8584 ), 3.0 );
+  QVERIFY( std::isnan( values.last() ) );
+}
+
+void ReosComephoresbTest::createRainfall()
+{
+  std::unique_ptr<ReosGriddedRainfall> rainfall =
+    std::make_unique<ReosGriddedRainfall>( testFile( QStringLiteral( "comephores/tif" ) ), QStringLiteral( "comephores" ) );
+
+  QCOMPARE( rainfall->gridCount(), 73 );
+  QCOMPARE( rainfall->startTime( 0 ), QDateTime( QDate( 2018, 02, 18 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 0 ), QDateTime( QDate( 2018, 02, 18 ), QTime( 1, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->startTime( 1 ), QDateTime( QDate( 2018, 02, 18 ), QTime( 1, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 1 ), QDateTime( QDate( 2018, 02, 18 ), QTime( 2, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->startTime( 50 ), QDateTime( QDate( 2018, 02, 20 ), QTime( 2, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 50 ), QDateTime( QDate( 2018, 02, 20 ), QTime( 3, 0, 0 ), Qt::UTC ) );
+
+  ReosRasterExtent extent = rainfall->extent();
+
+  QCOMPARE( extent.xCellSize(), 1000.0 );
+  QCOMPARE( extent.yCellSize(), -1000.0 );
+  QCOMPARE( extent.xCellCount(), 101 );
+  QCOMPARE( extent.yCellCount(), 170 );
+
+  QVector<double> values = rainfall->intensityValues( 70 );
   QCOMPARE( values.at( 8581 ), 2.2 );
   QCOMPARE( values.at( 8584 ), 3.0 );
   QVERIFY( std::isnan( values.last() ) );
