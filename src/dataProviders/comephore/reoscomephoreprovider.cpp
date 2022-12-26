@@ -51,6 +51,10 @@ void ReosComephoreProvider::setDataSource( const QString &dataSource )
   {
     mFileReader.reset( new ReosComephoreTiffFilesReader( dataSource ) );
   }
+  else if ( sourceInfo.isFile() && sourceInfo.suffix() == QStringLiteral( "nc" ) )
+  {
+    mFileReader.reset( new ReosComephoreNetCdfFilesReader( dataSource ) );
+  }
 
   if ( mFileReader )
   {
@@ -135,6 +139,9 @@ ReosRasterExtent ReosComephoreProvider::extent() const
 bool ReosComephoreProvider::canReadUri( const QString &uri ) const
 {
   if ( ReosComephoreTiffFilesReader::canReadFile( uri ) )
+    return true;
+
+  if ( ReosComephoreNetCdfFilesReader::canReadFile( uri ) )
     return true;
 
   return false;
@@ -328,4 +335,52 @@ ReosGriddedRainfallProvider *ReosComephoresProviderFactory::createProvider( cons
 QString ReosComephoresProviderFactory::key() const
 {
   return COMEPHORES_KEY;
+}
+
+ReosComephoreNetCdfFilesReader::ReosComephoreNetCdfFilesReader( const QString &filePath )
+  : mFile( filePath, false )
+  , mFileName( filePath )
+{
+
+}
+
+ReosComephoreFilesReader *ReosComephoreNetCdfFilesReader::clone() const
+{
+  return new ReosComephoreNetCdfFilesReader( mFileName );
+}
+
+int ReosComephoreNetCdfFilesReader::frameCount() const
+{
+  return 0;
+}
+
+QDateTime ReosComephoreNetCdfFilesReader::time( int i ) const
+{
+  return QDateTime();
+}
+
+QVector<double> ReosComephoreNetCdfFilesReader::data( int index ) const
+{
+  return QVector<double>();
+}
+
+ReosRasterExtent ReosComephoreNetCdfFilesReader::extent() const
+{
+  return ReosRasterExtent();
+}
+
+bool ReosComephoreNetCdfFilesReader::getDirectMinMax( double &min, double &max ) const
+{
+  return false;
+}
+
+bool ReosComephoreNetCdfFilesReader::canReadFile( const QString &uri )
+{
+  ReosNetCdfFile file( uri );
+  if ( !file.isValid() )
+    return false;
+
+  return file.hasVariable( QStringLiteral( "RR" ) ) &&
+         file.hasVariable( QStringLiteral( "QUALIF" ) ) &&
+         file.hasVariable( QStringLiteral( "ERR" ) );
 }

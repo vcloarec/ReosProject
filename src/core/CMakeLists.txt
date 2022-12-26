@@ -25,6 +25,7 @@ SET(REOS_CORE_SOURCES
   GIS/reospolygonstructure.cpp
   GIS/reospolylinesstructure.cpp
   GIS/reosmesh.cpp
+  GIS/reosnetcdfutils.cpp
   GIS/reostopographycollection.cpp
   GIS/reosrenderedobject.cpp
   GIS/reos3dmapsettings.cpp
@@ -124,6 +125,7 @@ SET(REOS_CORE_HEADERS
     GIS/reospolygonstructure.h
     GIS/reospolylinesstructure.h
     GIS/reosmesh.h
+    GIS/reosnetcdfutils.h
     GIS/reostopographycollection.h
     GIS/reosrenderedobject.h
     GIS/reos3dmapsettings.h
@@ -268,6 +270,7 @@ TARGET_LINK_LIBRARIES(reosCore PUBLIC
         ${QGIS_3D_LIB}
         ${QGIS_GUI_LIB}
         ${GMSH_LIB}
+        ${${NETCDF_LIBRARY}}
 )
 
 
@@ -291,6 +294,8 @@ IF(HDF5_FOUND)
   TARGET_LINK_LIBRARIES(reosCore PUBLIC ${HDF5_C_LIBRARIES} )
   ADD_DEFINITIONS(${HDF5_DEFINITIONS})
 ENDIF(HDF5_FOUND)
+
+TARGET_INCLUDE_DIRECTORIES(reosCore PRIVATE ${NETCDF_INCLUDE_DIR})
 
 INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core

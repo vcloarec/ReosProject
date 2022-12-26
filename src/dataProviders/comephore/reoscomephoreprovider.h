@@ -19,6 +19,7 @@
 #include <QCache>
 
 #include "reosgriddedrainfallprovider.h"
+#include "reosnetcdfutils.h"
 
 #define COMEPHORES_KEY QStringLiteral("comephore")
 
@@ -57,6 +58,25 @@ class ReosComephoreTiffFilesReader : public ReosComephoreFilesReader
     ReosComephoreTiffFilesReader() = default;
     QMap<QDateTime, QString> mFilesNames;
     QList<QDateTime> mTimes;
+};
+
+class ReosComephoreNetCdfFilesReader : public ReosComephoreFilesReader
+{
+  public:
+    explicit ReosComephoreNetCdfFilesReader( const QString &filePath );
+
+    ReosComephoreFilesReader *clone() const override;
+    int frameCount() const override;
+    QDateTime time( int i ) const override;
+    QVector<double> data( int index ) const override;
+    ReosRasterExtent extent() const override;
+    bool getDirectMinMax( double &min, double &max ) const override;
+
+    static bool canReadFile( const QString &uri );
+
+  private:
+    ReosNetCdfFile mFile;
+    QString mFileName;
 };
 
 class ReosComephoreProvider : public ReosGriddedRainfallProvider
