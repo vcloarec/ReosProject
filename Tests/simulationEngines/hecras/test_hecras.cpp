@@ -58,11 +58,12 @@ class ReosHecrasTesting : public QObject
     void initTestCase();
     void cleanupTestCase();
 
-#ifdef _MSC_VER
+//#ifdef _MSC_VER
     void availableVersion();
+#if 0
     void createControllerInstance();
     void getControllerPlans();
-#endif
+//#endif
 
     void createDssFile();
     void createTimeSerie();
@@ -74,7 +75,7 @@ class ReosHecrasTesting : public QObject
     void changeBoundaryCondition();
     void importAndLaunchStructure();
     void simulationResults();
-
+#endif
 
   private:
     QString mPathToSimpleToRun;
@@ -109,15 +110,18 @@ void ReosHecrasTesting::cleanupTestCase()
   dir.removeRecursively();
 }
 
-#ifdef _MSC_VER
 
+//#ifdef _MSC_VER
 void ReosHecrasTesting::availableVersion()
 {
+  std::cout << "!!!!!!!!!!!!!  Test: availableVersion" << std::endl;
   QStringList versions = ReosHecRasController::availableVersion();
   QVERIFY( !versions.isEmpty() );
 }
+#if 0
 void ReosHecrasTesting::createControllerInstance()
 {
+  qDebug() << "!!!!!!!!!!!!!!  Test: createControllerInstance";
   QStringList versions = ReosHecRasController::availableVersion();
   ReosHecRasController controller( versions.last() );
 
@@ -125,6 +129,7 @@ void ReosHecrasTesting::createControllerInstance()
 }
 void ReosHecrasTesting::getControllerPlans()
 {
+  qDebug() << "!!!!!!!!!!!!!!  Test: createControllerInstance";
   QStringList versions = ReosHecRasController::availableVersion();
   ReosHecRasController controller( versions.last() );
 
@@ -144,10 +149,11 @@ void ReosHecrasTesting::getControllerPlans()
 
   QVERIFY( !controller.computeCurrentPlan().isEmpty() );
 }
-#endif
+//#endif
 
 void ReosHecrasTesting::hecRasDate()
 {
+  qDebug() << "!!!!!!!!!!!!!!  Test: createControllerInstance";
   QCOMPARE( ReosHecRasProject::hecRasDateToDate( "02JAN2001" ), QDate( 2001, 1, 2 ) );
   QCOMPARE( ReosHecRasProject::hecRasDateToDate( "03Feb2009" ), QDate( 2009, 2, 3 ) );
   QCOMPARE( ReosHecRasProject::hecRasDateToDate( "04MAR2008" ), QDate( 2008, 3, 4 ) );
@@ -164,6 +170,7 @@ void ReosHecrasTesting::hecRasDate()
 
 void ReosHecrasTesting::dssInterval()
 {
+  qDebug() << "!!!!!!!!!!!!!!  Test: createControllerInstance";
   QVERIFY( ReosDuration( 1, ReosDuration::hour ) == ReosDssUtils::dssIntervalToDuration( QStringLiteral( "1HOUR" ) ) );
   QVERIFY( ReosDuration( 1, ReosDuration::minute ) == ReosDssUtils::dssIntervalToDuration( QStringLiteral( "1MINUTE" ) ) );
   QVERIFY( ReosDuration( 6, ReosDuration::minute ) == ReosDssUtils::dssIntervalToDuration( QStringLiteral( "6MINUTES" ) ) );
@@ -195,6 +202,7 @@ void ReosHecrasTesting::dssInterval()
 
 void ReosHecrasTesting::exploreProject()
 {
+  qDebug() << "!!!!!!!!!!!!!!  Test: createControllerInstance";
   QString path( mPathToSimpleToRun + QStringLiteral( "/simple.prj" ) );
   ReosHecRasProject project( path );
 
@@ -255,6 +263,7 @@ void ReosHecrasTesting::exploreProject()
 
 void ReosHecrasTesting::importAndLaunchStructure()
 {
+  qDebug() << "!!!!!!!!!!!!!!  Test: createControllerInstance";
   QString path( mPathToSimpleToRun + QStringLiteral( "/simple.prj" ) );
 
   ReosHydraulicNetwork *network = new ReosHydraulicNetwork( &mRootModule, mGisEngine, mWatershedModule );
@@ -347,6 +356,7 @@ void ReosHecrasTesting::importAndLaunchStructure()
   QStringList versions = ReosHecRasController::availableVersion();
   if ( !versions.isEmpty() )
   {
+    qDebug() << "!!!!!!!!!!!!!!  Test: createControllerInstance";
     ReosHecRasController controller( versions.last() );
 
     QVERIFY( controller.isValid() );
@@ -389,6 +399,7 @@ void ReosHecrasTesting::importAndLaunchStructure()
 
 void ReosHecrasTesting::changeBoundaryCondition()
 {
+  qDebug() << "!!!!!!!!!!!!!!  Test: createControllerInstance";
   QString path( mPathToSimpleToRun + QStringLiteral( "/simple.prj" ) );
   ReosHecRasProject project( path );
 
@@ -433,6 +444,7 @@ void ReosHecrasTesting::changeBoundaryCondition()
 
 void ReosHecrasTesting::createDssFile()
 {
+  qDebug() << "!!!!!!!!!!!!!!  Test: createControllerInstance";
   const QString newDssFile = tempFile( "/dss_file_0" );
   std::unique_ptr<ReosDssFile> dssFile( new ReosDssFile( newDssFile ) );
   QVERIFY( !dssFile->isValid() );
@@ -449,6 +461,7 @@ void ReosHecrasTesting::createDssFile()
 
 void ReosHecrasTesting::createTimeSerie()
 {
+  qDebug() << "!!!!!!!!!!!!!!  Test: createControllerInstance";
   QString stringPath( QStringLiteral( "/GrouP/LoCation/FLOW///ThisVersion/" ) );
   ReosDssPath path( stringPath );
   QVERIFY( path.isValid() );
@@ -521,6 +534,7 @@ void ReosHecrasTesting::createTimeSerie()
 
 void ReosHecrasTesting::writeGridInDss()
 {
+  qDebug() << "!!!!!!!!!!!!!!  Test: createControllerInstance";
   QString gribFile( testFile( QStringLiteral( "grib/arome-antilles" ) ) );
   QString variable( QStringLiteral( "Total precipitation rate [kg/(m^2*s)]" ) );
   std::unique_ptr<ReosGriddedRainfall> rainfall(
@@ -545,6 +559,7 @@ void ReosHecrasTesting::writeGridInDss()
 
 void ReosHecrasTesting::simulationResults()
 {
+  qDebug() << "!!!!!!!!!!!!!!  Test: createControllerInstance";
   QString projectPath = data_path() + QStringLiteral( "/hecras/simple/calculated/simple.prj" );
 
   ReosHydraulicNetwork *network = new ReosHydraulicNetwork( &mRootModule, mGisEngine, mWatershedModule );
@@ -583,8 +598,7 @@ void ReosHecrasTesting::simulationResults()
   QCOMPARE( simResult->datasetValuesCount( 0, 0 ), 1746 ) ;
   QCOMPARE( simResult->datasetValues( 0, 0 ).at( 1258 ), 2.000097513198853 ) ;
 }
-
-
+#endif
 
 QTEST_MAIN( ReosHecrasTesting )
 #include "test_hecras.moc"
