@@ -214,13 +214,14 @@ const QVector<double> ReosGribGriddedRainfallProvider::data( int index ) const
   {
     case ValueType::CumulativeHeight:
     {
-      QVector<double> ret( raster.values().count() );
+      QVector<double> ret( raster.values().count(),  std::numeric_limits<double>::quiet_NaN() ) ;
 
       if ( index == 0 )
       {
         for ( int i = 0; i < ret.count(); ++i )
         {
-          ret[i] = raster.values().at( i ) / duration.valueHour();
+          if ( raster.values().at( i ) != 0.0 )
+            ret[i] = raster.values().at( i ) / duration.valueHour();
         }
         return ret;;
       }
@@ -242,8 +243,16 @@ const QVector<double> ReosGribGriddedRainfallProvider::data( int index ) const
     break;
     case ValueType::Height:
     case ValueType::Intensity:
-      return raster.values();
-      break;
+    {
+      QVector<double> ret( raster.values().count(),  std::numeric_limits<double>::quiet_NaN() ) ;
+      for ( int i = 0; i < ret.count(); ++i )
+      {
+        if ( raster.values().at( i ) != 0.0 )
+          ret[i] = raster.values().at( i ) ;
+      }
+      return ret;
+    }
+    break;
   }
 
   return QVector<double>();

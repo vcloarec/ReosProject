@@ -100,7 +100,7 @@ const QVector<double> ReosComephoresProvider::data( int index ) const
 
     for ( int i = 0; i < rawValues.count(); ++i )
     {
-      if ( rawValues.at( i ) == 65535 )
+      if ( rawValues.at( i ) == 65535 || rawValues.at( i ) == 0 )
         ( *values )[i] = std::numeric_limits<double>::quiet_NaN();
       else
         ( *values )[i] = rawValues.at( i ) / 10.0;

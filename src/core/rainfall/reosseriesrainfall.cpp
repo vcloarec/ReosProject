@@ -171,6 +171,9 @@ void ReosSeriesRainfallFromGriddedOnWatershed::AverageCalculation::start()
 
   while ( currentTime < endTime && currentGriddedIndex < gridCount )
   {
+    if ( isStop() )
+      return;
+
     if ( prevGriddedIndex != currentGriddedIndex )
     {
       ReosRasterMemory<double> rainValues( rainExtent.yCellCount(), rainExtent.xCellCount() );
@@ -182,13 +185,12 @@ void ReosSeriesRainfallFromGriddedOnWatershed::AverageCalculation::start()
         for ( int yi = 0; yi < rasterizedYCount; ++yi )
         {
           if ( isStop() )
-          {
-            qDebug() << "Average gridded rainfall on watershed stop after: " << timer.elapsed();
             return;
-          }
 
           double surf = rasterizedWatershed.value( yi, xi );
-          averageIntensity += surf * rainValues.value( yi + yOri, xi + xOri );
+          double rv = rainValues.value( yi + yOri, xi + xOri );
+          if ( !std::isnan( rv ) )
+            averageIntensity += surf * rv;
           totalSurf += rasterizedWatershed.value( yi, xi );
         }
       }

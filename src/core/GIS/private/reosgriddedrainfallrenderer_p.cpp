@@ -57,6 +57,8 @@ void ReosGriddedRainfallRendererFactory_p::init()
 
   mRasterLayer.reset( new QgsRasterLayer( uri, QString(), QStringLiteral( "gridded-precipitation" ) ) );
   mDataProvider = qobject_cast<ReosGriddedRainfallRasterProvider_p *>( mRasterLayer->dataProvider() );
+
+  QObject::connect( mColorRampSettings.get(), &ReosColorShaderSettings::changed, mRainfall, &ReosRenderedObject::repaintRequested );
 }
 
 
@@ -249,7 +251,9 @@ bool ReosRendererGriddedRainfallMapTimeStamp_p::equal( ReosRendererObjectMapTime
 
 ReosGriddedRainfallColorShaderSettings_p::ReosGriddedRainfallColorShaderSettings_p( ReosGriddedRainfallRendererFactory_p *rendererFactory ):
   mRendererfactory( rendererFactory )
-{}
+{
+
+}
 
 
 bool ReosGriddedRainfallColorShaderSettings_p::isValid() const
@@ -301,4 +305,5 @@ void ReosGriddedRainfallColorShaderSettings_p::getSourceMinMax( double &min, dou
 void ReosGriddedRainfallColorShaderSettings_p::onSettingsUpdated()
 {
   mRendererfactory->setColorRampShader( mColorShader );
+  emit changed();
 }
