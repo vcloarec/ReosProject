@@ -52,9 +52,7 @@ class ReosGribPrecipitationWidget :  public ReosGriddedRainDataProviderSelectorW
     ReosGriddedRainfallProvider::Details setSource( const QString &source ) override;
 
   private slots:
-    void onPathButtonClicked();
     void onPathChanged();
-
     void updateRainfall();
 
   private:
