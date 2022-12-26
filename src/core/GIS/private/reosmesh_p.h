@@ -191,7 +191,7 @@ class ReosMeshScalarColorShaderSettings_p : public ReosMeshColorShaderSettings_p
     void setCurrentSymbology( const ReosEncodedElement &symbology );
 
     bool isValid() const override;
-    void getSourceMinMax( double &min, double &max ) const override;
+    bool getDirectSourceMinMax( double &min, double &max ) const override;
     void onSettingsUpdated() override;
 };
 
@@ -202,7 +202,7 @@ class ReosMeshVectorColorShaderSettings_p : public ReosMeshColorShaderSettings_p
     void setCurrentSymbology( const ReosEncodedElement &symbology );
 
     bool isValid() const override;
-    void getSourceMinMax( double &min, double &max ) const override;
+    bool getDirectSourceMinMax( double &min, double &max ) const override;
     void onSettingsUpdated() override;
 
 };
@@ -214,7 +214,7 @@ class ReosMeshTerrainColorShaderSettings_p : public ReosMeshColorShaderSettings_
     void setCurrentSymbology( const ReosEncodedElement &symbology );
 
     bool isValid() const override;
-    void getSourceMinMax( double &min, double &max ) const override;
+    bool getDirectSourceMinMax( double &min, double &max ) const override;
     void onSettingsUpdated() override;
 };
 

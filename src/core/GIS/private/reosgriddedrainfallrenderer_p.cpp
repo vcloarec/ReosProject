@@ -40,8 +40,17 @@ ReosGriddedRainfallRendererFactory_p::ReosGriddedRainfallRendererFactory_p( Reos
   std::unique_ptr<QgsGradientColorRamp> colorRamp( new QgsGradientColorRamp( QColor( 255, 255, 255, 0 ), Qt::blue, false, stops ) );
 
   std::unique_ptr<QgsSingleBandPseudoColorRenderer> renderer( new QgsSingleBandPseudoColorRenderer( mRasterLayer->dataProvider(), 1 ) );
-  renderer->setClassificationMin( 0 );
-  renderer->setClassificationMax( 20 );
+  double min = 0, max = 0;
+  if ( rainfall->getDirectMinMaxValue( min, max ) )
+  {
+    renderer->setClassificationMin( min );
+    renderer->setClassificationMax( max );
+  }
+  else
+  {
+    renderer->setClassificationMin( 0 );
+    renderer->setClassificationMax( 20 );
+  }
 
   renderer->createShader( colorRamp.release(), QgsColorRampShader::Interpolated, QgsColorRampShader::EqualInterval, 10, false );
   mColorRampSettings->setShader( renderer->shader()->rasterShaderFunction() );
@@ -290,16 +299,21 @@ void ReosGriddedRainfallColorShaderSettings_p::setOpacity( double )
 {
 }
 
-void ReosGriddedRainfallColorShaderSettings_p::getSourceMinMax( double &min, double &max ) const
+bool ReosGriddedRainfallColorShaderSettings_p::getDirectSourceMinMax( double &min, double &max ) const
 {
   if ( !mRendererfactory || !mRendererfactory->mRainfall )
   {
     min = std::numeric_limits<double>::quiet_NaN();
     max = std::numeric_limits<double>::quiet_NaN();
-    return;
+    return false;
   }
 
-  mRendererfactory->mRainfall->getMinMaxValue( min, max );
+  return mRendererfactory->mRainfall->getDirectMinMaxValue( min, max );
+}
+
+void ReosGriddedRainfallColorShaderSettings_p::calculateSourceMinMax( double &min, double &max ) const
+{
+  mRendererfactory->mRainfall->calculateMinMaxValue( min, max );
 }
 
 void ReosGriddedRainfallColorShaderSettings_p::onSettingsUpdated()

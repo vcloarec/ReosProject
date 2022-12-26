@@ -279,6 +279,19 @@ QList<ReosColorShaderSettings *> ReosGriddedRainfall::colorShaderSettings() cons
   return ret;
 }
 
+bool ReosGriddedRainfall::getDirectMinMaxValue( double &min, double &max ) const
+{
+  if ( mProvider )
+    return mProvider->getDirectMinMax( min, max );
+  return false;
+}
+
+void ReosGriddedRainfall::calculateMinMaxValue( double &min, double &max ) const
+{
+  if ( mProvider )
+    mProvider->calculateMinMax( min, max );
+}
+
 ReosGriddedRainItem::ReosGriddedRainItem( const QString &name, const QString &description, ReosGriddedRainfall *data )
   : ReosRainfallDataItem( name, description )
   , mGriddedRainfall( data )

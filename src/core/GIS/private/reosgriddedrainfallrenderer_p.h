@@ -73,7 +73,8 @@ class ReosGriddedRainfallColorShaderSettings_p : public ReosColorShaderSettings_
     void setClassificationMaximum( double newClassificationMaximum ) override;
     double opacity() const override;
     void setOpacity( double ) override;
-    void getSourceMinMax( double &min, double &max ) const override;
+    bool getDirectSourceMinMax( double &min, double &max ) const override;
+    void calculateSourceMinMax( double &min, double &max ) const override;
     void onSettingsUpdated() override;
 
   private:

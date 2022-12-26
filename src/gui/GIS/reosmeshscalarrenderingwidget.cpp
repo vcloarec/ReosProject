@@ -16,6 +16,7 @@
 #include "reosmeshscalarrenderingwidget.h"
 #include "ui_reosmeshscalarrenderingwidget.h"
 #include <QHBoxLayout>
+#include <QMessageBox>
 
 #include <qgscolorrampshaderwidget.h>
 #include <qgsmeshlayer.h>
@@ -72,7 +73,21 @@ ReosMeshScalarRenderingWidget::ReosMeshScalarRenderingWidget( ReosColorShaderSet
     double max = 0;
 
     if ( !mSettings.isNull() )
-      mSettings->getSourceMinMax( min, max );
+    {
+      if ( !mSettings->getDirectSourceMinMax( min, max ) )
+      {
+        if ( QMessageBox::warning( this,
+                                   tr( "Calculate Minimum and Maximum" ),
+                                   tr( "Data source does not provide minimum and maximum values.\n"
+                                       "To obtain minimum and maximum, it is necessary to calculate them from source.\n"
+                                       "Depending of the data, this operation could take some time.\n\n"
+                                       "Do you want to proceed?" ), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes )
+             == QMessageBox::No )
+          return;
+
+        mSettings->calculateSourceMinMax( min, max );
+      }
+    }
     if ( min < max )
     {
       mMinimumParam->setValue( min );

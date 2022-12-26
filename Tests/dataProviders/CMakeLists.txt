@@ -5,6 +5,8 @@
 #########################################################################
 
 ADD_SUBDIRECTORY(grib)
-ADD_SUBDIRECTORY(comephores)
+IF (COMEPHORE_TESTS_ENABLE)
+    ADD_SUBDIRECTORY(comephore)
+ENDIF(COMEPHORE_TESTS_ENABLE)
 
 

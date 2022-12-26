@@ -85,11 +85,9 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
 
     QList<ReosColorShaderSettings *> colorShaderSettings() const override;
 
-    void getMinMaxValue( double &min, double &max ) const
-    {
-      min = 0;
-      max = 20;
-    }
+    bool getDirectMinMaxValue( double &min, double &max ) const;
+
+    void calculateMinMaxValue( double &min, double &max ) const;
 
     ReosEncodedElement encode( const ReosEncodeContext &context ) const;
 

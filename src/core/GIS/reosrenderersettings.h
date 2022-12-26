@@ -53,7 +53,8 @@ class REOSCORE_EXPORT ReosColorShaderSettings : public QObject
     virtual double opacity() const = 0;
     virtual void setOpacity( double opacity ) = 0;
 
-    virtual void getSourceMinMax( double &min, double &max ) const = 0;
+    virtual bool getDirectSourceMinMax( double &min, double &max ) const = 0;
+    virtual void calculateSourceMinMax( double &min, double &max ) const {};
 
     virtual void onSettingsUpdated() = 0 ;
 

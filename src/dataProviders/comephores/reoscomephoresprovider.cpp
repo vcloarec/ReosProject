@@ -23,14 +23,14 @@ REOSEXTERN ReosDataProviderFactory *providerFactory()
   return new ReosComephoresProviderFactory();
 }
 
-ReosComephoresProvider::ReosComephoresProvider()
+ReosComephoreProvider::ReosComephoreProvider()
 {
   mCache.setMaxCost( 20000000 );
 }
 
-ReosGriddedRainfallProvider *ReosComephoresProvider::clone() const
+ReosGriddedRainfallProvider *ReosComephoreProvider::clone() const
 {
-  std::unique_ptr<ReosComephoresProvider> other = std::make_unique<ReosComephoresProvider>();
+  std::unique_ptr<ReosComephoreProvider> other = std::make_unique<ReosComephoreProvider>();
 
   other->mIsValid = mIsValid;
   other->mFileReader.reset( mFileReader->clone() );
@@ -39,9 +39,9 @@ ReosGriddedRainfallProvider *ReosComephoresProvider::clone() const
   return other.release();
 }
 
-ReosComephoresProvider::~ReosComephoresProvider() = default;
+ReosComephoreProvider::~ReosComephoreProvider() = default;
 
-void ReosComephoresProvider::setDataSource( const QString &dataSource )
+void ReosComephoreProvider::setDataSource( const QString &dataSource )
 {
   mIsValid = false;
   ReosGriddedRainfallProvider::setDataSource( dataSource );
@@ -49,7 +49,7 @@ void ReosComephoresProvider::setDataSource( const QString &dataSource )
 
   if ( sourceInfo.isDir() )
   {
-    mFileReader.reset( new ReosComephoresTiffFilesReader( dataSource ) );
+    mFileReader.reset( new ReosComephoreTiffFilesReader( dataSource ) );
   }
 
   if ( mFileReader )
@@ -59,19 +59,19 @@ void ReosComephoresProvider::setDataSource( const QString &dataSource )
   }
 }
 
-bool ReosComephoresProvider::isValid() const
+bool ReosComephoreProvider::isValid() const
 {
   return mIsValid;
 }
 
-int ReosComephoresProvider::count() const
+int ReosComephoreProvider::count() const
 {
   if ( mFileReader )
     return mFileReader->frameCount();
   return 0;
 }
 
-QDateTime ReosComephoresProvider::startTime( int index ) const
+QDateTime ReosComephoreProvider::startTime( int index ) const
 {
   if ( mFileReader )
     return mFileReader->time( index );
@@ -79,7 +79,7 @@ QDateTime ReosComephoresProvider::startTime( int index ) const
   return QDateTime();
 }
 
-QDateTime ReosComephoresProvider::endTime( int index ) const
+QDateTime ReosComephoreProvider::endTime( int index ) const
 {
   if ( mFileReader )
     return mFileReader->time( index ).addSecs( 3600 );
@@ -87,7 +87,7 @@ QDateTime ReosComephoresProvider::endTime( int index ) const
   return QDateTime();
 }
 
-const QVector<double> ReosComephoresProvider::data( int index ) const
+const QVector<double> ReosComephoreProvider::data( int index ) const
 {
   if ( mCache.contains( index ) )
     return *mCache.object( index );
@@ -115,14 +115,14 @@ const QVector<double> ReosComephoresProvider::data( int index ) const
   return QVector<double>();
 }
 
-ReosRasterExtent ReosComephoresProvider::extent() const
+ReosRasterExtent ReosComephoreProvider::extent() const
 {
   return mExtent;
 }
 
-bool ReosComephoresProvider::canReadUri( const QString &uri ) const
+bool ReosComephoreProvider::canReadUri( const QString &uri ) const
 {
-  if ( ReosComephoresTiffFilesReader::canReadFile( uri ) )
+  if ( ReosComephoreTiffFilesReader::canReadFile( uri ) )
     return true;
 
   return false;
@@ -149,19 +149,19 @@ static QFileInfoList tiffFiles( const QString &folderPath )
   return fileInfoList;
 }
 
-ReosGriddedRainfallProvider::Details ReosComephoresProvider::details( const QString &source, ReosModule::Message &message ) const
+ReosGriddedRainfallProvider::Details ReosComephoreProvider::details( const QString &source, ReosModule::Message &message ) const
 {
   Details ret;
 
   bool ok = false;
-  ret = ReosComephoresTiffFilesReader::details( source, &ok );
+  ret = ReosComephoreTiffFilesReader::details( source, &ok );
   if ( ok )
     return ret;
 
   return Details();
 }
 
-ReosEncodedElement ReosComephoresProvider::encode( const ReosEncodeContext &context ) const
+ReosEncodedElement ReosComephoreProvider::encode( const ReosEncodeContext &context ) const
 {
   ReosEncodedElement element( QStringLiteral( "comephores-gridded-precipitation" ) );
 
@@ -172,7 +172,7 @@ ReosEncodedElement ReosComephoresProvider::encode( const ReosEncodeContext &cont
   return element;
 }
 
-void ReosComephoresProvider::decode( const ReosEncodedElement &element, const ReosEncodeContext &context )
+void ReosComephoreProvider::decode( const ReosEncodedElement &element, const ReosEncodeContext &context )
 {
   if ( element.description() != QStringLiteral( "comephores-gridded-precipitation" ) )
     return;
@@ -184,14 +184,41 @@ void ReosComephoresProvider::decode( const ReosEncodedElement &element, const Re
   }
 }
 
-QString ReosComephoresProvider::dataType() {return ReosGriddedRainfall::staticType();}
+bool ReosComephoreProvider::getDirectMinMax( double &min, double &max ) const
+{
+  if ( mFileReader )
+    return mFileReader->getDirectMinMax( min, max );
+  return false;
+}
 
-QString ReosComephoresProvider::staticKey()
+void ReosComephoreProvider::calculateMinMax( double &min, double &max ) const
+{
+  min = std::numeric_limits<double>::max();
+  max = -std::numeric_limits<double>::max();
+
+  int gridCount = count();
+
+  for ( int i = 0; i < gridCount; ++i )
+  {
+    const QVector<double> vals = data( i );
+    for ( const double &v : vals )
+    {
+      if ( v < min )
+        min = v;
+      if ( v > max )
+        max = v;
+    }
+  }
+}
+
+QString ReosComephoreProvider::dataType() {return ReosGriddedRainfall::staticType();}
+
+QString ReosComephoreProvider::staticKey()
 {
   return COMEPHORES_KEY + QString( "::" ) + dataType();
 }
 
-ReosComephoresTiffFilesReader::ReosComephoresTiffFilesReader( const QString &folderPath )
+ReosComephoreTiffFilesReader::ReosComephoreTiffFilesReader( const QString &folderPath )
 {
   const QFileInfoList fileInfoList = tiffFiles( folderPath );
 
@@ -205,25 +232,25 @@ ReosComephoresTiffFilesReader::ReosComephoresTiffFilesReader( const QString &fol
   }
 }
 
-ReosComephoresFilesReader *ReosComephoresTiffFilesReader::clone() const
+ReosComephoreFilesReader *ReosComephoreTiffFilesReader::clone() const
 {
-  std::unique_ptr<ReosComephoresTiffFilesReader> other( new ReosComephoresTiffFilesReader );
+  std::unique_ptr<ReosComephoreTiffFilesReader> other( new ReosComephoreTiffFilesReader );
   other->mFilesNames = mFilesNames;
   other->mTimes = mTimes;
   return other.release();
 }
 
-int ReosComephoresTiffFilesReader::frameCount() const
+int ReosComephoreTiffFilesReader::frameCount() const
 {
   return mFilesNames.count();
 }
 
-QDateTime ReosComephoresTiffFilesReader::time( int i ) const
+QDateTime ReosComephoreTiffFilesReader::time( int i ) const
 {
   return mTimes.at( i );
 }
 
-QVector<double> ReosComephoresTiffFilesReader::data( int index ) const
+QVector<double> ReosComephoreTiffFilesReader::data( int index ) const
 {
   const QDateTime &time = mTimes.at( index );
   QString fileName = mFilesNames.value( time );
@@ -234,7 +261,7 @@ QVector<double> ReosComephoresTiffFilesReader::data( int index ) const
   return values.values();
 }
 
-ReosRasterExtent ReosComephoresTiffFilesReader::extent() const
+ReosRasterExtent ReosComephoreTiffFilesReader::extent() const
 {
   if ( mFilesNames.isEmpty() )
     return ReosMapExtent();
@@ -244,16 +271,21 @@ ReosRasterExtent ReosComephoresTiffFilesReader::extent() const
   return dataset.extent();
 }
 
-bool ReosComephoresTiffFilesReader::canReadFile( const QString &uri )
+bool ReosComephoreTiffFilesReader::getDirectMinMax( double &, double & ) const
+{
+  return false;
+}
+
+bool ReosComephoreTiffFilesReader::canReadFile( const QString &uri )
 {
   return !tiffFiles( uri ).isEmpty();
 }
 
-ReosGriddedRainfallProvider::Details ReosComephoresTiffFilesReader::details( const QString &source, bool *ok )
+ReosGriddedRainfallProvider::Details ReosComephoreTiffFilesReader::details( const QString &source, bool *ok )
 {
   ReosGriddedRainfallProvider::Details ret;
 
-  ReosComephoresTiffFilesReader fileReader( source );
+  ReosComephoreTiffFilesReader fileReader( source );
   if ( fileReader.frameCount() == 0 )
   {
     *ok = false;
@@ -271,11 +303,11 @@ ReosGriddedRainfallProvider::Details ReosComephoresTiffFilesReader::details( con
   return ret;
 }
 
-ReosComephoresTiffFilesReader::~ReosComephoresTiffFilesReader() = default;
+ReosComephoreTiffFilesReader::~ReosComephoreTiffFilesReader() = default;
 
 ReosGriddedRainfallProvider *ReosComephoresProviderFactory::createProvider( const QString &dataType ) const
 {
-  return new ReosComephoresProvider;
+  return new ReosComephoreProvider;
 }
 
 QString ReosComephoresProviderFactory::key() const

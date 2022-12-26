@@ -1734,9 +1734,10 @@ void ReosMeshColorShaderSettings_p::setOpacity( double opacity )
   mOpacity = opacity;
 }
 
-void ReosMeshScalarColorShaderSettings_p::getSourceMinMax( double &min, double &max ) const
+bool ReosMeshScalarColorShaderSettings_p::getDirectSourceMinMax( double &min, double &max ) const
 {
   mMesh->datasetGroupMinimumMaximum( mMesh->mCurrentScalarDatasetId, min, max );
+  return true;
 }
 
 void ReosMeshScalarColorShaderSettings_p::onSettingsUpdated()
@@ -1766,9 +1767,10 @@ bool ReosMeshVectorColorShaderSettings_p::isValid() const
   return mMesh->mCurrentActiveVectorDatasetId != QString();
 }
 
-void ReosMeshVectorColorShaderSettings_p::getSourceMinMax( double &min, double &max ) const
+bool ReosMeshVectorColorShaderSettings_p::getDirectSourceMinMax( double &min, double &max ) const
 {
   mMesh->datasetGroupMinimumMaximum( mMesh->mCurrentActiveVectorDatasetId, min, max );
+  return true;
 }
 
 void ReosMeshVectorColorShaderSettings_p::onSettingsUpdated()
@@ -1818,9 +1820,10 @@ bool ReosMeshTerrainColorShaderSettings_p::isValid() const
   return mMesh->mVerticesElevationDatasetId != QString();
 }
 
-void ReosMeshTerrainColorShaderSettings_p::getSourceMinMax( double &min, double &max ) const
+bool ReosMeshTerrainColorShaderSettings_p::getDirectSourceMinMax( double &min, double &max ) const
 {
   mMesh->datasetGroupMinimumMaximum( mMesh->mVerticesElevationDatasetId, min, max );
+  return true;
 }
 
 void ReosMeshTerrainColorShaderSettings_p::onSettingsUpdated()
