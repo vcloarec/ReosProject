@@ -1,22 +1,22 @@
 # Reos licence GPL version 2
 # Copyright (C) 2022 Vincent Cloarec (vcloarec at gmail dot com)
 
-SET(REOS_COMEPHORES_SOURCES
-    reoscomephoresprovider.cpp
+SET(REOS_COMEPHORE_SOURCES
+    reoscomephoreprovider.cpp
 )
 
-SET(REOS_GRIB_HEADERS
-    reoscomephoresprovider.h
-)
-
-
-ADD_LIBRARY(provider_comephores MODULE
-    ${REOS_COMEPHORES_SOURCES}
-    ${REOS_GRIB_HEADERS}
+SET(REOS_COMEPHORE_HEADERS
+    reoscomephoreprovider.h
 )
 
 
-TARGET_LINK_LIBRARIES(provider_comephores
+ADD_LIBRARY(provider_comephore MODULE
+    ${REOS_COMEPHORE_SOURCES}
+    ${REOS_COMEPHORE_HEADERS}
+)
+
+
+TARGET_LINK_LIBRARIES(provider_comephore
         ${Qt5Xml_LIBRARIES}
         ${Qt5Core_LIBRARIES}
         ${Qt5Gui_LIBRARIES}
@@ -31,7 +31,7 @@ TARGET_LINK_LIBRARIES(provider_comephores
 )
 
 
-set_target_properties(provider_comephores
+set_target_properties(provider_comephore
     PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY ${REOS_OUTPUT_DIRECTORY}/$<0:>${REOS_PROVIDERS_DIR}
     LIBRARY_OUTPUT_DIRECTORY ${REOS_OUTPUT_DIRECTORY}/$<0:>${REOS_PROVIDERS_DIR}
@@ -59,7 +59,7 @@ INCLUDE_DIRECTORIES(
     )
 
 
-INSTALL(TARGETS provider_comephores
+INSTALL(TARGETS provider_comephore
   LIBRARY DESTINATION bin/${REOS_PROVIDERS_DIR})
 
 

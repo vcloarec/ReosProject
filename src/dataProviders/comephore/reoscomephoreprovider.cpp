@@ -13,7 +13,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include "reoscomephoresprovider.h"
+#include "reoscomephoreprovider.h"
 
 #include "reosgriddedrainitem.h"
 #include "reosgdalutils.h"
