@@ -18,15 +18,45 @@ email                : vcloarec at gmail dot com
 #include "reos_testutils.h"
 #include "reosgriddedrainitem.h"
 #include "reosgriddedrainfallprovider.h"
+#include "reosnetcdfutils.h"
+#include "reosgisengine.h"
 
 class ReosComephoreTest: public QObject
 {
     Q_OBJECT
 
   private slots:
+    void netcdfFile();
     void createProvider();
     void createRainfall();
 };
+
+void ReosComephoreTest::netcdfFile()
+{
+  ReosNetCdfFile file( COMEPHORE_FILES_PATH + QStringLiteral( "/comephore_nc/comephore_1km-1h_202001.nc" ), false );
+  QVERIFY( file.isValid() );
+
+  QVERIFY( file.hasVariable( QStringLiteral( "RR" ) ) );
+  QCOMPARE( file.variableDimensionCount( QStringLiteral( "RR" ) ), 3 );
+
+  QStringList dimensionNames = file.variableDimensionNames( QStringLiteral( "RR" ) );
+  QVERIFY( dimensionNames.contains( QStringLiteral( "time" ) ) );
+  QVERIFY( dimensionNames.contains( QStringLiteral( "X" ) ) );
+  QVERIFY( dimensionNames.contains( QStringLiteral( "Y" ) ) );
+
+  QCOMPARE( file.dimensionLength( QStringLiteral( "time" ) ), 744 );
+  QCOMPARE( file.dimensionLength( QStringLiteral( "X" ) ), 1536 );
+  QCOMPARE( file.dimensionLength( QStringLiteral( "Y" ) ), 1536 );
+
+  QString proj4Crs = file.globalStringAttributeValue( "crs_proj4_string" );
+
+  QString crs = ReosGisEngine::crsFromProj( proj4Crs );
+
+  std::unique_ptr<ReosDataProvider> compatibleProvider( ReosDataProviderRegistery::instance()->createCompatibleProvider(
+        COMEPHORE_FILES_PATH + QStringLiteral( "/comephore_nc/comephore_1km-1h_202001.nc" ), ReosGriddedRainfall::staticType() ) );
+  QVERIFY( compatibleProvider );
+
+}
 
 void ReosComephoreTest::createProvider()
 {
