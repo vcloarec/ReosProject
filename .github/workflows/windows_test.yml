@@ -126,7 +126,7 @@ jobs:
 
     - name: install hecras
       run:  |
-          Invoke-WebRequest -Uri "https://github.com/HydrologicEngineeringCenter/hec-downloads/releases/download/1.0.26/HEC-RAS_631_Setup.exe" -OutFile "hec_inst.exe"
+          Invoke-WebRequest -Uri "https://github.com/HydrologicEngineeringCenter/hec-downloads/releases/download/1.0.7/HEC-RAS_507_Without_Examples_Setup.exe" -OutFile "hec_inst.exe"
           ./hec_inst.exe /S /v/qn
           ls "C:/Program Files (x86)/"
     
