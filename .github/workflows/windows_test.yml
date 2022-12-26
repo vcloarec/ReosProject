@@ -127,7 +127,7 @@ jobs:
     - name: install hecras
       run:  |
           Invoke-WebRequest -Uri "https://github.com/HydrologicEngineeringCenter/hec-downloads/releases/download/1.0.7/HEC-RAS_507_Without_Examples_Setup.exe" -OutFile "hec_inst.exe"
-          ./hec_inst.exe /S /v/qn
+          Start-Process hec_inst.exe -ArgumentList "/S /v/qn" -Wait
           ls "C:/Program Files (x86)/"
     
     - name: build and test REOS
