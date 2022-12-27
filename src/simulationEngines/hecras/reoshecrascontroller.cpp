@@ -267,7 +267,7 @@ bool ReosHecRasController::openHecrasProject( const QString &projFileName )
   EXCEPINFO excepInfo;
   UINT puArgErr;
 
-  HRESULT res = mDispatch->Invoke( id, IID_NULL, 0, DISPATCH_METHOD, &par, &result, &excepInfo, &puArgErr );
+  HRESULT res = mDispatch->Invoke(id, IID_NULL, 0, DISPATCH_METHOD, &par, &result, &excepInfo, &puArgErr);
 
   ok = SUCCEEDED( res );
 #endif

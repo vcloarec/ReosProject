@@ -222,7 +222,7 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     //! Creates a new void mesh in memory
     static ReosMesh *createMeshFrame( const QString &crs = QString(), QObject *parent = nullptr );
 
-    static ReosMesh *createMeshFrameFromFile( const QString &dataPath, const QString &destinationCrs );
+    static ReosMesh *createMeshFrameFromFile(const QString &dataPath, const QString &destinationCrs , ReosModule::Message &message);
 
     //! Returns whether the mesh is valid
     virtual bool isValid() const = 0;

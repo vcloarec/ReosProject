@@ -369,7 +369,7 @@ class REOSCORE_EXPORT ReosRoughnessStructure : public ReosDataObject
 class REOSCORE_EXPORT ReosStructureImporter
 {
   public:
-    ReosStructureImporter() = default;
+    ReosStructureImporter( const ReosHydraulicNetworkContext &context );
     virtual ~ReosStructureImporter() = default;
 
     virtual QString importerKey() const = 0;
@@ -392,18 +392,22 @@ class REOSCORE_EXPORT ReosStructureImporter
     virtual bool isValid() const = 0;
 
     virtual ReosEncodedElement encode( const ReosHydraulicNetworkContext &context ) const = 0;
+
+  protected:
+    ReosHydraulicNetwork *mNetWork = nullptr;
 };
 
 
 /**
- *  A dericed class tha tis used as a place holder when the engine registery does not have the related simulation factory.
+ *  A derived class that is used as a place holder when the engine registery does not have the related simulation factory.
  *  An instance of this class contained only the original encoded dta that will be saved if project saving is requested
  */
 class ReosStructureImporterDummy : public ReosStructureImporter
 {
   public:
-    ReosStructureImporterDummy( const ReosEncodedElement &element )
-      : mElement( element )
+    ReosStructureImporterDummy( const ReosEncodedElement &element, const ReosHydraulicNetworkContext &context )
+      : ReosStructureImporter( context )
+      , mElement( element )
     {
     }
 

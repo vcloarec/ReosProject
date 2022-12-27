@@ -52,13 +52,14 @@ void ReosHecRasSimulationEngineFactory::initializeSettings()
 {
 }
 
-ReosHecRasStructureImporter::ReosHecRasStructureImporter( const QString &fileName )
-  : ReosStructureImporter()
+ReosHecRasStructureImporter::ReosHecRasStructureImporter( const QString &fileName, const ReosHydraulicNetworkContext &context )
+  : ReosStructureImporter( context )
 {
   init( fileName );
 }
 
 ReosHecRasStructureImporter::ReosHecRasStructureImporter( const ReosEncodedElement &element, const ReosHydraulicNetworkContext &context )
+  : ReosStructureImporter( context )
 {
   if ( element.description() != QStringLiteral( "hec-ras-importer" ) )
     return;
@@ -108,8 +109,12 @@ void ReosHecRasStructureImporter::init( const QString &fileName )
       mIsValid = mProject->geometry( geoms.at( 0 ) ).area2dCount() > 0;
 
       // During this implementation, the simplest way to obtain the CRS is to load the mesh associated with the geometry
-      // But it is far for being te most relevant and efficient. It will be better to get the crs with another way.
-      std::unique_ptr<ReosMesh> mesh( ReosMesh::createMeshFrameFromFile( mProject->currentGeometryFileName() + QStringLiteral( ".hdf" ), QString() ) );
+      // But it is far for being the most relevant and efficient way. It will be better to get the crs with another way.
+      // HEC-RAS used to have a GIS as reference for CRS.
+      // TODO: see to exctract the CRS from hdf file without loading it, or extract from the reference GIS file.
+      ReosModule::Message message;
+      std::unique_ptr<ReosMesh> mesh(
+        ReosMesh::createMeshFrameFromFile( mProject->currentGeometryFileName() + QStringLiteral( ".hdf" ), QString(), message ) );
       mCrs = mesh->crs();
     }
   }
@@ -147,7 +152,12 @@ ReosMesh *ReosHecRasStructureImporter::mesh( const QString &destinationCrs ) con
 {
   if ( mIsValid )
   {
-    return ReosMesh::createMeshFrameFromFile( mProject->currentGeometryFileName() + QStringLiteral( ".hdf" ), destinationCrs );
+    ReosModule::Message message;
+    std::unique_ptr<ReosMesh> mesh( ReosMesh::createMeshFrameFromFile( mProject->currentGeometryFileName() + QStringLiteral( ".hdf" ), destinationCrs, message ) );
+    if ( message.type == ReosModule::Simple )
+      return mesh.release();
+
+    mNetWork->message( message, true );
   }
 
   return nullptr;

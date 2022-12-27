@@ -111,11 +111,11 @@ ReosMeshFrame_p::ReosMeshFrame_p( const QString &crs, QObject *parent ): ReosMes
   init();
 }
 
-ReosMeshFrame_p::ReosMeshFrame_p( const QString &dataPath, const QString &destinationCrs )
+ReosMeshFrame_p::ReosMeshFrame_p( const QString &dataPath, const QString &destinationCrs, ReosModule::Message &message )
 {
   mMeshLayer.reset( new QgsMeshLayer( "path", "", QStringLiteral( "ReosMesh" ) ) );
 
-  meshProvider()->loadMeshFrame( dataPath );
+  meshProvider()->loadMeshFrame( dataPath, message );
 
   QgsCoordinateReferenceSystem qgisDestinationCrs;
   qgisDestinationCrs.createFromWkt( destinationCrs );

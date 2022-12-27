@@ -78,7 +78,10 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   {
     if ( encodedElement.hasEncodedData( QStringLiteral( "structure" ) ) )
       mPolylinesStructures = ReosPolylinesStructure::createPolylineStructure( encodedElement.getEncodedData( QStringLiteral( "structure" ) ) );
-    mMesh.reset( ReosMesh::createMeshFrameFromFile( structureDirectory().path() + QStringLiteral( "/meshFrame.nc" ), context.crs() ) );
+    ReosModule::Message message;
+    mMesh.reset( ReosMesh::createMeshFrameFromFile( structureDirectory().path() + QStringLiteral( "/meshFrame.nc" ), context.crs(), message ) );
+    if ( message.type != ReosModule::Simple )
+      mNetwork->message( message, true );
   }
 
   // Load geomttry editing helper if exists
@@ -248,7 +251,7 @@ ReosStructureImporter *ReosHydraulicStructure2D::structureImporter() const
 void ReosHydraulicStructure2D::exportResultAsMesh( const QString &fileName ) const
 {
   mMesh->exportAsMesh( fileName );
-  if (network() && network()->currentScheme())
+  if ( network() && network()->currentScheme() )
     mMesh->exportSimulationResults( mSimulationResults.value( network()->currentScheme()->id() ), fileName );
 }
 
@@ -1294,3 +1297,7 @@ ReosPolygonStructure *ReosRoughnessStructure::structure() const
 {
   return mStructure.get();
 }
+
+ReosStructureImporter::ReosStructureImporter( const ReosHydraulicNetworkContext &context ):
+  mNetWork( context.network() )
+{}

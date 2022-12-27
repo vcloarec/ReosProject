@@ -24,9 +24,9 @@ ReosMesh *ReosMesh::createMeshFrame( const QString &crs, QObject *parent )
   return new ReosMeshFrame_p( crs, parent );
 }
 
-ReosMesh *ReosMesh::createMeshFrameFromFile( const QString &dataPath, const QString &destinationCrs )
+ReosMesh *ReosMesh::createMeshFrameFromFile( const QString &dataPath, const QString &destinationCrs, ReosModule::Message &message )
 {
-  return new ReosMeshFrame_p( dataPath, destinationCrs );
+  return new ReosMeshFrame_p( dataPath, destinationCrs, message );
 }
 
 
