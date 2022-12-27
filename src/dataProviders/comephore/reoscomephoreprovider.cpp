@@ -89,6 +89,9 @@ QDateTime ReosComephoreProvider::endTime( int index ) const
 
 const QVector<double> ReosComephoreProvider::data( int index ) const
 {
+  if ( index < 0 )
+    return QVector<double>();
+
   if ( mCache.contains( index ) )
     return *mCache.object( index );
 

@@ -149,6 +149,8 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     void drawExtraRendering( QPainter *painter );
     void onExtraObjectRenderedFinished();
     void onExtraObjectRequestRepaint();
+    void updateLegendOrder() const;
+    void resizeLegend() const;
 
   private:
     ReosGisEngine *mEngine;
@@ -168,10 +170,11 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     QAction *mActionNextZoom = nullptr;
     QAction *mTemporalControllerAction = nullptr;
     QAction *mEnableSnappingAction = nullptr;
+    QAction *mActionEnableLegend = nullptr;
 
     ReosRendererObjectHandler mExtraRenderedObjectHandler;
     QList<ReosRenderedObject *> mExtraRenderedObjects;
-    QHash<ReosColorShaderSettings *, ReosColorRampMapLegendItem *> mColorRampLegendSettings;
+    QMap<QString, ReosColorRampMapLegendItem *> mColorRampLegendSettings;
 
     ReosColorRampMapLegendItem *mLegendItem;
 };

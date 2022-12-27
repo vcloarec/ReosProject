@@ -22,28 +22,28 @@
 class ReosColorRampMapLegendItem : public QGraphicsItem
 {
   public:
-    ReosColorRampMapLegendItem( ReosColorShaderSettings *settings );
+    explicit ReosColorRampMapLegendItem( ReosColorShaderSettings *settings );
 
     QRectF boundingRect() const override;
 
-    //! Sets the size of the legend
-    void setSize( const QSize &size );
-
-    void setHorizontalDistanceFromCanvasBorder( int hd );
-    void setVerticalDistanceFromCanvasBorder( int vd );
 
     void paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget ) override;
 
-    void drawLabel( QPainter *painter, const QString &text, double vertPosition, double horizontalItemBorder );
+    void setOrder( int order );
+    void setLegendCount( int newLegendCount );
+
+    void resize( QWidget *viewport );
 
   private:
-    QSize mSize;
-    QSize mRampBoxSize;
-    int mHorDistBorder = 5;
-    int mVertDistBorder = 5;
-    int mDistLabelFromItem = 10;
-
     QPointer<ReosColorShaderSettings> mSettings;
+    QSizeF mSizeHint = QSize( 50.0, 60.0 ); //in mm
+    int mOrder = 0;
+    int mLegendCount = 0;
+    double mHorSpacing = 5.0;
+    double mVertSpacing = 5.0;
+    double mRampBoxWidth = 7.0;
+    double mDistLabelFromItem = 5.0;
+    QRectF mBoundingRect;
 
 };
 

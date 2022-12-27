@@ -332,3 +332,7 @@ ReosEncodedElement ReosGriddedRainItem::encode( const ReosEncodeContext &context
 
   return element;
 }
+ReosGriddedRainfall *ReosGriddedRainfallRendererFactory::rainfall() const
+{
+  return mRainfall;
+}

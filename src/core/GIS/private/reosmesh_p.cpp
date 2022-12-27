@@ -1754,6 +1754,12 @@ void ReosMeshScalarColorShaderSettings_p::onSettingsUpdated()
   emit mMesh->repaintRequested();
 }
 
+QString ReosMeshScalarColorShaderSettings_p::title() const
+{
+  if ( mMesh )
+    return mMesh->datasetName( mMesh->currentdScalarDatasetId() );
+}
+
 
 ReosMeshVectorColorShaderSettings_p::ReosMeshVectorColorShaderSettings_p( ReosMeshFrame_p *mesh )
   : ReosMeshColorShaderSettings_p( mesh )

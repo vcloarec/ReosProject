@@ -60,6 +60,8 @@ class REOSCORE_EXPORT ReosColorShaderSettings : public QObject
 
     virtual QLinearGradient gradient() const = 0;
 
+    virtual QString title() const {return QString();};
+
   signals:
     void settingsChangedFromObject();
     void changed();

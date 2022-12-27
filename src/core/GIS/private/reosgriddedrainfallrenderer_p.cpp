@@ -321,3 +321,10 @@ void ReosGriddedRainfallColorShaderSettings_p::onSettingsUpdated()
   mRendererfactory->setColorRampShader( mColorShader );
   emit changed();
 }
+
+QString ReosGriddedRainfallColorShaderSettings_p::title() const
+{
+  if ( mRendererfactory && mRendererfactory->rainfall() )
+    return mRendererfactory->rainfall()->name();
+  return QString();
+}
