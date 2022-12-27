@@ -35,6 +35,7 @@ email                : vcloarec at gmail dot com
 #include "reosrenderersettings.h"
 #include "reosmesh.h"
 #include "reosmaplegenditem.h"
+#include "reossettings.h"
 
 
 class ReosRendererObjectHandler_p
@@ -317,10 +318,27 @@ void ReosRendererObjectHandler::onRendererFinished()
   destroyRenderer( renderer );
 }
 
+class ReosQgsMapCanvas : public QgsMapCanvas
+{
+    Q_OBJECT
+  public:
+    explicit ReosQgsMapCanvas( QWidget *parent = nullptr ) : QgsMapCanvas( parent ) {}
+
+  signals:
+    void resized();
+
+  protected:
+    void resizeEvent( QResizeEvent *e ) override
+    {
+      QgsMapCanvas::resizeEvent( e );
+      emit resized();
+    }
+};
+
 ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   ReosModule( gisEngine )
   , mEngine( gisEngine )
-  , mCanvas( new QgsMapCanvas( parentWidget ) )
+  , mCanvas( new ReosQgsMapCanvas( parentWidget ) )
   , mActionNeutral( new QAction( QIcon( QStringLiteral( ":/images/neutral.svg" ) ), tr( "Deactivate Tool" ), this ) )
   , mDefaultMapTool( new ReosMapToolSelectMapItem( this ) )
   , mActionZoom( new QAction( QIcon( QStringLiteral( ":/images/zoomInExtent.svg" ) ), tr( "Zoom In" ), this ) )
@@ -330,9 +348,10 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   , mActionPreviousZoom( new QAction( QIcon( QStringLiteral( ":/images/zoomPrevious.svg" ) ), tr( "Previous Zoom" ), this ) )
   , mActionNextZoom( new QAction( QIcon( QStringLiteral( ":/images/zoomNext.svg" ) ), tr( "Next Zoom" ), this ) )
   , mEnableSnappingAction( new QAction( tr( "Snapping" ), this ) )
+  , mActionEnableLegend( new QAction( QIcon( QStringLiteral( ":/images/plotLegend.svg" ) ), tr( "Enable/Disable Legend" ), this ) )
   , mExtraRenderedObjectHandler( mCanvas )
 {
-  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
+  ReosQgsMapCanvas *canvas = qobject_cast<ReosQgsMapCanvas *>( mCanvas );
   canvas->setExtent( QgsRectangle( 0, 0, 200, 200 ) );
   canvas->setObjectName( "map canvas" );
 
@@ -439,6 +458,21 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   //mDefaultMapTool->setSearchUnderPoint( true );
   mDefaultMapTool->setSearchItemWhenMoving( true );
   connect( mDefaultMapTool, &ReosMapToolSelectMapItem::found, this, &ReosMap::mapItemFound );
+
+  mActionEnableLegend->setCheckable( true );
+  connect( mActionEnableLegend, &QAction::toggled, this, [this]( bool checked )
+  {
+    const QList<ReosColorRampMapLegendItem *> items = mColorRampLegendSettings.values();
+    for ( ReosColorRampMapLegendItem *item : items )
+      item->setVisible( checked );
+
+    refreshCanvas();
+    ReosSettings settings;
+    settings.setValue( QStringLiteral( "MainMap/EnableLegend" ), checked );
+  } );
+  ReosSettings settings;
+  mActionEnableLegend->setChecked( settings.value( QStringLiteral( "MainMap/EnableLegend" ), true ).toBool() );
+  connect( canvas, &ReosQgsMapCanvas::resized, this, &ReosMap::resizeLegend );
 }
 
 ReosMap::~ReosMap()
@@ -523,6 +557,7 @@ QList<QAction *> ReosMap::mapToolActions()
   ret << mActionPreviousZoom;
   ret << mActionNextZoom;
   ret << mTemporalControllerAction;
+  ret << mActionEnableLegend;
 
   return ret;
 }
@@ -567,6 +602,13 @@ void ReosMap::removeSnappableStructure( ReosGeometryStructure *structure )
     canvas->snappingUtils()->removeExtraSnapLayer( vl );
 }
 
+
+static QString settingsPointerToString( ReosColorShaderSettings *settings )
+{
+  return QString::number( reinterpret_cast<long long>( settings ) );
+}
+
+
 void ReosMap::addExtraRenderedObject( ReosRenderedObject *obj )
 {
   mExtraRenderedObjects.append( obj );
@@ -581,11 +623,11 @@ void ReosMap::addExtraRenderedObject( ReosRenderedObject *obj )
     {
       std::unique_ptr<ReosColorRampMapLegendItem> legend( new ReosColorRampMapLegendItem( settings ) );
       mCanvas->scene()->addItem( legend.get() );
-      legend->setHorizontalDistanceFromCanvasBorder( 3 );
-      legend->setVerticalDistanceFromCanvasBorder( 3 );
       legend->setZValue( std::numeric_limits<double>::max() );
-      mColorRampLegendSettings.insert( settings, legend.release() );
+      legend->setOrder( mColorRampLegendSettings.count() );
+      mColorRampLegendSettings.insert( settingsPointerToString( settings ), legend.release() );
     }
+    updateLegendOrder();
   }
 }
 
@@ -603,10 +645,13 @@ void ReosMap::removeExtraRenderedObject( ReosRenderedObject *obj )
       const QList<ReosColorShaderSettings *> colorRampSettings = obj->colorShaderSettings();
       for ( ReosColorShaderSettings *settings : colorRampSettings )
       {
-        ReosColorRampMapLegendItem *legendItem = mColorRampLegendSettings.value( settings, nullptr );
+        QString legId = settingsPointerToString( settings );
+        ReosColorRampMapLegendItem *legendItem = mColorRampLegendSettings.value( legId, nullptr );
         if ( legendItem )
           delete legendItem;
+        mColorRampLegendSettings.remove( legId );
       }
+      updateLegendOrder();
     }
   }
 }
@@ -712,6 +757,26 @@ void ReosMap::onExtraObjectRequestRepaint()
     }
     canvas->refresh();
   }
+}
+
+void ReosMap::updateLegendOrder() const
+{
+  const QList<ReosColorRampMapLegendItem *> colorRampLegendSettings = mColorRampLegendSettings.values();
+  for ( int i = 0; i < colorRampLegendSettings.count(); ++i )
+  {
+    colorRampLegendSettings.at( i )->setOrder( i );
+    colorRampLegendSettings.at( i )->setLegendCount( colorRampLegendSettings.count() );
+    colorRampLegendSettings.at( i )->setVisible( mActionEnableLegend->isChecked() );
+  }
+
+  resizeLegend();
+}
+
+void ReosMap::resizeLegend() const
+{
+  const QList<ReosColorRampMapLegendItem *> colorRampLegendSettings = mColorRampLegendSettings.values();
+  for ( int i = 0; i < colorRampLegendSettings.count(); ++i )
+    colorRampLegendSettings.at( i )->resize( mCanvas->viewport() );
 }
 
 ReosMapToolSelectMapItem *ReosMap::defaultMapTool() const
@@ -831,3 +896,5 @@ ReosMap *ReosDataVizMapWidget::map()
 {
   return mMap;
 }
+
+#include "reosmap.moc"

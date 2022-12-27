@@ -137,6 +137,8 @@ class ReosGriddedRainfallRendererFactory
     virtual ReosColorShaderSettings *colorRampShaderSettings() const = 0;
     virtual ReosEncodedElement encode() const = 0;
 
+    ReosGriddedRainfall *rainfall() const;
+
   protected:
     QPointer<ReosGriddedRainfall> mRainfall;
 };

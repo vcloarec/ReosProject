@@ -193,6 +193,8 @@ class ReosMeshScalarColorShaderSettings_p : public ReosMeshColorShaderSettings_p
     bool isValid() const override;
     bool getDirectSourceMinMax( double &min, double &max ) const override;
     void onSettingsUpdated() override;
+
+    QString title() const override;
 };
 
 class ReosMeshVectorColorShaderSettings_p : public ReosMeshColorShaderSettings_p

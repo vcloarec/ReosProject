@@ -16,6 +16,7 @@
 #include "reosmaplegenditem.h"
 
 #include <qgsmapcanvas.h>
+#include <qgstextrenderer.h>
 #include <QDebug>
 
 #include "reosmap.h"
@@ -23,39 +24,23 @@
 #include "reosrenderersettings.h"
 
 
+
 ReosColorRampMapLegendItem::ReosColorRampMapLegendItem( ReosColorShaderSettings *settings )
   : mSettings( settings )
-  , mSize( 7, 20 )
-  , mRampBoxSize( 3, 20 )
 {
 }
 
 QRectF ReosColorRampMapLegendItem::boundingRect() const
 {
-  qreal penWidth = 1;
-  return QRectF( -10 - penWidth / 2, -10 - penWidth / 2,
-                 20 + penWidth, 20 + penWidth );
-}
-
-void ReosColorRampMapLegendItem::setSize( const QSize &size )
-{
-  mSize = size;
-}
-
-void ReosColorRampMapLegendItem::setHorizontalDistanceFromCanvasBorder( int hd )
-{
-  mHorDistBorder = hd;
-}
-
-void ReosColorRampMapLegendItem::setVerticalDistanceFromCanvasBorder( int vd )
-{
-  mVertDistBorder = vd;
+  return mBoundingRect;
 }
 
 void ReosColorRampMapLegendItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *, QWidget * )
 {
-  int height = painter->device()->height();
-  int width = painter->device()->width();
+  QgsRenderContext renderContext;
+  renderContext.setPainter( painter );
+  renderContext.setScaleFactor( painter->device()->logicalDpiX() / 25.4 );
+  renderContext.setTextRenderFormat( Qgis::TextRenderFormat::AlwaysText );
 
   int phyDpiX = painter->device()->physicalDpiX();
   int phyDpiY = painter->device()->physicalDpiY();
@@ -65,39 +50,104 @@ void ReosColorRampMapLegendItem::paint( QPainter *painter, const QStyleOptionGra
 
   painter->save();
 
-  double rampBoxheight = mRampBoxSize.height() / 25.4 * phyDpiY;
-  double rampBoxwidth = mRampBoxSize.width() / 25.4 * phyDpiX;
-  double vertDistBorder = mVertDistBorder / 25.4 * phyDpiY;
-  double horDistBorder = mHorDistBorder / 25.4 * phyDpiY;
+  double rampBoxWidth = mRampBoxWidth / 25.4 * phyDpiX;
+  double horiSpacing = mHorSpacing / 25.4 * phyDpiX;
+  double vertSpacing = mVertSpacing / 25.4 * phyDpiY;
 
+  QgsTextFormat format;
+  QgsTextBufferSettings bufferSettings;
+  bufferSettings.setSize( 1 );
+  bufferSettings.setColor( Qt::white );
+  bufferSettings.setEnabled( true );
+  format.setBuffer( bufferSettings );
+  format.setSizeUnit( QgsUnitTypes::RenderPixels );
+  format.setSize( 15 );
+  QFont font = format.font();
+  font.setBold( true );
+  format.setFont( font );
+  QFontMetricsF metrics = QgsTextRenderer::fontMetrics( renderContext, format );
+
+  QString legendTitle = mSettings->title();
+  QRectF titleBox = metrics.boundingRect( mBoundingRect, Qt::AlignHCenter | Qt::AlignTop | Qt::TextWordWrap, legendTitle );
+  QgsTextRenderer::drawText( titleBox,
+                             0,
+                             Qgis::TextHorizontalAlignment::Center,
+                             QStringList() << legendTitle,
+                             renderContext,
+                             format,
+                             true,
+                             Qgis::TextVerticalAlignment::VerticalCenter,
+                             Qgis::TextRendererFlag::WrapLines );
+
+  format.setSize( 15 );
+  font = format.font();
+  font.setBold( false );
+  format.setFont( font );
+
+  metrics = QgsTextRenderer::fontMetrics( renderContext, format );
+
+  double leftGradientBox = ( mBoundingRect.right() + mBoundingRect.left() ) / 2;
+
+  const QString textTopLabel = QLocale().toString( mSettings->classificationMaximum(), 'f', 2 );
+  QRectF topLabelBbox = metrics.boundingRect( textTopLabel );
+  topLabelBbox.translate( leftGradientBox - topLabelBbox.width() - topLabelBbox.left() - horiSpacing / 2,
+                          titleBox.bottom() + vertSpacing / 2 - topLabelBbox.top() );
+
+  const QString textBottomLabel = QLocale().toString( mSettings->classificationMinimum(), 'f', 2 );
+  QRectF bottomLabelBbox = metrics.boundingRect( textBottomLabel );
+  bottomLabelBbox.translate( leftGradientBox - bottomLabelBbox.width() - bottomLabelBbox.left() - horiSpacing / 2,
+                             mBoundingRect.bottom() - bottomLabelBbox.bottom() - vertSpacing );
+
+  double topGradientBox = ( topLabelBbox.top() + topLabelBbox.bottom() ) / 2;
+  double bottomGradiantBox = ( bottomLabelBbox.bottom() + bottomLabelBbox.top() ) / 2;
+
+  QgsTextRenderer::drawText( topLabelBbox, 0, Qgis::TextHorizontalAlignment::Left, QStringList() << textTopLabel, renderContext, format, true, Qgis::TextVerticalAlignment::VerticalCenter );
+  QgsTextRenderer::drawText( bottomLabelBbox, 0, Qgis::TextHorizontalAlignment::Left, QStringList() << textBottomLabel, renderContext, format, true, Qgis::TextVerticalAlignment::VerticalCenter );
+
+  //double rightGradientBox = mBoundingRect.right() - mHorSpacing;
   QLinearGradient gradient = mSettings->gradient();
-  int topGradientBox = height - ( rampBoxheight + vertDistBorder );
-  int bottomGradiantBox = height - vertDistBorder;
-  int leftGradientBox = width - ( rampBoxwidth + horDistBorder );
-
   gradient.setStart( leftGradientBox, bottomGradiantBox );
-  gradient.setFinalStop( width - ( rampBoxwidth + horDistBorder ), topGradientBox );
-
+  gradient.setFinalStop( leftGradientBox, topGradientBox );
   painter->setBrush( gradient );
-
-  painter->drawRect( leftGradientBox,
-                     topGradientBox,
-                     rampBoxwidth, rampBoxheight );
-
-  const QString textTop = QLocale().toString( mSettings->classificationMaximum(), 'f', 2 );
-  drawLabel( painter, textTop, topGradientBox, leftGradientBox );
-  const QString textBottom = QLocale().toString( mSettings->classificationMinimum(), 'f', 2 );
-  drawLabel( painter, textBottom, bottomGradiantBox, leftGradientBox );
+  painter->drawRect( QRectF( leftGradientBox,
+                             topGradientBox,
+                             rampBoxWidth, bottomGradiantBox - topGradientBox ) );
 
   painter->restore();
+
+#if 0
+  painter->drawRect( mBoundingRect );
+  painter->drawRect( titleBox );
+  painter->drawRect( topLabelBbox );
+  painter->drawRect( bottomLabelBbox );
+#endif
 }
 
-void ReosColorRampMapLegendItem::drawLabel( QPainter *painter, const QString &text, double vertPosition, double horizontalItemBorder )
+void ReosColorRampMapLegendItem::setOrder( int order )
 {
-  int phyDpiX = painter->device()->physicalDpiX();
-  double distFromItem = mDistLabelFromItem / 25.4 * phyDpiX;
-  QRectF extentTextBottom( horizontalItemBorder - mDistLabelFromItem, vertPosition, 0, 0 );
-  extentTextBottom = painter->boundingRect( extentTextBottom, Qt::AlignRight | Qt::AlignVCenter, text );
-  painter->drawText( extentTextBottom, Qt::AlignRight | Qt::AlignVCenter, text );
+  mOrder = order;
+}
+
+void ReosColorRampMapLegendItem::setLegendCount( int newLegendCount )
+{
+  mLegendCount = newLegendCount;
+}
+
+void ReosColorRampMapLegendItem::resize( QWidget *viewport )
+{
+  prepareGeometryChange();
+  double viewHeight = viewport->size().height();
+  double viewWidth = viewport->size().width();
+
+  int phyDpiX = viewport->physicalDpiX();
+  int phyDpiY = viewport->physicalDpiY();
+
+  double legendHeigh = std::min( viewHeight / mLegendCount - 30, mSizeHint.height() / 25.4 * phyDpiY );
+  double legendWidth = mSizeHint.width() / 25.4 * phyDpiX;
+
+  QPointF legendTopLeft = QPointF( viewWidth - legendWidth, viewHeight - legendHeigh * ( mOrder + 1 ) );
+
+  QRectF legendBox = QRectF( legendTopLeft, QSizeF( legendWidth, legendHeigh ) );
+  mBoundingRect = legendBox;
 }
 

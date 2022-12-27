@@ -77,6 +77,8 @@ class ReosGriddedRainfallColorShaderSettings_p : public ReosColorShaderSettings_
     void calculateSourceMinMax( double &min, double &max ) const override;
     void onSettingsUpdated() override;
 
+    QString title() const override;
+
   private:
     ReosGriddedRainfallRendererFactory_p *mRendererfactory = nullptr;
 
