@@ -101,7 +101,19 @@ void ReosModule::sendMessage( QString mes, MessageType type, bool messageBox ) c
   if ( mReosParent )
     mReosParent->sendMessage( mes, type, messageBox );
   else
+  {
     emit emitMessage( {type, mes}, messageBox );
+    switch ( type )
+    {
+      case Simple:
+      case Order:
+        break;
+      case Warning:
+      case Error:
+        qDebug() << "/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/  " << mes;
+        break;
+    }
+  }
 }
 
 void ReosModule::setProjectFileName( const QString &projectFileName )

@@ -181,7 +181,7 @@ QgsMesh3dDataBlock ReosMeshDataProvider_p::dataset3dValues( QgsMeshDatasetIndex,
   return QgsMesh3dDataBlock();
 }
 
-bool ReosMeshDataProvider_p::isFaceActive(QgsMeshDatasetIndex, int) const {return true;}
+bool ReosMeshDataProvider_p::isFaceActive( QgsMeshDatasetIndex, int ) const {return true;}
 
 QgsMeshDataBlock ReosMeshDataProvider_p::areFacesActive( QgsMeshDatasetIndex index, int valueIndex, int count ) const
 {
@@ -215,32 +215,32 @@ QgsMeshDataBlock ReosMeshDataProvider_p::areFacesActive( QgsMeshDatasetIndex ind
   return ret;
 }
 
-bool ReosMeshDataProvider_p::persistDatasetGroup(const QString &outputFilePath, const QString &outputDriver, const QgsMeshDatasetGroupMetadata &meta, const QVector<QgsMeshDataBlock> &datasetValues, const QVector<QgsMeshDataBlock> &datasetActive, const QVector<double> &times) {return false;}
+bool ReosMeshDataProvider_p::persistDatasetGroup( const QString &outputFilePath, const QString &outputDriver, const QgsMeshDatasetGroupMetadata &meta, const QVector<QgsMeshDataBlock> &datasetValues, const QVector<QgsMeshDataBlock> &datasetActive, const QVector<double> &times ) {return false;}
 
-bool ReosMeshDataProvider_p::persistDatasetGroup(const QString &outputFilePath, const QString &outputDriver, QgsMeshDatasetSourceInterface *source, int datasetGroupIndex)
+bool ReosMeshDataProvider_p::persistDatasetGroup( const QString &outputFilePath, const QString &outputDriver, QgsMeshDatasetSourceInterface *source, int datasetGroupIndex )
 {return false;}
 
 bool ReosMeshDataProvider_p::saveMeshFrame( const QgsMesh &mesh )
 {
-    mMesh = mesh;
-    return true;
+  mMesh = mesh;
+  return true;
 }
 
 QgsRectangle ReosMeshDataProvider_p::extent() const
 {
-    return mExtent;
+  return mExtent;
 }
 
 QgsMeshDriverMetadata ReosMeshDataProvider_p::driverMetadata() const
 {
-    return QgsMeshDriverMetadata( QStringLiteral( "ReosMeshMemory" ),
+  return QgsMeshDriverMetadata( QStringLiteral( "ReosMeshMemory" ),
                                 QStringLiteral( "reos mesh" ),
                                 QgsMeshDriverMetadata::CanWriteMeshData, QString(),
                                 QStringLiteral( "*.nc" ),
                                 3 );
 }
 
-void ReosMeshDataProvider_p::loadMeshFrame( const QString &filePath )
+void ReosMeshDataProvider_p::loadMeshFrame( const QString &filePath, ReosModule::Message &message )
 {
   mFilePath = filePath;
   QgsProviderMetadata *meta = QgsProviderRegistry::instance()->providerMetadata( QStringLiteral( "mdal" ) );
@@ -252,6 +252,11 @@ void ReosMeshDataProvider_p::loadMeshFrame( const QString &filePath )
     mExtent = dataProvider->extent();
     overrideCrs( dataProvider->crs() );
     emit dataChanged();
+  }
+  else
+  {
+    message.type = ReosModule::Error;
+    message.addText( tr( "MDAL not found, verify your installation." ) );
   }
 }
 
@@ -361,7 +366,7 @@ QgsMesh ReosMeshDataProvider_p::convertFrameFromReos( const ReosMeshFrameData &r
 
 ReosMeshProviderMetaData::ReosMeshProviderMetaData() : QgsProviderMetadata( QStringLiteral( "ReosMesh" ), QStringLiteral( "reos mesh" ) ) {}
 
-ReosMeshDataProvider_p *ReosMeshProviderMetaData::createProvider(const QString &, const QgsDataProvider::ProviderOptions &, QgsDataProvider::ReadFlags)
+ReosMeshDataProvider_p *ReosMeshProviderMetaData::createProvider( const QString &, const QgsDataProvider::ProviderOptions &, QgsDataProvider::ReadFlags )
 {
-    return new ReosMeshDataProvider_p();
+  return new ReosMeshDataProvider_p();
 }

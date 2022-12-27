@@ -613,6 +613,8 @@ static QString settingsPointerToString( ReosColorShaderSettings *settings )
 
 void ReosMap::addExtraRenderedObject( ReosRenderedObject *obj )
 {
+  if ( !obj )
+    return;
   mExtraRenderedObjects.append( obj );
   QgsMapCanvas *mapCanvas = qobject_cast<QgsMapCanvas *>( mCanvas );
   if ( mapCanvas )
@@ -635,6 +637,8 @@ void ReosMap::addExtraRenderedObject( ReosRenderedObject *obj )
 
 void ReosMap::removeExtraRenderedObject( ReosRenderedObject *obj )
 {
+  if ( !obj )
+    return;
   if ( mExtraRenderedObjects.removeOne( obj ) )
   {
     mExtraRenderedObjectHandler.clearObject( obj );

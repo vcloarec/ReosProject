@@ -146,7 +146,7 @@ ReosStructureImporter *ReosSimulationEngineRegistery::createStructureImporter( c
   if ( it != mFactories.end() )
     return it->second->createImporter( element, context );
 
-  return new ReosStructureImporterDummy( element );
+  return new ReosStructureImporterDummy( element, context );
 }
 
 void ReosSimulationEngineRegistery::loadDynamicLibrary()

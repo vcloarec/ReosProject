@@ -58,7 +58,7 @@ class ReosMeshFrame_p : public ReosMesh
 {
   public:
     ReosMeshFrame_p( const QString &crs, QObject *parent );
-    ReosMeshFrame_p( const QString &dataPath, const QString &destinationCrs );
+    ReosMeshFrame_p( const QString &dataPath, const QString &destinationCrs, ReosModule::Message &message );
 
     bool isValid() const override;
     int vertexCount() const override;

@@ -47,7 +47,7 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
     //! Overrides the crs, used when the mesh provider is created from scratch
     void overrideCrs( const QgsCoordinateReferenceSystem &crs );
 
-    void loadMeshFrame( const QString &filePath );
+    void loadMeshFrame( const QString &filePath, ReosModule::Message &message );
 
     bool saveMeshFrameToFile( const QgsMesh &mesh );
 

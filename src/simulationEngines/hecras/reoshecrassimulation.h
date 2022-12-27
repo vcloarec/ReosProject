@@ -75,21 +75,21 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
     const QString &currentPlan() const;
 
     const ReosDuration &minimumInterval() const;
-    void setMinimumInterval(const ReosDuration &newMinimumInterval);
+    void setMinimumInterval( const ReosDuration &newMinimumInterval );
 
     const ReosDuration &computeInterval() const;
-    void setComputeInterval(const ReosDuration &newComputeInterval);
+    void setComputeInterval( const ReosDuration &newComputeInterval );
 
     const ReosDuration &outputInterval() const;
-    void setOutputInterval(const ReosDuration &newOutputInterval);
+    void setOutputInterval( const ReosDuration &newOutputInterval );
 
     const ReosDuration &detailedInterval() const;
-    void setDetailledInterval(const ReosDuration &newDetailledInterval);
+    void setDetailledInterval( const ReosDuration &newDetailledInterval );
 
     const ReosDuration &mappingInterval() const;
-    void setMappingInterval(const ReosDuration &newMappingInterval);
+    void setMappingInterval( const ReosDuration &newMappingInterval );
 
-private:
+  private:
     QString mProjectFileName;
     std::shared_ptr<ReosHecRasProject> mProject;
 
@@ -129,7 +129,7 @@ class ReosHecRasSimulationEngineFactory : public ReosSimulationEngineFactory
 class ReosHecRasStructureImporter: public ReosStructureImporter
 {
   public:
-    ReosHecRasStructureImporter( const QString &file );
+    explicit ReosHecRasStructureImporter( const QString &file, const ReosHydraulicNetworkContext &context );
     ReosHecRasStructureImporter( const ReosEncodedElement &element, const ReosHydraulicNetworkContext &context );
     ~ReosHecRasStructureImporter();
 

@@ -76,7 +76,6 @@ void ReosMessageBox::receiveMessage( const ReosModule::Message &message, bool me
       case ReosModule::Error:
         QMessageBox::critical( this, QString(), messageText );
         break;
-
     }
   }
 }
