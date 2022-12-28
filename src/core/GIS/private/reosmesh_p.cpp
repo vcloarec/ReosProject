@@ -1758,6 +1758,8 @@ QString ReosMeshScalarColorShaderSettings_p::title() const
 {
   if ( mMesh )
     return mMesh->datasetName( mMesh->currentdScalarDatasetId() );
+
+  return QString();
 }
 
 

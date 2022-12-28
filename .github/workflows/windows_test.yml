@@ -72,7 +72,7 @@ jobs:
       with:
         repository: vcloarec/QGIS
         path: QGIS
-        ref: forLekan
+        ref: forLekanMaster
     
     - name: check QGIS hash
       id: getQgisHash
