@@ -70,7 +70,7 @@ cmake   -S $env:REOS_SOURCE `
         -D QGIS_APP_LIB=$QGIS_INSTALL//lib/qgis_app.lib `
         -D QGIS_CORE_LIB=$QGIS_INSTALL/lib/qgis_core.lib `
         -D QGIS_GUI_LIB=$QGIS_INSTALL/lib/qgis_gui.lib `
-        -D QGIS_LIB_PATH=$QGIS_INSTALL/lib `
+        -D QGIS_PROVIDERS_PATH=$QGIS_INSTALL/plugins `
         -D GMSH_INCLUDE_DIR=$GMSH_INSTALL/include `
         -D QGIS_3D_EXTRA_HEADER= `
         -D QGIS_APP_INCLUDE=$QGIS_SRC/src/app `
