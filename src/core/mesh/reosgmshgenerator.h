@@ -48,7 +48,7 @@ class REOSCORE_EXPORT ReosGmshGenerator : public ReosMeshGenerator
     };
 
     ReosGmshGenerator( QObject *parent = nullptr );
-    ReosGmshGenerator( const ReosEncodedElement &element, QObject *parent = nullptr );
+    explicit ReosGmshGenerator( const ReosEncodedElement &element, QObject *parent = nullptr );
 
     ReosMeshGeneratorProcess *getGenerateMeshProcess( ReosPolylinesStructure *structure,
         ReosMeshResolutionController *resolutionControler,
@@ -101,9 +101,9 @@ class ReosMeshGeneratorGmshProcess: public ReosMeshGeneratorProcess
                                   ReosGmshGenerator::Algorithm alg,
                                   const QString &destinationCrs = QString() );
 
-    void start();
+    void start() override;
 
-    ReosMeshFrameData meshResult() const {return mResult;}
+    ReosMeshFrameData meshResult() const override {return mResult;}
 
   private:
     ReosMeshFrameData mResult;

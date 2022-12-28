@@ -111,11 +111,11 @@ class REOSCORE_EXPORT ReosMeshGenerator : public ReosDataObject
 class ReosMeshGeneratorPoly2TriProcess: public ReosMeshGeneratorProcess
 {
   public:
-    ReosMeshGeneratorPoly2TriProcess( const QPolygonF &domain );
+    explicit ReosMeshGeneratorPoly2TriProcess( const QPolygonF &domain );
 
-    void start();
+    void start() override;
 
-    ReosMeshFrameData meshResult() const {return mResult;}
+    ReosMeshFrameData meshResult() const override {return mResult;}
 
   private:
     QPolygonF mDomain;
