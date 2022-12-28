@@ -747,8 +747,8 @@ QVector<int> ReosMapToolEditMeshFrame_p::edgeVertices( const ReosMapToolEditMesh
 void ReosMapToolEditMeshFrame_p::startMeshEditing()
 {
   QgsCoordinateTransform transform( mMeshLayer->crs(), mCanvas->mapSettings().destinationCrs(), QgsProject::instance() );
-
-  if ( !mMeshLayer->startFrameEditing( transform ) )
+  QgsMeshEditingError error;
+  if ( !mMeshLayer->startFrameEditing( transform, error, false ) )
   {
     QMessageBox::warning( mCanvas, tr( "Start Editing Elements" ), "Unable to start editing mesh elements." );
     return;
