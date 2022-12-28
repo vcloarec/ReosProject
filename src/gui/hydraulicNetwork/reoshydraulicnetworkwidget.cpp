@@ -94,10 +94,10 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   mMapToolMoveHydrographJunction->setSearchItemWhenMoving( true );
 
   mActionNewStructure2D->setCheckable( true );
+  mMapToolNewStructure2D->setAction( mActionNewStructure2D );
   if ( !ReosSimulationEngineRegistery::instance()->canImportSrtucture2D() )
   {
     toolBar->addAction( mActionNewStructure2D );
-    mMapToolNewStructure2D->setAction( mActionNewStructure2D );
   }
   else
   {
