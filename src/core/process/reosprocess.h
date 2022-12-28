@@ -62,7 +62,7 @@ class REOSCORE_EXPORT ReosProcess : public QObject
 
     static unsigned maximumThreads();
 
-    void notify( ReosModule::Message &message );
+    void notify( const ReosModule::Message &message );
 
     ReosModule::Message message() const;
 

@@ -65,7 +65,7 @@ unsigned ReosProcess::maximumThreads()
   return maxThread;
 }
 
-void ReosProcess::notify( ReosModule::Message &message )
+void ReosProcess::notify( const ReosModule::Message &message )
 {
   mMessage = message;
 }

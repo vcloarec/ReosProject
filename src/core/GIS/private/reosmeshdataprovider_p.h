@@ -27,7 +27,7 @@
 class ReosMeshGenerator;
 struct ReosMeshFrameData;
 class ReosDigitalElevationModel;
-class ReosTopographyCollection;
+class ReosTopographyCollection_p;
 
 class ReosMeshDataProvider_p: public QgsMeshDataProvider
 {
@@ -42,7 +42,7 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
 
     void applyDemOnVertices( ReosDigitalElevationModel *dem );
 
-    void applyTopographyOnVertices( ReosTopographyCollection *topographyCollection, ReosProcess *process = nullptr );
+    void applyTopographyOnVertices( ReosTopographyCollection_p *topographyCollection, ReosProcess *process = nullptr );
 
     //! Overrides the crs, used when the mesh provider is created from scratch
     void overrideCrs( const QgsCoordinateReferenceSystem &crs );

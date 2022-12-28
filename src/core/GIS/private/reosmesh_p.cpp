@@ -31,6 +31,7 @@
 #include "reosencodedelement.h"
 #include "reosmapextent.h"
 #include "reostopographycollection.h"
+#include "reostopographycollection_p.h"
 #include "reosgisengine.h"
 #include "reosrenderedobject.h"
 #include "reosrenderersettings_p.h"
@@ -1114,11 +1115,17 @@ int ReosMeshFrame_p::datasetGroupIndex( const QString &id ) const
 class ApplyTopopraphyProcess : public ReosProcess
 {
   public:
-    ApplyTopopraphyProcess( ReosTopographyCollection *topographyCollection, ReosMeshDataProvider_p *meshProvider )
+    ApplyTopopraphyProcess( ReosTopographyCollection_p *topographyCollection, ReosMeshDataProvider_p *meshProvider )
       : mTopographyCollection( topographyCollection )
       , mProvider( meshProvider )
-    {}
+    {
+      mTopographyCollection->prepare_p( meshProvider->crs() );
+    }
 
+    ~ApplyTopopraphyProcess()
+    {
+      mTopographyCollection->clean_p();
+    }
 
     void start()
     {
@@ -1127,7 +1134,7 @@ class ApplyTopopraphyProcess : public ReosProcess
     }
 
   private:
-    ReosTopographyCollection *mTopographyCollection = nullptr;
+    ReosTopographyCollection_p *mTopographyCollection = nullptr;
     ReosMeshDataProvider_p *mProvider = nullptr;
 };
 
@@ -1136,7 +1143,8 @@ ReosProcess *ReosMeshFrame_p::applyTopographyOnVertices( ReosTopographyCollectio
   if ( mMeshLayer->isEditable() )
     stopFrameEditing( true );
 
-  std::unique_ptr<ReosProcess> process( new ApplyTopopraphyProcess( topographyCollection, meshProvider() ) );
+  std::unique_ptr<ReosProcess> process(
+    new ApplyTopopraphyProcess( qobject_cast<ReosTopographyCollection_p *>( topographyCollection ), meshProvider() ) );
 
   connect( process.get(), &ReosProcess::finished, this, [this, topographyCollection]
   {
