@@ -26,7 +26,6 @@ class ReosColorRampMapLegendItem : public QGraphicsItem
 
     QRectF boundingRect() const override;
 
-
     void paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget ) override;
 
     void setOrder( int order );
@@ -36,12 +35,13 @@ class ReosColorRampMapLegendItem : public QGraphicsItem
 
   private:
     QPointer<ReosColorShaderSettings> mSettings;
-    QSizeF mSizeHint = QSize( 50.0, 60.0 ); //in mm
     int mOrder = 0;
     int mLegendCount = 0;
+    // Dimension in mm
+    QSizeF mSizeHint = QSize( 40.0, 60.0 );
     double mHorSpacing = 5.0;
     double mVertSpacing = 5.0;
-    double mRampBoxWidth = 7.0;
+    double mRampBoxWidth = 4.0;
     double mDistLabelFromItem = 5.0;
     QRectF mBoundingRect;
 
