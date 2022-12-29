@@ -48,6 +48,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
       GeometryEditable = 1 << 0, //!< If the structure have geometry editable (structure or mesh)
       MultiSimulation = 1 << 1, //!< If the structure can have multiple simulations
       DefinedExternally = 1 << 2, //!< If the structure is defined externally
+      GriddedPrecipitation = 1 << 2 //!< If the structure can accept gridded precipitation on its domain
     };
 
     Q_ENUM( Structure2DCapability )
@@ -70,6 +71,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
     void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
     ReosMapExtent extent() const override;
+    QString defaultDisplayName() const override {return tr( "Hydraulic structure 2D" );}
 
     ReosDuration currentElementTimeStep() const override;
     ReosDuration mapTimeStep() const override;
@@ -112,7 +114,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     QList<ReosHydraulicStructureBoundaryCondition *> boundaryConditions() const;
 
     //! Adds a new simulation with \a key corresponding to a engine and sets it the current one. Returns true if the simulation is effectivly added
-    bool addSimulation( const QString key );
+    bool addSimulation( const QString &key );
 
     //! Remove the simulation with \a index
     void removeSimulation( int index );
@@ -340,6 +342,8 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     ReosSimulationProcess *processFromScheme( const QString &schemeId ) const;
 
     int simulationIndexFromId( const QString &simId ) const;
+
+    friend class ReoHydraulicStructure2DTest;
 };
 
 class ReosHydraulicStructure2dFactory : public ReosHydraulicNetworkElementFactory

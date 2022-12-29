@@ -494,6 +494,22 @@ ReosMapExtent ReosHydraulicNetwork::networkExtent() const
   return extent;
 }
 
+QList<ReosHydraulicNetworkElement *> ReosHydraulicNetwork::hydraulicNetworkElements( const QString &type ) const
+{
+  const QList<ReosHydraulicNetworkElement *> allElement = mElements.values();
+  if ( type.isEmpty() )
+    return allElement;
+
+  QList<ReosHydraulicNetworkElement *> ret;
+
+  for ( ReosHydraulicNetworkElement *elem : allElement )
+  {
+    if ( elem->type().contains( type ) )
+      ret.append( elem );
+  }
+  return ret;
+}
+
 void ReosHydraulicNetwork::addEncodedElement( const ReosEncodedElement &element )
 {
   auto it = mElementFactories.find( element.description() );

@@ -31,11 +31,15 @@
 #include "reosmap.h"
 
 
-ReosMeteorologicModelWidget::ReosMeteorologicModelWidget( ReosWatershedItemModel *watershedModel,
-    ReosMeteorologicModelsCollection *meteoModelsCollection,
-    const ReosGuiContext &guiContext ) :
+ReosMeteorologicModelWidget::ReosMeteorologicModelWidget(
+  ReosWatershedItemModel *watershedModel,
+  ReosHydraulicNetwork *hydraulicNetwork,
+  ReosMeteorologicModelsCollection *meteoModelsCollection,
+  const ReosGuiContext &guiContext ) :
   ReosActionWidget( guiContext.parent() )
-  , mMeteorologicItemModel( new ReosMeteorologicItemModel( watershedModel ) )
+  , mMeteorologicItemModel( new ReosMeteorologicItemModel( watershedModel, this ) )
+  , mMeteorologicStructureModel( new ReosMeteorologicStructureItemModel( hydraulicNetwork, this ) )
+  , mHydraulicNetwork( hydraulicNetwork )
   , mModelsCollections( meteoModelsCollection )
   , mMap( guiContext.map() )
   , ui( new Ui::ReosMeteorologicModelWidget )
@@ -60,6 +64,13 @@ ReosMeteorologicModelWidget::ReosMeteorologicModelWidget( ReosWatershedItemModel
   connect( ui->treeViewMeteorologicModel, &QWidget::customContextMenuRequested, this, &ReosMeteorologicModelWidget::onMeteoTreeViewContextMenu );
   connect( watershedModel, &QAbstractItemModel::modelReset, ui->treeViewMeteorologicModel, &QTreeView::expandAll );
   connect( mMeteorologicItemModel, &QAbstractItemModel::modelReset, ui->treeViewMeteorologicModel, &QTreeView::expandAll );
+
+  ui->treeViewHydraulicNetwork->setAcceptDrops( true );
+  ui->treeViewHydraulicNetwork->expandAll();
+  ui->treeViewHydraulicNetwork->header()->setSectionResizeMode( QHeaderView::ResizeToContents );
+  ui->treeViewHydraulicNetwork->setModel( mMeteorologicStructureModel );
+  ui->treeViewHydraulicNetwork->setContextMenuPolicy( Qt::CustomContextMenu );
+  connect( ui->treeViewHydraulicNetwork, &QWidget::customContextMenuRequested, this, &ReosMeteorologicModelWidget::onMeteoStructureTreeViewContextMenu );
 
   ui->comboBoxCurrentModel->setModel( meteoModelsCollection );
 
@@ -197,7 +208,8 @@ void ReosMeteorologicModelWidget::onCurrentModelChanged()
 
   ReosMeteorologicModel *current = currentModel();
 
-  mMeteorologicItemModel->setCurrentMeteorologicalModel( currentModel() );
+  mMeteorologicItemModel->setCurrentMeteorologicalModel( current );
+  mMeteorologicStructureModel->setCurrentMeteoModel( current );
   mActionDuplicateMeteoModel->setEnabled( current != nullptr );
   mActionRemoveMeteoModel->setEnabled( current != nullptr );
   mActionRenameMeteoModel->setEnabled( current != nullptr );
@@ -220,13 +232,30 @@ void ReosMeteorologicModelWidget::onCurrentModelChanged()
 
 void ReosMeteorologicModelWidget::onMeteoTreeViewContextMenu( const QPoint &pos )
 {
+  QModelIndex index = ui->treeViewMeteorologicModel->indexAt( pos );
+  if ( !index.isValid() )
+    return;
   QMenu menu;
-  menu.addAction( QIcon( QStringLiteral( ":/images/remove.svg" ) ), tr( "Disassociate rainfall" ), &menu, [this, pos]
+  menu.addAction( QIcon( QStringLiteral( ":/images/remove.svg" ) ), tr( "Disassociate rainfall" ), &menu, [this, index]
   {
-    mMeteorologicItemModel->removeAssociation( ui->treeViewMeteorologicModel->indexAt( pos ) );
+    mMeteorologicItemModel->removeAssociation( index );
   } );
 
   menu.exec( ui->treeViewMeteorologicModel->mapToGlobal( pos ) );
+}
+
+void ReosMeteorologicModelWidget::onMeteoStructureTreeViewContextMenu( const QPoint &pos )
+{
+  QModelIndex index = ui->treeViewHydraulicNetwork->indexAt( pos );
+  if ( !index.isValid() )
+    return;
+  QMenu menu;
+  menu.addAction( QIcon( QStringLiteral( ":/images/remove.svg" ) ), tr( "Disassociate rainfall" ), &menu, [this, index]
+  {
+    mMeteorologicStructureModel->removeAssociation( index );
+  } );
+
+  menu.exec( ui->treeViewHydraulicNetwork->mapToGlobal( pos ) );
 }
 
 ReosMeteorologicModel *ReosMeteorologicModelWidget::currentModel() const

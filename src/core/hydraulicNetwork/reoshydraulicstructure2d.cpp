@@ -466,7 +466,7 @@ void ReosHydraulicStructure2D::setCurrentSimulation( int index )
   emit currentSimulationChanged();
 }
 
-bool ReosHydraulicStructure2D::addSimulation( const QString key )
+bool ReosHydraulicStructure2D::addSimulation( const QString &key )
 {
   ReosHydraulicSimulation *sim = ReosSimulationEngineRegistery::instance()->createSimulation( key, this );
   if ( sim )

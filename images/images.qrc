@@ -167,6 +167,7 @@
         <file>detach.svg</file>
         <file>watershed.svg</file>
         <file>reattach.svg</file>
+        <file>hydraulicStructure2D.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

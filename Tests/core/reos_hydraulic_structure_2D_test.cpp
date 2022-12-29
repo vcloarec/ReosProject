@@ -14,6 +14,7 @@ email                : vcloarec at gmail dot com
  ***************************************************************************/
 #include<QtTest/QtTest>
 #include <QObject>
+#include <QModelIndexList>
 
 #include "reoshydraulicstructure2d.h"
 #include "reospolygonstructure.h"
@@ -22,30 +23,41 @@ email                : vcloarec at gmail dot com
 #include "reosmapextent.h"
 #include "reostopographycollection.h"
 #include "reos_testutils.h"
+#include "reosgriddedrainitem.h"
+#include "reosrainfallmodel.h"
+#include "reosrainfallregistery.h"
 
 class ReoHydraulicStructure2DTest: public QObject
 {
     Q_OBJECT
   private slots:
 
-    void init();
+    void initTestCase();
     void createAndEditPolylineStructure();
     void createAndEditPolygonStructure();
 
     void createHydraulicStructure();
     void profile();
+
+    void meteoModel();
+
   private:
     ReosHydraulicNetwork *mNetwork = nullptr;
     ReosModule *mRootModule = nullptr;
-    ReosGisEngine mGisEngine;
-
-    std::unique_ptr<ReosHydraulicStructure2D> mHydraulicStructure;
+    ReosGisEngine *mGisEngine = nullptr;
+    ReosHydraulicStructure2D *mHydraulicStructure = nullptr;
+    ReosRainfallModel *mRainfallModel = nullptr;
+    ReosZoneItem *mRainZone1 = nullptr;
 };
 
-void ReoHydraulicStructure2DTest::init()
+void ReoHydraulicStructure2DTest::initTestCase()
 {
   mRootModule = new ReosModule( this );
-  mNetwork = new ReosHydraulicNetwork( mRootModule, &mGisEngine, nullptr );
+  mGisEngine = new ReosGisEngine( this );
+  mNetwork = new ReosHydraulicNetwork( mRootModule, mGisEngine, nullptr );
+
+  mRainfallModel = ReosRainfallRegistery::instance()->rainfallModel();
+  mRainZone1 = mRainfallModel->addZone( "Zone 1", "", QModelIndex() );
 }
 
 void ReoHydraulicStructure2DTest::createAndEditPolylineStructure()
@@ -399,7 +411,7 @@ void ReoHydraulicStructure2DTest::createHydraulicStructure()
          << QPointF( 30, 20 )
          << QPointF( 0, 20 );
 
-  mHydraulicStructure = std::make_unique<ReosHydraulicStructure2D>( domain, QString(), mNetwork->context() );
+  mHydraulicStructure = new ReosHydraulicStructure2D( domain, QString(), mNetwork->context() );
   mHydraulicStructure->meshResolutionController()->defaultSize()->setValue( 1 );
 
   std::unique_ptr<ReosMeshGeneratorProcess> meshGenerator( mHydraulicStructure->getGenerateMeshProcess() );
@@ -430,8 +442,8 @@ void ReoHydraulicStructure2DTest::createHydraulicStructure()
   QCOMPARE( mHydraulicStructure->mesh()->vertexCount(), 687 );
 #endif
 
-  QString demId = mGisEngine.addRasterLayer( test_file( "dem_for_mesh.tif" ).c_str() );
-  mGisEngine.registerLayerAsDigitalElevationModel( demId );
+  QString demId = mGisEngine->addRasterLayer( test_file( "dem_for_mesh.tif" ).c_str() );
+  mGisEngine->registerLayerAsDigitalElevationModel( demId );
   mHydraulicStructure->topographyCollecion()->insertTopography( 0, demId );
 
   ModuleProcessControler controler( mHydraulicStructure->mesh()->applyTopographyOnVertices( mHydraulicStructure->topographyCollecion() ) );
@@ -501,6 +513,53 @@ void ReoHydraulicStructure2DTest::profile()
       QVERIFY( equal( zValue, meshValue, 0.00000001 ) || std::isnan( meshValue ) );
     }
   }
+}
+
+void ReoHydraulicStructure2DTest::meteoModel()
+{
+  mHydraulicStructure->mCapabilities.setFlag( ReosHydraulicStructure2D::GriddedPrecipitation, true );
+
+  std::unique_ptr<ReosMeteorologicStructureItemModel> meteoStructureItemModel( new ReosMeteorologicStructureItemModel( mNetwork ) );
+  std::unique_ptr<ReosMeteorologicModel> meteoModel( new ReosMeteorologicModel( "meteo_model" ) );
+  meteoStructureItemModel->setCurrentMeteoModel( meteoModel.get() );
+
+  QCOMPARE( meteoStructureItemModel->rowCount( QModelIndex() ), 0 );
+  mNetwork->addElement( mHydraulicStructure, false );
+  QCOMPARE( meteoStructureItemModel->rowCount( QModelIndex() ), 1 );
+
+
+  QString filePath = testFile( QStringLiteral( "/grib/W_fr-meteofrance,MODEL,AROME+0025+SP1+00H06H_C_LFPW_202211161200--.grib2" ) );
+  QString variableName = QStringLiteral( "Total precipitation rate [kg/(m^2*s)]" );
+  ReosGriddedRainItem *rainItem = mRainfallModel->addGriddedRainfall( "gridded rain", "", mRainfallModel->itemToIndex( mRainZone1 ),
+                                  new ReosGriddedRainfall( filePath + "::" + variableName + "::" + "cumulative", QStringLiteral( "grib" ) ) ) ;
+
+  QVERIFY( rainItem->data() );
+
+  QModelIndexList indexes;
+  indexes << mRainfallModel->itemToIndex( rainItem );
+  std::unique_ptr<QMimeData> mimeData( mRainfallModel->mimeData( indexes ) );
+
+  QVERIFY( meteoModel->associatedRainfallItem( mHydraulicStructure ) == nullptr );
+
+  QVERIFY( meteoStructureItemModel->canDropMimeData( mimeData.get(), Qt::DropAction::CopyAction, 0, 0, meteoStructureItemModel->structureToIndex( mHydraulicStructure ) ) );
+  QVERIFY( meteoStructureItemModel->dropMimeData( mimeData.get(), Qt::DropAction::CopyAction, 0, 0, meteoStructureItemModel->structureToIndex( mHydraulicStructure ) ) );
+
+  QVERIFY( meteoModel->associatedRainfallItem( mHydraulicStructure ) == rainItem );
+
+  meteoModel->disassociate( mHydraulicStructure );
+  QVERIFY( meteoModel->associatedRainfallItem( mHydraulicStructure ) == nullptr );
+
+  QVERIFY( meteoStructureItemModel->dropMimeData( mimeData.get(), Qt::DropAction::CopyAction, 0, 0, meteoStructureItemModel->structureToIndex( mHydraulicStructure ) ) );
+  QVERIFY( meteoModel->associatedRainfallItem( mHydraulicStructure ) == rainItem );
+
+  ReosGriddedRainfall *rainfall = meteoModel->associatedRainfall( mHydraulicStructure );
+  QVERIFY( rainfall );
+  QCOMPARE( rainfall->gridCount(), 6 );
+
+  ReosEncodedElement encodedMeteoModel = meteoModel->encode( nullptr );
+
+  std::unique_ptr<ReosMeteorologicModel> otherModel( new ReosMeteorologicModel( encodedMeteoModel, nullptr, ReosRainfallRegistery::instance() ) );
+  QVERIFY( otherModel->associatedRainfallItem( mHydraulicStructure ) == rainItem );
 }
 
 

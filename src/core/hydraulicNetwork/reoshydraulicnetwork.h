@@ -188,6 +188,7 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
 
     ReosGisEngine *gisEngine() const;
 
+    //! Returns an hydraulic network context corresponding to this network
     ReosHydraulicNetworkContext context() const;
 
     ReosCalculationContext calculationContext() const;
@@ -203,6 +204,8 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     ReosDuration currentTimeStep() const;
 
     ReosMapExtent networkExtent() const;
+
+    QList<ReosHydraulicNetworkElement *> hydraulicNetworkElements( const QString &type = QString() ) const;
 
   signals:
     void elementAdded( ReosHydraulicNetworkElement *elem, bool select );
