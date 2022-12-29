@@ -52,7 +52,10 @@ void ReosWatershedModule::decode( const ReosEncodedElement &element, const ReosE
 
   if ( ReosRainfallRegistery::isInstantiate() )
   {
-    mMeteorologicModelsCollection->decode( element.getEncodedData( QStringLiteral( "meteo-models-collection" ) ), mWatershedTree, ReosRainfallRegistery::instance() );
+    mMeteorologicModelsCollection->decode(
+      element.getEncodedData( QStringLiteral( "meteo-models-collection" ) ),
+      mWatershedTree,
+      ReosRainfallRegistery::instance() );
   }
 
   emit hasBeenReset();

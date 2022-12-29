@@ -55,7 +55,7 @@ ReosWatershedWidget::ReosWatershedWidget( const ReosGuiContext &guiContext, Reos
 
   setWatershedModel( new ReosWatershedItemModel( module->watershedTree(), this ) );
 
-  mMeteorolocicModelWidget = new ReosMeteorologicModelWidget( mModelWatershed, module->meteoModelsCollection(), ReosGuiContext( guiContext, this ) );
+  mMeteorolocicModelWidget = new ReosMeteorologicModelWidget( mModelWatershed, hydraulicNetwork, module->meteoModelsCollection(), ReosGuiContext( guiContext, this ) );
 
   ui->mParameterAreaWidget->setDefaultName( tr( "Area" ) );
   ui->mParameterSlopeWidget->setDefaultName( tr( "Average Slope" ) );
@@ -639,12 +639,12 @@ ReosWatershedDockWidget::ReosWatershedDockWidget( const ReosGuiContext &context,
 
 ReosWatershedWidget *ReosWatershedDockWidget::watershedWidget() const
 {
-    return mWatershedWidget;
+  return mWatershedWidget;
 }
 
 QAction *ReosWatershedDockWidget::actionToggle() const
 {
-    return mActionToggle;
+  return mActionToggle;
 }
 
 ReosWatershedWidget::MapWatershed::MapWatershed( ReosMap *map, const QPolygonF &delineat, const QPointF &outletPt )

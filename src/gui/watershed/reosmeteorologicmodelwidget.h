@@ -22,6 +22,7 @@
 #include "reosguicontext.h"
 
 class ReosMeteorologicItemModel;
+class ReosMeteorologicStructureItemModel;
 class ReosMeteorologicModel;
 class ReosWatershedItemModel;
 class ReosMeteorologicModelsCollection;
@@ -29,6 +30,7 @@ class ReosTimeWindow;
 class ReosDuration;
 class ReosRenderedObject;
 class ReosMap;
+class ReosHydraulicNetwork;
 
 namespace Ui
 {
@@ -41,6 +43,7 @@ class ReosMeteorologicModelWidget : public ReosActionWidget
 
   public:
     explicit ReosMeteorologicModelWidget( ReosWatershedItemModel *watershedModel,
+                                          ReosHydraulicNetwork *hydraulicNetwork,
                                           ReosMeteorologicModelsCollection *meteoModelsCollection,
                                           const ReosGuiContext &guiContext );
 
@@ -65,11 +68,14 @@ class ReosMeteorologicModelWidget : public ReosActionWidget
     void onRenameMeteoModel();
     void onCurrentModelChanged();
     void onMeteoTreeViewContextMenu( const QPoint &pos );
+    void onMeteoStructureTreeViewContextMenu( const QPoint &pos );
     void handleRenderedObject();
     void displayRenderedObject( bool display );
 
   private:
     ReosMeteorologicItemModel *mMeteorologicItemModel = nullptr;
+    ReosMeteorologicStructureItemModel *mMeteorologicStructureModel = nullptr;
+    ReosHydraulicNetwork *mHydraulicNetwork = nullptr;
     ReosMeteorologicModel *mCurrentModel = nullptr;
     ReosMeteorologicModelsCollection *mModelsCollections = nullptr;
     ReosMap *mMap = nullptr;

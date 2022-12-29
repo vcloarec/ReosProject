@@ -27,13 +27,17 @@ class ReosWatershedTree;
 class ReosRainfallRegistery;
 class ReosWatershedItemModel;
 class ReosSeriesRainfall;
+class ReosHydraulicStructure2D;
+class ReosHydraulicNetworkElement;
+class ReosHydraulicNetwork;
+class ReosGriddedRainItem;
 
 //! Class that handle association between watesheds and rainfalls
 class REOSCORE_EXPORT ReosMeteorologicModel : public ReosDataObject
 {
     Q_OBJECT
   public:
-    ReosMeteorologicModel( const QString &name, QObject *parent = nullptr );
+    explicit ReosMeteorologicModel( const QString &name, QObject *parent = nullptr );
     ReosMeteorologicModel( const ReosEncodedElement &element,
                            ReosWatershedTree *watershedTree,
                            ReosRainfallRegistery *rainfallregistery,
@@ -50,14 +54,26 @@ class REOSCORE_EXPORT ReosMeteorologicModel : public ReosDataObject
     //! Associates a \a rainfall with the \a watershed
     void associate( ReosWatershed *watershed, ReosRainfallDataItem *rainfall );
 
-    //! Disassociation the rainfall associated with the \a watershd
+    //! Associates a \a rainfall with the \a hydraulic structure 2D
+    void associate( ReosHydraulicStructure2D *structure, ReosRainfallDataItem *rainfall );
+
+    //! Disassociation the rainfall associated with the \a watershed
     void disassociate( ReosWatershed *watershed );
+
+    //! Disassociation the rainfall associated with the \a watershed
+    void disassociate( ReosHydraulicStructure2D *structure2D );
 
     //! Returns the associated rainfall item of \a watershed
     ReosRainfallDataItem *associatedRainfallItem( ReosWatershed *watershed ) const;
 
+    //! Returns the associated rainfall item of \a structure
+    ReosGriddedRainItem *associatedRainfallItem( ReosHydraulicStructure2D *structure ) const;
+
     //! Returns the associated rainfall of \a watershed
     ReosSeriesRainfall *associatedRainfall( ReosWatershed *watershed ) const;
+
+    //! Returns the associated rainfall of \a hydraulic structure 2d
+    ReosGriddedRainfall *associatedRainfall( ReosHydraulicStructure2D *structure ) const;
 
     //! Returns whether the meteomodel has a associated rainfall for the watershed \a watershed
     bool hasRainfall( ReosWatershed *watershed ) const;
@@ -95,13 +111,20 @@ class REOSCORE_EXPORT ReosMeteorologicModel : public ReosDataObject
       QPointer<ReosWatershed> watershed;
       QPointer<ReosRainfallDataItem> rainfallDataItem;
       std::shared_ptr<ReosSeriesRainfall> resultingRainfall;
+      QPointer<ReosHydraulicStructure2D> structure2D;
     };
 
     mutable QList<WatershedRainfallAssociation> mAssociations;
+    mutable QMap<QString, WatershedRainfallAssociation> mTemporaryStructureAssocations; //used to link structure 2D to its id until we can resolve access to pointer
     QColor mColor;
 
     //! Searchs for \a watershed, if found , return its index, otherwise return -1
     int findWatershed( ReosWatershed *watershed ) const;
+
+    //! Searchs for \a structure 2D, if found , return its index, otherwise return -1
+    int findStructure( ReosHydraulicStructure2D *structure ) const;
+
+    void resolveStructureAssociation( ReosHydraulicStructure2D *structure ) const;
 };
 
 //! List model class that represents a collection of meteorologic model
@@ -183,7 +206,39 @@ class REOSCORE_EXPORT ReosMeteorologicItemModel: public QIdentityProxyModel
     ReosMeteorologicModel *mCurrentMeteoModel = nullptr;
 
     ReosRainfallDataItem *rainfallDataInMeteorologicModel( const QModelIndex &index );
-    ReosRainfallDataItem *rainfallDataInRainfallModel( const QString &uri ) const;
+};
+
+class REOSCORE_EXPORT ReosMeteorologicStructureItemModel: public QAbstractListModel
+{
+    Q_OBJECT
+  public:
+    explicit ReosMeteorologicStructureItemModel( ReosHydraulicNetwork *hydraulicNetwork, QObject *parent = nullptr );
+
+    int rowCount( const QModelIndex &parent ) const override;
+    int columnCount( const QModelIndex &parent ) const override;
+    QVariant data( const QModelIndex &index, int role ) const override;
+    QVariant headerData( int section, Qt::Orientation orientation, int role ) const override;
+    bool canDropMimeData( const QMimeData *data, Qt::DropAction, int, int, const QModelIndex &parent ) const override;
+    bool dropMimeData( const QMimeData *data, Qt::DropAction, int, int, const QModelIndex &parent ) override;
+    Qt::ItemFlags flags( const QModelIndex &index ) const override;
+    QStringList mimeTypes() const override;
+    Qt::DropActions supportedDropActions() const override;
+
+    void setCurrentMeteoModel( ReosMeteorologicModel *newCurrentMeteoModel );
+
+    QModelIndex structureToIndex( ReosHydraulicStructure2D *structure ) const;
+
+    //! Removes the association for structure at \a index
+    void removeAssociation( const QModelIndex &index );
+
+
+  private slots:
+    void onHydraulicNetworkElementAddedRemoved( ReosHydraulicNetworkElement *elem = nullptr );
+
+  private:
+    QPointer<ReosHydraulicNetwork> mNetwork;
+    QList<ReosHydraulicStructure2D *> mStructures;
+    ReosMeteorologicModel *mCurrentMeteoModel = nullptr;
 };
 
 #endif // REOSMETEOROLOGICMODEL_H

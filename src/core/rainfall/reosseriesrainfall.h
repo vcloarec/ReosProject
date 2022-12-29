@@ -35,7 +35,7 @@ class REOSCORE_EXPORT ReosSeriesRainfall : public ReosTimeSerieConstantInterval
     ReosEncodedElement encode( const ReosEncodeContext &context ) const;
 
     //! Creates new instance from the encoded element
-    static ReosSeriesRainfall *decode(const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr );
+    static ReosSeriesRainfall *decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr );
     static QString staticType();
 
   protected:
@@ -54,7 +54,7 @@ class REOSCORE_EXPORT ReosSeriesRainfallFromGriddedOnWatershed : public ReosSeri
     ReosSeriesRainfallFromGriddedOnWatershed( ReosWatershed *watershed, ReosGriddedRainfall *griddedRainfall, QObject *parent = nullptr );
 
   signals:
-    void calculationFinished() const;
+    void calculationFinished();
 
   protected:
     void updateData() const override;
