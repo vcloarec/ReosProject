@@ -665,7 +665,7 @@ void ReosMap::removeExtraRenderedObject( ReosRenderedObject *obj )
 void ReosMap::removeAllExtraRendererObjects()
 {
   while ( !mExtraRenderedObjects.empty() )
-    removeExtraRenderedObject( mExtraRenderedObjects.takeFirst() );
+    removeExtraRenderedObject( mExtraRenderedObjects.first() );
 }
 
 const QObject *ReosMap::temporalController() const

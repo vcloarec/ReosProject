@@ -208,6 +208,7 @@ void ReosGriddedRainfallSelectorWidget::onPathChanged()
 
 void ReosGriddedRainfallSelectorWidget::updateRainfall()
 {
+  ui->mDataVizMap->removeAllRenderedObjects();
   mCurrentRainfall.reset();
 
   if ( mProviderSelectorWidget )
@@ -220,8 +221,6 @@ void ReosGriddedRainfallSelectorWidget::updateRainfall()
 
 void ReosGriddedRainfallSelectorWidget::updateDataOnMap()
 {
-  ui->mDataVizMap->removeAllRenderedObjects();
-
   if ( mCurrentRainfall )
   {
     QPair<QDateTime, QDateTime> temporalRange = mCurrentRainfall->timeExtent();

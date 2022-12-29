@@ -101,17 +101,20 @@ void ReosColorRampMapLegendItem::paint( QPainter *painter, const QStyleOptionGra
   double topGradientBox = ( topLabelBbox.top() + topLabelBbox.bottom() ) / 2;
   double bottomGradiantBox = ( bottomLabelBbox.bottom() + bottomLabelBbox.top() ) / 2;
 
-  QgsTextRenderer::drawText( topLabelBbox, 0, Qgis::TextHorizontalAlignment::Left, QStringList() << textTopLabel, renderContext, format, true, Qgis::TextVerticalAlignment::VerticalCenter );
-  QgsTextRenderer::drawText( bottomLabelBbox, 0, Qgis::TextHorizontalAlignment::Left, QStringList() << textBottomLabel, renderContext, format, true, Qgis::TextVerticalAlignment::VerticalCenter );
+  if ( topGradientBox < bottomGradiantBox )
+  {
+    QgsTextRenderer::drawText( topLabelBbox, 0, Qgis::TextHorizontalAlignment::Left, QStringList() << textTopLabel, renderContext, format, true, Qgis::TextVerticalAlignment::VerticalCenter );
+    QgsTextRenderer::drawText( bottomLabelBbox, 0, Qgis::TextHorizontalAlignment::Left, QStringList() << textBottomLabel, renderContext, format, true, Qgis::TextVerticalAlignment::VerticalCenter );
 
-  //double rightGradientBox = mBoundingRect.right() - mHorSpacing;
-  QLinearGradient gradient = mSettings->gradient();
-  gradient.setStart( leftGradientBox, bottomGradiantBox );
-  gradient.setFinalStop( leftGradientBox, topGradientBox );
-  painter->setBrush( gradient );
-  painter->drawRect( QRectF( leftGradientBox,
-                             topGradientBox,
-                             rampBoxWidth, bottomGradiantBox - topGradientBox ) );
+    //double rightGradientBox = mBoundingRect.right() - mHorSpacing;
+    QLinearGradient gradient = mSettings->gradient();
+    gradient.setStart( leftGradientBox, bottomGradiantBox );
+    gradient.setFinalStop( leftGradientBox, topGradientBox );
+    painter->setBrush( gradient );
+    painter->drawRect( QRectF( leftGradientBox,
+                               topGradientBox,
+                               rampBoxWidth, bottomGradiantBox - topGradientBox ) );
+  }
 
   painter->restore();
 
