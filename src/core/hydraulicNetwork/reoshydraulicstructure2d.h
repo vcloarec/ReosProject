@@ -48,7 +48,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
       GeometryEditable = 1 << 0, //!< If the structure have geometry editable (structure or mesh)
       MultiSimulation = 1 << 1, //!< If the structure can have multiple simulations
       DefinedExternally = 1 << 2, //!< If the structure is defined externally
-      GriddedPrecipitation = 1 << 2 //!< If the structure can accept gridded precipitation on its domain
+      GriddedPrecipitation = 1 << 3 //!< If the structure can accept gridded precipitation on its domain
     };
 
     Q_ENUM( Structure2DCapability )
