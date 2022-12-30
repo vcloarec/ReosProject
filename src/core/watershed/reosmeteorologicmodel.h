@@ -233,7 +233,7 @@ class REOSCORE_EXPORT ReosMeteorologicStructureItemModel: public QAbstractListMo
 
 
   private slots:
-    void onHydraulicNetworkElementAddedRemoved( ReosHydraulicNetworkElement *elem = nullptr );
+    void onHydraulicNetworkElementAddedRemoved();
 
   private:
     QPointer<ReosHydraulicNetwork> mNetwork;

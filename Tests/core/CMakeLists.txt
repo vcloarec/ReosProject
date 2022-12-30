@@ -69,6 +69,7 @@ SET(TESTS
     reos_hubeau_test.cpp
     reos_hydrograph_transfer_test.cpp
     reos_hydraulic_structure_2D_test.cpp
+    reos_hydraulic_network_test.cpp
     reos_mesh_test.cpp
     )
 

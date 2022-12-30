@@ -326,7 +326,7 @@ void ReosHydraulicSchemeCollection::reset( ReosMeteorologicModel *meteoModel )
   mHydraulicSchemes.clear();
   mHydraulicSchemes.append( new ReosHydraulicScheme( this ) );
   mHydraulicSchemes.last()->setMeteoModel( meteoModel );
-  mHydraulicSchemes.last()->schemeName()->setValue( tr( "Hydraulic scheme" ) );
+  mHydraulicSchemes.last()->schemeName()->setValue( tr( "Scheme 1" ) );
   endResetModel();
 }
 

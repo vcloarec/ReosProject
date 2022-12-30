@@ -928,7 +928,7 @@ QString ReosHydraulicStructure2D::directory() const
 
 ReosHydraulicStructureBoundaryCondition *ReosHydraulicStructure2D::boundaryConditionNetWorkElement( const QString boundaryId ) const
 {
-  const QList<ReosHydraulicNetworkElement *> hydrElems = mNetwork->getElements( ReosHydraulicStructureBoundaryCondition::staticType() );
+  const QList<ReosHydraulicNetworkElement *> hydrElems = mNetwork->hydraulicNetworkElements( ReosHydraulicStructureBoundaryCondition::staticType() );
   for ( ReosHydraulicNetworkElement *hydrElem : hydrElems )
   {
     ReosHydraulicStructureBoundaryCondition *bcElem = qobject_cast<ReosHydraulicStructureBoundaryCondition *>( hydrElem );
@@ -1255,6 +1255,11 @@ ReosTimeWindow ReosHydraulicStructure2D::timeWindow() const
 {
   // As the time windo depends of hte hydraulic scheme, we can't have it here
   return ReosTimeWindow();
+}
+
+QIcon ReosHydraulicStructure2D::icon() const
+{
+  return QIcon( QStringLiteral( ":/images/hydraulicStructure2D.svg" ) );
 }
 
 ReosHydraulicNetworkElement *ReosHydraulicStructure2dFactory::decodeElement( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context ) const

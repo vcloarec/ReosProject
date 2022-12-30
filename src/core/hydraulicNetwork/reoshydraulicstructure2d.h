@@ -72,10 +72,10 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
     ReosMapExtent extent() const override;
     QString defaultDisplayName() const override {return tr( "Hydraulic structure 2D" );}
-
     ReosDuration currentElementTimeStep() const override;
     ReosDuration mapTimeStep() const override;
     ReosTimeWindow timeWindow() const override;
+    QIcon icon() const override;
 
     void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydraulicStructureBoundaryCondition *boundaryCondition, bool upstreamWillChange ) {}
     bool updateCalculationContextFromDownstream( const ReosCalculationContext &context ) { return false; }

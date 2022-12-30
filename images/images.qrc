@@ -169,6 +169,10 @@
         <file>reattach.svg</file>
         <file>hydraulicStructure2D.svg</file>
         <file>extentOnMap.svg</file>
+        <file>hydrographJunction.svg</file>
+        <file>hydrographRouting.svg</file>
+        <file>watershedNode.svg</file>
+        <file>boundaryNode.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

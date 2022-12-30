@@ -180,6 +180,7 @@ class REOSCORE_EXPORT ReosHydrographJunction : public ReosHydrographSource
     virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
     void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
     ReosTimeWindow timeWindow() const override;
+    QIcon icon() const override {return QIcon( ":/images/hydrographJunction.svg" );}
 
     static ReosHydrographJunction *decode( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
 
@@ -291,6 +292,7 @@ class REOSCORE_EXPORT ReosHydrographNodeWatershed : public ReosHydrographJunctio
     ReosSpatialPosition spatialPosition() const override;
     void setPosition( const ReosSpatialPosition & ) override {}; // position of this node can't be set because this is the outlet of the watershed
     QString defaultDisplayName() const override {return tr( "Watershed node" );}
+    QIcon icon() const override {return QIcon( ":/images/watershedNode.svg" );}
 
     ReosWatershed *watershed() const;
 
