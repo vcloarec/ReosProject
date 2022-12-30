@@ -18,10 +18,12 @@
 
 #include <QAbstractListModel>
 
+#include "reoscore.h"
+
 class ReosHydraulicNetwork;
 class ReosHydraulicNetworkElement;
 
-class ReosHydraulicElementModel : public QAbstractListModel
+class REOSCORE_EXPORT ReosHydraulicElementModel : public QAbstractListModel
 {
   public:
     ReosHydraulicElementModel( ReosHydraulicNetwork *parent = nullptr );
