@@ -95,6 +95,8 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject
 
     virtual ReosMapExtent extent() const = 0;
 
+    virtual QIcon icon() const {return QIcon();}
+
   public slots:
     virtual void updateCalculationContext( const ReosCalculationContext &context ) = 0;
 
@@ -171,10 +173,16 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     Q_OBJECT
   public:
     ReosHydraulicNetwork( ReosModule *parent, ReosGisEngine *gisEngine, ReosWatershedModule *watershedModule );
-    QList<ReosHydraulicNetworkElement *> getElements( const QString &type ) const;
+
+    //! Returns element with id \a elementId
     ReosHydraulicNetworkElement *getElement( const QString &elemId ) const;
 
+    //! Returns a list of elements of \a type. Returns all element if type is empty or not prvided
+    QList<ReosHydraulicNetworkElement *> hydraulicNetworkElements( const QString &type = QString() ) const;
+
     ReosHydraulicNetworkElement *addElement( ReosHydraulicNetworkElement *elem, bool select = true );
+
+    //! Removes the element \a elem. The element is destoyed by calling this method.
     void removeElement( ReosHydraulicNetworkElement *elem );
 
     void decode( const ReosEncodedElement &element, const QString &projectPath, const QString &projectFileName );
@@ -205,11 +213,10 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
 
     ReosMapExtent networkExtent() const;
 
-    QList<ReosHydraulicNetworkElement *> hydraulicNetworkElements( const QString &type = QString() ) const;
-
   signals:
     void elementAdded( ReosHydraulicNetworkElement *elem, bool select );
-    void elementRemoved( ReosHydraulicNetworkElement *elem );
+    void elementWillBeRemoved( ReosHydraulicNetworkElement *elem );
+    void elementRemoved();
     void elementPositionHasChanged( ReosHydraulicNetworkElement *elem );
     void hasBeenReset();
     void schemeChanged();

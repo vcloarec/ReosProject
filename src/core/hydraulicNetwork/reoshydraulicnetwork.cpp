@@ -177,23 +177,13 @@ ReosHydraulicNetwork::ReosHydraulicNetwork( ReosModule *parent, ReosGisEngine *g
   mElementFactories.emplace( ReosHydraulicStructureBoundaryCondition::staticType(), new ReosHydraulicStructureBoundaryConditionFactory );
 
   std::unique_ptr<ReosHydraulicScheme> scheme = std::make_unique<ReosHydraulicScheme>();
-  scheme->schemeName()->setValue( tr( "Hydraulic scheme" ) );
+  scheme->schemeName()->setValue( tr( "Scheme 1" ) );
   if ( mWatershedModule && mWatershedModule->meteoModelsCollection()->modelCount() != 0 )
     scheme->setMeteoModel( mWatershedModule->meteoModelsCollection()->meteorologicModel( 0 ) );
 
   mHydraulicSchemeCollection->addScheme( scheme.release() );
 
   connect( mHydraulicSchemeCollection, &ReosHydraulicSchemeCollection::dirtied, this, &ReosModule::dirtied );
-}
-
-QList<ReosHydraulicNetworkElement *> ReosHydraulicNetwork::getElements( const QString &type ) const
-{
-  QList<ReosHydraulicNetworkElement *> elems;
-  for ( ReosHydraulicNetworkElement *elem : mElements )
-    if ( elem->type() == type )
-      elems.append( elem );
-
-  return elems;
 }
 
 ReosHydraulicNetworkElement *ReosHydraulicNetwork::getElement( const QString &elemId ) const
@@ -225,7 +215,7 @@ void ReosHydraulicNetwork::removeElement( ReosHydraulicNetworkElement *elem )
 {
   if ( !elem )
     return;
-  emit elementRemoved( elem );
+  emit elementWillBeRemoved( elem );
   ReosHydraulicNode *node = qobject_cast<ReosHydraulicNode *>( elem );
   if ( node )
   {
@@ -242,6 +232,7 @@ void ReosHydraulicNetwork::removeElement( ReosHydraulicNetworkElement *elem )
   }
 
   elem->destroy();
+  emit elementRemoved();
   emit timeStepChanged();
   emit dirtied();
 }
@@ -293,7 +284,7 @@ void ReosHydraulicNetwork::decode( const ReosEncodedElement &element, const QStr
   if ( mHydraulicSchemeCollection->schemeCount() == 0 )
   {
     std::unique_ptr<ReosHydraulicScheme> scheme = std::make_unique<ReosHydraulicScheme>();
-    scheme->schemeName()->setValue( tr( "Hydraulic scheme" ) );
+    scheme->schemeName()->setValue( tr( "Scheme 1" ) );
     scheme->setMeteoModel( mWatershedModule->meteoModelsCollection()->meteorologicModel( 0 ) );
     mHydraulicSchemeCollection->addScheme( scheme.release() );
   }

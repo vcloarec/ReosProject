@@ -160,7 +160,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   ui->mHydraulicSchemeCombo->setModel( mHydraulicNetwork->hydraulicSchemeCollection() );
   connect( ui->mHydraulicShcemeAddButton, &QToolButton::clicked, this, &ReosHydraulicNetworkWidget::onAddHydraulicScheme );
   connect( ui->mHydraulicShcemeRemoveButton, &QToolButton::clicked, this, &ReosHydraulicNetworkWidget::onRemoveHydraulicScheme );
-
+  connect( ui->mHydraulicShcemeRenameButton, &QToolButton::clicked, this, &ReosHydraulicNetworkWidget::onRenameHydraulicScheme );
   connect( ui->mHydraulicSchemeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]( int index )
   {
     mHydraulicNetwork->changeScheme( index );
@@ -168,6 +168,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
     emit timeWindowChanged();
     emit mapTimeStepChanged();
   } );
+
   changeCurrentScheme( mHydraulicNetwork->currentScheme() );
 
   connect( mHydraulicNetwork, &ReosHydraulicNetwork::timeStepChanged, this, [this]
@@ -394,6 +395,19 @@ void ReosHydraulicNetworkWidget::onRemoveHydraulicScheme()
   ui->mHydraulicShcemeRemoveButton->setEnabled( mHydraulicNetwork->hydraulicSchemeCollection()->schemeCount() > 1 );
 }
 
+void ReosHydraulicNetworkWidget::onRenameHydraulicScheme()
+{
+  if ( !mCurrentHydraulicScheme )
+    return;
+  ReosFormDialog *dial = new ReosFormDialog( this );
+  ReosParameterString string( tr( "New scheme name" ) );
+  string.setValue( mCurrentHydraulicScheme->schemeName()->value() );
+  dial->addParameter( &string );
+
+  if ( dial->exec() )
+    mCurrentHydraulicScheme->schemeName()->setValue( string.value() );
+}
+
 void ReosHydraulicNetworkWidget::onNetworkLoaded()
 {
   ui->mHydraulicSchemeCombo->setCurrentIndex( mHydraulicNetwork->currentSchemeIndex() );
@@ -428,20 +442,10 @@ void ReosHydraulicNetworkWidget::onMapCrsChanged()
 
 void ReosHydraulicNetworkWidget::updateSchemeInfo()
 {
-  if ( mCurrentHydraulicScheme && mCurrentHydraulicScheme->meteoModel() )
-    ui->mLabelMeteoModel->setText( mCurrentHydraulicScheme->meteoModel()->name()->value() );
-  else
-    ui->mLabelMeteoModel->setText( tr( "None" ) );
-
   if ( mCurrentHydraulicScheme )
   {
-    ui->mLabelStartTime->setText( QLocale().toString( mCurrentHydraulicScheme->startTime()->value(), QLocale::LongFormat ) );
-    ui->mLabelEndTime->setText( QLocale().toString( mCurrentHydraulicScheme->endTime()->value(), QLocale::LongFormat ) );
-  }
-  else
-  {
-    ui->mLabelStartTime->setText( tr( "Time not defined" ) );
-    ui->mLabelEndTime->setText( tr( "Time not defined" ) );
+    ui->mStartTimeWidget->setDateTime( mCurrentHydraulicScheme->startTime() );
+    ui->mEndTimeWidget->setDateTime( mCurrentHydraulicScheme->endTime() );
   }
 }
 
