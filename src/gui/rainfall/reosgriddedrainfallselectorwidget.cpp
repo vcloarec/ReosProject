@@ -17,10 +17,13 @@
 #include "ui_reosgriddedrainfallselectorwidget.h"
 
 #include <QFileDialog>
+#include <QDialogButtonBox>
 
 #include "reosgisengine.h"
 #include "reossettings.h"
 #include "reosgriddedrainitem.h"
+#include "reosmeshscalarrenderingwidget.h"
+#include "reosrenderersettings.h"
 
 ReosGriddedRainfallSelectorWidget::ReosGriddedRainfallSelectorWidget( const ReosGuiContext &guiContext )
   : ReosDataProviderSelectorWidget( guiContext.parent() )
@@ -29,16 +32,26 @@ ReosGriddedRainfallSelectorWidget::ReosGriddedRainfallSelectorWidget( const Reos
 {
   ui->setupUi( this );
 
-  mDataExtent.reset( new ReosMapPolygon( ui->mDataVizMap->map() ) );
+  ui->mShowExtentOnMainButton->setMap( guiContext.map() );
 
   connect( ui->mPathToolButton, &QToolButton::clicked, this, &ReosGriddedRainfallSelectorWidget::onPathButtonClicked );
   connect( ui->mPathLineEdit, &QLineEdit::textEdited, this, &ReosGriddedRainfallSelectorWidget::onPathChanged );
 
-  mDataExtent->setColor( Qt::red );
-  mDataExtent->setStyle( Qt::DashLine );
-  mDataExtent->setWidth( 3 );
-  mDataExtent->setExternalColor( Qt::white );
-  mDataExtent->setExternalWidth( 5 );
+  QObject::connect( ui->mToolButtonColorRamp, &QToolButton::clicked, this, [this]
+  {
+    if ( mCurrentRainfall )
+    {
+      QDialog *dial = new QDialog( this );
+      dial->setLayout( new QVBoxLayout );
+      ReosMeshScalarRenderingWidget *colorShaderWidget = new ReosMeshScalarRenderingWidget( mCurrentRainfall->colorSetting(), ReosGuiContext( mGuiContext, this ) );
+      colorShaderWidget->hideBackButton();
+      dial->layout()->addWidget( colorShaderWidget );
+      QDialogButtonBox *buttonBox = new QDialogButtonBox( QDialogButtonBox::Close, dial );
+      dial->layout()->addWidget( buttonBox );
+      QObject::connect( buttonBox, &QDialogButtonBox::rejected, dial, &QDialog::close );
+      dial->exec();
+    }
+  } );
 
   onPathChanged();
 }
@@ -51,12 +64,15 @@ ReosGriddedRainfallSelectorWidget::~ReosGriddedRainfallSelectorWidget()
 
 ReosDataObject *ReosGriddedRainfallSelectorWidget::createData( QObject *parent ) const
 {
-  std::unique_ptr< ReosDataObject> ret;
+  std::unique_ptr< ReosGriddedRainfall> ret;
 
   if ( mProviderSelectorWidget )
     ret.reset( mProviderSelectorWidget->createData( parent ) );
   else
     ret.reset( new ReosGriddedRainfall( ui->mPathLineEdit->text(), mProvider->key(), parent ) );
+
+  if ( mCurrentRainfall )
+    ret->setColorSetting( mCurrentRainfall->colorSetting()->clone() );
 
   ret->setName( ui->mNameLineEdit->text() );
   return ret.release();
@@ -110,20 +126,21 @@ void ReosGriddedRainfallSelectorWidget::onPathButtonClicked()
 
   } );
 
-  dial->exec();
-
-  QStringList fileNames = dial->selectedFiles();
-
-  if ( !fileNames.isEmpty() )
+  if ( dial->exec() )
   {
-    settings.setValue( QStringLiteral( "Rainfall/fileDirectory" ), dial->directory().path() );
-    ui->mPathLineEdit->setText( fileNames.first() );
-    onPathChanged();
+    QStringList fileNames = dial->selectedFiles();
+    if ( !fileNames.isEmpty() )
+    {
+      settings.setValue( QStringLiteral( "Rainfall/fileDirectory" ), dial->directory().path() );
+      ui->mPathLineEdit->setText( fileNames.first() );
+      onPathChanged();
+    }
   }
 }
 
 void ReosGriddedRainfallSelectorWidget::onPathChanged()
 {
+  ui->mNotificationButton->setVisible( false );
   mCurrentSourceIsValid = false;
   if ( mProviderSelectorWidget )
   {
@@ -147,6 +164,7 @@ void ReosGriddedRainfallSelectorWidget::onPathChanged()
       message.type = ReosModule::Error;
       message.text = tr( "Unable to find a gridded precipitation with the path." );
       ui->mNotificationButton->setMessage( message );
+      ui->mNotificationButton->show();
     }
     return;
   }
@@ -189,15 +207,7 @@ void ReosGriddedRainfallSelectorWidget::onPathChanged()
   {
     ui->mNotificationButton->setMessage( ReosModule::Message() );
     ui->mNotificationButton->hide();
-
-    if ( message.type == ReosModule::Simple )
-    {
-      QPolygonF extent = mDetails.extent.toPolygon();
-      mDataExtent->resetPolygon( ReosGisEngine::transformToCoordinates( mDetails.extent.crs(), extent, ui->mDataVizMap->map()->mapCrs() ) );
-      ui->mDataVizMap->setExtent( mDetails.extent );
-
-      mCurrentSourceIsValid = true;
-    }
+    mCurrentSourceIsValid = message.type == ReosModule::Simple;
   }
 
   updateRainfall();
@@ -209,12 +219,21 @@ void ReosGriddedRainfallSelectorWidget::onPathChanged()
 void ReosGriddedRainfallSelectorWidget::updateRainfall()
 {
   ui->mDataVizMap->removeAllRenderedObjects();
+  ui->mDataVizMap->hideExtentOnMap();
+
+  std::unique_ptr<ReosColorShaderSettings> colorSettings;
+  if ( mCurrentRainfall )
+    colorSettings.reset( mCurrentRainfall->colorSetting()->clone() );;
+
   mCurrentRainfall.reset();
 
   if ( mProviderSelectorWidget )
     mCurrentRainfall.reset( qobject_cast<ReosGriddedRainfall *>( mProviderSelectorWidget->createData() ) );
   else if ( mProvider )
     mCurrentRainfall.reset( new ReosGriddedRainfall( ui->mPathLineEdit->text(), mProvider->key() ) );
+
+  if ( mCurrentRainfall && colorSettings )
+    mCurrentRainfall->setColorSetting( colorSettings.release() );
 
   updateDataOnMap();
 }
@@ -228,6 +247,9 @@ void ReosGriddedRainfallSelectorWidget::updateDataOnMap()
     ui->mDataVizMap->setTimeExtent( temporalRange.first, temporalRange.second );
     ui->mDataVizMap->setTimeStep( timeStep );
     ui->mDataVizMap->addRenderedDataObject( mCurrentRainfall.get() );
+    ui->mDataVizMap->showExtentOnMap( mCurrentRainfall->extent() );
+    ui->mDataVizMap->setExtent( mCurrentRainfall->extent() );
+    ui->mShowExtentOnMainButton->setExtent( mCurrentRainfall->extent() );
   }
 }
 
@@ -302,4 +324,9 @@ QString ReosGriddedRainfallSelectorWidget::giveName() const
   }
 
   return name;
+}
+
+ReosGriddedRainfall *ReosGriddedRainDataProviderSelectorWidget::createData( QObject *parent ) const
+{
+  return qobject_cast<ReosGriddedRainfall *>( ReosDataProviderSelectorWidget::createData( parent ) );
 }

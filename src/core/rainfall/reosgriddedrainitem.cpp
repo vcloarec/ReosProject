@@ -272,6 +272,12 @@ ReosColorShaderSettings *ReosGriddedRainfall::colorSetting() const
   return mRendererFactory->colorRampShaderSettings();
 }
 
+void ReosGriddedRainfall::setColorSetting( ReosColorShaderSettings *colorRampShader )
+{
+  mRendererFactory->setColorRampShaderSettings( colorRampShader );
+  emit repaintRequested();
+}
+
 QList<ReosColorShaderSettings *> ReosGriddedRainfall::colorShaderSettings() const
 {
   QList<ReosColorShaderSettings *> ret;
@@ -297,7 +303,15 @@ ReosGriddedRainItem::ReosGriddedRainItem( const QString &name, const QString &de
   , mGriddedRainfall( data )
 {
   if ( data )
+  {
     data->setParent( this );
+    connect( this, &ReosRainfallItem::changed, mGriddedRainfall, [this]
+    {
+      mGriddedRainfall->setName( ReosRainfallItem::name() );
+      emit mGriddedRainfall->repaintRequested();
+    } );
+  }
+
 }
 
 ReosGriddedRainItem::ReosGriddedRainItem( const ReosEncodedElement &element, const ReosEncodeContext &context )
@@ -307,6 +321,12 @@ ReosGriddedRainItem::ReosGriddedRainItem( const ReosEncodedElement &element, con
     return;
 
   mGriddedRainfall = ReosGriddedRainfall::decode( element.getEncodedData( QStringLiteral( "gridded-rainfall" ) ), context );
+  if ( mGriddedRainfall )
+    connect( this, &ReosRainfallItem::changed, mGriddedRainfall, [this]
+  {
+    mGriddedRainfall->setName( ReosRainfallItem::name() );
+    emit mGriddedRainfall->repaintRequested();
+  } );
 }
 
 ReosGriddedRainfall *ReosGriddedRainItem::data() const

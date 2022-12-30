@@ -32,7 +32,6 @@ ReosGriddedRainfallRendererFactory_p::ReosGriddedRainfallRendererFactory_p( Reos
   : ReosGriddedRainfallRendererFactory( rainfall )
   , mColorRampSettings( new ReosGriddedRainfallColorShaderSettings_p( this ) )
 {
-
   init();
 
   QList<QgsGradientStop> stops;
@@ -109,6 +108,21 @@ ReosObjectRenderer *ReosGriddedRainfallRendererFactory_p::createRasterRenderer( 
 ReosColorShaderSettings *ReosGriddedRainfallRendererFactory_p::colorRampShaderSettings() const
 {
   return mColorRampSettings.get();
+}
+
+void ReosGriddedRainfallRendererFactory_p::setColorRampShaderSettings( ReosColorShaderSettings *colorSettings )
+{
+  if ( ReosGriddedRainfallColorShaderSettings_p *newColorSettings =
+         qobject_cast<ReosGriddedRainfallColorShaderSettings_p *>( colorSettings ) )
+  {
+    mColorRampSettings.reset( newColorSettings );
+    mColorRampSettings->mRendererfactory = this;
+    setColorRampShader( newColorSettings->mColorShader );
+    QObject::connect( mColorRampSettings.get(), &ReosColorShaderSettings::changed, mRainfall, &ReosRenderedObject::repaintRequested );
+  }
+  else //not the good type, we have to destruct it because we take the ownership
+    delete colorSettings;
+
 }
 
 
@@ -260,8 +274,13 @@ bool ReosRendererGriddedRainfallMapTimeStamp_p::equal( ReosRendererObjectMapTime
 
 ReosGriddedRainfallColorShaderSettings_p::ReosGriddedRainfallColorShaderSettings_p( ReosGriddedRainfallRendererFactory_p *rendererFactory ):
   mRendererfactory( rendererFactory )
-{
+{}
 
+ReosGriddedRainfallColorShaderSettings_p *ReosGriddedRainfallColorShaderSettings_p::clone() const
+{
+  std::unique_ptr<ReosGriddedRainfallColorShaderSettings_p> other( new ReosGriddedRainfallColorShaderSettings_p );
+  other->mColorShader = mColorShader;
+  return other.release();
 }
 
 

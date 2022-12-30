@@ -169,6 +169,7 @@ class ReosMeshColorShaderSettings_p : public ReosColorShaderSettings_p
   public:
     ReosMeshColorShaderSettings_p( ReosMeshFrame_p *mesh );
 
+    ReosMeshColorShaderSettings_p *clone() const override {return nullptr;}
     double classificationMinimum() const override;
     void setClassificationMinimum( double newClassificationMinimum ) override;
     double classificationMaximum() const override;
