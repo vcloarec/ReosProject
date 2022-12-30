@@ -123,6 +123,7 @@ class REOSCORE_EXPORT ReosHydrographRoutingLink : public ReosHydraulicLink
     void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
     void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
     ReosTimeWindow timeWindow() const override;
+    QIcon icon() const override {return QIcon( ":/images/hydrographRouting.svg" );}
 
     static ReosHydrographRoutingLink *decode( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
 

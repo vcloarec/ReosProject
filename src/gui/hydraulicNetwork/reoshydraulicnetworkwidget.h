@@ -37,12 +37,13 @@ class ReosMeteorologicModelsCollection;
 class ReosWatershedModule;
 class ReosGeometryStructure;
 class ReosStructure2dToolBar;
+class ReosHydraulicElementModel;
 
 class REOSGUI_EXPORT ReosHydraulicElementWidget : public QWidget
 {
     Q_OBJECT
   public:
-    ReosHydraulicElementWidget( QWidget *parent = nullptr );
+    explicit ReosHydraulicElementWidget( QWidget *parent = nullptr );
 
     virtual void setCurrentCalculationContext( const ReosCalculationContext & ) {}
     virtual void setTime( const QDateTime & ) {}
@@ -103,6 +104,7 @@ class REOSGUI_EXPORT ReosHydraulicNetworkWidget : public QWidget
     Ui::ReosHydraulicNetworkWidget *ui;
     ReosGuiContext mGuiContext;
     ReosHydraulicNetwork *mHydraulicNetwork = nullptr;
+    ReosHydraulicElementModel *mElementModel = nullptr;
     ReosMap *mMap = nullptr;
     ReosHydraulicNetworkElement *mCurrentSelectedElement = nullptr;
     ReosHydraulicScheme *mCurrentHydraulicScheme = nullptr;

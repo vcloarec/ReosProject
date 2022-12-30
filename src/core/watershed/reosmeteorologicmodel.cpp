@@ -633,7 +633,7 @@ void ReosMeteorologicModelsCollection::clearModels()
 void ReosMeteorologicModelsCollection::reset()
 {
   clearModels();
-  addMeteorologicModel( tr( "Meteorological Model" ) );
+  addMeteorologicModel( tr( "Model 1" ) );
 }
 
 ReosEncodedElement ReosMeteorologicModelsCollection::encode( ReosWatershedTree *watershedTree ) const
@@ -675,10 +675,9 @@ ReosMeteorologicStructureItemModel::ReosMeteorologicStructureItemModel( ReosHydr
   , mNetwork( hydraulicNetwork )
 {
 
-  connect( mNetwork, &ReosHydraulicNetwork::elementAdded, this, [this]( ReosHydraulicNetworkElement * elem, bool )
-  {onHydraulicNetworkElementAddedRemoved( elem ); } );
-
+  connect( mNetwork, &ReosHydraulicNetwork::elementAdded, this, &ReosMeteorologicStructureItemModel::onHydraulicNetworkElementAddedRemoved );
   connect( mNetwork, &ReosHydraulicNetwork::elementRemoved, this, &ReosMeteorologicStructureItemModel::onHydraulicNetworkElementAddedRemoved );
+
   onHydraulicNetworkElementAddedRemoved();
 }
 
@@ -818,7 +817,7 @@ void ReosMeteorologicStructureItemModel::removeAssociation( const QModelIndex &i
 
   ReosHydraulicStructure2D *str = mStructures.at( index.row() );
   mCurrentMeteoModel->disassociate( str );
-  dataChanged( index, index.siblingAtColumn( 1 ) );
+  emit dataChanged( index, index.siblingAtColumn( 1 ) );
 }
 
 Qt::DropActions ReosMeteorologicStructureItemModel::supportedDropActions() const
@@ -826,11 +825,8 @@ Qt::DropActions ReosMeteorologicStructureItemModel::supportedDropActions() const
   return Qt::CopyAction | Qt::MoveAction ;
 }
 
-void ReosMeteorologicStructureItemModel::onHydraulicNetworkElementAddedRemoved( ReosHydraulicNetworkElement *elem )
+void ReosMeteorologicStructureItemModel::onHydraulicNetworkElementAddedRemoved()
 {
-  if ( elem && !elem->type().contains( ReosHydraulicStructure2D::staticType() ) )
-    return;
-
   beginResetModel();
 
   mStructures.clear();

@@ -445,7 +445,8 @@ void ReosWatershedWidget::onAddRemoveNetwork()
   }
   else
   {
-    const QList<ReosHydraulicNetworkElement *> watershedNodeElements = mHydraulicNetwork->getElements( ReosHydrographNodeWatershed::staticType() );
+    const QList<ReosHydraulicNetworkElement *> watershedNodeElements =
+      mHydraulicNetwork->hydraulicNetworkElements( ReosHydrographNodeWatershed::staticType() );
     const ReosWatershed *otherWatershed = nullptr;
     bool otherIsResidual = false;
     if ( ws->watershedType() == ReosWatershed::Residual )
@@ -576,7 +577,8 @@ ReosHydrographNodeWatershed *ReosWatershedWidget::currentNetworkNode() const
 
 ReosHydrographNodeWatershed *ReosWatershedWidget::associatedNetworkNode( ReosWatershed *watershed ) const
 {
-  QList<ReosHydraulicNetworkElement *> watershedHydrographSource = mHydraulicNetwork->getElements( ReosHydrographNodeWatershed::staticType() );
+  QList<ReosHydraulicNetworkElement *> watershedHydrographSource =
+    mHydraulicNetwork->hydraulicNetworkElements( ReosHydrographNodeWatershed::staticType() );
 
   for ( ReosHydraulicNetworkElement *elem : watershedHydrographSource )
   {

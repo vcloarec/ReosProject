@@ -38,7 +38,6 @@ SET(REOS_CORE_SOURCES
   GIS/private/reosrenderersettings_p.cpp
   GIS/private/reosgriddedrainfallrenderer_p.cpp
 
-
   process/reosprocess.cpp
 
   raster/reosrasterfilling.cpp
@@ -87,6 +86,7 @@ SET(REOS_CORE_SOURCES
   hydraulicNetwork/reoshydraulicnetwork.cpp
   hydraulicNetwork/reoshydraulicstructure2d.cpp
   hydraulicNetwork/reoshydraulicstructureboundarycondition.cpp
+  hydraulicNetwork/reoshydraulicelementmodel.cpp
   hydraulicNetwork/simulation/reoshydraulicsimulation.cpp
   hydraulicNetwork/simulation/reoshydraulicsimulationresults.cpp
   hydraulicNetwork/simulation/reoshydraulicstructureprofile.cpp
@@ -171,6 +171,7 @@ SET(REOS_CORE_HEADERS
     hydraulicNetwork/reoshydraulicnode.h
     hydraulicNetwork/reoshydraulicnetwork.h
     hydraulicNetwork/reoshydraulicstructure2d.h
+    hydraulicNetwork/reoshydraulicelementmodel.h
     hydraulicNetwork/reoshydraulicstructureboundarycondition.h
     hydraulicNetwork/simulation/reoshydraulicsimulation.h
     hydraulicNetwork/simulation/reoshydraulicsimulationresults.h

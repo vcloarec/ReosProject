@@ -67,6 +67,7 @@ class REOSCORE_EXPORT ReosHydraulicStructureBoundaryCondition : public ReosHydro
     virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
     void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
     QString outputPrefixName() const override;
+    QIcon icon() const override {return QIcon( ":/images/boundaryNode.svg" );}
 
     //! Returns the boundary condition Id string that is different than ReosDataObject::id()
     QString boundaryConditionId() const;
