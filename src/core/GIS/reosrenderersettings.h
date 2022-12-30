@@ -38,6 +38,8 @@ class REOSCORE_EXPORT ReosColorShaderSettings : public QObject
   public:
     virtual ~ReosColorShaderSettings();
 
+    virtual ReosColorShaderSettings *clone() const = 0;
+
     virtual void getShader( void *shader ) const = 0;
     virtual void setShader( void *shader ) = 0;
 

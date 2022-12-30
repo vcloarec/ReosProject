@@ -35,6 +35,10 @@
 #include "reosguicontext.h"
 #include "reosgriddedrainitem.h"
 #include "reosmeshscalarrenderingwidget.h"
+#include "reosmapitem.h"
+#include "reosgisengine.h"
+#include "reosmap.h"
+#include "reosshowextentbutton.h"
 
 
 ReosTimeSerieConstantIntervalWidget::ReosTimeSerieConstantIntervalWidget( ReosTimeSerieConstantInterval *timeSerie, QWidget *parent ):
@@ -263,15 +267,15 @@ ReosFormWidget *ReosFormWidgetGriddedRainfalFactory::createDataWidget( ReosDataO
 
   ReosFormWidget *formWidget = new ReosFormWidget( context.parent() );
 
-  QToolButton *button = new QToolButton( formWidget );
-  formWidget->addWidget( button );
-  button->setText( QObject::tr( "Color ramp" ) );
-  button->setIcon( QIcon( QStringLiteral( ":/images/scalarContour.svg" ) ) );
-  button->setToolButtonStyle( Qt::ToolButtonStyle::ToolButtonTextBesideIcon );
-  button->setSizePolicy( QSizePolicy::MinimumExpanding, button->sizePolicy().verticalPolicy() );
-  button->setAutoRaise( true );
+  QToolButton *buttonColorSettings = new QToolButton( formWidget );
+  formWidget->addWidget( buttonColorSettings );
+  buttonColorSettings->setText( QObject::tr( "Color ramp" ) );
+  buttonColorSettings->setIcon( QIcon( QStringLiteral( ":/images/scalarContour.svg" ) ) );
+  buttonColorSettings->setToolButtonStyle( Qt::ToolButtonStyle::ToolButtonTextBesideIcon );
+  buttonColorSettings->setSizePolicy( QSizePolicy::MinimumExpanding, buttonColorSettings->sizePolicy().verticalPolicy() );
+  buttonColorSettings->setAutoRaise( true );
 
-  QObject::connect( button, &QToolButton::clicked, formWidget, [formWidget, griddedRainFall, context]
+  QObject::connect( buttonColorSettings, &QToolButton::clicked, formWidget, [formWidget, griddedRainFall, context]
   {
     QDialog *dial = new QDialog( formWidget );
     dial->setLayout( new QVBoxLayout );
@@ -284,8 +288,16 @@ ReosFormWidget *ReosFormWidgetGriddedRainfalFactory::createDataWidget( ReosDataO
     dial->exec();
   } );
 
-  return formWidget;
+  ReosShowExtentButton *buttonShowExtent = new ReosShowExtentButton( formWidget );
+  buttonShowExtent->setMap( context.map() );
+  buttonShowExtent->setText( QObject::tr( "Show Extent on Main Map" ) );
+  buttonShowExtent->setExtent( griddedRainFall->extent() );
+  formWidget->addWidget( buttonShowExtent );
+  buttonShowExtent->setToolButtonStyle( Qt::ToolButtonStyle::ToolButtonTextBesideIcon );
+  buttonShowExtent->setSizePolicy( QSizePolicy::MinimumExpanding, buttonColorSettings->sizePolicy().verticalPolicy() );
+  buttonShowExtent->setAutoRaise( true );
 
+  return formWidget;
 }
 
 QString ReosFormWidgetGriddedRainfalFactory::datatype() const

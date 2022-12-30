@@ -68,7 +68,7 @@ QVariantMap ReosGribPrecipitationWidget::selectedMetadata() const
   return ret;
 }
 
-ReosDataObject *ReosGribPrecipitationWidget::createData( QObject *parent ) const
+ReosGriddedRainfall *ReosGribPrecipitationWidget::createData( QObject *parent ) const
 {
   return new ReosGriddedRainfall( mCurrentDataUri, mProvider->key(), parent );
 }

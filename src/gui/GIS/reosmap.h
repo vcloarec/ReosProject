@@ -210,10 +210,14 @@ class REOSGUI_EXPORT ReosDataVizMapWidget : public QWidget
     void setTimeStep( const ReosDuration &timeStep );
     void setExtent( const ReosMapExtent &extent );
 
+    void showExtentOnMap( const ReosMapExtent &extent );
+    void hideExtentOnMap();
+
     ReosMap *map();
 
   private:
     ReosMap *mMap = nullptr;
+    ReosMapPolygon mExtentOnMap;
 };
 
 

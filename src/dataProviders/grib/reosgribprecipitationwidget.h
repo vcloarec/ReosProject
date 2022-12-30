@@ -44,7 +44,7 @@ class ReosGribPrecipitationWidget :  public ReosGriddedRainDataProviderSelectorW
      * \a parent take ownership of the object, or the caller need to take it if \a parent is nullptr
      * Default implementation return a null pointer
      */
-    virtual ReosDataObject *createData( QObject *parent = nullptr ) const override;
+    virtual ReosGriddedRainfall *createData( QObject *parent = nullptr ) const override;
 
     //! Returns a pointer to the current selected object, default implementation return a null pointer.
     virtual ReosDataObject *selectedData() const override;

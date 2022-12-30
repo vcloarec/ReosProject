@@ -68,10 +68,10 @@ void ReosColorRampMapLegendItem::paint( QPainter *painter, const QStyleOptionGra
   QFontMetricsF metrics = QgsTextRenderer::fontMetrics( renderContext, format );
 
   QString legendTitle = mSettings->title();
-  QRectF titleBox = metrics.boundingRect( mBoundingRect, Qt::AlignHCenter | Qt::AlignTop | Qt::TextWordWrap, legendTitle );
+  QRectF titleBox = metrics.boundingRect( mBoundingRect.adjusted( 0, 0, -horiSpacing / 2, 0 ), Qt::AlignRight | Qt::AlignTop | Qt::TextWordWrap, legendTitle );
   QgsTextRenderer::drawText( titleBox,
                              0,
-                             Qgis::TextHorizontalAlignment::Center,
+                             Qgis::TextHorizontalAlignment::Right,
                              QStringList() << legendTitle,
                              renderContext,
                              format,
@@ -86,7 +86,7 @@ void ReosColorRampMapLegendItem::paint( QPainter *painter, const QStyleOptionGra
 
   metrics = QgsTextRenderer::fontMetrics( renderContext, format );
 
-  double leftGradientBox = ( mBoundingRect.right() + mBoundingRect.left() ) / 2;
+  double leftGradientBox = ( mBoundingRect.right() - horiSpacing - rampBoxWidth );
 
   const QString textTopLabel = QLocale().toString( mSettings->classificationMaximum(), 'f', 2 );
   QRectF topLabelBbox = metrics.boundingRect( textTopLabel );

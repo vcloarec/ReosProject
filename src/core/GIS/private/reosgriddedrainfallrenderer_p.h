@@ -45,6 +45,7 @@ class ReosGriddedRainfallRendererFactory_p : public ReosGriddedRainfallRendererF
 
     ReosObjectRenderer *createRasterRenderer( ReosRendererSettings *settings ) override;
     ReosColorShaderSettings *colorRampShaderSettings() const override;
+    void setColorRampShaderSettings( ReosColorShaderSettings *colorSettings ) override;
     ReosEncodedElement encode() const override;
 
     QgsColorRampShader colorRampShader() const;
@@ -63,9 +64,11 @@ class ReosGriddedRainfallRendererFactory_p : public ReosGriddedRainfallRendererF
 
 class ReosGriddedRainfallColorShaderSettings_p : public ReosColorShaderSettings_p
 {
+    Q_OBJECT
   public:
     ReosGriddedRainfallColorShaderSettings_p( ReosGriddedRainfallRendererFactory_p *rendererFactory );
 
+    ReosGriddedRainfallColorShaderSettings_p *clone() const override;
     bool isValid() const override;
     double classificationMinimum() const override;
     void setClassificationMinimum( double newClassificationMinimum ) override;
@@ -80,8 +83,10 @@ class ReosGriddedRainfallColorShaderSettings_p : public ReosColorShaderSettings_
     QString title() const override;
 
   private:
+    ReosGriddedRainfallColorShaderSettings_p() = default;
     ReosGriddedRainfallRendererFactory_p *mRendererfactory = nullptr;
 
+    friend class ReosGriddedRainfallRendererFactory_p;
 };
 
 class ReosGriddedRainfallRasterProvider_p : public QgsRasterDataProvider

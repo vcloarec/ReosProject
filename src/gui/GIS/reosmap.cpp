@@ -849,6 +849,7 @@ void ReosRendererObjectHandler::init()
 ReosDataVizMapWidget::ReosDataVizMapWidget( QWidget *parent )
   : QWidget( parent )
   , mMap( new ReosMap( nullptr, this ) )
+  , mExtentOnMap( mMap )
 {
   QVBoxLayout *lay = new QVBoxLayout( this );
   setLayout( lay );
@@ -857,6 +858,12 @@ ReosDataVizMapWidget::ReosDataVizMapWidget( QWidget *parent )
   mMap->activateOpenStreetMap();
   lay->setStretch( 1, 0 );
   mMap->temporalControllerDockWidget()->setFeatures( QDockWidget::NoDockWidgetFeatures );
+
+  mExtentOnMap.setColor( Qt::red );
+  mExtentOnMap.setExternalColor( Qt::white );
+  mExtentOnMap.setStyle( Qt::DashLine );
+  mExtentOnMap.setWidth( 3 );
+  mExtentOnMap.setExternalWidth( 5 );
 }
 
 ReosDataVizMapWidget::~ReosDataVizMapWidget()
@@ -896,6 +903,16 @@ void ReosDataVizMapWidget::setTimeStep( const ReosDuration &timeStep )
 void ReosDataVizMapWidget::setExtent( const ReosMapExtent &extent )
 {
   mMap->setExtent( extent );
+}
+
+void ReosDataVizMapWidget::showExtentOnMap( const ReosMapExtent &extent )
+{
+  mExtentOnMap.resetPolygon( ReosGisEngine::transformToCoordinates( extent.crs(), extent.toPolygon(), mMap->mapCrs() ) );
+}
+
+void ReosDataVizMapWidget::hideExtentOnMap()
+{
+  mExtentOnMap.resetPolygon();
 }
 
 ReosMap *ReosDataVizMapWidget::map()

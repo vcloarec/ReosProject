@@ -381,7 +381,6 @@ void ReosRainfallManager::showProviderSelector( const QString &providerKey, cons
   if ( !mCurrentProviderSelector )
     return;
 
-
   ui->mProviderLayout->addWidget( mCurrentProviderSelector );
   ui->stackedWidget->setCurrentIndex( 1 );
 
@@ -798,6 +797,7 @@ ReosFormWidget *ReosRainfallManager::createForm( ReosRainfallItem *item )
   }
 
   ReosGuiContext context( this );
+  context.setMap( mMap );
   if ( !item->data() ||  !form->addData( item->data(), context ) )
   {
     form->addItem( new QSpacerItem( 20, 40, QSizePolicy::Ignored, QSizePolicy::Expanding ) );
@@ -1057,6 +1057,7 @@ void ReosRainfallManager::onCurrentTreeIndexChanged()
         {
           ReosGriddedRainfall *griddedRainfall = griddedRainItem->data();
           ReosDataVizMapWidget *griddedRainWidget = new ReosDataVizMapWidget( this );
+          griddedRainWidget->showExtentOnMap( griddedRainfall->extent() );
           griddedRainWidget->addRenderedDataObject( griddedRainfall );
           griddedRainWidget->setExtent( griddedRainfall->extent() );
           griddedRainWidget->setTimeExtent( griddedRainfall->timeExtent().first, griddedRainfall->timeExtent().second );

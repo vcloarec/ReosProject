@@ -81,7 +81,11 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
 
     void copyFrom( ReosGriddedRainfall *other );
 
+    //! Returns the current color ramp settings, keep ownership
     ReosColorShaderSettings *colorSetting() const;
+
+    //! Sets the color ramp settings \a colorRampShader, take ownership. it the color settings is not compatible, it is destructed.
+    void setColorSetting( ReosColorShaderSettings *colorRampShader );
 
     QList<ReosColorShaderSettings *> colorShaderSettings() const override;
 
@@ -135,6 +139,7 @@ class ReosGriddedRainfallRendererFactory
     virtual ~ReosGriddedRainfallRendererFactory() = default;
     virtual ReosObjectRenderer *createRasterRenderer( ReosRendererSettings *settings ) = 0;
     virtual ReosColorShaderSettings *colorRampShaderSettings() const = 0;
+    virtual void setColorRampShaderSettings( ReosColorShaderSettings *colorSettings ) = 0;
     virtual ReosEncodedElement encode() const = 0;
 
     ReosGriddedRainfall *rainfall() const;
