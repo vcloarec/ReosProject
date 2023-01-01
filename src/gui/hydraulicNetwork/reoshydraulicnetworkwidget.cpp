@@ -151,7 +151,9 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   connect( mMapToolAddHydrographRouting, &ReosMapToolDrawHydrographRouting::finished, this, &ReosHydraulicNetworkWidget::onDrawHydrographRoutingFinish );
 
   connect( mMapToolSelectNetworkElement, &ReosMapToolSelectMapItem::found, this, &ReosHydraulicNetworkWidget::onElementSelected );
+  connect( mMapToolSelectNetworkElement, &ReosMapToolSelectMapItem::foundDoubleClick, this, &ReosHydraulicNetworkWidget::onElementSelectedDoubleClick );
   connect( mMap, &ReosMap::mapItemFound, this, &ReosHydraulicNetworkWidget::onElementSelected );
+  connect( mMap, &ReosMap::mapItemFoundDoubleClick, this, &ReosHydraulicNetworkWidget::onElementSelectedDoubleClick );
 
   connect( mActionImportStructure2D, &QAction::triggered, this, &ReosHydraulicNetworkWidget::onImportStructure2D );
 
@@ -284,19 +286,16 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
   ReosGuiContext guiContext = mGuiContext;
   guiContext.addMapItems( item );
 
-  if ( elem )
-  {
-    mMapItemFactory.selectItem( elem, item );
-    mExtraItemSelection.reset( mMapItemFactory.createExtraItemSelected( elem, mMap ) );
-    mActionRemoveElement->setEnabled( elem->isRemovable() );
+  mMapItemFactory.selectItem( elem, item );
+  mExtraItemSelection.reset( mMapItemFactory.createExtraItemSelected( elem, mMap ) );
+  mActionRemoveElement->setEnabled( elem->isRemovable() );
 
-    ui->mElementListView->blockSignals( true );
-    ui->mElementListView->setCurrentIndex( mElementModel->elementToIndex( elem ) );
-    ui->mElementListView->blockSignals( false );
+  ui->mElementListView->blockSignals( true );
+  ui->mElementListView->setCurrentIndex( mElementModel->elementToIndex( elem ) );
+  ui->mElementListView->blockSignals( false );
 
-    connect( elem, &ReosHydraulicNetworkElement::timeWindowChanged, this, &ReosHydraulicNetworkWidget::timeWindowChanged );
-    connect( elem, &ReosHydraulicNetworkElement::mapTimeStepChanged, this, &ReosHydraulicNetworkWidget::mapTimeStepChanged );
-  }
+  connect( elem, &ReosHydraulicNetworkElement::timeWindowChanged, this, &ReosHydraulicNetworkWidget::timeWindowChanged );
+  connect( elem, &ReosHydraulicNetworkElement::mapTimeStepChanged, this, &ReosHydraulicNetworkWidget::mapTimeStepChanged );
 
   mElementPropertiesWidget->setCurrentElement( elem, guiContext );
   mStructure2dToolBar->setCurrentStructure2DPropertiesWidget(
@@ -306,6 +305,16 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
 
   emit timeWindowChanged();
   emit mapTimeStepChanged();
+}
+
+void ReosHydraulicNetworkWidget::onElementSelectedDoubleClick( ReosMapItem *item )
+{
+  onElementSelected( item );
+  if ( item && item->description().contains( ReosHydraulicNetworkElement::staticType() ) )
+  {
+    mActionHydraulicNetworkProperties->setChecked( true );
+    mElementPropertiesWidget->show();
+  }
 }
 
 void ReosHydraulicNetworkWidget::onSelectedElementRemoved()

@@ -370,6 +370,18 @@ void ReosMapToolSelectMapItem_p::canvasReleaseEvent( QgsMapMouseEvent *e )
 
 }
 
+void ReosMapToolSelectMapItem_p::canvasDoubleClickEvent( QgsMapMouseEvent *e )
+{
+  QPointF p = e->localPos();
+
+  ReosMapItem_p *mapItem = searchItem( p );
+
+  if ( mapItem )
+    emit foundDoubleClick( mapItem->base, e->mapPoint().toQPointF() );
+  else
+    emit foundDoubleClick( nullptr, e->mapPoint().toQPointF() );
+}
+
 bool ReosMapToolSelectMapItem_p::populateContextMenuWithEvent( QMenu *menu, QgsMapMouseEvent *event )
 {
   canvasReleaseEvent( event );

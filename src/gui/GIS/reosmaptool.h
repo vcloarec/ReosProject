@@ -197,6 +197,7 @@ class REOSGUI_EXPORT ReosMapToolSelectMapItem : public ReosMapTool
 
   signals:
     void found( ReosMapItem *item, const QPointF &point );
+    void foundDoubleClick( ReosMapItem *item, const QPointF &point );
 
   private:
     QPointer<ReosMapToolSelectMapItem_p> d;
