@@ -139,6 +139,7 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     void timeChanged( const QDateTime &time );
 
     void mapItemFound( ReosMapItem *item, const QPointF &point );
+    void mapItemFoundDoubleClick( ReosMapItem *item, const QPointF &point );
 
   public slots:
     void refreshCanvas();

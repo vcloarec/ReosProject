@@ -177,12 +177,14 @@ class ReosMapToolSelectMapItem_p: public ReosMapTool_p
     ReosMapToolSelectMapItem_p( QgsMapCanvas *map, const QString &targetDescription );
 
     void canvasReleaseEvent( QgsMapMouseEvent *e ) override;
+    void canvasDoubleClickEvent( QgsMapMouseEvent *e ) override;
     bool populateContextMenuWithEvent( QMenu *menu,  QgsMapMouseEvent *event ) override;
 
     Flags flags() const override { return ShowContextMenu; }
 
   signals:
     void found( ReosMapItem *item, const QPointF &point );
+    void foundDoubleClick( ReosMapItem *item, const QPointF &point );
 
   private:
     int mTargetType = -1;

@@ -42,7 +42,7 @@ class ReosRendererObjectHandler_p
 {
 
   public:
-    ReosRendererObjectHandler_p( QgsMapCanvas *canvas )
+    explicit ReosRendererObjectHandler_p( QgsMapCanvas *canvas )
       : mCanvas( canvas )
     {}
 
@@ -460,6 +460,7 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   //mDefaultMapTool->setSearchUnderPoint( true );
   mDefaultMapTool->setSearchItemWhenMoving( true );
   connect( mDefaultMapTool, &ReosMapToolSelectMapItem::found, this, &ReosMap::mapItemFound );
+  connect( mDefaultMapTool, &ReosMapToolSelectMapItem::foundDoubleClick, this, &ReosMap::mapItemFoundDoubleClick );
 
   mActionEnableLegend->setCheckable( true );
   connect( mActionEnableLegend, &QAction::toggled, this, [this]( bool checked )

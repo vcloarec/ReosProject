@@ -85,6 +85,7 @@ class REOSGUI_EXPORT ReosHydraulicNetworkWidget : public QWidget
 
     void onDrawHydrographRoutingFinish();
     void onElementSelected( ReosMapItem *item );
+    void onElementSelectedDoubleClick( ReosMapItem *item );
     void onSelectedElementRemoved();
     void onZoomToNetworkExtent();
 

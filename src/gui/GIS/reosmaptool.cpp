@@ -261,7 +261,7 @@ ReosMapToolSelectMapItem::ReosMapToolSelectMapItem( ReosMap *map, const QString 
   d = new ReosMapToolSelectMapItem_p( canvas, targetDescription );
   d->setCursor( QCursor( QStringLiteral( ":/cursors/removeItem.png" ), 3, 3 ) );
   connect( d, &ReosMapToolSelectMapItem_p::found, this, &ReosMapToolSelectMapItem::found );
-
+  connect( d, &ReosMapToolSelectMapItem_p::foundDoubleClick, this, &ReosMapToolSelectMapItem::foundDoubleClick );
   setUp();
 }
 
