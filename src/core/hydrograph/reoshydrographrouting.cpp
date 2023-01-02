@@ -229,7 +229,7 @@ void ReosHydrographRoutingLink::restoreConfiguration( ReosHydraulicScheme *schem
 ReosTimeWindow ReosHydrographRoutingLink::timeWindow() const
 {
   if ( mOutputHydrograph )
-    return mOutputHydrograph->timeExtent();
+    return ReosTimeWindow( mOutputHydrograph->timeExtent() );
 
   return ReosTimeWindow();
 }

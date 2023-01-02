@@ -268,7 +268,7 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStep: public ReosTimeSerie
     //! Sets the value at \a relative time with \a value, if the \a relative time is not present insert a new couple (time, value)
     void setValue( const ReosDuration &relativeTime, double value );
 
-    //! Sets the value at \a time with \a value, if the \a relative time is not present insert a new couple (time, value)
+    //! Sets the value at \a time with \a value, if the \a time is not present insert a new couple (time, value)
     void setValue( const QDateTime &time, double value );
 
     //! Returns the value at relative time \a relative time, interpolate if relative time is between two time values, return 0 if before first one or after last one
@@ -292,7 +292,7 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStep: public ReosTimeSerie
     //! Sets the color used to render the time serie
     void setColor( const QColor &color );
 
-    void copyFrom( ReosTimeSerieVariableTimeStep *other );
+    void copyFrom(const ReosTimeSerieVariableTimeStep *other );
 
     bool operator==( ReosTimeSerieVariableTimeStep &other ) const;
 

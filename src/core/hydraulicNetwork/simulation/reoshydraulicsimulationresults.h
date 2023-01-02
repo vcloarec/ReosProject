@@ -18,9 +18,11 @@
 
 #include <QObject>
 #include <QVector>
+#include <QDateTime>
 
 #include "reoscore.h"
 #include "reosmeshdatasetsource.h"
+#include "reosduration.h"
 
 class ReosHydraulicSimulation;
 class ReosHydrograph;
@@ -56,6 +58,8 @@ class REOSCORE_EXPORT ReosHydraulicSimulationResults : public ReosMeshDatasetSou
     //! Returns reuslt hydrograph related to the ids of boundaries
     virtual QMap<QString, ReosHydrograph *> outputHydrographs() const = 0;
 
+    virtual QList<QDateTime> timeSteps() const {return QList<QDateTime>();}
+
     double interpolateResultOnMesh( ReosMesh *mesh, const ReosSpatialPosition &position, const QDateTime &time, DatasetType dataType );
 
     virtual QString unitString( DatasetType dataType ) const = 0;
@@ -67,6 +71,32 @@ class REOSCORE_EXPORT ReosHydraulicSimulationResults : public ReosMeshDatasetSou
 
   private:
     QList<DatasetType> mGroupIndexToType;
+};
+
+
+class ReosHydraulicSimulationResultsDummy : public ReosHydraulicSimulationResults
+{
+  public:
+    explicit ReosHydraulicSimulationResultsDummy( const ReosHydraulicSimulation *simulation, QObject *parent = nullptr );
+
+    int datasetCount( int ) const override {return 0;}
+    Location groupLocation( int ) const override {return Location::Vertex;}
+    void groupMinMax( int, double &, double & ) const override {};
+    QDateTime groupReferenceTime( int ) const override {return QDateTime();}
+    ReosDuration datasetRelativeTime( int, int ) const override {return ReosDuration();}
+    bool datasetIsValid( int, int ) const override {return false;}
+    void datasetMinMax( int, int, double &, double & ) const override {}
+    int datasetValuesCount( int, int ) const override {return 0;}
+    QVector<double> datasetValues( int, int ) const override {return QVector<double>();}
+    QVector<int> activeFaces( int ) const override {return QVector<int>();}
+    int datasetIndexClosestBeforeTime( int, const QDateTime & ) const override {return 0;}
+    QDateTime runDateTime() const override {return QDateTime();}
+    int datasetIndex( int, const QDateTime & ) const override {return 0;}
+    QMap<QString, ReosHydrograph *> outputHydrographs() const override {return mOutputHydrographs;}
+    QString unitString( DatasetType ) const override {return QString();}
+
+  private:
+    QMap<QString, ReosHydrograph *> mOutputHydrographs;
 };
 
 #endif // REOSHYDRAULICSIMULATIONRESULTS_H

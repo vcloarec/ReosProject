@@ -100,7 +100,7 @@ bool ReosHydrographSourceFixed::updateCalculationContextFromDownstream( const Re
   return false;
 }
 
-void ReosHydrographSourceFixed::updateCalculationContextFromUpstream( const ReosCalculationContext &, ReosHydrographRoutingLink *, bool )
+void ReosHydrographSourceFixed::updateCalculationContextFromUpstream( const ReosCalculationContext &, ReosHydraulicNetworkElement *, bool )
 {
   if ( isObsolete() )
     QMetaObject::invokeMethod( this, [this] {calculationUpdated();}, Qt::QueuedConnection );
@@ -292,22 +292,22 @@ void ReosHydrographJunction::updateCalculationContext( const ReosCalculationCont
   updateCalculationContextFromUpstream( context, nullptr, false ); //this lead to update all routing linked to this junction and also this junction
 }
 
-void ReosHydrographJunction::updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *upstreamRouting, bool upstreamWillChange )
+void ReosHydrographJunction::updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydraulicNetworkElement *upstreamElement, bool upstreamWillChange )
 {
-  QList<ReosHydrographRoutingLink *> upstreamLinks = ReosHydraulicNetworkUtils::upstreamLinkOfType<ReosHydrographRoutingLink>( this );
+  QList<ReosHydraulicNetworkElement *> upstreamElements = ReosHydraulicNetworkUtils::upstreamLinkOfType<ReosHydraulicNetworkElement>( this );
 
-  upstreamLinks.removeOne( upstreamRouting );
+  upstreamElements.removeOne( upstreamElement );
 
-  if ( upstreamWillChange )
-    mWaitingForUpstreamLinksUpdated.insert( upstreamRouting->id() );
+  if ( upstreamWillChange && upstreamElement )
+    mWaitingForUpstreamElementUpdated.insert( upstreamElement->id() );
 
-  for ( ReosHydrographRoutingLink *routing : std::as_const( upstreamLinks ) )
+  for ( ReosHydraulicNetworkElement *usElem : std::as_const( upstreamElements ) )
   {
-    if ( routing )
+    if ( ReosHydrographRoutingLink *routing = qobject_cast<ReosHydrographRoutingLink *>( usElem ) )
     {
       bool routingNeedToBeUpdated = routing->updateCalculationContextFromDownstream( context );
       if ( routingNeedToBeUpdated )
-        mWaitingForUpstreamLinksUpdated.insert( routing->id() );
+        mWaitingForUpstreamElementUpdated.insert( routing->id() );
       mNeedCalculation |= routingNeedToBeUpdated;
     }
   }
@@ -347,7 +347,7 @@ bool ReosHydrographJunction::updateCalculationContextFromDownstream( const ReosC
       bool routingNeedToBeUpdated = routing->updateCalculationContextFromDownstream( context );
       mNeedCalculation |= routingNeedToBeUpdated;
       if ( routingNeedToBeUpdated )
-        mWaitingForUpstreamLinksUpdated.insert( routing->id() );
+        mWaitingForUpstreamElementUpdated.insert( routing->id() );
     }
   }
 
@@ -373,7 +373,7 @@ ReosHydrographRoutingLink *ReosHydrographJunction::downstreamRouting() const
 
 void ReosHydrographJunction::onUpstreamRoutingUpdated( const QString &routingId )
 {
-  mWaitingForUpstreamLinksUpdated.remove( routingId );
+  mWaitingForUpstreamElementUpdated.remove( routingId );
   mNeedCalculation = true;
   calculateIfAllReady();
 }
@@ -386,6 +386,9 @@ void ReosHydrographJunction::calculateInternalHydrograph()
 
 void ReosHydrographJunction::calculateOuputHydrograph()
 {
+#ifndef _NDEBUG
+  qDebug() << "calculation of output will be launched: " << elementName()->value();
+#endif
   mCalculationIsInProgress = true;
 
   if ( mSumCalculation )
@@ -436,7 +439,7 @@ void ReosHydrographJunction::calculateOuputHydrograph()
 
 void ReosHydrographJunction::calculateIfAllReady()
 {
-  if ( mWaitingForUpstreamLinksUpdated.isEmpty() && mInternalHydrographUpdated && mNeedCalculation )
+  if ( mWaitingForUpstreamElementUpdated.isEmpty() && mInternalHydrographUpdated && mNeedCalculation )
     calculateOuputHydrograph();
 }
 
@@ -503,7 +506,7 @@ void ReosHydrographJunction::restoreConfiguration( ReosHydraulicScheme *scheme )
 ReosTimeWindow ReosHydrographJunction::timeWindow() const
 {
   if ( mOutputHydrograph )
-    return mOutputHydrograph->timeExtent();
+    return ReosTimeWindow( mOutputHydrograph->timeExtent() );
 
   return ReosTimeWindow();
 }
@@ -663,9 +666,13 @@ void ReosHydrographNodeWatershed::calculateInternalHydrograph()
     mInternalHydrographUpdated = false;
     mRunoffHydrographs->updateHydrograph( mInternalHydrograph );
   }
+  else
+  {
+    mInternalHydrographUpdated = true;
+    calculateIfAllReady();
+  }
 
-  mInternalHydrographUpdated = true;
-  calculateIfAllReady();
+
 }
 
 bool ReosHydrographNodeWatershed::updateInternalHydrograph()

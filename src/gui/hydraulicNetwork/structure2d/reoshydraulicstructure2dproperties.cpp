@@ -278,12 +278,15 @@ ReosHydraulicStructure2DProperties::~ReosHydraulicStructure2DProperties()
 void ReosHydraulicStructure2DProperties::setCurrentCalculationContext( const ReosCalculationContext &context )
 {
   mActionEditStructure->setEnabled( !mStructure2D->hasSimulationRunning() );
+
+  mCalculationContext = context;
   mStructure2D->updateCalculationContext( context );
+  mCalculationContext.setTimeWindow( mStructure2D->timeWindow() );
+
   mCurrentDatasetId = mStructure2D->currentActivatedMeshDataset();
   mCurrentVectorDatasetId = mStructure2D->currentActivatedVectorMeshDataset();
-  mCalculationContext = context;
 
-  setCurrentSimulationProcess( mStructure2D->simulationProcess( context ), context );
+  setCurrentSimulationProcess( mStructure2D->simulationProcess( mCalculationContext ), mCalculationContext );
 
   if ( mStructure2D->currentSimulation() )
     ui->mSimulationEngineName->setText( mStructure2D->currentSimulation()->engineName() );
@@ -335,9 +338,10 @@ void ReosHydraulicStructure2DProperties::setCurrentSimulationProcess( ReosSimula
     ui->mProgressBar->setValue( mCurrentProcess->currentProgression() );
     connect( mCurrentProcess, &ReosProcess::sendInformation, this, &ReosHydraulicStructure2DProperties::updateProgress );
 
+    ReosTimeWindow timeWindow = mCurrentProcess->timeWindow();
     ui->mPlotWidget->enableAutoScaleY( true );
     ui->mPlotWidget->enableAutoScaleX( false );
-    ui->mPlotWidget->setAxeXExtent( mCalculationContext.simulationStartTime(), mCalculationContext.simulationEndTime() );
+    ui->mPlotWidget->setAxeXExtent( timeWindow.start(), timeWindow.end() );
     ui->mPlotWidget->updatePlot();
   }
 
@@ -359,8 +363,9 @@ void ReosHydraulicStructure2DProperties::fillResultGroupBox( const ReosCalculati
 {
   ui->mGroupBoxResultInfo->setEnabled( true );
 
-  ui->mLabelResultStartTime->setText( QLocale().toString( context.simulationStartTime(), QLocale::ShortFormat ) );
-  ui->mLabelResultEndTime->setText( QLocale().toString( context.simulationEndTime(), QLocale::ShortFormat ) );
+  const ReosTimeWindow &tw = context.timeWindow();
+  ui->mLabelResultStartTime->setText( QLocale().toString( tw.start(), QLocale::ShortFormat ) );
+  ui->mLabelResultEndTime->setText( QLocale().toString( tw.end(), QLocale::ShortFormat ) );
   ui->mLabelResultTimeStepCount->setText( QString::number( mStructure2D->resultsTimeStepCount( context.schemeId() ) ) );
   ui->mLabelResultValueDisplayed->setText( mStructure2D->currentDatasetName() );
   ui->mLabelResultValueUnderCursor->setText( QString( '-' ) );

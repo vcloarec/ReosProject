@@ -103,24 +103,6 @@ ReosEncodedElement ReosTelemac2DSimulation::encode() const
   return element;
 }
 
-QList<QDateTime> ReosTelemac2DSimulation::theoricalTimeSteps( ReosHydraulicScheme *scheme ) const
-{
-  QList<QDateTime> timeSteps;
-  const ReosCalculationContext context = scheme->calculationContext();
-  QDateTime time = context.simulationStartTime();
-  qint64 ts = timeStepValueFromScheme( scheme ).valueMilliSecond();
-  if ( ts > 0 )
-  {
-    while ( time <= context.simulationEndTime() )
-    {
-      timeSteps.append( time );
-      time = time.addMSecs( ts );
-    }
-  }
-
-  return timeSteps;
-}
-
 ReosDuration ReosTelemac2DSimulation::representativeTimeStep() const
 {
   return mTimeStep->value() * std::min( mOutputPeriodResult2D->value(), mOutputPeriodResultHyd->value() );
@@ -1056,8 +1038,8 @@ QList<ReosTelemac2DSimulation::TelemacBoundaryCondition> ReosTelemac2DSimulation
 {
   QSet<qint64> timeSteps;
   QList<TelemacBoundaryCondition> boundConds;
-  const QDateTime startTime = context.simulationStartTime();
-  const QDateTime endTime = context.simulationEndTime();
+  const QDateTime startTime = context.timeWindow().start();
+  const QDateTime endTime = context.timeWindow().end();
 
   for ( int i = 0; i < boundaryConditions.count(); ++i )
   {
@@ -1177,7 +1159,7 @@ void ReosTelemac2DSimulation::createSteeringFile(
   stream << QStringLiteral( "VARIABLES FOR GRAPHIC PRINTOUTS : 'S,U,V,B,H,W,US,MAXZ,MAXV'\n" );
 
   // Time parameters
-  ReosDuration totalDuration( context.simulationStartTime().msecsTo( context.simulationEndTime() ), ReosDuration::millisecond );
+  ReosDuration totalDuration( context.timeWindow().start().msecsTo( context.timeWindow().end() ), ReosDuration::millisecond );
   int timeStepCount = totalDuration.numberOfFullyContainedIntervals( mTimeStep->value() );
 
   switch ( initialCondition()->initialConditionType() )
@@ -1192,9 +1174,9 @@ void ReosTelemac2DSimulation::createSteeringFile(
       break;
   }
 
-  QDate startDate = context.simulationStartTime().date();
+  QDate startDate = context.timeWindow().start().date();
   stream << QStringLiteral( "ORIGINAL DATE OF TIME : %1;%2;%3\n" ).arg( QString::number( startDate.year() ),  QString::number( startDate.month() ),  QString::number( startDate.day() ) );
-  QTime startTime = context.simulationStartTime().time();
+  QTime startTime = context.timeWindow().start().time();
   stream << QStringLiteral( "ORIGINAL HOUR OF TIME : %1;%2;%3\n" ).arg( QString::number( startTime.hour() ),  QString::number( startTime.minute() ),  QString::number( startTime.second() ) );
   stream << QStringLiteral( "INITIAL TIME SET TO ZERO : YES\n" );
   stream << QStringLiteral( "TIME STEP : %1\n" ).arg( QString::number( mTimeStep->value().valueSecond(), 'f', 2 ) );
@@ -1348,7 +1330,7 @@ void ReosTelemac2DSimulation::initInitialCondition()
 }
 
 
-ReosTelemac2DSimulationProcess::ReosTelemac2DSimulationProcess(const ReosCalculationContext &context,
+ReosTelemac2DSimulationProcess::ReosTelemac2DSimulationProcess( const ReosCalculationContext &context,
     const ReosDuration &timeStep,
     const QString &simulationfilePath,
     const QList<ReosHydraulicStructureBoundaryCondition *> &boundElem,
@@ -1358,8 +1340,8 @@ ReosTelemac2DSimulationProcess::ReosTelemac2DSimulationProcess(const ReosCalcula
   , mTimeStep( timeStep )
   , mBoundaries( boundaries )
 {
-  mStartTime = context.simulationStartTime();
-  mTotalTime = context.simulationStartTime().msecsTo( context.simulationEndTime() ) / 1000.0;
+  mStartTime = context.timeWindow().start();
+  mTotalTime = context.timeWindow().start().msecsTo( context.timeWindow().end() ) / 1000.0;
   connect( this, &ReosTelemac2DSimulationProcess::askToStop, this, &ReosTelemac2DSimulationProcess::onStopAsked );
 }
 

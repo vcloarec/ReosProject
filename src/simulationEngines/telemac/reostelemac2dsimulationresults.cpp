@@ -346,6 +346,18 @@ QString ReosTelemac2DSimulationResults::unitString( ReosHydraulicSimulationResul
   return QString();
 }
 
+QList<QDateTime> ReosTelemac2DSimulationResults::timeSteps() const
+{
+  QList<QDateTime> ret;
+  if ( groupCount() == 0 )
+    return ret;
+
+  for ( int i = 0; i < datasetCount( 0 ); ++i )
+    ret.append( mReferenceTime.addMSecs( datasetRelativeTime( 0, i ).valueMilliSecond() ) );
+
+  return ret;
+}
+
 int ReosTelemac2DSimulationResults::groupIndexToSourceIndex( int groupIndex ) const
 {
   DatasetType dt = datasetType( groupIndex );

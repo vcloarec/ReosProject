@@ -255,12 +255,11 @@ void ReosTelemac2DInititalConditionFromOtherSimulationWidget::onSchemeChange()
   ReosHydraulicNetwork *network =  mStructure->network();
   ReosHydraulicScheme *otherScheme = network->hydraulicSchemeCollection()->scheme( mSchemeCombo->currentIndex() );
 
-  ReosHydraulicSimulation *sim = nullptr;
-  if ( otherScheme )
+  if ( otherScheme && mStructure->results( otherScheme ) )
   {
     mInitialCondition->setOtherSchemeId( otherScheme->id() );
-    sim = mStructure->simulation( otherScheme );
-    const QList<QDateTime> timeSteps = sim->theoricalTimeSteps( otherScheme );
+    ReosHydraulicSimulationResults *results = mStructure->results( otherScheme );
+    const QList<QDateTime> timeSteps = results->timeSteps();
     for ( const QDateTime &timeStep : timeSteps )
       mTimeStepCombo->addItem( QLocale().toString( timeStep, QLocale::ShortFormat ) );
   }

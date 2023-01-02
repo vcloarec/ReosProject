@@ -687,9 +687,9 @@ ReosSimulationProcess *ReosHydraulicStructure2D::createSimulationProcess( const 
   connect( process, &ReosProcess::finished, sim, [this, sim, schemeId]
   {
     auto it = mSimulationProcesses.find( schemeId );
-    bool success = false;
     if ( it != mSimulationProcesses.end() )
     {
+      bool success = false;
       ReosSimulationProcess *process = it->second.get();
       success = it->second->isSuccessful();
       onSimulationFinished( sim, schemeId, process, success );
@@ -1073,18 +1073,8 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
 
   if ( simResults )
   {
-    QString currentDatasetId = mMesh->currentdScalarDatasetId();
     QString currentVectorDatasetId = mMesh->currentdVectorDatasetId();
     ReosHydraulicSimulationResults::DatasetType currentType = currentActivatedDatasetResultType();
-
-    if ( currentDatasetId.isEmpty() )
-    {
-      const QStringList ids = mesh()->datasetIds();
-      if ( ids.count() > 1 )
-        currentDatasetId = ids.at( 1 );
-      else if ( ids.count() != 0 )
-        currentDatasetId = ids.first();
-    }
 
     QString waterLevelId;
     QString currentActivatedId = mMesh->verticesElevationDatasetId();
@@ -1101,7 +1091,7 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
         currentActivatedId = groupId;
     }
 
-    mMesh->activateDataset( currentDatasetId, false );
+    mMesh->activateDataset( currentActivatedId, false );
     mMesh->activateVectorDataset( currentVectorDatasetId, false );
     mMesh->setVerticalDataset3DId( waterLevelId, true );
 
@@ -1114,7 +1104,7 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
       {
         bc->outputHydrograph()->clear();
         if ( outputHydrographs.contains( bc->boundaryConditionId() ) )
-          bc->outputHydrograph()->copyFrom( outputHydrographs.value( bc->boundaryConditionId() ) );
+          bc->setOutputHydrographFrom( outputHydrographs.value( bc->boundaryConditionId() ) );
       }
     }
   }
