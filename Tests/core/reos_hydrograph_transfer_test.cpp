@@ -354,7 +354,6 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   context.setMeteorologicModel( meteoModel );
   watershedNode1.updateCalculationContext( context );
 
-
   QVERIFY( watershedNode1.outputHydrograph()->valueCount() == 0 ); //calculation will be updated only when back to an event loop
   QVERIFY( watershedNode2.outputHydrograph()->valueCount() == 0 );
   QVERIFY( junction1.outputHydrograph()->valueCount() == 0 );

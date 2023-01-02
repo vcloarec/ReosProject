@@ -20,6 +20,7 @@ email                : vcloarec at gmail dot com
 #include "reosmeshgenerator.h"
 #include "reospolylinesstructure.h"
 #include "reosgmshgenerator.h"
+#include "reos_testutils.h"
 
 class ReosMeshTest: public QObject
 {
@@ -45,7 +46,8 @@ void ReosMeshTest::GmshGenerator()
 
   std::unique_ptr<ReosMeshGeneratorProcess> process;
   process.reset( generator.getGenerateMeshProcess( structure.get(), nullptr ) );
-  process->start();
+  ModuleProcessControler controller( process.get() );
+  controller.waitForFinished();
   QVERIFY( process->isSuccessful() );
   ReosMeshFrameData frameData = process->meshResult();
 

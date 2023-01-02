@@ -30,6 +30,8 @@ class ReosPolygonStructureValues
     virtual ~ReosPolygonStructureValues() {}
 
     virtual double value( double x, double y, bool acceptClose = false ) const = 0;
+    virtual void setDefaultValue( double defVal ) = 0;
+    virtual double defaultValue()  const  = 0;
 
 };
 

@@ -1348,10 +1348,10 @@ void ReosTelemac2DSimulation::initInitialCondition()
 }
 
 
-ReosTelemac2DSimulationProcess::ReosTelemac2DSimulationProcess( const ReosCalculationContext &context,
+ReosTelemac2DSimulationProcess::ReosTelemac2DSimulationProcess(const ReosCalculationContext &context,
     const ReosDuration &timeStep,
     const QString &simulationfilePath,
-    const QList<ReosHydraulicStructureBoundaryCondition *>boundElem,
+    const QList<ReosHydraulicStructureBoundaryCondition *> &boundElem,
     const QMap<int, BoundaryCondition> &boundaries )
   : ReosSimulationProcess( context, boundElem )
   , mSimulationFilePath( simulationfilePath )

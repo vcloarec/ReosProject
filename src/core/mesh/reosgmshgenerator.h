@@ -78,8 +78,8 @@ class ReosGmshEngine : public ReosModule
     static ReosGmshEngine *instance();
 
     ReosMeshFrameData generateMesh( const ReosPolylinesStructure::Data &data,
-                                    ReosMeshResolutionController *resolutionControler,
-                                    ReosGmshGenerator::Algorithm alg, const QString &destinationCrs );
+                                    ReosPolygonStructureValues *resolutionValues,
+                                    ReosGmshGenerator::Algorithm alg );
 
     static void instantiate( QObject *parent );
 
@@ -108,9 +108,9 @@ class ReosMeshGeneratorGmshProcess: public ReosMeshGeneratorProcess
   private:
     ReosMeshFrameData mResult;
     ReosPolylinesStructure::Data mData;
-    std::unique_ptr<ReosMeshResolutionController> mResolutionControler;
     ReosGmshGenerator::Algorithm mAlgorithm = ReosGmshGenerator::FrontalDelaunay;
     QString mDestinationCrs;
+    std::unique_ptr<ReosPolygonStructureValues> mResolutionValues;
 };
 
 

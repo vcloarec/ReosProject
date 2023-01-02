@@ -99,7 +99,7 @@ QString ReosGmshGenerator::algorithmName( ReosGmshGenerator::Algorithm alg )
 
 QString ReosGmshGenerator::version()
 {
-    return QString(GMSH_API_VERSION);
+  return QString( GMSH_API_VERSION );
 }
 
 ReosMeshGeneratorGmshProcess::ReosMeshGeneratorGmshProcess( ReosPolylinesStructure *structure,
@@ -112,14 +112,17 @@ ReosMeshGeneratorGmshProcess::ReosMeshGeneratorGmshProcess( ReosPolylinesStructu
   if ( structure )
     mData = structure->structuredLinesData( destinationCrs );
   if ( resolutionControler )
-    mResolutionControler.reset( resolutionControler->clone() );
+  {
+    mResolutionValues.reset( resolutionControler->resolutionPolygons()->values( destinationCrs ) );
+    mResolutionValues->setDefaultValue( resolutionControler->defaultSize()->value() );
+  }
 }
 
 void ReosMeshGeneratorGmshProcess::start()
 {
   setMaxProgression( 0 );
   setInformation( tr( "Mesh generation in progress." ) );
-  mResult = ReosGmshEngine::instance()->generateMesh( mData, mResolutionControler.get(), mAlgorithm, mDestinationCrs );
+  mResult = ReosGmshEngine::instance()->generateMesh( mData, mResolutionValues.get(), mAlgorithm );
   mResult.extent = mData.extent;
   mIsSuccessful = true;
   finish();
@@ -134,21 +137,16 @@ ReosGmshEngine *ReosGmshEngine::instance()
 
 ReosMeshFrameData ReosGmshEngine::generateMesh(
   const ReosPolylinesStructure::Data &data,
-  ReosMeshResolutionController *resolutionControler,
-  ReosGmshGenerator::Algorithm alg,
-  const QString &destinationCrs )
+  ReosPolygonStructureValues *resolutionValues,
+  ReosGmshGenerator::Algorithm alg )
 {
   QMutexLocker locker( &mMutex );
   ReosMeshFrameData result;
   try
   {
-    std::unique_ptr<ReosPolygonStructureValues> sizeValues;
     double defaultSize = 10;
-    if ( resolutionControler )
-    {
-      sizeValues.reset( resolutionControler->resolutionPolygons()->values( destinationCrs ) );
-      defaultSize = resolutionControler->defaultSize()->value();
-    }
+    if ( resolutionValues )
+      defaultSize = resolutionValues->defaultValue();
 
     gmsh::initialize();
     std::string t1 = "t1";
@@ -201,12 +199,12 @@ ReosMeshFrameData ReosGmshEngine::generateMesh(
 
     gmsh::option::setNumber( "Mesh.Algorithm", alg + 1 );
 
-    auto sizeFallBack = [&sizeValues, defaultSize]( int dim, int, double x, double y, double, double lc )
+    auto sizeFallBack = [resolutionValues, defaultSize]( int dim, int, double x, double y, double, double lc )
     {
-      if ( !sizeValues )
+      if ( !resolutionValues )
         return lc;
 
-      double sizeValue = sizeValues->value( x, y, dim == 1 || dim == 0 );
+      double sizeValue = resolutionValues->value( x, y, dim == 1 || dim == 0 );
 
       if ( std::isnan( sizeValue )  || sizeValue <= 0 )
         return defaultSize;
@@ -224,7 +222,7 @@ ReosMeshFrameData ReosGmshEngine::generateMesh(
 
     // get all the vertices
     gmsh::model::mesh::getNodes( nodeTags, coord, parametricCoord, -1, -1, false, true );
-    result.vertexCoordinates.resize( static_cast<int>( coord.size() ));
+    result.vertexCoordinates.resize( static_cast<int>( coord.size() ) );
     memcpy( result.vertexCoordinates.data(), coord.data(), coord.size()*sizeof( double ) );
 
     QHash<size_t, int> tagToVertexIndex;
@@ -282,8 +280,8 @@ ReosMeshFrameData ReosGmshEngine::generateMesh(
       gmsh::model::mesh::getNodes( nodeBoundTags, coordBound, parametricCoordBound, 1, boundLineTag, false, true );
 
       int iniSize = vertexTagBound.count();
-      vertexTagBound.resize( iniSize + static_cast<int>(nodeBoundTags.size() ));
-      for ( int nt = 0; nt < static_cast<int>(nodeBoundTags.size()); ++nt )
+      vertexTagBound.resize( iniSize + static_cast<int>( nodeBoundTags.size() ) );
+      for ( int nt = 0; nt < static_cast<int>( nodeBoundTags.size() ); ++nt )
         vertexTagBound[iniSize + nt] =  tagToVertexIndex.value( nodeBoundTags.at( nt ) );
 
       result.boundaryVertices.append( vertexTagBound );
@@ -298,9 +296,9 @@ ReosMeshFrameData ReosGmshEngine::generateMesh(
         int lineTag = internalLines.at( holeInternalLines.at( i ) ); // + internalLineStartIndex + 1;
         gmsh::model::mesh::getNodes( nodeBoundTags, coordBound, parametricCoordBound, 1, lineTag, true, true );
 
-        QVector<int> lineVertices( static_cast<int>(nodeBoundTags.size()) - 1 );
-        for ( int nt = 0; nt < static_cast<int>(nodeBoundTags.size()) - 1; ++nt )
-          lineVertices[nt] =  tagToVertexIndex.value( nodeBoundTags.at( nt));
+        QVector<int> lineVertices( static_cast<int>( nodeBoundTags.size() ) - 1 );
+        for ( int nt = 0; nt < static_cast<int>( nodeBoundTags.size() ) - 1; ++nt )
+          lineVertices[nt] =  tagToVertexIndex.value( nodeBoundTags.at( nt ) );
 
         holeVertices.append( lineVertices );
       }
