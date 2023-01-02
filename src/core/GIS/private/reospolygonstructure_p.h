@@ -30,6 +30,9 @@ class ReosPolygonStructureValues_p : public ReosPolygonStructureValues
   public:
     double value( double x, double y, bool acceptClose = false ) const override;
 
+    double defaultValue()  const override;
+    void setDefaultValue( double defVal ) override;
+
   private:
 
     mutable QgsGeometryEngine *mCacheGeom;
@@ -40,6 +43,7 @@ class ReosPolygonStructureValues_p : public ReosPolygonStructureValues
     QHash<QgsFeatureId, double> mValues;
     QgsCoordinateTransform mTransform;
     double mTolerance = 0;
+    double mDefaultValue = 0;
 
     friend class ReosPolygonStructure_p;
 };

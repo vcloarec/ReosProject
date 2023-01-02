@@ -487,3 +487,13 @@ double ReosPolygonStructureValues_p::value( double x, double y, bool acceptClose
   else
     return std::numeric_limits<double>::quiet_NaN();
 }
+
+double ReosPolygonStructureValues_p::defaultValue() const
+{
+  return mDefaultValue;
+}
+
+void ReosPolygonStructureValues_p::setDefaultValue( double defVal )
+{
+  mDefaultValue = defVal;
+}

@@ -162,7 +162,7 @@ class ReosTelemac2DSimulationProcess : public ReosSimulationProcess
       const ReosCalculationContext &context,
       const ReosDuration &timeStep,
       const QString &simulationfilePath,
-      const QList<ReosHydraulicStructureBoundaryCondition *>boundElem,
+      const QList<ReosHydraulicStructureBoundaryCondition *> &boundElem,
       const QMap<int, BoundaryCondition> &boundaries );
 
     void start() override;
