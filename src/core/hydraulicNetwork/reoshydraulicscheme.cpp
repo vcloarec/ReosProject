@@ -170,8 +170,6 @@ ReosCalculationContext ReosHydraulicScheme::calculationContext() const
 {
   ReosCalculationContext context;
   context.setMeteorologicModel( meteoModel() );
-  context.setSimulationStartTime( startTime()->value() );
-  context.setSimulationEndTime( endTime()->value() );
   context.setSchemeId( id() );
 
   return context;

@@ -63,7 +63,7 @@ class REOSCORE_EXPORT ReosHydraulicStructureBoundaryCondition : public ReosHydro
     bool isAutoSelectable() const override;
     bool isRemovable() const override {return false;}
     bool canAcceptLink( const QString &linkId, int positionInLink ) override;
-    void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *upstreamLink, bool upstreamWillChange ) override;
+    void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydraulicNetworkElement *upstreamElement, bool upstreamWillChange ) override;
     virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
     void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
     QString outputPrefixName() const override;
@@ -91,6 +91,8 @@ class REOSCORE_EXPORT ReosHydraulicStructureBoundaryCondition : public ReosHydro
     ReosTimeSerieVariableTimeStep *waterLevelSeries() const;
 
     ReosHydraulicStructure2D *structure() const;
+
+    void setOutputHydrographFrom( const ReosHydrograph *hydrograph );
 
   public slots:
     //void updateCalculationContext( const ReosCalculationContext &context );

@@ -79,7 +79,7 @@ class REOSCORE_EXPORT ReosHydrographNode : public ReosHydraulicNode
     QPointF position( const QString & ) const override  {return QPointF();}
     ReosSpatialPosition spatialPosition() const override {return ReosSpatialPosition();}
 
-    virtual void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *upstreamLink, bool upstreamWillChange ) = 0;
+    virtual void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydraulicNetworkElement *upstreamElement, bool upstreamWillChange ) = 0;
 
   public slots:
     virtual void onUpstreamRoutingUpdated( const QString &routingId ) = 0;
@@ -134,7 +134,7 @@ class REOSCORE_EXPORT ReosHydrographSourceFixed: public ReosHydrographSource
     void setHydrograph( ReosHydrograph *hydrograph );
 
     bool updateCalculationContextFromDownstream( const ReosCalculationContext &, ReosHydrographRoutingLink * ) override;
-    void updateCalculationContextFromUpstream( const ReosCalculationContext &, ReosHydrographRoutingLink *, bool ) override;
+    void updateCalculationContextFromUpstream( const ReosCalculationContext &, ReosHydraulicNetworkElement *, bool ) override;
 
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) override;;
@@ -185,7 +185,7 @@ class REOSCORE_EXPORT ReosHydrographJunction : public ReosHydrographSource
     static ReosHydrographJunction *decode( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
 
     virtual void updateCalculationContext( const ReosCalculationContext &context ) override;
-    void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *upstreamLink, bool upstreamWillChange ) override;
+    void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydraulicNetworkElement *upstreamElement, bool upstreamWillChange ) override;
     bool updateCalculationContextFromDownstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *downstreamLink = nullptr ) override;
 
     ReosHydrographRoutingLink *downstreamRouting() const;
@@ -235,7 +235,7 @@ class REOSCORE_EXPORT ReosHydrographJunction : public ReosHydrographSource
 
   private:
     ReosSpatialPosition mPosition;
-    QSet<QString> mWaitingForUpstreamLinksUpdated;
+    QSet<QString> mWaitingForUpstreamElementUpdated;
     bool mCalculationIsInProgress = false;
 
     class HydrographSumCalculation: public ReosHydrographCalculation

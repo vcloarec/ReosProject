@@ -268,8 +268,8 @@ void ReosHecRasSimulation::prepareInput( ReosHydraulicStructure2D *hydraulicStru
   QList<ReosHecRasFlow::BoundaryFlow> boundaryToModify;
   QString dssFilePath = mProject->directory().filePath( QStringLiteral( "input_%1.dss" ).arg( mCurrentPlan ) );
 
-  const QDateTime startTime = calculationContext.simulationStartTime();
-  const QDateTime endTime = calculationContext.simulationEndTime();
+  const QDateTime startTime = calculationContext.timeWindow().start();
+  const QDateTime endTime = calculationContext.timeWindow().end();
 
   currentPlan.changeSimulationTimeInFile( startTime, endTime, this );
 
@@ -333,34 +333,6 @@ ReosSimulationProcess *ReosHecRasSimulation::getProcess(
   const ReosCalculationContext &calculationContext ) const
 {
   return new ReosHecRasSimulationProcess( *mProject.get(), mCurrentPlan, calculationContext, hydraulicStructure->boundaryConditions() );
-}
-
-QList<QDateTime> ReosHecRasSimulation::theoricalTimeSteps( ReosHydraulicScheme *scheme ) const
-{
-  const QDateTime startTime = scheme->startTime()->value();
-  const QDateTime endTime = scheme->startTime()->value();
-  scheme->restoreElementConfig( id() );
-
-  ReosDuration timeStep;
-  if ( scheme )
-  {
-    ReosEncodedElement element = scheme->restoreElementConfig( id() );
-    if ( element.hasEncodedData( QStringLiteral( "mapping-interval" ) ) )
-      timeStep = ReosDuration::decode( element.getEncodedData( QStringLiteral( "mapping-interval" ) ) );
-  }
-
-  if ( timeStep == ReosDuration() )
-    return QList<QDateTime>();
-
-  QDateTime currentTime = startTime;
-  QList<QDateTime> ret;
-  while ( currentTime < endTime )
-  {
-    ret.append( currentTime );
-    currentTime = currentTime.addMSecs( timeStep.valueMilliSecond() );
-  }
-
-  return ret;
 }
 
 ReosDuration ReosHecRasSimulation::representativeTimeStep() const

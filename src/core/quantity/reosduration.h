@@ -29,7 +29,7 @@ class REOSCORE_EXPORT ReosTimeWindow
   public:
     ReosTimeWindow() = default;
     ReosTimeWindow( const QDateTime &startTime, const QDateTime &endTime );
-    ReosTimeWindow( const QPair< QDateTime, QDateTime> &timeExtent );
+    explicit ReosTimeWindow( const QPair< QDateTime, QDateTime> &timeExtent );
 
     const QDateTime &start() const;
     void setStart( const QDateTime &newStart );

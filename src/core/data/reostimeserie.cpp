@@ -1008,8 +1008,17 @@ void ReosTimeSerieVariableTimeStep::setValue( const ReosDuration &relativeTime, 
 
 void ReosTimeSerieVariableTimeStep::setValue( const QDateTime &time, double value )
 {
-  const ReosDuration relativeTime = ReosDuration( referenceTime().msecsTo( time ), ReosDuration::millisecond );
-  setValue( relativeTime, value );
+  if ( !referenceTime().isValid() )
+  {
+    setReferenceTime( time );
+    setValue( ReosDuration( 0.0, ReosDuration::second ), value );
+  }
+  else
+  {
+    const ReosDuration relativeTime = ReosDuration( referenceTime().msecsTo( time ), ReosDuration::millisecond );
+    setValue( relativeTime, value );
+  }
+
 }
 
 double ReosTimeSerieVariableTimeStep::valueAtTime( const ReosDuration &relativeTime ) const
@@ -1109,7 +1118,7 @@ void ReosTimeSerieVariableTimeStep::setColor( const QColor &color )
   emit displayColorChanged( color );
 }
 
-void ReosTimeSerieVariableTimeStep::copyFrom( ReosTimeSerieVariableTimeStep *other )
+void ReosTimeSerieVariableTimeStep::copyFrom( const ReosTimeSerieVariableTimeStep *other )
 {
   if ( !other || !variableTimeStepDataProvider() || !variableTimeStepDataProvider()->isEditable() )
     return;

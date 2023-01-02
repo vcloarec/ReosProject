@@ -49,8 +49,9 @@ class REOSCORE_EXPORT ReosSimulationPreparationProcess: public ReosProcess
                                       const ReosCalculationContext &context );
 
     void setDestination( const QDir &destination );
-
     void start() override;
+
+    const ReosCalculationContext &calculationContext() const;
 
   signals:
     void allBoundariesUpdated();
@@ -61,6 +62,7 @@ class REOSCORE_EXPORT ReosSimulationPreparationProcess: public ReosProcess
     QPointer<ReosHydraulicStructure2D> mStructure;
     QPointer<ReosHydraulicSimulation> mSimulation;
     ReosCalculationContext mContext;
+    bool mHasMesh = false;
 
     QStringList mWaitedBoundaryId;
     int mBoundaryCount;
@@ -74,18 +76,21 @@ class REOSCORE_EXPORT ReosSimulationProcess : public ReosProcess
 {
     Q_OBJECT
   public:
-    ReosSimulationProcess( const ReosCalculationContext &context, const QList<ReosHydraulicStructureBoundaryCondition *> boundaries );
+    ReosSimulationProcess( const ReosCalculationContext &context, const QList<ReosHydraulicStructureBoundaryCondition *> &boundaries );
 
     QMap<QString, ReosHydrograph *> outputHydrographs() const;
 
+    ReosTimeWindow timeWindow() const;
+
   signals:
-    void sendBoundaryFlow( QDateTime time, QStringList boundaryIds, QList<double> values ) const;
+    void sendBoundaryFlow( QDateTime time, QStringList boundaryIds, QList<double> values );
 
   private slots:
     void onReceiveFlow( QDateTime time, QStringList boundaryIds, QList<double> values );
 
   private:
     QMap<QString, ReosHydrograph *> mOutputHydrographs;
+    ReosTimeWindow mTimewWindow;
 
 };
 
@@ -103,8 +108,6 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject
     virtual void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext, const QDir &directory ) = 0;
 
     virtual ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const = 0;
-
-    virtual QList<QDateTime> theoricalTimeSteps( ReosHydraulicScheme *scheme ) const = 0;
 
     virtual ReosDuration representativeTimeStep() const = 0;
 
@@ -191,16 +194,90 @@ class REOSCORE_EXPORT ReosSimulationEngineRegistery
 
     ReosStructureImporter *createStructureImporter( const ReosEncodedElement &element, const ReosHydraulicNetworkContext &context );
 
-  private:
-#ifdef _MSC_VER
-    std::unique_ptr<ReosSimulationEngineFactory> dummy; // workaround for MSVC, if not, the line after create an compilation error if this class is exported (REOSCORE_EXPORT)
-#endif
     //! Registers a \a factory
     void registerEngineFactory( ReosSimulationEngineFactory *factory );
 
+  private:
+#ifdef _MSC_VER
+    std::unique_ptr<ReosSimulationEngineFactory> dummy; // workaround for MSVC, if not, the line after create a compilation error if this class is exported (REOSCORE_EXPORT)
+#endif
     std::map<QString, std::unique_ptr<ReosSimulationEngineFactory>> mFactories;
     static ReosSimulationEngineRegistery *sInstance;
     void loadDynamicLibrary();
+};
+
+
+class ReosSimulationProcessDummy : public ReosSimulationProcess
+{
+    Q_OBJECT
+  public:
+    ReosSimulationProcessDummy(
+      const ReosCalculationContext &context,
+      const QList<ReosHydraulicStructureBoundaryCondition *> &boundaries );
+
+    void start();
+
+    const ReosHydrograph *output() const;
+
+  private:
+    ReosHydrograph mOuput;
+};
+
+/**
+ * Dummy class used for test
+ */
+class REOSCORE_EXPORT ReosHydraulicSimulationDummy : public ReosHydraulicSimulation
+{
+    Q_OBJECT
+  public:
+    ReosHydraulicSimulationDummy( QObject *parent = nullptr ) : ReosHydraulicSimulation( parent )  {}
+
+    virtual QString key() const override {return QStringLiteral( "dummy-simulation" );}
+    virtual ReosEncodedElement encode() const override {return ReosEncodedElement();};
+
+    virtual void prepareInput( ReosHydraulicStructure2D *, const ReosCalculationContext & ) override {};
+
+    virtual void prepareInput( ReosHydraulicStructure2D *, const ReosCalculationContext &, const QDir & ) override {};
+
+    virtual ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *structure, const ReosCalculationContext &calculationContext ) const override;;
+
+    virtual ReosDuration representativeTimeStep() const override {return ReosDuration( 5, ReosDuration::minute );}
+
+    virtual ReosDuration representative2DTimeStep() const override {return ReosDuration( 5, ReosDuration::minute );}
+
+    virtual void saveSimulationResult( const ReosHydraulicStructure2D *structure, const QString &, ReosSimulationProcess *, bool ) const override;;
+
+    virtual ReosHydraulicSimulationResults *loadSimulationResults( ReosHydraulicStructure2D *, const QString &, QObject *parent ) const override;;
+
+    virtual bool hasResult( const ReosHydraulicStructure2D *, const QString & ) const override {return true;};
+
+    virtual void removeResults( const ReosHydraulicStructure2D *, const QString & ) const override {};
+
+    virtual QString engineName() const override {return QStringLiteral( "dummy" );}
+
+    virtual void saveConfiguration( ReosHydraulicScheme * ) const override {};
+
+    virtual void restoreConfiguration( ReosHydraulicScheme * ) override {};
+
+  private:
+    mutable QMap<QString, ReosHydrograph *> mLastHydrographs;
+
+    friend class ReosHydraulicSimulationResultsDummy;
+};
+
+class ReosSimulationEngineFactoryDummy : public ReosSimulationEngineFactory
+{
+  public:
+    ReosSimulationEngineFactoryDummy() {}
+
+    virtual ReosHydraulicSimulation *createSimulation( QObject *parent ) const override {return new ReosHydraulicSimulationDummy( parent );}
+    virtual ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &, QObject * ) const override { return nullptr;}
+
+    virtual QString key() const override {return QStringLiteral( "dummy-simulation" );}
+    QString displayName() const override {return QObject::tr( "Dummy" );}
+    ReosStructureImporter *createImporter( const ReosEncodedElement &, const ReosHydraulicNetworkContext & ) const override {return nullptr;}
+
+    void initializeSettings() override {}
 };
 
 #endif // REOSHYDRAULICSIMULATION_H

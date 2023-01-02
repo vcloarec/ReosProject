@@ -29,20 +29,16 @@ class REOSCORE_EXPORT ReosCalculationContext
     ReosMeteorologicModel *meteorologicModel() const;
     void setMeteorologicModel( ReosMeteorologicModel *meteoModel );
 
-    QDateTime simulationStartTime() const;
-    void setSimulationStartTime( const QDateTime &simulationStartTime );
-
-    QDateTime simulationEndTime() const;
-    void setSimulationEndTime( const QDateTime &simulationEndTime );
-
     QString schemeId() const;
     void setSchemeId( const QString &schemeId );
+
+    const ReosTimeWindow &timeWindow() const;
+    void setTimeWindow( const ReosTimeWindow &newTimeWindow );
 
   private:
     QString mSchemeId;
     QPointer<ReosMeteorologicModel> mMeteoModel;
-    QDateTime mSimulationStartTime;
-    QDateTime mSimulationEndTime;
+    ReosTimeWindow mTimeWindow;
 };
 
 #endif // REOSCALCULATIONCONTEXT_H

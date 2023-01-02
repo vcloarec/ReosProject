@@ -391,8 +391,6 @@ ReosCalculationContext ReosHydraulicNetwork::calculationContext() const
   if ( currentScheme )
   {
     context.setMeteorologicModel( currentScheme->meteoModel() );
-    context.setSimulationStartTime( currentScheme->startTime()->value() );
-    context.setSimulationEndTime( currentScheme->endTime()->value() );
     context.setSchemeId( currentScheme->id() );
   }
 

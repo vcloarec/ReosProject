@@ -40,7 +40,7 @@ bool equal( const QPolygonF &poly1, const QPolygonF &poly2 );
 class ModuleProcessControler: public QObject
 {
   public:
-    ModuleProcessControler( ReosProcess *process );
+    explicit ModuleProcessControler( ReosProcess *process );
 
     void waitForFinished();
     void reset();

@@ -58,9 +58,11 @@ QString tempFile( const QString &baseName )
 }
 
 
-ModuleProcessControler::ModuleProcessControler( ReosProcess *process ): mProcess( process )
+ModuleProcessControler::ModuleProcessControler( ReosProcess *process )
+  : mProcess( process )
 {
-  QObject::connect( process, &ReosProcess::finished, this, &ModuleProcessControler::processFinished );
+  connect( process, &QObject::destroyed, this, &ModuleProcessControler::processFinished );
+  connect( process, &ReosProcess::finished, this, &ModuleProcessControler::processFinished );
   process->startOnOtherThread();
 }
 

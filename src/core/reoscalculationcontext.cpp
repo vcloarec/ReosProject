@@ -33,32 +33,22 @@ void ReosCalculationContext::setMeteorologicModel( ReosMeteorologicModel *meteoM
   mMeteoModel = meteoModel;
 }
 
-QDateTime ReosCalculationContext::simulationStartTime() const
-{
-    return mSimulationStartTime;
-}
-
-void ReosCalculationContext::setSimulationStartTime(const QDateTime &simulationStartTime)
-{
-    mSimulationStartTime = simulationStartTime;
-}
-
-QDateTime ReosCalculationContext::simulationEndTime() const
-{
-    return mSimulationEndTime;
-}
-
-void ReosCalculationContext::setSimulationEndTime(const QDateTime &simulationEndTime)
-{
-    mSimulationEndTime = simulationEndTime;
-}
-
 QString ReosCalculationContext::schemeId() const
 {
-    return mSchemeId;
+  return mSchemeId;
 }
 
-void ReosCalculationContext::setSchemeId(const QString &schemeId)
+void ReosCalculationContext::setSchemeId( const QString &schemeId )
 {
-    mSchemeId = schemeId;
+  mSchemeId = schemeId;
+}
+
+const ReosTimeWindow &ReosCalculationContext::timeWindow() const
+{
+  return mTimeWindow;
+}
+
+void ReosCalculationContext::setTimeWindow( const ReosTimeWindow &newTimeWindow )
+{
+  mTimeWindow = newTimeWindow;
 }

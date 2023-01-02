@@ -57,7 +57,6 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
     void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) override;
     void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext, const QDir &directory ) override;
     ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const override;
-    QList<QDateTime> theoricalTimeSteps( ReosHydraulicScheme *scheme ) const override;
     ReosDuration representativeTimeStep() const override;
     ReosDuration representative2DTimeStep() const override;
     bool hasResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const override;

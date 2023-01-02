@@ -55,6 +55,7 @@ class ReosTelemac2DSimulationResults : public ReosHydraulicSimulationResults
     QMap<QString, ReosHydrograph *> outputHydrographs() const override;
     int datasetIndexClosestBeforeTime( int groupIndex, const QDateTime &time ) const override;
     QString unitString( DatasetType dataType ) const override;
+    QList<QDateTime> timeSteps() const override;
 
   private:
     QString mFileName;

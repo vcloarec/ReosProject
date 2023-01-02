@@ -137,3 +137,11 @@ void ReosHydraulicSimulationResults::registerGroups( const QList<DatasetType> &t
   mGroupIndexToType = types;
 }
 
+
+ReosHydraulicSimulationResultsDummy::ReosHydraulicSimulationResultsDummy( const ReosHydraulicSimulation *simulation, QObject *parent )
+  : ReosHydraulicSimulationResults( simulation, parent )
+{
+  const ReosHydraulicSimulationDummy *simDummy = qobject_cast<const ReosHydraulicSimulationDummy *>( simulation );
+  if ( simDummy )
+    mOutputHydrographs = simDummy->mLastHydrographs;
+}

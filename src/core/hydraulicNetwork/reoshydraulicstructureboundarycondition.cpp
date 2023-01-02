@@ -143,18 +143,19 @@ bool ReosHydraulicStructureBoundaryCondition::canAcceptLink( const QString &link
 
 void ReosHydraulicStructureBoundaryCondition::updateCalculationContextFromUpstream(
   const ReosCalculationContext &context,
-  ReosHydrographRoutingLink *upstreamLink,
+  ReosHydraulicNetworkElement *upstreamElement,
   bool upstreamWillChange )
 {
   switch ( conditionType() )
   {
     case ReosHydraulicStructureBoundaryCondition::Type::InputFlow:
-      ReosHydrographJunction::updateCalculationContextFromUpstream( context, upstreamLink, upstreamWillChange );
+      ReosHydrographJunction::updateCalculationContextFromUpstream( context, upstreamElement, upstreamWillChange );
       mStructure->updateCalculationContextFromUpstream( context, this, upstreamWillChange );
       break;
     case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
     case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
     case ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally:
+      ReosHydrographJunction::updateCalculationContextFromUpstream( context, nullptr, true );
       break;
   }
 }
@@ -293,6 +294,13 @@ void ReosHydraulicStructureBoundaryCondition::onParameterNameChange()
 ReosHydraulicStructure2D *ReosHydraulicStructureBoundaryCondition::structure() const
 {
   return mStructure;
+}
+
+void ReosHydraulicStructureBoundaryCondition::setOutputHydrographFrom( const ReosHydrograph *hydrograph )
+{
+  int valueCount = hydrograph->valueCount();
+  mOutputHydrograph->copyFrom( hydrograph );
+  calculationUpdated();
 }
 
 void ReosHydraulicStructureBoundaryCondition::setWaterLevelSeriesIndex( int waterLevelSeriesIndex )
