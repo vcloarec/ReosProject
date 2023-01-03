@@ -27,6 +27,7 @@
 #include "reosparameter.h"
 #include "reoscalculationcontext.h"
 #include "reoshydrograph.h"
+#include "reostimewindowsettings.h"
 
 ReosHydraulicSimulation::ReosHydraulicSimulation( QObject *parent ): ReosDataObject( parent )
 {
@@ -255,15 +256,7 @@ void ReosSimulationPreparationProcess::start()
 
   eventLoop->deleteLater();
 
-  ReosTimeWindow timeWindow;
-  for ( ReosHydraulicStructureBoundaryCondition *bc : boundaries )
-  {
-    if ( bc && bc->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::InputFlow )
-    {
-      timeWindow = timeWindow.unite( bc->timeWindow() );
-    }
-  }
-  mContext.setTimeWindow( timeWindow );
+  mContext.setTimeWindow( mStructure->timeWindow() );
 
   if ( mDestinationPath.isEmpty() )
     mSimulation->prepareInput( mStructure, mContext );

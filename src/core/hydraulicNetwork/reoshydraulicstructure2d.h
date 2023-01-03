@@ -31,6 +31,7 @@ class ReosTopographyCollection;
 class ReosRoughnessStructure;
 class ReosHydraulicStructureBoundaryCondition;
 class ReosStructureImporter;
+class ReosTimeWindowSettings;
 class QDir;
 
 class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
@@ -272,12 +273,19 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Returns a pointer to the structure importer if exists, else return nullptr
     ReosStructureImporter *structureImporter() const;
 
+    ReosTimeWindowSettings *timeWindowSettings() const;
+
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) override;
 
   signals:
     void meshGenerated();
-    void boundaryChanged();
+
+    //! Emmited when boundaries change (add/remove)
+    void boundariesChanged();
+
+    //! Emitted when values of a boundary is updated
+    void boundaryUpdated( ReosHydraulicStructureBoundaryCondition *bc );
     void currentSimulationChanged();
     void simulationFinished();
     void simulationResultChanged();
@@ -322,6 +330,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 
     //** configuration
     int mCurrentSimulationIndex = -1;
+    ReosTimeWindowSettings *mTimeWindowSettings = nullptr;
     //**
 
     std::map<QString, std::unique_ptr<ReosSimulationProcess>> mSimulationProcesses;

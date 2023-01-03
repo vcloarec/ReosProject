@@ -235,7 +235,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   {
     ui->mHydrographTables->setConstantTimeStepParameter( mStructure2D->constantTimeStepInTable(), mStructure2D->useConstantTimeStepInTable() );
     populateHydrograph();
-    connect( mStructure2D, &ReosHydraulicStructure2D::boundaryChanged, this, &ReosHydraulicStructure2DProperties::populateHydrograph );
+    connect( mStructure2D, &ReosHydraulicStructure2D::boundariesChanged, this, &ReosHydraulicStructure2DProperties::populateHydrograph );
     connect( mStructure2D, &ReosHydraulicStructure2D::simulationFinished, this, &ReosHydraulicStructure2DProperties::onSimulationFinished );
     connect( mStructure2D, &ReosHydraulicStructure2D::currentSimulationChanged, this, [this]
     {
