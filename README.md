@@ -12,6 +12,8 @@ Self installer of this tool can be downloaded [here](https://www.reos.site/en/re
 
 Description and documentation about functionalities provided by the actual release is available in the wiki of this repo [here](https://github.com/vcloarec/ReosProject/wiki).
 
+For people that want to test, the development version can be dowload here:  https://nightly.link/vcloarec/ReosProject/workflows/windows_test/master/Lekan%20Windows%20Installer.zip
+
 <img src="profile.jpg" style="zoom: 40%;" />
 
 
