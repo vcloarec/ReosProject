@@ -25,3 +25,5 @@ copy /v /y %REOS_SOURCE%\package\dem.qml %REOS_INSTALL%\resources\dem.qml
 
 robocopy %OSGEO4W_ROOT%\apps\gdal\share\gdal %REOS_INSTALL%\share\gdal /E /S /NFL /NDL /NJH /NJS /nc /ns /np
 robocopy %OSGEO4W_ROOT%\share\proj %REOS_INSTALL%\share\proj /E /S /Xf *.tif *.tiff /NFL /NDL /NJH /NJS /nc /ns /np
+
+copy /v /y %REOS_SOURCE%\LICENSE_LEKAN.txt %REOS_INSTALL%\LICENSE_LEKAN.txt
