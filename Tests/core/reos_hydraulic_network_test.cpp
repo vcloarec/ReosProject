@@ -28,6 +28,7 @@ email                : vcloarec at gmail dot com
 #include "reoshydraulicsimulation.h"
 #include "reoshydraulicstructure2d.h"
 #include "reoshydraulicstructureboundarycondition.h"
+#include "reostimewindowsettings.h"
 #include "reos_testutils.h"
 
 #define WAITING_TIME_FOR_LOOP 100
@@ -238,8 +239,34 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   controller = std::make_unique<ModuleProcessControler>( preparationProcess.get() );
   controller->waitForFinished();
 
-  ReosTimeWindow tw = preparationProcess->calculationContext().timeWindow();
+  // the preparation process lead to update the upstream calculation
+  // So for now, the 2D structure can automatically defined the time window from upstream
+  // and we tet the time window settings
 
+  ReosTimeWindow tw = structure2D->timeWindow();
+
+  QCOMPARE( tw.start(), QDateTime( QDate( 2010, 02, 01 ), QTime( 1, 55, 0 ), Qt::UTC ) );
+  QCOMPARE( tw.end(), QDateTime( QDate( 2010, 02, 01 ), QTime( 2, 48, 45 ), Qt::UTC ) );
+
+  structure2D->timeWindowSettings()->startOffset()->setValue( ReosDuration( 3, ReosDuration::minute ) );
+  structure2D->timeWindowSettings()->endOffset()->setValue( ReosDuration( 5, ReosDuration::minute ) );
+
+  tw = structure2D->timeWindow();
+  QCOMPARE( tw.start(), QDateTime( QDate( 2010, 02, 01 ), QTime( 1, 58, 0 ), Qt::UTC ) );
+  QCOMPARE( tw.end(), QDateTime( QDate( 2010, 02, 01 ), QTime( 2, 53, 45 ), Qt::UTC ) );
+
+  structure2D->timeWindowSettings()->setOriginStart( ReosTimeWindowSettings::End );
+  structure2D->timeWindowSettings()->startOffset()->setValue( ReosDuration( -2, ReosDuration::hour ) );
+
+  tw = structure2D->timeWindow();
+  QCOMPARE( tw.start(), QDateTime( QDate( 2010, 02, 01 ), QTime( 0, 48, 45 ), Qt::UTC ) );
+  QCOMPARE( tw.end(), QDateTime( QDate( 2010, 02, 01 ), QTime( 2, 53, 45 ), Qt::UTC ) );
+
+  structure2D->timeWindowSettings()->startOffset()->setValue( ReosDuration( 0, ReosDuration::minute ) );
+  structure2D->timeWindowSettings()->endOffset()->setValue( ReosDuration( 0, ReosDuration::minute ) );
+  structure2D->timeWindowSettings()->setOriginStart( ReosTimeWindowSettings::Begin );
+
+  tw = structure2D->timeWindow();
   QCOMPARE( tw.start(), QDateTime( QDate( 2010, 02, 01 ), QTime( 1, 55, 0 ), Qt::UTC ) );
   QCOMPARE( tw.end(), QDateTime( QDate( 2010, 02, 01 ), QTime( 2, 48, 45 ), Qt::UTC ) );
 

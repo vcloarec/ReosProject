@@ -33,6 +33,7 @@
 #include "reoseditmeshelementwidget.h"
 #include "reosroughnesswidget.h"
 #include "reoshydraulic2dsimulationwidget.h"
+#include "reoshydraulicstructure2dtimewindowwidget.h"
 
 
 ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &context )
@@ -101,11 +102,13 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
     ui->mOptionListWidget->item( 4 )->setHidden( true );
   }
 
-  ReosHydraulic2DSimulationWidget *mSimulationWidget = new ReosHydraulic2DSimulationWidget( structure2D, ReosGuiContext( context, this ) );
-  ui->pageSimulation->layout()->addWidget( mSimulationWidget );
+  ReosHydraulic2DSimulationWidget *simulationWidget = new ReosHydraulic2DSimulationWidget( structure2D, ReosGuiContext( context, this ) );
+  ui->pageSimulation->layout()->addWidget( simulationWidget );
+
+  Reoshydraulicstructure2dTimeWindowWidget *timeWindowWidget = new Reoshydraulicstructure2dTimeWindowWidget( structure2D->timeWindowSettings(), this );
+  ui->pageTimeWindow->layout()->addWidget( timeWindowWidget );
 
   mInitialMapStructureItem = context.mapItems( ReosHydraulicStructure2D::staticType() );
-
   connect( structure2D->geometryStructure(), &ReosDataObject::dataChanged, this, [this]
   {
     mMapStructureItem.updatePosition();

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Reoshydraulicstructure2dTimeWindowWidget</class>
+ <widget class="QWidget" name="Reoshydraulicstructure2dTimeWindowWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>483</width>
+    <height>184</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QGroupBox" name="mGroupBoxAuto">
+     <property name="title">
+      <string>Defined Automaticaly</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="2" column="0" colspan="2">
+       <widget class="ReosParameterDurationWidget" name="mEndOffset" native="true"/>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="ReosParameterDurationWidget" name="mStartOffset" native="true"/>
+      </item>
+      <item row="1" column="2">
+       <widget class="QComboBox" name="mComboBoxOriginStart"/>
+      </item>
+      <item row="2" column="2">
+       <widget class="QComboBox" name="mComboBoxOriginEnd"/>
+      </item>
+      <item row="0" column="0" colspan="3">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>The time window is defined by combining the time extents of the inflow bounday conditions. Duration offsets can be applyed to start and to end to adjust the final time window. </string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="ReosParameterDateTimeWidget" name="mStartTime" native="true"/>
+     </item>
+     <item>
+      <widget class="ReosParameterDateTimeWidget" name="mEndTime" native="true"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ReosParameterDurationWidget</class>
+   <extends>QWidget</extends>
+   <header>reosparameterwidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ReosParameterDateTimeWidget</class>
+   <extends>QWidget</extends>
+   <header>reosparameterwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

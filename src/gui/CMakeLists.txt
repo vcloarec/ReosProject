@@ -107,6 +107,7 @@ SET(REOS_GUI_SOURCES
     hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp
     hydraulicNetwork/structure2d/reosstructure2dtoolbar.cpp
     hydraulicNetwork/structure2d/reosimporthydraulicstructuredialog.cpp
+    hydraulicNetwork/structure2d/reoshydraulicstructure2dtimewindowwidget.cpp
 
     hydraulicNetwork/private/reosmaptoolhydraulicnetwork_p.cpp
     )
@@ -201,6 +202,7 @@ SET(REOS_GUI_HEADERS
     hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.h
     hydraulicNetwork/structure2d/reosstructure2dtoolbar.h
     hydraulicNetwork/structure2d/reosimporthydraulicstructuredialog.h
+    hydraulicNetwork/structure2d/reoshydraulicstructure2dtimewindowwidget.h
 )
 
 SET(REOS_GUI_HEADERS_PRIVATE

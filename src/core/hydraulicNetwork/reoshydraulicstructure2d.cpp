@@ -24,6 +24,7 @@
 #include "reoshydraulicsimulationresults.h"
 #include "reoshydraulicscheme.h"
 #include "reosgisengine.h"
+#include "reostimewindowsettings.h"
 
 #include <QProcess>
 #include <QDir>
@@ -38,6 +39,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, con
   , mTopographyCollection( ReosTopographyCollection::createTopographyCollection( context.network()->gisEngine(), this ) )
   , mRoughnessStructure( new ReosRoughnessStructure( crs ) )
   , mProfilesCollection( new ReosHydraulicStructureProfilesCollection( this ) )
+  , mTimeWindowSettings( new ReosTimeWindowSettings( this ) )
 {
   initConnection();
 }
@@ -47,6 +49,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   const ReosHydraulicNetworkContext &context )
   : ReosHydraulicNetworkElement( encodedElement, context.network() )
   , mProfilesCollection( new ReosHydraulicStructureProfilesCollection( this ) )
+  , mTimeWindowSettings( new ReosTimeWindowSettings( this ) )
   , m3dMapSettings( encodedElement.getEncodedData( "3d-map-setings" ) )
 {
   // Before all, load cababilities
@@ -196,6 +199,11 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( ReosStructureImporter *impor
   updateResults( context.currentSchemeId() );
 
   saveConfiguration( context.network()->currentScheme() );
+}
+
+ReosTimeWindowSettings *ReosHydraulicStructure2D::timeWindowSettings() const
+{
+  return mTimeWindowSettings;
 }
 
 ReosHydraulicStructureProfilesCollection *ReosHydraulicStructure2D::profilesCollection() const
@@ -545,15 +553,19 @@ void ReosHydraulicStructure2D::setTerrain3DSettings( const Reos3DTerrainSettings
 void ReosHydraulicStructure2D::onBoundaryConditionAdded( const QString &bid )
 {
   mBoundaryConditions.insert( bid );
-  mNetwork->addElement( new ReosHydraulicStructureBoundaryCondition( this, bid, mNetwork->context() ) );
-  emit boundaryChanged();
+  ReosHydraulicNetworkElement *bc = mNetwork->addElement( new ReosHydraulicStructureBoundaryCondition( this, bid, mNetwork->context() ) );
+  connect( bc, &ReosHydraulicNetworkElement::calculationIsUpdated, this, [this, bc]
+  {
+    emit boundaryUpdated( qobject_cast<ReosHydraulicStructureBoundaryCondition *>( bc ) );
+  } );
+  emit boundariesChanged();
 }
 
 void ReosHydraulicStructure2D::onBoundaryConditionRemoved( const QString &bid )
 {
   mBoundaryConditions.remove( bid );
   mNetwork->removeElement( boundaryConditionNetWorkElement( bid ) );
-  emit boundaryChanged();
+  emit boundariesChanged();
 }
 
 void ReosHydraulicStructure2D::onGeometryStructureChange()
@@ -1184,6 +1196,9 @@ void ReosHydraulicStructure2D::saveConfiguration( ReosHydraulicScheme *scheme ) 
   ReosEncodedElement encodedElement = scheme->restoreElementConfig( id() );
   if ( currentSimulation() )
     encodedElement.addData( QStringLiteral( "current-simulation-id" ), currentSimulation()->id() );
+
+  encodedElement.addEncodedData( QStringLiteral( "time-window-settings" ), mTimeWindowSettings->encode() );
+
   scheme->saveElementConfig( id(), encodedElement );
 
   for ( ReosHydraulicSimulation *sim : mSimulations )
@@ -1211,6 +1226,8 @@ void ReosHydraulicStructure2D::restoreConfiguration( ReosHydraulicScheme *scheme
 
   for ( ReosHydraulicSimulation *sim : std::as_const( mSimulations ) )
     sim->restoreConfiguration( scheme );
+
+  mTimeWindowSettings->decode( encodedElement.getEncodedData( QStringLiteral( "time-window-settings" ) ) );
 
   setCurrentSimulation( mCurrentSimulationIndex = simulationIndexFromId( simulationId ) );
   updateResults( scheme->id() );
@@ -1243,8 +1260,20 @@ ReosDuration ReosHydraulicStructure2D::mapTimeStep() const
 
 ReosTimeWindow ReosHydraulicStructure2D::timeWindow() const
 {
-  // As the time windo depends of hte hydraulic scheme, we can't have it here
-  return ReosTimeWindow();
+  ReosTimeWindow tw;
+  if ( mTimeWindowSettings->automaticallyDefined() )
+  {
+    const QList<ReosHydraulicStructureBoundaryCondition *> bcs = boundaryConditions();
+    for ( ReosHydraulicStructureBoundaryCondition *bc : bcs )
+    {
+      if ( bc->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::InputFlow )
+      {
+        tw = tw.unite( bc->timeWindow() );
+      }
+    }
+  }
+
+  return mTimeWindowSettings->timeWindow( tw );;
 }
 
 QIcon ReosHydraulicStructure2D::icon() const

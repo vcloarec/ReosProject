@@ -56,7 +56,7 @@
          <string>Structure</string>
         </property>
         <property name="icon">
-         <iconset resource="../../images/images.qrc">
+         <iconset resource="../../../images/images.qrc">
           <normaloff>:/images/menuStructure.svg</normaloff>:/images/menuStructure.svg</iconset>
         </property>
        </item>
@@ -65,7 +65,7 @@
          <string>Mesh Resolution</string>
         </property>
         <property name="icon">
-         <iconset resource="../../images/images.qrc">
+         <iconset resource="../../../images/images.qrc">
           <normaloff>:/images/menuMeshReslution.svg</normaloff>:/images/menuMeshReslution.svg</iconset>
         </property>
        </item>
@@ -74,7 +74,7 @@
          <string>Topography</string>
         </property>
         <property name="icon">
-         <iconset resource="../../images/images.qrc">
+         <iconset resource="../../../images/images.qrc">
           <normaloff>:/images/dem.svg</normaloff>:/images/dem.svg</iconset>
         </property>
        </item>
@@ -83,7 +83,7 @@
          <string>Edit elements / Mesh quality</string>
         </property>
         <property name="icon">
-         <iconset resource="../../images/images.qrc">
+         <iconset resource="../../../images/images.qrc">
           <normaloff>:/images/editMeshFrame.svg</normaloff>:/images/editMeshFrame.svg</iconset>
         </property>
        </item>
@@ -92,7 +92,7 @@
          <string>Roughness</string>
         </property>
         <property name="icon">
-         <iconset resource="../../images/images.qrc">
+         <iconset resource="../../../images/images.qrc">
           <normaloff>:/images/roughness.svg</normaloff>:/images/roughness.svg</iconset>
         </property>
        </item>
@@ -101,8 +101,17 @@
          <string>Simulation Configuration</string>
         </property>
         <property name="icon">
-         <iconset resource="../../images/images.qrc">
+         <iconset resource="../../../images/images.qrc">
           <normaloff>:/images/settings.svg</normaloff>:/images/settings.svg</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Time Window</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../images/images.qrc">
+          <normaloff>:/images/temporal.svg</normaloff>:/images/temporal.svg</iconset>
         </property>
        </item>
       </widget>
@@ -112,7 +121,7 @@
    <item row="0" column="1">
     <widget class="QStackedWidget" name="mStackedWidget">
      <property name="currentIndex">
-      <number>5</number>
+      <number>6</number>
      </property>
      <widget class="QWidget" name="pageMeshStructure">
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -210,12 +219,28 @@
        </property>
       </layout>
      </widget>
+     <widget class="QWidget" name="pageTimeWindow">
+      <layout class="QVBoxLayout" name="verticalLayout_8">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
  </widget>
  <resources>
-  <include location="../../images/images.qrc"/>
+  <include location="../../../images/images.qrc"/>
  </resources>
  <connections/>
 </ui>
