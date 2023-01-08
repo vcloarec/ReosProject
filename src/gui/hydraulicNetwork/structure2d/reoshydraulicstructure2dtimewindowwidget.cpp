@@ -30,7 +30,7 @@ Reoshydraulicstructure2dTimeWindowWidget::Reoshydraulicstructure2dTimeWindowWidg
   ui->mComboBoxOriginStart->addItem( tr( "From end" ), ReosTimeWindowSettings::End );
   ui->mComboBoxOriginStart->setCurrentIndex( ui->mComboBoxOriginStart->findData( timeWindowSettings->originStart() ) );
   ui->mComboBoxOriginEnd->addItem( tr( "From beginning" ), ReosTimeWindowSettings::Begin );
-  ui->mComboBoxOriginEnd->addItem( tr( "From End" ), ReosTimeWindowSettings::End );
+  ui->mComboBoxOriginEnd->addItem( tr( "From end" ), ReosTimeWindowSettings::End );
   ui->mComboBoxOriginEnd->setCurrentIndex( ui->mComboBoxOriginEnd->findData( timeWindowSettings->originEnd() ) );
 
   ui->mStartTime->setDateTime( timeWindowSettings->userStartTime() );
