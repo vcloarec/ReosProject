@@ -395,3 +395,13 @@ double ReosMeshPointValueOnFace::interpolateValueOnFace( double v1, double v2, d
 {
   return mLam3 * v1 + mLam2 * v2 + mLam1 * v3;
 }
+
+ReosMeshData::ReosMeshData( Data *data )
+{
+  mData.reset( data );
+}
+
+const  void *ReosMeshData::data() const
+{
+  return mData->data() ;
+}

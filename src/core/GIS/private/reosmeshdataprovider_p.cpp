@@ -264,6 +264,21 @@ ReosMeshDataProvider_p::ReosMeshDataProvider_p(): QgsMeshDataProvider( "mesh", Q
 {
 }
 
+QPointF ReosMeshDataProvider_p::vertexPosition( int vertexIndex ) const
+{
+  return mMesh.vertex( vertexIndex ).toQPointF();
+}
+
+double ReosMeshDataProvider_p::vertexElevation( int vertexIndex ) const
+{
+  return mMesh.vertex( vertexIndex ).z();
+}
+
+QVector<int> ReosMeshDataProvider_p::face( int faceIndex ) const
+{
+  return mMesh.face( faceIndex );
+}
+
 void ReosMeshDataProvider_p::setFilePath( const QString &filePath )
 {
   mFilePath = filePath;

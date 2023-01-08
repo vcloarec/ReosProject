@@ -177,6 +177,30 @@ class ReosMeshPointValueOnFace: public ReosMeshPointValue_p
     double interpolateValueOnFace( double v1, double v2, double v3 ) const;
 };
 
+/**
+ * Class dedicaded to embed any specific mesh data derived from ReosMeshData::Data.
+ * The derived class must return a pointer to this specific data and caller
+ * of ReosMeshData::data() must know the type to cast it.
+ */
+class REOSCORE_EXPORT ReosMeshData
+{
+  public:
+    class Data
+    {
+      public:
+        virtual const void *data() const = 0;
+        virtual ~Data() {}
+    };
+
+    ReosMeshData() = default;
+    explicit ReosMeshData( Data *data );
+
+    const void *data() const;
+
+  private:
+    std::shared_ptr<Data> mData;
+};
+
 class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
 {
     Q_OBJECT
@@ -222,7 +246,7 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     //! Creates a new void mesh in memory
     static ReosMesh *createMeshFrame( const QString &crs = QString(), QObject *parent = nullptr );
 
-    static ReosMesh *createMeshFrameFromFile(const QString &dataPath, const QString &destinationCrs , ReosModule::Message &message);
+    static ReosMesh *createMeshFrameFromFile( const QString &dataPath, const QString &destinationCrs, ReosModule::Message &message );
 
     //! Returns whether the mesh is valid
     virtual bool isValid() const = 0;
@@ -248,6 +272,9 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     virtual double vertexElevation( int vertexIndex ) const = 0 ;
 
     virtual QObject *data() const = 0;
+
+    //! Returns a new instance of ReosMeshData that contains data related to the mesh frame
+    virtual ReosMeshData meshDataFrame() const = 0;
 
     //! Returns the faces that intersect the \a polyline in map coordinates
     virtual QList<ReosMeshPointValue> drapePolyline( const QPolygonF &polyline, double tolerance ) const = 0;

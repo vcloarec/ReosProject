@@ -57,6 +57,63 @@ static QgsLayerTreeModel *_layerTreeModel( QAbstractItemModel *sourceModel )
   return qobject_cast<QgsLayerTreeModel *>( sourceModel );
 }
 
+class ReosCoordinateSystemTransformer_impl
+{
+  public:
+    QgsCoordinateTransformContext mTransformContext;
+};
+
+ReosCoordinateSystemTransformer::ReosCoordinateSystemTransformer( const ReosCoordinateSystemTransformer &other )
+{
+  if ( !other.d )
+    return;
+  d.reset( new ReosCoordinateSystemTransformer_impl );
+  d->mTransformContext = other.d->mTransformContext;
+}
+
+ReosCoordinateSystemTransformer &ReosCoordinateSystemTransformer::operator=( const ReosCoordinateSystemTransformer &rhs )
+{
+  d.reset();
+  if ( rhs.d )
+  {
+    d.reset( new ReosCoordinateSystemTransformer_impl );
+    d->mTransformContext = rhs.d->mTransformContext;
+  }
+  return *this;
+}
+
+ReosCoordinateSystemTransformer::~ReosCoordinateSystemTransformer() = default;
+
+QPolygonF ReosCoordinateSystemTransformer::transformToCoordinates( const QString &sourceCRS, const QPolygonF &sourcePolygon, const QString &destinationCrs ) const
+{
+  if ( !d )
+    return sourcePolygon;
+
+  QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( sourceCRS ),
+                                    QgsCoordinateReferenceSystem::fromWkt( destinationCrs ),
+                                    d->mTransformContext );
+
+  const QgsGeometry geom = QgsGeometry::fromQPolygonF( sourcePolygon );
+  QgsGeometry transfromGeom = geom;
+  if ( transform.isValid() )
+  {
+    try
+    {
+      transfromGeom.transform( transform );
+      return transfromGeom.asQPolygonF();
+    }
+    catch ( ... )
+    {
+      return geom.asQPolygonF();
+    }
+  }
+
+  return geom.asQPolygonF();
+}
+
+ReosCoordinateSystemTransformer::ReosCoordinateSystemTransformer()
+{}
+
 ReosGisEngine::ReosGisEngine( QObject *parent ): ReosModule( parent )
 {
   initGisEngine();
@@ -436,7 +493,7 @@ double ReosGisEngine::convertLengthFromMeterToMapunit( double length )
 }
 
 
-ReosEncodedElement ReosGisEngine::encode( const QString &path, const QString baseFileName )
+ReosEncodedElement ReosGisEngine::encode( const QString &path, const QString &baseFileName )
 {
   QFileInfo fileInfo;
   QDir dir( path );
@@ -450,7 +507,7 @@ ReosEncodedElement ReosGisEngine::encode( const QString &path, const QString bas
   return encodedElement;
 }
 
-bool ReosGisEngine::decode( const ReosEncodedElement &encodedElement, const QString &path, const QString baseFileName )
+bool ReosGisEngine::decode( const ReosEncodedElement &encodedElement, const QString &path, const QString &baseFileName )
 {
   if ( encodedElement.description() != QStringLiteral( "GIS-engine" ) )
     return false;
@@ -490,6 +547,14 @@ bool ReosGisEngine::canBeRasterDem( const QString &uri ) const
   std::unique_ptr<QgsRasterLayer> rasterLayer = std::make_unique<QgsRasterLayer>( uri );
 
   return canBeRasterDem( rasterLayer.get() );
+}
+
+ReosCoordinateSystemTransformer ReosGisEngine::getCoordinateTransformer() const
+{
+  ReosCoordinateSystemTransformer ret;
+  ret.d.reset( new ReosCoordinateSystemTransformer_impl );
+  ret.d->mTransformContext = QgsProject::instance()->transformContext();
+  return ret;
 }
 
 ReosMapExtent ReosGisEngine::transformExtent( const ReosMapExtent &extent, const QString &crs )
@@ -1020,7 +1085,7 @@ QString ReosGisEngine::wktEPSGCrs( int code )
   return QgsCoordinateReferenceSystem::fromEpsgId( code ).toWkt();
 }
 
-ReosGisEngine::LayerType ReosGisEngine::layerType( const QString layerId ) const
+ReosGisEngine::LayerType ReosGisEngine::layerType( const QString &layerId ) const
 {
   QgsMapLayer *layer = QgsProject::instance()->mapLayer( layerId );
 
@@ -1046,7 +1111,7 @@ ReosGisEngine::LayerType ReosGisEngine::layerType( const QString layerId ) const
   return NotSupported;
 }
 
-QString ReosGisEngine::layerName( const QString layerId ) const
+QString ReosGisEngine::layerName( const QString &layerId ) const
 {
   QgsMapLayer *layer = QgsProject::instance()->mapLayer( layerId );
 
@@ -1056,7 +1121,7 @@ QString ReosGisEngine::layerName( const QString layerId ) const
   return layer->name();
 }
 
-bool ReosGisEngine::hasValidLayer( const QString layerId ) const
+bool ReosGisEngine::hasValidLayer( const QString &layerId ) const
 {
   QgsMapLayer *layer = QgsProject::instance()->mapLayer( layerId );
 

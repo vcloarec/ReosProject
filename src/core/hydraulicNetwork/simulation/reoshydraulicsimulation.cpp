@@ -193,10 +193,12 @@ void ReosSimulationEngineRegistery::loadDynamicLibrary()
   }
 }
 
-
-ReosSimulationPreparationProcess::ReosSimulationPreparationProcess( ReosHydraulicStructure2D *hydraulicStructure, ReosHydraulicSimulation *simulation, const ReosCalculationContext &context )
+ReosSimulationPreparationProcess::ReosSimulationPreparationProcess(
+  ReosHydraulicStructure2D *hydraulicStructure,
+  ReosHydraulicSimulation *simulation, const ReosCalculationContext &context )
   : mStructure( hydraulicStructure )
   , mSimulation( simulation )
+  , mSimulationData( hydraulicStructure->simulationData() )
   , mContext( context )
   , mHasMesh( mStructure->mesh()->faceCount() != 0 )
 {}
@@ -259,12 +261,12 @@ void ReosSimulationPreparationProcess::start()
   mContext.setTimeWindow( mStructure->timeWindow() );
 
   if ( mDestinationPath.isEmpty() )
-    mSimulation->prepareInput( mStructure, mContext );
+    mSimulation->prepareInput( mStructure, mSimulationData, mContext );
   else
   {
     const QDir dir( mDestinationPath );
     if ( dir.exists() )
-      mSimulation->prepareInput( mStructure, mContext, dir );
+      mSimulation->prepareInput( mStructure, mSimulationData, mContext, dir );
   }
 
   mIsSuccessful = true;

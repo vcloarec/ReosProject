@@ -78,7 +78,6 @@ class ReosStructureVertexHandler_p : public ReosGeometryStructureVertex
     QList<PositionInFeature> mLinkedSegments;
     QgsVectorLayer *mSource = nullptr;
 
-
     friend class ReosPolylineStructureVectorLayerUndoCommandMergeVertex;
 };
 

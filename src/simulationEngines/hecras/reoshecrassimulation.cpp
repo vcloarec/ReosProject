@@ -258,7 +258,7 @@ ReosEncodedElement ReosHecRasSimulation::encode() const
   return element;
 }
 
-void ReosHecRasSimulation::prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext )
+void ReosHecRasSimulation::prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosSimulationData &data, const ReosCalculationContext &calculationContext )
 {
   const ReosHecRasPlan currentPlan = mProject->plan( mCurrentPlan );
   ReosHecRasFlow flow = mProject->flow( currentPlan.flowFile() );

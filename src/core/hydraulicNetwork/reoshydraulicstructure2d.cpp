@@ -306,11 +306,6 @@ void ReosHydraulicStructure2D::exportResultAsMeshInGisProject( const QString &fi
   );
 }
 
-QVector<QVector<QVector<int> > > ReosHydraulicStructure2D::holesVertices() const
-{
-  return mHolesVertices;
-}
-
 QString ReosHydraulicStructure2D::currentActivatedMeshDataset() const
 {
   if ( !mMesh )
@@ -993,29 +988,42 @@ ReosMeshGeneratorProcess *ReosHydraulicStructure2D::getGenerateMeshProcess()
   return process.release();
 }
 
-QVector<ReosHydraulicStructure2D::BoundaryVertices> ReosHydraulicStructure2D::boundaryVertices() const
+ReosSimulationData ReosHydraulicStructure2D::simulationData() const
 {
-  if ( mBoundaryVertices.isEmpty() )
-    return QVector<ReosHydraulicStructure2D::BoundaryVertices>();
+  ReosSimulationData ret;
 
-  int boundarySegCount = mPolylinesStructures->boundary().count();
-  Q_ASSERT( mBoundaryVertices.count() ==  boundarySegCount );
+  ret.holesVertices = mHolesVertices;
 
-  QVector<BoundaryVertices> vertexToCondition( boundarySegCount );
-
-  for ( int i = 0; i < boundarySegCount; ++i )
+  if ( !mBoundaryVertices.isEmpty() )
   {
-    BoundaryVertices boundVert;
-    boundVert.verticesIndex = mBoundaryVertices.at( i );
-    QString bcid = mPolylinesStructures->boundaryClassId( i );
-    boundVert.boundaryCondition = boundaryConditionNetWorkElement( bcid );
 
-    vertexToCondition[i] = boundVert;
+    int boundarySegCount = mPolylinesStructures->boundary().count();
+    Q_ASSERT( mBoundaryVertices.count() ==  boundarySegCount );
+
+    QVector<ReosSimulationData::BoundaryVertices> vertexToCondition( boundarySegCount );
+
+    for ( int i = 0; i < boundarySegCount; ++i )
+    {
+      ReosSimulationData::BoundaryVertices boundVert;
+      boundVert.verticesIndex = mBoundaryVertices.at( i );
+      QString bcid = mPolylinesStructures->boundaryClassId( i );
+      boundVert.boundaryCondition = boundaryConditionNetWorkElement( bcid );
+
+      vertexToCondition[i] = boundVert;
+    }
+
+    ret.boundaryVertices = vertexToCondition;
   }
 
-  return vertexToCondition;
-}
+  ret.meshData = mMesh->meshDataFrame();
 
+  ret.roughnessValues.reset( roughnessStructure()->structure()->values( mesh()->crs() ) );
+  ret.defaultRoughness = roughnessStructure()->defaultRoughness()->value();
+
+  ret.coordinateTransformer = mNetwork->gisEngine()->getCoordinateTransformer();
+
+  return ret;
+}
 
 void ReosHydraulicStructure2D::onMeshGenerated( const ReosMeshFrameData &meshData )
 {

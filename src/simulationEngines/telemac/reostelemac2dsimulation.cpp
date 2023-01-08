@@ -373,10 +373,10 @@ void ReosTelemac2DSimulation::setInitialCondition( ReosTelemac2DInitialCondition
   }
 }
 
-void ReosTelemac2DSimulation::prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext )
+void ReosTelemac2DSimulation::prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosSimulationData &simulationData, const ReosCalculationContext &calculationContext )
 {
   const QDir dir = simulationDir( hydraulicStructure, calculationContext.schemeId() );
-  prepareInput( hydraulicStructure, calculationContext, dir );
+  prepareInput( hydraulicStructure, simulationData, calculationContext, dir );
 
   const QFileInfo fileInfo( dir.filePath( mResultFileName ) );
 
@@ -387,13 +387,13 @@ void ReosTelemac2DSimulation::prepareInput( ReosHydraulicStructure2D *hydraulicS
   }
 }
 
-void ReosTelemac2DSimulation::prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext, const QDir &directory )
+void ReosTelemac2DSimulation::prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosSimulationData &simulationData, const ReosCalculationContext &calculationContext, const QDir &directory )
 {
   QVector<int> verticesPosInBoundary;
-  QList<ReosHydraulicStructureBoundaryCondition *> boundaryCondition = createBoundaryFiles( hydraulicStructure, verticesPosInBoundary, directory );
-  createSelafinBaseFile( hydraulicStructure, verticesPosInBoundary, directory.filePath( mGeomFileName ) );
+  QList<ReosHydraulicStructureBoundaryCondition *> boundaryCondition = createBoundaryFiles( hydraulicStructure, simulationData, verticesPosInBoundary, directory );
+  createSelafinBaseFile( hydraulicStructure, simulationData, verticesPosInBoundary, directory.filePath( mGeomFileName ) );
   mBoundaries = createBoundaryConditionFiles( boundaryCondition, calculationContext, directory );
-  createSteeringFile( hydraulicStructure, boundaryCondition, verticesPosInBoundary, calculationContext, directory );
+  createSteeringFile( hydraulicStructure, simulationData, boundaryCondition, verticesPosInBoundary, calculationContext, directory );
 }
 
 ReosSimulationProcess *ReosTelemac2DSimulation::getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const
@@ -421,10 +421,11 @@ struct TelemacBoundary
 
 QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemac2DSimulation::createBoundaryFiles(
   ReosHydraulicStructure2D *hydraulicStructure,
+  const ReosSimulationData &simulationData,
   QVector<int> &verticesPosInBoundary,
   const QDir &directory )
 {
-  QVector<ReosHydraulicStructure2D::BoundaryVertices> boundSegments =  hydraulicStructure->boundaryVertices();
+  const QVector<ReosSimulationData::BoundaryVertices> &boundSegments =  simulationData.boundaryVertices;
   // constraint for TElEMAC:
   // - Start from the vertices with X+Y is minimum
   // - counter clockwise
@@ -443,7 +444,7 @@ QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemac2DSimulation::create
   int segCount = boundSegments.count();
   for ( int i = 0; i < segCount; ++i )
   {
-    const ReosHydraulicStructure2D::BoundaryVertices &seg = boundSegments.at( i );
+    const ReosSimulationData::BoundaryVertices &seg = boundSegments.at( i );
     int vertCount = seg.verticesIndex.count();
     if ( vertCount == 0 )
       continue;
@@ -466,9 +467,9 @@ QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemac2DSimulation::create
   }
 
   //find the direction
-  const ReosHydraulicStructure2D::BoundaryVertices &seg = boundSegments.at( minYSgementIndex );
-  const ReosHydraulicStructure2D::BoundaryVertices &segPrev = boundSegments.at( ( minYSgementIndex + segCount - 1 ) % segCount );
-  const ReosHydraulicStructure2D::BoundaryVertices &segNext = boundSegments.at( ( minYSgementIndex +  1 ) % segCount );
+  const ReosSimulationData::BoundaryVertices &seg = boundSegments.at( minYSgementIndex );
+  const ReosSimulationData::BoundaryVertices &segPrev = boundSegments.at( ( minYSgementIndex + segCount - 1 ) % segCount );
+  const ReosSimulationData::BoundaryVertices &segNext = boundSegments.at( ( minYSgementIndex +  1 ) % segCount );
   if ( seg.verticesIndex.isEmpty() || segPrev.verticesIndex.isEmpty() || segNext.verticesIndex.isEmpty() )
     return QList<ReosHydraulicStructureBoundaryCondition *>();
 
@@ -489,24 +490,24 @@ QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemac2DSimulation::create
   for ( int i = 0; i < segCount; ++i )
   {
     int segIndex = ( startSegmentIndex + i ) % segCount;
-    const ReosHydraulicStructure2D::BoundaryVertices &seg = boundSegments.at( segIndex );
-    int vertCount = seg.verticesIndex.count();
-    if ( !seg.boundaryCondition.isNull() &&
-         ( ret.isEmpty() || seg.boundaryCondition != ret.last() ) )
-      ret.append( seg.boundaryCondition );
+    const ReosSimulationData::BoundaryVertices &curSeg = boundSegments.at( segIndex );
+    int vertCount = curSeg.verticesIndex.count();
+    if ( !curSeg.boundaryCondition.isNull() &&
+         ( ret.isEmpty() || curSeg.boundaryCondition != ret.last() ) )
+      ret.append( curSeg.boundaryCondition );
 
     for ( int j = 0; j < vertCount; ++j )
     {
-      int vertIndex = seg.verticesIndex.at( j );
+      int vertIndex = curSeg.verticesIndex.at( j );
       TelemacBoundary bound;
       if ( prevIsDefined )
       {
         bound = telemacBoundaries.last();
         prevIsDefined = false;
       }
-      else if ( !seg.boundaryCondition.isNull() )
+      else if ( !curSeg.boundaryCondition.isNull() )
       {
-        switch ( seg.boundaryCondition->conditionType() )
+        switch ( curSeg.boundaryCondition->conditionType() )
         {
           case ReosHydraulicStructureBoundaryCondition::Type::InputFlow:
             bound.LIHBOR = 4;
@@ -528,7 +529,7 @@ QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemac2DSimulation::create
       bound.vertIndex = vertIndex + 1;
       telemacBoundaries.append( bound );
     }
-    prevIsDefined = !seg.boundaryCondition.isNull();
+    prevIsDefined = !curSeg.boundaryCondition.isNull();
   }
 
   if ( prevIsDefined ) //need to set the first point as a boundary
@@ -566,7 +567,7 @@ QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemac2DSimulation::create
   }
 
   //holes
-  const QVector<QVector<QVector<int>>> &holesVertices = hydraulicStructure->holesVertices();
+  const QVector<QVector<QVector<int>>> &holesVertices = simulationData.holesVertices;
 
   int fileIndex = boundCount + 1;
   for ( const QVector<QVector<int>> &holeVertices : holesVertices )
@@ -581,31 +582,34 @@ QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemac2DSimulation::create
       if ( holeVertices.at( i ).isEmpty() )
         continue;
 
-      QPointF vert = rmesh->vertexPosition( holeVertices.at( i ).at( 0 ) );
+      QPointF holeVert = rmesh->vertexPosition( holeVertices.at( i ).at( 0 ) );
 
-      if ( vert.x() < minX ||
-           ( vert.x() == minX && vert.y() < minY ) )
+      if ( holeVert.x() < minX ||
+           ( holeVert.x() == minX && holeVert.y() < minY ) )
       {
-        minX = vert.x();
-        minX = vert.y();
+        minX = holeVert.x();
+        minY = holeVert.y();
         minIndex = i;
       }
     }
 
-    const QPointF vert = rmesh->vertexPosition( holeVertices.at( minIndex ).at( 0 ) );
-    const QPointF vertPrev = rmesh->vertexPosition( holeVertices.at( ( minIndex - 1 + lineCount ) % lineCount ).last() );
-    QPointF vertNext;
+    if ( minIndex == -1 )
+      continue;
+
+    const QPointF holeVert = rmesh->vertexPosition( holeVertices.at( minIndex ).at( 0 ) );
+    const QPointF holeVertPrev = rmesh->vertexPosition( holeVertices.at( ( minIndex - 1 + lineCount ) % lineCount ).last() );
+    QPointF holeVertNext;
     if ( holeVertices.at( minIndex ).count() > 1 )
-      vertNext = rmesh->vertexPosition( holeVertices.at( minIndex ).at( 1 ) );
+      holeVertNext = rmesh->vertexPosition( holeVertices.at( minIndex ).at( 1 ) );
     else
-      vertNext = rmesh->vertexPosition( holeVertices.at( ( minIndex + 1 ) % lineCount ).at( 0 ) );
+      holeVertNext = rmesh->vertexPosition( holeVertices.at( ( minIndex + 1 ) % lineCount ).at( 0 ) );
 
-    const QPointF vectPrev = vertPrev - vert;
-    const QPointF vectNext = vertNext - vert;
+    const QPointF holeVectPrev = holeVertPrev - holeVert;
+    const QPointF holeVectNext = holeVertNext - holeVert;
 
-    double crossProduct = vectPrev.x() * vectNext.y() - vectNext.x() * vectPrev.y();
+    double holeCrossProduct = holeVectPrev.x() * holeVectNext.y() - holeVectNext.x() * holeVectPrev.y();
 
-    bool invertDirection = crossProduct < 0;
+    bool holeInvertDirection = holeCrossProduct < 0;
 
     QVector<int> telemacHole;
     for ( int i = 0; i < lineCount; ++i )
@@ -615,7 +619,7 @@ QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemac2DSimulation::create
         telemacHole.append( vertInd + 1 );
     }
 
-    if ( invertDirection )
+    if ( holeInvertDirection )
     {
       for ( int i = 0; i < telemacHole.count() / 2; ++i )
         std::swap( telemacHole[i], telemacHole[telemacHole.count() - 1 - i] );
@@ -705,6 +709,7 @@ void ReosTelemac2DSimulation::createSelafinMeshFrame(
   // MDAL does not handle the boundaries. As the parrallel calculation in Telemac need to know about the boundaies vertices,
   // wa can't use MDAL to create the mesh frame file. Here we use the same logic as MDAL but we add the boundaries vertices indexes
   ReosMesh *rmesh = hydraulicStructure->mesh();
+
   QFile file( fileName );
   file.open( QIODevice::WriteOnly );
   QDataStream stream( &file );
@@ -747,7 +752,10 @@ void ReosTelemac2DSimulation::createSelafinMeshFrame(
   for ( int i = 0; i < facesCount; ++i )
   {
     QVector<int> face = rmesh->face( i );
-    setCounterClockwise( face, rmesh->vertexPosition( face.at( 0 ) ), rmesh->vertexPosition( face.at( 1 ) ), rmesh->vertexPosition( face.at( 2 ) ) );
+    const QPointF vp0 = rmesh->vertexPosition( face.at( 0 ) );
+    const QPointF vp1 = rmesh->vertexPosition( face.at( 1 ) );
+    const QPointF vp2 = rmesh->vertexPosition( face.at( 2 ) );
+    setCounterClockwise( face, vp0, vp1, vp2 );
     for ( int f : std::as_const( face ) )
       writeInt( stream, f + 1 );
 
@@ -774,22 +782,21 @@ void ReosTelemac2DSimulation::createSelafinMeshFrame(
 
 void ReosTelemac2DSimulation::createSelafinBaseFile(
   ReosHydraulicStructure2D *hydraulicStructure,
+  const ReosSimulationData &simulationData,
   const QVector<int> &verticesPosInBoundary,
   const QString &fileName )
 {
   createSelafinMeshFrame( hydraulicStructure, verticesPosInBoundary, fileName );
 
-  QgsMeshLayer *meshLayer = qobject_cast<QgsMeshLayer *> ( hydraulicStructure->mesh()->data() );
-  if ( !meshLayer )
-    return;
+  const QgsMesh mesh = *static_cast<const QgsMesh *>( simulationData.meshData.data() );
 
-  const QgsMesh &mesh = *meshLayer->nativeMesh();
-
-
+  QgsMeshLayer::LayerOptions options;
+  options.loadDefaultStyle = false;
   std::unique_ptr<QgsMeshLayer> ouputMesh = std::make_unique < QgsMeshLayer>(
         fileName,
         QStringLiteral( "temp" ),
-        QStringLiteral( "mdal" ) );
+        QStringLiteral( "mdal" ),
+        options );
 
   //! Terrain elevation
   QgsMeshZValueDatasetGroup *zValueDatasetGroup = new QgsMeshZValueDatasetGroup( "BOTTOM", mesh );
@@ -798,15 +805,13 @@ void ReosTelemac2DSimulation::createSelafinBaseFile(
   ouputMesh->saveDataset( fileName, 0, QStringLiteral( "SELAFIN" ) );
 
   //! Roughness
-  std::unique_ptr<ReosPolygonStructureValues> roughness(
-    hydraulicStructure->roughnessStructure()->structure()->values( meshLayer->crs().toWkt( QgsCoordinateReferenceSystem::WKT2_2019_SIMPLIFIED ) ) );
-
+  ReosPolygonStructureValues *roughness = simulationData.roughnessValues.get();
 
   std::shared_ptr<QgsMeshMemoryDataset> roughnessDataset( new QgsMeshMemoryDataset );
   roughnessDataset->values.resize( mesh.vertexCount() );
 
   int size = mesh.vertexCount();
-  double defaultVal = hydraulicStructure->roughnessStructure()->defaultRoughness()->value();
+  double defaultVal = simulationData.defaultRoughness;
   for ( int i = 0; i < size; ++i )
   {
     const QgsMeshVertex &vert = mesh.vertices.at( i );
@@ -827,19 +832,17 @@ void ReosTelemac2DSimulation::createSelafinBaseFile(
   ouputMesh->saveDataset( fileName, 1, QStringLiteral( "SELAFIN" ) );
 }
 
-void ReosTelemac2DSimulation::createSelafinInitialConditionFile( ReosHydraulicStructure2D *hydraulicStructure,
-    const QVector<int> &verticesPosInBoundary,
-    const ReosHydraulicSimulationResults *result,
-    int timeStepIndex,
-    const QDir &directory )
+void ReosTelemac2DSimulation::createSelafinInitialConditionFile(
+  ReosHydraulicStructure2D *hydraulicStructure,
+  const ReosSimulationData &simulationData,
+  const QVector<int> &verticesPosInBoundary,
+  const ReosHydraulicSimulationResults *result,
+  int timeStepIndex,
+  const QDir &directory )
 {
   const QString path = directory.filePath( mInitialConditionFile );
 
-  QgsMeshLayer *meshLayer = qobject_cast<QgsMeshLayer *> ( hydraulicStructure->mesh()->data() );
-  if ( !meshLayer )
-    return;
-
-  const QgsMesh &mesh = *meshLayer->nativeMesh();
+  const QgsMesh mesh = *static_cast<const QgsMesh *>( simulationData.meshData.data() );
 
   int size = mesh.vertexCount();
 
@@ -909,15 +912,19 @@ void ReosTelemac2DSimulation::createSelafinInitialConditionFile( ReosHydraulicSt
   velocityDatasetGroupU->initialize();
   velocityDatasetGroupV->initialize();
 
-  createSelafinInitialConditionFile( path, hydraulicStructure, verticesPosInBoundary,
+  createSelafinInitialConditionFile( path,
+                                     hydraulicStructure,
+                                     simulationData,
+                                     verticesPosInBoundary,
                                      std::move( waterLevelDatasetGroup ),
                                      std::move( waterDepthDatasetGroup ),
                                      std::move( velocityDatasetGroupU ),
                                      std::move( velocityDatasetGroupV ) );
 }
 
-void ReosTelemac2DSimulation::createSelafinInitialConditionFile(
-  ReosHydraulicStructure2D *hydraulicStructure,
+void ReosTelemac2DSimulation::createSelafinInitialConditionFile
+( ReosHydraulicStructure2D *hydraulicStructure,
+  const ReosSimulationData &simulationData,
   const QVector<int> &verticesPosInBoundary,
   const ReosTelemac2DInitialConditionFromInterpolation *interpolation,
   const QDir &directory )
@@ -935,7 +942,7 @@ void ReosTelemac2DSimulation::createSelafinInitialConditionFile(
   QPolygonF mInterLine = interpolation->line();
   const QString &crs = interpolation->crs();
 
-  ReosGisEngine::transformToCoordinates( crs, mInterLine, mesh->crs() );
+  simulationData.coordinateTransformer.transformToCoordinates( crs, mInterLine, mesh->crs() );
   double length = ReosGeometryUtils::length( mInterLine );
   double firstValue = interpolation->firstValue()->value();
   double secondValue = interpolation->secondValue()->value();
@@ -997,7 +1004,10 @@ void ReosTelemac2DSimulation::createSelafinInitialConditionFile(
   velocityDatasetGroupU->initialize();
   velocityDatasetGroupV->initialize();
 
-  createSelafinInitialConditionFile( path, hydraulicStructure, verticesPosInBoundary,
+  createSelafinInitialConditionFile( path,
+                                     hydraulicStructure,
+                                     simulationData,
+                                     verticesPosInBoundary,
                                      std::move( waterLevelDatasetGroup ),
                                      std::move( waterDepthDatasetGroup ),
                                      std::move( velocityDatasetGroupU ),
@@ -1006,17 +1016,21 @@ void ReosTelemac2DSimulation::createSelafinInitialConditionFile(
 
 void ReosTelemac2DSimulation::createSelafinInitialConditionFile( const QString &path,
     ReosHydraulicStructure2D *hydraulicStructure,
+    const ReosSimulationData &simulationData,
     const QVector<int> &verticesPosInBoundary,
     std::unique_ptr<QgsMeshDatasetGroup> waterLevel,
     std::unique_ptr<QgsMeshDatasetGroup> depth,
     std::unique_ptr<QgsMeshDatasetGroup> velocityU,
     std::unique_ptr<QgsMeshDatasetGroup> velocityV )
 {
-  createSelafinBaseFile( hydraulicStructure, verticesPosInBoundary, path );
+  createSelafinBaseFile( hydraulicStructure, simulationData, verticesPosInBoundary, path );
+  QgsMeshLayer::LayerOptions options;
+  options.loadDefaultStyle = false;
   std::unique_ptr<QgsMeshLayer> ouputMesh = std::make_unique < QgsMeshLayer>(
         path,
         QStringLiteral( "temp" ),
-        QStringLiteral( "mdal" ) );
+        QStringLiteral( "mdal" ),
+        options );
 
   ouputMesh->addDatasets( waterLevel.release() );
   ouputMesh->saveDataset( path, 2, QStringLiteral( "SELAFIN" ) );
@@ -1032,7 +1046,7 @@ void ReosTelemac2DSimulation::createSelafinInitialConditionFile( const QString &
 }
 
 QList<ReosTelemac2DSimulation::TelemacBoundaryCondition> ReosTelemac2DSimulation::createBoundaryConditionFiles(
-  QList<ReosHydraulicStructureBoundaryCondition *> boundaryConditions,
+  const QList<ReosHydraulicStructureBoundaryCondition *> &boundaryConditions,
   const ReosCalculationContext &context,
   const QDir &directory )
 {
@@ -1136,7 +1150,8 @@ QList<ReosTelemac2DSimulation::TelemacBoundaryCondition> ReosTelemac2DSimulation
 
 void ReosTelemac2DSimulation::createSteeringFile(
   ReosHydraulicStructure2D *hydraulicStructure,
-  QList<ReosHydraulicStructureBoundaryCondition *> boundaryConditions,
+  const ReosSimulationData &simulationData,
+  const QList<ReosHydraulicStructureBoundaryCondition *> &boundaryConditions,
   const QVector<int> &verticesPosInBoundary,
   const ReosCalculationContext &context,
   const QDir &directory )
@@ -1235,7 +1250,7 @@ void ReosTelemac2DSimulation::createSteeringFile(
         std::unique_ptr<ReosHydraulicSimulationResults> results( loadSimulationResults( hydraulicStructure, cifs->otherSchemeId() ) );
         int waterlevelGroupIndex = results->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterLevel );
         if ( results->datasetCount( waterlevelGroupIndex ) >  cifs->timeStepIndex() )
-          createSelafinInitialConditionFile( hydraulicStructure, verticesPosInBoundary, results.get(), cifs->timeStepIndex(), directory );
+          createSelafinInitialConditionFile( hydraulicStructure, simulationData, verticesPosInBoundary, results.get(), cifs->timeStepIndex(), directory );
       }
     }
     break;
@@ -1249,7 +1264,7 @@ void ReosTelemac2DSimulation::createSteeringFile(
     case ReosTelemac2DInitialCondition::Type::Interpolation:
       ReosTelemac2DInitialConditionFromInterpolation *cifi = qobject_cast<ReosTelemac2DInitialConditionFromInterpolation *>( initialCondition() );
       if ( cifi )
-        createSelafinInitialConditionFile( hydraulicStructure, verticesPosInBoundary, cifi, directory );
+        createSelafinInitialConditionFile( hydraulicStructure, simulationData, verticesPosInBoundary, cifi, directory );
       break;
   }
 
