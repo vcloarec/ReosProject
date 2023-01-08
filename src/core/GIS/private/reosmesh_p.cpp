@@ -107,7 +107,8 @@ ReosMeshFrame_p::ReosMeshFrame_p( const QString &crs, QObject *parent ): ReosMes
   QgsCoordinateReferenceSystem qgisCrs;
   qgisCrs.createFromWkt( crs );
   mMeshLayer->setCrs( qgisCrs );
-  meshProvider()->overrideCrs( qgisCrs );
+  mMeshDataProvider = qobject_cast<ReosMeshDataProvider_p *>( mMeshLayer->dataProvider() );
+  mMeshDataProvider->overrideCrs( qgisCrs );
   mMeshLayer->updateTriangularMesh();
   init();
 }
@@ -115,23 +116,23 @@ ReosMeshFrame_p::ReosMeshFrame_p( const QString &crs, QObject *parent ): ReosMes
 ReosMeshFrame_p::ReosMeshFrame_p( const QString &dataPath, const QString &destinationCrs, ReosModule::Message &message )
 {
   mMeshLayer.reset( new QgsMeshLayer( "path", "", QStringLiteral( "ReosMesh" ) ) );
-
-  meshProvider()->loadMeshFrame( dataPath, message );
+  mMeshDataProvider = qobject_cast<ReosMeshDataProvider_p *>( mMeshLayer->dataProvider() );
+  mMeshDataProvider->loadMeshFrame( dataPath, message );
 
   QgsCoordinateReferenceSystem qgisDestinationCrs;
   qgisDestinationCrs.createFromWkt( destinationCrs );
 
-  if ( meshProvider()->crs().isValid() )
-    mMeshLayer->setCrs( meshProvider()->crs() );
+  if ( mMeshDataProvider->crs().isValid() )
+    mMeshLayer->setCrs( mMeshDataProvider->crs() );
   else
   {
     mMeshLayer->setCrs( qgisDestinationCrs );
-    meshProvider()->overrideCrs( qgisDestinationCrs );
+    mMeshDataProvider->overrideCrs( qgisDestinationCrs );
   }
 
   mMeshLayer->reload();
 
-  QgsCoordinateTransform transform( meshProvider()->crs(), qgisDestinationCrs, QgsProject::instance() );
+  QgsCoordinateTransform transform( mMeshDataProvider->crs(), qgisDestinationCrs, QgsProject::instance() );
   mMeshLayer->updateTriangularMesh( transform );
 
 
@@ -147,8 +148,8 @@ void ReosMeshFrame_p::save( const QString &dataPath )
   if ( isEditable )
     stopFrameEditing( true, true );
 
-  meshProvider()->setFilePath( dir.filePath( QStringLiteral( "meshFrame.nc" ) ) );
-  meshProvider()->saveMeshFrameToFile( *mMeshLayer->nativeMesh() );
+  mMeshDataProvider->setFilePath( dir.filePath( QStringLiteral( "meshFrame.nc" ) ) );
+  mMeshDataProvider->saveMeshFrameToFile( *mMeshLayer->nativeMesh() );
 }
 
 void ReosMeshFrame_p::init()
@@ -353,46 +354,47 @@ bool ReosMeshFrame_p::isValid() const
 
 int ReosMeshFrame_p::vertexCount() const
 {
-  return mMeshLayer->meshVertexCount();
+  return mMeshDataProvider->vertexCount();
 }
 
 QPointF ReosMeshFrame_p::vertexPosition( int vertexIndex, const QString &destinationCrs ) const
 {
   if ( destinationCrs.isEmpty() )
-    return mMeshLayer->nativeMesh()->vertices.at( vertexIndex ).toQPointF();
+    return mMeshDataProvider->vertexPosition( vertexIndex );
+
 
   QgsCoordinateReferenceSystem crs;
   crs.createFromWkt( destinationCrs );
-  QgsCoordinateTransform transform( mMeshLayer->crs(), crs, QgsProject::instance() );
-  QgsPointXY vert = mMeshLayer->nativeMesh()->vertices.at( vertexIndex );
+  QgsCoordinateTransform transform( mMeshDataProvider->crs(), crs, QgsProject::instance() );
   if ( transform.isValid() )
   {
     try
     {
-      return transform.transform( vert ).toQPointF();
+      QgsPointXY pt( mMeshDataProvider->vertexPosition( vertexIndex ) );
+      return transform.transform( pt ).toQPointF();
     }
     catch ( QgsCsException & )
     {
-      return vert.toQPointF();
+      return mMeshDataProvider->vertexPosition( vertexIndex );
     }
   }
 
-  return vert.toQPointF();
+  return mMeshDataProvider->vertexPosition( vertexIndex );
 }
 
 double ReosMeshFrame_p::vertexElevation( int vertexIndex ) const
 {
-  return mMeshLayer->nativeMesh()->vertices.at( vertexIndex ).z();
+  return mMeshDataProvider->vertexElevation( vertexIndex );
 }
 
 QVector<int> ReosMeshFrame_p::face( int faceIndex ) const
 {
-  return mMeshLayer->nativeMesh()->faces.at( faceIndex );
+  return mMeshDataProvider->face( faceIndex );
 }
 
 int ReosMeshFrame_p::faceCount() const
 {
-  return mMeshLayer->meshFaceCount();
+  return mMeshDataProvider->faceCount();
 }
 
 static void lamTol( double &lam )
@@ -595,7 +597,7 @@ QPointF ReosMeshFrame_p::tolayerCoordinates( const ReosSpatialPosition &position
   QgsCoordinateReferenceSystem sourceCrs;
   sourceCrs.createFromWkt( position.crs() );
 
-  const QgsCoordinateTransform transform( sourceCrs, mMeshLayer->crs(), QgsProject::instance() );
+  const QgsCoordinateTransform transform( sourceCrs, mMeshDataProvider->crs(), QgsProject::instance() );
   QgsPointXY ret;
   if ( transform.isValid() )
   {
@@ -878,9 +880,6 @@ bool ReosMeshFrame_p::exportSimulationResults( ReosHydraulicSimulationResults *r
 
   std::unique_ptr<QgsMeshLayer> exportedMesh = std::make_unique<QgsMeshLayer>( fileName, QStringLiteral( "mesh" ), QStringLiteral( "mdal" ) );
 
-  if ( !exportedMesh )
-    return false;
-
   int groupCount = result->groupCount();
 
   for ( int gi = 0; gi < groupCount; ++gi )
@@ -1088,7 +1087,7 @@ void ReosMeshFrame_p::generateMesh( const ReosMeshFrameData &data )
   setBoundariesVertices( data.boundaryVertices );
   setHolesVertices( data.holesVertices );
 
-  meshProvider()->generateMesh( data );
+  mMeshDataProvider->generateMesh( data );
   mMeshLayer->reload();
   if ( mZVerticesDatasetGroup )
     mZVerticesDatasetGroup->setStatisticObsolete();
@@ -1099,12 +1098,17 @@ void ReosMeshFrame_p::generateMesh( const ReosMeshFrameData &data )
 
 QString ReosMeshFrame_p::crs() const
 {
-  return mMeshLayer->crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED_SIMPLIFIED );
+  return mMeshDataProvider->crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED_SIMPLIFIED );
 }
 
 QObject *ReosMeshFrame_p::data() const
 {
   return mMeshLayer.get();
+}
+
+ReosMeshData ReosMeshFrame_p::meshDataFrame() const
+{
+  return ReosMeshData( new ReosMeshData_( *mMeshLayer->nativeMesh() ) );
 }
 
 int ReosMeshFrame_p::datasetGroupIndex( const QString &id ) const
@@ -1144,7 +1148,7 @@ ReosProcess *ReosMeshFrame_p::applyTopographyOnVertices( ReosTopographyCollectio
     stopFrameEditing( true );
 
   std::unique_ptr<ReosProcess> process(
-    new ApplyTopopraphyProcess( qobject_cast<ReosTopographyCollection_p *>( topographyCollection ), meshProvider() ) );
+    new ApplyTopopraphyProcess( qobject_cast<ReosTopographyCollection_p *>( topographyCollection ), mMeshDataProvider ) );
 
   connect( process.get(), &ReosProcess::finished, this, [this, topographyCollection]
   {
@@ -1214,8 +1218,8 @@ QString ReosMeshFrame_p::verticesElevationDatasetId() const
 
 void ReosMeshFrame_p::setSimulationResults( ReosHydraulicSimulationResults *result )
 {
-  meshProvider()->setDatasetSource( result );
-  mMeshLayer->temporalProperties()->setDefaultsFromDataProviderTemporalCapabilities( meshProvider()->temporalCapabilities() );
+  mMeshDataProvider->setDatasetSource( result );
+  mMeshLayer->temporalProperties()->setDefaultsFromDataProviderTemporalCapabilities( mMeshDataProvider->temporalCapabilities() );
 
   const QStringList ids = mDatasetGroupsIndex.keys();
 
@@ -1855,3 +1859,5 @@ void ReosMeshTerrainColorShaderSettings_p::onSettingsUpdated()
   mMesh->mDatasetScalarSymbologies.insert( mMesh->mCurrentScalarDatasetId, encodedFromScalarSettings( scalarSettings ).bytes() );
   emit mMesh->repaintRequested();
 }
+
+ReosMeshData_::~ReosMeshData_() {}

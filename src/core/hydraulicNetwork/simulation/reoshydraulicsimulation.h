@@ -20,6 +20,8 @@
 
 #include "reosprocess.h"
 #include "reoscalculationcontext.h"
+#include "reosmesh.h"
+#include "reosgisengine.h"
 
 class QProcess;
 class QFile;
@@ -34,10 +36,29 @@ class ReosSimulationInitialConditions;
 class ReosHydraulicSimulationResults;
 class ReosHydraulicSimulation;
 class ReosHydraulicScheme;
-class ReosHydraulicStructure2D;
 class ReosStructureImporter;
 class ReosHydraulicNetworkContext;
+class ReosPolygonStructureValues;
 
+
+struct ReosSimulationData
+{
+  struct BoundaryVertices
+  {
+    QVector<int> verticesIndex;
+    QPointer<ReosHydraulicStructureBoundaryCondition> boundaryCondition;
+  };
+
+  QVector<BoundaryVertices> boundaryVertices;
+  QVector<QVector<QVector<int>>> holesVertices;
+
+  ReosMeshData meshData;
+
+  std::shared_ptr<ReosPolygonStructureValues> roughnessValues;
+  double defaultRoughness = 0.03;
+
+  ReosCoordinateSystemTransformer coordinateTransformer;
+};
 
 class REOSCORE_EXPORT ReosSimulationPreparationProcess: public ReosProcess
 {
@@ -61,11 +82,12 @@ class REOSCORE_EXPORT ReosSimulationPreparationProcess: public ReosProcess
   private:
     QPointer<ReosHydraulicStructure2D> mStructure;
     QPointer<ReosHydraulicSimulation> mSimulation;
+    ReosSimulationData mSimulationData;
     ReosCalculationContext mContext;
     bool mHasMesh = false;
 
     QStringList mWaitedBoundaryId;
-    int mBoundaryCount;
+    int mBoundaryCount = 0;
 
     QString mDestinationPath;
 
@@ -103,9 +125,9 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject
     virtual QString key() const = 0;
     virtual ReosEncodedElement encode() const = 0;
 
-    virtual void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) = 0;
+    virtual void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosSimulationData &simulationData, const ReosCalculationContext &calculationContext ) = 0;
 
-    virtual void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext, const QDir &directory ) = 0;
+    virtual void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosSimulationData &simulationData, const ReosCalculationContext &calculationContext, const QDir &directory ) = 0;
 
     virtual ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const = 0;
 
@@ -235,9 +257,9 @@ class REOSCORE_EXPORT ReosHydraulicSimulationDummy : public ReosHydraulicSimulat
     virtual QString key() const override {return QStringLiteral( "dummy-simulation" );}
     virtual ReosEncodedElement encode() const override {return ReosEncodedElement();};
 
-    virtual void prepareInput( ReosHydraulicStructure2D *, const ReosCalculationContext & ) override {};
+    virtual void prepareInput( ReosHydraulicStructure2D *, const ReosSimulationData &, const ReosCalculationContext & ) override {};
 
-    virtual void prepareInput( ReosHydraulicStructure2D *, const ReosCalculationContext &, const QDir & ) override {};
+    virtual void prepareInput( ReosHydraulicStructure2D *, const ReosSimulationData &, const ReosCalculationContext &, const QDir & ) override {};
 
     virtual ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *structure, const ReosCalculationContext &calculationContext ) const override;;
 

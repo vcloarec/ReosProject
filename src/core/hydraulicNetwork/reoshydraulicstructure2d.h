@@ -38,11 +38,6 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 {
     Q_OBJECT
   public:
-    struct BoundaryVertices
-    {
-      QVector<int> verticesIndex;
-      QPointer<ReosHydraulicStructureBoundaryCondition> boundaryCondition;
-    };
 
     enum Structure2DCapability
     {
@@ -99,11 +94,8 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Returns a process that generate the mesh, caller take ownership
     ReosMeshGeneratorProcess *getGenerateMeshProcess();
 
-    //! Returns the boundary vertices of the structure
-    QVector<BoundaryVertices> boundaryVertices() const;
-
-    //! Returns the vertices of the holes classidfied per holes and per lines
-    QVector<QVector<QVector<int> > > holesVertices() const;
+    //! Returns the data of the structure necessary for simulation
+    ReosSimulationData simulationData() const;
 
     //! Returns the topography collection
     ReosTopographyCollection *topographyCollecion() const;

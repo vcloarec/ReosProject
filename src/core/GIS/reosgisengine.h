@@ -34,6 +34,32 @@ class ReosMapExtent;
 class ReosSpatialPosition;
 class ReosRasterExtent;
 
+class ReosCoordinateSystemTransformer_impl;
+
+/**
+ * Class that is able to transform coordinates from other thread that the main thread.
+ * Singleton ReosGisEngine live in the main thread and could not be allowed to be suded in other thread.
+ * Calling of ReosGisEngine::getCoordinateTransformer() creates a new instance of ReosCoordinateSystemTransformer
+ * that can be used from another thread.
+ * Default constructor of this class create a instance that can't be used ti transform coordinates (does nothing).
+ */
+class ReosCoordinateSystemTransformer
+{
+  public:
+    ReosCoordinateSystemTransformer();
+    ReosCoordinateSystemTransformer( const ReosCoordinateSystemTransformer &other );
+    ReosCoordinateSystemTransformer &operator=( const ReosCoordinateSystemTransformer &rhs );
+    ~ReosCoordinateSystemTransformer();
+
+    QPolygonF transformToCoordinates( const QString &sourceCRS, const QPolygonF &sourcePolygon, const QString &destinationCrs ) const;
+
+  private:
+    std::unique_ptr<ReosCoordinateSystemTransformer_impl> d;
+
+    friend class ReosGisEngine;
+};
+
+
 /**
  * Reos module class that handles GIS layer
  */
@@ -70,13 +96,13 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     QString addMeshLayer( const QString &uri, const QString &name = QString() );
 
     //! Returns the layer type corresponding to the the layer Id
-    LayerType layerType( const QString layerId ) const;
+    LayerType layerType( const QString &layerId ) const;
 
     //! Returns the name of the layer with \a layerId
-    QString layerName( const QString layerId ) const;
+    QString layerName( const QString &layerId ) const;
 
     //! Returns whether the layer exists and is valid
-    bool hasValidLayer( const QString layerId ) const;
+    bool hasValidLayer( const QString &layerId ) const;
 
     //! Returns the model containing GIS layers tree
     QAbstractItemModel *layerTreeModel();
@@ -143,15 +169,18 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     double convertLengthFromMeterToMapunit( double length );
 
     //! Returns encoded information about the GIS engine after saving GIS project int the \a path with the \a baseFileName
-    ReosEncodedElement encode( const QString &path, const QString baseFileName );
+    ReosEncodedElement encode( const QString &path, const QString &baseFileName );
 
     //! Decode information about the GIS engine and load the GIS poject from the \a path with the \a baseFileName
-    bool decode( const ReosEncodedElement &encodedElement, const QString &path, const QString baseFileName );
+    bool decode( const ReosEncodedElement &encodedElement, const QString &path, const QString &baseFileName );
 
     //! Clears the GIS project
     void clearProject();
 
     bool canBeRasterDem( const QString &uri ) const;
+
+    //! Returns a coordinate transformer that can be used from other thread
+    ReosCoordinateSystemTransformer getCoordinateTransformer() const;
 
     //! Transform the source map extent \a sourceExtent to a map extent with crs \a crs
     static ReosMapExtent transformExtent( const ReosMapExtent &extent, const QString &crs );

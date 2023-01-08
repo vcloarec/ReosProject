@@ -36,6 +36,10 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
 
     ReosMeshDataProvider_p();
 
+    QPointF vertexPosition( int vertexIndex ) const;
+    double vertexElevation( int vertexIndex ) const;
+    QVector<int> face( int faceIndex ) const;
+
     void setFilePath( const QString &filePath );
 
     void generateMesh( const ReosMeshFrameData &data );

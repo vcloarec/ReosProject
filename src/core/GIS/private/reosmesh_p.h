@@ -48,6 +48,25 @@ class ReosRendererMeshMapTimeStamp_p: public ReosRendererObjectMapTimeStamp
     QgsMeshDatasetIndex mVectorIndex;
 };
 
+class ReosMeshData_ : public ReosMeshData::Data
+{
+  public:
+    ReosMeshData_( const QgsMesh &mesh )
+      : mMesh( mesh )
+    {
+    }
+
+    ~ReosMeshData_();
+    const void *data() const
+    {
+      return static_cast<const void *>( &mMesh );
+    }
+
+  private:
+    QgsMesh mMesh;
+};
+
+
 /**
  * Implementation of a mesh in Reos environment.
  * This class contains a QgsMeshLayer that can be independant from the QgsProject.
@@ -72,6 +91,7 @@ class ReosMeshFrame_p : public ReosMesh
     void generateMesh( const ReosMeshFrameData &data ) override;
     QString crs() const override;
     QObject *data() const override;
+    ReosMeshData meshDataFrame() const override;
 
     ReosProcess *applyTopographyOnVertices( ReosTopographyCollection *topographyCollection ) override;
     double datasetScalarValueAt( const QString &datasetId, const QPointF &pos ) const override;
@@ -128,6 +148,7 @@ class ReosMeshFrame_p : public ReosMesh
 
   private:
     std::unique_ptr<QgsMeshLayer> mMeshLayer;
+    ReosMeshDataProvider_p *mMeshDataProvider = nullptr;
     ReosMeshDataProvider_p *meshProvider() const;
     QMap<QString, int> mDatasetGroupsIndex;
     QgsMeshDatasetGroup *mZVerticesDatasetGroup = nullptr;
