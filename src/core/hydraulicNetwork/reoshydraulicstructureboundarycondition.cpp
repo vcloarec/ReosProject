@@ -90,6 +90,23 @@ void ReosHydraulicStructureBoundaryCondition::encodeData( ReosEncodedElement &en
   ReosHydrographJunction::encodeData( encodedElement, context );
 }
 
+bool ReosHydraulicStructureBoundaryCondition::updateInternalHydrograph()
+{
+  switch ( conditionType() )
+  {
+    case ReosHydraulicStructureBoundaryCondition::Type::InputFlow:
+      return ReosHydrographJunction::updateInternalHydrograph();
+      break;
+    case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
+    case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
+    case ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally:
+      return false;
+      break;
+  }
+
+  return false;
+}
+
 ReosHydraulicStructureBoundaryCondition *ReosHydraulicStructureBoundaryCondition::decode( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context )
 {
   std::unique_ptr<ReosHydraulicStructureBoundaryCondition> elem( new ReosHydraulicStructureBoundaryCondition( encodedElement, context.network() ) );
@@ -155,7 +172,7 @@ void ReosHydraulicStructureBoundaryCondition::updateCalculationContextFromUpstre
     case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
     case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
     case ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally:
-      ReosHydrographJunction::updateCalculationContextFromUpstream( context, nullptr, true );
+      ReosHydrographJunction::updateCalculationContextFromUpstream( context, nullptr, upstreamWillChange );
       break;
   }
 }
@@ -296,11 +313,9 @@ ReosHydraulicStructure2D *ReosHydraulicStructureBoundaryCondition::structure() c
   return mStructure;
 }
 
-void ReosHydraulicStructureBoundaryCondition::setOutputHydrographFrom( const ReosHydrograph *hydrograph )
+void ReosHydraulicStructureBoundaryCondition::setOutputHydrograph( ReosHydrograph *hydrograph )
 {
-  int valueCount = hydrograph->valueCount();
-  mOutputHydrograph->copyFrom( hydrograph );
-  calculationUpdated();
+  setCurrentInternalHydrograph( hydrograph );
 }
 
 void ReosHydraulicStructureBoundaryCondition::setWaterLevelSeriesIndex( int waterLevelSeriesIndex )

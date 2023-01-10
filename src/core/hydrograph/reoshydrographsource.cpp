@@ -202,6 +202,7 @@ bool ReosHydrographJunction::updateInternalHydrograph()
 
   switch ( mInternalHydrographOrigin )
   {
+    case ReosHydrographJunction::RunoffHydrograph: //should not be
     case ReosHydrographJunction::None:
       newHydrograph = nullptr;
       break;
