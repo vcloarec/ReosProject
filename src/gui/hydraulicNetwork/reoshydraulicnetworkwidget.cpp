@@ -167,7 +167,6 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   {
     mHydraulicNetwork->changeScheme( index );
     changeCurrentScheme( mHydraulicNetwork->currentScheme() );
-    emit timeWindowChanged();
     emit mapTimeStepChanged();
   } );
 
@@ -175,12 +174,13 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
 
   connect( mHydraulicNetwork, &ReosHydraulicNetwork::timeStepChanged, this, [this]
   {
-    emit timeWindowChanged();
     emit mapTimeStepChanged();
   } );
 
-  ui->MeteoModelCombo->setModel( mHydraulicNetwork->context().watershedModule()->meteoModelsCollection() );
+  ui->mMeteoModelCombo->setModel( mHydraulicNetwork->context().watershedModule()->meteoModelsCollection() );
   ui->mHydraulicShcemeRemoveButton->setEnabled( mHydraulicNetwork->hydraulicSchemeCollection()->schemeCount() > 1 );
+  connect( ui->mMeteoModelCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ),
+           this, &ReosHydraulicNetworkWidget::onMeteoModelChanged );
 }
 
 ReosHydraulicNetworkWidget::~ReosHydraulicNetworkWidget()
@@ -193,19 +193,6 @@ void ReosHydraulicNetworkWidget::closePropertiesWidget()
   unselectCurrentElement();
   mElementPropertiesWidget->setCurrentElement( nullptr, mGuiContext );
   mElementPropertiesWidget->close();
-}
-
-ReosTimeWindow ReosHydraulicNetworkWidget::timeWindow() const
-{
-  ReosTimeWindow timeWindow;
-
-  if ( mCurrentSelectedElement )
-    timeWindow = mCurrentSelectedElement->timeWindow();
-
-  if ( mHydraulicNetwork->currentScheme() )
-    timeWindow = timeWindow.unite( mHydraulicNetwork->currentScheme()->timeWindow() );
-
-  return timeWindow;
 }
 
 ReosDuration ReosHydraulicNetworkWidget::mapTimeStep() const
@@ -278,7 +265,6 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
     mElementPropertiesWidget->setCurrentElement( nullptr, ReosGuiContext( this ) );
     mExtraItemSelection.reset( );
     ui->mElementListView->setCurrentIndex( QModelIndex() );
-    emit timeWindowChanged();
     emit mapTimeStepChanged();
     return;
   }
@@ -294,7 +280,6 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
   ui->mElementListView->setCurrentIndex( mElementModel->elementToIndex( elem ) );
   ui->mElementListView->blockSignals( false );
 
-  connect( elem, &ReosHydraulicNetworkElement::timeWindowChanged, this, &ReosHydraulicNetworkWidget::timeWindowChanged );
   connect( elem, &ReosHydraulicNetworkElement::mapTimeStepChanged, this, &ReosHydraulicNetworkWidget::mapTimeStepChanged );
 
   mElementPropertiesWidget->setCurrentElement( elem, guiContext );
@@ -303,7 +288,6 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
 
   mCurrentSelectedElement = elem;
 
-  emit timeWindowChanged();
   emit mapTimeStepChanged();
 }
 
@@ -449,14 +433,16 @@ void ReosHydraulicNetworkWidget::onMapCrsChanged()
     mMapItemFactory.updateMapItem( it.key(), it.value().get() );
 }
 
-void ReosHydraulicNetworkWidget::updateSchemeInfo()
+void ReosHydraulicNetworkWidget::onMeteoModelChanged()
 {
-  if ( mCurrentHydraulicScheme )
+  if ( mHydraulicNetwork )
   {
-    ui->mStartTimeWidget->setDateTime( mCurrentHydraulicScheme->startTime() );
-    ui->mEndTimeWidget->setDateTime( mCurrentHydraulicScheme->endTime() );
+    ReosWatershedModule *wsm = mHydraulicNetwork->context().watershedModule();
+    if ( wsm && mCurrentHydraulicScheme )
+      mCurrentHydraulicScheme->setMeteoModel( wsm->meteoModelsCollection()->meteorologicModel( ui->mMeteoModelCombo->currentIndex() ) );
   }
 }
+
 
 ReosStructure2dToolBar *ReosHydraulicNetworkWidget::structure2dToolBar() const
 {
@@ -467,7 +453,6 @@ void ReosHydraulicNetworkWidget::unselectCurrentElement()
 {
   if ( mCurrentSelectedElement )
   {
-    disconnect( mCurrentSelectedElement, &ReosHydraulicNetworkElement::timeWindowChanged, this, &ReosHydraulicNetworkWidget::timeWindowChanged );
     disconnect( mCurrentSelectedElement, &ReosHydraulicNetworkElement::mapTimeStepChanged, this, &ReosHydraulicNetworkWidget::mapTimeStepChanged );
     auto it = mMapItems.constFind( mCurrentSelectedElement );
     if ( it != mMapItems.constEnd() )
@@ -522,15 +507,14 @@ void ReosHydraulicNetworkWidget::removeGeometryStructure( ReosHydraulicNetworkEl
 
 void ReosHydraulicNetworkWidget::changeCurrentScheme( ReosHydraulicScheme *scheme )
 {
-  if ( mCurrentHydraulicScheme )
-    disconnect( mCurrentHydraulicScheme, &ReosDataObject::dataChanged, this, &ReosHydraulicNetworkWidget::updateSchemeInfo );
-
   mCurrentHydraulicScheme = scheme;
-
-  updateSchemeInfo();
-
-  if ( mCurrentHydraulicScheme )
-    connect( mCurrentHydraulicScheme, &ReosDataObject::dataChanged, this, &ReosHydraulicNetworkWidget::updateSchemeInfo );
+  ReosWatershedModule *wsm = mHydraulicNetwork->context().watershedModule();
+  int index = -1;
+  if ( wsm && mCurrentHydraulicScheme )
+    index = wsm->meteoModelsCollection()->modelIndex( scheme->meteoModel() );
+  ui->mMeteoModelCombo->blockSignals( true );
+  ui->mMeteoModelCombo->setCurrentIndex( index );
+  ui->mMeteoModelCombo->blockSignals( false );
 }
 
 ReosHydraulicElementWidget::ReosHydraulicElementWidget( QWidget *parent )

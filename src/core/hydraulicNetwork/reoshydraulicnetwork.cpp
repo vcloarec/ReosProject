@@ -292,16 +292,13 @@ void ReosHydraulicNetwork::decode( const ReosEncodedElement &element, const QStr
   }
 
   element.getData( QStringLiteral( "current-scheme-index" ), mCurrentSchemeIndex );
-
   if ( mCurrentSchemeIndex >= mHydraulicSchemeCollection->schemeCount() )
     mCurrentSchemeIndex = mHydraulicSchemeCollection->schemeCount() > 0 ? 0 : -1;
 
   ReosHydraulicScheme *currentScheme = mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex );
   if ( currentScheme )
   {
-    mGisEngine->setTemporalRange( currentScheme->startTime()->value(), currentScheme->endTime()->value() );
     connect( currentScheme, &ReosDataObject::dataChanged, this, &ReosHydraulicNetwork::schemeChanged );
-    connect( currentScheme, &ReosHydraulicScheme::timeExtentChanged, mGisEngine, &ReosGisEngine::setTemporalRange );
 
     for ( ReosHydraulicNetworkElement *elem :  std::as_const( mElements ) )
       elem->restoreConfiguration( currentScheme );
@@ -448,7 +445,6 @@ void ReosHydraulicNetwork::setCurrentScheme( int newSchemeIndex )
   currentScheme = mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex );
   if ( currentScheme )
   {
-    mGisEngine->setTemporalRange( currentScheme->startTime()->value(), currentScheme->endTime()->value() );
     connect( currentScheme, &ReosDataObject::dataChanged, this, &ReosHydraulicNetwork::schemeChanged );
   }
 
@@ -495,6 +491,10 @@ ReosTimeWindow ReosHydraulicNetwork::mapTimeWindow() const
     if ( elem->type().contains( ReosHydraulicStructure2D::staticType() ) )
       tw = tw.unite( elem->timeWindow() );
   }
+
+  ReosHydraulicScheme *scheme = mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex );
+  if ( scheme && scheme->meteoModel() )
+    tw = tw.unite( scheme->meteoModel()->timeWindow() );
 
   return tw;
 }

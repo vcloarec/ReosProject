@@ -52,6 +52,8 @@ void ReosHydraulicStructureResultExport::onCurrentSchemeChange()
 
   ReosHydraulicSimulation *sim = mStructure->simulation( currentScheme );
 
+  ReosTimeWindow tw = mStructure->timeWindow();
+
   if ( sim )
   {
     ui->mLabelEngine->setText( sim->engineName() );
@@ -59,8 +61,8 @@ void ReosHydraulicStructureResultExport::onCurrentSchemeChange()
     if ( mStructure->hasResults( currentScheme ) )
     {
       ui->mLabelLastRun->setText( QLocale().toString( mStructure->resultsRunDateTime( currentScheme->id() ), QLocale::ShortFormat ) );
-      ui->mLabelStartTime->setText( QLocale().toString( currentScheme->startTime()->value(), QLocale::ShortFormat ) );
-      ui->mLaberEndTime->setText( QLocale().toString( currentScheme->endTime()->value(), QLocale::ShortFormat ) );
+      ui->mLabelStartTime->setText( QLocale().toString( tw.start(), QLocale::ShortFormat ) );
+      ui->mLaberEndTime->setText( QLocale().toString( tw.end(), QLocale::ShortFormat ) );
       ui->mTimeStepCount->setText( QLocale().toString( mStructure->resultsTimeStepCount( currentScheme->id() ) ) );
     }
     else

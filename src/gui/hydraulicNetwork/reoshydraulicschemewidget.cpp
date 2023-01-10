@@ -32,17 +32,10 @@ ReosHydraulicSchemeWidget::ReosHydraulicSchemeWidget( ReosHydraulicScheme *schem
 
   connect( ui->mMeteoModelCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosHydraulicSchemeWidget::onMeteoModelChange );
 
-//  connect( ui->mRadioButtonInputTime, &QRadioButton::toggled, this, [this]( bool checked )
-//  {
-//    if ( checked && mScheme )
-//      mScheme->setTimeWindowType( ReosHydraulicScheme::TimeWindowType::FromNetworkInputTime );
-//  } );
-
   connect( ui->mRadioButtonMeteoTime, &QRadioButton::toggled, this, [this]( bool checked )
   {
     if ( checked && mScheme )
     {
-      mScheme->setTimeWindowType( ReosHydraulicScheme::TimeWindowType::FromMeteorologicalModel );
       ui->mWidgetStartTime->setEnabled( false );
       ui->mWidgetEndTime->setEnabled( false );
     }
@@ -52,7 +45,6 @@ ReosHydraulicSchemeWidget::ReosHydraulicSchemeWidget( ReosHydraulicScheme *schem
   {
     if ( checked && mScheme )
     {
-      mScheme->setTimeWindowType( ReosHydraulicScheme::TimeWindowType::UserDefined );
       ui->mWidgetStartTime->setEnabled( true );
       ui->mWidgetEndTime->setEnabled( true );
     }
@@ -70,21 +62,6 @@ void ReosHydraulicSchemeWidget::setScheme( ReosHydraulicScheme *scheme )
   if ( scheme )
   {
     ui->mWidetName->setString( scheme->schemeName() );
-    ui->mWidgetStartTime->setDateTime( scheme->startTime() );
-    ui->mWidgetEndTime->setDateTime( scheme->endTime() );
-    switch ( scheme->timeWindowType() )
-    {
-      case ReosHydraulicScheme::TimeWindowType::FromMeteorologicalModel:
-        ui->mRadioButtonMeteoTime->setChecked( true );
-        ui->mWidgetStartTime->setEnabled( false );
-        ui->mWidgetEndTime->setEnabled( false );
-        break;
-      case ReosHydraulicScheme::TimeWindowType::UserDefined:
-        ui->mRadioButtonUserDefinedTime->setChecked( true );
-        ui->mWidgetStartTime->setEnabled( true );
-        ui->mWidgetEndTime->setEnabled( true );
-        break;
-    }
     int meteoModelindex = mContext.watershedModule()->meteoModelsCollection()->modelIndex( scheme->meteoModel() );
 
     if ( meteoModelindex != -1 )

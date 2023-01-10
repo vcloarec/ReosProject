@@ -65,7 +65,6 @@ class REOSGUI_EXPORT ReosHydraulicNetworkWidget : public QWidget
 
     void closePropertiesWidget();
 
-    ReosTimeWindow timeWindow() const;
     ReosDuration mapTimeStep() const;
 
     ReosStructure2dToolBar *structure2dToolBar() const;
@@ -75,7 +74,6 @@ class REOSGUI_EXPORT ReosHydraulicNetworkWidget : public QWidget
     void onOpened();
 
   signals:
-    void timeWindowChanged();
     void mapTimeStepChanged();
 
   private slots:
@@ -100,7 +98,7 @@ class REOSGUI_EXPORT ReosHydraulicNetworkWidget : public QWidget
 
     void onMapCrsChanged();
 
-    void updateSchemeInfo();
+    void onMeteoModelChanged();
 
   private:
     Ui::ReosHydraulicNetworkWidget *ui;
