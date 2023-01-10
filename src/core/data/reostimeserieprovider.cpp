@@ -363,6 +363,7 @@ void ReosTimeSerieVariableTimeStepMemoryProvider::clear()
 {
   mValues.clear();
   mTimeValues.clear();
+  mReferenceTime = QDateTime();
 }
 
 void ReosTimeSerieVariableTimeStepMemoryProvider::copy( ReosTimeSerieVariableTimeStepProvider *other )

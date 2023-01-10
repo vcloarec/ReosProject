@@ -223,6 +223,8 @@ void ReosHydrographRoutingLink::restoreConfiguration( ReosHydraulicScheme *schem
   for ( ReosHydrographRoutingMethod *met : std::as_const( mRoutingMethods ) )
     met->restoreConfiguration( scheme );
 
+  mOutputHydrograph->clear();
+
   emit dataChanged();
 }
 

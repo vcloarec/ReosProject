@@ -500,6 +500,7 @@ void ReosHydrographJunction::restoreConfiguration( ReosHydraulicScheme *scheme )
   int origin = static_cast<int>( mInternalHydrographOrigin );
   encodedElement.getData( QStringLiteral( "hydrograph-origin" ), origin );
   mInternalHydrographOrigin = static_cast<InternalHydrographOrigin>( origin );
+  mOutputHydrograph->clear();
 
   emit dataChanged();
 }

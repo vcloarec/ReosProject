@@ -213,6 +213,9 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
 
     ReosMapExtent networkExtent() const;
 
+    //! Return time window including all element that can be rendered on map
+    ReosTimeWindow mapTimeWindow() const;
+
   signals:
     void elementAdded( ReosHydraulicNetworkElement *elem, bool select );
     void elementWillBeRemoved( ReosHydraulicNetworkElement *elem );
@@ -222,6 +225,7 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     void schemeChanged();
     void loaded();
     void timeStepChanged();
+    void mapTimeWindowChanged();
 
   public slots:
     void changeScheme( int newSchemeIndex );
