@@ -75,9 +75,9 @@ class ReosHecrasTesting : public QObject
     void changeBoundaryCondition();
 
     void importAndLaunchStructure();
-#if 0
+
     void simulationResults();
-#endif
+
 
   private:
     QString mPathToSimpleToRun;
@@ -438,121 +438,119 @@ void ReosHecrasTesting::importAndLaunchStructure()
   QVERIFY( structure->mesh() );
   QCOMPARE( structure->mesh()->vertexCount(), 1900 );
 
-  //ReosHydraulicSimulation* simulation = structure->currentSimulation();
-  //QVERIFY(simulation);
-  //ReosHecRasSimulation* hecSim = qobject_cast <ReosHecRasSimulation*>(simulation);
-  //QVERIFY(hecSim);
-  //QCOMPARE(hecSim->currentPlan(), QStringLiteral("p01"));
-  //QCOMPARE(hecSim->computeInterval(), ReosDuration(60.0, ReosDuration::second));
-  //QCOMPARE(hecSim->outputInterval(), ReosDuration(5.0, ReosDuration::minute));
-  //QCOMPARE(hecSim->detailedInterval(), ReosDuration(5.0, ReosDuration::minute));
-  //QCOMPARE(hecSim->mappingInterval(), ReosDuration(5.0, ReosDuration::minute));
+  ReosHydraulicSimulation *simulation = structure->currentSimulation();
+  QVERIFY( simulation );
+  ReosHecRasSimulation *hecSim = qobject_cast <ReosHecRasSimulation *>( simulation );
+  QVERIFY( hecSim );
+  QCOMPARE( hecSim->currentPlan(), QStringLiteral( "p01" ) );
+  QCOMPARE( hecSim->computeInterval(), ReosDuration( 60.0, ReosDuration::second ) );
+  QCOMPARE( hecSim->outputInterval(), ReosDuration( 5.0, ReosDuration::minute ) );
+  QCOMPARE( hecSim->detailedInterval(), ReosDuration( 5.0, ReosDuration::minute ) );
+  QCOMPARE( hecSim->mappingInterval(), ReosDuration( 5.0, ReosDuration::minute ) );
 
-  //QList<ReosHydraulicStructureBoundaryCondition*> boundaryConditions = structure->boundaryConditions();
-  //QCOMPARE(boundaryConditions.count(), 2);
-  //QCOMPARE(boundaryConditions.at(1)->boundaryConditionId(), QStringLiteral("Perimeter 1-Upstream limit"));
-  //QVERIFY(boundaryConditions.at(1)->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally);
-  //QCOMPARE(boundaryConditions.at(0)->boundaryConditionId(), QStringLiteral("Perimeter 1-Downstream limit"));
-  //QVERIFY(boundaryConditions.at(0)->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally);
+  QList<ReosHydraulicStructureBoundaryCondition *> boundaryConditions = structure->boundaryConditions();
+  QCOMPARE( boundaryConditions.count(), 2 );
+  QCOMPARE( boundaryConditions.at( 1 )->boundaryConditionId(), QStringLiteral( "Perimeter 1-Upstream limit" ) );
+  QVERIFY( boundaryConditions.at( 1 )->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally );
+  QCOMPARE( boundaryConditions.at( 0 )->boundaryConditionId(), QStringLiteral( "Perimeter 1-Downstream limit" ) );
+  QVERIFY( boundaryConditions.at( 0 )->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally );
 
-  //ReosHydraulicStructureBoundaryCondition* upstreamBc = boundaryConditions.at(1);
-  //upstreamBc->setDefaultConditionType(ReosHydraulicStructureBoundaryCondition::Type::InputFlow);
-  //QVERIFY(upstreamBc->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::InputFlow);
+  ReosHydraulicStructureBoundaryCondition *upstreamBc = boundaryConditions.at( 1 );
+  upstreamBc->setDefaultConditionType( ReosHydraulicStructureBoundaryCondition::Type::InputFlow );
+  QVERIFY( upstreamBc->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::InputFlow );
 
-  //// Setup an hydrograph
-  //std::unique_ptr<ReosHydrograph> hydrograph(new ReosHydrograph);
-  //hydrograph->setReferenceTime(scheme->startTime()->value());
-  //hydrograph->setValue(ReosDuration(0, ReosDuration::minute), 0);
-  //hydrograph->setValue(ReosDuration(5, ReosDuration::minute), 10);
-  //hydrograph->setValue(ReosDuration(8.3, ReosDuration::minute), 12);
-  //hydrograph->setValue(ReosDuration(10, ReosDuration::minute), 15);
-  //hydrograph->setValue(ReosDuration(30, ReosDuration::minute), 35);
-  //hydrograph->setValue(ReosDuration(60, ReosDuration::minute), 1);
-  //hydrograph->setValue(ReosDuration(2, ReosDuration::day), 0);
-  ////QVERIFY( hydrograph->valueCount() == 6 );
-  //upstreamBc->gaugedHydrographsStore()->addHydrograph(hydrograph.release());
-  //upstreamBc->setInternalHydrographOrigin(ReosHydrographJunction::GaugedHydrograph);
-  //upstreamBc->setGaugedHydrographIndex(0);
-  //QVERIFY(upstreamBc->outputHydrograph()->valueCount() == 0);
-  ////We need the end of the current task to have updated output hydrograph
-  //QTimer timer;
-  //QEventLoop loop;
-  //connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
-  //timer.start(WAITING_TIME_FOR_LOOP);
-  //loop.exec();
-  ////QVERIFY( upstreamBc->outputHydrograph()->valueCount() == 6 );
+  // Setup an hydrograph
+  std::unique_ptr<ReosHydrograph> hydrograph( new ReosHydrograph );
+  hydrograph->setReferenceTime( scheme->startTime()->value() );
+  hydrograph->setValue( ReosDuration( 0, ReosDuration::minute ), 0 );
+  hydrograph->setValue( ReosDuration( 5, ReosDuration::minute ), 10 );
+  hydrograph->setValue( ReosDuration( 8.3, ReosDuration::minute ), 12 );
+  hydrograph->setValue( ReosDuration( 10, ReosDuration::minute ), 15 );
+  hydrograph->setValue( ReosDuration( 30, ReosDuration::minute ), 35 );
+  hydrograph->setValue( ReosDuration( 60, ReosDuration::minute ), 1 );
+  hydrograph->setValue( ReosDuration( 2, ReosDuration::day ), 0 );
+  //QVERIFY( hydrograph->valueCount() == 6 );
+  upstreamBc->gaugedHydrographsStore()->addHydrograph( hydrograph.release() );
+  upstreamBc->setInternalHydrographOrigin( ReosHydrographJunction::GaugedHydrograph );
+  upstreamBc->setGaugedHydrographIndex( 0 );
+  QVERIFY( upstreamBc->outputHydrograph()->valueCount() == 0 );
+  //We need the end of the current task to have updated output hydrograph
+  QTimer timer;
+  QEventLoop loop;
+  connect( &timer, &QTimer::timeout, &loop, &QEventLoop::quit );
+  timer.start( WAITING_TIME_FOR_LOOP );
+  loop.exec();
+  //QVERIFY( upstreamBc->outputHydrograph()->valueCount() == 6 );
 
   // set up time interval simulation
-  //hecSim->setComputeInterval(ReosDuration(10, ReosDuration::second));
-  //hecSim->setOutputInterval(ReosDuration(1, ReosDuration::minute));
-  //hecSim->setDetailledInterval(ReosDuration(1, ReosDuration::minute));
-  //hecSim->setMappingInterval(ReosDuration(1, ReosDuration::minute));
+  hecSim->setComputeInterval( ReosDuration( 10, ReosDuration::second ) );
+  hecSim->setOutputInterval( ReosDuration( 1, ReosDuration::minute ) );
+  hecSim->setDetailledInterval( ReosDuration( 1, ReosDuration::minute ) );
+  hecSim->setMappingInterval( ReosDuration( 1, ReosDuration::minute ) );
 
-  //simulation->prepareInput(structure, scheme->calculationContext());
+  simulation->prepareInput( structure, scheme->calculationContext() );
 
-  //ReosHecRasProject projectAfterPreparation(path);
-  //ReosHecRasPlan planAfterPreparation = projectAfterPreparation.currentPlan();
+  ReosHecRasProject projectAfterPreparation( path );
+  ReosHecRasPlan planAfterPreparation = projectAfterPreparation.currentPlan();
 
-  //QCOMPARE(planAfterPreparation.startTime(), scheme->startTime()->value());
-  //QCOMPARE(planAfterPreparation.endTime(), scheme->endTime()->value());
-  //QCOMPARE(planAfterPreparation.computeInterval(), ReosDuration(10.0, ReosDuration::second));
-  //QCOMPARE(planAfterPreparation.outputIntevall(), ReosDuration(1.0, ReosDuration::minute));
-  //QCOMPARE(planAfterPreparation.detailedOutputInteval(), ReosDuration(1.0, ReosDuration::minute));
-  //QCOMPARE(planAfterPreparation.mappingInteval(), ReosDuration(1.0, ReosDuration::minute));
+  QCOMPARE( planAfterPreparation.startTime(), scheme->startTime()->value() );
+  QCOMPARE( planAfterPreparation.endTime(), scheme->endTime()->value() );
+  QCOMPARE( planAfterPreparation.computeInterval(), ReosDuration( 10.0, ReosDuration::second ) );
+  QCOMPARE( planAfterPreparation.outputIntevall(), ReosDuration( 1.0, ReosDuration::minute ) );
+  QCOMPARE( planAfterPreparation.detailedOutputInteval(), ReosDuration( 1.0, ReosDuration::minute ) );
+  QCOMPARE( planAfterPreparation.mappingInteval(), ReosDuration( 1.0, ReosDuration::minute ) );
 
-  //ReosHecRasFlow flowAfterPreparation = projectAfterPreparation.currentFlow();
-  //QVERIFY(flowAfterPreparation.boundariesCount() == 2);
-  //QCOMPARE(flowAfterPreparation.boundary(0).id(), QStringLiteral("Perimeter 1-Upstream limit"));
-  //QVERIFY(flowAfterPreparation.boundary(0).type == ReosHecRasFlow::Type::FlowHydrograph);
-  //QVERIFY(flowAfterPreparation.boundary(0).isDss);
-  //QCOMPARE(flowAfterPreparation.boundary(0).dssFile, mPathToSimpleToRun + QStringLiteral("/input_p01.dss"));
-  //QCOMPARE(flowAfterPreparation.boundary(0).dssPath, QStringLiteral("/Perimeter 1/Upstream limit/Flow//1Minute/INST-VAL/"));
+  ReosHecRasFlow flowAfterPreparation = projectAfterPreparation.currentFlow();
+  QVERIFY( flowAfterPreparation.boundariesCount() == 2 );
+  QCOMPARE( flowAfterPreparation.boundary( 0 ).id(), QStringLiteral( "Perimeter 1-Upstream limit" ) );
+  QVERIFY( flowAfterPreparation.boundary( 0 ).type == ReosHecRasFlow::Type::FlowHydrograph );
+  QVERIFY( flowAfterPreparation.boundary( 0 ).isDss );
+  QCOMPARE( flowAfterPreparation.boundary( 0 ).dssFile, mPathToSimpleToRun + QStringLiteral( "/input_p01.dss" ) );
+  QCOMPARE( flowAfterPreparation.boundary( 0 ).dssPath, QStringLiteral( "/Perimeter 1/Upstream limit/Flow//1Minute/INST-VAL/" ) );
 
 
-  //QStringList versions = ReosHecRasController::availableVersion();
-  //if ( !versions.isEmpty() )
-  //{
-  //  ReosHecRasController controller( versions.last() );
+  QStringList versions = ReosHecRasController::availableVersion();
+  if ( !versions.isEmpty() )
+  {
+    ReosHecRasController controller( versions.last() );
 
-  //  QVERIFY( controller.isValid() );
+    QVERIFY( controller.isValid() );
 
-  //  QVERIFY( controller.openHecrasProject( path ) );
+    QVERIFY( controller.openHecrasProject( path ) );
 
-  //  QStringList plans = controller.planNames();
+    QStringList plans = controller.planNames();
 
-  //  QCOMPARE( plans.count(), 2 );
-  //  QCOMPARE( plans.at( 0 ), QStringLiteral( "plan_test" ) );
-  //  QCOMPARE( plans.at( 1 ), QStringLiteral( "plan_test_2" ) );
+    QCOMPARE( plans.count(), 2 );
+    QCOMPARE( plans.at( 0 ), QStringLiteral( "plan_test" ) );
+    QCOMPARE( plans.at( 1 ), QStringLiteral( "plan_test_2" ) );
 
-  //  QVERIFY( controller.setCurrentPlan( plans.at( 1 ) ) );
-  //  QVERIFY( controller.setCurrentPlan( plans.at( 0 ) ) );
+    QVERIFY( controller.setCurrentPlan( plans.at( 1 ) ) );
+    QVERIFY( controller.setCurrentPlan( plans.at( 0 ) ) );
 
-  //  QVERIFY( !controller.computeCurrentPlan().isEmpty() );
-  //}
+    QVERIFY( !controller.computeCurrentPlan().isEmpty() );
+  }
 
-  //ReosEncodedElement encodedNetwork = network->encode( QFileInfo( path ).dir().path(), "project.lkn" );
+  ReosEncodedElement encodedNetwork = network->encode( QFileInfo( path ).dir().path(), "project.lkn" );
 
-  //network->clear();
-  //network->decode( encodedNetwork, QFileInfo( path ).dir().path(), "project.lkn" );
+  network->clear();
+  network->decode( encodedNetwork, QFileInfo( path ).dir().path(), "project.lkn" );
 
-  //structure = qobject_cast<ReosHydraulicStructure2D *>( network->getElements( ReosHydraulicStructure2D::staticType() ).at( 0 ) );
-  //QVERIFY( structure );
-  //QVERIFY( structure->boundaryConditions().count() == 2 );
-  //QVERIFY( structure->structureImporter() );
-  //QVERIFY( structure->structureImporter()->isValid() );
+  structure = qobject_cast<ReosHydraulicStructure2D *>( network->getElements( ReosHydraulicStructure2D::staticType() ).at( 0 ) );
+  QVERIFY( structure );
+  QVERIFY( structure->boundaryConditions().count() == 2 );
+  QVERIFY( structure->structureImporter() );
+  QVERIFY( structure->structureImporter()->isValid() );
 
-  //boundaryConditions = structure->boundaryConditions();
-  //QCOMPARE( boundaryConditions.count(), 2 );
-  //QCOMPARE( boundaryConditions.at( 1 )->boundaryConditionId(), QStringLiteral( "Perimeter 1-Upstream limit" ) );
-  //QVERIFY( boundaryConditions.at( 1 )->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::InputFlow );
-  //QCOMPARE( boundaryConditions.at( 0 )->boundaryConditionId(), QStringLiteral( "Perimeter 1-Downstream limit" ) );
-  //QVERIFY( boundaryConditions.at( 0 )->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally );
+  boundaryConditions = structure->boundaryConditions();
+  QCOMPARE( boundaryConditions.count(), 2 );
+  QCOMPARE( boundaryConditions.at( 1 )->boundaryConditionId(), QStringLiteral( "Perimeter 1-Upstream limit" ) );
+  QVERIFY( boundaryConditions.at( 1 )->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::InputFlow );
+  QCOMPARE( boundaryConditions.at( 0 )->boundaryConditionId(), QStringLiteral( "Perimeter 1-Downstream limit" ) );
+  QVERIFY( boundaryConditions.at( 0 )->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally );
 
-  //QVERIFY( structure->mesh() );
-  //QCOMPARE( structure->mesh()->vertexCount(), 1900 );
+  QVERIFY( structure->mesh() );
+  QCOMPARE( structure->mesh()->vertexCount(), 1900 );
 }
-
-#if 0
 
 void ReosHecrasTesting::simulationResults()
 {
@@ -564,7 +562,7 @@ void ReosHecrasTesting::simulationResults()
   ReosHydraulicScheme *scheme = network->currentScheme();
   QVERIFY( scheme );
 
-  std::unique_ptr<ReosHecRasStructureImporter> importer( new ReosHecRasStructureImporter( projectPath ) );
+  std::unique_ptr<ReosHecRasStructureImporter> importer( new ReosHecRasStructureImporter( projectPath, network->context() ) );
   ReosHydraulicStructure2D *structure = ReosHydraulicStructure2D::create( importer.release(), network->context() );
   QVERIFY( structure );
 
@@ -596,7 +594,6 @@ void ReosHecrasTesting::simulationResults()
   QCOMPARE( simResult->datasetValues( 0, 0 ).at( 1258 ), 2.000097513198853 ) ;
 }
 
-#endif
 
 QTEST_MAIN( ReosHecrasTesting )
 #include "test_hecras.moc"
