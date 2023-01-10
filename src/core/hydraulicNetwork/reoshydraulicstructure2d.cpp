@@ -548,11 +548,8 @@ void ReosHydraulicStructure2D::setTerrain3DSettings( const Reos3DTerrainSettings
 void ReosHydraulicStructure2D::onBoundaryConditionAdded( const QString &bid )
 {
   mBoundaryConditions.insert( bid );
-  ReosHydraulicNetworkElement *bc = mNetwork->addElement( new ReosHydraulicStructureBoundaryCondition( this, bid, mNetwork->context() ) );
-  connect( bc, &ReosHydraulicNetworkElement::calculationIsUpdated, this, [this, bc]
-  {
-    emit boundaryUpdated( qobject_cast<ReosHydraulicStructureBoundaryCondition *>( bc ) );
-  } );
+  ReosHydraulicStructureBoundaryCondition *newBc = new ReosHydraulicStructureBoundaryCondition( this, bid, mNetwork->context() );
+  mNetwork->addElement( newBc );
   emit boundariesChanged();
 }
 
@@ -933,7 +930,7 @@ QString ReosHydraulicStructure2D::directory() const
   return id().split( ':' ).last();
 }
 
-ReosHydraulicStructureBoundaryCondition *ReosHydraulicStructure2D::boundaryConditionNetWorkElement( const QString boundaryId ) const
+ReosHydraulicStructureBoundaryCondition *ReosHydraulicStructure2D::boundaryConditionNetWorkElement( const QString &boundaryId ) const
 {
   const QList<ReosHydraulicNetworkElement *> hydrElems = mNetwork->hydraulicNetworkElements( ReosHydraulicStructureBoundaryCondition::staticType() );
   for ( ReosHydraulicNetworkElement *hydrElem : hydrElems )
@@ -1075,6 +1072,7 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
 
   mesh()->setSimulationResults( simResults );
 
+  // First we clean boundaries condition
   const QList<ReosHydraulicStructureBoundaryCondition *> boundaries = boundaryConditions();
   for ( ReosHydraulicStructureBoundaryCondition *bc : boundaries )
   {
@@ -1086,7 +1084,10 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
       case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
       case ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally:
         if ( bc->outputHydrograph() )
+        {
+          bc->setHydrographFromModel( nullptr );
           bc->outputHydrograph()->clear();
+        }
         break;
     }
   }
@@ -1124,7 +1125,7 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
       {
         bc->outputHydrograph()->clear();
         if ( outputHydrographs.contains( bc->boundaryConditionId() ) )
-          bc->setOutputHydrographFrom( outputHydrographs.value( bc->boundaryConditionId() ) );
+          bc->setHydrographFromModel( outputHydrographs.value( bc->boundaryConditionId() ) );
       }
     }
   }
@@ -1142,10 +1143,15 @@ void ReosHydraulicStructure2D::updateResults( const QString &schemeId )
     if ( !mSimulationResults.contains( schemeId ) )
       loadResult( currentSimulation(), schemeId );
 
-    setResultsOnStructure( mSimulationResults.value( schemeId ) );
+    if ( mCurrentResult != mSimulationResults.value( schemeId ) )
+    {
+      mCurrentResult = mSimulationResults.value( schemeId );
+      setResultsOnStructure( mCurrentResult );
+    }
   }
   else
   {
+    mCurrentResult = nullptr;
     setResultsOnStructure( nullptr );
   }
 }

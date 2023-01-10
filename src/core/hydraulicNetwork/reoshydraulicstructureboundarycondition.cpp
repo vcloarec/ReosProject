@@ -260,6 +260,12 @@ void ReosHydraulicStructureBoundaryCondition::attachStructure( ReosHydraulicStru
     elementName()->setValue( mStructure->geometryStructure()->value( mBoundaryConditionId ).toString() );
     elementName()->blockSignals( false );
   }
+
+  connect( this, &ReosHydraulicNetworkElement::calculationIsUpdated, structure, [this, structure]
+  {
+    emit structure->boundaryUpdated( this );
+    emit structure->timeWindowChanged();
+  } );
 }
 
 ReosHydraulicStructureBoundaryCondition::Type ReosHydraulicStructureBoundaryCondition::conditionType() const
@@ -313,7 +319,7 @@ ReosHydraulicStructure2D *ReosHydraulicStructureBoundaryCondition::structure() c
   return mStructure;
 }
 
-void ReosHydraulicStructureBoundaryCondition::setOutputHydrograph( ReosHydrograph *hydrograph )
+void ReosHydraulicStructureBoundaryCondition::setHydrographFromModel( ReosHydrograph *hydrograph )
 {
   setCurrentInternalHydrograph( hydrograph );
 }

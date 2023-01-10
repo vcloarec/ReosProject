@@ -335,7 +335,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     void initConnection();
     void generateMeshInPlace();
     QString directory() const;
-    ReosHydraulicStructureBoundaryCondition *boundaryConditionNetWorkElement( const QString boundaryId ) const;
+    ReosHydraulicStructureBoundaryCondition *boundaryConditionNetWorkElement( const QString &boundaryId ) const;
     void onMeshGenerated( const ReosMeshFrameData &meshData );
 
     void loadResult( ReosHydraulicSimulation *simulation, const QString &schemeId );

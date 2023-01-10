@@ -92,7 +92,7 @@ class REOSCORE_EXPORT ReosHydraulicStructureBoundaryCondition : public ReosHydro
 
     ReosHydraulicStructure2D *structure() const;
 
-    void setOutputHydrographFrom( const ReosHydrograph *hydrograph );
+    void setHydrographFromModel( ReosHydrograph *hydrograph );
 
   public slots:
     //void updateCalculationContext( const ReosCalculationContext &context );
@@ -101,6 +101,8 @@ class REOSCORE_EXPORT ReosHydraulicStructureBoundaryCondition : public ReosHydro
   protected:
     ReosHydraulicStructureBoundaryCondition( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent = nullptr );
     void encodeData( ReosEncodedElement &, const ReosHydraulicNetworkContext & ) const override;
+
+    bool updateInternalHydrograph() override;
 
   private slots:
     void onBoundaryClassesChange();

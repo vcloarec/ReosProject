@@ -207,6 +207,8 @@ ReosHydraulicNetworkElement *ReosHydraulicNetwork::addElement( ReosHydraulicNetw
 
   connect( elem, &ReosHydraulicNetworkElement::dirtied, this, &ReosModule::dirtied );
   connect( elem, &ReosHydraulicNetworkElement::timeStepChanged, this, &ReosHydraulicNetwork::timeStepChanged );
+  if ( elem->type().contains( ReosHydraulicStructure2D::staticType() ) )
+    connect( elem, &ReosHydraulicNetworkElement::timeWindowChanged, this, &ReosHydraulicNetwork::mapTimeWindowChanged );
   emit timeStepChanged();
   return elem;
 }
@@ -436,7 +438,6 @@ void ReosHydraulicNetwork::setCurrentScheme( int newSchemeIndex )
   if ( currentScheme )
   {
     disconnect( currentScheme, &ReosDataObject::dataChanged, this, &ReosHydraulicNetwork::schemeChanged );
-    disconnect( currentScheme, &ReosHydraulicScheme::timeExtentChanged, mGisEngine, &ReosGisEngine::setTemporalRange );
   }
 
   mCurrentSchemeIndex = newSchemeIndex;
@@ -449,8 +450,11 @@ void ReosHydraulicNetwork::setCurrentScheme( int newSchemeIndex )
   {
     mGisEngine->setTemporalRange( currentScheme->startTime()->value(), currentScheme->endTime()->value() );
     connect( currentScheme, &ReosDataObject::dataChanged, this, &ReosHydraulicNetwork::schemeChanged );
-    connect( currentScheme, &ReosHydraulicScheme::timeExtentChanged, mGisEngine, &ReosGisEngine::setTemporalRange );
   }
+
+  for ( ReosHydraulicNetworkElement *elem :  std::as_const( mElements ) )
+    if ( elem->type().contains( ReosHydraulicStructure2D::staticType() ) )
+      elem->updateCalculationContext( calculationContext() );
 
   emit schemeChanged();
   emit dirtied();
@@ -481,6 +485,18 @@ ReosMapExtent ReosHydraulicNetwork::networkExtent() const
     extent.expendWithExtent( elem->extent() );
 
   return extent;
+}
+
+ReosTimeWindow ReosHydraulicNetwork::mapTimeWindow() const
+{
+  ReosTimeWindow tw;
+  for ( ReosHydraulicNetworkElement *elem : mElements )
+  {
+    if ( elem->type().contains( ReosHydraulicStructure2D::staticType() ) )
+      tw = tw.unite( elem->timeWindow() );
+  }
+
+  return tw;
 }
 
 QList<ReosHydraulicNetworkElement *> ReosHydraulicNetwork::hydraulicNetworkElements( const QString &type ) const

@@ -164,6 +164,7 @@ void ReosMeshFrame_p::init()
   meshSettings.setColor( Qt::gray );
   settings.setNativeMeshSettings( meshSettings );
   mMeshLayer->setRendererSettings( settings );
+  qobject_cast<QgsMeshLayerTemporalProperties *>( mMeshLayer->temporalProperties() )->setAlwaysLoadReferenceTimeFromSource( true );
 
   QgsCoordinateTransform transform( mMeshLayer->crs(), QgsProject::instance()->crs(), QgsProject::instance() );
   mMeshLayer->updateTriangularMesh( transform );
@@ -1218,8 +1219,12 @@ QString ReosMeshFrame_p::verticesElevationDatasetId() const
 
 void ReosMeshFrame_p::setSimulationResults( ReosHydraulicSimulationResults *result )
 {
+  //Before addings results, we have to remove existing dataset groups from the mesh layer
+  mMeshDataProvider->setDatasetSource( nullptr );
+  mMeshLayer->reload();
+
   mMeshDataProvider->setDatasetSource( result );
-  mMeshLayer->temporalProperties()->setDefaultsFromDataProviderTemporalCapabilities( mMeshDataProvider->temporalCapabilities() );
+  mMeshLayer->reload();
 
   const QStringList ids = mDatasetGroupsIndex.keys();
 
