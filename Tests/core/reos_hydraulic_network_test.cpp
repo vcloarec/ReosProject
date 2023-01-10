@@ -287,8 +287,23 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   timer.start( WAITING_TIME_FOR_LOOP );
   loop.exec();
 
+  QCOMPARE( bc3->outputHydrograph()->valueCount(), 75 );
   ReosHydrograph *downstreamHydro = junctionDownstream->outputHydrograph();
   QCOMPARE( downstreamHydro->valueCount(), 75 );
+
+  // Update calculation context on the downstream bc of the structure, that should change nothing
+  bc3->updateCalculationContext( mNetwork->currentScheme()->calculationContext() );
+  timer.start( WAITING_TIME_FOR_LOOP );
+  loop.exec();
+  QCOMPARE( bc3->outputHydrograph()->valueCount(), 75 );
+
+  structure2D->updateResults( mNetwork->currentScheme()->id() );
+  QCOMPARE( bc3->outputHydrograph()->valueCount(), 75 );
+
+  timer.start( WAITING_TIME_FOR_LOOP );
+  loop.exec();
+
+  QCOMPARE( bc3->outputHydrograph()->valueCount(), 75 );
 }
 
 
