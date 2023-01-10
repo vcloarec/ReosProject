@@ -327,6 +327,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 
     std::map<QString, std::unique_ptr<ReosSimulationProcess>> mSimulationProcesses;
     QMap<QString, ReosHydraulicSimulationResults *> mSimulationResults;
+    QPointer<ReosHydraulicSimulationResults> mCurrentResult;
 
     Reos3DMapSettings m3dMapSettings;
     Reos3DTerrainSettings m3dTerrainSettings;

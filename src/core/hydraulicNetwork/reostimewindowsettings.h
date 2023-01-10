@@ -19,7 +19,7 @@
 #include "reosdataobject.h"
 #include "reosparameter.h"
 
-class ReosTimeWindowSettings : public ReosDataObject
+class REOSCORE_EXPORT ReosTimeWindowSettings : public ReosDataObject
 {
   public:
     enum OffsetOrigin

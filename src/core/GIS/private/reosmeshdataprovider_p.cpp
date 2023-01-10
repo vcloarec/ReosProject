@@ -240,6 +240,11 @@ QgsMeshDriverMetadata ReosMeshDataProvider_p::driverMetadata() const
                                 3 );
 }
 
+ReosMeshDatasetSource *ReosMeshDataProvider_p::datasetSource() const
+{
+    return mDatasetSource;
+}
+
 void ReosMeshDataProvider_p::loadMeshFrame( const QString &filePath, ReosModule::Message &message )
 {
   mFilePath = filePath;
