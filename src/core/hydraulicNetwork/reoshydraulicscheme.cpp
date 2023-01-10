@@ -23,18 +23,12 @@
 ReosHydraulicScheme::ReosHydraulicScheme( ReosHydraulicSchemeCollection *collection )
   : ReosDataObject( collection )
   , mSchemeName( new ReosParameterString( tr( "Scheme name" ), false, this ) )
-  , mStartTime( new ReosParameterDateTime( tr( "Start time" ), this ) )
-  , mEndTime( new ReosParameterDateTime( tr( "End time" ), this ) )
 {
-  mEndTime->setValue( mEndTime->value().addSecs( 3600 ) );
-  init();
 }
 
 ReosHydraulicScheme::ReosHydraulicScheme( const ReosEncodedElement &element, ReosHydraulicSchemeCollection *collection, const ReosHydraulicNetworkContext &context )
   : ReosDataObject( collection )
   , mSchemeName( ReosParameterString::decode( element.getEncodedData( QStringLiteral( "name" ) ), false, tr( "Scheme name" ), this ) )
-  , mStartTime( ReosParameterDateTime::decode( element.getEncodedData( QStringLiteral( "start-time" ) ), false, tr( "Start time" ), this ) )
-  , mEndTime( ReosParameterDateTime::decode( element.getEncodedData( QStringLiteral( "end-time" ) ), false, tr( "End time" ), this ) )
 {
   if ( context.network() && context.watershedModule() && context.watershedModule()->meteoModelsCollection() )
   {
@@ -50,90 +44,7 @@ ReosHydraulicScheme::ReosHydraulicScheme( const ReosEncodedElement &element, Reo
 
   element.getData( QStringLiteral( "elements-config" ), mElementsConfig );
 
-  element.getData( QStringLiteral( "user-start-time" ), mUserStartTime );
-  element.getData( QStringLiteral( "user-end-time" ), mUserEndTime );
-  int twType = static_cast<int>( TimeWindowType::UserDefined );
-  element.getData( QStringLiteral( "time-window-type" ), twType );
-  mTimeWindowType = static_cast<TimeWindowType>( twType );
-
   ReosDataObject::decode( element );
-
-  init();
-}
-
-ReosHydraulicScheme::TimeWindowType ReosHydraulicScheme::timeWindowType() const
-{
-  return mTimeWindowType;
-}
-
-void ReosHydraulicScheme::setTimeWindowType( TimeWindowType newTimeWindowType )
-{
-  mTimeWindowType = newTimeWindowType;
-  updateTimeWindow();
-  emit dirtied();
-}
-
-void ReosHydraulicScheme::init()
-{
-  connect( mStartTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
-  connect( mEndTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
-
-  connect( mStartTime, &ReosParameter::valueChanged, this, [this]
-  {
-    emit timeExtentChanged( mStartTime->value(), mEndTime->value() );
-    if ( mTimeWindowType == TimeWindowType::UserDefined )
-      mUserStartTime = mStartTime->value();
-  } );
-
-  connect( mEndTime, &ReosParameter::valueChanged, this, [this]
-  {
-    emit timeExtentChanged( mStartTime->value(), mEndTime->value() );
-    if ( mTimeWindowType == TimeWindowType::UserDefined )
-      mUserEndTime = mEndTime->value();
-  } );
-
-  connect( mStartTime, &ReosParameter::valueChanged, this, &ReosHydraulicScheme::dirtied );
-  connect( mEndTime, &ReosParameter::valueChanged, this, &ReosHydraulicScheme::dirtied );
-
-  updateTimeWindow();
-}
-
-void ReosHydraulicScheme::updateTimeWindow()
-{
-  switch ( mTimeWindowType )
-  {
-    case TimeWindowType::FromMeteorologicalModel:
-      updateTimeFromMeteoModel();
-      break;
-    case TimeWindowType::UserDefined:
-      updateFromUserDefined();
-      break;
-  }
-}
-
-void ReosHydraulicScheme::updateTimeFromMeteoModel()
-{
-  if ( mMeteoModel )
-  {
-    ReosTimeWindow timeWindow = mMeteoModel->timeWindow();
-    mStartTime->setValue( timeWindow.start() );
-    mEndTime->setValue( timeWindow.end() );
-  }
-}
-
-void ReosHydraulicScheme::updateFromUserDefined()
-{
-  if ( mUserEndTime.isValid() && mUserStartTime.isValid() )
-  {
-    mStartTime->setValue( mUserStartTime );
-    mEndTime->setValue( mUserEndTime );
-  }
-  else
-  {
-    updateTimeFromMeteoModel();
-    mUserStartTime = mStartTime->value();
-    mUserEndTime = mEndTime->value();
-  }
 }
 
 ReosMeteorologicModel *ReosHydraulicScheme::meteoModel() const
@@ -144,7 +55,6 @@ ReosMeteorologicModel *ReosHydraulicScheme::meteoModel() const
 void ReosHydraulicScheme::setMeteoModel( ReosMeteorologicModel *meteoModel )
 {
   mMeteoModel = meteoModel;
-  updateTimeWindow();
   emit dirtied();
   emit dataChanged();
 }
@@ -175,43 +85,18 @@ ReosCalculationContext ReosHydraulicScheme::calculationContext() const
   return context;
 }
 
-ReosTimeWindow ReosHydraulicScheme::timeWindow() const
-{
-  return ReosTimeWindow( mStartTime->value(), mEndTime->value() );
-}
-
 ReosParameterString *ReosHydraulicScheme::schemeName() const
 {
   return mSchemeName;
 }
 
-ReosParameterDateTime *ReosHydraulicScheme::startTime() const
-{
-  return mStartTime;
-}
-
-ReosParameterDateTime *ReosHydraulicScheme::endTime() const
-{
-  return mEndTime;
-}
-
-ReosDuration ReosHydraulicScheme::timeExtent() const
-{
-  return ReosDuration( mStartTime->value().msecsTo( mEndTime->value() ) );
-}
 
 ReosEncodedElement ReosHydraulicScheme::encode() const
 {
   ReosEncodedElement element( QStringLiteral( "hydraulic-scheme" ) );
 
   element.addEncodedData( QStringLiteral( "name" ), mSchemeName->encode() );
-  element.addEncodedData( QStringLiteral( "start-time" ), mStartTime->encode() );
-  element.addEncodedData( QStringLiteral( "end-time" ), mEndTime->encode() );
   element.addData( QStringLiteral( "meteo-model-id" ), mMeteoModel->id() );
-  element.addData( QStringLiteral( "user-start-time" ), mUserStartTime );
-  element.addData( QStringLiteral( "user-end-time" ), mUserEndTime );
-  element.addData( QStringLiteral( "time-window-type" ), static_cast<int>( mTimeWindowType ) );
-
   element.addData( QStringLiteral( "elements-config" ), mElementsConfig );
 
   ReosDataObject::encode( element );

@@ -399,7 +399,13 @@ void ReosHydrographJunction::calculateOuputHydrograph()
   mSumCalculation = newCalculation;
 
   if ( !mInternalHydrograph.isNull() )
+  {
     newCalculation->addHydrograph( mInternalHydrograph );
+#ifndef _NDEBUG
+    qDebug() << QStringLiteral( "Time extent of internal hydrograph %1: " ).arg( elementName()->value() )
+             << mOutputHydrograph->timeExtent().first << mInternalHydrograph->timeExtent().second;
+#endif
+  }
 
   for ( const QPointer<ReosHydraulicLink> &link : std::as_const( mLinksBySide2 ) )
   {
@@ -427,6 +433,10 @@ void ReosHydrographJunction::calculateOuputHydrograph()
         calculationUpdated();
       }
       mCalculationIsInProgress = false;
+#ifndef _NDEBUG
+      qDebug() << QStringLiteral( "time extent of output hydrograph %1: " ).arg( elementName()->value() )
+               << mOutputHydrograph->timeExtent().first << mOutputHydrograph->timeExtent().second;
+#endif
       emit timeWindowChanged();
     }
     newCalculation->deleteLater();

@@ -71,7 +71,7 @@
        <number>0</number>
       </property>
       <item row="2" column="1">
-       <widget class="QComboBox" name="MeteoModelCombo"/>
+       <widget class="QComboBox" name="mMeteoModelCombo"/>
       </item>
       <item row="0" column="0" colspan="2">
        <layout class="QHBoxLayout" name="horizontalLayout">

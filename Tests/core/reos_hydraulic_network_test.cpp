@@ -109,7 +109,7 @@ void ReoHydraulicNetworkTest::addRemoveElement()
 
 void ReoHydraulicNetworkTest::calculationPropagation()
 {
-  mNetwork->setCurrentScheme( 0 );
+  mNetwork->changeScheme( 0 );
   QVERIFY( mNetwork->currentScheme() );
 
   //**** Mount a watershed
@@ -228,6 +228,8 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   QVERIFY( bc2->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::InputFlow );
   QVERIFY( bc3->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::OutputLevel );
 
+  QCOMPARE( watershedNode->outputHydrograph()->valueCount(), 0 );
+
   std::unique_ptr<ReosMeshGeneratorProcess> meshProcess( structure2D->getGenerateMeshProcess() );
   std::unique_ptr<ModuleProcessControler> controller = std::make_unique<ModuleProcessControler>( meshProcess.get() );
   controller->waitForFinished();
@@ -238,6 +240,8 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   QVERIFY( preparationProcess );
   controller = std::make_unique<ModuleProcessControler>( preparationProcess.get() );
   controller->waitForFinished();
+
+  QCOMPARE( watershedNode->outputHydrograph()->valueCount(), 71 );
 
   // the preparation process lead to update the upstream calculation
   // So for now, the 2D structure can automatically defined the time window from upstream
@@ -304,6 +308,65 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   loop.exec();
 
   QCOMPARE( bc3->outputHydrograph()->valueCount(), 75 );
+
+  mWatershedModule->meteoModelsCollection()->addMeteorologicModel( QStringLiteral( "Other meteomodel" ) );
+  QCOMPARE( mWatershedModule->meteoModelsCollection()->modelCount(), 2 );
+
+  std::unique_ptr<ReosHydraulicScheme> scheme = std::make_unique<ReosHydraulicScheme>();
+  scheme->schemeName()->setValue( tr( "Other scheme" ) );
+  scheme->setMeteoModel( mWatershedModule->meteoModelsCollection()->meteorologicModel( 1 ) );
+  QCOMPARE( scheme->meteoModel()->name()->value(), QStringLiteral( "Other meteomodel" ) );
+  mNetwork->hydraulicSchemeCollection()->addScheme( scheme.release() );
+
+  QCOMPARE( mNetwork->hydraulicSchemeCollection()->schemeCount(), 2 );
+  QCOMPARE( watershedNode->outputHydrograph()->valueCount(), 71 );
+  QCOMPARE( link1->outputHydrograph()->valueCount(), 71 );
+  QCOMPARE( bc3->outputHydrograph()->valueCount(), 75 );
+  QCOMPARE( junction->outputHydrograph()->valueCount(), 5 );
+  //Scheme changed
+  mNetwork->changeScheme( 1 );
+  QCOMPARE( watershedNode->outputHydrograph()->valueCount(), 0 );
+  QCOMPARE( link1->outputHydrograph()->valueCount(), 0 );
+  QCOMPARE( bc3->outputHydrograph()->valueCount(), 0 );
+  QCOMPARE( junction->outputHydrograph()->valueCount(), 0 );
+
+  tw = structure2D->timeWindow();
+  QCOMPARE( tw.start(), QDateTime() );
+  QCOMPARE( tw.end(), QDateTime() );
+
+  timer.start( WAITING_TIME_FOR_LOOP );
+  loop.exec();
+
+  QCOMPARE( watershedNode->outputHydrograph()->valueCount(), 0 );
+  QCOMPARE( link1->outputHydrograph()->valueCount(), 0 );
+  QCOMPARE( bc3->outputHydrograph()->valueCount(), 0 );
+  QCOMPARE( junction->outputHydrograph()->valueCount(), 5 ); //hdrograph on junction is the same with this scheme
+
+  tw = structure2D->timeWindow();
+  QCOMPARE( tw.start(),  QDateTime( QDate( 2010, 02, 01 ), QTime( 1, 55, 0 ), Qt::UTC ) );
+  QCOMPARE( tw.end(), QDateTime( QDate( 2010, 02, 01 ), QTime( 2, 15, 0 ), Qt::UTC ) );
+
+  mNetwork->changeScheme( 0 );
+  structure2D->updateCalculationContext( mNetwork->calculationContext() );
+  QCOMPARE( watershedNode->outputHydrograph()->valueCount(), 0 );
+  QCOMPARE( link1->outputHydrograph()->valueCount(), 0 );
+  QCOMPARE( bc3->outputHydrograph()->valueCount(), 0 );
+  QCOMPARE( junction->outputHydrograph()->valueCount(), 0 );
+
+  timer.start( WAITING_TIME_FOR_LOOP );
+  loop.exec();
+
+  QCOMPARE( watershedNode->outputHydrograph()->valueCount(), 71 );
+  QCOMPARE( link1->outputHydrograph()->valueCount(), 71 );
+  QCOMPARE( bc3->outputHydrograph()->valueCount(), 75 );
+  QCOMPARE( junction->outputHydrograph()->valueCount(), 5 );
+
+  timer.start( WAITING_TIME_FOR_LOOP );
+  loop.exec();
+
+  tw = structure2D->timeWindow();
+  QCOMPARE( tw.start(), QDateTime( QDate( 2010, 02, 01 ), QTime( 1, 55, 0 ), Qt::UTC ) );
+  QCOMPARE( tw.end(), QDateTime( QDate( 2010, 02, 01 ), QTime( 2, 48, 45 ), Qt::UTC ) );
 }
 
 
