@@ -17,6 +17,8 @@ email                : vcloarec at gmail dot com
 #include "reosprocess.h"
 #include "QDir"
 #include <filesystem>
+#include <QTimer>
+
 
 const char *data_path()
 {
@@ -107,4 +109,13 @@ bool equal( const QPolygonF &poly1, const QPolygonF &poly2 )
   }
 
   return true;
+}
+
+void simulateEventLoop( int durationMs )
+{
+  QTimer timer;
+  QEventLoop loop;
+  QObject::connect( &timer, &QTimer::timeout, &loop, &QEventLoop::quit );
+  timer.start( durationMs );
+  loop.exec();
 }

@@ -43,6 +43,8 @@ class REOSCORE_EXPORT ReosTimeWindow
 
     bool isValid() const;
 
+    bool operator==( const ReosTimeWindow &other );
+
   private:
     QDateTime mStart;
     QDateTime mEnd;

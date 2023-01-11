@@ -23,6 +23,7 @@ ReosHydraulicElementModel::ReosHydraulicElementModel( ReosHydraulicNetwork *pare
 {
   connect( mNetwork, &ReosHydraulicNetwork::elementAdded, this, &ReosHydraulicElementModel::updateElements );
   connect( mNetwork, &ReosHydraulicNetwork::elementRemoved, this, &ReosHydraulicElementModel::updateElements );
+  connect( mNetwork, &ReosHydraulicNetwork::hasBeenReset, this, &ReosHydraulicElementModel::updateElements );
 }
 
 int ReosHydraulicElementModel::rowCount( const QModelIndex & ) const

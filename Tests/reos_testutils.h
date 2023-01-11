@@ -37,6 +37,8 @@ bool equal( double a, double b, double precision );
 
 bool equal( const QPolygonF &poly1, const QPolygonF &poly2 );
 
+void simulateEventLoop( int durationMs );
+
 class ModuleProcessControler: public QObject
 {
   public:

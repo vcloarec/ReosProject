@@ -475,11 +475,9 @@ void ReosHecrasTesting::importAndLaunchStructure()
   upstreamBc->setGaugedHydrographIndex( 0 );
   QVERIFY( upstreamBc->outputHydrograph()->valueCount() == 0 );
   //We need the end of the current task to have updated output hydrograph
-  QTimer timer;
-  QEventLoop loop;
-  connect( &timer, &QTimer::timeout, &loop, &QEventLoop::quit );
-  timer.start( WAITING_TIME_FOR_LOOP );
-  loop.exec();
+
+  simulateEventLoop( WAITING_TIME_FOR_LOOP );
+
   QVERIFY( upstreamBc->outputHydrograph()->valueCount() == 7 );
 
   // setup time interval simulation
@@ -555,7 +553,6 @@ void ReosHecrasTesting::importAndLaunchStructure()
 
 void ReosHecrasTesting::simulationResults()
 {
-  qDebug() << "!!!!!!!!!!!!!!  Test: createControllerInstance";
   QString projectPath = data_path() + QStringLiteral( "/hecras/simple/calculated/simple.prj" );
 
   ReosHydraulicNetwork *network = new ReosHydraulicNetwork( &mRootModule, mGisEngine, mWatershedModule );
@@ -593,6 +590,14 @@ void ReosHecrasTesting::simulationResults()
   QCOMPARE( simResult->groupIsScalar( 1 ), false );
   QCOMPARE( simResult->datasetValuesCount( 0, 0 ), 1746 ) ;
   QCOMPARE( simResult->datasetValues( 0, 0 ).at( 1258 ), 2.000097513198853 ) ;
+
+  simulateEventLoop( WAITING_TIME_FOR_LOOP );
+
+  ReosTimeWindow tw = structure->timeWindow();
+  QCOMPARE( tw.start(), QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( tw.end(), QDateTime( QDate( 2000, 01, 01 ), QTime( 12, 0, 0 ), Qt::UTC ) );
+  QVERIFY( tw == mGisEngine->mapTimeWindow() );
+
 }
 
 QTEST_MAIN( ReosHecrasTesting )
