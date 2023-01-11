@@ -248,6 +248,7 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   // and we tet the time window settings
 
   ReosTimeWindow tw = structure2D->timeWindow();
+  ReosTimeWindow mtw;
 
   QCOMPARE( tw.start(), QDateTime( QDate( 2010, 02, 01 ), QTime( 1, 55, 0 ), Qt::UTC ) );
   QCOMPARE( tw.end(), QDateTime( QDate( 2010, 02, 01 ), QTime( 2, 48, 45 ), Qt::UTC ) );
@@ -258,6 +259,8 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   tw = structure2D->timeWindow();
   QCOMPARE( tw.start(), QDateTime( QDate( 2010, 02, 01 ), QTime( 1, 58, 0 ), Qt::UTC ) );
   QCOMPARE( tw.end(), QDateTime( QDate( 2010, 02, 01 ), QTime( 2, 53, 45 ), Qt::UTC ) );
+  mtw = mGisEngine->mapTimeWindow();
+  QVERIFY( tw == mtw );
 
   structure2D->timeWindowSettings()->setOriginStart( ReosTimeWindowSettings::End );
   structure2D->timeWindowSettings()->startOffset()->setValue( ReosDuration( -2, ReosDuration::hour ) );
@@ -265,6 +268,8 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   tw = structure2D->timeWindow();
   QCOMPARE( tw.start(), QDateTime( QDate( 2010, 02, 01 ), QTime( 0, 48, 45 ), Qt::UTC ) );
   QCOMPARE( tw.end(), QDateTime( QDate( 2010, 02, 01 ), QTime( 2, 53, 45 ), Qt::UTC ) );
+  mtw = mGisEngine->mapTimeWindow();
+  QVERIFY( tw == mtw );
 
   structure2D->timeWindowSettings()->startOffset()->setValue( ReosDuration( 0, ReosDuration::minute ) );
   structure2D->timeWindowSettings()->endOffset()->setValue( ReosDuration( 0, ReosDuration::minute ) );
@@ -273,13 +278,12 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   tw = structure2D->timeWindow();
   QCOMPARE( tw.start(), QDateTime( QDate( 2010, 02, 01 ), QTime( 1, 55, 0 ), Qt::UTC ) );
   QCOMPARE( tw.end(), QDateTime( QDate( 2010, 02, 01 ), QTime( 2, 48, 45 ), Qt::UTC ) );
+  mtw = mGisEngine->mapTimeWindow();
+  QVERIFY( tw == mtw );
 
-  QTimer timer;
-  QEventLoop loop;
-  connect( &timer, &QTimer::timeout, &loop, &QEventLoop::quit );
+
   // we have to wait that upstream calculation is finished
-  timer.start( WAITING_TIME_FOR_LOOP );
-  loop.exec();
+  simulateEventLoop( WAITING_TIME_FOR_LOOP );
 
   ReosSimulationProcess *simulationProcess =
     structure2D->createSimulationProcess( mNetwork->currentScheme()->calculationContext(), error );
@@ -288,8 +292,7 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   controller->waitForFinished();
 
   // we have to wait that propagation is fnished in the last link
-  timer.start( WAITING_TIME_FOR_LOOP );
-  loop.exec();
+  simulateEventLoop( WAITING_TIME_FOR_LOOP );
 
   QCOMPARE( bc3->outputHydrograph()->valueCount(), 75 );
   ReosHydrograph *downstreamHydro = junctionDownstream->outputHydrograph();
@@ -297,15 +300,14 @@ void ReoHydraulicNetworkTest::calculationPropagation()
 
   // Update calculation context on the downstream bc of the structure, that should change nothing
   bc3->updateCalculationContext( mNetwork->currentScheme()->calculationContext() );
-  timer.start( WAITING_TIME_FOR_LOOP );
-  loop.exec();
+  simulateEventLoop( WAITING_TIME_FOR_LOOP );
+
   QCOMPARE( bc3->outputHydrograph()->valueCount(), 75 );
 
   structure2D->updateResults( mNetwork->currentScheme()->id() );
   QCOMPARE( bc3->outputHydrograph()->valueCount(), 75 );
 
-  timer.start( WAITING_TIME_FOR_LOOP );
-  loop.exec();
+  simulateEventLoop( WAITING_TIME_FOR_LOOP );
 
   QCOMPARE( bc3->outputHydrograph()->valueCount(), 75 );
 
@@ -333,9 +335,10 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   tw = structure2D->timeWindow();
   QCOMPARE( tw.start(), QDateTime() );
   QCOMPARE( tw.end(), QDateTime() );
+  mtw = mGisEngine->mapTimeWindow();
+  QVERIFY( tw == mtw );
 
-  timer.start( WAITING_TIME_FOR_LOOP );
-  loop.exec();
+  simulateEventLoop( WAITING_TIME_FOR_LOOP );
 
   QCOMPARE( watershedNode->outputHydrograph()->valueCount(), 0 );
   QCOMPARE( link1->outputHydrograph()->valueCount(), 0 );
@@ -345,6 +348,8 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   tw = structure2D->timeWindow();
   QCOMPARE( tw.start(),  QDateTime( QDate( 2010, 02, 01 ), QTime( 1, 55, 0 ), Qt::UTC ) );
   QCOMPARE( tw.end(), QDateTime( QDate( 2010, 02, 01 ), QTime( 2, 15, 0 ), Qt::UTC ) );
+  mtw = mGisEngine->mapTimeWindow();
+  QVERIFY( tw == mtw );
 
   mNetwork->changeScheme( 0 );
   structure2D->updateCalculationContext( mNetwork->calculationContext() );
@@ -353,20 +358,20 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   QCOMPARE( bc3->outputHydrograph()->valueCount(), 0 );
   QCOMPARE( junction->outputHydrograph()->valueCount(), 0 );
 
-  timer.start( WAITING_TIME_FOR_LOOP );
-  loop.exec();
+  simulateEventLoop( WAITING_TIME_FOR_LOOP );
 
   QCOMPARE( watershedNode->outputHydrograph()->valueCount(), 71 );
   QCOMPARE( link1->outputHydrograph()->valueCount(), 71 );
   QCOMPARE( bc3->outputHydrograph()->valueCount(), 75 );
   QCOMPARE( junction->outputHydrograph()->valueCount(), 5 );
 
-  timer.start( WAITING_TIME_FOR_LOOP );
-  loop.exec();
+  simulateEventLoop( WAITING_TIME_FOR_LOOP );
 
   tw = structure2D->timeWindow();
   QCOMPARE( tw.start(), QDateTime( QDate( 2010, 02, 01 ), QTime( 1, 55, 0 ), Qt::UTC ) );
   QCOMPARE( tw.end(), QDateTime( QDate( 2010, 02, 01 ), QTime( 2, 48, 45 ), Qt::UTC ) );
+  mtw = mGisEngine->mapTimeWindow();
+  QVERIFY( tw == mtw );
 }
 
 

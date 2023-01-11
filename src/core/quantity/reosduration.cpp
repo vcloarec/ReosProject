@@ -404,3 +404,8 @@ bool ReosTimeWindow::isValid() const
 {
   return mStart.isValid() && mEnd.isValid();
 }
+
+bool ReosTimeWindow::operator==(const ReosTimeWindow &other)
+{
+    return mStart == other.mStart && mEnd == other.mEnd;
+}

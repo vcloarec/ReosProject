@@ -208,8 +208,12 @@ ReosHydraulicNetworkElement *ReosHydraulicNetwork::addElement( ReosHydraulicNetw
   connect( elem, &ReosHydraulicNetworkElement::dirtied, this, &ReosModule::dirtied );
   connect( elem, &ReosHydraulicNetworkElement::timeStepChanged, this, &ReosHydraulicNetwork::timeStepChanged );
   if ( elem->type().contains( ReosHydraulicStructure2D::staticType() ) )
-    connect( elem, &ReosHydraulicNetworkElement::timeWindowChanged, this, &ReosHydraulicNetwork::mapTimeWindowChanged );
+    connect( elem, &ReosHydraulicNetworkElement::timeWindowChanged, this, &ReosHydraulicNetwork::onMapTimeWindowChanged );
   emit timeStepChanged();
+
+  if ( elem->type().contains( ReosHydraulicStructure2D::staticType() ) )
+    onMapTimeWindowChanged();
+
   return elem;
 }
 
@@ -419,6 +423,12 @@ void ReosHydraulicNetwork::changeScheme( int newSchemeIndex )
   setCurrentScheme( newSchemeIndex );
 }
 
+void ReosHydraulicNetwork::onMapTimeWindowChanged()
+{
+  if ( mGisEngine )
+    mGisEngine->setMapTimeWindow( mapTimeWindow() );
+}
+
 int ReosHydraulicNetwork::currentSchemeIndex() const
 {
   return mCurrentSchemeIndex;
@@ -452,6 +462,7 @@ void ReosHydraulicNetwork::setCurrentScheme( int newSchemeIndex )
     if ( elem->type().contains( ReosHydraulicStructure2D::staticType() ) )
       elem->updateCalculationContext( calculationContext() );
 
+  onMapTimeWindowChanged();
   emit schemeChanged();
   emit dirtied();
 }

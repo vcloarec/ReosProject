@@ -917,6 +917,11 @@ void ReosHydraulicStructure2D::initConnection()
     } );
   }
 
+  if ( mTimeWindowSettings )
+  {
+    connect( mTimeWindowSettings, &ReosTimeWindowSettings::dataChanged, this, &ReosHydraulicStructure2D::timeWindowChanged );
+  }
+
   connect( this, &ReosHydraulicStructure2D::simulationResultChanged, mNetwork, &ReosHydraulicNetwork::timeStepChanged );
 }
 
@@ -1242,10 +1247,10 @@ void ReosHydraulicStructure2D::restoreConfiguration( ReosHydraulicScheme *scheme
   for ( ReosHydraulicSimulation *sim : std::as_const( mSimulations ) )
     sim->restoreConfiguration( scheme );
 
-  mTimeWindowSettings->decode( encodedElement.getEncodedData( QStringLiteral( "time-window-settings" ) ) );
-
-  setCurrentSimulation( mCurrentSimulationIndex = simulationIndexFromId( simulationId ) );
+  setCurrentSimulation( simulationIndexFromId( simulationId ) );
   updateResults( scheme->id() );
+
+  mTimeWindowSettings->decode( encodedElement.getEncodedData( QStringLiteral( "time-window-settings" ) ) );
 }
 
 ReosMapExtent ReosHydraulicStructure2D::extent() const
@@ -1281,14 +1286,11 @@ ReosTimeWindow ReosHydraulicStructure2D::timeWindow() const
     const QList<ReosHydraulicStructureBoundaryCondition *> bcs = boundaryConditions();
     for ( ReosHydraulicStructureBoundaryCondition *bc : bcs )
     {
-      if ( bc->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::InputFlow )
-      {
-        tw = tw.unite( bc->timeWindow() );
-      }
+      tw = tw.unite( bc->timeWindow() );
     }
   }
 
-  return mTimeWindowSettings->timeWindow( tw );;
+  return mTimeWindowSettings->timeWindow( tw );
 }
 
 QIcon ReosHydraulicStructure2D::icon() const

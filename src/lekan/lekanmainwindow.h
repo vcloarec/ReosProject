@@ -51,7 +51,6 @@ class LekanMainWindow : public ReosMainWindow
 
   private slots:
 
-    void onTimeWindowChanged();
     void onMapTimeStepChanged();
 
   private:

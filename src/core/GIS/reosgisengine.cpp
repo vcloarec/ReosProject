@@ -939,6 +939,16 @@ QPair<QDateTime, QDateTime> ReosGisEngine::temporalRange() const
   return QPair<QDateTime, QDateTime>();
 }
 
+ReosTimeWindow ReosGisEngine::mapTimeWindow() const
+{
+  return ReosTimeWindow( temporalRange() );
+}
+
+void ReosGisEngine::setMapTimeWindow( const ReosTimeWindow &timeWindow )
+{
+  setTemporalRange( timeWindow.start(), timeWindow.end() );
+}
+
 bool ReosGisEngine::createProjectFile( const QString &projectFileName, bool keepLayer )
 {
   std::unique_ptr<QgsProject> project = std::make_unique<QgsProject>();

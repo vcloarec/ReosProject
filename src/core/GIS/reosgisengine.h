@@ -232,6 +232,10 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     //! Returns the temporal range
     QPair<QDateTime, QDateTime> temporalRange() const;
 
+    ReosTimeWindow mapTimeWindow() const;
+
+    void setMapTimeWindow( const ReosTimeWindow &timeWindow );
+
     /**
      *  Creates new project file with the current project, returns true if succefull. if \a keepLayer is true,
      *  the layers currently prensent in the project will be added to the new project

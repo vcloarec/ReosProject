@@ -99,7 +99,6 @@ LekanMainWindow::LekanMainWindow( QWidget *parent )
 
   mWatershedModule = new ReosWatershedModule( rootModule(), mGisEngine );
   mHydraulicNetwork = new ReosHydraulicNetwork( rootModule(), mGisEngine, mWatershedModule );
-  connect( mHydraulicNetwork, &ReosHydraulicNetwork::mapTimeWindowChanged, this, &LekanMainWindow::onTimeWindowChanged );
 
   mDockHydraulicNetwork = new ReosHydraulicNetworkDockWidget( mHydraulicNetwork, mWatershedModule, guiContext );
   mDockHydraulicNetwork->setObjectName( QStringLiteral( "hydraulicDock" ) );
@@ -113,7 +112,6 @@ LekanMainWindow::LekanMainWindow( QWidget *parent )
   mDockWatershed->setObjectName( QStringLiteral( "watershedDock" ) );
 
   mWatershedWidget = mDockWatershed->watershedWidget();
-  connect( mWatershedWidget, &ReosWatershedWidget::timeWindowChanged, this, &LekanMainWindow::onTimeWindowChanged );
   connect( mWatershedWidget, &ReosWatershedWidget::mapTimeStepChanged, this, &LekanMainWindow::onMapTimeStepChanged );
   mMap->addSelectToolTarget( mWatershedWidget->descriptionKeyWatershed() );
 
@@ -193,12 +191,6 @@ bool LekanMainWindow::openProject()
   mHydraulicNetwork->decode( lekanProject.getEncodedData( QStringLiteral( "hydaulic-network" ) ), path, baseName );
 
   return true;
-}
-
-void LekanMainWindow::onTimeWindowChanged()
-{
-  ReosTimeWindow tw = mHydraulicNetwork->mapTimeWindow();
-  mMap->setTemporalRange( tw.start(), tw.end() );
 }
 
 void LekanMainWindow::onMapTimeStepChanged()

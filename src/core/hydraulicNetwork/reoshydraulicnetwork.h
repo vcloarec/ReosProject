@@ -225,10 +225,12 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     void schemeChanged();
     void loaded();
     void timeStepChanged();
-    void mapTimeWindowChanged();
 
   public slots:
     void changeScheme( int newSchemeIndex );
+
+  private slots:
+    void onMapTimeWindowChanged();
 
   private:
     ReosGisEngine *mGisEngine = nullptr;
