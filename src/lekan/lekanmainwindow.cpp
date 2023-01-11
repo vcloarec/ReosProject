@@ -198,7 +198,8 @@ void LekanMainWindow::onMapTimeStepChanged()
   ReosDuration ts = mWatershedWidget->mapTimeStep();
 
   ReosDuration hnwTs = mHydraulicNetworkWidget->mapTimeStep();
-  if ( hnwTs != ReosDuration() && hnwTs < ts )
+  if ( hnwTs != ReosDuration() &&
+       ( ts == ReosDuration() || hnwTs < ts ) )
     ts = hnwTs;
 
   mMap->setTimeStep( ts );
