@@ -198,7 +198,7 @@ void ReosHydraulicNetworkWidget::closePropertiesWidget()
 ReosDuration ReosHydraulicNetworkWidget::mapTimeStep() const
 {
   if ( mCurrentSelectedElement )
-    mCurrentSelectedElement->mapTimeStep();
+    return mCurrentSelectedElement->mapTimeStep();
 
   return ReosDuration();
 }

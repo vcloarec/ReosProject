@@ -1019,7 +1019,6 @@ bool ReosMeshFrame_p::activateDataset( const QString &id, bool update )
     mMeshLayer->temporalProperties()->setIsActive( true );
   }
 
-
   if ( update )
     update3DRenderer();
 
