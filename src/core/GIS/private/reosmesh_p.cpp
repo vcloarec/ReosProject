@@ -1005,9 +1005,20 @@ bool ReosMeshFrame_p::activateDataset( const QString &id, bool update )
     mScalarShaderSettings->setCurrentSymbology( symbology );
 
   int index = mDatasetGroupsIndex.value( id, -1 );
-  QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
-  settings.setActiveScalarDatasetGroup( index );
-  mMeshLayer->setRendererSettings( settings );
+  if ( id == verticesElevationDatasetId() )
+  {
+    mMeshLayer->temporalProperties()->setIsActive( false );
+    mMeshLayer->setStaticScalarDatasetIndex( QgsMeshDatasetIndex( index, 0 ) );
+  }
+  else
+  {
+    mMeshLayer->setStaticScalarDatasetIndex( - 1 );
+    QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
+    settings.setActiveScalarDatasetGroup( index );
+    mMeshLayer->setRendererSettings( settings );
+    mMeshLayer->temporalProperties()->setIsActive( true );
+  }
+
 
   if ( update )
     update3DRenderer();
