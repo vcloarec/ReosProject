@@ -33,9 +33,10 @@ email                : vcloarec at gmail dot com
 #include "reoshydraulicsimulationresults.h"
 #include "reos_testutils.h"
 #include "reosgriddedrainitem.h"
+#include "reostimewindowsettings.h"
 
 
-static void copyDirectory( const QDir &source, const QString newPath )
+static void copyDirectory( const QDir &source, const QString &newPath )
 {
   const QStringList dirEntries = source.entryList( QDir::NoDotAndDotDot | QDir::Dirs );
   for ( const QString &dir : dirEntries )
@@ -58,11 +59,11 @@ class ReosHecrasTesting : public QObject
     void initTestCase();
     void cleanupTestCase();
 
-//#ifdef _MSC_VER
+#ifdef _MSC_VER
     void availableVersion();
     void createControllerInstance();
     void getControllerPlans();
-//#endif
+#endif
 
     void createDssFile();
 
@@ -113,7 +114,7 @@ void ReosHecrasTesting::cleanupTestCase()
 }
 
 
-//#ifdef _MSC_VER
+#ifdef _MSC_VER
 void ReosHecrasTesting::availableVersion()
 {
   QStringList versions = ReosHecRasController::availableVersion();
@@ -151,7 +152,7 @@ void ReosHecrasTesting::getControllerPlans()
   QVERIFY( !controller.computeCurrentPlan().isEmpty() );
 }
 
-//#endif
+#endif
 void ReosHecrasTesting::createDssFile()
 {
   qDebug() << "!!!!!!!!!!!!!!  Test: createControllerInstance";
@@ -425,8 +426,6 @@ void ReosHecrasTesting::importAndLaunchStructure()
   network->setCurrentScheme( 0 );
   ReosHydraulicScheme *scheme = network->currentScheme();
   QVERIFY( scheme );
-  scheme->startTime()->setValue( QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ) );
-  scheme->endTime()->setValue( QDateTime( QDate( 2000, 01, 01 ), QTime( 12, 0, 0 ), Qt::UTC ) );
 
   std::unique_ptr<ReosHecRasStructureImporter> importer( new ReosHecRasStructureImporter( path, network->context() ) );
   ReosHydraulicStructure2D *structure = ReosHydraulicStructure2D::create( importer.release(), network->context() );
@@ -459,9 +458,13 @@ void ReosHecrasTesting::importAndLaunchStructure()
   upstreamBc->setDefaultConditionType( ReosHydraulicStructureBoundaryCondition::Type::InputFlow );
   QVERIFY( upstreamBc->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::InputFlow );
 
+  structure->timeWindowSettings()->automaticallyDefined()->setValue( false );
+  structure->timeWindowSettings()->userStartTime()->setValue( QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ) );
+  structure->timeWindowSettings()->userEndTime()->setValue( QDateTime( QDate( 2000, 01, 01 ), QTime( 12, 0, 0 ), Qt::UTC ) );
+
   // Setup an hydrograph
   std::unique_ptr<ReosHydrograph> hydrograph( new ReosHydrograph );
-  hydrograph->setReferenceTime( scheme->startTime()->value() );
+  hydrograph->setReferenceTime( QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ) );
   hydrograph->setValue( ReosDuration( 0, ReosDuration::minute ), 0 );
   hydrograph->setValue( ReosDuration( 5, ReosDuration::minute ), 10 );
   hydrograph->setValue( ReosDuration( 8.3, ReosDuration::minute ), 12 );
@@ -469,7 +472,7 @@ void ReosHecrasTesting::importAndLaunchStructure()
   hydrograph->setValue( ReosDuration( 30, ReosDuration::minute ), 35 );
   hydrograph->setValue( ReosDuration( 60, ReosDuration::minute ), 1 );
   hydrograph->setValue( ReosDuration( 2, ReosDuration::day ), 0 );
-  //QVERIFY( hydrograph->valueCount() == 6 );
+  QVERIFY( hydrograph->valueCount() == 7 );
   upstreamBc->gaugedHydrographsStore()->addHydrograph( hydrograph.release() );
   upstreamBc->setInternalHydrographOrigin( ReosHydrographJunction::GaugedHydrograph );
   upstreamBc->setGaugedHydrographIndex( 0 );
@@ -480,21 +483,22 @@ void ReosHecrasTesting::importAndLaunchStructure()
   connect( &timer, &QTimer::timeout, &loop, &QEventLoop::quit );
   timer.start( WAITING_TIME_FOR_LOOP );
   loop.exec();
-  //QVERIFY( upstreamBc->outputHydrograph()->valueCount() == 6 );
+  QVERIFY( upstreamBc->outputHydrograph()->valueCount() == 7 );
 
-  // set up time interval simulation
+  // setup time interval simulation
   hecSim->setComputeInterval( ReosDuration( 10, ReosDuration::second ) );
   hecSim->setOutputInterval( ReosDuration( 1, ReosDuration::minute ) );
   hecSim->setDetailledInterval( ReosDuration( 1, ReosDuration::minute ) );
   hecSim->setMappingInterval( ReosDuration( 1, ReosDuration::minute ) );
 
-  simulation->prepareInput( structure, scheme->calculationContext() );
+  ReosSimulationData simulationData;
+  simulation->prepareInput( structure, simulationData, scheme->calculationContext() );
 
   ReosHecRasProject projectAfterPreparation( path );
   ReosHecRasPlan planAfterPreparation = projectAfterPreparation.currentPlan();
 
-  QCOMPARE( planAfterPreparation.startTime(), scheme->startTime()->value() );
-  QCOMPARE( planAfterPreparation.endTime(), scheme->endTime()->value() );
+  QCOMPARE( planAfterPreparation.startTime(), QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( planAfterPreparation.endTime(), QDateTime( QDate( 2000, 01, 01 ), QTime( 12, 0, 0 ), Qt::UTC ) );
   QCOMPARE( planAfterPreparation.computeInterval(), ReosDuration( 10.0, ReosDuration::second ) );
   QCOMPARE( planAfterPreparation.outputIntevall(), ReosDuration( 1.0, ReosDuration::minute ) );
   QCOMPARE( planAfterPreparation.detailedOutputInteval(), ReosDuration( 1.0, ReosDuration::minute ) );
@@ -535,7 +539,7 @@ void ReosHecrasTesting::importAndLaunchStructure()
   network->clear();
   network->decode( encodedNetwork, QFileInfo( path ).dir().path(), "project.lkn" );
 
-  structure = qobject_cast<ReosHydraulicStructure2D *>( network->getElements( ReosHydraulicStructure2D::staticType() ).at( 0 ) );
+  structure = qobject_cast<ReosHydraulicStructure2D *>( network->hydraulicNetworkElements( ReosHydraulicStructure2D::staticType() ).at( 0 ) );
   QVERIFY( structure );
   QVERIFY( structure->boundaryConditions().count() == 2 );
   QVERIFY( structure->structureImporter() );
@@ -593,7 +597,6 @@ void ReosHecrasTesting::simulationResults()
   QCOMPARE( simResult->datasetValuesCount( 0, 0 ), 1746 ) ;
   QCOMPARE( simResult->datasetValues( 0, 0 ).at( 1258 ), 2.000097513198853 ) ;
 }
-
 
 QTEST_MAIN( ReosHecrasTesting )
 #include "test_hecras.moc"
