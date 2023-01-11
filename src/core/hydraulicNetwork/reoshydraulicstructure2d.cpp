@@ -184,6 +184,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( ReosStructureImporter *impor
   , mMesh( importer->mesh( context.network()->gisEngine()->crs() ) )
   , mStructureImporter( importer )
   , mProfilesCollection( new ReosHydraulicStructureProfilesCollection( this ) )
+  , mTimeWindowSettings( new ReosTimeWindowSettings( this ) )
 {
   initConnection();
 

@@ -23,6 +23,7 @@
 #include "reoshydraulicscheme.h"
 #include "reossettings.h"
 #include "reoshecrassimulationresults.h"
+#include "reostimewindowsettings.h"
 
 #include <QFileInfo>
 
@@ -258,7 +259,10 @@ ReosEncodedElement ReosHecRasSimulation::encode() const
   return element;
 }
 
-void ReosHecRasSimulation::prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosSimulationData &data, const ReosCalculationContext &calculationContext )
+void ReosHecRasSimulation::prepareInput(
+  ReosHydraulicStructure2D *hydraulicStructure,
+  const ReosSimulationData &data,
+  const ReosCalculationContext &calculationContext )
 {
   const ReosHecRasPlan currentPlan = mProject->plan( mCurrentPlan );
   ReosHecRasFlow flow = mProject->flow( currentPlan.flowFile() );
@@ -268,8 +272,9 @@ void ReosHecRasSimulation::prepareInput( ReosHydraulicStructure2D *hydraulicStru
   QList<ReosHecRasFlow::BoundaryFlow> boundaryToModify;
   QString dssFilePath = mProject->directory().filePath( QStringLiteral( "input_%1.dss" ).arg( mCurrentPlan ) );
 
-  const QDateTime startTime = calculationContext.timeWindow().start();
-  const QDateTime endTime = calculationContext.timeWindow().end();
+  ReosTimeWindow tw = hydraulicStructure->timeWindow();
+  const QDateTime startTime = tw.start();
+  const QDateTime endTime = tw.end();
 
   currentPlan.changeSimulationTimeInFile( startTime, endTime, this );
 
