@@ -59,7 +59,7 @@ class ReosHecrasTesting : public QObject
     void initTestCase();
     void cleanupTestCase();
 
-#ifdef _MSC_VER
+#ifdef _WIN32
     void availableVersion();
     void createControllerInstance();
     void getControllerPlans();
@@ -114,7 +114,7 @@ void ReosHecrasTesting::cleanupTestCase()
 }
 
 
-#ifdef _MSC_VER
+#ifdef _WIN32
 void ReosHecrasTesting::availableVersion()
 {
   QStringList versions = ReosHecRasController::availableVersion();
@@ -155,7 +155,6 @@ void ReosHecrasTesting::getControllerPlans()
 #endif
 void ReosHecrasTesting::createDssFile()
 {
-  qDebug() << "!!!!!!!!!!!!!!  Test: createControllerInstance";
   const QString newDssFile = tempFile( "/dss_file_0" );
   std::unique_ptr<ReosDssFile> dssFile( new ReosDssFile( newDssFile ) );
   QVERIFY( !dssFile->isValid() );
@@ -172,7 +171,6 @@ void ReosHecrasTesting::createDssFile()
 
 void ReosHecrasTesting::createTimeSerie()
 {
-  qDebug() << "!!!!!!!!!!!!!!  Test: createControllerInstance";
   QString stringPath( QStringLiteral( "/GrouP/LoCation/FLOW///ThisVersion/" ) );
   ReosDssPath path( stringPath );
   QVERIFY( path.isValid() );
@@ -245,7 +243,6 @@ void ReosHecrasTesting::createTimeSerie()
 
 void ReosHecrasTesting::writeGridInDss()
 {
-  qDebug() << "!!!!!!!!!!!!!!  Test: createControllerInstance";
   QString gribFile( testFile( QStringLiteral( "grib/arome-antilles" ) ) );
   QString variable( QStringLiteral( "Total precipitation rate [kg/(m^2*s)]" ) );
   std::unique_ptr<ReosGriddedRainfall> rainfall(
