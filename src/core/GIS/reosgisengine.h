@@ -43,7 +43,7 @@ class ReosCoordinateSystemTransformer_impl;
  * that can be used from another thread.
  * Default constructor of this class create a instance that can't be used ti transform coordinates (does nothing).
  */
-class ReosCoordinateSystemTransformer
+class REOSCORE_EXPORT ReosCoordinateSystemTransformer
 {
   public:
     ReosCoordinateSystemTransformer();
