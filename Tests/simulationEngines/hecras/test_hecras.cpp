@@ -486,7 +486,7 @@ void ReosHecrasTesting::importAndLaunchStructure()
   hecSim->setDetailledInterval( ReosDuration( 1, ReosDuration::minute ) );
   hecSim->setMappingInterval( ReosDuration( 1, ReosDuration::minute ) );
 
-  ReosSimulationData simulationData;
+  ReosSimulationData simulationData = structure->simulationData();
   simulation->prepareInput( structure, simulationData, scheme->calculationContext() );
 
   ReosHecRasProject projectAfterPreparation( path );

@@ -1020,8 +1020,11 @@ ReosSimulationData ReosHydraulicStructure2D::simulationData() const
 
   ret.meshData = mMesh->meshDataFrame();
 
-  ret.roughnessValues.reset( roughnessStructure()->structure()->values( mesh()->crs() ) );
-  ret.defaultRoughness = roughnessStructure()->defaultRoughness()->value();
+  if ( mRoughnessStructure )
+  {
+    ret.roughnessValues.reset( mRoughnessStructure->structure()->values( mesh()->crs() ) );
+    ret.defaultRoughness = mRoughnessStructure->defaultRoughness()->value();
+  }
 
   ret.coordinateTransformer = mNetwork->gisEngine()->getCoordinateTransformer();
 
