@@ -341,15 +341,17 @@ bool ReosSimulationEngineFactory::hasCapability( SimulationEngineCapability capa
 }
 
 ReosSimulationProcessDummy::ReosSimulationProcessDummy(
+  const ReosHydraulicSimulationDummy *sim,
   const ReosCalculationContext &context,
   const QList<ReosHydraulicStructureBoundaryCondition *> &boundaries )
   : ReosSimulationProcess( context, boundaries )
+  , mSchemeId( context.schemeId() )
+  , mSim( sim )
 {
   for ( ReosHydraulicStructureBoundaryCondition *bc : boundaries )
   {
     if ( bc->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::InputFlow )
     {
-      int a = bc->outputHydrograph()->valueCount();
       mOuput.addOther( bc->outputHydrograph() );
     }
   }
@@ -357,6 +359,7 @@ ReosSimulationProcessDummy::ReosSimulationProcessDummy(
 
 void ReosSimulationProcessDummy::start()
 {
+  mSim->mSchemeIdHasResult.insert( mSchemeId );
   mIsSuccessful = false;
   QThread::msleep( 1000 );
   mIsSuccessful = true;
@@ -369,7 +372,8 @@ const ReosHydrograph *ReosSimulationProcessDummy::output() const
 
 ReosSimulationProcess *ReosHydraulicSimulationDummy::getProcess( ReosHydraulicStructure2D *structure, const ReosCalculationContext &calculationContext ) const
 {
-  return new ReosSimulationProcessDummy( calculationContext, structure->boundaryConditions() );
+  calculationContext.schemeId();
+  return new ReosSimulationProcessDummy( this, calculationContext, structure->boundaryConditions() );
 }
 
 void ReosHydraulicSimulationDummy::saveSimulationResult(
@@ -400,4 +404,9 @@ ReosHydraulicSimulationResults *ReosHydraulicSimulationDummy::loadSimulationResu
   QObject *parent ) const
 {
   return new ReosHydraulicSimulationResultsDummy( this, parent );
+}
+
+bool ReosHydraulicSimulationDummy::hasResult( const ReosHydraulicStructure2D *, const QString &schemeId ) const
+{
+  return mSchemeIdHasResult.contains( schemeId );
 }

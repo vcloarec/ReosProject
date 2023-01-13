@@ -232,12 +232,14 @@ class REOSCORE_EXPORT ReosSimulationEngineRegistery
     void loadDynamicLibrary();
 };
 
+class ReosHydraulicSimulationDummy;
 
 class ReosSimulationProcessDummy : public ReosSimulationProcess
 {
     Q_OBJECT
   public:
     ReosSimulationProcessDummy(
+      const ReosHydraulicSimulationDummy *sim,
       const ReosCalculationContext &context,
       const QList<ReosHydraulicStructureBoundaryCondition *> &boundaries );
 
@@ -247,6 +249,8 @@ class ReosSimulationProcessDummy : public ReosSimulationProcess
 
   private:
     ReosHydrograph mOuput;
+    QString mSchemeId;
+    const ReosHydraulicSimulationDummy *mSim;
 };
 
 /**
@@ -275,7 +279,7 @@ class REOSCORE_EXPORT ReosHydraulicSimulationDummy : public ReosHydraulicSimulat
 
     virtual ReosHydraulicSimulationResults *loadSimulationResults( ReosHydraulicStructure2D *, const QString &, QObject *parent ) const override;;
 
-    virtual bool hasResult( const ReosHydraulicStructure2D *, const QString & ) const override {return true;};
+    virtual bool hasResult(const ReosHydraulicStructure2D *, const QString & schemeId) const override;;
 
     virtual void removeResults( const ReosHydraulicStructure2D *, const QString & ) const override {};
 
@@ -292,7 +296,10 @@ class REOSCORE_EXPORT ReosHydraulicSimulationDummy : public ReosHydraulicSimulat
   private:
     mutable QMap<QString, ReosHydrograph *> mLastHydrographs;
 
+    mutable QSet<QString> mSchemeIdHasResult;
+
     friend class ReosHydraulicSimulationResultsDummy;
+    friend class ReosSimulationProcessDummy;;
 };
 
 class ReosSimulationEngineFactoryDummy : public ReosSimulationEngineFactory
