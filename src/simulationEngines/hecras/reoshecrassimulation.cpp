@@ -436,7 +436,7 @@ ReosTimeWindow ReosHecRasSimulation::externalBoundaryConditionTimeWindow( const 
       }
     }
   }
-  else
+  else if ( bcFlow.type == ReosHecRasFlow::Type::FlowHydrograph || bcFlow.type == ReosHecRasFlow::Type::StageHydrograph )
   {
     QDateTime startTime;
     if ( bcFlow.useFixedStartTime )
