@@ -244,6 +244,27 @@ QString ReosHydraulicStructureBoundaryCondition::outputPrefixName() const
   return QString();
 }
 
+ReosTimeWindow ReosHydraulicStructureBoundaryCondition::timeWindow() const
+{
+  switch ( conditionType() )
+  {
+    case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
+      break;
+    case ReosHydraulicStructureBoundaryCondition::Type::InputFlow:
+    case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
+      return ReosHydrographJunction::timeWindow();
+      break;
+    case ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally:
+    {
+      if ( mStructure->currentSimulation() )
+        return mStructure->currentSimulation()->externalBoundaryConditionTimeWindow( mBoundaryConditionId );
+    }
+    break;
+  }
+
+  return ReosTimeWindow();
+}
+
 QString ReosHydraulicStructureBoundaryCondition::boundaryConditionId() const
 {
   return mBoundaryConditionId;

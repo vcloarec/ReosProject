@@ -149,6 +149,10 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject
 
     virtual void restoreConfiguration( ReosHydraulicScheme *scheme ) = 0;
 
+    virtual ReosTimeWindow externalTimeWindow() const = 0;
+
+    virtual ReosTimeWindow externalBoundaryConditionTimeWindow( const QString &boundaryId ) const = 0;
+
   signals:
 
     void timeStepChanged();
@@ -280,6 +284,10 @@ class REOSCORE_EXPORT ReosHydraulicSimulationDummy : public ReosHydraulicSimulat
     virtual void saveConfiguration( ReosHydraulicScheme * ) const override {};
 
     virtual void restoreConfiguration( ReosHydraulicScheme * ) override {};
+
+    ReosTimeWindow externalTimeWindow() const override {return ReosTimeWindow();}
+
+    ReosTimeWindow externalBoundaryConditionTimeWindow( const QString & ) const override {return ReosTimeWindow();}
 
   private:
     mutable QMap<QString, ReosHydrograph *> mLastHydrographs;

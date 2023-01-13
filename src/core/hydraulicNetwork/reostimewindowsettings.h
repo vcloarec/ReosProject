@@ -25,7 +25,13 @@ class REOSCORE_EXPORT ReosTimeWindowSettings : public ReosDataObject
     enum OffsetOrigin
     {
       Begin,
-      End
+      End,
+    };
+
+    enum CombineMethod
+    {
+      Intersection,
+      Union,
     };
 
     explicit ReosTimeWindowSettings( QObject *parent );
@@ -44,17 +50,24 @@ class REOSCORE_EXPORT ReosTimeWindowSettings : public ReosDataObject
     ReosParameterDateTime *userStartTime() const;
     ReosParameterDateTime *userEndTime() const;
     ReosParameterBoolean *automaticallyDefined() const;
+    ReosParameterBoolean *useExternalDefinedTimeWindow() const;
 
     ReosEncodedElement encode() const;
 
     void decode( const ReosEncodedElement &element );
 
+    CombineMethod combineMethod() const;
+    void setCombineMethod( CombineMethod newCombineMethod );
+
   protected:
+    ReosParameterBoolean *mUseExternalDefinedTimeWindow = nullptr;
     ReosParameterBoolean *mAutomaticallyDefined = nullptr;
+    CombineMethod mCombineMethod = Intersection;
     ReosParameterDuration *mStartOffset = nullptr;
     ReosParameterDuration *mEndOffset = nullptr;
     OffsetOrigin mOriginStart = Begin;
     OffsetOrigin mOriginEnd = End;
+
 
     ReosParameterDateTime *mUserStartTime = nullptr;
     ReosParameterDateTime *mUserEndTime = nullptr;

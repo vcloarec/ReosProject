@@ -309,8 +309,11 @@ void ReosTelemac2DSimulation::restoreConfiguration( ReosHydraulicScheme *scheme 
 {
   const ReosEncodedElement element = scheme->restoreElementConfig( id() );
 
-  ReosDuration timeStep = ReosDuration::decode( element.getEncodedData( QStringLiteral( "time-step" ) ) );
-  mTimeStep->setValue( timeStep );
+  if ( element.hasEncodedData( QStringLiteral( "time-step" ) ) )
+  {
+    ReosDuration timeStep = ReosDuration::decode( element.getEncodedData( QStringLiteral( "time-step" ) ) );
+    mTimeStep->setValue( timeStep );
+  }
   int period2D = 5;
   if ( element.getData( QStringLiteral( "output-period-2D" ), period2D ) )
     mOutputPeriodResult2D->setValue( period2D );

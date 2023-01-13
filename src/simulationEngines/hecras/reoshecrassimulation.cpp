@@ -291,8 +291,8 @@ void ReosHecRasSimulation::prepareInput(
         if ( bcId == hbc.id() )
         {
           ReosDssPath path;
-          path.setGroup( hbc.area );
-          path.setLocation( hbc.boundaryConditionLine );
+          path.setGroup( hbc.area() );
+          path.setLocation( hbc.boundaryConditionLine() );
 
           switch ( bc->conditionType() )
           {
@@ -387,6 +387,66 @@ void ReosHecRasSimulation::removeResults( const ReosHydraulicStructure2D *, cons
   QFile::remove( meshFile );
 }
 
+ReosTimeWindow ReosHecRasSimulation::externalTimeWindow() const
+{
+  ReosHecRasPlan plan = mProject->plan( mCurrentPlan );
+  return ReosTimeWindow( plan.startTime(), plan.endTime() );
+}
+
+ReosTimeWindow ReosHecRasSimulation::externalBoundaryConditionTimeWindow( const QString &boundaryId ) const
+{
+  if ( !mProject )
+    return ReosTimeWindow();
+
+  const ReosHecRasFlow flow = mProject->flowFromPlan( mCurrentPlan );
+
+  bool found = false;
+  ReosHecRasFlow::BoundaryFlow bcFlow = flow.boundary( boundaryId, found );
+
+  if ( !found )
+    return ReosTimeWindow();
+
+  if ( bcFlow.isDss && !bcFlow.dssFile.isEmpty() )
+  {
+    QFileInfo fileInfo( bcFlow.dssFile );
+    if ( !fileInfo.exists() )
+    {
+      QFileInfo projectFile( mProject->fileName() );
+      bcFlow.dssFile = projectFile.dir().filePath( bcFlow.dssFile );
+
+    }
+    ReosDssFile dssFile( bcFlow.dssFile );
+    if ( dssFile.isValid() )
+    {
+      ReosDssPath dssPath( bcFlow.dssPath );
+      if ( dssPath.isValid() )
+      {
+        QVector<double> values;
+        ReosDuration timeStep;
+        QDateTime startTime;
+        if ( dssFile.getSeries( dssPath, values, timeStep, startTime ) )
+          return ReosTimeWindow( startTime, startTime.addMSecs( ( timeStep * values.count() ).valueMilliSecond() ) );
+      }
+    }
+  }
+  else
+  {
+    QDateTime startTime;
+    if ( bcFlow.useFixedStartTime )
+    {
+      startTime = bcFlow.startTime;
+    }
+    else
+    {
+      const ReosHecRasPlan plan = mProject->plan( mCurrentPlan );
+      startTime = plan.startTime();
+    }
+    return ReosTimeWindow( startTime, startTime.addMSecs( ( bcFlow.interval * bcFlow.values.count() ).valueMilliSecond() ) );
+  }
+
+  return ReosTimeWindow();
+}
+
 void ReosHecRasSimulation::saveConfiguration( ReosHydraulicScheme *scheme ) const
 {
   ReosEncodedElement element = scheme->restoreElementConfig( id() );
@@ -431,6 +491,7 @@ void ReosHecRasSimulation::setProject( std::shared_ptr<ReosHecRasProject> newPro
 void ReosHecRasSimulation::setCurrentPlan( const QString &planId )
 {
   mCurrentPlan = planId;
+  emit dataChanged();
 }
 
 ReosHecRasProject *ReosHecRasSimulation::project() const
@@ -451,6 +512,7 @@ const ReosDuration &ReosHecRasSimulation::minimumInterval() const
 void ReosHecRasSimulation::setMinimumInterval( const ReosDuration &newMinimumInterval )
 {
   mMinimumInterval = newMinimumInterval;
+  emit dataChanged();
 }
 
 const ReosDuration &ReosHecRasSimulation::computeInterval() const
@@ -461,6 +523,7 @@ const ReosDuration &ReosHecRasSimulation::computeInterval() const
 void ReosHecRasSimulation::setComputeInterval( const ReosDuration &newComputeInterval )
 {
   mComputeInterval = newComputeInterval;
+  emit dataChanged();
 }
 
 const ReosDuration &ReosHecRasSimulation::outputInterval() const
@@ -471,6 +534,7 @@ const ReosDuration &ReosHecRasSimulation::outputInterval() const
 void ReosHecRasSimulation::setOutputInterval( const ReosDuration &newOutputInterval )
 {
   mOutputInterval = newOutputInterval;
+  emit dataChanged();
 }
 
 const ReosDuration &ReosHecRasSimulation::detailedInterval() const
@@ -481,6 +545,7 @@ const ReosDuration &ReosHecRasSimulation::detailedInterval() const
 void ReosHecRasSimulation::setDetailledInterval( const ReosDuration &newDetailledInterval )
 {
   mDetailledInterval = newDetailledInterval;
+  emit dataChanged();
 }
 
 const ReosDuration &ReosHecRasSimulation::mappingInterval() const
@@ -491,6 +556,7 @@ const ReosDuration &ReosHecRasSimulation::mappingInterval() const
 void ReosHecRasSimulation::setMappingInterval( const ReosDuration &newMappingInterval )
 {
   mMappingInterval = newMappingInterval;
+  emit dataChanged();
 }
 
 void ReosHecRasSimulation::transformVariableTimeStepToConstant( ReosTimeSerieVariableTimeStep *variable, ReosTimeSerieConstantInterval *constant ) const
@@ -658,7 +724,6 @@ void ReosHecRasSimulationProcess::start()
   controller->showComputationWindow();
 
   const QStringList returnedMessages = controller->computeCurrentPlan();
-  emit sendInformation( "kjhskfhjkqsgfjhqsdfjqsdjkfgqsdjkgfjgsd" );
 
   for ( const QString &mes : returnedMessages )
   {

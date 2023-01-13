@@ -106,6 +106,11 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
   ui->pageSimulation->layout()->addWidget( simulationWidget );
 
   Reoshydraulicstructure2dTimeWindowWidget *timeWindowWidget = new Reoshydraulicstructure2dTimeWindowWidget( structure2D->timeWindowSettings(), this );
+
+  timeWindowWidget->setExternallyDefinedEnable(
+    mStructure2D->structureImporter() &&
+    mStructure2D->structureImporter()->capabilities().testFlag( ReosHydraulicStructure2D::DefinedExternally ) );
+
   ui->pageTimeWindow->layout()->addWidget( timeWindowWidget );
 
   mInitialMapStructureItem = context.mapItems( ReosHydraulicStructure2D::staticType() );

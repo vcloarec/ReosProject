@@ -6,14 +6,24 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>483</width>
-    <height>184</height>
+    <width>386</width>
+    <height>278</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QCheckBox" name="mExternallyCheckBox">
+     <property name="toolTip">
+      <string>Typically, used time window configured in original imported file.</string>
+     </property>
+     <property name="text">
+      <string>Used Externally Defined Time Window</string>
+     </property>
+    </widget>
+   </item>
    <item>
     <widget class="QGroupBox" name="mGroupBoxAuto">
      <property name="title">
@@ -23,19 +33,43 @@
       <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="2" column="0" colspan="2">
+      <item row="3" column="1" colspan="2">
        <widget class="ReosParameterDurationWidget" name="mEndOffset" native="true"/>
       </item>
-      <item row="1" column="0" colspan="2">
-       <widget class="ReosParameterDurationWidget" name="mStartOffset" native="true"/>
-      </item>
-      <item row="1" column="2">
+      <item row="2" column="3">
        <widget class="QComboBox" name="mComboBoxOriginStart"/>
       </item>
-      <item row="2" column="2">
+      <item row="3" column="3">
        <widget class="QComboBox" name="mComboBoxOriginEnd"/>
       </item>
-      <item row="0" column="0" colspan="3">
+      <item row="2" column="1" colspan="2">
+       <widget class="ReosParameterDurationWidget" name="mStartOffset" native="true"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Start offset</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>End offset</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Combine method</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" colspan="2">
+       <widget class="QComboBox" name="mCombineCombo"/>
+      </item>
+      <item row="0" column="0" colspan="4">
        <widget class="QLabel" name="label">
         <property name="text">
          <string>The time window is defined by combining the time extents of the inflow bounday conditions. Duration offsets can be applyed to start and to end to adjust the final time window. </string>

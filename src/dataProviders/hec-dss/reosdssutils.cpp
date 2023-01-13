@@ -168,78 +168,99 @@ const QList<ReosDuration> ReosDssUtils::validIntervals()
   return sValidInterval;
 }
 
-QString ReosDssUtils::dateToHecRasDate(const QDate &date)
+QString ReosDssUtils::dateToHecRasDate( const QDate &date )
 {
 
-    if ( date.isNull() || !date.isValid() )
-        return QString();
+  if ( date.isNull() || !date.isValid() )
+    return QString();
 
-    QString monthStr;
-    switch ( date.month() )
-    {
+  QString monthStr;
+  switch ( date.month() )
+  {
     case 1:
-        monthStr = QStringLiteral( "jan" );
-        break;
+      monthStr = QStringLiteral( "jan" );
+      break;
     case 2:
-        monthStr = QStringLiteral( "feb" );
-        break;
+      monthStr = QStringLiteral( "feb" );
+      break;
     case 3:
-        monthStr = QStringLiteral( "mar" );
-        break;
+      monthStr = QStringLiteral( "mar" );
+      break;
     case 4:
-        monthStr = QStringLiteral( "apr" );
-        break;
+      monthStr = QStringLiteral( "apr" );
+      break;
     case 5:
-        monthStr = QStringLiteral( "may" );
-        break;
+      monthStr = QStringLiteral( "may" );
+      break;
     case 6:
-        monthStr = QStringLiteral( "jun" ) ;
-        break;
+      monthStr = QStringLiteral( "jun" ) ;
+      break;
     case 7:
-        monthStr = QStringLiteral( "jul" );
-        break;
+      monthStr = QStringLiteral( "jul" );
+      break;
     case 8:
-        monthStr = QStringLiteral( "aug" ) ;
-        break;
+      monthStr = QStringLiteral( "aug" ) ;
+      break;
     case 9:
-        monthStr = QStringLiteral( "sep" );
-        break;
+      monthStr = QStringLiteral( "sep" );
+      break;
     case 10:
-        monthStr = QStringLiteral( "oct" ) ;
-        break;
+      monthStr = QStringLiteral( "oct" ) ;
+      break;
     case 11:
-        monthStr = QStringLiteral( "nov" ) ;
-        break;
+      monthStr = QStringLiteral( "nov" ) ;
+      break;
     case 12:
-        monthStr = QStringLiteral( "dec" ) ;
-        break;
-    }
+      monthStr = QStringLiteral( "dec" ) ;
+      break;
+  }
 
-    QString day = QString::number( date.day() );
-    if ( day.count() == 1 )
-        day.prepend( '0' );
+  QString day = QString::number( date.day() );
+  if ( day.count() == 1 )
+    day.prepend( '0' );
 
-    QString year = QString::number( date.year() );
+  QString year = QString::number( date.year() );
 
-    return day + monthStr + year;
+  return day + monthStr + year;
+}
+
+QDate ReosDssUtils::dssDateToDate( const QString &dssDate )
+{
+  int y = -1, m = -1, d = -1;
+
+  if ( dateToYearMonthDay( dssDate.toUtf8().data(), &y, &m, &d ) )
+  {
+    return QDate( y, m, d );
+  }
+
+  return QDate();
+}
+
+QTime ReosDssUtils::dssTimeToTime( const QString &dssTime )
+{
+  double seconds = timeStringToSecondsMills( dssTime.toUtf8().data() );
+  if ( seconds < 0 )
+    return QTime();
+
+  return QTime::fromMSecsSinceStartOfDay( static_cast<int>( seconds * 1000 + 0.5 ) );
 }
 
 ReosDssIntervalCombo::ReosDssIntervalCombo( QWidget *parent ) : QComboBox( parent )
 {
-    for ( const ReosDuration &interval : ReosDssUtils::validIntervals() )
-    {
-        addItem( interval.toString( 0 ), interval.valueMilliSecond() );
-    }
+  for ( const ReosDuration &interval : ReosDssUtils::validIntervals() )
+  {
+    addItem( interval.toString( 0 ), interval.valueMilliSecond() );
+  }
 }
 
 void ReosDssIntervalCombo::setInterval( const ReosDuration &duration )
 {
-    ReosDuration valid = ReosDssUtils::closestValidInterval( duration );
-    int index = findData( valid.valueMilliSecond() );
-    setCurrentIndex( index );
+  ReosDuration valid = ReosDssUtils::closestValidInterval( duration );
+  int index = findData( valid.valueMilliSecond() );
+  setCurrentIndex( index );
 }
 
 ReosDuration ReosDssIntervalCombo::currentInterval() const
 {
-    return ReosDuration( currentData().toLongLong(), ReosDuration::millisecond );
+  return ReosDuration( currentData().toLongLong(), ReosDuration::millisecond );
 }

@@ -99,7 +99,7 @@ class REOSDSS_EXPORT ReosDssFile
 
     bool pathExist( const ReosDssPath &path, bool considerInterval ) const;
 
-    void getSeries( const ReosDssPath &path, QVector<double> &values, ReosDuration &timeStep, QDateTime &startTime ) const;
+    bool getSeries( const ReosDssPath &path, QVector<double> &values, ReosDuration &timeStep, QDateTime &startTime ) const;
 
     void getGrid( const ReosDssPath &path );
 

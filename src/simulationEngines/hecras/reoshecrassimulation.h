@@ -62,6 +62,9 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
     bool hasResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const override;
     void removeResults( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const override;
     QString engineName() const override {return tr( "HECRAS" );}
+    ReosTimeWindow externalTimeWindow() const override;
+    ReosTimeWindow externalBoundaryConditionTimeWindow( const QString &boundaryId ) const override;
+
     void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
     void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
 

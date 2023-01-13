@@ -13,6 +13,22 @@
 class QTextStream;
 class ReosHecRasSimulation;
 
+class ReosHecRasBoundaryConditionId
+{
+  public:
+    ReosHecRasBoundaryConditionId( const QString &location, const QString &name );
+    explicit ReosHecRasBoundaryConditionId( const QString &id );
+
+    QString id() const;
+
+    const QString &name() const;
+    const QString &location() const;
+
+  private:
+    QString mLocation;
+    QString mName;
+};
+
 class ReosHecRasGeometry
 {
   public:
@@ -22,20 +38,23 @@ class ReosHecRasGeometry
       QPolygonF surface;
     };
 
-    struct BoundaryCondition
+    class BoundaryCondition
     {
-      QString area;
-      QString name;
-      QPointF middlePosition;
+      public:
+        BoundaryCondition( const QString &area, const QString &name );
 
-      QString id() const
-      {
-        return area + '-' + name;
-      }
+        QString area() const;
+        QString name() const;
+        QString id() const;
+
+        QPointF middlePosition;
+
+      private:
+        ReosHecRasBoundaryConditionId mId;
     };
 
     ReosHecRasGeometry() = default;
-    ReosHecRasGeometry( const QString &fileName );
+    explicit ReosHecRasGeometry( const QString &fileName );
 
     const QString &title() const {return mTitle;}
 
@@ -56,7 +75,7 @@ class ReosHecRasGeometry
     QMap<QString, QList<BoundaryCondition>> mBoundariesConditions;
 
     void parseGeometryFile();
-    void parseStorageArea( QTextStream &stream, const QString storageName );
+    void parseStorageArea( QTextStream &stream, const QString &storageName );
     void parseBoundaryCondition( QTextStream &stream, const QString &bcName );
 };
 
@@ -64,7 +83,7 @@ class ReosHecRasPlan
 {
   public:
     ReosHecRasPlan() = default;
-    ReosHecRasPlan( const QString &fileName );
+    explicit ReosHecRasPlan( const QString &fileName );
 
     QString geometryFile() const;
     QString flowFile() const;
@@ -122,31 +141,40 @@ class ReosHecRasFlow
       NormalDepth
     };
 
-    struct BoundaryFlow
+    class BoundaryFlow
     {
-      QString area;
-      QString boundaryConditionLine;
-      Type type = Type::None;
-      ReosDuration interval;
-      QVector<double> values;
-      bool isDss = false;
-      QString dssFile;
-      QString dssPath;
 
-      QString id() const
-      {
-        return area + '-' + boundaryConditionLine;
-      }
+      public:
+
+        BoundaryFlow();
+
+        BoundaryFlow( const QString &location, const QString &name );
+        const QString &area() const;
+        const QString &boundaryConditionLine() const;
+
+        Type type = Type::None;
+        bool useFixedStartTime = false;
+        QDateTime startTime;
+        ReosDuration interval;
+        QVector<double> values;
+        bool isDss = false;
+        QString dssFile;
+        QString dssPath;
+
+        QString id() const;
+
+      private:
+        ReosHecRasBoundaryConditionId mId;
     };
 
     ReosHecRasFlow() = default;
-    ReosHecRasFlow( const QString &fileName );
+    explicit ReosHecRasFlow( const QString &fileName );
 
     const QString &title() const;
 
     int boundariesCount() const;
     const BoundaryFlow &boundary( int index ) const;
-    BoundaryFlow boundary( const QString &area, const QString &boundaryLine, bool &found ) const;
+    BoundaryFlow boundary( const QString &id, bool &found ) const;
 
     /**
      * Changes the Flow file to apply the flows condition in \a flows
@@ -172,7 +200,7 @@ class ReosHecRasFlow
 class ReosHecRasProject
 {
   public:
-    ReosHecRasProject( const QString &projectFileName );
+    explicit ReosHecRasProject( const QString &projectFileName );
 
     QString currentPlanId() const;
     QStringList planIds() const;

@@ -54,6 +54,9 @@ class REOSDSS_EXPORT ReosDssUtils
 
     static QString dateToHecRasDate( const QDate &date );
 
+    static QDate dssDateToDate( const QString &dssDate );
+    static QTime dssTimeToTime( const QString &dssTime );
+
   private:
     static QList<ReosDuration> sValidInterval;
 };

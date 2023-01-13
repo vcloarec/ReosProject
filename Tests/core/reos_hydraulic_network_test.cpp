@@ -154,6 +154,7 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   if ( structure2D->simulationCount() != 0 )
     structure2D->removeSimulation( 0 );
   structure2D->addSimulation( QStringLiteral( "dummy-simulation" ) );
+  structure2D->timeWindowSettings()->setCombineMethod( ReosTimeWindowSettings::Union );
   QCOMPARE( structure2D->simulationCount(), 1 );
   ReosMapExtent searchZone( -0.1, -0.1, 0.1, 0.1 );
   ReosGeometryStructureVertex *vertex1 = structure2D->geometryStructure()->searchForVertex( searchZone );

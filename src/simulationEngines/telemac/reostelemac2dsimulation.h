@@ -63,6 +63,8 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
     void saveSimulationResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, ReosSimulationProcess *process, bool success ) const override;
     ReosHydraulicSimulationResults *loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, QObject *parent = nullptr ) const override;
     void removeResults( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const override;
+    ReosTimeWindow externalTimeWindow() const override {return ReosTimeWindow();}
+    ReosTimeWindow externalBoundaryConditionTimeWindow( const QString & ) const override {return ReosTimeWindow();}
 
     void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
     void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
@@ -146,7 +148,7 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
       const ReosCalculationContext &context,
       const QDir &directory );
 
-    void createSteeringFile(ReosHydraulicStructure2D *hydraulicStructure, const ReosSimulationData &simulationData,
+    void createSteeringFile( ReosHydraulicStructure2D *hydraulicStructure, const ReosSimulationData &simulationData,
                              const QList<ReosHydraulicStructureBoundaryCondition *> &boundaryConditions,
                              const QVector<int> &verticesPosInBoundary,
                              const ReosCalculationContext &context,

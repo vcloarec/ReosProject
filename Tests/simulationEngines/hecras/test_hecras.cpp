@@ -316,10 +316,10 @@ void ReosHecrasTesting::exploreProject()
   QCOMPARE( areaName, QStringLiteral( "Perimeter 1" ) );
   QList<ReosHecRasGeometry::BoundaryCondition> boundaries = geometry.boundariesConditions( areaName );
   QCOMPARE( boundaries.count(), 2 );
-  QCOMPARE( boundaries.at( 0 ).area, areaName );
-  QCOMPARE( boundaries.at( 0 ).name, QStringLiteral( "Upstream limit" ) );
-  QCOMPARE( boundaries.at( 1 ).area, areaName );
-  QCOMPARE( boundaries.at( 1 ).name, QStringLiteral( "Downstream limit" ) );
+  QCOMPARE( boundaries.at( 0 ).area(), areaName );
+  QCOMPARE( boundaries.at( 0 ).name(), QStringLiteral( "Upstream limit" ) );
+  QCOMPARE( boundaries.at( 1 ).area(), areaName );
+  QCOMPARE( boundaries.at( 1 ).name(), QStringLiteral( "Downstream limit" ) );
 
   geometry = project.geometry( geometryIds.at( 1 ) );
   QCOMPARE( geometry.title(), QStringLiteral( "simle_2D_geometry_other" ) );
@@ -330,12 +330,12 @@ void ReosHecrasTesting::exploreProject()
   QCOMPARE( currentFlow.boundariesCount(), 2 );
   QVERIFY( currentFlow.boundary( 0 ).type == ReosHecRasFlow::Type::FlowHydrograph );
   QVERIFY( currentFlow.boundary( 0 ).isDss );
-  QCOMPARE( currentFlow.boundary( 0 ).area, areaName );
-  QCOMPARE( currentFlow.boundary( 0 ).boundaryConditionLine, boundaries.at( 0 ).name );
+  QCOMPARE( currentFlow.boundary( 0 ).area(), areaName );
+  QCOMPARE( currentFlow.boundary( 0 ).boundaryConditionLine(), boundaries.at( 0 ).name() );
   QVERIFY( currentFlow.boundary( 1 ).type == ReosHecRasFlow::Type::NormalDepth );
   QVERIFY( !currentFlow.boundary( 1 ).isDss );
-  QCOMPARE( currentFlow.boundary( 1 ).area, areaName );
-  QCOMPARE( currentFlow.boundary( 1 ).boundaryConditionLine, boundaries.at( 1 ).name );
+  QCOMPARE( currentFlow.boundary( 1 ).area(), areaName );
+  QCOMPARE( currentFlow.boundary( 1 ).boundaryConditionLine(), boundaries.at( 1 ).name() );
 }
 
 #define WAITING_TIME_FOR_LOOP 100
@@ -372,14 +372,14 @@ void ReosHecrasTesting::changeBoundaryCondition()
   QVERIFY( currentFlow2.boundary( 0 ).isDss );
   QCOMPARE( currentFlow2.boundary( 0 ).dssFile, QStringLiteral( "/my/dss/file" ) );
   QCOMPARE( currentFlow2.boundary( 0 ).dssPath, QStringLiteral( "/path/dss/FLOW" ) );
-  QCOMPARE( currentFlow2.boundary( 0 ).area, bc1.area );
-  QCOMPARE( currentFlow2.boundary( 0 ).boundaryConditionLine, bc1.boundaryConditionLine );
+  QCOMPARE( currentFlow2.boundary( 0 ).area(), bc1.area() );
+  QCOMPARE( currentFlow2.boundary( 0 ).boundaryConditionLine(), bc1.boundaryConditionLine() );
   QVERIFY( currentFlow2.boundary( 1 ).type == ReosHecRasFlow::Type::StageHydrograph );
   QVERIFY( currentFlow2.boundary( 1 ).isDss );
   QCOMPARE( currentFlow2.boundary( 1 ).dssFile, QStringLiteral( "/my/dss/file" ) );
   QCOMPARE( currentFlow2.boundary( 1 ).dssPath, QStringLiteral( "/path/dss/STAGE" ) );
-  QCOMPARE( currentFlow2.boundary( 1 ).area, bc2.area );
-  QCOMPARE( currentFlow2.boundary( 1 ).boundaryConditionLine, bc2.boundaryConditionLine );
+  QCOMPARE( currentFlow2.boundary( 1 ).area(), bc2.area() );
+  QCOMPARE( currentFlow2.boundary( 1 ).boundaryConditionLine(), bc2.boundaryConditionLine() );
 
   copySimple();
 }
@@ -446,15 +446,17 @@ void ReosHecrasTesting::importAndLaunchStructure()
 
   QList<ReosHydraulicStructureBoundaryCondition *> boundaryConditions = structure->boundaryConditions();
   QCOMPARE( boundaryConditions.count(), 2 );
-  QCOMPARE( boundaryConditions.at( 1 )->boundaryConditionId(), QStringLiteral( "Perimeter 1-Upstream limit" ) );
+  QCOMPARE( boundaryConditions.at( 1 )->boundaryConditionId(), QStringLiteral( "\"Perimeter 1\"::\"Upstream limit\"" ) );
+  QCOMPARE( boundaryConditions.at( 1 )->boundaryConditionId(), QStringLiteral( "\"Perimeter 1\"::\"Upstream limit\"" ) );
   QVERIFY( boundaryConditions.at( 1 )->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally );
-  QCOMPARE( boundaryConditions.at( 0 )->boundaryConditionId(), QStringLiteral( "Perimeter 1-Downstream limit" ) );
+  QCOMPARE( boundaryConditions.at( 0 )->boundaryConditionId(), QStringLiteral( "\"Perimeter 1\"::\"Downstream limit\"" ) );
   QVERIFY( boundaryConditions.at( 0 )->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally );
 
   ReosHydraulicStructureBoundaryCondition *upstreamBc = boundaryConditions.at( 1 );
   upstreamBc->setDefaultConditionType( ReosHydraulicStructureBoundaryCondition::Type::InputFlow );
   QVERIFY( upstreamBc->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::InputFlow );
 
+  structure->timeWindowSettings()->useExternalDefinedTimeWindow()->setValue( false );
   structure->timeWindowSettings()->automaticallyDefined()->setValue( false );
   structure->timeWindowSettings()->userStartTime()->setValue( QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ) );
   structure->timeWindowSettings()->userEndTime()->setValue( QDateTime( QDate( 2000, 01, 01 ), QTime( 12, 0, 0 ), Qt::UTC ) );
@@ -501,7 +503,7 @@ void ReosHecrasTesting::importAndLaunchStructure()
 
   ReosHecRasFlow flowAfterPreparation = projectAfterPreparation.currentFlow();
   QVERIFY( flowAfterPreparation.boundariesCount() == 2 );
-  QCOMPARE( flowAfterPreparation.boundary( 0 ).id(), QStringLiteral( "Perimeter 1-Upstream limit" ) );
+  QCOMPARE( flowAfterPreparation.boundary( 0 ).id(), QStringLiteral( "\"Perimeter 1\"::\"Upstream limit\"" ) );
   QVERIFY( flowAfterPreparation.boundary( 0 ).type == ReosHecRasFlow::Type::FlowHydrograph );
   QVERIFY( flowAfterPreparation.boundary( 0 ).isDss );
   QCOMPARE( flowAfterPreparation.boundary( 0 ).dssFile, mPathToSimpleToRun + QStringLiteral( "/input_p01.dss" ) );
@@ -542,9 +544,9 @@ void ReosHecrasTesting::importAndLaunchStructure()
 
   boundaryConditions = structure->boundaryConditions();
   QCOMPARE( boundaryConditions.count(), 2 );
-  QCOMPARE( boundaryConditions.at( 1 )->boundaryConditionId(), QStringLiteral( "Perimeter 1-Upstream limit" ) );
+  QCOMPARE( boundaryConditions.at( 1 )->boundaryConditionId(), QStringLiteral( "\"Perimeter 1\"::\"Upstream limit\"" ) );
   QVERIFY( boundaryConditions.at( 1 )->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::InputFlow );
-  QCOMPARE( boundaryConditions.at( 0 )->boundaryConditionId(), QStringLiteral( "Perimeter 1-Downstream limit" ) );
+  QCOMPARE( boundaryConditions.at( 0 )->boundaryConditionId(), QStringLiteral( "\"Perimeter 1\"::\"Downstream limit\"" ) );
   QVERIFY( boundaryConditions.at( 0 )->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally );
 
   QVERIFY( structure->mesh() );
@@ -575,8 +577,8 @@ void ReosHecrasTesting::simulationResults()
 
   QMap<QString, ReosHydrograph *> outputHydrographs = simResult->outputHydrographs();
   QVERIFY( outputHydrographs.count() == 2 );
-  QVERIFY( outputHydrographs.contains( QStringLiteral( "Perimeter 1-Downstream limit" ) ) );
-  ReosHydrograph *hyd = outputHydrographs.value( QStringLiteral( "Perimeter 1-Downstream limit" ) );
+  QVERIFY( outputHydrographs.contains( QStringLiteral( "\"Perimeter 1\"::\"Downstream limit\"" ) ) );
+  ReosHydrograph *hyd = outputHydrographs.value( QStringLiteral( "\"Perimeter 1\"::\"Downstream limit\"" ) );
   QDateTime refTime = hyd->referenceTime();
   QCOMPARE( refTime, QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ) );
   QVERIFY( hyd->valueCount() > 0 );

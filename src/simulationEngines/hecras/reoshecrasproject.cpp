@@ -216,7 +216,7 @@ void ReosHecRasGeometry::parseGeometryFile()
   }
 }
 
-void ReosHecRasGeometry::parseStorageArea( QTextStream &stream, const QString storageName )
+void ReosHecRasGeometry::parseStorageArea( QTextStream &stream, const QString &storageName )
 {
   QPolygonF surface;
   bool is2D = false;
@@ -262,17 +262,17 @@ void ReosHecRasGeometry::parseStorageArea( QTextStream &stream, const QString st
 
 void ReosHecRasGeometry::parseBoundaryCondition( QTextStream &stream, const QString &bcName )
 {
-  BoundaryCondition bc;
-  bc.name = bcName;
+  QString location;
+  QPointF position;
   while ( !stream.atEnd() )
   {
     const QString line = stream.readLine();
 
     if ( line.startsWith( QStringLiteral( "BC Line Storage Area=" ) ) )
     {
-      bc.area = line;
-      bc.area.remove( "BC Line Storage Area=" );
-      bc.area = bc.area.trimmed();
+      location = line;
+      location.remove( "BC Line Storage Area=" );
+      location = location.trimmed();
     }
 
     if ( line.startsWith( QStringLiteral( "BC Line Middle Position=" ) ) )
@@ -283,20 +283,21 @@ void ReosHecRasGeometry::parseBoundaryCondition( QTextStream &stream, const QStr
       QStringList coordStr = midPositionString.split( ',' );
       if ( coordStr.count() != 2 )
         return;
-      bc.middlePosition = QPointF( coordStr.at( 0 ).toDouble(), coordStr.at( 1 ).toDouble() );
+      position = QPointF( coordStr.at( 0 ).toDouble(), coordStr.at( 1 ).toDouble() );
     }
 
     if ( line.startsWith( QStringLiteral( "BC Line Text Position=" ) ) )
       break;
   }
 
-  if ( mBoundariesConditions.contains( bc.area ) )
-    mBoundariesConditions[bc.area].append( bc );
+  BoundaryCondition bc( location, bcName );
+  if ( mBoundariesConditions.contains( location ) )
+    mBoundariesConditions[location].append( bc );
   else
   {
     QList<BoundaryCondition> bcs;
     bcs << bc;
-    mBoundariesConditions.insert( bc.area, bcs );
+    mBoundariesConditions.insert( location, bcs );
   }
 
 }
@@ -707,12 +708,12 @@ const ReosHecRasFlow::BoundaryFlow &ReosHecRasFlow::boundary( int index ) const
   return mBoundaries.at( index );
 }
 
-ReosHecRasFlow::BoundaryFlow ReosHecRasFlow::boundary( const QString &area, const QString &boundaryLine, bool &found ) const
+ReosHecRasFlow::BoundaryFlow ReosHecRasFlow::boundary( const QString &id, bool &found ) const
 {
   found = false;
   for ( const BoundaryFlow &bf : mBoundaries )
   {
-    if ( bf.area == area && bf.boundaryConditionLine == boundaryLine )
+    if ( bf.id() == id )
     {
       found = true;
       return bf;
@@ -737,7 +738,7 @@ bool ReosHecRasFlow::applyBoudaryFlow( const QList<BoundaryFlow> &flows )
     found = false;
     for ( const BoundaryFlow &bf : flows )
     {
-      if ( bf.area == area && bf.boundaryConditionLine == boundaryLine )
+      if ( bf.area() == area && bf.boundaryConditionLine() == boundaryLine )
       {
         found = true;
         return bf;
@@ -860,10 +861,12 @@ void ReosHecRasFlow::parseFlowFile()
 
 QString ReosHecRasFlow::parseBoundary( QTextStream &stream, const QString &firstLine )
 {
-  BoundaryFlow boundary;
-  if ( !parseLocation( firstLine, boundary.area, boundary.boundaryConditionLine ) )
+  QString area;
+  QString location;
+  if ( !parseLocation( firstLine, area, location ) )
     return QString();
 
+  BoundaryFlow boundary( area, location );
   QString line;
   while ( !stream.atEnd() )
   {
@@ -918,6 +921,22 @@ QString ReosHecRasFlow::parseBoundary( QTextStream &stream, const QString &first
     if ( line.startsWith( QStringLiteral( "Friction Slope=" ) ) && boundary.type != Type::StageHydrograph )
     {
       boundary.type = Type::NormalDepth;
+    }
+
+    if ( line.startsWith( QStringLiteral( "Use Fixed Start Time=" ) ) )
+    {
+      QString value = line.mid( 21 );
+      boundary.useFixedStartTime = value == QStringLiteral( "True" );
+    }
+
+    if ( line.startsWith( QStringLiteral( "Fixed Start Date/Time=" ) ) )
+    {
+      QString value = line.mid( 22 );
+      QStringList parts = value.split( ',' );
+      if ( parts.count() == 2 )
+      {
+        boundary.startTime = QDateTime( ReosDssUtils::dssDateToDate( parts.at( 0 ) ), ReosDssUtils::dssTimeToTime( parts.at( 1 ) ), Qt::UTC );
+      }
     }
   }
 
@@ -994,4 +1013,87 @@ static QString doubleToString( double value, int stringSize )
   ret.prepend( prefix );
 
   return ret;
+}
+
+ReosHecRasBoundaryConditionId::ReosHecRasBoundaryConditionId( const QString &location, const QString &name )
+  : mLocation( location )
+  , mName( name )
+{
+}
+
+ReosHecRasBoundaryConditionId::ReosHecRasBoundaryConditionId( const QString &id )
+{
+  if ( !id.isEmpty() &&
+       id.contains( QStringLiteral( "\"::\"" ) ) &&
+       id.at( 0 ) == QStringLiteral( "\"" ) &&
+       id.at( id.size() - 1 ) == QStringLiteral( "\"" ) )
+  {
+    QStringList parts = id.split( QStringLiteral( "\"::\"" ) );
+    if ( parts.count() == 2 )
+    {
+      mLocation = parts.at( 0 ).mid( 1 );
+      mName = parts.at( 1 ).left( parts.at( 1 ).size() - 1 );
+    }
+  }
+
+}
+
+QString ReosHecRasBoundaryConditionId::id() const
+{
+  return QStringLiteral( "\"" ) + mLocation + QStringLiteral( "\"" ) +
+         QStringLiteral( "::" ) +
+         QStringLiteral( "\"" ) + mName + QStringLiteral( "\"" );
+}
+
+const QString &ReosHecRasBoundaryConditionId::location() const
+{
+  return mLocation;
+}
+
+const QString &ReosHecRasBoundaryConditionId::name() const
+{
+  return mName;
+}
+
+ReosHecRasFlow::BoundaryFlow::BoundaryFlow()
+    : mId( QString(), QString() )
+{}
+
+ReosHecRasFlow::BoundaryFlow::BoundaryFlow(const QString &location, const QString &name)
+    : mId( location, name )
+{
+}
+
+const QString &ReosHecRasFlow::BoundaryFlow::area() const
+{
+    return mId.location();
+}
+
+const QString &ReosHecRasFlow::BoundaryFlow::boundaryConditionLine() const
+{
+    return mId.name();
+}
+
+QString ReosHecRasFlow::BoundaryFlow::id() const
+{
+    return mId.id();
+}
+
+ReosHecRasGeometry::BoundaryCondition::BoundaryCondition(const QString &area, const QString &name)
+    : mId( area, name )
+{}
+
+QString ReosHecRasGeometry::BoundaryCondition::area() const
+{
+    return mId.location();
+}
+
+QString ReosHecRasGeometry::BoundaryCondition::name() const
+{
+    return mId.name();
+}
+
+QString ReosHecRasGeometry::BoundaryCondition::id() const
+{
+    return mId.id();
 }
