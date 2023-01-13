@@ -215,6 +215,13 @@ void ReosHecRasStructureImporter::updateBoundaryConditions( QSet<QString> &curre
     }
   }
 
+  const QList<ReosHydraulicStructureBoundaryCondition *> allCurrent = structure->boundaryConditions();
+  for ( ReosHydraulicStructureBoundaryCondition *bc : allCurrent )
+  {
+    if ( bc && notExisting.contains( bc->boundaryConditionId() ) )
+      context.network()->removeElement( bc );
+  }
+
   for ( const ReosHecRasGeometry::BoundaryCondition &bc : std::as_const( toAdd ) )
   {
     const ReosSpatialPosition position( bc.middlePosition, crs() );

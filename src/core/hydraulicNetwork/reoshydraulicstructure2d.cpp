@@ -87,7 +87,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
       mNetwork->message( message, true );
   }
 
-  // Load geomttry editing helper if exists
+  // Load geometry editing helper if exists
   if ( encodedElement.hasEncodedData( QStringLiteral( "mesh-generator" ) ) )
     mMeshGenerator = ReosMeshGenerator::createMeshGenerator( encodedElement.getEncodedData( QStringLiteral( "mesh-generator" ) ), this );
   else if ( hasCapability( GeometryEditable ) )

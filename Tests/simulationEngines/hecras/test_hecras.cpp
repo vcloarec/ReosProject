@@ -79,7 +79,6 @@ class ReosHecrasTesting : public QObject
 
     void simulationResults();
 
-
   private:
     QString mPathToSimpleToRun;
     void copySimple();
@@ -566,6 +565,13 @@ void ReosHecrasTesting::simulationResults()
   ReosHydraulicStructure2D *structure = ReosHydraulicStructure2D::create( importer.release(), network->context() );
   QVERIFY( structure );
 
+  QList<ReosHydraulicStructureBoundaryCondition * > boundaries = structure->boundaryConditions();
+  QCOMPARE( boundaries.count(), 2 );
+  QPointF pos = boundaries.at( 0 )->position( QString() );
+  QCOMPARE( pos, QPointF( 653500.105543859, 1797175.01204072 ) );
+  pos = boundaries.at( 1 )->position( QString() );
+  QCOMPARE( pos, QPointF( 653203.343995325, 1797175.15557276 ) );
+
   std::shared_ptr<ReosHecRasProject> project = std::make_shared<ReosHecRasProject>( projectPath );
 
   ReosHydraulicSimulation *simulation = structure->currentSimulation();
@@ -599,6 +605,22 @@ void ReosHecrasTesting::simulationResults()
   QCOMPARE( tw.start(), QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ) );
   QCOMPARE( tw.end(), QDateTime( QDate( 2000, 01, 01 ), QTime( 12, 0, 0 ), Qt::UTC ) );
   QVERIFY( tw == mGisEngine->mapTimeWindow() );
+
+  ReosEncodedElement encodedNetwork = network->encode( QFileInfo( projectPath ).dir().path(),  "project.lkn" );
+  network->clear();
+  network->decode( encodedNetwork, QFileInfo( projectPath ).dir().path(),  "project.lkn" );
+
+  QList<ReosHydraulicNetworkElement *> elements = network->hydraulicNetworkElements( ReosHydraulicStructure2D::staticType() );
+  QCOMPARE( elements.count(), 1 );
+
+  structure = qobject_cast<ReosHydraulicStructure2D *>( elements.at( 0 ) );
+  QVERIFY( structure );
+  boundaries = structure->boundaryConditions();
+  QCOMPARE( boundaries.count(), 2 );
+  pos = boundaries.at( 0 )->position( QString() );
+  QCOMPARE( pos, QPointF( 653500.105543859, 1797175.01204072 ) );
+  pos = boundaries.at( 1 )->position( QString() );
+  QCOMPARE( pos, QPointF( 653203.343995325, 1797175.15557276 ) );
 
 }
 

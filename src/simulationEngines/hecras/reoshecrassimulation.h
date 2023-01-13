@@ -145,6 +145,7 @@ class ReosHecRasStructureImporter: public ReosStructureImporter
 
     QList<ReosHydraulicStructureBoundaryCondition *> createBoundaryConditions( ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const override;
     QList<ReosHydraulicSimulation *> createSimulations( QObject *parent ) const override;
+
     void updateBoundaryConditions( QSet<QString> &currentBoundaryId,
                                    ReosHydraulicStructure2D *structure,
                                    const ReosHydraulicNetworkContext &context ) const override;

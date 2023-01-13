@@ -389,7 +389,7 @@ class REOSCORE_EXPORT ReosStructureImporter
     virtual QList<ReosHydraulicStructureBoundaryCondition *> createBoundaryConditions( ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const = 0;
     virtual QList<ReosHydraulicSimulation *> createSimulations( QObject *parent ) const = 0;
 
-    //! Updates the boundary condition, returns new ones.
+    //! Updates the boundary condition, remove not exising add new ones in \a currentBBoundaryId
     virtual void updateBoundaryConditions(
       QSet<QString> &currentBBoundaryId,
       ReosHydraulicStructure2D *structure,
