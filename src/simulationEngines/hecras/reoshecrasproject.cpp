@@ -291,6 +291,7 @@ void ReosHecRasGeometry::parseBoundaryCondition( QTextStream &stream, const QStr
   }
 
   BoundaryCondition bc( location, bcName );
+  bc.middlePosition = position;
   if ( mBoundariesConditions.contains( location ) )
     mBoundariesConditions[location].append( bc );
   else
@@ -1056,44 +1057,44 @@ const QString &ReosHecRasBoundaryConditionId::name() const
 }
 
 ReosHecRasFlow::BoundaryFlow::BoundaryFlow()
-    : mId( QString(), QString() )
+  : mId( QString(), QString() )
 {}
 
-ReosHecRasFlow::BoundaryFlow::BoundaryFlow(const QString &location, const QString &name)
-    : mId( location, name )
+ReosHecRasFlow::BoundaryFlow::BoundaryFlow( const QString &location, const QString &name )
+  : mId( location, name )
 {
 }
 
 const QString &ReosHecRasFlow::BoundaryFlow::area() const
 {
-    return mId.location();
+  return mId.location();
 }
 
 const QString &ReosHecRasFlow::BoundaryFlow::boundaryConditionLine() const
 {
-    return mId.name();
+  return mId.name();
 }
 
 QString ReosHecRasFlow::BoundaryFlow::id() const
 {
-    return mId.id();
+  return mId.id();
 }
 
-ReosHecRasGeometry::BoundaryCondition::BoundaryCondition(const QString &area, const QString &name)
-    : mId( area, name )
+ReosHecRasGeometry::BoundaryCondition::BoundaryCondition( const QString &area, const QString &name )
+  : mId( area, name )
 {}
 
 QString ReosHecRasGeometry::BoundaryCondition::area() const
 {
-    return mId.location();
+  return mId.location();
 }
 
 QString ReosHecRasGeometry::BoundaryCondition::name() const
 {
-    return mId.name();
+  return mId.name();
 }
 
 QString ReosHecRasGeometry::BoundaryCondition::id() const
 {
-    return mId.id();
+  return mId.id();
 }
