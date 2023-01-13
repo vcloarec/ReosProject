@@ -28,6 +28,8 @@ ReosHydraulicSimulationConsole::ReosHydraulicSimulationConsole( ReosSimulationPr
 {
   ui->setupUi( this );
   ui->mProgressBar->setMaximum( 100 );
+  ui->mProgressBar->setValue( 0 );
+
   if ( process )
   {
     ui->mProgressBar->setValue( process->currentProgression() );

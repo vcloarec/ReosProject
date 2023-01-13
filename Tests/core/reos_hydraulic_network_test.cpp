@@ -282,7 +282,6 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   mtw = mGisEngine->mapTimeWindow();
   QVERIFY( tw == mtw );
 
-
   // we have to wait that upstream calculation is finished
   simulateEventLoop( WAITING_TIME_FOR_LOOP );
 
@@ -344,7 +343,7 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   QCOMPARE( watershedNode->outputHydrograph()->valueCount(), 0 );
   QCOMPARE( link1->outputHydrograph()->valueCount(), 0 );
   QCOMPARE( bc3->outputHydrograph()->valueCount(), 0 );
-  QCOMPARE( junction->outputHydrograph()->valueCount(), 5 ); //hdrograph on junction is the same with this scheme
+  QCOMPARE( junction->outputHydrograph()->valueCount(), 5 ); //hydrograph on junction is the same with this scheme
 
   tw = structure2D->timeWindow();
   QCOMPARE( tw.start(),  QDateTime( QDate( 2010, 02, 01 ), QTime( 1, 55, 0 ), Qt::UTC ) );

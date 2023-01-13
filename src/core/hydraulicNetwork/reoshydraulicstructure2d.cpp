@@ -1244,11 +1244,10 @@ void ReosHydraulicStructure2D::restoreConfiguration( ReosHydraulicScheme *scheme
 {
   ReosEncodedElement encodedElement = scheme->restoreElementConfig( id() );
 
-  QString simulationId;
-
   for ( ReosHydraulicSimulation *sim : std::as_const( mSimulations ) )
     sim->restoreConfiguration( scheme );
 
+  QString simulationId;
   if ( encodedElement.getData( QStringLiteral( "current-simulation-id" ), simulationId ) )
     setCurrentSimulation( simulationIndexFromId( simulationId ) );
 
