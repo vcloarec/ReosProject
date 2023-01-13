@@ -622,6 +622,20 @@ void ReosHecrasTesting::simulationResults()
   pos = boundaries.at( 1 )->position( QString() );
   QCOMPARE( pos, QPointF( 653203.343995325, 1797175.15557276 ) );
 
+  // We change the time window settings to fix it from the input of the model
+  structure->timeWindowSettings()->useExternalDefinedTimeWindow()->setValue( false );
+  tw = structure->timeWindow();
+  QCOMPARE( tw.start(), QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( tw.end(), QDateTime( QDate( 2000, 01, 03 ), QTime( 10, 1, 0 ), Qt::UTC ) );
+  QVERIFY( tw == mGisEngine->mapTimeWindow() );
+
+  structure->timeWindowSettings()->setOriginEnd( ReosTimeWindowSettings::Begin );
+  structure->timeWindowSettings()->endOffset()->setValue( ReosDuration( 3.0, ReosDuration::hour ) );
+
+  tw = structure->timeWindow();
+  QCOMPARE( tw.start(), QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( tw.end(), QDateTime( QDate( 2000, 01, 01 ), QTime( 13, 0, 0 ), Qt::UTC ) );
+  QVERIFY( tw == mGisEngine->mapTimeWindow() );
 }
 
 QTEST_MAIN( ReosHecrasTesting )
