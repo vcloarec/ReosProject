@@ -56,6 +56,7 @@ class REOSGUI_EXPORT ReosParameterWidget : public QWidget
     void setDefaultName( const QString &defaultName );
     void hideWhenVoid( bool b );
     void canBeAlwaysHidden();
+    void hideLabel();
 
   public slots:
     //! Updates the dispayed value from the parameter

@@ -33,15 +33,20 @@ class Reoshydraulicstructure2dTimeWindowWidget : public ReosStackedPageWidget
     explicit Reoshydraulicstructure2dTimeWindowWidget( ReosTimeWindowSettings *timeWindowSettings, QWidget *parent = nullptr );
     ~Reoshydraulicstructure2dTimeWindowWidget();
 
+    void setExternallyDefinedEnable( bool enable );
+
   private slots:
+    void onExternallyCheckBoxToogle();
     void onAutomaticGroupBoxToggle();
     void onOriginChange();
+    void onCombineMethodChange();
 
-    void syncTimeWindowsettings();
+    void syncTimeWindowSettings();
 
   private:
     Ui::Reoshydraulicstructure2dTimeWindowWidget *ui;
     ReosTimeWindowSettings *mTimeWindowSettings = nullptr;
+    bool mExternalEnable = false;
 };
 
 #endif // REOSHYDRAULICSTRUCTURE2DTIMEWINDOWWIDGET_H

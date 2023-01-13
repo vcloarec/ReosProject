@@ -17,17 +17,22 @@
 
 ReosTimeWindowSettings::ReosTimeWindowSettings( QObject *parent )
   : ReosDataObject( parent )
+  , mUseExternalDefinedTimeWindow( new ReosParameterBoolean( tr( "Use external time windows" ) ) )
   , mAutomaticallyDefined( new ReosParameterBoolean( tr( "Defined automatically" ) ) )
-  , mStartOffset( new ReosParameterDuration( tr( "Start offset" ), this ) )
-  , mEndOffset( new ReosParameterDuration( tr( "End offset" ), this ) )
+  , mStartOffset( new ReosParameterDuration( QString(), this ) )
+  , mEndOffset( new ReosParameterDuration( QString(), this ) )
   , mUserStartTime( new ReosParameterDateTime( tr( "User start time" ), this ) )
   , mUserEndTime( new ReosParameterDateTime( tr( "User end time" ), this ) )
 {
+  mUseExternalDefinedTimeWindow->setValue( true );
   mAutomaticallyDefined->setValue( true );
   mStartOffset->setValue( ReosDuration( 0, ReosDuration::hour ) );
   mStartOffset->changeUnit( ReosDuration::hour );
   mEndOffset->setValue( ReosDuration( 0, ReosDuration::hour ) );
   mEndOffset->changeUnit( ReosDuration::hour );
+
+  connect( mUseExternalDefinedTimeWindow, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+  connect( mAutomaticallyDefined, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
   connect( mStartOffset, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
   connect( mEndOffset, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
   connect( mUserStartTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
@@ -95,7 +100,9 @@ ReosParameterBoolean *ReosTimeWindowSettings::automaticallyDefined() const
 ReosEncodedElement ReosTimeWindowSettings::encode() const
 {
   ReosEncodedElement element( QStringLiteral( "time-window-settings" ) );
+  element.addData( QStringLiteral( "externally-defined" ), mUseExternalDefinedTimeWindow->value() );
   element.addData( QStringLiteral( "automatically-defined" ), mAutomaticallyDefined->value() );
+  element.addData( QStringLiteral( "combine-method" ), mCombineMethod );
   element.addEncodedData( QStringLiteral( "start-offset" ), mStartOffset->value().encode() );
   element.addData( QStringLiteral( "start-offset-origin" ), mOriginStart );
   element.addEncodedData( QStringLiteral( "end-offset" ), mEndOffset->value().encode() );
@@ -108,9 +115,15 @@ ReosEncodedElement ReosTimeWindowSettings::encode() const
 void ReosTimeWindowSettings::decode( const ReosEncodedElement &element )
 {
   blockSignals( true );
+  bool externallyDefined = true;
+  element.getData( QStringLiteral( "externally-defined" ), externallyDefined );
+  mUseExternalDefinedTimeWindow->setValue( externallyDefined );
   bool autoDefined = true;
   element.getData( QStringLiteral( "automatically-defined" ), autoDefined );
   mAutomaticallyDefined->setValue( autoDefined );
+  int cm = 0;
+  if ( element.getData( QStringLiteral( "combine-method" ), cm ) )
+    mCombineMethod = static_cast<ReosTimeWindowSettings::CombineMethod>( cm );
   mStartOffset->setValue( ReosDuration::decode( element.getEncodedData( QStringLiteral( "start-offset" ) ) ) );
   mEndOffset->setValue( ReosDuration::decode( element.getEncodedData( QStringLiteral( "end-offset" ) ) ) );
   int so = 0;
@@ -126,7 +139,24 @@ void ReosTimeWindowSettings::decode( const ReosEncodedElement &element )
   element.getData( QStringLiteral( "user-end-time" ), uet );
   mUserEndTime->setValue( uet );
   blockSignals( false );
+
   emit dataChanged();
+}
+
+ReosTimeWindowSettings::CombineMethod ReosTimeWindowSettings::combineMethod() const
+{
+  return mCombineMethod;
+}
+
+void ReosTimeWindowSettings::setCombineMethod( CombineMethod newCombineMethod )
+{
+  mCombineMethod = newCombineMethod;
+  emit dataChanged();
+}
+
+ReosParameterBoolean *ReosTimeWindowSettings::useExternalDefinedTimeWindow() const
+{
+  return mUseExternalDefinedTimeWindow;
 }
 
 ReosTimeWindowSettings::OffsetOrigin ReosTimeWindowSettings::originStart() const

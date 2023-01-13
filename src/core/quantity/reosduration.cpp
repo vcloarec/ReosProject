@@ -388,8 +388,11 @@ ReosTimeWindow ReosTimeWindow::intersection( const ReosTimeWindow &other ) const
 {
   ReosTimeWindow ret;
 
-  if ( !isValid() || ! other.isValid() )
-    return ret;
+  if ( !isValid() )
+    return other;
+
+  if ( ! other.isValid() )
+    return *this;
 
   ret.mStart = std::max( mStart, other.mStart );
   ret.mEnd = std::min( mEnd, other.mEnd );
@@ -405,7 +408,7 @@ bool ReosTimeWindow::isValid() const
   return mStart.isValid() && mEnd.isValid();
 }
 
-bool ReosTimeWindow::operator==(const ReosTimeWindow &other)
+bool ReosTimeWindow::operator==( const ReosTimeWindow &other )
 {
-    return mStart == other.mStart && mEnd == other.mEnd;
+  return mStart == other.mStart && mEnd == other.mEnd;
 }

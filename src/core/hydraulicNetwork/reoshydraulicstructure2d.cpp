@@ -1245,12 +1245,13 @@ void ReosHydraulicStructure2D::restoreConfiguration( ReosHydraulicScheme *scheme
   ReosEncodedElement encodedElement = scheme->restoreElementConfig( id() );
 
   QString simulationId;
-  encodedElement.getData( QStringLiteral( "current-simulation-id" ), simulationId );
 
   for ( ReosHydraulicSimulation *sim : std::as_const( mSimulations ) )
     sim->restoreConfiguration( scheme );
 
-  setCurrentSimulation( simulationIndexFromId( simulationId ) );
+  if ( encodedElement.getData( QStringLiteral( "current-simulation-id" ), simulationId ) )
+    setCurrentSimulation( simulationIndexFromId( simulationId ) );
+
   updateResults( scheme->id() );
 
   mTimeWindowSettings->decode( encodedElement.getEncodedData( QStringLiteral( "time-window-settings" ) ) );
@@ -1284,12 +1285,28 @@ ReosDuration ReosHydraulicStructure2D::mapTimeStep() const
 ReosTimeWindow ReosHydraulicStructure2D::timeWindow() const
 {
   ReosTimeWindow tw;
-  if ( mTimeWindowSettings->automaticallyDefined() )
+
+  if ( mStructureImporter &&
+       mStructureImporter->capabilities().testFlag( ReosHydraulicStructure2D::DefinedExternally ) &&
+       mTimeWindowSettings->useExternalDefinedTimeWindow()->value() &&
+       mCurrentSimulationIndex >= 0 )
+  {
+    return mSimulations.at( mCurrentSimulationIndex )->externalTimeWindow();
+  }
+  else if ( mTimeWindowSettings->automaticallyDefined() )
   {
     const QList<ReosHydraulicStructureBoundaryCondition *> bcs = boundaryConditions();
     for ( ReosHydraulicStructureBoundaryCondition *bc : bcs )
     {
-      tw = tw.unite( bc->timeWindow() );
+      switch ( mTimeWindowSettings->combineMethod() )
+      {
+        case ReosTimeWindowSettings::Intersection:
+          tw = tw.intersection( bc->timeWindow() );
+          break;
+        case ReosTimeWindowSettings::Union:
+          tw = tw.unite( bc->timeWindow() );
+          break;
+      }
     }
   }
 

@@ -48,8 +48,11 @@ ReosDssFile::ReosDssFile( const QString &filePath, bool create )
 }
 
 ReosDssFile::ReosDssFile( ReosDssFile &&other )
+  : mIfltab( std::move( other.mIfltab ) )
+  , mStatus( other.mStatus )
+  , mIsValid( other.mIsValid )
+  , mIsOpen( other.mIsOpen )
 {
-  mIfltab = std::move( other.mIfltab );
   mStatus = other.mStatus;
   mIsValid = other.mIsValid;
   mIsOpen = other.mIsOpen;
@@ -98,8 +101,10 @@ bool ReosDssFile::pathExist( const ReosDssPath &path, bool considerInterval ) co
 
 }
 
-void ReosDssFile::getSeries( const ReosDssPath &path, QVector<double> &values, ReosDuration &timeStep, QDateTime &startTime ) const
+bool ReosDssFile::getSeries( const ReosDssPath &path, QVector<double> &values, ReosDuration &timeStep, QDateTime &startTime ) const
 {
+  if ( !path.isValid() )
+    return false;
   ReosDssPath allDatapath = path;
   allDatapath.setStartDate( QString( '*' ) );
 
@@ -123,6 +128,8 @@ void ReosDssFile::getSeries( const ReosDssPath &path, QVector<double> &values, R
   }
 
   zstructFree( timeSeries );
+
+  return status == STATUS_OKAY;
 }
 
 void ReosDssFile::getGrid( const ReosDssPath &path )

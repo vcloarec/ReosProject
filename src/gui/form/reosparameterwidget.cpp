@@ -229,6 +229,11 @@ void ReosParameterWidget::hideWhenVoid( bool b )
   mHideWhenVoid = b;
 }
 
+void ReosParameterWidget::hideLabel()
+{
+  mLabelName->hide();
+}
+
 void ReosParameterWidget::finalizeWidget()
 {
   mDerivationButton = new QToolButton( this );

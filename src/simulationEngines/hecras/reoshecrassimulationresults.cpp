@@ -306,7 +306,7 @@ QMap<QString, ReosHydrograph *> ReosHecRasSimulationResults::outputHydrographs()
   for ( int i = 0; i < flow.boundariesCount(); ++i )
   {
     const ReosHecRasFlow::BoundaryFlow &hbc = flow.boundary( i );
-    const QString location = hbc.area + QStringLiteral( ": " ) + hbc.boundaryConditionLine;
+    const QString location = hbc.area() + QStringLiteral( ": " ) + hbc.boundaryConditionLine();
     path.setLocation( location );
 
     ReosHydrograph *hyd = new ReosHydrograph( const_cast<ReosHecRasSimulationResults *>( this ),
