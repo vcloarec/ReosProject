@@ -228,7 +228,8 @@ QDate ReosDssUtils::dssDateToDate( const QString &dssDate )
 {
   int y = -1, m = -1, d = -1;
 
-  if ( dateToYearMonthDay( dssDate.toUtf8().data(), &y, &m, &d ) )
+  int res = dateToYearMonthDay( dssDate.toUtf8().data(), &y, &m, &d );
+  if ( res == STATUS_OKAY )
   {
     return QDate( y, m, d );
   }

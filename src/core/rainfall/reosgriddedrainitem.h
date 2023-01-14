@@ -80,7 +80,11 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
     //! Transform the gridded rain to fit with extent \a destination with resolution \a resolX and \a resolY
     ReosGriddedRainfall *transform( const ReosMapExtent &destination, double resolX, double resolY, QObject *parent = nullptr ) const;
 
+    //! Copies data from another rainfall
     void copyFrom( ReosGriddedRainfall *other );
+
+    //! Copies new from a rainfall provider
+    void copyFrom( ReosGriddedRainfallProvider *provider );
 
     //! Returns the current color ramp settings, keep ownership
     ReosColorShaderSettings *colorSetting() const;
@@ -105,6 +109,8 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
     std::unique_ptr<ReosGriddedRainfallProvider> mProvider;
     QString mOverridenCrs;
     std::unique_ptr<ReosGriddedRainfallRendererFactory> mRendererFactory;
+
+    QString formatKey( const QString &rawKey ) const;
 };
 
 class REOSCORE_EXPORT ReosGriddedRainItem : public ReosRainfallDataItem

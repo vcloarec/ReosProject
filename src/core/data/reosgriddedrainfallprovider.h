@@ -108,7 +108,7 @@ class ReosGriddedRainfallMemoryProvider : public ReosGriddedRainfallProvider
 
     void setExtent( const ReosRasterExtent &newExtent );
 
-    void copyFrom( ReosGriddedRainfallProvider *other );
+    void copyFrom( ReosGriddedRainfallProvider *other ) override;
 
   private:
     struct Frame

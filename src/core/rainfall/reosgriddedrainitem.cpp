@@ -29,7 +29,6 @@ ReosGriddedRainfall::ReosGriddedRainfall( QObject *parent )
   mRendererFactory.reset( new ReosGriddedRainfallRendererFactory_p( this ) );
 }
 
-
 ReosGriddedRainfall::ReosGriddedRainfall( const QString &dataSource, const QString &providerKey, QObject *parent )
   : ReosRenderedObject( parent )
   , mProvider( qobject_cast<ReosGriddedRainfallProvider*>( ReosDataProviderRegistery::instance()->createProvider( providerKey ) ) )
@@ -63,6 +62,14 @@ ReosGriddedRainfall::ReosGriddedRainfall( const ReosEncodedElement &element, con
 
   // renderer factory must be created after set the datasource because, the factory needs the extent of the provider on creation
   mRendererFactory.reset( new ReosGriddedRainfallRendererFactory_p( element.getEncodedData( QStringLiteral( "renderer" ) ), this ) );
+}
+
+QString ReosGriddedRainfall::formatKey( const QString &rawKey ) const
+{
+  if ( rawKey.contains( QStringLiteral( "::" ) ) )
+    return rawKey;
+
+  return rawKey + QStringLiteral( "::" ) + ReosGriddedRainfall::staticType();
 }
 
 ReosEncodedElement ReosGriddedRainfall::encode( const ReosEncodeContext &context ) const
@@ -266,7 +273,12 @@ ReosGriddedRainfall *ReosGriddedRainfall::transform( const ReosMapExtent &destin
 
 void ReosGriddedRainfall::copyFrom( ReosGriddedRainfall *other )
 {
-  mProvider->copyFrom( other->mProvider.get() );
+  copyFrom( other->mProvider.get() );
+}
+
+void ReosGriddedRainfall::copyFrom( ReosGriddedRainfallProvider *provider )
+{
+  mProvider->copyFrom( provider );
 
   //! We need to reset the renderer factor tp take account of the new extent
   mRendererFactory.reset( new ReosGriddedRainfallRendererFactory_p( this ) );

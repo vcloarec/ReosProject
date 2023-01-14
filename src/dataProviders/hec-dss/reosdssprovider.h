@@ -18,6 +18,7 @@
 
 #include "reosdssfile.h"
 #include "reostimeserieprovider.h"
+#include "reosgriddedrainfallprovider.h"
 #include "reosdssfile.h"
 
 
@@ -30,6 +31,8 @@ class ReosDssProviderBase
     virtual bool createNewSerie( const ReosDssPath &path, ReosDssFile &dssFile, QString &error ) const = 0;
 
     static QString staticKey();
+
+    static QString createUri( const QString &filePath, const ReosDssPath &path );
 
     static QString fileNameFromUri( const QString &uri );
     static ReosDssPath dssPathFromUri( const QString &uri );
@@ -123,11 +126,50 @@ class ReosDssProviderTimeSerieVariableTimeStep : public ReosTimeSerieVariableTim
 
 };
 
+class ReosDssProviderGriddedRainfall : public ReosGriddedRainfallProvider, public ReosDssProviderBase
+{
+  public:
+    QString key() const override;
+    bool createNewSerie( const ReosDssPath &, ReosDssFile &, QString & ) const override {return false;}
+    void setDataSource( const QString &dataSource ) override;
+    bool canReadUri( const QString &uri ) const override;
+
+    Details details( const QString &, ReosModule::Message & ) const override;
+    ReosGriddedRainfallProvider *clone() const override;
+    bool isValid() const override;
+    int count() const override;
+    QDateTime startTime( int index ) const override;
+    QDateTime endTime( int index ) const override;
+    const QVector<double> data( int index ) const override;
+    ReosRasterExtent extent() const override;
+    ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
+    void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) override;
+
+    static QString dataType();
+
+    QList<ReosDssPath> griddedRainfallPathes( const QString &filePath, ReosModule::Message &message ) const;
+
+  private:
+    bool mIsValid = false;
+    QString mFilePath;
+    ReosDssPath mPath;
+    ReosRasterExtent mExtent;
+    struct DssGrid
+    {
+      ReosDssPath path;
+      QDateTime startTime;
+      QDateTime endTime;
+    };
+    QList<DssGrid> mGrids;
+
+    static QDateTime dssStrToDateTime( const QString &str );
+};
+
 
 class ReosDssProviderFactory: public ReosDataProviderFactory
 {
   public:
-    ReosTimeSerieProvider *createProvider( const QString &dataType ) const override;
+    ReosDataProvider *createProvider( const QString &dataType ) const override;
 
     /**
      * Create a new data source from \a uri and \a dataType
