@@ -97,7 +97,7 @@ ReosHecRasStructureImporter::~ReosHecRasStructureImporter() = default;
 
 ReosHydraulicStructure2D::Structure2DCapabilities ReosHecRasStructureImporter::capabilities() const
 {
-  return ReosHydraulicStructure2D::DefinedExternally;
+  return QFlags( ReosHydraulicStructure2D::DefinedExternally ) | ReosHydraulicStructure2D::GriddedPrecipitation;
 }
 
 QString ReosHecRasStructureImporter::crs() const

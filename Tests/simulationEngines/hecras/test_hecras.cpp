@@ -37,6 +37,7 @@ email                : vcloarec at gmail dot com
 #include "reostimewindowsettings.h"
 #include "reoshdf5.h"
 #include "reostestrenderedobject.h"
+#include "reosgriddedrainfallprovider.h"
 
 
 static void copyDirectory( const QDir &source, const QString &newPath )
@@ -74,6 +75,7 @@ class ReosHecrasTesting : public QObject
 
     void createTimeSerie();
     void writeGridInDss();
+    void createAndWriteGridFromScratch();
 
     void hecRasDate();
     void dssInterval();
@@ -298,6 +300,105 @@ void ReosHecrasTesting::writeGridInDss()
   path.setVersion( "VCL" );
 
   QVERIFY( file.writeGriddedData( rainfall.get(), path, destination ) );
+}
+
+void ReosHecrasTesting::createAndWriteGridFromScratch()
+{
+  ReosGriddedRainfallMemoryProvider memoryRainfallProvider;
+
+  ReosRasterMemory<double> frame1( 30, 30 );
+  frame1.reserveMemory();
+  frame1.fill( 0 );
+  for ( int i = 10; i < 20; ++i )
+    for ( int j = 12; j < 24; j++ )
+      frame1.setValue( i, j, 5 );
+  memoryRainfallProvider.addFrame( frame1,
+                                   QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 30, 0 ), Qt::UTC ),
+                                   QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 35, 0 ), Qt::UTC ) );
+
+  ReosRasterMemory<double> frame2( 30, 30 );
+  frame2.reserveMemory();
+  frame2.fill( 0 );
+  for ( int i = 5; i < 25; ++i )
+    for ( int j = 5; j < 25; j++ )
+      frame2.setValue( i, j, std::abs( 15 - std::max( i, j ) ) );
+  memoryRainfallProvider.addFrame( frame2,
+                                   QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 35, 0 ), Qt::UTC ),
+                                   QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 40, 0 ), Qt::UTC ) );
+
+  ReosRasterMemory<double> frame3( 30, 30 );
+  frame3.reserveMemory();
+  frame3.fill( 0 );
+  for ( int i = 5; i < 25; ++i )
+    for ( int j = 5; j < 25; j++ )
+      frame3.setValue( i, j, std::abs( 15 - std::max( i, j ) ) );
+  memoryRainfallProvider.addFrame( frame3,
+                                   QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 40, 0 ), Qt::UTC ),
+                                   QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 45, 0 ), Qt::UTC ) );
+
+  QPolygonF polyExtent;
+  polyExtent << QPointF( 652991.48222804930992424, 1796819.82771771727129817 )
+             << QPointF( 652991.48222804884426296, 1797504.95862683397717774 )
+             << QPointF( 653726.54979237192310393, 1797504.95862683444283903 )
+             << QPointF( 653726.54979237180668861, 1796819.82771771727129817 );
+
+  ReosMapExtent extent( polyExtent, ReosGisEngine::crsFromEPSG( 32620 ) );
+
+  memoryRainfallProvider.setExtent( ReosRasterExtent( extent, 30, 30 ) );
+
+  ReosGriddedRainfall rainfall;
+  rainfall.copyFrom( &memoryRainfallProvider );
+
+  QString filePath( tempFile( "/hecras/gridded_jarry.dss" ) );
+  ReosDssFile file( filePath, true );
+  ReosDssPath path;
+  path.setGroup( "HOME_MADE" );
+  path.setLocation( "JARRY" );
+  path.setParameter( "PRECIP" );
+  path.setVersion( "VCL" );
+
+  file.writeGriddedData( &rainfall, path, rainfall.extent() );
+  file.close();
+
+  // Now, we try to open it
+  std::unique_ptr<ReosDssProviderGriddedRainfall> dssProvider = std::make_unique<ReosDssProviderGriddedRainfall>();
+  QVERIFY( dssProvider->canReadUri( filePath ) );
+
+  dssProvider.reset( static_cast<ReosDssProviderGriddedRainfall *>(
+                       ReosDataProviderRegistery::instance()->createCompatibleProvider( filePath, ReosGriddedRainfall::staticType() ) ) );
+
+  QVERIFY( dssProvider );
+  ReosModule::Message message;
+  QList<ReosDssPath> griddedPathes = dssProvider->griddedRainfallPathes( filePath, message );
+  QVERIFY( message.type == ReosModule::Simple );
+  QCOMPARE( griddedPathes.count(), 1 );
+
+  ReosGriddedRainfallProvider::Details details = dssProvider->details( filePath, message );
+  QVERIFY( message.type == ReosModule::Simple );
+  QCOMPARE( details.availableVariables.count(), 1 );
+  QCOMPARE( details.availableVariables.at( 0 ), QStringLiteral( "/HOME_MADE/JARRY/PRECIP///VCL/" ) );
+
+  ReosDssPath gridPath = griddedPathes.at( 0 );
+  QVERIFY( path.isEquivalent( gridPath ) );
+
+  QString uri = ReosDssProviderBase::createUri( filePath, gridPath );
+  QCOMPARE( uri, "\"" + filePath + "\"::/HOME_MADE/JARRY/PRECIP///VCL/" );
+
+  std::unique_ptr<ReosGriddedRainfall> griddedPrecipitation = std::make_unique<ReosGriddedRainfall>( uri, dssProvider->key() );
+
+  QCOMPARE( griddedPrecipitation->gridCount(), 3 );
+
+  QCOMPARE( griddedPrecipitation->startTime( 0 ),  QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 30, 0 ), Qt::UTC ) );
+  QCOMPARE( griddedPrecipitation->endTime( 0 ),  QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 35, 0 ), Qt::UTC ) );
+  QCOMPARE( griddedPrecipitation->startTime( 1 ),  QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 35, 0 ), Qt::UTC ) );
+  QCOMPARE( griddedPrecipitation->endTime( 1 ),  QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 40, 0 ), Qt::UTC ) );
+  QCOMPARE( griddedPrecipitation->startTime( 2 ),  QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 40, 0 ), Qt::UTC ) );
+  QCOMPARE( griddedPrecipitation->endTime( 2 ),  QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 45, 0 ), Qt::UTC ) );
+
+  ReosRasterExtent griddedExtent = griddedPrecipitation->extent();
+
+  QCOMPARE( griddedExtent.xCellCount(), 32 );
+  QCOMPARE( griddedExtent.yCellCount(), 31 );
 }
 
 void ReosHecrasTesting::hecRasDate()

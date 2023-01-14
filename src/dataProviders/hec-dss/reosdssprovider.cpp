@@ -18,6 +18,7 @@
 #include <QFileInfo>
 
 #include "reostimeserie.h"
+#include "reosgriddedrainitem.h"
 #include "reosdssutils.h"
 
 REOSEXTERN ReosDataProviderFactory *providerFactory()
@@ -35,6 +36,17 @@ QString ReosDssProviderBase::staticKey()
   return QStringLiteral( "dss" );
 }
 
+QString ReosDssProviderBase::createUri( const QString &filePath, const ReosDssPath &path )
+{
+  QString uri;
+  uri.append( QStringLiteral( "\"" ) );
+  uri.append( filePath );
+  uri.append( QStringLiteral( "\"::" ) );
+  uri.append( path.string() );
+
+  return uri;
+}
+
 #if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
 #define skipEmptyPart QString::SkipEmptyParts
 #else
@@ -44,7 +56,7 @@ QString ReosDssProviderBase::staticKey()
 QString ReosDssProviderBase::fileNameFromUri( const QString &uri )
 {
   if ( !uri.contains( QStringLiteral( "\"" ) ) )
-    return QString();
+    return uri;
 
   QStringList split = uri.split( QStringLiteral( "\"" ), skipEmptyPart );
   return split.at( 0 );
@@ -257,13 +269,16 @@ QString ReosDssProviderTimeSerieConstantTimeStep::dataType()
   return ReosTimeSerieConstantInterval::staticType();
 }
 
-ReosTimeSerieProvider *ReosDssProviderFactory::createProvider( const QString &dataType ) const
+ReosDataProvider *ReosDssProviderFactory::createProvider( const QString &dataType ) const
 {
   if ( dataType.contains( ReosDssProviderTimeSerieConstantTimeStep::dataType() ) )
     return new ReosDssProviderTimeSerieConstantTimeStep();
 
   if ( dataType.contains( ReosDssProviderTimeSerieVariableTimeStep::dataType() ) )
     return new ReosDssProviderTimeSerieVariableTimeStep();
+
+  if ( dataType.contains( ReosDssProviderGriddedRainfall::dataType() ) )
+    return new ReosDssProviderGriddedRainfall();
 
   return nullptr;
 }
@@ -416,4 +431,200 @@ const QVector<ReosDuration> &ReosDssProviderTimeSerieVariableTimeStep::constTime
 QString ReosDssProviderTimeSerieVariableTimeStep::dataType()
 {
   return ReosTimeSerieVariableTimeStep::staticType();
+}
+
+QString ReosDssProviderGriddedRainfall::key() const
+{
+  return ReosDssProviderBase::staticKey() + QStringLiteral( "::" ) + dataType();
+}
+
+void ReosDssProviderGriddedRainfall::setDataSource( const QString &dataSource )
+{
+  ReosGriddedRainfallProvider::setDataSource( dataSource );
+
+  mFilePath = fileNameFromUri( dataSource );
+  mPath = dssPathFromUri( dataSource );
+
+  mFile.reset( new ReosDssFile( mFilePath ) );
+
+  mIsValid = mFile->isValid();
+  if ( !mIsValid )
+    return;
+
+  const QList<ReosDssPath> recordPathes = mFile->searchRecordsPath( mPath, false );
+
+  mIsValid = !recordPathes.isEmpty();
+  if ( !mIsValid )
+    return;
+
+  for ( const ReosDssPath &recordPath : recordPathes )
+  {
+    DssGrid grid;
+    grid.path = recordPath;
+    grid.startTime = dssStrToDateTime( recordPath.startDate() );
+    grid.endTime = dssStrToDateTime( recordPath.timeInterval() );
+    mGrids.append( grid );
+  }
+  mExtent = mFile->gridExtent( recordPathes.at( 0 ) );
+
+}
+
+bool ReosDssProviderGriddedRainfall::canReadUri( const QString &uri ) const
+{
+  ReosDssFile file( uri );
+
+  if ( !file.isValid() )
+    return false;
+
+  QList<ReosDssPath> pathes = file.allPathes();
+  for ( const ReosDssPath &path : std::as_const( pathes ) )
+  {
+    ReosDssFile::RecordInfo info = file.recordInformation( path );
+
+    if ( info.recordType == 430 )
+      return true;
+  }
+
+  return false;
+}
+
+ReosGriddedRainfallProvider::Details ReosDssProviderGriddedRainfall::details( const QString &uri, ReosModule::Message &message ) const
+{
+  QList<ReosDssPath> pathes = griddedRainfallPathes( ReosDssProviderBase::fileNameFromUri( uri ), message );
+
+  Details ret;
+  for ( const ReosDssPath &path : pathes )
+    ret.availableVariables.append( path.string() );
+
+  return ret;
+}
+
+ReosGriddedRainfallProvider *ReosDssProviderGriddedRainfall::clone() const
+{
+  std::unique_ptr<ReosDssProviderGriddedRainfall> other = std::make_unique<ReosDssProviderGriddedRainfall>();
+  other->setDataSource( dataSource() );
+
+  return other.release();
+}
+
+bool ReosDssProviderGriddedRainfall::isValid() const
+{
+  return mIsValid;
+}
+
+int ReosDssProviderGriddedRainfall::count() const
+{
+  return mGrids.count();
+}
+
+QDateTime ReosDssProviderGriddedRainfall::startTime( int index ) const
+{
+  if ( index < 0 || index > mGrids.count() )
+    return QDateTime();
+
+  return mGrids.at( index ).startTime;
+}
+
+QDateTime ReosDssProviderGriddedRainfall::endTime( int index ) const
+{
+  if ( index < 0 || index > mGrids.count() )
+    return QDateTime();
+
+  return mGrids.at( index ).endTime;
+}
+
+const QVector<double> ReosDssProviderGriddedRainfall::data( int index ) const
+{
+  if ( index < 0 || index > mGrids.count() )
+    return QVector<double>();
+
+  if ( mFile && mFile->isValid() )
+  {
+    int xCount = 0;
+    int yCount = 0;
+    QVector<double> vals = mFile->gridValues( mGrids.at( index ).path, xCount, yCount );
+    if ( xCount == mExtent.xCellCount() && yCount == mExtent.yCellCount() )
+      return vals;
+  }
+
+  return QVector<double>();
+}
+
+ReosRasterExtent ReosDssProviderGriddedRainfall::extent() const
+{
+  return mExtent;
+}
+
+ReosEncodedElement ReosDssProviderGriddedRainfall::encode( const ReosEncodeContext &context ) const
+{
+  return ReosEncodedElement();
+}
+
+void ReosDssProviderGriddedRainfall::decode( const ReosEncodedElement &element, const ReosEncodeContext &context )
+{
+
+}
+
+QString ReosDssProviderGriddedRainfall::dataType()
+{
+  return ReosGriddedRainfall::staticType();
+}
+
+QList<ReosDssPath> ReosDssProviderGriddedRainfall::griddedRainfallPathes( const QString &filePath, ReosModule::Message &message ) const
+{
+  QList<ReosDssPath> ret;
+  ReosDssFile file( filePath );
+  if ( !file.isValid() )
+  {
+    message.type = ReosModule::Error;
+    message.text = tr( "Unable to open the dss file %1." ).arg( filePath );
+    return ret;
+  }
+
+  const QList<ReosDssPath> allPathes = file.allPathes();
+
+  for ( const ReosDssPath &path : allPathes )
+  {
+    ReosDssFile::RecordInfo info = file.recordInformation( path );
+
+    if ( info.recordType == 430 )
+    {
+      bool isPresent = false;
+      for ( const ReosDssPath &pp : std::as_const( ret ) )
+      {
+        if ( pp.isEquivalent( path ) )
+        {
+          isPresent = true;
+          break;
+        }
+      }
+      if ( !isPresent )
+      {
+        ReosDssPath  effPath = path;
+        effPath.setStartDate( QString() );
+        effPath.setTimeInterval( QString() );
+        ret.append( effPath );
+      }
+    }
+  }
+
+  if ( ret.isEmpty() )
+  {
+    message.type = ReosModule::Error;
+    message.text = tr( "Unable to find grid data in the dss file %1." ).arg( filePath );
+  }
+
+  message.type = ReosModule::Simple;
+
+  return ret;
+}
+
+QDateTime ReosDssProviderGriddedRainfall::dssStrToDateTime( const QString &str )
+{
+  const QStringList parts = str.split( ':' );
+  if ( parts.count() != 2 )
+    return QDateTime();
+  QDate date = ReosDssUtils::dssDateToDate( parts.at( 0 ) );
+  QTime time = ReosDssUtils::dssTimeToTime( parts.at( 1 ) );
+  return QDateTime( date, time, Qt::UTC );
 }

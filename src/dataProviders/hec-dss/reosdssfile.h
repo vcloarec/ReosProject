@@ -27,6 +27,7 @@
 class ReosHydrograph;
 class ReosGriddedRainfall;
 class ReosMapExtent;
+class ReosRasterExtent;
 
 class REOSDSS_EXPORT ReosDssPath
 {
@@ -69,6 +70,8 @@ class REOSDSS_EXPORT ReosDssPath
 
     ReosDuration timeIntervalDuration() const;
 
+    bool isEquivalent( const ReosDssPath &other ) const;
+
   private:
     bool mIsValid = false;
     QVector<QVector<char>> mData;
@@ -84,7 +87,7 @@ class REOSDSS_EXPORT ReosDssFile
 {
   public:
 
-    ReosDssFile( const QString &filePath, bool create = false );
+    explicit ReosDssFile( const QString &filePath, bool create = false );
     ReosDssFile( const ReosDssFile &other ) = delete;
     ReosDssFile( ReosDssFile &&other );
     ~ReosDssFile();
@@ -95,15 +98,16 @@ class REOSDSS_EXPORT ReosDssFile
     bool isValid() const;
     bool isOpen() const;
 
+    void open();
     void close();
 
     bool pathExist( const ReosDssPath &path, bool considerInterval ) const;
 
     bool getSeries( const ReosDssPath &path, QVector<double> &values, ReosDuration &timeStep, QDateTime &startTime ) const;
 
-    void getGrid( const ReosDssPath &path );
+    virtual ReosRasterExtent gridExtent( const ReosDssPath &path ) const;
 
-    QVector<double> values( const ReosDssPath &path ) const;
+    virtual QVector<double> gridValues( const ReosDssPath &path, int &xCount, int &yCount ) const;
 
     //! Create a new series with constant time interval with \a path in the file
     bool createConstantIntervalSeries( const ReosDssPath &path, QString &error );
@@ -121,6 +125,16 @@ class REOSDSS_EXPORT ReosDssFile
                            double resolution = -1 );
 
     QList<ReosDssPath> searchRecordsPath( const ReosDssPath &path, bool considerInterval ) const;
+
+    QList<ReosDssPath> allPathes() const;
+
+    struct RecordInfo
+    {
+      int recordType = -1;
+      int version = 0;
+    };
+
+    RecordInfo recordInformation( const ReosDssPath &path ) const;
 
   private:
     std::unique_ptr<std::array<long long, 250>> mIfltab;
