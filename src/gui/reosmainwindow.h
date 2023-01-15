@@ -51,10 +51,10 @@ class REOSGUI_EXPORT ReosMainWindow : public QMainWindow
     void keyPressEvent( QKeyEvent *event ) override;
 
     void init();
-    void addActionsFile( const QList<QAction *> actions );
-    void addActionEdit( const QList<QAction *> actions );
-    void addActionOption( const QList<QAction *> actions );
-    void addActionInterrogation( const QList<QAction *> actions );
+    void addActionsFile( const QList<QAction *> &actions );
+    void addActionEdit( const QList<QAction *> &actions );
+    void addActionOption( const QList<QAction *> &actions );
+    void addActionInterrogation( const QList<QAction *> &actions );
 
     ReosModule *rootModule() const;
 
@@ -133,6 +133,7 @@ class REOSGUI_EXPORT ReosMainWindow : public QMainWindow
 
     QString mDocumentationUrl;
     QString mHowToSupportUrl;
+    QString mFinancialContribution;
 };
 
 #endif // REOSMAINWINDOW_H

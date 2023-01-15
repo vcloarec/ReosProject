@@ -29,6 +29,8 @@ ReosAboutWidget::ReosAboutWidget( QWidget *parent ) :
 
   for ( const QString &key : keys )
     ui->mSolverLayout->addWidget( ReosHydraulicSimulationWidgetRegistery::instance()->createDescription( key, this ) );
+
+  ui->financialTextBrowser->setOpenExternalLinks( true );
 }
 
 ReosAboutWidget::~ReosAboutWidget()
@@ -107,4 +109,9 @@ void ReosAboutWidget::setTranslatorsTextFile( const QString &txt )
     return;
   QTextStream txtStream( &devFiles );
   ui->transTextBrowser->setText( txtStream.readAll() );
+}
+
+void ReosAboutWidget::setFinancialContributorText( const QString &txt )
+{
+  ui->financialTextBrowser->setText( txt );
 }

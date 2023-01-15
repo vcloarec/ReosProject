@@ -45,6 +45,8 @@ class ReosAboutWidget : public QDialog
     void setDevelopersTextFile( const QString &txt );
     void setTranslatorsTextFile( const QString &txt );
 
+    void setFinancialContributorText( const QString &txt );
+
   private:
     Ui::ReosAboutWidget *ui;
 };
