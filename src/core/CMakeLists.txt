@@ -206,7 +206,8 @@ SET(IMAGE_RCCS ${CMAKE_SOURCE_DIR}/images/images.qrc
                ${CMAKE_SOURCE_DIR}/images/formulas/formulas.qrc
                ${CMAKE_SOURCE_DIR}/images/flags/flags.qrc)
 
-SET(CREDITS_RCCS ${CMAKE_SOURCE_DIR}/credits/credits.qrc)
+SET(CREDITS_RCCS ${CMAKE_SOURCE_DIR}/credits/credits.qrc
+                 ${CMAKE_SOURCE_DIR}/credits/logos/logos.qrc)
 
 set(REOS_CORE_SOURCES ${REOS_CORE_SOURCES}
   ${CMAKE_SOURCE_DIR}/external/poly2tri/common/shapes.cc

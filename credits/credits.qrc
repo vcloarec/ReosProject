@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>developers</file>
         <file>translators</file>
+        <file>financial</file>
     </qresource>
 </RCC>

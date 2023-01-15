@@ -151,25 +151,25 @@ void ReosMainWindow::onRemoteInformation( const QVariantMap &information )
   }
 }
 
-void ReosMainWindow::addActionsFile( const QList<QAction *> actions )
+void ReosMainWindow::addActionsFile( const QList<QAction *> &actions )
 {
   for ( QAction *action : actions )
     mGroupActionFile->addAction( action );
 }
 
-void ReosMainWindow::addActionEdit( const QList<QAction *> actions )
+void ReosMainWindow::addActionEdit( const QList<QAction *> &actions )
 {
   for ( QAction *action : actions )
     mGroupActionEdit->addAction( action );
 }
 
-void ReosMainWindow::addActionOption( const QList<QAction *> actions )
+void ReosMainWindow::addActionOption( const QList<QAction *> &actions )
 {
   for ( QAction *action : actions )
     mGroupActionOption->addAction( action );
 }
 
-void ReosMainWindow::addActionInterrogation( const QList<QAction *> actions )
+void ReosMainWindow::addActionInterrogation( const QList<QAction *> &actions )
 {
   for ( QAction *action : actions )
     mGroupActionInterrogation->addAction( action );
@@ -180,7 +180,6 @@ bool ReosMainWindow::openFile()
   ReosSettings settings;
   QString path = settings.value( QStringLiteral( "Path/Project" ) ).toString();
 
-  QString filter = projectFileFilter();
   QString fileName = QFileDialog::getOpenFileName( this, tr( "Open a project" ), path, projectFileFilter() );
 
   if ( fileName.isEmpty() )
@@ -329,6 +328,18 @@ void ReosMainWindow::about()
 
   about->setDevelopersTextFile( QStringLiteral( ":/developers" ) );
   about->setTranslatorsTextFile( QStringLiteral( ":/translators" ) );
+
+  if ( mFinancialContribution.isEmpty() )
+  {
+    QFile devFiles( QStringLiteral( ":/financial" ) );
+    if ( devFiles.open( QIODevice::ReadOnly ) )
+    {
+      QTextStream txtStream( &devFiles );
+      about->setFinancialContributorText( txtStream.readAll() );
+    }
+  }
+  else
+    about->setFinancialContributorText( mFinancialContribution );
 
   about->exec();
 }

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>396</width>
-    <height>517</height>
+    <width>386</width>
+    <height>571</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -132,7 +132,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <property name="usesScrollButtons">
       <bool>true</bool>
@@ -233,7 +233,17 @@
       <attribute name="title">
        <string>Contributors</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_4" stretch="1,1,1,4">
+      <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,2,0,1,0,2">
+       <item>
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Financial Contribution</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTextBrowser" name="financialTextBrowser"/>
+       </item>
        <item>
         <widget class="QLabel" name="label_3">
          <property name="sizePolicy">
