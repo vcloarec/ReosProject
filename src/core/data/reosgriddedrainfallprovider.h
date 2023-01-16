@@ -39,7 +39,6 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
       QStringList availableVariables;
       ReosMapExtent extent;
       QStringList files;
-      ReosModule::Message status;
       QString deducedName;
     };
 

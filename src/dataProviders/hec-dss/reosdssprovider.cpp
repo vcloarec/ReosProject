@@ -451,7 +451,7 @@ void ReosDssProviderGriddedRainfall::setDataSource( const QString &dataSource )
   if ( !mIsValid )
     return;
 
-  const QList<ReosDssPath> recordPathes = mFile->searchRecordsPath( mPath, false );
+  QList<ReosDssPath> recordPathes = mFile->searchRecordsPath( mPath, false );
 
   mIsValid = !recordPathes.isEmpty();
   if ( !mIsValid )
@@ -467,6 +467,11 @@ void ReosDssProviderGriddedRainfall::setDataSource( const QString &dataSource )
   }
   mExtent = mFile->gridExtent( recordPathes.at( 0 ) );
 
+  std::sort( mGrids.begin(), mGrids.end(), []( const DssGrid & f1, const DssGrid & f2 )
+  {
+    return f1.startTime < f2.startTime;
+  } );
+
 }
 
 bool ReosDssProviderGriddedRainfall::canReadUri( const QString &uri ) const
@@ -477,24 +482,21 @@ bool ReosDssProviderGriddedRainfall::canReadUri( const QString &uri ) const
     return false;
 
   QList<ReosDssPath> pathes = file.allPathes();
-  for ( const ReosDssPath &path : std::as_const( pathes ) )
-  {
-    ReosDssFile::RecordInfo info = file.recordInformation( path );
 
-    if ( info.recordType == 430 )
-      return true;
-  }
-
-  return false;
+  return !pathes.isEmpty();
 }
 
 ReosGriddedRainfallProvider::Details ReosDssProviderGriddedRainfall::details( const QString &uri, ReosModule::Message &message ) const
 {
-  QList<ReosDssPath> pathes = griddedRainfallPathes( ReosDssProviderBase::fileNameFromUri( uri ), message );
+  QString fileName = ReosDssProviderBase::fileNameFromUri( uri );
+  QList<ReosDssPath> pathes = griddedRainfallPathes( fileName, message );
 
   Details ret;
   for ( const ReosDssPath &path : pathes )
     ret.availableVariables.append( path.string() );
+
+  QFileInfo fileInfo( fileName );
+  ret.deducedName = fileInfo.baseName();
 
   return ret;
 }
@@ -557,12 +559,31 @@ ReosRasterExtent ReosDssProviderGriddedRainfall::extent() const
 
 ReosEncodedElement ReosDssProviderGriddedRainfall::encode( const ReosEncodeContext &context ) const
 {
-  return ReosEncodedElement();
+  ReosEncodedElement element( QStringLiteral( "dss-gridded-precipitation" ) );
+
+  QString uriToEncode = dataSource();
+
+  QString sourcePath = fileNameFromUri( uriToEncode );
+  sourcePath = context.pathToEncode( sourcePath );
+  uriToEncode = createUri( sourcePath, dssPathFromUri( uriToEncode ) );
+  element.addData( QStringLiteral( "data-source" ), uriToEncode );
+
+  return element;
 }
 
 void ReosDssProviderGriddedRainfall::decode( const ReosEncodedElement &element, const ReosEncodeContext &context )
 {
+  if ( element.description() != QStringLiteral( "dss-gridded-precipitation" ) )
+    return;
 
+  QString source;
+  if ( element.getData( QStringLiteral( "data-source" ), source ) )
+  {
+    QString sourcePath = fileNameFromUri( source );
+    sourcePath = context.resolvePath( sourcePath );
+    source = createUri( sourcePath, dssPathFromUri( source ) );
+    setDataSource( source );
+  }
 }
 
 QString ReosDssProviderGriddedRainfall::dataType()
@@ -577,7 +598,7 @@ QList<ReosDssPath> ReosDssProviderGriddedRainfall::griddedRainfallPathes( const 
   if ( !file.isValid() )
   {
     message.type = ReosModule::Error;
-    message.text = tr( "Unable to open the dss file %1." ).arg( filePath );
+    message.text = tr( "Unable to open the dss file \"%1\"." ).arg( filePath );
     return ret;
   }
 
@@ -611,12 +632,49 @@ QList<ReosDssPath> ReosDssProviderGriddedRainfall::griddedRainfallPathes( const 
   if ( ret.isEmpty() )
   {
     message.type = ReosModule::Error;
-    message.text = tr( "Unable to find grid data in the dss file %1." ).arg( filePath );
+    message.text = tr( "Unable to find grid data in the dss file \"%1\"." ).arg( filePath );
   }
-
-  message.type = ReosModule::Simple;
+  else
+    message.type = ReosModule::Simple;
 
   return ret;
+}
+
+QString ReosDssProviderGriddedRainfall::staticKey()
+{
+  return ReosDssProviderBase::staticKey() + QStringLiteral( "::" ) + ReosGriddedRainfall::staticType();
+}
+
+bool ReosDssProviderGriddedRainfall::getDirectMinMax( double &min, double &max ) const
+{
+  if ( mHasMinMaxCalculated )
+  {
+    min = mMin;
+    max = mMax;
+  }
+  return mHasMinMaxCalculated;
+}
+
+void ReosDssProviderGriddedRainfall::calculateMinMax( double &min, double &max ) const
+{
+  if ( !mFile->isValid() )
+    return;
+  mMin = std::numeric_limits<double>::max();
+  mMax = -std::numeric_limits<double>::max();
+  for ( const  DssGrid &gridInfo : mGrids )
+  {
+    double m = 0;
+    double M = 0;
+    if ( !mFile->gridMinMax( gridInfo.path, m, M ) )
+      continue;
+    if ( mMin > m )
+      mMin = m;
+    if ( mMax < M )
+      mMax = M;
+  }
+  min = mMin;
+  max = mMax;
+  mHasMinMaxCalculated = true;
 }
 
 QDateTime ReosDssProviderGriddedRainfall::dssStrToDateTime( const QString &str )

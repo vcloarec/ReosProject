@@ -14,11 +14,14 @@ SET(REOS_HEC_DSS_HEADERS
 SET(REOS_PROVIDER_HEC_DSS_SOURCES
     reosdssprovider.cpp
     reosdsswidget.cpp
+    reosdssgriddedrainfallselector.cpp
+
 )
 
 SET(REOS_PROVIDER_HEC_DSS_HEADERS
     reosdssprovider.h
     reosdsswidget.h
+    reosdssgriddedrainfallselector.h
 )
 
 #SET(LOGO_RCCS ${CMAKE_SOURCE_DIR}/images/providers/delft-fews/delft-fews-images.qrc)

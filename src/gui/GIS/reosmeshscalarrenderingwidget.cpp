@@ -88,6 +88,7 @@ ReosMeshScalarRenderingWidget::ReosMeshScalarRenderingWidget( ReosColorShaderSet
         mSettings->calculateSourceMinMax( min, max );
       }
     }
+
     if ( min < max )
     {
       mMinimumParam->setValue( min );

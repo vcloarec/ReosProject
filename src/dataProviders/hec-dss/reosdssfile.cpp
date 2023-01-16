@@ -18,6 +18,7 @@
 #include <QFileInfo>
 #include <QDateTime>
 #include <QDebug>
+#include <cmath>
 
 extern "C" {
 #include "heclib.h"
@@ -137,12 +138,32 @@ bool ReosDssFile::getSeries( const ReosDssPath &path, QVector<double> &values, R
   return status == STATUS_OKAY;
 }
 
-ReosRasterExtent ReosDssFile::gridExtent( const ReosDssPath &path ) const
+bool ReosDssFile::gridMinMax( const ReosDssPath &path, double &min, double &max ) const
 {
   zStructSpatialGrid *grid = zstructSpatialGridNew( path.c_pathString() );
   int status = zspatialGridRetrieve( mIfltab->data(), grid, false );
   if ( status != STATUS_OKAY )
+  {
+    zstructFree( grid );
+    return false;
+  }
+
+  min = *reinterpret_cast<float *>( grid->_minDataValue );
+  max = *reinterpret_cast<float *>( grid->_maxDataValue );
+  zstructFree( grid );
+  return true;
+}
+
+ReosRasterExtent ReosDssFile::gridExtent( const ReosDssPath &path ) const
+{
+  zStructSpatialGrid *grid = zstructSpatialGridNew( path.c_pathString() );
+  int status = zspatialGridRetrieve( mIfltab->data(), grid, false );
+
+  if ( status != STATUS_OKAY )
+  {
+    zstructFree( grid );
     return ReosRasterExtent();
+  }
 
   int xCellCount = grid->_numberOfCellsX;
   int yCellCount = grid->_numberOfCellsY;
@@ -169,6 +190,7 @@ QVector<double> ReosDssFile::gridValues( const ReosDssPath &path, int &xCount, i
   {
     xCount = 0;
     yCount = 0;
+    zstructFree( grid );
     return QVector<double>();
   }
 
@@ -180,7 +202,7 @@ QVector<double> ReosDssFile::gridValues( const ReosDssPath &path, int &xCount, i
   for ( int i = 0; i < xCount; ++i )
     for ( int j = 0; j < yCount; ++j )
     {
-      float value = reinterpret_cast<float *>( grid->_data )[static_cast<size_t>( i + j * xCount )];
+      float value = reinterpret_cast<float *>( grid->_data )[static_cast<size_t>( i + ( yCount - j - 1 ) * xCount )];
       if ( value == grid->_nullValue )
         ret[i + j * xCount] = std::numeric_limits<double>::quiet_NaN();
       else
@@ -283,13 +305,13 @@ bool ReosDssFile::writeGriddedData(
   {
     double dx = destinationFullExtent.width() / extent.xCellCount();
     double dy = destinationFullExtent.height() / extent.yCellCount();
-    destResolution = ( dx + dy ) / 2;
+    destResolution = std::min( dx, dy );
   }
 
-  int xCellBottomLeft = static_cast<int>( destination.xMapMin() / destResolution + 0.5 );
-  int ycellBottomLeft = static_cast<int>( destination.yMapMin() / destResolution + 0.5 );
-  int xCellTopRight = static_cast<int>( destination.xMapMax() / destResolution + 0.5 );
-  int yCellTopRight = static_cast<int>( destination.yMapMax() / destResolution + 0.5 );
+  int xCellBottomLeft = static_cast<int>( std::ceil( destination.xMapMin() / destResolution ) );
+  int ycellBottomLeft = static_cast<int>( std::ceil( destination.yMapMin() / destResolution ) );
+  int xCellTopRight = std::max( 0, static_cast<int>( std::floor( destination.xMapMax() / destResolution ) - 1 ) );
+  int yCellTopRight = std::max( 0, static_cast<int>( std::floor( destination.yMapMax() / destResolution ) - 1 ) );
 
   double xMinDestin = xCellBottomLeft * destResolution;
   double yMinDestin = ycellBottomLeft * destResolution;
@@ -343,28 +365,31 @@ bool ReosDssFile::writeGriddedData(
     float min = std::numeric_limits<float>::max();
     float max = -std::numeric_limits<float>::max();
     double mean = 0;
-    for ( double val : values )
+    double noData = -99999.0;
+    grid->_data = malloc( sizeof( float ) * values.count() );
+    for ( int di = 0; di < values.count(); ++di )
     {
-      if ( float( val ) < min )
+      float val = static_cast<float>( values.at( di ) );
+      if ( std::isnan( val ) )
+      {
+        static_cast<float *>( grid->_data )[static_cast<size_t>( di )] = noData;
+        continue;
+      }
+      static_cast<float *>( grid->_data )[static_cast<size_t>( di )] = val;
+      if ( val  < min )
         min = val;
-
-      if ( float( val ) > max )
+      if ( val > max )
         max = val;
-
       mean += val;
     }
-
     grid->_minDataValue = allocValue( min );
     grid->_maxDataValue = allocValue( max );
     grid->_meanDataValue = allocValue( static_cast<float>( mean / values.count() ) );
-    grid->_data = malloc( sizeof( float ) * values.count() );
-
     grid->_compressionParameters = malloc( sizeof( float ) * 2 );
+    grid->_nullValue = noData;
     static_cast<float *>( grid->_compressionParameters )[0] = 0.0;
     static_cast<float *>( grid->_compressionParameters )[1] = 0.0;
 
-    for ( int di = 0; di < values.count(); ++di )
-      static_cast<float *>( grid->_data )[di] = static_cast<float>( values.at( di ) );
     res = zspatialGridStore( mIfltab->data(), grid ) == STATUS_OKAY;
     zstructFree( grid );
     if ( !res )
@@ -462,7 +487,10 @@ QList<ReosDssPath> ReosDssFile::searchRecordsPath( const ReosDssPath &path, bool
 
   status = zcatalog( mIfltab->data(), searchPath.c_pathString(), catStruct, 0 );
   if ( status < 0 )
+  {
+    zstructFree( catStruct );
     return ret;
+  }
 
   int count = catStruct->numberPathnames;
   ret.reserve( count );
@@ -493,7 +521,10 @@ ReosDssFile::RecordInfo ReosDssFile::recordInformation( const ReosDssPath &path 
   int status = zgetRecordBasics( mIfltab->data(), recordBasics );
 
   if ( status < 0 )
+  {
+    zstructFree( recordBasics );
     return ret;
+  }
 
   ret.version = recordBasics->version;
   ret.recordType = recordBasics->recordType;

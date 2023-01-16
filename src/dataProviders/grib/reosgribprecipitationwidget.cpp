@@ -78,7 +78,7 @@ ReosDataObject *ReosGribPrecipitationWidget::selectedData() const
   return mCurrentRainfall.get();
 }
 
-ReosGriddedRainfallProvider::Details  ReosGribPrecipitationWidget::setSource( const QString &source )
+ReosGriddedRainfallProvider::Details  ReosGribPrecipitationWidget::setSource( const QString &source, ReosModule::Message &message )
 {
   mSource = source;
   onPathChanged();

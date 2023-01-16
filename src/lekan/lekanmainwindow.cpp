@@ -81,6 +81,7 @@ LekanMainWindow::LekanMainWindow( QWidget *parent )
   mRainFallManagerWidget->setAction( mActionRainfallManager );
   mRainFallManagerWidget->loadDataFile();
   connect( ReosRainfallRegistery::instance()->rainfallModel(), &ReosRainfallModel::changed, this, [this] {mIsRainfallDirty = true;} );
+  connect( ReosRainfallRegistery::instance()->rainfallModel(), &ReosRainfallModel::saved, this, [this] {mIsRainfallDirty = false;} );
 
   mRunoffManagerWidget = new ReosRunoffManager( ReosRunoffModelRegistery::instance()->model(), this );
   mActionRunoffManager->setCheckable( true );
