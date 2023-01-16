@@ -667,6 +667,8 @@ void ReosMap::removeAllExtraRendererObjects()
 {
   while ( !mExtraRenderedObjects.empty() )
     removeExtraRenderedObject( mExtraRenderedObjects.first() );
+
+  refreshCanvas();
 }
 
 const QObject *ReosMap::temporalController() const
@@ -908,7 +910,10 @@ void ReosDataVizMapWidget::setExtent( const ReosMapExtent &extent )
 
 void ReosDataVizMapWidget::showExtentOnMap( const ReosMapExtent &extent )
 {
-  mExtentOnMap.resetPolygon( ReosGisEngine::transformToCoordinates( extent.crs(), extent.toPolygon(), mMap->mapCrs() ) );
+  if ( extent != ReosMapExtent() )
+    mExtentOnMap.resetPolygon( ReosGisEngine::transformToCoordinates( extent.crs(), extent.toPolygon(), mMap->mapCrs() ) );
+  else
+    mExtentOnMap.resetPolygon();
 }
 
 void ReosDataVizMapWidget::hideExtentOnMap()

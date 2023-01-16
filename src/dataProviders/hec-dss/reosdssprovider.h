@@ -149,6 +149,11 @@ class ReosDssProviderGriddedRainfall : public ReosGriddedRainfallProvider, publi
 
     QList<ReosDssPath> griddedRainfallPathes( const QString &filePath, ReosModule::Message &message ) const;
 
+    static QString staticKey();
+
+    virtual bool getDirectMinMax( double &min, double &max ) const override;
+    virtual void calculateMinMax( double &min, double &max ) const override;
+
   private:
     bool mIsValid = false;
     QString mFilePath;
@@ -161,6 +166,10 @@ class ReosDssProviderGriddedRainfall : public ReosGriddedRainfallProvider, publi
       QDateTime endTime;
     };
     QList<DssGrid> mGrids;
+
+    mutable bool mHasMinMaxCalculated = false;
+    mutable double mMin = std::numeric_limits<double>::max();
+    mutable double mMax = -std::numeric_limits<double>::max();
 
     static QDateTime dssStrToDateTime( const QString &str );
 };

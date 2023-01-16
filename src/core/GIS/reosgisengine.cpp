@@ -852,8 +852,8 @@ ReosRasterMemory<QList<QPair<double, QPoint>>>  ReosGisEngine::transformRasterEx
       }
     }
 
-    int xDestCount = destination.width() / std::fabs( resolX ) + 1;
-    int yDestCount = destination.height() / std::fabs( resolY ) + 1;
+    int xDestCount = static_cast<int>( std::round( destination.width() / std::fabs( resolX ) ) ); // + 1;
+    int yDestCount =  static_cast<int>( std::round( destination.height() / std::fabs( resolY ) ) ); // + 1;
 
     ret.reserveMemory( yDestCount, xDestCount );
 

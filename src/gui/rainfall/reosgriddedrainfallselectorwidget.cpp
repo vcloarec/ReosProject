@@ -144,7 +144,6 @@ void ReosGriddedRainfallSelectorWidget::onPathChanged()
   mCurrentSourceIsValid = false;
   if ( mProviderSelectorWidget )
   {
-    ui->mProviderLayout->addWidget( mProviderSelectorWidget );
     delete mProviderSelectorWidget;
     mProviderSelectorWidget = nullptr;
   }
@@ -155,23 +154,25 @@ void ReosGriddedRainfallSelectorWidget::onPathChanged()
   ReosModule::Message message;
   ui->mNotificationButton->setMessage( message );
 
-  ReosGriddedRainfallProvider *griddedRainProvider = qobject_cast<ReosGriddedRainfallProvider *>( provider.get() );
+  mProvider.reset( qobject_cast<ReosGriddedRainfallProvider *>( provider.release() ) );
 
-  if ( !griddedRainProvider )
+  if ( !mProvider )
   {
     if ( !ui->mPathLineEdit->text().isEmpty() )
     {
-      message.type = ReosModule::Error;
-      message.text = tr( "Unable to find a gridded precipitation with the path." );
+      if ( message.type != ReosModule::Error )
+      {
+        message.type = ReosModule::Error;
+        message.text = tr( "Unable to find a gridded precipitation with this file path." );
+      }
       ui->mNotificationButton->setMessage( message );
       ui->mNotificationButton->show();
     }
+    updateRainfall();
     return;
   }
 
-  mProvider.reset( qobject_cast<ReosGriddedRainfallProvider *>( provider.release() ) );
-
-  const QString providerKey = griddedRainProvider->key();
+  const QString providerKey = mProvider->key();
 
   if ( ReosDataProviderGuiRegistery::instance()->hasCapability( providerKey, ReosDataProviderGuiFactory::GuiCapability::DataSelector ) )
   {
@@ -179,7 +180,7 @@ void ReosGriddedRainfallSelectorWidget::onPathChanged()
     mProviderSelectorWidget =
       qobject_cast<ReosGriddedRainDataProviderSelectorWidget *>(
         ReosDataProviderGuiRegistery::instance()->createProviderSelectorWidget(
-          griddedRainProvider->key(),
+          mProvider->key(),
           ReosGriddedRainfall::staticType(),
           ui->mDataVizMap->map(),
           this ) );
@@ -187,14 +188,14 @@ void ReosGriddedRainfallSelectorWidget::onPathChanged()
 
   if ( mProviderSelectorWidget )
   {
-    mDetails = mProviderSelectorWidget->setSource( ui->mPathLineEdit->text() );
+    mDetails = mProviderSelectorWidget->setSource( ui->mPathLineEdit->text(), message );
     connect( mProviderSelectorWidget, &ReosGriddedRainDataProviderSelectorWidget::dataSelectionChanged,
              this, &ReosGriddedRainfallSelectorWidget::updateRainfall );
     ui->mProviderLayout->addWidget( mProviderSelectorWidget );
   }
   else
   {
-    mDetails = griddedRainProvider->details( ui->mPathLineEdit->text(), message );
+    mDetails = mProvider->details( ui->mPathLineEdit->text(), message );
   }
 
   if ( message.type == ReosModule::Error && !ui->mPathLineEdit->text().isEmpty() )
@@ -250,6 +251,13 @@ void ReosGriddedRainfallSelectorWidget::updateDataOnMap()
     ui->mDataVizMap->showExtentOnMap( mCurrentRainfall->rasterExtent() );
     ui->mDataVizMap->setExtent( mCurrentRainfall->rasterExtent() );
     ui->mShowExtentOnMainButton->setExtent( mCurrentRainfall->rasterExtent() );
+    ui->mShowExtentOnMainButton->setEnabled( true );
+  }
+  else
+  {
+    ui->mDataVizMap->hideExtentOnMap();
+    ui->mShowExtentOnMainButton->setExtent( ReosMapExtent() );
+    ui->mShowExtentOnMainButton->setEnabled( false );
   }
 }
 
@@ -265,6 +273,9 @@ QString ReosGriddedRainfallSelectorWidget::giveName() const
       return fileInfo.baseName();
     };
     const QStringList &files = mDetails.files;
+
+    if ( files.isEmpty() )
+      return QString();
 
     if ( files.count() == 1 )
       name = baseName( files.first() );

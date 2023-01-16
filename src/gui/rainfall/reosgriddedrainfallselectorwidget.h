@@ -40,7 +40,7 @@ class REOSGUI_EXPORT ReosGriddedRainDataProviderSelectorWidget : public ReosData
     ReosGriddedRainfall *createData( QObject *parent = nullptr )  const override;
 
     //! Set the datasource \a source to populate the selector, and returns details. Default implementation does nothing
-    virtual ReosGriddedRainfallProvider::Details setSource( const QString &source ) {return ReosGriddedRainfallProvider::Details();};
+    virtual ReosGriddedRainfallProvider::Details setSource( const QString &source, ReosModule::Message &message ) {return ReosGriddedRainfallProvider::Details();};
 };
 
 //! Widget class used to select/defined gridded rainfall

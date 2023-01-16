@@ -103,16 +103,16 @@ void ReosGeometryTest::gridReprojection()
     ReosGisEngine::transformRasterExtent( geoExtent, destinationExtent, 2000, 2000, projExtent, success );
 
   QCOMPARE( result.rowCount(), 104 );
-  QCOMPARE( result.columnCount(), 115 );
+  QCOMPARE( result.columnCount(), 114 );
 
   for ( int r = 0; r < result.rowCount(); ++r )
   {
     for ( int c = 0; r < result.columnCount(); ++r )
     {
       const QList<QPair<double, QPoint>> pairs = result.value( r, c );
-      double sum = 0;
       if ( !pairs.isEmpty() )
       {
+        double sum = 0;
         for ( const QPair<double, QPoint> &pair : pairs )
         {
           sum += pair.first;

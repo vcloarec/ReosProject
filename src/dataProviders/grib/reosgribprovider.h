@@ -74,6 +74,9 @@ class ReosGribGriddedRainfallProvider : public ReosGriddedRainfallProvider
     bool mIsValid = false;
     ReosModule::Message mLastMessage;
 
+    mutable bool mHasMinMaxCalculated = false;
+    mutable double mMin = std::numeric_limits<double>::max();
+    mutable double mMax = -std::numeric_limits<double>::max();
 
     struct CacheValues
     {

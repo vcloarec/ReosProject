@@ -105,9 +105,12 @@ class REOSDSS_EXPORT ReosDssFile
 
     bool getSeries( const ReosDssPath &path, QVector<double> &values, ReosDuration &timeStep, QDateTime &startTime ) const;
 
-    virtual ReosRasterExtent gridExtent( const ReosDssPath &path ) const;
+    bool gridMinMax( const ReosDssPath &path, double &min, double &max ) const;
 
-    virtual QVector<double> gridValues( const ReosDssPath &path, int &xCount, int &yCount ) const;
+    ReosRasterExtent gridExtent( const ReosDssPath &path ) const;
+
+    //! Returns the values of the grid starting on top left, and read lines.
+    QVector<double> gridValues( const ReosDssPath &path, int &xCount, int &yCount ) const;
 
     //! Create a new series with constant time interval with \a path in the file
     bool createConstantIntervalSeries( const ReosDssPath &path, QString &error );

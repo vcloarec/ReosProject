@@ -260,15 +260,20 @@ const QVector<double> ReosGribGriddedRainfallProvider::data( int index ) const
   return QVector<double>();
 }
 
-bool ReosGribGriddedRainfallProvider::getDirectMinMax( double &, double & ) const
+bool ReosGribGriddedRainfallProvider::getDirectMinMax( double &min, double &max ) const
 {
-  return false;
+  if ( mHasMinMaxCalculated )
+  {
+    min = mMin;
+    max = mMax;
+  }
+  return mHasMinMaxCalculated;
 }
 
 void ReosGribGriddedRainfallProvider::calculateMinMax( double &min, double &max ) const
 {
-  min = std::numeric_limits<double>::max();
-  max = -std::numeric_limits<double>::max();
+  mMin = std::numeric_limits<double>::max();
+  mMax = -std::numeric_limits<double>::max();
 
   int gridCount = count();
 
@@ -277,12 +282,15 @@ void ReosGribGriddedRainfallProvider::calculateMinMax( double &min, double &max 
     const QVector<double> vals = data( i );
     for ( const double &v : vals )
     {
-      if ( v < min )
-        min = v;
-      if ( v > max )
-        max = v;
+      if ( v < mMin )
+        mMin = v;
+      if ( v > mMax )
+        mMax = v;
     }
   }
+  min = mMin;
+  max = mMax;
+  mHasMinMaxCalculated = true;
 }
 
 ReosRasterExtent ReosGribGriddedRainfallProvider::extent() const

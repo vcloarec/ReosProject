@@ -218,7 +218,7 @@ bool ReosGriddedRainfallRasterProvider_p::readBlock(
   QElapsedTimer timer;
   timer.start();
 
-  GDALResampleAlg alg = GRA_Cubic;
+  GDALResampleAlg alg = GRA_NearestNeighbour;//GRA_Cubic;
 
   gdal::dataset_unique_ptr memData =
     QgsGdalUtils::blockToSingleBandMemoryDataset( pixelWidth, pixelHeight, mExtent, const_cast<double *>( mValues.constData() ),  GDALDataType::GDT_Float64 );
@@ -332,6 +332,13 @@ bool ReosGriddedRainfallColorShaderSettings_p::getDirectSourceMinMax( double &mi
 
 void ReosGriddedRainfallColorShaderSettings_p::calculateSourceMinMax( double &min, double &max ) const
 {
+  if ( !mRendererfactory || !mRendererfactory->mRainfall )
+  {
+    min = std::numeric_limits<double>::quiet_NaN();
+    max = std::numeric_limits<double>::quiet_NaN();
+    return;
+  }
+
   mRendererfactory->mRainfall->calculateMinMaxValue( min, max );
 }
 
