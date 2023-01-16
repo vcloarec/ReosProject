@@ -82,7 +82,7 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
     QString mDataSource;
 };
 
-class ReosGriddedRainfallMemoryProvider : public ReosGriddedRainfallProvider
+class REOSCORE_EXPORT ReosGriddedRainfallMemoryProvider : public ReosGriddedRainfallProvider
 {
   public:
     ReosGriddedRainfallProvider *clone() const override;
