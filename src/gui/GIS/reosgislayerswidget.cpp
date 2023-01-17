@@ -32,6 +32,7 @@ email                : vcloarec at gmail dot com
 #include <qgsprojectionselectiontreewidget.h>
 #include <qgsrasterlayerproperties.h>
 #include <qgsvectorlayerproperties.h>
+#include <qgslayertreemodel.h>
 
 
 #include "reosgisengine.h"
