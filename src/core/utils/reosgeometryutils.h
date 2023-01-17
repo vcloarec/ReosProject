@@ -74,6 +74,8 @@ class REOSCORE_EXPORT ReosGeometryUtils
         int &yOri,
         bool precise,
         ReosProcess *process = nullptr );
+
+    static QPolygonF convexHull( const QList<QPointF> &points );
 };
 
 #endif // REOSGEOMETRYUTILS_H

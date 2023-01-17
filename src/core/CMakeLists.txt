@@ -29,6 +29,7 @@ SET(REOS_CORE_SOURCES
   GIS/reos3dmapsettings.cpp
   GIS/reosgdalutils.cpp
   GIS/reosrenderersettings.cpp
+  GIS/reoshdf5.cpp
   GIS/private/reosdigitalelevationmodel_p.cpp
   GIS/private/reospolygonstructure_p.cpp
   GIS/private/reospolylinesstructure_p.cpp
@@ -124,6 +125,7 @@ SET(REOS_CORE_HEADERS
     GIS/reos3dmapsettings.h
     GIS/reosrenderersettings.h
     GIS/reosgdalutils.h
+    GIS/reoshdf5.h
 
     process/reosprocess.h
 
@@ -270,6 +272,18 @@ IF(GDAL_FOUND)
     TARGET_INCLUDE_DIRECTORIES(reosCore PUBLIC ${GDAL_INCLUDE_DIRS})
     TARGET_LINK_LIBRARIES(reosCore PUBLIC ${GDAL_LIBRARIES} )
 ENDIF(GDAL_FOUND)
+
+FIND_PACKAGE(HDF5 REQUIRED)
+if(MSVC)
+  # HDF5 with enabled thread safety (HDF5_ENABLE_THREADSAFE=ON) on Windows needs Threads::Threads
+  find_package(Threads)
+endif()
+
+IF(HDF5_FOUND)
+  TARGET_INCLUDE_DIRECTORIES(reosCore PUBLIC ${HDF5_INCLUDE_DIRS})
+  TARGET_LINK_LIBRARIES(reosCore PUBLIC ${HDF5_C_LIBRARIES} )
+  ADD_DEFINITIONS(${HDF5_DEFINITIONS})
+ENDIF(HDF5_FOUND)
 
 INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core

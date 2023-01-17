@@ -314,6 +314,9 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     //! Returns a process that apply the topography collection on the mesh, caller take ownership
     virtual ReosProcess *applyTopographyOnVertices( ReosTopographyCollection *topographyCollection ) = 0;
 
+    //! Apply the dem on the mesh
+    virtual void applyDemOnVertices( ReosDigitalElevationModel *dem, const QString &destnationCrs ) = 0;
+
     //! Returns the value of dataset \a datasetId at position \a pos in map coordinates
     virtual double datasetScalarValueAt( const QString &datasetId, const QPointF &pos ) const = 0;
 

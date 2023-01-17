@@ -24,13 +24,13 @@ bool ReosGdalDataset::sRegistered = false;
 
 ReosGdalDataset::ReosGdalDataset( const QString &fileName, bool readOnly )
 {
-    if (!sRegistered)
-    {
-        GDALAllRegister();
-        sRegistered = true;
-    }
+  if ( !sRegistered )
+  {
+    GDALAllRegister();
+    sRegistered = true;
+  }
 
-  mHDataset = GDALOpen( fileName.toStdString().c_str(), readOnly ? GA_ReadOnly : GA_Update );
+  mHDataset = GDALOpen( fileName.toUtf8().constData(), readOnly ? GA_ReadOnly : GA_Update );
 }
 
 ReosGdalDataset::~ReosGdalDataset()
@@ -110,28 +110,28 @@ ReosRasterExtent ReosGdalDataset::extent() const
 
 bool ReosGdalDataset::isValid() const {return mHDataset != nullptr;}
 
-ReosRasterMemory<double> ReosGdalDataset::values(int band)
+ReosRasterMemory<double> ReosGdalDataset::values( int band )
 {
-    if ( !mHDataset )
-        return ReosRasterMemory<double>();
+  if ( !mHDataset )
+    return ReosRasterMemory<double>();
 
-    GDALRasterBandH hBand = GDALGetRasterBand( mHDataset, band );
+  GDALRasterBandH hBand = GDALGetRasterBand( mHDataset, band );
 
-    if ( !hBand )
-        return ReosRasterMemory<double>();
+  if ( !hBand )
+    return ReosRasterMemory<double>();
 
-    int xCount = GDALGetRasterXSize( mHDataset );
-    int yCount = GDALGetRasterYSize( mHDataset );
+  int xCount = GDALGetRasterXSize( mHDataset );
+  int yCount = GDALGetRasterYSize( mHDataset );
 
-    ReosRasterMemory<double> ret( yCount, xCount );
+  ReosRasterMemory<double> ret( yCount, xCount );
 
-    if ( !ret.reserveMemory() )
-        return ReosRasterMemory<double>();
+  if ( !ret.reserveMemory() )
+    return ReosRasterMemory<double>();
 
-    CPLErr err = GDALRasterIO( hBand, GF_Read, 0, 0, xCount, yCount, ret.data(), xCount, yCount, GDT_Float64, 0, 0 );
+  CPLErr err = GDALRasterIO( hBand, GF_Read, 0, 0, xCount, yCount, ret.data(), xCount, yCount, GDT_Float64, 0, 0 );
 
-    if ( err != CE_None )
-        return ReosRasterMemory<double>();
+  if ( err != CE_None )
+    return ReosRasterMemory<double>();
 
-    return ret;
+  return ret;
 }

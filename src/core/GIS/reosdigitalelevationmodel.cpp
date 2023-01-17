@@ -18,7 +18,7 @@ email                : vcloarec at gmail dot com
 ReosElevationOnPolylineProcess::ReosElevationOnPolylineProcess( ReosDigitalElevationModel *dem ): ReosProcess(), mDem( dem )
 {}
 
-void ReosElevationOnPolylineProcess::setEntryPolyline( const QPolygonF &polyline, const QString destinationCRS )
+void ReosElevationOnPolylineProcess::setEntryPolyline( const QPolygonF &polyline, const QString &destinationCRS )
 {
   mPolyline = polyline;
   mDestinationCRS = destinationCRS;
@@ -40,4 +40,9 @@ void ReosElevationOnPolylineProcess::start()
     mResult = mDem->elevationOnPolyline( mPolyline, mDestinationCRS, this );
     mIsSuccessful = true;
   }
+}
+
+ReosDigitalElevationModel::~ReosDigitalElevationModel()
+{
+
 }
