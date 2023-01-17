@@ -105,7 +105,7 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
 
     ReosMeshDatasetSource *datasetSource() const;
 
-private:
+  private:
     QgsMesh mMesh;
     QgsCoordinateReferenceSystem mCrs;
     QString mFilePath;

@@ -114,6 +114,11 @@ ReosMeshFrame_p::ReosMeshFrame_p( const QString &crs, QObject *parent ): ReosMes
 }
 
 ReosMeshFrame_p::ReosMeshFrame_p( const QString &dataPath, const QString &destinationCrs, ReosModule::Message &message )
+  : ReosMeshFrame_p( dataPath, destinationCrs, nullptr, message )
+{
+}
+
+ReosMeshFrame_p::ReosMeshFrame_p( const QString &dataPath, const QString &destinationCrs, ReosDigitalElevationModel *dem, ReosModule::Message &message )
 {
   mMeshLayer.reset( new QgsMeshLayer( "path", "", QStringLiteral( "ReosMesh" ) ) );
   mMeshDataProvider = qobject_cast<ReosMeshDataProvider_p *>( mMeshLayer->dataProvider() );
@@ -130,11 +135,13 @@ ReosMeshFrame_p::ReosMeshFrame_p( const QString &dataPath, const QString &destin
     mMeshDataProvider->overrideCrs( qgisDestinationCrs );
   }
 
+  if ( dem )
+    mMeshDataProvider->applyDemOnVertices( dem );
+
   mMeshLayer->reload();
 
   QgsCoordinateTransform transform( mMeshDataProvider->crs(), qgisDestinationCrs, QgsProject::instance() );
   mMeshLayer->updateTriangularMesh( transform );
-
 
   init();
 }
@@ -1177,6 +1184,27 @@ ReosProcess *ReosMeshFrame_p::applyTopographyOnVertices( ReosTopographyCollectio
   } );
 
   return process.release();
+}
+
+void ReosMeshFrame_p::applyDemOnVertices( ReosDigitalElevationModel *dem, const QString &destinationCrs )
+{
+  if ( mMeshLayer->isEditable() )
+    stopFrameEditing( true );
+
+  QgsCoordinateReferenceSystem qgisDestinationCrs;
+  qgisDestinationCrs.createFromWkt( destinationCrs );
+
+  mMeshDataProvider->applyDemOnVertices( dem );
+  mMeshLayer->reload();
+  QgsCoordinateTransform tranform( mMeshLayer->crs(), qgisDestinationCrs, QgsProject::instance()->transformContext() );
+  mMeshLayer->updateTriangularMesh( tranform );
+  if ( mZVerticesDatasetGroup )
+    mZVerticesDatasetGroup->setStatisticObsolete();
+
+  firstUpdateOfTerrainScalarSetting();
+  emit repaintRequested();
+  mMeshLayer->trigger3DUpdate();
+  emit dataChanged();
 }
 
 double ReosMeshFrame_p::datasetScalarValueAt( const QString &datasetId, const QPointF &pos ) const

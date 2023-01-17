@@ -132,6 +132,9 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     //! Sets the coordinate reference system of the GIS project
     void setCrs( const QString &crsString );
 
+    //! Returns wheter the crs is recognized and valid
+    static bool crsIsValid( const QString &crs );
+
     //! loads a QGIS project as GIS project
     void loadQGISProject( const QString &fileName );
 
@@ -146,6 +149,9 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
 
     //! Returns whether the layrId is registered as a Digigtal Elevation Model
     bool isDigitalElevationModel( const QString &layerId ) const;
+
+    //! Returns a pointer to a Digitial Elevation Model from a raster file wwith  \a uri
+    static ReosDigitalElevationModel *getRasterDigitalElevationModel( const QString &uri );
 
     //! Returns a pointer to a Digitial Elevation Model corresponding to the topest layer registered as DEM, caller take ownership
     ReosDigitalElevationModel *getTopDigitalElevationModel() const;

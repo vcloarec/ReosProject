@@ -319,6 +319,12 @@ void ReosGisEngine::setCrs( const QString &crsString )
   emit crsChanged( crs.toWkt() );
 }
 
+bool ReosGisEngine::crsIsValid( const QString &crsString )
+{
+  QgsCoordinateReferenceSystem qgsCrs( crsString );
+  return qgsCrs.isValid();
+}
+
 void ReosGisEngine::loadQGISProject( const QString &fileName )
 {
   QString oldCrs = crs();
@@ -392,6 +398,14 @@ static void allLayersOrder( QgsLayerTreeNode *node, QList<QgsMapLayer *> &allLay
   for ( QgsLayerTreeNode *child : children )
     allLayersOrder( child, allLayers );
 }
+
+
+ReosDigitalElevationModel *ReosGisEngine::getRasterDigitalElevationModel( const QString &uri )
+{
+  QgsCoordinateTransformContext transformContext = QgsProject::instance()->transformContext();
+  return ReosDigitalElevationModelFactory::createDEMFromUri( uri, transformContext );
+}
+
 
 ReosDigitalElevationModel *ReosGisEngine::getTopDigitalElevationModel() const
 {

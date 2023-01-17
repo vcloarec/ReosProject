@@ -27,11 +27,12 @@ class ReosDigitalElevationModelRaster: public ReosDigitalElevationModel
 {
   public:
     ReosDigitalElevationModelRaster( QgsRasterLayer *rasterLayer, const QgsCoordinateTransformContext &transformContext );
+    ReosDigitalElevationModelRaster( const QString &uri, const QgsCoordinateTransformContext &transformContext );
 
     //! Implementation details that can be used directly in the core scope
     double elevationAt( const QgsPointXY &point, const QgsCoordinateTransform &transformToDem ) const;
 
-    double elevationAt(const QPointF& point, const QString& pointCrs = QString()) const override;
+    double elevationAt( const QPointF &point, const QString &pointCrs = QString() ) const override;
     QgsCoordinateTransform transformToDem( const QgsCoordinateReferenceSystem &sourceCrs ) const;
 
 
@@ -67,6 +68,11 @@ class ReosDigitalElevationModelFactory
     static ReosDigitalElevationModel *createDEM( QgsRasterLayer *rasterLayer, const QgsCoordinateTransformContext &transformContext )
     {
       return new ReosDigitalElevationModelRaster( rasterLayer, transformContext );
+    }
+
+    static ReosDigitalElevationModel *createDEMFromUri( const QString &uri, const QgsCoordinateTransformContext &transformContext )
+    {
+      return new ReosDigitalElevationModelRaster( uri, transformContext );
     }
 };
 

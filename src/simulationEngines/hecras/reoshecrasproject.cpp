@@ -8,6 +8,8 @@
 
 #include "reosdssutils.h"
 #include "reoshecrassimulation.h"
+#include "reoshdf5.h"
+#include "reosdigitalelevationmodel.h"
 
 ReosHecRasProject::ReosHecRasProject( const QString &fileName ):
   mFileName( fileName )
@@ -183,8 +185,58 @@ QString ReosHecRasGeometry::fileName() const
   return mFileName;
 }
 
+QPolygonF ReosHecRasGeometry::domain() const
+{
+  if ( mAreas2D.empty() )
+    return QPolygonF();
+
+  if ( mAreas2D.count() == 1 )
+    return mAreas2D.at( 0 ).surface;
+
+  QList<QPointF> points;
+  for ( const FlowArea2D &area : mAreas2D )
+  {
+    for ( const QPointF &areaPt : area.surface )
+      points.append( areaPt );
+  }
+
+  return ReosGeometryUtils::convexHull( points );
+}
+
+QString ReosHecRasGeometry::crs() const
+{
+  return mCrs;
+}
+
+ReosMesh *ReosHecRasGeometry::createMesh( const QString &destinationCrs, ReosModule::Message &message )
+{
+  std::unique_ptr<ReosMesh> mesh( ReosMesh::createMeshFrameFromFile( mFileName + QStringLiteral( ".hdf" ), destinationCrs, message ) );
+
+  QString demFile = terrainVrtFile();
+
+  std::unique_ptr<ReosDigitalElevationModel>  dem( ReosGisEngine::getRasterDigitalElevationModel( demFile ) );
+
+  if ( !dem )
+  {
+    message.text = QObject::tr( "Unable to load the vrt file corresponding to the terrain." );
+  }
+  else
+  {
+    mesh->applyDemOnVertices( dem.get(), destinationCrs );
+  }
+
+  if ( message.type == ReosModule::Simple )
+    return mesh.release();
+
+  return nullptr;
+}
+
 void ReosHecRasGeometry::parseGeometryFile()
 {
+  QFileInfo geomFileInfo( mFileName );
+  if ( !geomFileInfo.exists() )
+    return;
+
   QFile file( mFileName );
   if ( !file.open( QIODevice::ReadOnly ) )
     return;
@@ -214,6 +266,27 @@ void ReosHecRasGeometry::parseGeometryFile()
       parseBoundaryCondition( stream, name.trimmed() );
     }
   }
+
+  const QString hdfFilePath = mFileName + QStringLiteral( ".hdf" );
+  const ReosHdf5File hdfFile( hdfFilePath );
+  if ( hdfFile.isValid() )
+  {
+    const ReosHdf5Group rootGroup = hdfFile.createGroup( QStringLiteral( "/" ) );
+    const ReosHdf5Attribute projectionAttribute = rootGroup.attribute( QStringLiteral( "Projection" ) );
+    mCrs = projectionAttribute.readString( 4096 );
+
+    if ( hdfFile.pathExists( QStringLiteral( "/Geometry" ) ) )
+    {
+      const ReosHdf5Group geometryGroup = hdfFile.createGroup( QStringLiteral( "/Geometry" ) );
+      const ReosHdf5Attribute terrainFileAttribute = geometryGroup.attribute( QStringLiteral( "Terrain Filename" ) );
+      mTerrainFileName = terrainFileAttribute.readString( 512 );
+      if ( mTerrainFileName.contains( QStringLiteral( "\\" ) ) )
+        mTerrainFileName.replace( QLatin1String( "\\" ), QString( '/' ) );
+
+      mTerrainFileName = geomFileInfo.dir().filePath( mTerrainFileName );
+    }
+  }
+
 }
 
 void ReosHecRasGeometry::parseStorageArea( QTextStream &stream, const QString &storageName )
@@ -301,6 +374,13 @@ void ReosHecRasGeometry::parseBoundaryCondition( QTextStream &stream, const QStr
     mBoundariesConditions.insert( location, bcs );
   }
 
+}
+
+QString ReosHecRasGeometry::terrainVrtFile() const
+{
+  QFileInfo terrainFileInfo( mTerrainFileName );
+
+  return terrainFileInfo.dir().filePath( terrainFileInfo.baseName() + QStringLiteral( ".vrt" ) );
 }
 
 ReosHecRasPlan::ReosHecRasPlan( const QString &fileName )

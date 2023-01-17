@@ -29,7 +29,7 @@ class REOSCORE_EXPORT ReosDigitalElevationModel
 {
   public:
     ReosDigitalElevationModel() = default;
-    virtual ~ReosDigitalElevationModel() = default;
+    virtual ~ReosDigitalElevationModel();
 
     //! Returns elevation value at \a point in DEM coordinate
     virtual double elevationAt( const QPointF &point, const QString &pointCrs = QString() ) const = 0;
@@ -96,10 +96,10 @@ class REOSCORE_EXPORT ReosElevationOnPolylineProcess: public ReosProcess
 {
   public:
     //! Constructor
-    ReosElevationOnPolylineProcess( ReosDigitalElevationModel *dem );
+    explicit ReosElevationOnPolylineProcess( ReosDigitalElevationModel *dem );
 
     //! Sets the entry \a polyline and eventually the destination CRS
-    void setEntryPolyline( const QPolygonF &polyline, const QString destinationCRS = QString() );
+    void setEntryPolyline( const QPolygonF &polyline, const QString &destinationCRS = QString() );
 
     //! Returns the result profile after processing \see start()
     QPolygonF resultProfile() const;

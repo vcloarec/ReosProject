@@ -106,17 +106,7 @@ void ReosHecRasStructureImporter::init( const QString &fileName )
     if ( mIsValid )
     {
       QStringList geoms = mProject->geometryIds();
-      Q_ASSERT( !geoms.isEmpty() );
-      mIsValid = mProject->geometry( geoms.at( 0 ) ).area2dCount() > 0;
-
-      // During this implementation, the simplest way to obtain the CRS is to load the mesh associated with the geometry
-      // But it is far for being the most relevant and efficient way. It will be better to get the crs with another way.
-      // HEC-RAS used to have a GIS as reference for CRS.
-      // TODO: see to exctract the CRS from hdf file without loading it, or extract from the reference GIS file.
-      ReosModule::Message message;
-      std::unique_ptr<ReosMesh> mesh(
-        ReosMesh::createMeshFrameFromFile( mProject->currentGeometryFileName() + QStringLiteral( ".hdf" ), QString(), message ) );
-      mCrs = mesh->crs();
+      mIsValid = !geoms.isEmpty() && mProject->geometry( geoms.at( 0 ) ).area2dCount() > 0;
     }
   }
 }
@@ -136,7 +126,12 @@ ReosHydraulicStructure2D::Structure2DCapabilities ReosHecRasStructureImporter::c
 
 QString ReosHecRasStructureImporter::crs() const
 {
-  return mCrs;
+  if ( mIsValid )
+  {
+    return mProject->currentGeometry().crs();
+  }
+
+  return QString();
 }
 
 QPolygonF ReosHecRasStructureImporter::domain() const
@@ -154,7 +149,8 @@ ReosMesh *ReosHecRasStructureImporter::mesh( const QString &destinationCrs ) con
   if ( mIsValid )
   {
     ReosModule::Message message;
-    std::unique_ptr<ReosMesh> mesh( ReosMesh::createMeshFrameFromFile( mProject->currentGeometryFileName() + QStringLiteral( ".hdf" ), destinationCrs, message ) );
+
+    std::unique_ptr<ReosMesh> mesh( mProject->currentGeometry().createMesh( destinationCrs, message ) );
     if ( message.type == ReosModule::Simple )
       return mesh.release();
 

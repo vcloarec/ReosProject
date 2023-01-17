@@ -9,9 +9,11 @@
 #include <memory>
 
 #include "reosduration.h"
+#include "reosmodule.h"
 
 class QTextStream;
 class ReosHecRasSimulation;
+class ReosMesh;
 
 class ReosHecRasBoundaryConditionId
 {
@@ -67,9 +69,17 @@ class ReosHecRasGeometry
 
     QString fileName() const;
 
+    QPolygonF domain() const;
+
+    QString crs() const;
+
+    ReosMesh *createMesh( const QString &destinationCrs, ReosModule::Message &message );
+
   private:
     QString mFileName;
     QString mTitle;
+    QString mCrs;
+    QString mTerrainFileName;
 
     QList<FlowArea2D> mAreas2D;
     QMap<QString, QList<BoundaryCondition>> mBoundariesConditions;
@@ -77,6 +87,8 @@ class ReosHecRasGeometry
     void parseGeometryFile();
     void parseStorageArea( QTextStream &stream, const QString &storageName );
     void parseBoundaryCondition( QTextStream &stream, const QString &bcName );
+
+    QString terrainVrtFile() const;
 };
 
 class ReosHecRasPlan

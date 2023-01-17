@@ -25,6 +25,7 @@ email                : vcloarec at gmail dot com
 #include <qgscoordinatetransform.h>
 #include <qgsdistancearea.h>
 #include <qgsgeometry.h>
+#include <qgsproviderregistry.h>
 
 ReosDigitalElevationModelRaster::ReosDigitalElevationModelRaster(
   QgsRasterLayer *rasterLayer,
@@ -36,6 +37,20 @@ ReosDigitalElevationModelRaster::ReosDigitalElevationModelRaster(
     mDataProvider.reset( rasterLayer->dataProvider()->clone() );
     mCrs = rasterLayer->crs();
     mSourceId = rasterLayer->id();
+    QgsRectangle qgsRasterExtent = mDataProvider->extent();
+    mExtent = ReosRasterExtent( ReosMapExtent( qgsRasterExtent.toRectF() ), mDataProvider->xSize(), mDataProvider->ySize() );
+  }
+}
+
+ReosDigitalElevationModelRaster::ReosDigitalElevationModelRaster(
+  const QString &uri,
+  const QgsCoordinateTransformContext &transformContext ):
+  mTransformContext( transformContext )
+{
+  mDataProvider.reset( qobject_cast<QgsRasterDataProvider *>( QgsProviderRegistry::instance()->createProvider( "gdal", uri ) ) );
+  if ( mDataProvider )
+  {
+    mCrs = mDataProvider->crs();
     QgsRectangle qgsRasterExtent = mDataProvider->extent();
     mExtent = ReosRasterExtent( ReosMapExtent( qgsRasterExtent.toRectF() ), mDataProvider->xSize(), mDataProvider->ySize() );
   }

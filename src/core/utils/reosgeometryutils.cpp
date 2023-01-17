@@ -414,3 +414,25 @@ ReosRasterMemory<double> ReosGeometryUtils::rasterizePolygon( const QPolygonF &p
   return ret;
 }
 
+QPolygonF ReosGeometryUtils::convexHull( const QList<QPointF> &points )
+{
+  QgsMultiPointXY multiPoints;
+  multiPoints.reserve( points.count() );
+  for ( const QPointF &pt : points )
+  {
+    multiPoints.append( pt );
+  }
+
+  QgsGeometry geom = QgsGeometry::fromMultiPointXY( multiPoints );
+
+  QgsGeometry convexHull = geom.convexHull();
+
+  QPolygonF ret = convexHull.asQPolygonF();
+
+  if ( ret.size() > 0 )
+    ret.removeLast();
+
+  return ret;
+}
+
+

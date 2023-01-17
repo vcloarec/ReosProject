@@ -34,6 +34,7 @@ email                : vcloarec at gmail dot com
 #include "reos_testutils.h"
 #include "reosgriddedrainitem.h"
 #include "reostimewindowsettings.h"
+#include "reoshdf5.h"
 
 
 static void copyDirectory( const QDir &source, const QString &newPath )
@@ -64,6 +65,8 @@ class ReosHecrasTesting : public QObject
     void createControllerInstance();
     void getControllerPlans();
 #endif
+
+    void findTerrainFiles();
 
     void createDssFile();
 
@@ -102,7 +105,7 @@ void ReosHecrasTesting::initTestCase()
 {
   mGisEngine = new ReosGisEngine( &mRootModule );
   mWatershedModule = new ReosWatershedModule( &mRootModule, mGisEngine );
-  mPathToSimpleToRun = tempFile( "/hecras/simple" );
+  mPathToSimpleToRun = tempFile( "hecras/simple" );
   copySimple();
 }
 
@@ -111,7 +114,6 @@ void ReosHecrasTesting::cleanupTestCase()
   QDir dir( mPathToSimpleToRun );
   dir.removeRecursively();
 }
-
 
 #ifdef _WIN32
 void ReosHecrasTesting::availableVersion()
@@ -152,6 +154,37 @@ void ReosHecrasTesting::getControllerPlans()
 }
 
 #endif
+
+void ReosHecrasTesting::findTerrainFiles()
+{
+  QDir dir( mPathToSimpleToRun );
+  QString path = dir.filePath( QStringLiteral( "simple.g01.hdf" ) );
+
+  ReosHdf5File file( path );
+  QVERIFY( file.isValid() );
+  QVERIFY( file.pathExists( QStringLiteral( "/Geometry" ) ) );
+
+  ReosHdf5Group group = file.createGroup( QStringLiteral( "/Geometry" ) );
+  QVERIFY( group.isValid() );
+
+  ReosHdf5Attribute terrainFileAttr = group.attribute( QStringLiteral( "Terrain Filename" ) );
+  QVERIFY( terrainFileAttr.isValid() );
+  QString terrainFilePath = terrainFileAttr.readString();
+
+  if ( terrainFilePath.contains( QStringLiteral( "\\" ) ) )
+    terrainFilePath.replace( QLatin1String( "\\" ), QString( '/' ) );
+
+  QString terrainFileName = dir.filePath( terrainFilePath );
+
+  QFileInfo terrainFileInfo( terrainFileName );
+  QVERIFY( terrainFileInfo.exists() );
+
+  QString vrtFile = terrainFileInfo.dir().filePath( terrainFileInfo.baseName() + QStringLiteral( ".vrt" ) );
+  QFileInfo vertFileInfo( vrtFile );
+  QVERIFY( vertFileInfo.exists() );
+}
+
+
 void ReosHecrasTesting::createDssFile()
 {
   const QString newDssFile = tempFile( "/dss_file_0" );
@@ -310,6 +343,24 @@ void ReosHecrasTesting::exploreProject()
   ReosHecRasGeometry geometry = project.geometry( geometryIds.at( 0 ) );
   QCOMPARE( geometry.title(), QStringLiteral( "simple_2D_geometry" ) );
   QCOMPARE( geometry.area2dCount(), 1 );
+
+  QCOMPARE( geometry.crs(), "PROJCS[\"WGS_1984_UTM_Zone_20N\",GEOGCS[\"GCS_WGS_1984\",DATUM[\"D_WGS_1984\",SPHEROID[\"WGS_1984\",6378137.0,298.257223563]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]],PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"False_Easting\",500000.0],PARAMETER[\"False_Northing\",0.0],PARAMETER[\"Central_Meridian\",-63.0],PARAMETER[\"Scale_Factor\",0.9996],PARAMETER[\"Latitude_Of_Origin\",0.0],UNIT[\"Meter\",1.0]]" );
+  ReosGisEngine::crsIsValid( geometry.crs() );
+
+  QPolygonF domain;
+  domain << QPointF( 653204.178513767, 1797219.8459956 )
+         << QPointF( 653499.89032075, 1797219.72312258 )
+         << QPointF( 653499.500009407, 1797130.63683779 )
+         << QPointF( 653203.35825702, 1797130.98806042 );
+
+  QCOMPARE( domain, geometry.domain() );
+
+  ReosModule::Message message;
+  std::unique_ptr<ReosMesh> mesh( geometry.createMesh( QString(), message ) );
+  QVERIFY( message.type == ReosModule::Simple );
+  QVERIFY( mesh );
+  QCOMPARE( mesh->vertexCount(), 1900 );
+  QVERIFY( mesh->vertexElevation( 0 ) != 0.0 );
 
   QString areaName = geometry.area2dName( 0 );
   QCOMPARE( areaName, QStringLiteral( "Perimeter 1" ) );
