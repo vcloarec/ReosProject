@@ -75,6 +75,7 @@ class ReosMeshData_ : public ReosMeshData::Data
  */
 class ReosMeshFrame_p : public ReosMesh
 {
+    Q_OBJECT
   public:
     ReosMeshFrame_p( const QString &crs, QObject *parent );
     ReosMeshFrame_p( const QString &dataPath, const QString &destinationCrs, ReosModule::Message &message );
@@ -145,7 +146,6 @@ class ReosMeshFrame_p : public ReosMesh
 
     bool exportSimulationResults( ReosHydraulicSimulationResults *result, const QString &fileName ) const override;
 
-
     QList<ReosColorShaderSettings *> colorShaderSettings() const override;
 
   private:
@@ -182,6 +182,8 @@ class ReosMeshFrame_p : public ReosMesh
     ReosEncodedElement datasetGroupScalarSymbologyfromLayer( const QString &datasetId ) const;
     ReosEncodedElement datasetGroupVectorSymbologyfromLayer( const QString &datasetId ) const;
 
+    void renderingNeedUpdate();
+
     friend class ReosMeshScalarColorShaderSettings_p;
     friend class ReosMeshVectorColorShaderSettings_p;
     friend class ReosMeshTerrainColorShaderSettings_p;
@@ -189,6 +191,7 @@ class ReosMeshFrame_p : public ReosMesh
 
 class ReosMeshColorShaderSettings_p : public ReosColorShaderSettings_p
 {
+    Q_OBJECT
   public:
     ReosMeshColorShaderSettings_p( ReosMeshFrame_p *mesh );
 
@@ -235,6 +238,7 @@ class ReosMeshVectorColorShaderSettings_p : public ReosMeshColorShaderSettings_p
 
 class ReosMeshTerrainColorShaderSettings_p : public ReosMeshColorShaderSettings_p
 {
+    Q_OBJECT
   public:
     ReosMeshTerrainColorShaderSettings_p( ReosMeshFrame_p *mesh );
     void setCurrentSymbology( const ReosEncodedElement &symbology );
@@ -242,6 +246,10 @@ class ReosMeshTerrainColorShaderSettings_p : public ReosMeshColorShaderSettings_
     bool isValid() const override;
     bool getDirectSourceMinMax( double &min, double &max ) const override;
     void onSettingsUpdated() override;
+
+  signals:
+
+    void meshTerrainSettingsChanged();
 };
 
 class ReosMeshQualityChecker_p : public ReosMeshQualityChecker
