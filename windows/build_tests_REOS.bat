@@ -30,7 +30,7 @@ rem Now we copy Qt binaries
 for /f "tokens=*" %%i in (%REOS_SOURCE%\windows\qt_dependencies_bin.txt) DO (
     xcopy /S/E "%OSGEO4W_ROOT%\apps\Qt5\bin\%%i" "%REOS_INSTALL%\bin\")
     
-xcopy /S/E  %OSGEO4W_ROOT%\apps\Qt5\plugins\imageformats\qsvg.dll %REOS_INSTALL%\bin\imageformats\
+xcopy /S/E  %OSGEO4W_ROOT%\apps\Qt5\plugins\imageformats\*.* %REOS_INSTALL%\bin\imageformats\
 xcopy /S/E %OSGEO4W_ROOT%\apps\Qt5\plugins\platforms\qwindows.dll %REOS_INSTALL%\bin\platforms\
 robocopy %OSGEO4W_ROOT%\apps\Qt5\plugins\renderers %REOS_INSTALL%\bin\plugins\renderers /E /S /NFL /NDL /NJH /NJS /nc /ns /np
 xcopy /S/E %OSGEO4W_ROOT%\apps\Qt5\plugins\iconengines\*.* %REOS_INSTALL%\bin\iconengines\
