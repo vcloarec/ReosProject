@@ -386,7 +386,7 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
 
   signals:
 
-    void datasetSymbologyChanged( const QString &datasetId );
+    void terrainSymbologyChanged();
 
   protected:
     ReosMesh( QObject *parent = nullptr );

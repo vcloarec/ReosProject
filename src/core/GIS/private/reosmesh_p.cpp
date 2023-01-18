@@ -178,6 +178,7 @@ void ReosMeshFrame_p::init()
 
   connect( mMeshLayer.get(), &QgsMapLayer::repaintRequested, this, &ReosMesh::repaintRequested );
   connect( mMeshLayer.get(), &QgsMeshLayer::layerModified, this, &ReosDataObject::dataChanged );
+  connect( mTerrainShaderSettings.get(), &ReosMeshTerrainColorShaderSettings_p::meshTerrainSettingsChanged, this, &ReosMesh::terrainSymbologyChanged );
 }
 
 void ReosMeshFrame_p::stopFrameEditing( bool commit, bool continueEditing )
@@ -207,7 +208,10 @@ void ReosMeshFrame_p::stopFrameEditing( bool commit, bool continueEditing )
 
 ReosColorShaderSettings *ReosMeshFrame_p::scalarColorShaderSettings() const
 {
-  return mScalarShaderSettings.get();
+  if ( mCurrentScalarDatasetId == mVerticesElevationDatasetId )
+    return mTerrainShaderSettings.get();
+  else
+    return mScalarShaderSettings.get();
 }
 
 ReosColorShaderSettings *ReosMeshFrame_p::vectorColorShaderSettings() const
@@ -243,7 +247,8 @@ void ReosMeshFrame_p::applySymbologyOnScalarDataSet( const QString &id, QgsMeshR
   settings.setScalarSettings( mDatasetGroupsIndex.value( id ), scalarSettings );
   mMeshLayer->setRendererSettings( settings );
 
-  emit datasetSymbologyChanged( id );
+  if ( id == mVerticesElevationDatasetId )
+    emit terrainSymbologyChanged();
 }
 
 ReosEncodedElement ReosMeshFrame_p::restoreVectorSymbologyOnMeshDatasetGroup( const QString &id )
@@ -268,8 +273,6 @@ void ReosMeshFrame_p::applySymbologyOnVectorDataSet( const QString &id, QgsMeshR
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
   settings.setVectorSettings( mDatasetGroupsIndex.value( id ), vectorSettings );
   mMeshLayer->setRendererSettings( settings );
-
-  emit datasetSymbologyChanged( id );
 }
 
 ReosEncodedElement ReosMeshFrame_p::datasetScalarGroupSymbology( const QString &id ) const
@@ -915,6 +918,14 @@ QList<ReosColorShaderSettings *> ReosMeshFrame_p::colorShaderSettings() const
   return ret;
 }
 
+void ReosMeshFrame_p::renderingNeedUpdate()
+{
+  if ( mMeshLayer )
+    emit mMeshLayer->request3DUpdate();
+
+  emit repaintRequested();
+}
+
 QString ReosMeshFrame_p::enableVertexElevationDataset( const QString &name )
 {
   mVerticesElevationDatasetName = name;
@@ -1009,7 +1020,12 @@ bool ReosMeshFrame_p::activateDataset( const QString &id, bool update )
   ReosEncodedElement symbology = restoreScalarSymbologyOnMeshDatasetGroup( id );
 
   if ( !id.isEmpty() )
-    mScalarShaderSettings->setCurrentSymbology( symbology );
+  {
+    if ( id == mVerticesElevationDatasetId )
+      mTerrainShaderSettings->setCurrentSymbology( symbology );
+    else
+      mScalarShaderSettings->setCurrentSymbology( symbology );
+  }
 
   int index = mDatasetGroupsIndex.value( id, -1 );
   if ( id == verticesElevationDatasetId() )
@@ -1109,8 +1125,9 @@ void ReosMeshFrame_p::generateMesh( const ReosMeshFrameData &data )
   mMeshLayer->reload();
   if ( mZVerticesDatasetGroup )
     mZVerticesDatasetGroup->setStatisticObsolete();
-  mMeshLayer->trigger3DUpdate();
-  emit repaintRequested();
+
+  renderingNeedUpdate();
+
   emit dataChanged();
 }
 
@@ -1178,8 +1195,8 @@ ReosProcess *ReosMeshFrame_p::applyTopographyOnVertices( ReosTopographyCollectio
 
     firstUpdateOfTerrainScalarSetting();
 
-    emit repaintRequested();
-    mMeshLayer->trigger3DUpdate();
+    renderingNeedUpdate();
+
     emit dataChanged();
   } );
 
@@ -1806,7 +1823,9 @@ void ReosMeshScalarColorShaderSettings_p::onSettingsUpdated()
   settings.setScalarSettings( idx, scalarSettings );
   mMesh->mMeshLayer->setRendererSettings( settings );
   mMesh->mDatasetScalarSymbologies.insert( mMesh->mCurrentScalarDatasetId, encodedFromScalarSettings( scalarSettings ).bytes() );
-  emit mMesh->repaintRequested();
+
+  mMesh->update3DRenderer();
+  mMesh->repaintRequested();
 }
 
 QString ReosMeshScalarColorShaderSettings_p::title() const
@@ -1845,6 +1864,7 @@ void ReosMeshVectorColorShaderSettings_p::onSettingsUpdated()
   settings.setVectorSettings( idx, vectorSettings );
   mMesh->mMeshLayer->setRendererSettings( settings );
   mMesh->mDatasetVectorSymbologies.insert( mMesh->mCurrentScalarDatasetId, encodedFromVectorSettings( vectorSettings ).bytes() );
+
   emit mMesh->repaintRequested();
 }
 
@@ -1900,7 +1920,10 @@ void ReosMeshTerrainColorShaderSettings_p::onSettingsUpdated()
   settings.setScalarSettings( idx, scalarSettings );
   mMesh->mMeshLayer->setRendererSettings( settings );
   mMesh->mDatasetScalarSymbologies.insert( mMesh->mCurrentScalarDatasetId, encodedFromScalarSettings( scalarSettings ).bytes() );
+
   emit mMesh->repaintRequested();
+  mMesh->update3DRenderer();
+  emit meshTerrainSettingsChanged();
 }
 
 ReosMeshData_::~ReosMeshData_() {}
