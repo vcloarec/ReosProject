@@ -373,7 +373,7 @@ void ReosHecrasTesting::exploreProject()
 
   geometry = project.geometry( geometryIds.at( 1 ) );
   QCOMPARE( geometry.title(), QStringLiteral( "simle_2D_geometry_other" ) );
-  QCOMPARE( geometry.area2dCount(), 1 );
+  QCOMPARE( geometry.area2dCount(), 2 );
 
   ReosHecRasFlow currentFlow = project.currentFlow();
   QCOMPARE( currentFlow.title(), QStringLiteral( "flow_1" ) );
