@@ -40,7 +40,7 @@
 #include "reosgisengine.h"
 
 
-ReosTelemac2DSimulation::ReosTelemac2DSimulation( QObject *parent )
+ReosTelemac2DSimulation::ReosTelemac2DSimulation( ReosHydraulicStructure2D *parent )
   : ReosHydraulicSimulation( parent )
 {
   mTimeStep = new ReosParameterDuration( tr( "Time step" ), false, this );
@@ -55,8 +55,7 @@ ReosTelemac2DSimulation::ReosTelemac2DSimulation( QObject *parent )
   init();
 }
 
-
-ReosTelemac2DSimulation::ReosTelemac2DSimulation( const ReosEncodedElement &element, QObject *parent )
+ReosTelemac2DSimulation::ReosTelemac2DSimulation( const ReosEncodedElement &element, ReosHydraulicStructure2D *parent )
   : ReosHydraulicSimulation( parent )
 {
   ReosDataObject::decode( element );
@@ -123,12 +122,12 @@ ReosTelemac2DSimulationEngineFactory::ReosTelemac2DSimulationEngineFactory()
   mCapabilities = ReosSimulationEngineFactory::CanBeCreated;
 }
 
-ReosHydraulicSimulation *ReosTelemac2DSimulationEngineFactory::createSimulation( QObject *parent ) const
+ReosHydraulicSimulation *ReosTelemac2DSimulationEngineFactory::createSimulation( ReosHydraulicStructure2D *parent ) const
 {
   return new ReosTelemac2DSimulation( parent );
 }
 
-ReosHydraulicSimulation *ReosTelemac2DSimulationEngineFactory::createSimulation( const ReosEncodedElement &element, QObject *parent ) const
+ReosHydraulicSimulation *ReosTelemac2DSimulationEngineFactory::createSimulation( const ReosEncodedElement &element, ReosHydraulicStructure2D *parent ) const
 {
   if ( element.description() == QStringLiteral( "telemac-2d-simulation" ) )
     return new  ReosTelemac2DSimulation( element, parent );

@@ -318,6 +318,8 @@ void ReosPolylineStructureVectorLayer::buildGeometry( const ReosPolylinesStructu
     mSegments.insert( sid, {vert0, vert1} );
   }
 
+  mRawLinesDirty = true;
+
   mVectorLayer->undoStack()->clear();
   mVectorLayer->undoStack()->blockSignals( false );
 }
@@ -721,6 +723,14 @@ QString ReosPolylineStructureVectorLayer::boundaryClassId( int i ) const
     return QString();
 
   return classId( sid );
+}
+
+void ReosPolylineStructureVectorLayer::reset( const Data &data, const QString &crs )
+{
+  removeAll();
+  mVectorLayer->setCrs( QgsCoordinateReferenceSystem::fromWkt( crs ), false );
+  buildGeometry( data );
+  emit dataChanged();
 }
 
 void ReosPolylineStructureVectorLayer::removeAll()

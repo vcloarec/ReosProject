@@ -181,6 +181,14 @@ static ReosMapItem *createStructure2D( ReosHydraulicNetworkElement *elem, ReosMa
   return nullptr;
 }
 
+static void updateStructure2D( ReosHydraulicNetworkElement *elem, ReosMapItem *item )
+{
+  if ( item )
+  {
+    item->updatePosition();
+  }
+}
+
 static void selectStructure2D( ReosHydraulicNetworkElement *elem, ReosMapItem *item )
 {
   if ( item )
@@ -268,7 +276,7 @@ ReosHydraulicNetworkMapItemFactory::ReosHydraulicNetworkMapItemFactory()
   mUpdateFunctions.insert( ReosHydrographNodeWatershed::staticType(), &updateHydrographSourceWatershedItem );
   mUpdateFunctions.insert( ReosHydrographRoutingLink::staticType(), &updateHydrographDirectTransferLink );
   mUpdateFunctions.insert( ReosHydrographJunction::staticType(), &updateHydrographJunctionItem );
-  // ReosHydraulicStructure2D items are self updated as the itemis directly connected to the geometry
+  mUpdateFunctions.insert( ReosHydraulicStructure2D::staticType(), &updateStructure2D );
   mUpdateFunctions.insert( ReosHydraulicStructureBoundaryCondition::staticType(), &updateStructureBoundaryCondition );
 
   // select function

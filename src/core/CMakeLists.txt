@@ -89,6 +89,7 @@ SET(REOS_CORE_SOURCES
   hydraulicNetwork/reoshydraulicstructureboundarycondition.cpp
   hydraulicNetwork/reoshydraulicelementmodel.cpp
   hydraulicNetwork/reostimewindowsettings.cpp
+  hydraulicNetwork/reosstructureimporter.cpp
   hydraulicNetwork/simulation/reoshydraulicsimulation.cpp
   hydraulicNetwork/simulation/reoshydraulicsimulationresults.cpp
   hydraulicNetwork/simulation/reoshydraulicstructureprofile.cpp
@@ -177,6 +178,7 @@ SET(REOS_CORE_HEADERS
     hydraulicNetwork/reoshydraulicelementmodel.h
     hydraulicNetwork/reoshydraulicstructureboundarycondition.h
     hydraulicNetwork/reostimewindowsettings.h
+    hydraulicNetwork/reosstructureimporter.h
     hydraulicNetwork/simulation/reoshydraulicsimulation.h
     hydraulicNetwork/simulation/reoshydraulicsimulationresults.h
     hydraulicNetwork/simulation/reoshydraulicstructureprofile.h

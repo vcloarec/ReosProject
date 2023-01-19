@@ -488,6 +488,7 @@ void ReosHydraulicNetworkWidget::addGeometryStructure( ReosHydraulicNetworkEleme
       if ( isVisible() )
         mMap->addSnappableStructure( structure );
       mGeometryStructures.append( structure );
+      connect( structure, &ReosDataObject::dataChanged, this, [this, elem] {onElementChanged( elem );} );
     }
   }
 }

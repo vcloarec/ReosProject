@@ -120,6 +120,9 @@ void ReosHecRasProject::parseProjectFile()
       QString geomFile = line;
       geomFile.remove( QStringLiteral( "Geom File=" ) );
       mGeometries.insert( geomFile, ReosHecRasGeometry( projectDir.filePath( mProjectName + '.' + geomFile ) ) );
+      const QString crs = mGeometries.last().crs();
+      if ( !crs.isEmpty() && mCrs.isEmpty() )
+        mCrs = crs;
     }
 
     if ( line.startsWith( QStringLiteral( "Plan File=" ) ) )
@@ -229,6 +232,14 @@ ReosMesh *ReosHecRasGeometry::createMesh( const QString &destinationCrs, ReosMod
     return mesh.release();
 
   return nullptr;
+}
+
+ReosPolylinesStructure::Data ReosHecRasGeometry::polylineStructureData() const
+{
+  ReosPolylinesStructure::Data data;
+  data.vertices = domain();
+  data.boundaryPointCount = data.vertices.count();
+  return data;
 }
 
 void ReosHecRasGeometry::parseGeometryFile()
@@ -766,6 +777,17 @@ const QString ReosHecRasProject::dssResultFile( const QString &planId ) const
 {
   Q_UNUSED( planId );
   return directory().filePath( mProjectName + QStringLiteral( ".dss" ) );
+}
+
+const QString &ReosHecRasProject::crs() const
+{
+  return mCrs;
+}
+
+void ReosHecRasProject::setCurrentPlan( const QString &newCurrentPlan )
+{
+  if ( mPlans.contains( newCurrentPlan ) )
+    mCurrentPlan = newCurrentPlan;
 }
 
 ReosHecRasFlow::ReosHecRasFlow( const QString &fileName )
