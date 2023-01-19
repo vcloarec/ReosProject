@@ -375,6 +375,16 @@ void ReosHecrasTesting::exploreProject()
   QCOMPARE( geometry.title(), QStringLiteral( "simle_2D_geometry_other" ) );
   QCOMPARE( geometry.area2dCount(), 2 );
 
+  domain.clear();
+  domain << QPointF( 653201.10219891, 1797130.38180678 )
+         << QPointF( 653200.342228455, 1797219.94512185 )
+         << QPointF( 653306.971839022, 1797219.72312258 )
+         << QPointF( 653490.227515079, 1797213.58963957 )
+         << QPointF( 653490.227515079, 1797137.18285738 )
+         << QPointF( 653307.021942612, 1797130.48548468 );
+
+  QCOMPARE( geometry.domain(), domain );
+
   ReosHecRasFlow currentFlow = project.currentFlow();
   QCOMPARE( currentFlow.title(), QStringLiteral( "flow_1" ) );
   QCOMPARE( currentFlow.boundariesCount(), 2 );
@@ -474,15 +484,22 @@ void ReosHecrasTesting::importAndLaunchStructure()
   ReosHydraulicScheme *scheme = network->currentScheme();
   QVERIFY( scheme );
 
-  std::unique_ptr<ReosHecRasStructureImporter> importer( new ReosHecRasStructureImporter( path, network->context() ) );
-  ReosHydraulicStructure2D *structure = ReosHydraulicStructure2D::create( importer.release(), network->context() );
+  std::unique_ptr<ReosHecRasStructureImporterSource> importerSource( new ReosHecRasStructureImporterSource( path, network->context() ) );
+  std::unique_ptr<ReosStructureImporter> importer( importerSource->createImporter() );
+
+  ReosHydraulicStructure2D *structure = ReosHydraulicStructure2D::create( importer.get(), network->context() );
   QVERIFY( structure != nullptr );
   QVERIFY( structure->domain().count() > 0 );
-  QVERIFY( structure->structureImporter() );
-  QVERIFY( structure->structureImporter()->isValid() );
+  QVERIFY( structure->structureImporterSource() );
 
   QVERIFY( structure->mesh() );
   QCOMPARE( structure->mesh()->vertexCount(), 1900 );
+  QPolygonF domain_1;
+  domain_1 << QPointF( 653204.178513767, 1797219.8459956 )
+           << QPointF( 653499.89032075, 1797219.72312258 )
+           << QPointF( 653499.500009407, 1797130.63683779 )
+           << QPointF( 653203.35825702, 1797130.98806042 );
+  QCOMPARE( structure->domain(), domain_1 );
 
   ReosHydraulicSimulation *simulation = structure->currentSimulation();
   QVERIFY( simulation );
@@ -493,6 +510,18 @@ void ReosHecrasTesting::importAndLaunchStructure()
   QCOMPARE( hecSim->outputInterval(), ReosDuration( 5.0, ReosDuration::minute ) );
   QCOMPARE( hecSim->detailedInterval(), ReosDuration( 5.0, ReosDuration::minute ) );
   QCOMPARE( hecSim->mappingInterval(), ReosDuration( 5.0, ReosDuration::minute ) );
+
+  hecSim->setCurrentPlan( "p02" );
+  QCOMPARE( hecSim->computeInterval(), ReosDuration( 60.0, ReosDuration::second ) );
+  QCOMPARE( hecSim->outputInterval(), ReosDuration( 5.0, ReosDuration::minute ) );
+  QCOMPARE( hecSim->detailedInterval(), ReosDuration( 5.0, ReosDuration::minute ) );
+  QCOMPARE( hecSim->mappingInterval(), ReosDuration( 5.0, ReosDuration::minute ) );
+
+  QVERIFY( structure->domain() != domain_1 );
+
+  hecSim->setCurrentPlan( "p01" );
+
+  QVERIFY( structure->domain() == domain_1 );
 
   QList<ReosHydraulicStructureBoundaryCondition *> boundaryConditions = structure->boundaryConditions();
   QCOMPARE( boundaryConditions.count(), 2 );
@@ -589,8 +618,7 @@ void ReosHecrasTesting::importAndLaunchStructure()
   structure = qobject_cast<ReosHydraulicStructure2D *>( network->hydraulicNetworkElements( ReosHydraulicStructure2D::staticType() ).at( 0 ) );
   QVERIFY( structure );
   QVERIFY( structure->boundaryConditions().count() == 2 );
-  QVERIFY( structure->structureImporter() );
-  QVERIFY( structure->structureImporter()->isValid() );
+  QVERIFY( structure->structureImporterSource() );
 
   boundaryConditions = structure->boundaryConditions();
   QCOMPARE( boundaryConditions.count(), 2 );

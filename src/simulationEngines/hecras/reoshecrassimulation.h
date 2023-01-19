@@ -17,11 +17,13 @@
 #define REOSHECRASSIMULATION_H
 
 #include "reoshydraulicsimulation.h"
+#include "reosstructureimporter.h"
 #include "reoshydraulicstructure2d.h"
 #include "reoshecrasproject.h"
 
 class ReosDssPath;
 class ReosHecRasController;
+class ReosHecRasStructureImporterSource;
 
 class ReosHecRasSimulationProcess: public ReosSimulationProcess
 {
@@ -44,8 +46,8 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
 {
     Q_OBJECT
   public:
-    ReosHecRasSimulation( QObject *parent = nullptr );
-    ReosHecRasSimulation( const ReosEncodedElement &element, QObject *parent = nullptr );
+    explicit ReosHecRasSimulation( ReosHydraulicStructure2D *parent = nullptr );
+    ReosHecRasSimulation( const ReosEncodedElement &element, ReosHydraulicStructure2D *parent = nullptr );
 
     static QString staticKey() { return QStringLiteral( "hecras" ); }
 
@@ -58,7 +60,7 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
     ReosDuration representativeTimeStep() const override;
     ReosDuration representative2DTimeStep() const override;
     void saveSimulationResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, ReosSimulationProcess *process, bool success ) const override;
-    ReosHydraulicSimulationResults *loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, QObject *parent ) const override;
+    ReosHydraulicSimulationResults *loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, QObject *parent = nullptr ) const override;
     bool hasResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const override;
     void removeResults( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const override;
     QString engineName() const override {return tr( "HECRAS" );}
@@ -92,6 +94,7 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
     void setMappingInterval( const ReosDuration &newMappingInterval );
 
   private:
+    ReosHydraulicStructure2D *mStructure = nullptr;
     QString mProjectFileName;
     std::shared_ptr<ReosHecRasProject> mProject;
 
@@ -116,11 +119,14 @@ class ReosHecRasSimulationEngineFactory : public ReosSimulationEngineFactory
   public:
     ReosHecRasSimulationEngineFactory();
 
-    virtual ReosHydraulicSimulation *createSimulation( QObject * ) const override
+    //! Create a new simulation, for HEC-RAS model, it is not possible to create new one, there is only one simulation per model, so this method returns nullptr
+    ReosHydraulicSimulation *createSimulation( ReosHydraulicStructure2D * ) const override
     { return nullptr; }
-    virtual ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &element, QObject *parent ) const override;
 
-    ReosStructureImporter *createImporter( const ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const override;
+    //! Create a simulation from an encoded element.
+    ReosHecRasSimulation *createSimulation( const ReosEncodedElement &element, ReosHydraulicStructure2D *parent ) const override;
+
+    ReosStructureImporterSource *createImporterSource( const ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const override;
 
     virtual QString key() const override { return ReosHecRasSimulation::staticKey(); }
     QString displayName() const override { return QObject::tr( "HEC-RAS Simulation" ); }
@@ -128,11 +134,14 @@ class ReosHecRasSimulationEngineFactory : public ReosSimulationEngineFactory
     void initializeSettings() override;
 };
 
+/**
+ * Class that is used to iport HEC-RAS model. This importer is rely to a HEC-RAC project file (*.prj) and is responsible to provide all elements
+ * necessary to the hydraulic structure (mesh, simulation instance, boundary condition,...)
+ */
 class ReosHecRasStructureImporter: public ReosStructureImporter
 {
   public:
-    explicit ReosHecRasStructureImporter( const QString &file, const ReosHydraulicNetworkContext &context );
-    ReosHecRasStructureImporter( const ReosEncodedElement &element, const ReosHydraulicNetworkContext &context );
+    ReosHecRasStructureImporter( const QString &file, const ReosHydraulicNetworkContext &context, const ReosHecRasStructureImporterSource *source );
     ~ReosHecRasStructureImporter();
 
     QString importerKey() const override;
@@ -142,9 +151,9 @@ class ReosHecRasStructureImporter: public ReosStructureImporter
     QPolygonF domain() const override;
     ReosMesh *mesh( const QString &destinationCrs ) const override;
 
-
     QList<ReosHydraulicStructureBoundaryCondition *> createBoundaryConditions( ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const override;
-    QList<ReosHydraulicSimulation *> createSimulations( QObject *parent ) const override;
+
+    QList<ReosHydraulicSimulation *> createSimulations( ReosHydraulicStructure2D *parent ) const override;
 
     void updateBoundaryConditions( QSet<QString> &currentBoundaryId,
                                    ReosHydraulicStructure2D *structure,
@@ -156,12 +165,30 @@ class ReosHecRasStructureImporter: public ReosStructureImporter
 
     bool projectFileExists() const;
 
+    const ReosStructureImporterSource *source() const override;
+
   private:
+    const ReosHecRasStructureImporterSource *mSource = nullptr;
     bool mIsValid = false;
     std::shared_ptr<ReosHecRasProject> mProject;
     QString mCrs;
 
     void init( const QString &mFileName );
+};
+
+class ReosHecRasStructureImporterSource: public ReosStructureImporterSource
+{
+  public:
+    ReosHecRasStructureImporterSource( const QString &file, const ReosHydraulicNetworkContext &context );
+    ReosHecRasStructureImporterSource( const ReosEncodedElement &element, const ReosHydraulicNetworkContext &context );
+
+    ReosHecRasStructureImporterSource *clone() const override;
+    ReosEncodedElement encode( const ReosHydraulicNetworkContext &context ) const override;
+    ReosStructureImporter *createImporter() const override;
+
+  private:
+    QString mHecRasProjectFile;
+    QPointer<ReosHydraulicNetwork> mNetwork;
 };
 
 

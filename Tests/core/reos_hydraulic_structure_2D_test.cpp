@@ -245,7 +245,6 @@ void ReoHydraulicStructure2DTest::createAndEditPolylineStructure()
   QCOMPARE( data.boundaryPointCount, domain.count() );
   QCOMPARE( data.internalLines.count(), 6 );
 
-
   geomStructure->removeAll();
   data = geomStructure->structuredLinesData();
   QCOMPARE( data.boundaryPointCount, 0 );

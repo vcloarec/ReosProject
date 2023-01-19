@@ -48,8 +48,8 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
 
     };
 
-    ReosTelemac2DSimulation( QObject *parent = nullptr );
-    explicit ReosTelemac2DSimulation( const ReosEncodedElement &element, QObject *parent = nullptr );
+    ReosTelemac2DSimulation( ReosHydraulicStructure2D *parent = nullptr );
+    explicit ReosTelemac2DSimulation( const ReosEncodedElement &element, ReosHydraulicStructure2D *parent = nullptr );
     static QString staticKey() {return QStringLiteral( "telemac2D" );}
 
     QString key() const override {return ReosTelemac2DSimulation::staticKey();}
@@ -203,12 +203,12 @@ class ReosTelemac2DSimulationEngineFactory : public ReosSimulationEngineFactory
   public:
     ReosTelemac2DSimulationEngineFactory();
 
-    virtual ReosHydraulicSimulation *createSimulation( QObject *parent ) const override;
-    virtual ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &element, QObject *parent ) const override;
+    virtual ReosHydraulicSimulation *createSimulation( ReosHydraulicStructure2D *parent ) const override;
+    virtual ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &element, ReosHydraulicStructure2D *parent ) const override;
 
     virtual QString key() const override {return ReosTelemac2DSimulation::staticKey();}
     QString displayName() const override {return QObject::tr( "TELEMAC 2D Simulation" );}
-    ReosStructureImporter *createImporter( const ReosEncodedElement &, const ReosHydraulicNetworkContext & ) const override {return nullptr;}
+    ReosStructureImporterSource *createImporterSource( const ReosEncodedElement &, const ReosHydraulicNetworkContext & ) const override {return nullptr;}
 
     void initializeSettings() override;
 };

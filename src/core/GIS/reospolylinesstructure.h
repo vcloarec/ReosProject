@@ -82,6 +82,9 @@ class REOSCORE_EXPORT ReosPolylinesStructure : public ReosGeometryStructure
     //! Return the class id of the ith segment returned by boundary()
     virtual QString boundaryClassId( int i ) const = 0;
 
+    //! Resets (clear all vertices and lines) and replace them with the \a data
+    virtual void reset( const Data &data, const QString &crs ) = 0;
+
     //! Removes all the entities in the structure
     virtual void removeAll() = 0;
 

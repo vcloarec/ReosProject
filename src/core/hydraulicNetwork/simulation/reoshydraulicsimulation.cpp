@@ -23,13 +23,14 @@
 #include <qgsmeshtriangulation.h>
 
 #include "reoshydraulicstructure2d.h"
+#include "reosstructureimporter.h"
 #include "reoshydraulicstructureboundarycondition.h"
 #include "reosparameter.h"
 #include "reoscalculationcontext.h"
 #include "reoshydrograph.h"
 #include "reostimewindowsettings.h"
 
-ReosHydraulicSimulation::ReosHydraulicSimulation( QObject *parent ): ReosDataObject( parent )
+ReosHydraulicSimulation::ReosHydraulicSimulation( ReosHydraulicStructure2D *parent ): ReosDataObject( parent )
 {
 }
 
@@ -76,7 +77,7 @@ void ReosSimulationEngineRegistery::registerEngineFactory( ReosSimulationEngineF
   }
 }
 
-ReosHydraulicSimulation *ReosSimulationEngineRegistery::createSimulation( const QString &key, QObject *parent ) const
+ReosHydraulicSimulation *ReosSimulationEngineRegistery::createSimulation( const QString &key, ReosHydraulicStructure2D *parent ) const
 {
   auto it = mFactories.find( key );
   if ( it != mFactories.end() )
@@ -84,7 +85,7 @@ ReosHydraulicSimulation *ReosSimulationEngineRegistery::createSimulation( const 
   return nullptr;
 }
 
-ReosHydraulicSimulation *ReosSimulationEngineRegistery::createSimulation( const ReosEncodedElement &element, QObject *parent ) const
+ReosHydraulicSimulation *ReosSimulationEngineRegistery::createSimulation( const ReosEncodedElement &element, ReosHydraulicStructure2D *parent ) const
 {
   if ( !element.hasEncodedData( QStringLiteral( "key" ) ) )
     return nullptr;
@@ -95,6 +96,7 @@ ReosHydraulicSimulation *ReosSimulationEngineRegistery::createSimulation( const 
   auto it = mFactories.find( key );
   if ( it != mFactories.end() )
     return it->second->createSimulation( element, parent );
+
   return nullptr;
 }
 
@@ -137,7 +139,7 @@ bool ReosSimulationEngineRegistery::canImportSrtucture2D() const
   return false;
 }
 
-ReosStructureImporter *ReosSimulationEngineRegistery::createStructureImporter( const ReosEncodedElement &element, const ReosHydraulicNetworkContext &context )
+ReosStructureImporterSource *ReosSimulationEngineRegistery::createStructureImporterSource( const ReosEncodedElement &element, const ReosHydraulicNetworkContext &context )
 {
   QString key;
   if ( !element.getData( QStringLiteral( "engine-key" ), key ) )
@@ -145,9 +147,9 @@ ReosStructureImporter *ReosSimulationEngineRegistery::createStructureImporter( c
 
   auto it = mFactories.find( key );
   if ( it != mFactories.end() )
-    return it->second->createImporter( element, context );
+    return it->second->createImporterSource( element, context );
 
-  return new ReosStructureImporterDummy( element, context );
+  return new ReosStructureImporterSourceDummy( element );
 }
 
 void ReosSimulationEngineRegistery::loadDynamicLibrary()

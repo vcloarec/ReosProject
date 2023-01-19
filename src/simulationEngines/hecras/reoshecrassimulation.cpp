@@ -37,40 +37,28 @@ ReosHecRasSimulationEngineFactory::ReosHecRasSimulationEngineFactory()
   mCapabilities = SimulationEngineCapability::ImportStructure2D;
 }
 
-ReosHydraulicSimulation *ReosHecRasSimulationEngineFactory::createSimulation( const ReosEncodedElement &element, QObject *parent ) const
+ReosHecRasSimulation *ReosHecRasSimulationEngineFactory::createSimulation( const ReosEncodedElement &element, ReosHydraulicStructure2D *parent ) const
 {
   std::unique_ptr<ReosHecRasSimulation> sim = std::make_unique<ReosHecRasSimulation>( element, parent );
   sim->setName( displayName() );
+
   return sim.release();
 }
 
-ReosStructureImporter *ReosHecRasSimulationEngineFactory::createImporter( const ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const
+ReosStructureImporterSource *ReosHecRasSimulationEngineFactory::createImporterSource( const ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const
 {
-  return new ReosHecRasStructureImporter( element, context );
+  return new ReosHecRasStructureImporterSource( element, context );
 }
 
 void ReosHecRasSimulationEngineFactory::initializeSettings()
 {
 }
 
-ReosHecRasStructureImporter::ReosHecRasStructureImporter( const QString &fileName, const ReosHydraulicNetworkContext &context )
+ReosHecRasStructureImporter::ReosHecRasStructureImporter( const QString &fileName, const ReosHydraulicNetworkContext &context, const ReosHecRasStructureImporterSource *source )
   : ReosStructureImporter( context )
+  , mSource( source )
 {
   init( fileName );
-}
-
-ReosHecRasStructureImporter::ReosHecRasStructureImporter( const ReosEncodedElement &element, const ReosHydraulicNetworkContext &context )
-  : ReosStructureImporter( context )
-{
-  if ( element.description() != QStringLiteral( "hec-ras-importer" ) )
-    return;
-
-  QString relativeFileName;
-  if ( !element.getData( QStringLiteral( "relative-path-to-project" ), relativeFileName ) )
-    return;
-
-  const QDir projectDir( context.projectPath() );
-  init( projectDir.filePath( relativeFileName ) );
 }
 
 ReosEncodedElement ReosHecRasStructureImporter::encode( const ReosHydraulicNetworkContext &context ) const
@@ -93,6 +81,8 @@ bool ReosHecRasStructureImporter::projectFileExists() const
   QFileInfo info( mProject->fileName() );
   return info.exists();
 }
+
+const ReosStructureImporterSource *ReosHecRasStructureImporter::source() const {return mSource;}
 
 
 void ReosHecRasStructureImporter::init( const QString &fileName )
@@ -126,10 +116,8 @@ ReosHydraulicStructure2D::Structure2DCapabilities ReosHecRasStructureImporter::c
 
 QString ReosHecRasStructureImporter::crs() const
 {
-  if ( mIsValid )
-  {
-    return mProject->currentGeometry().crs();
-  }
+  if ( mProject )
+    return mProject->crs();
 
   return QString();
 }
@@ -138,7 +126,7 @@ QPolygonF ReosHecRasStructureImporter::domain() const
 {
   if ( mIsValid )
   {
-    return mProject->currentGeometry().area2d( 0 ).surface;
+    return mProject->currentGeometry().domain();
   }
 
   return QPolygonF();
@@ -171,7 +159,7 @@ QList<ReosHydraulicStructureBoundaryCondition *> ReosHecRasStructureImporter::cr
     const ReosSpatialPosition position( bc.middlePosition, crs() );
     const QString id = bc.id();
     std::unique_ptr<ReosHydraulicStructureBoundaryCondition> sbc( new ReosHydraulicStructureBoundaryCondition( structure, id, position, context ) );
-    sbc->elementName()->setValue( id );
+    sbc->elementName()->setValue( bc.name() );
     sbc->setDefaultConditionType( ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally );
     ret.append( sbc.get() );
     context.network()->addElement( sbc.release() );
@@ -180,7 +168,7 @@ QList<ReosHydraulicStructureBoundaryCondition *> ReosHecRasStructureImporter::cr
   return ret;
 }
 
-QList<ReosHydraulicSimulation *> ReosHecRasStructureImporter::createSimulations( QObject *parent ) const
+QList<ReosHydraulicSimulation *> ReosHecRasStructureImporter::createSimulations( ReosHydraulicStructure2D *parent ) const
 {
   QList<ReosHydraulicSimulation *> ret;
   std::unique_ptr<ReosHecRasSimulation> sim( new ReosHecRasSimulation( parent ) );
@@ -223,23 +211,26 @@ void ReosHecRasStructureImporter::updateBoundaryConditions( QSet<QString> &curre
     const ReosSpatialPosition position( bc.middlePosition, crs() );
     const QString id = bc.id();
     std::unique_ptr<ReosHydraulicStructureBoundaryCondition> sbc( new ReosHydraulicStructureBoundaryCondition( structure, id, position, context ) );
-    sbc->elementName()->setValue( id );
+    sbc->elementName()->setValue( bc.name() );
     sbc->setDefaultConditionType( ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally );
     ret.append( sbc.get() );
+    QString bcId = sbc->boundaryConditionId();
     context.network()->addElement( sbc.release() );
-    currentBoundaryId.insert( sbc->boundaryConditionId() );
+    currentBoundaryId.insert( bcId );
   }
 }
 
 bool ReosHecRasStructureImporter::isValid() const { return mIsValid; }
 
-ReosHecRasSimulation::ReosHecRasSimulation( QObject *parent )
+ReosHecRasSimulation::ReosHecRasSimulation( ReosHydraulicStructure2D *parent )
   : ReosHydraulicSimulation( parent )
+  , mStructure( parent )
 {
 }
 
-ReosHecRasSimulation::ReosHecRasSimulation( const ReosEncodedElement &element, QObject *parent )
-  : ReosHecRasSimulation( parent )
+ReosHecRasSimulation::ReosHecRasSimulation( const ReosEncodedElement &element, ReosHydraulicStructure2D *parent )
+  : ReosHydraulicSimulation( parent )
+  , mStructure( parent )
 {
   ReosDataObject::decode( element );
   element.getData( QStringLiteral( "project-file-name" ), mProjectFileName );
@@ -469,13 +460,14 @@ void ReosHecRasSimulation::restoreConfiguration( ReosHydraulicScheme *scheme )
   const ReosEncodedElement element = scheme->restoreElementConfig( id() );
 
   mMinimumInterval = ReosDuration::decode( element.getEncodedData( QStringLiteral( "minimum-interval" ) ) );
-  element.getData( QStringLiteral( "current-plan-id" ), mCurrentPlan );
+  QString currentPlan;
+  element.getData( QStringLiteral( "current-plan-id" ), currentPlan );
   mComputeInterval = ReosDuration::decode( element.getEncodedData( QStringLiteral( "compute-interval" ) ) );
   mOutputInterval = ReosDuration::decode( element.getEncodedData( QStringLiteral( "output-interval" ) ) );
   mDetailledInterval = ReosDuration::decode( element.getEncodedData( QStringLiteral( "detailed-interval" ) ) );
   mMappingInterval = ReosDuration::decode( element.getEncodedData( QStringLiteral( "mapping-interval" ) ) );
 
-  accordCurrentPlan();
+  setCurrentPlan( currentPlan );
 }
 
 void ReosHecRasSimulation::setProject( std::shared_ptr<ReosHecRasProject> newProject )
@@ -494,6 +486,21 @@ void ReosHecRasSimulation::setProject( std::shared_ptr<ReosHecRasProject> newPro
 void ReosHecRasSimulation::setCurrentPlan( const QString &planId )
 {
   mCurrentPlan = planId;
+  accordCurrentPlan();
+  if ( mCurrentPlan.isEmpty() )
+  {
+    mStructure->geometryStructure()->removeAll();
+  }
+  else
+  {
+    const ReosHecRasGeometry &geom = mProject->geometryFromPlan( mCurrentPlan );
+    QString geomCrs = geom.crs();
+    if ( geomCrs.isEmpty() )
+      geomCrs = mProject->crs();
+
+    mStructure->geometryStructure()->reset( geom.polylineStructureData(), geomCrs );
+  }
+
   emit dataChanged();
 }
 
@@ -642,6 +649,8 @@ bool ReosHecRasSimulation::writeDssConstantTimeSeries( ReosTimeSerieConstantInte
 
 void ReosHecRasSimulation::accordCurrentPlan()
 {
+  if ( !mProject )
+    return;
   QStringList planIds = mProject->planIds();
   if ( !planIds.contains( mCurrentPlan ) )
   {
@@ -650,6 +659,9 @@ void ReosHecRasSimulation::accordCurrentPlan()
     else
       mCurrentPlan = planIds.first();
   }
+
+  if ( !mCurrentPlan.isEmpty() )
+    mProject->setCurrentPlan( mCurrentPlan );
 }
 
 
@@ -734,4 +746,45 @@ void ReosHecRasSimulationProcess::start()
   }
 
   mIsSuccessful = !returnedMessages.isEmpty() && returnedMessages.last() == QStringLiteral( "Computations Completed" );
+}
+
+ReosHecRasStructureImporterSource::ReosHecRasStructureImporterSource( const QString &file, const ReosHydraulicNetworkContext &context )
+  : mHecRasProjectFile( file )
+  , mNetwork( context.network() )
+{}
+
+ReosHecRasStructureImporterSource::ReosHecRasStructureImporterSource( const ReosEncodedElement &element, const ReosHydraulicNetworkContext &context )
+  : mNetwork( context.network() )
+{
+  if ( element.description() != QStringLiteral( "hec-ras-importer" ) )
+    return;
+
+  QString relativeFileName;
+  if ( !element.getData( QStringLiteral( "relative-path-to-project" ), relativeFileName ) )
+    return;
+
+  const QDir projectDir( context.projectPath() );
+  mHecRasProjectFile = projectDir.filePath( relativeFileName );
+}
+
+ReosHecRasStructureImporterSource *ReosHecRasStructureImporterSource::clone() const
+{
+  return new ReosHecRasStructureImporterSource( mHecRasProjectFile, mNetwork->context() );
+}
+
+ReosEncodedElement ReosHecRasStructureImporterSource::encode( const ReosHydraulicNetworkContext &context ) const
+{
+  ReosEncodedElement element( QStringLiteral( "hec-ras-importer" ) );
+
+  element.addData( QStringLiteral( "engine-key" ), ReosHecRasSimulation::staticKey() );
+
+  QDir projectDir( context.projectPath() );
+  element.addData( QStringLiteral( "relative-path-to-project" ), projectDir.relativeFilePath( mHecRasProjectFile ) );
+
+  return element;
+}
+
+ReosStructureImporter *ReosHecRasStructureImporterSource::createImporter() const
+{
+  return new ReosHecRasStructureImporter( mHecRasProjectFile, mNetwork->context(), this );
 }

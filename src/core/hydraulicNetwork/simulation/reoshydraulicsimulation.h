@@ -36,7 +36,7 @@ class ReosSimulationInitialConditions;
 class ReosHydraulicSimulationResults;
 class ReosHydraulicSimulation;
 class ReosHydraulicScheme;
-class ReosStructureImporter;
+class ReosStructureImporterSource;
 class ReosHydraulicNetworkContext;
 class ReosPolygonStructureValues;
 
@@ -120,7 +120,7 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject
 {
     Q_OBJECT
   public:
-    ReosHydraulicSimulation( QObject *parent = nullptr );
+    ReosHydraulicSimulation( ReosHydraulicStructure2D *parent = nullptr );
 
     virtual QString key() const = 0;
     virtual ReosEncodedElement encode() const = 0;
@@ -181,11 +181,11 @@ class ReosSimulationEngineFactory
 
     virtual ~ReosSimulationEngineFactory() = default;
 
-    virtual ReosHydraulicSimulation *createSimulation( QObject *parent ) const = 0;
-    virtual ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &element, QObject *parent ) const = 0;
+    virtual ReosHydraulicSimulation *createSimulation( ReosHydraulicStructure2D *parent ) const = 0;
+    virtual ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &element, ReosHydraulicStructure2D *parent ) const = 0;
     virtual QString key() const  = 0;
     virtual QString displayName() const = 0;
-    virtual ReosStructureImporter *createImporter( const ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const = 0;
+    virtual ReosStructureImporterSource *createImporterSource( const ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const = 0;
 
     virtual void initializeSettings() = 0;
 
@@ -202,10 +202,10 @@ class REOSCORE_EXPORT ReosSimulationEngineRegistery
     ReosSimulationEngineRegistery();
 
     //! Creates and returns a simuation corresponding to the \a key
-    ReosHydraulicSimulation *createSimulation( const QString &key, QObject *parent ) const ;
+    ReosHydraulicSimulation *createSimulation( const QString &key, ReosHydraulicStructure2D *parent ) const ;
 
     //! Creates and returns a simuation corresponding to the encoded \a element
-    ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &element, QObject *parent )const;
+    ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &element, ReosHydraulicStructure2D *parent )const;
 
     //! Returns a pointer to the static instance of this registery
     static ReosSimulationEngineRegistery *instance();
@@ -218,7 +218,7 @@ class REOSCORE_EXPORT ReosSimulationEngineRegistery
     //! Returns whether the registery contains engine that importation
     bool canImportSrtucture2D() const;
 
-    ReosStructureImporter *createStructureImporter( const ReosEncodedElement &element, const ReosHydraulicNetworkContext &context );
+    ReosStructureImporterSource *createStructureImporterSource( const ReosEncodedElement &element, const ReosHydraulicNetworkContext &context );
 
     //! Registers a \a factory
     void registerEngineFactory( ReosSimulationEngineFactory *factory );
@@ -260,7 +260,7 @@ class REOSCORE_EXPORT ReosHydraulicSimulationDummy : public ReosHydraulicSimulat
 {
     Q_OBJECT
   public:
-    ReosHydraulicSimulationDummy( QObject *parent = nullptr ) : ReosHydraulicSimulation( parent )  {}
+    ReosHydraulicSimulationDummy( ReosHydraulicStructure2D *parent = nullptr ) : ReosHydraulicSimulation( parent )  {}
 
     virtual QString key() const override {return QStringLiteral( "dummy-simulation" );}
     virtual ReosEncodedElement encode() const override {return ReosEncodedElement();};
@@ -279,7 +279,7 @@ class REOSCORE_EXPORT ReosHydraulicSimulationDummy : public ReosHydraulicSimulat
 
     virtual ReosHydraulicSimulationResults *loadSimulationResults( ReosHydraulicStructure2D *, const QString &, QObject *parent ) const override;;
 
-    virtual bool hasResult(const ReosHydraulicStructure2D *, const QString & schemeId) const override;;
+    virtual bool hasResult( const ReosHydraulicStructure2D *, const QString &schemeId ) const override;;
 
     virtual void removeResults( const ReosHydraulicStructure2D *, const QString & ) const override {};
 
@@ -307,12 +307,12 @@ class ReosSimulationEngineFactoryDummy : public ReosSimulationEngineFactory
   public:
     ReosSimulationEngineFactoryDummy() {}
 
-    virtual ReosHydraulicSimulation *createSimulation( QObject *parent ) const override {return new ReosHydraulicSimulationDummy( parent );}
-    virtual ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &, QObject * ) const override { return nullptr;}
+    virtual ReosHydraulicSimulation *createSimulation( ReosHydraulicStructure2D *parent ) const override {return new ReosHydraulicSimulationDummy( parent );}
+    virtual ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &, ReosHydraulicStructure2D * ) const override { return nullptr;}
 
     virtual QString key() const override {return QStringLiteral( "dummy-simulation" );}
     QString displayName() const override {return QObject::tr( "Dummy" );}
-    ReosStructureImporter *createImporter( const ReosEncodedElement &, const ReosHydraulicNetworkContext & ) const override {return nullptr;}
+    ReosStructureImporterSource *createImporterSource( const ReosEncodedElement &, const ReosHydraulicNetworkContext & ) const override {return nullptr;}
 
     void initializeSettings() override {}
 };

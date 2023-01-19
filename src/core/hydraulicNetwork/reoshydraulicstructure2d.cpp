@@ -25,6 +25,7 @@
 #include "reoshydraulicscheme.h"
 #include "reosgisengine.h"
 #include "reostimewindowsettings.h"
+#include "reosstructureimporter.h"
 
 #include <QProcess>
 #include <QDir>
@@ -56,20 +57,23 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   if ( !encodedElement.getData( QStringLiteral( "capabilities" ), mCapabilities ) )
     mCapabilities = Structure2DCapabilities( GeometryEditable | MultiSimulation ) ;
 
+  std::unique_ptr<ReosStructureImporter> importer;
   // Load base geometry (structure line  + mesh)
   if ( hasCapability( DefinedExternally ) )
   {
     if ( encodedElement.hasEncodedData( QStringLiteral( "structure-importer" ) ) )
     {
-      mStructureImporter.reset(
-        ReosSimulationEngineRegistery::instance()->createStructureImporter(
+      mStructureImporterSource.reset(
+        ReosSimulationEngineRegistery::instance()->createStructureImporterSource(
           encodedElement.getEncodedData( QStringLiteral( "structure-importer" ) ), mNetwork->context() ) );
+
+      importer.reset( mStructureImporterSource->createImporter() );
     }
 
-    if ( mStructureImporter && mStructureImporter->isValid() )
+    if ( importer && importer->isValid() )
     {
-      mPolylinesStructures = ReosPolylinesStructure::createPolylineStructure( mStructureImporter->domain(), mStructureImporter->crs() );
-      mMesh.reset( mStructureImporter->mesh( context.network()->gisEngine()->crs() ) );
+      mPolylinesStructures = ReosPolylinesStructure::createPolylineStructure( importer->domain(), importer->crs() );
+      mMesh.reset( importer->mesh( context.network()->gisEngine()->crs() ) );
     }
     else
     {
@@ -120,11 +124,11 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   if ( encodedElement.hasEncodedData( QStringLiteral( "boundary-condition-ids" ) ) )
   {
     encodedElement.getData( QStringLiteral( "boundary-condition-ids" ), mBoundaryConditions );
-    if ( hasCapability( DefinedExternally ) && mStructureImporter )
+    if ( hasCapability( DefinedExternally ) && importer )
     {
       // If the structure is defined externally (importation), some boundary could not be here anymore,
       // and some new could be appeared, we need to remove the ones not here anymore and add the new ones
-      mStructureImporter->updateBoundaryConditions( mBoundaryConditions, this, mNetwork->context() );
+      importer->updateBoundaryConditions( mBoundaryConditions, this, mNetwork->context() );
     }
   }
   else
@@ -182,7 +186,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( ReosStructureImporter *impor
   , mCapabilities( importer->capabilities() )
   , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( importer->domain(), importer->crs() ) )
   , mMesh( importer->mesh( context.network()->gisEngine()->crs() ) )
-  , mStructureImporter( importer )
+  , mStructureImporterSource( importer->source()->clone() )
   , mProfilesCollection( new ReosHydraulicStructureProfilesCollection( this ) )
   , mTimeWindowSettings( new ReosTimeWindowSettings( this ) )
 {
@@ -252,9 +256,9 @@ bool ReosHydraulicStructure2D::hasCapability( Structure2DCapability capability )
   return mCapabilities.testFlag( capability );
 }
 
-ReosStructureImporter *ReosHydraulicStructure2D::structureImporter() const
+ReosStructureImporterSource *ReosHydraulicStructure2D::structureImporterSource() const
 {
-  return mStructureImporter.get();
+  return mStructureImporterSource.get();
 }
 
 void ReosHydraulicStructure2D::exportResultAsMesh( const QString &fileName ) const
@@ -406,9 +410,9 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
 
   element.addData( QStringLiteral( "capabilities" ), mCapabilities );
 
-  if ( mStructureImporter )
+  if ( mStructureImporterSource )
   {
-    element.addEncodedData( QStringLiteral( "structure-importer" ), mStructureImporter->encode( mNetwork->context() ) );
+    element.addEncodedData( QStringLiteral( "structure-importer" ), mStructureImporterSource->encode( mNetwork->context() ) );
   }
 }
 
@@ -1205,7 +1209,6 @@ ReosHydraulicStructure2D *ReosHydraulicStructure2D::create( ReosStructureImporte
 {
   if ( !structureImporter || !structureImporter->isValid() )
   {
-    delete structureImporter;
     return nullptr;
   }
 
@@ -1285,8 +1288,7 @@ ReosTimeWindow ReosHydraulicStructure2D::timeWindow() const
 {
   ReosTimeWindow tw;
 
-  if ( mStructureImporter &&
-       mStructureImporter->capabilities().testFlag( ReosHydraulicStructure2D::DefinedExternally ) &&
+  if ( hasCapability( ReosHydraulicStructure2D::DefinedExternally ) &&
        mTimeWindowSettings->useExternalDefinedTimeWindow()->value() &&
        mCurrentSimulationIndex >= 0 )
   {
@@ -1358,6 +1360,3 @@ ReosPolygonStructure *ReosRoughnessStructure::structure() const
   return mStructure.get();
 }
 
-ReosStructureImporter::ReosStructureImporter( const ReosHydraulicNetworkContext &context ):
-  mNetWork( context.network() )
-{}
