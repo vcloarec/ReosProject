@@ -18,7 +18,7 @@ Storage Area Min Elev=
 Storage Area Is2D=0
 Storage Area Point Generation Data=0,0,,
 Storage Area 2D Points= 0 
-Storage Area 2D PointsPerimeterTime=18Jan2023 13:59:04
+Storage Area 2D PointsPerimeterTime=19Jan2023 17:59:30
 Storage Area Mannings=0.06
 2D Cell Volume Filter Tolerance=0.003
 2D Cell Minimum Area Fraction=0.01
@@ -324,7 +324,7 @@ Storage Area 2D Points= 565
 653288.7363225341797198.00691995 653292.685223711797198.00672574
 653296.6341248861797198.00653154653300.5830260621797198.00633733
 653304.5319272381797198.00614313
-Storage Area 2D PointsPerimeterTime=18Jan2023 13:59:04
+Storage Area 2D PointsPerimeterTime=19Jan2023 17:59:30
 Storage Area Mannings=0.06
 2D Cell Volume Filter Tolerance=0.003
 2D Cell Minimum Area Fraction=0.01
@@ -1366,7 +1366,7 @@ Storage Area 2D Points= 2037
 653481.1210836411797198.99745854653483.1086100611797198.99736079
 653485.0961364811797198.99726304  653487.0836629 1797198.9971653
  653489.071189321797198.99706755
-Storage Area 2D PointsPerimeterTime=18Jan2023 13:59:04
+Storage Area 2D PointsPerimeterTime=19Jan2023 17:59:30
 Storage Area Mannings=0.06
 2D Cell Volume Filter Tolerance=0.003
 2D Cell Minimum Area Fraction=0.01
@@ -1390,21 +1390,13 @@ BreakLine Near Repeats=0
 BreakLine Protection Radius=-1
 BreakLine Polyline= 2 
 653199.8861444341797200.01128957653500.0026338081797199.99652995
-BC Line Name=Upstream limit                  
-BC Line Storage Area=Perimeter 1     
-BC Line Start Position= 653200.818921477 , 1797150.22643247 
-BC Line Middle Position= 653200.603684658 , 1797175.10272262 
-BC Line End Position= 653200.38844784 , 1797199.97901277 
-BC Line Arc= 2 
-653200.8189214771797150.22643247 653200.388447841797199.97901277
-BC Line Text Position= 1.79769313486232E+308 , 1.79769313486232E+308 
 BC Line Name=Downstream limit                
-BC Line Storage Area=Perimeter 1     
-BC Line Start Position= 653500.215283694 , 1797150.15596816 
-BC Line Middle Position= 653500.105543859 , 1797175.01204072 
-BC Line End Position= 653499.995804024 , 1797199.86811328 
+BC Line Storage Area=Perimeter 2     
+BC Line Start Position= 653490.021390564 , 1797149.37182253 
+BC Line Middle Position= 653489.976996197 , 1797174.68531338 
+BC Line End Position= 653489.932601831 , 1797199.99880422 
 BC Line Arc= 2 
-653500.2152836941797150.15596816653499.9958040241797199.86811328
+653490.0213905641797149.37182253653489.9326018311797199.99880422
 BC Line Text Position= 1.79769313486232E+308 , 1.79769313486232E+308 
 LCMann Time=Dec/30/1899 00:00:00
 LCMann Region Time=Dec/30/1899 00:00:00
