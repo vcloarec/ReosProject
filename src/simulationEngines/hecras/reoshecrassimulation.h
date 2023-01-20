@@ -93,6 +93,11 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
     const ReosDuration &mappingInterval() const;
     void setMappingInterval( const ReosDuration &newMappingInterval );
 
+    static void updateBoundaryConditions(ReosHecRasProject *project,
+                                          const QSet<QString> &currentBoundaryId,
+                                          ReosHydraulicStructure2D *structure,
+                                          const ReosHydraulicNetworkContext &context );
+
   private:
     ReosHydraulicStructure2D *mStructure = nullptr;
     QString mProjectFileName;
@@ -155,7 +160,7 @@ class ReosHecRasStructureImporter: public ReosStructureImporter
 
     QList<ReosHydraulicSimulation *> createSimulations( ReosHydraulicStructure2D *parent ) const override;
 
-    void updateBoundaryConditions( QSet<QString> &currentBoundaryId,
+    void updateBoundaryConditions( const QSet<QString> &currentBoundaryId,
                                    ReosHydraulicStructure2D *structure,
                                    const ReosHydraulicNetworkContext &context ) const override;
 

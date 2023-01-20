@@ -106,6 +106,12 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Returns all the boundary condition of this stucture
     QList<ReosHydraulicStructureBoundaryCondition *> boundaryConditions() const;
 
+    //! Returns alls the boundary condition id
+    QStringList boundaryConditionId() const;
+
+    //! Returns the boundary condition with id \a boundaryId, nullptr if not exists
+    ReosHydraulicStructureBoundaryCondition *boundaryConditionNetWorkElement( const QString &boundaryId ) const;
+
     //! Adds a new simulation with \a key corresponding to a engine and sets it the current one. Returns true if the simulation is effectivly added
     bool addSimulation( const QString &key );
 
@@ -270,6 +276,9 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) override;
 
+    void onExtrernalBoundaryConditionRemoved( const QString &bcId );
+    void onExtrernalBoundaryConditionAdded( const QString &bcId );
+
   signals:
     void meshGenerated();
 
@@ -335,7 +344,6 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     void initConnection();
     void generateMeshInPlace();
     QString directory() const;
-    ReosHydraulicStructureBoundaryCondition *boundaryConditionNetWorkElement( const QString &boundaryId ) const;
     void onMeshGenerated( const ReosMeshFrameData &meshData );
 
     void loadResult( ReosHydraulicSimulation *simulation, const QString &schemeId );

@@ -157,6 +157,8 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject
 
     void timeStepChanged();
 
+    void onBoundaryConditionRemove( const QString &bcId );
+
   protected:
     QDir simulationDir( const ReosHydraulicStructure2D *hydraulicStructure, const QString &schemeId ) const;
     virtual QString directoryName() const {return QString();}

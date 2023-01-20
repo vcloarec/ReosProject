@@ -159,7 +159,7 @@ QList<ReosHydraulicStructureBoundaryCondition *> ReosHecRasStructureImporter::cr
     const ReosSpatialPosition position( bc.middlePosition, crs() );
     const QString id = bc.id();
     std::unique_ptr<ReosHydraulicStructureBoundaryCondition> sbc( new ReosHydraulicStructureBoundaryCondition( structure, id, position, context ) );
-    sbc->elementName()->setValue( bc.name() );
+    sbc->elementName()->setValue( bc.name() + QString( '-' ) + bc.area() );
     sbc->setDefaultConditionType( ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally );
     ret.append( sbc.get() );
     context.network()->addElement( sbc.release() );
@@ -178,46 +178,9 @@ QList<ReosHydraulicSimulation *> ReosHecRasStructureImporter::createSimulations(
   return ret;
 }
 
-void ReosHecRasStructureImporter::updateBoundaryConditions( QSet<QString> &currentBoundaryId, ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const
+void ReosHecRasStructureImporter::updateBoundaryConditions( const QSet<QString> &currentBoundaryId, ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const
 {
-  QList<ReosHydraulicStructureBoundaryCondition *> ret;
-  const QList<ReosHecRasGeometry::BoundaryCondition> bcs = mProject->currentGeometry().allBoundariesConditions();
-  QSet<QString> notExisting = currentBoundaryId;
-
-  QList<ReosHecRasGeometry::BoundaryCondition> toAdd;
-
-  for ( const ReosHecRasGeometry::BoundaryCondition &bc : bcs )
-  {
-    const QString id = bc.id();
-    if ( currentBoundaryId.contains( id ) )
-    {
-      notExisting.remove( id );
-    }
-    else
-    {
-      toAdd.append( bc );
-    }
-  }
-
-  const QList<ReosHydraulicStructureBoundaryCondition *> allCurrent = structure->boundaryConditions();
-  for ( ReosHydraulicStructureBoundaryCondition *bc : allCurrent )
-  {
-    if ( bc && notExisting.contains( bc->boundaryConditionId() ) )
-      context.network()->removeElement( bc );
-  }
-
-  for ( const ReosHecRasGeometry::BoundaryCondition &bc : std::as_const( toAdd ) )
-  {
-    const ReosSpatialPosition position( bc.middlePosition, crs() );
-    const QString id = bc.id();
-    std::unique_ptr<ReosHydraulicStructureBoundaryCondition> sbc( new ReosHydraulicStructureBoundaryCondition( structure, id, position, context ) );
-    sbc->elementName()->setValue( bc.name() );
-    sbc->setDefaultConditionType( ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally );
-    ret.append( sbc.get() );
-    QString bcId = sbc->boundaryConditionId();
-    context.network()->addElement( sbc.release() );
-    currentBoundaryId.insert( bcId );
-  }
+  ReosHecRasSimulation::updateBoundaryConditions( mProject.get(), currentBoundaryId, structure, context );
 }
 
 bool ReosHecRasStructureImporter::isValid() const { return mIsValid; }
@@ -499,6 +462,9 @@ void ReosHecRasSimulation::setCurrentPlan( const QString &planId )
       geomCrs = mProject->crs();
 
     mStructure->geometryStructure()->reset( geom.polylineStructureData(), geomCrs );
+
+    const QStringList boundaries = mStructure->boundaryConditionId();
+    updateBoundaryConditions( mProject.get(), QSet<QString>( boundaries.constBegin(), boundaries.constEnd() ), mStructure, mStructure->network()->context() );
   }
 
   emit dataChanged();
@@ -567,6 +533,52 @@ void ReosHecRasSimulation::setMappingInterval( const ReosDuration &newMappingInt
 {
   mMappingInterval = newMappingInterval;
   emit dataChanged();
+}
+
+void ReosHecRasSimulation::updateBoundaryConditions( ReosHecRasProject *project, const QSet<QString> &currentBoundaryId, ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context )
+{
+  QList<ReosHydraulicStructureBoundaryCondition *> ret;
+  const QList<ReosHecRasGeometry::BoundaryCondition> hecBoundaries = project->currentGeometry().allBoundariesConditions();
+  QSet<QString> notHecBc = currentBoundaryId;
+
+  QList<ReosHecRasGeometry::BoundaryCondition> toAdd;
+
+  for ( const ReosHecRasGeometry::BoundaryCondition &hecBc : hecBoundaries )
+  {
+    const QString hecId = hecBc.id();
+    if ( currentBoundaryId.contains( hecId ) )
+    {
+      notHecBc.remove( hecId );
+    }
+    else
+    {
+      toAdd.append( hecBc );
+    }
+  }
+
+  const QList<ReosHydraulicStructureBoundaryCondition *> allCurrent = structure->boundaryConditions();
+  for ( ReosHydraulicStructureBoundaryCondition *bc : allCurrent )
+  {
+    if ( bc && notHecBc.contains( bc->boundaryConditionId() ) )
+    {
+      QString bcId = bc->boundaryConditionId();
+      context.network()->removeElement( bc );
+      structure->onExtrernalBoundaryConditionRemoved( bcId );
+    }
+  }
+
+  for ( const ReosHecRasGeometry::BoundaryCondition &bc : std::as_const( toAdd ) )
+  {
+    const ReosSpatialPosition position( bc.middlePosition, project->crs() );
+    const QString id = bc.id();
+    std::unique_ptr<ReosHydraulicStructureBoundaryCondition> sbc( new ReosHydraulicStructureBoundaryCondition( structure, id, position, context ) );
+    sbc->elementName()->setValue( bc.name() + QString( '-' ) + bc.area() );
+    sbc->setDefaultConditionType( ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally );
+    ret.append( sbc.get() );
+    QString bcId = sbc->boundaryConditionId();
+    context.network()->addElement( sbc.release() );
+    structure->onExtrernalBoundaryConditionAdded( bcId );
+  }
 }
 
 void ReosHecRasSimulation::transformVariableTimeStepToConstant( ReosTimeSerieVariableTimeStep *variable, ReosTimeSerieConstantInterval *constant ) const
@@ -663,7 +675,6 @@ void ReosHecRasSimulation::accordCurrentPlan()
   if ( !mCurrentPlan.isEmpty() )
     mProject->setCurrentPlan( mCurrentPlan );
 }
-
 
 ReosHecRasSimulationProcess::ReosHecRasSimulationProcess(
   const ReosHecRasProject &hecRasProject,

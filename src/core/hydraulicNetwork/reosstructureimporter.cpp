@@ -35,9 +35,9 @@ ReosEncodedElement ReosStructureImporterSourceDummy::encode( const ReosHydraulic
   return mElement;
 }
 
-ReosStructureImporterDummy::ReosStructureImporterDummy(const ReosEncodedElement &element, const ReosHydraulicNetworkContext &context)
-    : ReosStructureImporter( context )
-    , mElement( element )
+ReosStructureImporterDummy::ReosStructureImporterDummy( const ReosEncodedElement &element, const ReosHydraulicNetworkContext &context )
+  : ReosStructureImporter( context )
+  , mElement( element )
 {
 }
 
@@ -49,15 +49,15 @@ QString ReosStructureImporterDummy::crs() const {return QString();}
 
 QPolygonF ReosStructureImporterDummy::domain() const {return QPolygonF();}
 
-ReosMesh *ReosStructureImporterDummy::mesh(const QString &) const {return nullptr;}
+ReosMesh *ReosStructureImporterDummy::mesh( const QString & ) const {return nullptr;}
 
-QList<ReosHydraulicStructureBoundaryCondition *> ReosStructureImporterDummy::createBoundaryConditions(ReosHydraulicStructure2D *, const ReosHydraulicNetworkContext &) const
+QList<ReosHydraulicStructureBoundaryCondition *> ReosStructureImporterDummy::createBoundaryConditions( ReosHydraulicStructure2D *, const ReosHydraulicNetworkContext & ) const
 {return QList<ReosHydraulicStructureBoundaryCondition *>();}
 
-QList<ReosHydraulicSimulation *> ReosStructureImporterDummy::createSimulations(ReosHydraulicStructure2D *) const {return QList<ReosHydraulicSimulation *>();}
+QList<ReosHydraulicSimulation *> ReosStructureImporterDummy::createSimulations( ReosHydraulicStructure2D * ) const {return QList<ReosHydraulicSimulation *>();}
 
-void ReosStructureImporterDummy::updateBoundaryConditions(QSet<QString> &, ReosHydraulicStructure2D *, const ReosHydraulicNetworkContext &) const {}
+void ReosStructureImporterDummy::updateBoundaryConditions( const QSet<QString> &, ReosHydraulicStructure2D *, const ReosHydraulicNetworkContext & ) const {}
 
 bool ReosStructureImporterDummy::isValid() const {return false;}
 
-ReosEncodedElement ReosStructureImporterDummy::encode(const ReosHydraulicNetworkContext &) const {return mElement;}
+ReosEncodedElement ReosStructureImporterDummy::encode( const ReosHydraulicNetworkContext & ) const {return mElement;}

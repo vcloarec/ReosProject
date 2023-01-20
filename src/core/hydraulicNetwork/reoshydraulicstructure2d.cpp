@@ -141,7 +141,10 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   {
     ReosHydraulicStructureBoundaryCondition *bc = boundaryConditionNetWorkElement( bcId );
     if ( bc )
-      bc->attachStructure( this );
+    {
+      if ( !bc->structure() )
+        bc->attachStructure( this );
+    }
     else
       mNetwork->addElement( new ReosHydraulicStructureBoundaryCondition( this, bcId, network()->context() ) );
   }
@@ -435,6 +438,11 @@ QList<ReosHydraulicStructureBoundaryCondition *> ReosHydraulicStructure2D::bound
   return ret.values();
 }
 
+QStringList ReosHydraulicStructure2D::boundaryConditionId() const
+{
+  return mBoundaryConditions.values();
+}
+
 ReosHydraulicSimulation *ReosHydraulicStructure2D::currentSimulation() const
 {
   if ( mCurrentSimulationIndex < 0 || mCurrentSimulationIndex >= mSimulations.count() )
@@ -562,6 +570,18 @@ void ReosHydraulicStructure2D::onBoundaryConditionRemoved( const QString &bid )
 {
   mBoundaryConditions.remove( bid );
   mNetwork->removeElement( boundaryConditionNetWorkElement( bid ) );
+  emit boundariesChanged();
+}
+
+void ReosHydraulicStructure2D::onExtrernalBoundaryConditionRemoved( const QString &bcId )
+{
+  mBoundaryConditions.remove( bcId );
+  emit boundariesChanged();
+}
+
+void ReosHydraulicStructure2D::onExtrernalBoundaryConditionAdded( const QString &bcId )
+{
+  mBoundaryConditions.insert( bcId );
   emit boundariesChanged();
 }
 
