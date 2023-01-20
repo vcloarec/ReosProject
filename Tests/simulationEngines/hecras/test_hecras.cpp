@@ -640,7 +640,8 @@ void ReosHecrasTesting::simulationResults()
   ReosHydraulicScheme *scheme = network->currentScheme();
   QVERIFY( scheme );
 
-  std::unique_ptr<ReosHecRasStructureImporter> importer( new ReosHecRasStructureImporter( projectPath, network->context() ) );
+  std::unique_ptr<ReosStructureImporterSource> importerSource( new ReosHecRasStructureImporterSource( projectPath, network->context() ) );
+  std::unique_ptr<ReosStructureImporter> importer( importerSource->createImporter() );
   ReosHydraulicStructure2D *structure = ReosHydraulicStructure2D::create( importer.release(), network->context() );
   QVERIFY( structure );
 
@@ -653,7 +654,8 @@ void ReosHecrasTesting::simulationResults()
 
   std::shared_ptr<ReosHecRasProject> project = std::make_shared<ReosHecRasProject>( projectPath );
 
-  ReosHydraulicSimulation *simulation = structure->currentSimulation();
+  //we use dynamic cast because there are some issue with qobject_cast, maybe due to crossing dynamic library
+  ReosHecRasSimulation *simulation = dynamic_cast<ReosHecRasSimulation *>( structure->currentSimulation() );
   ReosHydraulicScheme *currentScheme = network->currentScheme();
 
   QVERIFY( simulation->hasResult( structure, currentScheme->id() ) );
@@ -685,6 +687,12 @@ void ReosHecrasTesting::simulationResults()
   QCOMPARE( tw.end(), QDateTime( QDate( 2000, 01, 01 ), QTime( 12, 0, 0 ), Qt::UTC ) );
   QVERIFY( tw == mGisEngine->mapTimeWindow() );
 
+  simulation->setCurrentPlan( "p02" );
+
+  boundaries = structure->boundaryConditions();
+  QCOMPARE( boundaries.count(), 1 );
+
+  ReosEncodedElement simEncoded = simulation->encode();
   ReosEncodedElement encodedNetwork = network->encode( QFileInfo( projectPath ).dir().path(),  "project.lkn" );
   network->clear();
   network->decode( encodedNetwork, QFileInfo( projectPath ).dir().path(),  "project.lkn" );
@@ -694,8 +702,17 @@ void ReosHecrasTesting::simulationResults()
 
   structure = qobject_cast<ReosHydraulicStructure2D *>( elements.at( 0 ) );
   QVERIFY( structure );
+  simulation = dynamic_cast<ReosHecRasSimulation *>( structure->currentSimulation() );
+
+  boundaries = structure->boundaryConditions();
+  QCOMPARE( boundaries.count(), 1 );
+
+  QVERIFY( simulation );
+  simulation->setCurrentPlan( "p01" );
+
   boundaries = structure->boundaryConditions();
   QCOMPARE( boundaries.count(), 2 );
+
   pos = boundaries.at( 0 )->position( QString() );
   QCOMPARE( pos, QPointF( 653500.105543859, 1797175.01204072 ) );
   pos = boundaries.at( 1 )->position( QString() );

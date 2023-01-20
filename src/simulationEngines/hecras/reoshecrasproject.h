@@ -10,7 +10,7 @@
 
 #include "reosduration.h"
 #include "reosmodule.h"
-#include "reospolylinesstructure.h""
+#include "reospolylinesstructure.h"
 
 class QTextStream;
 class ReosHecRasSimulation;
@@ -249,9 +249,9 @@ class ReosHecRasProject
 
     const QString &crs() const;
 
-    void setCurrentPlan(const QString &newCurrentPlan);
+    void setCurrentPlan( const QString &newCurrentPlan );
 
-private:
+  private:
     QString mFileName;
     QMap<QString, ReosHecRasPlan> mPlans;
     QMap<QString, ReosHecRasGeometry> mGeometries;
