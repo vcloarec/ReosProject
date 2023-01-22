@@ -79,8 +79,6 @@ class REOSCORE_EXPORT ReosHydraulicStructureBoundaryCondition : public ReosHydro
 
     ConnectionState connectionState() const;
 
-    ReosHydraulicStructureBoundaryCondition::Type defaultConditionType() const;
-    void setDefaultConditionType( const ReosHydraulicStructureBoundaryCondition::Type &defaultConditionType );
 
     ReosParameterBoolean *isWaterLevelConstant() const;
 
@@ -94,6 +92,15 @@ class REOSCORE_EXPORT ReosHydraulicStructureBoundaryCondition : public ReosHydro
     ReosHydraulicStructure2D *structure() const;
 
     void setHydrographFromModel( ReosHydrograph *hydrograph );
+
+    //*** config attribute getter/setter
+    //! Returns the defult condition type corresponding to \a scheme, returns the current one if scheme is not provided
+    ReosHydraulicStructureBoundaryCondition::Type defaultConditionType( ReosHydraulicScheme *scheme = nullptr ) const;
+
+    //! Sets the current default condition tyle
+    void setDefaultConditionType( const ReosHydraulicStructureBoundaryCondition::Type &defaultConditionType );
+
+    //***
 
   public slots:
     //void updateCalculationContext( const ReosCalculationContext &context );

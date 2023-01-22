@@ -92,6 +92,7 @@ class REOSGUI_EXPORT ReosHydraulicNetworkWidget : public QWidget
     void onAddHydraulicScheme();
     void onRemoveHydraulicScheme();
     void onRenameHydraulicScheme();
+    void onCurrentSchemeChange(int index);
     void onNetworkLoaded();
 
     void onModuleReset();

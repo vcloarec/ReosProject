@@ -154,6 +154,9 @@ ReosHydraulicNetwork *ReosHydraulicNetworkElement::network() const
   return mNetwork;
 }
 
+ReosHydraulicNetworkElementCompatibilty ReosHydraulicNetworkElement::checkCompatiblity( ReosHydraulicScheme * ) const
+{return ReosHydraulicNetworkElementCompatibilty();}
+
 ReosMapExtent ReosHydraulicNetworkElement::extent() const
 {
   return ReosMapExtent();
@@ -508,6 +511,15 @@ ReosTimeWindow ReosHydraulicNetwork::mapTimeWindow() const
     tw = tw.unite( scheme->meteoModel()->timeWindow() );
 
   return tw;
+}
+
+ReosHydraulicNetworkElementCompatibilty ReosHydraulicNetwork::checkSchemeCompatibility( ReosHydraulicScheme *scheme ) const
+{
+  ReosHydraulicNetworkElementCompatibilty ret;
+  for ( auto it = mElements.constBegin(); it != mElements.constEnd(); ++it )
+    ret.combine( it.value()->checkCompatiblity( scheme ) );
+
+  return ret;
 }
 
 QList<ReosHydraulicNetworkElement *> ReosHydraulicNetwork::hydraulicNetworkElements( const QString &type ) const

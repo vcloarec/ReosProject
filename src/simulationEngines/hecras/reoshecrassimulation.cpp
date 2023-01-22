@@ -404,6 +404,11 @@ ReosTimeWindow ReosHecRasSimulation::externalBoundaryConditionTimeWindow( const 
   return ReosTimeWindow();
 }
 
+ReosHydraulicNetworkElementCompatibilty ReosHecRasSimulation::checkCompatiblity( ReosHydraulicScheme *scheme ) const
+{
+  return mProject->checkCompatibility( currentPlan( scheme ), mStructure, nullptr );
+}
+
 void ReosHecRasSimulation::saveConfiguration( ReosHydraulicScheme *scheme ) const
 {
   ReosEncodedElement element = scheme->restoreElementConfig( id() );
@@ -422,15 +427,24 @@ void ReosHecRasSimulation::restoreConfiguration( ReosHydraulicScheme *scheme )
 {
   const ReosEncodedElement element = scheme->restoreElementConfig( id() );
 
-  mMinimumInterval = ReosDuration::decode( element.getEncodedData( QStringLiteral( "minimum-interval" ) ) );
-  QString currentPlan;
-  element.getData( QStringLiteral( "current-plan-id" ), currentPlan );
-  mComputeInterval = ReosDuration::decode( element.getEncodedData( QStringLiteral( "compute-interval" ) ) );
-  mOutputInterval = ReosDuration::decode( element.getEncodedData( QStringLiteral( "output-interval" ) ) );
-  mDetailledInterval = ReosDuration::decode( element.getEncodedData( QStringLiteral( "detailed-interval" ) ) );
-  mMappingInterval = ReosDuration::decode( element.getEncodedData( QStringLiteral( "mapping-interval" ) ) );
+  if ( element.hasEncodedData( QStringLiteral( "minimum-interval" ) ) )
+    mMinimumInterval = ReosDuration::decode( element.getEncodedData( QStringLiteral( "minimum-interval" ) ) );
 
-  setCurrentPlan( currentPlan );
+  QString currentPlan;
+  if ( element.getData( QStringLiteral( "current-plan-id" ), currentPlan ) )
+    setCurrentPlan( currentPlan );
+
+  if ( element.hasEncodedData( QStringLiteral( "compute-interval" ) ) )
+    mComputeInterval = ReosDuration::decode( element.getEncodedData( QStringLiteral( "compute-interval" ) ) );
+
+  if ( element.hasEncodedData( QStringLiteral( "output-interval" ) ) )
+    mOutputInterval = ReosDuration::decode( element.getEncodedData( QStringLiteral( "output-interval" ) ) );
+
+  if ( element.hasEncodedData( QStringLiteral( "detailed-interval" ) ) )
+    mDetailledInterval = ReosDuration::decode( element.getEncodedData( QStringLiteral( "detailed-interval" ) ) );
+
+  if ( element.hasEncodedData( QStringLiteral( "mapping-interval" ) ) )
+    mMappingInterval = ReosDuration::decode( element.getEncodedData( QStringLiteral( "mapping-interval" ) ) );
 }
 
 void ReosHecRasSimulation::setProject( std::shared_ptr<ReosHecRasProject> newProject )
@@ -475,8 +489,16 @@ ReosHecRasProject *ReosHecRasSimulation::project() const
   return mProject.get();
 }
 
-const QString &ReosHecRasSimulation::currentPlan() const
+QString ReosHecRasSimulation::currentPlan( ReosHydraulicScheme *scheme ) const
 {
+  if ( scheme )
+  {
+    const ReosEncodedElement element = scheme->restoreElementConfig( id() );
+    QString currentPlan;
+    if ( element.getData( QStringLiteral( "current-plan-id" ), currentPlan ) )
+      return currentPlan;
+  }
+
   return mCurrentPlan;
 }
 
@@ -581,6 +603,22 @@ void ReosHecRasSimulation::updateBoundaryConditions( ReosHecRasProject *project,
   }
 }
 
+ReosHydraulicNetworkElementCompatibilty ReosHecRasSimulation::checkPlanCompability( const QString &planId ) const
+{
+  if ( mStructure->network() && mStructure->network()->hydraulicSchemeCollection() )
+  {
+    ReosHydraulicNetworkElementCompatibilty ret;
+    ReosHydraulicSchemeCollection *schemeCollection = mStructure->network()->hydraulicSchemeCollection();
+    int schemeCount = schemeCollection->schemeCount();
+    for ( int i = 0; i < schemeCount; ++i )
+      ret.combine( mProject->checkCompatibility( planId, mStructure, schemeCollection->scheme( i ) ) ) ;
+
+    return ret;
+  }
+
+  return mProject->checkCompatibility( planId, mStructure, nullptr );
+}
+
 void ReosHecRasSimulation::transformVariableTimeStepToConstant( ReosTimeSerieVariableTimeStep *variable, ReosTimeSerieConstantInterval *constant ) const
 {
   if ( !variable || !constant )
@@ -607,6 +645,7 @@ void ReosHecRasSimulation::transformVariableTimeStepToConstant( ReosTimeSerieVar
   ReosDuration firstRelativeTime = variable->relativeTimeAt( 0 );
 
   QVector<double> values;
+
   ReosDuration currentIntervaltest = maxInterval;
   ReosDuration betterInterval;
   QVector<double> betterValues;

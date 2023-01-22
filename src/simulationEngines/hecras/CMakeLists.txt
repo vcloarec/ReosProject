@@ -60,6 +60,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/gui/GIS
     ${CMAKE_SOURCE_DIR}/src/gui/watershed
     ${CMAKE_SOURCE_DIR}/src/gui/rainfall
+    ${CMAKE_SOURCE_DIR}/src/gui/hydraulicNetwork
     ${CMAKE_SOURCE_DIR}/src/gui/hydraulicNetwork/structure2d
     ${CMAKE_SOURCE_DIR}/src/core
     ${CMAKE_SOURCE_DIR}/src/core/data

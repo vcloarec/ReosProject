@@ -3,11 +3,13 @@
 #include "ui_reoshecrasengineconfigurationdialog.h"
 
 #include <QPushButton>
+#include <QMessageBox>
 
 #include "reoshecrassimulationimportwidget.h"
 #include "reoshecrassimulation.h"
 #include "reoshecrascontroller.h"
 #include "reossettings.h"
+#include "reosnetworkcompatibilitydialog.h""
 
 ReosHecRasSimulationEditWidget::ReosHecRasSimulationEditWidget( ReosHecRasSimulation *simulation, QWidget *parent )
   : QWidget( parent )
@@ -55,12 +57,37 @@ ReosHecRasSimulationEditWidget::~ReosHecRasSimulationEditWidget()
 
 void ReosHecRasSimulationEditWidget::onPlanChanged()
 {
-  const QString currentPlanId = ui->mPlansComboBox->currentData().toString();
-  const ReosHecRasPlan &plan = mSimulation->project()->plan( currentPlanId );
+  const QString prevPlan = mSimulation->project()->currentPlanId();
+
+  const QString newPlanId = ui->mPlansComboBox->currentData().toString();
+
+  const ReosHydraulicNetworkElementCompatibilty compatibility = mSimulation->checkPlanCompability( newPlanId );
+  if ( !compatibility.isCompatible )
+  {
+    ReosGuiContext context( this );
+    ReosNetworkCompatibilityDialog *diag =
+      new ReosNetworkCompatibilityDialog( tr( "The selected HEC-RAS plan is incompatible with the state"
+                                          " of the hydraulic network for the following reason(s):" ),
+                                          compatibility,
+                                          tr( "If you continue, some elements of the network could be altered or removed definitively.\n"
+                                              "Do you want to continue ?" ),
+                                          context );
+    if ( !diag->exec() )
+    {
+      ui->mPlansComboBox->blockSignals( true );
+      ui->mPlansComboBox->setCurrentIndex( ui->mPlansComboBox->findData( prevPlan ) );
+      ui->mPlansComboBox->blockSignals( false );
+      diag->deleteLater();
+      return;
+    }
+
+    diag->deleteLater();
+  }
+  const ReosHecRasPlan &plan = mSimulation->project()->plan( newPlanId );
   const QString currentGeometryId = plan.geometryFile();
   const ReosHecRasGeometry &geometry = mSimulation->project()->geometry( currentGeometryId );
 
-  mSimulation->setCurrentPlan( currentPlanId );
+  mSimulation->setCurrentPlan( newPlanId );
   ui->mGeometryLabel->setText( geometry.title() );
 }
 

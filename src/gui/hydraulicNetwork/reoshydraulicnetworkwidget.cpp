@@ -32,6 +32,7 @@
 #include "reoshydraulicstructure2dproperties.h"
 #include "reosimporthydraulicstructuredialog.h"
 #include "reoshydraulicelementmodel.h"
+#include "reosnetworkcompatibilitydialog.h"
 
 
 ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *network, ReosWatershedModule *watershedModule, const ReosGuiContext &context ) :
@@ -163,12 +164,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   connect( ui->mHydraulicShcemeAddButton, &QToolButton::clicked, this, &ReosHydraulicNetworkWidget::onAddHydraulicScheme );
   connect( ui->mHydraulicShcemeRemoveButton, &QToolButton::clicked, this, &ReosHydraulicNetworkWidget::onRemoveHydraulicScheme );
   connect( ui->mHydraulicShcemeRenameButton, &QToolButton::clicked, this, &ReosHydraulicNetworkWidget::onRenameHydraulicScheme );
-  connect( ui->mHydraulicSchemeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]( int index )
-  {
-    mHydraulicNetwork->changeScheme( index );
-    changeCurrentScheme( mHydraulicNetwork->currentScheme() );
-    emit mapTimeStepChanged();
-  } );
+  connect( ui->mHydraulicSchemeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosHydraulicNetworkWidget::onCurrentSchemeChange );
 
   changeCurrentScheme( mHydraulicNetwork->currentScheme() );
 
@@ -399,6 +395,37 @@ void ReosHydraulicNetworkWidget::onRenameHydraulicScheme()
 
   if ( dial->exec() )
     mCurrentHydraulicScheme->schemeName()->setValue( string.value() );
+}
+
+void ReosHydraulicNetworkWidget::onCurrentSchemeChange( int index )
+{
+  int prvIndex = mHydraulicNetwork->currentSchemeIndex();
+
+  ReosHydraulicScheme *newScheme = mHydraulicNetwork->hydraulicSchemeCollection()->scheme( index );
+  ReosHydraulicNetworkElementCompatibilty compatibility = mHydraulicNetwork->checkSchemeCompatibility( newScheme );
+
+  if ( !compatibility.isCompatible )
+  {
+    ReosNetworkCompatibilityDialog *diag =
+      new ReosNetworkCompatibilityDialog( tr( "The new selected scheme is incompatible with the state"
+                                          " of the hydraulic network for the following reason(s):" ),
+                                          compatibility,
+                                          tr( "If you continue, some elements of the network could be altered or removed definitively.\n"
+                                              "Do you want to continue ?" ),
+                                          ReosGuiContext( mGuiContext, this ) );
+    if ( !diag->exec() )
+    {
+      ui->mHydraulicSchemeCombo->blockSignals( true );
+      ui->mHydraulicSchemeCombo->setCurrentIndex( prvIndex );
+      ui->mHydraulicSchemeCombo->blockSignals( false );
+      diag->deleteLater();
+      return;
+    }
+  }
+
+  mHydraulicNetwork->changeScheme( index );
+  changeCurrentScheme( mHydraulicNetwork->currentScheme() );
+  emit mapTimeStepChanged();
 }
 
 void ReosHydraulicNetworkWidget::onNetworkLoaded()

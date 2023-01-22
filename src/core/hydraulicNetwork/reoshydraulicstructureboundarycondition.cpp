@@ -200,17 +200,16 @@ void ReosHydraulicStructureBoundaryCondition::restoreConfiguration( ReosHydrauli
 {
   ReosEncodedElement encodedElement = scheme->restoreElementConfig( id() );
 
-  int defaultCond = 0;
   int isLevelConstant = 0;
   double constantLevel = 0;
   QString waterlevelSeriesId;
 
-  encodedElement.getData( QStringLiteral( "default-condition-type" ), defaultCond );
   encodedElement.getData( QStringLiteral( "is-water-elevation-constant" ), isLevelConstant );
   encodedElement.getData( QStringLiteral( "constant-water-elevation" ), constantLevel );
   encodedElement.getData( QStringLiteral( "water-level-series-id" ), waterlevelSeriesId );
 
-  mDefaultConditionType = static_cast<ReosHydraulicStructureBoundaryCondition::Type>( defaultCond );
+  mDefaultConditionType = defaultConditionType( scheme );
+
   mIsWaterLevelConstant->setValue( isLevelConstant == 1 );
   mConstantWaterLevel->setValue( constantLevel );
   mWaterLevelSeriesIndex = -1;
@@ -377,8 +376,16 @@ ReosParameterBoolean *ReosHydraulicStructureBoundaryCondition::isWaterLevelConst
   return mIsWaterLevelConstant;
 }
 
-ReosHydraulicStructureBoundaryCondition::Type ReosHydraulicStructureBoundaryCondition::defaultConditionType() const
+ReosHydraulicStructureBoundaryCondition::Type ReosHydraulicStructureBoundaryCondition::defaultConditionType( ReosHydraulicScheme *scheme ) const
 {
+  if ( scheme )
+  {
+    ReosEncodedElement encodedConfig = scheme->restoreElementConfig( id() );
+    int defaultCond = 0;
+    if ( encodedConfig.getData( QStringLiteral( "default-condition-type" ), defaultCond ) )
+      return static_cast<ReosHydraulicStructureBoundaryCondition::Type>( defaultCond );
+  }
+
   return mDefaultConditionType;
 }
 
@@ -400,6 +407,8 @@ void ReosHydraulicStructureBoundaryCondition::setDefaultConditionType( const Reo
       break;
     case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
       setCurrentInternalHydrograph( nullptr );
+      break;
+    case ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally:
       break;
   }
 
