@@ -36,7 +36,7 @@ class ReosHydraulicSchemeCollection;
 class ReosHydraulicScheme;
 class ReosMapExtent;
 
-struct ReosHydraulicNetworkElementCompatibilty
+struct REOSCORE_EXPORT ReosHydraulicNetworkElementCompatibilty
 {
   bool isCompatible = true;
   QStringList incompatibilityReasons;

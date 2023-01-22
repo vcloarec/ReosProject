@@ -60,4 +60,3 @@ void ReosStructureImporterDummy::updateBoundaryConditions( const QSet<QString> &
 
 bool ReosStructureImporterDummy::isValid() const {return false;}
 
-ReosEncodedElement ReosStructureImporterDummy::encode( const ReosHydraulicNetworkContext & ) const {return mElement;}

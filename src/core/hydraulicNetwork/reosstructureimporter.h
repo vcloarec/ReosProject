@@ -53,8 +53,6 @@ class REOSCORE_EXPORT ReosStructureImporter
 
     virtual bool isValid() const = 0;
 
-    virtual ReosEncodedElement encode( const ReosHydraulicNetworkContext &context ) const = 0;
-
     virtual  const ReosStructureImporterSource *source() const = 0;
 
   protected:
@@ -97,8 +95,6 @@ class ReosStructureImporterDummy : public ReosStructureImporter
     virtual void updateBoundaryConditions( const QSet<QString> &, ReosHydraulicStructure2D *, const ReosHydraulicNetworkContext & ) const override;;
 
     virtual bool isValid() const override;
-
-    virtual ReosEncodedElement encode( const ReosHydraulicNetworkContext & ) const override;
 
   private:
     ReosEncodedElement mElement;
