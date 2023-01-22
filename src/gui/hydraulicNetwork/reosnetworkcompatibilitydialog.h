@@ -17,6 +17,7 @@
 #define REOSNETWORKCOMPATIBILITYDIALOG_H
 
 #include <QDialog>
+#include "reosgui.h"
 
 namespace Ui
 {
@@ -26,7 +27,7 @@ namespace Ui
 struct ReosHydraulicNetworkElementCompatibilty;
 class ReosGuiContext;
 
-class ReosNetworkCompatibilityDialog : public QDialog
+class REOSGUI_EXPORT ReosNetworkCompatibilityDialog : public QDialog
 {
     Q_OBJECT
 

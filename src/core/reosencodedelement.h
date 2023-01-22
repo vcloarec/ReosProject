@@ -46,7 +46,7 @@ class REOSCORE_EXPORT ReosEncodeContext
      *
      * \see setBaseDir()
      */
-    void setEncodeRelativePath( bool isrelative );
+    void setEncodeRelativePath( bool isRelative );
 
   private:
     QDir mBaseDir;

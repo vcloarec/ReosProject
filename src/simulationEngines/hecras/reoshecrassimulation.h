@@ -121,7 +121,7 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
     //***
 
     void transformVariableTimeStepToConstant( ReosTimeSerieVariableTimeStep *variable, ReosTimeSerieConstantInterval *constant ) const;
-    bool writeDssConstantTimeSeries( ReosTimeSerieConstantInterval *series, const QString fileName, const ReosDssPath &path, QString &error ) const;
+    bool writeDssConstantTimeSeries( ReosTimeSerieConstantInterval *series, const QString &fileName, const ReosDssPath &path, QString &error ) const;
 
     void accordCurrentPlan();
 };
@@ -173,8 +173,6 @@ class ReosHecRasStructureImporter: public ReosStructureImporter
                                    const ReosHydraulicNetworkContext &context ) const override;
 
     bool isValid() const override;
-
-    ReosEncodedElement encode( const ReosHydraulicNetworkContext &context ) const override;
 
     bool projectFileExists() const;
 

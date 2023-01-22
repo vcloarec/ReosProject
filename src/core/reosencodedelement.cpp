@@ -123,7 +123,7 @@ void ReosEncodeContext::setBaseDir( const QDir &newBaseDir )
   mBaseDir = newBaseDir;
 }
 
-void ReosEncodeContext::setEncodeRelativePath( bool isrelative )
+void ReosEncodeContext::setEncodeRelativePath(bool isRelative )
 {
-  mEncodeRelativePath = isrelative;
+  mEncodeRelativePath = isRelative;
 }

@@ -61,20 +61,6 @@ ReosHecRasStructureImporter::ReosHecRasStructureImporter( const QString &fileNam
   init( fileName );
 }
 
-ReosEncodedElement ReosHecRasStructureImporter::encode( const ReosHydraulicNetworkContext &context ) const
-{
-  ReosEncodedElement element( QStringLiteral( "hec-ras-importer" ) );
-
-  element.addData( QStringLiteral( "engine-key" ), ReosHecRasSimulation::staticKey() );
-
-  if ( mIsValid )
-  {
-    QDir projectDir( context.projectPath() );
-    element.addData( QStringLiteral( "relative-path-to-project" ), projectDir.relativeFilePath( mProject->fileName() ) );
-  }
-
-  return element;
-}
 
 bool ReosHecRasStructureImporter::projectFileExists() const
 {
@@ -196,7 +182,19 @@ ReosHecRasSimulation::ReosHecRasSimulation( const ReosEncodedElement &element, R
   , mStructure( parent )
 {
   ReosDataObject::decode( element );
-  element.getData( QStringLiteral( "project-file-name" ), mProjectFileName );
+  QString relativeFileName;
+  if ( !element.getData( QStringLiteral( "project-file-name" ), relativeFileName ) )
+    return;
+  if ( parent && parent->network() )
+  {
+    QDir projectDir( parent->network()->context().projectPath() );
+    mProjectFileName = projectDir.filePath( relativeFileName );
+  }
+  else
+  {
+    mProjectFileName = relativeFileName;
+  }
+
   mProject.reset( new ReosHecRasProject( mProjectFileName ) );
 }
 
@@ -209,7 +207,20 @@ ReosEncodedElement ReosHecRasSimulation::encode() const
 {
   ReosEncodedElement element( QStringLiteral( "hec-ras-simulation" ) );
   element.addData( QStringLiteral( "key" ), key() );
-  element.addData( QStringLiteral( "project-file-name" ), mProjectFileName );
+
+  QString pathToEncode;
+  if ( mStructure && mStructure->network() )
+  {
+    ReosHydraulicNetworkContext context = mStructure->network()->context();
+    QDir projectDir( context.projectPath() );
+    pathToEncode = projectDir.relativeFilePath( mProjectFileName );
+  }
+  else
+  {
+    pathToEncode = mProjectFileName;
+  }
+
+  element.addData( QStringLiteral( "project-file-name" ), pathToEncode );
 
   ReosDataObject::encode( element );
 
@@ -680,7 +691,7 @@ void ReosHecRasSimulation::transformVariableTimeStepToConstant( ReosTimeSerieVar
   constant->setValues( betterValues );
 }
 
-bool ReosHecRasSimulation::writeDssConstantTimeSeries( ReosTimeSerieConstantInterval *series, const QString fileName, const ReosDssPath &path, QString &error ) const
+bool ReosHecRasSimulation::writeDssConstantTimeSeries( ReosTimeSerieConstantInterval *series, const QString &fileName, const ReosDssPath &path, QString &error ) const
 {
   QFileInfo fileInfo( fileName );
   ReosDssFile file( fileName, !fileInfo.exists() );
