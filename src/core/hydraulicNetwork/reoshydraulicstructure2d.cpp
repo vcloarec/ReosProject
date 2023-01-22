@@ -1339,6 +1339,15 @@ QIcon ReosHydraulicStructure2D::icon() const
   return QIcon( QStringLiteral( ":/images/hydraulicStructure2D.svg" ) );
 }
 
+ReosHydraulicNetworkElementCompatibilty ReosHydraulicStructure2D::checkCompatiblity( ReosHydraulicScheme *scheme ) const
+{
+  ReosHydraulicSimulation *sim = currentSimulation();
+  if ( sim )
+    return sim->checkCompatiblity( scheme );
+
+  return ReosHydraulicNetworkElementCompatibilty();
+}
+
 ReosHydraulicNetworkElement *ReosHydraulicStructure2dFactory::decodeElement( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context ) const
 {
   if ( encodedElement.description() != ReosHydraulicStructure2D::staticType() )

@@ -15,6 +15,9 @@
 class QTextStream;
 class ReosHecRasSimulation;
 class ReosMesh;
+class ReosHydraulicStructure2D;
+class ReosHydraulicScheme;
+struct ReosHydraulicNetworkElementCompatibilty;
 
 class ReosHecRasBoundaryConditionId
 {
@@ -250,6 +253,11 @@ class ReosHecRasProject
     const QString &crs() const;
 
     void setCurrentPlan( const QString &newCurrentPlan );
+
+    ReosHydraulicNetworkElementCompatibilty checkCompatibility(
+      const QString &planId,
+      ReosHydraulicStructure2D *structure,
+      ReosHydraulicScheme *scheme ) const;
 
   private:
     QString mFileName;

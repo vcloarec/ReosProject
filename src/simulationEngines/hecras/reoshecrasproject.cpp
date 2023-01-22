@@ -10,6 +10,8 @@
 #include "reoshecrassimulation.h"
 #include "reoshdf5.h"
 #include "reosdigitalelevationmodel.h"
+#include "reoshydraulicstructureboundarycondition.h"
+#include "reoshydraulicscheme.h"
 
 ReosHecRasProject::ReosHecRasProject( const QString &fileName ):
   mFileName( fileName )
@@ -788,6 +790,82 @@ void ReosHecRasProject::setCurrentPlan( const QString &newCurrentPlan )
 {
   if ( mPlans.contains( newCurrentPlan ) )
     mCurrentPlan = newCurrentPlan;
+}
+
+ReosHydraulicNetworkElementCompatibilty ReosHecRasProject::checkCompatibility(
+  const QString &planId,
+  ReosHydraulicStructure2D *structure,
+  ReosHydraulicScheme *scheme ) const
+{
+  ReosHydraulicNetworkElementCompatibilty ret;
+  ret.isCompatible = true;
+  const QString planName = mPlans.value( planId ).title();
+
+  ReosHecRasGeometry geometry = geometryFromPlan( planId );
+
+  const QList<ReosHecRasGeometry::BoundaryCondition> &hecBc = geometry.allBoundariesConditions();
+  const QList<ReosHydraulicStructureBoundaryCondition *> &reosBc = structure->boundaryConditions();
+
+  QMap < QString, int> idToHecBc;
+  QMap<QString, int> idToReosBc;
+
+  for ( int i = 0; i < hecBc.count(); ++i )
+  {
+    const ReosHecRasGeometry::BoundaryCondition &bc = hecBc.at( i );
+    idToHecBc.insert( bc.id(), i );
+  }
+
+  for ( int i = 0; i < reosBc.count(); ++i )
+  {
+    ReosHydraulicStructureBoundaryCondition *bc = reosBc.at( i );
+    idToReosBc.insert( bc->boundaryConditionId(), i );
+  }
+
+  for ( auto it = idToReosBc.constBegin(); it != idToReosBc.constEnd(); ++it )
+  {
+    const QString &bcId = it.key();
+    ReosHydraulicStructureBoundaryCondition *bc = reosBc.at( it.value() );
+    QString schemeRef = scheme ? QObject::tr( "scheme \"%1\"" ).arg( scheme->schemeName()->value() ) : QObject::tr( "this project" );
+    if ( !idToHecBc.contains( bcId ) )
+    {
+      if ( bc->defaultConditionType( scheme ) != ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally )
+      {
+        ret.isCompatible = false;
+        ret.incompatibilityReasons.append(
+          QObject::tr( "Boundary condition \"%1\", modified in %2, is not present in the plan \"%3\"" ).arg( bc->elementName()->value(), schemeRef, planName ) );
+      }
+
+      if ( ! bc->linksBySide1().isEmpty() ||
+           ! bc->linksBySide2().isEmpty() )
+      {
+        ret.isCompatible = false;
+        QString message =
+          QObject::tr( "Boundary condition \"%1\", not present in the plan \"%2\","
+                       " is linked to %n element(s) in project:", "", bc->linksBySide1().count() + bc->linksBySide2().count() )
+          .arg( bc->elementName()->value(), planName );
+
+        QList<ReosHydraulicLink *> elems = bc->linksBySide1();
+        for ( ReosHydraulicNetworkElement *elem : std::as_const( elems ) )
+        {
+          message.append( QStringLiteral( " \"" ) );
+          message.append( elem->elementName()->value() );
+          message.append( QStringLiteral( "\"" ) );
+        }
+        elems = bc->linksBySide2();
+        for ( ReosHydraulicNetworkElement *elem : std::as_const( elems ) )
+        {
+          message.append( QStringLiteral( " \"" ) );
+          message.append( QStringLiteral( "\n" ) );
+          message.append( elem->elementName()->value() );
+          message.append( QStringLiteral( "\"" ) );
+        }
+
+        ret.incompatibilityReasons.append( message );
+      }
+    }
+  }
+
+  return ret;
 }
 
 ReosHecRasFlow::ReosHecRasFlow( const QString &fileName )

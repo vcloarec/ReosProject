@@ -32,23 +32,6 @@ ReosHydraulicSchemeWidget::ReosHydraulicSchemeWidget( ReosHydraulicScheme *schem
 
   connect( ui->mMeteoModelCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosHydraulicSchemeWidget::onMeteoModelChange );
 
-  connect( ui->mRadioButtonMeteoTime, &QRadioButton::toggled, this, [this]( bool checked )
-  {
-    if ( checked && mScheme )
-    {
-      ui->mWidgetStartTime->setEnabled( false );
-      ui->mWidgetEndTime->setEnabled( false );
-    }
-  } );
-
-  connect( ui->mRadioButtonUserDefinedTime, &QRadioButton::toggled, this, [this]( bool checked )
-  {
-    if ( checked && mScheme )
-    {
-      ui->mWidgetStartTime->setEnabled( true );
-      ui->mWidgetEndTime->setEnabled( true );
-    }
-  } );
 }
 
 ReosHydraulicSchemeWidget::~ReosHydraulicSchemeWidget()

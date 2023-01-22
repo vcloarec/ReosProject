@@ -39,6 +39,7 @@ class ReosHydraulicScheme;
 class ReosStructureImporterSource;
 class ReosHydraulicNetworkContext;
 class ReosPolygonStructureValues;
+struct ReosHydraulicNetworkElementCompatibilty;
 
 
 struct ReosSimulationData
@@ -152,6 +153,8 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject
     virtual ReosTimeWindow externalTimeWindow() const = 0;
 
     virtual ReosTimeWindow externalBoundaryConditionTimeWindow( const QString &boundaryId ) const = 0;
+
+    virtual ReosHydraulicNetworkElementCompatibilty checkCompatiblity( ReosHydraulicScheme *scheme ) const;
 
   signals:
 

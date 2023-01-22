@@ -36,6 +36,18 @@ class ReosHydraulicSchemeCollection;
 class ReosHydraulicScheme;
 class ReosMapExtent;
 
+struct ReosHydraulicNetworkElementCompatibilty
+{
+  bool isCompatible = true;
+  QStringList incompatibilityReasons;
+
+  void combine( const ReosHydraulicNetworkElementCompatibilty &other )
+  {
+    incompatibilityReasons.append( other.incompatibilityReasons );
+    isCompatible &= other.isCompatible;
+  }
+};
+
 class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject
 {
     Q_OBJECT
@@ -96,6 +108,9 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject
     virtual ReosMapExtent extent() const = 0;
 
     virtual QIcon icon() const {return QIcon();}
+
+    //! Return information about the compatibilty of this element with the \a scheme
+    virtual ReosHydraulicNetworkElementCompatibilty checkCompatiblity( ReosHydraulicScheme *scheme ) const;
 
   public slots:
     virtual void updateCalculationContext( const ReosCalculationContext &context ) = 0;
@@ -215,6 +230,8 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
 
     //! Return time window including all element that can be rendered on map
     ReosTimeWindow mapTimeWindow() const;
+
+    ReosHydraulicNetworkElementCompatibilty checkSchemeCompatibility( ReosHydraulicScheme *scheme ) const;
 
   signals:
     void elementAdded( ReosHydraulicNetworkElement *elem, bool select );

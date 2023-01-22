@@ -94,6 +94,7 @@ SET(REOS_GUI_SOURCES
     hydraulicNetwork/reoshydraulicelementpropertieswidget.cpp
     hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp
     hydraulicNetwork/reoshydraulicschemewidget.cpp
+    hydraulicNetwork/reosnetworkcompatibilitydialog.cpp
     hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp
     hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.cpp
     hydraulicNetwork/structure2d/reosgmshresolutioncontrollerwidget.cpp
@@ -189,6 +190,7 @@ SET(REOS_GUI_HEADERS
     hydraulicNetwork/reoshydraulicelementpropertieswidget.h
     hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.h
     hydraulicNetwork/reoshydraulicschemewidget.h
+    hydraulicNetwork/reosnetworkcompatibilitydialog.h
     hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.h
     hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.h
     hydraulicNetwork/structure2d/reosgmshresolutioncontrollerwidget.h

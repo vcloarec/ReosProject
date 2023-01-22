@@ -66,6 +66,7 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
     QString engineName() const override {return tr( "HECRAS" );}
     ReosTimeWindow externalTimeWindow() const override;
     ReosTimeWindow externalBoundaryConditionTimeWindow( const QString &boundaryId ) const override;
+    ReosHydraulicNetworkElementCompatibilty checkCompatiblity( ReosHydraulicScheme *scheme ) const override;
 
     void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
     void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
@@ -76,7 +77,7 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
     void setCurrentPlan( const QString &planId );
     ReosHecRasProject *project() const;
 
-    const QString &currentPlan() const;
+    QString currentPlan( ReosHydraulicScheme *scheme = nullptr ) const;
 
     const ReosDuration &minimumInterval() const;
     void setMinimumInterval( const ReosDuration &newMinimumInterval );
@@ -93,10 +94,17 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
     const ReosDuration &mappingInterval() const;
     void setMappingInterval( const ReosDuration &newMappingInterval );
 
-    static void updateBoundaryConditions(ReosHecRasProject *project,
+    static void updateBoundaryConditions( ReosHecRasProject *project,
                                           const QSet<QString> &currentBoundaryId,
                                           ReosHydraulicStructure2D *structure,
                                           const ReosHydraulicNetworkContext &context );
+
+    /**
+     * Checks the compatibility if the HEC-RAS plan with \a planId of this simulation
+     * considering the complete hydraulic network (for all schemes)
+     */
+    ReosHydraulicNetworkElementCompatibilty checkPlanCompability(
+      const QString &planId ) const;
 
   private:
     ReosHydraulicStructure2D *mStructure = nullptr;

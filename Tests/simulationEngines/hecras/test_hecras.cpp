@@ -20,6 +20,7 @@ email                : vcloarec at gmail dot com
 #include "reoshecrascontroller.h"
 
 #include "reosgisengine.h"
+#include "reoshydrographrouting.h"
 #include "reoswatershedmodule.h"
 #include "reoshecrassimulation.h"
 #include "reoshecrasproject.h"
@@ -81,6 +82,8 @@ class ReosHecrasTesting : public QObject
     void importAndLaunchStructure();
 
     void simulationResults();
+
+    void planCompatibility();
 
   private:
     QString mPathToSimpleToRun;
@@ -653,6 +656,7 @@ void ReosHecrasTesting::simulationResults()
   QCOMPARE( pos, QPointF( 653203.343995325, 1797175.15557276 ) );
 
   std::shared_ptr<ReosHecRasProject> project = std::make_shared<ReosHecRasProject>( projectPath );
+  QVERIFY( project );
 
   //we use dynamic cast because there are some issue with qobject_cast, maybe due to crossing dynamic library
   ReosHecRasSimulation *simulation = dynamic_cast<ReosHecRasSimulation *>( structure->currentSimulation() );
@@ -732,6 +736,127 @@ void ReosHecrasTesting::simulationResults()
   QCOMPARE( tw.start(), QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ) );
   QCOMPARE( tw.end(), QDateTime( QDate( 2000, 01, 01 ), QTime( 13, 0, 0 ), Qt::UTC ) );
   QVERIFY( tw == mGisEngine->mapTimeWindow() );
+}
+
+void ReosHecrasTesting::planCompatibility()
+{
+  QString projectPath = data_path() + QStringLiteral( "/hecras/simple/calculated/simple.prj" );
+
+  ReosHydraulicNetwork *network = new ReosHydraulicNetwork( &mRootModule, mGisEngine, mWatershedModule );
+  network->changeScheme( 0 );
+  ReosHydraulicScheme *scheme = network->currentScheme();
+  QVERIFY( scheme );
+
+  std::unique_ptr<ReosStructureImporterSource> importerSource( new ReosHecRasStructureImporterSource( projectPath, network->context() ) );
+  std::unique_ptr<ReosStructureImporter> importer( importerSource->createImporter() );
+  ReosHydraulicStructure2D *structure = ReosHydraulicStructure2D::create( importer.release(), network->context() );
+  QVERIFY( structure );
+
+  QList<ReosHydraulicStructureBoundaryCondition * > boundaries = structure->boundaryConditions();
+  QCOMPARE( boundaries.count(), 2 );
+
+  //we use dynamic cast because there are some issue with qobject_cast, maybe due to crossing dynamic library
+  ReosHecRasSimulation *simulation = dynamic_cast<ReosHecRasSimulation *>( structure->currentSimulation() );
+  QVERIFY( simulation );
+
+  QCOMPARE( simulation->project()->planIds().count(), 2 );
+  const QString planId_1 = simulation->project()->planIds().at( 0 );
+  const QString planId_2 = simulation->project()->planIds().at( 1 );
+
+  QVERIFY( simulation->checkPlanCompability( planId_1 ).isCompatible );
+  QVERIFY( simulation->checkPlanCompability( planId_2 ).isCompatible );
+
+  simulation->setCurrentPlan( planId_2 );
+  boundaries = structure->boundaryConditions();
+
+  QCOMPARE( boundaries.count(), 1 );
+  QVERIFY( simulation->checkPlanCompability( planId_1 ).isCompatible );
+  QVERIFY( simulation->checkPlanCompability( planId_2 ).isCompatible );
+
+  boundaries.at( 0 )->setDefaultConditionType( ReosHydraulicStructureBoundaryCondition::Type::InputFlow );
+
+  QVERIFY( !simulation->checkPlanCompability( planId_1 ).isCompatible );
+  QVERIFY( simulation->checkPlanCompability( planId_2 ).isCompatible );
+
+  boundaries.at( 0 )->setDefaultConditionType( ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally );
+
+  QVERIFY( simulation->checkPlanCompability( planId_1 ).isCompatible );
+  QVERIFY( simulation->checkPlanCompability( planId_2 ).isCompatible );
+
+  ReosHydrographJunction *junction = new ReosHydrographJunction( ReosSpatialPosition(), network );
+  network->addElement( junction );
+
+  QPointer<ReosHydrographRoutingLink> link = new ReosHydrographRoutingLink( junction, boundaries.at( 0 ), network );
+  network->addElement( link );
+
+  QVERIFY( !simulation->checkPlanCompability( planId_1 ).isCompatible );
+  QVERIFY( simulation->checkPlanCompability( planId_2 ).isCompatible );
+
+  network->removeElement( link );
+  simulateEventLoop( WAITING_TIME_FOR_LOOP );
+  QVERIFY( link.isNull() );
+
+  QVERIFY( simulation->checkPlanCompability( planId_1 ).isCompatible );
+  QVERIFY( simulation->checkPlanCompability( planId_2 ).isCompatible );
+
+  simulation->setCurrentPlan( planId_1 );
+
+  QVERIFY( simulation->checkPlanCompability( planId_1 ).isCompatible );
+  QVERIFY( simulation->checkPlanCompability( planId_2 ).isCompatible );
+
+  boundaries = structure->boundaryConditions();
+  QCOMPARE( boundaries.count(), 2 );
+  link = new ReosHydrographRoutingLink( boundaries.at( 1 ), junction, network );
+  network->addElement( link );
+
+  QVERIFY( simulation->checkPlanCompability( planId_1 ).isCompatible );
+  QVERIFY( !simulation->checkPlanCompability( planId_2 ).isCompatible );
+
+  QVERIFY( !link.isNull() );
+
+  simulation->setCurrentPlan( planId_2 );
+
+  QVERIFY( simulation->checkPlanCompability( planId_1 ).isCompatible );
+  QVERIFY( simulation->checkPlanCompability( planId_2 ).isCompatible );
+
+  simulateEventLoop( WAITING_TIME_FOR_LOOP );
+  QVERIFY( link.isNull() ); //link was removed because planId_2 is not compatible with
+
+  network->hydraulicSchemeCollection()->addScheme( new ReosHydraulicScheme( network->hydraulicSchemeCollection() ) );
+  network->hydraulicSchemeCollection()->addScheme( new ReosHydraulicScheme( network->hydraulicSchemeCollection() ) );
+  QCOMPARE( network->hydraulicSchemeCollection()->schemeCount(), 3 );
+  ReosHydraulicScheme *scheme_1 = network->hydraulicSchemeCollection()->scheme( 0 );
+  ReosHydraulicScheme *scheme_2 = network->hydraulicSchemeCollection()->scheme( 1 );
+  ReosHydraulicScheme *scheme_3 = network->hydraulicSchemeCollection()->scheme( 2 );
+  QVERIFY( scheme_1 );
+  QVERIFY( scheme_2 );
+  QVERIFY( scheme_3 );
+
+  QCOMPARE( simulation->currentPlan(), planId_2 );
+  boundaries = structure->boundaryConditions();
+  QCOMPARE( boundaries.count(), 1 );
+
+  simulation->setCurrentPlan( planId_1 );
+  QCOMPARE( simulation->currentPlan(), planId_1 );
+  boundaries = structure->boundaryConditions();
+  QCOMPARE( boundaries.count(), 2 );
+
+  network->changeScheme( 2 ); //First time this scheme is current, so it take config of previous scheme
+  network->changeScheme( 1 );//First time this scheme is current, so it take config of previous scheme
+
+  QVERIFY( network->checkSchemeCompatibility( scheme_1 ).isCompatible );
+  QVERIFY( network->checkSchemeCompatibility( scheme_2 ).isCompatible );
+  QVERIFY( network->checkSchemeCompatibility( scheme_3 ).isCompatible );
+
+  simulation->checkPlanCompability( planId_2 );
+  simulation->setCurrentPlan( planId_2 );
+  boundaries = structure->boundaryConditions();
+  QCOMPARE( boundaries.count(), 1 );
+  boundaries.at( 0 )->setDefaultConditionType( ReosHydraulicStructureBoundaryCondition::Type::InputFlow );
+
+  QVERIFY( !network->checkSchemeCompatibility( scheme_1 ).isCompatible );
+  QVERIFY( network->checkSchemeCompatibility( scheme_2 ).isCompatible );
+  QVERIFY( !network->checkSchemeCompatibility( scheme_3 ).isCompatible );
 }
 
 QTEST_MAIN( ReosHecrasTesting )
