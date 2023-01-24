@@ -29,7 +29,7 @@ class ReosHecRasController
 {
   public:
     //! Constructor with \a version of HecRas, \see availableVersion()
-    ReosHecRasController( const QString &version );
+    explicit ReosHecRasController( const QString &version );
     ~ReosHecRasController();
 
     //! Returns available version of HecRas controller
@@ -48,7 +48,7 @@ class ReosHecRasController
     QStringList planNames() const;
 
     //! Set the current plan
-    bool setCurrentPlan(const QString& planName);
+    bool setCurrentPlan( const QString &planName );
 
     //! Starts computation of the current plan
     QStringList computeCurrentPlan();
