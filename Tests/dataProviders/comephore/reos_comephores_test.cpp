@@ -88,7 +88,7 @@ void ReosComephoreTest::createRainfall()
   QCOMPARE( rainfall->startTime( 50 ), QDateTime( QDate( 2018, 02, 20 ), QTime( 2, 0, 0 ), Qt::UTC ) );
   QCOMPARE( rainfall->endTime( 50 ), QDateTime( QDate( 2018, 02, 20 ), QTime( 3, 0, 0 ), Qt::UTC ) );
 
-  ReosRasterExtent extent = rainfall->extent();
+  ReosRasterExtent extent = rainfall->rasterExtent();
 
   QCOMPARE( extent.xCellSize(), 1000.0 );
   QCOMPARE( extent.yCellSize(), -1000.0 );

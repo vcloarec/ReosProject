@@ -36,6 +36,7 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
     QString type() const override;
     ReosObjectRenderer *createRenderer( ReosRendererSettings *settings ) override;
     ReosRendererObjectMapTimeStamp *createMapTimeStamp( ReosRendererSettings *settings ) const override;
+    ReosMapExtent extent() const override;
 
     ReosGriddedRainfallProvider *dataProvider() const;
 
@@ -68,7 +69,7 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
     int dataIndex( const QDateTime &time ) const;
 
     //! Returns the raster extent of all the grids
-    ReosRasterExtent extent() const;
+    ReosRasterExtent rasterExtent() const;
 
     //! Returns whether the gridded rainfallis valid
     bool isValid() const;

@@ -103,6 +103,7 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
 
     void disableResultGroupBox();
     void fillResultGroupBox( const ReosCalculationContext &context );
+    void updateFillResultGroupBox();
     void updateScalarDatasetMenu();
     void updateVectorDatasetMenu();
 

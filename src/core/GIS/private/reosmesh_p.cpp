@@ -114,14 +114,16 @@ ReosMeshFrame_p::ReosMeshFrame_p( const QString &crs, QObject *parent ): ReosMes
 }
 
 ReosMeshFrame_p::ReosMeshFrame_p( const QString &dataPath, const QString &destinationCrs, ReosModule::Message &message )
-  : ReosMeshFrame_p( dataPath, destinationCrs, nullptr, message )
-{
-}
-
-ReosMeshFrame_p::ReosMeshFrame_p( const QString &dataPath, const QString &destinationCrs, ReosDigitalElevationModel *dem, ReosModule::Message &message )
 {
   mMeshLayer.reset( new QgsMeshLayer( "path", "", QStringLiteral( "ReosMesh" ) ) );
   mMeshDataProvider = qobject_cast<ReosMeshDataProvider_p *>( mMeshLayer->dataProvider() );
+  resetMeshFrameFromeFile( dataPath, destinationCrs, message );
+  init();
+}
+
+
+void ReosMeshFrame_p::resetMeshFrameFromeFile( const QString &dataPath, const QString &destinationCrs, ReosModule::Message &message )
+{
   mMeshDataProvider->loadMeshFrame( dataPath, message );
 
   QgsCoordinateReferenceSystem qgisDestinationCrs;
@@ -135,15 +137,12 @@ ReosMeshFrame_p::ReosMeshFrame_p( const QString &dataPath, const QString &destin
     mMeshDataProvider->overrideCrs( qgisDestinationCrs );
   }
 
-  if ( dem )
-    mMeshDataProvider->applyDemOnVertices( dem );
-
   mMeshLayer->reload();
 
   QgsCoordinateTransform transform( mMeshDataProvider->crs(), qgisDestinationCrs, QgsProject::instance() );
   mMeshLayer->updateTriangularMesh( transform );
 
-  init();
+  activateDataset( mCurrentScalarDatasetId );
 }
 
 void ReosMeshFrame_p::save( const QString &dataPath )
@@ -172,9 +171,6 @@ void ReosMeshFrame_p::init()
   settings.setNativeMeshSettings( meshSettings );
   mMeshLayer->setRendererSettings( settings );
   qobject_cast<QgsMeshLayerTemporalProperties *>( mMeshLayer->temporalProperties() )->setAlwaysLoadReferenceTimeFromSource( true );
-
-  QgsCoordinateTransform transform( mMeshLayer->crs(), QgsProject::instance()->crs(), QgsProject::instance() );
-  mMeshLayer->updateTriangularMesh( transform );
 
   connect( mMeshLayer.get(), &QgsMapLayer::repaintRequested, this, &ReosMesh::repaintRequested );
   connect( mMeshLayer.get(), &QgsMeshLayer::layerModified, this, &ReosDataObject::dataChanged );
@@ -244,7 +240,8 @@ ReosEncodedElement ReosMeshFrame_p::restoreScalarSymbologyOnMeshDatasetGroup( co
 void ReosMeshFrame_p::applySymbologyOnScalarDataSet( const QString &id, QgsMeshRendererScalarSettings scalarSettings )
 {
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
-  settings.setScalarSettings( mDatasetGroupsIndex.value( id ), scalarSettings );
+  int groupIndex = mDatasetGroupsIndex.value( id, -1 );
+  settings.setScalarSettings( groupIndex, scalarSettings );
   mMeshLayer->setRendererSettings( settings );
 
   if ( id == mVerticesElevationDatasetId )
@@ -271,7 +268,7 @@ ReosEncodedElement ReosMeshFrame_p::restoreVectorSymbologyOnMeshDatasetGroup( co
 void ReosMeshFrame_p::applySymbologyOnVectorDataSet( const QString &id, QgsMeshRendererVectorSettings vectorSettings )
 {
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
-  settings.setVectorSettings( mDatasetGroupsIndex.value( id ), vectorSettings );
+  settings.setVectorSettings( mDatasetGroupsIndex.value( id, -1 ), vectorSettings );
   mMeshLayer->setRendererSettings( settings );
 }
 
@@ -631,7 +628,7 @@ QPointF ReosMeshFrame_p::tolayerCoordinates( const ReosSpatialPosition &position
 
 ReosEncodedElement ReosMeshFrame_p::datasetGroupScalarSymbologyfromLayer( const QString &datasetId ) const
 {
-  int dsgi = mDatasetGroupsIndex.value( datasetId );
+  int dsgi = mDatasetGroupsIndex.value( datasetId, -1 );
 
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
   QgsMeshRendererScalarSettings scalarSettings = settings.scalarSettings( dsgi );
@@ -644,7 +641,7 @@ ReosEncodedElement ReosMeshFrame_p::datasetGroupScalarSymbologyfromLayer( const 
 
 ReosEncodedElement ReosMeshFrame_p::datasetGroupVectorSymbologyfromLayer( const QString &datasetId ) const
 {
-  int dsgi = mDatasetGroupsIndex.value( datasetId );
+  int dsgi = mDatasetGroupsIndex.value( datasetId, -1 );
 
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
   QgsMeshRendererVectorSettings vectorSettings = settings.vectorSettings( dsgi );
@@ -658,7 +655,7 @@ void ReosMeshFrame_p::update3DRenderer()
     return;
 
   const QgsMeshRendererScalarSettings scalarSettings =
-    mMeshLayer->rendererSettings().scalarSettings( mDatasetGroupsIndex.value( mCurrentScalarDatasetId ) );
+    mMeshLayer->rendererSettings().scalarSettings( mDatasetGroupsIndex.value( mCurrentScalarDatasetId, -1 ) );
 
   const QgsMeshRendererMeshSettings frameSettings = mMeshLayer->rendererSettings().nativeMeshSettings();
 
@@ -775,22 +772,14 @@ double ReosMeshFrame_p::interpolateDatasetValueOnPoint(
   if ( datasetIndex < 0 )
     return std::numeric_limits<double>::quiet_NaN();
 
-  if ( datasetSource->groupLocation( sourceGroupindex ) == ReosMeshDatasetSource::Location::Face )
-    return -123456.0;
-
   const QVector<double> datasetValues = datasetSource->datasetValues( sourceGroupindex, datasetIndex );
   const QVector<int> facesActive = datasetSource->activeFaces( datasetIndex );
-
   bool isScalar = datasetSource->groupIsScalar( sourceGroupindex );
 
-
-  Q_ASSERT( datasetValues.count() == mMeshLayer->meshVertexCount() * ( isScalar ? 1 : 2 ) );
-
   QgsPointXY positionInLayer = QgsMeshVertex( tolayerCoordinates( position ) );
-
   QgsTriangularMesh *triangularMesh = mMeshLayer->triangularMesh();
   const QgsMeshVertex triVert = triangularMesh->nativeToTriangularCoordinates( QgsMeshVertex( positionInLayer ) );
-  int faceIndex = triangularMesh->faceIndexForPoint_v2( triVert );
+  int faceIndex = triangularMesh->nativeFaceIndexForPoint( triVert );
 
   if ( faceIndex < 0 || faceIndex >= triangularMesh->triangles().count() )
     return std::numeric_limits<double>::quiet_NaN();
@@ -798,50 +787,67 @@ double ReosMeshFrame_p::interpolateDatasetValueOnPoint(
   if ( facesActive.at( faceIndex ) == 0 )
     return std::numeric_limits<double>::quiet_NaN();
 
-  const QgsMeshFace &face = triangularMesh->triangles().at( faceIndex );
-  const QgsMesh nativeMesh = *mMeshLayer->nativeMesh();
+  double result = std::numeric_limits<double>::quiet_NaN();
 
-  double i0 = face.at( 0 );
-  double i1 = face.at( 1 );
-  double i2 = face.at( 2 );
-
-  bool ok = false;
-  double result;
-
-  if ( isScalar )
-    result = interpolate( nativeMesh.vertices.at( i0 ), nativeMesh.vertices.at( i1 ), nativeMesh.vertices.at( i2 ),
-                          positionInLayer,
-                          datasetValues.at( i0 ), datasetValues.at( i1 ), datasetValues.at( i2 ), ok );
-  else
+  if ( datasetSource->groupLocation( sourceGroupindex ) == ReosMeshDatasetSource::Location::Face )
   {
-    double v0x = datasetValues.at( 2 * i0 );
-    double v0y = datasetValues.at( 2 * i0 + 1 );
-    double v1x = datasetValues.at( 2 * i1 );
-    double v1y = datasetValues.at( 2 * i1 + 1 );
-    double v2x = datasetValues.at( 2 * i2 );
-    double v2y = datasetValues.at( 2 * i2 + 1 );
+    Q_ASSERT( datasetValues.count() == mMeshLayer->meshFaceCount() * ( isScalar ? 1 : 2 ) );
+    if ( isScalar )
+      result = datasetValues.at( faceIndex );
+    else
+    {
+      double valX = datasetValues.at( faceIndex * 2 );
+      double valY = datasetValues.at( faceIndex * 2 + 1 );
+      result = std::sqrt( std::pow( valX, 2 ) + std::pow( valY, 2 ) );
+    }
+  }
+  else if ( datasetSource->groupLocation( sourceGroupindex ) == ReosMeshDatasetSource::Location::Vertex )
+  {
+    bool ok = false;
+    Q_ASSERT( datasetValues.count() == mMeshLayer->meshVertexCount() * ( isScalar ? 1 : 2 ) );
 
-    double resultX = interpolate( nativeMesh.vertices.at( i0 ), nativeMesh.vertices.at( i1 ), nativeMesh.vertices.at( i2 ),
-                                  positionInLayer,
-                                  v0x, v1x, v2x, ok );
+    const QgsMeshFace &face = triangularMesh->triangles().at( faceIndex );
+    const QgsMesh nativeMesh = *mMeshLayer->nativeMesh();
+
+    int i0 = face.at( 0 );
+    int i1 = face.at( 1 );
+    int i2 = face.at( 2 );
+
+    if ( isScalar )
+      result = interpolate( nativeMesh.vertices.at( i0 ), nativeMesh.vertices.at( i1 ), nativeMesh.vertices.at( i2 ),
+                            positionInLayer,
+                            datasetValues.at( i0 ), datasetValues.at( i1 ), datasetValues.at( i2 ), ok );
+    else
+    {
+      double v0x = datasetValues.at( 2 * i0 );
+      double v0y = datasetValues.at( 2 * i0 + 1 );
+      double v1x = datasetValues.at( 2 * i1 );
+      double v1y = datasetValues.at( 2 * i1 + 1 );
+      double v2x = datasetValues.at( 2 * i2 );
+      double v2y = datasetValues.at( 2 * i2 + 1 );
+
+      double resultX = interpolate( nativeMesh.vertices.at( i0 ), nativeMesh.vertices.at( i1 ), nativeMesh.vertices.at( i2 ),
+                                    positionInLayer,
+                                    v0x, v1x, v2x, ok );
+
+      if ( !ok )
+        return std::numeric_limits<double>::quiet_NaN();
+
+      double resultY = interpolate( nativeMesh.vertices.at( i0 ), nativeMesh.vertices.at( i1 ), nativeMesh.vertices.at( i2 ),
+                                    positionInLayer,
+                                    v0y, v1y, v2y, ok );
+
+      if ( !ok )
+        return std::numeric_limits<double>::quiet_NaN();
+
+      result = std::sqrt( std::pow( resultX, 2 ) + std::pow( resultY, 2 ) );
+    }
 
     if ( !ok )
-      return std::numeric_limits<double>::quiet_NaN();
-
-    double resultY = interpolate( nativeMesh.vertices.at( i0 ), nativeMesh.vertices.at( i1 ), nativeMesh.vertices.at( i2 ),
-                                  positionInLayer,
-                                  v0y, v1y, v2y, ok );
-
-    if ( !ok )
-      return std::numeric_limits<double>::quiet_NaN();
-
-    result = std::sqrt( std::pow( resultX, 2 ) + std::pow( resultY, 2 ) );
+      return std::numeric_limits<double>::quiet_NaN();;
   }
 
-  if ( ok )
-    return result;
-
-  return std::numeric_limits<double>::quiet_NaN();
+  return result;
 }
 
 QString ReosMeshFrame_p::exportAsMesh( const QString &fileName ) const
@@ -931,21 +937,17 @@ QString ReosMeshFrame_p::enableVertexElevationDataset( const QString &name )
   mVerticesElevationDatasetName = name;
   restoreVertexElevationDataset();
 
-  int index = mDatasetGroupsIndex.value( mVerticesElevationDatasetId );
+  int index = mDatasetGroupsIndex.value( mVerticesElevationDatasetId, -1 );
 
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
   QgsMeshRendererScalarSettings scalarSettings = settings.scalarSettings( index );
   if ( scalarSettings.classificationMinimum() >= scalarSettings.classificationMaximum() )
   {
-
     QgsColorRampShader colorRamp = scalarSettings.colorRampShader();
     colorRamp.setMinimumValue( 0 );
     colorRamp.setMaximumValue( 0 );
     scalarSettings.setClassificationMinimumMaximum( 0, 0 );
     scalarSettings.setColorRampShader( colorRamp );
-    settings.setScalarSettings( index, scalarSettings );
-
-    mMeshLayer->setRendererSettings( settings );
     ReosEncodedElement symbology = encodedFromScalarSettings( scalarSettings );
     mDatasetScalarSymbologies.insert( mVerticesElevationDatasetId, symbology.bytes() );
     applySymbologyOnScalarDataSet( mVerticesElevationDatasetId, scalarSettings );
@@ -965,7 +967,6 @@ void ReosMeshFrame_p::addDatasetGroup( QgsMeshDatasetGroup *group, const QString
   QString name = group->name();
 
   mMeshLayer->addDatasets( group );
-
   QList<int> groupIndexes = mMeshLayer->datasetGroupsIndexes();
   int index = -1;
   for ( int i : groupIndexes )
@@ -974,14 +975,14 @@ void ReosMeshFrame_p::addDatasetGroup( QgsMeshDatasetGroup *group, const QString
     if ( meta.name() == name )
     {
       index = i;
-      if ( !mDatasetScalarSymbologies.contains( id ) )
-        mDatasetScalarSymbologies.insert( id, datasetGroupScalarSymbologyfromLayer( id ).bytes() );
-      if ( meta.isVector() )
-        break;
+      break;
     }
   }
 
   mDatasetGroupsIndex[id] = index;
+
+  if ( !mDatasetScalarSymbologies.contains( id ) )
+    mDatasetScalarSymbologies.insert( id, datasetGroupScalarSymbologyfromLayer( id ).bytes() );
 }
 
 void ReosMeshFrame_p::firstUpdateOfTerrainScalarSetting()
@@ -990,7 +991,7 @@ void ReosMeshFrame_p::firstUpdateOfTerrainScalarSetting()
     return;
 
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
-  QgsMeshRendererScalarSettings scalarSettings = settings.scalarSettings( mDatasetGroupsIndex.value( mVerticesElevationDatasetId ) );
+  QgsMeshRendererScalarSettings scalarSettings = settings.scalarSettings( mDatasetGroupsIndex.value( mVerticesElevationDatasetId, -1 ) );
   QgsColorRampShader colorRamp = scalarSettings.colorRampShader();
 
   if ( colorRamp.colorRampItemList().count() < 2 )
@@ -1005,12 +1006,12 @@ void ReosMeshFrame_p::firstUpdateOfTerrainScalarSetting()
       colorRamp.classifyColorRamp( 10, -1 );
       scalarSettings.setClassificationMinimumMaximum( min, max );
       scalarSettings.setColorRampShader( colorRamp );
-
-      ReosEncodedElement encodedElem = encodedFromScalarSettings( scalarSettings );
-      mDatasetScalarSymbologies.insert( mVerticesElevationDatasetId, encodedElem.bytes() );
-      applySymbologyOnScalarDataSet( mVerticesElevationDatasetId, scalarSettings );
     }
   }
+
+  ReosEncodedElement encodedElem = encodedFromScalarSettings( scalarSettings );
+  mDatasetScalarSymbologies.insert( mVerticesElevationDatasetId, encodedElem.bytes() );
+  //applySymbologyOnScalarDataSet( mVerticesElevationDatasetId, scalarSettings );
 }
 
 bool ReosMeshFrame_p::activateDataset( const QString &id, bool update )
@@ -1076,9 +1077,9 @@ QStringList ReosMeshFrame_p::datasetIds() const
 
   for ( const QString &id : ids )
   {
-    int ind = mDatasetGroupsIndex.value( id );
+    int ind = mDatasetGroupsIndex.value( id, -1 );
     if ( indexes.contains( ind ) )
-      mapRet.insert( mDatasetGroupsIndex.value( id ), id );
+      mapRet.insert( mDatasetGroupsIndex.value( id, -1 ), id );
   }
   return mapRet.values();
 }
@@ -1091,7 +1092,7 @@ QStringList ReosMeshFrame_p::vectorDatasetIds() const
 
   for ( const QString &id : ids )
   {
-    int datasetGroupIndex =  mDatasetGroupsIndex.value( id );
+    int datasetGroupIndex =  mDatasetGroupsIndex.value( id, -1 );
     if ( !indexes.contains( datasetGroupIndex ) )
       continue;
     const QgsMeshDatasetGroupMetadata meta = mMeshLayer->datasetGroupMetadata( QgsMeshDatasetIndex( datasetGroupIndex, 0 ) );
@@ -1104,7 +1105,7 @@ QStringList ReosMeshFrame_p::vectorDatasetIds() const
 
 QString ReosMeshFrame_p::datasetName( const QString &id ) const
 {
-  QgsMeshDatasetGroupMetadata meta = mMeshLayer->datasetGroupMetadata( mDatasetGroupsIndex.value( id ) );
+  QgsMeshDatasetGroupMetadata meta = mMeshLayer->datasetGroupMetadata( mDatasetGroupsIndex.value( id, -1 ) );
   return meta.name();
 }
 
@@ -1144,6 +1145,19 @@ QObject *ReosMeshFrame_p::data() const
 ReosMeshData ReosMeshFrame_p::meshDataFrame() const
 {
   return ReosMeshData( new ReosMeshData_( *mMeshLayer->nativeMesh() ) );
+}
+
+ReosMapExtent ReosMeshFrame_p::extent() const
+{
+  if ( mMeshLayer )
+  {
+    ReosMapExtent ret( mMeshLayer->extent().toRectF() );
+    ret.setCrs( mMeshLayer->crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED ) );
+
+    return ret;
+  }
+
+  return ReosMapExtent();
 }
 
 int ReosMeshFrame_p::datasetGroupIndex( const QString &id ) const
@@ -1218,7 +1232,8 @@ void ReosMeshFrame_p::applyDemOnVertices( ReosDigitalElevationModel *dem, const 
   if ( mZVerticesDatasetGroup )
     mZVerticesDatasetGroup->setStatisticObsolete();
 
-  firstUpdateOfTerrainScalarSetting();
+  activateDataset( mCurrentScalarDatasetId );
+
   emit repaintRequested();
   mMeshLayer->trigger3DUpdate();
   emit dataChanged();
@@ -1317,6 +1332,8 @@ void ReosMeshFrame_p::setSimulationResults( ReosHydraulicSimulationResults *resu
       }
     }
   }
+
+  activateDataset( mCurrentScalarDatasetId, false );
 
   mMeshLayer->triggerRepaint();
   mMeshLayer->trigger3DUpdate();
@@ -1815,17 +1832,16 @@ bool ReosMeshScalarColorShaderSettings_p::getDirectSourceMinMax( double &min, do
 void ReosMeshScalarColorShaderSettings_p::onSettingsUpdated()
 {
   QgsMeshRendererSettings settings = mMesh->mMeshLayer->rendererSettings();
-  int idx = mMesh->mDatasetGroupsIndex.value( mMesh->mCurrentScalarDatasetId );
+  int idx = mMesh->mDatasetGroupsIndex.value( mMesh->mCurrentScalarDatasetId, -1 );
   QgsMeshRendererScalarSettings scalarSettings = settings.scalarSettings( idx );
   scalarSettings.setClassificationMinimumMaximum( mMinClassifiction, mMaxClassification );
   scalarSettings.setOpacity( mOpacity );
   scalarSettings.setColorRampShader( mColorShader );
-  settings.setScalarSettings( idx, scalarSettings );
-  mMesh->mMeshLayer->setRendererSettings( settings );
+  mMesh->applySymbologyOnScalarDataSet( mMesh->mCurrentScalarDatasetId, scalarSettings );
   mMesh->mDatasetScalarSymbologies.insert( mMesh->mCurrentScalarDatasetId, encodedFromScalarSettings( scalarSettings ).bytes() );
 
   mMesh->update3DRenderer();
-  mMesh->repaintRequested();
+  emit mMesh->repaintRequested();
 }
 
 QString ReosMeshScalarColorShaderSettings_p::title() const
@@ -1858,11 +1874,10 @@ bool ReosMeshVectorColorShaderSettings_p::getDirectSourceMinMax( double &min, do
 void ReosMeshVectorColorShaderSettings_p::onSettingsUpdated()
 {
   QgsMeshRendererSettings settings = mMesh->mMeshLayer->rendererSettings();
-  int idx = mMesh->mDatasetGroupsIndex.value( mMesh->mCurrentActiveVectorDatasetId );
+  int idx = mMesh->mDatasetGroupsIndex.value( mMesh->mCurrentActiveVectorDatasetId, -1 );
   QgsMeshRendererVectorSettings vectorSettings = settings.vectorSettings( idx );
   vectorSettings.setColorRampShader( mColorShader );
-  settings.setVectorSettings( idx, vectorSettings );
-  mMesh->mMeshLayer->setRendererSettings( settings );
+  mMesh->applySymbologyOnVectorDataSet( mMesh->mCurrentActiveVectorDatasetId, vectorSettings );
   mMesh->mDatasetVectorSymbologies.insert( mMesh->mCurrentScalarDatasetId, encodedFromVectorSettings( vectorSettings ).bytes() );
 
   emit mMesh->repaintRequested();
@@ -1912,14 +1927,13 @@ bool ReosMeshTerrainColorShaderSettings_p::getDirectSourceMinMax( double &min, d
 void ReosMeshTerrainColorShaderSettings_p::onSettingsUpdated()
 {
   QgsMeshRendererSettings settings = mMesh->mMeshLayer->rendererSettings();
-  int idx = mMesh->mDatasetGroupsIndex.value( mMesh->mVerticesElevationDatasetId );
+  int idx = mMesh->mDatasetGroupsIndex.value( mMesh->mVerticesElevationDatasetId, -1 );
   QgsMeshRendererScalarSettings scalarSettings = settings.scalarSettings( idx );
   scalarSettings.setClassificationMinimumMaximum( mMinClassifiction, mMaxClassification );
   scalarSettings.setOpacity( mOpacity );
   scalarSettings.setColorRampShader( mColorShader );
-  settings.setScalarSettings( idx, scalarSettings );
-  mMesh->mMeshLayer->setRendererSettings( settings );
-  mMesh->mDatasetScalarSymbologies.insert( mMesh->mCurrentScalarDatasetId, encodedFromScalarSettings( scalarSettings ).bytes() );
+  mMesh->mDatasetScalarSymbologies.insert( mMesh->mVerticesElevationDatasetId, encodedFromScalarSettings( scalarSettings ).bytes() );
+  mMesh->applySymbologyOnScalarDataSet( mMesh->mVerticesElevationDatasetId, scalarSettings );
 
   emit mMesh->repaintRequested();
   mMesh->update3DRenderer();

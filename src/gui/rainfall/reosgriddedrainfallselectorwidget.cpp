@@ -247,9 +247,9 @@ void ReosGriddedRainfallSelectorWidget::updateDataOnMap()
     ui->mDataVizMap->setTimeExtent( temporalRange.first, temporalRange.second );
     ui->mDataVizMap->setTimeStep( timeStep );
     ui->mDataVizMap->addRenderedDataObject( mCurrentRainfall.get() );
-    ui->mDataVizMap->showExtentOnMap( mCurrentRainfall->extent() );
-    ui->mDataVizMap->setExtent( mCurrentRainfall->extent() );
-    ui->mShowExtentOnMainButton->setExtent( mCurrentRainfall->extent() );
+    ui->mDataVizMap->showExtentOnMap( mCurrentRainfall->rasterExtent() );
+    ui->mDataVizMap->setExtent( mCurrentRainfall->rasterExtent() );
+    ui->mShowExtentOnMainButton->setExtent( mCurrentRainfall->rasterExtent() );
   }
 }
 

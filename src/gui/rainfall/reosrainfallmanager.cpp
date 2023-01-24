@@ -1057,9 +1057,9 @@ void ReosRainfallManager::onCurrentTreeIndexChanged()
         {
           ReosGriddedRainfall *griddedRainfall = griddedRainItem->data();
           ReosDataVizMapWidget *griddedRainWidget = new ReosDataVizMapWidget( this );
-          griddedRainWidget->showExtentOnMap( griddedRainfall->extent() );
+          griddedRainWidget->showExtentOnMap( griddedRainfall->rasterExtent() );
           griddedRainWidget->addRenderedDataObject( griddedRainfall );
-          griddedRainWidget->setExtent( griddedRainfall->extent() );
+          griddedRainWidget->setExtent( griddedRainfall->rasterExtent() );
           griddedRainWidget->setTimeExtent( griddedRainfall->timeExtent().first, griddedRainfall->timeExtent().second );
           griddedRainWidget->setTimeStep( griddedRainfall->minimumTimeStep() );
           dataVizWidget = griddedRainWidget;

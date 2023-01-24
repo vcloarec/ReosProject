@@ -213,14 +213,12 @@ QString ReosHecRasGeometry::crs() const
   return mCrs;
 }
 
-ReosMesh *ReosHecRasGeometry::createMesh( const QString &destinationCrs, ReosModule::Message &message )
+ReosMesh *ReosHecRasGeometry::createMesh( const QString &destinationCrs, ReosModule::Message &message ) const
 {
   std::unique_ptr<ReosMesh> mesh( ReosMesh::createMeshFrameFromFile( mFileName + QStringLiteral( ".hdf" ), destinationCrs, message ) );
 
   QString demFile = terrainVrtFile();
-
   std::unique_ptr<ReosDigitalElevationModel>  dem( ReosGisEngine::getRasterDigitalElevationModel( demFile ) );
-
   if ( !dem )
   {
     message.text = QObject::tr( "Unable to load the vrt file corresponding to the terrain." );
@@ -234,6 +232,24 @@ ReosMesh *ReosHecRasGeometry::createMesh( const QString &destinationCrs, ReosMod
     return mesh.release();
 
   return nullptr;
+}
+
+void ReosHecRasGeometry::resetMesh( ReosMesh *mesh, const QString &destinationCrs, ReosModule::Message &message ) const
+{
+  QString meshFileName = mFileName + QStringLiteral( ".hdf" );
+  mesh->resetMeshFrameFromeFile( meshFileName, destinationCrs, message );
+  QString demFile = terrainVrtFile();
+
+  std::unique_ptr<ReosDigitalElevationModel>  dem( ReosGisEngine::getRasterDigitalElevationModel( demFile ) );
+
+  if ( !dem )
+  {
+    message.text = QObject::tr( "Unable to load the vrt file corresponding to the terrain." );
+  }
+  else
+  {
+    mesh->applyDemOnVertices( dem.get(), destinationCrs );
+  }
 }
 
 ReosPolylinesStructure::Data ReosHecRasGeometry::polylineStructureData() const

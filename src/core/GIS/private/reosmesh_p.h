@@ -79,8 +79,8 @@ class ReosMeshFrame_p : public ReosMesh
   public:
     ReosMeshFrame_p( const QString &crs, QObject *parent );
     ReosMeshFrame_p( const QString &dataPath, const QString &destinationCrs, ReosModule::Message &message );
-    ReosMeshFrame_p( const QString &dataPath, const QString &destinationCrs, ReosDigitalElevationModel *dem, ReosModule::Message &message );
 
+    void resetMeshFrameFromeFile( const QString &dataPath, const QString &destinationCrs, ReosModule::Message &message ) override;
     bool isValid() const override;
     int vertexCount() const override;
     QPointF vertexPosition( int vertexIndex, const QString &destinationCrs = QString() ) const override;
@@ -94,6 +94,7 @@ class ReosMeshFrame_p : public ReosMesh
     QString crs() const override;
     QObject *data() const override;
     ReosMeshData meshDataFrame() const override;
+    ReosMapExtent extent() const override;
 
     ReosProcess *applyTopographyOnVertices( ReosTopographyCollection *topographyCollection ) override;
     void applyDemOnVertices( ReosDigitalElevationModel *dem, const QString &destinationCrs ) override;

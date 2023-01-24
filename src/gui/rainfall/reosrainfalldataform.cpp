@@ -291,7 +291,7 @@ ReosFormWidget *ReosFormWidgetGriddedRainfalFactory::createDataWidget( ReosDataO
   ReosShowExtentButton *buttonShowExtent = new ReosShowExtentButton( formWidget );
   buttonShowExtent->setMap( context.map() );
   buttonShowExtent->setText( QObject::tr( "Show Extent on Main Map" ) );
-  buttonShowExtent->setExtent( griddedRainFall->extent() );
+  buttonShowExtent->setExtent( griddedRainFall->rasterExtent() );
   formWidget->addWidget( buttonShowExtent );
   buttonShowExtent->setToolButtonStyle( Qt::ToolButtonStyle::ToolButtonTextBesideIcon );
   buttonShowExtent->setSizePolicy( QSizePolicy::MinimumExpanding, buttonColorSettings->sizePolicy().verticalPolicy() );

@@ -36,6 +36,7 @@ email                : vcloarec at gmail dot com
 #include "reosgriddedrainitem.h"
 #include "reostimewindowsettings.h"
 #include "reoshdf5.h"
+#include "reostestrenderedobject.h"
 
 
 static void copyDirectory( const QDir &source, const QString &newPath )
@@ -379,13 +380,14 @@ void ReosHecrasTesting::exploreProject()
   QCOMPARE( geometry.area2dCount(), 2 );
 
   domain.clear();
-  domain << QPointF( 653201.10219891, 1797130.38180678 )
-         << QPointF( 653200.342228455, 1797219.94512185 )
+  domain << QPointF( 653202.534063554, 1797130.66817971 )
+         << QPointF( 653202.050994364, 1797219.71445612 )
          << QPointF( 653306.971839022, 1797219.72312258 )
          << QPointF( 653490.227515079, 1797213.58963957 )
          << QPointF( 653490.227515079, 1797137.18285738 )
-         << QPointF( 653307.021942612, 1797130.48548468 );
+         << QPointF( 653307.021942612, 1797131.13594369 );
 
+  QPolygonF actualDomain = geometry.domain();
   QCOMPARE( geometry.domain(), domain );
 
   ReosHecRasFlow currentFlow = project.currentFlow();
@@ -515,6 +517,10 @@ void ReosHecrasTesting::importAndLaunchStructure()
   QCOMPARE( hecSim->mappingInterval(), ReosDuration( 5.0, ReosDuration::minute ) );
 
   hecSim->setCurrentPlan( "p02" );
+
+  QVERIFY( structure->mesh() );
+  QCOMPARE( structure->mesh()->vertexCount(), 1330 );
+
   QCOMPARE( hecSim->computeInterval(), ReosDuration( 60.0, ReosDuration::second ) );
   QCOMPARE( hecSim->outputInterval(), ReosDuration( 5.0, ReosDuration::minute ) );
   QCOMPARE( hecSim->detailedInterval(), ReosDuration( 5.0, ReosDuration::minute ) );
@@ -664,6 +670,34 @@ void ReosHecrasTesting::simulationResults()
 
   QVERIFY( simulation->hasResult( structure, currentScheme->id() ) );
 
+  ReosTestRenderedObject renderer;
+  QVERIFY( renderer.compareRendering(
+             structure->mesh(), structure->timeWindow().start(),
+             data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan1_terrrain.png" ) ) );
+
+  QStringList datasetIds = structure->mesh()->datasetIds();
+  QCOMPARE( datasetIds.count(), 3 );
+  structure->activateResultDatasetGroup( datasetIds.at( 1 ) );
+
+  QVERIFY( renderer.compareRendering(
+             structure->mesh(), QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ),
+             data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan1_ws.png" ) ) );
+
+  ReosSpatialPosition position( 653361, 1797175 );
+  double value = structure->resultsValueAt( QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ),
+                 position,
+                 ReosHydraulicSimulationResults::DatasetType::WaterLevel,
+                 currentScheme->id() );
+
+  QVERIFY( equal( value, 2.00, 0.001 ) );
+
+  structure->deactivateMeshScalar();
+
+  QVERIFY( renderer.compareRendering(
+             structure->mesh(), QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ),
+             data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan1_void.png" ), 50 ) );
+
+
   std::unique_ptr<ReosHydraulicSimulationResults> simResult( simulation->loadSimulationResults( structure, scheme->id() ) );
 
   QMap<QString, ReosHydrograph *> outputHydrographs = simResult->outputHydrographs();
@@ -693,11 +727,45 @@ void ReosHecrasTesting::simulationResults()
 
   simulation->setCurrentPlan( "p02" );
 
+  QVERIFY( renderer.compareRendering(
+             structure->mesh(), structure->timeWindow().start(),
+             data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan2_void.png" ) ) );
+
+  datasetIds = structure->mesh()->datasetIds();
+  QCOMPARE( datasetIds.count(), 1 );
+  structure->activateResultDatasetGroup( datasetIds.at( 0 ) );
+
+  QVERIFY( renderer.compareRendering(
+             structure->mesh(), structure->timeWindow().start(),
+             data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan2_terrain.png" ) ) );
+
   boundaries = structure->boundaryConditions();
   QCOMPARE( boundaries.count(), 1 );
 
   ReosEncodedElement simEncoded = simulation->encode();
   ReosEncodedElement encodedNetwork = network->encode( QFileInfo( projectPath ).dir().path(),  "project.lkn" );
+
+  structure->deactivateMeshScalar();
+
+  QVERIFY( renderer.compareRendering(
+             structure->mesh(), structure->timeWindow().start(),
+             data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan2_void.png" ) ) );
+
+  simulation->setCurrentPlan( "p01" );
+
+  QVERIFY( renderer.compareRendering(
+             structure->mesh(), structure->timeWindow().start(),
+             data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan1_void.png" ), 50 ) );
+
+  datasetIds = structure->mesh()->datasetIds();
+  QCOMPARE( datasetIds.count(), 3 );
+  structure->activateResultDatasetGroup( datasetIds.at( 1 ) );
+
+  QVERIFY( renderer.compareRendering(
+             structure->mesh(), structure->timeWindow().start(),
+             data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan1_ws.png" ) ) );
+
+  //*********************** project clear and reloaded
   network->clear();
   network->decode( encodedNetwork, QFileInfo( projectPath ).dir().path(),  "project.lkn" );
 
@@ -736,6 +804,7 @@ void ReosHecrasTesting::simulationResults()
   QCOMPARE( tw.start(), QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ) );
   QCOMPARE( tw.end(), QDateTime( QDate( 2000, 01, 01 ), QTime( 13, 0, 0 ), Qt::UTC ) );
   QVERIFY( tw == mGisEngine->mapTimeWindow() );
+
 }
 
 void ReosHecrasTesting::planCompatibility()
