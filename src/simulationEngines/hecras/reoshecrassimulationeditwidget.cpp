@@ -15,7 +15,6 @@ ReosHecRasSimulationEditWidget::ReosHecRasSimulationEditWidget( ReosHecRasSimula
   : QWidget( parent )
   , ui( new Ui::ReosHecRasSimulationEditWidget )
   , mSimulation( simulation )
-
 {
   ui->setupUi( this );
 

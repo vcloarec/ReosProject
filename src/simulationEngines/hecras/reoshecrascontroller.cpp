@@ -46,7 +46,7 @@ static std::string WideStringToString( const std::wstring &wstr )
   std::string ret;
   ret.resize( static_cast<size_t>( len ) + 1 );
 
-  WideCharToMultiByte( CP_ACP, 0, wstr.c_str(), -1, ret.data(), ret.size(), nullptr, nullptr );
+  WideCharToMultiByte( CP_ACP, 0, wstr.c_str(), -1, ret.data(), static_cast<int>( ret.size() ), nullptr, nullptr );
   return ret;
 }
 
@@ -79,7 +79,6 @@ QStringList ReosHecRasController::availableVersion()
   DWORD    cchClassName = MAX_PATH;
   DWORD    cSubKeys = 0;
   DWORD    cbMaxSubKey;
-  DWORD    cchMaxClass;
   DWORD    cValues;
   DWORD    cchMaxValue;
   DWORD    cbMaxValueData;
@@ -138,7 +137,7 @@ QStringList ReosHecRasController::availableVersion()
 }
 
 ReosHecRasController::ReosHecRasController( const QString &version )
-    : mVersion(version)
+  : mVersion( version )
 {
 #ifdef _WIN32
   if ( !SUCCEEDED( CoInitializeEx( nullptr, COINIT_APARTMENTTHREADED ) ) )
@@ -167,9 +166,7 @@ ReosHecRasController::ReosHecRasController( const QString &version )
   for ( int i = 0; i < pTatt->cFuncs; ++i )
   {
     typeInfo->GetFuncDesc( i, &fd );
-    DWORD funcName;
     BSTR pBstrName;
-    BSTR doc;
     typeInfo->GetDocumentation( fd->memid, &pBstrName, nullptr, nullptr, nullptr );
 
     if ( pBstrName )
@@ -234,7 +231,7 @@ QString ReosHecRasController::version() const
   if ( SUCCEEDED( res ) )
     ret = BSTRToQString( result.bstrVal );
 #endif
-    return ret;
+  return ret;
 }
 
 bool ReosHecRasController::openHecrasProject( const QString &projFileName )
@@ -254,12 +251,12 @@ bool ReosHecRasController::openHecrasProject( const QString &projFileName )
   VariantInit( &fileNameV );
   std::wstring ws = qStringToWideString( projFileName );
   V_VT( &fileNameV ) = VT_BSTR;
-  fileNameV.bstrVal = SysAllocStringLen( ws.c_str(), ws.length() );
+  fileNameV.bstrVal = SysAllocStringLen( ws.c_str(), static_cast<UINT>( ws.length() ) );
 
   //***************************************
   args.push_back( fileNameV );
 
-  par.cArgs = args.size();
+  par.cArgs = static_cast<UINT>( args.size() );
   par.rgvarg = args.data();
   par.cNamedArgs = 0;
 
@@ -267,7 +264,7 @@ bool ReosHecRasController::openHecrasProject( const QString &projFileName )
   EXCEPINFO excepInfo;
   UINT puArgErr;
 
-  HRESULT res = mDispatch->Invoke(id, IID_NULL, 0, DISPATCH_METHOD, &par, &result, &excepInfo, &puArgErr);
+  HRESULT res = mDispatch->Invoke( id, IID_NULL, 0, DISPATCH_METHOD, &par, &result, &excepInfo, &puArgErr );
 
   ok = SUCCEEDED( res );
 #endif
@@ -317,7 +314,7 @@ QStringList ReosHecRasController::planNames() const
 
   //***************************************
 
-  par.cArgs = args.size();
+  par.cArgs = static_cast<UINT>( args.size() );
   par.rgvarg = args.data();
   par.cNamedArgs = 0;
 
@@ -357,12 +354,12 @@ bool ReosHecRasController::setCurrentPlan( const QString &planName )
   VariantInit( &planNameV );
   std::wstring ws = qStringToWideString( planName );
   V_VT( &planNameV ) = VT_BSTR;
-  planNameV.bstrVal = SysAllocStringLen( ws.c_str(), ws.length() );
+  planNameV.bstrVal = SysAllocStringLen( ws.c_str(), static_cast<UINT>( ws.length() ) );
 
   //***************************************
   args.push_back( planNameV );
 
-  par.cArgs = args.size();
+  par.cArgs = static_cast<UINT>( args.size() );
   par.rgvarg = args.data();
   par.cNamedArgs = 0;
 
@@ -423,7 +420,7 @@ QStringList ReosHecRasController::computeCurrentPlan()
 
   //***************************************
 
-  par.cArgs = args.size();
+  par.cArgs = static_cast<UINT>( args.size() );
   par.rgvarg = args.data();
   par.cNamedArgs = 0;
 
@@ -451,7 +448,7 @@ QStringList ReosHecRasController::computeCurrentPlan()
 
 bool ReosHecRasController::exitRas() const
 {
-    bool ok = false;
+  bool ok = false;
 #ifdef _WIN32
   DISPID id = mFunctionNames.value( QStringLiteral( "QuitRas" ) );
 
@@ -463,7 +460,7 @@ bool ReosHecRasController::exitRas() const
 
   HRESULT res = mDispatch->Invoke( id, IID_NULL, 0, DISPATCH_METHOD, &par, &result, &excepInfo, &puArgErr );
 
-  ok= SUCCEEDED( res );
+  ok = SUCCEEDED( res );
 #endif
   return ok;
 }
@@ -505,7 +502,7 @@ QStringList ReosHecRasController::flowAreas2D() const
 
   //***************************************
 
-  par.cArgs = args.size();
+  par.cArgs = static_cast<UINT>( args.size() );
   par.rgvarg = args.data();
   par.cNamedArgs = 0;
 
@@ -572,7 +569,7 @@ QPolygonF ReosHecRasController::flow2DAreasDomain( const QString &areaName ) con
 
   std::wstring ws = qStringToWideString( areaName );
   V_VT( &areaNameV ) = VT_BSTR;
-  areaNameV.bstrVal = SysAllocStringLen( ws.c_str(), ws.length() );
+  areaNameV.bstrVal = SysAllocStringLen( ws.c_str(), static_cast<UINT>( ws.length() ) );
 
   // Must be in reverse order
   args.push_back( pY );
@@ -581,7 +578,7 @@ QPolygonF ReosHecRasController::flow2DAreasDomain( const QString &areaName ) con
   args.push_back( areaNameV );
   //***************************************
 
-  par.cArgs = args.size();
+  par.cArgs = static_cast<UINT>( args.size() );
   par.rgvarg = args.data();
   par.cNamedArgs = 0;
 
