@@ -77,11 +77,22 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydraulicStructureBoundaryCondition *boundaryCondition, bool upstreamWillChange ) {}
     bool updateCalculationContextFromDownstream( const ReosCalculationContext &context ) { return false; }
 
+    //! Returns whether the structure supports the \a capability
+    bool hasCapability( Structure2DCapability capability ) const;
+
+    //! Returns a pointer to the time windows settings
+    ReosTimeWindowSettings *timeWindowSettings() const;
+
+    //! Returns a pointer to the structure importer if exists, else return nullptr
+    ReosStructureImporterSource *structureImporterSource() const;
+
     //! Returns the domain polygon
     QPolygonF domain( const QString &crs = QString() ) const;
 
     //! Returns the geometrical strcuture
     ReosPolylinesStructure *geometryStructure() const;
+
+    //**************************** mesh related methods
 
     //! Returns the mesh resolution controler
     ReosMeshResolutionController *meshResolutionController() const;
@@ -104,6 +115,32 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Returns the rougness structure
     ReosRoughnessStructure *roughnessStructure() const;
 
+    //! Sets active the terrain in the mesh
+    void activateMeshTerrain();
+
+    //! Returns the id of the terrain dataset
+    QString terrainMeshDatasetId() const;
+
+    //! Returns the elevation of the terran at \a position in map coordinates
+    double terrainElevationAt( const QPointF &position );
+
+    //! Deactivates any activated scalar dataset
+    void deactivateMeshScalar();
+
+    //! Returns the 3D map settings
+    Reos3DMapSettings map3dSettings() const;
+
+    //! Sets the 3D map settings
+    void setMap3dSettings( const Reos3DMapSettings &value );
+
+    //! Returns the 3D terrain settings
+    Reos3DTerrainSettings terrain3DSettings() const;
+
+    //! Sets the 3D terrain settings
+    void setTerrain3DSettings( const Reos3DTerrainSettings &settings );
+
+    //**************************** boundary condition related methods
+
     //! Returns all the boundary condition of this stucture
     QList<ReosHydraulicStructureBoundaryCondition *> boundaryConditions() const;
 
@@ -112,6 +149,8 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 
     //! Returns the boundary condition with id \a boundaryId, nullptr if not exists
     ReosHydraulicStructureBoundaryCondition *boundaryConditionNetWorkElement( const QString &boundaryId ) const;
+
+    //**************************** Simulation condition related methods
 
     //! Adds a new simulation with \a key corresponding to a engine and sets it the current one. Returns true if the simulation is effectivly added
     bool addSimulation( const QString &key );
@@ -137,6 +176,8 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Returns the name of all the simulations
     QStringList simulationNames() const;
 
+    //**************************** Calculation process related methods
+
     //! Returns a process that prepare the current simulation, caller take ownership
     ReosSimulationPreparationProcess *getPreparationProcessSimulation( const ReosCalculationContext &context, QString &error );
 
@@ -152,6 +193,9 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Returns whether a simulation is running
     bool hasSimulationRunning() const;
 
+    //**************************** Results related methods
+
+    //! Updates results corresponding to the scheme with id \a schemeId
     void updateResults( const QString &schemeId );
 
     //! Returns whether the structure contain any results
@@ -178,38 +222,17 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Returns a translated string corresponding to the unit of the results associated with \a context and to the type  \a datasetType
     QString resultsUnits( ReosHydraulicSimulationResults::DatasetType datasetType, const QString &schemeId );
 
-    //! Remove all results in the structure
+    //! Removes and erase all results related to the structure, also from sources (disk).
     void removeAllResults();
 
     //! Remove the result associated with \a context
     void removeResults( const ReosCalculationContext &context );
 
+    //! Clears reference to result in this structure (do not remove from source) for the scheme with id \a schemeId
+    void clearResults( const QString &schemeId );
+
     //! Returns the results associated with \a scheme
     ReosHydraulicSimulationResults *results( ReosHydraulicScheme *scheme );
-
-    //! Sets active the terrain in the mesh
-    void activateMeshTerrain();
-
-    //! Returns the id of the terrain dataset
-    QString terrainMeshDatasetId() const;
-
-    //! Returns the elevation of the terran at \a position in map coordinates
-    double terrainElevationAt( const QPointF &position );
-
-    //! Deactivates any activated scalar dataset
-    void deactivateMeshScalar();
-
-    //! Returns the 3D map settings
-    Reos3DMapSettings map3dSettings() const;
-
-    //! Sets the 3D map settings
-    void setMap3dSettings( const Reos3DMapSettings &value );
-
-    //! Returns the 3D terrain settings
-    Reos3DTerrainSettings terrain3DSettings() const;
-
-    //! Sets the 3D terrain settings
-    void setTerrain3DSettings( const Reos3DTerrainSettings &settings );
 
     //! Returns the directory where data and simulation will be stored on the disk
     QDir structureDirectory() const;
@@ -223,7 +246,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Returns the all the dataset ids
     QStringList meshDatasetIds() const;
 
-    //! Returns the all the vector dataset ids
+    //! Returns all the vector dataset ids
     QStringList meshVectorDatasetIds() const;
 
     //! Returns the name of the dataset with \a id
@@ -244,6 +267,8 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     void exportResultAsMesh( const QString &fileName ) const;
 
     void exportResultAsMeshInGisProject( const QString &fileName, bool keepLayers );
+
+    //**************************** Profiles related methods
 
     //! Returns a pointer to the profile collection
     ReosHydraulicStructureProfilesCollection *profilesCollection() const;
@@ -266,13 +291,6 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Returns the index of the \a profile
     int profileIndex( ReosHydraulicStructureProfile *profile );
 
-    //! Returns whether the structure supports the \a capability
-    bool hasCapability( Structure2DCapability capability ) const;
-
-    //! Returns a pointer to the structure importer if exists, else return nullptr
-    ReosStructureImporterSource *structureImporterSource() const;
-
-    ReosTimeWindowSettings *timeWindowSettings() const;
 
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) override;
@@ -330,7 +348,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 
     ReosHydraulicStructureProfilesCollection *mProfilesCollection = nullptr;
 
-    //** configuration
+    //** configuration related members
     int mCurrentSimulationIndex = -1;
     ReosTimeWindowSettings *mTimeWindowSettings = nullptr;
     //**

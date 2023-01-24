@@ -96,7 +96,6 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   , mActionScalarSettings( new QAction( QIcon( QStringLiteral( ":/images/scalarContour.svg" ) ), tr( "Color Ramp" ), this ) )
   , mActionVectorSettings( new QAction( QIcon( QStringLiteral( ":/images/vectorSettings.svg" ) ), tr( "Vector Settings" ), this ) )
   , mGuiContext( context, this )
-  , mCurrentDatasetId( structure2D ? structure2D->currentActivatedMeshDataset() : QString() )
   , mCurrentVectorDatasetId( structure2D ? structure2D->currentActivatedVectorMeshDataset() : QString() )
 {
   ui->setupUi( this );
@@ -367,7 +366,20 @@ void ReosHydraulicStructure2DProperties::fillResultGroupBox( const ReosCalculati
   ui->mLabelResultStartTime->setText( QLocale().toString( tw.start(), QLocale::ShortFormat ) );
   ui->mLabelResultEndTime->setText( QLocale().toString( tw.end(), QLocale::ShortFormat ) );
   ui->mLabelResultTimeStepCount->setText( QString::number( mStructure2D->resultsTimeStepCount( context.schemeId() ) ) );
-  ui->mLabelResultValueDisplayed->setText( mStructure2D->currentDatasetName() );
+  updateFillResultGroupBox();
+}
+
+void ReosHydraulicStructure2DProperties::updateFillResultGroupBox()
+{
+  if ( mStructure2D->currentActivatedDatasetResultType() == ReosHydraulicSimulationResults::DatasetType::None )
+  {
+    ui->mLabelResultValueDisplayed->setText( mStructure2D->meshDatasetName( mStructure2D->terrainMeshDatasetId() ) );
+  }
+  else
+  {
+    ui->mLabelResultValueDisplayed->setText( mStructure2D->currentDatasetName() );
+  }
+
   ui->mLabelResultValueUnderCursor->setText( QString( '-' ) );
 }
 
@@ -478,7 +490,7 @@ void ReosHydraulicStructure2DProperties::updateScalarDatasetMenu()
   {
     QAction *action = new QAction( mStructure2D->meshDatasetName( id ), mScalarDatasetActions );
     action->setCheckable( true );
-    bool hasToBeChecked = mCurrentDatasetId == id;
+    bool hasToBeChecked = mStructure2D->currentActivatedMeshDataset() == id;
     hasDatasetChecked |= hasToBeChecked;
     action->setChecked( hasToBeChecked );
     mScalarDatasetMenu->addAction( action );
@@ -488,6 +500,7 @@ void ReosHydraulicStructure2DProperties::updateScalarDatasetMenu()
       {
         mCurrentDatasetId = id;
         restoreResults();
+        updateFillResultGroupBox();
       }
     } );
   }
@@ -502,6 +515,7 @@ void ReosHydraulicStructure2DProperties::updateScalarDatasetMenu()
       mCurrentDatasetId = QString();
       mStructure2D->activateResultDatasetGroup( QString() );
       mActionScalarSettings->setEnabled( false );
+      updateFillResultGroupBox();
     }
   } );
   mScalarDatasetMenu->addSeparator();
@@ -523,7 +537,7 @@ void ReosHydraulicStructure2DProperties::updateScalarDatasetMenu()
     mScalarDatasetActions->setExclusive( true );
   }
 
-  mActionScalarSettings->setEnabled( !mCurrentDatasetId.isEmpty() );
+  mActionScalarSettings->setEnabled( !mStructure2D->currentActivatedMeshDataset().isEmpty() );
 }
 
 void ReosHydraulicStructure2DProperties::updateVectorDatasetMenu()
@@ -540,7 +554,7 @@ void ReosHydraulicStructure2DProperties::updateVectorDatasetMenu()
   {
     QAction *action = new QAction( mStructure2D->meshDatasetName( id ), mVectorDatasetActions );
     action->setCheckable( true );
-    action->setChecked( mCurrentVectorDatasetId == id );
+    action->setChecked( mStructure2D->currentActivatedVectorMeshDataset() == id );
     mVectorDatasetMenu->addAction( action );
     connect( action, &QAction::triggered, this, [id, this]( bool checked )
     {
@@ -569,7 +583,7 @@ void ReosHydraulicStructure2DProperties::updateVectorDatasetMenu()
   mVectorDatasetMenu->addSeparator();
   mVectorDatasetMenu->addAction( mActionVectorSettings );
 
-  mActionVectorSettings->setEnabled( !mCurrentVectorDatasetId.isEmpty() );
+  mActionVectorSettings->setEnabled( !mStructure2D->currentActivatedVectorMeshDataset().isEmpty() );
 }
 
 void ReosHydraulicStructure2DProperties::restoreResults()
@@ -719,7 +733,7 @@ void ReosHydraulicStructure2DProperties::onMapCursorMove( const QPointF &pos )
   ReosSpatialPosition position( pos, mMap->mapCrs() );
 
   ReosHydraulicSimulationResults::DatasetType dt = mStructure2D->currentActivatedDatasetResultType();
-  double value = std::numeric_limits<double>::quiet_NaN();
+  double value;
   QString unit;
 
   if ( dt == ReosHydraulicSimulationResults::DatasetType::None && mStructure2D->mesh() )

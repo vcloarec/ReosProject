@@ -97,6 +97,11 @@ ReosRendererObjectMapTimeStamp *ReosGriddedRainfall::createMapTimeStamp( ReosRen
   return new ReosRendererGriddedRainfallMapTimeStamp_p( dataIndex( settings->mapTime() ) );
 }
 
+ReosMapExtent ReosGriddedRainfall::extent() const
+{
+  return rasterExtent();
+}
+
 ReosGriddedRainfallProvider *ReosGriddedRainfall::dataProvider() const
 {
   return mProvider.get();
@@ -188,7 +193,7 @@ int ReosGriddedRainfall::dataIndex( const QDateTime &time ) const
   return mProvider->dataIndex( time );
 }
 
-ReosRasterExtent ReosGriddedRainfall::extent() const
+ReosRasterExtent ReosGriddedRainfall::rasterExtent() const
 {
   if ( mProvider )
   {
@@ -218,7 +223,7 @@ ReosGriddedRainfall *ReosGriddedRainfall::transform( const ReosMapExtent &destin
 
   ReosRasterExtent destinationExtent;
   bool success;
-  const ReosRasterExtent sourceExtent = extent();
+  const ReosRasterExtent sourceExtent = rasterExtent();
   auto convertValues = ReosGisEngine::transformRasterExtent( sourceExtent, destination, resolX, resolY, destinationExtent, success );
   int sourceXCount = sourceExtent.xCellCount();
 

@@ -77,7 +77,9 @@ class ReosHecRasGeometry
 
     QString crs() const;
 
-    ReosMesh *createMesh( const QString &destinationCrs, ReosModule::Message &message );
+    ReosMesh *createMesh( const QString &destinationCrs, ReosModule::Message &message ) const;
+
+    void resetMesh( ReosMesh *mesh, const QString &destinationCrs, ReosModule::Message &message ) const;
 
     ReosPolylinesStructure::Data polylineStructureData() const;
 

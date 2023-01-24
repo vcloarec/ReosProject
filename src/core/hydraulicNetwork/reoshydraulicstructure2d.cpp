@@ -879,6 +879,19 @@ void ReosHydraulicStructure2D::removeResults( const ReosCalculationContext &cont
   }
 }
 
+void ReosHydraulicStructure2D::clearResults( const QString &schemeId )
+{
+  ReosHydraulicSimulationResults *simulationResults = mSimulationResults.value( schemeId, nullptr );
+  if ( simulationResults )
+  {
+    if ( mCurrentResult == simulationResults )
+      setResultsOnStructure( nullptr );
+
+    mSimulationResults.remove( schemeId );
+    simulationResults->deleteLater();
+  }
+}
+
 ReosHydraulicSimulationResults *ReosHydraulicStructure2D::results( ReosHydraulicScheme *scheme )
 {
   ReosHydraulicSimulation *sim = simulation( scheme );
@@ -900,6 +913,7 @@ void ReosHydraulicStructure2D::initConnection()
   if ( mMesh )
   {
     mMesh->enableVertexElevationDataset( tr( "Terrain elevation" ) );
+    mMesh->activateDataset( mMesh->verticesElevationDatasetId() );
     mMesh->setVerticaleSCale( m3dMapSettings.verticalExaggeration() );
   }
 
@@ -1131,7 +1145,7 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
     ReosHydraulicSimulationResults::DatasetType currentType = currentActivatedDatasetResultType();
 
     QString waterLevelId;
-    QString currentActivatedId = mMesh->verticesElevationDatasetId();
+    QString currentActivatedId = mMesh->currentdScalarDatasetId();
 
     for ( int i = 0; i < simResults->groupCount(); ++i )
     {
@@ -1187,6 +1201,9 @@ void ReosHydraulicStructure2D::updateResults( const QString &schemeId )
     mCurrentResult = nullptr;
     setResultsOnStructure( nullptr );
   }
+
+  emit timeWindowChanged();
+  emit timeStepChanged();
 }
 
 ReosSimulationProcess *ReosHydraulicStructure2D::processFromScheme( const QString &schemeId ) const

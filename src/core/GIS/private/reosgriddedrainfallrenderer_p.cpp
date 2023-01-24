@@ -58,7 +58,7 @@ ReosGriddedRainfallRendererFactory_p::ReosGriddedRainfallRendererFactory_p( Reos
 
 void ReosGriddedRainfallRendererFactory_p::init()
 {
-  ReosMapExtent extent = mRainfall->extent();
+  ReosMapExtent extent = mRainfall->rasterExtent();
   QgsRectangle qgsExt = extent.toRectF();
   qgsExt.normalize();
   QString uri( QStringLiteral( "%1::%2" ).arg( qgsExt.asWktPolygon(), extent.crs() ) );
@@ -99,7 +99,7 @@ ReosObjectRenderer *ReosGriddedRainfallRendererFactory_p::createRasterRenderer( 
 
   int index = mRainfall->dataIndex( time );
   mDataProvider->setData( mRainfall->intensityValues( index ) );
-  mDataProvider->setExtent( mRainfall->extent() );
+  mDataProvider->setExtent( mRainfall->rasterExtent() );
   std::unique_ptr<ReosQgisLayerRenderer_p> objectRenderer( new ReosQgisLayerRenderer_p( settings, mRasterLayer.get(), mRainfall ) );
 
   return objectRenderer.release();

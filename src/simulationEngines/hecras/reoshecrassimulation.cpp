@@ -488,6 +488,12 @@ void ReosHecRasSimulation::setCurrentPlan( const QString &planId )
 
     mStructure->geometryStructure()->reset( geom.polylineStructureData(), geomCrs );
 
+    QString schemeId = mStructure->network()->currentScheme()->id();
+    mStructure->clearResults( schemeId );
+    ReosModule::Message message;
+    geom.resetMesh( mStructure->mesh(), mStructure->network()->gisEngine()->crs(), message );
+    mStructure->updateResults( schemeId );
+
     const QStringList boundaries = mStructure->boundaryConditionId();
     updateBoundaryConditions( mProject.get(), QSet<QString>( boundaries.constBegin(), boundaries.constEnd() ), mStructure, mStructure->network()->context() );
   }

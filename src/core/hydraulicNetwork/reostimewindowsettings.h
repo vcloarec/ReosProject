@@ -43,10 +43,8 @@ class REOSCORE_EXPORT ReosTimeWindowSettings : public ReosDataObject
 
     OffsetOrigin originStart() const;
     void setOriginStart( OffsetOrigin newOriginStart );
-
     OffsetOrigin originEnd() const;
     void setOriginEnd( OffsetOrigin newOriginEnd );
-
     ReosParameterDateTime *userStartTime() const;
     ReosParameterDateTime *userEndTime() const;
     ReosParameterBoolean *automaticallyDefined() const;

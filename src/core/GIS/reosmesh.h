@@ -248,6 +248,8 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
 
     static ReosMesh *createMeshFrameFromFile( const QString &dataPath, const QString &destinationCrs, ReosModule::Message &message );
 
+    virtual void resetMeshFrameFromeFile( const QString &dataPath, const QString &destinationCrs, ReosModule::Message &message ) = 0;
+
     //! Returns whether the mesh is valid
     virtual bool isValid() const = 0;
 

@@ -36,7 +36,7 @@ class ReosHecRasSimulationResults : public ReosHydraulicSimulationResults
 
     // ReosMeshDatasetSource interface
 
-    //****** members that are the same for Telemax (factorization possible)
+    //****** members that are the same for Telemac (factorization possible)
     int datasetCount( int groupIndex ) const override;
     QDateTime groupReferenceTime( int groupIndex ) const override;
     ReosDuration datasetRelativeTime( int groupIndex, int datasetIndex ) const override;

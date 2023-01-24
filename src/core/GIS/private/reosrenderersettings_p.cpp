@@ -160,16 +160,16 @@ ReosQgisLayerRenderer_p::ReosQgisLayerRenderer_p( ReosRendererSettings *settings
 
   if ( rendererSettings )
   {
-    const QgsMapSettings &settings = rendererSettings->settings();
-    mImage = QImage( settings.deviceOutputSize(), settings.outputImageFormat() );
-    mImage.setDevicePixelRatio( settings.devicePixelRatio() );
-    mImage.setDotsPerMeterX( static_cast<int>( settings.outputDpi() * 39.37 ) );
-    mImage.setDotsPerMeterY( static_cast<int>( settings.outputDpi() * 39.37 ) );
+    const QgsMapSettings &mapSettings = rendererSettings->settings();
+    mImage = QImage( mapSettings.deviceOutputSize(), mapSettings.outputImageFormat() );
+    mImage.setDevicePixelRatio( mapSettings.devicePixelRatio() );
+    mImage.setDotsPerMeterX( static_cast<int>( mapSettings.outputDpi() * 39.37 ) );
+    mImage.setDotsPerMeterY( static_cast<int>( mapSettings.outputDpi() * 39.37 ) );
     mImage.fill( Qt::transparent );
 
-    QgsRectangle renderExtent = settings.visibleExtent(), r2;
-    renderExtent.buffered( settings.extentBuffer() );
-    QgsCoordinateTransform ct = settings.layerTransform( layer );
+    QgsRectangle renderExtent = mapSettings.visibleExtent(), r2;
+    renderExtent.buffered( mapSettings.extentBuffer() );
+    QgsCoordinateTransform ct = mapSettings.layerTransform( layer );
 
     bool haveExtentInLayerCrs = true;
     if ( ct.isValid() )
@@ -178,7 +178,7 @@ ReosQgisLayerRenderer_p::ReosQgisLayerRenderer_p( ReosRendererSettings *settings
     }
 
     mPainter.reset( new QPainter( &mImage ) );
-    mRenderContext = QgsRenderContext::fromMapSettings( settings );
+    mRenderContext = QgsRenderContext::fromMapSettings( mapSettings );
     mRenderContext.setCoordinateTransform( ct );
     mRenderContext.setPainter( mPainter.get() );
     mRenderContext.setExtent( renderExtent );
@@ -186,7 +186,7 @@ ReosQgisLayerRenderer_p::ReosQgisLayerRenderer_p( ReosRendererSettings *settings
       mRenderContext.setFlag( Qgis::RenderContextFlag::ApplyClipAfterReprojection, true );
     mLayerRenderer.reset( layer->createMapRenderer( mRenderContext ) );
 
-    setExtent( settings.visibleExtent().toRectF() );
+    setExtent( mapSettings.visibleExtent().toRectF() );
   }
 }
 
@@ -194,7 +194,6 @@ ReosQgisLayerRenderer_p::~ReosQgisLayerRenderer_p() = default;
 
 void ReosQgisLayerRenderer_p::render() const
 {
-  qDebug() << "Rendered object start rendering";
   mLayerRenderer->render();
 }
 

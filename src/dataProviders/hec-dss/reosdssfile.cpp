@@ -231,7 +231,7 @@ bool ReosDssFile::writeGriddedData(
   double resolution )
 {
   bool res = true;
-  const ReosRasterExtent extent = griddedRainFall->extent();
+  const ReosRasterExtent extent = griddedRainFall->rasterExtent();
 
   ReosMapExtent destinationFullExtent = ReosGisEngine::transformExtent( extent, destination.crs() );
   double destResolution = resolution;
@@ -258,7 +258,7 @@ bool ReosDssFile::writeGriddedData(
   std::unique_ptr<ReosGriddedRainfall> transformedGriddedRainfall(
     griddedRainFall->transform( destExtent, destResolution, destResolution ) );
 
-  ReosRasterExtent transformedExtent = transformedGriddedRainfall->extent();
+  ReosRasterExtent transformedExtent = transformedGriddedRainfall->rasterExtent();
 
   for ( int i = 0; i < transformedGriddedRainfall->gridCount(); ++i )
   {

@@ -16,6 +16,7 @@ SET(REOS_CORE_SOURCES
   reoscalculationcontext.cpp
   reosremoteinformation.cpp
 
+  GIS/reostestrenderedobject.cpp
   GIS/reosdigitalelevationmodel.cpp
   GIS/reosgisengine.cpp
   GIS/reosmapextent.cpp
@@ -113,6 +114,7 @@ SET(REOS_CORE_HEADERS
     reoscalculationcontext.h
     reosremoteinformation.h
 
+    GIS/reostestrenderedobject.h
     GIS/reosdigitalelevationmodel.h
     GIS/reosgisengine.h
     GIS/reosmapextent.h
