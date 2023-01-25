@@ -74,9 +74,9 @@ void ReosGribGriddedRainfallProvider::setDataSource( const QString &dataSource )
   mIsValid = true;
 }
 
-ReosGriddedRainfallProvider::Details ReosGribGriddedRainfallProvider::details( const QString &source, ReosModule::Message &message ) const
+ReosGriddedRainfallProvider::FileDetails ReosGribGriddedRainfallProvider::details( const QString &source, ReosModule::Message &message ) const
 {
-  Details ret;
+  FileDetails ret;
   QDir dir;
 
   if ( !sourceIsValid( source, message ) )
@@ -502,7 +502,7 @@ QStringList ReosGribGriddedRainfallProvider::getFiles( const QString &path, QDir
   return files;
 }
 
-void ReosGribGriddedRainfallProvider::giveName( Details &details )
+void ReosGribGriddedRainfallProvider::giveName( FileDetails &details )
 {
   QString name;
   auto baseName = []( const QString & string )->QString

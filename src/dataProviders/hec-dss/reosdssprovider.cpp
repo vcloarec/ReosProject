@@ -486,12 +486,12 @@ bool ReosDssProviderGriddedRainfall::canReadUri( const QString &uri ) const
   return !pathes.isEmpty();
 }
 
-ReosGriddedRainfallProvider::Details ReosDssProviderGriddedRainfall::details( const QString &uri, ReosModule::Message &message ) const
+ReosGriddedRainfallProvider::FileDetails ReosDssProviderGriddedRainfall::details( const QString &uri, ReosModule::Message &message ) const
 {
   QString fileName = ReosDssProviderBase::fileNameFromUri( uri );
   QList<ReosDssPath> pathes = griddedRainfallPathes( fileName, message );
 
-  Details ret;
+  FileDetails ret;
   for ( const ReosDssPath &path : pathes )
     ret.availableVariables.append( path.string() );
 

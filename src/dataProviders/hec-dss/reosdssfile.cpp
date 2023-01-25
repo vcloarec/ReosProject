@@ -331,6 +331,7 @@ bool ReosDssFile::writeGriddedData(
     ReosDssPath effPath = path;
     const QDateTime startDateTime = transformedGriddedRainfall->startTime( i );
     const QDateTime endDateTime = transformedGriddedRainfall->endTime( i );
+    effPath.setParameter( QStringLiteral( "PRECIP" ) );
     effPath.setStartDate( ReosDssUtils::dateToHecRasDate( startDateTime.date() ) + ':' + startDateTime.time().toString( "HHmm" ) );
     effPath.setTimeInterval( ReosDssUtils::dateToHecRasDate( endDateTime.date() ) + ':' + endDateTime.time().toString( "HHmm" ) );
     zStructSpatialGrid *grid = zstructSpatialGridNew( effPath.c_pathString() );
@@ -600,6 +601,8 @@ bool ReosDssPath::isValid() const
 
 const QString ReosDssPath::group() const
 {
+  if ( !mIsValid )
+    return QString();
   return toQString( Group );
 }
 
@@ -611,6 +614,8 @@ void ReosDssPath::setGroup( const QString &newGroup )
 
 const QString ReosDssPath::location() const
 {
+  if ( !mIsValid )
+    return QString();
   return toQString( Location );
 }
 
@@ -622,6 +627,8 @@ void ReosDssPath::setLocation( const QString &newLocation )
 
 const QString ReosDssPath::parameter() const
 {
+  if ( !mIsValid )
+    return QString();
   return toQString( Parameter );
 }
 
@@ -633,6 +640,8 @@ void ReosDssPath::setParameter( const QString &newParameter )
 
 const QString ReosDssPath::startDate() const
 {
+  if ( !mIsValid )
+    return QString();
   return toQString( StartDate );
 }
 
@@ -644,6 +653,8 @@ void ReosDssPath::setStartDate( const QString &newStartDate )
 
 const QString ReosDssPath::timeInterval() const
 {
+  if ( !mIsValid )
+    return QString();
   return toQString( TimeInterval );
 }
 
@@ -661,6 +672,8 @@ void ReosDssPath::setTimeInterval( const QString &newTimeInterval )
 
 const QString ReosDssPath::version() const
 {
+  if ( !mIsValid )
+    return QString();
   return toQString( Version );
 }
 

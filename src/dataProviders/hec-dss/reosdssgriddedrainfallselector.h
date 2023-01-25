@@ -38,7 +38,7 @@ class ReosDssGriddedRainfallSelector : public ReosGriddedRainDataProviderSelecto
 
     virtual QVariantMap selectedMetadata() const override;
 
-    virtual ReosGriddedRainfallProvider::Details setSource( const QString &source, ReosModule::Message &message ) override;
+    virtual ReosGriddedRainfallProvider::FileDetails setSource( const QString &source, ReosModule::Message &message ) override;
 
   private:
     void onComboChanged();

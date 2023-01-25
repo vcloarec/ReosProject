@@ -81,7 +81,7 @@ class REOSCORE_EXPORT ReosDataProviderRegistery
 
     std::map<QString, std::unique_ptr<ReosDataProviderFactory>> mFactories;
 
-    // List aof providers used to retrieve the compatible providers following an order
+    // List of providers used to retrieve the compatible providers following an order
     // For now, providers are ordered following the order of the library files in the folder
     // TODO: implement an order for providers (1: priority, 2: lower priority,..).
     QList<ReosDataProviderFactory *> mListedFactories;

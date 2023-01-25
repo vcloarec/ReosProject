@@ -37,7 +37,7 @@ void ReosGribTest::createProvider()
     qobject_cast<ReosGriddedRainfallProvider *>( ReosDataProviderRegistery::instance()->createCompatibleProvider( gribFile, ReosGriddedRainfall::staticType() ) ) );
 
   ReosModule::Message message;
-  ReosGriddedRainfallProvider::Details details = provider->details( "lkhkjh", message );
+  ReosGriddedRainfallProvider::FileDetails details = provider->details( "lkhkjh", message );
   QVERIFY( details.availableVariables.isEmpty() );
   QVERIFY( message.type == ReosModule::Error );
 

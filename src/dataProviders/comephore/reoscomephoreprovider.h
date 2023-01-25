@@ -51,7 +51,7 @@ class ReosComephoreTiffFilesReader : public ReosComephoreFilesReader
     bool getDirectMinMax( double &min, double &max ) const override;
 
     static bool canReadFile( const QString &uri );
-    static ReosGriddedRainfallProvider::Details details( const QString &source, bool *ok );
+    static ReosGriddedRainfallProvider::FileDetails details( const QString &source, bool *ok );
 
   private:
     ReosComephoreTiffFilesReader() = default;
@@ -76,7 +76,7 @@ class ReosComephoreProvider : public ReosGriddedRainfallProvider
     const QVector<double> data( int index ) const override;
     ReosRasterExtent extent() const override;
     bool canReadUri( const QString &uri ) const override;
-    Details details( const QString &source, ReosModule::Message &message ) const override;
+    FileDetails details( const QString &source, ReosModule::Message &message ) const override;
     ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
     void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) override;
     bool getDirectMinMax( double &min, double &max ) const override;

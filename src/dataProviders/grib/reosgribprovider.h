@@ -34,7 +34,7 @@ class ReosGribGriddedRainfallProvider : public ReosGriddedRainfallProvider
 
     QString key() const override {return staticKey();}
     void setDataSource( const QString &dataSource ) override;
-    Details details( const QString &, ReosModule::Message & ) const override;
+    FileDetails details( const QString &, ReosModule::Message & ) const override;
     bool isValid() const override;
     int count() const override;
     bool canReadUri( const QString &path ) const override;
@@ -94,7 +94,7 @@ class ReosGribGriddedRainfallProvider : public ReosGriddedRainfallProvider
 
     QStringList getFiles( const QString &path, QDir &dir ) const;
 
-    static void giveName( Details &details );
+    static void giveName( FileDetails &details );
 };
 
 class ReosGribProviderFactory: public ReosDataProviderFactory
