@@ -34,7 +34,20 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
       CumulativeHeight
     };
 
-    struct Details
+    enum SupportedGridOrigin
+    {
+      TopLeft = 1 << 0,
+      BottomLeft = 1 << 1,
+      TopRight = 1 << 2,
+      BottomRight = 1 << 3,
+      ZeroBottomLeft = 1 << 4
+    };
+    Q_ENUM( SupportedGridOrigin )
+    Q_DECLARE_FLAGS( SupportedGridOrigins, SupportedGridOrigin )
+    Q_FLAG( SupportedGridOrigins )
+
+
+    struct FileDetails
     {
       QStringList availableVariables;
       ReosMapExtent extent;
@@ -50,7 +63,7 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
 
     virtual void setDataSource( const QString &uri );
 
-    virtual Details details( const QString &, ReosModule::Message & ) const {return Details();}
+    virtual FileDetails details( const QString &, ReosModule::Message & ) const {return FileDetails();}
 
     virtual bool isValid() const = 0;
 

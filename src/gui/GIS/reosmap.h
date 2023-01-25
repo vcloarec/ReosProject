@@ -199,6 +199,7 @@ class REOSGUI_EXPORT ReosMapCursorPosition : public QWidget
 
 class REOSGUI_EXPORT ReosDataVizMapWidget : public QWidget
 {
+    Q_OBJECT
   public:
     ReosDataVizMapWidget( QWidget *parent = nullptr );
     ~ReosDataVizMapWidget();

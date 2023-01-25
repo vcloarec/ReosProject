@@ -58,12 +58,12 @@ QVariantMap ReosDssGriddedRainfallSelector::selectedMetadata() const
   return ret;
 }
 
-ReosGriddedRainfallProvider::Details ReosDssGriddedRainfallSelector::setSource( const QString &source, ReosModule::Message &message )
+ReosGriddedRainfallProvider::FileDetails ReosDssGriddedRainfallSelector::setSource( const QString &source, ReosModule::Message &message )
 {
   ui->mPathesCombo->clear();
 
   mProvider = std::make_unique<ReosDssProviderGriddedRainfall>();
-  const ReosGriddedRainfallProvider::Details detail = mProvider->details( source, message );
+  const ReosGriddedRainfallProvider::FileDetails detail = mProvider->details( source, message );
 
   for ( const QString &pathes : detail.availableVariables )
     ui->mPathesCombo->addItem( pathes );

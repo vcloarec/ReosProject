@@ -152,16 +152,16 @@ static QFileInfoList tiffFiles( const QString &folderPath )
   return fileInfoList;
 }
 
-ReosGriddedRainfallProvider::Details ReosComephoreProvider::details( const QString &source, ReosModule::Message &message ) const
+ReosGriddedRainfallProvider::FileDetails ReosComephoreProvider::details( const QString &source, ReosModule::Message &message ) const
 {
-  Details ret;
+  FileDetails ret;
 
   bool ok = false;
   ret = ReosComephoreTiffFilesReader::details( source, &ok );
   if ( ok )
     return ret;
 
-  return Details();
+  return FileDetails();
 }
 
 ReosEncodedElement ReosComephoreProvider::encode( const ReosEncodeContext &context ) const
@@ -284,9 +284,9 @@ bool ReosComephoreTiffFilesReader::canReadFile( const QString &uri )
   return !tiffFiles( uri ).isEmpty();
 }
 
-ReosGriddedRainfallProvider::Details ReosComephoreTiffFilesReader::details( const QString &source, bool *ok )
+ReosGriddedRainfallProvider::FileDetails ReosComephoreTiffFilesReader::details( const QString &source, bool *ok )
 {
-  ReosGriddedRainfallProvider::Details ret;
+  ReosGriddedRainfallProvider::FileDetails ret;
 
   ReosComephoreTiffFilesReader fileReader( source );
   if ( fileReader.frameCount() == 0 )

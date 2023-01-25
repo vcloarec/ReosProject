@@ -171,7 +171,7 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     //! Returns area of \a polygon considering the coordinate reference system \a crs.
     static ReosArea polygonAreaWithCrs( const QPolygonF &polygon, const QString &crs );
 
-    //! Convert a length from meter to map unit considering the coordinate reference system
+    //! Convert a length from meter to map unit considering the coordinate reference system of the project
     double convertLengthFromMeterToMapunit( double length );
 
     //! Returns encoded information about the GIS engine after saving GIS project int the \a path with the \a baseFileName
@@ -224,7 +224,7 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     static double factorUnitToMeter( const QString &crs );
 
     /**
-     * Transforms a raster extent \a extent in a destination extent \a destination extent and with resolution \a resolX and \a resolY
+     * Transforms a raster extent \a extent in a destination extent \a with resolution \a resolX and \a resolY
      * Returns a resuling raster extent \a resultingExtent and a memory raster containing pairs (part,index) of the original raster
      * in each resulting cell.
      */

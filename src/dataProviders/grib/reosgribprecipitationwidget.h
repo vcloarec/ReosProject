@@ -49,7 +49,7 @@ class ReosGribPrecipitationWidget :  public ReosGriddedRainDataProviderSelectorW
     //! Returns a pointer to the current selected object, default implementation return a null pointer.
     virtual ReosDataObject *selectedData() const override;
 
-    ReosGriddedRainfallProvider::Details setSource(const QString &source , ReosModule::Message &message) override;
+    ReosGriddedRainfallProvider::FileDetails setSource(const QString &source , ReosModule::Message &message) override;
 
   private slots:
     void onPathChanged();
@@ -59,7 +59,7 @@ class ReosGribPrecipitationWidget :  public ReosGriddedRainDataProviderSelectorW
     Ui::ReosGribPrecipitationWidget *ui;
     QString mSource;
     QString mCurrentVariable;
-    ReosGriddedRainfallProvider::Details mDetails;
+    ReosGriddedRainfallProvider::FileDetails mDetails;
     std::unique_ptr<ReosGriddedRainfall> mCurrentRainfall;
     std::unique_ptr<ReosGribGriddedRainfallProvider> mProvider;
     bool mCurrentSourceIsValid = false;

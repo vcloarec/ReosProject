@@ -284,7 +284,7 @@ void ReosHecrasTesting::writeGridInDss()
   QString gribFile( testFile( QStringLiteral( "grib/arome-antilles" ) ) );
   QString variable( QStringLiteral( "Total precipitation rate [kg/(m^2*s)]" ) );
   std::unique_ptr<ReosGriddedRainfall> rainfall(
-    new ReosGriddedRainfall( QStringLiteral( "\"%1\"::%2::%3" ).arg( gribFile, variable, "cumulative" ), QStringLiteral( "grib::gridded-rainfall" ) ) );
+    new ReosGriddedRainfall( QStringLiteral( "\"%1\"::%2::%3" ).arg( gribFile, variable, "cumulative" ), QStringLiteral( "grib::gridded-precipitation" ) ) );
 
   QString projCrs = ReosGisEngine::crsFromEPSG( 32620 );
   rainfall->overrideCrs( ReosGisEngine::crsFromEPSG( 4326 ) );
@@ -296,7 +296,6 @@ void ReosHecrasTesting::writeGridInDss()
   ReosDssPath path;
   path.setGroup( "METEOFRANCE" );
   path.setLocation( "ANTILLES" );
-  path.setParameter( "PRECIP" );
   path.setVersion( "VCL" );
 
   QVERIFY( file.writeGriddedData( rainfall.get(), path, destination ) );
@@ -308,7 +307,6 @@ void ReosHecrasTesting::createAndWriteGridFromScratch()
   ReosDssPath path_1;
   path_1.setGroup( "HOME_MADE" );
   path_1.setLocation( "JARRY" );
-  path_1.setParameter( "PRECIP" );
   path_1.setVersion( "VCL" );
 
   {
@@ -372,7 +370,6 @@ void ReosHecrasTesting::createAndWriteGridFromScratch()
   ReosDssPath path_2;
   path_2.setGroup( "HOME_MADE_2" );
   path_2.setLocation( "JARRY_2" );
-  path_2.setParameter( "PRECIP" );
   path_2.setVersion( "VCL" );
   {
     ReosGriddedRainfallMemoryProvider memoryRainfallProvider;
@@ -435,7 +432,7 @@ void ReosHecrasTesting::createAndWriteGridFromScratch()
   QVERIFY( message.type == ReosModule::Simple );
   QCOMPARE( griddedPathes.count(), 2 );
 
-  ReosGriddedRainfallProvider::Details details = dssProvider->details( filePath, message );
+  ReosGriddedRainfallProvider::FileDetails details = dssProvider->details( filePath, message );
   QVERIFY( message.type == ReosModule::Simple );
   QCOMPARE( details.availableVariables.count(), 2 );
   QCOMPARE( details.availableVariables.at( 0 ), QStringLiteral( "/HOME_MADE/JARRY/PRECIP///VCL/" ) );
@@ -458,7 +455,7 @@ void ReosHecrasTesting::createAndWriteGridFromScratch()
   QCOMPARE( griddedPrecipitation->startTime( 2 ),  QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 40, 0 ), Qt::UTC ) );
   QCOMPARE( griddedPrecipitation->endTime( 2 ),  QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 45, 0 ), Qt::UTC ) );
 
-  ReosRasterExtent griddedExtent = griddedPrecipitation->extent();
+  ReosRasterExtent griddedExtent = griddedPrecipitation->rasterExtent();
 
   QCOMPARE( griddedExtent.xCellCount(), 31 );
   QCOMPARE( griddedExtent.yCellCount(), 29 );
