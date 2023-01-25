@@ -403,9 +403,19 @@ ReosTimeWindow ReosTimeWindow::intersection( const ReosTimeWindow &other ) const
   return ret;
 }
 
+bool ReosTimeWindow::intersect( const ReosTimeWindow &other ) const
+{
+  return !( mEnd < other.start() || other.mEnd < mStart );
+}
+
 bool ReosTimeWindow::isValid() const
 {
   return mStart.isValid() && mEnd.isValid();
+}
+
+bool ReosTimeWindow::isIncluded( const QDateTime &time ) const
+{
+  return isValid() && time >= mStart && time <= mEnd;
 }
 
 bool ReosTimeWindow::operator==( const ReosTimeWindow &other )

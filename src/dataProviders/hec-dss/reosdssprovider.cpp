@@ -677,6 +677,64 @@ void ReosDssProviderGriddedRainfall::calculateMinMax( double &min, double &max )
   mHasMinMaxCalculated = true;
 }
 
+bool ReosDssProviderGriddedRainfall::hasData( const QString &uri, const ReosTimeWindow &timeWindow ) const
+{
+  const QString filePath = ReosDssProviderBase::fileNameFromUri( uri );
+  const ReosDssPath path = ReosDssProviderBase::dssPathFromUri( uri );
+
+  ReosDssFile file( filePath );
+  if ( !file.isValid() )
+    return false;
+
+  const QList<ReosDssPath> recordPathes = file.searchRecordsPath( path, false );
+
+  if ( recordPathes.isEmpty() )
+    return false;
+
+  if ( !timeWindow.isValid() )
+    return true;
+
+  QList<ReosTimeWindow> timeWindows;
+
+  for ( const ReosDssPath &recordPath : recordPathes )
+  {
+    ReosTimeWindow tw;
+    tw.setStart( dssStrToDateTime( recordPath.startDate() ) );
+    tw.setStart( dssStrToDateTime( recordPath.startDate() ) );
+    tw.setEnd( dssStrToDateTime( recordPath.timeInterval() ) );
+    timeWindows.append( tw );
+  }
+
+  if ( timeWindows.isEmpty() )
+    return false;
+
+  std::sort( timeWindows.begin(), timeWindows.end(), []( const ReosTimeWindow & tw1, const ReosTimeWindow & tw2 )
+  {
+    return tw1.start() < tw2.start();
+  } );
+
+  int i = 1;
+  while ( i < timeWindows.count() )
+  {
+    if ( timeWindows.at( i - 1 ).end() == timeWindows.at( i ).start() )
+    {
+      ReosTimeWindow &tw1 = timeWindows[i - 1 ];
+      tw1.setEnd( timeWindows.at( i ).end() );
+      timeWindows.removeAt( i );
+    }
+    else
+    {
+      ++i;
+    }
+  }
+
+  for ( const ReosTimeWindow &tw : std::as_const( timeWindows ) )
+    if ( tw.intersect( timeWindow ) )
+      return true;
+
+  return false;
+}
+
 QDateTime ReosDssProviderGriddedRainfall::dssStrToDateTime( const QString &str )
 {
   const QStringList parts = str.split( ':' );

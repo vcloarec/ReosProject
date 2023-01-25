@@ -144,15 +144,15 @@ class ReosDssProviderGriddedRainfall : public ReosGriddedRainfallProvider, publi
     ReosRasterExtent extent() const override;
     ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
     void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) override;
+    bool getDirectMinMax( double &min, double &max ) const override;
+    void calculateMinMax( double &min, double &max ) const override;
+    bool hasData( const QString &uri, const ReosTimeWindow &timeWindow = ReosTimeWindow() ) const override;
 
     static QString dataType();
 
     QList<ReosDssPath> griddedRainfallPathes( const QString &filePath, ReosModule::Message &message ) const;
 
     static QString staticKey();
-
-    virtual bool getDirectMinMax( double &min, double &max ) const override;
-    virtual void calculateMinMax( double &min, double &max ) const override;
 
   private:
     bool mIsValid = false;
