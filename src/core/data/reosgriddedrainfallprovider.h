@@ -20,6 +20,7 @@
 #include "reosdataprovider.h"
 #include "reosmemoryraster.h"
 #include "reoscore.h"
+#include "reosduration.h"
 
 class ReosDuration;
 
@@ -84,9 +85,11 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
 
     virtual int dataIndex( const QDateTime &time ) const;
 
-    virtual bool getDirectMinMax( double &min, double &max ) const {return false;}
+    virtual bool getDirectMinMax( double &, double & ) const {return false;}
 
-    virtual void calculateMinMax( double &min, double &max ) const {};
+    virtual void calculateMinMax( double &, double & ) const {};
+
+    virtual bool hasData( const QString &uri, const ReosTimeWindow &timeWindow = ReosTimeWindow() ) const;
 
   protected:
     ValueType mSourceValueType = ValueType::Height;

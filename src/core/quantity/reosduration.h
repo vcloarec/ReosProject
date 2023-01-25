@@ -41,7 +41,12 @@ class REOSCORE_EXPORT ReosTimeWindow
 
     ReosTimeWindow intersection( const ReosTimeWindow &other ) const;
 
+    //! Return whether this time window intersect with \a other
+    bool intersect( const ReosTimeWindow &other ) const;
+
     bool isValid() const;
+
+    bool isIncluded( const QDateTime &time ) const;
 
     bool operator==( const ReosTimeWindow &other );
 

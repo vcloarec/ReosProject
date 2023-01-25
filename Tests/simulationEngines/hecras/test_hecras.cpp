@@ -475,6 +475,24 @@ void ReosHecrasTesting::createAndWriteGridFromScratch()
   QCOMPARE( min, 0 );
   QCOMPARE( max, 20 );
 
+  QVERIFY( dssProvider->hasData( uri ) );
+
+  QVERIFY( dssProvider->hasData( uri, ReosTimeWindow(
+                                   QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 00, 0 ), Qt::UTC ),
+                                   QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 32, 0 ), Qt::UTC ) ) ) );
+
+  QVERIFY( dssProvider->hasData( uri, ReosTimeWindow(
+                                   QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 32, 0 ), Qt::UTC ),
+                                   QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 42, 0 ), Qt::UTC ) ) ) );
+
+  QVERIFY( !dssProvider->hasData( uri, ReosTimeWindow(
+                                    QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 00, 0 ), Qt::UTC ),
+                                    QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 28, 0 ), Qt::UTC ) ) ) );
+
+  QVERIFY( !dssProvider->hasData( uri, ReosTimeWindow(
+                                    QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 50, 0 ), Qt::UTC ),
+                                    QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 51, 0 ), Qt::UTC ) ) ) );
+
 }
 
 void ReosHecrasTesting::hecRasDate()

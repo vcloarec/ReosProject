@@ -54,6 +54,7 @@ int ReosGriddedRainfallProvider::dataIndex( const QDateTime &time ) const
   return  -1;
 }
 
+bool ReosGriddedRainfallProvider::hasData( const QString &, const ReosTimeWindow & ) const {return false;}
 
 ReosGriddedRainfallProvider *ReosGriddedRainfallMemoryProvider::clone() const
 {
