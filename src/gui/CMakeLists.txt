@@ -30,6 +30,7 @@ SET(REOS_GUI_SOURCES
     GIS/reostemporalcontrollerwidget.cpp
     GIS/reosmaplegenditem.cpp
     GIS/reosshowextentbutton.cpp
+    GIS/reoscoordinatesystemwidget.cpp
     GIS/3D/reos3dview.cpp
     GIS/3D/reoslightwidget.cpp
     GIS/3D/reosverticalexaggerationwidget.cpp
@@ -143,6 +144,7 @@ SET(REOS_GUI_HEADERS
     GIS/reostemporalcontrollerwidget.h
     GIS/reosmaplegenditem.h
     GIS/reosshowextentbutton.h
+    GIS/reoscoordinatesystemwidget.h
     GIS/3D/reos3dview.h
     GIS/3D/reoslightwidget.h
     GIS/3D/reosverticalexaggerationwidget.h
