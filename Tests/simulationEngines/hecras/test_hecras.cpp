@@ -765,6 +765,18 @@ void ReosHecrasTesting::importAndLaunchStructure()
 
   QVERIFY( upstreamBc->outputHydrograph()->valueCount() == 7 );
 
+  // Setup a gridded precipitation
+  QString rainUri =  QStringLiteral( "\"" ) + QString( data_path() ) + "/hecras/dss/gridded_jarry.dss" +
+                     QStringLiteral( "\"::/HOME_MADE/JARRY/PRECIP///VCL/" );
+  std::unique_ptr<ReosGriddedRainItem> griddedItem(
+    new ReosGriddedRainItem( "gridded precipitaton", "", new ReosGriddedRainfall( rainUri, "dss" ) ) );
+  scheme->meteoModel()->associate( structure, griddedItem.get() );
+  ReosGriddedRainfall *rain = scheme->meteoModel()->associatedRainfall( structure );
+  QVERIFY( rain );
+  QCOMPARE( rain->gridCount(), 3 );
+  QCOMPARE( rain->startTime( 0 ), QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rain->endTime( 0 ), QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 40, 0 ), Qt::UTC ) );
+
   // setup time interval simulation
   hecSim->setComputeInterval( ReosDuration( 10, ReosDuration::second ) );
   hecSim->setOutputInterval( ReosDuration( 1, ReosDuration::minute ) );
@@ -791,7 +803,6 @@ void ReosHecrasTesting::importAndLaunchStructure()
   QVERIFY( flowAfterPreparation.boundary( 0 ).isDss );
   QCOMPARE( flowAfterPreparation.boundary( 0 ).dssFile, mPathToSimpleToRun + QStringLiteral( "/input_p01.dss" ) );
   QCOMPARE( flowAfterPreparation.boundary( 0 ).dssPath, QStringLiteral( "/Perimeter 1/Upstream limit/Flow//1Minute/INST-VAL/" ) );
-
 
   QStringList versions = ReosHecRasController::availableVersion();
   if ( !versions.isEmpty() )
