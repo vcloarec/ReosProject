@@ -290,12 +290,28 @@ static char *allocCopyString( const QString &string )
 //  return utm;
 //}
 
+bool ReosDssFile::writeGriddedData( ReosGriddedRainfall *griddedrainFall, const ReosDssPath &path )
+{
+  return writeGriddedDataPrivate( griddedrainFall, path, griddedrainFall->extent(), -1, ReosTimeWindow(), true );
+}
+
 bool ReosDssFile::writeGriddedData(
   ReosGriddedRainfall *griddedRainFall,
   const ReosDssPath &path,
   const ReosMapExtent &destination,
   double resolution,
   const ReosTimeWindow &timeWindow )
+{
+  return writeGriddedDataPrivate( griddedRainFall, path, destination, resolution, timeWindow, false );
+}
+
+bool ReosDssFile::writeGriddedDataPrivate(
+  ReosGriddedRainfall *griddedRainFall,
+  const ReosDssPath &path,
+  const ReosMapExtent &destination,
+  double resolution,
+  const ReosTimeWindow &timeWindow,
+  bool reduce )
 {
   bool res = true;
   const ReosRasterExtent extent = griddedRainFall->rasterExtent();
@@ -309,10 +325,25 @@ bool ReosDssFile::writeGriddedData(
     destResolution = std::min( dx, dy );
   }
 
-  int xCellBottomLeft = static_cast<int>( std::ceil( destination.xMapMin() / destResolution ) );
-  int ycellBottomLeft = static_cast<int>( std::ceil( destination.yMapMin() / destResolution ) );
-  int xCellTopRight = std::max( 0, static_cast<int>( std::floor( destination.xMapMax() / destResolution ) - 1 ) );
-  int yCellTopRight = std::max( 0, static_cast<int>( std::floor( destination.yMapMax() / destResolution ) - 1 ) );
+  int xCellBottomLeft;
+  int ycellBottomLeft;
+  int xCellTopRight;
+  int yCellTopRight;
+
+  if ( reduce )
+  {
+    xCellBottomLeft = static_cast<int>( std::ceil( destination.xMapMin() / destResolution ) );
+    ycellBottomLeft = static_cast<int>( std::ceil( destination.yMapMin() / destResolution ) );
+    xCellTopRight = static_cast<int>( std::floor( destination.xMapMax() / destResolution ) ) ;
+    yCellTopRight = static_cast<int>( std::floor( destination.yMapMax() / destResolution ) ) ;
+  }
+  else
+  {
+    xCellBottomLeft = static_cast<int>( std::floor( destination.xMapMin() / destResolution ) );
+    ycellBottomLeft = static_cast<int>( std::floor( destination.yMapMin() / destResolution ) );
+    xCellTopRight =  static_cast<int>( std::ceil( destination.xMapMax() / destResolution ) ) ;
+    yCellTopRight = static_cast<int>( std::ceil( destination.yMapMax() / destResolution ) ) ;
+  }
 
   double xMinDestin = xCellBottomLeft * destResolution;
   double yMinDestin = ycellBottomLeft * destResolution;
@@ -333,7 +364,7 @@ bool ReosDssFile::writeGriddedData(
     const QDateTime startDateTime = transformedGriddedRainfall->startTime( i );
     const QDateTime endDateTime = transformedGriddedRainfall->endTime( i );
 
-    if ( timeWindow.isValid() && !timeWindow.isIncluded( startDateTime ) && timeWindow.isIncluded( endDateTime ) )
+    if ( timeWindow.isValid() && !( timeWindow.isIncluded( startDateTime ) || timeWindow.isIncluded( endDateTime ) ) )
       continue;
 
     effPath.setParameter( QStringLiteral( "PRECIP" ) );
@@ -350,7 +381,7 @@ bool ReosDssFile::writeGriddedData(
     grid->_dataSource = allocCopyString( source );
 
     grid->_compressionMethod = ZLIB_COMPRESSION;
-    grid->_cellSize = std::fabs( transformedExtent.xCellSize() );
+    grid->_cellSize = static_cast<float>( std::fabs( transformedExtent.xCellSize() ) );
     grid->_isInterval = 1;
     grid->_isTimeStamped = 1;
 

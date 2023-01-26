@@ -11,6 +11,7 @@
 #include "reosduration.h"
 #include "reosmodule.h"
 #include "reospolylinesstructure.h"
+#include "reosdssfile.h"
 
 class QTextStream;
 class ReosHecRasSimulation;
@@ -204,6 +205,20 @@ class ReosHecRasFlow
      */
     bool applyBoudaryFlow( const QList<BoundaryFlow> &flows );
 
+    void activeGriddedPrecipitation( const QString &dssFilePath, const ReosDssPath &dssPath )
+    {
+      mGriddedPrecipitationActivated = true;
+      mGriddedPrecipitationFile = dssFilePath;
+      mGriddedPrecipitationPath = dssPath;
+    }
+
+    void deactivateGriddedPrecipitation()
+    {
+      mGriddedPrecipitationActivated = false;
+      mGriddedPrecipitationFile.clear();
+      mGriddedPrecipitationPath = ReosDssPath();
+    }
+
   private:
     QString mFileName;
     QString mTitle;
@@ -214,6 +229,10 @@ class ReosHecRasFlow
     bool parseLocation( const QString &locationLine, QString &area, QString &boundaryLine ) const;
 
     QList<BoundaryFlow> mBoundaries;
+
+    bool mGriddedPrecipitationActivated = false;
+    QString mGriddedPrecipitationFile;
+    ReosDssPath mGriddedPrecipitationPath;
 
 };
 

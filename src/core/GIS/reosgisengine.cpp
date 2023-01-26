@@ -573,6 +573,9 @@ ReosCoordinateSystemTransformer ReosGisEngine::getCoordinateTransformer() const
 
 ReosMapExtent ReosGisEngine::transformExtent( const ReosMapExtent &extent, const QString &crs )
 {
+  if ( extent.crs() == crs )
+    return extent;
+
   QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( extent.crs() ),
                                     QgsCoordinateReferenceSystem::fromWkt( crs ),
                                     QgsProject::instance()->transformContext() );
