@@ -165,7 +165,7 @@ class REOSCORE_EXPORT ReosHydraulicNetworkContext
     ReosHydraulicNetworkContext() {}
 
     ReosHydraulicNetwork *mNetwork = nullptr;
-    ReosWatershedModule *mWatershedModule;
+    ReosWatershedModule *mWatershedModule = nullptr;
     QString mProjectPath;
     QString mProjectName;
 

@@ -56,6 +56,9 @@ int ReosGriddedRainfallProvider::dataIndex( const QDateTime &time ) const
 
 bool ReosGriddedRainfallProvider::hasData( const QString &, const ReosTimeWindow & ) const {return false;}
 
+bool ReosGriddedRainfallProvider::write( ReosGriddedRainfall *, const QString &, const ReosRasterExtent &, const ReosTimeWindow & ) const {return false;}
+
+
 ReosGriddedRainfallProvider *ReosGriddedRainfallMemoryProvider::clone() const
 {
   std::unique_ptr<ReosGriddedRainfallMemoryProvider> other = std::make_unique<ReosGriddedRainfallMemoryProvider>();

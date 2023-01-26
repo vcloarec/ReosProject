@@ -148,6 +148,9 @@ class ReosDssProviderGriddedRainfall : public ReosGriddedRainfallProvider, publi
     bool getDirectMinMax( double &min, double &max ) const override;
     void calculateMinMax( double &min, double &max ) const override;
     bool hasData( const QString &uri, const ReosTimeWindow &timeWindow = ReosTimeWindow() ) const override;
+    bool write( ReosGriddedRainfall *rainfall, const QString &uri,
+                const ReosRasterExtent &destination,
+                const ReosTimeWindow &timeWindow ) const override;
 
     bool canWrite() const override;
 

@@ -294,7 +294,8 @@ bool ReosDssFile::writeGriddedData(
   ReosGriddedRainfall *griddedRainFall,
   const ReosDssPath &path,
   const ReosMapExtent &destination,
-  double resolution )
+  double resolution,
+  const ReosTimeWindow &timeWindow )
 {
   bool res = true;
   const ReosRasterExtent extent = griddedRainFall->rasterExtent();
@@ -331,6 +332,10 @@ bool ReosDssFile::writeGriddedData(
     ReosDssPath effPath = path;
     const QDateTime startDateTime = transformedGriddedRainfall->startTime( i );
     const QDateTime endDateTime = transformedGriddedRainfall->endTime( i );
+
+    if ( timeWindow.isValid() && !timeWindow.isIncluded( startDateTime ) && timeWindow.isIncluded( endDateTime ) )
+      continue;
+
     effPath.setParameter( QStringLiteral( "PRECIP" ) );
     effPath.setStartDate( ReosDssUtils::dateToHecRasDate( startDateTime.date() ) + ':' + startDateTime.time().toString( "HHmm" ) );
     effPath.setTimeInterval( ReosDssUtils::dateToHecRasDate( endDateTime.date() ) + ':' + endDateTime.time().toString( "HHmm" ) );

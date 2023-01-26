@@ -23,6 +23,8 @@
 #include "reosduration.h"
 
 class ReosDuration;
+class ReosGriddedRainfall;
+
 
 class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
 {
@@ -90,6 +92,12 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
     virtual void calculateMinMax( double &, double & ) const {};
 
     virtual bool hasData( const QString &uri, const ReosTimeWindow &timeWindow = ReosTimeWindow() ) const;
+
+    virtual bool write(
+      ReosGriddedRainfall *rainfall,
+      const QString &uri,
+      const ReosRasterExtent &destination,
+      const ReosTimeWindow &timeWindow ) const;
 
   protected:
     ValueType mSourceValueType = ValueType::Height;

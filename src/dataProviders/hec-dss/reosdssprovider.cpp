@@ -758,6 +758,18 @@ bool ReosDssProviderGriddedRainfall::hasData( const QString &uri, const ReosTime
   return false;
 }
 
+bool ReosDssProviderGriddedRainfall::write( ReosGriddedRainfall *rainfall, const QString &uri, const ReosRasterExtent &destination, const ReosTimeWindow &timeWindow ) const
+{
+  QString fileName = ReosDssProviderBase::fileNameFromUri( uri );
+  ReosDssPath path = ReosDssProviderBase::dssPathFromUri( uri );
+  ReosDssFile file( fileName, true );
+  if ( !file.isValid() )
+    return false;
+
+  double resolution = std::min( destination.yCellSize(), destination.xCellSize() );
+  return file.writeGriddedData( rainfall, path, destination, resolution );
+}
+
 
 bool ReosDssProviderGriddedRainfall::canWrite() const
 {

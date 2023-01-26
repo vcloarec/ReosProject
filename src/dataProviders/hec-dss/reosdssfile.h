@@ -125,7 +125,9 @@ class REOSDSS_EXPORT ReosDssFile
     bool writeGriddedData( ReosGriddedRainfall *griddedrainFall,
                            const ReosDssPath &path,
                            const ReosMapExtent &destination,
-                           double resolution = -1 );
+                           double resolution = -1,
+                           const ReosTimeWindow &timeWindow = ReosTimeWindow() );
+
 
     QList<ReosDssPath> searchRecordsPath( const ReosDssPath &path, bool considerInterval ) const;
 
