@@ -131,6 +131,7 @@ class ReosDssProviderGriddedRainfall : public ReosGriddedRainfallProvider, publi
   public:
     QString key() const override;
     QStringList fileSuffixes() const override;
+    SupportedGridOrigins supportedOrigin() const override {return ZeroBottomLeft;}
     bool createNewSerie( const ReosDssPath &, ReosDssFile &, QString & ) const override {return false;}
     void setDataSource( const QString &dataSource ) override;
     bool canReadUri( const QString &uri ) const override;

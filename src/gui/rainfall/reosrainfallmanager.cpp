@@ -50,6 +50,7 @@
 #include "reosstyleregistery.h"
 #include "reosgriddedrainitem.h"
 #include "reosgriddedrainfallselectorwidget.h"
+#include "reossavegriddedrainfallasdialog.h"
 
 
 class ReosStationMapMarker: public ReosMapMarkerSvg
@@ -89,7 +90,8 @@ ReosRainfallManager::ReosRainfallManager( ReosMap *map, ReosRainfallModel *rainf
   , mActionRemoveItem( new QAction( QIcon( QStringLiteral( ":/images/remove.svg" ) ), tr( "Remove item" ), this ) )
   , mActionImportFromTextFile( new QAction( QIcon( QStringLiteral( ":/images/importRainfall.svg" ) ), tr( "Import Rainfall from Text File" ), this ) )
   , mActionSelectStationFromMap( new QAction( QIcon( QStringLiteral( ":/images/selectStationOnMap.svg" ) ), tr( "Select Station from Map" ), this ) )
-  , mActionAddGriddedRainfall( new QAction( QIcon( QStringLiteral( ":/images/addGriddedRainfall.svg" ) ), tr( "Add gridded precipitation" ), this ) )
+  , mActionAddGriddedRainfall( new QAction( QIcon( QStringLiteral( ":/images/addGriddedRainfall.svg" ) ), tr( "Add Gridded Precipitation" ), this ) )
+  , mActionExportGriddedRainFall( new QAction( QIcon( QStringLiteral( ":/images/exportGriddedRainfall.svg" ) ), tr( "Export Gridded Precipitation" ), this ) )
 {
   ui->setupUi( this );
   setWindowFlag( Qt::Dialog );
@@ -187,6 +189,8 @@ ReosRainfallManager::ReosRainfallManager( ReosMap *map, ReosRainfallModel *rainf
     addDataFromProvider( true );
   } );
 
+  connect( mActionExportGriddedRainFall, &QAction::triggered, this, &ReosRainfallManager::onExportGriddedRainfall );
+
   ReosIdfFormulaRegistery::instance()->registerFormula( new ReosIdfFormulaMontana );
   ReosIdfFormulaRegistery::instance()->registerFormula( new ReosIdfFormulaSherman );
 
@@ -283,6 +287,10 @@ QList<QAction *> ReosRainfallManager::dataItemActions( ReosRainfallDataItem *dat
   {
     actions.append( mActionAddIDCurve );
     actions.append( mActionReorderIdVurve );
+  }
+  else if ( dataItem->dataType() == ReosGriddedRainfall::staticType() )
+  {
+    actions.append( mActionExportGriddedRainFall );
   }
 
   return actions;
@@ -1181,6 +1189,31 @@ void ReosRainfallManager::onImportFromTextFile()
   ReosImportRainfallDialog *dialog = new ReosImportRainfallDialog( mModel, this );
 
   dialog->exec();
+
+  dialog->deleteLater();
+}
+
+void ReosRainfallManager::onExportGriddedRainfall()
+{
+  QModelIndex index = ui->mTreeView->currentIndex();
+  ReosRainfallItem *item = mModel->indexToItem( index );
+  if ( !item )
+    return;
+
+  ReosGriddedRainfall *rainfall = qobject_cast<ReosGriddedRainfall *>( item->data() );
+  if ( !rainfall )
+    return;
+
+  ReosGuiContext context( this );
+  ReosDataVizMapWidget *mapViz = qobject_cast<ReosDataVizMapWidget *>( mCurrentPlot );
+  if ( mapViz )
+    context.setMap( mapViz->map() );
+
+  ReosSaveGriddedRainfallAsDialog *dialog = new ReosSaveGriddedRainfallAsDialog( rainfall, context );
+  dialog->setModal( false );
+
+  if ( dialog->exec() )
+    dialog->saveAs( rainfall );
 
   dialog->deleteLater();
 }

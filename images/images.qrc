@@ -173,6 +173,7 @@
         <file>hydrographRouting.svg</file>
         <file>watershedNode.svg</file>
         <file>boundaryNode.svg</file>
+        <file>exportGriddedRainfall.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

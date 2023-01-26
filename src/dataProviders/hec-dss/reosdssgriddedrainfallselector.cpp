@@ -17,7 +17,7 @@
 #include "ui_reosdssgriddedrainfallselector.h"
 
 #include "reosdssprovider.h"
-
+#include "reosdssprovideruriwidget.h"
 
 REOSEXTERN ReosDataProviderGuiFactory *providerGuiFactory()
 {
@@ -101,6 +101,11 @@ ReosDssGriddedRainfallSelector *ReosDssGuiFactory::createProviderSelectorWidget(
 ReosDataProviderSettingsWidget *ReosDssGuiFactory::createProviderSettingsWidget( ReosDataProvider *provider, QWidget *parent ) const
 {
   return nullptr;
+}
+
+ReosDataProviderUriWidget *ReosDssGuiFactory::createUriWidget( QWidget *parent ) const
+{
+  return new ReosDssProviderUriWidget( parent );
 }
 
 QString ReosDssGuiFactory::dataType() const

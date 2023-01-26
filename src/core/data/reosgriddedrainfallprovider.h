@@ -49,6 +49,7 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
     Q_DECLARE_FLAGS( SupportedGridOrigins, SupportedGridOrigin )
     Q_FLAG( SupportedGridOrigins )
 
+    virtual SupportedGridOrigins supportedOrigin() const {return TopLeft;}
 
     struct FileDetails
     {

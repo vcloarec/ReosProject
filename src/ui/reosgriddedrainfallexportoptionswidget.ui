@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ReosGriddedRainfallExportOptionsWidget</class>
+ <widget class="QWidget" name="ReosGriddedRainfallExportOptionsWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>425</width>
+    <height>379</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="1,0,0">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Spatial Extent</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout" rowstretch="0,1,1,1,0,0" rowminimumheight="0,0,0,0,0,0">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item row="2" column="1">
+       <widget class="ReosParameterDoubleWidget" name="mWest" native="true"/>
+      </item>
+      <item row="1" column="2">
+       <widget class="ReosParameterDoubleWidget" name="mNorth" native="true"/>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>South</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>North</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>East</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>West</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="ReosParameterDoubleWidget" name="mSouth" native="true"/>
+      </item>
+      <item row="2" column="3">
+       <widget class="ReosParameterDoubleWidget" name="mEast" native="true"/>
+      </item>
+      <item row="0" column="0" colspan="4">
+       <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,1">
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>Coordinate system</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="ReosCoordinateSystemWidget" name="mCrsWidget" native="true"/>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="0">
+       <widget class="QRadioButton" name="mRadioButtonTopLeft">
+        <property name="toolTip">
+         <string>Top left origin</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QRadioButton" name="mRadioButtonTopRight">
+        <property name="toolTip">
+         <string>Top right origin</string>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::RightToLeft</enum>
+        </property>
+        <property name="text">
+         <string notr="true"/>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QRadioButton" name="mRadioButtonBottomLeft">
+        <property name="toolTip">
+         <string>Bottom left origin</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="3">
+       <widget class="QRadioButton" name="mRadioButtonBottomRight">
+        <property name="toolTip">
+         <string>Bottom right origin</string>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::RightToLeft</enum>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0" colspan="4">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <property name="spacing">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QToolButton" name="mRainFallExtent">
+          <property name="text">
+           <string>Back to Rainfall Extent</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="mUse00Origin">
+          <property name="toolTip">
+           <string>If checked, the grid is aligned as origin of pixel coordinate is at (0,0) (DSS for HEC-RAS)</string>
+          </property>
+          <property name="text">
+           <string>Use (0,0) origin</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="mAdjustExtent">
+          <property name="toolTip">
+           <string>Adjust the extent considering the resolution</string>
+          </property>
+          <property name="text">
+           <string>...</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../../images/images.qrc">
+            <normaloff>:/images/calculation.svg</normaloff>:/images/calculation.svg</iconset>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="title">
+      <string>Resolution</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Horizontal</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="ReosParameterDoubleWidget" name="mResolutionHori" native="true"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string>Vertical</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="ReosParameterDoubleWidget" name="mResolutionVerti" native="true"/>
+      </item>
+      <item>
+       <widget class="QToolButton" name="mAdjustResolution">
+        <property name="toolTip">
+         <string>Adjust the resolution considering the extent</string>
+        </property>
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../images/images.qrc">
+          <normaloff>:/images/calculation.svg</normaloff>:/images/calculation.svg</iconset>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>Temporal Extent</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1,0,1">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>From</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="mFromTimeCombo"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>To</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="mToTimeCombo"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ReosParameterDoubleWidget</class>
+   <extends>QWidget</extends>
+   <header>reosparameterwidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ReosCoordinateSystemWidget</class>
+   <extends>QWidget</extends>
+   <header>reoscoordinatesystemwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../../images/images.qrc"/>
+ </resources>
+ <connections/>
+</ui>
