@@ -14,6 +14,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "reostimeserieprovider.h"
+#include "reostimeserie.h"
 
 ReosTimeSerieProvider::~ReosTimeSerieProvider() {}
 
@@ -195,6 +196,11 @@ void ReosTimeSerieConstantTimeStepMemoryProvider::copy( ReosTimeSerieConstantTim
 void ReosTimeSerieConstantTimeStepMemoryProvider::setValues( const QVector<double> &vals )
 {
   mValues = vals;
+}
+
+QString ReosTimeSerieConstantTimeStepMemoryProvider::staticType()
+{
+  return ReosTimeSerieConstantInterval::staticType();
 }
 
 ReosTimeSerieVariableTimeStepProvider::~ReosTimeSerieVariableTimeStepProvider()
@@ -434,4 +440,17 @@ void ReosTimeSerieVariableTimeStepMemoryProvider::decode( const ReosEncodedEleme
   mTimeValues.reserve( encodedTimeValues.size() );
   for ( const ReosEncodedElement &elem : std::as_const( encodedTimeValues ) )
     mTimeValues.append( ReosDuration::decode( elem ) );
+}
+
+QString ReosTimeSerieVariableTimeStepMemoryProvider::staticType()
+{
+  return ReosTimeSerieVariableTimeStep::staticType();
+}
+
+ReosDataProvider *ReosTimeSerieConstantTimeStepMemoryProviderFactory::createProvider( const QString &dataType ) const
+{
+  if ( dataType.contains( ReosTimeSerieConstantTimeStepMemoryProvider::staticType() ) )
+    return new ReosTimeSerieConstantTimeStepMemoryProvider;
+
+  return nullptr;
 }

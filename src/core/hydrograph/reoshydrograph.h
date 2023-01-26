@@ -42,6 +42,8 @@ class REOSCORE_EXPORT ReosHydrograph : public ReosTimeSerieVariableTimeStep
     bool hydrographIsObsolete() const ;
     void setHydrographObsolete();
 
+    QString formatKey( const QString &rawKey ) const override;
+
   protected:
     ReosHydrograph( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr );
 

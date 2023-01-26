@@ -57,7 +57,7 @@ class ReosDelftFewsXMLRainfallProvider: public ReosTimeSerieConstantTimeStepProv
   public:
 
     QString key() const override;
-
+    QStringList fileSuffixes() const override;
     QString htmlDescription() const override;
     void load() override;
     // ReosTimeSerieProvider interface
@@ -90,6 +90,7 @@ class ReosDelftFewsXMLHydrographProvider: public ReosTimeSerieVariableTimeStepPr
   public:
 
     QString key() const override;
+    QStringList fileSuffixes() const override;
     QString htmlDescription() const override;
     void load() override;
     QDateTime referenceTime() const override;

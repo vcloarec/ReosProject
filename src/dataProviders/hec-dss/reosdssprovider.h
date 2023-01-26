@@ -51,9 +51,9 @@ class ReosDssProviderTimeSerieConstantTimeStep : public ReosTimeSerieConstantTim
     QString key() const override;
 
     void load() override;
-
+    QStringList fileSuffixes() const override;
     QDateTime referenceTime() const override;
-    QString valueUnit() const {return QString();}
+    QString valueUnit() const override {return QString();}
     int valueCount() const override;
     double value( int i ) const override;
     double firstValue() const override ;
@@ -95,7 +95,7 @@ class ReosDssProviderTimeSerieVariableTimeStep : public ReosTimeSerieVariableTim
 
     // ReosDataProvider interface
     QString key() const override;
-
+    QStringList fileSuffixes() const override;
     // ReosTimeSerieProvider interface
     void load() override;
     QDateTime referenceTime() const override;
@@ -130,6 +130,7 @@ class ReosDssProviderGriddedRainfall : public ReosGriddedRainfallProvider, publi
 {
   public:
     QString key() const override;
+    QStringList fileSuffixes() const override;
     bool createNewSerie( const ReosDssPath &, ReosDssFile &, QString & ) const override {return false;}
     void setDataSource( const QString &dataSource ) override;
     bool canReadUri( const QString &uri ) const override;
@@ -147,6 +148,8 @@ class ReosDssProviderGriddedRainfall : public ReosGriddedRainfallProvider, publi
     bool getDirectMinMax( double &min, double &max ) const override;
     void calculateMinMax( double &min, double &max ) const override;
     bool hasData( const QString &uri, const ReosTimeWindow &timeWindow = ReosTimeWindow() ) const override;
+
+    bool canWrite() const override;
 
     static QString dataType();
 

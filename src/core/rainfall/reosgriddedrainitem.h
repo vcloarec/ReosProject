@@ -130,6 +130,8 @@ class REOSCORE_EXPORT ReosGriddedRainItem : public ReosRainfallDataItem
 
     ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
 
+    bool isValid() const;
+
   private:
     ReosGriddedRainfall *mGriddedRainfall = nullptr;
 

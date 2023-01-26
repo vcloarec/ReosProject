@@ -17,10 +17,16 @@
 
 #include "reoshubeauserver.h"
 #include "reoscore.h"
+#include "reoshydrograph.h"
 
 #include <QLocale>
 
 QString ReosHubEauHydrographProvider::key() const {return ReosHubEauHydrographProvider::staticKey();}
+
+QStringList ReosHubEauHydrographProvider::fileSuffixes() const
+{
+    return QStringList();
+}
 
 QDateTime ReosHubEauHydrographProvider::referenceTime() const {return mReferenceTime;}
 
@@ -254,7 +260,23 @@ QString ReosHubEauHydrographProvider::staticKey()
   return QStringLiteral( "hub-eau-hydrometry" );
 }
 
-QString ReosHubEauHydrographProviderFactory::key() const {return ReosHubEauHydrographProvider::staticKey();}
+QString ReosHubEauHydrographProvider::dataType()
+{
+  return ReosHydrograph::staticType();
+}
+
+ReosTimeSerieProvider *ReosHubEauHydrographProviderFactory::createProvider( const QString &dataType ) const
+{
+  if ( ReosHubEauHydrographProvider::dataType() == dataType )
+    return new ReosHubEauHydrographProvider;
+
+  return nullptr;
+}
+
+QString ReosHubEauHydrographProviderFactory::key() const
+{
+  return ReosHubEauHydrographProvider::staticKey();
+}
 
 
 REOSEXTERN ReosDataProviderFactory *providerFactory()

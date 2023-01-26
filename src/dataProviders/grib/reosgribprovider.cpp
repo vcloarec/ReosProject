@@ -39,6 +39,15 @@ ReosGriddedRainfallProvider *ReosGribGriddedRainfallProvider::clone() const
   return other.release();
 }
 
+QStringList ReosGribGriddedRainfallProvider::fileSuffixes() const
+{
+  QStringList ret;
+  ret << QStringLiteral( "grib2" )
+      << QStringLiteral( "grb2" );
+
+  return ret;
+}
+
 void ReosGribGriddedRainfallProvider::setDataSource( const QString &dataSource )
 {
   ReosGriddedRainfallProvider::setDataSource( dataSource );
@@ -569,9 +578,12 @@ void ReosGribGriddedRainfallProvider::giveName( FileDetails &details )
   details.deducedName = name;
 }
 
-ReosGriddedRainfallProvider *ReosGribProviderFactory::createProvider( const QString & ) const
+ReosGriddedRainfallProvider *ReosGribProviderFactory::createProvider( const QString &dataType ) const
 {
-  return new ReosGribGriddedRainfallProvider;
+  if ( dataType == ReosGribGriddedRainfallProvider::dataType() )
+    return new ReosGribGriddedRainfallProvider;
+
+  return nullptr;
 }
 
 QString ReosGribProviderFactory::key() const

@@ -150,9 +150,12 @@ void ReosGriddedRainfallMemoryProvider::copyFrom( ReosGriddedRainfallProvider *o
   }
 }
 
-ReosGriddedRainfallProvider *ReosGriddedRainfallMemoryProviderFactory::createProvider( const QString & ) const
+ReosGriddedRainfallProvider *ReosGriddedRainfallMemoryProviderFactory::createProvider( const QString &dataType ) const
 {
-  return new ReosGriddedRainfallMemoryProvider;
+  if ( dataType == ReosGriddedRainfallMemoryProvider::dataType() )
+    return new ReosGriddedRainfallMemoryProvider;
+
+  return nullptr;
 }
 
 QString ReosGriddedRainfallMemoryProviderFactory::key() const

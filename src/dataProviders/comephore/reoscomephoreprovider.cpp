@@ -59,6 +59,15 @@ void ReosComephoreProvider::setDataSource( const QString &dataSource )
   }
 }
 
+QStringList ReosComephoreProvider::fileSuffixes() const
+{
+  QStringList ret;
+  ret << QStringLiteral( "tif" )
+      << QStringLiteral( "tiff" );
+
+  return ret;
+}
+
 bool ReosComephoreProvider::isValid() const
 {
   return mIsValid;
@@ -310,7 +319,10 @@ ReosComephoreTiffFilesReader::~ReosComephoreTiffFilesReader() = default;
 
 ReosGriddedRainfallProvider *ReosComephoresProviderFactory::createProvider( const QString &dataType ) const
 {
-  return new ReosComephoreProvider;
+  if ( ReosComephoreProvider::dataType() == dataType )
+    return new ReosComephoreProvider;
+
+  return nullptr;
 }
 
 QString ReosComephoresProviderFactory::key() const

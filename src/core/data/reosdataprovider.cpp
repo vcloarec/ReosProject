@@ -59,6 +59,15 @@ ReosDataProvider *ReosDataProviderRegistery::createProvider( const QString &key 
     return nullptr;
 }
 
+ReosDataProvider *ReosDataProviderRegistery::createProvider( const QString &key, const QString &dataType )
+{
+  auto it = mFactories.find( key );
+  if ( it != mFactories.end() )
+    return it->second->createProvider( dataType );
+  else
+    return nullptr;
+}
+
 ReosDataProvider *ReosDataProviderRegistery::createCompatibleProvider( const QString &uri, const QString &dataType ) const
 {
   for ( ReosDataProviderFactory *fact : mListedFactories )
@@ -71,6 +80,19 @@ ReosDataProvider *ReosDataProviderRegistery::createCompatibleProvider( const QSt
   }
 
   return nullptr;
+}
+
+QStringList ReosDataProviderRegistery::ableToWrite( const QString &dataType ) const
+{
+  QStringList ret;
+  for ( auto it = mFactories.cbegin(); it != mFactories.cend(); ++it )
+  {
+    std::unique_ptr<ReosDataProvider> provider( it->second->createProvider( dataType ) );
+    if ( provider && provider->canWrite() )
+      ret.append( it->first );
+  }
+
+  return ret;
 }
 
 void ReosDataProviderRegistery::loadDynamicProvider()
@@ -150,3 +172,5 @@ ReosDataProviderFactory *ReosDataProviderRegistery::extractFactory( const QStrin
   else
     return nullptr;
 }
+
+bool ReosDataProvider::canReadUri( const QString & ) const {return false;}

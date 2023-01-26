@@ -130,6 +130,14 @@ void ReosDssProviderTimeSerieConstantTimeStep::load()
   mFile->getSeries( path, mValues, mTimeStep, mReferenceTime );
 }
 
+QStringList ReosDssProviderTimeSerieConstantTimeStep::fileSuffixes() const
+{
+  QStringList ret;
+  ret << QStringLiteral( "dss" );
+
+  return ret;
+}
+
 QDateTime ReosDssProviderTimeSerieConstantTimeStep::referenceTime() const
 {
   return mReferenceTime;
@@ -326,6 +334,14 @@ QString ReosDssProviderTimeSerieVariableTimeStep::key() const
   return ReosDssProviderBase::staticKey() + QStringLiteral( "::" ) + dataType();
 }
 
+QStringList ReosDssProviderTimeSerieVariableTimeStep::fileSuffixes() const
+{
+  QStringList ret;
+  ret << QStringLiteral( "dss" );
+
+  return ret;
+}
+
 void ReosDssProviderTimeSerieVariableTimeStep::load()
 {
   if ( mFile )
@@ -438,6 +454,13 @@ QString ReosDssProviderGriddedRainfall::key() const
   return ReosDssProviderBase::staticKey() + QStringLiteral( "::" ) + dataType();
 }
 
+QStringList ReosDssProviderGriddedRainfall::fileSuffixes() const
+{
+  QStringList ret;
+  ret << QStringLiteral( "dss" );
+  return ret;
+}
+
 void ReosDssProviderGriddedRainfall::setDataSource( const QString &dataSource )
 {
   ReosGriddedRainfallProvider::setDataSource( dataSource );
@@ -467,7 +490,7 @@ void ReosDssProviderGriddedRainfall::setDataSource( const QString &dataSource )
   }
   mExtent = mFile->gridExtent( recordPathes.at( 0 ) );
 
-  std::sort( mGrids.begin(), mGrids.end(), []( const DssGrid & f1, const DssGrid & f2 )
+  std::sort( mGrids.begin(), mGrids.end(), []( const DssGrid & f1, const DssGrid & f2 )->bool
   {
     return f1.startTime < f2.startTime;
   } );
@@ -733,6 +756,12 @@ bool ReosDssProviderGriddedRainfall::hasData( const QString &uri, const ReosTime
       return true;
 
   return false;
+}
+
+
+bool ReosDssProviderGriddedRainfall::canWrite() const
+{
+  return true;
 }
 
 QDateTime ReosDssProviderGriddedRainfall::dssStrToDateTime( const QString &str )

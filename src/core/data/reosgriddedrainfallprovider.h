@@ -104,7 +104,7 @@ class REOSCORE_EXPORT ReosGriddedRainfallMemoryProvider : public ReosGriddedRain
     ReosGriddedRainfallProvider *clone() const override;
 
     QString key() const override;
-
+    QStringList fileSuffixes() const override {return QStringList();}
     bool isValid() const override {return true;}
     int count() const override;
     QDateTime startTime( int index ) const  override;
