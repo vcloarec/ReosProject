@@ -9,7 +9,7 @@
 #include "reoshecrassimulation.h"
 #include "reoshecrascontroller.h"
 #include "reossettings.h"
-#include "reosnetworkcompatibilitydialog.h""
+#include "reosnetworkcompatibilitydialog.h"
 
 ReosHecRasSimulationEditWidget::ReosHecRasSimulationEditWidget( ReosHecRasSimulation *simulation, QWidget *parent )
   : QWidget( parent )
