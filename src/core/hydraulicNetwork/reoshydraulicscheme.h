@@ -63,6 +63,7 @@ class REOSCORE_EXPORT ReosHydraulicScheme : public ReosDataObject
 
   signals:
     void dirtied();
+    void meteoTimeWindowChanged();
 
   private:
     ReosHydraulicScheme( const ReosEncodedElement &element, ReosHydraulicSchemeCollection *collection, const ReosHydraulicNetworkContext &context );

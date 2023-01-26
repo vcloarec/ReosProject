@@ -40,6 +40,9 @@ ReosHydraulicScheme::ReosHydraulicScheme( const ReosEncodedElement &element, Reo
 
     if ( !mMeteoModel && meteoModelCollect->modelCount() > 0 )
       mMeteoModel = meteoModelCollect->meteorologicModel( 0 );
+
+    if ( mMeteoModel )
+      connect( mMeteoModel, &ReosMeteorologicModel::timeWindowChanged, this, &ReosHydraulicScheme::meteoTimeWindowChanged );
   }
 
   element.getData( QStringLiteral( "elements-config" ), mElementsConfig );
@@ -54,7 +57,15 @@ ReosMeteorologicModel *ReosHydraulicScheme::meteoModel() const
 
 void ReosHydraulicScheme::setMeteoModel( ReosMeteorologicModel *meteoModel )
 {
+  if ( mMeteoModel )
+    disconnect( mMeteoModel, &ReosMeteorologicModel::timeWindowChanged, this, &ReosHydraulicScheme::meteoTimeWindowChanged );
+
   mMeteoModel = meteoModel;
+
+  if ( mMeteoModel )
+    connect( mMeteoModel, &ReosMeteorologicModel::timeWindowChanged, this, &ReosHydraulicScheme::meteoTimeWindowChanged );
+
+  emit meteoTimeWindowChanged();
   emit dirtied();
   emit dataChanged();
 }

@@ -285,6 +285,7 @@ void ReosMeteorologicModelWidget::handleRenderedObject()
     for ( ReosRenderedObject *rendObj : std::as_const( renderedObjectToRemove ) )
     {
       mActiveRenderedObject.remove( rendObj->id() );
+      mMap->removeExtraRenderedObject( rendObj );
     }
 
     for ( ReosDataObject *objNew : newActiveObjects )
