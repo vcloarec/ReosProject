@@ -33,7 +33,7 @@ ReosDssProviderBase::ReosDssProviderBase()
 
 QString ReosDssProviderBase::staticKey()
 {
-  return QStringLiteral( "dss" );
+  return ReosDssUtils::dssProviderKey();
 }
 
 QString ReosDssProviderBase::createUri( const QString &filePath, const ReosDssPath &path )
@@ -47,36 +47,10 @@ QString ReosDssProviderBase::createUri( const QString &filePath, const ReosDssPa
   return uri;
 }
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
-#define skipEmptyPart QString::SkipEmptyParts
-#else
-#define skipEmptyPart Qt::SplitBehaviorFlags::SkipEmptyParts
-#endif
-
-QString ReosDssProviderBase::fileNameFromUri( const QString &uri )
-{
-  if ( !uri.contains( QStringLiteral( "\"" ) ) )
-    return uri;
-
-  QStringList split = uri.split( QStringLiteral( "\"" ), skipEmptyPart );
-  return split.at( 0 );
-}
-
-ReosDssPath ReosDssProviderBase::dssPathFromUri( const QString &uri )
-{
-  if ( !uri.contains( QStringLiteral( "::" ) ) )
-    return ReosDssPath( QString() );
-
-  const QStringList parts = uri.split( QStringLiteral( "::" ) );
-  if ( parts.count() > 1 )
-    return ReosDssPath( parts.at( 1 ) );
-
-  return ReosDssPath( QString() );
-}
 
 ReosDuration ReosDssProviderBase::timeStepFromUri( const QString &uri )
 {
-  return dssPathFromUri( uri ).timeIntervalDuration();
+  return ReosDssUtils::dssPathFromUri( uri ).timeIntervalDuration();
 }
 
 ReosDssProviderBase::~ReosDssProviderBase() = default;
@@ -96,7 +70,7 @@ void ReosDssProviderTimeSerieConstantTimeStep::load()
   mValues.clear();
   mDirty = false;
   const QString uri = dataSource();
-  const QString fileName = fileNameFromUri( uri );
+  const QString fileName = ReosDssUtils::dssFileFromUri( uri );
   mFile.reset( new ReosDssFile( fileName, false ) );
 
   if ( !mFile->isValid() )
@@ -105,7 +79,7 @@ void ReosDssProviderTimeSerieConstantTimeStep::load()
     return;
   }
 
-  ReosDssPath path = dssPathFromUri( uri );
+  ReosDssPath path = ReosDssUtils::dssPathFromUri( uri );
   ReosDuration intervalInUri = path.timeIntervalDuration();
   bool hasInterval = intervalInUri != ReosDuration();
 
@@ -256,12 +230,12 @@ bool ReosDssProviderTimeSerieConstantTimeStep::persistData( QString &error )
     return false;
   }
 
-  const ReosDssPath path = ReosDssProviderBase::dssPathFromUri( uri );
+  const ReosDssPath path = ReosDssUtils::dssPathFromUri( uri );
 
   bool res = mFile->writeConstantIntervalSeries( path, mReferenceTime, mTimeStep, mValues, error );
 
   //we have to change the path accordingly of the time step
-  QString filePath = fileNameFromUri( uri );
+  QString filePath = ReosDssUtils::dssFileFromUri( uri );
   ReosDssPath newPath = path;
   newPath.setTimeInterval( mTimeStep );
   setDataSource( ReosDssUtils::uri( filePath, newPath ), false );
@@ -293,9 +267,9 @@ ReosDataProvider *ReosDssProviderFactory::createProvider( const QString &dataTyp
 
 bool ReosDssProviderFactory::createNewDataSource( const QString &uri, const QString &dataType, QString &error )
 {
-  const QString fileName = ReosDssProviderBase::fileNameFromUri( uri );
+  const QString fileName = ReosDssUtils::dssFileFromUri( uri );
   const QFileInfo fileInfo( fileName );
-  const ReosDssPath path = ReosDssProviderBase::dssPathFromUri( uri );
+  const ReosDssPath path = ReosDssUtils::dssPathFromUri( uri );
 
   if ( !path.isValid() )
   {
@@ -351,7 +325,7 @@ void ReosDssProviderTimeSerieVariableTimeStep::load()
   mValues.clear();
   //mDirty = false;
   const QString uri = dataSource();
-  const QString fileName = fileNameFromUri( uri );
+  const QString fileName = ReosDssUtils::dssFileFromUri( uri );
   mFile.reset( new ReosDssFile( fileName, false ) );
 
   if ( !mFile->isValid() )
@@ -360,7 +334,7 @@ void ReosDssProviderTimeSerieVariableTimeStep::load()
     return;
   }
 
-  ReosDssPath path = dssPathFromUri( uri );
+  ReosDssPath path = ReosDssUtils::dssPathFromUri( uri );
   ReosDuration intervalInUri = path.timeIntervalDuration();
   bool hasInterval = intervalInUri != ReosDuration();
 
@@ -465,8 +439,8 @@ void ReosDssProviderGriddedRainfall::setDataSource( const QString &dataSource )
 {
   ReosGriddedRainfallProvider::setDataSource( dataSource );
 
-  mFilePath = fileNameFromUri( dataSource );
-  mPath = dssPathFromUri( dataSource );
+  mFilePath = ReosDssUtils::dssFileFromUri( dataSource );
+  mPath = ReosDssUtils::dssPathFromUri( dataSource );
 
   mFile.reset( new ReosDssFile( mFilePath ) );
 
@@ -511,7 +485,7 @@ bool ReosDssProviderGriddedRainfall::canReadUri( const QString &uri ) const
 
 ReosGriddedRainfallProvider::FileDetails ReosDssProviderGriddedRainfall::details( const QString &uri, ReosModule::Message &message ) const
 {
-  QString fileName = ReosDssProviderBase::fileNameFromUri( uri );
+  QString fileName = ReosDssUtils::dssFileFromUri( uri );
   QList<ReosDssPath> pathes = griddedRainfallPathes( fileName, message );
 
   FileDetails ret;
@@ -586,9 +560,9 @@ ReosEncodedElement ReosDssProviderGriddedRainfall::encode( const ReosEncodeConte
 
   QString uriToEncode = dataSource();
 
-  QString sourcePath = fileNameFromUri( uriToEncode );
+  QString sourcePath = ReosDssUtils::dssFileFromUri( uriToEncode );
   sourcePath = context.pathToEncode( sourcePath );
-  uriToEncode = createUri( sourcePath, dssPathFromUri( uriToEncode ) );
+  uriToEncode = createUri( sourcePath, ReosDssUtils::dssPathFromUri( uriToEncode ) );
   element.addData( QStringLiteral( "data-source" ), uriToEncode );
 
   return element;
@@ -602,9 +576,9 @@ void ReosDssProviderGriddedRainfall::decode( const ReosEncodedElement &element, 
   QString source;
   if ( element.getData( QStringLiteral( "data-source" ), source ) )
   {
-    QString sourcePath = fileNameFromUri( source );
+    QString sourcePath = ReosDssUtils::dssFileFromUri( source );
     sourcePath = context.resolvePath( sourcePath );
-    source = createUri( sourcePath, dssPathFromUri( source ) );
+    source = createUri( sourcePath, ReosDssUtils::dssPathFromUri( source ) );
     setDataSource( source );
   }
 }
@@ -702,8 +676,8 @@ void ReosDssProviderGriddedRainfall::calculateMinMax( double &min, double &max )
 
 bool ReosDssProviderGriddedRainfall::hasData( const QString &uri, const ReosTimeWindow &timeWindow ) const
 {
-  const QString filePath = ReosDssProviderBase::fileNameFromUri( uri );
-  const ReosDssPath path = ReosDssProviderBase::dssPathFromUri( uri );
+  const QString filePath = ReosDssUtils::dssFileFromUri( uri );
+  const ReosDssPath path = ReosDssUtils::dssPathFromUri( uri );
 
   ReosDssFile file( filePath );
   if ( !file.isValid() )
@@ -760,8 +734,8 @@ bool ReosDssProviderGriddedRainfall::hasData( const QString &uri, const ReosTime
 
 bool ReosDssProviderGriddedRainfall::write( ReosGriddedRainfall *rainfall, const QString &uri, const ReosRasterExtent &destination, const ReosTimeWindow &timeWindow ) const
 {
-  QString fileName = ReosDssProviderBase::fileNameFromUri( uri );
-  ReosDssPath path = ReosDssProviderBase::dssPathFromUri( uri );
+  QString fileName = ReosDssUtils::dssFileFromUri( uri );
+  ReosDssPath path = ReosDssUtils::dssPathFromUri( uri );
   ReosDssFile file( fileName, true );
   if ( !file.isValid() )
     return false;

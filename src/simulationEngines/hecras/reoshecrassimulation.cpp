@@ -305,12 +305,12 @@ void ReosHecRasSimulation::prepareInput(
   {
     QString gridPrecipDssFile;
     ReosDssPath gridPrecipDssPath;
-    if ( griddedPrecipitation->dataProvider()->key().contains( ReosDssProviderBase::staticKey() ) )
+    if ( griddedPrecipitation->dataProvider()->key().contains( ReosDssUtils::dssProviderKey() ) )
     {
       // The gridded rainfall is a dss one, so we just use its uri
       const QString uri = griddedPrecipitation->dataProvider()->dataSource();
-      gridPrecipDssFile = ReosDssProviderBase::fileNameFromUri( uri );
-      gridPrecipDssPath = ReosDssProviderBase::dssPathFromUri( uri );
+      gridPrecipDssFile = ReosDssUtils::dssFileFromUri( uri );
+      gridPrecipDssPath = ReosDssUtils::dssPathFromUri( uri );
     }
     else
     {

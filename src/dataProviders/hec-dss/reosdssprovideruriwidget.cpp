@@ -39,9 +39,9 @@ ReosDssProviderUriWidget::~ReosDssProviderUriWidget()
 
 void ReosDssProviderUriWidget::setUri( const QString &uri )
 {
-  QFileInfo fileInfo( ReosDssProviderBase::fileNameFromUri( uri ) );
+  QFileInfo fileInfo( ReosDssUtils::dssFileFromUri( uri ) );
   QString fileName = fileInfo.dir().filePath( fileInfo.baseName() + QStringLiteral( ".dss" ) );
-  ReosDssPath path = ReosDssProviderBase::dssPathFromUri( uri );
+  ReosDssPath path = ReosDssUtils::dssPathFromUri( uri );
   ui->mFile->setText( fileName );
   setPath( path );
 }

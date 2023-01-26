@@ -57,6 +57,12 @@ class REOSDSS_EXPORT ReosDssUtils
     static QDate dssDateToDate( const QString &dssDate );
     static QTime dssTimeToTime( const QString &dssTime );
 
+    static QString dssProviderKey();
+
+    static QString dssFileFromUri( const QString &uri );
+
+    static ReosDssPath dssPathFromUri( const QString &uri );
+
   private:
     static QList<ReosDuration> sValidInterval;
 };
