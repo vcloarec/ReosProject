@@ -298,19 +298,13 @@ void ReosHydraulicNetwork::decode( const ReosEncodedElement &element, const QStr
     mHydraulicSchemeCollection->addScheme( scheme.release() );
   }
 
-  element.getData( QStringLiteral( "current-scheme-index" ), mCurrentSchemeIndex );
-  if ( mCurrentSchemeIndex >= mHydraulicSchemeCollection->schemeCount() )
-    mCurrentSchemeIndex = mHydraulicSchemeCollection->schemeCount() > 0 ? 0 : -1;
+  int currentSchemeIndex = -1;
+  element.getData( QStringLiteral( "current-scheme-index" ), currentSchemeIndex );
+  if ( currentSchemeIndex >= mHydraulicSchemeCollection->schemeCount() )
+    currentSchemeIndex = mHydraulicSchemeCollection->schemeCount() > 0 ? 0 : -1;
+  setCurrentScheme( currentSchemeIndex );
 
-  ReosHydraulicScheme *currentScheme = mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex );
-  if ( currentScheme )
-  {
-    connect( currentScheme, &ReosDataObject::dataChanged, this, &ReosHydraulicNetwork::schemeChanged );
-
-    for ( ReosHydraulicNetworkElement *elem :  std::as_const( mElements ) )
-      elem->restoreConfiguration( currentScheme );
-  }
-
+  onMapTimeWindowChanged();
   emit loaded();
 }
 
@@ -448,6 +442,7 @@ void ReosHydraulicNetwork::setCurrentScheme( int newSchemeIndex )
   if ( currentScheme )
   {
     disconnect( currentScheme, &ReosDataObject::dataChanged, this, &ReosHydraulicNetwork::schemeChanged );
+    disconnect( currentScheme, &ReosHydraulicScheme::meteoTimeWindowChanged, this, &ReosHydraulicNetwork::onMapTimeWindowChanged );
   }
 
   mCurrentSchemeIndex = newSchemeIndex;
@@ -459,6 +454,7 @@ void ReosHydraulicNetwork::setCurrentScheme( int newSchemeIndex )
   if ( currentScheme )
   {
     connect( currentScheme, &ReosDataObject::dataChanged, this, &ReosHydraulicNetwork::schemeChanged );
+    connect( currentScheme, &ReosHydraulicScheme::meteoTimeWindowChanged, this, &ReosHydraulicNetwork::onMapTimeWindowChanged );
   }
 
   for ( ReosHydraulicNetworkElement *elem :  std::as_const( mElements ) )
