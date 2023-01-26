@@ -31,7 +31,7 @@ ReosGriddedRainfall::ReosGriddedRainfall( QObject *parent )
 
 ReosGriddedRainfall::ReosGriddedRainfall( const QString &dataSource, const QString &providerKey, QObject *parent )
   : ReosRenderedObject( parent )
-  , mProvider( qobject_cast<ReosGriddedRainfallProvider*>( ReosDataProviderRegistery::instance()->createProvider( providerKey ) ) )
+  , mProvider( qobject_cast<ReosGriddedRainfallProvider*>( ReosDataProviderRegistery::instance()->createProvider( formatKey( providerKey ) ) ) )
 {
   if ( mProvider )
     mProvider->setDataSource( dataSource );
@@ -42,7 +42,7 @@ ReosGriddedRainfall::ReosGriddedRainfall( const QString &dataSource, const QStri
 
 ReosGriddedRainfall *ReosGriddedRainfall::decode( const ReosEncodedElement &element,  const ReosEncodeContext &context, QObject *parent )
 {
-  if ( element.description() != QStringLiteral( "gridded-precipitaton" ) )
+  if ( element.description() != ReosGriddedRainfall::staticType() )
     return nullptr;
 
   return new ReosGriddedRainfall( element, context, parent );
@@ -56,7 +56,7 @@ ReosGriddedRainfall::ReosGriddedRainfall( const ReosEncodedElement &element, con
 
   QString providerKey;
   element.getData( QStringLiteral( "provider-key" ), providerKey );
-  mProvider.reset( qobject_cast<ReosGriddedRainfallProvider *>( ReosDataProviderRegistery::instance()->createProvider( providerKey ) ) );
+  mProvider.reset( qobject_cast<ReosGriddedRainfallProvider *>( ReosDataProviderRegistery::instance()->createProvider( formatKey( providerKey ) ) ) );
   if ( mProvider )
     mProvider->decode( element.getEncodedData( QStringLiteral( "provider" ) ), context );
 
@@ -74,7 +74,7 @@ QString ReosGriddedRainfall::formatKey( const QString &rawKey ) const
 
 ReosEncodedElement ReosGriddedRainfall::encode( const ReosEncodeContext &context ) const
 {
-  ReosEncodedElement element( QStringLiteral( "gridded-precipitaton" ) );
+  ReosEncodedElement element( ReosGriddedRainfall::staticType() );
   ReosDataObject::encode( element );
   element.addData( QStringLiteral( "overriden-crs" ), mOverridenCrs );
   element.addEncodedData( QStringLiteral( "renderer" ), mRendererFactory->encode() );
@@ -337,7 +337,11 @@ ReosGriddedRainItem::ReosGriddedRainItem( const ReosEncodedElement &element, con
   if ( element.description() != QStringLiteral( "gridded-rainfall-item" ) )
     return;
 
-  mGriddedRainfall = ReosGriddedRainfall::decode( element.getEncodedData( QStringLiteral( "gridded-rainfall" ) ), context );
+  mGriddedRainfall = ReosGriddedRainfall::decode( element.getEncodedData( QStringLiteral( "gridded-rainfall" ) ), context, this );
+
+  if ( !mGriddedRainfall )
+    mGriddedRainfall = new ReosGriddedRainfall( this );
+
   if ( mGriddedRainfall )
     connect( this, &ReosRainfallItem::changed, mGriddedRainfall, [this]
   {
@@ -365,7 +369,8 @@ ReosEncodedElement ReosGriddedRainItem::encode( const ReosEncodeContext &context
   ReosEncodedElement element( QStringLiteral( "gridded-rainfall-item" ) );
   ReosRainfallDataItem::encodeBase( element, context );
 
-  element.addEncodedData( QStringLiteral( "gridded-rainfall" ), mGriddedRainfall->encode( context ) );
+  if ( mGriddedRainfall )
+    element.addEncodedData( QStringLiteral( "gridded-rainfall" ), mGriddedRainfall->encode( context ) );
 
   return element;
 }

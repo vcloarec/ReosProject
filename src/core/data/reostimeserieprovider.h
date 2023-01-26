@@ -134,6 +134,7 @@ class ReosTimeSerieConstantTimeStepMemoryProvider : public ReosTimeSerieConstant
     ReosTimeSerieConstantTimeStepMemoryProvider( const QVector<double> &values );
 
     QString key() const override;
+    QStringList fileSuffixes() const override {return QStringList();}
     QDateTime referenceTime() const override;
     void setReferenceTime( const QDateTime &referenceTime ) override;
     ReosDuration timeStep() const override;
@@ -158,6 +159,8 @@ class ReosTimeSerieConstantTimeStepMemoryProvider : public ReosTimeSerieConstant
     void copy( ReosTimeSerieConstantTimeStepProvider *other ) override;
     void setValues( const QVector<double> &vals ) override;
 
+    static QString staticType();
+
   private:
     QDateTime mReferenceTime;
     ReosDuration mTimeStep;
@@ -168,7 +171,7 @@ class ReosTimeSerieConstantTimeStepMemoryProviderFactory : public ReosDataProvid
 {
   public:
 
-    ReosDataProvider *createProvider( const QString & ) const override {return new ReosTimeSerieConstantTimeStepMemoryProvider;}
+    ReosDataProvider *createProvider( const QString &dataType ) const override;
     QString key() const override {return QStringLiteral( "constant-time-step-memory" );}
 };
 
@@ -181,7 +184,7 @@ class ReosTimeSerieVariableTimeStepMemoryProvider : public ReosTimeSerieVariable
     ReosTimeSerieVariableTimeStepMemoryProvider( const QVector<double> &values, const QVector<ReosDuration> &timeValues );
 
     QString key() const override;
-
+    QStringList fileSuffixes() const override {return QStringList();}
     QDateTime referenceTime() const override;
     void setReferenceTime( const QDateTime &referenceTime ) override;
     QString valueUnit() const override;
@@ -206,6 +209,8 @@ class ReosTimeSerieVariableTimeStepMemoryProvider : public ReosTimeSerieVariable
 
     ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
     void decode( const ReosEncodedElement &element, const ReosEncodeContext & ) override;
+
+    static QString staticType();
 
   private:
     QDateTime mReferenceTime;

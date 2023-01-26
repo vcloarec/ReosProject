@@ -169,9 +169,16 @@ void ReosDelftFewsXMLProviderInterface::setMetadata( const QVariantMap &meta )
 
 QString ReosDelftFewsXMLHydrographProvider::key() const {return ReosDelftFewsXMLProviderInterface::staticKey() + QStringLiteral( "::" ) + dataType();}
 
+QStringList ReosDelftFewsXMLHydrographProvider::fileSuffixes() const
+{
+    QStringList ret;
+    ret << QStringLiteral( "xml" );
+    return ret;
+}
+
 QString ReosDelftFewsXMLHydrographProvider::htmlDescription() const
 {
-  return htmlDescriptionFromMetada( metadata() );
+    return htmlDescriptionFromMetada( metadata() );
 }
 
 void ReosDelftFewsXMLHydrographProvider::load()
@@ -233,6 +240,13 @@ const QVector<ReosDuration> &ReosDelftFewsXMLHydrographProvider::constTimeData()
 }
 
 QString ReosDelftFewsXMLRainfallProvider::key() const {return ReosDelftFewsXMLProviderInterface::staticKey() + QStringLiteral( "::" ) + dataType();}
+
+QStringList ReosDelftFewsXMLRainfallProvider::fileSuffixes() const
+{
+  QStringList ret;
+  ret << QStringLiteral( "xml" );
+  return ret;
+}
 
 QString ReosDelftFewsXMLRainfallProvider::htmlDescription() const
 {

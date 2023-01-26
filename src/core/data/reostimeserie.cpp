@@ -274,7 +274,7 @@ ReosTimeSerieConstantInterval::ReosTimeSerieConstantInterval( QObject *parent, c
   }
   else
   {
-    mProvider.reset( static_cast<ReosTimeSerieProvider *>( ReosDataProviderRegistery::instance()->createProvider( QStringLiteral( "constant-time-step-memory" ) ) ) );
+    mProvider.reset( static_cast<ReosTimeSerieProvider *>( ReosDataProviderRegistery::instance()->createProvider( formatKey( QStringLiteral( "constant-time-step-memory" ) ) ) ) );
     if ( mProvider )
     {
       connect( mProvider.get(), &ReosTimeSerieProvider::dataChanged, this, &ReosTimeSerieConstantInterval::onDataProviderChanged );
@@ -827,7 +827,7 @@ bool ReosTimeSerie::decodeBase( const ReosEncodedElement &element, const ReosEnc
   {
     QString providerKey;
     element.getData( QStringLiteral( "provider-key" ), providerKey );
-    mProvider.reset( static_cast<ReosTimeSerieProvider *>( ReosDataProviderRegistery::instance()->createProvider( providerKey ) ) );
+    mProvider.reset( static_cast<ReosTimeSerieProvider *>( ReosDataProviderRegistery::instance()->createProvider( formatKey( providerKey ) ) ) );
     if ( mProvider && element.hasEncodedData( QStringLiteral( "provider-data" ) ) )
     {
       connect( mProvider.get(), &ReosTimeSerieProvider::dataChanged, this, &ReosTimeSerie::onDataProviderChanged );

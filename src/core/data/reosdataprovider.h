@@ -34,7 +34,12 @@ class REOSCORE_EXPORT ReosDataProvider : public QObject
     virtual QString htmlDescription() const {return QString();}
 
     //! Returns whether the provider can read the \a uri
-    virtual bool canReadUri( const QString &uri ) const {return false;}
+    virtual bool canReadUri( const QString &uri ) const;
+
+    //! Returns whether the provider can write data
+    virtual bool canWrite() const {return false;}
+
+    virtual QStringList fileSuffixes() const = 0;
 
   signals:
     void dataChanged();
@@ -68,8 +73,15 @@ class REOSCORE_EXPORT ReosDataProviderRegistery
     //! Creates and returns a provider corresponding to the \a key. Caller takes ownership
     ReosDataProvider *createProvider( const QString &key );
 
+    //! Creates and returns a provider corresponding to the \a key ans \a dataType. Caller takes ownership
+    ReosDataProvider *createProvider( const QString &key, const QString &dataType );
+
     //! Creates a provider that can read the data pointed by \a uri
     ReosDataProvider *createCompatibleProvider( const QString &uri, const QString &dataType ) const;
+
+    QStringList ableToWrite( const QString &dataType ) const;
+
+    QStringList fileSuffixes( const QString &key ) const;
 
     //! Returns a pointer to the static instance of this registery
     static ReosDataProviderRegistery *instance();

@@ -35,6 +35,7 @@ class ReosHubEauHydrographProvider : public ReosTimeSerieVariableTimeStepProvide
     ReosHubEauHydrographProvider() = default;
 
     QString key() const override;
+    QStringList fileSuffixes() const override;
     QDateTime referenceTime() const override;
     QString valueUnit() const override;
     int valueCount() const override;
@@ -68,6 +69,8 @@ class ReosHubEauHydrographProvider : public ReosTimeSerieVariableTimeStepProvide
     //! Returns the key of this provider
     static QString staticKey();
 
+    static QString dataType();
+
   signals:
     void errorOccured();
 
@@ -92,7 +95,7 @@ class ReosHubEauHydrographProvider : public ReosTimeSerieVariableTimeStepProvide
 class ReosHubEauHydrographProviderFactory: public ReosDataProviderFactory
 {
   public:
-    ReosTimeSerieProvider *createProvider( const QString & ) const override {return new ReosHubEauHydrographProvider;};
+    ReosTimeSerieProvider *createProvider( const QString &dataType ) const override;;
     QString key() const override;
 };
 

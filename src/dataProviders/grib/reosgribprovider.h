@@ -31,7 +31,7 @@ class ReosGribGriddedRainfallProvider : public ReosGriddedRainfallProvider
     ReosGribGriddedRainfallProvider();
 
     ReosGriddedRainfallProvider *clone() const override;
-
+    QStringList fileSuffixes() const override;
     QString key() const override {return staticKey();}
     void setDataSource( const QString &dataSource ) override;
     FileDetails details( const QString &, ReosModule::Message & ) const override;
