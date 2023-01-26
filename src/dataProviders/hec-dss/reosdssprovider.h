@@ -34,9 +34,6 @@ class ReosDssProviderBase
 
     static QString createUri( const QString &filePath, const ReosDssPath &path );
 
-    static QString fileNameFromUri( const QString &uri );
-    static ReosDssPath dssPathFromUri( const QString &uri );
-
     ReosDuration timeStepFromUri( const QString &uri );
 
   protected:
@@ -110,7 +107,7 @@ class ReosDssProviderTimeSerieVariableTimeStep : public ReosTimeSerieVariableTim
     void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) {}
 
     // ReosDssProviderBase interface
-    bool createNewSerie( const ReosDssPath &path, ReosDssFile &dssFile, QString &error ) const {return false;}
+    bool createNewSerie( const ReosDssPath &path, ReosDssFile &dssFile, QString &error ) const override {return false;}
 
     // ReosTimeSerieVariableTimeStepProvider interface
     ReosDuration relativeTimeAt( int i ) const override;

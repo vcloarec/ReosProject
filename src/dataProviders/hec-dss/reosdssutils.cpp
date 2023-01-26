@@ -246,6 +246,38 @@ QTime ReosDssUtils::dssTimeToTime( const QString &dssTime )
   return QTime::fromMSecsSinceStartOfDay( static_cast<int>( seconds * 1000 + 0.5 ) );
 }
 
+QString ReosDssUtils::dssProviderKey()
+{
+  return QStringLiteral( "dss" );
+}
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+#define skipEmptyPart QString::SkipEmptyParts
+#else
+#define skipEmptyPart Qt::SplitBehaviorFlags::SkipEmptyParts
+#endif
+
+QString ReosDssUtils::dssFileFromUri( const QString &uri )
+{
+  if ( !uri.contains( QStringLiteral( "\"" ) ) )
+    return uri;
+
+  QStringList split = uri.split( QStringLiteral( "\"" ), skipEmptyPart );
+  return split.at( 0 );
+}
+
+ReosDssPath ReosDssUtils::dssPathFromUri( const QString &uri )
+{
+  if ( !uri.contains( QStringLiteral( "::" ) ) )
+    return ReosDssPath( QString() );
+
+  const QStringList parts = uri.split( QStringLiteral( "::" ) );
+  if ( parts.count() > 1 )
+    return ReosDssPath( parts.at( 1 ) );
+
+  return ReosDssPath( QString() );
+}
+
 ReosDssIntervalCombo::ReosDssIntervalCombo( QWidget *parent ) : QComboBox( parent )
 {
   for ( const ReosDuration &interval : ReosDssUtils::validIntervals() )
