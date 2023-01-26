@@ -24,6 +24,8 @@
 #include "reossettings.h"
 #include "reoshecrassimulationresults.h"
 #include "reostimewindowsettings.h"
+#include "reosgriddedrainitem.h"
+#include "reosdssprovider.h"
 
 #include <QFileInfo>
 
@@ -294,10 +296,44 @@ void ReosHecRasSimulation::prepareInput(
         }
       }
     }
-
   }
 
-  if ( !boundaryToModify.isEmpty() )
+
+  ReosGriddedRainfall *griddedPrecipitation = calculationContext.meteorologicModel()->associatedRainfall( hydraulicStructure );
+  bool griddedPrecipitationActive = griddedPrecipitation != nullptr;
+  if ( griddedPrecipitationActive )
+  {
+    QString gridPrecipDssFile;
+    ReosDssPath gridPrecipDssPath;
+    if ( griddedPrecipitation->dataProvider()->key().contains( ReosDssProviderBase::staticKey() ) )
+    {
+      // The gridded rainfall is a dss one, so we just use its uri
+      const QString uri = griddedPrecipitation->dataProvider()->dataSource();
+      gridPrecipDssFile = ReosDssProviderBase::fileNameFromUri( uri );
+      gridPrecipDssPath = ReosDssProviderBase::dssPathFromUri( uri );
+    }
+    else
+    {
+      // The gridded rainfall is not a DSS, we nned to write a DSS one temporarly
+      gridPrecipDssFile = mProject->directory().filePath( QStringLiteral( "gridded_precip_%1.dss" ).arg( mCurrentPlan ) );
+      ReosDssFile file( gridPrecipDssFile, true );
+      gridPrecipDssPath.setGroup( mProject->projectName() );
+      gridPrecipDssPath.setLocation( hydraulicStructure->elementName()->value() );
+      if ( file.isValid() )
+      {
+        ReosMapExtent extent = hydraulicStructure->extent();
+        file.writeGriddedData( griddedPrecipitation, gridPrecipDssPath, extent, -1, calculationContext.timeWindow() );
+      }
+    }
+
+    flow.activeGriddedPrecipitation( gridPrecipDssFile, gridPrecipDssPath );
+  }
+  else
+  {
+    flow.deactivateGriddedPrecipitation();
+  }
+
+  if ( !boundaryToModify.isEmpty() || griddedPrecipitationActive )
     flow.applyBoudaryFlow( boundaryToModify );
 }
 

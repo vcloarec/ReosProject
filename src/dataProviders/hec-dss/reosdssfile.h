@@ -122,12 +122,18 @@ class REOSDSS_EXPORT ReosDssFile
                                       const QVector<double> &values,
                                       QString &error );
 
+    /**
+    * Writes the rainfall in the DSS file. The extent of the rainfall is asjeted to feet on the way HECRAS handle grid
+    * (see https://github.com/HydrologicEngineeringCenter/hec-dss/issues/184)
+    */
+    bool writeGriddedData( ReosGriddedRainfall *griddedrainFall,
+                           const ReosDssPath &path );
+
     bool writeGriddedData( ReosGriddedRainfall *griddedrainFall,
                            const ReosDssPath &path,
                            const ReosMapExtent &destination,
                            double resolution = -1,
                            const ReosTimeWindow &timeWindow = ReosTimeWindow() );
-
 
     QList<ReosDssPath> searchRecordsPath( const ReosDssPath &path, bool considerInterval ) const;
 
@@ -157,6 +163,13 @@ class REOSDSS_EXPORT ReosDssFile
       const ReosDuration &timeStep,
       const QVector<double> &values,
       QString &error );
+
+    bool writeGriddedDataPrivate( ReosGriddedRainfall *griddedrainFall,
+                                  const ReosDssPath &path,
+                                  const ReosMapExtent &destination,
+                                  double resolution,
+                                  const ReosTimeWindow &timeWindow,
+                                  bool reduce );
 
     friend class ReosHecrasTesting;
 };

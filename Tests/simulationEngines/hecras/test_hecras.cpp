@@ -363,7 +363,7 @@ void ReosHecrasTesting::createAndWriteGridFromScratch()
     rainfall.copyFrom( &memoryRainfallProvider );
 
     ReosDssFile file( filePath, true );
-    file.writeGriddedData( &rainfall, path_1, rainfall.extent() );
+    file.writeGriddedData( &rainfall, path_1 );
     file.close();
   }
 
@@ -415,7 +415,7 @@ void ReosHecrasTesting::createAndWriteGridFromScratch()
     rainfall.copyFrom( &memoryRainfallProvider );
 
     ReosDssFile file( filePath, false );
-    file.writeGriddedData( &rainfall, path_2, rainfall.extent() );
+    file.writeGriddedData( &rainfall, path_2 );
     file.close();
   }
 
@@ -457,16 +457,16 @@ void ReosHecrasTesting::createAndWriteGridFromScratch()
 
   ReosRasterExtent griddedExtent = griddedPrecipitation->rasterExtent();
 
-  QCOMPARE( griddedExtent.xCellCount(), 31 );
-  QCOMPARE( griddedExtent.yCellCount(), 29 );
+  QCOMPARE( griddedExtent.xCellCount(), 32 );
+  QCOMPARE( griddedExtent.yCellCount(), 30 );
 
   QVector<double> values = griddedPrecipitation->intensityValues( 0 );
 
-  QCOMPARE( values.count(), 31 * 29 );
+  QCOMPARE( values.count(), 32 * 30 );
   QCOMPARE( values.at( 0 ), 5.0 );
   QCOMPARE( values.at( 30 ), 10.0 );
-  QCOMPARE( values.at( 28 * 31 + 30 ), 15.0 );
-  QCOMPARE( values.at( 28 * 31 ), 20.0 );
+  QCOMPARE( values.at( 29 * 32 + 31 ), 15.0 );
+  QCOMPARE( values.at( 29 * 32 ), 20.0 );
 
   double min = -20;
   double max = -20;
@@ -776,6 +776,7 @@ void ReosHecrasTesting::importAndLaunchStructure()
   QCOMPARE( rain->gridCount(), 3 );
   QCOMPARE( rain->startTime( 0 ), QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ) );
   QCOMPARE( rain->endTime( 0 ), QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 40, 0 ), Qt::UTC ) );
+  QCOMPARE( rain->endTime( 2 ), QDateTime( QDate( 2000, 01, 01 ), QTime( 12, 0, 0 ), Qt::UTC ) );
 
   // setup time interval simulation
   hecSim->setComputeInterval( ReosDuration( 10, ReosDuration::second ) );

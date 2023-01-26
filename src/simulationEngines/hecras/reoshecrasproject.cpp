@@ -947,6 +947,7 @@ bool ReosHecRasFlow::applyBoudaryFlow( const QList<BoundaryFlow> &flows )
   BoundaryFlow currentFlow;
   bool isInBoundaryToTreat = false;
   bool isStageHyd = false;
+  bool griddedPrecipTreated = false;
   while ( !stream.atEnd() )
   {
     QString inputLine = stream.readLine();
@@ -976,39 +977,58 @@ bool ReosHecRasFlow::applyBoudaryFlow( const QList<BoundaryFlow> &flows )
         outputStream << QStringLiteral( "Use DSS=True" ) << "\r\n";
         isStageHyd = true;
       }
-
     }
-    else if ( isInBoundaryToTreat &&
-              ( inputLine.startsWith( QStringLiteral( "Flow Hydrograph=" ) ) ||
-                inputLine.startsWith( QStringLiteral( "Stage Hydrograph=" ) ) ) )
+    else if ( isInBoundaryToTreat )
     {
-      int valueCount = 0;
-      QStringList part = inputLine.split( '=' );
-      if ( part.count() > 1 )
+      if ( ( inputLine.startsWith( QStringLiteral( "Flow Hydrograph=" ) ) ||
+             inputLine.startsWith( QStringLiteral( "Stage Hydrograph=" ) ) ) )
       {
-        bool ok = false;
-        valueCount = part.at( 1 ).trimmed().toInt( &ok );
-        if ( !ok )
-          valueCount = 0;
-      }
-      int rowCount;
-      if ( valueCount > 0 )
-        rowCount = valueCount / 10 + 1;
-      else
-        rowCount = 0;
+        int valueCount = 0;
+        QStringList part = inputLine.split( '=' );
+        if ( part.count() > 1 )
+        {
+          bool ok = false;
+          valueCount = part.at( 1 ).trimmed().toInt( &ok );
+          if ( !ok )
+            valueCount = 0;
+        }
+        int rowCount;
+        if ( valueCount > 0 )
+          rowCount = valueCount / 10 + 1;
+        else
+          rowCount = 0;
 
-      for ( int i = 0; i < rowCount; ++i )
-        stream.readLine();
+        for ( int i = 0; i < rowCount; ++i )
+          stream.readLine();
+      }
+      else if ( !isStageHyd && inputLine.startsWith( QStringLiteral( "DSS Path=" ) ) )
+      {
+        outputStream << QStringLiteral( "DSS File=%1" ).arg( currentFlow.dssFile ) << "\r\n";
+        outputStream << QStringLiteral( "DSS Path=%1" ).arg( currentFlow.dssPath ) << "\r\n";
+        outputStream << QStringLiteral( "Use DSS=True" ) << "\r\n";
+      }
+      else if ( inputLine.startsWith( QStringLiteral( "DSS File=" ) ) ||  inputLine.startsWith( QStringLiteral( "Use DSS=" ) ) )
+        continue;
+
     }
-    else if ( isInBoundaryToTreat && inputLine.startsWith( QStringLiteral( "DSS File=" ) ) )
-      continue;
-    else if ( isInBoundaryToTreat && !isStageHyd && inputLine.startsWith( QStringLiteral( "DSS Path=" ) ) )
+    else if ( inputLine.startsWith( QStringLiteral( "Precipitation Mode=" ) ) )
     {
-      outputStream << QStringLiteral( "DSS File=%1" ).arg( currentFlow.dssFile ) << "\r\n";
-      outputStream << QStringLiteral( "DSS Path=%1" ).arg( currentFlow.dssPath ) << "\r\n";
-      outputStream << QStringLiteral( "Use DSS=True" ) << "\r\n";
+      outputStream << QStringLiteral( "Precipitation Mode=%1" ).arg(
+                     mGriddedPrecipitationActivated ? QStringLiteral( "Enable" ) : QStringLiteral( "Disable" ) ) << "\r\n";
     }
-    else if ( isInBoundaryToTreat && inputLine.startsWith( QStringLiteral( "Use DSS=" ) ) )
+    else if ( mGriddedPrecipitationActivated && !griddedPrecipTreated && inputLine.startsWith( QStringLiteral( "Met BC=Precipitation|" ) ) )
+    {
+      //here we put all that HEC-RAS put in theis file when there is a dss gridded precipitation, not sure all it is necessary
+      outputStream << QStringLiteral( "Met BC=Precipitation|Mode=Gridded\r\n" );
+      outputStream << QStringLiteral( "Met BC=Precipitation|Expanded View=-1\r\n" );
+      outputStream << QStringLiteral( "Met BC=Precipitation|Constant Units=mm/hr\r\n" );
+      outputStream << QStringLiteral( "Met BC=Precipitation|Point Interpolation=\r\n" );
+      outputStream << QStringLiteral( "Met BC=Precipitation|Gridded Source=DSS\r\n" );
+      outputStream << QStringLiteral( "Met BC=Precipitation|Gridded DSS Filename=%1\r\n" ).arg( mGriddedPrecipitationFile );
+      outputStream << QStringLiteral( "Met BC=Precipitation|Gridded DSS Pathname=%1\r\n" ).arg( mGriddedPrecipitationPath.string() );
+      griddedPrecipTreated = true;
+    }
+    else if ( mGriddedPrecipitationActivated && griddedPrecipTreated && inputLine.startsWith( QStringLiteral( "Met BC=Precipitation|" ) ) )
       continue;
     else
       outputStream << inputLine << "\r\n";
@@ -1050,6 +1070,11 @@ void ReosHecRasFlow::parseFlowFile()
     }
 
     if ( line.startsWith( QStringLiteral( "Boundary Location=" ) ) )
+    {
+      lastReadenLine = parseBoundary( stream, line );
+    }
+
+    if ( line.startsWith( QStringLiteral( "Precipitation Mode=" ) ) )
     {
       lastReadenLine = parseBoundary( stream, line );
     }
