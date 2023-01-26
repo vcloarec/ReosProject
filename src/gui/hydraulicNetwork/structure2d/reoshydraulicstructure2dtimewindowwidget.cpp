@@ -70,16 +70,16 @@ void Reoshydraulicstructure2dTimeWindowWidget::onExternallyCheckBoxToogle()
   bool checked = ui->mExternallyCheckBox->isChecked();
   mTimeWindowSettings->useExternalDefinedTimeWindow()->setValue( checked );
   ui->mGroupBoxAuto->setEnabled( !checked );
-  ui->mStartTime->setEnabled( !checked );
-  ui->mEndTime->setEnabled( !checked );
+  ui->mStartTime->setEnabled( !checked && !ui->mGroupBoxAuto->isChecked() ) ;
+  ui->mEndTime->setEnabled( !checked && !ui->mGroupBoxAuto->isChecked() ) ;
 }
 
 void Reoshydraulicstructure2dTimeWindowWidget::onAutomaticGroupBoxToggle()
 {
   bool checked = ui->mGroupBoxAuto->isChecked();
   mTimeWindowSettings->automaticallyDefined()->setValue( checked );
-  ui->mStartTime->setEnabled( !checked );
-  ui->mEndTime->setEnabled( !checked );
+  ui->mStartTime->setEnabled( !checked && !ui->mExternallyCheckBox->isChecked() );
+  ui->mEndTime->setEnabled( !checked && !ui->mExternallyCheckBox->isChecked() );
 }
 
 void Reoshydraulicstructure2dTimeWindowWidget::onOriginChange()
