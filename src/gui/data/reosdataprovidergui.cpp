@@ -33,6 +33,11 @@ ReosDataProviderSettingsWidget *ReosDataProviderGuiFactory::createProviderSettin
   return nullptr;
 }
 
+ReosDataProviderUriWidget *ReosDataProviderGuiFactory::createUriWidget( QWidget * ) const
+{
+  return nullptr;
+}
+
 QIcon ReosDataProviderGuiFactory::icon() const
 {
   return QIcon();
@@ -41,9 +46,7 @@ QIcon ReosDataProviderGuiFactory::icon() const
 ReosDataProviderGuiRegistery *ReosDataProviderGuiRegistery::sInstance = nullptr;
 
 ReosDataProviderGuiRegistery::ReosDataProviderGuiRegistery()
-{
-
-}
+{}
 
 void ReosDataProviderGuiRegistery::registerProviderGuiFactory( ReosDataProviderGuiFactory *factory )
 {
@@ -79,6 +82,15 @@ ReosDataProviderSettingsWidget *ReosDataProviderGuiRegistery::createProviderSett
   ReosDataProviderGuiFactory *fact = guiFactory( providerKey );
   if ( fact )
     return fact->createProviderSettingsWidget( dataProvider, parent );
+
+  return nullptr;
+}
+
+ReosDataProviderUriWidget *ReosDataProviderGuiRegistery::createUriWidget( const QString &providerKey, QWidget *parent ) const
+{
+  ReosDataProviderGuiFactory *fact = guiFactory( providerKey );
+  if ( fact )
+    return fact->createUriWidget( parent );
 
   return nullptr;
 }
@@ -193,3 +205,5 @@ QVariantMap ReosDataProviderSelectorWidget::selectedMetadata() const
 }
 
 ReosDataProviderSettingsWidget::ReosDataProviderSettingsWidget( QWidget *parent ): QWidget( parent ) {}
+
+ReosDataProviderUriWidget::ReosDataProviderUriWidget( QWidget *parent ): QWidget( parent ) {}

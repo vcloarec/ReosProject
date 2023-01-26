@@ -57,6 +57,7 @@ class ReosDssGuiFactory : public ReosDataProviderGuiFactory
     QString key() const override;
     ReosDssGriddedRainfallSelector *createProviderSelectorWidget( ReosMap *map, const QString &dataType, QWidget *parent = nullptr ) const override;
     ReosDataProviderSettingsWidget *createProviderSettingsWidget( ReosDataProvider *provider, QWidget *parent = nullptr ) const override;
+    ReosDataProviderUriWidget *createUriWidget( QWidget *parent = nullptr ) const override;
     QString dataType() const override;
 
     QString displayText() const override;

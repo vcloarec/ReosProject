@@ -80,6 +80,7 @@ class REOSGUI_EXPORT ReosRainfallManager : public ReosActionWidget
     void onTreeViewContextMenu( const QPoint &pos );
 
     void onImportFromTextFile();
+    void onExportGriddedRainfall();
 
     void updateMarkers();
 
@@ -113,6 +114,7 @@ class REOSGUI_EXPORT ReosRainfallManager : public ReosActionWidget
     QAction *mActionImportFromTextFile = nullptr;
     QAction *mActionSelectStationFromMap = nullptr;
     QAction *mActionAddGriddedRainfall = nullptr;
+    QAction *mActionExportGriddedRainFall = nullptr;
 
     ReosMapToolDrawPoint *mMapToolAddStationOnMap = nullptr;
     ReosMapToolSelectMapItem *mMapToolSelectStation = nullptr;

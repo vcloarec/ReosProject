@@ -74,6 +74,19 @@ class REOSGUI_EXPORT ReosDataProviderSettingsWidget : public QWidget
     ReosDataProviderSettingsWidget( QWidget *parent = nullptr );
 };
 
+class REOSGUI_EXPORT ReosDataProviderUriWidget : public QWidget
+{
+    Q_OBJECT
+  public:
+    ReosDataProviderUriWidget( QWidget *parent = nullptr );
+
+    virtual void setUri( const QString &uri ) = 0;
+
+    virtual void setDataType( const QString &dataType ) = 0;
+
+    virtual const QString uri() const = 0;
+};
+
 class REOSGUI_EXPORT ReosDataProviderGuiFactory
 {
     Q_GADGET
@@ -105,6 +118,9 @@ class REOSGUI_EXPORT ReosDataProviderGuiFactory
     //! Creates and returns a pointer to a new data provider settings widget for the provider \a dataProvider
     virtual ReosDataProviderSettingsWidget *createProviderSettingsWidget( ReosDataProvider *provider, QWidget *parent = nullptr ) const;
 
+    //! Creates and returns a pointer to a new URI widget
+    virtual ReosDataProviderUriWidget *createUriWidget( QWidget *parent = nullptr ) const;
+
     //! Returns the data type string that this factory handle, used to retrieve all the factory of the same type (e.g. "hydrograph",...)
     virtual QString dataType() const = 0;
 
@@ -134,6 +150,9 @@ class REOSGUI_EXPORT ReosDataProviderGuiRegistery
 
     //! Creates and returns a pointer to a new settings widget for the data provider \a dataProvider
     ReosDataProviderSettingsWidget *createProviderSettingsWidget( ReosDataProvider *dataProvider, QWidget *parent = nullptr );
+
+    //! Creates and returns a pointer to a new URI widget
+    ReosDataProviderUriWidget *createUriWidget( const QString &providerKey, QWidget *parent = nullptr ) const;
 
     bool hasCapability( const QString &providerKey, ReosDataProviderGuiFactory::GuiCapability capability ) const;
 
