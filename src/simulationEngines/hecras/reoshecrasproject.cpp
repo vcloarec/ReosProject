@@ -448,17 +448,17 @@ const ReosDuration ReosHecRasPlan::computeInterval() const
   return mComputeInterval;
 }
 
-const ReosDuration ReosHecRasPlan::outputIntevall() const
+const ReosDuration ReosHecRasPlan::outputInterval() const
 {
   return mOutputInterval;
 }
 
-const ReosDuration ReosHecRasPlan::detailedOutputInteval() const
+const ReosDuration ReosHecRasPlan::detailedOutputInterval() const
 {
   return mDetailedInterval;
 }
 
-const ReosDuration ReosHecRasPlan::mappingInteval() const
+const ReosDuration ReosHecRasPlan::mappingInterval() const
 {
   return mMappingInterval;
 }

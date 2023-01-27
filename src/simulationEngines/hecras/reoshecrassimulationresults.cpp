@@ -300,8 +300,7 @@ QMap<QString, ReosHydrograph *> ReosHecRasSimulationResults::outputHydrographs()
   path.setGroup( QStringLiteral( "BCLINE" ) );
   path.setVersion( plan.shortIdentifier() );
   path.setParameter( QStringLiteral( "FLOW" ) );
-
-
+  path.setTimeInterval( plan.outputInterval() );
 
   for ( int i = 0; i < flow.boundariesCount(); ++i )
   {

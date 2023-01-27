@@ -528,9 +528,9 @@ void ReosHecrasTesting::exploreProject()
   QCOMPARE( project.plan( planIds.at( 1 ) ).endTime(), QDateTime( QDate( 2016, 1, 8 ), QTime( 1, 0, 0 ), Qt::UTC ) );
 
   QCOMPARE( project.plan( planIds.at( 0 ) ).computeInterval(), ReosDuration( 60.0, ReosDuration::second ) );
-  QCOMPARE( project.plan( planIds.at( 0 ) ).outputIntevall(), ReosDuration( 5.0, ReosDuration::minute ) );
-  QCOMPARE( project.plan( planIds.at( 0 ) ).detailedOutputInteval(), ReosDuration( 5.0, ReosDuration::minute ) );
-  QCOMPARE( project.plan( planIds.at( 0 ) ).mappingInteval(), ReosDuration( 5.0, ReosDuration::minute ) );
+  QCOMPARE( project.plan( planIds.at( 0 ) ).outputInterval(), ReosDuration( 5.0, ReosDuration::minute ) );
+  QCOMPARE( project.plan( planIds.at( 0 ) ).detailedOutputInterval(), ReosDuration( 5.0, ReosDuration::minute ) );
+  QCOMPARE( project.plan( planIds.at( 0 ) ).mappingInterval(), ReosDuration( 5.0, ReosDuration::minute ) );
 
   QCOMPARE( project.currentGeometry().title(), QStringLiteral( "simple_2D_geometry" ) );
 
@@ -793,9 +793,9 @@ void ReosHecrasTesting::importAndLaunchStructure()
   QCOMPARE( planAfterPreparation.startTime(), QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ) );
   QCOMPARE( planAfterPreparation.endTime(), QDateTime( QDate( 2000, 01, 01 ), QTime( 12, 0, 0 ), Qt::UTC ) );
   QCOMPARE( planAfterPreparation.computeInterval(), ReosDuration( 10.0, ReosDuration::second ) );
-  QCOMPARE( planAfterPreparation.outputIntevall(), ReosDuration( 1.0, ReosDuration::minute ) );
-  QCOMPARE( planAfterPreparation.detailedOutputInteval(), ReosDuration( 1.0, ReosDuration::minute ) );
-  QCOMPARE( planAfterPreparation.mappingInteval(), ReosDuration( 1.0, ReosDuration::minute ) );
+  QCOMPARE( planAfterPreparation.outputInterval(), ReosDuration( 1.0, ReosDuration::minute ) );
+  QCOMPARE( planAfterPreparation.detailedOutputInterval(), ReosDuration( 1.0, ReosDuration::minute ) );
+  QCOMPARE( planAfterPreparation.mappingInterval(), ReosDuration( 1.0, ReosDuration::minute ) );
 
   ReosHecRasFlow flowAfterPreparation = projectAfterPreparation.currentFlow();
   QVERIFY( flowAfterPreparation.boundariesCount() == 2 );
