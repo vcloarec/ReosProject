@@ -326,6 +326,12 @@ void ReosHecRasSimulation::prepareInput(
       }
     }
 
+    QDateTime rainStartFirst, rainEndFirst;
+    rainStartFirst = griddedPrecipitation->startTime( 0 );
+    rainEndFirst = griddedPrecipitation->endTime( 0 );
+    gridPrecipDssPath.setStartDate( ReosDssUtils::dateToHecRasDate( rainStartFirst.date() ) + ':' + rainStartFirst.time().toString( "HHmm" ) );
+    gridPrecipDssPath.setTimeInterval( ReosDssUtils::dateToHecRasDate( rainEndFirst.date() ) + ':' + rainEndFirst.time().toString( "HHmm" ) );
+
     flow.activeGriddedPrecipitation( gridPrecipDssFile, gridPrecipDssPath );
   }
   else
