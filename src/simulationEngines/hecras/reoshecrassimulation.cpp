@@ -508,9 +508,9 @@ void ReosHecRasSimulation::setProject( std::shared_ptr<ReosHecRasProject> newPro
 
   const ReosHecRasPlan &plan = mProject->plan( mCurrentPlan );
   mComputeInterval = plan.computeInterval();
-  mOutputInterval = plan.outputIntevall();
-  mDetailledInterval = plan.detailedOutputInteval();
-  mMappingInterval = plan.mappingInteval();
+  mOutputInterval = plan.outputInterval();
+  mDetailledInterval = plan.detailedOutputInterval();
+  mMappingInterval = plan.mappingInterval();
 }
 
 void ReosHecRasSimulation::setCurrentPlan( const QString &planId )

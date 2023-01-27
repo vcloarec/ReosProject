@@ -115,9 +115,9 @@ class ReosHecRasPlan
     const QDateTime &endTime() const;
 
     const ReosDuration computeInterval() const;
-    const ReosDuration outputIntevall() const;
-    const ReosDuration detailedOutputInteval() const;
-    const ReosDuration mappingInteval() const;
+    const ReosDuration outputInterval() const;
+    const ReosDuration detailedOutputInterval() const;
+    const ReosDuration mappingInterval() const;
 
     void changeSimulationTimeInFile( const QDateTime &startTime, const QDateTime &endTime, const ReosHecRasSimulation *simulation ) const;
 

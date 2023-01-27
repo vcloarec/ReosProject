@@ -60,7 +60,6 @@ class REOSDSS_EXPORT ReosDssUtils
     static QString dssProviderKey();
 
     static QString dssFileFromUri( const QString &uri );
-
     static ReosDssPath dssPathFromUri( const QString &uri );
 
   private:
