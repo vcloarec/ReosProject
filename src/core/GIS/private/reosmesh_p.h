@@ -248,6 +248,8 @@ class ReosMeshTerrainColorShaderSettings_p : public ReosMeshColorShaderSettings_
     bool getDirectSourceMinMax( double &min, double &max ) const override;
     void onSettingsUpdated() override;
 
+    QString title() const override;
+
   signals:
 
     void meshTerrainSettingsChanged();

@@ -213,12 +213,13 @@ bool ReosGriddedRainfallRasterProvider_p::readBlock(
   void *data,
   QgsRasterBlockFeedback * )
 {
+  if ( mValues.isEmpty() )
+    return false;
+
   int pixelWidth = mXCount;
   int pixelHeight = mYCount;
-  QElapsedTimer timer;
-  timer.start();
 
-  GDALResampleAlg alg = GRA_NearestNeighbour;//GRA_Cubic;
+  GDALResampleAlg alg = GRA_Cubic;
 
   gdal::dataset_unique_ptr memData =
     QgsGdalUtils::blockToSingleBandMemoryDataset( pixelWidth, pixelHeight, mExtent, const_cast<double *>( mValues.constData() ),  GDALDataType::GDT_Float64 );

@@ -150,7 +150,7 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     void drawExtraRendering( QPainter *painter );
     void onExtraObjectRenderedFinished();
     void onExtraObjectRequestRepaint();
-    void updateLegendOrder() const;
+    void updateLegend() const;
     void resizeLegend() const;
 
   private:

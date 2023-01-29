@@ -28,15 +28,12 @@ class ReosColorRampMapLegendItem : public QGraphicsItem
 
     void paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget ) override;
 
-    void setOrder( int order );
-    void setLegendCount( int newLegendCount );
+    void resize( QWidget *viewpor, int activeLegendsCount, int order );
 
-    void resize( QWidget *viewport );
+    bool isActive() const;
 
   private:
     QPointer<ReosColorShaderSettings> mSettings;
-    int mOrder = 0;
-    int mLegendCount = 0;
     // Dimension in mm
     QSizeF mSizeHint = QSize( 40.0, 60.0 );
     double mHorSpacing = 5.0;

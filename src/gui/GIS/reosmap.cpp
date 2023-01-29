@@ -495,6 +495,7 @@ QWidget *ReosMap::mapCanvas() const
 void ReosMap::refreshCanvas()
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
+  updateLegend();
   canvas->refresh();
 }
 
@@ -629,10 +630,9 @@ void ReosMap::addExtraRenderedObject( ReosRenderedObject *obj )
       std::unique_ptr<ReosColorRampMapLegendItem> legend( new ReosColorRampMapLegendItem( settings ) );
       mCanvas->scene()->addItem( legend.get() );
       legend->setZValue( std::numeric_limits<double>::max() );
-      legend->setOrder( mColorRampLegendSettings.count() );
       mColorRampLegendSettings.insert( settingsPointerToString( settings ), legend.release() );
     }
-    updateLegendOrder();
+    updateLegend();
   }
 }
 
@@ -658,7 +658,7 @@ void ReosMap::removeExtraRenderedObject( ReosRenderedObject *obj )
           delete legendItem;
         mColorRampLegendSettings.remove( legId );
       }
-      updateLegendOrder();
+      updateLegend();
     }
   }
 }
@@ -768,13 +768,11 @@ void ReosMap::onExtraObjectRequestRepaint()
   }
 }
 
-void ReosMap::updateLegendOrder() const
+void ReosMap::updateLegend() const
 {
   const QList<ReosColorRampMapLegendItem *> colorRampLegendSettings = mColorRampLegendSettings.values();
   for ( int i = 0; i < colorRampLegendSettings.count(); ++i )
   {
-    colorRampLegendSettings.at( i )->setOrder( i );
-    colorRampLegendSettings.at( i )->setLegendCount( colorRampLegendSettings.count() );
     colorRampLegendSettings.at( i )->setVisible( mActionEnableLegend->isChecked() );
   }
 
@@ -783,9 +781,20 @@ void ReosMap::updateLegendOrder() const
 
 void ReosMap::resizeLegend() const
 {
-  const QList<ReosColorRampMapLegendItem *> colorRampLegendSettings = mColorRampLegendSettings.values();
-  for ( int i = 0; i < colorRampLegendSettings.count(); ++i )
-    colorRampLegendSettings.at( i )->resize( mCanvas->viewport() );
+  int activeLegendCount = 0;
+  for ( ReosColorRampMapLegendItem *item : mColorRampLegendSettings )
+    if ( item->isActive() )
+      activeLegendCount++;
+
+  int order = 0;
+  for ( ReosColorRampMapLegendItem *item : mColorRampLegendSettings )
+  {
+    if ( item->isActive() )
+    {
+      item->resize( mCanvas->viewport(), activeLegendCount, order );
+      order++;
+    }
+  }
 }
 
 ReosMapToolSelectMapItem *ReosMap::defaultMapTool() const
