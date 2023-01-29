@@ -37,6 +37,8 @@ QRectF ReosColorRampMapLegendItem::boundingRect() const
 
 void ReosColorRampMapLegendItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *, QWidget * )
 {
+  if ( !mSettings->isActive() )
+    return;
   QgsRenderContext renderContext;
   renderContext.setPainter( painter );
   renderContext.setScaleFactor( painter->device()->logicalDpiX() / 25.4 );
@@ -126,31 +128,26 @@ void ReosColorRampMapLegendItem::paint( QPainter *painter, const QStyleOptionGra
 #endif
 }
 
-void ReosColorRampMapLegendItem::setOrder( int order )
-{
-  mOrder = order;
-}
-
-void ReosColorRampMapLegendItem::setLegendCount( int newLegendCount )
-{
-  mLegendCount = newLegendCount;
-}
-
-void ReosColorRampMapLegendItem::resize( QWidget *viewport )
+void ReosColorRampMapLegendItem::resize( QWidget *viewpor, int activeLegendsCount, int order )
 {
   prepareGeometryChange();
-  double viewHeight = viewport->size().height();
-  double viewWidth = viewport->size().width();
+  double viewHeight = viewpor->size().height();
+  double viewWidth = viewpor->size().width();
 
-  int phyDpiX = viewport->physicalDpiX();
-  int phyDpiY = viewport->physicalDpiY();
+  int phyDpiX = viewpor->physicalDpiX();
+  int phyDpiY = viewpor->physicalDpiY();
 
-  double legendHeigh = std::min( viewHeight / mLegendCount - 30, mSizeHint.height() / 25.4 * phyDpiY );
+  double legendHeigh = std::min( viewHeight / activeLegendsCount - 30, mSizeHint.height() / 25.4 * phyDpiY );
   double legendWidth = mSizeHint.width() / 25.4 * phyDpiX;
 
-  QPointF legendTopLeft = QPointF( viewWidth - legendWidth, viewHeight - legendHeigh * ( mOrder + 1 ) );
+  QPointF legendTopLeft = QPointF( viewWidth - legendWidth, viewHeight - legendHeigh * ( order + 1 ) );
 
   QRectF legendBox = QRectF( legendTopLeft, QSizeF( legendWidth, legendHeigh ) );
   mBoundingRect = legendBox;
+}
+
+bool ReosColorRampMapLegendItem::isActive() const
+{
+  return mSettings->isActive();
 }
 

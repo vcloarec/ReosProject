@@ -176,8 +176,8 @@ bool ReosDssFile::getSeries( const ReosDssPath &path, const ReosTimeWindow &time
     int daySince1900 = timeSeries->startJulianDate;
     int startTimeSeconds = timeSeries->startTimeSeconds;
 
-    QDate date = QDate( 1900, 01, 01 ).addDays( daySince1900 - 1 );
-    QTime time = QTime::fromMSecsSinceStartOfDay( startTimeSeconds * 1000 );
+    const QDate date = QDate( 1900, 01, 01 ).addDays( daySince1900 - 1 );
+    const QTime time = QTime::fromMSecsSinceStartOfDay( startTimeSeconds * 1000 );
     startTime = QDateTime( date, time, Qt::UTC );
 
     timeStep = ReosDuration( timeSeries->timeIntervalSeconds, ReosDuration::second );

@@ -45,6 +45,9 @@ class REOSCORE_EXPORT ReosColorShaderSettings : public QObject
 
     virtual bool isValid() const = 0;
 
+    bool isActive() const {return mIsActive;}
+    void setActive( bool active ) {mIsActive = active;}
+
     virtual double classificationMinimum() const = 0;
     virtual void setClassificationMinimum( double newClassificationMinimum ) = 0;
 
@@ -67,6 +70,9 @@ class REOSCORE_EXPORT ReosColorShaderSettings : public QObject
   signals:
     void settingsChangedFromObject();
     void changed();
+
+  private:
+    bool mIsActive = true;
 };
 
 #endif // REOSRENDERERSETTINGS_H

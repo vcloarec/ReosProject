@@ -920,6 +920,7 @@ QList<ReosColorShaderSettings *> ReosMeshFrame_p::colorShaderSettings() const
 {
   QList<ReosColorShaderSettings *> ret;
   ret << mScalarShaderSettings.get();
+  ret << mTerrainShaderSettings.get();
 
   return ret;
 }
@@ -1023,9 +1024,17 @@ bool ReosMeshFrame_p::activateDataset( const QString &id, bool update )
   if ( !id.isEmpty() )
   {
     if ( id == mVerticesElevationDatasetId )
+    {
       mTerrainShaderSettings->setCurrentSymbology( symbology );
+      mTerrainShaderSettings->setActive( true );
+      mScalarShaderSettings->setActive( false );
+    }
     else
+    {
       mScalarShaderSettings->setCurrentSymbology( symbology );
+      mTerrainShaderSettings->setActive( false );
+      mScalarShaderSettings->setActive( true );
+    }
   }
 
   int index = mDatasetGroupsIndex.value( id, -1 );
@@ -1938,6 +1947,11 @@ void ReosMeshTerrainColorShaderSettings_p::onSettingsUpdated()
   emit mMesh->repaintRequested();
   mMesh->update3DRenderer();
   emit meshTerrainSettingsChanged();
+}
+
+QString ReosMeshTerrainColorShaderSettings_p::title() const
+{
+  return tr( "Terrain elevation" );
 }
 
 ReosMeshData_::~ReosMeshData_() {}
