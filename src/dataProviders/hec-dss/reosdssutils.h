@@ -48,7 +48,7 @@ class REOSDSS_EXPORT ReosDssUtils
     static ReosDuration previousValidInterval( const ReosDuration &interval );
     static ReosDuration nextValidInterval( const ReosDuration &interval );
 
-    static QString uri( const QString &filePath, const ReosDssPath &dssPath );
+    static QString uri( const QString &filePath, const ReosDssPath &dssPath, const ReosTimeWindow &timeWindow = ReosTimeWindow() );
 
     static const QList<ReosDuration> validIntervals();
 
@@ -57,10 +57,15 @@ class REOSDSS_EXPORT ReosDssUtils
     static QDate dssDateToDate( const QString &dssDate );
     static QTime dssTimeToTime( const QString &dssTime );
 
+    static QString dateToDssDate( const QDate &date );
+    static QString timeToDssTime( const QTime &time );
+
     static QString dssProviderKey();
 
     static QString dssFileFromUri( const QString &uri );
     static ReosDssPath dssPathFromUri( const QString &uri );
+    static ReosDuration timeStepFromUri( const QString &uri );
+    static ReosTimeWindow timeWindowFromUri( const QString &uri );
 
   private:
     static QList<ReosDuration> sValidInterval;

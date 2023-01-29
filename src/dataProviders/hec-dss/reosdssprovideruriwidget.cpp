@@ -59,7 +59,7 @@ const QString ReosDssProviderUriWidget::uri() const
 
   QString fileName = ui->mFile->text();
 
-  return ReosDssProviderBase::createUri( fileName, path );
+  return ReosDssUtils::uri( fileName, path );
 }
 
 void ReosDssProviderUriWidget::setDataType( const QString &dataType )

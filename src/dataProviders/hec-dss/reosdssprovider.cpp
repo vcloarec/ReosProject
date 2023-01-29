@@ -36,22 +36,7 @@ QString ReosDssProviderBase::staticKey()
   return ReosDssUtils::dssProviderKey();
 }
 
-QString ReosDssProviderBase::createUri( const QString &filePath, const ReosDssPath &path )
-{
-  QString uri;
-  uri.append( QStringLiteral( "\"" ) );
-  uri.append( filePath );
-  uri.append( QStringLiteral( "\"::" ) );
-  uri.append( path.string() );
 
-  return uri;
-}
-
-
-ReosDuration ReosDssProviderBase::timeStepFromUri( const QString &uri )
-{
-  return ReosDssUtils::dssPathFromUri( uri ).timeIntervalDuration();
-}
 
 ReosDssProviderBase::~ReosDssProviderBase() = default;
 
@@ -89,7 +74,7 @@ void ReosDssProviderTimeSerieConstantTimeStep::load()
     return;
 
   if ( hasInterval )
-    mTimeStep = ReosDssProviderBase::timeStepFromUri( uri );
+    mTimeStep = ReosDssUtils::timeStepFromUri( uri );
   else
   {
     mTimeStep = pathes.first().timeIntervalDuration();
@@ -351,7 +336,9 @@ void ReosDssProviderTimeSerieVariableTimeStep::load()
   }
   path.setTimeInterval( pathes.first().timeInterval() );
 
-  mFile->getSeries( path, mValues, timeStep, mReferenceTime );
+  ReosTimeWindow tw = ReosDssUtils::timeWindowFromUri( uri );
+
+  mFile->getSeries( path, tw, mValues, timeStep, mReferenceTime );
 
   mTimeValues.resize( mValues.size() );
   for ( int i = 0; i < mTimeValues.count(); ++i )
@@ -562,7 +549,7 @@ ReosEncodedElement ReosDssProviderGriddedRainfall::encode( const ReosEncodeConte
 
   QString sourcePath = ReosDssUtils::dssFileFromUri( uriToEncode );
   sourcePath = context.pathToEncode( sourcePath );
-  uriToEncode = createUri( sourcePath, ReosDssUtils::dssPathFromUri( uriToEncode ) );
+  uriToEncode = ReosDssUtils::uri( sourcePath, ReosDssUtils::dssPathFromUri( uriToEncode ) );
   element.addData( QStringLiteral( "data-source" ), uriToEncode );
 
   return element;
@@ -578,7 +565,7 @@ void ReosDssProviderGriddedRainfall::decode( const ReosEncodedElement &element, 
   {
     QString sourcePath = ReosDssUtils::dssFileFromUri( source );
     sourcePath = context.resolvePath( sourcePath );
-    source = createUri( sourcePath, ReosDssUtils::dssPathFromUri( source ) );
+    source = ReosDssUtils::uri( sourcePath, ReosDssUtils::dssPathFromUri( source ) );
     setDataSource( source );
   }
 }

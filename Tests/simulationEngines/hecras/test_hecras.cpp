@@ -71,7 +71,7 @@ class ReosHecrasTesting : public QObject
 
     void findTerrainFiles();
 
-    void createDssFile();
+    void manipulateDssFile();
 
     void createTimeSerie();
     void writeGridInDss();
@@ -191,9 +191,11 @@ void ReosHecrasTesting::findTerrainFiles()
 }
 
 
-void ReosHecrasTesting::createDssFile()
+void ReosHecrasTesting::manipulateDssFile()
 {
   const QString newDssFile = tempFile( "/dss_file_0" );
+  QFile::remove( newDssFile + QStringLiteral( ".dss" ) ); // to be sure th
+
   std::unique_ptr<ReosDssFile> dssFile( new ReosDssFile( newDssFile ) );
   QVERIFY( !dssFile->isValid() );
 
@@ -202,7 +204,106 @@ void ReosHecrasTesting::createDssFile()
   QVERIFY( dssFile->isValid() );
   QVERIFY( dssFile->isOpen() );
 
+  QList<ReosDssPath> pathes = dssFile->allPathes();
+  QVERIFY( pathes.isEmpty() );
+
+  ReosDssPath pathSeries( QStringLiteral( "/group1/location1/FLOW///version1/" ) );
+
+  int valueCount = 120;
+  QVector<double> values( valueCount );
+  QDateTime startTime( QDateTime( QDate( 2020, 02, 02 ), QTime( 05, 00, 00 ), Qt::UTC ) );
+  for ( int i = 0; i < valueCount; ++i )
+    values[i] = static_cast<double>( i * 2 );
+  QString error;
+  dssFile->writeConstantIntervalSeries( pathSeries, startTime, ReosDuration( 5, ReosDuration::minute ), values, error );
+  QVERIFY( error.isEmpty() );
+  pathes = dssFile->allPathes();
+  QCOMPARE( pathes.count(), 1 );
+  QCOMPARE( pathes.at( 0 ).string(), QStringLiteral( "/group1/location1/FLOW/02Feb2020/5Minute/version1/" ) );
   dssFile.reset();
+
+  dssFile.reset( new ReosDssFile( newDssFile, true ) ); // create==true, ovewrite the file so, must be empty
+  pathes = dssFile->allPathes();
+  QVERIFY( pathes.isEmpty() );
+  dssFile->writeConstantIntervalSeries( pathSeries, startTime, ReosDuration( 5, ReosDuration::minute ), values, error );
+  QVERIFY( error.isEmpty() );
+  pathes = dssFile->allPathes();
+  QCOMPARE( pathes.count(), 1 );
+  QCOMPARE( pathes.at( 0 ).string(), QStringLiteral( "/group1/location1/FLOW/02Feb2020/5Minute/version1/" ) );
+
+  dssFile.reset();
+  dssFile.reset( new ReosDssFile( newDssFile, false ) ); // create==false, we just open the file
+  pathes = dssFile->allPathes();
+  QCOMPARE( pathes.count(), 1 );
+  QCOMPARE( pathes.at( 0 ).string(), QStringLiteral( "/group1/location1/FLOW/02Feb2020/5Minute/version1/" ) );
+
+  values.clear();
+  ReosDuration timeStep;
+  startTime = QDateTime();
+  pathSeries.setTimeInterval( ReosDuration( 5, ReosDuration::minute ) );
+  QVERIFY( dssFile->getSeries( pathSeries, values, timeStep, startTime ) );
+  QCOMPARE( startTime, QDateTime( QDate( 2020, 02, 02 ), QTime( 05, 00, 00 ), Qt::UTC ) );
+  QCOMPARE( values.count(), 120 );
+  for ( int i = 0; i < valueCount; ++i )
+    QCOMPARE( values.at( i ), static_cast<double>( i * 2 ) );
+
+  values.clear();
+  startTime = QDateTime();
+  ReosTimeWindow timeWindow( QDateTime( QDate( 2020, 02, 02 ), QTime( 06, 00, 00 ), Qt::UTC ),
+                             QDateTime( QDate( 2020, 02, 02 ), QTime( 06, 30, 00 ), Qt::UTC ) );
+  QVERIFY( dssFile->getSeries( pathSeries, timeWindow, values, timeStep, startTime ) );
+  QCOMPARE( startTime, QDateTime( QDate( 2020, 02, 02 ), QTime( 06, 00, 00 ), Qt::UTC ) );
+  QCOMPARE( values.count(), 7 );
+  for ( int i = 0; i < 7; ++i )
+    QCOMPARE( values.at( i ), static_cast<double>( ( i + 12 ) * 2 ) );
+
+  values.clear();
+  startTime = QDateTime();
+  timeWindow = ReosTimeWindow( QDateTime( QDate( 2020, 02, 02 ), QTime( 04, 00, 00 ), Qt::UTC ),
+                               QDateTime( QDate( 2020, 02, 02 ), QTime( 05, 45, 00 ), Qt::UTC ) );
+  QVERIFY( dssFile->getSeries( pathSeries, timeWindow, values, timeStep, startTime ) );
+  QCOMPARE( startTime, QDateTime( QDate( 2020, 02, 02 ), QTime( 05, 00, 00 ), Qt::UTC ) );
+  QCOMPARE( values.count(), 10 );
+  for ( int i = 0; i < 10; ++i )
+    QCOMPARE( values.at( i ), static_cast<double>( ( i ) * 2 ) );
+
+  values.clear();
+  startTime = QDateTime();
+  timeWindow = ReosTimeWindow( QDateTime( QDate( 2020, 02, 02 ), QTime( 14, 00, 00 ), Qt::UTC ),
+                               QDateTime( QDate( 2020, 02, 02 ), QTime( 15, 30, 00 ), Qt::UTC ) );
+  QVERIFY( dssFile->getSeries( pathSeries, timeWindow, values, timeStep, startTime ) );
+  QCOMPARE( startTime, QDateTime( QDate( 2020, 02, 02 ), QTime( 14, 00, 00 ), Qt::UTC ) );
+  QCOMPARE( values.count(), 12 );
+  for ( int i = 0; i < 12; ++i )
+    QCOMPARE( values.at( i ), static_cast<double>( ( i + 12 * 9 ) * 2 ) );
+
+  dssFile.reset();
+
+  std::unique_ptr<ReosHydrograph> hydrograph( new ReosHydrograph(
+        nullptr, QStringLiteral( "dss" ),
+        "\"" + newDssFile + QStringLiteral( ".dss" ) +
+        "\"::/group1/location1/FLOW/02Feb2020/5Minute/version1/" + "::" +
+        "2020:02:02T06:00:00Z::2020:02:02T08:00:00Z" ) );
+
+  QCOMPARE( hydrograph->valueCount(), 25 );
+  QCOMPARE( hydrograph->referenceTime(), QDateTime( QDate( 2020, 02, 02 ), QTime( 6, 00, 00 ), Qt::UTC ) );
+  QCOMPARE( hydrograph->timeExtent().second, QDateTime( QDate( 2020, 02, 02 ), QTime( 8, 00, 00 ), Qt::UTC ) );
+  for ( int i = 0; i < 25; ++i )
+    QCOMPARE( hydrograph->valueAt( i ), static_cast<double>( ( i + 12 ) * 2 ) );
+
+  hydrograph.reset( new ReosHydrograph(
+                      nullptr, QStringLiteral( "dss" ),
+                      "\"" + newDssFile + QStringLiteral( ".dss" ) +
+                      "\"::/group1/location1/FLOW/02Feb2020/5Minute/version1/" + "::" +
+                      "2020:02:02T02:00:00Z::2020:02:02T07:00:00Z" ) );
+
+  QCOMPARE( hydrograph->valueCount(), 25 );
+  QCOMPARE( hydrograph->timeExtent().first, QDateTime( QDate( 2020, 02, 02 ), QTime( 5, 00, 00 ), Qt::UTC ) );
+  QCOMPARE( hydrograph->timeExtent().second, QDateTime( QDate( 2020, 02, 02 ), QTime( 7, 00, 00 ), Qt::UTC ) );
+  for ( int i = 0; i < 25; ++i )
+    QCOMPARE( hydrograph->valueAt( i ), static_cast<double>( ( i ) * 2 ) );
+
+  hydrograph.reset();
 
   QFile::remove( newDssFile + QStringLiteral( ".dss" ) );
 }
@@ -441,7 +542,7 @@ void ReosHecrasTesting::createAndWriteGridFromScratch()
   ReosDssPath gridPath = griddedPathes.at( 0 );
   QVERIFY( path_1.isEquivalent( gridPath ) );
 
-  QString uri = ReosDssProviderBase::createUri( filePath, gridPath );
+  QString uri = ReosDssUtils::uri( filePath, gridPath );
   QCOMPARE( uri, "\"" + filePath + "\"::/HOME_MADE/JARRY/PRECIP///VCL/" );
 
   std::unique_ptr<ReosGriddedRainfall> griddedPrecipitation = std::make_unique<ReosGriddedRainfall>( uri, dssProvider->key() );
