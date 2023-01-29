@@ -310,7 +310,7 @@ QMap<QString, ReosHydrograph *> ReosHecRasSimulationResults::outputHydrographs()
 
     ReosHydrograph *hyd = new ReosHydrograph( const_cast<ReosHecRasSimulationResults *>( this ),
         QStringLiteral( "dss" ),
-        ReosDssUtils::uri( dssFile, path ) );
+        ReosDssUtils::uri( dssFile, path, ReosTimeWindow( plan.startTime(), plan.endTime() ) ) );
 
     ret.insert( hbc.id(), hyd );
 

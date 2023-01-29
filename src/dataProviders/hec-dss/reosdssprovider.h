@@ -32,10 +32,6 @@ class ReosDssProviderBase
 
     static QString staticKey();
 
-    static QString createUri( const QString &filePath, const ReosDssPath &path );
-
-    ReosDuration timeStepFromUri( const QString &uri );
-
   protected:
     std::unique_ptr<ReosDssFile> mFile;
 

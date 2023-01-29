@@ -75,7 +75,7 @@ ReosGriddedRainfallProvider::FileDetails ReosDssGriddedRainfallSelector::setSour
 void ReosDssGriddedRainfallSelector::onComboChanged()
 {
   mProvider = std::make_unique<ReosDssProviderGriddedRainfall>();
-  mProvider->setDataSource( ReosDssProviderBase::createUri( mSource, ReosDssPath( ui->mPathesCombo->currentText() ) ) );
+  mProvider->setDataSource( ReosDssUtils::uri( mSource, ReosDssPath( ui->mPathesCombo->currentText() ) ) );
 
   emit dataSelectionChanged( true );
 }

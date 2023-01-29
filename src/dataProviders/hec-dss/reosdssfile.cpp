@@ -36,6 +36,12 @@ ReosDssFile::ReosDssFile( const QString &filePath, bool create )
   : mFileName( filePath )
 {
   QFileInfo fileInfo( mFileName );
+  if ( fileInfo.suffix() != QStringLiteral( "dss" ) )
+  {
+    mFileName = mFileName + ( QStringLiteral( ".dss" ) );
+    fileInfo = QFileInfo( mFileName );
+  }
+
   if ( !create && !fileInfo.exists() )
     return;
   else if ( create && fileInfo.exists() )
@@ -114,7 +120,51 @@ bool ReosDssFile::getSeries( const ReosDssPath &path, QVector<double> &values, R
   ReosDssPath allDatapath = path;
   allDatapath.setStartDate( QString( '*' ) );
 
-  zStructTimeSeries *timeSeries( zstructTsNew( allDatapath.c_pathString() ) );
+  const char *pthStr = allDatapath.c_pathString();
+  zStructTimeSeries *timeSeries( zstructTsNew( pthStr ) );
+  int status = ztsRetrieve( mIfltab->data(), timeSeries, -3, 2, 0 );
+
+  if ( status == STATUS_OKAY )
+  {
+    int valueCount = timeSeries->numberValues;
+    values.resize( valueCount );
+    memcpy( values.data(), timeSeries->doubleValues, static_cast<size_t>( valueCount )*sizeof( double ) );
+
+    int daySince1900 = timeSeries->startJulianDate;
+    int startTimeSeconds = timeSeries->startTimeSeconds;
+
+    const QDate date = QDate( 1900, 01, 01 ).addDays( daySince1900 - 1 );
+    const QTime time = QTime::fromMSecsSinceStartOfDay( startTimeSeconds * 1000 );
+    startTime = QDateTime( date, time, Qt::UTC );
+
+    timeStep = ReosDuration( timeSeries->timeIntervalSeconds, ReosDuration::second );
+  }
+
+  zstructFree( timeSeries );
+
+  return status == STATUS_OKAY;
+}
+
+bool ReosDssFile::getSeries( const ReosDssPath &path, const ReosTimeWindow &timeWindow, QVector<double> &values, ReosDuration &timeStep, QDateTime &startTime ) const
+{
+  if ( !path.isValid() )
+    return false;
+
+  if ( !timeWindow.isValid() )
+    return getSeries( path, values, timeStep, startTime );
+
+  ReosDssPath allDatapath = path;
+  allDatapath.setStartDate( QString( '*' ) );
+  const QString dssStartDate = ReosDssUtils::dateToDssDate( timeWindow.start().date() );
+  const QString dssStartTime = ReosDssUtils::timeToDssTime( timeWindow.start().time() );
+  const QString dssEndDate = ReosDssUtils::dateToDssDate( timeWindow.end().date() );
+  const QString dssEndTime = ReosDssUtils::timeToDssTime( timeWindow.end().time() );
+  zStructTimeSeries *timeSeries( zstructTsNewTimes( allDatapath.c_pathString(),
+                                 dssStartDate.toUtf8().data(),
+                                 dssStartTime.toUtf8().data(),
+                                 dssEndDate.toUtf8().data(),
+                                 dssEndTime.toUtf8().data() ) );
+
   int status = ztsRetrieve( mIfltab->data(), timeSeries, -3, 2, 0 );
 
   if ( status == STATUS_OKAY )

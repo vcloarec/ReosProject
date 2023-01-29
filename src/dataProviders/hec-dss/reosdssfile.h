@@ -104,6 +104,7 @@ class REOSDSS_EXPORT ReosDssFile
     bool pathExist( const ReosDssPath &path, bool considerInterval ) const;
 
     bool getSeries( const ReosDssPath &path, QVector<double> &values, ReosDuration &timeStep, QDateTime &startTime ) const;
+    bool getSeries(const ReosDssPath &path, const ReosTimeWindow &timeWindow, QVector<double> &values, ReosDuration &timeStep, QDateTime &startTime ) const;
 
     bool gridMinMax( const ReosDssPath &path, double &min, double &max ) const;
 

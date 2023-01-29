@@ -155,12 +155,18 @@ ReosDuration ReosDssUtils::nextValidInterval( const ReosDuration &interval )
   return ReosDuration();
 }
 
-QString ReosDssUtils::uri( const QString &filePath, const ReosDssPath &dssPath )
+QString ReosDssUtils::uri( const QString &filePath, const ReosDssPath &dssPath, const ReosTimeWindow &timeWindow )
 {
   ReosDssPath pathWithoutDate = dssPath;
   pathWithoutDate.setStartDate( QString() );
 
-  return QStringLiteral( "\"%1\"::%2" ).arg( filePath, dssPath.string() );
+  QString ret = QStringLiteral( "\"%1\"::%2" ).arg( filePath, dssPath.string() );
+
+  if ( timeWindow.isValid() )
+    ret += QStringLiteral( "::%1::%2" )
+           .arg( timeWindow.start().toString( Qt::ISODate ),
+                 timeWindow.end().toString( Qt::ISODate ) );
+  return ret;
 }
 
 const QList<ReosDuration> ReosDssUtils::validIntervals()
@@ -243,7 +249,28 @@ QTime ReosDssUtils::dssTimeToTime( const QString &dssTime )
   if ( seconds < 0 )
     return QTime();
 
-  return QTime::fromMSecsSinceStartOfDay( static_cast<int>( seconds * 1000 + 0.5 ) );
+  return QTime::fromMSecsSinceStartOfDay( static_cast<int>( std::round( seconds * 1000 ) ) );
+}
+
+QString ReosDssUtils::dateToDssDate( const QDate &date )
+{
+  QDate startDate = date;
+  std::vector<char> strDate( 13 );
+  yearMonthDayToDate( startDate.year(), startDate.month(), startDate.day(), 4, strDate.data(), strDate.size() );
+
+  return QString( strDate.data() );
+}
+
+QString ReosDssUtils::timeToDssTime( const QTime &time )
+{
+  QTime startTime = time;
+  std::vector<char> strTime( 13 );
+  int milliSeconds = startTime.msecsSinceStartOfDay();
+  int seconds = milliSeconds / 1000;
+  milliSeconds = milliSeconds - seconds * 1000;
+  secondsToTimeString( seconds, milliSeconds, 3, strTime.data(), strTime.size() );
+
+  return QString( strTime.data() );
 }
 
 QString ReosDssUtils::dssProviderKey()
@@ -276,6 +303,28 @@ ReosDssPath ReosDssUtils::dssPathFromUri( const QString &uri )
     return ReosDssPath( parts.at( 1 ) );
 
   return ReosDssPath( QString() );
+}
+
+ReosDuration ReosDssUtils::timeStepFromUri( const QString &uri )
+{
+  return ReosDssUtils::dssPathFromUri( uri ).timeIntervalDuration();
+}
+
+ReosTimeWindow ReosDssUtils::timeWindowFromUri( const QString &uri )
+{
+  if ( !uri.contains( QStringLiteral( "::" ) ) )
+    return ReosTimeWindow();
+
+  const QStringList parts = uri.split( QStringLiteral( "::" ) );
+  if ( parts.count() > 3 )
+  {
+    const QDateTime start = QDateTime::fromString( parts.at( 2 ), Qt::ISODate );
+    const QDateTime end = QDateTime::fromString( parts.at( 3 ), Qt::ISODate );
+    if ( start.isValid() && end.isValid() )
+      return ReosTimeWindow( start, end );
+  }
+
+  return ReosTimeWindow();
 }
 
 ReosDssIntervalCombo::ReosDssIntervalCombo( QWidget *parent ) : QComboBox( parent )
