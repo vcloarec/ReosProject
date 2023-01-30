@@ -1015,7 +1015,7 @@ void ReosTimeSerieVariableTimeStep::setValue( const QDateTime &time, double valu
   }
   else
   {
-    const ReosDuration relativeTime = ReosDuration( referenceTime().msecsTo( time ), ReosDuration::millisecond );
+    const ReosDuration relativeTime = ReosDuration( referenceTime().msecsTo( time ) );
     setValue( relativeTime, value );
   }
 

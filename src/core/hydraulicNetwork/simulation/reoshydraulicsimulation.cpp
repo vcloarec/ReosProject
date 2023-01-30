@@ -297,7 +297,10 @@ const ReosCalculationContext &ReosSimulationPreparationProcess::calculationConte
   return mContext;
 }
 
-ReosSimulationProcess::ReosSimulationProcess( const ReosCalculationContext &context, const QList<ReosHydraulicStructureBoundaryCondition *> &boundaries )
+ReosSimulationProcess::ReosSimulationProcess(
+  const ReosCalculationContext &context,
+  const QList<ReosHydraulicStructureBoundaryCondition *> &boundaries ):
+  mTimewWindow( context.timeWindow() )
 {
   for ( ReosHydraulicStructureBoundaryCondition *bc : boundaries )
   {

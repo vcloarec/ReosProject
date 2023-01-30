@@ -352,8 +352,10 @@ QList<QDateTime> ReosTelemac2DSimulationResults::timeSteps() const
   if ( groupCount() == 0 )
     return ret;
 
+  const QDateTime refTime = groupReferenceTime( 0 );
+
   for ( int i = 0; i < datasetCount( 0 ); ++i )
-    ret.append( mReferenceTime.addMSecs( datasetRelativeTime( 0, i ).valueMilliSecond() ) );
+    ret.append( refTime.addMSecs( datasetRelativeTime( 0, i ).valueMilliSecond() ) );
 
   return ret;
 }

@@ -420,7 +420,7 @@ void ReosHydraulicStructure2DProperties::onLaunchCalculation()
     mStructure2D->removeResults( mCalculationContext );
     mStructure2D->updateResults( mCalculationContext.schemeId() );
 
-    std::unique_ptr<ReosProcess> preparationProcess( mStructure2D->getPreparationProcessSimulation( mCalculationContext, error ) );
+    std::unique_ptr<ReosSimulationPreparationProcess> preparationProcess( mStructure2D->getPreparationProcessSimulation( mCalculationContext, error ) );
     if ( !preparationProcess )
     {
       QMessageBox::warning( this, tr( "Run Simulation" ), tr( "Simulation did not start for following reason:\n\n%1" ).arg( error ) );
@@ -435,6 +435,8 @@ void ReosHydraulicStructure2DProperties::onLaunchCalculation()
       QMessageBox::warning( this, tr( "Run Simulation" ), tr( "Something get wrong during simulation preparation.\nPlease, check the model." ) );
       return;
     }
+
+    mCalculationContext = preparationProcess->calculationContext();
 
     process = mStructure2D->createSimulationProcess( mCalculationContext, error );
     if ( process )
