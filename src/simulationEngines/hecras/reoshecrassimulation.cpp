@@ -300,17 +300,20 @@ void ReosHecRasSimulation::prepareInput(
 
 
   ReosGriddedRainfall *griddedPrecipitation = calculationContext.meteorologicModel()->associatedRainfall( hydraulicStructure );
-  bool griddedPrecipitationActive = griddedPrecipitation != nullptr;
+  bool griddedPrecipitationActive = griddedPrecipitation != nullptr && griddedPrecipitation->gridCount() > 0;
   if ( griddedPrecipitationActive )
   {
     QString gridPrecipDssFile;
     ReosDssPath gridPrecipDssPath;
+    QDateTime rainStartFirst, rainEndFirst;
     if ( griddedPrecipitation->dataProvider()->key().contains( ReosDssUtils::dssProviderKey() ) )
     {
       // The gridded rainfall is a dss one, so we just use its uri
       const QString uri = griddedPrecipitation->dataProvider()->dataSource();
       gridPrecipDssFile = ReosDssUtils::dssFileFromUri( uri );
       gridPrecipDssPath = ReosDssUtils::dssPathFromUri( uri );
+      rainStartFirst = griddedPrecipitation->startTime( 0 );
+      rainEndFirst = griddedPrecipitation->endTime( 0 );
     }
     else
     {
@@ -319,16 +322,24 @@ void ReosHecRasSimulation::prepareInput(
       ReosDssFile file( gridPrecipDssFile, true );
       gridPrecipDssPath.setGroup( mProject->projectName() );
       gridPrecipDssPath.setLocation( hydraulicStructure->elementName()->value() );
+      gridPrecipDssPath.setParameter( QStringLiteral( "PRECIP" ) );
       if ( file.isValid() )
       {
         ReosMapExtent extent = hydraulicStructure->extent();
         file.writeGriddedData( griddedPrecipitation, gridPrecipDssPath, extent, -1, calculationContext.timeWindow() );
       }
+
+      for ( int i = 0; i < griddedPrecipitation->gridCount(); ++i )
+      {
+        if ( griddedPrecipitation->endTime( i ) > calculationContext.timeWindow().start() )
+        {
+          rainStartFirst = griddedPrecipitation->startTime( i );
+          rainEndFirst = griddedPrecipitation->endTime( i );
+          break;
+        }
+      }
     }
 
-    QDateTime rainStartFirst, rainEndFirst;
-    rainStartFirst = griddedPrecipitation->startTime( 0 );
-    rainEndFirst = griddedPrecipitation->endTime( 0 );
     gridPrecipDssPath.setStartDate( ReosDssUtils::dateToHecRasDate( rainStartFirst.date() ) + ':' + rainStartFirst.time().toString( "HHmm" ) );
     gridPrecipDssPath.setTimeInterval( ReosDssUtils::dateToHecRasDate( rainEndFirst.date() ) + ':' + rainEndFirst.time().toString( "HHmm" ) );
 
