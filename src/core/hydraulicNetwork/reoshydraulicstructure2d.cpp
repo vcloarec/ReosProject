@@ -1194,16 +1194,18 @@ void ReosHydraulicStructure2D::updateResults( const QString &schemeId )
     {
       mCurrentResult = mSimulationResults.value( schemeId );
       setResultsOnStructure( mCurrentResult );
+      emit timeWindowChanged();
+      emit timeStepChanged();
     }
   }
   else
   {
     mCurrentResult = nullptr;
     setResultsOnStructure( nullptr );
+    emit timeWindowChanged();
+    emit timeStepChanged();
   }
 
-  emit timeWindowChanged();
-  emit timeStepChanged();
 }
 
 ReosSimulationProcess *ReosHydraulicStructure2D::processFromScheme( const QString &schemeId ) const
