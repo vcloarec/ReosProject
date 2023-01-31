@@ -42,7 +42,7 @@ ping -n 30 127.0.0.1
 tasklist /fi "ImageName eq Lekan.exe" /fo csv 2>NUL | find /I "Lekan.exe">NUL
 if %ERRORLEVEL% NEQ 0 (
 echo "///////////////////// Test launch Lekan application fails
-rem exit %ERRORLEVEL%
+exit %ERRORLEVEL%
 ) else (
 echo "///////////////////// Test launch Lekan application success
 taskkill /F /IM Lekan.exe
