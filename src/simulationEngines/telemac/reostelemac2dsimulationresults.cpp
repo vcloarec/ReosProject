@@ -286,7 +286,7 @@ QVector<double> ReosTelemac2DSimulationResults::datasetValues( int groupIndex, i
 
 QVector<int> ReosTelemac2DSimulationResults::activeFaces( int index ) const
 {
-  if ( index >= mCache.count() )
+  if ( index < 0 || index >= mCache.count() )
     return QVector<int>();
 
   if ( mCache.at( index ).activeFaces.isEmpty() )
