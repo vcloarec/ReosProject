@@ -788,8 +788,10 @@ void ReosRainfallManager::updateCurrentMapItemMarker( ReosRainfallItem *item )
 {
   mCurrentStationMarker.reset();
 
-  ReosStationItem *stationItem = nullptr;
+  if ( !item )
+    return;
 
+  ReosStationItem *stationItem = nullptr;
   while ( !stationItem && item->parentItem() )
   {
     stationItem = qobject_cast<ReosStationItem *>( item );
@@ -805,6 +807,7 @@ void ReosRainfallManager::updateCurrentMapItemMarker( ReosRainfallItem *item )
     mCurrentStationMarker->setExternalColor( Qt::white );
     mCurrentStationMarker->setExternalWidth( 32 );
   }
+
 }
 
 void ReosRainfallManager::onAddStationOnMap( const QPointF &point )
