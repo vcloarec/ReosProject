@@ -834,17 +834,19 @@ class ReosPlotCurve_p: public QwtPlotCurve
 
       auto validPoint = [ points ]( int i )
       {
+        if ( static_cast<size_t>( i ) >= points->size() )
+          return false;
         const QPointF &pt = points->sample( static_cast<size_t>( i ) );
         return !std::isnan( pt.x() ) && !std::isnan( pt.y() );
       };
 
       while ( tempFrom <= to && tempTo <= to )
       {
-        while ( !validPoint( tempFrom ) && tempFrom <= to )
+        while ( tempFrom <= to && !validPoint( tempFrom ) )
           tempFrom++;
 
         tempTo = tempFrom;
-        while ( validPoint( tempTo ) && tempTo <= to )
+        while ( tempTo <= to && validPoint( tempTo ) )
           tempTo++;
 
         tempTo--;
