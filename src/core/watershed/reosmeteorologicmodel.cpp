@@ -173,6 +173,9 @@ void ReosMeteorologicModel::associate( ReosWatershed *watershed, ReosRainfallDat
 
 void ReosMeteorologicModel::associate( ReosHydraulicStructure2D *structure, ReosRainfallDataItem *rainfall )
 {
+  if ( !structure || !rainfall )
+    return;
+
   if ( mTemporaryStructureAssocations.contains( structure->id() ) )
     mTemporaryStructureAssocations.remove( structure->id() );
 
@@ -702,6 +705,9 @@ QVariant ReosMeteorologicStructureItemModel::data( const QModelIndex &index, int
 
   ReosHydraulicStructure2D *struct2D = mStructures.at( index.row() );
 
+  if ( !struct2D )
+    return QVariant();
+
   if ( index.column() == 0 )
   {
     if ( role == Qt::DisplayRole )
@@ -816,8 +822,11 @@ void ReosMeteorologicStructureItemModel::removeAssociation( const QModelIndex &i
     return;
 
   ReosHydraulicStructure2D *str = mStructures.at( index.row() );
-  mCurrentMeteoModel->disassociate( str );
-  emit dataChanged( index, index.siblingAtColumn( 1 ) );
+  if ( str )
+  {
+    mCurrentMeteoModel->disassociate( str );
+    emit dataChanged( index, index.siblingAtColumn( 1 ) );
+  }
 }
 
 Qt::DropActions ReosMeteorologicStructureItemModel::supportedDropActions() const
@@ -839,7 +848,10 @@ void ReosMeteorologicStructureItemModel::onHydraulicNetworkElementAddedRemoved()
 
   std::sort( mStructures.begin(), mStructures.end(), []( ReosHydraulicStructure2D * elem1, ReosHydraulicStructure2D * elem2 )->bool
   {
-    return elem1->elementName()->value() < elem2->elementName()->value();
+    if ( elem1 && elem2 )
+      return elem1->elementName()->value() < elem2->elementName()->value();
+
+    return false;
   } );
 
   endResetModel();

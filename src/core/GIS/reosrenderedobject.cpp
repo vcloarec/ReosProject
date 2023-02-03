@@ -21,9 +21,12 @@ ReosObjectRenderer::ReosObjectRenderer( ReosRenderedObject *object )
 {
 }
 
+ReosObjectRenderer::~ReosObjectRenderer()
+{}
+
 void ReosObjectRenderer::start()
 {
-  render();
+    render();
 }
 
 void ReosObjectRenderer::stop( bool stop )

@@ -42,15 +42,18 @@ class ReosQgisLayerRenderer_p : public ReosObjectRenderer
     ReosQgisLayerRenderer_p( ReosRendererSettings *settings, QgsMapLayer *layer, ReosRenderedObject *renderedObject );
     ~ReosQgisLayerRenderer_p();
 
-    void render() const override;
+    void render() override;
     bool isRenderingStopped() const override;
+
+    QgsRenderContext renderContext() const;
 
   protected:
     void stopRendering() override;
+    std::unique_ptr<QPainter> mPainter;
 
   private:
     std::unique_ptr<QgsMapLayerRenderer> mLayerRenderer;
-    std::unique_ptr<QPainter> mPainter;
+    std::unique_ptr<QgsFeedback> mFeedback;
     QgsRenderContext mRenderContext;
 };
 
@@ -58,7 +61,7 @@ class ReosRasterRenderer_p: public ReosObjectRenderer
 {
   public:
     bool isRenderingStopped() const override;
-    void render() const override;
+    void render() override;
 
   protected:
     void stopRendering() override;

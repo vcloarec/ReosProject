@@ -196,13 +196,13 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   if ( mStructure2D && !mMap.isNull() )
   {
     mMap->addExtraRenderedObject( mStructure2D->mesh() );
-    connect( mStructure2D->mesh(), &ReosMesh::repaintRequested, this, &ReosHydraulicStructure2DProperties::requestMapRefresh );
   }
 
   if ( mStructure2D )
+  {
     updateDatasetMenus();
-
-  connect( mStructure2D, &ReosHydraulicStructure2D::simulationResultChanged, this, &ReosHydraulicStructure2DProperties::updateDatasetMenus );
+    connect( mStructure2D, &ReosHydraulicStructure2D::simulationResultChanged, this, &ReosHydraulicStructure2DProperties::updateDatasetMenus );
+  }
 
   QString settingsString = QStringLiteral( "hydraulic-network-structure-2D" );
 

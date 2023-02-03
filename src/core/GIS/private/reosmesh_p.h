@@ -37,15 +37,18 @@ class ReosMeshScalarColorShaderSettings_p;
 class ReosMeshVectorColorShaderSettings_p;
 class ReosMeshTerrainColorShaderSettings_p;
 
+class ReosMeshRendererCache_p;
+
 class ReosRendererMeshMapTimeStamp_p: public ReosRendererObjectMapTimeStamp
 {
   public:
-    ReosRendererMeshMapTimeStamp_p( const QgsMeshDatasetIndex &scalarIndex, const QgsMeshDatasetIndex &vectorIndex );
+    ReosRendererMeshMapTimeStamp_p( const QgsMeshDatasetIndex &scalarIndex, const QgsMeshDatasetIndex &vectorIndex, quint64 tracesAges );
     bool equal( ReosRendererObjectMapTimeStamp *other ) override;
 
   private:
     QgsMeshDatasetIndex mScalarIndex;
     QgsMeshDatasetIndex mVectorIndex;
+    quint64 mTracesAge;
 };
 
 class ReosMeshData_ : public ReosMeshData::Data
@@ -79,6 +82,7 @@ class ReosMeshFrame_p : public ReosMesh
   public:
     ReosMeshFrame_p( const QString &crs, QObject *parent );
     ReosMeshFrame_p( const QString &dataPath, const QString &destinationCrs, ReosModule::Message &message );
+    ~ReosMeshFrame_p();
 
     void resetMeshFrameFromeFile( const QString &dataPath, const QString &destinationCrs, ReosModule::Message &message ) override;
     bool isValid() const override;
@@ -95,33 +99,28 @@ class ReosMeshFrame_p : public ReosMesh
     QObject *data() const override;
     ReosMeshData meshDataFrame() const override;
     ReosMapExtent extent() const override;
-
     ReosProcess *applyTopographyOnVertices( ReosTopographyCollection *topographyCollection ) override;
     void applyDemOnVertices( ReosDigitalElevationModel *dem, const QString &destinationCrs ) override;
     double datasetScalarValueAt( const QString &datasetId, const QPointF &pos ) const override;
     void datasetGroupMinimumMaximum( const QString &datasetId, double &min, double &max ) const override;
     void save( const QString &dataPath ) override;
     void stopFrameEditing( bool commit, bool continueEditing = false ) override;
-
     ReosColorShaderSettings *scalarColorShaderSettings() const override;
     ReosColorShaderSettings *vectorColorShaderSettings() const override;
     ReosColorShaderSettings *terrainColorShaderSettings() const override;
-
     ReosEncodedElement datasetScalarGroupSymbology( const QString &id ) const override;
     ReosEncodedElement datasetVectorGroupSymbology( const QString &id ) const override;
     ReosEncodedElement wireFrameSymbology() const override;
-
     void setDatasetVectorGroupSymbology( const ReosEncodedElement &encodedElement, const QString &id ) override;
-
     void activateWireFrame( bool activate ) override;
     bool isWireFrameActive() const override;
 
     ReosRendererObjectMapTimeStamp *createMapTimeStamp( ReosRendererSettings *settings ) const override;
     ReosObjectRenderer *createRenderer( ReosRendererSettings *settings ) override;
+    void updateInternalCache( ReosObjectRenderer *renderer ) override;
+
     ReosMeshQualityChecker *getQualityChecker( QualityMeshChecks qualitiChecks, const QString &destinatonCrs ) const override;
-
     void setSimulationResults( ReosHydraulicSimulationResults *result ) override;
-
     QString verticesElevationDatasetId() const override;
     bool activateDataset( const QString &id, bool update = true ) override;
     bool activateVectorDataset( const QString &id, bool update = true ) override;
@@ -129,25 +128,19 @@ class ReosMeshFrame_p : public ReosMesh
     QStringList vectorDatasetIds() const override;
     QString datasetName( const QString &id ) const override;
     bool hasDatasetGroupIndex( const QString &id ) const override;
-
     QString verticalDataset3DId() const override;
     void setVerticalDataset3DId( const QString &verticalDataset3DId, bool update = true ) override;
-
     QString currentdScalarDatasetId() const override;
     QString currentdVectorDatasetId() const override;
-
     void update3DRenderer() override;
-
     WireFrameSettings wireFrameSettings() const override ;
     void setWireFrameSettings( const WireFrameSettings &wireFrameSettings, bool update ) override;
-
     double interpolateDatasetValueOnPoint( const ReosMeshDatasetSource *datasetSource, const ReosSpatialPosition &position, int sourceGroupindex, int datasetIndex ) const override;
-
     QString exportAsMesh( const QString &fileName ) const override;
-
     bool exportSimulationResults( ReosHydraulicSimulationResults *result, const QString &fileName ) const override;
-
     QList<ReosColorShaderSettings *> colorShaderSettings() const override;
+
+    ReosMeshRendererCache_p *rendererCache() const;
 
   private:
     std::unique_ptr<QgsMeshLayer> mMeshLayer;
@@ -165,6 +158,8 @@ class ReosMeshFrame_p : public ReosMesh
     std::unique_ptr<ReosMeshScalarColorShaderSettings_p> mScalarShaderSettings;
     std::unique_ptr<ReosMeshTerrainColorShaderSettings_p> mTerrainShaderSettings;
     std::unique_ptr<ReosMeshVectorColorShaderSettings_p> mVectorShaderSettings;
+
+    std::unique_ptr<ReosMeshRendererCache_p> mRendererCache;
 
     void init();
     void addDatasetGroup( QgsMeshDatasetGroup *group, const QString &id = QString() );

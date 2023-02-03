@@ -153,8 +153,9 @@ static bool reprojectToLayerExtent( const QgsMapLayer *ml, const QgsCoordinateTr
   return res;
 }
 
-ReosQgisLayerRenderer_p::ReosQgisLayerRenderer_p( ReosRendererSettings *settings, QgsMapLayer *layer, ReosRenderedObject *renderedObject ):
-  ReosObjectRenderer( renderedObject )
+ReosQgisLayerRenderer_p::ReosQgisLayerRenderer_p( ReosRendererSettings *settings, QgsMapLayer *layer, ReosRenderedObject *renderedObject )
+  :  ReosObjectRenderer( renderedObject )
+  , mFeedback( new QgsFeedback )
 {
   ReosRendererSettings_p *rendererSettings = dynamic_cast<ReosRendererSettings_p *>( settings );
 
@@ -182,6 +183,7 @@ ReosQgisLayerRenderer_p::ReosQgisLayerRenderer_p( ReosRendererSettings *settings
     mRenderContext.setCoordinateTransform( ct );
     mRenderContext.setPainter( mPainter.get() );
     mRenderContext.setExtent( renderExtent );
+    mRenderContext.setFeedback( mFeedback.get() );
     if ( !haveExtentInLayerCrs )
       mRenderContext.setFlag( Qgis::RenderContextFlag::ApplyClipAfterReprojection, true );
     mLayerRenderer.reset( layer->createMapRenderer( mRenderContext ) );
@@ -192,19 +194,26 @@ ReosQgisLayerRenderer_p::ReosQgisLayerRenderer_p( ReosRendererSettings *settings
 
 ReosQgisLayerRenderer_p::~ReosQgisLayerRenderer_p() = default;
 
-void ReosQgisLayerRenderer_p::render() const
+void ReosQgisLayerRenderer_p::render()
 {
   mLayerRenderer->render();
 }
 
 bool ReosQgisLayerRenderer_p::isRenderingStopped() const
 {
-  return mLayerRenderer->renderContext()->renderingStopped() || isStop();
+  return mLayerRenderer->renderContext()->renderingStopped() ||
+         isStop() ||
+         ( mFeedback &&  mFeedback->isCanceled() );
 }
 
 void ReosQgisLayerRenderer_p::stopRendering()
 {
   mRenderContext.setRenderingStopped( true );
+}
+
+QgsRenderContext ReosQgisLayerRenderer_p::renderContext() const
+{
+  return mRenderContext;
 }
 
 QLinearGradient ReosColorShaderSettings_p::gradient() const

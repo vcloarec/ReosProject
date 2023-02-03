@@ -24,6 +24,49 @@
 #include "reosstyleregistery.h"
 #include "reosmeshscalarrenderingwidget.h"
 
+struct VectorSettings
+{
+  QgsMeshRendererVectorSettings qgisSettings;
+  int lifeTime = 15;
+  bool dynamicTraces = false;
+  int tracesFps = 15;
+  int tracesMaxSpeed = 2000;
+  double tracesPersistence = 0.2;
+  double tracesTailFactor = 1;
+};
+
+VectorSettings vectorSettings_( ReosMesh *mesh, const QString &datasetId )
+{
+  const ReosEncodedElement encodedSymbology = mesh->datasetVectorGroupSymbology( datasetId );
+
+  VectorSettings ret;
+  encodedSymbology.getData( QStringLiteral( "dynamic-traces" ), ret.dynamicTraces );
+  encodedSymbology.getData( QStringLiteral( "dynamic-traces-life-time" ), ret.lifeTime );
+  encodedSymbology.getData( QStringLiteral( "dynamic-traces-max-speed" ), ret.tracesMaxSpeed );
+  encodedSymbology.getData( QStringLiteral( "dynamic-traces-fps" ), ret.tracesFps );
+  encodedSymbology.getData( QStringLiteral( "dynamic-traces-tails-persistence" ), ret.tracesPersistence );
+  encodedSymbology.getData( QStringLiteral( "dynamic-traces-tail-factor" ), ret.tracesTailFactor );
+
+  if ( encodedSymbology.description() == QStringLiteral( "dataset-vector-symbology" ) )
+  {
+    QString docString;
+    encodedSymbology.getData( QStringLiteral( "symbology" ), docString );
+
+    QDomDocument doc( QStringLiteral( "dataset-vector-symbology" ) );
+
+    if ( doc.setContent( docString ) )
+    {
+      QDomElement domElem = doc.firstChildElement( QStringLiteral( "vector-settings" ) );
+      QgsReadWriteContext context;
+      QgsMeshRendererVectorSettings vectorSettings;
+      vectorSettings.readXml( domElem );
+      ret.qgisSettings = vectorSettings;
+    }
+  }
+
+  return ret;;
+}
+
 ReosMeshVectorRenderingWidget::ReosMeshVectorRenderingWidget( ReosMesh *mesh, const QString &datasetId, const ReosGuiContext &guiContext ):
   ReosStackedPageWidget( guiContext.parent() ),
   ui( new Ui::ReosMeshVectorRenderingWidget ),
@@ -33,8 +76,9 @@ ReosMeshVectorRenderingWidget::ReosMeshVectorRenderingWidget( ReosMesh *mesh, co
   mWidthParameter( new ReosParameterDouble( QString(), false, this ) ),
   mMinimumLengthParameter( new ReosParameterDouble( QString(), false, this ) ),
   mMaximumLengthParameter( new ReosParameterDouble( QString(), false, this ) ),
-  mMaximumTailLengthParameter( new ReosParameterDouble( QString(), false, this ) )
-
+  mMaximumTailLengthParameter( new ReosParameterDouble( QString(), false, this ) ),
+  mTracesTailsPersitence( new ReosParameterDouble( QString(), false, this ) ),
+  mTracesTailFactor( new ReosParameterDouble( QString(), false, this ) )
 {
   ui->setupUi( this );
 
@@ -57,8 +101,67 @@ ReosMeshVectorRenderingWidget::ReosMeshVectorRenderingWidget( ReosMesh *mesh, co
 
   ui->mMaximumTailLengthWidget->setDouble( mMaximumTailLengthParameter );
   ui->mMaximumTailLengthWidget->enableSpacer( ReosParameterWidget::SpacerInMiddle );
+  ui->mTracesTailFactorDoubleWidget->setDouble( mTracesTailFactor );
+  ui->mTracesTailFactorDoubleWidget->enableSpacer( ReosParameterWidget::SpacerInMiddle );
+  ui->mTracesTailsPersistentDoubleWidget->setDouble( mTracesTailsPersitence );
+  ui->mTracesTailsPersistentDoubleWidget->enableSpacer( ReosParameterWidget::SpacerInMiddle );
 
-  setSettings( vectorSettings() );
+  VectorSettings vectorSettings = vectorSettings_( mMesh, mDatasetId );
+
+  //******************* QGIS settings
+  QgsMeshRendererVectorSettings qgisSettings = vectorSettings.qgisSettings;
+
+  ui->mSymbologyTypeCombo->setCurrentIndex( ui->mSymbologyTypeCombo->findData( static_cast<int>( qgisSettings.symbology() ) ) );
+  ui->mColorModeCombo->setCurrentIndex( ui->mColorModeCombo->findData( static_cast<int>( qgisSettings.coloringMethod() ) ) );
+  ui->mUniqueColorButton->setColor( qgisSettings.color() );
+  mWidthParameter->setValue( qgisSettings.lineWidth() );
+
+  QgsMeshRendererVectorArrowSettings arrowSettings = qgisSettings.arrowSettings();
+  mMinimumLengthParameter->setValue( arrowSettings.minShaftLength() );
+  mMaximumLengthParameter->setValue( arrowSettings.maxShaftLength() );
+  ui->mShaftHeadSlider->setValue( static_cast<int>( 100 - arrowSettings.arrowHeadLengthRatio() * 100.0 ) );
+  ui->mHeadWidthSpinBox->setValue( static_cast<int>( arrowSettings.arrowHeadWidthRatio() * 100 ) );
+
+  QgsMeshRendererVectorStreamlineSettings streamLineSettings = qgisSettings.streamLinesSettings();
+  ui->mStreamLineSeedingMethodCombo->setCurrentIndex( ui->mStreamLineSeedingMethodCombo->findData(
+        static_cast<int>( streamLineSettings.seedingMethod() ) ) );
+  ui->mStreamLineDensitySpinBox->setEnabled( streamLineSettings.seedingMethod() == QgsMeshRendererVectorStreamlineSettings::Random );
+  ui->mStreamLineDensitySpinBox->setValue( static_cast<int>( streamLineSettings.seedingDensity() * 100 ) );
+
+  QgsMeshRendererVectorTracesSettings traceSettings = qgisSettings.tracesSettings();
+  mMaximumTailLengthParameter->setValue( traceSettings.maximumTailLength() );
+  ui->mTracesParticulesCountSpinBox->setValue( traceSettings.particlesCount() );
+  switch ( traceSettings.maximumTailLengthUnit() )
+  {
+    case QgsUnitTypes::RenderMillimeters:
+      ui->mTailUnitCombo->setCurrentIndex( 0 );
+      break;
+    case QgsUnitTypes::RenderMapUnits:
+      break;
+    case QgsUnitTypes::RenderPixels:
+      ui->mTailUnitCombo->setCurrentIndex( 2 );
+      break;
+    case QgsUnitTypes::RenderPercentage:
+      break;
+    case QgsUnitTypes::RenderPoints:
+      ui->mTailUnitCombo->setCurrentIndex( 1 );
+      break;
+    case QgsUnitTypes::RenderInches:
+    case QgsUnitTypes::RenderUnknownUnit:
+      break;
+    case QgsUnitTypes::RenderMetersInMapUnits:
+      ui->mTailUnitCombo->setCurrentIndex( 3 );
+      break;
+  }
+  //****************
+
+  ui->mDynamicTracesGroupBox->setChecked( vectorSettings.dynamicTraces );
+  ui->mTracesLifeTimeSpinBox->setValue( vectorSettings.lifeTime );
+  ui->mTracesFPSSpinBox->setValue( vectorSettings.tracesFps );
+  ui->mTracesMaxSpeedSpinBox->setValue( vectorSettings.tracesMaxSpeed );
+  mTracesTailFactor->setValue( vectorSettings.tracesTailFactor );
+  mTracesTailsPersitence->setValue( vectorSettings.tracesPersistence );
+
   updateWidget();
 
   connect( ui->mSymbologyTypeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]
@@ -80,7 +183,6 @@ ReosMeshVectorRenderingWidget::ReosMeshVectorRenderingWidget( ReosMesh *mesh, co
   } );
   connect( ui->mShaftHeadSlider, &QSlider::valueChanged, this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
   connect( mWidthParameter, &ReosParameter::valueChanged, this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
-
   connect( mMinimumLengthParameter, &ReosParameter::valueChanged, this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
   connect( mMaximumLengthParameter, &ReosParameter::valueChanged, this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
   connect( ui->mHeadWidthSpinBox, QOverload<int>::of( &QSpinBox::valueChanged ), this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
@@ -104,7 +206,15 @@ ReosMeshVectorRenderingWidget::ReosMeshVectorRenderingWidget( ReosMesh *mesh, co
 
   connect( mMaximumTailLengthParameter, &ReosParameter::valueChanged, this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
   connect( ui->mTailUnitCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
-  connect( ui->mTraceParticulesCountSpinBox, QOverload<int>::of( &QSpinBox::valueChanged ), this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
+  connect( ui->mTracesParticulesCountSpinBox, QOverload<int>::of( &QSpinBox::valueChanged ), this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
+
+  connect( ui->mDynamicTracesGroupBox, &QGroupBox::toggled, this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
+  connect( ui->mTracesLifeTimeSpinBox, QOverload<int>::of( &QSpinBox::valueChanged ), this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
+  connect( ui->mTracesParticulesCountSpinBox, QOverload<int>::of( &QSpinBox::valueChanged ), this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
+  connect( ui->mTracesFPSSpinBox, QOverload<int>::of( &QSpinBox::valueChanged ), this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
+  connect( ui->mTracesMaxSpeedSpinBox, QOverload<int>::of( &QSpinBox::valueChanged ), this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
+  connect( mTracesTailsPersitence, &ReosParameter::valueChanged, this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
+  connect( mTracesTailFactor, &ReosParameter::valueChanged, this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
 
   ui->mBackButton->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   connect( ui->mBackButton, &QPushButton::clicked, this, &ReosStackedPageWidget::backToPreviousPage );
@@ -117,7 +227,8 @@ ReosMeshVectorRenderingWidget::~ReosMeshVectorRenderingWidget()
 
 void ReosMeshVectorRenderingWidget::updateMeshSettings()
 {
-  QgsMeshRendererVectorSettings vectSettings = vectorSettings();
+  //****** QGIS symbology
+  QgsMeshRendererVectorSettings vectSettings = vectorSettings_( mMesh, mDatasetId ).qgisSettings;
   vectSettings.setSymbology( static_cast<QgsMeshRendererVectorSettings::Symbology>( ui->mSymbologyTypeCombo->currentData().toInt() ) );
   vectSettings.setColoringMethod( static_cast<QgsInterpolatedLineColor::ColoringMethod>( ui->mColorModeCombo->currentData().toInt() ) );
   vectSettings.setColor( ui->mUniqueColorButton->color() );
@@ -136,7 +247,7 @@ void ReosMeshVectorRenderingWidget::updateMeshSettings()
 
   QgsMeshRendererVectorTracesSettings traceSettings = vectSettings.tracesSettings();
   traceSettings.setMaximumTailLength( mMaximumTailLengthParameter->value() );
-  traceSettings.setParticlesCount( ui->mTraceParticulesCountSpinBox->value() );
+  traceSettings.setParticlesCount( ui->mTracesParticulesCountSpinBox->value() );
   switch ( ui->mTailUnitCombo->currentIndex() )
   {
     case 0:
@@ -156,61 +267,25 @@ void ReosMeshVectorRenderingWidget::updateMeshSettings()
   vectSettings.setArrowsSettings( arrowSettings );
   vectSettings.setStreamLinesSettings( streamLineSettings );
   vectSettings.setTracesSettings( traceSettings );
+
   QDomDocument doc( QStringLiteral( "dataset-vector-symbology" ) );
   doc.appendChild( vectSettings.writeXml( doc ) ) ;
 
   ReosEncodedElement encodedElem( QStringLiteral( "dataset-vector-symbology" ) );
   QString docString = doc.toString();
   encodedElem.addData( QStringLiteral( "symbology" ), docString );
+  //*******************
+
+  encodedElem.addData( QStringLiteral( "dynamic-traces" ),
+                       ui->mDynamicTracesGroupBox->isChecked() && vectSettings.symbology() == QgsMeshRendererVectorSettings::Symbology::Traces );
+
+  encodedElem.addData( QStringLiteral( "dynamic-traces-life-time" ), ui->mTracesLifeTimeSpinBox->value() );
+  encodedElem.addData( QStringLiteral( "dynamic-traces-max-speed" ), ui->mTracesMaxSpeedSpinBox->value() );
+  encodedElem.addData( QStringLiteral( "dynamic-traces-fps" ), ui->mTracesFPSSpinBox->value() );
+  encodedElem.addData( QStringLiteral( "dynamic-traces-tails-persistence" ), mTracesTailsPersitence->value() );
+  encodedElem.addData( QStringLiteral( "dynamic-traces-tail-factor" ), mTracesTailFactor->value() );
+
   mMesh->setDatasetVectorGroupSymbology( encodedElem, mDatasetId );
-}
-
-void ReosMeshVectorRenderingWidget::setSettings( const QgsMeshRendererVectorSettings &settings )
-{
-  ui->mSymbologyTypeCombo->setCurrentIndex( ui->mSymbologyTypeCombo->findData( static_cast<int>( settings.symbology() ) ) );
-  ui->mColorModeCombo->setCurrentIndex( ui->mColorModeCombo->findData( static_cast<int>( settings.coloringMethod() ) ) );
-  ui->mUniqueColorButton->setColor( settings.color() );
-  mWidthParameter->setValue( settings.lineWidth() );
-
-  QgsMeshRendererVectorArrowSettings arrowSettings = settings.arrowSettings();
-  mMinimumLengthParameter->setValue( arrowSettings.minShaftLength() );
-  mMaximumLengthParameter->setValue( arrowSettings.maxShaftLength() );
-  ui->mShaftHeadSlider->setValue( 100 - arrowSettings.arrowHeadLengthRatio() * 100.0 );
-  ui->mHeadWidthSpinBox->setValue( arrowSettings.arrowHeadWidthRatio() * 100 );
-
-  QgsMeshRendererVectorStreamlineSettings streamLineSettings = settings.streamLinesSettings();
-  ui->mStreamLineSeedingMethodCombo->setCurrentIndex( ui->mStreamLineSeedingMethodCombo->findData(
-        static_cast<int>( streamLineSettings.seedingMethod() ) ) );
-  ui->mStreamLineDensitySpinBox->setEnabled( streamLineSettings.seedingMethod() == QgsMeshRendererVectorStreamlineSettings::Random );
-  ui->mStreamLineDensitySpinBox->setValue( streamLineSettings.seedingDensity() * 100 );
-
-  QgsMeshRendererVectorTracesSettings traceSettings = settings.tracesSettings();
-  mMaximumTailLengthParameter->setValue( traceSettings.maximumTailLength() );
-  ui->mTraceParticulesCountSpinBox->setValue( traceSettings.particlesCount() );
-  switch ( traceSettings.maximumTailLengthUnit() )
-  {
-    case QgsUnitTypes::RenderMillimeters:
-      ui->mTailUnitCombo->setCurrentIndex( 0 );
-      break;
-    case QgsUnitTypes::RenderMapUnits:
-      break;
-    case QgsUnitTypes::RenderPixels:
-      ui->mTailUnitCombo->setCurrentIndex( 2 );
-      break;
-    case QgsUnitTypes::RenderPercentage:
-      break;
-    case QgsUnitTypes::RenderPoints:
-      ui->mTailUnitCombo->setCurrentIndex( 1 );
-      break;
-    case QgsUnitTypes::RenderInches:
-      break;
-    case QgsUnitTypes::RenderUnknownUnit:
-      break;
-    case QgsUnitTypes::RenderMetersInMapUnits:
-      ui->mTailUnitCombo->setCurrentIndex( 3 );
-      break;
-
-  }
 }
 
 void ReosMeshVectorRenderingWidget::updateWidget()
@@ -248,27 +323,4 @@ void ReosMeshVectorRenderingWidget::updateWidget()
       ui->mColorRampToolButton->setVisible( true );
       break;
   }
-}
-
-QgsMeshRendererVectorSettings ReosMeshVectorRenderingWidget::vectorSettings()
-{
-  const ReosEncodedElement encodedSymbology = mMesh->datasetVectorGroupSymbology( mDatasetId );
-  if ( encodedSymbology.description() == QStringLiteral( "dataset-vector-symbology" ) )
-  {
-    QString docString;
-    encodedSymbology.getData( QStringLiteral( "symbology" ), docString );
-
-    QDomDocument doc( QStringLiteral( "dataset-vector-symbology" ) );
-
-    if ( doc.setContent( docString ) )
-    {
-      QDomElement domElem = doc.firstChildElement( QStringLiteral( "vector-settings" ) );
-      QgsReadWriteContext context;
-      QgsMeshRendererVectorSettings vectorSettings;
-      vectorSettings.readXml( domElem );
-      return vectorSettings;
-    }
-  }
-
-  return QgsMeshRendererVectorSettings();
 }

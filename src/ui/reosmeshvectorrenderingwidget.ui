@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>439</width>
-    <height>506</height>
+    <height>654</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -111,13 +111,6 @@
       <string>Traces</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_9">
-        <property name="text">
-         <string>Particules count</string>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="0">
        <widget class="QLabel" name="label_10">
         <property name="text">
@@ -125,18 +118,111 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="ReosParameterDoubleWidget" name="mMaximumTailLengthWidget" native="true"/>
+      <item row="2" column="0" colspan="3">
+       <widget class="QGroupBox" name="mDynamicTracesGroupBox">
+        <property name="title">
+         <string>Dynamic Traces</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_5">
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_14">
+           <property name="text">
+            <string>Frame per seconds</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1" colspan="2">
+          <widget class="ReosParameterDoubleWidget" name="mTracesTailFactorDoubleWidget" native="true"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_13">
+           <property name="text">
+            <string>Maximum trace speed (px/s)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_15">
+           <property name="text">
+            <string>Tails persistence (0 - 1)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1" colspan="2">
+          <widget class="ReosParameterDoubleWidget" name="mTracesTailsPersistentDoubleWidget" native="true"/>
+         </item>
+         <item row="2" column="1" colspan="2">
+          <widget class="QSpinBox" name="mTracesFPSSpinBox">
+           <property name="maximum">
+            <number>15</number>
+           </property>
+           <property name="value">
+            <number>10</number>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_16">
+           <property name="text">
+            <string>Tail factor</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1" colspan="2">
+          <widget class="QSpinBox" name="mTracesMaxSpeedSpinBox">
+           <property name="maximum">
+            <number>10000</number>
+           </property>
+           <property name="singleStep">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>2000</number>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_17">
+           <property name="text">
+            <string>Particules life time (s)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1" colspan="2">
+          <widget class="QSpinBox" name="mTracesLifeTimeSpinBox">
+           <property name="maximum">
+            <number>99999999</number>
+           </property>
+           <property name="value">
+            <number>15</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </item>
       <item row="1" column="2">
        <widget class="QComboBox" name="mTailUnitCombo"/>
       </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string>Particules count</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="1" colspan="2">
-       <widget class="QSpinBox" name="mTraceParticulesCountSpinBox">
+       <widget class="QSpinBox" name="mTracesParticulesCountSpinBox">
         <property name="maximum">
          <number>1000000</number>
         </property>
        </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="ReosParameterDoubleWidget" name="mMaximumTailLengthWidget" native="true"/>
       </item>
      </layout>
     </widget>
@@ -144,7 +230,7 @@
    <item row="6" column="0" colspan="2">
     <widget class="QGroupBox" name="mArrowShapeGroupBox">
      <property name="title">
-      <string>Arrow shape</string>
+      <string>Arrow Shape</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="4" column="0">
