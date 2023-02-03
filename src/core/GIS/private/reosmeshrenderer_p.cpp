@@ -291,6 +291,8 @@ ReosMovingTracesRenderer::ReosMovingTracesRenderer(
   mTraceGenerator->setParticlesSize(
     mRenderContext.convertToPainterUnits( settings.vectorSettings( datasetGroupindex ).lineWidth(), QgsUnitTypes::RenderUnit::RenderMillimeters ) );
 
+  mFramePerSeconds = tracesSettings.fps;
+
   //****  For now, the class QgsMeshVectorTraceAnimationGenerator return an image with the effective extent of the layer int he map
   // We can't access to the top left point in device coordinate of the top left point, this an issue that has to be fixed in QGIS
   // So For now, we have to calculate here.
