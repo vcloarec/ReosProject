@@ -35,6 +35,7 @@ SET(REOS_CORE_SOURCES
   GIS/private/reospolygonstructure_p.cpp
   GIS/private/reospolylinesstructure_p.cpp
   GIS/private/reosmesh_p.cpp
+  GIS/private/reosmeshrenderer_p.cpp
   GIS/private/reosmeshdataprovider_p.cpp
   GIS/private/reostopographycollection_p.cpp
   GIS/private/reosrenderersettings_p.cpp
@@ -195,6 +196,7 @@ SET(REOS_CORE_HEADERS_PRIVATE
     GIS/private/reospolylinesstructure_p.h
     GIS/private/reospolygonstructure_p.h
     GIS/private/reosmesh_p.h
+    GIS/private/reosmeshrenderer_p.h
     GIS/private/reosmeshdataprovider_p.h
     GIS/private/reostopographycollection_p.h
     GIS/private/reosrenderersettings_p.h

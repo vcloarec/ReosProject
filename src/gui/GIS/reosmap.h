@@ -55,13 +55,16 @@ class ReosRendererObjectHandler : public QObject
 
     void init();
 
-    void makeObsolete( ReosRenderedObject *renderedObject );
+    void makeRenderingObsolete( ReosRenderedObject *renderedObject );
 
     void startRender( ReosRenderedObject *renderedObject );
 
     QImage image( ReosRenderedObject *renderedObject );
 
     void clearObject( ReosRenderedObject *renderedObject );
+
+  signals:
+    void requestCanvasRefesh();
 
   private slots:
     void onRendererFinished();
@@ -146,9 +149,9 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
 
   private slots:
     void setCrs( const QString &crs );
-    void prepareExtraRenderedObject();
+    void onMapStartRendering();
+    void onMapRenderingFinish();
     void drawExtraRendering( QPainter *painter );
-    void onExtraObjectRenderedFinished();
     void onExtraObjectRequestRepaint();
     void updateLegend() const;
     void resizeLegend() const;
@@ -178,6 +181,11 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     QMap<QString, ReosColorRampMapLegendItem *> mColorRampLegendSettings;
 
     ReosColorRampMapLegendItem *mLegendItem;
+
+    bool mMapIsRendering = false;
+    bool mNeedOtherRefresh = false;
+
+    void prepareExtraRenderedObject();
 };
 
 

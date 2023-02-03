@@ -35,6 +35,7 @@
 #include "reosgisengine.h"
 #include "reosrenderedobject.h"
 #include "reosrenderersettings_p.h"
+#include "reosmeshrenderer_p.h"
 
 static QgsMeshRendererScalarSettings getScalarSettingsFromEncoded( const ReosEncodedElement &elem )
 {
@@ -120,6 +121,8 @@ ReosMeshFrame_p::ReosMeshFrame_p( const QString &dataPath, const QString &destin
   resetMeshFrameFromeFile( dataPath, destinationCrs, message );
   init();
 }
+
+ReosMeshFrame_p::~ReosMeshFrame_p() = default;
 
 
 void ReosMeshFrame_p::resetMeshFrameFromeFile( const QString &dataPath, const QString &destinationCrs, ReosModule::Message &message )
@@ -243,6 +246,7 @@ void ReosMeshFrame_p::applySymbologyOnScalarDataSet( const QString &id, QgsMeshR
   int groupIndex = mDatasetGroupsIndex.value( id, -1 );
   settings.setScalarSettings( groupIndex, scalarSettings );
   mMeshLayer->setRendererSettings( settings );
+  mRendererCache.reset();
 
   if ( id == mVerticesElevationDatasetId )
     emit terrainSymbologyChanged();
@@ -267,6 +271,7 @@ ReosEncodedElement ReosMeshFrame_p::restoreVectorSymbologyOnMeshDatasetGroup( co
 
 void ReosMeshFrame_p::applySymbologyOnVectorDataSet( const QString &id, QgsMeshRendererVectorSettings vectorSettings )
 {
+  mRendererCache.reset();
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
   settings.setVectorSettings( mDatasetGroupsIndex.value( id, -1 ), vectorSettings );
   mMeshLayer->setRendererSettings( settings );
@@ -299,6 +304,19 @@ void ReosMeshFrame_p::setDatasetVectorGroupSymbology( const ReosEncodedElement &
 
   mDatasetVectorSymbologies.insert( id, encodedElement.bytes() );
   restoreVectorSymbologyOnMeshDatasetGroup( id );
+
+  if ( id == mCurrentActiveVectorDatasetId )
+  {
+    bool dynamicTraces = false;
+    QgsMeshRendererSettings qgsSettings = mMeshLayer->rendererSettings();
+    if ( encodedElement.getData( QStringLiteral( "dynamic-traces" ), dynamicTraces ) && dynamicTraces )
+      qgsSettings.setActiveVectorDatasetGroup( -1 );
+    else
+      qgsSettings.setActiveVectorDatasetGroup( mDatasetGroupsIndex.value( id ) );
+
+    mMeshLayer->setRendererSettings( qgsSettings );
+  }
+
 
   update3DRenderer();
 }
@@ -334,12 +352,25 @@ ReosRendererObjectMapTimeStamp *ReosMeshFrame_p::createMapTimeStamp( ReosRendere
   const QgsMeshDatasetIndex scalarIndex = mMeshLayer->activeScalarDatasetAtTime( timeRange );
   const QgsMeshDatasetIndex vectorIndex = mMeshLayer->activeVectorDatasetAtTime( timeRange );
 
-  return new ReosRendererMeshMapTimeStamp_p( scalarIndex, vectorIndex );
+  return new ReosRendererMeshMapTimeStamp_p(
+           scalarIndex, vectorIndex, mRendererCache ? mRendererCache->tracesAges() : 0 );
 }
 
 ReosObjectRenderer *ReosMeshFrame_p::createRenderer( ReosRendererSettings *settings )
 {
-  return new ReosQgisLayerRenderer_p( settings, mMeshLayer.get(), this );
+  if ( !mRendererCache )
+  {
+    mRendererCache.reset(
+      new ReosMeshRendererCache_p( this, mDatasetGroupsIndex.value( mCurrentActiveVectorDatasetId ) ) );
+  }
+
+  return new ReosMeshRenderer_p( settings, mMeshLayer.get(), this );
+}
+
+void ReosMeshFrame_p::updateInternalCache( ReosObjectRenderer *renderer )
+{
+  if ( mRendererCache )
+    mRendererCache->updateInternalCache( qobject_cast<ReosMeshRenderer_p *>( renderer ) );
 }
 
 ReosMeshQualityChecker *ReosMeshFrame_p::getQualityChecker( ReosMesh::QualityMeshChecks qualitiChecks, const QString &destinatonCrs ) const
@@ -925,6 +956,11 @@ QList<ReosColorShaderSettings *> ReosMeshFrame_p::colorShaderSettings() const
   return ret;
 }
 
+ReosMeshRendererCache_p *ReosMeshFrame_p::rendererCache() const
+{
+  return mRendererCache.get();
+}
+
 void ReosMeshFrame_p::renderingNeedUpdate()
 {
   if ( mMeshLayer )
@@ -1067,7 +1103,13 @@ bool ReosMeshFrame_p::activateVectorDataset( const QString &id, bool update )
   if ( !id.isEmpty() )
     mVectorShaderSettings->setCurrentSymbology( symbology );
 
-  int index = mDatasetGroupsIndex.value( id, -1 );
+  int index;
+  bool dynamicTraces = false;
+  if ( symbology.getData( QStringLiteral( "dynamic-traces" ), dynamicTraces ) )
+    index = -1;
+  else
+    index = mDatasetGroupsIndex.value( id, -1 );
+
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
   settings.setActiveVectorDatasetGroup( index );
   mMeshLayer->setRendererSettings( settings );
@@ -1749,9 +1791,11 @@ QgsMeshDatasetGroup::Type ReosResultDatasetGroup::type() const
 
 ReosRendererMeshMapTimeStamp_p::ReosRendererMeshMapTimeStamp_p(
   const QgsMeshDatasetIndex &scalarIndex,
-  const QgsMeshDatasetIndex &vectorIndex )
+  const QgsMeshDatasetIndex &vectorIndex,
+  quint64 tracesAges )
   : mScalarIndex( scalarIndex )
   , mVectorIndex( vectorIndex )
+  , mTracesAge( tracesAges )
 {
 }
 
@@ -1767,7 +1811,7 @@ bool ReosRendererMeshMapTimeStamp_p::equal( ReosRendererObjectMapTimeStamp *othe
 
   bool testVector = other_p->mVectorIndex.isValid() || mVectorIndex.isValid();
 
-  if ( testVector && other_p->mVectorIndex != mVectorIndex )
+  if ( testVector && other_p->mVectorIndex != mVectorIndex && other_p->mTracesAge != mTracesAge )
     return false;
 
   return true;
@@ -1884,9 +1928,11 @@ void ReosMeshVectorColorShaderSettings_p::onSettingsUpdated()
 {
   QgsMeshRendererSettings settings = mMesh->mMeshLayer->rendererSettings();
   int idx = mMesh->mDatasetGroupsIndex.value( mMesh->mCurrentActiveVectorDatasetId, -1 );
+
   QgsMeshRendererVectorSettings vectorSettings = settings.vectorSettings( idx );
   vectorSettings.setColorRampShader( mColorShader );
   mMesh->applySymbologyOnVectorDataSet( mMesh->mCurrentActiveVectorDatasetId, vectorSettings );
+
   mMesh->mDatasetVectorSymbologies.insert( mMesh->mCurrentScalarDatasetId, encodedFromVectorSettings( vectorSettings ).bytes() );
 
   emit mMesh->repaintRequested();

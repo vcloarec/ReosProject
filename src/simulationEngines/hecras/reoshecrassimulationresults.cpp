@@ -161,6 +161,8 @@ QVector<double> ReosHecRasSimulationResults::datasetValues( int groupIndex, int 
 
 QVector<int> ReosHecRasSimulationResults::activeFaces( int index ) const
 {
+  if ( index < 0 )
+    return QVector<int>();
 
   QVector<int> &activeFaces = mCache[index].activeFaces;
 

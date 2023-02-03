@@ -237,7 +237,7 @@ class REOSCORE_EXPORT ReosMeteorologicStructureItemModel: public QAbstractListMo
 
   private:
     QPointer<ReosHydraulicNetwork> mNetwork;
-    QList<ReosHydraulicStructure2D *> mStructures;
+    QList<QPointer<ReosHydraulicStructure2D> > mStructures;
     ReosMeteorologicModel *mCurrentMeteoModel = nullptr;
 };
 

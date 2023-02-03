@@ -40,13 +40,14 @@ class REOSCORE_EXPORT ReosObjectRenderer: public ReosProcess
     Q_OBJECT
   public:
     ReosObjectRenderer( ReosRenderedObject *object );
+    ~ReosObjectRenderer();
 
     void start() override;
     void stop( bool stop ) override;
 
     virtual bool isRenderingStopped() const = 0;
 
-    virtual void render() const = 0;
+    virtual void render() = 0;
     const QImage image() const;
 
     QRectF extent() const;
@@ -108,6 +109,9 @@ class REOSCORE_EXPORT ReosRenderedObject: public ReosDataObject
 
     //! Returns the extent of the rendered object
     virtual ReosMapExtent extent() const = 0;
+
+    //! Updates internal cache
+    virtual void updateInternalCache( ReosObjectRenderer *renderer ) {}
 
   signals:
     void renderingFinished();

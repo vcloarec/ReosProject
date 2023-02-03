@@ -16,7 +16,6 @@
 #ifndef REOSMESHVECTORRENDERINGWIDGET_H
 #define REOSMESHVECTORRENDERINGWIDGET_H
 
-
 #include "reosactionwidget.h"
 #include "reosguicontext.h"
 
@@ -50,10 +49,9 @@ class ReosMeshVectorRenderingWidget : public ReosStackedPageWidget
     ReosParameterDouble *mMinimumLengthParameter = nullptr;
     ReosParameterDouble *mMaximumLengthParameter = nullptr;
     ReosParameterDouble *mMaximumTailLengthParameter = nullptr;
-
-    void setSettings( const QgsMeshRendererVectorSettings &settings );
+    ReosParameterDouble *mTracesTailsPersitence = nullptr;
+    ReosParameterDouble *mTracesTailFactor = nullptr;
     void updateWidget();
-    QgsMeshRendererVectorSettings vectorSettings();
 };
 
 #endif // REOSMESHVECTORRENDERINGWIDGET_H
