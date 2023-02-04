@@ -1251,8 +1251,20 @@ ReosHydraulicStructure2D *ReosHydraulicStructure2D::create( ReosStructureImporte
     return nullptr;
   }
 
+  ReosGisEngine *gisEngine = context.network()->gisEngine();
+  bool takeCrs = context.network()->elementsCount() == 0 &&
+                 gisEngine->layersCount() == 0;
+
   std::unique_ptr<ReosHydraulicStructure2D> elem( new ReosHydraulicStructure2D( structureImporter, context ) );
   context.network()->addElement( elem.get(), true );
+
+  if ( takeCrs && elem->mesh() )
+  {
+    QString crs = elem->mesh()->crs();
+    if ( gisEngine->crsIsValid( crs ) )
+      gisEngine->setCrs( crs );
+  }
+
   return elem.release();
 }
 
