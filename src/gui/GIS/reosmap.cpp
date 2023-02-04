@@ -24,6 +24,7 @@ email                : vcloarec at gmail dot com
 #include <qgssnappingconfig.h>
 #include <qgstemporalcontroller.h>
 #include <qgsrasterlayer.h>
+#include <qgsmaptoolpan.h>
 
 #include "reosmap.h"
 #include "reosgisengine.h"
@@ -415,6 +416,7 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   , mCanvas( new ReosQgsMapCanvas( parentWidget ) )
   , mActionNeutral( new QAction( QIcon( QStringLiteral( ":/images/neutral.svg" ) ), tr( "Deactivate Tool" ), this ) )
   , mDefaultMapTool( new ReosMapToolSelectMapItem( this ) )
+  , mActionPan( new QAction( QIcon( QStringLiteral( ":/images/pan.svg" ) ), tr( "Pan" ), this ) )
   , mActionZoom( new QAction( QIcon( QStringLiteral( ":/images/zoomInExtent.svg" ) ), tr( "Zoom In" ), this ) )
   , mZoomMapTool( new ReosMapToolDrawExtent( this ) )
   , mActionZoomIn( new QAction( QIcon( QStringLiteral( ":/images/zoomIn.svg" ) ), tr( "Zoom In" ), this ) )
@@ -499,6 +501,16 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
 
   mActionPreviousZoom->setEnabled( false );
   mActionNextZoom->setEnabled( false );
+
+  QgsMapToolPan *panMapTool = new QgsMapToolPan( canvas );
+  mActionPan->setCheckable( true );
+  panMapTool->setAction( mActionPan );
+  connect( mActionPan, &QAction::toggled, canvas, [this, canvas, panMapTool]
+  {
+    if ( mActionPan->isChecked() )
+      canvas->setMapTool( panMapTool );
+  } );
+
   emit crsChanged( mapCrs() );
 
   //*** handle temporal controller
@@ -633,6 +645,7 @@ QList<QAction *> ReosMap::mapToolActions()
 {
   QList<QAction *> ret;
   ret << mActionNeutral;
+  ret << mActionPan;
   ret << mActionZoom;
   ret << mActionZoomIn;
   ret << mActionZoomOut;

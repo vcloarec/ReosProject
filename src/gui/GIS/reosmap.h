@@ -168,6 +168,7 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     QAction *mActionZoom = nullptr;
     ReosMapToolDrawExtent *mZoomMapTool = nullptr;
 
+    QAction *mActionPan = nullptr;
     QAction *mActionZoomIn = nullptr;
     QAction *mActionZoomOut = nullptr;
     QAction *mActionPreviousZoom = nullptr;
