@@ -1155,6 +1155,11 @@ bool ReosGisEngine::hasValidLayer( const QString &layerId ) const
   return ( layer && layer->isValid() );
 }
 
+int ReosGisEngine::layersCount() const
+{
+  return QgsProject::instance()->layerStore()->count();
+}
+
 void ReosGisEngine::onLayerRemoved( const QString &layerId )
 {
   unRegisterLayerAsDigitalElevationModel( layerId );

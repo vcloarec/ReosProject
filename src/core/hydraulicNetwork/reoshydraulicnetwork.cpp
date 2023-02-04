@@ -197,6 +197,11 @@ ReosHydraulicNetworkElement *ReosHydraulicNetwork::getElement( const QString &el
     return nullptr;
 }
 
+int ReosHydraulicNetwork::elementsCount() const
+{
+  return mElements.count();
+}
+
 ReosHydraulicNetworkElement *ReosHydraulicNetwork::addElement( ReosHydraulicNetworkElement *elem, bool select )
 {
   mElements.insert( elem->id(), elem );

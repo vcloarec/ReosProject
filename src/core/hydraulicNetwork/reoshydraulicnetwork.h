@@ -192,6 +192,9 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     //! Returns element with id \a elementId
     ReosHydraulicNetworkElement *getElement( const QString &elemId ) const;
 
+    //! Returns the count of elements present in the network
+    int elementsCount() const;
+
     //! Returns a list of elements of \a type. Returns all element if type is empty or not prvided
     QList<ReosHydraulicNetworkElement *> hydraulicNetworkElements( const QString &type = QString() ) const;
 
