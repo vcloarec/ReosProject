@@ -103,11 +103,15 @@ class REOSCORE_EXPORT ReosHydraulicSchemeCollection : public QAbstractListModel
     int schemeCount() const;
 
     ReosHydraulicScheme *scheme( int index ) const;
+
     ReosHydraulicScheme *scheme( const QString &schemeId ) const;
+
+    ReosHydraulicScheme *schemeByName( const QString &name ) const;
 
     int schemeIndex( const QString &schemeId ) const;
 
     ReosEncodedElement encode() const;
+
     void decode( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
 
   signals:
