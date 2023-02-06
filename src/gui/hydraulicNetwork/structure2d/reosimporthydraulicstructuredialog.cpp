@@ -16,6 +16,8 @@
 #include "reosimporthydraulicstructuredialog.h"
 #include "ui_reosimporthydraulicstructuredialog.h"
 
+#include <QPushButton>
+
 #include "reoshydraulicsimulation.h"
 #include "reoshydraulic2dsimulationwidget.h"
 #include "reoshydraulicnetwork.h"
@@ -66,4 +68,11 @@ void ReosImportHydraulicStructureDialog::onEngineChanged()
   }
   mCurrentEngineWidget = ReosHydraulicSimulationWidgetRegistery::instance()->createImportWidget( key, this );
   ui->mSourceWidget->layout()->addWidget( mCurrentEngineWidget );
+  connect( mCurrentEngineWidget, &ReosImportHydraulicStructureWidget::isValidated, this, &ReosImportHydraulicStructureDialog::onIsValidated );
+  onIsValidated( mCurrentEngineWidget->isValid() );
+}
+
+void ReosImportHydraulicStructureDialog::onIsValidated( bool validated )
+{
+  ui->mButtonBox->button( QDialogButtonBox::Ok )->setEnabled( validated );
 }

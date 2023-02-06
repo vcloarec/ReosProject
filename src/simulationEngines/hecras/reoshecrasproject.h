@@ -84,8 +84,11 @@ class ReosHecRasGeometry
 
     ReosPolylinesStructure::Data polylineStructureData() const;
 
+    bool isValid() const;
+
   private:
     QString mFileName;
+    bool mIsValid = false;
     QString mTitle;
     QString mCrs;
     QString mTerrainFileName;
@@ -93,7 +96,7 @@ class ReosHecRasGeometry
     QList<FlowArea2D> mAreas2D;
     QMap<QString, QList<BoundaryCondition>> mBoundariesConditions;
 
-    void parseGeometryFile();
+    bool parseGeometryFile();
     void parseStorageArea( QTextStream &stream, const QString &storageName );
     void parseBoundaryCondition( QTextStream &stream, const QString &bcName );
 
@@ -130,8 +133,11 @@ class ReosHecRasPlan
 
     static const QMap<ReosDuration, QString> &computationIntervals();
 
+    bool isValid() const;
+
   private:
     QString mFileName;
+    bool mIsValid = false;
     QString mTitle;
     QString mGeometryFile;
     QString mFlowFile;
@@ -145,7 +151,7 @@ class ReosHecRasPlan
     ReosDuration mDetailedInterval;
     ReosDuration mMappingInterval;
 
-    void parsePlanFile();
+    bool parsePlanFile();
 
     static QMap<ReosDuration, QString> sIntervals;
 };
@@ -219,11 +225,14 @@ class ReosHecRasFlow
       mGriddedPrecipitationPath = ReosDssPath();
     }
 
-  private:
+    bool isValid() const;
+
+private:
     QString mFileName;
+    bool mIsValid = false;
     QString mTitle;
 
-    void parseFlowFile();
+    bool parseFlowFile();
     QString parseBoundary( QTextStream &stream, const QString &firstLine );
     QVector<double> parseValues( QTextStream &stream, const QString &firstLine );
     bool parseLocation( const QString &locationLine, QString &area, QString &boundaryLine ) const;
@@ -247,6 +256,7 @@ class ReosHecRasProject
     QDir directory() const;
 
     ReosHecRasPlan currentPlan() const;
+
     ReosHecRasPlan plan( const QString &planId ) const;
 
     int GeometriesCount() const;
@@ -280,8 +290,11 @@ class ReosHecRasProject
       ReosHydraulicStructure2D *structure,
       ReosHydraulicScheme *scheme ) const;
 
-  private:
+    bool isValid() const;
+
+private:
     QString mFileName;
+    bool mIsValid = false;
     QMap<QString, ReosHecRasPlan> mPlans;
     QMap<QString, ReosHecRasGeometry> mGeometries;
     QMap<QString, ReosHecRasFlow> mFlows;
@@ -289,7 +302,7 @@ class ReosHecRasProject
     QString mProjectName;
     QString mCrs;
 
-    void parseProjectFile();
+    bool parseProjectFile();
 
 };
 
