@@ -190,7 +190,7 @@ class ReosHecRasStructureImporter: public ReosStructureImporter
 
     bool projectFileExists() const;
 
-    int planCount();
+    int planCount() const;
 
     const ReosStructureImporterSource *source() const override;
 
