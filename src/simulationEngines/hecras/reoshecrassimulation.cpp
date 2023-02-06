@@ -70,7 +70,17 @@ bool ReosHecRasStructureImporter::projectFileExists() const
   return info.exists();
 }
 
+int ReosHecRasStructureImporter::planCount() const
+{
+  return mProject->planIds().count();
+}
+
 const ReosStructureImporterSource *ReosHecRasStructureImporter::source() const {return mSource;}
+
+void ReosHecRasStructureImporter::setCreationOption( const CreationOptions &creationOption )
+{
+  mCreationOption = creationOption;
+}
 
 
 void ReosHecRasStructureImporter::init( const QString &fileName )
@@ -161,6 +171,56 @@ QList<ReosHydraulicSimulation *> ReosHecRasStructureImporter::createSimulations(
   QList<ReosHydraulicSimulation *> ret;
   std::unique_ptr<ReosHecRasSimulation> sim( new ReosHecRasSimulation( parent ) );
   sim->setName( sim->tr( "HECRAS Simulation" ) );
+
+  QStringList schemeNameToKeep;
+
+  if ( mCreationOption.createSchemeWithPlan &&
+       parent->network() &&
+       parent->network()->hydraulicSchemeCollection() )
+  {
+    ReosHydraulicSchemeCollection *schemeCollection = parent->network()->hydraulicSchemeCollection();
+    int previousSchemeCount = schemeCollection->schemeCount();
+
+    const QStringList planIds = mProject->planIds();
+    for ( const QString &id : planIds )
+    {
+      const QString planTitle = mProject->planTitle( id );
+      ReosHydraulicScheme *scheme = nullptr;
+      if ( !schemeCollection->schemeByName( planTitle ) )
+      {
+        std::unique_ptr<ReosHydraulicScheme> sch( new ReosHydraulicScheme( schemeCollection ) );
+        sch->schemeName()->setValue( planTitle );
+        scheme = sch.release();
+        schemeCollection->addScheme( scheme );
+      }
+      else if ( mCreationOption.removePreviousScheme )
+      {
+        schemeNameToKeep.append( planTitle );
+      }
+
+      const ReosHecRasPlan plan = mProject->plan( id );
+      sim->setCurrentPlan( id, scheme );
+      sim->setComputeInterval( plan.computeInterval(), scheme );
+      sim->setOutputInterval( plan.outputInterval(), scheme );
+      sim->setDetailledInterval( plan.detailedOutputInterval(), scheme );
+      sim->setMappingInterval( plan.mappingInterval(), scheme );
+    }
+
+    int schemeCount = schemeCollection->schemeCount();
+
+    if ( mCreationOption.removePreviousScheme )
+    {
+      int schemeToRemove = 0;
+      while ( schemeCollection->schemeCount() > ( schemeCount - previousSchemeCount ) + schemeToRemove )
+      {
+        if ( schemeNameToKeep.contains( schemeCollection->scheme( schemeToRemove )->schemeName()->value() ) )
+          schemeToRemove++;
+        else
+          schemeCollection->removeScheme( schemeToRemove );
+      }
+    }
+  }
+
   sim->setProject( mProject );
   ret.append( sim.release() );
   return ret;
@@ -475,40 +535,28 @@ ReosHydraulicNetworkElementCompatibilty ReosHecRasSimulation::checkCompatiblity(
 
 void ReosHecRasSimulation::saveConfiguration( ReosHydraulicScheme *scheme ) const
 {
-  ReosEncodedElement element = scheme->restoreElementConfig( id() );
-
-  element.addEncodedData( QStringLiteral( "minimum-interval" ), mMinimumInterval.encode() );
-  element.addData( QStringLiteral( "current-plan-id" ), mCurrentPlan );
-  element.addEncodedData( QStringLiteral( "compute-interval" ), mComputeInterval.encode() );
-  element.addEncodedData( QStringLiteral( "output-interval" ), mOutputInterval.encode() );
-  element.addEncodedData( QStringLiteral( "detailed-interval" ), mDetailledInterval.encode() );
-  element.addEncodedData( QStringLiteral( "mapping-interval" ), mMappingInterval.encode() );
-
-  scheme->saveElementConfig( id(), element );
+  setCurrentPlanForScheme( mCurrentPlan, scheme );
+  setMinimumIntervalForScheme( mMinimumInterval, scheme );
+  setComputeIntervalForScheme( mComputeInterval, scheme );
+  setOutputIntervalForScheme( mOutputInterval, scheme );
+  setDetailledIntervalForScheme( mDetailledInterval, scheme );
+  setMappingIntervalForScheme( mMappingInterval, scheme );
 }
 
 void ReosHecRasSimulation::restoreConfiguration( ReosHydraulicScheme *scheme )
 {
+  if ( !scheme )
+    return;
   const ReosEncodedElement element = scheme->restoreElementConfig( id() );
 
   if ( element.hasEncodedData( QStringLiteral( "minimum-interval" ) ) )
     mMinimumInterval = ReosDuration::decode( element.getEncodedData( QStringLiteral( "minimum-interval" ) ) );
 
-  QString currentPlan;
-  if ( element.getData( QStringLiteral( "current-plan-id" ), currentPlan ) )
-    setCurrentPlan( currentPlan );
-
-  if ( element.hasEncodedData( QStringLiteral( "compute-interval" ) ) )
-    mComputeInterval = ReosDuration::decode( element.getEncodedData( QStringLiteral( "compute-interval" ) ) );
-
-  if ( element.hasEncodedData( QStringLiteral( "output-interval" ) ) )
-    mOutputInterval = ReosDuration::decode( element.getEncodedData( QStringLiteral( "output-interval" ) ) );
-
-  if ( element.hasEncodedData( QStringLiteral( "detailed-interval" ) ) )
-    mDetailledInterval = ReosDuration::decode( element.getEncodedData( QStringLiteral( "detailed-interval" ) ) );
-
-  if ( element.hasEncodedData( QStringLiteral( "mapping-interval" ) ) )
-    mMappingInterval = ReosDuration::decode( element.getEncodedData( QStringLiteral( "mapping-interval" ) ) );
+  setCurrentPlan( currentPlan( scheme ) );
+  setComputeInterval( computeInterval( scheme ) );
+  setOutputInterval( outputInterval( scheme ) );
+  setDetailledInterval( detailedInterval( scheme ) );
+  setMappingInterval( mappingInterval( scheme ) );
 }
 
 void ReosHecRasSimulation::setProject( std::shared_ptr<ReosHecRasProject> newProject )
@@ -524,39 +572,53 @@ void ReosHecRasSimulation::setProject( std::shared_ptr<ReosHecRasProject> newPro
   mMappingInterval = plan.mappingInterval();
 }
 
-void ReosHecRasSimulation::setCurrentPlan( const QString &planId )
-{
-  mCurrentPlan = planId;
-  accordCurrentPlan();
-  if ( mCurrentPlan.isEmpty() )
-  {
-    mStructure->geometryStructure()->removeAll();
-  }
-  else
-  {
-    const ReosHecRasGeometry &geom = mProject->geometryFromPlan( mCurrentPlan );
-    QString geomCrs = geom.crs();
-    if ( geomCrs.isEmpty() )
-      geomCrs = mProject->crs();
-
-    mStructure->geometryStructure()->reset( geom.polylineStructureData(), geomCrs );
-
-    QString schemeId = mStructure->network()->currentScheme()->id();
-    mStructure->clearResults( schemeId );
-    ReosModule::Message message;
-    geom.resetMesh( mStructure->mesh(), mStructure->network()->gisEngine()->crs(), message );
-    mStructure->updateResults( schemeId );
-
-    const QStringList boundaries = mStructure->boundaryConditionId();
-    updateBoundaryConditions( mProject.get(), QSet<QString>( boundaries.constBegin(), boundaries.constEnd() ), mStructure, mStructure->network()->context() );
-  }
-
-  emit dataChanged();
-}
-
 ReosHecRasProject *ReosHecRasSimulation::project() const
 {
   return mProject.get();
+}
+
+void ReosHecRasSimulation::setCurrentPlanForScheme( const QString &planId, ReosHydraulicScheme *scheme ) const
+{
+  ReosEncodedElement element = scheme->restoreElementConfig( id() );
+  element.addData( QStringLiteral( "current-plan-id" ), planId );
+  scheme->saveElementConfig( id(), element );
+}
+
+void ReosHecRasSimulation::setCurrentPlan( const QString &planId, ReosHydraulicScheme *scheme )
+{
+  if ( !scheme )
+  {
+    mCurrentPlan = planId;
+    accordCurrentPlan();
+    if ( mCurrentPlan.isEmpty() )
+    {
+      mStructure->geometryStructure()->removeAll();
+    }
+    else
+    {
+      const ReosHecRasGeometry &geom = mProject->geometryFromPlan( mCurrentPlan );
+      QString geomCrs = geom.crs();
+      if ( geomCrs.isEmpty() )
+        geomCrs = mProject->crs();
+
+      mStructure->geometryStructure()->reset( geom.polylineStructureData(), geomCrs );
+
+      QString schemeId = mStructure->network()->currentScheme()->id();
+      mStructure->clearResults( schemeId );
+      ReosModule::Message message;
+      geom.resetMesh( mStructure->mesh(), mStructure->network()->gisEngine()->crs(), message );
+      mStructure->updateResults( schemeId );
+
+      const QStringList boundaries = mStructure->boundaryConditionId();
+      updateBoundaryConditions( mProject.get(), QSet<QString>( boundaries.constBegin(), boundaries.constEnd() ), mStructure, mStructure->network()->context() );
+    }
+
+    emit dataChanged();
+  }
+  else
+  {
+    setCurrentPlanForScheme( planId, scheme );
+  }
 }
 
 QString ReosHecRasSimulation::currentPlan( ReosHydraulicScheme *scheme ) const
@@ -572,59 +634,179 @@ QString ReosHecRasSimulation::currentPlan( ReosHydraulicScheme *scheme ) const
   return mCurrentPlan;
 }
 
-const ReosDuration &ReosHecRasSimulation::minimumInterval() const
+ReosDuration ReosHecRasSimulation::minimumInterval( ReosHydraulicScheme *scheme ) const
 {
+  if ( scheme )
+  {
+    const ReosEncodedElement element = scheme->restoreElementConfig( id() );
+    if ( element.hasEncodedData( QStringLiteral( "minimum-interval" ) ) )
+    {
+      ReosDuration ret = ReosDuration::decode( element.getEncodedData( QStringLiteral( "minimum-interval" ) ) );
+      return ret;
+    }
+  }
+
   return mMinimumInterval;
 }
 
-void ReosHecRasSimulation::setMinimumInterval( const ReosDuration &newMinimumInterval )
+void ReosHecRasSimulation::setMinimumIntervalForScheme( const ReosDuration &newMinimumInterval, ReosHydraulicScheme *scheme ) const
 {
-  mMinimumInterval = newMinimumInterval;
-  emit dataChanged();
+  ReosEncodedElement element = scheme->restoreElementConfig( id() );
+  element.addEncodedData( QStringLiteral( "minimum-interval" ), newMinimumInterval.encode() );
+  scheme->saveElementConfig( id(), element );
 }
 
-const ReosDuration &ReosHecRasSimulation::computeInterval() const
+void ReosHecRasSimulation::setMinimumInterval( const ReosDuration &newMinimumInterval, ReosHydraulicScheme *scheme )
 {
+  if ( !scheme )
+  {
+    mMinimumInterval = newMinimumInterval;
+    emit dataChanged();
+  }
+  else
+  {
+    setMinimumIntervalForScheme( newMinimumInterval, scheme );
+  }
+}
+
+ReosDuration ReosHecRasSimulation::computeInterval( ReosHydraulicScheme *scheme ) const
+{
+  if ( scheme )
+  {
+    const ReosEncodedElement element = scheme->restoreElementConfig( id() );
+    if ( element.hasEncodedData( QStringLiteral( "compute-interval" ) ) )
+    {
+      ReosDuration ret = ReosDuration::decode( element.getEncodedData( QStringLiteral( "compute-interval" ) ) );
+      return ret;
+    }
+  }
+
   return mComputeInterval;
 }
 
-void ReosHecRasSimulation::setComputeInterval( const ReosDuration &newComputeInterval )
+void ReosHecRasSimulation::setComputeIntervalForScheme( const ReosDuration &newComputeInterval, ReosHydraulicScheme *scheme ) const
 {
-  mComputeInterval = newComputeInterval;
-  emit dataChanged();
+  ReosEncodedElement element = scheme->restoreElementConfig( id() );
+  element.addEncodedData( QStringLiteral( "compute-interval" ), newComputeInterval.encode() );
+  scheme->saveElementConfig( id(), element );
 }
 
-const ReosDuration &ReosHecRasSimulation::outputInterval() const
+void ReosHecRasSimulation::setComputeInterval( const ReosDuration &newComputeInterval, ReosHydraulicScheme *scheme )
 {
+  if ( !scheme )
+  {
+    mComputeInterval = newComputeInterval;
+    emit dataChanged();
+  }
+  else
+  {
+    setComputeIntervalForScheme( newComputeInterval, scheme );
+  }
+}
+
+ReosDuration ReosHecRasSimulation::outputInterval( ReosHydraulicScheme *scheme ) const
+{
+  if ( scheme )
+  {
+    const ReosEncodedElement element = scheme->restoreElementConfig( id() );
+    if ( element.hasEncodedData( QStringLiteral( "output-interval" ) ) )
+    {
+      ReosDuration ret = ReosDuration::decode( element.getEncodedData( QStringLiteral( "output-interval" ) ) );
+      return ret;
+    }
+  }
+
   return mOutputInterval;
 }
 
-void ReosHecRasSimulation::setOutputInterval( const ReosDuration &newOutputInterval )
+void ReosHecRasSimulation::setOutputIntervalForScheme( const ReosDuration &newOutputInterval, ReosHydraulicScheme *scheme ) const
 {
-  mOutputInterval = newOutputInterval;
-  emit dataChanged();
+  ReosEncodedElement element = scheme->restoreElementConfig( id() );
+  element.addEncodedData( QStringLiteral( "output-interval" ), newOutputInterval.encode() );
+  scheme->saveElementConfig( id(), element );
 }
 
-const ReosDuration &ReosHecRasSimulation::detailedInterval() const
+void ReosHecRasSimulation::setOutputInterval( const ReosDuration &newOutputInterval, ReosHydraulicScheme *scheme )
 {
+  if ( !scheme )
+  {
+    mOutputInterval = newOutputInterval;
+    emit dataChanged();
+  }
+  else
+  {
+    setOutputIntervalForScheme( newOutputInterval, scheme );
+  }
+}
+
+ReosDuration ReosHecRasSimulation::detailedInterval( ReosHydraulicScheme *scheme ) const
+{
+  if ( scheme )
+  {
+    const ReosEncodedElement element = scheme->restoreElementConfig( id() );
+    if ( element.hasEncodedData( QStringLiteral( "detailed-interval" ) ) )
+    {
+      ReosDuration ret = ReosDuration::decode( element.getEncodedData( QStringLiteral( "detailed-interval" ) ) );
+      return ret;
+    }
+  }
+
   return mDetailledInterval;
 }
 
-void ReosHecRasSimulation::setDetailledInterval( const ReosDuration &newDetailledInterval )
+void ReosHecRasSimulation::setDetailledIntervalForScheme( const ReosDuration &newDetailledInterval, ReosHydraulicScheme *scheme ) const
 {
-  mDetailledInterval = newDetailledInterval;
-  emit dataChanged();
+  ReosEncodedElement element = scheme->restoreElementConfig( id() );
+  element.addEncodedData( QStringLiteral( "detailed-interval" ), newDetailledInterval.encode() );
+  scheme->saveElementConfig( id(), element );
 }
 
-const ReosDuration &ReosHecRasSimulation::mappingInterval() const
+void ReosHecRasSimulation::setDetailledInterval( const ReosDuration &newDetailledInterval, ReosHydraulicScheme *scheme )
 {
+  if ( !scheme )
+  {
+    mDetailledInterval = newDetailledInterval;
+    emit dataChanged();
+  }
+  else
+  {
+    setDetailledIntervalForScheme( newDetailledInterval, scheme );
+  }
+}
+
+ReosDuration ReosHecRasSimulation::mappingInterval( ReosHydraulicScheme *scheme ) const
+{
+  if ( scheme )
+  {
+    const ReosEncodedElement element = scheme->restoreElementConfig( id() );
+    if ( element.hasEncodedData( QStringLiteral( "mapping-interval" ) ) )
+    {
+      ReosDuration ret = ReosDuration::decode( element.getEncodedData( QStringLiteral( "mapping-interval" ) ) );
+      return ret;
+    }
+  }
+
   return mMappingInterval;
 }
 
-void ReosHecRasSimulation::setMappingInterval( const ReosDuration &newMappingInterval )
+void ReosHecRasSimulation::setMappingIntervalForScheme( const ReosDuration &newMappingInterval, ReosHydraulicScheme *scheme ) const
 {
-  mMappingInterval = newMappingInterval;
-  emit dataChanged();
+  ReosEncodedElement element = scheme->restoreElementConfig( id() );
+  element.addEncodedData( QStringLiteral( "mapping-interval" ), newMappingInterval.encode() );
+  scheme->saveElementConfig( id(), element );
+}
+
+void ReosHecRasSimulation::setMappingInterval( const ReosDuration &newMappingInterval, ReosHydraulicScheme *scheme )
+{
+  if ( !scheme )
+  {
+    mMappingInterval = newMappingInterval;
+    emit dataChanged();
+  }
+  else
+  {
+    setMappingIntervalForScheme( newMappingInterval, scheme );
+  }
 }
 
 void ReosHecRasSimulation::updateBoundaryConditions( ReosHecRasProject *project, const QSet<QString> &currentBoundaryId, ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context )
@@ -904,7 +1086,7 @@ ReosEncodedElement ReosHecRasStructureImporterSource::encode( const ReosHydrauli
   return element;
 }
 
-ReosStructureImporter *ReosHecRasStructureImporterSource::createImporter() const
+ReosHecRasStructureImporter *ReosHecRasStructureImporterSource::createImporter() const
 {
   return new ReosHecRasStructureImporter( mHecRasProjectFile, mNetwork->context(), this );
 }

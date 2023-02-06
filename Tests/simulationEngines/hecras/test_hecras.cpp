@@ -88,6 +88,8 @@ class ReosHecrasTesting : public QObject
 
     void planCompatibility();
 
+    void importCreatingScheme();
+
   private:
     QString mPathToSimpleToRun;
     void copySimple();
@@ -963,7 +965,7 @@ void ReosHecrasTesting::simulationResults()
 
   std::unique_ptr<ReosStructureImporterSource> importerSource( new ReosHecRasStructureImporterSource( projectPath, network->context() ) );
   std::unique_ptr<ReosStructureImporter> importer( importerSource->createImporter() );
-  ReosHydraulicStructure2D *structure = ReosHydraulicStructure2D::create( importer.release(), network->context() );
+  ReosHydraulicStructure2D *structure = ReosHydraulicStructure2D::create( importer.get(), network->context() );
   QVERIFY( structure );
 
   QList<ReosHydraulicStructureBoundaryCondition * > boundaries = structure->boundaryConditions();
@@ -1130,7 +1132,7 @@ void ReosHecrasTesting::planCompatibility()
 
   std::unique_ptr<ReosStructureImporterSource> importerSource( new ReosHecRasStructureImporterSource( projectPath, network->context() ) );
   std::unique_ptr<ReosStructureImporter> importer( importerSource->createImporter() );
-  ReosHydraulicStructure2D *structure = ReosHydraulicStructure2D::create( importer.release(), network->context() );
+  ReosHydraulicStructure2D *structure = ReosHydraulicStructure2D::create( importer.get(), network->context() );
   QVERIFY( structure );
 
   QList<ReosHydraulicStructureBoundaryCondition * > boundaries = structure->boundaryConditions();
@@ -1238,6 +1240,74 @@ void ReosHecrasTesting::planCompatibility()
   QVERIFY( !network->checkSchemeCompatibility( scheme_1 ).isCompatible );
   QVERIFY( network->checkSchemeCompatibility( scheme_2 ).isCompatible );
   QVERIFY( !network->checkSchemeCompatibility( scheme_3 ).isCompatible );
+}
+
+void ReosHecrasTesting::importCreatingScheme()
+{
+  {
+    QString projectPath = data_path() + QStringLiteral( "/hecras/simple/calculated/simple.prj" );
+
+    ReosHydraulicNetwork *network = new ReosHydraulicNetwork( &mRootModule, mGisEngine, mWatershedModule );
+    network->changeScheme( 0 );
+    ReosHydraulicScheme *scheme = network->currentScheme();
+    QVERIFY( scheme );
+
+    std::unique_ptr<ReosHecRasStructureImporterSource> importerSource( new ReosHecRasStructureImporterSource( projectPath, network->context() ) );
+    std::unique_ptr<ReosHecRasStructureImporter> importer( importerSource->createImporter() );
+    QVERIFY( importer );
+    importer->setCreationOption( {true, false} );
+    ReosHydraulicStructure2D *structure = ReosHydraulicStructure2D::create( importer.get(), network->context() );
+    QVERIFY( structure );
+
+    QCOMPARE( network->hydraulicSchemeCollection()->schemeCount(), 3 );
+
+    scheme = network->hydraulicSchemeCollection()->scheme( 1 );
+    QCOMPARE( scheme->schemeName()->value(), QStringLiteral( "plan_test" ) );
+    network->setCurrentScheme( 1 );
+
+    //we use dynamic cast because there are some issue with qobject_cast, maybe due to crossing dynamic library
+    ReosHecRasSimulation *simulation = dynamic_cast<ReosHecRasSimulation *>( structure->currentSimulation() );
+    QVERIFY( simulation );
+    QCOMPARE( simulation->currentPlan(), QStringLiteral( "p01" ) );
+
+    scheme = network->hydraulicSchemeCollection()->scheme( 2 );
+    QCOMPARE( scheme->schemeName()->value(), QStringLiteral( "plan_test_2" ) );
+    network->setCurrentScheme( 2 );
+
+    QCOMPARE( simulation->currentPlan(), QStringLiteral( "p02" ) );
+  }
+
+  {
+    QString projectPath = data_path() + QStringLiteral( "/hecras/simple/calculated/simple.prj" );
+
+    ReosHydraulicNetwork *network = new ReosHydraulicNetwork( &mRootModule, mGisEngine, mWatershedModule );
+    network->changeScheme( 0 );
+    ReosHydraulicScheme *scheme = network->currentScheme();
+    QVERIFY( scheme );
+
+    std::unique_ptr<ReosHecRasStructureImporterSource> importerSource( new ReosHecRasStructureImporterSource( projectPath, network->context() ) );
+    std::unique_ptr<ReosHecRasStructureImporter> importer( importerSource->createImporter() );
+    QVERIFY( importer );
+    importer->setCreationOption( {true, true} );
+    ReosHydraulicStructure2D *structure = ReosHydraulicStructure2D::create( importer.get(), network->context() );
+    QVERIFY( structure );
+
+    QCOMPARE( network->hydraulicSchemeCollection()->schemeCount(), 2 );
+
+    scheme = network->hydraulicSchemeCollection()->scheme( 0 );
+    QCOMPARE( scheme->schemeName()->value(), QStringLiteral( "plan_test" ) );
+    network->setCurrentScheme( 0 );
+
+    //we use dynamic cast because there are some issue with qobject_cast, maybe due to crossing dynamic library
+    ReosHecRasSimulation *simulation = dynamic_cast<ReosHecRasSimulation *>( structure->currentSimulation() );
+    QVERIFY( simulation );
+    QCOMPARE( simulation->currentPlan(), QStringLiteral( "p01" ) );
+
+    scheme = network->hydraulicSchemeCollection()->scheme( 1 );
+    QCOMPARE( scheme->schemeName()->value(), QStringLiteral( "plan_test_2" ) );
+    network->setCurrentScheme( 1 );
+    QCOMPARE( simulation->currentPlan(), QStringLiteral( "p02" ) );
+  }
 }
 
 QTEST_MAIN( ReosHecrasTesting )

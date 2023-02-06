@@ -74,25 +74,25 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
     ReosEncodedElement encode() const override;
 
     void setProject( std::shared_ptr<ReosHecRasProject> newProject );
-    void setCurrentPlan( const QString &planId );
     ReosHecRasProject *project() const;
 
+    void setCurrentPlan( const QString &planId, ReosHydraulicScheme *scheme = nullptr );
     QString currentPlan( ReosHydraulicScheme *scheme = nullptr ) const;
 
-    const ReosDuration &minimumInterval() const;
-    void setMinimumInterval( const ReosDuration &newMinimumInterval );
+    ReosDuration minimumInterval( ReosHydraulicScheme *scheme = nullptr ) const;
+    void setMinimumInterval( const ReosDuration &newMinimumInterval, ReosHydraulicScheme *scheme = nullptr );
 
-    const ReosDuration &computeInterval() const;
-    void setComputeInterval( const ReosDuration &newComputeInterval );
+    ReosDuration computeInterval( ReosHydraulicScheme *scheme = nullptr ) const;
+    void setComputeInterval( const ReosDuration &newComputeInterval, ReosHydraulicScheme *scheme = nullptr );
 
-    const ReosDuration &outputInterval() const;
-    void setOutputInterval( const ReosDuration &newOutputInterval );
+    ReosDuration outputInterval( ReosHydraulicScheme *scheme = nullptr ) const;
+    void setOutputInterval( const ReosDuration &newOutputInterval, ReosHydraulicScheme *scheme = nullptr );
 
-    const ReosDuration &detailedInterval() const;
-    void setDetailledInterval( const ReosDuration &newDetailledInterval );
+    ReosDuration detailedInterval( ReosHydraulicScheme *scheme = nullptr ) const;
+    void setDetailledInterval( const ReosDuration &newDetailledInterval, ReosHydraulicScheme *scheme = nullptr );
 
-    const ReosDuration &mappingInterval() const;
-    void setMappingInterval( const ReosDuration &newMappingInterval );
+    ReosDuration mappingInterval( ReosHydraulicScheme *scheme = nullptr ) const;
+    void setMappingInterval( const ReosDuration &newMappingInterval, ReosHydraulicScheme *scheme = nullptr );
 
     static void updateBoundaryConditions( ReosHecRasProject *project,
                                           const QSet<QString> &currentBoundaryId,
@@ -124,6 +124,13 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
     bool writeDssConstantTimeSeries( ReosTimeSerieConstantInterval *series, const QString &fileName, const ReosDssPath &path, QString &error ) const;
 
     void accordCurrentPlan();
+
+    void setCurrentPlanForScheme( const QString &planId, ReosHydraulicScheme *scheme ) const;
+    void setMinimumIntervalForScheme( const ReosDuration &newMinimumInterval, ReosHydraulicScheme *scheme ) const;
+    void setComputeIntervalForScheme( const ReosDuration &newComputeInterval, ReosHydraulicScheme *scheme ) const;
+    void setOutputIntervalForScheme( const ReosDuration &newOutputInterval, ReosHydraulicScheme *scheme ) const;
+    void setDetailledIntervalForScheme( const ReosDuration &newDetailledInterval, ReosHydraulicScheme *scheme ) const;
+    void setMappingIntervalForScheme( const ReosDuration &newMappingInterval, ReosHydraulicScheme *scheme ) const;
 };
 
 
@@ -154,6 +161,13 @@ class ReosHecRasSimulationEngineFactory : public ReosSimulationEngineFactory
 class ReosHecRasStructureImporter: public ReosStructureImporter
 {
   public:
+
+    struct CreationOptions
+    {
+      bool createSchemeWithPlan = false;
+      bool removePreviousScheme = false;
+    };
+
     ReosHecRasStructureImporter( const QString &file, const ReosHydraulicNetworkContext &context, const ReosHecRasStructureImporterSource *source );
     ~ReosHecRasStructureImporter();
 
@@ -176,13 +190,18 @@ class ReosHecRasStructureImporter: public ReosStructureImporter
 
     bool projectFileExists() const;
 
+    int planCount();
+
     const ReosStructureImporterSource *source() const override;
+
+    void setCreationOption( const CreationOptions &newCreationOption );
 
   private:
     const ReosHecRasStructureImporterSource *mSource = nullptr;
     bool mIsValid = false;
     std::shared_ptr<ReosHecRasProject> mProject;
     QString mCrs;
+    CreationOptions mCreationOption;
 
     void init( const QString &mFileName );
 };
@@ -195,7 +214,7 @@ class ReosHecRasStructureImporterSource: public ReosStructureImporterSource
 
     ReosHecRasStructureImporterSource *clone() const override;
     ReosEncodedElement encode( const ReosHydraulicNetworkContext &context ) const override;
-    ReosStructureImporter *createImporter() const override;
+    ReosHecRasStructureImporter *createImporter() const override;
 
   private:
     QString mHecRasProjectFile;
