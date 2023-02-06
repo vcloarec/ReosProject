@@ -43,6 +43,7 @@ class ReosImportHydraulicStructureDialog : public QDialog
 
   private slots:
     void onEngineChanged();
+    void onIsValidated( bool validated );
 
   private:
     Ui::ReosImportHydraulicStructureDialog *ui;
@@ -63,6 +64,11 @@ class REOSGUI_EXPORT ReosImportHydraulicStructureWidget : public QWidget
 
     // Create a new 2D structure and return a pointer to it
     virtual ReosHydraulicStructure2D *importStructure2D( const ReosHydraulicNetworkContext &context ) const = 0;
+
+    virtual bool isValid() const = 0;
+
+  signals:
+    void isValidated( bool valid );
 
 };
 

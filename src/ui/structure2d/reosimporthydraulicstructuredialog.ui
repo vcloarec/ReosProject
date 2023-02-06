@@ -76,7 +76,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QDialogButtonBox" name="buttonBox">
+    <widget class="QDialogButtonBox" name="mButtonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -90,7 +90,7 @@
  <resources/>
  <connections>
   <connection>
-   <sender>buttonBox</sender>
+   <sender>mButtonBox</sender>
    <signal>accepted()</signal>
    <receiver>ReosImportHydraulicStructureDialog</receiver>
    <slot>accept()</slot>
@@ -106,7 +106,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>buttonBox</sender>
+   <sender>mButtonBox</sender>
    <signal>rejected()</signal>
    <receiver>ReosImportHydraulicStructureDialog</receiver>
    <slot>reject()</slot>

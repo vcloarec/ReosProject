@@ -16,7 +16,9 @@
 ReosHecRasProject::ReosHecRasProject( const QString &fileName ):
   mFileName( fileName )
 {
-  parseProjectFile();
+  mIsValid = parseProjectFile();
+  if ( mIsValid )
+    mIsValid = !mPlans.isEmpty() && !mGeometries.isEmpty();
 }
 
 QString ReosHecRasProject::currentPlanId() const
@@ -102,13 +104,17 @@ ReosHecRasFlow ReosHecRasProject::currentFlow() const
   return flowFromPlan( mCurrentPlan );
 }
 
-void ReosHecRasProject::parseProjectFile()
+bool ReosHecRasProject::parseProjectFile()
 {
-  QFile file( mFileName );
-  if ( !file.open( QIODevice::ReadOnly ) )
-    return;
 
   QFileInfo fileInfo( mFileName );
+  if ( !fileInfo.exists() )
+    return false;
+
+  QFile file( mFileName );
+  if ( !file.open( QIODevice::ReadOnly ) )
+    return false;
+
   mProjectName = fileInfo.baseName();
   QDir projectDir = fileInfo.dir();
 
@@ -122,6 +128,8 @@ void ReosHecRasProject::parseProjectFile()
       QString geomFile = line;
       geomFile.remove( QStringLiteral( "Geom File=" ) );
       mGeometries.insert( geomFile, ReosHecRasGeometry( projectDir.filePath( mProjectName + '.' + geomFile ) ) );
+      if ( !mGeometries.last().isValid() )
+        return false;
       const QString crs = mGeometries.last().crs();
       if ( !crs.isEmpty() && mCrs.isEmpty() )
         mCrs = crs;
@@ -132,6 +140,8 @@ void ReosHecRasProject::parseProjectFile()
       QString planFile = line;
       planFile.remove( QStringLiteral( "Plan File=" ) );
       mPlans.insert( planFile, ReosHecRasPlan( projectDir.filePath( mProjectName + '.' + planFile ) ) );
+      if ( !mPlans.value( planFile ).isValid() )
+        return false;
     }
 
     if ( line.startsWith( QStringLiteral( "Unsteady File=" ) ) )
@@ -139,6 +149,8 @@ void ReosHecRasProject::parseProjectFile()
       QString flowFile = line;
       flowFile.remove( QStringLiteral( "Unsteady File=" ) );
       mFlows.insert( flowFile, ReosHecRasFlow( projectDir.filePath( mProjectName + '.' + flowFile ) ) );
+      if ( !mFlows.value( flowFile ).isValid() )
+        return false;
     }
 
     if ( line.startsWith( QStringLiteral( "Current Plan=" ) ) )
@@ -148,12 +160,14 @@ void ReosHecRasProject::parseProjectFile()
       mCurrentPlan = plan.trimmed();
     }
   }
+
+  return true;
 }
 
 ReosHecRasGeometry::ReosHecRasGeometry( const QString &fileName )
   : mFileName( fileName )
 {
-  parseGeometryFile();
+  mIsValid = parseGeometryFile();
 }
 
 int ReosHecRasGeometry::area2dCount() const
@@ -260,15 +274,20 @@ ReosPolylinesStructure::Data ReosHecRasGeometry::polylineStructureData() const
   return data;
 }
 
-void ReosHecRasGeometry::parseGeometryFile()
+bool ReosHecRasGeometry::isValid() const
+{
+  return mIsValid;
+}
+
+bool ReosHecRasGeometry::parseGeometryFile()
 {
   QFileInfo geomFileInfo( mFileName );
   if ( !geomFileInfo.exists() )
-    return;
+    return false;
 
   QFile file( mFileName );
   if ( !file.open( QIODevice::ReadOnly ) )
-    return;
+    return false;
 
   QTextStream stream( &file );
 
@@ -315,7 +334,12 @@ void ReosHecRasGeometry::parseGeometryFile()
       mTerrainFileName = geomFileInfo.dir().filePath( mTerrainFileName );
     }
   }
+  else
+  {
+    return false;
+  }
 
+  return true;
 }
 
 void ReosHecRasGeometry::parseStorageArea( QTextStream &stream, const QString &storageName )
@@ -415,7 +439,7 @@ QString ReosHecRasGeometry::terrainVrtFile() const
 ReosHecRasPlan::ReosHecRasPlan( const QString &fileName )
   : mFileName( fileName )
 {
-  parsePlanFile();
+  mIsValid = parsePlanFile();
 }
 
 QString ReosHecRasPlan::geometryFile() const
@@ -533,11 +557,11 @@ QString ReosHecRasPlan::durationToComputationInterval( const ReosDuration &durat
   return sIntervals.value( duration, QString() );
 }
 
-void ReosHecRasPlan::parsePlanFile()
+bool ReosHecRasPlan::parsePlanFile()
 {
   QFile file( mFileName );
   if ( !file.open( QIODevice::ReadOnly ) )
-    return;
+    return false;
 
   QTextStream stream( &file );
 
@@ -625,6 +649,8 @@ void ReosHecRasPlan::parsePlanFile()
       mMappingInterval = computationIntervalStringToDuration( str.trimmed() );
     }
   }
+
+  return true;
 }
 
 
@@ -673,6 +699,11 @@ QMap<ReosDuration, QString> ReosHecRasPlan::sIntervals =
 const QMap<ReosDuration, QString> &ReosHecRasPlan::computationIntervals()
 {
   return sIntervals;
+}
+
+bool ReosHecRasPlan::isValid() const
+{
+  return mIsValid;
 }
 
 QDate ReosHecRasProject::hecRasDateToDate( const QString &hecrasDate )
@@ -884,10 +915,15 @@ ReosHydraulicNetworkElementCompatibilty ReosHecRasProject::checkCompatibility(
   return ret;
 }
 
+bool ReosHecRasProject::isValid() const
+{
+  return mIsValid;
+}
+
 ReosHecRasFlow::ReosHecRasFlow( const QString &fileName )
   : mFileName( fileName )
 {
-  parseFlowFile();
+  mIsValid = parseFlowFile();
 }
 
 const QString &ReosHecRasFlow::title() const
@@ -1041,11 +1077,16 @@ bool ReosHecRasFlow::applyBoudaryFlow( const QList<BoundaryFlow> &flows )
   return true;
 }
 
-void ReosHecRasFlow::parseFlowFile()
+bool ReosHecRasFlow::isValid() const
+{
+  return mIsValid;
+}
+
+bool ReosHecRasFlow::parseFlowFile()
 {
   QFile file( mFileName );
   if ( !file.open( QIODevice::ReadOnly ) )
-    return;
+    return false;
 
   QTextStream stream( &file );
 
@@ -1079,6 +1120,8 @@ void ReosHecRasFlow::parseFlowFile()
       lastReadenLine = parseBoundary( stream, line );
     }
   }
+
+  return true;
 }
 
 QString ReosHecRasFlow::parseBoundary( QTextStream &stream, const QString &firstLine )

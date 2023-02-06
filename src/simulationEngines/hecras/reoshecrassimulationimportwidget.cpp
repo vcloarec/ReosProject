@@ -14,12 +14,23 @@ ReosHecRasSimulationImportWidget::ReosHecRasSimulationImportWidget( QWidget *par
   ui->setupUi( this );
 
   connect( ui->mProjectFileButton, &QToolButton::clicked, this, &ReosHecRasSimulationImportWidget::onProjectFileButtonPressed );
+  connect( ui->mProjectFileLineEdit, &QLineEdit::textEdited, this, &ReosHecRasSimulationImportWidget::onFileNameChanged );
+  connect( ui->mCheckBoxCreateScheme, &QCheckBox::clicked, this, [this]( bool checked )
+  {
+    ui->mCheckBoxRemoveScheme->setEnabled( checked );
+  } );
+  onFileNameChanged();
 }
 
 ReosHydraulicStructure2D *ReosHecRasSimulationImportWidget::importStructure2D( const ReosHydraulicNetworkContext &context ) const
 {
   ReosHecRasStructureImporterSource source( ui->mProjectFileLineEdit->text(), context );
   std::unique_ptr<ReosHecRasStructureImporter> importer( source.createImporter() );
+  ReosHecRasStructureImporter::CreationOptions options;
+  options.createSchemeWithPlan = ui->mCheckBoxCreateScheme->isChecked();
+  options.removePreviousScheme = ui->mCheckBoxRemoveScheme->isChecked();
+  importer->setCreationOption( options );
+
   return ReosHydraulicStructure2D::create( importer.get(), context );
 }
 
@@ -38,6 +49,21 @@ void ReosHecRasSimulationImportWidget::onProjectFileButtonPressed()
     ui->mProjectFileLineEdit->setText( fileName );
     QFileInfo fileInfo( fileName );
     settings.setValue( QStringLiteral( "ImportFile/directory" ), fileInfo.dir().path() );
+    onFileNameChanged();
   }
 
+}
+
+void ReosHecRasSimulationImportWidget::onFileNameChanged()
+{
+  ReosHecRasProject project( ui->mProjectFileLineEdit->text() );
+  mIsValid = project.isValid();
+  emit isValidated( mIsValid );
+  ui->mCheckBoxCreateScheme->setEnabled( mIsValid );
+  ui->mCheckBoxRemoveScheme->setEnabled( mIsValid );
+}
+
+bool ReosHecRasSimulationImportWidget::isValid() const
+{
+  return mIsValid;
 }

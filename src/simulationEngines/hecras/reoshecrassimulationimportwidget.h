@@ -35,11 +35,15 @@ class ReosHecRasSimulationImportWidget : public ReosImportHydraulicStructureWidg
 
     ReosHydraulicStructure2D *importStructure2D( const ReosHydraulicNetworkContext &context ) const override;
 
+    bool isValid() const override;
+
   private slots:
     void onProjectFileButtonPressed();
+    void onFileNameChanged();
 
   private:
     Ui::ReosHecRasSimulationImportWidget *ui = nullptr;
+    bool mIsValid = false;
 };
 
 #endif //REOSHECRASSIMULATIONIMPORTWIDGET_H
