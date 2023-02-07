@@ -17,8 +17,6 @@
 
 #include <QDateTime>
 
-#include <qgsmeshlayer.h>
-
 #include "reosduration.h"
 #include "reosdssfile.h"
 #include "reosdssutils.h"
@@ -69,15 +67,10 @@ ReosHecRasSimulationResults::ReosHecRasSimulationResults( const ReosHecRasSimula
 
   mCache.resize( datasetCount( groupIndex( DatasetType::WaterLevel ) ) );
 
-  QgsMeshLayer *meshLayer = qobject_cast<QgsMeshLayer *>( mesh->data() );
-  if ( meshLayer )
-  {
-    mFaces = meshLayer->nativeMesh()->faces;
-    const QVector<QgsMeshVertex> &vertices = meshLayer->nativeMesh()->vertices;
-    mBottomValues.resize( vertices.size() );
-    for ( int i = 0; i < vertices.size(); ++i )
-      mBottomValues[i] = vertices.at( i ).z();
-  }
+  mFaces = mesh->faces();
+  mBottomValues.resize( mesh->vertexCount() );
+  for ( int i = 0; i < mBottomValues.size(); ++i )
+    mBottomValues[i] = mesh->vertexElevation( i );
 }
 
 ReosHecRasSimulationResults::~ReosHecRasSimulationResults()

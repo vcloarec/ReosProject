@@ -279,6 +279,11 @@ double ReosMeshDataProvider_p::vertexElevation( int vertexIndex ) const
   return mMesh.vertex( vertexIndex ).z();
 }
 
+QVector<QVector<int> > ReosMeshDataProvider_p::faces() const
+{
+  return mMesh.faces;
+}
+
 QVector<int> ReosMeshDataProvider_p::face( int faceIndex ) const
 {
   return mMesh.face( faceIndex );
