@@ -439,7 +439,7 @@ void ReosHecRasSimulation::saveSimulationResult( const ReosHydraulicStructure2D 
 ReosHydraulicSimulationResults *ReosHecRasSimulation::loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, QObject *parent ) const
 {
   if ( hasResult( hydraulicStructure, shemeId ) )
-    return new ReosHecRasSimulationResults( this, parent );
+    return new ReosHecRasSimulationResults( this, hydraulicStructure->mesh(), parent );
   else
     return nullptr;
 }

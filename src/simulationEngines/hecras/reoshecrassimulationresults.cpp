@@ -17,14 +17,27 @@
 
 #include <QDateTime>
 
+#include <qgsmeshlayer.h>
+
 #include "reosduration.h"
 #include "reosdssfile.h"
 #include "reosdssutils.h"
 #include "reoshecrassimulation.h"
 #include "reoshydrograph.h"
 
+static void minMax_( QPair<double, double> &minMax, double value )
+{
+  double min = minMax.first;
+  double max = minMax.second;
+  if ( min > value )
+    min = value;
+  if ( max < value )
+    max = value;
+  minMax = {min, max};
+}
 
-ReosHecRasSimulationResults::ReosHecRasSimulationResults( const ReosHecRasSimulation *simulation, QObject *parent = nullptr )
+
+ReosHecRasSimulationResults::ReosHecRasSimulationResults( const ReosHecRasSimulation *simulation, ReosMesh *mesh, QObject *parent = nullptr )
   : ReosHydraulicSimulationResults( simulation, parent )
   , mProject( *simulation->project() )
   , mPlanId( simulation->currentPlan() )
@@ -50,9 +63,21 @@ ReosHecRasSimulationResults::ReosHecRasSimulationResults( const ReosHecRasSimula
       mTypeToSourceGroupIndex[DatasetType::WaterLevel] = i;
   }
 
+  mTypeToSourceGroupIndex[DatasetType::WaterDepth] = -1;
+
   registerGroups( mTypeToSourceGroupIndex.keys() );
 
   mCache.resize( datasetCount( groupIndex( DatasetType::WaterLevel ) ) );
+
+  QgsMeshLayer *meshLayer = qobject_cast<QgsMeshLayer *>( mesh->data() );
+  if ( meshLayer )
+  {
+    mFaces = meshLayer->nativeMesh()->faces;
+    const QVector<QgsMeshVertex> &vertices = meshLayer->nativeMesh()->vertices;
+    mBottomValues.resize( vertices.size() );
+    for ( int i = 0; i < vertices.size(); ++i )
+      mBottomValues[i] = vertices.at( i ).z();
+  }
 }
 
 ReosHecRasSimulationResults::~ReosHecRasSimulationResults()
@@ -65,6 +90,12 @@ int ReosHecRasSimulationResults::datasetCount( int groupIndex ) const
 {
   if ( groupIndex < 0 || groupIndex >= groupCount() )
     return 0;
+
+  DatasetType dt = datasetType( groupIndex );
+  if ( dt == DatasetType::WaterDepth )
+  {
+    return mCache.count();
+  }
 
   MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH, groupIndexToSourceIndex( groupIndex ) );
 
@@ -79,6 +110,19 @@ void ReosHecRasSimulationResults::groupMinMax( int groupIndex, double &minimum, 
   if ( groupIndex < 0 || groupIndex >= groupCount() )
     return;
 
+  DatasetType dt = datasetType( groupIndex );
+  if ( dt == DatasetType::WaterDepth )
+  {
+    if ( mCache.count() > 0  && mCache.at( 0 ).waterDepth.isEmpty() )
+      datasetMinMax( groupIndex, 0, minimum, maximum );
+    else
+    {
+      minimum = mMinMaxWaterDepth.first;
+      maximum = mMinMaxWaterDepth.second;
+    }
+    return;
+  }
+
   minimum = std::numeric_limits<double>::quiet_NaN();
   maximum = std::numeric_limits<double>::quiet_NaN();
 
@@ -90,15 +134,12 @@ void ReosHecRasSimulationResults::groupMinMax( int groupIndex, double &minimum, 
   MDAL_G_minimumMaximum( group, &minimum, &maximum );
 }
 
-QDateTime ReosHecRasSimulationResults::groupReferenceTime( int groupIndex ) const
+QDateTime ReosHecRasSimulationResults::groupReferenceTime( int ) const
 {
-  if ( groupIndex < 0 || groupIndex >= groupCount() )
-    return QDateTime();
-
   if ( mReferenceTime.isValid() )
     return mReferenceTime;
 
-  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH,  groupIndexToSourceIndex( groupIndex ) );
+  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH,  mTypeToSourceGroupIndex.value( DatasetType::WaterLevel ) );
 
   if ( !group )
     return QDateTime();
@@ -111,19 +152,28 @@ QDateTime ReosHecRasSimulationResults::groupReferenceTime( int groupIndex ) cons
   return mReferenceTime;
 }
 
-ReosDuration ReosHecRasSimulationResults::datasetRelativeTime( int groupIndex, int datasetIndex ) const
+ReosDuration ReosHecRasSimulationResults::datasetRelativeTime( int, int datasetIndex ) const
 {
-  if ( groupIndex < 0 || groupIndex >= groupCount() )
-    return ReosDuration();
-
   if ( mTimeToTimeStep.isEmpty() )
     populateTimeStep();
 
   return mTimeSteps.at( datasetIndex );
 }
 
-ReosMeshDatasetSource::Location ReosHecRasSimulationResults::groupLocation( int ) const
+ReosMeshDatasetSource::Location ReosHecRasSimulationResults::groupLocation( int groupIndex ) const
 {
+  switch ( datasetType( groupIndex ) )
+  {
+    case ReosHydraulicSimulationResults::DatasetType::WaterLevel:
+    case ReosHydraulicSimulationResults::DatasetType::Velocity:
+    case ReosHydraulicSimulationResults::DatasetType::None:
+      return ReosMeshDatasetSource::Location::Face;
+      break;
+    case ReosHydraulicSimulationResults::DatasetType::WaterDepth:
+      return ReosMeshDatasetSource::Location::Vertex;
+      break;
+  }
+
   return ReosMeshDatasetSource::Location::Face;
 }
 
@@ -132,28 +182,79 @@ QVector<double> ReosHecRasSimulationResults::datasetValues( int groupIndex, int 
   if ( groupIndex < 0 || groupIndex >= groupCount() )
     return QVector<double>();
 
-  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH,  groupIndexToSourceIndex( groupIndex ) );
+  DatasetType dt = datasetType( groupIndex );
 
-  if ( !group )
-    return QVector<double>();
-
-  if ( index >= MDAL_G_datasetCount( group ) )
-    return QVector<double>();
-
-  MDAL_DatasetH dataset = MDAL_G_dataset( group, index );
-  bool isScalar = MDAL_G_hasScalarData( group );
-  int valueCount = MDAL_D_valueCount( dataset );
+  switch ( dt )
+  {
+    case ReosHydraulicSimulationResults::DatasetType::WaterLevel:
+      if ( !mCache.at( index ).waterLevel.isEmpty() )
+        return mCache.at( index ).waterLevel;
+      break;
+    case ReosHydraulicSimulationResults::DatasetType::WaterDepth:
+      if ( !mCache.at( index ).waterDepth.isEmpty() )
+        return mCache.at( index ).waterDepth;
+      break;
+    case ReosHydraulicSimulationResults::DatasetType::Velocity:
+      if ( !mCache.at( index ).velocity.isEmpty() )
+        return mCache.at( index ).velocity;
+      break;
+    case ReosHydraulicSimulationResults::DatasetType::None:
+      return QVector<double>();
+      break;
+  }
 
   QVector<double> ret;
-  ret.resize( valueCount * ( isScalar ? 1 : 2 ) );
+  switch ( dt )
+  {
+    case ReosHydraulicSimulationResults::DatasetType::Velocity:
+    case ReosHydraulicSimulationResults::DatasetType::WaterLevel:
+    {
+      MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH,  groupIndexToSourceIndex( groupIndex ) );
 
-  int effectiveValueCount = MDAL_D_data( dataset,
-                                         0,
-                                         valueCount,
-                                         isScalar ? MDAL_DataType::SCALAR_DOUBLE : MDAL_DataType::VECTOR_2D_DOUBLE,
-                                         ret.data() );
+      if ( !group )
+        return QVector<double>();
 
-  Q_ASSERT( valueCount == effectiveValueCount );
+      if ( index >= MDAL_G_datasetCount( group ) )
+        return QVector<double>();
+
+      MDAL_DatasetH dataset = MDAL_G_dataset( group, index );
+      bool isScalar = MDAL_G_hasScalarData( group );
+      int valueCount = MDAL_D_valueCount( dataset );
+
+
+      ret.resize( valueCount * ( isScalar ? 1 : 2 ) );
+
+      int effectiveValueCount = MDAL_D_data( dataset,
+                                             0,
+                                             valueCount,
+                                             isScalar ? MDAL_DataType::SCALAR_DOUBLE : MDAL_DataType::VECTOR_2D_DOUBLE,
+                                             ret.data() );
+
+      Q_ASSERT( valueCount == effectiveValueCount );
+    }
+    break;
+    case ReosHydraulicSimulationResults::DatasetType::WaterDepth:
+      ret = calculateDepth( index );
+      break;
+    case ReosHydraulicSimulationResults::DatasetType::None:
+      break;
+  }
+
+  switch ( dt )
+  {
+    case ReosHydraulicSimulationResults::DatasetType::WaterLevel:
+      mCache[index].waterLevel = ret;
+      break;
+    case ReosHydraulicSimulationResults::DatasetType::WaterDepth:
+      mCache[index].waterDepth = ret;
+      break;
+    case ReosHydraulicSimulationResults::DatasetType::Velocity:
+      mCache[index].velocity = ret;
+      break;
+    case ReosHydraulicSimulationResults::DatasetType::None:
+      return QVector<double>();
+      break;
+  }
 
   return ret;
 
@@ -199,6 +300,10 @@ int ReosHecRasSimulationResults::datasetIndexClosestBeforeTime( int groupIndex, 
 
 int ReosHecRasSimulationResults::datasetValuesCount( int groupIndex, int datasetIndex ) const
 {
+  DatasetType dt = datasetType( groupIndex );
+  if ( dt == DatasetType::WaterDepth )
+    return mBottomValues.count();
+
   MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH,  groupIndexToSourceIndex( groupIndex ) );
   MDAL_DatasetH ds = MDAL_G_dataset( group, datasetIndex );
 
@@ -209,6 +314,17 @@ void ReosHecRasSimulationResults::datasetMinMax( int groupIndex, int datasetInde
 {
   if ( groupIndex < 0 || groupIndex >= groupCount() )
     return;
+
+  DatasetType dt = datasetType( groupIndex );
+  if ( dt == DatasetType::WaterDepth )
+  {
+    if ( mCache.at( datasetIndex ).waterDepth.isEmpty() )
+      datasetValues( groupIndex, datasetIndex ); //to calculate the depth and then the min/max
+
+    min = mCache.at( datasetIndex ).minMaxDepth.first;
+    max = mCache.at( datasetIndex ).minMaxDepth.second;
+    return;
+  }
 
   min = std::numeric_limits<double>::quiet_NaN();
   max = std::numeric_limits<double>::quiet_NaN();
@@ -229,6 +345,12 @@ bool ReosHecRasSimulationResults::datasetIsValid( int groupIndex, int datasetInd
 {
   if ( groupIndex < 0 || groupIndex >= groupCount() )
     return false;
+
+  DatasetType dt = datasetType( groupIndex );
+  if ( dt == DatasetType::WaterDepth )
+  {
+    return datasetIndex != -1 && datasetIndex < mCache.count();
+  }
 
   MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH,  groupIndexToSourceIndex( groupIndex ) );
 
@@ -277,6 +399,40 @@ void ReosHecRasSimulationResults::populateTimeStep() const
     mTimeToTimeStep.insert( relativeTime, i );
     mTimeSteps[i] = relativeTime;
   }
+}
+
+QVector<double> ReosHecRasSimulationResults::calculateDepth( int index ) const
+{
+  QVector<double> waterLeverOnFace = datasetValues( groupIndex( DatasetType::WaterLevel ), index );
+
+  QVector<int> valuePerVertex( mBottomValues.count(), 0 );
+  QVector<double> waterDepth( mBottomValues.count(), 0.0 );
+
+  for ( int fi = 0; fi < mFaces.count(); ++fi )
+  {
+    const QVector<int> &face = mFaces.at( fi );
+    for ( int i : face )
+    {
+      waterDepth[i] += waterLeverOnFace.at( fi );
+      valuePerVertex[i] += 1;
+    }
+  }
+
+  for ( int vi = 0; vi < waterDepth.count(); ++vi )
+  {
+    if ( valuePerVertex.at( vi ) != 0 )
+    {
+      waterDepth[vi] = std::max( 0.0, waterDepth.at( vi ) / valuePerVertex.at( vi ) - mBottomValues.at( vi ) );
+      minMax_( mCache[index].minMaxDepth, waterDepth.at( vi ) );
+    }
+    else
+      minMax_( mCache[index].minMaxDepth, 0 );
+  }
+
+  minMax_( mMinMaxWaterDepth, mCache[index].minMaxDepth.first );
+  minMax_( mMinMaxWaterDepth, mCache[index].minMaxDepth.second );
+
+  return waterDepth;
 }
 
 int ReosHecRasSimulationResults::datasetIndex( int, const QDateTime &time ) const
