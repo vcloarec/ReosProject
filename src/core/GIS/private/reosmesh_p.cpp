@@ -630,6 +630,7 @@ void ReosMeshFrame_p::updateWireFrameSettings( bool updateRenderer )
   settings.setNativeMeshSettings( wireframeSettings );
   mMeshLayer->setRendererSettings( settings );
 
+  mRendererCache.reset();
   mMeshLayer->triggerRepaint();
 
   if ( updateRenderer )
