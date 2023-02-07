@@ -990,7 +990,7 @@ void ReosHecrasTesting::simulationResults()
              data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan1_terrrain.png" ) ) );
 
   QStringList datasetIds = structure->mesh()->datasetIds();
-  QCOMPARE( datasetIds.count(), 3 );
+  QCOMPARE( datasetIds.count(), 4 );
   structure->activateResultDatasetGroup( datasetIds.at( 1 ) );
 
   QVERIFY( renderer.compareRendering(
@@ -1022,15 +1022,24 @@ void ReosHecrasTesting::simulationResults()
   QCOMPARE( refTime, QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ) );
   QVERIFY( hyd->valueCount() > 0 );
 
-  QCOMPARE( simResult->groupCount(), 2 );
+  QCOMPARE( simResult->groupCount(), 3 );
   QCOMPARE( simResult->datasetCount( 0 ), 121 );
   QCOMPARE( simResult->datasetType( 0 ), ReosHydraulicSimulationResults::DatasetType::WaterLevel );
-  QCOMPARE( simResult->datasetType( 1 ), ReosHydraulicSimulationResults::DatasetType::Velocity );
+  QCOMPARE( simResult->datasetType( 1 ), ReosHydraulicSimulationResults::DatasetType::WaterDepth );
+  QCOMPARE( simResult->datasetType( 2 ), ReosHydraulicSimulationResults::DatasetType::Velocity );
   QCOMPARE( simResult->groupLocation( 0 ), ReosHydraulicSimulationResults::Location::Face );
-  QCOMPARE( simResult->groupLocation( 1 ), ReosHydraulicSimulationResults::Location::Face );
-  QCOMPARE( simResult->groupIsScalar( 1 ), false );
+  QCOMPARE( simResult->groupLocation( 1 ), ReosHydraulicSimulationResults::Location::Vertex );
+  QCOMPARE( simResult->groupLocation( 2 ), ReosHydraulicSimulationResults::Location::Face );
+  QCOMPARE( simResult->groupIsScalar( 0 ), true );
+  QCOMPARE( simResult->groupIsScalar( 1 ), true );
+  QCOMPARE( simResult->groupIsScalar( 2 ), false );
   QCOMPARE( simResult->datasetValuesCount( 0, 0 ), 1746 ) ;
   QCOMPARE( simResult->datasetValues( 0, 0 ).at( 1258 ), 2.000097513198853 ) ;
+  QCOMPARE( simResult->datasetValues( 1, 0 ).at( 1258 ), 0.0704100131989 ) ;
+  QCOMPARE( simResult->datasetValues( 2, 0 ).at( 1258 ), 0.0 ) ;
+  QCOMPARE( simResult->datasetValues( 0, 1 ).at( 1258 ), 1.0190500020980835 ) ;
+  QCOMPARE( simResult->datasetValues( 1, 1 ).at( 1258 ), 0.08105674386024475 ) ;
+  QCOMPARE( simResult->datasetValues( 2, 1 ).at( 1258 ), 0.5631286203861237 ) ;
 
   simulateEventLoop( WAITING_TIME_FOR_LOOP );
 
@@ -1072,7 +1081,7 @@ void ReosHecrasTesting::simulationResults()
              data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan1_void.png" ), 50 ) );
 
   datasetIds = structure->mesh()->datasetIds();
-  QCOMPARE( datasetIds.count(), 3 );
+  QCOMPARE( datasetIds.count(), 4 );
   structure->activateResultDatasetGroup( datasetIds.at( 1 ) );
 
   QVERIFY( renderer.compareRendering(

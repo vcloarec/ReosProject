@@ -26,6 +26,7 @@ TARGET_LINK_LIBRARIES(test_hecras
                       ${Qt5Core_LIBRARIES}
                       ${Qt5Test_LIBRARIES}
                       ${CMAKE_THREAD_LIBS_INIT}
+                      ${QGIS_CORE_LIB}
                       reosCore
                       reosGui
                       reosHecDss
@@ -77,6 +78,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/hydraulicNetwork/simulation
     ${HEC_DSS_INCLUDE}
     ${MDAL_INCLUDE_DIR}
+    ${QGIS_INCLUDE_DIR}
     )
 
 

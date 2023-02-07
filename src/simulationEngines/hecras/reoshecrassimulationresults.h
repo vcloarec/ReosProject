@@ -26,17 +26,19 @@ class ReosHecRasSimulation;
 struct CacheDataset
 {
   QVector<int> activeFaces;
+  QVector<double> waterDepth;
+  QVector<double> waterLevel;
+  QVector<double> velocity;
+  QPair<double, double> minMaxDepth = {std::numeric_limits<double>::max(), 0};
 };
 
 class ReosHecRasSimulationResults : public ReosHydraulicSimulationResults
 {
   public:
-    ReosHecRasSimulationResults( const ReosHecRasSimulation *simulation, QObject *parent );
+    ReosHecRasSimulationResults( const ReosHecRasSimulation *simulation, ReosMesh *mesh, QObject *parent );
     ~ReosHecRasSimulationResults();
 
     // ReosMeshDatasetSource interface
-
-    //****** members that are the same for Telemac (factorization possible)
     int datasetCount( int groupIndex ) const override;
     QDateTime groupReferenceTime( int groupIndex ) const override;
     ReosDuration datasetRelativeTime( int groupIndex, int datasetIndex ) const override;
@@ -46,7 +48,6 @@ class ReosHecRasSimulationResults : public ReosHydraulicSimulationResults
     int datasetValuesCount( int groupIndex, int datasetIndex ) const override;
     int datasetIndexClosestBeforeTime( int groupIndex, const QDateTime &time ) const override;
     int datasetIndex( int groupIndex, const QDateTime &time ) const override;
-    //******
 
     ReosMeshDatasetSource::Location groupLocation( int groupIndex ) const override;
     QVector<double> datasetValues( int groupIndex, int index ) const override;
@@ -55,24 +56,31 @@ class ReosHecRasSimulationResults : public ReosHydraulicSimulationResults
 
     QDateTime runDateTime() const override;
 
-    QString unitString( DatasetType dataType ) const {return QString();}
+    QString unitString( DatasetType dataType ) const override {return QString();}
 
   private:
     const ReosHecRasProject mProject;
     const QString mPlanId;
 
-    //****** members that are the same for Telemax (factorization possible)
+    //****** members that are the same for Telemac (factorization possible)
     MDAL_MeshH mMeshH;
     mutable QDateTime mReferenceTime;
     mutable QMap<ReosDuration, int> mTimeToTimeStep;
     mutable QVector<ReosDuration> mTimeSteps;
+    QVector<double> mBottomValues; //at vertices
+    QVector<QVector<int>> mFaces;
     mutable QVector<CacheDataset> mCache;
+
+    mutable QPair<double, double> mMinMaxWaterDepth = {std::numeric_limits<double>::max(), 0};
+
     QMap<DatasetType, int> mTypeToSourceGroupIndex;
 
     int groupIndexToSourceIndex( int groupIndex ) const;
 
     void populateTimeStep() const;
     //*****
+
+    QVector<double> calculateDepth( int index ) const;
 };
 
 #endif // REOSHECRASSIMULATIONRESULTS_H
