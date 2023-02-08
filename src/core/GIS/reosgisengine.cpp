@@ -986,14 +986,15 @@ bool ReosGisEngine::createProjectFile( const QString &projectFileName, bool keep
   return project->write( projectFileName );
 }
 
-bool ReosGisEngine::addMeshLayerToExistingProject(
+void  ReosGisEngine::addMeshLayerToExistingProject(
   const QString &projectFileName,
   const QString &layerName,
   const QString &uri,
   const ReosEncodedElement &meshFrameSymbology,
   const QMap<QString, ReosEncodedElement> &scalarSymbologies,
   const QMap<QString, ReosEncodedElement> &vectorSymbologies,
-  const ReosDuration &timeStep )
+  const ReosDuration &timeStep,
+  ReosModule::Message &message )
 {
   std::unique_ptr<QgsProject> project = std::make_unique<QgsProject>();
   project->read( projectFileName );
@@ -1089,7 +1090,11 @@ bool ReosGisEngine::addMeshLayerToExistingProject(
   };
   project->timeSettings()->setTimeStep( timeStep.valueUnit() );
 
-  return project->write( projectFileName );
+  if ( ! project->write( projectFileName ) )
+  {
+    message.type = ReosModule::Error;
+    message.addText( tr( "Unable to add a mesh layer to the QGIS project file" ) );
+  }
 }
 
 QString ReosGisEngine::gisEngineName()

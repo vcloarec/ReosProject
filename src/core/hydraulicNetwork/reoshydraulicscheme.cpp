@@ -107,7 +107,8 @@ ReosEncodedElement ReosHydraulicScheme::encode() const
   ReosEncodedElement element( QStringLiteral( "hydraulic-scheme" ) );
 
   element.addEncodedData( QStringLiteral( "name" ), mSchemeName->encode() );
-  element.addData( QStringLiteral( "meteo-model-id" ), mMeteoModel->id() );
+  if ( mMeteoModel )
+    element.addData( QStringLiteral( "meteo-model-id" ), mMeteoModel->id() );
   element.addData( QStringLiteral( "elements-config" ), mElementsConfig );
 
   ReosDataObject::encode( element );

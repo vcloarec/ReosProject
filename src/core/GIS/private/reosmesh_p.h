@@ -137,8 +137,8 @@ class ReosMeshFrame_p : public ReosMesh
     WireFrameSettings wireFrameSettings() const override ;
     void setWireFrameSettings( const WireFrameSettings &wireFrameSettings, bool update ) override;
     double interpolateDatasetValueOnPoint( const ReosMeshDatasetSource *datasetSource, const ReosSpatialPosition &position, int sourceGroupindex, int datasetIndex ) const override;
-    QString exportAsMesh( const QString &fileName ) const override;
-    bool exportSimulationResults( ReosHydraulicSimulationResults *result, const QString &fileName ) const override;
+    QString exportAsMesh( const QString &fileName, ReosModule::Message &message ) const override;
+    ReosModule::Message exportSimulationResults( ReosHydraulicSimulationResults *result, const QString &fileName ) const override;
     QList<ReosColorShaderSettings *> colorShaderSettings() const override;
 
     ReosMeshRendererCache_p *rendererCache() const;
@@ -284,11 +284,12 @@ class ReosMeshQualityChecker_p : public ReosMeshQualityChecker
 class ReosResultDatasetGroup : public QgsMeshDatasetGroup
 {
   public:
-    ReosResultDatasetGroup( ReosMeshDatasetSource *simResult, int index );
+    ReosResultDatasetGroup( ReosMeshDatasetSource *simResult, int index, bool faceSupportActiveFlag = true );
 
     void initialize();
     QgsMeshDatasetMetadata datasetMetadata( int datasetIndex ) const;
     int datasetCount() const;
+
     QgsMeshDataset *dataset( int index ) const;
     QgsMeshDatasetGroup::Type type() const;
     QDomElement writeXml( QDomDocument &doc, const QgsReadWriteContext &context ) const {return QDomElement();}
@@ -296,13 +297,14 @@ class ReosResultDatasetGroup : public QgsMeshDatasetGroup
   private:
     ReosMeshDatasetSource *mSimulationResult = nullptr;
     int mGroupIndex = -1;
+    bool mFacesSupportActiveFlag = true;
     std::vector<std::unique_ptr<QgsMeshDataset>> mDatasets;
 };
 
 class ReosResultDataset : public QgsMeshDataset
 {
   public:
-    ReosResultDataset( ReosMeshDatasetSource *simResult, int groupIndex, int index );
+    ReosResultDataset( ReosMeshDatasetSource *simResult, int groupIndex, int index, bool faceSupportActiveFlag = true );
 
     QgsMeshDatasetValue datasetValue( int valueIndex ) const;
     QgsMeshDataBlock datasetValues( bool isScalar, int valueIndex, int count ) const;
@@ -314,6 +316,7 @@ class ReosResultDataset : public QgsMeshDataset
   private:
     ReosMeshDatasetSource *mSimulationResult = nullptr;
     int mGroupIndex = -1;
+    int mfaceSupportActiveFlag = false;
     int mDatasetIndex = -1;
 
 };

@@ -3,6 +3,7 @@
 
 #include <QFileDialog>
 #include <QPushButton>
+#include <QMessageBox>
 
 #include "reoshydraulicstructure2d.h"
 #include "reoshydraulicscheme.h"
@@ -38,9 +39,28 @@ ReosHydraulicStructureResultExport::~ReosHydraulicStructureResultExport()
 
 void ReosHydraulicStructureResultExport::accept()
 {
-  mStructure->exportResultAsMeshInGisProject( ui->mQGISProjectFileLineEdit->text(), ui->mKeepLayer->isChecked() );
+  ReosHydraulicScheme *scheme = ui->mSchemeListView->currentScheme();
+  if ( !scheme )
+    return;
 
-  QDialog::accept();
+  ReosModule::Message message  =
+    mStructure->exportResultAsMeshInGisProject( scheme, ui->mQGISProjectFileLineEdit->text(), ui->mKeepLayer->isChecked() );
+
+  switch ( message.type )
+  {
+    case ReosModule::Simple:
+    case ReosModule::Order:
+      QMessageBox::information( this, tr( "Export Results to QGIS Project" ), message.text );
+      QDialog::accept();
+      break;
+    case ReosModule::Warning:
+      QMessageBox::warning( this, tr( "Export Results to QGIS Project" ), message.text );
+      QDialog::accept();
+      break;
+    case ReosModule::Error:
+      QMessageBox::critical( this, tr( "Export Results to QGIS Project" ), message.text );
+      break;
+  }
 }
 
 void ReosHydraulicStructureResultExport::onCurrentSchemeChange()

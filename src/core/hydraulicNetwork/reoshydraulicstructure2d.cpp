@@ -266,19 +266,67 @@ ReosStructureImporterSource *ReosHydraulicStructure2D::structureImporterSource()
 
 void ReosHydraulicStructure2D::exportResultAsMesh( const QString &fileName ) const
 {
-  mMesh->exportAsMesh( fileName );
+  ReosModule::Message message;
+  mMesh->exportAsMesh( fileName, message );
   if ( network() && network()->currentScheme() )
     mMesh->exportSimulationResults( mSimulationResults.value( network()->currentScheme()->id() ), fileName );
 }
 
-void ReosHydraulicStructure2D::exportResultAsMeshInGisProject( const QString &fileName, bool keepLayers )
+ReosModule::Message ReosHydraulicStructure2D::exportResultAsMeshInGisProject( ReosHydraulicScheme *scheme, const QString &fileName, bool keepLayers )
 {
+  ReosModule::Message message;
   const QFileInfo fileInfo( fileName );
-  const QString meshName = elementName()->value().replace( ':', '-' ) + '-' + network()->currentScheme()->schemeName()->value();
+  const QString meshName = elementName()->value().replace( ':', '-' ) + '-' + scheme->schemeName()->value();
   QString meshFileName = fileInfo.dir().filePath( meshName );
 
-  meshFileName = mMesh->exportAsMesh( meshFileName );
-  mMesh->exportSimulationResults( mSimulationResults.value( network()->currentScheme()->id() ), meshFileName );
+  ReosMesh *meshFrameToExport = nullptr;
+  std::unique_ptr<ReosMesh> externalMesh;
+  if ( hasCapability( ReosHydraulicStructure2D::DefinedExternally ) )
+  {
+    std::unique_ptr<ReosStructureImporter> importer( mStructureImporterSource->createImporter() );
+    if ( importer && importer->isValid() )
+    {
+      externalMesh.reset( importer->mesh( this, scheme, importer->crs() ) );
+      meshFrameToExport = externalMesh.get();
+    }
+  }
+  else
+  {
+    meshFrameToExport = mMesh.get();
+  }
+
+  if ( !meshFrameToExport )
+  {
+    message.type = ReosModule::Error;
+    message.addText( tr( "Unable to export the mesh frame." ) );
+    mNetwork->message( message );
+  }
+
+  meshFileName = meshFrameToExport->exportAsMesh( meshFileName, message );
+  if ( message.type == ReosModule::Error )
+  {
+    mNetwork->message( message, false );
+    return message;
+  }
+
+  if ( mSimulationResults.contains( scheme->id() ) )
+    message = mMesh->exportSimulationResults( mSimulationResults.value( scheme->id() ), meshFileName );
+  else
+  {
+    ReosHydraulicSimulation *sim = simulation( scheme );
+    if ( sim )
+    {
+      std::unique_ptr<ReosHydraulicSimulationResults> results( sim->loadSimulationResults( this, scheme->id() ) );
+      if ( results )
+        message = mMesh->exportSimulationResults( results.get(), meshFileName );
+    }
+  }
+
+  if ( message.type == ReosModule::Error )
+  {
+    mNetwork->message( message, false );
+    return message;
+  }
 
   QMap<QString, ReosEncodedElement> scalarSymbologies;
   QMap<QString, ReosEncodedElement> vectorSymbologies;
@@ -299,10 +347,17 @@ void ReosHydraulicStructure2D::exportResultAsMeshInGisProject( const QString &fi
     vectorSymbologies.insert( groupName, symbology );
   }
 
-  ReosDuration timeStep = simulation( mNetwork->currentScheme() )->representative2DTimeStep();
+  ReosDuration timeStep = simulation( scheme )->representative2DTimeStep();
   timeStep.setAdaptedUnit();
 
-  mNetwork->gisEngine()->createProjectFile( fileName, keepLayers );
+  if ( !mNetwork->gisEngine()->createProjectFile( fileName, keepLayers ) )
+  {
+    message.type = ReosModule::Error;
+    message.text = tr( "Unable to create a QGIS project to location \"%1\"" ).arg( fileName );
+    mNetwork->message( message, false );
+    return message;
+  }
+
   mNetwork->gisEngine()->addMeshLayerToExistingProject(
     fileName,
     meshName,
@@ -310,8 +365,16 @@ void ReosHydraulicStructure2D::exportResultAsMeshInGisProject( const QString &fi
     mMesh->wireFrameSymbology(),
     scalarSymbologies,
     vectorSymbologies,
-    timeStep
-  );
+    timeStep,
+    message );
+
+  if ( message.type == ReosModule::Simple )
+  {
+    message.addText( tr( "Hydraulic scheme \"%1\" of hydraulic structure \"%2\" successfully exported." ).
+                     arg( scheme->schemeName()->value(), elementName()->value() ) );
+  }
+  mNetwork->message( message, false );
+  return message;
 }
 
 QString ReosHydraulicStructure2D::currentActivatedMeshDataset() const
