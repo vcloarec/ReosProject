@@ -146,6 +146,26 @@ ReosMesh *ReosHecRasStructureImporter::mesh( const QString &destinationCrs ) con
   return nullptr;
 }
 
+ReosMesh *ReosHecRasStructureImporter::mesh( ReosHydraulicStructure2D *structure, ReosHydraulicScheme *scheme, const QString &destinationCrs ) const
+{
+  ReosHecRasSimulation *simulation = qobject_cast<ReosHecRasSimulation *>( structure->currentSimulation() );
+  if ( !simulation )
+    return nullptr;
+
+  ReosHecRasGeometry geometry = mProject->geometryFromPlan( simulation->currentPlan( scheme ) );
+  if ( !geometry.isValid() )
+    return nullptr;
+
+  ReosModule::Message message;
+  std::unique_ptr<ReosMesh> mesh( geometry.createMesh( destinationCrs, message ) );
+
+  if ( message.type == ReosModule::Simple )
+    return mesh.release();
+
+  mNetWork->message( message, true );
+  return nullptr;
+}
+
 QList<ReosHydraulicStructureBoundaryCondition *> ReosHecRasStructureImporter::createBoundaryConditions(
   ReosHydraulicStructure2D *structure,
   const ReosHydraulicNetworkContext &context ) const

@@ -266,7 +266,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 
     void exportResultAsMesh( const QString &fileName ) const;
 
-    void exportResultAsMeshInGisProject( const QString &fileName, bool keepLayers );
+    ReosModule::Message exportResultAsMeshInGisProject( ReosHydraulicScheme *scheme, const QString &fileName, bool keepLayers );
 
     //**************************** Profiles related methods
 

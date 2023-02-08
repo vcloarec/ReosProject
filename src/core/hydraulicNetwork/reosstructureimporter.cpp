@@ -51,6 +51,11 @@ QPolygonF ReosStructureImporterDummy::domain() const {return QPolygonF();}
 
 ReosMesh *ReosStructureImporterDummy::mesh( const QString & ) const {return nullptr;}
 
+ReosMesh *ReosStructureImporterDummy::mesh( ReosHydraulicStructure2D *structure, ReosHydraulicScheme *scheme, const QString &destinationCrs ) const
+{
+  return nullptr;
+}
+
 QList<ReosHydraulicStructureBoundaryCondition *> ReosStructureImporterDummy::createBoundaryConditions( ReosHydraulicStructure2D *, const ReosHydraulicNetworkContext & ) const
 {return QList<ReosHydraulicStructureBoundaryCondition *>();}
 

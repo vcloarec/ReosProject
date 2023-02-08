@@ -250,13 +250,14 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
      *  the layers currently prensent in the project will be added to the new project
      */
     static bool createProjectFile( const QString &projectFileName, bool keepLayer = false );
-    static bool addMeshLayerToExistingProject( const QString &projectFileName,
+    static void addMeshLayerToExistingProject( const QString &projectFileName,
         const QString &layerName,
         const QString &uri,
         const ReosEncodedElement &meshFrameSymbology,
         const QMap<QString, ReosEncodedElement> &scalarSymbologies,
         const QMap<QString, ReosEncodedElement> &vectorSymbologies,
-        const ReosDuration &timeStep );
+        const ReosDuration &timeStep,
+        ReosModule::Message &message );
 
     static QString gisEngineName();
     static QString gisEngineVersion();

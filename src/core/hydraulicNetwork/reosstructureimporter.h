@@ -40,7 +40,12 @@ class REOSCORE_EXPORT ReosStructureImporter
 
     virtual QString crs() const = 0;
     virtual QPolygonF domain() const = 0;
+
+    //! Creates and returnd a mesh
     virtual ReosMesh *mesh( const QString &destinationCrs ) const = 0;
+
+    //! Creates and returnd a mesh for a specific \a scheme associated to a \a structure
+    virtual ReosMesh *mesh( ReosHydraulicStructure2D *structure, ReosHydraulicScheme *scheme, const QString &destinationCrs ) const = 0;
 
     virtual QList<ReosHydraulicStructureBoundaryCondition *> createBoundaryConditions( ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const = 0;
     virtual QList<ReosHydraulicSimulation *> createSimulations( ReosHydraulicStructure2D *parent ) const = 0;
@@ -87,6 +92,7 @@ class ReosStructureImporterDummy : public ReosStructureImporter
     QString crs() const override;
     QPolygonF domain() const  override;
     ReosMesh *mesh( const QString & ) const override;
+    ReosMesh *mesh( ReosHydraulicStructure2D *structure, ReosHydraulicScheme *scheme, const QString &destinationCrs ) const override;
 
     QList<ReosHydraulicStructureBoundaryCondition *> createBoundaryConditions( ReosHydraulicStructure2D *, const ReosHydraulicNetworkContext & ) const override;
 

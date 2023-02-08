@@ -887,11 +887,16 @@ double ReosMeshFrame_p::interpolateDatasetValueOnPoint(
   return result;
 }
 
-QString ReosMeshFrame_p::exportAsMesh( const QString &fileName ) const
+QString ReosMeshFrame_p::exportAsMesh( const QString &fileName, ReosModule::Message &message ) const
 {
   QgsProviderMetadata *mdalMeta = QgsProviderRegistry::instance()->providerMetadata( QStringLiteral( "mdal" ) );
+
   if ( !mdalMeta )
+  {
+    message.type = ReosModule::Error;
+    message.addText( tr( "MDAL is not found. Unable to export the mesh. Verify your installation." ) );
     return QString();
+  }
 
   QString effectiveFileName = fileName;
 
@@ -904,8 +909,11 @@ QString ReosMeshFrame_p::exportAsMesh( const QString &fileName ) const
   if ( mdalMeta->createMeshData( *mMeshLayer->nativeMesh(), effectiveFileName, QStringLiteral( "Ugrid" ), mMeshLayer->crs() ) )
     return effectiveFileName;
   else
+  {
+    message.type = ReosModule::Error;
+    message.addText( tr( "Unable to create a new mesh file." ) );
     return QString();
-
+  }
 }
 
 static int datasetGroupIndexFromName( QgsMeshLayer *mesh, const QString &groupName )
@@ -922,15 +930,15 @@ static int datasetGroupIndexFromName( QgsMeshLayer *mesh, const QString &groupNa
   return -1;
 }
 
-bool ReosMeshFrame_p::exportSimulationResults( ReosHydraulicSimulationResults *result, const QString &fileName ) const
+ReosModule::Message ReosMeshFrame_p::exportSimulationResults( ReosHydraulicSimulationResults *result, const QString &fileName ) const
 {
+  ReosModule::Message message;
   if ( !result )
-    return false;
-
-  QString effectiveFileName = exportAsMesh( fileName );
-
-  if ( effectiveFileName.isEmpty() )
-    return false;
+  {
+    message.type = ReosModule::Warning;
+    message.text = tr( "No results present." );
+    return message;
+  }
 
   std::unique_ptr<QgsMeshLayer> exportedMesh = std::make_unique<QgsMeshLayer>( fileName, QStringLiteral( "mesh" ), QStringLiteral( "mdal" ) );
 
@@ -938,19 +946,24 @@ bool ReosMeshFrame_p::exportSimulationResults( ReosHydraulicSimulationResults *r
 
   for ( int gi = 0; gi < groupCount; ++gi )
   {
-    std::unique_ptr<ReosResultDatasetGroup > dsg = std::make_unique<ReosResultDatasetGroup>( result, gi );
+    std::unique_ptr<ReosResultDatasetGroup > dsg = std::make_unique<ReosResultDatasetGroup>( result, gi, false );
     dsg->initialize();
     const QString groupName = dsg->name();
 
+    bool fail = false;
     if ( exportedMesh->addDatasets( dsg.release() ) )
     {
-      exportedMesh->saveDataset( fileName, datasetGroupIndexFromName( exportedMesh.get(), groupName ), QStringLiteral( "Ugrid" ) );
+      fail = exportedMesh->saveDataset( fileName, datasetGroupIndexFromName( exportedMesh.get(), groupName ), QStringLiteral( "Ugrid" ) );
     }
-    else
-      return false;
+
+    if ( fail )
+    {
+      message.type = ReosModule::Warning;
+      message.addText( tr( "Unable to add result \"%1\"." ).arg( groupName ) );
+    }
   }
 
-  return true;
+  return message;
 }
 
 QList<ReosColorShaderSettings *> ReosMeshFrame_p::colorShaderSettings() const
@@ -1685,14 +1698,21 @@ ReosMeshQualityChecker::QualityMeshResults ReosMeshQualityChecker_p::result() co
 }
 
 
-ReosResultDataset::ReosResultDataset( ReosMeshDatasetSource *simResult, int groupIndex, int index )
+ReosResultDataset::ReosResultDataset( ReosMeshDatasetSource *simResult, int groupIndex, int index, bool faceSupportActiveFlag )
   : mSimulationResult( simResult )
   , mGroupIndex( groupIndex )
+  , mfaceSupportActiveFlag( faceSupportActiveFlag )
   , mDatasetIndex( index )
 {}
 
 QgsMeshDatasetValue ReosResultDataset::datasetValue( int valueIndex ) const
 {
+  if ( !mfaceSupportActiveFlag && mSimulationResult->groupLocation( mGroupIndex ) == ReosMeshDatasetSource::Location::Face )
+  {
+    if ( mSimulationResult->activeFaces( mGroupIndex ).at( valueIndex ) == 0 )
+      return std::numeric_limits<double>::quiet_NaN();
+  }
+
   if ( mSimulationResult->groupIsScalar( mGroupIndex ) )
     return QgsMeshDatasetValue( mSimulationResult->datasetValues( mGroupIndex, mDatasetIndex ).at( valueIndex ) );
   else
@@ -1704,15 +1724,34 @@ QgsMeshDatasetValue ReosResultDataset::datasetValue( int valueIndex ) const
 
 QgsMeshDataBlock ReosResultDataset::datasetValues( bool isScalar, int valueIndex, int count ) const
 {
+  QVector<double> sourceValues = mSimulationResult->datasetValues( mGroupIndex, mDatasetIndex );
+  if ( !mfaceSupportActiveFlag && mSimulationResult->groupLocation( mGroupIndex ) == ReosMeshDatasetSource::Location::Face )
+  {
+    const QVector<int> activefaces = mSimulationResult->activeFaces( mDatasetIndex );
+
+    for ( int i = 0; i < activefaces.count(); ++i )
+    {
+      if ( activefaces.at( i ) == 0 )
+      {
+        if ( isScalar )
+          sourceValues[i] = std::numeric_limits<double>::quiet_NaN();
+        else
+        {
+          sourceValues[2 * i] = std::numeric_limits<double>::quiet_NaN();
+          sourceValues[2 * i + 1] = std::numeric_limits<double>::quiet_NaN();
+        }
+      }
+    }
+  }
+
   int valueCount = std::min( count, mSimulationResult->datasetValuesCount( mGroupIndex, mDatasetIndex ) - valueIndex );
   QgsMeshDataBlock ret( isScalar ? QgsMeshDataBlock::ScalarDouble : QgsMeshDataBlock::Vector2DDouble, valueCount );
 
   if ( valueCount == mSimulationResult->datasetValuesCount( mGroupIndex, mDatasetIndex ) )
-    ret.setValues( mSimulationResult->datasetValues( mGroupIndex, mDatasetIndex ) );
+    ret.setValues( sourceValues );
   else
   {
     QVector<double> values( valueCount );
-    const QVector<double> &sourceValues = mSimulationResult->datasetValues( mGroupIndex, mDatasetIndex );
     memcpy( values.data(), &( sourceValues[valueIndex] ), count * sizeof( double ) );
     ret.setValues( values );
   }
@@ -1720,11 +1759,13 @@ QgsMeshDataBlock ReosResultDataset::datasetValues( bool isScalar, int valueIndex
   ret.setValid( true );
 
   return ret;
-
 }
 
 QgsMeshDataBlock ReosResultDataset::areFacesActive( int faceIndex, int count ) const
 {
+  if ( !mfaceSupportActiveFlag && mSimulationResult->groupLocation( mGroupIndex ) == ReosMeshDatasetSource::Location::Face )
+    return QgsMeshDataBlock();
+
   const QVector<int> &sourceValues = mSimulationResult->activeFaces( mDatasetIndex );
 
   int valueCount = std::min( count, sourceValues.size() - faceIndex );
@@ -1756,13 +1797,23 @@ int ReosResultDataset::valuesCount() const
   return mSimulationResult->datasetValuesCount( mGroupIndex, mDatasetIndex );
 }
 
-ReosResultDatasetGroup::ReosResultDatasetGroup( ReosMeshDatasetSource *simResult, int index )
+ReosResultDatasetGroup::ReosResultDatasetGroup( ReosMeshDatasetSource *simResult, int index, bool faceSupportActiveFlag )
   : mSimulationResult( simResult )
   , mGroupIndex( index )
+  , mFacesSupportActiveFlag( faceSupportActiveFlag )
 {
   mName = simResult->groupName( index );
   mIsScalar = simResult->groupIsScalar( index );
   setReferenceTime( simResult->groupReferenceTime( index ) );
+  switch ( simResult->groupLocation( index ) )
+  {
+    case ReosMeshDatasetSource::Location::Vertex:
+      mDataType = QgsMeshDatasetGroupMetadata::DataOnVertices;
+      break;
+    case ReosMeshDatasetSource::Location::Face:
+      mDataType = QgsMeshDatasetGroupMetadata::DataOnFaces;
+      break;
+  }
 }
 
 void ReosResultDatasetGroup::initialize()
@@ -1770,9 +1821,7 @@ void ReosResultDatasetGroup::initialize()
   int datasetCount = mSimulationResult->datasetCount( mGroupIndex );
 
   for ( int i = 0; i < datasetCount; ++i )
-  {
-    mDatasets.emplace_back( new ReosResultDataset( mSimulationResult, mGroupIndex, i ) );
-  }
+    mDatasets.emplace_back( new ReosResultDataset( mSimulationResult, mGroupIndex, i, mFacesSupportActiveFlag ) );
 }
 
 QgsMeshDatasetMetadata ReosResultDatasetGroup::datasetMetadata( int datasetIndex ) const

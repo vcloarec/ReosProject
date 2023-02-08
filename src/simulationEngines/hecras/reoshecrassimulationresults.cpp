@@ -415,8 +415,11 @@ QVector<double> ReosHecRasSimulationResults::calculateDepth( int index ) const
   {
     if ( valuePerVertex.at( vi ) != 0 )
     {
-      waterDepth[vi] = std::max( 0.0, waterDepth.at( vi ) / valuePerVertex.at( vi ) - mBottomValues.at( vi ) );
-      minMax_( mCache[index].minMaxDepth, waterDepth.at( vi ) );
+      waterDepth[vi] = waterDepth.at( vi ) / valuePerVertex.at( vi ) - mBottomValues.at( vi );
+      if ( waterDepth.at( vi ) <= 0.0 )
+        waterDepth[vi] = std::numeric_limits<double>::quiet_NaN();
+      else
+        minMax_( mCache[index].minMaxDepth, waterDepth.at( vi ) );
     }
     else
       minMax_( mCache[index].minMaxDepth, 0 );
