@@ -200,7 +200,7 @@
     <message>
         <location filename="../src/core/watershed/reostransferfunction.h" line="363"/>
         <source>SCS Unit Hydrograph</source>
-        <translation>Hydrographe unitaire SCS</translation>
+        <translation>Hydrogramme unitaire SCS</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.h" line="432"/>
@@ -263,7 +263,7 @@
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="992"/>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="1197"/>
         <source>Lag time from concentration time: %1</source>
-        <translation>Temps de décalage dérivée du temps de concentration : %1</translation>
+        <translation>Temps de décalage dérivé du temps de concentration : %1</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="1260"/>
@@ -1138,10 +1138,10 @@ choisir un nouveau nom :</translation>
 The project's coordinates system is a geographic reference system (latitude/longitude) and the extent of this layer suggests that it is actually a projected coordinates system.
 If so, the result of area or distance calculation will be incorrect.
 To fix this, set an appropriate map coordinate system in the layer properties or/and for the project coordinate project.</source>
-        <translation>Cette couche n&apos;a pas de système de coordonnées valide ou connu, et les calcul sur le MNT seront réalisés en considérant son système de coordonnées comme le même que celui du projet.
+        <translation>Cette couche n&apos;a pas de système de coordonnées valide ou connu, et les calculs sur le MNT seront réalisés en considérant son système de coordonnées comme le même que celui du projet.
 Le système de coordonnées du projet est un système géographique (latitude/longitude) et l&apos;étendue de cette couche suggère que ce système est en fait un système projeté.
 Si c&apos;est cela, le résultat de calcul d&apos;aire ou de distance sera incorrect.
-Pour éviter cela, mettre un système de coordonnées approprié dans le propriété de la couche et/ou pour le système de coordonnées du projet.</translation>
+Pour éviter cela, mettre un système de coordonnées approprié dans les propriétés de la couche et/ou pour le système de coordonnées du projet.</translation>
     </message>
 </context>
 <context>
@@ -1342,7 +1342,7 @@ Pour éviter cela, mettre un système de coordonnées approprié dans le propri�
     <message numerus="yes">
         <location filename="../src/dataProviders/hub-eau/reoshubeauwidget.cpp" line="116"/>
         <source>%n station displayed</source>
-        <translation><numerusform>%n station affichée</numerusform><numerusform>%n stations affichées</numerusform></translation>
+        <translation><numerusform>%n station affichée</numerusform><numerusform>%n stations affichées</numerusform><numerusform>%n stations affichées</numerusform></translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hub-eau/reoshubeauwidget.cpp" line="126"/>
@@ -3342,22 +3342,22 @@ est appliqué sur la pluie</translation>
     <message numerus="yes">
         <location filename="../src/gui/form/reostableview.cpp" line="101"/>
         <source>Delete %n selected rows</source>
-        <translation><numerusform>Supprimer la ligne sélectionnée</numerusform><numerusform>Supprimer %n lignes sélectionnées</numerusform></translation>
+        <translation><numerusform>Supprimer la ligne sélectionnée</numerusform><numerusform>Supprimer %n lignes sélectionnées</numerusform><numerusform>Supprimer %n lignes sélectionnées</numerusform></translation>
     </message>
     <message numerus="yes">
         <location filename="../src/gui/form/reostableview.cpp" line="108"/>
         <source>Insert %n rows</source>
-        <translation><numerusform>Insérer une ligne</numerusform><numerusform>Insérer %n lignes</numerusform></translation>
+        <translation><numerusform>Insérer une ligne</numerusform><numerusform>Insérer %n lignes</numerusform><numerusform>Insérer %n lignes</numerusform></translation>
     </message>
     <message numerus="yes">
         <location filename="../src/gui/form/reostableview.cpp" line="119"/>
         <source>Insert %n rows from clipboard</source>
-        <translation><numerusform>Insérer une ligne depuis le presse-papier</numerusform><numerusform>Insérer %n lignes depuis le presse-papier</numerusform></translation>
+        <translation><numerusform>Insérer une ligne depuis le presse-papier</numerusform><numerusform>Insérer %n lignes depuis le presse-papier</numerusform><numerusform>Insérer %n lignes depuis le presse-papier</numerusform></translation>
     </message>
     <message numerus="yes">
         <location filename="../src/gui/form/reostableview.cpp" line="129"/>
         <source>Paste %n rows from clipboard</source>
-        <translation><numerusform>Coller une ligne depuis le presse-papier</numerusform><numerusform>Coller %n lignes depuis le presse-papier</numerusform></translation>
+        <translation><numerusform>Coller une ligne depuis le presse-papier</numerusform><numerusform>Coller %n lignes depuis le presse-papier</numerusform><numerusform>Coller %n lignes depuis le presse-papier</numerusform></translation>
     </message>
     <message>
         <location filename="../src/gui/form/reostableview.cpp" line="140"/>

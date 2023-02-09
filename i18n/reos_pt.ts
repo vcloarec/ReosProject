@@ -14,22 +14,22 @@
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="223"/>
         <source>Rainfall Data Changed</source>
-        <translation type="unfinished"/>
+        <translation>Dados de chuva modificados</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="223"/>
         <source>Rainfall data have changed, do you want to save?</source>
-        <translation type="unfinished"/>
+        <translation>Os dados de chuva foram modificados, você quer salvar?</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="229"/>
         <source>Runoff Data Changed</source>
-        <translation type="unfinished"/>
+        <translation>Dados de chuva modificados</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="229"/>
         <source>Runoff data have changed, do you want to save?</source>
-        <translation type="unfinished"/>
+        <translation>Os dados de chuva foram modificados, você quer salvar?</translation>
     </message>
     <message>
         <location filename="../src/lekan/lekanmainwindow.cpp" line="252"/>
@@ -67,12 +67,12 @@
     <message>
         <location filename="../src/core/GIS/private/reosdigitalelevationmodel_p.cpp" line="178"/>
         <source>Extract DEM from layer</source>
-        <translation type="unfinished"/>
+        <translation>Extrair DEM da camada</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reosdigitalelevationmodel_p.cpp" line="259"/>
         <source>Calculate average elevation from grid</source>
-        <translation type="unfinished"/>
+        <translation>Calcular elevação média da grade</translation>
     </message>
     <message>
         <location filename="../src/core/quantity/reosarea.cpp" line="241"/>
@@ -252,7 +252,7 @@
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1365"/>
         <source>Cumulative rainfall (mm)</source>
-        <translation type="unfinished"/>
+        <translation>chuva acumulada (mm)</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1368"/>
@@ -268,7 +268,7 @@
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="1260"/>
         <source>K parameter from concentration time: %1</source>
-        <translation type="unfinished"/>
+        <translation>Parâmetro K do tempo de concentração: %1</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="327"/>
@@ -343,7 +343,7 @@
     <message>
         <location filename="../src/core/hydrograph/reoshydrographrouting.h" line="254"/>
         <source>Muskingum</source>
-        <translation type="unfinished"/>
+        <translation>Muskigum</translation>
     </message>
     <message>
         <location filename="../src/core/hydrograph/reoshydrographrouting.h" line="298"/>
@@ -363,12 +363,12 @@
     <message>
         <location filename="../src/dataProviders/delft-FEWS/reosdelftfewsxmlprovider.cpp" line="83"/>
         <source>&lt;b&gt;Start date&lt;/b&gt;</source>
-        <translation type="unfinished"/>
+        <translation>&lt;b&gt;Data inicial&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/delft-FEWS/reosdelftfewsxmlprovider.cpp" line="88"/>
         <source>&lt;b&gt;End date&lt;/b&gt;</source>
-        <translation type="unfinished"/>
+        <translation>&lt;b&gt;Data final&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="225"/>
@@ -378,12 +378,12 @@
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="226"/>
         <source>Gauged hydrograph</source>
-        <translation type="unfinished"/>
+        <translation>Hidrograma calibrado</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="228"/>
         <source>Gauged Hydrograph</source>
-        <translation type="unfinished"/>
+        <translation>Hidrograma calibrado</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="350"/>
@@ -1338,7 +1338,7 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message numerus="yes">
         <location filename="../src/dataProviders/hub-eau/reoshubeauwidget.cpp" line="116"/>
         <source>%n station displayed</source>
-        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform></translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hub-eau/reoshubeauwidget.cpp" line="126"/>
@@ -3336,22 +3336,22 @@ is applied on the rainfall</source>
     <message numerus="yes">
         <location filename="../src/gui/form/reostableview.cpp" line="101"/>
         <source>Delete %n selected rows</source>
-        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform></translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message numerus="yes">
         <location filename="../src/gui/form/reostableview.cpp" line="108"/>
         <source>Insert %n rows</source>
-        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform></translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message numerus="yes">
         <location filename="../src/gui/form/reostableview.cpp" line="119"/>
         <source>Insert %n rows from clipboard</source>
-        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform></translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message numerus="yes">
         <location filename="../src/gui/form/reostableview.cpp" line="129"/>
         <source>Paste %n rows from clipboard</source>
-        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform></translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message>
         <location filename="../src/gui/form/reostableview.cpp" line="140"/>

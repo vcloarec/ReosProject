@@ -268,7 +268,7 @@
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="1260"/>
         <source>K parameter from concentration time: %1</source>
-        <translation type="unfinished"/>
+        <translation>Parámetro K del tiempo de concentración: %1</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="327"/>
@@ -283,7 +283,7 @@
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="493"/>
         <source>Where:&lt;br&gt;- Δt : the time step of the runoff&lt;br&gt;- t&lt;sub&gt;c&lt;/sub&gt; : the concentration time&lt;br&gt;- A : the watershed area&lt;br&gt;- r : the runoff intensity or the effective rainfall intensity during the time step in mm per unit time</source>
-        <translation type="unfinished"/>
+        <translation>Donde:&lt;br&gt;- Δt : paso de tiempo del escurrimiento&lt;br&gt;- t&lt;sub&gt;c&lt;/sub&gt; : tiempo de concentración&lt;br&gt;- A : área de cuenca&lt;br&gt;- r : intensidad del escurrimiento o intensidad de lluvia efectiva durante el instante de tiempo en mm por unidad de tiempo</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="512"/>
@@ -544,7 +544,7 @@
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="37"/>
         <source>Average elevation</source>
-        <translation type="unfinished"/>
+        <translation>Evelación Promedio</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosconcentrationtimewidget.cpp" line="42"/>
@@ -1338,7 +1338,7 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message numerus="yes">
         <location filename="../src/dataProviders/hub-eau/reoshubeauwidget.cpp" line="116"/>
         <source>%n station displayed</source>
-        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform></translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hub-eau/reoshubeauwidget.cpp" line="126"/>
@@ -3335,22 +3335,22 @@ is applied on the rainfall</source>
     <message numerus="yes">
         <location filename="../src/gui/form/reostableview.cpp" line="101"/>
         <source>Delete %n selected rows</source>
-        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform></translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message numerus="yes">
         <location filename="../src/gui/form/reostableview.cpp" line="108"/>
         <source>Insert %n rows</source>
-        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform></translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message numerus="yes">
         <location filename="../src/gui/form/reostableview.cpp" line="119"/>
         <source>Insert %n rows from clipboard</source>
-        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform></translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message numerus="yes">
         <location filename="../src/gui/form/reostableview.cpp" line="129"/>
         <source>Paste %n rows from clipboard</source>
-        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform></translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message>
         <location filename="../src/gui/form/reostableview.cpp" line="140"/>
