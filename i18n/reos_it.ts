@@ -1341,7 +1341,7 @@ Per risolvere il problema, seleziona un corretto sistema di coordinate della map
     <message numerus="yes">
         <location filename="../src/dataProviders/hub-eau/reoshubeauwidget.cpp" line="116"/>
         <source>%n station displayed</source>
-        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform></translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hub-eau/reoshubeauwidget.cpp" line="126"/>
@@ -3339,22 +3339,22 @@ is applied on the rainfall</source>
     <message numerus="yes">
         <location filename="../src/gui/form/reostableview.cpp" line="101"/>
         <source>Delete %n selected rows</source>
-        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform></translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message numerus="yes">
         <location filename="../src/gui/form/reostableview.cpp" line="108"/>
         <source>Insert %n rows</source>
-        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform></translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message numerus="yes">
         <location filename="../src/gui/form/reostableview.cpp" line="119"/>
         <source>Insert %n rows from clipboard</source>
-        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform></translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message numerus="yes">
         <location filename="../src/gui/form/reostableview.cpp" line="129"/>
         <source>Paste %n rows from clipboard</source>
-        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform></translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message>
         <location filename="../src/gui/form/reostableview.cpp" line="140"/>
