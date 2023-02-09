@@ -1,0 +1,10 @@
+[main]
+host = https://www.transifex.com
+
+[lekan.reos-en-ts]
+file_filter = i18n/reos_<lang>.ts
+minimum_perc = 0
+source_file = i18n/reos_en.ts
+source_lang = en_US
+type = QT
+
