@@ -30,7 +30,7 @@ struct VectorSettings
   int lifeTime = 15;
   bool dynamicTraces = false;
   int tracesFps = 15;
-  int tracesMaxSpeed = 2000;
+  int tracesMaxSpeed = 200;
   double tracesPersistence = 0.2;
   double tracesTailFactor = 1;
 };

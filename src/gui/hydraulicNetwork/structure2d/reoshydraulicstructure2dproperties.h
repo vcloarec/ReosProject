@@ -91,6 +91,7 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
     QActionGroup *mVectorDatasetActions = nullptr;
     QAction *mActionScalarSettings = nullptr;
     QAction *mActionVectorSettings = nullptr;
+    QAction *mActionVectorTraces = nullptr;
     QToolButton *mDatasetVectorSettingsButton = nullptr;
     QPointer<Reos3dView> mView3D;
     ReosGuiContext mGuiContext;

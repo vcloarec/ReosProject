@@ -111,6 +111,8 @@ class ReosMeshFrame_p : public ReosMesh
     ReosColorShaderSettings *terrainColorShaderSettings() const override;
     ReosEncodedElement datasetScalarGroupSymbology( const QString &id ) const override;
     ReosEncodedElement datasetVectorGroupSymbology( const QString &id ) const override;
+    void activateDynamicTraces( bool activated ) override;
+    bool isDynamicTracesActive() const override;
     ReosEncodedElement wireFrameSymbology() const override;
     void setDatasetVectorGroupSymbology( const ReosEncodedElement &encodedElement, const QString &id ) override;
     void activateWireFrame( bool activate ) override;
