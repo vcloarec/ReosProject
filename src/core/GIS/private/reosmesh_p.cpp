@@ -297,6 +297,25 @@ ReosEncodedElement ReosMeshFrame_p::datasetVectorGroupSymbology( const QString &
   return ReosEncodedElement( mDatasetVectorSymbologies.value( id ) );
 }
 
+void ReosMeshFrame_p::activateDynamicTraces( bool activated )
+{
+  ReosEncodedElement symbology = datasetVectorGroupSymbology( mCurrentActiveVectorDatasetId );
+  symbology.addData( QStringLiteral( "dynamic-traces" ), activated );
+  mRendererCache.reset();
+  setDatasetVectorGroupSymbology( symbology, mCurrentActiveVectorDatasetId );
+}
+
+bool ReosMeshFrame_p::isDynamicTracesActive() const
+{
+  if ( mCurrentActiveVectorDatasetId.isEmpty() )
+    return false;
+
+  ReosEncodedElement symbology = datasetVectorGroupSymbology( mCurrentActiveVectorDatasetId );
+  bool activated = false;
+  symbology.getData( QStringLiteral( "dynamic-traces" ), activated );
+  return activated;
+}
+
 void ReosMeshFrame_p::setDatasetVectorGroupSymbology( const ReosEncodedElement &encodedElement, const QString &id )
 {
   if ( encodedElement.description() != QStringLiteral( "dataset-vector-symbology" ) )
@@ -316,7 +335,6 @@ void ReosMeshFrame_p::setDatasetVectorGroupSymbology( const ReosEncodedElement &
 
     mMeshLayer->setRendererSettings( qgsSettings );
   }
-
 
   update3DRenderer();
 }

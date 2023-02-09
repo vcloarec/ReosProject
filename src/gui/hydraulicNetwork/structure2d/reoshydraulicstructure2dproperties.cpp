@@ -95,6 +95,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   , mVectorDatasetMenu( new QMenu( this ) )
   , mActionScalarSettings( new QAction( QIcon( QStringLiteral( ":/images/scalarContour.svg" ) ), tr( "Color Ramp" ), this ) )
   , mActionVectorSettings( new QAction( QIcon( QStringLiteral( ":/images/vectorSettings.svg" ) ), tr( "Vector Settings" ), this ) )
+  , mActionVectorTraces( new QAction( QIcon( QStringLiteral( ":/images/dynamicTraces.svg" ) ), tr( "Dynamic Vector Traces" ), this ) )
   , mGuiContext( context, this )
   , mCurrentVectorDatasetId( structure2D ? structure2D->currentActivatedVectorMeshDataset() : QString() )
 {
@@ -132,7 +133,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
 
   QToolBar *toolBar = new QToolBar( this );
   toolBar->addAction( mActionEditStructure );
-
+  toolBar->addSeparator();
   QToolButton *simulationToolButton = new QToolButton( toolBar );
   simulationToolButton->setPopupMode( QToolButton::MenuButtonPopup );
   simulationToolButton->setDefaultAction( mActionRunSimulation );
@@ -180,10 +181,16 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   }
 
   connect( mActionProfiles, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::onProfileRequested );
+  mActionVectorTraces->setCheckable( true );
+  connect( mActionVectorTraces, &QAction::toggled, this, [this]
+  {
+    if ( mStructure2D && mStructure2D->mesh() )
+      mStructure2D->mesh()->activateDynamicTraces( mActionVectorTraces->isChecked() );
+  } );
 
-  toolBar->addAction( mActionProfiles );
-
+  toolBar->addSeparator();
   toolBar->addAction( mAction3DView );
+  toolBar->addAction( mActionProfiles );
 
   toolBar->addSeparator();
 
@@ -565,6 +572,8 @@ void ReosHydraulicStructure2DProperties::updateVectorDatasetMenu()
         mCurrentVectorDatasetId = id;
         restoreResults();
         mActionVectorSettings->setEnabled( true );
+        mActionVectorTraces->setEnabled( true );
+        mActionVectorTraces->setChecked( mStructure2D->mesh()->isDynamicTracesActive() );
       }
     } );
   }
@@ -580,12 +589,16 @@ void ReosHydraulicStructure2DProperties::updateVectorDatasetMenu()
       mCurrentVectorDatasetId = QString();
       mStructure2D->activateResultVectorDatasetGroup( QString() );
       mActionVectorSettings->setEnabled( false );
+      mActionVectorTraces->setEnabled( false );
     }
   } );
   mVectorDatasetMenu->addSeparator();
   mVectorDatasetMenu->addAction( mActionVectorSettings );
+  mVectorDatasetMenu->addAction( mActionVectorTraces );
 
   mActionVectorSettings->setEnabled( !mStructure2D->currentActivatedVectorMeshDataset().isEmpty() );
+  mActionVectorTraces->setEnabled( !mStructure2D->currentActivatedVectorMeshDataset().isEmpty() );
+  mActionVectorTraces->setChecked( mStructure2D->mesh()->isDynamicTracesActive() );
 }
 
 void ReosHydraulicStructure2DProperties::restoreResults()

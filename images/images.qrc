@@ -175,6 +175,7 @@
         <file>boundaryNode.svg</file>
         <file>exportGriddedRainfall.svg</file>
         <file>pan.svg</file>
+        <file>dynamicTraces.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

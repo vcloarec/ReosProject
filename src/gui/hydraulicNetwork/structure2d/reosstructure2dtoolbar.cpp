@@ -16,12 +16,16 @@ ReosStructure2dToolBar::ReosStructure2dToolBar( QWidget *parent )
   setObjectName( "structure-2D-tool-bar" );
   setWindowTitle( tr( "Structure 2D" ) );
 
-  addWidget( m3dButton );
   addWidget( mEditButton );
+  addSeparator();
   addWidget( mRunButton );
+  addSeparator();
   addWidget( mScalarButton );
   addWidget( mVectorButton );
+  addSeparator();
+  addWidget( m3dButton );
   addWidget( mProfileButton );
+  addSeparator();
   addWidget( mExportMesh );
 
   mPlaceHolder = new ReosHydraulicStructure2DProperties( nullptr, ReosGuiContext( this ) );
@@ -48,11 +52,15 @@ void ReosStructure2dToolBar::setCurrentStructure2DPropertiesWidget( ReosHydrauli
   for ( QAction *oldAction : oldActions )
     removeAction( oldAction );
 
-  addAction( structurePropertiesWidget->action3DView() );
   addAction( structurePropertiesWidget->actionEditStructure() );
+  addSeparator();
   addAction( structurePropertiesWidget->actionRunSimulation() );
+  addSeparator();
   addAction( structurePropertiesWidget->scalarWidgetAction() );
   addAction( structurePropertiesWidget->vectorWidgetAction() );
+  addSeparator();
+  addAction( structurePropertiesWidget->action3DView() );
   addAction( structurePropertiesWidget->actionProfiles() );
+  addSeparator();
   addAction( structurePropertiesWidget->actionExportAsMesh() );
 }
