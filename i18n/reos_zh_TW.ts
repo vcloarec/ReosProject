@@ -205,7 +205,7 @@
     <message>
         <location filename="../src/core/watershed/reostransferfunction.h" line="432"/>
         <source>Nash Unit Hydrograph</source>
-        <translation type="unfinished"/>
+        <translation>Nash 單位歷線</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reoswatershed.cpp" line="871"/>
@@ -242,7 +242,7 @@
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1353"/>
         <source>, instant value</source>
-        <translation>，即時時數值</translation>
+        <translation>，即時數值</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1361"/>
@@ -252,7 +252,7 @@
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1365"/>
         <source>Cumulative rainfall (mm)</source>
-        <translation type="unfinished"/>
+        <translation>累積降雨量(mm)</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1368"/>
@@ -353,7 +353,7 @@
     <message>
         <location filename="../src/dataProviders/delft-FEWS/reosdelftfewsxmlprovider.cpp" line="70"/>
         <source>No station selected</source>
-        <translation type="unfinished"/>
+        <translation>沒有選擇測站</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/delft-FEWS/reosdelftfewsxmlprovider.cpp" line="78"/>
@@ -378,17 +378,17 @@
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="226"/>
         <source>Gauged hydrograph</source>
-        <translation type="unfinished"/>
+        <translation>測站歷線</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="228"/>
         <source>Gauged Hydrograph</source>
-        <translation type="unfinished"/>
+        <translation>測站歷線</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="350"/>
         <source>Hydrograph to inject</source>
-        <translation type="unfinished"/>
+        <translation>匯入歷線</translation>
     </message>
 </context>
 <context>
@@ -642,7 +642,7 @@
     <message>
         <location filename="../src/ui/reosdelftfewssettingswidget.ui"/>
         <source>Delft-FEWS XML Data</source>
-        <translation type="unfinished"/>
+        <translation>Delft-FEWS XML 資料</translation>
     </message>
 </context>
 <context>
@@ -655,27 +655,27 @@
     <message>
         <location filename="../src/ui/reosdelftfewswidget.ui"/>
         <source>File</source>
-        <translation type="unfinished"/>
+        <translation>檔案</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/delft-FEWS/reosdelftfewswidget.cpp" line="40"/>
         <source>Hydrograph</source>
-        <translation type="unfinished"/>
+        <translation>歷線</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/delft-FEWS/reosdelftfewswidget.cpp" line="41"/>
         <source>Rainfall</source>
-        <translation type="unfinished"/>
+        <translation>降雨</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/delft-FEWS/reosdelftfewswidget.cpp" line="56"/>
         <source>Select Station</source>
-        <translation type="unfinished"/>
+        <translation>選擇測站</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/delft-FEWS/reosdelftfewswidget.cpp" line="147"/>
         <source>Open XML Delft-FEWS file</source>
-        <translation type="unfinished"/>
+        <translation>開啟 Delft-FEWS XML檔案</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/delft-FEWS/reosdelftfewswidget.cpp" line="197"/>
@@ -979,7 +979,7 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="281"/>
         <source>Gauged Hydrographs Manager</source>
-        <translation type="unfinished"/>
+        <translation>測站歷線管理</translation>
     </message>
 </context>
 <context>
@@ -987,7 +987,7 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="341"/>
         <source>Inject gauged hydrograph</source>
-        <translation type="unfinished"/>
+        <translation>匯入測站歷線</translation>
     </message>
 </context>
 <context>
@@ -995,7 +995,7 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="220"/>
         <source>Hydrograph origin</source>
-        <translation type="unfinished"/>
+        <translation>原始歷線</translation>
     </message>
 </context>
 <context>
@@ -1003,32 +1003,32 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/gui/hydrograph/reosgaugedhydrographwidget.cpp" line="46"/>
         <source>Add Gauged Hydrograph</source>
-        <translation type="unfinished"/>
+        <translation>增加測站歷線</translation>
     </message>
     <message>
         <location filename="../src/gui/hydrograph/reosgaugedhydrographwidget.cpp" line="47"/>
         <source>Delete Current Hydrograph</source>
-        <translation type="unfinished"/>
+        <translation>刪除目前歷線</translation>
     </message>
     <message>
         <location filename="../src/gui/hydrograph/reosgaugedhydrographwidget.cpp" line="48"/>
         <source>Rename Current Hydrograph</source>
-        <translation type="unfinished"/>
+        <translation>重新命名目前歷線</translation>
     </message>
     <message>
         <location filename="../src/gui/hydrograph/reosgaugedhydrographwidget.cpp" line="57"/>
         <source>Hydrograph</source>
-        <translation type="unfinished"/>
+        <translation>歷線</translation>
     </message>
     <message>
         <location filename="../src/gui/hydrograph/reosgaugedhydrographwidget.cpp" line="64"/>
         <source>Flow rate (%1)</source>
-        <translation type="unfinished"/>
+        <translation>流量比(%1)</translation>
     </message>
     <message>
         <location filename="../src/gui/hydrograph/reosgaugedhydrographwidget.cpp" line="110"/>
         <source>Add Hydrograph</source>
-        <translation type="unfinished"/>
+        <translation>增加歷線</translation>
     </message>
     <message>
         <location filename="../src/gui/hydrograph/reosgaugedhydrographwidget.cpp" line="111"/>
@@ -1039,7 +1039,7 @@ Adjust new watershed?</source>
         <location filename="../src/gui/hydrograph/reosgaugedhydrographwidget.cpp" line="112"/>
         <location filename="../src/gui/hydrograph/reosgaugedhydrographwidget.cpp" line="163"/>
         <source>Hydrograph name</source>
-        <translation type="unfinished"/>
+        <translation>歷線名稱</translation>
     </message>
     <message>
         <location filename="../src/gui/hydrograph/reosgaugedhydrographwidget.cpp" line="139"/>
@@ -1070,28 +1070,28 @@ choose a new name:</source>
     <message>
         <location filename="../src/gui/hydrograph/reosgaugedhydrographwidget.cpp" line="298"/>
         <source>Add</source>
-        <translation type="unfinished"/>
+        <translation>新增</translation>
     </message>
     <message>
         <location filename="../src/gui/hydrograph/reosgaugedhydrographwidget.cpp" line="299"/>
         <source>Add Copy</source>
-        <translation type="unfinished"/>
+        <translation>新增複製</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgaugedhydrographwidget.ui"/>
         <source>Gauged Hydrographs</source>
-        <translation type="unfinished"/>
+        <translation>測站歷線</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgaugedhydrographwidget.ui"/>
         <location filename="../src/gui/hydrograph/reosgaugedhydrographwidget.cpp" line="289"/>
         <source>Back</source>
-        <translation type="unfinished"/>
+        <translation>返回</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgaugedhydrographwidget.ui"/>
         <source>Current gauged hydrograph</source>
-        <translation type="unfinished"/>
+        <translation>目前測站歷線</translation>
     </message>
 </context>
 <context>
@@ -1250,12 +1250,12 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/dataProviders/hub-eau/reoshubeauhydrographprovider.cpp" line="208"/>
         <source>yes</source>
-        <translation type="unfinished"/>
+        <translation>是</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hub-eau/reoshubeauhydrographprovider.cpp" line="208"/>
         <source>no</source>
-        <translation type="unfinished"/>
+        <translation>否</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hub-eau/reoshubeauhydrographprovider.cpp" line="212"/>
@@ -1302,12 +1302,12 @@ To fix this, set an appropriate map coordinate system in the layer properties or
         <location filename="../src/ui/reoshubeausettingswidget.ui"/>
         <location filename="../src/dataProviders/hub-eau/reoshubeausettingswidget.cpp" line="82"/>
         <source>Reload</source>
-        <translation type="unfinished"/>
+        <translation>重新載入</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hub-eau/reoshubeausettingswidget.cpp" line="77"/>
         <source>Loading</source>
-        <translation type="unfinished"/>
+        <translation>載入中</translation>
     </message>
 </context>
 <context>
@@ -1315,32 +1315,32 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/dataProviders/hub-eau/reoshubeauwidget.cpp" line="43"/>
         <source>Select Station</source>
-        <translation type="unfinished"/>
+        <translation>選擇測站</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hub-eau/reoshubeauwidget.cpp" line="49"/>
         <source>Hydrograph</source>
-        <translation type="unfinished"/>
+        <translation>歷線</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hub-eau/reoshubeauwidget.cpp" line="57"/>
         <source>Flow rate (%1)</source>
-        <translation type="unfinished"/>
+        <translation>流量比例(%1)</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hub-eau/reoshubeauwidget.cpp" line="79"/>
         <source>real time</source>
-        <translation type="unfinished"/>
+        <translation>即時</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hub-eau/reoshubeauwidget.cpp" line="94"/>
         <source>Loading stations on extent</source>
-        <translation type="unfinished"/>
+        <translation>載入現有測站</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/dataProviders/hub-eau/reoshubeauwidget.cpp" line="116"/>
         <source>%n station displayed</source>
-        <translation type="unfinished"><numerusform></numerusform></translation>
+        <translation><numerusform>%n 測站展示</numerusform></translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hub-eau/reoshubeauwidget.cpp" line="126"/>
@@ -1353,7 +1353,7 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulicelementpropertieswidget.cpp" line="239"/>
         <source>No Element Selected</source>
-        <translation type="unfinished"/>
+        <translation>沒有元件被選擇</translation>
     </message>
 </context>
 <context>
@@ -1361,12 +1361,12 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulicelementpropertieswidget.cpp" line="89"/>
         <source>No Element Selected</source>
-        <translation type="unfinished"/>
+        <translation>沒有元件被選擇</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulicelementpropertieswidget.cpp" line="91"/>
         <source>No hydraulic element selected</source>
-        <translation type="unfinished"/>
+        <translation>沒有水力元件被選擇</translation>
     </message>
 </context>
 <context>
@@ -3809,17 +3809,17 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="428"/>
         <source>downstream watershed</source>
-        <translation type="unfinished"/>
+        <translation>下游集水區</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="429"/>
         <source>residual watershed</source>
-        <translation type="unfinished"/>
+        <translation>其餘集水區</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="442"/>
         <source>Add Watershed Hydraulic Node</source>
-        <translation type="unfinished"/>
+        <translation>加入集水區水理節點</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="443"/>
@@ -3831,17 +3831,17 @@ It is not possible to have hydraulic watershed node for both downstream watershe
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="540"/>
         <source>Remove watershed from network</source>
-        <translation type="unfinished"/>
+        <translation>在網路中移除集水區</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="561"/>
         <source>No Hydraulic Network</source>
-        <translation type="unfinished"/>
+        <translation>沒有水理網路</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="568"/>
         <source>No Watershed Selected</source>
-        <translation type="unfinished"/>
+        <translation>沒有集水區被選擇</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="575"/>
@@ -3851,12 +3851,12 @@ It is not possible to have hydraulic watershed node for both downstream watershe
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="580"/>
         <source>Add Watershed to Network</source>
-        <translation type="unfinished"/>
+        <translation>將集水區加入網路</translation>
     </message>
     <message>
         <location filename="../src/ui/reoswatershedwidget.ui"/>
         <source>Add to Hydraulic Network</source>
-        <translation type="unfinished"/>
+        <translation>加入水理網路</translation>
     </message>
 </context>
 </TS>
