@@ -16,7 +16,7 @@
 
 # Modified by Vincent Cloarec (vcloarec at gmail dot com) for Reos Project
 
-#set here the Qt directery
+#set here the Qt directory
 QTDIR=/opt/Qt/5.15.2/gcc_64/bin/
 
 set -e
