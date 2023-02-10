@@ -625,12 +625,14 @@ void ReosHecRasSimulation::setCurrentPlan( const QString &planId, ReosHydraulicS
 
       QString schemeId = mStructure->network()->currentScheme()->id();
       mStructure->clearResults( schemeId );
+
       ReosModule::Message message;
       geom.resetMesh( mStructure->mesh(), mStructure->network()->gisEngine()->crs(), message );
-      mStructure->updateResults( schemeId );
 
       const QStringList boundaries = mStructure->boundaryConditionId();
       updateBoundaryConditions( mProject.get(), QSet<QString>( boundaries.constBegin(), boundaries.constEnd() ), mStructure, mStructure->network()->context() );
+
+      mStructure->updateResults( schemeId );
     }
 
     emit dataChanged();
@@ -987,11 +989,10 @@ void ReosHecRasSimulation::accordCurrentPlan()
     mProject->setCurrentPlan( mCurrentPlan );
 }
 
-ReosHecRasSimulationProcess::ReosHecRasSimulationProcess(
-  const ReosHecRasProject &hecRasProject,
-  const QString &planId,
-  const ReosCalculationContext &context,
-  const QList<ReosHydraulicStructureBoundaryCondition *> boundaries )
+ReosHecRasSimulationProcess::ReosHecRasSimulationProcess( const ReosHecRasProject &hecRasProject,
+    const QString &planId,
+    const ReosCalculationContext &context,
+    const QList<ReosHydraulicStructureBoundaryCondition *> &boundaries )
   : ReosSimulationProcess( context, boundaries )
   , mProject( hecRasProject )
   , mPlan( hecRasProject.plan( planId ) )

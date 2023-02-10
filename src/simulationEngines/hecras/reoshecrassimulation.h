@@ -32,7 +32,7 @@ class ReosHecRasSimulationProcess: public ReosSimulationProcess
       const ReosHecRasProject &hecRasProject,
       const QString &planId,
       const ReosCalculationContext &context,
-      const QList<ReosHydraulicStructureBoundaryCondition *> boundaries );
+      const QList<ReosHydraulicStructureBoundaryCondition *> &boundaries );
 
     void start();
 
@@ -47,7 +47,7 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
     Q_OBJECT
   public:
     explicit ReosHecRasSimulation( ReosHydraulicStructure2D *parent = nullptr );
-    ReosHecRasSimulation( const ReosEncodedElement &element, ReosHydraulicStructure2D *parent = nullptr );
+    explicit ReosHecRasSimulation( const ReosEncodedElement &element, ReosHydraulicStructure2D *parent = nullptr );
 
     static QString staticKey() { return QStringLiteral( "hecras" ); }
 
