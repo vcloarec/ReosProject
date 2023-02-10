@@ -352,11 +352,19 @@ double ReosMeshPointValueOnEdge::interpolateValue( const QVector<double> &values
     }
     break;
     case ReosMeshDatasetSource::Location::Face:
+    {
       double value1 = mFace1 >= 0 ? values.at( mFace1 ) : 0;
       double value2 =  mFace2 >= 0 ? values.at( mFace2 ) : 0;
-      int count = ( mFace1 >= 0 ? 1 : 0 ) + ( mFace2 >= 0 ? 1 : 0 );
-      return ( value1 + value2 ) / count;
-      break;
+      int count = ( mFace1 >= 0 && !std::isnan( value1 )  ? 1 : 0 ) + ( mFace2 >= 0 && !std::isnan( value1 ) ? 1 : 0 );
+      if ( std::isnan( value1 ) )
+        value1 = 0;
+      if ( std::isnan( value2 ) )
+        value2 = 0;
+
+      if ( count != 0 )
+        return ( value1 + value2 ) / count;
+    }
+    break;
   }
   return std::numeric_limits<double>::quiet_NaN();
 }
@@ -382,9 +390,22 @@ double ReosMeshPointValueOnEdge::interpolateVectorValue( const QVector<double> &
       double value12 = mFace1 >= 0 ? values.at( mFace1 * 2 + 1 ) : 0;
       double value21 = mFace2 >= 0 ? values.at( mFace2 * 2 ) : 0;
       double value22 = mFace2 >= 0 ? values.at( mFace2 * 2 + 1 ) : 0;
-      int count = ( mFace1 >= 0 ? 1 : 0 ) + ( mFace2 >= 0 ? 1 : 0 );
-      return ( sqrt( pow( value11, 2 ) + pow( value12, 2 ) ) +
-               sqrt( pow( value21, 2 ) + pow( value22, 2 ) ) ) / count;
+      int count = ( mFace1 >= 0 && !std::isnan( value11 ) && !std::isnan( value12 ) ? 1 : 0 ) +
+                  ( mFace2 >= 0 && !std::isnan( value21 ) && !std::isnan( value22 ) ? 1 : 0 );
+
+      if ( std::isnan( value11 ) )
+        value11 = 0;
+      if ( std::isnan( value12 ) )
+        value12 = 0;
+
+      if ( std::isnan( value21 ) )
+        value21 = 0;
+      if ( std::isnan( value22 ) )
+        value22 = 0;
+
+      if ( count != 0 )
+        return ( sqrt( pow( value11, 2 ) + pow( value12, 2 ) ) +
+                 sqrt( pow( value21, 2 ) + pow( value22, 2 ) ) ) / count;
     }
     break;
   }

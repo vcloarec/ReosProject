@@ -521,6 +521,7 @@ QList<ReosMeshPointValue> ReosMeshFrame_p::drapePolyline( const QPolygonF &polyl
   QString localCrs = crs();
 
   const QgsTriangularMesh *triMesh = mMeshLayer->triangularMesh();
+  const QgsMesh *nativeMesh = mMeshLayer->nativeMesh();
   if ( !triMesh )
     return ret.values();
 
@@ -543,6 +544,7 @@ QList<ReosMeshPointValue> ReosMeshFrame_p::drapePolyline( const QPolygonF &polyl
     std::unique_ptr<QgsGeometryEngine> segmentEngine( QgsGeometry::createGeometryEngine( segmentGeom.constGet() ) );
     segmentEngine->prepareGeometry();
     const QList<int> faces = triMesh->faceIndexesForRectangle( segmentGeom.boundingBox() );
+    const QList<int> nativeFaces = triMesh->nativeFaceIndexForRectangle( segmentGeom.boundingBox() );
 
     // Start to check distance from all vertices
     for ( int fi : faces )
@@ -568,10 +570,9 @@ QList<ReosMeshPointValue> ReosMeshFrame_p::drapePolyline( const QPolygonF &polyl
 
     // Find intersection with edges
     QHash <QPair<int, int>, int> intersectEdges; //key is edge and value is the face index of the first face found
-    for ( int fi : faces )
+    for ( int fi : nativeFaces )
     {
-      const QgsMeshFace &face = triMesh->triangles().at( fi );
-      int nativeface = triMesh->trianglesToNativeFaces().at( fi );
+      const QgsMeshFace &face = nativeMesh->face( fi );
       int faceSize = face.size();
       for ( int vfi = 0; vfi < faceSize; ++vfi )
       {
@@ -597,12 +598,12 @@ QList<ReosMeshPointValue> ReosMeshFrame_p::drapePolyline( const QPolygonF &polyl
             double distTot = vert1.distance( vert2 );
             double dist = vertices.at( edge.first ).distance( intersectPoint );
             ret.insert( pt1.distance( intersectPoint ) + lenghtFromStart,
-                        ReosMeshPointValue( new ReosMeshPointValueOnEdge( edge.first, edge.second, it.value(), nativeface, dist / distTot, intersectPoint.toQPointF() ) ) );
+                        ReosMeshPointValue( new ReosMeshPointValueOnEdge( edge.first, edge.second, it.value(), fi, dist / distTot, intersectPoint.toQPointF() ) ) );
             intersectEdges.remove( edge );
           }
           else
           {
-            intersectEdges.insert( edge, nativeface );
+            intersectEdges.insert( edge, fi );
           }
         }
       }
