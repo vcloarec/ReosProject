@@ -123,7 +123,7 @@ class ReosMeshFrame_p : public ReosMesh
     void updateInternalCache( ReosObjectRenderer *renderer ) override;
 
     ReosMeshQualityChecker *getQualityChecker( QualityMeshChecks qualitiChecks, const QString &destinatonCrs ) const override;
-    void setSimulationResults( ReosHydraulicSimulationResults *result ) override;
+    void setSimulationResults(ReosHydraulicSimulationResults *result , const QString &destinationCrs) override;
     QString verticesElevationDatasetId() const override;
     bool activateDataset( const QString &id, bool update = true ) override;
     bool activateVectorDataset( const QString &id, bool update = true ) override;

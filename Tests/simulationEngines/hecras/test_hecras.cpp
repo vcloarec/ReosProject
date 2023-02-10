@@ -801,6 +801,7 @@ void ReosHecrasTesting::importAndLaunchStructure()
 
   QVERIFY( structure->mesh() );
   QCOMPARE( structure->mesh()->vertexCount(), 1900 );
+  QCOMPARE( structure->mesh()->faceCount(), 1746 );
   QPolygonF domain_1;
   domain_1 << QPointF( 653204.178513767, 1797219.8459956 )
            << QPointF( 653499.89032075, 1797219.72312258 )

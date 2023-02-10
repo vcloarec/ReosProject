@@ -897,7 +897,7 @@ QString ReosHydraulicStructure2D::resultsUnits( ReosHydraulicSimulationResults::
 
 void ReosHydraulicStructure2D::removeAllResults()
 {
-  mMesh->setSimulationResults( nullptr );
+  mMesh->setSimulationResults( nullptr, mNetwork->gisEngine()->crs() );
   qDeleteAll( mSimulationResults );
   mSimulationResults.clear();
 
@@ -1021,6 +1021,11 @@ void ReosHydraulicStructure2D::initConnection()
   if ( mTimeWindowSettings )
   {
     connect( mTimeWindowSettings, &ReosTimeWindowSettings::dataChanged, this, &ReosHydraulicStructure2D::timeWindowChanged );
+  }
+
+  if ( mMesh && mProfilesCollection )
+  {
+    connect( mMesh.get(), &ReosDataObject::dataChanged, mProfilesCollection, &ReosHydraulicStructureProfilesCollection::clearProfiles );
   }
 
   connect( this, &ReosHydraulicStructure2D::simulationResultChanged, mNetwork, &ReosHydraulicNetwork::timeStepChanged );
@@ -1172,7 +1177,8 @@ void ReosHydraulicStructure2D::loadResult( ReosHydraulicSimulation *simulation, 
   }
 
   ReosHydraulicSimulationResults *simResults = simulation->loadSimulationResults( this, schemeId, this );
-  mSimulationResults.insert( schemeId, simResults );
+  if ( simResults )
+    mSimulationResults.insert( schemeId, simResults );
 }
 
 void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationResults *simResults )
@@ -1180,7 +1186,7 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
   if ( !mesh() )
     return;
 
-  mesh()->setSimulationResults( simResults );
+  mesh()->setSimulationResults( simResults, mNetwork->gisEngine()->crs() );
 
   // First we clean boundaries condition
   const QList<ReosHydraulicStructureBoundaryCondition *> boundaries = boundaryConditions();

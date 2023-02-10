@@ -517,14 +517,18 @@ static bool E3T_physicalToBarycentric( const QgsPointXY &pA, const QgsPointXY &p
 
 QList<ReosMeshPointValue> ReosMeshFrame_p::drapePolyline( const QPolygonF &polyline, double tolerance ) const
 {
+  QMap<double, ReosMeshPointValue> ret;
   QString localCrs = crs();
 
   const QgsTriangularMesh *triMesh = mMeshLayer->triangularMesh();
+  if ( !triMesh )
+    return ret.values();
+
   const QVector<QgsMeshVertex> vertices = triMesh->vertices();
 
   QgsGeometry polyGeom = QgsGeometry::fromQPolygonF( polyline );
 
-  QMap<double, ReosMeshPointValue> ret;
+
 
   double lenghtFromStart = 0;
 
@@ -533,7 +537,6 @@ QList<ReosMeshPointValue> ReosMeshFrame_p::drapePolyline( const QPolygonF &polyl
     const QgsPoint pt1( polyline.at( i ) );
     const QgsPoint pt2( polyline.at( i + 1 ) );
 
-    QSet <QPair<int, int>> intersectEdges;
     QSet<int> intersectedVertex;
 
     QgsGeometry segmentGeom = QgsGeometry::fromPolylineXY( {QgsPointXY( pt1 ), QgsPointXY( pt2 )} );
@@ -545,6 +548,7 @@ QList<ReosMeshPointValue> ReosMeshFrame_p::drapePolyline( const QPolygonF &polyl
     for ( int fi : faces )
     {
       const QgsMeshFace &face = triMesh->triangles().at( fi );
+      int nativeface = triMesh->trianglesToNativeFaces().at( fi );
       for ( int vi : face )
       {
         if ( intersectedVertex.contains( vi ) )
@@ -557,15 +561,17 @@ QList<ReosMeshPointValue> ReosMeshFrame_p::drapePolyline( const QPolygonF &polyl
         {
           double pointDistFromStart = lenghtFromStart + sqrt( pow( pt1.x() - minX, 2 ) + pow( pt1.y() - minY, 2 ) );
           intersectedVertex.insert( vi );
-          ret.insert( pointDistFromStart, ReosMeshPointValue( new ReosMeshPointValueOnVertex( vi, QPointF( minX, minY ) ) ) );
+          ret.insert( pointDistFromStart, ReosMeshPointValue( new ReosMeshPointValueOnVertex( vi, nativeface, QPointF( minX, minY ) ) ) );
         }
       }
     }
 
     // Find intersection with edges
+    QHash <QPair<int, int>, int> intersectEdges; //key is edge and value is the face index of the first face found
     for ( int fi : faces )
     {
       const QgsMeshFace &face = triMesh->triangles().at( fi );
+      int nativeface = triMesh->trianglesToNativeFaces().at( fi );
       int faceSize = face.size();
       for ( int vfi = 0; vfi < faceSize; ++vfi )
       {
@@ -585,17 +591,34 @@ QList<ReosMeshPointValue> ReosMeshFrame_p::drapePolyline( const QPolygonF &polyl
           else
             edge = {vi1, vi2};
 
-          if ( intersectEdges.contains( edge ) )
-            continue;
-
-          intersectEdges.insert( edge );
-          double distTot = vert1.distance( vert2 );
-          double dist = vertices.at( edge.first ).distance( intersectPoint );
-
-          ret.insert( pt1.distance( intersectPoint ) + lenghtFromStart,
-                      ReosMeshPointValue( new ReosMeshPointValueOnEdge( edge.first, edge.second, dist / distTot, intersectPoint.toQPointF() ) ) );
+          auto it = intersectEdges.find( edge );
+          if ( it != intersectEdges.end() )
+          {
+            double distTot = vert1.distance( vert2 );
+            double dist = vertices.at( edge.first ).distance( intersectPoint );
+            ret.insert( pt1.distance( intersectPoint ) + lenghtFromStart,
+                        ReosMeshPointValue( new ReosMeshPointValueOnEdge( edge.first, edge.second, it.value(), nativeface, dist / distTot, intersectPoint.toQPointF() ) ) );
+            intersectEdges.remove( edge );
+          }
+          else
+          {
+            intersectEdges.insert( edge, nativeface );
+          }
         }
       }
+    }
+    //Threat remaining edged that does have only on face
+    for ( auto it = intersectEdges.constBegin(); it != intersectEdges.constEnd(); ++it )
+    {
+      const QgsMeshVertex &vert1 = vertices.at( it.key().first );
+      const QgsMeshVertex &vert2 = vertices.at( it.key().second );
+      QgsPoint intersectPoint;
+      bool isIntersect;
+      QgsGeometryUtils::segmentIntersection( vert1, vert2, pt1, pt2, intersectPoint, isIntersect, tolerance, false );
+      double distTot = vert1.distance( vert2 );
+      double dist = vertices.at( it.key().first ).distance( intersectPoint );
+      ret.insert( pt1.distance( intersectPoint ) + lenghtFromStart,
+                  ReosMeshPointValue( new ReosMeshPointValueOnEdge( it.key().first,  it.key().second, it.value(), -1, dist / distTot, intersectPoint.toQPointF() ) ) );
     }
 
     // insert point value for the current vertex of the polyline
@@ -605,13 +628,13 @@ QList<ReosMeshPointValue> ReosMeshFrame_p::drapePolyline( const QPolygonF &polyl
       if ( includingFace != -1 )
       {
         const QgsMeshFace &face = triMesh->triangles().at( includingFace );
-
+        int nativeface = triMesh->trianglesToNativeFaces().at( includingFace );
         double lam1 = 0;
         double lam2 = 0;
         double lam3 = 0;
         E3T_physicalToBarycentric(
           vertices.at( face.at( 0 ) ), vertices.at( face.at( 1 ) ), vertices.at( face.at( 2 ) ), pt, lam1, lam2, lam3 );
-        ret.insert( lenghtFromStart, ReosMeshPointValue( new ReosMeshPointValueOnFace( face.at( 0 ), face.at( 1 ), face.at( 2 ),
+        ret.insert( lenghtFromStart, ReosMeshPointValue( new ReosMeshPointValueOnFace( face.at( 0 ), face.at( 1 ), face.at( 2 ), nativeface,
                     lam1, lam2, lam3, pt.toQPointF() ) ) );
       }
     };
@@ -1378,14 +1401,21 @@ QString ReosMeshFrame_p::verticesElevationDatasetId() const
   return mVerticesElevationDatasetId;
 }
 
-void ReosMeshFrame_p::setSimulationResults( ReosHydraulicSimulationResults *result )
+void ReosMeshFrame_p::setSimulationResults( ReosHydraulicSimulationResults *result, const QString &destinationCrs )
 {
-  //Before addings results, we have to remove existing dataset groups from the mesh layer
+  // Before addings results, we have to remove existing dataset groups from the mesh layer
+  // But, for now,with QgsMeshLayer, we can only reload all the layer to update the dataset
+  // That leads to 2 problems: first is is very costly, second, that clear the triangular mesh that we need to recreate.
   mMeshDataProvider->setDatasetSource( nullptr );
   mMeshLayer->reload();
-
-  mMeshDataProvider->setDatasetSource( result );
-  mMeshLayer->reload();
+  if ( result )
+  {
+    mMeshDataProvider->setDatasetSource( result );
+    mMeshLayer->reload();
+  }
+  QgsCoordinateReferenceSystem qgsCrs = QgsCoordinateReferenceSystem::fromWkt( destinationCrs );
+  QgsCoordinateTransform transform( mMeshLayer->crs(), qgsCrs, QgsProject::instance()->transformContext() );
+  mMeshLayer->updateTriangularMesh( transform );
 
   const QStringList ids = mDatasetGroupsIndex.keys();
 
