@@ -49,8 +49,9 @@ class ReosMeshVectorRenderingWidget : public ReosStackedPageWidget
     ReosParameterDouble *mMinimumLengthParameter = nullptr;
     ReosParameterDouble *mMaximumLengthParameter = nullptr;
     ReosParameterDouble *mMaximumTailLengthParameter = nullptr;
-    ReosParameterDouble *mTracesTailsPersitence = nullptr;
-    ReosParameterDouble *mTracesTailFactor = nullptr;
+    ReosParameterDouble *mTracesTailsPersitenceParameter = nullptr;
+    ReosParameterDouble *mTracesTailFactorParameter = nullptr;
+    ReosParameterDouble *mDynamicTraceWidthParameter = nullptr;
     void updateWidget();
 };
 

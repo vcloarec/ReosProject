@@ -24,6 +24,7 @@
 #include "reoscore.h"
 #include "reosrenderedobject.h"
 #include "reosencodedelement.h"
+#include "reosmeshdatasetsource.h"
 
 class ReosMeshGenerator;
 struct ReosMeshFrameData;
@@ -35,7 +36,6 @@ class ReosParameterSlope;
 class ReosParameterArea;
 class ReosHydraulicSimulationResults;
 class ReosSpatialPosition;
-class ReosMeshDatasetSource;
 class ReosGisEngine;
 class ReosMeshDatasetSource;
 class ReosMesh;
@@ -78,8 +78,8 @@ class ReosMeshPointValue_p
   private:
     std::atomic_int ref = 0;
     QPointF mPoint;
-    virtual double interpolateValue( const QVector<double> &values ) const = 0;
-    virtual double interpolateVectorValue( const QVector<double> &values ) const = 0;
+    virtual double interpolateValue( const QVector<double> &values, ReosMeshDatasetSource::Location location ) const = 0;
+    virtual double interpolateVectorValue( const QVector<double> &values, ReosMeshDatasetSource::Location location ) const = 0;
     virtual double interpolateTerrainElevation( ReosMesh *mesh ) const = 0;
 
     friend class ReosMeshPointValue;
@@ -117,31 +117,32 @@ class REOSCORE_EXPORT ReosMeshPointValue
 class ReosMeshPointValueOnVertex : public ReosMeshPointValue_p
 {
   public:
-    ReosMeshPointValueOnVertex( int vertexIndex, const QPointF &point );
+    ReosMeshPointValueOnVertex( int vertexIndex, int faceindex, const QPointF &point );
 
     int vertex() const;
 
   protected:
-    double interpolateValue( const QVector<double> &values ) const override;
-    double interpolateVectorValue( const QVector<double> &values ) const override;
+    double interpolateValue( const QVector<double> &values, ReosMeshDatasetSource::Location location ) const override;
+    double interpolateVectorValue( const QVector<double> &values, ReosMeshDatasetSource::Location location ) const override;
     double interpolateTerrainElevation( ReosMesh *mesh ) const override;
 
   private:
     int mVertexIndex = -1;
+    int mFaceIndex = -1;
 
 };
 
 class ReosMeshPointValueOnEdge: public ReosMeshPointValue_p
 {
   public:
-    ReosMeshPointValueOnEdge( int vertexIndex1, int vertexIndex2, double posInEdge, const QPointF &point );
+    ReosMeshPointValueOnEdge( int vertexIndex1, int vertexIndex2, int face1, int face2, double posInEdge, const QPointF &point );
 
     int vertex1() const;
     int vertex2() const;
 
   protected:
-    double interpolateValue( const QVector<double> &values ) const override;
-    double interpolateVectorValue( const QVector<double> &values ) const override;
+    double interpolateValue( const QVector<double> &values, ReosMeshDatasetSource::Location location ) const override;
+    double interpolateVectorValue( const QVector<double> &values, ReosMeshDatasetSource::Location location ) const override;
     double interpolateTerrainElevation( ReosMesh *mesh ) const override;
 
     double interpolateValueOnEdge( double value1, double value2 ) const;
@@ -149,6 +150,8 @@ class ReosMeshPointValueOnEdge: public ReosMeshPointValue_p
   private:
     int mVertex1 = -1;
     int mVertex2 = -1;
+    int mFace1 = -1;
+    int mFace2 = -1;
     double mPosInEdge = 0;
 
 };
@@ -157,19 +160,21 @@ class ReosMeshPointValueOnFace: public ReosMeshPointValue_p
 {
   public:
     ReosMeshPointValueOnFace( int vertexIndex1, int vertexIndex2, int vertexIndex3,
+                              int face,
                               double lam1, double lam2, double lam3,
                               const QPointF &point );
 
 
   protected:
-    double interpolateValue( const QVector<double> &values ) const override;
-    double interpolateVectorValue( const QVector<double> &values ) const override;
+    double interpolateValue( const QVector<double> &values, ReosMeshDatasetSource::Location location ) const override;
+    double interpolateVectorValue( const QVector<double> &values, ReosMeshDatasetSource::Location location ) const override;
     double interpolateTerrainElevation( ReosMesh *mesh ) const override;
 
   private:
     int mVertex1 = -1;
     int mVertex2 = -1;
     int mVertex3 = -1;
+    int mFace = -1;
     double mLam1 = 0;
     double mLam2 = 0;
     double mLam3 = 0;
@@ -364,7 +369,7 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     //! Returns a process that check the quality of the mesh, caller take ownership
     virtual ReosMeshQualityChecker *getQualityChecker( QualityMeshChecks qualitiChecks, const QString &destinatonCrs ) const = 0;
 
-    virtual void setSimulationResults( ReosHydraulicSimulationResults *result ) = 0;
+    virtual void setSimulationResults( ReosHydraulicSimulationResults *result, const QString &destinationCrs ) = 0;
 
     virtual double interpolateDatasetValueOnPoint( const ReosMeshDatasetSource *datasetSource, const ReosSpatialPosition &position, int sourceGroupindex, int datasetIndex ) const = 0;
 
@@ -393,7 +398,6 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     virtual ReosModule::Message exportSimulationResults( ReosHydraulicSimulationResults *result, const QString &fileName ) const = 0;
 
   signals:
-
     void terrainSymbologyChanged();
 
   protected:

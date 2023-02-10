@@ -47,7 +47,7 @@ class REOSCORE_EXPORT ReosHydraulicStructureProfile : public ReosDataObject
     QPolygonF terrainProfile() const;
 
     //! Return whether there are results available
-    bool hasResults(ReosHydraulicScheme *scheme) const;
+    bool hasResults( ReosHydraulicScheme *scheme ) const;
 
     //! Returns the results profile corresponding to hydraulic \a scheme, for \a time and with type \a result type
     QPolygonF resultsProfile( ReosHydraulicScheme *scheme, const QDateTime &time, ReosHydraulicSimulationResults::DatasetType resultType ) const;
@@ -56,6 +56,8 @@ class REOSCORE_EXPORT ReosHydraulicStructureProfile : public ReosDataObject
     QList<QPolygonF> resultsFilledByWater( ReosHydraulicScheme *scheme, const QDateTime &time, QPolygonF &waterSurface ) const;
 
     ReosEncodedElement encode() const;
+
+    void clear();
 
   private:
     QPolygonF mGeometry;
@@ -68,7 +70,7 @@ class REOSCORE_EXPORT ReosHydraulicStructureProfile : public ReosDataObject
     void initParts() const;
     void buildProfile() const;
 
-    QPolygonF extractValue( std::function<double( ReosMeshPointValue )> &func ) const;
+    QPolygonF extractValue( const std::function<double ( ReosMeshPointValue )> &func ) const;
 
     QRectF terrainExtent() const;
     QPolygonF resultsProfile( ReosHydraulicScheme *scheme, int datasetIndex, ReosHydraulicSimulationResults::DatasetType resultType ) const;
@@ -77,6 +79,7 @@ class REOSCORE_EXPORT ReosHydraulicStructureProfile : public ReosDataObject
 
 class ReosHydraulicStructureProfilesCollection : public QAbstractListModel
 {
+    Q_OBJECT
   public:
     ReosHydraulicStructureProfilesCollection( QObject *parent );
 
@@ -95,6 +98,10 @@ class ReosHydraulicStructureProfilesCollection : public QAbstractListModel
 
     ReosEncodedElement encode() const;
     void decode( const ReosEncodedElement &element, ReosHydraulicStructure2D *structure );
+
+  public slots:
+    //! Clears all profiles, that is reove all values of each profile;
+    void clearProfiles();
 
   private:
     QList<ReosHydraulicStructureProfile *> mProfiles;

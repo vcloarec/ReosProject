@@ -40,7 +40,7 @@ const QPolygonF &ReosHydraulicStructureProfile::geometry() const
   return mGeometry;
 }
 
-QPolygonF ReosHydraulicStructureProfile::terrainProfile() const
+QPolygonF ReosHydraulicStructureProfile::terrainProfile( ) const
 {
   if ( mPointValues.empty() )
     buildProfile();
@@ -379,6 +379,12 @@ ReosEncodedElement ReosHydraulicStructureProfile::encode() const
   return element;
 }
 
+void ReosHydraulicStructureProfile::clear()
+{
+  mParts.clear();
+  mPointValues.clear();
+}
+
 void ReosHydraulicStructureProfile::initParts() const
 {
   const QPolygonF &domain = mStructure->domain();
@@ -452,7 +458,7 @@ void ReosHydraulicStructureProfile::buildProfile() const
   mTerrainExtent = ReosGeometryUtils::boundingBox( terrainProfile(), ok );
 }
 
-QPolygonF ReosHydraulicStructureProfile::extractValue( std::function<double ( ReosMeshPointValue )> &func ) const
+QPolygonF ReosHydraulicStructureProfile::extractValue( const std::function<double ( ReosMeshPointValue )> &func ) const
 {
   QPolygonF ret;
   const QString &crs = mStructure->mesh()->crs();
@@ -583,4 +589,10 @@ void ReosHydraulicStructureProfilesCollection::decode( const ReosEncodedElement 
     mProfiles.append( new ReosHydraulicStructureProfile( elem, structure ) );
 
   endResetModel();
+}
+
+void ReosHydraulicStructureProfilesCollection::clearProfiles()
+{
+  for ( ReosHydraulicStructureProfile *prof : std::as_const( mProfiles ) )
+    prof->clear();
 }
