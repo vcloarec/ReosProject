@@ -299,6 +299,7 @@ ReosEncodedElement ReosMeshFrame_p::datasetVectorGroupSymbology( const QString &
 
 void ReosMeshFrame_p::activateDynamicTraces( bool activated )
 {
+  mTraceIsActive = activated;
   ReosEncodedElement symbology = datasetVectorGroupSymbology( mCurrentActiveVectorDatasetId );
   symbology.addData( QStringLiteral( "dynamic-traces" ), activated );
   mRendererCache.reset();
@@ -326,9 +327,8 @@ void ReosMeshFrame_p::setDatasetVectorGroupSymbology( const ReosEncodedElement &
 
   if ( id == mCurrentActiveVectorDatasetId )
   {
-    bool dynamicTraces = false;
     QgsMeshRendererSettings qgsSettings = mMeshLayer->rendererSettings();
-    if ( encodedElement.getData( QStringLiteral( "dynamic-traces" ), dynamicTraces ) && dynamicTraces )
+    if ( mTraceIsActive )
       qgsSettings.setActiveVectorDatasetGroup( -1 );
     else
       qgsSettings.setActiveVectorDatasetGroup( mDatasetGroupsIndex.value( id ) );
@@ -367,8 +367,11 @@ ReosRendererObjectMapTimeStamp *ReosMeshFrame_p::createMapTimeStamp( ReosRendere
 {
   QDateTime rendererTime = settings->mapTime();
   QgsDateTimeRange timeRange( rendererTime, rendererTime.addSecs( 1 ) );
-  const QgsMeshDatasetIndex scalarIndex = mMeshLayer->activeScalarDatasetAtTime( timeRange );
-  const QgsMeshDatasetIndex vectorIndex = mMeshLayer->activeVectorDatasetAtTime( timeRange );
+
+  int scalarGroupIndex = mDatasetGroupsIndex.value( mCurrentScalarDatasetId );
+  const QgsMeshDatasetIndex scalarIndex = mMeshLayer->datasetIndexAtTime( timeRange, scalarGroupIndex );
+  int vectorGroupIndex = mDatasetGroupsIndex.value( mCurrentActiveVectorDatasetId );
+  const QgsMeshDatasetIndex vectorIndex = mMeshLayer->datasetIndexAtTime( timeRange, vectorGroupIndex );
 
   return new ReosRendererMeshMapTimeStamp_p(
            scalarIndex, vectorIndex, mRendererCache ? mRendererCache->tracesAges() : 0 );
@@ -376,7 +379,7 @@ ReosRendererObjectMapTimeStamp *ReosMeshFrame_p::createMapTimeStamp( ReosRendere
 
 ReosObjectRenderer *ReosMeshFrame_p::createRenderer( ReosRendererSettings *settings )
 {
-  if ( !mRendererCache )
+  if ( !mRendererCache && mTraceIsActive )
   {
     mRendererCache.reset(
       new ReosMeshRendererCache_p( this, mDatasetGroupsIndex.value( mCurrentActiveVectorDatasetId ) ) );
@@ -1884,7 +1887,8 @@ bool ReosRendererMeshMapTimeStamp_p::equal( ReosRendererObjectMapTimeStamp *othe
 
   bool testVector = other_p->mVectorIndex.isValid() || mVectorIndex.isValid();
 
-  if ( testVector && other_p->mVectorIndex != mVectorIndex && other_p->mTracesAge != mTracesAge )
+  if ( testVector &&
+       ( other_p->mVectorIndex != mVectorIndex || other_p->mTracesAge != mTracesAge ) )
     return false;
 
   return true;

@@ -28,11 +28,11 @@ struct VectorSettings
 {
   QgsMeshRendererVectorSettings qgisSettings;
   int lifeTime = 15;
-  bool dynamicTraces = false;
   int tracesFps = 15;
   int tracesMaxSpeed = 200;
   double tracesPersistence = 0.2;
-  double tracesTailFactor = 1;
+  double tracesTailFactor = 1.0;
+  double traceWidth = 2.0;
 };
 
 VectorSettings vectorSettings_( ReosMesh *mesh, const QString &datasetId )
@@ -40,12 +40,12 @@ VectorSettings vectorSettings_( ReosMesh *mesh, const QString &datasetId )
   const ReosEncodedElement encodedSymbology = mesh->datasetVectorGroupSymbology( datasetId );
 
   VectorSettings ret;
-  encodedSymbology.getData( QStringLiteral( "dynamic-traces" ), ret.dynamicTraces );
   encodedSymbology.getData( QStringLiteral( "dynamic-traces-life-time" ), ret.lifeTime );
   encodedSymbology.getData( QStringLiteral( "dynamic-traces-max-speed" ), ret.tracesMaxSpeed );
   encodedSymbology.getData( QStringLiteral( "dynamic-traces-fps" ), ret.tracesFps );
   encodedSymbology.getData( QStringLiteral( "dynamic-traces-tails-persistence" ), ret.tracesPersistence );
   encodedSymbology.getData( QStringLiteral( "dynamic-traces-tail-factor" ), ret.tracesTailFactor );
+  encodedSymbology.getData( QStringLiteral( "dynamic-traces-width" ), ret.traceWidth );
 
   if ( encodedSymbology.description() == QStringLiteral( "dataset-vector-symbology" ) )
   {
@@ -77,8 +77,9 @@ ReosMeshVectorRenderingWidget::ReosMeshVectorRenderingWidget( ReosMesh *mesh, co
   mMinimumLengthParameter( new ReosParameterDouble( QString(), false, this ) ),
   mMaximumLengthParameter( new ReosParameterDouble( QString(), false, this ) ),
   mMaximumTailLengthParameter( new ReosParameterDouble( QString(), false, this ) ),
-  mTracesTailsPersitence( new ReosParameterDouble( QString(), false, this ) ),
-  mTracesTailFactor( new ReosParameterDouble( QString(), false, this ) )
+  mTracesTailsPersitenceParameter( new ReosParameterDouble( QString(), false, this ) ),
+  mTracesTailFactorParameter( new ReosParameterDouble( QString(), false, this ) ),
+  mDynamicTraceWidthParameter( new ReosParameterDouble( QString(), false, this ) )
 {
   ui->setupUi( this );
 
@@ -98,12 +99,14 @@ ReosMeshVectorRenderingWidget::ReosMeshVectorRenderingWidget( ReosMesh *mesh, co
   ui->mMinimumLengthWidget->enableSpacer( ReosParameterWidget::SpacerInMiddle );
   ui->mMaximumLengthWidget->setDouble( mMaximumLengthParameter );
   ui->mMaximumLengthWidget->enableSpacer( ReosParameterWidget::SpacerInMiddle );
+  ui->mDynamicTracesWidth->setDouble( mDynamicTraceWidthParameter );
+  ui->mDynamicTracesWidth->enableSpacer( ReosParameterWidget::SpacerInMiddle );
 
   ui->mMaximumTailLengthWidget->setDouble( mMaximumTailLengthParameter );
   ui->mMaximumTailLengthWidget->enableSpacer( ReosParameterWidget::SpacerInMiddle );
-  ui->mTracesTailFactorDoubleWidget->setDouble( mTracesTailFactor );
+  ui->mTracesTailFactorDoubleWidget->setDouble( mTracesTailFactorParameter );
   ui->mTracesTailFactorDoubleWidget->enableSpacer( ReosParameterWidget::SpacerInMiddle );
-  ui->mTracesTailsPersistentDoubleWidget->setDouble( mTracesTailsPersitence );
+  ui->mTracesTailsPersistentDoubleWidget->setDouble( mTracesTailsPersitenceParameter );
   ui->mTracesTailsPersistentDoubleWidget->enableSpacer( ReosParameterWidget::SpacerInMiddle );
 
   VectorSettings vectorSettings = vectorSettings_( mMesh, mDatasetId );
@@ -155,12 +158,12 @@ ReosMeshVectorRenderingWidget::ReosMeshVectorRenderingWidget( ReosMesh *mesh, co
   }
   //****************
 
-  ui->mDynamicTracesGroupBox->setChecked( vectorSettings.dynamicTraces );
   ui->mTracesLifeTimeSpinBox->setValue( vectorSettings.lifeTime );
   ui->mTracesFPSSpinBox->setValue( vectorSettings.tracesFps );
   ui->mTracesMaxSpeedSpinBox->setValue( vectorSettings.tracesMaxSpeed );
-  mTracesTailFactor->setValue( vectorSettings.tracesTailFactor );
-  mTracesTailsPersitence->setValue( vectorSettings.tracesPersistence );
+  mDynamicTraceWidthParameter->setValue( vectorSettings.traceWidth );
+  mTracesTailFactorParameter->setValue( vectorSettings.tracesTailFactor );
+  mTracesTailsPersitenceParameter->setValue( vectorSettings.tracesPersistence );
 
   updateWidget();
 
@@ -194,7 +197,6 @@ ReosMeshVectorRenderingWidget::ReosMeshVectorRenderingWidget( ReosMesh *mesh, co
     ui->mStreamLineDensitySpinBox->setEnabled( method == QgsMeshRendererVectorStreamlineSettings::Random );
 
     updateMeshSettings();
-
   } );
 
   connect( ui->mStreamLineDensitySpinBox, QOverload<int>::of( &QSpinBox::valueChanged ), this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
@@ -208,13 +210,13 @@ ReosMeshVectorRenderingWidget::ReosMeshVectorRenderingWidget( ReosMesh *mesh, co
   connect( ui->mTailUnitCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
   connect( ui->mTracesParticulesCountSpinBox, QOverload<int>::of( &QSpinBox::valueChanged ), this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
 
-  connect( ui->mDynamicTracesGroupBox, &QGroupBox::toggled, this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
   connect( ui->mTracesLifeTimeSpinBox, QOverload<int>::of( &QSpinBox::valueChanged ), this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
   connect( ui->mTracesParticulesCountSpinBox, QOverload<int>::of( &QSpinBox::valueChanged ), this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
   connect( ui->mTracesFPSSpinBox, QOverload<int>::of( &QSpinBox::valueChanged ), this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
   connect( ui->mTracesMaxSpeedSpinBox, QOverload<int>::of( &QSpinBox::valueChanged ), this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
-  connect( mTracesTailsPersitence, &ReosParameter::valueChanged, this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
-  connect( mTracesTailFactor, &ReosParameter::valueChanged, this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
+  connect( mTracesTailsPersitenceParameter, &ReosParameter::valueChanged, this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
+  connect( mTracesTailFactorParameter, &ReosParameter::valueChanged, this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
+  connect( mDynamicTraceWidthParameter, &ReosParameter::valueChanged, this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
 
   ui->mBackButton->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize() );
   connect( ui->mBackButton, &QPushButton::clicked, this, &ReosStackedPageWidget::backToPreviousPage );
@@ -275,15 +277,12 @@ void ReosMeshVectorRenderingWidget::updateMeshSettings()
   QString docString = doc.toString();
   encodedElem.addData( QStringLiteral( "symbology" ), docString );
   //*******************
-
-  encodedElem.addData( QStringLiteral( "dynamic-traces" ),
-                       ui->mDynamicTracesGroupBox->isChecked() && vectSettings.symbology() == QgsMeshRendererVectorSettings::Symbology::Traces );
-
   encodedElem.addData( QStringLiteral( "dynamic-traces-life-time" ), ui->mTracesLifeTimeSpinBox->value() );
   encodedElem.addData( QStringLiteral( "dynamic-traces-max-speed" ), ui->mTracesMaxSpeedSpinBox->value() );
   encodedElem.addData( QStringLiteral( "dynamic-traces-fps" ), ui->mTracesFPSSpinBox->value() );
-  encodedElem.addData( QStringLiteral( "dynamic-traces-tails-persistence" ), mTracesTailsPersitence->value() );
-  encodedElem.addData( QStringLiteral( "dynamic-traces-tail-factor" ), mTracesTailFactor->value() );
+  encodedElem.addData( QStringLiteral( "dynamic-traces-tails-persistence" ), mTracesTailsPersitenceParameter->value() );
+  encodedElem.addData( QStringLiteral( "dynamic-traces-tail-factor" ), mTracesTailFactorParameter->value() );
+  encodedElem.addData( QStringLiteral( "dynamic-traces-width" ), mDynamicTraceWidthParameter->value() );
 
   mMesh->setDatasetVectorGroupSymbology( encodedElem, mDatasetId );
 }

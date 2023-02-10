@@ -65,15 +65,14 @@ ReosMeshRendererCache_p::ReosMeshRendererCache_p( ReosMeshFrame_p *mesh, int dat
 {
   ReosEncodedElement symbology = mesh->datasetVectorGroupSymbology( mesh->currentdVectorDatasetId() );
 
-  symbology.getData( QStringLiteral( "dynamic-traces" ), mTracesSettings.dynamicTracesEnable );
   symbology.getData( QStringLiteral( "dynamic-traces-life-time" ), mTracesSettings.lifeTime );
   symbology.getData( QStringLiteral( "dynamic-traces-max-speed" ), mTracesSettings.maxSpeed );
   symbology.getData( QStringLiteral( "dynamic-traces-fps" ), mTracesSettings.fps );
   symbology.getData( QStringLiteral( "dynamic-traces-tails-persistence" ), mTracesSettings.persistence );
   symbology.getData( QStringLiteral( "dynamic-traces-tail-factor" ), mTracesSettings.tailFactor );
+  symbology.getData( QStringLiteral( "dynamic-traces-width" ), mTracesSettings.traceWidth );
 
-  if ( mTracesSettings.dynamicTracesEnable )
-    QObject::connect( &mTraceController, &ReosMovingTracesController::imageReady, mesh, &ReosRenderedObject::repaintRequested );
+  QObject::connect( &mTraceController, &ReosMovingTracesController::imageReady, mesh, &ReosRenderedObject::repaintRequested );
 }
 
 ReosMeshRendererCache_p::~ReosMeshRendererCache_p() {}
@@ -82,8 +81,7 @@ void ReosMeshRendererCache_p::updateCache( QgsMeshLayer *layer, const QgsRenderC
 {
   if ( updateDataset( layer, renderContext ) ||  updateExtent( renderContext ) )
   {
-    if ( mTracesSettings.dynamicTracesEnable )
-      mTraceController.resetData( layer, renderContext, mDatasetGroupsIndex, mTracesSettings );
+    mTraceController.resetData( layer, renderContext, mDatasetGroupsIndex, mTracesSettings );
   }
 }
 
@@ -102,7 +100,7 @@ bool ReosMeshRendererCache_p::updateDataset( QgsMeshLayer *layer, const QgsRende
   //****** get the current dataset index
   QgsMeshDatasetIndex vectorDatasetIndex;
   if ( renderContext.isTemporal() )
-    vectorDatasetIndex = layer->activeVectorDatasetAtTime( renderContext.temporalRange() );
+    vectorDatasetIndex = layer->datasetIndexAtTime( renderContext.temporalRange(), mDatasetGroupsIndex );
   else
     vectorDatasetIndex = layer->staticVectorDatasetIndex();
 
@@ -270,6 +268,7 @@ ReosMovingTracesRenderer::ReosMovingTracesRenderer(
 
   const QgsTriangularMesh triMesh = *layer->triangularMesh();
   const QgsMeshRendererSettings &settings = layer->rendererSettings();
+  QgsMeshRendererVectorSettings vectorSettings = settings.vectorSettings( datasetGroupindex );
   const QgsMeshDatasetGroupMetadata metadata = layer->datasetGroupMetadata( datasetGroupindex );
 
   mTraceGenerator.reset(
@@ -281,7 +280,7 @@ ReosMovingTracesRenderer::ReosMovingTracesRenderer(
       mRenderContext,
       layer->extent(),
       magnitudeMaximum,
-      settings.vectorSettings( datasetGroupindex ) ) );
+      vectorSettings ) );
 
   mTraceGenerator->setFPS( tracesSettings.fps );
   mTraceGenerator->setParticlesLifeTime( static_cast<double>( tracesSettings.lifeTime ) );
@@ -289,7 +288,7 @@ ReosMovingTracesRenderer::ReosMovingTracesRenderer(
   mTraceGenerator->setTailPersitence( tracesSettings.persistence );
   mTraceGenerator->setMaxSpeedPixel( tracesSettings.maxSpeed );
   mTraceGenerator->setParticlesSize(
-    mRenderContext.convertToPainterUnits( settings.vectorSettings( datasetGroupindex ).lineWidth(), QgsUnitTypes::RenderUnit::RenderMillimeters ) );
+    mRenderContext.convertToPainterUnits( tracesSettings.traceWidth, QgsUnitTypes::RenderUnit::RenderMillimeters ) );
 
   mFramePerSeconds = tracesSettings.fps;
 

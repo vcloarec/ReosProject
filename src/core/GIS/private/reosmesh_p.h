@@ -155,6 +155,7 @@ class ReosMeshFrame_p : public ReosMesh
     const QString mVerticesElevationDatasetId = "vertices-elevation";
     QString mCurrentScalarDatasetId;
     QString mCurrentActiveVectorDatasetId;
+    bool mTraceIsActive = false;
     QString mVerticalDataset3DId;
     WireFrameSettings mWireFrameSettings;
 
