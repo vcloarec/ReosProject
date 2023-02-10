@@ -54,6 +54,7 @@ class ReosHydraulicStructureProfilesWidget : public ReosStackedPageWidget
   private slots:
     void onNewProfileAdded( const QPolygonF &profile );
     void onCurrentProfileChanged();
+    void updateCurrentProfileValues();
     void onRemoveProfile();
     void onRenameProfile();
     void onTimeChanged( const QDateTime &time );
@@ -94,8 +95,6 @@ class ReosHydraulicStructureProfilesWidget : public ReosStackedPageWidget
     void removeMapProfile( ReosHydraulicStructureProfile *profile );
     void selectProfile( ReosHydraulicStructureProfile *profile );
     void unselectProfile( ReosHydraulicStructureProfile *profile );
-
-    void updateCurrentProfileValues();
 };
 
 #endif // REOSHYDRAULICSTRUCTUREPROFILESWIDGET_H

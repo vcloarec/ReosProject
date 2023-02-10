@@ -355,6 +355,9 @@ void ReosHydraulicStructureProfilesWidget::selectProfile( ReosHydraulicStructure
     mMapToolEditProfile->setMapPolyline( mp.get() );
     mp->setZValue( mp->ZValue() + 1 );
   }
+
+  if ( mCurrentProfile )
+    connect( mCurrentProfile, &ReosDataObject::dataChanged, this, &ReosHydraulicStructureProfilesWidget::updateCurrentProfileValues );
 }
 
 void ReosHydraulicStructureProfilesWidget::unselectProfile( ReosHydraulicStructureProfile *profile )
@@ -368,6 +371,9 @@ void ReosHydraulicStructureProfilesWidget::unselectProfile( ReosHydraulicStructu
     mp->setMarkerAtMid();
     mp->setZValue( mp->ZValue() - 1 );
   }
+
+  if ( mCurrentProfile )
+    disconnect( mCurrentProfile, &ReosDataObject::dataChanged, this, &ReosHydraulicStructureProfilesWidget::updateCurrentProfileValues );
 }
 
 void ReosHydraulicStructureProfilesWidget::updateCurrentProfileValues()

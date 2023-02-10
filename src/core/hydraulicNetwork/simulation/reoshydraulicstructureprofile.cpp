@@ -383,6 +383,7 @@ void ReosHydraulicStructureProfile::clear()
 {
   mParts.clear();
   mPointValues.clear();
+  emit dataChanged();
 }
 
 void ReosHydraulicStructureProfile::initParts() const
