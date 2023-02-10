@@ -28,12 +28,12 @@ class ReosMeshRenderer_p;
 
 struct DynamicTracesSettings
 {
-  bool dynamicTracesEnable = false;
   int lifeTime = 15;
   int maxSpeed = 200;
   int fps = 15;
   double persistence = 0.2;
-  double tailFactor = 1;
+  double tailFactor = 1.0;
+  double traceWidth = 2.0;
 };
 
 class ReosMovingTracesRenderer : public QObject
