@@ -62,7 +62,7 @@ void ReosColorRampMapLegendItem::paint( QPainter *painter, const QStyleOptionGra
   bufferSettings.setColor( Qt::white );
   bufferSettings.setEnabled( true );
   format.setBuffer( bufferSettings );
-  format.setSizeUnit( QgsUnitTypes::RenderPixels );
+  format.setSizeUnit( Qgis::RenderUnit::Pixels );
   format.setSize( 15 );
   QFont font = format.font();
   font.setBold( true );

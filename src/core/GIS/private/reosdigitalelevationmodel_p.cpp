@@ -26,6 +26,7 @@ email                : vcloarec at gmail dot com
 #include <qgsdistancearea.h>
 #include <qgsgeometry.h>
 #include <qgsproviderregistry.h>
+#include <qgsunittypes.h>
 
 ReosDigitalElevationModelRaster::ReosDigitalElevationModelRaster(
   QgsRasterLayer *rasterLayer,
@@ -111,8 +112,8 @@ QPolygonF ReosDigitalElevationModelRaster::elevationOnPolyline( const QPolygonF 
   QgsCoordinateReferenceSystem qgsCrs = QgsCoordinateReferenceSystem::fromWkt( polylineCrs );
   QgsDistanceArea distanceCalculation;
   distanceCalculation.setSourceCrs( qgsCrs, mTransformContext );
-  QgsUnitTypes::DistanceUnit unit = distanceCalculation.lengthUnits();
-  double unitFactor = QgsUnitTypes::fromUnitToUnitFactor( unit, QgsUnitTypes::DistanceMeters );
+  Qgis::DistanceUnit unit = distanceCalculation.lengthUnits();
+  double unitFactor = QgsUnitTypes::fromUnitToUnitFactor( unit, Qgis::DistanceUnit::Meters );
 
   double s = 0;
   for ( int i = 0; i < polyline.count() - 1; ++i )

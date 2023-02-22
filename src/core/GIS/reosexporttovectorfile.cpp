@@ -42,14 +42,14 @@ ReosExportToVectorFile::ReosExportToVectorFile( const QString &fileName,
 {
   QgsFields qgsFields = constructQgisFields( fields );
 
-  QgsWkbTypes::Type qgsGeometryType;
+  Qgis::WkbType qgsGeometryType;
   switch ( geometryType )
   {
     case ReosExportToVectorFile::Polyline:
-      qgsGeometryType = QgsWkbTypes::LineString;
+      qgsGeometryType = Qgis::WkbType::LineString;
       break;
     case ReosExportToVectorFile::Polygon:
-      qgsGeometryType = QgsWkbTypes::Polygon;
+      qgsGeometryType = Qgis::WkbType::Polygon;
       break;
   }
 

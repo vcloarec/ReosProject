@@ -23,7 +23,7 @@ ReosMapToolEditPolygonStructure_p::ReosMapToolEditPolygonStructure_p( QgsMapCanv
   : ReosMapTool_p( mapCanvas )
 {
   enableSnapping( true );
-  mPolygonRubberBand = new QgsRubberBand( mCanvas, QgsWkbTypes::PolygonGeometry );
+  mPolygonRubberBand = new QgsRubberBand( mCanvas, Qgis::GeometryType::Polygon );
   mPolygonRubberBand->setWidth( 1 );
   mPolygonRubberBand->setLineStyle( Qt::DashLine );
   mPolygonRubberBand->setStrokeColor( ReosStyleRegistery::instance()->blueReos() );
@@ -149,7 +149,7 @@ void ReosMapToolEditPolygonStructure_p::deactivate()
 void ReosMapToolEditPolygonStructure_p::resetTool()
 {
   mCurrentState = None;
-  mPolygonRubberBand->reset( QgsWkbTypes::PolygonGeometry );
+  mPolygonRubberBand->reset( Qgis::GeometryType::Polygon );
 }
 
 void ReosMapToolEditPolygonStructure_p::addPolygon( const QPolygonF &polygon )
@@ -202,7 +202,7 @@ bool ReosEditPolygonStructureMenuPopulator::populate( QMenu *menu, QgsMapMouseEv
     QAction *actionStructurePoly = menu->addAction( QObject::tr( "Apply %1 to this polygon" ).arg( stringValue ) );
 
     QgsRubberBand *polyRubberBand = new QgsRubberBand( mToolMap->mCanvas );
-    polyRubberBand->reset( QgsWkbTypes::PolygonGeometry );
+    polyRubberBand->reset( Qgis::GeometryType::Polygon );
     QPolygonF polyForRubber = structurePolygon;
     polyForRubber.append( polyForRubber.first() );
     polyRubberBand->setToGeometry( QgsGeometry::fromQPolygonF( polyForRubber ) );

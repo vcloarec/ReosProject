@@ -25,6 +25,7 @@
 #include <qgsmeshlayer3drenderer.h>
 #include <qgsgeometryengine.h>
 #include <qgsgeometryutils.h>
+#include <qgsunittypes.h>
 
 #include "reosmeshdataprovider_p.h"
 #include "reosparameter.h"
@@ -1492,8 +1493,8 @@ void ReosMeshQualityChecker_p::start()
   if ( mError != QgsMeshEditingError() )
     return;
 
-  double areaFactor = QgsUnitTypes::fromUnitToUnitFactor( mDistanceArea.areaUnits(), QgsUnitTypes::AreaSquareMeters );
-  double lenghtFactor = QgsUnitTypes::fromUnitToUnitFactor( mDistanceArea.lengthUnits(), QgsUnitTypes::DistanceMeters );
+  double areaFactor = QgsUnitTypes::fromUnitToUnitFactor( mDistanceArea.areaUnits(), Qgis::AreaUnit::SquareMeters );
+  double lenghtFactor = QgsUnitTypes::fromUnitToUnitFactor( mDistanceArea.lengthUnits(), Qgis::DistanceUnit::Meters );
   QSet<int> maxAreaChange;
   QSet<QPair<int, int>> maxSlope;
   QVector<char> facesChecked;
