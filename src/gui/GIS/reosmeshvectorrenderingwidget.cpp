@@ -136,23 +136,23 @@ ReosMeshVectorRenderingWidget::ReosMeshVectorRenderingWidget( ReosMesh *mesh, co
   ui->mTracesParticulesCountSpinBox->setValue( traceSettings.particlesCount() );
   switch ( traceSettings.maximumTailLengthUnit() )
   {
-    case QgsUnitTypes::RenderMillimeters:
+    case Qgis::RenderUnit::Millimeters:
       ui->mTailUnitCombo->setCurrentIndex( 0 );
       break;
-    case QgsUnitTypes::RenderMapUnits:
+    case Qgis::RenderUnit::MapUnits:
       break;
-    case QgsUnitTypes::RenderPixels:
+    case Qgis::RenderUnit::Pixels:
       ui->mTailUnitCombo->setCurrentIndex( 2 );
       break;
-    case QgsUnitTypes::RenderPercentage:
+    case Qgis::RenderUnit::Percentage:
       break;
-    case QgsUnitTypes::RenderPoints:
+    case Qgis::RenderUnit::Points:
       ui->mTailUnitCombo->setCurrentIndex( 1 );
       break;
-    case QgsUnitTypes::RenderInches:
-    case QgsUnitTypes::RenderUnknownUnit:
+    case Qgis::RenderUnit::Inches:
+    case Qgis::RenderUnit::Unknown:
       break;
-    case QgsUnitTypes::RenderMetersInMapUnits:
+    case Qgis::RenderUnit::MetersInMapUnits:
       ui->mTailUnitCombo->setCurrentIndex( 3 );
       break;
   }
@@ -253,16 +253,16 @@ void ReosMeshVectorRenderingWidget::updateMeshSettings()
   switch ( ui->mTailUnitCombo->currentIndex() )
   {
     case 0:
-      traceSettings.setMaximumTailLengthUnit( QgsUnitTypes::RenderMillimeters );
+      traceSettings.setMaximumTailLengthUnit( Qgis::RenderUnit::Millimeters );
       break;
     case 1:
-      traceSettings.setMaximumTailLengthUnit( QgsUnitTypes::RenderPoints );
+      traceSettings.setMaximumTailLengthUnit( Qgis::RenderUnit::Points );
       break;
     case 2:
-      traceSettings.setMaximumTailLengthUnit( QgsUnitTypes::RenderPixels );
+      traceSettings.setMaximumTailLengthUnit( Qgis::RenderUnit::Pixels );
       break;
     case 3:
-      traceSettings.setMaximumTailLengthUnit( QgsUnitTypes::RenderMetersInMapUnits );
+      traceSettings.setMaximumTailLengthUnit( Qgis::RenderUnit::MetersInMapUnits );
       break;
   }
 

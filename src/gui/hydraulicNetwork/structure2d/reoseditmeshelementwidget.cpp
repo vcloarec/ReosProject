@@ -423,7 +423,7 @@ void ReosEditMeshElementWidget::checkQualityFinished()
     for ( auto &poly : std::as_const( polyList ) )
     {
       int polyIndex = poly.first;
-      mRubberBands.at( polyIndex )->reset( QgsWkbTypes::PolygonGeometry );
+      mRubberBands.at( polyIndex )->reset( Qgis::GeometryType::Polygon );
       const QList<QPolygonF> &polys = poly.second;
       if ( !polys.isEmpty() )
       {
@@ -459,7 +459,7 @@ void ReosEditMeshElementWidget::checkQualityFinished()
     for ( auto &lines : std::as_const( linesList ) )
     {
       int lineIndex = lines.first;
-      mRubberBands.at( lineIndex )->reset( QgsWkbTypes::LineGeometry );
+      mRubberBands.at( lineIndex )->reset( Qgis::GeometryType::Line );
       const QList<QLineF> &mapLines = lines.second;
       if ( !mapLines.isEmpty() )
       {
@@ -501,7 +501,7 @@ void ReosEditMeshElementWidget::checkQualityFinished()
     for ( auto &points : std::as_const( pointsList ) )
     {
       int pointIndex = points.first;
-      mRubberBands.at( pointIndex )->reset( QgsWkbTypes::PointGeometry );
+      mRubberBands.at( pointIndex )->reset( Qgis::GeometryType::Point );
       const QList<QPointF> &mapPoints = points.second;
       if ( !mapPoints.isEmpty() )
       {

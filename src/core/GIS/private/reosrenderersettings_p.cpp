@@ -60,7 +60,7 @@ static bool reprojectToLayerExtent( const QgsMapLayer *ml, const QgsCoordinateTr
 
     if ( ml->crs().isGeographic() )
     {
-      if ( ml->type() == QgsMapLayerType::VectorLayer && !approxTransform.destinationCrs().isGeographic() )
+      if ( ml->type() == Qgis::LayerType::Vector && !approxTransform.destinationCrs().isGeographic() )
       {
         // if we transform from a projected coordinate system check
         // check if transforming back roughly returns the input

@@ -65,14 +65,14 @@ ReosMapToolEditPolylineStructure_p::ReosMapToolEditPolylineStructure_p( QgsMapCa
   mVertexMarker->setIconType( QgsVertexMarker::ICON_CIRCLE );
   mVertexMarker->setZValue( 55 );
 
-  mLineRubberBand = new QgsRubberBand( mCanvas, QgsWkbTypes::LineGeometry );
+  mLineRubberBand = new QgsRubberBand( mCanvas, Qgis::GeometryType::Line );
   mLineRubberBand->setWidth( 1 );
   mLineRubberBand->setLineStyle( Qt::DashLine );
   mLineRubberBand->setStrokeColor( ReosStyleRegistery::instance()->blueReos() );
   mLineRubberBand->setSecondaryStrokeColor( Qt::white );
   mLineRubberBand->setZValue( 50 );
 
-  mVertexRubberBand = new QgsRubberBand( mCanvas, QgsWkbTypes::PointGeometry );
+  mVertexRubberBand = new QgsRubberBand( mCanvas, Qgis::GeometryType::Point );
   mVertexRubberBand->setIcon( QgsRubberBand::ICON_CIRCLE );
   mVertexRubberBand->setWidth( QgsGuiUtils::scaleIconSize( 2 ) );
   mVertexRubberBand->setColor( ReosStyleRegistery::instance()->blueReos() );
@@ -81,16 +81,16 @@ ReosMapToolEditPolylineStructure_p::ReosMapToolEditPolylineStructure_p( QgsMapCa
   mVertexRubberBand->setZValue( 51 );
   mVertexRubberBand->setVisible( true );
 
-  mHoveredLineBand = new QgsRubberBand( mCanvas, QgsWkbTypes::LineGeometry );
+  mHoveredLineBand = new QgsRubberBand( mCanvas, Qgis::GeometryType::Line );
   mHoveredLineBand->setColor( ReosStyleRegistery::instance()->blueReos( 100 ) );
   mHoveredLineBand->setWidth( 7 );
 
-  mPolygonHoleBand = new QgsRubberBand( mCanvas, QgsWkbTypes::PolygonGeometry );
+  mPolygonHoleBand = new QgsRubberBand( mCanvas, Qgis::GeometryType::Polygon );
   mPolygonHoleBand->setFillColor( ReosStyleRegistery::instance()->blueReos( 100 ) );
   mPolygonHoleBand->setStrokeColor( ReosStyleRegistery::instance()->blueReos( 200 ) );
   mPolygonHoleBand->setWidth( 1 );
 
-  mSelectLinesVertexBand = new QgsRubberBand( mCanvas, QgsWkbTypes::PointGeometry );
+  mSelectLinesVertexBand = new QgsRubberBand( mCanvas, Qgis::GeometryType::Point );
   mSelectLinesVertexBand->setIcon( QgsRubberBand::ICON_CIRCLE );
   mSelectLinesVertexBand->setColor( ReosStyleRegistery::instance()->blueReos() );
   mSelectLinesVertexBand->setSecondaryStrokeColor( Qt::white );
@@ -98,7 +98,7 @@ ReosMapToolEditPolylineStructure_p::ReosMapToolEditPolylineStructure_p( QgsMapCa
   mSelectLinesVertexBand->setZValue( 61 );
   mSelectLinesVertexBand->setVisible( true );
 
-  mSelectLinesBand = new QgsRubberBand( mCanvas, QgsWkbTypes::LineGeometry );
+  mSelectLinesBand = new QgsRubberBand( mCanvas, Qgis::GeometryType::Line );
   mSelectLinesBand->setColor( ReosStyleRegistery::instance()->blueReos() );
   mSelectLinesBand->setWidth( 5 );
   mSelectLinesBand->setZValue( 60 );
@@ -122,9 +122,9 @@ QgsMapTool::Flags ReosMapToolEditPolylineStructure_p::flags() const
   switch ( mCurrentState )
   {
     case ReosMapToolEditPolylineStructure_p::DraggingVertex:
-      return Flags();
-      break;
     case ReosMapToolEditPolylineStructure_p::AddingLines:
+    case ReosMapToolEditPolylineStructure_p::DraggingHolePoint:
+    case ReosMapToolEditPolylineStructure_p::SelectLinesByExtremity:
       return Flags();
       break;
     case ReosMapToolEditPolylineStructure_p::None:
@@ -150,12 +150,12 @@ void ReosMapToolEditPolylineStructure_p::deactivate()
   ReosMapTool_p::deactivate();
 
   mVertexMarker->setVisible( false );
-  mLineRubberBand->reset( QgsWkbTypes::LineGeometry );
-  mVertexRubberBand->reset( QgsWkbTypes::PointGeometry );
-  mHoveredLineBand->reset( QgsWkbTypes::LineGeometry );
-  mPolygonHoleBand->reset( QgsWkbTypes::PolygonGeometry );
-  mSelectLinesVertexBand->reset( QgsWkbTypes::PointGeometry );
-  mSelectLinesBand->reset( QgsWkbTypes::LineGeometry );
+  mLineRubberBand->reset( Qgis::GeometryType::Line );
+  mVertexRubberBand->reset( Qgis::GeometryType::Point );
+  mHoveredLineBand->reset( Qgis::GeometryType::Line );
+  mPolygonHoleBand->reset( Qgis::GeometryType::Polygon );
+  mSelectLinesVertexBand->reset( Qgis::GeometryType::Point );
+  mSelectLinesBand->reset( Qgis::GeometryType::Line );
 }
 
 void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
@@ -167,7 +167,7 @@ void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
     case None:
     case AddingLines:
 
-      mHoveredLineBand->reset( QgsWkbTypes::LineGeometry );
+      mHoveredLineBand->reset( Qgis::GeometryType::Line );
 
       if ( mStructure )
       {
@@ -176,13 +176,13 @@ void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
           QPolygonF holePolygon = mStructure->searchPolygon( ReosSpatialPosition( e->mapPoint().toQPointF(), mapCrs() ), false );
           if ( !holePolygon.isEmpty() )
           {
-            mPolygonHoleBand->reset( QgsWkbTypes::PolygonGeometry );
+            mPolygonHoleBand->reset( Qgis::GeometryType::Polygon );
             holePolygon.append( holePolygon.first() ); //close the polygon for QGIS recognize it as a polygon
             mPolygonHoleBand->setToGeometry( QgsGeometry::fromQPolygonF( holePolygon ) );
           }
           else
           {
-            mPolygonHoleBand->reset( QgsWkbTypes::PolygonGeometry );
+            mPolygonHoleBand->reset( Qgis::GeometryType::Polygon );
           }
           return;
         }
@@ -229,7 +229,6 @@ void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
 
         if ( mCurrentState == AddingLines )
         {
-          QgsPointXY mapPoint = e->snapPoint();
           moveAddingLineRubberBand( mapPoint );
         }
       }
@@ -249,20 +248,20 @@ void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
       QPolygonF holePolygon = mStructure->searchPolygon( ReosSpatialPosition( e->mapPoint().toQPointF(), mapCrs() ), false );
       if ( !holePolygon.isEmpty() )
       {
-        mPolygonHoleBand->reset( QgsWkbTypes::PolygonGeometry );
+        mPolygonHoleBand->reset( Qgis::GeometryType::Polygon );
         holePolygon.append( holePolygon.first() ); //close the polygon for QGIS recognizes it as a polygon
         mPolygonHoleBand->setToGeometry( QgsGeometry::fromQPolygonF( holePolygon ) );
       }
       else
       {
-        mPolygonHoleBand->reset( QgsWkbTypes::PolygonGeometry );
+        mPolygonHoleBand->reset( Qgis::GeometryType::Polygon );
       }
     }
     break;
     case SelectLinesByExtremity:
     {
-      mSelectLinesBand->reset( QgsWkbTypes::LineGeometry );
-      mSelectLinesVertexBand->reset( QgsWkbTypes::PointGeometry );
+      mSelectLinesBand->reset( Qgis::GeometryType::Line );
+      mSelectLinesVertexBand->reset( Qgis::GeometryType::Point );
       const ReosMapExtent sr = searchZone( mCurrentPosition );
       mCurrentVertex = mStructure->searchForVertex( sr );
       mSelectLinesVertexBand->addPoint( mStructure->vertexPosition( mFirstSelectedVertex, mapCrs() ), true );
@@ -333,7 +332,7 @@ void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
           {
             mCurrentState = SelectLinesByExtremity;
             mFirstSelectedVertex = mCurrentVertex;
-            mSelectLinesVertexBand->reset( QgsWkbTypes::PointGeometry );
+            mSelectLinesVertexBand->reset( Qgis::GeometryType::Point );
             mSelectLinesVertexBand->addPoint( mStructure->vertexPosition( mFirstSelectedVertex, mapCrs() ), true );
           }
         }
@@ -395,7 +394,7 @@ void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
       mCurrentState = None;
       mVertexMarker->setVisible( false );
       enableSnapping( true );
-      mPolygonHoleBand->reset( QgsWkbTypes::PolygonGeometry );
+      mPolygonHoleBand->reset( Qgis::GeometryType::Polygon );
     }
     break;
     case SelectLinesByExtremity:
@@ -427,16 +426,7 @@ void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
 
 void ReosMapToolEditPolylineStructure_p::canvasReleaseEvent( QgsMapMouseEvent *e )
 {
-  switch ( mCurrentState )
-  {
-    case ReosMapToolEditPolylineStructure_p::None:
-    case ReosMapToolEditPolylineStructure_p::DraggingVertex:
-    case ReosMapToolEditPolylineStructure_p::AddingLines:
-      break;
-  }
-
   ReosMapTool_p::canvasPressEvent( e );
-
 }
 
 void ReosMapToolEditPolylineStructure_p::keyPressEvent( QKeyEvent *e )
@@ -500,8 +490,8 @@ ReosMapExtent ReosMapToolEditPolylineStructure_p::searchZone( const QgsPointXY &
 
 void ReosMapToolEditPolylineStructure_p::updateMovingVertexRubberBand( const QgsPointXY &movingPosition )
 {
-  mLineRubberBand->reset( QgsWkbTypes::LineGeometry );
-  mVertexRubberBand->reset( QgsWkbTypes::PointGeometry );
+  mLineRubberBand->reset( Qgis::GeometryType::Line );
+  mVertexRubberBand->reset( Qgis::GeometryType::Point );
 
   if ( mStructure->vertexCanBeMoved( mCurrentVertex, ReosSpatialPosition( movingPosition.toQPointF(), mapCrs() ) ) )
   {
@@ -542,8 +532,8 @@ void ReosMapToolEditPolylineStructure_p::moveAddingLineRubberBand( const QgsPoin
 
 void ReosMapToolEditPolylineStructure_p::stopDraggingVertex()
 {
-  mLineRubberBand->reset( QgsWkbTypes::LineGeometry );
-  mVertexRubberBand->reset( QgsWkbTypes::PointGeometry );
+  mLineRubberBand->reset( Qgis::GeometryType::Line );
+  mVertexRubberBand->reset( Qgis::GeometryType::Point );
   mNeighborPosition.clear();
   mCurrentVertex = nullptr;
   mCurrentState = None;
@@ -577,8 +567,8 @@ void ReosMapToolEditPolylineStructure_p::addVertexForNewLines( const QPointF &po
     QList<QPointF> intersections = mStructure->intersectionPoints( QLineF( prevPt, vertexPosition ), mapCrs(), mLineRubberBand->asGeometry().asQPolygonF() );
     for ( const QPointF &pt : std::as_const( intersections ) )
     {
-      const ReosMapExtent sr = searchZone( pt, useMapTolerance );
-      ReosGeometryStructureVertex *vert = mStructure->searchForVertex( sr );
+      const ReosMapExtent sra = searchZone( pt, useMapTolerance );
+      ReosGeometryStructureVertex *vert = mStructure->searchForVertex( sra );
       QPointF effPt;
       if ( vert )
         effPt = mStructure->vertexPosition( vert, mapCrs() );
@@ -606,8 +596,8 @@ void ReosMapToolEditPolylineStructure_p::addVertexForNewLines( const QPointF &po
 
 void ReosMapToolEditPolylineStructure_p::stopAddingLines()
 {
-  mLineRubberBand->reset( QgsWkbTypes::LineGeometry );
-  mVertexRubberBand->reset( QgsWkbTypes::PointGeometry );
+  mLineRubberBand->reset( Qgis::GeometryType::Line );
+  mVertexRubberBand->reset( Qgis::GeometryType::Point );
   mNeighborPosition.clear();
   mAddingPolyline.clear();
   mAddingLineTolerance.clear();

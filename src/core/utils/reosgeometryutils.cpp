@@ -70,7 +70,7 @@ bool ReosGeometryUtils::polygonIntersectPolygon( const QPolygonF &polygon1, cons
     return false;
 
   QgsGeometry intersection = geom2.intersection( geom1 );
-  return intersection.type() == QgsWkbTypes::PolygonGeometry;
+  return intersection.type() == Qgis::GeometryType::Polygon;
 
 }
 
@@ -97,7 +97,7 @@ bool ReosGeometryUtils::lineIntersectPolygon( const QPolygonF &line, const QPoly
     return false;
 
   QgsGeometry intersection = qgsPolygon.intersection( qgsLine );
-  return intersection.type() == QgsWkbTypes::PolygonGeometry;
+  return intersection.type() == Qgis::GeometryType::Polygon;
 }
 
 bool ReosGeometryUtils::pointIsInsidePolygon( const QPointF &point, const QPolygonF &polygon )

@@ -23,6 +23,7 @@
 #include <qgslinestring.h>
 #include <qgspolygon.h>
 #include <qgsgeometryutils.h>
+#include <qgsunittypes.h>
 
 #include "reosmapextent.h"
 #include "reosexception.h"
@@ -238,8 +239,8 @@ void ReosPolylineStructureVectorLayer::setTolerance( double tolerance, const QSt
 {
   QgsCoordinateReferenceSystem crs;
   crs.createFromWkt( wktCrs );
-  QgsUnitTypes::DistanceUnit unitSource = crs.mapUnits();
-  QgsUnitTypes::DistanceUnit structureUnit = mVectorLayer->crs().mapUnits();
+  Qgis::DistanceUnit unitSource = crs.mapUnits();
+  Qgis::DistanceUnit structureUnit = mVectorLayer->crs().mapUnits();
   mTolerance = QgsUnitTypes::fromUnitToUnitFactor( unitSource, structureUnit ) * tolerance;
 }
 
@@ -592,8 +593,8 @@ void ReosPolylineStructureVectorLayer::addPolylines( const QPolygonF &polyline, 
   QgsCoordinateReferenceSystem crs;
   crs.createFromWkt( sourceCrs );
 
-  QgsUnitTypes::DistanceUnit unitSource = crs.mapUnits();
-  QgsUnitTypes::DistanceUnit structureUnit = mVectorLayer->crs().mapUnits();
+  Qgis::DistanceUnit unitSource = crs.mapUnits();
+  Qgis::DistanceUnit structureUnit = mVectorLayer->crs().mapUnits();
   double convertToleranceFactor = QgsUnitTypes::fromUnitToUnitFactor( unitSource, structureUnit );
 
 
@@ -1950,8 +1951,8 @@ double ReosPolylineStructureVectorLayer::tolerance( const QString &wktCrs ) cons
   QgsCoordinateReferenceSystem destCrs;
   destCrs.createFromWkt( wktCrs );
 
-  QgsUnitTypes::DistanceUnit destUnit = destCrs.mapUnits();
-  QgsUnitTypes::DistanceUnit layerUnit = mVectorLayer->crs().mapUnits();
+  Qgis::DistanceUnit destUnit = destCrs.mapUnits();
+  Qgis::DistanceUnit layerUnit = mVectorLayer->crs().mapUnits();
 
   return QgsUnitTypes::fromUnitToUnitFactor( layerUnit, destUnit ) * mTolerance;
 }

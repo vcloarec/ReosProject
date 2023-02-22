@@ -49,6 +49,7 @@ email                : vcloarec at gmail dot com
 #include <qgslayertree.h>
 #include <qgsmeshlayertemporalproperties.h>
 #include <qgsspatialindex.h>
+#include <qgsunittypes.h>
 
 
 #define  mLayerTreeModel _layerTreeModel(mAbstractLayerTreeModel)
@@ -344,7 +345,7 @@ bool ReosGisEngine::registerLayerAsDigitalElevationModel( const QString &layerId
   if ( !layer )
     return false;
 
-  if ( layer->type() == QgsMapLayerType::RasterLayer )
+  if ( layer->type() == Qgis::LayerType::Raster )
   {
     QgsRasterLayer *rasterLayer = qobject_cast<QgsRasterLayer *>( layer );
     if ( canBeRasterDem( rasterLayer ) )
@@ -493,16 +494,16 @@ ReosArea ReosGisEngine::polygonAreaWithCrs( const QPolygonF &polygon, const QStr
   std::unique_ptr<QgsLineString> linestring( QgsLineString::fromQPolygonF( polygon ) );
   std::unique_ptr<QgsPolygon> qgsPolygon = std::make_unique<QgsPolygon>( linestring.release() );
   double area = areaCalculation.measureArea( QgsGeometry( qgsPolygon.release() ) );
-  QgsUnitTypes::AreaUnit unit = areaCalculation.areaUnits();
+  Qgis::AreaUnit unit = areaCalculation.areaUnits();
 
-  double transFormFactorToSquareMeter = QgsUnitTypes::fromUnitToUnitFactor( unit, QgsUnitTypes::AreaSquareMeters );
+  double transFormFactorToSquareMeter = QgsUnitTypes::fromUnitToUnitFactor( unit, Qgis::AreaUnit::SquareMeters );
 
   return ReosArea( area * transFormFactorToSquareMeter );
 }
 
 double ReosGisEngine::convertLengthFromMeterToMapunit( double length )
 {
-  double unitFactor = QgsUnitTypes::fromUnitToUnitFactor( QgsUnitTypes::DistanceMeters, QgsProject::instance()->crs().mapUnits() );
+  double unitFactor = QgsUnitTypes::fromUnitToUnitFactor( Qgis::DistanceUnit::Meters, QgsProject::instance()->crs().mapUnits() );
   return length * unitFactor;
 }
 
@@ -666,7 +667,7 @@ QPolygonF ReosGisEngine::transformToProjectCoordinates( const QString &sourceCRS
   }
 
   QPolygonF ret = transformGeom.asQPolygonF();
-  if ( transformGeom.type() == QgsWkbTypes::PolygonGeometry && ret.count() > 1 )
+  if ( transformGeom.type() == Qgis::GeometryType::Polygon && ret.count() > 1 )
     ret.removeLast();
 
   return ret;
@@ -695,8 +696,8 @@ double ReosGisEngine::distance( const QPointF &point1, const QPointF &point2, co
   QgsDistanceArea distanceArea;
   distanceArea.setSourceCrs( qgisCrs, QgsProject::instance()->transformContext() );
 
-  QgsUnitTypes::DistanceUnit unit = distanceArea.lengthUnits();
-  double factor = QgsUnitTypes::fromUnitToUnitFactor( unit, QgsUnitTypes::DistanceMeters );
+  Qgis::DistanceUnit unit = distanceArea.lengthUnits();
+  double factor = QgsUnitTypes::fromUnitToUnitFactor( unit, Qgis::DistanceUnit::Meters );
 
   return factor * distanceArea.measureLine( point1, point2 );
 }
@@ -707,8 +708,8 @@ double ReosGisEngine::locateOnPolyline( const QPointF &point, const QPolygonF &p
   QgsDistanceArea distanceArea;
   distanceArea.setSourceCrs( qgisCrs, QgsProject::instance()->transformContext() );
 
-  QgsUnitTypes::DistanceUnit unit = distanceArea.lengthUnits();
-  double factor = QgsUnitTypes::fromUnitToUnitFactor( unit, QgsUnitTypes::DistanceMeters );
+  Qgis::DistanceUnit unit = distanceArea.lengthUnits();
+  double factor = QgsUnitTypes::fromUnitToUnitFactor( unit,  Qgis::DistanceUnit::Meters );
 
   QgsGeometry geomPoly = QgsGeometry::fromQPolygonF( polyline );
 
@@ -738,8 +739,8 @@ QPointF ReosGisEngine::setPointOnPolyline( double distance, const QPolygonF &pol
   QgsDistanceArea distanceArea;
   distanceArea.setSourceCrs( qgisCrs, QgsProject::instance()->transformContext() );
 
-  QgsUnitTypes::DistanceUnit unit = distanceArea.lengthUnits();
-  double factor = QgsUnitTypes::fromUnitToUnitFactor( unit, QgsUnitTypes::DistanceMeters );
+  Qgis::DistanceUnit unit = distanceArea.lengthUnits();
+  double factor = QgsUnitTypes::fromUnitToUnitFactor( unit, Qgis::DistanceUnit::Meters );
 
   double distFromBegin = 0;
   int i = 0;
@@ -798,9 +799,9 @@ QPolygonF ReosGisEngine::transformToCoordinates( const QString &sourceCRS, const
 
 double ReosGisEngine::factorUnitToMeter( const QString &crs )
 {
-  QgsUnitTypes::DistanceUnit unit = QgsCoordinateReferenceSystem::fromWkt( crs ).mapUnits();
+  Qgis::DistanceUnit unit = QgsCoordinateReferenceSystem::fromWkt( crs ).mapUnits();
 
-  return QgsUnitTypes::fromUnitToUnitFactor( unit, QgsUnitTypes::DistanceMeters );
+  return QgsUnitTypes::fromUnitToUnitFactor( unit,  Qgis::DistanceUnit::Meters );
 }
 
 ReosRasterMemory<QList<QPair<double, QPoint>>>  ReosGisEngine::transformRasterExtent(
@@ -1064,28 +1065,28 @@ void  ReosGisEngine::addMeshLayerToExistingProject(
   switch ( timeStep.unit() )
   {
     case ReosDuration::millisecond:
-      project->timeSettings()->setTimeStepUnit( QgsUnitTypes::TemporalMilliseconds );
+      project->timeSettings()->setTimeStepUnit( Qgis::TemporalUnit::Milliseconds );
       break;
     case ReosDuration::second:
-      project->timeSettings()->setTimeStepUnit( QgsUnitTypes::TemporalSeconds );
+      project->timeSettings()->setTimeStepUnit( Qgis::TemporalUnit::Seconds );
       break;
     case ReosDuration::minute:
-      project->timeSettings()->setTimeStepUnit( QgsUnitTypes::TemporalMinutes );
+      project->timeSettings()->setTimeStepUnit( Qgis::TemporalUnit::Minutes );
       break;
     case ReosDuration::hour:
-      project->timeSettings()->setTimeStepUnit( QgsUnitTypes::TemporalHours );
+      project->timeSettings()->setTimeStepUnit( Qgis::TemporalUnit::Hours );
       break;
     case ReosDuration::day:
-      project->timeSettings()->setTimeStepUnit( QgsUnitTypes::TemporalDays );
+      project->timeSettings()->setTimeStepUnit( Qgis::TemporalUnit::Days );
       break;
     case ReosDuration::week:
-      project->timeSettings()->setTimeStepUnit( QgsUnitTypes::TemporalWeeks );
+      project->timeSettings()->setTimeStepUnit( Qgis::TemporalUnit::Weeks );
       break;
     case ReosDuration::month:
-      project->timeSettings()->setTimeStepUnit( QgsUnitTypes::TemporalMonths );
+      project->timeSettings()->setTimeStepUnit( Qgis::TemporalUnit::Months );
       break;
     case ReosDuration::year:
-      project->timeSettings()->setTimeStepUnit( QgsUnitTypes::TemporalYears );
+      project->timeSettings()->setTimeStepUnit( Qgis::TemporalUnit::Years );
       break;
   };
   project->timeSettings()->setTimeStep( timeStep.valueUnit() );
@@ -1126,13 +1127,13 @@ ReosGisEngine::LayerType ReosGisEngine::layerType( const QString &layerId ) cons
 
   switch ( layer->type() )
   {
-    case QgsMapLayerType::VectorLayer:
+    case Qgis::LayerType::Vector:
       return VectorLayer;
       break;
-    case QgsMapLayerType::RasterLayer:
+    case Qgis::LayerType::Raster:
       return RasterLayer;
       break;
-    case QgsMapLayerType::MeshLayer:
+    case Qgis::LayerType::Mesh:
       return MeshLayer;
       break;
     default:

@@ -66,7 +66,7 @@ ReosMapToolEditMeshFrame_p::ReosMapToolEditMeshFrame_p( ReosMesh *mesh, QgsMapCa
   connect( mActionEditMesh, &QAction::triggered, this, &ReosMapToolEditMeshFrame_p::onModeChange );
   connect( mActionSelectElementByPolygon, &QAction::triggered, this, &ReosMapToolEditMeshFrame_p::onModeChange );
 
-  mFaceRubberBand = new QgsRubberBand( mCanvas, QgsWkbTypes::PolygonGeometry );
+  mFaceRubberBand = new QgsRubberBand( mCanvas, Qgis::GeometryType::Polygon );
   mFaceRubberBand->setZValue( 5 );
   mFaceRubberBand->setFillColor( ReosStyleRegistery::instance()->blueReos( 100 ) );
   mFaceRubberBand->setStrokeColor( ReosStyleRegistery::instance()->blueReos( 200 ) );
@@ -120,18 +120,18 @@ ReosMapToolEditMeshFrame_p::ReosMapToolEditMeshFrame_p( ReosMesh *mesh, QgsMapCa
   mSelectEdgeMarker->setPenWidth( 3 );
   mSelectEdgeMarker->setZValue( 10 );
 
-  mSelectionBand = new QgsRubberBand( mCanvas, QgsWkbTypes::PolygonGeometry );
+  mSelectionBand = new QgsRubberBand( mCanvas, Qgis::GeometryType::Polygon );
   mSelectionBand->setFillColor( ReosStyleRegistery::instance()->blueReos( 100 ) );
   mSelectionBand->setStrokeColor( ReosStyleRegistery::instance()->blueReos( 200 ) );
   mSelectionBand->setZValue( 10 );
 
-  mSelectedFacesRubberband = new QgsRubberBand( mCanvas, QgsWkbTypes::PolygonGeometry );
+  mSelectedFacesRubberband = new QgsRubberBand( mCanvas, Qgis::GeometryType::Polygon );
   mSelectedFacesRubberband->setFillColor( ReosStyleRegistery::instance()->blueReos( 100 ) );
   mSelectedFacesRubberband->setStrokeColor( ReosStyleRegistery::instance()->blueReos( 200 ) );
   mSelectedFacesRubberband->setZValue( 1 );
 
-  mMovingEdgesRubberband = new QgsRubberBand( mCanvas, QgsWkbTypes::LineGeometry );
-  mMovingFacesRubberband = new QgsRubberBand( mCanvas, QgsWkbTypes::PolygonGeometry );
+  mMovingEdgesRubberband = new QgsRubberBand( mCanvas, Qgis::GeometryType::Line );
+  mMovingFacesRubberband = new QgsRubberBand( mCanvas, Qgis::GeometryType::Polygon );
 
 }
 
@@ -297,7 +297,7 @@ void ReosMapToolEditMeshFrame_p::canvasPressEvent( QgsMapMouseEvent *e )
     case Selecting:
     case MovingSelection:
       if ( e->button() == Qt::LeftButton )
-        mSelectionBand->reset( QgsWkbTypes::PolygonGeometry );
+        mSelectionBand->reset( Qgis::GeometryType::Polygon );
       break;
     case SelectingByPolygon:
       if ( e->button() == Qt::LeftButton )
@@ -361,7 +361,7 @@ void ReosMapToolEditMeshFrame_p::canvasReleaseEvent( QgsMapMouseEvent *e )
     {
       QgsGeometry selectionGeom = mSelectionBand->asGeometry();
       selectByGeometry( selectionGeom, e->modifiers() );
-      mSelectionBand->reset( QgsWkbTypes::PolygonGeometry );
+      mSelectionBand->reset( Qgis::GeometryType::Polygon );
       mCurrentState = Digitizing;
     }
     break;
@@ -419,7 +419,7 @@ void ReosMapToolEditMeshFrame_p::canvasReleaseEvent( QgsMapMouseEvent *e )
       {
         if ( mSelectionBand->numberOfVertices() > 1 )
           selectByGeometry( mSelectionBand->asGeometry(), e->modifiers() );
-        mSelectionBand->reset( QgsWkbTypes::PolygonGeometry );
+        mSelectionBand->reset( Qgis::GeometryType::Polygon );
       }
   }
 
@@ -459,8 +459,8 @@ void ReosMapToolEditMeshFrame_p::highlightCurrentHoveredFace( const QgsPointXY &
   }
 
   QgsPointSequence faceGeometry = nativeFaceGeometry( mCurrentFaceIndex );
-  mFaceRubberBand->reset( QgsWkbTypes::PolygonGeometry );
-  mFaceVerticesBand->reset( QgsWkbTypes::PointGeometry );
+  mFaceRubberBand->reset( Qgis::GeometryType::Polygon );
+  mFaceVerticesBand->reset( Qgis::GeometryType::Point );
   for ( const QgsPoint &pt : faceGeometry )
   {
     mFaceRubberBand->addPoint( pt );
@@ -614,7 +614,7 @@ void ReosMapToolEditMeshFrame_p::highlightCloseEdge( const QgsPointXY &mapPoint 
 
     if ( mCurrentFaceIndex == -1 )
     {
-      mFaceVerticesBand->reset( QgsWkbTypes::PointGeometry );
+      mFaceVerticesBand->reset( Qgis::GeometryType::Point );
       mFaceVerticesBand->addPoint( edgeGeom.at( 0 ) );
       mFaceVerticesBand->addPoint( edgeGeom.at( 1 ) );
     }
@@ -675,7 +675,7 @@ void ReosMapToolEditMeshFrame_p::highlightCloseVertex( const QgsPointXY &mapPoin
     double tol = QgsTolerance::vertexSearchRadius( canvas()->mapSettings() );
     if ( mVertexBand->getPoint( 0 )->distance( mapPoint ) > tol )
     {
-      mVertexBand->reset( QgsWkbTypes::PointGeometry );
+      mVertexBand->reset( Qgis::GeometryType::Point );
       mVertexBand->setVisible( false );
       mCurrentVertexIndex = -1;
     }
@@ -684,7 +684,7 @@ void ReosMapToolEditMeshFrame_p::highlightCloseVertex( const QgsPointXY &mapPoin
   {
     int closeVert = closeVertex( mapPoint );
     mCurrentVertexIndex = -1;
-    mVertexBand->reset( QgsWkbTypes::PointGeometry );
+    mVertexBand->reset( Qgis::GeometryType::Point );
 
     if ( closeVert >= 0 &&
          !( mReosMesh->vertexIsOnBoundary( closeVert )  || mReosMesh->vertexIsOnHoleBorder( closeVert ) ) )
@@ -827,8 +827,8 @@ void ReosMapToolEditMeshFrame_p::keyPressEvent( QKeyEvent *e )
       if ( e->key() == Qt::Key_Escape )
       {
         mCurrentState = Digitizing;
-        mMovingEdgesRubberband->reset( QgsWkbTypes::LineGeometry );
-        mMovingFacesRubberband->reset( QgsWkbTypes::PolygonGeometry );
+        mMovingEdgesRubberband->reset( Qgis::GeometryType::Line );
+        mMovingFacesRubberband->reset( Qgis::GeometryType::Polygon );
       }
       break;
     case Selecting:
@@ -842,11 +842,11 @@ void ReosMapToolEditMeshFrame_p::keyPressEvent( QKeyEvent *e )
       {
         mSelectionBand->removeLastPoint();
         if ( mSelectionBand->numberOfVertices() == 1 )
-          mSelectionBand->reset( QgsWkbTypes::PolygonGeometry );
+          mSelectionBand->reset( Qgis::GeometryType::Polygon );
         mSelectionBand->movePoint( mCurrentPosition );
       }
       else if ( e->key() == Qt::Key_Escape )
-        mSelectionBand->reset( QgsWkbTypes::PolygonGeometry );
+        mSelectionBand->reset( Qgis::GeometryType::Polygon );
       break;
   }
 
@@ -933,7 +933,7 @@ void ReosMapToolEditMeshFrame_p::clearSelection()
 {
   mSelectedVertices.clear();
   mSelectedFaces.clear();
-  mSelectedFacesRubberband->reset( QgsWkbTypes::PolygonGeometry );
+  mSelectedFacesRubberband->reset( Qgis::GeometryType::Polygon );
   qDeleteAll( mSelectedVerticesMarker );
   mSelectedVerticesMarker.clear();
   prepareSelection();
@@ -1061,7 +1061,7 @@ void ReosMapToolEditMeshFrame_p::prepareSelection()
     }
   }
   else
-    mSelectedFacesRubberband->reset( QgsWkbTypes::PolygonGeometry );
+    mSelectedFacesRubberband->reset( Qgis::GeometryType::Polygon );
 
   if ( mSelectedVertices.count() == 1 )
   {
@@ -1262,8 +1262,8 @@ void ReosMapToolEditMeshFrame_p::selectTouchedByGeometry( const QgsGeometry &geo
 void ReosMapToolEditMeshFrame_p::moveSelection( const QgsPointXY &destinationPoint )
 {
   const QgsVector &translation = destinationPoint - mStartMovingPoint;
-  mMovingEdgesRubberband->reset( QgsWkbTypes::LineGeometry );
-  mMovingFacesRubberband->reset( QgsWkbTypes::PolygonGeometry );
+  mMovingEdgesRubberband->reset( Qgis::GeometryType::Line );
+  mMovingFacesRubberband->reset( Qgis::GeometryType::Polygon );
   QgsGeometry movingFacesGeometry = mSelectedFacesRubberband->asGeometry();
   movingFacesGeometry.translate( translation.x(), translation.y() );
   mMovingFacesRubberband->setToGeometry( movingFacesGeometry );
@@ -1383,7 +1383,7 @@ void ReosMapToolEditMeshFrame_p::clearCanvasHelpers()
 
 void ReosMapToolEditMeshFrame_p::onModeChange()
 {
-  mSelectionBand->reset( QgsWkbTypes::PolygonGeometry );
+  mSelectionBand->reset( Qgis::GeometryType::Polygon );
 
   if ( mActionEditMesh->isChecked() )
   {

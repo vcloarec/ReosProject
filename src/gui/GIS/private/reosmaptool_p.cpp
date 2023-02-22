@@ -27,7 +27,7 @@ email                : vcloarec at gmail dot com
 #include "reosgeometryutils.h"
 
 
-static QList<QgsMapToolIdentify::IdentifyResult> searchFeatureOnMap( QgsMapMouseEvent *e, QgsMapCanvas *canvas, const QList<QgsWkbTypes::GeometryType> &geomType )
+static QList<QgsMapToolIdentify::IdentifyResult> searchFeatureOnMap( QgsMapMouseEvent *e, QgsMapCanvas *canvas, const QList<Qgis::GeometryType> &geomType )
 {
   QList<QgsMapToolIdentify::IdentifyResult> results;
   const QMap< QString, QString > derivedAttributes;
@@ -39,12 +39,12 @@ static QList<QgsMapToolIdentify::IdentifyResult> searchFeatureOnMap( QgsMapMouse
   const QList<QgsMapLayer *> layers = canvas->layers();
   for ( QgsMapLayer *layer : layers )
   {
-    if ( layer->type() == QgsMapLayerType::VectorLayer )
+    if ( layer->type() == Qgis::LayerType::Vector )
     {
       QgsVectorLayer *vectorLayer = static_cast<QgsVectorLayer *>( layer );
 
       bool typeIsSelectable = false;
-      for ( const QgsWkbTypes::GeometryType &type : geomType )
+      for ( const Qgis::GeometryType &type : geomType )
         if ( vectorLayer->geometryType() == type )
         {
           typeIsSelectable = true;
@@ -87,7 +87,7 @@ bool ReosMapTool_p::hasFeatureOnMap( const QPointF &mapPoint ) const
   const QList<QgsMapLayer *> layers = mCanvas->layers();
   for ( QgsMapLayer *layer : layers )
   {
-    if ( layer->type() == QgsMapLayerType::VectorLayer )
+    if ( layer->type() == Qgis::LayerType::Vector )
     {
       QgsVectorLayer *vectorLayer = static_cast<QgsVectorLayer *>( layer );
 
@@ -170,7 +170,7 @@ void ReosMapTool_p::addSearchTargetDescription( const QString &description )
 
 ReosMapToolDrawPolyline_p::ReosMapToolDrawPolyline_p( QgsMapCanvas *map, bool closed )
   : ReosMapTool_p( map )
-  , mRubberBand( new QgsRubberBand( map, closed ? QgsWkbTypes::PolygonGeometry : QgsWkbTypes::LineGeometry ) )
+  , mRubberBand( new QgsRubberBand( map, closed ? Qgis::GeometryType::Polygon : Qgis::GeometryType::Line ) )
 {
   mClosed = closed;
 }
@@ -184,7 +184,7 @@ ReosMapToolDrawPolyline_p::~ReosMapToolDrawPolyline_p()
 void ReosMapToolDrawPolyline_p::deactivate()
 {
   if ( mRubberBand )
-    mRubberBand->reset( mClosed ? QgsWkbTypes::PolygonGeometry : QgsWkbTypes::LineGeometry );
+    mRubberBand->reset( mClosed ? Qgis::GeometryType::Polygon : Qgis::GeometryType::Line );
   ReosMapTool_p::deactivate();
 }
 
@@ -245,7 +245,7 @@ void ReosMapToolDrawPolyline_p::canvasReleaseEvent( QgsMapMouseEvent *e )
         }
 
         emit polylineDrawn( polyline );
-        mRubberBand->reset( mClosed ? QgsWkbTypes::PolygonGeometry : QgsWkbTypes::LineGeometry );
+        mRubberBand->reset( mClosed ? Qgis::GeometryType::Polygon : Qgis::GeometryType::Line );
         updateColor();
       }
     }
@@ -297,7 +297,7 @@ void ReosMapToolDrawPolyline_p::updateColor()
 
 ReosMapToolDrawExtent_p::ReosMapToolDrawExtent_p( QgsMapCanvas *map ): ReosMapTool_p( map )
 {
-  mRubberBand = new QgsRubberBand( map, QgsWkbTypes::PolygonGeometry );
+  mRubberBand = new QgsRubberBand( map, Qgis::GeometryType::Polygon );
 }
 
 ReosMapToolDrawExtent_p::~ReosMapToolDrawExtent_p()
@@ -325,7 +325,7 @@ void ReosMapToolDrawExtent_p::canvasReleaseEvent( QgsMapMouseEvent *e )
 {
   mIsDrawing = false;
   mEndPoint = e->mapPoint();
-  mRubberBand->reset( QgsWkbTypes::PolygonGeometry );
+  mRubberBand->reset( Qgis::GeometryType::Polygon );
   QRectF extent( mStartPoint.toQPointF(), mEndPoint.toQPointF() );
   emit extentDrawn( extent );
 }
@@ -333,7 +333,7 @@ void ReosMapToolDrawExtent_p::canvasReleaseEvent( QgsMapMouseEvent *e )
 void ReosMapToolDrawExtent_p::deactivate()
 {
   if ( mRubberBand )
-    mRubberBand->reset( QgsWkbTypes::PolygonGeometry );
+    mRubberBand->reset( Qgis::GeometryType::Polygon );
   mIsDrawing = false;
   ReosMapTool_p::deactivate();
 }
@@ -342,7 +342,7 @@ void ReosMapToolDrawExtent_p::drawExtent()
 {
   QgsRectangle rect( mStartPoint, mEndPoint );
 
-  mRubberBand->reset( QgsWkbTypes::PolygonGeometry );
+  mRubberBand->reset( Qgis::GeometryType::Polygon );
   mRubberBand->addPoint( QgsPointXY( rect.xMinimum(), rect.yMinimum() ), false );
   mRubberBand->addPoint( QgsPointXY( rect.xMaximum(), rect.yMinimum() ), false );
   mRubberBand->addPoint( QgsPointXY( rect.xMaximum(), rect.yMaximum() ), false );
@@ -531,7 +531,7 @@ ReosMapItem_p *ReosMapTool_p::searchItem( const QPointF &p ) const
 QgsGeometry ReosMapTool_p::selectFeatureOnMap( QgsMapMouseEvent *e )
 {
   const QList<QgsMapToolIdentify::IdentifyResult> &results =
-    searchFeatureOnMap( e, mCanvas, QList<QgsWkbTypes::GeometryType>() << QgsWkbTypes::PolygonGeometry << QgsWkbTypes::LineGeometry );
+    searchFeatureOnMap( e, mCanvas, QList<Qgis::GeometryType>() << Qgis::GeometryType::Polygon << Qgis::GeometryType::Line );
 
   QgsIdentifyMenu *menu = new QgsIdentifyMenu( mCanvas );
   menu->setExecWithSingleResult( true );

@@ -212,13 +212,13 @@ void ReosGisLayersWidget::onTreeLayerDoubleClick()
   QgsMessageBar messageBar;
   switch ( mapLayer->type() )
   {
-    case QgsMapLayerType::VectorLayer:
+    case Qgis::LayerType::Vector:
       dial.reset( new QgsVectorLayerProperties( mapCanvas, &messageBar, qobject_cast<QgsVectorLayer *>( mapLayer ), this ) );
       break;
-    case QgsMapLayerType::RasterLayer:
+    case Qgis::LayerType::Raster:
       dial.reset( new QgsRasterLayerProperties( mapLayer, mapCanvas, this ) );
       break;
-    case QgsMapLayerType::MeshLayer:
+    case Qgis::LayerType::Mesh:
       dial.reset( new QgsMeshLayerProperties( mapLayer, mapCanvas, this ) );
       break;
     default:

@@ -288,7 +288,7 @@ ReosMovingTracesRenderer::ReosMovingTracesRenderer(
   mTraceGenerator->setTailPersitence( tracesSettings.persistence );
   mTraceGenerator->setMaxSpeedPixel( tracesSettings.maxSpeed );
   mTraceGenerator->setParticlesSize(
-    mRenderContext.convertToPainterUnits( tracesSettings.traceWidth, QgsUnitTypes::RenderUnit::RenderMillimeters ) );
+    mRenderContext.convertToPainterUnits( tracesSettings.traceWidth, Qgis::RenderUnit::Millimeters ) );
 
   mFramePerSeconds = tracesSettings.fps;
 
