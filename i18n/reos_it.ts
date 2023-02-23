@@ -4,27 +4,27 @@
 <context>
     <name>CoordinatesWidget</name>
     <message>
-        <location filename="../src/gui/chart/reosplotwidget.cpp" line="62"/>
+        <location filename="../src/gui/chart/reosplotwidget.cpp" line="63"/>
         <source>X:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/chart/reosplotwidget.cpp" line="103"/>
+        <location filename="../src/gui/chart/reosplotwidget.cpp" line="104"/>
         <source>X: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/chart/reosplotwidget.cpp" line="113"/>
+        <location filename="../src/gui/chart/reosplotwidget.cpp" line="114"/>
         <source>Y Left: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/chart/reosplotwidget.cpp" line="114"/>
+        <location filename="../src/gui/chart/reosplotwidget.cpp" line="115"/>
         <source>Y Right: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/chart/reosplotwidget.cpp" line="118"/>
+        <location filename="../src/gui/chart/reosplotwidget.cpp" line="119"/>
         <source>Y: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -218,22 +218,22 @@
         <translation>Coefficiente </translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.h" line="228"/>
+        <location filename="../src/core/watershed/reostransferfunction.h" line="231"/>
         <source>Linear reservoir</source>
         <translation>Serbatoio lineare</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.h" line="281"/>
+        <location filename="../src/core/watershed/reostransferfunction.h" line="284"/>
         <source>Generalized Rational Method</source>
         <translation>Metodo Razionale Generalizzato</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.h" line="365"/>
+        <location filename="../src/core/watershed/reostransferfunction.h" line="368"/>
         <source>SCS Unit Hydrograph</source>
         <translation>SCS Idrogramma Unitario</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reostransferfunction.h" line="434"/>
+        <location filename="../src/core/watershed/reostransferfunction.h" line="437"/>
         <source>Nash Unit Hydrograph</source>
         <translation>Idrogramma Unitario di Nash</translation>
     </message>
@@ -570,6 +570,11 @@
         </translation>
     </message>
     <message>
+        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="193"/>
+        <source>HECRAS Simulation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="965"/>
         <source>Unable to open exiting DSS file &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
@@ -580,7 +585,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.h" line="152"/>
+        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.h" line="153"/>
         <source>HEC-RAS Simulation</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2131,7 +2136,7 @@ Per risolvere il problema, seleziona un corretto sistema di coordinate della map
 <context>
     <name>ReosHecRasSimulation</name>
     <message>
-        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.h" line="66"/>
+        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.h" line="67"/>
         <source>HECRAS</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2273,14 +2278,6 @@ Calculation cancelled.</source>
         <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1058"/>
         <source>Unable to set plan &quot;%1&quot; as current plan.
 Calculation cancelled.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ReosHecRasStructureImporter</name>
-    <message>
-        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="193"/>
-        <source>HECRAS Simulation</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4757,7 +4754,7 @@ scegli un nuovo nome:</translation>
 <context>
     <name>ReosPlotLegendController</name>
     <message>
-        <location filename="../src/gui/chart/reosplotwidget.cpp" line="966"/>
+        <location filename="../src/gui/chart/reosplotwidget.cpp" line="967"/>
         <source>Legend</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4765,32 +4762,32 @@ scegli un nuovo nome:</translation>
 <context>
     <name>ReosPlotWidget</name>
     <message>
-        <location filename="../src/gui/chart/reosplotwidget.cpp" line="143"/>
+        <location filename="../src/gui/chart/reosplotwidget.cpp" line="144"/>
         <source>Save as Image</source>
         <translation>Salva come immagine</translation>
     </message>
     <message>
-        <location filename="../src/gui/chart/reosplotwidget.cpp" line="144"/>
+        <location filename="../src/gui/chart/reosplotwidget.cpp" line="145"/>
         <source>Copy as Image</source>
         <translation>Copia come Immagine</translation>
     </message>
     <message>
-        <location filename="../src/gui/chart/reosplotwidget.cpp" line="145"/>
+        <location filename="../src/gui/chart/reosplotwidget.cpp" line="146"/>
         <source>Time Line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/chart/reosplotwidget.cpp" line="146"/>
+        <location filename="../src/gui/chart/reosplotwidget.cpp" line="147"/>
         <source>Display Coordinates on Cursor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/chart/reosplotwidget.cpp" line="223"/>
+        <location filename="../src/gui/chart/reosplotwidget.cpp" line="224"/>
         <source>X linear scale</source>
         <translation>X scala lineare</translation>
     </message>
     <message>
-        <location filename="../src/gui/chart/reosplotwidget.cpp" line="224"/>
+        <location filename="../src/gui/chart/reosplotwidget.cpp" line="225"/>
         <source>X logarithmic scale</source>
         <translation>X scala logaritmica</translation>
     </message>
@@ -5735,17 +5732,17 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/core/rainfall/reosseriesrainfall.cpp" line="54"/>
         <source>Height per time step</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Altezza per unità di tempo</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reosseriesrainfall.cpp" line="55"/>
         <source>Total height</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Altezza Totale</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reosseriesrainfall.cpp" line="56"/>
         <source>Rainfall intensity</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Intensità di pioggia</translation>
     </message>
 </context>
 <context>
