@@ -1,4 +1,6 @@
-<?xml version="1.0" ?><!DOCTYPE TS><TS version="2.1" language="zh_TW">
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
+<TS version="2.1" language="zh_TW">
 <context>
     <name>LekanMainWindow</name>
     <message>
@@ -60,17 +62,17 @@
         <translation>讀取部分數值高程模型 %1/%2</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/private/reosdigitalelevationmodel_p.cpp" line="119"/>
+        <location filename="../src/core/GIS/private/reosdigitalelevationmodel_p.cpp" line="120"/>
         <source>Project segment %1/%2</source>
         <translation>專案部分 %1/%2</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/private/reosdigitalelevationmodel_p.cpp" line="178"/>
+        <location filename="../src/core/GIS/private/reosdigitalelevationmodel_p.cpp" line="179"/>
         <source>Extract DEM from layer</source>
         <translation>由圖層取得外部數值高程DEM資料</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/private/reosdigitalelevationmodel_p.cpp" line="259"/>
+        <location filename="../src/core/GIS/private/reosdigitalelevationmodel_p.cpp" line="260"/>
         <source>Calculate average elevation from grid</source>
         <translation>由網格資料計算平均高程</translation>
     </message>
@@ -228,34 +230,34 @@
         <translation>註冊的數值高程</translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1322"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1339"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1325"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1342"/>
         <source>Rainfall duration (mn)</source>
         <translation>降雨延時(mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1323"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1340"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1326"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1343"/>
         <source>Rainfall intensity (mm/h)</source>
         <translation>降雨強度(mm/h)</translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1353"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1356"/>
         <source>, instant value</source>
         <translation>，即時數值</translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1361"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1364"/>
         <source>, cumulative value</source>
         <translation>，累積值</translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1365"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1368"/>
         <source>Cumulative rainfall (mm)</source>
         <translation>累積降雨量(mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1368"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1371"/>
         <source>Time</source>
         <translation>時間</translation>
     </message>
@@ -268,7 +270,7 @@
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="1260"/>
         <source>K parameter from concentration time: %1</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffmanager.cpp" line="327"/>
@@ -308,47 +310,47 @@
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="1290"/>
         <source>The Nash Unit Hydrograph is a conceptual model represented by an effective rainfall that paths through n different reservoirs with the same storage coefficient K that gives reservoirs the propriety of linearity. For a rainfall with a depth of 1 mm and a duration tending toward zero, the specific flow rate is given by the following relation:</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="1307"/>
         <source>Where:&lt;br&gt;- t : the time from rainfall&lt;br&gt;- n : the count of reservoirs &lt;br&gt;- K : the storage coefficient in the same unit that t&lt;br&gt;- Q : the flow rate (mm per time unit)</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/hydrograph/reoshydrographrouting.cpp" line="466"/>
         <source>This routing simply copy the input hydrograph to output without any change</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/hydrograph/reoshydrographrouting.cpp" line="690"/>
         <source>The Muskingum routing method expresses the output flow of reach depending on the input flow and two parameters K and x. This method has the following formulation:</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/hydrograph/reoshydrographrouting.cpp" line="696"/>
         <source>&amp;Delta;t is the time step of the input hydrograph. The parameter K can be considered as the travel time through the reach; x, dimensionless, is a parameter that expresses the attenuation of the hydrograph. As the terms C1, C2 and C3 must be non-negative, K and x have to be chosen carefully depending on the time step of the input hydrograph, and must verify the two following conditions:&lt;ul&gt;&lt;li&gt;2.K.(1-x) &gt; &amp;Delta;t&lt;/li&gt;&lt;li&gt;&amp;Delta;t &gt; 2.K.x&lt;/li&gt;&lt;/ul&gt;Lekan ensures the first condition by reducing the time step of the input hydrograph if needed. For the second one, to avoid arbitrarly distorting the input hydrograph, nothing is done except a warning to the user to change either the parameters, the time step, or the method.&lt;br&gt;</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/hydrograph/reoshydrographrouting.cpp" line="813"/>
         <source>The Lag routing method apply a duration offset on the hydrograph:&lt;br&gt;Output ( t + lag ) = Input( t )</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/hydrograph/reoshydrographrouting.h" line="206"/>
         <source>Without distortion</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/hydrograph/reoshydrographrouting.h" line="254"/>
         <source>Muskingum</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/hydrograph/reoshydrographrouting.h" line="298"/>
         <source>Lag routing</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/dataProviders/delft-FEWS/reosdelftfewsxmlprovider.cpp" line="70"/>
@@ -358,22 +360,22 @@
     <message>
         <location filename="../src/dataProviders/delft-FEWS/reosdelftfewsxmlprovider.cpp" line="78"/>
         <source>&lt;b&gt;Location Id&lt;/b&gt;</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/dataProviders/delft-FEWS/reosdelftfewsxmlprovider.cpp" line="83"/>
         <source>&lt;b&gt;Start date&lt;/b&gt;</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/dataProviders/delft-FEWS/reosdelftfewsxmlprovider.cpp" line="88"/>
         <source>&lt;b&gt;End date&lt;/b&gt;</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="225"/>
         <source>Runoff hydrograph calculation</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="226"/>
@@ -648,11 +650,6 @@
 <context>
     <name>ReosDelftFewsWidget</name>
     <message>
-        <location filename="../src/dataProviders/delft-FEWS/reosdelftfewswidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"/>
-    </message>
-    <message>
         <location filename="../src/ui/reosdelftfewswidget.ui"/>
         <source>File</source>
         <translation>檔案</translation>
@@ -680,7 +677,7 @@
     <message>
         <location filename="../src/dataProviders/delft-FEWS/reosdelftfewswidget.cpp" line="197"/>
         <source>Flow rate (%1)</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -798,20 +795,20 @@ Adjust new watershed?</source>
 <context>
     <name>ReosDoubleTriangleRainfall</name>
     <message>
-        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="388"/>
-        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="413"/>
+        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="390"/>
+        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="415"/>
         <source>Intense Duration</source>
         <translation>強度延時時間</translation>
     </message>
     <message>
-        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="387"/>
-        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="414"/>
+        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="389"/>
+        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="416"/>
         <source>Total Duration</source>
         <translation>總延時</translation>
     </message>
     <message>
-        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="389"/>
-        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="415"/>
+        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="391"/>
+        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="417"/>
         <source>Eccentricity</source>
         <translation>偏心率</translation>
     </message>
@@ -1033,7 +1030,7 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/gui/hydrograph/reosgaugedhydrographwidget.cpp" line="111"/>
         <source>Add a new hydrograph, choose a name:</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/hydrograph/reosgaugedhydrographwidget.cpp" line="112"/>
@@ -1044,28 +1041,28 @@ Adjust new watershed?</source>
     <message>
         <location filename="../src/gui/hydrograph/reosgaugedhydrographwidget.cpp" line="139"/>
         <source>Remove Gauged Hydrograph</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/hydrograph/reosgaugedhydrographwidget.cpp" line="140"/>
         <source>Do you want to remove the hydrograph &apos;%1&apos;?</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/hydrograph/reosgaugedhydrographwidget.cpp" line="161"/>
         <source>Rename Gauged Hydrograph</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/hydrograph/reosgaugedhydrographwidget.cpp" line="162"/>
-        <source>Rename gauged hydrograph'%1',
+        <source>Rename gauged hydrograph&apos;%1&apos;,
 choose a new name:</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/hydrograph/reosgaugedhydrographwidget.cpp" line="221"/>
         <source>No Hydrograph</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/hydrograph/reosgaugedhydrographwidget.cpp" line="298"/>
@@ -1133,8 +1130,8 @@ choose a new name:</source>
     </message>
     <message>
         <location filename="../src/core/GIS/reosgisengine.cpp" line="260"/>
-        <source>This layer doesn't have a valid or known coordinates system, and calculation on DEM will be done considering its coordinate system is the same as the project.
-The project's coordinates system is a geographic reference system (latitude/longitude) and the extent of this layer suggests that it is actually a projected coordinates system.
+        <source>This layer doesn&apos;t have a valid or known coordinates system, and calculation on DEM will be done considering its coordinate system is the same as the project.
+The project&apos;s coordinates system is a geographic reference system (latitude/longitude) and the extent of this layer suggests that it is actually a projected coordinates system.
 If so, the result of area or distance calculation will be incorrect.
 To fix this, set an appropriate map coordinate system in the layer properties or/and for the project coordinate project.</source>
         <translation>這圖層無法驗證與確認其坐標系統，因此計算將會使用與目前專案相同的坐標系統進行計算。
@@ -1235,17 +1232,17 @@ To fix this, set an appropriate map coordinate system in the layer properties or
         <location filename="../src/dataProviders/hub-eau/reoshubeauhydrographprovider.cpp" line="165"/>
         <location filename="../src/dataProviders/hub-eau/reoshubeauhydrographprovider.cpp" line="168"/>
         <source>Following error occured with Hubeau server: %1</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hub-eau/reoshubeauhydrographprovider.cpp" line="200"/>
         <source>No station selected</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished">沒有選擇測站</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hub-eau/reoshubeauhydrographprovider.cpp" line="207"/>
         <source>&lt;b&gt;On duty&lt;/b&gt;</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hub-eau/reoshubeauhydrographprovider.cpp" line="208"/>
@@ -1260,32 +1257,32 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/dataProviders/hub-eau/reoshubeauhydrographprovider.cpp" line="212"/>
         <source>&lt;b&gt;Station type&lt;/b&gt;</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hub-eau/reoshubeauhydrographprovider.cpp" line="217"/>
         <source>&lt;b&gt;Opening date&lt;/b&gt;</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hub-eau/reoshubeauhydrographprovider.cpp" line="222"/>
         <source>&lt;b&gt;Closing date&lt;/b&gt;</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hub-eau/reoshubeauhydrographprovider.cpp" line="227"/>
         <source>&lt;b&gt;Local influence&lt;/b&gt;</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hub-eau/reoshubeauhydrographprovider.cpp" line="232"/>
         <source>&lt;b&gt;Local influence comments&lt;/b&gt;</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hub-eau/reoshubeauhydrographprovider.cpp" line="237"/>
         <source>&lt;b&gt;Comments&lt;/b&gt;</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1293,7 +1290,7 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/dataProviders/hub-eau/reoshubeauserver.cpp" line="244"/>
         <source>Following error occured with Hubeau server: %1</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1340,12 +1337,14 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message numerus="yes">
         <location filename="../src/dataProviders/hub-eau/reoshubeauwidget.cpp" line="116"/>
         <source>%n station displayed</source>
-        <translation><numerusform>%n 測站展示</numerusform></translation>
+        <translation>
+            <numerusform>%n 測站展示</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hub-eau/reoshubeauwidget.cpp" line="126"/>
         <source>Hubeau server: </source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1374,7 +1373,7 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulicelementpropertieswidget.cpp" line="161"/>
         <source>No widget available for the element of type %1</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1382,62 +1381,62 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/ui/reoshydraulichydrographjunctionpropertieswidget.ui"/>
         <source>Plots</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished">繪圖</translation>
     </message>
     <message>
         <location filename="../src/ui/reoshydraulichydrographjunctionpropertieswidget.ui"/>
         <source>Tables</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished">表格</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="43"/>
         <source>Time</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished">時間</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="46"/>
         <source>Flow rate (%1)</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="53"/>
         <source>Calc. Hydrographs</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="59"/>
         <source>Gauged Hydrographs</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished">測站歷線</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="146"/>
         <source>none</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reoshydraulichydrographjunctionpropertieswidget.ui"/>
         <source>Calculation Information</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reoshydraulichydrographjunctionpropertieswidget.ui"/>
         <source>Values count</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reoshydraulichydrographjunctionpropertieswidget.ui"/>
         <source>Calculation progress</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reoshydraulichydrographjunctionpropertieswidget.ui"/>
         <source>Output peak</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reoshydraulichydrographjunctionpropertieswidget.ui"/>
         <source>Node Parameters</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1445,7 +1444,7 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulicnetworkwidget.cpp" line="228"/>
         <source>Hydraulic Network</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1454,24 +1453,24 @@ To fix this, set an appropriate map coordinate system in the layer properties or
         <location filename="../src/core/hydraulicNetwork/reoshydraulicnetwork.cpp" line="25"/>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicnetwork.cpp" line="36"/>
         <source>Name</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished">名稱</translation>
     </message>
     <message>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicnetwork.cpp" line="28"/>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicnetwork.cpp" line="42"/>
         <source>Constant time step</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicnetwork.cpp" line="30"/>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicnetwork.cpp" line="50"/>
         <source>Display constant time step</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicnetwork.cpp" line="113"/>
         <source>Routing %1: </source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1479,58 +1478,58 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulicnetworkwidget.cpp" line="32"/>
         <source>Select Hydraulic Network Element</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulicnetworkwidget.cpp" line="38"/>
         <source>Hydraulic Element Properties</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulicnetworkwidget.cpp" line="34"/>
         <source>Add Junction</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulicnetworkwidget.cpp" line="36"/>
         <source>Add Link</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulicnetworkwidget.cpp" line="40"/>
         <source>Move Junction</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulicnetworkwidget.cpp" line="42"/>
         <source>Remove Hydraulic Element</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulicnetworkwidget.cpp" line="46"/>
         <source>Name</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished">名稱</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulicnetworkwidget.cpp" line="185"/>
         <source>Remove Hydraulic Network Element</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulicnetworkwidget.cpp" line="185"/>
         <source>This action will remove definitly the element &quot;%1&quot;
 Do you want to proceed?</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reoshydraulicnetworkwidget.ui"/>
         <source>Current Selected Element</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reoshydraulicnetworkwidget.ui"/>
         <source>Hydraulic Node Properties</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1538,17 +1537,17 @@ Do you want to proceed?</source>
     <message>
         <location filename="../src/gui/hydrograph/reoshydrographeditingwidget.cpp" line="33"/>
         <source>Use constant time step for new entry</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/hydrograph/reoshydrographeditingwidget.cpp" line="34"/>
         <source>Constant time step</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/hydrograph/reoshydrographeditingwidget.cpp" line="75"/>
         <source>Time step unit</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1557,12 +1556,12 @@ Do you want to proceed?</source>
         <location filename="../src/core/hydrograph/reoshydrographsource.cpp" line="146"/>
         <location filename="../src/core/hydrograph/reoshydrographsource.cpp" line="149"/>
         <source>Output of %1</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/hydrograph/reoshydrographsource.h" line="174"/>
         <source>Junction node</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1570,7 +1569,7 @@ Do you want to proceed?</source>
     <message>
         <location filename="../src/core/hydrograph/reoshydrographsource.h" line="282"/>
         <source>Watershed node</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1579,12 +1578,12 @@ Do you want to proceed?</source>
         <location filename="../src/core/hydrograph/reoshydrographrouting.cpp" line="73"/>
         <location filename="../src/core/hydrograph/reoshydrographrouting.cpp" line="76"/>
         <source>Output of %1</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/hydrograph/reoshydrographrouting.h" line="116"/>
         <source>Hydrograph routing</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1593,7 +1592,7 @@ Do you want to proceed?</source>
         <location filename="../src/core/hydrograph/reoshydrographrouting.cpp" line="730"/>
         <location filename="../src/core/hydrograph/reoshydrographrouting.cpp" line="739"/>
         <source>Lag</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1602,33 +1601,33 @@ Do you want to proceed?</source>
         <location filename="../src/core/hydrograph/reoshydrographrouting.cpp" line="477"/>
         <location filename="../src/core/hydrograph/reoshydrographrouting.cpp" line="489"/>
         <source>K</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/hydrograph/reoshydrographrouting.cpp" line="478"/>
         <location filename="../src/core/hydrograph/reoshydrographrouting.cpp" line="490"/>
         <source>x</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/hydrograph/reoshydrographrouting.cpp" line="548"/>
         <source>Muskingum routing method need more than two value for input hydograph</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/hydrograph/reoshydrographrouting.cpp" line="558"/>
         <source>X parameter for Muskingum routing has to be less than 0.5</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/hydrograph/reoshydrographrouting.cpp" line="569"/>
         <source>X parameter for Muskingum routing equal 0.5, there will be no attenuation, consider using Lag routing method instead</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/hydrograph/reoshydrographrouting.cpp" line="659"/>
         <source>The time step of the input hydrograph is too small considering the parameter of the Muskingum routing method</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1636,67 +1635,67 @@ Do you want to proceed?</source>
     <message>
         <location filename="../src/ui/reoshydrographroutingpropertieswidget.ui"/>
         <source>Plots</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished">繪圖</translation>
     </message>
     <message>
         <location filename="../src/gui/hydrograph/reoshydrographroutingpropertieswidget.cpp" line="37"/>
         <source>Time</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished">時間</translation>
     </message>
     <message>
         <location filename="../src/gui/hydrograph/reoshydrographroutingpropertieswidget.cpp" line="40"/>
         <source>Flow rate (%1)</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/hydrograph/reoshydrographroutingpropertieswidget.cpp" line="43"/>
         <source>Hydrographs</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/hydrograph/reoshydrographroutingpropertieswidget.cpp" line="133"/>
         <source>none</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reoshydrographroutingpropertieswidget.ui"/>
         <source>Routing Parameters</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reoshydrographroutingpropertieswidget.ui"/>
         <source>Method</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reoshydrographroutingpropertieswidget.ui"/>
         <source>Calculation Information</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reoshydrographroutingpropertieswidget.ui"/>
         <source>Calculation progress</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reoshydrographroutingpropertieswidget.ui"/>
         <source>Output peak</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reoshydrographroutingpropertieswidget.ui"/>
         <source>Value count</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reoshydrographroutingpropertieswidget.ui"/>
         <source>Table</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reoshydrographroutingpropertieswidget.ui"/>
         <source>Hydraulic Link Properties</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1705,13 +1704,13 @@ Do you want to proceed?</source>
         <location filename="../src/core/hydrograph/reoshydrographsource.cpp" line="32"/>
         <location filename="../src/core/hydrograph/reoshydrographsource.cpp" line="42"/>
         <source>Force output time step</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/hydrograph/reoshydrographsource.cpp" line="34"/>
         <location filename="../src/core/hydrograph/reoshydrographsource.cpp" line="47"/>
         <source>Output time step</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1775,52 +1774,52 @@ Do you want to proceed?</source>
 <context>
     <name>ReosImportRainfallDialog</name>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1184"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1187"/>
         <source>name</source>
         <translation>名稱</translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1185"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1188"/>
         <source>Description</source>
         <translation>敘述</translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1188"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1191"/>
         <source>Import Rainfall</source>
         <translation>匯入降雨</translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1191"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1194"/>
         <source>mm</source>
         <translation>mm</translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1192"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1195"/>
         <source>Height per time step</source>
         <translation>最高時間間距</translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1193"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1196"/>
         <source>Total height</source>
         <translation>總高度</translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1194"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1197"/>
         <source>Rainfall intensity</source>
         <translation>降雨強度</translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1212"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1215"/>
         <source>Field to import</source>
         <translation>欄位插入</translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1239"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1242"/>
         <source>Select a Station to Import</source>
         <translation>選擇匯入測站</translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1279"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1282"/>
         <source>Select a station where to import the rainfall</source>
         <translation>選擇一個要匯入降雨量的測站</translation>
     </message>
@@ -1902,7 +1901,7 @@ Do you want to proceed?</source>
     <message>
         <location filename="../src/ui/reoslanguageselectionwidget.ui"/>
         <source>Number format</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2048,7 +2047,7 @@ Do you want to proceed?</source>
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="53"/>
         <source>How to help?</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="71"/>
@@ -2077,27 +2076,27 @@ Do you want to proceed?</source>
         <translation>開啟專案</translation>
     </message>
     <message>
-        <location filename="../src/gui/reosmainwindow.cpp" line="206"/>
+        <location filename="../src/gui/reosmainwindow.cpp" line="209"/>
         <source>Save project as</source>
         <translation>儲存專案為</translation>
     </message>
     <message>
-        <location filename="../src/gui/reosmainwindow.cpp" line="223"/>
+        <location filename="../src/gui/reosmainwindow.cpp" line="228"/>
         <source>New project</source>
         <translation>新專案</translation>
     </message>
     <message>
-        <location filename="../src/gui/reosmainwindow.cpp" line="223"/>
+        <location filename="../src/gui/reosmainwindow.cpp" line="228"/>
         <source>Save current project?</source>
         <translation>儲存目前專案</translation>
     </message>
     <message>
-        <location filename="../src/gui/reosmainwindow.cpp" line="312"/>
+        <location filename="../src/gui/reosmainwindow.cpp" line="320"/>
         <source>Closing current project</source>
         <translation>關閉目前專案</translation>
     </message>
     <message>
-        <location filename="../src/gui/reosmainwindow.cpp" line="312"/>
+        <location filename="../src/gui/reosmainwindow.cpp" line="320"/>
         <source>The current project has been modified, do you want to save it?</source>
         <translation>目前專案已經更新，您有要儲存嗎?</translation>
     </message>
@@ -2250,7 +2249,7 @@ Do you want to proceed?</source>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="108"/>
-        <source>Duplicate meteorologic model '%1',
+        <source>Duplicate meteorologic model &apos;%1&apos;,
 choose a name:</source>
         <translation>重複的氣象模型&apos;％1&apos;，
 選擇一個名稱：</translation>
@@ -2272,7 +2271,7 @@ choose a name:</source>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="143"/>
-        <source>Rename meteorologic model '%1',
+        <source>Rename meteorologic model &apos;%1&apos;,
 choose a new name:</source>
         <translation>修改氣象資料名稱 &apos;%1&apos;
 選擇一個新名稱:</translation>
@@ -2306,12 +2305,12 @@ choose a new name:</source>
     <message>
         <location filename="../src/gui/reosnotificationbutton.cpp" line="47"/>
         <source>Warning</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/reosnotificationbutton.cpp" line="51"/>
         <source>Error</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2348,7 +2347,7 @@ choose a new name:</source>
     <message>
         <location filename="../src/gui/chart/reosplotwidget.cpp" line="670"/>
         <source>Legend</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2495,45 +2494,45 @@ choose a new name:</source>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="519"/>
         <source>The station &quot;%1&quot; has already a rainfall with name &quot;%2&quot;. Do you want to add the rainfall with another name?</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="827"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="830"/>
         <source>Add Gauged Rainfall</source>
         <translation>增加雨量站資料</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="80"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="841"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="844"/>
         <source>Add Chicago Rainfall</source>
         <translation>增加芝加哥降雨</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="78"/>
         <source>Add Station from Map</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="79"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1063"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1066"/>
         <source>Gauged Rainfall in a Table</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="81"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="855"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="858"/>
         <source>Add Alternating Block Rainfall</source>
         <translation>增加交替區塊降雨</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="82"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="869"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="872"/>
         <source>Add Double Triangle Rainfall</source>
         <translation>增加雙峰降雨</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="83"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="883"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="886"/>
         <source>Add Intensity Duration Frequency Curves</source>
         <translation>新增強度延時頻率曲線</translation>
     </message>
@@ -2549,7 +2548,7 @@ choose a new name:</source>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="86"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="951"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="954"/>
         <source>Remove item</source>
         <translation>移除項目</translation>
     </message>
@@ -2561,7 +2560,7 @@ choose a new name:</source>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="88"/>
         <source>Select Station from Map</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="219"/>
@@ -2599,40 +2598,40 @@ choose a new name:</source>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="324"/>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="333"/>
         <source>From %1</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="443"/>
         <source>Add a station from %1</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="444"/>
         <source>The zone &quot;%1&quot; has already a station with name %2. Do you want to add the rainfall in this station?
 If not, another station will be created</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="454"/>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="525"/>
         <source>copy</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="455"/>
         <source>Create Other Station</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="501"/>
         <source>From %1 to %2</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="518"/>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="527"/>
         <source>Add a Rainfall</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="564"/>
@@ -2668,24 +2667,24 @@ If not, another station will be created</source>
         <translation>增加分區</translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1046"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1049"/>
         <source>Add station…</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1058"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1061"/>
         <source>Add Gauged Rainfall in a Table</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1064"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1067"/>
         <source>Add Gauged Rainfall…</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1069"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="1072"/>
         <source>Add Synthetic Rainfall…</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="455"/>
@@ -2695,52 +2694,52 @@ If not, another station will be created</source>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="527"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="827"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="841"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="855"/>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="869"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="830"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="844"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="858"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="872"/>
         <source>Rainfall name</source>
         <translation>降雨量名稱</translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="883"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="886"/>
         <source>IDF group name</source>
         <translation>IDF 分組名稱</translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="895"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="898"/>
         <source>Return period</source>
         <translation>重現期</translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="898"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="901"/>
         <source>Descriprition</source>
         <translation>描述</translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="900"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="903"/>
         <source>Add new Intensity Duration Curve</source>
         <translation>增加新強度延時曲線</translation>
     </message>
     <message>
-        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="951"/>
+        <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="954"/>
         <source>Remove: %1</source>
         <translation>移除: %1</translation>
     </message>
     <message>
         <location filename="../src/ui/reosrainfallmanager.ui"/>
         <source>Back</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished">返回</translation>
     </message>
     <message>
         <location filename="../src/ui/reosrainfallmanager.ui"/>
         <source>Add</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished">新增</translation>
     </message>
     <message>
         <location filename="../src/ui/reosrainfallmanager.ui"/>
         <source>Add Copy</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished">新增複製</translation>
     </message>
 </context>
 <context>
@@ -2914,17 +2913,17 @@ If not, another station will be created</source>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="54"/>
         <source>Gauged Hydrographs</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished">測站歷線</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="55"/>
         <source>Other Meteo Model</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="73"/>
         <source>Result hydrograph</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="81"/>
@@ -2972,7 +2971,7 @@ If not, another station will be created</source>
     <message>
         <location filename="../src/ui/reosrunoffhydrographwidget.ui"/>
         <source>Constant time step</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2980,7 +2979,7 @@ If not, another station will be created</source>
     <message>
         <location filename="../src/core/hydrograph/reoshydrograph.cpp" line="226"/>
         <source>%1 hydrograph</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3172,22 +3171,22 @@ is applied on the rainfall</source>
 <context>
     <name>ReosSerieRainfall</name>
     <message>
-        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="451"/>
+        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="453"/>
         <source>mm</source>
         <translation>mm</translation>
     </message>
     <message>
-        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="452"/>
+        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="454"/>
         <source>Height per time step</source>
         <translation>最大時間間距</translation>
     </message>
     <message>
-        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="453"/>
+        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="455"/>
         <source>Total height</source>
         <translation>最高</translation>
     </message>
     <message>
-        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="454"/>
+        <location filename="../src/core/rainfall/reossyntheticrainfall.cpp" line="456"/>
         <source>Rainfall intensity</source>
         <translation>降雨強度</translation>
     </message>
@@ -3197,32 +3196,32 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="657"/>
         <source>Set Position on Map</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="658"/>
         <source>Move Position on Map</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="659"/>
         <source>Remove Position on Map</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="660"/>
         <source>Move Map on Station Position</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="689"/>
         <source>Remove spatial position of a rainfall station</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="690"/>
         <source>Do you want to remove the spatial position of the station?</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3259,8 +3258,8 @@ is applied on the rainfall</source>
 <context>
     <name>ReosTimeSerie</name>
     <message>
-        <location filename="../src/core/data/reostimeserie.cpp" line="703"/>
-        <location filename="../src/core/data/reostimeserie.cpp" line="827"/>
+        <location filename="../src/core/data/reostimeserie.cpp" line="704"/>
+        <location filename="../src/core/data/reostimeserie.cpp" line="828"/>
         <source>Reference time</source>
         <translation>參考時間</translation>
     </message>
@@ -3269,13 +3268,13 @@ is applied on the rainfall</source>
     <name>ReosTimeSerieConstantInterval</name>
     <message>
         <location filename="../src/core/data/reostimeserie.cpp" line="264"/>
-        <location filename="../src/core/data/reostimeserie.cpp" line="528"/>
+        <location filename="../src/core/data/reostimeserie.cpp" line="522"/>
         <location filename="../src/core/data/reostimeserie.cpp" line="538"/>
         <source>Time step</source>
         <translation>時間間距</translation>
     </message>
     <message>
-        <location filename="../src/core/data/reostimeserie.cpp" line="684"/>
+        <location filename="../src/core/data/reostimeserie.cpp" line="685"/>
         <source>Intensity (%1/%2)</source>
         <translation>強度（％1 /％2）</translation>
     </message>
@@ -3338,45 +3337,53 @@ is applied on the rainfall</source>
     <message numerus="yes">
         <location filename="../src/gui/form/reostableview.cpp" line="101"/>
         <source>Delete %n selected rows</source>
-        <translation type="unfinished"><numerusform></numerusform></translation>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <location filename="../src/gui/form/reostableview.cpp" line="108"/>
         <source>Insert %n rows</source>
-        <translation type="unfinished"><numerusform></numerusform></translation>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <location filename="../src/gui/form/reostableview.cpp" line="119"/>
         <source>Insert %n rows from clipboard</source>
-        <translation type="unfinished"><numerusform></numerusform></translation>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <location filename="../src/gui/form/reostableview.cpp" line="129"/>
         <source>Paste %n rows from clipboard</source>
-        <translation type="unfinished"><numerusform></numerusform></translation>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../src/gui/form/reostableview.cpp" line="140"/>
         <source>Copy selected values</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished">複製選擇數值</translation>
     </message>
     <message>
         <location filename="../src/gui/form/reostableview.cpp" line="145"/>
         <source>Copy selected values with headers</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished">複製選擇數值包含檔頭</translation>
     </message>
 </context>
 <context>
     <name>ReosTimeSerieVariableTimeStepModel</name>
     <message>
-        <location filename="../src/core/data/reostimeserie.cpp" line="1384"/>
+        <location filename="../src/core/data/reostimeserie.cpp" line="1385"/>
         <source>Time</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished">時間</translation>
     </message>
     <message>
-        <location filename="../src/core/data/reostimeserie.cpp" line="1386"/>
+        <location filename="../src/core/data/reostimeserie.cpp" line="1387"/>
         <source>Relative time</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3384,7 +3391,7 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/gui/watershed/reosrunoffhydrographwidget.cpp" line="1138"/>
         <source>Time</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished">時間</translation>
     </message>
 </context>
 <context>
@@ -3392,7 +3399,7 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/gui/data/reostimeseriesvariabletimestepreadonlymodel.cpp" line="111"/>
         <source>Time</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished">時間</translation>
     </message>
 </context>
 <context>
@@ -3400,12 +3407,12 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/gui/data/reostimeseriesvariabletimestepreadonlymodel.cpp" line="322"/>
         <source>Copy selected values</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished">複製選擇數值</translation>
     </message>
     <message>
         <location filename="../src/gui/data/reostimeseriesvariabletimestepreadonlymodel.cpp" line="327"/>
         <source>Copy selected values with headers</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished">複製選擇數值包含檔頭</translation>
     </message>
 </context>
 <context>
@@ -3450,19 +3457,19 @@ is applied on the rainfall</source>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="1081"/>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="1180"/>
         <source>K parameter</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="1082"/>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="1181"/>
         <source>n parameter</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="1083"/>
         <location filename="../src/core/watershed/reostransferfunction.cpp" line="1182"/>
         <source>Use concentration time for K parameter (K=tc/n)</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3534,7 +3541,7 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/gui/reosversionmessagebox.cpp" line="111"/>
         <source>Unable to check new version.</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3632,27 +3639,27 @@ is applied on the rainfall</source>
         <translation>擷取數值高程</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="402"/>
+        <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="403"/>
         <source>Filling digital elevation model</source>
         <translation>數值高程模型填平</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="415"/>
+        <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="419"/>
         <source>Calculating direction</source>
         <translation>計算流向</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="448"/>
+        <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="454"/>
         <source>Delineate watershed</source>
         <translation>偵測集水區</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="469"/>
+        <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="475"/>
         <source>Polygonize watershed</source>
         <translation>向量化集水區</translation>
     </message>
     <message>
-        <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="484"/>
+        <location filename="../src/core/watershed/reoswatersheddelineating.cpp" line="490"/>
         <source>Trace stream line</source>
         <translation>追蹤流向線段</translation>
     </message>
@@ -3662,7 +3669,7 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="585"/>
         <source>Watershed</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished">集水區</translation>
     </message>
 </context>
 <context>
@@ -3670,7 +3677,7 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/gui/hydrograph/reosgaugedhydrographwidget.cpp" line="396"/>
         <source>Watershed Gauged Hydrograph</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3754,7 +3761,7 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="43"/>
         <source>Gauged hydrograph</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished">測站歷線</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="45"/>
@@ -3799,12 +3806,12 @@ is applied on the rainfall</source>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="401"/>
         <source>Remove Watershed Hydraulic Node</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="402"/>
         <source>This will permanently remove the hydraulic node %1. Do you want to proceed? </source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="428"/>
@@ -3826,7 +3833,7 @@ is applied on the rainfall</source>
         <source>This %1 associated with this %2 has already a hydraulic watershed node linked with.
 
 It is not possible to have hydraulic watershed node for both downstream watershed and associated residual watershed</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="540"/>
@@ -3846,7 +3853,7 @@ It is not possible to have hydraulic watershed node for both downstream watershe
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="575"/>
         <source>Remove Watershed from Network</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reoswatershedwidget.cpp" line="580"/>
