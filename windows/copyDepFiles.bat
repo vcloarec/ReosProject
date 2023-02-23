@@ -20,6 +20,13 @@ for /f "tokens=*" %%i in (%REOS_SOURCE%\windows\osgeo_dependencies_bin.txt) DO (
 rem QGIS resources
 robocopy %QGIS_SRC%\resources %REOS_INSTALL%\resources /E /S /NFL /NDL /NJH /NJS /nc /ns /np /Xd "%QGIS_SRC%\resources\opencl_programs" "%QGIS_SRC%\resources\server" "%QGIS_SRC%\resources\themes" "%QGIS_SRC%\resources\metadata-ISO" "%QGIS_SRC%\resources\data"
 
+rem QGIS translation files
+copy /v /y %QGIS_BUILT%\i18n\qgis_en_US.qm %REOS_INSTALL%\i18n\qgis_en_US.qm
+copy /v /y %QGIS_BUILT%\i18n\qgis_fr.qm %REOS_INSTALL%\i18n\qgis_fr.qm
+copy /v /y %QGIS_BUILT%\i18n\qgis_it.qm %REOS_INSTALL%\i18n\qgis_it.qm
+copy /v /y %QGIS_BUILT%\i18n\qgis_pt.qm %REOS_INSTALL%\i18n\qgis_pt.qm
+copy /v /y %QGIS_BUILT%\i18n\qgis_es.qm %REOS_INSTALL%\i18n\qgis_es.qm
+
 robocopy %REOS_SOURCE%\windows\apps %REOS_INSTALL%\apps /E /S /NFL /NDL /NJH /NJS /nc /ns /np
 copy /v /y %REOS_SOURCE%\package\dem.qml %REOS_INSTALL%\resources\dem.qml
 

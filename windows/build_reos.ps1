@@ -112,6 +112,6 @@ Write-Host "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!      Unable to Install Reos"
 	exit $LastExitCode
 	}
 
-& "$env:REOS_SOURCE\windows\copyBin.bat"
+& "$env:REOS_SOURCE\windows\copyDepFiles.bat"
 
 exit 0
