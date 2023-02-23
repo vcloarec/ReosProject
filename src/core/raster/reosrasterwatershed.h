@@ -225,6 +225,7 @@ class REOSCORE_EXPORT ReosRasterWatershedTraceDownstream: public ReosProcess
 
 class REOSCORE_EXPORT ReosRasterAverageValueInPolygon: public ReosProcess
 {
+    Q_OBJECT
   public:
     ReosRasterAverageValueInPolygon( const ReosRasterMemory<float> &entryRaster,
                                      ReosRasterExtent &rasterExtent,

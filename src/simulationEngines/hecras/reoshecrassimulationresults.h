@@ -34,6 +34,8 @@ struct CacheDataset
 
 class ReosHecRasSimulationResults : public ReosHydraulicSimulationResults
 {
+    Q_OBJECT
+
   public:
     ReosHecRasSimulationResults( const ReosHecRasSimulation *simulation, ReosMesh *mesh, QObject *parent );
     ~ReosHecRasSimulationResults();

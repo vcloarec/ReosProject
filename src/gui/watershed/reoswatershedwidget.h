@@ -142,7 +142,7 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
 
 class REOSGUI_EXPORT ReosWatershedDockWidget: public ReosDockWidget
 {
-
+    Q_OBJECT
   public:
     ReosWatershedDockWidget( const ReosGuiContext &context, ReosWatershedModule *module, ReosHydraulicNetwork *hydraulicNetwork = nullptr );;
 

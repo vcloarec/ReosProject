@@ -50,6 +50,7 @@
 
 class CoordinatesWidget: public QWidget
 {
+    Q_OBJECT
   public:
     CoordinatesWidget( QwtPlot *plot )
       : QWidget( plot->canvas() )

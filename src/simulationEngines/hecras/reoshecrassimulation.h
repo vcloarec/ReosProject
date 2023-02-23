@@ -27,6 +27,7 @@ class ReosHecRasStructureImporterSource;
 
 class ReosHecRasSimulationProcess: public ReosSimulationProcess
 {
+    Q_OBJECT
   public:
     ReosHecRasSimulationProcess(
       const ReosHecRasProject &hecRasProject,

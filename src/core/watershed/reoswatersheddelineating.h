@@ -31,6 +31,7 @@ class ReosWatershedTree;
 
 class ReosWatershedDelineatingProcess: public ReosProcess
 {
+    Q_OBJECT
   public:
     ReosWatershedDelineatingProcess( ReosDigitalElevationModel *dem,
                                      const ReosMapExtent &mapExtent,

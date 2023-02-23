@@ -34,6 +34,7 @@ class ReosColorShaderSettings;
 
 class ReosMeshScalarRenderingWidget: public ReosStackedPageWidget
 {
+    Q_OBJECT
   public:
     ReosMeshScalarRenderingWidget( ReosColorShaderSettings *settings, const ReosGuiContext &guiContext );
     ~ReosMeshScalarRenderingWidget();

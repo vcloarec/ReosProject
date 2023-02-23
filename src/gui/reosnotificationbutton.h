@@ -24,6 +24,7 @@
 
 class REOSGUI_EXPORT ReosNotificationButton : public QToolButton
 {
+    Q_OBJECT
   public:
     ReosNotificationButton( QWidget *parent );
     void setMessage( const ReosModule::Message &message );

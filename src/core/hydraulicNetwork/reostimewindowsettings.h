@@ -21,6 +21,7 @@
 
 class REOSCORE_EXPORT ReosTimeWindowSettings : public ReosDataObject
 {
+    Q_OBJECT
   public:
     enum OffsetOrigin
     {

@@ -27,6 +27,7 @@
 
 class ReosGribGriddedRainfallProvider : public ReosGriddedRainfallProvider
 {
+    Q_OBJECT
   public:
     ReosGribGriddedRainfallProvider();
 

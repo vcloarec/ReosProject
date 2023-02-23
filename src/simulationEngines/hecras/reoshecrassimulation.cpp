@@ -190,7 +190,7 @@ QList<ReosHydraulicSimulation *> ReosHecRasStructureImporter::createSimulations(
 {
   QList<ReosHydraulicSimulation *> ret;
   std::unique_ptr<ReosHecRasSimulation> sim( new ReosHecRasSimulation( parent ) );
-  sim->setName( sim->tr( "HECRAS Simulation" ) );
+  sim->setName( QObject::tr( "HECRAS Simulation" ) );
 
   QStringList schemeNameToKeep;
 

@@ -28,6 +28,7 @@ class ReosRainfallItem;
 //! Singleton class that register and handle data related to rainfall
 class REOSCORE_EXPORT ReosRainfallRegistery: public ReosModule
 {
+    Q_OBJECT
   public:
 
     static void instantiate( ReosModule *parentModule = nullptr );

@@ -9,6 +9,7 @@ class ReosHydraulicStructure2DProperties;
 
 class REOSGUI_EXPORT ReosStructure2dToolBar : public QToolBar
 {
+    Q_OBJECT
   public:
     explicit ReosStructure2dToolBar( QWidget *parent = nullptr );
 
