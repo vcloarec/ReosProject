@@ -14,7 +14,7 @@ endlocal
 echo "/////////////////////////////////////////////////////////////////////////////////"
 echo "                               Tests in independant PATH (almost)                "
 echo "/////////////////////////////////////////////////////////////////////////////////"
-rem For tests we still use the QT dependencies binaries of OSGEO, because, for now no way to make it works without 
+rem For tests we still use the Qt dependencies binaries of OSGEO, because for now, no way to make it works without 
 rem The Qt binaries are copied after tests.
 setlocal
 set PATH=%WINDIR%\system32;%WINDIR%\system32\WindowsPowerShell\v1.0;%WINDIR%;%WINDIR%\system32\WBem;%CMAKE_PATH%
@@ -26,7 +26,7 @@ ctest -C %BUILD_TYPE% -VV --output-on-failure
 if %ERRORLEVEL% NEQ 0 exit %ERRORLEVEL%
 endlocal
 
-rem Now we copy Qt binaries
+rem Now we copy Qt files
 for /f "tokens=*" %%i in (%REOS_SOURCE%\windows\qt_dependencies_bin.txt) DO (
     xcopy /S/E "%OSGEO4W_ROOT%\apps\Qt5\bin\%%i" "%REOS_INSTALL%\bin\")
     
@@ -35,6 +35,10 @@ xcopy /S/E %OSGEO4W_ROOT%\apps\Qt5\plugins\platforms\qwindows.dll %REOS_INSTALL%
 robocopy %OSGEO4W_ROOT%\apps\Qt5\plugins\renderers %REOS_INSTALL%\bin\plugins\renderers /E /S /NFL /NDL /NJH /NJS /nc /ns /np
 xcopy /S/E %OSGEO4W_ROOT%\apps\Qt5\plugins\iconengines\*.* %REOS_INSTALL%\bin\iconengines\
 xcopy /S/E %OSGEO4W_ROOT%\apps\Qt5\plugins\styles\qwindowsvistastyle.dll %REOS_INSTALL%\bin\styles\
+copy /v /y %OSGEO4W_ROOT%\apps\Qt5\translations\qtbase_fr.qm %REOS_INSTALL%\i18n\qtbase_fr.qm
+copy /v /y %OSGEO4W_ROOT%\apps\Qt5\translations\qtbase_it.qm %REOS_INSTALL%\i18n\qtbase_it.qm
+copy /v /y %OSGEO4W_ROOT%\apps\Qt5\translations\qtbase_es.qm %REOS_INSTALL%\i18n\qtbase_es.qm
+copy /v /y %OSGEO4W_ROOT%\apps\Qt5\translations\qtbase_fr.qm %REOS_INSTALL%\i18n\qtbase_fr.qm
 
 echo "///////////////////// Test launch Lekan application, start it and wait 30s
 start %REOS_INSTALL%\bin\Lekan.exe test
